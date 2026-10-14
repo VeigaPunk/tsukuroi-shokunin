@@ -912,6 +912,62 @@ STUB
   printf 1 > "$FX/journal-err.rc"
   check 'blocked: journal err stream unreadable' 2 BLOCKED '^PLANE journal: BLOCKED .*err stream unreadable'
 
+  # ---- round-5 mutation hardening (lane S5-1, 2026-10-14): one case per survivor class
+  # from the census-v2 mutation sweep (tameshi's mutate-and-run.sh, 23 single-edit
+  # defects, first pass 13 killed / 10 survived — the label suffixes name the defect
+  # each case kills): D02 empty local db, D05 nonroot-artifact count, D06 bounded sample
+  # size, D09 unreadable timer Result, D10 scope state degraded, D12 missing /dev node,
+  # D14/D15 driver class counts, D19 unreadable PCI inventory, D20 journal timer plane.
+  case_home='blocked-empty-pkgdb'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  : > "$FX/pq"
+  check 'blocked: empty local db is not a pass (D02)' 2 BLOCKED \
+    '^PLANE packages: BLOCKED .*pacman -Qq listed no packages'
+
+  case_home='healthy-nonroot-artifact'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'warning: alpha: /boot/amd-ucode.img (Permission denied)\nalpha: 10 total files, 0 altered files\nbeta: 20 total files, 0 altered files\n' > "$FX/qkk.out"
+  printf 1 > "$FX/qkk.rc"
+  check 'healthy: privilege artifacts counted, not drift (D05)' 0 HEALTHY \
+    '^PLANE packages: HEALTHY .*drift=0 backup_diffs=0 nonroot_artifacts=1'
+
+  case_home='healthy-sample-bound'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  EXTRA_ENV=(TSUKUROI_SAMPLE_N=2)
+  check 'healthy: bounded -Qkk sample honors its size (D06)' 0 HEALTHY \
+    '^PLANE packages: HEALTHY .*sample=2\(alpha,beta\)'
+
+  case_home='degraded-timer-unknown'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  : > "$FX/timerresult"
+  check 'degraded: empty timer Result is an unknown, not a failure (D09)' 1 DEGRADED \
+    '^PLANE systemd: DEGRADED .*timer_fail=0 timer_unknown=1'
+
+  case_home='degraded-scope'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'degraded\n' > "$FX/sysrunning"
+  printf 1 > "$FX/sysrunning.rc"
+  check 'degraded: user scope state degraded (D10)' 1 DEGRADED \
+    '^PLANE systemd: DEGRADED .*state=degraded'
+
+  case_home='blocked-no-node'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  mkdir -p "$FX/pci/0000:01:00.0"; printf '0x10de\n' > "$FX/pci/0000:01:00.0/vendor"
+  printf 'NVIDIA GeForce RTX 5070, 610.57.04\n' > "$FX/smi.out"; printf 0 > "$FX/smi.rc"
+  printf 'nvidia 12345678 42\n' > "$FX/lsmod"
+  check 'blocked: nvidia module loaded but no /dev node (D12)' 2 BLOCKED \
+    '^PLANE drivers: BLOCKED .*no /dev/nvidia\* node'
+
+  case_home='degraded-kerr-classes'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 0 > "$FX/dmesg.rc"
+  printf 'Out of memory: Killed process 42\nBuffer I/O error on dev sr0\nNVRM: Xid 13: graphics fault\nfixture: unattributed kernel error\n' > "$FX/dmesg.out"
+  check 'degraded: kernel ring class counts are evidence (D14/D15)' 1 DEGRADED \
+    '^PLANE drivers: DEGRADED .*kerr=4 \(oom=1 io=1 gpu=1 other=1\)'
+
+  case_home='blocked-pci-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  EXTRA_ENV=(TSUKUROI_PCI_SYSFS="$FX/no-pci-inventory")
+  check 'blocked: unreadable PCI inventory is not a pass (D19)' 2 BLOCKED \
+    '^PLANE drivers: BLOCKED .*PCI inventory unreadable'
+
+  case_home='degraded-jrn-timer-plane'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 1 > "$FX/timerlist.rc"
+  check 'degraded: journal timer plane unreadable, drift unknown (D20)' 2 BLOCKED \
+    '^PLANE journal: DEGRADED .*timer plane unreadable \[drift unknown\]'
+
   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
   [ "$FAIL" -eq 0 ]

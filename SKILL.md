@@ -542,3 +542,166 @@ gates stay verdicts, not invitations; cross-domain findings are reported, never 
 - Pre-existing pendings above remain (LOG entry owed; round-2 wave-1 errata merge; the
   v1 md5-prefix transcription candidate `:429` — v2 supersedes the pin, the candidate
   stays visible).
+
+## Round-5 append — own-gate mutation kill-rate + hardening + drift semantics (TSUKUROI-S5-3)
+
+Dispatch frame: `plans/round-5.plan.md:3-11` — axis adjacency (a sibling's craft: tameshi's
+mutation method, applied to this lane's own gate) + freshness (the timer-drift plane). This
+append lands the round's two measured products in the playbook — the own-gate kill-rate +
+hardening (TSUKUROI-S5-1; hardened gate landed in-tree 2026-10-14 14:06:30 -03) and the
+drift-class semantics (TSUKUROI-S5-2; note landed 14:09:15 -03) — and **supersedes the census
+revision pins above** with an identity-checked new revision. Arrival receipts: this seat's
+watchers `/tmp/w5-tsukuroi-s53-{poll,watch}.log` (tsukuroi tree, window 14:01:47–14:11 -03:
+exactly one tool change + one new corpus note); no other lane artifact moved in the window.
+
+### Own-gate mutation — two revisions, never conflated (TSUKUROI-S5-1)
+
+Method: tameshi's runner on fresh `/tmp` copies of the gate, suite `bash "$MUTANT" --selftest`;
+per-defect verdicts KILLED (suite exit ≠ 0) / SURVIVED (exit 0) / INCONCLUSIVE (124/126/127);
+the target is never written — sha256 before/after is the restore proof
+(`tameshi-shokunin/tools/mutate-and-run.sh:16-21,60`). Tool pin: r4-2, md5
+`26a27d352690e64b2396a4aabaf4ddf6` (1001 lines), sha256 `597e141989065e03…331b`. Anti-claim
+(fit) resolved as **fit, not gap**: the gate's `--selftest` satisfies the suite contract
+(rc 0/1 + printed case count), so the manual fallback was not needed
+(`plans/round-5-record-draft.md` §1, fit-check bullet — the draft is a moving artifact, so
+section refs replace line anchors; at this append's last look `:61-69`).
+
+**Swept revision — the table's pin.** census-v2 (`VERSION='census-v2'`,
+`tools/tsukuroi-census.sh:142`) at sha256 `084951be50bcbfee…09c78c5` / md5
+`41953ee9f2099281c91759249fe8708f`, 976 lines / 44 947 B — the revision pinned by the
+round-3 block above. Suite 26 cases, control GREEN (exit 0). 23 pre-registered single-edit
+defects; expectations written before the run (`/tmp/w5-S5-1-work/{spec-census-v2.spec,
+manifest.md}`, ephemeral scratch). Executed headline (`/tmp/w5-S5-1-work/sweep1.log:319`):
+
+```
+MUTATE: DONE (target=tsukuroi-census-census-v2 defects=23 killed=13 survived=10 inconclusive=0 kill-rate=57%)
+```
+
+`MUTATE_RESTORE: OK` (sha256 before = after = pristine `084951be…`) — the sweep ran read-only
+on the pinned bytes. 13 killed / 10 survived → 13/23 = 56.5 % (tool prints integer 57 %).
+
+The 10 survivors sit in three miss classes [observed from the manifest's `because` column;
+class membership is a reading — inference]:
+- **fail-closed arms with no fixture** — D02 empty local db (`-Qq` lists nothing), D19
+  unreadable PCI inventory, D20 journal timer plane unreadable;
+- **counts never asserted nonzero / exact** — D05 privilege-artifact count, D14/D15 kernel-ring
+  class counts (`other` absorbing io/gpu; narrowed OOM regex);
+- **boundary / unknown semantics** — D06 bounded `-Qkk` sample size, D09 empty timer `Result`
+  (rc=0) read as non-unknown, D10 scope state `degraded`, D12 module loaded but no
+  `/dev/nvidia*` node.
+
+**Hardening ledger (same round, landed in-tree).** One new selftest case per survivor class —
+D14+D15 die to one class-counts case — 9 new cases, block `tools/tsukuroi-census.sh:915-970`;
+each label carries the defect it kills (`:923,929,934,939,945,952,958,963,968`; block comment
+`:915-920` names the sweep). Case count 26 → **35** (`grep -c "check '"` = 35).
+
+**Hardened revision — what lands.** md5 `e9327046b05b5c71e07fe511ad7e82dd`, sha256
+`aae45531fc393579…207df6`, 1032 lines (`wc -l`) / 48 410 B (banner still `census-v2` — identity
+is by hash, not by version string). Executed receipts: selftest rc=0,
+`TSUKUROI_CENSUS_SELFTEST: PASS (35 cases, 35 passed, 0 failed)`; the same 23 defects re-swept
+(`/tmp/w5-S5-1-work/sweep2.log:175`):
+
+```
+MUTATE: DONE (target=tsukuroi-census-hardened defects=23 killed=23 survived=0 inconclusive=0 kill-rate=100%)
+```
+
+`MUTATE_RESTORE: OK` (sha `aae45531…` before = after = pristine).
+
+Adjudication rules kept for re-use: killed = suite red **and** the full case count still
+enumerated (exit-only is insufficient); survived = green at the same count — a finding, never a
+footnote; inconclusive excluded from the rate and named beside it; kill-rate =
+killed/(killed+survived); bands are a report convention, not a gate
+(`plans/round-5-record-draft.md` §4, adjudication — `:278-280` in the draft revision seen;
+moving artifact). A survivor judged equivalent code is a calibration
+item, not a gap.
+
+**Identity check (replaces the round-3 pin's `md5sum` line).** `md5sum tools/tsukuroi-census.sh`
+= `e9327046b05b5c71e07fe511ad7e82dd` (sha256 `aae45531…`, 1032 lines, 48 410 B) is the current
+pinned revision; a mismatch means the gate has drifted from this append — **stop and re-measure**
+before trusting any census rule here. This supersedes the 976-line / `41953ee9…` / 26-case pins
+above (rounds 2-3), as the round-3 block superseded v1.
+
+Own receipts (this seat, read-only, 2026-10-14T17:08Z): selftest rc=0 (line above) and live
+`TSUKUROI_CENSUS: DEGRADED` rc=1 — plane lines byte-identical to the 17:02:02Z scribe capture
+(`/tmp/w5-tsukuroi-s53-evidence/{selftest,live}.out`; ephemeral). Zero host mutation.
+
+### Drift semantics — the timer plane (TSUKUROI-S5-2, `corpus/knowledge/timer-drift-plane.md`)
+
+Note identity (at append time): 332 lines (`wc -l`), 25 990 B, md5
+`fc0760c8070c9387ff5334f0f8c645cc` (mtime 14:11:57 -03; the note moved twice during this
+append — 14:09:15 / `d26babc6…` and 14:11:23 / `e0eb297a…` revisions, see Errata). Scope:
+**user-scope enabled timers**
+(the set the gate's arm reads); system scope stays `journal-boot-plane.md:259-303`.
+
+**Selector realization — "enabled timers" is ambiguous; state the selector.** Literal
+`systemctl --user list-unit-files --type=timer --state=enabled` = **1** row (`ai-usage.timer`);
+the user-scope inventory closes at 3 unit files (the other two disabled, no
+`timers.target.wants` symlink — that, not the `PRESET` column, is why they never run). System
+scope holds 5 active timers — a different plane (`timer-drift-plane.md:21-26,47-68,203-217`).
+
+**The gate's `timer_drift` means UNARMED, not schedule drift.** Arm 5 scans each enabled user
+timer's `ActiveState` and counts "not `active`"; an unreadable probe →
+`timer_unknown` → DEGRADED (`tools/tsukuroi-census.sh:94-97,594-621`). A live `timer_drift=0`
+says "every scanned enabled timer is armed" — nothing about its schedule
+(`timer-drift-plane.md:243-252`).
+
+**Drift = interval vs the unit's declared window, never a wall-clock grid.** For the one
+enabled timer: P = `OnUnitActiveSec` = 300 s, A = `AccuracySec` = 10 s, `RandomizedDelayUSec=0`,
+no `OnCalendar` ⇒ the promise is an interval `[P, P+A]`; the timer is monotonic-only
+(`NextElapseUSecRealtime` empty, `NEXT` prints `-`). Rules, each from a measurement:
+- Compare Δ against **P + A** (+50 ms tolerance), never P: the mode is the window's upper edge
+  (1 847 / 2 095 = 88.2 % in `[309.98, 310.02]`); exact `Δ == 310.0` matched 6 / 2 100 — use a
+  band, never float equality.
+- `NextElapseUSecMonotonic` is the window's **lower bound** (`LastTrigger + P`, measured to
+  1 ms over three cycles); fires land up to +A later (+2.55 s, +7.44 s, modal +10.000 s) ⇒ a
+  NEXT-vs-wall gap ≤ A is **not drift** — do not "fix" it.
+- Pair starts **inside one `_BOOT_ID`**; the 8 boot-boundary gaps (302.6 s … 10 939.0 s) are
+  downtime, not drift; `Persistent=true` is inert without `OnCalendar` (no catch-up).
+- `NextElapseUSecMonotonic=infinity` alone is **not dead** — transient while the target runs
+  mid-cycle (measured; restored within 30 s). Dead = infinity **and** empty `LastTriggerUSec`
+  **and** `ActiveState≠active` (the shape the two disabled timers show).
+- Trigger→activation latency (~0.6–0.7 ms here) is a **fault** channel (seconds = queued job),
+  not a drift channel; run time does not stretch the interval (runtime matters only against
+  `TimeoutStartSec`).
+
+Interval history (9 boots, cut at the 14:07:18 fire): 2 109 starts → 2 100 within-boot
+intervals; **on-schedule 2 095** (300.0035–310.0093 s), **early/re-arm 5** (each with a named
+cause: first-activation + manager-start re-arms, two 10-11 upgrade-phase fires, the 13:06→13:11
+manager replacement / round-4 E1 session restart), **late 0** (class defined, unobserved on
+this host).
+
+The full class table — `on-schedule` · `not drift` · `early — re-arm (by design)` · `early —
+environmental re-arm` · `early — external [unk]` · `late (unobserved)` · `dead (unarmed)` ·
+`transient` · `fires into a failing target` · `downtime` · `suspend (counterfactual)` — each
+with its read-only verify command and operator action: `corpus/knowledge/timer-drift-plane.md:170-191`;
+the non-window intervals' cause table `:193-201`; recheck command set `:270-306`. Census-hook
+status: the gate detects the dead class only; adding `LastTriggerUSec` / `AccuracyUSec` /
+`NextElapseUSecMonotonic` + the two-clock comparison is a **proposal, not applied**
+(`timer-drift-plane.md:243-252`) — nothing in this append changes the gate.
+
+### Errata / pending — round 5 (append)
+
+- 2026-10-14 — **census revision supersession** recorded above: the 26-case / md5 `41953ee9…` /
+  976-line pins in the round-2/3 blocks are superseded by the 35-case / md5 `e9327046…` /
+  1 032-line hardened revision; both stay visible. Executor checklist step 2 ("26 cases") is
+  superseded to `PASS (35 cases, 35 passed, 0 failed)`; its other steps still hold.
+- 2026-10-14 — **S5-1's sweep note had not landed** in `corpus/knowledge/` at this append's
+  write time (14:11 -03): the ledger above cites the landed tool plus the sweep's own scratch
+  (`/tmp/w5-S5-1-work/…`, ephemeral) and the record-draft skeleton
+  (`plans/round-5-record-draft.md` §4). When the note lands, the round record productizes
+  the citation; the sweep is not to be re-measured from memory.
+- 2026-10-14 — **dependencies moved while this append was written** (recorded, not smoothed):
+  S5-2's note was re-cut twice (14:09:15 / `d26babc6…` → 14:11:23 / `e0eb297a…` → 14:11:57 /
+  `fc0760c8…`; the cut move took the history to 2 100 intervals / on-schedule 2 095 / band
+  88.2 %, and corrected two fire wall-instants so the offset reads +2.55 s, not +2.56 s), and
+  the record draft grew past this append's first line anchors (hence § refs above). The
+  superseded figures stay visible here; the drift section carries the latest revision — re-hash
+  and re-read the note before quoting.
+- 2026-10-14 — **two-author sweeps of one artifact**: tameshi's round-5 plan sweeps this same
+  gate as its third cross-author case (`tameshi-shokunin/plans/round-5.plan.md`). Two
+  independent sweeps of one file = two pins, cited separately, never merged (record draft §1
+  cross-lane note — `:70-78` in the revision seen); both pins must cite committed bytes.
+- Carried (unchanged): root `-Qkk` delta; `offline.db` coverage; round-2 wave-1 errata merge
+  into the round-1 blocks; v1 census md5-prefix transcription candidate `:429`; literal
+  `source:`/`verified-at:`/`recheck:` keys; `corpus/lessons/round-1.md`; the "20-min cap" item
+  (owner: integrator; `executor-test-sufficiency.md` §7 U1).
