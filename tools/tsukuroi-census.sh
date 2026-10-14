@@ -25,6 +25,26 @@
 # §8 C1-C6) become live evidence on the drivers line and fold into its verdict. The four
 # plane ids and the rollup line keep their shape (the arm rides `drivers`), so every
 # pre-round-7 consumer of the census format reads the fields it read before.
+# Round-9 addition (lane S9-1): the update-safety plane — the fifth owned surface, carried by
+# notes since round 1 and by `plans/round-7.plan.md` claim (a) since round 7 without an
+# executable presence — becomes an executed plane: a fifth `PLANE update-safety` line and a
+# fifth term in the rollup parenthetical. Both are format changes for consumers (4 -> 5 plane
+# lines; `update-safety=<verdict>` appended to the rollup); the verdict vocabulary, the exit
+# map and the worst-plane rule are unchanged, and the plane carries its own arm word inside
+# the note exactly as the memory-pressure arm does. VERSION stays `census-v2`: it is the
+# revision identity quoted by SKILL.md and LOG.md, arms and the mem plane have ridden it since
+# round 7, and a bump is the note seat's call — recorded here, not silently applied.
+# Round-9 addition (lane S9-2): the oom plane — the kill-event watch. `plans/round-8.plan.md`
+# (claim (a)/(b)) specified the OOM/kill-event watch as the census's next plane line and the
+# `PLANE oom` emitter never landed (the S8-4 round-8 record draft: claim (a)/(b) "are not in
+# the landed gate at this append's write time"; `memory-arm-ver-s8.md` D3 reads the same pin).
+# This lands the watch: a fifth (now sixth with S9-1's update-safety plane) `PLANE oom` line
+# and a matching rollup term, carrying the memory-arm findings as census output. The
+# `drivers.mem` arm is untouched (double-count precedent, round 3): the arm reads THIS boot
+# at entry level and folds into the drivers verdict; this plane reads the whole retained
+# window, clusters the event list by minute, and compares it against the declared waves —
+# cross-boot state the arm does not keep. VERSION stays `census-v2` (revision identity
+# quoted by SKILL.md/LOG.md; a bump is the note seat's call — recorded, not silently applied).
 #
 # Verdict vocabulary (SKILL.md:22-31): HEALTHY | DEGRADED | BLOCKED, never a scalar.
 #   HEALTHY   every probe of the plane returned the pass value
@@ -138,6 +158,38 @@
 #             (the census keeps no state); "new vs baseline" is the class-presence
 #             reading plus the note's per-round recheck ledger.
 #
+#   oom (kill-event watch — the retained window, new-vs-baseline; round 9, lane S9-2,
+#   detection-only, read-only; the round-8 plan's specified-not-landed claim (a))
+#     probe   window: `journalctl --list-boots` — boot count and the date bounds of the
+#             retained journal. C1: kernel OOM family over the whole window, server-side
+#             `--grep`, entry-level count with `-- Boot <id> --` separators counted out (a
+#             whole-journal grep prints one per scanned boot — the counting trap).
+#             C2/C3: the event list over the window (attribution messages; kill9/teardown
+#             class) clustered by minute — a bare count is a trap (event A's kernel family is
+#             3 lines, one event). ledger: `/proc/vmstat oom_kill`, the kernel's own kill
+#             counter (F1's discriminator), shape-only.
+#     pass    window measured (>=1 boot), every scan readable, every observed cluster known
+#             to the declared baseline, no declared wave lost inside the window, baseline
+#             readable, ledger readable
+#     degrade a cluster not in the baseline (named `new`), a declared wave inside the window
+#             that is not observed (named `missing` — unexplained loss of declared evidence),
+#             an absent/unreadable baseline (never HEALTHY off a missing baseline), or an
+#             unreadable ledger (named `unknown`)
+#     block   `journalctl --list-boots` unreadable or 0 boots (an empty scan is only a pass
+#             when the window itself is measured), or any window scan rc outside {0,1} (the
+#             watch cannot be assessed at all — fails closed, same stance as the other arms)
+#     note    baseline = the declared waves as an embedded snapshot (`R8_OOM_BASELINE`, rows
+#             `<date> <HH:MM> <id> <class> <note>`; the two measured waves A/B from the
+#             round-6 note re-measured by round 8, `kill-event-deep-r8.md` §1 F1-F3), external
+#             file via `TSUKUROI_OOM_BASELINE` — the round-7 foreign-watch mechanism, one
+#             mechanism two readers; `out_of_window=N` is retention loss, a coverage fact,
+#             never a health fact. Reading rules printed, never adjudicated (round-8
+#             findings): counters are presence flags, never event counts; `memory.peak` /
+#             `swap.peak` are lifetime maxima and are not datable to a kill (F5); `Started
+#             app-*.scope` counts launches, never live units (F6); the 13:10:59 slice notice
+#             carries both readings (late report of the 23:44:30 kill | session-SIGKILL
+#             attribution) and both stay carried (H1-H3). First live run of the landed
+#             revision is quoted in the round record, never here from memory.
 #   journal (this-boot triage — SKILL.md:43 row; all probes read-only)
 #     probe   arm 1 boot record: `journalctl --list-boots --no-pager` (index-0 line must exist)
 #             arm 2 boot target: `systemctl is-active $BOOT_TARGET` (default graphical.target)
@@ -172,6 +224,65 @@
 #             snapshot only (counts drift with the live coredump storm: 249 at 14:48, 251 at
 #             14:51); re-run, never quote as now.
 #
+#   update-safety (the fifth plane — round 9, lane S9-1; finished from the measured model, not
+#   re-designed: claim (a) `plans/round-7.plan.md:53-98`, arm vocabulary and composition
+#   `SKILL.md:358-368`, the r2 §7 decision table `update-safety-note.md:334-381`, the class ×
+#   update-path reading `update-safety-v2.md` / `-v3.md`. Detection and recommendation only:
+#   PROVINCE.md:16-17 — nothing here refreshes, downloads, installs or writes.)
+#     probe   channel reading: repo `*.db` under $PACMAN_DB/sync — births (`stat -c %W`) and
+#             content stamps (`stat -c %Y` = the db file's mtime, upstream's own file stamp
+#             preserved at download). `offline.db` is NOT a channel (it is the offline-exile
+#             preservation archive; its 2026-07-20 stamp would drag an age it does not own) —
+#             it is reported separately.
+#             candidates: `pacman -Qu` UNPIPED (rc 1 + 0 lines = empty; rc 0 + n>0 lines =
+#             candidates; any other shape = unreadable, never INERT — the pipeline-rc trap)
+#             cross-checked against the plan verb `pacman -Sup --print-format '%r/%n %v'`;
+#             disagreement keeps the larger count (fail closed).
+#             third reading: the repo-side version join — `pacman -Sl`, first occurrence per
+#             name = pacman's own repo order (the r2 note's last-wins `expac` trap, `:403-411`,
+#             is why first-wins), `vercmp` for direction; `expac -S` cross-checks it when
+#             present, and `expac=absent` / `join=unavailable` are printed — never a silent pass.
+#             fold: the SAME-process packages-arm reading (`pacman -Qm` vs the accepted
+#             baseline; never re-probed here) joined against the r6 register's rows
+#             (`aur-risk-plane.md` §1: 14 offline-exile / 2 aur-local).
+#             log: bounded tail (TSUKUROI_LOG_TAIL_N) for the last command class and the last
+#             refresh-class command inside that window (`none-in-window` is a statement about
+#             the window, never about the host).
+#             trap: `pacman -Suu --print-format` (verb-level DO-NOT row).
+#     pass    INERT — both candidate probes read empty AND the channel reading is present and
+#             not stale. `PASS` is never emitted: an empty candidate set is INERT by the r2
+#             table's own row 2, so the word is carried in the vocabulary only.
+#     degrade REQUIRES-PREP (candidates > 0, or a `behind` row from the join) and
+#             UNKNOWN-UPSTREAM (the oldest channel content stamp older than
+#             TSUKUROI_CHANNEL_MAX_AGE_D, default 7 d — the r2 table's row 1 arm, "empty proves
+#             nothing newer than the snapshot" — or a stamp whose age cannot be measured); plus
+#             the fold's rows: a `new` foreign arrival prints `unknown-provenance=[…]` and an
+#             absent/unreadable baseline prints `classes=unavailable` — both degrade, never a pass.
+#     block   pacman missing, db.lck present, `-Qu` or `-Sup` unreadable, or no repo db in
+#             `sync/` — an empty candidate set over no channel cannot be told apart from an
+#             up-to-date one (same fail-closed stance as the memory arm)
+#     note    mapping to the gate verdict is RECORDED here, not silently applied: BLOCKED ->
+#             BLOCKED; UNKNOWN-UPSTREAM / REQUIRES-PREP -> DEGRADED; INERT -> HEALTHY; the fold
+#             can only worsen (`worse`), never lift a BLOCKED probe. The `-Suu` trap row, the
+#             `offline.db` row and the log rows are printed and verdict-neutral (DO-NOT stays
+#             verb-level note content, `plans/round-7.plan.md:95-97`). Every arm word carries
+#             its firing rows so a non-author can re-derive it (r2 note `:338-339`).
+#             Live reading, executed 2026-10-14T20:07Z and 20:08Z (two runs, byte-identical,
+#             rc=1; the line is quoted from the run, not from a plan): `status=UNKNOWN-UPSTREAM;
+#             pending=none; qu=rc=1/0; sup=0; join=equal=1171 behind=0 ahead=1 src=sl+expac;
+#             expac=agree; chan=dbs=4 fetch=3d stamp=36d; offline.db=present(stamp=85d birth=10d);
+#             log=cmd=-S@2026-10-13T16:37:58-0300; refresh=none-in-window(last 300 lines);
+#             classes=offline-exile:14,aur-local:2; trap=-Suu:1[omarchy/1password-beta
+#             8.12.42_32.BETA-1]` -> the plane is DEGRADED: 36 d of channel lag is the named
+#             unknown, the candidate set is empty and the `-Suu` trap row is printed without
+#             raising the verdict. Counts drift, re-run; the join reproduces the v3 note's
+#             measured `equal=1171 behind=0 ahead=1` the same day.
+#             Cost: the plane's probes measure `-Qu` 0.11 s, `-Sup` 0.29 s, `-Suu` 0.29 s,
+#             `-Q` 0.01 s, `-Sl` 0.11 s, `expac -S` 0.11 s (single pass each, 2026-10-14) and the
+#             whole-gate live run is 2.24–2.25 s over two runs — the recorded 0.69–1.75 s band
+#             belonged to the four-plane gate and moved with this plane; recorded here rather
+#             than trimmed by dropping a probe.
+#
 # Read-only guarantee: no probe writes; the gate creates no files at all in live mode
 # (selftest writes only under a mktemp dir named /tmp/tsukuroi-r3-2-selftest.XXXXXX).
 # Secrets are never read: only public package/system unit/driver/journal state is queried.
@@ -189,6 +300,12 @@
 #   TSUKUROI_BOOT_TARGET TSUKUROI_SAMPLE_N TSUKUROI_TIMER_SCAN_MAX TSUKUROI_FIXTURE (selftest only)
 #   TSUKUROI_CGROUP_ROOT TSUKUROI_MEM_SLICE TSUKUROI_PRESSURE_FILE TSUKUROI_MEMINFO_FILE
 #   (the memory-pressure arm's paths; the arm itself has no other host read)
+#   TSUKUROI_VMSTAT_FILE TSUKUROI_OOM_BASELINE (the oom watch: kernel-kill ledger path;
+#   external declared-wave baseline; empty/unset = the embedded r8 snapshot)
+#   TSUKUROI_PACMAN_LOG TSUKUROI_OFFLINE_DB TSUKUROI_EXPAC TSUKUROI_VERCMP
+#   TSUKUROI_CHANNEL_MAX_AGE_D TSUKUROI_LOG_TAIL_N (the update-safety plane's seams). The
+#   channel stamp is the fixture db file's own mtime — settable with `touch -d` — so the
+#   stale-channel case is executed against a real probe, not asserted vacuous.
 #
 # Sources: PROVINCE.md:5-12,16-18 · SKILL.md:20-31 (vocabulary), :33-45 (decision table incl.
 # the journal/boot row), :47-83 (Qkk benign classes), :85-135 (update-safety checklist),
@@ -196,7 +313,10 @@
 # corpus/knowledge/package-state-plane.md, systemd-user-plane.md (§5-6 err classes + coredump
 # census, §8 method traps), driver-firmware-plane.md · plans/round-2.plan.md:3-9 ·
 # plans/round-3.plan.md:3-11 · plans/round-6-record-draft.md §4 (baseline contract) ·
-# corpus/knowledge/aur-risk-plane.md §1 (the 16 baseline rows and their classes).
+# corpus/knowledge/aur-risk-plane.md §1 (the 16 baseline rows and their classes) ·
+# plans/round-7.plan.md:53-98 (the unlanded claim (a) this plane finishes) ·
+# corpus/knowledge/update-safety-note.md:334-381 (r2 §7 arms + the 36 d content-stamp row) ·
+# update-safety-v2.md / update-safety-v3.md (class × update-path, the `-Suu` measured trap).
 set -euo pipefail
 umask 077
 
@@ -224,7 +344,17 @@ CGROUP_ROOT=${TSUKUROI_CGROUP_ROOT:-/sys/fs/cgroup}
 MEM_SLICE=${TSUKUROI_MEM_SLICE:-user.slice/user-1000.slice}
 PRESSURE_FILE=${TSUKUROI_PRESSURE_FILE:-/proc/pressure/memory}
 MEMINFO_FILE=${TSUKUROI_MEMINFO_FILE:-/proc/meminfo}
+VMSTAT_FILE=${TSUKUROI_VMSTAT_FILE:-/proc/vmstat}
+OOM_BASELINE=${TSUKUROI_OOM_BASELINE:-}
 FOREIGN_BASELINE=${TSUKUROI_FOREIGN_BASELINE:-}
+PACMAN_LOG=${TSUKUROI_PACMAN_LOG:-/var/log/pacman.log}
+OFFLINE_DB=${TSUKUROI_OFFLINE_DB:-$PACMAN_DB/sync/offline.db}
+EXPAC=${TSUKUROI_EXPAC:-expac}
+VERCMP=${TSUKUROI_VERCMP:-vercmp}
+CHANNEL_MAX_AGE_D=${TSUKUROI_CHANNEL_MAX_AGE_D:-7}
+LOG_TAIL_N=${TSUKUROI_LOG_TAIL_N:-300}
+CHANNEL_ARCHIVE='offline.db'   # the offline-exile preservation archive, not a channel
+EXPAC_FMT=$'%n\t%v'
 
 # Accepted foreign baseline — the round-6 census snapshot (live `foreign=16` at round 6,
 # 2026-10-14; re-measured live before landing this arm and byte-identical, so the snapshot
@@ -252,6 +382,18 @@ elephant-websearch 2.21.0-1
 obsidian-cli-inspector 1.0.3-1
 omarchy-walker 1.0.0-2'
 
+# Declared OOM/kill-event waves — the round-8 embedded-snapshot baseline (the round-7
+# foreign-watch mechanism, one mechanism two readers). Rows `<date> <HH:MM> <id> <class>
+# <note>`, from the round-6 note's two waves re-measured by round 8 (`kill-event-deep-r8.md`
+# §1 F1-F3): A = 2026-10-13 23:44 kernel OOM (victim python3, pid 1732581); B =
+# 2026-10-14 13:10 session-teardown SIGKILL class, no kernel record (F1). The operator/register
+# owns the rows (append-only); this gate owns the comparison and never auto-extends its own
+# baseline. TSUKUROI_OOM_BASELINE may point at an external file of the same row shape;
+# unset or empty = this snapshot. The selftest hit-case pins this constant's two rows so an
+# edit to it cannot pass silently.
+R8_OOM_BASELINE='2026-10-13 23:44 A kernel+attrib+kill9 event A: global OOM, victim python3 (pid 1732581)
+2026-10-14 13:10 B attrib+kill9 event B: session teardown SIGKILL class, no kernel record (F1)'
+
 CLASS_OOM='Out of memory|oom-kill|oom_reaper'
 CLASS_IO='I/O error|Buffer I/O error|critical medium error|critical target error'
 CLASS_GPU='NVRM|nvidia|NVIDIA|GSP|drm'
@@ -259,24 +401,52 @@ CLASS_FAILED='Failed to |entered failed state|Failed with result'
 CLASS_OOM_SYS='kernel OOM killer killed some processes'
 CLASS_SIGKILL="status=9/KILL|Failed with result '(signal|oom-kill)'"
 
+# The r6 register's per-package classes (corpus/knowledge/aur-risk-plane.md §1: channel B
+# AUR-local = 2 rows, channel A offline-exile = 14 rows). The register owns the rows; this
+# gate owns the join against the SAME-process `pacman -Qm` reading. Rows are never re-guessed
+# here (the note's probe order is the register's), and the selftest pins this constant's
+# 16-row content so an edit to it cannot pass silently — same stance as R6_FOREIGN_BASELINE.
+R6_FOREIGN_CLASSES='android-apktool-bin aur-local
+obsidian-cli-inspector aur-local
+elephant offline-exile
+elephant-bluetooth offline-exile
+elephant-calc offline-exile
+elephant-clipboard offline-exile
+elephant-desktopapplications offline-exile
+elephant-files offline-exile
+elephant-menus offline-exile
+elephant-providerlist offline-exile
+elephant-runner offline-exile
+elephant-symbols offline-exile
+elephant-todo offline-exile
+elephant-unicode offline-exile
+elephant-websearch offline-exile
+omarchy-walker offline-exile'
+
 # ---- shared state ------------------------------------------------------------
 PKG_V=BLOCKED PKG_NOTE='probe not run'
 SYS_V=BLOCKED SYS_NOTE='probe not run'
 DRV_V=BLOCKED DRV_NOTE='probe not run'
 MEM_V=BLOCKED MEM_NOTE='arm not run'
 JRN_V=BLOCKED JRN_NOTE='probe not run'
+OOM_V=BLOCKED OOM_NOTE='probe not run'
+UPD_V=BLOCKED UPD_NOTE='probe not run'
+# published by probe_packages for the update-safety plane's fold (the same-process reading:
+# never re-probe `pacman -Qm`); PKG_FOREIGN_FOLD is not-run (arm returned before the fold) |
+# ok | qm-unreadable | baseline-absent | baseline-unreadable
+PKG_FOREIGN_LIVE='' PKG_FOREIGN_FOLD='not-run'
 
 usage() {
   cat <<'EOF'
 usage: tsukuroi-census.sh [--selftest] [--sample N] [--help]
 
   (no flags)   run the live read-only census over packages / systemd-user / drivers
-               (incl. the memory-pressure arm) / journal-boot
+               (incl. the memory-pressure arm) / journal-boot / update-safety / oom (kill-event watch)
   --selftest   hermetic fixture-tree test of every verdict arm (writes only under
                /tmp/tsukuroi-r3-2-selftest.*); exit 0 pass, 1 fail
   --sample N   packages plane: size of the pacman -Qkk sample (default 8)
 
-Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=..)
+Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
 Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2)
 EOF
 }
@@ -348,6 +518,12 @@ mem_field() { # mem_field FILE KEY -> second field of the first KEY row, or empt
   # (the trailing colon of /proc/meminfo keys is tolerated; cgroup keys have none)
   [ -r "$1" ] || return 0
   awk -v k="$2" '{ key = $1; sub(/:$/, "", key) } key == k { print $2; exit }' "$1" 2>/dev/null || true
+}
+
+oom_keys() { # oom_keys STDOUT -> sorted unique "YYYY-MM-DD HH:MM" event-cluster keys
+  # (short-iso-precise lines only; `-- Boot <id> --` separators are counted out)
+  printf '%s\n' "$1" | grep -v '^-- Boot' \
+    | grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}' | sed -E 's/T/ /' | sort -u || true
 }
 
 # ---- plane: packages ---------------------------------------------------------
@@ -466,6 +642,21 @@ probe_packages() {
     [ -n "$foreign_new" ] && fr_note="$fr_note new=[${foreign_new# }]"
     [ -n "$foreign_drift" ] && fr_note="$fr_note drift=[${foreign_drift# }]"
     [ -n "$foreign_gone" ] && fr_note="$fr_note gone=[${foreign_gone# }]"
+  fi
+
+  # publish the same-process reading for the update-safety plane's class fold (round 9,
+  # lane S9-1) — the fold joins these names against the register's classes; it never
+  # re-probes `pacman -Qm`. `${live_names:-}`: the name list is declared inside the fold
+  # block above, which does not run for an absent/unreadable baseline (set -u would abort).
+  PKG_FOREIGN_LIVE="${live_names:-}"
+  if [ "$foreign_rc" -ne 0 ]; then
+    PKG_FOREIGN_FOLD='qm-unreadable'
+  elif [ "$base_state" = absent ]; then
+    PKG_FOREIGN_FOLD='baseline-absent'
+  elif [ "$base_state" = unreadable ]; then
+    PKG_FOREIGN_FOLD='baseline-unreadable'
+  else
+    PKG_FOREIGN_FOLD='ok'
   fi
 
   local pins_n='?' pins_rc=0 pins_names='' holds='none'
@@ -802,6 +993,162 @@ probe_mem_arm() {
   return
 }
 
+# ---- plane: oom (the kill-event watch — round 8's specified-not-landed contract) ------------
+# Round-9 addition, lane S9-2. `plans/round-8.plan.md:57-115` specified the OOM/kill-event watch
+# as the census's next plane line; its memory-arm half landed in round 7 as `drivers.mem`, the
+# watch half did not (S8-4's round-8 record draft: claim (a)/(b) "are not in the landed gate").
+# This lands the watch — the memory-arm findings as census output — on the round-7
+# embedded-snapshot baseline mechanism, with `drivers.mem` untouched (double-count precedent,
+# round 3: the arm reads THIS boot at entry level and folds into the drivers verdict; this
+# plane reads the whole retained window, clusters the event list, and compares it against the
+# declared waves — cross-boot state the arm does not keep).
+#
+# Reading rules from the round-8 kill-event findings (`kill-event-deep-r8.md` §1 F1-F8),
+# printed, never adjudicated: counters are presence flags, never event counts (F3); peaks are
+# lifetime maxima, not datable to a kill (F5); launch counts are not live units (F6); the
+# 13:10:59 slice notice carries both readings (H1-H3). Fails closed: an unreadable window or
+# scan is BLOCKED, an absent baseline/new cluster/lost declared wave/unreadable ledger is
+# DEGRADED, never a fake pass. Nothing is written; no cgroup, unit or service is touched.
+probe_oom_plane() {
+  OOM_V=HEALTHY
+  local unk='' bad=''
+  local boots=0 win_first='-' win_last='-'
+  local k_n=0 k_kill=0 a_n=0 s_n=0
+  local a_out='' s_out=''
+  local clusters='' cjoin='' clist='' cluster_n=0
+  local base_txt='' base_state='' bjoin=''
+  local known=0 new_n=0 missing=0 oow=0
+  local known_ids='' new_keys='' miss_keys='' oow_keys=''
+  local ledger='-'
+
+  if ! have "$JOURNALCTL"; then
+    OOM_V=BLOCKED
+    OOM_NOTE='journalctl=missing (window cannot be read)'
+    return
+  fi
+
+  # window — measured, never assumed: boot count + retained date bounds from --list-boots.
+  # 0 boots (or an unreadable record) is BLOCKED — an empty scan is only a pass when the
+  # window itself is measured.
+  cap "$JOURNALCTL" --list-boots --no-pager
+  local lb_rc=$CAP_RC
+  if [ "$lb_rc" -ne 0 ]; then
+    OOM_V=BLOCKED
+    OOM_NOTE="window unreadable: journalctl --list-boots rc=$lb_rc [fails closed]"
+    return
+  fi
+  read -r boots win_first win_last < <(printf '%s\n' "$CAP_OUT" | awk '
+    NF && $1 ~ /^-?[0-9]+$/ { n++; if (n == 1) f = $4; l = $8 }
+    END { printf "%d %s %s\n", n + 0, (f == "" ? "-" : f), (l == "" ? "-" : l) }')
+  if [ "$boots" -lt 1 ] || [ "$win_first" = '-' ] || [ "$win_last" = '-' ]; then
+    OOM_V=BLOCKED
+    OOM_NOTE="window empty: boots=$boots [no boot measured; empty is not a clean window]"
+    return
+  fi
+
+  # C1 — kernel OOM family over the whole window (server-side --grep; entry-level count with
+  # `-- Boot <id> --` separators counted out). killed_process is the F1 discriminator.
+  cap "$JOURNALCTL" -k --grep "$CLASS_OOM" -o short-iso-precise --no-pager
+  case "$CAP_RC" in
+    0 | 1)
+      k_n=$(printf '%s\n' "$CAP_OUT" | grep -v '^-- Boot' | grep -c . || true)
+      k_kill=$(printf '%s\n' "$CAP_OUT" | grep -c 'Killed process' || true)
+      ;;
+    *) bad="${bad}C1 "; k_n='?' ;;
+  esac
+
+  # C2/C3 — the event list over the window (rc 1 = "0 entries", measured systemd 261; any
+  # other non-zero rc is unreadable and fails the plane closed). Clusters are minute keys:
+  # a bare line count is a trap (event A's 3 kernel lines are one event).
+  cap "$JOURNALCTL" --grep "$CLASS_OOM_SYS" -o short-iso-precise --no-pager
+  case "$CAP_RC" in
+    0 | 1) a_out=$CAP_OUT; a_n=$(printf '%s\n' "$a_out" | grep -v '^-- Boot' | grep -c . || true) ;;
+    *) bad="${bad}C2 "; a_n='?' ;;
+  esac
+  cap "$JOURNALCTL" --grep "$CLASS_SIGKILL" -o short-iso-precise --no-pager
+  case "$CAP_RC" in
+    0 | 1) s_out=$CAP_OUT; s_n=$(printf '%s\n' "$s_out" | grep -v '^-- Boot' | grep -c . || true) ;;
+    *) bad="${bad}C3 "; s_n='?' ;;
+  esac
+  clusters=$(oom_keys "$(printf '%s\n%s\n' "$a_out" "$s_out")")
+  if [ -n "$clusters" ]; then
+    cjoin=$(printf '%s\n' "$clusters" | paste -sd' ' -)
+    clist=$(printf '%s\n' "$clusters" | paste -sd, -)
+  fi
+  cluster_n=$(printf '%s\n' "$clusters" | grep -c . || true)
+
+  # baseline — embedded r8 snapshot by default, external file via override (round-7 pattern)
+  if [ -n "$OOM_BASELINE" ]; then
+    if [ -f "$OOM_BASELINE" ] && [ -r "$OOM_BASELINE" ]; then
+      base_txt=$(cat -- "$OOM_BASELINE" 2>/dev/null || true)
+      base_state="file($(nlines "$base_txt"))"
+    elif [ -e "$OOM_BASELINE" ]; then
+      base_state='unreadable'
+    else
+      base_state='absent'
+    fi
+  else
+    base_txt=$R8_OOM_BASELINE
+    base_state="r8($(nlines "$base_txt"))"
+  fi
+
+  if [ -n "$base_txt" ]; then
+    bjoin=$(printf '%s\n' "$base_txt" | awk 'NF >= 2 { printf "%s %s\n", $1, $2 }' | paste -sd' ' -)
+    local bd bt bid
+    while read -r bd bt bid _; do
+      case "$bd" in '' | '#'*) continue ;; esac
+      case " $cjoin " in
+        *" $bd $bt "*)
+          known=$((known + 1))
+          known_ids="${known_ids}${known_ids:+, }${bid:-?}"
+          ;;
+        *)
+          if [ "$bd" \< "$win_first" ] || [ "$bd" \> "$win_last" ]; then
+            oow=$((oow + 1))
+            oow_keys="${oow_keys}${oow_keys:+,}$bd $bt"
+          else
+            missing=$((missing + 1))
+            miss_keys="${miss_keys}${miss_keys:+,}$bd $bt"
+          fi
+          ;;
+      esac
+    done <<< "$base_txt"
+    local k
+    while read -r k; do
+      [ -n "$k" ] || continue
+      case " $bjoin " in
+        *" $k "*) : ;;
+        *) new_n=$((new_n + 1)); new_keys="${new_keys}${new_keys:+,}$k" ;;
+      esac
+    done <<< "$clusters"
+  fi
+
+  # ledger — the kernel's own kill counter (shape-only, never window-scoped)
+  ledger=$(mem_field "$VMSTAT_FILE" oom_kill)
+  case "$ledger" in '' | *[!0-9]*) ledger='-'; unk="${unk}ledger " ;; esac
+
+  # verdict — a window scan unreadable is BLOCKED (the watch cannot be assessed at all); an
+  # absent/unreadable baseline, a new cluster, a lost declared wave, or an unreadable ledger
+  # is DEGRADED; only a fully measured window with no delta reads HEALTHY.
+  if [ -n "$bad" ]; then
+    OOM_V=BLOCKED
+  elif [ "$base_state" = absent ] || [ "$base_state" = unreadable ] || [ "$new_n" -gt 0 ] \
+    || [ "$missing" -gt 0 ] || [ -n "$unk" ]; then
+    OOM_V=DEGRADED
+  fi
+
+  if [ "$base_state" = absent ] || [ "$base_state" = unreadable ]; then
+    OOM_NOTE="window=boots=$boots $win_first..$win_last; C1_kernel=$k_n killed_process=$k_kill; C2_events=$a_n C3_events=$s_n clusters=$cluster_n${clist:+[$clist]}; base=$base_state [known/new/missing/out_of_window unknown]"
+  else
+    OOM_NOTE="window=boots=$boots $win_first..$win_last; C1_kernel=$k_n killed_process=$k_kill; C2_events=$a_n C3_events=$s_n clusters=$cluster_n${clist:+[$clist]}; base=$base_state known=$known${known_ids:+[$known_ids]} new=$new_n${new_keys:+[$new_keys]} missing=$missing${miss_keys:+[$miss_keys]} out_of_window=$oow${oow_keys:+[$oow_keys]}"
+  fi
+  OOM_NOTE="$OOM_NOTE; ledger=vmstat.oom_kill=$ledger${unk:+; unknown=[${unk% }]}; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md §1"
+  if [ -n "$bad" ]; then
+    OOM_NOTE="scans unreadable:${bad% } [fails closed]; $OOM_NOTE"
+  fi
+  return 0
+}
+
 # ---- plane: journal / boot (this-boot triage) --------------------------------
 probe_journal() {
   JRN_V=HEALTHY
@@ -920,6 +1267,306 @@ probe_journal() {
   return
 }
 
+# ---- helper: repo-side version join ------------------------------------------
+version_join() { # stdin: installed name<TAB>version rows, a __MAP__ line, then repo-side
+  # name<TAB>version rows. stdout: one `D<TAB>name<TAB>installed<TAB>repo` line per
+  # version difference, then `S<TAB>equal<TAB>diff<TAB>installed_n`. First occurrence wins
+  # on the repo side (the caller feeds it in pacman's own repo order).
+  awk -F'\t' '
+    $0 == "__MAP__" { inmap = 1; next }
+    !inmap { if (NF >= 2) { inst[$1] = $2; n++ } ; next }
+    { if (!($1 in rv)) rv[$1] = $2 }
+    END {
+      e = 0; d = 0
+      for (k in inst) {
+        if (k in rv) {
+          if (rv[k] == inst[k]) e++
+          else { d++; print "D\t" k "\t" inst[k] "\t" rv[k] }
+        }
+      }
+      printf "S\t%d\t%d\t%d\n", e, d, n
+    }'
+}
+
+# ---- plane: update-safety (round 9, lane S9-1) --------------------------------
+# The fifth owned surface: what an `-Syu` would touch, and whether that question can be
+# answered read-only at all. Vocabulary and composition are the r2 note's (:334-339,
+# restated at SKILL.md:358-368): PASS · INERT · REQUIRES-PREP · BLOCKED · UNKNOWN-UPSTREAM ·
+# DO-NOT — strongest fired wins, BLOCKED > UNKNOWN-UPSTREAM > REQUIRES-PREP > INERT > PASS.
+# The composed word is printed as `status=` together with its firing rows, so a non-author
+# can re-derive it. Gate-verdict mapping (recorded in the header, not silently applied):
+# BLOCKED -> BLOCKED; UNKNOWN-UPSTREAM / REQUIRES-PREP -> DEGRADED; INERT -> HEALTHY; the
+# exposure fold can only worsen (`worse`), never lift a BLOCKED probe. Anti-claim: nothing
+# here mutates — `-Qu`, `-Sup`/`-Suu --print-format` (plan verbs), `-Q`, `-Sl`, `expac -S`,
+# `stat` and bounded log tail reads; no `-Sy`, no transaction, no download, no db write, no
+# AUR RPC, no external site (PROVINCE.md:16-17).
+probe_update_safety() {
+  UPD_V=HEALTHY
+  local now qu_rc=0 qu_n=0 qu_state='' sup_rc=0 sup_n=0 suu_rc=0 suu_n=0 suu_first=''
+  local cand=0 cand_names='' disagree='' status='' pend='none' trap_row=''
+  local sy_dir="$PACMAN_DB/sync" chan_n=0 fetch_d='?' stamp_d='?' stamp_unk='' chan_row=''
+  local f base mt_y b_ep oldest='' newest=''
+  local q_rc=0 sl_rc=0 equal=0 diff_unk=0 behind=0 ahead=0 behind_names=''
+  local join_row='' join_src='' expac_row='' m_join='' pair_out='' cl_out='' oe=0 au=0
+  local unk_names='' offline_row='' log_row='' refresh_row='' class_row='' dir=''
+
+  case "$CHANNEL_MAX_AGE_D" in '' | *[!0-9]*) CHANNEL_MAX_AGE_D=7 ;; esac
+
+  if ! have "$PACMAN"; then
+    UPD_V=BLOCKED
+    UPD_NOTE='status=BLOCKED; pacman=missing (probe cannot run)'
+    return
+  fi
+  if [ -e "$PACMAN_DB/db.lck" ]; then
+    UPD_V=BLOCKED
+    UPD_NOTE='status=BLOCKED; db.lck=present — interrupted transaction (SKILL.md:41,45)'
+    return
+  fi
+  now=$(date +%s)
+
+  # --- channel reading: repo dbs under $PACMAN_DB/sync. Birth = the local fetch instant
+  # (`%W`); content stamp = the db file's mtime (`%Y`), which is upstream's own file stamp
+  # preserved at download — the freshness that matters. offline.db is excluded: it is the
+  # offline-exile preservation archive, not a configured repo.
+  for f in "$sy_dir"/*.db; do
+    [ -e "$f" ] || continue
+    base=${f##*/}
+    [ "$base" = "$CHANNEL_ARCHIVE" ] && continue
+    chan_n=$((chan_n + 1))
+    mt_y=$(stat -c %Y -- "$f" 2>/dev/null || true)
+    case "$mt_y" in
+      '' | *[!0-9]*) stamp_unk="${stamp_unk}${base} " ;;
+      *) if [ -z "$oldest" ] || [ "$mt_y" -lt "$oldest" ]; then oldest=$mt_y; fi ;;
+    esac
+    b_ep=$(stat -c %W -- "$f" 2>/dev/null || true)
+    case "$b_ep" in
+      '' | 0 | - | *[!0-9]*) : ;;
+      *) if [ -z "$newest" ] || [ "$b_ep" -gt "$newest" ]; then newest=$b_ep; fi ;;
+    esac
+  done
+  [ -n "$oldest" ] && stamp_d=$(( (now - oldest) / 86400 ))
+  [ -n "$newest" ] && fetch_d=$(( (now - newest) / 86400 ))
+  if [ "$chan_n" -eq 0 ]; then
+    chan_row='dbs=0 [no repo *.db under sync/ — an empty candidate set cannot be told from an up-to-date one]'
+  else
+    chan_row="dbs=$chan_n fetch=${fetch_d}d stamp=${stamp_d}d"
+    [ -n "$stamp_unk" ] && chan_row="$chan_row stamp_unreadable=[${stamp_unk% }]"
+  fi
+
+  # --- candidate set: `-Qu` UNPIPED (rc/emptiness; any other shape = unreadable, never
+  # INERT — the pipeline-rc trap) cross-checked against the one allowed plan verb.
+  cap "$PACMAN" -Qu
+  qu_rc=$CAP_RC
+  qu_n=$(nlines "$CAP_OUT")
+  if [ "$qu_rc" -eq 1 ] && [ "$qu_n" -eq 0 ]; then
+    qu_state='empty'
+  elif [ "$qu_rc" -eq 0 ] && [ "$qu_n" -gt 0 ]; then
+    qu_state='cand'
+  else
+    qu_state='unreadable'
+  fi
+  if [ "$qu_state" = 'unreadable' ]; then
+    UPD_V=BLOCKED
+    UPD_NOTE="status=BLOCKED; qu=rc=$qu_rc/$qu_n [pacman -Qu unreadable — never INERT]; chan=$chan_row"
+    return
+  fi
+  if [ "$qu_state" = 'cand' ]; then
+    cand=$qu_n
+    cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 | awk '{print $1}' | paste -sd, -)
+  fi
+
+  cap "$PACMAN" -Sup --print-format '%r/%n %v'
+  sup_rc=$CAP_RC
+  if [ "$sup_rc" -ne 0 ]; then
+    UPD_V=BLOCKED
+    UPD_NOTE="status=BLOCKED; sup=rc=$sup_rc [pacman -Sup --print-format unreadable — candidate set not confirmable]; qu=rc=$qu_rc/$qu_n; chan=$chan_row"
+    return
+  fi
+  sup_n=$(nlines "$CAP_OUT")
+  if [ "$qu_state" = 'empty' ] && [ "$sup_n" -gt 0 ]; then
+    disagree=" disagree[qu=0 sup=$sup_n]"
+    cand=$sup_n
+    cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 \
+      | awk '{n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+  elif [ "$qu_state" = 'cand' ] && [ "$sup_n" -ne "$qu_n" ]; then
+    disagree=" disagree[qu=$qu_n sup=$sup_n]"
+    if [ "$sup_n" -gt "$cand" ]; then
+      cand=$sup_n
+      cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 \
+        | awk '{n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+    fi
+  fi
+
+  # --- trap row (verb-level DO-NOT; verdict-neutral — r2 table row 11, kept as note
+  # content by plans/round-7.plan.md:95-97).
+  cap "$PACMAN" -Suu --print-format '%r/%n %v'
+  suu_rc=$CAP_RC
+  if [ "$suu_rc" -eq 0 ]; then
+    suu_n=$(nlines "$CAP_OUT")
+    [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+    trap_row="-Suu:${suu_n}${suu_first:+[$suu_first]}"
+  else
+    trap_row="-Suu:unreadable(rc=$suu_rc)"
+  fi
+
+  # --- offline.db: presence/birth/stamp only; the fold's rows come from the register
+  if [ -e "$OFFLINE_DB" ]; then
+    local off_y off_b off_d off_bd
+    off_y=$(stat -c %Y -- "$OFFLINE_DB" 2>/dev/null || true)
+    off_b=$(stat -c %W -- "$OFFLINE_DB" 2>/dev/null || true)
+    case "$off_y" in '' | *[!0-9]*) off_d='?' ;; *) off_d="$(( (now - off_y) / 86400 ))d" ;; esac
+    case "$off_b" in '' | 0 | - | *[!0-9]*) off_bd='?' ;; *) off_bd="$(( (now - off_b) / 86400 ))d" ;; esac
+    offline_row="present(stamp=$off_d birth=$off_bd)"
+  else
+    offline_row='absent'
+  fi
+
+  # --- bounded log tail: the command class only. A window miss is printed, never smoothed
+  # into a claim about the host.
+  if [ -r "$PACMAN_LOG" ]; then
+    local tail_txt last_run l_ts l_cmd last_ref
+    tail_txt=$(tail -n "$LOG_TAIL_N" -- "$PACMAN_LOG" 2>/dev/null || true)
+    last_run=$(printf '%s\n' "$tail_txt" | grep -E "\[PACMAN\] Running '" | tail -n1 || true)
+    if [ -n "$last_run" ]; then
+      l_ts=$(printf '%s\n' "$last_run" | sed -nE 's/^\[([^]]+)\].*/\1/p')
+      l_cmd=$(printf '%s\n' "$last_run" | sed -nE "s/.*Running 'pacman ([^ ']+).*/\1/p")
+      log_row="cmd=${l_cmd:-?}@${l_ts:-?}"
+    else
+      log_row="cmd=unknown [window miss: no Running line in the last $LOG_TAIL_N lines]"
+    fi
+    last_ref=$(printf '%s\n' "$tail_txt" | grep -E "\[PACMAN\] Running 'pacman -S[^ ']*[yu]" | tail -n1 || true)
+    if [ -n "$last_ref" ]; then
+      refresh_row="$(printf '%s\n' "$last_ref" | sed -nE "s/.*Running 'pacman ([^ ']+).*/\1/p")@$(printf '%s\n' "$last_ref" | sed -nE 's/^\[([^]]+)\].*/\1/p')"
+    else
+      refresh_row="none-in-window(last $LOG_TAIL_N lines)"
+    fi
+  else
+    log_row='unreadable'
+    refresh_row='unreadable'
+  fi
+
+  # --- third reading: the repo-side version join. `pacman -Sl`, first occurrence per name
+  # = pacman's own repo order (the r2 note's last-wins `expac` trap, :403-411); `expac -S`
+  # cross-checks when present; `vercmp` gives direction. Absence is always printed.
+  cap "$PACMAN" -Q
+  q_rc=$CAP_RC
+  local q_live="$CAP_OUT"
+  cap "$PACMAN" -Sl
+  sl_rc=$CAP_RC
+  if [ "$q_rc" -ne 0 ] || [ "$sl_rc" -ne 0 ]; then
+    join_row="unavailable(q=rc=$q_rc sl=rc=$sl_rc)"
+    expac_row='n/a(join unavailable)'
+  else
+    m_join=$(printf '%s\n' "$CAP_OUT" | awk 'NF >= 3 && !seen[$2]++ { print $2 "\t" $3 }')
+    pair_out=$( { printf '%s\n' "$q_live" | awk 'NF >= 2 { print $1 "\t" $2 }'
+                  printf '__MAP__\n'
+                  printf '%s\n' "$m_join"; } | version_join )
+    local s_line
+    s_line=$(printf '%s\n' "$pair_out" | grep '^S' | tail -n1 || true)
+    equal=$(printf '%s' "$s_line" | cut -f2); equal=${equal:-0}
+    while IFS=$'\t' read -r tag dn dv rv; do
+      [ "$tag" = 'D' ] || continue
+      if have "$VERCMP"; then
+        dir=$("$VERCMP" "$dv" "$rv" 2>/dev/null || true)
+      else
+        dir='?'
+      fi
+      case "$dir" in
+        '-1') behind=$((behind + 1)); [ "$behind" -le 6 ] && behind_names="$behind_names $dn" ;;
+        '1') ahead=$((ahead + 1)) ;;
+        *) diff_unk=$((diff_unk + 1)) ;;
+      esac
+      [ "$((behind + ahead))" -ge 40 ] && break
+    done <<< "$pair_out"
+    if have "$EXPAC"; then
+      cap "$EXPAC" -S "$EXPAC_FMT"
+      if [ "$CAP_RC" -eq 0 ] && [ -n "$(printf '%s' "$CAP_OUT" | tr -d '[:space:]')" ]; then
+        local e_join e_out e_behind=0 e_ahead=0 e_unk=0
+        e_join=$(printf '%s\n' "$CAP_OUT" | awk -F'\t' 'NF >= 2 && !seen[$1]++ { print $1 "\t" $2 }')
+        e_out=$( { printf '%s\n' "$q_live" | awk 'NF >= 2 { print $1 "\t" $2 }'
+                   printf '__MAP__\n'
+                   printf '%s\n' "$e_join"; } | version_join )
+        while IFS=$'\t' read -r tag dn dv rv; do
+          [ "$tag" = 'D' ] || continue
+          if have "$VERCMP"; then
+            dir=$("$VERCMP" "$dv" "$rv" 2>/dev/null || true)
+          else
+            dir='?'
+          fi
+          case "$dir" in
+            '-1') e_behind=$((e_behind + 1)) ;;
+            '1') e_ahead=$((e_ahead + 1)) ;;
+            *) e_unk=$((e_unk + 1)) ;;
+          esac
+        done <<< "$e_out"
+        if [ "$e_unk" -gt 0 ]; then
+          expac_row='partial'
+        elif [ "$e_behind" -eq "$behind" ] && [ "$e_ahead" -eq "$ahead" ]; then
+          expac_row='agree'
+        else
+          expac_row="disagree(behind=$e_behind ahead=$e_ahead)"
+          [ "$e_behind" -gt "$behind" ] && behind=$e_behind
+        fi
+        join_src='sl+expac'
+      else
+        expac_row="rc=$CAP_RC"
+        join_src='sl'
+      fi
+    else
+      expac_row='absent'
+      join_src='sl'
+    fi
+    join_row="equal=$equal behind=$behind ahead=$ahead src=$join_src"
+    [ "$diff_unk" -gt 0 ] && join_row="$join_row diff_unclassifiable=$diff_unk"
+    [ -n "$behind_names" ] && join_row="$join_row behind_names=[${behind_names# }]"
+  fi
+
+  # --- risk-class fold (exposure only): the SAME-process `pacman -Qm` reading joined
+  # against the register's classes. An absent/unreadable baseline is never a pass.
+  if [ "$PKG_FOREIGN_FOLD" != 'ok' ]; then
+    class_row="unavailable(${PKG_FOREIGN_FOLD})"
+  else
+    if [ -n "$PKG_FOREIGN_LIVE" ]; then
+      cl_out=$(awk 'NR == FNR { if (NF >= 2) cls[$1] = $2; next } NF { if ($1 in cls) print cls[$1]; else print "?" $1 }' \
+        <(printf '%s\n' "$R6_FOREIGN_CLASSES") <(printf '%s\n' "$PKG_FOREIGN_LIVE" | tr ' ' '\n'))
+      oe=$(printf '%s\n' "$cl_out" | grep -c '^offline-exile$' || true)
+      au=$(printf '%s\n' "$cl_out" | grep -c '^aur-local$' || true)
+      unk_names=$(printf '%s\n' "$cl_out" | grep '^?' | sed 's/^?//' | head -n6 | paste -sd, - || true)
+    fi
+    class_row="offline-exile:$oe,aur-local:$au"
+    [ -n "$unk_names" ] && class_row="$class_row unknown-provenance=[$unk_names]"
+  fi
+
+  # --- composition (strongest fired arm wins) and the recorded verdict mapping
+  if [ "$chan_n" -eq 0 ]; then
+    status='BLOCKED'
+  elif [ -n "$stamp_unk" ] || [ "$stamp_d" = '?' ]; then
+    status='UNKNOWN-UPSTREAM'
+  elif [ "$stamp_d" -gt "$CHANNEL_MAX_AGE_D" ]; then
+    status='UNKNOWN-UPSTREAM'
+  elif [ "$cand" -gt 0 ] || [ "$behind" -gt 0 ]; then
+    status='REQUIRES-PREP'
+  else
+    status='INERT'
+  fi
+  if [ "$cand" -gt 0 ] || [ "$behind" -gt 0 ]; then
+    pend="REQUIRES-PREP(candidates=$cand join_behind=$behind${cand_names:+ names=[$cand_names]})"
+  fi
+
+  case "$status" in
+    BLOCKED) UPD_V=BLOCKED ;;
+    UNKNOWN-UPSTREAM | REQUIRES-PREP) UPD_V=DEGRADED ;;
+    INERT) UPD_V=HEALTHY ;;
+    *) UPD_V=DEGRADED ;;
+  esac
+  if [ "$PKG_FOREIGN_FOLD" != 'ok' ] || [ -n "$unk_names" ]; then
+    UPD_V=$(worse "$UPD_V" DEGRADED)
+  fi
+
+  UPD_NOTE="status=$status; pending=$pend; qu=rc=$qu_rc/$qu_n; sup=$sup_n$disagree; join=$join_row; expac=$expac_row; chan=$chan_row; offline.db=$offline_row; log=$log_row; refresh=$refresh_row; classes=$class_row; trap=$trap_row; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368"
+  return
+}
+
 # ---- hermetic selftest -------------------------------------------------------
 run_selftest() {
   local bin fx
@@ -941,10 +1588,21 @@ args="$*"
 case "$name" in
   pacman)
     case "${1:-}" in
+      -Q) out_of q; exit "$(rc_of q)" ;;
       -Qq) out_of pq; exit "$(rc_of pq)" ;;
       -Qm) out_of pm; exit "$(rc_of pm)" ;;
       -Qkk) out_of qkk.out; exit "$(rc_of qkk)" ;;
+      -Qu) out_of qu; exit "$(rc_of qu)" ;;
+      -Sup) out_of sup; exit "$(rc_of sup)" ;;
+      -Suu) out_of suu; exit "$(rc_of suu)" ;;
+      -Sl) out_of sl; exit "$(rc_of sl)" ;;
       *) printf 'fixture pacman: unexpected args: %s\n' "$args" >&2; exit 64 ;;
+    esac
+    ;;
+  expac)
+    case "${1:-}" in
+      -S) out_of expacsl; exit "$(rc_of expacsl)" ;;
+      *) printf 'fixture expac: unexpected args: %s\n' "$args" >&2; exit 64 ;;
     esac
     ;;
   pacman-conf) out_of pconf; exit "$(rc_of pconf)" ;;
@@ -967,6 +1625,15 @@ case "$name" in
     ;;
   journalctl)
     case "$args" in
+      *"-o short-iso-precise"*)
+        # oom watch window scans (lane S9-2; separate fixture files from the arm's -b scans)
+        case "$args" in
+          *--grep*oom_reaper*) out_of oomwin-kernel; exit "$(rc_of oomwin-kernel)" ;;
+          *--grep*"OOM killer"*) out_of oomwin-attrib; exit "$(rc_of oomwin-attrib)" ;;
+          *--grep*"status=9"*) out_of oomwin-sigkill; exit "$(rc_of oomwin-sigkill)" ;;
+          *) printf 'fixture journalctl: unexpected window args: %s\n' "$args" >&2; exit 64 ;;
+        esac
+        ;;
       *--grep*"OOM killer"*) out_of oom-attrib.json; exit "$(rc_of oom-attrib)" ;;
       *--grep*oom_reaper*) out_of oom-kernel.json; exit "$(rc_of oom-kernel)" ;;
       *--grep*"status=9"*) out_of oom-sigkill.json; exit "$(rc_of oom-sigkill)" ;;
@@ -984,7 +1651,7 @@ exit 96
 STUB
   chmod 700 "$bin/.dispatch"
   local c
-  for c in pacman pacman-conf systemctl dmesg journalctl nvidia-smi lsmod; do
+  for c in pacman pacman-conf systemctl dmesg journalctl nvidia-smi lsmod expac; do
     ln -s .dispatch "$bin/$c"
   done
 
@@ -1001,6 +1668,20 @@ STUB
     : > "$d/pm"
     : > "$d/fbase"
     : > "$d/pconf"
+    # update-safety plane fixture (S9-1): a fresh 2-db channel, an empty candidate set at the
+    # real `-Qu` rc (1 = none), the plan verbs empty, the joined sources agreeing, and a
+    # bounded log window holding one non-refresh command.
+    mkdir -p "$d/pacmandb/sync"
+    : > "$d/pacmandb/sync/core.db"
+    : > "$d/pacmandb/sync/omarchy.db"
+    : > "$d/pacmandb/sync/offline.db"
+    : > "$d/qu"; printf 1 > "$d/qu.rc"
+    : > "$d/sup"; printf 0 > "$d/sup.rc"
+    : > "$d/suu"; printf 0 > "$d/suu.rc"
+    printf 'alpha 1.0-1\nbeta 2.0-1\n' > "$d/q"
+    printf 'fixture alpha 1.0-1\nextra beta 2.0-1\n' > "$d/sl"
+    printf 'alpha\t1.0-1\nbeta\t2.0-1\n' > "$d/expacsl"
+    printf '%s\n' "[2026-10-13T16:37:58-0300] [PACMAN] Running 'pacman -S --needed --noconfirm fixture-pkg'" > "$d/pacman.log"
     printf 'HoldPkg = pacman glibc\n' > "$d/pacman.conf"
     printf 'running\n' > "$d/sysrunning"
     printf 0 > "$d/sysrunning.rc"
@@ -1054,6 +1735,14 @@ STUB
     : > "$d/oom-kernel.json"; printf 0 > "$d/oom-kernel.rc"
     : > "$d/oom-attrib.json"; printf 0 > "$d/oom-attrib.rc"
     : > "$d/oom-sigkill.json"; printf 0 > "$d/oom-sigkill.rc"
+    # oom watch fixture (S9-2): retained-window stubs — the boot list is the existing
+    # listboots fixture; the scans default to "0 entries" (rc 1, the measured --grep
+    # no-match semantics) and the kernel-kill ledger reads 0.
+    printf 'oom_kill 0\n' > "$d/vmstat"
+    : > "$d/obase"
+    : > "$d/oomwin-kernel"; printf 1 > "$d/oomwin-kernel.rc"
+    : > "$d/oomwin-attrib"; printf 1 > "$d/oomwin-attrib.rc"
+    : > "$d/oomwin-sigkill"; printf 1 > "$d/oomwin-sigkill.rc"
   }
 
   fx_hash() { find "$1" -type f -exec sha256sum {} + | LC_ALL=C sort | sha256sum | cut -d' ' -f1; }
@@ -1091,6 +1780,10 @@ STUB
       TSUKUROI_MEM_SLICE='user.slice/user-1000.slice' \
       TSUKUROI_PRESSURE_FILE="$FX/pressure/memory" \
       TSUKUROI_MEMINFO_FILE="$FX/meminfo" \
+      TSUKUROI_VMSTAT_FILE="$FX/vmstat" \
+      TSUKUROI_OOM_BASELINE="$FX/obase" \
+      TSUKUROI_PACMAN_LOG="$FX/pacman.log" \
+      TSUKUROI_EXPAC="$bin/expac" \
       "${EXTRA_ENV[@]}" \
       "$BASH" "$SELF" 2>&1)
     rc=$?
@@ -1251,7 +1944,7 @@ STUB
 
   case_home='healthy-journal'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
   check 'healthy: journal/boot plane in the rollup' 0 HEALTHY \
-    '^TSUKUROI_CENSUS: HEALTHY \(packages=HEALTHY systemd=HEALTHY drivers=HEALTHY journal=HEALTHY\)' \
+    '^TSUKUROI_CENSUS: HEALTHY \(packages=HEALTHY systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=HEALTHY( [a-z-]+=[A-Z]+)*\)' \
     '^PLANE journal: HEALTHY \(boots=2 current=yes target=graphical\.target:active err=0 \(coredump=0 kernel=0 other=0\); failedhist=0; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0\)'
 
   case_home='degraded-boot-errors'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
@@ -1406,6 +2099,184 @@ STUB
   check 'blocked: memory arm — no cgroup and no journal: no class readable (S7-2)' 2 BLOCKED \
     'mem=\[BLOCKED\]'
 
+  # ---- round 9 update-safety plane (lane S9-1): the fifth owned surface exercised — INERT
+  # over a live channel, candidates, an unreadable `-Qu`, no channel at all, a stale content
+  # stamp (and the threshold that flips it), both fold rows, the class-split pin, the `-Suu`
+  # trap row, the log window miss, the repo-side join, expac absence and an unreadable join.
+  # Vocabulary and composition: update-safety-note.md:334-339 (an empty candidate set is
+  # INERT only with a channel reading; unreadable probes are BLOCKED; the 36-day-class
+  # content stamp is UNKNOWN-UPSTREAM — never a clean bill).
+  case_home='healthy-update-safety'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  check 'healthy: update-safety INERT over a fresh channel (R9)' 0 HEALTHY \
+    '^PLANE update-safety: HEALTHY \(status=INERT; pending=none; qu=rc=1/0; sup=0; join=equal=2 behind=0 ahead=0 src=sl\+expac; expac=agree; chan=dbs=2 fetch=[0-9?]+d stamp=0d; offline\.db=present' \
+    'classes=offline-exile:0,aur-local:0; trap=-Suu:0' \
+    '^TSUKUROI_CENSUS: HEALTHY \(packages=HEALTHY systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=HEALTHY( [a-z-]+=[A-Z]+)*\)'
+
+  case_home='degraded-update-candidates'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'alpha 1.0-1 -> 1.1-1\nbeta 2.0-1 -> 2.1-1\n' > "$FX/qu"; printf 0 > "$FX/qu.rc"
+  printf 'fixture/alpha 1.1-1\nextra/beta 2.1-1\n' > "$FX/sup"
+  check 'degraded: update candidates are REQUIRES-PREP with names (R9)' 1 DEGRADED \
+    '^PLANE update-safety: DEGRADED \(status=REQUIRES-PREP; pending=REQUIRES-PREP\(candidates=2 join_behind=0 names=\[alpha,beta\]\); qu=rc=0/2; sup=2;'
+
+  case_home='blocked-update-qu'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 0 > "$FX/qu.rc"
+  check 'blocked: an empty -Qu at rc=0 is unreadable, never INERT (R9)' 2 BLOCKED \
+    '^PLANE update-safety: BLOCKED \(status=BLOCKED; qu=rc=0/0 \[pacman -Qu unreadable — never INERT\]; chan=dbs=2'
+
+  case_home='blocked-update-nochannel'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  rm -f "$FX/pacmandb/sync/core.db" "$FX/pacmandb/sync/omarchy.db"
+  check 'blocked: empty over no channel is not an up-to-date reading (R9)' 2 BLOCKED \
+    'status=BLOCKED; .*chan=dbs=0' 'offline\.db=present'
+
+  case_home='degraded-update-stale'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  touch -d "@$(( $(date +%s) - 30 * 86400 ))" "$FX/pacmandb/sync/core.db"
+  check 'degraded: a stale content stamp is UNKNOWN-UPSTREAM, never INERT (R9)' 1 DEGRADED \
+    'status=UNKNOWN-UPSTREAM; pending=none; .*chan=dbs=2 fetch=[0-9?]+d stamp=30d'
+
+  case_home='healthy-update-chanmax'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  touch -d "@$(( $(date +%s) - 30 * 86400 ))" "$FX/pacmandb/sync/core.db"
+  EXTRA_ENV=(TSUKUROI_CHANNEL_MAX_AGE_D=60)
+  check 'healthy: the channel-freshness threshold is honoured, not decorative (R9)' 0 HEALTHY \
+    'status=INERT; .*stamp=30d'
+
+  case_home='degraded-update-fold-new'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\nnew-tool-bin 4.2-1\n' "$r6base" > "$FX/pm"
+  printf '%s\n' "$r6base" > "$FX/fbase"
+  check 'degraded: the fold names unknown-provenance arrivals and can only worsen (R9)' 1 DEGRADED \
+    'status=INERT; .*classes=offline-exile:14,aur-local:2 unknown-provenance=\[new-tool-bin\]'
+
+  case_home='degraded-update-fold-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' "$r6base" > "$FX/pm"
+  EXTRA_ENV=(TSUKUROI_FOREIGN_BASELINE="$FX/fbase-absent")
+  check 'degraded: the fold never reads off a missing baseline (R9)' 1 DEGRADED \
+    'classes=unavailable\(baseline-absent\)'
+
+  case_home='healthy-update-split'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'android-apktool-bin 3.0.3-1\nobsidian-cli-inspector 1.0.3-1\n' > "$FX/pm"
+  printf 'android-apktool-bin 3.0.3-1\nobsidian-cli-inspector 1.0.3-1\n' > "$FX/fbase"
+  check 'healthy: the joined class split is the register AUR-local pair (R9)' 0 HEALTHY \
+    'classes=offline-exile:0,aur-local:2' '^PLANE update-safety: HEALTHY'
+
+  case_home='healthy-update-suu'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'omarchy/1password-beta 8.12.42_32.BETA-1\n' > "$FX/suu"
+  check 'healthy: the -Suu trap row is printed and verdict-neutral (R9)' 0 HEALTHY \
+    'trap=-Suu:1\[omarchy/1password-beta 8\.12\.42_32\.BETA-1\]'
+
+  case_home='healthy-update-log-miss'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '[2026-10-13T16:37:59-0300] [ALPM] installed fixture-pkg (1.0-1)\n' > "$FX/pacman.log"
+  check 'healthy: a log window miss prints cmd=unknown (R9)' 0 HEALTHY \
+    'log=cmd=unknown \[window miss' 'refresh=none-in-window'
+
+  case_home='degraded-update-join'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'fixture alpha 1.1-1\nextra beta 2.0-1\n' > "$FX/sl"
+  printf 'alpha\t1.1-1\nbeta\t2.0-1\n' > "$FX/expacsl"
+  check 'degraded: a repo-side behind row joins the candidate class (R9)' 1 DEGRADED \
+    'status=REQUIRES-PREP; pending=REQUIRES-PREP\(candidates=0 join_behind=1\); .*join=equal=1 behind=1 ahead=0 src=sl\+expac behind_names=\[alpha\]'
+
+  case_home='healthy-update-expac-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  EXTRA_ENV=(TSUKUROI_EXPAC="$bin/expac-absent")
+  check 'healthy: absent expac prints its absence, never a silent pass (R9)' 0 HEALTHY \
+    'join=equal=2 behind=0 ahead=0 src=sl; expac=absent'
+
+  case_home='healthy-update-join-unavailable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 1 > "$FX/sl.rc"
+  check 'healthy: an unreadable join is printed, never silent (R9)' 0 HEALTHY \
+    'join=unavailable\(q=rc=0 sl=rc=1\); expac=n/a\(join unavailable\)'
+
+  # ---- round 9 oom plane (lane S9-2): the round-8 specified-not-landed watch lands —
+  # retained window, event clusters, new-vs-baseline, fail-closed. The declared-wave
+  # literal is pinned here so an edit to the embedded constant cannot pass silently.
+  local r8oom
+  r8oom=$(printf '%s\n' \
+    '2026-10-13 23:44 A kernel+attrib+kill9 event A: global OOM, victim python3 (pid 1732581)' \
+    '2026-10-14 13:10 B attrib+kill9 event B: session teardown SIGKILL class, no kernel record (F1)')
+  if [ "$(printf '%s\n' "$r8oom" | wc -l)" -ne 2 ]; then
+    bad 'fixture: r8 oom baseline literal is not 2 rows'
+  fi
+
+  case_home='healthy-oom-clean'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  check 'healthy: oom watch clean over the retained window (S9-2)' 0 HEALTHY \
+    '^PLANE oom: HEALTHY \(window=boots=2 2026-10-11\.\.2026-10-14; C1_kernel=0 killed_process=0; C2_events=0 C3_events=0 clusters=0; base=file\(0\) known=0 new=0 missing=0 out_of_window=0; ledger=vmstat\.oom_kill=0'
+
+  case_home='healthy-oom-r8-baseline'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' \
+    '2026-10-13T23:44:30.574948-03:00 fixture-host systemd[1573]: app-x.scope: The kernel OOM killer killed some processes in this unit.' \
+    '2026-10-14T13:10:59.400591-03:00 fixture-host systemd[1]: user-1000.slice: The kernel OOM killer killed some processes in this unit.' \
+    > "$FX/oomwin-attrib"
+  printf 0 > "$FX/oomwin-attrib.rc"
+  printf '%s\n' \
+    '2026-10-14T13:10:59.380873-03:00 fixture-host systemd[1]: user@1000.service: Main process exited, code=killed, status=9/KILL' \
+    > "$FX/oomwin-sigkill"
+  printf 0 > "$FX/oomwin-sigkill.rc"
+  printf '%s\n' \
+    '2026-10-13T23:44:30.638238-03:00 fixture-host kernel: Out of memory: Killed process 1732581 (python3)' \
+    > "$FX/oomwin-kernel"
+  printf 0 > "$FX/oomwin-kernel.rc"
+  EXTRA_ENV=(TSUKUROI_OOM_BASELINE=)
+  check 'healthy: oom watch — embedded r8 baseline, both declared waves known (S9-2)' 0 HEALTHY \
+    '^PLANE oom: HEALTHY \(window=boots=2 .*C1_kernel=1 killed_process=1; C2_events=2 C3_events=1 clusters=2\[2026-10-13 23:44,2026-10-14 13:10\]; base=r8\(2\) known=2\[A, B\] new=0 missing=0 out_of_window=0'
+
+  case_home='healthy-oom-baseline-hit'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' "$r8oom" > "$FX/obase"
+  printf '%s\n' \
+    '2026-10-13T23:44:30.574948-03:00 fixture-host systemd[1573]: app-x.scope: The kernel OOM killer killed some processes in this unit.' \
+    > "$FX/oomwin-attrib"
+  printf 0 > "$FX/oomwin-attrib.rc"
+  printf '%s\n' \
+    '2026-10-14T13:10:59.380873-03:00 fixture-host systemd[1]: user@1000.service: Main process exited, code=killed, status=9/KILL' \
+    > "$FX/oomwin-sigkill"
+  printf 0 > "$FX/oomwin-sigkill.rc"
+  check 'healthy: oom watch — external baseline file, both waves known (S9-2)' 0 HEALTHY \
+    '^PLANE oom: HEALTHY .*base=file\(2\) known=2\[A, B\] new=0 missing=0 out_of_window=0'
+
+  case_home='degraded-oom-new'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '2026-10-13 23:44 A attrib+kill9 declared wave A\n' > "$FX/obase"
+  printf '%s\n' \
+    '2026-10-13T23:44:30.574948-03:00 fixture-host systemd[1573]: app-x.scope: The kernel OOM killer killed some processes in this unit.' \
+    '2026-10-12T09:15:11.000001-03:00 fixture-host systemd[1573]: app-y.scope: The kernel OOM killer killed some processes in this unit.' \
+    > "$FX/oomwin-attrib"
+  printf 0 > "$FX/oomwin-attrib.rc"
+  check 'degraded: oom watch — a cluster not in the baseline is new and named (S9-2)' 1 DEGRADED \
+    '^PLANE oom: DEGRADED .*base=file\(1\) known=1\[A\] new=1\[2026-10-12 09:15\] missing=0 out_of_window=0'
+
+  case_home='degraded-oom-missing'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' "$r8oom" > "$FX/obase"
+  printf '%s\n' \
+    '2026-10-13T23:44:30.574948-03:00 fixture-host systemd[1573]: app-x.scope: The kernel OOM killer killed some processes in this unit.' \
+    > "$FX/oomwin-attrib"
+  printf 0 > "$FX/oomwin-attrib.rc"
+  check 'degraded: oom watch — a declared wave missing inside the window (S9-2)' 1 DEGRADED \
+    '^PLANE oom: DEGRADED .*base=file\(2\) known=1\[A\] new=0 missing=1\[2026-10-14 13:10\] out_of_window=0'
+
+  case_home='healthy-oom-out-of-window'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '2026-09-30 02:00 Z attrib+kill9 older than the retained window\n' > "$FX/obase"
+  check 'healthy: oom watch — declared wave older than the window (retention loss only) (S9-2)' 0 HEALTHY \
+    '^PLANE oom: HEALTHY .*base=file\(1\) known=0 new=0 missing=0 out_of_window=1\[2026-09-30 02:00\]'
+
+  case_home='degraded-oom-baseline-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  EXTRA_ENV=(TSUKUROI_OOM_BASELINE="$FX/obase-absent")
+  check 'degraded: oom watch — absent baseline never reads HEALTHY (S9-2)' 1 DEGRADED \
+    '^PLANE oom: DEGRADED .*base=absent \[known/new/missing/out_of_window unknown\]'
+
+  case_home='degraded-oom-ledger'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  EXTRA_ENV=(TSUKUROI_VMSTAT_FILE="$FX/no-such-vmstat")
+  check 'degraded: oom watch — unreadable kernel-kill ledger is a named unknown (S9-2)' 1 DEGRADED \
+    '^PLANE oom: DEGRADED .*ledger=vmstat\.oom_kill=-; .*unknown=\[ledger\]'
+
+  case_home='blocked-oom-window'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 4 > "$FX/listboots.rc"
+  check 'blocked: oom watch — window unreadable (S9-2)' 2 BLOCKED \
+    '^PLANE oom: BLOCKED \(window unreadable: journalctl --list-boots rc=4'
+
+  case_home='blocked-oom-window-empty'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'IDX BOOT ID   FIRST ENTRY   LAST ENTRY\n' > "$FX/listboots"
+  check 'blocked: oom watch — no boot measured is not a clean window (S9-2)' 2 BLOCKED \
+    '^PLANE oom: BLOCKED \(window empty: boots=0'
+
+  case_home='blocked-oom-scan'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 3 > "$FX/oomwin-attrib.rc"
+  check 'blocked: oom watch — a window scan unreadable fails closed (S9-2)' 2 BLOCKED \
+    '^PLANE oom: BLOCKED \(scans unreadable:C2 \[fails closed\]; .*C2_events=\?'
   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
   [ "$FAIL" -eq 0 ]
@@ -1447,20 +2318,26 @@ main() {
   probe_mem_arm
   DRV_V=$(worse "$DRV_V" "$MEM_V")
   probe_journal
+  probe_update_safety
+  probe_oom_plane
 
   printf 'PLANE packages: %s (%s)\n' "$PKG_V" "$PKG_NOTE"
   printf 'PLANE systemd: %s (%s)\n' "$SYS_V" "$SYS_NOTE"
   printf 'PLANE drivers: %s (%s; mem=%s)\n' "$DRV_V" "$DRV_NOTE" "$MEM_NOTE"
   printf 'PLANE journal: %s (%s)\n' "$JRN_V" "$JRN_NOTE"
+  printf 'PLANE update-safety: %s (%s)\n' "$UPD_V" "$UPD_NOTE"
+  printf 'PLANE oom: %s (%s)\n' "$OOM_V" "$OOM_NOTE"
 
   local roll=HEALTHY
   roll=$(worse "$roll" "$PKG_V")
   roll=$(worse "$roll" "$SYS_V")
   roll=$(worse "$roll" "$DRV_V")
   roll=$(worse "$roll" "$JRN_V")
+  roll=$(worse "$roll" "$UPD_V")
+  roll=$(worse "$roll" "$OOM_V")
 
-  printf 'TSUKUROI_CENSUS: %s (packages=%s systemd=%s drivers=%s journal=%s)\n' \
-    "$roll" "$PKG_V" "$SYS_V" "$DRV_V" "$JRN_V"
+  printf 'TSUKUROI_CENSUS: %s (packages=%s systemd=%s drivers=%s journal=%s update-safety=%s oom=%s)\n' \
+    "$roll" "$PKG_V" "$SYS_V" "$DRV_V" "$JRN_V" "$UPD_V" "$OOM_V"
 
   case "$roll" in
     HEALTHY)  exit 0 ;;

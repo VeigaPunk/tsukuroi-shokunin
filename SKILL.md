@@ -1168,3 +1168,208 @@ round-7 mapping mechanism (`plans/round-8.plan.md:104-115`).
   cap" item (owner: integrator); round-4/5/6/7 `corpus/README.md` coverage debt; the round-2
   wave-1 errata merge; round-6's H1–H3 / Q1–Q7; the OOM-plane counter-lifecycle Q2 (narrowed by
   S8-2, not closed).
+
+## Round-9 append — the fifth plane lands: `PLANE update-safety` in the 5-plane census (TSUKUROI-S9-4)
+
+Dispatch frame: `plans/round-9.plan.md` (md5 `3a59d2edd068abf6281d7701d261ea5c`, 19 509 B,
+270 `wc -l` / 271 as read — unterminated final line; committed in `72b038d`). The plan's move is
+the **update-safety plane joining `tools/tsukuroi-census.sh`** as the fifth plane line — round-7
+claim (a), carried *not landed* through rounds 7 and 8, is finished from its own measured model.
+Landed siblings distilled here: the census revision (lane S9-1) and the AUR watch's first drift
+receipt `corpus/knowledge/aur-drift-receipt-r9.md` (lane S9-3; md5
+`e7d6f70b65e4846ad7001b5a66e8ec73`, 248 `wc -l`). This seat's own read-only receipts:
+`/tmp/w9-tsukuroi-s94/` (`selftest.final.out`, `live.final.out`, `live.final2.out`,
+`gitstatus.*`; ephemeral). Counts below are captures — re-run, never quote.
+
+### Census revision — the fifth plane (supersedes the round-7/8 pin)
+
+- **Identity check** (replaces the round-7 `md5sum` line `:857-865`; the round-8 block's "gate
+  identity unchanged" `:1001-1006` is superseded with it): `md5sum tools/tsukuroi-census.sh` =
+  `0f72f4cfaf539e3dd21ab5acbede1965` · sha256
+  `301141e7258df4454a084b91b7129af18132b7627aa3d3d78945a0c2bd368fa8` · 2011 `wc -l` · 103 235 B
+  (mtime 2026-10-14 17:09:39 -03). **Uncommitted at this append's write time** (`git status` =
+  ` M`): the round-9 commit should pin these bytes — re-hash after the commit, and on a later
+  mismatch **stop and re-measure** before trusting any rule here. The banner still reads
+  `census-v2`; identity is by hash, not version string (round-5 rule kept). The header records
+  why the version string did not move and that a bump is the note seat's call
+  (`tools/tsukuroi-census.sh:33-38`)
+- **Selftest** (own run 2026-10-14T20:10:48Z, rc=0, fixture byte-unchanged — zero mutation):
+  verbatim `TSUKUROI_CENSUS_SELFTEST: PASS (63 cases, 63 passed, 0 failed)` = 49 legacy (35 base
+  + 6 foreign-baseline + 8 S7-2 memory-arm) + **14 update-safety cases** (`(R9)`, block
+  `tools/tsukuroi-census.sh:1861-1949`; the plan proposed ≥4).
+- **Live contract** — five `PLANE` lines + the rollup; exit map unchanged (0/1/2, worst plane
+  wins), and the rollup parenthetical gains its fifth term (`update-safety=<verdict>`). Own run
+  2026-10-14T20:10:48Z (rc=1), verbatim:
+
+```
+tsukuroi-census census-v2 — host=plazir27 — 2026-10-14T20:10:48Z — read-only
+PLANE packages: DEGRADED (pacman -Qkk rc=1 sample=8(1password-beta,1password-cli,7zip,aalib,abseil-cpp,acl,adwaita-cursors,adwaita-fonts) drift=2[1password-beta,1password-cli] backup_diffs=0 nonroot_artifacts=0; foreign=16(known=16 new=0 drift=0 gone=0) base=r6(16); pins=none; holds=pacman glibc; db.lck=absent)
+PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)
+PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=139 (oom=1 io=70 gpu=0 other=68) [unknown: accepted noise floor]; nvidia=present smi=610.57.04 modules=4 nodes=6 pci_10de=2; mem=[DEGRADED] C1_kernel_oom=1 C2_sysd_oom=3 C3_sigkill=3; C4_sweep=190 C4_present=2[user.slice,user.slice/user-1000.slice] C4_local=0; C5_swap_fail=5922897 C5_swap_peak_pct=99% C5_pswp=74004334/96405737 C5_sock_throttled=73247; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=72403325 C6_avail_kb=18111272 C6_shmem_kb=6586876; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)
+PLANE journal: DEGRADED (boots=13 current=yes target=graphical.target:active err=797 (coredump=522 kernel=139 other=136); failedhist=8[app-com.onepassword.OnePassword@autostart.service,app-org.gnome.SettingsDaemon.DiskUtilityNotify@autostart.service,app-walker@autostart.service,init.scope,-.slice,user@1000.service]; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0)
+PLANE update-safety: DEGRADED (status=UNKNOWN-UPSTREAM; pending=none; qu=rc=1/0; sup=0; join=equal=1171 behind=0 ahead=1 src=sl+expac; expac=agree; chan=dbs=4 fetch=3d stamp=36d; offline.db=present(stamp=85d birth=10d); log=cmd=-S@2026-10-13T16:37:58-0300; refresh=none-in-window(last 300 lines); classes=offline-exile:14,aur-local:2; trap=-Suu:1[omarchy/1password-beta 8.12.42_32.BETA-1]; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368)
+TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED)
+```
+
+  Read-only verified: `git status --short` byte-identical before/after, no `db.lck` created,
+  live mode writes nothing (the round-2 guarantee still holds). A second run at 20:11:46Z
+  printed the plane line byte-identical; wall ≈2.3 s versus the four-plane 0.69–1.75 s band —
+  a real cost move, recorded in the header (`:253-259`), not trimmed by dropping a probe.
+
+### The plane as landed — probes, arms, mapping (`probe_update_safety`, `:1081-1352`)
+
+Arm vocabulary and composition are the round-2 note's (`update-safety-note.md:334-339`,
+restated at `SKILL.md:358-368`, which the line itself cites as `vocab: SKILL.md:358-368`):
+`PASS · INERT · REQUIRES-PREP · BLOCKED · UNKNOWN-UPSTREAM · DO-NOT`, strongest fired wins,
+`BLOCKED > UNKNOWN-UPSTREAM > REQUIRES-PREP > INERT > PASS`.
+
+- **Channel reading** — every repo `*.db` under `$PACMAN_DB/sync`: **births** (`stat -c %W`, the
+  local fetch instant) and **content stamps** (`stat -c %Y`, the db file's mtime — upstream's own
+  file stamp preserved at download, the freshness that matters). `offline.db` is excluded by
+  construction (`CHANNEL_ARCHIVE`, `:309`): it is the offline-exile preservation archive, not a
+  configured channel — the 2026-07-20 stamp would drag an age it does not own; it gets its own
+  `offline.db=` row. The line prints `chan=dbs=N fetch=<age>d stamp=<age>d`; an unreadable stamp
+  is named (`stamp_unreadable=[…]`), never dropped.
+- **Candidates, two ways + disagreement rule** — `pacman -Qu` **unpiped** (rc 1 + 0 lines =
+  empty; rc 0 + n > 0 = candidates; any other shape = unreadable → `status=BLOCKED`, **never
+  INERT** — the pipeline-rc trap made executable, case `(R9)` `:1882`), cross-checked against
+  the allowed plan verb `pacman -Sup --print-format '%r/%n %v'`; on disagreement the **larger**
+  count wins and the disagreement is printed (`disagree[qu=X sup=Y]`, fail closed).
+- **Third reading — the repo-side version join** — `pacman -Sl`, **first occurrence per name =
+  pacman's own repo order** (the r2 note's last-wins `expac` trap `:403-411` is why first-wins),
+  `vercmp` for direction; `expac -S` cross-checks it when present. The line prints
+  `join=equal=… behind=… ahead=… src=sl|sl+expac`, plus `expac=agree|partial|disagree|absent|rc=…`
+  and `join=unavailable(q=rc=… sl=rc=…)` — an absent `expac` prints `expac=absent`, never a
+  silent pass (cases `(R9)` `:1937`, `:1942`).
+- **Class fold (exposure only)** — the **same-process** packages-arm reading
+  (`PKG_FOREIGN_LIVE`, published by `probe_packages` at `:581-593`; never a second `-Qm` probe)
+  joined against the register's rows (`R6_FOREIGN_CLASSES`, `:350-365`; register
+  `aur-risk-plane.md:55-89`): `classes=offline-exile:14,aur-local:2`, a `new` arrival adds
+  `unknown-provenance=[…]`, and an absent/unreadable/`-Qm`-unreadable baseline prints
+  `classes=unavailable(<reason>)` — never HEALTHY off a missing baseline (cases `(R9)` `:1912`,
+  `:1917`). The fold can only worsen (`worse`), never lift a BLOCKED probe.
+- **`offline.db` + log rows** — `offline.db=present(stamp=<age>d birth=<age>d)` (presence only);
+  a bounded `pacman.log` tail `TSUKUROI_LOG_TAIL_N` (default 300) prints the last command class
+  (`log=cmd=-S@…`) and the last refresh-class command (`refresh=none-in-window(last 300 lines)`
+  — a statement about the window, never about the host; a miss prints `cmd=unknown`, verdict
+  unaffected — case `(R9)` `:1927`).
+- **Trap row (verb-level, verdict-neutral)** — `pacman -Suu --print-format` prints
+  `trap=-Suu:N[first-row]`; today exactly one action (`omarchy/1password-beta
+  8.12.42_32.BETA-1`). `DO-NOT` stays note content (round-7 `:95-97`), never a transaction and
+  never a verdict; the line also carries the two standing traps (`traps=[-Qu blind to
+  shadowed-newer; '%s' is not a size]`, `SKILL.md:389-391,395-397`).
+- **Arms as implemented** — `INERT` = both candidate probes empty **and** a present, fresh
+  channel reading (`PASS` is vocabulary-only, never emitted — the r2 table's own row 2);
+  `REQUIRES-PREP` = candidates > 0 **or** a `behind` row from the join; `UNKNOWN-UPSTREAM` = the
+  oldest content stamp older than `TSUKUROI_CHANNEL_MAX_AGE_D` (default **7 d**) or a stamp whose
+  age cannot be measured; `BLOCKED` = pacman missing, `db.lck` present, `-Qu`/`-Sup` unreadable,
+  or **no repo db under `sync/`** — an empty candidate set over no channel cannot be told apart
+  from an up-to-date one (same fail-closed stance as the memory arm; cases `(R9)` `:1887`).
+  **Gate-verdict mapping, recorded not silently applied** (header `:227-236`): `BLOCKED →
+  BLOCKED`; `UNKNOWN-UPSTREAM` / `REQUIRES-PREP` → `DEGRADED`; `INERT` → `HEALTHY`; the fold can
+  only worsen. Realized today: 36 d of channel lag is the named unknown → `DEGRADED`, while the
+  candidate set is empty and the `-Suu` trap row prints without raising the verdict.
+- **Anti-claim held**: no mutating verb — `-Qu`, `-Sup`/`-Suu --print-format` (plan verbs), `-Q`,
+  `-Sl`, `expac -S`, `stat`, bounded log tail; no `-Sy`, no transaction, no download, no db
+  write, no AUR RPC, no external site (`PROVINCE.md:16-17`); upstream state stays [unknown]
+  read-only. Never re-probes `-Qm` or pins/holds — `pins=none holds=pacman glibc` stays the
+  packages plane's row.
+
+### Fail-closed fixtures — the 14 `(R9)` cases (realized labels, executed run)
+
+`healthy: update-safety INERT over a fresh channel` · `degraded: update candidates are
+REQUIRES-PREP with names` · `blocked: an empty -Qu at rc=0 is unreadable, never INERT` ·
+`blocked: empty over no channel is not an up-to-date reading` · `degraded: a stale content stamp
+is UNKNOWN-UPSTREAM, never INERT` · `healthy: the channel-freshness threshold is honoured, not
+decorative` · `degraded: the fold names unknown-provenance arrivals and can only worsen` ·
+`degraded: the fold never reads off a missing baseline` · `healthy: the joined class split is the
+register AUR-local pair` · `healthy: the -Suu trap row is printed and verdict-neutral` ·
+`healthy: a log window miss prints cmd=unknown` · `degraded: a repo-side behind row joins the
+candidate class` · `healthy: absent expac prints its absence, never a silent pass` ·
+`healthy: an unreadable join is printed, never silent` (`tools/tsukuroi-census.sh:1861-1949`).
+The plan's **named prerequisite [design] is realized, not dropped**: the channel stamp is the
+fixture db file's own mtime — settable with `touch -d` — so the stale-channel case executes
+against a real probe rather than being claimed vacuous (`:260-263`). New overrides, realized
+names: `TSUKUROI_PACMAN_LOG` (`/var/log/pacman.log`), `TSUKUROI_OFFLINE_DB`
+(`$PACMAN_DB/sync/offline.db`), `TSUKUROI_EXPAC`, `TSUKUROI_VERCMP`,
+`TSUKUROI_CHANNEL_MAX_AGE_D` (7), `TSUKUROI_LOG_TAIL_N` (300) (`:303-308`). Hermeticity
+unchanged: the selftest still writes only under its `mktemp -d /tmp/tsukuroi-r3-2-selftest.XXXXXX`
+and asserts fixture byte-unchanged.
+
+### The AUR watch's first drift receipt — an explicit no-drift (S9-3, distil)
+
+`corpus/knowledge/aur-drift-receipt-r9.md` (md5 `e7d6f70b65e4846ad7001b5a66e8ec73`, 248 `wc -l`)
+ran the same-day census and read `foreign=16(known=16 new=0 drift=0 gone=0) base=r6(16)` — the
+first re-run against the r6 baseline with no drift, confirmed three ways in its window (live
+`-Qm` vs the gate's embedded snapshot byte-identical incl. order; vs the register's §1 rows
+identical; vs the gate's own classification consistent). It is **not** a claim that the foreign
+set is current or safe — §3 of that note separates exactly that. Cite the note, re-run the
+receipt.
+
+### Count restatements — moved together (the round-7/8 rule is live, `:925-929`)
+
+The round-3 executor-checklist step 2 ("26 cases", `:519-521`), the round-5 blocks ("35 cases",
+`:600-602`, `:686-688`), the round-7 block ("49 cases", `:866-868`) and the round-8 errata
+(`:1147-1151`) stand as history. The **current expected line** is
+`TSUKUROI_CENSUS_SELFTEST: PASS (63 cases, 63 passed, 0 failed)` at the identity pin above, and
+the live contract is the five-plane rollup. `--sample N` default 8 and the `TSUKUROI_*`
+fixture-only override rule are unchanged.
+
+### Errata / pending — round 9 (append)
+
+- 2026-10-14 — **the fifth plane is landed and executed, but the revision is uncommitted at this
+  append's write time** (`0f72f4cf…`, 2011 `wc -l`; `git status` = ` M`). The round-9 commit
+  should pin these bytes; a later re-hash mismatch means the gate moved again — re-hash first,
+  then re-run `--selftest` and re-quote the live plane line.
+- 2026-10-14 — **write scopes observed, not absorbed**: S9-1 wrote the census revision (its own
+  header states the arm's cost and the version-string decision); S9-3 wrote only its drift
+  receipt; the scribe lane wrote `plans/round-9-record-draft.md` (a draft, not the record); this
+  seat wrote only this append. Still owed at write time: the `LOG.md` entry and the round-9
+  `SCORECARD.md` move row (scribe lane); `corpus/README.md` coverage rows (rounds 4-8 collapsed
+  debt — unchanged at `98bd0066…`); the `corpus/knowledge/update-safety-v2.md` **append-only
+  errata pointer** ("implemented at `<pin>`; the realized contract supersedes §10 where it
+  differs") — v2 unchanged at `92803aea…` at write time; the round's own
+  `corpus/lessons/round-9.md` (the lane's first; `corpus/lessons/` measured 0 files again).
+- 2026-10-14 — **the plane's non-author verification is not this seat's artifact**: this append
+  distils the landed revision from its own executed runs; an independent verification note (the
+  same shape as VER-S7/VER-S8) is a separate active seat's product and is quoted when it lands,
+  never anticipated here.
+- Carried (unchanged): root `-Qkk` delta; the 18/19 sweep-summary split; `1password-beta`
+  provenance; `walker-restart.hook` (kagi/operator); dkms stale row; `snapper` empty; the
+  "20-min cap" item (owner: integrator); round-4/5/6/7 `corpus/README.md` coverage debt; the
+  round-2 wave-1 errata merge; round-6's H1-H3 / Q1-Q7; the OOM-plane counter-lifecycle Q2
+  (narrowed by S8-2, not closed). round-8's `PLANE oom` watch was **specified, not landed** at
+  this block's write time (`:1132-1143`) — round 9's first landing was the update-safety
+  plane; the oom watch landed later the same round, recorded in the addendum below.
+
+### Errata addendum — round 9, post-write (append-only)
+
+- 2026-10-14T20:19:37Z — **the census revision moved after this append's first write: lane
+  S9-2's oom plane landed on top of S9-1's update-safety plane, making the gate six-plane.**
+  Superseding identity pin: `md5sum tools/tsukuroi-census.sh` =
+  `e32aac98c6b54f9d7fb8bc4f348cd467` · sha256
+  `c396662eeb5f435d841b0c1863903dba807aa9dcbc6a67b2439fdfb13670c650` · 2349 `wc -l` · 123 410 B
+  (mtime 2026-10-14 17:17:50 -03; uncommitted, `git status` = ` M`). The block above pinned
+  `0f72f4cf…` (five planes); its own caveat applies — this is that mismatch, recorded, not
+  smoothed. The update-safety plane's realized semantics above are **unchanged** by the move
+  (same fields; the note line read byte-identical at 20:19:37Z); what moved is the plane count
+  and the sixth emitter.
+- 2026-10-14 — **the realized contract at the new pin, executed** (own runs, zero mutation —
+  `git status` byte-identical before/after, no `db.lck`): selftest rc=0 verbatim
+  `TSUKUROI_CENSUS_SELFTEST: PASS (74 cases, 74 passed, 0 failed)` (63 + 11 oom-plane cases;
+  the 14 `(R9)` update-safety labels stay); live rc=1 — the rollup reads
+  `TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED
+  journal=DEGRADED update-safety=DEGRADED oom=HEALTHY)`, the fifth emitter above is untouched
+  and the sixth is `PLANE oom` (`tools/tsukuroi-census.sh:2329`; rollup `:2339`) — the watch
+  round 8 specified and never landed (`plans/round-8.plan.md` claims (a)/(b); header `:38-47`).
+  **The oom plane's semantics, arms and fixtures are its own lane's product** — quoted here
+  only as to the emitter and rollup term; its live line in that run, verbatim:
+  `PLANE oom: HEALTHY (window=boots=13 2026-10-03..2026-10-14; C1_kernel=3 killed_process=1;
+  C2_events=3 C3_events=3 clusters=2[2026-10-13 23:44,2026-10-14 13:10]; base=r8(2)
+  known=2[A, B] new=0 missing=0 out_of_window=0; ledger=vmstat.oom_kill=1; anchors=see
+  drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live;
+  rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md §1)`.
+- 2026-10-14 — **count restatements, re-moved**: the current expected line is now
+  `PASS (74 cases, 74 passed, 0 failed)`; the 63-case line inside this append and the earlier
+  round restatements stand as history. A further gate move supersedes this addendum's pin the
+  same way — re-hash first.
