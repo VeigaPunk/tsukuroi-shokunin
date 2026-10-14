@@ -20,6 +20,11 @@
 # plane below carries those three arms, each with its own selftest cases.
 # Anti-claim v2: plans/round-3.plan.md:8 — journal unreadable without elevated perms ->
 # the journal arm fails closed BLOCKED; the remaining planes still report.
+# Round-7 addition (lane S7-2): the drivers plane carries the memory-pressure arm —
+# the round-6 OOM-event plane's detection classes (corpus/knowledge/oom-event-plane.md
+# §8 C1-C6) become live evidence on the drivers line and fold into its verdict. The four
+# plane ids and the rollup line keep their shape (the arm rides `drivers`), so every
+# pre-round-7 consumer of the census format reads the fields it read before.
 #
 # Verdict vocabulary (SKILL.md:22-31): HEALTHY | DEGRADED | BLOCKED, never a scalar.
 #   HEALTHY   every probe of the plane returned the pass value
@@ -34,20 +39,33 @@
 #
 #   packages (PACMAN plane)
 #     probe   pacman -Qkk over a bounded sample of `pacman -Qq` (SAMPLE_N=8, default),
-#             pacman -Qm | count, pacman-conf IgnorePkg IgnoreGroup, /etc/pacman.conf HoldPkg
+#             pacman -Qm | name+version list compared against the accepted foreign baseline,
+#             pacman-conf IgnorePkg IgnoreGroup, /etc/pacman.conf HoldPkg
 #     pass    sample drift == 0 (rc may still be 1: backup-file diffs alone do not set rc —
-#             SKILL.md:47-52, "a full sweep rc=1 is not corruption evidence"), foreign == 0,
+#             SKILL.md:47-52, "a full sweep rc=1 is not corruption evidence"), every foreign
+#             package known at its baseline version (new == 0, drift == 0, gone == 0),
 #             IgnorePkg/IgnoreGroup empty
 #     degrade sample drift > 0 (drift is pacman's own "N altered files" counts, which already
-#             exclude `backup file:` diffs), foreign > 0 (unowned by any synced repo; the
-#             accepted baseline is an operator question, not a script constant), or
-#             IgnorePkg/IgnoreGroup non-empty (holds declared, SKILL.md:45), or pins unknown
+#             exclude `backup file:` diffs), any foreign package new / version-drifted /
+#             gone vs the accepted baseline, the foreign baseline absent or unreadable
+#             (never HEALTHY off a missing baseline), or IgnorePkg/IgnoreGroup non-empty
+#             (holds declared, SKILL.md:45), or pins unknown
 #     block   pacman binary missing, pacman -Qq fails (local db unreadable), db.lck present
 #             (interrupted transaction — SKILL.md:41,45), sample probe emits `error:` or rc
 #             outside {0,1}
 #     note    the sample is bounded on purpose: the full sweep costs ~17 s warm (SKILL.md:107)
 #             and belongs to the operator checklist, not to a gate latency budget. The sample
 #             rc never decides anything on its own; the drift count does.
+#             round 7 (lane S7-1): the foreign arm became a watch — `pacman -Qm` is compared
+#             against the accepted baseline (default: the embedded r6 census snapshot, 16
+#             rows, live `foreign=16` at round 6, rows from
+#             corpus/knowledge/aur-risk-plane.md §1; TSUKUROI_FOREIGN_BASELINE may point at
+#             an external name<TAB>version file instead — the register's proposed baseline
+#             shape). The note reads known=new=drift=gone= plus the source, and each
+#             non-empty class is named. Fail-closed both ways: a baseline row hides neither
+#             a new package nor a version change, and a missing/unreadable baseline or an
+#             unreadable -Qm probe never reads as a pass. This realizes the round-6
+#             baseline contract (plans/round-6-record-draft.md §4) in the gate.
 #
 #   systemd (user scope only — PROVINCE.md:8-9 owns `systemctl --user`; the system-scope
 #   row lives in SKILL.md:42 and is out of this gate's scope)
@@ -80,6 +98,45 @@
 #             positive evidence
 #     note    dmesg is restricted on the measured host (`dmesg_restrict=1`, SKILL.md:158-160);
 #             the ring source actually used is printed as `ring=` in the plane line.
+#
+#   drivers.mem (memory-pressure arm — rides the drivers plane's line and verdict;
+#   round 7, lane S7-2, detection-only). Vocabulary: the round-6 OOM-event plane's
+#   detection contract (corpus/knowledge/oom-event-plane.md §8, classes C1-C6):
+#             C1 kernel OOM dump entries (`journalctl -k -b -p err -o json` + the OOM
+#             regex — the same source and semantics as the ring's `oom=` class),
+#             C2 systemd OOM attribution (`kernel OOM killer killed some processes`,
+#             emitted at PRIORITY=5, i.e. the only attribution for a session-wide
+#             SIGKILL class that leaves no kernel record),
+#             C3 SIGKILL/teardown class (`status=9/KILL|Failed with result
+#             '(signal|oom-kill)'`),
+#             C4 cgroup `memory.events[.local]` oom_kill PRESENCE FLAGS (§4.2: two
+#             documented kill waves left the surviving counter at 1 — a flag per
+#             cgroup, never an event count),
+#             C5 swap-pressure anchors (swap.events `fail`, swap.peak vs meminfo
+#             SwapTotal, `memory.stat` pswpin/pswpout, `sock_throttled`),
+#             C6 live shape (PSI `avg300`/`total`, MemAvailable, Shmem), plus the
+#             guards shape (§4.5: memory.max/high, memory.oom.group).
+#     pass    every signal readable and every class zero
+#     degrade any class > 0 (C1/C2/C3 entries, any oom_kill flag, swap fail > 0), or
+#             any required signal unreadable — named in `unknown=[...]`, never silent
+#     block   cgroup sweep empty AND all three journal probes unusable: no class can
+#             be read at all (fail closed, same stance as the ring arms)
+#     note    probe cost ≈0.3 s live (190 cgroup files + 3 bounded `--grep` reads;
+#             whole-gate live run 1.11 s, inside the recorded 0.69–1.75 s band).
+#             `journalctl --grep` exits 1 on no-match (measured 2026-10-14) — rc 1 is
+#             "0 entries", any other non-zero rc is "unreadable". Page-cache-inclusive
+#             `memory.peak` is not a pressure reading (§4.4), so the arm reports the
+#             swap plane instead, and `memory.events` counters are never read as meters.
+#             First live run (2026-10-14T18:33:02Z, drivers line verbatim): mem=[DEGRADED]
+#             C1_kernel_oom=1 C2_sysd_oom=3 C3_sigkill=3; C4_sweep=190 C4_present=2
+#             [user.slice,user.slice/user-1000.slice] C4_local=0; C5_swap_fail=5922849
+#             C5_swap_peak_pct=99% C5_pswp=72117839/93795670 C5_sock_throttled=67558;
+#             C6_psi_full_avg300=0.00 C6_psi_full_total_us=68342659 C6_avail_kb=19214152
+#             C6_shmem_kb=6907048; guards=max/max oom.group=0 — the round-6 OOM plane's
+#             state re-measured (2 kill waves, swap plane at 99%), not quoted: live
+#             counters drift, re-run before citing. The arm carries no cross-run delta
+#             (the census keeps no state); "new vs baseline" is the class-presence
+#             reading plus the note's per-round recheck ledger.
 #
 #   journal (this-boot triage — SKILL.md:43 row; all probes read-only)
 #     probe   arm 1 boot record: `journalctl --list-boots --no-pager` (index-0 line must exist)
@@ -126,16 +183,20 @@
 # every host path read in live mode has an override below, so the selftest touches no
 # host state:
 #   TSUKUROI_PACMAN TSUKUROI_PACMAN_CONF TSUKUROI_PACMAN_CONF_FILE TSUKUROI_PACMAN_DB
+#   TSUKUROI_FOREIGN_BASELINE (external baseline path; empty/unset = embedded r6 snapshot)
 #   TSUKUROI_SYSTEMCTL TSUKUROI_DMESG TSUKUROI_JOURNALCTL TSUKUROI_NVIDIA_SMI TSUKUROI_LSMOD
 #   TSUKUROI_PCI_SYSFS TSUKUROI_DEV_DIR TSUKUROI_HOSTNAME_FILE TSUKUROI_DMESG_RESTRICT_FILE
 #   TSUKUROI_BOOT_TARGET TSUKUROI_SAMPLE_N TSUKUROI_TIMER_SCAN_MAX TSUKUROI_FIXTURE (selftest only)
+#   TSUKUROI_CGROUP_ROOT TSUKUROI_MEM_SLICE TSUKUROI_PRESSURE_FILE TSUKUROI_MEMINFO_FILE
+#   (the memory-pressure arm's paths; the arm itself has no other host read)
 #
 # Sources: PROVINCE.md:5-12,16-18 · SKILL.md:20-31 (vocabulary), :33-45 (decision table incl.
 # the journal/boot row), :47-83 (Qkk benign classes), :85-135 (update-safety checklist),
 # :137-172 (boundary rule) · AGENTS.md:3-5 · corpus/QUALITY.md:1-5 ·
 # corpus/knowledge/package-state-plane.md, systemd-user-plane.md (§5-6 err classes + coredump
 # census, §8 method traps), driver-firmware-plane.md · plans/round-2.plan.md:3-9 ·
-# plans/round-3.plan.md:3-11.
+# plans/round-3.plan.md:3-11 · plans/round-6-record-draft.md §4 (baseline contract) ·
+# corpus/knowledge/aur-risk-plane.md §1 (the 16 baseline rows and their classes).
 set -euo pipefail
 umask 077
 
@@ -159,24 +220,58 @@ DMESG_RESTRICT_FILE=${TSUKUROI_DMESG_RESTRICT_FILE:-/proc/sys/kernel/dmesg_restr
 BOOT_TARGET=${TSUKUROI_BOOT_TARGET:-graphical.target}
 SAMPLE_N=${TSUKUROI_SAMPLE_N:-8}
 TIMER_SCAN_MAX=${TSUKUROI_TIMER_SCAN_MAX:-12}
+CGROUP_ROOT=${TSUKUROI_CGROUP_ROOT:-/sys/fs/cgroup}
+MEM_SLICE=${TSUKUROI_MEM_SLICE:-user.slice/user-1000.slice}
+PRESSURE_FILE=${TSUKUROI_PRESSURE_FILE:-/proc/pressure/memory}
+MEMINFO_FILE=${TSUKUROI_MEMINFO_FILE:-/proc/meminfo}
+FOREIGN_BASELINE=${TSUKUROI_FOREIGN_BASELINE:-}
+
+# Accepted foreign baseline — the round-6 census snapshot (live `foreign=16` at round 6,
+# 2026-10-14; re-measured live before landing this arm and byte-identical, so the snapshot
+# still equals the host's set). Source of the rows: corpus/knowledge/aur-risk-plane.md §1
+# (14 offline-exile + 2 AUR-local, `name version` per row). The register owns the rows;
+# this gate owns the comparison. TSUKUROI_FOREIGN_BASELINE may point at an external
+# name-version file (the register's proposed corpus/knowledge/foreign-aur-baseline.tsv
+# shape); unset or empty = this snapshot. Rows are never re-guessed here: a class claim
+# needs the register's measured trail, and the selftest hit-case pins this constant's
+# 16-row content so an edit to it cannot pass silently.
+R6_FOREIGN_BASELINE='android-apktool-bin 3.0.3-1
+elephant 2.21.0-1
+elephant-bluetooth 2.21.0-1
+elephant-calc 2.21.0-1
+elephant-clipboard 2.21.0-1
+elephant-desktopapplications 2.21.0-1
+elephant-files 2.21.0-1
+elephant-menus 2.21.0-1
+elephant-providerlist 2.21.0-1
+elephant-runner 2.21.0-1
+elephant-symbols 2.21.0-1
+elephant-todo 2.21.0-1
+elephant-unicode 2.21.0-1
+elephant-websearch 2.21.0-1
+obsidian-cli-inspector 1.0.3-1
+omarchy-walker 1.0.0-2'
 
 CLASS_OOM='Out of memory|oom-kill|oom_reaper'
 CLASS_IO='I/O error|Buffer I/O error|critical medium error|critical target error'
 CLASS_GPU='NVRM|nvidia|NVIDIA|GSP|drm'
 CLASS_FAILED='Failed to |entered failed state|Failed with result'
+CLASS_OOM_SYS='kernel OOM killer killed some processes'
+CLASS_SIGKILL="status=9/KILL|Failed with result '(signal|oom-kill)'"
 
 # ---- shared state ------------------------------------------------------------
 PKG_V=BLOCKED PKG_NOTE='probe not run'
 SYS_V=BLOCKED SYS_NOTE='probe not run'
 DRV_V=BLOCKED DRV_NOTE='probe not run'
+MEM_V=BLOCKED MEM_NOTE='arm not run'
 JRN_V=BLOCKED JRN_NOTE='probe not run'
 
 usage() {
   cat <<'EOF'
 usage: tsukuroi-census.sh [--selftest] [--sample N] [--help]
 
-  (no flags)   run the live read-only census over packages / systemd-user / drivers /
-               journal-boot
+  (no flags)   run the live read-only census over packages / systemd-user / drivers
+               (incl. the memory-pressure arm) / journal-boot
   --selftest   hermetic fixture-tree test of every verdict arm (writes only under
                /tmp/tsukuroi-r3-2-selftest.*); exit 0 pass, 1 fail
   --sample N   packages plane: size of the pacman -Qkk sample (default 8)
@@ -244,6 +339,17 @@ class_counts() { # class_counts json|text HAYSTACK -> "oom=N io=N gpu=N other=N"
   printf 'oom=%s io=%s gpu=%s other=%s' "$o" "$i" "$g" "$((total - u))"
 }
 
+mem_read() { # mem_read FILE -> first line (trimmed); empty when unreadable
+  [ -r "$1" ] || return 0
+  head -n1 -- "$1" 2>/dev/null | tr -d '\r' || true
+}
+
+mem_field() { # mem_field FILE KEY -> second field of the first KEY row, or empty
+  # (the trailing colon of /proc/meminfo keys is tolerated; cgroup keys have none)
+  [ -r "$1" ] || return 0
+  awk -v k="$2" '{ key = $1; sub(/:$/, "", key) } key == k { print $2; exit }' "$1" 2>/dev/null || true
+}
+
 # ---- plane: packages ---------------------------------------------------------
 probe_packages() {
   PKG_V=HEALTHY
@@ -305,6 +411,63 @@ probe_packages() {
   foreign_rc=$CAP_RC
   if [ "$foreign_rc" -eq 0 ]; then foreign_n=$(nlines "$CAP_OUT"); fi
 
+  # foreign watch arm (round 7, lane S7-1): compare `pacman -Qm` (name version per row)
+  # against the accepted baseline so the plane reports known-vs-new instead of a bare
+  # count. Fail-closed both ways: a baseline row hides neither a new package nor a
+  # version change, and an absent/unreadable baseline or an unreadable -Qm probe never
+  # reads as a pass (r6 baseline contract, plans/round-6-record-draft.md §4).
+  local base_txt='' base_state='' foreign_known=0 foreign_new_n=0 foreign_drift_n=0 foreign_gone_n=0
+  local foreign_new='' foreign_drift='' foreign_gone=''
+  if [ -n "$FOREIGN_BASELINE" ]; then
+    if [ -f "$FOREIGN_BASELINE" ] && [ -r "$FOREIGN_BASELINE" ]; then
+      base_txt=$(cat -- "$FOREIGN_BASELINE" 2>/dev/null || true)
+      base_state="file($(nlines "$base_txt"))"
+    elif [ -e "$FOREIGN_BASELINE" ]; then
+      base_state='unreadable'
+    else
+      base_state='absent'
+    fi
+  else
+    base_txt=$R6_FOREIGN_BASELINE
+    base_state="r6($(nlines "$base_txt"))"
+  fi
+
+  if [ "$foreign_rc" -eq 0 ] && [ "$base_state" != absent ] && [ "$base_state" != unreadable ]; then
+    local nm ver bn live_names=''
+    while read -r nm ver _; do
+      [ -n "$nm" ] || continue
+      live_names="$live_names $nm"
+      bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n {print $2; exit}')
+      if [ -z "$bn" ]; then
+        foreign_new_n=$((foreign_new_n + 1)); foreign_new="$foreign_new $nm"
+      elif [ "$ver" = "$bn" ]; then
+        foreign_known=$((foreign_known + 1))
+      else
+        foreign_drift_n=$((foreign_drift_n + 1)); foreign_drift="$foreign_drift $nm($bn->${ver:-?})"
+      fi
+    done <<< "$CAP_OUT"
+    local rn rv
+    while read -r rn rv _; do
+      [ -n "$rn" ] || continue
+      case " $live_names " in
+        *" $rn "*) : ;;
+        *) foreign_gone_n=$((foreign_gone_n + 1)); foreign_gone="$foreign_gone $rn" ;;
+      esac
+    done <<< "$base_txt"
+  fi
+
+  local fr_note
+  if [ "$foreign_rc" -ne 0 ]; then
+    fr_note="foreign=? [pacman -Qm unreadable]"
+  elif [ "$base_state" = absent ] || [ "$base_state" = unreadable ]; then
+    fr_note="foreign=$foreign_n(base=$base_state [known/new/drift/gone unknown])"
+  else
+    fr_note="foreign=$foreign_n(known=$foreign_known new=$foreign_new_n drift=$foreign_drift_n gone=$foreign_gone_n) base=$base_state"
+    [ -n "$foreign_new" ] && fr_note="$fr_note new=[${foreign_new# }]"
+    [ -n "$foreign_drift" ] && fr_note="$fr_note drift=[${foreign_drift# }]"
+    [ -n "$foreign_gone" ] && fr_note="$fr_note gone=[${foreign_gone# }]"
+  fi
+
   local pins_n='?' pins_rc=0 pins_names='' holds='none'
   cap "$PACMAN_CONF" IgnorePkg IgnoreGroup
   pins_rc=$CAP_RC
@@ -319,10 +482,13 @@ probe_packages() {
   fi
 
   PKG_NOTE="pacman -Qkk rc=$s_rc sample=$sample_n($(printf '%s,' "${names[@]}" | sed -E 's/,$//')) drift=$drift${drift_pkgs:+[$drift_pkgs]} backup_diffs=$backup nonroot_artifacts=$nonroot"
-  PKG_NOTE="$PKG_NOTE; foreign=$foreign_n; pins=${pins_names:-none}; holds=$holds; db.lck=absent"
+  PKG_NOTE="$PKG_NOTE; $fr_note; pins=${pins_names:-none}; holds=$holds; db.lck=absent"
 
   if [ "$drift" -gt 0 ]; then PKG_V=DEGRADED; fi
-  if [ "$foreign_n" != '0' ]; then PKG_V=DEGRADED; fi
+  if [ "$foreign_rc" -ne 0 ] || [ "$base_state" = absent ] || [ "$base_state" = unreadable ] \
+    || [ "$foreign_new_n" -gt 0 ] || [ "$foreign_drift_n" -gt 0 ] || [ "$foreign_gone_n" -gt 0 ]; then
+    PKG_V=DEGRADED
+  fi
   if [ "$pins_n" != '0' ]; then PKG_V=DEGRADED; fi
   return
 }
@@ -506,6 +672,136 @@ probe_drivers() {
   return
 }
 
+# ---- arm: memory pressure (rides the drivers plane's line and verdict) -------
+# Round-7 addition, lane S7-2. Detection-only, read-only, non-root. Vocabulary:
+# corpus/knowledge/oom-event-plane.md §8 (classes C1-C6) plus the note's reading
+# rules — `memory.events oom_kill` is a PRESENCE FLAG, never an event count (§4.2),
+# the journal messages are the event list, and the page-cache-inclusive
+# `memory.peak` is not a pressure reading (§4.4). Fails closed: an unreadable
+# signal is a named unknown and degrades the arm; only a total inability to read
+# any class (cgroup sweep empty AND all journal probes unusable) reads BLOCKED —
+# never a fake pass. Nothing is written; no cgroup, unit or service is touched;
+# the operator remediates.
+probe_mem_arm() {
+  MEM_V=HEALTHY
+  local unk='' deg=0 j_ok=0 cg_ok=0
+  local k_oom='?' s_oom='?' sg_oom='?'
+  local sweep=0 present=0 localp=0 names=''
+  local sock='-' swap_fail='-' swap_peak='-' swap_total='-' swap_pct='-'
+  local ps_in='-' ps_out='-' psi_s='-' psi_f='-' psi_t='-'
+  local avail='-' shmem='-' g_max='-' g_high='-' g_grp='-'
+  local slice="$CGROUP_ROOT/$MEM_SLICE" f rel v
+
+  # C1-C3 — the journal side: entry counts only (`-o json` lines). `journalctl
+  # --grep` exits 1 on no-match (measured 2026-10-14), so rc 1 = "0 entries" and
+  # any other non-zero rc = unreadable.
+  if have "$JOURNALCTL"; then
+    cap "$JOURNALCTL" -k -b -p err -o json --no-pager --grep "$CLASS_OOM"
+    case "$CAP_RC" in
+      0) k_oom=$(nlines "$CAP_OUT"); j_ok=$((j_ok + 1)) ;;
+      1) k_oom=0; j_ok=$((j_ok + 1)) ;;
+      *) unk="${unk}C1 " ;;
+    esac
+    cap "$JOURNALCTL" -b -o json --no-pager --grep "$CLASS_OOM_SYS"
+    case "$CAP_RC" in
+      0) s_oom=$(nlines "$CAP_OUT"); j_ok=$((j_ok + 1)) ;;
+      1) s_oom=0; j_ok=$((j_ok + 1)) ;;
+      *) unk="${unk}C2 " ;;
+    esac
+    cap "$JOURNALCTL" -b -o json --no-pager --grep "$CLASS_SIGKILL"
+    case "$CAP_RC" in
+      0) sg_oom=$(nlines "$CAP_OUT"); j_ok=$((j_ok + 1)) ;;
+      1) sg_oom=0; j_ok=$((j_ok + 1)) ;;
+      *) unk="${unk}C3 " ;;
+    esac
+  else
+    unk="${unk}C1 C2 C3 "
+  fi
+
+  # C4 — cgroup presence flags, bounded sweep over memory.events[.local]
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    sweep=$((sweep + 1))
+    v=$(awk '$1 == "oom_kill" { print $2; exit }' "$f" 2>/dev/null || true)
+    if [ -n "$v" ] && [ "$v" != 0 ]; then
+      rel=${f#"$CGROUP_ROOT"/}
+      rel=${rel%/memory.events}
+      case "$f" in
+        *.local) localp=$((localp + 1)) ;;
+        *)
+          present=$((present + 1))
+          [ "$present" -le 3 ] && names="${names}${names:+,}${rel}"
+          ;;
+      esac
+    fi
+  done < <(find "$CGROUP_ROOT" -xdev \( -name memory.events -o -name memory.events.local \) \
+             -print 2>/dev/null | LC_ALL=C sort | head -n 4000)
+  [ "$sweep" -gt 0 ] && cg_ok=1
+
+  # C5 — swap-pressure anchors (+ the socket-throttle class and the guards shape)
+  if [ -d "$slice" ]; then
+    swap_fail=$(mem_field "$slice/memory.swap.events" fail)
+    swap_peak=$(mem_read "$slice/memory.swap.peak")
+    ps_in=$(mem_field "$slice/memory.stat" pswpin)
+    ps_out=$(mem_field "$slice/memory.stat" pswpout)
+    sock=$(mem_field "$slice/memory.events" sock_throttled)
+    g_max=$(mem_read "$slice/memory.max")
+    g_high=$(mem_read "$slice/memory.high")
+    g_grp=$(mem_read "$slice/memory.oom.group")
+    [ -r "$slice/memory.swap.events" ] || unk="${unk}C5-swap "
+    [ -r "$slice/memory.stat" ] || unk="${unk}C5-stat "
+  else
+    unk="${unk}C5-slice "
+  fi
+  swap_total=$(mem_field "$MEMINFO_FILE" SwapTotal)
+  case "$swap_peak" in '' | *[!0-9]*) swap_peak='-' ;; esac
+  case "$swap_total" in '' | *[!0-9]*) swap_total='-' ;; esac
+  if [ "$swap_peak" != '-' ] && [ "$swap_total" != '-' ] && [ "$swap_total" -gt 0 ]; then
+    swap_pct=$(awk -v p="$swap_peak" -v t="$swap_total" \
+      'BEGIN { printf "%d%%", (p / 1024 / t) * 100 }')
+  fi
+  case "$swap_fail" in '' | *[!0-9]*) swap_fail='-' ;; esac
+  case "$sock" in '' | *[!0-9]*) sock='-' ;; esac
+  case "$ps_in" in '' | *[!0-9]*) ps_in='-' ;; esac
+  case "$ps_out" in '' | *[!0-9]*) ps_out='-' ;; esac
+  g_max=${g_max:-'-'} g_high=${g_high:-'-'} g_grp=${g_grp:-'-'}
+
+  # C6 — live shape: PSI (avg300 + total) and the meminfo picture
+  [ -r "$MEMINFO_FILE" ] || unk="${unk}C6-meminfo "
+  avail=$(mem_field "$MEMINFO_FILE" MemAvailable); avail=${avail:-'-'}
+  shmem=$(mem_field "$MEMINFO_FILE" Shmem); shmem=${shmem:-'-'}
+  if [ -r "$PRESSURE_FILE" ]; then
+    read -r psi_s psi_f psi_t < <(awk '
+      $1 == "some" || $1 == "full" {
+        for (i = 2; i <= NF; i++) { split($i, a, "="); v[a[1]] = a[2] }
+        if ($1 == "some") s = v["avg300"]; else { f = v["avg300"]; t = v["total"] }
+      }
+      END { printf "%s %s %s\n", (s == "" ? "-" : s), (f == "" ? "-" : f), (t == "" ? "-" : t) }' \
+      "$PRESSURE_FILE" 2>/dev/null || true)
+    psi_s=${psi_s:-'-'} psi_f=${psi_f:-'-'} psi_t=${psi_t:-'-'}
+  else
+    unk="${unk}C6-psi "
+  fi
+
+  # verdict: any class > 0 degrades; any unreadable signal degrades; BLOCKED only
+  # when no class can be read at all (fail closed — never a fake pass)
+  [ "$k_oom" != '?' ] && [ "$k_oom" -gt 0 ] && deg=1
+  [ "$s_oom" != '?' ] && [ "$s_oom" -gt 0 ] && deg=1
+  [ "$sg_oom" != '?' ] && [ "$sg_oom" -gt 0 ] && deg=1
+  [ "$present" -gt 0 ] && deg=1
+  [ "$localp" -gt 0 ] && deg=1
+  [ "$swap_fail" != '-' ] && [ "$swap_fail" -gt 0 ] && deg=1
+
+  if [ "$j_ok" -eq 0 ] && [ "$cg_ok" -eq 0 ]; then
+    MEM_V=BLOCKED
+  elif [ "$deg" -gt 0 ] || [ -n "$unk" ]; then
+    MEM_V=DEGRADED
+  fi
+
+  MEM_NOTE="[${MEM_V}] C1_kernel_oom=$k_oom C2_sysd_oom=$s_oom C3_sigkill=$sg_oom; C4_sweep=$sweep C4_present=$present${names:+[$names]} C4_local=$localp; C5_swap_fail=$swap_fail C5_swap_peak_pct=$swap_pct C5_pswp=$ps_in/$ps_out C5_sock_throttled=$sock; C6_psi_some_avg300=$psi_s C6_psi_full_avg300=$psi_f C6_psi_full_total_us=$psi_t C6_avail_kb=$avail C6_shmem_kb=$shmem; guards=$g_max/$g_high oom.group=$g_grp${unk:+; unknown=[${unk% }]}; r6 vocab: oom-event-plane.md §8"
+  return
+}
+
 # ---- plane: journal / boot (this-boot triage) --------------------------------
 probe_journal() {
   JRN_V=HEALTHY
@@ -671,6 +967,9 @@ case "$name" in
     ;;
   journalctl)
     case "$args" in
+      *--grep*"OOM killer"*) out_of oom-attrib.json; exit "$(rc_of oom-attrib)" ;;
+      *--grep*oom_reaper*) out_of oom-kernel.json; exit "$(rc_of oom-kernel)" ;;
+      *--grep*"status=9"*) out_of oom-sigkill.json; exit "$(rc_of oom-sigkill)" ;;
       *"--list-boots"*) out_of listboots; exit "$(rc_of listboots)" ;;
       *"-p err"*) out_of journal-err.json; exit "$(rc_of journal-err)" ;;
       *"-n 1"*) out_of journal-last; exit "$(rc_of journal-last)" ;;
@@ -700,6 +999,7 @@ STUB
     printf 'alpha: 10 total files, 0 altered files\nbeta: 20 total files, 0 altered files\n' > "$d/qkk.out"
     printf 0 > "$d/qkk.rc"
     : > "$d/pm"
+    : > "$d/fbase"
     : > "$d/pconf"
     printf 'HoldPkg = pacman glibc\n' > "$d/pacman.conf"
     printf 'running\n' > "$d/sysrunning"
@@ -730,6 +1030,30 @@ STUB
     printf 0 > "$d/journal-last.rc"
     printf 'active\n' > "$d/timeractivestate"
     printf 0 > "$d/timeractivestate.rc"
+    # memory-pressure arm fixture (S7-2): quiet cgroup tree, PSI, meminfo and the three
+    # journal `--grep` arms — the live host's shape (95 memory.events files) in miniature
+    mkdir -p "$d/cgroup/user.slice/user-1000.slice/user@1000.service" "$d/pressure"
+    printf 'low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n' \
+      > "$d/cgroup/user.slice/memory.events"
+    printf 'low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n' \
+      > "$d/cgroup/user.slice/memory.events.local"
+    printf 'low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n' \
+      > "$d/cgroup/user.slice/user-1000.slice/memory.events"
+    printf 'low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n' \
+      > "$d/cgroup/user.slice/user-1000.slice/memory.events.local"
+    printf 'low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n' \
+      > "$d/cgroup/user.slice/user-1000.slice/user@1000.service/memory.events"
+    printf 'high 0\nmax 0\nfail 0\n' > "$d/cgroup/user.slice/user-1000.slice/memory.swap.events"
+    printf '0\n' > "$d/cgroup/user.slice/user-1000.slice/memory.swap.peak"
+    printf 'pswpin 0\npswpout 0\n' > "$d/cgroup/user.slice/user-1000.slice/memory.stat"
+    printf 'max\n' > "$d/cgroup/user.slice/user-1000.slice/memory.max"
+    printf 'max\n' > "$d/cgroup/user.slice/user-1000.slice/memory.high"
+    printf '0\n' > "$d/cgroup/user.slice/user-1000.slice/memory.oom.group"
+    printf 'some avg10=0.00 avg60=0.00 avg300=0.00 total=0\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n' > "$d/pressure/memory"
+    printf 'MemTotal: 1000000 kB\nMemAvailable: 900000 kB\nSwapTotal: 8000000 kB\nSwapFree: 8000000 kB\nShmem: 1000 kB\n' > "$d/meminfo"
+    : > "$d/oom-kernel.json"; printf 0 > "$d/oom-kernel.rc"
+    : > "$d/oom-attrib.json"; printf 0 > "$d/oom-attrib.rc"
+    : > "$d/oom-sigkill.json"; printf 0 > "$d/oom-sigkill.rc"
   }
 
   fx_hash() { find "$1" -type f -exec sha256sum {} + | LC_ALL=C sort | sha256sum | cut -d' ' -f1; }
@@ -753,6 +1077,7 @@ STUB
       TSUKUROI_PACMAN_CONF="$bin/pacman-conf" \
       TSUKUROI_PACMAN_CONF_FILE="$FX/pacman.conf" \
       TSUKUROI_PACMAN_DB="$FX/pacmandb" \
+      TSUKUROI_FOREIGN_BASELINE="$FX/fbase" \
       TSUKUROI_SYSTEMCTL="$bin/systemctl" \
       TSUKUROI_DMESG="$bin/dmesg" \
       TSUKUROI_JOURNALCTL="$bin/journalctl" \
@@ -762,6 +1087,10 @@ STUB
       TSUKUROI_DEV_DIR="$FX/dev" \
       TSUKUROI_HOSTNAME_FILE="$FX/hostname" \
       TSUKUROI_DMESG_RESTRICT_FILE="$FX/dmesg_restrict" \
+      TSUKUROI_CGROUP_ROOT="$FX/cgroup" \
+      TSUKUROI_MEM_SLICE='user.slice/user-1000.slice' \
+      TSUKUROI_PRESSURE_FILE="$FX/pressure/memory" \
+      TSUKUROI_MEMINFO_FILE="$FX/meminfo" \
       "${EXTRA_ENV[@]}" \
       "$BASH" "$SELF" 2>&1)
     rc=$?
@@ -820,6 +1149,56 @@ STUB
   case_home='degraded-foreign'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
   printf 'elephant-a\nelephant-b\nelephant-c\n' > "$FX/pm"
   check 'degraded: foreign packages' 1 DEGRADED '^PLANE packages: DEGRADED .*foreign=3'
+
+  # ---- round 7 foreign watch arm (lane S7-1): the r6 census rows as the accepted
+  # baseline, exercised hit / embedded-default / new / version-drift / gone / absent.
+  local r6base
+  r6base=$(printf '%s\n' \
+    'android-apktool-bin 3.0.3-1' 'elephant 2.21.0-1' 'elephant-bluetooth 2.21.0-1' \
+    'elephant-calc 2.21.0-1' 'elephant-clipboard 2.21.0-1' 'elephant-desktopapplications 2.21.0-1' \
+    'elephant-files 2.21.0-1' 'elephant-menus 2.21.0-1' 'elephant-providerlist 2.21.0-1' \
+    'elephant-runner 2.21.0-1' 'elephant-symbols 2.21.0-1' 'elephant-todo 2.21.0-1' \
+    'elephant-unicode 2.21.0-1' 'elephant-websearch 2.21.0-1' \
+    'obsidian-cli-inspector 1.0.3-1' 'omarchy-walker 1.0.0-2')
+  if [ "$(printf '%s\n' "$r6base" | wc -l)" -ne 16 ]; then
+    bad 'fixture: r6 baseline literal is not 16 rows'
+  fi
+
+  case_home='healthy-foreign-baseline'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' "$r6base" > "$FX/pm"
+  printf '%s\n' "$r6base" > "$FX/fbase"
+  check 'healthy: foreign set equals the accepted baseline (16 rows, hit)' 0 HEALTHY \
+    '^PLANE packages: HEALTHY .*foreign=16\(known=16 new=0 drift=0 gone=0\) base=file\(16\)'
+
+  case_home='healthy-foreign-embedded'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' "$r6base" > "$FX/pm"
+  EXTRA_ENV=(TSUKUROI_FOREIGN_BASELINE=)
+  check 'healthy: embedded r6 snapshot is the default source' 0 HEALTHY \
+    '^PLANE packages: HEALTHY .*foreign=16\(known=16 new=0 drift=0 gone=0\) base=r6\(16\)'
+
+  case_home='degraded-foreign-new'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\nnew-tool-bin 4.2-1\n' "$r6base" > "$FX/pm"
+  printf '%s\n' "$r6base" > "$FX/fbase"
+  check 'degraded: new foreign arrival is named' 1 DEGRADED \
+    '^PLANE packages: DEGRADED .*new=1 drift=0 gone=0\) base=file\(16\) new=\[new-tool-bin\]'
+
+  case_home='degraded-foreign-drift'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' "$r6base" | sed -E 's/^android-apktool-bin 3\.0\.3-1$/android-apktool-bin 3.0.4-1/' > "$FX/pm"
+  printf '%s\n' "$r6base" > "$FX/fbase"
+  check 'degraded: baseline version change shows both versions' 1 DEGRADED \
+    '^PLANE packages: DEGRADED .*new=0 drift=1 gone=0\) base=file\(16\) drift=\[android-apktool-bin\(3\.0\.3-1->3\.0\.4-1\)\]'
+
+  case_home='degraded-foreign-gone'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' "$r6base" | grep -v '^obsidian-cli-inspector ' > "$FX/pm"
+  printf '%s\n' "$r6base" > "$FX/fbase"
+  check 'degraded: baseline row no longer installed is never silent' 1 DEGRADED \
+    '^PLANE packages: DEGRADED .*new=0 drift=0 gone=1\) base=file\(16\) gone=\[obsidian-cli-inspector\]'
+
+  case_home='degraded-foreign-baseline-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' "$r6base" > "$FX/pm"
+  EXTRA_ENV=(TSUKUROI_FOREIGN_BASELINE="$FX/fbase-absent")
+  check 'degraded: absent baseline never reads HEALTHY' 1 DEGRADED \
+    '^PLANE packages: DEGRADED .*foreign=16\(base=absent \[known/new/drift/gone unknown\]\)'
 
   case_home='degraded-pins'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
   printf 'linux\n' > "$FX/pconf"
@@ -968,6 +1347,65 @@ STUB
   check 'degraded: journal timer plane unreadable, drift unknown (D20)' 2 BLOCKED \
     '^PLANE journal: DEGRADED .*timer plane unreadable \[drift unknown\]'
 
+  # ---- round 7 memory-pressure arm (lane S7-2): the round-6 OOM-event plane's classes
+  # (corpus/knowledge/oom-event-plane.md §8 C1-C6) as live evidence on the drivers line,
+  # exercised quiet / presence-flag / classes-with-the-ring / swap anchors / `.local` /
+  # named-unknown / blocked.
+  case_home='healthy-mem-quiet'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  check 'healthy: memory-pressure arm quiet (S7-2)' 0 HEALTHY \
+    '^PLANE drivers: HEALTHY .*mem=\[HEALTHY\] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0' \
+    'mem=\[HEALTHY\].*C4_present=0 C4_local=0; C5_swap_fail=0 C5_swap_peak_pct=0% C5_pswp=0/0' \
+    'guards=max/max oom\.group=0; r6 vocab: oom-event-plane\.md §8'
+
+  case_home='degraded-mem-presence'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'low 0\nhigh 0\nmax 0\noom 0\noom_kill 7\noom_group_kill 0\nsock_throttled 0\n' \
+    > "$FX/cgroup/user.slice/memory.events"
+  check 'degraded: memory arm — oom_kill is a presence flag, not a count (S7-2)' 1 DEGRADED \
+    '^PLANE drivers: DEGRADED .*mem=\[DEGRADED\] .*C4_sweep=5 C4_present=1\[user\.slice\] C4_local=0'
+
+  case_home='degraded-mem-classes'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 0 > "$FX/dmesg.rc"
+  printf 'Out of memory: Killed process 1732581 (python3)\n' > "$FX/dmesg.out"
+  printf '{"MESSAGE":"Out of memory: Killed process 1732581 (python3)"}\n' > "$FX/oom-kernel.json"
+  printf '%s\n' '{"MESSAGE":"app.scope: The kernel OOM killer killed some processes in this unit."}' \
+    '{"MESSAGE":"user-1000.slice: The kernel OOM killer killed some processes in this unit."}' \
+    > "$FX/oom-attrib.json"
+  printf '%s\n' '{"MESSAGE":"Main process exited, code=killed, status=9/KILL"}' \
+    '{"MESSAGE":"a.service: Failed with result (signal)."}' \
+    '{"MESSAGE":"b.scope: Failed with result (oom-kill)."}' > "$FX/oom-sigkill.json"
+  check 'degraded: memory arm — ring oom class and C1/C2/C3 reported together (S7-2)' 1 DEGRADED \
+    '^PLANE drivers: DEGRADED .*kerr=1 \(oom=1 io=0 gpu=0 other=0\)' \
+    'mem=\[DEGRADED\] C1_kernel_oom=1 C2_sysd_oom=2 C3_sigkill=3'
+
+  case_home='degraded-mem-swap'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'high 0\nmax 0\nfail 5922849\n' > "$FX/cgroup/user.slice/user-1000.slice/memory.swap.events"
+  printf '36744949760\n' > "$FX/cgroup/user.slice/user-1000.slice/memory.swap.peak"
+  printf 'pswpin 72117252\npswpout 93795670\n' > "$FX/cgroup/user.slice/user-1000.slice/memory.stat"
+  printf 'SwapTotal: 35917176 kB\nMemAvailable: 19482144 kB\nShmem: 6882556 kB\n' > "$FX/meminfo"
+  check 'degraded: memory arm — swap-pressure anchors C5 (S7-2)' 1 DEGRADED \
+    'mem=\[DEGRADED\] .*C5_swap_fail=5922849 C5_swap_peak_pct=99% C5_pswp=72117252/93795670'
+
+  case_home='degraded-mem-local'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'low 0\nhigh 0\nmax 0\noom 0\noom_kill 2\noom_group_kill 0\nsock_throttled 0\n' \
+    > "$FX/cgroup/user.slice/memory.events.local"
+  check 'degraded: memory arm — memory.events.local flag reported separately (S7-2)' 1 DEGRADED \
+    'mem=\[DEGRADED\] .*C4_present=0 C4_local=1'
+
+  case_home='degraded-mem-psi-unknown'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  EXTRA_ENV=(TSUKUROI_PRESSURE_FILE="$FX/no-such-pressure")
+  check 'degraded: memory arm — unreadable PSI is a named unknown, not a pass (S7-2)' 1 DEGRADED \
+    'mem=\[DEGRADED\] .*unknown=\[C6-psi\]'
+
+  case_home='degraded-mem-slice-unknown'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  EXTRA_ENV=(TSUKUROI_MEM_SLICE='user.slice/no-such-slice')
+  check 'degraded: memory arm — unreadable slice anchors are a named unknown (S7-2)' 1 DEGRADED \
+    'mem=\[DEGRADED\] .*unknown=\[C5-slice\]'
+
+  case_home='blocked-mem-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  EXTRA_ENV=(TSUKUROI_CGROUP_ROOT="$FX/no-cgroup" TSUKUROI_JOURNALCTL="$bin/journalctl-absent")
+  check 'blocked: memory arm — no cgroup and no journal: no class readable (S7-2)' 2 BLOCKED \
+    'mem=\[BLOCKED\]'
+
   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
   [ "$FAIL" -eq 0 ]
@@ -1006,11 +1444,13 @@ main() {
   probe_packages
   probe_systemd
   probe_drivers
+  probe_mem_arm
+  DRV_V=$(worse "$DRV_V" "$MEM_V")
   probe_journal
 
   printf 'PLANE packages: %s (%s)\n' "$PKG_V" "$PKG_NOTE"
   printf 'PLANE systemd: %s (%s)\n' "$SYS_V" "$SYS_NOTE"
-  printf 'PLANE drivers: %s (%s)\n' "$DRV_V" "$DRV_NOTE"
+  printf 'PLANE drivers: %s (%s; mem=%s)\n' "$DRV_V" "$DRV_NOTE" "$MEM_NOTE"
   printf 'PLANE journal: %s (%s)\n' "$JRN_V" "$JRN_NOTE"
 
   local roll=HEALTHY

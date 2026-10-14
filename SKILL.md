@@ -836,3 +836,149 @@ Retained journal (13 boots) holds **two kill waves**, one per class: **event A**
 - Carried (unchanged): root `-Qkk` delta; the 18/19 sweep-summary split; `1password-beta`
   provenance; `walker-restart.hook` (kagi/operator); dkms stale row; `snapper` empty; the
   "20-min cap" item (owner: integrator); round-4/5 `corpus/README.md` coverage debt (scribe).
+
+## Round-7 append — the watch arms land: `foreign=` known-vs-new, the memory-pressure arm, and the update-safety v2 note (TSUKUROI-S7-4)
+
+Dispatch frame: `plans/round-7.plan.md` (md5 `bb9159549bfdad7516af381f6f12965d`, 10 557 B,
+160 `wc -l`) — drafted by PREP-S7 during the round-6 wave, so every round-6 artifact it names is
+a **plan**, never landed state. **The plan's claim (a) fifth plane (`PLANE update-safety`) and
+claim (b)'s round-2 errata pointer were not in the tree at this append's write time
+(2026-10-14T18:52Z)** — both carried, with the tag, in the errata block below. What landed and is
+distilled here: the census revision (`tools/tsukuroi-census.sh` — TSUKUROI-S7-1's foreign-baseline
+watch, round-6's named debt finished, plus TSUKUROI-S7-2's memory-pressure arm), the independent
+verification of the baseline arm (`corpus/knowledge/aur-risk-plane-ver-s7.md`, VER-S7), and the v2
+decision note (`corpus/knowledge/update-safety-v2.md`, TSUKUROI-S7-3). **Landed names win over
+draft names:** the plan's `update-safety-plane.md` landed as `update-safety-v2.md`. This seat's
+own read-only receipts: `/tmp/w7-tsukuroi-s74/` (`probes.out`, `census-receipts.out`,
+`census-r2-receipts.out`, `poll.log`; ephemeral). Counts below are captures — re-run, never quote.
+
+### Census revision — the two new arms on the four planes (supersedes the round-5 pin)
+
+- **Identity check** (replaces the round-5 `md5sum` line `:619-623`): `md5sum
+  tools/tsukuroi-census.sh` = `e2c4558a3ae4ddd2eca67e8f4d64281c` · sha256
+  `bba6cdf6f5b7a7372e43230821bb7c12aa64192266c549f39475c948803a4f55` · 1472 `wc -l` · 73 919 B
+  (mtime 2026-10-14 15:33:21 -03). **Uncommitted at this append's write time** (`git status` =
+  ` M`; HEAD still `dc3436d`): the round-7 commit should pin these bytes — re-hash after the
+  commit, and on mismatch **stop and re-measure** before trusting any rule here. The banner still
+  reads `census-v2`; identity is by hash, not version string (round-5 rule, kept). This supersedes
+  the round-5 35-case / `e9327046…` / 1032-ln pin and the round-3 26-case / `41953ee9…` / 976-ln
+  pin.
+- **Selftest** (own run 2026-10-14T18:39:37Z, rc=0, fixture byte-unchanged — zero mutation):
+  verbatim `TSUKUROI_CENSUS_SELFTEST: PASS (49 cases, 49 passed, 0 failed)` = 35 legacy + **6
+  foreign-baseline** (round-6 debt: hit / embedded-default / new / version-drift / gone / absent)
+  + **8 memory-arm** (labels carry `(S7-2)`).
+- **Live contract unchanged in shape** — four `PLANE` lines + rollup, exit map 0/1/2; the new arms
+  ride existing lines (`mem=` on the drivers line, `foreign=` inside the packages note). Own run
+  2026-10-14T18:39:42Z (rc=1), verbatim:
+
+```
+tsukuroi-census census-v2 — host=plazir27 — 2026-10-14T18:39:42Z — read-only
+PLANE packages: DEGRADED (pacman -Qkk rc=1 sample=8(1password-beta,1password-cli,7zip,aalib,abseil-cpp,acl,adwaita-cursors,adwaita-fonts) drift=2[1password-beta,1password-cli] backup_diffs=0 nonroot_artifacts=0; foreign=16(known=16 new=0 drift=0 gone=0) base=r6(16); pins=none; holds=pacman glibc; db.lck=absent)
+PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)
+PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=139 (oom=1 io=70 gpu=0 other=68) [unknown: accepted noise floor]; nvidia=present smi=610.57.04 modules=4 nodes=6 pci_10de=2; mem=[DEGRADED] C1_kernel_oom=1 C2_sysd_oom=3 C3_sigkill=3; C4_sweep=190 C4_present=2[user.slice,user.slice/user-1000.slice] C4_local=0; C5_swap_fail=5922849 C5_swap_peak_pct=99% C5_pswp=72118991/93920636 C5_sock_throttled=67558; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=68625258 C6_avail_kb=19678812 C6_shmem_kb=6517900; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)
+PLANE journal: DEGRADED (boots=13 current=yes target=graphical.target:active err=442 (coredump=279 kernel=139 other=24); failedhist=8[app-com.onepassword.OnePassword@autostart.service,app-org.gnome.SettingsDaemon.DiskUtilityNotify@autostart.service,app-walker@autostart.service,init.scope,-.slice,user@1000.service]; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0)
+TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED journal=DEGRADED)
+```
+
+  (Read-only verified: `git status` byte-identical before/after, no `db.lck` created, live mode
+  writes nothing — the round-2 guarantee still holds.)
+- **New arm 1 — the foreign watch** (lane S7-1; finishes round 6's *specified, not landed* baseline
+  contract, `plans/round-6-record-draft.md §4`):
+  - realized note string: `foreign=16(known=16 new=0 drift=0 gone=0) base=r6(16)` — `known` = a
+    live `pacman -Qm` row matching the baseline at the same version; `new` = live row absent from
+    the baseline; `drift` = version differs (printed `name(old->new)`); `gone` = baseline row no
+    longer installed (never silently dropped). Each non-empty class is named in the note.
+  - baseline source: the gate's **embedded** r6 snapshot (`R6_FOREIGN_BASELINE`, 16 rows = the
+    register's §1 rows, `aur-risk-plane.md:55-89`), unless `TSUKUROI_FOREIGN_BASELINE` points at an
+    external `name<TAB>version` file — the register's proposed standalone `.tsv` **stayed a
+    proposal** (no `*baseline*` / `*.tsv` file in the tree at write time). `base=` reads
+    `r6(16)` | `file(n)` | `absent` | `unreadable`.
+  - **fail-closed both ways**: any `new`/`drift`/`gone` → DEGRADED with names; an absent/unreadable
+    baseline prints `foreign=<n>(base=absent [known/new/drift/gone unknown])` and stays DEGRADED —
+    never HEALTHY off a missing baseline; an unreadable `-Qm` prints `foreign=? [pacman -Qm
+    unreadable]`.
+  - independent verification: `aur-risk-plane-ver-s7.md` (VER-S7; md5 `4608743d…`, 184 ln):
+    **CONFIRMED** — the count and the fold reproduce from the verifier's own probes, the embedded
+    baseline is identical to the register's 16 rows, and all four fail-closed branches fire and
+    name their class.
+- **New arm 2 — the memory-pressure arm** (lane S7-2; `mem=[HEALTHY|DEGRADED|BLOCKED]` appended to
+  the drivers note; `DRV_V=$(worse "$DRV_V" "$MEM_V")` — the arm can only worsen the drivers
+  verdict, never raise it):
+  - vocabulary: the round-6 OOM note's detection contract C1–C6 (`oom-event-plane.md` §8; cited in
+    the line as `r6 vocab: oom-event-plane.md §8`) — C1 kernel OOM entries (the ring's `oom=`
+    source), C2 systemd attribution (`kernel OOM killer killed some processes` — the only
+    attribution for a session-wide SIGKILL class that leaves no kernel record), C3 SIGKILL/teardown,
+    C4 cgroup `memory.events[.local]` oom_kill **presence flags, never meters** (round-6 rule),
+    C5 swap-pressure anchors (`swap.events fail`, `swap.peak` vs meminfo `SwapTotal`,
+    pswpin/pswpout, `sock_throttled`), C6 live shape (PSI avg300/total, `MemAvailable`, `Shmem`)
+    plus the guards shape (`memory.max/high`, `oom.group`).
+  - pass = every signal readable and every class 0; degrade = any class > 0 **or** any required
+    signal unreadable (named in `unknown=[…]`, never silent); block = cgroup sweep empty **and**
+    all three journal probes unusable. `journalctl --grep` rc=1 means "0 entries"; any other
+    non-zero rc means "unreadable".
+  - measured this run (above): `mem=[DEGRADED]` with `C1=1 C2=3 C3=3`, `C4_present=2`, `C5_swap_fail=5922849`,
+    `C5_swap_peak_pct=99%`, `guards=max/max` — the round-6 two-wave state **re-measured, not
+    quoted** (the arm keeps no cross-run state; new-vs-baseline is the class presence plus the
+    note's recheck ledger). `memory.peak` stays out of the line — page-cache-inclusive, not a
+    pressure reading (round-6 rule kept). Cost of the arm, from its own header note: ≈0.3 s of a
+    ≈1.1 s gate run.
+- **Count restatements — now moved together** (the round-6 deferral at `:829-832` is void, a gate
+  revision having landed): the round-3 executor-checklist step 2's "`PASS (26 cases, 26 passed,
+  0 failed)`" (`:519-521`) and the round-5 blocks' "35 cases" (`:600-602`, `:686-688`) stand as
+  history; the current expected line is `PASS (49 cases, 49 passed, 0 failed)` at the identity pin
+  above. `--sample N` default 8 and the `TSUKUROI_*` fixture-only override rule are unchanged.
+
+### The v2 decision note — class × update-path (`corpus/knowledge/update-safety-v2.md`)
+
+- Identity at write time: md5 `92803aea74ebeb1598fa4f450489e5d2`, 353 `wc -l` / 28 825 B (mtime
+  15:25:40 -03). Scope: the round-2 note **re-run** (all 16 pins re-measured) with the round-6 AUR
+  classes **joined** — the follow-up the round-2 model could not answer: "and what would that
+  `-Syu` never touch?" The census plane (claim (a)) is explicitly not this file.
+- The join (note §4; rows verbatim there): `official-sync` (everything repo-resolved, incl. the 26
+  `[omarchy]` rows) — `-Syu` upgrades/reinstalls; `aur-local` (2: `android-apktool-bin` 3.0.3-1,
+  `obsidian-cli-inspector` 1.0.3-1) — `-Syu` reach **none** (`pacman -Si` rc=1), helper-only (yay;
+  review-on-update; upstream state [unknown]); `offline-exile` (14: 13 × `elephant*` 2.21.0-1 +
+  `omarchy-walker` 1.0.0-2) — **no update or repair path from any repo**; the only safe operations
+  are preserve (`offline.db` + the cached archives/sigs, before any prune) and observe
+  (journal-watch the launcher after any `walker` upgrade); `unknown-provenance` (rule, 0 rows
+  today) — the register's probe order, in order: pacman.log `-U` grep → `~/.cache/yay/<pkg>/` →
+  `pacman -Qi` *Validated By* → `offline.db` listing; **a class is never guessed**; `out-of-reach`
+  — the `walker` 2.17.0 vs elephant 2.21.0 linkage question routes to kaidoku/revenger, never
+  absorbed.
+- The reading it adds: round 2's "empty ≠ up to date" gains its second half — **"resolvable ≠
+  maintainable"**: an `-Syu` reporting 0 actions says nothing about the ~357 MiB of installed code
+  no configured repo can reach.
+- Receipts worth keeping: the 16 r2 pins re-run all "**same**" (incl. `-Qu` rc=1 empty, db births
+  2026-10-11 12:54:13.542, foreign 16, `snapper list-configs` 0 configs, dkms stale row) —
+  same-value, *not* independent confirmation (no pacman activity since 2026-10-13 16:37); the
+  `-Suu` downgrade trap upgraded from [inference] to **measured** (`pacman -Suu --print-format` →
+  exactly one action, `omarchy/1password-beta 8.12.42_32.BETA-1` — the r2 note's `:374-375` "do not
+  run" is now a printed plan); `/boot` rc=2 BLOCKED stands; hazards U1–U8 refreshed (rollback net
+  0 configs; dkms stale `7.1.4-arch1-1`; cache 8.6 G unpruned; trust surfaces unchanged).
+- Boundary kept: the note wrote only itself and named its owed items (the round-2 errata pointer,
+  LOG entry, README rows, the census plane) — recorded here, not absorbed.
+
+### Errata / pending — round 7 (append)
+
+- 2026-10-14 — **plan claim (a), the fifth plane, is not in the landed gate at this append's write
+  time.** The pinned revision carries four planes + the two new arms above; there is no `PLANE
+  update-safety` emitter and no fifth rollup term (checked 18:52Z against `e2c4558a…`). If a later
+  revision lands it, re-hash first, run `--selftest`, and quote the **realized** note line and the
+  realized gate-verdict mapping (the plan proposes INERT/PASS→HEALTHY,
+  REQUIRES-PREP/UNKNOWN-UPSTREAM→DEGRADED, BLOCKED→BLOCKED, DO-NOT as note content —
+  `plans/round-7.plan.md:52-79`); the arm vocabulary and composition already have a measured model
+  in the round-2 block above (`:359-381`) and in the v2 note.
+- 2026-10-14 — **round-2 note errata pointer still owed**: `update-safety-note.md` unchanged at md5
+  `5cc3067fec33d261d8bff6a5c7e8ac48` / 478 ln at write time.
+- 2026-10-14 — **the standalone baseline file stayed a proposal**: the realized baseline is the
+  gate's embedded r6 snapshot (register `:314-329` and round-6 draft `:252-293` both remain
+  proposals). Quote the realized shape (`base=r6(16)`), not the proposal.
+- 2026-10-14 — **round-7 write scopes observed, not absorbed**: S7-3 wrote only its note; SCR-S7
+  only the record draft; VER-S7 only its verification note; this seat only this append. Still owed
+  at write time: the `SCORECARD.md` round-7 move row, the `LOG.md` entry, and `corpus/README.md`
+  coverage rows (rounds 4-6 collapsed debt) — scribe lane.
+- Carried (unchanged): root `-Qkk` delta; the 18/19 sweep-summary split; `1password-beta`
+  provenance; `walker-restart.hook` (kagi/operator); dkms stale row; `snapper` empty; the "20-min
+  cap" item (owner: integrator); round-4/5/6 `corpus/README.md` coverage debt; the round-2 wave-1
+  errata merge. `plans/round-8.plan.md` (PREP-S8 draft) proposes the OOM plane as its own census
+  plane — a plan, not landed state.
