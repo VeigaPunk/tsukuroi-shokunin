@@ -164,3 +164,4 @@
   reported-not-absorbed: coredump storm (→ owning workstreams),
   limine-snapper claim (→ update-safety re-audit), `walker-restart.hook`
   (→ kagi/operator), GSP selection (→ kaidoku/revenger).
+- 2026-10-14 — round 4 (training r3): boot plane (299 L; corrected r3's '0 unit failures' -> 4 capitalized-pattern records); degraded-triage (VER-S1: P1/D2/U6 CONFIRMED, 755-not-644 correction); census overnight-diff receipt; 6 errata blocks; SIGKILL/OOM event at 13:10 recorded (environment, not absorbed). Axis moved: freshness + depth. Verifiers: VER-S1 | ERR-S. 32-lane wave (27+1+4 after an alibaba filter failure rerouted 4 lanes to hyper — recorded).

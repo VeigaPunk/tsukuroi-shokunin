@@ -419,6 +419,63 @@ Line counts via `wc -l`; hashes via `md5sum` at 11:46–11:58.
 - Count drift note (J1/J2): `journal-boot-plane.md` §2.1 captured 247 err
   entries at 11:40; this report captured 248 (11:41) and 251 (11:45) — drift in
   a live storm, not a disagreement; both are entry-level counts.
+- 2026-10-14 — **census re-run receipt (TSUKUROI-R4-2, round 4).** Re-ran the
+  gate live: `--selftest` rc=0, 26/26 PASS; live rc=1 `DEGRADED` at 16:06:19Z,
+  same md5 `41953ee9f2099281c91759249fe8708f`/976 lines as §5 — the gate is
+  unchanged, so the diff below is host state, not gate drift. Gap vs §1's
+  14:57:13Z capture: 69 min (measured; the round-4 "overnight" framing is not
+  what the clock shows). Verdict diff: packages and systemd byte-identical;
+  drivers `kerr` 38→102 (`other` 2→66; oom/io/gpu unchanged); journal `err`
+  251→344 (`coredump` 211→228, `kernel` 38→102, `other` 2→14); rollup
+  unchanged `TSUKUROI_CENSUS: DEGRADED` (rc=1). Arithmetic closes exactly:
+  251+64+17+12 = 344 and 38+64 = 102. Verbatim live run:
+
+    ```
+    tsukuroi-census census-v2 — host=plazir27 — 2026-10-14T16:06:19Z — read-only
+    PLANE packages: DEGRADED (pacman -Qkk rc=1 sample=8(1password-beta,1password-cli,7zip,aalib,abseil-cpp,acl,adwaita-cursors,adwaita-fonts) drift=2[1password-beta,1password-cli] backup_diffs=0 nonroot_artifacts=0; foreign=16; pins=none; holds=pacman glibc; db.lck=absent)
+    PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)
+    PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=102 (oom=1 io=35 gpu=0 other=66) [unknown: accepted noise floor]; nvidia=present smi=610.57.04 modules=4 nodes=6 pci_10de=2)
+    PLANE journal: DEGRADED (boots=13 current=yes target=graphical.target:active err=344 (coredump=228 kernel=102 other=14); failedhist=0; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0)
+    TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED journal=DEGRADED)
+    ```
+- 2026-10-14 — **new classes since the 14:57:13Z capture (first-seen after it;
+  round-4 triage material — recorded here, not triaged; §0.1's index stands as
+  of 14:57:13Z by append-only rule):** (a) kernel `other` +64 = 64 ×
+  `usb 8-12: Incompatible EP setup for 0x8`, device `0db0:cd0e` "USB Audio"
+  (sysfs `/sys/bus/usb/devices/8-12*` still enumerated, 8 interfaces 1.0–1.7),
+  window 15:30:08Z–16:03:04Z (12:30:08–13:03:04 -03), 63/64 inside the first
+  five minutes; no disconnect/re-attach line in the ring and no suspend/resume
+  in the boot (the `PM: hibernation:` matches are boot-time memory
+  reservations) — mechanism [unknown]. (b) journal `other` +12 = 9 ×
+  `pipewire` + 3 × `pipewire-pulse` err entries, 15:29:03Z–15:30:39Z: `can't
+  find protocol 'PipeWire:Protocol:Native': Operation not supported`,
+  mandatory module `libpipewire-module-fallback-sink` fails, `D-Bus name
+  org.pulseaudio.Server already taken.`; one-shot client instances (distinct
+  PIDs), **not** a daemon flip — `pipewire.service`/`pipewire-pulse.service`
+  active since boot (`NRestarts=0`, ActiveEnter 11:02:08/09 -03);
+  [observed] (b) starts 65 s before (a) and overlaps it; [inference] one audio
+  re-init event ~12:29–12:30 local; [unknown] launcher, mechanism, and current
+  audio-path health (no audio probe run). (c) `coredump` +17 (class 211→228;
+  230 at 16:06:31Z; `coredumpctl` same window 232 at 16:06:47Z, composition
+  capture 235 at 16:07:02Z — live, drifting in seconds): godot 148→166, new
+  entrants blender 7 (SIGSEGV) + love 2 (SIGABRT); node 47, python3.14 4,
+  grok-bot 3, chrome_crashpad 2, typora 2, electron 1, bash 1 unchanged.
+- 2026-10-14 — **freshness negatives (measured) + read-only receipt + LOG
+  owed.** No new updates: `pacman -Qu` rc=1 empty, `-Sup` 0, sync dbs still
+  born 2026-10-11 12:54:13.542054496 with 2026-09-08 content stamps,
+  `checkupdates` absent — the update arm vocabulary stays `INERT` (§2.5). No
+  unit state flips: user scope `running`/0 failed, `ai-usage.timer`
+  `Result=success` (fired 16:06:46Z, next 16:11:46Z), latent pair unchanged
+  (`omarchy-battery-monitor.timer` disabled; `omarchy-recover-internal-monitor.service`
+  inactive/`ConditionResult=no`), system scope `running`/0 failed; no reboot
+  (boots=13, boot 0 `d7f0bc8d938e4249b4a1f250cbfacf58` 2026-10-13 11:02:03 -03
+  still current). Untouched: sr0 35, OOM 1, TDX 1, blank 1; nvidia
+  present/answering (smi 610.57.04, modules=4, nodes=6); pins/holds and the
+  drift pair unchanged. Read-only: live mode creates no files; captures in
+  `/tmp/tsukuroi-r4-2-work/` (ephemeral); repo `git status --short` before and
+  after = `?? plans/round-4.plan.md` only (round artifact). **LOG.md entry owed
+  for this erratum** (`AGENTS.md:3`): this seat's write scope was this file
+  only; the round scribe appends the round-4 log entry.
 
 ## Appendix A — executor re-run set
 
@@ -461,3 +518,46 @@ df -h / /boot; du -sh /var/cache/pacman/pkg
 `selftest.out` (v1 17/17), `selftest-v2.out` (26/26), `qkk-drift-pair.out`,
 `qkk-full.txt` + `qkk-full.norm.txt`, `kerr-msgs.txt`, `qu.out`/`qu.err`,
 `sup-print.out`, `boot-ls.err`, `run-started.txt`.
+
+## 7. Errata (round 4 — TSUKUROI-ERR-S errata sweep)
+
+Read-only sweep 2026-10-14 of the six named corpus notes' headers/pins plus
+`tools/tsukuroi-census.sh`; bounded commands (`timeout 30`). This block records
+the provenance outcome for §5 and the pins that moved. All §5 md5s were
+**re-verified live at read time and matched** — no pre-existing drift in §5;
+the churn below is caused by this round's own append-only errata, which is the
+expected consequence of pinning mutable notes by hash.
+
+- **§5 pins at read time — all matched:** `tools/tsukuroi-census.sh` census-v2
+  `41953ee9f2099281c91759249fe8708f` / 976 lines (also re-ran `--selftest`
+  → `TSUKUROI_CENSUS_SELFTEST: PASS (26 cases, 26 passed, 0 failed)`, rc=0);
+  `journal-boot-plane.md` `16d4047e…`/411; `package-state-plane.md`
+  `24eafc40…`/303; `systemd-user-plane.md` `26dca9cf…`/247;
+  `driver-firmware-plane.md` `a44e9c07…`/242; `update-safety-note.md`
+  `5cc3067f…`/478. [observed, `md5sum` + `wc -l`]
+- **§5 superseded for four notes (this round's appends changed their md5/lines):**
+  `journal-boot-plane.md` → `e5ca40dafc4d1d2a2158fded39067df6` / 430;
+  `package-state-plane.md` → `ef93f1b78b6a9e17e8c9d096e7852a02` / 323;
+  `systemd-user-plane.md` → `af07a829cfd0307fbe970a2cdc054e18` / 265;
+  `driver-firmware-plane.md` → `518eda8f0f39f25ee95c715571a9cf95` / 256.
+  `update-safety-note.md` was not touched — its §5 pin still holds.
+  [observed, post-append `md5sum`/`wc -l`]
+- **§5 omission, recorded not fixed:** `boot-plane.md` (round-4 note, TSUKUROI-R4-3)
+  is not in the §5 table; live `e722b7a931858aa5ff1a89ce91cccca9` / 312 lines.
+  §5 predates it; adding a row would edit a pinned table, so it is logged here.
+  [observation]
+- **`corpus/README.md:14` pin for this report is stale:** the index row says
+  "462 ln, md5 `d701cf6f630363ce3228260ee17226a4`"; this report measured **519
+  lines / `cb7c26b033c31fe070c03a45252a5916`** at read time (the round-4 errata
+  already appended in §6 account for the growth; this append moves it again).
+  `corpus/README.md` is outside this lane's write scope — flagged for the index
+  owner. [observed]
+- **Index/coverage gaps flagged, not edited** (`corpus/README.md` out of scope):
+  no coverage row for `boot-plane.md` or `degraded-triage-r4.md`; the
+  `journal-boot-plane.md` row (`:13`) still repeats its superseded "0 unit
+  failures" claim (see that note's §13 errata and `boot-plane.md` §5). [observation]
+- **Header-key contract:** `package-state-plane.md` and `systemd-user-plane.md`
+  were missing the literal `source:`/`verified-at:`/`recheck:` keys required by
+  `CORPUS.md:17`; each now carries a round-4 field-contract erratum supplying
+  them (the same class of erratum `driver-firmware-plane.md:239` already held).
+  [observation]

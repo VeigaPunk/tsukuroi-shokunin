@@ -246,3 +246,20 @@ journalctl --user -b -p err -o json --no-pager | wc -l
 coredumpctl list --since "2026-10-13 10:57:58" --json=short --no-pager | jq -r '.[] | [.sig,.exe,.corefile] | @tsv' | sort | uniq -c
 journalctl --list-boots --no-pager | tail -4
 ```
+
+## 11. Errata (round 4)
+
+- 2026-10-14 (TSUKUROI-ERR-S sweep) — **header pin re-verified, holds.** `systemctl --user
+  --version` → `systemd 261 (261.2-1-arch)`, identical to the header pin (`:3`). No stale pin
+  on this note. [observed]
+- 2026-10-14 — **field-contract erratum** (same class as `driver-firmware-plane.md:239`): the
+  header carries probe-context prose, not the contracted literal keys (`CORPUS.md:17`) — a
+  contract this note itself cites at `:202` and `:226` without satisfying. Appended values:
+  `source:` live read-only probes — `systemctl --user` / `journalctl` / `coredumpctl` /
+  `systemd-analyze` / `find` on host `plazir27`, uid 1000, non-root; `verified-at:` 2026-10-14
+  (round-4 re-check of the header pin only; body captures keep their own stamps); `recheck:`
+  `systemctl --user --version` for the header pin + the §10 probe set. [observation]
+- 2026-10-14 — **md5-pin consequence:** this append changes this file's md5 and line count, so
+  `host-health-report-r3.md` §5's pin for this note (`26dca9cf12b322926babfef49e257f07`, 247
+  lines) is superseded as of this block; post-append values recorded in that report's round-4
+  errata. [observation]

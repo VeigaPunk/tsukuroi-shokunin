@@ -241,3 +241,16 @@ Wave-1 record sources: `SKILL.md:44` (driver-row residues), `corpus/README.md:9`
   `verified-at:` 2026-10-14 (wave-1 audits + this re-measure); `recheck:`
   `dkms status`; `ls /lib/modules`; `pacman -Qo` on the DKMS module;
   `nvidia-smi --query-*`. [observation]
+
+## Errata (round 4)
+
+- 2026-10-14 (TSUKUROI-ERR-S sweep) — **header pins re-verified, hold.** `uname -a` →
+  `7.2.3-arch1-3` (built 2026-09-06); `modinfo nvidia` → `version: 610.57.04`; `dkms status`
+  still lists the stale `nvidia/610.57.04, 7.1.4-arch1-1 … (Built modules are missing in the
+  kernel modules folder)` row beside the live `7.2.3-arch1-3` row; `ls /lib/modules/` → `7.2.3-arch1-3`
+  only. Every pinned anchor at `:3-6,80-86` holds. No stale pin on this note. [observed]
+- 2026-10-14 — the field-contract erratum already carried above (`:239`, `CORPUS.md:17`) stands;
+  not duplicated. **md5-pin consequence:** this append changes this file's md5 and line count, so
+  `host-health-report-r3.md` §5's pin for this note (`a44e9c07d5b139fe65d5284674398b3a`, 242
+  lines) is superseded as of this block; post-append values recorded in that report's round-4
+  errata. [observation]

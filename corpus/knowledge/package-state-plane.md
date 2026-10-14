@@ -302,3 +302,22 @@ re-measurements, not the note's.
    `-Qu`=0 only proves local == sync-db).
 6. Whether `/usr/bin/powerprofilesctl` drift is a deliberate omarchy patch
    (operator question).
+
+## Errata (round 4)
+
+- 2026-10-14 (TSUKUROI-ERR-S sweep) — **header pins re-verified, hold.** `pacman -Q pacman`
+  → `7.1.0.r9.g54d9411-2`; `pacman --version` → `Pacman v7.1.0 - libalpm v16.0.1`; `uname -r`
+  → `7.2.3-arch1-3` — byte-identical to the header pin (`:3-5`). No stale pin on this note.
+  [observed]
+- 2026-10-14 — **field-contract erratum** (same class as `driver-firmware-plane.md:239`): the
+  header carries measured-date prose, not the contracted literal keys (`CORPUS.md:17` — "Each
+  `knowledge/` entry opens with `source:`, `verified-at:` and `recheck:`"). Appended values:
+  `source:` live read-only probes — `pacman -Q*` / `pacman -Qkk` / `pacman-conf` / `pacman-key`
+  / `stat` / `du` on host `plazir27`, user `vgpnk`, non-root; `verified-at:` 2026-10-14 (round-4
+  re-check of the header pins only; body captures keep their own stamps); `recheck:`
+  `pacman -Q pacman; pacman --version; uname -r` for the header pins + the Appendix probe set.
+  [observation]
+- 2026-10-14 — **md5-pin consequence:** this append changes this file's md5 and line count, so
+  `host-health-report-r3.md` §5's pin for this note (`24eafc4067f6ca7bf3608dfff5ff63d6`, 303
+  lines, measured 11:46–11:58) is superseded as of this block; post-append values recorded in
+  that report's round-4 errata. [observation]

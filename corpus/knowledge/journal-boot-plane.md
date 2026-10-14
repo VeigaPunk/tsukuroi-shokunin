@@ -410,3 +410,21 @@ dmesg >/dev/null 2>&1; echo rc=$?
 bootctl status; ls /boot
 getfacl -p /var/log/journal
 ```
+
+## 13. Errata (round 4)
+
+- 2026-10-14 (TSUKUROI-ERR-S sweep) — **missing cross-ref: §4's failed-unit-history claim is
+  superseded.** `boot-plane.md` §5 (round 4, TSUKUROI-R4-3) re-measured this note's §4 claim
+  ("zero unit-activation failures in 13 retained boots") with case-insensitive patterns and found
+  **4 failure records**; the round-3 miss came from the strict lowercase pattern `failed with
+  result` vs systemd's `Failed with result` and a broad set that excluded `Failed to enqueue`.
+  This note is not edited (append-only), but its §10 errata carried no pointer to that
+  supersession — added here. §5 duration table and the Δ rule were re-verified unchanged there.
+  [observed: `boot-plane.md` §2.2, §5; live `journalctl` re-reads]
+- 2026-10-14 — **index row also stale:** `corpus/README.md:13` still repeats the superseded
+  "failed-service history **0 unit failures in 13 retained boots**" line for this note. That file
+  is outside this lane's write scope — flagged for the index owner, not edited. [observation]
+- 2026-10-14 — **md5-pin consequence:** this append changes this file's md5 and line count, so
+  `host-health-report-r3.md` §5's pin for this note (`16d4047e8b03deec69773d2cc0b1b75c`, 411
+  lines) is superseded as of this block; post-append values recorded in that report's round-4
+  errata. [observation]
