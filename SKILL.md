@@ -982,3 +982,189 @@ TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED jo
   cap" item (owner: integrator); round-4/5/6 `corpus/README.md` coverage debt; the round-2 wave-1
   errata merge. `plans/round-8.plan.md` (PREP-S8 draft) proposes the OOM plane as its own census
   plane — a plan, not landed state.
+
+## Round-8 append — the verified OOM arm and the kill-event classes (TSUKUROI-S8-4)
+
+Dispatch frame: `plans/round-8.plan.md` (md5 `0bef822da196368c47c56426063990fe`, 14 592 B, 216
+`wc -l` / 217 as read — unterminated final line; committed in `aa136d6`). The plan's move is the
+**OOM/kill-event watch joining the census** as a new plane line + new-vs-baseline rows; **that arm
+had not landed at this append's write time** (block below). What this append lands in the playbook
+is the **verified** OOM arm (round 7's S7-2 memory-pressure arm, non-author-verified in round 8)
+and the **kill-event classes** (round 8's deep capture). Distilled sources, both re-hashed by this
+seat: `corpus/knowledge/memory-arm-ver-s8.md` (VER-S8; md5 `861d83ad5a120487507b167236ee3cd0`,
+251 `wc -l` / 252 as read, unterminated final line) and `corpus/knowledge/kill-event-deep-r8.md`
+(S8-2; md5 `6685e1da443f5d368cd41584d2b9943e`, 340 `wc -l` / 341 as read, unterminated final
+line). Supporting evidence: `corpus/knowledge/memory-arm-mutants-s8.md` (S8-1; md5
+`a09e5604a9a818f38096569365d48823`, 181 `wc -l`). This seat's own read-only re-probes are named
+inline. Counts are captures — re-run, never quote.
+
+**Gate identity (unchanged this round).** The round-7 pin still stands: `md5sum
+tools/tsukuroi-census.sh` = `e2c4558a3ae4ddd2eca67e8f4d64281c` · sha256
+`bba6cdf6f5b7a7372e43230821bb7c12aa64192266c549f39475c948803a4f55` · 1472 `wc -l` / 73 919 B
+(re-hashed by this seat; = HEAD `aa136d6` blob — `memory-arm-ver-s8.md:21-26`). No round-8 census
+revision landed in the round-8 window (`memory-arm-ver-s8.md:29-30,184-188`). A mismatch on a later
+read means the gate has moved — stop and re-measure before trusting any rule here.
+
+### The OOM arm as landed — `mem=` on the drivers line (S7-2, round 7)
+
+The memory-pressure arm rides the **drivers** plane's note and verdict; there is no separate plane
+line in the landed revision. `DRV_V=$(worse "$DRV_V" "$MEM_V")` — the arm can only worsen the
+drivers verdict, never raise it (`tools/tsukuroi-census.sh:790-801`). Its vocabulary is the round-6
+OOM note's detection contract C1–C6 (`corpus/knowledge/oom-event-plane.md` §8; the line cites it as
+`r6 vocab: oom-event-plane.md §8`), as implemented at `tools/tsukuroi-census.sh:100-135,688-801`:
+
+- **C1** kernel OOM dump entries (`journalctl -k -b -p err -o json` + the OOM regex — the same
+  source and semantics as the ring's `oom=` class) · **C2** systemd OOM attribution
+  (`kernel OOM killer killed some processes`, PRIORITY=5 — the only attribution for a session-wide
+  SIGKILL class that leaves no kernel record) · **C3** SIGKILL/teardown
+  (`status=9/KILL|Failed with result '(signal|oom-kill)'`) · **C4** cgroup `memory.events[.local]`
+  `oom_kill` **presence flags, never meters** · **C5** swap-pressure anchors (`swap.events fail`,
+  `swap.peak` vs meminfo `SwapTotal`, `memory.stat` pswpin/pswpout, `sock_throttled`) · **C6** live
+  shape (PSI `avg300`/`total`, `MemAvailable`, `Shmem`) plus the guards shape (`memory.max/high`,
+  `oom.group`).
+- **pass** every signal readable and every class 0 · **degrade** any class > 0, or any required
+  signal unreadable — named in `unknown=[…]`, never silent · **block** cgroup sweep empty **and**
+  all three journal probes unusable (fail closed, same stance as the ring arms).
+- `journalctl --grep` rc=1 means "0 entries"; any other non-zero rc means "unreadable"
+  (`tools/tsukuroi-census.sh:118-125`). `memory.peak` stays out of the line — page-cache-inclusive,
+  not a pressure reading (round-6 rule kept). Arm cost ≈0.3 s of a ≈1.1 s gate run.
+
+Realized arm line at the pin (VER-S8's own run, `memory-arm-ver-s8.md:47`; the drivers line
+verbatim — a capture, re-run before quoting):
+
+```
+PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=139 (oom=1 io=70 gpu=0 other=68) [unknown: accepted noise floor]; nvidia=present smi=610.57.04 modules=4 nodes=6 pci_10de=2; mem=[DEGRADED] C1_kernel_oom=1 C2_sysd_oom=3 C3_sigkill=3; C4_sweep=190 C4_present=2[user.slice,user.slice/user-1000.slice] C4_local=0; C5_swap_fail=5922849 C5_swap_peak_pct=99% C5_pswp=72315769/94058025 C5_sock_throttled=67558; C6_psi_some_avg300=0.04 C6_psi_full_avg300=0.04 C6_psi_full_total_us=69186087 C6_avail_kb=19155736 C6_shmem_kb=6935768; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)
+```
+
+The round-6 two-wave state is **re-measured, not quoted** — the arm keeps no cross-run state
+(new-vs-baseline is the class presence plus the note's recheck ledger).
+
+### The verification — VER-S8 `CONFIRMED`, AUD-X7 closed
+
+The round-7 queued gap `AUD-X7` ("S7-2's memory arm has no non-author verification", `LOG.md:170`)
+is closed by VER-S8. Verdict verbatim (`memory-arm-ver-s8.md:32-40`):
+
+> **Verdict: CONFIRMED — AUD-X7 is closed for the S7-2 memory arm as landed at `e2c4558a…`, with
+> coverage debt named, not smoothed. 0 live measurement claims refuted.**
+
+- **Independent replay of S8-1's 11-defect set**: 8 killed / 3 survived / 0 inconclusive (73 %);
+  control green; restore OK; **all 11 mutant sha256s reproduce byte-for-byte**, all 11 verdicts and
+  the per-case attribution reproduce (D2–D8 kill exactly their owning case; D1 kills 10)
+  (`memory-arm-ver-s8.md:80-103`; S8-1's own sweep `memory-arm-mutants-s8.md:95-117`).
+- **What "verified" rests on**: the 8 shipped `(S7-2)` selftest cases each kill a defect of exactly
+  their own contract clause — 8/8 own-case kills, D2–D8 each uniquely the only failing case of 49
+  (`memory-arm-mutants-s8.md:112-117`). The non-author pass reproduces the mutant bytes and adds
+  its own 16-defect set (11 killed / 5 survived / 69 %, prediction score 15/16) and a 15-case
+  fail-closed battery (`memory-arm-ver-s8.md:105-166`).
+- **Coverage debt, named — 9 clause sites un-exercised by the 49-case suite** (S8-1's D9/D10/D11;
+  VER-S8's M04/M06/M10/M12/M15; plus M17, the `C5-stat` sibling S8-1 left **unmeasured**). Each is
+  detected by at least one case in VER-S8's battery, so the debt is suite coverage, not undetectable
+  semantics (`memory-arm-ver-s8.md:177-181,149-166`). The shipped suite is **not** to be described
+  as clause-complete.
+- **Kept, not smoothed**: VER-S8's own prediction error on M01 (killed via a dispatcher
+  routing coupling, not a semantic assertion — `:170-176`); method delta (S8-1 swept a `/tmp` byte
+  copy, VER-S8 the repo file directly — identical mutant bytes, same outcome, `:189-190`); the live
+  *unreadable* states stay [unknown] (hermetic fixtures only, `:192-204`).
+- **Still open**: the round-8 half of the plan's measure — the new `PLANE oom` watch + ≥2 baseline
+  rows re-executed by a non-author — is **not verifiable at this pin**: nothing landed
+  (`memory-arm-ver-s8.md:184-188`). `AUD-X7`'s closure covers the **S7-2 memory arm**, not a round-8
+  arm.
+
+### The kill-event classes — two kill waves, two classes (S8-2)
+
+`corpus/knowledge/kill-event-deep-r8.md` (S8-2) deepens the round-6 OOM note: `verified-at`
+2026-10-14 16:11:54–16:25 -03, non-root, boot id `d7f0bc8d938e4249b4a1f250cbfacf58`, kernel
+`7.2.3-arch1-3`, systemd `261.2-1-arch`. Event A = 2026-10-13 23:44:30 kernel OOM (victim
+`python3`); **event B** = 2026-10-14 13:10:59 SIGKILL class. Its headline (F1–F8,
+`kill-event-deep-r8.md:26-37`):
+
+| F | finding |
+|---|---|
+| F1 | **No kernel OOM kill happened at event B** — `/proc/vmstat oom_kill` = 1 (event A only); exactly 1 `Out of memory: Killed process` line; **0** `Memory cgroup out of memory` prints in 13 boots; the 13:10:59 second carries no kernel OOM/kill record |
+| F2 | Message #3 is **teardown-coincident, not kill-coincident** — 0.45 ms after `user@1000.service: Consumed …`, repeating a counter value event A set |
+| F3 | **Counter map**: kernel `memory.events` non-zero only at `user.slice` + `user-1000.slice` (each `oom_kill 1`; `.local` 0); systemd `OOMKills=`: `user-1000.slice` 1, `user.slice` 0; no counter reads 2; no live descendant carries the slice's 1 |
+| F4 | **Complete uid-1000 turnover** — zero vgpnk processes survive from before 13:10:59; earliest live start 13:11:07 |
+| F5 | **Event B's pre-kill memory picture is not retained** — every surviving memory signal is a lifetime max or cumulative counter; the 34.2 GiB swap peak is undatable to 13:10:59 and consistent with event A |
+| F6 | **Launch-count trap** — app scopes leave no deactivation record (0 `app-*.scope: Deactivated` in boot 0 and boot −1; 0 against 98 starts this session) |
+| F7 | **The OOM-score class argues against a kernel kill** — the session ran +200/+300, the manager +100; what died was the +100 manager |
+| F8 | Prevention table refined; new rows for the pre-kill capture gap and the kernel-kill ledger |
+
+The **class table** (each row a read-only signature, measured here):
+
+| class | signature (read-only) | measured | verdict stance |
+|---|---|---|---|
+| kernel OOM kill (global) | `-p err` entry `Out of memory: Killed process …`; `/proc/vmstat oom_kill` ledger | event A only: 1 print, ledger **1**; `journalctl -k -g oom` = 5 lines over all boots, all at 23:44:30 (`kill-event-deep-r8.md:333-334`; this seat re-derived both) | a named item — never bare "noise" |
+| memcg-limit OOM | `Memory cgroup out of memory` print | **0** in 13 boots (`:244,333-334`) | absent; and with `memory.max/high/swap.max/zswap.max` all `max` and `oom.group` 0, the limit trigger is closed |
+| systemd attribution report | `kernel OOM killer killed some processes` (PRIORITY=5) | **3** messages: A→2, B→1 (`:85-99`) | a report **about the named unit**, never evidence of *when* a kill happened; the only attribution for a class with no kernel record |
+| session SIGKILL / teardown | `status=9/KILL` / `Failed with result 'signal'` | **1** line — the old user manager PID 1573 (`:198-207`) | the event-B class; **the kernel arm is blind to it by construction** |
+| teardown purge | `KillMode=mixed` + `TimeoutStopSec=5s` drop-in | 0 uid-1000 survivors from before 13:10:59 (`:212-223`) | [inference] mechanism, not trigger |
+| cgroup `oom_kill` counter | `memory.events[.local]` | **presence flag**: 2 slices × 1, `.local` 0 (`:120-134`) | flag, never an event count (round-6 rule re-confirmed) |
+| scope-launch record | `Started app-*.scope` | 69 old / 98 new, **0** deactivations (`:225-238`) | launches, never live units |
+
+Reading rules this capture fixes, each re-measurable:
+
+- **The census's `oom=1` is the kernel arm and nothing else.** In the whole 13:10:55–13:11:12
+  window the kernel stream carries 121 records and **zero** OOM-family lines, while same-second
+  records prove capture/no-wrap/dumps-enabled (`:70-73,176-199`). A run reporting `kerr oom=1`
+  while saying nothing about event B is telling the truth about the kernel arm and nothing about
+  the SIGKILL class — **report the two together** (round-6 rule, re-confirmed).
+- **Counters are presence flags.** The surviving `oom_kill 1` is event A's charge, propagated up
+  and surviving the subtree's removal; `.local` stays 0 at ancestors; no live descendant is
+  non-zero (`:120-134`; narrows round 6's Q2, does not close it).
+- **Peaks are lifetime maxima, not dated snapshots.** `memory.peak`/`memory.swap.peak` span the
+  whole cgroup life; the 99.907 % swap peak cannot be assigned to 13:10:59
+  (`:156-189`). The discriminator is the *new* service (3.2 h): `swap.peak` 3,171,446,784 B,
+  `swap.events fail` 4, vs the slice's cumulative 5,922,849 — unchanged since round 6's reading.
+- **There is no non-root-readable pre-kill snapshot, and none can be backfilled** — `sar`/`atop`/
+  `dool`/`dstat` absent, no `/var/log/sa`, `systemd-cgtop` live-only, PSI live-only, `dmesg`
+  BLOCKED (`:190-193`). Report the missing capture capability as a standing row.
+- **H1–H3 updated**: H1 (kernel path ran, print lost) is **strongly disfavoured** — the ledger
+  never moved, no memcg prints, no limits on the path, so the residual needs print *and* counter
+  *and* dump lost at once with no positive evidence; H2 (non-kernel SIGKILL, systemd bookkeeping)
+  is supported with the **sender still [unknown]**; H3 (deferred report of the Oct-13 wave) is
+  **strengthened** (`:240-246`). **No round resolves H1–H3** (read-only unmeasurable) — carry both
+  readings.
+- **Proposed errata E4–E8** for `oom-event-plane.md` (the round-6 §3.2/§5 dating, §4.2 counter,
+  §3.5 H1, §1/§6.2 helper `9` + the 2-vs-1 `status=9` sweep discrepancy, §1/§3.4 launch counts)
+  are **proposed rows in `kill-event-deep-r8.md:268-285`, not applied** to that note; the note's
+  owner applies them.
+
+### The round-8 watch — specified, not landed (carry the tag)
+
+The plan's claim (a) (`PLANE oom` as the census's next plane line) and claim (b) (a
+new-vs-baseline watch, `corpus/knowledge/oom-event-baseline.tsv`) are **not implemented** at this
+append's write time: the census is unchanged (`e2c4558a…`, 1472 `wc -l`), no `PLANE oom` emitter
+exists, no `*baseline*` / `*.tsv` file exists in the tree (`memory-arm-ver-s8.md:184-188`; this
+seat re-checked). Quote the realized string when it lands, **never the proposal**. Two proposal
+points worth carrying: the plan's C1 is a **retained-window** scan where the landed arm's C1 is
+boot-scoped (`-b`); and the proposed arm words/composition
+(CLEAN → HEALTHY; NEW / DECLARED-MISSING / NO-BASELINE → DEGRADED; BLOCKED → BLOCKED; composition
+BLOCKED > {NEW, DECLARED-MISSING, NO-BASELINE} > CLEAN) must be adjudicated against the realized
+round-7 mapping mechanism (`plans/round-8.plan.md:104-115`).
+
+### Errata / pending — round 8 (append)
+
+- 2026-10-14 — **census pin unchanged**: the round-7 identity pin (`e2c4558a…`, 1472 `wc -l`)
+  still stands; re-hashed by this seat. Count restatements stand as history: the round-3 checklist
+  step 2's "26 cases" (`:519-521`), the round-5 "35 cases" (`:600-602`, `:686-688`), and the
+  round-7 "49 cases" (`:866-868`) — the **current expected line** is `PASS (49 cases, 49 passed,
+  0 failed)`; a future gate revision must move them together.
+- 2026-10-14 — **`AUD-X7` closed by VER-S8** (`memory-arm-ver-s8.md:32-40`), scope = the S7-2
+  memory arm at `e2c4558a…`; the round-8 `PLANE oom` arm's own non-author verification is a
+  separate, still-open item (`memory-arm-ver-s8.md:184-188`). No `AUD-S8` artifact exists in the
+  tree at this write time (checked) — the VER-S8 note is the round-8 verdict source.
+- 2026-10-14 — **S8-1's §8 open item measured**: the `C5-stat` sibling mutant it left "named as
+  unmeasured" (`memory-arm-mutants-s8.md:181-182`) was swept by VER-S8 as M17 — **SURVIVED** the
+  shipped suite, caught by battery case B15 (`memory-arm-ver-s8.md:163-166`). The debt is named,
+  not closed by a gate edit.
+- 2026-10-14 — **write scopes observed, not absorbed**: S8-1 wrote only its note (no gate edit,
+  `memory-arm-mutants-s8.md:7-8,140-141`); VER-S8 wrote only its note and `/tmp` scratch; S8-2
+  wrote only `kill-event-deep-r8.md` and proposed E4–E8 without applying them; this seat wrote
+  only this append. Owed at write time (scribe lane): the round-8 `LOG.md` entry, the
+  `SCORECARD.md` round-8 move row, and `corpus/README.md` coverage rows (rounds 4-7 collapsed
+  debt).
+- Carried (unchanged): root `-Qkk` delta; the 18/19 sweep-summary split; `1password-beta`
+  provenance; `walker-restart.hook` (kagi/operator); dkms stale row; `snapper` empty; the "20-min
+  cap" item (owner: integrator); round-4/5/6/7 `corpus/README.md` coverage debt; the round-2
+  wave-1 errata merge; round-6's H1–H3 / Q1–Q7; the OOM-plane counter-lifecycle Q2 (narrowed by
+  S8-2, not closed).
