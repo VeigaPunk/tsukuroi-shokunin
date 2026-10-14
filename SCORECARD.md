@@ -19,3 +19,4 @@ Axes will be pinned with their counting commands as rounds land.
 | 7 | coverage + operability | round-6 state | AUR watch arm + OOM/memory-pressure arm landed in the census (49 selftest cases) | wave-7 32-lane (3 rerouted alibaba->hyper) |
 | 8 | operability | round-7 state | the VER-S8 GAP CLOSED: the OOM/memory arm independently verified (11-mutant replay, 8/8 own-case kills, 9 un-exercised clause sites named as coverage debt) | wave-8 32-lane (2 rerouted alibaba->hyper) |
 | 9 | coverage + operability | round-8 state | the 5-plane census landed (update-safety arms — the r7 AUD-X7 gap closed | wave-9 32-lane (2 rerouted alibaba->hyper) |
+| 10 | calibration | round-9 state | the calibration synthesis (measured-vs-believed ledger | wave-10 32-lane (1 rerouted alibaba->hyper) |

@@ -1373,3 +1373,198 @@ fixture-only override rule are unchanged.
   `PASS (74 cases, 74 passed, 0 failed)`; the 63-case line inside this append and the earlier
   round restatements stand as history. A further gate move supersedes this addendum's pin the
   same way — re-hash first.
+
+## Round-10 append — the ten-round calibration ledger and the self-measurement result (TSUKUROI-S10-4)
+
+Dispatch frame: `plans/round-10.plan.md` (md5 `c905a263e7a343d2c84afb21262ec465`, 321 `wc -l` /
+322 as read — unterminated final line; committed in `fac745b`). Round 10 is the lane's **first
+calibration move**: a ten-round claim-vs-realized ledger (§1), the standing discipline distilled from
+it (§2), and the executed self-measurement of the gate at its pin (§3). Landed sibling artifacts
+distilled here, each cited as landed state:
+
+- the synthesis ledger `corpus/knowledge/calibration-synthesis.md` (S10-1; md5
+  `ed8dec8938bf74647d28d630199aa7be`, sha256 `483d578ebac479999461d7165c6c7d18029c5f61651be8eeaa7e73c680eb6f00`,
+  463 `wc -l` / 464 as read, 34 623 B — unterminated final line);
+- the round-10 gate revision (S10-2; identity in §4 below) — the mutation sweep's four survivors
+  covered by six new `(S10-2)` cases;
+- the census closeout receipt `corpus/knowledge/census-closeout-receipt-r10.md` (S10-3; md5
+  `c5041b5d03e38c774637f47a24304ca8`, 183 `wc -l` — **live during the window**, 179 → 183; re-hash
+  before quoting);
+- the scribe's `plans/round-10-record-draft.md` (SCR-S10; md5 `1262712b3c9b70fd8f6858e9c96b6ca9`,
+  603 `wc -l`) — cited as a **draft**, never as landed state.
+
+This seat's own receipts: `/tmp/w10-tsukuroi-s104/` (`selftest{,2,3}.out`, `live{,2,3}.out`, `pins.txt`,
+`commit-pins.txt`, `status-{before,after}.txt`, `poll.out`; ephemeral). Every pin below is re-hashed at
+dispatch from committed bytes (`git show <commit>:<path>`) or the working tree; every count is a
+capture — re-run, never quote. Line anchors `:NNN` cite this revision of the file (appends below do not
+shift them). The round's planned name for the synthesis (`ten-round-synthesis.md`) was superseded by the
+realized `calibration-synthesis.md` — the landed name wins (`calibration-synthesis.md:453-455`).
+
+### §1 The ten-round ledger — claim → realized → the mismeasure it caught
+
+Every row cites landed artifacts only; a plan is never quoted as landed state. `@` marks the commit the
+pin was read from. The detailed per-round ledger is `calibration-synthesis.md` §2 (rounds 1–9); this
+table is the compact index, and its round-10 row is the only plan row.
+
+| R | plan (md5, `wc -l`) | claim / axis | realized (re-hashed pin) | the mismeasure it caught |
+|---|---|---|---|---|
+| 1 | **none** — `git log --all -- plans/round-1.plan.md` = 0 commits (measured) | corpus from measured surfaces: verdict vocabulary + decision table + 11-step checklist | `SKILL.md` 232 `9cc6cb6b…` @`55b2186`; notes 255 `df53b0b9…`, 214 `327da5f2…`, 218 `b52f38a6…` @`55b2186` | 4 retractions: sync-db mtime→birth; journal lines→entries; unit files 136→133; rollback net inferred→measured absent; 18/19 `-Qkk` split kept open (`:213-233`) |
+| 2 | `3563bd41…` 10 | operability: first executable gate | census-v1 743 `7a3d3b94…` (17 cases); `update-safety-note.md` 478 `5cc3067f…`; `SKILL.md` 444 `f80b4afd…` @`5f90645` | scope `degraded` r1-BLOCKED→census-DEGRADED recorded, not silent (`:334-336`); v1 md5-prefix transcription candidate kept (`:429`) |
+| 3 | `160a0272…` 13 | freshness + depth: journal/boot plane + e2e triage | census-v2 976 `41953ee9…` (26 cases); `journal-boot-plane.md` 411 `16d4047e…`; `host-health-report-r3.md` 462 `d701cf6f…`; `executor-test-sufficiency.md` 219 `4b2c1d36…` @`9bcd162` | the no-oral-context test: doc described v1 while v2 had landed → 7 SUFFICIENT / 3 PARTIAL / 3 MISSING, landed as the r3 append (`:448-457,529-545`) |
+| 4 | `63c26bb1…` 10 | depth: triage of the lane's own DEGRADED findings | `boot-plane.md` 312 `e722b7a9…`; `degraded-triage-r4.md` 607 `d57ae2d4…` @`165307f` (VER-S1: P1/D2/U6 CONFIRMED) | boot plane corrects r3's "0 unit failures"→4 records (`calibration-synthesis.md:262-291`); 755-not-644 left [unknown] (§6.1); `SCORECARD.md:16` row left malformed (unescaped `\|`) |
+| 5 | `0e9e8640…` 11 | adjacency + operability: tameshi's mutation method on the own gate | hardened census 1032 `e9327046…` (26→35 cases); `timer-drift-plane.md` 332 `fc0760c8…` @`da95290` | own sweep 13/23 = 57 % killed; the cross-author sweep's replay closed only 1/4 of its survivors — a hardening gap recorded, not smoothed (`:578-609`; `LOG.md` r5 row) |
+| 6 | `81a9be07…` 38 | coverage + freshness: foreign/AUR risk, provenance, OOM-event plane | `aur-risk-plane.md` 341 `1a584300…`; `foreign-provenance-r6.md` 307 `1b8f47a2…`; `oom-event-plane.md` 433 `7e99d712…` (re-cut from `48876876…` mid-append); `aur-risk-plane-ver-s6.md` 133 `b0de352d…` @`dc3436d` | r4's "single message" for event A was one of two (3-message set); the note re-cut mid-append, recorded not smoothed (`:815-828`) |
+| 7 | `bb915954…` 160 | coverage + operability: AUR watch + memory arm land | census 1472 `e2c4558a…` (49 cases); `aur-risk-plane-ver-s7.md` 184 `4608743d…`; `update-safety-v2.md` 353 `92803aea…` @`aa136d6` | the plan's fifth plane and the standalone baseline file were **not landed** (carried with the tag); the S7-2 arm had no non-author verification → `AUD-X7` queued |
+| 8 | `0bef822d…` 216 | operability: verify the memory arm; kill-event classes | `memory-arm-mutants-s8.md` 181 `a09e5604…`; `memory-arm-ver-s8.md` 251 `861d83ad…` (VER-S8 CONFIRMED, `AUD-X7` closed); `kill-event-deep-r8.md` 340 `6685e1da…`; `update-safety-v3.md` 387 `2ac0c21d…` @`72b038d`; `SKILL.md` 1169 `e2d058d4…` | M01 prediction miss (routing coupling); method delta (copy vs repo file); 9 un-exercised clause sites — the suite is **not** clause-complete; `PLANE oom` specified, not landed |
+| 9 | `3a59d2ed…` 270 | coverage + operability: the fifth plane lands | census 2349 `e32aac98…` (74 cases) @`fac745b`; the five-plane 2011 `0f72f4cf…` **never committed** (superseded in ~12 min); `aur-drift-receipt-r9.md` 248 `e7d6f70b…` | the append's own pin was superseded 12 min later by the oom plane — recorded in its addendum, not smoothed (`:1347-1356`); `LOG.md:172` still reads "5-plane" and credits the update-safety arms with `AUD-X7` (closed in r8 by VER-S8) — carried, not repaired here (`calibration-synthesis.md:378-383`) |
+| 10 | `c905a263…` 321 (**the only plan row**) | calibration: the ten-round ledger + the standing discipline + the self-measurement | `calibration-synthesis.md` 463 `ed8dec89…` (S10-1); census 2402 `945c76fc…` (S10-2; 74→80 cases, +6 covering four survivors); `census-closeout-receipt-r10.md` 183 `c5041b5d…` (S10-3); this append (S10-4) | this round's catches, in order: the dispatch premise "5-plane" against the realized six (S10-3 §0); the S10-2 revision landing **after** S10-1's note froze, leaving the note's §7 recheck set expecting `e32aac98…` / 74 cases — superseded within the wave (§3); tameshi's three round-5 survivors (B7/B8/B9: default sample cap, CLI exit map, rollup field order) matched the round-10 pre-hardening survivors H1–H3 [label correspondence — inference] and survived nine rounds of own-hardening before this round's cases closed them |
+
+The three round-1 notes are append-only and have grown since: at this append's dispatch,
+`package-state-plane.md` 323 `ef93f1b7…`, `systemd-user-plane.md` 265 `af07a829…`,
+`driver-firmware-plane.md` 256 `518eda8f…` — current-revision pins, not the as-landed ones above.
+
+### §2 The census's standing discipline (D1–D13)
+
+Each row is a rule the ten rounds' artifacts already prove; **no row makes a new host claim**. The
+pattern behind them is `calibration-synthesis.md` §1 (claim → re-measure → append the divergence →
+tighten the instrument → re-verify) and its §0.2 conventions; the rows below are the executable form,
+each already landed.
+
+- **D1 fail-closed** — an unreadable probe is `BLOCKED`/`unknown=`, never a pass and never a fake
+  `INERT` (`:29-31`, `:321-323`, `:1234-1238`; the r2 anti-claim `:407-408`).
+- **D2 empty-proof** — an empty result passes only with the scan itself measured: an empty ring is not
+  a clean bill (`:347-348`); a journal empty this boot is the same shape (`:496-498`); an empty
+  candidate set over no channel cannot be told apart from an up-to-date one (`:1263-1267`).
+- **D3 counts move together** — the restated case count equals the executed count; a gate revision
+  moves every live restatement (13 sites found by one grep at this dispatch: `:287`, `:470`, `:521`,
+  `:602`, `:688`, `:764`, `:867`, `:926-929`, `:1150`, `:1197`, `:1314`, `:1359`, `:1373` — the
+  round-10 revision moved the live pair to 80, §4).
+- **D4 captures, not quotes** — every count and verdict is re-run; the decision table's own right
+  column says so (`:36-37`) and every snapshot block repeats it (`:441-443`). The coredump figure's
+  day — 198 → 208 → 211 → 220 → 224 (`SCORECARD.md:14`), 244 → 269 (rounds 4/6, `calibration-synthesis.md:327-331`),
+  279 (`:879`), 467 (`aur-drift-receipt-r9.md:57`), 523 (S10-3 §6) — is the standing proof; each
+  value a capture.
+- **D5 pins state their convention** — full md5, `wc -l` vs Read-count, unterminated final line named
+  (`:1001-1006`, `:1347-1352`).
+- **D6 no pin from a moving revision** — concurrent seats observe shape only; the r6 note's mid-append
+  re-cut (`:815-828`) and the round-9 append's own supersession (`:1347-1356`) are the receipts — and
+  this round added one: the S10-2 gate was read mid-write (`2373` `wc -l` at 21:03:02Z) before
+  settling at `2402`; no pin is taken from the intermediate.
+- **D7 sample rc never decides** — the bounded `-Qkk` sample's rc is not evidence; drift decides
+  (`:311-313`).
+- **D8 zero mutation** — live mode writes nothing; the suite asserts the fixture byte-unchanged;
+  `git status` byte-identical before/after; no `db.lck` (`:265`, `:883`, `:1214`, `:1272-1273`).
+- **D9 one probe per fact** — arms fold a same-process reading, never a re-probe; deliberate
+  double-counts are distinct-value only (`:499-501`, `:1244-1246`).
+- **D10 printed traps** — each plane block names its own traps (line-vs-entry, birth-vs-mtime, `-Qu`
+  shadowing, `%s` not a size, pipeline rc) (`:385-401`, `:1233-1238`, `:1256-1260`).
+- **D11 plane-set consistency** — the rollup names exactly the planes that emitted; verified
+  mechanically at **both** pins this window (6/6 at `e32aac98…` and 6/6 at `945c76fc…`, §3) and
+  independently in the S10-3 receipt §4.
+- **D12 one-command re-derivation** — one machine-readable identity line. **Not landed**: the gate has
+  no `--identity` mode at either pin (`usage()` lists `--selftest`/`--sample N`/`--help` only; S10-3
+  §2 reads the same); the standing re-derivation is the classic three commands (`md5sum` →
+  `--selftest` → live + `git status`), and this append's §4 is that line written by hand.
+- **D13 attested ≠ verified** — an author's suite is author evidence; each new arm's verification is a
+  non-author replay (r5 tameshi sweep; r8 VER-S8). The rule's sharpest form this round is
+  `calibration-synthesis.md:356-368`: a verifier named in a log line is an **attestation**; only a
+  landed note is a verification a later round can re-read.
+
+### §3 The self-measurement result — the gate executes at both pins
+
+Own read-only runs, 2026-10-14, non-root, no `-Sy`/`-Syu`, no transaction, no service action, no
+external site. Two revisions were live in this window; receipts for each, unpiped rcs only:
+
+- **Pre-move — the r9b revision, `e32aac98…` (2349 `wc -l`, 123 410 B):** `--selftest` rc=0, wall
+  11.771 s, verbatim `TSUKUROI_CENSUS_SELFTEST: PASS (74 cases, 74 passed, 0 failed)`; live rc=1, wall
+  2.745 s, 20:52:02Z, six `PLANE` lines, rollup verbatim `TSUKUROI_CENSUS: DEGRADED
+  (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED
+  oom=HEALTHY)`; emitted-name set == rollup-key set (6/6, this seat's own script — not a gate feature).
+- **Post-move — the S10-2 revision, `945c76fc…` (2402 `wc -l`, 126 075 B):** `--selftest` rc=0, wall
+  12.121 s, verbatim `TSUKUROI_CENSUS_SELFTEST: PASS (80 cases, 80 passed, 0 failed)`; live rc=1, wall
+  2.770 s, 21:05:55Z, same six-plane rollup; plane-set 6/6 SET-MATCH again. The six new labels
+  (executed, verbatim): `healthy: the default -Qkk sample cap bounds the sample (S10-2)` ·
+  `blocked: the rollup line names every plane field in order (S10-2)` ·
+  `blocked: update-safety -Sup unreadable fails closed (S10-2)` ·
+  `cli: unknown argument exits 2 with usage (S10-2)` ·
+  `cli: --sample 0 refuses before the parse continues (S10-2)` ·
+  `cli: --help prints usage and exits 0 (S10-2)` — M = 6 ≥ the plan's ≥4, and none is vacuous: each
+  covers a named survivor of the pre-hardening sweep.
+- **The sweep behind the six cases, as the revision's own comment states it** (attested, not re-run
+  here): target pin `c396662e…` (the r9b sha256), 10 defects, two tool revisions, **6/10 killed**;
+  survivors H1 default `-Qkk` sample cap, H2 CLI exit map, H3 rollup field order, H4 update-safety
+  `-Sup` fail-closed. The gate comment is the only landed receipt of that sweep in this lane at this
+  append's write time [checked: no `*sweep*r10*` / `*mutant*r10*` note exists]; its independent
+  replay is a non-author item (D13). The round-5 cross-author ledger leg it echoes is
+  `tameshi-shokunin/corpus/knowledge/fleet-kill-rate-ledger.md:47` (read-only substrate, cited).
+- **Zero mutation at both pins:** `git status --short` showed only the seats' own expected entries
+  (` M tools/tsukuroi-census.sh`, the four untracked round-10 files) — no other path moved;
+  `/var/lib/pacman/db.lck` absent after every probe. One transient `/tmp/tsukuroi-r3-2-selftest.*` dir
+  appeared and was cleaned by its own EXIT trap during the window — attribution **[unknown]** with 32
+  lanes in flight; no lane-tagged scratch prefix exists to settle it (the same class the S10-3 receipt
+  §5 records).
+- **Within-window drift, recorded so no value here is read as standing:** the S10-3 receipt measured
+  `C6_avail_kb` −652 732 kB in 77 s while `err`/`coredump` were quiet (§6 there) — captures with
+  timestamps, re-derivable, never quotable.
+- **What the ledger measures about the arc itself:** **9 commits after the mint** (`55b2186` …
+  `fac745b`, one per round 1–9 — round 10 is uncommitted at this append's write time), `SKILL.md` at
+  10 revisions (22 → 232 → 444 → 543 → 543 → 706 → 837 → 983 → 1169 → 1374 ln; r3/r4 share the 543
+  revision), the census at **6 committed revisions plus the round-10 working-tree move** (743 → 976 →
+  1032 → 1472 → 2349 → 2402 `wc -l`; 17 → 26 → 35 → 49 → 74 → 80 cases), and one uncommitted
+  intermediate (`0f72f4cf…`).
+
+### §4 Identity pin and count restatements — moved together
+
+- **Identity check** (replaces the round-9 addendum's pin `:1349-1352`): `md5sum
+  tools/tsukuroi-census.sh` = `945c76fc6cc548e47b91c23a9637df75` · sha256
+  `1045244387ffcd5d3db481dd0d3d30e34097abc24744d954e791b81d28b20c11` · 2402 `wc -l` · 126 075 B ·
+  mtime 2026-10-14 18:03:12 -03 · final line `main "$@"`, unterminated (Read counts 2403).
+  **Uncommitted at this append's write time** (`git status` = ` M`); the round-10 commit should pin
+  these bytes — re-hash after the commit and on any mismatch **stop and re-measure**. The r9b pin
+  (`e32aac98…` / sha256 `c396662e…` / 2349 / 123 410 B) stands as history; the banner still reads
+  `census-v2` — identity is by hash, not version string.
+- **Realized contract**: six planes `packages systemd drivers journal update-safety oom`; exit map
+  unchanged (0/1/2, worst plane wins).
+- **Count restatement**: the current expected line is
+  `TSUKUROI_CENSUS_SELFTEST: PASS (80 cases, 80 passed, 0 failed)` at the pin above — executed by this
+  seat (rc=0). The 17/26/35/49/63/74-case lines above and in the earlier blocks stand as history; D3 is
+  live — the next gate revision must move every live restatement with it. `--sample N` default 8 and
+  the `TSUKUROI_*` fixture-only override rule are unchanged.
+
+### §5 D13 — attested is not verified (warning, cited)
+
+The identity pin and the executed receipts above are **author evidence**. `--identity` does not exist;
+whenever it lands it will re-derive the revision's identity — it never verifies the arms, and a
+self-identity is not a non-author check (`:1333-1336`; `calibration-synthesis.md:356-368`). The same
+holds for this round's hardening: the sweep figures in §3 are the revision comment's attestation, and
+the round-10 closeout receipt says the same of itself (its §8). Standing verification debt: (a) the two
+planes round 9 added, (b) the rows of this ledger, and (c) the six `(S10-2)` cases' covering claims —
+each a separate, non-author product, quoted when it lands, never anticipated here.
+
+### Errata / pending — round 10 (append)
+
+- 2026-10-14 — **the wave's artifacts landed while this append was being written; the order matters and
+  is recorded, not smoothed.** S10-1's `calibration-synthesis.md` froze with the r9b pins (its §7
+  recheck set expects `e32aac98…` and `PASS (74 cases, 74 passed, 0 failed)`, `:407-409`; its §8 pins
+  re-checked at 20:58:34Z); S10-2's revision landed **after** it (gate mtime 18:03:12 -03 = 21:03Z),
+  so the note's recheck expectation is superseded within its own wave. Append-only: the note's owner
+  appends the pointer; nothing here edits that note. One intermediate read of the S10-2 file
+  (`b7269e59…`, 2373 `wc -l`) was **mid-write**; per D6 no pin was taken from it.
+- 2026-10-14 — **the synthesis note is rounds 1–9 by its own title**; this append extends the ledger to
+  round 10 and is the SKILL-side carrier for the standing rows (§2) until the note's own D-table
+  lands. The record draft's §4(c) contract for this append is met: standing-discipline block, count
+  restatements moved together, D13 stated.
+- 2026-10-14 — **`corpus/lessons/round-10.md` is still 0 files** at this append's write time
+  (`corpus/lessons/` empty since round 1; `calibration-synthesis.md:390-393` names the debt) — the
+  discernment loop's home is owed by the note/hygiene seat, not this one; no retro-fabrication.
+- 2026-10-14 — **the S10-3 closeout receipt is a live artifact, not a frozen one**: it moved during
+  this append's window (179 → 183 `wc -l`; md5 `c5041b5d03e38c774637f47a24304ca8` at this append's
+  last read, 21:05Z). Re-hash it before quoting; the same rule applies to this file.
+- Carried (unchanged): root `-Qkk` delta; the 18/19 sweep-summary split; `1password-beta` provenance;
+  `walker-restart.hook` (kagi/operator); dkms stale row; `snapper` empty; `offline.db` coverage; the
+  "20-min cap" item (integrator); `corpus/README.md` coverage debt (rounds 3–10, unchanged
+  `98bd0066…` 20 `wc -l`; its stale row `:13` also carried); the `SCORECARD.md:16` malformed row and
+  the row-16/round-9-row repairs (scribe + note/hygiene seat); the round-2 note errata pointer
+  (`update-safety-note.md` unchanged `5cc3067f…` 478 ln); E4–E8 unapplied errata; H1–H3; the
+  OOM-plane counter-lifecycle Q2; the r2 wave-1 errata merge; the LOG entry, the round-10 `SCORECARD`
+  row and the closing no-oral-context re-test (scribe/executor seats).

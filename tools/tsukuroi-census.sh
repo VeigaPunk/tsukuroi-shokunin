@@ -1808,6 +1808,30 @@ STUB
     EXTRA_ENV=()
   }
 
+  check_cli() { # check_cli LABEL WANT_RC RE... -- ARGS...; runs "$BASH" "$SELF" ARGS with no fixture env
+    # (only arms that exit before any probe: usage errors and --help; never a host read)
+    local label=$1 wrc=$2; shift 2
+    local res=() out rc miss='' re
+    while [ $# -gt 0 ] && [ "$1" != '--' ]; do res+=("$1"); shift; done
+    [ "${1:-}" = '--' ] && shift
+    set +e
+    out=$("$BASH" "$SELF" "$@" 2>&1)
+    rc=$?
+    set -e
+    if [ "$rc" -ne "$wrc" ]; then
+      bad "$label: exit $rc wanted $wrc; output: $(printf '%s' "$out" | tail -n2 | tr '\n' '|')"
+    else
+      for re in "${res[@]}"; do
+        printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss '$re'"
+      done
+      if [ -n "$miss" ]; then
+        bad "$label: output missing:$miss"
+      else
+        ok "$label (exit $rc)"
+      fi
+    fi
+  }
+
   local case_home='healthy'
   mkdir -p "$work/fx"
   FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
@@ -2277,6 +2301,35 @@ STUB
   printf 3 > "$FX/oomwin-attrib.rc"
   check 'blocked: oom watch — a window scan unreadable fails closed (S9-2)' 2 BLOCKED \
     '^PLANE oom: BLOCKED \(scans unreadable:C2 \[fails closed\]; .*C2_events=\?'
+
+  # ---- round 10 (lane S10-2): the mutation sweep's four survivors and their covering cases ----
+  # Pre-hardening sweep via the tameshi service (target pin c396662e…, 10 defects, two tool
+  # revisions): 6/10 killed; the survivors were the default -Qkk sample cap (H1), the CLI exit
+  # map (H2), the rollup field order (H3) and the update-safety -Sup fail-closed arm (H4).
+  # Each case below is falsifiable: it red-flags its covering mutant (the post-hardening
+  # covering sweep) and passes on this revision.
+  case_home='healthy-sample-cap'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'a01\na02\na03\na04\na05\na06\na07\na08\na09\na10\na11\na12\n' > "$FX/pq"
+  check 'healthy: the default -Qkk sample cap bounds the sample (S10-2)' 0 HEALTHY \
+    '^PLANE packages: HEALTHY .*sample=8\(a01,a02,a03,a04,a05,a06,a07,a08\)'
+
+  case_home='blocked-rollup-mixed'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  : > "$FX/pacmandb/db.lck"
+  check 'blocked: the rollup line names every plane field in order (S10-2)' 2 BLOCKED \
+    '^TSUKUROI_CENSUS: BLOCKED \(packages=BLOCKED systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=BLOCKED oom=HEALTHY\)$'
+
+  case_home='blocked-upd-sup-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 1 > "$FX/sup.rc"
+  check 'blocked: update-safety -Sup unreadable fails closed (S10-2)' 2 BLOCKED \
+    '^PLANE update-safety: BLOCKED \(status=BLOCKED; sup=rc=1'
+
+  check_cli 'cli: unknown argument exits 2 with usage (S10-2)' 2 \
+    '^usage: tsukuroi-census\.sh' -- --bogus
+  check_cli 'cli: --sample 0 refuses before the parse continues (S10-2)' 2 \
+    '--sample needs a positive integer' -- --sample 0 --bogus
+  check_cli 'cli: --help prints usage and exits 0 (S10-2)' 0 \
+    '^usage: tsukuroi-census\.sh' -- --help
+
   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
   [ "$FAIL" -eq 0 ]
