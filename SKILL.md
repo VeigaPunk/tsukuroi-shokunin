@@ -38,11 +38,11 @@ snapshot (2026-10-14, host `plazir27`)** — re-measure; never quote it as curre
 
 | Plane | Probe (verbatim, all read-only) | `HEALTHY` when | `DEGRADED` when | `BLOCKED` when | Measured 2026-10-14 (notes: `corpus/knowledge/`) |
 |---|---|---|---|---|---|
-| Package state (pacman) | `pacman -Dk; echo $?` and `pacman -Qkk <pkg> …` (targeted) and `pacman -Qdt` and `pacman -Qm \| wc -l` | `No database errors have been found!` and `0 altered` on the queried set | nonzero altered outside the benign classes, or orphan/foreign drift beyond accepted set | pacman itself errors: `db.lck` present, `database is locked`, unreadable local db | `DEGRADED` — census **1188** installed (`pacman -Q \| wc -l`), 207 explicit, **16 foreign**, 3 orphans (`electron39`, `mbedtls`, `webp-pixbuf-loader`); `-Dk` clean; full sweep rc=1, ~17 s, 1332 raw lines → `tr '\r' '\n'`-normalized: **18 pkg summaries with ≥1 altered** (`package-state-plane.md:167-214`); decomposition: 86 backup-diff lines (rc stays 0 — glibc/pambase prove), 36 non-root artifacts (32 failed-calc + 4 Permission denied), 17 metadata-drift lines; strongest content signal `/usr/bin/powerprofilesctl` (mtime+size+sha — operator question, `package-state-plane.md:205`). rc semantics: 0 = none, 1 = ≥1 altered (`package-state-plane.md:146-151`). TSUKUROI-4 re-derivation counted 19 nonzero summary lines (adds `cups-browsed`, a failed-calc artifact) — kept in errata |
+| Package state (pacman) | `pacman -Dk; echo $?` and `pacman -Qkk <pkg> …` (targeted) and `pacman -Qdt` and `pacman -Qm \| wc -l` | `No database errors have been found!` and `0 altered` on the queried set | nonzero altered outside the benign classes, or orphan/foreign drift beyond accepted set | pacman itself errors: `db.lck` present, `database is locked`, unreadable local db | `DEGRADED` — census **1188** installed (`pacman -Q \| wc -l`), 207 explicit, **16 foreign**, 3 orphans (`electron39`, `mbedtls`, `webp-pixbuf-loader`); `-Dk` clean; full sweep rc=1, ~17 s, 1332 raw lines → `tr '\r' '\n'`-normalized: **18 pkg summaries with ≥1 altered** (`package-state-plane.md:167-214`); decomposition: 86 backup-diff lines (rc stays 0 — glibc/pambase prove), 36 non-root artifacts (32 failed-calc + 4 Permission denied), 17 metadata-drift lines; strongest content signal `/usr/bin/powerprofilesctl` (mtime+size+sha — operator question, `package-state-plane.md:205`). rc semantics: 0 = none, 1 = ≥1 altered (`package-state-plane.md:146-151`). TSUKUROI-4 re-derivation counted 19 nonzero summary lines (adds `cups-browsed`, a failed-calc artifact) — kept in errata. **Round-6 foreign-risk rule**: the 16 split by measured channel into 14 `offline-exile` (installer's unconfigured `offline.db`; no update **or repair** path) + 2 `AUR-local` (`pacman -U` of the yay cache, `Validated By: None`); risk is a class fold (R1–R12), never the bare count — round-6 append |
 | systemd user units & timers | `systemctl --user is-system-running` and `systemctl --user list-units --state=failed` and `systemctl --user list-timers --all` | `running` and 0 failed units (loaded and `--all`) | any failed unit, or a timer whose last run failed (`systemctl --user show <u> -p Result`) | scope state ≠ `running` (`degraded`/`maintenance`/`offline`) | `HEALTHY` — both scopes `running`; 0 failed units (`--failed` and `--all`); 133 unit files listed; `~/.config/systemd/user/` = 7 unit files + 1 drop-in + 5 symlinks, `/usr/lib/systemd/user/` ships 109, 17 unit-paths (`systemd-user-plane.md:27-78`); only `ai-usage.timer` active (≈5-min cadence; last run 09:52:56, `Result=success`); latent/condition side-findings: `omarchy-battery-monitor.timer` disabled (preset would enable — intent [unk]), `omarchy-recover-internal-monitor.service` condition-skipped (toggle file ABSENT) (`systemd-user-plane.md:80-102`) |
 | Journal & boot triage | `journalctl -b -p err -o json --no-pager \| wc -l` (entries) and `journalctl -b -p err \| wc -l` (lines, trap) and `journalctl --list-boots` and `coredumpctl list` and `systemd-analyze` | entry count at the plane's noise floor, hits inside the accept-list | recurring crash-loop or resource-exhaustion signatures | no boot reaches `graphical.target`, or boot record missing | `DEGRADED` — **60 941 err lines but only 238 entries** (`-o json \| wc -l`); line-classification is a trap (coredump stack traces, retracted `AMD`/`+` classes — `systemd-user-plane.md:104-116,188-193`). Entry classes: `systemd-coredump` 198, kernel 38 (20 `sr0` critical + 15 Buffer I/O, boot-only 11:02:03–06; 1 OOM; 1 TDX info), `sddm-helper` 1 (`gkr-pam: couldn't unlock the login keyring`), `limine-snapper-sync` 1 (no Snapper config — update-safety residue). Coredumps this boot 198: godot 142 SIGABRT, node 47 (25+22), `grok-bot` 3 SIGBUS, typora 2, `chrome_crashpad` 2, electron 1, bash 1 SIGSEGV; still live 09:42:10; today 92 rows / 90 godot (TSUKUROI-4). OOM: `python3` anon-rss 27 873 696 kB (Oct 13 23:44:30). Boot 0: `uptime -s` 10:57:58 vs first journal record 11:02:03 — kernel 4 min 3 s in `systemd-analyze` [INFERENCE: resume artifact (`resume=` cmdline, first message at monotonic `[244.159301]`); competing hypothesis journal flush/mount delay, `systemd-user-plane.md:184-185` — [unk]] |
 | Driver & firmware plane | `nvidia-smi --query-gpu=name,driver_version --format=csv` and `lsmod \| grep -E '^nvidia'` and `dkms status` and `modinfo nvidia` and `ls /usr/lib/firmware/nvidia/*/` | nvidia-smi answers; modules loaded; dkms `installed` for `uname -r`; GSP blobs present | dkms entry stale/non-clean for another kernel, or module tree unowned by a package | `nvidia-smi` fails (`NVIDIA-SMI has failed…`), or `/dev/nvidia*` nodes missing | `DEGRADED` (table residue) — note's function verdict: "driver plane is healthy — open DKMS 610.57.04 loaded and active, both firmware shapes present, no driver fault class this boot" (`driver-firmware-plane.md:198-199`); the DEGRADED is for residue only: `dkms status` stale `7.1.4-arch1-1` registration (tree gone; `ls /lib/modules` = 7.2.3 only) + `pacman -Qo` = `error: No package owns …/updates/dkms/nvidia.ko.zst` (12,027,573 B, vermagic 7.2.3-arch1-3) → pacman cannot verify the module. Extras: packages `nvidia-open-dkms`/`nvidia-utils`/`lib32-nvidia-utils`/`libva-nvidia-driver`/`linux-firmware-nvidia` installed 2026-10-11 16:14 (upgrade 610.43.03-3 → 610.57.04-1); taint OOT + unsigned (Secure Boot off, EFI var first byte 0); GSP active `EnableGpuFirmware: 18` (`/proc/driver/nvidia/params:28`); blobs `gsp_ga10x.bin` 84,310,168 B + `gsp_tu10x.bin` 29,381,504 B; gb205-class `gsp-570.144.bin.zst` → ga102 target 51,762,663 B; atimes 10-13 12:19:53 / 23:28:37 / 10-14 09:53:32; `dmesg_restrict=1` → ring via `journalctl -k` (`driver-firmware-plane.md:9-147,206-215`) |
-| Update-safety | `stat -c '%w' /var/lib/pacman/sync/*.db` (birth) and `pacman -Qu` and `pacman-conf IgnorePkg IgnoreGroup` and `ls /var/lib/pacman/db.lck` and `snapper list-configs` | snapshot recent (≤7 days by `%w`), `-Qu` empty, no holds | snapshot stale, pending nonempty, holds declared, or rollback net absent | `/var/lib/pacman/db.lck` exists (interrupted transaction) | `DEGRADED` — **mtime trap corrected**: sync dbs born **2026-10-11 12:54:13.542** (`%w`; core/extra/multilib/omarchy; TSUKUROI-4 re-derived) — the Sep 8 mtimes are upstream server stamps, not arrival (`package-state-plane.md:73-81`). `-Qu` empty **rc=1**; no `IgnorePkg`/`IgnoreGroup` (`pacman-conf`), `HoldPkg = pacman glibc` (`/etc/pacman.conf:7`); single omarchy mirror (`/etc/pacman.d/mirrorlist`, 58 B) and `[omarchy] SigLevel = Optional TrustAll` — soft-trust channel (`package-state-plane.md:9-41`); keyring 184 pub / 230 sub, master key 2026-10-03, last populate ≈10-11 (`package-state-plane.md:93-112`); no `db.lck`. Residues: **no rollback net** (`snapper list-configs` empty; boot log `limine-snapper-sync: No Snapper config found for '/'` — `systemd-user-plane.md:116`), no `checkupdates`/`paccache` (`pacman-contrib` absent), cache 8.6 G unpruned (1568+1568 archives+sigs), dkms rebuild coupling (driver row) |
+| Update-safety | `stat -c '%w' /var/lib/pacman/sync/*.db` (birth) and `pacman -Qu` and `pacman-conf IgnorePkg IgnoreGroup` and `ls /var/lib/pacman/db.lck` and `snapper list-configs` | snapshot recent (≤7 days by `%w`), `-Qu` empty, no holds | snapshot stale, pending nonempty, holds declared, or rollback net absent | `/var/lib/pacman/db.lck` exists (interrupted transaction) | `DEGRADED` — **mtime trap corrected**: sync dbs born **2026-10-11 12:54:13.542** (`%w`; core/extra/multilib/omarchy; TSUKUROI-4 re-derived) — the Sep 8 mtimes are upstream server stamps, not arrival (`package-state-plane.md:73-81`). `-Qu` empty **rc=1**; no `IgnorePkg`/`IgnoreGroup` (`pacman-conf`), `HoldPkg = pacman glibc` (`/etc/pacman.conf:7`); single omarchy mirror (`/etc/pacman.d/mirrorlist`, 58 B) and `[omarchy] SigLevel = Optional TrustAll` — soft-trust channel (`package-state-plane.md:9-41`); keyring 184 pub / 230 sub, master key 2026-10-03, last populate ≈10-11 (`package-state-plane.md:93-112`); no `db.lck`. Residues: **no rollback net** (`snapper list-configs` empty; boot log `limine-snapper-sync: No Snapper config found for '/'` — `systemd-user-plane.md:116`), no `checkupdates`/`paccache` (`pacman-contrib` absent), cache 8.6 G unpruned (1568+1568 archives+sigs), dkms rebuild coupling (driver row). **Round-6 foreign-risk rule**: the 16 foreign packages are unreachable by any `-Syu` and unrepairable from a repo (`pacman -Si` rc=1 ×16) — the `offline.db` snapshot + channel-A archives are the only copy; preserve before pruning (`aur-risk-plane.md:108-115`, round-6 append) |
 
 ### `pacman -Qkk` as a non-root user — benign-altered classes
 
@@ -316,7 +316,8 @@ not be a measurement of the host — fixture runs only.
 - `DEGRADED` — drift > 0 (pacman's own altered-file counts, which already
   exclude backup diffs; drifted package names listed — `drift=2[1password-beta,
   1password-cli]`), foreign > 0 (accepted baseline is an operator question, not
-  a script constant), or pins declared.
+  a script constant; the round-6 register gives that baseline a contract —
+  specified, not yet landed, see the round-6 append), or pins declared.
 - `BLOCKED` — pacman missing; `-Qq` rc ≠ 0 (local db unreadable); `db.lck`
   present (interrupted transaction — never a fake pass); sample `error:` or rc
   outside {0,1}.
@@ -705,3 +706,133 @@ status: the gate detects the dead class only; adding `LastTriggerUSec` / `Accura
   into the round-1 blocks; v1 census md5-prefix transcription candidate `:429`; literal
   `source:`/`verified-at:`/`recheck:` keys; `corpus/lessons/round-1.md`; the "20-min cap" item
   (owner: integrator; `executor-test-sufficiency.md` §7 U1).
+
+## Round-6 append — the foreign/AUR risk plane, the baseline turn, and the OOM-event plane (TSUKUROI-S6-4)
+
+Dispatch frame: `plans/round-6.plan.md:3-27` — the owned "foreign/AUR census" surface
+(`PROVINCE.md:5-7`) becomes a risk plane; the package and update-safety rows above gain the
+foreign-risk rule. Landed siblings distilled here: the register `corpus/knowledge/aur-risk-plane.md`
+(S6-1; md5 `1a584300f6b07da78bc8332f04b4fd30`, 341 lines), the freshness receipt
+`corpus/knowledge/foreign-provenance-r6.md` (S6-2; md5 `1b8f47a2a807fc8bd2fc7302f15577c8`, 307
+lines), and the OOM-event plane `corpus/knowledge/oom-event-plane.md` (S6-3; md5
+`7e99d712ead088727c0980e52a121199`, 433 lines — re-cut mid-append, see Errata). This seat's own
+read-only re-measurements:
+`/tmp/w6-tsukuroi-s64/` (spot-checks named inline). Live counts are captures — re-run, never quote.
+
+### Foreign/AUR risk semantics — `foreign=` is not an AUR claim
+
+Re-measured 2026-10-14: 1188 installed, 207 explicit, **16 foreign** (`pacman -Qm`); all 16
+`pacman -Si` **rc=1**, in no configured repo; `pacman -T <all 16>` → empty, rc=0. "Foreign" means
+only "unowned by any configured sync db"; the register closes the channel question per package
+(`aur-risk-plane.md:28-53`). Two measured classes:
+
+- **`offline-exile` (14: 13 `elephant-*` 2.21.0-1 + `omarchy-walker` 1.0.0-2)** — installed
+  2026-10-03 17:44:26 in the installer's one `pacman -S` transaction (`:95-100`); channel =
+  `/var/lib/pacman/sync/offline.db` (birth 17:41:33.994, 1275 pkgs, **present but not
+  configured** — `pacman -Sl offline` rc=1; `:101-115`); its signatures verify (`Good signature
+  from "Omarchy <pkgs@omarchy.org>"`) but `[omarchy] SigLevel = PackageOptional PackageTrustAll`
+  never required them (`:117-129`). **No update path and no repair path**: `-Syu` can neither
+  upgrade nor reinstall these; a damaged file has no repo source — preserve `offline.db` + the
+  channel-A archives before any cache prune (`:214`).
+- **`AUR-local` (2: `android-apktool-bin` 3.0.3-1, `obsidian-cli-inspector` 1.0.3-1)** —
+  `pacman -U` of `~/.cache/yay/<pkg>/*.pkg.tar.zst` (`:140-150`), `%VALIDATION% = none`,
+  signature optional by policy (`LocalFileSigLevel = PackageOptional`, `:166-183`). Residual trust
+  is the PKGBUILD text itself (both pin upstream sha256); update path = yay 13.0.1-1 ⇒
+  **review-on-update discipline** (diff against the clone before building; do not "fix" the
+  missing signature by relaxing policy).
+
+**Risk is a class fold over measured invariants, not a count** (`:195-208`): R1 no-update-path
+16/16 · R2 unreviewable artifact 2/16 (channel B only) · R3 unknown packager 16/16 **but no
+discriminating power** (36/1188 carry it = the 16 foreign + the 20 omarchy-repo packages;
+re-derived by this seat) · R4 dead-channel exile 14/16 · R5 runtime code 14/16 · R6
+install-scriptlets 0/16 · R7 outside-`/usr` writes 0/16 · R8 blast radius (13 rows depend only on
+the meta package) · R9 staleness (327 d / 182 d / 1 d) · R10 **version crossing** 14/16
+(`omarchy-walker → walker` unversioned; walker moved 2.16.2-1 → 2.17.0-1 on 2026-10-11, and
+`walker` is in `[omarchy]` while the meta package's own channel is dead) · R11 deps satisfied
+today rc=0 · R12 wiring outside the db 16/16. Use `%VALIDATION%` to split the channels, **never**
+the packager field (`:218-221`). A channel a read-only probe cannot settle gets an
+`unknown-provenance` row plus the exact operator probe — never a guessed channel (`:287-312`);
+linkage/ABI questions read `out of reach` and route to kaidoku/revenger (`PROVINCE.md:15-16`).
+Live state, re-derived: `elephant.service` active running; `journalctl --user -b | grep -ic
+elephant` = 132, error/fail/panic/warn = 0 (`aur-risk-plane.md:227-237`) — a break would surface
+as a dead launcher, not a pacman error.
+
+### The baseline turn — specified, not landed (carry the tag)
+
+The gate still reports the bare count: `tools/tsukuroi-census.sh` md5
+`e9327046b05b5c71e07fe511ad7e82dd` (1032 lines, round-5 revision), selftest rc=0
+`PASS (35 cases, 35 passed, 0 failed)` (this seat, 2026-10-14). The register's §8 (`:314-329`) is
+the round-6 baseline contract: a machine-readable baseline (name/version/class/validation/
+first_seen) the census reads, `foreign=` reported as known-vs-new, **fail-closed (a new foreign
+package or a version change keeps DEGRADED; the baseline may split the report, never lower a
+verdict)**, ≥3 fixtures (hit / new / version-drift). It is **not implemented** at this append's
+write time — no baseline file exists and the gate is unchanged; verify at round-7 Step 0
+(`plans/round-7.plan.md:95-99`), never quote it as landed. The gate-semantics `DEGRADED` bullet
+above reads literally until then.
+
+### The OOM-event plane — two classes, entry counts, presence-flag counters
+
+Retained journal (13 boots) holds **two kill waves**, one per class: **event A** a kernel OOM
+(2026-10-13 23:44:30, victim `python3` 26.6 GiB anon) and **event B** a SIGKILL class
+(2026-10-14 13:10:59, the old session's user manager + helper; round-4 E1)
+(`oom-event-plane.md:21-52`).
+
+- **Count rules (entry level).** Event A is 3 kernel lines but **1** err-level entry —
+  `-p err` leaves only `Out of memory: Killed process 1732581 (python3) total-vm:56727648kB,
+  anon-rss:27873696kB, …, oom_score_adj:200` (PRIORITY=3; `GpuWatchdog invoked oom-killer` and
+  `oom-kill:constraint=…` are warn/info) — which is the census's `oom=1` (`:56-72,193-198`).
+  Systemd attribution messages count **A → 2, B → 1**
+  (`journalctl -b | grep -c "kernel OOM killer killed some processes"` = 3 in total; re-derived)
+  — round 4's "single message" for A was one of two (`:389-397`).
+- **The census's OOM arm is blind to event B by construction**: in the whole 13:10:55–13:11:12
+  window the kernel stream carries 121 records and **zero** OOM-family lines, while same-second
+  kernel records prove capture, no ring wrap, and dumps enabled (`:176-199`; re-derived: 121
+  records, 0 matches, `oom_dump_tasks=1`, `panic_on_oom=0`). **A round that reports `kerr oom=1`
+  while saying nothing about event B is telling the truth about the kernel arm and nothing about
+  this class — report the two together** (`:372-375`).
+- **The cgroup counter is a presence flag, not a meter.** Two documented waves, yet `user.slice`
+  and `user-1000.slice` each read `oom_kill 1` and no live descendant is non-zero (95-file
+  sweep) — the subtree that generated event B was destroyed and replaced; the counter lifecycle
+  is Q2 [unknown] (`:245-257`). Read it as "an oom_kill has been accounted since this cgroup was
+  created"; the event list comes from the journal messages.
+- **Pressure anchors that survive a session restart**: `user-1000.slice/memory.swap.peak`
+  36 744 949 760 B = 34.22 GiB vs 34.25 GiB total swap (≈99.9 %) and `memory.swap.events.fail`
+  5 922 849 (swap-slot allocation failures) — while `memory.peak`/`current` include page cache
+  and are **not** pressure readings (`:259-275`; re-derived: swap.peak and fail match). Event A's
+  dump: free below the min watermark, `Free swap 44kB` of 35.9 GB, `all_unreclaimable? yes`,
+  164-row task table (`:74-119`).
+- **No guard was configured on the path**: `MemoryHigh`/`Max`/`SwapMax` = `max`/`infinity`,
+  `systemd-oomd` inactive+disabled, `earlyoom` absent, `MemoryPressureWatch=skip` (`:277-281`) —
+  nothing acted before the kernel. Prevention levers are operator-owned (detection-only here,
+  `:337-353`); the plane's detection contract C1–C6 and reading rules are `:355-375`.
+- **Verdict stance**: a measured OOM is a named item (the drivers ring's `[unknown: accepted
+  noise floor]`), never bare "noise"; recurrence escalates. Both waves' root causes are
+  cross-domain (event B's kill source H1–H3 [unknown], `:215-224`; Q1–Q7 owners in `:377-387`) —
+  reported, never absorbed.
+
+### Errata / pending — round 6 (append)
+
+- 2026-10-14 — round-6 arrivals at this append's write time (all untracked in the tree; hashes
+  above): `aur-risk-plane.md` (14:44 -03), `foreign-provenance-r6.md` (14:43), `oom-event-plane.md`
+  (14:47). The plan's draft name `foreign-aur-risk-plane.md` was superseded by the landed
+  `aur-risk-plane.md` (`aur-risk-plane.md:23-24`). The **baseline + census extension is the
+  round's one named debt**: specified (`aur-risk-plane.md:314-329`), not landed; the census pin
+  above stays current until it is. Scribe prep: `plans/round-6-record-draft.md`.
+- 2026-10-14 — **a dependency moved mid-append (recorded, not smoothed).** `oom-event-plane.md`
+  was first read at 14:47:49 (md5 `48876876246cc0c961c4145e152f4639`, 432 `wc -l`, 36 122 B) and
+  re-cut at 14:48:56 (`7e99d712…`, 433, 36 179 B) before this append's pin was fixed. The delta
+  was not localized by this seat (no retained prior copy to diff); every citation in the OOM
+  section was re-verified line-aligned against the re-cut revision (victim `:67`, swap `:82`,
+  164-row table `:90-92`, 121-record window + `oom_dump_tasks` `:180-187`, 95-file sweep `:249`,
+  `swap.peak` `:264`, guards `:351`, the `kerr oom=1`/event-B rule `:374`), and the pin above is
+  the re-cut. A later reader must re-hash: a mismatch means the note moved again.
+- 2026-10-14 — count restatements elsewhere in this file are left untouched this round because
+  the gate did not change: the round-3 checklist step 2 (`:519-520`, "26 cases") and the round-5
+  supersession notes (`:600-601`, `:686-687`, "35 cases") remain as history; a future gate
+  revision must move them together.
+- 2026-10-14 — the OOM plane's own erratum: round-4's single slice-level message is extended to
+  the measured 3-message set and the two-wave structure (`oom-event-plane.md:389-403`); the
+  counter rule there supersedes any use of `memory.events` as an event count.
+- Carried (unchanged): root `-Qkk` delta; the 18/19 sweep-summary split; `1password-beta`
+  provenance; `walker-restart.hook` (kagi/operator); dkms stale row; `snapper` empty; the
+  "20-min cap" item (owner: integrator); round-4/5 `corpus/README.md` coverage debt (scribe).
