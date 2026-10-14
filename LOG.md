@@ -171,3 +171,79 @@
 - 2026-10-14 — round 8 (training r7): the VER-S8 GAP CLOSED: the OOM/memory arm independently verified (11-mutant replay, 8/8 own-case kills, 9 un-exercised clause sites named as coverage debt); the kill-event classes (F1-F8) with live re-derived values; update-safety v3. Axis: operability. Verifiers: VER-S8 (the closure) | S8-2.
 - 2026-10-14 — round 9 (training r8): the 5-plane census landed (update-safety arms — the r7 AUD-X7 gap closed; PLANE oom); the AUR drift receipt; update-safety v3. Axis: coverage + operability. Verifiers: VER-S9 | AUD-S9.
 - 2026-10-14 — round 10 (training r9): the calibration synthesis (measured-vs-believed ledger; the r3 self-correction as the method); the census's OWN mutation sweep + hardening; the 5-plane closeout receipt. Axis: calibration. Verifiers: VER-S10 | AUD-S10.
+- 2026-10-14 — round 11 (training r10) — **the closeout: the arc's final round**, recorded by
+  SCR-S11 (the final record; plan `plans/round-11.plan.md` — md5 `2f09006e6c0d…`, 348 `wc -l`;
+  lane round N = training r(N−1); nothing in this entry presumes a round 12 — the ladder ends
+  here on this lane's dispatch frame, and no claim is made about sibling arcs). **Seats (per the
+  artifacts' own headers + scratch):** S11-1 closeout note · S11-4 census pins + SKILL terminal
+  append + watcher (no `HANDOFF.md` detection; its own cap fired at 22:15:50Z) · VER-S11 (verdict
+  scratch-only — no repo report; its dispatch was do-not-edit) · AUD-S11 · PACK-S completion
+  ledger · T11-3 (tameshi cross-lane regression append) · SCR-S11 this record. **Work (observed
+  in tree at this write; landed-means-committed is NOT yet true — the round-11 integration
+  commit is owed at write time, the round-3 pattern):** (a) `corpus/knowledge/closeout-r11.md`
+  (S11-1; md5 `d59da63fb6c812aeea81553dfc8dc7a1`, 403 `wc -l`, 28 614 B, mtime 18:38:37 -03,
+  stable ≥ 30 min at this write; incl. the T11-3 append — the six-leg tameshi regression at
+  today's pins, `REGRESSION: PASS (cases=6 passed=6; ledger legs exact)`) — the arc (committed
+  plane count 3→4→5-uncommitted-~12-min→6; the census self-measurement 17→26→35→49→74→80; the
+  triage discipline), the standing cadence (event-anchored, not scheduled), the elevation-gated
+  register (9 rows) + §3.2's named debts; its §0.3 identity pin re-hashed here: census md5
+  `945c76fc6cc548e47b91c23a9637df75` · sha256 `1045244387ff…` · 2402 `wc -l` · 126 075 B.
+  (b) `reports/r11-aud-s11.md` (AUD-S11; md5 `7777142aaebb…`, 173 `wc -l`) — both bound claims
+  PASS (instrument identity + counts-move-together + plane-set consistency; the r10 receipt
+  re-run, its two superseded pins recorded as drift, not smoothed); its O3 names the SCORECARD
+  rows repaired by this record; its U3 named the wave in flight. (c) `plans/completion-evidence.md`
+  (PACK-S; md5 `472e7f196b2c…`, 160 `wc -l`) — the completion ledger at its 22:01:17Z freeze:
+  contract items L1–L10 open, the in-flight artifacts cited by identity only. (d) VER-S11's
+  verdict (`/tmp/w11-ver-s11/VERDICT.md`, scratch-only): the r10 revision ladder re-derived from
+  blobs (r9b `e32aac98…` 74/74 rc 0; r10 `945c76fc…` 80/80 rc 0), the H4/S2 survivor-closure
+  cells rebuilt byte-equal to the recorded rows and re-run (H4 SURVIVED at r9b; H4/S2 KILLED at
+  r10 — failing-case lines byte-equal); its 25-min detection poll TIMED OUT (no marker).
+  (e) `SKILL.md` round-11 terminal append (S11-4; +54/−1, plus its post-write errata addendum;
+  md5 `f7d2be485e11…`, 1631 `wc -l`; the block begins at `:1572` of the pre-append 1569-line
+  view) — §1 the handoff pointer (the runbook was absent at its write; the plan pointer
+  stands), §2 the final identity pin (`945c76fc…` re-derived from the committed blob; 80/80
+  selftest; six planes SET-MATCH at 21:31:57Z), §3 the count restatements re-grepped (executed
+  80 == the live pair), §4 the terminal-contracts table (each row a hash + owning seat), §5 the
+  D13 closing warning + the errata block, whose addendum pins this record's first revisions —
+  superseded by this one per its own re-hash rule; it also records the L7 timing and the
+  append-only "5-plane" answer. **Scribe re-verification (re-executed 2026-10-14 21:38–22:11Z, all read-only,
+  scratch `/tmp/w11-scr-s11-tsukuroi/`):** `bash tools/tsukuroi-census.sh --selftest` → rc=0,
+  `TSUKUROI_CENSUS_SELFTEST: PASS (80 cases, 80 passed, 0 failed)`; `bash tools/tsukuroi-census.sh`
+  → rc=1, **six** `PLANE` emitters == six rollup keys, rollup verbatim `TSUKUROI_CENSUS: DEGRADED
+  (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED
+  oom=HEALTHY)`; zero mutation (`git status` unchanged bar sibling seats' files; `db.lck`
+  absent). Probes re-run as captures: `-Qu` rc=1 empty; `-Sup` rc=0 empty; `-Suu` rc=0, 1 line
+  (`omarchy/1password-beta 8.12.42_32.BETA-1` — the trap row); sync-db births 2026-10-11
+  12:54:13.542 + `offline.db` 2026-10-03 17:41:33; dkms stale `nvidia/610.57.04, 7.1.4-arch1-1`
+  row beside current 7.2.3; `snapper list-configs` header-only rc=0; boots 13 (+header); coredump
+  dir 764 files / 3.8 G (storm capture). **SCORECARD refresh (this entry's write; realizes
+  contract item L6):** rows 16/21/22 carried an unmatched `(` since r4/r9/r10; repaired by adding
+  the closing `)` only — every original word preserved in place; the plan's "(the unescaped `|`
+  escaped only)" reading was adjudicated and rejected (escaping the cell-boundary pipe merges the
+  After and Evidence cells into a 4-cell row and leaves the paren unclosed — the malformed-paren
+  state AUD-S11's O3 and `closeout-r11.md:249-254` name); the round-11 move row and the final
+  axes table (`AXES.md:33-39`: six scores + counting commands + `planned`/`retired`) landed; the
+  "5-plane" numerals in rows 21/22 stay verbatim. **Appended precision (append-only; the
+  round-9/10 lines are never rewritten):** `LOG.md:172`'s "5-plane census landed" reading is
+  corrected here — the committed arc is 3→4→5(uncommitted, ~12 min)→6 planes (`closeout-r11.md`
+  §0.4; `SKILL.md:1419`); its "r7 AUD-X7 gap closed" credit belongs to r8's VER-S8 (the memory
+  arm), not to r9's update-safety arms; `LOG.md:173`'s "5-plane closeout receipt" = the r10
+  receipt's dispatch premise against its realized six (`census-closeout-receipt-r10.md` §0).
+  **Debt at this write (each with its closing surface):** realized by this write: L6 (SCORECARD),
+  L7 (the SKILL append, S11-4), L8 (this entry); still not landed — L1 runbook (`HANDOFF.md`
+  never appeared; the realized reader artifact is `closeout-r11.md`), L2 `PROVINCE.md`
+  Core/Frontier/Adjacent, L3 SHONEN mechanical diff, L4 `corpus/lessons/round-11.md` (lessons =
+  0 files; no retro-fabrication), L5 `corpus/README.md` rows + `## Frontier`, L9 the non-author
+  runbook test, L10 the landing commit — all named with owners in `plans/completion-evidence.md`
+  §3/§5 and the SKILL append's §4; carried: the elevation-gated register (9 rows,
+  `closeout-r11.md` §3.1); verification debts D13 (the r9 planes' non-author verification; the
+  `(S10-2)` covering claims — partly re-derived by VER-S11 §2; tameshi B7/B8/B9; the post-append
+  no-oral-context re-test); host unknowns with owners (coredump storm; V8 heap-OOM; OOM-counter
+  Q2; r6 H1–H3; E4–E8 errata; "20-min cap" → integrator; `offline.db` coverage; `1password-beta`
+  provenance). **State at entry:** HEAD `af8adf1` (round-10 commit, 18:28:23 -03) unchanged
+  through the wave; `git status --porcelain` reads ` M LOG.md`, ` M SCORECARD.md`, ` M SKILL.md`,
+  `?? corpus/knowledge/closeout-r11.md`, `?? plans/completion-evidence.md`, `?? reports/r11-aud-s11.md`;
+  `db.lck` absent after every probe; the round-11 integration commit owed at write time.
+  **SHONEN:** all four boxes stay `[~]` (asserted with verifier names; `SHONEN.md` unchanged
+  since r3); `[x]` owed to the non-author promotion review — which should include the post-append
+  no-oral-context re-test. Verifiers: VER-S11 (verdict in scratch) | AUD-S11 | PACK-S ledger.
