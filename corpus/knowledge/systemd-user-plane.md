@@ -195,6 +195,39 @@ of the boot journal rather than only user-unit messages; not verified from first
   printed PIDs/GIDs because the TIME column spans four fields. Re-derived from `--json=short`
   (canonical) per §6; table numbers match after field shift.
 
+### Wave-1 errata applied (2026-10-14 10:48–10:51 -0300, re-measured; append-only)
+
+Wave-1 record sources: `SKILL.md:217-227` (journal / unit-file / rollback
+corrections), `SKILL.md:43` (boot-gap inference), `LOG.md:33-38`,
+`CORPUS.md:17`. Scratch `/tmp/tsukuroi-r2-3-work/`. Numbers below are today's.
+
+- 2026-10-14 — **unit-file count corrected: 136 → 133** (`SKILL.md:221-223`):
+  `systemctl --user list-unit-files --no-pager | wc -l` = **136 raw lines**,
+  decomposing as 1 header + **133 unit rows** + 1 blank + 1 footer
+  (`133 unit files listed.`); awk on `\.(service|timer|socket|…)$` = 133. The
+  first-pass 136 was a raw line count, never a unit count. [observation]
+- 2026-10-14 — **journal-err recount (drifts; re-quote, never cache)**:
+  `journalctl -b -p err --no-pager | wc -l` = **61 343 lines** vs
+  `-o json | wc -l` = **239 entries** (note: 60 941 / 238); `--user` view 199
+  entries; coredump census 199 (was 198; latest entries still godot SIGABRT).
+  The ~257:1 line:entry ratio keeps the line-count trap (§8.1) live.
+  [observation]
+- 2026-10-14 — **boot-gap judgment recorded as erratum, not promoted to fact**
+  (`SKILL.md:43`): re-measured anchors are consistent with the resume
+  hypothesis — `/proc/cmdline` carries
+  `resume=/dev/mapper/root resume_offset=3795013`; first journal record at
+  monotonic `[ 244.159301]`; `systemd-analyze` kernel phase 4 min 3.328 s. The
+  §9 gap question stays [inference, unproven]: resume explains it, but the
+  journal-flush/mount-delay hypothesis is not excluded by the same evidence.
+- 2026-10-14 — manager state re-measured unchanged: `is-system-running` =
+  `running`, 0 failed units, 1 timer (`ai-usage.timer`, last run 10:49:38).
+  [observation]
+- 2026-10-14 — **field-contract erratum**: the header carries measured-date
+  prose, not the contracted literal keys (`CORPUS.md:17`). Appended values:
+  `source:` systemctl / journalctl / coredumpctl probes, host `plazir27`;
+  `verified-at:` 2026-10-14 (wave-1 audits + this re-measure); `recheck:` the
+  Appendix command set below. [observation]
+
 ## Appendix — probe command set (reproducible)
 
 ```

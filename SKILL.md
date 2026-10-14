@@ -231,3 +231,215 @@ Run from anywhere; every step is non-mutating. Output every step, even when it p
 - Open unknowns carried forward (per notes): root `-Qkk` deltas, GSP image selection (U1),
   firmware atime readers (U2), `powerprofilesctl` drift intent, omarchy channel provenance
   for the elephant set, mirror/upstream freshness, `omarchy-battery-monitor.timer` intent.
+
+## Round-2 census gate — executable verdict semantics (`tools/tsukuroi-census.sh`)
+
+Distilled 2026-10-14 (TSUKUROI-R2-4) from the settled revision of the gate
+(744 lines, md5 `7a3d3b94ecd73fbe1a9a98e9dc88b92f`) and its own runs. The gate is
+the executable form of the decision table above: three planes — packages,
+systemd user scope, drivers — one verdict line, firmware-style exit map
+(`tools/tsukuroi-census.sh:25-74,733-741`). Plan anchor: `plans/round-2.plan.md:3-9`;
+anti-claim: **any plane unreadable live → `BLOCKED` arm fires, never a fake
+pass** (`plans/round-2.plan.md:8`; `tools/tsukuroi-census.sh:13-14`). Read-only
+guarantee: live mode creates no files at all; the only writes anywhere are the
+selftest's own `mktemp -d /tmp/tsukuroi-r2-1-selftest.XXXXXX`
+(`tools/tsukuroi-census.sh:76-78,461-464`). Secrets never read — only public
+package / unit / driver state (`:78`).
+
+### Gate usage and output contract
+
+```bash
+bash tools/tsukuroi-census.sh              # live read-only census → verdict line + exit map
+bash tools/tsukuroi-census.sh --selftest   # hermetic fixture-tree test; exit 0 pass / 1 fail
+bash tools/tsukuroi-census.sh --sample N   # packages -Qkk sample size (default 8)
+```
+
+```
+TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=..)
+exit map: 0 HEALTHY | 1 DEGRADED | 2 BLOCKED   (worst plane wins; usage errors also 2)
+```
+(`tools/tsukuroi-census.sh:22-23,126-138`)
+
+The gate's own selftest — run 2026-10-14T13:59:03Z against this revision, output
+captured verbatim (17 cases: 4 HEALTHY / 6 DEGRADED / 7 BLOCKED; each case
+asserts exit code + verdict + plane substring + fixture byte-unchanged, plus a
+`host=fixture-host` check proving no host path was read —
+`tools/tsukuroi-census.sh:80-88,563-599`):
+
+```
+PASS healthy: all planes pass (exit 0, HEALTHY)
+PASS healthy: nvidia present and answering (exit 0, HEALTHY)
+PASS healthy: unrestricted dmesg ring preferred (exit 0, HEALTHY)
+PASS healthy: rc=1 backup-only sample is not a defect (exit 0, HEALTHY)
+PASS degraded: Qkk sample drift (exit 1, DEGRADED)
+PASS degraded: foreign packages (exit 1, DEGRADED)
+PASS degraded: declared hold (IgnorePkg) (exit 1, DEGRADED)
+PASS degraded: failed unit (exit 1, DEGRADED)
+PASS degraded: timer last run failed (exit 1, DEGRADED)
+PASS degraded: kernel error ring (exit 1, DEGRADED)
+PASS blocked: pacman db.lck (exit 2, BLOCKED)
+PASS blocked: pacman binary missing (exit 2, BLOCKED)
+PASS blocked: sample probe error (exit 2, BLOCKED)
+PASS blocked: systemd user bus unreachable (exit 2, BLOCKED)
+PASS blocked: nvidia hardware, driver offline (exit 2, BLOCKED)
+PASS blocked: both kernel rings unusable (exit 2, BLOCKED)
+PASS blocked: empty ring is not a clean bill (exit 2, BLOCKED)
+TSUKUROI_CENSUS_SELFTEST: PASS (17 cases, 17 passed, 0 failed)
+```
+
+selftest rc=0; no `/tmp/tsukuroi-r2-1-selftest.*` dir left behind (trap cleans —
+`tools/tsukuroi-census.sh:461-464`). Live run, same revision (verdict lines
+verbatim; zero host mutation verified — `git status` identical before/after):
+
+```
+tsukuroi-census census-v1 — host=plazir27 — 2026-10-14T13:59:03Z — read-only
+PLANE packages: DEGRADED (pacman -Qkk rc=1 sample=8(1password-beta,1password-cli,7zip,aalib,abseil-cpp,acl,adwaita-cursors,adwaita-fonts) drift=2[1password-beta,1password-cli] backup_diffs=0 nonroot_artifacts=0; foreign=16; pins=none; holds=pacman glibc; db.lck=absent)
+PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)
+PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=38 (oom=1 io=35 gpu=0 other=2) [unknown: accepted noise floor]; nvidia=present smi=610.57.04 modules=4 nodes=6 pci_10de=2)
+TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED)
+```
+
+(exit 1; scratch: `/tmp/tsukuroi-r2-4-scratch/selftest.txt`, `live-census.txt` —
+ephemeral.) The `TSUKUROI_*` env overrides exist to make the selftest hermetic
+(`tools/tsukuroi-census.sh:85-88`); a live verdict produced with overrides would
+not be a measurement of the host — fixture runs only.
+
+### What each plane's findings mean (as implemented, `tools/tsukuroi-census.sh:25-74`)
+
+**packages** — probe: bounded `pacman -Qkk` sample over `pacman -Qq` (default 8)
++ `pacman -Qm` count + `pacman-conf IgnorePkg IgnoreGroup` + `HoldPkg` read
+(printed; never gates) (`:27-42,199-279`).
+- `HEALTHY` — sample drift 0, foreign 0, pins empty. Sample rc may still be 1:
+  `backup file:` diffs alone do not set rc; **the drift count decides, not the
+  rc** (`:30-31,42`; selftest case `healthy: rc=1 backup-only sample is not a
+  defect`).
+- `DEGRADED` — drift > 0 (pacman's own altered-file counts, which already
+  exclude backup diffs; drifted package names listed — `drift=2[1password-beta,
+  1password-cli]`), foreign > 0 (accepted baseline is an operator question, not
+  a script constant), or pins declared.
+- `BLOCKED` — pacman missing; `-Qq` rc ≠ 0 (local db unreadable); `db.lck`
+  present (interrupted transaction — never a fake pass); sample `error:` or rc
+  outside {0,1}.
+- The sample is bounded on purpose: the full sweep (~17 s warm) belongs to the
+  operator checklist, not a gate latency budget (`:40-42`).
+
+**systemd (user scope only)** — probe: `is-system-running` + failed units +
+`show <timer> -p Result` for each enabled timer (bounded 12) (`:44-57,282-345`).
+- `HEALTHY` — state `running`, failed 0, every scanned timer `Result=success`.
+- `DEGRADED` — any failed unit; timer Result ≠ success or unreadable
+  (unresolved unknown); state in {degraded, starting, stopping}.
+- `BLOCKED` — systemctl missing; bus unreachable (output is not a state word);
+  a list probe fails; state in {offline, maintenance}.
+- **Deliberate refinement, recorded not silent**: round 1 lists scope `degraded`
+  under BLOCKED (`SKILL.md:42`); census-v1 reports it DEGRADED because the
+  failed-units probe still assesses it fully (`tools/tsukuroi-census.sh:54-57`).
+
+**drivers** — probe: kernel err ring (`dmesg --level=err,crit,alert,emerg`
+preferred, else `journalctl -k -b -p err -o json`; entry counts — line counts
+are traps, `SKILL.md:217-220`) + nvidia presence (PCI `0x10de` vendor,
+`nvidia-smi`, `lsmod`, `/dev/nvidia*`) (`:59-74,348-458`).
+- `HEALTHY` — kerr 0 with a non-empty ring, and nvidia either
+  present-and-answering (smi ok + module loaded + nodes exist) or absent from
+  PCI inventory.
+- `DEGRADED` — kerr > 0, class-counted `oom / io / gpu / other`; the noise floor
+  is [unknown], so every kernel error entry is a named unresolved item.
+- `BLOCKED` — both rings unusable; ring empty (**clean vs no-data cannot be
+  told apart** — selftest case `blocked: empty ring is not a clean bill`);
+  nvidia hardware in PCI but core function offline (smi not answering / no
+  module / no `/dev/nvidia*` node); PCI inventory unreadable with no other
+  positive evidence.
+- `ring=` in the plane line names the source actually used (measured host:
+  `dmesg_restrict=1` → `ring=journalctl-k`; `:73-74`).
+
+Scope note: the gate covers 3 of the 5 adjudicated surfaces (system-scope
+systemd and pure journal/boot triage stay checklist-driven — `:44-45`); journal
+& boot findings still come from `SKILL.md:43` + `systemd-user-plane.md`.
+
+### Round-2 update-safety note — verdict arms and boundaries
+
+`corpus/knowledge/update-safety-note.md` (TSUKUROI-R2-2; settled 478 lines, md5
+`5cc3067fec33d261d8bff6a5c7e8ac48`) extends the 11-step checklist with a measured
+`-Syu` decision table. For the update-safety question the fixed arm vocabulary
+is not HEALTHY/DEGRADED/BLOCKED but `PASS` · `INERT` (transaction would do
+nothing) · `REQUIRES-PREP` · `BLOCKED` (probe cannot answer read-only) ·
+`UNKNOWN-UPSTREAM` · `DO-NOT`; composition: strongest arm fired, ordered
+`BLOCKED > UNKNOWN-UPSTREAM > REQUIRES-PREP > INERT > PASS`; every verdict
+carries its firing row and measured value
+(`corpus/knowledge/update-safety-note.md:334-339`).
+
+Composed verdicts (measured 2026-10-14, `:358-381`):
+- **`-Syu` right now: `INERT`** — 0 candidates; three probes agree (`-Qu` empty
+  ×3, `-Sup --print-format` 0 lines, version join 1171 equal / 0 behind /
+  1 ahead) (`:19-40`).
+- **`-Syu` right after the refresh: `UNKNOWN-UPSTREAM` + `REQUIRES-PREP`** —
+  candidate set decided by the mirror snapshot at that moment; 36-day content
+  stamp means kernel / libc / driver classes are in scope; read-only cannot
+  call it safe. Prep list a–d: rollback story, dkms rebuild plan, schedule
+  around the ffmpeg workstream, accept or re-scope the `[omarchy]` TrustAll
+  channel (`:364-373`).
+- **`-Suu` / `-Syyu`: `DO-NOT`** — `-Suu` would downgrade `1password-beta`
+  (installed BETA-32 ahead of channel BETA-1); `-Syyu` re-downloads
+  36-day-stamped dbs for no benefit (`:280-284,374-375`).
+
+Boundaries and traps the note fixes (each re-measurable):
+- `-Qu` empty proves "nothing newer than a 36-day-old snapshot", not "fully
+  current" — upstream delta is [unknown] read-only; the operator's next `-Sy`
+  is the resolving event (`:63-66`).
+- `--print-format '%s'` is **not** a size (printed `0` for nvidia-utils whose
+  real sync download is 300.73 MiB); take sizes from `pacman -Si` only
+  (`:199-202`).
+- `HoldPkg = pacman glibc` is removal-protection, **not a version hold**; true
+  pins are `IgnorePkg` / `IgnoreGroup` / `NoUpgrade` / `NoExtract` — all empty
+  (`:204-222`).
+- Shadowing: repo order `core→extra→multilib→omarchy` means `-Qu` never shows a
+  newer shadowed omarchy copy — `linux-firmware-cirrus` is why `-Qu` reads
+  empty (`:256-278`).
+- `snapper list-configs` = 0 configs → any wave is snapshot-less; `dkms status`
+  stale `7.1.4-arch1-1` row → a rebuild already failed once; `walker-restart.hook`
+  execs a user-owned script as root → reported, not absorbed
+  (`:286-330,471-473`).
+
+### Detection, never remediation — round-2 additions
+
+- The gate is detection by construction: no mutating verb in its probe surface;
+  live mode creates no files (`tools/tsukuroi-census.sh:76-78`); an unreadable
+  plane → `BLOCKED` arm, never a fake pass (`:13-14`; plan anti-claim
+  `plans/round-2.plan.md:8`).
+- **One non-obvious allowed verb, now exercised**: `pacman -Su* --print*`
+  (e.g. `-Sup --print-format '%r/%n %v'`) builds a plan and prints it — no
+  transaction, no download, no db write (observed: rc=0 with 0 lines, no
+  `db.lck` created) (`corpus/knowledge/update-safety-note.md:12-14,196`). It
+  joins the allowed read-only verbs; `-Sy` stays forbidden even though it, too,
+  installs nothing.
+- `checkupdates` / `paccache` absent; **installing `pacman-contrib` is out of
+  province** — the upstream-comparison route is handed to the operator
+  (`:14-17,376-381`).
+- Privilege gates stay verdicts, not invitations: `/boot` reads rc=2 non-root →
+  row `BLOCKED` (operator probe) (`:350`); `dmesg_restrict=1` is handled by the
+  ring fallback (`journalctl -k`), never by sudo
+  (`tools/tsukuroi-census.sh:73-74`).
+- Cross-domain: `walker-restart.hook` root-exec of a user-owned script →
+  kagi / operator; `1password-beta` provenance question and the 3 alpm temp
+  dirs → operator / privilege gate — reported, never absorbed
+  (`corpus/knowledge/update-safety-note.md:471-473`).
+
+### Errata / pending — round 2 (append)
+
+- 2026-10-14 — **round-2 arrivals + this distill.** `tools/tsukuroi-census.sh`
+  (TSUKUROI-R2-1; settled 744 lines, md5 `7a3d3b94ed…`, selftest 17/17 PASS)
+  and `corpus/knowledge/update-safety-note.md` (TSUKUROI-R2-2; settled 478
+  lines, md5 `5cc3067fec…`) landed 10:54:42 and settled 10:58:45; the blocks
+  above were distilled from those revisions and the gate's own runs. The one
+  semantic refinement (systemd scope `degraded`: round-1 BLOCKED → census
+  DEGRADED) is recorded above, not silently applied
+  (`tools/tsukuroi-census.sh:54-57`).
+- 2026-10-14 — **live snapshot from this distill's own run** (13:59:03Z, zero
+  mutation): `TSUKUROI_CENSUS: DEGRADED`, rc=1; packages DEGRADED (sample
+  drift 2 = `1password-beta` + `1password-cli`; foreign 16; pins none);
+  systemd HEALTHY; drivers DEGRADED (`kerr=38`: oom=1 io=35 other=2; nvidia
+  present, smi 610.57.04, modules=4, nodes=6). Snapshot only — re-run, never
+  quote as current. The sample drift is a bounded-sample observation; the root
+  `-Qkk` re-run remains the named resolution for the 18/19 drift split.
+- Pending (round 2): `LOG.md` entry for this append owed per `AGENTS.md:3`
+  (this seat's write scope was `SKILL.md` only); round-2 wave-1 errata not yet
+  merged here.

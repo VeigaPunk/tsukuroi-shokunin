@@ -216,4 +216,28 @@ Unknowns:
 
 ## Errata (append-only)
 
-(none yet)
+(none yet — as declared at write time 09:58; wave-1 errata appended below)
+
+### Wave-1 errata applied (2026-10-14 10:51 -0300, re-measured; append-only)
+
+Wave-1 record sources: `SKILL.md:44` (driver-row residues), `corpus/README.md:9`
+(coverage claim), `CORPUS.md:17`. Scratch `/tmp/tsukuroi-r2-3-work/`.
+
+- 2026-10-14 — **stale dkms registration landed as erratum** (body §2 carried
+  the pacman-log build line, not this residue): `dkms status` →
+  `nvidia/610.57.04, 7.1.4-arch1-1, x86_64: installed (Original modules exist) (Built modules are missing in the kernel modules folder)`
+  beside `nvidia/610.57.04, 7.2.3-arch1-3, x86_64: installed`; `ls /lib/modules/`
+  = `7.2.3-arch1-3` only. Classification judgment: residue, not a driver
+  failure — the loaded module is the 7.2.3 build. [observation + judgment]
+- 2026-10-14 — **unowned module landed as erratum** (pacman cannot verify the
+  DKMS artifact): `pacman -Qo /lib/modules/7.2.3-arch1-3/updates/dkms/nvidia.ko.zst`
+  → `error: No package owns …`, rc=1; file 12 027 573 B, mtime
+  2026-10-11 16:15:34.810910954; `modinfo nvidia` → `version: 610.57.04`;
+  `nvidia-smi --query-gpu=name,driver_version` → `NVIDIA GeForce RTX 5070,
+  610.57.04` (rc=0). [observation]
+- 2026-10-14 — **field-contract erratum**: the header carries measured-date
+  prose, not the contracted literal keys (`CORPUS.md:17`). Appended values:
+  `source:` lsmod / dkms / modinfo / nvidia-smi probes, host `plazir27`;
+  `verified-at:` 2026-10-14 (wave-1 audits + this re-measure); `recheck:`
+  `dkms status`; `ls /lib/modules`; `pacman -Qo` on the DKMS module;
+  `nvidia-smi --query-*`. [observation]

@@ -238,6 +238,54 @@ Classified after normalization:
 - 2026-10-14 — Full `-Qkk` sweep output must be `tr '\r' '\n'`-normalized
   before parsing; raw line counts undercount package summaries.
 
+### Wave-1 errata applied (2026-10-14 10:47–10:52 -0300, re-measured; append-only)
+
+Wave-1 record sources: `SKILL.md:206-233` (errata/pending), `LOG.md:33-38`
+(open list), `CORPUS.md:17` (field contract). All probes re-run read-only at
+the times shown; scratch `/tmp/tsukuroi-r2-3-work/`. Numbers below are today's
+re-measurements, not the note's.
+
+- 2026-10-14 — **full sweep re-measured**: `timeout 240 pacman -Qkk >
+  /tmp/tsukuroi-r2-3-work/qkk-full.txt 2>&1` → rc=1, 1332 raw lines, wall
+  **15.34 s** (note: ~17 s). CR bytes in this output = **0** (`grep -c $'\r'`),
+  yet 6 summaries are spliced by interleaved `warning:` output and 2 are
+  name-split: `cups-browsed: 36 totalwarning: …` (`qkk-full.txt:116`),
+  `pipewire-als` … `a: 12 total files, 0 altered files` (:954-958), `xx` …
+  `hash: 27 total files, 0 altered files` (:1308-1310). The `tr '\r' '\n'`
+  correction above is therefore necessary but **not sufficient** on this run;
+  a splice-aware parse is required. [observation]
+- 2026-10-14 — **18-vs-19 resolved by measurement** (`SKILL.md:228-230` said
+  "resolve by root re-run"): strict-complete summaries 1182 = 1164 × `0 altered`
+  + **18 × ≥1 altered** (same 18 packages as :207-211); the orphan fragment
+  ` files, 1 altered file` (:121, between cups-browsed's truncated line and
+  cups-filters) restores **cups-browsed = 1** → **19** packages with ≥1 altered
+  [inference: fragment attribution by alphabetical position, as in the round-1
+  scribe reconciliation]. `libplacebo: 48 total fi…` (:676) and
+  `msgpack-c: 34 total f…` (:865) lose the altered field this run → exact count
+  is ≥19. No drift; the delta was a parse artifact. [observation + inference]
+- 2026-10-14 — **sync-db births re-measured identical**: core/extra/multilib/
+  omarchy `%w` = 2026-10-11 12:54:13.542054496; `offline.db` `%w` =
+  2026-10-03 17:41:33.994891750, mtime 2026-07-20, 304318 B, still not a
+  configured repo (`pacman -Sl offline` → not found) — carries the round-1
+  "offline.db coverage" open item (`LOG.md:28-31`). [observation]
+- 2026-10-14 — **root `-Qkk` delta still open**: resolving probe remains an
+  operator root run; today's non-root re-run reproduces the same failed-calc /
+  permission-denied classes (:184-190). No sudo used; privilege gate recorded,
+  not escalated. [unknown]
+- 2026-10-14 — **judgment-class erratum — rollback net retracted.** The wave-1
+  first-pass inference (snapshot coverage from `snapper`/`limine-snapper-sync`
+  + pacman hook) is withdrawn: `snapper list-configs` → empty table, rc=0,
+  while `snapper 0.13.1-3` and `limine-snapper-sync 1.31.0-1.1` are installed →
+  no rollback net is configured. Kept as erratum, not laundered into the body.
+  [inference → retracted]
+- 2026-10-14 — **field-contract erratum**: this note opens with measured-date
+  prose, not the contracted literal keys (`CORPUS.md:17`, `LEARNING.md:59-60`).
+  Contract-satisfying values, appended (header rewrite deferred — append-only):
+  `source:` live read-only probes, host `plazir27`, non-root; `verified-at:`
+  2026-10-14 (wave-1 audits) + this errata re-measure; `recheck:` full
+  `pacman -Qkk` sweep; `stat -c '%w' /var/lib/pacman/sync/*.db`; `pacman -Qu`.
+  [observation]
+
 ## Unknowns (open probes)
 
 1. Root-run `-Qkk` deltas for the 32 failed-calc + 4 permission-denied
