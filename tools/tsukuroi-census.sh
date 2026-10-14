@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
-# tsukuroi-census.sh — three-plane host health census (tsukuroi-shokunin, round 2, TSUKUROI-R2-1).
+# tsukuroi-census.sh — four-plane host health census (tsukuroi-shokunin, round 3, TSUKUROI-R3-2).
+# v1 (round 2, TSUKUROI-R2-1) was the three-plane gate: 743 lines, md5
+# 7a3d3b94ecd73fbe1a9a98e9dc88b92f (SKILL.md:235-247, LOG.md:41-49). v2 adds the
+# journal/boot plane on top of that settled revision — same vocabulary, same exit map.
 #
-# Answers exactly one question, read-only: "what is the state of the three owned host
+# Answers exactly one question, read-only: "what is the state of the four owned host
 # planes right now, and can it be assessed at all from an unprivileged shell".
 # It never installs, upgrades, removes, restarts, or writes anything (PROVINCE.md:16-17);
 # its whole product is verdict + evidence + suggested operator action.
 #
-# Plan anchor: plans/round-2.plan.md:3-9 — operability axis, "an executable health census
+# Plan anchor v1: plans/round-2.plan.md:3-9 — operability axis, "an executable health census
 # (tools/tsukuroi-census.sh — packages/systemd/drivers planes) emits
 # TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED with a firmware-style exit map, a hermetic
 # --selftest on a fixture tree, and honest verdicts on the live host".
-# Anti-claim: plans/round-2.plan.md:8 — any plane unreadable live -> BLOCKED arm fires,
+# Anti-claim v1: plans/round-2.plan.md:8 — any plane unreadable live -> BLOCKED arm fires,
 # never a fake pass.
+# Plan anchor v2: plans/round-3.plan.md:3-11 — "the journal/boot plane joins the census
+# (new census arms ...: boot errors, failed services history, timer drift)". The `journal`
+# plane below carries those three arms, each with its own selftest cases.
+# Anti-claim v2: plans/round-3.plan.md:8 — journal unreadable without elevated perms ->
+# the journal arm fails closed BLOCKED; the remaining planes still report.
 #
 # Verdict vocabulary (SKILL.md:22-31): HEALTHY | DEGRADED | BLOCKED, never a scalar.
 #   HEALTHY   every probe of the plane returned the pass value
@@ -73,28 +81,65 @@
 #     note    dmesg is restricted on the measured host (`dmesg_restrict=1`, SKILL.md:158-160);
 #             the ring source actually used is printed as `ring=` in the plane line.
 #
+#   journal (this-boot triage — SKILL.md:43 row; all probes read-only)
+#     probe   arm 1 boot record: `journalctl --list-boots --no-pager` (index-0 line must exist)
+#             arm 2 boot target: `systemctl is-active $BOOT_TARGET` (default graphical.target)
+#             arm 3 boot errors: `journalctl -b -p err -o json --no-pager` — ENTRY count, and
+#             disjoint classes on the JSON lines (coredump | kernel | other). Line counts are
+#             traps (60 941 lines vs 238 entries, systemd-user-plane.md:104-116); only `-o json`
+#             lines (= entries) are ever counted.
+#             arm 4 failed services history: journal-derived from the same err stream, so units
+#             that failed earlier this boot and were reset since are still named — the systemd
+#             plane reports only the current failed set.
+#             arm 5 timer drift: for each enabled user timer, `show <t> -p ActiveState` (bounded
+#             TIMER_SCAN_MAX); an enabled timer that is not `active` will not fire as configured.
+#             Deliberate: avoids brittle relative-time parsing of `list-timers`, and reuses the
+#             systemd plane's timer-loop shape.
+#     pass    index-0 boot line present, target == active, err entries == 0 with a non-empty
+#             journal this boot, failedhist == 0, every enabled timer armed
+#     degrade err entries > 0 (noise floor [unknown]; classes named — same stance as drivers),
+#             failedhist > 0, timer drift > 0, or timer ActiveState unreadable (unresolved
+#             unknown — mirrors the systemd plane's unreadable-Result semantics)
+#     block   journalctl missing or --list-boots unreadable (fails closed — anti-claim v2,
+#             plans/round-3.plan.md:8), no index-0 boot line, boot target not `active`
+#             (SKILL.md:43 "no boot reaches graphical.target"), err stream unreadable, or the
+#             journal is empty this boot (clean vs no-data cannot be told apart)
+#     note    kernel entries also appear in the drivers plane's ring; the journal plane's
+#             distinct value is the non-kernel classes (coredumps, service messages), the boot
+#             record/target, and the armed-state of user timers. `coredumpctl` is deliberately
+#             NOT probed: table parsing is a measured trap (systemd-user-plane.md:169) and
+#             `--json` would add a jq dependency; the `systemd-coredump` entry class IS the
+#             storm signal. First full-gate live run of v2 (2026-10-14T14:51:17Z): boots=13
+#             current=yes target=graphical.target:active err=251 (coredump=211 kernel=38
+#             other=2) failedhist=0 timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 —
+#             snapshot only (counts drift with the live coredump storm: 249 at 14:48, 251 at
+#             14:51); re-run, never quote as now.
+#
 # Read-only guarantee: no probe writes; the gate creates no files at all in live mode
-# (selftest writes only under a mktemp dir named /tmp/tsukuroi-r2-1-selftest.XXXXXX).
-# Secrets are never read: only public package/system unit/driver state is queried.
+# (selftest writes only under a mktemp dir named /tmp/tsukuroi-r3-2-selftest.XXXXXX).
+# Secrets are never read: only public package/system unit/driver/journal state is queried.
 #
 # Hermetic selftest: `--selftest` builds a /tmp fixture tree with a dispatcher stub for
 # every probe command and re-invokes this script against it via env overrides. Each case
-# asserts exit code + final verdict + plane substring, and asserts the fixture tree is
-# byte-unchanged after the run (zero mutation). Every probe command and every host path
-# read in live mode has an override below, so the selftest touches no host state:
+# asserts exit code + final verdict + one or more evidence substrings, and asserts the
+# fixture tree is byte-unchanged after the run (zero mutation). Every probe command and
+# every host path read in live mode has an override below, so the selftest touches no
+# host state:
 #   TSUKUROI_PACMAN TSUKUROI_PACMAN_CONF TSUKUROI_PACMAN_CONF_FILE TSUKUROI_PACMAN_DB
 #   TSUKUROI_SYSTEMCTL TSUKUROI_DMESG TSUKUROI_JOURNALCTL TSUKUROI_NVIDIA_SMI TSUKUROI_LSMOD
 #   TSUKUROI_PCI_SYSFS TSUKUROI_DEV_DIR TSUKUROI_HOSTNAME_FILE TSUKUROI_DMESG_RESTRICT_FILE
-#   TSUKUROI_SAMPLE_N TSUKUROI_TIMER_SCAN_MAX TSUKUROI_FIXTURE (selftest only)
+#   TSUKUROI_BOOT_TARGET TSUKUROI_SAMPLE_N TSUKUROI_TIMER_SCAN_MAX TSUKUROI_FIXTURE (selftest only)
 #
-# Sources: PROVINCE.md:5-12,16-18 · SKILL.md:20-31 (vocabulary), :33-45 (decision table),
-# :47-83 (Qkk benign classes), :85-135 (update-safety checklist), :137-172 (boundary rule)
-# · AGENTS.md:3-5 · corpus/QUALITY.md:1-5 · corpus/knowledge/package-state-plane.md,
-# systemd-user-plane.md, driver-firmware-plane.md · plans/round-2.plan.md:3-9.
+# Sources: PROVINCE.md:5-12,16-18 · SKILL.md:20-31 (vocabulary), :33-45 (decision table incl.
+# the journal/boot row), :47-83 (Qkk benign classes), :85-135 (update-safety checklist),
+# :137-172 (boundary rule) · AGENTS.md:3-5 · corpus/QUALITY.md:1-5 ·
+# corpus/knowledge/package-state-plane.md, systemd-user-plane.md (§5-6 err classes + coredump
+# census, §8 method traps), driver-firmware-plane.md · plans/round-2.plan.md:3-9 ·
+# plans/round-3.plan.md:3-11.
 set -euo pipefail
 umask 077
 
-VERSION='census-v1'
+VERSION='census-v2'
 SELF=${BASH_SOURCE[0]}
 
 # ---- probe surface (every command and every host path is override-able) ------
@@ -111,28 +156,32 @@ PCI_SYSFS=${TSUKUROI_PCI_SYSFS:-/sys/bus/pci/devices}
 DEV_DIR=${TSUKUROI_DEV_DIR:-/dev}
 HOSTNAME_FILE=${TSUKUROI_HOSTNAME_FILE:-/proc/sys/kernel/hostname}
 DMESG_RESTRICT_FILE=${TSUKUROI_DMESG_RESTRICT_FILE:-/proc/sys/kernel/dmesg_restrict}
+BOOT_TARGET=${TSUKUROI_BOOT_TARGET:-graphical.target}
 SAMPLE_N=${TSUKUROI_SAMPLE_N:-8}
 TIMER_SCAN_MAX=${TSUKUROI_TIMER_SCAN_MAX:-12}
 
 CLASS_OOM='Out of memory|oom-kill|oom_reaper'
 CLASS_IO='I/O error|Buffer I/O error|critical medium error|critical target error'
 CLASS_GPU='NVRM|nvidia|NVIDIA|GSP|drm'
+CLASS_FAILED='Failed to |entered failed state|Failed with result'
 
 # ---- shared state ------------------------------------------------------------
 PKG_V=BLOCKED PKG_NOTE='probe not run'
 SYS_V=BLOCKED SYS_NOTE='probe not run'
 DRV_V=BLOCKED DRV_NOTE='probe not run'
+JRN_V=BLOCKED JRN_NOTE='probe not run'
 
 usage() {
   cat <<'EOF'
 usage: tsukuroi-census.sh [--selftest] [--sample N] [--help]
 
-  (no flags)   run the live read-only census over packages / systemd-user / drivers
+  (no flags)   run the live read-only census over packages / systemd-user / drivers /
+               journal-boot
   --selftest   hermetic fixture-tree test of every verdict arm (writes only under
-               /tmp/tsukuroi-r2-1-selftest.*); exit 0 pass, 1 fail
+               /tmp/tsukuroi-r3-2-selftest.*); exit 0 pass, 1 fail
   --sample N   packages plane: size of the pacman -Qkk sample (default 8)
 
-Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=..)
+Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=..)
 Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2)
 EOF
 }
@@ -457,10 +506,128 @@ probe_drivers() {
   return
 }
 
+# ---- plane: journal / boot (this-boot triage) --------------------------------
+probe_journal() {
+  JRN_V=HEALTHY
+  local boots=0 cur=no lb_rc=0
+
+  if ! have "$JOURNALCTL"; then
+    JRN_V=BLOCKED
+    JRN_NOTE='journalctl=missing (probe cannot run)'
+    return
+  fi
+
+  # arm 1 — boot record: an index-0 (current boot) line must exist (SKILL.md:43)
+  cap "$JOURNALCTL" --list-boots --no-pager
+  lb_rc=$CAP_RC
+  if [ "$lb_rc" -ne 0 ]; then
+    JRN_V=BLOCKED
+    JRN_NOTE="journalctl --list-boots rc=$lb_rc [boot record unreadable; fails closed]"
+    return
+  fi
+  read -r boots cur < <(printf '%s\n' "$CAP_OUT" \
+    | awk 'NF && $1 ~ /^-?[0-9]+$/ { n++; if ($1 == 0) c=1 } END { printf "%d %s\n", n+0, (c ? "yes" : "no") }')
+  if [ "$cur" != yes ]; then
+    JRN_V=BLOCKED
+    JRN_NOTE="boot record missing: boots=$boots, no index-0 (current) line"
+    return
+  fi
+
+  # arm 2 — boot target reached (SKILL.md:43 "no boot reaches graphical.target")
+  local target=$BOOT_TARGET t_word='' t_rc=127
+  if have "$SYSTEMCTL"; then
+    cap "$SYSTEMCTL" is-active "$target" --no-pager
+    t_rc=$CAP_RC
+    t_word=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+  fi
+  case "$t_word" in
+    active) : ;;
+    reloading | activating | inactive | deactivating | failed | maintenance | unknown | refreshing)
+      JRN_V=BLOCKED
+      JRN_NOTE="boot target $target=$t_word [boot did not reach $target] (is-active rc=$t_rc)"
+      return
+      ;;
+    *)
+      JRN_V=BLOCKED
+      JRN_NOTE="boot target probe unusable rc=$t_rc [$(printf '%s' "$t_word" | cut -c1-80)]"
+      return
+      ;;
+  esac
+
+  # arm 3 — boot error entries, counted at ENTRY level (`-o json` lines); line counts are
+  # traps (SKILL.md:217-220). Classes are disjoint: coredump > kernel > other.
+  cap "$JOURNALCTL" -b -p err -o json --no-pager
+  local e_rc=$CAP_RC err_n=0 cls='coredump=0 kernel=0 other=0'
+  if [ "$e_rc" -ne 0 ]; then
+    JRN_V=BLOCKED
+    JRN_NOTE="err stream unreadable: journalctl -b -p err rc=$e_rc [fails closed; no fake pass]"
+    return
+  fi
+  err_n=$(nlines "$CAP_OUT")
+  if [ "$err_n" -eq 0 ]; then
+    # an empty err stream is only a pass if the journal really holds entries this boot
+    cap "$JOURNALCTL" -b -n 1 -o json --no-pager
+    if [ "$CAP_RC" -ne 0 ] || [ "$(nlines "$CAP_OUT")" -eq 0 ]; then
+      JRN_V=BLOCKED
+      JRN_NOTE='journal empty/unreadable this boot (no entries; clean vs no-data cannot be told apart)'
+      return
+    fi
+  else
+    cls=$(printf '%s\n' "$CAP_OUT" | awk '
+      /"SYSLOG_IDENTIFIER":"systemd-coredump"/ { c++; next }
+      /"SYSLOG_IDENTIFIER":"kernel"|"_TRANSPORT":"kernel"/ { k++; next }
+      { o++ }
+      END { printf "coredump=%d kernel=%d other=%d", c+0, k+0, o+0 }')
+  fi
+
+  # arm 4 — failed services HISTORY this boot (journal-derived: units that failed earlier
+  # and were reset since are still named; the systemd plane owns the current failed set)
+  local fh_n=0 fh_names=''
+  fh_n=$(printf '%s\n' "$CAP_OUT" | grep -cE "\"MESSAGE\":\"[^\"]*(${CLASS_FAILED})" || true)
+  if [ "$fh_n" -gt 0 ]; then
+    fh_names=$(printf '%s\n' "$CAP_OUT" \
+      | grep -E "\"MESSAGE\":\"[^\"]*(${CLASS_FAILED})" \
+      | grep -oE '[A-Za-z0-9_.@-]+\.(service|socket|timer|mount|target|device|path|scope|slice)' \
+      | sort -u | head -n 6 | paste -sd, - || true)
+  fi
+
+  # arm 5 — timer drift: every enabled user timer must be armed (ActiveState=active).
+  # An unreadable probe is an unresolved unknown -> DEGRADED (mirrors the systemd plane's
+  # unreadable-Result semantics), never a silent pass.
+  local te=0 ts=0 armed=0 drift=0 t_unknown=0 bad='' r t timers=()
+  cap "$SYSTEMCTL" --user list-unit-files --type=timer --state=enabled --no-legend --no-pager
+  if [ "$CAP_RC" -ne 0 ]; then
+    JRN_V=DEGRADED
+    JRN_NOTE="boots=$boots current=$cur target=$target:$t_word err=$err_n ($cls); failedhist=$fh_n${fh_names:+[$fh_names]}; timer plane unreadable [drift unknown]"
+    return
+  fi
+  te=$(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | wc -l)
+  mapfile -t timers < <(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | head -n "$TIMER_SCAN_MAX")
+  ts=${#timers[@]}
+  for t in "${timers[@]}"; do
+    cap "$SYSTEMCTL" --user show "$t" -p ActiveState --value --no-pager
+    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+    if [ "$CAP_RC" -ne 0 ] || [ -z "$r" ]; then
+      t_unknown=$((t_unknown + 1))
+    elif [ "$r" = active ]; then
+      armed=$((armed + 1))
+    else
+      drift=$((drift + 1))
+      bad="${bad}${t}=${r} "
+    fi
+  done
+
+  JRN_NOTE="boots=$boots current=$cur target=$target:$t_word err=$err_n ($cls); failedhist=$fh_n${fh_names:+[$fh_names]}; timers_enabled=$te timers_scanned=$ts armed=$armed timer_drift=$drift timer_unknown=$t_unknown"
+  [ -n "$bad" ] && JRN_NOTE="$JRN_NOTE (${bad% })"
+
+  if [ "$err_n" -gt 0 ] || [ "$fh_n" -gt 0 ] || [ "$drift" -gt 0 ] || [ "$t_unknown" -gt 0 ]; then JRN_V=DEGRADED; fi
+  return
+}
+
 # ---- hermetic selftest -------------------------------------------------------
 run_selftest() {
   local bin fx
-  work=$(mktemp -d /tmp/tsukuroi-r2-1-selftest.XXXXXX)
+  work=$(mktemp -d /tmp/tsukuroi-r3-2-selftest.XXXXXX)
   trap 'rm -rf -- "${work:-}"' EXIT INT TERM
   bin="$work/bin"
   mkdir -p "$bin" "$work/fx"
@@ -488,8 +655,10 @@ case "$name" in
   systemctl)
     case "$args" in
       *is-system-running*) out_of sysrunning; exit "$(rc_of sysrunning)" ;;
+      *is-active*) out_of boottarget; exit "$(rc_of boottarget)" ;;
       *list-units*failed*) out_of failedunits; exit "$(rc_of failedunits)" ;;
       *list-unit-files*) out_of timerlist; exit "$(rc_of timerlist)" ;;
+      *show*ActiveState*) out_of timeractivestate; exit "$(rc_of timeractivestate)" ;;
       *show*Result*) out_of timerresult; exit "$(rc_of timerresult)" ;;
       *) printf 'fixture systemctl: unexpected args: %s\n' "$args" >&2; exit 64 ;;
     esac
@@ -502,7 +671,9 @@ case "$name" in
     ;;
   journalctl)
     case "$args" in
+      *"--list-boots"*) out_of listboots; exit "$(rc_of listboots)" ;;
       *"-p err"*) out_of journal-err.json; exit "$(rc_of journal-err)" ;;
+      *"-n 1"*) out_of journal-last; exit "$(rc_of journal-last)" ;;
       *) out_of journal-all.json; exit "$(rc_of journal-all)" ;;
     esac
     ;;
@@ -549,6 +720,16 @@ STUB
     : > "$d/lsmod"
     printf 'fixture-host\n' > "$d/hostname"
     printf 1 > "$d/dmesg_restrict"
+    printf 'IDX BOOT ID                          FIRST ENTRY                 LAST ENTRY\n' > "$d/listboots"
+    printf ' -1 73a8e2fc20cc48749b3cbd24ed5dc7c1 Sun 2026-10-11 19:02:51 -03 Tue 2026-10-13 10:57:30 -03\n' >> "$d/listboots"
+    printf '  0 d7f0bc8d938e4249b4a1f250cbfacf58 Tue 2026-10-13 11:02:03 -03 Wed 2026-10-14 11:42:34 -03\n' >> "$d/listboots"
+    printf 0 > "$d/listboots.rc"
+    printf 'active\n' > "$d/boottarget"
+    printf 0 > "$d/boottarget.rc"
+    printf '{"MESSAGE":"fixture: journal last entry"}\n' > "$d/journal-last"
+    printf 0 > "$d/journal-last.rc"
+    printf 'active\n' > "$d/timeractivestate"
+    printf 0 > "$d/timeractivestate.rc"
   }
 
   fx_hash() { find "$1" -type f -exec sha256sum {} + | LC_ALL=C sort | sha256sum | cut -d' ' -f1; }
@@ -560,8 +741,10 @@ STUB
   }
 
   EXTRA_ENV=()
-  check() { # check LABEL WANT_RC WANT_VERDICT WANT_RE
-    local label=$1 wrc=$2 wverdict=$3 wre=$4 out rc before
+  check() { # check LABEL WANT_RC WANT_VERDICT WANT_RE [WANT_RE...]
+    local label=$1 wrc=$2 wverdict=$3
+    shift 3
+    local out rc before re miss=''
     before=$(fx_hash "$FX")
     set +e
     out=$(env \
@@ -589,10 +772,15 @@ STUB
       bad "$label: hostname override not honoured — possible host read"
     elif ! printf '%s\n' "$out" | grep -qE "^TSUKUROI_CENSUS: ${wverdict} \("; then
       bad "$label: verdict not ${wverdict}; got: $(printf '%s\n' "$out" | grep '^TSUKUROI_CENSUS:' | head -n1)"
-    elif ! printf '%s\n' "$out" | grep -qE -- "$wre"; then
-      bad "$label: plane evidence '$wre' absent; got: $(printf '%s\n' "$out" | grep '^PLANE ' | tr '\n' '|')"
     else
-      ok "$label (exit $rc, $wverdict)"
+      for re in "$@"; do
+        printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss '$re'"
+      done
+      if [ -n "$miss" ]; then
+        bad "$label: plane evidence missing:$miss; got: $(printf '%s\n' "$out" | grep '^PLANE ' | tr '\n' '|')"
+      else
+        ok "$label (exit $rc, $wverdict)"
+      fi
     fi
     fx_no_mutation "$FX" "$before"
     EXTRA_ENV=()
@@ -682,6 +870,48 @@ STUB
   : > "$FX/journal-all.json"
   check 'blocked: empty ring is not a clean bill' 2 BLOCKED 'kernel ring empty'
 
+  case_home='healthy-journal'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  check 'healthy: journal/boot plane in the rollup' 0 HEALTHY \
+    '^TSUKUROI_CENSUS: HEALTHY \(packages=HEALTHY systemd=HEALTHY drivers=HEALTHY journal=HEALTHY\)' \
+    '^PLANE journal: HEALTHY \(boots=2 current=yes target=graphical\.target:active err=0 \(coredump=0 kernel=0 other=0\); failedhist=0; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0\)'
+
+  case_home='degraded-boot-errors'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '{"SYSLOG_IDENTIFIER":"systemd-coredump","MESSAGE":[103,111,100,111,116]}\n{"SYSLOG_IDENTIFIER":"kernel","MESSAGE":"Buffer I/O error on dev sr0"}\n{"SYSLOG_IDENTIFIER":"sddm-helper","MESSAGE":"gkr-pam could not unlock the login keyring"}\n{"SYSLOG_IDENTIFIER":"limine-snapper-sync","MESSAGE":"No Snapper config found"}\n' > "$FX/journal-err.json"
+  check 'degraded: journal boot errors at entry level' 1 DEGRADED \
+    '^PLANE journal: DEGRADED .*err=4 \(coredump=1 kernel=1 other=2\)'
+
+  case_home='degraded-failedhist'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '{"SYSLOG_IDENTIFIER":"systemd","MESSAGE":"Failed to start foo.service - Foo.","_SYSTEMD_UNIT":"foo.service"}\n{"SYSLOG_IDENTIFIER":"systemd","MESSAGE":"bar.service: Failed with result exit-code."}\n' > "$FX/journal-err.json"
+  check 'degraded: failed services history from journal' 1 DEGRADED \
+    '^PLANE journal: DEGRADED .*failedhist=2\[bar\.service,foo\.service\]'
+
+  case_home='degraded-timer-drift'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'inactive\n' > "$FX/timeractivestate"
+  check 'degraded: enabled timer not armed (drift)' 1 DEGRADED \
+    '^PLANE journal: DEGRADED .*timer_drift=1 .*\(ai-usage\.timer=inactive\)'
+
+  case_home='blocked-journal-missing'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  EXTRA_ENV=(TSUKUROI_JOURNALCTL="$bin/journalctl-absent")
+  check 'blocked: journalctl missing (fails closed)' 2 BLOCKED '^PLANE journal: BLOCKED .*journalctl=missing'
+
+  case_home='blocked-boot-record'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  : > "$FX/listboots"
+  check 'blocked: boot record missing' 2 BLOCKED '^PLANE journal: BLOCKED .*boot record'
+
+  case_home='blocked-boot-target'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'inactive\n' > "$FX/boottarget"
+  printf 3 > "$FX/boottarget.rc"
+  check 'blocked: boot target not reached' 2 BLOCKED '^PLANE journal: BLOCKED .*graphical\.target=inactive'
+
+  case_home='blocked-journal-empty'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  : > "$FX/journal-err.json"
+  : > "$FX/journal-last"
+  check 'blocked: empty journal is not a clean bill' 2 BLOCKED '^PLANE journal: BLOCKED .*no entries'
+
+  case_home='blocked-journal-err'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 1 > "$FX/journal-err.rc"
+  check 'blocked: journal err stream unreadable' 2 BLOCKED '^PLANE journal: BLOCKED .*err stream unreadable'
+
   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
   [ "$FAIL" -eq 0 ]
@@ -720,18 +950,21 @@ main() {
   probe_packages
   probe_systemd
   probe_drivers
+  probe_journal
 
   printf 'PLANE packages: %s (%s)\n' "$PKG_V" "$PKG_NOTE"
   printf 'PLANE systemd: %s (%s)\n' "$SYS_V" "$SYS_NOTE"
   printf 'PLANE drivers: %s (%s)\n' "$DRV_V" "$DRV_NOTE"
+  printf 'PLANE journal: %s (%s)\n' "$JRN_V" "$JRN_NOTE"
 
   local roll=HEALTHY
   roll=$(worse "$roll" "$PKG_V")
   roll=$(worse "$roll" "$SYS_V")
   roll=$(worse "$roll" "$DRV_V")
+  roll=$(worse "$roll" "$JRN_V")
 
-  printf 'TSUKUROI_CENSUS: %s (packages=%s systemd=%s drivers=%s)\n' \
-    "$roll" "$PKG_V" "$SYS_V" "$DRV_V"
+  printf 'TSUKUROI_CENSUS: %s (packages=%s systemd=%s drivers=%s journal=%s)\n' \
+    "$roll" "$PKG_V" "$SYS_V" "$DRV_V" "$JRN_V"
 
   case "$roll" in
     HEALTHY)  exit 0 ;;

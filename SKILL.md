@@ -443,3 +443,102 @@ Boundaries and traps the note fixes (each re-measurable):
 - Pending (round 2): `LOG.md` entry for this append owed per `AGENTS.md:3`
   (this seat's write scope was `SKILL.md` only); round-2 wave-1 errata not yet
   merged here.
+
+## Round-3 append — census-v2 in the gate + the no-oral-context executor test (TSUKUROI-R3-4)
+
+The round-3 test (record: `corpus/knowledge/executor-test-sufficiency.md`) ran the census
+with this file as its **only** reference and exposed that the block above describes the
+v1 three-plane gate while the settled tool is **census-v2** (four planes) — the same
+distill `host-health-report-r3.md:416-418` records as owed. The test's findings stay in
+the record; this append lands the fixes. Per-step sufficiency tally from the run:
+**7 `SUFFICIENT` / 3 `PARTIAL` / 3 `MISSING`** — the MISSING steps were exactly the v2
+coverage landed below (journal field rules, post-verdict contract, the cap item).
+
+### Census-v2 sync (supersedes the v1 revision pins above)
+
+- Revision: `tools/tsukuroi-census.sh` **census-v2** (TSUKUROI-R3-2, mtime 2026-10-14
+  11:52:22 -03) — **976 lines** (`wc -l`), md5 **`41953ee9f2099281c91759249fe8708f`** —
+  supersedes v1 (744 lines as pinned above / 743 `wc -l`,
+  `7a3d3b94ecd73fbe1a9a98e9dc88b92f`). Identity check first:
+  `md5sum tools/tsukuroi-census.sh` — a mismatch means the gate has drifted from this
+  distill; stop and re-measure before trusting any rule here.
+- Usage: the three forms above still hold, plus `--help`; `--sample N` still default 8;
+  the `TSUKUROI_*` overrides remain **fixture-only** — a live verdict produced with
+  overrides is not a measurement of the host (`:302-305` still holds).
+- Selftest: **26 cases (17 legacy + 9 journal-plane)**; final line
+  `TSUKUROI_CENSUS_SELFTEST: PASS (26 cases, 26 passed, 0 failed)`; rc=0 pass / 1 fail.
+  Test-run re-verification 2026-10-14T15:25:54Z: rc=0, wall 1.75 s.
+- Live contract v2: `TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=..
+  drivers=.. journal=..)`; exit map unchanged — **0/1/2, worst plane wins** (the v1
+  contract at `:257-261` still holds for the legacy three). Live wall 0.69 s at
+  15:25:56Z. Run from the repo root.
+- Read-only addendum: live mode creates no files; the selftest now writes only
+  `/tmp/tsukuroi-r3-2-selftest.XXXXXX` (`tools/tsukuroi-census.sh:118-120`). Verified in
+  the test: before/after `git status` identical, no /tmp residue.
+- Plan anchor v2: `plans/round-3.plan.md:3-11`; anti-claim v2: journal unreadable
+  without elevated perms → the journal arm **fails closed `BLOCKED`**; the remaining
+  planes still report (`tools/tsukuroi-census.sh:21-22`).
+
+### Journal plane — field map and verdict arms (new; absent from the v1 block)
+
+Line shape: `PLANE journal: …. (boots=N current=yes target=T:active err=N (coredump=N
+kernel=N other=N); failedhist=N[names]; timers_enabled=N timers_scanned=N armed=N
+timer_drift=N timer_unknown=N)`.
+
+- `HEALTHY` — index-0 boot line present; target `active`; `err=0` with a non-empty
+  journal this boot; `failedhist=0`; every enabled user timer `ActiveState=active`.
+- `DEGRADED` — `err>0` (noise floor `[unknown]`; classes disjoint coredump > kernel >
+  other; same stance as the drivers ring); `failedhist>0` (units that failed **earlier
+  this boot and were reset since** — history the systemd plane can no longer see);
+  `timer_drift>0` or unreadable timer `ActiveState` (`timer_unknown`).
+- `BLOCKED` — `journalctl` missing; `--list-boots` unreadable; no index-0 line; boot
+  target not `active`; err stream unreadable; journal empty this boot (clean vs no-data
+  cannot be told apart).
+- `err=` counts **entries** (`journalctl -b -p err -o json` lines) — line counts are the
+  recorded trap (`:217-220`). Kernel entries are also counted by the drivers ring; the
+  journal plane's distinct value is the non-kernel classes, the boot record/target,
+  failed-history and the timer armed-state (`tools/tsukuroi-census.sh:107-109`).
+- Semantics mirror `corpus/knowledge/journal-boot-plane.md:304-316`; the tool is the
+  executable form.
+- **Scope fix**: the gate now covers **4 of the 5** adjudicated surfaces — only
+  system-scope systemd stays checklist-driven. This supersedes the "3 of the 5" scope
+  note above (`:354-356`), falsified by v2.
+
+### Post-verdict contract (new)
+
+The gate's product is verdict + evidence + suggested operator action; DEGRADED is never
+left as "noise" without its named item. For every fired finding (any plane), report the
+measured evidence and the **exact operator unblock action** — the round-3 e2e report is
+the model format (`host-health-report-r3.md:37-63`, 20 finding→action pairs). Privilege
+gates stay verdicts, not invitations; cross-domain findings are reported, never absorbed
+(`:137-172`).
+
+### Executor checklist (no-oral-context, self-contained)
+
+1. Confirm gate identity (md5 above). Mismatch → stop; re-distill owed.
+2. From the repo root: `bash tools/tsukuroi-census.sh --selftest` → expect rc=0 and
+   `PASS (26 cases, 26 passed, 0 failed)`.
+3. `bash tools/tsukuroi-census.sh` → verdict line + exit code (0/1/2).
+4. Interpret each plane from the tables above; journal fields from the block above.
+5. For each DEGRADED/BLOCKED finding: measured evidence + exact operator action
+   (pattern `host-health-report-r3.md:37-63`).
+6. Read-only check: `git status` identical, no /tmp residue; **re-run before quoting** —
+   counts drift live (journal `err` 251 → 260 within ~28 min, 2026-10-14).
+
+### Errata / pending — round 3 (append)
+
+- 2026-10-14 — **no-oral-context test (TSUKUROI-R3-4)** ran 15:25:54–15:25:57Z against
+  this file at `f80b4afd…` with the v2 gate; per-step tally 7 `SUFFICIENT` / 3 `PARTIAL`
+  / 3 `MISSING`; full record `corpus/knowledge/executor-test-sufficiency.md` (findings
+  kept intact there). Snapshot from that run: `TSUKUROI_CENSUS: DEGRADED
+  (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED journal=DEGRADED)`; journal
+  `err=260 (coredump=220 kernel=38 other=2) failedhist=0 timer_drift=0` — snapshot
+  only, re-run, never quote as current.
+- 2026-10-14 — **expected "20-min cap" item: unresolved, not invented.** The round's
+  dispatch expected this file to cover a 20-min cap; no artifact in this lane defines
+  one, fleet-wide hits for the phrase sit only in unrelated lanes' logs, the v2 gate
+  has no time-cap mechanism, and measured runs are sub-2-second. If a cap is intended,
+  it must be specified; see the record §7 U1.
+- Pre-existing pendings above remain (LOG entry owed; round-2 wave-1 errata merge; the
+  v1 md5-prefix transcription candidate `:429` — v2 supersedes the pin, the candidate
+  stays visible).

@@ -80,3 +80,87 @@
   non-author spot-check, literal `source:`/`verified-at:`/`recheck:` keys;
   reported-not-absorbed: `walker-restart.hook` root-exec (→ kagi/operator),
   `1password-beta` provenance, 3 alpm temp dirs (privilege gate).
+- 2026-10-14 — round 3 (scribe entry, secondary lane TSUKUROI-B4): records
+  the round's landed work and re-verifies it. Probation round 3 — the
+  completing round. **Work (observed in tree):** `plans/round-3.plan.md`
+  (WWKD, axes freshness — journal/boot plane — + depth, the e2e triage
+  report, anti-claim journal-unreadable-fails-closed); 
+  `corpus/knowledge/journal-boot-plane.md` (TSUKUROI-R3-1, 411 ln, md5
+  `16d4047e8b03deec69773d2cc0b1b75c`) — the plane measured for all 13
+  retained boots: per-boot err census 1–168 with boot 0 storm-dominated
+  (247→251 in-capture), boot-gap question upgraded from single-boot
+  [inference] to a 12/12 measured rule (kernel phase = first-record
+  monotonic − 0.81…0.84 s, wall-clock cross-anchor ±1 s ⇒ boot 0's 4 m 03 s
+  is real elapsed time; var-log.mount delay refuted; initramfs/LUKS dwell
+  is the leading hypothesis, unproven, crypttab BLOCKED shape-only),
+  failed-service history 0 unit failures in 13 boots, timer plane 5/5
+  success inside declared windows, vendor-wants nuance, limine-snapper
+  self-claim vs empty configs reported to update-safety (not absorbed);
+  `tools/tsukuroi-census.sh` census-v2 (TSUKUROI-R3-2, 976 ln, md5
+  `41953ee9f2099281c91759249fe8708f`, +259/−26 over v1) — the journal/boot
+  plane joins the gate (boot record, boot target, err **entries** with
+  disjoint coredump/kernel/other classes, journal-derived failed-history,
+  timer armed-state), selftest 17→26 cases, `coredumpctl` deliberately not
+  probed (table-parse trap), anti-claim v2 implemented;
+  `corpus/knowledge/host-health-report-r3.md` (TSUKUROI-R3-3, 462 ln) — the
+  e2e SHONEN task: verdict board over the 5 surfaces (packages DEGRADED,
+  systemd HEALTHY, drivers DEGRADED, journal DEGRADED, update-safety
+  DEGRADED), 20 finding→action pairs, receipts, 15-row unknowns register,
+  provenance §5, mid-flight gate revision (v1→v2 during its window)
+  recorded not laundered; `corpus/knowledge/executor-test-sufficiency.md`
+  (TSUKUROI-R3-4, 219 ln) — the no-oral-context test: executor ran
+  census-v2 with `SKILL.md` alone (round-2 revision `f80b4afd…`, 444 ln,
+  re-hashed from HEAD by this scribe and matching), per-step tally
+  **7 SUFFICIENT / 3 PARTIAL / 3 MISSING** — the MISSING steps were exactly
+  the v2 coverage, which the round then landed as the `SKILL.md` round-3
+  append (543 ln: census-v2 sync with corrected pins, journal field map,
+  4-of-5 scope fix, post-verdict contract, executor checklist, round-3
+  errata incl. the unresolved "20-min cap" item recorded-not-invented).
+  **Scribe re-verification (re-executed 2026-10-14 15:55Z, all read-only,
+  raw `/tmp/tsukuroi-b4-r3b-scratch/`):** `bash tools/tsukuroi-census.sh
+  --selftest` → rc=0, `TSUKUROI_CENSUS_SELFTEST: PASS (26 cases, 26
+  passed, 0 failed)`; `bash tools/tsukuroi-census.sh` live → rc=1,
+  `TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY
+  drivers=DEGRADED journal=DEGRADED)`; `git status` byte-identical
+  before/after the gate (zero mutation). All §5 report md5s reproduce
+  (census `41953ee9…`, journal `16d4047e…`, package `24eafc40…`, systemd
+  `26dca9cf…`, driver `a44e9c07…`, update-safety `5cc3067f…`), line counts
+  976/411/303/247/242/478/462/219/543 all match their pins, `SKILL.md:43`
+  anchor resolves. Headline probes reproduce with **live-storm drift**
+  (recorded as captures, never as disagreement): boots 14 lines = header +
+  13; err entries 339 (report saw 248/251, executor 260/336); kernel err
+  101 (was 38; drivers `other` class grew 2→65 — storm spillover, noise
+  floor [unknown] unchanged); coredumps-since-boot 224 (was 208/211/220);
+  coredump dir 4.1 G (report saw 3.9 G); systemd `running`, 0 failed;
+  `snapper list-configs` header-only rc=0 (J4/U1 standing); 
+  `systemd-analyze` line byte-identical; `-Qu` rc=1 empty; foreign 16;
+  installed 1188; `pacman -Qkk 1password-beta 1password-cli` rc=1 with
+  1 altered each; sync-db births 2026-10-11 12:54:13.542 (+ `offline.db`
+  birth 2026-10-03 17:41:33 — the round-1 observation, still
+  uncovered-by-notes); dkms stale 7.1.4 row + current 7.2.3; smi RTX 5070
+  610.57.04; journal disk 181.3 M. Sibling audit lanes TSUKUROI-B1/B2
+  re-ran the gate concurrently in this round (their scratch captures 
+  12:35–12:47, `/tmp/tsukuroi-b{1,2}-r3b-*/` — observed as
+  shape/timestamps only). **SHONEN boxes:** all four marked `[~]` asserted
+  with evidence pointers and verifier names; per PROTOCOL.md:430 + the
+  promotion gates, `[x]` stays for a named **non-author** reviewer (a
+  dispatched subagent is still the lane) — the promotion review is the
+  named next verifier. **State at entry:** round work uncommitted in tree;
+  this entry written by TSUKUROI-B4, which wrote only
+  `corpus/README.md` coverage rows (3 notes + census-v2 tools row),
+  the SCORECARD round-3 move-log rows (freshness, depth), the `SHONEN.md`
+  box updates, and this entry, then landed the round commit under the lane
+  identity. **Open:** post-append no-oral-context re-test (box 3 asserts
+  the corrected document; the record keeps the pre-fix 3-MISSING tally);
+  "20-min cap" resolution/retirement (executor record §7 U1 — nothing in
+  the lane or this round's dispatch envelope defines a gate cap; gate
+  runtime measured 0.69–1.75 s; owner: integrator); promotion review
+  (non-author `[x]` marks) now that probation rounds 1–3 are verified;
+  carried from rounds 1–2: root `-Qkk` delta, `offline.db` coverage,
+  round-2 wave-1 errata merge into SKILL round-1 blocks, v1 census
+  md5-prefix transcription candidate (v2 supersedes the pin; candidate
+  stays visible), literal `source:`/`verified-at:`/`recheck:` keys,
+  `corpus/lessons/round-1.md` Gate section + non-author spot-check;
+  reported-not-absorbed: coredump storm (→ owning workstreams),
+  limine-snapper claim (→ update-safety re-audit), `walker-restart.hook`
+  (→ kagi/operator), GSP selection (→ kaidoku/revenger).
