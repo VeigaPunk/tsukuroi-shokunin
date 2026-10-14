@@ -6,8 +6,7 @@ description: Domain specialist — host operability & system repair. Rank: shone
 # tsukuroi-shokunin
 
 host operability & system repair playbook. Probation seed — rounds 1-3 build the corpus from
-measured surfaces; every rule below must earn a cited source before it
-counts. Nothing here is oral knowledge.
+measured surfaces; every rule below must earn a cited source before it counts. Nothing here is oral knowledge.
 
 ## Standing rules
 
@@ -18,5 +17,217 @@ counts. Nothing here is oral knowledge.
   Observation / inference / unknown stay separate.
 - Errata append-only; rejections kept.
 
-(Sections will land with the probation rounds: decision tables, error
-patterns, executable checklists — each cited.)
+## Verdict vocabulary (fixed 2026-10-14, round 1)
+
+`HEALTHY` | `DEGRADED` | `BLOCKED` — three states, never a scalar score. Every verdict
+carries the probe and the observed value that produced it, so a non-author can re-derive it
+(`corpus/QUALITY.md:1-2`). The third state is not "corrupt"; it is "cannot be assessed
+read-only" or "core function offline".
+
+| Verdict | Means | Never means |
+|---|---|---|
+| `HEALTHY` | every probe in the plane returned the pass value listed below | "no problems were found" without a run probe |
+| `DEGRADED` | plane answers, but carries a named defect or an unresolved unknown | outage |
+| `BLOCKED` | the probe itself cannot run (privilege gate), or the plane's core function is offline | "the hardware/package is corrupt" |
+
+## Health-verdict decision table (per plane)
+
+Planes are the owned surfaces of `PROVINCE.md:5-12`. The right column is a **timestamped
+snapshot (2026-10-14, host `plazir27`)** — re-measure; never quote it as current state.
+"Altered classes" for `-Qkk` are defined in the subsection below.
+
+| Plane | Probe (verbatim, all read-only) | `HEALTHY` when | `DEGRADED` when | `BLOCKED` when | Measured 2026-10-14 (notes: `corpus/knowledge/`) |
+|---|---|---|---|---|---|
+| Package state (pacman) | `pacman -Dk; echo $?` and `pacman -Qkk <pkg> …` (targeted) and `pacman -Qdt` and `pacman -Qm \| wc -l` | `No database errors have been found!` and `0 altered` on the queried set | nonzero altered outside the benign classes, or orphan/foreign drift beyond accepted set | pacman itself errors: `db.lck` present, `database is locked`, unreadable local db | `DEGRADED` — census **1188** installed (`pacman -Q \| wc -l`), 207 explicit, **16 foreign**, 3 orphans (`electron39`, `mbedtls`, `webp-pixbuf-loader`); `-Dk` clean; full sweep rc=1, ~17 s, 1332 raw lines → `tr '\r' '\n'`-normalized: **18 pkg summaries with ≥1 altered** (`package-state-plane.md:167-214`); decomposition: 86 backup-diff lines (rc stays 0 — glibc/pambase prove), 36 non-root artifacts (32 failed-calc + 4 Permission denied), 17 metadata-drift lines; strongest content signal `/usr/bin/powerprofilesctl` (mtime+size+sha — operator question, `package-state-plane.md:205`). rc semantics: 0 = none, 1 = ≥1 altered (`package-state-plane.md:146-151`). TSUKUROI-4 re-derivation counted 19 nonzero summary lines (adds `cups-browsed`, a failed-calc artifact) — kept in errata |
+| systemd user units & timers | `systemctl --user is-system-running` and `systemctl --user list-units --state=failed` and `systemctl --user list-timers --all` | `running` and 0 failed units (loaded and `--all`) | any failed unit, or a timer whose last run failed (`systemctl --user show <u> -p Result`) | scope state ≠ `running` (`degraded`/`maintenance`/`offline`) | `HEALTHY` — both scopes `running`; 0 failed units (`--failed` and `--all`); 133 unit files listed; `~/.config/systemd/user/` = 7 unit files + 1 drop-in + 5 symlinks, `/usr/lib/systemd/user/` ships 109, 17 unit-paths (`systemd-user-plane.md:27-78`); only `ai-usage.timer` active (≈5-min cadence; last run 09:52:56, `Result=success`); latent/condition side-findings: `omarchy-battery-monitor.timer` disabled (preset would enable — intent [unk]), `omarchy-recover-internal-monitor.service` condition-skipped (toggle file ABSENT) (`systemd-user-plane.md:80-102`) |
+| Journal & boot triage | `journalctl -b -p err -o json --no-pager \| wc -l` (entries) and `journalctl -b -p err \| wc -l` (lines, trap) and `journalctl --list-boots` and `coredumpctl list` and `systemd-analyze` | entry count at the plane's noise floor, hits inside the accept-list | recurring crash-loop or resource-exhaustion signatures | no boot reaches `graphical.target`, or boot record missing | `DEGRADED` — **60 941 err lines but only 238 entries** (`-o json \| wc -l`); line-classification is a trap (coredump stack traces, retracted `AMD`/`+` classes — `systemd-user-plane.md:104-116,188-193`). Entry classes: `systemd-coredump` 198, kernel 38 (20 `sr0` critical + 15 Buffer I/O, boot-only 11:02:03–06; 1 OOM; 1 TDX info), `sddm-helper` 1 (`gkr-pam: couldn't unlock the login keyring`), `limine-snapper-sync` 1 (no Snapper config — update-safety residue). Coredumps this boot 198: godot 142 SIGABRT, node 47 (25+22), `grok-bot` 3 SIGBUS, typora 2, `chrome_crashpad` 2, electron 1, bash 1 SIGSEGV; still live 09:42:10; today 92 rows / 90 godot (TSUKUROI-4). OOM: `python3` anon-rss 27 873 696 kB (Oct 13 23:44:30). Boot 0: `uptime -s` 10:57:58 vs first journal record 11:02:03 — kernel 4 min 3 s in `systemd-analyze` [INFERENCE: resume artifact (`resume=` cmdline, first message at monotonic `[244.159301]`); competing hypothesis journal flush/mount delay, `systemd-user-plane.md:184-185` — [unk]] |
+| Driver & firmware plane | `nvidia-smi --query-gpu=name,driver_version --format=csv` and `lsmod \| grep -E '^nvidia'` and `dkms status` and `modinfo nvidia` and `ls /usr/lib/firmware/nvidia/*/` | nvidia-smi answers; modules loaded; dkms `installed` for `uname -r`; GSP blobs present | dkms entry stale/non-clean for another kernel, or module tree unowned by a package | `nvidia-smi` fails (`NVIDIA-SMI has failed…`), or `/dev/nvidia*` nodes missing | `DEGRADED` (table residue) — note's function verdict: "driver plane is healthy — open DKMS 610.57.04 loaded and active, both firmware shapes present, no driver fault class this boot" (`driver-firmware-plane.md:198-199`); the DEGRADED is for residue only: `dkms status` stale `7.1.4-arch1-1` registration (tree gone; `ls /lib/modules` = 7.2.3 only) + `pacman -Qo` = `error: No package owns …/updates/dkms/nvidia.ko.zst` (12,027,573 B, vermagic 7.2.3-arch1-3) → pacman cannot verify the module. Extras: packages `nvidia-open-dkms`/`nvidia-utils`/`lib32-nvidia-utils`/`libva-nvidia-driver`/`linux-firmware-nvidia` installed 2026-10-11 16:14 (upgrade 610.43.03-3 → 610.57.04-1); taint OOT + unsigned (Secure Boot off, EFI var first byte 0); GSP active `EnableGpuFirmware: 18` (`/proc/driver/nvidia/params:28`); blobs `gsp_ga10x.bin` 84,310,168 B + `gsp_tu10x.bin` 29,381,504 B; gb205-class `gsp-570.144.bin.zst` → ga102 target 51,762,663 B; atimes 10-13 12:19:53 / 23:28:37 / 10-14 09:53:32; `dmesg_restrict=1` → ring via `journalctl -k` (`driver-firmware-plane.md:9-147,206-215`) |
+| Update-safety | `stat -c '%w' /var/lib/pacman/sync/*.db` (birth) and `pacman -Qu` and `pacman-conf IgnorePkg IgnoreGroup` and `ls /var/lib/pacman/db.lck` and `snapper list-configs` | snapshot recent (≤7 days by `%w`), `-Qu` empty, no holds | snapshot stale, pending nonempty, holds declared, or rollback net absent | `/var/lib/pacman/db.lck` exists (interrupted transaction) | `DEGRADED` — **mtime trap corrected**: sync dbs born **2026-10-11 12:54:13.542** (`%w`; core/extra/multilib/omarchy; TSUKUROI-4 re-derived) — the Sep 8 mtimes are upstream server stamps, not arrival (`package-state-plane.md:73-81`). `-Qu` empty **rc=1**; no `IgnorePkg`/`IgnoreGroup` (`pacman-conf`), `HoldPkg = pacman glibc` (`/etc/pacman.conf:7`); single omarchy mirror (`/etc/pacman.d/mirrorlist`, 58 B) and `[omarchy] SigLevel = Optional TrustAll` — soft-trust channel (`package-state-plane.md:9-41`); keyring 184 pub / 230 sub, master key 2026-10-03, last populate ≈10-11 (`package-state-plane.md:93-112`); no `db.lck`. Residues: **no rollback net** (`snapper list-configs` empty; boot log `limine-snapper-sync: No Snapper config found for '/'` — `systemd-user-plane.md:116`), no `checkupdates`/`paccache` (`pacman-contrib` absent), cache 8.6 G unpruned (1568+1568 archives+sigs), dkms rebuild coupling (driver row) |
+
+### `pacman -Qkk` as a non-root user — benign-altered classes
+
+A full sweep **rc=1 is not corruption evidence**. Measured shape (`package-state-plane.md:146-214`;
+rc/package-count re-derived by TSUKUROI-4): rc=1, ~17 s warm cache, 1332 raw lines for 1188
+packages; output interleaves `\r` progress — `tr '\r' '\n'` before parsing (3 summaries otherwise
+mangle: groff/libplacebo/xxhash). rc semantics: **0 = no altered files, 1 = ≥1 altered**;
+backup-file diffs alone do not set rc (glibc/pambase prove rc=0 with diffs). Classify before
+reporting (decision table: `package-state-plane.md:216-225`):
+
+1. **Backup-file diffs (benign, 86 lines)** — `backup file: … (Modification time/Size/SHA256
+   mismatch)` for `/etc/pacman.conf`, `/etc/locale.gen`, `/etc/systemd/logind.conf`,
+   `/etc/pam.d/system-auth` — expected operator edits; rc stays 0.
+2. **Non-root artifacts, 36 lines — need a root re-run to resolve** — 32 × `(failed to calculate
+   SHA256 checksum)` across 10 packages (cups 10, ufw 8, filesystem 6, audit 2, cups-browsed 1,
+   cups-pdf 1, dbus 1, openssh 1, shadow 1, sudo 1) + 4 × `(Permission denied)`
+   (`/boot/amd-ucode.img`, `/etc/sudoers.d/50-asdcontrol`, `/var/cache/cups/rss`,
+   `/var/spool/cups/tmp`). Not integrity failures.
+3. **Metadata drift, 17 lines — the visible triage list** — Permissions/GID on setgid or
+   dynamic-group surfaces (`/usr/bin/op` 2755 root:onepassword-cli,
+   `/opt/1Password/1Password-BrowserSupport` 2755 root:onepassword,
+   `/usr/lib/utempter/utempter` 2755 root:utmp, `/var/log/journal` GID 981 systemd-journal),
+   file-type swaps (`/etc/resolv.conf` → systemd-resolved stub symlink; Yaru icon symlinks),
+   retargeted symlinks (`/usr/lib/jvm/default*` → java-21-openjdk, retargeted Oct 12),
+   user-file size drift (`/etc/passwd` accounts, `/etc/ufw/user.rules`), and the one **content**
+   signal: `/usr/bin/powerprofilesctl` (mtime+size+SHA mismatch) — [UNKNOWN] deliberate omarchy
+   patch? operator question (`package-state-plane.md:190-214`).
+
+18 pkg summaries with ≥1 altered; 1166 report 0. No broad corruption observed — [inference]
+≈20 real metadata drifts + ≈36 privilege artifacts (`package-state-plane.md:207-214`).
+TSUKUROI-4's summary grep shows 19 nonzero lines (adds `cups-browsed` 1, a failed-calc
+artifact); resolve by root re-run, not by hand (Errata).
+
+Sibling scratch (ephemeral; key excerpts are embedded in the notes above):
+`/tmp/tsukuroi-qkk-full-summary.txt:1-3` (`rc=1 wall_s=17 lines=1332`),
+`/tmp/tsukuroi-qkk-full.txt:1-26` (warning classes),
+`/tmp/tsukuroi-qkk2-{sudo,shadow}.txt:1` and `-pambase.txt:1-3`,
+`/tmp/tsukuroi-foreign.txt:1-16`, `/tmp/tsukuroi-keyring.txt` + `-keyring-err.txt:1`.
+
+## Update-safety checklist (read-only until the stop line)
+
+Run from anywhere; every step is non-mutating. Output every step, even when it passes.
+
+1. **Freshness gate first.** `stat -c '%w %z %n' /var/lib/pacman/sync/*.db` — use `%w`/`%z`
+   (birth/ctime), **never `%y`**: pacman preserves upstream mtimes (proof: dbs born
+   2026-10-11 12:54:13.542 while mtimes read Sep 8 — `package-state-plane.md:73-81`).
+   Empty `-Qu` proves "nothing newer than the last sync snapshot", not "fully up to date";
+   refresh (`-Sy*`) is operator action.
+2. **Pending picture.** `pacman -Qu` → empty here, **rc=1** (no candidates vs sync db); TSUKUROI-4
+   re-derived rc=1. `pacman -Qm` = 16 foreign (3 explicit: `android-apktool-bin`,
+   `obsidian-cli-inspector`, `omarchy-walker`; the 13 `elephant-*` are its deps) — not covered by
+   a repo `-Syu`; provenance split in `package-state-plane.md:42-71` (`elephant` channel [unknown]).
+   `checkupdates`/`paccache` absent (`pacman-contrib` not installed); `yay` present, network
+   queries out of scope.
+3. **Holds/pins + trust surface.** `pacman-conf IgnorePkg IgnoreGroup` (both empty) and
+   `HoldPkg = pacman glibc` (`/etc/pacman.conf:7`); `pacman -Dk` →
+   `No database errors have been found!`. Read the channel: mirrorlist = 1 line/58 B (single
+   omarchy mirror serving core/extra/multilib) and `[omarchy] SigLevel = Optional TrustAll`
+   (packages signed but signature not required — `package-state-plane.md:9-41`).
+4. **Integrity sample, then full sweep.** `pacman -Qkk linux pacman systemd nvidia-utils`
+   (targeted; rc semantics in the subsection). Full sweep costs ~17 s warm — normalize
+   `tr '\r' '\n'`, classify per the subsection; today decomposes to ≈20 metadata drifts
+   (one content signal: `powerprofilesctl`) + 36 privilege artifacts.
+5. **Keyring freshness.** `pacman-key --list-keys` (rc=0, read-only; `gpg: Note: trustdb not
+   writable` is normal non-root) — 184 pub / 230 sub, master key 2026-10-03, last populate
+   ≈2026-10-11; expired/revoked tags are historical shape, not defects
+   (`package-state-plane.md:93-112`).
+6. **Kernel/driver coupling.** `uname -r` vs `pacman -Q linux` (both `7.2.3` today) and
+   `dkms status` — a kernel upgrade requires a **successful dkms rebuild of
+   `nvidia-open-dkms`** before reboot; a stale `7.1.4-arch1-1` registration is already present,
+   so a failed rebuild would degrade the driver plane at next boot.
+7. **Boot surface (privilege gate).** `bootctl status` partially answers as user but
+   `/boot` reads are denied (`Failed to read "/boot/EFI/systemd": Permission denied`);
+   initramfs/limine verification is **BLOCKED read-only** — hand to the operator.
+8. **Headroom + cache shape.** `df -h / /boot` (`851G` free on `/`, `1.8G` on `/boot`);
+   `du -sh /var/cache/pacman/pkg` (8.6 G; 1568 archives + 1568 sigs 1:1, never pruned —
+   superseded copies coexist, e.g. nvidia 610.43.03 next to 610.57.04; 3 `download-*` dirs
+   700 `alpm` unreadable → cache size ≥ 8.6 G — `package-state-plane.md:114-144`).
+9. **Rollback net — measure, do not assume.** `pacman -Q snapper limine-snapper-sync`
+   (installed) **but** `snapper list-configs` → empty and boot log carries
+   `limine-snapper-sync: No Snapper config found for '/'` (`systemd-user-plane.md:116`):
+   no snapshot net is configured; report any upgrade exposure as snapshot-less until the
+   operator configures it.
+10. **Transaction state.** `ls /var/lib/pacman/db.lck` (absent = no interrupted transaction);
+    `tail /var/log/pacman.log` (last: 2026-10-13 16:37 `git-filter-repo`,
+    `transaction completed`).
+11. **STOP LINE.** Produce the report (plane, verdict, probe, verbatim output, unknowns,
+    suggested operator action). The sweep ends here; `-Syu`/`-Sy`/`-R…` never run
+    (see boundary rule). If an operator decision is needed, append to
+    `.ufo/l0-questions.md` per the fleet convention.
+
+## Boundary rule — detection, never remediation
+
+- tsukuroi **never installs, upgrades, removes, or restarts** (`PROVINCE.md:16-17`,
+  `MINT.md:18-19`); its whole product is verdict + evidence + suggested operator action.
+  Observed surfaces are read-only probes (`PROVINCE.md:5-12`). All three probe notes
+  record that nothing on the box was modified (`systemd-user-plane.md:7`,
+  `driver-firmware-plane.md:5-7`, `package-state-plane.md:5`).
+- **Allowed (read-only) verbs, all exercised this round:** `pacman -Q…`, `-Qu`, `-Dk`,
+  `-Qkk`, `-Qo`, `-Qdt`, `-Qm`; `pacman-conf` (merged-config read); `pacman-key --list-keys`;
+  `systemctl --user status/list-units/list-units --all/list-timers/list-unit-files/is-enabled/show`;
+  `systemctl is-system-running`; `journalctl -b/-k/--list-boots/--disk-usage/-o json`;
+  `coredumpctl list` / `--json=short`; `snapper list-configs`; `nvidia-smi --query-*`;
+  `lsmod`, `modinfo`, `dkms status`; `find`/`ls`/`test -e` on unit dirs and firmware dirs;
+  `stat`, `lsblk`, `df`, `du`, `free`, `uptime`, `uname`.
+- **Forbidden (mutating) — including reads that mutate:** `pacman -Sy` (`-Syu` too) writes
+  the sync db; `pacman -S/-R/-U`, `yay`-install paths; `dmesg -c/-C` clears the kernel
+  ring; `journalctl --rotate/--vacuum-*`; `coredumpctl dump/delete`; `systemctl
+  start/stop/restart/enable/disable/preset`; `nvidia-smi -r` (GPU reset); `pacman-key
+  --refresh-keys/--populate/--init` (keyring writes); `bootctl install/update`; mirrorlist
+  rewrites (`reflector`); `snapper create/rollback/set-config`; edits to `/etc`, `/boot`,
+  units; `pacman -Fy` (syncs the file db).
+- **Privilege gates are verdicts, not invitations.** `dmesg` reads fail non-root
+  (`dmesg: read kernel buffer failed: Operation not permitted`; `/proc/sys/kernel/dmesg_restrict`
+  = `1` — `driver-firmware-plane.md:9-11`); use `journalctl -k`. `/boot` and root-only `/etc`
+  files are unreadable (checklist item 7) — record `BLOCKED` and hand the probe to the
+  operator; never reach for `sudo` to "finish the check" (detection does not require
+  privilege escalation; if it truly does, the operator runs it).
+- **Secrets shape-only** (`AGENTS.md:4-5`): keyring queries read public keys only
+  (184 pub / 230 sub listed; private dirs mode 700 root, not read —
+  `package-state-plane.md:100-111`); env files are noted, never read
+  (`systemd-user-plane.md:36`) — never read or echo private material. Cross-domain findings
+  are **reported, never absorbed** (`PROVINCE.md:18`): driver internals → kaidoku/revenger;
+  endpoint health → kama; secrets → kagi; fleet-app crashes (`grok-bot`, `chrome_crashpad`
+  coredumps above) → the owning lane, cited in the round report.
+- **Errata append-only** (`corpus/QUALITY.md:4`): corrections to this file land as new
+  dated blocks; rejections stay visible.
+
+## Sources
+
+- Lane seeds: `PROVINCE.md:5-17` (owned surfaces, refuses, no-install boundary),
+  `MINT.md:18-19` (domain boundary), `AGENTS.md:3-5` (evidence, read-only, secrets),
+  `corpus/QUALITY.md:1-5` (admission bar), `SHONEN.md:6-7` (SKILL craft gate).
+- **Sibling notes (this round's three; arrived 2026-10-14 09:58:13 / 09:58:41 /
+  10:01:35 — package note last edited 10:02:57):**
+  - `corpus/knowledge/package-state-plane.md` (TSUKUROI-1, 256 lines) — trust surface
+    `:9-41`, census `:42-71`, sync-db mtime trap `:73-91`, keyring `:93-112`, cache
+    `:114-144`, Qkk targeted + full + decision table `:146-226`, errata `:228-239`,
+    unknowns `:241-256`.
+  - `corpus/knowledge/systemd-user-plane.md` (215 lines) — manager state `:12-25`,
+    unit inventory `:27-78`, timer plane `:80-95`, condition-gated units `:97-102`,
+    boot error classes `:104-124`, coredump census `:126-147`, user journal view
+    `:149-156`, method lessons `:158-173`, unknowns `:175-186`, errata `:188-193`.
+  - `corpus/knowledge/driver-firmware-plane.md` (219 lines) — module census `:15-64`,
+    driver presence `:66-108`, GSP shape `:110-147`, boot err/warn classes `:149-174`,
+    update candidates `:176-193`, obs/inf/unk `:195-215`, errata `:217-219`.
+- Sibling probe scratch (ephemeral; key excerpts are embedded in the notes above):
+  `/tmp/tsukuroi-*.txt` (14 files, 2026-10-14 09:54:03–09:56:50) — foreign list,
+  per-package and full Qkk, `qkk2` sudo/shadow/pambase, keyring + err.
+- Re-derived in-lane (TSUKUROI-4, 2026-10-14): full `-Qkk` (`rc=1`, 1188 pkgs, 19 nonzero
+  summary lines); targeted `-Qkk`; `pacman -Qu` (empty, **rc=1**); `-Qm`=16, `-Qdt`=3,
+  `-Q`=1188; `-Dk`; `stat '%w'` sync dbs (birth 2026-10-11 12:54:13.542);
+  `snapper list-configs` (empty); `pacman -Q pacman-contrib` (not found);
+  `systemctl`/`journalctl -o json`/`coredumpctl list`/`nvidia-smi`/`lsmod`/`modinfo -n`/
+  `dkms status`/`pacman -Qo`; `bootctl status` (partial); `systemd-analyze`;
+  `df`/`du`/`free`/`uptime`.
+- Shape model: `kama-shokunin/SKILL.md` (sibling lane, distilled form: decision table +
+  checklist + cited sources). Fleet conventions: PROTOCOL.md file contract (`SKILL.md` =
+  craft + cited sources; `.ufo/reports/round-<N>/<id>.md` = lane report).
+
+## Errata / pending
+
+- 2026-10-14 — **the three sibling notes landed mid-write** (09:58:13 `systemd-user-plane.md`,
+  09:58:41 `driver-firmware-plane.md`, 10:01:35 `package-state-plane.md` (last edit 10:02:57),
+  all under `corpus/knowledge/`); the table, Qkk subsection, and checklist above were
+  re-anchored to them in the same sitting. Draft cells that rested only on scratch + in-lane
+  re-derivation are superseded; the corrections that changed a verdict are kept below.
+- 2026-10-14 — **correction: sync-db freshness.** First-pass read used mtime
+  (`%y` → Sep 8, "36 days stale"); wrong — pacman preserves upstream mtimes; birth (`%w`)
+  = 2026-10-11 12:54:13 (3 days). Update-safety verdict stays `DEGRADED`, now for the
+  rollback-net/trust residues, not staleness (`package-state-plane.md:73-81,235-237`).
+- 2026-10-14 — **correction: journal counting.** First-pass classified `journalctl -b -p err`
+  by lines (60,941; godot 21,004) and awk columns; entry-level count is 238
+  (`-o json | wc -l`) — the note retracted its own line-level classes
+  (`systemd-user-plane.md:104-116,160-163,188-193`). Line counts are traps; use entries.
+- 2026-10-14 — **correction: unit-file count.** "136 user unit files" was a raw `wc -l`;
+  `systemctl --user list-unit-files` reports 133; per-note inventory in
+  `systemd-user-plane.md:27-40`.
+- 2026-10-14 — **correction: rollback net.** First-pass inferred snapshot coverage from the
+  `snapper`/`limine-snapper-sync` packages + pacman hook; `snapper list-configs` → empty and
+  the boot log shows `limine-snapper-sync: No Snapper config found for '/'`
+  (`systemd-user-plane.md:116`; TSUKUROI-4 re-derived). No snapshot net is configured.
+- 2026-10-14 — full-sweep nonzero count: 19 summary lines (TSUKUROI-4 grep, incl.
+  `cups-browsed`) vs 18 pkg summaries in `package-state-plane.md:207-210`. Resolve by root
+  re-run; do not reconcile by hand.
+- Open unknowns carried forward (per notes): root `-Qkk` deltas, GSP image selection (U1),
+  firmware atime readers (U2), `powerprofilesctl` drift intent, omarchy channel provenance
+  for the elephant set, mirror/upstream freshness, `omarchy-battery-monitor.timer` intent.
