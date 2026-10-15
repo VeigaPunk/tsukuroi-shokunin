@@ -1,0 +1,112 @@
+{
+  "packetId": "TSUKUROI-F1-INTERACTIVE-MEM-01",
+  "route": "ADJ-04",
+  "recipient": "mori",
+  "lifecycle": "prepared",
+  "delivery": "Included in the later lane-local blocked-attempt report for integrator routing; no recipient receipt or acceptance.",
+  "commands": [
+    {
+      "label": "smoke-utc-open",
+      "argv": [
+        "date",
+        "-u",
+        "+%FT%TZ"
+      ],
+      "startedAt": "2026-10-15T05:11:04.799Z",
+      "finishedAt": "2026-10-15T05:11:04.799Z",
+      "exitCode": 0,
+      "stdout": "2026-10-15T05:11:04Z\n",
+      "stderr": ""
+    },
+    {
+      "label": "smoke-kernel",
+      "argv": [
+        "uname",
+        "-r"
+      ],
+      "startedAt": "2026-10-15T05:11:04.800Z",
+      "finishedAt": "2026-10-15T05:11:04.801Z",
+      "exitCode": 0,
+      "stdout": "7.2.3-arch1-3\n",
+      "stderr": ""
+    },
+    {
+      "label": "smoke-meminfo",
+      "argv": [
+        "grep",
+        "-E",
+        "^(MemTotal|MemAvailable|SwapTotal|SwapFree):",
+        "/proc/meminfo"
+      ],
+      "startedAt": "2026-10-15T05:11:04.802Z",
+      "finishedAt": "2026-10-15T05:11:04.802Z",
+      "exitCode": 0,
+      "stdout": "MemTotal:       31721780 kB\nMemAvailable:   14923060 kB\nSwapTotal:      35917176 kB\nSwapFree:       22703580 kB\n",
+      "stderr": ""
+    },
+    {
+      "label": "smoke-psi-memory",
+      "argv": [
+        "cat",
+        "/proc/pressure/memory"
+      ],
+      "startedAt": "2026-10-15T05:11:04.803Z",
+      "finishedAt": "2026-10-15T05:11:04.803Z",
+      "exitCode": 0,
+      "stdout": "some avg10=0.00 avg60=0.16 avg300=0.06 total=85429086\nfull avg10=0.00 avg60=0.16 avg300=0.06 total=83145456\n",
+      "stderr": ""
+    },
+    {
+      "label": "smoke-root-counter-presence",
+      "argv": [
+        "test",
+        "-e",
+        "/sys/fs/cgroup/memory.events"
+      ],
+      "startedAt": "2026-10-15T05:11:04.803Z",
+      "finishedAt": "2026-10-15T05:11:04.804Z",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "label": "smoke-root-counter-read",
+      "argv": [
+        "cat",
+        "/sys/fs/cgroup/memory.events"
+      ],
+      "startedAt": "2026-10-15T05:11:04.805Z",
+      "finishedAt": "2026-10-15T05:11:04.805Z",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "cat: /sys/fs/cgroup/memory.events: No such file or directory\n"
+    },
+    {
+      "label": "smoke-user-manager",
+      "argv": [
+        "systemctl",
+        "--user",
+        "is-system-running"
+      ],
+      "startedAt": "2026-10-15T05:11:04.805Z",
+      "finishedAt": "2026-10-15T05:11:04.807Z",
+      "exitCode": 0,
+      "stdout": "running\n",
+      "stderr": ""
+    },
+    {
+      "label": "smoke-utc-close",
+      "argv": [
+        "date",
+        "-u",
+        "+%FT%TZ"
+      ],
+      "startedAt": "2026-10-15T05:11:04.808Z",
+      "finishedAt": "2026-10-15T05:11:04.808Z",
+      "exitCode": 0,
+      "stdout": "2026-10-15T05:11:04Z\n",
+      "stderr": ""
+    }
+  ],
+  "interpretation": "Fresh availability/pressure metadata only. Root counter absence is not zero. PSI cumulative totals cannot date a kill. No incident threshold or fleet causation is established. User-manager liveness does not prove dispatch progress."
+}

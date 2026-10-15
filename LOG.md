@@ -247,3 +247,89 @@
   **SHONEN:** all four boxes stay `[~]` (asserted with verifier names; `SHONEN.md` unchanged
   since r3); `[x]` owed to the non-author promotion review — which should include the post-append
   no-oral-context re-test. Verifiers: VER-S11 (verdict in scratch) | AUD-S11 | PACK-S ledger.
+
+- 2026-10-15 — **fleet round 1, interactive continuation; blocked before dispatch,
+  not an admitted or verified completed round.** Motivating evidence:
+  `SCORECARD.md:45-57` still places adjacency lowest at 7; baseline HEAD
+  `0ecf3ff1b0aa312d71899581badc5a9798430369` is the historical round-11
+  closeout, while the interrupted headless worker left an uncommitted
+  source-backed handoff/packet. The operator's interactive dispatch supersedes
+  the old terminal-ladder, push, shared-report-write and eight-seat directions.
+  **Plan saved before implementation:** `.ufo/plans/fleet-r1-interactive-wwkd.md`.
+  **Inherited state preserved:** seven changed/new content paths and the unchanged
+  census script are fingerprinted in
+  `.ufo/evidence/fleet-r1-interactive/inherited.json`; no inherited file or native
+  session body is changed or staged in this attempt.
+  **Exact route blocker:** effective executor/reviewer/sentinel/connector
+  `@m_mid`, critic `@m_strong`, scribe `@m_fast`; required content `@m_composer`,
+  audit `@m_grok`, connector `@m_antigravity` with `@m_zfl` fallback. The observed
+  `m_antigravity` fallback is empty. Global config SHA-256 observed
+  `08788ddcbbb48180b987e6f54b517af294c85cacceb07bdd594843a53e668dcc`;
+  no global/session config change, overlay, provider probe or substitute dispatch.
+  `.ufo/evidence/fleet-r1-interactive/routing.json` records the mismatch.
+  **Wave:** 32 genuinely distinct saved proposal/audit scopes (8 executor,
+  8 reviewer, 8 critic, 6 sentinel, 1 connector, 1 scribe); canonical
+  `ufo-swarm-wave.mjs plan --spec … --route-families` exits **0**, total **32**,
+  distinct tasks **32**. Native task calls **0**; no specialist result fabricated.
+  The initial absolute `reportDir` declaration was refused (`invalid_report_dir`,
+  exit **1**), then corrected to a lane-relative path before successful validation;
+  both attempts remain recorded in `.ufo/waves/fleet-r1-interactive/validation*.json`.
+  The `run` subcommand is not invoked: no dispatch is authorized, and its default
+  registry root would be the read-only canonical UFO checkout.
+  **L1 acceptance and smoke, re-measured:** unchanged census SHA-256
+  `1045244387ffcd5d3db481dd0d3d30e34097abc24744d954e791b81d28b20c11`;
+  `bash tools/tsukuroi-census.sh --selftest` → **exit 0**,
+  `TSUKUROI_CENSUS_SELFTEST: PASS (80 cases, 80 passed, 0 failed)`;
+  `bash tools/tsukuroi-census.sh` → **exit 1**,
+  `TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=HEALTHY)`.
+  Full emitted outputs, all six live plane lines, exact argv/times/exits and
+  empty stderr are persisted in `.ufo/evidence/fleet-r1-interactive/{selftest,live}.json`;
+  internal journal classification publishes no raw message bodies. Live degradation
+  is a host finding, not a healthy gate or native round verdict; remediation stays
+  operator-owned (bounded actions in `parent-review.md`).
+  A separate public-metadata observation **TSUKUROI-F1-INTERACTIVE-MEM-01** ran at
+  `2026-10-15T05:11:04Z`: kernel/meminfo/PSI/user-manager commands exit 0;
+  root `memory.events` existence/read exit **1/1**, absent rather than zero.
+  `.ufo/evidence/fleet-r1-interactive/smoke.json` preserves exact outputs.
+  It is a prepared OS-to-mori correlation request, not a fresh OOM, pressure
+  threshold crossing, wave-causation claim or recipient acceptance; the inherited
+  packet remains a distinct historical observation.
+  **Source and count checks:** baseline ledger path absent (`git cat-file -e`,
+  exit **128**, explicit path-not-in-commit diagnostic); inherited completeness
+  predicate prints **7**, exit **0**, on the dirty ledger. This **0→7 artifact
+  count is not an admitted gain**. Eight sibling province hashes measured by
+  `sha256sum` (exit 0) show one changed inherited pin: revenger, now
+  `63acc3d033869f93f3e13da79e35023d86baa60b3f1d3b52861b019183b4b19f`.
+  Current source ranges were read; the RE overlap remains unresolved. Parent
+  evidence and rejection decisions are in `parent-review.md`, not claimed as a
+  specialist wave or non-author review.
+  **Verdicts:** all six expertise axes **unchanged** for this unadmitted attempt;
+  expansion/quality/discernment **unchanged**; no score increase, no promotion,
+  no newly verified round. SHONEN `[~]` remains inherited author-side evidence.
+  **Debt with unblock:** operator/integrator supplies the exact existing-authority
+  role bindings and connector fallback; a fresh session then runs one full
+  authorized 32-seat wave, reviews revenger drift and the inherited shared-report
+  pointer, deliberately integrates inherited work, re-runs local acceptance/smoke,
+  and files its lane-local report for integrator routing. Known Phase-0
+  contract-sync/self-iter failure is reported-not-repaired and was not rerun.
+  This is one blocked attempt, not saturation or three consecutive blocked rounds.
+  No pushes, sibling/shared writes, host/source/package remediation, native-session
+  body reads, or Sighting completion performed. Report/continuation land after
+  the owned work commit; a blocked receipt may bind that report but cannot
+  establish goal satisfaction or fleet acceptance.
+
+- 2026-10-15 — fleet-round-1 continuation addendum: **receipt mint is blocked,
+  not merely deferred until a report exists.** The inspected direct Sighting
+  launch metadata (`../.ufo/interactive-l1-20261015T050057Z/launch-tsukuroi.json`)
+  has real run/session/mission/pane identifiers but no queue `taskKey` or producer
+  expected bag; no batch was dispatched. A locally synthesized task key and
+  shape-valid receipt would not establish applicable provenance, so neither is
+  created. The future authorized dispatch must expose its frozen binding; this
+  mission remains uncompleted. Requests to the operator/integrator are local
+  `.ufo/l0-questions.md`, never a write to the shared side channel.
+  **Preservation measured after the gates:** `sha256sum` of all eight entry-pinned
+  paths plus global config exits **0**; **0** inherited path changes; config SHA-256
+  still `08788ddcbbb48180b987e6f54b517af294c85cacceb07bdd594843a53e668dcc`.
+  `.ufo/evidence/fleet-r1-interactive/{preservation-check,preservation}.json`
+  persists exact command/output/comparison. No global/config or inherited content
+  correction is swept into the owned preflight commit.

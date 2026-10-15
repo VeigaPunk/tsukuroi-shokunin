@@ -55,3 +55,101 @@ commands were re-executed in this record's window (2026-10-14 21:38–22:11Z).
 
 - **planned:** none — the training ladder ends at round 11 (this lane's dispatch frame; nothing here presumes a round 12). The open set — contract items L1–L5/L9 (L6–L8 realized this write: SCORECARD, the SKILL append, the LOG entry), the elevation-gated register, the D13 verification debts, the host unknowns — is enumerated with owners in `plans/completion-evidence.md` §3/§5 and `closeout-r11.md` §3, carried by this record's LOG entry.
 - **retired:** none — no axis saturated; none a wrong fit; all six carry landed artifacts.
+
+## Interactive fleet-round-1 continuation — blocked pre-dispatch (2026-10-15)
+
+This appendix supersedes only the old **planned: none / ladder ends** instruction
+at lines 54–57 for the current operator program. Historical move rows, scores,
+errata and their evidence remain intact. Baseline HEAD:
+`0ecf3ff1b0aa312d71899581badc5a9798430369`. The headless launch counter `1`
+is not a verified completed-round count. Continue pending **fleet round 1**;
+do not relabel it historical round 12 or reuse historical training round 1.
+
+Lowest LIVE axis: **adjacency (7)**; none retired. Intended move: finish the
+source-backed analysis-recipient contract and sanitized handoff, then admit only
+after a complete authorized 32-seat wave, parent verification and landed report.
+Plan: `.ufo/plans/fleet-r1-interactive-wwkd.md`.
+
+| Axis | This attempt's verdict | Evidence / retained ceiling |
+|---|---|---|
+| depth | unchanged | No new domain implementation or admitted knowledge; inherited corpus stays uncommitted. |
+| coverage | unchanged | Same owned OS surfaces; no domain expansion or sibling scope absorbed. |
+| operability | unchanged | Existing script unchanged at SHA-256 `1045244387ffcd5d3db481dd0d3d30e34097abc24744d954e791b81d28b20c11`; selftest exit 0, live census exit 1. Re-measurement is not a new gate behavior. |
+| freshness | unchanged | Fresh parent captures and source drift are supplemental preflight evidence, not an admitted corpus refresh. |
+| calibration | unchanged | No newly independent verifier, promotion credit or re-certification of the legacy numeric scores. |
+| adjacency | unchanged | Required wave could not be dispatched through authorized roles; inherited contracts/packet have not been integrated or admitted. |
+
+No scalar replaces these verdicts. Historical ordinal scores stay as previously
+reported, **not freshly certified**. No axis is marked harmed by this
+preflight-only record; no improved verdict is established, so no round is admitted.
+
+Measured artifact counts, not gain claims:
+
+- `git cat-file -e 0ecf3ff1b0aa312d71899581badc5a9798430369:corpus/knowledge/adjacency-handoffs-fleet-r1.json`
+  exited **128**, explicitly naming the path absent from that commit: **0**
+  records in this new ledger at the baseline, not zero historical handoffs.
+- The inherited `jq` completeness predicate prints **7**, exit **0**, over the
+  current uncommitted ledger. Full command/output:
+  `.ufo/evidence/fleet-r1-interactive/contract-count.json`. Seven records are not
+  seven delivered packets or verified rounds.
+- Canonical wave `plan` validation exited **0**, spawn/resume/total **32/0/32**,
+  with **32 distinct tasks**. `.ufo/waves/fleet-r1-interactive/plan.validated.json`
+  is a plan, **not a launched wave**; native task calls **0**.
+- `bash tools/tsukuroi-census.sh --selftest`:
+  `TSUKUROI_CENSUS_SELFTEST: PASS (80 cases, 80 passed, 0 failed)`, exit **0**.
+- `bash tools/tsukuroi-census.sh`:
+  `TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=HEALTHY)`,
+  exit **1**. Complete emitted summaries/verdicts and stderr are in
+  `.ufo/evidence/fleet-r1-interactive/{selftest,live}.json`; raw journal bodies
+  are not published. Measurements are against the unchanged script at the
+  baseline above, before this record's commit.
+
+Learning trends: **expansion unchanged; quality unchanged; discernment unchanged**.
+No new material is admitted, and no non-author admit/reject spot-check occurred.
+SHONEN evidence remains author-side `[~]`; nothing is promoted.
+
+### Named debt and next fresh-session action
+
+1. **ROUTE-BINDING / operator or routing integrator.** Effective content roles:
+   executor `@m_mid`, scribe `@m_fast`; audits: reviewer/sentinel `@m_mid`,
+   critic `@m_strong`; connector `@m_mid`. Required existing-authority bindings:
+   content `@m_composer`, audit `@m_grok`, connector `@m_antigravity` with
+   `@m_zfl` fallback. Observed `m_antigravity` fallback is empty. Evidence:
+   `.ufo/evidence/fleet-r1-interactive/routing.json`. This lane makes no global
+   or session routing changes and does not silently substitute models.
+2. **SOURCE-DRIFT / next tsukuroi session.** Revenger's province digest changed
+   from the inherited pin; current overlap still requires integrator arbitration.
+   Re-read current ranges and record a new source-backed correction rather than
+   editing inherited history. Parent review and exact hashes:
+   `.ufo/evidence/fleet-r1-interactive/parent-review.md`, `source-pins.json`.
+3. **DELIVERY-SCOPE / next tsukuroi session + fleet integrator.** Inherited notes
+   expect a fleet-root report write; this dispatch only permits lane-local .ufo
+   reports. Append the correction when the full wave can run. The integrator,
+   not this lane, copies accepted handoff/ledger information into shared state.
+4. **INHERITED-WORK / next tsukuroi session.** Preserve the seven inherited paths
+   named in `.ufo/evidence/fleet-r1-interactive/inherited.json`, plus the unchanged
+   census script. No inherited content is staged by this attempt. Resume review
+   only after routing is authorized; obtain a full wave and fresh gates before
+   a candidate content commit or admission.
+
+Newly verified completed rounds in this interactive invocation: **0**. This is
+one observed blocked attempt, not evidence of three consecutive blocked rounds
+or saturation. The at-least-100 verified-round target remains outstanding; no
+historical cumulative total is inferred from launch counters or subjects.
+No native judge, sound-round, convergence or Sighting-completion claim is made.
+
+- **planned (current):** continue the pending adjacency move in a fresh
+  authorized L1 session after ROUTE-BINDING is cleared; do not loop rounds here.
+- **retired (current):** none.
+
+Receipt gate remains **blocked / inapplicable to completion of this unrun round**:
+the direct Sighting launch metadata has run/session/mission/pane identifiers but
+no real queue `taskKey` or producer expected bag. No applicable receipt is minted,
+no synthetic task identity is introduced and Sighting is left uncompleted.
+The next authorized dispatch must supply its frozen task/prompt/config/report
+binding. Exact requests are persisted locally in `.ufo/l0-questions.md`.
+
+Preservation check after the gates: `sha256sum` over all eight entry-pinned paths
+and the global config, exit **0**; changed inherited paths **0**, config checksum
+matches the entry snapshot. Full command/output/comparison:
+`.ufo/evidence/fleet-r1-interactive/{preservation-check,preservation}.json`.
