@@ -333,3 +333,18 @@
   `.ufo/evidence/fleet-r1-interactive/{preservation-check,preservation}.json`
   persists exact command/output/comparison. No global/config or inherited content
   correction is swept into the owned preflight commit.
+
+- 2026-10-15 — **owned preflight work committed** as
+  `6ad495acbe1e755b61a9dd87ac60ecf8ffe05e28` using
+  `git -c user.name=tsukuroi-shokunin -c user.email=tsukuroi@shokunin.local commit --only -- …`
+  with explicit owned pathspecs. No inherited content or native session directory
+  is staged. Motivating evidence remains the exact ROUTE-BINDING refusal and
+  exercised gate/smoke in that commit, not new specialist work.
+  The lane-local `.ufo/continuations/fleet-r1-interactive.json` carries the exact
+  work commit, full gate verdicts/exits, source/delivery/receipt debts and a
+  fresh-session-only action order; `.ufo/reports/round-1/tsukuroi.md` is the
+  committed blocked-attempt report, not a completed craft-round receipt.
+  These publication artifacts intentionally retain **0** newly verified rounds,
+  all per-axis/trend verdicts unchanged, no accepted recipient handoff, no
+  fabricated queue identity/receipt and no Sighting completion. Only the fleet
+  integrator may forward this local report or update shared ledgers.
