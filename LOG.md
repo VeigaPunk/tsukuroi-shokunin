@@ -360,3 +360,21 @@
   its next round, not here.
 - No axis claim is made and no score moved; no verdict, move-log row or count
   changed — additive scaffolding only, not a craft round.
+
+## 2026-10-17 — README: visitor map (no craft-byte change)
+
+Operator request: give this lane a front-door README. Evidence:
+
+- `ls` of the repo root before this commit had no `README.md` (confirmed
+  across the sibling checkout: only kimi-shokunin, the fleet root, and the
+  2026-10 public-era remotes already carried one).
+- Domain sentences, owns/refuses, and gate commands are restated from
+  `PROVINCE.md`, `SKILL.md` (when present), and the cited tool headers.
+  No new craft claim is introduced; no scorecard cell is moved.
+- Devin wiki URLs were not added. The only verified org wiki link in
+  this fleet is the fleet-root line in `VeigaPunk/shokunin` README.md
+  (`https://app.devin.ai/org/veigapunk/wiki/VeigaPunk/shokunin?branch=master`);
+  GitHub code search `org:VeigaPunk app.devin.ai wiki` returned that file
+  and `ufo-fsd-alpha` only.
+
+Not a craft round. No axis claim.
