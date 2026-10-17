@@ -360,3 +360,8 @@
   its next round, not here.
 - No axis claim is made and no score moved; no verdict, move-log row or count
   changed — additive scaffolding only, not a craft round.
+## 2026-10-17 — root README added
+
+- **Trigger.** Operator request for a repository front door. This checkout had no root `README.md`.
+- **Action.** Added `README.md` from `PROVINCE.md` (繕, four planes, ADJ-01–07 handoff table, never install/upgrade/restart) and `tools/tsukuroi-census.sh` usage (`--selftest`, `--sample`, `--help`) plus the verdict line `TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED` at the script's contract comment. Fleet mint note withholds the roster row.
+- **Non-claims.** No Devin wiki URL existed here and none was added. No axis claim, no score change, no census run. Not a craft round.
