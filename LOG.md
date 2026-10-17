@@ -360,3 +360,30 @@
   its next round, not here.
 - No axis claim is made and no score moved; no verdict, move-log row or count
   changed — additive scaffolding only, not a craft round.
+
+## 2026-10-17 — readable front door
+
+Root README was absent. `bash tools/tsukuroi-census.sh --selftest` is the hermetic door in the script usage text. The no-flag census is documented as a read-only live host census and was not run. SHONEN.md boxes are `[~]` author-side. The ADJ table is summarized from PROVINCE.md, not extended.
+
+Corpus index: `corpus/README.md` is sha256-pinned in `.ufo/evidence/fleet-r1-interactive/inherited.json` and line-cited. It was not edited. `corpus/knowledge/`, `corpus/lessons/`, evidence, fixtures, and earlier LOG entries were not rewrapped.
+
+Lint fixes (line counts of existing content unchanged):
+- plans/completion-evidence.md (final newline)
+- plans/round-10-record-draft.md (final newline)
+- plans/round-4-record-draft.md (final newline)
+- plans/round-5-record-draft.md (final newline)
+- plans/round-6-record-draft.md (final newline)
+- plans/round-6.plan.md (final newline)
+- plans/round-7-record-draft.md (final newline)
+- plans/round-7.plan.md (final newline)
+- plans/round-8-record-draft.md (final newline)
+- plans/round-8.plan.md (final newline)
+- plans/round-9-record-draft.md (final newline)
+- plans/round-9.plan.md (final newline)
+
+Lint left in place:
+- SKILL.md: missing final newline; sha256 pinned in .ufo/evidence/fleet-r1-interactive/inherited.json, .ufo/evidence/fleet-r1-interactive/preservation-check.json, corpus/knowledge/adjacency-handoffs-fleet-r1.md
+- plans/round-10.plan.md: missing final newline; sha256 pinned in plans/round-10-record-draft.md
+- plans/round-11.plan.md: missing final newline; sha256 pinned in SKILL.md
+
+Devin: a search for `devin.ai` in this repo found no URL to edit. No wiki URL was added.
