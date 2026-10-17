@@ -16,6 +16,11 @@ measured surfaces; every rule below must earn a cited source before it counts. N
 - Every claim: measured anchor (path:line, command output, evidence id).
   Observation / inference / unknown stay separate.
 - Errata append-only; rejections kept.
+- Route shared host findings by the question, not the tool: `PROVINCE.md`
+  §Adjacent gives the seven finding-to-owner handoffs and sanitized evidence
+  checklist. Keep OS diagnosis here; record a reported packet separately from
+  recipient acceptance. Executed example and source pins:
+  `corpus/knowledge/adjacency-handoffs-fleet-r1.md`.
 
 ## Verdict vocabulary (fixed 2026-10-14, round 1)
 
