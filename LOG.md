@@ -360,3 +360,11 @@
   its next round, not here.
 - No axis claim is made and no score moved; no verdict, move-log row or count
   changed — additive scaffolding only, not a craft round.
+
+## 2026-10-17 — root README
+
+Motivating evidence: no root `README.md` (the round-10 plans mention a
+README sync that never landed a root file; `git` history of a root
+README is empty). The page follows `PROVINCE.md` (four planes, ADJ-01–07),
+`SKILL.md` (`HEALTHY` / `DEGRADED` / `BLOCKED`), `SHONEN.md` (`[~]`), and
+the header of `tools/tsukuroi-census.sh`. No Devin wiki URL exists here.
