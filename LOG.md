@@ -348,3 +348,15 @@
   all per-axis/trend verdicts unchanged, no accepted recipient handoff, no
   fabricated queue identity/receipt and no Sighting completion. Only the fleet
   integrator may forward this local report or update shared ledgers.
+
+## 2026-10-16 — protocol conformance: SCORECARD contract fields
+
+- Already present as real recordable sections, untouched: the `axes` field
+  (move log + the round-11 axes table) and `planned`/`retired` (the
+  `## Planned / retired` section plus the blocked-attempt appendix entries).
+- Added by this rollout per the 2026-10-16 operator amendment (fleet-root
+  `84bade0`): an empty `## Capabilities` repertoire table and a `## Saturation`
+  placeholder; the lane declares its saturation line + stagnation window N on
+  its next round, not here.
+- No axis claim is made and no score moved; no verdict, move-log row or count
+  changed — additive scaffolding only, not a craft round.
