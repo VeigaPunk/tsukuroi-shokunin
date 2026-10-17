@@ -360,3 +360,10 @@
   its next round, not here.
 - No axis claim is made and no score moved; no verdict, move-log row or count
   changed — additive scaffolding only, not a craft round.
+
+## 2026-10-17 — repository README
+
+- **Trigger.** The repository root had no `README.md`. A prior commit message mentioned a README sync; `git ls-files README.md` was empty.
+- **Evidence.** Planes, refusals, and the adjacency table are `PROVINCE.md`. Census contract is the header of `tools/tsukuroi-census.sh` (`TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED`, `--selftest`). Ran `bash tools/tsukuroi-census.sh --selftest` on 2026-10-17: exit 1, `TSUKUROI_CENSUS_SELFTEST: FAIL (80 cases, 79 passed, 1 failed)`. The failing line was `FAIL degraded: a repo-side behind row joins the candidate class (R9): exit 0 wanted 1`, and the printed rollup was `TSUKUROI_CENSUS: HEALTHY`.
+- **Action.** Added `README.md`, including that selftest result so the advertised command matches the run. Corpus indexes were not edited. No Devin wiki URL was present. The failing case was not patched in this change.
+- **Outcome.** No axis claim; no score moved.
