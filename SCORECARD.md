@@ -158,13 +158,46 @@ matches the entry snapshot. Full command/output/comparison:
 
 | Capability | What it can now do | Evidence pointer | First-working round |
 |---|---|---|---|
-| — none yet — | | | |
+| sources-registry | Curates where the lane learns: `corpus/SOURCES.md` — opened, tier-scoped rows with anchors, rejections with flips, study paths, a search log and unopened leads — and checks itself with the frozen contract's 7 census commands | `corpus/SOURCES.md`; census commands + outputs in `.ufo/evidence/round-1-kaika/after.md` (34 rows, malformed 0, no dup/enum/missing output) | fleet r1 (2026-10-19) |
+| host-census-gate | Emits a read-only six-plane host verdict (`TSUKUROI_CENSUS: HEALTHY/DEGRADED/BLOCKED`, exit 0/1/2) with a hermetic 80-case `--selftest` | `bash tools/tsukuroi-census.sh --selftest` → PASS 80/80 rc=0; live run rc=1 six-plane rollup — `.ufo/evidence/round-1-kaika/scout-live.md`, `after.md` | lane r2 (census-v1); demonstrated running fleet r1 |
 
 Rows enter only through a round that demonstrates the capability running
 (`AXES.md` §Capabilities); none enter through this rollout.
+Fleet round 1 (2026-10-19): the two rows above entered through this round's demonstrated runs
+(`.ufo/evidence/round-1-kaika/after.md`, `scout-live.md`), not through the 2026-10-16 rollout.
 
 ## Saturation
 
 The lane's saturation line and stagnation window N are to be declared by the
 lane on its next round per `AXES.md` §The stagnation nudge; not asserted by this
 conformance change.
+
+**Declared fleet round 1 (2026-10-19):** saturation line **9** (an axis at ≥9 counts as
+saturated for the nudge); stagnation window **N = 3** rounds without a new capability row.
+State at declaration: not every axis ≥9 (depth 8, adjacency 8 after this round), so the
+lowest-axis obligation still binds.
+
+## Fleet round 1 — kaika continuation (2026-10-19): claims, measurements, verdicts
+
+Base `9b70381`; before-values pinned by `git archive 9b70381` (`.ufo/evidence/round-1-kaika/before.md`);
+after-values re-run on the round-1 commit (hash in `LOG.md`'s round entry; a commit cannot
+name itself) — `.ufo/evidence/round-1-kaika/after.md`. Verdicts are **self-assessed, pending
+non-author verification** by the orchestrator.
+
+| Claim | Axis | Score | Counting command (from lane root) | Before → after | Evidence |
+|---|---|---|---|---|---|
+| A | adjacency | 7 → 8 | `jq '[.routes[]\|select(has("state"))]\|length' corpus/knowledge/adjacency-handoffs-fleet-r1.json`; `jq '.source_pin_recheck.anchors_hold_count'` | states 0 → 7; pins re-read at sibling HEAD 0 → 8 (anchors hold 8/8; original-pin matches 5/8, 3 drifts recorded, not repinned) | `corpus/knowledge/adjacency-recheck-2026-10-19.md`; `PROVINCE.md` re-check block; packet TSUKUROI-F1-MEM-01 cited in the round-1 fleet report (`reported` on integrator commit). **Conditional:** the 7→8 stands only once that report is committed (lesson round-1 condition); until then the verdict is `pending` |
+| B | coverage (+ capability `sources-registry`) | 8 → 9 | ``grep -c '^\| `' corpus/README.md``; ART §1.2 sweeps (news, pacnew, recovery, DAC) as in `before.md` | coverage rows 10 → 15; sweeps (files, over `corpus SKILL.md PROVINCE.md`) news 0 → 5, pacnew 0 → 6, recovery 0 → 3, ALA 0 → 1, sandbox 0 → 1, DAC 0 → 2; SOURCES rows 0 → 34 (census clean); SKILL update-gate rows 0 → 4 | 4 new entries + `corpus/SOURCES.md` + `SKILL.md` fleet round-1 append |
+| C | freshness | 8 → 9 | `grep -lE '^## Erratum \(2026-10-19, fleet round 1\) — D[1-5]' corpus/knowledge/*.md \| wc -l`; per-note last `^recheck:` date/cadence count over the 25 base notes | doctrine/current-art errata 0 → 7 notes (D1–D5 all present); date-or-cadence rechecks 0/25 → 25/25; notes missing `source:` 6 → 0, `verified-at:`/`recheck:` 11 → 0; README r4-refuted row superseded 0 → 1 | errata blocks in the 7 notes; `corpus/README.md` § Erratum; `SKILL.md` erratum to `:391-393` |
+
+Unchanged axes (no harm measured): depth 8, operability 9 (`--selftest` 80/80 rc=0 after),
+calibration 9 — the mistakes ledger (`corpus/lessons/round-1.md` § Mistakes, 19 rows) and
+QUALITY criteria 5 → 13 are supporting work, not a claimed calibration move. Ceilings carried:
+adjacency — no recipient receipt (0 hits) and ADJ-06 still contested; coverage — K3 upstream
+delta (network read) awaits an operator boundary ruling; freshness — legacy notes carry keys as
+an appended block, not as opening lines (exception stated in the round lesson's Gate).
+
+- **planned (next round):** open the omarchy issue leads (#8047, #6629) against the snapper and
+  initramfs entries; a census arm for root-dir mode (`-Qkk` cannot see `/`) with tameshi method
+  advice via ADJ-07; the depth axis (now lowest with adjacency at 8).
+- **retired:** none.

@@ -386,3 +386,8 @@ dkms/kernel verification plan (U3), schedule under measured load (U8), trust-cha
   pin instead. Both are corrected in place with the correction named here (the note is not
   append-only in its body — this file is new this round — but the corrections are recorded,
   never silent).
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — read-only pacman package/planner queries, sync-db and pacman-log reads, and census run on host `plazir27`, 2026-10-14; S031 `tools/tsukuroi-census.sh`; S032 `/var/log/pacman.log`.
+verified-at: 2026-10-14 (the v3 measurement window recorded in this note).
+recheck: 90d; procedure: §8 source/pin and probe ledger; repeat the package/planner join without a transaction.

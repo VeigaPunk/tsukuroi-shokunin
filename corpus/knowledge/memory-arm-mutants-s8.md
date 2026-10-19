@@ -180,3 +180,8 @@ existing cases is toothless. Carry to the arm's next turn.
   (the tameshi rule: a moved pin is never re-interpreted).
 - Whether VER-S8's independent pass reproduces these mutant shas is **[pending]** — the
   spec is transcribed in §3 so it can be re-run from this note alone.
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — tameshi mutation runner against a pinned temporary copy of `tools/tsukuroi-census.sh`, control selftest and defect spec, 2026-10-14; S031 `tools/tsukuroi-census.sh`.
+verified-at: 2026-10-14 (the mutation-runner/gate measurements recorded in §§2–7).
+recheck: on-release; procedure: §3 mutation spec against its exact pinned revision and §7 pristine control; re-cut `@old` strings if the gate moves.

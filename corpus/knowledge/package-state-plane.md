@@ -321,3 +321,8 @@ re-measurements, not the note's.
   `host-health-report-r3.md` §5's pin for this note (`24eafc4067f6ca7bf3608dfff5ff63d6`, 303
   lines, measured 11:46–11:58) is superseded as of this block; post-append values recorded in
   that report's round-4 errata. [observation]
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — read-only `pacman -Q*`/`-Qkk`, `pacman-conf`, `pacman-key`, sync-db stat and cache-size probes on host `plazir27`, 2026-10-14; S032 `/var/log/pacman.log` where used.
+verified-at: 2026-10-14 (the package-state captures and subsequent header-pin rechecks recorded in this note).
+recheck: 90d; procedure: `pacman -Q pacman; pacman --version; uname -r` for header pins plus the Appendix probe set.

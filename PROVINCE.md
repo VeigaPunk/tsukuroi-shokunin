@@ -71,3 +71,8 @@ before a later handoff; the table does not freeze another lane's authority.
   arbitrate this shared scope; tsukuroi neither picks an owner nor absorbs it.
 
 **Out of province → report, never absorb.**
+Source re-check 2026-10-19 (fleet round 1): [obs] HEAD pins for kama, kaidoku and
+revenger drift; kagi, mado, mori, kumitate and tameshi match their original pins. The cited route
+anchors still hold in-range; no ranges moved. See
+`corpus/knowledge/adjacency-recheck-2026-10-19.md` for hashes, quotes, lifecycle
+states and the receipt sweep.

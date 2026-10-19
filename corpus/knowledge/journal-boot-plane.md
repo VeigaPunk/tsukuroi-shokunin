@@ -428,3 +428,15 @@ getfacl -p /var/log/journal
   `host-health-report-r3.md` §5's pin for this note (`16d4047e8b03deec69773d2cc0b1b75c`, 411
   lines) is superseded as of this block; post-append values recorded in that report's round-4
   errata. [observation]
+
+## Erratum (2026-10-19, fleet round 1) — D5: Effective HOOKS come from drop-ins
+Superseded (`corpus/knowledge/journal-boot-plane.md:244-245`): “`/etc/mkinitcpio.conf:55` → `HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)`”.
+Correction: that base-file citation is not the effective host configuration; mkinitcpio reads the host's configuration drop-ins. The host's `omarchy_hooks.conf` defines `HOOKS=...btrfs-overlayfs`, and `omarchy_resume.conf` adds `HOOKS+=(resume)`.
+Source: S014 https://wiki.archlinux.org/title/Mkinitcpio § Configuration: “Drop-in configuration files are also supported”.
+[obs] Re-opened 2026-10-19: `grep -Hn '^HOOKS' /etc/mkinitcpio.conf.d/*.conf` → `omarchy_hooks.conf:1:HOOKS=(base udev plymouth keyboard autodetect microcode modconf kms keymap consolefont block encrypt filesystems fsck btrfs-overlayfs)` and `omarchy_resume.conf:1:HOOKS+=(resume)`; `grep -n 'drop-in' /var/log/pacman.log` → lines 1991-1993 record use of `nvidia.conf`, `omarchy_hooks.conf`, `omarchy_resume.conf`.
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — read-only `journalctl`, `systemctl`, `systemd-analyze`, `coredumpctl`, `bootctl`, pacman owner and ACL probes on host `plazir27`, 2026-10-14; S014 https://wiki.archlinux.org/title/Mkinitcpio § Configuration re-opened 2026-10-19.
+verified-at: 2026-10-14 (the original journal/boot capture window; effective HOOKS drop-ins re-opened 2026-10-19).
+recheck: 30d; procedure: Appendix probe command set; use `-o json` entry counts and re-read active mkinitcpio drop-ins.
+supersedes the pointer-only recheck: line above.

@@ -214,3 +214,9 @@ OOM reconstruction. A running user manager establishes neither fleet progress
 nor dispatch correctness. Changed gauge values are expected between captures;
 no unchanged-host or pressure-threshold claim follows.
 
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — sibling `PROVINCE.md` source-pin hashes, sanitized handoff packets, and read-only replay probes on host `plazir27`, 2026-10-15.
+verified-at: 2026-10-15 (source-pin and packet measurements recorded in this note).
+recheck: 180d; procedure: §4 counting command and §5 read-only replay; re-read sibling declarations before a later handoff.
+supersedes the pointer-only recheck: line above.

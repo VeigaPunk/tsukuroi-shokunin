@@ -14,6 +14,11 @@
 | `knowledge/host-health-report-r3.md` | the lane's end-to-end SHONEN task: census-v2 + the four plane notes + the update-safety note driven into one host-health snapshot — verdict board over the 5 surfaces (packages DEGRADED, systemd HEALTHY, drivers DEGRADED, journal DEGRADED, update-safety DEGRADED, rollup exit 1), **20 finding→action pairs** where every DEGRADED finding carries its measured evidence and its exact operator unblock action (P1–P5 packages, D1–D3 drivers, J1–J5 journal, U1–U8 update-safety), one-line receipts for HEALTHY planes, 15-row unknowns register with owners, measured read-only contract (`git status` before/after identical), per-artifact provenance with md5 + line counts, append-only errata (mid-flight gate revision consumed as settled v2, recorded not laundered) | live run 2026-10-14, gate census-v2 consumed at 14:57:13Z + v1 pre-revision snapshot 14:39:26Z, host `plazir27`, non-root; landed round 3 (TSUKUROI-R3-3, 462 ln, md5 `d701cf6f630363ce3228260ee17226a4`) |
 | `knowledge/executor-test-sufficiency.md` | the no-oral-context test record (box-3 evidence): one executor seat ran census-v2 with `SKILL.md` alone (round-2 revision `f80b4afdf7e3c44f19a1bb04a2f9d1c1`, 444 ln) as the only reference; per-step sufficiency **7 `SUFFICIENT` / 3 `PARTIAL` / 3 `MISSING`** — the MISSING steps were exactly the v2 coverage (journal field rules S5d, post-verdict contract S6, the unresolved "20-min cap" item S8 recorded-not-invented), plus doc-staleness findings (S0 revision pin mismatch, S2 selftest count, S3 four-plane contract) produced by polling that confirmed the doc sync had not landed; findings kept intact here, fixes landed as the `SKILL.md` round-3 append (census-v2 sync, journal field map, scope fix 4-of-5, post-verdict contract, executor checklist); post-fix re-test not yet run | test run 2026-10-14 15:25:54–15:25:57Z (+PHASE B source cross-check; poll logs 14:40–15:29), host `plazir27`; landed round 3 (TSUKUROI-R3-4, 219 ln, md5 `4b2c1d3612db7db1477da92aaec39862`) |
 | `knowledge/adjacency-handoffs-fleet-r1.md` + `.json` | Steered fleet round-1: source-backed ADJ-01..07 analysis-recipient contracts, persisted source digests, one OS-to-mori observation packet, GPU/helper negative controls and explicit lifecycle/ownership limits; inherited province/skill edits are not this round's authorship | `knowledge/adjacency-handoffs-fleet-r1.md` §2–§5; `lessons/round-1.md` Gate; historical rows above remain historical captures |
+| `knowledge/arch-news-gate-2026.md` | the "read before upgrading" news gate (new surface, fleet round 1): 20 Arch news items 2025-01-01→2026-10-19 checked against this host by `pacman -Q`; 0 confirmed unconditional next-upgrade interventions, conditional checks kept explicit; operator action follows ArchWiki doctrine (full `-Syu`, never bare `-Sy`) | `../SOURCES.md` S001–S005, S010; re-run 2026-10-19 |
+| `knowledge/pacnew-plane.md` | config drift `.pacnew`/`.pacsave` (new surface): log census 3 `.pacnew` / 0 `.pacsave` vs filesystem census of the same 3 files (12 unreadable dirs skipped and named); why both methods are needed (log is history, not state) | `../SOURCES.md` S010, S011, S032; re-run 2026-10-19 |
+| `knowledge/initramfs-v42-sysroot-recovery.md` | boot recovery + initramfs build path (new surface): busybox-flavor evidence from the drop-ins, mkinitcpio v42 `/sysroot` change vs two `/new_root`-hardcoding hooks (`btrfs-overlayfs`, `plymouth`) [inf consequence], recovery entry points by stage; TPM2-news reading rejected | `../SOURCES.md` S002, S014–S017, S021, S022, S025, S026; re-run 2026-10-19 |
+| `knowledge/snapper-eacces-mechanism.md` | rollback net: candidate mechanism for the recurring `errno:13` (`/` 0555 + `CapabilityBoundingSet=CAP_SYS_ADMIN` drops CAP_DAC_OVERRIDE) [inf, operator falsifier given], the `-Qkk` blind spot for `/`, ESP 2.0G vs ≥4 GiB recommendation; `@.snapshots` cause rejected | `../SOURCES.md` S019, S020, S023, S027, S028; re-run 2026-10-19 |
+| `knowledge/adjacency-recheck-2026-10-19.md` | ADJ-01..07 source re-check: 8 sibling PROVINCE pins re-hashed at HEAD (5 match original, 3 drifted, 8/8 anchors hold), per-route lifecycle state, receipt sweep 0, ADJ-06 still contested | sibling `PROVINCE.md` HEAD bytes; `knowledge/adjacency-handoffs-fleet-r1.json` `.source_pin_recheck` |
 
 ## Quality bar
 
@@ -30,3 +35,17 @@ rejection kept as evidence of taste).
 - This entry does not backfill the historical index or re-certify older numeric
   captures. Re-read sibling declarations before another handoff.
 
+- Pending `mkinitcpio` 42 upgrade strands two `/new_root` hooks (`initramfs-v42-sysroot-recovery.md`):
+  watch upstream `btrfs-overlayfs` / `plymouth` hooks on-release; omarchy issue leads in `SOURCES.md`.
+- The `errno:13` mechanism stays [inf] until the operator runs the falsifier in
+  `snapper-eacces-mechanism.md`; a census arm for root-dir mode (`-Qkk` cannot see `/`) is carried debt.
+- Where to learn more: `SOURCES.md` (registry, three study paths, search log, unopened leads).
+
+## Erratum (2026-10-19, fleet round 1) — superseded claim in the journal-boot row
+
+The `knowledge/journal-boot-plane.md` row above still reads "failed-service history **0 unit
+failures in 13 retained boots**". That claim was refuted in round 4: `LOG.md:167` records 4
+capitalized-pattern failure records found by the r4 sweep (r4-refuted). The row text stays as
+written (append-only); this erratum supersedes it. Retention has also moved: 9 retained boots —
+`journalctl --list-boots --no-pager | tail -n +2 | wc -l` 2026-10-19
+(`../.ufo/evidence/round-1-kaika/scout-live.md`).

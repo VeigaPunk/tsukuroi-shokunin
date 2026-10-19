@@ -360,3 +360,48 @@
   its next round, not here.
 - No axis claim is made and no score moved; no verdict, move-log row or count
   changed — additive scaffolding only, not a craft round.
+
+## 2026-10-19 — fleet round 1, kaika continuation (claims A adjacency, B coverage + capability, C freshness)
+
+- **Correction first (M11, named per PROTOCOL "falsified claim gets a named correction entry"):**
+  commit `9b70381` (2026-10-17, "fleet-r1 adjacency handoffs knowledge + lessons + PROVINCE/SHONEN/
+  SKILL/README sync") landed 8 files with no `LOG.md` entry (`git show --stat 9b70381` lists no
+  LOG.md). This entry is its receipt: it carried `adjacency-handoffs-fleet-r1.{md,json}`,
+  `lessons/round-1.md` and the PROVINCE/SHONEN/SKILL/README sync. QUALITY criterion 11 now binds.
+- **Dispatch:** one batched 12-seat L2 call (planner, connector, scout, scribe, 6 executors,
+  reviewer, critic) after the fleet-wide background-job cap (100) refused two earlier batches;
+  4 executor seats and the critic died on provider capacity ("Codex is at capacity …
+  turn_rate_limit_exceeded") and were re-dispatched fresh in one batched call; a post-landing
+  reviewer + critic pair reviewed the integrated tree. Seat outputs persisted under
+  `.ufo/evidence/round-1-kaika/`.
+- **Motivating evidence:** STATE dossier (`kaika-w1/tsukuroi-state.md` §2–§5: adjacency lowest at 7,
+  3/8 sibling pins drifted, 6/11 notes missing contract keys, 0 date-form rechecks, README:13
+  refuted row standing) and ART dossier (`kaika-w1/tsukuroi-art.md` §1.2: news/pacnew/recovery/
+  DAC sweeps all 0; §7 D1–D5: bare `-Sy` advised ≥9×, wrong HookDir precedence, unexplained
+  errno 13, checkupdates tagged [inference], wrong HOOKS citation).
+- **A — adjacency 7→8 (conditional):** routes with `state` 0→7 (6 `contract-only`, ADJ-04
+  `prepared`); sibling pins re-read at HEAD 8/8 with anchors holding 8/8 (5 match the original
+  pins; kama, kaidoku, revenger drifted, recorded not repinned); receipt sweep for
+  TSUKUROI-F1-MEM-01 in sibling repos → 0 hits; ADJ-06 still contested. Evidence:
+  `corpus/knowledge/adjacency-recheck-2026-10-19.md`, `.ufo/evidence/round-1-kaika/adjacency-pins.txt`,
+  `PROVINCE.md` re-check block. ADJ-04 becomes `reported` when the integrator commits the fleet
+  report that cites the packet.
+- **B — coverage 8→9 + capability `sources-registry`:** `corpus/SOURCES.md` 0→34 rows (A=31, B=1,
+  C=2; mined 26, queued 5, rejected 3), census clean; 4 admitted entries on uncovered ground
+  (news gate, pacnew plane, initramfs v42 + recovery, snapper EACCES); coverage rows 10→15;
+  SKILL update-gate rows 0→4 (+24 lines, `SKILL.md` fleet round-1 append). Sweeps (files) news 0→5,
+  pacnew 0→6, recovery 0→3, ALA 0→1, sandbox 0→1, DAC 0→2.
+- **C — freshness 8→9:** D1–D5 errata in 7 notes (each with URL + § anchor inline and a host
+  re-run); contract keys appended to all 25 base notes (missing `source:` 6→0, `verified-at:`/
+  `recheck:` 11→0, date-or-cadence rechecks 0/25→25/25); README r4-refuted erratum; SKILL
+  erratum to `:391-393`. New host finding: a second bare `-Sy` at `pacman.log:2287`
+  (2026-10-18) followed by 7 `-S`/`-Rns` transactions with 0 `upgraded` lines and no `-Su`.
+- **Support:** `corpus/lessons/round-1.md` `## Mistakes` (19 rows) + `## Gate — fleet round 1
+  continuation`; `corpus/QUALITY.md` criteria 5→13; SCORECARD saturation line 9 / window N=3,
+  capabilities 0→2 rows.
+- **No harm:** `bash tools/tsukuroi-census.sh --selftest` → PASS 80/80 rc=0 after; tools/
+  unchanged; every modified base note keeps its base bytes as a prefix (README rows and JSON keys
+  inserted, 0 deletions). Before/after: `.ufo/evidence/round-1-kaika/{before,after}.md`.
+- **Push:** none — the standing operator rule "No push" overrides MISSION.md's commit-then-push.
+- **Verdicts self-assessed; non-author verification owed** (orchestrator: ≥1 admit, ≥1 reject,
+  ≥3 SOURCES rows re-opened, every counting command re-run). SHONEN boxes stay `[~]`.

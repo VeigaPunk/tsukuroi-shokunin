@@ -132,3 +132,8 @@ on `/var/lib/pacman` and `/var/log`, `gpg --verify`, `systemctl --user show/stat
 transcripts under `/tmp/w6-tsukuroi-vers6/` and this report file. Verdict: the two recomputed
 rows are **confirmed as written**; the register's risk decision table is not merely
 self-consistent, it reproduces from independent probes on the same host.
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — independent `pacman -Q*`/`-Si`/`-Sl`/`-T`, package-file and sync-db reads, and `/var/log/pacman.log` probes on host `plazir27`, 2026-10-14; S032 `/var/log/pacman.log`.
+verified-at: 2026-10-14 (the verifier's independent probe window recorded in this note).
+recheck: 180d; procedure: §§1–5 rerun the two package spot-checks and cross-cutting probes; retain the explicit not-reverified boundary.

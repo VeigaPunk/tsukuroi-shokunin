@@ -247,3 +247,9 @@ Every step read-only; the `diff` must compare rows as `pacman -Qm` prints them (
 ## 8. Errata (append-only)
 
 - (new file — nothing to correct yet; append below, never rewrite)
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — census, `pacman -Qm`/`-Qu`, `/var/log/pacman.log` event sweep, and repo status/hash reads on host `plazir27`, 2026-10-14; S031 `tools/tsukuroi-census.sh`; S032 `/var/log/pacman.log`.
+verified-at: 2026-10-14 (the live drift receipt window recorded in this note).
+recheck: 180d; procedure: §6 live census, baseline diff, and package/log probes.
+supersedes the pointer-only recheck: line above.

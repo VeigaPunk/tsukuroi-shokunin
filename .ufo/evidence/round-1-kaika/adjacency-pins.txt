@@ -1,0 +1,29 @@
+Raw command outputs — adjacency source pin and receipt re-check (2026-10-19)
+
+Command:
+printf 'checked_at '; date -u +%FT%TZ; for lane in kama kagi mado mori kumitate kaidoku revenger tameshi; do repo="/home/vgpnk/Projects/shokunin/${lane}-shokunin"; printf '%s ' "$lane"; git -C "$repo" rev-parse HEAD; git -C "$repo" show HEAD:PROVINCE.md | sha256sum; done
+
+stdout:
+checked_at 2026-10-19T22:07:49Z
+kama 35e9175fc543b8090ba436a5f8c6b8b1c768339a
+a7728760f777573f9a4184df83efadc37fddc29159521c3ec48b11472579c0c6  -
+kagi aea7a4301034aa9160ada69457a6427f77064169
+ffe644a7b2cecfc8169de8393937214f563570a8413912069568fb7065648e17  -
+mado e1d81d48026b6b9c9e9614c3b6390240200110db
+7aad7b863dc3c10b9fbafb8b04b7f73084adbdf91616a0859f7bfd4b0edb135a  -
+mori 20e2255e7b3ebb05a52272f35a996421cab14848
+aac98b22bb83bade906fbc3f4841a6cd666f13e07485c48d700eaf0f786400f2  -
+kumitate 16a5441a3347a10ac5ed169abcd5a17ba6f3f185
+caa83fde27c036829e2f4c882e5c7b2270d95586bd6a12a551b3d75a72d491d2  -
+kaidoku de77d754523afb673b4421d363fe89311644af4f
+b95c9f5beffc3ce5116677719415f9f2dc50c2b579907d5abc10bdb732482fa2  -
+revenger 8bbcb4e3267d155525c1ef1258ee327b49e53ec4
+63acc3d033869f93f3e13da79e35023d86baa60b3f1d3b52861b019183b4b19f  -
+tameshi 4eb4cf319c0eddd4ef0c6d1d4d11e51e0d4ee307
+f5e28bf144b0601c242e43d2a9d8b60b08b8ac9476728b9f5809aa655b77d89f  -
+
+Command:
+grep -rn 'TSUKUROI-F1-MEM-01' /home/vgpnk/Projects/shokunin/*-shokunin --include='*.md' --include='*.json' | grep -v '^/home/vgpnk/Projects/shokunin/tsukuroi-shokunin'
+
+stdout: (empty)
+exit status: 1

@@ -431,3 +431,9 @@ Ordered by capture; all read-only. Host-local times, 2026-10-14.
     `grep -i pressure /usr/lib/systemd/system/user@.service` (`MemoryPressureWatch=skip`).
 13. 14:39 V8-OOM boundary count: streamed `journalctl -b -o json` pairing → 15 distinct coredumps with
     `FatalProcessOutOfMemory` backtraces (boot 0).
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — read-only `journalctl`, `systemctl`, cgroupfs, `/proc`, `ps`, memory and disk probes on host `plazir27`, 2026-10-14.
+verified-at: 2026-10-14 (the original live OOM/event capture window recorded in this note).
+recheck: 30d; procedure: §11 probe ledger; keep event-window and cumulative-counter claims distinct.
+supersedes the pointer-only recheck: line above.

@@ -462,3 +462,9 @@ All pins below are `md5` re-hashed 2026-10-14 20:52–20:58Z against a clean tre
   are unchanged (census `e32aac98…`, `SKILL.md` `d276ecea…`, `LOG.md` `68413998…`,
   `SCORECARD.md` `da962e18…`, `corpus/README.md` `98bd0066…`, `SHONEN.md` `9cf1d450…`);
   `/var/lib/pacman/db.lck` absent.
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — re-hash of landed artifacts plus `bash tools/tsukuroi-census.sh --selftest` and one live census run on host `plazir27`, 2026-10-14; S031 `tools/tsukuroi-census.sh`.
+verified-at: 2026-10-14 (the dispatch window recorded in this note).
+recheck: 180d; procedure: §7 re-hash every pin, re-run the selftest, and re-read cited sections.
+supersedes the pointer-only recheck: line above.

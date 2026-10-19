@@ -183,3 +183,8 @@ and this note.
   seat) alongside `?? corpus/knowledge/aur-risk-plane-ver-s7.md` (this note). §8's
   before/after comparison covers 15:26:16 → 15:26:48 and is unaffected; recorded so a later
   reader does not read concurrent lane movement as a mutation by this seat. [observation]
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — independent census, pacman foreign-package queries, register diff and fail-closed fixtures on host `plazir27`, 2026-10-14; S031 `tools/tsukuroi-census.sh`; S032 `/var/log/pacman.log`.
+verified-at: 2026-10-14 (the independent measurement window recorded in this note).
+recheck: 180d; procedure: §§1–6 rerun the census, independent count/diff and battery at the pinned revision.

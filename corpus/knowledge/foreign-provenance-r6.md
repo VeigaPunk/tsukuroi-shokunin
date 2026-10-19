@@ -306,3 +306,9 @@ sha256sum ~/.cache/yay/apktool… ; # compare with PKGBUILD sha256sums
   the §6(a) `$p-*` glob mis-expansion happened during the first size-chain
   pass; the pass was discarded and re-run with exact dir names. No value in
   this note originates from the failed pass.
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — pacman foreign-package queries, `/var/log/pacman.log`, sync-db archive/stat and signature reads on host `plazir27`, 2026-10-14; S032 `/var/log/pacman.log`.
+verified-at: 2026-10-14 (the original live provenance window recorded in this note).
+recheck: 90d; procedure: §7 re-run the `pacman -Qm`/`-Si`/`-Qmdtq`, sync-db and package-provenance probes.
+supersedes the pointer-only recheck: line above.

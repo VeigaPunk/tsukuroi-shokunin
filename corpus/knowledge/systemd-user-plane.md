@@ -263,3 +263,8 @@ journalctl --list-boots --no-pager | tail -4
   `host-health-report-r3.md` §5's pin for this note (`26dca9cf12b322926babfef49e257f07`, 247
   lines) is superseded as of this block; post-append values recorded in that report's round-4
   errata. [observation]
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — read-only `systemctl --user`, `journalctl --user`, and `coredumpctl` probes on host `plazir27`, 2026-10-14.
+verified-at: 2026-10-14 (the user-manager and journal captures recorded in this note).
+recheck: 30d; procedure: Appendix probe command set; re-read user-manager state, timers and bounded journal/coredump counts.

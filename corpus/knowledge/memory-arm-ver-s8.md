@@ -250,3 +250,8 @@ writes by this seat are `/tmp/w8-ver/*` and this note.
   the window were note-family only (`memory-arm-mutants-s8.md`, `update-safety-v3.md`,
   `kill-event-deep-r8.md`, `plans/round-8-record-draft.md`, `plans/round-9.plan.md`).
   All pins above therefore stand for the closing revision of this window [observation].
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — independent census run, journal/proc/cgroup probes and mutation verification against the pinned gate on host `plazir27`, 2026-10-14; S031 `tools/tsukuroi-census.sh`.
+verified-at: 2026-10-14 (the verifier's original command window recorded in this note).
+recheck: on-release; procedure: §§1–6 independent live/mutant probes against the exact census revision, with the §3 re-cut rule.

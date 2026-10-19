@@ -606,3 +606,28 @@ systemd-analyze cat-config systemd/coredump.conf | grep -vE '^\s*#|^\s*$'
 timeout 280 pacman -Qkk > /tmp/qkk.txt 2>&1; tr '\r' '\n' < /tmp/qkk.txt | grep -ciE 'failed to calculate|permission denied'
 df -h /; uptime; du -sh /var/lib/systemd/coredump
 ```
+
+## Erratum (2026-10-19, fleet round 1) — D1: Bare -Sy is not a safe refresh route
+Superseded (`corpus/knowledge/degraded-triage-r4.md:90,524`): “fix/replace the single mirror, then `-Sy` and re-run `-Qu`/`-Sup`”; the operator-only `sudo pacman -Sy` route is repeated at :524.
+Correction: use pacman-contrib's `checkupdates` for a safe installed-package update check, or a complete `pacman -Syu`; never advise bare `pacman -Sy`.
+Source: S010 https://wiki.archlinux.org/title/System_maintenance § Avoid certain pacman commands: “never run `pacman -Sy`; instead, always use `pacman -Syu`.” S010 § Partial upgrades are unsupported: `checkupdates` safely checks installed-package updates without a system update.
+[obs] Host `/var/log/pacman.log`, re-opened 2026-10-19: `grep -nE 'pacman -Sy ' /var/log/pacman.log` → line 1405 (`2026-10-11T12:54:13-0300`, `pacman -Sy --noconfirm fuse2`) and line 2287 (`2026-10-18T14:11:00-0300`, `pacman -Sy --noconfirm`). `grep -nE 'pacman -Syu|Running .pacman -Syu' /var/log/pacman.log` → line 1414 (`2026-10-11T16:13:19-0300`); the first gap is 3h19m06s, while no later full `-Syu` is recorded after line 2287.
+S032 is own-work `/var/log/pacman.log`, lines 1405, 1414, 2287; the ArchWiki citation above is S010.
+
+## Erratum (2026-10-19, fleet round 1) — D2: HookDir precedence and winner resolved
+Superseded (`corpus/knowledge/degraded-triage-r4.md:370-371,546-547`): “pacman's documented precedence for earlier hook dirs”; “Which hook wins the `90-mkinitcpio-install.hook` name collision”.
+Correction: S007 documents later HookDir entries taking precedence; S008 says a same-name file in a higher-priority hook directory overrides the prior hook. The host's `/etc/pacman.d/hooks/` entry wins over `/usr/share/libalpm/hooks/`; the collision unknown was answered by the 2026-10-11 log.
+Source: S007 https://man.archlinux.org/man/pacman.conf.5 § OPTIONS, HookDir: “hooks in later directories taking precedence over hooks in earlier directories.” S008 https://man.archlinux.org/man/alpm-hooks.5 § OVERRIDING HOOKS: “Hooks may be overridden by placing a file with the same name in a higher priority hook directory.”
+[obs] Re-opened 2026-10-19: `pacman-conf HookDir` → `/etc/pacman.d/hooks/`; `grep -Hn '^Exec' /usr/share/libalpm/hooks/90-mkinitcpio-install.hook /etc/pacman.d/hooks/90-mkinitcpio-install.hook` → packaged `Exec = /usr/share/libalpm/scripts/mkinitcpio install`, override `Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-install`; `grep -n -A1 "running '90-mkinitcpio-install.hook'" /var/log/pacman.log` → line 1989 hook run, line 1990 `Building UKI for linux (7.2.3-arch1-3)`.
+
+## Erratum (2026-10-19, fleet round 1) — D3: errno 13 remains an inference
+Superseded (`corpus/knowledge/degraded-triage-r4.md:321-325`): “errno:13 (Permission denied)” remained without the DAC-mode/capability pair.
+Correction [inf]: see `corpus/knowledge/snapper-eacces-mechanism.md` §§Current host evidence and Falsifier. The measured root mode and unit capability bound support the proposed DAC explanation, but it is not proved until the operator-only falsifier is run; that falsifier was not run in this read-only wave.
+Source: S027 https://man.archlinux.org/man/capabilities.7 § CAP_DAC_OVERRIDE: “Bypass file read, write, and execute permission checks.” S028 https://man.archlinux.org/man/systemd.exec.5 § CapabilityBoundingSet=: “Capabilities listed will be included in the bounding set, all others are removed.”
+[obs] Re-opened 2026-10-19: `stat -c '%a %U:%G' /` → `555 root:root`; `systemctl cat limine-snapper-sync.service | grep -n CapabilityBoundingSet` → `14:CapabilityBoundingSet=CAP_SYS_ADMIN`; `journalctl --no-pager -o short-iso -g 'create subvolume failed' | grep -c 'errno:13'` → `8`.
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — census and one-level-deeper read-only package/service/driver/journal probes on host `plazir27`, 2026-10-14; S031 `tools/tsukuroi-census.sh`; S032 `/var/log/pacman.log` re-opened for D1/D2 on 2026-10-19.
+verified-at: 2026-10-14 (the triage capture window; D1/D2/D3 host evidence and public references re-opened 2026-10-19).
+recheck: 30d; procedure: Appendix A plus `bash tools/tsukuroi-census.sh --selftest && bash tools/tsukuroi-census.sh`; include the operator-only D3 falsifier only when the operator elects to run it.
+supersedes the pointer-only recheck: line above.

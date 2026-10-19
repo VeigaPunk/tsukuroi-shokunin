@@ -254,3 +254,15 @@ Wave-1 record sources: `SKILL.md:44` (driver-row residues), `corpus/README.md:9`
   `host-health-report-r3.md` §5's pin for this note (`a44e9c07d5b139fe65d5284674398b3a`, 242
   lines) is superseded as of this block; post-append values recorded in that report's round-4
   errata. [observation]
+
+## Erratum (2026-10-19, fleet round 1) — D1: Bare -Sy is not a safe refresh route
+Superseded (`corpus/knowledge/driver-firmware-plane.md:192`): “DB refresh (`-Sy`/checkupdates), which is a write action → operator.”
+Correction: use pacman-contrib's `checkupdates` for a safe installed-package update check, or a complete `pacman -Syu`; never advise bare `pacman -Sy`.
+Source: S010 https://wiki.archlinux.org/title/System_maintenance § Avoid certain pacman commands: “never run `pacman -Sy`; instead, always use `pacman -Syu`.” S010 § Partial upgrades are unsupported: `checkupdates` safely checks installed-package updates without a system update.
+[obs] Host `/var/log/pacman.log`, re-opened 2026-10-19: `grep -nE 'pacman -Sy ' /var/log/pacman.log` → line 1405 (`2026-10-11T12:54:13-0300`, `pacman -Sy --noconfirm fuse2`) and line 2287 (`2026-10-18T14:11:00-0300`, `pacman -Sy --noconfirm`). `grep -nE 'pacman -Syu|Running .pacman -Syu' /var/log/pacman.log` → line 1414 (`2026-10-11T16:13:19-0300`); the first gap is 3h19m06s, while no later full `-Syu` is recorded after line 2287.
+S010 https://wiki.archlinux.org/title/System_maintenance § Avoid certain pacman commands; own-work S032 `/var/log/pacman.log` lines 1405, 1414, 2287.
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — `lsmod`, DKMS, `modinfo`, `nvidia-smi`, pacman package and kernel-journal probes on host `plazir27`, 2026-10-14; S010 https://wiki.archlinux.org/title/System_maintenance § Avoid certain pacman commands; S032 `/var/log/pacman.log` lines 1405, 1414, 2287 (re-opened 2026-10-19).
+verified-at: 2026-10-14 (the driver/firmware measurement window; D1 log evidence re-opened 2026-10-19).
+recheck: 90d; procedure: `dkms status`; `ls /lib/modules`; `pacman -Qo` on the DKMS module; `nvidia-smi --query-*`.

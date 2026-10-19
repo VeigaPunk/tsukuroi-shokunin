@@ -340,3 +340,9 @@ writes only this file, so the gate change is specified here rather than made:
   done`, ~1046 invocations) was started and then **stopped** and replaced by the batched
   sync-db-union diff in §0 B, which answers the same question in 0.08 s. The stopped run made
   no writes and produced no output used here. [observation]
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — read-only pacman foreign-package/config queries, sync-db reads and package signature checks on host `plazir27`, 2026-10-14; S032 `/var/log/pacman.log`.
+verified-at: 2026-10-14 (the register's original measurement window recorded in this note).
+recheck: 90d; procedure: §7's explicit foreign-package, repo-resolution, orphan and provenance probe set.
+supersedes the pointer-only recheck: line above.

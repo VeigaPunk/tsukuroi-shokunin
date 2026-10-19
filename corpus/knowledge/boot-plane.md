@@ -310,3 +310,9 @@ re-confirms the capture-not-constant rule (§0).
 - 2026-10-14 — **round-4 note not yet in the corpus index:** `corpus/README.md`'s coverage map has
   no row for this note (nor for `degraded-triage-r4.md`). Out of this lane's write scope — flagged
   for the index owner. [observation]
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — `systemd-analyze`, `journalctl`, `systemctl`, `getfacl`, `/proc/meminfo` and cgroup counter probes on host `plazir27`, 2026-10-14.
+verified-at: 2026-10-14 (the original boot-plane capture window recorded in this note).
+recheck: 30d; procedure: Appendix command set; preserve the `-o json | jq` entry-count convention.
+supersedes the pointer-only recheck: line above.

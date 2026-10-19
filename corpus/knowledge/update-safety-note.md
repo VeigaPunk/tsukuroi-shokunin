@@ -476,3 +476,21 @@ re-derive it.
   per `AGENTS.md:3`.
 - This note is a **timestamped snapshot** — nothing here may be quoted as
   current state. Re-measure with §3's recipe and `SKILL.md:85-135`.
+
+## Erratum (2026-10-19, fleet round 1) — D1: Bare -Sy is not a safe refresh route
+Superseded (`corpus/knowledge/update-safety-note.md:378-381`): “`checkupdates`, or `-Sy` then re-run this note.”
+Correction: use pacman-contrib's `checkupdates` for a safe installed-package update check, or a complete `pacman -Syu`; never advise bare `pacman -Sy`.
+Source: S010 https://wiki.archlinux.org/title/System_maintenance § Avoid certain pacman commands: “never run `pacman -Sy`; instead, always use `pacman -Syu`.” S010 § Partial upgrades are unsupported: `checkupdates` safely checks installed-package updates without a system update.
+[obs] Host `/var/log/pacman.log`, re-opened 2026-10-19: `grep -nE 'pacman -Sy ' /var/log/pacman.log` → line 1405 (`2026-10-11T12:54:13-0300`, `pacman -Sy --noconfirm fuse2`) and line 2287 (`2026-10-18T14:11:00-0300`, `pacman -Sy --noconfirm`). `grep -nE 'pacman -Syu|Running .pacman -Syu' /var/log/pacman.log` → line 1414 (`2026-10-11T16:13:19-0300`); the first gap is 3h19m06s, while no later full `-Syu` is recorded after line 2287.
+S010 https://wiki.archlinux.org/title/System_maintenance § Avoid certain pacman commands; own-work S032 `/var/log/pacman.log` lines 1405, 1414, 2287.
+
+## Erratum (2026-10-19, fleet round 1) — D4: checkupdates source is readable without installing it
+Superseded (`corpus/knowledge/update-safety-note.md:380-381`): “its script is not readable here because the package is absent.”
+Correction: package absence describes the host, not the mechanism. S009's upstream `checkupdates.sh.in` was re-opened; it defaults `CHECKUPDATES_DB` under `${TMPDIR:-/tmp}`, symlinks the local DB there, passes that temporary path to the sync invocation and `pacman -Qu`, and does not require installing the tool to inspect its source.
+Source: S009 https://gitlab.archlinux.org/pacman/pacman-contrib/-/raw/master/src/checkupdates.sh.in § `CHECKUPDATES_DB` default and `if (( SYNC ))` block: “Safely print a list of pending updates.”
+[obs] Host `pacman -Q pacman-contrib` → package absent; `command -v checkupdates` → no path (the original package-presence fact; source re-opened 2026-10-19).
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — pacman planner/version joins, sync-db stat and pacman-log probes on host `plazir27`, 2026-10-14; S010 https://wiki.archlinux.org/title/System_maintenance § Avoid certain pacman commands; S032 `/var/log/pacman.log` lines 1405, 1414, 2287 (re-opened 2026-10-19); S009 `checkupdates.sh.in` re-opened 2026-10-19 for D4.
+verified-at: 2026-10-14 (the update-safety measurement window; D1/D4 evidence re-opened 2026-10-19).
+recheck: 90d; procedure: §3 probe recipe and §7 update decision table; use the safe update-check route, never bare `-Sy`.

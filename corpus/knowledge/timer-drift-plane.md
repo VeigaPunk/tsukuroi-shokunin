@@ -331,3 +331,9 @@ journalctl --no-pager | grep -E 'PM: suspend (entry|exit)|Suspending system|Reac
 - 2026-10-14 — write-scope note: `AGENTS.md` asks every change to append a `LOG.md` entry; this
   round's assignment (S5-2) names exactly one output file, so the LOG entry is left to the
   integrator rather than written from this lane.
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — `systemctl --user`, `journalctl --user`, wall/monotonic/boottime clocks, `/proc/uptime`, and pacman-log reads on host `plazir27`, 2026-10-14; S032 `/var/log/pacman.log`.
+verified-at: 2026-10-14 (the timer snapshot/sampler window recorded in this note).
+recheck: 30d; procedure: §10 command set; re-run a full timer fire-cycle sample and the journal interval classification.
+supersedes the pointer-only recheck: line above.

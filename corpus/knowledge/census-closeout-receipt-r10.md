@@ -182,3 +182,9 @@ lines; `ls /var/lib/pacman/db.lck` → absent.
   `walker-restart.hook`, dkms stale row, `snapper` empty, `offline.db` coverage, the "20-min cap"
   item, the AUR-drift watch's own receipt (`aur-drift-receipt-r9.md`), and the coredump-storm class
   (its count here — 523 — is a capture; the class stays with the journal workstream).
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — read-only `tools/tsukuroi-census.sh --selftest`/live runs, package and journal queries, and hash/status checks on host `plazir27`, 2026-10-14; S031 `tools/tsukuroi-census.sh`.
+verified-at: 2026-10-14 (the receipt's original capture window recorded in this note).
+recheck: on-release; procedure: §7 receipt commands; rerun the selftest and live census after a census release.
+supersedes the pointer-only recheck: line above.

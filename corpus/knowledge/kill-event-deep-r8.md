@@ -339,3 +339,9 @@ All read-only, non-root; host-local times, 2026-10-14; scratch `/tmp/w8-s82-tsuk
 ## 12. Errata (append-only, this file)
 
 - (none yet — first capture)
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — read-only `journalctl`, `/proc`, cgroupfs, and `systemctl show/cat` probes on host `plazir27`, 2026-10-14.
+verified-at: 2026-10-14 (the live event-capture window recorded in this note).
+recheck: 30d; procedure: §11 probe ledger; carry each negative claim's sweep.
+supersedes the pointer-only recheck: line above.

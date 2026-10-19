@@ -1635,3 +1635,27 @@ Pre-addendum revision of this file: md5 `d1cbaca225de405290b78f3d75fa1cc2` · 16
 - 2026-10-14 — **`SCORECARD.md` moved after §Errata's write: the refresh landed** — rows 16/21/22 repaired by closing the paren only (every original word preserved in place; the unescaped-`|` reading adjudicated and rejected by the record), the round-11 move row, the six-axis score table with counting commands, and `Planned / retired` (none — no axis saturated). New pin: md5 `c9f5489843315a8bfac8a8ce4f7edea4` · 56 `wc -l` · 13 335 B · mtime 19:13:03 -03. §4's SCORECARD row ("unchanged … rows 16/21/22 still malformed") is superseded by this line.
 - 2026-10-14 — **VER-S11's verdict stays scratch-only** (`/tmp/w11-ver-s11/VERDICT.md`; that lane's dispatch was do-not-edit — the record's (d) carries it): the r10 ladder re-derived from blobs (r9b `e32aac98…` 74/74 rc 0; r10 `945c76fc…` 80/80 rc 0) and the H4/S2 survivor cells re-run byte-equal (H4 SURVIVED at r9b; H4/S2 KILLED at r10). A non-author product exists; per D13 only a landed note is a verification a later round can re-read — the §5 debt stands, sharpened rather than closed.
 - [unknown → narrowed] "VER-S11's verdicts" is answered as above; "whether the wave's remaining artifacts land after this write" stays open at this addendum's write (L1–L5, L9, L10 per the record's own debt line; the watcher runs to the wave's landing commit); "the runbook's realized name/placement" now has the record's reading named in the first bullet.
+
+## Fleet round-1 append (2026-10-19) — doctrine erratum, update-gate rows, where to learn
+
+**Erratum to `:391-393`** ("the operator's next `-Sy` is the resolving event"): superseded. Bare
+`pacman -Sy` is unsupported (ArchWiki System maintenance § Avoid certain pacman commands — S010,
+https://wiki.archlinux.org/title/System_maintenance?oldid=885170). The read-only upstream check is
+`checkupdates` (pacman-contrib; temp DB, never the real sync DB — S009; `pacman-contrib` not
+installed on this host 2026-10-19); the operator's update is a full `-Syu` after the news gate.
+[obs] This host ran bare `-Sy` twice (`/var/log/pacman.log:1405`, `:2287`); after `:2287`
+(2026-10-18) 7 `pacman -S`/`-Rns` transactions ran with 0 `upgraded` / 64 `installed` lines and
+no `-Su` — `awk 'NR>=2287 && /\[ALPM\] upgraded/' /var/log/pacman.log | wc -l` → 0 2026-10-19.
+Packages installed against a refreshed DB over un-upgraded deps is the partial-upgrade state
+S010 forbids [inf: no breakage observed]. Errata in the notes: `## Erratum (2026-10-19` blocks.
+
+Update-safety checklist rows (manual, read-only; each row's entry carries commands + falsifier):
+
+| Check before `-Syu` | DEGRADED when | Entry |
+|---|---|---|
+| News gate | an applicable, unhandled item since the last `-Syu` | `corpus/knowledge/arch-news-gate-2026.md` |
+| Config drift | ≥1 `.pacnew`/`.pacsave` by filesystem census (log is history, not state) | `corpus/knowledge/pacnew-plane.md` |
+| Initramfs flavor vs candidate | busybox hooks hardcode `/new_root` and `mkinitcpio` ≥42 is the candidate | `corpus/knowledge/initramfs-v42-sysroot-recovery.md` |
+| Rollback net | snapper/limine `errno:13` recurring, no snapper config | `corpus/knowledge/snapper-eacces-mechanism.md` |
+
+Where to learn more: `corpus/SOURCES.md` (tiered registry, study paths, search log, leads).

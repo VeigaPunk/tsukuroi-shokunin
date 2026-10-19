@@ -218,3 +218,8 @@ table; `:509-625` journal plane; `:184-185` output contract) plus
   box 3 `[x]` requires a named non-author reviewer (`PROTOCOL.md:64-69`).
 - V2 gate, R3-1 note and R3-3 report were consumed as *sibling artifacts* in PHASE B
   only; the executor phase (PHASE A) used `SKILL.md` alone, as assigned.
+
+## Contract keys (appended 2026-10-19, fleet round 1)
+source: own-work — no-oral-context executor run using only the pinned `SKILL.md` and census-v2 gate, 2026-10-14; S031 `tools/tsukuroi-census.sh`.
+verified-at: 2026-10-14 (the PHASE A test run recorded in this note).
+recheck: on-release; procedure: repeat PHASE A in §§3–4 with `SKILL.md` as the sole reference and the gate revision pinned in §1.
