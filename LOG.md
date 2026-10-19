@@ -415,3 +415,12 @@
 - **C precision:** 7 notes contain dated D1–D5 source/host errata; the 25 appended legacy keys are contract repair, not 25 fresh note verifications. The identical D1 literal-text command is 9→14 because five new errata lines quote/supersede prior wording, not because five new active advice instances appeared; `SKILL.md` now carries the 7/64/0/0 source commands.
 - **Gate correction:** the adjacency-recheck entry lacked the `## QUALITY check` claimed by the lesson Gate at admission; an appended check now evaluates its evidence and bounds. This is recorded as a learning miss; no prior lesson or knowledge text was rewritten.
 - **Debt / non-claims:** the full base-note procedure sweep, full non-author re-open of 34 SOURCES rows, legacy opening-key convention, S030 tier-C classification, and adjacency-ledger-vs-knowledge classification remain open. The four-surface coverage entry is a correction to B's attribution, not a new round claim. No acceptance/resolution or cross-domain ownership change is claimed.
+
+## 2026-10-19 — fleet round 1 post-review measurement pin
+
+Measured against correction commit `459e3ceacea6289d74b6e856c5606b83704f32e5`:
+
+- A: mori parent `20e2255e7b3ebb05a52272f35a996421cab14848` → HEAD `1f07f1dd1eed59f10c4859726e2f780199190b22` changes the committed packet-response predicate 0→1; the kaika sibling HEAD sweep finds one unique recipient repository.
+- B: the four individually counted `PROVINCE.md` surface labels are 0/0/0/0 at base `9b70381` and 1/1/1/1 at the measured commit (total 0→4); all four linked knowledge entries exist only after. This excludes the adjacency index row.
+- C: dated D1–D5 erratum notes are 0→7; the identical D1 literal-text matcher is 9→14, with the five additions all “Superseded” errata quotes rather than active recommendations.
+- The receipt response, pin snapshot (1/8 matches; anchors 8/8), Gate correction, four-surface province update, `checkupdates` fallback and host-log command anchors are recorded in the post-review correction entry above. No recipient acceptance/resolution is claimed.
