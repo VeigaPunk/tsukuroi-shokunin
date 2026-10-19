@@ -1659,3 +1659,16 @@ Update-safety checklist rows (manual, read-only; each row's entry carries comman
 | Rollback net | snapper/limine `errno:13` recurring, no snapper config | `corpus/knowledge/snapper-eacces-mechanism.md` |
 
 Where to learn more: `corpus/SOURCES.md` (tiered registry, study paths, search log, leads).
+
+If `checkupdates` is absent (`command -v checkupdates` has no path), do not install it or substitute bare `pacman -Sy`: report the upstream package delta as unknown under the current read-only probe set. Any full `pacman -Syu` remains an operator action after the news gate.
+
+The 2026-10-18 transaction counts above are command-anchored as follows (run on `/var/log/pacman.log`):
+
+```sh
+awk 'NR>=2287 && /\[PACMAN\] Running .pacman -S / {n++} NR>=2287 && /\[PACMAN\] Running .pacman -Rns / {n++} END{print n+0}' /var/log/pacman.log
+awk 'NR>=2287 && /\[ALPM\] installed / {n++} END{print n+0}' /var/log/pacman.log
+awk 'NR>=2287 && /\[ALPM\] upgraded/ {n++} END{print n+0}' /var/log/pacman.log
+awk 'NR>=2287 && /\[PACMAN\] Running .pacman .* -Su/ {n++} END{print n+0}' /var/log/pacman.log
+```
+
+Observed outputs in order: `7`, `64`, `0`, `0` (2026-10-19). These are separate counts; the D1 literal-text match count is not an advice count.

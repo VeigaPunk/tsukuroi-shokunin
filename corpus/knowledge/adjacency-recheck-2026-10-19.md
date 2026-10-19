@@ -68,3 +68,31 @@ A later sibling commit that changes a `PROVINCE.md` hash, or a re-read showing a
 - `corpus/knowledge/adjacency-handoffs-fleet-r1.json` at `9b70381c54a040e8775b43a61245b088acefb65f`: original pins, routes and lifecycle vocabulary.
 - `corpus/knowledge/adjacency-handoffs-fleet-r1.md`: packet identity, ADJ-01/02 boundary controls, ADJ-06 ownership limitation.
 - `.ufo/evidence/round-1-kaika/adjacency-pins.txt`: raw pin and receipt command outputs.
+
+## Later committed-head recheck — 2026-10-19T22:57:14Z
+
+This snapshot supersedes the 22:07:49Z pin-match total above for current routing. The original `source_pins` stay unchanged. Command: `git -C /home/vgpnk/Projects/shokunin/.tower/worktrees/kaika/<lane>-shokunin show HEAD:PROVINCE.md | sha256sum`; all eight worktrees were clean during measurement.
+
+| sibling | committed HEAD | current SHA-256 | original pin |
+|---|---|---|---|
+| kama | `03b5f0e` | `a7728760f777573f9a4184df83efadc37fddc29159521c3ec48b11472579c0c6` | drift |
+| kagi | `e1544c1` | `4a346e2df81f7b2e649914d0d99da974d6c484caf12fed1c6bd530d106a78523` | drift |
+| mado | `e3e6a8e` | `7aad7b863dc3c10b9fbafb8b04b7f73084adbdf91616a0859f7bfd4b0edb135a` | match |
+| mori | `1f07f1d` | `16129e6d2ba9b38a4411bdc933e27c8bb31f7689003580ff7c80ea02a17a4422` | drift |
+| kumitate | `1a8eed5` | `fcd69667a1027d5edd07a8ff0390a716a467aff92719071e33cb6157673b665f` | drift |
+| kaidoku | `1170f71` | `b95c9f5beffc3ce5116677719415f9f2dc50c2b579907d5abc10bdb732482fa2` | drift |
+| revenger | `cf02419` | `63acc3d033869f93f3e13da79e35023d86baa60b3f1d3b52861b019183b4b19f` | drift |
+| tameshi | `a21e910` | `3c67d81c481b7b8e1bb07b72bfba8a96ce993b0155ba72f7bcbb749f7309b634` | drift |
+
+[obs] The original pin match count is now 1/8 (mado); the other seven hashes differ. I re-read every cited anchor in the corresponding clean committed `PROVINCE.md` ranges (kama 12; kagi 3 and 32; mado 3; mori 3 and 12; kumitate 3; kaidoku 3; revenger 3; tameshi 3); all 8/8 anchor concepts remain present in-range. A digest mismatch is not itself an ownership change.
+
+### Committed recipient-side packet response
+
+[obs] Committed-tree sweep over `/home/vgpnk/Projects/shokunin/.tower/worktrees/kaika/*-shokunin`, using `git -C <repo> grep -l 'TSUKUROI-F1-MEM-01' HEAD -- '*.md' '*.json'`, found one sibling recipient repository: mori, HEAD `1f07f1dd1eed59f10c4859726e2f780199190b22`. The identifier appears in three committed files (`PROVINCE.md`, `SCORECARD.md`, `LOG.md`), which are corroborating copies of one response, not three packets. `git -C /home/vgpnk/Projects/shokunin/.tower/worktrees/kaika/mori-shokunin grep -q 'TSUKUROI-F1-MEM-01' HEAD^ -- PROVINCE.md SCORECARD.md LOG.md` was false; the same query at `HEAD` is true (0→1 recipient-side response). Mori records that no retained kill record overlaps the capture second (`PROVINCE.md:58-76`; `SCORECARD.md:614`; `LOG.md:675-678`). This is receipt/answer evidence only; no acceptance or resolution is inferred. The earlier 0-hit main-checkout sweep and the 22:07 pin snapshot remain historical observations, not current results.
+
+## QUALITY check
+
+- Criteria 1–3: the pin table is falsifiable against committed HEAD bytes; source-anchor presence is reported separately from digest equality; `[obs]` and the unclaimed receipt states are kept distinct.
+- Criteria 7–8: sibling declarations and commit identities are cited; the recheck command, snapshot time, original pin comparison and explicit recheck procedure are recorded.
+- Criterion 9: the packet search is bounded to committed kaika `*-shokunin` HEAD trees and its positive result is recorded; it makes no negative claim about unsearched repositories.
+- Criterion 4: prior snapshot and prior receipt statement remain intact; this is an appended correction, not a rewrite.

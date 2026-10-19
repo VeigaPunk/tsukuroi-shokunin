@@ -13,6 +13,15 @@ driver/firmware plane (kernel modules, nvidia driver + GSP firmware
 presence, `nvidia-smi` shape). Update-safety questions: what an -Syu
 would touch, what pins/holds exist.
 
+**Additional owned surfaces, documented in fleet round 1 (all read-only):**
+
+| Surface | Boundary | Corpus entry |
+|---|---|---|
+| `Arch News` upgrade gate | Match official notices to local package/config evidence; a public feed read is not host state, and upgrade actions remain operator-owned. | `corpus/knowledge/arch-news-gate-2026.md` |
+| `.pacnew` / `.pacsave` drift | Pair pacman-log history with current readable filesystem findings; report skipped unreadable paths. | `corpus/knowledge/pacnew-plane.md` |
+| Initramfs v42 and boot recovery | Inspect effective mkinitcpio drop-ins, hooks and recovery stages; never rebuild or boot. | `corpus/knowledge/initramfs-v42-sysroot-recovery.md` |
+| Snapper/rollback net | Diagnose filesystem mode and unit capability restrictions; report mechanism/falsifier, never attempt restore/config changes. | `corpus/knowledge/snapper-eacces-mechanism.md` |
+
 **Refuses:** endpoint/model serving health (→ kama), secrets (→ kagi),
 binary RE of drivers (→ kaidoku/revenger — tsukuroi tracks *state and
 health*, not internals). Never installs, upgrades, or removes packages;
@@ -71,8 +80,4 @@ before a later handoff; the table does not freeze another lane's authority.
   arbitrate this shared scope; tsukuroi neither picks an owner nor absorbs it.
 
 **Out of province → report, never absorb.**
-Source re-check 2026-10-19 (fleet round 1): [obs] HEAD pins for kama, kaidoku and
-revenger drift; kagi, mado, mori, kumitate and tameshi match their original pins. The cited route
-anchors still hold in-range; no ranges moved. See
-`corpus/knowledge/adjacency-recheck-2026-10-19.md` for hashes, quotes, lifecycle
-states and the receipt sweep.
+Source re-check 2026-10-19T22:57:14Z (fleet round 1): committed sibling HEAD pins match the original 1/8 (mado); 7/8 drift. Re-reading the cited source ranges at those clean HEADs still finds all 8/8 route anchors in-range. The committed-kaika receipt sweep found one recipient-side packet response in mori; acceptance/resolution are not inferred. See `corpus/knowledge/adjacency-recheck-2026-10-19.md` for the pin table, receipt scope and exact evidence.

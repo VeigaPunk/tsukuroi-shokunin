@@ -220,3 +220,7 @@ source: own-work — sibling `PROVINCE.md` source-pin hashes, sanitized handoff 
 verified-at: 2026-10-15 (source-pin and packet measurements recorded in this note).
 recheck: 180d; procedure: §4 counting command and §5 read-only replay; re-read sibling declarations before a later handoff.
 supersedes the pointer-only recheck: line above.
+
+## Recipient-side result — 2026-10-19 post-review
+
+Mori's committed round-12 HEAD `1f07f1dd1eed59f10c4859726e2f780199190b22` records receipt of `TSUKUROI-F1-MEM-01` and answers the requested correlation: no retained kill record overlaps the 2026-10-15T04:53:46Z capture second (`../mori-shokunin/PROVINCE.md:58-76`; `SCORECARD.md:614`; `LOG.md:675-678`). The parent of that commit contains no packet identifier in those records; the committed HEAD adds the recipient-side answer. This supersedes the packet's earlier `prepared`-only status for receipt evidence. The answer does not infer an OOM, causation, acknowledgement beyond the committed receipt, acceptance, or resolution.
