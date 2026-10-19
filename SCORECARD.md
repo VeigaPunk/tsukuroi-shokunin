@@ -201,3 +201,5 @@ an appended block, not as opening lines (exception stated in the round lesson's 
   initramfs entries; a census arm for root-dir mode (`-Qkk` cannot see `/`) with tameshi method
   advice via ADJ-07; the depth axis (now lowest with adjacency at 8).
 - **retired:** none.
+
+Measured commit for the fleet round 1 rows above: `549ec0c1394cfa96702a457a19de672cc1754b2f` (`after.md` captured on a tree byte-identical to it).

@@ -405,3 +405,5 @@
 - **Push:** none — the standing operator rule "No push" overrides MISSION.md's commit-then-push.
 - **Verdicts self-assessed; non-author verification owed** (orchestrator: ≥1 admit, ≥1 reject,
   ≥3 SOURCES rows re-opened, every counting command re-run). SHONEN boxes stay `[~]`.
+
+- 2026-10-19 — fleet round 1 measured commit: `549ec0c1394cfa96702a457a19de672cc1754b2f` (lane identity). `.ufo/evidence/round-1-kaika/after.md` was captured on a worktree byte-identical to that commit (`git status --porcelain` → 0 lines after commit); spot re-run on `git archive 549ec0c`: SOURCES rows 34, route states 7, coverage rows 15, D-errata notes 7, notes missing `source:` 0. Round report: fleet ledger `.ufo/reports/round-1/tsukuroi.md` (integrator commits it).
