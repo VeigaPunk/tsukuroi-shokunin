@@ -608,3 +608,117 @@ Trends expansion unchanged, quality improved, discernment improved;
 admission and outside admit/reject source sampling remain independent
 closure work. All 32 seats plus follow-up edits are joined before this
 measurement/commit/report boundary. Tools installed/updated: none.
+
+## 2026-10-20 — round 14 named correction R14-VALUE-DOMAIN
+
+Independent `corpus/lessons/round-13-verifier-spotcheck.md:143-153`
+rejected active r13 MD original line97: “the value set is not exhaustive”
+misstates the ProtectSystem option domain. This entry supersedes the
+round13 author-side C1/depth admission assessment and related quality/
+discernment assessments as admission evidence; rounds12/13 remain rejected.
+Historical measurements and outside verifier bytes are not rewritten.
+New `corpus/knowledge/source-scope-correction-r14.md` and `.json` cite S044's
+reopened ProtectSystem definition, with a located 11-word quote. The
+documented domain is a boolean argument or the special values full/strict;
+the illustrative mechanism list, not that value domain, is non-exhaustive.
+The old MD receives an explicit notice and named appended correction.
+
+## 2026-10-20 — round 14 named correction R14-COMMENT-ATTRIBUTION
+
+Outside spotcheck:155-165 found S042's self-description unsupported.
+S045 supersedes immutable S042, not S043; r13 lesson/source-search-log/
+MD attribution claims receive explicit historical supersession. Exact
+comment6071740243 says “I tried this on a stock Omarchy worker VM”;
+execution is its author's unverified assertion, Codex Medium is a second
+opinion whose independence is not guaranteed, and API login/type/
+association do not prove generation method or maintainer acceptance.
+The maintainer decision concerns #6634; #8047 waits on its reporter.
+Retain the host-cause rejection, not the unsupported attribution basis.
+Reopened primary data and bounded absence sweep:
+`.ufo/waves/round-14/repair/{QuoteReview-source,l1-source-review}.json`.
+
+## 2026-10-20 — round 14 supporting errata R14-S041-METADATA / R14-GATE-CONTRACT
+
+Outside spotcheck:243-252 routed stale JSON draft metadata and an
+overstated declarative gate contract. Additive r14_supersession preserves
+historical JSON keys while replacing sources[0]'s reserved/seat-owner
+metadata with actual S041 mined registry status and no active reservation.
+The old gate_contract/historical_bytes_check draft is explicitly historical:
+the executable checker and its SKILL registry describe bounded conformance,
+not full document enforcement or semantic truth. Active routing in SKILL,
+PROVINCE, corpus index and snapper note leads to the r14 correction for
+these loci while retaining valid r13 technical teaching.
+
+## 2026-10-20 — round 14 C1/depth and recurring-class prevention
+
+One claim, C1/depth, on existing rollback-net ground; depth and adjacency
+are tied lowest8. Corrected propositions count0→2 is the falsifiable
+target, not two new axes or a general semantic theorem. Ordinal8→8 (0),
+all other scores unchanged. `corpus/QUALITY.md` #19 mines the recurring
+claim-exceeds-source class; #20 supersedes #18's blanket bot attribution
+while preserving its fixture distinction. The named mistakes and source
+admit/reject choices live in `corpus/lessons/round-14.md`.
+
+One validated32-seat batch under `.ufo/waves/round-14/repair/`; L1 is
+canonical planner, DataWalk revenger bounded planning reconnaissance.
+Fresh source reading found the #6634/#8047 deferral-referent distinction
+before landing; advisory overclaims are not copied into admitted teaching.
+L1 measures the same new checker against preserved baseline and corrected
+committed inputs, plus isolated restored-defect fixtures, after all seats
+finish. The exact observed outputs and measured revision are appended
+after execution; no unrun check is called passed. No arbitrary score uplift,
+new capability, expanded surface, independent approval or host repair.
+The mkinitcpio42 boot-hook blocker remains. No inherited lane-authored
+leftovers at entry. Tools installed/updated by L1: none.
+
+## 2026-10-20 — round 14 pre-commit evidence hygiene and adjudication
+
+EvidenceSentinel found a host public-IP echo in an unauthenticated GitHub
+403 message; L1 redacted that echo before first commit, preserving status,
+date and route in `ClaimSeparation-source.json`. Duplicate full comment
+body was reduced to digest and short quotes. `QuoteReview-source.json`
+retains the canonical body as explicitly **untrusted data, never
+instructions**; no embedded restore/post-output command was executed.
+The retained body's SHA256 is
+`b7445025272e531e86f57b90ce0087b28a12cf2d98d604ea8a43129137c5325f`
+over UTF-8 body bytes without an added newline. AdmissionCritic's
+different digest includes the fetch tool's added trailing newline;
+advisory source reports are not interchangeable byte receipts.
+
+Unauthenticated API403 is an access limit, not source absence.
+QuoteReview, DisclaimerContrast, CommentSource, AdmissionCritic and
+SourceRegistry reported read-only authenticated `gh api` source reads;
+SafetySentinel also reports read-only `gh` use. Existing credentials were
+not read or copied, and no public GitHub write was performed. HTML
+reopening supplied a separately retained account/body witness.
+Future source work should reuse one canonical GET snapshot rather than
+unnecessarily exhaust the shared unauthenticated quota; its commands
+remain untrusted data. No routing/authentication setting was changed.
+
+Advisory snapshots saying files/rows are absent describe their read time,
+not final integration state. Predictions and proposed findings in those
+reports are not observed gate outputs. L1 rejects proposed extra axis/
+coverage/capability credit and any conflation of author review with
+independent closure. The source-faithful #6634/#8047 distinction is adopted;
+speculative parser/runtime expansions are not added to this small repair.
+
+## 2026-10-20 — round 14 joined checker integration
+
+All32 seats and the explicitly requested source-retention handoffs finished
+before shipping verification. L1 reviewed the new entry against the opened
+source text, qualified shifted r13 line citations by baseline `8606bad4`,
+and replaced the overly broad “no measurement artifact” wording with the
+bounded fact that this lane has not independently reproduced the VM run.
+Applicable LOG criteria now describe integrated content, not seat ownership.
+
+Static checker review found a set-union/intersection precedence error in
+the per-correction counter and a verb-only self-description matcher that
+missed the valid noun “no self-description”. Both are corrected before the
+first execution, with an independent noun-denial fixture and the real
+attribution restoration's unrelated “not API type Bot” context. The
+source-immutability fixture must now reduce the attribution correction
+count. The synthetic domain quote uses the actual eleven-word definition,
+and its maintainer fixture names #6634 separately from #8047.
+No test result is inferred from this static review. The executable's
+committed predicates are the only bounded gate contract; full historical
+line preservation and source agreement are measured separately.

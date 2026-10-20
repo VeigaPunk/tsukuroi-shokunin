@@ -1751,3 +1751,35 @@ fresh invocation is an operator-owned state change, not a read-only check.
 Existing `/sysroot` update-safety conditions still bind. Evidence:
 `.ufo/waves/round-13/correction/SecurityBoundary.md` F1/F2/F5 and the local
 activation declaration reopened by L1 on 2026-10-20.
+
+### Erratum (2026-10-20, round 14) — active source-scope supersession
+
+`corpus/knowledge/source-scope-correction-r14.md` / `.json` supersede two
+defective loci in the active round-13 correction, not its valid teaching:
+**R14-VALUE-DOMAIN** (S044) replaces the r13 MD:97 “value set is not
+exhaustive” cell — `ProtectSystem=` is documented as a boolean argument or the
+special values `full` or `strict`, so the option domain is closed at those
+values while non-exhaustiveness applies to unit-side mechanisms; and
+**R14-COMMENT-ATTRIBUTION** (S045) replaces the #8047 “self-described
+model-generated automated triage” wording in `corpus/lessons/round-13.md` and
+r13 MD QUALITY item 18 — verified account fields are separate from the body's
+unverified VM assertion, second opinion and maintainer deferral (the deferral
+concerns #6634; #8047 waits on the reporter). S043's #6629 disclaimer stays
+valid. Metadata erratum: r13 JSON `sources[0].status: reserved` /
+`registry_owner: SourceRegistry` are stale draft values (S041 is mined in
+`corpus/SOURCES.md`), and its `gate_contract` heading/scan object is an
+authoring residual the five-heading executable check does not consume. The
+round-13 section above remains usable with these two corrections applied.
+
+### Round-14 correction-conformance gate registry
+
+| Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |
+|---|---|---|---|---|---|---|---|
+| source-scope-correction | gate | `python tools/check-source-scope-correction.py` or `--revision <commit>` | 0 clean; 1 failed (including schema conformance); 2 could-not-evaluate (CLI/read/parse/internal errors) | `python tools/check-source-scope-correction.py --selftest` | `tools/check-source-scope-correction.py` committed correction predicates, literal fixtures and expected finding IDs | None; lane files or git objects read-only; selftest in memory without network | tsukuroi |
+
+This command checks only its committed, explicitly bounded correction
+predicates. It does not prove source truth, all prose semantics, host health,
+historical causality or independent admission. The r13 JSON `gate_contract`
+is not a second executable specification. Source comparison and measured
+revision evidence: `corpus/lessons/round-14.md` and
+`.ufo/waves/round-14/repair/`.

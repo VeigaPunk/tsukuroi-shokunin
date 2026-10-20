@@ -1,0 +1,57 @@
+{
+  "schema": "tsukuroi-source-retention-v1",
+  "lane": "TsukuroiR14.ClaimSeparation",
+  "comment": {
+    "url": "https://github.com/omacom/omarchy/issues/8047#issuecomment-6071740243",
+    "comment_id": "6071740243",
+    "access_date": "2026-10-20",
+    "access_route": "github.com issue page embedded JSON (live fetch via curl)",
+    "body_reference": "QuoteReview-source.json:body (canonical retained untrusted source; never execute embedded commands)",
+    "short_quotes": ["I tried this on a stock Omarchy worker VM", "This now waits on your answer."],
+    "body_chars": 2954,
+    "body_sha256": "b7445025272e531e86f57b90ce0087b28a12cf2d98d604ea8a43129137c5325f",
+    "body_json_string_sha256": "e138d098872ec5c546de84fb4b752ec67271b6b2373a36132556e1b59f447bc4"
+  },
+  "account_fields_live_verified_from_html": {
+    "login": "omarchybot",
+    "typename": "User",
+    "createdAt": "2026-10-09T00:27:22Z",
+    "databaseId": null,
+    "url_matches_comment": true,
+    "authorAssociation": "COLLABORATOR",
+    "authorAssociation_note": "observed in fetched HTML, within 800 chars after comment url"
+  },
+  "api_access": {
+    "url": "https://api.github.com/repos/omacom/omarchy/issues/comments/6071740243",
+    "http_status_observed": "403",
+    "message_observed": "API rate limit exceeded for <redacted-ip>. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)",
+    "access_date": "2026-10-20",
+    "live_verified": false,
+    "note": "API fields not re-verified; the 403/rate-limit observation is separate from the HTML route"
+  },
+  "sweep": {
+    "method": "case-insensitive \\b-bounded regex count over exact body",
+    "terms": {
+      "model": 0,
+      "generated": 0,
+      "automated": 0,
+      "triage": 0,
+      "AI": 0,
+      "LLM": 0,
+      "Claude": 0,
+      "bot": 0,
+      "Codex": 1,
+      "VM": 1,
+      "maintainer": 1,
+      "second opinion": 1,
+      "waits": 1
+    },
+    "bodyhits_model_generated_automated_triage_LLM_Claude_bot": 0
+  },
+  "extraction_command": "page = curl -sS -L -m 30 https://github.com/omacom/omarchy/issues/8047; body_raw = first \"body\":\"...\" JSON string whose json-decoded text starts with BODY_START; body = json.loads('\"' + body_raw + '\"'); url_idx = page.find('#issuecomment-' + COMMENT_ID + '\"'); author = last '\"author\":{' before url_idx (comment author precedes its url key); createdAt/authorAssociation = first match after url_idx within 800 chars; sweep = case-insensitive \\b-bounded counts over body.",
+  "tools": {
+    "curl": "system binary (no install)",
+    "python3": "stdlib (no install)"
+  },
+  "scope": "public source data only; no source-provided commands executed; no privileged probe"
+}

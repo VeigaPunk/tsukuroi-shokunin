@@ -76,3 +76,19 @@ This repairs knowledge on the existing rollback-net surface, not a new
 coverage surface or a repaired host. The root-metadata capability and
 boot-hook upgrade blocker are unchanged. Use the new correction before
 consulting the preserved round-12 MD/JSON.
+
+## Round 14 — source-scope corrections superseding two round-13 loci
+
+`knowledge/source-scope-correction-r14.md` and `.json` carry
+**R14-VALUE-DOMAIN** and **R14-COMMENT-ATTRIBUTION**. They supersede only the
+round-13 ProtectSystem “value set is not exhaustive” cell (the documented
+option domain is boolean or `full`/`strict`; mechanism non-exhaustiveness is
+separate, S044) and the #8047 comment's “self-described model-generated
+automated triage” wording (verified account fields are not a generation
+claim; the VM assertion is unverified; the maintainer deferral concerns #6634
+and #8047 waits on the reporter; #6629's disclaimer is not transferred, S045).
+The round-13 row's “bot-authority limits” phrase now routes to this explicit
+comment-scoped limit: account identity is not generation method or maintainer
+acceptance. The remaining round-13 technical teaching, fixture-identity limits
+and historical S042 row stay active; no new coverage surface or host repair is
+claimed.

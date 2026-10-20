@@ -102,3 +102,20 @@ not inherently its writability. These are non-exhaustive source-grounded
 mechanisms, not new evidence of this host's failing invocation. Historical
 Btrfs syscall/path, capability and private-namespace attribution remain
 unproven; no configuration change is recommended by this correction.
+
+## Erratum (2026-10-20, round 14) — active source-scope supersession
+
+`root-dac-correction-r13.md` remains the active unit-path entry, now read with
+`source-scope-correction-r14.md` / `.json`: R14-VALUE-DOMAIN supersedes its
+ProtectSystem “value set is not exhaustive” cell (the documented domain is a
+boolean argument or the special values `full`/`strict`; non-exhaustiveness is
+about unit-side mechanisms, S044), and R14-COMMENT-ATTRIBUTION supersedes the
+#8047 self-description attribution (verified account fields are separate from
+the comment's unverified VM assertion and its second opinion; the maintainer
+deferral concerns #6634, and #6629's disclaimer is not transferred, S045).
+The namespace discrimination in this note is unchanged; no host cause is
+established. This erratum adds no recheck procedure of its own: for the
+read-only unit-property procedure use `SKILL.md:1742-1750`, which excludes
+`snapper list-configs` (root `snapperd` D-Bus activation) and raw
+`systemctl cat`. No command text from the #8047 or #6629 comments is adopted
+or repeated here.

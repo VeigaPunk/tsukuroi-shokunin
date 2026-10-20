@@ -340,3 +340,42 @@ at baseline and implementation. No live census rerun or host health
 improvement is claimed. Trends: expansion unchanged, quality improved,
 discernment improved through outside-disagreement learning (#17/#18).
 Outside gate-decision sampling remains a fresh verifier's duty.
+
+## Round 14 — repair-first C1/depth (2026-10-20)
+
+**Supersedes the round13 author-side admission assessment, not its
+structural measurements.** Independent
+`corpus/lessons/round-13-verifier-spotcheck.md` rejected round13 as harmed:
+the replacement MD original line97 misstates ProtectSystem's value domain
+and S042 asserts a self-description absent from #8047/comment6071740243.
+Round12 and round13 remain rejected; no retrospective admission.
+
+One claim **C1/depth**: named source-grounded corrections
+R14-VALUE-DOMAIN and R14-COMMENT-ATTRIBUTION on existing rollback-net
+ground. Baseline `8606bad4cbc6451ac2890c9f8e2548a36c386db6`; candidate
+`corpus/knowledge/source-scope-correction-r14.md` and `.json`, citing
+opened S044 and S045. Falsifiable target: corrected proposition records
+0→2 with specific old-defect findings on the red baseline, not merely
+missing-successor files. Source agreement is checked separately against
+exact located quotes; the bounded executable cannot prove semantic truth.
+
+Depth and adjacency remain tied lowest8; C1 works depth. Mission's
+operability/freshness assignment is initial, not an exclusive axis fence
+(`MISSION.md` §The axes framework; current SCORECARD owns all six).
+Ordinal delta8→8 (0); no new count-to-score mapping. Other axes retain
+coverage9/operability9/freshness9/calibration9/adjacency8. Saturation9,
+window3, retired none; no waiver or new capability row.
+
+Counting command: `python tools/check-source-scope-correction.py
+--revision <commit>`. Same executable is used for both immutable inputs;
+its `--selftest` provides isolated exit/finding assertions, not source
+approval. New QUALITY19 mines the recurrent claim-exceeds-source class;
+QUALITY20 supersedes only criterion18's blanket bot attribution.
+R14-S041-METADATA and R14-GATE-CONTRACT are supporting errata, not extra
+claim records. Exact measured revision/output follow after execution.
+
+- **planned (current):** seek fresh independent admit/reject source
+  sampling of these repairs; retain failure-time operation/credentials/
+  private-namespace unknowns and the mkinitcpio42 boot-hook blocker.
+  Further domain work requires another external steer.
+- **retired:** none. SHONEN remains author-side `[~]`; no promotion.

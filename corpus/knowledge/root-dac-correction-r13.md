@@ -2,6 +2,35 @@ source: S041 systemd.exec(5) namespace mechanisms — https://man.archlinux.org/
 verified-at: 2026-10-20 (re-opened systemd.exec(5) online and locally — page footer systemd 262.1, host package systemd 261.2-1; compared the worktree r12 files with committed revision `70fede2a7a890cb50a72db2d4230ee541183bf7b` and confirmed the only differences are L1 append notices; re-read both round-12 smoke JSON records and `corpus/lessons/round-12-verifier-spotcheck.md`; no host mutation, no service start, no `snapper` call, no privileged probe).
 recheck: on-release; procedure: `systemctl show -p ProtectSystem -p ReadOnlyPaths -p ReadWritePaths -p BindReadOnlyPaths -p TemporaryFileSystem -p RootDirectory -p RootImage <unit>; findmnt -n -o TARGET,FSTYPE,VFS-OPTIONS,FS-OPTIONS <mountpoint of the resolved parent directory>`; require every requested property line (missing does not mean empty), and check Markdown table widths.
 
+**R14 supersession notice (append-only, 2026-10-20) — R14-VALUE-DOMAIN and
+R14-COMMENT-ATTRIBUTION.** The active corrections in
+`corpus/knowledge/source-scope-correction-r14.md` / `.json` supersede two loci
+in this entry and its stale draft metadata, not the entry's technical
+teaching. **R14-VALUE-DOMAIN** (S044) supersedes the “the value set is not
+exhaustive” cell for r12 MD:41-42 in § Replaced round-12 B2 statements:
+systemd.exec(5) documents `ProtectSystem=` as a boolean argument or the special
+values `full` or `strict`, so the documented option domain is those values and
+non-exhaustiveness applies to the set of unit-side read-only mechanisms.
+**R14-COMMENT-ATTRIBUTION** (S045) supersedes the S042 attribution wording in
+§ QUALITY check item 18 (“model triage”) and in `corpus/lessons/round-13.md`:
+the #8047 comment exposes verified API account fields (`omarchybot`, type
+User, association COLLABORATOR) but does not self-describe as model-generated
+automated triage; its VM-execution sentence is unverified, Codex Medium is
+called a second opinion, its maintainer-deferral sentence concerns #6634's
+remount failure, and #8047 itself waits on the reporter's answer. S043's
+#6629 execution disclaimer remains valid, and both host-cause rejections
+stand. The same value-domain defect appears in the JSON twin's
+`replaced_b2_claims[0].replacement` (“the option set is not an exhaustive list
+of unit-side read-only mechanisms”): the non-exhaustive thing is the set of
+mechanism examples, not the option's value domain or its lexical spelling
+enumeration. The `sources[0]` “reserved”/`SourceRegistry` draft values and the
+ten-heading `gate_contract` object are authoring residuals superseded by the
+JSON `r14_supersession` object: S041 is a mined registry row in
+`corpus/SOURCES.md`, and the executable checker's five-heading predicate is
+its enforcement scope, not source truth. Every other line of this entry is
+preserved unedited; § R14 named corrections at the end records the active
+reading.
+
 # Root-DAC unit-read-only correction (round 13)
 
 ## Supersession and preserved history
@@ -178,3 +207,39 @@ admit round 12.
 - **Own work, historical** — `.ufo/waves/round-12/discriminator-smoke.json` (`fixture_results[0]` EACCES) and `.ufo/waves/round-12/error-order-smoke.json` (`observed[0]` EACCES, `observed[1]` EEXIST). Caller UID1000 and outcomes are recorded; early parent ownership is derived rather than recorded. These are not root-owned fixture executions.
 - **Finding** — `corpus/lessons/round-12-verifier-spotcheck.md` C2 (exclusive unit read-only condition; SC1/SC2 basis distinction).
 - **Bounded safety evidence** — `.ufo/waves/round-13/correction/SecurityBoundary.md` (wave-local sentinel report; no service start, `systemd-run`, `nsenter` or privileged probe; no historical caller certainty).
+
+## R14 named corrections (append-only, 2026-10-20)
+
+**R14-VALUE-DOMAIN** (S044; `corpus/knowledge/source-scope-correction-r14.md` /
+`.json`) supersedes one sentence above: “the value set is not exhaustive” in
+the cell for the r12 MD:41-42 row of § Replaced round-12 B2 statements
+(round-13 MD:97; the current line number is shifted by this append-only
+notice). systemd.exec(5) documents `ProtectSystem=` as a boolean argument or
+the special values `full` or `strict`. The documented option domain is that
+set; the four rows of § Corrected claim are its documented modes, and
+non-exhaustiveness belongs to the set of unit-side read-only mechanism
+examples, not to an open extension of the option's value domain or a
+lexical-spelling enumeration. `BindReadOnlyPaths=`, `TemporaryFileSystem=`
+with the `ro` option, `RootDirectory=` and `RootImage=` are separate
+mechanisms, not additional `ProtectSystem=` values. The JSON twin
+`replaced_b2_claims[0].replacement` (“the option set is not an exhaustive list
+of unit-side read-only mechanisms”) is read the same way: mechanism examples
+are non-exhaustive; the option domain and its spellings are not open.
+
+**R14-COMMENT-ATTRIBUTION** (S045; same pair) supersedes the S042 attribution
+wording in § QUALITY check item 18 and in `corpus/lessons/round-13.md`. For
+comment6071740243 the API exposes login `omarchybot`, type `User` and
+association `COLLABORATOR`; those are verified account metadata and do not
+describe how the comment was produced. Its “I tried this on a stock Omarchy
+worker VM” sentence is an unverified execution assertion, it calls Codex
+Medium a second opinion, and its maintainer-deferral sentence concerns #6634's
+remount failure rather than accepting #8047's diagnosis; #8047 itself ends
+“This now waits on your answer.” The comment does not self-describe as
+model-generated automated triage, and #6629's separate “Nothing was run on a
+machine.” disclaimer (S043) is not transferred. The host-cause and
+maintainer-acceptance rejections stand. No command text from either comment is
+adopted here.
+
+Nothing else is superseded: the ProtectSystem full/strict comparison, retained
+alternative mechanisms, resolved-parent reading, fixture-identity limits,
+unknown private namespace and unknown historical cause remain active teaching.

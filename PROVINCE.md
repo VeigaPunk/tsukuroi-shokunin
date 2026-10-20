@@ -94,3 +94,13 @@ Round-13 correction R13-DAC-EXCLUSIVITY: the active refinement is now
 entry is retained with an explicit supersession notice after outside
 rejection. This remains the same host/rollback-net surface and grants
 no namespace mutation, privileged inspection or sibling-method ownership.
+
+Round-14 source-scope erratum: R14-VALUE-DOMAIN and R14-COMMENT-ATTRIBUTION
+(`corpus/knowledge/source-scope-correction-r14.md`/`.json`) supersede two
+round-13 loci only — the ProtectSystem “value set is not exhaustive” cell
+(`ProtectSystem=` is documented as a boolean argument or the special values
+`full` or `strict`; mechanism non-exhaustiveness is separate, S044) and the
+#8047 “self-described model-generated triage” attribution (verified account
+fields only; VM execution unverified; second opinion and maintainer deferral
+stand; #6629's disclaimer is not transferred, S045). Round-13 namespace
+guidance remains active; no new surface, capability or host cause is claimed.

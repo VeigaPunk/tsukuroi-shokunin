@@ -14,6 +14,15 @@ Candidate: `corpus/knowledge/root-dac-correction-r13.md` and `.json`, supersedin
 
 Rejected: `ProtectSystem=no` plus empty `ReadOnlyPaths=` proves no unit-side read-only view. Those observations rule out only those two configured mechanisms; alternate properties and the private namespace were not captured. Flip: relevant private-namespace/runtime evidence, not an absence of the other two settings.
 
+**R14-COMMENT-ATTRIBUTION notice (append-only, 2026-10-20).** The rejection
+below stands, but its “automated” characterization is superseded by
+`corpus/knowledge/source-scope-correction-r14.md` / `.json` (S045): the #8047
+comment exposes verified API account fields, not a model-generation
+self-description; its VM-execution sentence is unverified, it calls Codex
+Medium a second opinion, and its maintainer-deferral sentence concerns #6634,
+not acceptance of #8047. See the fuller notice in § Gate — opened sources and
+active correction (below the source table).
+
 Rejected: an automated `omarchybot` comment is maintainer acceptance or host-cause proof. Superseding source rows qualify the authority; historical source fields remain intact. Flip: attributable maintainer confirmation or primary operation-scoped evidence.
 
 ## Mistakes
@@ -53,6 +62,21 @@ quotes and public comment-author fields. L1 separately reopened systemd.exec
 and the local Snapper activation declaration; `l1-source-review.json`
 records its source comparison. Short excerpts below are at most 25 words
 (whitespace split).
+
+**R14 supersession notice — R14-COMMENT-ATTRIBUTION (append-only, 2026-10-20).**
+`corpus/knowledge/source-scope-correction-r14.md` / `.json` (S045) supersedes
+this lesson's S042 characterization, both in the S042 row below and in the
+preserved “Bot comments are self-described model-generated triage” paragraph.
+The S042 row's quoted maintainer-decision sentence concerns #6634's remount
+failure, not a decision accepting #8047's diagnosis. The #8047 comment does
+not self-describe as model-generated automated triage: its verified API fields
+are login `omarchybot`, type `User` and association `COLLABORATOR`; its
+“I tried this on a stock Omarchy worker VM” sentence is an unverified execution
+assertion, Codex Medium is called a second opinion, and #8047 itself waits on
+the reporter's answer. S043's #6629 execution disclaimer remains valid, the
+S042 row's immutable fields stay historical, and the host-cause and
+maintainer-acceptance rejections stand. The valid r13 technical teaching is
+not superseded.
 
 | Row | URL opened | Location | Located quote | Decision |
 |---|---|---|---|---|

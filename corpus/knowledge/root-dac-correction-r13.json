@@ -290,5 +290,57 @@
       ".ufo/waves/round-12/error-order-smoke.json"
     ],
     "quality": "corpus/knowledge/root-dac-correction-r13.md ## QUALITY check"
+  },
+  "r14_supersession": {
+    "schema": "tsukuroi-r14-supersession-v1",
+    "notice": "Append-only active reading. Every original key and value of this file, including sources[0].status, sources[0].registry_owner and gate_contract, is preserved verbatim as historical authoring bytes.",
+    "active_corrections": {
+      "markdown": "corpus/knowledge/source-scope-correction-r14.md",
+      "json": "corpus/knowledge/source-scope-correction-r14.json",
+      "correction_schema": "tsukuroi-source-scope-correction-v1",
+      "correction_ids": ["R14-VALUE-DOMAIN", "R14-COMMENT-ATTRIBUTION"],
+      "source_ids": ["S044", "S045"],
+      "registry": "corpus/SOURCES.md"
+    },
+    "superseded_loci": [
+      {
+        "correction_id": "R14-VALUE-DOMAIN",
+        "source_id": "S044",
+        "pointer": "corpus/knowledge/root-dac-correction-r13.md § Replaced round-12 B2 statements, r12 MD:41-42 row (round-13 MD:97; shifted by the append-only round-14 notice)",
+        "pointer_secondary": "corpus/knowledge/root-dac-correction-r13.json:120 replaced_b2_claims[0].replacement",
+        "defect": "The replaced_b2_claims replacement for r12 MD:41-42 ends with the claim that the value set is not exhaustive after naming ProtectSystem= values; the JSON twin phrases it as 'the option set is not an exhaustive list of unit-side read-only mechanisms' after 'Among ProtectSystem= values'.",
+        "active_reading": "systemd.exec(5) documents ProtectSystem= as a boolean argument or the special values full or strict (S044). The documented option domain is those values; non-exhaustiveness applies to the set of unit-side mechanism examples (BindReadOnlyPaths=, TemporaryFileSystem= with ro, RootDirectory=, RootImage=), not to an open extension of the option's value domain or a lexical-spelling enumeration.",
+        "not_superseded": "The ProtectSystem full/strict comparison, preserved exceptions and alternative-mechanism analysis remain active."
+      },
+      {
+        "correction_id": "R14-COMMENT-ATTRIBUTION",
+        "source_id": "S045",
+        "pointer": "corpus/lessons/round-13.md § Gate — opened sources and active correction (S042 row and the collective attribution paragraph); corpus/knowledge/root-dac-correction-r13.md § QUALITY check item 18",
+        "defect": "The lesson called the #8047 comment self-described model-generated automated triage and QUALITY item 18 repeated 'model triage'; the comment asserts neither.",
+        "active_reading": "The comment exposes verified API fields: login omarchybot, type User, association COLLABORATOR. Those fields do not describe how the comment was produced. Its sentence 'I tried this on a stock Omarchy worker VM' is an unverified execution assertion; it labels Codex Medium a second opinion; its maintainer-deferral sentence concerns #6634's remount failure, not acceptance of #8047's diagnosis, and #8047 itself waits on the reporter's answer. No model-generation self-description appears in the comment; #6629's separate disclaimer is not transferred.",
+        "preserved": "The S042 source row's immutable fields and the historical lesson prose remain unchanged. S043's #6629 execution disclaimer remains valid. The host-cause and maintainer-acceptance rejections stand."
+      }
+    ],
+    "superseded_contract_values": {
+      "sources[0].status": {
+        "recorded": "reserved",
+        "active": "mined",
+        "basis": "corpus/SOURCES.md carries S041 as a mined row with used-by corpus/knowledge/root-dac-correction-r13.md; the draft value was never the registry status.",
+        "disposition": "recorded value retained in place; this object is the active metadata reading"
+      },
+      "sources[0].registry_owner": {
+        "recorded": "SourceRegistry",
+        "active": "no separate reserved-source owner or reservation; the corpus/SOURCES.md row is the registry record",
+        "basis": "Round-13 integration recorded S041 as joined/mined, not reserved, and no reservation remains to own.",
+        "disposition": "recorded value retained in place; no source reservation is asserted"
+      },
+      "gate_contract": {
+        "recorded": "ten required_md_headings, a historical-marker presence/absence rule and a corrected_field_scan list",
+        "active": "authoring residual only. tools/check-root-dac-correction.py checks five headings, does not consume this object, and measures bounded correction conformance, not source truth or full enforcement of the recorded specification.",
+        "disposition": "retained as historical authoring intent; the executable predicate is the enforcement scope"
+      }
+    },
+    "historical_bytes_preserved": true,
+    "r13_technical_teaching_active": "The ProtectSystem full/strict scope, the retained alternative mechanisms, the resolved-parent read-only reading, the fixture-identity limits and the unknown historical cause remain active; only the two named loci and the metadata/gate-description contract values above are superseded."
   }
 }
