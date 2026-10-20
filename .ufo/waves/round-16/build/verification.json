@@ -1,0 +1,63 @@
+{
+  "schema": "tsukuroi-r16-verification-v1",
+  "baseline": "db68e62065885b3f7463eb0a436c41f0dc3bcde5",
+  "implementation": "6765980dd178caa74819dcdb5dfaf34b0a3b4464",
+  "observed_at": "2026-10-20T09:08:32.410894+00:00",
+  "evaluator_sha256": "731829549cb8f96538f6f34d447857bd76d265a64470c3603a230c80e7997659",
+  "runs": {
+    "C1_before": {
+      "command": [
+        "python",
+        "tools/check-section-citations.py",
+        "--revision",
+        "db68e62065885b3f7463eb0a436c41f0dc3bcde5"
+      ],
+      "exit": 1,
+      "stdout": "{\"correction_count\": 0, \"findings\": [{\"detail\": \"file absent\", \"id\": \"R16-JSON-MISSING\", \"site\": \"corpus/knowledge/section-citation-errata-r16.json\"}, {\"detail\": \"file absent\", \"id\": \"R16-MD-MISSING\", \"site\": \"corpus/knowledge/section-citation-errata-r16.md\"}, {\"detail\": \"S050 row linking both target files absent\", \"id\": \"R16-SOURCE-ROW\", \"site\": \"corpus/SOURCES.md\"}, {\"detail\": \"line 581: \\u00a71 verdict-board row 5\", \"id\": \"SECTION-CITATION-WRONG\", \"site\": \"corpus/knowledge/host-health-report-r3.md\"}, {\"detail\": \"line 398: \\u00a77 rank 1\", \"id\": \"SECTION-CITATION-WRONG\", \"site\": \"corpus/knowledge/update-safety-v3.md\"}], \"revision\": \"db68e62065885b3f7463eb0a436c41f0dc3bcde5\", \"scope\": \"section-citation resolution only; no update-safety or host-health verdict\", \"status\": \"FAIL\"}\n",
+      "stderr": ""
+    },
+    "C1_after": {
+      "command": [
+        "python",
+        "tools/check-section-citations.py",
+        "--revision",
+        "6765980dd178caa74819dcdb5dfaf34b0a3b4464"
+      ],
+      "exit": 0,
+      "stdout": "{\"correction_count\": 2, \"findings\": [], \"revision\": \"6765980dd178caa74819dcdb5dfaf34b0a3b4464\", \"scope\": \"section-citation resolution only; no update-safety or host-health verdict\", \"status\": \"PASS\"}\n",
+      "stderr": ""
+    },
+    "C1_selftest": {
+      "command": [
+        "python",
+        "tools/check-section-citations.py",
+        "--selftest"
+      ],
+      "exit": 1,
+      "stdout": "CHECK_SECTION_CITATIONS_SELFTEST: FAIL (43 cases, 41 passed)\n  duplicate-record-id: wrong-sites=SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md,SECTION-CITATION-WRONG:corpus/knowledge/update-safety-v3.md\n  rank-rowkey-other-row: ids=R16-RANK-QUOTE,R16-RANK-ROW,SECTION-CITATION-WRONG want=R16-RANK-ROW,SECTION-CITATION-WRONG\n",
+      "stderr": ""
+    },
+    "invalid_cli": {
+      "command": [
+        "python",
+        "tools/check-section-citations.py",
+        "--bogus"
+      ],
+      "exit": 2,
+      "stdout": "{\"correction_count\": 0, \"findings\": [{\"detail\": \"--revision REV or --selftest required\", \"id\": \"E-CLI\", \"site\": \"cli\"}], \"revision\": \"worktree\", \"scope\": \"section-citation resolution only; no update-safety or host-health verdict\", \"status\": \"CANNOT_EVALUATE\"}\n",
+      "stderr": ""
+    },
+    "source_census": {
+      "command": [
+        "/home/vgpnk/Projects/shokunin/scripts/sources-census.sh",
+        "validate",
+        "--root",
+        "/home/vgpnk/Projects/shokunin",
+        "tsukuroi"
+      ],
+      "exit": 0,
+      "stdout": "tsukuroi\tW04\tS038 duplicate url man.archlinux.org/man/access.2 across scopes\ntsukuroi\tW04\tS041 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes\ntsukuroi\tW04\tS042 duplicate url github.com/omacom/omarchy/issues/8047 across scopes\ntsukuroi\tW04\tS043 duplicate url github.com/omacom/omarchy/issues/6629 across scopes\ntsukuroi\tW04\tS044 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes\ntsukuroi\tW04\tS046 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes\ntsukuroi\tW04\tS049 duplicate url man.archlinux.org/man/pacman.8 across scopes\ntsukuroi\tok\t/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md\n",
+      "stderr": ""
+    }
+  }
+}

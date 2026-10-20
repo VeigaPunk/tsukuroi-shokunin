@@ -170,7 +170,7 @@ def record_checks(cid, obj, text):
     if obj["quote"] != pin["quote"]:
         add("QUOTE", "declared quote differs from the pinned stable row substring")
         ok = False
-    elif row_line is not None and obj["quote"] not in row_line:
+    elif obj["row_key"] == pin["row_key"] and row_line is not None and obj["quote"] not in row_line:
         add("QUOTE", "quote is not a substring of the uniquely resolved row")
         ok = False
     if obj["notice_heading"] != pin["notice_heading"]:
@@ -283,7 +283,6 @@ def json_issues(doc):
         if cid in (BOARD_ID, RANK_ID):
             if cid in seen:
                 out.append(Finding("R16-CORRECTION-ID", JSON16, f"duplicate id={cid}"))
-                records.pop(cid, None)
             else:
                 seen.add(cid)
                 records[cid] = obj
