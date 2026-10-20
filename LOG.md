@@ -514,3 +514,18 @@ The L1 corrected three selftest expectation regexes to include the emitted
   lesson-backed criteria and a killed policy mutant. All remain pending
   independent hyaku closure and its source-backed admit/reject spot-check.
   No ordinal score uplift or SHONEN promotion is claimed.
+
+## 2026-10-20 — round 12 post-report erratum: late source-seat annotation
+
+After the report landed at fleet commit
+`6800f05beba8d9e217b35cc81a5e1ab9c037f5da`, the orchestrator found a late
+source-seat write in `corpus/SOURCES.md`: the Search log paragraph
+“Additional S027 section check (2026-10-20, Sources seat)”.
+Retained and landed as post-report round-12 work: it records the source
+seat's additional capabilities(7) Effective/Bounding section re-read,
+without changing S027's immutable anchor, any registry row, code or claim
+measurement. The filed report bytes are unchanged; its measured
+implementation `70fede2a7a890cb50a72db2d4230ee541183bf7b` and report-time
+pushed HEAD `670126f5161b824d9dabdfacd085d27ff0afa3e3` remain historical
+measurement pointers, not assertions that no later commit exists.
+No tests or census were rerun for this source-log-only durability correction.

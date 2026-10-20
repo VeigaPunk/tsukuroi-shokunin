@@ -69,6 +69,8 @@ Provenance note (2026-10-20, Sources seat): the re-open and root-policy paragrap
 
 Matrix citation confirmed (2026-10-20, Sources seat): `corpus/knowledge/root-dac-decision-r12.json` and `.md` now cite S039 and S040 (JSON branch B1 `source_ids` and top-level `sources`; MD source line, host-observation bullet, QUALITY 7/16 and Sources section). Mutable used-by change recorded: S039 `—` → `corpus/knowledge/root-dac-decision-r12.md` and status `queued`→`mined`; S040 `—` → `corpus/knowledge/root-dac-decision-r12.md` and status `queued`→`mined`. Both paragraphs above describing them as queued are historical; the registry is current. Registry is 40 rows (tier A 35 / B 1 / C 4; mined 30, queued 5, rejected 5).
 
+Additional S027 section check (2026-10-20, Sources seat): on MatrixR's request, https://man.archlinux.org/man/capabilities.7 was re-read for § Thread capability sets > Effective (“This is the set of capabilities used by the kernel to perform permission checks for the thread.”) and > Bounding (“The capability bounding set is a mechanism that can be used to limit the capabilities that are gained during execve(2).”). Both sentences reproduced as quoted. S027's `anchor` field is left unchanged: inherited rows' immutable fields are not edited in this seat, and the citing matrix names these section anchors in its own source header/§Sources, which satisfies section-level citation. No row was added or changed for this check.
+
 ## Leads (unopened)
 
 These follow-on leads are not evidence and are not registry rows; carried from the ART dossier's `Leads (unopened)` section (2026-10-19):
