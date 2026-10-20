@@ -414,3 +414,12 @@ source: own-work — synthesis of landed artifacts, census selftests/live runs, 
 verified-at: 2026-10-14 (the closeout's original measurement window; D1 log evidence re-opened 2026-10-19).
 recheck: 180d; procedure: §5 read-only command set; re-run the census receipt and re-read cited pins.
 supersedes the pointer-only recheck: line above.
+
+
+## R18-FRESHNESS — sibling current-use restatements (2026-10-20)
+
+Sources S060, S051 and S052. This appended correction supersedes the current-use readings listed below and every repeated current-use restatement of the same premise in this file. Historical measurements remain intact. No package, service, rebuild, boot or rollback action is authorized.
+
+- R18-FRESH-SUPPLEMENT-38: prior locus `| 2 | stale DKMS registration | **re-measured**: `nvidia/610.57.04, 7.1.4-arch1-1 … installed (Original modules exist) (Built modules are missing in the kernel modules folder)` beside the current 7.2.3-arch1-3 | `sudo dkms remove nvidia/610.57.04 -k 7.1.4-arch1-1` | r3 D2; `driver-firmware-plane.md` |`. Now: current capture lists nvidia/615.78.08 for6.18.57-2-lts and7.2.11-arch1-1, plus7.2.3-arch1-3 with missing built modules. No7.1.4 row is listed, so the old610.57.04/7.1.4 removal action is stale and must not be replayed. No removal or reboot clearance is given. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:95.
+
+- R18-FRESH-SUPPLEMENT-39: prior locus `| 8 | no rollback net | **re-measured**: `snapper list-configs` header-only rc=0; `/.snapshots` absent | configure snapper + `SNAPPER_CONFIG_NAME` (or accept snapshot-less); re-audit | r3 J4/U1 |`. Now: configuration names home/root and SNAPPER_CONFIGS="root home" are observed; do not repeat the configure-or-snapshotless instruction as an established missing-config finding. Snapshot inventory and restoration remain unverified by R18; re-audit, not create-config, is the remaining evidence task. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:80.

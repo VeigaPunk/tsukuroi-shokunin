@@ -293,3 +293,10 @@ Appended 2026-10-20 by the tsukuroi round-17 L1; earlier bytes unchanged. Supers
 - owner of the DKMS module without a package query: `grep -l "^usr/lib/modules/$(uname -r)/updates/dkms/" /var/lib/pacman/local/*/files` (an empty result means no package owns it, as DKMS builds are unowned)
 - `cat /proc/driver/nvidia/version`
 - `nvidia-smi --query-gpu=name,driver_version --format=csv,noheader`
+
+
+## R18-FRESHNESS — sibling current-use restatements (2026-10-20)
+
+Sources S060, S051 and S052. This appended correction supersedes the current-use readings listed below and every repeated current-use restatement of the same premise in this file. Historical measurements remain intact. No package, service, rebuild, boot or rollback action is authorized.
+
+- R18-FRESH-SUPPLEMENT-12: prior locus `- `checkupdates` absent: not on PATH, and `pacman -Q pacman-contrib` →`. Now: pacman-contrib-1.13.1-1 is a local-db directory and /usr/bin/paccache resolves in the capture; the earlier package/paccache absence premise is not current. checkupdates itself was not invoked or located in R18, so its executable availability is unverified; no installation is advised. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:36.

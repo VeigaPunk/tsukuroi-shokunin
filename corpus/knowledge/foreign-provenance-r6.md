@@ -322,3 +322,36 @@ Appended 2026-10-20 by the tsukuroi round-17 L1; earlier bytes unchanged. Supers
 - sync version of one package: `tar -xOzf /var/lib/pacman/sync/<repo>.db <pkg>-<ver>/desc` and read `%VERSION%`
 - sync-db age: `stat -c "%y %n" /var/lib/pacman/sync/*.db`
 - unneeded-dependency (`-Qdt`) status has no read-only file equivalent short of a dependency walk over `/var/lib/pacman/local/*/desc`; record it as [unk] under such a steer
+
+
+## R18-FRESHNESS — foreign provenance: history completeness (lines 29-37)
+
+Appended 2026-10-20 by tsukuroi round-18 (seat Foreign). Historical snapshots preserved above; this notice supersedes the current-use statement at lines 29-37 only. Read-only scope: it clears no package, reboot or boot state. Sources: S060 (fresh R18 capture), S032 (pacman log).
+
+- now: /var/log/pacman.log has 3169 lines at 2026-10-20 (wc -l); the 2109-line pin no longer describes the current file.
+- capture_ref: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:60 [obs] `3169 /var/log/pacman.log`.
+- Basis: the 2026-10-14 "entire history" claim pinned 2109 lines (md5 e452d910...). The log has since grown by 1060 lines; the R18 capture did not hash it, so no new digest is asserted.
+
+## R18-FRESHNESS — foreign provenance: no-update claim (line 47)
+
+Appended 2026-10-20 by tsukuroi round-18 (seat Foreign). Historical snapshots preserved above; this notice supersedes the current-use statement at line 47 only. Read-only scope: it clears no package, reboot or boot state. Sources: S060, S032.
+
+- now: At 2026-10-20 the log holds pacman -U transactions for yay-cache elephant 2.22.1-1 (log 3092, 09:31:03) and zcode 3.16.2-1 (log 3161, 13:23:08); the no-update claim at line 47 is not current.
+- capture_ref: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:72 [obs] log 3092 `pacman -U --noconfirm ... elephant-2.22.1-1-x86_64.pkg.tar.zst`; also :73 [obs] log 3161 `pacman -U --needed` for zcode, and :65 [obs] zcode marked --asexplicit at 13:23:09.
+- Basis: :30 [obs] local db lists `elephant-2.22.1-1` for the base package and the 2.21.0-1 directory is absent in the same listing. The per-package ALPM event class (upgraded or reinstalled) for each elephant member is [unk]: the capture did not read those log lines. zcode is not among the 16 foreign packages of 2026-10-14 (§5); its foreign classification is [unk] (pacman -Qm not run).
+
+## R18-FRESHNESS — foreign provenance: offline.db channel (line 55)
+
+Appended 2026-10-20 by tsukuroi round-18 (seat Foreign). Historical snapshots preserved above; this notice supersedes the current-use statement at line 55 only. Read-only scope: it clears no package, reboot or boot state. Sources: S060, S032.
+
+- now: offline.db is absent from /var/lib/pacman/sync at 2026-10-20; the directory lists core.db, extra.db, multilib.db, omarchy.db and openai-chatgpt.db.
+- capture_ref: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:48 [obs] `$ ls -1 /var/lib/pacman/sync/`, listing at :49-54.
+- Basis: the 2026-10-14 presence, size and birth stamp are historical. Removal time and actor are [unk]; this round did not read the log for them. The sync-db identification in §2 can no longer be re-read from this file.
+
+## R18-FRESHNESS — foreign provenance: no -Syu update path (line 194)
+
+Appended 2026-10-20 by tsukuroi round-18 (seat Foreign). Historical snapshots preserved above; this notice supersedes the current-use statement at line 194 only. Read-only scope: it clears no package, reboot or boot state. Sources: S060, S032.
+
+- now: Current sync reachability of the foreign set is [unk] at 2026-10-20: omarchy.db mtime is 2026-10-20 09:09:26, and the 2026-10-20 elephant update was run as pacman -U from yay-cache files, not as -Syu.
+- capture_ref: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:45 [obs] omarchy.db mtime; :72 [obs] the pacman -U command line.
+- Basis: the 2026-10-14 statement ("pacman -Si rc=1 for all 16") was a point-in-time sync-db observation. pacman -Syu upgrades only packages served by configured sync repos; a package no repo serves changes only via pacman -U, or via an AUR helper that installs built files with pacman -U. Foreign classification is not immutable: a configured repo that begins serving a name removes it from the foreign set. Whether any of the 16 is now repo-served is [unk]; pacman -Si was not run (steer). Who ran the 09:31 pacman -U is not in the capture [unk].

@@ -346,3 +346,101 @@ source: own-work — read-only pacman foreign-package/config queries, sync-db re
 verified-at: 2026-10-14 (the register's original measurement window recorded in this note).
 recheck: 90d; procedure: §7's explicit foreign-package, repo-resolution, orphan and provenance probe set.
 supersedes the pointer-only recheck: line above.
+
+
+## R18-FRESHNESS — context package count (2026-10-20)
+
+Now (2026-10-20): 1395 local-db package entries (directory count, not pacman -Q).
+
+Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:25 (S060).
+
+Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays true at its date. This notice supersedes it for current use only. Read-only scope; no package, reboot or service clearance.
+
+## R18-FRESHNESS — orphan set (2026-10-20)
+
+Now (2026-10-20): removal invocations name electron39 and mbedtls at 2026-10-20 08:14:12 -0300 and webp-pixbuf-loader at09:39:21 (B:57,67); invocation is not a completion receipt, and current orphan membership is [unk] because no orphan sweep ran.
+
+Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:57 (S051).
+
+Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays true at its date. This notice supersedes it for current use only. Read-only scope; no package, reboot or service clearance.
+
+## R18-FRESHNESS — upgrade history of the register (2026-10-20)
+
+Now (2026-10-20): the 09:31:03 pacman -U invocation names a yay-cache elephant-2.22.1-1 archive; independently the R18 local database lists elephant-2.22.1-1 (:30); invocation alone does not certify its outcome.
+
+Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:72 (S060).
+
+Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays true at its date. This notice supersedes it for current use only. Read-only scope; no package, reboot or service clearance.
+
+## R18-FRESHNESS — no pacman -U line (2026-10-20)
+
+Now (2026-10-20): pacman -U transactions exist at 2026-10-20 09:31:03 -0300 for elephant-2.22.1-1 and at 13:23:08 -0300 for zcode-3.16.2-1.
+
+Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:73 (S060).
+
+Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays true at its date. This notice supersedes it for current use only. Read-only scope; no package, reboot or service clearance.
+
+## R18-FRESHNESS — offline.db snapshot (2026-10-20)
+
+Now (2026-10-20): offline.db is absent from the 2026-10-20 sync directory listing (core.db, extra.db, multilib.db, omarchy.db, openai-chatgpt.db); the 1275-entry snapshot is not on disk at R18.
+
+Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:54 (S060).
+
+Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays true at its date. This notice supersedes it for current use only. Read-only scope; no package, reboot or service clearance.
+
+## R18-FRESHNESS — elephant register row (2026-10-20)
+
+Now (2026-10-20): the R18 local db lists elephant-2.22.1-1, not 2.21.0-1, and the upgraded-since value never is superseded by the 09:31:03 pacman -U transaction.
+
+Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:30 (S060).
+
+Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays true at its date. This notice supersedes it for current use only. Read-only scope; no package, reboot or service clearance.
+
+## R18-FRESHNESS — R1 update-path count (2026-10-20)
+
+Now (2026-10-20): R1 repository-resolution count was not remeasured and is [unk] for current use; the sync directory lists omarchy.db with mtime2026-10-20 09:09:26 -0300, which is not proof of local metadata refresh time.
+
+Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:45 (S060).
+
+Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays true at its date. This notice supersedes it for current use only. Read-only scope; no package, reboot or service clearance.
+
+## R18-FRESHNESS — R2 validation count (2026-10-20)
+
+Now (2026-10-20): the 09:31:03 pacman -U invocation names elephant archives; reinstalled versus upgraded event class and current %VALIDATION% are [unk] because those event/property reads were not captured.
+
+Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:72 (S060).
+
+Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays true at its date. This notice supersedes it for current use only. Read-only scope; no package, reboot or service clearance.
+
+## R18-FRESHNESS — running state (2026-10-20)
+
+Now (2026-10-20): the 2026-10-14 unit observation is historical; the later09:31:03 invocation names elephant archives, but current unit state and process version remain [unk].
+
+Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:72 (S060).
+
+Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays true at its date. This notice supersedes it for current use only. Read-only scope; no package, reboot or service clearance.
+
+## R18-FRESHNESS — configured sync databases (2026-10-20)
+
+Now (2026-10-20): pacman.conf was not re-read at R18; the sync directory holds openai-chatgpt.db (mtime 2026-10-16) and no offline.db, so the four-section list is [unk] for current use.
+
+Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:53 (S060).
+
+Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays true at its date. This notice supersedes it for current use only. Read-only scope; no package, reboot or service clearance.
+
+## R18-RECHECK — steer-safe procedure
+
+Appended 2026-10-20 by the tsukuroi round-18 build; earlier bytes unchanged. Supersedes the recheck: line at :15, the recheck: line at :347 (its pointer to the §6 and §7 probe set), and the pacman-invoking probes at :265-280, for any round whose steer forbids running pacman (QUALITY 26). File reads replace them; the substitution is recorded in that round's report. Read-only; no package, reboot or service clearance.
+
+Procedure (file reads only):
+
+- `ls -1 /var/lib/pacman/local` — installed census by directory name; the version is the suffix. Replaces the count probes at :15 and :36-40.
+- `cat /var/lib/pacman/local/<pkg>-<ver>/desc` — per package: %VALIDATION%, %PACKAGER%, %INSTALLDATE%, %REASON%. Replaces the install-date and validation probes in §0 and §4 R2-R3.
+- `grep -E "\[ALPM\] (installed|upgraded|downgraded|reinstalled|removed) " /var/log/pacman.log` — install and upgrade history per package name. Replaces the upgrade-count probe at :48-50.
+- `grep -E "\[PACMAN\] Running" /var/log/pacman.log` — transaction headers, including -U and -Rns lines. Replaces the search at :98.
+- `ls -1 /var/lib/pacman/sync` — repository databases present. Replaces the configured-section probe at :109.
+- `tar -tf /var/lib/pacman/sync/omarchy.db | grep -E "^(elephant|omarchy-walker)"` — repository entries for the register names; repeat for each other .db file. Replaces the per-row repository-resolution probe at :197 and the offline.db probe at :273.
+- `grep -A1 "^%REASON%" /var/lib/pacman/local/*/desc` — dependency-installed candidates for the orphan sweep. Reverse-dependency confirmation is [unk] until checked against the depends files.
+- `git -C ~/.cache/yay/<pkg> log -1 --format='%H %cI %s'` — AUR clone head for channel B.
+
+Not replaced: the pending-upgrade count (-Qu) and the unit state of elephant.service. Both are [unk] under this procedure; read the unit file with cat ~/.config/systemd/user/elephant.service if the unit definition is needed.

@@ -9,10 +9,10 @@ divergences between the nine copied binding checks, and the shared module
 tools/_revision.py replaces the copies. The judge below keeps its own independent
 binding code on purpose: it grades the tools and must not share what it grades.
 
-Measured tools, taken at --tools-revision: the nine named in TOOLS (an absent one
-counts unbound, so deleting a tool cannot raise the ratio) plus every other
-tools/*.py at that revision whose source contains the argparse literal "--revision"
-(this judge and `_`-prefixed modules excluded).
+Measured continuity set: the nine original tools named in TOOLS. Missing tools
+remain in that denominator. Other top-level public tools/*.py with the exact
+literal "--revision" are discovered and fully probed, but are informational
+additional_* / all_* fields, not C2's grade (causal separability from C1/C3).
 
 A throwaway clone of the lane gets refs/heads/<branch> set to the measured
 commit and one empty commit created on a detached HEAD. Each tool is run in that
@@ -32,19 +32,28 @@ CONSISTENT (round-18 shared contract) is BOUND plus the FxSimplifyBind probes:
   single-id     the unlanded refusal carries exactly one binding finding        (D4)
   branch-missing --branch nosuch                          -> 2, E-BRANCH-MISSING   (D5)
 
-`shared_tools` counts tools that import tools/_revision.py and carry no local copy
-of the 7-64 hex revision regex; `local_rev_regex_copies` counts those copies.
+`shared_tools` is a static AST census of an imported _revision.bind call outside
+constant-false branches and zero literal {7,64} copies; it is not a reachability
+proof. `local_rev_regex_copies` counts those literal patterns. Enumerated runtime
+probes plus source review support C2, never universal equivalence of arbitrary code.
 
 --tools-revision is itself bound: 7-64 hex (HEAD/@/refs rejected with
 E-REVISION-INVALID), landed on refs/heads/<branch> else E-REVISION-NOT-LANDED,
 and on refs/remotes/origin/<branch> when present else E-REVISION-NOT-PUSHED.
 --selftest is hermetic: stub tools in mktemp fixtures, never the real lane.
-Exit 0 = every measured tool consistent, 1 = fewer, 2 = could-not-evaluate. JSON
+Exit0 = original-nine consistency clean;1 = failed;2 = could-not-evaluate. Shared
+consolidation additionally requires shared_tools9/local_rev_regex_copies0. JSON
 on stdout; the lane is only read (clone, show, rev-parse, merge-base) and the only
 writes are inside the temporary sandbox clone.
+
+Trust boundary: these are reviewed lane-owned scripts, not adversarial executables.
+A temporary clone confines our Git writes; it is not OS process isolation, and the
+tool subprocesses retain the caller's user-level filesystem/network authority.
+Only GIT_* environment/config inheritance is suppressed. Never use this judge to
+run unreviewed external candidates or as a security-sandbox certification.
 """
 from __future__ import annotations
-import argparse, json, os, re, subprocess, sys, tempfile
+import argparse, ast, json, os, re, subprocess, sys, tempfile
 from pathlib import Path
 
 PASS, FAIL, CANNOT = 0, 1, 2
@@ -91,13 +100,15 @@ class Cannot(Exception):
 
 def clean_env():
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
     return env
 
 
 def git(repo, *args, timeout=60):
     try:
-        return subprocess.run(["git", "--no-pager", "-C", str(repo), *args],
+        return subprocess.run(["git", "--no-pager", "-c", f"core.hooksPath={os.devnull}",
+                               "-C", str(repo), *args],
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                               env=clean_env(), timeout=timeout)
     except subprocess.TimeoutExpired:
@@ -135,6 +146,9 @@ def ancestor(repo, sha, ref):
 
 def bind(repo, rev, branch="master"):
     """Resolve rev and enforce the round-17 C3 revision-binding contract."""
+    if (not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9._/-]*", branch) or branch == "HEAD"
+            or git(repo, "check-ref-format", f"refs/heads/{branch}").returncode != 0):
+        raise Cannot(ID_BRANCH_INVALID, "branch", "invalid literal branch name")
     if not REV.fullmatch(rev):
         raise Cannot(ID_INVALID, "revision", "7-64 hex commit required")
     sha = rev_parse(repo, rev)
@@ -216,8 +230,36 @@ def materialize(sandbox, tip, names=TOOLS):
 
 
 def shared(source):
-    """(imports tools/_revision.py, local 7-64 hex regex copies) for one tool source."""
-    return bool(SHARED_IMPORT.search(source)), len(LOCAL_REV_REGEX.findall(source))
+    """Static import+bind-call census, not a proof of arbitrary runtime reachability."""
+    copies = len(LOCAL_REV_REGEX.findall(source))
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return False, copies
+    modules, bindings, calls = set(), set(), []
+
+    def visit(node):
+        if isinstance(node, ast.If) and isinstance(node.test, ast.Constant):
+            body = node.body if node.test.value else node.orelse
+            for child in body:
+                visit(child)
+            return
+        if isinstance(node, ast.Import):
+            modules.update(alias.asname or alias.name for alias in node.names
+                           if alias.name == "_revision")
+        elif isinstance(node, ast.ImportFrom) and node.module == "_revision":
+            bindings.update(alias.asname or alias.name for alias in node.names
+                            if alias.name == "bind")
+        elif isinstance(node, ast.Call):
+            calls.append(node.func)
+        for child in ast.iter_child_nodes(node):
+            visit(child)
+
+    visit(tree)
+    uses = any((isinstance(fn, ast.Attribute) and fn.attr == "bind"
+                and isinstance(fn.value, ast.Name) and fn.value.id in modules)
+               or (isinstance(fn, ast.Name) and fn.id in bindings) for fn in calls)
+    return uses, copies
 
 
 def probe_commit(sandbox, tip, branch):
@@ -296,7 +338,10 @@ def reason(cases):
 def refused(sandbox, name, rev, want, branch=None):
     code, text = run_tool(sandbox, name, rev, branch)
     found = finding_id(text)
+    doc = parse_json(text)
+    findings = doc.get("findings") if isinstance(doc, dict) else None
     return {"exit": code, "finding": found, "binding_ids": binding_ids(text),
+            "finding_count": len(findings) if isinstance(findings, list) else None,
             "ok": code == CANNOT and found == want}
 
 
@@ -348,13 +393,27 @@ def probe_tool(sandbox, name, tip, unlanded_sha, parent=None, branch="master", b
     single = cases["unlanded"]
     shared_cases["single-id"] = {"exit": single["exit"], "finding": single["finding"],
                                  "binding_ids": single["binding_ids"],
-                                 "ok": single["ok"] and single["binding_ids"] == [ID_UNLANDED]}
+                                 "finding_count": single["finding_count"],
+                                 "ok": single["ok"] and single["binding_ids"] == [ID_UNLANDED]
+                                 and single["finding_count"] == 1}
     if blob is not None:
+        shared_cases["blob-revision"] = refused(sandbox, name, blob, ID_INVALID)
         must(git(sandbox, "update-ref", remote, blob), "E-SANDBOX", "origin blob")
         try:
             shared_cases["git-failed"] = refused(sandbox, name, tip, ID_GIT)
         finally:
             must(git(sandbox, "update-ref", remote, tip), "E-SANDBOX", "origin restore")
+    must(git(sandbox, "update-ref", "-d", remote), "E-SANDBOX", "origin absent")
+    try:
+        shared_cases["origin-absent"] = accepted(sandbox, name, tip, tip)
+    finally:
+        must(git(sandbox, "update-ref", remote, tip), "E-SANDBOX", "origin restore")
+    refusals = [case for case in (*cases.values(), *shared_cases.values())
+                if "finding_count" in case]
+    shared_cases["strict-refusals"] = {
+        "exit": CANNOT, "finding": "single-finding-contract",
+        "ok": all(case["finding_count"] == 1
+                  and case["binding_ids"] == [case["finding"]] for case in refusals)}
     consistent = bound and all(case["ok"] for case in shared_cases.values())
     out = {"tool": f"tools/{name}", "bound": bound, "consistent": consistent,
            "reason": None if bound else reason(cases),
@@ -393,17 +452,26 @@ def measure(lane, tools_rev, branch="master"):
             item["shared"] = imports and copies == 0
             item["local_rev_regex"] = copies
             per_tool.append(item)
-    total = len(names)
-    bound = sum(1 for item in per_tool if item["bound"])
-    consistent = sum(1 for item in per_tool if item["consistent"])
-    legacy = sum(1 for item in per_tool
+    # C2's original-nine consolidation must be independent of newly discovered
+    # C1/C3 verification tools. Keep their full observations, but not in its grade.
+    named = [item for item in per_tool if item["tool"].split("/", 1)[1] in TOOLS]
+    additional = [item for item in per_tool if item["tool"].split("/", 1)[1] not in TOOLS]
+    bound = sum(1 for item in named if item["bound"])
+    consistent = sum(1 for item in named if item["consistent"])
+    legacy = sum(1 for item in named
                  if item["bound"] and item["tool"].split("/", 1)[1] in LEGACY)
-    return {"status": "PASS" if consistent == total else "FAIL",
+    return {"status": "PASS" if consistent == TOTAL else "FAIL",
             "tools_revision": tip, "revision": tip, "branch": branch,
             "branch_tip": branch_tip, "bound_tools": bound, "consistent_tools": consistent,
-            "shared_tools": sum(1 for item in per_tool if item["shared"]),
-            "local_rev_regex_copies": sum(item["local_rev_regex"] for item in per_tool),
-            "total": total, "named_total": TOTAL, "discovered": list(extras),
+            "shared_tools": sum(1 for item in named if item["shared"]),
+            "local_rev_regex_copies": sum(item["local_rev_regex"] for item in named),
+            "total": TOTAL, "named_total": TOTAL, "discovered": list(extras),
+            "all_total": len(per_tool),
+            "all_bound_tools": sum(1 for item in per_tool if item["bound"]),
+            "all_consistent_tools": sum(1 for item in per_tool if item["consistent"]),
+            "additional_total": len(additional),
+            "additional_consistent_tools": sum(1 for item in additional if item["consistent"]),
+            "additional_shared_tools": sum(1 for item in additional if item["shared"]),
             "legacy_bound": legacy, "legacy_total": len(LEGACY),
             "sandbox_origin_pinned": pinned, "per_tool": per_tool}
 
@@ -502,9 +570,12 @@ def anc(ref):
     out(rev, "E-GIT-FAILED", 2, "CANNOT_EVALUATE")
 has_origin = MODE != "no-origin" and git("rev-parse", "--verify", "--quiet",
                                          remote).returncode == 0
+if MODE == "require-origin" and not has_origin:
+    out(rev, "E-ORIGIN-MISSING", 2, "CANNOT_EVALUATE")
 if not anc(local):
-    if MODE == "double" and has_origin and not anc(remote):
-        out(rev, ["E-REVISION-NOT-LANDED", "E-REVISION-NOT-PUSHED"], 2, "CANNOT_EVALUATE")
+    if MODE in ("double", "extra-finding") and has_origin and not anc(remote):
+        extra = "E-REVISION-NOT-PUSHED" if MODE == "double" else "UNRELATED-EXTRA"
+        out(rev, ["E-REVISION-NOT-LANDED", extra], 2, "CANNOT_EVALUATE")
     out(rev, "E-REVISION-NOT-LANDED", 2, "CANNOT_EVALUATE")
 if has_origin and not anc(remote):
     out(rev, "E-REVISION-NOT-PUSHED", 2, "CANNOT_EVALUATE")
@@ -634,7 +705,8 @@ def selftest():
             check("mixed-consistent", res2["consistent_tools"], 3)
             for stub, failing in (("legacy", {"branch-range", "branch-slash", "branch-space",
                                               "branch-first", "branch-missing", "git-failed"}),
-                                  ("double", {"single-id"})):
+                                  ("double", {"single-id"}), ("extra-finding", {"single-id"}),
+                                  ("require-origin", {"origin-absent"})):
                 fxl = tmp / f"shared-{stub}"
                 ml = dict(modes)
                 ml[TOOLS[0]] = stub
@@ -642,7 +714,7 @@ def selftest():
                 item = resl["per_tool"][0]
                 bad = {label for label in ("branch-range", "branch-slash", "branch-space",
                                            "branch-first", "branch-missing", "single-id",
-                                           "git-failed") if not item[label]["ok"]}
+                                           "git-failed", "origin-absent") if not item[label]["ok"]}
                 check(f"shared-{stub}-bound-not-consistent",
                       (item["bound"], item["consistent"], resl["bound_tools"],
                        resl["consistent_tools"], grade(resl)[0]),
@@ -657,19 +729,30 @@ def selftest():
                      "notes.txt": "\"--revision\"\n"}
             resd = measure(fxd, make_fixture(fxd, md, extra_files=extra))
             check("discover-extra", (resd["discovered"], resd["total"],
-                                     resd["consistent_tools"], grade(resd)[0]),
-                  (["check-extra.py"], TOTAL + 1, TOTAL + 1, PASS))
-            check("shared-import-census", (resd["shared_tools"],
-                                           resd["per_tool"][0]["shared"],
-                                           resd["per_tool"][0]["local_rev_regex"]),
-                  (1, True, 0))
+                                     resd["consistent_tools"], resd["all_total"],
+                                     resd["all_consistent_tools"], grade(resd)[0]),
+                  (["check-extra.py"], TOTAL, TOTAL, TOTAL + 1, TOTAL + 1, PASS))
+            check("dead-import-not-shared", (resd["shared_tools"],
+                                             resd["per_tool"][0]["shared"],
+                                             resd["per_tool"][0]["local_rev_regex"]),
+                  (0, False, 0))
+            check("live-import-call-census", shared("import _revision\n"
+                                                    "def adapter(r,v,b):\n"
+                                                    "    return _revision.bind(r,v,b)\n"), (True, 0))
+            check("from-import-call-census", shared("from _revision import bind as resolve\n"
+                                                    "def adapter(r,v,b):\n"
+                                                    "    return resolve(r,v,b)\n"), (True, 0))
+            check("string-import-not-shared", shared("'import _revision; _revision.bind(r,v)'\n"),
+                  (False, 0))
             check("local-copy-census", shared('REV = re.compile(r"^[0-9a-f]{7,64}$")\n'
-                                              "import _revision\n"), (True, 1))
+                                              "import _revision\n"), (False, 1))
             fxu = tmp / "discover-unbound"
             resu = measure(fxu, make_fixture(fxu, modes,
                                              extra_files={"check-extra.py": stub_source("unbound")}))
-            check("discover-unbound-counts", (resu["total"], resu["consistent_tools"],
-                                              grade(resu)[0]), (TOTAL + 1, TOTAL, FAIL))
+            check("discover-unbound-independent", (resu["total"], resu["consistent_tools"],
+                                                   resu["additional_total"],
+                                                   resu["additional_consistent_tools"],
+                                                   grade(resu)[0]), (TOTAL, TOTAL, 1, 0, PASS))
 
             for stub in ("tip-only", "no-origin", "head-only", "echo"):
                 fxs = tmp / f"stub-{stub}"
@@ -688,6 +771,9 @@ def selftest():
             check("bind-at", bind_error(fx5, "@"), ID_INVALID)
             check("bind-ref", bind_error(fx5, "refs/heads/master"), ID_INVALID)
             check("bind-unknown", bind_error(fx5, "0" * 40), ID_INVALID)
+            check("judge-branch-first", bind_error(fx5, "HEAD", "a..b"), ID_BRANCH_INVALID)
+            check("judge-branch-slash", bind_error(fx5, tip5, "master/"), ID_BRANCH_INVALID)
+            check("judge-branch-missing", bind_error(fx5, tip5, "nosuch"), ID_BRANCH_MISSING)
             unlanded_sha = detached_commit(fx5)
             check("bind-unlanded", bind_error(fx5, unlanded_sha), ID_UNLANDED)
 

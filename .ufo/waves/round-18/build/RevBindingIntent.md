@@ -1,0 +1,13 @@
+# RevBindingIntent
+
+Axes: input domain, finding identity/precedence, consumer-domain/output preservation.
+
+**Contract and scope.** [obs] The nine consumers are locator, root-DAC, section-citations, source-scope, measure-update-recheck, boot-chain, freshness, recheck-commands, and seat-scope (`tools/check-revision-binding.py:52-70`). Their separate binding sites are visible at `tools/check-locator-clarification.py:482-503`, `check-root-dac-correction.py:258-290`, `check-section-citations.py:430-480`, `check-source-scope-correction.py:378-415`, `measure-update-recheck.py:448-492`, `check-boot-chain.py:588-625`, `check-freshness-r17.py:358-403`, `check-recheck-commands.py:412-450`, and `check-seat-scope.py:171-220`. Intended domain: only explicit 7–64 hex resolving to a commit; it must descend from the selected local branch, and from `origin/<branch>` only when that tracking ref exists. This binds immutable commits, not HEAD/jj `@`; nested valid branch names remain possible (`tools/_revision.py:11-27, 190-221`; `check-revision-binding.py:19-24`).
+
+**Divergences / correction.** [obs] FxSimplifyBind records six same-input splits: invalid-branch IDs/validation, branch-vs-revision precedence, merge-base rc≥2 handling, root-DAC's two findings, missing-branch classification, and acceptance of `a..b` / trailing slash (`.ufo/waves/round-17/falsify/FxSimplifyBind.md:7-15`). Correct semantics are the shared order: validate branch with full `git check-ref-format` → revision syntax/commit → branch exists → local ancestry → optional remote ancestry; first failure is exactly one ID, with git operational failure `E-GIT-FAILED` (`tools/_revision.py:11-24, 83-118, 130-150`).
+
+[obs] Preserve each checker's evaluation, finding order, status/JSON contract, and adapter fields while replacing only binding: locator's `BindCannot` carries revision/tip (`check-locator-clarification.py:60-70, 783-786`); recheck emits `origin_tip` (`check-recheck-commands.py:373-381`); root-DAC's binding currently aggregates findings (`check-root-dac-correction.py:277-290`). Keep `check-revision-binding.py` independent; it is the judge (`:7-10`).
+
+**Confidence.** [obs] Static source and historical report support the contract; [unk] runtime behavior was not exercised. No LSP device is mounted (`xd://lsp` unavailable), so source tracing used read/grep fallback, not semantic LSP results.
+
+Scope: executed=none

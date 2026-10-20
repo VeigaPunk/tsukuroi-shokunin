@@ -188,3 +188,16 @@ source: own-work — read-only `tools/tsukuroi-census.sh --selftest`/live runs, 
 verified-at: 2026-10-14 (the receipt's original capture window recorded in this note).
 recheck: on-release; procedure: §7 receipt commands; rerun the selftest and live census after a census release.
 supersedes the pointer-only recheck: line above.
+
+
+## R18-RECHECK — steer-safe procedure
+
+Supersedes this entry's historical pointer-based recheck procedure for a steer forbidding package-manager execution (QUALITY26). Historical command receipts remain historical; do not run their backticked package commands or the live host census merely by following the old section pointer. This is an actual bounded read/compare procedure, not a whole-host clearance or a new host measurement.
+
+- Read the installed-name/version metadata with `ls -1 /var/lib/pacman/local`; for each package whose recorded field is being rechecked, read its exact `/var/lib/pacman/local/<pkg>-<ver>/desc` and compare name, version, install date, reason and validation fields with the dated table. Directory presence does not certify file integrity or current repository reachability.
+- Read repository-file inventory and timestamps with `ls -1 /var/lib/pacman/sync` and `stat -c '%y %n' /var/lib/pacman/sync/*.db`. Mtime is an upstream stamp, not local acquisition time; a present database is not proof it is configured.
+- Read relevant transaction events using `tail -n 80 /var/log/pacman.log`; distinguish invocation headers from ALPM completion events, preserve capture time and exit status, and never infer a current pending-update count from this history.
+
+- Recheck the repository artifact with `sha256sum tools/tsukuroi-census.sh` and its isolated fixture suite `bash tools/tsukuroi-census.sh --selftest`; these do not refresh a live health verdict. Never substitute the unflagged live invocation under a no-package-command steer.
+
+Record observed values and unresolved questions separately. Uncaptured pending updates, signature validity, exact foreign/orphan classification, private mount views, historical provenance events and recovery feasibility remain unknown until their own authorized evidence is obtained. No installation, restart, rebuild, subvolume action or boot write is authorized.

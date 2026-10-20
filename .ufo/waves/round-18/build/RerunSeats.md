@@ -1,0 +1,14 @@
+# RerunSeats
+
+Axes: reproducibility; count reconciliation; execution-scope honesty.
+
+## Findings
+
+- **[P2] R17-SEAT-EXEC undercounts the build-wave violations.** [obs] `corpus/lessons/round-17.md:45` says 29 of 72 wave-1 seats. In the isolated clone at `51dd9eeaa305539fa3cfc6ee275978dc18043b79`, the requested immutable `842a5312b704b5cda10fd80ec1fdee5fb381ba97` run reports 30 `SCOPE-EXEC-UNAUTHORIZED`, 2 missing reports, 0 undeclared, 74 union seats, exit 1 (`RerunSeats-build-output.txt:1-2`). The 30 matches the archived worktree result’s count and unauthorized-site list (`.ufo/waves/round-17/measure/final/seat-r17-build.json:1`). [inf] The 29 lesson count is wrong; the gate unions registry/spec seats and separately counts absent reports (`tools/check-seat-scope.py:89-130,299-309`).
+- **[P2] The falsify count 16 is an earlier worktree measurement, not the pinned final wave.** [obs] The archived result has revision `worktree`, 16 unauthorized and 52 missing (`.ufo/waves/round-17/measure/final/seat-r17-falsify.json:1`). The pinned falsify run reports 19 unauthorized and 44 missing of 81, exit 1 (`RerunSeats-falsify-output.txt:1-2`). The eight late delivered reports are recorded at `corpus/lessons/round-17-verifier-spotcheck.md:91-94`. [inf] Three of those—`FxMdJsonAgree`, `FxSimplifyBind`, `FxSourcesContract`—are the additional unauthorized reports, reconciling 16→19. The 29 delivered at 14:43 plus eight late yields 37; 44 remain missing.
+
+## Residual risk and verification gaps
+
+The gate evaluates declared `Scope: executed=` lines and report presence, not actual host actions or host/build/test safety ([obs] `tools/check-seat-scope.py:52-79`; output scope field). No host probes or code edits were made. Exact JSON and exit codes are preserved in the two cited receipts. Tools installed: none.
+
+Scope: executed=mktemp -d /tmp/tsukuroi-r18-rerunseats.XXXXXX; git clone --no-hardlinks /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /tmp/tsukuroi-r18-rerunseats.O5TrZc/repo; git -C /tmp/tsukuroi-r18-rerunseats.O5TrZc/repo remote remove origin; git -C /tmp/tsukuroi-r18-rerunseats.O5TrZc/repo checkout --detach 51dd9eeaa305539fa3cfc6ee275978dc18043b79; python3 tools/check-seat-scope.py --revision 842a5312b704b5cda10fd80ec1fdee5fb381ba97 --wave .ufo/waves/round-17/build; python3 tools/check-seat-scope.py --revision 842a5312b704b5cda10fd80ec1fdee5fb381ba97 --wave .ufo/waves/round-17/falsify; cp artifact://82642 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/build/RerunSeats-build-output.txt; cp artifact://82708 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/build/RerunSeats-falsify-output.txt

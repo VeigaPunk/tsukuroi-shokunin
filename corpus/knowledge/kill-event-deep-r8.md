@@ -345,3 +345,32 @@ source: own-work — read-only `journalctl`, `/proc`, cgroupfs, and `systemctl s
 verified-at: 2026-10-14 (the live event-capture window recorded in this note).
 recheck: 30d; procedure: §11 probe ledger; carry each negative claim's sweep.
 supersedes the pointer-only recheck: line above.
+
+
+## R18-FRESHNESS — earlyoom state (2026-10-20)
+
+Historical snapshots preserved: row 2 of §8 above (`command -v earlyoom` → absent, measured 2026-10-14) keeps its original meaning and bytes. This notice supersedes that row for current use only. Read-only scope: nothing here clears a package, reboot, service or boot action.
+
+- Now (2026-10-20 read-only L1 capture): earlyoom is installed (local database `earlyoom-1.9.0-1`), its unit is active and enabled, and `/usr/bin/earlyoom` resolves. Capture: `.ufo/waves/round-18/l1-capture/host-capture-r18.txt:29` (local database entry); also `:17-18` (`active`, `enabled`), `:21-22` (`ActiveEnterTimestamp=Tue 2026-10-20 09:57:11 -03`, `ExecMainPID=1379`), `:85` (`/usr/bin/earlyoom`). Source S060.
+- This notice does not date or explain any historical kill event (2026-10-13 or 2026-10-14).
+
+## R18-FRESHNESS — zswap state (2026-10-20)
+
+Historical snapshots preserved: row 5 of §8 above (`zswap.enabled=0` with sysfs `N`, measured 2026-10-14) keeps its original meaning and bytes; the zswap readings of that date describe that capture only. This notice supersedes that clause for current use only. Read-only scope: nothing here clears a package, reboot, service or boot action.
+
+- Now (2026-10-20 read-only L1 capture, kernel `7.2.11-arch1-1`): zswap is enabled (sysfs `Y`, `max_pool_percent` `25`, compressor `zstd`) and the running kernel command line carries `zswap.enabled=1 zswap.max_pool_percent=25`. Capture: `.ufo/waves/round-18/l1-capture/host-capture-r18.txt:9` (command line), `:12-14` (sysfs values), `:6` (kernel release). Source S060.
+- This notice does not date or explain any historical kill event (2026-10-13 or 2026-10-14).
+
+## R18-FRESHNESS — sar and sa-log state (2026-10-20)
+
+Historical snapshots preserved: row 11 of §8 above (no `sar` and no `/var/log/sa`, measured 2026-10-14) keeps its original meaning and bytes. This notice supersedes that row for current use only. Read-only scope: nothing here clears a package, reboot, service or boot action.
+
+- Now (2026-10-20 read-only L1 capture): sar is present at `/usr/bin/sar` (sysstat-12.8.0-1), `/var/log/sa` exists and lists no entries, so no retained sar data is present there; atop, dool and dstat were not found. Capture: `.ufo/waves/round-18/l1-capture/host-capture-r18.txt:84` (`/usr/bin/sar`), `:87-88` (`ls -1 /var/log/sa`, empty listing, `rc=0`), `:38` (`sysstat-12.8.0-1`), `:82-86` (command probe). Source S060.
+- This notice does not date, explain or attribute any historical kill event (2026-10-13 or 2026-10-14). An empty `/var/log/sa` listing does not show whether sar collected data before those events, and the capture does not read sysstat timers or configuration.
+
+
+## R18-FRESHNESS — sibling current-use restatements (2026-10-20)
+
+Sources S060, S051 and S052. This appended correction supersedes the current-use readings listed below and every repeated current-use restatement of the same premise in this file. Historical measurements remain intact. No package, service, rebuild, boot or rollback action is authorized.
+
+- R18-FRESH-SUPPLEMENT-11: prior locus `[observed] probe inventory for a *pre-kill* picture: `sar`/`atop`/`dool`/`dstat` absent, `/var/log/sa``. Now: sar now resolves to/usr/bin/sar; the captured /var/log/sa listing is empty. This does not backfill a pre-kill historical measurement; other tools in the old list were not re-audited for integrity. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:84.

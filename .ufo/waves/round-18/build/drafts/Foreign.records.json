@@ -1,0 +1,42 @@
+[
+  {
+    "id": "R18-FRESH-Foreign-01",
+    "path": "corpus/knowledge/foreign-provenance-r6.md",
+    "baseline_quote": "`/var/log/pacman.log` is the host's *entire* pacman history:",
+    "reason": "Lines 29-37 pin the whole pacman history at 2109 lines (md5 e452d910...) and call it complete from install day to 2026-10-14; the R18 capture counts 3169 lines.",
+    "now": "/var/log/pacman.log has 3169 lines at 2026-10-20 (wc -l); the 2109-line pin no longer describes the current file.",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:60",
+    "capture_quote": "3169 /var/log/pacman.log",
+    "notice_heading": "## R18-FRESHNESS — foreign provenance: history completeness (lines 29-37)"
+  },
+  {
+    "id": "R18-FRESH-Foreign-02",
+    "path": "corpus/knowledge/foreign-provenance-r6.md",
+    "baseline_quote": "No foreign package has ever been updated, downgraded or removed since its",
+    "reason": "Line 47 states no foreign package was updated, downgraded or removed after its single install event (log count 0 at 2026-10-14). The R18 capture shows later pacman -U transactions naming elephant 2.22.1-1 artifacts and zcode 3.16.2-1.",
+    "now": "At 2026-10-20 the log holds pacman -U transactions for yay-cache elephant 2.22.1-1 (log 3092, 09:31:03) and zcode 3.16.2-1 (log 3161, 13:23:08); the no-update claim at line 47 is not current.",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:72",
+    "capture_quote": "3092:[2026-10-20T09:31:03-0300] [PACMAN] Running 'pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/elephant/elephant-2.22.1-1-x86_64.pkg.tar.zst",
+    "notice_heading": "## R18-FRESHNESS — foreign provenance: no-update claim (line 47)"
+  },
+  {
+    "id": "R18-FRESH-Foreign-03",
+    "path": "corpus/knowledge/foreign-provenance-r6.md",
+    "baseline_quote": "**[obs]** `/var/lib/pacman/sync/offline.db` — 304318 B, root:root 644,",
+    "reason": "Section 2.1 records offline.db as present (304318 B) and identifies it as the surviving channel for the 14 install-day packages; the R18 capture lists the sync directory without it.",
+    "now": "offline.db is absent from /var/lib/pacman/sync at 2026-10-20; the directory lists core.db, extra.db, multilib.db, omarchy.db and openai-chatgpt.db.",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:48",
+    "capture_quote": "$ ls -1 /var/lib/pacman/sync/",
+    "notice_heading": "## R18-FRESHNESS — foreign provenance: offline.db channel (line 55)"
+  },
+  {
+    "id": "R18-FRESH-Foreign-04",
+    "path": "corpus/knowledge/foreign-provenance-r6.md",
+    "baseline_quote": "an `-Syu` cannot move any of them. The 14 have **no update path at all**",
+    "reason": "Line 194 states an -Syu cannot move any of the 16 because pacman -Si was rc=1 for all 16 on 2026-10-14. That was a point-in-time sync-db observation; omarchy.db has since changed and the 2026-10-20 elephant update was a pacman -U from yay-cache files. Foreign classification is not immutable.",
+    "now": "Current sync reachability of the foreign set is [unk] at 2026-10-20: omarchy.db mtime is 2026-10-20 09:09:26, and the 2026-10-20 elephant update was run as pacman -U from yay-cache files, not as -Syu.",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:45",
+    "capture_quote": "2026-10-20 09:09:26.000000000 -0300 /var/lib/pacman/sync/omarchy.db",
+    "notice_heading": "## R18-FRESHNESS — foreign provenance: no -Syu update path (line 194)"
+  }
+]

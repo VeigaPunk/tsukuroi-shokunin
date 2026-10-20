@@ -1,0 +1,11 @@
+# MigSection
+
+Files changed: sandbox `tools/check-section-citations.py` (commit `7c72964d8249d56a1149bf6b7404cc15792a7643`); patch `.ufo/waves/round-18/build/patches/MigSection.patch`; this report.
+
+[obs] Clone: `/tmp/tsukuroi-r18-migsection.Gu9aGk`, checked out from `51dd9eeaa305539fa3cfc6ee275978dc18043b79`, origin removed. `tools/check-section-citations.py:35,580-589,910-928` imports shared `bind`, binds both requested revision and baseline, and converts `RevisionError` into one existing `Cannot`/finding. Removed local revision/branch regexes and binding functions; domain checks remain in the checker.
+
+Behavior: every revision binding now follows `_revision.bind(ROOT, rev, branch)`, including baseline binding; shared branch-before-revision precedence and full ref-format validation apply. CLI syntax errors remain `E-CLI`. Selftests now cover single-first-finding precedence, invalid branch/revision precedence, `E-BRANCH-MISSING`, trailing-slash branch rejection, and preserve domain fixtures. Missing-branch expectation changed from `E-REVISION-NOT-LANDED` to `E-BRANCH-MISSING`.
+
+[obs] Own selftest: before 61/61; after 68/68. Shared `_revision.py --selftest`: 37/37. Independent judge on sandbox master: this entry `bound=true`, `consistent=true`, `shared=true`, `local_rev_regex=0`. Overall judge reported FAIL: 2/9 consistent, 1 shared, 8 local regex copies; the other eight tools were unchanged at the sandbox baseline. No blocker for this assigned entry; integrator still needs sibling migrations. [unk] LSP was unavailable in the provided tool inventory; no tool installation was needed.
+
+Scope: executed=git clone --no-hardlinks /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /tmp/tsukuroi-r18-migsection.Gu9aGk; git checkout 51dd9eeaa305539fa3cfc6ee275978dc18043b79; git remote remove origin; python3 tools/check-section-citations.py --selftest (before and after); python3 tools/_revision.py --selftest; git switch master; git add tools/check-section-citations.py; git commit -m "share revision binding in section citations"; python3 tools/check-revision-binding.py --tools-revision 7c72964d8249d56a1149bf6b7404cc15792a7643; git diff 51dd9eeaa305539fa3cfc6ee275978dc18043b79 7c72964d8249d56a1149bf6b7404cc15792a7643 -- tools/check-section-citations.py

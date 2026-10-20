@@ -452,3 +452,33 @@ Historical captures stay historical: every 2026-10-14 byte above is unchanged an
 - §3 row 3: "| 3 | `elephant` 2.21.0-1 |" → [obs] elephant 2.22.1-1 was installed by pacman -U at 2026-10-20 09:31:03-0300 from the yay cache; the other rows are not re-measured. Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:63
 - §3 conclusion: "Today no foreign package has a measurable update" → [obs] one foreign row moved: elephant core is 2.22.1-1 since 2026-10-20 09:31:03-0300; whether any other foreign package now has a pending update is not measured. Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:63
 - §5 row 8: "Orphan removal (`electron39`, `mbedtls`, `webp-pixbuf-loader`)" → [obs] electron39 and mbedtls were removed by pacman -Rns at 2026-10-20 08:14:12-0300, so this row's orphan set is no longer current. Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:57
+
+
+## R18-FRESHNESS — sibling current-use restatements (2026-10-20)
+
+Sources S060, S051 and S052. This appended correction supersedes the current-use readings listed below and every repeated current-use restatement of the same premise in this file. Historical measurements remain intact. No package, service, rebuild, boot or rollback action is authorized.
+
+- R18-FRESH-SUPPLEMENT-17: prior locus `It records `pacman -Qu` exit 0 with 413 pending rows against sync DBs born`. Now: the413 pending count is a dated R15 snapshot, not a current pending measurement after later transactions. R18 ran no package-manager pending query; current pending count is UNKNOWN, never inferred zero. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:65.
+
+- R18-FRESH-SUPPLEMENT-18: prior locus ``mkinitcpio 41.1-1` installed with 42.2-1 pending. Decision: `BLOCKED_FOR_AGENT_PACKAGE_ACTION`.`. Now: local-db directory mkinitcpio-42.2-1 is observed; the41.1-installed/42.2-pending current-use premise is superseded. Current pending row, if any, is unmeasured; the R17 image/symlink analysis governs compatibility, not a new upgrade clearance. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:34.
+
+- R18-FRESH-SUPPLEMENT-26: prior locus ``checkupdates`/`pacman-contrib` absent (installing is out of province, SKILL.md:415). The`. Now: pacman-contrib-1.13.1-1 is a local-db directory and /usr/bin/paccache resolves in the capture; the earlier package/paccache absence premise is not current. checkupdates itself was not invoked or located in R18, so its executable availability is unverified; no installation is advised. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:36.
+
+- R18-FRESH-SUPPLEMENT-27: prior locus `| 5 | The 14 offline-exile packages (§3 rows 3–16) | `offline-exile` | no path | channel dead (R4); one unversioned `walker` edge already crossed (R10); repair-by-reinstall impossible (R1) | **Preserve, don't update:** the preservation set is `offline.db` (md5 `c4b27c38…`, 304 318 B) + 28 cache entries (14 `.zst` + 14 `.sig`) + the 2 clone trees; copy before any cache prune |`. Now: offline.db is absent from the captured sync-directory listing. Preservation/read commands that assume that path exists are not presently runnable there; absence elsewhere, deletion time, cache availability and repository reachability are unknown. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:54.
+
+- R18-FRESH-SUPPLEMENT-28: prior locus `PackageOptional PackageTrustedOnly`; 0 `.db.sig`; `SigLevel = PackageRequired`. Now: the directory includes openai-chatgpt.db.sig;0 total.db.sig is not a current directory inventory. This is not a claim that omarchy.db is signed or that any signature validates. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:54.
+
+- R18-FRESH-SUPPLEMENT-29: prior locus `folder)` beside the current `7.2.3-arch1-3` (v2 §6, identical text). No reboot pending`. Now: current capture lists nvidia/615.78.08 for6.18.57-2-lts and7.2.11-arch1-1, plus7.2.3-arch1-3 with missing built modules. No7.1.4 row is listed, so the old610.57.04/7.1.4 removal action is stale and must not be replayed. No removal or reboot clearance is given. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:95.
+
+- R18-FRESH-SUPPLEMENT-30: prior locus `| 4 | `elephant-bluetooth` 2.21.0-1 | `offline-exile` | none | n/a — no route |`. Now: the later09:31 invocation names elephant-bluetooth2.22.1-1 archives, so the historical no-update-route wording is not a current bounded search result; per-plugin installed/repository state remains unknown because R18 lists only the base elephant package. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:72.
+
+
+## R18-RECHECK — steer-safe procedure
+
+Supersedes this entry's historical pointer-based recheck procedure for a steer forbidding package-manager execution (QUALITY26). Historical command receipts remain historical; do not run their backticked package commands or the live host census merely by following the old section pointer. This is an actual bounded read/compare procedure, not a whole-host clearance or a new host measurement.
+
+- Read the installed-name/version metadata with `ls -1 /var/lib/pacman/local`; for each package whose recorded field is being rechecked, read its exact `/var/lib/pacman/local/<pkg>-<ver>/desc` and compare name, version, install date, reason and validation fields with the dated table. Directory presence does not certify file integrity or current repository reachability.
+- Read repository-file inventory and timestamps with `ls -1 /var/lib/pacman/sync` and `stat -c '%y %n' /var/lib/pacman/sync/*.db`. Mtime is an upstream stamp, not local acquisition time; a present database is not proof it is configured.
+- Read relevant transaction events using `tail -n 80 /var/log/pacman.log`; distinguish invocation headers from ALPM completion events, preserve capture time and exit status, and never infer a current pending-update count from this history.
+
+Record observed values and unresolved questions separately. Uncaptured pending updates, signature validity, exact foreign/orphan classification, private mount views, historical provenance events and recovery feasibility remain unknown until their own authorized evidence is obtained. No installation, restart, rebuild, subvolume action or boot write is authorized.

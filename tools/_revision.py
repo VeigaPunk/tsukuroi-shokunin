@@ -95,13 +95,17 @@ def validate_branch(branch):
 
 
 def _commit(repo, ref):
-    """Commit sha of `ref`; None when it does not resolve (rc 1); E-GIT-FAILED on a git fatal."""
+    """Commit sha or None for an unresolved/non-commit object in a readable repository."""
     proc = _git(repo, "rev-parse", "--verify", "--quiet", "--end-of-options", f"{ref}^{{commit}}")
     if proc.returncode == 0:
         return proc.stdout.decode("ascii", "replace").strip()
-    if proc.returncode == 1:
+    # A malformed/ambiguous/non-commit selector can produce a fatal rev-parse
+    # status too. Distinguish it from an unavailable repository without parsing
+    # localized stderr; bind() consistently classifies it as INVALID.
+    repo_check = _git(repo, "rev-parse", "--git-dir")
+    if repo_check.returncode == 0:
         return None
-    raise RevisionError(E_GIT, ref, f"rev-parse exited {proc.returncode}: {_err(proc)}")
+    raise RevisionError(E_GIT, ref, f"repository unavailable: {_err(repo_check)}")
 
 
 def _exists(repo, ref):
@@ -224,6 +228,7 @@ def selftest():
         blob = subprocess.run(["git", "-C", str(repo), "hash-object", "-w", "--stdin"],
                               input=b"blob\n", stdout=subprocess.PIPE, env=clean_env(),
                               check=True).stdout.decode().strip()
+        expect("blob-revision-invalid", lambda: bind(repo, blob), err(E_INVALID))
         run(repo, "update-ref", "refs/remotes/origin/master", blob)
         expect("git-failed-origin-blob", lambda: bind(repo, tip), err(E_GIT))
         run(repo, "update-ref", "refs/remotes/origin/master", tip)

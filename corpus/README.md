@@ -153,3 +153,12 @@ Watch item that remains: upstream may drop the compatibility symlink; recheck
 `tools/boot-chain-audit.sh --live` on every mkinitcpio release. Six older entries carry
 appended `R17-FRESHNESS` notices (`knowledge/freshness-recheck-r17.json`, 48 records);
 five carry `R17-RECHECK — steer-safe procedure` blocks. Lesson: `lessons/round-17.md`.
+
+
+## Round18 — correction closure and current-use continuation
+
+Held surfaces, not new coverage: `knowledge/boot-chain-r17.md` now carries four named R18 corrections (12-package argv, both-UKI init/hook citations, live UKI mtime); S051 remains image evidence, S058 tagged-source scope, S064 precise loader-variable/header evidence. `tools/check-boot-chain.py --statement-corrections` checks the fixed four propositions; generic notice conformance is not semantic proof.
+
+`knowledge/freshness-recheck-r18.json` records49 primary notices in the eight routed files plus39 neighboring current-use restatements (88 records across17 paths). Original dated snapshots remain intact. Runtime earlyoom/zswap and package-directory observations are S060, not historical OOM attribution; Snapper config presence does not certify rollback; pending updates remain unknown. All new findings remain detection-and-report; package/service/boot actions stay operator-owned.
+
+One shared `../tools/_revision.py` replaces the nine copied consumer binders; independent judge checks original-nine consistency, shared static call census and zero local literal copies, reporting additional discovered tools separately. The latest `../SKILL.md` registry supersedes old counts and the non-normative r16 JSON-oracle description. Historical Frontier bullets about pending42, root metadata and source ownership remain superseded by their explicit later entries, not silently rewritten. No frontier ground moves into core and no SHONEN promotion is claimed.

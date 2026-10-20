@@ -1,0 +1,102 @@
+[
+  {
+    "id": "R18-FRESH-NoticeAur-01",
+    "path": "corpus/knowledge/aur-risk-plane.md",
+    "baseline_quote": "`pacman -Q | wc -l` = **1188**",
+    "reason": "Present-tense context count from the 2026-10-14 run; the installed count has moved (R17 sweep row ARP:40).",
+    "now": "1395 local-db package entries (directory count, not pacman -Q)",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:25",
+    "capture_quote": "1395",
+    "notice_heading": "## R18-FRESHNESS — context package count (2026-10-20)"
+  },
+  {
+    "id": "R18-FRESH-NoticeAur-02",
+    "path": "corpus/knowledge/aur-risk-plane.md",
+    "baseline_quote": "3 non-foreign orphans: `pacman -Qdtq` → `electron39`, `mbedtls`, `webp-pixbuf-loader`, rc=0.)",
+    "reason": "The orphan set is stated as current; the three packages were removed later on 2026-10-20 (R17 capture).",
+    "now": "electron39 and mbedtls were removed by pacman -Rns at 2026-10-20 08:14:12 -0300 and webp-pixbuf-loader at 09:39:21 -0300; no orphan sweep was re-run at R18",
+    "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:57",
+    "capture_quote": "pacman -Rns --noconfirm electron39 mbedtls",
+    "notice_heading": "## R18-FRESHNESS — orphan set (2026-10-20)"
+  },
+  {
+    "id": "R18-FRESH-NoticeAur-03",
+    "path": "corpus/knowledge/aur-risk-plane.md",
+    "baseline_quote": "None of the 16 has ever been upgraded, downgraded or reinstalled since install.",
+    "reason": "The elephant family was replaced by a pacman -U transaction after the 2026-10-14 run; the never-upgraded claim no longer holds.",
+    "now": "a pacman -U transaction at 2026-10-20 09:31:03 -0300 installed elephant-2.22.1-1 from the yay cache, and the R18 local db lists elephant-2.22.1-1 with no elephant-2.21.0-1 directory",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:72",
+    "capture_quote": "Running 'pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/elephant/elephant-2.22.1-1-x86_64.pkg.tar.zst",
+    "notice_heading": "## R18-FRESHNESS — upgrade history of the register (2026-10-20)"
+  },
+  {
+    "id": "R18-FRESH-NoticeAur-04",
+    "path": "corpus/knowledge/aur-risk-plane.md",
+    "baseline_quote": "There is **no** `[PACMAN] Running 'pacman -U …'` line anywhere for the elephant family or",
+    "reason": "The no-pacman-U-line statement is superseded by the 2026-10-20 pacman -U transactions for elephant and zcode.",
+    "now": "pacman -U transactions exist at 2026-10-20 09:31:03 -0300 for elephant-2.22.1-1 and at 13:23:08 -0300 for zcode-3.16.2-1",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:73",
+    "capture_quote": "pacman -U --needed --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/zcode/zcode-3.16.2-1",
+    "notice_heading": "## R18-FRESHNESS — no pacman -U line (2026-10-20)"
+  },
+  {
+    "id": "R18-FRESH-NoticeAur-05",
+    "path": "corpus/knowledge/aur-risk-plane.md",
+    "baseline_quote": "lists **1275** entries including `elephant-2.21.0-1`",
+    "reason": "The offline.db snapshot the elephant claim relies on is no longer in the sync directory.",
+    "now": "offline.db is absent from the 2026-10-20 sync directory listing (core.db, extra.db, multilib.db, omarchy.db, openai-chatgpt.db); the 1275-entry snapshot is not on disk at R18",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:54",
+    "capture_quote": "openai-chatgpt.db.sig",
+    "notice_heading": "## R18-FRESHNESS — offline.db snapshot (2026-10-20)"
+  },
+  {
+    "id": "R18-FRESH-NoticeAur-06",
+    "path": "corpus/knowledge/aur-risk-plane.md",
+    "baseline_quote": "| elephant | 2.21.0-1 | A offline-exile | 2026-10-03 17:44:26 | never |",
+    "reason": "The register row's version and upgraded-since value are stale for the elephant rows.",
+    "now": "the R18 local db lists elephant-2.22.1-1, not 2.21.0-1, and the upgraded-since value never is superseded by the 09:31:03 pacman -U transaction",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:30",
+    "capture_quote": "/var/lib/pacman/local/elephant-2.22.1-1",
+    "notice_heading": "## R18-FRESHNESS — elephant register row (2026-10-20)"
+  },
+  {
+    "id": "R18-FRESH-NoticeAur-07",
+    "path": "corpus/knowledge/aur-risk-plane.md",
+    "baseline_quote": "**fires for 16/16** (rc=1, \"was not found\")",
+    "reason": "The R1 count was measured by pacman -Si on 2026-10-14; the elephant rows changed version after it and no sync-db read was taken at R18.",
+    "now": "not re-measured at R18: the R1 count is [unk] for the elephant rows; the R17 sweep recorded thirteen elephant rows upgraded (R17-sourced, not in the R18 capture); omarchy.db was refreshed at 2026-10-20 09:09:26 -0300",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:45",
+    "capture_quote": "2026-10-20 09:09:26.000000000 -0300 /var/lib/pacman/sync/omarchy.db",
+    "notice_heading": "## R18-FRESHNESS — R1 update-path count (2026-10-20)"
+  },
+  {
+    "id": "R18-FRESH-NoticeAur-08",
+    "path": "corpus/knowledge/aur-risk-plane.md",
+    "baseline_quote": "fires for **2/16** (channel B = `none`)",
+    "reason": "The R2 count describes the 2026-10-14 validation fields; the elephant rows were reinstalled from local archives after it.",
+    "now": "[unk]: the elephant rows were reinstalled by pacman -U from yay-cache archives at 09:31:03 -0300, and their %VALIDATION% was not read at R18",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:72",
+    "capture_quote": "/home/vgpnk/.cache/yay/elephant/elephant-2.22.1-1-x86_64.pkg.tar.zst",
+    "notice_heading": "## R18-FRESHNESS — R2 validation count (2026-10-20)"
+  },
+  {
+    "id": "R18-FRESH-NoticeAur-09",
+    "path": "corpus/knowledge/aur-risk-plane.md",
+    "baseline_quote": "The stack is not inert: it is running now.",
+    "reason": "The running state is dated 2026-10-14; the elephant packages were replaced on 2026-10-20 and no unit-state probe was run at R18.",
+    "now": "the 2026-10-14 running state is not current; the elephant packages were replaced at 2026-10-20 09:31:03 -0300 and the current unit state is [unk] at R18",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:72",
+    "capture_quote": "elephant-2.22.1-1-x86_64.pkg.tar.zst",
+    "notice_heading": "## R18-FRESHNESS — running state (2026-10-20)"
+  },
+  {
+    "id": "R18-FRESH-NoticeAur-10",
+    "path": "corpus/knowledge/aur-risk-plane.md",
+    "baseline_quote": "`[options] [core] [extra] [multilib] [omarchy]` (lines 3/19/22/25/28)",
+    "reason": "The configured-section list is dated 2026-10-14; the sync directory now holds openai-chatgpt.db and no offline.db.",
+    "now": "pacman.conf was not re-read at R18; the sync directory holds openai-chatgpt.db (mtime 2026-10-16) and no offline.db, so the four-section list is [unk] for current use",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:53",
+    "capture_quote": "openai-chatgpt.db",
+    "notice_heading": "## R18-FRESHNESS — configured sync databases (2026-10-20)"
+  }
+]

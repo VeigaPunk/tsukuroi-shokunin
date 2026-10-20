@@ -543,3 +543,12 @@ Wave1 dispatch:81 seats in one validated call; L1 holds planner, ConnPlanner sup
 
 - **planned (current):** finish only the externally steered round18 claims and all routed round17 defects; measured verdicts follow after integration, then independent closure. No subsequent round starts here.
 - **retired:** none.
+
+
+### Round18 declaration refinements from first falsifiers
+
+C1's final domain counting command is `python3 tools/check-boot-chain.py --revision <commit> --statement-corrections` (fixed four required correction IDs, package argv arithmetic, each UKI digest and live-image mtime evidence); the generic notice checker remains an additional structural check. This replaces the earlier structural-counter-only C1 command, which CritDepth correctly found insufficient. Expected4/4 corrections, not a self-selected3+ subset. C2's claimed original-nine metrics and grade exclude discovered new tools; all discovered results remain separately reported. Shared import/call census is static, not a universal behavior theorem.
+
+C3 correction sweep now includes49 primary records across the eight routed files plus39 neighboring current-use restatements across17 paths total (implementation registry, not an observed pass). Count actual `resolved_records` and `path_count`, keep primary/supplementary ID cohorts separate, and require all primary paths represented. No total-host-freshness or uncovered coverage claim is introduced.
+
+Capability count clarification (supporting defect4 repair, no claim or new row): the historical boot-chain-audit cell at:164 says44/44. Superseded by the existing landed round17 measurement `90037c2`, `.ufo/waves/round-17/measure/final/selftests.txt` audit45/45 and round17 outcome row:520. No ordinal or repertoire credit is inferred from this correction.

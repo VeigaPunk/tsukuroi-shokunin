@@ -1,0 +1,193 @@
+diff --git a/tools/measure-update-recheck.py b/tools/measure-update-recheck.py
+index 474ea51..ffd9bb2 100755
+--- a/tools/measure-update-recheck.py
++++ b/tools/measure-update-recheck.py
+@@ -4,16 +4,16 @@
+ One committed C2 record and one captured host snapshot, both read from the same
+ revision. Exit 0 when the pair is absent (record_count 0, "before") or the
+ record is internally consistent with the snapshot (record_count 1); exit 2 when
+-the revision is invalid, unlanded or unpushed, or the input is malformed,
+-incomplete or contradicts the snapshot. Absence is a probe count, never a
+-safety pass. This is not a truth gate: it issues no health, repair, causality
+-or upgrade-clearance verdict.
++branch/revision binding is refused or the input is malformed, incomplete or
++contradicts the snapshot. Absence is a probe count, never a safety pass. This
++is not a truth gate: it issues no health, repair, causality or upgrade-clearance
++verdict.
+ 
+ No writes. No host-state command is executed: the snapshot is data, and
+ --revision only reads git blobs with read-only plumbing (GIT_OPTIONAL_LOCKS=0).
+-A revision run additionally requires the resolved commit to descend from
+-refs/heads/<branch> (default master) and, when that ref exists, from
+-refs/remotes/origin/<branch>; the payload carries branch and branch_tip.
++Revision binding is delegated to tools/_revision.py, which validates the branch
++before the revision and requires a landed local ref and, when present, a pushed
++origin ref; the payload carries branch and branch_tip.
+ --selftest writes only under a mktemp git sandbox.
+ """
+ from __future__ import annotations
+@@ -30,6 +30,8 @@ from collections import namedtuple
+ from datetime import datetime, timedelta, timezone
+ from pathlib import Path
+ 
++import _revision
++
+ PASS, CANNOT = 0, 2
+ ROOT = Path(__file__).resolve().parents[1]
+ RECORD = "corpus/knowledge/partial-upgrade-recheck-r15.json"
+@@ -42,8 +44,6 @@ REQUIRED_SOURCES = ("S047", "S048", "S049")
+ PROBE_KEYS = ("package_versions", "pending_updates", "sync_metadata", "libinput_log",
+               "boot_hook_mentions")
+ PACKAGES = ("libinput", "libinput-tools", "mkinitcpio", "systemd")
+-REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
+-BRANCH = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]*$")
+ DEFAULT_BRANCH = "master"
+ SELF = Path(__file__).resolve()
+ STAMP = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+@@ -445,62 +445,6 @@ def git(repo, *args):
+         raise Cannot("E-GIT-FAILED", "git", str(exc)[:120])
+ 
+ 
+-def resolve(repo, rev):
+-    if not REV.fullmatch(rev):
+-        raise Cannot("E-REVISION-INVALID", "revision", "7-64 hex commit required")
+-    proc = git(repo, "rev-parse", "--verify", "--quiet", f"{rev.lower()}^{{commit}}")
+-    if proc.returncode != 0:
+-        raise Cannot("E-REVISION-INVALID", "revision", "commit not found")
+-    return proc.stdout.decode("ascii", "replace").strip()
+-
+-
+-def ref_commit(repo, ref):
+-    proc = git(repo, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")
+-    if proc.returncode != 0:
+-        return None
+-    return proc.stdout.decode("ascii", "replace").strip() or None
+-
+-
+-def branch_ok(name):
+-    if not BRANCH.fullmatch(name):
+-        return False
+-    if ".." in name or "@{" in name or "//" in name or name.endswith("/"):
+-        return False
+-    return all(part and not part.startswith(".") and not part.endswith(".lock")
+-               for part in name.split("/"))
+-
+-
+-def bind(repo, commit, branch):
+-    """Require commit to be a landed (and, when origin exists, pushed) ancestor."""
+-    if not branch_ok(branch):
+-        raise Cannot("E-REVISION-INVALID", "branch", "invalid branch name",
+-                     revision=commit)
+-    if git(repo, "merge-base", "--is-ancestor", commit,
+-           f"refs/heads/{branch}").returncode != 0:
+-        raise Cannot("E-REVISION-NOT-LANDED", "revision",
+-                     f"not an ancestor of refs/heads/{branch}", revision=commit)
+-    tip = ref_commit(repo, f"refs/heads/{branch}")
+-    if tip is None:
+-        raise Cannot("E-REVISION-NOT-LANDED", "revision",
+-                     f"refs/heads/{branch} tip unreadable", revision=commit)
+-    if ref_commit(repo, f"refs/remotes/origin/{branch}") is not None:
+-        if git(repo, "merge-base", "--is-ancestor", commit,
+-               f"refs/remotes/origin/{branch}").returncode != 0:
+-            raise Cannot("E-REVISION-NOT-PUSHED", "revision",
+-                         f"not an ancestor of refs/remotes/origin/{branch}",
+-                         revision=commit, tip=tip)
+-    return tip
+-
+-
+-def branch_tip(repo, branch):
+-    if not branch_ok(branch):
+-        return None
+-    try:
+-        return ref_commit(repo, f"refs/heads/{branch}")
+-    except Cannot:
+-        return None
+-
+-
+ def read_git(repo, commit, path):
+     proc = git(repo, "show", f"{commit}:{path}")
+     if proc.returncode == 0:
+@@ -526,10 +470,14 @@ def read_tree(repo, path):
+ def load(rev, branch):
+     if rev is None:
+         return ("worktree", read_tree(ROOT, RECORD), read_tree(ROOT, SNAPSHOT),
+-                branch_tip(ROOT, branch))
+-    commit = resolve(ROOT, rev)
+-    tip = bind(ROOT, commit, branch)
+-    return commit, read_git(ROOT, commit, RECORD), read_git(ROOT, commit, SNAPSHOT), tip
++                _revision.branch_tip(ROOT, branch))
++    try:
++        binding = _revision.bind(ROOT, rev, branch)
++    except _revision.RevisionError as exc:
++        raise Cannot(exc.fid, exc.site, exc.detail, revision=rev,
++                     tip=_revision.branch_tip(ROOT, branch)) from exc
++    return (binding.sha, read_git(ROOT, binding.sha, RECORD),
++            read_git(ROOT, binding.sha, SNAPSHOT), binding.branch_tip)
+ 
+ 
+ def sandbox_git(repo, *args):
+@@ -582,6 +530,7 @@ def selftest():
+         (repo / "tools").mkdir()
+         tool = repo / "tools" / "measure-update-recheck.py"
+         tool.write_bytes(SELF.read_bytes())
++        (tool.parent / "_revision.py").write_bytes(Path(_revision.__file__).read_bytes())
+ 
+         def run(*args):
+             proc = subprocess.run([sys.executable, str(tool), *args],
+@@ -604,11 +553,13 @@ def selftest():
+             if payload is None:
+                 problems.append("stdout is not JSON")
+             else:
+-                got = {item.get("id") for item in payload.get("findings", [])
+-                       if isinstance(item, dict)}
++                findings = payload.get("findings", [])
++                got = {item.get("id") for item in findings if isinstance(item, dict)}
+                 if got != want_ids:
+                     problems.append("ids=" + ",".join(sorted(got))
+                                     + " want=" + ",".join(sorted(want_ids)))
++                if len(findings) != len(want_ids):
++                    problems.append(f"finding_count={len(findings)}/{len(want_ids)}")
+                 if want_revision is not None and payload.get("revision") != want_revision:
+                     problems.append(f"revision={payload.get('revision')!r}/{want_revision}")
+                 if payload.get("branch") != want_branch:
+@@ -619,6 +570,13 @@ def selftest():
+                     problems.append(f"status={payload.get('status')!r}/{want_status}")
+             case(name, problems)
+ 
++        revision_case("cli-invalid-option", ("--unknown-option",), CANNOT,
++                      {"E-CLI"}, want_revision="worktree",
++                      want_status="CANNOT_EVALUATE")
++        revision_case("cli-selftest-with-revision",
++                      ("--selftest", "--revision", tip), CANNOT,
++                      {"E-CLI"}, want_revision="worktree",
++                      want_status="CANNOT_EVALUATE")
+         revision_case("head-rejected", ("--revision", "HEAD"), CANNOT,
+                       {"E-REVISION-INVALID"}, want_revision="HEAD")
+         revision_case("short-hex-rejected", ("--revision", tip[:6]), CANNOT,
+@@ -627,12 +585,26 @@ def selftest():
+                       want_revision=tip, want_tip=tip, want_status="ABSENT")
+         revision_case("unlanded-rejected", ("--revision", unlanded), CANNOT,
+                       {"E-REVISION-NOT-LANDED"}, want_revision=unlanded)
++        revision_case("branch-range-rejected", ("--revision", tip, "--branch", "a..b"),
++                      CANNOT, {"E-BRANCH-INVALID"}, want_revision=tip, want_branch="a..b")
++        revision_case("branch-slash-rejected", ("--revision", tip, "--branch", "master/"),
++                      CANNOT, {"E-BRANCH-INVALID"}, want_revision=tip, want_branch="master/")
++        revision_case("branch-space-rejected", ("--revision", tip, "--branch", "bad branch"),
++                      CANNOT, {"E-BRANCH-INVALID"}, want_revision=tip, want_branch="bad branch")
++        revision_case("branch-first-precedence",
++                      ("--revision", "HEAD", "--branch", "a..b"), CANNOT,
++                      {"E-BRANCH-INVALID"}, want_revision="HEAD", want_branch="a..b")
+         revision_case("unknown-branch-rejected", ("--revision", tip, "--branch", "absent"),
+-                      CANNOT, {"E-REVISION-NOT-LANDED"}, want_revision=tip,
++                      CANNOT, {"E-BRANCH-MISSING"}, want_revision=tip,
+                       want_branch="absent")
+         sandbox_git(repo, "update-ref", "refs/remotes/origin/master", base)
+         revision_case("not-pushed-rejected", ("--revision", tip), CANNOT,
+                       {"E-REVISION-NOT-PUSHED"}, want_revision=tip, want_tip=tip)
++        blob = sandbox_git(repo, "hash-object", "-w", "a.txt")
++        sandbox_git(repo, "update-ref", "refs/remotes/origin/master", blob)
++        revision_case("origin-blob-git-failed", ("--revision", tip), CANNOT,
++                      {"E-GIT-FAILED"}, want_revision=tip, want_tip=tip)
++        sandbox_git(repo, "update-ref", "refs/remotes/origin/master", base)
+         revision_case("worktree-default", (), PASS, set(), want_revision="worktree",
+                       want_tip=tip, want_status="ABSENT")

@@ -1,0 +1,10 @@
+# MigSourceScope
+
+- **Changed in isolated clone:** `/tmp/MigSourceScope.r0xkA7/repo/tools/check-source-scope-correction.py`; sandbox commit `5723d19`. Patch: `.ufo/waves/round-18/build/patches/MigSourceScope.patch`.
+- **Behavior:** revision mode calls `_revision.bind(ROOT, revision, branch)` and converts its `RevisionError` into one existing `Cannot` finding (exit 2); worktree mode uses shared informational `branch_tip`. Removed the local revision regex, resolver, ancestry/ref checks, and binding implementation. `[obs]` clone file lines 14, 378-382, 613-645; shared contract: `tools/_revision.py:83-150`.
+- **Selftest changes:** copied fixture subprocesses now include `_revision.py`; new cases cover invalid branches, invalid-revision/branch-missing precedence, missing branches, and exactly one finding on binding refusal. Existing domain fixtures remain unchanged. `[obs]` clone file lines 461-520, 531-571.
+- **Counts:** `[inf]` configured source-scope cases: 25 before (15 domain + 10 binding) → 29 after (15 + 14); not runtime results. Shared module is unchanged. **Selftests and judge were not run** under the wave rule assigning verification to the parent; therefore no pass count or harness entry result is retained.
+- **Scope note:** the target parser has `--revision`, `--selftest`, and `--branch`, but no `--registry-from` entrypoint (`tools/check-source-scope-correction.py:613-622`). No other tool was changed. LSP was unavailable in the mounted tools.
+- **Blockers/risks:** parent verification remains required. The requested `--registry-from` behavior is not present in this assigned tool; its implementation is outside the one-file scope.
+
+Scope: executed=mktemp; git clone --no-hardlinks; git checkout 51dd9eeaa305539fa3cfc6ee275978dc18043b79; git remote remove origin; edit sandbox source; git add; git commit; git show; write patch and report

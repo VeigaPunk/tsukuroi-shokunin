@@ -1,0 +1,11 @@
+# SentRevision — read-only security review
+
+- **HIGH — candidate execution is not a security sandbox.** [obs] The judge materializes files from the selected revision and runs each candidate script with the current interpreter, cwd in the clone, and `clean_env()` (`tools/check-revision-binding.py:367-395,272-284`). `clean_env()` removes only `GIT_*`; it preserves other environment values (`:92-95`). Exploit: a malicious landed candidate reads caller credentials/files or uses network and filesystem with the caller's UID. The clone limits Git writes only, not process authority. **Smallest fix:** run candidates under OS-enforced filesystem/network/resource isolation with an allowlisted environment.
+
+- **HIGH — ambient Git hook escapes the clone boundary.** [obs] The judge creates a probe commit with `--no-verify` (`tools/check-revision-binding.py:223-228`) and retains caller HOME/config (`:92-95`). [inf] A configured global/system `core.hooksPath` can execute `prepare-commit-msg`; Git documents that this hook is not suppressed by `--no-verify` (https://git-scm.com/docs/githooks). It can modify host files or access secrets while the judge claims writes are sandbox-only. **Smallest fix:** isolate Git config and set `core.hooksPath` to a controlled empty directory for every Git invocation.
+
+- **MEDIUM — timeout does not contain descendants or output.** [obs] Candidate execution captures unbounded stdout/stderr and sets only a 60s timeout (`tools/check-revision-binding.py:272-284`). [inf] A candidate can flood captured output to exhaust memory, or fork a child that survives timeout because no process group is created/killed. **Smallest fix:** bounded output plus process-group termination and OS resource limits.
+
+- **Branch option injection:** no shell/Git-option injection found. [obs] Commands use argv arrays; the judge prefixes branch values with `refs/heads/` (`tools/check-revision-binding.py:98-102,136-149`), and `_revision.py` validates full branch syntax with `git check-ref-format` before use (`tools/_revision.py:83-95`). The judge omits that validation, so malformed values can fail measurement, but I found no injection path through this surface.
+
+Scope: executed=none

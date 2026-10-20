@@ -1,0 +1,258 @@
+diff --git a/tools/check-section-citations.py b/tools/check-section-citations.py
+index f685856..400f019 100755
+--- a/tools/check-section-citations.py
++++ b/tools/check-section-citations.py
+@@ -22,6 +22,8 @@ are rejected because under jj colocation HEAD is @- (the parent of the
+ working copy), not the branch tip. The revision and the db68e62…
+ baseline must each be an ancestor of refs/heads/<--branch> (default
+ master) and, when refs/remotes/origin/<branch> exists, of it too.
++`tools/_revision.py` owns the shared binding; branch validation precedes
++revision validation.
+ --selftest is hermetic in-memory fixtures plus a throwaway mktemp git
+ sandbox for the binding vectors. Exit 0 clean, 1 failed,
+ 2 could-not-evaluate. No writes, no network, no host queries.
+@@ -30,6 +32,7 @@ from __future__ import annotations
+ import argparse, json, os, re, shutil, subprocess, sys, tempfile
+ from collections import namedtuple
+ from pathlib import Path
++from _revision import RevisionError, bind
+ 
+ PASS, FAIL, CANNOT = 0, 1, 2
+ ROOT = Path(__file__).resolve().parents[1]
+@@ -58,10 +61,6 @@ PINS = {
+               "row_key": "| 1 | Do nothing now |",
+               "quote": "`-Syu` would be INERT: 0 candidates by three probes",
+               "notice_heading": "## R16-RANK-SECTION — citation-only erratum"}}
+-REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
+-# Branch name for the landed check; refs/heads/<branch> is always built
+-# explicitly, so a name can never be parsed as a git option.
+-BRANCH = re.compile(r"^(?!-)(?!.*\.\.)(?!.*//)[A-Za-z0-9._/-]{1,255}$")
+ # Claims that re-supersede the R15 current-use supersession or its routing.
+ RE_SUPERSEDE = re.compile(
+     r"supersed\w*\s+(?:the\s+|this\s+)?(?:r15[\s_-]*update[\s_-]*state"
+@@ -427,59 +426,6 @@ def read_git(commit, path):
+     raise Cannot("E-GIT-READ-FAILED", path, error.strip()[:120])
+ 
+ 
+-def resolve(rev, repo=None, site="revision"):
+-    proc = git("rev-parse", "--verify", "--quiet", f"{rev}^{{commit}}", repo=repo)
+-    if proc.returncode != 0:
+-        raise Cannot("E-REVISION-INVALID", site, "7-64 hex commit required")
+-    return proc.stdout.decode("ascii", "replace").strip()
+-
+-
+-def ref_sha(ref, repo=None):
+-    """Full object id at ref, or None when the ref does not exist."""
+-    proc = git("rev-parse", "--verify", "--quiet", ref, repo=repo)
+-    return proc.stdout.decode("ascii", "replace").strip() if proc.returncode == 0 else None
+-
+-
+-def is_ancestor(sha, ref, repo=None):
+-    proc = git("merge-base", "--is-ancestor", sha, ref, repo=repo)
+-    if proc.returncode == 0:
+-        return True
+-    if proc.returncode == 1:
+-        return False
+-    raise Cannot("E-GIT-FAILED", ref,
+-                 proc.stderr.decode("utf-8", "replace").strip()[:120])
+-
+-
+-def bind_revision(sha, branch, repo=None, site=None):
+-    """Require sha landed on refs/heads/<branch> and, when that ref exists,
+-    pushed to refs/remotes/origin/<branch>. Returns the local branch tip.
+-
+-    Under jj colocation the branch bookmark can lag or lead HEAD, so ancestry
+-    of an explicit ref is the only honest landed test.
+-    """
+-    site = site or sha
+-    local = f"refs/heads/{branch}"
+-    tip = ref_sha(local, repo)
+-    if tip is None:
+-        raise Cannot("E-REVISION-NOT-LANDED", site, f"{local} absent")
+-    if not is_ancestor(sha, local, repo):
+-        raise Cannot("E-REVISION-NOT-LANDED", site,
+-                     f"{sha[:12]} is not an ancestor of {local}")
+-    remote = f"refs/remotes/origin/{branch}"
+-    if ref_sha(remote, repo) is not None and not is_ancestor(sha, remote, repo):
+-        raise Cannot("E-REVISION-NOT-PUSHED", site,
+-                     f"{sha[:12]} is not an ancestor of {remote}")
+-    return tip
+-
+-
+-def resolve_bound(rev, branch, repo=None):
+-    finding = revision_finding(rev)
+-    if finding:
+-        raise Cannot(finding, "revision", "7-64 hex commit required")
+-    sha = resolve(rev, repo)
+-    return sha, bind_revision(sha, branch, repo)
+-
+-
+ def build_parser():
+     parser = argparse.ArgumentParser(
+         description="Narrow read-only round-16 section-citation errata gate.",
+@@ -505,14 +451,6 @@ def cli_finding(argv):
+         return "E-CLI"
+ 
+ 
+-def revision_finding(rev):
+-    return None if REV.fullmatch(rev) else "E-REVISION-INVALID"
+-
+-
+-def branch_finding(branch):
+-    return None if BRANCH.fullmatch(branch) else "E-BRANCH-INVALID"
+-
+-
+ BASE_R3 = (
+     "# Host-health report — plazir27 (round 3 e2e)\n\n"
+     "## 0. Verdict board\n\n"
+@@ -640,12 +578,11 @@ def sandbox_git(path, *args):
+ 
+ 
+ def binding_probe(repo, rev, branch):
+-    """(exit code, outcome): CANNOT plus the finding id on refusal, PASS plus
+-    the resolved sha and branch tip on acceptance."""
++    """(exit code, outcome): CANNOT plus the shared finding id, or bound identity."""
+     try:
+-        sha, tip = resolve_bound(rev, branch, repo)
+-        return (PASS, f"ok:{sha}:{tip}")
+-    except Cannot as exc:
++        binding = bind(repo, rev, branch)
++        return (PASS, f"ok:{binding.sha}:{binding.branch_tip}")
++    except RevisionError as exc:
+         return (CANNOT, exc.fid)
+ 
+ 
+@@ -846,17 +783,51 @@ def selftest():
+         return CANNOT
+     try:
++        probe_hex = refs["c2"]
++
++        def main_probe(rev, branch):
++            import contextlib, io
++            previous_root = globals()["ROOT"]
++            output = io.StringIO()
++            globals()["ROOT"] = work
++            try:
++                with contextlib.redirect_stdout(output):
++                    code = main(["--revision", rev, "--branch", branch])
++            finally:
++                globals()["ROOT"] = previous_root
++            payload = json.loads(output.getvalue())
++            return code, [finding["id"] for finding in payload["findings"]]
++
+         probes = (
+-            ("invalid-revision", revision_finding("not-a-rev!!"), "E-REVISION-INVALID"),
+-            ("invalid-revision-dash", revision_finding("--exec"), "E-REVISION-INVALID"),
+-            ("invalid-revision-head", revision_finding("HEAD"), "E-REVISION-INVALID"),
+-            ("invalid-revision-at", revision_finding("@"), "E-REVISION-INVALID"),
+-            ("invalid-revision-at-minus", revision_finding("@-"), "E-REVISION-INVALID"),
+-            ("invalid-revision-ref", revision_finding("refs/heads/master"),
+-             "E-REVISION-INVALID"),
+-            ("invalid-revision-short", revision_finding("db68e6"), "E-REVISION-INVALID"),
+-            ("valid-revision-hex", revision_finding("db68e62"), None),
+-            ("invalid-branch", branch_finding("../master"), "E-BRANCH-INVALID"),
++            ("invalid-revision", binding_probe(work, "not-a-rev!!", "master"),
++             (CANNOT, "E-REVISION-INVALID")),
++            ("invalid-revision-dash", binding_probe(work, "--exec", "master"),
++             (CANNOT, "E-REVISION-INVALID")),
++            ("invalid-revision-head", binding_probe(work, "HEAD", "master"),
++             (CANNOT, "E-REVISION-INVALID")),
++            ("invalid-revision-at", binding_probe(work, "@", "master"),
++             (CANNOT, "E-REVISION-INVALID")),
++            ("invalid-revision-at-minus", binding_probe(work, "@-", "master"),
++             (CANNOT, "E-REVISION-INVALID")),
++            ("invalid-revision-ref", binding_probe(work, "refs/heads/master", "master"),
++             (CANNOT, "E-REVISION-INVALID")),
++            ("invalid-revision-range",
++             binding_probe(work, f"{refs['c1']}..{refs['c2']}", "master"),
++             (CANNOT, "E-REVISION-INVALID")),
++            ("invalid-revision-short", binding_probe(work, refs["c2"][:6], "master"),
++             (CANNOT, "E-REVISION-INVALID")),
++            ("valid-revision-hex", binding_probe(work, probe_hex, "master"),
++             (PASS, f"ok:{probe_hex}:{refs['local']}")),
++            ("invalid-branch", binding_probe(work, probe_hex, "../master"),
++             (CANNOT, "E-BRANCH-INVALID")),
++            ("invalid-branch-trailing-slash",
++             binding_probe(work, probe_hex, "feature/"),
++             (CANNOT, "E-BRANCH-INVALID")),
++            ("branch-validation-precedes-revision",
++             binding_probe(work, "not-a-rev!!", "feature/"),
++             (CANNOT, "E-BRANCH-INVALID")),
++            ("revision-validation-precedes-missing-branch",
++             binding_probe(work, "not-a-rev!!", "nosuch"),
++             (CANNOT, "E-REVISION-INVALID")),
+             ("invalid-cli", cli_finding(["--bogus"]), "E-CLI"),
+             ("cli-no-mode", cli_finding([]), "E-CLI"),
+             ("cli-both-modes", cli_finding(["--selftest", "--revision", probe_hex]),
+@@ -871,6 +842,22 @@ def selftest():
+                 passed += 1
+             else:
+                 failures.append(f"{name}: id={got}/{want}")
++        main_probes = (
++            ("main-root-dac-double-id-is-first-only",
++             main_probe("not-a-rev!!", "feature/"),
++             (CANNOT, ["E-BRANCH-INVALID"])),
++            ("main-invalid-revision-single-finding",
++             main_probe("not-a-rev!!", "master"),
++             (CANNOT, ["E-REVISION-INVALID"])),
++            ("main-missing-branch-single-finding",
++             main_probe(probe_hex, "nosuch"),
++             (CANNOT, ["E-BRANCH-MISSING"])),
++        )
++        for name, got, want in main_probes:
++            if got == want:
++                passed += 1
++            else:
++                failures.append(f"{name}: id={got}/{want}")
+         binding = (
+             ("bind-head-rejected", binding_probe(work, "HEAD", "master"),
+              (CANNOT, "E-REVISION-INVALID")),
+@@ -885,7 +872,7 @@ def selftest():
+             ("bind-unpushed-rejected", binding_probe(work, refs["local"], "master"),
+              (CANNOT, "E-REVISION-NOT-PUSHED")),
+             ("bind-missing-branch-rejected", binding_probe(work, refs["c2"], "nosuch"),
+-             (CANNOT, "E-REVISION-NOT-LANDED")),
++             (CANNOT, "E-BRANCH-MISSING")),
+             ("bind-tip-accepted", binding_probe(work, refs["c2"], "master"),
+              (PASS, f"ok:{refs['c2']}:{refs['local']}")),
+@@ -898,7 +885,7 @@ def selftest():
+                 failures.append(f"{name}: id={got}/{want}")
+     finally:
+         shutil.rmtree(work.parent, ignore_errors=True)
+-    total = len(cases) + len(probes) + len(binding)
++    total = len(cases) + len(probes) + len(main_probes) + len(binding)
+     if failures:
+         print(f"CHECK_SECTION_CITATIONS_SELFTEST: FAIL ({total} cases, {passed} passed)")
+         print("\n".join("  " + item for item in failures))
+@@ -922,24 +909,19 @@ def main(argv=None):
+     branch = args.branch
+     revision, branch_tip = "worktree", None
+     try:
+-        invalid_branch = branch_finding(branch)
+-        if invalid_branch:
+-            raise Cannot(invalid_branch, "branch",
+-                         "branch must match [A-Za-z0-9._/-], no leading dash, '..' or '//'")
+-        invalid_revision = revision_finding(args.revision)
+-        if invalid_revision:
+-            raise Cannot(invalid_revision, "revision", "7-64 hex commit required")
+-        revision = resolve(args.revision)
+-        branch_tip = ref_sha(f"refs/heads/{branch}")
+-        bind_revision(revision, branch)
+-        base_rev = resolve(BASE, site="baseline")
+-        bind_revision(base_rev, branch, site="baseline")
++        revision_binding = bind(ROOT, args.revision, branch)
++        revision = revision_binding.sha
++        branch_tip = revision_binding.branch_tip
++        base_binding = bind(ROOT, BASE, branch)
++        base_rev = base_binding.sha
+         docs = DocSet(
+             read_git(revision, MD16), read_git(revision, JSON16),
+             read_git(revision, SOURCES),
+             {path: read_git(revision, path) for path in (R3, V3)},
+             {path: read_git(base_rev, path) for path in (R3, V3)})
+-    except Cannot as exc:
++    except (Cannot, RevisionError) as exc:
++        if isinstance(exc, RevisionError):
++            exc = Cannot(exc.fid, exc.site, exc.detail)
+         return emit(Result(CANNOT, [Finding(exc.fid, exc.site, exc.detail)], 0),
+                     revision, branch, branch_tip)

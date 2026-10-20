@@ -185,3 +185,10 @@ Still unknown: whether libinput was among the 448 upgraded/installed lines in th
 ## R17-SYMLINK — pointer (2026-10-20, L1)
 
 Appended after the R17 notice above. Record R17-FRESH-PARTIAL-05 calls the `/new_root` mismatch "live in the installed images". It does not make boot fail: 42.x images keep `/new_root` as a symlink to `sysroot`, so both hooks resolve (`.ufo/waves/round-17/l1-capture/overlay-emulation.txt:51-66`, `:40-48`). Current per-entry verdicts: `corpus/knowledge/boot-chain-r17.md` § Decision table. Nothing here authorizes package, service or boot action.
+
+
+## R18-FRESHNESS — sibling current-use restatements (2026-10-20)
+
+Sources S060, S051 and S052. This appended correction supersedes the current-use readings listed below and every repeated current-use restatement of the same premise in this file. Historical measurements remain intact. No package, service, rebuild, boot or rollback action is authorized.
+
+- R18-FRESH-SUPPLEMENT-33: prior locus `**Boot coupling is latent, not active.** Installed `mkinitcpio 41.1-1` has`. Now: local-db directory mkinitcpio-42.2-1 is observed; the41.1-installed/42.2-pending current-use premise is superseded. Current pending row, if any, is unmeasured; the R17 image/symlink analysis governs compatibility, not a new upgrade clearance. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:34.

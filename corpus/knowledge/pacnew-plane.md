@@ -58,3 +58,10 @@ Compare names and line numbers; record every count as `<number> — <command> 20
 - S011 (tier A) — ArchWiki pacman/Pacnew and Pacsave, https://wiki.archlinux.org/title/Pacman/Pacnew_and_Pacsave?oldid=869214 § Locating `.pac*` files; quote: “the log does not keep track of the files currently in the filesystem nor the ones that have already been removed.”
 - S011 (tier A) — same URL § Managing `.pac*` files; quote: “Always compare and merge the changes manually.”
 - S032 (tier A, own-work) — `/var/log/pacman.log` lines 1427, 1645, 1646, read-only; `find /etc` output includes filenames only. This entry intentionally records no configuration-file contents.
+
+
+## R18-FRESHNESS — sibling current-use restatements (2026-10-20)
+
+Sources S060, S051 and S052. This appended correction supersedes the current-use readings listed below and every repeated current-use restatement of the same premise in this file. Historical measurements remain intact. No package, service, rebuild, boot or rollback action is authorized.
+
+- R18-FRESH-SUPPLEMENT-32: prior locus `[obs] The `pacman-contrib` package query returned “not found” on this host (`pacman -Q pacman-contrib` 2026-10-19). Do not assume the `pacdiff` command is locally available; if available on an operator system, it is the ArchWiki-recommended interface for reviewing these files. No package installation or file merge was performed.`. Now: pacman-contrib-1.13.1-1 is now present in local metadata. The old package-absent rationale cannot establish current pacdiff availability; no pacdiff execution or executable-presence observation is credited from this R18 capture. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:36.

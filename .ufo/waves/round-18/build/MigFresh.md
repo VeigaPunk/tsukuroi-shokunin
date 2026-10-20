@@ -1,0 +1,10 @@
+# MigFresh — shared revision binding
+
+- **Files changed:** sandbox clone only: `tools/check-freshness-r17.py`. Retained patch: `.ufo/waves/round-18/build/patches/MigFresh.patch`. No production lane file changed.
+- **Behavior:** the checker imports `_revision`, uses its binding for both `--revision` and `--registry-from`, keeps shared `branch_tip` informational output, and maps a `RevisionError` to one existing `Cannot` finding (exit 2). Removed local binding helpers and the 7–64 hex/branch prechecks. Added subprocess fixtures that copy both checker and `_revision.py`; preserved freshness-domain fixtures. Selftests cover branch-first single-ID behavior, invalid branches, missing branches, precedence, and `--registry-from` binding.
+- **[obs]** Implementation and documented order: sandbox `tools/check-freshness-r17.py:28-33,457-568,763-800`.
+- **[obs]** Before edits: 53/53; after: 57/57 (`PYTHONDONTWRITEBYTECODE=1 python3 tools/check-freshness-r17.py --selftest`). Shared selftest: 37/37 (`PYTHONDONTWRITEBYTECODE=1 python3 tools/_revision.py --selftest`).
+- **[obs]** Judge at sandbox master `ff62434f79a0c350bae8aecb759877f80e96b5ea`: `check-freshness-r17.py` is bound, consistent, shared; local revision regex count 0. Overall judge returned 1: 2/9 consistent, 1/9 shared, 8 local copies remain in sibling tools. This is expected before their migrations land.
+- **Risks/blockers:** fleet-wide judge remains failing pending sibling migrations. LSP was unavailable in the provided tool inventory. No tools installed.
+
+Clone: `/tmp/MigFresh.ApgroY/repo` (origin removed). **Scope:** executed=`git clone --no-hardlinks /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /tmp/MigFresh.ApgroY/repo`; checkout `51dd9eeaa305539fa3cfc6ee275978dc18043b79`; remove origin; freshness selftest before and after; shared selftest; sandbox-only commit `ff62434f79a0c350bae8aecb759877f80e96b5ea`; judge `python3 tools/check-revision-binding.py --tools-revision ff62434f79a0c350bae8aecb759877f80e96b5ea`; `git show --format= --no-ext-diff HEAD -- tools/check-freshness-r17.py`

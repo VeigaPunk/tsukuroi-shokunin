@@ -1,0 +1,289 @@
+diff --git a/tools/check-root-dac-correction.py b/tools/check-root-dac-correction.py
+index 29f9f3bdcdd2b4f433c88a27d2b268396acd60a3..1289635f201309f2b0053a694072e11e1b5f39b5 100755
+--- a/tools/check-root-dac-correction.py
++++ b/tools/check-root-dac-correction.py
+@@ -3,9 +3,12 @@
+ 
+ Exit 0 clean, 1 failed conformance, 2 could-not-evaluate. The tree and --revision
+ paths share evaluate(); --selftest uses in-memory doc fixtures plus a mktemp git
+-sandbox for revision binding. --revision admits only 7-64 hex and must be an
+-ancestor of refs/heads/<branch> (and of refs/remotes/origin/<branch> when that ref
+-exists). One JSON object on stdout. No writes.
++sandbox for revision binding and the CLI. --revision binds through the shared
++tools/_revision.py (round 18): --branch is checked first, then REV must be 7-64 hex
++naming one commit that is an ancestor of refs/heads/<branch> (and of
++refs/remotes/origin/<branch> when that ref exists). The first binding failure is the
++only finding (exit 2). The worktree default reports the branch tip for information
++only. One JSON object on stdout. No writes.
+ """
+ from __future__ import annotations
+ 
+@@ -21,15 +24,20 @@ import tempfile
+ from collections import namedtuple
+ from pathlib import Path
+ 
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++sys.dont_write_bytecode = True  # read-only gate: no tools/__pycache__ in the lane
++import _revision  # noqa: E402  shared landed-revision binding (tools/_revision.py)
++
+ PASS, FAIL, CANNOT = 0, 1, 2
+ R12_MD = "corpus/knowledge/root-dac-decision-r12.md"
+ R12_JSON = "corpus/knowledge/root-dac-decision-r12.json"
+ R13_MD = "corpus/knowledge/root-dac-correction-r13.md"
+ R13_JSON = "corpus/knowledge/root-dac-correction-r13.json"
++FILES = (R12_MD, R12_JSON, R13_MD, R13_JSON)
++ROOT = Path(__file__).resolve().parents[1]
+ HEADING = "## Round-13 correction — superseded unit-read-only universal"
+ R13_ID = "R13-DAC-EXCLUSIVITY"
+ MECHS = ("BindReadOnlyPaths=", "TemporaryFileSystem=", "RootDirectory=", "RootImage=")
+-VALID_REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
+ OLD = re.compile(r"only\s+`?(?:ProtectSystem=)?strict`?\s*(?:\(?\s*or\s+(?:an?\s+)?`?ReadOnlyPaths=`?"
+                  r"(?:\s+(?:entry|entries))?(?:\s+covering\s+`?/?`?)?\s*\)?)?\s*"
+                  r"(?:would|could|can)\s+(?:make|produce)[^.\n]{0,160}?(?:read-only|EROFS)", re.I)
+@@ -233,9 +241,7 @@ def read_tree(repo, path):
+         raise Cannot("E-READ-FAILED", path, str(exc)[:120])
+ GIT_TIMEOUT = 30
+ def git(repo, *args, identity=None):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+-    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+-    env.update(identity or {})
++    env = {**_revision.clean_env(), **(identity or {})}
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(repo), *args],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env,
+@@ -255,39 +261,26 @@ def read_git(repo, commit, path):
+     if re.search(r"does not exist|exists on disk, but not in|not in '", error, re.I):
+         return None
+     raise Cannot("E-GIT-READ-FAILED", path, error.strip()[:120])
+-def resolve(repo, rev):
+-    proc = git(repo, "rev-parse", "--verify", "--quiet", f"{rev}^{{commit}}")
+-    if proc.returncode != 0:
+-        raise Cannot("E-REVISION-INVALID", "revision", "commit not found")
+-    return proc.stdout.decode("ascii", "replace").strip()
+-def ref_tip(repo, ref):
+-    proc = git(repo, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")
+-    return proc.stdout.decode("ascii", "replace").strip() if proc.returncode == 0 else None
+-def safe_tip(repo, ref):
+-    """Informational tip for worktree mode: never turns an unreadable ref or missing git into CANNOT."""
++def run_gate(repo, revision, branch):
++    """(Result, revision, branch_tip). --revision binds through tools/_revision.py and its
++    RevisionError becomes the single CANNOT finding; revision None reads the worktree, where
++    the branch tip is informational only."""
++    label, tip = ("worktree" if revision is None else revision), None
+     try:
+-        return ref_tip(repo, ref)
+-    except Cannot:
+-        return None
+-def is_ancestor(repo, commit, tip):
+-    proc = git(repo, "merge-base", "--is-ancestor", commit, tip)
+-    if proc.returncode in (0, 1):
+-        return proc.returncode == 0
+-    raise Cannot("E-GIT-FAILED", "git", proc.stderr.decode("utf-8", "replace").strip()[:120])
+-def binding(repo, commit, branch):
+-    """(findings, tip): the commit must be an ancestor of the branch tip, and of origin's when present."""
+-    tip = ref_tip(repo, f"refs/heads/{branch}")
+-    if tip is None:
+-        return [Finding("E-REVISION-NOT-LANDED", f"refs/heads/{branch}", "branch ref does not resolve")], None
+-    findings = []
+-    if not is_ancestor(repo, commit, tip):
+-        findings.append(Finding("E-REVISION-NOT-LANDED", f"refs/heads/{branch}",
+-                                f"{commit[:12]} is not an ancestor"))
+-    remote = ref_tip(repo, f"refs/remotes/origin/{branch}")
+-    if remote is not None and not is_ancestor(repo, commit, remote):
+-        findings.append(Finding("E-REVISION-NOT-PUSHED", f"refs/remotes/origin/{branch}",
+-                                f"{commit[:12]} is not an ancestor"))
+-    return findings, tip
++        if revision is None:
++            tip = _revision.branch_tip(repo, branch)
++            docs = DocSet(*[read_tree(repo, p) for p in FILES])
++        else:
++            try:
++                bound = _revision.bind(repo, revision, branch)
++            except _revision.RevisionError as exc:
++                tip = _revision.branch_tip(repo, branch)
++                raise Cannot(exc.fid, exc.site, exc.detail) from None
++            label, tip = bound.sha, bound.branch_tip
++            docs = DocSet(*[read_git(repo, bound.sha, p) for p in FILES])
++    except Cannot as exc:
++        return Result(CANNOT, [Finding(exc.fid, exc.site, exc.detail)], 0), label, tip
++    return evaluate(docs), label, tip
+ 
+ 
+ OLDMD = ("For reference, only `strict` (or a `ReadOnlyPaths=` entry covering `/`) would make `/` read-only "
+@@ -381,60 +374,115 @@ def sandbox_git(repo, *args):
+         raise Cannot("E-SANDBOX-GIT", " ".join(args),
+                      proc.stderr.decode("utf-8", "replace").strip()[:120])
+     return proc.stdout.decode("utf-8", "replace").strip()
+-def sandbox_commit(repo, path, text):
+-    (repo / path).write_text(text, encoding="utf-8")
+-    sandbox_git(repo, "add", "--", path)
+-    sandbox_git(repo, "commit", "-q", "-m", "selftest " + path)
++def doc_files(docs):
++    return {path: text for path, text in zip(FILES, docs) if text is not None}
++def sandbox_commit(repo, files):
++    for path, text in files.items():
++        (repo / path).parent.mkdir(parents=True, exist_ok=True)
++        (repo / path).write_text(text, encoding="utf-8")
++    sandbox_git(repo, "add", "--", *files)
++    sandbox_git(repo, "commit", "-q", "-m", "selftest " + " ".join(files))
+     return sandbox_git(repo, "rev-parse", "HEAD")
+-def revision_outcome(repo, rev, branch):
+-    if not VALID_REV.fullmatch(rev):
+-        return rev, None, {"E-REVISION-INVALID"}
+-    try:
+-        commit = resolve(repo, rev)
+-    except Cannot as exc:
+-        return rev, None, {exc.fid}
+-    findings, tip = binding(repo, commit, branch)
+-    return commit, tip, {f.id for f in findings}
+ def binding_cases():
++    """Shared binding through run_gate() and a copied CLI in a mktemp lane; a refusal is one id."""
+     out = []
+     tmp = Path(tempfile.mkdtemp(prefix="root-dac-bind-"))
+     try:
+         root = tmp / "lane"
+         root.mkdir()
+         sandbox_git(root, "init", "-q", "-b", "master")
+-        c1 = sandbox_commit(root, "a.txt", "one\n")
++        c1 = sandbox_commit(root, doc_files(DocSet(OLDMD, json.dumps(OLDJSON), None, None)))
+         bare = tmp / "origin.git"
+         bare.mkdir()
+         sandbox_git(bare, "init", "-q", "--bare")
+         sandbox_git(root, "remote", "add", "origin", str(bare))
+         sandbox_git(root, "push", "-q", "origin", "master")
+-        c2 = sandbox_commit(root, "b.txt", "two\n")
++        c2 = sandbox_commit(root, doc_files(corrected_docs()))
+ 
+-        def case(name, rev, want, branch="master", tip=None, revision=None):
+-            got_revision, got_tip, got = revision_outcome(root, rev, branch)
+-            problems = []
+-            if got != want:
+-                problems.append("ids=" + ",".join(sorted(got)) + " want=" + ",".join(sorted(want)))
+-            if tip is not None and got_tip != tip:
+-                problems.append(f"tip={got_tip}/{tip}")
+-            if revision is not None and got_revision != revision:
+-                problems.append(f"revision={got_revision}/{revision}")
++        def case(name, rev, code, ids=(), branch="master", **want):
++            result, revision, tip = run_gate(root, rev, branch)
++            got = [f.id for f in result.findings]
++            bound_ids = got if code == CANNOT else [i for i in got if i in _revision.IDS]
++            problems = [] if result.code == code else [f"exit={result.code}/{code}"]
++            if bound_ids != list(ids):
++                problems.append("ids=" + ",".join(got) + " want=" + ",".join(ids))
++            for key, value in (("revision", revision), ("tip", tip), ("count", result.count)):
++                if key in want and want[key] != value:
++                    problems.append(f"{key}={value}/{want[key]}")
+             out.append((name, problems))
+ 
+-        case("revision-not-pushed", c2, {"E-REVISION-NOT-PUSHED"}, tip=c2, revision=c2)
++        def refused(name, rev, fid, branch="master", **want):
++            case(name, rev, CANNOT, [fid], branch, **want)
++
++        refused("revision-not-pushed", c2, _revision.E_NOT_PUSHED, revision=c2, tip=c2)
+         sandbox_git(root, "push", "-q", "origin", "master")
+-        case("revision-landed-tip", c2, set(), tip=c2, revision=c2)
++        case("revision-landed-tip", c2, PASS, revision=c2, tip=c2, count=1)
++        case("revision-short-tip", c2[:8], PASS, revision=c2, tip=c2)
++        case("revision-upper-hex", c2.upper(), PASS, revision=c2)
++        case("revision-reads-landed-parent", c1, FAIL, revision=c1, tip=c2, count=0)
+         sandbox_git(root, "checkout", "-q", "--detach", c2)
+-        c3 = sandbox_commit(root, "c.txt", "three\n")
++        c3 = sandbox_commit(root, {"c.txt": "three\n"})
+         sandbox_git(root, "checkout", "-q", "master")
+-        case("revision-unlanded", c3, {"E-REVISION-NOT-LANDED", "E-REVISION-NOT-PUSHED"})
+-        case("revision-head", "HEAD", {"E-REVISION-INVALID"})
+-        case("revision-at", "@", {"E-REVISION-INVALID"})
+-        case("revision-ref-name", "master", {"E-REVISION-INVALID"})
+-        case("revision-short-hex", c1[:6], {"E-REVISION-INVALID"})
+-        case("revision-branch-absent", c2, {"E-REVISION-NOT-LANDED"}, branch="missing")
++        # Round 18: first failure only (round 17 also reported E-REVISION-NOT-PUSHED here).
++        refused("revision-unlanded-single-id", c3, _revision.E_NOT_LANDED, revision=c3, tip=c2)
++        for label, rev in (("head", "HEAD"), ("at", "@"), ("at-parent", "@-"), ("ref-name", "master"),
++                           ("full-ref", "refs/heads/master"), ("short-hex", c1[:6]),
++                           ("range", f"{c1[:8]}..{c2[:8]}"), ("trailing-slash", f"{c2[:8]}/"),
++                           ("empty", ""), ("sixty-five", "a" * 65), ("unknown", "0" * 40)):
++            refused(f"revision-{label}", rev, _revision.E_INVALID)
++        for label, branch in (("range", "a..b"), ("slash", "master/"), ("space", "bad branch"),
++                              ("dash", "-x"), ("head", "HEAD"), ("empty", ""), ("lock", "x.lock")):
++            refused(f"branch-invalid-{label}", c2, _revision.E_BRANCH_INVALID, branch, tip=None)
++        # Round 18: an absent branch is E-BRANCH-MISSING (round 17 said E-REVISION-NOT-LANDED).
++        refused("branch-missing", c2, _revision.E_BRANCH_MISSING, "nosuch", tip=None)
++        refused("branch-missing-nested", c2, _revision.E_BRANCH_MISSING, "feature/x")
++        refused("precedence-branch-before-revision", "HEAD", _revision.E_BRANCH_INVALID, "a..b")
++        refused("precedence-revision-before-missing", "HEAD", _revision.E_INVALID, "nosuch")
++        refused("precedence-unknown-before-missing", "0" * 40, _revision.E_INVALID, "nosuch")
++        refused("precedence-missing-before-landed", c3, _revision.E_BRANCH_MISSING, "nosuch")
++        (tmp / "blob").write_text("not a commit\n", encoding="utf-8")
++        sandbox_git(root, "update-ref", "refs/remotes/origin/master",
++                    sandbox_git(root, "hash-object", "-w", str(tmp / "blob")))
++        refused("git-failed-origin-blob", c2, _revision.E_GIT, tip=c2)
++        refused("precedence-landed-before-origin", c3, _revision.E_NOT_LANDED)
++        sandbox_git(root, "update-ref", "refs/remotes/origin/master", c2)
++        case("worktree", None, PASS, revision="worktree", tip=c2, count=1)
++        case("worktree-branch-informational", None, PASS, branch="a..b", revision="worktree", tip=None)
++
++        here = Path(__file__).resolve()
++        (root / "tools").mkdir()
++        for source in (here, here.parent / "_revision.py"):
++            shutil.copy2(source, root / "tools" / source.name)
++
++        def cli(name, argv, code, ids=(), **want):
++            try:
++                proc = subprocess.run([sys.executable, str(root / "tools" / here.name), *argv],
++                                      cwd=str(root), stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
++                                      stderr=subprocess.PIPE, env=_revision.clean_env(), timeout=120)
++            except (subprocess.TimeoutExpired, OSError) as exc:
++                out.append((name, [f"run={exc}"[:120]]))
++                return
++            try:
++                doc = json.loads(proc.stdout.decode("utf-8", "replace"))
++            except json.JSONDecodeError:
++                doc = None
++            doc = doc if isinstance(doc, dict) else {}
++            got = [f.get("id") for f in doc.get("findings") or [] if isinstance(f, dict)]
++            problems = [] if proc.returncode == code else [f"exit={proc.returncode}/{code}"]
++            if got != list(ids):
++                problems.append("ids=" + ",".join(map(str, got)) + " want=" + ",".join(ids))
++            problems += [f"{key}={doc.get(key)}/{value}" for key, value in want.items()
++                         if doc.get(key) != value]
++            out.append((name, problems))
++
++        cli("cli-landed-tip", ["--revision", c2], PASS, revision=c2, branch_tip=c2)
++        cli("cli-unlanded-single-id", ["--revision", c3], CANNOT, [_revision.E_NOT_LANDED])
++        cli("cli-branch-before-revision", ["--revision", "HEAD", "--branch", "a..b"], CANNOT,
++            [_revision.E_BRANCH_INVALID])
++        cli("cli-branch-dash", ["--revision", c2, "--branch=-x"], CANNOT, [_revision.E_BRANCH_INVALID])
++        cli("cli-worktree", [], PASS, revision="worktree", branch_tip=c2)
+         sandbox_git(root, "remote", "remove", "origin")
+-        case("revision-no-remote", c2, set(), tip=c2)
++        case("revision-no-remote", c2, PASS, revision=c2, tip=c2)
+         sample = payload(Result(PASS, [], 1), c2, "master", c2)
+         missing = {"status", "revision", "branch", "branch_tip", "correction_count",
+                    "scope", "findings"} - set(sample)
+@@ -493,24 +541,8 @@ def main(argv=None):
+     args = parser.parse_args(argv)
+     if args.selftest:
+         return selftest()
+-    repo, revision, branch, tip = Path(__file__).resolve().parents[1], "worktree", args.branch, None
+-    try:
+-        if args.revision is not None:
+-            revision = args.revision
+-            if not VALID_REV.fullmatch(args.revision):
+-                raise Cannot("E-REVISION-INVALID", "revision", "7-64 hex commit required")
+-            commit = resolve(repo, args.revision)
+-            revision = commit
+-            findings, tip = binding(repo, commit, branch)
+-            if findings:
+-                return emit(Result(CANNOT, findings, 0), revision, branch, tip)
+-            docs = DocSet(*[read_git(repo, commit, p) for p in (R12_MD, R12_JSON, R13_MD, R13_JSON)])
+-        else:
+-            tip = safe_tip(repo, f"refs/heads/{branch}")
+-            docs = DocSet(*[read_tree(repo, p) for p in (R12_MD, R12_JSON, R13_MD, R13_JSON)])
+-    except Cannot as exc:
+-        return emit(Result(CANNOT, [Finding(exc.fid, exc.site, exc.detail)], 0), revision, branch, tip)
+-    return emit(evaluate(docs), revision, branch, tip)
++    result, revision, tip = run_gate(ROOT, args.revision, args.branch)
++    return emit(result, revision, args.branch, tip)
+ 
+ 
+ if __name__ == "__main__":

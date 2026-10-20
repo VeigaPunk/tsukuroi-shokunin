@@ -337,3 +337,10 @@ source: own-work — `systemctl --user`, `journalctl --user`, wall/monotonic/boo
 verified-at: 2026-10-14 (the timer snapshot/sampler window recorded in this note).
 recheck: 30d; procedure: §10 command set; re-run a full timer fire-cycle sample and the journal interval classification.
 supersedes the pointer-only recheck: line above.
+
+
+## R18-FRESHNESS — sibling current-use restatements (2026-10-20)
+
+Sources S060, S051 and S052. This appended correction supersedes the current-use readings listed below and every repeated current-use restatement of the same premise in this file. Historical measurements remain intact. No package, service, rebuild, boot or rollback action is authorized.
+
+- R18-FRESH-SUPPLEMENT-31: prior locus `**1** (§2). System-scope timers are a different plane — 5 of them, already measured in`. Now: the five-system-timer boundary count is historical only. R17 records enabled snapper timeline/cleanup timers; neither that enabled listing nor R18 establishes a current active/all timer count. Capture: .ufo/waves/round-17/l1-capture/fresh-capture.txt:47.

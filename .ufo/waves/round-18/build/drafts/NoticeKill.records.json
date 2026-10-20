@@ -1,0 +1,32 @@
+[
+  {
+    "id": "R18-FRESH-NoticeKill-01",
+    "path": "corpus/knowledge/kill-event-deep-r8.md",
+    "baseline_quote": "`command -v earlyoom` → absent",
+    "reason": "Row 2 of §8 says earlyoom is absent by command check; the 2026-10-20 read-only capture shows the binary, its pacman local-database entry earlyoom-1.9.0-1, and an active, enabled unit.",
+    "now": "earlyoom is installed (local database `earlyoom-1.9.0-1`), its unit is active and enabled",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:29",
+    "capture_quote": "/var/lib/pacman/local/earlyoom-1.9.0-1",
+    "notice_heading": "## R18-FRESHNESS — earlyoom state (2026-10-20)"
+  },
+  {
+    "id": "R18-FRESH-NoticeKill-02",
+    "path": "corpus/knowledge/kill-event-deep-r8.md",
+    "baseline_quote": "`zswap.enabled=0` (sysfs `N` + cmdline)",
+    "reason": "Row 5 of §8 says zswap is off (sysfs N and cmdline zswap.enabled=0); the 2026-10-20 read-only capture shows zswap enabled with sysfs Y, max_pool_percent 25, compressor zstd, and a cmdline carrying zswap.enabled=1.",
+    "now": "zswap is enabled (sysfs `Y`, `max_pool_percent` `25`, compressor `zstd`) and the running kernel command line carries `zswap.enabled=1 zswap.max_pool_percent=25`",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:9",
+    "capture_quote": "zswap.enabled=1 zswap.max_pool_percent=25",
+    "notice_heading": "## R18-FRESHNESS — zswap state (2026-10-20)"
+  },
+  {
+    "id": "R18-FRESH-NoticeKill-03",
+    "path": "corpus/knowledge/kill-event-deep-r8.md",
+    "baseline_quote": "no `sar`/`atop`/`dool`/`dstat`, no `/var/log/sa`",
+    "reason": "Row 11 of §8 says sar is absent and /var/log/sa is absent; the 2026-10-20 read-only capture shows /usr/bin/sar present (sysstat-12.8.0-1) and /var/log/sa existing with an empty listing.",
+    "now": "sar is present at `/usr/bin/sar` (sysstat-12.8.0-1), `/var/log/sa` exists and lists no entries, so no retained sar data is present there; atop, dool and dstat were not found",
+    "capture_ref": ".ufo/waves/round-18/l1-capture/host-capture-r18.txt:84",
+    "capture_quote": "/usr/bin/sar",
+    "notice_heading": "## R18-FRESHNESS — sar and sa-log state (2026-10-20)"
+  }
+]

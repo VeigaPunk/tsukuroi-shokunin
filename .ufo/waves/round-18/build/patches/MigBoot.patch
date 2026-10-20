@@ -1,0 +1,719 @@
+diff --git a/tools/check-boot-chain.py b/tools/check-boot-chain.py
+index 3ac1437..4078b63 100755
+--- a/tools/check-boot-chain.py
++++ b/tools/check-boot-chain.py
+@@ -30,24 +30,27 @@ source:/verified-at:/recheck:, the headings ## Decision table, ##
+ Falsifier, ## QUALITY check and ## Sources, and every entry id inside
+ ## Decision table.
+ 
+---revision admits only an explicit 7-64 hex commit and binds it to
+-refs/heads/<--branch> (default master) and, when that ref exists, to
+-refs/remotes/origin/<branch>: HEAD, @, @- and ref names are rejected
+-because under jj colocation HEAD is @-, not the branch tip. Exit 0 clean,
+-1 failed, 2 could-not-evaluate. Reads immutable git objects only; no
+-writes, no network, no host queries, no boot/package/service action.
++--revision validation and landed/pushed binding are delegated to the shared
++tools/_revision.py contract. It accepts only an explicit 7-64 hex commit and
++validates `--branch` as a local Git branch name before checking the revision;
++when refs/remotes/origin/<branch> exists it must contain the commit. HEAD, @,
++@- and ref names are rejected. Exit 0 clean, 1 failed, 2 could-not-evaluate.
++Reads immutable git objects only; no writes, no network, no host queries, no
++boot/package/service action.
+ """
+ from __future__ import annotations
+ import argparse
+ import json
+ import os
+ import re
++import shlex
+ import shutil
+ import subprocess
+ import sys
+ import tempfile
+ from collections import Counter, namedtuple
+ from pathlib import Path
++import _revision
+ 
+ PASS, FAIL, CANNOT = 0, 1, 2
+ ROOT = Path(__file__).resolve().parents[1]
+@@ -60,6 +63,47 @@ CAPTURES = {
+     "emulation": ".ufo/waves/round-17/l1-capture/overlay-emulation.txt",
+     "supplement": ".ufo/waves/round-17/l1-capture/supplement-capture.txt",
+ }
++CORRECTION_JSON = "corpus/knowledge/statement-corrections-r18.json"
++CORRECTION_BASELINE = "842a5312b704b5cda10fd80ec1fdee5fb381ba97"
++CORRECTION_SCHEMA = "tsukuroi-appended-notices-v1"
++CORRECTION_REGISTRY_FIELDS = ("schema", "baseline", "records")
++CORRECTION_FIELDS = ("id", "path", "baseline_quote", "reason", "now",
++                     "capture_ref", "capture_quote", "notice_heading")
++EXPECTED_PACKAGES = ("nvme-cli", "smartmontools", "fio", "xfsprogs",
++                     "pacman-contrib", "earlyoom", "iotop-c", "sysstat",
++                     "stress-ng", "btrbk", "linux-lts", "linux-lts-headers")
++CORRECTION_SPECS = (
++    {"id": "R18-CORR-01",
++     "baseline_quote": "plus 13 named packages (B:59, B:82)",
++     "now": "plus 12 named packages (B:59)",
++     "notice_heading": "## R18-CORRECTION — :19 transaction names 12 packages, not 13",
++     "capture_line": 59,
++     "capture_quote": "nvme-cli smartmontools fio xfsprogs pacman-contrib earlyoom "
++                      "iotop-c sysstat stress-ng btrbk linux-lts linux-lts-headers",
++     "source_kind": "packages"},
++    {"id": "R18-CORR-02",
++     "baseline_quote": "and equals the installed `/usr/lib/initcpio/init`",
++     "now": "and equals the installed `/usr/lib/initcpio/init` (B:182, 198, 251)",
++     "notice_heading": "## R18-CORRECTION — :40-42 init equality also cites linux-lts image (B:198)",
++     "capture_line": 198,
++     "capture_quote": "62fcc3a904ab68429e90f8caaab4e16c3d34a08230a42dd628739ade0443a953  init",
++     "source_kind": "init"},
++    {"id": "R18-CORR-03",
++     "baseline_quote": "byte-identical to the installed hooks (B:183–184, 252–253)",
++     "now": "byte-identical to the installed hooks (B:183–184, 199–200, 252–253)",
++     "notice_heading": "## R18-CORRECTION — :43-46 hook identity also cites linux-lts image (B:199–200)",
++     "capture_line": 199,
++     "capture_quote": "eeac1ed326f5c6fed2e47bbb596d76c9c4b0020be30c3b3c58f6b3a4fa093dcf  hooks/btrfs-overlayfs",
++     "source_kind": "hooks"},
++    {"id": "R18-CORR-04",
++     "baseline_quote": "The image file (mtime 09:26:22) is byte-identical to",
++     "now": "The image file (mtime 09:26:22, B:124) is byte-identical to the "
++            "09:29:18 history copy (B:115, 171, 219).",
++     "notice_heading": "## R18-CORRECTION — :88 image mtime 09:26:22 cites B:124, not B:115",
++     "capture_line": 124,
++     "capture_quote": "2026-10-20 09:26:22.000000000 -0300 omarchy_linux.efi",
++     "source_kind": "mtime"},
++)
+ NOT_KERNEL = "NOT-A-KERNEL-ENTRY"
+ RULE_TABLE = ((1, "NOT-A-KERNEL-ENTRY"), (2, "BOOTED-OBSERVED"),
+               (3, "UNTESTED"), (4, "PATH-ALIASED-EMULATED"),
+@@ -85,10 +129,6 @@ HOOKS = ("btrfs-overlayfs", "plymouth")
+ MD_HEADINGS = ("## Decision table", "## Falsifier", "## QUALITY check",
+                "## Sources")
+ MD_HEADER = ("source:", "verified-at:", "recheck:")
+-REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
+-# refs/heads/<branch> is always built explicitly, so a branch name can
+-# never be parsed as a git option.
+-BRANCH = re.compile(r"^(?!-)(?!.*\.\.)(?!.*//)[A-Za-z0-9._/-]{1,255}$")
+ B2_PATH = re.compile(r"path:\s*(?P<path>\S+)#(?P<hash>[0-9a-f]{16,})")
+ BLOCK_SHA = re.compile(r"^sha256 (?P<v>[0-9a-f]{64})\s*$")
+ BLOCK_UNAME = re.compile(r"^uname\s+(?P<v>\S+)\s*$")
+@@ -101,6 +141,7 @@ BLOCK_NEW_ROOT = re.compile(r"--new-root-dir=(?P<v>\S+)")
+ Finding = namedtuple("Finding", "id site detail")
+ DocSet = namedtuple("DocSet", "json17 md17 captures")
+ Result = namedtuple("Result", "code findings verdicted entries")
++CorrectionResult = namedtuple("CorrectionResult", "code findings count")
+ 
+ 
+ class Cannot(Exception):
+@@ -543,6 +584,179 @@ def evaluate(docs):
+     return Result(FAIL if findings else PASS, findings, verdicted, len(entries))
+ 
+ 
++def correction_section(text, heading):
++    lines = text.splitlines()
++    starts = [index for index, line in enumerate(lines) if line.rstrip() == heading]
++    if len(starts) != 1:
++        return None
++    body = section(lines, heading)
++    return None if body is None else "\n".join(body)
++
++
++def capture_line(lines, number):
++    return lines[number - 1] if 1 <= number <= len(lines) else None
++
++
++def capture_digest(lines, number, suffix):
++    line = capture_line(lines, number)
++    match = re.fullmatch(r"([0-9a-f]{64})[ \t]+(.+)", line or "")
++    if match is None or not match.group(2).endswith(suffix):
++        return None
++    return match.group(1)
++
++
++def package_argv(line):
++    try:
++        outer = shlex.split(line)
++        if len(outer) != 4 or outer[2] != "Running":
++            return None
++        argv = shlex.split(outer[3])
++    except (ValueError, TypeError):
++        return None
++    if argv[:4] != ["pacman", "-Syu", "--needed", "--noconfirm"]:
++        return None
++    return argv[4:]
++
++
++def correction_source_ok(spec, lines):
++    if spec["source_kind"] == "packages":
++        packages = package_argv(capture_line(lines, 59) or "")
++        return packages == list(EXPECTED_PACKAGES) and len(packages) == 12
++    if spec["source_kind"] == "init":
++        digests = (capture_digest(lines, 182, "init"),
++                   capture_digest(lines, 198, "init"),
++                   capture_digest(lines, 251, "/usr/lib/initcpio/init"))
++        return digests[0] is not None and len(set(digests)) == 1
++    if spec["source_kind"] == "hooks":
++        btrfs = (capture_digest(lines, 183, "hooks/btrfs-overlayfs"),
++                 capture_digest(lines, 199, "hooks/btrfs-overlayfs"),
++                 capture_digest(lines, 252, "/usr/lib/initcpio/hooks/btrfs-overlayfs"))
++        plymouth = (capture_digest(lines, 184, "hooks/plymouth"),
++                    capture_digest(lines, 200, "hooks/plymouth"),
++                    capture_digest(lines, 253, "/usr/lib/initcpio/hooks/plymouth"))
++        return (btrfs[0] is not None and len(set(btrfs)) == 1
++                and plymouth[0] is not None and len(set(plymouth)) == 1)
++    if spec["source_kind"] == "mtime":
++        def mtime(number):
++            line = capture_line(lines, number) or ""
++            match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})"
++                              r"\.000000000 -0300 (\S+)$", line)
++            return match.groups() if match else None
++        live, history = mtime(124), mtime(115)
++        return (live == ("2026-10-20 09:26:22", "omarchy_linux.efi")
++                and history is not None
++                and history[0] == "2026-10-20 09:29:18"
++                and history[1].startswith("omarchy_linux.efi_sha256_"))
++    return False
++
++
++def evaluate_statement_corrections(registry, baseline_md, current_md, capture_text):
++    if registry is None:
++        return CorrectionResult(FAIL, [Finding("CORR-REGISTRY-MISSING",
++                                               CORRECTION_JSON,
++                                               "statement-corrections registry absent")], 0)
++    if (not isinstance(registry, dict)
++            or set(registry) != set(CORRECTION_REGISTRY_FIELDS)):
++        return CorrectionResult(FAIL, [Finding("CORR-REGISTRY-UNRESOLVED",
++                                               CORRECTION_JSON,
++                                               "registry keys differ from the required schema")], 0)
++    if (registry.get("schema") != CORRECTION_SCHEMA
++            or registry.get("baseline") != CORRECTION_BASELINE):
++        return CorrectionResult(FAIL, [Finding("CORR-REGISTRY-UNRESOLVED",
++                                               CORRECTION_JSON,
++                                               "registry schema or baseline does not match")], 0)
++    records = registry.get("records")
++    if not isinstance(records, list):
++        return CorrectionResult(FAIL, [Finding("CORR-REGISTRY-UNRESOLVED",
++                                               CORRECTION_JSON,
++                                               "records must be an array")], 0)
++    lines = capture_text.splitlines()
++    by_id = {}
++    malformed = False
++    for record in records:
++        if not isinstance(record, dict) or not isinstance(record.get("id"), str):
++            malformed = True
++            continue
++        by_id.setdefault(record["id"], []).append(record)
++
++    findings = []
++    count = 0
++    expected_ids = {spec["id"] for spec in CORRECTION_SPECS}
++    if malformed:
++        findings.append(Finding("CORR-REGISTRY-UNRESOLVED", CORRECTION_JSON,
++                                "record with missing or non-string id"))
++    for unknown_id in sorted(set(by_id) - expected_ids):
++        findings.append(Finding(f"CORR-{unknown_id}-UNRESOLVED", unknown_id,
++                                "unexpected correction id"))
++    for spec in CORRECTION_SPECS:
++        corr_id = spec["id"]
++        matches = by_id.get(corr_id, [])
++        if len(matches) != 1:
++            detail = "required id missing" if not matches else "duplicate id"
++            findings.append(Finding(f"CORR-{corr_id}-UNRESOLVED", corr_id, detail))
++            continue
++        record = matches[0]
++        problems = []
++        if set(record) != set(CORRECTION_FIELDS):
++            problems.append("record keys differ from the required schema")
++        if any(not isinstance(record.get(key), str) for key in CORRECTION_FIELDS):
++            problems.append("all record fields must be strings")
++        expected = {
++            "id": corr_id,
++            "path": MD17,
++            "baseline_quote": spec["baseline_quote"],
++            "now": spec["now"],
++            "capture_ref": f"{CAPTURES['boot']}:{spec['capture_line']}",
++            "capture_quote": spec["capture_quote"],
++            "notice_heading": spec["notice_heading"],
++        }
++        for key, value in expected.items():
++            if record.get(key) != value:
++                problems.append(f"{key} does not match the fixed correction")
++        reason = record.get("reason")
++        if not isinstance(reason, str) or not reason.strip():
++            problems.append("reason is empty or not a string")
++        if spec["baseline_quote"] not in baseline_md:
++            problems.append("baseline quote absent from immutable baseline")
++        if spec["baseline_quote"] not in current_md:
++            problems.append("historical quote absent from current document")
++        if spec["notice_heading"] in baseline_md:
++            problems.append("correction notice already exists in baseline")
++        notice = correction_section(current_md, spec["notice_heading"])
++        if notice is None:
++            problems.append("correction notice missing or duplicated")
++        elif f"- Now: {spec['now']}" not in notice:
++            problems.append("notice Now value is missing or wrong")
++        elif current_md.find(spec["notice_heading"]) < current_md.find(spec["baseline_quote"]):
++            problems.append("notice precedes the historical statement")
++        line = capture_line(lines, spec["capture_line"])
++        if line is None or spec["capture_quote"] not in line:
++            problems.append("fixed capture quote absent from its source line")
++        if not correction_source_ok(spec, lines):
++            problems.append("fixed source proposition is not established by the capture")
++        if problems:
++            findings.append(Finding(f"CORR-{corr_id}-UNRESOLVED", corr_id,
++                                    "; ".join(problems)))
++        else:
++            count += 1
++    findings = [Finding(*item) for item in sorted({(f.id, f.site, f.detail)
++                                                   for f in findings})]
++    return CorrectionResult(FAIL if findings else PASS, findings, count)
++
++
++def emit_statement_corrections(result, revision, branch="master", branch_tip=None):
++    status = {PASS: "PASS", FAIL: "FAIL", CANNOT: "CANNOT_EVALUATE"}[result.code]
++    payload = {"status": status, "revision": revision, "branch": branch,
++               "branch_tip": branch_tip, "correction_count": result.count,
++               "scope": "four named boot-chain statement corrections only; "
++                        "historical snapshots are preserved and no package, reboot "
++                        "or boot-chain action is cleared",
++               "findings": [{"id": f.id, "site": f.site, "detail": f.detail}
++                            for f in result.findings]}
++    print(json.dumps(payload, sort_keys=True))
++    return result.code
++
++
+ def emit(result, revision, branch="master", branch_tip=None):
+     status = {PASS: "PASS", FAIL: "FAIL", CANNOT: "CANNOT_EVALUATE"}[result.code]
+     payload = {"status": status,
+@@ -585,53 +799,6 @@ def read_git(commit, path):
+     raise Cannot("E-GIT-READ-FAILED", path, error.strip()[:120])
+ 
+ 
+-def resolve(rev, repo=None):
+-    proc = git("rev-parse", "--verify", "--quiet", f"{rev}^{{commit}}", repo=repo)
+-    if proc.returncode != 0:
+-        raise Cannot("E-REVISION-INVALID", "revision",
+-                     "7-64 hex commit required; HEAD/@/@-/refs are not revisions")
+-    return proc.stdout.decode("ascii", "replace").strip()
+-
+-
+-def ref_sha(ref, repo=None):
+-    proc = git("rev-parse", "--verify", "--quiet", ref, repo=repo)
+-    return proc.stdout.decode("ascii", "replace").strip() if proc.returncode == 0 else None
+-
+-
+-def is_ancestor(sha, ref, repo=None):
+-    proc = git("merge-base", "--is-ancestor", sha, ref, repo=repo)
+-    if proc.returncode == 0:
+-        return True
+-    if proc.returncode == 1:
+-        return False
+-    raise Cannot("E-GIT-FAILED", ref,
+-                 proc.stderr.decode("utf-8", "replace").strip()[:120])
+-
+-
+-def bind_revision(sha, branch, repo=None):
+-    """Require sha on refs/heads/<branch> and, when it exists, on origin's."""
+-    local = f"refs/heads/{branch}"
+-    tip = ref_sha(local, repo)
+-    if tip is None:
+-        raise Cannot("E-REVISION-NOT-LANDED", sha,
+-                     f"{local} absent, so the revision is not a landed branch commit")
+-    if not is_ancestor(sha, local, repo):
+-        raise Cannot("E-REVISION-NOT-LANDED", sha,
+-                     f"{sha[:12]} is not an ancestor of {local}")
+-    remote = f"refs/remotes/origin/{branch}"
+-    if ref_sha(remote, repo) is not None and not is_ancestor(sha, remote, repo):
+-        raise Cannot("E-REVISION-NOT-PUSHED", sha,
+-                     f"{sha[:12]} is not an ancestor of {remote}")
+-    return tip
+-
+-
+-def revision_finding(rev):
+-    return None if isinstance(rev, str) and REV.fullmatch(rev) else "E-REVISION-INVALID"
+-
+-
+-def branch_finding(branch):
+-    return None if isinstance(branch, str) and BRANCH.fullmatch(branch) else "E-BRANCH-INVALID"
+-
+ 
+ def build_parser():
+     parser = argparse.ArgumentParser(
+@@ -640,14 +807,15 @@ def build_parser():
+         exit_on_error=False)
+     group = parser.add_mutually_exclusive_group(required=True)
+     group.add_argument("--revision", metavar="REV",
+-                       help="7-64 hex commit only; HEAD/@/@-/ref names are rejected "
+-                            "(under jj, HEAD is @-) and the commit must be an "
+-                            "ancestor of refs/heads/<BRANCH>")
++                       help="explicit 7-64 hex commit; shared binding requires it "
++                            "landed on refs/heads/<BRANCH> and, when present, "
++                            "refs/remotes/origin/<BRANCH>")
+     group.add_argument("--selftest", action="store_true",
+                        help="in-memory fixture suite plus a mktemp git binding sandbox")
+     parser.add_argument("--branch", default="master", metavar="BRANCH",
+-                        help="refs/heads/<BRANCH> and refs/remotes/origin/<BRANCH> "
+-                             "(when present) must contain the revision; default master")
++                        help="valid local Git branch name; default master")
++    parser.add_argument("--statement-corrections", action="store_true",
++                        help="check the four named round-18 boot-chain statement corrections")
+     return parser
+ 
+ 
+@@ -1060,50 +1228,41 @@ def selftest():
+             failures.append(f"{name}: " + "; ".join(problems))
+         else:
+             passed += 1
+-    for name, got, want in (
+-            ("revision-head", revision_finding("HEAD"), "E-REVISION-INVALID"),
+-            ("revision-at", revision_finding("@"), "E-REVISION-INVALID"),
+-            ("revision-at-parent", revision_finding("@-"), "E-REVISION-INVALID"),
+-            ("revision-ref", revision_finding("refs/heads/master"),
+-             "E-REVISION-INVALID"),
+-            ("revision-short", revision_finding("abc"), "E-REVISION-INVALID"),
+-            ("revision-hex", revision_finding("6923fe0"), None),
+-            ("branch-bad", branch_finding("--exec"), "E-BRANCH-INVALID"),
+-            ("branch-ok", branch_finding("master"), None),
+-            ("cli-unknown", cli_finding(["--bogus"]), "E-CLI"),
+-            ("cli-both-modes", cli_finding(["--selftest", "--revision", "6923fe0"]),
+-             "E-CLI"),
+-            ("cli-no-mode", cli_finding([]), "E-CLI")):
++    cli_cases = (
++        ("cli-unknown", cli_finding(["--bogus"]), "E-CLI"),
++        ("cli-both-modes", cli_finding(["--selftest", "--revision", "6923fe0"]),
++         "E-CLI"),
++        ("cli-no-mode", cli_finding([]), "E-CLI"))
++    for name, got, want in cli_cases:
+         if got == want:
+             passed += 1
+         else:
+             failures.append(f"{name}: id={got}/{want}")
+-    # main() must route --revision through bind_revision (mutation FxGateMutants :1115)
+-    global resolve, bind_revision
+-    saved = (resolve, bind_revision)
+-    def _stub_resolve(rev, repo=None):
+-        return "f" * 40
+-    def _stub_bind(sha, branch, repo=None):
+-        raise Cannot("E-REVISION-NOT-LANDED", sha, "selftest stub")
+-    resolve, bind_revision = _stub_resolve, _stub_bind
+-    try:
+-        import contextlib, io
+-        with contextlib.redirect_stdout(io.StringIO()) as buf:
+-            code = main(["--revision", "f" * 40])
+-        out = json.loads(buf.getvalue() or "{}")
+-        ids = {f.get("id") for f in out.get("findings", [])}
+-    except Exception as exc:  # pragma: no cover - reported as failure
+-        code, ids = None, {repr(exc)}
+-    finally:
+-        resolve, bind_revision = saved
+-    if code == CANNOT and ids == {"E-REVISION-NOT-LANDED"}:
+-        passed += 1
+-    else:
+-        failures.append(f"cli-binds-revision: exit={code} ids={sorted(map(str, ids))}")
+-    total = len(cases) + 12
+-    bound, bind_failures = binding_cases()
++    # main() must expose the shared binding's first failure as exactly one finding.
++    import contextlib, io
++    for name, argv, want in (
++            ("main-branch-first", ["--revision", "HEAD", "--branch", "a..b"],
++             "E-BRANCH-INVALID"),
++            ("main-revision-invalid", ["--revision", "HEAD"],
++             "E-REVISION-INVALID")):
++        try:
++            with contextlib.redirect_stdout(io.StringIO()) as buf:
++                code = main(argv)
++            out = json.loads(buf.getvalue() or "{}")
++            ids = [finding.get("id") for finding in out.get("findings", [])]
++        except Exception as exc:  # pragma: no cover - reported as failure
++            code, ids = None, [repr(exc)]
++        if code == CANNOT and ids == [want]:
++            passed += 1
++        else:
++            failures.append(f"{name}: exit={code} ids={ids!r} want={[want]!r}")
++    correction_passed, correction_total, correction_failures = statement_correction_cases()
++    passed += correction_passed
++    failures += correction_failures
++    total = len(cases) + len(cli_cases) + 2 + correction_total
++    bound, binding_total, bind_failures = binding_cases()
+     passed += bound
+-    total += 5
++    total += binding_total
+     failures += bind_failures
+     if failures:
+         print(f"CHECK_BOOT_CHAIN_SELFTEST: FAIL ({total} cases, {passed} passed)")
+@@ -1118,24 +1277,28 @@ def _git_commit(repo, message):
+                "commit", "-q", "-m", message, repo=repo)
+     if proc.returncode != 0:
+         raise RuntimeError(proc.stderr.decode("utf-8", "replace")[:200])
+-    return ref_sha("HEAD", repo)
++    head = git("rev-parse", "--verify", "--quiet", "HEAD", repo=repo)
++    if head.returncode != 0:
++        raise RuntimeError(head.stderr.decode("utf-8", "replace")[:200])
++    return head.stdout.decode("ascii", "replace").strip()
+ 
+ 
+-def _expect_cannot(fn, want):
++def _expect_revision(fn, want):
+     try:
+         fn()
+-    except Cannot as exc:
++    except _revision.RevisionError as exc:
+         return None if exc.fid == want else exc.fid
+-    return "no-Cannot"
++    return "no-RevisionError"
+ 
+ 
+ def binding_cases():
+-    """Real binding vectors in a throwaway mktemp git sandbox."""
+-    passed, failures = 0, []
++    """Real shared-binding vectors in a throwaway mktemp git sandbox."""
++    passed, total, failures = 0, 0, []
+     tmp = Path(tempfile.mkdtemp(prefix="boot-chain-gate-"))
+ 
+     def check(name, got, want):
+-        nonlocal passed
++        nonlocal passed, total
++        total += 1
+         if got == want:
+             passed += 1
+         else:
+@@ -1147,30 +1310,163 @@ def binding_cases():
+         (tmp / "a.txt").write_text("a\n")
+         git("add", "-A", repo=tmp)
+         first = _git_commit(tmp, "first")
+-        check("bind-landed", bind_revision(first, "master", repo=tmp), first)
++        check("bind-landed", tuple(_revision.bind(tmp, first, "master")),
++              (first, "master", first, None))
++        check("bind-invalid-revision", _expect_revision(
++            lambda: _revision.bind(tmp, "HEAD", "master"), "E-REVISION-INVALID"), None)
++        check("bind-invalid-unresolved", _expect_revision(
++            lambda: _revision.bind(tmp, "0" * 40, "master"),
++            "E-REVISION-INVALID"), None)
++        check("bind-invalid-branch", _expect_revision(
++            lambda: _revision.bind(tmp, first, "a..b"), "E-BRANCH-INVALID"), None)
++        check("bind-invalid-branch-slash", _expect_revision(
++            lambda: _revision.bind(tmp, first, "master/"), "E-BRANCH-INVALID"), None)
++        check("bind-invalid-branch-space", _expect_revision(
++            lambda: _revision.bind(tmp, first, "bad branch"),
++            "E-BRANCH-INVALID"), None)
++        check("bind-branch-before-revision", _expect_revision(
++            lambda: _revision.bind(tmp, "HEAD", "a..b"), "E-BRANCH-INVALID"), None)
++        check("bind-revision-before-missing-branch", _expect_revision(
++            lambda: _revision.bind(tmp, "HEAD", "nosuch"),
++            "E-REVISION-INVALID"), None)
++        check("bind-branch-missing", _expect_revision(
++            lambda: _revision.bind(tmp, first, "nosuch"), "E-BRANCH-MISSING"), None)
++        check("bind-nested-branch-missing", _expect_revision(
++            lambda: _revision.bind(tmp, first, "feature/x"),
++            "E-BRANCH-MISSING"), None)
++        git("update-ref", "refs/heads/feature/x", first, repo=tmp)
++        check("bind-nested-branch", tuple(_revision.bind(tmp, first, "feature/x")),
++              (first, "feature/x", first, None))
+         git("update-ref", "refs/remotes/origin/master", first, repo=tmp)
+         (tmp / "b.txt").write_text("b\n")
+         git("add", "-A", repo=tmp)
+         second = _git_commit(tmp, "second")
+-        check("bind-not-pushed", _expect_cannot(
+-            lambda: bind_revision(second, "master", repo=tmp),
++        check("bind-not-pushed", _expect_revision(
++            lambda: _revision.bind(tmp, second, "master"),
+             "E-REVISION-NOT-PUSHED"), None)
+-        check("bind-pushed-ancestor",
+-              bind_revision(first, "master", repo=tmp), second)
++        check("bind-pushed-ancestor", tuple(_revision.bind(tmp, first, "master")),
++              (first, "master", second, first))
+         git("checkout", "-q", "--detach", first, repo=tmp)
+         (tmp / "c.txt").write_text("c\n")
+         git("add", "-A", repo=tmp)
+         third = _git_commit(tmp, "third")
+-        check("bind-not-landed", _expect_cannot(
+-            lambda: bind_revision(third, "master", repo=tmp),
++        check("bind-not-landed", _expect_revision(
++            lambda: _revision.bind(tmp, third, "master"),
+             "E-REVISION-NOT-LANDED"), None)
+         git("update-ref", "-d", "refs/remotes/origin/master", repo=tmp)
+-        check("bind-no-origin", bind_revision(second, "master", repo=tmp), second)
++        check("bind-no-origin", tuple(_revision.bind(tmp, second, "master")),
++              (second, "master", second, None))
+     except Exception as exc:  # a sandbox must never crash the gate
+         failures.append(f"binding-sandbox: {type(exc).__name__}: {exc}")
+     finally:
+         shutil.rmtree(tmp, ignore_errors=True)
+-    return passed, failures
++    return passed, total, failures
++
++
++def statement_correction_fixtures():
++    records = []
++    for spec in CORRECTION_SPECS:
++        records.append({
++            "id": spec["id"], "path": MD17,
++            "baseline_quote": spec["baseline_quote"], "reason": "fixture correction",
++            "now": spec["now"],
++            "capture_ref": f"{CAPTURES['boot']}:{spec['capture_line']}",
++            "capture_quote": spec["capture_quote"],
++            "notice_heading": spec["notice_heading"],
++        })
++    registry = {"schema": CORRECTION_SCHEMA, "baseline": CORRECTION_BASELINE,
++                "records": records}
++    baseline = "\n".join(spec["baseline_quote"] for spec in CORRECTION_SPECS)
++    notices = "\n\n".join(
++        f"{spec['notice_heading']}\n\n- Now: {spec['now']}"
++        for spec in CORRECTION_SPECS)
++    current = baseline + "\n\n" + notices + "\n"
++    lines = [""] * 253
++    lines[58] = ("2462:[2026-10-20T09:15:30-0300] [PACMAN] Running 'pacman -Syu "
++                 "--needed --noconfirm " + " ".join(EXPECTED_PACKAGES) + "'")
++    for number in (182, 198):
++        lines[number - 1] = "62fcc3a904ab68429e90f8caaab4e16c3d34a08230a42dd628739ade0443a953  init"
++    lines[250] = ("62fcc3a904ab68429e90f8caaab4e16c3d34a08230a42dd628739ade0443a953  "
++                  "/usr/lib/initcpio/init")
++    for number in (183, 199):
++        lines[number - 1] = ("eeac1ed326f5c6fed2e47bbb596d76c9c4b0020be30c3b3c58f6b3a4fa093dcf  "
++                             "hooks/btrfs-overlayfs")
++    lines[251] = ("eeac1ed326f5c6fed2e47bbb596d76c9c4b0020be30c3b3c58f6b3a4fa093dcf  "
++                  "/usr/lib/initcpio/hooks/btrfs-overlayfs")
++    for number in (184, 200):
++        lines[number - 1] = ("de852646e615e06d4125eb2e646d0528d1e349bd9e9877c08c5d32c43d288b6f  "
++                             "hooks/plymouth")
++    lines[252] = ("de852646e615e06d4125eb2e646d0528d1e349bd9e9877c08c5d32c43d288b6f  "
++                  "/usr/lib/initcpio/hooks/plymouth")
++    lines[114] = ("-rwx------ 1 root root 284439552 2026-10-20 09:29:18.000000000 -0300 "
++                  "omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8")
++    lines[123] = ("-rwx------ 1 root root 284439552 2026-10-20 09:26:22.000000000 -0300 "
++                  "omarchy_linux.efi")
++    return registry, baseline, current, "\n".join(lines)
++
++
++def statement_correction_cases():
++    passed, failures, total = 0, [], 0
++    registry, baseline, current, capture = statement_correction_fixtures()
++    records = registry["records"]
++
++    def check(name, result, code, count, ids):
++        nonlocal passed, total
++        total += 1
++        got = {finding.id for finding in result.findings}
++        if (result.code, result.count, got) == (code, count, set(ids)):
++            passed += 1
++        else:
++            failures.append(f"{name}: {(result.code, result.count, sorted(got))!r} "
++                            f"/ {(code, count, sorted(ids))!r}")
++
++    check("corrections-clean",
++          evaluate_statement_corrections(registry, baseline, current, capture),
++          PASS, 4, ())
++    wrong_count = [dict(record) for record in records]
++    wrong_count[0]["now"] = "plus 13 named packages (B:59)"
++    wrong_count_notice = current.replace(
++        f"- Now: {CORRECTION_SPECS[0]['now']}",
++        f"- Now: {wrong_count[0]['now']}")
++    check("corrections-wrong-count-13",
++          evaluate_statement_corrections(dict(registry, records=wrong_count), baseline,
++                                         wrong_count_notice, capture),
++          FAIL, 3, ("CORR-R18-CORR-01-UNRESOLVED",))
++    omitted_lts = [dict(record) for record in records]
++    omitted_lts[1]["now"] = "and equals the installed `/usr/lib/initcpio/init` (B:182, 251)"
++    omitted_lts_notice = current.replace(
++        f"- Now: {CORRECTION_SPECS[1]['now']}",
++        f"- Now: {omitted_lts[1]['now']}")
++    check("corrections-omitted-lts-cite",
++          evaluate_statement_corrections(dict(registry, records=omitted_lts), baseline,
++                                         omitted_lts_notice, capture),
++          FAIL, 3, ("CORR-R18-CORR-02-UNRESOLVED",))
++    wrong_mtime = [dict(record) for record in records]
++    wrong_mtime[3]["now"] = ("The image file (mtime 09:26:22, B:115) is byte-identical "
++                             "to the 09:29:18 history copy (B:115, 171, 219).")
++    wrong_mtime_notice = current.replace(
++        f"- Now: {CORRECTION_SPECS[3]['now']}",
++        f"- Now: {wrong_mtime[3]['now']}")
++    check("corrections-wrong-mtime-115",
++          evaluate_statement_corrections(dict(registry, records=wrong_mtime), baseline,
++                                         wrong_mtime_notice, capture),
++          FAIL, 3, ("CORR-R18-CORR-04-UNRESOLVED",))
++    check("corrections-missing-required-id",
++          evaluate_statement_corrections(
++              dict(registry, records=records[:-1]), baseline, current, capture),
++          FAIL, 3, ("CORR-R18-CORR-04-UNRESOLVED",))
++    check("corrections-baseline-without-notice",
++          evaluate_statement_corrections(registry, baseline, baseline, capture),
++          FAIL, 0, tuple(f"CORR-{spec['id']}-UNRESOLVED"
++                         for spec in CORRECTION_SPECS))
++    check("corrections-registry-missing",
++          evaluate_statement_corrections(None, baseline, current, capture),
++          FAIL, 0, ("CORR-REGISTRY-MISSING",))
++    wrong_baseline = dict(registry, baseline="other")
++    check("corrections-registry-wrong-baseline",
++          evaluate_statement_corrections(wrong_baseline, baseline, current, capture),
++          FAIL, 0, ("CORR-REGISTRY-UNRESOLVED",))
++    return passed, total, failures
+ 
+ 
+ def main(argv=None):
+@@ -1185,20 +1481,56 @@ def main(argv=None):
+                            0, 0), "unbound", branch, None)
+     if args.selftest:
+         return selftest()
++    branch = args.branch
+     revision, branch_tip = "unbound", None
+     try:
+-        finding = branch_finding(args.branch)
+-        if finding:
+-            raise Cannot(finding, "branch",
+-                         "branch must match [A-Za-z0-9._/-], no leading dash, "
+-                         "'..' or '//'")
+-        branch = args.branch
+-        finding = revision_finding(args.revision)
+-        if finding:
+-            raise Cannot(finding, "revision",
+-                         "7-64 hex commit required; HEAD/@/@-/refs are rejected")
+-        revision = resolve(args.revision)
+-        branch_tip = bind_revision(revision, branch)
++        binding = _revision.bind(ROOT, args.revision, branch)
++        revision = binding.sha
++        branch_tip = binding.branch_tip
++    except _revision.RevisionError as exc:
++        error = Cannot(exc.fid, exc.site, exc.detail)
++        finding = Finding(error.fid, error.site, error.detail)
++        if args.statement_corrections:
++            return emit_statement_corrections(
++                CorrectionResult(CANNOT, [finding], 0), revision, branch, branch_tip)
++        return emit(Result(CANNOT, [finding], 0, 0), revision, branch, branch_tip)
++
++    if args.statement_corrections:
++        try:
++            registry_text = read_git(revision, CORRECTION_JSON)
++            if registry_text is None:
++                result = evaluate_statement_corrections(None, "", "", "")
++            else:
++                try:
++                    registry = json.loads(registry_text)
++                except json.JSONDecodeError as exc:
++                    raise Cannot("E-JSON-PARSE", CORRECTION_JSON, str(exc)[:120])
++                if (not isinstance(registry, dict)
++                        or set(registry) != set(CORRECTION_REGISTRY_FIELDS)
++                        or registry.get("schema") != CORRECTION_SCHEMA
++                        or registry.get("baseline") != CORRECTION_BASELINE
++                        or not isinstance(registry.get("records"), list)):
++                    result = evaluate_statement_corrections(registry, "", "", "")
++                else:
++                    baseline_md = read_git(CORRECTION_BASELINE, MD17)
++                    current_md = read_git(revision, MD17)
++                    capture_text = read_git(revision, CAPTURES["boot"])
++                    for path, text in ((MD17, baseline_md), (MD17, current_md),
++                                       (CAPTURES["boot"], capture_text)):
++                        if text is None:
++                            raise Cannot("E-CORRECTION-INPUT-MISSING", path,
++                                         "required baseline, notice, or capture is absent")
++                    result = evaluate_statement_corrections(
++                        registry, baseline_md, current_md, capture_text)
++        except Cannot as exc:
++            result = CorrectionResult(
++                CANNOT, [Finding(exc.fid, exc.site, exc.detail)], 0)
++        except Exception as exc:
++            result = CorrectionResult(
++                CANNOT, [Finding("E-INTERNAL", "gate", str(exc)[:120])], 0)
++        return emit_statement_corrections(result, revision, branch, branch_tip)
++
++    try:
+         docs = DocSet(read_git(revision, JSON17), read_git(revision, MD17),
+                       {name: read_git(revision, path)
+                        for name, path in CAPTURES.items()})

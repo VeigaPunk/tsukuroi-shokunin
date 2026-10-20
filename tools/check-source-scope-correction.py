@@ -11,6 +11,8 @@ from __future__ import annotations
 import argparse, json, os, re, shutil, subprocess, sys, tempfile
 from collections import namedtuple
 from pathlib import Path
+sys.dont_write_bytecode = True  # read-only shared-module import
+import _revision
 
 PASS, FAIL, CANNOT = 0, 1, 2
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,7 +26,6 @@ SCHEMA = "tsukuroi-source-scope-correction-v1"
 VALUE_ID, ATTR_ID = "R14-VALUE-DOMAIN", "R14-COMMENT-ATTRIBUTION"
 VALUE_URL = "https://man.archlinux.org/man/systemd.exec.5"
 ATTR_URL = "https://api.github.com/repos/omacom/omarchy/issues/comments/6071740243"
-REV = re.compile(r"^(?:[0-9a-fA-F]{7,64})$")
 DOMAIN_BAD = re.compile(r"value\s+set\s+(?:is\s+|are\s+)?not\s+(?:exhaustive|closed|the\s+only)"
                         r"|values\s+(?:are|is)\s+not\s+(?:exhaustive|closed)", re.I)
 ATTR_BAD = re.compile(r"self-described[^.]{0,100}(?:model[- ]generated|automated\s+triage)"
@@ -375,44 +376,11 @@ def read_git(repo, commit, path):
     raise Cannot("E-GIT-READ-FAILED", path, error.strip()[:120])
 
 
-def rev_parse(repo, ref):
+def fixture_commit(repo, ref):
     proc = git(repo, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")
     if proc.returncode != 0:
         return None
     return proc.stdout.decode("ascii", "replace").strip()
-
-
-def resolve(repo, rev):
-    commit = rev_parse(repo, rev)
-    if commit is None:
-        raise Cannot("E-REVISION-INVALID", "revision", "7-64 hex commit required")
-    return commit
-
-
-def ancestor(repo, commit, ref):
-    return git(repo, "merge-base", "--is-ancestor", commit, ref).returncode == 0
-
-
-def ref_exists(repo, ref):
-    return git(repo, "show-ref", "--verify", "--quiet", ref).returncode == 0
-
-
-def bind(repo, rev, branch):
-    """Resolve rev, then require it landed on refs/heads/<branch> and, when present, its origin ref."""
-    if not REV.fullmatch(rev):
-        raise Cannot("E-REVISION-INVALID", "revision", "7-64 hex commit required")
-    commit = resolve(repo, rev)
-    local, remote = f"refs/heads/{branch}", f"refs/remotes/origin/{branch}"
-    if not ref_exists(repo, local):
-        raise Cannot("E-REVISION-NOT-LANDED", "revision", f"{local} absent")
-    tip = rev_parse(repo, local)
-    if tip is None:
-        raise Cannot("E-REVISION-NOT-LANDED", "revision", f"{local} is not a commit")
-    if not ancestor(repo, commit, local):
-        raise Cannot("E-REVISION-NOT-LANDED", "revision", f"{commit} not an ancestor of {local}")
-    if ref_exists(repo, remote) and not ancestor(repo, commit, remote):
-        raise Cannot("E-REVISION-NOT-PUSHED", "revision", f"{commit} not an ancestor of {remote}")
-    return commit, tip
 
 
 BASELINE_MD13 = ("# r13\n| r12 MD:41-42 | hierarchy text attributed read-only coverage to strict alone | "
@@ -481,7 +449,7 @@ def sandbox():
         for label in ("c1", "c2", "c3"):
             if run("commit", "--quiet", "--allow-empty", "-m", label).returncode != 0:
                 return fail()
-            commits.append(rev_parse(repo, "HEAD"))
+            commits.append(fixture_commit(repo, "HEAD"))
         if None in commits or len(set(commits)) != 3:
             return fail()
         if run("update-ref", "refs/heads/master", commits[1]).returncode != 0:
@@ -494,33 +462,62 @@ def sandbox():
 def binding_cases(repo, commits):
     c1, c2, c3 = commits
     checks = []
+    tools = repo / "tools"
+    tools.mkdir()
+    script = tools / Path(__file__).name
+    shutil.copy2(Path(__file__).resolve(), script)
+    shutil.copy2(Path(_revision.__file__).resolve(), tools / "_revision.py")
 
-    def probe(name, rev, branch="master", want=None, commit_want=None, tip_want=None):
+    def cli_probe(name, rev, branch, want):
         try:
-            commit, got = bind(repo, rev, branch)
-        except Cannot as exc:
-            checks.append((name, None if exc.fid == want else f"fid={exc.fid} want={want}"))
+            proc = subprocess.run([sys.executable, str(script), "--revision", rev, "--branch", branch],
+                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=30)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            checks.append((name, f"subprocess failed: {exc}"))
             return
-        if want is not None:
-            checks.append((name, f"accepted {commit} want finding {want}"))
-        elif commit != commit_want or got != tip_want:
-            checks.append((name, f"accepted {commit}/{got} want {commit_want}/{tip_want}"))
+        try:
+            payload = json.loads(proc.stdout)
+        except json.JSONDecodeError as exc:
+            checks.append((name, f"invalid JSON: {exc}; stdout={proc.stdout[:160]!r} "
+                                 f"stderr={proc.stderr[:160]!r}"))
+            return
+        findings = payload.get("findings")
+        ids = ([finding.get("id") if isinstance(finding, dict) else None for finding in findings]
+               if isinstance(findings, list) else None)
+        if (proc.returncode != CANNOT or payload.get("status") != "CANNOT_EVALUATE"
+                or ids != [want]):
+            checks.append((name, f"exit={proc.returncode}, status={payload.get('status')}, "
+                                 f"findings={ids!r}, want={[want]!r}"))
         else:
             checks.append((name, None))
 
-    probe("revision-head-rejected", "HEAD", want="E-REVISION-INVALID")
-    probe("revision-at-rejected", "@", want="E-REVISION-INVALID")
-    probe("revision-ref-rejected", "refs/heads/master", want="E-REVISION-INVALID")
-    probe("revision-short-hex-rejected", c1[:6], want="E-REVISION-INVALID")
-    probe("revision-absent-hex-rejected", "0" * 40, want="E-REVISION-INVALID")
-    probe("revision-unlanded-rejected", c3, want="E-REVISION-NOT-LANDED")
-    probe("revision-unknown-branch-rejected", c2, branch="unlanded", want="E-REVISION-NOT-LANDED")
-    probe("revision-landed-tip-accepted", c2, commit_want=c2, tip_want=c2)
+    # The shared contract validates branch syntax before revision syntax and
+    # checks revision syntax before resolving the requested branch ref.
+    cli_probe("branch-invalid-before-revision", "HEAD", "a..b", "E-BRANCH-INVALID")
+    cli_probe("branch-trailing-slash", c2, "master/", "E-BRANCH-INVALID")
+    cli_probe("branch-space", c2, "bad branch", "E-BRANCH-INVALID")
+    cli_probe("revision-head-rejected", "HEAD", "master", "E-REVISION-INVALID")
+    cli_probe("revision-at-rejected", "@", "master", "E-REVISION-INVALID")
+    cli_probe("revision-ref-rejected", "refs/heads/master", "master", "E-REVISION-INVALID")
+    cli_probe("revision-short-hex-rejected", c1[:6], "master", "E-REVISION-INVALID")
+    cli_probe("revision-range-rejected", f"{c1[:8]}..{c2[:8]}", "master", "E-REVISION-INVALID")
+    cli_probe("revision-invalid-before-missing-branch", "HEAD", "nosuch", "E-REVISION-INVALID")
+    cli_probe("branch-missing", c2, "nosuch", "E-BRANCH-MISSING")
+    cli_probe("branch-nested-missing", c2, "feature/x", "E-BRANCH-MISSING")
+    cli_probe("revision-unlanded-single-finding", c3, "master", "E-REVISION-NOT-LANDED")
+
+    try:
+        binding = _revision.bind(repo, c2, "master")
+        checks.append(("revision-landed-tip-accepted",
+                       None if (binding.sha, binding.branch_tip, binding.origin_tip) == (c2, c2, None)
+                       else f"got={binding!r}"))
+    except _revision.RevisionError as exc:
+        checks.append(("revision-landed-tip-accepted", f"unexpected {exc.fid}"))
+
     if git(repo, "update-ref", "refs/remotes/origin/master", c1).returncode != 0:
-        checks.append(("revision-not-pushed-rejected", "origin ref not created"))
+        checks.append(("revision-not-pushed-single-finding", "origin ref not created"))
         return checks
-    probe("revision-not-pushed-rejected", c2, want="E-REVISION-NOT-PUSHED")
-    probe("revision-pushed-tip-accepted", c1, commit_want=c1, tip_want=c2)
+    cli_probe("revision-not-pushed-single-finding", c2, "master", "E-REVISION-NOT-PUSHED")
     return checks
 
 
@@ -638,14 +635,14 @@ def main(argv=None):
     try:
         if args.revision is not None:
             revision = args.revision
-            revision, branch_tip = bind(ROOT, args.revision, branch)
+            try:
+                binding = _revision.bind(ROOT, args.revision, branch)
+            except _revision.RevisionError as exc:
+                raise Cannot(exc.fid, exc.site, exc.detail) from exc
+            revision, branch_tip = binding.sha, binding.branch_tip
             docs = DocSet(*[read_git(ROOT, revision, path) for path in FILES])
         else:
-            try:
-                tip_ref = f"refs/heads/{branch}"
-                branch_tip = rev_parse(ROOT, tip_ref) if ref_exists(ROOT, tip_ref) else None
-            except Cannot:
-                branch_tip = None
+            branch_tip = _revision.branch_tip(ROOT, branch)
             docs = DocSet(*[read_tree(ROOT, path) for path in FILES])
     except Cannot as exc:
         return emit(Result(CANNOT, [Finding(exc.fid, exc.site, exc.detail)], 0),

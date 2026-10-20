@@ -1,0 +1,10 @@
+# MigLocator
+
+- [obs] Isolated clone: `/tmp/MigLocator.drLxaF`, checked out prerequisite `51dd9eeaa305539fa3cfc6ee275978dc18043b79`, origin removed; sandbox commit `80fc748b9561f2a5640ceb21d76d172656addec9` on `master`.
+- [obs] Only `tools/check-locator-clarification.py` changed. It imports `_revision`, calls `_revision.bind(ROOT, args.revision, branch)`, maps `RevisionError` through `Cannot` to one CANNOT finding, and uses `_revision.branch_tip` for informational output (clone lines 18, 788-799). Removed local revision/branch regexes and binding helpers. Worktree/domain fixture behavior is unchanged.
+- [inf] Baseline selftest tally was 28 by its source formula (21 domain cases + two pure checks + four binding checks + payload). [obs] After: locator selftest **37/37**; shared revision selftest **37/37**.
+- [obs] Added invalid branch forms (`a..b`, trailing slash, space, `HEAD`), branch-first precedence, invalid-revision-before-missing-branch, missing regular/nested branches, invalid origin-object git failure, and an entrypoint assertion for exactly one first-failure finding. Existing domain fixtures remain intact. The assigned locator parser has no `--registry-from` entrypath (clone lines 475-483).
+- [obs] Independent judge target entry: `bound=true`, `consistent=true`, `shared=true`, `local_rev_regex=0`. Judge overall exited 1: `consistent_tools=2/9`, `shared_tools=1/9`, `local_rev_regex_copies=8`; root-DAC is still an unmodified sibling and its unlanded probe reports two IDs. Patch: `.ufo/waves/round-18/build/patches/MigLocator.patch`.
+- [obs] No LSP tool/endpoint was exposed in this session; no installation was needed.
+
+Scope: executed=git clone --no-hardlinks; git checkout 51dd9eeaa305539fa3cfc6ee275978dc18043b79; git remote remove origin; python3 tools/check-locator-clarification.py --selftest; python3 tools/_revision.py --selftest; git commit in sandbox; python3 tools/check-revision-binding.py --tools-revision 80fc748b9561f2a5640ceb21d76d172656addec9; git diff for assigned file

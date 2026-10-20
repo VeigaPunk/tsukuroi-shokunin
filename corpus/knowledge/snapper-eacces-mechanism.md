@@ -144,3 +144,15 @@ Appended 2026-10-20 by the tsukuroi round-17 L1; earlier bytes unchanged. Supers
 - packaged metadata for `/` without a package query (replaces the package-ownership query for `/`): `zcat /var/lib/pacman/local/filesystem-*/mtree | grep -cE "^\./?[[:space:]]"`
 - `findmnt -n -o SOURCE,FSTYPE,TARGET /boot`
 - `df -h /boot`
+
+
+## R18-RECHECK — steer-safe procedure
+
+Supersedes the recheck header and the R17 procedure's raw `systemctl cat` pipeline for current narrowed-scope use. It does not re-observe the historical unit or certify a cause. Preserve the active R13 correction's property-only boundary (SKILL.md root-DAC procedure); do not dump whole unit text or run snapper configuration/listing actions merely because an older header says so.
+
+- Read selected properties only: `systemctl show limine-snapper-sync.service -p User -p CapabilityBoundingSet -p ProtectSystem -p ReadOnlyPaths -p ProtectHome --no-pager`.
+- Read package directory names with `ls -d /var/lib/pacman/local/snapper-[0-9]* /var/lib/pacman/local/limine-snapper-sync-[0-9]*`.
+- Read configuration names only with `ls -1 /etc/snapper/configs`; config names are not snapshot inventory or restoration proof.
+- If exact historical failure-time credentials, mount view, path or syscall are unavailable, report them unknown; no privileged probe, package manager, unit restart, subvolume action or boot-file write is authorized by this procedure.
+
+Source: QUALITY24/26 and Sweep12's routed scope conflict; no new host measurement or freshness record is credited for this procedure repair.

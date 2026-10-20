@@ -440,3 +440,29 @@ source: own-work — read-only `journalctl`, `systemctl`, `systemd-analyze`, `co
 verified-at: 2026-10-14 (the original journal/boot capture window; effective HOOKS drop-ins re-opened 2026-10-19).
 recheck: 30d; procedure: Appendix probe command set; use `-o json` entry counts and re-read active mkinitcpio drop-ins.
 supersedes the pointer-only recheck: line above.
+
+
+## R18-FRESHNESS — snapper list-configs premise (journal 147-149)
+
+Dated freshness re-verification, 2026-10-20 16:06 -03, from S060 (fresh R18 read-only capture). The sentence above is a historical 11:53 reading and stays unchanged. Current use is superseded: /etc/snapper/configs lists home and root. Observed now: /etc/snapper/configs lists home and root (`.ufo/waves/round-18/l1-capture/host-capture-r18.txt:76-77`; `SNAPPER_CONFIGS="root home"` at `.ufo/waves/round-18/l1-capture/host-capture-r18.txt:80`). The `snapper list-configs` output itself was not re-run in S060, so its current table is unverified. The rollback-net re-audit (`update-safety-note.md:286-311`) remains open. Scope: supersedes current-use only; read-only; no package, service, snapper or reboot action is cleared.
+
+## R18-FRESHNESS — snapper config premise in unknowns (journal 364-365)
+
+Dated freshness re-verification, 2026-10-20 16:06 -03, from S060. The unknown premise "empty `snapper list-configs`" is superseded for current use. Observed now: /etc/snapper/configs lists home and root (`.ufo/waves/round-18/l1-capture/host-capture-r18.txt:80`, `SNAPPER_CONFIGS="root home"`). The boot-0 "Creating a Snapper config" lines (§3.1, 11:02:05) stay historical, and the update-safety re-audit stays open. `snapper list-configs` was not re-run in S060. Scope: supersedes current-use only; read-only; historical snapshots preserved; no package, service, snapper or reboot action is cleared.
+
+## R18-FRESHNESS — configured HOOKS versus image hooks (journal 244-245)
+
+Dated freshness re-verification, 2026-10-20 16:06 -03, from S060 and the R17 image extraction (S051). The HOOKS list quoted at :244-245 is a historical read of `/etc/mkinitcpio.conf:55`; it was not re-read in S060 and is superseded for current-image use. Image scope: the default UKI `omarchy_linux.efi` extracts to VERSION 42.2 with HOOKS="udev plymouth keymap consolefont encrypt resume" (`.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:177`; R17 B:173-178), which differs from the configured list at :244-245. The R18 host runs kernel 7.2.11 (`.ufo/waves/round-18/l1-capture/host-capture-r18.txt:6`) with mkinitcpio-42.2-1 installed (`.ufo/waves/round-18/l1-capture/host-capture-r18.txt:34`). The v42 init is busybox-based and uses /sysroot (S053, S058). Historical configuration is preserved. Scope: read-only; no image rebuild, package, boot or reboot action is cleared.
+
+
+## R18-RECHECK — steer-safe procedure
+
+Supersedes this entry's historical pointer-based recheck procedure for a steer forbidding package-manager execution (QUALITY26). Historical command receipts remain historical; do not run their backticked package commands or the live host census merely by following the old section pointer. This is an actual bounded read/compare procedure, not a whole-host clearance or a new host measurement.
+
+- Read the installed-name/version metadata with `ls -1 /var/lib/pacman/local`; for each package whose recorded field is being rechecked, read its exact `/var/lib/pacman/local/<pkg>-<ver>/desc` and compare name, version, install date, reason and validation fields with the dated table. Directory presence does not certify file integrity or current repository reachability.
+- Read repository-file inventory and timestamps with `ls -1 /var/lib/pacman/sync` and `stat -c '%y %n' /var/lib/pacman/sync/*.db`. Mtime is an upstream stamp, not local acquisition time; a present database is not proof it is configured.
+- Read relevant transaction events using `tail -n 80 /var/log/pacman.log`; distinguish invocation headers from ALPM completion events, preserve capture time and exit status, and never infer a current pending-update count from this history.
+
+- Recheck configuration names with `ls -1 /etc/snapper/configs`; use `systemctl show earlyoom.service -p ActiveState -p UnitFileState --no-pager` only for those named service properties. Config presence, enabled state and active state answer different questions; do not infer snapshot restoration, active timer totals or historical kill attribution.
+
+Record observed values and unresolved questions separately. Uncaptured pending updates, signature validity, exact foreign/orphan classification, private mount views, historical provenance events and recovery feasibility remain unknown until their own authorized evidence is obtained. No installation, restart, rebuild, subvolume action or boot write is authorized.

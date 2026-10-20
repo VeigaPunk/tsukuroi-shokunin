@@ -10,13 +10,13 @@ unswept "documents no further values" absence are named defects, not merely a
 missing new file. Exit 0 clean, 1 failed, 2 cannot evaluate. No writes, no
 network; --selftest uses in-memory fixtures plus a throwaway mktemp git repo.
 
-A --revision run is bound to --branch (default master): only 7-64 hex is
-admitted, the resolved commit must be an ancestor of refs/heads/<branch>
-(E-REVISION-NOT-LANDED) and, when that ref exists, of refs/remotes/origin/<branch>
-(E-REVISION-NOT-PUSHED). Worktree mode reads no git.
+Revision-bound mode delegates branch, revision, landing, and push validation to
+`tools/_revision.py`; worktree mode reads no git.
 """
 from __future__ import annotations
 import argparse, hashlib, json, os, re, shutil, subprocess, sys, tempfile
+sys.dont_write_bytecode = True  # read-only shared-module import
+import _revision
 from collections import namedtuple
 from pathlib import Path
 
@@ -32,8 +32,6 @@ URL = "https://man.archlinux.org/man/systemd.exec.5"
 QUOTE = 'Takes a boolean argument or the special values "full" or "strict".'
 HEADS = ("## R15-LOCATOR", "## R15-POSITIVE-DOMAIN", "## QUALITY check")
 REQUIRED = ("id", "source_id", "url", "location", "quote", "replacement", "supersedes")
-REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
-BRANCH = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,200}$")
 # 0db618a r14 originals, as exact bytes (MD prefix, JSON minus the additive key).
 MD14_SHA = "9f7cc3cf0ad75824d39cf73a2789d4acfc411386f81b01d1058ea3557ca8dc04"
 JSON14_SHA = "1a4cccacac86f6c88f2b470219935de0d1dfc9aeab8f1f7ddedae7a86dfeffb5"
@@ -61,14 +59,6 @@ class Cannot(Exception):
     def __init__(self, fid, site, detail):
         super().__init__(detail)
         self.fid, self.site, self.detail = fid, site, detail
-
-
-class BindCannot(Cannot):
-    """Binding refusal that still reports the observed sha and branch tip."""
-
-    def __init__(self, fid, site, detail, branch_tip=None, revision=None):
-        super().__init__(fid, site, detail)
-        self.branch_tip, self.revision = branch_tip, revision
 
 
 def norm(text):
@@ -479,36 +469,12 @@ def read_git(commit, path):
     raise Cannot("E-GIT-READ-FAILED", path, error.strip()[:120])
 
 
-def bind_revision(rev, branch="master", repo=None):
-    """Resolve rev and require it to be landed on branch, and pushed when origin/<branch> exists."""
-    if not BRANCH.fullmatch(branch) or ".." in branch:
-        raise BindCannot("E-CLI", "branch", "invalid branch name")
-    if revision_finding(rev):
-        raise BindCannot("E-REVISION-INVALID", "revision", "7-64 hex commit required")
-    proc = git("rev-parse", "--verify", "--quiet", f"{rev}^{{commit}}", repo=repo)
-    if proc.returncode != 0:
-        raise BindCannot("E-REVISION-INVALID", "revision", "commit object not found")
-    sha = proc.stdout.decode("ascii", "replace").strip()
-    tip_proc = git("rev-parse", "--verify", "--quiet", f"refs/heads/{branch}", repo=repo)
-    tip = tip_proc.stdout.decode("ascii", "replace").strip() if tip_proc.returncode == 0 else None
-    if not tip or git("merge-base", "--is-ancestor", sha, f"refs/heads/{branch}",
-                      repo=repo).returncode != 0:
-        raise BindCannot("E-REVISION-NOT-LANDED", "revision",
-                         f"{sha[:12]} is not an ancestor of refs/heads/{branch}", tip, sha)
-    remote = f"refs/remotes/origin/{branch}"
-    if git("rev-parse", "--verify", "--quiet", remote, repo=repo).returncode == 0 and \
-            git("merge-base", "--is-ancestor", sha, remote, repo=repo).returncode != 0:
-        raise BindCannot("E-REVISION-NOT-PUSHED", "revision",
-                         f"{sha[:12]} is not an ancestor of {remote}", tip, sha)
-    return sha, tip
-
-
 def build_parser():
     parser = argparse.ArgumentParser(description="Narrow read-only round-15 locator clarification gate.",
                                      exit_on_error=False)
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--revision", metavar="REV",
-                       help="7-64 hex commit, bound to --branch; reads immutable objects only")
+                       help="hex commit, bound to --branch; reads immutable objects only")
     group.add_argument("--selftest", action="store_true", help="in-memory fixture suite")
     parser.add_argument("--branch", metavar="BRANCH", default="master",
                         help="branch --revision must be landed on (default master)")
@@ -521,10 +487,6 @@ def cli_finding(argv):
         return None
     except (argparse.ArgumentError, SystemExit):
         return "E-CLI"
-
-
-def revision_finding(rev):
-    return None if REV.fullmatch(rev) else "E-REVISION-INVALID"
 
 
 BASE_MD14 = ("# r14 corrections\n## R14-VALUE-DOMAIN\nSource object: S044, `systemd.exec(5)` § ProtectSystem= "
@@ -590,14 +552,27 @@ def fixtures():
     return DocSet(MD15_CLEAN, json.dumps(JSON15_CLEAN), BASE_MD14 + APPENDIX, json.dumps(doc14), digests)
 
 
-BINDING_WANTS = {"binding-head-rejected": "E-REVISION-INVALID",
-                 "binding-unlanded-rejected": "E-REVISION-NOT-LANDED",
-                 "binding-not-pushed-rejected": "E-REVISION-NOT-PUSHED",
-                 "binding-landed-tip-accepted": "OK"}
+BINDING_WANTS = {
+    "binding-landed-tip-accepted": "OK",
+    "binding-head-rejected": _revision.E_INVALID,
+    "binding-invalid-branch-range": _revision.E_BRANCH_INVALID,
+    "binding-invalid-branch-slash": _revision.E_BRANCH_INVALID,
+    "binding-invalid-branch-space": _revision.E_BRANCH_INVALID,
+    "binding-invalid-branch-head": _revision.E_BRANCH_INVALID,
+    "binding-branch-first": _revision.E_BRANCH_INVALID,
+    "binding-invalid-revision-before-missing": _revision.E_INVALID,
+    "binding-missing-branch": _revision.E_BRANCH_MISSING,
+    "binding-missing-nested-branch": _revision.E_BRANCH_MISSING,
+    "binding-unlanded-rejected": _revision.E_NOT_LANDED,
+    "binding-not-pushed-rejected": _revision.E_NOT_PUSHED,
+    "binding-git-failed": _revision.E_GIT,
+    "binding-main-single-id": "OK",
+}
 
 
 def binding_cases():
-    """Exercise revision binding in a throwaway repo; the lane repo is never touched."""
+    """Exercise shared revision binding in a throwaway repo; the lane repo is untouched."""
+    global ROOT
     tmp = tempfile.mkdtemp(prefix="locator-clarification-")
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     env.update({"GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull,
@@ -612,14 +587,13 @@ def binding_cases():
             raise RuntimeError(f"{args[0]}: {proc.stderr.decode('utf-8', 'replace').strip()[:80]}")
         return proc.stdout.decode("ascii", "replace").strip()
 
-    def check(name, rev, tip):
+    def check(name, rev, tip, branch="master"):
         try:
-            sha, branch_tip = bind_revision(rev, "master", tmp)
-            got = "OK" if sha == rev and branch_tip == tip else "MISMATCH"
-        except Cannot as exc:
-            meta_ok = exc.fid == "E-REVISION-INVALID" or (
-                getattr(exc, "branch_tip", None) == tip and getattr(exc, "revision", None) == rev)
-            got = exc.fid if meta_ok else "MISMATCH:" + exc.fid
+            binding = _revision.bind(tmp, rev, branch)
+            got = ("OK" if binding.sha == rev and binding.branch == branch
+                   and binding.branch_tip == tip else "MISMATCH")
+        except _revision.RevisionError as exc:
+            got = exc.fid if exc.site and isinstance(exc.detail, str) else "MISMATCH"
         except Exception as exc:
             got = "ERROR:" + type(exc).__name__
         return name, got, BINDING_WANTS[name]
@@ -638,14 +612,45 @@ def binding_cases():
         run("commit", "-q", "-a", "-m", "c2")
         side = run("rev-parse", "HEAD")
         run("checkout", "-q", "master")
-        out = [check("binding-landed-tip-accepted", tip, tip)]
+        out = [check("binding-landed-tip-accepted", tip, tip),
+               check("binding-head-rejected", "HEAD", tip)]
+        for label, branch in (("range", "a..b"), ("slash", "master/"),
+                              ("space", "bad branch"), ("head", "HEAD")):
+            out.append(check(f"binding-invalid-branch-{label}", tip, tip, branch))
+        out.extend([
+            check("binding-branch-first", "HEAD", tip, "a..b"),
+            check("binding-invalid-revision-before-missing", "HEAD", None, "nosuch"),
+            check("binding-missing-branch", tip, None, "nosuch"),
+            check("binding-missing-nested-branch", tip, None, "feature/x"),
+            check("binding-unlanded-rejected", side, tip),
+        ])
         run("update-ref", "refs/remotes/origin/master", first)
         out.append(check("binding-not-pushed-rejected", tip, tip))
-        out.append(check("binding-unlanded-rejected", side, tip))
-        out.append(check("binding-head-rejected", "HEAD", None))
+        Path(tmp, "blob.txt").write_text("not a commit\n", encoding="utf-8")
+        blob = run("hash-object", "-w", "blob.txt")
+        run("update-ref", "refs/remotes/origin/master", blob)
+        out.append(check("binding-git-failed", tip, tip))
+        run("update-ref", "refs/remotes/origin/master", tip)
+
+        import contextlib, io
+        original_root = ROOT
+        try:
+            ROOT = Path(tmp)
+            with contextlib.redirect_stdout(io.StringIO()) as captured:
+                code = main(["--revision", "HEAD", "--branch", "a..b"])
+            doc = json.loads(captured.getvalue())
+            findings = doc.get("findings")
+            ids = [item.get("id") for item in findings if isinstance(item, dict)] \
+                if isinstance(findings, list) else []
+            got = ("OK" if code == CANNOT and ids == [_revision.E_BRANCH_INVALID]
+                   else "MISMATCH")
+            out.append(("binding-main-single-id", got, BINDING_WANTS["binding-main-single-id"]))
+        finally:
+            ROOT = original_root
         return out, None
     except Exception as exc:
-        return ([(name, "setup:" + type(exc).__name__, want) for name, want in BINDING_WANTS.items()],
+        return ([(name, "setup:" + type(exc).__name__, want)
+                 for name, want in BINDING_WANTS.items()],
                 f"{type(exc).__name__}: {exc}"[:120])
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -734,8 +739,7 @@ def selftest():
             failures.append(f"{name}: " + "; ".join(problems))
         else:
             passed += 1
-    for name, got, want in (("invalid-revision", revision_finding("nope"), "E-REVISION-INVALID"),
-                            ("invalid-cli", cli_finding(["--bogus"]), "E-CLI")):
+    for name, got, want in (("invalid-cli", cli_finding(["--bogus"]), "E-CLI"),):
         if got == want:
             passed += 1
         else:
@@ -755,7 +759,7 @@ def selftest():
         failures.append("payload-shape: keys=" + ",".join(shape))
     if binding_error:
         failures.append("binding-sandbox: " + binding_error)
-    total = len(cases) + 3 + len(binding)
+    total = len(cases) + 2 + len(binding)
     if failures:
         print(f"CHECK_LOCATOR_CLARIFICATION_SELFTEST: FAIL ({total} cases, {passed} passed)")
         print("\n".join("  " + item for item in failures))
@@ -776,14 +780,19 @@ def main(argv=None):
     branch, tip, revision = args.branch, None, "worktree"
     try:
         if args.revision is not None:
-            revision, tip = bind_revision(args.revision, branch)
+            try:
+                binding = _revision.bind(ROOT, args.revision, branch)
+            except _revision.RevisionError as exc:
+                tip = _revision.branch_tip(ROOT, branch)
+                revision = args.revision
+                raise Cannot(exc.fid, exc.site, exc.detail) from exc
+            revision, tip = binding.sha, binding.branch_tip
             docs = DocSet(*[read_git(revision, path) for path in FILES], (MD14_SHA, JSON14_SHA))
         else:
             docs = DocSet(*[read_tree(path) for path in FILES], (MD14_SHA, JSON14_SHA))
     except Cannot as exc:
         return emit(Result(CANNOT, [Finding(exc.fid, exc.site, exc.detail)], 0),
-                    getattr(exc, "revision", None) or revision, branch,
-                    getattr(exc, "branch_tip", tip))
+                    revision, branch, tip)
     except Exception as exc:  # no traceback exit 1: unreadable input is CANNOT
         return emit(Result(CANNOT, [Finding("E-INTERNAL", "gate", str(exc)[:120])], 0), revision,
                     branch, tip)

@@ -1,0 +1,273 @@
+diff --git a/tools/check-seat-scope.py b/tools/check-seat-scope.py
+index 06361f7..c929f79 100755
+--- a/tools/check-seat-scope.py
++++ b/tools/check-seat-scope.py
+@@ -14,30 +14,32 @@ Findings: SCOPE-REPORT-MISSING (seat without a report), SCOPE-UNDECLARED
+ wins), SCOPE-EXEC-UNAUTHORIZED (last declared value is not `none` and the
+ seat prompt lacks EXEC-AUTHORIZED). A wave with no seats is not a pass.
+ 
+-`--revision <hex>` reads immutable git objects only and binds the
+-revision: 7-64 hex is required (HEAD/@/refs are E-REVISION-INVALID), the
+-commit must be an ancestor of refs/heads/<branch> (default master,
+-E-REVISION-NOT-LANDED) and, when refs/remotes/origin/<branch> exists,
+-also of it (E-REVISION-NOT-PUSHED). `--worktree` reads the same files from
+-disk. `--selftest` is hermetic: in-memory fixtures plus one mktemp git
+-sandbox, never this repository. Exit 0 clean, 1 findings,
+-2 could-not-evaluate. No writes, no network, no host queries.
++`--revision <hex>` reads immutable git objects only and binds through
++`tools/_revision.py`: Git-valid branch names are checked before revision syntax;
++the revision must be 7-64 hex and resolve to a commit. That commit must be an
++ancestor of refs/heads/<branch> (default master) and, when
++refs/remotes/origin/<branch> exists, also of it. Binding failures report one
++typed id (E-BRANCH-INVALID, E-REVISION-INVALID, E-BRANCH-MISSING,
++E-REVISION-NOT-LANDED, E-REVISION-NOT-PUSHED, or E-GIT-FAILED).
++`--worktree` reads the same files from disk. `--selftest` is hermetic:
++in-memory fixtures plus one mktemp git sandbox, never this repository.
++Exit 0 clean, 1 findings, 2 could-not-evaluate. No writes, no network, no
++host queries.
+ """
+ from __future__ import annotations
+ import argparse, contextlib, io, json, os, re, shutil, subprocess, sys, tempfile
+ from collections import namedtuple
+ from pathlib import Path
++from _revision import RevisionError, bind as bind_revision
+ 
+ PASS, FAIL, CANNOT = 0, 1, 2
+ ROOT = Path(__file__).resolve().parents[1]
+ REGISTRY, SPEC = "swarm-registry.json", "spec.json"
+ EXEC_MARK = "EXEC-AUTHORIZED"
+ IDS = ("SCOPE-EXEC-UNAUTHORIZED", "SCOPE-REPORT-MISSING", "SCOPE-UNDECLARED")
+-REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
+ SCOPE = re.compile(r"^Scope: executed=(.+)$", re.M)
+ NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+ WAVE = re.compile(r"^[A-Za-z0-9._-][A-Za-z0-9._/-]*$")
+-BRANCH = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9._/-]{0,199}$")
+ Finding = namedtuple("Finding", "id site role detail")
+ Seat = namedtuple("Seat", "role prompt")
+ Result = namedtuple("Result", "code findings seats")
+@@ -168,58 +170,6 @@ def git(root, *args):
+         raise Cannot("E-GIT-FAILED", "git", str(exc)[:120])
+ 
+ 
+-def resolve(root, rev):
+-    proc = git(root, "rev-parse", "--verify", "--quiet", f"{rev}^{{commit}}")
+-    if proc.returncode != 0:
+-        raise Cannot("E-REVISION-INVALID", "revision",
+-                     "hex revision does not resolve to a commit")
+-    return proc.stdout.decode("ascii", "replace").strip()
+-
+-
+-def resolve_ref(root, ref):
+-    proc = git(root, "rev-parse", "--verify", "--quiet", ref)
+-    return proc.stdout.decode("ascii", "replace").strip() if proc.returncode == 0 else None
+-
+-
+-def ancestor(root, sha, ref):
+-    proc = git(root, "merge-base", "--is-ancestor", sha, ref)
+-    if proc.returncode == 0:
+-        return True
+-    if proc.returncode == 1:
+-        return False
+-    raise Cannot("E-GIT-FAILED", ref,
+-                 proc.stderr.decode("utf-8", "replace").strip()[:120])
+-
+-
+-def branch_issue(branch):
+-    if not isinstance(branch, str) or not BRANCH.fullmatch(branch):
+-        return "E-BRANCH-INVALID"
+-    if ".." in branch or branch.endswith((".", "/")):
+-        return "E-BRANCH-INVALID"
+-    return None
+-
+-
+-def binding(root, rev, branch):
+-    """Resolve and bind a revision to the landed (and pushed) branch tip."""
+-    if not REV.fullmatch(str(rev)):
+-        raise Cannot("E-REVISION-INVALID", "revision",
+-                     "7-64 hex commit required; HEAD/@/refs rejected")
+-    if branch_issue(branch):
+-        raise Cannot("E-BRANCH-INVALID", "branch", "invalid branch name")
+-    sha = resolve(root, rev)
+-    tip = resolve_ref(root, f"refs/heads/{branch}")
+-    if tip is None:
+-        raise Cannot("E-BRANCH-MISSING", branch, "branch ref absent")
+-    if not ancestor(root, sha, f"refs/heads/{branch}"):
+-        raise Cannot("E-REVISION-NOT-LANDED", rev,
+-                     f"commit is not an ancestor of refs/heads/{branch}")
+-    if resolve_ref(root, f"refs/remotes/origin/{branch}") is not None:
+-        if not ancestor(root, sha, f"refs/remotes/origin/{branch}"):
+-            raise Cannot("E-REVISION-NOT-PUSHED", rev,
+-                         f"commit is not an ancestor of refs/remotes/origin/{branch}")
+-    return sha, tip
+-
+-
+ def wave_key(path):
+     text = str(path).strip()
+     if not text or text.startswith("/") or "\\" in text or not WAVE.fullmatch(text):
+@@ -281,7 +231,7 @@ def args_issue(args):
+         return "E-CLI" if args.wave is not None else None
+     if args.wave is None:
+         return "E-CLI"
+-    return branch_issue(args.branch)
++    return None
+ 
+ 
+ def cli_issue(argv):
+@@ -292,14 +242,14 @@ def cli_issue(argv):
+     return args_issue(args)
+ 
+ 
+-def revision_finding(rev):
+-    return None if REV.fullmatch(str(rev)) else "E-REVISION-INVALID"
+-
+-
+ def collect(wave, revision, branch, root=ROOT):
+     """(seats, reports, revision display, branch tip) for one wave."""
+     if revision is not None:
+-        sha, tip = binding(root, revision, branch)
++        try:
++            bound = bind_revision(root, revision, branch)
++        except RevisionError as exc:
++            raise Cannot(exc.fid, exc.site, exc.detail) from exc
++        sha, tip = bound.sha, bound.branch_tip
+         seats = load_seats(read_git(root, sha, f"{wave}/{REGISTRY}"),
+                           read_git(root, sha, f"{wave}/{SPEC}"))
+         listing = tree_paths(root, sha, wave)
+@@ -351,6 +301,10 @@ def sandbox():
+-        run("commit", "-q", "--allow-empty", "-m", "unlanded")
+         side = run("rev-parse", "HEAD")
+         run("checkout", "-q", "master")
++        tools = root / "tools"
++        tools.mkdir()
++        shutil.copyfile(Path(__file__), tools / "check-seat-scope.py")
++        shutil.copyfile(Path(__file__).with_name("_revision.py"), tools / "_revision.py")
+         return root, base, tip, side, partial, tip
+     except Exception:
+         shutil.rmtree(root, ignore_errors=True)
+@@ -472,18 +426,13 @@ def selftest():
+         else:
+             passed += 1
+ 
+-    pure = (("invalid-revision-head", revision_finding("HEAD"), "E-REVISION-INVALID"),
+-            ("invalid-revision-at", revision_finding("@"), "E-REVISION-INVALID"),
+-            ("invalid-revision-short", revision_finding("abc123"), "E-REVISION-INVALID"),
+-            ("valid-revision",
+-             revision_finding("f871697aa0a8ed180771e62d99e3b9559fd5efd1"), None),
+-            ("cli-empty", cli_issue([]), "E-CLI"),
++    pure = (("cli-empty", cli_issue([]), "E-CLI"),
+             ("cli-revision-without-wave",
+              cli_issue(["--revision", "f871697aa0a8ed180771e62d99e3b9559fd5efd1"]), "E-CLI"),
+             ("cli-both-modes", cli_issue(["--selftest", "--worktree"]), "E-CLI"),
+-            ("cli-bad-branch",
+-             cli_issue(["--worktree", "--wave", ".ufo/waves/x", "--branch",
+-                        "bad..branch"]), "E-BRANCH-INVALID"),
++            ("cli-branch-validation-deferred",
++             cli_issue(["--revision", "HEAD", "--wave", ".ufo/waves/demo",
++                        "--branch", "a..b"]), None),
+             ("cli-dash-branch", cli_issue(["--worktree", "--wave", ".ufo/waves/x",
+                                            "--branch", "-bad"]), "E-CLI"))
+     for name, got, want in pure:
+@@ -531,17 +480,17 @@ def selftest():
+               f"{str(exc)[:100]})")
+         return FAIL
+     try:
+-        def bind(name, rev, branch, want, want_sha=None):
++        def bind_case(name, rev, branch, want, want_sha=None):
+             try:
+-                sha, got_tip = binding(root, rev, branch)
++                bound = bind_revision(root, rev, branch)
+                 got = None
+-            except Cannot as exc:
+-                sha, got_tip, got = None, None, exc.fid
++            except RevisionError as exc:
++                bound, got = None, exc.fid
+             problems = []
+             if got != want:
+                 problems.append(f"id={got}/{want}")
+-            if want is None and (sha != want_sha or got_tip != tip):
+-                problems.append(f"sha={sha}/{want_sha} tip={got_tip}/{tip}")
++            if want is None and (bound.sha != want_sha or bound.branch_tip != tip):
++                problems.append(f"sha={bound.sha}/{want_sha} tip={bound.branch_tip}/{tip}")
+             if problems:
+                 failures.append(f"sandbox-{name}: " + "; ".join(problems))
+                 return False
+@@ -553,12 +502,65 @@ def selftest():
+             ("unlanded", side, "master", "E-REVISION-NOT-LANDED", None),
+             ("unknown-hex", "0123456789abcdef0123456789abcdef01234567", "master",
+              "E-REVISION-INVALID", None),
++            ("invalid-branch-range", tip, "a..b", "E-BRANCH-INVALID", None),
++            ("invalid-branch-slash", tip, "master/", "E-BRANCH-INVALID", None),
++            ("invalid-branch-lock", tip, "master.lock", "E-BRANCH-INVALID", None),
++            ("branch-before-revision", "HEAD", "a..b", "E-BRANCH-INVALID", None),
++            ("revision-before-missing-branch", "HEAD", "release",
++             "E-REVISION-INVALID", None),
+             ("branch-missing", tip, "release", "E-BRANCH-MISSING", None),
++            ("nested-branch-missing", tip, "feature/x", "E-BRANCH-MISSING", None),
+         ]
+         for name, rev, branch, want, want_sha in bound:
+-            passed += bind(name, rev, branch, want, want_sha)
++            passed += bind_case(name, rev, branch, want, want_sha)
+         total += len(bound)
+ 
++        def cli_case(name, rev, branch, want_id=None):
++            nonlocal passed, total
++            proc = subprocess.run(
++                [sys.executable, str(root / "tools" / "check-seat-scope.py"),
++                 "--revision", rev, "--wave", ".ufo/waves/demo",
++                 "--branch", branch], cwd=root, stdin=subprocess.DEVNULL,
++                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
++            try:
++                payload = json.loads(proc.stdout.decode("utf-8"))
++            except (UnicodeDecodeError, ValueError):
++                payload = None
++            problems = []
++            want_code = PASS if want_id is None else CANNOT
++            want_status = "PASS" if want_id is None else "CANNOT_EVALUATE"
++            if proc.returncode != want_code:
++                problems.append(f"exit={proc.returncode}/{want_code}")
++            if not isinstance(payload, dict):
++                problems.append("stdout is not JSON")
++            else:
++                if payload.get("status") != want_status:
++                    problems.append(f"status={payload.get('status')}/{want_status}")
++                findings = payload.get("findings")
++                if want_id is None:
++                    if findings != []:
++                        problems.append(f"findings={findings!r}/[]")
++                elif (not isinstance(findings, list) or len(findings) != 1
++                      or not isinstance(findings[0], dict)
++                      or findings[0].get("id") != want_id
++                      or not isinstance(payload.get("counts"), dict)
++                      or payload["counts"].get(want_id) != 1):
++                    problems.append(f"findings={findings!r}/one {want_id}")
++            if problems:
++                failures.append(f"sandbox-{name}: " + "; ".join(problems))
++            else:
++                passed += 1
++            total += 1
++
++        cli_case("cli-clean", tip, "master")
++        cli_case("cli-branch-first", "HEAD", "a..b", "E-BRANCH-INVALID")
++        cli_case("cli-invalid-revision", "HEAD", "master", "E-REVISION-INVALID")
++        cli_case("cli-revision-before-missing-branch", "HEAD", "release",
++                 "E-REVISION-INVALID")
++        cli_case("cli-invalid-hex", "abc123", "master", "E-REVISION-INVALID")
++        cli_case("cli-branch-missing", tip, "release", "E-BRANCH-MISSING")
++        cli_case("cli-unlanded-single-id", side, "master", "E-REVISION-NOT-LANDED")
++
+         for name, rev, want, want_seats in (("wave-partial", partial,
+                                              {"SCOPE-REPORT-MISSING"}, 2),
+                                             ("wave-clean", clean, set(), 2)):
+@@ -588,8 +590,9 @@ def selftest():
+             failures.append("sandbox-origin: update-ref failed")
+             total += 2
+         else:
+-            passed += bind("not-pushed", tip, "master", "E-REVISION-NOT-PUSHED")
+-            passed += bind("pushed-base", base, "master", None, base)
++            passed += bind_case("not-pushed", tip, "master", "E-REVISION-NOT-PUSHED")
++            passed += bind_case("pushed-base", base, "master", None, base)
++            cli_case("cli-not-pushed", tip, "master", "E-REVISION-NOT-PUSHED")
+             total += 2
+ 
+         for name, spec_in in (("wave-absolute", "/etc"),
+                              ("wave-traversal", ".ufo/../../etc")):

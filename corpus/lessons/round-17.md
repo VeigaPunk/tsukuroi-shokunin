@@ -55,3 +55,17 @@ Mutable field changes (old → new): S015, S016, S021, S022 `used-by` `corpus/kn
 ## Inherited and non-author files
 
 `corpus/lessons/round-16-verifier-spotcheck.md` read, not edited. No earlier attempt of round 17 left lane outputs (watchdog shows one launch).
+
+
+## R18-ERRATUM — final seat scope and landing record
+
+This round18 append supersedes R17-SEAT-EXEC's29 and the routed-debt item's29 figure, not the preserved historical measurement files. Re-run at immutable842a531: build30 SCOPE-EXEC-UNAUTHORIZED; falsify19 unauthorized and44missing. Previous worktree falsify16/52 was an earlier partial delivery snapshot, not the final tree. Exact outputs: `.ufo/waves/round-18/build/RerunSeats-{build,falsify}-output.txt`. None of those executions is retroactively approved.
+
+Round17 final falsify tally is81dispatched/37delivered/44dead/0running. Updated mutable summary `.ufo/waves/round-17/falsify/outcome.json`; original interim retained at `outcome-interim-144309.json`, immutable final derivation in `outcome-final-r18.json`. Individual provider receipts exist in the interim for36deaths; closure labels8additional dead but does not supply individual final provider receipts. This does not justify silently labelling all44 as directly observed429 failures.
+
+Lane commits cca3343 and661020f were not named in the final r17 report addendum; round18's own report corrects the missing coverage. In particular FxSimplifyBind.md actually landed in cca3343, not661020f's misleading message. No historical report bytes or non-author spot-check were edited.
+
+
+## R18-ERRATUM — literal firmware quote
+
+The S056 Gate quote above elides the EFI variable UUID and inserts spacing; it is a readable abbreviation, not the literal verbatim string claimed by the old FxSourcesContract report. Exact source line113 is `LoaderEntrySelected-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f: Omarchy.linux`. Capture header13:03:06 has no timezone suffix; the old S056 row's-03 suffix is not established by that header alone. Active precision rowS064 and round18 lesson supersede only these citation details. The selected-entry interpretation is unchanged.

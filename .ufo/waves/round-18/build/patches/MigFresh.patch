@@ -1,0 +1,266 @@
+diff --git a/tools/check-freshness-r17.py b/tools/check-freshness-r17.py
+index d2a0bd0..fc72017 100755
+--- a/tools/check-freshness-r17.py
++++ b/tools/check-freshness-r17.py
+@@ -25,11 +25,11 @@ baseline_quote is present while its notice_heading is absent.  Running
+ baseline defect is real; in that mode resolved_records counts records that
+ are not stale and the exit status is 1 when any defect is demonstrated.
+ 
+-Revision binding: --revision and --registry-from admit only 7-64 hex
+-(HEAD, @ and refs are E-REVISION-INVALID), must resolve to commits that
+-are ancestors of refs/heads/<branch> (default master, else
+-E-REVISION-NOT-LANDED), and when refs/remotes/origin/<branch> exists must
+-also be ancestors of it (else E-REVISION-NOT-PUSHED).  JSON carries
++Revision binding is shared with tools/_revision.py. Validation order is branch syntax
++(including git check-ref-format), revision syntax and commit resolution, local branch
++existence, landing, then optional origin ancestry. The first failure is exactly one
++finding: E-BRANCH-INVALID, E-REVISION-INVALID, E-BRANCH-MISSING,
++E-REVISION-NOT-LANDED, E-REVISION-NOT-PUSHED, or E-GIT-FAILED. JSON carries
+ revision, branch, branch_tip, resolved_records and record_count.
+ 
+ Exit 0 pass, 1 failed, 2 could-not-evaluate.  No writes, no network, no
+@@ -48,6 +48,7 @@ import sys
+ import tempfile
+ from collections import namedtuple
+ from pathlib import Path
++import _revision
+ 
+ PASS, FAIL, CANNOT = 0, 1, 2
+ ROOT = Path(__file__).resolve().parents[1]
+@@ -56,8 +57,6 @@ REGISTRY = "corpus/knowledge/freshness-recheck-r17.json"
+ SCHEMA = "tsukuroi-freshness-recheck-v1"
+ CAPTURES = (".ufo/waves/round-17/l1-capture/boot-chain-capture.txt",
+             ".ufo/waves/round-17/l1-capture/fresh-capture.txt")
+-REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
+-BRANCH = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,200}$")
+ ID = re.compile(r"^R17-FRESH-\d{2}$")
+ PATH = re.compile(r"^corpus/knowledge/[A-Za-z0-9._-]+\.md$")
+ HEADING = re.compile(r"^#{1,6} \S.*$")
+@@ -355,53 +354,6 @@ def read_git(commit, path):
+     raise Cannot("E-GIT-READ-FAILED", path, error.strip()[:120])
+ 
+ 
+-def resolve_in(root, rev):
+-    proc = git_in(root, "rev-parse", "--verify", "--quiet", f"{rev}^{{commit}}")
+-    if proc.returncode != 0:
+-        raise Cannot("E-REVISION-INVALID", "revision",
+-                     f"{rev[:64]} is not a commit")
+-    return proc.stdout.decode("ascii", "replace").strip()
+-
+-
+-def branch_tip_in(root, branch):
+-    proc = git_in(root, "rev-parse", "--verify", "--quiet",
+-                  f"refs/heads/{branch}")
+-    if proc.returncode != 0:
+-        return None
+-    return proc.stdout.decode("ascii", "replace").strip()
+-
+-
+-def is_ancestor(root, sha, ref):
+-    return git_in(root, "merge-base", "--is-ancestor", sha, ref).returncode == 0
+-
+-
+-def branch_finding(branch):
+-    if (not BRANCH.fullmatch(branch) or ".." in branch or "@{" in branch
+-            or branch.endswith("/") or branch.endswith(".lock")):
+-        return "E-BRANCH-INVALID"
+-    return None
+-
+-
+-def bind(root, rev, branch):
+-    """Resolve rev and require it landed on refs/heads/<branch> (and origin)."""
+-    if not REV.fullmatch(rev):
+-        raise Cannot("E-REVISION-INVALID", "revision",
+-                     "7-64 hex commit required; HEAD, @ and refs are rejected")
+-    problem = branch_finding(branch)
+-    if problem:
+-        raise Cannot(problem, "branch", "safe ref component required")
+-    sha = resolve_in(root, rev)
+-    branch_ref = f"refs/heads/{branch}"
+-    if branch_tip_in(root, branch) is None or not is_ancestor(root, sha, branch_ref):
+-        raise Cannot("E-REVISION-NOT-LANDED", "revision",
+-                     f"{sha[:12]} is not an ancestor of {branch_ref}")
+-    origin_ref = f"refs/remotes/origin/{branch}"
+-    if git_in(root, "rev-parse", "--verify", "--quiet", origin_ref).returncode == 0:
+-        if not is_ancestor(root, sha, origin_ref):
+-            raise Cannot("E-REVISION-NOT-PUSHED", "revision",
+-                         f"{sha[:12]} is not an ancestor of {origin_ref}")
+-    return sha
+-
+ 
+ def probe_paths(text):
+     """Lane-relative target paths declared by a registry text, when parseable."""
+@@ -423,10 +375,6 @@ def probe_paths(text):
+     return paths
+ 
+ 
+-def revision_finding(rev):
+-    return None if REV.fullmatch(rev) else "E-REVISION-INVALID"
+-
+-
+ def build_parser():
+     parser = argparse.ArgumentParser(
+         description="Narrow read-only round-17 freshness-recheck gate.",
+@@ -507,11 +455,17 @@ def fixture_data():
+ 
+ 
+ def binding_sandbox():
+-    """Hermetic mktemp repository exercising landed/pushed/origin binding."""
++    """Hermetic git and subprocess fixtures for shared revision binding."""
+     out = []
+     tmp = tempfile.mkdtemp(prefix="freshness-r17-")
+     try:
+         root = Path(tmp)
++        tools = root / "tools"
++        tools.mkdir()
++        tool = tools / "check-freshness-r17.py"
++        shutil.copy2(Path(__file__).resolve(), tool)
++        shutil.copy2(Path(__file__).with_name("_revision.py"),
++                     tools / "_revision.py")
+ 
+         def run(*args):
+             return git_in(root, *args, isolate=True)
+@@ -537,22 +491,81 @@ def binding_sandbox():
+         c3 = run("rev-parse", "HEAD").stdout.decode().strip()
+         run("checkout", "-q", "master")
+ 
+-        def expect(rev, want):
++        def expect(rev, want, branch="master"):
+             try:
+-                sha = bind(root, rev, "master")
+-            except Cannot as exc:
++                binding = _revision.bind(root, rev, branch)
++            except _revision.RevisionError as exc:
+                 return None if exc.fid == want else f"got {exc.fid}, want {want}"
+             if want is not None:
+-                return f"resolved {sha[:8]}, want {want}"
+-            return None if sha == resolve_in(root, rev) else "wrong sha"
++                return f"resolved {binding.sha[:8]}, want {want}"
++            if not binding.sha.lower().startswith(rev.lower()):
++                return "wrong resolved sha"
++            return None
+ 
+-        out.append(("sandbox landed", expect(c1, None)))
+-        out.append(("sandbox abbreviated", expect(c1[:7], None)))
+-        out.append(("sandbox not-pushed", expect(c2, "E-REVISION-NOT-PUSHED")))
+-        out.append(("sandbox not-landed", expect(c3, "E-REVISION-NOT-LANDED")))
+-        out.append(("sandbox head-rejected", expect("HEAD", "E-REVISION-INVALID")))
+-        out.append(("sandbox unknown-rejected",
+-                    expect("0" * 40, "E-REVISION-INVALID")))
++        def expect_cli(name, args, want):
++            try:
++                proc = subprocess.run(
++                    [sys.executable, str(tool), *args], cwd=root,
++                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
++                    stderr=subprocess.PIPE, timeout=60)
++            except (OSError, subprocess.TimeoutExpired) as exc:
++                return (name, f"subprocess failed: {exc}")
++            try:
++                payload = json.loads(proc.stdout.decode("utf-8"))
++            except (UnicodeDecodeError, json.JSONDecodeError) as exc:
++                return (name, f"invalid JSON: {exc}")
++            findings = payload.get("findings")
++            ids = ([item.get("id") for item in findings if isinstance(item, dict)]
++                   if isinstance(findings, list) else None)
++            if proc.returncode != CANNOT or ids != [want]:
++                return (name, f"exit={proc.returncode} ids={ids!r}, want=[{want!r}]")
++            return (name, None)
++
++        out.extend([
++            ("sandbox landed", expect(c1, None)),
++            ("sandbox abbreviated", expect(c1[:7], None)),
++            ("sandbox uppercase", expect(c1.upper(), None)),
++            ("sandbox not-pushed", expect(c2, "E-REVISION-NOT-PUSHED")),
++            ("sandbox not-landed", expect(c3, "E-REVISION-NOT-LANDED")),
++            ("sandbox revision-invalid", expect("HEAD", "E-REVISION-INVALID")),
++            ("sandbox unknown-rejected",
++             expect("0" * 40, "E-REVISION-INVALID")),
++            ("sandbox branch-range",
++             expect(c1, "E-BRANCH-INVALID", "a..b")),
++            ("sandbox branch-slash",
++             expect(c1, "E-BRANCH-INVALID", "master/")),
++            ("sandbox branch-space",
++             expect(c1, "E-BRANCH-INVALID", "bad branch")),
++            ("sandbox branch-missing",
++             expect(c1, "E-BRANCH-MISSING", "nosuch")),
++            ("sandbox precedence-branch-first",
++             expect("HEAD", "E-BRANCH-INVALID", "a..b")),
++            ("sandbox precedence-revision-before-missing",
++             expect("HEAD", "E-REVISION-INVALID", "nosuch")),
++        ])
++        out.extend([
++            expect_cli("sandbox CLI branch-first single-id",
++                       ["--revision", "HEAD", "--branch", "a..b"],
++                       "E-BRANCH-INVALID"),
++            expect_cli("sandbox CLI branch-slash",
++                       ["--revision", c1, "--branch", "master/"],
++                       "E-BRANCH-INVALID"),
++            expect_cli("sandbox CLI branch-space",
++                       ["--revision", c1, "--branch", "bad branch"],
++                       "E-BRANCH-INVALID"),
++            expect_cli("sandbox CLI branch-missing",
++                       ["--revision", c1, "--branch", "nosuch"],
++                       "E-BRANCH-MISSING"),
++            expect_cli("sandbox CLI revision-before-missing",
++                       ["--revision", "HEAD", "--branch", "nosuch"],
++                       "E-REVISION-INVALID"),
++            expect_cli("sandbox CLI registry-from-invalid",
++                       ["--revision", c1, "--registry-from", "HEAD"],
++                       "E-REVISION-INVALID"),
++            expect_cli("sandbox CLI registry-from-not-pushed",
++                       ["--revision", c1, "--registry-from", c2],
++                       "E-REVISION-NOT-PUSHED"),
++        ])
+     finally:
+         shutil.rmtree(tmp, ignore_errors=True)
+     return out
+@@ -688,17 +701,6 @@ def selftest():
+          FAIL, {"R17-FRESH-NOTICE"}, 1, None),
+     ]
+     checks = [
+-        ("revision HEAD", revision_finding("HEAD"), "E-REVISION-INVALID"),
+-        ("revision at-sign", revision_finding("@"), "E-REVISION-INVALID"),
+-        ("revision short", revision_finding("abc123"), "E-REVISION-INVALID"),
+-        ("revision ref", revision_finding("refs/heads/master"),
+-         "E-REVISION-INVALID"),
+-        ("revision hex", revision_finding("a" * 40), None),
+-        ("branch ok", branch_finding("master"), None),
+-        ("branch ok slash", branch_finding("release/r17"), None),
+-        ("branch dotdot", branch_finding("feat/../x"), "E-BRANCH-INVALID"),
+-        ("branch option", branch_finding("-evil"), "E-BRANCH-INVALID"),
+-        ("branch empty", branch_finding(""), "E-BRANCH-INVALID"),
+         ("cli none", cli_finding([]), "E-CLI"),
+         ("cli both", cli_finding(["--selftest", "--revision", "a" * 40]), "E-CLI"),
+         ("cli registry only", cli_finding(["--registry-from", "a" * 40]), "E-CLI"),
+@@ -760,15 +762,14 @@ def main(argv=None):
+         return selftest()
+     branch = args.branch
+     revision = args.revision
+-    tip = branch_tip_in(ROOT, branch) if not branch_finding(branch) else None
++    tip = _revision.branch_tip(ROOT, branch)
+     try:
+-        if branch_finding(branch):
+-            raise Cannot("E-BRANCH-INVALID", "branch", "unsafe or empty branch name")
+-        revision = bind(ROOT, args.revision, branch)
++        binding = _revision.bind(ROOT, args.revision, branch)
++        revision = binding.sha
++        tip = binding.branch_tip
+         source = revision
+         if args.registry_from:
+-            source = bind(ROOT, args.registry_from, branch)
+-        tip = branch_tip_in(ROOT, branch)
++            source = _revision.bind(ROOT, args.registry_from, branch).sha
+         registry_text = read_git(source, REGISTRY)
+         if args.registry_from and registry_text is None:
+             return emit(Result(CANNOT, [Finding("E-REGISTRY-MISSING", REGISTRY,
+@@ -782,7 +783,9 @@ def main(argv=None):
+                     else {path: read_git(revision, path) for path in CAPTURES})
+         docs = DocSet(registry_text, targets, bases, captures,
+                       bool(args.registry_from))
+-    except Cannot as exc:
++    except (_revision.RevisionError, Cannot) as exc:
++        if isinstance(exc, _revision.RevisionError):
++            exc = Cannot(exc.fid, exc.site, exc.detail)
+         return emit(Result(CANNOT, [Finding(exc.fid, exc.site, exc.detail)],
+                            0, 0, None), revision, branch, tip)
+     except Exception as exc:  # no traceback: unreadable input is CANNOT

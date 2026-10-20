@@ -1,0 +1,11 @@
+# Review — SOURCES.md immutability and used-by
+
+Axes: append-only/mutable fields; used-by coherence; W04 duplicate URLs.
+
+- **Append-only / mutable-field contract — SURVIVES for this diff.** Read-only `git diff` against baseline adds S060–S063 and the round-18 curation log only (`corpus/SOURCES.md:66-69,111`); no existing source row or mutable field changed. The lesson reports no inherited mutable changes (`corpus/lessons/round-18.md:25,54`). `SOURCES.md:1-6` contains only title/registry schema; the operative Rule 2 is external, as the prior contract review records (`.ufo/waves/round-17/build/RevSourcesContract.md:3,15`).
+- **used-by — SURVIVES for the changed and targeted rows.** S060–S063 point to the round-18 lesson (`SOURCES.md:66-69`), which cites them (`corpus/lessons/round-18.md:20-23,54`). S059 is not missing its second consumer: its row lists both `boot-chain-r17.md` and `initramfs-v42-sysroot-recovery.md` (`SOURCES.md:65`); the latter cites the exact S059 capture range 51–66 (`corpus/knowledge/initramfs-v42-sysroot-recovery.md:89`). R17's S051/S055/S056 mutable `used-by` corrections are logged (`corpus/lessons/round-17.md:35`). No remaining bad `used-by` found in scope.
+- **W04 — SURVIVES as known benign warnings; latest validation UNPROVEN.** The known eight are S038←S034, S041←S028, S044←S041, S046←S044, S042←S036, S043←S037, S049←S048, S058←S054; their scope distinctions and W04's exit-inert behavior are documented (`.ufo/waves/round-17/build/CensusW04Scout.md:3-12`, `corpus/SOURCES.md:44,47-55,60,64`). R17's final census lists these same eight then `ok` (`corpus/lessons/round-17-verifier-spotcheck.md:165-167`). The R18 start capture shows the same list (`.ufo/waves/round-18/measure/census-start.txt:1-10`), but no post-S060–S063 census result was found; do not claim final validation. The four additions use distinct locators (`SOURCES.md:66-69`).
+
+LSP is unavailable: `read xd://lsp` returned “No such tool”; grep was used only for literal location, not semantic proof. No actionable defect found. Residual gap: post-addition source census.
+
+Scope: executed=git diff --no-ext-diff --unified=3 842a5312b704b5cda10fd80ec1fdee5fb381ba97 -- corpus/SOURCES.md (read-only; no tests or probes).

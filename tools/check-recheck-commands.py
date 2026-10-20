@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only round-17 recheck-procedure gate.
+"""Read-only recheck-procedure gate (rounds 17-18).
 
 Round 17's steer withholds package, boot-image and service action. A knowledge
 entry's `recheck:` line is a procedure a later agent is invited to follow, so
@@ -10,11 +10,30 @@ named files at an immutable revision and, in the LAST `recheck:` line (later
 lines supersede earlier pointer ones, per the journal-boot-plane convention),
 reports every forbidden binary a backticked command actually invokes.
 
-An appended `## R17-RECHECK — steer-safe procedure` section resolves the
-header only when the section itself supplies at least one procedure command
-(backtick span, fenced block line, or `procedure:` line) and invokes no
-forbidden binary. Prose that merely names a binary (for example "never run
-pacman") is not an invocation.
+Pointer procedures (round 18; round-17 closure defect 6, aur-risk-plane.md:347
+"§7's ... probe set"): a named section pointer in that line (`§7`, `§7's`,
+`§§1–5`, `§4.2`, `Appendix`, `Appendix A`) is resolved to its heading in the
+same file (headings inside fenced blocks are not headings; a section runs to
+the next heading of the same or a higher level, so subsections and dotted
+descendants such as `## 0.1` stay inside §0). The commands the section declares
+(backtick span, fenced block line, or `procedure:` line) are inspected like
+the line's own, and a forbidden one is RECHECK-FORBIDDEN-INVOCATION at the
+command's line. A pointer that names no heading is RECHECK-POINTER-UNRESOLVED.
+Pointers inside a backtick span or right after a `*.md` name (another file's
+section) are not followed, and resolution is one level deep.
+
+An appended `## R17-RECHECK — steer-safe procedure` or
+`## R18-RECHECK — steer-safe procedure` section resolves the header, literal
+and pointer invocations alike, only when the section itself supplies at least
+one procedure command and invokes no forbidden binary, including through a
+section pointer on one of its `procedure:` lines. The latest round's section
+is operative and supersedes an earlier round's (append-only repair); the
+operative heading must be unique. Prose that merely names a binary (for
+example "never run pacman") is not an invocation, nor is a shell comment.
+
+--revision is bound by the shared tools/_revision.py (branch syntax before
+revision syntax, first failure wins, exactly one finding, exit 2); --exec-log
+is read at that same bound commit.
 
 Exit 0 pass / 1 finding / 2 could-not-evaluate; JSON on stdout.
 """
@@ -31,16 +50,25 @@ import tempfile
 from collections import namedtuple
 from pathlib import Path
 
+sys.dont_write_bytecode = True  # shared-module import stays read-only
+import _revision
+
 PASS, FAIL, CANNOT = 0, 1, 2
 ROOT = Path(__file__).resolve().parents[1]
-HEADING = "## R17-RECHECK — steer-safe procedure"
+# Steer-safe sections, oldest round first; the latest one present is operative.
+HEADINGS = ("## R17-RECHECK — steer-safe procedure",
+            "## R18-RECHECK — steer-safe procedure")
 DEFAULT_FORBID = ("pacman", "checkupdates", "yay", "paru", "mkinitcpio", "limine-update")
-REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
-BRANCH = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]*$")
 BINARY = re.compile(r"^[A-Za-z0-9_.+-]+$")
 ASSIGN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
 PROCEDURE_LINE = re.compile(
     r"^(?:[-*+]\s*)?(?:procedure|recheck|commands?|steps?)\s*[:—–-]\s*(.+)$", re.I)
+# Named same-file section pointers: `§7`, `§7's`, `§§1–5`, `§0–§3`, `§4.2`, `Appendix A`.
+POINTER = re.compile(r"§§?\s*(\d+(?:\.\d+)*)(?:\s*[–—-]\s*§?\s*(\d+(?:\.\d+)*))?")
+APPENDIX = re.compile(r"\bAppendix\b(?:\s+([A-Z])\b)?")
+OTHER_FILE = re.compile(r"\.md\b[`'’s]*\s*$")
+HEADING_LINE = re.compile(r"^(#{1,6})\s+(.*\S)\s*$")
+SECTION_NUMBER = re.compile(r"§?\s*(\d+(?:\.\d+)*)(?=$|[\s.):—–-])")
 # Shell control words that can stand where a command name would.
 KEYWORDS = {"if", "then", "else", "elif", "fi", "do", "done", "case", "esac", "in",
             "while", "until", "for", "select", "function", "{", "}", "!", "time"}
@@ -63,7 +91,7 @@ WRAPPERS = {
 }
 
 Finding = namedtuple("Finding", "id site detail")
-Counts = namedtuple("Counts", "forbidden files invocations flagged resolved clean")
+Counts = namedtuple("Counts", "forbidden files invocations pointers flagged resolved clean")
 Result = namedtuple("Result", "code findings counts")
 
 
@@ -77,7 +105,10 @@ def segments(text):
     """Split shell text on top-level separators, honoring quoting.
 
     A backtick span is re-split as its own command sequence, so a prose span
-    holding several commands is scanned command by command.
+    holding several commands is scanned command by command. A word-initial `#`
+    opens a shell comment that runs to the end of the line: nothing in it,
+    backticks included, is executed (degraded-triage-r4.md:597 quotes
+    `pacman -Sl offline` inside such a comment).
     """
     out, buf, quote = [], [], None
     index, size = 0, len(text)
@@ -109,6 +140,10 @@ def segments(text):
             buf.append(char)
             buf.append(text[index + 1])
             index += 2
+            continue
+        if char == "#" and (not buf or buf[-1].isspace()):
+            while index < size and text[index] != "\n":
+                index += 1
             continue
         if char == "`":
             flush()
@@ -251,7 +286,8 @@ def backtick_spans(text):
 
 
 def section_commands(lines, first):
-    """(line number, command text) pairs declared by the steer-safe section."""
+    """(line number, command text) pairs a section declares: fenced block lines,
+    backtick spans and `procedure:`-style lines (steer-safe or pointed-to)."""
     out, fenced = [], False
     for offset, line in enumerate(lines):
         stripped = line.strip()
@@ -273,13 +309,150 @@ def section_commands(lines, first):
     return out
 
 
+def procedure_lines(lines, first):
+    """(line number, text) of `procedure:`-style lines outside fenced blocks."""
+    out, fenced = [], False
+    for offset, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            fenced = not fenced
+            continue
+        declared = None if fenced else PROCEDURE_LINE.match(stripped)
+        if declared:
+            out.append((first + offset, declared.group(1)))
+    return out
+
+
+def section_key(number):
+    """Canonical dotted section number: `07.2` and `7.2` name one section."""
+    return ".".join(str(int(part)) for part in number.split("."))
+
+
+def headings(lines):
+    """(index, level, number, appendix) per Markdown heading outside fenced blocks.
+
+    number is the canonical leading section number or None; appendix is the
+    appendix letter ("" when unlettered), or None when the heading is no appendix.
+    A `# 1. ...` comment inside a fenced shell block is not a heading.
+    """
+    out, fenced = [], False
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            fenced = not fenced
+            continue
+        match = None if fenced else HEADING_LINE.match(line)
+        if match is None:
+            continue
+        title = match.group(2)
+        number = SECTION_NUMBER.match(title)
+        rest = title[number.end():].lstrip(" .):—–-") if number else title
+        appendix = APPENDIX.match(rest)
+        out.append((index, len(match.group(1)),
+                    section_key(number.group(1)) if number else None,
+                    (appendix.group(1) or "") if appendix else None))
+    return out
+
+
+def section_span(heads, position, total):
+    """(heading index, end index) of one heading's section: it runs to the next
+    heading of the same or a higher level that is not its dotted descendant."""
+    start, level, number, _ = heads[position]
+    for index, other_level, other_number, _ in heads[position + 1:]:
+        if other_level <= level and not (number is not None and other_number is not None
+                                         and other_number.startswith(number + ".")):
+            return start, index
+    return start, total
+
+
+def pointers(text):
+    """(label, kind, key) per named same-file section pointer in `text`.
+
+    kind "section" keys a canonical number (`§§1–5` expands to 1..5); kind
+    "appendix" keys a letter ("" for a bare `Appendix`). A pointer inside a
+    backtick span, or right after a `*.md` name, is not a same-file pointer.
+    """
+    spans = [match.span() for match in re.finditer(r"`[^`]*`", text)]
+
+    def same_file(position):
+        return (not any(start <= position < end for start, end in spans)
+                and not OTHER_FILE.search(text[:position]))
+
+    out = []
+    for match in POINTER.finditer(text):
+        if not same_file(match.start()):
+            continue
+        label = " ".join(match.group(0).split())
+        first = section_key(match.group(1))
+        last = section_key(match.group(2)) if match.group(2) else None
+        if (last and first.isdigit() and last.isdigit()
+                and int(first) <= int(last) <= int(first) + 50):
+            keys = [str(value) for value in range(int(first), int(last) + 1)]
+        else:
+            keys = [first] + ([last] if last else [])
+        out.extend((label, "section", key) for key in keys)
+    for match in APPENDIX.finditer(text):
+        if same_file(match.start()):
+            out.append((" ".join(match.group(0).split()), "appendix", match.group(1) or ""))
+    return out
+
+
+def resolve_pointer(heads, total, kind, key):
+    """Section spans one pointer names; [] when the file has no such heading.
+
+    A number names its highest-level heading(s); a bare `Appendix` names every
+    appendix heading, `Appendix A` only that letter's.
+    """
+    if kind == "section":
+        hits = [position for position, head in enumerate(heads) if head[2] == key]
+        if hits:
+            top = min(heads[position][1] for position in hits)
+            hits = [position for position in hits if heads[position][1] == top]
+    else:
+        hits = [position for position, head in enumerate(heads)
+                if head[3] is not None and (not key or head[3] == key)]
+    return [section_span(heads, position, total) for position in hits]
+
+
+def follow_pointers(lines, heads, text, forbid):
+    """Follow the same-file section pointers in `text` one level deep.
+
+    Returns (sections inspected, unresolved pointers, [(label, line, name, command)]);
+    each section is inspected once, so `§§1–5` with `§3` reads §3 once.
+    """
+    seen, unresolved, hits = [], [], []
+    for label, kind, key in pointers(text):
+        spans = resolve_pointer(heads, len(lines), kind, key)
+        if not spans:
+            name = label if kind == "appendix" else f"§{key}"
+            if name not in unresolved:
+                unresolved.append(name)
+            continue
+        for start, end in spans:
+            if (start, end) in seen:
+                continue
+            seen.append((start, end))
+            for number, command in section_commands(lines[start + 1:end], start + 2):
+                hits.extend((label, number, name, command)
+                            for name in invocations(command, forbid))
+    return len(seen), unresolved, hits
+
+
 def section(lines):
-    """State of the appended steer-safe section for one file."""
-    hits = [index for index, line in enumerate(lines) if line.strip() == HEADING]
-    if not hits:
+    """State of the operative appended steer-safe section for one file.
+
+    The latest round's heading present is operative (an R18 section supersedes
+    an R17 one); the operative heading must appear exactly once.
+    """
+    found = {heading: [index for index, line in enumerate(lines) if line.strip() == heading]
+             for heading in HEADINGS}
+    operative = next((heading for heading in reversed(HEADINGS) if found[heading]), None)
+    if operative is None:
         return {"present": False, "duplicates": 0}
+    hits = found[operative]
     if len(hits) > 1:
-        return {"present": True, "duplicates": len(hits), "line": hits[0], "commands": []}
+        return {"present": True, "duplicates": len(hits), "line": hits[0],
+                "commands": [], "procedures": []}
     first = hits[0] + 1
     end = len(lines)
     for index in range(first, len(lines)):
@@ -287,7 +460,8 @@ def section(lines):
             end = index
             break
     return {"present": True, "duplicates": 1, "line": hits[0],
-            "commands": section_commands(lines[first:end], first + 1)}
+            "commands": section_commands(lines[first:end], first + 1),
+            "procedures": procedure_lines(lines[first:end], first + 1)}
 
 
 def assess_file(path, text, forbid):
@@ -303,7 +477,9 @@ def assess_file(path, text, forbid):
     header_hits = []
     for span in backtick_spans(body):
         header_hits.extend(invocations(span, forbid))
-    invocations_seen = len(header_hits)
+    heads = headings(lines)
+    sections, unresolved, pointer_hits = follow_pointers(lines, heads, body, forbid)
+    invocations_seen = len(header_hits) + len(pointer_hits)
     state = section(lines)
     resolved = False
     if state["present"]:
@@ -314,29 +490,55 @@ def assess_file(path, text, forbid):
             findings.append(Finding("RECHECK-STEER-SAFE-INVALID", path,
                                     "steer-safe section declares no procedure command"))
         else:
-            unsafe = []
+            unsafe, dangling = [], []
             for number, command in state["commands"]:
                 hits = invocations(command, forbid)
                 invocations_seen += len(hits)
                 if hits:
-                    unsafe.append((number, hits[0], command))
+                    unsafe.append((number, hits[0], command, ""))
+            for _, procedure in state["procedures"]:
+                _, missing, reached = follow_pointers(lines, heads, procedure, forbid)
+                invocations_seen += len(reached)
+                dangling.extend(missing)
+                unsafe.extend((number, name, command, f" via {label}")
+                              for label, number, name, command in reached)
             if unsafe:
-                number, name, command = unsafe[0]
+                number, name, command, via = unsafe[0]
                 findings.append(Finding(
                     "RECHECK-FORBIDDEN-INVOCATION", f"{path}:{number}",
-                    f"steer-safe section invokes {name}: {' '.join(command.split())[:80]}"))
+                    f"steer-safe section invokes {name}{via}: "
+                    f"{' '.join(command.split())[:80]}"))
                 findings.append(Finding("RECHECK-STEER-SAFE-INVALID", path,
                                         "steer-safe section still invokes a forbidden binary"))
+            elif dangling:
+                findings.append(Finding("RECHECK-STEER-SAFE-INVALID", path,
+                                        f"steer-safe section pointer {dangling[0]} names no "
+                                        "section in this file"))
             else:
                 resolved = True
-    if header_hits and not resolved:
-        findings.append(Finding(
-            "RECHECK-FORBIDDEN-INVOCATION", f"{path}:{index + 1}",
-            "recheck procedure invokes " + ", ".join(sorted(set(header_hits)))))
+    if not resolved:
+        if header_hits:
+            findings.append(Finding(
+                "RECHECK-FORBIDDEN-INVOCATION", f"{path}:{index + 1}",
+                "recheck procedure invokes " + ", ".join(sorted(set(header_hits)))))
+        reported = set()
+        for label, number, _, command in pointer_hits:
+            if label in reported:
+                continue
+            reported.add(label)
+            names = ", ".join(sorted({hit[2] for hit in pointer_hits if hit[0] == label}))
+            findings.append(Finding(
+                "RECHECK-FORBIDDEN-INVOCATION", f"{path}:{number}",
+                f"recheck pointer {label} (line {index + 1}) reaches {names}: "
+                f"{' '.join(command.split())[:80]}"))
+        findings.extend(Finding("RECHECK-POINTER-UNRESOLVED", f"{path}:{index + 1}",
+                                f"recheck pointer {label} names no section in this file")
+                        for label in unresolved)
+    total_hits = len(header_hits) + len(pointer_hits)
     flagged = int(any(item.id == "RECHECK-FORBIDDEN-INVOCATION" for item in findings))
-    clean = int(not findings and not header_hits)
-    return findings, {"invocations": invocations_seen, "flagged": flagged,
-                      "resolved": int(bool(header_hits) and resolved),
+    clean = int(not findings and not total_hits)
+    return findings, {"invocations": invocations_seen, "pointers": sections,
+                      "flagged": flagged, "resolved": int(bool(total_hits) and resolved),
                       "clean": clean}
 
 
@@ -356,17 +558,19 @@ def assess_exec_log(path, text, forbid):
 
 
 def evaluate(files, forbid):
-    findings, invocations_seen, flagged, resolved, clean = [], 0, 0, 0, 0
+    findings, invocations_seen, sections, flagged, resolved, clean = [], 0, 0, 0, 0, 0
     for path, text in files:
         file_findings, counts = assess_file(path, text, forbid)
         findings.extend(file_findings)
         invocations_seen += counts["invocations"]
+        sections += counts["pointers"]
         flagged += counts["flagged"]
         resolved += counts["resolved"]
         clean += counts["clean"]
     findings = [Finding(*key) for key in
                 sorted({(item.id, item.site, item.detail) for item in findings})]
-    counts = Counts(list(forbid), len(files), invocations_seen, flagged, resolved, clean)
+    counts = Counts(list(forbid), len(files), invocations_seen, sections, flagged, resolved,
+                    clean)
     return Result(FAIL if findings else PASS, findings, counts)
 
 
@@ -381,10 +585,12 @@ def emit(status, revision, branch, branch_tip, findings, counts, out=None,
         "forbidden": list(counts.forbidden) if counts else [],
         "file_count": counts.files if counts else 0,
         "invocation_count": counts.invocations if counts else 0,
+        "pointer_section_count": counts.pointers if counts else 0,
         "flagged_count": counts.flagged if counts else 0,
         "resolved_count": counts.resolved if counts else 0,
         "clean_count": counts.clean if counts else 0,
-        "scope": "recheck: header procedures only; read-only, no host action taken",
+        "scope": ("last recheck: line, its same-file section pointers and the operative "
+                  "R17/R18 steer-safe section; read-only, no host action taken"),
         "findings": [{"id": item.id, "site": item.site, "detail": item.detail}
                      for item in findings],
     }
@@ -407,47 +613,6 @@ def git(repo, *args):
         raise Cannot("E-GIT-FAILED", "git", "git command exceeded 60s")
     except OSError as exc:
         raise Cannot("E-GIT-FAILED", "git", str(exc)[:120])
-
-
-def ref_sha(repo, ref):
-    proc = git(repo, "rev-parse", "--verify", "--quiet", ref)
-    return proc.stdout.decode("ascii", "replace").strip() if proc.returncode == 0 else None
-
-
-def is_ancestor(repo, sha, ref):
-    proc = git(repo, "merge-base", "--is-ancestor", sha, ref)
-    if proc.returncode == 0:
-        return True
-    if proc.returncode == 1:
-        return False
-    detail = proc.stderr.decode("utf-8", "replace").strip()[:120] or "merge-base failed"
-    raise Cannot("E-GIT-FAILED", ref, detail)
-
-
-def bind(repo, revision, branch):
-    """Resolve a hex revision and prove it is landed (and pushed) on `branch`."""
-    if not REV.fullmatch(revision or ""):
-        raise Cannot("E-REVISION-INVALID", "revision",
-                     "7-64 hex commit required; HEAD, @ and refs are rejected")
-    if not BRANCH.fullmatch(branch or ""):
-        raise Cannot("E-CLI", "branch", "simple branch name required")
-    proc = git(repo, "rev-parse", "--verify", "--quiet", f"{revision}^{{commit}}")
-    if proc.returncode != 0:
-        raise Cannot("E-REVISION-INVALID", "revision", f"commit {revision} not found")
-    sha = proc.stdout.decode("ascii", "replace").strip()
-    local = f"refs/heads/{branch}"
-    tip = ref_sha(repo, local)
-    if tip is None:
-        raise Cannot("E-REVISION-NOT-LANDED", revision, f"{local} absent")
-    if not is_ancestor(repo, sha, local):
-        raise Cannot("E-REVISION-NOT-LANDED", revision,
-                     f"{sha[:12]} is not an ancestor of {local}")
-    remote_ref = f"refs/remotes/origin/{branch}"
-    origin_tip = ref_sha(repo, remote_ref)
-    if origin_tip is not None and not is_ancestor(repo, sha, remote_ref):
-        raise Cannot("E-REVISION-NOT-PUSHED", revision,
-                     f"{sha[:12]} is not an ancestor of {remote_ref}")
-    return sha, tip, origin_tip
 
 
 def read_git(repo, commit, path):
@@ -517,7 +682,7 @@ def forbid_list(raw):
 
 def build_parser():
     parser = argparse.ArgumentParser(
-        description="Read-only round-17 recheck-procedure gate.",
+        description="Read-only recheck-procedure gate (rounds 17-18).",
         exit_on_error=False)
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--revision", metavar="REV",
@@ -531,7 +696,8 @@ def build_parser():
                         help="lane-relative log of executed commands (`$ cmd` lines) to "
                              "check against --forbid at the revision")
     parser.add_argument("--branch", default="master", metavar="BRANCH",
-                        help="branch the revision must be landed on (default: master)")
+                        help="branch the revision must be landed on (default: master); "
+                             "validated by tools/_revision.py")
     parser.add_argument("--forbid", default=",".join(DEFAULT_FORBID), metavar="LIST",
                         help="comma-separated forbidden binaries")
     return parser
@@ -554,7 +720,12 @@ def run(argv, repo=ROOT, out=None):
     sha = tip = origin_tip = None
     try:
         forbid = forbid_list(args.forbid)
-        sha, tip, origin_tip = bind(repo, args.revision, branch)
+        try:
+            binding = _revision.bind(repo, args.revision, branch)
+        except _revision.RevisionError as exc:
+            tip = _revision.branch_tip(repo, branch)
+            raise Cannot(exc.fid, exc.site, exc.detail) from exc
+        sha, tip, origin_tip = binding.sha, binding.branch_tip, binding.origin_tip
         paths = list(dict.fromkeys(expand_paths(repo, sha, args.paths)))
         files = []
         for path in paths:
@@ -648,6 +819,60 @@ R17_SECTION = (
     "- Record the substitution (a directory-name read in place of a package "
     "query) in the report.\n")
 
+# Round-17 closure defect 6, verbatim: aur-risk-plane.md:347 defers to "§7's ...
+# probe set" without a backtick span, and its §7 holds `pacman -T` (:309).
+AUR_347 = ("recheck: 90d; procedure: §7's explicit foreign-package, repo-resolution, "
+           "orphan and provenance probe set.")
+AUR_SECTIONS = (
+    "\n## 6. Operator probes (read-only; the ones that would settle the remaining "
+    "questions)\n\n"
+    "```bash\n"
+    "# 1. re-take the census and diff it against this register (16 rows expected)\n"
+    "pacman -Qm | awk '{print $1}' | sort > /tmp/fp.txt; wc -l < /tmp/fp.txt\n"
+    "```\n\n"
+    "## 7. Unknowns and out-of-reach (reported, not absorbed)\n\n"
+    "6. **Whether `walker`-adjacent breakage could be caught earlier**: `pacman -T` (R11) "
+    "is rc=0 and\n"
+    "   will stay rc=0 across an ABI change.\n\n"
+    "## 8. Forward spec — what this register implies for the census\n\n"
+    "Written, not implemented.\n")
+
+# Modeled on the round-18 NoticeAur draft for aur-risk-plane.md: its prose names
+# "§6 and §7", but every command it declares is a file read.
+R18_AUR_SECTION = (
+    "\n## R18-RECHECK — steer-safe procedure\n\n"
+    "Appended by the round-18 build; earlier bytes unchanged. Supersedes the recheck: "
+    "line at :347 (its pointer to the §6 and §7 probe set) for any round whose steer "
+    "forbids running pacman. Read-only.\n\n"
+    "Procedure (file reads only):\n\n"
+    "- `ls -1 /var/lib/pacman/local` — installed census by directory name.\n"
+    "- `tar -tf /var/lib/pacman/sync/omarchy.db | grep -E \"^(elephant|omarchy-walker)\"`\n"
+    "- `git -C ~/.cache/yay/<pkg> log -1 --format='%H %cI %s'` — AUR clone head.\n")
+
+R18_SAFE = SAFE_SECTION.replace("## R17-RECHECK", "## R18-RECHECK")
+R18_UNSAFE = "\n## R18-RECHECK — steer-safe procedure\n\n- `paru -Qua`\n"
+R18_POINTER = ("\n## R18-RECHECK — steer-safe procedure\n\n"
+               "procedure: rerun the §7 probes read-only.\n")
+R18_DANGLING = ("\n## R18-RECHECK — steer-safe procedure\n\n"
+                "- procedure: `grep -n y /etc/y`, then rerun §9.\n")
+
+# corpus/knowledge/package-state-plane.md:328 and its round-17 section (:331-337),
+# verbatim: the prose names "Appendix probes" but declares no pointer procedure.
+PACKAGE_STATE_HEADER = (
+    "recheck: 90d; procedure: `pacman -Q pacman; pacman --version; uname -r` for header "
+    "pins plus the Appendix probe set.")
+PACKAGE_STATE_SECTION = (
+    "\n## R17-RECHECK — steer-safe procedure\n\n"
+    "Appended 2026-10-20 by the tsukuroi round-17 L1; earlier bytes unchanged. Supersedes "
+    "the package-manager invocations in this file's `recheck:` line for any round whose "
+    "steer forbids running pacman (QUALITY 26); file reads replace them and the "
+    "substitution is recorded in that round's report. Read-only.\n\n"
+    "- `ls -d /var/lib/pacman/local/pacman-[0-9]*` (version is the directory-name suffix)\n"
+    "- `uname -r`\n"
+    "- Appendix probes that invoke pacman are replaced by reads of "
+    "`/var/lib/pacman/local/<pkg>-<ver>/desc` and `/var/log/pacman.log`, or recorded as "
+    "[unk]\n")
+
 
 def sandbox_git(repo, *args):
     proc = git(repo, *args)
@@ -692,10 +917,13 @@ def selftest(out=None):
         problems = []
         if code != want_code:
             problems.append(f"exit={code}/{want_code}")
-        got_ids = {item["id"] for item in payload.get("findings", [])}
+        findings = payload.get("findings", [])
+        got_ids = {item["id"] for item in findings}
         if got_ids != set(want_ids):
             problems.append("ids=" + ",".join(sorted(got_ids))
                             + " want=" + ",".join(sorted(want_ids)))
+        if want_code == CANNOT and len(findings) != 1:
+            problems.append(f"finding_count={len(findings)}/1")
         if payload.get("status") != {PASS: "PASS", FAIL: "FAIL",
                                      CANNOT: "CANNOT_EVALUATE"}[want_code]:
             problems.append(f"status={payload.get('status')}")
@@ -843,6 +1071,145 @@ def selftest(out=None):
                                       "1. `grep -n '/new_root' /usr/lib/initcpio/hooks/*`\n"))
     case(repo, "duplicate-heading", ["--revision", twin, "--paths", "fixture.md"],
          FAIL, forbidden_only | {"RECHECK-STEER-SAFE-INVALID"})
+    # 12b. Pointer procedures (round-17 closure defect 6): a named same-file
+    #      section pointer is followed and the section's commands are inspected.
+    aur = sandbox_commit(repo, entry(AUR_347, AUR_SECTIONS))
+    case(repo, "pointer-aur-347-red", ["--revision", aur, "--paths", "fixture.md"],
+         FAIL, forbidden_only, {"flagged_count": 1, "resolved_count": 0,
+                                "invocation_count": 1, "pointer_section_count": 1})
+    aur_fixed = sandbox_commit(repo, entry(AUR_347, AUR_SECTIONS + R18_AUR_SECTION))
+    case(repo, "pointer-aur-347-r18-resolved",
+         ["--revision", aur_fixed, "--paths", "fixture.md"],
+         PASS, set(), {"flagged_count": 0, "resolved_count": 1,
+                       "invocation_count": 1, "pointer_section_count": 1})
+    bounded = sandbox_commit(repo, entry(
+        "recheck: 30d; procedure: §2 read-only replay.",
+        "\n## 1. Scope\n\n`pacman -Qm` was the census.\n\n"
+        "## 2. Replay\n\nNever run pacman -Qm here.\n\n```bash\ngrep -n x /etc/x\n```\n\n"
+        "## 3. Later\n\n- `checkupdates`\n"))
+    case(repo, "pointer-section-bounded-clean",
+         ["--revision", bounded, "--paths", "fixture.md"],
+         PASS, set(), {"clean_count": 1, "invocation_count": 0, "pointer_section_count": 1})
+    fenced = sandbox_commit(repo, entry(
+        "recheck: 30d; procedure: §6 probes.",
+        "\n## 6. Probes\n\n```bash\n# 1. first\ngrep a b\n# 2. second\npacman -Qm\n```\n\n"
+        "## 7. Unknowns\n\nNone.\n"))
+    case(repo, "pointer-fence-comment-not-heading",
+         ["--revision", fenced, "--paths", "fixture.md"],
+         FAIL, forbidden_only, {"invocation_count": 1, "pointer_section_count": 1})
+    ranged = sandbox_commit(repo, entry(
+        "recheck: 30d; procedure: §§1–3 rerun the probes.",
+        "\n## 1. A\n\n- `grep a b`\n\n## 2. B\n\n- `yay -Qua`\n\n## 3. C\n\n- `grep c d`\n\n"
+        "## 4. D\n\n- `paru -Qu`\n"))
+    case(repo, "pointer-range", ["--revision", ranged, "--paths", "fixture.md"],
+         FAIL, forbidden_only, {"invocation_count": 1, "pointer_section_count": 3})
+    subsection = sandbox_commit(repo, entry(
+        "recheck: 30d; procedure: §4 probe ledger.",
+        "\n## 4. Ledger\n\nIntro.\n\n### 4.1 Detail\n\n- `sudo mkinitcpio -P`\n\n"
+        "## 5. Next\n\nNone.\n"))
+    case(repo, "pointer-subsection-included",
+         ["--revision", subsection, "--paths", "fixture.md"],
+         FAIL, forbidden_only, {"invocation_count": 1})
+    dotted = sandbox_commit(repo, entry(
+        "recheck: 30d; procedure: §4.2 one-liner.",
+        "\n## 4. Ledger\n\n### 4.1 Detail\n\n- `pacman -Qi x`\n\n"
+        "### 4.2 One-liner\n\n- `grep -c x /etc/x`\n\n## 5. Next\n\nNone.\n"))
+    case(repo, "pointer-dotted-only", ["--revision", dotted, "--paths", "fixture.md"],
+         PASS, set(), {"invocation_count": 0, "pointer_section_count": 1})
+    descendant = sandbox_commit(repo, entry(
+        "recheck: 30d; procedure: §0 anchor.",
+        "\n## 0. Anchor\n\n- `grep a b`\n\n## 0.1 Matrix\n\n- `checkupdates`\n\n"
+        "## 1. Next\n\nNone.\n"))
+    case(repo, "pointer-dotted-descendant",
+         ["--revision", descendant, "--paths", "fixture.md"],
+         FAIL, forbidden_only, {"invocation_count": 1})
+    appendix = sandbox_commit(repo, entry(
+        "recheck: 30d; procedure: Appendix probe command set.",
+        "\n## Appendix — probe command set (reproducible)\n\n```\nlimine-update\n```\n"))
+    case(repo, "pointer-appendix", ["--revision", appendix, "--paths", "fixture.md"],
+         FAIL, forbidden_only, {"invocation_count": 1, "pointer_section_count": 1})
+    lettered = sandbox_commit(repo, entry(
+        "recheck: 30d; procedure: Appendix A command set.",
+        "\n## Appendix A — executor re-run set\n\n```bash\n"
+        "bash tools/tsukuroi-census.sh --selftest\n```\n\n"
+        "## Appendix B — scratch inventory\n\n- `pacman -Qkk`\n"))
+    case(repo, "pointer-appendix-letter", ["--revision", lettered, "--paths", "fixture.md"],
+         PASS, set(), {"invocation_count": 0, "pointer_section_count": 1})
+    numbered = sandbox_commit(repo, entry(
+        "recheck: 30d; procedure: §10 command set; Appendix probes.",
+        "\n## 10. Appendix — probe command set\n\n```bash\nsystemctl list-timers --all\n```\n"))
+    case(repo, "pointer-numbered-appendix-once",
+         ["--revision", numbered, "--paths", "fixture.md"],
+         PASS, set(), {"clean_count": 1, "pointer_section_count": 1})
+    other_file = sandbox_commit(repo, entry(
+        "recheck: 90d; procedure: confirm the notices still resolve in "
+        "`corpus/knowledge/other.md` §0 and `notes.md`'s §5."))
+    case(repo, "pointer-other-file-not-followed",
+         ["--revision", other_file, "--paths", "fixture.md"],
+         PASS, set(), {"clean_count": 1, "pointer_section_count": 0})
+    unresolved = sandbox_commit(repo, entry("recheck: 90d; procedure: §9 probe set."))
+    case(repo, "pointer-unresolved", ["--revision", unresolved, "--paths", "fixture.md"],
+         FAIL, {"RECHECK-POINTER-UNRESOLVED"}, {"flagged_count": 0, "clean_count": 0})
+    spanned = sandbox_commit(repo, entry("recheck: daily; procedure: "
+                                         "`grep -n '§3' notes.txt`."))
+    case(repo, "pointer-in-span-not-followed",
+         ["--revision", spanned, "--paths", "fixture.md"],
+         PASS, set(), {"clean_count": 1, "pointer_section_count": 0})
+    commented = sandbox_commit(repo, entry(
+        "recheck: 30d; procedure: Appendix A plus "
+        "`bash tools/tsukuroi-census.sh --selftest`.",
+        "\n## Appendix A — executor re-run set (read-only, no elevation)\n\n```bash\n"
+        "bsdtar -tf /var/lib/pacman/sync/offline.db | grep -c '^elephant'   # [offline] has "
+        "no pacman.conf section — query the db file directly, `pacman -Sl offline` returns 0\n"
+        "grep -c x /etc/x  # never; pacman -Qm\n```\n"))
+    case(repo, "pointer-shell-comment-not-invocation",
+         ["--revision", commented, "--paths", "fixture.md"],
+         PASS, set(), {"clean_count": 1, "invocation_count": 0, "pointer_section_count": 1})
+    trailing = sandbox_commit(repo, entry(
+        "recheck: 30d; procedure: Appendix A.",
+        "\n## Appendix A — executor re-run set\n\n```bash\n"
+        "pacman -Qm | wc -l   # 16; `ls` is the safe form\n"
+        "echo issue#12; pacman -Qi x\n```\n"))
+    case(repo, "pointer-command-before-comment",
+         ["--revision", trailing, "--paths", "fixture.md"],
+         FAIL, forbidden_only, {"invocation_count": 2, "pointer_section_count": 1})
+    package_state = sandbox_commit(repo, entry(PACKAGE_STATE_HEADER, PACKAGE_STATE_SECTION))
+    case(repo, "landed-r17-package-state",
+         ["--revision", package_state, "--paths", "fixture.md"],
+         PASS, set(), {"resolved_count": 1, "invocation_count": 2,
+                       "pointer_section_count": 0})
+    package_appendix = sandbox_commit(repo, entry(
+        PACKAGE_STATE_HEADER,
+        "\n## Appendix — probe set\n\n```\npacman -Qkk\n```\n" + PACKAGE_STATE_SECTION))
+    case(repo, "pointer-resolved-by-r17",
+         ["--revision", package_appendix, "--paths", "fixture.md"],
+         PASS, set(), {"resolved_count": 1, "invocation_count": 3,
+                       "pointer_section_count": 1})
+    # 12c. An R18 section resolves like an R17 one and, when both are present, the
+    #      R18 section is operative (append-only repair of an R17 section).
+    r18_only = sandbox_commit(repo, entry(BASELINE_HEADER, R18_SAFE))
+    case(repo, "r18-resolves-literal", ["--revision", r18_only, "--paths", "fixture.md"],
+         PASS, set(), {"resolved_count": 1, "invocation_count": 1})
+    r18_over = sandbox_commit(repo, entry(BASELINE_HEADER, UNSAFE_SECTION + R18_SAFE))
+    case(repo, "r18-supersedes-unsafe-r17",
+         ["--revision", r18_over, "--paths", "fixture.md"],
+         PASS, set(), {"flagged_count": 0, "resolved_count": 1})
+    r18_bad = sandbox_commit(repo, entry(BASELINE_HEADER, SAFE_SECTION + R18_UNSAFE))
+    case(repo, "r18-operative-unsafe", ["--revision", r18_bad, "--paths", "fixture.md"],
+         FAIL, forbidden_only | {"RECHECK-STEER-SAFE-INVALID"},
+         {"flagged_count": 1, "resolved_count": 0})
+    r18_twin = sandbox_commit(repo, entry(BASELINE_HEADER, R18_SAFE + R18_SAFE))
+    case(repo, "r18-duplicate-heading", ["--revision", r18_twin, "--paths", "fixture.md"],
+         FAIL, forbidden_only | {"RECHECK-STEER-SAFE-INVALID"})
+    r18_pointer = sandbox_commit(repo, entry(AUR_347, AUR_SECTIONS + R18_POINTER))
+    case(repo, "r18-procedure-pointer-forbidden",
+         ["--revision", r18_pointer, "--paths", "fixture.md"],
+         FAIL, forbidden_only | {"RECHECK-STEER-SAFE-INVALID"}, {"resolved_count": 0})
+    r18_dangling = sandbox_commit(repo, entry(
+        "recheck: daily; procedure: `grep -n x /etc/x`.", R18_DANGLING))
+    case(repo, "r18-procedure-pointer-unresolved",
+         ["--revision", r18_dangling, "--paths", "fixture.md"],
+         FAIL, {"RECHECK-STEER-SAFE-INVALID"}, {"clean_count": 0})
     # 13. Missing and empty recheck openers are could-not-evaluate.
     missing = sandbox_commit(repo, "source: S014\nverified-at: 2026-10-19\n\n# x\n")
     case(repo, "missing-opener", ["--revision", missing, "--paths", "fixture.md"],
@@ -859,6 +1226,21 @@ def selftest(out=None):
              CANNOT, {"E-REVISION-INVALID"})
     case(repo, "revision-unknown", ["--revision", "deadbeef", "--paths", "fixture.md"],
          CANNOT, {"E-REVISION-INVALID"})
+    # 14b. Shared binding (tools/_revision.py): branch syntax before revision
+    #      syntax, revision syntax before branch existence, one finding each.
+    for name, revision, branch, want in (
+            ("branch-range", clean, "a..b", "E-BRANCH-INVALID"),
+            ("branch-slash", clean, "master/", "E-BRANCH-INVALID"),
+            ("branch-space", clean, "bad branch", "E-BRANCH-INVALID"),
+            ("branch-first-precedence", "HEAD", "a..b", "E-BRANCH-INVALID"),
+            ("revision-before-missing-branch", "HEAD", "nosuch", "E-REVISION-INVALID"),
+            ("branch-missing", clean, "nosuch", "E-BRANCH-MISSING"),
+            ("branch-nested-missing", clean, "feature/x", "E-BRANCH-MISSING"),
+            ("revision-range", f"{first[:8]}..{clean[:8]}", "master", "E-REVISION-INVALID")):
+        case(repo, name, ["--revision", revision, "--paths", "fixture.md", "--branch", branch],
+             CANNOT, {want})
+    case(repo / "absent", "not-a-repo-git-failed",
+         ["--revision", clean, "--paths", "fixture.md"], CANNOT, {"E-GIT-FAILED"})
     # 15. Landed + pushed binding reports revision, branch and branch_tip.
     buffer = _Stdout()
     code = run(["--revision", clean, "--paths", "fixture.md"], repo=repo, out=buffer)
@@ -879,7 +1261,7 @@ def selftest(out=None):
     side = sandbox_commit(repo, entry("recheck: daily; procedure: `grep -n x /etc/x`."))
     sandbox_git(repo, "checkout", "-q", "master")
     case(repo, "revision-not-landed", ["--revision", side, "--paths", "fixture.md"],
-         CANNOT, {"E-REVISION-NOT-LANDED"})
+         CANNOT, {"E-REVISION-NOT-LANDED"}, {"branch_tip": tip_now})
     # 17. Published commit binds; a landed commit newer than origin does not.
     sandbox_git(repo, "update-ref", "refs/remotes/origin/master", clean)
     pushed = _Stdout()
@@ -890,6 +1272,12 @@ def selftest(out=None):
     sandbox_git(repo, "update-ref", "refs/remotes/origin/master", first)
     case(repo, "revision-not-pushed", ["--revision", clean, "--paths", "fixture.md"],
          CANNOT, {"E-REVISION-NOT-PUSHED"})
+    (repo / "blob.txt").write_text("origin names a blob\n", encoding="utf-8")
+    blob = sandbox_git(repo, "hash-object", "-w", "blob.txt").strip()
+    (repo / "blob.txt").unlink()
+    sandbox_git(repo, "update-ref", "refs/remotes/origin/master", blob)
+    case(repo, "origin-blob-git-failed", ["--revision", clean, "--paths", "fixture.md"],
+         CANNOT, {"E-GIT-FAILED"})
     sandbox_git(repo, "update-ref", "-d", "refs/remotes/origin/master")
     # 18. Absent paths, empty directories and directories-as-blob-args.
     case(repo, "path-missing",
@@ -939,6 +1327,12 @@ def selftest(out=None):
     case(repo, "cli-no-mode", [], CANNOT, {"E-CLI"})
     case(repo, "cli-both-modes", ["--selftest", "--revision", clean], CANNOT, {"E-CLI"})
     case(repo, "cli-bogus-flag", ["--revision", clean, "--bogus"], CANNOT, {"E-CLI"})
+    case(repo, "cli-branch-without-value", ["--revision", clean, "--branch"],
+         CANNOT, {"E-CLI"})
+    case(repo, "cli-dash-branch", ["--revision", clean, "--branch", "-x"], CANNOT, {"E-CLI"})
+    case(repo, "cli-forbid-before-binding",
+         ["--revision", "HEAD", "--branch", "a..b", "--forbid", "bad name!"],
+         CANNOT, {"E-CLI"})
 
     shutil.rmtree(repo, ignore_errors=True)
     passed = total - len(failures)
