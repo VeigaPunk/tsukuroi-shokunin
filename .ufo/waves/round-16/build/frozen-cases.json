@@ -6,8 +6,7 @@
   "baseline": "db68e62065885b3f7463eb0a436c41f0dc3bcde5",
   "gate": {
     "path": "tools/check-section-citations.py",
-    "default_input": "worktree",
-    "immutable_input": "--revision <rev> (git show, never live host)",
+    "revision_input": "--revision <rev> required (git show, never live host); no worktree mode — L1 mandate; invalid revision/CLI probed internally via revision_finding/cli_finding",
     "selftest": "--selftest (hermetic in-memory fixtures, fixed expected exit + finding ids)",
     "exit_codes": { "0": "clean", "1": "failed", "2": "could-not-evaluate" },
     "count_semantics": "correction_count = number of the two records that are individually valid and not blocked by any common/shared finding; shared findings (schema, count, id, history, supersession, source-row, opener/heading/md-scope) block both records; record-scoped findings block only their own record; SECTION-CITATION-WRONG at a target site blocks only the record owning that file",
@@ -122,9 +121,9 @@
       "kind": "selftest",
       "mutation": "delete corrections[0].old_locator",
       "expected_exit": 1,
-      "expected_findings": ["R16-BOARD-FIELD", "SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md"],
+      "expected_findings": ["R16-BOARD-FIELD"],
       "expected_corrections": 1,
-      "assertion": "Without the declared old_locator the gate cannot bind the notice to the defect; rank record still counts."
+      "assertion": "FIELD/SOURCE record defects leave notice binding intact (delivered semantics): the defect stays resolved but the record is invalid; rank still counts."
     },
     {
       "id": "board-field-extra",
@@ -349,32 +348,32 @@
       "expected_exit": 1,
       "expected_findings": ["R16-SOURCE-ROW"],
       "expected_corrections": 0,
-      "assertion": "Record/source linkage: source_id S050 must resolve to a SOURCES.md row (optional check; drop finding if gate does not implement it)."
+      "assertion": "Record/source linkage (confirmed non-optional in delivered gate): source_id S050 must resolve to a `| S050 |` SOURCES.md row naming both target files; absent SOURCES.md or row emits R16-SOURCE-ROW as a shared blocker (count 0)."
     },
     {
       "id": "invalid-revision",
-      "kind": "gate-cli",
-      "mutation": "invoke with --revision not-a-rev!!",
+      "kind": "gate-probe",
+      "mutation": "revision_finding('not-a-rev!!') — hermetic internal probe, delivered gate is --revision-only",
       "expected_exit": 2,
       "expected_findings": ["E-REVISION-INVALID"],
       "expected_corrections": 0
     },
     {
       "id": "invalid-cli",
-      "kind": "gate-cli",
-      "mutation": "invoke with --bogus",
+      "kind": "gate-probe",
+      "mutation": "cli_finding(['--bogus']) — hermetic internal probe",
       "expected_exit": 2,
       "expected_findings": ["E-CLI"],
       "expected_corrections": 0
     },
     {
-      "id": "worktree-clean",
+      "id": "revision-delivered",
       "kind": "gate-cli",
-      "mutation": "invoke with no --revision on the integrated tree",
+      "mutation": "invoke with --revision <integrated-commit> once L1 lands the round",
       "expected_exit": 0,
       "expected_findings": [],
       "expected_corrections": 2,
-      "assertion": "Positive case at the delivered revision: parent records green baseline+commit pair."
+      "assertion": "Positive case at the delivered revision: parent records red baseline + green delivered-commit pair."
     }
   ]
 }

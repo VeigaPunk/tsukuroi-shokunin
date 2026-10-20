@@ -106,3 +106,7 @@ tsukuroi	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
 ```
 
 Seven disclosed warnings. One new own-work/A/mined source, no prior source-field mutation, no frontier graduation or new repertoire row. Author-side admit: two citation-only corrections supported by exact committed source rows; rejects remain in Gate above. Non-author admit/reject sampling is not asserted. Depth improved, all other axes unchanged; expansion unchanged, quality improved, discernment improved through outside-citation disagreement learning/QUALITY23. Process deviations and operator-waived falsify remain disclosed limits, not positive trend credit. No promotion or SHONEN checkbox change. Tools installed/updated: none.
+
+### Late proposal reconciliation, not new test evidence
+
+After the first final-evidence push, clean-state inspection found late edits by the already-dispatched CitationGate and FrozenCases seats to their reports and static vectors. They reconcile revision-only mode and mandatory S050 checking; no executable or domain input changed. Both seats acknowledged stopping all writes. Their retained40-vector proposal is never substituted for the executed43/43 suite. Earlier worktree/optional-source wording and shared-count prose are proposal limitations, not a second executable contract. LOG's round16 late advisory-evidence entry records durability; a new commit retains these files before report delivery.

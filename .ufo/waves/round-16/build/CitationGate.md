@@ -7,3 +7,6 @@ Mechanics: schema `tsukuroi-section-citation-errata-v1`, top-level exactly {sche
 Selftest: 37 fixed cases mirroring frozen-cases.json (38 of 40; `worktree-clean` dropped — no worktree mode per L1; its count prose conflicts resolved toward case vectors). Scope is citation resolution only, no health/update-safety verdict.
 
 Limits: never executed; L1 runs it post-integration.
+
+
+R16-SOURCE-ROW is implemented and non-optional: emitted when SOURCES.md is absent or no `| S050 |` row names both target files. Shared blocker (count 0); expected in `baseline` and `source-row-missing` cases.
