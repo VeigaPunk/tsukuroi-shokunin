@@ -597,3 +597,21 @@ No agent install, upgrade, downgrade or service action is authorized. The
 pending partial-upgrade assessment is operator-only, any full `-Syu` remains
 behind the news gate, the two `/new_root`-only hooks leave mkinitcpio-42
 compatibility untested with no clearance, and no host repair is claimed.
+
+## R16-BOARD-SECTION — citation-only erratum
+
+Appended in round 16. Every byte above, including the R15-UPDATE-STATE
+notice, is preserved. That notice's sentence "The §1 verdict-board row 5"
+cites the wrong section: the verdict board is §0 ("## 0. Verdict board"),
+whose row `| 5 | update-safety |` reads "`-Syu` now `INERT`; after refresh
+`UNKNOWN-UPSTREAM` + `REQUIRES-PREP`; `-Suu`/`-Syyu` `DO-NOT`". The quoted
+"now" wording is the 2026-10-14 capture, not a fresh observation. The
+stable citation is §0 row 5, not §1.
+
+This erratum supersedes the citation only. The quoted row content and the
+R15-UPDATE-STATE current-use supersession routing readers to
+`corpus/knowledge/partial-upgrade-recheck-r15.md` / `.json` stand
+unchanged. This note makes no fresh host-health observation and authorizes
+no package or service action.
+
+No agent install, upgrade, downgrade or service action is authorized.

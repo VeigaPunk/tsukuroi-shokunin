@@ -472,3 +472,14 @@ admit/reject spot-check remains the independent closure's duty.
   decision; no new round is started here. Preserve unresolved incident
   operation/credentials/namespace questions and the boot-hook risk.
 - **retired:** none.
+
+## Round 16 — two citation-only repairs (2026-10-20)
+
+Baseline `db68e62065885b3f7463eb0a436c41f0dc3bcde5` includes round15 independent closure. Current external steer is round16. One claim **C1/depth**, R16-BOARD-SECTION and R16-RANK-SECTION: resolved records in `corpus/knowledge/section-citation-errata-r16.json` 0→2, not total historical correction records. The counting command is `python tools/check-section-citations.py --revision <commit>`; same final evaluator on immutable baseline and implementation. Actual old §1/§7 defects must fail, not just missing new files; exact section/table-row bindings and additive target notices must resolve after.
+
+Depth8/adjacency8 tied lowest, C1 works depth. Ordinal depth8→8 (0); retained coverage9/operability9/freshness9/calibration9/adjacency8, not newly certified. No count-to-ordinal conversion, capability, exploratory claim, frontier graduation or recovery authority. Saturation9/window3/retired none.
+
+S050 is own-work evidence for historical section locations, not host health. QUALITY23/24 learn from all four routed round15 debts: two wrong citations, required falsify wave, and seat execution scope. Exact measured outcomes follow after authorized L1 verification; a planned output is not a pass.
+
+- **planned (current):** finish externally steered round16; hand off to independent non-author closure and existing operator recovery decision. No subsequent round starts here.
+- **retired:** none.

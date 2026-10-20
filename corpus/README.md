@@ -122,3 +122,21 @@ The C1 checker `tools/check-locator-clarification.py` is a gate (0/1/2,
 `--selftest`); `tools/measure-update-recheck.py` is a read-only counting probe,
 not a verdict gate — its exit 0 is not “clean”. Registry rows are in
 `../SKILL.md` § Round 15.
+
+## Round 16 — citation-only section/table repair
+
+`knowledge/section-citation-errata-r16.md` and `.json` carry two named
+corrections, R16-BOARD-SECTION and R16-RANK-SECTION, sourced by S050.
+Host-health's R15 notice points to `## 0. Verdict board` row5, not §1;
+update-safety-v3's R15 notice points to its `## 5. Risk-ordered operations
+table (recommendation only — nothing here was run)` rank1, not §7.
+The original notices and tables remain, with appended citation-only errata.
+Legitimate explicit references to v2's §7 are unchanged.
+
+This strengthens held update-safety documentation, not the coverage map
+or Frontier. A citation verdict resolves committed locations only, never
+refreshes the 2026-10-14 captures or retained round15 snapshot, and is not
+the update-safety/health gate. R15 current-use supersession and operator
+recovery ownership remain. No agent package or service action is authorized.
+Gate registry: `../SKILL.md` § Round 16; lesson and actual outcomes:
+`lessons/round-16.md`, `.ufo/waves/round-16/`.

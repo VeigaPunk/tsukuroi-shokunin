@@ -894,3 +894,16 @@ admit/reject sampling remain unverified. Open L0 “Host recovery and
 tooling-policy decision” is operator-owned. No package/service changes,
 privileged probes, tool installs/updates, routing changes or new round.
 
+## 2026-10-20 — round16 citation-repair declaration and outside-debt learning
+
+Motivation: independent `corpus/lessons/round-15-verifier-spotcheck.md` § Routed defects items1–4. Two prior R15 notices cite wrong internal sections: host-health §1 verdict-board row5 actually resolves under §0; update-safety-v3 §7 rank1 actually resolves under §5. L1 opened both exact headings/rows/notices at baseline `db68e62065885b3f7463eb0a436c41f0dc3bcde5`; S050 scopes own-work authority to those locations only.
+
+One declared claim C1/depth: named resolved citation records0→2 in the new r16 correction pair, counted by `python tools/check-section-citations.py --revision <commit>`. Depth8/adjacency8 remain tied lowest; ordinal delta0. No capability, extra process axis claim, historical admission rewrite or host freshness claim. Two named target notices append only; R15 current-use routing and safety block remain unchanged. QUALITY23/24 and `corpus/lessons/round-16.md` mine section-drift, required falsify-wave and execution-scope debts.
+
+64-seat validated build wave dispatched using unchanged native task payload through the session tool; executor3/scout16/reviewer16/critic10/connector4/scribe11/sentinel4. Spec/dispatch/registry/assignments under `.ufo/waves/round-16/build/`. L1 holds planner; all seats are no-execution/no-host-probe leaves, with explicit no-child executor nudges. An actual32-seat falsify wave follows delivered build work; this declaration is not evidence it already ran.
+
+Entry worktree clean; no inherited lane edits. Operator teaching filename glob found no files. No non-author lesson/SHONEN/province/old-gate/census edits. No tool installations, packages, services, privileged probes or host recovery operations. Existing operator recovery/tooling-policy L0 remains open; public source advice grants no action. Immutable measurements/selftest and their outcomes are recorded in appended entries after execution.
+
+## 2026-10-20 — round16 operator wrap-up, no new workers
+
+Main relayed the operator's immediate “do not spawn more workers” wrap-up after build64 was dispatched. Planned wave2/falsify32 is skipped by that directive, not by an optional-wave interpretation; no new seat, task, labrat or retrospective wave is run. Actual total64, unchanged role mix. `.ufo/waves/round-16/build/operator-wrapup.json` retains the ruling. Required falsify-wave process fix is therefore unexercised/operator-waived this round, not credited as an improvement. The already-running gate author is told to finish its bounded implementation without execution or new scope. Misroot sweep evidence is `build/misroot-sweep.json` under the round16 wave root.

@@ -1833,3 +1833,32 @@ operator-only; any full `-Syu` remains an operator action behind the news gate.
 Installed `mkinitcpio 41.1-1` with 42.2-1 pending and two `/new_root`-only
 hooks make mkinitcpio-42 compatibility an untested risk, not a clearance. No
 host repair, ABI certification or running-process version is claimed.
+
+## Round 16 — citation-only section/table errata
+
+Read `corpus/knowledge/section-citation-errata-r16.md` and `.json` for
+R16-BOARD-SECTION and R16-RANK-SECTION. Two R15 notice locators are
+superseded: host-health's verdict-board row5 is under `## 0. Verdict board`,
+not §1; update-safety-v3's rank1 “Do nothing now” row is under its exact
+`## 5. Risk-ordered operations table (recommendation only — nothing here was run)`,
+not §7. Explicit v2 §7 references remain correct and unchanged.
+
+These notices correct citations only. They preserve every original byte,
+R15-UPDATE-STATE's current-use supersession and operator ownership.
+The quoted “now”/“Do nothing now” statements describe the 2026-10-14 capture,
+not this host now. The retained r15 evidence remains dated; no fresh host,
+ABI, running-version, input/UI, boot or package consistency observation is
+made by correcting a citation. No agent install, upgrade, downgrade or
+service action is authorized. Host recovery remains operator-owned and
+all pacman transactions remain paused under the current operator ruling.
+
+| Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |
+|---|---|---|---|---|---|---|---|
+| section-citations | gate | `python tools/check-section-citations.py --revision <commit>` | 0 clean: two citation locations resolve; 1 failed: bounded conformance findings; 2 could-not-evaluate: CLI/git/read/parse errors; no health or upgrade verdict | `python tools/check-section-citations.py --selftest` | Fixed R16 IDs, paths, headings, row keys, exact quotes, notice/source bindings, baseline history and independent fixture expectations in `tools/check-section-citations.py`; independent attack vectors `.ufo/waves/round-16/build/frozen-cases.json` | Read-only committed git objects; selftest isolated, no network or host probes | tsukuroi |
+
+This is **not the update-safety gate** and clean never authorizes an action.
+It checks a bounded documentation contract, not arbitrary Markdown semantics,
+all prose truth or independent admission. C1's counting command uses the
+same evaluator on baseline and immutable implementation; outputs and actual
+selftest tally live in `.ufo/waves/round-16/`. QUALITY23/24 cite the mined
+outside defects and constrain citation resolution and seat execution scope.

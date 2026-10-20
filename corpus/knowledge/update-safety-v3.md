@@ -413,3 +413,23 @@ No agent install, upgrade, downgrade or service action is authorized. The
 pending partial-upgrade assessment is operator-only, any full `-Syu` remains
 behind the news gate, the two `/new_root`-only hooks leave mkinitcpio-42
 compatibility untested with no clearance, and no host repair is claimed.
+
+## R16-RANK-SECTION — citation-only erratum
+
+Appended in round 16. Every byte above, including the R15-UPDATE-STATE
+notice, is preserved. That notice's sentence "The §7 rank 1 row "Do nothing
+now"" cites the wrong section: in this v3 file the risk-ordered operations
+table is §5 ("## 5. Risk-ordered operations table (recommendation only —
+nothing here was run)"), whose row `| 1 | Do nothing now |` reads "`-Syu`
+would be INERT: 0 candidates by three probes". §7 was the v2 table location
+this file re-measured. The quoted "now"/"would be" wording is the
+2026-10-14 capture, not a fresh observation. The stable citation is §5
+rank 1, not §7.
+
+This erratum supersedes the citation only. The quoted row content and the
+R15-UPDATE-STATE current-use supersession routing readers to
+`corpus/knowledge/partial-upgrade-recheck-r15.md` / `.json` stand
+unchanged. This note makes no fresh host-health observation and authorizes
+no package or service action.
+
+No agent install, upgrade, downgrade or service action is authorized.
