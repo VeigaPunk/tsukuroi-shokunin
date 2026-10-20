@@ -1,0 +1,99 @@
+{
+  "schema": "tsukuroi-r15-immutable-verification-v1",
+  "observed_at": "2026-10-20T08:09:41.347692+00:00",
+  "baseline": "0db618a71ae2d0bb0c0c3059abaa219b7ccd20a2",
+  "implementation": "6de977d327a7ee831524cfd6a174ab39c7a07498",
+  "runs": {
+    "C1_before": {
+      "command": [
+        "python",
+        "tools/check-locator-clarification.py",
+        "--revision",
+        "0db618a71ae2d0bb0c0c3059abaa219b7ccd20a2"
+      ],
+      "exit": 1,
+      "stdout": "{\"correction_count\": 0, \"findings\": [{\"detail\": \"rendered lines 1266-1267\", \"id\": \"LOCATOR_UNQUALIFIED\", \"site\": \"corpus/knowledge/source-scope-correction-r14.json\"}, {\"detail\": \"## R14-GATE-CONTRACT `root-dac-correction-r13.json:204-240` declares a `gate_contract` object with ten `required_md_head\", \"id\": \"LOCATOR_UNQUALIFIED\", \"site\": \"corpus/knowledge/source-scope-correction-r14.md\"}, {\"detail\": \"## R14-VALUE-DOMAIN Source object: S044, `systemd.exec(5)` \\u00a7 ProtectSystem= (under SANDBOXING), rendered lines 1266-1267\", \"id\": \"LOCATOR_UNQUALIFIED\", \"site\": \"corpus/knowledge/source-scope-correction-r14.md\"}, {\"detail\": \"**Referent errors covered (supporting pointers, not new claims):** | pointer | preserved statement (paraphrase) | correc\", \"id\": \"LOCATOR_UNQUALIFIED\", \"site\": \"corpus/knowledge/source-scope-correction-r14.md\"}, {\"detail\": \"- **Historical pair and lessons.** `corpus/knowledge/root-dac-correction-r13.md:97,171`, `.json:204-240,267-268`; `corpu\", \"id\": \"LOCATOR_UNQUALIFIED\", \"site\": \"corpus/knowledge/source-scope-correction-r14.md\"}, {\"detail\": \"The actual checker `tools/check-root-dac-correction.py`: - checks **five** headings in `md13_issues` (lines 100-105): th\", \"id\": \"LOCATOR_UNQUALIFIED\", \"site\": \"corpus/knowledge/source-scope-correction-r14.md\"}, {\"detail\": \"ource: S044 (docs/A row, corpus/SOURCES.md:50, ProtectSystem= value domain) \\u2014 https://man.archlinux.org/man/systemd.exec\", \"id\": \"LOCATOR_UNQUALIFIED\", \"site\": \"corpus/knowledge/source-scope-correction-r14.md\"}, {\"detail\": \"he opened revision documents ProtectSystem= as taking a boolean argument or the special values full and strict; that is \", \"id\": \"NEGATIVE_DOMAIN_UNSWEPT\", \"site\": \"corpus/knowledge/source-scope-correction-r14.json\"}, {\"detail\": \"**Replacement:** \\\"The opened revision documents `ProtectSystem=` as taking a boolean argument or the special values `ful\", \"id\": \"NEGATIVE_DOMAIN_UNSWEPT\", \"site\": \"corpus/knowledge/source-scope-correction-r14.md\"}, {\"detail\": \"The opened revision documents no further values for `ProtectSystem=`\", \"id\": \"NEGATIVE_DOMAIN_UNSWEPT\", \"site\": \"corpus/knowledge/source-scope-correction-r14.md\"}, {\"detail\": \"file absent\", \"id\": \"R15-JSON-MISSING\", \"site\": \"corpus/knowledge/source-locator-clarification-r15.json\"}, {\"detail\": \"file absent\", \"id\": \"R15-MD-MISSING\", \"site\": \"corpus/knowledge/source-locator-clarification-r15.md\"}], \"revision\": \"0db618a71ae2d0bb0c0c3059abaa219b7ccd20a2\", \"status\": \"FAIL\"}\n",
+      "stderr": ""
+    },
+    "C1_after": {
+      "command": [
+        "python",
+        "tools/check-locator-clarification.py",
+        "--revision",
+        "6de977d327a7ee831524cfd6a174ab39c7a07498"
+      ],
+      "exit": 0,
+      "stdout": "{\"correction_count\": 2, \"findings\": [], \"revision\": \"6de977d327a7ee831524cfd6a174ab39c7a07498\", \"status\": \"PASS\"}\n",
+      "stderr": ""
+    },
+    "C1_selftest": {
+      "command": [
+        "python",
+        "tools/check-locator-clarification.py",
+        "--selftest"
+      ],
+      "exit": 1,
+      "stdout": "CHECK_LOCATOR_CLARIFICATION_SELFTEST: FAIL (23 cases, 21 passed)\n  locator-1272-json: count=0/1\n  oversized-quote: ids=R15-POSITIVE-DOMAIN-QUOTE-WORDS want=R15-POSITIVE-QUOTE-WORDS\n",
+      "stderr": ""
+    },
+    "C1_invalid_cli": {
+      "command": [
+        "python",
+        "tools/check-locator-clarification.py",
+        "--not-an-option"
+      ],
+      "exit": 2,
+      "stdout": "{\"correction_count\": 0, \"findings\": [{\"detail\": \"invalid arguments\", \"id\": \"E-CLI\", \"site\": \"cli\"}], \"revision\": \"worktree\", \"status\": \"CANNOT_EVALUATE\"}\n",
+      "stderr": ""
+    },
+    "C2_before": {
+      "command": [
+        "python",
+        "tools/measure-update-recheck.py",
+        "--revision",
+        "0db618a71ae2d0bb0c0c3059abaa219b7ccd20a2"
+      ],
+      "exit": 0,
+      "stdout": "{\"declared_decision\": null, \"findings\": [], \"health\": \"not_assessed\", \"installed_libinput\": null, \"installed_libinput_kind\": \"pacman -Q database version; not a running-process mapping\", \"observed_at\": null, \"pending_count\": null, \"pending_exit\": null, \"record_count\": 0, \"revision\": \"0db618a71ae2d0bb0c0c3059abaa219b7ccd20a2\", \"snapshot_captured_at\": null, \"snapshot_sha256\": null, \"source_ids\": [], \"status\": \"ABSENT\"}\n",
+      "stderr": ""
+    },
+    "C2_after": {
+      "command": [
+        "python",
+        "tools/measure-update-recheck.py",
+        "--revision",
+        "6de977d327a7ee831524cfd6a174ab39c7a07498"
+      ],
+      "exit": 0,
+      "stdout": "{\"declared_decision\": \"BLOCKED_FOR_AGENT_PACKAGE_ACTION\", \"findings\": [], \"health\": \"not_assessed\", \"installed_libinput\": \"1.32.0-1\", \"installed_libinput_kind\": \"pacman -Q database version; not a running-process mapping\", \"observed_at\": \"2026-10-20T07:44:39Z\", \"pending_count\": 413, \"pending_exit\": 0, \"record_count\": 1, \"revision\": \"6de977d327a7ee831524cfd6a174ab39c7a07498\", \"snapshot_captured_at\": \"2026-10-20T07:44:39Z\", \"snapshot_sha256\": \"b101f3747827cefd0ed604c14b669267ec0fcc1b6c2fbe6e486be0cdbbc6ea81\", \"source_ids\": [\"S047\", \"S048\", \"S049\"], \"status\": \"COUNTED\"}\n",
+      "stderr": ""
+    },
+    "C2_invalid_cli": {
+      "command": [
+        "python",
+        "tools/measure-update-recheck.py",
+        "--not-an-option"
+      ],
+      "exit": 2,
+      "stdout": "{\"declared_decision\": null, \"findings\": [{\"detail\": \"invalid arguments\", \"id\": \"E-CLI\", \"site\": \"cli\"}], \"health\": \"not_assessed\", \"installed_libinput\": null, \"installed_libinput_kind\": \"pacman -Q database version; not a running-process mapping\", \"observed_at\": null, \"pending_count\": null, \"pending_exit\": null, \"record_count\": 0, \"revision\": \"worktree\", \"snapshot_captured_at\": null, \"snapshot_sha256\": null, \"source_ids\": [], \"status\": \"CANNOT_EVALUATE\"}\n",
+      "stderr": ""
+    },
+    "source_census_end": {
+      "command": [
+        "/home/vgpnk/Projects/shokunin/scripts/sources-census.sh",
+        "validate",
+        "--root",
+        "/home/vgpnk/Projects/shokunin",
+        "tsukuroi"
+      ],
+      "exit": 0,
+      "stdout": "tsukuroi\tW04\tS038 duplicate url man.archlinux.org/man/access.2 across scopes\ntsukuroi\tW04\tS041 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes\ntsukuroi\tW04\tS042 duplicate url github.com/omacom/omarchy/issues/8047 across scopes\ntsukuroi\tW04\tS043 duplicate url github.com/omacom/omarchy/issues/6629 across scopes\ntsukuroi\tW04\tS044 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes\ntsukuroi\tW04\tS046 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes\ntsukuroi\tW04\tS049 duplicate url man.archlinux.org/man/pacman.8 across scopes\ntsukuroi\tok\t/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md\n",
+      "stderr": ""
+    }
+  },
+  "source_truth": "not established by lexical checker; separate author-side l1-source-review.json and opened source witnesses",
+  "evaluator_sha256": {
+    "tools/check-locator-clarification.py": "25c9148a060332c9dc745f2c9a697cbafb1a6d67eb361a07bf45829031c28a9d",
+    "tools/measure-update-recheck.py": "6d811c2fe8e551d1d6adc4e81ae4f4671a6e3e1308e3e1e35a59ddc3cf20f875"
+  }
+}

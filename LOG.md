@@ -834,3 +834,30 @@ admit/reject sampling remains required. The new fleet L0 question
 “Host recovery and tooling-policy decision” requests operator recovery
 and a host-wide tooling pause; no package or service action is taken.
 
+## 2026-10-20 — round15 observed selftest repair
+
+First immutable implementation `6de977d327a7ee831524cfd6a174ab39c7a07498`:
+C1 before exit1/count0, after exit0/count2; C2 before ABSENT/count0 and
+after COUNTED/count1/pending413/installed-libinput1.32.0-1, both exit0;
+source census exit0 with seven W04 warnings. Exact original executions:
+`.ufo/waves/round-15/build/verification.json`. Both invalid-CLI calls
+returned2/E-CLI.
+
+The new C1 selftest actually FAILED:23 cases,21 passed, with
+`locator-1272-json: count=0/1` and
+`oversized-quote: ids=R15-POSITIVE-DOMAIN-QUOTE-WORDS want=R15-POSITIVE-QUOTE-WORDS`.
+No pass is inferred from syntax checking or the clean production-tree run.
+The first baseline scan also overmatched unrelated r14 repo-line references.
+L1 fixes only production classification/counting: normalize the positive
+finding prefix, keep a JSON correction's findings from invalidating its
+other correction, and scope historical MD detection to R14-VALUE-DOMAIN.
+Independent fixture expectations remain unchanged. The attempted original
+owner wake failed with provider402 before producing work; L1 applied this
+bounded correction, without routing changes or additional seats.
+
+Only fix-affected C1 measurements/selftest are repeated against a new
+immutable revision. C2 and source-census evidence stay frozen; their
+unchanged input bytes are compared instead of repeating successful probes.
+Final outcomes follow after execution. No host probe or package/service
+action is part of this repair.
+

@@ -162,12 +162,13 @@ def md15_issues(text):
 def token_issues(kind, obj):
     out, loc = [], plain(obj.get("location", "")).lower()
     rep, sup = plain(obj.get("replacement", "")).lower(), plain(obj.get("supersedes", "")).lower()
+    prefix = "LOCATOR" if kind == LOC_ID else "POSITIVE"
 
     def add(fid, detail):
         out.append(Finding(fid, f"{JSON15}:{kind}", detail))
 
     if not ("sandboxing" in loc and "protectsystem=" in loc):
-        add(f"R15-{kind[4:]}-PIN", "stable heading tokens absent")
+        add(f"R15-{prefix}-PIN", "stable heading tokens absent")
     if kind == LOC_ID:
         if not ("source-scope-correction-r14" in sup and re.search(r"1266|render|locator|location", sup)):
             add("R15-LOCATOR-SUPERSEDES", "r14 locator pointer absent")
@@ -242,6 +243,7 @@ def json15_issues(doc):
         else:
             by_id[cid] = obj
     for kind in (LOC_ID, POS_ID):
+        prefix = "LOCATOR" if kind == LOC_ID else "POSITIVE"
         obj = by_id.get(kind)
         if obj is None:
             out.append(Finding("R15-CORRECTION-ID", JSON15, f"missing id={kind}"))
@@ -250,16 +252,16 @@ def json15_issues(doc):
         missing = [f for f in REQUIRED if not isinstance(obj.get(f), str) or not obj[f].strip()]
         extra = sorted(set(obj) - set(REQUIRED))
         if missing or extra:
-            out.append(Finding(f"R15-{kind[4:]}-FIELD", f"{JSON15}:{kind}",
+            out.append(Finding(f"R15-{prefix}-FIELD", f"{JSON15}:{kind}",
                                ("missing=" + ",".join(missing) if missing else "")
                                + (" extra=" + ",".join(extra) if extra else "")))
             valid[kind] = False
         if obj.get("source_id") != "S046" or obj.get("url") != URL:
-            out.append(Finding(f"R15-{kind[4:]}-SOURCE", f"{JSON15}:{kind}", "S046 + systemd.exec.5 required"))
+            out.append(Finding(f"R15-{prefix}-SOURCE", f"{JSON15}:{kind}", "S046 + systemd.exec.5 required"))
             valid[kind] = False
         count = len(norm(obj.get("quote")).split()) if isinstance(obj.get("quote"), str) else 0
         if not 1 <= count <= 25:
-            out.append(Finding(f"R15-{kind[4:]}-QUOTE-WORDS", f"{JSON15}:{kind}", f"words={count}"))
+            out.append(Finding(f"R15-{prefix}-QUOTE-WORDS", f"{JSON15}:{kind}", f"words={count}"))
             valid[kind] = False
         elif kind == POS_ID and norm(obj.get("quote")) != QUOTE:
             out.append(Finding("R15-POSITIVE-QUOTE", f"{JSON15}:{kind}", "exact definition sentence required"))
@@ -346,6 +348,7 @@ def history_issues(md14, doc14, digests):
 def md14_defects(text, notice_ok):
     if notice_ok:
         return []
+    text = section(text, "## R14-VALUE-DOMAIN") or ""
     return [Finding("LOCATOR_UNQUALIFIED", MD14, hit) for hit in locator_sites(text)] + [
         Finding("NEGATIVE_DOMAIN_UNSWEPT", MD14, hit) for hit in absence_sites(text)]
 
@@ -400,7 +403,6 @@ def evaluate(docs):
         findings += json14_notice_scan(doc14)
         findings += history_issues(docs.md14, doc14, docs.digests)
     findings = [Finding(*key) for key in sorted({(f.id, f.site, f.detail) for f in findings})]
-    failed = {f.id for f in findings}
     common = {"R15-MD-MISSING", "R15-JSON-MISSING", "R15-HISTORY-MISSING", "R15-MD-OPENERS",
               "R15-MD-HEADING", "R15-MD-QUALITY", "R15-R14-MD-NOTICE", "R15-R14-JSON-NOTICE",
               "R15-HISTORY-REWRITTEN", "R15-JSON-SCHEMA", "R15-CORRECTION-COUNT", "R15-CORRECTION-ID"}
@@ -410,8 +412,11 @@ def evaluate(docs):
     pos_block = common | {"R15-POSITIVE-FIELD", "R15-POSITIVE-SOURCE", "R15-POSITIVE-QUOTE",
                           "R15-POSITIVE-PIN", "R15-POSITIVE-SUPERSEDES",
                           "R15-POSITIVE-QUOTE-WORDS", "NEGATIVE_DOMAIN_UNSWEPT", "R15-MD-POSITIVE"}
-    count = int(valid.get(LOC_ID) and not loc_block & failed)
-    count += int(valid.get(POS_ID) and not pos_block & failed)
+    def blocked(kind, ids):
+        other = POS_ID if kind == LOC_ID else LOC_ID
+        return any(f.id in ids and f.site != f"{JSON15}:{other}" for f in findings)
+    count = int(valid.get(LOC_ID) and not blocked(LOC_ID, loc_block))
+    count += int(valid.get(POS_ID) and not blocked(POS_ID, pos_block))
     return Result(FAIL if findings else PASS, findings, count)
 
 
