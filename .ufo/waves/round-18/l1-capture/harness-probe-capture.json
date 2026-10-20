@@ -1,0 +1,56 @@
+{
+  "schema": "tsukuroi-harness-probe-excerpt-v1",
+  "session_id": "01a15aab-de22-7138-985a-dfc1ef431a3b",
+  "records": [
+    {
+      "record_id": "e6ad937b",
+      "timestamp": "2026-10-20T19:06:17.324Z",
+      "tool_call": {
+        "type": "toolCall",
+        "id": "toolu_01Dud7UPXm3fqougBLBpGvU2",
+        "name": "bash",
+        "arguments": {
+          "command": "cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/l1-capture && chmod +x capture-r18.sh && { echo \"# tsukuroi round 18 L1 capture \u2014 read-only; script sha256 $(sha256sum capture-r18.sh | cut -c1-64)\"; ./capture-r18.sh; } > host-capture-r18.txt; cat -n host-capture-r18.txt",
+          "i": "Running read-only host capture"
+        },
+        "intent": "Running read-only host capture"
+      }
+    },
+    {
+      "record_id": "cff2269b",
+      "timestamp": "2026-10-20T19:06:17.657Z",
+      "tool_result": {
+        "role": "toolResult",
+        "toolCallId": "toolu_01Dud7UPXm3fqougBLBpGvU2",
+        "toolName": "bash",
+        "content": [
+          {
+            "type": "text",
+            "text": "     1\t# tsukuroi round 18 L1 capture \u2014 read-only; script sha256 bfe32ba3076512bfa8b24fe7f00c6f32c99bfad04c5daa20d3fd6f22e415824f\n     2\t$ date -Is\n     3\t2026-10-20T16:06:17-03:00\n     4\t[rc=0]\n     5\t$ uname -r\n     6\t7.2.11-arch1-1\n     7\t[rc=0]\n     8\t$ cat /proc/cmdline\n     9\tresume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs\n    10\t[rc=0]\n    11\t$ cat /sys/module/zswap/parameters/enabled /sys/module/zswap/parameters/max_pool_percent /sys/module/zswap/parameters/compressor\n    12\tY\n    13\t25\n    14\tzstd\n    15\t[rc=0]\n    16\t$ systemctl is-active earlyoom; systemctl is-enabled earlyoom\n    17\tactive\n    18\tenabled\n    19\t[rc=0]\n    20\t$ systemctl show earlyoom -p ActiveEnterTimestamp -p ExecMainPID --no-pager\n    21\tActiveEnterTimestamp=Tue 2026-10-20 09:57:11 -03\n    22\tExecMainPID=1379\n    23\t[rc=0]\n    24\t$ ls -1 /var/lib/pacman/local | grep -vc \"^ALPM_DB_VERSION$\"\n    25\t1395\n    26\t[rc=0]\n    27\t$ ls -1d /var/lib/pacman/local/earlyoom-[0-9]* /var/lib/pacman/local/mkinitcpio-[0-9]* /var/lib/pacman/local/linux-[0-9]* /var/lib/pacman/local/linux-lts-[0-9]* /var/lib/pacman/local/snapper-[0-9]* /var/lib/pacman/local/limine-snapper-sync-[0-9]* /var/lib/pacman/local/pacman-contrib-[0-9]* /var/lib/pacman/local/sysstat-[0-9]* /var/lib/pacman/local/nvidia-open-dkms-[0-9]* /var/lib/pacman/local/elephant-[0-9]* /var/lib/pacman/local/archlinux-keyring-[0-9]*\n    28\t/var/lib/pacman/local/archlinux-keyring-20260909-1\n    29\t/var/lib/pacman/local/earlyoom-1.9.0-1\n    30\t/var/lib/pacman/local/elephant-2.22.1-1\n    31\t/var/lib/pacman/local/limine-snapper-sync-1.32.1-2\n    32\t/var/lib/pacman/local/linux-7.2.11.arch1-1\n    33\t/var/lib/pacman/local/linux-lts-6.18.57-2\n    34\t/var/lib/pacman/local/mkinitcpio-42.2-1\n    35\t/var/lib/pacman/local/nvidia-open-dkms-615.78.08-1\n    36\t/var/lib/pacman/local/pacman-contrib-1.13.1-1\n    37\t/var/lib/pacman/local/snapper-0.13.2-1\n    38\t/var/lib/pacman/local/sysstat-12.8.0-1\n    39\t[rc=0]\n    40\t$ stat -c \"%y %n\" /var/lib/pacman/local /var/lib/pacman/sync/*.db\n    41\t2026-10-20 13:23:08.487645035 -0300 /var/lib/pacman/local\n    42\t2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/core.db\n    43\t2026-10-17 22:37:30.000000000 -0300 /var/lib/pacman/sync/extra.db\n    44\t2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/multilib.db\n    45\t2026-10-20 09:09:26.000000000 -0300 /var/lib/pacman/sync/omarchy.db\n    46\t2026-10-16 19:32:53.000000000 -0300 /var/lib/pacman/sync/openai-chatgpt.db\n    47\t[rc=0]\n    48\t$ ls -1 /var/lib/pacman/sync/\n    49\tcore.db\n    50\textra.db\n    51\tmultilib.db\n    52\tomarchy.db\n    53\topenai-chatgpt.db\n    54\topenai-chatgpt.db.sig\n    55\t[rc=0]\n    56\t$ ls -l /var/lib/pacman/db.lck\n    57\tls: cannot access '/var/lib/pacman/db.lck': No such file or directory\n    58\t[rc=2]\n    59\t$ wc -l /var/log/pacman.log\n    60\t3169 /var/log/pacman.log\n    61\t[rc=0]\n    62\t$ tail -n 3 /var/log/pacman.log\n    63\t[2026-10-20T13:23:09-0300] [ALPM] running 'gtk-update-icon-cache.hook'...\n    64\t[2026-10-20T13:23:09-0300] [ALPM] running 'update-desktop-database.hook'...\n    65\t[2026-10-20T13:23:09-0300] [PACMAN] Running 'pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- zcode'\n    66\t[rc=0]\n    67\t$ grep -c \"\\[ALPM\\] upgraded\" /var/log/pacman.log\n    68\t820\n    69\t[rc=0]\n    70\t$ grep -n \"pacman -U\" /var/log/pacman.log | tail -n 3\n    71\t2111:[2026-10-15T14:27:52-0300] [PACMAN] Running '/usr/bin/pacman -U --noconfirm /tmp/rea-hopper-aOrd39/hopper.arch'\n    72\t3092:[2026-10-20T09:31:03-0300] [PACMAN] Running 'pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/elephant/elephant-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant/elephant-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-clipboard/elephant-clipboard-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-clipboard/elephant-clipboard-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-runner/elephant-runner-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-runner/elephant-runner-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-calc/elephant-calc-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-calc/elephant-calc-debug-2.22.1-1-x86_64.pkg.t\u2026\n    73\t3161:[2026-10-20T13:23:08-0300] [PACMAN] Running 'pacman -U --needed --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/zcode/zcode-3.16.2-1-x86_64.pkg.tar.zst'\n    74\t[rc=0]\n    75\t$ ls -1 /etc/snapper/configs\n    76\thome\n    77\troot\n    78\t[rc=0]\n    79\t$ grep -h \"^SNAPPER_CONFIGS\" /etc/conf.d/snapper\n    80\tSNAPPER_CONFIGS=\"root home\"\n    81\t[rc=0]\n    82\t$ command -v paccache sar atop dool dstat earlyoom\n    83\t/usr/bin/paccache\n    84\t/usr/bin/sar\n    85\t/usr/bin/earlyoom\n    86\t[rc=0]\n    87\t$ ls -1 /var/log/sa\n    88\t[rc=0]\n    89\t$ stat -c \"%y %n\" /usr/share/pacman/keyrings/archlinux.gpg\n    90\t2026-09-09 04:45:27.000000000 -0300 /usr/share/pacman/keyrings/archlinux.gpg\n    91\t[rc=0]\n    92\t$ dkms status\n    93\tnvidia/615.78.08, 6.18.57-2-lts, x86_64: installed\n    94\tnvidia/615.78.08, 7.2.11-arch1-1, x86_64: installed\n    95\tnvidia/615.78.08, 7.2.3-arch1-3, x86_64: installed (Original modules exist) (Built modules are missing in the kernel modules folder)\n    96\t[rc=0]\n    97\t$ findmnt -no FSTYPE,OPTIONS /\n    98\tbtrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@\n    99\t[rc=0]\n\n\n[Some lines truncated to 768 bytes. Use artifact://80975:raw:72-72 to read line 72 whole]"
+          }
+        ],
+        "details": {
+          "wallTimeNoticeEmitted": false,
+          "timeoutSeconds": 300,
+          "wallTimeMs": 331.26514200121164,
+          "meta": {
+            "limits": {
+              "columnTruncated": {
+                "maxColumn": 768,
+                "unit": "bytes",
+                "artifactId": "80975",
+                "lines": {
+                  "first": 72,
+                  "last": 72
+                }
+              }
+            }
+          }
+        },
+        "isError": false,
+        "timestamp": 1792523177657
+      }
+    }
+  ],
+  "scope": "Exact capture script invocation and harness tool-result excerpt; no thinking or unrelated payload; not an exhaustive shell audit"
+}

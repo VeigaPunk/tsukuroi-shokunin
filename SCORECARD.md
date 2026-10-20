@@ -526,3 +526,20 @@ Calibration: the round's first two L0 lines (fleet ac792a7) carried a wrong snap
 - **planned (next round):** C2 continuation — R17 notices for the un-noticed stale statements wave 2 listed (SKILL.md current-use guidance, host-health-report-r3 U1/413, journal-boot-plane snapper lines, package/aur/foreign planes, oom/kill earlyoom/zswap); W04 count now 8 (S058 supersedes S054 by contract).
 - **retired:** none. Saturation 9 / window 3; capability row added this round resets the stagnation window.
 - **planned (next round, added after wave-2 FxSimplifyBind):** C3 follow-up — one L1-owned `tools/_revision.py` binding module for all nine `--revision` tools; FxSimplifyBind found six same-input divergences outside the probed surface (bad-branch ids, check precedence, merge-base rc≥2 handling, double NOT-LANDED/NOT-PUSHED in root-dac, missing-branch id, branch-string acceptance). The measured 9/9 holds on the probed inputs.
+
+## Round 18 — routed statement repairs, one revision binder, freshness continuation (2026-10-20)
+
+Immutable baseline `842a5312b704b5cda10fd80ec1fdee5fb381ba97`; shared-module prerequisite `51dd9eeaa305539fa3cfc6ee275978dc18043b79`.
+Three declared, causally separable claims on distinct axes:
+
+| Claim | Axis | Ordinal delta | Falsifiable measurement / command |
+|---|---|---|---|
+| C1 boot-chain statement corrections | depth (tied-lowest 8) | 8→8 (0) | Resolved named correction records 0→3 or more; `python3 tools/check-appended-notices.py --revision <commit> --registry corpus/knowledge/statement-corrections-r18.json`; existing verdicts and historical bytes preserved |
+| C2 shared revision binding | operability | 9→9 (0) | Same independent judge at baseline: bound9/9, consistent1/9, shared0/9, local regex copies9; target consistent9/9/shared9/9/copies0 among original nine, with all additional discovered tools reported separately; `python3 tools/check-revision-binding.py --tools-revision <commit>` |
+| C3 routed stale current-use notices | freshness | 9→9 (0) | Resolved records0→N in eight named files; `python3 tools/check-appended-notices.py --revision <commit> --registry corpus/knowledge/freshness-recheck-r18.json`; baseline comparison with `--registry-from <landing>` must show actual STALE-UNFLAGGED defects, not merely absence of a registry |
+
+C1 and C3 have disjoint registries and target files; the generic notice evaluator is shared verification infrastructure, not either claim's content. C2's continuity denominator is the original nine tools; discovery includes new tools without crediting their existence as consolidation. No capability, coverage growth, exploratory claim, ordinal uplift or host recovery clearance is preclaimed. Saturation9/window3 unchanged; adjacency8 and depth8 are lowest, C1 works depth; retired none.
+Wave1 dispatch:81 seats in one validated call; L1 holds planner, ConnPlanner supplies bounded data-walk. Build evidence `.ufo/waves/round-18/build/`.
+
+- **planned (current):** finish only the externally steered round18 claims and all routed round17 defects; measured verdicts follow after integration, then independent closure. No subsequent round starts here.
+- **retired:** none.
