@@ -32,7 +32,7 @@ Captures: `.ufo/waves/round-17/l1-capture/` (boot-chain, fresh, overlay-emulatio
 
 | S059 | `.ufo/waves/round-17/l1-capture/overlay-emulation.txt` (correction row) | 2026-10-20 | line 54: “lrwxrwxrwx new_root -> sysroot” (linux-lts image) — supersedes S055, whose `teaches` said “42.2 images” from one listing and “making it writable” from a writable tmpfs (wave-2 FxOwnS055) |
 
-Mutable field changes (old → new): S015, S016, S021, S022 `used-by` `corpus/knowledge/initramfs-v42-sysroot-recovery.md` → `corpus/knowledge/initramfs-v42-sysroot-recovery.md, corpus/knowledge/boot-chain-r17.md`. No status or recheck changed. Re-opened unchanged today: S021 (hook still `root_mnt="/new_root"`), S022 (hook still `--new-root-dir=/new_root`).
+Mutable field changes (old → new): S015, S016, S021, S022 `used-by` `corpus/knowledge/initramfs-v42-sysroot-recovery.md` → `corpus/knowledge/initramfs-v42-sysroot-recovery.md, corpus/knowledge/boot-chain-r17.md`. No status or recheck changed. Late correction (wave-2 FxSourcesContract): `used-by` of S051 `corpus/knowledge/boot-chain-r17.md, corpus/knowledge/boot-chain-r17.json` → `corpus/knowledge/boot-chain-r17.md`; S055 `corpus/knowledge/boot-chain-r17.md, corpus/knowledge/boot-chain-r17.json, corpus/knowledge/initramfs-v42-sysroot-recovery.md` → `corpus/knowledge/boot-chain-r17.md, corpus/knowledge/initramfs-v42-sysroot-recovery.md`; S056 `corpus/knowledge/boot-chain-r17.md, corpus/knowledge/boot-chain-r17.json` → `corpus/knowledge/boot-chain-r17.md` — the JSON twin cites captures by path, not S-ids. Re-opened unchanged today: S021 (hook still `root_mnt="/new_root"`), S022 (hook still `--new-root-dir=/new_root`).
 
 ## Mistakes
 
