@@ -861,3 +861,36 @@ unchanged input bytes are compared instead of repeating successful probes.
 Final outcomes follow after execution. No host probe or package/service
 action is part of this repair.
 
+## 2026-10-20 — round15 final measured outcomes and handoff
+
+Final C1 evaluator measured at942fa0a6525cd67a5b7050965b08375676b294cf:
+same counting command baseline exit1/count0/findings7 → final exit0/
+count2/findings0; --selftest PASS23/23 exit0. Actual named old locator/
+negative defects remain in red; unrelated r14 repo-line false positives
+are scoped out. Exact results: `.ufo/waves/round-15/build/verification-fixed.json`;
+original failed selftest retained in `verification.json`.
+
+C2 at6de977d327a7ee831524cfd6a174ab39c7a07498: ABSENT/count0 →
+COUNTED/count1, both exit0; pending413, installed libinput1.32.0-1,
+health not_assessed and BLOCKED_FOR_AGENT_PACKAGE_ACTION. Integration
+comparison proves its measured inputs/evaluator and SOURCES bytes unchanged
+at942fa0a; no successful host/source probe was rerun. Source census end
+exit0 with seven disclosed W04s; rows45→49, A37→41, mined32→36;
+B1/C7/queued5/rejected8 unchanged, malformed0, old rows untouched.
+
+`integration-verification.json` records11 changed historical text files
+with0 removed/replaced lines, additive r14 JSON equality and8 protected
+files byte-equal; tables/openers conform. A missing LogSemantics file was
+recovered verbatim from its completed output (not a replacement seat), so
+all64 validated item reports are durable. The exact source comparisons
+are author-side `l1-source-review.json`; old-mention sweep is retained in
+`mention-sweep.json`. No outside approval is fabricated.
+
+Depth/freshness improved author-side; coverage/operability/calibration/
+adjacency unchanged; all ordinal deltas0. Expansion unchanged, quality
+improved, discernment improved through grounded QUALITY21/22. SHONEN stays
+four author-side assertions; whole-SKILL execution and fresh independent
+admit/reject sampling remain unverified. Open L0 “Host recovery and
+tooling-policy decision” is operator-owned. No package/service changes,
+privileged probes, tool installs/updates, routing changes or new round.
+

@@ -116,3 +116,90 @@ S001–S045 rows and their status/recheck/used-by remain unchanged; no
 existing mutable-field changes are claimed. Source opening is curation
 on existing ground, not expansion credit. Final census/histogram evidence
 follows the completed immutable measurement.
+
+## Gate — completed immutable measurements
+
+Measured implementation after the observed selftest repair:
+`942fa0a6525cd67a5b7050965b08375676b294cf`. C1 command
+`python tools/check-locator-clarification.py --revision <revision>`:
+baseline `0db618a71ae2d0bb0c0c3059abaa219b7ccd20a2` exit1/count0/
+findings7; implementation exit0/count2/findings0. Red findings identify
+the actual preserved MD/JSON locator and negative-value propositions:
+LOCATOR_UNQUALIFIED and NEGATIVE_DOMAIN_UNSWEPT. The same final evaluator
+was used for both revisions. `--selftest` exit0:
+
+```text
+CHECK_LOCATOR_CLARIFICATION_SELFTEST: PASS (23 cases, 23 passed, 0 failed)
+```
+
+Exact output/evaluator SHA256: `build/verification-fixed.json` under
+`.ufo/waves/round-15/`; original `build/verification.json` preserves the
+first implementation's failed23/21 selftest. L1 corrected the production
+finding prefix, per-object count isolation and historical scan scope;
+independent expected fixtures were not weakened. This demonstrates the
+bounded repair can fail; it is not general source-semantics enforcement.
+Both final quotes are the exact11-word reopened positive definition.
+
+C2 command `python tools/measure-update-recheck.py --revision <revision>`
+was measured at baseline and first implementation
+`6de977d327a7ee831524cfd6a174ab39c7a07498`:
+exit0/ABSENT/record_count0 → exit0/COUNTED/record_count1, pending413,
+installed_libinput1.32.0-1, health not_assessed and
+BLOCKED_FOR_AGENT_PACKAGE_ACTION. All C2 measured code/MD/JSON/snapshot
+bytes and the SOURCES registry are identical at942fa0a; they were compared,
+not rerun. The input digest is
+`b101f3747827cefd0ed604c14b669267ec0fcc1b6c2fbe6e486be0cdbbc6ea81`.
+The snapshot timestamp is2026-10-20T07:44:39Z, not the incident's
+07:25:17Z upgrade timestamp. Pending413 is only against the October18
+local database. No running-version, health, ABI, full transaction-set,
+successful-sync or upgrade-clearance conclusion follows.
+
+`build/integration-verification.json` records:49 source rows versus45
+baseline (A41/B1/C7 versus37/1/7; mined36/queued5/rejected8 versus32/5/8),
+malformed0 in both; S001–S045 byte-preserved, mutable-field changes0;
+all original lines retained in order in the11 changed historical text
+files; the r14 JSON equals baseline after removing only r15_supersession;
+all8 protected census/old-checker/verifier/SHONEN/province files byte-equal.
+New-entry provenance openings and table column counts conform. Commands
+and SHA256s are in that artifact; `build/mention-sweep.json` retains the
+bounded superseded-text sweep and its scope. New reports present64 from
+the validated spec's64 items; LogSemantics claimed a file but left only
+its completion output, which L1 recovered verbatim with a provenance note.
+Its work was not silently replaced by another seat. LocatorGate's two
+post-completion repair wakes failed provider402 and produced no work;
+the original seat remains completed, with no new seat or rerouted wave.
+
+Admit author-side: C1's two narrowly scoped clarifications and C2's dated
+update-safety recheck. Reject: reader-line locator authority, unswept
+negative option exhaustiveness, unneeded native-fragment absence claims,
+--needed/all-new-plan upgrade clearance and package-to-runtime-health
+inference. Non-author outside sampling remains required. No historical
+round is retroactively admitted; no capability or uncovered surface enters.
+
+## Source census — end
+
+Same validate command as start, exit0, stderr empty; retained in
+`.ufo/waves/round-15/build/verification.json`:
+
+```text
+tsukuroi	W04	S038 duplicate url man.archlinux.org/man/access.2 across scopes
+tsukuroi	W04	S041 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes
+tsukuroi	W04	S042 duplicate url github.com/omacom/omarchy/issues/8047 across scopes
+tsukuroi	W04	S043 duplicate url github.com/omacom/omarchy/issues/6629 across scopes
+tsukuroi	W04	S044 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes
+tsukuroi	W04	S046 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes
+tsukuroi	W04	S049 duplicate url man.archlinux.org/man/pacman.8 across scopes
+tsukuroi	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
+```
+
+Seven W04 warnings, not eight as some advisory forecasts predicted; no
+warning-free result is claimed. Added rows4, all docs/A/mined; touched
+old rows none; frontier ground advanced none. Rechecking existing ground
+is freshness/quality, not expansion.
+
+Author-side verdicts: depth improved; freshness improved; coverage,
+operability, calibration and adjacency unchanged. All ordinal scores
+remain8/9/9/9/9/8 in that order. Trends: expansion unchanged, quality
+improved, discernment improved by lesson-backed QUALITY21/22 and observed
+red-before/restored-defect checks. Fresh independent admit/reject sampling
+is not asserted. Tools installed/updated: none; no package/service action.

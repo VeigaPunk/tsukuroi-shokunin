@@ -438,3 +438,37 @@ captured package state are causally separable.
   safety blocker; any later round needs a new steer.
 - **retired:** none. No SHONEN promotion or independent approval asserted.
 
+### Round15 measured outcome
+
+| Claim | Axis | Ordinal delta | Measured before → after | Author-side verdict |
+|---|---|---|---|---|
+| C1 R15-LOCATOR / R15-POSITIVE-DOMAIN | depth | 8→8 (0) | resolved correction_count0→2; exit1→0; findings7→0; baseline0db618a71ae2d0bb0c0c3059abaa219b7ccd20a2 → measured942fa0a6525cd67a5b7050965b08375676b294cf | improved, independent closure pending |
+| C2 incident update-state recheck | freshness | 9→9 (0) | dated record_count0→1; ABSENT→COUNTED, both exit0; measured baseline0db618a71ae2d0bb0c0c3059abaa219b7ccd20a2 → 6de977d327a7ee831524cfd6a174ab39c7a07498; C2 inputs byte-identical at942fa0a | improved, independent closure pending |
+
+Counting commands are unchanged from the declaration. Exact evidence:
+`.ufo/waves/round-15/build/verification-fixed.json` (C1 final evaluator
+SHA256, red/green, selftest23/23 exit0) and `verification.json` (C2 plus
+preserved initial C1 selftest failure21/23, invalid-CLI2, source census0).
+The observed C1 failures were repaired in production classification/count
+logic without relaxing expected fixtures. No passing syntax check
+substitutes for its executed selftest.
+
+`integration-verification.json` pins both revisions' C1 input digests,
+proves C2/SOURCES bytes unchanged after their successful runs, and records
+source rows45→49, old-row changes0, protected-file equality, prior-line
+preservation and report inventory. C2 snapshot captured2026-10-20T07:44:39Z:
+installed libinput1.32.0-1, pending413 against October18 sync metadata,
+no health/ABI/running-state verdict and no package-action clearance.
+Raw snapshot digest b101f3747827cefd0ed604c14b669267ec0fcc1b6c2fbe6e486be0cdbbc6ea81.
+
+Unworked axes coverage/operability/calibration/adjacency unchanged;
+no capability, scope expansion, ordinal uplift or promotion. Trends:
+expansion unchanged; quality improved; discernment improved through
+grounded outside-debt learning (QUALITY21/22). The fresh non-author
+admit/reject spot-check remains the independent closure's duty.
+
+- **planned (current, supersedes the implementation declaration):** hand
+  the landed round to independent closure and operator recovery/tooling
+  decision; no new round is started here. Preserve unresolved incident
+  operation/credentials/namespace questions and the boot-hook risk.
+- **retired:** none.
