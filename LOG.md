@@ -564,3 +564,21 @@ No tests or census were rerun for this source-log-only durability correction.
   the mkinitcpio-42 `/sysroot` gate. Tools installed/updated by L1: none.
   Author-side assessment remains subject to fresh non-author closure;
   SHONEN boxes remain `[~]`.
+
+## 2026-10-20 — round 13 checker assertion correction
+
+First shipping measurement on `44677cce26b3bedf93a6609374ffa54dde59552f`:
+baseline conformance count0/exit1 with UNIT_READONLY_FALSE_UNIVERSAL;
+delivered count1/exit0. Source census exit0 with disclosed W04 warnings;
+tables consistent and census executable bytes unchanged. Full observed
+outputs: `.ufo/waves/round-13/correction/verification.json`.
+
+The first checker selftest returned exit1, 13 cases/12 passed:
+`closed-list-restored: missing=R13-JSON-PIN`. The restored false universal
+was correctly caught by R13-JSON-EXCLUSIVE; the test incorrectly also
+required a generic pin finding despite an unchanged non-exhaustive
+alternatives field. The one-line expectation correction keeps required
+failure exit1, correction_count0 and the specific exclusive finding.
+It does not suppress the defect or change production evaluation. The
+failed output is retained; the corrected selftest is executed only after
+this assertion correction commit.

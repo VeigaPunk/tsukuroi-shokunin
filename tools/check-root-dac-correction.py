@@ -308,7 +308,7 @@ def selftest():
     mutant("rootdirectory-intrinsic", lambda d: d["retained_alternatives"][2].__setitem__("intrinsically_read_only", True), {"R13-JSON-PIN"})
     mutant("tmpfs-default-read-only", lambda d: d["retained_alternatives"][1].__setitem__("intrinsically_read_only", True), {"R13-JSON-PIN"})
     mutant("namespace-certain", lambda d: d["unknowns"].__setitem__("unit_private_namespace", "private namespace identical to host"), {"R13-JSON-PIN"})
-    mutant("closed-list-restored", lambda d: d.__setitem__("claim_scope", "Only ProtectSystem=strict or ReadOnlyPaths= can make / read-only through a unit."), {"R13-JSON-PIN", "R13-JSON-EXCLUSIVE"})
+    mutant("closed-list-restored", lambda d: d.__setitem__("claim_scope", "Only ProtectSystem=strict or ReadOnlyPaths= can make / read-only through a unit."), {"R13-JSON-EXCLUSIVE"})
     mutant("strict-drop", lambda d: d.__setitem__("full_vs_strict", "ProtectSystem=full covers /."), {"R13-JSON-PIN"})
     add("notice-missing", base._replace(md12=OLDMD), FAIL,
         {"R12-MD-NOTICE-MISSING", "R12-MD-EXCLUSIVE-CURRENT-HOST", "UNIT_READONLY_FALSE_UNIVERSAL"}, 0)

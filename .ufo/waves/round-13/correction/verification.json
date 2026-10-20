@@ -1,0 +1,128 @@
+{
+  "measured_commit": "44677cce26b3bedf93a6609374ffa54dde59552f",
+  "baseline_commit": "9574a189a758251da5957eee8ff0f38ba2d03c7f",
+  "commands": [
+    {
+      "name": "baseline",
+      "command": [
+        "python",
+        "tools/check-root-dac-correction.py",
+        "--revision",
+        "9574a189a758251da5957eee8ff0f38ba2d03c7f"
+      ],
+      "exit": 1,
+      "stdout": "CHECK_ROOT_DAC_CORRECTION: FAIL correction_count=0 source=revision:9574a189a758251da5957eee8ff0f38ba2d03c7f scope=narrow-conformance-not-semantic-proof findings=9\nF R12-JSON-EXCLUSIVE-B2-LIMIT site=corpus/knowledge/root-dac-decision-r12.json detail=\"count=1\"\nF R12-JSON-NOTICE site=correction_notice detail=\"supersession pin absent\"\nF R12-JSON-SUPERSEDED site=superseded_by detail=\"supersession pin absent\"\nF R12-MD-EXCLUSIVE-CURRENT-HOST site=corpus/knowledge/root-dac-decision-r12.md detail=\"count=1\"\nF R12-MD-EXCLUSIVE-R13 site=corpus/knowledge/root-dac-decision-r12.md detail=\"count=1\"\nF R12-MD-NOTICE-MISSING site=## Round-13 correction \u2014 superseded unit-read-only universal detail=\"notice absent\"\nF R13-JSON-MISSING site=corpus/knowledge/root-dac-correction-r13.json detail=\"correction JSON absent\"\nF R13-MD-MISSING site=corpus/knowledge/root-dac-correction-r13.md detail=\"correction MD absent\"\nF UNIT_READONLY_FALSE_UNIVERSAL site=r12-active detail=\"md:CURRENT-HOST,md:R13,json:B2-LIMIT\"\n",
+      "stderr": ""
+    },
+    {
+      "name": "delivered",
+      "command": [
+        "python",
+        "tools/check-root-dac-correction.py",
+        "--revision",
+        "44677cce26b3bedf93a6609374ffa54dde59552f"
+      ],
+      "exit": 0,
+      "stdout": "CHECK_ROOT_DAC_CORRECTION: PASS correction_count=1 source=revision:44677cce26b3bedf93a6609374ffa54dde59552f scope=narrow-conformance-not-semantic-proof findings=0\n",
+      "stderr": ""
+    },
+    {
+      "name": "selftest",
+      "command": [
+        "python",
+        "tools/check-root-dac-correction.py",
+        "--selftest"
+      ],
+      "exit": 1,
+      "stdout": "CHECK_ROOT_DAC_CORRECTION_SELFTEST: FAIL (13 cases, 12 passed)\n  closed-list-restored: missing=R13-JSON-PIN\n",
+      "stderr": ""
+    },
+    {
+      "name": "source-census",
+      "command": [
+        "/home/vgpnk/Projects/shokunin/scripts/sources-census.sh",
+        "validate",
+        "--root",
+        "/home/vgpnk/Projects/shokunin",
+        "tsukuroi"
+      ],
+      "exit": 0,
+      "stdout": "tsukuroi\tW04\tS038 duplicate url man.archlinux.org/man/access.2 across scopes\ntsukuroi\tW04\tS041 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes\ntsukuroi\tW04\tS042 duplicate url github.com/omacom/omarchy/issues/8047 across scopes\ntsukuroi\tW04\tS043 duplicate url github.com/omacom/omarchy/issues/6629 across scopes\ntsukuroi\tok\t/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md\n",
+      "stderr": ""
+    }
+  ],
+  "source_before": {
+    "rows": 40,
+    "tiers": {
+      "A": 35,
+      "B": 1,
+      "C": 4
+    },
+    "statuses": {
+      "mined": 30,
+      "queued": 5,
+      "rejected": 5
+    },
+    "malformed": 0
+  },
+  "source_after": {
+    "rows": 43,
+    "tiers": {
+      "A": 36,
+      "B": 1,
+      "C": 6
+    },
+    "statuses": {
+      "mined": 31,
+      "queued": 5,
+      "rejected": 7
+    },
+    "malformed": 0
+  },
+  "census_sha256": {
+    "9574a189a758251da5957eee8ff0f38ba2d03c7f": "d17d32a35946c71c1fc195e36178aa383f4a04d7172cc579b6e9e25fa537f27e",
+    "44677cce26b3bedf93a6609374ffa54dde59552f": "d17d32a35946c71c1fc195e36178aa383f4a04d7172cc579b6e9e25fa537f27e"
+  },
+  "markdown_tables": [
+    {
+      "path": "corpus/knowledge/root-dac-correction-r13.md",
+      "table_widths": [
+        [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
+      ],
+      "consistent": true
+    }
+  ],
+  "safety_pattern_counts": {
+    "credential-material": 0,
+    "full-invocation-output": 0,
+    "raw-journal-prefix": 0
+  },
+  "joined_wave_members": 32,
+  "tools_installed_or_updated": []
+}
