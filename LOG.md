@@ -424,3 +424,50 @@ Measured against correction commit `459e3ceacea6289d74b6e856c5606b83704f32e5`:
 - B: the four individually counted `PROVINCE.md` surface labels are 0/0/0/0 at base `9b70381` and 1/1/1/1 at the measured commit (total 0→4); all four linked knowledge entries exist only after. This excludes the adjacency index row.
 - C: dated D1–D5 erratum notes are 0→7; the identical D1 literal-text matcher is 9→14, with the five additions all “Superseded” errata quotes rather than active recommendations.
 - The receipt response, pin snapshot (1/8 matches; anchors 8/8), Gate correction, four-surface province update, `checkupdates` fallback and host-log command anchors are recorded in the post-review correction entry above. No recipient acceptance/resolution is claimed.
+
+## 2026-10-20 — round 12, resumed host-metadata and diagnostic-depth work
+
+- **Declared C1 (operability/capability):** close the root-inode census blind
+  spot with one packages-line metadata observation, fixture-isolated by
+  `TSUKUROI_ROOT_DIR`, preserving the six-plane rollup. Baseline `b76b5c3`
+  emits no root metadata; exact capture/predicate exit 1 is in
+  `.ufo/waves/round-12/resumed/before.json`.
+- **Declared C2 (depth, tied lowest with adjacency at 8):** independently
+  sourced DAC/search, mount/namespace, credential and collision distinctions
+  in `corpus/knowledge/root-dac-decision-r12.{md,json}`. This refines an
+  existing surface, not four new causes or a demonstrated Btrfs repair.
+  The baseline commit has no matrix records; the final counting command and
+  measured commit are pinned in the measurement entry after integration.
+- **Motivating correction:** `ClaimCriticR.md` found systemd's
+  `/usr/lib/tmpfiles.d/root.conf` policy `z / 555 - - -` (S039/S040).
+  Unowned by pacman is not policy-free. Reject automatic owner-bit
+  degradation; report bits without changing health on that basis.
+  Metadata unavailable/non-directory still fails closed. The old conditional
+  `chmod 755 /` advice and permission-proxy falsifier are superseded by
+  appended errata in `snapper-eacces-mechanism.md`.
+- **Frontier/learning:** source rows S035–S040 were opened/re-opened and
+  curated; issue leads S036/S037 remain rejected, and S038 narrows access(2)
+  scope. `corpus/lessons/round-12.md` records Gate quotes, mutable-field
+  transitions and mistakes; QUALITY #14–16 encode outside-disagreement,
+  operation-scope and metadata-policy lessons. SKILL, README, PROVINCE and
+  SHONEN are synchronized; no promotion is self-attested.
+- **Inheritance and wave:** earlier headless round-12 leftovers are resolved
+  in this same round. One inherited 32-seat wave plus one new validated
+  32-seat batch; L1 is the planner and revenger seats perform bounded
+  data-walks. Registry, exact dispatch and history digest are committed under
+  `.ufo/waves/round-12/`. Seats are author-side, never outside admission.
+- **Evidence hygiene:** L1 removed duplicate resumed alias reports and raw
+  journal bodies from otherwise retained evidence; aggregated dated
+  findings remain. Two misrooted seat reports were copied byte-exact from
+  fleet to lane; Main owns removal of fleet copies. Source-author draft
+  access-date errors were corrected before landing, without changing
+  inherited rows. These are recorded mistakes, not silently ignored.
+- **Scope and limits:** host and sibling surfaces remained read-only; no
+  package install/update, mode repair, service action, boot or restore ran.
+  Tools installed/updated: none. C1/C2 do not clear the mkinitcpio-v42
+  `/sysroot` upgrade-safety blocker. Reusable verification craft stays with
+  tameshi; no new handoff acceptance or ownership ruling is claimed.
+- **Verification/admission:** parent post-integration measurement follows
+  this content commit. No unrun test is called passed. Final claims/trends
+  are self-assessed pending independent hyaku closure and its admit/reject
+  source spot-check; SHONEN remains `[~]`.

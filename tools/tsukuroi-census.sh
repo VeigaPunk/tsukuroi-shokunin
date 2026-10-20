@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# tsukuroi-census.sh — four-plane host health census (tsukuroi-shokunin, round 3, TSUKUROI-R3-2).
+# tsukuroi-census.sh — six-plane host health census (tsukuroi-shokunin; started round 3, TSUKUROI-R3-2).
+# Emits six PLANE lines: packages (incl. the root-directory metadata arm) / systemd-user /
+# drivers (incl. the memory-pressure arm) / journal-boot / update-safety / oom (kill-event watch).
 # v1 (round 2, TSUKUROI-R2-1) was the three-plane gate: 743 lines, md5
 # 7a3d3b94ecd73fbe1a9a98e9dc88b92f (SKILL.md:235-247, LOG.md:41-49). v2 adds the
 # journal/boot plane on top of that settled revision — same vocabulary, same exit map.
 #
-# Answers exactly one question, read-only: "what is the state of the four owned host
+# Answers exactly one question, read-only: "what is the state of the six owned host
 # planes right now, and can it be assessed at all from an unprivileged shell".
 # It never installs, upgrades, removes, restarts, or writes anything (PROVINCE.md:16-17);
 # its whole product is verdict + evidence + suggested operator action.
@@ -86,6 +88,26 @@
 #             a new package nor a version change, and a missing/unreadable baseline or an
 #             unreadable -Qm probe never reads as a pass. This realizes the round-6
 #             baseline contract (plans/round-6-record-draft.md §4) in the gate.
+#             round 12 (C1): the same plane carries the root-directory metadata arm — the
+#             blind spot `pacman -Qo /` exposes (rc=1, no owner; QUALITY.md #13). Evidence is
+#             appended to the emitted plane note, not threaded through PKG_NOTE, so it
+#             survives every early return above:
+#               root_status=<ok|unavailable(...)|non-directory(...)> root_mode=<%04a|unknown>
+#               root_uid= root_gid= root_euid= root_owner_write=<present|absent|unknown>
+#               root_owner_search=<present|absent|unknown>
+#               [root_report=<names> root_intent=not-assessed]
+#               root_src=<default|override> root_dir=<absolute path|empty|relative|unsafe>
+#             `stat -L` (symlinks resolved) on TSUKUROI_ROOT_DIR, default `/`. Owner-write
+#             (0200) / owner-search (0100) absence is REPORT-ONLY: printed as facts, never a
+#             verdict change (the parent ruling after systemd's tmpfiles.d/root.conf `z / 555`
+#             showed 0555 can be a declared mode; the census does not assess intent and makes
+#             no writability claim). Metadata unavailable (missing path / EACCES / dangling
+#             link), a non-directory, or an empty/relative/unsafe TSUKUROI_ROOT_DIR override
+#             (rejected before stat; the caller path is never echoed) -> BLOCKED, never a fake
+#             pass. No universal 0755 requirement, no mount inference and no
+#             "wrong/read-only" wording: 0575/0775/0751/1777/2755 with owner w+x are
+#             observations, not findings; special bits ride `%04a` verbatim and are parsed as
+#             octal, never decimal.
 #
 #   systemd (user scope only — PROVINCE.md:8-9 owns `systemctl --user`; the system-scope
 #   row lives in SKILL.md:42 and is out of this gate's scope)
@@ -294,6 +316,8 @@
 # every host path read in live mode has an override below, so the selftest touches no
 # host state:
 #   TSUKUROI_PACMAN TSUKUROI_PACMAN_CONF TSUKUROI_PACMAN_CONF_FILE TSUKUROI_PACMAN_DB
+#   TSUKUROI_ROOT_DIR (root-directory metadata arm; default / — the selftest points it at a
+#   0755 fixture directory, never at the live root)
 #   TSUKUROI_FOREIGN_BASELINE (external baseline path; empty/unset = embedded r6 snapshot)
 #   TSUKUROI_SYSTEMCTL TSUKUROI_DMESG TSUKUROI_JOURNALCTL TSUKUROI_NVIDIA_SMI TSUKUROI_LSMOD
 #   TSUKUROI_PCI_SYSFS TSUKUROI_DEV_DIR TSUKUROI_HOSTNAME_FILE TSUKUROI_DMESG_RESTRICT_FILE
@@ -328,6 +352,13 @@ PACMAN=${TSUKUROI_PACMAN:-pacman}
 PACMAN_CONF=${TSUKUROI_PACMAN_CONF:-pacman-conf}
 PACMAN_CONF_FILE=${TSUKUROI_PACMAN_CONF_FILE:-/etc/pacman.conf}
 PACMAN_DB=${TSUKUROI_PACMAN_DB:-/var/lib/pacman}
+# Root-directory metadata arm (round 12, C1): `/` is owned by no package (`pacman -Qo /`
+# rc=1), so -Qkk cannot judge it (QUALITY.md #13). `${VAR-default}` (not `:-`) is deliberate:
+# an explicitly empty TSUKUROI_ROOT_DIR must read as unavailable, never silently become the
+# live `/`. Overridable so the hermetic selftest never reads the live root.
+ROOT_SRC=default
+if [ "${TSUKUROI_ROOT_DIR+set}" = set ]; then ROOT_SRC=override; fi
+ROOT_DIR=${TSUKUROI_ROOT_DIR-/}
 SYSTEMCTL=${TSUKUROI_SYSTEMCTL:-systemctl}
 DMESG=${TSUKUROI_DMESG:-dmesg}
 JOURNALCTL=${TSUKUROI_JOURNALCTL:-journalctl}
@@ -435,6 +466,9 @@ UPD_V=BLOCKED UPD_NOTE='probe not run'
 # never re-probe `pacman -Qm`); PKG_FOREIGN_FOLD is not-run (arm returned before the fold) |
 # ok | qm-unreadable | baseline-absent | baseline-unreadable
 PKG_FOREIGN_LIVE='' PKG_FOREIGN_FOLD='not-run'
+# root-directory metadata arm (round 12, C1) — composed into the packages line at emit
+# time, never through PKG_NOTE, so every early return above still publishes it.
+ROOT_V=BLOCKED ROOT_NOTE='probe not run'
 
 usage() {
   cat <<'EOF'
@@ -681,6 +715,112 @@ probe_packages() {
     PKG_V=DEGRADED
   fi
   if [ "$pins_n" != '0' ]; then PKG_V=DEGRADED; fi
+  return
+}
+
+root_locator_class() { # root_locator_class PATH -> absolute|empty|relative|unsafe
+  # An override path is caller data, not host evidence. Only an absolute path from a
+  # conservative character set may be stat'd and printed; `=` and whitespace are rejected
+  # so a path like `/x root_mode=0755` can neither forge a token nor reach stat. The raw
+  # override is never echoed for the empty/relative/unsafe classes.
+  case "$1" in
+    '') printf 'empty' ;;
+    /*)
+      case "$1" in
+        *[!A-Za-z0-9._/+-]*) printf 'unsafe' ;;
+        *) printf 'absolute' ;;
+      esac
+      ;;
+    *) printf 'relative' ;;
+  esac
+}
+
+# ---- plane arm: root-directory metadata (round 12, C1) -----------------------
+# The packages plane cannot judge `/` or any unowned directory: `pacman -Qo /` rc=1 and
+# `-Qkk` verifies package-owned files only (QUALITY.md #13). This arm reads the root
+# directory's own metadata and reports it as facts; it makes no writability claim for any
+# process and applies no universal mode policy. Owner-write (0200) / owner-search (0100)
+# absence is REPORT-ONLY: the bits are printed with `root_report=`, but the arm stays
+# HEALTHY (parent ruling 2026-10-20, after /usr/lib/tmpfiles.d/root.conf `z / 555` was
+# found: a declared 0555 root must not be graded unhealthy). Only unavailable metadata
+# (missing path / EACCES / dangling link), a non-directory, or an empty/relative/unsafe
+# TSUKUROI_ROOT_DIR override (rejected before stat, caller path never echoed) is BLOCKED.
+# The report states observed bits, not intent, and never says a mode is wrong or should be
+# 0755.
+probe_root_meta() {
+  ROOT_V=HEALTHY
+  local rc mode='' uid='' gid='' ftype='' why='unknown' link='' num ow ox report='' loc cls
+  cls=$(root_locator_class "$ROOT_DIR")
+  if [ "$cls" != 'absolute' ]; then
+    # Empty/relative/unsafe override: BLOCKED before any stat, no caller path echoed.
+    ROOT_V=BLOCKED
+    ROOT_NOTE="root_status=unavailable(override=$cls) root_mode=unknown root_uid=unknown root_gid=unknown root_euid=$EUID root_owner_write=unknown root_owner_search=unknown root_src=$ROOT_SRC root_dir=$cls"
+    return
+  fi
+  loc=$ROOT_DIR
+  # `stat -L` resolves symlinks (a bare `[ -d ]` and plain stat would disagree); LC_ALL=C
+  # keeps %F and strerror tokens stable; %04a pins a four-digit octal mode (0555/1777), so
+  # a consumer never sees the 555-vs-0555 token drift. `cap` keeps a failed probe from
+  # tripping set -e: a bare command substitution would exit 1 here, and 1 is DEGRADED.
+  cap env LC_ALL=C stat -L -c '%04a %u %g %F' -- "$ROOT_DIR"
+  rc=$CAP_RC
+  if [ "$rc" -ne 0 ]; then
+    # Match the strerror suffix, not a bare phrase: the message echoes the path.
+    case "$CAP_OUT" in
+      *': Permission denied'*) why='permission-denied' ;;
+      *': No such file or directory'*) why='missing' ;;
+      *': Too many levels of symbolic links'*) why='symlink-loop' ;;
+    esac
+    cap env LC_ALL=C stat -c '%F' -- "$ROOT_DIR"
+    if [ "$CAP_RC" -eq 0 ] && [ "$CAP_OUT" = 'symbolic link' ]; then
+      link=' root_type=symlink(unresolved)'
+    fi
+    ROOT_V=BLOCKED
+    ROOT_NOTE="root_status=unavailable(stat=rc=$rc errno=$why) root_mode=unknown root_uid=unknown root_gid=unknown$link root_euid=$EUID root_owner_write=unknown root_owner_search=unknown root_src=$ROOT_SRC root_dir=$loc"
+    return
+  fi
+
+  read -r mode uid gid ftype <<< "$CAP_OUT"
+  ftype=${ftype// /-}   # one token: regular-empty-file, symbolic-link, ...
+  case "$mode" in
+    '' | *[!0-7]*)
+      ROOT_V=BLOCKED
+      ROOT_NOTE="root_status=mode-unparseable(mode=$mode) root_mode=unknown root_uid=unknown root_gid=unknown root_euid=$EUID root_owner_write=unknown root_owner_search=unknown root_src=$ROOT_SRC root_dir=$loc"
+      return
+      ;;
+  esac
+  # uid/gid are printed facts; a malformed stat field must not be carried as evidence.
+  # Non-numeric -> unavailable(parse=...) with the observed mode kept.
+  local badmeta=''
+  case "$uid" in '' | *[!0-9]*) badmeta='uid' ;; esac
+  case "$gid" in '' | *[!0-9]*) badmeta="${badmeta:+$badmeta,}gid" ;; esac
+  if [ -n "$badmeta" ]; then
+    ROOT_V=BLOCKED
+    ROOT_NOTE="root_status=unavailable(parse=$badmeta) root_mode=$mode root_uid=unknown root_gid=unknown root_euid=$EUID root_owner_write=unknown root_owner_search=unknown root_src=$ROOT_SRC root_dir=$loc"
+    return
+  fi
+  if [ "$ftype" != 'directory' ]; then
+    ROOT_V=BLOCKED
+    ROOT_NOTE="root_status=non-directory(type=$ftype) root_mode=$mode root_uid=$uid root_gid=$gid root_euid=$EUID root_owner_write=unknown root_owner_search=unknown root_src=$ROOT_SRC root_dir=$loc"
+    return
+  fi
+
+  # `%04a` is four octal digits and may carry a special-bit digit (1777/2755). `8#` is
+  # mandatory: decimal arithmetic on "0755" tests the wrong bit; string slicing would
+  # mangle special bits. Special bits themselves are verdict-neutral.
+  num=$((8#$mode))
+  ow=$(( (num & 0200) ? 1 : 0 ))
+  ox=$(( (num & 0100) ? 1 : 0 ))
+  ROOT_NOTE="root_status=ok root_mode=$mode root_uid=$uid root_gid=$gid root_euid=$EUID"
+  ROOT_NOTE="$ROOT_NOTE root_owner_write=$([ "$ow" -eq 1 ] && printf present || printf absent)"
+  ROOT_NOTE="$ROOT_NOTE root_owner_search=$([ "$ox" -eq 1 ] && printf present || printf absent)"
+  [ "$ow" -eq 0 ] && report='owner-write-absent'
+  [ "$ox" -eq 0 ] && report="${report:+$report,}owner-search-absent"
+  if [ -n "$report" ]; then
+    # Report-only by parent ruling: no ROOT_V change, so the packages verdict is untouched.
+    ROOT_NOTE="$ROOT_NOTE root_report=$report root_intent=not-assessed"
+  fi
+  ROOT_NOTE="$ROOT_NOTE root_src=$ROOT_SRC root_dir=$loc"
   return
 }
 
@@ -1571,7 +1711,9 @@ probe_update_safety() {
 run_selftest() {
   local bin fx
   work=$(mktemp -d /tmp/tsukuroi-r3-2-selftest.XXXXXX)
-  trap 'rm -rf -- "${work:-}"' EXIT INT TERM
+  # A 000 fixture directory would block `rm -rf` (unlink needs write+search on the parent);
+  # restore permissions on the temp tree only, never on a live path.
+  trap 'chmod -R u+rwx -- "${work:-}" 2>/dev/null || true; rm -rf -- "${work:-}" 2>/dev/null || true' EXIT INT TERM
   bin="$work/bin"
   mkdir -p "$bin" "$work/fx"
 
@@ -1658,10 +1800,14 @@ STUB
   PASS=0 FAIL=0
   ok() { PASS=$((PASS + 1)); printf 'PASS %s\n' "$*"; }
   bad() { FAIL=$((FAIL + 1)); printf 'FAIL %s\n' "$*" >&2; }
+  skip() { printf 'SKIP %s\n' "$*"; }
 
   fx_default() { # clean fixture: everything passes, dmesg restricted like the measured host
     local d=$1
-    mkdir -p "$d/pacmandb" "$d/pci" "$d/dev"
+    mkdir -p "$d/pacmandb" "$d/pci" "$d/dev" "$d/root"
+    # Round-12 C1 fixture root: mode 0755 explicitly — umask 077 makes a bare mkdir 0700,
+    # and the healthy-case regexes pin 0755, so an implicit mode would hide a mode leak.
+    chmod 0755 "$d/root"
     printf 'alpha\nbeta\ngamma\ndelta\n' > "$d/pq"
     printf 'alpha: 10 total files, 0 altered files\nbeta: 20 total files, 0 altered files\n' > "$d/qkk.out"
     printf 0 > "$d/qkk.rc"
@@ -1745,7 +1891,15 @@ STUB
     : > "$d/oomwin-sigkill"; printf 1 > "$d/oomwin-sigkill.rc"
   }
 
-  fx_hash() { find "$1" -type f -exec sha256sum {} + | LC_ALL=C sort | sha256sum | cut -d' ' -f1; }
+  fx_hash() { # tree digest: entry type/mode/owner/group AND regular-file content
+    # Content-only hashing is blind to a chmod/ownership change on a fixture directory;
+    # the root arm makes `$FX/root`'s mode an assertion target, so metadata must be inside
+    # the zero-mutation proof. Permission errors on a 000 fixture dir are suppressed and
+    # hash identically before/after.
+    { find "$1" -printf '%y %m %U %G %p\n' 2>/dev/null || true
+      find "$1" -type f -exec sha256sum {} + 2>/dev/null || true
+    } | LC_ALL=C sort | sha256sum | cut -d' ' -f1
+  }
 
   fx_no_mutation() { # assert the fixture tree is byte-identical after a census run
     local d=$1 before=$2 after
@@ -1754,10 +1908,11 @@ STUB
   }
 
   EXTRA_ENV=()
+  ROOT_EXPECT=''
   check() { # check LABEL WANT_RC WANT_VERDICT WANT_RE [WANT_RE...]
     local label=$1 wrc=$2 wverdict=$3
     shift 3
-    local out rc before re miss=''
+    local out rc before re miss='' pkgline root_expect=${ROOT_EXPECT:-$FX/root}
     before=$(fx_hash "$FX")
     set +e
     out=$(env \
@@ -1766,6 +1921,7 @@ STUB
       TSUKUROI_PACMAN_CONF="$bin/pacman-conf" \
       TSUKUROI_PACMAN_CONF_FILE="$FX/pacman.conf" \
       TSUKUROI_PACMAN_DB="$FX/pacmandb" \
+      TSUKUROI_ROOT_DIR="$FX/root" \
       TSUKUROI_FOREIGN_BASELINE="$FX/fbase" \
       TSUKUROI_SYSTEMCTL="$bin/systemctl" \
       TSUKUROI_DMESG="$bin/dmesg" \
@@ -1788,10 +1944,15 @@ STUB
       "$BASH" "$SELF" 2>&1)
     rc=$?
     set -e
+    pkgline=$(printf '%s\n' "$out" | grep '^PLANE packages:' | head -n1 || true)
     if [ "$rc" -ne "$wrc" ]; then
       bad "$label: exit $rc wanted $wrc; output: $(printf '%s' "$out" | tail -n2 | tr '\n' '|')"
     elif ! printf '%s\n' "$out" | grep -q 'host=fixture-host'; then
       bad "$label: hostname override not honoured — possible host read"
+    elif ! printf '%s\n' "$pkgline" | grep -qE '^PLANE packages: [A-Z]+ \(.*root_status=.*root_mode=.*root_dir='; then
+      bad "$label: root metadata not composed into the packages line (blind spot survives?)"
+    elif [[ "$pkgline" != *"root_dir=$root_expect "* && "$pkgline" != *"root_dir=$root_expect)" ]]; then
+      bad "$label: configured root not asserted at a field boundary (wanted root_dir=$root_expect; possible live-root read)"
     elif ! printf '%s\n' "$out" | grep -qE "^TSUKUROI_CENSUS: ${wverdict} \("; then
       bad "$label: verdict not ${wverdict}; got: $(printf '%s\n' "$out" | grep '^TSUKUROI_CENSUS:' | head -n1)"
     else
@@ -1806,6 +1967,7 @@ STUB
     fi
     fx_no_mutation "$FX" "$before"
     EXTRA_ENV=()
+    ROOT_EXPECT=''
   }
 
   check_cli() { # check_cli LABEL WANT_RC RE... -- ARGS...; runs "$BASH" "$SELF" ARGS with no fixture env
@@ -2323,6 +2485,119 @@ STUB
   check 'blocked: update-safety -Sup unreadable fails closed (S10-2)' 2 BLOCKED \
     '^PLANE update-safety: BLOCKED \(status=BLOCKED; sup=rc=1'
 
+  # ---- round 12 (lane C1): root-directory metadata arm, hermetic ---------------------
+  # Finding pattern pinned by every case below: the packages line always carries
+  # `root_status= root_mode= ... root_dir=` (the check() harness asserts these universally,
+  # including `root_dir=<configured fixture root>`, so a live-/ leak cannot pass). The arm
+  # is report-only for owner bits: 0555/0644/0400 stay HEALTHY with distinct present/absent
+  # facts; only unavailable metadata or a non-directory is BLOCKED. Mode assertions anchor
+  # the four-digit `%04a` token (`root_mode=0555 `, not a 555 substring) so a decimal parse
+  # or a format drift turns the case red.
+  case_home='healthy-root-0755'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  check 'healthy: C1 root arm — 0755 owner bits present (R12-C1)' 0 HEALTHY \
+    "^PLANE packages: HEALTHY .*root_status=ok root_mode=0755 root_uid=$(id -u) root_gid=$(id -g) root_euid=$(id -u) root_owner_write=present root_owner_search=present root_src=override root_dir=$FX/root"
+
+  case_home='healthy-root-0555-report'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  chmod 0555 "$FX/root"
+  check 'healthy: C1 root arm — 0555 owner-write absent is report-only (R12-C1)' 0 HEALTHY \
+    '^TSUKUROI_CENSUS: HEALTHY \(packages=HEALTHY ' \
+    '^PLANE packages: HEALTHY .*root_status=ok root_mode=0555 root_uid=[0-9]+ root_gid=[0-9]+ .*root_owner_write=absent root_owner_search=present root_report=owner-write-absent root_intent=not-assessed'
+
+  case_home='healthy-root-0644-search'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  chmod 0644 "$FX/root"
+  check 'healthy: C1 root arm — owner-search absent independently (R12-C1)' 0 HEALTHY \
+    '^PLANE packages: HEALTHY .*root_status=ok root_mode=0644 root_uid=[0-9]+ root_gid=[0-9]+ .*root_owner_write=present root_owner_search=absent root_report=owner-search-absent root_intent=not-assessed'
+
+  case_home='healthy-root-0400-both'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  chmod 0400 "$FX/root"
+  check 'healthy: C1 root arm — both owner bits absent, both named (R12-C1)' 0 HEALTHY \
+    '^PLANE packages: HEALTHY .*root_status=ok root_mode=0400 root_uid=[0-9]+ root_gid=[0-9]+ .*root_owner_write=absent root_owner_search=absent root_report=owner-write-absent,owner-search-absent root_intent=not-assessed'
+
+  case_home='healthy-root-sticky'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  chmod 1777 "$FX/root"
+  check 'healthy: C1 root arm — 1777 sticky parses as octal, bits present (R12-C1)' 0 HEALTHY \
+    '^PLANE packages: HEALTHY .*root_status=ok root_mode=1777 root_uid=[0-9]+ root_gid=[0-9]+ .*root_owner_write=present root_owner_search=present root_src=override root_dir='
+
+  case_home='healthy-root-setgid'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  chmod 2755 "$FX/root"
+  check 'healthy: C1 root arm — 2755 setgid does not disturb owner bits (R12-C1)' 0 HEALTHY \
+    '^PLANE packages: HEALTHY .*root_status=ok root_mode=2755 root_uid=[0-9]+ root_gid=[0-9]+ .*root_owner_write=present root_owner_search=present root_src=override root_dir='
+
+  case_home='healthy-root-sticky-norewrite'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  chmod 1555 "$FX/root"
+  check 'healthy: C1 root arm — 1555 sticky with owner-write absent, report-only (R12-C1)' 0 HEALTHY \
+    '^PLANE packages: HEALTHY .*root_status=ok root_mode=1555 root_uid=[0-9]+ root_gid=[0-9]+ .*root_owner_write=absent root_owner_search=present root_report=owner-write-absent'
+
+  # Not fixtureable without CAP_CHOWN: a non-root-owned root cannot be built by the selftest
+  # user. The verdict is ownership-independent by design (bits only) and root_uid/gid are
+  # printed facts, so this is a named skip, never a pass.
+  skip 'C1 root arm — non-root-owned fixture (requires CAP_CHOWN; verdict is ownership-independent)'
+  # No 000-parent fixture: it would leave an unreadable subtree for find/rm, and under euid 0
+  # DAC is bypassed so the case would be vacuous. Missing/dangling/loop cover the class.
+  skip 'C1 root arm — EACCES metadata case not built (000 subtree residue; uid 0 bypasses DAC)'
+
+  case_home='blocked-root-missing'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  EXTRA_ENV=(TSUKUROI_ROOT_DIR="$FX/no-such-root")
+  ROOT_EXPECT="$FX/no-such-root"
+  check 'blocked: C1 root arm — missing metadata BLOCKED with explicit unknowns (R12-C1)' 2 BLOCKED \
+    "^PLANE packages: BLOCKED .*root_status=unavailable\\(stat=rc=1 errno=missing\\) root_mode=unknown root_uid=unknown root_gid=unknown root_euid=$(id -u) root_owner_write=unknown root_owner_search=unknown root_src=override root_dir=$FX/no-such-root"
+
+  case_home='blocked-root-regular-file'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  : > "$FX/root-file"; chmod 0644 "$FX/root-file"
+  EXTRA_ENV=(TSUKUROI_ROOT_DIR="$FX/root-file")
+  ROOT_EXPECT="$FX/root-file"
+  check 'blocked: C1 root arm — regular file is a non-directory (R12-C1)' 2 BLOCKED \
+    "^PLANE packages: BLOCKED .*root_status=non-directory\\(type=regular-empty-file\\) root_mode=0644 root_uid=$(id -u) root_gid=$(id -g) root_euid=$(id -u) root_owner_write=unknown root_owner_search=unknown root_src=override root_dir=$FX/root-file"
+
+  case_home='blocked-root-dangling'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  ln -s "$FX/no-such-target" "$FX/root-link"
+  EXTRA_ENV=(TSUKUROI_ROOT_DIR="$FX/root-link")
+  ROOT_EXPECT="$FX/root-link"
+  check 'blocked: C1 root arm — dangling symlink is unavailable, not a pass (R12-C1)' 2 BLOCKED \
+    "^PLANE packages: BLOCKED .*root_status=unavailable\\(stat=rc=1 errno=missing\\) root_mode=unknown root_uid=unknown root_gid=unknown root_type=symlink\\(unresolved\\) root_euid=$(id -u) root_owner_write=unknown root_owner_search=unknown root_src=override root_dir=$FX/root-link"
+
+  case_home='blocked-root-loop'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  ln -s "$FX/loop-b" "$FX/loop-a"; ln -s "$FX/loop-a" "$FX/loop-b"
+  EXTRA_ENV=(TSUKUROI_ROOT_DIR="$FX/loop-a")
+  ROOT_EXPECT="$FX/loop-a"
+  check 'blocked: C1 root arm — symlink loop is unavailable, never a pass (R12-C1)' 2 BLOCKED \
+    '^PLANE packages: BLOCKED .*root_status=unavailable\(stat=rc=1 errno=symlink-loop\) root_mode=unknown root_uid=unknown root_gid=unknown root_type=symlink\(unresolved\) root_euid=[0-9]+ root_owner_write=unknown root_owner_search=unknown'
+
+  case_home='blocked-root-empty-override'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  EXTRA_ENV=(TSUKUROI_ROOT_DIR=)
+  ROOT_EXPECT='empty'
+  check 'blocked: C1 root arm — empty override never falls back to live / (R12-C1)' 2 BLOCKED \
+    '^PLANE packages: BLOCKED .*root_status=unavailable\(override=empty\) root_mode=unknown root_uid=unknown root_gid=unknown root_euid=[0-9]+ root_owner_write=unknown root_owner_search=unknown root_src=override root_dir=empty'
+
+  case_home='blocked-root-unsafe-override'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  EXTRA_ENV=(TSUKUROI_ROOT_DIR="$FX/root root_mode=0755")
+  ROOT_EXPECT='unsafe'
+  check 'blocked: C1 root arm — unsafe override rejected, raw path not echoed (R12-C1)' 2 BLOCKED \
+    '^PLANE packages: BLOCKED .*root_status=unavailable\(override=unsafe\) root_mode=unknown root_uid=unknown root_gid=unknown root_euid=[0-9]+ root_owner_write=unknown root_owner_search=unknown root_src=override root_dir=unsafe'
+
+  # Metadata survives every packages early return: composition happens at emit time in main,
+  # so these four returns (binary missing / lock / empty db / sample rc) are representative
+  # proofs, not special cases. The harness's universal root_dir assertion runs on each too.
+  case_home='blocked-root-early-pacman-missing'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  EXTRA_ENV=(TSUKUROI_PACMAN="$bin/pacman-absent")
+  check 'blocked: C1 root arm survives pacman=missing early return (R12-C1)' 2 BLOCKED \
+    '^PLANE packages: BLOCKED .*pacman=missing .*root_status=ok root_mode=0755 root_uid=[0-9]+ root_gid=[0-9]+'
+
+  case_home='blocked-root-early-lck'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  : > "$FX/pacmandb/db.lck"
+  check 'blocked: C1 root arm survives db.lck early return (R12-C1)' 2 BLOCKED \
+    'db\.lck=present' 'root_status=ok root_mode=0755 root_uid=[0-9]+ root_gid=[0-9]+ root_euid=[0-9]+ root_owner_write=present'
+
+  case_home='blocked-root-early-empty-db'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  : > "$FX/pq"
+  check 'blocked: C1 root arm survives empty-db early return (R12-C1)' 2 BLOCKED \
+    'pacman -Qq listed no packages' 'root_status=ok root_mode=0755 root_uid=[0-9]+ root_gid=[0-9]+'
+
+  case_home='blocked-root-early-qkk-rc'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 2 > "$FX/qkk.rc"
+  check 'blocked: C1 root arm survives sample-rc early return (R12-C1)' 2 BLOCKED \
+    'pacman -Qkk sample rc=2' 'root_status=ok root_mode=0755 root_uid=[0-9]+ root_gid=[0-9]+'
+
   check_cli 'cli: unknown argument exits 2 with usage (S10-2)' 2 \
     '^usage: tsukuroi-census\.sh' -- --bogus
   check_cli 'cli: --sample 0 refuses before the parse continues (S10-2)' 2 \
@@ -2366,6 +2641,8 @@ main() {
     "$VERSION" "$host" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
   probe_packages
+  probe_root_meta
+  PKG_V=$(worse "$PKG_V" "$ROOT_V")
   probe_systemd
   probe_drivers
   probe_mem_arm
@@ -2374,7 +2651,7 @@ main() {
   probe_update_safety
   probe_oom_plane
 
-  printf 'PLANE packages: %s (%s)\n' "$PKG_V" "$PKG_NOTE"
+  printf 'PLANE packages: %s (%s; %s)\n' "$PKG_V" "$PKG_NOTE" "$ROOT_NOTE"
   printf 'PLANE systemd: %s (%s)\n' "$SYS_V" "$SYS_NOTE"
   printf 'PLANE drivers: %s (%s; mem=%s)\n' "$DRV_V" "$DRV_NOTE" "$MEM_NOTE"
   printf 'PLANE journal: %s (%s)\n' "$JRN_V" "$JRN_NOTE"

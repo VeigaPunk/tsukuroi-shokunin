@@ -49,3 +49,19 @@ capitalized-pattern failure records found by the r4 sweep (r4-refuted). The row 
 written (append-only); this erratum supersedes it. Retention has also moved: 9 retained boots —
 `journalctl --list-boots --no-pager | tail -n +2 | wc -l` 2026-10-19
 (`../.ufo/evidence/round-1-kaika/scout-live.md`).
+
+## Round 12 — depth refinement and root metadata
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/root-dac-decision-r12.md` and `.json` | Separate ordinary-mkdir indicator families for DAC/search, target mount/namespace, bounded credentials and target existence; explicit residual/unknown class and historical-attribution limits | SOURCES S027/S028/S034/S035/S038–S040; `lessons/round-12.md` Gate |
+
+This deepens the existing rollback-net surface; it is not uncovered coverage
+or a resolved host repair. The earlier Frontier root-mode debt is superseded
+by the packages-plane metadata arm in `tools/tsukuroi-census.sh`.
+The old `test -w` falsifier is superseded by the round-12 erratum in
+`knowledge/snapper-eacces-mechanism.md`: a permission proxy is not proof of
+subvolume causality. The opened systemd `root.conf` rule sets `/` to `0555`;
+unowned does not mean policy-free. Exact historical failing syscall/path,
+runtime credentials and incident-time target state remain frontier. Opened
+issue leads S036/S037 are retained rejections, not causes or upgrade clearance.

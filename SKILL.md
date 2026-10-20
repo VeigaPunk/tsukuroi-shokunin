@@ -1672,3 +1672,44 @@ awk 'NR>=2287 && /\[PACMAN\] Running .pacman .* -Su/ {n++} END{print n+0}' /var/
 ```
 
 Observed outputs in order: `7`, `64`, `0`, `0` (2026-10-19). These are separate counts; the D1 literal-text match count is not an advice count.
+
+## Round 12 — root metadata and create-failure discrimination
+
+The packages plane now observes `/` metadata independently of pacman's package
+ownership list. `TSUKUROI_ROOT_DIR` overrides that directory for isolated fixtures;
+the live default is `/`. Read `root_mode`, `root_uid` and `root_gid` on the
+packages line even if the package probe itself cannot run.
+
+| Finding | Interpretation | Next read-only discriminator |
+|---|---|---|
+| Missing owner write or search bit | Report-only metadata observation; no automatic degradation and no universal required mode | `getfacl -p /`; inspect tmpfiles policy/overrides and the affected unit's properties |
+| Metadata unavailable or not a directory | BLOCKED: the root metadata observation cannot be evaluated | `stat -c '%a %u %g %F' /` and its exit |
+| Owner write/search present | This arm has no finding; it does not certify ownership policy or process writability | Review the full census and relevant unit/mount evidence |
+
+Never equate mode `0555` with a read-only mount. Never infer live effective
+capabilities from `User=root` or a bounding-set property. For create-class
+failures, inspect target existence, the relevant mount/namespace, parent
+DAC/ACL and runtime credentials separately. `ProtectSystem=full` does not make
+`/` read-only; property text from an inactive unit is not a runtime trace.
+The sourced procedure and explicit unknown outcome are in
+`corpus/knowledge/root-dac-decision-r12.md` (S027/S028/S034/S035/S038–S040).
+Ordinary `mkdir` controls do not prove historical Btrfs ioctl causality.
+The root-mode arm does not remove the initramfs-v42 `/sysroot` upgrade gate.
+
+The opened `/usr/lib/tmpfiles.d/root.conf` contains `z / 555 - - -`.
+Thus pacman not owning `/` does not imply no packaged policy exists. Do not
+recommend changing `/` to `0755` from the inode mode alone. This round's
+policy discovery supersedes the earlier "origin unknown/no baseline" premise;
+it does not prove which historical operation set the inode mode.
+
+### Gate registry
+
+| Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |
+|---|---|---|---|---|---|---|---|
+| host-census | gate | `bash tools/tsukuroi-census.sh` | 0 clean/HEALTHY; 1 failed/DEGRADED; 2 could-not-evaluate/BLOCKED or usage | `bash tools/tsukuroi-census.sh --selftest` (0 pass, 1 fail) | `tools/tsukuroi-census.sh`: embedded foreign/OOM/class baselines and selftest expected verdict/finding patterns | Live: none; selftest: disposable `/tmp/tsukuroi-r3-2-selftest.*` only | tsukuroi |
+
+This host gate does not grade mutable fleet artifacts. Its isolated expected
+finding patterns establish capability, while the dated live root-metadata
+capture establishes this round's measurement; neither is outside admission.
+Round evidence: `.ufo/waves/round-12/resumed/`; lesson:
+`corpus/lessons/round-12.md`.

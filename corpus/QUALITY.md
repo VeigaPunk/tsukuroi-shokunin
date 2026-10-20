@@ -15,3 +15,7 @@
 11. The landing commit contains its matching LOG.md entry with motivating evidence (lesson: corpus/lessons/round-1.md ## Mistakes M11).
 12. An absent tool does not make its mechanism unknown: read and cite its upstream source or man page before tagging [inference] (lesson: corpus/lessons/round-1.md ## Mistakes D4/MC4).
 13. EACCES triage records target mode/owner/ACL and the unit's CapabilityBoundingSet/ProtectSystem; because -Qkk cannot see /, the census separately reports root-directory mode (lesson: corpus/lessons/round-1.md ## Mistakes D3/MC3, D6).
+
+14. Before recording an admit for a new knowledge entry, require its explicit `## QUALITY check` to evaluate the applicable numbered criteria and resolve its source/evidence pointers; a promised check is not a performed check (lesson: corpus/lessons/round-12.md ## Mistakes, outside round-1 omission).
+15. Root metadata findings report owner-write/search bits, not universal mode policy or process writability. Permission-denial explanations distinguish inode DAC/ACL, mount namespace and runtime credentials; ordinary `mkdir` controls never certify a historical Btrfs ioctl cause (lesson: corpus/lessons/round-12.md ## Mistakes, ordering and permission-proxy errors).
+16. Before grading metadata as unhealthy, inspect the owning policy sources and overrides, including tmpfiles rules; an unowned inode is not a policy-free inode. Known configured mode differences are observations, not automatic drift findings (lesson: corpus/lessons/round-12.md ## Mistakes, package-baseline versus policy-baseline).

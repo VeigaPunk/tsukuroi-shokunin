@@ -1,0 +1,99 @@
+{
+  "capture_utc": "2026-10-20T02:16:44.693525+00:00",
+  "uid": 1000,
+  "fixture_scope": "new isolated temporary directory; removed; no host root writes",
+  "fixture_code": "TemporaryDirectory; chmod(parent,0555); mkdir(child); chmod(parent,0755); mkdir(child); mkdir(existing_child)",
+  "fixture_results": [
+    {
+      "mode": "0555",
+      "result": "EACCES",
+      "errno": 13
+    },
+    {
+      "mode": "0755",
+      "result": "created_child"
+    },
+    {
+      "mode": "0755_existing",
+      "result": "EEXIST",
+      "errno": 17
+    }
+  ],
+  "read_only_discriminators": [
+    {
+      "command": [
+        "stat",
+        "-Lc",
+        "%a %u %g %F",
+        "/"
+      ],
+      "exit": 0,
+      "stdout": "555 0 0 directory\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "getfacl",
+        "-cp",
+        "/"
+      ],
+      "exit": 0,
+      "stdout": "user::r-x\ngroup::r-x\nother::r-x\n\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "findmnt",
+        "-n",
+        "-o",
+        "TARGET,FSTYPE,OPTIONS",
+        "/"
+      ],
+      "exit": 0,
+      "stdout": "/ btrfs rw,relatime,compress=zstd:3,ssd,space_cache=v2,subvolid=256,subvol=/@\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "stat",
+        "-Lc",
+        "%F %a",
+        "/.snapshots"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "stat: cannot statx '/.snapshots': No such file or directory\n"
+    },
+    {
+      "command": [
+        "systemctl",
+        "show",
+        "limine-snapper-sync.service",
+        "-p",
+        "User",
+        "-p",
+        "CapabilityBoundingSet",
+        "-p",
+        "ProtectSystem",
+        "-p",
+        "ReadOnlyPaths",
+        "-p",
+        "ReadWritePaths",
+        "-p",
+        "ProtectHome",
+        "-p",
+        "LoadState",
+        "-p",
+        "ActiveState"
+      ],
+      "exit": 0,
+      "stdout": "LoadState=loaded\nActiveState=inactive\nCapabilityBoundingSet=cap_sys_admin\nUser=root\nReadWritePaths=/tmp\nReadOnlyPaths=\nProtectHome=yes\nProtectSystem=no\n",
+      "stderr": ""
+    }
+  ],
+  "limits": [
+    "C2 source-branch probes, not proof of historical service EACCES cause",
+    "No read-only filesystem was mounted and no EROFS write attempt was performed",
+    "No privileged probe, systemd-run or unit change"
+  ]
+}

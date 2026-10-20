@@ -56,3 +56,36 @@ The first returning 0 falsifies the proposed DAC/capability mechanism. `access(2
 - **S028, tier A** — https://man.archlinux.org/man/systemd.exec.5 § CapabilityBoundingSet=: “Capabilities listed will be included in the bounding set, all others are removed”; the section says this also affects effective and permitted sets.
 - **S034, tier A — access(2)** — https://man.archlinux.org/man/access.2 § DESCRIPTION: “for the root user, the check uses the set of permitted capabilities rather than the set of effective capabilities”; § ERRORS describes `EACCES` when requested access is denied.
 - **Host evidence (own-work, all read-only, non-root, 2026-10-19)** — `stat -c '%a %U:%G' /`; `getfacl -p /`; `systemctl cat limine-snapper-sync.service | grep -n -E 'CapabilityBoundingSet|ProtectSystem|ReadOnlyPaths|ProtectHome'`; `journalctl --no-pager -o short-iso -g 'create subvolume failed' | grep -c 'errno:13'` plus first/last sweeps; `snapper list-configs`; `stat -c '%F %a %n' /.snapshots`; `pacman -Qo /`; `zcat /var/lib/pacman/local/filesystem-*/mtree | grep -cE '^\./?[[:space:]]'`; `findmnt -n -o SOURCE,FSTYPE,TARGET /boot`; `df -h /boot`.
+
+## Erratum (2026-10-20, round 12) — permission proxy is not causal proof
+
+The Falsifier paragraph above incorrectly says the two `test -w` processes
+distinguish root's permitted from effective capabilities. They change the
+whole credential envelope instead. S034 describes `access(2)` semantics, not
+which syscall any particular `test` binary uses. Neither predicted exit
+certifies the failed subvolume operation; no privileged falsifier was run.
+The mode-change example above is conditional operator advice, not a sourced
+universal requirement that `/` be `0755`.
+
+S027/S028 support a DAC/capability explanation consistent with the observed
+error family, not proven historical attribution. Inactive-unit properties
+are configuration evidence; runtime sets, exact syscall/path, incident-time
+mode and ioctl ordering remain unknown. The independently usable branch
+procedure and retained counterexamples supersede that inference shortcut:
+`root-dac-decision-r12.md` and `.json`, sources S027/S028/S034/S035/S038–S040.
+Evidence: `.ufo/waves/round-12/SourceReview.md`,
+`.ufo/waves/round-12/error-order-smoke.json` and resumed source reviews.
+
+## Erratum (2026-10-20, round 12) — unowned is not policy-free
+
+The earlier "no package metadata baseline" inference was too broad.
+Although `pacman -Qo /` cannot establish an inode ownership baseline,
+the opened `/usr/lib/tmpfiles.d/root.conf` explicitly contains
+`z / 555 - - -`. ClaimCriticR also opened systemd's version-261 policy
+change and inspected the local override/boot-unit evidence:
+`.ufo/waves/round-12/resumed/ClaimCriticR.md`.
+The existing mode is consistent with a packaged declarative policy (S039/S040).
+The earlier conditional `chmod 755 /` suggestion is superseded: do not
+change the root mode without reviewing the policy and affected service.
+No mode change or boot test ran; a present policy does not reconstruct
+the incident-time syscall, credentials or inode history.

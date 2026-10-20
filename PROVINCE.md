@@ -81,3 +81,10 @@ before a later handoff; the table does not freeze another lane's authority.
 
 **Out of province → report, never absorb.**
 Source re-check 2026-10-19T22:57:14Z (fleet round 1): committed sibling HEAD pins match the original 1/8 (mado); 7/8 drift. Re-reading the cited source ranges at those clean HEADs still finds all 8/8 route anchors in-range. The committed-kaika receipt sweep found one recipient-side packet response in mori; acceptance/resolution are not inferred. See `corpus/knowledge/adjacency-recheck-2026-10-19.md` for the pin table, receipt scope and exact evidence.
+
+Round-12 refinement: root-directory metadata and create-failure DAC/ACL,
+mount/namespace and configured-credential discrimination remain within the
+existing host/rollback-net surface. The census owns detection only; no mode
+repair, service restart, subvolume creation, boot or package transaction is
+authorized by a finding. `corpus/knowledge/root-dac-decision-r12.md` refines
+this existing core surface without absorbing sibling verification methods.
