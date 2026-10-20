@@ -13,3 +13,8 @@
 Sources: dispatch task census `dispatch.json:16-19,524-927`; final committed report-path census; interim `outcome.json:1-74`; closure cited above.
 
 Scope: executed=read-only git/Python census at immutable revision; no host actions.
+
+
+L1 integration provenance correction (round18): original outcome.json citations in this report name its immutable842a531 bytes, now preserved byte-for-byte at `.ufo/waves/round-17/falsify/outcome-interim-144309.json`. Mutable outcome.json is the reconciled37/44/0 summary, not the frozen interim. The36 names have a single aggregate429 label; they are not36 independent per-seat receipts. Final summary source pointers now use the retained interim path.
+
+Scope: executed=read-only git/Python census at immutable revision; no host actions.

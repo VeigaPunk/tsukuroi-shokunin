@@ -1,0 +1,13 @@
+diff --git a/tools/check-revision-binding.py b/tools/check-revision-binding.py
+index 1a46e57..f217471 100755
+--- a/tools/check-revision-binding.py
++++ b/tools/check-revision-binding.py
+@@ -341,7 +341,7 @@ def refused(sandbox, name, rev, want, branch=None):
+     doc = parse_json(text)
+     findings = doc.get("findings") if isinstance(doc, dict) else None
+     return {"exit": code, "finding": found, "binding_ids": binding_ids(text),
+-            "finding_count": len(findings) if isinstance(findings, list) else None,
++            "finding_count": len(binding_ids(text)) if isinstance(findings, list) else None,
+             "ok": code == CANNOT and found == want}
+ 
+ 

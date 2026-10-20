@@ -399,7 +399,7 @@ def cli_finding(argv):
         args = build_parser().parse_args(argv)
     except (argparse.ArgumentError, SystemExit):
         return "E-CLI"
-    if args.selftest and args.registry_from:
+    if args.selftest and args.registry_from is not None:
         return "E-CLI"
     return None
 
@@ -557,6 +557,9 @@ def binding_sandbox():
             expect_cli("sandbox CLI branch-missing",
                        ["--revision", c1, "--branch", "nosuch"],
                        "E-BRANCH-MISSING"),
+            expect_cli("sandbox CLI empty registry-source rejected",
+                       ["--revision", c1, "--registry-from", ""],
+                       "E-REVISION-INVALID"),
             expect_cli("sandbox CLI revision-before-missing",
                        ["--revision", "HEAD", "--branch", "nosuch"],
                        "E-REVISION-INVALID"),
@@ -707,6 +710,8 @@ def selftest():
         ("cli registry only", cli_finding(["--registry-from", "a" * 40]), "E-CLI"),
         ("cli registry with selftest",
          cli_finding(["--selftest", "--registry-from", "a" * 40]), "E-CLI"),
+        ("cli empty registry with selftest",
+         cli_finding(["--selftest", "--registry-from", ""]), "E-CLI"),
     ]
     passed, failures, total = 0, [], 0
     for name, docs, code, want, count, stale in cases:
@@ -756,7 +761,7 @@ def main(argv=None):
                                             "--revision REV or --selftest required")],
                            0, 0, None), "worktree", "master", None)
     if args.selftest:
-        if args.registry_from:
+        if args.registry_from is not None:
             return emit(Result(CANNOT, [Finding("E-CLI", "cli",
                                                 "--registry-from requires --revision")],
                                0, 0, None), "worktree", args.branch, None)
@@ -769,21 +774,21 @@ def main(argv=None):
         revision = binding.sha
         tip = binding.branch_tip
         source = revision
-        if args.registry_from:
+        if args.registry_from is not None:
             source = _revision.bind(ROOT, args.registry_from, branch).sha
         registry_text = read_git(source, REGISTRY)
-        if args.registry_from and registry_text is None:
+        if args.registry_from is not None and registry_text is None:
             return emit(Result(CANNOT, [Finding("E-REGISTRY-MISSING", REGISTRY,
                                                 "registry absent at --registry-from")],
                                0, 0, None), revision, branch, tip)
         paths = probe_paths(registry_text)
         targets = {path: read_git(revision, path) for path in paths}
-        bases = ({} if args.registry_from
+        bases = ({} if args.registry_from is not None
                  else {path: read_git(BASE, path) for path in paths})
-        captures = ({} if args.registry_from
+        captures = ({} if args.registry_from is not None
                     else {path: read_git(revision, path) for path in CAPTURES})
         docs = DocSet(registry_text, targets, bases, captures,
-                      bool(args.registry_from))
+                      args.registry_from is not None)
     except (_revision.RevisionError, Cannot) as exc:
         if isinstance(exc, _revision.RevisionError):
             exc = Cannot(exc.fid, exc.site, exc.detail)

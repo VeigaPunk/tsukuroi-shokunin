@@ -337,11 +337,11 @@ Appended 2026-10-20 by the tsukuroi round-17 L1; earlier bytes unchanged. Supers
 - Appendix probes that invoke pacman are replaced by reads of `/var/lib/pacman/local/<pkg>-<ver>/desc` and `/var/log/pacman.log`, or recorded as [unk]
 
 
-## R18-FRESHNESS — installed package count 1188 to 1395
+## R18-FRESHNESS — local-db entry inventory 1395, not an independent package query
 
 Appended 2026-10-20 by round-18 NoticePackages. Historical snapshots preserved: the bytes quoted above stay unchanged. This notice supersedes that current-use statement only. Read-only scope: no package, reboot, or upgrade clearance.
 
-Current-use statement superseded: "`pacman -Q | wc -l` = 1188". Now: The local package database holds 1395 entries excluding ALPM_DB_VERSION on 2026-10-20 (same entry-count method as the note line 86-87).
+Current-use statement superseded: "`pacman -Q | wc -l` = 1188". Now: S060 lists1395 local-db entries excluding ALPM_DB_VERSION at16:06. This is a directory inventory, not an independently rerun pacman-Q package count. Supporting context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:24-26
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:25 — "1395". Source S060 (R18 L1 read-only capture).
 
@@ -353,11 +353,11 @@ Current-use statement superseded: "holds 1188 dirs == 1188 pkgs". Now: The local
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:25 — "1395". Source S060 (R18 L1 read-only capture).
 
-## R18-FRESHNESS — sync DB count four to five
+## R18-FRESHNESS — sync-directory DB-file inventory, configured set unknown (2026-10-20)
 
 Appended 2026-10-20 by round-18 NoticePackages. Historical snapshots preserved: the bytes quoted above stay unchanged. This notice supersedes that current-use statement only. Read-only scope: no package, reboot, or upgrade clearance.
 
-Current-use statement superseded: "All four configured sync dbs were **born**". Now: The sync directory holds five DB files at R18: core.db, extra.db, multilib.db, omarchy.db, openai-chatgpt.db (plus openai-chatgpt.db.sig). The four-DB count and the 2026-10-11 birth dating are historical.
+Current-use statement superseded: "All four configured sync dbs were **born**". Now: the S060 sync-directory listing contains five .db files, not a reverified count of configured repositories. pacman.conf and current repository configuration were not reread here. Supporting context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:40-55
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:53 — "openai-chatgpt.db". Source S060 (R18 L1 read-only capture).
 
@@ -365,15 +365,15 @@ Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:53 — "openai-chat
 
 Appended 2026-10-20 by round-18 NoticePackages. Historical snapshots preserved: the bytes quoted above stay unchanged. This notice supersedes that current-use statement only. Read-only scope: no package, reboot, or upgrade clearance.
 
-Current-use statement superseded: "`offline.db` (304318 B) born 2026-10-03 17:41:33". Now: No offline.db appears in the R18 listing of /var/lib/pacman/sync, which shows six entries. The dead-leftover description of offline.db is historical.
+Current-use statement superseded: "`offline.db` (304318 B) born 2026-10-03 17:41:33". Now: No offline.db appears in the R18 listing of /var/lib/pacman/sync, which shows six entries. The dead-leftover description of offline.db is historical. [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:48-55]
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:54 — "openai-chatgpt.db.sig". Source S060 (R18 L1 read-only capture).
 
-## R18-FRESHNESS — last local-DB write 2026-10-13 to 2026-10-20
+## R18-FRESHNESS — local-db directory mtime, last content-write time unestablished
 
 Appended 2026-10-20 by round-18 NoticePackages. Historical snapshots preserved: the bytes quoted above stay unchanged. This notice supersedes that current-use statement only. Read-only scope: no package, reboot, or upgrade clearance.
 
-Current-use statement superseded: "Last local-db write: inode mtime 2026-10-13 16:37:59". Now: The local database directory inode mtime is 2026-10-20 13:23:08.487645035 -0300 at R18; the last logged pacman transaction is 2026-10-20 13:23:09 -0300 (pacman.log, capture lines 63-65). The 2026-10-13 value is historical.
+Current-use statement superseded: "Last local-db write: inode mtime 2026-10-13 16:37:59". Now: the local database directory inode mtime is2026-10-20 13:23:08.487645035 -0300; this is not an audit of the latest write to an existing desc file. Exact last local-database write time is unestablished. S060 ends with a13:23:09 pacman-D invocation; S065 separately records zcode ALPM completion13:23:09. Supporting context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:40-41, .ufo/waves/round-18/l1-capture/host-capture-r18.txt:62-66, .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:97-105
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:41 — "2026-10-20 13:23:08.487645035 -0300 /var/lib/pacman/local". Source S060 (R18 L1 read-only capture).
 
@@ -381,7 +381,7 @@ Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:41 — "2026-10-20 
 
 Appended 2026-10-20 by round-18 NoticePackages. Historical snapshots preserved: the bytes quoted above stay unchanged. This notice supersedes that current-use statement only. Read-only scope: no package, reboot, or upgrade clearance.
 
-Current-use statement superseded: "`pacman-key` master key age is ~11 days; last data update ≈ Oct 11.". Now: Keyring data-update time is not established at R18. /usr/share/pacman/keyrings/archlinux.gpg has filemtime 2026-09-09 04:45:27 -0300, a file timestamp rather than an update or transaction time. The last logged pacman transaction is 2026-10-20 13:23:09 -0300 and does not by itself identify a keyring update. Pubring mtime, keyring install time and master-key age were not measured at R18.
+Current-use statement superseded: "`pacman-key` master key age is ~11 days; last data update ≈ Oct 11.". Now: Keyring data-update time is not established at R18. /usr/share/pacman/keyrings/archlinux.gpg has filemtime 2026-09-09 04:45:27 -0300, a file timestamp rather than an update or transaction time. The last captured pacman.log event is 2026-10-20 13:23:09 -0300 and does not by itself identify a keyring update. Pubring mtime, keyring install time and master-key age were not measured at R18. [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:62-74]
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:90 — "2026-09-09 04:45:27.000000000 -0300 /usr/share/pacman/keyrings/archlinux.gpg". Source S060 (R18 L1 read-only capture).
 
@@ -397,7 +397,7 @@ Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:28 — "/var/lib/pa
 
 Appended 2026-10-20 by round-18 NoticePackages. Historical snapshots preserved: the bytes quoted above stay unchanged. This notice supersedes that current-use statement only. Read-only scope: no package, reboot, or upgrade clearance.
 
-Current-use statement superseded: "`paccache` not installed (`pacman-contrib` absent)". Now: /usr/bin/paccache is present at R18 and pacman-contrib-1.13.1-1 is in the local database (capture line 36). The no-pruning-tooling statement is historical; pruning behaviour and cache contents were not re-measured.
+Current-use statement superseded: "`paccache` not installed (`pacman-contrib` absent)". Now: /usr/bin/paccache is present at R18 and pacman-contrib-1.13.1-1 is in the local database (capture line 36). The no-pruning-tooling statement is historical; pruning behaviour and cache contents were not re-measured. [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:27-39, .ufo/waves/round-18/l1-capture/host-capture-r18.txt:82-86]
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:83 — "/usr/bin/paccache". Source S060 (R18 L1 read-only capture).
 
@@ -405,7 +405,7 @@ Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:83 — "/usr/bin/pa
 
 Appended 2026-10-20 by round-18 NoticePackages. Historical snapshots preserved: the bytes quoted above stay unchanged. This notice supersedes that current-use statement only. Read-only scope: no package, reboot, or upgrade clearance.
 
-Current-use statement superseded: "no rollback net is configured". Now: At R18 /etc/snapper/configs lists home and root, and /etc/conf.d/snapper sets SNAPPER_CONFIGS="root home". This shows configuration presence only; snapshot existence, retention and restore behaviour were not measured, so no rollback coverage is claimed.
+Current-use statement superseded: "no rollback net is configured". Now: S060 observes snapper configuration names home/root and settings, not a current snapshot inventory. Earlier R17 captures recorded snapshots#1/#2 ro=true and list-configs home/root; their persistence into R18 and restoration feasibility are not established. Supporting context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:75-81, .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:159-167, .ufo/waves/round-17/l1-capture/fresh-capture.txt:42-46
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:80 — "SNAPPER_CONFIGS="root home"". Source S060 (R18 L1 read-only capture).
 
@@ -413,7 +413,7 @@ Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:80 — "SNAPPER_CON
 
 Appended 2026-10-20 by round-18 NoticePackages. Historical snapshots preserved: the bytes quoted above stay unchanged. This notice supersedes that current-use statement only. Read-only scope: no package, reboot, or upgrade clearance.
 
-Current-use statement superseded: "byte-identical to the header pin (`:3-5`)". Now: uname -r at R18 is 7.2.11-arch1-1, not 7.2.3-arch1-3; the 2026-10-14 header-pin hold is historical.
+Current-use statement superseded: "byte-identical to the header pin (`:3-5`)". Now: uname -r at R18 is 7.2.11-arch1-1, not 7.2.3-arch1-3; the 2026-10-14 header-pin hold is historical. [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:5-7, .ufo/waves/round-18/l1-capture/host-capture-r18.txt:92-96]
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:6 — "7.2.11-arch1-1". Source S060 (R18 L1 read-only capture).
 
@@ -424,3 +424,18 @@ Appended 2026-10-20 by round-18 NoticePackages. Historical snapshots preserved: 
 Current-use statement superseded: "elephant 2.21.0-1". Now: The elephant base package is elephant-2.22.1-1 in the local database at R18 (capture line 30), and a pacman -U log entry dated 2026-10-20 09:31:03 -0300 lists elephant-2.22.1-1 among its inputs (capture line 72). The 2.21.0-1 census entry is historical; other elephant-* sub-package versions were not re-measured.
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:30 — "/var/lib/pacman/local/elephant-2.22.1-1". Source S060 (R18 L1 read-only capture).
+
+
+## R18-FRESHNESS — remaining package census and reachability neighbors (2026-10-20)
+
+Sources S060/S065 and earlier S051/S052. These notices cover the complete named neighboring paragraphs, preserving all original dated receipts.
+
+- R18-FRESH-SUPPLEMENT-45: the old foreign16/explicit-foreign3 and explicit207 figures remain dated observations, not a current classification. S060 counts local-db entries and records later archive names; S065 records package events but neither capture classifies the present foreign/explicit set [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:24-39, .ufo/waves/round-18/l1-capture/host-capture-r18.txt:70-74]. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:25.
+
+- R18-FRESH-SUPPLEMENT-46: the old zero-pending readings at71 and302 are not current pending results. S060 contains no pending query result, and S065 historical package events cannot yield current pending updates; current pending count is UNKNOWN, not assertedzero [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:1-99]. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:24.
+
+- R18-FRESH-SUPPLEMENT-47: the no-repository/no-yay-cache wording at65–69 and298–300 is historical. S060 records yay-cache archive paths and S065 confirms historical elephant upgrades, but present configured repository membership and archive/cache persistence were not re-probed here [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:70-74, .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:40-69]. Capture: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:43.
+
+- R18-FRESH-SUPPLEMENT-48: S060 lists snapper0.13.2-1 and limine-snapper-sync1.32.1-2 in local metadata and config names home/root. The old versions and empty-config current-use reading at277–279 are superseded; R17 snapshots remain historical observations, not proof of present persistence/restore [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:27-39, .ufo/waves/round-18/l1-capture/host-capture-r18.txt:75-81, .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:159-167]. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:31.
+
+No binary package query, configuration write, restart, rebuild or recovery action was performed or authorized by this notice.

@@ -37,7 +37,6 @@ import tempfile
 from collections import namedtuple
 from pathlib import Path
 
-EXIT = 2
 REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
 BRANCH = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9._/-]*$")
 E_BRANCH_INVALID = "E-BRANCH-INVALID"
@@ -61,7 +60,8 @@ class RevisionError(Exception):
 
 def clean_env():
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
     return env
 
 
@@ -233,6 +233,8 @@ def selftest():
         expect("git-failed-origin-blob", lambda: bind(repo, tip), err(E_GIT))
         run(repo, "update-ref", "refs/remotes/origin/master", tip)
         expect("not-a-repo", lambda: bind(Path(tmp) / "absent", tip), err(E_GIT))
+        expect("git-config-isolated", lambda: clean_env()["GIT_CONFIG_NOSYSTEM"] == "1"
+               and clean_env()["GIT_CONFIG_GLOBAL"] == os.devnull, ok(True))
 
     total = passed + len(failures)
     status = "PASS" if not failures else "FAIL"

@@ -1,0 +1,99 @@
+     1	# tsukuroi round 18 L1 capture — read-only; script sha256 bfe32ba3076512bfa8b24fe7f00c6f32c99bfad04c5daa20d3fd6f22e415824f
+     2	$ date -Is
+     3	2026-10-20T16:06:17-03:00
+     4	[rc=0]
+     5	$ uname -r
+     6	7.2.11-arch1-1
+     7	[rc=0]
+     8	$ cat /proc/cmdline
+     9	resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+    10	[rc=0]
+    11	$ cat /sys/module/zswap/parameters/enabled /sys/module/zswap/parameters/max_pool_percent /sys/module/zswap/parameters/compressor
+    12	Y
+    13	25
+    14	zstd
+    15	[rc=0]
+    16	$ systemctl is-active earlyoom; systemctl is-enabled earlyoom
+    17	active
+    18	enabled
+    19	[rc=0]
+    20	$ systemctl show earlyoom -p ActiveEnterTimestamp -p ExecMainPID --no-pager
+    21	ActiveEnterTimestamp=Tue 2026-10-20 09:57:11 -03
+    22	ExecMainPID=1379
+    23	[rc=0]
+    24	$ ls -1 /var/lib/pacman/local | grep -vc "^ALPM_DB_VERSION$"
+    25	1395
+    26	[rc=0]
+    27	$ ls -1d /var/lib/pacman/local/earlyoom-[0-9]* /var/lib/pacman/local/mkinitcpio-[0-9]* /var/lib/pacman/local/linux-[0-9]* /var/lib/pacman/local/linux-lts-[0-9]* /var/lib/pacman/local/snapper-[0-9]* /var/lib/pacman/local/limine-snapper-sync-[0-9]* /var/lib/pacman/local/pacman-contrib-[0-9]* /var/lib/pacman/local/sysstat-[0-9]* /var/lib/pacman/local/nvidia-open-dkms-[0-9]* /var/lib/pacman/local/elephant-[0-9]* /var/lib/pacman/local/archlinux-keyring-[0-9]*
+    28	/var/lib/pacman/local/archlinux-keyring-20260909-1
+    29	/var/lib/pacman/local/earlyoom-1.9.0-1
+    30	/var/lib/pacman/local/elephant-2.22.1-1
+    31	/var/lib/pacman/local/limine-snapper-sync-1.32.1-2
+    32	/var/lib/pacman/local/linux-7.2.11.arch1-1
+    33	/var/lib/pacman/local/linux-lts-6.18.57-2
+    34	/var/lib/pacman/local/mkinitcpio-42.2-1
+    35	/var/lib/pacman/local/nvidia-open-dkms-615.78.08-1
+    36	/var/lib/pacman/local/pacman-contrib-1.13.1-1
+    37	/var/lib/pacman/local/snapper-0.13.2-1
+    38	/var/lib/pacman/local/sysstat-12.8.0-1
+    39	[rc=0]
+    40	$ stat -c "%y %n" /var/lib/pacman/local /var/lib/pacman/sync/*.db
+    41	2026-10-20 13:23:08.487645035 -0300 /var/lib/pacman/local
+    42	2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/core.db
+    43	2026-10-17 22:37:30.000000000 -0300 /var/lib/pacman/sync/extra.db
+    44	2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/multilib.db
+    45	2026-10-20 09:09:26.000000000 -0300 /var/lib/pacman/sync/omarchy.db
+    46	2026-10-16 19:32:53.000000000 -0300 /var/lib/pacman/sync/openai-chatgpt.db
+    47	[rc=0]
+    48	$ ls -1 /var/lib/pacman/sync/
+    49	core.db
+    50	extra.db
+    51	multilib.db
+    52	omarchy.db
+    53	openai-chatgpt.db
+    54	openai-chatgpt.db.sig
+    55	[rc=0]
+    56	$ ls -l /var/lib/pacman/db.lck
+    57	ls: cannot access '/var/lib/pacman/db.lck': No such file or directory
+    58	[rc=2]
+    59	$ wc -l /var/log/pacman.log
+    60	3169 /var/log/pacman.log
+    61	[rc=0]
+    62	$ tail -n 3 /var/log/pacman.log
+    63	[2026-10-20T13:23:09-0300] [ALPM] running 'gtk-update-icon-cache.hook'...
+    64	[2026-10-20T13:23:09-0300] [ALPM] running 'update-desktop-database.hook'...
+    65	[2026-10-20T13:23:09-0300] [PACMAN] Running 'pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- zcode'
+    66	[rc=0]
+    67	$ grep -c "\[ALPM\] upgraded" /var/log/pacman.log
+    68	820
+    69	[rc=0]
+    70	$ grep -n "pacman -U" /var/log/pacman.log | tail -n 3
+    71	2111:[2026-10-15T14:27:52-0300] [PACMAN] Running '/usr/bin/pacman -U --noconfirm /tmp/rea-hopper-aOrd39/hopper.arch'
+    72	3092:[2026-10-20T09:31:03-0300] [PACMAN] Running 'pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/elephant/elephant-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant/elephant-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-clipboard/elephant-clipboard-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-clipboard/elephant-clipboard-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-runner/elephant-runner-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-runner/elephant-runner-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-calc/elephant-calc-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-calc/elephant-calc-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-providerlist/elephant-providerlist-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-providerlist/elephant-providerlist-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-symbols/elephant-symbols-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-symbols/elephant-symbols-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-files/elephant-files-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-files/elephant-files-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-websearch/elephant-websearch-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-websearch/elephant-websearch-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-desktopapplications/elephant-desktopapplications-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-desktopapplications/elephant-desktopapplications-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-bluetooth/elephant-bluetooth-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-bluetooth/elephant-bluetooth-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-unicode/elephant-unicode-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-unicode/elephant-unicode-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-todo/elephant-todo-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-todo/elephant-todo-debug-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-menus/elephant-menus-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant-menus/elephant-menus-debug-2.22.1-1-x86_64.pkg.tar.zst'
+    73	3161:[2026-10-20T13:23:08-0300] [PACMAN] Running 'pacman -U --needed --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/zcode/zcode-3.16.2-1-x86_64.pkg.tar.zst'
+    74	[rc=0]
+    75	$ ls -1 /etc/snapper/configs
+    76	home
+    77	root
+    78	[rc=0]
+    79	$ grep -h "^SNAPPER_CONFIGS" /etc/conf.d/snapper
+    80	SNAPPER_CONFIGS="root home"
+    81	[rc=0]
+    82	$ command -v paccache sar atop dool dstat earlyoom
+    83	/usr/bin/paccache
+    84	/usr/bin/sar
+    85	/usr/bin/earlyoom
+    86	[rc=0]
+    87	$ ls -1 /var/log/sa
+    88	[rc=0]
+    89	$ stat -c "%y %n" /usr/share/pacman/keyrings/archlinux.gpg
+    90	2026-09-09 04:45:27.000000000 -0300 /usr/share/pacman/keyrings/archlinux.gpg
+    91	[rc=0]
+    92	$ dkms status
+    93	nvidia/615.78.08, 6.18.57-2-lts, x86_64: installed
+    94	nvidia/615.78.08, 7.2.11-arch1-1, x86_64: installed
+    95	nvidia/615.78.08, 7.2.3-arch1-3, x86_64: installed (Original modules exist) (Built modules are missing in the kernel modules folder)
+    96	[rc=0]
+    97	$ findmnt -no FSTYPE,OPTIONS /
+    98	btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@
+    99	[rc=0]

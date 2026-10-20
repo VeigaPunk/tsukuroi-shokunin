@@ -709,6 +709,13 @@ def selftest():
     zero_reader.set(target_rev, data["path1"], zero_target)
     cases.append(("capture-zero", _json_bytes(bad_capture_zero), zero_reader, False,
                   FAIL, {"NOTICE-CAPTURE-REF"}, 1, 2))
+    eof_ref = f"{data['cap1']}:999999"
+    eof_doc = mutate_record(0, capture_ref=eof_ref)
+    eof_reader = reader()
+    eof_reader.set(target_rev, data["path1"],
+                   data["base1"] + data["notice1"].replace(data["ref1"], eof_ref).encode())
+    cases.append(("capture-line-beyond-eof", _json_bytes(eof_doc), eof_reader, False,
+                  FAIL, {"NOTICE-CAPTURE-LINE"}, 1, 2))
     traversal = mutate_record(0, path="corpus/knowledge/../../outside.md")
     cases.append(("path-traversal", _json_bytes(traversal), reader(), False,
                   FAIL, {"NOTICE-PATH"}, 1, 2))

@@ -1,0 +1,13 @@
+diff --git a/tools/check-revision-binding.py b/tools/check-revision-binding.py
+index 1a46e57..7ab540f 100755
+--- a/tools/check-revision-binding.py
++++ b/tools/check-revision-binding.py
+@@ -259,7 +259,7 @@ def shared(source):
+     uses = any((isinstance(fn, ast.Attribute) and fn.attr == "bind"
+                 and isinstance(fn.value, ast.Name) and fn.value.id in modules)
+                or (isinstance(fn, ast.Name) and fn.id in bindings) for fn in calls)
+-    return uses, copies
++    return uses or bool(SHARED_IMPORT.search(source)), copies
+ 
+ 
+ def probe_commit(sandbox, tip, branch):

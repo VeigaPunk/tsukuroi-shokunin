@@ -1,0 +1,13 @@
+# FxFresh05 — C3 driver-firmware-plane
+
+## FAILS (medium)
+- **R17-FRESH-42 — partial.** `corpus/knowledge/freshness-recheck-r17.json:418` says the sync DBs “were refreshed by” the 2026-10-20 09:15 `-Syu`. Captures show only the command invocation (`.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:59`) and “synchronizing package lists” / upgrade-start log markers (`.ufo/waves/round-17/l1-capture/fresh-capture.txt:7-8`); `core/extra/multilib.db` mtimes are still Oct 17, while `omarchy.db` is Oct 20 09:09 (`fresh-capture.txt:10-14`). These do not prove per-DB refresh completion. Correct the reason to “sync requested; per-DB refresh result unknown,” and cite `:7-14` plus the invocation line. Article `corpus/knowledge/driver-firmware-plane.md:279` correctly states the dated mtimes without claiming refresh.
+- **R18-FRESH-SUPPLEMENT-12 — partial.** The local-db entry is supported by `.ufo/waves/round-18/l1-capture/host-capture-r18.txt:27-39`; `/usr/bin/paccache` is at `:82-86`, not the linked `:36`. Cite both or remove the paccache aside. “checkupdates itself was not invoked or located in R18” (`corpus/knowledge/driver-firmware-plane.md:302`) overstates absence: `corpus/lessons/round-18.md:57` says this is one wrapper capture, not exhaustive shell tracing. Narrow to “not observed in this captured wrapper; availability unverified.” There is no earlier paccache-absence claim in this file; clarify that the Oct-14 historical observation remains intact and only present availability is unknown. Its `reason` is directionally valid (the premise recurs elsewhere) but should name the present-use ambiguity.
+
+## VALID / coverage
+R17-FRESH-37–41 and 43–47 match the captured values; the R17 notice keeps unrecaptured NVIDIA parameters unknown (`corpus/knowledge/driver-firmware-plane.md:272`). The R18 package-presence observation is supported. The file has one absence locus (`:178-179`); `:260-261` recommends a method, not current executable availability. Matching R18 notices exist across the corpus: NoticePackages-08 and supplements 01, 02, 09, 12, 19, 21, 26, 32, 35.
+
+## Residual risk / verification gaps
+No enabled→active-count or config→rollback inference appears in this file's freshness entries; the `EnableGpuFirmware` parameter at `corpus/knowledge/driver-firmware-plane.md:107-108` is a dated observation, and R17 explicitly marks it unrecaptured/unknown at `:272`. LSP is not mounted (`read xd://lsp`: no such tool); grep was only a literal locator, not semantic proof. Read-only seat did not run Git to reconstruct a baseline diff.
+
+Scope: executed=none

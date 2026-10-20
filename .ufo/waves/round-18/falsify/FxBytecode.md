@@ -1,0 +1,11 @@
+# FxBytecode — read-only source review
+
+**Finding: SURVIVES (static guard order; no actionable defect found).** All nine original consumers set `sys.dont_write_bytecode = True` immediately before their `_revision` import: `tools/check-boot-chain.py:53-54`, `check-freshness-r17.py:51-52`, `check-locator-clarification.py:18-19`, `check-recheck-commands.py:53-54`, `check-root-dac-correction.py:28-29`, `check-seat-scope.py:33-34`, `check-section-citations.py:35-36`, `check-source-scope-correction.py:14-15`, and `measure-update-recheck.py:33-34`. The new gate likewise sets it at `tools/check-appended-notices.py:17` before `from _revision import` at `:22`; earlier imports are standard-library imports. The independent judge imports no `_revision` (`check-revision-binding.py:56-57`) and runs tool files as scripts (`:314-321`).
+
+**Fixture copies: SURVIVES.** Copied CLI fixtures include `_revision.py` beside the copied tool: `check-freshness-r17.py:466-469`, `check-root-dac-correction.py:453-455`, `check-seat-scope.py:307-308`, `check-source-scope-correction.py:467-469`, `measure-update-recheck.py:533-534`. The judge clones the lane (`check-revision-binding.py:173-185`), so its sandbox contains the module too.
+
+**No repo `__pycache__`: SURVIVES by source reasoning; runtime absence UNPROVEN.** Direct script runs do not cache `__main__`; the only local module import is guarded. Literal dynamic-import search found no loader/importlib sites. Current `tools/__pycache__` path is absent; `.gitignore:2` ignores such directories.
+
+**Evidence / residual risk.** Author reports record gate selftest 46/46 (`BuildNoticeGate.md:5`), consumer selftests, and shared-module 37/37; these do not assert cache absence. `BuildNoticeGate.md:17` records `--selftest` followed by `rm -rf .../tools/__pycache__`; chronology does not establish whether that run created it or used pre-guard code. `MigSourceScope.md:6` says its selftests were not run. No tests run here. LSP unavailable: `read xd://lsp` returned “No such tool”; grep was literal fallback, not semantic proof. No Git diff/runtime check performed.
+
+Scope: executed=none

@@ -552,3 +552,12 @@ C1's final domain counting command is `python3 tools/check-boot-chain.py --revis
 C3 correction sweep now includes49 primary records across the eight routed files plus39 neighboring current-use restatements across17 paths total (implementation registry, not an observed pass). Count actual `resolved_records` and `path_count`, keep primary/supplementary ID cohorts separate, and require all primary paths represented. No total-host-freshness or uncovered coverage claim is introduced.
 
 Capability count clarification (supporting defect4 repair, no claim or new row): the historical boot-chain-audit cell at:164 says44/44. Superseded by the existing landed round17 measurement `90037c2`, `.ufo/waves/round-17/measure/final/selftests.txt` audit45/45 and round17 outcome row:520. No ordinal or repertoire credit is inferred from this correction.
+
+
+### Final measurement contract after falsification
+
+The initial structural C1 count0→3+ and build88-record C3 figures above are superseded for final admission, not rewritten historical snapshots. Required C1 command is `python3 tools/check-boot-chain.py --revision <baseline-or-target> --statement-corrections --registry-from <landed-target>`: fixed metadata held constant must produce four named unresolved corrections before and4/4 after. Structural notice counter is supporting evidence only.
+
+C2 requires `consolidation_status=PASS` / `consolidated_tools=9`, as well as consistent9/shared9/localcopies0 among the original nine. Discovered tools remain fully observed but informational; their failures cannot alter this claim's grade. Refused revision payloads are diagnostics, never measured commit certificates.
+
+Final candidate C3 has93 records across17paths:49 primary across the eight routed files and44 supplementary neighboring restatements. This includes the sar standing row and remaining AUR classification/age/orphan neighbors. No host-wide/corpus-wide freshness completeness is claimed; resolution means source-bounded stale guidance has a validated notice, not that all host questions are answered. Six new A/mined source rows give59→65; S065 resolves retrospective ALPM events, not current pending/repository/ABI/rollback state. Main immutable evidence and final measured verdicts follow after all falsifiers settle. Ordinals and capability roster remain unchanged.

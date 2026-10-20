@@ -1,0 +1,9 @@
+# FxScore — scorecard review
+
+**Finding — MEDIUM — C1 baseline command is not documented coherently.** `SCORECARD.md:537` still states “0→3 or more” and names the generic notice checker as C1’s measurement; `:550` supersedes that with four fixed corrections and the domain checker, but its command omits `--registry-from <landing>`. The omission matters: `tools/check-boot-chain.py:654-658` returns one `CORR-REGISTRY-MISSING` when the registry is absent at the measured revision; `:820-822,1514-1515` shows `--registry-from` binds metadata from a landed revision while evaluating target bytes. Without it, the baseline run cannot produce the four named unresolved findings required for a true 0→4 measure. The planned harness does pass `--registry-from TIP` for both C1 revisions (`.ufo/waves/round-18/measure/run.py:63-65`), but that does not repair the scorecard’s conflicting/incomplete criterion. Append an explicit BASE/TARGET command pair, the four-ID baseline result, and label generic C1 checking structural-only.
+
+**SURVIVES:** All three declared ordinal deltas are 0 (`SCORECARD.md:537-539`); depth 8 is tied-lowest with adjacency 8 and C1 works depth; no capability/coverage/ordinal uplift is preclaimed (`:541`). C2’s recorded baseline is exactly 9 bound, 1 consistent, 0 shared, 9 local regex copies (`measure/c2-before-842a531.json`); target criteria name all three consolidation fields and keep discovered tools informational (`SCORECARD.md:538,550`). C3 registry inspection gives 88 records = 49 primary + 39 supplementary, 17 total paths / 8 primary paths, matching `:552`.
+
+**UNPROVEN / residual:** No final measure output or evaluator-digest file is present in the measure listing; `run.py:56-74` specifies hashing and commands, but no observed final command results/hashes exist yet. Treat as pending, not a pass. LSP device unavailable in mounted inventory; source passages were read directly, not inferred from grep.
+
+Scope: executed=none

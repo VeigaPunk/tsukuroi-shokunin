@@ -1,0 +1,12 @@
+Axes: proposition accuracy; capture-line traceability; same-premise coverage; historical-scope preservation.
+
+**Low — citation completeness (actionable).** All ten SKILL.md records have factually bounded `now` claims. `R18-FRESH-NoticeSkill-01`–`04` cite the supporting host-capture lines 6/32, 93–96, and 76–80 (`SKILL.md:1923-25`). Two absence/negative claims need wider locators: NoticeSkill-05 says the tail has no completion line but cites only line 65; cite `host-capture-r18.txt:62-66`. NoticeSkill-06 says no 41.1 entry appears but cites only line 34; cite the full command/output listing at `:27-39` (`SKILL.md:1926-27`). This preserves the historical facts and avoids inferring completion from invocation, refresh from mtime, rollback from config files, or counts from timer enablement. `R18-FRESH-SUPPLEMENT-01`–`04` are similarly bounded, but their appended citations are incomplete for compound `now` claims (`SKILL.md:1934-40`; registry `freshness-recheck-r18.json:496-533`):
+- SUPPLEMENT-01/02 cite host-capture `:83` for paccache, but omit `:36` for pacman-contrib 1.13.1. Add both exact locators to each notice; make each `reason` state this evidence and that checkupdates remains unverified.
+- SUPPLEMENT-03 cites `:17` only; `active` is there, while `enabled` is `:18` and installed version 1.9.0-1 is `:29`. Cite `:17-18,29`; make the reason identify those facts and retain the historical-OOM/other-guards limit.
+- SUPPLEMENT-04 cites command line `fresh-capture.txt:47` only; the four `enabled` outputs are `:48-51`. Cite `:47-51`; make the reason say the capture proves enablement, not active/all-timer count.
+
+**Coverage:** Main notices cover the direct current-use propositions. Supplement notices cover the live checkupdates/paccache and earlyoom neighbors. The other matches are dated snapshots (`SKILL.md:41,646,810,962,1645`) or conditional/check criteria (`:403-05,1659`), not false current observations; preserve them as history. No further same-premise current-use neighbor found.
+
+**Residual risk / gaps:** Snapper list-configs, snapshot inventory/restoration, checkupdates availability, and transaction completion remain unmeasured; the notices say so. The capture is bounded to the harness wrapper, not exhaustive audit authenticity. LSP device was unavailable (`xd://lsp` not mounted); grep was locator-only, with conclusions based on direct reads.
+
+Scope: executed=none

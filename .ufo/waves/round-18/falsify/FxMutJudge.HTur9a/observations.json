@@ -1,0 +1,483 @@
+{
+  "isolation": {
+    "clone_command": "git -c core.hooksPath=/dev/null clone --no-hardlinks --quiet --no-checkout <lane> <scratch>/clone; git checkout --quiet --detach 68a8ae035fde33360cbbe21dc92ca0eacf0a5b33; git remote remove origin",
+    "head": {
+      "command": [
+        "/usr/bin/git",
+        "-C",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "68a8ae035fde33360cbbe21dc92ca0eacf0a5b33\n"
+    },
+    "remotes": {
+      "command": [
+        "/usr/bin/git",
+        "-C",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+        "remote"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    "target": "68a8ae035fde33360cbbe21dc92ca0eacf0a5b33"
+  },
+  "mutations": [
+    {
+      "diff": {
+        "command": [
+          "/usr/bin/git",
+          "-c",
+          "core.hooksPath=/dev/null",
+          "-C",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "diff --git a/tools/check-revision-binding.py b/tools/check-revision-binding.py\nindex 1a46e57..7ab540f 100755\n--- a/tools/check-revision-binding.py\n+++ b/tools/check-revision-binding.py\n@@ -259,7 +259,7 @@ def shared(source):\n     uses = any((isinstance(fn, ast.Attribute) and fn.attr == \"bind\"\n                 and isinstance(fn.value, ast.Name) and fn.value.id in modules)\n                or (isinstance(fn, ast.Name) and fn.id in bindings) for fn in calls)\n-    return uses, copies\n+    return uses or bool(SHARED_IMPORT.search(source)), copies\n \n \n def probe_commit(sandbox, tip, branch):\n"
+      },
+      "exact_restoration": true,
+      "expected_detector": "dead-import-not-shared; local-copy-census; exit=1 assertion failures, not fixture exceptions",
+      "location": "tools/check-revision-binding.py:262",
+      "mutated_record": "deadimport-mutated",
+      "name": "deadimport",
+      "pristine_record": "pristine",
+      "restored_record": "deadimport-restored",
+      "verdict": "KILLED"
+    },
+    {
+      "diff": {
+        "command": [
+          "/usr/bin/git",
+          "-c",
+          "core.hooksPath=/dev/null",
+          "-C",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "diff --git a/tools/check-revision-binding.py b/tools/check-revision-binding.py\nindex 1a46e57..f217471 100755\n--- a/tools/check-revision-binding.py\n+++ b/tools/check-revision-binding.py\n@@ -341,7 +341,7 @@ def refused(sandbox, name, rev, want, branch=None):\n     doc = parse_json(text)\n     findings = doc.get(\"findings\") if isinstance(doc, dict) else None\n     return {\"exit\": code, \"finding\": found, \"binding_ids\": binding_ids(text),\n-            \"finding_count\": len(findings) if isinstance(findings, list) else None,\n+            \"finding_count\": len(binding_ids(text)) if isinstance(findings, list) else None,\n             \"ok\": code == CANNOT and found == want}\n \n \n"
+      },
+      "exact_restoration": true,
+      "expected_detector": "shared-extra-finding-bound-not-consistent; shared-extra-finding-failing-probes; exit=1 for accepting unrelated second refusal id",
+      "location": "tools/check-revision-binding.py:344",
+      "mutated_record": "extra-unrelated-mutated",
+      "name": "extra-unrelated",
+      "pristine_record": "deadimport-restored",
+      "restored_record": "extra-unrelated-restored",
+      "verdict": "KILLED"
+    },
+    {
+      "diff": {
+        "command": [
+          "/usr/bin/git",
+          "-c",
+          "core.hooksPath=/dev/null",
+          "-C",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "diff --git a/tools/check-revision-binding.py b/tools/check-revision-binding.py\nindex 1a46e57..e5462ea 100755\n--- a/tools/check-revision-binding.py\n+++ b/tools/check-revision-binding.py\n@@ -403,7 +403,6 @@ def probe_tool(sandbox, name, tip, unlanded_sha, parent=None, branch=\"master\", b\n             shared_cases[\"git-failed\"] = refused(sandbox, name, tip, ID_GIT)\n         finally:\n             must(git(sandbox, \"update-ref\", remote, tip), \"E-SANDBOX\", \"origin restore\")\n-    must(git(sandbox, \"update-ref\", \"-d\", remote), \"E-SANDBOX\", \"origin absent\")\n     try:\n         shared_cases[\"origin-absent\"] = accepted(sandbox, name, tip, tip)\n     finally:\n"
+      },
+      "exact_restoration": true,
+      "expected_detector": "shared-require-origin-bound-not-consistent; shared-require-origin-failing-probes; exit=1 after absent-origin stimulus disappears",
+      "location": "tools/check-revision-binding.py:406 (deleted)",
+      "mutated_record": "missingorigin-mutated",
+      "name": "missingorigin",
+      "pristine_record": "extra-unrelated-restored",
+      "restored_record": "missingorigin-restored",
+      "verdict": "KILLED"
+    },
+    {
+      "diff": {
+        "command": [
+          "/usr/bin/git",
+          "-c",
+          "core.hooksPath=/dev/null",
+          "-C",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "diff --git a/tools/check-revision-binding.py b/tools/check-revision-binding.py\nindex 1a46e57..199b307 100755\n--- a/tools/check-revision-binding.py\n+++ b/tools/check-revision-binding.py\n@@ -477,7 +477,7 @@ def measure(lane, tools_rev, branch=\"master\"):\n \n \n def grade(result):\n-    return (PASS if result[\"consistent_tools\"] == result[\"total\"] else FAIL), result[\"status\"]\n+    return (PASS if result[\"all_consistent_tools\"] == result[\"all_total\"] else FAIL), result[\"status\"]\n \n \n def emit_report(payload, code):\n"
+      },
+      "exact_restoration": true,
+      "expected_detector": "discover-unbound-independent; exit=1 when an informational unbound discovered tool contaminates original-nine grade",
+      "location": "tools/check-revision-binding.py:480",
+      "mutated_record": "discoveredunbound-mutated",
+      "name": "discoveredunbound",
+      "pristine_record": "missingorigin-restored",
+      "restored_record": "discoveredunbound-restored",
+      "verdict": "KILLED"
+    }
+  ],
+  "records": [
+    {
+      "after": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "5a5198951a36bc1e806cd403cccf5c10873741ce67f38ebeb3a2fec162fe780f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "before": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "5a5198951a36bc1e806cd403cccf5c10873741ce67f38ebeb3a2fec162fe780f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py",
+        "--selftest"
+      ],
+      "cwd": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+      "elapsed_seconds": 38.259,
+      "environment": {
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TMPDIR": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/.fxmutjudge-tmp"
+      },
+      "exit": 0,
+      "label": "pristine",
+      "stderr": "",
+      "stdout": "CHECK_REVISION_BINDING_SELFTEST: PASS (50 cases, 50 passed, 0 failed)\n"
+    },
+    {
+      "after": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "a56640f4b1dcd7d0d78538ee46f4b78318f29ec4f133f866f0a66fdcd87c90f9  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "before": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "a56640f4b1dcd7d0d78538ee46f4b78318f29ec4f133f866f0a66fdcd87c90f9  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py",
+        "--selftest"
+      ],
+      "cwd": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+      "elapsed_seconds": 39.32,
+      "environment": {
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TMPDIR": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/.fxmutjudge-tmp"
+      },
+      "exit": 1,
+      "label": "deadimport-mutated",
+      "stderr": "",
+      "stdout": "CHECK_REVISION_BINDING_SELFTEST: FAIL (50 cases, 48 passed)\n  dead-import-not-shared: got=(1, True, 0) want=(0, False, 0)\n  local-copy-census: got=(True, 1) want=(False, 1)\n"
+    },
+    {
+      "after": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "5a5198951a36bc1e806cd403cccf5c10873741ce67f38ebeb3a2fec162fe780f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "before": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "5a5198951a36bc1e806cd403cccf5c10873741ce67f38ebeb3a2fec162fe780f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py",
+        "--selftest"
+      ],
+      "cwd": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+      "elapsed_seconds": 38.598,
+      "environment": {
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TMPDIR": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/.fxmutjudge-tmp"
+      },
+      "exit": 0,
+      "label": "deadimport-restored",
+      "stderr": "",
+      "stdout": "CHECK_REVISION_BINDING_SELFTEST: PASS (50 cases, 50 passed, 0 failed)\n"
+    },
+    {
+      "after": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "7d99009e24f3f091e9a100e0f02a27343cba4acaebfa363a9767ea370461a033  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "before": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "7d99009e24f3f091e9a100e0f02a27343cba4acaebfa363a9767ea370461a033  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py",
+        "--selftest"
+      ],
+      "cwd": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+      "elapsed_seconds": 38.93,
+      "environment": {
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TMPDIR": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/.fxmutjudge-tmp"
+      },
+      "exit": 1,
+      "label": "extra-unrelated-mutated",
+      "stderr": "",
+      "stdout": "CHECK_REVISION_BINDING_SELFTEST: FAIL (50 cases, 48 passed)\n  shared-extra-finding-bound-not-consistent: got=(True, True, 9, 9, 0) want=(True, False, 9, 8, 1)\n  shared-extra-finding-failing-probes: got=set() want={'single-id'}\n"
+    },
+    {
+      "after": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "5a5198951a36bc1e806cd403cccf5c10873741ce67f38ebeb3a2fec162fe780f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "before": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "5a5198951a36bc1e806cd403cccf5c10873741ce67f38ebeb3a2fec162fe780f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py",
+        "--selftest"
+      ],
+      "cwd": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+      "elapsed_seconds": 37.012,
+      "environment": {
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TMPDIR": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/.fxmutjudge-tmp"
+      },
+      "exit": 0,
+      "label": "extra-unrelated-restored",
+      "stderr": "",
+      "stdout": "CHECK_REVISION_BINDING_SELFTEST: PASS (50 cases, 50 passed, 0 failed)\n"
+    },
+    {
+      "after": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "ac7d4a574d46290fdd281d5dac08fcb30705da640ecb33c52842da451719cfc1  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "before": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "ac7d4a574d46290fdd281d5dac08fcb30705da640ecb33c52842da451719cfc1  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py",
+        "--selftest"
+      ],
+      "cwd": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+      "elapsed_seconds": 37.43,
+      "environment": {
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TMPDIR": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/.fxmutjudge-tmp"
+      },
+      "exit": 1,
+      "label": "missingorigin-mutated",
+      "stderr": "",
+      "stdout": "CHECK_REVISION_BINDING_SELFTEST: FAIL (50 cases, 48 passed)\n  shared-require-origin-bound-not-consistent: got=(True, True, 9, 9, 0) want=(True, False, 9, 8, 1)\n  shared-require-origin-failing-probes: got=set() want={'origin-absent'}\n"
+    },
+    {
+      "after": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "5a5198951a36bc1e806cd403cccf5c10873741ce67f38ebeb3a2fec162fe780f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "before": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "5a5198951a36bc1e806cd403cccf5c10873741ce67f38ebeb3a2fec162fe780f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py",
+        "--selftest"
+      ],
+      "cwd": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+      "elapsed_seconds": 37.658,
+      "environment": {
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TMPDIR": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/.fxmutjudge-tmp"
+      },
+      "exit": 0,
+      "label": "missingorigin-restored",
+      "stderr": "",
+      "stdout": "CHECK_REVISION_BINDING_SELFTEST: PASS (50 cases, 50 passed, 0 failed)\n"
+    },
+    {
+      "after": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "1feb9c7778631ca76a45403a99f0ff2297a137f4c33eadaf6d981b6557710803  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "before": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "1feb9c7778631ca76a45403a99f0ff2297a137f4c33eadaf6d981b6557710803  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py",
+        "--selftest"
+      ],
+      "cwd": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+      "elapsed_seconds": 38.72,
+      "environment": {
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TMPDIR": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/.fxmutjudge-tmp"
+      },
+      "exit": 1,
+      "label": "discoveredunbound-mutated",
+      "stderr": "",
+      "stdout": "CHECK_REVISION_BINDING_SELFTEST: FAIL (50 cases, 49 passed)\n  discover-unbound-independent: got=(9, 9, 1, 0, 1) want=(9, 9, 1, 0, 0)\n"
+    },
+    {
+      "after": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "5a5198951a36bc1e806cd403cccf5c10873741ce67f38ebeb3a2fec162fe780f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "before": {
+        "command": [
+          "/usr/bin/sha256sum",
+          "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "5a5198951a36bc1e806cd403cccf5c10873741ce67f38ebeb3a2fec162fe780f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py\n"
+      },
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/tools/check-revision-binding.py",
+        "--selftest"
+      ],
+      "cwd": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone",
+      "elapsed_seconds": 38.027,
+      "environment": {
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TMPDIR": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-18/falsify/FxMutJudge.HTur9a/clone/.fxmutjudge-tmp"
+      },
+      "exit": 0,
+      "label": "discoveredunbound-restored",
+      "stderr": "",
+      "stdout": "CHECK_REVISION_BINDING_SELFTEST: PASS (50 cases, 50 passed, 0 failed)\n"
+    }
+  ]
+}

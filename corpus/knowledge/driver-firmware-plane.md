@@ -299,4 +299,9 @@ Appended 2026-10-20 by the tsukuroi round-17 L1; earlier bytes unchanged. Supers
 
 Sources S060, S051 and S052. This appended correction supersedes the current-use readings listed below and every repeated current-use restatement of the same premise in this file. Historical measurements remain intact. No package, service, rebuild, boot or rollback action is authorized.
 
-- R18-FRESH-SUPPLEMENT-12: prior locus `- `checkupdates` absent: not on PATH, and `pacman -Q pacman-contrib` →`. Now: pacman-contrib-1.13.1-1 is a local-db directory and /usr/bin/paccache resolves in the capture; the earlier package/paccache absence premise is not current. checkupdates itself was not invoked or located in R18, so its executable availability is unverified; no installation is advised. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:36.
+- R18-FRESH-SUPPLEMENT-12: prior locus `- `checkupdates` absent: not on PATH, and `pacman -Q pacman-contrib` →`. Now: S060 lists pacman-contrib-1.13.1-1 in local metadata and resolves /usr/bin/paccache; old package/paccache-absence guidance is not current. This capture does not query or resolve checkupdates, so its availability and any use elsewhere remain unknown; no installation is advised [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:27-39, .ufo/waves/round-18/l1-capture/host-capture-r18.txt:82-86]. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:36.
+
+
+## R18-PRECISION — repository timestamp
+
+The R17 notice's 'omarchy DB refreshed' wording is withdrawn as a claim about local refresh timing: the cited value is a filesystem mtime only. S060:42–46 likewise captures filesystem mtimes; neither timestamp read proves local acquisition, synchronization or content freshness. Current pending updates remain unmeasured. The earlier dated timestamp stays visible, but is not a refresh receipt.

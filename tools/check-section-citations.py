@@ -908,7 +908,7 @@ def main(argv=None):
     if args.selftest:
         return selftest()
     branch = args.branch
-    revision, branch_tip = "worktree", None
+    revision, branch_tip = args.revision, None
     try:
         revision_binding = bind(ROOT, args.revision, branch)
         revision = revision_binding.sha

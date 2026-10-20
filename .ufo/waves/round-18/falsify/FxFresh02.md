@@ -1,0 +1,12 @@
+## C3 — `aur-risk-plane.md`
+
+Registry `freshness-recheck-r18.json:266-363` has exactly ten Aur records. Verdicts: **01 PARTIAL; 02 PARTIAL; 03 SURVIVES; 04 FAIL; 05 FAIL; 06 FAIL; 07 SURVIVES; 08 SURVIVES; 09 SURVIVES; 10 PARTIAL.**
+
+- **06** (`aur-risk-plane.md:393`) says “upgraded-since … never is superseded by … pacman -U transaction.” Capture `host-capture-r18.txt:72` is only a `Running 'pacman -U…'` log line; it does not prove completion/event class. This conflicts with its own reason and repair rule `build/integration-proposition-repairs.json:9-10`. State version 2.22.1 is observed at capture `:30`; mark event history unknown absent ALPM result evidence.
+- **04** cites only `:73` (zcode); elephant invocation is `:72`. Cite `:72-73` and say logged invocations, not completed transactions. **05** cites `:54` (`openai-chatgpt.db.sig`), not the directory listing; cite `:48-55` and limit “not on disk” to `/var/lib/pacman/sync/offline.db`. **10** cite `:46` for openai mtime and `:48-55` for listing/absence, not just `:53`.
+- **01** `Now` matches `:24-25`, but its reason overstates: 1395 local-directory entries is not a current `pacman -Q` result. Explicitly leave `-Q` count unknown; mark same-paragraph `-Qe`/`-Qme` counts (aur-risk `:40-42`) historical too. **02** correctly says removals were invocations and membership unknown; extend its baseline quote to include “No foreign package is an orphan” (`:46`) and formal capture reference to `boot-chain-capture.txt:57,67` (webp is at `:67`).
+- **03, 07, 08, 09** are cautiously worded: respectively preserve invocation-vs-outcome, mtime-vs-refresh, validation/event unknown, and unit/process unknown, supported by capture `:30/:72`, `:45`, and `:72`.
+
+**Missing same-premise coverage:** R4 “fires for 14/16” and §2 “channel is dead”/no-repair claims (`aur-risk :108-115,200`) need current `[unk]` notice: config/package-resolution was not re-read. R5 `:201` also needs current-use coverage; no unit/process check supports it, and its listed 12 provider packages + base elephant + two AUR packages total 15 code-bearing packages, not 14. R9 elephant-family age (`:205`) is for the superseded version; current build date is unknown. Bounded unknowns: -U outcome/event class, current validation, orphan membership, repo resolution/config, unit/process state, and replacement-package metadata.
+
+Scope: executed=none

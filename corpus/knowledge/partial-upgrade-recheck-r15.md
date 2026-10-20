@@ -191,4 +191,9 @@ Appended after the R17 notice above. Record R17-FRESH-PARTIAL-05 calls the `/new
 
 Sources S060, S051 and S052. This appended correction supersedes the current-use readings listed below and every repeated current-use restatement of the same premise in this file. Historical measurements remain intact. No package, service, rebuild, boot or rollback action is authorized.
 
-- R18-FRESH-SUPPLEMENT-33: prior locus `**Boot coupling is latent, not active.** Installed `mkinitcpio 41.1-1` has`. Now: local-db directory mkinitcpio-42.2-1 is observed; the41.1-installed/42.2-pending current-use premise is superseded. Current pending row, if any, is unmeasured; the R17 image/symlink analysis governs compatibility, not a new upgrade clearance. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:34.
+- R18-FRESH-SUPPLEMENT-33: prior locus `**Boot coupling is latent, not active.** Installed `mkinitcpio 41.1-1` has`. Now: local-db directory mkinitcpio-42.2-1 is observed; the41.1-installed/42.2-pending current-use premise is superseded. Current pending row, if any, is unmeasured; the R17 image/symlink analysis governs compatibility, not a new upgrade clearance [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:27-39, .ufo/waves/round-18/l1-capture/host-capture-r18.txt:1-99, .ufo/waves/round-18/l1-capture/capture-r18.sh:1-29]. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:34.
+
+
+## R18-PRECISION — historical upgrade evidence
+
+The R17 notices' full-upgrade 'ran/executed' wording must not turn a Running/starting header into a client completion or health verdict. S065:18 now records historical ALPM transaction completion09:16:47 alongside the separately observed package changes. The symlink/compatibility statement remains the bounded R17 image and namespace-emulation observation, not an R18 extraction of every current image. S060 re-observes the package directory, not UKI identity or current pending rows.

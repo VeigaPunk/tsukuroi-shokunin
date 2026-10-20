@@ -1,0 +1,9 @@
+# FxCorrection2 — R18-CORR-02
+
+**P2 — Source-scope binding is incomplete in `--statement-corrections`.** Current evidence survives: `boot-chain-r17.md:40-42` historically cites only B182/B251; appended notice `:201-208` corrects it to B182/B198/B251. Capture B170-184 identifies Linux; B186-200 identifies linux-lts; init SHA-256 at B182, B198, B251 is identical (`62fcc3a9…`). But `tools/check-boot-chain.py:622-630` only parses hash-line syntax/suffixes and compares values; it never validates the surrounding UKI headings. Since `main` reads capture text from the candidate revision (`:1541-1544`), a changed heading could mislabel B198 while preserving a passing digest. The mode independently pins CORR-02's record/text/source line (`:85-91`, `:692-737`) and has an omitted-LTS-citation fixture (`:1441-1449`), but does not independently establish image-path provenance. Hooks likewise need both image sets: B183-184, B199-200, and installed B252-253.
+
+**SURVIVES — correction facts.** B59 is the complete pacman-log argv: 12 named packages (capture `:59`); B82 is a truncated sudo-journal command ending at `linux-lts`, so it cannot establish the full argv/count. This is 12 packages, not 13 invocations. For the mtime correction, capture `:120-125` places B124 (09:26:22) under `/boot/EFI/Linux`; B115 (09:29:18) is in the separate `limine_history` directory (`:110-116`). However checker `:640-650` checks timestamps/basenames, not either directory heading. S058 source semantics versus S051 host-byte equality are scoped separately (`boot-chain-r17.md:228-230`).
+
+**Verification gaps:** no execution; current capture contexts were read, not tested against a mutated heading. LSP device unavailable (`xd://lsp` returned “No such tool”); no grep used. No gate exit observed.
+
+Scope: executed=none

@@ -358,7 +358,7 @@ Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays 
 
 ## R18-FRESHNESS — orphan set (2026-10-20)
 
-Now (2026-10-20): removal invocations name electron39 and mbedtls at 2026-10-20 08:14:12 -0300 and webp-pixbuf-loader at09:39:21 (B:57,67); invocation is not a completion receipt, and current orphan membership is [unk] because no orphan sweep ran.
+Now (2026-10-20): S065 records removal of mbedtls and electron39 at08:14:13 and webp-pixbuf-loader at09:39:21. Those removal events do not classify the current orphan set, which was not queried here [Supporting capture context: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:4-8, .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:89-94].
 
 Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:57 (S051).
 
@@ -366,7 +366,7 @@ Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays 
 
 ## R18-FRESHNESS — upgrade history of the register (2026-10-20)
 
-Now (2026-10-20): the 09:31:03 pacman -U invocation names a yay-cache elephant-2.22.1-1 archive; independently the R18 local database lists elephant-2.22.1-1 (:30); invocation alone does not certify its outcome.
+Now (2026-10-20): S065 records base elephant upgraded2.21.0-1→2.22.1-1 at09:31:03 and the ALPM transaction completed09:31:04; S060 separately lists elephant-2.22.1-1 in local metadata. These are historical package events, not current unit/ABI/repair clearance [Supporting capture context: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:40-69, .ufo/waves/round-18/l1-capture/host-capture-r18.txt:27-39].
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:72 (S060).
 
@@ -374,7 +374,7 @@ Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays 
 
 ## R18-FRESHNESS — no pacman -U line (2026-10-20)
 
-Now (2026-10-20): pacman -U transactions exist at 2026-10-20 09:31:03 -0300 for elephant-2.22.1-1 and at 13:23:08 -0300 for zcode-3.16.2-1.
+Now (2026-10-20): S060 records the two pacman -U invocation headers; S065 separately supplies ALPM completion records for elephant09:31:04 and zcode13:23:09. Header text alone was insufficient, and no client exit status or zcode foreign classification is claimed [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:70-74, .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:40-69, .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:97-101].
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:73 (S060).
 
@@ -382,7 +382,7 @@ Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays 
 
 ## R18-FRESHNESS — offline.db snapshot (2026-10-20)
 
-Now (2026-10-20): offline.db is absent from the 2026-10-20 sync directory listing (core.db, extra.db, multilib.db, omarchy.db, openai-chatgpt.db); the 1275-entry snapshot is not on disk at R18.
+Now (2026-10-20): offline.db is absent from the 2026-10-20 sync directory listing (core.db, extra.db, multilib.db, omarchy.db, openai-chatgpt.db); the 1275-entry snapshot is not on disk at R18 [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:48-55].
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:54 (S060).
 
@@ -390,7 +390,7 @@ Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays 
 
 ## R18-FRESHNESS — elephant register row (2026-10-20)
 
-Now (2026-10-20): the R18 local db lists elephant-2.22.1-1, not 2.21.0-1, and the upgraded-since value never is superseded by the 09:31:03 pacman -U transaction.
+Now (2026-10-20): base elephant metadata is2.22.1-1 and S065 records an upgrade from2.21.0-1, so the historical upgraded-since=never field is superseded for that package. S065 contains thirteen elephant-family upgraded events, separate from installed debug packages [Supporting capture context: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:43-69, .ufo/waves/round-18/l1-capture/host-capture-r18.txt:27-39].
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:30 (S060).
 
@@ -406,7 +406,7 @@ Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays 
 
 ## R18-FRESHNESS — R2 validation count (2026-10-20)
 
-Now (2026-10-20): the 09:31:03 pacman -U invocation names elephant archives; reinstalled versus upgraded event class and current %VALIDATION% are [unk] because those event/property reads were not captured.
+Now (2026-10-20): S065 identifies thirteen elephant-family events as upgraded, not reinstalled, and records ALPM transaction completion. Current %VALIDATION% fields were not read by these captures and remain unknown here [Supporting capture context: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:43-69].
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:72 (S060).
 
@@ -414,7 +414,7 @@ Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays 
 
 ## R18-FRESHNESS — running state (2026-10-20)
 
-Now (2026-10-20): the 2026-10-14 unit observation is historical; the later09:31:03 invocation names elephant archives, but current unit state and process version remain [unk].
+Now (2026-10-20): S065 confirms the historical elephant-family package upgrade events; present unit activity and running-process versions remain unknown because package events do not answer those questions [Supporting capture context: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:43-69].
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:72 (S060).
 
@@ -422,7 +422,7 @@ Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays 
 
 ## R18-FRESHNESS — configured sync databases (2026-10-20)
 
-Now (2026-10-20): pacman.conf was not re-read at R18; the sync directory holds openai-chatgpt.db (mtime 2026-10-16) and no offline.db, so the four-section list is [unk] for current use.
+Now (2026-10-20): pacman.conf was not re-read at R18; the sync directory holds openai-chatgpt.db (mtime 2026-10-16) and no offline.db, so the four-section list is [unk] for current use [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:48-55].
 
 Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:53 (S060).
 
@@ -444,3 +444,25 @@ Procedure (file reads only):
 - `git -C ~/.cache/yay/<pkg> log -1 --format='%H %cI %s'` — AUR clone head for channel B.
 
 Not replaced: the pending-upgrade count (-Qu) and the unit state of elephant.service. Both are [unk] under this procedure; read the unit file with cat ~/.config/systemd/user/elephant.service if the unit definition is needed.
+
+
+## R18-FRESHNESS — remaining AUR classification neighbors (2026-10-20)
+
+Sources S060/S065. The R4/section2 no-repair, R5 runtime, R9 age and orphan claims are retained as dated historical measurements; their current-use interpretations are superseded below.
+
+- R18-FRESH-SUPPLEMENT-41: R4 and section2 channel/no-repair conclusions are historical repository/configuration observations, not a current reachability result. S060 supplies directory inventory only; neither S060 nor S065 reruns package/repository resolution. Present dead-channel membership is unknown [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:48-55]. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:53.
+
+- R18-FRESH-SUPPLEMENT-42: the historical R5 payload/runtime classification has not been remeasured; S065 package-upgrade events do not prove current payload or running units. Keep the historical enumeration separate from present runtime state [Supporting capture context: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:43-69]. Capture: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:43.
+
+- R18-FRESH-SUPPLEMENT-43: the historical182-day elephant build-age reading is tied to the old version/date. S060 observes base elephant2.22.1-1, but replacement build dates were not captured here; current build ages are unknown [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:27-39]. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:30.
+
+- R18-FRESH-SUPPLEMENT-44: the old assertion that no foreign package is an orphan is a dated classification, not a current orphan census. S065 proves specific removal events but not present foreign/orphan membership; that membership remains unmeasured here [Supporting capture context: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:4-8, .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:89-94]. Capture: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:6.
+
+No package/upgrade/restart or repair action is authorized.
+
+
+## R18-ARITHMETIC — historical R5 enumeration
+
+The old R5 row at201 says14/16 but literally enumerates12provider packages +1base elephant +2channel-B packages:15, not14. Counting command: `python3 -c 'print(12 + 1 + 2)'` (round18 immutable evidence runner retains its observed output). This corrects the historical arithmetic, not current payload, unit activity or foreign membership. The old row and its measurement date remain intact; do not carry either its old count or its old runtime classification forward as current. Source: original R5 row201, exact enumeration; FxFresh02's counterexample.
+
+The orphan notice also supersedes current use of both claims at46–47; it is not a present orphan census. The no-update-route notices cover section2 and R1/R4 broadly, not only a single quoted table cell. S065 adds actual ALPM event evidence for the historical removals/upgrades; where a narrower S060-only notice says an invocation does not establish completion, that evidence limitation remains true of S060 but the S065 companion now resolves the specified historical event.

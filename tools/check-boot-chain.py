@@ -619,6 +619,14 @@ def package_argv(line):
     return argv[4:]
 
 
+def capture_image(lines, number):
+    """Nearest preceding extraction header binds a digest to its actual image."""
+    for index in range(min(number, len(lines)) - 1, -1, -1):
+        if lines[index].startswith("### "):
+            return lines[index][4:]
+    return None
+
+
 def correction_source_ok(spec, lines):
     if spec["source_kind"] == "packages":
         packages = package_argv(capture_line(lines, 59) or "")
@@ -627,7 +635,9 @@ def correction_source_ok(spec, lines):
         digests = (capture_digest(lines, 182, "init"),
                    capture_digest(lines, 198, "init"),
                    capture_digest(lines, 251, "/usr/lib/initcpio/init"))
-        return digests[0] is not None and len(set(digests)) == 1
+        return (capture_image(lines, 182) == "/boot/EFI/Linux/omarchy_linux.efi"
+                and capture_image(lines, 198) == "/boot/EFI/Linux/omarchy_linux-lts.efi"
+                and digests[0] is not None and len(set(digests)) == 1)
     if spec["source_kind"] == "hooks":
         btrfs = (capture_digest(lines, 183, "hooks/btrfs-overlayfs"),
                  capture_digest(lines, 199, "hooks/btrfs-overlayfs"),
@@ -635,7 +645,11 @@ def correction_source_ok(spec, lines):
         plymouth = (capture_digest(lines, 184, "hooks/plymouth"),
                     capture_digest(lines, 200, "hooks/plymouth"),
                     capture_digest(lines, 253, "/usr/lib/initcpio/hooks/plymouth"))
-        return (btrfs[0] is not None and len(set(btrfs)) == 1
+        return (capture_image(lines, 183) == "/boot/EFI/Linux/omarchy_linux.efi"
+                and capture_image(lines, 184) == "/boot/EFI/Linux/omarchy_linux.efi"
+                and capture_image(lines, 199) == "/boot/EFI/Linux/omarchy_linux-lts.efi"
+                and capture_image(lines, 200) == "/boot/EFI/Linux/omarchy_linux-lts.efi"
+                and btrfs[0] is not None and len(set(btrfs)) == 1
                 and plymouth[0] is not None and len(set(plymouth)) == 1)
     if spec["source_kind"] == "mtime":
         def mtime(number):
@@ -644,10 +658,20 @@ def correction_source_ok(spec, lines):
                               r"\.000000000 -0300 (\S+)$", line)
             return match.groups() if match else None
         live, history = mtime(124), mtime(115)
-        return (live == ("2026-10-20 09:26:22", "omarchy_linux.efi")
+        live_hash = re.fullmatch(r"sha256 ([0-9a-f]{64})", capture_line(lines, 171) or "")
+        history_hash = re.fullmatch(r"sha256 ([0-9a-f]{64})", capture_line(lines, 219) or "")
+        history_header = capture_line(lines, 110) or ""
+        return (capture_line(lines, 120) == "/boot/EFI/Linux:"
+                and history_header.startswith("/boot/")
+                and history_header.endswith("/limine_history:")
+                and live == ("2026-10-20 09:26:22", "omarchy_linux.efi")
                 and history is not None
                 and history[0] == "2026-10-20 09:29:18"
-                and history[1].startswith("omarchy_linux.efi_sha256_"))
+                and live_hash is not None and history_hash is not None
+                and live_hash.group(1) == history_hash.group(1)
+                and capture_image(lines, 171) == "/boot/EFI/Linux/omarchy_linux.efi"
+                and capture_image(lines, 219) == history_header[:-1] + "/" + history[1]
+                and history[1] == "omarchy_linux.efi_sha256_" + live_hash.group(1))
     return False
 
 
@@ -1404,6 +1428,14 @@ def statement_correction_fixtures():
                              "hooks/plymouth")
     lines[252] = ("de852646e615e06d4125eb2e646d0528d1e349bd9e9877c08c5d32c43d288b6f  "
                   "/usr/lib/initcpio/hooks/plymouth")
+    lines[109] = "/boot/fixture/limine_history:"
+    lines[119] = "/boot/EFI/Linux:"
+    lines[170] = "sha256 2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8"
+    lines[218] = lines[170]
+    lines[169] = "### /boot/EFI/Linux/omarchy_linux.efi"
+    lines[185] = "### /boot/EFI/Linux/omarchy_linux-lts.efi"
+    lines[217] = ("### /boot/fixture/limine_history/omarchy_linux.efi_sha256_"
+                  "2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8")
     lines[114] = ("-rwx------ 1 root root 284439552 2026-10-20 09:29:18.000000000 -0300 "
                   "omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8")
     lines[123] = ("-rwx------ 1 root root 284439552 2026-10-20 09:26:22.000000000 -0300 "
@@ -1472,6 +1504,36 @@ def statement_correction_cases():
     check("corrections-registry-wrong-baseline",
           evaluate_statement_corrections(wrong_baseline, baseline, current, capture),
           FAIL, 0, ("CORR-REGISTRY-UNRESOLVED",))
+    wrong_context = capture.splitlines()
+    wrong_context[119] = "/boot/history/not-the-live-image:"
+    check("corrections-mtime-wrong-directory-context",
+          evaluate_statement_corrections(registry, baseline, current, "\n".join(wrong_context)),
+          FAIL, 3, ("CORR-R18-CORR-04-UNRESOLVED",))
+    wrong_copy = capture.splitlines()
+    wrong_copy[218] = "sha256 " + "0" * 64
+    check("corrections-mtime-copy-hash-disagrees",
+          evaluate_statement_corrections(registry, baseline, current, "\n".join(wrong_copy)),
+          FAIL, 3, ("CORR-R18-CORR-04-UNRESOLVED",))
+    for name, number, replacement, wanted in (
+            ("source-extra-package-operand", 59,
+             capture.splitlines()[58][:-1] + " extra-package'",
+             ("CORR-R18-CORR-01-UNRESOLVED",)),
+            ("source-current-init-digest-disagrees", 182, "0" * 64 + "  init",
+             ("CORR-R18-CORR-02-UNRESOLVED",)),
+            ("source-lts-hook-digest-disagrees", 200, "0" * 64 + "  hooks/plymouth",
+             ("CORR-R18-CORR-03-UNRESOLVED",)),
+            ("source-history-name-digest-disagrees", 115,
+             capture.splitlines()[114].replace(
+                 "2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8",
+                 "0" * 64),
+             ("CORR-R18-CORR-04-UNRESOLVED",)),
+            ("source-lts-image-heading-wrong", 186, "### /boot/not-the-lts-image.efi",
+             ("CORR-R18-CORR-02-UNRESOLVED", "CORR-R18-CORR-03-UNRESOLVED"))):
+        broken_capture = capture.splitlines()
+        broken_capture[number - 1] = replacement
+        check(name, evaluate_statement_corrections(
+            registry, baseline, current, "\n".join(broken_capture)),
+            FAIL, 4 - len(wanted), wanted)
     for name, argv, wanted in (
             ("correction-registry-source-cli",
              ["--revision", "a" * 40, "--statement-corrections",

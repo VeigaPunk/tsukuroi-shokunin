@@ -1,0 +1,11 @@
+# FxMigRootDac — FALSIFY
+
+**Axes:** shared binding coverage; refusal precedence/cardinality; worktree compatibility; fixture/import hygiene.
+
+**SURVIVES — no actionable defect found in scope.** Baseline `842a531` contained file-local `VALID_REV`, `resolve()` and `binding()`; target `68a8ae0` removes those and routes every non-null revision in `run_gate()` through `_revision.bind()` (`tools/check-root-dac-correction.py:264-283`, especially 275). CLI `main()` routes through that same gate (`:533-545`). The shared helper’s ordered contract and implementation validate branch, revision syntax/resolution, branch existence, local ancestry, then origin ancestry; each refusal raises one `RevisionError` (`tools/_revision.py:11-24,134-154`), converted to one `Finding` (`check-root-dac-correction.py:276-282`). The committed R18 lesson records why this was needed: baseline binding 9/9 but consistency 1/9 (`corpus/lessons/round-18.md:9,32`).
+
+**SURVIVES — worktree and fixture/import paths.** Worktree mode reads the worktree and uses branch tip only as informational metadata (`check-root-dac-correction.py:268-283`); fixtures cover valid and malformed-branch worktree behavior plus CLI worktree (`:449-450,483`). The CLI fixture copies both checker and `_revision.py` into sandbox `tools/` before subprocess invocation (`:452-461`). `sys.dont_write_bytecode = True` precedes `import _revision` (`:27-29`).
+
+**UNPROVEN / residual risk:** No checker or selftest was executed; source cases are not runtime results. LSP is unavailable (`xd://lsp` is not mounted), so no semantic references/definition/diagnostics checks were possible; grep was only a locator, with conclusions grounded in the cited source. No other in-scope defect observed.
+
+Scope: executed=git rev-parse HEAD; git log --oneline -5 -- tools/check-root-dac-correction.py; git diff --stat 842a5312b704b5cda10fd80ec1fdee5fb381ba97 68a8ae035fde33360cbbe21dc92ca0eacf0a5b33 -- tools/check-root-dac-correction.py; git show 68a8ae035fde33360cbbe21dc92ca0eacf0a5b33:tools/check-root-dac-correction.py; git show 842a5312b704b5cda10fd80ec1fdee5fb381ba97:tools/check-root-dac-correction.py

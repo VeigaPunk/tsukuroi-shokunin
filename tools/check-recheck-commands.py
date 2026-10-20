@@ -43,6 +43,7 @@ import argparse
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -414,6 +415,21 @@ def resolve_pointer(heads, total, kind, key):
     return [section_span(heads, position, total) for position in hits]
 
 
+def advisory_heading(line):
+    """An explicitly non-procedural section cannot satisfy a procedure pointer."""
+    title = line.lstrip("# ").casefold()
+    return bool(re.search(r"\bunknowns?\b|\bout[- ]of[- ]reach\b", title))
+
+
+def executable_argv0(command):
+    """Reject empty quotes, unmatched quoting and wrapper-only pseudo-commands."""
+    try:
+        shlex.split(command, comments=True)
+    except ValueError:
+        return False
+    return any(name.strip() for name, _ in simple_commands(command))
+
+
 def follow_pointers(lines, heads, text, forbid):
     """Follow the same-file section pointers in `text` one level deep.
 
@@ -432,6 +448,9 @@ def follow_pointers(lines, heads, text, forbid):
             if (start, end) in seen:
                 continue
             seen.append((start, end))
+            if advisory_heading(lines[start]):
+                unresolved.append(f"{label} (explicitly advisory, not a procedure)")
+                continue
             for number, command in section_commands(lines[start + 1:end], start + 2):
                 hits.extend((label, number, name, command)
                             for name in invocations(command, forbid))
@@ -486,9 +505,13 @@ def assess_file(path, text, forbid):
         if state["duplicates"] > 1:
             findings.append(Finding("RECHECK-STEER-SAFE-INVALID", path,
                                     "steer-safe heading appears more than once"))
-        elif not state["commands"]:
+        elif (not state["commands"]
+              or not any(executable_argv0(command) for _, command in state["commands"])
+              or any(not command.lstrip().startswith("#") and not executable_argv0(command)
+                     for _, command in state["commands"])):
             findings.append(Finding("RECHECK-STEER-SAFE-INVALID", path,
-                                    "steer-safe section declares no procedure command"))
+                                    "steer-safe section has no parseable executable argv0 "
+                                    "or contains an incomplete command"))
         else:
             unsafe, dangling = [], []
             for number, command in state["commands"]:
@@ -512,8 +535,8 @@ def assess_file(path, text, forbid):
                                         "steer-safe section still invokes a forbidden binary"))
             elif dangling:
                 findings.append(Finding("RECHECK-STEER-SAFE-INVALID", path,
-                                        f"steer-safe section pointer {dangling[0]} names no "
-                                        "section in this file"))
+                                        f"steer-safe section pointer {dangling[0]} cannot "
+                                        "resolve to a procedure in this file"))
             else:
                 resolved = True
     if not resolved:
@@ -532,7 +555,7 @@ def assess_file(path, text, forbid):
                 f"recheck pointer {label} (line {index + 1}) reaches {names}: "
                 f"{' '.join(command.split())[:80]}"))
         findings.extend(Finding("RECHECK-POINTER-UNRESOLVED", f"{path}:{index + 1}",
-                                f"recheck pointer {label} names no section in this file")
+                                f"recheck pointer {label} cannot resolve to a procedure in this file")
                         for label in unresolved)
     total_hits = len(header_hits) + len(pointer_hits)
     flagged = int(any(item.id == "RECHECK-FORBIDDEN-INVOCATION" for item in findings))
@@ -1075,13 +1098,22 @@ def selftest(out=None):
     #      section pointer is followed and the section's commands are inspected.
     aur = sandbox_commit(repo, entry(AUR_347, AUR_SECTIONS))
     case(repo, "pointer-aur-347-red", ["--revision", aur, "--paths", "fixture.md"],
-         FAIL, forbidden_only, {"flagged_count": 1, "resolved_count": 0,
-                                "invocation_count": 1, "pointer_section_count": 1})
+         FAIL, {"RECHECK-POINTER-UNRESOLVED"}, {"flagged_count": 0, "resolved_count": 0,
+                                              "invocation_count": 0, "pointer_section_count": 1})
     aur_fixed = sandbox_commit(repo, entry(AUR_347, AUR_SECTIONS + R18_AUR_SECTION))
     case(repo, "pointer-aur-347-r18-resolved",
          ["--revision", aur_fixed, "--paths", "fixture.md"],
          PASS, set(), {"flagged_count": 0, "resolved_count": 1,
-                       "invocation_count": 1, "pointer_section_count": 1})
+                       "invocation_count": 0, "pointer_section_count": 1})
+    aur_no_incidental = sandbox_commit(repo, entry(
+        AUR_347, AUR_SECTIONS.replace("`pacman -T`", "the recorded dependency query")))
+    case(repo, "pointer-aur-remains-red-without-incidental-T",
+         ["--revision", aur_no_incidental, "--paths", "fixture.md"],
+         FAIL, {"RECHECK-POINTER-UNRESOLVED"}, {"resolved_count": 0, "clean_count": 0})
+    aur_actual = sandbox_commit(repo, entry(AUR_347.replace("§7", "§6"), AUR_SECTIONS))
+    case(repo, "pointer-aur-actual-probe-section-forbidden",
+         ["--revision", aur_actual, "--paths", "fixture.md"],
+         FAIL, forbidden_only, {"flagged_count": 1, "pointer_section_count": 1})
     bounded = sandbox_commit(repo, entry(
         "recheck: 30d; procedure: §2 read-only replay.",
         "\n## 1. Scope\n\n`pacman -Qm` was the census.\n\n"
@@ -1204,12 +1236,21 @@ def selftest(out=None):
     r18_pointer = sandbox_commit(repo, entry(AUR_347, AUR_SECTIONS + R18_POINTER))
     case(repo, "r18-procedure-pointer-forbidden",
          ["--revision", r18_pointer, "--paths", "fixture.md"],
-         FAIL, forbidden_only | {"RECHECK-STEER-SAFE-INVALID"}, {"resolved_count": 0})
+         FAIL, {"RECHECK-POINTER-UNRESOLVED", "RECHECK-STEER-SAFE-INVALID"},
+         {"resolved_count": 0})
     r18_dangling = sandbox_commit(repo, entry(
         "recheck: daily; procedure: `grep -n x /etc/x`.", R18_DANGLING))
     case(repo, "r18-procedure-pointer-unresolved",
          ["--revision", r18_dangling, "--paths", "fixture.md"],
          FAIL, {"RECHECK-STEER-SAFE-INVALID"}, {"clean_count": 0})
+    for name, command in (("empty-quote", "''"), ("wrapper-only", "sudo"),
+                          ("env-without-command", "env -u HOME"),
+                          ("unterminated-quote", "'unterminated")):
+        invalid_replacement = sandbox_commit(repo, entry(
+            BASELINE_HEADER, "\n## R18-RECHECK — steer-safe procedure\n\n- `" + command + "`\n"))
+        case(repo, "r18-invalid-argv0-" + name,
+             ["--revision", invalid_replacement, "--paths", "fixture.md"],
+             FAIL, forbidden_only | {"RECHECK-STEER-SAFE-INVALID"}, {"resolved_count": 0})
     # 13. Missing and empty recheck openers are could-not-evaluate.
     missing = sandbox_commit(repo, "source: S014\nverified-at: 2026-10-19\n\n# x\n")
     case(repo, "missing-opener", ["--revision", missing, "--paths", "fixture.md"],

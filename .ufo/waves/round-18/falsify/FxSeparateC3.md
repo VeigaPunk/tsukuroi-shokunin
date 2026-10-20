@@ -1,0 +1,10 @@
+SURVIVES — C1 failure does not pollute C3.
+
+- In an isolated no-hardlinks clone at `68a8ae035fde33360cbbe21dc92ca0eacf0a5b33`, restored `corpus/knowledge/boot-chain-r17.md` from baseline and removed the C1-only `corpus/knowledge/statement-corrections-r18.json`; committed those two changes as `1cf4da0352aa87774a33237a3a02507a6f1cd917` on clone branch `fx-separate-c3`.
+- C1 check against that mutant, registry sourced from the original target: **FAIL, exit 1**, `correction_count=0`, exactly `CORR-R18-CORR-01-UNRESOLVED` through `CORR-R18-CORR-04-UNRESOLVED`. The baseline-without-notice selftest expects these four at `tools/check-boot-chain.py:1464-1467`.
+- C3 check against the same mutant, freshness registry sourced from the original target: **PASS, exit 0**, `resolved_records=88`, `record_count=88`, `distinct_paths=17`, `findings=[]`.
+- `tools/check-appended-notices.py:106-112` scopes the statement registry to `boot-chain-r17.md` and labels freshness as a separate `FRESH` family; the measured C3 result survives removal of the C1 notice and registry.
+
+Residual risk / gap: this demonstrates structural registry-gate separation for one mutant, not semantic completeness of freshness claims. No LSP device was exposed for an additional caller audit. No production-tree or host mutation.
+
+Scope: executed=mktemp; git clone --no-hardlinks; git checkout target; git remote remove origin; git rev-parse; git remote -v; echo; git diff --name-status; wc -l; git diff --stat; git checkout -b fx-separate-c3; git checkout baseline -- corpus/knowledge/boot-chain-r17.md; git rm -- corpus/knowledge/statement-corrections-r18.json; git commit; git rev-parse; python3 tools/check-appended-notices.py --registry corpus/knowledge/freshness-recheck-r18.json --revision 1cf4da0352aa87774a33237a3a02507a6f1cd917 --registry-from 68a8ae035fde33360cbbe21dc92ca0eacf0a5b33 --branch fx-separate-c3 (exit 0); python3 tools/check-boot-chain.py --revision 1cf4da0352aa87774a33237a3a02507a6f1cd917 --statement-corrections --registry-from 68a8ae035fde33360cbbe21dc92ca0eacf0a5b33 --branch fx-separate-c3 (exit 1).

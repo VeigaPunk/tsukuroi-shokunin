@@ -1,0 +1,103 @@
+{
+  "seat": "TsukuroiR18-2.FxMutNotices",
+  "axes": ["structural defect discrimination", "fixed finding-ID fidelity", "sandbox isolation and exact-byte restoration"],
+  "target": "68a8ae035fde33360cbbe21dc92ca0eacf0a5b33",
+  "clone": "/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8",
+  "isolation": "Own mktemp clone --no-hardlinks --no-checkout, checkout -B master at target, origin removed before detectors; no production source edits or host probes.",
+  "detector": {
+    "argv_prefix": ["/usr/bin/python3", "-B", "/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8/tools/check-appended-notices.py"],
+    "cwd": "/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8",
+    "timeout_seconds": 120,
+    "registry": "corpus/knowledge/statement-corrections-r18.json",
+    "fixed_expected_ids": {
+      "duplicate-path-quote": {"exit": 1, "ids": ["NOTICE-QUOTE-DUP"], "source": "tools/check-appended-notices.py:697-701; runtime branch:391-394"},
+      "mixed-FRESH-CORR": {"exit": 1, "ids": ["NOTICE-ID-FAMILY"], "source": "tools/check-appended-notices.py:693-696; runtime branch:365-375"},
+      "self-capture": {"exit": 1, "ids": ["NOTICE-CAPTURE-REF"], "source": "tools/check-appended-notices.py:722-729; runtime branch:283-288"},
+      "out-of-range-captureline": {"exit": 1, "ids": ["NOTICE-CAPTURE-LINE"], "source": "tools/check-appended-notices.py:298-304; runtime fixed ID, not a dedicated --selftest fixture"}
+    }
+  },
+  "observations": [
+    {"phase": "pristine-selftest", "argv_suffix": ["--selftest"], "exit": 0, "stdout": "CHECK_APPENDED_NOTICES_SELFTEST: PASS (46 cases, 46 passed, 0 failed)\n", "stderr": ""},
+    {"phase": "pristine-freshness-control", "argv_suffix": ["--revision", "68a8ae035fde33360cbbe21dc92ca0eacf0a5b33", "--registry", "corpus/knowledge/freshness-recheck-r18.json"], "exit": 0, "stdout": "{\"branch\": \"master\", \"branch_tip\": \"68a8ae035fde33360cbbe21dc92ca0eacf0a5b33\", \"distinct_paths\": 17, \"findings\": [], \"record_count\": 88, \"resolved_records\": 88, \"revision\": \"68a8ae035fde33360cbbe21dc92ca0eacf0a5b33\", \"status\": \"PASS\"}\n", "stderr": ""},
+    {"phase": "pristine-corrections-control", "argv_suffix": ["--revision", "68a8ae035fde33360cbbe21dc92ca0eacf0a5b33", "--registry", "corpus/knowledge/statement-corrections-r18.json"], "exit": 0, "stdout": "{\"branch\": \"master\", \"branch_tip\": \"68a8ae035fde33360cbbe21dc92ca0eacf0a5b33\", \"distinct_paths\": 1, \"findings\": [], \"record_count\": 4, \"resolved_records\": 4, \"revision\": \"68a8ae035fde33360cbbe21dc92ca0eacf0a5b33\", \"status\": \"PASS\"}\n", "stderr": ""},
+    {"phase": "duplicate-path-quote-mutated", "argv_suffix": ["--revision", "6dc8f88ce38bf84c7055a2a4e70c20d7b2c0490b", "--registry", "corpus/knowledge/statement-corrections-r18.json"], "exit": 1, "stdout": "{\"branch\": \"master\", \"branch_tip\": \"6dc8f88ce38bf84c7055a2a4e70c20d7b2c0490b\", \"distinct_paths\": 1, \"findings\": [{\"detail\": \"path and baseline_quote pair is duplicated\", \"id\": \"NOTICE-QUOTE-DUP\", \"site\": \"corpus/knowledge/statement-corrections-r18.json:records[0]\"}, {\"detail\": \"path and baseline_quote pair is duplicated\", \"id\": \"NOTICE-QUOTE-DUP\", \"site\": \"corpus/knowledge/statement-corrections-r18.json:records[1]\"}], \"record_count\": 4, \"resolved_records\": 2, \"revision\": \"6dc8f88ce38bf84c7055a2a4e70c20d7b2c0490b\", \"status\": \"FAIL\"}\n", "stderr": ""},
+    {"phase": "duplicate-path-quote-restored", "argv_suffix": ["--revision", "7e2c962ef46edb88f284a5090b80800394ffbd5b", "--registry", "corpus/knowledge/statement-corrections-r18.json"], "exit": 0, "stdout": "{\"branch\": \"master\", \"branch_tip\": \"7e2c962ef46edb88f284a5090b80800394ffbd5b\", \"distinct_paths\": 1, \"findings\": [], \"record_count\": 4, \"resolved_records\": 4, \"revision\": \"7e2c962ef46edb88f284a5090b80800394ffbd5b\", \"status\": \"PASS\"}\n", "stderr": ""},
+    {"phase": "mixed-FRESH-CORR-mutated", "argv_suffix": ["--revision", "91d038b02dc22079f8eb83b18adb9b5acab48f51", "--registry", "corpus/knowledge/statement-corrections-r18.json"], "exit": 1, "stdout": "{\"branch\": \"master\", \"branch_tip\": \"91d038b02dc22079f8eb83b18adb9b5acab48f51\", \"distinct_paths\": 1, \"findings\": [{\"detail\": \"one registry cannot mix R18-CORR and R18-FRESH ids\", \"id\": \"NOTICE-ID-FAMILY\", \"site\": \"corpus/knowledge/statement-corrections-r18.json\"}], \"record_count\": 4, \"resolved_records\": 0, \"revision\": \"91d038b02dc22079f8eb83b18adb9b5acab48f51\", \"status\": \"FAIL\"}\n", "stderr": ""},
+    {"phase": "mixed-FRESH-CORR-restored", "argv_suffix": ["--revision", "a49cd4a2bbc99bf985c92e23ca16b72c7783e037", "--registry", "corpus/knowledge/statement-corrections-r18.json"], "exit": 0, "stdout": "{\"branch\": \"master\", \"branch_tip\": \"a49cd4a2bbc99bf985c92e23ca16b72c7783e037\", \"distinct_paths\": 1, \"findings\": [], \"record_count\": 4, \"resolved_records\": 4, \"revision\": \"a49cd4a2bbc99bf985c92e23ca16b72c7783e037\", \"status\": \"PASS\"}\n", "stderr": ""},
+    {"phase": "self-capture-mutated", "argv_suffix": ["--revision", "b49f5b938faebc780d0f096c0966b56a30d1d011", "--registry", "corpus/knowledge/statement-corrections-r18.json"], "exit": 1, "stdout": "{\"branch\": \"master\", \"branch_tip\": \"b49f5b938faebc780d0f096c0966b56a30d1d011\", \"distinct_paths\": 1, \"findings\": [{\"detail\": \"capture_ref must cite a safe round capture file and positive line\", \"id\": \"NOTICE-CAPTURE-REF\", \"site\": \"corpus/knowledge/boot-chain-r17.md\"}], \"record_count\": 4, \"resolved_records\": 3, \"revision\": \"b49f5b938faebc780d0f096c0966b56a30d1d011\", \"status\": \"FAIL\"}\n", "stderr": ""},
+    {"phase": "self-capture-restored", "argv_suffix": ["--revision", "c8a8ef6f1364e80fa39be1559ae740c5c1977db5", "--registry", "corpus/knowledge/statement-corrections-r18.json"], "exit": 0, "stdout": "{\"branch\": \"master\", \"branch_tip\": \"c8a8ef6f1364e80fa39be1559ae740c5c1977db5\", \"distinct_paths\": 1, \"findings\": [], \"record_count\": 4, \"resolved_records\": 4, \"revision\": \"c8a8ef6f1364e80fa39be1559ae740c5c1977db5\", \"status\": \"PASS\"}\n", "stderr": ""},
+    {"phase": "out-of-range-captureline-mutated", "argv_suffix": ["--revision", "c9b2098afa107a86ab35c08c409762f207a52605", "--registry", "corpus/knowledge/statement-corrections-r18.json"], "exit": 1, "stdout": "{\"branch\": \"master\", \"branch_tip\": \"c9b2098afa107a86ab35c08c409762f207a52605\", \"distinct_paths\": 1, \"findings\": [{\"detail\": \"line 999999 beyond EOF=258\", \"id\": \"NOTICE-CAPTURE-LINE\", \"site\": \".ufo/waves/round-17/l1-capture/boot-chain-capture.txt\"}], \"record_count\": 4, \"resolved_records\": 3, \"revision\": \"c9b2098afa107a86ab35c08c409762f207a52605\", \"status\": \"FAIL\"}\n", "stderr": ""},
+    {"phase": "out-of-range-captureline-restored", "argv_suffix": ["--revision", "f2f80fb921e1a1e8b915e171e7e38d4bbb4fee02", "--registry", "corpus/knowledge/statement-corrections-r18.json"], "exit": 0, "stdout": "{\"branch\": \"master\", \"branch_tip\": \"f2f80fb921e1a1e8b915e171e7e38d4bbb4fee02\", \"distinct_paths\": 1, \"findings\": [], \"record_count\": 4, \"resolved_records\": 4, \"revision\": \"f2f80fb921e1a1e8b915e171e7e38d4bbb4fee02\", \"status\": \"PASS\"}\n", "stderr": ""},
+    {"phase": "restored-selftest", "argv_suffix": ["--selftest"], "exit": 0, "stdout": "CHECK_APPENDED_NOTICES_SELFTEST: PASS (46 cases, 46 passed, 0 failed)\n", "stderr": ""},
+    {"phase": "restored-freshness-control", "argv_suffix": ["--revision", "f2f80fb921e1a1e8b915e171e7e38d4bbb4fee02", "--registry", "corpus/knowledge/freshness-recheck-r18.json"], "exit": 0, "stdout": "{\"branch\": \"master\", \"branch_tip\": \"f2f80fb921e1a1e8b915e171e7e38d4bbb4fee02\", \"distinct_paths\": 17, \"findings\": [], \"record_count\": 88, \"resolved_records\": 88, \"revision\": \"f2f80fb921e1a1e8b915e171e7e38d4bbb4fee02\", \"status\": \"PASS\"}\n", "stderr": ""}
+  ],
+  "mutants": [
+    {
+      "name": "duplicate-path-quote",
+      "commit": "6dc8f88ce38bf84c7055a2a4e70c20d7b2c0490b",
+      "restoration_commit": "7e2c962ef46edb88f284a5090b80800394ffbd5b",
+      "verdict": "killed",
+      "mutated_sha256": {"corpus/knowledge/statement-corrections-r18.json": "1ecfa54feddc0603e3c4e2c78ca585b91793fcd36faa4fa5f9b51d6749242ef7"},
+      "diff_against_target": "diff --git a/corpus/knowledge/statement-corrections-r18.json b/corpus/knowledge/statement-corrections-r18.json\nindex 9a5c01f..4dae5a3 100644\n--- a/corpus/knowledge/statement-corrections-r18.json\n+++ b/corpus/knowledge/statement-corrections-r18.json\n@@ -15,7 +15,7 @@\n     {\n       \"id\": \"R18-CORR-02\",\n       \"path\": \"corpus/knowledge/boot-chain-r17.md\",\n-      \"baseline_quote\": \"and equals the installed `/usr/lib/initcpio/init`\",\n+      \"baseline_quote\": \"plus 13 named packages (B:59, B:82)\",\n       \"reason\": \"Both-UKI init equality cited only the linux image (B:182, 251); the linux-lts image init is B:198 (closure defect 3).\",\n       \"now\": \"and equals the installed `/usr/lib/initcpio/init` (B:182, 198, 251)\",\n       \"capture_ref\": \".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:198\",\n"
+    },
+    {
+      "name": "mixed-FRESH-CORR",
+      "commit": "91d038b02dc22079f8eb83b18adb9b5acab48f51",
+      "restoration_commit": "a49cd4a2bbc99bf985c92e23ca16b72c7783e037",
+      "verdict": "killed",
+      "mutated_sha256": {"corpus/knowledge/statement-corrections-r18.json": "6eb8f7794c12b8ed776c99cea80e37ea9d075d33a09a4c4e2c02350dc50dabfd"},
+      "diff_against_target": "diff --git a/corpus/knowledge/statement-corrections-r18.json b/corpus/knowledge/statement-corrections-r18.json\nindex 9a5c01f..f3c908c 100644\n--- a/corpus/knowledge/statement-corrections-r18.json\n+++ b/corpus/knowledge/statement-corrections-r18.json\n@@ -3,7 +3,7 @@\n   \"baseline\": \"842a5312b704b5cda10fd80ec1fdee5fb381ba97\",\n   \"records\": [\n     {\n-      \"id\": \"R18-CORR-01\",\n+      \"id\": \"R18-FRESH-FxMutNotices-01\",\n       \"path\": \"corpus/knowledge/boot-chain-r17.md\",\n       \"baseline_quote\": \"plus 13 named packages (B:59, B:82)\",\n       \"reason\": \"B:59 names 12 packages, not 13 (count slip, closure defect 3).\",\n"
+    },
+    {
+      "name": "self-capture",
+      "commit": "b49f5b938faebc780d0f096c0966b56a30d1d011",
+      "restoration_commit": "c8a8ef6f1364e80fa39be1559ae740c5c1977db5",
+      "verdict": "killed",
+      "mutated_sha256": {"corpus/knowledge/statement-corrections-r18.json": "4ab2ed7edfd07605e8df43c54628105eec625c2342d36455ac3a869ea0406c53", "corpus/knowledge/boot-chain-r17.md": "3a9760924e3fd8ff6fabf40aede2b6ebca5e6a1bee716992b1c932932e0af33f"},
+      "diff_against_target": "diff --git a/corpus/knowledge/boot-chain-r17.md b/corpus/knowledge/boot-chain-r17.md\nindex 3e9c57e..d3a78cb 100644\n--- a/corpus/knowledge/boot-chain-r17.md\n+++ b/corpus/knowledge/boot-chain-r17.md\n@@ -191,7 +191,7 @@ Checks (read-only) and operator-only actions; tsukuroi takes none of these actio\n \n ## R18-CORRECTION — :19 transaction names 12 packages, not 13\n \n-- [obs] Correction R18 (C1), source S051 (`corpus/SOURCES.md:57`, own-work, tier A). Corrected reference: `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:59`.\n+- [obs] Correction R18 (C1), source S051 (`corpus/SOURCES.md:57`, own-work, tier A). Corrected reference: `corpus/knowledge/boot-chain-r17.md:1`.\n - Superseded text, kept in the historical bytes: \"plus 13 named packages (B:59, B:82)\".\n - Corrected: plus 12 named packages (B:59). B:59 lists nvme-cli, smartmontools, fio, xfsprogs, pacman-contrib, earlyoom, iotop-c, sysstat, stress-ng, btrbk, linux-lts and linux-lts-headers. B:82 is a truncated history display, not the complete counted argv.\n - Reason: B:59 names 12 packages, not 13 (count slip, closure defect 3).\ndiff --git a/corpus/knowledge/statement-corrections-r18.json b/corpus/knowledge/statement-corrections-r18.json\nindex 9a5c01f..6f9a0cc 100644\n--- a/corpus/knowledge/statement-corrections-r18.json\n+++ b/corpus/knowledge/statement-corrections-r18.json\n@@ -8,7 +8,7 @@\n       \"baseline_quote\": \"plus 13 named packages (B:59, B:82)\",\n       \"reason\": \"B:59 names 12 packages, not 13 (count slip, closure defect 3).\",\n       \"now\": \"plus 12 named packages (B:59)\",\n-      \"capture_ref\": \".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:59\",\n+      \"capture_ref\": \"corpus/knowledge/boot-chain-r17.md:1\",\n       \"capture_quote\": \"nvme-cli smartmontools fio xfsprogs pacman-contrib earlyoom iotop-c sysstat stress-ng btrbk linux-lts linux-lts-headers\",\n       \"notice_heading\": \"## R18-CORRECTION \\u2014 :19 transaction names 12 packages, not 13\"\n     },\n"
+    },
+    {
+      "name": "out-of-range-captureline",
+      "commit": "c9b2098afa107a86ab35c08c409762f207a52605",
+      "restoration_commit": "f2f80fb921e1a1e8b915e171e7e38d4bbb4fee02",
+      "verdict": "killed",
+      "mutated_sha256": {"corpus/knowledge/statement-corrections-r18.json": "e850466aa396ccfde2eb60def75ff90bf21c70b94ddad73ab666c5233389d120", "corpus/knowledge/boot-chain-r17.md": "1b9de8d440daaf46a2933955d6e8c1944156813df8827d69e4a94418e46fd2b7"},
+      "diff_against_target": "diff --git a/corpus/knowledge/boot-chain-r17.md b/corpus/knowledge/boot-chain-r17.md\nindex 3e9c57e..6fc7d62 100644\n--- a/corpus/knowledge/boot-chain-r17.md\n+++ b/corpus/knowledge/boot-chain-r17.md\n@@ -191,7 +191,7 @@ Checks (read-only) and operator-only actions; tsukuroi takes none of these actio\n \n ## R18-CORRECTION — :19 transaction names 12 packages, not 13\n \n-- [obs] Correction R18 (C1), source S051 (`corpus/SOURCES.md:57`, own-work, tier A). Corrected reference: `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:59`.\n+- [obs] Correction R18 (C1), source S051 (`corpus/SOURCES.md:57`, own-work, tier A). Corrected reference: `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:999999`.\n - Superseded text, kept in the historical bytes: \"plus 13 named packages (B:59, B:82)\".\n - Corrected: plus 12 named packages (B:59). B:59 lists nvme-cli, smartmontools, fio, xfsprogs, pacman-contrib, earlyoom, iotop-c, sysstat, stress-ng, btrbk, linux-lts and linux-lts-headers. B:82 is a truncated history display, not the complete counted argv.\n - Reason: B:59 names 12 packages, not 13 (count slip, closure defect 3).\ndiff --git a/corpus/knowledge/statement-corrections-r18.json b/corpus/knowledge/statement-corrections-r18.json\nindex 9a5c01f..ea0855d 100644\n--- a/corpus/knowledge/statement-corrections-r18.json\n+++ b/corpus/knowledge/statement-corrections-r18.json\n@@ -8,7 +8,7 @@\n       \"baseline_quote\": \"plus 13 named packages (B:59, B:82)\",\n       \"reason\": \"B:59 names 12 packages, not 13 (count slip, closure defect 3).\",\n       \"now\": \"plus 12 named packages (B:59)\",\n-      \"capture_ref\": \".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:59\",\n+      \"capture_ref\": \".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:999999\",\n       \"capture_quote\": \"nvme-cli smartmontools fio xfsprogs pacman-contrib earlyoom iotop-c sysstat stress-ng btrbk linux-lts linux-lts-headers\",\n       \"notice_heading\": \"## R18-CORRECTION \\u2014 :19 transaction names 12 packages, not 13\"\n     },\n"
+    }
+  ],
+  "restoration": {
+    "method": "Surgical inverse edits and a pathspec-limited restoration commit after every mutant, followed by the identical revision-mode detector over that restoration commit.",
+    "final_commit": "f2f80fb921e1a1e8b915e171e7e38d4bbb4fee02",
+    "sha256_before_and_after": {
+      "corpus/knowledge/statement-corrections-r18.json": "008d91d46b6582e02ee4376480b796159d6aa43d8e1615cd1d8d0222d319bc91",
+      "corpus/knowledge/boot-chain-r17.md": "4e5018ca90f40b7687c74f6688f371677b0eaef4e0cba02bebefe08081c8c9a0",
+      "corpus/knowledge/freshness-recheck-r18.json": "a7d1e62de764fc0e12f056db4b4dca10a0261f0364977ac00de226c794834df7",
+      "tools/check-appended-notices.py": "482f511f5c61f3462f41d05cc2ddf8f9c8efe40d372cb7a5e3ca2cffcf959296"
+    },
+    "hash_sampling": "Correction-registry hash sampled pristine, after every mutation, and after every restoration. Boot-note unmutated hash first sampled during the duplicate-registry mutation, before either boot-note mutation; sampled at both boot-note mutation and restoration phases. Checker and freshness-registry sampled pristine and at final restoration."
+  },
+  "executed_command_templates": {
+    "mktemp": "mktemp -d /tmp/tsukuroi-r18-FxMutNotices.XXXXXXXX",
+    "clone": "/usr/bin/git -c core.hooksPath=/dev/null clone --no-hardlinks --no-checkout /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8",
+    "checkout": "/usr/bin/git -C /tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8 -c core.hooksPath=/dev/null checkout -B master 68a8ae035fde33360cbbe21dc92ca0eacf0a5b33",
+    "remove_origin": "/usr/bin/git -C /tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8 remote remove origin",
+    "commit": "/usr/bin/git -C /tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8 -c user.name=tsukuroi-shokunin -c user.email=tsukuroi@shokunin.local -c commit.gpgSign=false -c core.hooksPath=/dev/null commit --quiet -m <message> -- <absolute-subject-paths>",
+    "commit_arguments": [
+      {"message": "probe: duplicate correction path quote", "paths": ["/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8/corpus/knowledge/statement-corrections-r18.json"]},
+      {"message": "probe: restore duplicate quote bytes", "paths": ["/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8/corpus/knowledge/statement-corrections-r18.json"]},
+      {"message": "probe: mix correction freshness families", "paths": ["/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8/corpus/knowledge/statement-corrections-r18.json"]},
+      {"message": "probe: restore notice family bytes", "paths": ["/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8/corpus/knowledge/statement-corrections-r18.json"]},
+      {"message": "probe: self cite correction notice", "paths": ["/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8/corpus/knowledge/statement-corrections-r18.json", "/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8/corpus/knowledge/boot-chain-r17.md"]},
+      {"message": "probe: restore self capture bytes", "paths": ["/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8/corpus/knowledge/statement-corrections-r18.json", "/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8/corpus/knowledge/boot-chain-r17.md"]},
+      {"message": "probe: cite capture beyond EOF", "paths": ["/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8/corpus/knowledge/statement-corrections-r18.json", "/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8/corpus/knowledge/boot-chain-r17.md"]},
+      {"message": "probe: restore capture line bytes", "paths": ["/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8/corpus/knowledge/statement-corrections-r18.json", "/tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8/corpus/knowledge/boot-chain-r17.md"]}
+    ],
+    "commit_sha": "/usr/bin/git -C /tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8 rev-parse HEAD (after each of the eight commits)",
+    "diff": "/usr/bin/git -C /tmp/tsukuroi-r18-FxMutNotices.jkpzc9X8 diff 68a8ae035fde33360cbbe21dc92ca0eacf0a5b33 HEAD -- <absolute-subject-paths> (each mutant, same path list as its commit)",
+    "hash": "/usr/bin/sha256sum <absolute-subject-paths> (subjects and sampling phases recorded above)",
+    "detectors": "Exact argv equals detector.argv_prefix concatenated with each observations[].argv_suffix. All executed from detector.cwd with timeout 120 seconds."
+  },
+  "summary": {"input_mutants_killed": 4, "input_mutants_survived": 0, "inconclusive": 0, "baseline_failures": 0},
+  "limits": ["Bounded structural input-mutation probes, not source-truth, completeness, process-containment, boot safety, or claim admission proof.", "The beyond-EOF runtime branch is exercised here; no dedicated beyond-EOF expected-ID selftest fixture was observed in the pinned committed suite.", "No checker implementation or expected fixture was edited. Mutation/restoration commits exist only in the isolated scratch clone."],
+  "tool_installs_or_updates": []
+}

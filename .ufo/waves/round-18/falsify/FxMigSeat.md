@@ -1,0 +1,9 @@
+# FxMigSeat
+
+Axes: shared binding on every revision path; error identity and precedence; worktree/domain preservation; fixture import safety.
+
+**SURVIVES.** Baseline evidence identifies the checker as a divergent local binding copy: `corpus/lessons/round-17/falsify/FxSimplifyBind.md:8-13` records branch/revision precedence, missing-branch and malformed-branch differences; `round-17/build/SeatScopeGate.md:5` describes its earlier binding. The committed migration patch (`.ufo/waves/round-18/build/patches/MigSeat.patch:40-101,124-135`) removes local revision/branch regexes and binding helpers, routing revision collection through shared `bind`. Landed source `tools/check-seat-scope.py:246-260,641-647` binds before object reads and maps one `RevisionError` to one finding; `tools/_revision.py:83-94,134-154` validates the branch before revision syntax/commit, then branch existence and ancestry. Direct and CLI fixtures cover precedence and single-finding output (`check-seat-scope.py:500-513,519-563`). Worktree collection still reads disk without binding (`:261-266`); the migration patch leaves domain evaluation untouched. The sandbox copies both checker and `_revision.py` (`:305-309`), and subprocesses invoke the copied checker (`:521-526`). `sys.dont_write_bytecode = True` precedes `_revision` import (`:33-34`). Committed `build/MigSeat.md:10` reports 52/52 selftests; not rerun here.
+
+Residual risk / verification gaps: static review only; the existing gate evaluates declared scope lines, not actual execution (`check-seat-scope.py:55-82,155`). `lsp` is unavailable (`xd://lsp` returned “No such tool”); direct source and committed patch were reviewed, with text search used only to locate evidence. No actionable defect found in assigned scope.
+
+Scope: executed=none

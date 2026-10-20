@@ -88,7 +88,6 @@ ID_BRANCH_MISSING = "E-BRANCH-MISSING"
 ID_GIT = "E-GIT-FAILED"
 BINDING_IDS = (ID_INVALID, ID_UNLANDED, ID_PUSHED, ID_BRANCH_INVALID, ID_BRANCH_MISSING, ID_GIT)
 MISSING = re.compile(r"does not exist|exists on disk, but not in|not in '", re.I)
-SHARED_IMPORT = re.compile(r"^[ \t]*(?:import _revision\b|from _revision import\b)", re.M)
 LOCAL_REV_REGEX = re.compile(r"\{7,64\}")
 
 
@@ -131,6 +130,8 @@ def ref_exists(repo, ref):
 def rev_parse(repo, ref):
     proc = git(repo, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")
     if proc.returncode != 0:
+        if git(repo, "rev-parse", "--git-dir").returncode != 0:
+            raise Cannot(ID_GIT, "git", "repository unavailable")
         raise Cannot(ID_INVALID, "revision", f"{ref} not found")
     return proc.stdout.decode("ascii", "replace").strip()
 
@@ -144,11 +145,23 @@ def ancestor(repo, sha, ref):
     raise Cannot("E-GIT-FAILED", "git", f"merge-base --is-ancestor exited {proc.returncode}")
 
 
+def validate_branch(branch):
+    """Repository-independent syntax check; Git availability is a different failure."""
+    if not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9._/-]*", branch) or branch == "HEAD":
+        raise Cannot(ID_BRANCH_INVALID, "branch", "invalid literal branch name")
+    try:
+        proc = subprocess.run(["git", "check-ref-format", f"refs/heads/{branch}"],
+                              stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE, env=clean_env(), timeout=60)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise Cannot(ID_GIT, "git", str(exc)[:120])
+    if proc.returncode:
+        raise Cannot(ID_BRANCH_INVALID, "branch", "invalid literal branch name")
+
+
 def bind(repo, rev, branch="master"):
     """Resolve rev and enforce the round-17 C3 revision-binding contract."""
-    if (not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9._/-]*", branch) or branch == "HEAD"
-            or git(repo, "check-ref-format", f"refs/heads/{branch}").returncode != 0):
-        raise Cannot(ID_BRANCH_INVALID, "branch", "invalid literal branch name")
+    validate_branch(branch)
     if not REV.fullmatch(rev):
         raise Cannot(ID_INVALID, "revision", "7-64 hex commit required")
     sha = rev_parse(repo, rev)
@@ -458,9 +471,15 @@ def measure(lane, tools_rev, branch="master"):
     additional = [item for item in per_tool if item["tool"].split("/", 1)[1] not in TOOLS]
     bound = sum(1 for item in named if item["bound"])
     consistent = sum(1 for item in named if item["consistent"])
+    consolidated = sum(1 for item in named if item["consistent"] and item["shared"]
+                       and item["local_rev_regex"] == 0)
     legacy = sum(1 for item in named
                  if item["bound"] and item["tool"].split("/", 1)[1] in LEGACY)
     return {"status": "PASS" if consistent == TOTAL else "FAIL",
+            "status_scope": "original-nine consistency only",
+            "consistency_status": "PASS" if consistent == TOTAL else "FAIL",
+            "consolidation_status": "PASS" if consolidated == TOTAL else "FAIL",
+            "consolidated_tools": consolidated,
             "tools_revision": tip, "revision": tip, "branch": branch,
             "branch_tip": branch_tip, "bound_tools": bound, "consistent_tools": consistent,
             "shared_tools": sum(1 for item in named if item["shared"]),
@@ -702,6 +721,10 @@ def selftest():
                   (TOTAL, TOTAL, []))
             check("all-shared-census", (res["shared_tools"], res["local_rev_regex_copies"]),
                   (0, 0))
+            check("consistency-not-consolidation",
+                  (res["status"], res["status_scope"], res["consolidation_status"],
+                   res["consolidated_tools"]),
+                  ("PASS", "original-nine consistency only", "FAIL", 0))
             check("mixed-consistent", res2["consistent_tools"], 3)
             for stub, failing in (("legacy", {"branch-range", "branch-slash", "branch-space",
                                               "branch-first", "branch-missing", "git-failed"}),
@@ -774,6 +797,8 @@ def selftest():
             check("judge-branch-first", bind_error(fx5, "HEAD", "a..b"), ID_BRANCH_INVALID)
             check("judge-branch-slash", bind_error(fx5, tip5, "master/"), ID_BRANCH_INVALID)
             check("judge-branch-missing", bind_error(fx5, tip5, "nosuch"), ID_BRANCH_MISSING)
+            check("judge-repository-unavailable",
+                  bind_error(tmp / "absent-repository", tip5), ID_GIT)
             unlanded_sha = detached_commit(fx5)
             check("bind-unlanded", bind_error(fx5, unlanded_sha), ID_UNLANDED)
 

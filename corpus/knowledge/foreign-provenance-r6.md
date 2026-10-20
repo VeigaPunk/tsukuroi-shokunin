@@ -336,7 +336,7 @@ Appended 2026-10-20 by tsukuroi round-18 (seat Foreign). Historical snapshots pr
 
 Appended 2026-10-20 by tsukuroi round-18 (seat Foreign). Historical snapshots preserved above; this notice supersedes the current-use statement at line 47 only. Read-only scope: it clears no package, reboot or boot state. Sources: S060, S032.
 
-- now: At 2026-10-20 the log holds pacman -U transactions for yay-cache elephant 2.22.1-1 (log 3092, 09:31:03) and zcode 3.16.2-1 (log 3161, 13:23:08); the no-update claim at line 47 is not current.
+- now: S065 records thirteen elephant-family upgraded events and ALPM completion09:31:04, plus zcode installed13:23:08 and ALPM completion13:23:09. Thus never-updated is not current for the elephant family; zcode was not in the old16-row register and its present foreign class is not inferred [Supporting capture context: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:43-69, .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:97-101]
 - capture_ref: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:72 [obs] log 3092 `pacman -U --noconfirm ... elephant-2.22.1-1-x86_64.pkg.tar.zst`; also :73 [obs] log 3161 `pacman -U --needed` for zcode, and :65 [obs] zcode marked --asexplicit at 13:23:09.
 - Basis: :30 [obs] local db lists `elephant-2.22.1-1` for the base package and the 2.21.0-1 directory is absent in the same listing. The per-package ALPM event class (upgraded or reinstalled) for each elephant member is [unk]: the capture did not read those log lines. zcode is not among the 16 foreign packages of 2026-10-14 (§5); its foreign classification is [unk] (pacman -Qm not run).
 
@@ -344,7 +344,7 @@ Appended 2026-10-20 by tsukuroi round-18 (seat Foreign). Historical snapshots pr
 
 Appended 2026-10-20 by tsukuroi round-18 (seat Foreign). Historical snapshots preserved above; this notice supersedes the current-use statement at line 55 only. Read-only scope: it clears no package, reboot or boot state. Sources: S060, S032.
 
-- now: offline.db is absent from /var/lib/pacman/sync at 2026-10-20; the directory lists core.db, extra.db, multilib.db, omarchy.db and openai-chatgpt.db.
+- now: offline.db is absent from /var/lib/pacman/sync at 2026-10-20; the directory lists core.db, extra.db, multilib.db, omarchy.db and openai-chatgpt.db. [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:48-55]
 - capture_ref: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:48 [obs] `$ ls -1 /var/lib/pacman/sync/`, listing at :49-54.
 - Basis: the 2026-10-14 presence, size and birth stamp are historical. Removal time and actor are [unk]; this round did not read the log for them. The sync-db identification in §2 can no longer be re-read from this file.
 
@@ -352,6 +352,11 @@ Appended 2026-10-20 by tsukuroi round-18 (seat Foreign). Historical snapshots pr
 
 Appended 2026-10-20 by tsukuroi round-18 (seat Foreign). Historical snapshots preserved above; this notice supersedes the current-use statement at line 194 only. Read-only scope: it clears no package, reboot or boot state. Sources: S060, S032.
 
-- now: Current sync reachability of the foreign set is [unk] at 2026-10-20: omarchy.db mtime is 2026-10-20 09:09:26, and the 2026-10-20 elephant update was run as pacman -U from yay-cache files, not as -Syu.
+- now: current repository reachability remains unknown for the old16-row set, including the channel-reachability paragraph at193–195. S065 confirms the historical elephant upgrade events accompanying the09:31 pacman -U invocation, not evidence of a -Syu upgrade of foreign packages; filesystem mtime does not prove a local refresh [Supporting capture context: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:40-69, .ufo/waves/round-18/l1-capture/host-capture-r18.txt:40-55]
 - capture_ref: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:45 [obs] omarchy.db mtime; :72 [obs] the pacman -U command line.
 - Basis: the 2026-10-14 statement ("pacman -Si rc=1 for all 16") was a point-in-time sync-db observation. pacman -Syu upgrades only packages served by configured sync repos; a package no repo serves changes only via pacman -U, or via an AUR helper that installs built files with pacman -U. Foreign classification is not immutable: a configured repo that begins serving a name removes it from the foreign set. Whether any of the 16 is now repo-served is [unk]; pacman -Si was not run (steer). Who ran the 09:31 pacman -U is not in the capture [unk].
+
+
+## R18-PRECISION — reachability and transaction scope
+
+The R18 reachability supersession covers the whole current-use paragraph at193–195, including the14-no-path/2-yay-only partition, not only the one quoted sentence. Current repository/configuration resolution was not remeasured by these captures. S060's09:31/13:23 Running headers alone did not establish completion; S065 now independently supplies the elephant upgraded events, zcode installed event and their ALPM transaction-completed records. The later --asexplicit line remains an invocation, not evidence its reason change succeeded. No human actor or current foreign classification is inferred.

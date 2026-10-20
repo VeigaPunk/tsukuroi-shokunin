@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Narrow, read-only seat execution-scope gate (QUALITY24 / R16-SEAT-SCOPE).
+"""Narrow, read-only seat execution-scope declaration gate (QUALITY24).
 
 Turns the round-16 lesson into a machine-checkable red: every seat of a
 wave must close its report with a truthful `Scope: executed=...` trailer,
@@ -9,10 +9,12 @@ wave directory holding `swarm-registry.json` and/or `spec.json` plus the
 seat reports `<Name>.md`; seat names and roles come from those two files
 (registry members union spec items, spec role wins).
 
-Findings: SCOPE-REPORT-MISSING (seat without a report), SCOPE-UNDECLARED
-(report with no `^Scope: executed=(.+)$` line; the last matching line
-wins), SCOPE-EXEC-UNAUTHORIZED (last declared value is not `none` and the
-seat prompt lacks EXEC-AUTHORIZED). A wave with no seats is not a pass.
+Findings: SCOPE-REPORT-MISSING, SCOPE-UNDECLARED,
+SCOPE-TRAILER-MALFORMED (an annotated/ambiguous `none` is neither evidence of an
+execution nor an accepted canonical declaration), and SCOPE-EXEC-UNAUTHORIZED
+(a declared command list lacks EXEC-AUTHORIZED). Whitespace/case around a lone
+`none` is normalized. Counts are declarations, NEVER independently verified
+executions; bare `none` cannot prove that no command ran. An empty wave fails.
 
 `--revision <hex>` reads immutable git objects only and binds through
 `tools/_revision.py`: Git-valid branch names are checked before revision syntax;
@@ -37,7 +39,8 @@ PASS, FAIL, CANNOT = 0, 1, 2
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY, SPEC = "swarm-registry.json", "spec.json"
 EXEC_MARK = "EXEC-AUTHORIZED"
-IDS = ("SCOPE-EXEC-UNAUTHORIZED", "SCOPE-REPORT-MISSING", "SCOPE-UNDECLARED")
+IDS = ("SCOPE-EXEC-UNAUTHORIZED", "SCOPE-REPORT-MISSING", "SCOPE-UNDECLARED",
+       "SCOPE-TRAILER-MALFORMED")
 SCOPE = re.compile(r"^Scope: executed=(.+)$", re.M)
 NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 WAVE = re.compile(r"^[A-Za-z0-9._-][A-Za-z0-9._/-]*$")
@@ -74,7 +77,15 @@ def evaluate(seats, reports):
             findings.append(Finding("SCOPE-UNDECLARED", site, seat.role,
                                     "no Scope: executed=... line in report"))
             continue
-        if executed != "none" and EXEC_MARK not in seat.prompt:
+        normalized = executed.strip().casefold()
+        if normalized == "none":
+            continue
+        if re.match(r"none\b", normalized):
+            findings.append(Finding("SCOPE-TRAILER-MALFORMED", site, seat.role,
+                                    "annotated none is ambiguous; declare exactly none "
+                                    "or an actual command list"))
+            continue
+        if EXEC_MARK not in seat.prompt:
             findings.append(Finding(
                 "SCOPE-EXEC-UNAUTHORIZED", site, seat.role,
                 f"declared executed={executed[:60]} without EXEC-AUTHORIZED in the seat prompt"))
@@ -153,6 +164,7 @@ def emit(result, revision, branch, branch_tip, wave):
         "findings": [{"id": f.id, "site": f.site, "role": f.role, "detail": f.detail}
                      for f in result.findings],
         "scope": "seat execution-scope declarations only; not a host, build or test verdict",
+        "evidence_class": "self-reported declarations; no independent absence-of-execution proof",
     }
     print(json.dumps(payload, sort_keys=True))
     return result.code
@@ -342,9 +354,14 @@ def selftest():
          {"Alpha": "  Scope: executed=none\n"}, FAIL, {"SCOPE-UNDECLARED"}, 1),
         ("none-with-prose", sheet(("Alpha", "executor", "")),
          {"Alpha": "Scope: executed=none (authorized)\n"},
-         FAIL, {"SCOPE-EXEC-UNAUTHORIZED"}, 1),
+         FAIL, {"SCOPE-TRAILER-MALFORMED"}, 1),
         ("two-undeclared-count", plain, {"Alpha": "x\n", "Beta": "y\n"},
          FAIL, {"SCOPE-UNDECLARED"}, 2),
+        ("uppercase-none-normalized", sheet(("Alpha", "scout", "")),
+         {"Alpha": "Scope: executed=  NONE  \n"}, PASS, set(), 1),
+        ("annotated-none-with-command-not-verified-execution", sheet(("Alpha", "scout", "")),
+         {"Alpha": "Scope: executed=none (read-only git show)\n"},
+         FAIL, {"SCOPE-TRAILER-MALFORMED"}, 1),
     ]
     passed, failures = 0, []
     for name, seats, reports, code, ids, seats_n in cases:

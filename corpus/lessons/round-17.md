@@ -69,3 +69,8 @@ Lane commits cca3343 and661020f were not named in the final r17 report addendum;
 ## R18-ERRATUM — literal firmware quote
 
 The S056 Gate quote above elides the EFI variable UUID and inserts spacing; it is a readable abbreviation, not the literal verbatim string claimed by the old FxSourcesContract report. Exact source line113 is `LoaderEntrySelected-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f: Omarchy.linux`. Capture header13:03:06 has no timezone suffix; the old S056 row's-03 suffix is not established by that header alone. Active precision rowS064 and round18 lesson supersede only these citation details. The selected-entry interpretation is unchanged.
+
+
+## R18-ERRATUM — aggregate provider labels, not individual receipts
+
+The earlier round18 erratum's phrase 'Individual provider receipts exist ... for36deaths' is withdrawn. The preserved interim lists36 names and ONE aggregate429 error, not36 individual provider traces. The operator's round18 dispatch reports all44 final deaths as zai429; the committed artifacts independently preserve the narrower aggregate provenance and the final37/44 census. Current outcome-final-r18.json citations now resolve to outcome-interim-144309.json, whose bytes are the old842a531 outcome.json. No individual cause is invented from absence of a report.
