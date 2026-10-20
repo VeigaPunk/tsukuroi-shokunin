@@ -22,8 +22,8 @@ authorizes a package, service, initramfs, bootloader or `/boot` change.
   26.134.222-2→-3, limine-mkinitcpio-hook 1.38.0-1.1→1.40.0-2, limine-snapper-sync
   1.31.0-1.1→1.32.1-2, nvidia-open-dkms 610.57.04→615.78.08, linux-lts 6.18.57-2 installed
   (B:44–53).
-- [obs] 09:18 the pacman hook built both UKIs (B:69–74). 09:26:11 the operator ran
-  `limine-update` (B:86), which rebuilt them outside any pacman transaction: `/boot/EFI/Linux`
+- [obs] 09:18 the pacman hook built both UKIs (B:69–74). 09:26:11 account `vgpnk` ran
+  `limine-update` via sudo (B:86; operator attribution [inf]), which rebuilt them outside any pacman transaction: `/boot/EFI/Linux`
   mtimes 09:26:16 / 09:26:22 (B:124–125); the last UKI build lines in pacman.log are the 09:18
   ones (B:68–74).
 - [obs] 09:29:19 snapshot #2 `pre-aur-elephant-2.22.1` (B:88, B:167); `limine_history` holds
@@ -108,16 +108,24 @@ CONSISTENT-PRE42; otherwise UNTESTED. Each `path:` `#` hash equals the image's b
 
 ## Operator checks before the next reboot
 
-Read-only checks; tsukuroi takes none of these actions:
+Checks (read-only) and operator-only actions; tsukuroi takes none of these actions:
 
-1. Re-run the recheck procedure after any package, `limine-update` or snapper change; a changed
-   sha256 for `/boot/EFI/Linux/omarchy_linux.efi` voids BOOTED-OBSERVED.
-2. Keep snapshot #1 if a pre-upgrade rollback matters: number cleanup and
-   `MAX_SNAPSHOT_ENTRIES=5` (F:68) can remove it.
-3. The LUKS header backup made at 09:03 sits on the encrypted root it protects; a copy off the
-   disk is the useful one (the backup's location comes from the sudo journal, not a capture
-   file).
-4. Keep external boot media available: the EFI fallback entry is Limine itself.
+1. Check, just before rebooting: re-run the recheck procedure; the `//linux` block of
+   `/boot/limine.conf` and the sha256 of `/boot/EFI/Linux/omarchy_linux.efi` are unchanged, and
+   no one-shot or firmware next-boot request is pending (`LoaderEntryOneShot` absent from
+   `/sys/firmware/efi/efivars`, `efibootmgr` shows no `BootNext`; fwupd was installed at 09:27,
+   B:60). Any change voids BOOTED-OBSERVED for the next boot. [inf] `default_entry: 2`
+   selects `//linux` because Limine numbers the expanded `/+Omarchy` directory row 1 and no
+   `remember_last_entry` is set (S:5–24; wave-2 FxScoutLimineDocs).
+2. Operator action, optional: keep snapshot #1 (the only pre-upgrade image) — snapper number
+   cleanup can delete the snapshot, and limine-snapper-sync prunes menu entries by
+   `MAX_SNAPSHOT_ENTRIES=5` and `LIMIT_USAGE_PERCENT=85` (F:68, F:72); how pruning treats a
+   pinned snapshot was not checked.
+3. Operator action, optional: [unk] the sudo journal records a LUKS header backup at 09:03
+   under `/var/backups/` (not in a capture file). A header backup plus any passphrase valid at
+   backup time decrypts the disk even after the passphrase changes (cryptsetup-luksHeaderBackup(8)):
+   keep any copy encrypted and offline, and destroy it after a passphrase change.
+4. Operator action: keep external boot media available; the EFI fallback entry is Limine itself.
 
 ## Falsifier
 

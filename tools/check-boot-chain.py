@@ -291,6 +291,35 @@ def b2sum_issue(entry, lines_by_path):
                    f"no `path: {want}#{prefix}…` limine.conf line in the captures")
 
 
+TYPED_DIR = re.compile(r"^d[rwx-]{9}\s+(?:\S+\s+)*new_root\s*$")
+
+
+def typed_root_findings(entry, cited, eid):
+    """R17-TYPE-BLIND: the image's /new_root kind must be typed by a cited line.
+
+    A name-only listing (`dirs: new_root sysroot`) cannot tell a directory from a
+    symlink, so it never witnesses the kind (QUALITY 25)."""
+    kind = entry.get("image_new_root")
+    if entry.get("mkinitcpio_version") is None:
+        if kind is not None:
+            return [Finding("BOOTCHAIN-FIELD", eid,
+                            "image_new_root must be null for a non-kernel entry")]
+        return []
+    if kind not in ("symlink->sysroot", "directory"):
+        return [Finding("BOOTCHAIN-FIELD", eid,
+                        f"image_new_root {kind!r} not in symlink->sysroot|directory")]
+    lines = [line.strip() for _, line in cited]
+    if kind == "symlink->sysroot":
+        typed = any("new_root -> sysroot" in line for line in lines)
+    else:
+        typed = any(TYPED_DIR.match(line) for line in lines)
+    if typed:
+        return []
+    return [Finding("BOOTCHAIN-UNTYPED", eid,
+                    f"no cited line types /new_root as {kind}; a name-only "
+                    "listing is not a witness")]
+
+
 def entry_findings(entry, lines_by_path, ctx):
     out = []
     eid = entry.get("id") if isinstance(entry.get("id"), str) else "entry"
@@ -324,6 +353,7 @@ def entry_findings(entry, lines_by_path, ctx):
                 needle.format(value) in line for _, line in cited):
             out.append(Finding("BOOTCHAIN-HOOK-ROOT", eid,
                                f"claimed {hook} {value} appears in no cited line"))
+    out += typed_root_findings(entry, cited, eid)
     issue = b2sum_issue(entry, lines_by_path)
     if issue:
         out.append(issue)
@@ -726,7 +756,8 @@ def fixture_json():
                             line_no(rows, "51:     cmdline: resume=/dev/mapper/root "
                                           "rootflags=subvol=/@/.snapshots/2/snapshot rw")}
                            | set(range(snap_start, snap_start + 8)))
-    fix_evidence = [ref("boot", n) for n in fix_evidence] + [ref("supplement", 3)]
+    fix_evidence = ([ref("boot", n) for n in fix_evidence] + [ref("supplement", 3)]
+                    + [ref("emulation", 2)])
     snap_evidence = [ref("boot", n) for n in snap_evidence] + [ref("emulation", 2)]
     prose = ("efi_path is not a kernel UKI (mkinitcpio_version is null)",
              "selected_this_boot is true, the image sha256 equals the file that "
@@ -903,7 +934,34 @@ def selftest():
          FAIL, {"BOOTCHAIN-VERDICT"}, 1),
         ("derivation-image-dir", fixture(json17=mutate_entries(
             lambda es: es[1].update(image_new_root="directory"))),
+         FAIL, {"BOOTCHAIN-UNTYPED", "BOOTCHAIN-VERDICT"}, 1),
+        ("restored-defect-type-blind", fixture(json17=mutate_entries(
+            lambda es: es[1].update(image_new_root="directory", verdict="UNTESTED",
+                                    evidence=[r for r in es[1]["evidence"]
+                                              if not r.startswith(CAPTURES["emulation"])]
+                                    + [ref("boot", line_no(boot_lines(),
+                                                           "dirs: new_root sysroot "))]))),
+         FAIL, {"BOOTCHAIN-UNTYPED"}, 2),
+        ("restored-defect-degraded", fixture(json17=mutate_entries(
+            lambda es: es[1].update(verdict="DEGRADED-PREDICTED"))),
          FAIL, {"BOOTCHAIN-VERDICT"}, 1),
+        ("untyped-symlink-claim", fixture(json17=mutate_entries(
+            lambda es: es[1].update(evidence=[r for r in es[1]["evidence"]
+                                              if not r.startswith(CAPTURES["emulation"])]))),
+         FAIL, {"BOOTCHAIN-UNTYPED"}, 2),
+        ("image-kind-enum", fixture(json17=mutate_entries(
+            lambda es: es[1].update(image_new_root="dir"))),
+         FAIL, {"BOOTCHAIN-FIELD", "BOOTCHAIN-VERDICT"}, 1),
+        ("nonkernel-kind-set", fixture(json17=mutate_entries(
+            lambda es: es[2].update(image_new_root="directory"))),
+         FAIL, {"BOOTCHAIN-FIELD"}, 2),
+        ("pre42-guard", fixture(json17=mutate_entries(
+            lambda es: es[1].update(init_sysroot_refs=0, init_new_root_refs=7,
+                                    verdict="CONSISTENT-PRE42"))),
+         FAIL, {"BOOTCHAIN-BLOCK", "BOOTCHAIN-INIT-REFS", "BOOTCHAIN-VERDICT"}, 1),
+        ("evidence-line-zero", fixture(json17=mutate_entries(
+            lambda es: es[0]["evidence"].append(ref("boot", 0)))),
+         FAIL, {"BOOTCHAIN-EVIDENCE-LINE"}, 2),
         ("derivation-no-newer-witness", fixture(json17=mutate_entries(
             lambda es: es[0]["evidence"].remove(
                 ref("boot", line_no(boot_lines(),
@@ -1014,7 +1072,29 @@ def selftest():
             passed += 1
         else:
             failures.append(f"{name}: id={got}/{want}")
-    total = len(cases) + 11
+    # main() must route --revision through bind_revision (mutation FxGateMutants :1115)
+    global resolve, bind_revision
+    saved = (resolve, bind_revision)
+    def _stub_resolve(rev, repo=None):
+        return "f" * 40
+    def _stub_bind(sha, branch, repo=None):
+        raise Cannot("E-REVISION-NOT-LANDED", sha, "selftest stub")
+    resolve, bind_revision = _stub_resolve, _stub_bind
+    try:
+        import contextlib, io
+        with contextlib.redirect_stdout(io.StringIO()) as buf:
+            code = main(["--revision", "f" * 40])
+        out = json.loads(buf.getvalue() or "{}")
+        ids = {f.get("id") for f in out.get("findings", [])}
+    except Exception as exc:  # pragma: no cover - reported as failure
+        code, ids = None, {repr(exc)}
+    finally:
+        resolve, bind_revision = saved
+    if code == CANNOT and ids == {"E-REVISION-NOT-LANDED"}:
+        passed += 1
+    else:
+        failures.append(f"cli-binds-revision: exit={code} ids={sorted(map(str, ids))}")
+    total = len(cases) + 12
     bound, bind_failures = binding_cases()
     passed += bound
     total += 5

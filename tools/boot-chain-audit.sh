@@ -156,7 +156,7 @@ guarded_rm() { # refuse to remove anything except exactly our private mktemp tre
         "${WORK:-/nonexistent-work}" | "${WORK:-/nonexistent-work}"/* | \
         "${SELFTEST_TMP:-/nonexistent-selftest}" | "${SELFTEST_TMP:-/nonexistent-selftest}"/*)
             [ -e "$p" ] || return 0
-            chmod -R u+w -- "$p" 2>/dev/null || true
+            chmod -R u+rwX -- "$p" 2>/dev/null || true
             rm -rf -- "$p"
             ;;
         *)
@@ -204,6 +204,7 @@ fx_dir() { printf '%s/%s\n' "$BOOTCHAIN_FIXTURE" "$(basename -- "$1")"; }
 
 cmdline_token() { # <cmdline> <key> -> first `key=value` value
     local cmdline=$1 key=$2 tok
+    local -; set -f   # no pathname expansion of limine.conf text
     for tok in $cmdline; do
         case $tok in
             "$key"=*)
@@ -247,9 +248,18 @@ stage_image() { # <efi> -> sets IMG_COPY; only privileged step (sudo -n cat) in 
         [ -f "$(fx_dir "$1")/unreadable" ] && return 1
         return 0
     fi
-    local c
+    local c m1 m2
     c=$(work_path "copy/$ENTRY_IDX.efi") || return 1
+    STAGED_MTIME=''
+    # Bind the mtime to the copied bytes (wave-2 FxAuditPrivilege finding 1): read it
+    # before and after the copy and refuse a file that changed meanwhile.
+    m1=$(sudo -n stat -c %Y -- "$(host_efi "$1")" 2>/dev/null) || m1=''
     if sudo -n cat -- "$(host_efi "$1")" >"$c" 2>/dev/null; then
+        m2=$(sudo -n stat -c %Y -- "$(host_efi "$1")" 2>/dev/null) || m2=''
+        if [ -n "$m1" ] && [ "$m1" != "$m2" ]; then
+            return 1
+        fi
+        STAGED_MTIME=$m1
         IMG_COPY=$c
         return 0
     fi
@@ -286,8 +296,10 @@ image_identity() { # <efi> -> kernel | not-kernel | error
             printf 'error\n'
         elif [ -f "$d/not-a-uki" ]; then
             printf 'not-kernel\n'
-        elif [ -f "$d/uname" ]; then
+        elif [ -s "$d/uname" ]; then
             printf 'kernel\n'
+        elif [ -f "$d/uname" ]; then
+            printf 'not-kernel\n'   # same rule as live: an empty .uname is no kernel
         else
             printf 'error\n'
         fi
@@ -331,7 +343,7 @@ extract_entry() { # <efi> -> sets EXTRACT_DIR to a private mktemp extraction dir
         return 1
     fi
     # lsinitcpio -x extracts into the current directory; run it inside the private tree.
-    if (cd -- "$d" && lsinitcpio -x "$img" >/dev/null 2>&1); then
+    if (cd -- "$d" && TMPDIR="$WORK" lsinitcpio -x "$img" >/dev/null 2>&1); then
         EXTRACT_DIR=$d
         return 0
     fi
@@ -416,9 +428,12 @@ mtime_for() { # <efi> -> epoch seconds | -   (unverifiable without a readable ES
     fi
     # The ESP is root-only (0700 /boot, fmask/dmask 0077): read the mtime with `sudo -n stat`,
     # a metadata read whose output goes only to stdout (no root write into $WORK).
-    local m
-    m=$(sudo -n stat -c %Y -- "$(host_efi "$1")" 2>/dev/null) || { printf -- '-\n'; return 0; }
-    printf '%s\n' "$m"
+    # The mtime read around the copy in stage_image(), so it describes the hashed bytes.
+    if [[ ${STAGED_MTIME:-} =~ ^[0-9]+$ ]]; then
+        printf '%s\n' "$STAGED_MTIME"
+    else
+        printf -- '-\n'
+    fi
 }
 
 btime_epoch() {
@@ -1092,6 +1107,23 @@ EOF
     st_check 'e3-exit' 2 "$rc"
     got=$(printf '%s\n' "$out" | awk -F'\t' 'NR==2 {print $17}')
     st_check 'e3-verdict' EVALUATION-ERROR "$got"
+
+    # ---- end-to-end: empty .uname is not a kernel (live/fixture parity) ---
+    rm -rf -- "$fx"
+    mkdir -p -- "$fx/plain.efi"
+    printf 'cafe\n' >"$fx/plain.efi/sha256"
+    printf 'cafe\n' >"$fx/plain.efi/b2sum"
+    : >"$fx/plain.efi/uname"
+    printf '1000\n' >"$fx/btime"
+    printf '0\n' >"$fx/boot_inputs_newer"
+    local e5="$T/e5.conf"
+    cat >"$e5" <<EOF
+/plain
+  path: boot():/EFI/BOOT/plain.efi
+EOF
+    out=$(audit "$e5")
+    got=$(printf '%s\n' "$out" | awk -F'\t' 'NR==2 {print $17}')
+    st_check 'e5-empty-uname-not-kernel' NOT-A-KERNEL-ENTRY "$got"
 
     # ---- end-to-end: empty conf ------------------------------------------
     local e4="$T/e4.conf"

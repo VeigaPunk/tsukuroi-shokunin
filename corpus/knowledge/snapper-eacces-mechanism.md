@@ -141,6 +141,6 @@ Appended 2026-10-20 by the tsukuroi round-17 L1; earlier bytes unchanged. Supers
 - `systemctl cat limine-snapper-sync.service | grep -n -E "User|CapabilityBoundingSet|ProtectSystem|ReadOnlyPaths|ProtectHome"`
 - `journalctl --no-pager -o short-iso -g "create subvolume failed" | grep -c "errno:13"`
 - snapper configs without D-Bus activation: `grep SNAPPER_CONFIGS /etc/conf.d/snapper`
-- packaged metadata for `/` without a package query (replaces `pacman -Qo /`): `zcat /var/lib/pacman/local/filesystem-*/mtree | grep -cE "^\./?[[:space:]]"`
+- packaged metadata for `/` without a package query (replaces the package-ownership query for `/`): `zcat /var/lib/pacman/local/filesystem-*/mtree | grep -cE "^\./?[[:space:]]"`
 - `findmnt -n -o SOURCE,FSTYPE,TARGET /boot`
 - `df -h /boot`

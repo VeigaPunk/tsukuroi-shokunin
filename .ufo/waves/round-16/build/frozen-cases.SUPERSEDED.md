@@ -9,14 +9,14 @@ not a normative specification. Routed by `corpus/lessons/round-16-verifier-spotc
 
 Known contradictions with the shipped gate (read the gate, not this JSON):
 
-1. `.count_semantics` says shared findings including `opener/heading/md-scope` block both
+1. `.gate.count_semantics` says shared findings including `opener/heading/md-scope` block both
    records (count 0), but its own case `cases[id=errata-md-missing]` expects
    `expected_corrections: 2`, and the shipped gate preserves record counts when only the
    MD file is missing. The case vector, not the prose, matches the gate.
-2. `.gate.revision_input` and any "worktree" wording are non-normative: the shipped CLI is
+2. `.gate.revision_input` and any "worktree" wording are non-normative, and `.gate.files.sources` calls `R16-SOURCE-ROW` optional although the gate treats it as a shared blocker: the shipped CLI is
    `--revision <rev>` or `--selftest` only; the string `worktree` appears in the gate solely
    as the revision label emitted on CLI errors before a revision resolves
-   (`tools/check-section-citations.py:750,753`). There is no worktree evaluation mode.
+   (the `"worktree"` revision label in `main()` of `tools/check-section-citations.py`). There is no worktree evaluation mode.
 
 Round 17 additionally changes the gate's revision admission (hex only, landed on
 `master`; `HEAD` rejected) — see `corpus/lessons/round-17.md`; nothing in

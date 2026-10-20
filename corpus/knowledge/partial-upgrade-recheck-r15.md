@@ -180,3 +180,8 @@ This section re-verifies the current-use statements above against L1 read-only c
 - R17-FRESH-PARTIAL-06 (handoff gate). Old text: "so a full upgrade stays blocked until that gate is cleared". [obs] full system upgrade ran 2026-10-20T09:15:31-0300 (`.ufo/waves/round-17/l1-capture/fresh-capture.txt:8`). The blocked-upgrade statement no longer describes the host.
 
 Still unknown: whether libinput was among the 448 upgraded/installed lines in the 09:15 transaction (`.ufo/waves/round-17/l1-capture/fresh-capture.txt:84`); the libinput_log row is not refreshed here and is [unk]. Recapture requires a fresh snapshot; this section grants no clearance.
+
+
+## R17-SYMLINK — pointer (2026-10-20, L1)
+
+Appended after the R17 notice above. Record R17-FRESH-PARTIAL-05 calls the `/new_root` mismatch "live in the installed images". It does not make boot fail: 42.x images keep `/new_root` as a symlink to `sysroot`, so both hooks resolve (`.ufo/waves/round-17/l1-capture/overlay-emulation.txt:51-66`, `:40-48`). Current per-entry verdicts: `corpus/knowledge/boot-chain-r17.md` § Decision table. Nothing here authorizes package, service or boot action.

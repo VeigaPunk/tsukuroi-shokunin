@@ -636,7 +636,7 @@ def main(argv=None):
         return selftest()
     branch, revision, branch_tip = args.branch, "worktree", None
     try:
-        if args.revision:
+        if args.revision is not None:
             revision = args.revision
             revision, branch_tip = bind(ROOT, args.revision, branch)
             docs = DocSet(*[read_git(ROOT, revision, path) for path in FILES])

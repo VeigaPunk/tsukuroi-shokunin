@@ -495,7 +495,7 @@ def main(argv=None):
         return selftest()
     repo, revision, branch, tip = Path(__file__).resolve().parents[1], "worktree", args.branch, None
     try:
-        if args.revision:
+        if args.revision is not None:
             revision = args.revision
             if not VALID_REV.fullmatch(args.revision):
                 raise Cannot("E-REVISION-INVALID", "revision", "7-64 hex commit required")
