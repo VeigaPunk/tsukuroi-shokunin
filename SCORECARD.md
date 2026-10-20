@@ -483,3 +483,15 @@ S050 is own-work evidence for historical section locations, not host health. QUA
 
 - **planned (current):** finish externally steered round16; hand off to independent non-author closure and existing operator recovery decision. No subsequent round starts here.
 - **retired:** none.
+
+### Round16 measured outcome
+
+| Claim | Axis | Ordinal delta | Measured before → after | Author-side verdict |
+|---|---|---|---|---|
+| C1 R16-BOARD-SECTION / R16-RANK-SECTION | depth | 8→8 (0) | correction_count0→2, exit1→0, findings5→0; baseline db68e62065885b3f7463eb0a436c41f0dc3bcde5 → measured db19cc98e091210326382c1ec0b93495fef26be0 | improved; independent closure pending |
+
+Command: `python tools/check-section-citations.py --revision <commit>`, same final evaluator for both revisions. `.ufo/waves/round-16/build/verification-fixed.json` retains red/green and `--selftest` PASS43cases/43passed/0failed. Original `verification.json` retains failed41/43 selftest and successful source census0; production duplicate-binding and row-finding isolation were repaired without weakening expected cases. A count alone is not gate acceptance: the gate exit/findings are also required.
+
+`build/integration-verification.json` records exact source headings/unique rows/quotes, both raw baseline-prefix preservations and12 unchanged protected files. Sources49→50, A41→42/mined36→37; old rows unchanged, malformed0. Author-side depth improved; coverage/operability/freshness/calibration/adjacency unchanged; no new capability or ordinal score. Trends: expansion unchanged, quality improved, discernment improved through grounded outside-citation learning, not swarm size or new independent approval.
+
+Build64 finished with64 lane reports and0 misrooted reports. Planned falsify32 was skipped by the operator's immediate no-new-workers wrap-up; actual total64. This is an explicit override, not a claim that campaign wave2 was optional or that round15 process debt was experimentally fixed. Seat/tooling and raw-directive conformance defects are disclosed in `corpus/lessons/round-16.md`; no package/service/host-recovery action.

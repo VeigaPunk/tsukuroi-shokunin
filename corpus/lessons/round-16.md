@@ -71,3 +71,38 @@ SourceMaintenance found the outside round15 verifier called the eight-word “Th
 Main relayed the operator directive during the already-dispatched build wave: “we will be wrapping up this training run; commit and push as lanes finish; i'll be rebooting the pc afterwards. do not spawn more workers”. No new task, seat, labrat or wave is permitted. This supersedes this lesson's prospective second-wave plan: build64 ran; planned falsify32 was **not dispatched**, explicitly by operator wrap-up, not because the current campaign called it optional. No retrospective round15 wave or fake round16 falsify is claimed. Actual round total64, same role mix as above. R16-FALSIFY is carried as an operator-waived unexercised process obligation, not a demonstrated fix. Artifact: `.ufo/waves/round-16/build/operator-wrapup.json`.
 
 The misroot sweep tests every validated seat report's exact lane path and same fleet-root-relative path; `.ufo/waves/round-16/build/misroot-sweep.json` retains the result. Any still-active implementation seat is named, never silently replaced. Final L1 verification is against committed implementation after delivered seats finish; no new worker performs it.
+
+## Gate — completed immutable measurements
+
+Final measured implementation: `db19cc98e091210326382c1ec0b93495fef26be0`. Command `python tools/check-section-citations.py --revision <commit>` with the same final evaluator: baseline `db68e62065885b3f7463eb0a436c41f0dc3bcde5` exit1/count0/findings5 → implementation exit0/PASS/count2/findings0. Red explicitly contains SECTION-CITATION-WRONG for host-health line581 (§1 verdict-board row5) and v3 line398 (§7 rank1), not only successor absence. JSON preserves original locator spacing; counts concern only the named R16 pair.
+
+`python tools/check-section-citations.py --selftest` exit0:
+
+```text
+CHECK_SECTION_CITATIONS_SELFTEST: PASS (43 cases, 43 passed, 0 failed)
+```
+
+Exact outputs and evaluator SHA256: `.ufo/waves/round-16/build/verification-fixed.json`. Original `verification.json` retains the first implementation's actual43cases/41passed failure. L1 repaired production duplicate binding (retain first valid record but duplicate-ID still blocks acceptance/counts) and row/quote finding isolation; fixed expected fixtures were not weakened. CitationGate's draft37-case summary is superseded by the executed43-case tally, not rewritten.
+
+The independent40-vector `frozen-cases.json` is advisory design evidence, not40 executed tests. Its proposed worktree mode does not exist, and its shared-count prose disagrees with its MD-missing count2 vector. The implementation follows the individually-resolved-record metric: count2 can coexist with a missing companion-MD finding, so exit0/findings0 are required in addition to count2. The gate is bounded: its fence recognizer covers backtick fences, JSON duplicate-key semantics remain standard-library last-key handling, notice checks are lexical, and it does not prove arbitrary source/prose truth. No universal Markdown/JSON validator or source-semantics theorem is claimed.
+
+`build/integration-verification.json` independently resolves both exact source heading/row/quote bindings, proves raw baseline bytes are exact prefixes of both target notes (38589→39496 and33401→34432 bytes), and shows12 protected files unchanged: five old tools, PROVINCE, SHONEN and five outside verifier lessons. Source rows49→50 (A41→42/B1/C7; mined36→37/queued5/rejected8), malformed0, old row changes0. Report inventory64/64 and misrooted fleet reports0. Counting methods and immutable revision names are retained in that artifact.
+
+Mention sweep: `functions.grep`, pattern `§1 verdict-board row 5|§7 rank 1|R16-(BOARD|RANK)-SECTION`, scoped to SKILL.md, corpus/README.md and corpus/knowledge/. Results identify preserved wrong R15 notices, their explicit R16 errata, the new MD/JSON, and the legitimate v2 §7 reference. The latter remains unchanged; history is not globally replaced.
+
+## Source census — end
+
+Same validate command as start, exit0, stderr empty. Recorded at first implementation6765980dd178caa74819dcdb5dfaf34b0a3b4464 in `build/verification.json`; the source registry and all domain inputs are byte-identical at final measured revision, compared rather than rerunning a successful census. Output:
+
+```text
+tsukuroi	W04	S038 duplicate url man.archlinux.org/man/access.2 across scopes
+tsukuroi	W04	S041 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes
+tsukuroi	W04	S042 duplicate url github.com/omacom/omarchy/issues/8047 across scopes
+tsukuroi	W04	S043 duplicate url github.com/omacom/omarchy/issues/6629 across scopes
+tsukuroi	W04	S044 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes
+tsukuroi	W04	S046 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes
+tsukuroi	W04	S049 duplicate url man.archlinux.org/man/pacman.8 across scopes
+tsukuroi	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
+```
+
+Seven disclosed warnings. One new own-work/A/mined source, no prior source-field mutation, no frontier graduation or new repertoire row. Author-side admit: two citation-only corrections supported by exact committed source rows; rejects remain in Gate above. Non-author admit/reject sampling is not asserted. Depth improved, all other axes unchanged; expansion unchanged, quality improved, discernment improved through outside-citation disagreement learning/QUALITY23. Process deviations and operator-waived falsify remain disclosed limits, not positive trend credit. No promotion or SHONEN checkbox change. Tools installed/updated: none.

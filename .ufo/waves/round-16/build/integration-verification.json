@@ -1,0 +1,148 @@
+{
+  "schema": "tsukuroi-r16-integration-verification-v1",
+  "baseline": "db68e62065885b3f7463eb0a436c41f0dc3bcde5",
+  "measured": "db19cc98e091210326382c1ec0b93495fef26be0",
+  "commands": [
+    "git show <revision>:corpus/SOURCES.md; Python stdlib regex table census and Counter tier/status",
+    "git show <revision>:<protected-path>; byte equality and SHA256",
+    "git show <revision>:<target-path>; exact baseline-prefix equality",
+    "git show <revision>:corpus/knowledge/section-citation-errata-r16.json; exact source heading/unique row/quote comparison",
+    "Path.is_file for every validator-rendered report in lane and fleet root"
+  ],
+  "source_stats": {
+    "db68e62065885b3f7463eb0a436c41f0dc3bcde5": {
+      "rows": 49,
+      "tiers": {
+        "A": 41,
+        "B": 1,
+        "C": 7
+      },
+      "statuses": {
+        "mined": 36,
+        "queued": 5,
+        "rejected": 8
+      },
+      "malformed": 0
+    },
+    "db19cc98e091210326382c1ec0b93495fef26be0": {
+      "rows": 50,
+      "tiers": {
+        "A": 42,
+        "B": 1,
+        "C": 7
+      },
+      "statuses": {
+        "mined": 37,
+        "queued": 5,
+        "rejected": 8
+      },
+      "malformed": 0
+    }
+  },
+  "old_source_rows_changed": [],
+  "new_ids": [
+    "S050"
+  ],
+  "protected": {
+    "tools/tsukuroi-census.sh": {
+      "baseline_sha256": "d17d32a35946c71c1fc195e36178aa383f4a04d7172cc579b6e9e25fa537f27e",
+      "unchanged": true
+    },
+    "tools/check-root-dac-correction.py": {
+      "baseline_sha256": "4422941d8e1dadb5e4f8326ecf44169d19cfd083336c3c4c9066d5a2aa95ad44",
+      "unchanged": true
+    },
+    "tools/check-source-scope-correction.py": {
+      "baseline_sha256": "0771619dde7cc69fdb37538ad786f293b629f4062167a44a2d9cf4702ec6d428",
+      "unchanged": true
+    },
+    "tools/check-locator-clarification.py": {
+      "baseline_sha256": "62859cbb31d3dfbb0ebedf9e5cd684f2bacaa7ff68a69ce7b0dd772f05f271cf",
+      "unchanged": true
+    },
+    "tools/measure-update-recheck.py": {
+      "baseline_sha256": "6d811c2fe8e551d1d6adc4e81ae4f4671a6e3e1308e3e1e35a59ddc3cf20f875",
+      "unchanged": true
+    },
+    "SHONEN.md": {
+      "baseline_sha256": "4fc9eab4f5577810c2e160ebb1aff15199707cd4dbf47ffda3d7a7e77af9e961",
+      "unchanged": true
+    },
+    "PROVINCE.md": {
+      "baseline_sha256": "aeb7a5dd7a6c5e370d43c27c202d608830d369fea545943b2624d7ebe51d9523",
+      "unchanged": true
+    },
+    "corpus/lessons/round-1-verifier-spotcheck.md": {
+      "baseline_sha256": "96abf4c64181456289857fa19ea05e02a6a3eb694d12f43512d0302a54f83a99",
+      "unchanged": true
+    },
+    "corpus/lessons/round-12-verifier-spotcheck.md": {
+      "baseline_sha256": "100a2405dbec19a6136ce3a1632ca89ac3e181a225db3d2b7ecf37bbea9a7975",
+      "unchanged": true
+    },
+    "corpus/lessons/round-13-verifier-spotcheck.md": {
+      "baseline_sha256": "e81c3fb1180f74de395417b76cd4ebbc6f59ad76b7028940dac8ad282dab8743",
+      "unchanged": true
+    },
+    "corpus/lessons/round-14-verifier-spotcheck.md": {
+      "baseline_sha256": "8084aae8a7b3cad439586244194ffc61b8b24c15fd0b6e918e96ae68247d4146",
+      "unchanged": true
+    },
+    "corpus/lessons/round-15-verifier-spotcheck.md": {
+      "baseline_sha256": "ca66b3c4bc8b5477ae58c30ba57d5b2d89214c34f57c6e1b428dc6fbd49bf6ab",
+      "unchanged": true
+    }
+  },
+  "target_prefixes": {
+    "corpus/knowledge/host-health-report-r3.md": {
+      "baseline_bytes": 38589,
+      "after_bytes": 39496,
+      "baseline_is_exact_prefix": true
+    },
+    "corpus/knowledge/update-safety-v3.md": {
+      "baseline_bytes": 33401,
+      "after_bytes": 34432,
+      "baseline_is_exact_prefix": true
+    }
+  },
+  "source_resolution": [
+    {
+      "id": "R16-BOARD-SECTION",
+      "heading_count": 1,
+      "row_count": 1,
+      "quote_exact": true,
+      "notice_count": 1,
+      "historical_quote": "`-Syu` now `INERT`; after refresh `UNKNOWN-UPSTREAM`"
+    },
+    {
+      "id": "R16-RANK-SECTION",
+      "heading_count": 1,
+      "row_count": 1,
+      "quote_exact": true,
+      "notice_count": 1,
+      "historical_quote": "`-Syu` would be INERT: 0 candidates by three probes"
+    }
+  ],
+  "gate_inputs_unchanged_since_first_success": {
+    "corpus/knowledge/host-health-report-r3.md": true,
+    "corpus/knowledge/update-safety-v3.md": true,
+    "corpus/SOURCES.md": true,
+    "corpus/knowledge/section-citation-errata-r16.md": true,
+    "corpus/knowledge/section-citation-errata-r16.json": true
+  },
+  "misroot": {
+    "schema": "tsukuroi-r16-misroot-sweep-v1",
+    "method": "For every validated build task name, test exact expected report path under lane and same relative path under fleet root; no content or credential reads.",
+    "expected": 64,
+    "missing_lane_reports": [],
+    "misrooted_fleet_reports": []
+  },
+  "wave_counts": {
+    "build": 64,
+    "falsify": 0,
+    "total": 64,
+    "planned_falsify": 32,
+    "waived_by": "operator wrap-up"
+  },
+  "tools_installed": []
+}
