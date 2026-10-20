@@ -8,7 +8,7 @@ Captures: `.ufo/waves/round-17/l1-capture/` (boot-chain, fresh, overlay-emulatio
 | Item | Decision | Basis |
 |---|---|---|
 | `corpus/knowledge/boot-chain-r17.md` + `.json` (schema v2) | admit (author-side) | per-entry verdicts re-derive from typed image facts; default entry bound by firmware loader variables (supplement:113-115) |
-| First draft verdict “snapshot #2 DEGRADED-PREDICTED, hook silently no-ops” | reject (withdrawn) | `/new_root` is a symlink to `sysroot` in 42.2 images (overlay-emulation:5,8); emulation reaches the overlay (40-48) |
+| First draft verdict “snapshot #2 DEGRADED-PREDICTED, hook silently no-ops” | reject (withdrawn) | `/new_root` is a symlink to `sysroot` in all four 42.2 images (overlay-emulation:51-66; :5,8 cover only `omarchy_linux.efi`); emulation reaches the overlay (40-48) |
 | “linux-lts is a fallback for an initramfs hook problem” | reject | identical init/hook bytes (boot-chain-capture:198-200 vs 182-184) |
 | “The EFI fallback is an independent rescue path” | reject | BOOTX64.EFI sha256 equals limine_x64.efi (supplement:94-95) |
 | 48 R17 freshness records (`freshness-recheck-r17.json`) | admit | append-only notices; `tools/check-freshness-r17.py` re-validates each record against baseline bytes, notice and capture line |
@@ -29,6 +29,8 @@ Captures: `.ufo/waves/round-17/l1-capture/` (boot-chain, fresh, overlay-emulatio
 | S057 | https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio/-/merge_requests/482 § description | 2026-10-20 | “To avoid issues (or to at least try to avoid them), /new_root will be kept as a symlink to /sysroot.” |
 
 | S058 | https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio/-/raw/v42.2/init § init:66-67 (correction row) | 2026-10-20 | “# Mount root at /sysroot” — supersedes S054's `teaches`, which added “still” and a host-bytes clause the source does not state (wave-2 FxSrcS054) |
+
+| S059 | `.ufo/waves/round-17/l1-capture/overlay-emulation.txt` (correction row) | 2026-10-20 | line 54: “lrwxrwxrwx new_root -> sysroot” (linux-lts image) — supersedes S055, whose `teaches` said “42.2 images” from one listing and “making it writable” from a writable tmpfs (wave-2 FxOwnS055) |
 
 Mutable field changes (old → new): S015, S016, S021, S022 `used-by` `corpus/knowledge/initramfs-v42-sysroot-recovery.md` → `corpus/knowledge/initramfs-v42-sysroot-recovery.md, corpus/knowledge/boot-chain-r17.md`. No status or recheck changed. Re-opened unchanged today: S021 (hook still `root_mnt="/new_root"`), S022 (hook still `--new-root-dir=/new_root`).
 

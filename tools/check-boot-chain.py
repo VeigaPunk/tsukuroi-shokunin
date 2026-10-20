@@ -292,6 +292,7 @@ def b2sum_issue(entry, lines_by_path):
 
 
 TYPED_DIR = re.compile(r"^d[rwx-]{9}\s+(?:\S+\s+)*new_root\s*$")
+TYPED_LINK = re.compile(r"^l[rwx-]{9}\s+(?:\S+\s+)*new_root -> sysroot\s*$")
 
 
 def typed_root_findings(entry, cited, eid):
@@ -310,7 +311,7 @@ def typed_root_findings(entry, cited, eid):
                         f"image_new_root {kind!r} not in symlink->sysroot|directory")]
     lines = [line.strip() for _, line in cited]
     if kind == "symlink->sysroot":
-        typed = any("new_root -> sysroot" in line for line in lines)
+        typed = any(TYPED_LINK.match(line) for line in lines)
     else:
         typed = any(TYPED_DIR.match(line) for line in lines)
     if typed:
@@ -948,6 +949,11 @@ def selftest():
         ("untyped-symlink-claim", fixture(json17=mutate_entries(
             lambda es: es[1].update(evidence=[r for r in es[1]["evidence"]
                                               if not r.startswith(CAPTURES["emulation"])]))),
+         FAIL, {"BOOTCHAIN-UNTYPED"}, 2),
+        ("untyped-echo-line-only", fixture(json17=mutate_entries(
+            lambda es: es[1].update(evidence=[r for r in es[1]["evidence"]
+                                              if not r.startswith(CAPTURES["emulation"])]
+                                    + [ref("emulation", 4)]))),
          FAIL, {"BOOTCHAIN-UNTYPED"}, 2),
         ("image-kind-enum", fixture(json17=mutate_entries(
             lambda es: es[1].update(image_new_root="dir"))),

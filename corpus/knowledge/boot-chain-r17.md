@@ -54,7 +54,9 @@ authorizes a package, service, initramfs, bootloader or `/boot` change.
 - [obs] Emulation in an unprivileged user+mount namespace (tmpfs standing in for btrfs) of the
   hook's path steps: `findmnt --mountpoint <R>/new_root` returns the `<R>/sysroot` mount (rc 0;
   E:40–42); `mount --move <R>/new_root` succeeds; the overlay mounted on `<R>/new_root` appears
-  on `<R>/sysroot`, which becomes writable (E:43–48).
+  on `<R>/sysroot`, and a write after it lands in the overlay's upper layer (E:43–48). The
+  emulated root was a writable tmpfs, so it shows the path handling, not a read-only root made
+  writable; the hook's `ro=true` branch was not emulated.
 - [inf] Therefore, under a 42.2 image, the btrfs-overlayfs hook reaches its btrfs checks and,
   for a read-only snapshot root, mounts the overlay where v42 `init` will `switch_root`. The
   btrfs-specific steps (`FSTYPE` btrfs, `/snapshot` source path, `btrfs property get … ro`)
