@@ -1,0 +1,413 @@
+{
+ "wave": "tsukuroi-r17-falsify",
+ "context": "# Goal\nTsukuroi round 17, wave 2 (FALSIFY). Lane repo /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (branch master, jj-colocated). Wave 1 output landed at commit dd15c183f2f2481db67d0234038117a0d5b7034c (baseline 6923fe0bd3add04fc90f3bc3522895b27cf44bbe). L1 (TsukuroiR17) holds the planner seat and is the sole integrator; seats attack, never fix. Every item names what it attacks; report whether the attacked claim SURVIVES, FAILS or is UNPROVEN, with exact evidence.\nClaims under attack: C1 depth — corpus/knowledge/boot-chain-r17.{md,json} gives a next-boot verdict for 5 limine kernel entries (`python3 tools/check-boot-chain.py --revision dd15c183f2f2481db67d0234038117a0d5b7034c` → verdicted_kernel_entries 5; at 6923fe0bd3add04fc90f3bc3522895b27cf44bbe → 0). C2 freshness — 48 stale current-use statements in six knowledge entries carry appended dated R17 notices (`python3 tools/check-freshness-r17.py --revision dd15c183f2f2481db67d0234038117a0d5b7034c` → resolved_records 48; at 6923fe0bd3add04fc90f3bc3522895b27cf44bbe R17-FRESH-MISSING; `--revision 6923fe0bd3add04fc90f3bc3522895b27cf44bbe --registry-from dd15c183f2f2481db67d0234038117a0d5b7034c` → 48 STALE-UNFLAGGED). C3 operability — five revision tools bound to landed commits (`python3 tools/check-revision-binding.py --tools-revision dd15c183f2f2481db67d0234038117a0d5b7034c` → 5/5; at 6923fe0bd3add04fc90f3bc3522895b27cf44bbe → 0/5). Capability: `tools/boot-chain-audit.sh --live` (L1-only; output /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture/audit-live.txt). Frontier: SOURCES rows S051–S057, lesson corpus/lessons/round-17.md (mistakes R17-TYPE-BLIND, R17-STEER-SCOPE, R17-JJ-REVISION, R17-SEAT-EXEC), QUALITY 25–27, steer-safe recheck blocks (`tools/check-recheck-commands.py`). Captures: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture/{boot-chain-capture,fresh-capture,overlay-emulation,supplement-capture,audit-live}.txt. Wave-1 reports: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/build/*.md. L1 measurements: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/measure/*.json and rc.txt.\nKnown L1 change after landing (uncommitted, in worktree): snapper-eacces-mechanism.md steer-safe bullet reworded (the gate caught a backticked `pacman -Qo /` inside the R17-RECHECK block); frozen-cases.SUPERSEDED.md corrected.\n# Contract\n- Every `Report:` trailer path is relative to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin — write it at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/<that path>. Use ABSOLUTE paths for every tool call (tools start at the fleet root /home/vgpnk/Projects/shokunin). Write ONLY your report. Never write the fleet repo, MANIFEST.json, .ufo/state, another lane, /boot, /etc or any host path.\n- Never run `jj` or any git write (add/commit/stash/checkout/switch/reset/rebase/pull/push) in the lane repo. Read-only git (show, log, diff, rev-parse, merge-base, ls-tree) is fine. Any git write happens only inside your own mktemp clone (`git clone --quiet --no-hardlinks /home/vgpnk/Projects/shokunin/tsukuroi-shokunin \"$(mktemp -d)\"/lane`, then `git -C <clone> remote remove origin` if you will move refs).\n- Execution scope: you execute NOTHING unless your item says EXEC-AUTHORIZED, and then only what it names, only inside a mktemp clone or read-only against the lane. No host probes (no package/log/service/ownership/sudo/boot queries), never sudo, never `--live`. Read files with the read tool; open URLs with the read tool or web_search.\n- Every report ends with exactly one line `Scope: executed=none` or `Scope: executed=<comma list of commands actually run>` — truthful; it is audited by tools/check-seat-scope.py.\n- Reports ≤220 words: verdict (SURVIVES/FAILS/UNPROVEN), exact evidence (path:line, command + output, URL + heading + ≤25-word quote + access date 2026-10-20), what you could not verify. Mark [obs]/[inf]/[unk].\n- Leaf seats: no subagents, no background jobs. Never message agent://all; never call ask; never pass a model.\n- Tooling authorization (operator 2026-10-19): you may install or upgrade tools that help the task — read /home/vgpnk/.omp/agent/RULES.md first (official channels, update-safety gate, record tool/version/channel/reason). pacman guard: ALL pacman transactions are PAUSED host-wide; never pacman (any operation), never -Sy/-Syu/-U/-R, downgrade, restart a host service, run mkinitcpio/limine-update, or write /boot. Install only via uv tool/npx/official binary in ~/.local/bin, or recommend an L0 question to L1. These tasks need no installs.\n",
+ "reportDir": ".ufo/waves/round-17/falsify",
+ "maxLanes": 100,
+ "items": [
+  {
+   "name": "FxC1Rerun",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C1's count. Re-run `python3 tools/check-boot-chain.py --revision 6923fe0bd3add04fc90f3bc3522895b27cf44bbe` and `--revision dd15c183f2f2481db67d0234038117a0d5b7034c` and `--revision HEAD` and `--selftest`; compare with .ufo/waves/round-17/measure/c1-*.json. EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxEntryLinux",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the boot-chain-r17.json entry `linux`: verify every field and every `evidence` reference (capture:line) against the four captures in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture, and re-derive its verdict from `verdict_rules` by hand. Any unsupported field or wrong line = FAILS."
+  },
+  {
+   "name": "FxEntryLinuxlts",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the boot-chain-r17.json entry `linux-lts`: verify every field and every `evidence` reference (capture:line) against the four captures in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture, and re-derive its verdict from `verdict_rules` by hand. Any unsupported field or wrong line = FAILS."
+  },
+  {
+   "name": "FxEntrySnapshot2Linux",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the boot-chain-r17.json entry `snapshot-2/linux`: verify every field and every `evidence` reference (capture:line) against the four captures in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture, and re-derive its verdict from `verdict_rules` by hand. Any unsupported field or wrong line = FAILS."
+  },
+  {
+   "name": "FxEntrySnapshot2Linuxlts",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the boot-chain-r17.json entry `snapshot-2/linux-lts`: verify every field and every `evidence` reference (capture:line) against the four captures in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture, and re-derive its verdict from `verdict_rules` by hand. Any unsupported field or wrong line = FAILS."
+  },
+  {
+   "name": "FxEntrySnapshot1Linux",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the boot-chain-r17.json entry `snapshot-1/linux`: verify every field and every `evidence` reference (capture:line) against the four captures in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture, and re-derive its verdict from `verdict_rules` by hand. Any unsupported field or wrong line = FAILS."
+  },
+  {
+   "name": "FxEntryEfifallback",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the boot-chain-r17.json entry `efi-fallback`: verify every field and every `evidence` reference (capture:line) against the four captures in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture, and re-derive its verdict from `verdict_rules` by hand. Any unsupported field or wrong line = FAILS."
+  },
+  {
+   "name": "FxMdJsonAgree",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks consistency between corpus/knowledge/boot-chain-r17.md (Decision table, Next-boot verdict, Rules prose) and boot-chain-r17.json (verdict_rules, entries): list every disagreement (verdicts, hashes, rule wording, evidence lines)."
+  },
+  {
+   "name": "FxBootedObserved",
+   "role": "critic",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks BOOTED-OBSERVED for //linux: is the binding (efivars LoaderEntrySelected=Omarchy.linux at supplement-capture.txt:113-115, image mtime < boot, 9-path sweep at boot-chain-capture.txt:256-258, limine.conf hash S:34) sufficient to say THIS image booted and the next default boot repeats it? Strongest counter-reading and residual risk."
+  },
+  {
+   "name": "FxPathAliased",
+   "role": "critic",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks PATH-ALIASED-EMULATED for snapshot-2: the emulation (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture/overlay-emulation.txt:20-48) used tmpfs; read /usr/lib/initcpio/hooks/btrfs-overlayfs, /usr/lib/initcpio/init and init_functions (read tool) and judge whether the btrfs FSTYPE, `/snapshot` SOURCE match (findmnt SOURCE through the symlink), `btrfs property get -t subvol /new_root ro` through a symlink, and switch_root /sysroot after an overlay was mounted on the symlink path all behave as the entry infers. Any step that would break the overlay = FAILS."
+  },
+  {
+   "name": "FxConsistentPre42",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks CONSISTENT-PRE42 for snapshot-1 (41.1 image, kernel 7.2.3): would booting it actually work today (kernel 7.2.3 modules present in the snapshot rootfs? /usr/lib/modules on the live root no longer has 7.2.3 per fresh-capture.txt:39-41; snapshot cmdline zswap.enabled=0) — is 'consistent' overclaimed as a rollback verdict? Use captures and the entry; no host probes."
+  },
+  {
+   "name": "FxOperatorChecks",
+   "role": "critic",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks `## Operator checks before the next reboot` in corpus/knowledge/boot-chain-r17.md and the two tsukuroi round-17 lines at the end of /home/vgpnk/Projects/shokunin/.ufo/l0-questions.md: unsafe, missing, or overclaimed advice? Is anything an action tsukuroi took or authorized?"
+  },
+  {
+   "name": "FxL0Correction",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the tsukuroi round-17 CORRECTION line in /home/vgpnk/Projects/shokunin/.ufo/l0-questions.md fact by fact against the lane captures; mark each supported (capture:line) / unsupported / wrong."
+  },
+  {
+   "name": "FxRejectedReadings",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks every bullet of `## Rejected readings` in corpus/knowledge/boot-chain-r17.md: is each rejection grounded in the cited lines, and is any rejected reading actually still possible?"
+  },
+  {
+   "name": "FxAuditLiveAgree",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the capability claim: compare /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture/audit-live.txt row by row with boot-chain-r17.json (sha256, uname, VERSION, refs, image_new_root, rootflags, selected, verdict). Any disagreement = FAILS."
+  },
+  {
+   "name": "FxAuditSelftest",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks tools/boot-chain-audit.sh: run `bash -n tools/boot-chain-audit.sh` and `bash tools/boot-chain-audit.sh --selftest`; then read the selftest and state which live-only code paths have no fixture coverage (e.g. the L1 integration fixes: non-empty .uname check, sudo -n stat mtime). EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxAuditPrivilege",
+   "role": "sentinel",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the read-only/privilege contract of tools/boot-chain-audit.sh at the worktree (read the whole script): every sudo invocation, every write path, path validation of limine.conf `path:` values, extraction of attacker-influenced images (lsinitcpio -x, objcopy), symlink/TOCTOU in $WORK, cleanup. The L1 added `sudo -n stat -c %Y`; is that safe? Concrete exploitable findings only."
+  },
+  {
+   "name": "FxAuditMutants",
+   "role": "mutation-tester",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nMutation-test tools/boot-chain-audit.sh verdict_for() and the image_identity() non-empty .uname check: in a mktemp copy, apply ≥8 single-point mutants (flip comparisons, drop the [ -s ] check, swap rule order, change symlink->sysroot literal) and run `bash tools/boot-chain-audit.sh --selftest` on each; report killed/survived with the mutant diff. EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else. Restore nothing in the lane; work only in the copy."
+  },
+  {
+   "name": "FxGateMutants",
+   "role": "mutation-tester",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nMutation-test tools/check-boot-chain.py: in a mktemp clone apply ≥8 single-point mutants to verdict re-derivation, evidence-line witness checks and revision binding; run `--selftest` and `--revision dd15c183f2f2481db67d0234038117a0d5b7034c` per mutant; report killed/survived. EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxSrcS053",
+   "role": "scout",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks SOURCES row S053 (corpus/SOURCES.md) and its Gate quote in corpus/lessons/round-17.md: re-open https://gitlab.archlinux.org/api/v4/projects/archlinux%2Fmkinitcpio%2Fmkinitcpio/releases (read tool), confirm the anchor and the located quote verbatim, and check the row's `teaches` stays inside what the source says."
+  },
+  {
+   "name": "FxSrcS054",
+   "role": "scout",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks SOURCES row S054 (corpus/SOURCES.md) and its Gate quote in corpus/lessons/round-17.md: re-open https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio/-/raw/v42.2/init (read tool), confirm the anchor and the located quote verbatim, and check the row's `teaches` stays inside what the source says."
+  },
+  {
+   "name": "FxSrcS057",
+   "role": "scout",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks SOURCES row S057 (corpus/SOURCES.md) and its Gate quote in corpus/lessons/round-17.md: re-open https://gitlab.archlinux.org/api/v4/projects/archlinux%2Fmkinitcpio%2Fmkinitcpio/merge_requests/482 (read tool), confirm the anchor and the located quote verbatim, and check the row's `teaches` stays inside what the source says."
+  },
+  {
+   "name": "FxSrcS021",
+   "role": "scout",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks SOURCES row S021 (corpus/SOURCES.md) and its Gate quote in corpus/lessons/round-17.md: re-open https://gitlab.com/Zesko/limine-entry-tool/-/raw/master/install/arch-linux/limine-mkinitcpio-hook/usr/lib/initcpio/hooks/btrfs-overlayfs (read tool), confirm the anchor and the located quote verbatim, and check the row's `teaches` stays inside what the source says."
+  },
+  {
+   "name": "FxSrcS022",
+   "role": "scout",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks SOURCES row S022 (corpus/SOURCES.md) and its Gate quote in corpus/lessons/round-17.md: re-open https://gitlab.archlinux.org/archlinux/packaging/packages/plymouth/-/raw/main/plymouth.initcpio_hook (read tool), confirm the anchor and the located quote verbatim, and check the row's `teaches` stays inside what the source says."
+  },
+  {
+   "name": "FxOwnS051",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks own-work SOURCES row S051: check its anchor line ranges, `teaches` and the lesson Gate quote against /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture/boot-chain-capture.txt; does `teaches` overreach the capture?"
+  },
+  {
+   "name": "FxOwnS052",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks own-work SOURCES row S052: check its anchor line ranges, `teaches` and the lesson Gate quote against /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture/fresh-capture.txt; does `teaches` overreach the capture?"
+  },
+  {
+   "name": "FxOwnS055",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks own-work SOURCES row S055: check its anchor line ranges, `teaches` and the lesson Gate quote against /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture/overlay-emulation.txt; does `teaches` overreach the capture?"
+  },
+  {
+   "name": "FxOwnS056",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks own-work SOURCES row S056: check its anchor line ranges, `teaches` and the lesson Gate quote against /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/l1-capture/supplement-capture.txt; does `teaches` overreach the capture?"
+  },
+  {
+   "name": "FxSourcesContract",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the SOURCES contract compliance of rows S051–S057 and the round-17 Search log paragraph in corpus/SOURCES.md against /home/vgpnk/Projects/shokunin/CORPUS.md § SOURCES.md (columns, kind/tier/status enums, used-by paths existing, mutable-field changes logged old→new in corpus/lessons/round-17.md)."
+  },
+  {
+   "name": "FxFreshInitV42Sysr",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the R17 notices appended to corpus/knowledge/initramfs-v42-sysroot-recovery.md: diff against the baseline (`git show 6923fe0bd3add04fc90f3bc3522895b27cf44bbe:corpus/knowledge/initramfs-v42-sysroot-recovery.md`) — is the change a pure append? For every bullet: quoted old text exact? new value supported by the cited capture line? any overreach (pending count asserted, authorization implied, dated history refreshed)? Use the read tool and read-only git only."
+  },
+  {
+   "name": "FxFreshUpdaSafeV3",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the R17 notices appended to corpus/knowledge/update-safety-v3.md: diff against the baseline (`git show 6923fe0bd3add04fc90f3bc3522895b27cf44bbe:corpus/knowledge/update-safety-v3.md`) — is the change a pure append? For every bullet: quoted old text exact? new value supported by the cited capture line? any overreach (pending count asserted, authorization implied, dated history refreshed)? Use the read tool and read-only git only."
+  },
+  {
+   "name": "FxFreshPartUpgrRech",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the R17 notices appended to corpus/knowledge/partial-upgrade-recheck-r15.md: diff against the baseline (`git show 6923fe0bd3add04fc90f3bc3522895b27cf44bbe:corpus/knowledge/partial-upgrade-recheck-r15.md`) — is the change a pure append? For every bullet: quoted old text exact? new value supported by the cited capture line? any overreach (pending count asserted, authorization implied, dated history refreshed)? Use the read tool and read-only git only."
+  },
+  {
+   "name": "FxFreshSnapEaccMech",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the R17 notices appended to corpus/knowledge/snapper-eacces-mechanism.md: diff against the baseline (`git show 6923fe0bd3add04fc90f3bc3522895b27cf44bbe:corpus/knowledge/snapper-eacces-mechanism.md`) — is the change a pure append? For every bullet: quoted old text exact? new value supported by the cited capture line? any overreach (pending count asserted, authorization implied, dated history refreshed)? Use the read tool and read-only git only."
+  },
+  {
+   "name": "FxFreshDrivFirmPlan",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the R17 notices appended to corpus/knowledge/driver-firmware-plane.md: diff against the baseline (`git show 6923fe0bd3add04fc90f3bc3522895b27cf44bbe:corpus/knowledge/driver-firmware-plane.md`) — is the change a pure append? For every bullet: quoted old text exact? new value supported by the cited capture line? any overreach (pending count asserted, authorization implied, dated history refreshed)? Use the read tool and read-only git only."
+  },
+  {
+   "name": "FxFreshArchNewsGate",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the R17 notices appended to corpus/knowledge/arch-news-gate-2026.md: diff against the baseline (`git show 6923fe0bd3add04fc90f3bc3522895b27cf44bbe:corpus/knowledge/arch-news-gate-2026.md`) — is the change a pure append? For every bullet: quoted old text exact? new value supported by the cited capture line? any overreach (pending count asserted, authorization implied, dated history refreshed)? Use the read tool and read-only git only."
+  },
+  {
+   "name": "FxC2Rerun",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C2's count. Re-run `python3 tools/check-freshness-r17.py --revision 6923fe0bd3add04fc90f3bc3522895b27cf44bbe`, `--revision dd15c183f2f2481db67d0234038117a0d5b7034c`, `--revision 6923fe0bd3add04fc90f3bc3522895b27cf44bbe --registry-from dd15c183f2f2481db67d0234038117a0d5b7034c` and `--selftest`; compare with .ufo/waves/round-17/measure/c2-*.json. EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxFreshMutants",
+   "role": "mutation-tester",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nMutation-test tools/check-freshness-r17.py: in a mktemp clone, ≥8 mutants (drop prefix check, drop heading-absent-at-baseline check, section bound, capture-quote check); run `--selftest` and `--revision dd15c183f2f2481db67d0234038117a0d5b7034c` each; killed/survived. EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxFreshOverreach",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C2 for overreach and inflation: are 48 records 48 distinct stale statements, or duplicates/padding? Does any notice assert a fresh pending-update count, authorize action, or re-date historical measurements? Read corpus/knowledge/freshness-recheck-r17.json and the six notices; apply .ufo/waves/round-17/build/CritFreshnessScope.md's reject-list."
+  },
+  {
+   "name": "FxUnflaggedBoot",
+   "role": "scout",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C2's completeness claim wording (the round claims 48 resolved, not total coverage): in corpus/knowledge/boot-plane.md, journal-boot-plane.md (relative to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge) list current-use statements made stale by the 2026-10-20 upgrade that carry NO R17 notice (wave-1 sweeps .ufo/waves/round-17/build/Fresh*Sweep.md list candidates). Does the report/SCORECARD wording anywhere imply full coverage?"
+  },
+  {
+   "name": "FxUnflaggedPkg",
+   "role": "scout",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C2's completeness claim wording (the round claims 48 resolved, not total coverage): in corpus/knowledge/package-state-plane.md, aur-risk-plane.md, foreign-provenance-r6.md (relative to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge) list current-use statements made stale by the 2026-10-20 upgrade that carry NO R17 notice (wave-1 sweeps .ufo/waves/round-17/build/Fresh*Sweep.md list candidates). Does the report/SCORECARD wording anywhere imply full coverage?"
+  },
+  {
+   "name": "FxUnflaggedMem",
+   "role": "scout",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C2's completeness claim wording (the round claims 48 resolved, not total coverage): in corpus/knowledge/oom-event-plane.md, kill-event-deep-r8.md (relative to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge) list current-use statements made stale by the 2026-10-20 upgrade that carry NO R17 notice (wave-1 sweeps .ufo/waves/round-17/build/Fresh*Sweep.md list candidates). Does the report/SCORECARD wording anywhere imply full coverage?"
+  },
+  {
+   "name": "FxUnflaggedSkill",
+   "role": "scout",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C2's completeness claim wording (the round claims 48 resolved, not total coverage): in corpus/knowledge/../SKILL.md (current-use guidance sections) and host-health-report-r3.md (relative to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge) list current-use statements made stale by the 2026-10-20 upgrade that carry NO R17 notice (wave-1 sweeps .ufo/waves/round-17/build/Fresh*Sweep.md list candidates). Does the report/SCORECARD wording anywhere imply full coverage?"
+  },
+  {
+   "name": "FxBindLocaClar",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C3 for tools/check-locator-clarification.py: in a mktemp clone run it with `--revision HEAD`, `--revision @-`, `--revision master`, a 6-hex prefix, an unlanded commit you create in the clone, a landed non-tip ancestor (6923fe0bd3add04fc90f3bc3522895b27cf44bbe), and the tip; with origin pinned behind the tip check E-REVISION-NOT-PUSHED. Report exit codes and finding ids; also confirm every pre-round finding id and check still exists (diff `git show 6923fe0bd3add04fc90f3bc3522895b27cf44bbe:tools/check-locator-clarification.py`). EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxBindRootDacCorr",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C3 for tools/check-root-dac-correction.py: in a mktemp clone run it with `--revision HEAD`, `--revision @-`, `--revision master`, a 6-hex prefix, an unlanded commit you create in the clone, a landed non-tip ancestor (6923fe0bd3add04fc90f3bc3522895b27cf44bbe), and the tip; with origin pinned behind the tip check E-REVISION-NOT-PUSHED. Report exit codes and finding ids; also confirm every pre-round finding id and check still exists (diff `git show 6923fe0bd3add04fc90f3bc3522895b27cf44bbe:tools/check-root-dac-correction.py`). EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxBindSectCita",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C3 for tools/check-section-citations.py: in a mktemp clone run it with `--revision HEAD`, `--revision @-`, `--revision master`, a 6-hex prefix, an unlanded commit you create in the clone, a landed non-tip ancestor (6923fe0bd3add04fc90f3bc3522895b27cf44bbe), and the tip; with origin pinned behind the tip check E-REVISION-NOT-PUSHED. Report exit codes and finding ids; also confirm every pre-round finding id and check still exists (diff `git show 6923fe0bd3add04fc90f3bc3522895b27cf44bbe:tools/check-section-citations.py`). EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxBindSourScopCorr",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C3 for tools/check-source-scope-correction.py: in a mktemp clone run it with `--revision HEAD`, `--revision @-`, `--revision master`, a 6-hex prefix, an unlanded commit you create in the clone, a landed non-tip ancestor (6923fe0bd3add04fc90f3bc3522895b27cf44bbe), and the tip; with origin pinned behind the tip check E-REVISION-NOT-PUSHED. Report exit codes and finding ids; also confirm every pre-round finding id and check still exists (diff `git show 6923fe0bd3add04fc90f3bc3522895b27cf44bbe:tools/check-source-scope-correction.py`). EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxBindUpdaRech",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C3 for tools/measure-update-recheck.py: in a mktemp clone run it with `--revision HEAD`, `--revision @-`, `--revision master`, a 6-hex prefix, an unlanded commit you create in the clone, a landed non-tip ancestor (6923fe0bd3add04fc90f3bc3522895b27cf44bbe), and the tip; with origin pinned behind the tip check E-REVISION-NOT-PUSHED. Report exit codes and finding ids; also confirm every pre-round finding id and check still exists (diff `git show 6923fe0bd3add04fc90f3bc3522895b27cf44bbe:tools/measure-update-recheck.py`). EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxC3Rerun",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C3's count: re-run `python3 tools/check-revision-binding.py --tools-revision 6923fe0bd3add04fc90f3bc3522895b27cf44bbe`, `--tools-revision dd15c183f2f2481db67d0234038117a0d5b7034c`, `--tools-revision HEAD`, `--selftest`; compare with .ufo/waves/round-17/measure/c3-*.json. EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxC3Gameability",
+   "role": "critic",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks C3's counting harness (tools/check-revision-binding.py): .ufo/waves/round-17/build/CritRevBindingSemantics.md showed stubs S1 (tip-equality only), S2 (no origin check), S3 (rejects only literal HEAD) could score BOUND, the sandbox pins origin to the tip, and the denominator is fixed at 5. Read the landed harness: which holes remain? Is 'bound 5/5' a fair count?"
+  },
+  {
+   "name": "FxBindMutants",
+   "role": "mutation-tester",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nMutation-test tools/check-revision-binding.py: ≥6 mutants (accept HEAD, skip NOT-LANDED, accept any exit≠2 as bound, ignore revision==tip) in a mktemp clone; run `--selftest` and `--tools-revision dd15c183f2f2481db67d0234038117a0d5b7034c` per mutant; killed/survived. EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxSandboxSafety",
+   "role": "sentinel",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks git-sandbox safety of the landed tools (tools/check-*.py, measure-update-recheck.py): any code path where a selftest or the counting harness could run a git write against the lane repo itself (repo arg defaulting to ROOT, -C '', inherited GIT_DIR/GIT_WORK_TREE, clone keeping origin=lane then pushing, Path(__file__) symlink to lane). Re-check SentSandboxGit.md F1–F5 against landed code."
+  },
+  {
+   "name": "FxSkillContract",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks SKILL.md `## Round 17` (end of file): every registry row's entry command, exit map, selftest tally and pinned value vs the tools' --help/source; the revision-contract paragraph vs the five tools' REV regex and finding ids."
+  },
+  {
+   "name": "FxSimplifyBind",
+   "role": "simplifier",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAdvisory attack on maintainability of C3: the binding logic now exists in ~9 tools (see .ufo/waves/round-17/build/SimplifyRevBinding.md). Do any copies diverge in semantics (finding ids, exit codes, origin handling, short-hex handling) such that the five 'bound' tools behave differently on the same input? List divergences with file:line."
+  },
+  {
+   "name": "FxRecheckRerun",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the mined-mistake fix gate: re-run `python3 tools/check-recheck-commands.py --revision 6923fe0bd3add04fc90f3bc3522895b27cf44bbe`, `--revision dd15c183f2f2481db67d0234038117a0d5b7034c`, `--selftest`; explain the remaining findings at dd15c183f2f2481db67d0234038117a0d5b7034c (L1 says one backticked `pacman -Qo /` inside the snapper R17-RECHECK block, reworded in the worktree after landing). EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxRecheckBlocks",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the five appended `## R17-RECHECK — steer-safe procedure` blocks (initramfs-v42-sysroot-recovery, driver-firmware-plane, foreign-provenance-r6, package-state-plane, snapper-eacces-mechanism): is each substitution a correct read-only equivalent of the pacman query it replaces, with no forbidden binary and no wrong path (e.g. /var/lib/pacman/local/*/files format, sync db tar layout)? Read-only inspection of those files (read tool) allowed."
+  },
+  {
+   "name": "FxTypeBlindFix",
+   "role": "critic",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks R17-TYPE-BLIND's fix (corpus/lessons/round-17.md, QUALITY 25, schema v2 `image_new_root`): is it shown able to fail on the real defect (a v1-style record asserting DEGRADED with an untyped `dirs:` evidence line), or only asserted? Read tools/check-boot-chain.py and say what exact input would make it red; if none, FAILS."
+  },
+  {
+   "name": "FxSteerScopeFix",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks R17-STEER-SCOPE (L1 ran `pacman -Q` despite the steer): is QUALITY 26 + tools/check-recheck-commands.py a fix that could have caught the actual event (an L1 shell call), or only document recheck lines? Read .ufo/waves/round-17/build/CritMinedMistake.md and the lesson; propose the minimal real capture."
+  },
+  {
+   "name": "FxSeatScopeRerun",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the QUALITY24 demonstration: re-run `python3 tools/check-seat-scope.py --wave .ufo/waves/round-16/build --revision f871697aa0a8ed180771e62d99e3b9559fd5efd1` and `--wave .ufo/waves/round-17/build --revision dd15c183f2f2481db67d0234038117a0d5b7034c`; compare with .ufo/waves/round-17/measure/seat-*.json; explain SCOPE-REPORT-MISSING entries (registry members BootChainJson/BootChainEntry were renamed before dispatch?). EXEC-AUTHORIZED: only the named python3/bash commands, run from a fresh mktemp clone of the lane (git clone --quiet --no-hardlinks), plus read-only git; nothing else."
+  },
+  {
+   "name": "FxQuality2527",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks corpus/QUALITY.md criteria 25–27: each cites a lesson anchor that exists in corpus/lessons/round-17.md § Mistakes? any criterion contradicting earlier criteria 1–24? any rule not actually followed by this round's own entry?"
+  },
+  {
+   "name": "FxLessonGate",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks corpus/lessons/round-17.md `## Gate` and new-row table: every quote ≤25 words and verbatim at its location (open captures and URLs), every admit/reject backed by its basis, mutable-field log complete."
+  },
+  {
+   "name": "FxGodspeedW2",
+   "role": "connector",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks godspeed conformance of THIS wave: read /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-17/falsify/dispatch.json and /home/vgpnk/.agents/skills/godspeed/directive.md; verify every taskCall.tasks[*].task starts with exactly '/skill:godspeed\\n\\n' + the directive bytes (decoded), once. Also re-verify wave 1 (.ufo/waves/round-17/build/dispatch.json). Report counts. EXEC-AUTHORIZED: one python3 read-only byte comparison over those two files."
+  },
+  {
+   "name": "FxW04",
+   "role": "connector",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the W04 ×7 disposition (keep with reason) in corpus/lessons/round-17.md against /home/vgpnk/Projects/shokunin/CORPUS.md SOURCES Rule 2 and .ufo/waves/round-17/build/CensusW04Scout.md: is 'keep' compliant and is any of the seven actually a true duplicate that should have been handled differently?"
+  },
+  {
+   "name": "FxFrozenMarker",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks .ufo/waves/round-16/build/frozen-cases.SUPERSEDED.md: every JSON path and contradiction it names exists in frozen-cases.json and the shipped tools/check-section-citations.py; anything still inaccurate?"
+  },
+  {
+   "name": "FxSeparability",
+   "role": "connector",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks claim separability (AXES.md: each claim verifiable without the others): could C1's count change if C2's or C3's files were reverted, or vice versa? Check which files each counting command reads (tools/check-boot-chain.py, check-freshness-r17.py, check-revision-binding.py). Also: do C1 and C2 really sit on distinct axes (depth vs freshness) given both use the same captures?"
+  },
+  {
+   "name": "FxNoHarm",
+   "role": "critic",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks 'no axis harmed': the round filed a WRONG urgent L0 line (fleet commit ac792a7) before correcting it (6fe9984). Does that harm calibration (SHONEN/SCORECARD self-assessment quality) or adjacency? Does any edited older entry lose accuracy? Judge each axis harmed/unchanged/improved with evidence."
+  },
+  {
+   "name": "FxReadmeFrontier",
+   "role": "connector",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks corpus/README.md `## Round 17` section: does superseding the Frontier bullet ('Pending mkinitcpio 42 upgrade strands two /new_root hooks') rest on admissible evidence, and does PROVINCE.md need a change (it should not be edited by seats; just report)?"
+  },
+  {
+   "name": "FxScorecardRound17",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks SCORECARD.md `## Round 17` section and the new `boot-chain-audit` capabilities row: counting commands exact? baseline values match measure/*.json? capability demonstrated by a passing live run in .ufo/waves/round-17/l1-capture/audit-live.txt per AXES.md § Capabilities?"
+  },
+  {
+   "name": "FxLogEntry",
+   "role": "reviewer",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the round-17 LOG.md entry (end of file): every factual sentence vs captures, seat reports and measure/*.json; any overstatement?"
+  },
+  {
+   "name": "FxRevengerSnapperCopy",
+   "role": "revenger",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the [inf] in boot-chain-r17.md that limine-snapper-sync copies the then-current UKI into limine_history at snapshot time and that every future snapshot entry inherits the then-current image: reconstruct from installed files (/usr/lib/snapper/plugins/*limine*, /usr/bin/limine-snapper-*; read tool only) and .ufo/waves/round-17/build/RevLimineSnapperSync.md. SURVIVES/FAILS."
+  },
+  {
+   "name": "FxRevengerPlymouth",
+   "role": "revenger",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the entry's claim that plymouth's `--new-root-dir=/new_root` resolves to the mounted root under 42.2: reconstruct plymouth update-root-fs (chdir/chroot through a symlink) from .ufo/waves/round-17/build/SrcPlymouthUpdateRootFs.md and upstream source (read tool), and say whether the symlink changes behaviour vs 41.1."
+  },
+  {
+   "name": "FxRevengerSwitchRoot",
+   "role": "revenger",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the assumption that switch_root /sysroot works after btrfs-overlayfs did `mount --move /new_root <lower>` then mounted overlay on /new_root (symlink): reconstruct from /usr/lib/initcpio/init (read tool) and busybox switch_root semantics whether /sysroot is then the overlay mountpoint (the emulation at overlay-emulation.txt:44-47 shows findmnt /sysroot FSTYPE=overlay)."
+  },
+  {
+   "name": "FxScoutArchNewsDelta",
+   "role": "scout",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the arch-news-gate-2026.md R17 notice ('article precondition still unmet'): re-open https://archlinux.org/news/ (read tool) and the mkinitcpio-42 TPM2 article; any new item since 2026-10-20 morning or condition that applies to a busybox+encrypt host?"
+  },
+  {
+   "name": "FxScoutLimineDocs",
+   "role": "scout",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the claim 'EFI fallback reopens the same Limine menu' and 'LoaderEntrySelected names the booted entry': open https://github.com/limine-bootloader/limine/blob/trunk/CONFIG.md and limine's protocol/bli docs (read tool); quote what Limine says it writes to LoaderEntrySelected / LimineLastBootedEntry and how the fallback path behaves."
+  },
+  {
+   "name": "FxScoutFindmnt",
+   "role": "scout",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the emulation's reliance on findmnt canonicalization: open man7 findmnt(8) https://man7.org/linux/man-pages/man8/findmnt.8.html and util-linux docs (read tool): quote what --mountpoint and -C/--nocanonicalize say; does canonicalization apply to --mountpoint in util-linux 2.42?"
+  },
+  {
+   "name": "FxScoutMountMove",
+   "role": "scout",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the emulation step `mount --move <symlink path>`: open mount(8) https://man7.org/linux/man-pages/man8/mount.8.html and mount(2) (read tool): quote how --move and overlay mounts treat a target path that is a symlink (resolution). Does it match overlay-emulation.txt:43-47?"
+  },
+  {
+   "name": "FxSentinelL0Advice",
+   "role": "sentinel",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks safety of everything this round tells the operator (two tsukuroi round-17 lines in /home/vgpnk/Projects/shokunin/.ufo/l0-questions.md, boot-chain-r17.md operator checks, SKILL.md Round-17 pre-reboot procedure): could following any of it break boot, leak secrets (LUKS header copy advice), or run privileged writes?"
+  },
+  {
+   "name": "FxConnSibling",
+   "role": "connector",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks adjacency: do the round-17 tsukuroi entries contradict sibling lanes' round-17/18 reports about this host (/home/vgpnk/Projects/shokunin/.ufo/reports/round-17/*.md, round-18/*.md; e.g. mado's mkinitcpio closure)? List contested scope to report, not absorb."
+  },
+  {
+   "name": "FxConnUnknowns",
+   "role": "connector",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks honesty of [unk]/[inf] labelling across boot-chain-r17.md, the R17 notices and the lesson: list any [obs] that is really an inference and any inference stated without a label."
+  },
+  {
+   "name": "FxCritCalibration",
+   "role": "critic",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks the round's self-assessment: SCORECARD round-17 section and the planned trend verdicts (expansion unchanged? quality improved, discernment improved via seat corrections and the L0 correction). Is 'discernment improved' earned when the L1's own first verdict was wrong and seats caught it? Give the verdict an outside closure would give."
+  },
+  {
+   "name": "FxSimplifyAudit",
+   "role": "simplifier",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAdvisory YAGNI attack on tools/boot-chain-audit.sh (1240+ lines): which parts duplicate tools/check-boot-chain.py or are unused (fixture modes, wrappers)? Propose deletions that preserve verified behaviour; no edits."
+  },
+  {
+   "name": "FxConnPlannerGap",
+   "role": "connector",
+   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\nAttacks coverage of this falsify wave itself: read .ufo/waves/round-17/falsify/spec.json and .ufo/waves/round-17/build/ConnPlannerWalk.md; which round-17 assertion, gate or new row has NO attack item in this wave? List gaps."
+  }
+ ]
+}

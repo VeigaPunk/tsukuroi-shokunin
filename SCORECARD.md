@@ -507,3 +507,21 @@ Baseline `6923fe0bd3add04fc90f3bc3522895b27cf44bbe`. Steered priority: next-boot
 - **Capability** (inside C1, not a fourth claim): `boot-chain-audit` — a live read-only audit of every limine entry.
 
 Saturation 9 / window 3 unchanged; retired none. Ordinal changes are proposed in the measured outcome below and stay author-side until non-author closure.
+
+### Round17 measured outcome
+
+Measured at landed `90037c2d67bc076db79e4d4396f0140e3505dabd` against baseline `6923fe0bd3add04fc90f3bc3522895b27cf44bbe`, same evaluator for both revisions, from a fresh clone (`.ufo/waves/round-17/measure/final/`).
+
+| Claim | Axis | Ordinal | Before → after (counting command) | Author-side verdict |
+|---|---|---|---|---|
+| C1 next-boot verdicts | depth | 8→8 (0) | `verdicted_kernel_entries` 0 → 5, exit 1 → 0 (`python3 tools/check-boot-chain.py --revision <commit>`) | improved |
+| C2 freshness notices | freshness | 9→9 (0) | `resolved_records` 0 → 48, exit 1 → 0 (`python3 tools/check-freshness-r17.py --revision <commit>`); baseline-stale proof `--revision 6923fe0 --registry-from 90037c2` → 48 STALE-UNFLAGGED | improved (48 noticed statements in six entries, not total coverage: wave-2 FxUnflagged* list un-noticed stale statements in SKILL.md, host-health-report-r3, journal-boot-plane, package/aur/foreign, oom/kill entries) |
+| C3 landed revisions | operability | 9→9 (0) | `bound_tools` legacy five 0 → 5; all nine `--revision` tools 0/9 → 9/9, exit 1 → 0 (`python3 tools/check-revision-binding.py --tools-revision <commit>`) | improved |
+| Capability `boot-chain-audit` | (C1) | — | live run `.ufo/waves/round-17/l1-capture/audit-live.txt`: 6 entries, `TSUKUROI_BOOTCHAIN: CONSISTENT`, rc 0; selftest 45/45 | demonstrated |
+
+Selftests at 90037c2 (`measure/final/selftests.txt`): boot-chain 61, freshness 53, recheck 40, seat-scope 42, revision-binding 28, locator 28, root-dac 23, section-citations 61, source-scope 25, update-recheck 13, audit 45 — all PASS. Recheck gate 5 flagged → 0 (5 resolved). No count-to-ordinal conversion; no ordinal raised by the author.
+
+Calibration: the round's first two L0 lines (fleet ac792a7) carried a wrong snapshot verdict and three unsupported facts; corrected in-round (6fe9984, f92afc1, 6a5c8bc) and mined as R17-TYPE-BLIND / R17-L0-OVERCLAIM. Wave-2 critic FxNoHarm judged calibration harmed (residual, correctable); the author reports that verdict for the operator/closure to rule rather than claiming no harm.
+
+- **planned (next round):** C2 continuation — R17 notices for the un-noticed stale statements wave 2 listed (SKILL.md current-use guidance, host-health-report-r3 U1/413, journal-boot-plane snapper lines, package/aur/foreign planes, oom/kill earlyoom/zswap); W04 count now 8 (S058 supersedes S054 by contract).
+- **retired:** none. Saturation 9 / window 3; capability row added this round resets the stagnation window.
