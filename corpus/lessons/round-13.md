@@ -90,3 +90,77 @@ allowed-list is explicitly qualified; service startup remains operator-owned.
 Source rows remain curation, not expansion credit. Existing rollback-net
 ground was corrected; no new frontier surface or capability is claimed.
 Independent non-author admit/reject review remains pending after landing.
+
+## Gate — completed author-side integration
+
+All 32 distinct wave members returned before final verification; the
+NoOralReview and SourceRegistry follow-up corrections were joined too.
+No source seat remains authorized to write after its returned handoff.
+The initial 1568-line checker was reduced to 375 lines before landing:
+bounded predicates replace duplicated whole-document pins; no general
+verification framework is introduced.
+
+Measured correction implementation:
+`c35d3567d1c8b5d4b45c0ff82201966b76cbd786`.
+The production evaluator is unchanged from first implementation
+`44677cce26b3bedf93a6609374ffa54dde59552f`; the sole code delta fixed a
+selftest expectation. Baseline:
+`9574a189a758251da5957eee8ff0f38ba2d03c7f`.
+
+Command: `python tools/check-root-dac-correction.py --revision <revision>`.
+Baseline count0/exit1 with **UNIT_READONLY_FALSE_UNIVERSAL** and its three
+historical active sites. Final count1/exit0, findings0. Full commands,
+outputs and measured hashes: `.ufo/waves/round-13/correction/verification.json`
+and `verification-fixed.json`.
+
+First selftest: exit1, 13 cases/12 passed, text
+`closed-list-restored: missing=R13-JSON-PIN`. The mutant was already
+rejected by R13-JSON-EXCLUSIVE; requiring an unrelated generic pin finding
+was the faulty assertion. The one-line expectation correction preserves
+the mutant's exit1/count0/specific finding requirements. The corrected
+`python tools/check-root-dac-correction.py --selftest` returned:
+
+```text
+CHECK_ROOT_DAC_CORRECTION_SELFTEST: PASS (13 cases, 13 passed, 0 failed)
+```
+
+Exit0, stderr empty. This is capability evidence for the narrow checker,
+not source truth or outside review. Its clean committed-content run is
+separate measurement evidence. The failed run remains committed.
+
+New correction's tables have consistent 4/4/3 columns. Safety-pattern
+counts are all zero for credential material, full InvocationID output and
+raw journal prefixes in new seat MDs/correction files. NoOralReview's
+unlanded full identifier was removed before the first commit. Exact
+scan scope and counts: `verification.json`; pattern scans are not a full
+security audit. Census bytes are identical to baseline; no unchanged
+97-case census suite or live census was rerun for credit.
+
+## Source census — end
+
+Same command as start:
+`/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi`.
+Observed stdout, exit0, stderr empty:
+
+```text
+tsukuroi	W04	S038 duplicate url man.archlinux.org/man/access.2 across scopes
+tsukuroi	W04	S041 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes
+tsukuroi	W04	S042 duplicate url github.com/omacom/omarchy/issues/8047 across scopes
+tsukuroi	W04	S043 duplicate url github.com/omacom/omarchy/issues/6629 across scopes
+tsukuroi	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
+```
+
+Rows40→43; tiers A35/B1/C4→A36/B1/C6; statuses
+mined30/queued5/rejected5→mined31/queued5/rejected7; malformed0→0.
+Counts are parsing the eleven table cells selected by
+`^\|\s*S\d{3,}\s*\|`, via the command in the fleet report and retained
+baseline/after histograms in `verification.json`. Added tiers A1/B0/C2;
+existing mutable-field changes none. W04s are deliberate scope-separated
+reuse, not a warning-free result.
+
+Author-side C1 verdict: **improved**. Author-side trends: **expansion
+unchanged**, **quality improved**, **discernment improved**. The outside
+disagreement became a grounded criterion and a source-backed correction;
+no new surface or capability is counted. Non-author admit/reject sampling
+and ultimate admission remain pending fresh closure. SHONEN stays `[~]`.
+All seats and L1 report tool installs/updates **none**.

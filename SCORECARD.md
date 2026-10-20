@@ -315,3 +315,28 @@ capability table row is claimed merely for writing a checker.
   correction, retain failure-time operation/credential/private-namespace
   unknowns and the boot-hook upgrade gate; next work requires a new steer.
 - **retired:** none. No promotion or SHONEN `[x]`.
+
+### Round-13 measured outcome
+
+| Claim | Axis | Ordinal delta | Measured before → after | Verdict |
+|---|---|---|---|---|
+| C1 R13-DAC-EXCLUSIVITY | depth | 8→8 (0) | correction_count0→1; gate exit1→0; baseline `9574a189a758251da5957eee8ff0f38ba2d03c7f` → implementation `c35d3567d1c8b5d4b45c0ff82201966b76cbd786` | improved, author-verified; fresh independent closure pending |
+
+Counting command: `python tools/check-root-dac-correction.py --revision
+<revision>`. Baseline output is retained in
+`.ufo/waves/round-13/correction/verification.json`, measured with evaluator
+at `44677cce26b3bedf93a6609374ffa54dde59552f`; final output and the corrected
+13/13 selftest are in `verification-fixed.json`, measured at `c35d356`.
+The only intervening code delta corrected a selftest's expected finding,
+not production evaluation. Red baseline explicitly names the old false
+universal, not just a missing successor. A red baseline versus a clean
+correction demonstrates narrow conformance; separately reopened S041 and
+L1 source comparison support the substantive source claim.
+
+Per-axis author verdicts: depth improved; coverage, operability, freshness,
+calibration and adjacency unchanged. The census executable SHA256 remains
+`d17d32a35946c71c1fc195e36178aa383f4a04d7172cc579b6e9e25fa537f27e`
+at baseline and implementation. No live census rerun or host health
+improvement is claimed. Trends: expansion unchanged, quality improved,
+discernment improved through outside-disagreement learning (#17/#18).
+Outside gate-decision sampling remains a fresh verifier's duty.

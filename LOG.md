@@ -582,3 +582,29 @@ failure exit1, correction_count0 and the specific exclusive finding.
 It does not suppress the defect or change production evaluation. The
 failed output is retained; the corrected selftest is executed only after
 this assertion correction commit.
+
+## 2026-10-20 — round 13 final measurement pin
+
+Implementation `c35d3567d1c8b5d4b45c0ff82201966b76cbd786` measured clean:
+correction_count1, exit0, findings0; corrected checker selftest13/13,
+exit0. Baseline `9574a18` count0/exit1 with specific false-universal
+finding is preserved from the identical production evaluator. Outputs:
+`.ufo/waves/round-13/correction/{verification,verification-fixed}.json`.
+Source census exit0 with W04 S038/S041/S042/S043; rows40→43,
+A35/B1/C4→A36/B1/C6 and mined30/queued5/rejected5→31/5/7.
+New tables consistent; secret/raw-journal pattern counts zero. Census
+executable digest unchanged, no live census or legacy suite rerun.
+
+The new source registry is joined, not reserved: S041 namespace scope,
+S042/S043 community rejections superseding bot-authority wording.
+L1 corrected the source author's unlanded ReadOnlyPaths section grouping
+and matrix author's stale process language, per their returned handoffs.
+The new procedure excludes D-Bus-activating `snapper list-configs`;
+local activation declaration and sentinel findings supply the safety
+boundary, not evidence of any historical caller. No host repair was run.
+
+C1/depth improved author-side, ordinal8→8. Other axes unchanged.
+Trends expansion unchanged, quality improved, discernment improved;
+admission and outside admit/reject source sampling remain independent
+closure work. All 32 seats plus follow-up edits are joined before this
+measurement/commit/report boundary. Tools installed/updated: none.
