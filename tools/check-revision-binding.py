@@ -1,34 +1,47 @@
 #!/usr/bin/env python3
-"""Read-only counting probe: are the --revision gates bound to a landed revision?
+"""Read-only counting probe: are the --revision gates bound to a landed revision,
+and do they all bind the same way?
 
 Round-17 wave 2 widened the count from the five legacy gates to every tools/*.py gate
 with --revision (nine at 90037c2); `legacy_bound` keeps the five-tool continuity count.
+Round 18 adds `consistent_tools`: wave-2 FxSimplifyBind found six same-input
+divergences between the nine copied binding checks, and the shared module
+tools/_revision.py replaces the copies. The judge below keeps its own independent
+binding code on purpose: it grades the tools and must not share what it grades.
 
-Measured tools, taken at --tools-revision via `git show`:
-  tools/check-locator-clarification.py, tools/check-root-dac-correction.py,
-  tools/check-section-citations.py, tools/check-source-scope-correction.py,
-  tools/measure-update-recheck.py
+Measured tools, taken at --tools-revision: the nine named in TOOLS (an absent one
+counts unbound, so deleting a tool cannot raise the ratio) plus every other
+tools/*.py at that revision whose source contains the argparse literal "--revision"
+(this judge and `_`-prefixed modules excluded).
 
 A throwaway clone of the lane gets refs/heads/<branch> set to the measured
-commit and one empty commit created on a detached HEAD. Each tool is then run
-three times in that sandbox:
+commit and one empty commit created on a detached HEAD. Each tool is run in that
+sandbox. BOUND (round-17 contract) needs every one of:
 
-  (a) --revision HEAD          -> exit 2 and E-REVISION-INVALID
-  (b) --revision <unlanded>    -> exit 2 and E-REVISION-NOT-LANDED
-  (c) --revision <master tip>  -> exit != 2 and JSON revision == tip
+  head / at-parent / branch-name  --revision HEAD|@-|master   -> 2, E-REVISION-INVALID
+  unlanded                        --revision <unlanded>       -> 2, E-REVISION-NOT-LANDED
+  tip / short-tip / landed-parent -> exit != 2 and JSON revision == that commit
+  not-pushed  (origin lags one commit)                        -> 2, E-REVISION-NOT-PUSHED
 
-A tool is BOUND only when all three hold. When the clone carries
-refs/remotes/origin/<branch>, that ref is pinned to the measured commit so the
-count isolates branch landing from push state; the E-REVISION-NOT-PUSHED rule
-is exercised by the selftest fixture instead.
+CONSISTENT (round-18 shared contract) is BOUND plus the FxSimplifyBind probes:
+
+  branch-range / branch-slash / branch-space  --branch a..b|master/|"bad branch"
+                                                          -> 2, E-BRANCH-INVALID   (D1, D6)
+  branch-first  --revision HEAD --branch a..b             -> 2, E-BRANCH-INVALID   (D2)
+  git-failed    origin ref names a blob                   -> 2, E-GIT-FAILED       (D3)
+  single-id     the unlanded refusal carries exactly one binding finding        (D4)
+  branch-missing --branch nosuch                          -> 2, E-BRANCH-MISSING   (D5)
+
+`shared_tools` counts tools that import tools/_revision.py and carry no local copy
+of the 7-64 hex revision regex; `local_rev_regex_copies` counts those copies.
 
 --tools-revision is itself bound: 7-64 hex (HEAD/@/refs rejected with
 E-REVISION-INVALID), landed on refs/heads/<branch> else E-REVISION-NOT-LANDED,
 and on refs/remotes/origin/<branch> when present else E-REVISION-NOT-PUSHED.
 --selftest is hermetic: stub tools in mktemp fixtures, never the real lane.
-Exit 0 = 5/5 bound, 1 = fewer bound, 2 = could-not-evaluate. JSON on stdout;
-the lane is only read (clone, show, rev-parse, merge-base) and the only writes
-are inside the temporary sandbox clone.
+Exit 0 = every measured tool consistent, 1 = fewer, 2 = could-not-evaluate. JSON
+on stdout; the lane is only read (clone, show, rev-parse, merge-base) and the only
+writes are inside the temporary sandbox clone.
 """
 from __future__ import annotations
 import argparse, json, os, re, subprocess, sys, tempfile
@@ -56,11 +69,18 @@ EXTRA = {name: () for name in TOOLS}
 EXTRA.update(R17_GATES)
 TOOLS = TOOLS + tuple(R17_GATES)
 TOTAL = len(TOOLS)
+JUDGE = "check-revision-binding.py"
 REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
 ID_INVALID = "E-REVISION-INVALID"
 ID_UNLANDED = "E-REVISION-NOT-LANDED"
 ID_PUSHED = "E-REVISION-NOT-PUSHED"
+ID_BRANCH_INVALID = "E-BRANCH-INVALID"
+ID_BRANCH_MISSING = "E-BRANCH-MISSING"
+ID_GIT = "E-GIT-FAILED"
+BINDING_IDS = (ID_INVALID, ID_UNLANDED, ID_PUSHED, ID_BRANCH_INVALID, ID_BRANCH_MISSING, ID_GIT)
 MISSING = re.compile(r"does not exist|exists on disk, but not in|not in '", re.I)
+SHARED_IMPORT = re.compile(r"^[ \t]*(?:import _revision\b|from _revision import\b)", re.M)
+LOCAL_REV_REGEX = re.compile(r"\{7,64\}")
 
 
 class Cannot(Exception):
@@ -163,9 +183,23 @@ def prepare(sandbox, tip, branch):
     return True
 
 
-def materialize(sandbox, tip):
-    absent = set()
-    for name in TOOLS:
+def discover(sandbox, tip):
+    """Every other tools/*.py at `tip` that defines --revision (judge and `_` modules excluded)."""
+    proc = must(git(sandbox, "ls-tree", "--name-only", f"{tip}:tools"), "E-GIT-READ", "tools/")
+    found = []
+    for name in sorted(proc.stdout.decode("utf-8", "replace").split("\n")):
+        if (not name.endswith(".py") or name in TOOLS or name == JUDGE
+                or name.startswith("_")):
+            continue
+        body = must(git(sandbox, "show", f"{tip}:tools/{name}"), "E-GIT-READ", f"tools/{name}")
+        if b'"--revision"' in body.stdout:
+            found.append(name)
+    return tuple(found)
+
+
+def materialize(sandbox, tip, names=TOOLS):
+    absent, sources = set(), {}
+    for name in names:
         proc = git(sandbox, "show", f"{tip}:tools/{name}")
         error = proc.stderr.decode("utf-8", "replace")
         if proc.returncode != 0:
@@ -177,7 +211,13 @@ def materialize(sandbox, tip):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(proc.stdout)
         target.chmod(0o755)
-    return absent
+        sources[name] = proc.stdout.decode("utf-8", "replace")
+    return absent, sources
+
+
+def shared(source):
+    """(imports tools/_revision.py, local 7-64 hex regex copies) for one tool source."""
+    return bool(SHARED_IMPORT.search(source)), len(LOCAL_REV_REGEX.findall(source))
 
 
 def probe_commit(sandbox, tip, branch):
@@ -210,6 +250,15 @@ def parse_json(text):
     return None
 
 
+def binding_ids(text):
+    """Binding finding ids the tool reported (JSON findings list, else distinct text tokens)."""
+    doc = parse_json(text)
+    if isinstance(doc, dict) and isinstance(doc.get("findings"), list):
+        return [item["id"] for item in doc["findings"]
+                if isinstance(item, dict) and item.get("id") in BINDING_IDS]
+    return sorted(set(re.findall(r"\bE-[A-Z0-9-]{2,}\b", text)) & set(BINDING_IDS))
+
+
 def finding_id(text):
     doc = parse_json(text)
     if isinstance(doc, dict) and isinstance(doc.get("findings"), list):
@@ -220,10 +269,11 @@ def finding_id(text):
     return match.group(0) if match else None
 
 
-def run_tool(sandbox, name, revision):
+def run_tool(sandbox, name, revision, branch=None):
+    extra = () if branch is None else ("--branch", branch)
     try:
         proc = subprocess.run([sys.executable, str(sandbox / "tools" / name),
-                               "--revision", revision, *EXTRA.get(name, ())],
+                               "--revision", revision, *extra, *EXTRA.get(name, ())],
                               cwd=str(sandbox), stdin=subprocess.DEVNULL,
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE, env=clean_env(), timeout=60)
@@ -243,10 +293,11 @@ def reason(cases):
     return ";".join(out)
 
 
-def refused(sandbox, name, rev, want):
-    code, text = run_tool(sandbox, name, rev)
+def refused(sandbox, name, rev, want, branch=None):
+    code, text = run_tool(sandbox, name, rev, branch)
     found = finding_id(text)
-    return {"exit": code, "finding": found, "ok": code == CANNOT and found == want}
+    return {"exit": code, "finding": found, "binding_ids": binding_ids(text),
+            "ok": code == CANNOT and found == want}
 
 
 def accepted(sandbox, name, rev, expect_sha):
@@ -260,7 +311,15 @@ def accepted(sandbox, name, rev, expect_sha):
             and got.lower() == expect_sha.lower()}
 
 
-def probe_tool(sandbox, name, tip, unlanded_sha, parent=None, branch="master"):
+def blob_object(sandbox):
+    proc = subprocess.run(["git", "-C", str(sandbox), "hash-object", "-w", "--stdin"],
+                          input=b"revision-binding probe blob\n", stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE, env=clean_env(), timeout=60)
+    must(proc, "E-SANDBOX", "blob")
+    return proc.stdout.decode("ascii", "replace").strip()
+
+
+def probe_tool(sandbox, name, tip, unlanded_sha, parent=None, branch="master", blob=None):
     cases = {
         "head": refused(sandbox, name, "HEAD", ID_INVALID),
         "at-parent": refused(sandbox, name, "@-", ID_INVALID),
@@ -269,17 +328,39 @@ def probe_tool(sandbox, name, tip, unlanded_sha, parent=None, branch="master"):
         "tip": accepted(sandbox, name, tip, tip),
         "short-tip": accepted(sandbox, name, tip[:8], tip),
     }
+    remote = f"refs/remotes/origin/{branch}"
     if parent is not None:
         cases["landed-parent"] = accepted(sandbox, name, parent, parent)
-        remote = f"refs/remotes/origin/{branch}"
         must(git(sandbox, "update-ref", remote, parent), "E-SANDBOX", "origin lag")
         try:
             cases["not-pushed"] = refused(sandbox, name, tip, ID_PUSHED)
         finally:
             must(git(sandbox, "update-ref", remote, tip), "E-SANDBOX", "origin restore")
     bound = all(case["ok"] for case in cases.values())
-    out = {"tool": f"tools/{name}", "bound": bound, "reason": None if bound else reason(cases)}
+    # Round-18 shared-contract probes (FxSimplifyBind D1-D6).
+    shared_cases = {
+        "branch-range": refused(sandbox, name, tip, ID_BRANCH_INVALID, "a..b"),
+        "branch-slash": refused(sandbox, name, tip, ID_BRANCH_INVALID, "master/"),
+        "branch-space": refused(sandbox, name, tip, ID_BRANCH_INVALID, "bad branch"),
+        "branch-first": refused(sandbox, name, "HEAD", ID_BRANCH_INVALID, "a..b"),
+        "branch-missing": refused(sandbox, name, tip, ID_BRANCH_MISSING, "nosuch"),
+    }
+    single = cases["unlanded"]
+    shared_cases["single-id"] = {"exit": single["exit"], "finding": single["finding"],
+                                 "binding_ids": single["binding_ids"],
+                                 "ok": single["ok"] and single["binding_ids"] == [ID_UNLANDED]}
+    if blob is not None:
+        must(git(sandbox, "update-ref", remote, blob), "E-SANDBOX", "origin blob")
+        try:
+            shared_cases["git-failed"] = refused(sandbox, name, tip, ID_GIT)
+        finally:
+            must(git(sandbox, "update-ref", remote, tip), "E-SANDBOX", "origin restore")
+    consistent = bound and all(case["ok"] for case in shared_cases.values())
+    out = {"tool": f"tools/{name}", "bound": bound, "consistent": consistent,
+           "reason": None if bound else reason(cases),
+           "shared_reason": None if consistent else reason({**cases, **shared_cases})}
     out.update(cases)
+    out.update(shared_cases)
     return out
 
 
@@ -291,30 +372,44 @@ def measure(lane, tools_rev, branch="master"):
         sandbox = Path(tmp) / "repo"
         clone_lane(lane, sandbox)
         pinned = prepare(sandbox, tip, branch)
-        absent = materialize(sandbox, tip)
+        extras = discover(sandbox, tip)
+        names = TOOLS + extras
+        absent, sources = materialize(sandbox, tip, names)
         parent_proc = git(sandbox, "rev-parse", "--verify", "--quiet", f"{tip}^1^{{commit}}")
         parent = (parent_proc.stdout.decode("ascii", "replace").strip()
                   if parent_proc.returncode == 0 else None)
         unlanded_sha = probe_commit(sandbox, tip, branch)
+        blob = blob_object(sandbox)
         per_tool = []
-        for name in TOOLS:
+        for name in names:
             if name in absent:
-                per_tool.append({"tool": f"tools/{name}", "bound": False,
-                                 "reason": "absent at measured revision"})
-            else:
-                per_tool.append(probe_tool(sandbox, name, tip, unlanded_sha, parent, branch))
+                per_tool.append({"tool": f"tools/{name}", "bound": False, "consistent": False,
+                                 "shared": False, "local_rev_regex": 0,
+                                 "reason": "absent at measured revision",
+                                 "shared_reason": "absent at measured revision"})
+                continue
+            item = probe_tool(sandbox, name, tip, unlanded_sha, parent, branch, blob)
+            imports, copies = shared(sources[name])
+            item["shared"] = imports and copies == 0
+            item["local_rev_regex"] = copies
+            per_tool.append(item)
+    total = len(names)
     bound = sum(1 for item in per_tool if item["bound"])
+    consistent = sum(1 for item in per_tool if item["consistent"])
     legacy = sum(1 for item in per_tool
                  if item["bound"] and item["tool"].split("/", 1)[1] in LEGACY)
-    return {"status": "PASS" if bound == TOTAL else "FAIL",
+    return {"status": "PASS" if consistent == total else "FAIL",
             "tools_revision": tip, "revision": tip, "branch": branch,
-            "branch_tip": branch_tip, "bound_tools": bound, "total": TOTAL,
+            "branch_tip": branch_tip, "bound_tools": bound, "consistent_tools": consistent,
+            "shared_tools": sum(1 for item in per_tool if item["shared"]),
+            "local_rev_regex_copies": sum(item["local_rev_regex"] for item in per_tool),
+            "total": total, "named_total": TOTAL, "discovered": list(extras),
             "legacy_bound": legacy, "legacy_total": len(LEGACY),
             "sandbox_origin_pinned": pinned, "per_tool": per_tool}
 
 
 def grade(result):
-    return (PASS if result["bound_tools"] == TOTAL else FAIL), result["status"]
+    return (PASS if result["consistent_tools"] == result["total"] else FAIL), result["status"]
 
 
 def emit_report(payload, code):
@@ -325,6 +420,7 @@ def emit_report(payload, code):
 def cannot_payload(rev, branch, exc):
     return {"status": "CANNOT_EVALUATE", "tools_revision": rev, "revision": None,
             "branch": branch, "branch_tip": None, "bound_tools": 0,
+            "consistent_tools": 0, "shared_tools": 0,
             "total": TOTAL, "per_tool": [],
             "findings": [{"id": exc.fid, "site": exc.site, "detail": exc.detail}]}
 
@@ -353,19 +449,24 @@ def cli_finding(argv):
 STUB = '''#!/usr/bin/env python3
 import json, re, subprocess, sys
 from pathlib import Path
-MODE = "__MODE__"
+__SHARED__MODE = "__MODE__"
+LEGACY = MODE == "legacy"  # round-17 copies: no branch checks, rc>=2 = not ancestor
+HEX = r"[0-9a-f]{%d,%d}" % (7, 64)
 ROOT = Path(__file__).resolve().parents[1]
 def git(*args):
     return subprocess.run(["git", "-C", str(ROOT), *args], capture_output=True, text=True)
 def out(rev, ident=None, code=0, status="PASS"):
-    findings = [] if ident is None else [{"id": ident}]
-    print(json.dumps({"status": status, "revision": rev, "findings": findings}))
+    idents = [] if ident is None else ([ident] if isinstance(ident, str) else ident)
+    print(json.dumps({"status": status, "revision": rev,
+                      "findings": [{"id": i} for i in idents]}))
     sys.exit(code)
-rev = sys.argv[sys.argv.index("--revision") + 1]
+argv = sys.argv
+rev = argv[argv.index("--revision") + 1]
+branch = argv[argv.index("--branch") + 1] if "--branch" in argv else "master"
 def tip():
     return git("rev-parse", "refs/heads/master").stdout.strip()
 if MODE == "tip-only":  # S1: accepts only the exact branch tip
-    if not re.fullmatch(r"[0-9a-f]{7,64}", rev):
+    if not re.fullmatch(HEX, rev):
         out(rev, "E-REVISION-INVALID", 2, "CANNOT_EVALUATE")
     sha = git("rev-parse", "--verify", "--quiet", rev + "^{commit}").stdout.strip()
     if sha != tip():
@@ -381,18 +482,39 @@ if MODE == "head-only":  # S3: rejects only the literal HEAD
 if MODE == "unbound":
     sha = git("rev-parse", "--verify", "--quiet", rev + "^{commit}").stdout.strip()
     out(sha)
-if not re.fullmatch(r"[0-9a-f]{7,64}", rev):
+if not LEGACY and (not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9._/-]*", branch)
+                   or branch == "HEAD"
+                   or git("check-ref-format", "refs/heads/" + branch).returncode != 0):
+    out(rev, "E-BRANCH-INVALID", 2, "CANNOT_EVALUATE")
+if not re.fullmatch(HEX, rev):
     ident = "E-OTHER-INVALID" if MODE == "wrong-id" else "E-REVISION-INVALID"
     out(rev, ident, 2, "CANNOT_EVALUATE")
 sha = git("rev-parse", "--verify", "--quiet", rev + "^{commit}").stdout.strip()
-if git("merge-base", "--is-ancestor", sha, "refs/heads/master").returncode != 0:
+if not sha:
+    out(rev, "E-REVISION-INVALID", 2, "CANNOT_EVALUATE")
+local, remote = "refs/heads/" + branch, "refs/remotes/origin/" + branch
+if not LEGACY and git("rev-parse", "--verify", "--quiet", local + "^{commit}").returncode != 0:
+    out(rev, "E-BRANCH-MISSING", 2, "CANNOT_EVALUATE")
+def anc(ref):
+    code = git("merge-base", "--is-ancestor", sha, ref).returncode
+    if code in (0, 1) or LEGACY:
+        return code == 0
+    out(rev, "E-GIT-FAILED", 2, "CANNOT_EVALUATE")
+has_origin = MODE != "no-origin" and git("rev-parse", "--verify", "--quiet",
+                                         remote).returncode == 0
+if not anc(local):
+    if MODE == "double" and has_origin and not anc(remote):
+        out(rev, ["E-REVISION-NOT-LANDED", "E-REVISION-NOT-PUSHED"], 2, "CANNOT_EVALUATE")
     out(rev, "E-REVISION-NOT-LANDED", 2, "CANNOT_EVALUATE")
-if MODE != "no-origin" and git("rev-parse", "--verify", "--quiet",
-                                "refs/remotes/origin/master").returncode == 0:
-    if git("merge-base", "--is-ancestor", sha, "refs/remotes/origin/master").returncode != 0:
-        out(rev, "E-REVISION-NOT-PUSHED", 2, "CANNOT_EVALUATE")
+if has_origin and not anc(remote):
+    out(rev, "E-REVISION-NOT-PUSHED", 2, "CANNOT_EVALUATE")
 out(rev if MODE == "echo" else sha)
 '''
+
+
+def stub_source(mode):
+    shared_line = "if False:\n    import _revision\n" if mode == "shared" else ""
+    return STUB.replace("__SHARED__", shared_line).replace("__MODE__", mode)
 
 
 def run_cmd(args, cwd=None):
@@ -411,7 +533,7 @@ def commit_all(root, message):
     return rev_parse(root, "HEAD")
 
 
-def make_fixture(root, modes, return_base=False):
+def make_fixture(root, modes, return_base=False, extra_files=None):
     root.mkdir(parents=True, exist_ok=True)
     must(run_cmd(["git", "init", "--quiet", str(root)]), "E-SANDBOX", "fixture init")
     must(git(root, "symbolic-ref", "HEAD", "refs/heads/master"),
@@ -422,8 +544,10 @@ def make_fixture(root, modes, return_base=False):
     tools.mkdir(parents=True, exist_ok=True)
     for name, mode in modes.items():
         path = tools / name
-        path.write_text(STUB.replace("__MODE__", mode), encoding="utf-8")
+        path.write_text(stub_source(mode), encoding="utf-8")
         path.chmod(0o755)
+    for name, text in (extra_files or {}).items():
+        (tools / name).write_text(text, encoding="utf-8")
     tip = commit_all(root, "tools")
     return (tip, base) if return_base else tip
 
@@ -499,6 +623,53 @@ def selftest():
             res4 = measure(fx4, tip4)
             check("absent-tool", (res4["bound_tools"], res4["per_tool"][-1]["reason"]),
                   (TOTAL - 1, "absent at measured revision"))
+            check("absent-not-consistent", (res4["consistent_tools"], grade(res4)[0]),
+                  (TOTAL - 1, FAIL))
+
+            # Round 18: the shared contract (FxSimplifyBind D1-D6).
+            check("all-consistent", (res["consistent_tools"], res["total"], res["discovered"]),
+                  (TOTAL, TOTAL, []))
+            check("all-shared-census", (res["shared_tools"], res["local_rev_regex_copies"]),
+                  (0, 0))
+            check("mixed-consistent", res2["consistent_tools"], 3)
+            for stub, failing in (("legacy", {"branch-range", "branch-slash", "branch-space",
+                                              "branch-first", "branch-missing", "git-failed"}),
+                                  ("double", {"single-id"})):
+                fxl = tmp / f"shared-{stub}"
+                ml = dict(modes)
+                ml[TOOLS[0]] = stub
+                resl = measure(fxl, make_fixture(fxl, ml))
+                item = resl["per_tool"][0]
+                bad = {label for label in ("branch-range", "branch-slash", "branch-space",
+                                           "branch-first", "branch-missing", "single-id",
+                                           "git-failed") if not item[label]["ok"]}
+                check(f"shared-{stub}-bound-not-consistent",
+                      (item["bound"], item["consistent"], resl["bound_tools"],
+                       resl["consistent_tools"], grade(resl)[0]),
+                      (True, False, TOTAL, TOTAL - 1, FAIL))
+                check(f"shared-{stub}-failing-probes", bad, failing)
+            fxd = tmp / "discover"
+            md = dict(modes)
+            md[TOOLS[0]] = "shared"
+            extra = {"check-extra.py": stub_source("bound"),
+                     "_helper.py": "# helper\nFLAG = \"--revision\"\n",
+                     "plain.py": "print('no revision flag')\n",
+                     "notes.txt": "\"--revision\"\n"}
+            resd = measure(fxd, make_fixture(fxd, md, extra_files=extra))
+            check("discover-extra", (resd["discovered"], resd["total"],
+                                     resd["consistent_tools"], grade(resd)[0]),
+                  (["check-extra.py"], TOTAL + 1, TOTAL + 1, PASS))
+            check("shared-import-census", (resd["shared_tools"],
+                                           resd["per_tool"][0]["shared"],
+                                           resd["per_tool"][0]["local_rev_regex"]),
+                  (1, True, 0))
+            check("local-copy-census", shared('REV = re.compile(r"^[0-9a-f]{7,64}$")\n'
+                                              "import _revision\n"), (True, 1))
+            fxu = tmp / "discover-unbound"
+            resu = measure(fxu, make_fixture(fxu, modes,
+                                             extra_files={"check-extra.py": stub_source("unbound")}))
+            check("discover-unbound-counts", (resu["total"], resu["consistent_tools"],
+                                              grade(resu)[0]), (TOTAL + 1, TOTAL, FAIL))
 
             for stub in ("tip-only", "no-origin", "head-only", "echo"):
                 fxs = tmp / f"stub-{stub}"
