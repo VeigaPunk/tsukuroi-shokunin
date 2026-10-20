@@ -525,3 +525,4 @@ Calibration: the round's first two L0 lines (fleet ac792a7) carried a wrong snap
 
 - **planned (next round):** C2 continuation — R17 notices for the un-noticed stale statements wave 2 listed (SKILL.md current-use guidance, host-health-report-r3 U1/413, journal-boot-plane snapper lines, package/aur/foreign planes, oom/kill earlyoom/zswap); W04 count now 8 (S058 supersedes S054 by contract).
 - **retired:** none. Saturation 9 / window 3; capability row added this round resets the stagnation window.
+- **planned (next round, added after wave-2 FxSimplifyBind):** C3 follow-up — one L1-owned `tools/_revision.py` binding module for all nine `--revision` tools; FxSimplifyBind found six same-input divergences outside the probed surface (bad-branch ids, check precedence, merge-base rc≥2 handling, double NOT-LANDED/NOT-PUSHED in root-dac, missing-branch id, branch-string acceptance). The measured 9/9 holds on the probed inputs.

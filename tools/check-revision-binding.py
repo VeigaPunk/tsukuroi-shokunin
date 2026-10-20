@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Read-only counting probe: are the five gates bound to a landed revision?
+"""Read-only counting probe: are the --revision gates bound to a landed revision?
+
+Round-17 wave 2 widened the count from the five legacy gates to every tools/*.py gate
+with --revision (nine at 90037c2); `legacy_bound` keeps the five-tool continuity count.
 
 Measured tools, taken at --tools-revision via `git show`:
   tools/check-locator-clarification.py, tools/check-root-dac-correction.py,
@@ -328,7 +331,7 @@ def cannot_payload(rev, branch, exc):
 
 def build_parser():
     parser = argparse.ArgumentParser(
-        description="Read-only revision-binding counting probe over five gates.",
+        description="Read-only revision-binding counting probe over every --revision gate.",
         exit_on_error=False)
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--tools-revision", metavar="REV",
