@@ -1912,3 +1912,5 @@ bare `--revision <commit>` of the root-dac, source-scope and section-citations r
 tallies after round 17: locator 28, root-dac 23, section-citations 61, source-scope 25,
 update-recheck 13 (new). Under jj, git `HEAD` is the working-copy parent: measure the branch tip
 named by `scripts/hyaku/jj-lane.sh state`, never `HEAD`.
+
+Round-17 late addition: `python tools/check-recheck-commands.py --revision <REV> --exec-log <lane path>` also checks a log of executed commands (`$ cmd` lines) against `--forbid`, emitting `EXEC-STEER-VIOLATION` (exit 1) and `exec_violation_count`; selftest 43 cases. An L1 keeps `.ufo/waves/round-<N>/l1-capture/exec-log.txt` for every host probe it runs under a narrowed steer (QUALITY 26).

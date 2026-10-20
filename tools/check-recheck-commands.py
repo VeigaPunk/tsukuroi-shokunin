@@ -340,6 +340,21 @@ def assess_file(path, text, forbid):
                       "clean": clean}
 
 
+def assess_exec_log(path, text, forbid):
+    """R17-STEER-SCOPE: lines `$ <command>` an executor actually ran; any forbidden
+    binary among them is EXEC-STEER-VIOLATION (catches the event, not only prose)."""
+    findings, hits = [], 0
+    for number, line in enumerate(text.splitlines(), 1):
+        if not line.startswith("$ "):
+            continue
+        found = invocations(line[2:], forbid)
+        if found:
+            hits += len(found)
+            findings.append(Finding("EXEC-STEER-VIOLATION", f"{path}:{number}",
+                                    "executed command invokes " + ",".join(sorted(set(found)))))
+    return findings, hits
+
+
 def evaluate(files, forbid):
     findings, invocations_seen, flagged, resolved, clean = [], 0, 0, 0, 0
     for path, text in files:
@@ -356,7 +371,7 @@ def evaluate(files, forbid):
 
 
 def emit(status, revision, branch, branch_tip, findings, counts, out=None,
-         origin_tip=None, message=None):
+         origin_tip=None, message=None, extra=None):
     payload = {
         "status": status,
         "revision": revision,
@@ -375,6 +390,7 @@ def emit(status, revision, branch, branch_tip, findings, counts, out=None,
     }
     if message:
         payload["message"] = message
+    payload.update(extra or {})
     print(json.dumps(payload, sort_keys=True), file=out or sys.stdout)
     return {"PASS": PASS, "FAIL": FAIL, "CANNOT_EVALUATE": CANNOT}[status]
 
@@ -511,6 +527,9 @@ def build_parser():
                         default=["corpus/knowledge"],
                         help="knowledge files or directories; directories expand to "
                              "their *.md members (default: corpus/knowledge)")
+    parser.add_argument("--exec-log", metavar="PATH", default=None,
+                        help="lane-relative log of executed commands (`$ cmd` lines) to "
+                             "check against --forbid at the revision")
     parser.add_argument("--branch", default="master", metavar="BRANCH",
                         help="branch the revision must be landed on (default: master)")
     parser.add_argument("--forbid", default=",".join(DEFAULT_FORBID), metavar="LIST",
@@ -553,6 +572,18 @@ def run(argv, repo=ROOT, out=None):
                     sha or getattr(args, "revision", None) or "worktree",
                     branch, tip, [Finding("E-INTERNAL", "gate", str(exc)[:120])], None, out,
                     origin_tip=origin_tip)
+    exec_findings, exec_hits = [], 0
+    if args.exec_log is not None:
+        try:
+            raw = read_git(repo, sha, clean_path(args.exec_log))
+            if raw is None:
+                raise Cannot("E-PATH-MISSING", args.exec_log, "exec log absent at revision")
+            exec_findings, exec_hits = assess_exec_log(args.exec_log,
+                                                       decode(raw, args.exec_log), forbid)
+        except Cannot as exc:
+            return emit("CANNOT_EVALUATE", sha, branch, tip,
+                        [Finding(exc.fid, exc.site, exc.detail)], None, out,
+                        origin_tip=origin_tip)
     try:
         result = evaluate(files, forbid)
     except Cannot as exc:
@@ -563,9 +594,11 @@ def run(argv, repo=ROOT, out=None):
         return emit("CANNOT_EVALUATE", sha, branch, tip,
                     [Finding("E-INTERNAL", "gate", str(exc)[:120])], None, out,
                     origin_tip=origin_tip)
-    status = {PASS: "PASS", FAIL: "FAIL"}[result.code]
-    return emit(status, sha, branch, tip, result.findings, result.counts, out,
-                origin_tip=origin_tip)
+    code = FAIL if exec_findings else result.code
+    status = {PASS: "PASS", FAIL: "FAIL"}[code]
+    extra = {"exec_violation_count": exec_hits} if args.exec_log is not None else None
+    return emit(status, sha, branch, tip, result.findings + exec_findings, result.counts,
+                out, origin_tip=origin_tip, extra=extra)
 
 
 # --- selftest -----------------------------------------------------------------
@@ -884,6 +917,24 @@ def selftest(out=None):
     total += 1
     if code != PASS or json.loads(duplicate.value).get("file_count") != 1:
         failures.append("duplicate-path: file_count != 1")
+    # 18b. Executed-command log (R17-STEER-SCOPE: the event, not the prose).
+    sandbox_git_files = {"fixture.md": entry("recheck: on-release; procedure: "
+                                              "`grep -n '^HOOKS' /etc/mkinitcpio.conf`."),
+                         "exec.log": "# L1 exec log\n$ uname -r; pacman -Q mkinitcpio plymouth\n"
+                                     "$ ls -d /var/lib/pacman/local/mkinitcpio-[0-9]*\n"}
+    red_log = sandbox_commit_tree(repo, sandbox_git_files)
+    case(repo, "exec-log-pacman-red",
+         ["--revision", red_log, "--paths", "fixture.md", "--exec-log", "exec.log"],
+         FAIL, {"EXEC-STEER-VIOLATION"}, {"exec_violation_count": 1})
+    green_files = dict(sandbox_git_files)
+    green_files["exec.log"] = "$ ls -d /var/lib/pacman/local/mkinitcpio-[0-9]*\n"
+    green_log = sandbox_commit_tree(repo, green_files)
+    case(repo, "exec-log-clean",
+         ["--revision", green_log, "--paths", "fixture.md", "--exec-log", "exec.log"],
+         PASS, set(), {"exec_violation_count": 0})
+    case(repo, "exec-log-missing",
+         ["--revision", green_log, "--paths", "fixture.md", "--exec-log", "nope.log"],
+         CANNOT, {"E-PATH-MISSING"})
     # 19. CLI shape.
     case(repo, "cli-no-mode", [], CANNOT, {"E-CLI"})
     case(repo, "cli-both-modes", ["--selftest", "--revision", clean], CANNOT, {"E-CLI"})

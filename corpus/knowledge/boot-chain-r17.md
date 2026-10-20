@@ -23,7 +23,7 @@ authorizes a package, service, initramfs, bootloader or `/boot` change.
   1.31.0-1.1→1.32.1-2, nvidia-open-dkms 610.57.04→615.78.08, linux-lts 6.18.57-2 installed
   (B:44–53).
 - [obs] 09:18 the pacman hook built both UKIs (B:69–74). 09:26:11 account `vgpnk` ran
-  `limine-update` via sudo (B:86; operator attribution [inf]), which rebuilt them outside any pacman transaction: `/boot/EFI/Linux`
+  `limine-update` via sudo (B:86; operator attribution [inf]). [inf] It rebuilt both UKIs outside any pacman transaction: `/boot/EFI/Linux`
   mtimes 09:26:16 / 09:26:22 (B:124–125); the last UKI build lines in pacman.log are the 09:18
   ones (B:68–74).
 - [obs] 09:29:19 snapshot #2 `pre-aur-elephant-2.22.1` (B:88, B:167); `limine_history` holds
@@ -93,7 +93,8 @@ CONSISTENT-PRE42; otherwise UNTESTED. Each `path:` `#` hash equals the image's b
   files under the last three). `/boot` was not in that sweep: `/boot/limine.conf` changed at 12:07
   (S:121), and its `//linux` hash still matches this image's b2sum (S:34, B:172).
   [inf] The next default boot repeats this boot unless one of those inputs changes first.
-- [inf] **linux-lts — untested.** Same `init` and hook bytes as the booted image (B:198–200 =
+- [inf] **linux-lts — untested.** [obs] It has never booted: it was installed at 09:16:29 (B:46);
+  boot −1 started 08:57:58, before that install, and boot 0 runs 7.2.11 (B:5, B:8–10). Same `init` and hook bytes as the booted image (B:198–200 =
   182–184) with a different kernel and its own nvidia 615.78.08 DKMS build (F:36). It is a
   fallback for a 7.2.11 kernel or driver regression, not for an initramfs problem.
 - [inf] **Snapshot #2 entries — overlay expected.** They boot the same 42.2 bytes into a
@@ -105,7 +106,7 @@ CONSISTENT-PRE42; otherwise UNTESTED. Each `path:` `#` hash equals the image's b
   directory match both hooks (B:206–213, E:7); its cmdline is the pre-09:19 one with
   `zswap.enabled=0` (S:69). Not boot-tested. It is the only pre-upgrade rollback and has
   cleanup algorithm `number` (B:166).
-- [obs] **EFI fallback is not independent.** `BOOTX64.EFI` is byte-identical to
+- [inf] **EFI fallback is not independent.** [obs] `BOOTX64.EFI` is byte-identical to
   `limine_x64.efi` (S:94–95). [inf] It reopens the same Limine menu.
 
 ## Operator checks before the next reboot
@@ -150,7 +151,7 @@ Checks (read-only) and operator-only actions; tsukuroi takes none of these actio
 - **“The successful 09:57 boot proves snapshot rollback works.”** Rejected: the default root is
   a writable subvolume; the overlay path was not exercised by that boot.
 - **“No pacman.log rebuild after 09:18 means the booted UKI is the 09:18 build.”** Rejected:
-  `limine-update` at 09:26:11 rebuilt it outside pacman (B:86, 124–125).
+  [inf] `limine-update` at 09:26:11 rebuilt it outside pacman (B:86, 124–125).
 - **“The `/EFI fallback` entry is a separate rescue path.”** Rejected: same Limine binary (S:94–95).
 
 ## QUALITY check
