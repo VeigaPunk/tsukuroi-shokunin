@@ -4,6 +4,12 @@ recheck: on-release; procedure: `stat -c 'mode=%a owner=%U:%G type=%F path=%n' /
 
 # Root-DAC create-failure decision matrix (round 12)
 
+> **Superseded after outside rejection.** Read
+> `root-dac-correction-r13.md` and `root-dac-correction-r13.json` for active
+> B2 unit-path reasoning. The named Round-13 correction at this file's end
+> identifies the historical false universal, incomplete negative claims,
+> fixture-identity and stale QUALITY text retained below.
+
 ## Purpose, scope and independence
 
 This note documents a **read-only indicator matrix for ordinary `mkdir`/`mkdirat`
@@ -119,3 +125,35 @@ Performed on this entry at 2026-10-20; all applicable criteria #1–#16 are eval
 - **S040, tier A — local root policy** — `/usr/lib/tmpfiles.d/root.conf` line 10 `z / 555 - - -`; package-owned by systemd 261.2-1 (`pacman -Qo`, 2026-10-20); no `/etc` or `/run` override recorded; `systemd-tmpfiles-setup` active, `Result=success`, `ExecMainStatus=0`. The `-` columns leave ownership unchanged; this is shipped policy, not an incident artifact.
 - **Host evidence (own work, read-only, uid 1000, 2026-10-20)** — the command list in `recheck:` above, plus `lsattr -d /`, `cat /sys/module/apparmor/parameters/enabled`, `ls -d /sys/fs/selinux`, `cat /sys/kernel/security/lsm`, `pacman -Qo /usr/lib/tmpfiles.d/root.conf`.
 - **Parent smoke fixtures (author-side, historical)** — `.ufo/waves/round-12/discriminator-smoke.json` and `.ufo/waves/round-12/error-order-smoke.json`; isolated disposable directories, uid 1000, no host root writes, no read-only filesystem mounted. The `0755` fixture parent was invoker-owned; see the SC3 correction above.
+
+## Round-13 correction — superseded unit-read-only universal
+
+**Correction R13-DAC-EXCLUSIVITY**, motivated by the independent
+`corpus/lessons/round-12-verifier-spotcheck.md` blocking C2 finding.
+The current procedure is `root-dac-correction-r13.md` and its canonical
+`root-dac-correction-r13.json`; the round-12 text above is historical.
+This notice explicitly supersedes the false exclusive conditions and
+unscoped negative conclusions in the current-host paragraph, worked-example
+step 3, R13 and JSON B2 interpretation/limit/expected_signal, plus the
+incomplete decision-procedure step 2 and SC5 mount description. The new
+entry's recheck also supersedes the incomplete property list in the old
+opening `recheck:` command. `ProtectSystem=no` and
+empty `ReadOnlyPaths=` exclude only those configured mechanisms, **not B2**.
+Among `ProtectSystem=` values, `full` does not cover `/`, while `strict`
+has documented hierarchy coverage and exceptions. `BindReadOnlyPaths=`
+and `TemporaryFileSystem=` with `ro` are alternative read-only mechanisms;
+`RootDirectory=`/`RootImage=` change the path view without intrinsically
+proving it read-only. These alternatives were not recorded in the canonical
+matrix's captured property set; this is not a claim that no other round-12
+seat inspected them.
+
+SC1/SC2 describe hypothetical root-owned `0555` parents. Their historical
+ordinary-mkdir controls used caller-owned parents: equal mode does not turn
+the documented prediction into a root-owned executed fixture. The new entry
+separates the source-grounded inference and executed fixture identity.
+
+The mid-wave language in QUALITY #4/#10/#11 above is a historical author-side
+evaluation, not a landing-time account. The implementation landed at
+`70fede2a7a890cb50a72db2d4230ee541183bf7b`; subsequent outside closure rejected
+C2 as delivered. The round-13 entry re-evaluates the corrected content and
+does not rewrite or retroactively admit round 12.

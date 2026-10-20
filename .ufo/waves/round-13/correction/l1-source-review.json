@@ -1,0 +1,14 @@
+{
+  "access_date": "2026-10-20",
+  "source": "https://man.archlinux.org/man/systemd.exec.5.en",
+  "method": "functions.read native HTML followed by located reader ranges",
+  "observations": [
+    {"anchor": "BindPaths=, BindReadOnlyPaths=", "quote": "BindReadOnlyPaths= creates read-only bind mounts.", "finding": "Independent read-only bind mechanism; unit mounts are not visible in the host mount table."},
+    {"anchor": "TemporaryFileSystem=", "quote": "Each mount point may optionally be suffixed with a colon (\":\") and mount options such as \"size=10%\" or \"ro\".", "finding": "Read-only tmpfs is an alternative; no host configuration or execution is inferred."},
+    {"anchor": "ProtectSystem=", "quote": "If set to \"full\", the /etc/ directory is mounted read-only, too.", "finding": "full extends usr/boot/efi to etc, not root. strict hierarchy coverage has API-subtree and writable-directory exceptions."},
+    {"anchor": "RootDirectory= and RootImage=", "finding": "Changes executed process root/path view; not intrinsically read-only."}
+  ],
+  "author_side_verdict": "Source review agrees with narrowing to ProtectSystem values; rejects only-strict-or-ReadOnlyPaths universal. Fresh independent closure still required.",
+  "limits": "No source sentence establishes failure-time mount namespace, actual issuer capabilities, or historical Btrfs ioctl cause. The list of alternative mechanisms is not exhaustive. No service, mount or package mutation ran.",
+  "tools_installed_or_updated": []
+}

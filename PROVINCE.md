@@ -88,3 +88,9 @@ existing host/rollback-net surface. The census owns detection only; no mode
 repair, service restart, subvolume creation, boot or package transaction is
 authorized by a finding. `corpus/knowledge/root-dac-decision-r12.md` refines
 this existing core surface without absorbing sibling verification methods.
+
+Round-13 correction R13-DAC-EXCLUSIVITY: the active refinement is now
+`corpus/knowledge/root-dac-correction-r13.md` and `.json`; the round-12
+entry is retained with an explicit supersession notice after outside
+rejection. This remains the same host/rollback-net surface and grants
+no namespace mutation, privileged inspection or sibling-method ownership.

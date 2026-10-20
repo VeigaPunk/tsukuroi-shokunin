@@ -1713,3 +1713,41 @@ finding patterns establish capability, while the dated live root-metadata
 capture establishes this round's measurement; neither is outside admission.
 Round evidence: `.ufo/waves/round-12/resumed/`; lesson:
 `corpus/lessons/round-12.md`.
+
+## Round 13 — active unit-path correction (R13-DAC-EXCLUSIVITY)
+
+The round-12 matrix pointer above is a historical entry rejected at outside
+closure. For current unit-read-only reasoning read
+`corpus/knowledge/root-dac-correction-r13.md` and its canonical JSON first
+(S028/S041). `ProtectSystem=no` with empty `ReadOnlyPaths=` excludes those
+settings only. It does not exclude `BindReadOnlyPaths=` or a
+`TemporaryFileSystem=` mounted `ro`; `RootDirectory=`/`RootImage=` alter
+the path view but are not inherently read-only. Among ProtectSystem values,
+`full` omits `/` and `strict` has documented hierarchy coverage and exceptions.
+Host `findmnt` is not evidence of a unit-private namespace's mount state.
+Keep the issuer, operation, path and historical capability state unknown
+where they were not measured. Caller-owned mkdir controls are not executed
+root-owned fixtures. No repair or upgrade clearance follows this correction.
+
+The new checker verifies the bounded correction contract, not arbitrary
+prose truth, host health, historical causality or independent admission:
+
+| Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |
+|---|---|---|---|---|---|---|---|
+| root-dac-correction | gate | `python tools/check-root-dac-correction.py` or `--revision <commit>` | 0 clean; 1 failed; 2 could-not-evaluate | `python tools/check-root-dac-correction.py --selftest` | Committed finding IDs and correction predicates inside `tools/check-root-dac-correction.py` | None; git object reads or lane files only; selftest in memory | tsukuroi |
+
+Measured runs, source review and limits are in `corpus/lessons/round-13.md`
+and `.ufo/waves/round-13/correction/`; outside verification remains required.
+
+**Read-only correction for this procedure:** the historical allowed-list
+entry `snapper list-configs` is not a non-activating probe: the local
+`/usr/share/dbus-1/system-services/org.opensuse.Snapper.service:3-6`
+declares root `snapperd` D-Bus activation. Do not invoke it in the new
+procedure; inspect configuration-directory names without reading secret
+contents instead. This declaration does not prove which historical caller
+started a daemon. Use explicit `systemctl show -p` property lists, never
+raw unit text, argv, environment or credential properties. Starting a
+fresh invocation is an operator-owned state change, not a read-only check.
+Existing `/sysroot` update-safety conditions still bind. Evidence:
+`.ufo/waves/round-13/correction/SecurityBoundary.md` F1/F2/F5 and the local
+activation declaration reopened by L1 on 2026-10-20.

@@ -281,3 +281,37 @@ update-safety/OOM findings remain visible.
   and the pending boot-hook package evidence; seek failure-time credentials
   only within the operator/read-only boundary. This round does not start it.
 - **retired:** none. No saturation waiver or promotion is claimed.
+
+## Round 13 — C1 correction R13-DAC-EXCLUSIVITY (2026-10-20)
+
+**Supersedes the round-12 author-side admission assessment, not its measured
+counts.** The independent `corpus/lessons/round-12-verifier-spotcheck.md`
+rejected round 12: operability improved, depth harmed, expansion/quality/
+discernment harmed. Round-12 C2's 0→4 structural branch counter did not
+validate the false exclusive sentence. This correction is a new round and
+does not retroactively admit round 12.
+
+Current ordinal scores remain depth8, coverage9, operability9, freshness9,
+calibration9, adjacency8 (the later fleet-r1 corrections supersede the
+historical terminal table). Depth and adjacency are tied lowest, neither is
+retired; the saturation9/window3 nudge does not waive the lowest-axis duty.
+
+One declared claim, **C1/depth**, source-grounded correction on the existing
+rollback-net surface: replace active unsupported unit-read-only universality
+with a properly scoped ProtectSystem comparison and alternative bind/tmpfs/
+path-view mechanisms. Supporting source-attribution and fixture-identity
+repairs do not become separate claims. Ordinal delta **8→8 (0)**: no
+arbitrary score gain is inferred from correcting a rejected claim.
+
+Counting command: `python tools/check-root-dac-correction.py --revision
+<commit>`; before revision `9574a189a758251da5957eee8ff0f38ba2d03c7f`.
+The checker is a bounded correction-conformance measure, not proof of all
+source semantics. New correction: `corpus/knowledge/root-dac-correction-r13.md`
+and `.json`, citing opened S041. Exact before/after output, measured commit
+and author-side verdict follow in the measurement appendix. No new
+capability table row is claimed merely for writing a checker.
+
+- **planned (current):** seek fresh independent verification of this
+  correction, retain failure-time operation/credential/private-namespace
+  unknowns and the boot-hook upgrade gate; next work requires a new steer.
+- **retired:** none. No promotion or SHONEN `[x]`.

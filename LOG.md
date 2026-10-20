@@ -529,3 +529,38 @@ implementation `70fede2a7a890cb50a72db2d4230ee541183bf7b` and report-time
 pushed HEAD `670126f5161b824d9dabdfacd085d27ff0afa3e3` remain historical
 measurement pointers, not assertions that no later commit exists.
 No tests or census were rerun for this source-log-only durability correction.
+
+## 2026-10-20 — round 13 named correction R13-DAC-EXCLUSIVITY
+
+- **Motivation and verdict correction:** independent
+  `corpus/lessons/round-12-verifier-spotcheck.md` rejected round 12, C2 harmed.
+  This supersedes the round-12 LOG's author-side improved C2 and associated
+  trend assessments as admission evidence; the historical measurements stay
+  factual structural counters, not truth checks. No round-12 rejection is
+  rewritten or retrospectively admitted.
+- **Declared C1 / depth:** new `corpus/knowledge/root-dac-correction-r13.md`
+  and `.json` correct the false exhaustive unit-read-only condition in old
+  MD current-host/R13/worked example and JSON B2/procedure. Historical files
+  retain bytes with named supersession notices; SKILL, province and corpus
+  index point to the active correction. Full/strict comparison is explicitly
+  scoped to ProtectSystem; alternate read-only binds/tmpfs options and
+  unobserved root/path namespaces remain in the diagnostic picture.
+- **Routed supporting fixes:** root-owned SC1/SC2 predictions are separated
+  from executed caller-owned ordinary-mkdir controls; stale mid-wave QUALITY
+  prose is superseded by a landing-time evaluation; source S036/S037 bot
+  authority is corrected through superseding rows rather than immutable
+  field rewrites. QUALITY #17/#18 cite the round-13 mistake lesson.
+- **Measurement contract:** `python tools/check-root-dac-correction.py
+  --revision <commit>` counts bounded correction conformance, not general
+  semantic correctness or causal proof. Red-before and green-after evidence
+  will be appended after the one shipping verification. Source reviewers
+  separately evaluate factual correctness.
+- **Wave and ordering:** one validated 32-seat task batch under
+  `.ufo/waves/round-13/correction/`; L1 holds canonical planner seat, bounded
+  DataWalk is revenger. All seats must be joined before final verification,
+  lane commit/push and fleet report. No inherited lane-authored work at entry.
+- **Scope:** no host repair, service operation, package transaction,
+  privileged probe, Btrfs operation or boot. New correction does not clear
+  the mkinitcpio-42 `/sysroot` gate. Tools installed/updated by L1: none.
+  Author-side assessment remains subject to fresh non-author closure;
+  SHONEN boxes remain `[~]`.

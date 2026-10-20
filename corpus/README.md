@@ -65,3 +65,14 @@ subvolume causality. The opened systemd `root.conf` rule sets `/` to `0555`;
 unowned does not mean policy-free. Exact historical failing syscall/path,
 runtime credentials and incident-time target state remain frontier. Opened
 issue leads S036/S037 are retained rejections, not causes or upgrade clearance.
+
+## Round 13 — correction superseding the round-12 unit-path procedure
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/root-dac-correction-r13.md` and `.json` | Active correction R13-DAC-EXCLUSIVITY: ProtectSystem-only comparison, alternative bind/tmpfs read-only mechanisms, unmeasured private-path view, fixture-identity and bot-authority limits; supersedes the rejected round-12 B2 claims, not the historical failure evidence | S028/S041; source attribution superseding S042/S043; `lessons/round-13.md` |
+
+This repairs knowledge on the existing rollback-net surface, not a new
+coverage surface or a repaired host. The root-metadata capability and
+boot-hook upgrade blocker are unchanged. Use the new correction before
+consulting the preserved round-12 MD/JSON.

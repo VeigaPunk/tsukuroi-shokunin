@@ -1,0 +1,294 @@
+{
+  "schema": "tsukuroi-dac-correction-v1",
+  "correction_id": "R13-DAC-EXCLUSIVITY",
+  "entry_id": "root-dac-correction-r13",
+  "round": "round-13",
+  "status": "superseding-correction",
+  "scope": "This is a narrow correction of the B2 unit-side read-only statement, its ProtectSystem exclusivity and the SC1/SC2 fixture attribution only; it is not a proof of general semantic correctness and not a causal proof of any logged errno:13 event.",
+  "supersedes": {
+    "markdown": "corpus/knowledge/root-dac-decision-r12.md",
+    "json": "corpus/knowledge/root-dac-decision-r12.json",
+    "superseded_schema": "tsukuroi-dac-decision-matrix-v1",
+    "historical_revision": "70fede2a7a890cb50a72db2d4230ee541183bf7b",
+    "historical_bytes_preserved": true,
+    "scope": "This is a narrow correction of the B2 unit-side read-only statement, its ProtectSystem exclusivity and the SC1/SC2 fixture attribution only; it is not a proof of general semantic correctness and not a causal proof of any logged errno:13 event."
+  },
+  "claim_scope": "Among ProtectSystem= values, full does not cover / and strict covers the hierarchy subject to its documented exceptions; ProtectSystem= and ReadOnlyPaths= are not the only unit-side mechanisms that can present / read-only to a unit.",
+  "corrected_universal": {
+    "text": "Among ProtectSystem= values, ProtectSystem=full does not cover /, while ProtectSystem=strict mounts the entire hierarchy read-only except /dev/, /proc/ and /sys/, with ReadWritePaths= and StateDirectory=/LogsDirectory= style settings excluding specific directories. BindReadOnlyPaths=, TemporaryFileSystem= with the ro mount option, RootDirectory= and RootImage= can change or restrict the unit's path view and are not excluded by ProtectSystem=no and empty ReadOnlyPaths=.",
+    "applies_to": "unit-side read-only path views and the configured property set; not a claim about host mounts, runtime enablement or historical events.",
+    "source_ids": ["S041"]
+  },
+  "full_vs_strict": "ProtectSystem=full does not cover /; ProtectSystem=strict mounts the hierarchy read-only except /dev/, /proc/ and /sys/.",
+  "root_view_not_intrinsically_read_only": "RootDirectory= and RootImage= change the unit's path view; they are not intrinsically or inherently read-only and do not by themselves establish a read-only view.",
+  "alternatives_scope": "The four retained alternatives are illustrative and non-exhaustive; they are documented mechanisms, not claimed causes of any observed errno:13, and the corrected claim does not close the mechanism set.",
+  "api_scope": "The B2/EROFS mapping is API-scoped (mkdir(2) EROFS, S035); it is not proof of the Btrfs subvolume ioctl behavior, not a general errno-priority claim, and not proof of any historical event.",
+  "ro_parent_scope": "For ordinary mkdir/mkdirat the read-only indicator applies to the filesystem mount that backs the resolved parent directory, not to the nonexistent final path component; an existing final target is classified separately as B4 (EEXIST), and other failure classes are separate again.",
+  "documentation_version": {
+    "man_page": "systemd.exec(5), man.archlinux.org page footer systemd 262.1 (grep-verified 2026-10-20)",
+    "host_package": "systemd 261.2-1 (S040 package ownership of /usr/lib/tmpfiles.d/root.conf)",
+    "claim": "The quoted text documents the interface, not host runtime configuration. The alternatives were not recorded in the canonical round-12 matrix capture; no claim is made that no other seat inspected them."
+  },
+  "protect_system_values": [
+    {
+      "value": "no",
+      "covers_root": false,
+      "root_effect": "no read-only mount from this option",
+      "source_id": "S041",
+      "anchor": "systemd.exec(5) § ProtectSystem= (defaults to off)"
+    },
+    {
+      "value": "yes/true",
+      "covers_root": false,
+      "root_effect": "mounts /usr/, /boot/ and /efi/ read-only; / itself is not covered",
+      "source_id": "S041",
+      "anchor": "systemd.exec(5) § ProtectSystem="
+    },
+    {
+      "value": "full",
+      "covers_root": false,
+      "root_effect": "also mounts /etc/ read-only; / itself is not covered",
+      "source_id": "S041",
+      "anchor": "systemd.exec(5) § ProtectSystem="
+    },
+    {
+      "value": "strict",
+      "covers_root": true,
+      "root_effect": "mounts the entire hierarchy read-only except /dev/, /proc/ and /sys/",
+      "source_id": "S041",
+      "anchor": "systemd.exec(5) § ProtectSystem="
+    }
+  ],
+  "preserved_exceptions": [
+    "/dev/, /proc/ and /sys/ are excluded from ProtectSystem=strict and are to be protected with PrivateDevices=, ProtectKernelTunables= and ProtectControlGroups=.",
+    "ReadWritePaths= may exclude specific directories from being made read-only by ProtectSystem=.",
+    "StateDirectory=, LogsDirectory= and related directory settings also exclude their directories from the effect of ProtectSystem=.",
+    "With ProtectSystem=strict and PrivateTmp= enabled, /tmp/ and /var/tmp/ are writable.",
+    "ReadOnlyPaths= and related namespace settings do not extend to submounts created later, so the lock-down is not complete."
+  ],
+  "retained_alternatives": [
+    {
+      "mechanism": "BindReadOnlyPaths=",
+      "intrinsically_read_only": true,
+      "effect": "creates read-only bind mounts specific to the unit's namespace independently of ProtectSystem and ReadOnlyPaths. A genuinely read-only resolved-parent mount is an EROFS indicator for a create attempt, subject to target existence, exceptions and other failures.",
+      "discriminator": "systemctl show -p BindReadOnlyPaths <unit>",
+      "quote": "BindReadOnlyPaths= creates read-only bind mounts.",
+      "anchor": "systemd.exec(5) § BindPaths=, BindReadOnlyPaths=",
+      "source_id": "S041"
+    },
+    {
+      "mechanism": "TemporaryFileSystem=",
+      "intrinsically_read_only": false,
+      "effect": "mounts tmpfs with options that can include ro; this directive does not make its tmpfs read-only by default, and actual writability cannot be concluded from this setting alone.",
+      "discriminator": "systemctl show -p TemporaryFileSystem <unit>",
+      "quote": "mount options such as \"size=10%\" or \"ro\"",
+      "anchor": "systemd.exec(5) § TemporaryFileSystem=",
+      "source_id": "S041"
+    },
+    {
+      "mechanism": "RootDirectory=",
+      "intrinsically_read_only": false,
+      "effect": "pivots or chroots the unit into another directory; changes the unit's path view, so host-/ reasoning and host findmnt do not describe the unit's root. Not intrinsically read-only.",
+      "discriminator": "systemctl show -p RootDirectory <unit>",
+      "quote": "Sets the root directory for executed processes, with the pivot_root(2) or chroot(2) system call.",
+      "anchor": "systemd.exec(5) § RootDirectory=",
+      "source_id": "S041"
+    },
+    {
+      "mechanism": "RootImage=",
+      "intrinsically_read_only": false,
+      "effect": "mounts a filesystem hierarchy from a block device or loopback file as the unit root; changes the path view, not intrinsically read-only.",
+      "discriminator": "systemctl show -p RootImage <unit>",
+      "quote": "mounts a file system hierarchy from a block device node or loopback file instead of a directory",
+      "anchor": "systemd.exec(5) § RootImage=",
+      "source_id": "S041"
+    }
+  ],
+  "b2_discriminator": {
+    "commands": [
+      "systemctl show -p ProtectSystem -p ReadOnlyPaths -p ReadWritePaths -p BindReadOnlyPaths -p TemporaryFileSystem -p RootDirectory -p RootImage <unit>",
+      "findmnt -n -o TARGET,FSTYPE,VFS-OPTIONS,FS-OPTIONS <mountpoint of the resolved parent directory>"
+    ],
+    "read_only": true,
+    "expected_signal": "a ro VFS/FS mount option on the mount backing the resolved parent directory, or a configured ProtectSystem=strict / covering ReadOnlyPaths= / BindReadOnlyPaths= / TemporaryFileSystem=:ro for that parent, or a RootDirectory=/RootImage= path view different from the host",
+    "limit": "findmnt reads the host mount namespace only; the systemctl properties are configured text, and the live unit namespace is unobserved."
+  },
+  "replaced_b2_claims": [
+    {
+      "pointer": "corpus/knowledge/root-dac-decision-r12.md:41-42",
+      "old_claim": "Purpose-section comparison said the hierarchy is mounted read-only by the `strict` value alone without naming the ProtectSystem scope in the same clause.",
+      "replacement": "Among ProtectSystem= values, only `strict` mounts the entire hierarchy read-only (S041); the option set is not an exhaustive list of unit-side read-only mechanisms (S041)."
+    },
+    {
+      "pointer": "corpus/knowledge/root-dac-decision-r12.md:53",
+      "old_claim": "Current-host paragraph treated `ProtectSystem=no` plus empty `ReadOnlyPaths=` as excluding B2 and named the `strict` value or a covering `ReadOnlyPaths=` entry as the unit-side read-only causes.",
+      "replacement": "The captured `ProtectSystem=no` and empty `ReadOnlyPaths=` exclude those two configured mechanisms only; the capture did not read `BindReadOnlyPaths=`, `TemporaryFileSystem=`, `RootDirectory=` or `RootImage=`, so a unit-side read-only path view is not excluded (S041)."
+    },
+    {
+      "pointer": "corpus/knowledge/root-dac-decision-r12.md:64",
+      "old_claim": "Worked-example step 3 asserted B2 was unconfigured on this host from the two captured properties alone.",
+      "replacement": "On the captured properties, B2 is unconfigured by `ProtectSystem=` and `ReadOnlyPaths=` only; the unit's private namespace and the four uncaptured path-view properties remain unobserved, so B2 is not excluded."
+    },
+    {
+      "pointer": "corpus/knowledge/root-dac-decision-r12.md:86",
+      "old_claim": "R13's second sentence made the `strict` value or a covering `ReadOnlyPaths=` entry the exhaustive unit-side route to a B2-family EROFS for `/`.",
+      "replacement": "A unit-side B2-family `EROFS` for `/` can also come from `BindReadOnlyPaths=` or `TemporaryFileSystem=` with the ro mount option; `RootDirectory=`/`RootImage=` change the path view, and `ProtectSystem=strict` remains subject to its documented exceptions (S041)."
+    },
+    {
+      "pointer": "corpus/knowledge/root-dac-decision-r12.json:branches[B2].interpretation",
+      "old_claim": "Interpretation closed with an on-host conclusion that B2 was unconfigured from `ProtectSystem=no` and empty `ReadOnlyPaths=`, and listed only superblock, `ReadOnlyPaths=` or `strict` as the EROFS route.",
+      "replacement": "A read-only superblock, `ProtectSystem=strict`, a covering `ReadOnlyPaths=` entry, `BindReadOnlyPaths=`, or `TemporaryFileSystem=` with the ro option can fail create-class writes with EROFS (S041); the two captured properties alone do not show B2 unconfigured."
+    },
+    {
+      "pointer": "corpus/knowledge/root-dac-decision-r12.json:branches[B2].limit",
+      "old_claim": "Limit ended with an exhaustive claim that the `strict` value or a covering `ReadOnlyPaths=` entry were the only unit-side ways to make `/` read-only.",
+      "replacement": "The limit is confined to ProtectSystem values: `full` does not cover `/`, and `strict` covers the hierarchy subject to documented exceptions; the four alternate path-view mechanisms are independent of `ProtectSystem=` and `ReadOnlyPaths=` (S041), so the set of unit-side mechanisms is not closed."
+    },
+    {
+      "pointer": "corpus/knowledge/root-dac-decision-r12.json:decision_procedure[2]",
+      "old_claim": "Collection step 2 named only a read-only superblock, the `strict` value or a covering `ReadOnlyPaths=` entry as B2 indicators.",
+      "replacement": "Collection step 2 must read the full unit-side property set: `ProtectSystem`, `ReadOnlyPaths`, `ReadWritePaths`, `BindReadOnlyPaths`, `TemporaryFileSystem`, `RootDirectory` and `RootImage`, then map a read-only superblock, `strict`, a covering `ReadOnlyPaths=`/`BindReadOnlyPaths=` entry, or `TemporaryFileSystem=` with ro to B2 (S041)."
+    }
+  ],
+  "related_locations": [
+    {
+      "pointer": "corpus/knowledge/root-dac-decision-r12.json:scenarios[SC5].inputs.mount",
+      "old_claim": "SC5 named ro, ProtectSystem=strict or a covering ReadOnlyPaths= entry as the read-only unit condition for the target path.",
+      "replacement": "SC5's unit-side condition applies to the mount backing the resolved parent directory (not the nonexistent final component) and also includes BindReadOnlyPaths= and TemporaryFileSystem=:ro; the list is illustrative, not exhaustive, and remains API-scoped. An existing final target is a separate B4/EEXIST case."
+    },
+    {
+      "pointer": "corpus/knowledge/root-dac-decision-r12.json:scenarios[SC7] and host_observation.unit",
+      "old_claim": "SC7 and host_observation model the unit as ProtectSystem=no plus empty ReadOnlyPaths= without carrying the four uncaptured path-view properties.",
+      "replacement": "Read the SC7 unit model through unknowns.captured_property_set: the four uncaptured properties are unobserved, not absent; the captured pair does not exclude a unit-side read-only view."
+    }
+  ],
+  "fixture_identity": {
+    "scenarios": ["SC1", "SC2"],
+    "stated_input_parent": "0555 root:root, base ACL entries only",
+    "executed_fixture_parent": "derived caller-owned: the 0555 parent was created inside a uid-1000 TemporaryDirectory by the smoke recipe; parent UID is not recorded in the early smoke JSON (a separate resumed mkdir-controls record has parent_uid1000)",
+    "derived_identity": true,
+    "executed_records": [
+      ".ufo/waves/round-12/discriminator-smoke.json fixture_results[0] (EACCES; parent owner derived caller-owned)",
+      ".ufo/waves/round-12/error-order-smoke.json observed[0] (EACCES) and observed[1] (EEXIST); parent owner derived caller-owned"
+    ],
+    "measured": "uid-1000 fixture with a chmod-0555 parent: new target -> EACCES; existing target -> EEXIST (parent identity derived, not recorded in the smoke file)",
+    "inferred_not_measured": "root:root 0555 parent: EACCES for SC1 and EEXIST for SC2 are conditional source-grounded inferences for the exact case 0555 with base-only ACL, search for the caller, no bypass capability and no extra filesystem denial. They are not measured and not a universal ownership-equivalence or errno-ordering proof.",
+    "executed_root_owned_fixture": false,
+    "statement": "SC1 and SC2 specify root:root 0555 parents as hypothetical inputs. The executed smoke fixtures derive a caller-owned 0555 parent from the recorded recipe (parent UID not recorded; separate resumed mkdir-controls has parent_uid1000). A root-owned 0555 outcome is a conditional source-grounded inference for exact 0555, base-only ACL, search for the caller, no bypass capability and no extra filesystem denial; it is not a measured equivalence and no errno-ordering or ownership-equivalence proof is claimed."
+  },
+  "historical_cause": "unknown; this correction establishes no historical cause for any logged errno:13 event.",
+  "unknowns": {
+    "unit_private_namespace": "Unobserved: the unit's private mount namespace may contain read-only bind mounts or tmpfs mounts that are invisible to a later host findmnt; a host mount view cannot exclude them.",
+    "captured_property_set": "The canonical round-12 matrix records ProtectSystem, ReadOnlyPaths and ReadWritePaths but not BindReadOnlyPaths, TemporaryFileSystem, RootDirectory or RootImage. This does not establish them unset or claim no other seat inspected them.",
+    "historical_event": "The cited evidence contains no syscall trace, privileged probe or failure-time target state for the logged errno:13 events; this correction does not name a cause, and current unit settings do not prove failure-time settings.",
+    "residual_filesystem_denial": "Even the exact 0555 plus base-ACL plus no-bypass condition leaves a residual filesystem-specific denial unknown; ordinary mkdir controls are not the Btrfs subvolume ioctl and do not certify that path.",
+    "namespace_observability": "The namespace is not operator-only by definition: if a live, bound issuer PID were confirmed, its namespace metadata might be readable. No live PID was confirmed in round 12 (ExecMainPID was stale), so it was not read."
+  },
+  "historical_bytes_check": {
+    "revision": "70fede2a7a890cb50a72db2d4230ee541183bf7b",
+    "files": [
+      "corpus/knowledge/root-dac-decision-r12.md",
+      "corpus/knowledge/root-dac-decision-r12.json"
+    ],
+    "markers": [
+      "only `strict` (or a `ReadOnlyPaths=` entry covering `/`) would make `/` read-only through the unit",
+      "B2 is not configured for `/`.",
+      "B2 is not configured on this host",
+      "Only `strict` or a `ReadOnlyPaths=` entry covering `/` could produce a B2-family `EROFS` for `/` through the unit.",
+      "while only `strict` mounts the entire hierarchy read-only",
+      "so only strict or a ReadOnlyPaths= entry can make / read-only through the unit",
+      "On this host the unit has ProtectSystem=no and empty ReadOnlyPaths=, so B2 is not configured for /.",
+      "a read-only superblock, ProtectSystem=strict, or a ReadOnlyPaths= entry covering the target -> B2-family indicator (EROFS)"
+    ]
+  },
+  "gate_contract": {
+    "historical_revision": "70fede2a7a890cb50a72db2d4230ee541183bf7b",
+    "historical_files": [
+      "corpus/knowledge/root-dac-decision-r12.md",
+      "corpus/knowledge/root-dac-decision-r12.json"
+    ],
+    "required_md_headings": [
+      "# Root-DAC unit-read-only correction (round 13)",
+      "## Supersession and preserved history",
+      "## Corrected claim (ProtectSystem= scope)",
+      "## Preserved exceptions",
+      "## Retained alternate mechanisms",
+      "## Replaced round-12 B2 statements",
+      "## Fixture identity: SC1/SC2 hypothetical versus executed",
+      "## Historical cause remains unknown",
+      "## QUALITY check",
+      "## Sources"
+    ],
+    "corrected_field_scan": [
+      "scope",
+      "claim_scope",
+      "corrected_universal.text",
+      "full_vs_strict",
+      "root_view_not_intrinsically_read_only",
+      "alternatives_scope",
+      "api_scope",
+      "retained_alternatives[].effect",
+      "preserved_exceptions[]",
+      "fixture_identity.statement",
+      "historical_cause",
+      "unknowns.unit_private_namespace",
+      "unknowns.captured_property_set"
+    ],
+    "active_supersession": {
+      "r12_md_heading": "## Round-13 correction — superseded unit-read-only universal",
+      "r12_json_key": "superseded_by",
+      "r12_json_value": "corpus/knowledge/root-dac-correction-r13.json"
+    },
+    "rule": "Every historical marker MUST be present in the historical r12 blobs at historical_revision, and MUST be absent from the corrected_field_scan values and from all r13 MD lines."
+  },
+  "sources": [
+    {
+      "source_id": "S041",
+      "tier": "A",
+      "source": "systemd.exec(5) namespace mechanisms",
+      "url": "https://man.archlinux.org/man/systemd.exec.5",
+      "anchors": [
+        "§ ProtectSystem=",
+        "§ ReadOnlyPaths=",
+        "§ BindPaths=, BindReadOnlyPaths=",
+        "§ TemporaryFileSystem=",
+        "§ RootDirectory=",
+        "§ RootImage="
+      ],
+      "quotes": [
+        "If set to \"full\", the /etc/ directory is mounted read-only, too.",
+        "If set to \"strict\" the entire file system hierarchy is mounted read-only, except for the API file system subtrees /dev/, /proc/ and /sys/",
+        "Paths listed in ReadOnlyPaths= are accessible for reading only, writing will be refused even if the usual file access controls would permit this.",
+        "BindReadOnlyPaths= creates read-only bind mounts.",
+        "mount options such as \"size=10%\" or \"ro\"",
+        "Sets the root directory for executed processes, with the pivot_root(2) or chroot(2) system call.",
+        "mounts a file system hierarchy from a block device node or loopback file instead of a directory"
+      ],
+      "status": "reserved",
+      "registry_owner": "SourceRegistry",
+      "role": "documentation for the corrected namespace and ProtectSystem claim"
+    },
+    {
+      "source_id": "S028",
+      "tier": "A",
+      "source": "systemd.exec(5)",
+      "url": "https://man.archlinux.org/man/systemd.exec.5",
+      "anchors": ["§ CapabilityBoundingSet="],
+      "quotes": [
+        "Capabilities listed will be included in the bounding set, all others are removed."
+      ],
+      "status": "mined",
+      "role": "capability context for the round-12 B3 branch only; not evidence for the corrected B2 namespace claim. The round-12 row scope is capability-only, so namespace text is cited to S041 instead."
+    }
+  ],
+  "evidence_refs": {
+    "prior_note": "corpus/knowledge/root-dac-decision-r12.md",
+    "prior_json": "corpus/knowledge/root-dac-decision-r12.json",
+    "verifier_finding": "corpus/lessons/round-12-verifier-spotcheck.md",
+    "fixtures": [
+      ".ufo/waves/round-12/discriminator-smoke.json",
+      ".ufo/waves/round-12/error-order-smoke.json"
+    ],
+    "quality": "corpus/knowledge/root-dac-correction-r13.md ## QUALITY check"
+  }
+}

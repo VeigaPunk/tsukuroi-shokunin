@@ -89,3 +89,16 @@ The earlier conditional `chmod 755 /` suggestion is superseded: do not
 change the root mode without reviewing the policy and affected service.
 No mode change or boot test ran; a present policy does not reconstruct
 the incident-time syscall, credentials or inode history.
+
+## Erratum (2026-10-20, round 13) — R13-DAC-EXCLUSIVITY
+
+The round-12 procedure pointer above now resolves to a historical entry
+rejected at outside closure. Use `root-dac-correction-r13.md` and `.json`
+(S041) for active unit-read-only discrimination. It supersedes the false
+claim that only strict ProtectSystem or ReadOnlyPaths can make a unit's
+root/path read-only. BindReadOnlyPaths and read-only TemporaryFileSystem
+are alternative examples; RootDirectory/RootImage change the path view,
+not inherently its writability. These are non-exhaustive source-grounded
+mechanisms, not new evidence of this host's failing invocation. Historical
+Btrfs syscall/path, capability and private-namespace attribution remain
+unproven; no configuration change is recommended by this correction.
