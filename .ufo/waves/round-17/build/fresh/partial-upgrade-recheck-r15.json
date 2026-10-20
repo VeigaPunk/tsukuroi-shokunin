@@ -1,0 +1,62 @@
+[
+  {
+    "id": "R17-FRESH-PARTIAL-01",
+    "path": "corpus/knowledge/partial-upgrade-recheck-r15.md",
+    "baseline_quote": "mkinitcpio 41.1-1; systemd 261.2-1",
+    "stale_reason": "package_versions row records the pre-09:15 installed set; the 2026-10-20T09:15:31-0300 full -Syu upgraded mkinitcpio and systemd",
+    "observed_now": "mkinitcpio 42.2-1; systemd 262-1 installed",
+    "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:32",
+    "capture_quote": "/var/lib/pacman/local/mkinitcpio-42.2-1",
+    "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+    "id": "R17-FRESH-PARTIAL-02",
+    "path": "corpus/knowledge/partial-upgrade-recheck-r15.md",
+    "baseline_quote": "`pacman -Qu` rows against the local sync DB",
+    "stale_reason": "pending_updates count of 413 predates the 09:15 full system upgrade; count not re-measured because pacman was forbidden in this lane",
+    "observed_now": "413 not re-measured; superseded by full upgrade at 09:15:31",
+    "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:8",
+    "capture_quote": "[2026-10-20T09:15:31-0300] [PACMAN] starting full system upgrade",
+    "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+    "id": "R17-FRESH-PARTIAL-03",
+    "path": "corpus/knowledge/partial-upgrade-recheck-r15.md",
+    "baseline_quote": "`synchronizing package lists` marker is line 2288",
+    "stale_reason": "a later synchronizing package lists marker exists, so line 2288 is no longer the latest sync marker",
+    "observed_now": "latest marker is line 2463 at 2026-10-20T09:15:30-0300",
+    "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:7",
+    "capture_quote": "[2026-10-20T09:15:30-0300] [PACMAN] synchronizing package lists",
+    "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+    "id": "R17-FRESH-PARTIAL-04",
+    "path": "corpus/knowledge/partial-upgrade-recheck-r15.md",
+    "baseline_quote": "shared birth (`%w`) of all five `.db` files",
+    "stale_reason": "a sync database changed after the 2026-10-18 birth stamp; the all-five shared-birth claim cannot be asserted as current, and %w birth was not re-captured",
+    "observed_now": "omarchy.db mtime 2026-10-20 09:09:26 -0300; %w birth not re-captured",
+    "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:13",
+    "capture_quote": "2026-10-20 09:09:26.000000000 -0300 /var/lib/pacman/sync/omarchy.db",
+    "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+    "id": "R17-FRESH-PARTIAL-05",
+    "path": "corpus/knowledge/partial-upgrade-recheck-r15.md",
+    "baseline_quote": "Boot coupling is latent, not active.",
+    "stale_reason": "mkinitcpio 42.2-1 is installed and the installed UKIs use /sysroot in init while the two named hooks still use /new_root; the latent-only framing no longer describes the host",
+    "observed_now": "mkinitcpio 42.2-1 installed; omarchy_linux.efi init /sysroot refs 7, /new_root refs 0",
+    "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:175",
+    "capture_quote": "init /sysroot refs 7 ; /new_root refs 0",
+    "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+    "id": "R17-FRESH-PARTIAL-06",
+    "path": "corpus/knowledge/partial-upgrade-recheck-r15.md",
+    "baseline_quote": "so a full upgrade stays blocked until that gate is cleared",
+    "stale_reason": "the blocked-full-upgrade handoff describes a state that no longer holds; the full system upgrade ran at 09:15:31",
+    "observed_now": "full system upgrade ran 2026-10-20T09:15:31-0300",
+    "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:8",
+    "capture_quote": "[2026-10-20T09:15:31-0300] [PACMAN] starting full system upgrade",
+    "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  }
+]

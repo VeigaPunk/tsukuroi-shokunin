@@ -119,3 +119,28 @@ read-only unit-property procedure use `SKILL.md:1742-1750`, which excludes
 `snapper list-configs` (root `snapperd` D-Bus activation) and raw
 `systemctl cat`. No command text from the #8047 or #6629 comments is adopted
 or repeated here.
+
+## R17-FRESHNESS — dated host re-verification (2026-10-20)
+
+Scope of this notice: later host captures (`.ufo/waves/round-17/l1-capture/fresh-capture.txt`, `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt`, 2026-10-20) checked against the 2026-10-19 statements above. Historical captures stay historical; the measurements above are not rewritten. Nothing here authorizes any package, service, or boot action, and the falsifier above remains not run.
+
+- Stale: "`snapper list-configs` prints only its header, i.e. **0** configured rows". [obs] sudo snapper list-configs lists two configs, home (/home) and root (/). That probe was sudo-run; the 2026-10-19 probe was non-root, so the contexts differ. Capture: `.ufo/waves/round-17/l1-capture/fresh-capture.txt:46`.
+- Stale: "`stat -c '%F %a %n' /.snapshots` reports no such file". [obs] /.snapshots/1/snapshot and /.snapshots/2/snapshot exist as subvolumes with ro=true (btrfs property get). Capture: `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:160`.
+- Stale: "It reports **2.0G** total, **279M** used, **1.8G** available". [obs] limine_history alone reports total 836148 (1K blocks), and /boot/EFI/Linux reports total 552512 (1K blocks); df was not re-run, so the 2026-10-19 used figure has no current df value. [inf] the listed files alone exceed the earlier 279M figure. Capture: `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:111`.
+- Stale: "The local `limine-snapper-sync.service` declares `User=root` and `CapabilityBoundingSet=CAP_SYS_ADMIN`". [obs] limine-snapper-sync was upgraded from 1.31.0-1.1 to 1.32.1-2 at 2026-10-20 09:16:42; the post-upgrade unit file was not re-read, so the 2026-10-19 unit properties describe the prior package only. Capture: `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:50`.
+- Stale: "The current `stat` finds no `/.snapshots`". [obs] /.snapshots is present after sudo create-config at 2026-10-20 09:03:02, and the /.snapshots/1 and /.snapshots/2 subvolumes exist. Capture: `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:80`.
+- Stale: "An operator may provision the root Snapper configuration with full capabilities (`snapper -c root create-config /`)". [obs] that step was already run via sudo at 2026-10-20 09:03:02, and the root config is listed (`fresh-capture.txt:46`). It is not repeated or re-authorized here. Capture: `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:80`.
+
+
+## R17-RECHECK — steer-safe procedure
+
+Appended 2026-10-20 by the tsukuroi round-17 L1; earlier bytes unchanged. Supersedes the package-manager invocations in this file's `recheck:` line for any round whose steer forbids running pacman (QUALITY 26); file reads replace them and the substitution is recorded in that round's report. Read-only.
+
+- `stat -c "%a %U:%G" /`
+- `getfacl -p /`
+- `systemctl cat limine-snapper-sync.service | grep -n -E "User|CapabilityBoundingSet|ProtectSystem|ReadOnlyPaths|ProtectHome"`
+- `journalctl --no-pager -o short-iso -g "create subvolume failed" | grep -c "errno:13"`
+- snapper configs without D-Bus activation: `grep SNAPPER_CONFIGS /etc/conf.d/snapper`
+- packaged metadata for `/` without a package query (replaces `pacman -Qo /`): `zcat /var/lib/pacman/local/filesystem-*/mtree | grep -cE "^\./?[[:space:]]"`
+- `findmnt -n -o SOURCE,FSTYPE,TARGET /boot`
+- `df -h /boot`

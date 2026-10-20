@@ -161,6 +161,7 @@ matches the entry snapshot. Full command/output/comparison:
 | sources-registry | Curates where the lane learns: `corpus/SOURCES.md` — opened, tier-scoped rows with anchors, rejections with flips, study paths, a search log and unopened leads — and checks itself with the frozen contract's 7 census commands | `corpus/SOURCES.md`; census commands + outputs in `.ufo/evidence/round-1-kaika/after.md` (34 rows, malformed 0, no dup/enum/missing output) | fleet r1 (2026-10-19) |
 | host-census-gate | Emits a read-only six-plane host verdict (`TSUKUROI_CENSUS: HEALTHY/DEGRADED/BLOCKED`, exit 0/1/2) with a hermetic 80-case `--selftest` | `bash tools/tsukuroi-census.sh --selftest` → PASS 80/80 rc=0; live run rc=1 six-plane rollup — `.ufo/evidence/round-1-kaika/scout-live.md`, `after.md` | lane r2 (census-v1); demonstrated running fleet r1 |
 | root-metadata-observer | Emits root mode/uid/gid and owner-bit observations even on package-probe failure; isolates fixtures and blocks unavailable/non-directory metadata without grading intentional 0555 policy | `.ufo/waves/round-12/resumed/{after,selftest-after,mode-policy-mutant}.json`; measured commit `70fede2a7a890cb50a72db2d4230ee541183bf7b` | round 12 |
+| boot-chain-audit | Audits every limine entry live and read-only: copies each UKI via `sudo -n cat`, extracts its initramfs in a private mktemp dir, types `/new_root`, binds the firmware-selected entry, and emits a per-entry next-boot verdict plus `TSUKUROI_BOOTCHAIN` | `bash tools/boot-chain-audit.sh --live` → `.ufo/waves/round-17/l1-capture/audit-live.txt` (6 entries, CONSISTENT, rc 0); `--selftest` 44/44 | round 17 |
 
 Rows enter only through a round that demonstrates the capability running
 (`AXES.md` §Capabilities); none enter through this rollout.
@@ -495,3 +496,14 @@ Command: `python tools/check-section-citations.py --revision <commit>`, same fin
 `build/integration-verification.json` records exact source headings/unique rows/quotes, both raw baseline-prefix preservations and12 unchanged protected files. Sources49→50, A41→42/mined36→37; old rows unchanged, malformed0. Author-side depth improved; coverage/operability/freshness/calibration/adjacency unchanged; no new capability or ordinal score. Trends: expansion unchanged, quality improved, discernment improved through grounded outside-citation learning, not swarm size or new independent approval.
 
 Build64 finished with64 lane reports and0 misrooted reports. Planned falsify32 was skipped by the operator's immediate no-new-workers wrap-up; actual total64. This is an explicit override, not a claim that campaign wave2 was optional or that round15 process debt was experimentally fixed. Seat/tooling and raw-directive conformance defects are disclosed in `corpus/lessons/round-16.md`; no package/service/host-recovery action.
+
+## Round 17 — boot chain, freshness, landed revisions (2026-10-20)
+
+Baseline `6923fe0bd3add04fc90f3bc3522895b27cf44bbe`. Steered priority: next-boot safety of this host after the 2026-10-20 09:15 `pacman -Syu` (mkinitcpio 42.2). Three claims, distinct axes, causally separable (each counting command reads only its own files):
+
+- **C1 depth** (tied-lowest with adjacency at 8): next-boot verdict per limine kernel entry from extracted images. Count `verdicted_kernel_entries` by `python3 tools/check-boot-chain.py --revision <commit>`; baseline 0 (BOOTCHAIN-MISSING).
+- **C2 freshness**: stale current-use host statements carrying a dated R17 notice validated against baseline bytes and capture lines. Count `resolved_records` by `python3 tools/check-freshness-r17.py --revision <commit>`; baseline 0 (R17-FRESH-MISSING).
+- **C3 operability**: revision tools bound to landed branch commits (jj-w1 audit R1/R2). Count `bound_tools` by `python3 tools/check-revision-binding.py --tools-revision <commit>`; baseline 0/5.
+- **Capability** (inside C1, not a fourth claim): `boot-chain-audit` — a live read-only audit of every limine entry.
+
+Saturation 9 / window 3 unchanged; retired none. Ordinal changes are proposed in the measured outcome below and stay author-side until non-author closure.

@@ -312,3 +312,13 @@ source: own-work — pacman foreign-package queries, `/var/log/pacman.log`, sync
 verified-at: 2026-10-14 (the original live provenance window recorded in this note).
 recheck: 90d; procedure: §7 re-run the `pacman -Qm`/`-Si`/`-Qmdtq`, sync-db and package-provenance probes.
 supersedes the pointer-only recheck: line above.
+
+
+## R17-RECHECK — steer-safe procedure
+
+Appended 2026-10-20 by the tsukuroi round-17 L1; earlier bytes unchanged. Supersedes the package-manager invocations in this file's `recheck:` line for any round whose steer forbids running pacman (QUALITY 26); file reads replace them and the substitution is recorded in that round's report. Read-only.
+
+- foreign set without a package query: compare `ls /var/lib/pacman/local` names with `tar -tzf /var/lib/pacman/sync/<repo>.db` entry names for each repo in `/etc/pacman.conf`; a local name absent from every sync listing is foreign
+- sync version of one package: `tar -xOzf /var/lib/pacman/sync/<repo>.db <pkg>-<ver>/desc` and read `%VERSION%`
+- sync-db age: `stat -c "%y %n" /var/lib/pacman/sync/*.db`
+- unneeded-dependency (`-Qdt`) status has no read-only file equivalent short of a dependency walk over `/var/lib/pacman/local/*/desc`; record it as [unk] under such a steer

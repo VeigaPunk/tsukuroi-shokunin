@@ -1862,3 +1862,53 @@ all prose truth or independent admission. C1's counting command uses the
 same evaluator on baseline and immutable implementation; outputs and actual
 selftest tally live in `.ufo/waves/round-16/`. QUALITY23/24 cite the mined
 outside defects and constrain citation resolution and seat execution scope.
+## Round 17 — boot-chain next-boot verdict, freshness after the 2026-10-20 upgrade, landed revisions
+
+Authority: read-only observation, namespace emulation and source-grounded inference. Nothing here
+authorizes a package, service, initramfs, bootloader or `/boot` action. Knowledge:
+`corpus/knowledge/boot-chain-r17.md` (+ `.json`), `corpus/knowledge/freshness-recheck-r17.json`;
+lesson `corpus/lessons/round-17.md`; QUALITY 25–27.
+
+### Pre-reboot procedure (read-only; operator or agent)
+
+1. `bash tools/boot-chain-audit.sh --live` from the lane worktree. It reads `/boot/limine.conf`
+   and each entry's file through `sudo -n cat`, reads each image mtime through `sudo -n stat`,
+   extracts `.uname`/`.initrd` and the initramfs unprivileged in a private mktemp directory, and
+   prints one TSV row per limine entry plus `TSUKUROI_BOOTCHAIN: CONSISTENT|DEGRADED|UNKNOWN`
+   (exit 0/1/2). It never writes `/boot` and runs no pacman, mkinitcpio or limine-update.
+2. Read the verdicts: BOOTED-OBSERVED (firmware `LoaderEntrySelected` names the entry, its image
+   predates the boot, no `/etc`/`/usr` boot input is newer); UNTESTED (non-snapshot entry never
+   booted); PATH-ALIASED-EMULATED (42.x `/sysroot` init, image `/new_root -> sysroot`, hooks on
+   `/new_root`); CONSISTENT-PRE42 (41.x `/new_root` directory init and hooks);
+   NOT-A-KERNEL-ENTRY (no non-empty `.uname`, e.g. the Limine fallback). Anything else is UNKNOWN.
+3. Compare each sha256 with the decision table in `boot-chain-r17.md`; a changed default UKI
+   hash voids its BOOTED-OBSERVED verdict until the next boot.
+4. Before relying on rollback, note which snapshot entries exist and their cleanup algorithm;
+   the 2026-10-20 snapshot #1 is the only pre-upgrade image.
+
+Rule from the round-17 mistake: never infer a path's role from a name-only listing
+(`ls -d`, `dirs:`); record the entry type (`ls -l`, `lsinitcpio -v`) — the 42.x `/new_root` is a
+symlink, not an empty directory (QUALITY 25).
+
+### Gate and probe registry (round 17)
+
+| Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |
+|---|---|---|---|---|---|---|---|
+| boot-chain | gate | `python tools/check-boot-chain.py --revision <REV> [--branch master]` | 0 pass; 1 failed (`BOOTCHAIN-MISSING`, verdict re-derivation, hash/evidence-line findings); 2 could-not-evaluate (`E-CLI`, `E-REVISION-*`) | `--selftest` (53 cases) | schema `tsukuroi-boot-chain-v2`; output `verdicted_kernel_entries` | none; git objects only | tsukuroi |
+| boot-chain-audit | probe | `bash tools/boot-chain-audit.sh --live` | `TSUKUROI_BOOTCHAIN: CONSISTENT` 0 / `DEGRADED` 1 / `UNKNOWN` 2 | `--selftest` (44 assertions, includes a `$(touch canary)` injection fixture) | verdict rules of schema v2 | private mktemp only; privileged reads `sudo -n cat`/`sudo -n stat` | tsukuroi |
+| freshness-r17 | gate | `python tools/check-freshness-r17.py --revision <REV> [--registry-from <REV>]` | 0 pass; 1 failed (`R17-FRESH-MISSING`, `STALE-UNFLAGGED`, append-only/quote/notice findings); 2 could-not-evaluate | `--selftest` (53 cases) | registry `corpus/knowledge/freshness-recheck-r17.json`; output `resolved_records` | none | tsukuroi |
+| recheck-commands | gate | `python tools/check-recheck-commands.py --revision <REV> [--paths ...]` | 0 pass; 1 `RECHECK-FORBIDDEN-INVOCATION`; 2 could-not-evaluate | `--selftest` (40 cases) | last `recheck:` line, backticked argv0 only; forbidden `pacman,checkupdates,yay,paru,mkinitcpio,limine-update`; resolved by `## R17-RECHECK — steer-safe procedure` | none | tsukuroi |
+| seat-scope | gate | `python tools/check-seat-scope.py --wave <dir> --revision <REV>` or `--worktree` | 0 pass; 1 `SCOPE-UNDECLARED` / `SCOPE-EXEC-UNAUTHORIZED` / `SCOPE-REPORT-MISSING`; 2 could-not-evaluate | `--selftest` (42 cases) | last `Scope: executed=` line; `EXEC-AUTHORIZED` token in the seat prompt | none | tsukuroi |
+| revision-binding | probe | `python tools/check-revision-binding.py --tools-revision <REV>` | 0 = all five revision tools bound; 1 = fewer; 2 could-not-evaluate | `--selftest` (23 cases) | per tool: `HEAD` → 2 `E-REVISION-INVALID`; unlanded → 2 `E-REVISION-NOT-LANDED`; tip → JSON `revision` = tip | mktemp clone only | tsukuroi |
+
+### Revision contract (supersedes the REV cells above at the round-12–16 rows)
+
+Every `--revision` in `tools/` now takes `REV = 7–64 hex` that is an ancestor of
+`refs/heads/<branch>` (default `master`) and, when present, of `refs/remotes/origin/<branch>`;
+`HEAD`, `@`, `@-` and ref names are rejected. Exit 2 with `E-REVISION-INVALID`,
+`E-REVISION-NOT-LANDED` or `E-REVISION-NOT-PUSHED`; JSON carries `branch` and `branch_tip`. This
+replaces “REV = `HEAD` or 4–64 hex” in the locator-clarification and update-recheck rows and the
+bare `--revision <commit>` of the root-dac, source-scope and section-citations rows. Selftest
+tallies after round 17: locator 28, root-dac 23, section-citations 61, source-scope 25,
+update-recheck 13 (new). Under jj, git `HEAD` is the working-copy parent: measure the branch tip
+named by `scripts/hyaku/jj-lane.sh state`, never `HEAD`.

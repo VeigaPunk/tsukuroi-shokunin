@@ -326,3 +326,12 @@ re-measurements, not the note's.
 source: own-work — read-only `pacman -Q*`/`-Qkk`, `pacman-conf`, `pacman-key`, sync-db stat and cache-size probes on host `plazir27`, 2026-10-14; S032 `/var/log/pacman.log` where used.
 verified-at: 2026-10-14 (the package-state captures and subsequent header-pin rechecks recorded in this note).
 recheck: 90d; procedure: `pacman -Q pacman; pacman --version; uname -r` for header pins plus the Appendix probe set.
+
+
+## R17-RECHECK — steer-safe procedure
+
+Appended 2026-10-20 by the tsukuroi round-17 L1; earlier bytes unchanged. Supersedes the package-manager invocations in this file's `recheck:` line for any round whose steer forbids running pacman (QUALITY 26); file reads replace them and the substitution is recorded in that round's report. Read-only.
+
+- `ls -d /var/lib/pacman/local/pacman-[0-9]*` (version is the directory-name suffix)
+- `uname -r`
+- Appendix probes that invoke pacman are replaced by reads of `/var/lib/pacman/local/<pkg>-<ver>/desc` and `/var/log/pacman.log`, or recorded as [unk]

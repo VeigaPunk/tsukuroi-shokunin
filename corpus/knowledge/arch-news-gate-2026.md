@@ -80,3 +80,10 @@ The “zero confirmed unconditional package-specific action” result is falsifi
 - S005 (tier A) — https://archlinux.org/news/manual-intervention-for-pacman-700-and-local-repositories-required/ § article body; quote: “Remember to merge the .pacnew files to apply the new default.” This 2024 item is not part of the dated feed census.
 - S010 (tier A) — https://wiki.archlinux.org/title/System_maintenance?oldid=885170 § Read before upgrading the system; quote: “Before upgrading, users are expected to visit the Arch Linux home page to check the latest news.”
 - S010 (tier A) — same URL § Avoid certain pacman commands; quote: “never run `pacman -Sy`; instead, always use `pacman -Syu`.”
+
+
+## R17-FRESHNESS — dated host re-verification (2026-10-20)
+
+Appended 2026-10-20 by the tsukuroi round-17 L1; earlier bytes unchanged. Historical captures stay historical. Nothing here authorizes package, service or boot action.
+
+- Old (Per-item applicability table, 2026-09-22 row): “`mkinitcpio 41.1-1`” and “Current package is below the article’s version threshold.” [obs] mkinitcpio 42.2-1 is installed (package directory mkinitcpio-42.2-1) (`.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:32`), upgraded in the 2026-10-20 09:15 transaction. The article's precondition is still unmet on this host: the extracted UKIs use the busybox `encrypt` hook and no `systemd` hook (`.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:177`), so its TPM2 re-enrollment step does not apply. Capture: `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:32`.

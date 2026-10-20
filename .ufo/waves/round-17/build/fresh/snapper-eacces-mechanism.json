@@ -1,0 +1,62 @@
+[
+  {
+    "id": "R17-FRESH-SNAPPER-EACCES-MECHANISM-01",
+    "path": "corpus/knowledge/snapper-eacces-mechanism.md",
+    "baseline_quote": "`snapper list-configs` prints only its header, i.e. **0** configured rows",
+    "stale_reason": "snapper list-configs had zero rows on 2026-10-19; 2026-10-20 sudo listing shows home and root configs",
+    "observed_now": "lists two configs, home (/home) and root (/)",
+    "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:46",
+    "capture_quote": "root   │ /",
+    "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+    "id": "R17-FRESH-SNAPPER-EACCES-MECHANISM-02",
+    "path": "corpus/knowledge/snapper-eacces-mechanism.md",
+    "baseline_quote": "`stat -c '%F %a %n' /.snapshots` reports no such file",
+    "stale_reason": "/.snapshots was absent on 2026-10-19; snapshot subvolumes 1 and 2 exist on 2026-10-20",
+    "observed_now": "/.snapshots/1/snapshot and /.snapshots/2/snapshot exist as subvolumes with ro=true",
+    "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:160",
+    "capture_quote": "#1 ro=true",
+    "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+    "id": "R17-FRESH-SNAPPER-EACCES-MECHANISM-03",
+    "path": "corpus/knowledge/snapper-eacces-mechanism.md",
+    "baseline_quote": "It reports **2.0G** total, **279M** used, **1.8G** available",
+    "stale_reason": "/boot usage was measured before the 2026-10-20 upgrade and UKI/limine_history rebuilds; later listing shows far larger file totals; df not re-run",
+    "observed_now": "limine_history alone reports total 836148 (1K blocks)",
+    "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:111",
+    "capture_quote": "total 836148",
+    "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+    "id": "R17-FRESH-SNAPPER-EACCES-MECHANISM-04",
+    "path": "corpus/knowledge/snapper-eacces-mechanism.md",
+    "baseline_quote": "The local `limine-snapper-sync.service` declares `User=root` and `CapabilityBoundingSet=CAP_SYS_ADMIN`",
+    "stale_reason": "limine-snapper-sync package replaced at 2026-10-20 09:16:42; the 2026-10-19 unit properties describe the prior package; post-upgrade unit not re-read",
+    "observed_now": "upgraded from 1.31.0-1.1 to 1.32.1-2 at 2026-10-20 09:16:42",
+    "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:50",
+    "capture_quote": "[ALPM] upgraded limine-snapper-sync (1.31.0-1.1 -> 1.32.1-2)",
+    "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+    "id": "R17-FRESH-SNAPPER-EACCES-MECHANISM-05",
+    "path": "corpus/knowledge/snapper-eacces-mechanism.md",
+    "baseline_quote": "The current `stat` finds no `/.snapshots`",
+    "stale_reason": "rejected-reading R6 relied on the 2026-10-19 absence of /.snapshots; sudo create-config ran on 2026-10-20",
+    "observed_now": "/.snapshots is present after sudo create-config at 2026-10-20 09:03:02",
+    "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:80",
+    "capture_quote": "COMMAND=/usr/bin/snapper -c root create-config /",
+    "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+    "id": "R17-FRESH-SNAPPER-EACCES-MECHANISM-06",
+    "path": "corpus/knowledge/snapper-eacces-mechanism.md",
+    "baseline_quote": "An operator may provision the root Snapper configuration with full capabilities (`snapper -c root create-config /`)",
+    "stale_reason": "operator option was recorded as not run on 2026-10-19; the same command ran via sudo on 2026-10-20",
+    "observed_now": "already run via sudo at 2026-10-20 09:03:02",
+    "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:80",
+    "capture_quote": "COMMAND=/usr/bin/snapper -c root create-config /",
+    "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  }
+]

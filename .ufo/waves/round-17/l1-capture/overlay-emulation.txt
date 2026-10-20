@@ -1,0 +1,66 @@
+# tsukuroi r17 L1 symlink check + unprivileged path-resolution emulation of the btrfs-overlayfs late hook
+captured: 2026-10-20T13:02:39 by L1 TsukuroiR17; user+mount namespace only (unshare -rm), tmpfs stands in for btrfs; no host mount, no /boot write, no sudo
+
+$ cd /tmp/tsukuroi-r17-boot; ls -la x-omarchy_linux.efi | grep -E 'new_root|sysroot'; ls -la x-omarchy_linux.efi_sha256_0f1e3c84b2d6db2 | grep -E 'new_root|sysroot'; lsinitcpio -v omarchy_linux.efi.initrd | grep -E ' (new_root|sysroot)( |$)'; grep -n 'new_root\|sysroot' /usr/lib/initcpio/functions; sha256sum x-omarchy_linux.efi/usr/bin/findmnt /usr/bin/findmnt x-omarchy_linux.efi/usr/bin/mount /usr/bin/mount; findmnt --version; cat /usr/lib/initcpio/install/btrfs-overlayfs | grep add_binary
+lrwxrwxrwx  1 vgpnk vgpnk     7 Oct 20 12:33 new_root -> sysroot
+drwxr-xr-x  2 vgpnk vgpnk     6 Oct 20 12:33 sysroot
+drwxr-xr-x  2 vgpnk vgpnk     6 Oct 20 12:33 new_root
+lrwxrwxrwx   0 root     root            7 Dec 31  1969 new_root -> sysroot
+1212:    install -dm755 "$buildroot/sysroot"
+1213:    ln -s "sysroot" "$buildroot/new_root"
+0b539bae187969f9f07a624f8899e5d67b09ae327ce36d45710df4d464be97f9  x-omarchy_linux.efi/usr/bin/findmnt
+0b539bae187969f9f07a624f8899e5d67b09ae327ce36d45710df4d464be97f9  /usr/bin/findmnt
+ca6c26aa2b11a8431481d39ee562bc07a88984f3294f34846d3257ec28ae9c91  x-omarchy_linux.efi/usr/bin/mount
+ca6c26aa2b11a8431481d39ee562bc07a88984f3294f34846d3257ec28ae9c91  /usr/bin/mount
+findmnt from util-linux 2.42.4
+	add_binary btrfs
+	add_binary echo
+	add_binary findmnt
+	add_binary mktemp
+	add_binary mount
+	add_binary mkdir
+(exit 0)
+$ unshare -rm --propagation private bash -c '
+set -u
+R=$(mktemp -d /tmp/tsk-r17-emu.XXXXXX); cd $R
+mkdir sysroot; ln -s sysroot new_root
+mount -t tmpfs realroot sysroot && touch sysroot/marker-real-root
+echo "step1 findmnt --mountpoint new_root FSTYPE: [$(findmnt --mountpoint "$R/new_root" -no FSTYPE 2>&1; echo rc=$?)]"
+echo "step1b findmnt SOURCE,TARGET: [$(findmnt --mountpoint "$R/new_root" -no SOURCE,TARGET 2>&1 | sed "s#$R#R#")]"
+lower=$(mktemp -d -p "$R" lowdir_XXX); ram=$(mktemp -d -p "$R" ramdir_XXX)
+mount -t tmpfs cowspace "$ram" && mkdir -p "$ram/upper" "$ram/work"
+mount --move "$R/new_root" "$lower"; echo "step2 mount --move rc=$?"
+echo "after move: sysroot mountpoint rc=[$(findmnt --mountpoint "$R/sysroot" -no FSTYPE >/dev/null; echo $?)] lower=[$(findmnt --mountpoint "$lower" -no FSTYPE)]"
+mount -t overlay overlay -o "lowerdir=$lower,upperdir=$ram/upper,workdir=$ram/work" "$R/new_root"; echo "step3 overlay mount rc=$?"
+echo "final: sysroot FSTYPE=[$(findmnt --mountpoint "$R/sysroot" -no FSTYPE)] ls sysroot=[$(ls $R/sysroot)]"
+touch $R/sysroot/written-after && echo "write ok; upper=[$(ls $ram/upper)]"
+echo "new_root -> $(readlink $R/new_root)"
+umount "$R/sysroot" "$lower" "$ram" 2>/dev/null; cd /; rm -rf "$R"
+'
+step1 findmnt --mountpoint new_root FSTYPE: [tmpfs
+rc=0]
+step1b findmnt SOURCE,TARGET: [realroot R/sysroot]
+step2 mount --move rc=0
+after move: sysroot mountpoint rc=[1] lower=[tmpfs]
+step3 overlay mount rc=0
+final: sysroot FSTYPE=[overlay] ls sysroot=[marker-real-root]
+write ok; upper=[written-after]
+new_root -> sysroot
+(exit 0)
+
+## appended 2026-10-20T13:28:44-03:00 — entry type of new_root/sysroot in every extracted image (ls -l on the lsinitcpio -x trees)
+$ for d in x-*; do ls -l $d | grep -E " (new_root|sysroot)( |$)"; done
+[x-omarchy_linux-lts.efi]
+lrwxrwxrwx new_root -> sysroot
+drwxr-xr-x sysroot  
+[x-omarchy_linux-lts.efi_sha256_2d49da06b20]
+lrwxrwxrwx new_root -> sysroot
+drwxr-xr-x sysroot  
+[x-omarchy_linux.efi]
+lrwxrwxrwx new_root -> sysroot
+drwxr-xr-x sysroot  
+[x-omarchy_linux.efi_sha256_0f1e3c84b2d6db2]
+drwxr-xr-x new_root  
+[x-omarchy_linux.efi_sha256_2e9c9bdc532bff8]
+lrwxrwxrwx new_root -> sysroot
+drwxr-xr-x sysroot  

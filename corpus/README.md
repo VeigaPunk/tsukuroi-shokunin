@@ -140,3 +140,16 @@ the update-safety/health gate. R15 current-use supersession and operator
 recovery ownership remain. No agent package or service action is authorized.
 Gate registry: `../SKILL.md` § Round 16; lesson and actual outcomes:
 `lessons/round-16.md`, `.ufo/waves/round-16/`.
+
+## Round 17 — boot chain after the mkinitcpio 42.2 upgrade
+
+`knowledge/boot-chain-r17.md` and `.json` give a next-boot verdict for every limine entry
+from extracted UKI initramfs images (typed `new_root` entries, init root references, hook
+paths, hashes) bound to the firmware loader variables of the current boot. The Frontier
+bullet above (“Pending `mkinitcpio` 42 upgrade strands two `/new_root` hooks”) is
+superseded for this host: the upgrade ran on 2026-10-20 and 42.x keeps `/new_root` as a
+symlink to `/sysroot`, so both hooks resolve (namespace emulation; not boot-tested).
+Watch item that remains: upstream may drop the compatibility symlink; recheck
+`tools/boot-chain-audit.sh --live` on every mkinitcpio release. Six older entries carry
+appended `R17-FRESHNESS` notices (`knowledge/freshness-recheck-r17.json`, 48 records);
+five carry `R17-RECHECK — steer-safe procedure` blocks. Lesson: `lessons/round-17.md`.

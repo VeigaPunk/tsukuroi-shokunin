@@ -266,3 +266,30 @@ S010 https://wiki.archlinux.org/title/System_maintenance § Avoid certain pacman
 source: own-work — `lsmod`, DKMS, `modinfo`, `nvidia-smi`, pacman package and kernel-journal probes on host `plazir27`, 2026-10-14; S010 https://wiki.archlinux.org/title/System_maintenance § Avoid certain pacman commands; S032 `/var/log/pacman.log` lines 1405, 1414, 2287 (re-opened 2026-10-19).
 verified-at: 2026-10-14 (the driver/firmware measurement window; D1 log evidence re-opened 2026-10-19).
 recheck: 90d; procedure: `dkms status`; `ls /lib/modules`; `pacman -Qo` on the DKMS module; `nvidia-smi --query-*`.
+
+## R17-FRESHNESS — dated host re-verification (2026-10-20)
+
+Historical captures stay historical: every dated measurement above (the 2026-10-13 boot, the 2026-10-14 probes, the dated errata) keeps its original meaning. The bullets below re-verify only current-use pins invalidated by the 2026-10-20 09:15 `pacman -Syu` (log line 2462; `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:59`). Sources: `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt` and `.ufo/waves/round-17/l1-capture/fresh-capture.txt`, read-only, captured 2026-10-20. Not re-captured, therefore not re-verified [unk]: `/proc/driver/nvidia/params`, GPU firmware `:10`, the `/lib/firmware/nvidia/610.57.04/` blob tree, `lsmod`. Nothing here authorizes package, service, or boot action.
+
+- Stale: "Kernel `7.2.3-arch1-3` (uname -a; built 2026-09-06)" — [obs] running kernel 7.2.11-arch1-1 (uname -r). Capture `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:5`.
+- Stale: "boot of 2026-10-13 11:02 (uptime 22:55 at probe)" — [obs] current boot started 2026-10-20 09:57:08 (uptime -s). Capture `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:6`.
+- Stale: "filename: /lib/modules/7.2.3-arch1-3/updates/dkms/nvidia.ko.zst" — [obs] 7.2.3-arch1-3 dkms row: built modules missing (615.78.08); the loaded module is not re-identified by modinfo [unk]. Capture `.ufo/waves/round-17/l1-capture/fresh-capture.txt:38`.
+- Stale: "NVRM 610.57.04, open kernel module, built" — [obs] NVRM 615.78.08, open kernel module, Release Build (`/proc/driver/nvidia/version`). Capture `.ufo/waves/round-17/l1-capture/fresh-capture.txt:33`.
+- Stale: "Only kernel tree present:" — [obs] /usr/lib/modules holds 6.18.57-2-lts and 7.2.11-arch1-1; no 7.2.3-arch1-3 tree is listed. Capture `.ufo/waves/round-17/l1-capture/fresh-capture.txt:41` (listing lines 40-41).
+- Stale: "2026-09-08 15:23; `omarchy.db` 2026-10-11 10:16" — [obs] core/extra/multilib.db 2026-10-17 22:37; omarchy.db 2026-10-20 09:09:26. Capture `.ufo/waves/round-17/l1-capture/fresh-capture.txt:13` (core/extra/multilib at lines 10-12).
+- Stale: "`pacman -Si linux` → 7.2.3.arch1-3" — [obs] installed dir linux-7.2.11.arch1-1 present; `pacman -Si` was not re-run (pacman out of scope this round). Capture `.ufo/waves/round-17/l1-capture/fresh-capture.txt:21`.
+- Stale: "driver plane is healthy — open DKMS 610.57.04 loaded and active, both" — [obs] running NVRM 615.78.08; the 610.57.04 headline no longer holds. Capture `.ufo/waves/round-17/l1-capture/fresh-capture.txt:33`.
+- Stale: "`nvidia/610.57.04` for `7.1.4-arch1-1` and `7.2.3-arch1-3` on the same day." — [obs] dkms status: nvidia/615.78.08 for 6.18.57-2-lts, 7.2.11-arch1-1, 7.2.3-arch1-3 (built modules missing); no 7.1.4-arch1-1 row. Capture `.ufo/waves/round-17/l1-capture/fresh-capture.txt:37` (rows at lines 36-38).
+- Stale: "| nvidia-open-dkms | 610.57.04-1 | 2026-10-11 16:14:37 |" — [obs] installed nvidia-open-dkms-615.78.08-1; ALPM upgrade 2026-10-20 09:16:44 (610.57.04-1 -> 615.78.08-1). Capture `.ufo/waves/round-17/l1-capture/fresh-capture.txt:24` and `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:52`.
+- Stale: "`nvidia-utils 610.57.04-1`, dir mtime 2026-10-11 16:14):" — [obs] installed nvidia-utils-615.78.08-1 (blob-dir owner not re-captured [unk]). Capture `.ufo/waves/round-17/l1-capture/fresh-capture.txt:25`.
+
+
+## R17-RECHECK — steer-safe procedure
+
+Appended 2026-10-20 by the tsukuroi round-17 L1; earlier bytes unchanged. Supersedes the package-manager invocations in this file's `recheck:` line for any round whose steer forbids running pacman (QUALITY 26); file reads replace them and the substitution is recorded in that round's report. Read-only.
+
+- `dkms status`
+- `ls /usr/lib/modules`
+- owner of the DKMS module without a package query: `grep -l "^usr/lib/modules/$(uname -r)/updates/dkms/" /var/lib/pacman/local/*/files` (an empty result means no package owns it, as DKMS builds are unowned)
+- `cat /proc/driver/nvidia/version`
+- `nvidia-smi --query-gpu=name,driver_version --format=csv,noheader`

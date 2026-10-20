@@ -433,3 +433,22 @@ unchanged. This note makes no fresh host-health observation and authorizes
 no package or service action.
 
 No agent install, upgrade, downgrade or service action is authorized.
+
+## R17-FRESHNESS — dated host re-verification (2026-10-20)
+
+Historical captures stay historical: every 2026-10-14 byte above is unchanged and still dated. The bullets below mark only current-use statements that the 2026-10-20 09:15:30 full `-Syu` and the host activity after it superseded. [obs] values come only from `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt` and `.ufo/waves/round-17/l1-capture/fresh-capture.txt`; this seat ran no pacman, so no pending count is re-measured. Nothing here authorizes package, service or boot action.
+
+- §5 row 1: "`-Syu` would be INERT: 0 candidates by three probes" → [obs] full -Syu executed 2026-10-20 09:15:30-0300; the pending set after it is not re-measured (this seat ran no pacman). Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:59
+- §5 row 1: "No update action is owed today" → [obs] the refresh gate was crossed by the full -Syu at 2026-10-20 09:15:30-0300; no current "owed" statement holds. Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:59
+- §5 row 2: "Plain `-Syu` after an operator refresh (the wave)" → [obs] executed: the full -Syu this row planned ran 2026-10-20 09:15:30-0300; its pre-upgrade wave-cost and pending premise are moot. Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:59
+- §5 row 2: "If currency is wanted: planned window" → [obs] the full system upgrade it prescribed started 2026-10-20 09:15:31-0300, before any re-run of -Qu or -Sup. Capture: .ufo/waves/round-17/l1-capture/fresh-capture.txt:8
+- §6 U2: "resolving event is operator-side." → [obs] the operator-side sync ran 2026-10-20 09:15:30-0300. Capture: .ufo/waves/round-17/l1-capture/fresh-capture.txt:7
+- §6 U2: "Dbs refreshed 2026-10-11; content 36 d 0 h old" → [obs] omarchy sync db mtime is now 2026-10-20 09:09:26 -0300; the content-age figure is not re-measured. Capture: .ufo/waves/round-17/l1-capture/fresh-capture.txt:13
+- §6 U1: "(2 lines, rc=0, **0 configs**)" → [obs] snapper list-configs now lists two configs: home (/home) and root (/). Capture: .ufo/waves/round-17/l1-capture/fresh-capture.txt:45
+- §6 U1: "Any wave is snapshot-less." → [obs] root config snapshot #2 pre-aur-elephant-2.22.1 exists (2026-10-20 09:29:19 -0300). Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:167
+- §6 U1: "`limine-snapper-sync` system unit enabled+inactive" → [obs] systemctl is-enabled reports limine-snapper-sync.service as enabled; its active state is not re-measured. Capture: .ufo/waves/round-17/l1-capture/fresh-capture.txt:47
+- §6 U3: "`dkms status` still two rows" → [obs] dkms status now lists nvidia/615.78.08 installed for 7.2.11-arch1-1; no 610.57.04 or 7.1.4 row appears. Capture: .ufo/waves/round-17/l1-capture/fresh-capture.txt:37
+- §6 U3: "No reboot pending" → [obs] current boot (journal boot 0) started 2026-10-20 09:57:09 -03. Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:10
+- §3 row 3: "| 3 | `elephant` 2.21.0-1 |" → [obs] elephant 2.22.1-1 was installed by pacman -U at 2026-10-20 09:31:03-0300 from the yay cache; the other rows are not re-measured. Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:63
+- §3 conclusion: "Today no foreign package has a measurable update" → [obs] one foreign row moved: elephant core is 2.22.1-1 since 2026-10-20 09:31:03-0300; whether any other foreign package now has a pending update is not measured. Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:63
+- §5 row 8: "Orphan removal (`electron39`, `mbedtls`, `webp-pixbuf-loader`)" → [obs] electron39 and mbedtls were removed by pacman -Rns at 2026-10-20 08:14:12-0300, so this row's orphan set is no longer current. Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:57

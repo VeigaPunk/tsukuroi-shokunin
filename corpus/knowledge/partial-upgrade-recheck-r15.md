@@ -167,3 +167,16 @@ anchors; a census W04 duplicate-URL warning is expected for these scope-separate
 reopens, not a warning-free pass. Tools used: read/write, bash for file
 inspection and sha256, curl to fetch the pacman.8 HTML after two ECONNRESET
 renderer failures. Installs or updates: **none**.
+
+## R17-FRESHNESS — dated host re-verification (2026-10-20)
+
+This section re-verifies the current-use statements above against L1 read-only captures taken 2026-10-20. Historical captures stay historical; the R15 measurements are not restated as current. Nothing here authorizes any package, service, boot, or pacman action. The 413 pending count was NOT re-measured: pacman was forbidden in this lane, so the count below is marked not re-measured, not refreshed.
+
+- R17-FRESH-PARTIAL-01 (package_versions row). Old text: "mkinitcpio 41.1-1; systemd 261.2-1". [obs] mkinitcpio 42.2-1; systemd 262-1 installed (local package DB). Capture: `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:32` (mkinitcpio-42.2-1), `.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:39` (systemd-262-1). libinput 1.32.0-1 is still installed (`.ufo/waves/round-17/l1-capture/fresh-capture.txt:27`) and is not flagged.
+- R17-FRESH-PARTIAL-02 (pending_updates row, 413). Old text: "`pacman -Qu` rows against the local sync DB". [obs] 413 not re-measured; superseded by full upgrade at 09:15:31 (`.ufo/waves/round-17/l1-capture/fresh-capture.txt:8`). [inf] the pending set was consumed by that transaction, so 413 is not a current-use value.
+- R17-FRESH-PARTIAL-03 (latest sync marker). Old text: "`synchronizing package lists` marker is line 2288". [obs] latest marker is line 2463 at 2026-10-20T09:15:30-0300 (`.ufo/waves/round-17/l1-capture/fresh-capture.txt:7`). Line 2288 is no longer the latest marker.
+- R17-FRESH-PARTIAL-04 (sync birth stamp). Old text: "shared birth (`%w`) of all five `.db` files". [obs] omarchy.db mtime 2026-10-20 09:09:26 -0300; %w birth not re-captured (`.ufo/waves/round-17/l1-capture/fresh-capture.txt:13`). [inf] a sync DB changed after the 2026-10-18 birth stamp, so the all-five shared-birth claim is not asserted as current.
+- R17-FRESH-PARTIAL-05 (boot coupling). Old text: "Boot coupling is latent, not active." [obs] mkinitcpio 42.2-1 installed; omarchy_linux.efi init /sysroot refs 7, /new_root refs 0 (`.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:175`). The two named hooks still reference /new_root only (`.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:20`, `:21`). [obs] current boot 7.2.11 started 09:57:09 (`.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:10`); no boot failure is recorded in the captures. The mismatch is therefore live in the installed images, not a future risk, and it is not an observed failure.
+- R17-FRESH-PARTIAL-06 (handoff gate). Old text: "so a full upgrade stays blocked until that gate is cleared". [obs] full system upgrade ran 2026-10-20T09:15:31-0300 (`.ufo/waves/round-17/l1-capture/fresh-capture.txt:8`). The blocked-upgrade statement no longer describes the host.
+
+Still unknown: whether libinput was among the 448 upgraded/installed lines in the 09:15 transaction (`.ufo/waves/round-17/l1-capture/fresh-capture.txt:84`); the libinput_log row is not refreshed here and is [unk]. Recapture requires a fresh snapshot; this section grants no clearance.

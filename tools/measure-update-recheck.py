@@ -4,12 +4,17 @@
 One committed C2 record and one captured host snapshot, both read from the same
 revision. Exit 0 when the pair is absent (record_count 0, "before") or the
 record is internally consistent with the snapshot (record_count 1); exit 2 when
-the input is malformed, incomplete or contradicts the snapshot. Absence is a
-probe count, never a safety pass. This is not a truth gate: it issues no health,
-repair, causality or upgrade-clearance verdict.
+the revision is invalid, unlanded or unpushed, or the input is malformed,
+incomplete or contradicts the snapshot. Absence is a probe count, never a
+safety pass. This is not a truth gate: it issues no health, repair, causality
+or upgrade-clearance verdict.
 
 No writes. No host-state command is executed: the snapshot is data, and
 --revision only reads git blobs with read-only plumbing (GIT_OPTIONAL_LOCKS=0).
+A revision run additionally requires the resolved commit to descend from
+refs/heads/<branch> (default master) and, when that ref exists, from
+refs/remotes/origin/<branch>; the payload carries branch and branch_tip.
+--selftest writes only under a mktemp git sandbox.
 """
 from __future__ import annotations
 import argparse
@@ -17,8 +22,10 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -35,7 +42,10 @@ REQUIRED_SOURCES = ("S047", "S048", "S049")
 PROBE_KEYS = ("package_versions", "pending_updates", "sync_metadata", "libinput_log",
               "boot_hook_mentions")
 PACKAGES = ("libinput", "libinput-tools", "mkinitcpio", "systemd")
-REV = re.compile(r"^(?:HEAD|[0-9a-fA-F]{4,64})$")
+REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
+BRANCH = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]*$")
+DEFAULT_BRANCH = "master"
+SELF = Path(__file__).resolve()
 STAMP = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 SOURCE_ID = re.compile(r"^S\d{3,}$")
@@ -51,9 +61,10 @@ Assessment = namedtuple("Assessment", "findings record_count pending pending_exi
 
 
 class Cannot(Exception):
-    def __init__(self, fid, site, detail):
+    def __init__(self, fid, site, detail, revision=None, tip=None):
         super().__init__(detail)
         self.fid, self.site, self.detail = fid, site, detail
+        self.revision, self.tip = revision, tip
 
 
 def utc_text(value):
@@ -397,10 +408,13 @@ def assess(record_raw, snapshot_raw, digest):
                       observed, captured, decision, digest)
 
 
-def emit(revision, status, findings, assessment=None, digest=None):
+def emit(revision, status, findings, assessment=None, digest=None, branch=DEFAULT_BRANCH,
+         branch_tip=None):
     payload = {
         "status": status,
         "revision": revision,
+        "branch": branch,
+        "branch_tip": branch_tip,
         "record_count": assessment.record_count if assessment else 0,
         "pending_count": assessment.pending if assessment else None,
         "pending_exit": assessment.pending_exit if assessment else None,
@@ -433,11 +447,58 @@ def git(repo, *args):
 
 def resolve(repo, rev):
     if not REV.fullmatch(rev):
-        raise Cannot("E-REVISION-INVALID", "revision", "HEAD or 4-64 hex commit required")
-    proc = git(repo, "rev-parse", "--verify", "--quiet", f"{rev}^{{commit}}")
+        raise Cannot("E-REVISION-INVALID", "revision", "7-64 hex commit required")
+    proc = git(repo, "rev-parse", "--verify", "--quiet", f"{rev.lower()}^{{commit}}")
     if proc.returncode != 0:
         raise Cannot("E-REVISION-INVALID", "revision", "commit not found")
     return proc.stdout.decode("ascii", "replace").strip()
+
+
+def ref_commit(repo, ref):
+    proc = git(repo, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")
+    if proc.returncode != 0:
+        return None
+    return proc.stdout.decode("ascii", "replace").strip() or None
+
+
+def branch_ok(name):
+    if not BRANCH.fullmatch(name):
+        return False
+    if ".." in name or "@{" in name or "//" in name or name.endswith("/"):
+        return False
+    return all(part and not part.startswith(".") and not part.endswith(".lock")
+               for part in name.split("/"))
+
+
+def bind(repo, commit, branch):
+    """Require commit to be a landed (and, when origin exists, pushed) ancestor."""
+    if not branch_ok(branch):
+        raise Cannot("E-REVISION-INVALID", "branch", "invalid branch name",
+                     revision=commit)
+    if git(repo, "merge-base", "--is-ancestor", commit,
+           f"refs/heads/{branch}").returncode != 0:
+        raise Cannot("E-REVISION-NOT-LANDED", "revision",
+                     f"not an ancestor of refs/heads/{branch}", revision=commit)
+    tip = ref_commit(repo, f"refs/heads/{branch}")
+    if tip is None:
+        raise Cannot("E-REVISION-NOT-LANDED", "revision",
+                     f"refs/heads/{branch} tip unreadable", revision=commit)
+    if ref_commit(repo, f"refs/remotes/origin/{branch}") is not None:
+        if git(repo, "merge-base", "--is-ancestor", commit,
+               f"refs/remotes/origin/{branch}").returncode != 0:
+            raise Cannot("E-REVISION-NOT-PUSHED", "revision",
+                         f"not an ancestor of refs/remotes/origin/{branch}",
+                         revision=commit, tip=tip)
+    return tip
+
+
+def branch_tip(repo, branch):
+    if not branch_ok(branch):
+        return None
+    try:
+        return ref_commit(repo, f"refs/heads/{branch}")
+    except Cannot:
+        return None
 
 
 def read_git(repo, commit, path):
@@ -462,11 +523,239 @@ def read_tree(repo, path):
         raise Cannot("E-READ", path, str(exc)[:120])
 
 
-def load(rev):
+def load(rev, branch):
     if rev is None:
-        return "worktree", read_tree(ROOT, RECORD), read_tree(ROOT, SNAPSHOT)
+        return ("worktree", read_tree(ROOT, RECORD), read_tree(ROOT, SNAPSHOT),
+                branch_tip(ROOT, branch))
     commit = resolve(ROOT, rev)
-    return commit, read_git(ROOT, commit, RECORD), read_git(ROOT, commit, SNAPSHOT)
+    tip = bind(ROOT, commit, branch)
+    return commit, read_git(ROOT, commit, RECORD), read_git(ROOT, commit, SNAPSHOT), tip
+
+
+def sandbox_git(repo, *args):
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+    proc = subprocess.run(["git", "--no-pager", "-C", str(repo), *args],
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env,
+                          timeout=30)
+    if proc.returncode != 0:
+        raise RuntimeError(f"git {args[0]} failed: "
+                           f"{proc.stderr.decode('utf-8', 'replace').strip()[:200]}")
+    return proc.stdout.decode("ascii", "replace").strip()
+
+
+def sandbox_commit(repo, message):
+    sandbox_git(repo, "-c", "user.name=selftest", "-c", "user.email=selftest@example.invalid",
+                "-c", "commit.gpgsign=false", "commit", "-q", "--allow-empty", "-m", message)
+    return sandbox_git(repo, "rev-parse", "HEAD")
+
+
+def selftest():
+    """Hermetic suite: in-memory record fixtures plus a mktemp git sandbox."""
+    root, passed, total, failures = None, 0, 0, []
+
+    def case(name, problems):
+        nonlocal passed, total
+        total += 1
+        if problems:
+            failures.append(f"{name}: " + "; ".join(problems))
+        else:
+            passed += 1
+
+    try:
+        root = Path(tempfile.mkdtemp(prefix="tsukuroi-measure-selftest."))
+        repo = root
+        sandbox_git(repo, "init", "-q")
+        sandbox_git(repo, "symbolic-ref", "HEAD", "refs/heads/master")
+        (repo / "a.txt").write_text("0\n")
+        sandbox_git(repo, "add", "a.txt")
+        base = sandbox_commit(repo, "base")
+        (repo / "a.txt").write_text("1\n")
+        sandbox_git(repo, "add", "a.txt")
+        tip = sandbox_commit(repo, "tip")
+        sandbox_git(repo, "checkout", "-q", "--detach", base)
+        (repo / "b.txt").write_text("side\n")
+        sandbox_git(repo, "add", "b.txt")
+        unlanded = sandbox_commit(repo, "unlanded")
+        sandbox_git(repo, "checkout", "-q", "master")
+        (repo / "tools").mkdir()
+        tool = repo / "tools" / "measure-update-recheck.py"
+        tool.write_bytes(SELF.read_bytes())
+
+        def run(*args):
+            proc = subprocess.run([sys.executable, str(tool), *args],
+                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                  cwd=str(repo), timeout=120)
+            payload = None
+            if proc.stdout.strip():
+                try:
+                    payload = json.loads(proc.stdout.decode("utf-8"))
+                except (UnicodeDecodeError, json.JSONDecodeError):
+                    payload = None
+            return proc.returncode, payload, proc.stderr.decode("utf-8", "replace")[:200]
+
+        def revision_case(name, argv, want_exit, want_ids, want_revision=None,
+                          want_branch=DEFAULT_BRANCH, want_tip=None, want_status=None):
+            code, payload, err = run(*argv)
+            problems = []
+            if code != want_exit:
+                problems.append(f"exit={code}/{want_exit} stderr={err!r}")
+            if payload is None:
+                problems.append("stdout is not JSON")
+            else:
+                got = {item.get("id") for item in payload.get("findings", [])
+                       if isinstance(item, dict)}
+                if got != want_ids:
+                    problems.append("ids=" + ",".join(sorted(got))
+                                    + " want=" + ",".join(sorted(want_ids)))
+                if want_revision is not None and payload.get("revision") != want_revision:
+                    problems.append(f"revision={payload.get('revision')!r}/{want_revision}")
+                if payload.get("branch") != want_branch:
+                    problems.append(f"branch={payload.get('branch')!r}/{want_branch}")
+                if want_tip is not None and payload.get("branch_tip") != want_tip:
+                    problems.append(f"branch_tip={payload.get('branch_tip')!r}/{want_tip}")
+                if want_status is not None and payload.get("status") != want_status:
+                    problems.append(f"status={payload.get('status')!r}/{want_status}")
+            case(name, problems)
+
+        revision_case("head-rejected", ("--revision", "HEAD"), CANNOT,
+                      {"E-REVISION-INVALID"}, want_revision="HEAD")
+        revision_case("short-hex-rejected", ("--revision", tip[:6]), CANNOT,
+                      {"E-REVISION-INVALID"}, want_revision=tip[:6])
+        revision_case("landed-tip-accepted", ("--revision", tip), PASS, set(),
+                      want_revision=tip, want_tip=tip, want_status="ABSENT")
+        revision_case("unlanded-rejected", ("--revision", unlanded), CANNOT,
+                      {"E-REVISION-NOT-LANDED"}, want_revision=unlanded)
+        revision_case("unknown-branch-rejected", ("--revision", tip, "--branch", "absent"),
+                      CANNOT, {"E-REVISION-NOT-LANDED"}, want_revision=tip,
+                      want_branch="absent")
+        sandbox_git(repo, "update-ref", "refs/remotes/origin/master", base)
+        revision_case("not-pushed-rejected", ("--revision", tip), CANNOT,
+                      {"E-REVISION-NOT-PUSHED"}, want_revision=tip, want_tip=tip)
+        revision_case("worktree-default", (), PASS, set(), want_revision="worktree",
+                      want_tip=tip, want_status="ABSENT")
+
+        def fixture():
+            captured = "2026-10-20T07:44:39Z"
+            birth = "2026-10-18T17:11:00Z"
+            logged = "2026-10-20T07:25:17Z"
+            packages = ("libinput 1.32.0-1", "libinput-tools 1.32.0-1",
+                        "mkinitcpio 41.1-1", "systemd 261.2-1")
+
+            def probe(command, stdout):
+                return {"command": command, "exit": 0, "stdout": stdout, "stderr": ""}
+
+            snap = {
+                "captured_at": captured,
+                "probes": {
+                    "package_versions": probe(
+                        "pacman -Q libinput libinput-tools mkinitcpio systemd",
+                        "".join(row + "\n" for row in packages)),
+                    "pending_updates": probe("pacman -Qu", "a 1-1 -> 2-1\nb 3-1 -> 4-1\n"),
+                    "sync_metadata": probe(
+                        "stat -c '%w|%z|%n' /var/lib/pacman/sync/*.db",
+                        "2026-10-18 14:11:00.026135178 -0300|"
+                        "2026-10-18 14:11:00.921131413 -0300|"
+                        "/var/lib/pacman/sync/core.db\n"),
+                    "libinput_log": probe(
+                        "grep -nE 'libinput' /var/log/pacman.log",
+                        "2429:[2026-10-20T04:25:16-0300] [PACMAN] Running\n"
+                        "2432:[2026-10-20T04:25:17-0300] [ALPM] "
+                        "upgraded libinput (1.31.3-1 -> 1.32.0-1)\n"),
+                    "boot_hook_mentions": probe(
+                        "for f in hooks; do echo \"== $f\"; done",
+                        "== /usr/lib/initcpio/hooks/btrfs-overlayfs exists\n"
+                        '4:\troot_mnt="/new_root"\n'
+                        "== /usr/lib/initcpio/hooks/plymouth exists\n"
+                        "11:  plymouth update-root-fs --new-root-dir=/new_root\n"),
+                },
+            }
+            snap_raw = json.dumps(snap, indent=1, sort_keys=True).encode()
+            digest = hashlib.sha256(snap_raw).hexdigest()
+            observations = [
+                ("package_versions", "; ".join(packages), "installed database versions"),
+                ("pending_updates", "2", "pending rows in the captured metadata"),
+                ("sync_metadata", birth, "sync database birth stamp"),
+                ("libinput_log", logged, "last logged libinput upgrade"),
+                ("boot_hook_mentions",
+                 "/new_root (btrfs-overlayfs:4, plymouth:11); no /sysroot",
+                 "hook root references"),
+            ]
+            record = {
+                "schema": SCHEMA,
+                "source_ids": list(REQUIRED_SOURCES),
+                "observed_at": captured,
+                "snapshot_captured_at": captured,
+                "evidence_path": SNAPSHOT,
+                "snapshot_sha256": digest,
+                "observations": [
+                    {"command_key": key, "probe_key": key, "exit": 0,
+                     "stderr_empty": True, "value": value, "meaning": meaning}
+                    for key, value, meaning in observations],
+                "decision": DECISION,
+                "limits": ["selftest fixture; no host state was read"],
+            }
+            return record, snap_raw, digest
+
+        def assess_case(name, mutate=None, want_ids=(), want_count=1):
+            record, snap_raw, digest = fixture()
+            if mutate is not None:
+                mutate(record)
+            encoded = json.dumps(record, sort_keys=True).encode()
+            try:
+                result = assess(encoded, snap_raw, digest)
+            except Cannot as exc:
+                case(name, [f"cannot {exc.fid}: {exc.detail}"])
+                return
+            got = {finding.id for finding in result.findings}
+            problems = []
+            if got != set(want_ids):
+                problems.append("ids=" + ",".join(sorted(got))
+                                + " want=" + ",".join(sorted(want_ids)))
+            if result.record_count != want_count:
+                problems.append(f"count={result.record_count}/{want_count}")
+            case(name, problems)
+
+        def mutate_pending(record):
+            for item in record["observations"]:
+                if item["command_key"] == "pending_updates":
+                    item["value"] = "3"
+
+        def mutate_boot(record):
+            for item in record["observations"]:
+                if item["command_key"] == "boot_hook_mentions":
+                    item["value"] = "/sysroot (btrfs-overlayfs:4, plymouth:11); no /new_root"
+
+        def mutate_observed(record):
+            record["observed_at"] = "2026-10-20T07:44:40Z"
+            record["snapshot_captured_at"] = "2026-10-20T07:44:40Z"
+
+        assess_case("fixture-clean")
+        assess_case("fixture-digest-mismatch",
+                    lambda record: record.update(snapshot_sha256="0" * 64),
+                    ("R15-C2-DIGEST",), 0)
+        assess_case("fixture-pending-value", mutate_pending, ("R15-C2-VALUE",), 0)
+        assess_case("fixture-boot-sysroot", mutate_boot, ("R15-C2-VALUE",), 0)
+        assess_case("fixture-duplicate-observation",
+                    lambda record: record["observations"].append(
+                        dict(record["observations"][0])),
+                    ("R15-C2-OBSERVATION-DUPLICATE",), 0)
+        assess_case("fixture-observed-mismatch", mutate_observed,
+                    ("R15-C2-CAPTURE-LINK",), 0)
+    except Exception as exc:  # sandbox unavailable or fixture bug: selftest fails
+        print(f"MEASURE_UPDATE_RECHECK_SELFTEST: FAIL ({total} cases, {passed} passed, "
+              f"sandbox {type(exc).__name__}: {str(exc)[:160]})")
+        return 1
+    finally:
+        if root is not None:
+            shutil.rmtree(root, ignore_errors=True)
+    if failures:
+        print(f"MEASURE_UPDATE_RECHECK_SELFTEST: FAIL ({total} cases, {passed} passed)")
+        print("\n".join("  " + item for item in failures))
+        return 1
+    print(f"MEASURE_UPDATE_RECHECK_SELFTEST: PASS ({total} cases, {passed} passed, 0 failed)")
+    return PASS
 
 
 def main(argv=None):
@@ -474,7 +763,11 @@ def main(argv=None):
         description="Read-only round-15 update-safety recheck counting probe.",
         exit_on_error=False)
     parser.add_argument("--revision", metavar="REV",
-                        help="HEAD or a 4-64 hex commit; default worktree")
+                        help="7-64 hex commit bound to --branch; default worktree")
+    parser.add_argument("--branch", metavar="NAME", default=DEFAULT_BRANCH,
+                        help=f"landed branch the revision must descend from "
+                             f"(default {DEFAULT_BRANCH})")
+    parser.add_argument("--selftest", action="store_true", help="hermetic fixture suite")
     try:
         args = parser.parse_args(argv)
     except SystemExit as exc:
@@ -483,11 +776,17 @@ def main(argv=None):
         return emit("worktree", "CANNOT_EVALUATE", [Finding("E-CLI", "cli", "invalid arguments")])
     except argparse.ArgumentError:
         return emit("worktree", "CANNOT_EVALUATE", [Finding("E-CLI", "cli", "invalid arguments")])
-    revision, digest = args.revision or "worktree", None
+    if args.selftest:
+        if args.revision is not None:
+            return emit("worktree", "CANNOT_EVALUATE",
+                        [Finding("E-CLI", "cli", "--selftest and --revision are exclusive")],
+                        branch=args.branch)
+        return selftest()
+    revision, digest, branch, tip = args.revision or "worktree", None, args.branch, None
     try:
-        revision, record_raw, snapshot_raw = load(args.revision)
+        revision, record_raw, snapshot_raw, tip = load(args.revision, branch)
         if record_raw is None and snapshot_raw is None:
-            return emit(revision, "ABSENT", [])
+            return emit(revision, "ABSENT", [], branch=branch, branch_tip=tip)
         if record_raw is None:
             raise Cannot("E-C2-RECORD-MISSING", RECORD, "record absent while snapshot exists")
         if snapshot_raw is None:
@@ -495,13 +794,15 @@ def main(argv=None):
         digest = hashlib.sha256(snapshot_raw).hexdigest()
         assessment = assess(record_raw, snapshot_raw, digest)
     except Cannot as exc:
-        return emit(revision, "CANNOT_EVALUATE", [Finding(exc.fid, exc.site, exc.detail)],
-                    digest=digest)
+        return emit(exc.revision or revision, "CANNOT_EVALUATE",
+                    [Finding(exc.fid, exc.site, exc.detail)], digest=digest,
+                    branch=branch, branch_tip=exc.tip if exc.tip is not None else tip)
     except Exception as exc:  # no traceback: unreadable/invalid input is CANNOT
         return emit(revision, "CANNOT_EVALUATE", [Finding("E-INTERNAL", "probe", str(exc)[:120])],
-                    digest=digest)
+                    digest=digest, branch=branch, branch_tip=tip)
     status = "COUNTED" if not assessment.findings else "CANNOT_EVALUATE"
-    return emit(revision, status, assessment.findings, assessment)
+    return emit(revision, status, assessment.findings, assessment, branch=branch,
+                branch_tip=tip)
 
 
 if __name__ == "__main__":

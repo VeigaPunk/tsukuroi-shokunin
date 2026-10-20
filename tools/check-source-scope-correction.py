@@ -4,10 +4,11 @@
 Not a semantic proof: bounded conformance for the two named corrections,
 retained historical defect phrases with preceding supersession notices, and the
 S042 / appended S045 registry relation. Exit 0 clean, 1 failed, 2 cannot
-evaluate. No writes, no network; --selftest uses in-memory literals only.
+evaluate. No repository writes, no network; --selftest uses in-memory literals
+plus a mktemp git sandbox for the revision-binding cases.
 """
 from __future__ import annotations
-import argparse, json, os, re, subprocess, sys
+import argparse, json, os, re, shutil, subprocess, sys, tempfile
 from collections import namedtuple
 from pathlib import Path
 
@@ -23,7 +24,7 @@ SCHEMA = "tsukuroi-source-scope-correction-v1"
 VALUE_ID, ATTR_ID = "R14-VALUE-DOMAIN", "R14-COMMENT-ATTRIBUTION"
 VALUE_URL = "https://man.archlinux.org/man/systemd.exec.5"
 ATTR_URL = "https://api.github.com/repos/omacom/omarchy/issues/comments/6071740243"
-REV = re.compile(r"^(?:HEAD|[0-9a-fA-F]{4,64})$")
+REV = re.compile(r"^(?:[0-9a-fA-F]{7,64})$")
 DOMAIN_BAD = re.compile(r"value\s+set\s+(?:is\s+|are\s+)?not\s+(?:exhaustive|closed|the\s+only)"
                         r"|values\s+(?:are|is)\s+not\s+(?:exhaustive|closed)", re.I)
 ATTR_BAD = re.compile(r"self-described[^.]{0,100}(?:model[- ]generated|automated\s+triage)"
@@ -331,9 +332,10 @@ def evaluate(docs):
     return Result(FAIL if findings else PASS, findings, count)
 
 
-def emit(result, revision):
+def emit(result, revision, branch="master", branch_tip=None):
     status = {PASS: "PASS", FAIL: "FAIL", CANNOT: "CANNOT_EVALUATE"}[result.code]
-    payload = {"status": status, "revision": revision, "correction_count": result.count,
+    payload = {"status": status, "revision": revision, "branch": branch, "branch_tip": branch_tip,
+               "correction_count": result.count,
                "findings": [{"id": f.id, "site": f.site, "detail": f.detail}
                             for f in sorted(result.findings, key=lambda f: (f.id, f.site, f.detail))]}
     print(json.dumps(payload, sort_keys=True))
@@ -373,11 +375,44 @@ def read_git(repo, commit, path):
     raise Cannot("E-GIT-READ-FAILED", path, error.strip()[:120])
 
 
-def resolve(repo, rev):
-    proc = git(repo, "rev-parse", "--verify", "--quiet", f"{rev}^{{commit}}")
+def rev_parse(repo, ref):
+    proc = git(repo, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")
     if proc.returncode != 0:
-        raise Cannot("E-REVISION-INVALID", "revision", "HEAD or hex commit required")
+        return None
     return proc.stdout.decode("ascii", "replace").strip()
+
+
+def resolve(repo, rev):
+    commit = rev_parse(repo, rev)
+    if commit is None:
+        raise Cannot("E-REVISION-INVALID", "revision", "7-64 hex commit required")
+    return commit
+
+
+def ancestor(repo, commit, ref):
+    return git(repo, "merge-base", "--is-ancestor", commit, ref).returncode == 0
+
+
+def ref_exists(repo, ref):
+    return git(repo, "show-ref", "--verify", "--quiet", ref).returncode == 0
+
+
+def bind(repo, rev, branch):
+    """Resolve rev, then require it landed on refs/heads/<branch> and, when present, its origin ref."""
+    if not REV.fullmatch(rev):
+        raise Cannot("E-REVISION-INVALID", "revision", "7-64 hex commit required")
+    commit = resolve(repo, rev)
+    local, remote = f"refs/heads/{branch}", f"refs/remotes/origin/{branch}"
+    if not ref_exists(repo, local):
+        raise Cannot("E-REVISION-NOT-LANDED", "revision", f"{local} absent")
+    tip = rev_parse(repo, local)
+    if tip is None:
+        raise Cannot("E-REVISION-NOT-LANDED", "revision", f"{local} is not a commit")
+    if not ancestor(repo, commit, local):
+        raise Cannot("E-REVISION-NOT-LANDED", "revision", f"{commit} not an ancestor of {local}")
+    if ref_exists(repo, remote) and not ancestor(repo, commit, remote):
+        raise Cannot("E-REVISION-NOT-PUSHED", "revision", f"{commit} not an ancestor of {remote}")
+    return commit, tip
 
 
 BASELINE_MD13 = ("# r13\n| r12 MD:41-42 | hierarchy text attributed read-only coverage to strict alone | "
@@ -425,6 +460,68 @@ JSON14 = {"schema": SCHEMA, "corrections": [
 def clean_docs():
     return DocSet(MD14, json.dumps(JSON14), VALUE_NOTICE + BASELINE_MD13,
                   LESSON_NOTICE + BASELINE_LESSON, BASELINE_SOURCES + S045_ROW)
+
+
+def sandbox():
+    """Hermetic repo: c1<-c2 on master, c3 object-only, origin/master lagging at c1."""
+    repo = Path(tempfile.mkdtemp(prefix="source-scope-rev-"))
+
+    def run(*args):
+        return git(repo, "-c", "user.name=selftest", "-c", "user.email=selftest@example.invalid",
+                   "-c", "commit.gpgsign=false", *args)
+
+    def fail():
+        shutil.rmtree(repo, ignore_errors=True)
+        return None
+
+    try:
+        if run("init", "--quiet", "-b", "master").returncode != 0:
+            return fail()
+        commits = []
+        for label in ("c1", "c2", "c3"):
+            if run("commit", "--quiet", "--allow-empty", "-m", label).returncode != 0:
+                return fail()
+            commits.append(rev_parse(repo, "HEAD"))
+        if None in commits or len(set(commits)) != 3:
+            return fail()
+        if run("update-ref", "refs/heads/master", commits[1]).returncode != 0:
+            return fail()
+        return repo, commits
+    except Cannot:
+        return fail()
+
+
+def binding_cases(repo, commits):
+    c1, c2, c3 = commits
+    checks = []
+
+    def probe(name, rev, branch="master", want=None, commit_want=None, tip_want=None):
+        try:
+            commit, got = bind(repo, rev, branch)
+        except Cannot as exc:
+            checks.append((name, None if exc.fid == want else f"fid={exc.fid} want={want}"))
+            return
+        if want is not None:
+            checks.append((name, f"accepted {commit} want finding {want}"))
+        elif commit != commit_want or got != tip_want:
+            checks.append((name, f"accepted {commit}/{got} want {commit_want}/{tip_want}"))
+        else:
+            checks.append((name, None))
+
+    probe("revision-head-rejected", "HEAD", want="E-REVISION-INVALID")
+    probe("revision-at-rejected", "@", want="E-REVISION-INVALID")
+    probe("revision-ref-rejected", "refs/heads/master", want="E-REVISION-INVALID")
+    probe("revision-short-hex-rejected", c1[:6], want="E-REVISION-INVALID")
+    probe("revision-absent-hex-rejected", "0" * 40, want="E-REVISION-INVALID")
+    probe("revision-unlanded-rejected", c3, want="E-REVISION-NOT-LANDED")
+    probe("revision-unknown-branch-rejected", c2, branch="unlanded", want="E-REVISION-NOT-LANDED")
+    probe("revision-landed-tip-accepted", c2, commit_want=c2, tip_want=c2)
+    if git(repo, "update-ref", "refs/remotes/origin/master", c1).returncode != 0:
+        checks.append(("revision-not-pushed-rejected", "origin ref not created"))
+        return checks
+    probe("revision-not-pushed-rejected", c2, want="E-REVISION-NOT-PUSHED")
+    probe("revision-pushed-tip-accepted", c1, commit_want=c1, tip_want=c2)
+    return checks
 
 
 def selftest():
@@ -491,11 +588,29 @@ def selftest():
             failures.append(f"{name}: " + "; ".join(problems))
         else:
             passed += 1
+    sandboxed = sandbox()
+    if sandboxed is None:
+        print(f"CHECK_SOURCE_SCOPE_CORRECTION_SELFTEST: CANNOT_EVALUATE "
+              f"({len(cases)} fixture cases, git sandbox unavailable)")
+        return CANNOT
+    try:
+        binding = binding_cases(*sandboxed)
+    except Cannot as exc:
+        print(f"CHECK_SOURCE_SCOPE_CORRECTION_SELFTEST: CANNOT_EVALUATE (git sandbox: {exc.detail})")
+        return CANNOT
+    finally:
+        shutil.rmtree(sandboxed[0], ignore_errors=True)
+    total = len(cases) + len(binding)
+    for name, problem in binding:
+        if problem:
+            failures.append(f"{name}: {problem}")
+        else:
+            passed += 1
     if failures:
-        print(f"CHECK_SOURCE_SCOPE_CORRECTION_SELFTEST: FAIL ({len(cases)} cases, {passed} passed)")
+        print(f"CHECK_SOURCE_SCOPE_CORRECTION_SELFTEST: FAIL ({total} cases, {passed} passed)")
         print("\n".join("  " + item for item in failures))
         return FAIL
-    print(f"CHECK_SOURCE_SCOPE_CORRECTION_SELFTEST: PASS ({len(cases)} cases, {passed} passed, 0 failed)")
+    print(f"CHECK_SOURCE_SCOPE_CORRECTION_SELFTEST: PASS ({total} cases, {passed} passed, 0 failed)")
     return PASS
 
 
@@ -503,8 +618,12 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Narrow read-only round-14 source-scope correction gate.",
                                      exit_on_error=False)
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("--revision", metavar="REV", help="HEAD or a 4-64 hex commit")
-    group.add_argument("--selftest", action="store_true", help="in-memory fixture suite")
+    group.add_argument("--revision", metavar="REV",
+                       help="7-64 hex commit landed on --branch; reads immutable objects only")
+    group.add_argument("--selftest", action="store_true",
+                       help="hermetic fixture suite (in-memory plus mktemp git sandbox)")
+    parser.add_argument("--branch", metavar="BRANCH", default="master",
+                        help="branch the revision must be landed on (default: master)")
     try:
         args = parser.parse_args(argv)
     except SystemExit as exc:
@@ -515,24 +634,31 @@ def main(argv=None):
         return emit(Result(CANNOT, [Finding("E-CLI", "cli", "invalid arguments")], 0), "worktree")
     if args.selftest:
         return selftest()
-    revision = "worktree"
+    branch, revision, branch_tip = args.branch, "worktree", None
     try:
         if args.revision:
-            if not REV.fullmatch(args.revision):
-                raise Cannot("E-REVISION-INVALID", "revision", "HEAD or hex commit required")
-            revision = resolve(ROOT, args.revision)
+            revision = args.revision
+            revision, branch_tip = bind(ROOT, args.revision, branch)
             docs = DocSet(*[read_git(ROOT, revision, path) for path in FILES])
         else:
+            try:
+                tip_ref = f"refs/heads/{branch}"
+                branch_tip = rev_parse(ROOT, tip_ref) if ref_exists(ROOT, tip_ref) else None
+            except Cannot:
+                branch_tip = None
             docs = DocSet(*[read_tree(ROOT, path) for path in FILES])
     except Cannot as exc:
-        return emit(Result(CANNOT, [Finding(exc.fid, exc.site, exc.detail)], 0), revision)
+        return emit(Result(CANNOT, [Finding(exc.fid, exc.site, exc.detail)], 0),
+                    revision, branch, branch_tip)
     except Exception as exc:  # no traceback exit 1: unreadable/invalid input is CANNOT
-        return emit(Result(CANNOT, [Finding("E-INTERNAL", "gate", str(exc)[:120])], 0), revision)
+        return emit(Result(CANNOT, [Finding("E-INTERNAL", "gate", str(exc)[:120])], 0),
+                    revision, branch, branch_tip)
     try:
         result = evaluate(docs)
     except Exception as exc:
-        return emit(Result(CANNOT, [Finding("E-INTERNAL", "gate", str(exc)[:120])], 0), revision)
-    return emit(result, revision)
+        return emit(Result(CANNOT, [Finding("E-INTERNAL", "gate", str(exc)[:120])], 0),
+                    revision, branch, branch_tip)
+    return emit(result, revision, branch, branch_tip)
 
 
 if __name__ == "__main__":

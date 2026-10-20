@@ -1,0 +1,258 @@
+# tsukuroi r17 L1 read-only boot-chain capture
+captured: 2026-10-20T12:35:07-03:00 by L1 TsukuroiR17 (read-only; sudo only for reads/objcopy into /tmp)
+
+$ uname -r; uptime -s
+7.2.11-arch1-1
+2026-10-20 09:57:08
+$ journalctl --list-boots --no-pager | tail -3
+ -2 84755511f8b741649b565f302b59e676 Tue 2026-10-20 06:37:53 -03 Tue 2026-10-20 08:54:21 -03
+ -1 ed8819b0a64a4af7b171e29b28b55524 Tue 2026-10-20 08:57:58 -03 Tue 2026-10-20 09:56:15 -03
+  0 3e7084f470464957a8a2c00542a3b469 Tue 2026-10-20 09:57:09 -03 Tue 2026-10-20 12:34:43 -03
+$ cat /proc/cmdline
+resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+$ findmnt -no SOURCE,FSTYPE,OPTIONS /
+/dev/mapper/root[/@] btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@
+$ grep -Hn ^HOOKS /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d/*.conf
+/etc/mkinitcpio.conf:55:HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
+/etc/mkinitcpio.conf.d/omarchy_hooks.conf:1:HOOKS=(base udev plymouth keyboard autodetect microcode modconf kms keymap consolefont block encrypt filesystems fsck btrfs-overlayfs)
+/etc/mkinitcpio.conf.d/omarchy_resume.conf:1:HOOKS+=(resume)
+$ grep -n "/new_root\|/sysroot" /usr/lib/initcpio/hooks/* /usr/lib/initcpio/init
+/usr/lib/initcpio/hooks/btrfs-overlayfs:4:	root_mnt="/new_root"
+/usr/lib/initcpio/hooks/plymouth:11:  plymouth update-root-fs --new-root-dir=/new_root
+/usr/lib/initcpio/hooks/usr:5:    local usr_source mountopts passno realtab=/sysroot/etc/fstab
+/usr/lib/initcpio/hooks/usr:18:            mount "$usr_source" /sysroot/usr -o "$mountopts"
+/usr/lib/initcpio/init:66:# Mount root at /sysroot
+/usr/lib/initcpio/init:67:"$mount_handler" /sysroot
+/usr/lib/initcpio/init:77:if [ "$(stat -c %D /)" = "$(stat -c %D /sysroot)" ]; then
+/usr/lib/initcpio/init:78:    # Nothing got mounted on /sysroot. This is the end, we don't know what to do anymore
+/usr/lib/initcpio/init:87:elif [ ! -x "/sysroot${init}" ]; then
+/usr/lib/initcpio/init:88:    # Successfully mounted /sysroot, but ${init} is missing
+/usr/lib/initcpio/init:110:    /usr/bin/switch_root /sysroot "$init" "$@"
+$ for p in mkinitcpio plymouth limine-mkinitcpio-hook limine-snapper-sync limine linux linux-lts systemd nvidia-open-dkms; do ls -d /var/lib/pacman/local/$p-[0-9]*; done
+/var/lib/pacman/local/mkinitcpio-42.2-1
+/var/lib/pacman/local/plymouth-26.134.222-3
+/var/lib/pacman/local/limine-mkinitcpio-hook-1.40.0-2
+/var/lib/pacman/local/limine-snapper-sync-1.32.1-2
+/var/lib/pacman/local/limine-12.9.3-1
+/var/lib/pacman/local/linux-7.2.11.arch1-1
+/var/lib/pacman/local/linux-lts-6.18.57-2
+/var/lib/pacman/local/systemd-262-1
+/var/lib/pacman/local/nvidia-open-dkms-615.78.08-1
+$ grep -nE "upgraded (mkinitcpio|plymouth|limine|linux |systemd |nvidia-open-dkms)|installed linux-lts" /var/log/pacman.log | tail -12
+1887:[2026-10-11T16:14:35-0300] [ALPM] upgraded linux (7.1.4.arch1-1 -> 7.2.3.arch1-3)
+1911:[2026-10-11T16:14:37-0300] [ALPM] upgraded nvidia-open-dkms (610.43.03-3 -> 610.57.04-1)
+2531:[2026-10-20T09:16:28-0300] [ALPM] upgraded systemd (261.2-1 -> 262-1)
+2539:[2026-10-20T09:16:29-0300] [ALPM] upgraded mkinitcpio (41.1-1 -> 42.2-1)
+2540:[2026-10-20T09:16:29-0300] [ALPM] installed linux-lts (6.18.57-2)
+2542:[2026-10-20T09:16:29-0300] [ALPM] installed linux-lts-headers (6.18.57-2)
+2851:[2026-10-20T09:16:42-0300] [ALPM] upgraded limine (12.8.0-1 -> 12.9.3-1)
+2852:[2026-10-20T09:16:42-0300] [ALPM] upgraded limine-mkinitcpio-hook (1.38.0-1.1 -> 1.40.0-2)
+2854:[2026-10-20T09:16:42-0300] [ALPM] upgraded limine-snapper-sync (1.31.0-1.1 -> 1.32.1-2)
+2855:[2026-10-20T09:16:42-0300] [ALPM] upgraded linux (7.2.3.arch1-3 -> 7.2.11.arch1-1)
+2892:[2026-10-20T09:16:44-0300] [ALPM] upgraded nvidia-open-dkms (610.57.04-1 -> 615.78.08-1)
+2898:[2026-10-20T09:16:45-0300] [ALPM] upgraded plymouth (26.134.222-2 -> 26.134.222-3)
+$ grep -n "Running .pacman" /var/log/pacman.log | grep 2026-10-20T0[7-9]
+2440:[2026-10-20T07:45:36-0300] [PACMAN] Running 'pacman -S --needed --noconfirm compsize pacman-contrib'
+2448:[2026-10-20T07:50:25-0300] [PACMAN] Running 'pacman -S --needed --noconfirm fclones'
+2454:[2026-10-20T08:14:12-0300] [PACMAN] Running 'pacman -Rns --noconfirm electron39 mbedtls'
+2461:[2026-10-20T08:20:52-0300] [PACMAN] Running 'pacman -Sw --noconfirm --cachedir /tmp/pkgcheck limine-mkinitcpio-hook plymouth mkinitcpio'
+2462:[2026-10-20T09:15:30-0300] [PACMAN] Running 'pacman -Syu --needed --noconfirm nvme-cli smartmontools fio xfsprogs pacman-contrib earlyoom iotop-c sysstat stress-ng btrbk linux-lts linux-lts-headers'
+3064:[2026-10-20T09:27:39-0300] [PACMAN] Running 'pacman -S --needed --noconfirm fwupd'
+3085:[2026-10-20T09:29:39-0300] [PACMAN] Running 'pacman -S --noconfirm --config /etc/pacman.conf -- extra/go'
+3091:[2026-10-20T09:29:40-0300] [PACMAN] Running 'pacman -D -q --asdeps --noconfirm --config /etc/pacman.conf -- go'
+3092:[2026-10-20T09:31:03-0300] [PACMAN] Running 'pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/elephant/elephant-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant/elephant-debug-2.2
+3125:[2026-10-20T09:31:04-0300] [PACMAN] Running 'pacman -D -q --asdeps --noconfirm --config /etc/pacman.conf -- elephant elephant-debug elephant-clipboard elephant-clipboard-debug elephant-runner elephant-runner-debug e
+3126:[2026-10-20T09:31:04-0300] [PACMAN] Running 'pacman -R -s -u --noconfirm --config /etc/pacman.conf -- go'
+3132:[2026-10-20T09:38:33-0300] [PACMAN] Running 'pacman -Rns --noconfirm btrbk elephant-bluetooth-debug elephant-calc-debug elephant-clipboard-debug elephant-debug elephant-desktopapplications-debug elephant-files-debug
+3152:[2026-10-20T09:39:21-0300] [PACMAN] Running 'pacman -Rns --noconfirm gst-plugin-gtk hyprwayland-scanner webp-pixbuf-loader'
+$ grep -n "Building UKI\|Copied:\|Initcpio image generation" /var/log/pacman.log | tail -6
+2984:[2026-10-20T09:18:14-0300] [ALPM-SCRIPTLET] Building UKI for linux-lts (6.18.57-2-lts)
+3011:[2026-10-20T09:18:18-0300] [ALPM-SCRIPTLET] ==> Initcpio image generation successful
+3014:[2026-10-20T09:18:18-0300] [ALPM-SCRIPTLET] Copied: /tmp/limine-mkinitcpio.Av83zz/linux-lts.efi -> /boot/EFI/Linux/omarchy_linux-lts.efi
+3016:[2026-10-20T09:18:18-0300] [ALPM-SCRIPTLET] Building UKI for linux (7.2.11-arch1-1)
+3043:[2026-10-20T09:18:23-0300] [ALPM-SCRIPTLET] ==> Initcpio image generation successful
+3046:[2026-10-20T09:18:23-0300] [ALPM-SCRIPTLET] Copied: /tmp/limine-mkinitcpio.Av83zz/linux.efi -> /boot/EFI/Linux/omarchy_linux.efi
+$ journalctl _COMM=sudo --since 2026-10-20T07:40 --until 2026-10-20T09:58 | grep -E "pacman|limine-update|snapper .*create|objcopy|install -m 0644 .*(fstab|limine)"
+2026-10-20T07:45:36-03:00 plazir27 sudo[175695]:    vgpnk : PWD=/home/vgpnk/tmp ; USER=root ; COMMAND=/usr/bin/pacman -S --needed --noconfirm compsize pacman-contrib
+2026-10-20T07:50:25-03:00 plazir27 sudo[178240]:    vgpnk : PWD=/home/vgpnk/tmp ; USER=root ; COMMAND=/usr/bin/pacman -S --needed --noconfirm fclones
+2026-10-20T08:14:12-03:00 plazir27 sudo[204564]:    vgpnk : PWD=/home/vgpnk/tmp ; USER=root ; COMMAND=/usr/bin/pacman -Rns --noconfirm electron39 mbedtls
+2026-10-20T08:20:52-03:00 plazir27 sudo[208265]:    vgpnk : PWD=/home/vgpnk/tmp ; USER=root ; COMMAND=/usr/bin/pacman -Sw --noconfirm --cachedir /tmp/pkgcheck limine-mkinitcpio-hook plymouth mkinitcpio
+2026-10-20T09:03:02-03:00 plazir27 sudo[5733]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/snapper -c root create-config /
+2026-10-20T09:03:02-03:00 plazir27 sudo[5840]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/snapper -c root create --type single --cleanup-algorithm number --description pre-nvme-baseline-2026-10-20 --print-number
+2026-10-20T09:15:30-03:00 plazir27 sudo[148886]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/pacman -Syu --needed --noconfirm nvme-cli smartmontools fio xfsprogs pacman-contrib earlyoom iotop-c sysstat stress-ng btrbk linux-lts
+2026-10-20T09:19:40-03:00 plazir27 sudo[237616]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/install -m 0644 /var/tmp/nvme-setup-stage/limine /etc/default/limine
+2026-10-20T09:19:40-03:00 plazir27 sudo[237619]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/install -m 0644 /var/tmp/nvme-setup-stage/limine-snapper-sync.conf /etc/limine-snapper-sync.conf
+2026-10-20T09:19:40-03:00 plazir27 sudo[237623]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/install -m 0644 /var/tmp/nvme-setup-stage/fstab /etc/fstab
+2026-10-20T09:26:11-03:00 plazir27 sudo[239425]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/limine-update
+2026-10-20T09:27:39-03:00 plazir27 sudo[259598]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/pacman -S --needed --noconfirm fwupd
+2026-10-20T09:29:19-03:00 plazir27 sudo[260641]:    vgpnk : PWD=/home/vgpnk ; USER=root ; COMMAND=/usr/bin/snapper -c root create -c number -d pre-aur-elephant-2.22.1 --print-number
+2026-10-20T09:29:39-03:00 plazir27 sudo[279498]:    vgpnk : PWD=/home/vgpnk ; USER=root ; COMMAND=/usr/bin/pacman -S --noconfirm --config /etc/pacman.conf -- extra/go
+2026-10-20T09:29:40-03:00 plazir27 sudo[279534]:    vgpnk : PWD=/home/vgpnk ; USER=root ; COMMAND=/usr/bin/pacman -D -q --asdeps --noconfirm --config /etc/pacman.conf -- go
+2026-10-20T09:31:03-03:00 plazir27 sudo[371539]:    vgpnk : PWD=/home/vgpnk ; USER=root ; COMMAND=/usr/bin/pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/elephant/elephant-2.22.1-1-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/elephant/e
+2026-10-20T09:31:04-03:00 plazir27 sudo[371569]:    vgpnk : PWD=/home/vgpnk ; USER=root ; COMMAND=/usr/bin/pacman -D -q --asdeps --noconfirm --config /etc/pacman.conf -- elephant elephant-debug elephant-clipboard elephant-clipboard-debug elephant-runner elepha
+2026-10-20T09:31:04-03:00 plazir27 sudo[371589]:    vgpnk : PWD=/home/vgpnk ; USER=root ; COMMAND=/usr/bin/pacman -R -s -u --noconfirm --config /etc/pacman.conf -- go
+2026-10-20T09:38:14-03:00 plazir27 sudo[378595]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/install -m 0644 /var/tmp/nvme-setup-stage/fstab /etc/fstab
+2026-10-20T09:38:33-03:00 plazir27 sudo[378791]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/pacman -Rns --noconfirm btrbk elephant-bluetooth-debug elephant-calc-debug elephant-clipboard-debug elephant-debug elephant-desktopapp
+2026-10-20T09:39:21-03:00 plazir27 sudo[379517]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/pacman -Rns --noconfirm gst-plugin-gtk hyprwayland-scanner webp-pixbuf-loader
+2026-10-20T09:48:47-03:00 plazir27 sudo[382418]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/install -m 0644 /var/tmp/nvme-setup-stage/fstab /etc/fstab
+$ sudo ls -la --time-style=full-iso /boot /boot/EFI/Linux /boot/432d02b544a5459ebbff9c42ec68334d/limine_history
+/boot:
+total 328
+drwx------ 5 root root   4096 1969-12-31 21:00:00.000000000 -0300 .
+dr-xr-xr-x 1 root root    158 2026-10-20 09:38:14.464302283 -0300 ..
+drwx------ 3 root root   4096 2026-10-20 09:03:02.000000000 -0300 432d02b544a5459ebbff9c42ec68334d
+-rwx------ 1 root root 307200 2026-09-17 00:21:22.000000000 -0300 amd-ucode.img
+drwx------ 5 root root   4096 2026-10-03 17:45:34.000000000 -0300 EFI
+-rwx------ 1 root root   4919 2026-10-20 12:07:06.000000000 -0300 limine.conf
+-rwx------ 1 root root   1582 2026-10-20 09:03:02.000000000 -0300 limine.conf.old
+drwx------ 2 root root   4096 2026-10-20 09:57:10.000000000 -0300 loader
+
+/boot/432d02b544a5459ebbff9c42ec68334d/limine_history:
+total 836148
+drwx------ 2 root root      4096 2026-10-20 09:29:18.000000000 -0300 .
+drwx------ 3 root root      4096 2026-10-20 09:03:02.000000000 -0300 ..
+-rwx------ 1 root root 290422784 2026-10-20 09:03:02.000000000 -0300 omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0
+-rwx------ 1 root root 284439552 2026-10-20 09:29:18.000000000 -0300 omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8
+-rwx------ 1 root root 281318912 2026-10-20 09:29:18.000000000 -0300 omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8
+-rwx------ 1 root root     11818 2026-10-20 09:29:18.000000000 -0300 snapshots.json
+-rwx------ 1 root root      4570 2026-10-20 09:29:18.000000000 -0300 snapshots.json.old
+
+/boot/EFI/Linux:
+total 552512
+drwx------ 2 root root      4096 2026-10-20 09:26:22.000000000 -0300 .
+drwx------ 5 root root      4096 2026-10-03 17:45:34.000000000 -0300 ..
+-rwx------ 1 root root 284439552 2026-10-20 09:26:22.000000000 -0300 omarchy_linux.efi
+-rwx------ 1 root root 281318912 2026-10-20 09:26:16.000000000 -0300 omarchy_linux-lts.efi
+$ sudo grep -nE "^ *(/|//|///|////|default_entry|path:|comment: (Kernel|pre-)|cmdline:)" /boot/limine.conf | cut -c1-200
+3:default_entry: 2
+21:/+Omarchy
+25:  //linux
+27:  comment: Kernel version: 7.2.11-arch1-1
+30:  path: boot():/EFI/Linux/omarchy_linux.efi#822299bbdaf0d4ede97d341fd5fcfa73fb3ca3942b7dcc597a79e7b46e69ec8f3eaabb194c431112de1c97b15345f1ca64adb0438b94d8fc8100cd393ce98024
+31:  cmdline: resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-disc
+33:  //linux-lts
+35:  comment: Kernel version: 6.18.57-2-lts
+38:  path: boot():/EFI/Linux/omarchy_linux-lts.efi#6c1893df2144b71b7f2fbf95fe61f94aa1178968e002fb86c809581d14512d60130dde89cd21e96392216bb5ae622aede82b1f3e916694f820bf17c780ac03db
+39:  cmdline: resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-disc
+41:     //Snapshots
+43:     comment: 2 / 5 snapshots
+44:     ///2026-10-20 09:29:19
+45:     comment: pre-aur-elephant-2.22.1
+46:     ////linux
+47:     comment: Kernel version: 7.2.11-arch1-1
+50:     path: boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8#822299bbdaf0d4ede97d341fd5fcfa73fb3ca3942b7dcc597a79e7b46e69ec8f3eaabb
+51:     cmdline: resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-d
+52:     ////linux-lts
+53:     comment: Kernel version: 6.18.57-2-lts
+56:     path: boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8#6c1893df2144b71b7f2fbf95fe61f94aa1178968e002fb86c809581d14512d6013
+57:     cmdline: resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-d
+58:     ///2026-10-20 09:03:02
+59:     comment: pre-nvme-baseline-2026-10-20
+60:     ////linux
+61:     comment: Kernel version: 7.2.3-arch1-3
+64:     path: boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0#2832912269f8e0f0cd4b7434d126938b9986af3ff3c27737054696daa53aaf9ce18e32
+65:     cmdline: resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root root=/d
+67:/EFI fallback
+72:path: boot():/EFI/BOOT/BOOTX64.EFI
+$ find boot-chain inputs -newermt "2026-10-20 09:57:09"
+(rc=0 ; empty = none newer)
+$ sudo btrfs property get -t subvol /.snapshots/{1,2}/snapshot ro
+#1 ro=true
+#2 ro=true
+$ sudo snapper -c root list
+# │ Type   │ Pre # │ Date                            │ User │ Cleanup │ Description                  │ Userdata
+──┼────────┼───────┼─────────────────────────────────┼──────┼─────────┼──────────────────────────────┼─────────
+0 │ single │       │                                 │ root │         │ current                      │
+1 │ single │       │ Tue 20 Oct 2026 09:03:02 AM -03 │ root │ number  │ pre-nvme-baseline-2026-10-20 │
+2 │ single │       │ Tue 20 Oct 2026 09:29:19 AM -03 │ root │ number  │ pre-aur-elephant-2.22.1      │
+
+## per-UKI image extraction: sudo objcopy -O binary --only-section=.initrd|.uname <efi> /tmp/...; lsinitcpio -x
+### /boot/EFI/Linux/omarchy_linux.efi
+sha256 2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8
+b2sum  822299bbdaf0d4ede97d341fd5fcfa73fb3ca3942b7dcc597a79e7b46e69ec8f3eaabb194c431112de1c97b15345f1ca64adb0438b94d8fc8100cd393ce98024
+uname  7.2.11-arch1-1
+VERSION 42.2
+init /sysroot refs 7 ; /new_root refs 0
+EARLYHOOKS="udev"
+HOOKS="udev plymouth keymap consolefont encrypt resume"
+LATEHOOKS="plymouth btrfs-overlayfs"
+hooks/btrfs-overlayfs:4:	root_mnt="/new_root"
+hooks/plymouth:11:  plymouth update-root-fs --new-root-dir=/new_root
+dirs: new_root sysroot 
+62fcc3a904ab68429e90f8caaab4e16c3d34a08230a42dd628739ade0443a953  init
+eeac1ed326f5c6fed2e47bbb596d76c9c4b0020be30c3b3c58f6b3a4fa093dcf  hooks/btrfs-overlayfs
+de852646e615e06d4125eb2e646d0528d1e349bd9e9877c08c5d32c43d288b6f  hooks/plymouth
+
+### /boot/EFI/Linux/omarchy_linux-lts.efi
+sha256 2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8
+b2sum  6c1893df2144b71b7f2fbf95fe61f94aa1178968e002fb86c809581d14512d60130dde89cd21e96392216bb5ae622aede82b1f3e916694f820bf17c780ac03db
+uname  6.18.57-2-lts
+VERSION 42.2
+init /sysroot refs 7 ; /new_root refs 0
+EARLYHOOKS="udev"
+HOOKS="udev plymouth keymap consolefont encrypt resume"
+LATEHOOKS="plymouth btrfs-overlayfs"
+hooks/btrfs-overlayfs:4:	root_mnt="/new_root"
+hooks/plymouth:11:  plymouth update-root-fs --new-root-dir=/new_root
+dirs: new_root sysroot 
+62fcc3a904ab68429e90f8caaab4e16c3d34a08230a42dd628739ade0443a953  init
+eeac1ed326f5c6fed2e47bbb596d76c9c4b0020be30c3b3c58f6b3a4fa093dcf  hooks/btrfs-overlayfs
+de852646e615e06d4125eb2e646d0528d1e349bd9e9877c08c5d32c43d288b6f  hooks/plymouth
+
+### /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0
+sha256 0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0
+b2sum  2832912269f8e0f0cd4b7434d126938b9986af3ff3c27737054696daa53aaf9ce18e32edbb99d731f5bf4da7cb86826d754f16627d93619cc5db19e4769bf71c
+uname  7.2.3-arch1-3
+VERSION 41.1
+init /sysroot refs 0 ; /new_root refs 7
+EARLYHOOKS="udev"
+HOOKS="udev plymouth keymap consolefont encrypt resume"
+LATEHOOKS="plymouth btrfs-overlayfs"
+hooks/btrfs-overlayfs:4:	root_mnt="/new_root"
+hooks/plymouth:11:  plymouth update-root-fs --new-root-dir=/new_root
+dirs: new_root 
+9a25937d2434df2e0cb94f5082c3deafa4fef487b59c88c64e2a584de17d807b  init
+eeac1ed326f5c6fed2e47bbb596d76c9c4b0020be30c3b3c58f6b3a4fa093dcf  hooks/btrfs-overlayfs
+de852646e615e06d4125eb2e646d0528d1e349bd9e9877c08c5d32c43d288b6f  hooks/plymouth
+
+### /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8
+sha256 2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8
+b2sum  822299bbdaf0d4ede97d341fd5fcfa73fb3ca3942b7dcc597a79e7b46e69ec8f3eaabb194c431112de1c97b15345f1ca64adb0438b94d8fc8100cd393ce98024
+uname  7.2.11-arch1-1
+VERSION 42.2
+init /sysroot refs 7 ; /new_root refs 0
+EARLYHOOKS="udev"
+HOOKS="udev plymouth keymap consolefont encrypt resume"
+LATEHOOKS="plymouth btrfs-overlayfs"
+hooks/btrfs-overlayfs:4:	root_mnt="/new_root"
+hooks/plymouth:11:  plymouth update-root-fs --new-root-dir=/new_root
+dirs: new_root sysroot 
+62fcc3a904ab68429e90f8caaab4e16c3d34a08230a42dd628739ade0443a953  init
+eeac1ed326f5c6fed2e47bbb596d76c9c4b0020be30c3b3c58f6b3a4fa093dcf  hooks/btrfs-overlayfs
+de852646e615e06d4125eb2e646d0528d1e349bd9e9877c08c5d32c43d288b6f  hooks/plymouth
+
+### /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8
+sha256 2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8
+b2sum  6c1893df2144b71b7f2fbf95fe61f94aa1178968e002fb86c809581d14512d60130dde89cd21e96392216bb5ae622aede82b1f3e916694f820bf17c780ac03db
+uname  6.18.57-2-lts
+VERSION 42.2
+init /sysroot refs 7 ; /new_root refs 0
+EARLYHOOKS="udev"
+HOOKS="udev plymouth keymap consolefont encrypt resume"
+LATEHOOKS="plymouth btrfs-overlayfs"
+hooks/btrfs-overlayfs:4:	root_mnt="/new_root"
+hooks/plymouth:11:  plymouth update-root-fs --new-root-dir=/new_root
+dirs: new_root sysroot 
+62fcc3a904ab68429e90f8caaab4e16c3d34a08230a42dd628739ade0443a953  init
+eeac1ed326f5c6fed2e47bbb596d76c9c4b0020be30c3b3c58f6b3a4fa093dcf  hooks/btrfs-overlayfs
+de852646e615e06d4125eb2e646d0528d1e349bd9e9877c08c5d32c43d288b6f  hooks/plymouth
+
+$ sha256sum /usr/lib/initcpio/init /usr/lib/initcpio/hooks/{btrfs-overlayfs,plymouth}
+62fcc3a904ab68429e90f8caaab4e16c3d34a08230a42dd628739ade0443a953  /usr/lib/initcpio/init
+eeac1ed326f5c6fed2e47bbb596d76c9c4b0020be30c3b3c58f6b3a4fa093dcf  /usr/lib/initcpio/hooks/btrfs-overlayfs
+de852646e615e06d4125eb2e646d0528d1e349bd9e9877c08c5d32c43d288b6f  /usr/lib/initcpio/hooks/plymouth
+
+## appended 2026-10-20T12:53:51 — full-depth sweep (line 158 used -maxdepth 1)
+$ find /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d /etc/default/limine /etc/limine-snapper-sync.conf /usr/lib/initcpio /usr/lib/modules/7.2.11-arch1-1 /usr/lib/modules/6.18.57-2-lts -newermt '2026-10-20 09:57:09' | wc -l ; find <same three trees> | wc -l
+0
+58674

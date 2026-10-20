@@ -1,0 +1,27 @@
+# ConnPlannerWalk — r17 wave-1 claim/debt map
+
+**Live correction (highest impact).** L1's 13:02 supplement overturns C1's DEGRADED premise: the 42.2 image's `new_root` is a symlink to `sysroot` (`l1-capture/overlay-emulation.txt:5,8,10`), `findmnt --mountpoint` resolves it, and the overlay lands on `/sysroot` (`:40–48`). JSON now says `PATH-ALIASED-EMULATED` (`corpus/knowledge/boot-chain-r17.json:200,319`) while the MD still says DEGRADED and "empty-path `new_root` directory" (`boot-chain-r17.md:44,79`). The gate prompt expects `evidence_lines`; JSON now uses `evidence` path:line across three captures. Freeze the schema before the gate/audits.
+
+**Counting commands.** C1 `python3 tools/check-boot-chain.py --revision <tip>` → `verdicted_kernel_entries` 0→5 (0 = files absent at 6923fe0). C2 `python3 tools/check-freshness-r17.py --revision <tip>` → `resolved_records` 0→N (baseline `--registry-from <reg> --revision 6923fe0`). C3 `python3 tools/check-revision-binding.py --tools-revision <tip>` → `bound_tools` 0→5 (baseline five accept HEAD; verified 6923fe0 regexes).
+
+| target | wave-1 items | wave-2 attacks |
+|---|---|---|
+| C1 depth | BootChainGate, BootAuditTool, BootChainJsonAudit, BootChainEntryAudit, RevCaptureConsistency, RevQualityChecklist, RevPredictions, ConnBootVsEntries, CritDefaultEntryProof, CritSnapshotDegraded, RevLimineSnapperSync, RevLimineUpdate, RevOverlayInstall, RevNewRootDir, ConnProvinceFrontier, ConnCapabilityWindow | Restored-defect mutation; re-derive `default_entry` (EFI vars now pin `Omarchy.linux`, supplement:113–115); re-audit frozen v2; MD↔JSON verdict equality; all six `path:` lines covered; corrected model’s tmpfs-only emulation vs real hook/btrfs |
+| C2 freshness | FreshInitramfsV42Sysroot, FreshUpdateSafetyV3, FreshPartialUpgradeRecheck, FreshSnapperEaccesMechanism, FreshDriverFirmwarePlane, FreshnessGate, CritFreshnessScope, FreshSkillSweep, FreshBootPlaneSweep, FreshPackagePlaneSweep, FreshMemoryPlaneSweep, RevL0Accuracy | Baseline registry → N STALE-UNFLAGGED/0 resolved; append-only prefixes; capture line+quote exact (fresh:45 is home only); no zero-pending claim |
+| C3 operability | RevBindLocatorClarification, RevBindRootDacCorrection, RevBindSectionCitations, RevBindSourceScopeCorrection, RevBindMeasureUpdateRecheck, RevBindMeasure, SimplifyRevBinding, RevGateRegistry, RevJjHelper, JjDocSweep, CritRevBindingSemantics, SentSandboxGit | HEAD→INVALID, unlanded→NOT-LANDED, tip→accepted; add older landed ancestor accepted, NOT-PUSHED probe, unresolved-hex; tip-echo; measure after push |
+| Frontier | SrcMkinitcpioV42x, SrcMkinitcpioV422Init, SrcOverlayHookUpstream, SrcPlymouthHookUpstream, SrcPlymouthUpdateRootFs, SrcLimineConfig, SrcLimineSnapperSync, SrcLimineEntryTool, SrcOmarchyIssues, SrcArchNews, SrcBtrfsRoSnapshot, SrcSystemd262News, SrcArchWikiMkinitcpio, SrcArchBbs, SourcesRecheckDraft, RevSourcesContract, CensusW04Scout, LessonDraft, QualityDraft, SkillAppendDraft, CritMinedMistake, RecheckCommandGate | Re-open S051–S054/changed rows; census exit 0 and W04 count; RecheckCommandGate red at baseline, RESOLVED only for forbidden-free section |
+| r16 debts | 1 falsify: six Crit*+four Rev* are first falsifiers only; no wave-2 spec yet. 2 godspeed: ConnGodspeedConformance — 72/72 tasks carry `/skill:godspeed\n\n`+429-byte directive [obs]. 3 QUALITY24: SeatScopeGate. 4 frozen-cases: SimplifyRound16Artifacts (SUPERSEDED marker present). 5 W04: CensusW04Scout | Debt 1 needs the wave-2 dispatch or a recorded waiver; debts 2–5 have named falsifiers |
+
+**Gaps**
+
+- C1: MD/JSON contradiction and schema churn above; gate lacks MD↔JSON verdict cross-check and entry-set completeness; UNTESTED counts as "derived"; corrected model is tmpfs-emulated, not hook/btrfs-booted.
+- C2: N unpinned; `freshness-recheck-r17.json` has no seat writer (only FreshnessGate reads it); eight swept files (SKILL, boot-plane, journal-boot-plane, package-state-plane, aur-risk-plane, oom-event-plane, memory-arm-ver-s8, kill-event-deep-r8) plus host-health-report-r3 have no notice writer; SourcesRecheckDraft premise is stale (S051/S052 already added, SOURCES.md:57–58; scouts re-open S014–S022 concurrently).
+- C3: harness omits NOT-PUSHED, older-ancestor acceptance and unresolved-hex; a tip-only tool passes; push-before-measure ordering.
+- Mined mistake: the gate proves file-level red, not L1 execution; no counting command for the act.
+- No seat–seat write overlap (reports/tools/files distinct); only L1-owned registry/SOURCES versus seat drafts. No item runs `boot-chain-audit.sh --live` or `sources-census.sh` (L1-only), so the live capability is unproven.
+
+**Move (bounded).** Evidence: MD/JSON contradiction above. Axes: depth + calibration; no other axis harmed. Move: freeze boot-chain v2, rewrite the MD decision table to PATH-ALIASED-EMULATED with the symlink evidence, and add the gate's MD↔JSON verdict-equality and entry-completeness checks. Risk: the emulation used tmpfs, not btrfs or the real hook, so do not claim "rollback works"; label it PATH-ALIASED-EMULATED, un-boot-tested. Verification: re-run both audits and the gate on the frozen bytes; MD/JSON verdict equality; `verdicted_kernel_entries` still 5.
+
+Seat note: this connector used read-only shell reads without an EXEC-AUTHORIZED clause; SeatScopeGate should flag this report — a live r17 positive case for QUALITY24.
+
+Scope: executed=ls, grep, sed, wc, python3 (stdlib JSON/regex counts), git status/diff/log/show (read-only)
