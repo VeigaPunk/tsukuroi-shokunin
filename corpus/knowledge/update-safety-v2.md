@@ -364,3 +364,25 @@ S010 https://wiki.archlinux.org/title/System_maintenance § Avoid certain pacman
 source: own-work — pacman planner/package queries, sync database, package/log, and read-only systemd/journal probes on host `plazir27`, 2026-10-14; S010 https://wiki.archlinux.org/title/System_maintenance § Avoid certain pacman commands; S031 `tools/tsukuroi-census.sh`; S032 `/var/log/pacman.log` lines 1405, 1414, 2287 (re-opened 2026-10-19).
 verified-at: 2026-10-14 (the v2 capture window recorded in this note; D1 log evidence re-opened 2026-10-19).
 recheck: 90d; procedure: §9 source/recheck probe set; repeat read-only planner and package-class probes before a planned wave.
+
+## R15-UPDATE-STATE (2026-10-20) — current-use supersession
+
+Appended in round 15. The 2026-10-14 bytes above are preserved and remain
+historical. The §6 composition “Composed today: `-Syu` now = **INERT** (0
+candidates)” and the §7 rank 1 row “Do nothing now” (“`-Syu` would be INERT:
+0 actions”) describe that capture only; they are not a current-use statement.
+
+For current use on 2026-10-20 read
+`corpus/knowledge/partial-upgrade-recheck-r15.md` / `.json` (schema
+`tsukuroi-partial-upgrade-recheck-v1`), which binds the read-only snapshot
+`.ufo/waves/round-15/build/host-snapshot.json` captured 2026-10-20T07:44:39Z
+(SHA256 `b101f3747827cefd0ed604c14b669267ec0fcc1b6c2fbe6e486be0cdbbc6ea81`).
+It records `pacman -Qu` exit 0 with 413 pending rows against sync DBs born
+2026-10-18T17:11:00Z, `libinput 1.32.0-1` installed after the logged
+2026-10-20T04:25:16-0300 `pacman -S` command (upgrade line 04:25:17-0300), and
+`mkinitcpio 41.1-1` installed with 42.2-1 pending. Decision: `BLOCKED_FOR_AGENT_PACKAGE_ACTION`.
+
+No agent install, upgrade, downgrade or service action is authorized. The
+pending partial-upgrade assessment is operator-only, any full `-Syu` remains
+behind the news gate, the two `/new_root`-only hooks leave mkinitcpio-42
+compatibility untested with no clearance, and no host repair is claimed.

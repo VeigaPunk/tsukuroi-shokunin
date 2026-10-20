@@ -1,0 +1,24 @@
+# Reverse update doctrine — bounded findings
+
+Date: 2026-10-20. Scope: recover the old empty-`-Qu` snapshot advice and its append-only correction reach; report only.
+
+## Axes and reconstructed invariant
+
+- Relevant axes: **depth** (assigned judgment axis) and **freshness** (update-safety state). This report makes no score or admission claim.
+- Last-known-good rule: an empty `pacman -Qu` is only empty against the currently configured sync-database snapshot; it is not proof of upstream currency. The round-1 `SKILL.md:50` health predicate is conjunctive: recent snapshot (≤7 days), empty `-Qu`, and no holds. The round-2 note states its actual 36-day-old content snapshot made upstream delta unknown (`update-safety-note.md:42-66`), not current.
+- Divergence: the same round-2 note still says the operator's next bare `-Sy` resolves that uncertainty (`update-safety-note.md:63-66`); its decision table also calls an empty candidate-set arm `INERT` while reporting the stale-channel `UNKNOWN-UPSTREAM` arm (`:332-381`). The final composed result should not be read as safe-to-upgrade solely because candidates are empty.
+- Later executable invariant: `tools/tsukuroi-census.sh:1467-1494` measures configured repo DB content stamps separately from local fetch births and excludes `offline.db`; `:1496-1538` accepts only unpiped `-Qu` rc=1/0-lines as empty (rc=0/nonempty as candidates; other shapes BLOCKED) and cross-checks `-Sup`. Composition at `:1680-1706` is BLOCKED for no repo DB, UNKNOWN-UPSTREAM for unmeasurable or stale content (>7 days by default), REQUIRES-PREP for candidates or a repo-side `behind` row, otherwise INERT. The normal call site is `:2643-2658`.
+- Checked-in fixture definitions (`tools/tsukuroi-census.sh:2287-2326`) distinguish fresh-empty, rc=0-empty unreadable, no-channel, stale-channel, and threshold-override cases. These are source/test definitions inspected, **not executed** here. `SKILL.md:1231-1276,1283-1289` documents the same contract.
+
+## Append-only supersession reach
+
+- S010 is locally registered as ArchWiki System maintenance, oldid 885170 (2026-09-07), with the located rule “never run pacman -Sy; instead, always use pacman -Syu” (`corpus/SOURCES.md:16`; also `corpus/lessons/round-1.md:96-97`). S009 registers the separate temporary-DB `checkupdates` implementation (`SOURCES.md:15`). These are existing source records; no URL was reopened in this seat.
+- Existing D1 errata are scoped by exact old loci: `closeout-r11.md:405-410` → `:226`; `degraded-triage-r4.md:610-615` → `:90,524`; `host-health-report-r3.md:565-570` → `:54,314-315,362`; `update-safety-v2.md:356-361` → `:102,280`; `update-safety-note.md:480-485` → `:378-381`; `SKILL.md:1641-1650` → `SKILL.md:391-393`. They correct those historical bare-refresh advice instances without rewriting history. The note's D4 at `:487-491` separately corrects the claim that `checkupdates` source cannot be inspected unless its package is installed.
+- **Reach gap (bounded):** the local update-safety-note D1 names only `:378-381`, not its earlier, source-inconsistent `:63-66` “next `-Sy`” resolver. The SKILL erratum names only the copied SKILL locus `:391-393`; append-only scope does not make that a direct notice against the original note. Recommend a new append-only notice naming `corpus/knowledge/update-safety-note.md:63-66` and replacing bare refresh with `checkupdates` for a read-only query, or a complete `-Syu` only as the operator's post-news-gate action; otherwise leave upstream delta unknown. Preserve the historical statement and its timestamp.
+- One adjacent phrase is narrower: `update-safety-note.md:356` says the upstream-delta probe “needs network/-Sy”; this is a probe-description cell, not by itself a transaction instruction. `SKILL.md:97-98` says “refresh (`-Sy*`) is operator action,” but its stop-line and forbidden-verb clauses (`:137-140,156-159`) explicitly prohibit running `-Sy`; do not classify those bounded phrases alone as authorization.
+
+## Limits and confidence
+
+High confidence in the checked-in shell implementation, call site, and fixture intent from direct reads; no execution or live host measurement. The historic R2 values (2026-10-14), including 36-day stamp and empty-`-Qu`, are not current state. No fresh host snapshot was read, so nothing here updates package counts or grants upgrade clearance after the operator-reported partial upgrade. Findings are limited to the cited update-safety loci, not an exhaustive repository-wide absence sweep.
+
+LSP was unavailable: `read xd://lsp` returned “No such tool” (the mounted device inventory has no LSP device). Literal `grep` was used only to locate mentions; semantic reconstruction above relies on the directly read source passages. Tools used: `read`, `grep`; installs/updates: none. No host commands, tests, builds, linters, formatters, or runtime were run.

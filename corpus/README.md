@@ -92,3 +92,33 @@ comment-scoped limit: account identity is not generation method or maintainer
 acceptance. The remaining round-13 technical teaching, fixture-identity limits
 and historical S042 row stay active; no new coverage surface or host repair is
 claimed.
+
+## Round 15 — portable locators and the dated update-safety recheck
+
+`knowledge/source-locator-clarification-r15.md` and `.json` carry
+**R15-LOCATOR** and **R15-POSITIVE-DOMAIN**. They withdraw only the
+renderer-unqualified `rendered lines 1266-1267` supplemental locator (r14 MD
+source-object, JSON `corrections[0].location` and `sources[0].anchor`) in
+favour of the stable SANDBOXING > ProtectSystem= heading plus the observed
+footer version, and replace the unswept “documents no further values” sentence
+with the quoted positive definition. The r14 11-word quote, technical teaching
+and #8047 correction stay exact; appended notices are in
+`knowledge/source-scope-correction-r14.md` § R15 supersession and its
+`r15_supersession` JSON key. QUALITY criteria 21–22 govern future locators and
+absence claims.
+
+`knowledge/partial-upgrade-recheck-r15.md` and `.json` (schema
+`tsukuroi-partial-upgrade-recheck-v1`) replace the 2026-10-14 `INERT` /
+“Do nothing now” current-use reading in `update-safety-note.md`,
+`update-safety-v2.md`, `update-safety-v3.md` and `host-health-report-r3.md`;
+those historical bytes stay. The dated 2026-10-20 recheck binds
+`.ufo/waves/round-15/build/host-snapshot.json` and decides
+`BLOCKED_FOR_AGENT_PACKAGE_ACTION`: the pending partial-upgrade assessment is
+operator-only, no agent package or service action is authorized, and
+mkinitcpio-42 `/new_root` hook compatibility remains an untested risk with no
+clearance. No host repair is claimed.
+
+The C1 checker `tools/check-locator-clarification.py` is a gate (0/1/2,
+`--selftest`); `tools/measure-update-recheck.py` is a read-only counting probe,
+not a verdict gate — its exit 0 is not “clean”. Registry rows are in
+`../SKILL.md` § Round 15.

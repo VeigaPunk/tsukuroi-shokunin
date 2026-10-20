@@ -1,0 +1,26 @@
+# ReverseGatePattern — checker error and finding patterns
+
+**Axes:** depth (input/error edge cases), calibration (fail vs cannot-evaluate), operability (stable diagnostics).  
+**Scope:** read-only static research for a small checker; no checker, selftest, or other verification was run.
+
+## Evidence chain
+
+- `tools/check-root-dac-correction.py:19,34-42,158-217` defines `PASS=0`, `FAIL=1`, `CANNOT=2`, a `Cannot(fid, site, detail)` carrier, and structured findings. JSON syntax errors map to `E-R12-JSON-PARSE` / `E-R13-JSON-PARSE` and code 2; missing r12 inputs map to CANNOT, while missing expected r13 correction files become FAIL findings (`R13-MD-MISSING` / `R13-JSON-MISSING`). This is a useful pattern but its missing-input policy is not uniform.
+- The r13 CLI/read path (`check-root-dac-correction.py:218-246,349-371`) validates revisions and catches `Cannot`, but the `git` subprocess has no timeout/OSError boundary and `main` does not catch other exceptions. Review found top-level JSON arrays and wrongly typed nested values can raise uncaught errors; malformed CLI uses argparse's default exit 2 without the checker's structured output. Source: `.ufo/waves/round-14/repair/GateContractReview.md:15-19`.
+- `tools/check-source-scope-correction.py:14,39-47,183-249,280-340,351-380,502-539` improves this: parse/read/git/timeout/revision failures use stable `E-*` IDs and code 2; unexpected evaluation exceptions are bounded as `E-INTERNAL` rather than traceback/exit 1. Its CLI emits `E-CLI` JSON with code 2 for malformed arguments. Recorded example: `.ufo/waves/round-14/repair/verification.json:25-30` (`--revision --not-a-revision`, exit 2, `E-CLI`, `CANNOT_EVALUATE`).
+- Finding output is reproducible: r14 uses literal IDs, stable sites/details, JSON keys, and sorts findings by `(id, site, detail)` (`check-source-scope-correction.py:334-340`). Its selftest compares exact ID sets, exit code, and correction count (`:430-499`). By contrast, r13 checks only `want - got` for failures (`check-root-dac-correction.py:326-342`), so unexpected extra finding IDs can slip through.
+- A relevant mismatch to resolve rather than copy: r14's selftest treats valid JSON top-level `[]` as conformance FAIL with `R14-JSON-SCHEMA`, `R14-CORRECTION-COUNT`, and `R14-CORRECTION-ID` (`check-source-scope-correction.py:465-466`); the independent gate review recommended non-object root → code 2, alongside malformed JSON, missing git, and usage errors (`GateContractReview.md:62-64`). The checker contract should explicitly choose and test one classification.
+
+## Recommendations for the small checker
+
+1. State one exit contract and apply it at the outer boundary: 0 = evaluated and clean; 1 = evaluated and a required predicate is violated (including the expected correction being absent on the red baseline); 2 = cannot evaluate. Emit a stable machine-readable `CANNOT_EVALUATE` result for malformed CLI, invalid revision, required input read/UTF-8 failure, malformed JSON, git missing/failure/timeout, and trapped unexpected errors. Keep `--help` at 0. No traceback should escape.
+2. Guard JSON types before every access, including root and nested objects/lists. Prefer the review's code-2 treatment for a non-object root if it prevents evaluation; alternatively call it a schema FAIL only if that is the declared checker contract. Do not let Python `AttributeError`/`TypeError` choose the result accidentally. Distinguish an absent expected correction (FAIL) from an absent/unreadable input needed to evaluate (CANNOT), and document any intentional baseline exception.
+3. Keep finding IDs as a small, closed, literal vocabulary: `E-*` for evaluation/CLI failures; predicate-specific IDs for conformance defects. Assign IDs by invariant, not by test name or exception text; keep `site` a stable path/locus and `detail` bounded descriptive data. Sort emitted findings deterministically. Do not collapse unrelated defects into a generic `FAIL`.
+4. For each error class and semantic predicate, use an isolated fixture with an independently declared expected exit, exact finding-ID set, and count. Require exact set equality on FAIL and CANNOT as well as PASS; include invalid CLI/revision, malformed JSON, wrong root/nested types, unreadable input, and unavailable git/timeout paths where practical. Never tune expected IDs after seeing an unreviewed run.
+5. Keep the checker claim bounded to what its predicates enforce. `.ufo/waves/round-14/repair/CorrectionGate.md:7-16,48-56` documents the useful precedent: narrow conformance, stable IDs, and exact selftest cases are not source-truth or semantic proof.
+
+## Limits and tools
+
+- Claims above are static source reads and review-document evidence, not fresh checker behavior. No source was executed; no result is a new test pass.
+- LSP is unavailable in the mounted tool set (`read xd://lsp` returned “No such tool”); source was read directly. `grep` was used only to locate candidate review records, not as semantic proof.
+- Tools used: `read`, `glob`, `grep`, `multi_tool_use.parallel`, `write`; no tools installed or updated.

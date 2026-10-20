@@ -411,3 +411,30 @@ Trends: expansion unchanged, quality improved, discernment improved by
 grounded disagreement-learning. No new repertoire row or uncovered ground.
 Fresh independent admit/reject sampling is still required.
 
+## Round 15 — portable locators and update-safety freshness (2026-10-20)
+
+Baseline `0db618a71ae2d0bb0c0c3059abaa219b7ccd20a2`.
+Depth and adjacency remain tied lowest8; C1 works depth. Saturation9,
+window3, retired none remain. No arbitrary ordinal uplift or new
+capability is claimed.
+
+| Claim | Axis | Score delta | Before → intended after | Counting command |
+|---|---|---|---|---|
+| C1 R15-LOCATOR / R15-POSITIVE-DOMAIN | depth | 8→8 (0) | resolved routed documentation records0→2, actual original defects and restored-defect fixtures must fail | `python tools/check-locator-clarification.py --revision <commit>` |
+| C2 partial-upgrade recheck | freshness | 9→9 (0) | dated round15 evidence-linked incident record0→1, pending/version state tied to capture rather than historical413 context | `python tools/measure-update-recheck.py --revision <commit>` |
+
+Exact measurements and measured implementation revision follow in a new
+appendix after execution. C1's checker is bounded documentation conformance,
+not a source-semantics theorem; C2's measure is a counting probe, not a
+health/upgrade gate. Both work existing owned ground. Neither admits host
+repair, running-process version, UI success or a safe upgrade.
+Unworked scores coverage9/operability9/calibration9/adjacency8 are retained,
+not re-certified. The source-located positive definition and independently
+captured package state are causally separable.
+
+- **planned (current):** only finish the externally steered round15 claims
+  and independent closure handoff. Preserve historical rejected rounds,
+  outstanding operation/credentials/namespace unknowns and boot-hook
+  safety blocker; any later round needs a new steer.
+- **retired:** none. No SHONEN promotion or independent approval asserted.
+

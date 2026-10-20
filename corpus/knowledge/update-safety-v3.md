@@ -391,3 +391,25 @@ dkms/kernel verification plan (U3), schedule under measured load (U8), trust-cha
 source: own-work — read-only pacman package/planner queries, sync-db and pacman-log reads, and census run on host `plazir27`, 2026-10-14; S031 `tools/tsukuroi-census.sh`; S032 `/var/log/pacman.log`.
 verified-at: 2026-10-14 (the v3 measurement window recorded in this note).
 recheck: 90d; procedure: §8 source/pin and probe ledger; repeat the package/planner join without a transaction.
+
+## R15-UPDATE-STATE (2026-10-20) — current-use supersession
+
+Appended in round 15. The 2026-10-14 bytes above are preserved and remain
+historical. The §7 rank 1 row “Do nothing now” (“`-Syu` would be INERT: 0
+candidates by three probes”) describes that capture only; it is not a
+current-use statement.
+
+For current use on 2026-10-20 read
+`corpus/knowledge/partial-upgrade-recheck-r15.md` / `.json` (schema
+`tsukuroi-partial-upgrade-recheck-v1`), which binds the read-only snapshot
+`.ufo/waves/round-15/build/host-snapshot.json` captured 2026-10-20T07:44:39Z
+(SHA256 `b101f3747827cefd0ed604c14b669267ec0fcc1b6c2fbe6e486be0cdbbc6ea81`).
+It records `pacman -Qu` exit 0 with 413 pending rows against sync DBs born
+2026-10-18T17:11:00Z, `libinput 1.32.0-1` installed after the logged
+2026-10-20T04:25:16-0300 `pacman -S` command (upgrade line 04:25:17-0300), and
+`mkinitcpio 41.1-1` installed with 42.2-1 pending. Decision: `BLOCKED_FOR_AGENT_PACKAGE_ACTION`.
+
+No agent install, upgrade, downgrade or service action is authorized. The
+pending partial-upgrade assessment is operator-only, any full `-Syu` remains
+behind the news gate, the two `/new_root`-only hooks leave mkinitcpio-42
+compatibility untested with no clearance, and no host repair is claimed.

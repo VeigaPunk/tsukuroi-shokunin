@@ -203,3 +203,46 @@ check, not independent verification or self-admission.
 - **Historical pair and lessons.** `corpus/knowledge/root-dac-correction-r13.md:97,171`, `.json:204-240,267-268`; `corpus/lessons/round-13.md:60,68-70`; `corpus/lessons/round-13-verifier-spotcheck.md:143-165,175-186`.
 - **Retained snapshots.** `.ufo/waves/round-14/repair/QuoteReview-source.json` and `ClaimSeparation-source.json` (body text, account fields, 403 observation; data only, no commands executed).
 - **QUALITY.** `corpus/QUALITY.md` criteria 19-20, alongside the applicable numbered criteria evaluated above.
+
+## R15 supersession (2026-10-20) — locator and positive-domain notices
+
+Appended in round 15, after the independent verifier routed two
+documentation debts in
+`corpus/lessons/round-14-verifier-spotcheck.md` § Adjudicated concerns items
+1–2. These notices supersede only those supplemental documentation defects.
+The R14 quote, proposition, attribution correction and every historical byte
+above stand unchanged; this section is additive. Canonical pair:
+`corpus/knowledge/source-locator-clarification-r15.md` / `.json`, schema
+`tsukuroi-locator-clarification-v1`, corrections `R15-LOCATOR` and
+`R15-POSITIVE-DOMAIN`. The round-14 bounded checker
+`tools/check-source-scope-correction.py` keeps its own predicates and is not
+widened by this section.
+
+- **R15-LOCATOR** supersedes one supplemental locator only: the bare,
+  renderer-unqualified string “rendered lines 1266-1267” in § R14-VALUE-DOMAIN
+  above (source-object sentence), at
+  `source-scope-correction-r14.json` `corrections[0].location`, and in
+  `sources[0].anchor` (S044: “§ ProtectSystem= (SANDBOXING), rendered lines
+  1266-1267; footer systemd 262.1”). It is
+  withdrawn as an active locator because rendered line numbers depend on the
+  reader: the round-14 closure's reader shows AF_UNIX at those lines and
+  `ProtectSystem=` at 1270, with the definition at 1272–1273 (verifier lesson
+  § Adjudicated concerns and routing, item 1, `:233-239`). The active locator is the stable section path **SANDBOXING >
+  ProtectSystem=** plus the observed page footer version (**systemd 262.1** at
+  the 2026-10-20 reopen). The 11-word quote and every other field remain exact
+  and are not superseded. A future line number is only usable when the
+  renderer or reader is named alongside it; bare lines are not a locator.
+- **R15-POSITIVE-DOMAIN** supersedes one negative documentation sentence
+  only: the unswept absence claim “documents no further values for this
+  option” / “The opened revision documents no further values for
+  `ProtectSystem=`” in § R14-VALUE-DOMAIN (proposition and replacement) and in
+  `corrections[0].replacement`. No command-and-date documentation sweep backs
+  an exhaustive-absence claim, and this lane does not claim parser proof. The
+  positive definition — “Takes a boolean argument or the special values
+  "full" or "strict".” — stands unchanged, as do `full`/`strict` coverage and
+  the illustrative other-mechanism list's lane-scope status. R15 records only
+  that documented input form; it makes no statement about undocumented values.
+
+Both notices are documentation corrections on the existing rollback-net
+surface. They add no capability, repair no host, and license no package or
+service action.

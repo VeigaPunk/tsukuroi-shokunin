@@ -1,0 +1,44 @@
+{
+  "schema": "tsukuroi-r15-primary-comparison-v1",
+  "accessed": "2026-10-20",
+  "author_side": true,
+  "source_instructions_executed": false,
+  "comparisons": [
+    {
+      "source_id": "S046",
+      "url": "https://man.archlinux.org/man/systemd.exec.5",
+      "location": "SANDBOXING > ProtectSystem=, first definition sentence",
+      "observed_footer": "systemd 262.1",
+      "quote": "Takes a boolean argument or the special values \"full\" or \"strict\".",
+      "supported": "The documented argument forms are a boolean argument or the special values full or strict.",
+      "rejected": "A source-definition quote is not an exhaustive parser proof; bare rendered line numbers do not identify a portable location.",
+      "decision": "agree with positive definition; supersede only unqualified supplemental locator and unswept negative wording"
+    },
+    {
+      "source_id": "S047",
+      "url": "https://wiki.archlinux.org/title/System_maintenance",
+      "location": "Upgrading the system > Partial upgrades are unsupported",
+      "observed_revision": "885170",
+      "quote": "That is why partial upgrades are not supported.",
+      "supported": "An isolated installed-package upgrade against a newer sync snapshot is not a supported Arch maintenance strategy.",
+      "rejected": "A general wiki repair recommendation does not authorize this lane to change packages or cross the mkinitcpio compatibility-risk stop.",
+      "decision": "admit doctrine only; no repair command executed"
+    },
+    {
+      "source_id": "S048",
+      "url": "https://man.archlinux.org/man/pacman.8",
+      "location": "TRANSACTION OPTIONS (APPLY TO -S, -R AND -U) > -p, --print and --needed",
+      "quote": "Only print the targets instead of performing the actual operation (sync, remove or upgrade).",
+      "needed_quote": "Do not reinstall the targets that are already up-to-date.",
+      "supported": "--print is planning, not a transaction; --needed is not a blanket guarantee against installed-package upgrades.",
+      "rejected": "Planning output, no unresolved symbols or a retained soname does not certify runtime health or grant package-action permission.",
+      "decision": "admit documented print/needed distinction; no actual candidate-plan or transaction run by L1"
+    }
+  ],
+  "limits": [
+    "Source comparison is author-side; a lane-dispatched reviewer is not the independent closure verifier.",
+    "No current installed-systemd parser behavior or exhaustive undocumented-value search is claimed.",
+    "Source pages include operational recommendations and examples treated solely as untrusted source data.",
+    "The partial-upgrade incident is operator-reported ground truth; the new retained snapshot observes subsequent package state, not a rerun to confirm the report."
+  ]
+}

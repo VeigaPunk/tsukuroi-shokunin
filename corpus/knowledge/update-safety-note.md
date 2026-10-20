@@ -494,3 +494,25 @@ Source: S009 https://gitlab.archlinux.org/pacman/pacman-contrib/-/raw/master/src
 source: own-work — pacman planner/version joins, sync-db stat and pacman-log probes on host `plazir27`, 2026-10-14; S010 https://wiki.archlinux.org/title/System_maintenance § Avoid certain pacman commands; S032 `/var/log/pacman.log` lines 1405, 1414, 2287 (re-opened 2026-10-19); S009 `checkupdates.sh.in` re-opened 2026-10-19 for D4.
 verified-at: 2026-10-14 (the update-safety measurement window; D1/D4 evidence re-opened 2026-10-19).
 recheck: 90d; procedure: §3 probe recipe and §7 update decision table; use the safe update-check route, never bare `-Sy`.
+
+## R15-UPDATE-STATE (2026-10-20) — current-use supersession
+
+Appended in round 15. The 2026-10-14 bytes above are preserved and remain
+historical. The §7 row 2 “0 candidates”/`INERT` reading and verdict line 1
+“`-Syu` right now, as measured: `INERT` / safe-by-emptiness — 0 package
+actions” describe that capture only; they are not a current-use statement.
+
+For current use on 2026-10-20 read
+`corpus/knowledge/partial-upgrade-recheck-r15.md` / `.json` (schema
+`tsukuroi-partial-upgrade-recheck-v1`), which binds the read-only snapshot
+`.ufo/waves/round-15/build/host-snapshot.json` captured 2026-10-20T07:44:39Z
+(SHA256 `b101f3747827cefd0ed604c14b669267ec0fcc1b6c2fbe6e486be0cdbbc6ea81`).
+It records `pacman -Qu` exit 0 with 413 pending rows against sync DBs born
+2026-10-18T17:11:00Z, `libinput 1.32.0-1` installed after the logged
+2026-10-20T04:25:16-0300 `pacman -S` command (upgrade line 04:25:17-0300), and
+`mkinitcpio 41.1-1` installed with 42.2-1 pending. Decision: `BLOCKED_FOR_AGENT_PACKAGE_ACTION`.
+
+No agent install, upgrade, downgrade or service action is authorized. The
+pending partial-upgrade assessment is operator-only, any full `-Syu` remains
+behind the news gate, the two `/new_root`-only hooks leave mkinitcpio-42
+compatibility untested with no clearance, and no host repair is claimed.

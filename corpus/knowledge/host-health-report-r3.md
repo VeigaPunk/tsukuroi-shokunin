@@ -574,3 +574,26 @@ source: own-work — census and host-health plane probes, pacman-log reads and e
 verified-at: 2026-10-14 (the report's original capture window; D1 log evidence re-opened 2026-10-19).
 recheck: 30d; procedure: Appendix A command set and `bash tools/tsukuroi-census.sh --selftest && bash tools/tsukuroi-census.sh`.
 supersedes the pointer-only recheck: line above.
+
+## R15-UPDATE-STATE (2026-10-20) — current-use supersession
+
+Appended in round 15. The 2026-10-14 bytes above are preserved and remain
+historical. The §1 verdict-board row 5 (`update-safety` `DEGRADED`, “`-Syu`
+now `INERT`”) and the §2.5 arm composition (“right now `INERT` (0 candidates,
+3 probes agree)”) describe that capture only; they are not current-use
+statements.
+
+For current use on 2026-10-20 read
+`corpus/knowledge/partial-upgrade-recheck-r15.md` / `.json` (schema
+`tsukuroi-partial-upgrade-recheck-v1`), which binds the read-only snapshot
+`.ufo/waves/round-15/build/host-snapshot.json` captured 2026-10-20T07:44:39Z
+(SHA256 `b101f3747827cefd0ed604c14b669267ec0fcc1b6c2fbe6e486be0cdbbc6ea81`).
+It records `pacman -Qu` exit 0 with 413 pending rows against sync DBs born
+2026-10-18T17:11:00Z, `libinput 1.32.0-1` installed after the logged
+2026-10-20T04:25:16-0300 `pacman -S` command (upgrade line 04:25:17-0300), and
+`mkinitcpio 41.1-1` installed with 42.2-1 pending. Decision: `BLOCKED_FOR_AGENT_PACKAGE_ACTION`.
+
+No agent install, upgrade, downgrade or service action is authorized. The
+pending partial-upgrade assessment is operator-only, any full `-Syu` remains
+behind the news gate, the two `/new_root`-only hooks leave mkinitcpio-42
+compatibility untested with no clearance, and no host repair is claimed.

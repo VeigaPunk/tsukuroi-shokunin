@@ -757,3 +757,80 @@ authorized after the final evidence commit/report boundary. No new L0
 question, tool install/update, privileged probe, package transaction,
 service activation, host repair or promotion.
 
+## 2026-10-20 — round15 declarations and routed documentation debts
+
+Baseline `0db618a71ae2d0bb0c0c3059abaa219b7ccd20a2`. Independent
+`corpus/lessons/round-14-verifier-spotcheck.md` admitted round14 but routed
+two documentation debts: reader-dependent supplemental ProtectSystem
+line locators and an unrecorded negative documentation sweep.
+C1/depth resolves these with R15-LOCATOR/R15-POSITIVE-DOMAIN and the
+positive primary-source definition. C2/freshness independently rechecks
+package/update safety following the operator-reported libinput partial
+upgrade, without package/service actions or upgrade clearance.
+Depth8 and adjacency8 remain tied lowest; C1 works depth. All ordinal
+scores stay unchanged. Measurement commands and exact immutable outcomes
+are appended only after execution.
+
+Evidence: `corpus/lessons/round-15.md` (declarations, Gate and Mistakes);
+QUALITY21/22; `.ufo/waves/round-15/build/start.json` (clean entry/census
+context), `spec.json`, `dispatch.json`, `assignments.json`,
+`swarm-registry.json` and `task-result.json`. One validated64-seat wave,
+one unchanged native taskCall. L1 holds planner; bounded connector
+data-walk is advisory. No inherited lane-authored leftovers.
+Primary source reopens: systemd.exec(5) SANDBOXING > ProtectSystem=;
+ArchWiki System maintenance > Partial upgrades are unsupported;
+pacman(8) TRANSACTION OPTIONS > --print and --needed.
+New source registry rows S046–S048 are scoped to these reads, not a quota.
+
+Host incident ground truth: fleet L0 hyaku-orchestrator 2026-10-20
+“HOST PARTIAL UPGRADE during mado r15”; not rerun to confirm. A fresh
+package snapshot is a subsequent-state recheck only. No install, removal,
+upgrade, downgrade, reboot, service action, snapper activation, credential
+read or privileged probe is part of this round. Existing mkinitcpio42
+`/sysroot` versus `/new_root` safety blocker remains operator-owned.
+Tools installed/updated: none.
+
+## 2026-10-20 — round15 integrated implementation before immutable measurement
+
+C1 pair: `corpus/knowledge/source-locator-clarification-r15.md` and
+`.json`; scoped R15 supersession appended to the historical r14 pair
+without deleting its original text/object values. Gate:
+`tools/check-locator-clarification.py`, bounded named-defect conformance
+with committed literal selftest expectations and original r14 digest pins,
+not source-truth enforcement. Source S046 was reopened; both final
+correction quotes use the original positive definition. An unnecessary
+native-fragment absence assertion in the draft was rejected and removed;
+stable heading/quote/footer/date suffice.
+
+C2 pair: `corpus/knowledge/partial-upgrade-recheck-r15.md` and `.json`;
+source rows S047/S048 plus added S049 distinguish doctrine, printing,
+query filtering and --needed. Read-only `host-snapshot.json` was captured
+at2026-10-20T07:44:39Z; raw digest
+`b101f3747827cefd0ed604c14b669267ec0fcc1b6c2fbe6e486be0cdbbc6ea81`.
+The new `tools/measure-update-recheck.py` counting probe recomputes the
+snapshot-linked observations and emits ABSENT/COUNTED/CANNOT_EVALUATE,
+not a safety pass. A static registry PASS-versus-COUNTED mismatch was
+corrected before execution. SKILL and corpus index route both entries
+and register the gate/probe separately. R15-UPDATE-STATE notices in
+`update-safety-note.md`, `update-safety-v2.md`, `update-safety-v3.md` and
+`host-health-report-r3.md` prevent historical INERT/Do nothing now readings
+from serving as current advice; old dated captures remain preserved.
+
+SOURCES additions S046–S049 are opened docs/A/mined rows on existing
+ground; no prior row fields changed. QUALITY21/22 and round15 Mistakes
+mine the outside locator/absence-scope debts. All64 original wave seats
+returned, including same-ID continuations of LocatorMechanism and
+HistoryBoundary; these were not new seats or redispatches. L1 owns the
+canonical planner, with bounded ConnectPlannerWalk advice. Full wave
+and source-review evidence remain in `.ufo/waves/round-15/build/`.
+
+Author-side risk adjudications and disclosed read-only scope deviations
+are in `adjudications.json` and `corpus/lessons/round-15.md`; no unrun
+gate or inherited selftest is called passing. One authoring-time
+py_compile by LocatorGate was outside the no-check instruction; its
+report discloses that preflight deviation, not final verification, and
+its compile scaffold was absent at cleanup. Independent non-author
+admit/reject sampling remains required. The new fleet L0 question
+“Host recovery and tooling-policy decision” requests operator recovery
+and a host-wide tooling pause; no package or service action is taken.
+

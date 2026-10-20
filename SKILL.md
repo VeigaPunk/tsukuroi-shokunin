@@ -1783,3 +1783,53 @@ historical causality or independent admission. The r13 JSON `gate_contract`
 is not a second executable specification. Source comparison and measured
 revision evidence: `corpus/lessons/round-14.md` and
 `.ufo/waves/round-14/repair/`.
+
+## Round 15 — portable locators, positive option domain, and the dated update recheck
+
+Two named clarifications supersede only the supplemental documentation defects
+routed by the round-14 outside verifier
+(`corpus/lessons/round-14-verifier-spotcheck.md` § Adjudicated concerns and
+routing, items 1–2): **R15-LOCATOR** withdraws the bare
+`rendered lines 1266-1267` locator in the r14 pair (MD source-object,
+JSON `corrections[0].location`, JSON `sources[0].anchor`) in favour of the
+stable SANDBOXING > ProtectSystem= heading plus the observed footer version,
+and **R15-POSITIVE-DOMAIN** replaces the unswept “documents no further values”
+sentence with the quoted positive definition. Read
+`corpus/knowledge/source-locator-clarification-r15.md` / `.json` (schema
+`tsukuroi-locator-clarification-v1`) first. The r14 quote, technical teaching
+and #8047 correction remain exact; append-only notices live in
+`corpus/knowledge/source-scope-correction-r14.md` § R15 supersession and the
+`r15_supersession` JSON key. QUALITY criteria 21–22 govern portable locators
+and positive-versus-absence claims.
+
+Current-use update state on 2026-10-20 is
+`corpus/knowledge/partial-upgrade-recheck-r15.md` / `.json` (schema
+`tsukuroi-partial-upgrade-recheck-v1`), bound to
+`.ufo/waves/round-15/build/host-snapshot.json` captured 2026-10-20T07:44:39Z
+(raw-byte SHA256
+`b101f3747827cefd0ed604c14b669267ec0fcc1b6c2fbe6e486be0cdbbc6ea81`). It
+supersedes the 2026-10-14 `INERT` / “Do nothing now” current-use reading in
+`corpus/knowledge/update-safety-note.md`, `update-safety-v2.md`,
+`update-safety-v3.md` and `host-health-report-r3.md`; those bytes stay
+historical. The dated decision is `BLOCKED_FOR_AGENT_PACKAGE_ACTION`.
+
+| Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |
+|---|---|---|---|---|---|---|---|
+| locator-clarification | gate | `python tools/check-locator-clarification.py` or `--revision <REV>` (REV = `HEAD` or 4–64 hex) | 0 clean/PASS; 1 failed (bounded findings, `correction_count` < 2); 2 could-not-evaluate (`E-CLI`, `E-REVISION-INVALID`, read/git/parse/internal) | `python tools/check-locator-clarification.py --selftest` (21 fixture cases + 2 CLI cases = 23; exit 0 pass, 1 fail) | `tools/check-locator-clarification.py` committed constants: MD15/JSON15/MD14/JSON14 paths, `tsukuroi-locator-clarification-v1`, `R15-LOCATOR`/`R15-POSITIVE-DOMAIN`, S046 URL, 11-word quote, three required headings, seven correction fields, r14 notice tokens, pre-append r14 canonical digest pins (`MD14_SHA` = sha256 of the rstripped r14 MD prefix; `JSON14_SHA` = sha256 of sorted/compact normalized r14 JSON minus `r15_supersession`) and expected finding IDs | None; reads lane files or git objects only (`GIT_OPTIONAL_LOCKS=0`); selftest in memory | tsukuroi |
+| measure-update-recheck | probe | `python tools/measure-update-recheck.py` or `--revision <REV>` (REV = `HEAD` or 4–64 hex) | No verdict map: 0 = `ABSENT` (`record_count` 0, pair absent) or `COUNTED` (`record_count` 1, internally consistent record; its internal `status: COUNTED` string is not a gate clean or health verdict); 2 = could-not-evaluate (malformed JSON, schema/digest/observation mismatch, missing record or snapshot, `E-CLI`); no 1 | None (probe; no self-test obligation) | Committed C2 schema `tsukuroi-partial-upgrade-recheck-v1`, required keys (`schema`, `source_ids` S047/S048/S049, `observed_at`, `evidence_path` `.ufo/waves/round-15/build/host-snapshot.json`, `snapshot_sha256`, `observations`, `decision`, `limits`), five snapshot probe keys with exit 0/empty stderr; digest held in the C2 JSON (`b101f3747827cefd0ed604c14b669267ec0fcc1b6c2fbe6e486be0cdbbc6ea81`), checked against raw snapshot bytes (no digest constant in the tool) | None; pure-stdlib reads, no writes, no host command execution | tsukuroi |
+
+The locator gate checks only its committed documentation predicates: two
+correction records, the S046 URL and 11-word quote, the stable heading, the
+absence of an unqualified renderer line in the new location, and both r14
+notices. It does **not** establish source truth, parser exhaustiveness, host
+state, historical causality or independent admission. In tree mode it reports
+`revision: worktree`; a comparable verdict names a commit via `--revision`.
+The update measure is a read-only counting probe, not a gate: its exit 0 is a
+completed observation, never a health verdict or package authorization.
+
+Boundaries: this round installs no package, runs no service action, no
+privileged probe and no repair. The pending partial-upgrade assessment is
+operator-only; any full `-Syu` remains an operator action behind the news gate.
+Installed `mkinitcpio 41.1-1` with 42.2-1 pending and two `/new_root`-only
+hooks make mkinitcpio-42 compatibility an untested risk, not a clearance. No
+host repair, ABI certification or running-process version is claimed.
