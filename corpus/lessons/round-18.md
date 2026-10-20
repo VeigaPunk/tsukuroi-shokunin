@@ -26,6 +26,21 @@ author: tsukuroi L1 (TsukuroiR18-2). Baseline `842a5312b704b5cda10fd80ec1fdee5fb
 
 S051 reopened at boot-chain-capture.txt:59,124,182-184,198-200 for C1 count/citation corrections; opening a prior source does not rewrite its immutable `opened` field. S060 is the sourced C3 claim. No inherited SOURCES row was changed by this initial curation; mutable-field changes, if any, are logged in the final outcome below.
 
+### Final author Gate decisions (measured 07cc6ea156a633451d7132f4b22b0598fd07e4b8)
+
+| Candidate | Decision | Observed basis |
+|---|---|---|
+| Four fixed R18 boot corrections | admit author-side | semantic0→4 with all4 named red baseline defects, full source/image/hash context; measuredc0f6303f35e15ce113c03f4b6592014b9d8c2472, exact inputs carried to07cc6ea156a633451d7132f4b22b0598fd07e4b8 |
+| Original-nine shared revision binding | admit author-side | consolidated0→9, consistent1→9, shared0→9, copies9→0; additional discovered tool stays separately observed |
+|97 declared current-use notice records | admit author-side, bounded | final97/97 across17paths, all primary eight paths;97 actual baseline stale findings; source agreement is the retained semantic review plus scoped final evidence, not structural count alone |
+| SourceS060–S065 scope | admit author-side | six openedA/mined sources, exact located quotes above; source census0,65rows; no current pending/ABI/rollback/actor inference |
+| Only fixed-Now-string tests prove source arithmetic | reject | final typed-source capture mutants and always-true-source-check mutant actuallyfail; unchanged-Now edits cannot certify source validity |
+| Pass consistency means consolidated | reject | explicit status_scope vs consolidation_status/consolidated_tools; allthree predicates needed |
+| Annotatednone proves execution or absence | reject | malformed/ambiguous category staysred; canonicalnone is self-report only; raw declarations retained |
+| Change old registry cells in place to solve calibration | reject proposal | would violate protected historical prefix; current highest-table selector and selected-row artifact make all older rows non-operative. Independent closure must rule on this disposition |
+
+Outside admit/reject spot-check: pending the orchestrator's separate non-author closure. Swarm seats, main measurements and this table remain author-side.
+
 ## Mistakes
 
 | ID | Class | Evidence | Captured-by | Fix shown able to fail |
