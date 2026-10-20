@@ -95,8 +95,8 @@ Not edited: `corpus/SOURCES.md` (SourcesR-owned), `tools/tsukuroi-census.sh` (Ce
 
 - No live capability measurement was possible: unit inactive, `ExecMainPID` stale, issuer may be a child. The optional `/proc/<live-issuer-pid>/status` discriminator is documented but **unrun**; no fake PID was used.
 - The Btrfs subvolume ioctl is outside this matrix. No Btrfs trace, no read-only mount/EROFS test, no BPF-LSM program enumeration, no privileged probe.
-- S027's SOURCES row still lists only § CAP_DAC_OVERRIDE; the matrix also cites § Thread capability sets > Effective and > Bounding. SourcesR has been asked to broaden the row's anchor field (row stays mined; used-by already lists this note).
-- S039/S040 are `queued` with empty used-by as supplied by SourcesR; I notified SourcesR to mark them `mined` with used-by `corpus/knowledge/root-dac-decision-r12.md`. S038 already lists this note.
+- S027's SOURCES row lists only § CAP_DAC_OVERRIDE; SourcesR re-verified both Thread-set sections on 2026-10-20 and decided the inherited anchor field stays unchanged, logging the request/decision. The citation remains valid at section level: this note's header and §Sources name the exact sections, and the row supplies tier A plus the page (same pattern as S028's ProtectSystem/ReadWritePaths use). S027 stays mined with used-by `corpus/knowledge/root-dac-decision-r12.md`.
+- S038/S039/S040 are `mined` with `used-by corpus/knowledge/root-dac-decision-r12.md` as of this report; the stale queued note is superseded.
 - `SKILL.md:1695` and `snapper-eacces-mechanism.md:75` still list only S027/S028/S034/S035. Parent must update those pointers at landing; this seat is not allowed to edit them.
 - No independent non-author verification is claimed. MatrixCriticR/C2ReviewR are reviewer seats, not independent verification.
 - No PASS is claimed: this is a diagnostic matrix plus source-backed corrections, with host causal attribution explicitly unproven.

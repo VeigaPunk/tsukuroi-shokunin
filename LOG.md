@@ -471,3 +471,46 @@ Measured against correction commit `459e3ceacea6289d74b6e856c5606b83704f32e5`:
   this content commit. No unrun test is called passed. Final claims/trends
   are self-assessed pending independent hyaku closure and its admit/reject
   source spot-check; SHONEN remains `[~]`.
+
+## 2026-10-20 — round 12 post-integration measurement pin
+
+Measured implementation commit:
+`70fede2a7a890cb50a72db2d4230ee541183bf7b`;
+census SHA-256
+`d17d32a35946c71c1fc195e36178aa383f4a04d7172cc579b6e9e25fa537f27e`.
+The L1 corrected three selftest expectation regexes to include the emitted
+`root_euid` field before that commit; no production behavior changed.
+
+- C1 anchored root-metadata records **0→1**, presence-predicate exits **1→0**;
+  baseline and after census runs both exit **1** (DEGRADED). The six-plane
+  order is preserved. `bash tools/tsukuroi-census.sh --selftest` exits **0**:
+  **97 cases, 97 passed, 0 failed**, plus two named skips. Legacy label
+  preservation **80/80**, new registrations **17**, from the label comparison
+  recorded in `.ufo/waves/round-12/resumed/after.json`.
+- The deliberate sole policy delta `ROOT_V=DEGRADED` for absent owner bits
+  turns the same suite red: exit **1**, **93 passed / 4 failed**, including
+  `0555 owner-write absent is report-only (R12-C1)`. This demonstrates
+  QUALITY #16's correction can fail, not merely print success. Shipping
+  source was not mutated: `mode-policy-mutant.json`.
+- C2's source-resolving counter returns **0→4**, both exits **0**, across
+  `b76b5c3`→`70fede2`. Every branch has the required fields and all its source
+  ids resolve to mined rows linked to the note. All **16** applicable QUALITY
+  criteria are evaluated. The **10** scenarios are documented cases, not ten
+  executed host causes. Fresh caller-owned ordinary-mkdir controls give
+  **13 / 17 / success**: `mkdir-controls.json`; no privileged or ro-mount
+  control ran.
+- Source census exits **0**, output `tsukuroi ok` plus W04 for S038's
+  intentional cross-scope duplicate access(2) URL. Final registry:
+  **40 rows**, A35/B1/C4, mined30/queued5/rejected5. Baseline committed rows
+  **34**; resumed inherited rows **37**. Exact commands, outputs and exits:
+  `count-commands.json`, `sources-after.json`, `inheritance.json`.
+- Parent verification did not rerun the shipping suite. The mutant evidence
+  collector initially looked for failure labels on stdout, while the suite
+  emits them on stderr; the collector was corrected using the already
+  captured stderr, without rerunning the mutant.
+- Author-assessed trends: expansion improved through the demonstrated
+  root-metadata-observer capability; quality improved through corrected
+  policy/credential/ordering assumptions; discernment improved through
+  lesson-backed criteria and a killed policy mutant. All remain pending
+  independent hyaku closure and its source-backed admit/reject spot-check.
+  No ordinal score uplift or SHONEN promotion is claimed.

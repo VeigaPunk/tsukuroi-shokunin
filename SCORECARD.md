@@ -160,6 +160,7 @@ matches the entry snapshot. Full command/output/comparison:
 |---|---|---|---|
 | sources-registry | Curates where the lane learns: `corpus/SOURCES.md` — opened, tier-scoped rows with anchors, rejections with flips, study paths, a search log and unopened leads — and checks itself with the frozen contract's 7 census commands | `corpus/SOURCES.md`; census commands + outputs in `.ufo/evidence/round-1-kaika/after.md` (34 rows, malformed 0, no dup/enum/missing output) | fleet r1 (2026-10-19) |
 | host-census-gate | Emits a read-only six-plane host verdict (`TSUKUROI_CENSUS: HEALTHY/DEGRADED/BLOCKED`, exit 0/1/2) with a hermetic 80-case `--selftest` | `bash tools/tsukuroi-census.sh --selftest` → PASS 80/80 rc=0; live run rc=1 six-plane rollup — `.ufo/evidence/round-1-kaika/scout-live.md`, `after.md` | lane r2 (census-v1); demonstrated running fleet r1 |
+| root-metadata-observer | Emits root mode/uid/gid and owner-bit observations even on package-probe failure; isolates fixtures and blocks unavailable/non-directory metadata without grading intentional 0555 policy | `.ufo/waves/round-12/resumed/{after,selftest-after,mode-policy-mutant}.json`; measured commit `70fede2a7a890cb50a72db2d4230ee541183bf7b` | round 12 |
 
 Rows enter only through a round that demonstrates the capability running
 (`AXES.md` §Capabilities); none enter through this rollout.
@@ -238,3 +239,45 @@ The original A–C rows above remain as the `549ec0c` measurement snapshot. Thes
 - **C — freshness 8→9, retained only for dated D1–D5 errata rechecks.** The matching erratum-note command is `git -C "$W" grep -lE '^## Erratum \(2026-10-19, fleet round 1\) — D[1-5]' <revision> -- 'corpus/knowledge/*.md' | wc -l`; `9b70381` → `459e3ceacea6289d74b6e856c5606b83704f32e5` yields 0→7. The 25 appended legacy contract-key blocks are repair, not 25 fresh verifications.
 
 At the new snapshot, the unchanged D1 literal-text command counts 9→14. The five added matching lines are append-only “Superseded” errata quoting the old advice (`closeout-r11.md`, `degraded-triage-r4.md`, `host-health-report-r3.md`, `update-safety-note.md`, `update-safety-v2.md`), not five new recommendations. `SKILL.md` now records the separate transaction-log commands and unavailable-`checkupdates` branch.
+
+## Round 12 — resumed measured claims (2026-10-20)
+
+Baseline `b76b5c377eaee3e3d8d47fdddde977828d05dbd5`; measured implementation
+commit `70fede2a7a890cb50a72db2d4230ee541183bf7b`.
+All verdicts below are **author-verified, pending independent hyaku closure**.
+No count-to-ordinal-score scale exists; capability/diagnostic gains are
+measured without inventing score points. Depth and adjacency were tied
+lowest at 8; C2 works depth. Saturation 9/window 3 and retired none remain.
+
+| Claim | Axis/type | Score delta | Falsifiable before → after | Counting command and evidence | Verdict |
+|---|---|---|---|---|---|
+| C1 | operability / capability root-metadata-observer | 9 → 9 (0; new demonstrated repertoire row) | packages root metadata records 0 → 1; root-presence predicate exit 1 → 0; six plane names/order unchanged | `bash tools/tsukuroi-census.sh`, then anchored field-sequence counter in `.ufo/waves/round-12/resumed/count-commands.json`; captures `before.json`, `live-after.json`, `after.json` | improved, author-verified |
+| C2 | depth / sourced diagnostic refinement | 8 → 8 (0; no arbitrary ordinal uplift) | grounded branch records 0 → 4, every cited row mined and linked to the matrix; 10 documented scenarios, not 10 executed host causes | `python -c "$(jq -r .C2_script .ufo/waves/round-12/resumed/count-commands.json)" <revision>`; exact before/after outputs 0/4, both exit 0 in that JSON | improved, author-verified |
+
+C1 is not proved by a token alone: `bash tools/tsukuroi-census.sh --selftest`
+ran **97/97**, exit 0, with two explicit skips (non-root-owned fixture and
+EACCES/000-parent case). All 80 legacy case labels remain; 17 focused cases
+exercise metadata distinctions, unavailable/non-directory/override failures
+and package early returns. A single-defect automatic-DEGRADED policy mutant
+failed **4** assertions, exit 1, including the stable
+`0555 owner-write absent is report-only (R12-C1)` finding. Output:
+`selftest-after.json`, `mode-policy-mutant.json`.
+
+C2 needs no census result. Fresh isolated caller-owned ordinary-mkdir
+controls returned new-name 0555 → errno 13, existing-name 0555 → errno 17,
+0755 → success (`mkdir-controls.json`). Read-only-mount and effective-root
+capability scenarios remain source-grounded, not experimentally run.
+The inode mode is configured by systemd's tmpfiles policy S039/S040; neither
+that fact nor these controls prove the historical Btrfs failure's cause.
+
+Unworked ordinal axes stay depth 8 (worked but not rescored), coverage 9,
+freshness 9, calibration 9, adjacency 8; operability stays 9.
+No scope transfer or repair is claimed. Gate live exit remains 1/DEGRADED;
+the root bits are report-only, while existing package/driver/journal/
+update-safety/OOM findings remain visible.
+
+- **planned (current, supersedes historical ladder-end and pending fleet-r1 plans):**
+  in the next externally steered round, open operation-specific Btrfs sources
+  and the pending boot-hook package evidence; seek failure-time credentials
+  only within the operator/read-only boundary. This round does not start it.
+- **retired:** none. No saturation waiver or promotion is claimed.

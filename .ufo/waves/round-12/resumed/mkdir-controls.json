@@ -1,0 +1,32 @@
+{
+  "author": "tsukuroi L1",
+  "measured_commit": "70fede2a7a890cb50a72db2d4230ee541183bf7b",
+  "operation": "os.mkdir in isolated caller-owned directories",
+  "controls": [
+    {
+      "parent_mode": "0o555",
+      "parent_uid": 1000,
+      "caller_uid": 1000,
+      "target": "new",
+      "outcome": "failed",
+      "errno": 13
+    },
+    {
+      "parent_mode": "0o555",
+      "parent_uid": 1000,
+      "caller_uid": 1000,
+      "target": "existing",
+      "outcome": "failed",
+      "errno": 17
+    },
+    {
+      "parent_mode": "0o755",
+      "parent_uid": 1000,
+      "caller_uid": 1000,
+      "target": "writable-new",
+      "outcome": "created",
+      "errno": null
+    }
+  ],
+  "limit": "Ordinary mkdir only; no Btrfs ioctl, ro mount or privileged capability probe."
+}

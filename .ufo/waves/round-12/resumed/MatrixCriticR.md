@@ -235,3 +235,10 @@ Checked state: JSON mtime 00:56:35 and MD mtime 00:56:43 -0300. `json.load` exit
 - Residual 2 (Sources-owned, pending): the `SOURCES.md` S027 row anchor is still CAP_DAC_OVERRIDE-only (L33 at check time).
 
 **Outcome:** the SC10 misattribution is fixed. No blocking defect from my named list remains. Still **no PASS**: this is an author-side static check, and admission belongs to the parent.
+
+## 11. `source:` line re-check (appended 2026-10-20; §1–§10 unchanged)
+
+- The MD now has mtime 00:58:11 -0300, later than the 00:57:49 state checked in §10.
+- Line 1 now reads `S027 capabilities(7) — … § Capabilities list > CAP_DAC_OVERRIDE, § Thread capability sets > Effective/Bounding`. §10 Residual 1 is resolved.
+- Only the Sources-owned S027 row anchor in `SOURCES.md` remains pending.
+- Still **no PASS**: author-side static check; admission belongs to the parent.

@@ -145,11 +145,13 @@ session). No tool install or upgrade occurred, so no tool/version/channel line i
 2. **Man pages are mutable URLs.** Verification pins only the footer dates (`2026-02-08`,
    `systemd 262.1`, `2026-02-11`), not a blob/commit id; recheck cadence stays
    `on-release`/`180d` as recorded.
-3. **S028 row anchor is narrower than the matrix's use.** The row's anchor names
+3. **S027/S028 row anchors are narrower than the matrix's use.** S028's anchor names
    `CapabilityBoundingSet=`; the matrix also cites `ProtectSystem=`, `ReadWritePaths=` and
-   `ProtectHome=` from the same page. Those sentences were located this round (§2) and are
-   accurate, but the row's immutable anchor does not enumerate them; the matrix's own `source:`
-   header and §8 carry the section-level anchors.
+   `ProtectHome=` from the same page. S027's anchor names CAP_DAC_OVERRIDE; on 2026-10-20 the
+   matrix additionally cited § Thread capability sets > Effective and > Bounding, both located
+   in the reopened page. Those sentences are accurate, but the inherited anchors are immutable
+   here and do not enumerate them; the matrix's own `source:` header and §Sources carry the
+   section-level anchors, which satisfies section-level citation without editing the rows.
 4. **Issue state is a 2026-10-19 snapshot.** Both threads are open with maintainer-side
    replies; either can change before the 90d recheck, and neither may support a claim at
    tier C.

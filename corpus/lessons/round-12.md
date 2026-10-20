@@ -130,3 +130,41 @@ raw journal bodies outside the sanitized-metadata contract; L1 replaced those
 excerpts in inherited Issue6629/RootLive/MatrixCritic/C2Review and resumed
 Issue6629R/RootLiveR/OverlapHostR with dated aggregate findings. These edits
 sanitize unlanded evidence, not a rewrite of filed round history.
+
+## Gate — measured integration
+
+Path shorthand `resumed/` in this section denotes repo-relative
+`.ufo/waves/round-12/resumed/`.
+
+The final measured implementation is
+`70fede2a7a890cb50a72db2d4230ee541183bf7b`, not the earlier moving-review
+snapshots. L1's single shipping selftest: 97/97, exit 0, two named skips;
+live census exit 1, six-plane DEGRADED, one root-metadata record. Baseline
+`b76b5c3` had zero records and the presence predicate exited 1.
+Evidence: `resumed/{selftest-after,live-after,after}.json`.
+
+The policy correction is shown able to fail: the sole inserted automatic
+DEGRADED assignment in an isolated mutant produced exit 1 and four named
+failures, including the 0555 report-only finding; shipping code was not
+changed (`resumed/mode-policy-mutant.json`). A capture-script assertion
+initially looked on stdout instead of stderr; it was fixed from the retained
+output with no mutant rerun.
+
+The source-resolving branch counter gives 0→4, exits 0→0, and all criteria
+1–16 are explicitly evaluated. Fresh ordinary-mkdir controls returned errno
+13 for new-name 0555, errno 17 for existing-name 0555, and success for
+caller-owned 0755. These prove only those controls, not Btrfs causality:
+`resumed/count-commands.json`, `resumed/mkdir-controls.json`.
+
+Start source validation (both inherited first-wave and resumed captures):
+`tsukuroi ok /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md`,
+exit 0. End: same ok line, exit 0, plus W04 for S038's deliberate duplicate
+access(2) URL with corrected scope. Source rows: baseline 34 → inherited 37
+→ final 40; final tiers A35/B1/C4, statuses mined30/queued5/rejected5.
+The exact validator command and uncollapsed outputs are in
+`resumed/{before,sources-after,inheritance}.json`.
+
+Author-side admission supports C1/C2 with no measured code regression;
+non-author source/decision sampling and final hyaku adjudication remain
+required. SHONEN's four marks stay `[~]`. No service or filesystem repair,
+upgrade clearance, independent promotion or next-round execution is claimed.

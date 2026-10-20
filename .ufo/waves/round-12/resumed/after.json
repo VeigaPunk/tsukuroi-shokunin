@@ -1,0 +1,55 @@
+{
+  "author": "tsukuroi L1",
+  "measured_commit": "70fede2a7a890cb50a72db2d4230ee541183bf7b",
+  "script_sha256": "d17d32a35946c71c1fc195e36178aa383f4a04d7172cc579b6e9e25fa537f27e",
+  "C1_count": 1,
+  "C1_presence_predicate_exit": 0,
+  "packages_line": "PLANE packages: DEGRADED (pacman -Qkk rc=1 sample=8(1password-beta,1password-cli,7zip,aalib,abseil-cpp,acl,adwaita-cursors,adwaita-fonts) drift=2[1password-beta,1password-cli] backup_diffs=0 nonroot_artifacts=0; foreign=16(known=16 new=0 drift=0 gone=0) base=r6(16); pins=none; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0555 root_uid=0 root_gid=0 root_euid=1000 root_owner_write=absent root_owner_search=present root_report=owner-write-absent root_intent=not-assessed root_src=default root_dir=/)",
+  "C2_grounded_branches": [
+    "B1",
+    "B2",
+    "B3",
+    "B4"
+  ],
+  "C2_branch_count": 4,
+  "C2_scenarios": 10,
+  "QUALITY_evaluated": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
+  ],
+  "legacy_case_labels": 80,
+  "after_case_labels": 97,
+  "legacy_labels_missing": [],
+  "source_census": {
+    "rows": 40,
+    "tiers": {
+      "A": 35,
+      "B": 1,
+      "C": 4
+    },
+    "statuses": {
+      "mined": 30,
+      "queued": 5,
+      "rejected": 5
+    }
+  },
+  "count_commands": {
+    "C1": "bash tools/tsukuroi-census.sh; count the PLANE packages root_status=ok/root_mode/uid/gid/euid/owner-bit sequence (regex in this capture)",
+    "C2": "python -c 'import json; m=json.load(open(\"corpus/knowledge/root-dac-decision-r12.json\")); print(len(m[\"branches\"]))'",
+    "C2_grounding": "Parse SOURCES 11-column rows; for every branch require six nonempty fields and every source_id registered mined with matrix in used-by."
+  }
+}
