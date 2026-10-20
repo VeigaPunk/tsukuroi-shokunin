@@ -1,0 +1,121 @@
+MutSeatScope — round-19 seat-scope authorization mutation probe
+Model: openai-codex/gpt-6.1-sol
+Axes: calibration (authorization discrimination); operability (revision-bound fixture); byte-exact restoration and scope containment.
+Author-side draft evidence only; no integration, admission, shipment, or host-operability verdict.
+Assignment: one mutation of tools/check-seat-scope.py, with the same bounded detector on pristine, mutated, and restored bytes.
+
+PROVENANCE AND ISOLATION
+Source lane (read-only): /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+Requested baseline: 452a054677f6b18284917d7c08c45361f91c25ac
+mktemp -d stdout: /tmp/tmp.4NjsguiM4d
+Isolated sandbox: /tmp/tmp.4NjsguiM4d/lane
+Clone used --no-hardlinks; only sandbox master was set to the baseline; origin was removed before fixture commit.
+Fixture commit stdout: [master aa6e352] test: round-19 two-seat authorization mutation fixture
+Resolved fixture commit from all three gate outputs: aa6e352ae6dbc7acdc8376c123b198978b77d600
+All three gate outputs bind branch=master and branch_tip=revision=aa6e352ae6dbc7acdc8376c123b198978b77d600.
+Actual wave-shape reference: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-19/build/spec.json:2-10 (wave/context/reportDir/maxLanes/items; item name/role/prompt).
+No swarm registry is used; this probe exercises spec.json items with per-seat prompts, as requested.
+
+COMMITTED FIXTURE INPUTS
+Sandbox fixture directory: /tmp/tmp.4NjsguiM4d/lane/.ufo/waves/round-19/scope-fixture
+spec.json exact contents:
+{
+  "wave": "tsukuroi-r19-seat-scope-fixture",
+  "context": "Shared context may mention EXEC-AUTHORIZED, but authorization belongs to each item's prompt. These are fixture declarations, not command execution evidence.",
+  "reportDir": ".ufo/waves/round-19/scope-fixture",
+  "maxLanes": 2,
+  "items": [
+    {
+      "name": "AuthorizedSeat",
+      "role": "executor",
+      "prompt": "You are a Godspeed-enabled subagent.\nEXEC-AUTHORIZED: read-only git"
+    },
+    {
+      "name": "NoExecSeat",
+      "role": "reviewer",
+      "prompt": "You are a Godspeed-enabled subagent.\nNO-EXEC item"
+    }
+  ]
+}
+AuthorizedSeat.md exact contents:
+# AuthorizedSeat fixture
+
+Fixture declaration only; git log -1 is not executed by this probe.
+Scope: executed=git log -1
+NoExecSeat.md exact contents:
+# NoExecSeat fixture
+
+Fixture declaration only; git log -1 is not executed by this probe.
+Scope: executed=git log -1
+Both report files end with a newline. The declared git log -1 commands are fixture text, not commands actually executed by this seat.
+
+EXPECTED BOUNDED DETECTOR
+Same argv, cwd, fixture commit, expectation, and 30-second subprocess timeout in all phases; only gate working-copy bytes change.
+cwd: /tmp/tmp.4NjsguiM4d/lane
+argv: python3 /tmp/tmp.4NjsguiM4d/lane/tools/check-seat-scope.py --wave .ufo/waves/round-19/scope-fixture --revision aa6e352
+The --wave value is deliberately lane-relative because the gate requires it; actual read/write tool paths are absolute.
+Detector passes exactly when: exit=1; stderr empty; JSON status=FAIL; seat_count=2; unauthorized count=1; all three other scope counts=0; exactly one finding id=SCOPE-EXEC-UNAUTHORIZED at site=NoExecSeat.md with role=reviewer; revision starts aa6e352 and branch_tip equals revision.
+Baseline detector PASS is therefore an expected-red gate result, not a baseline detector failure.
+The authorized seat must have no finding. Shared context's marker must not authorize the NO-EXEC item's prompt.
+
+SINGLE MUTANT
+Sandbox path: /tmp/tmp.4NjsguiM4d/lane/tools/check-seat-scope.py:88
+Original:         if EXEC_MARK not in seat.prompt:
+Mutant:           if False:
+Plausible defect: authorization accidentally defaults to granted, bypassing the only unauthorized-declaration finding append.
+Only this behavior-bearing line was edited; the mutation was not committed. No sibling or lane-source file was mutated.
+
+PRISTINE OBSERVED OUTPUT
+exit_code=1
+stderr=""
+stdout:
+{"branch": "master", "branch_tip": "aa6e352ae6dbc7acdc8376c123b198978b77d600", "counts": {"SCOPE-EXEC-UNAUTHORIZED": 1, "SCOPE-REPORT-MISSING": 0, "SCOPE-TRAILER-MALFORMED": 0, "SCOPE-UNDECLARED": 0}, "evidence_class": "self-reported declarations; no independent absence-of-execution proof", "findings": [{"detail": "declared executed=git log -1 without EXEC-AUTHORIZED in the seat prompt", "id": "SCOPE-EXEC-UNAUTHORIZED", "role": "reviewer", "site": "NoExecSeat.md"}], "revision": "aa6e352ae6dbc7acdc8376c123b198978b77d600", "scope": "seat execution-scope declarations only; not a host, build or test verdict", "seat_count": 2, "status": "FAIL", "wave": ".ufo/waves/round-19/scope-fixture"}
+expected_red_detector=true
+
+MUTATED OBSERVED OUTPUT
+exit_code=0
+stderr=""
+stdout:
+{"branch": "master", "branch_tip": "aa6e352ae6dbc7acdc8376c123b198978b77d600", "counts": {"SCOPE-EXEC-UNAUTHORIZED": 0, "SCOPE-REPORT-MISSING": 0, "SCOPE-TRAILER-MALFORMED": 0, "SCOPE-UNDECLARED": 0}, "evidence_class": "self-reported declarations; no independent absence-of-execution proof", "findings": [], "revision": "aa6e352ae6dbc7acdc8376c123b198978b77d600", "scope": "seat execution-scope declarations only; not a host, build or test verdict", "seat_count": 2, "status": "PASS", "wave": ".ufo/waves/round-19/scope-fixture"}
+expected_red_detector=false
+
+RESTORED OBSERVED OUTPUT
+exit_code=1
+stderr=""
+stdout:
+{"branch": "master", "branch_tip": "aa6e352ae6dbc7acdc8376c123b198978b77d600", "counts": {"SCOPE-EXEC-UNAUTHORIZED": 1, "SCOPE-REPORT-MISSING": 0, "SCOPE-TRAILER-MALFORMED": 0, "SCOPE-UNDECLARED": 0}, "evidence_class": "self-reported declarations; no independent absence-of-execution proof", "findings": [{"detail": "declared executed=git log -1 without EXEC-AUTHORIZED in the seat prompt", "id": "SCOPE-EXEC-UNAUTHORIZED", "role": "reviewer", "site": "NoExecSeat.md"}], "revision": "aa6e352ae6dbc7acdc8376c123b198978b77d600", "scope": "seat execution-scope declarations only; not a host, build or test verdict", "seat_count": 2, "status": "FAIL", "wave": ".ufo/waves/round-19/scope-fixture"}
+expected_red_detector=true
+Restored stdout, stderr, and exit code exactly match pristine.
+
+HASHES AND RESTORATION
+Gate size before mutation: 31075 bytes.
+Gate SHA-256 pristine: add541d8b8d4ea7f4c38415bb31f5f9ffbcaeb177aebb2431239bbb489829dac
+Gate SHA-256 mutated:  2038c20005eaad627aeeeeafaa07ea41287907e04d7ebc88cd432bd8a45838c8
+Gate SHA-256 restored: add541d8b8d4ea7f4c38415bb31f5f9ffbcaeb177aebb2431239bbb489829dac
+Original bytes retained in memory before editing; restored_gate == original_gate observed true, not merely digest equality.
+Input hashes below were computed before the first run and after restoration; each before/after pair is equal.
+spec.json before=after SHA-256: 0cb6b5b7c109a1b80988e37fa43fdba29e4f004d949f859a1132fa8d07d98053
+AuthorizedSeat.md before=after SHA-256: 9b5d5df9da5982228a15148dad774cef919d78c61887d773666d05dcd95487fc
+NoExecSeat.md before=after SHA-256: efc324b028fa4ec4f0490a9609399c633959087b78ab46cb7cf68d40d649f40d
+All three subprocess stderr streams observed empty; no timeout or detector exception occurred.
+
+VERDICT AND REJECTIONS
+KILLED by the expected-red behavioral detector: pristine=true, mutated=false, restored=true.
+The mutated gate's green result is the intended counterexample, not a surviving mutant: the external expectation requires the NO-EXEC seat to be rejected.
+Rejected: interpreting the pristine gate's expected exit 1 as an inconclusive baseline failure.
+Rejected: inferring actual execution of either report's declared git log -1, authorization of the whole live wave, or independent proof that no command ran.
+Only the requested two-seat spec shape and one bypass defect were probed; no full-wave gate, --selftest, host probe, or alternate runtime was run.
+No tools were installed or updated. No host service, /boot, /etc, source-lane index/ref/jj state, or sibling repository was mutated.
+Outside the sandbox, writes were limited to this named evidence file and the assigned MutSeatScope.md report.
+
+DIRECT COMMAND INVENTORY (ACTUALLY RUN)
+mktemp -d
+git clone --no-hardlinks /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /tmp/tmp.4NjsguiM4d/lane
+git -C /tmp/tmp.4NjsguiM4d/lane checkout -B master 452a054677f6b18284917d7c08c45361f91c25ac
+git -C /tmp/tmp.4NjsguiM4d/lane remote remove origin
+git -C /tmp/tmp.4NjsguiM4d/lane add -f -- .ufo/waves/round-19/scope-fixture/spec.json .ufo/waves/round-19/scope-fixture/AuthorizedSeat.md .ufo/waves/round-19/scope-fixture/NoExecSeat.md
+git -C /tmp/tmp.4NjsguiM4d/lane -c user.name=tsukuroi-shokunin -c user.email=tsukuroi@shokunin.local -c commit.gpgsign=false -c core.hooksPath=/dev/null commit --no-verify -m 'test: round-19 two-seat authorization mutation fixture' -- .ufo/waves/round-19/scope-fixture/spec.json .ufo/waves/round-19/scope-fixture/AuthorizedSeat.md .ufo/waves/round-19/scope-fixture/NoExecSeat.md
+python3 /tmp/tmp.4NjsguiM4d/lane/tools/check-seat-scope.py --wave .ufo/waves/round-19/scope-fixture --revision aa6e352
+python3 /tmp/tmp.4NjsguiM4d/lane/tools/check-seat-scope.py --wave .ufo/waves/round-19/scope-fixture --revision aa6e352
+python3 /tmp/tmp.4NjsguiM4d/lane/tools/check-seat-scope.py --wave .ufo/waves/round-19/scope-fixture --revision aa6e352
+Non-shell work: read/grep/glob/write tools; exact one-line edit and restoration; in-memory hashlib checks, JSON parsing, bounded subprocess invocations, and expectation evaluation via the existing Python eval kernel.

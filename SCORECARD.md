@@ -581,3 +581,24 @@ Unworked ordinal axes coverage9/calibration9/adjacency8 remain unchanged, not ne
 
 - **planned (current):** hand off this complete externally steered round18 to non-author closure; prior operator recovery/preservation decisions stay operator-owned. No round19 is started.
 - **retired:** none.
+
+## Round 19 — adjacency anchors, /boot writer attribution, registry coverage (2026-10-20)
+
+Immutable baseline `452a054677f6b18284917d7c08c45361f91c25ac`. Ordinals at baseline: depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8; lowest non-retired are depth and adjacency (tied 8). Stagnation nudge does not apply (not every axis ≥ 9; last capability row round 17, window 3). Three declared, causally separable claims on distinct axes, each with its own registry/knowledge/tool:
+
+| Claim | Axis | Falsifiable before → after (counting command) |
+|---|---|---|
+| C1 bidirectional adjacency anchors | adjacency (tied-lowest 8) | `outbound_portable` 0 → 10 (each PROVINCE.md sibling ownership pointer anchored by exact heading + ≤25-word quote + pinned sibling commit/blob digest, published in an appended PROVINCE section) and `inbound_classified` 0 → 114 (every line-numbered sibling pointer into tsukuroi files classified RESOLVES/DRIFTED/UNRESOLVABLE against the lane tip, operative drifts packaged as owner handoffs); `python3 tools/check-adjacency-anchors.py --revision <REV> [--registry-from <TARGET>]` |
+| C2 /boot writer attribution (sourced) | depth (tied-lowest 8) | `attributed_events` 0 → 12 (every `Updated: /boot/limine.conf` line the gate itself enumerates in the round-19 read-only captures bound to one writer class with mechanism line, signature, SOURCES rows and published knowledge); `python3 tools/check-boot-writers.py --revision <REV> [--registry-from <TARGET>]` |
+| C3 registry ↔ tools agreement | calibration | baseline-tool registry `missing` 1 → 0 (tools/_revision.py unregistered, round-18 closure defect 2) with kind/self-test/verdict-map consistency findings 0; discovered tools reported separately; `python3 tools/check-registry-coverage.py --revision <REV> [--baseline-tools <BASE>]` |
+
+Sourced claim: C2 rests on rows opened this round (own-work captures `.ufo/waves/round-19/l1-capture/host-capture-r19{,b,c}.txt` and upstream docs). No exploratory claim, no capability preclaimed, no ordinal uplift preclaimed. L1 holds the planner seat; the planning data-walk rides connector ConnPlannerWalk. Build wave: 68 seats in one validated call (`.ufo/waves/round-19/build/`).
+
+- **planned (current):** land C1–C3 and the routed round-18 defects (seat-scope declarations green at dispatch, `_revision.py` row, every L1 host read inside the committed captures, canonical load order first, `/boot` automation expected); measured verdicts follow integration; independent closure decides admission. No round 20 is started.
+- **retired:** none. Saturation 9 / window 3 unchanged.
+
+### Round19 declaration refinements from the build wave (appended; the declaration above stands as written)
+
+- C2 count: the declared 0 → 12 omitted the 2026-10-11 ALPM-SCRIPTLET update (pacman.log 2021, in the declared whole-log grep `host-capture-r19b.txt:1688-1704`); the gate enumerates its denominator itself and the measured target is `attributed_events` 13 of `events_total` 13 (ScribeWritersEntry, CritWritersCircular; lesson R19-DECLARED-COUNT). Event sources: the journal json probe (`host-capture-r19c.txt:5`, since 2026-10-19 00:00) and the whole-log pacman.log grep; their windows differ and are stated.
+- C1 wording: `inbound_classified` counts line-numbered, repo-prefixed sibling pointers in committed sibling tips (ReviewCensusExtract); 25 operative and 89 historical are reported separately (CritAdjVacuity), and only operative drifts become handoffs. Census v2 corrects four en-dash ranges at the v1-pinned tips.
+- C3 separability: the counting command is `--baseline-tools 452a054…`, so `baseline_tools_missing` grades only the 14 baseline tools; the three new gates are reported as `discovered_tools` (CritCalibrationAxis). Kind/verdict-map semantics are not gated; the four corrected cells are source-reviewed only.

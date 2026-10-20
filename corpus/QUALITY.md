@@ -38,3 +38,39 @@
 28. **One revision implementation, independent judge (R18-COPY-DIVERGENCE):** every lane gate imports `tools/_revision.py` for branch/revision checks; malformed branches precede revision errors, missing branches have their own id, merge-base errors are never non-ancestry, and first failure produces exactly one binding finding. Keep the measuring judge independent of that module and retain probes for all six round17 divergences; report original-nine continuity separately from newly discovered tools. Lesson: `corpus/lessons/round-18.md` § Mistakes; same evaluator rejects baseline842a531 (consistent1/9 despite bound9/9).
 29. **Final evidence covers the final landing (R18-REPORT-TAIL):** a round's report names every late lane commit and reconciles delivered/dead seats from the final registry/report set, preserving interim outcomes as dated interim records. No remaining "running" label is silently carried as final completion. Lesson: `corpus/lessons/round-18.md` § Mistakes; outside round17 defects1/8.
 30. **Whole-proposition capture locators (R18-BOOT-LOCATORS):** a plural image-equality statement cites each image's digest rows, and timestamps bind the actual image path rather than a same-hash history copy. Named count corrections include the exact counted argv or other finite input set. Old bytes remain with a named appended correction. Lesson: `corpus/lessons/round-18.md` § Mistakes; outside round17 defect3.
+
+31. **Seat execution class is fixed at dispatch (R19-SEAT-DECLARE):** every dispatched item names its
+execution class before delivery — `EXEC-AUTHORIZED` with the exact commands, or `NO-EXEC` with
+read/grep/glob only and the literal trailer `Scope: executed=none`. A wave is green only when
+`tools/check-seat-scope.py` at the landed revision reports zero `EXEC-UNAUTHORIZED`, `SCOPE-UNDECLARED`
+and `TRAILER-MALFORMED` for build and falsify, and `REPORT-MISSING` only for seats recorded dead with
+their provider outcome (QUALITY29). Authorization added after delivery,
+reclassifying a disclosed command as read-only, or rewriting a trailer does not clear the seat; the
+deviation stays recorded. Falsified by: dispatching any item with no class, or an `EXEC-AUTHORIZED`
+item whose report lists an unlisted command, and the gate not exiting non-zero. Lesson:
+`corpus/lessons/round-19.md` § Mistakes, R19-SEAT-DECLARE (scope); baseline red
+`round-18-verifier-spotcheck.md:256-259` (build 37/1/4/2, falsify 9/0/0/2).
+32. **Sibling ownership is cited by portable anchor, not line range (R19-ADJ-POINTERS):** each of the 10
+outbound ownership pointers in `PROVINCE.md` (:33, :46-52) publishes the pinned sibling commit, the
+exact heading, an exact ≤25-word quote and the sibling blob sha256; each inbound sibling pointer into
+a lane file carries a found_line and a RESOLVES/DRIFTED/UNRESOLVABLE class. A bare `path:N-M` is not a
+locator: it is red when the quote is absent from the pinned blob even if the range still holds text,
+and a quote found at another line is DRIFTED and handed to the owner, never repaired in the sibling.
+Falsified by: moving the quoted sentence one paragraph, or advancing the sibling commit — the anchor
+must still resolve by quote plus blob while the line range alone misses it. Lesson:
+`corpus/lessons/round-19.md` § Mistakes, R19-ADJ-POINTERS (reference-drift); live drift
+`round-18-verifier-spotcheck.md:269-270` (mori `PROVINCE:66` → tsukuroi ADJ-04 now `PROVINCE:49`);
+the drift warning already sits at `PROVINCE.md:70-73`.
+33. **Known `/boot` writers are attributed before a write is a finding (R19-BOOT-ATTRIBUTION):** a boot-plane
+audit reports a `/boot/limine.conf` write only with writer class, mechanism file:line, unit/hook
+identity and event timestamp. Known scheduled writers are the `snapper-cleanup.service` drop-in
+`ExecStopPost=limine-snapper-sync` (`host-capture-r19.txt:256-260`) under `snapper-cleanup.timer`
+`OnUnitActiveSec=1h` (:221-231), the snapper plugin's transient `limine-snapper-add-*` `systemd-run`
+units (`host-capture-r19b.txt:1093-1245`), and pacman's `90-mkinitcpio-install.hook` →
+`limine-mkinitcpio-install` (`host-capture-r19.txt:346-409`; ALPM-SCRIPTLET writes at pacman.log 2021, 3015, 3047 = `host-capture-r19b.txt:1695,1700,1702`). A write matching a
+known writer is expected automation, not evidence of interference; an unattributed unit, a failed
+run, or a write without a matching timer or hook remains a finding. Falsified by: filing the hourly
+10:07–17:07 `snapper-cleanup.service` writes (`host-capture-r19c.txt:13-20`) as unexplained, or the
+audit still attributing those writes after the drop-in and timer are removed. Lesson:
+`corpus/lessons/round-19.md` § Mistakes, R19-BOOT-ATTRIBUTION (attribution); round-18
+recorded the rewrite as expected automation at `round-18-verifier-spotcheck.md:206-208,271-273`.

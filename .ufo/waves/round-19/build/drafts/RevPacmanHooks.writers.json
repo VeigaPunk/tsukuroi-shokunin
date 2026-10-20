@@ -1,0 +1,75 @@
+[
+  {
+    "id": "W-MKINITCPIO-HOOK",
+    "hook": "/etc/pacman.d/hooks/90-mkinitcpio-install.hook",
+    "signature": {
+      "trigger_groups": [
+        {"type": "Path", "operations": ["Install", "Upgrade", "Remove"], "targets": ["usr/lib/initcpio/*", "usr/lib/firmware/*", "usr/lib/modules/*/extramodules/", "usr/src/*/dkms.conf", "usr/lib/systemd/systemd", "usr/bin/cryptsetup", "usr/bin/lvm"]},
+        {"type": "Path", "operations": ["Install", "Upgrade"], "targets": ["usr/lib/modules/*/modules.builtin"]},
+        {"type": "Package", "operations": ["Install", "Upgrade"], "targets": ["mkinitcpio", "mkinitcpio-git"]}
+      ],
+      "when": "PostTransaction",
+      "exec": "/usr/share/libalpm/scripts/limine-mkinitcpio-install"
+    },
+    "mechanism": "limine-mkinitcpio-install builds/copies UKIs to /boot/EFI/Linux and updates /boot/limine.conf; those effects are recorded as ALPM-SCRIPTLET output during this hook's run.",
+    "window_status": "Observed two /boot/limine.conf updates (pacman.log 3015 and 3047) and two UKI copies; attribution to this hook is mechanism-correlated, not a direct process identity.",
+    "evidence": [
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt", "line": 1458, "quote": "Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-install"},
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt", "line": 1698, "quote": "2983:[2026-10-20T09:18:13-0300] [ALPM] running '90-mkinitcpio-install.hook'..."},
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt", "line": 577, "quote": "3014:[2026-10-20T09:18:18-0300] [ALPM-SCRIPTLET] Copied: /tmp/limine-mkinitcpio.Av83zz/linux-lts.efi -> /boot/EFI/Linux/omarchy_linux-lts.efi"},
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt", "line": 578, "quote": "3015:[2026-10-20T09:18:18-0300] [ALPM-SCRIPTLET] Updated: /boot/limine.conf"},
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt", "line": 596, "quote": "3046:[2026-10-20T09:18:23-0300] [ALPM-SCRIPTLET] Copied: /tmp/limine-mkinitcpio.Av83zz/linux.efi -> /boot/EFI/Linux/omarchy_linux.efi"},
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt", "line": 597, "quote": "3047:[2026-10-20T09:18:24-0300] [ALPM-SCRIPTLET] Updated: /boot/limine.conf"}
+    ]
+  },
+  {
+    "id": "W-LIMINE-EFI-COPY",
+    "hook": "/etc/pacman.d/hooks/99-limine.hook",
+    "signature": {
+      "operations": ["Install", "Upgrade"],
+      "target": "limine",
+      "when": "PostTransaction",
+      "exec": "/bin/sh -c \"/usr/bin/cp /usr/share/limine/BOOTIA32.EFI /boot/EFI/BOOT/ && /usr/bin/cp /usr/share/limine/BOOTX64.EFI /boot/EFI/BOOT/\""
+    },
+    "mechanism": "Copies Limine EFI binaries into /boot/EFI/BOOT/; this hook does not identify a limine.conf write.",
+    "window_status": "Hook invocation observed; individual copy completion is not shown in the captured log excerpt and no limine.conf event is attributed to it.",
+    "evidence": [
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt", "line": 1469, "quote": "Exec = /bin/sh -c \"/usr/bin/cp /usr/share/limine/BOOTIA32.EFI /boot/EFI/BOOT/ && /usr/bin/cp /usr/share/limine/BOOTX64.EFI /boot/EFI/BOOT/\""},
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt", "line": 1703, "quote": "3050:[2026-10-20T09:18:24-0300] [ALPM] running '99-limine.hook'..."}
+    ]
+  },
+  {
+    "id": "W-LIMINE-EFI-DEPLOY",
+    "hook": "/usr/share/libalpm/hooks/80-limine-efi-deploy.hook",
+    "signature": {
+      "operations": ["Install", "Upgrade"],
+      "targets": ["limine", "limine-git", "limine-dev", "limine-mkinitcpio-hook", "limine-mkinitcpio-hook-git"],
+      "when": "PostTransaction",
+      "exec": "/usr/bin/limine-install"
+    },
+    "mechanism": "Runs limine-install for Limine package deployment to the EFI system partition; the captured README describes limine-install as installing Limine to the boot partition.",
+    "window_status": "Hook invocation observed; no /boot/limine.conf event is attributed to this class.",
+    "evidence": [
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt", "line": 1428, "quote": "Exec = /usr/bin/limine-install"},
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt", "line": 1697, "quote": "2977:[2026-10-20T09:18:13-0300] [ALPM] running '80-limine-efi-deploy.hook'..."},
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt", "line": 1543, "quote": "1. Run 'limine-install' to install Limine to '$ESP_PATH/EFI/limine/limine_x86.efi' (for x86_64 UEFI systems)."}
+    ]
+  },
+  {
+    "id": "W-KERNEL-REMOVE",
+    "hooks": ["/usr/share/libalpm/hooks/60-limine-mkinitcpio-remove-pre.hook", "/usr/share/libalpm/hooks/90-limine-mkinitcpio-remove-post.hook"],
+    "signature": {
+      "trigger": "Remove usr/lib/modules/*/modules.builtin",
+      "when": ["PreTransaction", "PostTransaction"],
+      "exec": ["/usr/share/libalpm/scripts/limine-mkinitcpio-remove pre", "/usr/share/libalpm/scripts/limine-mkinitcpio-remove post"]
+    },
+    "mechanism": "Remove-only pre/post hooks delegate to limine-mkinitcpio-remove; no /boot/limine.conf update is evidenced in the captured transaction window.",
+    "window_status": "Dormant in the captured install/upgrade event excerpt; no matching removal-hook invocation was found in the captures.",
+    "evidence": [
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt", "line": 354, "quote": "/usr/share/libalpm/hooks/60-limine-mkinitcpio-remove-pre.hook:Operation = Remove"},
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt", "line": 357, "quote": "/usr/share/libalpm/hooks/60-limine-mkinitcpio-remove-pre.hook:Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-remove pre"},
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt", "line": 368, "quote": "/usr/share/libalpm/hooks/90-limine-mkinitcpio-remove-post.hook:Operation = Remove"},
+      {"capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt", "line": 371, "quote": "/usr/share/libalpm/hooks/90-limine-mkinitcpio-remove-post.hook:Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-remove post"}
+    ]
+  }
+]

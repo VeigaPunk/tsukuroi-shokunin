@@ -1,0 +1,11 @@
+# Round-19 L1 capture safety review
+
+Axes: read-only probe execution; secret hygiene; operator-history minimization.
+
+- **Read-only probes — PASS [obs].** Scripts run fixed `date`/`uname`/`ls`/`grep`/`cat`/`file`/`stat`/`journalctl`/`wc`/`tail` and systemctl inspection commands; no probe invokes pacman, checkupdates, yay, paru, mkinitcpio, limine-update, limine-snapper-sync, sudo, or a service state change. `stat` only requests `/boot` metadata; no `/boot` write occurs. Evidence: `l1-capture/capture-r19.sh:8-34`, `capture-r19b.sh:6-22`, `capture-r19c.sh:9-21`. The `systemctl enable --now` text at `host-capture-r19b.txt:183` is copied README content, not a probe. Likewise the historical systemctl command at `host-capture-r19c.txt:32` is a filtered journal record, not an invocation by capture.
+- **MEDIUM — redact extra operator history [obs].** `host-capture-r19.txt:527-535,538-539,542,544,549-555,557` retains sudo `COMMAND=` history outside the snapper/systemctl-only selection intentionally kept by capture-c. It exposes user/host names, working directories (including `Documents/nvhelpme`), timestamps, and prior `/boot/limine.conf` reads. The broad journal query is `capture-r19.sh:30`. Impact: unnecessary operator/workspace profiling if committed. Smallest remediation: remove/filter these sudo records; preserve the Limine/systemd writer events. The intended narrower selection is visible at `capture-r19c.sh:18-19`.
+- **LOW — redact host-specific identifiers for public commits [obs][inf].** `host-capture-r19.txt:421` exposes the root `PARTUUID`; boot-history events expose a repeated 32-hex directory identifier at `host-capture-r19c.txt:23-24,39-41` and `host-capture-r19b.txt:1635-1638`. These are not credentials, but appear host/volume-specific and enable correlation. Mask the identifiers unless needed for the evidence.
+- **Credential/key scan — no markers observed [obs].** Targeted scans of `host-capture-r19.txt:1-613`, `host-capture-r19b.txt:1-1704`, and `host-capture-r19c.txt:1-70` found no credential, token, vault-reference, or private-key material. The sole “password” match is generic README text about graphical prompts (`host-capture-r19b.txt:67-70`); keep.
+
+Answering model: openai-codex/gpt-6-luna
+Scope: executed=none

@@ -1,0 +1,165 @@
+[
+  {
+    "id": "W-WATCHER",
+    "writer_class": "limine-snapper-sync.service (Type=simple, ExecStart=limine-snapper-watcher, enabled)",
+    "unit_evidence": {
+      "quote": "ExecStart=limine-snapper-watcher",
+      "path": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+      "line": 160,
+      "enabled_quote": "limine-snapper-sync.service    enabled  disabled",
+      "enabled_line": 192
+    },
+    "status": "dormant",
+    "attributed_events": 0,
+    "capture_window": "2026-10-19T00:00 -03 through 2026-10-20T17:58:55-03:00 (host-capture-r19c.txt:2-4)",
+    "mechanism": "The watcher never writes /boot itself; it only launches limine-snapper-sync children: (a) one initial sync when /.snapshots is missing, (b) an inotifywait create/delete monitor loop spawning --add/--debounce syncs.",
+    "mechanism_evidence": [
+      {
+        "tag": "obs",
+        "fact": "initial-sync branch",
+        "quote": "echo $\"Directory $WATCH_DIR does not exist. limine-snapper-sync is triggered to initialize a snapper config for $WATCH_DIR.\"",
+        "path": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+        "line": 1361,
+        "invocation_quote": "\"${SYNC_CMD[@]}\"",
+        "invocation_line": 1362
+      },
+      {
+        "tag": "obs",
+        "fact": "monitor loop and child launches",
+        "quote": "inotifywait -q -m -e create -e delete --format '%e|%f' \"${WATCH_DIR}\" | while IFS='|' read -r event snapID; do",
+        "path": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+        "line": 1371,
+        "add_quote": "\"${SYNC_CMD[@]}\" --add \"$snapID\" &",
+        "add_line": 1376,
+        "debounce_quote": "\"${SYNC_CMD[@]}\" --debounce &",
+        "debounce_line": 1378
+      }
+    ],
+    "why_dormant": [
+      {
+        "cause": "inotifywait not installed: watcher exits 0 before entering the monitor loop at every in-window start",
+        "evidence": [
+          {
+            "tag": "obs",
+            "quote": "if ! command -v inotifywait &>/dev/null; then",
+            "path": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+            "line": 1365
+          },
+          {
+            "tag": "obs",
+            "quote": "info_msg $\"inotifywait is not installed. Falling back to Snapper plugin integration.\"",
+            "path": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+            "line": 1366
+          },
+          {
+            "tag": "obs",
+            "quote": "exit 0",
+            "path": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+            "line": 1367
+          },
+          {
+            "tag": "obs",
+            "fact": "logged at all six in-window watcher instances (PIDs 1372, 1386, 1394, 1392, 10021, 1385)",
+            "quote": "2026-10-19T08:11:47-03:00 plazir27 limine-snapper-watcher[1372]: inotifywait is not installed. Falling back to Snapper plugin integration.",
+            "path": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+            "lines": [1645, 1655, 1665, 1675, 1678, 1683]
+          },
+          {
+            "tag": "obs",
+            "fact": "loop-only cleanup-lock skip never reached; no [EVENT]/[SKIP] journal line in any capture",
+            "quote": "info_msg $\"[SKIP] Cleanup lock is active, skipping sync\"",
+            "path": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+            "line": 1374,
+            "lock_check_line": 1373,
+            "lock_source_quote": "ExecStartPre=-touch /run/limine-snapper-cleanup.lock",
+            "lock_source_path": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+            "lock_source_line": 258
+          }
+        ]
+      },
+      {
+        "cause": "the watcher's only other /boot-capable path, the initial-sync child, failed before any /boot write; after the config was created manually the branch no longer triggers",
+        "evidence": [
+          {
+            "tag": "obs",
+            "quote": "2026-10-19T22:48:23-03:00 plazir27 limine-snapper-watcher[1386]: Directory /.snapshots does not exist. limine-snapper-sync is triggered to initialize a snapper config for /.snapshots.",
+            "path": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+            "lines": [1647, 1657, 1667]
+          },
+          {
+            "tag": "obs",
+            "quote": "Btrfs.cc(createConfig):139 create subvolume failed, btrfs_util_create_subvolume_fd() failed, errno:13 (Permission denied)",
+            "path": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+            "lines": [1650, 1660, 1670]
+          },
+          {
+            "tag": "obs",
+            "quote": "Failed: \"snapper --no-dbus -c root create-config /\" with exit code: 1",
+            "path": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+            "lines": [1652, 1662, 1672]
+          },
+          {
+            "tag": "obs",
+            "fact": "operator created the root config manually; /.snapshots exists thereafter and later watcher starts log no initial-sync line",
+            "quote": "2026-10-20T09:03:02-03:00 plazir27 sudo[5733]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c root create-config /",
+            "path": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+            "line": 27
+          }
+        ]
+      },
+      {
+        "cause": "unit attribution: all 10 in-window 'Updated: /boot/limine.conf' journal rows carry _SYSTEMD_UNIT snapper-cleanup.service (8) or limine-snapper-add-1-5846/limine-snapper-add-2-260668.service (2); none carries limine-snapper-sync.service, which a watcher-spawned child would inherit",
+        "evidence": [
+          {
+            "tag": "obs",
+            "quote": "2026-10-20T09:03:03 5929 limine-snapper- limine-snapper-add-1-5846.service /system.slice/limine-snapper-add-1-5846.service Updated: /boot/limine.conf",
+            "path": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+            "line": 11,
+            "table_lines": "11-20"
+          },
+          {
+            "tag": "obs",
+            "quote": "2026-10-20T17:07:16 1600808 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service Updated: /boot/limine.conf",
+            "path": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+            "line": 20
+          }
+        ]
+      }
+    ],
+    "rejected": [
+      {
+        "claim": "sync[5929]/sync[260715] Copied/Saved/Updated /boot lines are watcher activity",
+        "verdict": "rejected: their _SYSTEMD_UNIT is limine-snapper-add-1-5846.service / limine-snapper-add-2-260668.service (snapper plugin systemd-run units), not limine-snapper-sync.service",
+        "evidence": {
+          "tag": "obs",
+          "path": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+          "lines": [11, 12]
+        }
+      }
+    ],
+    "unknowns": [
+      {
+        "fact": "why a second watcher instance (PID 10021) started mid-boot at 2026-10-20T09:10:54; Restart=on-failure does not restart an exit-0 watcher and no captured line shows a restart/enable trigger",
+        "tag": "unk",
+        "path": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+        "line": 1678
+      }
+    ],
+    "activation_conditions": [
+      {
+        "condition": "install inotify-tools (provides inotifywait): the r19b:1365 check passes, the watcher stays resident in the monitor loop, and each /.snapshots create/delete spawns a limine-snapper-sync --add/--debounce child that writes /boot (suppressed only while /run/limine-snapper-cleanup.lock exists)",
+        "tag": "inf",
+        "basis": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt:1365-1378"
+      },
+      {
+        "condition": "remove /.snapshots again: the initial-sync branch fires at every service start and, with the root snapper config now present, the spawned sync would proceed past the point where it previously failed and write /boot",
+        "tag": "inf",
+        "basis": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt:1360-1362"
+      }
+    ],
+    "notes": [
+      "Upstream changelog corroborates the fallback as designed behavior: 'inotifywait' fallback now shows an info message instead of a warning when Snapper plugin integration is active. (host-capture-r19b.txt:989)",
+      "Watcher's other startup work touches only /tmp and the pacman lock, never /boot (host-capture-r19b.txt:1357, copy_config_if_needed)."
+    ]
+  }
+]

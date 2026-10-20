@@ -1,0 +1,108 @@
+{
+  "id": "W-SNAPPER-PLUGIN",
+  "name": "Snapper plugin /usr/lib/snapper/plugins/10-limine-snapper-sync",
+  "trigger": "create-snapshot-post, delete-snapshot-post, and modify-snapshot-post for SUBVOLUME=/; create requires snapshot metadata and skips writable-copy snapshots; add/delete skip if the sync service or watcher is active.",
+  "mechanism_refs": [
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1111,
+      "quote": "[[ \"$SUBVOLUME\" != \"/\" ]] && exit 0"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1143,
+      "quote": "if [[ ! -f \"$xml\" ]]; then"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1152,
+      "quote": "if [[ \"$desc\" =~ ^writable[[:space:]]+copy[[:space:]]+of[[:space:]]+\\#([0-9]+)$ ]]; then"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1160,
+      "quote": "if [[ \"$op\" == \"add\" || \"$op\" == \"delete\" ]]; then"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1162,
+      "quote": "systemctl is-active --quiet limine-snapper-sync.service"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1166,
+      "quote": "pgrep -f \"limine-snapper-watcher\""
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1175,
+      "quote": "if [[ \"$op\" == \"delete\" || \"$op\" == \"modify\" ]]; then"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1178,
+      "quote": "cmd+=(--add \"$id\")"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1185,
+      "quote": "--unit=\"limine-snapper-${op}-${SNAP_ID}-$$\""
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1189,
+      "quote": "elif command -v setsid &>/dev/null; then"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1191,
+      "quote": "setsid \"${cmd[@]}\" &>/dev/null &"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1192,
+      "quote": "else"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1194,
+      "quote": "\"${cmd[@]}\" &>/dev/null &"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1228,
+      "quote": "create-snapshot-post"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1229,
+      "quote": "run_sync add \"${SNAP_ID}\""
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1231,
+      "quote": "delete-snapshot-post"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1232,
+      "quote": "run_sync delete \"${SNAP_ID}\""
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1234,
+      "quote": "modify-snapshot-post"
+    },
+    {
+      "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+      "line": 1235,
+      "quote": "run_sync modify \"${SNAP_ID}\""
+    }
+  ],
+  "signature": {
+    "kind": "journal-unit-regex",
+    "value": "^limine-snapper-(add|delete|modify)-[0-9]+-[0-9]+\\.service$"
+  },
+  "writes": ["/boot/limine.conf"],
+  "events": [11, 12]
+}

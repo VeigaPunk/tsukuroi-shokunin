@@ -1,0 +1,11 @@
+# C2 event-unit attribution review
+
+Model: openai-codex/gpt-6-luna
+
+- **09:03:03 (PID 5929), 09:29:19 (PID 260715): [obs]** Both rows report `limine-snapper-add-*` as `_SYSTEMD_UNIT` and `/system.slice/limine-snapper-add-*` as `_SYSTEMD_CGROUP`; writer class is the transient systemd unit. The plugin’s `systemd-run --unit="limine-snapper-${op}-${SNAP_ID}-$$"` source matches those names (capture: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-19/l1-capture/host-capture-r19c.txt:11-12`; `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-19/l1-capture/host-capture-r19b.txt:1183-1195`).
+- **10:07:03, 11:07:04, 12:07:07, 13:07:10, 14:07:12, 15:07:12, 16:07:16, 17:07:16: [obs]** All eight rows explicitly report `_SYSTEMD_UNIT=snapper-cleanup.service` and `_SYSTEMD_CGROUP=/system.slice/snapper-cleanup.service`. The captured drop-in sets `ExecStopPost=limine-snapper-sync` (`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-19/l1-capture/host-capture-r19c.txt:13-20`; `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-19/l1-capture/host-capture-r19.txt:256-260`). Thus service-cgroup membership is observed, not assumed from generic ExecStopPost semantics; the configured mechanism matches the writer. Cleanup ordering is also visible at `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-19/l1-capture/host-capture-r19.txt:442-523`.
+- **09:18:18 and 09:18:24: [obs]/[inf]** Lines 3015 and 3047 directly label both `/boot/limine.conf` updates `[ALPM-SCRIPTLET]` (`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-19/l1-capture/host-capture-r19.txt:576-598`). That supports the ALPM scriptlet writer class [obs]. The `90-mkinitcpio-install.hook` is configured to execute `/usr/share/libalpm/scripts/limine-mkinitcpio-install` post-transaction (`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-19/l1-capture/host-capture-r19.txt:389-398`), but tying each output line specifically to that hook is [inf]: the ALPM-SCRIPTLET tag does not identify the invoking hook or process.
+
+No journal event has a mismatched unit/cgroup attribution. Do not present the exact hook identity for the two ALPM lines as directly observed.
+
+Scope: executed=none

@@ -1,0 +1,66 @@
+# MutExecLogR19 — bounded exec-log mutation probe
+Model: openai-codex/gpt-6.1-sol
+Axes: operability (round-19 capture compatibility); calibration (forbidden direct and wrapped probes); safety constraint (byte-exact restoration).
+Role: mutation tester; author-side evidence only, no admission/integration authority.
+Source: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-19/l1-capture/host-capture-r19.txt
+Immutable baseline: 452a054677f6b18284917d7c08c45361f91c25ac
+Sandbox: /tmp/tmp.JyMbefGSZw/lane; clone uses --no-hardlinks; origin removed.
+Detector source unchanged from the immutable baseline; only the copied host-capture-r19.txt was changed.
+Expected detector: pristine PASS; appended probes FAIL with EXEC-STEER-VIOLATION at each appended line; restored PASS.
+No forbidden probe was executed: the two $ lines below were inserted as inert capture text via the edit tool.
+
+## Authorized sandbox setup — actual command/output
+$ mktemp -d
+/tmp/tmp.JyMbefGSZw
+$ git clone --no-hardlinks /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /tmp/tmp.JyMbefGSZw/lane && git -C /tmp/tmp.JyMbefGSZw/lane checkout -B master 452a054677f6b18284917d7c08c45361f91c25ac && git -C /tmp/tmp.JyMbefGSZw/lane remote remove origin && cp /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-19/l1-capture/host-capture-r19.txt /tmp/tmp.JyMbefGSZw/lane/host-capture-r19.txt
+Cloning into '/tmp/tmp.JyMbefGSZw/lane'...
+done.
+Reset branch 'master'
+Your branch is up to date with 'origin/master'.
+The checkout message preceded removal of origin. Master is used so the revision-binding gate can validate each fixture commit.
+All following commands ran with cwd=/tmp/tmp.JyMbefGSZw/lane. --exec-log is intentionally lane-relative because that CLI requires a repository-relative committed path.
+All fixture commits used: git -c user.name=tsukuroi-shokunin -c user.email=tsukuroi@shokunin.local -c core.hooksPath=/dev/null -c commit.gpgsign=false commit -m <message> -- /tmp/tmp.JyMbefGSZw/lane/host-capture-r19.txt
+Each commit was preceded by: git add /tmp/tmp.JyMbefGSZw/lane/host-capture-r19.txt
+
+## Pristine fixture — actual output
+Commit message: round19 mutation probe: pristine capture
+[master b102407] round19 mutation probe: pristine capture
+ 1 file changed, 613 insertions(+)
+ create mode 100644 host-capture-r19.txt
+Pristine/source SHA256: 2b1dc96a80781d6994ab42de934bcb548f32b9fc529461b719168f301924fbce; bytes=36004; lines=613; copied bytes equal source bytes.
+$ python3 tools/check-recheck-commands.py --revision b102407 --exec-log host-capture-r19.txt
+{"branch": "master", "branch_tip": "b10240740ea68b010278ac174c63c1cae3501396", "clean_count": 21, "exec_violation_count": 0, "file_count": 37, "findings": [], "flagged_count": 0, "forbidden": ["pacman", "checkupdates", "yay", "paru", "mkinitcpio", "limine-update"], "invocation_count": 81, "origin_tip": null, "pointer_section_count": 42, "resolved_count": 16, "revision": "b10240740ea68b010278ac174c63c1cae3501396", "scope": "last recheck: line, its same-file section pointers and the operative R17/R18 steer-safe section; read-only, no host action taken", "status": "PASS"}
+Observed shell result: successful completion (no numeric exit field supplied by the tool); gate status PASS; exec_violation_count=0.
+
+## One capture mutant — actual output
+Mutation: append exactly 50 bytes (two lines), leaving all original 613 lines and the detector unchanged.
+At capture line 614: $ pacman -Qi limine
+At capture line 615: $ bash -c 'pacman -Q snapper'
+Commit message: round19 mutation probe: direct and shell-wrapped forbidden probes
+[master b8b7e34] round19 mutation probe: direct and shell-wrapped forbidden probes
+ 1 file changed, 2 insertions(+)
+Mutant SHA256: ba0769bfd6ee96b9ba2fb69326cf186dcb64f1fd5ce6c435796f30886834fa6e; bytes=36054; lines=615.
+$ python3 tools/check-recheck-commands.py --revision b8b7e34 --exec-log host-capture-r19.txt
+{"branch": "master", "branch_tip": "b8b7e34ceed06392f8b991c8b63f5a4221ac3aa6", "clean_count": 21, "exec_violation_count": 2, "file_count": 37, "findings": [{"detail": "executed command invokes pacman", "id": "EXEC-STEER-VIOLATION", "site": "host-capture-r19.txt:614"}, {"detail": "executed command invokes pacman", "id": "EXEC-STEER-VIOLATION", "site": "host-capture-r19.txt:615"}], "flagged_count": 0, "forbidden": ["pacman", "checkupdates", "yay", "paru", "mkinitcpio", "limine-update"], "invocation_count": 81, "origin_tip": null, "pointer_section_count": 42, "resolved_count": 16, "revision": "b8b7e34ceed06392f8b991c8b63f5a4221ac3aa6", "scope": "last recheck: line, its same-file section pointers and the operative R17/R18 steer-safe section; read-only, no host action taken", "status": "FAIL"}
+Observed shell exit code: 1 (tool details.exitCode); gate status FAIL; exec_violation_count=2.
+Direct form: EXEC-STEER-VIOLATION fired at host-capture-r19.txt:614.
+Disguised bash -c form: EXEC-STEER-VIOLATION fired at host-capture-r19.txt:615.
+
+## Exact restoration — actual output
+$ cp /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-19/l1-capture/host-capture-r19.txt /tmp/tmp.JyMbefGSZw/lane/host-capture-r19.txt
+Commit message: round19 mutation probe: restore exact capture bytes
+[master 70b894b] round19 mutation probe: restore exact capture bytes
+ 1 file changed, 2 deletions(-)
+Restored SHA256: 2b1dc96a80781d6994ab42de934bcb548f32b9fc529461b719168f301924fbce; bytes=36004; lines=613.
+Byte comparisons: restored == pristine: True; current original source == saved original source: True.
+$ python3 tools/check-recheck-commands.py --revision 70b894b --exec-log host-capture-r19.txt
+{"branch": "master", "branch_tip": "70b894ba8941f4c598fc3931c203b33f8141148c", "clean_count": 21, "exec_violation_count": 0, "file_count": 37, "findings": [], "flagged_count": 0, "forbidden": ["pacman", "checkupdates", "yay", "paru", "mkinitcpio", "limine-update"], "invocation_count": 81, "origin_tip": null, "pointer_section_count": 42, "resolved_count": 16, "revision": "70b894ba8941f4c598fc3931c203b33f8141148c", "scope": "last recheck: line, its same-file section pointers and the operative R17/R18 steer-safe section; read-only, no host action taken", "status": "PASS"}
+Observed shell result: successful completion (no numeric exit field supplied by the tool); gate status PASS; exec_violation_count=0.
+
+## Verdict and limits
+KILLED: the same bounded detector passed the real pristine capture, rejected the capture mutant with a separate stable finding at each injected site, and passed restored bytes.
+Both forms were present in one mutant run; site-specific findings demonstrate detection of each. No claim about untested disguises or every possible forbidden command.
+No code fix was necessary for these assigned forms. No lane source/index/ref, sibling file, host package/service/boot state, or original capture was modified.
+Hashes were computed with Python hashlib.sha256 on exact file bytes in the eval tool, not from decorated textual read output. A preliminary hash of truncated/decorated :raw output was rejected and is not evidence; read-tool mismatches were reported through xd://report_issue.
+No tools installed or updated. No subagents, background jobs, host probes, or additional runtime invoked.
+Scope: executed=mktemp -d,git clone --no-hardlinks,git checkout -B master,git remote remove origin,cp,git add,git commit,python3 tools/check-recheck-commands.py

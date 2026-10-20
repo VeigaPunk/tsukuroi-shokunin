@@ -1,0 +1,1704 @@
+# tsukuroi round 19 L1 capture b — read-only; script sha256 b66fa7b325feab17231c762dffdc16ebc473b9908b9c38610ffd60eef4db7d42
+$ date -Is
+2026-10-20T17:57:51-03:00
+[rc=0]
+$ journalctl --list-boots --no-pager | tail -n 6
+ -5 f955c71647bf461e83eafa062d5376a7 Mon 2026-10-19 00:34:51 -03 Mon 2026-10-19 08:10:36 -03
+ -4 be04596724904d7ea4eee8ce415e77cc Mon 2026-10-19 08:11:44 -03 Mon 2026-10-19 22:47:27 -03
+ -3 430d3038185949e682cf5fc475d1b3d0 Mon 2026-10-19 22:48:21 -03 Tue 2026-10-20 06:37:09 -03
+ -2 84755511f8b741649b565f302b59e676 Tue 2026-10-20 06:37:53 -03 Tue 2026-10-20 08:54:21 -03
+ -1 ed8819b0a64a4af7b171e29b28b55524 Tue 2026-10-20 08:57:58 -03 Tue 2026-10-20 09:56:15 -03
+  0 3e7084f470464957a8a2c00542a3b469 Tue 2026-10-20 09:57:09 -03 Tue 2026-10-20 17:57:40 -03
+[rc=0]
+$ cat -n /usr/share/doc/limine-snapper-sync/README.md
+     1	# Limine-Snapper-Sync
+     2	
+     3	### Contents
+     4	
+     5	- [Description](#description)
+     6	- [Screenshots](#screenshots)
+     7	- [Requirements](#requirements)
+     8	- [Installation](#installation)
+     9	- [Boot Configuration](#boot-configuration)
+    10	- [Tool Configuration](#tool-configuration)
+    11	- [Hooks](#hooks)
+    12	- [Translations](#translations)
+    13	- [Troubleshooting](#troubleshooting)
+    14	- [Features](#features)
+    15	- [Donate](#donate)
+    16	- [Planned features](#donate)
+    17	
+    18	---
+    19	
+    20	## Description
+    21	
+    22	**Limine-Snapper-Sync** integrates **[Limine](https://github.com/limine-bootloader/limine)** bootloader with **[Snapper](https://github.com/openSUSE/snapper)**,
+    23	synchronizing snapshot boot entries with Btrfs snapshots and updating the bootloader configuration accordingly.
+    24	
+    25	<details>
+    26	<summary>What it does</summary>
+    27	
+    28	* **Adding Snapshots:**<br>
+    29	When a Snapper snapshot is created, a snapshot boot entry with its matching kernel versions is added to Limine.
+    30	
+    31	* **Deleting Snapshots:**<br>
+    32	Deleting a Snapper snapshot also removes the related snapshot boot entry and kernel files.
+    33	
+    34	* **Restoring Snapshot:**<br>
+    35	The tool provides `rsync`, `replace` or `snapper` (`opensuse`) to restore a selected snapshot with matching kernel versions.
+    36	
+    37	* **Backup Entry:**<br>
+    38	After restoring, a "backup" snapshot entry is added to Limine, allowing you to revert or remove it later.
+    39	
+    40	* **Boot Files Repair:**<br>
+    41	Automatically detects and repairs a corrupted bootable snapshot file by replacing it with a matching healthy file
+    42	during new snapshot creation.
+    43	Additionally, it logs hardware issues if two hashes of the same bootable file don’t match.
+    44	
+    45	**Note:**
+    46	- Does **not** generate kernel boot entries for newly installed kernels. Use [Entry Automation for Limine bootloader](https://gitlab.com/Zesko/limine-entry-tool) for that functionality.
+    47	</details>
+    48	
+    49	<details>
+    50	<summary>Why it was created</summary>
+    51	
+    52	**Limine-Snapper-Sync** was created to provide a faster, more efficient, and easier-to-manage snapshot boot solution for Limine:
+    53	
+    54	* **Faster encrypted snapshot boot:**
+    55	    - Bootable files (kernel, initramfs/initrd, or UKI) are stored outside a fully encrypted partition,
+    56	      allowing faster decryption and boot times.
+    57	    - Allows Plymouth graphical password prompts during boot for a more polished user experience.
+    58	* **Multiple boot support:**
+    59	    - Each mutable Linux distro can have its own snapshot entries in separate boot submenus,
+    60	      making it easier to select OS or snapshot entry.
+    61	    - Allows switching between A/B systems by creating a new subvolume with its own machine-ID and `subvol=` boot parameter.
+    62	* **Flexible and efficient design:**
+    63	    - Avoids reliance on third-party drivers (e.g., filesystems, LUKS2, different encryption algorithms, LVM, etc.);
+    64	      all of this is handled by kernel, initramfs, or UKI, improving compatibility, performance and reliability.
+    65	* **Instant snapshot updates:**
+    66	    - Automatically updates snapshot boot entries in real time without scanning all subvolumes or snapshots.
+    67	* **Rollback and "Backup" snapshot support:**
+    68	    - Allows quick system restore and adds a "backup" snapshot boot entry.
+    69	* **Checksum correction & faulty RAM detection:**
+    70	    - Detects faulty RAM or CPU cache by comparing two independently generated hashes.
+    71	    - Automatically corrects checksum errors by rechecking up to 3 times on mismatch.
+    72	    - If mismatches occur more than 3 times, Btrfs root and home are set to read-only to prevent further corruption.
+    73	</details>
+    74	
+    75	<details>
+    76	<summary>Limitations</summary>
+    77	
+    78	* **Old snapshots before installing the tool**:
+    79	    - Older snapshots will not be added to Limine because the required kernel files are not included in the Btrfs snapshots.
+    80	* **Limited Btrfs layout support:**
+    81	    - Supports any Snapper-managed Btrfs layout, but not arbitrary Btrfs layouts without Snapper.
+    82	
+    83	</details>
+    84	
+    85	#### 5 commands, each without options:
+    86	
+    87	* `limine-snapper-sync` updates Limine snapshot entries with current Snapper snapshots.
+    88	* `limine-snapper-list` displays all available snapshots in Limine's boot menu.
+    89	* `limine-snapper-info` shows details about versions, total bootable snapshots, kernel verification status.
+    90	* `limine-snapper-restore` restores a selected snapshot to your system.
+    91	* `limine-snapper-remove <ID 1>..<ID 2>` removes snapshot boot entries to free up space on the boot partition.
+    92	
+    93	---
+    94	
+    95	## Screenshots:
+    96	
+    97	<details>
+    98	<summary>📷 Show screenshots</summary>
+    99	
+   100	Choose between two different Limine menu layouts:
+   101	
+   102	### Snapshots-menu inside OS entry
+   103	
+   104	The "Snapshots" menu is integrated within the OS entry.
+   105	
+   106	![image](screenshots/1.jpg){width=800 height=800}
+   107	
+   108	Expand it to view snapshot details such as **ID**, **date** and **description**. 
+   109	Each Linux distro can have its own separate snapshot list.
+   110	
+   111	![image](screenshots/2.jpg){width=800 height=800}
+   112	
+   113	### Snapshots-menu outside the OS entry
+   114	
+   115	The "Snapshots" menu is listed separately from the OS entry.
+   116	
+   117	![image](screenshots/7.jpg){width=800 height=800}
+   118	
+   119	After booting from a snapshot, a notification appears, allowing one-click restoration.
+   120	
+   121	![image](screenshots/3.jpg){width=400 height=400}
+   122	
+   123	Clicking "Restore now" provides more details about the restore process.
+   124	
+   125	![image](screenshots/4.jpg){width=800 height=800}
+   126	
+   127	Run `limine-snapper-info` to verify bootable snapshot files.
+   128	
+   129	![image](screenshots/6.jpg){width=800 height=800}
+   130	
+   131	</details>
+   132	
+   133	---
+   134	
+   135	## Requirements
+   136	
+   137	* A FAT32 boot partition of at least **4 GiB** is recommended, depending on how many snapshots and kernel versions you keep.
+   138	  - **Note:** NVIDIA drivers and DKMS modules can use over 300 MiB per kernel version. Your boot partition should be large enough for future kernels and snapshots without resizing.
+   139	* Limine version **8 or newer**
+   140	* `snapper` and `btrfs-progs`
+   141	* Standard coreutils: `cp`, `mv`, `rm`, `sha256sum`
+   142	* Standard util-linux: `logger`, `mount`, `umount` and `flock`
+   143	* `gradle` and GraalVM 25 (build-time only)
+   144	
+   145	
+   146	---
+   147	
+   148	## Installation:
+   149	
+   150	### Arch Linux:
+   151	
+   152	**🔄 Switching from GRUB, systemd-boot, or rEFInd to Limine?**<br>
+   153	**Tip:**
+   154	Limine setup allows you to keep your existing EFI bootloader as a fallback.<br>
+   155	It won’t overwrite your existing EFI bootloader unless you explicitly choose to replace it.<br>
+   156	Just follow the **easy setup with `limine-entry-tool`** below if you are unsure.
+   157	
+   158	<details>
+   159	<summary>🚀 Easy setup with limine-entry-tool</summary>
+   160	
+   161	1. Choose one of the two initramfs integration packages for [limine-entry-tool](https://gitlab.com/Zesko/limine-entry-tool):
+   162	   * For **Dracut** users: Install [limine-dracut-support](https://aur.archlinux.org/packages/limine-dracut-support/)
+   163	   * For **mkinitcpio** users: Install [limine-mkinitcpio-hook](https://aur.archlinux.org/packages/limine-mkinitcpio-hook/)
+   164	     1. Manually add `btrfs-overlayfs` after `filesystems` in `HOOKS=(...)` in `/etc/mkinitcpio.conf`<br>
+   165	        (**Note:** For systemd hooks, use `sd-btrfs-overlayfs`, since `btrfs-overlayfs` is incompatible.)
+   166	     2. Run `limine-update` to rebuild the initramfs.
+   167	2. Install [limine-snapper-sync](https://aur.archlinux.org/packages/limine-snapper-sync/) from AUR.
+   168	3. Enable automatic syncing:
+   169	```bash
+   170	systemctl enable --now limine-snapper-sync.service
+   171	```
+   172	4. (Optional) Install `snap-pac` to trigger Snapper to create snapshots during system updates.
+   173	
+   174	**Tip:** After changing your config in `/etc/default/limine`, just run `limine-update` to apply the changes.
+   175	It will rebuild your initramfs or UKI, similar to reinstalling the kernel.
+   176	
+   177	</details>
+   178	
+   179	**or**
+   180	
+   181	<details>
+   182	<summary>Manual setup without limine-entry-tool</summary>
+   183	
+   184	1. Make sure Limine can boot your system by following the [Arch Wiki:Limine](https://wiki.archlinux.org/title/Limine#Limine-Snapper-Sync_setup).
+   185	1. Properly configure `limine.conf` to work with this tool. See [Boot Configuration](#boot-configuration) for details.
+   186	1. Install [limine-snapper-sync](https://aur.archlinux.org/packages/limine-snapper-sync/) from AUR.
+   187	1. If your boot partition is mounted at `/efi`, `/boot`, `/boot/efi`, or `/limine` and contains `limine.conf`, it is detected automatically.
+   188	    * If it is not detected, create or edit `/etc/default/limine` and set `ESP_PATH` to your FAT32 boot partition.
+   189	1. Create a root snapshot using `snapper`, then test `limine-snapper-sync` to see if
+   190	   `Updated: $ESP_PATH/limine.conf`.
+   191	1. If everything works, enable automatic syncing:
+   192	```bash
+   193	systemctl enable --now limine-snapper-sync.service
+   194	```
+   195	
+   196	**Tip:**<br>
+   197	For headless or server environments, install [limine-snapper-cli](https://aur.archlinux.org/packages/limine-snapper-cli/) without desktop notifications.
+   198	
+   199	If you write your own scripts or tools that access or modify `limine.conf` or other files on the same boot partition,  
+   200	make sure to source the Bash library `/usr/lib/limine/limine-mutex` and use the functions `mutex_lock "name"` and `mutex_unlock` to prevent race conditions.
+   201	
+   202	</details>
+   203	
+   204	### Other Linux distributions:
+   205	
+   206	This tool should work on most Linux distributions (with or without systemd).
+   207	No pre-built packages are available for different package managers, but package maintainers are welcome to create them.
+   208	
+   209	<details>
+   210	<summary>Manual installation</summary>
+   211	
+   212	* Ensure that Limine can boot your system.
+   213	* Download [GraalVM 25](https://www.graalvm.org/latest/reference-manual/native-image/)
+   214	* Clone the repository:
+   215	```shell
+   216	git clone https://gitlab.com/Zesko/limine-snapper-sync.git
+   217	cd limine-snapper-sync
+   218	```
+   219	* Build the project
+   220	```shell
+   221	JAVA_HOME=<path-to-graalVM> gradle clean nativeCompile
+   222	```
+   223	* Install the necessary files:
+   224	```shell
+   225	cp build/native/nativeCompile/limine-snapper-sync /usr/lib/limine/
+   226	cp install/arch-linux/usr/bin/* /usr/local/bin/
+   227	cp -r install/arch-linux/usr/lib/limine /usr/lib/
+   228	cp -r install/arch-linux/usr/lib/snapper /usr/lib/
+   229	cp -r install/arch-linux/usr/lib/systemd/* /etc/systemd/ # Optional for systemd
+   230	cp install/arch-linux/etc/xdg/autostart/*.desktop /etc/xdg/autostart/` # Adjust based on ${XDG_CONFIG_DIRS}
+   231	cp install/arch-linux/etc/*.conf /etc/
+   232	for po in po/*.po; do lang="$(basename "$po" .po)"; mkdir -p "/usr/share/locale/$lang/LC_MESSAGES"; msgfmt "$po" -o "/usr/share/locale/$lang/LC_MESSAGES/limine-snapper-sync.mo"; done
+   233	````
+   234	* Install `libnotify` or [dunst](https://github.com/dunst-project/dunst) for desktop notifications on X11 or Wayland.
+   235	* Properly configure `limine.conf` to work with this tool. See [Boot Configuration](#boot-configuration) for details.
+   236	* Test running `limine-snapper-sync`. If successful, you should see: `Updated: $ESP_PATH/limine.conf`.
+   237	
+   238	**Tip:**<br>
+   239	If you write your own scripts or tools that access or modify `limine.conf` or other files on the same boot partition,  
+   240	make sure to source the Bash library `/usr/lib/limine/limine-mutex` and use the functions `mutex_lock "name"` and `mutex_unlock` to prevent race conditions.
+   241	
+   242	</details>
+   243	
+   244	---
+   245	
+   246	## Boot Configuration:
+   247	
+   248	**Note:**<br>
+   249	This automation generates only the default at `$ESP_PATH/limine.conf` and does not touch any other Limine config locations.
+   250	If you plan to use `$ESP_PATH/limine.conf` as the default Limine boot config,
+   251	remove any other alternative Limine config files to prevent them from overriding the default in the Limine boot menu.
+   252	
+   253	**Tip:**<br>
+   254	Boot configuration is automated by some `limine-entry-tool`-based package.
+   255	This allows you to skip the manual configuration below unless custom options are needed.
+   256	
+   257	<details>
+   258	
+   259	<summary>Manual Limine configuration</summary>
+   260	
+   261	Create or edit *$ESP_PATH*/limine.conf:
+   262	
+   263	1. **Add a kernel entry:**
+   264	
+   265	  You **must** add at least one kernel entry in the format `//<Kernel name>` <br>
+   266	  within an OS entry block `/<OS name>`.
+   267	
+   268	2. **Choose one snapshot layout:** (Optional)
+   269	
+   270	  * Default: Add `//Snapshots` inside the OS entry block.
+   271	  <br>**or**<br>
+   272	  * Alternative: Add `/Snapshots` outside the OS entry block.
+   273	
+   274	The keyword (`//Snapshots` or `/Snapshots`) tells the tool where snapshot entries should be placed.
+   275	
+   276	#### Example 1:
+   277	
+   278	If bootable kernel files are stored in `/efi/`, `/boot/`, `/boot/efi/`, or any other path used as your boot partition:
+   279	
+   280	```
+   281	/Arch Linux
+   282	
+   283	  //Kernel LTS
+   284	  protocol: linux
+   285	  module_path: boot():/initramfs-linux-lts.img
+   286	  kernel_path: boot():/vmlinuz-linux-lts
+   287	  kernel_cmdline: rw rootflags=subvol=/@ root=UUID=068589c1-d9be-407c-ad86-101aa0912825
+   288	  
+   289	  //Kernel
+   290	  protocol: linux
+   291	  module_path: boot():/initramfs-linux.img
+   292	  kernel_path: boot():/vmlinuz-linux
+   293	  kernel_cmdline: rw rootflags=subvol=/@ root=UUID=068589c1-d9be-407c-ad86-101aa0912825
+   294	
+   295	  //Snapshots
+   296	```
+   297	
+   298	#### Example 2:
+   299	
+   300	If bootable kernel files are stored in `/efi/d647abee5e264f469d7a38b751d9d1db/kernel-version/`
+   301	like where systemd-boot (`kernel-install`) stores them:
+   302	
+   303	```
+   304	/+Arch Linux
+   305	comment: Any comment
+   306	comment: machine-id=d647abee5e264f469d7a38b751d9d1db
+   307	
+   308	  //Mainline kernel
+   309	  protocol: linux
+   310	  module_path: boot():/d647abee5e264f469d7a38b751d9d1db/kernel-version/initrd
+   311	  kernel_path: boot():/d647abee5e264f469d7a38b751d9d1db/kernel-version/linux
+   312	  kernel_cmdline: rw rootflags=subvol=/@ root=UUID=068589c1-d9be-407c-ad86-101aa0912825
+   313	
+   314	  //Mainline kernel fallback
+   315	  protocol: linux
+   316	  module_path: boot():/d647abee5e264f469d7a38b751d9d1db/kernel-version/initrd-fallback
+   317	  kernel_path: boot():/d647abee5e264f469d7a38b751d9d1db/kernel-version/linux
+   318	  kernel_cmdline: rw rootflags=subvol=/@ root=UUID=068589c1-d9be-407c-ad86-101aa0912825
+   319	
+   320	/Snapshots
+   321	```
+   322	**Note:** Bootable files must be placed in the boot partition alongside `limine.conf`.
+   323	Only `boot():` or `$boot():` function is supported.
+   324	
+   325	</details>
+   326	
+   327	---
+   328	
+   329	## Tool Configuration
+   330	
+   331	The config file is located at `/etc/default/limine` (**Recommend**) or alternatively at `/etc/limine-snapper-sync.conf`
+   332	
+   333	**Note:**
+   334	
+   335	- `/etc/default/limine` takes precedence over `/etc/limine-snapper-sync.conf`.
+   336	- When booting into a read-only snapshot where `/etc/*` cannot be configured,
+   337	`/etc/default/limine` is automatically copied to the temporary location `/tmp/limine-snapper-sync.conf`,
+   338	allowing temporary configuration.
+   339	
+   340	Copy this to `/etc/default/limine` and adjust the settings as needed.
+   341	
+   342	```properties
+   343	### OS Entry Targeting
+   344	### This tool does not automatically know the custom OS name used in $ESP_PATH/limine.conf.
+   345	### Set the OS name here to match the entry name in $ESP_PATH/limine.conf.
+   346	###
+   347	### Tips:
+   348	### * Alternatively, add "comment: machine-id=<machine-id>" under your OS entry name in $ESP_PATH/limine.conf.
+   349	###   The machine-id allows the tool to automatically target the correct entry. Changing the OS name does not matter.
+   350	### * If unset, it reads PRETTY_NAME or NAME from /etc/os-release, with a fallback to /etc/lsb-release.
+   351	###
+   352	#TARGET_OS_NAME="Arch Linux"
+   353	
+   354	
+   355	### Boot Partition Path
+   356	### If not set, it is found automatically by checking /efi, /boot, /boot/efi, and /limine.
+   357	### Set this to skip the automatic search or if your boot partition uses a different mount path.
+   358	#ESP_PATH="/boot"
+   359	
+   360	
+   361	### Boot Partition Usage Limit
+   362	### Sets the maximum usage (in percent) for your FAT32 boot partition. Value must be between 1 and 99. Default: 85.
+   363	### No new snapshot entries will be added to Limine if this limit is reached.
+   364	### A larger FAT32 boot partition allows for more snapshot entries.
+   365	###
+   366	### Tips:
+   367	### * You will be alerted when ENABLE_NOTIFICATION is set to "yes" and the limit is reached during snapshot creation.
+   368	### * Do not increase the limit to 95% or higher on a small boot partition, as restoration will be blocked due to insufficient free space.
+   369	###
+   370	LIMIT_USAGE_PERCENT=85
+   371	
+   372	
+   373	### Max Snapshot Entries
+   374	### Limits how many snapshot entries appear in the "Snapshots" boot menu.
+   375	### This depends on the size of your FAT32 boot partition and how many different kernel and module versions you want to keep.
+   376	### A larger FAT32 boot partition allows more snapshot entries.
+   377	###
+   378	### Value: Number or "auto"
+   379	###
+   380	### What is "auto":
+   381	### It is flexible and automatically removes older snapshot boot entries based on LIMIT_USAGE_PERCENT without warning.
+   382	### A warning is only triggered if no snapshot boot entries are left and usage still exceeds LIMIT_USAGE_PERCENT.
+   383	###
+   384	### WARNING:
+   385	### If LIMIT_USAGE_PERCENT is set very low (e.g. 1%) and the boot partition still has no free space,
+   386	### "auto" will delete all snapshot boot entries, including all kernel versions.
+   387	###
+   388	### Default: "auto" if unset
+   389	#MAX_SNAPSHOT_ENTRIES=auto
+   390	
+   391	
+   392	### Exclude Snapshot Types
+   393	### If a snapshot has a matching type, it will not be added into Limine.
+   394	###
+   395	### Example:
+   396	###   EXCLUDE_SNAPSHOT_TYPES="pre, post"
+   397	###
+   398	#EXCLUDE_SNAPSHOT_TYPES=""
+   399	
+   400	
+   401	### Exclude Entries from Snapshots
+   402	### Matching kernels or entries are excluded from Limine snapshots. This helps reduce boot partition space usage.
+   403	###
+   404	### WARNING:
+   405	### - Restoring an old snapshot may use outdated config and exclude unintended entries from the current "backup" snapshot.
+   406	### - Excluded entries are preserved after restore, but may not match an old system version. They should be removed or updated manually.
+   407	###
+   408	### Note:
+   409	### - "backup*" and "*snapshot*" entries are always excluded by default, regardless of any configuration.
+   410	###
+   411	### Wildcards:
+   412	###  "*" matches any sequence of characters
+   413	###
+   414	### Example: excluding all fallback kernel entries
+   415	#EXCLUDE_SNAPSHOT_ENTRIES="*fallback"
+   416	EXCLUDE_SNAPSHOT_ENTRIES="Windows*, windows*"
+   417	
+   418	
+   419	### Snapshot Kernel Parameters
+   420	### Add or remove kernel parameters for new snapshot boot entries.
+   421	###
+   422	### - SNAPSHOT_KERNEL_PARAMETERS+ : Add extra kernel parameters
+   423	### - SNAPSHOT_KERNEL_PARAMETERS- : Remove specific kernel parameters
+   424	### - SNAPSHOT_KERNEL_PARAMETERS= : Replace the entire kernel command line (note: for multiple-profile UKIs only)
+   425	###
+   426	### Tips:
+   427	### - No quotes are needed at the start or end of command lines, since quotes inside are not escaped.
+   428	### - Do not add `#` as a comment at the end of command lines.
+   429	###
+   430	### Examples:
+   431	#SNAPSHOT_KERNEL_PARAMETERS-=quiet splash
+   432	#SNAPSHOT_KERNEL_PARAMETERS+=systemd.volatile=overlay
+   433	
+   434	
+   435	### Make Snapshots Writable
+   436	### Set to 'yes' to make created snapshots writable. (yes|no)
+   437	### This may be required by some programs or display managers (e.g. GDM) that need write access at boot when overlayfs is not used.
+   438	###
+   439	### WARNING:
+   440	### Writable snapshots can be modified and will no longer reflect the original 1:1 state.
+   441	### Enable only if absolutely necessary.
+   442	###
+   443	### IMPORTANT:
+   444	### If you boot into a writable snapshot, you should immediately click "Restore now" to avoid making unintended changes.
+   445	#SNAPSHOT_WRITABLE=no
+   446	
+   447	
+   448	### Snapper Configuration Name
+   449	### Specify the Snapper configuration name. If not set, the tool will automatically detect it from "snapper list-configs".
+   450	### Specifying it manually improves performance by avoiding automatic detection overhead.
+   451	#SNAPPER_CONFIG_NAME="root"
+   452	
+   453	
+   454	### Root Subvolume Path
+   455	### If not set, the path is automatically detected during snapshot creation.
+   456	### Override this value only if the detected path is incorrect.
+   457	#ROOT_SUBVOLUME_PATH="/@"
+   458	
+   459	
+   460	### Root Snapshot Path
+   461	### If not set, the path is automatically detected during snapshot creation.
+   462	### Override this value only if the detected path is incorrect.
+   463	#ROOT_SNAPSHOTS_PATH="/@/.snapshots"
+   464	
+   465	
+   466	### Restore Method Selection
+   467	### Choose a restore method depending on your Btrfs layout and boot configuration.
+   468	### Indicators: (+) Advantage, (-) Disadvantage, (o) Neutral/Special note
+   469	###
+   470	### rsync:
+   471	### + Works on a system running on a root partition without a root subvolume.
+   472	### + Supports multiple Linux installations on the same Btrfs filesystem.
+   473	### + No issues with overlayfs used as a temporary writable layer on top of a read-only snapshot.
+   474	### o Keeps the original subvolume ID after restore.
+   475	### - Slower because all data is copied 1:1 from a selected snapshot to the root subvolume.
+   476	### - Does not track which snapshot the restored data originally came from.
+   477	###
+   478	### replace:
+   479	### + Very fast, creates a new subvolume from a selected snapshot and replaces the old one.
+   480	### + Supports multiple root subvolumes (e.g., multiple distros) on the same Btrfs filesystem.
+   481	### + No issues with overlayfs used as a temporary writable layer on top of a read-only snapshot.
+   482	### o Changes the subvolume ID after restore.
+   483	### - Restored subvolumes lose tracking of their relationship to older snapshots in the Snapper list.
+   484	### - Cannot restore when system runs on a root partition without a root subvolume.
+   485	###
+   486	### opensuse (alias of "snapper"):
+   487	### + Supports native snapper rollback.
+   488	### + Very fast, 'snapper rollback' creates two snapshots (read-only and writable).
+   489	### + Tracks snapshot relationships in the Snapper list, unlike "rsync" and "replace".
+   490	### o Requires an OpenSUSE-style layout compatible with snapper rollback.
+   491	### o Keeps the original main subvolume unchanged as the oldest base.
+   492	### - Does not support multiple Linux distros on the same Btrfs (only one default subvolume for booting).
+   493	### - Refuses to work when overlayfs is used as a temporary writable layer for testing changes on an immutable system.
+   494	### - Some init services (e.g., display managers) require write access and may fail when booting a read-only snapshot.
+   495	### (Info: In major v2, new 4th restore method would remove these last two disadvantages)
+   496	###
+   497	### Recommendation: Choosing a safe restore method if unsure:
+   498	### * If your system normally runs on a root subvolume, use "replace" or "rsync". (typical for most Arch-based installations)
+   499	### * If your system normally runs on a root Btrfs partition without a root subvolume, use "rsync".
+   500	### * If your system normally runs on a writable snapshot, use "snapper". (For OpenSUSE or an OpenSUSE-like layout).
+   501	###
+   502	### Available restore methods: "replace", "rsync" or "snapper"
+   503	RESTORE_METHOD=replace
+   504	
+   505	
+   506	### Set Snapshot as Default
+   507	### After restoring a snapshot, you can choose whether its new subvolume should automatically become the default (yes|no).
+   508	###
+   509	### What is a "default subvolume"?
+   510	### It is the subvolume your system boots into if no subvolume is specified in the kernel command line.
+   511	### On OpenSUSE, it is also required for 'snapper rollback'.
+   512	###
+   513	### yes: A newly created snapshot will automatically become the default subvolume after restoration.
+   514	###       WARNING: This may cause problems or conflicts if multiple Linux distributions (e.g. OpenSUSE) share the same Btrfs partition.
+   515	###       Recommendation: Set to yes only if your distro is the only one on the Btrfs partition.
+   516	###
+   517	### no:  The original subvolume remains the default.
+   518	###       Note: If it is listed as the "backup" subvolume in Snapper, it cannot be deleted.
+   519	###
+   520	### Note:
+   521	### This option is not needed for rsync-based restoration, which always preserves the original subvolume.
+   522	###
+   523	#SET_SNAPSHOT_AS_DEFAULT=no
+   524	
+   525	
+   526	### Btrfs UUID
+   527	### Specify the UUID of your Btrfs filesystem, used only during the restore process.
+   528	### If not set, the tool automatically determines the UUID during initialization and saves it in 'snapshots.json'. 
+   529	### If the saved UUID becomes outdated, set it manually.
+   530	#FS_UUID=
+   531	
+   532	
+   533	### Authentication Method
+   534	### Specify an authentication method: "sudo", "doas", "run0 --background=" or another method of your choice.
+   535	### If not set, the default is "sudo".
+   536	#AUTH_METHOD="run0 --background="
+   537	
+   538	
+   539	### Specify a terminal app and its argument to open the console UI for running the restore process with details.
+   540	### For example, "konsole -e" for KDE or "gnome-terminal -- bash -c" for GNOME.
+   541	#TERMINAL=konsole
+   542	#TERMINAL_ARG="-e"
+   543	
+   544	
+   545	### Snapshot Entry Formatting
+   546	### Set the number of spaces to indent each line in all snapshot entries within $ESP_PATH/limine.conf.
+   547	### If not set, the default is 5.
+   548	#SPACE_NUMBER=5
+   549	
+   550	
+   551	### Snapshot Name Format
+   552	### Choose a format for how snapshot entries look in the Limine bootloader:
+   553	### 0. ID=111 2023-12-20 10:59:59 (default)
+   554	### 1. 111│2023-12-20 10:59:59
+   555	### 2. 111 │ 2023-12-20 10:59:59
+   556	### 3. 2023-12-20 10:59:59│111
+   557	### 4. 2023-12-20 10:59:59 │ 111
+   558	### 5. 2023-12-20 10:59:59
+   559	### 6. 111
+   560	### 7. 111│snapshot description
+   561	### 8. 2023-12-20 10:59:59│snapshot description
+   562	### 9. │snapshot description
+   563	SNAPSHOT_FORMAT_CHOICE=2
+   564	
+   565	
+   566	### Desktop Notifications
+   567	### Enable desktop notifications for warnings and errors in limine-snapper-sync, e.g., hardware issues or boot partition usage limits.
+   568	### Default: yes
+   569	#ENABLE_NOTIFICATION=yes
+   570	
+   571	
+   572	### Hash Function for Deduplication and Checksum
+   573	### Choose a hash function to detect duplicates and avoid extra copies.
+   574	### Options: "blake3", "xxhash", "sha1", or "sha256".
+   575	###
+   576	### WARNING:
+   577	### Changing the hash function does not re-hash existing files, which may result in duplicates.
+   578	###
+   579	### Note:
+   580	### If you choose "blake3" or "xxhash", you must manually install the matching utility:
+   581	### - Install 'b3sum' package for blake3
+   582	### - Install 'xxhash' package for xxhash
+   583	HASH_FUNCTION=xxhash
+   584	
+   585	
+   586	### Notification Icon
+   587	### Set a custom icon to display in notifications when booting into a read-only snapshot and prompting for restoration.
+   588	#NOTIFICATION_ICON="/usr/share/icons/hicolor/128x128/apps/LimineSnapperSync.png"
+   589	
+   590	
+   591	### Automatic Config Backup
+   592	### Automatically create a backup of 'limine.conf' and 'snapshots.json' before saving any changes
+   593	### but only if their existing backups ('*.old') are older than the specified time (in hours).
+   594	### This setting is unrelated to snapshot creation.
+   595	### Default: 6 hours if unset.
+   596	#CONFIG_BACKUP_THRESHOLD=6
+   597	
+   598	
+   599	### Quiet Mode
+   600	### Set to "yes" to hide all success messages and avoid log spam. (yes|no)
+   601	#QUIET_MODE=no
+   602	
+   603	```
+   604	
+   605	## Hooks
+   606	
+   607	`limine-snapper-sync` provides the same [hook mechanism](https://gitlab.com/Zesko/limine-entry-tool#hooks) as `limine-entry-tool`,
+   608	allowing custom scripts to run during boot partition operations.<br>
+   609	**Note:** Config checksum enrollment hooks are provided by `limine-entry-tool`.
+   610	
+   611	---
+   612	
+   613	## Translations
+   614	
+   615	The messages are translatable. The tool itself reads its text from
+   616	`src/main/resources/messages.properties`; a language is added by putting
+   617	`messages_<lang>.properties` next to it, for example `messages_de.properties`, and by
+   618	listing the language in `-H:IncludeLocales` in `build.gradle.kts`. Russian
+   619	(`messages_ru.properties`, `po/ru.po`) is shipped. Keys that a
+   620	translation does not carry fall back to the English file, so a partial translation is
+   621	harmless.
+   622	
+   623	The shell scripts use the gettext catalog `limine-snapper-sync`. `po/limine-snapper-sync.pot`
+   624	holds the strings, refreshed with `bash --dump-po-strings`, and a language is added as
+   625	`po/<lang>.po`, compiled with
+   626	`msgfmt po/<lang>.po -o /usr/share/locale/<lang>/LC_MESSAGES/limine-snapper-sync.mo`.
+   627	
+   628	The build does that step itself: `gradle build` and `gradle nativeCompile` compile every
+   629	`po/*.po` into `install/arch-linux/usr/share/locale/<lang>/LC_MESSAGES/`, which is part of
+   630	the tree packaging already installs, so a package picks the catalogs up without any extra
+   631	step. It needs `msgfmt` (the `gettext` package) at build time; without it the build still
+   632	succeeds and only warns, and the scripts keep speaking English.
+   633	
+   634	The language comes from the environment, so `LANG=C limine-snapper-list` always gives
+   635	the English text.
+   636	
+   637	---
+   638	
+   639	## Troubleshooting
+   640	
+   641	<details>
+   642	<summary>Why does my boot partition usage grow too fast?</summary>
+   643	
+   644	This can happen for several reasons:
+   645	
+   646	- **Heavy modules and DKMS drivers in early boot**
+   647	    - **Nvidia, Plymouth, and some DKMS drivers** are often included in each initramfs and can increase usage by more than 200 MiB per kernel.
+   648	        - **Fix:** Review and configure your initramfs and remove modules that are not required for early boot.
+   649	            * Example: Is network access required during early boot on an unencrypted boot partition? If not, move network driver out of the initramfs so it is loaded later from the root filesystem.
+   650	
+   651	- **Excessive automatic snapshots created during rolling updates**
+   652	    - **Fix:** Limit or disable automatic hooks, for example: uninstall `snap-pac` package on Arch Linux.
+   653	    - **Fix:** Edit `/etc/default/limine` and add `EXCLUDE_SNAPSHOT_TYPES="post"` to ignore matching snapshots.
+   654	    - **Fix:** Instead of relying on automatic hooks, create a few snapshots manually or configure time-based snapshot creation.
+   655	
+   656	- **`sbctl` produces a different non-reproducible hash on each run**, even for identical files, causing unnecessary duplication.
+   657	    - **Fix:** Request that the `sbctl` maintainer add support for reproducible hashing.<br>
+   658	    - Alternatively, use Limine `protocol: linux` to boot reproducible initramfs and vmlinuz, bypassing Secure Boot (no signing required).
+   659	
+   660	- **Some initramfs tools generate non-reproducible initramfs images**, even when modules and configuration have not changed, causing unnecessary duplication.
+   661	    * **For mkinitcpio:**
+   662	        - **Fix:** Edit `/etc/mkinitcpio.conf` and set `COMPRESSION="zstd"` to make initramfs builds reproducible.
+   663	
+   664	    * **For Dracut:**
+   665	        - **Fix:** Add `reproducible=yes` and `compress="zstd"` to any dracut drop-in configuration file.
+   666	
+   667	- **Fallback initramfs is huge and includes every module**, which consumes a lot of space and may expose sensitive information on an unencrypted boot partition.
+   668	    - **Fix:** Disable fallback initramfs generation if you do not plan to use the same disk on **multiple different devices**.
+   669	
+   670	- **Too many kernels installed per snapshot.**<br>(Note: Using multiple kernel versions increase the risk of breaking filesystem when frequently switching between them.)
+   671	    - **Fix:** Keep only one kernel that works on your system.
+   672	
+   673	- **Too many snapshots without real benefit.**
+   674	    - **Fix:** Limit the number of snapshots.
+   675	    - **Fix:** Avoid creating new snapshots when rebuilding non-reproducible initramfs or UKI, unless system changes were made.
+   676	
+   677	- **The boot partition is too small.**
+   678	    - **Fix:** Resize it or move to a larger FAT32 partition. Larger disks are cheaper this year than before.
+   679	    - **Example:** If you have plenty of free disk space and want to create a larger boot partition:
+   680	        1. Back up your important data first.
+   681	        2. Be careful to shrink your root partition **from the end (right to left)**.
+   682	        3. Create a new larger FAT32 partition (e.g. 16 GiB or 32 GiB, similar to swap size).
+   683	        4. Back up the current boot folder:
+   684	        ```sh
+   685	        sudo cp -r /<boot_or_efi_path>/$(cat /etc/machine-id)  /boot_bak
+   686	        sudo cp /<boot_or_efi_path>/limine.conf  /limine.conf_bak
+   687	        ```
+   688	        5. Update `/etc/fstab` with **the new UUID** for `/boot`. **This step is important. Do not skip it.**
+   689	        6. Unmount and remount `/boot` after updating `/etc/fstab`
+   690	        ```sh
+   691	        sudo umount /<boot_or_efi_path>
+   692	        sudo mount /<boot_or_efi_path>
+   693	        ```
+   694	        7. Restore the boot folder:
+   695	        ```sh
+   696	        sudo cp -r /boot_bak  /<boot_or_efi_path>/$(cat /etc/machine-id)
+   697	        sudo cp /limine.conf_bak  /<boot_or_efi_path>/limine.conf
+   698	        ```
+   699	        8. Reinstall Limine and update:
+   700	        ```
+   701	        sudo limine-install --fallback  # command from limine-entry-tool package
+   702	        sudo limine-update              # command from limine-dracut/mkinitcpio-hook package
+   703	        sudo limine-snapper-sync
+   704	        ```
+   705	</details>
+   706	
+   707	<details>
+   708	<summary>Why is restore blocked?</summary>
+   709	
+   710	The restore function includes several built-in safeguards to prevent user mistakes.
+   711	
+   712	- **The boot partition does not have enough free space for restoring kernel files**
+   713	    - **Fix:** Run `limine-snapper-remove <ID 1>..<ID 2>` to remove older snapshot boot entries and free up space on the boot partition.
+   714	
+   715	- **Different configuration errors**, such as:
+   716	    - Using incompatible Btrfs layout
+   717	    - Invalid value of `ESP_PATH`
+   718	    - Outdated `FS_UUID` value used for mounting Btrfs
+   719	    - etc...
+   720	
+   721	</details>
+   722	
+   723	<details>
+   724	<summary>Why am I seeing the "Broken manifest detected" message?</summary>
+   725	
+   726	A broken manifest *snapshots.json* can be caused by:
+   727	* FAT32 corruption (e.g., power loss)
+   728	* Hardware issues (disk, RAM, or CPU)
+   729	
+   730	**How to fix:**
+   731	
+   732	* `limine-snapper-sync` automatically recovers the backup `/var/cache/boot/<machine-id>/lss/snapshots.json` if the hardware is fine.
+   733	* If the hardware is faulty, back up your data and replace or repair the hardware.
+   734	
+   735	</details>
+   736	
+   737	<details>
+   738	<summary>Why are fewer snapshots shown in Limine than in Snapper?</summary>
+   739	
+   740	The Limine Snapshot menu only shows up to the number of snapshots set by **MAX_SNAPSHOT_ENTRIES**.<br>
+   741	This limit helps prevent your boot partition from filling up with too many snapshots or kernel versions.
+   742	
+   743	**How to fix:**
+   744	
+   745	- Edit `/etc/default/limine` and set `MAX_SNAPSHOT_ENTRIES=` to a higher number.
+   746	</details>
+   747	
+   748	<details>
+   749	<summary>Some display managers fail to boot into read-only snapshots</summary>
+   750	
+   751	This can happen if your system expects a **writable** root filesystem.<br>
+   752	
+   753	**How to fix:**
+   754	
+   755	1. Reboot and go to the Limine boot menu
+   756	2. Select a snapshot (don't boot it). Press <kbd>E</kbd> to edit the `kernel_cmdline: ...` to add `1` for enabling rescue mode.
+   757	3. Press <kbd>F10</kbd> to boot. Log in as root user in text mode.
+   758	4. Run `limine-snapper-restore` to restore the snapshot.
+   759	
+   760	Once the snapshot is restored and the system boots normally, here are two ways to prevent this issue in the future:
+   761	
+   762	#### ✅ Option 1: Use OverlayFS to simulate a writable layer
+   763	
+   764	This is the recommended solution for two restore methods: `replace` or `rsync`.<br>
+   765	**Note:** Using an openSUSE-style layout with the restore method `opensuse` (`snapper`) does not support OverlayFS.
+   766	
+   767	* **With Dracut** (on Arch Linux):<br>
+   768	Install [`limine-dracut-support`](https://aur.archlinux.org/packages/limine-dracut-support/),
+   769	then create a new snapshot.<br>
+   770	OverlayFS support is enabled automatically.
+   771	<br>**or**</br>
+   772	* **With mkinitcpio** (on Arch Linux):<br>
+   773	    1. Install [`limine-mkinitcpio-hook`](https://aur.archlinux.org/packages/limine-mkinitcpio-hook/).
+   774	    2. Edit `/etc/mkinitcpio.conf` and add `btrfs-overlayfs` after `filesystems` in `HOOKS=(...)` when using busybox hooks.<br>
+   775	       (**Note:** For systemd hooks, use `sd-btrfs-overlayfs`, since `btrfs-overlayfs` is incompatible.)
+   776	    3. Run `sudo limine-update`
+   777	    4. Create a new snapshot (older ones won’t work).
+   778	
+   779	#### ⚠️ Option 2: Force snapshots to be writable (not recommended)
+   780	
+   781	If you don’t want to use OverlayFS, you can force newly created snapshots to be writable:
+   782	
+   783	Edit `/etc/default/limine` and set this line:
+   784	```bash
+   785	SNAPSHOT_WRITABLE=yes
+   786	```
+   787	**Important:**
+   788	If you boot into a writable snapshot, restore it immediately and avoid making changes to the snapshot itself. Modifying a snapshot directly can break consistency.
+   789	
+   790	</details>
+   791	
+   792	<details>
+   793	<summary>Boot entries missing in Limine</summary>
+   794	
+   795	This happens when `limine.conf` is missing or empty on FAT32 boot partition.<br>
+   796	**Possible causes:**
+   797	- FAT32 has no journaling: power loss or hard reset during a write may leave `limine.conf` empty.
+   798	- Some text editors fail to safely overwrite `limine.conf` on FAT32.
+   799	
+   800	**How to fix:**
+   801	1. Boot another OS.
+   802	2. Mount the FAT32 boot partition where Limine is installed.
+   803	3. If `limine.conf.old` exists, restore it by copying it to `limine.conf`
+   804	4. Add `hash_mismatch_panic: no` to the header of `limine.conf` to avoid a panic on checksum mismatches (Limine will only warn instead).
+   805	
+   806	</details>
+   807	
+   808	<details>
+   809	<summary>No restore notification appears after booting a snapshot</summary>
+   810	
+   811	Some window managers (e.g., Hyprland) do not use the standard XDG autostart mechanism by default.
+   812	
+   813	**How to fix:**
+   814	
+   815	* Add `limine-snapper-restore --notify` to your window manager’s autostart as a regular user.
+   816	* Make sure a package providing the standard `notify-send` is installed, as `limine-snapper-restore --notify` relies on it (e.g., `swaync` supports this).
+   817	* If your environment does not support `notify-send`, ask its developers to add support rather than requesting it here.
+   818	
+   819	</details>
+   820	
+   821	<details>
+   822	<summary>What happens after moving boot files and Btrfs to another disk?</summary>
+   823	
+   824	The stored UUID may become outdated after moving your boot files and Btrfs to another disk.<br>
+   825	As a result, the system might fail to boot until the UUID is updated.
+   826	
+   827	**How to fix:**
+   828	
+   829	1. Boot into a live chroot environment.
+   830	2. Find the current UUID of your Btrfs partition:
+   831	   ```bash
+   832	   lsblk -o NAME,FSTYPE,UUID,SIZE,LABEL,MOUNTPOINT,PTTYPE
+   833	   ```
+   834	3. Edit `/etc/default/limine` and update `FS_UUID=` to your current Btrfs UUID.
+   835	4. If you are using `limine-entry-tool`, make sure to update the kernel command line:
+   836	   ```
+   837	   KERNEL_CMDLINE[default]=... root=UUID=...
+   838	   ```
+   839	5. Update Limine boot configuration by running `limine-update` and `limine-snapper-sync`
+   840	
+   841	</details>
+   842	
+   843	---
+   844	
+   845	## Features
+   846	
+   847	### Core sync system
+   848	
+   849	* Snapper plugin integration for snapshot create, modify, delete, and rollback events
+   850	* Parse Snapper metadata, limine.conf, history manifest and configs
+   851	* Atomic mutex to prevent concurrent processes from accessing the same boot partition
+   852	* Debounce mechanism to group multiple snapshot deletions/modifications into a single sync
+   853	* Multithreaded readers and writers for parallel execution and faster processing
+   854	* Boot entries from limine.conf are converted into a tree structure for simplified management
+   855	* Verify configuration before processing
+   856	* Identify a custom OS entry via machine-id based identification
+   857	* Generate a snapshot boot entry from the identified OS entry
+   858	* Support for multiple nested boot entries
+   859	* Support for multiple hash functions without restrictions
+   860	* Scalable manifest without structural limits, including automatic upgrade from old to new manifest format
+   861	* Remove snapshot boot entries when Snapper snapshots are deleted
+   862	* Atomic file writes on FAT32 to reduce the risk of corruption during power outages, crashes, or hard resets
+   863	* Deduplicate kernel files to avoid copies by re-using existing files on the boot partition
+   864	
+   865	### Backup & restore
+   866	
+   867	* Automatic backup of limine.conf before modifications
+   868	* Automatic backup of manifest in 2 different locations: boot partition and Linux partition
+   869	* Automatic recovery of manifest when corrupted or lost
+   870	* Automatic snapshot kernel repair by restoring a valid kernel when corruption is detected
+   871	* Support for 3 different restore methods: replace, rsync and snapper
+   872	* Restore original boot entry from manifest back into OS section of limine.conf
+   873	* Restore all snapshot entries from manifest when they are lost in limine.conf
+   874	* Backup boot entry with kernels added to Limine during restore
+   875	
+   876	### Snapshot & kernel management
+   877	
+   878	* `SNAPSHOT_KERNEL_PARAMETERS` to manage kernel parameters for newly created snapshots
+   879	* `EXCLUDE_SNAPSHOT_ENTRIES` to skip kernel entries (e.g. fallback kernels) in newly created snapshots
+   880	* `EXCLUDE_SNAPSHOT_TYPES` to exclude specific snapshot types
+   881	* `SNAPSHOT_WRITABLE` to make snapshots writable for boot when needed
+   882	* `MAX_SNAPSHOT_ENTRIES=auto` to auto-remove older snapshot boot entries based on boot partition usage limit
+   883	* `limine-snapper-remove` to remove selected snapshot boot entries to reduce boot partition usage
+   884	* `limine-snapper-restore` to restore a snapshot from the boot menu
+   885	
+   886	### Detection & monitoring
+   887	
+   888	* Two ways to monitor snapshot changes: `limine-snapper-watcher` or Snapper plugin integration
+   889	* Hardware issue detection (e.g. non-ECC RAM or disk problems) by comparing file hashes
+   890	* Detection of boot partition usage limits with detailed reporting
+   891	* `limine-snapper-info` shows snapshot IDs affected by missing or corrupted kernel files
+   892	* `limine-snapper-info` can prompt cleanup of unused files when detected
+   893	
+   894	### System integration & UX
+   895	
+   896	* Extensive safeguards to reduce breakages from user errors
+   897	* Ensure /etc/machine-id exists, generate if missing
+   898	* Automatic detection of default OS name from /etc/os-release
+   899	* Almost zero configuration thanks to automatic system detection.
+   900	* Desktop notifications for hardware issues, misconfigurations, or boot partition limit warnings
+   901	* Authentication helper to avoid typing `sudo` or other auth methods every time
+   902	* Pre- and post-hooks for running custom scripts before or after snapshot updates
+   903	* Pacman hook integration to wait for sync completion before package updates
+   904	* Pacman lock cleanup after restore on Pacman-based systems
+   905	* Sync support in chroot environment across multiple offline subvolumes/partitions
+   906	* Atomic-like update: Switch between A/B systems after system update in offline subvolume/partition
+   907	* Support for booting different mutable or immutable system versions
+   908	* Choice of snapshot naming formats shown in the boot menu, plus two different boot menu layouts
+   909	* `limine-snapper-list` displays snapshot boot entries on the boot partition
+   910	* Terminal input support with arrow-key navigation (Up, Down, Left, Right)
+   911	
+   912	### CoW-like behavior on FAT32 boot partition
+   913	
+   914	Combining **limine-snapper-sync** and **limine-entry-tool** turns a FAT32 boot partition into a CoW-like system for kernel boot management.
+   915	
+   916	**Here is why:**
+   917	* **Copy-on-write-like behavior**: Different kernel versions are preserved when snapshots are created.
+   918	* **Deduplication**: Kernel files are re-used based on hashing to avoid unnecessary duplication.
+   919	* **Integrity checks**: Each kernel version has an automatically generated checksum.
+   920	* **Boot verification**: Limine verifies kernel integrity using stored checksums during boot.
+   921	* **Compression**: Kernel files (vmlinuz, initramfs, UKI) are stored in compressed form by default.
+   922	* **Self-healing**: Broken kernel files are automatically replaced when a valid version exists.
+   923	* **Metadata recovery**: If snapshots.json is lost or corrupted, it can be restored automatically.
+   924	* **Hardware issue detection**: Hash comparisons help detect faulty storage or memory behavior.
+   925	* **Scrubbing and repair**: detects missing or corrupted boot files and restores them from backups (planned).
+   926	* **RAID 1 support**: planned
+   927	
+   928	Together, these features make FAT32 behave like a CoW-inspired boot filesystem.
+   929	
+   930	---
+   931	
+   932	## Donate
+   933	
+   934	If you would like to support the project, feel free to donate:
+   935	
+   936	[<img src="https://gitlab.com/Zesko/resources/-/raw/main/kofiButton.png" width=110px>](https://ko-fi.com/zeskotron)
+   937	&nbsp;[<img src="https://gitlab.com/Zesko/resources/-/raw/main/PayPalButton.png" width=160px/>](https://www.paypal.com/donate/?hosted_button_id=XKP36D62AY5HY)
+   938	
+   939	### Planned features
+   940	
+   941	- **Smaller ESP support:** moves bootable snapshot files to another, larger FAT32 partition.
+   942	- **4th restore method:** emulates `snapper rollback` on OpenSUSE layouts and works with overlayfs on a read-only snapshot.
+   943	- **systemd-boot support:** generates BLS files from existing snapshot entries to increase boot reliability.
+   944	- **Auto kernel backup:** copies kernels to `/var/cache/...` on any Linux filesystem, unlocking capabilities:
+   945	  * Repairing kernels on boot partition by restoring them from backups if corrupted or missing.
+   946	  * Importing kernels back to the boot partition if they are accidentally wiped.
+   947	  * Moving kernels to backup instead of deleting them when the boot partition reaches its usage limit.
+   948	  * Keeping snapshot boot entries synced with Snapper snapshots in a 1:1 mapping thanks to "unlimited" backup capacity.
+   949	  * Restoring a snapshot works no matter if its matching kernel is missing or corrupted on the boot partition.
+   950	- **Mirrored boot partitions:** automatically syncs two boot partitions by updating only changed snapshots.
+   951	- **Pinned snapshots:** always retained and not affected by the `MAX_SNAPSHOT_ENTRIES` cleanup setting.
+   952	- **Snapper CLI-free:** triggered by Snapper events and reads snapshot metadata directly without interfering with Snapper services.
+   953	- **Backup boot support:** allows booting from a backup on another disk under **certain conditions** using [snapper-backup-configs](https://man.archlinux.org/man/snapper-backup-configs.5) and [snbk](https://man.archlinux.org/man/snbk.8.en).
+   954	- **Manifest integrity check:** verifies snapshots.json file using its embedded xxHash checksum.
+   955	- **Btrfs layout changes for Snapper:** All old kernel parameters stored in the manifest will be updated automatically.
+   956	- **Enhanced performance** by running multiple processes in parallel using optimized Kotlin code and standard libraries.
+   957	- **Bcachefs support** is planned once Snapper supports Bcachefs: [TODOs](https://github.com/openSUSE/snapper/blob/master/doc/bcachefs.txt).[rc=0]
+$ grep -n -E "^#|watcher|cleanup|ExecStopPost|limine.conf|inotify|snapshot" /usr/share/doc/limine-snapper-sync/CHANGELOG.md | head -n 120
+1:# Changelog
+3:## 1.32.1 - 2026-10-03
+5:### Fixed
+9:* Do not ignore new snapshots with older UTC timestamps when the last UTC timestamp in the manifest is in the future due
+14:### Added
+18:## 1.32.0 - 2026-09-20
+20:### Added
+23:- Config: Exclude Windows boot entries from snapshots by default.
+25:### Changed
+31:### Removed
+36:## 1.31.0 - 2026-06-30
+38:### Changed
+45:### Fixed
+49:## 1.30.1 - 2026-06-04
+51:### Fixed
+55:## 1.30.0 - 2026-06-04
+57:### Changed
+63:- `inotifywait` fallback now shows an info message instead of a warning when Snapper plugin integration is active.
+68:### Fixed
+70:- Fixed an issue where pacman lock cleanup could fail on fast startup in certain cases.
+72:## 1.29.0 - 2026-05-19
+74:### Added
+76:- New `--add <ID>` option to prevent out-of-sync issues when many snapshots are added in a very short time.
+80:### Changed
+82:- Move the 3rd manifest backup location from `/var/lib/limine/snapshots.json` to
+83:  `/var/cache/boot/<machine-id>/lss/snapshots.json` for more consistent backup restoration.
+89:### Removed
+91:- snapper plugin: Removed the 1-second delay when adding a snapshot, reducing wait time before adding the next snapshot,
+94:### Fixed
+96:- Automatic cleanup of the pacman lock after restore when a custom `DBPath` is set in `/etc/pacman.conf`.
+98:## 1.28.0 - 2026-05-02
+100:### Added
+105:- Warn about unsupported Limine path resources (e.g. `hdd()`, `odd()`) and skip invalid snapshot image creation.
+107:## 1.27.0 - 2026-04-25
+109:### Added
+111:- `EXCLUDE_SNAPSHOT_ENTRIES` allows excluding kernel entries from newly created snapshots.
+112:- `limine-snapper-info` shows which kernel entries or snapshot types are excluded.
+113:- Case-insensitive matching of "Snapshots" entry is allowed (e.g. `//+snapshots`)
+114:- Safeguards for snapshot entry creation:
+115:    * Skip invalid snapshot-like entry names (e.g. `//my snapshots` or `//snapshot menu`) to avoid recursive or
+117:    * Skip backup-like entry names (e.g. `//Backup`), which are excluded from snapshot entries by default.
+119:### Changed
+124:### Fixed
+130:## 1.26.0 - 2026-04-14
+132:### Added
+134:- Pre- / post-hook mechanism allows custom scripts to run before and after kernel management and limine.conf updates.
+136:### Deprecated
+141:### Fixed
+144:  `snapper modify` with the same snapshot ID in a short time (#12)
+146:## 1.25.0 - 2026-04-02
+148:### Added
+155:### Changed
+161:### Fixed
+163:- `limine-snapper-info`: **FS UUID** is no longer highlighted in red after initialization when no snapshot entries
+166:## 1.24.0 - 2026-03-25
+168:### Added
+174:### Changed
+178:## 1.23.1 - 2026-03-08
+180:### Fixed
+185:## 1.23.0 - 2026-02-21
+187:### Added
+189:- Add `limine-snapper-remove` to remove Limine snapshot boot entries and free up space on the boot partition.
+190:- Support an `auto` mode for `MAX_SNAPSHOT_ENTRIES`, which automatically deletes snapshot boot entries based on
+192:- Implement debounce mechanism to group many simultaneous snapshot deletions into a single sync, improving efficiency.
+193:- Warn users if an OS entry lacks the required kernel command line needed for snapshot boot.
+195:### Removed
+199:### Fixed
+205:## 1.22.2 - 2026-02-08
+207:### Fixed
+209:- Auto-update OS snapshot name to match the main OS entry name when it is outside a `/Snapshots` menu.
+212:## 1.22.1 - 2026-02-05
+214:### Fixed
+220:## 1.22.0 - 2026-01-31
+222:### Added
+224:- `limine-snapper-info`: displays which snapshot IDs are affected by corrupted or missing files.
+225:- `limine-snapper-info`: displays total snapshot files and their size.
+226:- `limine-snapper-restore`: warns users when a selected snapshot contains corrupted or missing files during restore.
+227:- `limine-snapper-sync`: adds a new config option `EXCLUDE_SNAPSHOT_TYPES` to exclude snapshots of matching types.
+230:### Changed
+236:### Fixed
+239:- `limine-snapper-info`: hides "Last snapshot" if no snapshots exist during initialization.
+241:## 1.21.0 - 2026-01-24
+243:### Added
+250:### Changed
+254:- The `inotify-tools` package is no longer required; the snapper plugin is used instead.
+256:### Fixed
+260:## 1.20.0 - 2026-01-15
+262:### Added
+264:- Config option `SNAPSHOT_FORMAT_CHOICE` adds 3 snapshot naming formats with descriptions for ultra-wide monitors.
+268:## 1.19.2 - 2026-01-11
+270:### Fixed or improved
+277:## 1.19.1 - 2026-01-04
+279:### Fixed or improved
+286:## 1.19.0 - 2026-01-02
+288:### Added
+291:- `limine-snapper-restore`: Up/Down arrow keys can be used to select a snapshot ID.
+293:### Changed
+297:### Fixed
+301:## 1.18.1 - 2025-12-12
+303:### Fixed
+307:- Add comments marking where snapshot entries were generated, improving transparency and preventing unintended manual
+308:  edits of auto-generated entries in limine.conf
+310:## 1.18.0 - 2025-11-27
+312:### Added
+315:- Automatic Btrfs layout validation according to your restore method configuration. If the layout is invalid, snapshot
+320:### Changed
+324:## 1.17.1 - 2025-10-28
+326:### Fixed and improved
+328:- Avoid showing "null" when no snapshot description is available in Snapper boot entry comments.
+329:- Show snapshot count and limit in the "Snapshots" boot entry comment to clarify separate limit settings in Snapper and
+332:## 1.17.0 - 2025-10-26
+334:### Added
+338:### Changed
+343:### Fixed
+347:- `limine-snapper-list` no longer crashes if a snapshot has no description.
+349:## 1.16.2 - 2025-10-18
+351:### Fixed
+354:- Moving `limine.conf.tmp` to `limine.conf` **before** starting `sync` to ensure a complete write on FAT32 (**not
+357:## 1.16.1 - 2025-10-17
+359:### Fixed or improved
+[rc=0]
+$ cat -n /usr/lib/snapper/plugins/10-limine-snapper-sync
+     1	#!/usr/bin/env bash
+     2	
+     3	# Messages go through the gettext catalog of the current language.
+     4	# Without an installed catalog every $"..." string stays exactly as written here.
+     5	export TEXTDOMAIN="limine-snapper-sync"
+     6	export TEXTDOMAINDIR="/usr/share/locale"
+     7	
+     8	set -euo pipefail
+     9	
+    10	ACTION="${1:-}"
+    11	SUBVOLUME="${2:-}"
+    12	SNAP_ID="${4:-}"
+    13	
+    14	# Command to run sync
+    15	readonly SYNC_CMD=(limine-snapper-sync)
+    16	
+    17	# Only act on the root subvolume
+    18	[[ "$SUBVOLUME" != "/" ]] && exit 0
+    19	
+    20	log_error() {
+    21		local msg="$1"
+    22		echo $"ERROR: $msg" >&2
+    23		logger -t "limine-snapper-sync" -p err "$msg"
+    24	}
+    25	
+    26	# Extract <description> text from snapshot metadata
+    27	get_description() {
+    28		local xml="$1"
+    29		if [[ ! -f "$xml" ]]; then
+    30			echo ""
+    31			return 1
+    32		fi
+    33		sed -n 's:.*<description>\(.*\)</description>.*:\1:p' "$xml" | head -n1
+    34	}
+    35	
+    36	# Function to run limine-snapper-sync
+    37	function run_sync() {
+    38		local op="$1" # add / delete / modify
+    39		local id="$2"
+    40	
+    41		if [[ -z "$id" ]]; then
+    42			log_error "missing snapshot ID"
+    43			return 1
+    44		fi
+    45	
+    46		local xml="/.snapshots/${id}/info.xml"
+    47	
+    48		# On add: check metadata and skip writable-copy snapshots
+    49		if [[ "$op" == "add" ]]; then
+    50			if [[ ! -f "$xml" ]]; then
+    51				log_error "metadata file not found: ${xml}"
+    52				return 1
+    53			fi
+    54	
+    55			local desc
+    56			desc=$(get_description "$xml")
+    57	
+    58			# Skip writable-copy snapshots: "writable copy of #<id>"
+    59			if [[ "$desc" =~ ^writable[[:space:]]+copy[[:space:]]+of[[:space:]]+\#([0-9]+)$ ]]; then
+    60				return 0
+    61			fi
+    62		fi
+    63	
+    64		local skip="no"
+    65	
+    66		# Skip sync if another sync process or watcher is already running
+    67		if [[ "$op" == "add" || "$op" == "delete" ]]; then
+    68			# Systemd: limine-snapper-sync.service already active?
+    69			if command -v systemctl &>/dev/null && systemctl is-active --quiet limine-snapper-sync.service; then
+    70				skip="yes"
+    71			fi
+    72			# Non-systemd: watcher script running?
+    73			if command -v pgrep &>/dev/null && pgrep -f "limine-snapper-watcher" &>/dev/null; then
+    74				skip="yes"
+    75			fi
+    76		fi
+    77	
+    78		# Run limine-snapper-sync asynchronously
+    79		if [[ $skip == "no" ]]; then
+    80	
+    81			cmd=("${SYNC_CMD[@]}")
+    82			if [[ "$op" == "delete" || "$op" == "modify" ]]; then
+    83				cmd+=(--debounce)
+    84			elif [[ "$op" == "add" ]]; then
+    85				cmd+=(--add "$id")
+    86			fi
+    87	
+    88			# Running async would help avoid snapper deadlocks when snapper and limine-snapper-sync v1 access snapper at the same time.
+    89			# Info: limine-snapper-sync major v2 already avoids this issue without using any snapper CLI.
+    90			if command -v systemd-run &>/dev/null; then
+    91				systemd-run \
+    92					--unit="limine-snapper-${op}-${SNAP_ID}-$$" \
+    93					--description="Run limine-snapper-sync for ${op} ${SNAP_ID}" \
+    94					--quiet --collect \
+    95					"${cmd[@]}"
+    96			elif command -v setsid &>/dev/null; then
+    97				# Run detached from terminal/session
+    98				setsid "${cmd[@]}" &>/dev/null &
+    99			else
+   100				# Fallback background execution
+   101				"${cmd[@]}" &>/dev/null &
+   102			fi
+   103		fi
+   104	}
+   105	
+   106	restore_kernels() {
+   107		local new_id="$1"
+   108	
+   109		if [[ -z "$new_id" ]]; then
+   110			log_error "missing snapshot ID"
+   111			return 1
+   112		fi
+   113	
+   114		local xml="/.snapshots/${new_id}/info.xml"
+   115		if [[ ! -f "$xml" ]]; then
+   116			log_error "metadata file not found: ${xml}"
+   117			return 1
+   118		fi
+   119	
+   120		local desc old_id
+   121		desc=$(get_description "$xml")
+   122	
+   123		# Match pattern: "writable copy of #<old_id>"
+   124		if [[ "$desc" =~ ^writable[[:space:]]+copy[[:space:]]+of[[:space:]]+\#([0-9]+)$ ]]; then
+   125			old_id="${BASH_REMATCH[1]}"
+   126		else
+   127			# Fallback: use new_id
+   128			old_id="${new_id}"
+   129		fi
+   130	
+   131		limine-snapper-restore --kernels "$old_id"
+   132	}
+   133	
+   134	case "$ACTION" in
+   135	create-snapshot-post)
+   136		run_sync add "${SNAP_ID}"
+   137		;;
+   138	delete-snapshot-post)
+   139		run_sync delete "${SNAP_ID}"
+   140		;;
+   141	modify-snapshot-post)
+   142		run_sync modify "${SNAP_ID}"
+   143		;;
+   144	set-default-snapshot-pre)
+   145		restore_kernels "${SNAP_ID}"
+   146		;;
+   147	*)
+   148		# Ignore any unknown action
+   149		exit 0
+   150		;;
+   151	esac
+[rc=0]
+$ cat -n /usr/bin/limine-snapper-watcher
+     1	#!/usr/bin/env bash
+     2	
+     3	# Messages go through the gettext catalog of the current language.
+     4	# Without an installed catalog every $"..." string stays exactly as written here.
+     5	export TEXTDOMAIN="limine-snapper-sync"
+     6	export TEXTDOMAINDIR="/usr/share/locale"
+     7	
+     8	readonly SCRIPT_NAME="limine-snapper-watcher"
+     9	readonly WATCH_DIR="/.snapshots"
+    10	readonly BASE_CONFIG="/etc/limine-snapper-sync.conf"
+    11	readonly DEFAULT_CONFIG="/etc/default/limine"
+    12	readonly TMP_CONFIG="/tmp/limine-snapper-sync.conf"
+    13	readonly SYNC_CMD=(limine-snapper-sync)
+    14	
+    15	_label_warning=$"WARNING"
+    16	_label_error=$"ERROR"
+    17	
+    18	_color_reset=""
+    19	_color_yellow=""
+    20	_color_red=""
+    21	colors="$(tput colors 2>/dev/null || echo 0)"
+    22	if ((colors >= 8)); then
+    23		_color_reset="\033[0m"
+    24		_color_yellow="\033[1;33m"
+    25		_color_red="\033[1;31m"
+    26	fi
+    27	
+    28	info_msg() {
+    29		echo "$1"
+    30	}
+    31	
+    32	warning_msg() {
+    33		echo -e "${_color_yellow}${_label_warning}: $1${_color_reset} ${2:-}" >&2
+    34	}
+    35	
+    36	error_msg() {
+    37		echo -e "${_color_red}${_label_error}: $1${_color_reset} ${2:-}" >&2
+    38	}
+    39	
+    40	### Check if the script is being run with root privileges
+    41	require_root() {
+    42		if ((EUID != 0)); then
+    43			error_msg $"${SCRIPT_NAME} must be run as root."
+    44			exit 1
+    45		fi
+    46	}
+    47	
+    48	### Check if you are not in Btrfs.
+    49	require_btrfs_root() {
+    50		local fstype
+    51		read -r fstype < <(findmnt --mountpoint / -no FSTYPE)
+    52		if [[ "$fstype" != "btrfs" ]]; then
+    53			warning_msg $"Root filesystem is not Btrfs. ${SCRIPT_NAME} stopped."
+    54			exit 0
+    55		fi
+    56	}
+    57	
+    58	is_btrfs_ro() {
+    59		[[ $(btrfs property get / ro) == *true ]]
+    60	}
+    61	
+    62	### Check if you are in snapshot
+    63	is_snapshot() {
+    64		cmdline=$(</proc/cmdline)
+    65		if [[ $cmdline =~ rootflags.*subvol=.*?/([0-9]+)/snapshot ]]; then
+    66			return 0
+    67		else
+    68			return 1
+    69		fi
+    70	}
+    71	
+    72	copy_config_if_needed() {
+    73		if is_btrfs_ro && is_snapshot && [[ ! -f "${TMP_CONFIG}" ]]; then
+    74			if [[ -f "${DEFAULT_CONFIG}" ]]; then
+    75				cp "${DEFAULT_CONFIG}" "${TMP_CONFIG}"
+    76			elif [[ -f "${BASE_CONFIG}" ]]; then
+    77				cp "${BASE_CONFIG}" "${TMP_CONFIG}"
+    78			fi
+    79		fi
+    80	}
+    81	
+    82	### Remove pacman lock after restore for Arch Linux & Arch based distros
+    83	cleanup_pacman_lock() {
+    84		local db_path lock_file
+    85		db_path="$(pacman-conf DBPath 2>/dev/null)"
+    86		[[ -n "$db_path" ]] || db_path="/var/lib/pacman"
+    87		lock_file="$db_path/db.lck"
+    88		[[ -f "$lock_file" ]] || return 0
+    89		for _ in {1..5}; do
+    90			pgrep -x pacman &>/dev/null || break
+    91			sleep 1
+    92		done
+    93		pgrep -x pacman &>/dev/null || rm -f "$lock_file"
+    94	}
+    95	
+    96	### Main logic
+    97	require_root
+    98	require_btrfs_root
+    99	copy_config_if_needed
+   100	
+   101	if is_btrfs_ro; then
+   102		warning_msg $"You are in the read-only Btrfs. ${SCRIPT_NAME} stopped."
+   103		exit 0
+   104	fi
+   105	
+   106	if is_snapshot; then
+   107		warning_msg $"You are booted from the snapshot. ${SCRIPT_NAME} stopped."
+   108		exit 0
+   109	fi
+   110	
+   111	cleanup_pacman_lock &
+   112	
+   113	### Initial sync
+   114	if [ ! -d "$WATCH_DIR" ]; then
+   115		echo $"Directory $WATCH_DIR does not exist. limine-snapper-sync is triggered to initialize a snapper config for $WATCH_DIR."
+   116		"${SYNC_CMD[@]}"
+   117	fi
+   118	
+   119	if ! command -v inotifywait &>/dev/null; then
+   120		info_msg $"inotifywait is not installed. Falling back to Snapper plugin integration."
+   121		exit 0
+   122	fi
+   123	
+   124	### Monitoring the directory for creation or deletion events.
+   125	inotifywait -q -m -e create -e delete --format '%e|%f' "${WATCH_DIR}" | while IFS='|' read -r event snapID; do
+   126		info_msg "[EVENT] $event -> $snapID"
+   127		if [[ -e /run/limine-snapper-cleanup.lock ]]; then
+   128			info_msg $"[SKIP] Cleanup lock is active, skipping sync"
+   129		elif [[ "$event" == *CREATE* ]]; then
+   130			"${SYNC_CMD[@]}" --add "$snapID" &
+   131		else
+   132			"${SYNC_CMD[@]}" --debounce &
+   133		fi
+   134	done
+[rc=0]
+$ cat -n /usr/share/libalpm/scripts/limine-snapper-lock
+     1	#!/usr/bin/env bash
+     2	
+     3	# Messages go through the gettext catalog of the current language.
+     4	# Without an installed catalog every $"..." string stays exactly as written here.
+     5	export TEXTDOMAIN="limine-snapper-sync"
+     6	export TEXTDOMAINDIR="/usr/share/locale"
+     7	readonly MUTEX_LIB="/usr/lib/limine/limine-mutex"
+     8	
+     9	if [[ ! -f "$MUTEX_LIB" ]]; then
+    10		echo $"Warning: $MUTEX_LIB not found." >&2
+    11		exit 0
+    12	fi
+    13	source "$MUTEX_LIB"
+    14	mutex_lock "limine-snapper-lock"
+    15	mutex_unlock
+[rc=0]
+$ cat -n /usr/share/libalpm/hooks/10-limine-snapper-lock.hook /usr/share/libalpm/hooks/80-limine-efi-deploy.hook /etc/pacman.d/hooks/90-mkinitcpio-install.hook /etc/pacman.d/hooks/99-limine.hook /usr/share/libalpm/hooks/90-mkinitcpio-install.hook
+     1	# limine-snapper-sync
+     2	# https://gitlab.com/Zesko/limine-snapper-sync
+     3	
+     4	[Trigger]
+     5	Operation = Upgrade
+     6	Operation = Install
+     7	Operation = Remove
+     8	Type = Package
+     9	Target = *
+    10	
+    11	[Action]
+    12	Description = Waiting for limine-snapper-sync to finish...
+    13	When = PreTransaction
+    14	Exec = /usr/share/libalpm/scripts/limine-snapper-lock
+    15	NeedsTargets
+    16	[Trigger]
+    17	Operation = Install
+    18	Operation = Upgrade
+    19	Type = Package
+    20	Target = limine
+    21	Target = limine-git
+    22	Target = limine-dev
+    23	Target = limine-mkinitcpio-hook
+    24	Target = limine-mkinitcpio-hook-git
+    25	
+    26	[Action]
+    27	Description = Deploying Limine after upgrade...
+    28	When = PostTransaction
+    29	Exec = /usr/bin/limine-install
+    30	[Trigger]
+    31	Type = Path
+    32	Operation = Install
+    33	Operation = Upgrade
+    34	Operation = Remove
+    35	Target = usr/lib/initcpio/*
+    36	Target = usr/lib/firmware/*
+    37	Target = usr/lib/modules/*/extramodules/
+    38	Target = usr/src/*/dkms.conf
+    39	Target = usr/lib/systemd/systemd
+    40	Target = usr/bin/cryptsetup
+    41	Target = usr/bin/lvm
+    42	
+    43	[Trigger]
+    44	Type = Path
+    45	Operation = Install
+    46	Operation = Upgrade
+    47	Target = usr/lib/modules/*/modules.builtin
+    48	
+    49	[Trigger]
+    50	Type = Package
+    51	Operation = Install
+    52	Operation = Upgrade
+    53	Target = mkinitcpio
+    54	Target = mkinitcpio-git
+    55	
+    56	[Action]
+    57	Description = Updating linux initcpios...
+    58	When = PostTransaction
+    59	Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-install
+    60	NeedsTargets
+    61	[Trigger]
+    62	Operation = Install
+    63	Operation = Upgrade
+    64	Type = Package
+    65	Target = limine
+    66	
+    67	[Action]
+    68	Description = Deploying Limine after upgrade...
+    69	When = PostTransaction
+    70	Exec = /bin/sh -c "/usr/bin/cp /usr/share/limine/BOOTIA32.EFI /boot/EFI/BOOT/ && /usr/bin/cp /usr/share/limine/BOOTX64.EFI /boot/EFI/BOOT/"
+    71	[Trigger]
+    72	Type = Path
+    73	Operation = Install
+    74	Operation = Upgrade
+    75	Operation = Remove
+    76	Target = usr/lib/initcpio/*
+    77	Target = usr/lib/firmware/*
+    78	Target = usr/lib/modules/*/extramodules/
+    79	Target = usr/src/*/dkms.conf
+    80	Target = usr/lib/systemd/systemd
+    81	Target = usr/lib/systemd/systemd-udevd
+    82	Target = usr/bin/cryptsetup
+    83	Target = usr/bin/lvm
+    84	Target = usr/bin/mdadm
+    85	Target = usr/bin/pdata_tools
+    86	Target = usr/lib/libcryptsetup.so
+    87	Target = usr/lib/libp11-kit.so
+    88	Target = usr/lib/libpcsclite.so
+    89	Target = usr/lib/modprobe.d/
+    90	
+    91	[Trigger]
+    92	Type = Path
+    93	Operation = Install
+    94	Operation = Upgrade
+    95	Target = usr/lib/modules/*/vmlinuz
+    96	
+    97	[Trigger]
+    98	Type = Package
+    99	Operation = Install
+   100	Operation = Upgrade
+   101	Target = mkinitcpio
+   102	Target = mkinitcpio-git
+   103	
+   104	[Action]
+   105	Description = Updating linux initcpios...
+   106	When = PostTransaction
+   107	Exec = /usr/share/libalpm/scripts/mkinitcpio install
+   108	NeedsTargets
+[rc=0]
+$ grep -n -E "limine.conf|/boot|ESP_PATH|cp |install -|Updated|Copied" /usr/share/libalpm/scripts/limine-mkinitcpio-install | head -n 60
+27:BOOT_PATH="$ESP_PATH"
+[rc=0]
+$ grep -n -E "^#|limine.conf|Updated|snapper|cleanup|ESP" /usr/share/doc/limine-entry-tool/README.md | head -n 120
+1:# Entry Automation for Limine Bootloader
+3:### Contents
+14:## Description
+17:<br>It generates, updates, and removes boot entries with periodic `limine.conf` backups.
+27:## Usage
+37:to `${ESP_PATH}/EFI/limine/limine_x64.efi` on the boot partition.<br>
+43:Sets Limine as the default fallback loader by overwriting `${ESP_PATH}/EFI/BOOT/BOOTX64.EFI` on the boot partition.
+80:# Create a boot entry for "kernel-6.10.1":
+83:# Create a boot entry for "kernel-6.10.1" with a "-fallback" suffix:
+86:# Create a kernel entry without initramfs
+90:and copy the files to the directory `$ESP_PATH/${machine_id}/kernel-6.10.1/`.
+108:and copies the UKI file to `$ESP_PATH/EFI/Linux/${machine_id}_kernel-6.12.1.efi`.
+121:- `--priority <Number>`: Set position in the boot order in limine.conf (default: **50**, middle of range)
+128:This creates or updates an EFI entry to limine.conf.<br>
+138:# Example:
+142:This removes the kernel entry under the OS entry and its directory `$ESP_PATH/${machine_id}/<kernel name>/`.
+153:# Example:
+156:This removes the UKI boot entry under the OS entry and its UKI file at `$ESP_PATH/EFI/Linux/${machine_id}_<kernel name>.efi`.
+165:# or 
+168:# Examples:
+170:# Removes the first "Snapshots" entry under the "Arch Linux" OS entry
+173:# Removes the second "Windows Boot Manager" at the top level of the boot menu
+176:# Removes an OS entry matching the machine ID at the top level of the boot menu
+199:# Example:
+212:## Requirements
+221:## Installation
+225:This tool generates boot entries only at `$ESP_PATH/limine.conf` and does not touch any other Limine config locations.
+226:If you intend to use `$ESP_PATH/limine.conf` as your primary boot configuration,
+250:### Arch Linux
+260:2. If your boot partition is not detected, create or edit `/etc/default/limine` and set `ESP_PATH=` to your FAT32 partition.
+298:1. Run `limine-install` to install Limine to `$ESP_PATH/EFI/limine/limine_x86.efi` (for x86_64 UEFI systems).
+302:### Other Linux distributions
+329:    ESP_PATH=/path/to/esp
+333:   * Replace `/path/to/esp` with your actual boot partition (ESP) mount point (must be FAT32).
+334:   * `LIMINE_BINARY_PATH=` is the path to Limine EFI binary that will be copied to the ESP by `limine-install` for UEFI.
+337:8. Run `limine-install` to copy the Limine EFI binary to the ESP.
+341:## Configuration
+346:### OS Entry Targeting
+347:### If TARGET_OS_NAME is not set, or if the default distro name is not found in $ESP_PATH/limine.conf,
+348:### the tool will create a new OS entry using the default distro name (PRETTY_NAME or NAME from /etc/os-release) and machine-ID.
+349:###
+350:### Tips:
+351:### If your custom OS entry already exists in $ESP_PATH/limine.conf, please add "comment: machine-id=<copy ID from /etc/machine-id>" under its name.
+352:### The machine-ID helps the tool to automatically target the correct OS entry, so changing the OS name does not matter.
+353:###
+354:#TARGET_OS_NAME="Arch Linux"
+357:### Boot Partition Path
+358:### If not set, it is found automatically by checking /efi, /boot, /boot/efi, and /limine.
+359:### Set this to skip the automatic search or if your boot partition uses a different mount path.
+360:#ESP_PATH="/boot"
+363:### Skip UEFI Check and Registration
+364:### Skip UEFI check and bootloader registration on certain non-compliant UEFI boards (e.g., some MSI boards) (yes|no)
+365:### If skipped, Limine will be used as the fallback bootloader on the standard UEFI path for all UEFI systems.
+366:### Note:
+367:### When set to yes, run 'limine-install' and manually set the BIOS boot order to make the standard UEFI path the default boot.
+371:### UEFI Boot Order
+372:### Choose where 'limine-install' places the Limine UEFI boot entry in the UEFI boot order when it creates the entry. (first|last|keep)
+373:### It has no effect while the entry exists; it only applies when the entry is missing, e.g. after a firmware or Windows update removed it.
+374:###
+375:### Options:
+376:### * "first" or commented out -> Put Limine first, so it becomes the default boot option.
+377:### * "last"                   -> Put Limine at the end; the current default boot option stays unchanged.
+378:### * "keep"                   -> Put Limine where an older Limine entry for the same EFI file still is in the boot order, otherwise like "last".
+379:###
+380:### Note:
+381:### "last" and "keep" set the boot order with 'efibootmgr --bootorder'. Some UEFI firmware ignores or rewrites a boot order set this way,
+382:### or creates duplicate boot entries after a reboot. 'limine-install' reports a boot order that differs from the requested one, but does not retry.
+383:### If your firmware does this, use "first" and adjust the boot order in the BIOS/UEFI setup instead.
+387:### Kernel Command Line Configuration
+388:### Define one or more kernel command lines (parameters) for specific kernel entries.
+389:### If unset, the tool will try to read them from '/etc/kernel/cmdline' or '/proc/cmdline'.
+390:###
+391:### Rules:
+392:### * KERNEL_CMDLINE[default] applies to any kernel entries without specific configuration.
+393:### * KERNEL_CMDLINE[fallback] applies to kernel entries with names containing *fallback*
+394:### * KERNEL_CMDLINE[kernel name] applies to a specific kernel entry.
+395:###
+396:### Operators:
+397:### * `+=` appends parameters to an existing cmdline for the same KERNEL_CMDLINE[<key>]
+398:###    Commonly used in drop-in configs: /etc/limine-entry-tool.d/*.conf
+399:###    Ignores /etc/kernel/cmdline and /proc/cmdline
+400:### * `=` replaces an existing cmdline for the same KERNEL_CMDLINE[<key>]
+401:###    Note: /etc/default/limine overrides any drop-in configs, so `+=` is recommended there.
+402:###
+403:### Tips:
+404:### - If unsure which parameters to use, copy them from `/proc/cmdline` into KERNEL_CMDLINE[default],
+405:###   but make sure your system is not a live ISO, temporary environment, or snapshot.
+406:### - Multiple `initrd=` parameters are automatically converted into Limine module paths for non-UKI entries.
+407:### - No quotes are needed at the start or end of command lines, since quotes inside are not escaped.
+408:### - Do not add `#` as a comment at the end of command lines.
+409:###
+410:### Examples:
+411:#KERNEL_CMDLINE[default]+=rw root=UUID=...
+412:#KERNEL_CMDLINE[default]+=quiet splash acpi_osi="..."
+413:#KERNEL_CMDLINE[default]+=initrd=/amd-ucode.img
+414:#KERNEL_CMDLINE[fallback]=
+415:#KERNEL_CMDLINE[linux-zen]=
+418:### Formatting Boot Entry
+419:### Define the number of spaces to indent each line of the boot entry in '$ESP_PATH/limine.conf'.
+420:### If not set, the default is 2.
+421:#SPACE_NUMBER=2
+424:### Boot Integrity Check
+425:### Enable BLAKE2 checksum verification for bootable files. (yes|no)
+429:### Automatic Config Backup
+430:### Creates a backup of '$ESP_PATH/limine.conf' before saving any changes,
+431:### but only if '$ESP_PATH/limine.conf.old' is older than the specified time (in hours).
+432:### Default: 6 hours if unset.
+433:#CONFIG_BACKUP_THRESHOLD=6
+436:### Kernel Entries Order
+437:### Wildcard "*" matches any letter in kernel-entry name 
+438:### If ENABLE_SORT is set to "yes", only wildcard "*" entries are sorted alphabetically.
+443:### Limine UEFI Binary Path
+444:### Set the path to the Limine UEFI binary. Default: '/usr/share/limine/BOOTX64.EFI' (from the limine package on Arch Linux)
+445:### It will be copied to '$ESP_PATH/EFI/limine/limine_x64.efi' when running 'limine-install'.
+446:### Set SKIP_LIMINE_VERSION_CHECK=yes to always deploy the Limine binary regardless of version.
+447:#LIMINE_BINARY_PATH="/usr/share/limine/BOOTX64.EFI"
+448:#SKIP_LIMINE_VERSION_CHECK=no
+451:### Default Boot Fallback
+452:### Configure whether Limine should be installed as the default UEFI fallback loader. (yes|no|"")
+453:### This helps preserve bootability on UEFI systems where BIOS, firmware, or Windows updates may remove custom Linux UEFI entries.
+[rc=0]
+$ journalctl --no-pager -o short-iso --since "2026-10-20 09:27:00" --until "2026-10-20 09:31:30" -t limine-snapper-sync -t limine-snapper-watcher -t limine-snapper-notify -t snapperd -t systemd-helper
+2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Copied: /boot/EFI/Linux/omarchy_linux.efi -> /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8
+2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Copied: /boot/EFI/Linux/omarchy_linux-lts.efi -> /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8
+2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Saved: /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/snapshots.json
+2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Updated: /boot/limine.conf
+[rc=0]
+$ journalctl --no-pager -o short-iso --since "2026-10-20 08:40" --until "2026-10-20 10:10" -u snapper-cleanup.service -u limine-snapper-sync.service -t limine-snapper-sync
+2026-10-20T10:07:03-03:00 plazir27 limine-snapper-sync[6567]: Updated: /boot/limine.conf
+[rc=0]
+$ journalctl --no-pager -o short-iso --since "2026-10-19 00:00" -t limine-snapper-sync -t limine-snapper-watcher | grep -v "Updated: /boot/limine.conf" | tail -n 40
+2026-10-19T08:11:47-03:00 plazir27 limine-snapper-sync[1543]: No Snapper config found for '/'. Please configure Snapper and set SNAPPER_CONFIG_NAME in /etc/default/limine.
+2026-10-19T08:11:47-03:00 plazir27 limine-snapper-watcher[1372]: inotifywait is not installed. Falling back to Snapper plugin integration.
+-- Boot 430d3038185949e682cf5fc475d1b3d0 --
+2026-10-19T22:48:23-03:00 plazir27 limine-snapper-watcher[1386]: Directory /.snapshots does not exist. limine-snapper-sync is triggered to initialize a snapper config for /.snapshots.
+2026-10-19T22:48:24-03:00 plazir27 limine-snapper-watcher[1520]: No Snapper config found for '/'. Creating a Snapper config named 'root' and single root snapshot.
+2026-10-19T22:48:24-03:00 plazir27 limine-snapper-sync[1549]: No Snapper config found for '/'. Creating a Snapper config named 'root' and single root snapshot.
+2026-10-19T22:48:24-03:00 plazir27 limine-snapper-watcher[1520]: Mon 19 Oct 2026 10:48:24 PM -03 <3> Btrfs.cc(createConfig):139 create subvolume failed, btrfs_util_create_subvolume_fd() failed, errno:13 (Permission denied)
+2026-10-19T22:48:24-03:00 plazir27 limine-snapper-watcher[1520]: Creating config failed (creating btrfs subvolume .snapshots failed).
+2026-10-19T22:48:24-03:00 plazir27 limine-snapper-watcher[1520]: Failed: "snapper --no-dbus -c root create-config /" with exit code: 1
+2026-10-19T22:48:24-03:00 plazir27 limine-snapper-watcher[1520]: No Snapper config found for '/'. Please configure Snapper and set SNAPPER_CONFIG_NAME in /etc/default/limine.
+2026-10-19T22:48:24-03:00 plazir27 limine-snapper-sync[1556]: No Snapper config found for '/'. Please configure Snapper and set SNAPPER_CONFIG_NAME in /etc/default/limine.
+2026-10-19T22:48:24-03:00 plazir27 limine-snapper-watcher[1386]: inotifywait is not installed. Falling back to Snapper plugin integration.
+-- Boot 84755511f8b741649b565f302b59e676 --
+2026-10-20T06:37:55-03:00 plazir27 limine-snapper-watcher[1394]: Directory /.snapshots does not exist. limine-snapper-sync is triggered to initialize a snapper config for /.snapshots.
+2026-10-20T06:37:55-03:00 plazir27 limine-snapper-watcher[1528]: No Snapper config found for '/'. Creating a Snapper config named 'root' and single root snapshot.
+2026-10-20T06:37:55-03:00 plazir27 limine-snapper-sync[1557]: No Snapper config found for '/'. Creating a Snapper config named 'root' and single root snapshot.
+2026-10-20T06:37:55-03:00 plazir27 limine-snapper-watcher[1528]: Tue 20 Oct 2026 06:37:55 AM -03 <3> Btrfs.cc(createConfig):139 create subvolume failed, btrfs_util_create_subvolume_fd() failed, errno:13 (Permission denied)
+2026-10-20T06:37:55-03:00 plazir27 limine-snapper-watcher[1528]: Creating config failed (creating btrfs subvolume .snapshots failed).
+2026-10-20T06:37:55-03:00 plazir27 limine-snapper-watcher[1528]: Failed: "snapper --no-dbus -c root create-config /" with exit code: 1
+2026-10-20T06:37:55-03:00 plazir27 limine-snapper-watcher[1528]: No Snapper config found for '/'. Please configure Snapper and set SNAPPER_CONFIG_NAME in /etc/default/limine.
+2026-10-20T06:37:55-03:00 plazir27 limine-snapper-sync[1564]: No Snapper config found for '/'. Please configure Snapper and set SNAPPER_CONFIG_NAME in /etc/default/limine.
+2026-10-20T06:37:55-03:00 plazir27 limine-snapper-watcher[1394]: inotifywait is not installed. Falling back to Snapper plugin integration.
+-- Boot ed8819b0a64a4af7b171e29b28b55524 --
+2026-10-20T08:58:00-03:00 plazir27 limine-snapper-watcher[1392]: Directory /.snapshots does not exist. limine-snapper-sync is triggered to initialize a snapper config for /.snapshots.
+2026-10-20T08:58:01-03:00 plazir27 limine-snapper-watcher[1508]: No Snapper config found for '/'. Creating a Snapper config named 'root' and single root snapshot.
+2026-10-20T08:58:01-03:00 plazir27 limine-snapper-sync[1538]: No Snapper config found for '/'. Creating a Snapper config named 'root' and single root snapshot.
+2026-10-20T08:58:01-03:00 plazir27 limine-snapper-watcher[1508]: Tue 20 Oct 2026 08:58:01 AM -03 <3> Btrfs.cc(createConfig):139 create subvolume failed, btrfs_util_create_subvolume_fd() failed, errno:13 (Permission denied)
+2026-10-20T08:58:01-03:00 plazir27 limine-snapper-watcher[1508]: Creating config failed (creating btrfs subvolume .snapshots failed).
+2026-10-20T08:58:01-03:00 plazir27 limine-snapper-watcher[1508]: Failed: "snapper --no-dbus -c root create-config /" with exit code: 1
+2026-10-20T08:58:01-03:00 plazir27 limine-snapper-watcher[1508]: No Snapper config found for '/'. Please configure Snapper and set SNAPPER_CONFIG_NAME in /etc/default/limine.
+2026-10-20T08:58:01-03:00 plazir27 limine-snapper-sync[1545]: No Snapper config found for '/'. Please configure Snapper and set SNAPPER_CONFIG_NAME in /etc/default/limine.
+2026-10-20T08:58:01-03:00 plazir27 limine-snapper-watcher[1392]: inotifywait is not installed. Falling back to Snapper plugin integration.
+2026-10-20T09:03:03-03:00 plazir27 limine-snapper-sync[5929]: Copied: /boot/EFI/Linux/omarchy_linux.efi -> /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0
+2026-10-20T09:03:03-03:00 plazir27 limine-snapper-sync[5929]: Saved: /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/snapshots.json
+2026-10-20T09:10:54-03:00 plazir27 limine-snapper-watcher[10021]: inotifywait is not installed. Falling back to Snapper plugin integration.
+2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Copied: /boot/EFI/Linux/omarchy_linux.efi -> /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8
+2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Copied: /boot/EFI/Linux/omarchy_linux-lts.efi -> /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8
+2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Saved: /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/snapshots.json
+-- Boot 3e7084f470464957a8a2c00542a3b469 --
+2026-10-20T09:57:11-03:00 plazir27 limine-snapper-watcher[1385]: inotifywait is not installed. Falling back to Snapper plugin integration.
+[rc=0]
+$ journalctl --no-pager -o short-iso --since "2026-10-19 00:00" -t limine-snapper-sync | grep -c "Updated: /boot/limine.conf"
+10
+[rc=0]
+$ grep -n -E "Updated: /boot/limine.conf|-> /boot/|running .99-limine.hook|running .80-limine-efi-deploy.hook|running .90-mkinitcpio-install.hook" /var/log/pacman.log | tail -n 30
+269:[2026-10-03T20:42:02+0000] [ALPM] running '90-mkinitcpio-install.hook'...
+1352:[2026-10-03T17:45:33-0300] [ALPM] running '80-limine-efi-deploy.hook'...
+1362:[2026-10-03T17:45:33-0300] [ALPM] running '90-mkinitcpio-install.hook'...
+1983:[2026-10-11T16:15:38-0300] [ALPM] running '80-limine-efi-deploy.hook'...
+1989:[2026-10-11T16:15:38-0300] [ALPM] running '90-mkinitcpio-install.hook'...
+2020:[2026-10-11T16:16:36-0300] [ALPM-SCRIPTLET] Copied: /tmp/limine-mkinitcpio.63L2MG/linux.efi -> /boot/EFI/Linux/omarchy_linux.efi
+2021:[2026-10-11T16:16:36-0300] [ALPM-SCRIPTLET] Updated: /boot/limine.conf
+2024:[2026-10-11T16:16:36-0300] [ALPM] running '99-limine.hook'...
+2977:[2026-10-20T09:18:13-0300] [ALPM] running '80-limine-efi-deploy.hook'...
+2983:[2026-10-20T09:18:13-0300] [ALPM] running '90-mkinitcpio-install.hook'...
+3014:[2026-10-20T09:18:18-0300] [ALPM-SCRIPTLET] Copied: /tmp/limine-mkinitcpio.Av83zz/linux-lts.efi -> /boot/EFI/Linux/omarchy_linux-lts.efi
+3015:[2026-10-20T09:18:18-0300] [ALPM-SCRIPTLET] Updated: /boot/limine.conf
+3046:[2026-10-20T09:18:23-0300] [ALPM-SCRIPTLET] Copied: /tmp/limine-mkinitcpio.Av83zz/linux.efi -> /boot/EFI/Linux/omarchy_linux.efi
+3047:[2026-10-20T09:18:24-0300] [ALPM-SCRIPTLET] Updated: /boot/limine.conf
+3050:[2026-10-20T09:18:24-0300] [ALPM] running '99-limine.hook'...
+[rc=0]

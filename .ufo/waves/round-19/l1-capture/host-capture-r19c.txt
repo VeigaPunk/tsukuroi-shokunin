@@ -1,0 +1,70 @@
+# tsukuroi round 19 L1 capture c — read-only; script sha256 fc916fd333e2abcea95b3fcd1b7b7be3c266afa0ff675a0173e8ff579c0089ec
+$ date -Is
+2026-10-20T17:58:55-03:00
+[rc=0]
+$ journalctl --no-pager --since "2026-10-19 00:00" -t limine-snapper-sync -o json --output-fields=_SYSTEMD_UNIT,_SYSTEMD_CGROUP,_COMM,_PID,MESSAGE | python3 -c "import sys,json,datetime as d
+for l in sys.stdin:
+    r=json.loads(l)
+    if \"/boot/limine.conf\" not in str(r.get(\"MESSAGE\")): continue
+    t=d.datetime.fromtimestamp(int(r[\"__REALTIME_TIMESTAMP\"])/1e6).isoformat(timespec=\"seconds\")
+    print(t, r.get(\"_PID\"), r.get(\"_COMM\"), r.get(\"_SYSTEMD_UNIT\"), r.get(\"_SYSTEMD_CGROUP\"), r.get(\"MESSAGE\"))"
+2026-10-20T09:03:03 5929 limine-snapper- limine-snapper-add-1-5846.service /system.slice/limine-snapper-add-1-5846.service Updated: /boot/limine.conf
+2026-10-20T09:29:19 260715 limine-snapper- limine-snapper-add-2-260668.service /system.slice/limine-snapper-add-2-260668.service Updated: /boot/limine.conf
+2026-10-20T10:07:03 6567 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service Updated: /boot/limine.conf
+2026-10-20T11:07:04 1135802 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service Updated: /boot/limine.conf
+2026-10-20T12:07:07 4066545 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service Updated: /boot/limine.conf
+2026-10-20T13:07:10 1947334 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service Updated: /boot/limine.conf
+2026-10-20T14:07:12 1670514 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service Updated: /boot/limine.conf
+2026-10-20T15:07:12 614163 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service Updated: /boot/limine.conf
+2026-10-20T16:07:16 872262 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service Updated: /boot/limine.conf
+2026-10-20T17:07:16 1600808 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service Updated: /boot/limine.conf
+[rc=0]
+$ journalctl --no-pager -o short-iso --since "2026-10-20 08:58:30" --until "2026-10-20 09:04:00" -t snapper -t snapperd -t limine-snapper-sync -t limine-snapper-watcher -t systemd-helper -t sudo | grep -v pam_unix | grep -E -v "sudo\[[0-9]+\]:" ; journalctl --no-pager -o short-iso --since "2026-10-20 08:58:30" --until "2026-10-20 09:04:00" -t sudo | grep -E "COMMAND=/usr/bin/(snapper|systemctl) " | sed -E "s/ PWD=[^;]*;//" | cut -c1-200
+2026-10-20T09:03:03-03:00 plazir27 limine-snapper-sync[5929]: Copied: /boot/EFI/Linux/omarchy_linux.efi -> /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0
+2026-10-20T09:03:03-03:00 plazir27 limine-snapper-sync[5929]: Saved: /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/snapshots.json
+2026-10-20T09:03:03-03:00 plazir27 limine-snapper-sync[5929]: Updated: /boot/limine.conf
+2026-10-20T09:02:01-03:00 plazir27 sudo[5451]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper list-configs
+2026-10-20T09:03:02-03:00 plazir27 sudo[5733]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c root create-config /
+2026-10-20T09:03:02-03:00 plazir27 sudo[5834]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c root set-config TIMELINE_CREATE=no
+2026-10-20T09:03:02-03:00 plazir27 sudo[5840]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c root create --type single --cleanup-algorithm number --description pre-nvme-baseline-2026-10-20 --prin
+2026-10-20T09:03:02-03:00 plazir27 sudo[5854]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c home create-config /home
+2026-10-20T09:03:02-03:00 plazir27 sudo[5992]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c home set-config TIMELINE_CREATE=yes TIMELINE_LIMIT_HOURLY=24 TIMELINE_LIMIT_DAILY=7 TIMELINE_LIMIT_WEE
+2026-10-20T09:03:02-03:00 plazir27 sudo[6098]:    vgpnk : USER=root ; COMMAND=/usr/bin/systemctl enable --now snapper-timeline.timer snapper-cleanup.timer
+2026-10-20T09:03:23-03:00 plazir27 sudo[6324]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper list-configs
+2026-10-20T09:03:32-03:00 plazir27 sudo[6875]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c root get-config
+2026-10-20T09:03:32-03:00 plazir27 sudo[6889]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c home get-config
+2026-10-20T09:03:32-03:00 plazir27 sudo[6900]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper list
+[rc=0]
+$ journalctl --no-pager -o short-iso --since "2026-10-20 09:28:30" --until "2026-10-20 09:29:30" -t snapper -t snapperd -t limine-snapper-sync -t limine-snapper-watcher -t systemd-helper -t sudo | grep -v pam_unix | grep -E -v "sudo\[[0-9]+\]:" ; journalctl --no-pager -o short-iso --since "2026-10-20 09:28:30" --until "2026-10-20 09:29:30" -t sudo | grep -E "COMMAND=/usr/bin/(snapper|systemctl) " | sed -E "s/ PWD=[^;]*;//" | cut -c1-200
+2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Copied: /boot/EFI/Linux/omarchy_linux.efi -> /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8
+2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Copied: /boot/EFI/Linux/omarchy_linux-lts.efi -> /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8
+2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Saved: /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/snapshots.json
+2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Updated: /boot/limine.conf
+2026-10-20T09:29:19-03:00 plazir27 sudo[260641]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c root create -c number -d pre-aur-elephant-2.22.1 --print-number
+[rc=0]
+$ journalctl --no-pager -o short-iso --since "2026-10-20 08:57:00" --until "2026-10-20 09:10:00" -u snapper-cleanup.timer -u snapper-cleanup.service -u snapper-timeline.service | cut -c1-200
+2026-10-20T09:03:03-03:00 plazir27 systemd[1]: Started Hourly Cleanup of Snapper Snapshots.
+2026-10-20T09:08:04-03:00 plazir27 systemd[1]: Starting Daily Cleanup of Snapper Snapshots...
+2026-10-20T09:08:04-03:00 plazir27 systemd[1]: Started Daily Cleanup of Snapper Snapshots.
+2026-10-20T09:08:04-03:00 plazir27 systemd-helper[8537]: Running cleanup for 'home'.
+2026-10-20T09:08:04-03:00 plazir27 systemd-helper[8537]: Running number cleanup for 'home'.
+2026-10-20T09:08:04-03:00 plazir27 systemd-helper[8537]: Running timeline cleanup for 'home'.
+2026-10-20T09:08:04-03:00 plazir27 systemd-helper[8537]: Running empty-pre-post cleanup for 'home'.
+2026-10-20T09:08:04-03:00 plazir27 systemd-helper[8537]: Running cleanup for 'root'.
+2026-10-20T09:08:04-03:00 plazir27 systemd-helper[8537]: Running number cleanup for 'root'.
+2026-10-20T09:08:04-03:00 plazir27 systemd-helper[8537]: Running timeline cleanup for 'root'.
+2026-10-20T09:08:04-03:00 plazir27 systemd-helper[8537]: Running empty-pre-post cleanup for 'root'.
+2026-10-20T09:08:04-03:00 plazir27 systemd[1]: snapper-cleanup.service: Deactivated successfully.
+[rc=0]
+$ journalctl --no-pager -o short-iso --since "2026-10-19 00:00" -t systemd -g "limine-snapper-add" | cut -c1-200
+-- Boot f955c71647bf461e83eafa062d5376a7 --
+-- Boot be04596724904d7ea4eee8ce415e77cc --
+-- Boot 430d3038185949e682cf5fc475d1b3d0 --
+-- Boot 84755511f8b741649b565f302b59e676 --
+-- Boot ed8819b0a64a4af7b171e29b28b55524 --
+2026-10-20T09:03:03-03:00 plazir27 systemd[1]: limine-snapper-add-1-5846.service: Deactivated successfully.
+2026-10-20T09:03:03-03:00 plazir27 systemd[1]: limine-snapper-add-1-5846.service: Consumed 399ms CPU time over 461ms wall clock time, 348.3M memory peak.
+2026-10-20T09:29:19-03:00 plazir27 systemd[1]: limine-snapper-add-2-260668.service: Deactivated successfully.
+2026-10-20T09:29:19-03:00 plazir27 systemd[1]: limine-snapper-add-2-260668.service: Consumed 739ms CPU time over 598ms wall clock time, 664.3M memory peak.
+-- Boot 3e7084f470464957a8a2c00542a3b469 --
+[rc=0]

@@ -104,3 +104,29 @@ round-13 loci only — the ProtectSystem “value set is not exhaustive” cell
 fields only; VM execution unverified; second opinion and maintainer deferral
 stand; #6629's disclaimer is not transferred, S045). Round-13 namespace
 guidance remains active; no new surface, capability or host cause is claimed.
+
+## Adjacent — portable ownership anchors (round 19)
+
+Append-only. The line-range table under `## Adjacent — finding-to-owner handoffs`
+(ADJ-01..ADJ-07) and the Core pointer retained above are not changed. Each row
+below cites its ownership text by anchor id, exact heading and exact quote from
+the pinned sibling snapshot, never by line number; OUT-001 is the Core pointer
+(ADJ row shown as Core). The pinned commit and blob sha256 identify the bytes,
+so an anchor is valid only for those bytes. Inbound classification and
+owner-handoff packets are in `corpus/knowledge/adjacency-anchors-r19.md`. This
+section grants no authority and is an ownership locator, not a repair mandate.
+
+| Anchor | ADJ row | Sibling file @ commit | Heading | Quote | Proposition |
+|---|---|---|---|---|---|
+| OUT-001 | Core | `mori-shokunin/PROVINCE.md` @ `91940fa339e3` | `# mori-shokunin — Province` | independently labeled user/system journals, plus cgroup `memory.events` and the explicit same-boot journal window after a retained anchor; | Mori owns kill/OOM and cgroup memory evidence; fleet correlation of host pressure is mori's, not OS triage. |
+| OUT-002 | ADJ-01 | `kama-shokunin/PROVINCE.md` @ `e75cf680b534` | `# kama-shokunin — Province` | `GET /v1/models` vs `--alias` vs the configured model id | Kama owns served-model identity reconciliation; an endpoint or served-model mismatch is kama's analysis, not a driver/GPU-readiness finding. |
+| OUT-003 | ADJ-02 | `kagi-shokunin/PROVINCE.md` @ `c2cab35bc92e` | `# kagi-shokunin — Province` | **Domain:** secrets & vault ops — the-janitor flows, credential hygiene evidence | Kagi owns secrets and vault operations, the-janitor credential flows, and credential-hygiene evidence. |
+| OUT-004 | ADJ-03 | `mado-shokunin/PROVINCE.md` @ `a4046a821608` | `# mado-shokunin — Province` | **Owns (surfaces):** `~/.config/hypr/` (hyprland.conf, keybinds, rules, | Mado owns the Hyprland, waybar, walker and terminal configuration plane, themes/wallpapers and screen/idle behavior. |
+| OUT-005 | ADJ-04 | `mori-shokunin/PROVINCE.md` @ `91940fa339e3` | `# mori-shokunin — Province` | kill/OOM-related catalog-ID records and signal-11 coredump records | Mori owns kill/OOM catalog-ID and signal-11 coredump classification from separately labeled user/system journals; fleet attribution is its correlation, not tsukuroi's. |
+| OUT-006 | ADJ-05 | `kumitate-shokunin/PROVINCE.md` @ `1770305fae20` | `# kumitate-shokunin — Province` | **Domain:** orchestration & tooling — scopes OMP task/hub, ufo-fsd scripts & runtime | Kumitate scopes OMP task/hub and orchestration tooling, so task/hub dispatch and routing semantics are its analysis, not tsukuroi's. |
+| OUT-007 | ADJ-05 | `mori-shokunin/PROVINCE.md` @ `91940fa339e3` | `# mori-shokunin — Province` | **Refuses:** dispatch and orchestration mechanism (→ kumitate); OS package, | Mori refuses dispatch and orchestration mechanism and routes it to kumitate, supporting ADJ-05's kumitate recipient. |
+| OUT-008 | ADJ-06 | `kaidoku-shokunin/PROVINCE.md` @ `d1d981d2cc04` | `# kaidoku-shokunin — Province` | **Domain:** reverse engineering of shipped artifacts with REA on this Linux | Kaidoku declares shipped-artifact reverse engineering with REA as its domain, the scope ADJ-06 would hand to an RE owner. |
+| OUT-009 | ADJ-06 | `revenger-shokunin/PROVINCE.md` @ `cf02419276e5` | `# revenger province` | Owns: reverse engineering of shipped artifacts | Revenger owns shipped-artifact reverse engineering (binaries, packages, APKs) with an observation/inference/unknown evidence ledger; tsukuroi tracks state only. |
+| OUT-010 | ADJ-07 | `tameshi-shokunin/PROVINCE.md` @ `01d586ddbc5f` | `# tameshi-shokunin — Province` | **Owns:** the method, documented from the fleet's existing gates | Tameshi owns the reusable verification/mutation-testing method, applied to fleet gates as read-only primary surfaces; each lane keeps its own gate. |
+
+Limits (round-19 first falsifiers CritAdjBoundary/CritAdjVacuity): the quoted words are the sibling's, attributed to it, never a tsukuroi assertion of sibling authority; the pins are stale by design once a sibling commits again, so re-read the live declaration before any later handoff (the paragraph above `## Frontier` still governs). Every heading above is the sibling file's title heading because the cited ownership text sits in its preamble. Recheck: `python3 tools/check-adjacency-anchors.py --revision <REV>`.
