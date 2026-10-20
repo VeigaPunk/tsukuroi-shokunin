@@ -479,7 +479,8 @@ def selftest():
             problems.append(f"status={payload.get('status')}/FAIL")
         if payload.get("counts") != {"SCOPE-EXEC-UNAUTHORIZED": 1,
                                      "SCOPE-REPORT-MISSING": 0,
-                                     "SCOPE-UNDECLARED": 0}:
+                                     "SCOPE-UNDECLARED": 0,
+                                     "SCOPE-TRAILER-MALFORMED": 0}:
             problems.append(f"counts={payload.get('counts')}")
         if (payload.get("revision"), payload.get("branch"),
                 payload.get("branch_tip")) != ("abc1234", "master", "def5678"):

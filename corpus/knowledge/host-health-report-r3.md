@@ -631,6 +631,8 @@ Sources: S060 (fresh R18 host capture, dated 2026-10-20T16:06:17-03:00); S051 (R
 - Before any -Syu: a full -Syu is logged at 2026-10-20T09:15:30-0300 (.ufo/waves/round-17/l1-capture/boot-chain-capture.txt:59). The unblock condition cannot be read as a pre-upgrade gate for that run. No snapshot-boot certification is made.
 
 
+
+- Checked byte anchor for R18-FRESH-NoticeHealth-05: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:69 (supporting command/output context remains above).
 ## R18-FRESHNESS — sibling current-use restatements (2026-10-20)
 
 Sources S060, S051 and S052. This appended correction supersedes the current-use readings listed below and every repeated current-use restatement of the same premise in this file. Historical measurements remain intact. No package, service, rebuild, boot or rollback action is authorized.

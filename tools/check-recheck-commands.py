@@ -559,9 +559,9 @@ def assess_file(path, text, forbid):
                         for label in unresolved)
     total_hits = len(header_hits) + len(pointer_hits)
     flagged = int(any(item.id == "RECHECK-FORBIDDEN-INVOCATION" for item in findings))
-    clean = int(not findings and not total_hits)
+    clean = int(not findings and not total_hits and not unresolved)
     return findings, {"invocations": invocations_seen, "pointers": sections,
-                      "flagged": flagged, "resolved": int(bool(total_hits) and resolved),
+                      "flagged": flagged, "resolved": int(bool(total_hits or unresolved) and resolved),
                       "clean": clean}
 
 

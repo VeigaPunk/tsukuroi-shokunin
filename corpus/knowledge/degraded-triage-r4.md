@@ -644,3 +644,16 @@ Sources S060, S051 and S052. This appended correction supersedes the current-use
 - R18-FRESH-SUPPLEMENT-36: prior locus `mem / 34.2 G swap, `zswap.enabled=0` on the cmdline. Blast radius: any`. Now: zswap runtime enabled isY, maximum pool percentage25 and compressorzstd; cmdline includes zswap.enabled=1. Historical pressure events are not attributed to this later state [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:8-15]. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:12.
 
 - R18-FRESH-SUPPLEMENT-37: prior locus `wave. Action: `sudo dkms remove nvidia/610.57.04 -k 7.1.4-arch1-1`, then verify`. Now: current capture lists nvidia/615.78.08 for6.18.57-2-lts and7.2.11-arch1-1, plus7.2.3-arch1-3 with missing built modules. No7.1.4 row is listed, so the old610.57.04/7.1.4 removal action is stale and must not be replayed. No removal or reboot clearance is given [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:5-7, .ufo/waves/round-18/l1-capture/host-capture-r18.txt:92-96]. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:95.
+
+
+## R18-RECHECK — steer-safe procedure
+
+Supersedes the historical AppendixA package-command replay under a steer forbidding package-manager execution. It is a bounded observation/compare procedure, not a substitute live health verdict or repair authorization.
+
+- Read installed-name/version metadata with `ls -1 /var/lib/pacman/local`; compare each named package's exact desc fields with the dated finding, without treating directory presence as package integrity.
+- Read historical event classes/completion records with `tail -n 80 /var/log/pacman.log`; invocation headers, ALPM events and current state are different.
+- Read configuration names only with `ls -1 /etc/snapper/configs`; this cannot certify snapshots or restoration.
+- Read selected guard properties with `systemctl show earlyoom.service -p ActiveState -p UnitFileState --no-pager`; this does not attribute historical OOMs or establish when enablement began.
+- For the repository artifact itself, `sha256sum tools/tsukuroi-census.sh` and `bash tools/tsukuroi-census.sh --selftest` recheck code/isolated fixtures only. Do not invoke the unflagged live census or replay the old Appendix package commands.
+
+Record observed fields, command exits and capture time. Current pending/foreign/orphan membership, integrity failures, incident cause and recovery feasibility remain separate questions; no package, service, boot or subvolume action is authorized.

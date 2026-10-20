@@ -364,6 +364,8 @@ Capture: .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:57 (S051).
 
 Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays true at its date. This notice supersedes it for current use only. Read-only scope; no package, reboot or service clearance.
 
+
+- Checked byte anchor for R18-FRESH-NoticeAur-02: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:6 (supporting command/output context remains above).
 ## R18-FRESHNESS — upgrade history of the register (2026-10-20)
 
 Now (2026-10-20): S065 records base elephant upgraded2.21.0-1→2.22.1-1 at09:31:03 and the ALPM transaction completed09:31:04; S060 separately lists elephant-2.22.1-1 in local metadata. These are historical package events, not current unit/ABI/repair clearance [Supporting capture context: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:40-69, .ufo/waves/round-18/l1-capture/host-capture-r18.txt:27-39].
@@ -372,6 +374,8 @@ Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:72 (S060).
 
 Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays true at its date. This notice supersedes it for current use only. Read-only scope; no package, reboot or service clearance.
 
+
+- Checked byte anchor for R18-FRESH-NoticeAur-03: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:43 (supporting command/output context remains above).
 ## R18-FRESHNESS — no pacman -U line (2026-10-20)
 
 Now (2026-10-20): S060 records the two pacman -U invocation headers; S065 separately supplies ALPM completion records for elephant09:31:04 and zcode13:23:09. Header text alone was insufficient, and no client exit status or zcode foreign classification is claimed [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:70-74, .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:40-69, .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:97-101].
@@ -380,6 +384,8 @@ Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:73 (S060).
 
 Historical snapshot preserved: the 2026-10-14 text above is unchanged and stays true at its date. This notice supersedes it for current use only. Read-only scope; no package, reboot or service clearance.
 
+
+- Checked byte anchor for R18-FRESH-NoticeAur-04: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:69 (supporting command/output context remains above).
 ## R18-FRESHNESS — offline.db snapshot (2026-10-20)
 
 Now (2026-10-20): offline.db is absent from the 2026-10-20 sync directory listing (core.db, extra.db, multilib.db, omarchy.db, openai-chatgpt.db); the 1275-entry snapshot is not on disk at R18 [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:48-55].

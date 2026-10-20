@@ -357,6 +357,8 @@ Appended 2026-10-20 by tsukuroi round-18 (seat Foreign). Historical snapshots pr
 - Basis: the 2026-10-14 statement ("pacman -Si rc=1 for all 16") was a point-in-time sync-db observation. pacman -Syu upgrades only packages served by configured sync repos; a package no repo serves changes only via pacman -U, or via an AUR helper that installs built files with pacman -U. Foreign classification is not immutable: a configured repo that begins serving a name removes it from the foreign set. Whether any of the 16 is now repo-served is [unk]; pacman -Si was not run (steer). Who ran the 09:31 pacman -U is not in the capture [unk].
 
 
+
+- Checked byte anchor for R18-FRESH-Foreign-04: .ufo/waves/round-18/l1-capture/pacman-events-r18.txt:43 (supporting command/output context remains above).
 ## R18-PRECISION — reachability and transaction scope
 
 The R18 reachability supersession covers the whole current-use paragraph at193–195, including the14-no-path/2-yay-only partition, not only the one quoted sentence. Current repository/configuration resolution was not remeasured by these captures. S060's09:31/13:23 Running headers alone did not establish completion; S065 now independently supplies the elephant upgraded events, zcode installed event and their ALPM transaction-completed records. The later --asexplicit line remains an invocation, not evidence its reason change succeeded. No human actor or current foreign classification is inferred.
