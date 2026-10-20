@@ -722,3 +722,38 @@ and its maintainer fixture names #6634 separately from #8047.
 No test result is inferred from this static review. The executable's
 committed predicates are the only bounded gate contract; full historical
 line preservation and source agreement are measured separately.
+
+## 2026-10-20 — round14 immutable measurement and source agreement
+
+Implementation `9dd82bceda4cf45c1e1e59e17c996ac898a5ecb7`.
+`python tools/check-source-scope-correction.py --revision <commit>`:
+baseline `8606bad4cbc6451ac2890c9f8e2548a36c386db6` exit1/count0/
+findings7, including VALUE_DOMAIN_OVERCLAIM and
+COMMENT_ATTRIBUTION_OVERCLAIM; implementation exit0/count2/findings0.
+Same evaluator SHA256
+`0771619dde7cc69fdb37538ad786f293b629f4062167a44a2d9cf4702ec6d428`.
+Selftest exit0/15cases/15passed/0failed; invalid CLI exit2/E-CLI.
+Observed outputs: `.ufo/waves/round-14/repair/verification.json`.
+
+Independent source comparison remains a separate duty; L1 source agreement
+is author-side. Exact11/16-word correction quotes and five supplemental
+body quotes match the opened sources; #6634 maintainer decision is not
+#8047's reporter wait. Source rows43→45, A36/B1/C6→A37/B1/C7 and
+mined31/queued5/rejected7→32/5/8; source census exit0 with W04
+S038/S041/S042/S043/S044. No existing mutable source fields changed.
+History/text/JSON preservation, unchanged census/old gate/verifier/SHONEN
+bytes, table widths, mention and safety sweeps:
+`.ufo/waves/round-14/repair/integration-verification.json`.
+One evidence-capture scope error (post-implementation verification.json
+mistakenly included among older git blobs) was corrected without rerunning
+the checker or source census; it is recorded in that artifact.
+
+C1/depth improved author-side, ordinal8→8; other axes unchanged.
+Trends expansion unchanged, quality improved, discernment improved through
+grounded QUALITY19/20 and demonstrated red-before/restored-defect checks.
+Rounds12/13 remain rejected. Fresh independent source admit/reject review
+is required before admission. All32 seats joined; no lane work remains
+authorized after the final evidence commit/report boundary. No new L0
+question, tool install/update, privileged probe, package transaction,
+service activation, host repair or promotion.
+

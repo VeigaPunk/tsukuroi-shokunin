@@ -1,0 +1,13 @@
+{
+  "revision_note": "Run from the lane root. All inputs are committed blobs at supplied full revision; no checker or census rerun is needed for these aggregations.",
+  "registry_script": "import collections,json,re,subprocess,sys\nfor rev in sys.argv[1:]:\n t=subprocess.check_output([\"git\",\"show\",rev+\":corpus/SOURCES.md\"],text=True)\n rows=[[c.strip() for c in x.split(\"|\")[1:-1]] for x in t.splitlines() if re.match(r\"^\\|\\s*S\\d{3,}\\s*\\|\",x)]\n print(json.dumps({\"revision\":rev,\"rows\":len(rows),\"tiers\":dict(collections.Counter(r[3] for r in rows)),\"statuses\":dict(collections.Counter(r[7] for r in rows)),\"malformed\":sum(len(r)!=11 for r in rows)},sort_keys=True))\n",
+  "mention_script": "import json,re,subprocess\nd=json.load(open(\".ufo/waves/round-14/repair/integration-verification.json\")); n=0\nfor p in d[\"mention_sweep\"][\"scope\"]:\n t=subprocess.check_output([\"git\",\"show\",d[\"implementation\"]+\":\"+p],text=True)\n n+=sum(bool(re.search(d[\"mention_sweep\"][\"pattern\"],line,re.I)) for line in t.splitlines())\nprint(n)\n",
+  "history_script": "import difflib,json,subprocess\nd=json.load(open(\".ufo/waves/round-14/repair/integration-verification.json\"))\ndef blob(rev,p): return subprocess.check_output([\"git\",\"show\",rev+\":\"+p],text=True)\nprint({p:sum(x.startswith(\"- \") for x in difflib.ndiff(blob(d[\"baseline\"],p).splitlines(),blob(d[\"implementation\"],p).splitlines())) for p in d[\"historical_removed_or_replaced_lines\"]})\n",
+  "safety_script": "import json,re,subprocess\nd=json.load(open(\".ufo/waves/round-14/repair/integration-verification.json\"))\nfor name,pat in d[\"safety_scan\"][\"patterns\"].items():\n hits=[]\n for p in d[\"safety_scan\"][\"scope\"]:\n  text=subprocess.check_output([\"git\",\"show\",d[\"implementation\"]+\":\"+p],text=True)\n  n=len(re.findall(pat,text,re.M))\n  if n: hits.append({\"path\":p,\"count\":n})\n print(name,hits)\n",
+  "commands": {
+    "registry": "python -c \"$(jq -r .registry_script .ufo/waves/round-14/repair/count-commands.json)\" 8606bad4cbc6451ac2890c9f8e2548a36c386db6 9dd82bceda4cf45c1e1e59e17c996ac898a5ecb7",
+    "mentions": "python -c \"$(jq -r .mention_script .ufo/waves/round-14/repair/count-commands.json)\"",
+    "history": "python -c \"$(jq -r .history_script .ufo/waves/round-14/repair/count-commands.json)\"",
+    "safety": "python -c \"$(jq -r .safety_script .ufo/waves/round-14/repair/count-commands.json)\""
+  }
+}

@@ -59,3 +59,96 @@ tsukuroi	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
 ```
 
 Baseline row histogram: rows43; A36/B1/C6; mined31/queued5/rejected7; malformed0. Command parses eleven cells from lines matching `^\|\s*S\d{3,}\s*\|`; baseline `git show <revision>:corpus/SOURCES.md`. Exact baseline source counts and entry state are in `.ufo/waves/round-14/repair/start.json`.
+
+## Gate — completed author-side integration
+
+All32 wave seats and the requested source-retention handoffs finished before
+L1 shipping verification. Measured implementation:
+`9dd82bceda4cf45c1e1e59e17c996ac898a5ecb7`.
+Same evaluator SHA256 for baseline and implementation:
+`0771619dde7cc69fdb37538ad786f293b629f4062167a44a2d9cf4702ec6d428`.
+
+Counting command: `python tools/check-source-scope-correction.py --revision
+<revision>`. Baseline `8606bad4cbc6451ac2890c9f8e2548a36c386db6` returned
+exit1/count0/findings7, including **VALUE_DOMAIN_OVERCLAIM** and
+**COMMENT_ATTRIBUTION_OVERCLAIM** at their preserved active loci. This
+red-before is not only a missing-new-file check. Implementation returned
+exit0/count2/findings0. Count requires resolved correction predicates and
+preceding notices, not just two JSON objects.
+
+`python tools/check-source-scope-correction.py --selftest` returned exit0:
+
+```text
+CHECK_SOURCE_SCOPE_CORRECTION_SELFTEST: PASS (15 cases, 15 passed, 0 failed)
+```
+
+The restored-domain and restored-attribution fixtures require failed exit,
+specific finding-ID sets and count1, not merely any nonzero result. Missing
+notices require count0; moving a notice after its site and removing historical
+phrases also fail. The independent noun-denial fixture accepts “contains no
+self-description”. Invalid CLI returned exit2/E-CLI, not a false red.
+The owner's preliminary 14-case static report is superseded by this observed
+15-case result; no fixture or source truth is inferred from that older report.
+
+Exact commands/stdout/stderr: `.ufo/waves/round-14/repair/verification.json`.
+Its integration pointer resolves to `integration-verification.json`, which
+records the source-agreement, table, history, census and safety measurements.
+The first safety enumeration mistakenly included this newly written
+measurement file in the older committed-input scope, so git show returned128;
+only that enumeration was corrected. No checker or census was rerun.
+
+Source agreement was evaluated separately. The two correction quotes are
+verbatim located source fragments of11 and16 words; all five supplemental
+comment quotes match the retained body and their declared word counts.
+The canonical API body and HTML witness use the same body digest. The body
+contains no occurrence of the generation-method phrases in the bounded sweep
+recorded by `l1-source-review.json`; this is a statement about this exact
+comment, not about the account's actual generation method.
+
+L1's bounded final mention sweep covers SKILL, PROVINCE, corpus index,
+QUALITY, SOURCES, the affected lessons and all knowledge MD/JSON. Its24 hits
+are historical assertions under explicit notices, S043's separate #6629
+scope, or new correction/rejection descriptions. Original source rows
+S001–S043 are byte-preserved; existing status/recheck/used-by changes: **none**.
+Ten changed historical text files have0 removed/replaced lines. Removing
+only r13 JSON's additive r14_supersession gives the original object exactly.
+Census code, old checker, both outside verifier lessons and SHONEN are
+byte-identical to baseline. New entry/lesson table blocks have consistent
+column counts. Credential-material, IPv4 and raw-journal-prefix pattern
+sweeps over the committed new evidence/code/entry have0 hits; the patterns
+and exact scope are recorded, not represented as a full privacy audit.
+
+Admit author-side: the two narrowly sourced corrections and supporting
+metadata errata. Reject: the old domain-open assertion, unsupported #8047
+self-description, cross-comment disclaimer transfer, mis-scoped maintainer
+decision and host-cause/acceptance uses. All lane-dispatched reviewers are
+author-side; **fresh non-author admit/reject sampling remains pending**.
+No gate pass pre-admits this round, changes prior rejections or certifies
+general semantic truth.
+
+## Source census — end
+
+Same command as start; observed exit0, stderr empty:
+
+```text
+tsukuroi	W04	S038 duplicate url man.archlinux.org/man/access.2 across scopes
+tsukuroi	W04	S041 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes
+tsukuroi	W04	S042 duplicate url github.com/omacom/omarchy/issues/8047 across scopes
+tsukuroi	W04	S043 duplicate url github.com/omacom/omarchy/issues/6629 across scopes
+tsukuroi	W04	S044 duplicate url man.archlinux.org/man/systemd.exec.5 across scopes
+tsukuroi	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
+```
+
+Rows43→45; tiers A36/B1/C6→A37/B1/C7; statuses
+mined31/queued5/rejected7→mined32/queued5/rejected8; malformed0→0.
+Added tiers A1/B0/C1; no pre-existing mutable-field changes. W04 URL reuse is
+disclosed scope-separated curation, not a warning-free result. Frontier
+ground advanced: none; the rollback-net surface is repaired, not expanded.
+
+Author-side C1/depth verdict **improved**, ordinal8→8 (0); all other axes
+unchanged. Trends: expansion unchanged; quality improved; discernment improved
+because the outside disagreement became grounded criteria19/20 with named
+corrections and observed red-before/restoration evidence. Outside agreement
+is not asserted. No capability, host remediation, promotion or new L0
+decision is claimed. Tools installed/updated by L1 and every seat: **none**.
+

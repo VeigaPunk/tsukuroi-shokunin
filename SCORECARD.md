@@ -379,3 +379,35 @@ claim records. Exact measured revision/output follow after execution.
   private-namespace unknowns and the mkinitcpio42 boot-hook blocker.
   Further domain work requires another external steer.
 - **retired:** none. SHONEN remains author-side `[~]`; no promotion.
+
+### Round14 measured outcome
+
+| Claim | Axis | Ordinal delta | Measured before → after | Author-side verdict |
+|---|---|---|---|---|
+| C1 R14-VALUE-DOMAIN / R14-COMMENT-ATTRIBUTION | depth | 8→8 (0) | resolved correction_count0→2; exit1→0; findings7→0; baseline8606bad4cbc6451ac2890c9f8e2548a36c386db6 → implementation9dd82bceda4cf45c1e1e59e17c996ac898a5ecb7 | improved; independent closure pending |
+
+Counting command: `python tools/check-source-scope-correction.py --revision
+<revision>`. Both runs use evaluator SHA256
+`0771619dde7cc69fdb37538ad786f293b629f4062167a44a2d9cf4702ec6d428`.
+Red includes VALUE_DOMAIN_OVERCLAIM and COMMENT_ATTRIBUTION_OVERCLAIM,
+not only missing successor files. `--selftest` exit0/15cases/15passed/
+0failed includes restored-defect and notice/history counterexamples.
+Exact outputs: `.ufo/waves/round-14/repair/verification.json`.
+
+Source agreement is separate from the lexical checker: correction quotes
+of11 and16 words match the reopened sources; comment fields, unverified
+VM assertion, second opinion and #6634/#8047 referents are distinct.
+History/source/census/safety evidence:
+`.ufo/waves/round-14/repair/integration-verification.json`.
+Source rows43→45 (A36/B1/C6→A37/B1/C7;
+mined31/queued5/rejected7→32/5/8); census exit0 with five disclosed W04s.
+No prior source-row mutation, historical text removal or changed census/
+old-checker/verifier/SHONEN bytes. All32 seat reports are present.
+
+Per-axis verdicts: depth improved; coverage, operability, freshness,
+calibration and adjacency unchanged. Retained scores remain8/9/9/9/9/8
+in that axis order; they are not re-certified ordinal measurements.
+Trends: expansion unchanged, quality improved, discernment improved by
+grounded disagreement-learning. No new repertoire row or uncovered ground.
+Fresh independent admit/reject sampling is still required.
+
