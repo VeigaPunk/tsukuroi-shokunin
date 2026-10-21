@@ -403,9 +403,6 @@ def accepted(sandbox, name, rev, expect_sha, branch=None):
             "ok": code != CANNOT and got is not None and expect_sha is not None
             and got.lower() == expect_sha.lower()}
 
-def _has_bound_sha(value):
-    """A refusal may carry a short sentinel, but never a full bound commit SHA."""
-    return isinstance(value, str) and re.fullmatch(r"[0-9A-Fa-f]{40}", value) is not None
 
 
 def blob_object(sandbox):
@@ -477,11 +474,15 @@ def probe_tool(sandbox, name, tip, unlanded_sha, parent=None, branch="master", b
 
 def object_selector_probes(sandbox, name, tip, parent, unlanded_sha, blob, branch):
     """Exercise only object-ID selectors for one tool in the throwaway clone."""
+    if parent is None:
+        raise Cannot("E-SELECTOR-PARENT", "object-selector",
+                     "ref-shadow controls require a landed parent decoy")
     def exact_refusal(revision, expected_id):
         case = refused(sandbox, name, revision, expected_id, branch)
+        # CANNOT_EVALUATE's revision field may echo the requested selector; it
+        # is not an accepted binding. Grade the explicit status and exact finding.
         case["ok"] = (case["ok"] and case["binding_ids"] == [expected_id]
-                      and case["finding_count"] == 1
-                      and not _has_bound_sha(case["json_revision"]))
+                      and case["finding_count"] == 1)
         return case
 
     def exact_accept(revision, expected_sha):
@@ -600,7 +601,7 @@ def object_selector_probes(sandbox, name, tip, parent, unlanded_sha, blob, branc
                    and not ref_exists(sandbox, f"refs/tags/{tip[:width]}")), None)
     if shadow is None:
         raise Cannot("E-SANDBOX", "shadow selector", "no unique object prefix without a ref collision")
-    decoy = parent or unlanded_sha
+    decoy = parent
     shadow_head, shadow_tag = f"refs/heads/{shadow}", f"refs/tags/{shadow}"
     create_ref(shadow_head, decoy)
     try:
@@ -674,7 +675,12 @@ def object_selector_probes(sandbox, name, tip, parent, unlanded_sha, blob, branc
 
 def measure(lane, tools_rev, branch="master", object_selectors=False):
     lane = Path(lane).resolve()
-    tip = bind(lane, tools_rev, branch)
+    if not re.fullmatch(r"[0-9a-fA-F]{40}", tools_rev):
+        raise Cannot(ID_INVALID, "tools revision", "full 40-hex commit required")
+    tip = tools_rev.lower()
+    kind = git(lane, "cat-file", "-t", tip)
+    if kind.returncode != 0 or kind.stdout.decode("ascii", "replace").strip() != "commit":
+        raise Cannot(ID_INVALID, "tools revision", "full object ID does not name a commit")
     branch_tip = lane_tip(lane, branch)
     with tempfile.TemporaryDirectory(prefix="tsukuroi-rebind-") as tmp:
         sandbox = Path(tmp) / "repo"
@@ -802,7 +808,7 @@ def build_parser():
         exit_on_error=False)
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--tools-revision", metavar="REV",
-                       help="required: 7-64 hex commit landed on the measured branch")
+                       help="required: full 40-hex commit landed on the measured branch")
     group.add_argument("--selftest", action="store_true", help="hermetic stub-tool suite")
     parser.add_argument("--branch", default="master",
                         help="landed branch to bind against (default master)")
@@ -830,7 +836,7 @@ def git(*args):
     return subprocess.run(["git", "-C", str(ROOT), *args], capture_output=True, text=True)
 def out(rev, ident=None, code=0, status="PASS"):
     idents = [] if ident is None else ([ident] if isinstance(ident, str) else ident)
-    revision = None if status == "CANNOT_EVALUATE" else rev
+    revision = rev if status != "CANNOT_EVALUATE" or MODE == "object-selector-echo" else None
     print(json.dumps({"status": status, "revision": revision,
                       "findings": [{"id": i} for i in idents]}))
     sys.exit(code)
@@ -863,7 +869,7 @@ if not LEGACY and (not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9._/-]*", branch)
 if not re.fullmatch(HEX, rev):
     ident = "E-OTHER-INVALID" if MODE == "wrong-id" else "E-REVISION-INVALID"
     out(rev, ident, 2, "CANNOT_EVALUATE")
-if MODE == "object-selector":
+if MODE in ("object-selector", "object-selector-echo"):
     object_ids = git("rev-parse", "--disambiguate=" + rev.lower()).stdout.splitlines()
     if len(object_ids) != 1:
         out(rev, "E-REVISION-INVALID", 2, "CANNOT_EVALUATE")
@@ -958,7 +964,7 @@ def detached_commit(root):
 
 
 def selftest():
-    global run_tool
+    global run_tool, bind
     passed, failures = 0, []
 
     def check(name, got, want):
@@ -967,9 +973,6 @@ def selftest():
             passed += 1
         else:
             failures.append(f"{name}: got={got!r} want={want!r}")
-    check("refusal-null-is-unbound", _has_bound_sha(None), False)
-    check("refusal-short-sentinel-is-unbound", _has_bound_sha("000000000000"), False)
-    check("refusal-full-sha-is-bound", _has_bound_sha("a" * 40), True)
 
     try:
         with tempfile.TemporaryDirectory(prefix="tsukuroi-rebind-st-") as tmp:
@@ -984,6 +987,17 @@ def selftest():
             check("all-bound-exit", grade(res)[0], PASS)
             check("all-bound-tools-revision", res["tools_revision"], tip)
             check("all-bound-branch-tip", res["branch_tip"], tip)
+            original_bind = bind
+            def forbidden_bind(*_args, **_kwargs):
+                raise Cannot("E-TEST-BIND-USED", "measure",
+                             "expected identity was derived through bind under test")
+            bind = forbidden_bind
+            try:
+                oracle_only = measure(fx, tip)
+            finally:
+                bind = original_bind
+            check("measure-expected-tip-not-derived-through-binder",
+                  (oracle_only["tools_revision"], oracle_only["status"]), (tip, "PASS"))
             object_inventory = must(
                 git(fx, "cat-file", "--batch-all-objects",
                     "--batch-check=%(objectname)"),
@@ -1105,6 +1119,23 @@ def selftest():
                    object_result["object_selector_status"], object_result["additional_total"],
                    len(object_result["object_selector_per_tool"]), grade(object_result)[0]),
                   (TOTAL, TOTAL, "PASS", 1, TOTAL, PASS))
+            try:
+                object_selector_probes(object_dir, TOOLS[0], object_tip, None,
+                                       tip, tip, "master")
+            except Cannot as exc:
+                parent_probe = exc.fid
+            else:
+                parent_probe = None
+            check("object-selector-ref-shadows-require-landed-decoy",
+                  parent_probe, "E-SELECTOR-PARENT")
+            echo_modes = {name: "object-selector-echo" for name in TOOLS}
+            echo_dir = tmp / "object-selector-cannot-echo"
+            echo_tip = make_fixture(echo_dir, echo_modes, extra_files=object_extra)
+            echo_result = measure(echo_dir, echo_tip, object_selectors=True)
+            check("object-selector-cannot-revision-echo",
+                  (echo_result["object_selector_tools"],
+                   echo_result["object_selector_status"], grade(echo_result)[0]),
+                  (TOTAL, "PASS", PASS))
             ref_alias_modes = dict(object_modes)
             ref_alias_modes[TOOLS[0]] = "unbound"
             ref_alias_dir = tmp / "object-selector-ref-alias"

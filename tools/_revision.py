@@ -359,6 +359,11 @@ def selftest():
                                  for candidate in all_objects) == 1)
         expect("annotated-tag-full-object-id", lambda: bind(repo, tag_oid).sha, ok(tip))
         expect("annotated-tag-object-prefix", lambda: bind(repo, tag_prefix).sha, ok(tip))
+        run(repo, "tag", "-a", "peel-nested", "-m", "nested peel", tag_oid)
+        nested_tag_oid = run(repo, "rev-parse", "refs/tags/peel-nested^{tag}")
+        expect("nested-annotated-tag-object",
+               lambda: bind(repo, nested_tag_oid).sha, ok(tip))
+        run(repo, "tag", "-d", "peel-nested")
         run(repo, "tag", "-d", "peel-object")
         for object_id, label in ((tip, "commit"), (tag_oid, "tag")):
             branch_ref, tag_ref = f"refs/heads/{object_id}", f"refs/tags/{object_id}"
@@ -370,12 +375,11 @@ def selftest():
             finally:
                 run(repo, "update-ref", "-d", branch_ref)
                 run(repo, "update-ref", "-d", tag_ref)
-        ambiguous_prefix = next(
-            (oid[:4] for oid in all_objects
-             if sum(candidate.startswith(oid[:4]) for candidate in all_objects) == 1),
-            None)
-        if ambiguous_prefix is None:
-            failures.append("ambiguous-object-prefix: no unique four-hex seed object")
+        ambiguous_prefix = tag_oid[:4]
+        if (run(repo, "cat-file", "-t", tag_oid) != "tag"
+                or sum(candidate.startswith(ambiguous_prefix)
+                       for candidate in all_objects) != 1):
+            failures.append("ambiguous-object-prefix: no unique four-hex annotated-tag seed")
         else:
             for index in range(1_000_000):
                 blob_data = f"ambiguous-prefix-{ambiguous_prefix}-{index}".encode()
@@ -400,7 +404,19 @@ def selftest():
         blob = subprocess.run(["git", "-C", str(repo), "hash-object", "-w", "--stdin"],
                               input=b"blob\n", stdout=subprocess.PIPE, env=clean_env(),
                               check=True).stdout.decode().strip()
+        tree_input = f"100644 blob {blob}\tfixture.txt\n".encode("ascii")
+        tree = subprocess.run(["git", "-C", str(repo), "mktree"], input=tree_input,
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              env=clean_env(), check=True).stdout.decode().strip()
         expect("blob-revision-invalid", lambda: bind(repo, blob), err(E_INVALID))
+        expect("tree-revision-invalid", lambda: bind(repo, tree), err(E_INVALID))
+        for target, label in ((blob, "blob"), (tree, "tree")):
+            tag_name = "revision-peel-" + label
+            run(repo, "tag", "-a", tag_name, "-m", "tagged " + label, target)
+            tag_object = run(repo, "rev-parse", "refs/tags/" + tag_name + "^{tag}")
+            expect("annotated-tag-to-" + label + "-invalid",
+                   lambda tag_object=tag_object: bind(repo, tag_object), err(E_INVALID))
+            run(repo, "tag", "-d", tag_name)
         run(repo, "update-ref", "refs/remotes/origin/master", blob)
         expect("git-failed-origin-blob", lambda: bind(repo, tip), err(E_GIT))
         run(repo, "update-ref", "refs/remotes/origin/master", tip)
