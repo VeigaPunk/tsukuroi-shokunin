@@ -403,6 +403,10 @@ def accepted(sandbox, name, rev, expect_sha, branch=None):
             "ok": code != CANNOT and got is not None and expect_sha is not None
             and got.lower() == expect_sha.lower()}
 
+def _has_bound_sha(value):
+    """A refusal may carry a short sentinel, but never a full bound commit SHA."""
+    return isinstance(value, str) and re.fullmatch(r"[0-9A-Fa-f]{40}", value) is not None
+
 
 def blob_object(sandbox):
     proc = subprocess.run(["git", "-C", str(sandbox), "hash-object", "-w", "--stdin"],
@@ -476,7 +480,8 @@ def object_selector_probes(sandbox, name, tip, parent, unlanded_sha, blob, branc
     def exact_refusal(revision, expected_id):
         case = refused(sandbox, name, revision, expected_id, branch)
         case["ok"] = (case["ok"] and case["binding_ids"] == [expected_id]
-                      and case["finding_count"] == 1 and case["json_revision"] is None)
+                      and case["finding_count"] == 1
+                      and not _has_bound_sha(case["json_revision"]))
         return case
 
     def exact_accept(revision, expected_sha):
@@ -962,6 +967,9 @@ def selftest():
             passed += 1
         else:
             failures.append(f"{name}: got={got!r} want={want!r}")
+    check("refusal-null-is-unbound", _has_bound_sha(None), False)
+    check("refusal-short-sentinel-is-unbound", _has_bound_sha("000000000000"), False)
+    check("refusal-full-sha-is-bound", _has_bound_sha("a" * 40), True)
 
     try:
         with tempfile.TemporaryDirectory(prefix="tsukuroi-rebind-st-") as tmp:

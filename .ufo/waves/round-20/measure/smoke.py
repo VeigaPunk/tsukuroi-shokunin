@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
 """L1-only stable changed-path CLI smoke; run only after every seat settles."""
+import argparse
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
 import subprocess
-import sys
 import tempfile
 
 BASE = '0cbc34dd6b20896085a8fb07943e3ea4027d8472'
 LANE = Path(__file__).resolve().parents[4]
-REV = sys.argv[1] if len(sys.argv) == 2 else ''
-if not re.fullmatch('[0-9a-f]{40}', REV):
-    raise SystemExit('usage: smoke.py <landed-full-commit>')
+parser = argparse.ArgumentParser()
+parser.add_argument('revision')
+parser.add_argument('--out', default='smoke')
+args = parser.parse_args()
+REV = args.revision
+if not re.fullmatch(r'[0-9a-f]{40}', REV):
+    raise SystemExit('full landed commit required')
+if not re.fullmatch(r'[A-Za-z0-9_-]+', args.out):
+    raise SystemExit('single output child name required')
 ENV = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
 ENV.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull,
            GIT_OPTIONAL_LOCKS='0', PYTHONDONTWRITEBYTECODE='1', LC_ALL='C')
-OUT = LANE / '.ufo/waves/round-20/measure/smoke'
+OUT = LANE / '.ufo/waves/round-20/measure' / args.out
 OUT.mkdir(exist_ok=False)
 paths = subprocess.check_output(['git', '-C', str(LANE), 'diff', '--name-only',
                                 BASE, REV, '--', 'tools/'], env=ENV, text=True).splitlines()
