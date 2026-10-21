@@ -80,6 +80,7 @@ TOOLS = TOOLS + tuple(R17_GATES)
 TOTAL = len(TOOLS)
 JUDGE = "check-revision-binding.py"
 REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
+FULL_COMMIT = re.compile(r"^[0-9a-fA-F]{40}$")
 ID_INVALID = "E-REVISION-INVALID"
 ID_UNLANDED = "E-REVISION-NOT-LANDED"
 ID_PUSHED = "E-REVISION-NOT-PUSHED"
@@ -89,6 +90,8 @@ ID_GIT = "E-GIT-FAILED"
 BINDING_IDS = (ID_INVALID, ID_UNLANDED, ID_PUSHED, ID_BRANCH_INVALID, ID_BRANCH_MISSING, ID_GIT)
 MISSING = re.compile(r"does not exist|exists on disk, but not in|not in '", re.I)
 LOCAL_REV_REGEX = re.compile(r"\{7,64\}")
+TARGET_TYPE_CLASSES = ("nonempty_tree", "tag_to_blob", "tag_to_tree",
+                       "nested_tag_to_commit", "annotated_tag_to_commit")
 
 
 class Cannot(Exception):
@@ -387,19 +390,22 @@ def refused(sandbox, name, rev, want, branch=None):
     findings = doc.get("findings") if isinstance(doc, dict) else None
     json_revision = doc.get("revision") if isinstance(doc, dict) else None
     json_revision = json_revision if isinstance(json_revision, str) else None
+    json_status = doc.get("status") if isinstance(doc, dict) else None
+    json_status = json_status if isinstance(json_status, str) else None
     return {"exit": code, "finding": found, "binding_ids": binding_ids(text),
             "finding_count": len(findings) if isinstance(findings, list) else None,
-            "json_revision": json_revision,
+            "json_revision": json_revision, "json_status": json_status,
             "ok": code == CANNOT and found == want}
 
 
 def accepted(sandbox, name, rev, expect_sha, branch=None):
-    """Accepted = not CANNOT and the JSON names the independently resolved commit."""
     code, text = run_tool(sandbox, name, rev, branch)
     doc = parse_json(text)
     got = doc.get("revision") if isinstance(doc, dict) else None
     got = got if isinstance(got, str) else None
-    return {"exit": code, "json_revision": got,
+    status = doc.get("status") if isinstance(doc, dict) else None
+    status = status if isinstance(status, str) else None
+    return {"exit": code, "json_revision": got, "json_status": status,
             "ok": code != CANNOT and got is not None and expect_sha is not None
             and got.lower() == expect_sha.lower()}
 
@@ -673,15 +679,30 @@ def object_selector_probes(sandbox, name, tip, parent, unlanded_sha, blob, branc
     return cases
 
 
+def tag_target_type(sandbox, tag_oid, site):
+    body = must(git(sandbox, "cat-file", "-p", tag_oid), "E-SANDBOX", site)
+    return next((line[5:].decode("ascii", "replace") for line in body.stdout.splitlines()
+                 if line.startswith(b"type ")), None)
+
+
 def target_type_probes(sandbox, name, tip, branch):
-    """Five new, independently constructed target classes; old matrix is untouched."""
+    """Run five fixed classes through this consumer, with direct Git fixture witnesses."""
+    parent_proc = git(sandbox, "rev-parse", "--verify", "--quiet", f"{tip}^1^{{commit}}")
+    if parent_proc.returncode != 0:
+        raise Cannot("E-TARGET-PARENT", "target-type", "measured commit needs a landed first parent")
+    parent = parent_proc.stdout.decode("ascii", "replace").strip().lower()
+    if parent == tip.lower() or not ancestor(sandbox, parent, f"refs/heads/{branch}"):
+        raise Cannot("E-TARGET-PARENT", "target-type", "first parent is not a distinct landed commit")
     tree = must(git(sandbox, "rev-parse", f"{tip}^{{tree}}"),
-                "E-SANDBOX", "nonempty tree").stdout.decode().strip()
+                "E-SANDBOX", "nonempty tree").stdout.decode("ascii", "replace").strip()
     entries = must(git(sandbox, "ls-tree", tree), "E-SANDBOX", "tree entries").stdout
-    if not entries:
+    if not entries.strip():
         raise Cannot("E-SANDBOX", "nonempty_tree", "tree fixture must contain an entry")
     blob = blob_object(sandbox)
+    if must(git(sandbox, "cat-file", "-t", blob), "E-SANDBOX", "blob target").stdout.strip() != b"blob":
+        raise Cannot("E-SANDBOX", "tag_to_blob", "fixture object is not a blob")
     refs = []
+
     def tag(label, target):
         tag_name = "r21-target-" + name[:-3] + "-" + label
         ref = "refs/tags/" + tag_name
@@ -692,54 +713,101 @@ def target_type_probes(sandbox, name, tip, branch):
                  "tag", "-a", tag_name, "-m", label, target), "E-SANDBOX", label)
         refs.append(ref)
         return must(git(sandbox, "rev-parse", "--verify", ref + "^{tag}"),
-                    "E-SANDBOX", ref).stdout.decode().strip()
+                    "E-SANDBOX", ref).stdout.decode("ascii", "replace").strip()
+
+    def refusal_observation(selector, expected_id=ID_INVALID):
+        observed = refused(sandbox, name, selector, expected_id, branch)
+        allowed_revision = {selector, None, "unbound", "000000000000"}
+        observed["ok"] = (observed["exit"] == CANNOT
+                          and observed["json_status"] == "CANNOT_EVALUATE"
+                          and observed["finding"] == expected_id
+                          and observed["binding_ids"] == [expected_id]
+                          and observed["finding_count"] == 1
+                          and observed["json_revision"] in allowed_revision)
+        observed["selector"] = selector
+        return observed
+
     try:
-        commit_tag = tag("commit", tip)
+        blob_tag = tag("blob", blob)
+        tree_tag = tag("tree", tree)
+        commit_tag = tag("commit", parent)
+        inner_tag = tag("inner-commit", parent)
+        nested_tag = tag("nested-commit", inner_tag)
+        # Validate actual tag headers from Git; do not infer targets from the probe result.
+        expected_kinds = ((blob_tag, "blob", "tag-to-blob fixture"),
+                          (tree_tag, "tree", "tag-to-tree fixture"),
+                          (commit_tag, "commit", "ordinary commit tag fixture"),
+                          (inner_tag, "commit", "nested inner tag fixture"),
+                          (nested_tag, "tag", "nested outer tag fixture"))
+        for oid, expected_kind, site in expected_kinds:
+            actual_kind = tag_target_type(sandbox, oid, site)
+            if actual_kind != expected_kind:
+                raise Cannot("E-SANDBOX", site,
+                             f"Git tag header says {actual_kind!r}, expected {expected_kind!r}")
+        object_ids = must(git(sandbox, "cat-file", "--batch-all-objects",
+                              "--batch-check=%(objectname)"), "E-SANDBOX",
+                          "object inventory").stdout.decode("ascii", "replace").splitlines()
         classes = {
             "nonempty_tree": (tree, None),
-            "tag_to_blob": (tag("blob", blob), None),
-            "tag_to_tree": (tag("tree", tree), None),
-            "nested_tag_to_commit": (tag("nested", commit_tag), tip),
-            "annotated_tag_to_commit": (commit_tag, tip),
+            "tag_to_blob": (blob_tag, None),
+            "tag_to_tree": (tree_tag, None),
+            "nested_tag_to_commit": (nested_tag, parent),
+            "annotated_tag_to_commit": (commit_tag, parent),
         }
-        inventory = must(git(sandbox, "cat-file", "--batch-all-objects",
-                             "--batch-check=%(objectname)"),
-                         "E-SANDBOX", "object inventory").stdout.decode().splitlines()
         cases = {}
         for label, (object_id, expected_commit) in classes.items():
             selectors = [object_id]
-            if label != "nonempty_tree":
-                prefix = next((object_id[:width] for width in range(7, len(object_id))
-                               if sum(oid.startswith(object_id[:width]) for oid in inventory) == 1
-                               and not ref_exists(sandbox, "refs/heads/" + object_id[:width])
-                               and not ref_exists(sandbox, "refs/tags/" + object_id[:width])), None)
-                if prefix is None:
-                    raise Cannot("E-SANDBOX", label, "unique tag prefix unavailable")
-                selectors.append(prefix)
+            prefix = next((object_id[:width] for width in range(7, len(object_id))
+                           if sum(oid.startswith(object_id[:width]) for oid in object_ids) == 1
+                           and not ref_exists(sandbox, "refs/heads/" + object_id[:width])
+                           and not ref_exists(sandbox, "refs/tags/" + object_id[:width])), None)
+            if prefix is None:
+                raise Cannot("E-SANDBOX", label, "unique object prefix unavailable")
+            selectors.append(prefix)
             observations = []
             for selector in selectors:
                 if expected_commit is None:
-                    observed = refused(sandbox, name, selector, ID_INVALID, branch)
-                    observed["ok"] = (observed["ok"]
-                                      and observed["binding_ids"] == [ID_INVALID]
-                                      and observed["finding_count"] == 1)
+                    observed = refusal_observation(selector)
                 else:
                     observed = accepted(sandbox, name, selector, expected_commit, branch)
-                observed["selector"] = selector
+                    observed["ok"] = (observed["ok"] and observed["exit"] in (PASS, FAIL)
+                                      and observed["json_status"] != "CANNOT_EVALUATE")
+                    observed["selector"] = selector
                 observations.append(observed)
+            # Same-prefix branch/tag refs must not shadow any tested object ID.
+            if label in ("nonempty_tree", "tag_to_blob", "tag_to_tree"):
+                assert prefix is not None
+                for namespace in ("refs/heads/", "refs/tags/"):
+                    shadow_ref = namespace + prefix
+                    must(git(sandbox, "update-ref", shadow_ref, parent),
+                         "E-SANDBOX", f"{label} {namespace} prefix shadow")
+                    try:
+                        shadowed = refusal_observation(prefix)
+                        shadowed["shadow_ref"] = shadow_ref
+                        observations.append(shadowed)
+                    finally:
+                        must(git(sandbox, "update-ref", "-d", shadow_ref),
+                             "E-SANDBOX", f"remove {label} {namespace} prefix shadow")
             cases[label] = {"object_id": object_id, "expected_commit": expected_commit,
                             "observations": observations,
                             "ok": all(row["ok"] for row in observations)}
         return cases
     finally:
         for ref in reversed(refs):
-            must(git(sandbox, "update-ref", "-d", ref), "E-SANDBOX", ref)
+            if ref_exists(sandbox, ref):
+                must(git(sandbox, "update-ref", "-d", ref), "E-SANDBOX", ref)
 
 
 def target_type_measure(lane, tools_rev, branch="master"):
-    """Measure new matrix availability separately from already-correct consumers."""
+    """Measure mode implementation presence separately from original-nine behavior."""
     lane = Path(lane).resolve()
-    tip = bind(lane, tools_rev, branch)
+    if not FULL_COMMIT.fullmatch(tools_rev):
+        raise Cannot(ID_INVALID, "tools revision", "full 40-hex commit required")
+    tip = tools_rev.lower()
+    kind = git(lane, "cat-file", "-t", tip)
+    if kind.returncode != 0 or kind.stdout.decode("ascii", "replace").strip() != "commit":
+        raise Cannot(ID_INVALID, "tools revision", "full object ID must name a commit, not a tag")
+    tip = bind(lane, tip, branch)
     with tempfile.TemporaryDirectory(prefix="tsukuroi-target-types-") as tmp:
         sandbox = Path(tmp) / "repo"
         clone_lane(lane, sandbox)
@@ -769,7 +837,8 @@ def target_type_measure(lane, tools_rev, branch="master"):
     return {"status": "PASS" if clean else "FAIL",
             "revision": tip, "tools_revision": tip, "branch": branch,
             "branch_tip": lane_tip(lane, branch), "target_type_tools": count,
-            "target_type_total": TOTAL, "target_type_status": "PASS" if count == TOTAL else "FAIL",
+            "target_type_total": TOTAL,
+            "target_type_status": "PASS" if count == TOTAL else "FAIL",
             "target_type_mode": int(available), "matrix_available_at_revision": available,
             "behavioral_tools": count, "target_type_per_tool": rows,
             "findings": ([] if clean else [{"id": "TARGET-TYPE-MODE-ABSENT" if not available
@@ -895,17 +964,22 @@ def emit_report(payload, code):
     return code
 
 
-def cannot_payload(rev, branch, exc, object_selectors=False):
+def cannot_payload(rev, branch, exc, object_selectors=False, object_target_types=False):
     payload = {"status": "CANNOT_EVALUATE", "tools_revision": rev, "revision": None,
                "branch": branch, "branch_tip": None, "bound_tools": 0,
-               "consistent_tools": 0, "shared_tools": 0,
-               "total": TOTAL, "per_tool": [],
+               "consistent_tools": 0, "shared_tools": 0, "total": TOTAL, "per_tool": [],
                "findings": [{"id": exc.fid, "site": exc.site, "detail": exc.detail}]}
     if object_selectors:
         payload.update({"status_scope": "original-nine consistency and object selectors only",
                         "object_selectors_requested": True, "object_selector_tools": 0,
                         "object_selector_total": TOTAL, "object_selector_status": "CANNOT_EVALUATE",
                         "object_selector_per_tool": []})
+    if object_target_types:
+        payload.update({"status_scope": "original-nine consistency and object target types only",
+                        "object_target_types_requested": True, "target_type_tools": 0,
+                        "target_type_total": TOTAL, "target_type_status": "CANNOT_EVALUATE",
+                        "target_type_mode": None, "matrix_available_at_revision": None,
+                        "behavioral_tools": 0, "target_type_per_tool": []})
     return payload
 
 
@@ -919,10 +993,11 @@ def build_parser():
     group.add_argument("--selftest", action="store_true", help="hermetic stub-tool suite")
     parser.add_argument("--branch", default="master",
                         help="landed branch to bind against (default master)")
-    parser.add_argument("--object-selectors", action="store_true",
-                        help="grade object-only hexadecimal selectors across the original nine tools")
-    parser.add_argument("--object-target-types", action="store_true",
-                        help="new original-nine tree and annotated-tag target-type matrix")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--object-selectors", action="store_true",
+                       help="grade object-only hexadecimal selectors across the original nine tools")
+    modes.add_argument("--object-target-types", action="store_true",
+                       help="measure target-type matrix availability and behavior")
     return parser
 
 
@@ -954,14 +1029,14 @@ rev = argv[argv.index("--revision") + 1]
 branch = argv[argv.index("--branch") + 1] if "--branch" in argv else "master"
 def tip():
     return git("rev-parse", "refs/heads/master").stdout.strip()
-if MODE == "tip-only":  # S1: accepts only the exact branch tip
+if MODE == "tip-only":
     if not re.fullmatch(HEX, rev):
         out(rev, "E-REVISION-INVALID", 2, "CANNOT_EVALUATE")
     sha = git("rev-parse", "--verify", "--quiet", rev + "^{commit}").stdout.strip()
     if sha != tip():
         out(rev, "E-REVISION-NOT-LANDED", 2, "CANNOT_EVALUATE")
     out(sha)
-if MODE == "head-only":  # S3: rejects only the literal HEAD
+if MODE == "head-only":
     if rev == "HEAD":
         out(rev, "E-REVISION-INVALID", 2, "CANNOT_EVALUATE")
     sha = git("rev-parse", "--verify", "--quiet", rev + "^{commit}").stdout.strip()
@@ -978,15 +1053,31 @@ if not LEGACY and (not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9._/-]*", branch)
 if not re.fullmatch(HEX, rev):
     ident = "E-OTHER-INVALID" if MODE == "wrong-id" else "E-REVISION-INVALID"
     out(rev, ident, 2, "CANNOT_EVALUATE")
-if MODE in ("object-selector", "object-selector-echo", "target-generic-peel"):
+if MODE in ("object-selector", "object-selector-echo", "target-generic-peel",
+            "target-tip-only", "target-tree-prefix-only", "target-fallback",
+            "target-malformed", "target-double"):
     object_ids = git("rev-parse", "--disambiguate=" + rev.lower()).stdout.splitlines()
     if len(object_ids) != 1:
         out(rev, "E-REVISION-INVALID", 2, "CANNOT_EVALUATE")
-    peel = "^{commit}"
-    if (MODE == "target-generic-peel"
-            and git("cat-file", "-t", object_ids[0]).stdout.strip() == "tag"):
-        peel = "^{}"
-    sha = git("rev-parse", "--verify", "--quiet", object_ids[0] + peel).stdout.strip()
+    oid = object_ids[0]
+    kind = git("cat-file", "-t", oid).stdout.strip()
+    commit_peel = git("rev-parse", "--verify", "--quiet", oid + "^{commit}").stdout.strip()
+    if MODE == "target-tree-prefix-only" and kind == "tree" and len(rev) < len(oid):
+        out(tip())
+    if MODE == "target-tip-only" and kind == "tag" and commit_peel and commit_peel != tip():
+        out(tip())
+    if MODE in ("target-malformed", "target-double") and kind == "tag" and not commit_peel:
+        if MODE == "target-malformed":
+            print('{"status":"CANNOT_EVALUATE","findings":[{"id":"E-REVISION-INVALID"},')
+            sys.exit(2)
+        out(rev, ["E-REVISION-INVALID", "E-SECOND-FINDING"], 2, "CANNOT_EVALUATE")
+    if MODE == "target-fallback" and kind == "tag" and not commit_peel:
+        sha = tip()
+    else:
+        peel = "^{commit}"
+        if MODE == "target-generic-peel" and kind == "tag":
+            peel = "^{}"
+        sha = git("rev-parse", "--verify", "--quiet", oid + peel).stdout.strip()
 else:
     sha = git("rev-parse", "--verify", "--quiet", rev + "^{commit}").stdout.strip()
 if not sha:
@@ -1078,19 +1169,16 @@ def detached_commit(root):
 def selftest():
     global run_tool, bind
     passed, failures = 0, []
-
     def check(name, got, want):
         nonlocal passed
         if got == want:
             passed += 1
         else:
             failures.append(f"{name}: got={got!r} want={want!r}")
-
     try:
         with tempfile.TemporaryDirectory(prefix="tsukuroi-rebind-st-") as tmp:
             tmp = Path(tmp)
             modes = {name: "bound" for name in TOOLS}
-
             fx = tmp / "all"
             tip = make_fixture(fx, modes)
             res = measure(fx, tip)
@@ -1110,29 +1198,25 @@ def selftest():
                 bind = original_bind
             check("measure-expected-tip-not-derived-through-binder",
                   (oracle_only["tools_revision"], oracle_only["status"]), (tip, "PASS"))
-            object_inventory = must(
-                git(fx, "cat-file", "--batch-all-objects",
-                    "--batch-check=%(objectname)"),
-                "E-SANDBOX", "direct binder object inventory").stdout.decode(
-                    "ascii", "replace").splitlines()
+            object_inventory = must(git(fx, "cat-file", "--batch-all-objects",
+                                        "--batch-check=%(objectname)"), "E-SANDBOX",
+                                    "direct binder object inventory").stdout.decode(
+                                        "ascii", "replace").splitlines()
             direct_ghost = next((char * 40 for char in "0123456789abcdef"
                                  if all(oid != char * 40 for oid in object_inventory)
                                  and not ref_exists(fx, f"refs/heads/{char * 40}")
                                  and not ref_exists(fx, f"refs/tags/{char * 40}")), None)
             if direct_ghost is None:
-                raise Cannot("E-SANDBOX", "direct binder ghost",
-                             "no unused full-width hexadecimal ref name")
+                raise Cannot("E-SANDBOX", "direct binder ghost", "no unused full-width hexadecimal ref name")
             for ref, label in ((f"refs/heads/{direct_ghost}", "branch"),
                                (f"refs/tags/{direct_ghost}", "tag")):
                 must(git(fx, "update-ref", ref, tip), "E-SANDBOX", ref)
                 try:
-                    check(f"direct-binder-ghost-full-{label}",
-                          bind_error(fx, direct_ghost), ID_INVALID)
+                    check(f"direct-binder-ghost-full-{label}", bind_error(fx, direct_ghost), ID_INVALID)
                 finally:
                     must(git(fx, "update-ref", "-d", ref), "E-SANDBOX", ref)
 
-            mixed = {name: ("bound" if i < 3 else "unbound")
-                     for i, name in enumerate(TOOLS)}
+            mixed = {name: ("bound" if i < 3 else "unbound") for i, name in enumerate(TOOLS)}
             fx2 = tmp / "mixed"
             tip2 = make_fixture(fx2, mixed)
             res2 = measure(fx2, tip2)
@@ -1140,7 +1224,6 @@ def selftest():
             check("mixed-exit", grade(res2)[0], FAIL)
             check("mixed-reasons", [bool(item["reason"]) for item in res2["per_tool"]],
                   [False, False, False] + [True] * (TOTAL - 3))
-
             fx3 = tmp / "wrong-id"
             modes3 = dict(modes)
             modes3[TOOLS[0]] = "wrong-id"
@@ -1151,27 +1234,23 @@ def selftest():
             check("wrong-id-finding", first["head"]["finding"], "E-OTHER-INVALID")
             check("wrong-id-reason", first["reason"].split(";")[0],
                   "head:exit=2,finding=E-OTHER-INVALID,revision=None")
-
             fx4 = tmp / "absent"
-            tip4 = make_fixture(fx4, {name: "bound" for name in TOOLS[:-1]})
-            res4 = measure(fx4, tip4)
+            make_fixture(fx4, {name: "bound" for name in TOOLS[:-1]})
+            res4 = measure(fx4, rev_parse(fx4, "HEAD"))
             check("absent-tool", (res4["bound_tools"], res4["per_tool"][-1]["reason"]),
                   (TOTAL - 1, "absent at measured revision"))
             check("absent-not-consistent", (res4["consistent_tools"], grade(res4)[0]),
                   (TOTAL - 1, FAIL))
-
-            # Round 18: the shared contract (FxSimplifyBind D1-D6).
             check("all-consistent", (res["consistent_tools"], res["total"], res["discovered"]),
                   (TOTAL, TOTAL, []))
-            check("all-shared-census", (res["shared_tools"], res["local_rev_regex_copies"]),
-                  (0, 0))
+            check("all-shared-census", (res["shared_tools"], res["local_rev_regex_copies"]), (0, 0))
             check("consistency-not-consolidation",
                   (res["status"], res["status_scope"], res["consolidation_status"],
                    res["consolidated_tools"]),
                   ("PASS", "original-nine consistency only", "FAIL", 0))
             check("mixed-consistent", res2["consistent_tools"], 3)
             for stub, failing in (("legacy", {"branch-range", "branch-slash", "branch-space",
-                                              "branch-first", "branch-missing", "git-failed"}),
+                                               "branch-first", "branch-missing", "git-failed"}),
                                   ("double", {"single-id"}), ("extra-finding", {"single-id"}),
                                   ("require-origin", {"origin-absent"})):
                 fxl = tmp / f"shared-{stub}"
@@ -1195,24 +1274,18 @@ def selftest():
                      "plain.py": "print('no revision flag')\n",
                      "notes.txt": "\"--revision\"\n"}
             resd = measure(fxd, make_fixture(fxd, md, extra_files=extra))
-            check("discover-extra", (resd["discovered"], resd["total"],
-                                     resd["consistent_tools"], resd["all_total"],
-                                     resd["all_consistent_tools"], grade(resd)[0]),
+            check("discover-extra", (resd["discovered"], resd["total"], resd["consistent_tools"],
+                                     resd["all_total"], resd["all_consistent_tools"], grade(resd)[0]),
                   (["check-extra.py"], TOTAL, TOTAL, TOTAL + 1, TOTAL + 1, PASS))
-            check("dead-import-not-shared", (resd["shared_tools"],
-                                             resd["per_tool"][0]["shared"],
-                                             resd["per_tool"][0]["local_rev_regex"]),
-                  (0, False, 0))
-            check("live-import-call-census", shared("import _revision\n"
-                                                    "def adapter(r,v,b):\n"
-                                                    "    return _revision.bind(r,v,b)\n"), (True, 0))
+            check("dead-import-not-shared", (resd["shared_tools"], resd["per_tool"][0]["shared"],
+                                             resd["per_tool"][0]["local_rev_regex"]), (0, False, 0))
+            check("live-import-call-census", shared("import _revision\ndef adapter(r,v,b):\n"
+                                                     "    return _revision.bind(r,v,b)\n"), (True, 0))
             check("from-import-call-census", shared("from _revision import bind as resolve\n"
-                                                    "def adapter(r,v,b):\n"
-                                                    "    return resolve(r,v,b)\n"), (True, 0))
-            check("string-import-not-shared", shared("'import _revision; _revision.bind(r,v)'\n"),
-                  (False, 0))
+                                                     "def adapter(r,v,b):\n    return resolve(r,v,b)\n"), (True, 0))
+            check("string-import-not-shared", shared("'import _revision; _revision.bind(r,v)'\n"), (False, 0))
             check("local-copy-census", shared('REV = re.compile(r"^[0-9a-f]{7,64}$")\n'
-                                              "import _revision\n"), (False, 1))
+                                               "import _revision\n"), (False, 1))
             fxu = tmp / "discover-unbound"
             resu = measure(fxu, make_fixture(fxu, modes,
                                              extra_files={"check-extra.py": stub_source("unbound")}))
@@ -1234,29 +1307,133 @@ def selftest():
             typed_cases = target_type_probes(object_dir, TOOLS[0], object_tip, "master")
             check("target-types-five-fixed-classes",
                   (set(typed_cases), all(case["ok"] for case in typed_cases.values())),
-                  ({"nonempty_tree", "tag_to_blob", "tag_to_tree",
-                    "nested_tag_to_commit", "annotated_tag_to_commit"}, True))
-            mutant_dir = tmp / "target-generic-peel"
-            mutant_modes = dict(object_modes)
-            mutant_modes[TOOLS[0]] = "target-generic-peel"
-            mutant_tip = make_fixture(mutant_dir, mutant_modes)
-            old_mutant_result = measure(mutant_dir, mutant_tip, object_selectors=True)
-            check("tree-tag-mutant-survives-old-matrix",
-                  old_mutant_result["object_selector_tools"], TOTAL)
-            new_mutant_cases = target_type_probes(
-                mutant_dir, TOOLS[0], mutant_tip, "master")
-            check("tree-tag-mutant-new-matrix-rejects",
-                  (new_mutant_cases["tag_to_tree"]["ok"],
-                   all(case["ok"] for case in new_mutant_cases.values())), (False, False))
-            missing_mode_result = target_type_measure(object_dir, object_tip)
+                  (set(TARGET_TYPE_CLASSES), True))
+            tree_observations = typed_cases["nonempty_tree"]["observations"]
+            tree_shadow_namespaces = {
+                observation["shadow_ref"].split("/", 2)[1]
+                for observation in tree_observations if "shadow_ref" in observation}
+            check("target-tree-full-prefix-and-ref-shadows",
+                  (len(tree_observations), tree_observations[0]["ok"],
+                   tree_observations[1]["ok"], tree_shadow_namespaces),
+                  (4, True, True, {"heads", "tags"}))
+            # Existing generic tag peeling must fail both non-commit tag classes.
+            generic_dir = tmp / "target-generic-peel"
+            generic_modes = dict(object_modes)
+            generic_modes[TOOLS[0]] = "target-generic-peel"
+            generic_tip = make_fixture(generic_dir, generic_modes)
+            old_generic = measure(generic_dir, generic_tip, object_selectors=True)
+            generic_cases = target_type_probes(generic_dir, TOOLS[0], generic_tip, "master")
+            check("generic-tag-peel-old-matrix-survives-and-new-refusals-fail",
+                  (old_generic["object_selector_tools"],
+                   generic_cases["tag_to_blob"]["ok"], generic_cases["tag_to_tree"]["ok"]),
+                  (TOTAL, False, False))
+            print("TARGET_TYPE_GENERIC_PEEL_WITNESS: " + json.dumps({
+                "old_matrix_kills": int(old_generic["object_selector_tools"] != TOTAL),
+                "new_tag_to_blob_kills": int(not generic_cases["tag_to_blob"]["ok"]),
+                "new_tag_to_tree_kills": int(not generic_cases["tag_to_tree"]["ok"]),
+                "tag_to_blob_observations": generic_cases["tag_to_blob"]["observations"],
+                "tag_to_tree_observations": generic_cases["tag_to_tree"]["observations"],
+                "mutant": "tag-only generic peel instead of commit-type peel"}))
+            tree_prefix_dir = tmp / "target-tree-prefix-only"
+            tree_prefix_modes = dict(object_modes)
+            tree_prefix_modes[TOOLS[0]] = "target-tree-prefix-only"
+            tree_prefix_tip = make_fixture(tree_prefix_dir, tree_prefix_modes)
+            old_tree_prefix = measure(tree_prefix_dir, tree_prefix_tip, object_selectors=True)
+            tree_prefix_cases = target_type_probes(
+                tree_prefix_dir, TOOLS[0], tree_prefix_tip, "master")
+            tree_prefix_observations = tree_prefix_cases["nonempty_tree"]["observations"]
+            check("tree-prefix-only-mutant-old-green-new-same-class-fails",
+                  (old_tree_prefix["object_selector_tools"],
+                   tree_prefix_cases["nonempty_tree"]["ok"],
+                   tree_prefix_observations[0]["ok"],
+                   tree_prefix_observations[1]["ok"]),
+                  (TOTAL, False, True, False))
+            print("TARGET_TYPE_TREE_PREFIX_WITNESS: " + json.dumps({
+                "old_matrix_kills": int(old_tree_prefix["object_selector_tools"] != TOTAL),
+                "new_nonempty_tree_kills": int(not tree_prefix_cases["nonempty_tree"]["ok"]),
+                "mutant": "accept unique tree prefixes while rejecting full tree IDs",
+                "old_matrix_tools": old_tree_prefix["object_selector_tools"]}))
+
+            tip_only_dir = tmp / "target-tip-only"
+            tip_only_modes = dict(object_modes)
+            tip_only_modes[TOOLS[0]] = "target-tip-only"
+            tip_only_tip = make_fixture(tip_only_dir, tip_only_modes)
+            old_tip_only = measure(tip_only_dir, tip_only_tip, object_selectors=True)
+            tip_only_cases = target_type_probes(tip_only_dir, TOOLS[0], tip_only_tip, "master")
+            check("tag-only-branch-tip-mutant-old-green-new-positive-rows-fail",
+                  (old_tip_only["object_selector_tools"],
+                   tip_only_cases["annotated_tag_to_commit"]["ok"],
+                   tip_only_cases["nested_tag_to_commit"]["ok"]),
+                  (TOTAL, False, False))
+            # Failed-peel fallback must not turn a non-commit tag into the branch tip.
+            fallback_dir = tmp / "target-fallback"
+            fallback_modes = dict(object_modes)
+            fallback_modes[TOOLS[0]] = "target-fallback"
+            fallback_tip = make_fixture(fallback_dir, fallback_modes)
+            old_fallback = measure(fallback_dir, fallback_tip, object_selectors=True)
+            fallback_cases = target_type_probes(fallback_dir, TOOLS[0], fallback_tip, "master")
+            check("failed-peel-fallback-old-green-new-tree-refusal-fails",
+                  (old_fallback["object_selector_tools"], fallback_cases["tag_to_tree"]["ok"]),
+                  (TOTAL, False))
+
+            for mode, field in (("target-malformed", "tag_to_blob"),
+                                ("target-double", "tag_to_tree")):
+                invalid_dir = tmp / mode
+                invalid_modes = dict(object_modes)
+                invalid_modes[TOOLS[0]] = mode
+                invalid_tip = make_fixture(invalid_dir, invalid_modes)
+                old_invalid = measure(invalid_dir, invalid_tip, object_selectors=True)
+                invalid_cases = target_type_probes(invalid_dir, TOOLS[0], invalid_tip, "master")
+                check(f"{mode}-old-matrix-green-new-strict-refusal-fails",
+                      (old_invalid["object_selector_tools"], invalid_cases[field]["ok"]),
+                      (TOTAL, False))
+
+            # Availability absent: behavior is still counted independently.
+            absent_mode = target_type_measure(object_dir, object_tip)
             check("target-type-missing-mode-is-not-behavior-failure",
-                  (missing_mode_result["target_type_mode"],
-                   missing_mode_result["target_type_tools"]), (0, TOTAL))
-            print("TARGET_TYPE_WITNESS: " + json.dumps({
-                "old_matrix_kills": int(old_mutant_result["object_selector_tools"] != TOTAL),
-                "new_matrix_kills": int(not new_mutant_cases["tag_to_tree"]["ok"]),
-                "mutant": "tag-only generic peel instead of commit-type peel",
-                "old_matrix_tools": old_mutant_result["object_selector_tools"]}))
+                  (absent_mode["target_type_mode"], absent_mode["target_type_tools"]), (0, TOTAL))
+            # Availability present: a literal AST fixture supplies both required functions
+            # and a real add_argument call, so the implementation-presence branch is exercised.
+            present_source = ("import argparse\n"
+                              "def target_type_measure(*args):\n    return None\n"
+                              "def target_type_probes(*args):\n    return None\n"
+                              "def build_parser():\n"
+                              "    parser = argparse.ArgumentParser()\n"
+                              "    parser.add_argument(\"--object-target-types\", action=\"store_true\")\n"
+                              "    return parser\n")
+            present_dir = tmp / "target-mode-present"
+            present_tip = make_fixture(present_dir, object_modes,
+                                       extra_files={JUDGE: present_source})
+            present_mode = target_type_measure(present_dir, present_tip)
+            check("target-type-literal-present-mode-census",
+                  (present_mode["target_type_mode"], present_mode["target_type_tools"],
+                   present_mode["status"]), (1, TOTAL, "PASS"))
+            short_mode_error = None
+            try:
+                target_type_measure(object_dir, object_tip[:8])
+            except Cannot as exc:
+                short_mode_error = exc.fid
+            check("target-type-measure-requires-full-40-before-bind", short_mode_error, ID_INVALID)
+            tag_ref = "refs/tags/target-type-tools-revision"
+            must(git(object_dir, "-c", "user.name=revision-binding",
+                     "-c", "user.email=revision-binding@invalid", "-c", "tag.gpgSign=false",
+                     "tag", "-a", "target-type-tools-revision", "-m", "judge input", object_tip),
+                 "E-SANDBOX", "tools revision annotated tag")
+            tag_oid = must(git(object_dir, "rev-parse", "--verify", tag_ref + "^{tag}"),
+                           "E-SANDBOX", "tools revision tag oid").stdout.decode("ascii", "replace").strip()
+            tag_mode_error = None
+            try:
+                target_type_measure(object_dir, tag_oid)
+            except Cannot as exc:
+                tag_mode_error = exc.fid
+            check("target-type-measure-rejects-full-tag-object", tag_mode_error, ID_INVALID)
+            tag_ref_mode_error = None
+            try:
+                target_type_measure(object_dir, tag_ref)
+            except Cannot as exc:
+                tag_ref_mode_error = exc.fid
+            check("target-type-measure-rejects-tag-reference", tag_ref_mode_error, ID_INVALID)
+
             try:
                 object_selector_probes(object_dir, TOOLS[0], object_tip, None,
                                        tip, tip, "master")
@@ -1264,54 +1441,41 @@ def selftest():
                 parent_probe = exc.fid
             else:
                 parent_probe = None
-            check("object-selector-ref-shadows-require-landed-decoy",
-                  parent_probe, "E-SELECTOR-PARENT")
+            check("object-selector-ref-shadows-require-landed-decoy", parent_probe, "E-SELECTOR-PARENT")
             echo_modes = {name: "object-selector-echo" for name in TOOLS}
             echo_dir = tmp / "object-selector-cannot-echo"
             echo_tip = make_fixture(echo_dir, echo_modes, extra_files=object_extra)
             echo_result = measure(echo_dir, echo_tip, object_selectors=True)
             check("object-selector-cannot-revision-echo",
-                  (echo_result["object_selector_tools"],
-                   echo_result["object_selector_status"], grade(echo_result)[0]),
-                  (TOTAL, "PASS", PASS))
+                  (echo_result["object_selector_tools"], echo_result["object_selector_status"],
+                   grade(echo_result)[0]), (TOTAL, "PASS", PASS))
             ref_alias_modes = dict(object_modes)
             ref_alias_modes[TOOLS[0]] = "unbound"
             ref_alias_dir = tmp / "object-selector-ref-alias"
-            ref_alias_tip = make_fixture(
-                ref_alias_dir, ref_alias_modes, extra_files=object_extra)
-            ref_alias_result = measure(
-                ref_alias_dir, ref_alias_tip, object_selectors=True)
+            ref_alias_tip = make_fixture(ref_alias_dir, ref_alias_modes, extra_files=object_extra)
+            ref_alias_result = measure(ref_alias_dir, ref_alias_tip, object_selectors=True)
             check("object-selector-grader-rejects-ref-alias",
-                  (ref_alias_result["object_selector_tools"],
-                   ref_alias_result["object_selector_status"],
-                   ref_alias_result["object_selector_per_tool"][0]["ok"],
-                   grade(ref_alias_result)[0]),
+                  (ref_alias_result["object_selector_tools"], ref_alias_result["object_selector_status"],
+                   ref_alias_result["object_selector_per_tool"][0]["ok"], grade(ref_alias_result)[0]),
                   (TOTAL - 1, "FAIL", False, FAIL))
             unavailable_dir = tmp / "object-selector-extra-unavailable"
-            unavailable_tip = make_fixture(
-                unavailable_dir, object_modes, extra_files=object_extra)
+            unavailable_tip = make_fixture(unavailable_dir, object_modes, extra_files=object_extra)
             original_run_tool = run_tool
             def unavailable_extra(sandbox, name, revision, branch=None):
                 if name == "check-extra.py":
-                    raise Cannot("E-TOOL-TIMEOUT", "tools/check-extra.py",
-                                 "synthetic additional-tool timeout")
+                    raise Cannot("E-TOOL-TIMEOUT", "tools/check-extra.py", "synthetic additional-tool timeout")
                 return original_run_tool(sandbox, name, revision, branch)
             run_tool = unavailable_extra
             try:
-                unavailable_result = measure(
-                    unavailable_dir, unavailable_tip, object_selectors=True)
+                unavailable_result = measure(unavailable_dir, unavailable_tip, object_selectors=True)
             finally:
                 run_tool = original_run_tool
             unavailable_row = unavailable_result["per_tool"][-1]
             check("object-selector-additional-failure-isolated",
-                  (unavailable_result["object_selector_tools"],
-                   unavailable_result["object_selector_status"],
-                   unavailable_result["additional_total"],
-                   unavailable_result["additional_consistent_tools"],
-                   unavailable_row.get("probe_error", {}).get("id"),
-                   grade(unavailable_result)[0]),
+                  (unavailable_result["object_selector_tools"], unavailable_result["object_selector_status"],
+                   unavailable_result["additional_total"], unavailable_result["additional_consistent_tools"],
+                   unavailable_row.get("probe_error", {}).get("id"), grade(unavailable_result)[0]),
                   (TOTAL, "PASS", 1, 0, "E-TOOL-TIMEOUT", PASS))
-
 
             for stub in ("tip-only", "no-origin", "head-only", "echo"):
                 fxs = tmp / f"stub-{stub}"
@@ -1319,8 +1483,8 @@ def selftest():
                 ms[TOOLS[0]] = stub
                 tips = make_fixture(fxs, ms)
                 ress = measure(fxs, tips)
-                check(f"stub-{stub}-unbound", (ress["per_tool"][0]["bound"],
-                                               ress["bound_tools"]), (False, TOTAL - 1))
+                check(f"stub-{stub}-unbound", (ress["per_tool"][0]["bound"], ress["bound_tools"]),
+                      (False, TOTAL - 1))
             check("legacy-count", res["legacy_bound"], len(LEGACY))
 
             fx5 = tmp / "bind"
@@ -1333,39 +1497,39 @@ def selftest():
             check("judge-branch-first", bind_error(fx5, "HEAD", "a..b"), ID_BRANCH_INVALID)
             check("judge-branch-slash", bind_error(fx5, tip5, "master/"), ID_BRANCH_INVALID)
             check("judge-branch-missing", bind_error(fx5, tip5, "nosuch"), ID_BRANCH_MISSING)
-            check("judge-repository-unavailable",
-                  bind_error(tmp / "absent-repository", tip5), ID_GIT)
+            check("judge-repository-unavailable", bind_error(tmp / "absent-repository", tip5), ID_GIT)
             unlanded_sha = detached_commit(fx5)
             check("bind-unlanded", bind_error(fx5, unlanded_sha), ID_UNLANDED)
-
             fx6 = tmp / "pushed"
             tip6, base6 = make_fixture(fx6, modes, return_base=True)
-            must(git(fx6, "update-ref", "refs/remotes/origin/master", base6),
-                 "E-SANDBOX", "fixture origin")
+            must(git(fx6, "update-ref", "refs/remotes/origin/master", base6), "E-SANDBOX", "fixture origin")
             check("bind-not-pushed", bind_error(fx6, tip6), ID_PUSHED)
-
             check("cli-empty", cli_finding([]), "E-CLI")
             check("cli-both", cli_finding(["--tools-revision", tip5, "--selftest"]), "E-CLI")
             check("cli-ok", cli_finding(["--selftest"]), None)
-
-            check("cli-object-selectors",
-                  cli_finding(["--tools-revision", tip5, "--object-selectors"]), None)
-
-
-            payload = cannot_payload("HEAD", "master",
-                                     Cannot(ID_INVALID, "revision", "not hex"))
-            check("cannot-shape", (payload["status"], payload["bound_tools"],
-                                   payload["total"], payload["findings"][0]["id"]),
+            check("cli-object-selectors", cli_finding(["--tools-revision", tip5, "--object-selectors"]), None)
+            check("cli-object-target-types", cli_finding(["--tools-revision", tip5,
+                                                          "--object-target-types"]), None)
+            check("cli-mutually-exclusive-matrices",
+                  cli_finding(["--tools-revision", tip5, "--object-selectors",
+                               "--object-target-types"]), "E-CLI")
+            payload = cannot_payload("HEAD", "master", Cannot(ID_INVALID, "revision", "not hex"))
+            check("cannot-shape", (payload["status"], payload["bound_tools"], payload["total"],
+                                   payload["findings"][0]["id"]),
                   ("CANNOT_EVALUATE", 0, TOTAL, ID_INVALID))
-
-            object_payload = cannot_payload(
-                "HEAD", "master", Cannot(ID_INVALID, "revision", "not hex"),
-                object_selectors=True)
+            object_payload = cannot_payload("HEAD", "master",
+                                             Cannot(ID_INVALID, "revision", "not hex"),
+                                             object_selectors=True)
             check("cannot-object-selector-shape",
-                  (object_payload["object_selector_tools"],
-                   object_payload["object_selector_total"],
-                   object_payload["object_selector_status"]),
-                  (0, TOTAL, "CANNOT_EVALUATE"))
+                  (object_payload["object_selector_tools"], object_payload["object_selector_total"],
+                   object_payload["object_selector_status"]), (0, TOTAL, "CANNOT_EVALUATE"))
+            target_payload = cannot_payload("HEAD", "master",
+                                             Cannot(ID_INVALID, "revision", "not hex"),
+                                             object_target_types=True)
+            check("cannot-object-target-types-shape",
+                  (target_payload["target_type_tools"], target_payload["target_type_total"],
+                   target_payload["target_type_status"], target_payload["target_type_mode"]),
+                  (0, TOTAL, "CANNOT_EVALUATE", None))
     except Cannot as exc:
         failures.append(f"fixture: {exc.fid} {exc.site} {exc.detail}")
 
@@ -1379,33 +1543,30 @@ def selftest():
 
 
 def main(argv=None):
+    tokens = tuple(sys.argv[1:] if argv is None else argv)
     try:
         args = build_parser().parse_args(argv)
     except (argparse.ArgumentError, SystemExit) as exc:
         if isinstance(exc, SystemExit) and not exc.code:
             return 0
-        payload = cannot_payload(None, "master", Cannot("E-CLI", "cli", "invalid arguments"))
+        payload = cannot_payload(None, "master", Cannot("E-CLI", "cli", "invalid arguments"),
+                                 "--object-selectors" in tokens, "--object-target-types" in tokens)
         return emit_report(payload, CANNOT)
     if args.selftest:
         return selftest()
     if args.object_target_types:
-        if args.object_selectors:
-            return emit_report(cannot_payload(
-                args.tools_revision, args.branch,
-                Cannot("E-CLI", "mode", "select one object matrix")), CANNOT)
         try:
             result = target_type_measure(ROOT, args.tools_revision, args.branch)
             return emit_report(result, PASS if result["status"] == "PASS" else FAIL)
         except Cannot as exc:
-            payload = cannot_payload(args.tools_revision, args.branch, exc)
-            payload.update(target_type_tools=0, target_type_total=TOTAL,
-                           target_type_status="CANNOT_EVALUATE")
+            payload = cannot_payload(args.tools_revision, args.branch, exc,
+                                     object_target_types=True)
+            payload["branch_tip"] = lane_tip(ROOT, args.branch)
             return emit_report(payload, CANNOT)
         except Exception as exc:
             payload = cannot_payload(args.tools_revision, args.branch,
-                                     Cannot("E-INTERNAL", "target-types", str(exc)[:120]))
-            payload.update(target_type_tools=0, target_type_total=TOTAL,
-                           target_type_status="CANNOT_EVALUATE")
+                                     Cannot("E-INTERNAL", "target-types", str(exc)[:120]),
+                                     object_target_types=True)
             return emit_report(payload, CANNOT)
     try:
         result = measure(ROOT, args.tools_revision, args.branch, args.object_selectors)
@@ -1413,10 +1574,10 @@ def main(argv=None):
         payload = cannot_payload(args.tools_revision, args.branch, exc, args.object_selectors)
         payload["branch_tip"] = lane_tip(ROOT, args.branch)
         return emit_report(payload, CANNOT)
-    except Exception as exc:  # no traceback exit 1: unreadable input is CANNOT
-        payload = cannot_payload(
-            args.tools_revision, args.branch,
-            Cannot("E-INTERNAL", "probe", str(exc)[:120]), args.object_selectors)
+    except Exception as exc:
+        payload = cannot_payload(args.tools_revision, args.branch,
+                                 Cannot("E-INTERNAL", "probe", str(exc)[:120]),
+                                 args.object_selectors)
         return emit_report(payload, CANNOT)
     code, _ = grade(result)
     return emit_report(result, code)

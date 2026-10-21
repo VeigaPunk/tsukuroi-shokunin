@@ -37,3 +37,7 @@ The original-nine denominator, case expectations and immutable baseline are in `
 ## QUALITY check
 
 Criteria1–3: five finite decisions distinguish documented semantics, lane policy and unknown remote state. Criteria7/19/21: opened scopedA S081/S082 support the exact typed-peeling proposition at versioned headings; they do not support host or ancestry assertions. Criteria14: this performed check evaluates sources and scope, not pending implementation tests. Criteria24/31/38/40/41: execution classes, review identities and old matrix limits remain explicit; wrong-peeling and mismatched-receipt controls must show the corresponding fixes able to fail. Decision/source agreement is author-side; independent non-author admission remains pending.
+
+## R21-TYPE-PROVENANCE — named same-round supersession
+
+The active corrected entry is `selector-contract-r21-corrected.md` and `.json`. It supersedes this entry's provenance representation and weak table-binding assumptions after FxC1Blob/Tree/Policy/CommitTag/Source source attacks: manual type propositions and lane diagnostics/ancestry policy now have separate source/policy fields, exact located recursion/failure/commit-ish quotations, and a column-aware gate. The five intended outcomes are unchanged. This entry and its original JSON stay historical evidence; do not infer from the earlier structural counter that arbitrary contradictory prose or source swapping was checked.

@@ -9,6 +9,7 @@ from pathlib import Path, PurePosixPath
 import re
 import subprocess
 import sys
+import unicodedata
 
 sys.dont_write_bytecode = True
 import _revision
@@ -17,28 +18,53 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT = ".ufo/waves/round-21/reviews.json"
 
 
+def has_controls(value):
+    return any(unicodedata.category(char) in ("Cc", "Cf", "Cs", "Zl", "Zp")
+               for char in value)
+
+
 def safe_path(path):
     return (isinstance(path, str) and bool(path) and not path.startswith("/")
-            and "\\" not in path and all(part not in ("", ".", "..") for part in path.split("/"))
+            and "\\" not in path and not has_controls(path)
+            and all(part not in ("", ".", "..") for part in path.split("/"))
             and not PurePosixPath(path).is_absolute())
+
+
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate JSON key {key!r}")
+        result[key] = value
+    return result
+
+
+def physical_lines(text):
+    """Split only at LF, removing at most one CR that terminates a CRLF line."""
+    return [line[:-1] if line.endswith("\r") else line for line in text.split("\n")]
 
 
 def evaluate(raw, read_bytes):
     findings = []
     pinned, total, distinct = 0, 0, 0
-    code = 0
+    report_encoding_error = False
+    read_error = False
+
     def add(fid, site):
         findings.append({"id": fid, "site": site})
+
     if raw is None:
         add("REVIEW-MANIFEST-MISSING", DEFAULT)
         code = 1
     else:
         try:
-            data = json.loads(raw)
+            data = json.loads(raw, object_pairs_hook=unique_object)
             reviews = data.get("reviews") if isinstance(data, dict) else None
-            if (not isinstance(data, dict) or data.get("schema") != "tsukuroi-review-snapshots-v1"
+            if (not isinstance(data, dict)
+                    or data.get("schema") != "tsukuroi-review-snapshots-v1"
                     or not isinstance(reviews, list) or not reviews):
                 raise ValueError("invalid manifest shape")
+            total = len(reviews)
             names, reports = set(), set()
             for row in reviews:
                 if (not isinstance(row, dict) or not isinstance(row.get("name"), str)
@@ -47,36 +73,52 @@ def evaluate(raw, read_bytes):
                         or row["report"] in reports or not safe_path(row.get("source"))
                         or not isinstance(row.get("sha256"), str)
                         or not re.fullmatch(r"[0-9a-f]{64}", row["sha256"])
-                        or not isinstance(row.get("predicate"), str) or not row["predicate"]
-                        or any(c in row["predicate"] for c in "\r\n")):
-                    raise ValueError("invalid/duplicate review identity or path")
+                        or not isinstance(row.get("predicate"), str)
+                        or not row["predicate"].strip() or has_controls(row["predicate"])):
+                    raise ValueError("invalid/duplicate review identity, path, or predicate")
                 names.add(row["name"])
                 reports.add(row["report"])
-            total = len(reviews)
             distinct = len({row["source"] for row in reviews})
             for row in reviews:
                 start = len(findings)
-                source = read_bytes(row["source"])
-                report = read_bytes(row["report"])
+                try:
+                    source = read_bytes(row["source"])
+                except (OSError, RuntimeError, subprocess.TimeoutExpired):
+                    add("REVIEW-READ-FAILED", row["name"])
+                    read_error = True
+                    continue
                 if source is None or hashlib.sha256(source).hexdigest() != row["sha256"]:
                     add("REVIEW-SNAPSHOT-MISMATCH", row["name"])
+                try:
+                    report = read_bytes(row["report"])
+                except (OSError, RuntimeError, subprocess.TimeoutExpired):
+                    add("REVIEW-READ-FAILED", row["name"])
+                    read_error = True
+                    continue
                 if report is None:
                     add("REVIEW-REPORT-MISSING", row["name"])
                 else:
-                    text = report.decode("utf-8")
-                    lines = text.splitlines()
-                    digest_lines = [line for line in lines if line.startswith("Reviewed-SHA256:")]
-                    predicate_lines = [line for line in lines if line.startswith("Predicate:")]
-                    scope_lines = [line for line in lines if line.startswith("Scope:")]
-                    if digest_lines != ["Reviewed-SHA256: " + row["sha256"]]:
-                        add("REVIEW-SNAPSHOT-MISMATCH", row["name"])
-                    if predicate_lines != ["Predicate: " + row["predicate"]]:
-                        add("REVIEW-PREDICATE-MISMATCH", row["name"])
-                    if scope_lines != ["Scope: executed=none"]:
-                        add("REVIEW-SCOPE-MISMATCH", row["name"])
+                    try:
+                        text = report.decode("utf-8")
+                    except UnicodeError:
+                        add("REVIEW-REPORT-ENCODING", row["name"])
+                        report_encoding_error = True
+                    else:
+                        lines = physical_lines(text)
+                        digest_lines = [line for line in lines
+                                        if line.startswith("Reviewed-SHA256:")]
+                        predicate_lines = [line for line in lines
+                                           if line.startswith("Predicate:")]
+                        scope_lines = [line for line in lines if line.startswith("Scope:")]
+                        if digest_lines != ["Reviewed-SHA256: " + row["sha256"]]:
+                            add("REVIEW-SNAPSHOT-MISMATCH", row["name"])
+                        if predicate_lines != ["Predicate: " + row["predicate"]]:
+                            add("REVIEW-PREDICATE-MISMATCH", row["name"])
+                        if scope_lines != ["Scope: executed=none"]:
+                            add("REVIEW-SCOPE-MISMATCH", row["name"])
                 if len(findings) == start:
                     pinned += 1
-            code = 1 if findings else 0
+            code = 2 if report_encoding_error or read_error else (1 if findings else 0)
         except (ValueError, TypeError, UnicodeError) as exc:
             add("REVIEW-MANIFEST-SCHEMA", str(exc)[:100])
             code = 2
@@ -91,7 +133,7 @@ def git_read(rev, path):
                           stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                           env=_revision.clean_env(), timeout=30)
     if proc.returncode:
-        exists = subprocess.run(["git", "-C", str(ROOT), "ls-tree", "-z", rev, "--", path],
+        exists = subprocess.run(["git", "--literal-pathspecs", "--no-pager", "-C", str(ROOT), "ls-tree", "-z", rev, "--", path],
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                 env=_revision.clean_env(), timeout=30)
         if exists.returncode == 0 and not exists.stdout:
@@ -101,11 +143,14 @@ def git_read(rev, path):
 
 
 def selftest():
+    failures = []
+    observations = []
     sha = hashlib.sha256(b"fixed source\n").hexdigest()
     manifest = {"schema": "tsukuroi-review-snapshots-v1", "reviews": [
         {"name": "One", "report": "wave/One.md", "source": "snapshot/tool.py",
          "sha256": sha, "predicate": "fixed-five-decisions"}]}
-    report = (f"Reviewed-SHA256: {sha}\nPredicate: fixed-five-decisions\nScope: executed=none\n").encode()
+    report = (f"Reviewed-SHA256: {sha}\nPredicate: fixed-five-decisions\n"
+              "Scope: executed=none\n").encode()
     files = {"snapshot/tool.py": b"fixed source\n", "wave/One.md": report}
     cases = [("clean", manifest, files, 0, set()),
              ("missing-manifest", None, files, 1, {"REVIEW-MANIFEST-MISSING"}),
@@ -122,14 +167,77 @@ def selftest():
         data = copy.deepcopy(manifest)
         mutate(data)
         cases.append((name, data, files, 2, {"REVIEW-MANIFEST-SCHEMA"}))
-    failures = []
+
+    cases.extend([
+        ("duplicate-predicate", manifest,
+         {**files, "wave/One.md": report + b"Predicate: fixed-five-decisions\n"},
+         1, {"REVIEW-PREDICATE-MISMATCH"}),
+        ("missing-predicate", manifest,
+         {**files, "wave/One.md": report.replace(b"Predicate: fixed-five-decisions\n", b"")},
+         1, {"REVIEW-PREDICATE-MISMATCH"}),
+        ("case-shifted-predicate", manifest,
+         {**files, "wave/One.md": report.replace(b"Predicate:", b"predicate:")},
+         1, {"REVIEW-PREDICATE-MISMATCH"}),
+        ("form-feed-pseudoline", manifest,
+         {**files, "wave/One.md": report.replace(
+             b"Predicate: fixed-five-decisions\n",
+             b"Predicate: fixed-five-decisions\fextra\n")},
+         1, {"REVIEW-PREDICATE-MISMATCH"}),
+        ("vertical-tab-pseudoline", manifest,
+         {**files, "wave/One.md": report.replace(
+             b"Predicate: fixed-five-decisions\n",
+             b"prefix\vPredicate: fixed-five-decisions\n")},
+         1, {"REVIEW-PREDICATE-MISMATCH"}),
+        ("invalid-report-utf8", manifest,
+         {**files, "wave/One.md": report + b"\xff"},
+         2, {"REVIEW-REPORT-ENCODING"}),
+        ("control-path", {**manifest, "reviews": [{**manifest["reviews"][0],
+                                                      "report": "wave/One.md\f"}]},
+         files, 2, {"REVIEW-MANIFEST-SCHEMA"}),
+        ("control-predicate", {**manifest, "reviews": [{**manifest["reviews"][0],
+                                                           "predicate": "fixed\vdecision"}]},
+         files, 2, {"REVIEW-MANIFEST-SCHEMA"}),
+        ("whitespace-predicate", {**manifest, "reviews": [{**manifest["reviews"][0],
+                                                              "predicate": "  "}]},
+         files, 2, {"REVIEW-MANIFEST-SCHEMA"}),
+        ("malformed-json", b'{"schema":', files, 2, {"REVIEW-MANIFEST-SCHEMA"}),
+        ("duplicate-json-key",
+         (b'{"schema":"tsukuroi-review-snapshots-v1","reviews":[{"name":"One",'
+          b'"report":"wave/One.md","source":"snapshot/tool.py","sha256":"' +
+          sha.encode() + b'","predicate":"fixed-five-decisions","predicate":"fixed-five-decisions"}]}'),
+         files, 2, {"REVIEW-MANIFEST-SCHEMA"}),
+    ])
+    two_rows = copy.deepcopy(manifest)
+    two_rows["reviews"].append({**manifest["reviews"][0],
+                                "name": "Two", "report": "wave/Two.md"})
+
+    def read_after_dead_report(path):
+        if path == "wave/One.md":
+            return None
+        if path == "wave/Two.md":
+            raise RuntimeError("fixture read failure")
+        return files.get(path)
+
+    cases.append(("read-failed-retains-missing", two_rows, read_after_dead_report, 2,
+                  {"REVIEW-REPORT-MISSING", "REVIEW-READ-FAILED"}))
+
     for name, data, surfaces, want_code, want_ids in cases:
-        raw = json.dumps(data) if data is not None else None
-        code, payload = evaluate(raw, surfaces.get)
+        raw = data if isinstance(data, bytes) else json.dumps(data) if data is not None else None
+        read_bytes = surfaces if callable(surfaces) else surfaces.get
+        code, payload = evaluate(raw, read_bytes)
+        observations.append({"case": name, "exit": code,
+                             "finding_ids": sorted(row["id"] for row in payload["findings"])})
+        problems = []
         if code != want_code or {row["id"] for row in payload["findings"]} != want_ids:
-            failures.append(name)
+            problems.append("exit/findings")
+        if (name == "read-failed-retains-missing"
+                and (payload["total_reviews"] != 2 or payload["pinned_reviews"] != 0)):
+            problems.append("review counts")
+        if problems:
+            failures.append(name + ": " + ", ".join(problems))
     print(json.dumps({"status": "FAIL" if failures else "PASS", "cases": len(cases),
-                      "passed": len(cases) - len(failures), "failures": failures}))
+                      "passed": len(cases) - len(failures), "failures": failures,
+                      "observations": observations}))
     return 1 if failures else 0
 
 
@@ -148,6 +256,7 @@ def main(argv=None):
         return selftest()
     if not safe_path(args.manifest):
         print(json.dumps({"status": "CANNOT_EVALUATE", "pinned_reviews": 0,
+                          "total_reviews": 0,
                           "findings": [{"id": "REVIEW-MANIFEST-SCHEMA", "site": "manifest path"}]}))
         return 2
     try:
@@ -157,10 +266,10 @@ def main(argv=None):
         payload.update(revision=binding.sha, branch=binding.branch, branch_tip=binding.branch_tip)
     except _revision.RevisionError as exc:
         code, payload = 2, {"status": "CANNOT_EVALUATE", "pinned_reviews": 0,
-                            "findings": [{"id": exc.fid, "site": exc.site}]}
+                            "total_reviews": 0, "findings": [{"id": exc.fid, "site": exc.site}]}
     except (OSError, RuntimeError, UnicodeError, subprocess.TimeoutExpired) as exc:
         code, payload = 2, {"status": "CANNOT_EVALUATE", "pinned_reviews": 0,
-                            "findings": [{"id": "E-READ", "site": str(exc)[:120]}]}
+                            "total_reviews": 0, "findings": [{"id": "E-READ", "site": str(exc)[:120]}]}
     print(json.dumps(payload, sort_keys=True))
     return code
 

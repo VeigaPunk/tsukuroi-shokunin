@@ -1,0 +1,35 @@
+# Fx08 — `check-recheck-commands.py` × `nested_tag_to_commit`
+
+## Axes
+- **Binding correctness:** a nested annotated tag must bind to the commit it actually targets, not merely to a commit on the selected branch.
+- **Probe operability:** the probe must construct genuine Git object types in an isolated sandbox, exercise the consumer’s argv/error/output path, and assert the expected full commit identity.
+- **Calibration:** keep the established object-selector matrix distinct from the added target-type behavior count; mode availability is not a behavioral uplift.
+
+## Snapshot and scope
+Reviewed the immutable candidate snapshot at revision `0a14952b59d20179e1c813af58befaecd6992a17`. The primary file digest matches the requested SHA. Auxiliary frozen dependencies read: `tools/check-revision-binding.py` (SHA-256 `0722537d1b3fffbb78566ddaba21dbd796f4a89ceb81f772a20596cb40af6fa6`) and `tools/_revision.py` (SHA-256 `06b71e8cb4aa541a25c95301106dc4d3ad9566cf18ec834f226ec0708db58cbf`). No source was modified; no test, consumer, or mutant was executed.
+
+## Source-grounded path
+`check-revision-binding.py:739-747` obtains the pinned commit, creates a `TemporaryDirectory`, clones the selected lane into it, and calls `prepare`. `prepare` detaches sandbox `HEAD` at `tip`, sets the selected branch and origin tracking ref to that same `tip` (`:233-242`). Thus the probe uses a fresh temporary clone and the consumer process is launched from `sandbox/tools/<name>` with `cwd=sandbox` (`check-revision-binding.py:359-371`). For `check-recheck-commands.py`, `ROOT` is derived from its own file path (`check-recheck-commands.py:58`), so its default repository is the sandbox, not the live checkout. Its path reader addresses `commit:path` through `git -C repo cat-file` / `git show` (`:798-823`); source predicts no consumer-side host-worktree read.
+
+The target probe builds actual annotated tag objects using `git tag -a` (`check-revision-binding.py:685-695`). It creates `commit_tag = tag("commit", tip)`, then creates the outer nested tag targeting that tag object and records expected commit `tip` (`:697-703`). It inventories all object IDs and chooses a tag-object prefix only when that prefix is unique among all objects and is not a branch or tag ref name (`:705-718`); both the full tag OID and selected prefix are passed to the consumer (`:719-729`). For accepted cases `run_tool` supplies `--revision`, `--branch`, and configured extra arguments; `--paths` is optional and the consumer default is `corpus/knowledge` (`check-recheck-commands.py:885-893`). `accepted` requires a non-CANNOT exit and a JSON `revision` equal, case-insensitively, to the expected full SHA (`check-revision-binding.py:396-404`). The consumer catches `_revision.RevisionError` and propagates its ID/site/detail as one `Cannot` finding (`check-recheck-commands.py:915-939`); on success it uses the bound SHA for path expansion and reads (`:923-929`) and emits that bound SHA as JSON `revision` (`:771-795`).
+
+The shared binder resolves exactly one object ID before inspecting its type; commits return directly, non-tag objects are rejected, and a tag is recursively peeled with `^{commit}` (`_revision.py:112-146`). `bind` maps an unpeelable/non-commit selector to `E-REVISION-INVALID` and then enforces branch ancestry (`:172-192`). For the invalid target-type rows, `refused` checks `CANNOT_EVALUATE`, the requested finding ID, the binding-ID set, and exactly one finding (`check-revision-binding.py:383-394, 709-732`).
+
+## Finding — medium: nested-tag row has a false-green for wrong-target resolution
+The nested object is real and correctly typed, and the row checks both its full OID and a unique prefix. However, its inner annotated tag targets the current branch tip, while `prepare` also makes sandbox `HEAD` equal to that tip. A consumer mutant that special-cases an outer tag whose target is another tag by returning sandbox `HEAD` (instead of recursively resolving that inner tag’s target) therefore emits `revision=tip`, passes the landed/pushed checks, and is accepted by this row for both selectors. The mutation would be wrong for a nested tag targeting a different landed commit, but this fixture makes the wrong fallback observationally identical to correct peeling. The direct `tag_to_blob`, `tag_to_tree`, and `annotated_tag_to_commit` controls do not distinguish this narrowly nested-tag fallback.
+
+This is a source-predicted false-green only; the proposed mutant was **not** executed. To make this predicate discriminating, construct the nested tag over a landed commit distinct from branch `tip` (for example the pinned commit’s parent when present) and require that commit’s full SHA in the accepted output, or otherwise add a second nested-target control with a distinct expected commit.
+
+## Build-oracle comparison and calibration
+The shared `_revision.py` selftest has a `nested-annotated-tag-object` oracle (`:353-365`), but it constructs the same topology—nested tag ultimately targets `tip`—so it shares this blind spot. The `check-recheck-commands.py` selftest covers revision syntax/branch errors and a normal landed binding (`:1432-1469`), not a nested-tag consumer integration case. The `check-revision-binding.py` selftest confirms five target classes and rejects a generic-peel mutant via `tag_to_tree` (`:1234-1250`); that mutant is not the nested-only HEAD fallback described above. No build-oracle result was executed or observed in this review.
+
+The candidate routes `--object-target-types` separately from the established `measure(..., object_selectors)` path (`check-revision-binding.py:783-841, 1381-1411`). `target_type_measure` reports mode availability separately from the new target-type behavior count and declares its scope as five behavioral classes for the original nine tools (`:739-780`). The selftest also asserts the old selector matrix remains an original-nine matrix (`:1224-1233`). Thus source predicts no C2 mode-0-to-1 behavioral nine-fold uplift. The frozen candidate was reviewed without a baseline file comparison, so this is a separation/claim assessment, not a byte-for-byte proof that every old-matrix line is unchanged.
+
+## Residual risk and verification gaps
+- All conclusions are source predictions from the frozen snapshots; no runtime output, measurement row, test, or mutant result was observed.
+- No `lsp` device/server status endpoint is exposed in this review seat. Caller/definition checks above are direct frozen-source tracing, not LSP semantic proof.
+- The candidate probe itself has fresh temporary-clone isolation, unique-prefix checks, exact refusal ID/count checks, and full-SHA accepted-output checks; the actionable gap is specifically nested-tag target differentiation.
+
+Reviewed-SHA256: 9dc46f46d322f92578b60027da3d7ea8138d90ef44eeae152531388e6c27e7e9
+Predicate: check-recheck-commands.py-nested_tag_to_commit-candidate-control
+Scope: executed=none

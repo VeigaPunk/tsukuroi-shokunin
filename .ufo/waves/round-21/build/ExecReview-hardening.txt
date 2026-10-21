@@ -1,0 +1,20 @@
+Round 21 ExecReview — C3 receipt hardening
+
+Axes
+- Calibration: physical-line receipt matching and predicate validation.
+- Operability: row-local report/read errors preserve typed findings and the declared denominator.
+- Scope fidelity: primary source/predicate declarations only; no claim of actual reading or command nonexecution.
+
+Observations
+- Reviewed the frozen `candidate/tools/check-review-snapshots.py`, not a moving production file. Its report parser used `str.splitlines()`, and the report decode/read loop sat inside broader error handling; these allow pseudo-line interpretation and can mislabel report encoding failures. The frozen `FxC3Report.md` also identifies a later-row hard read failure replacing earlier accumulated missing-report evidence.
+- Wrote the revised full draft to `.ufo/waves/round-21/drafts/ExecReview/check-review-snapshots-fixed.py`, based on the frozen candidate. It splits report text only on LF and removes one terminal CR per physical line; report UTF-8 failures add `REVIEW-REPORT-ENCODING` per row with code 2. Per-row OSError, RuntimeError, and subprocess timeout paths add `REVIEW-READ-FAILED`, preserve prior findings, and produce code 2. The missing-report/missing-dead denominator remains manifest-based; missing rows remain findings and do not increment `pinned_reviews`.
+- Added duplicate JSON-key rejection, control checks for paths and predicates, whitespace-only predicate rejection, literal Git pathspec handling for the `ls-tree` fallback, and in-memory selftests while retaining the candidate's original 12 cases. Additional fixtures cover predicate absence/duplication/case shifts, form-feed and vertical-tab pseudo-lines, invalid UTF-8, malformed and duplicate-key JSON, controls, whitespace-only predicates, and a first-row missing report followed by a second-row read exception with expected `REVIEW-REPORT-MISSING` plus `REVIEW-READ-FAILED` and retained counts.
+- No CLI, selftest, build, or other runtime check was intentionally run. The edit tool reported an automatic syntax probe after one patch; no behavioral output was produced. No tool was installed.
+
+Evidence and limits
+- Assignment-supplied baseline source identity is reproduced below. `FxC3Report.md` records the frozen candidate gate SHA-256 as `736c5dc85c527ac673b5fa9a6276a295e475cf3c2d2c007bea8c2e7d6de7e60e`; I did not recompute it. The draft has not been run or integrated, and its production-relative `ROOT`/plain `_revision` import assumes placement in the production `tools` layout.
+- Receipts remain declarations. The gate does not prove a reviewer read the source bytes, establish chronology from timestamps, discover reports absent from the manifest, or prove no command ran. L1 owns integration and post-integration checks; no production edits or outside closure are claimed.
+
+Reviewed-SHA256: add541d8b8d4ea7f4c38415bb31f5f9ffbcaeb177aebb2431239bbb489829dac
+Predicate: C3-pinned-review-receipt-contract
+Scope: executed=none

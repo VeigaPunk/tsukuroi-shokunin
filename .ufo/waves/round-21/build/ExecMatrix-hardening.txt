@@ -1,0 +1,22 @@
+Round-21 C2 target-type hardening — ExecMatrix
+
+Axes: operability (measured-mode presence), behavior (original-nine target-type rows), calibration (old-matrix misses versus new-matrix kills), and compatibility (unchanged object-selector case set/count).
+
+Draft: `.ufo/waves/round-21/drafts/ExecMatrix/check-revision-binding-fixed.py`, based on frozen candidate `.ufo/waves/round-21/candidate/tools/check-revision-binding.py#70BC`. No candidate/production file or earlier report was modified.
+
+Changes in the draft:
+- Positive `nested_tag_to_commit` and `annotated_tag_to_commit` fixtures target the first parent commit, independently resolved from Git, and assert it is distinct from the measured branch tip and landed. `target_type_measure` requires a full 40-hex commit object before calling the independent binder; short selectors, tag refs, and tag objects are rejected.
+- New refusal observations require exit 2, JSON status `CANNOT_EVALUATE`, the exact expected existing finding ID, exactly one JSON finding, and a revision value restricted to the raw selector echo, null, `unbound`, or `000000000000`.
+- The five class keys remain fixed. Git `cat-file` checks the actual tag headers. `nonempty_tree` now exercises both its full ID and unique prefix, with branch/tag ref shadows; tag-to-blob/tree prefixes have the same ref-shadow controls.
+- Selftest fixtures cover generic-tag peeling (both tag-to-blob and tag-to-tree must fail), a tree-prefix-only acceptance mutant (old matrix green, new `nonempty_tree` row fails), a tag-only branch-tip acceptance mutant, malformed and multi-finding refusals, and a failed-peel fallback mutant. A literal mode-present AST fixture covers the available branch; the absent branch remains separate. These fixtures are not executed.
+- `target_type_mode` is mode availability; `target_type_tools` / `behavioral_tools` remain behavioral counts. The intended comparison is mode availability 0→1 and behavior 9→9, not a fabricated behavioral uplift. No nested-tag-to-noncommit class was added; it remains outside the preregistered five.
+- The existing `object_selector_probes` function text and case set/count are retained; observer JSON-status metadata does not change old grading.
+
+Retained source evidence: candidate `#70BC` lines 676-736 define the existing five classes and tag prefixes; lines 739-780 separate AST mode availability from behavior; lines 1234-1259 show the existing generic-peel witness only asserted tag-to-tree. Candidate line 742 invokes the independent binder directly, without a preceding full-40-hex/commit-kind guard. These are source observations, not executed findings.
+
+Risks and integration: no tests, builds, imports, formatters, or scripts were run. L1 should review the exact draft, run its hermetic selftest, exercise `--object-target-types` against the intended full-commit revision, and confirm the old `--object-selectors` result/case set. Runtime `mode=1`, `behavioral_tools=9/9`, and mutant outcomes remain unobserved here. The scope does not include changing the shared binder, refs policy, or host configuration. LSP was unavailable; no tools were installed or updated.
+
+Reviewed-SHA256: da000de45b07ec2e4942ed798f6b9a7555c99180245d2139a94648cc4566b9e0
+Reviewed-Candidate: .ufo/waves/round-21/candidate/tools/check-revision-binding.py#70BC
+Predicate: C2-new-explicit-target-type-matrix
+Scope: executed=none

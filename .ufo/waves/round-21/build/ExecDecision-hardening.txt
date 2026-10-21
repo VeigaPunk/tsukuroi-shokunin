@@ -1,0 +1,21 @@
+Round 21 C1 hardening — ExecDecision
+
+Axes: source grounding; decision-map integrity; Markdown binding; selftest coverage; scope.
+
+Findings and deliverable
+- Added `.ufo/waves/round-21/drafts/ExecDecision/check-selector-contract-fixed.py` only. It is production-relative (`ROOT = Path(__file__).resolve().parents[1]`, direct `import _revision`) for L1 to copy into `tools/`; it is not intended to execute from the draft directory.
+- The committed reads now select `corpus/knowledge/selector-contract-r21-corrected.json`, `corpus/knowledge/selector-contract-r21-corrected.md`, and `corpus/SOURCES.md` at the bound revision. No corrected corpus or production file was written.
+- JSON checks reject duplicate object keys, require the v1 root and decision fields `class`, `outcome`, `finding`, `source`, `rationale`, and `policy`, permit optional `supersedes`, and enforce the independent map: commit:S082, tree:S081, blob:S081, tag-to-commit:S081, tag-to-noncommit:S081. Each row's policy must be exactly `QUALITY27/36`.
+- Markdown checks strip HTML comments/fenced code before checking a real five-column table; outcomes are matched in column 3, refusal IDs in column 4, source/policy mapping in column 5. Class values are normalized before duplicate detection. The tag-to-commit rationale and table proposition must contain both nested and recursive terms. The located-propositions section must preserve the supplied S081/S082 quotes and exact lane-policy exclusion sentence; it also distinguishes conditional origin-ref ancestry from live remote reachability.
+- `--revision HEX` uses `_revision.bind`; no extra origin-ref requirement was added. `--selftest` contains 22 literal-fixture cases for the requested selector, schema, source, policy, table-column, hidden-row, duplicate-variant and recursive-tag falsifiers. It was not run.
+
+Evidence, observations, inference, limits
+- Read-only pinned binder evidence: `.ufo/waves/round-21/snapshot/tools/_revision.py:41-51,172-192` defines the hexadecimal selector, finding IDs, `Binding`, and local ancestry with optional origin-ref ancestry. This supports retaining binder semantics without requiring an origin ref.
+- Frozen base checker evidence: `.ufo/waves/round-21/candidate/tools/check-selector-contract.py:35-83,86-97,100-133` showed source-substring table checks and generated selftest rows. The hardening draft replaces those checks with duplicate-key rejection, fixed source mapping, exact table-cell checks and independent literal fixtures.
+- Corrected contract evidence (read-only): `corpus/knowledge/selector-contract-r21-corrected.json:2-10` has the optional `supersedes` root field, per-row `policy`, and the revised source map; `.md:11-24,28-36,40-46` has the located quotes, lane-policy exclusion/conditional-origin statements, five-column table and explicit scope limits. `corpus/SOURCES.md:88-89` identifies S081/S082 as tier A, mined rows for the versioned Git documentation.
+- Pinned policy evidence: snapshot `corpus/QUALITY.md:37-38` (QUALITY27/28) and `:80` (QUALITY36) provide the revision-binding and object-identity requirements. Observation: the revised gate checks the source/policy split and the finite corrected table; it does not execute selector or consumer behavior. [INFERENCE] Integration passes only if the selected landed revision contains the corrected paths and matching registry rows.
+- Limit: this finite gate does not prove arbitrary prose semantics, universal Git behavior, remote-service reachability, or original-nine consumer repair. No build, test, lint, formatter, import, runtime, or network check was run. No tool install/update was needed or performed.
+
+Reviewed-SHA256: 06b71e8cb4aa541a25c95301106dc4d3ad9566cf18ec834f226ec0708db58cbf
+Predicate: C1-fixed-five-type-decisions
+Scope: executed=none
