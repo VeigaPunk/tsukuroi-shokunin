@@ -144,6 +144,22 @@ with tempfile.TemporaryDirectory(prefix='tsukuroi-r19-measure-') as tmp:
     record('c3-after', ['python3', registry_tool, '--revision', TIP,
                         '--baseline-tools', BASE], clone, required=registry_tool)
 
+    # No-harm regressions: round-18 gates re-run at the round-19 tip. Their
+    # registries stay pinned to the round-18 evidence commit; a red here means
+    # round-19 changed bytes those gates certify.
+    record('boot-chain-statement-corrections',
+           ['python3', 'tools/check-boot-chain.py', '--revision', TIP,
+            '--statement-corrections', '--registry-from',
+            'c0f6303f35e15ce113c03f4b6592014b9d8c2472'],
+           clone, required='tools/check-boot-chain.py')
+    record('notices-whole-corpus',
+           ['python3', 'tools/check-appended-notices.py', '--revision', TIP,
+            '--registry-from', 'c0f6303f35e15ce113c03f4b6592014b9d8c2472'],
+           clone, required='tools/check-appended-notices.py')
+    record('recheck-whole-corpus',
+           ['python3', 'tools/check-recheck-commands.py', '--revision', TIP],
+           clone, required='tools/check-recheck-commands.py')
+
     recheck_tool = 'tools/check-recheck-commands.py'
     captures = [
         ('r19', '.ufo/waves/round-19/l1-capture/host-capture-r19.txt'),
