@@ -1,0 +1,19 @@
+Source: CloseKaidoku22 recorded eval tool request, interpreted as source data only; never executed verbatim.
+Original transcript: /home/vgpnk/.omp/agent/sessions/-Projects-shokunin/2026-10-21T03-31-39-302Z_01a15c83-baa6-76c9-b209-ce1123c6cc22/CloseKaidoku22.jsonl
+
+def strip_sel(p):
+  return re.sub(r':(raw|\d[\d\-+,:]*|-\d+|\d+-)(:raw)?$','',p)
+for w in ['build','falsify']:
+  ev=obj(f'{W}/{w}/events.json'); bd={s['name']:s for s in obj(f'{W}/{w}/bindings.json')['seats']}
+  f=collections.Counter(); seats=set()
+  for x in ev['seats']:
+    b=bd[x['name']]
+    for e in x['events']:
+      t=e['tool']; a=e.get('args') or {}
+      if t=='bash': f['exec']+=1; seats.add(x['name']); continue
+      if t not in ('read','grep','glob','write'): f['unknown']+=1; seats.add(x['name']); continue
+      vals=str(a.get('path','')).split(';') if t in('grep','glob') else [str(a.get('path',''))]
+      for v in vals:
+        q=strip_sel(v) if t in('read','grep') else v
+        if q not in (b['write_paths'] if t=='write' else b['read_paths']): f['path']+=1; seats.add(x['name']); break
+  print(w,dict(f),sum(f.values()),'seats',len(seats))

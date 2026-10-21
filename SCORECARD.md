@@ -704,3 +704,19 @@ Prompt declaration count `python3 .ufo/waves/round-22/measure/prompt-bindings-co
 All22 isolated tool selftests exit0 atf39 (new28/73/24 cases); collector21/21, fixed candidate/final witnesses6/6, native prefix/outcome replay2/2. Original registry live-map red1 becomes0 atcb3 without changing its checker; registered22/tools22/missing0/findings0. Both legacy original-nine matrices remain clean; frozen manifests/specs/bindings, primary snapshots, registry/settlement identities and original binder/strict/legacy-scope/PROVINCE bytes match their pins. Census82→84, A74→76/B1/C7, mined68→70/queued5/rejected9; old82rows unchanged, newS083/S084, initial/end validate0, nine existing URL warnings unchanged. Census selftest97exercised passes plus2explicit skipped root fixtures.
 
 All other ordinal axes remain inherited, not newly certified; retirednone, saturation9/window3, no repertoire row or frontier graduation. No source-only seat is an outside verifier. Overall no-harm/admission remains **unprovable author-side** because scope violations recur despite literal prompts; Main's approved detection/evidence scope does not authorize calling this runtime enforcement or erase current/historical reds. Independent non-author closure decides progression. No round23 is started.
+
+## Round23 — typed edit authority and independent path reconciliation
+
+Steered round23 attempt1 only; baseline `ae01e50f582016384e620022be38bf5367000e2e`, clean at start. Outside closure `rounds[422]` (CloseKaidoku22, fleet4482c275f9381f219ee4d092e0324d417c3cb1e7) **admitted round22**, resetting its rejection streak. It confirmed the three bounded instruments, judged the two read-only Bash requests process noncompliance rather than axis harm, and set trends expansionunchanged/qualityunchanged/discernmentimproved. That outside quality verdict supersedes round22's author-side improved trend; it does not erase any process red.
+
+Three causally separable claims, frozen before candidate outputs in `.ufo/waves/round-23/preregister.json`:
+
+| Claim | Axis / ordinal delta | Falsifiable before → target | Counting command |
+|---|---|---|---|
+| C1 typed structured-edit decision contract | depth8→8 (0, tied-lowest) | validated_edit_decisions0→8, source-grounded metadata versus separately declared lane authority | `python3 tools/check-edit-contract.py --revision <REV>` |
+| C2 explicit structured-edit audit authority | operability9→9 (0) | structured_edit_mode0→1 for a new schema-v2 manifest; exact predeclared targets require read+write+edit authority, old schema-v1 results unchanged | `python3 tools/check-seat-bindings.py --revision <REV> --manifest .ufo/waves/round-23/<WAVE>/bindings.json --events .ufo/waves/round-23/<WAVE>/events.json` |
+| C3 independent outside path-census reconciliation | calibration9→9 (0) | unexplained_cohorts2→0 for fixed round22 build/falsify, exhaustive event/component provenance and arithmetic | `python3 tools/check-path-reconciliation.py --revision <REV>` |
+
+Outside approximate25/33 versus lane23/29 path counts are accepted observations, not retested merely for confirmation. C3 explains policy/normalization/counting-unit differences against frozen round22 inputs; it does not retrospectively authorize an event or alter the original audit. C1 reads no C2 production content; C2 reads explicit v2 declarations/events, not C1; C3 reads old frozen evidence, not new C1/C2 content. Shared revision binding is infrastructure.
+
+All other ordinal scores inherited, retirednone, saturation9/window3 unchanged. No capability acquisition, exploratory claim, native runtime restriction, host/package/service/boot action, retrospective report/binding repair or next round. L1 retains planner; validated build/falsify waves remain author-side only. Current host role steering supersedes the older role map in the prompt; no model parameters or route edits.
