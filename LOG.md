@@ -1071,3 +1071,19 @@ Three separable claims: C1/depth five fixed source-grounded target-type decision
 L1 opened S081/S082 official Git2.56.0 manuals; source extracts/quotes and rejection of empty-brace/commit-peeling equivalence are in `corpus/lessons/round-21.md` Gate and `sources/git-types.txt`. QUALITY teaching will append, not rewrite old criteria. Start census exit0 with eight retained W04 warnings (`census-start.txt`).
 
 Build64 was validated unchanged, then `wave-slot.sh acquire tsukuroi round-21-build 64` granted before its first task call (`build/reservation.json`). That call refused all64 starts with Background job limit reached(100); no seat spawned (`build/refusal-01.json`). The same payload must be retried without shrinking/splitting. No checks or tool installs have run; no host/package/service/boot action.
+
+## 2026-10-21 — round21 successful dispatch and independent integration
+
+Four unchanged build calls refused all starts at Background job limit reached(100). The fifth call spawned64 after its fresh grant (`.ufo/waves/round-21/build/reservation-05.json`, `spawn.json`, assigned validator registry). Fresh route update from the parent is recorded there; role names unchanged and no model parameters. L1 remains planner; mix scout32/reviewer23/executor3/connector2/critic2/scribe1/revenger1. ScribeDecision's observed Anthropic429 death is retained in `build/death-ScribeDecision.json`, no replacement.
+
+During refusal intervals L1 integrated the source-grounded C1 entry/data/checker, opt-in C2 matrix plus real-CLI fixtures, and C3 immutable-primary-snapshot/predicate receipt checker; executor seats independently draft only their separate evidence paths. C2 reports missing implementation availability independently of consumer correctness and preserves old object-selector cases/count. C1 admits sourced finite decisions, not host or consumer execution; C3 binds declared primary bytes only, not proof of reading or every secondary dependency. These distinctions follow S081/S082 and `corpus/lessons/round-21.md`.
+
+SKILL appends a complete round21 registry; corpus README indexes held ground; QUALITY42–44 mine routed reservation/review/type/death/trailer mistakes. Original history is retained. New checks remain unrun until waves finish and L1 performs the once-final immutable measurement.
+
+## 2026-10-21 — source-only falsifiers correct round21 metrics
+
+Build CritBaseline/ConnPlanner reject conflating missing matrix coverage with broken baseline behavior. Before any execution, SCORECARD appends the named correction: C2 mode availability0→1 counted once, actual consumer correctness separately (source expectation9→9), and a same-fixture old/new-matrix generic-tag-peel mutant witness. Original preregistration remains intact; no post-outcome row insertion or ordinal credit. C1/C3 stay finite source-contract/primary-declaration claims, not five depth units or64 distinct source files.
+
+The debt scouts' bounded searches found no raw per-seat provider records inside round20 evidence. L1 resolved the history transcript through the registered ExecBinder identity and discovered the other twelve transcript files; `.ufo/waves/round-21/historical-deaths-r20.json` now preserves sanitized historical provider-error projections for all13 exact registry identities. This retrospective metadata recovery does not backfill their missing reports, prove execution absence, or alter historical scope reds. Build CritNoHarm's expected-red recommendation is retained for this round's dead ScribeDecision as well.
+
+ReviewDigest's receipt-echo limitation is explicit: disclosed SHA/predicate lines do not prove reading. Primary source bytes and predicate manifest were committed before successful dispatch; final report blobs are themselves revision-bound. Unpinned secondary build reads remain disclosed. The offered province ownership-award proposal is not integrated; province and sibling ownership stay unchanged.
