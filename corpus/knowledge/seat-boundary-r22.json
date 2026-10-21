@@ -1,0 +1,48 @@
+{
+  "schema": "tsukuroi-boundary-contract-v1",
+  "decisions": [
+    {
+      "id": "NO_EXEC",
+      "surface": "bash/eval/task",
+      "decision": "DENY",
+      "reason": "No execution or delegation in source-only seats",
+      "source": "S083"
+    },
+    {
+      "id": "NO_FETCH",
+      "surface": "URL read/web_search/browser",
+      "decision": "DENY",
+      "reason": "Local source reads never authorize network fetches",
+      "source": "S083"
+    },
+    {
+      "id": "LOCAL_READ",
+      "surface": "read/grep/glob declared local paths",
+      "decision": "ALLOW",
+      "reason": "Only literal bound source paths and approved skill URI",
+      "source": "S084"
+    },
+    {
+      "id": "REPORT_WRITE",
+      "surface": "write exact report path",
+      "decision": "ALLOW",
+      "reason": "No other write; executor draft exception must be explicit",
+      "source": "S083"
+    },
+    {
+      "id": "UNKNOWN",
+      "surface": "unrecognized tool or malformed arguments",
+      "decision": "DENY",
+      "reason": "Fail closed; incomplete metadata is not command absence",
+      "source": "S083"
+    },
+    {
+      "id": "DEAD",
+      "surface": "missing final or provider death",
+      "decision": "UNKNOWN",
+      "reason": "No report is not evidence of no earlier tool calls",
+      "source": "S083"
+    }
+  ],
+  "scope": "Prompt policy and post-hoc request classification only; no native preventive enforcement or effects/reading proof."
+}
