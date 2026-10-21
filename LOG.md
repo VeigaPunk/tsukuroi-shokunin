@@ -1093,3 +1093,9 @@ ReviewDigest's receipt-echo limitation is explicit: disclosed SHA/predicate line
 Implementation landed `0a14952b59d20179e1c813af58befaecd6992a17`. Candidate copies of all19 tools and relevant documents now carry exact committed-byte digests in `.ufo/waves/round-21/candidate-files.json`; unlike the build secondary reads, these auxiliary dependency snapshots are frozen too. The validated falsify64 plan has45 consumer/class attacks (36 newly covered type cells plus9 annotated-commit continuity cells),9 C1 source/schema/policy attacks,8 C3 evidence attacks and2 cross-axis boundaries; not padding or a replacement for dead ScribeDecision.
 
 Falsify mix is planned scout27/reviewer24/critic7/mutation-tester4/connector2. It has not dispatched at this entry. `falsify-reviews.json`, candidate files and exact validator payload must land before dispatch; acquisition follows build completion. Seats perform source-only attacks; L1 executes actual mutation fixtures/selftests only after both waves finish. No measurement has run.
+
+## 2026-10-21 — build complete, falsify grant bound before dispatch
+
+Build64 settled as63 reports plus one observed Anthropic429 death, ScribeDecision; no replacement. `.ufo/waves/round-21/build/outcome.json` reconciles all64 identities, four refused starts and the fifth successful batch. Three executors delivered independent code drafts in disjoint paths; L1 retained the production integration already landed at0a14952b. Drafts are unexecuted advisory wave evidence, never installed fallbacks.
+
+The build slot was released. Falsify64 acquired headroom (`falsify/reservation-01.json`) after build completion, with exact payload SHA-256, attempt and preregistration hash. That grant and all build reports land before the falsify call. The candidate snapshot manifest had already landed at70e8dfc; no candidate or expected-output execution has occurred.

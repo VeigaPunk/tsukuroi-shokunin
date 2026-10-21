@@ -1,0 +1,33 @@
+# ReviewOracle — independent-object-type-oracle
+
+Target: `.ufo/waves/round-21/snapshot/tools/check-revision-binding.py` (pinned snapshot, 1269 lines)
+Baseline reference: `tools/check-revision-binding.py`, SHA256 da000de45b07ec2e4942ed798f6b9a7555c99180245d2139a94648cc4566b9e0.
+
+Axes reviewed: (1) mirrored resolver vs independently Git-created type objects; (2) expected outputs computed before candidate outputs; (3) tree / tag-to-blob / tag-to-tree controls kill wrong peels.
+
+## Observations
+
+- **Expected outputs are Git-constructed, not resolver-derived — PASS.** `tip` is caller input verified only by `cat-file -t` (measure:678–683); `parent` comes from `rev-parse {tip}^1^{commit}` (692–694); `unlanded_sha` from a real sandbox commit (310–319); `blob` from `hash-object -w --stdin` (408–413); `tag_object` from `rev-parse {tag_ref}^{tag}` after `tag -a` (502–509). `object_commit`/`bind` — the judge's own mirrored binder — has zero call sites in `measure`; selftest enforces this by monkeypatching `bind` to raise during a full `measure` run (990–1000). Independence of the oracle's expected values is structurally and test-wise established.
+- **Expected values predate candidate output — PASS.** Every case computes `expected_id`/`expect_sha` before `run_tool` executes the candidate (`exact_refusal` 480–486, `exact_accept` 488–490, `refused`/`accepted` 383–404). All fixture objects and prefix inventories (510–513, 569–578) exist before the first probe invocation for each case.
+- **Ref-shadow decoys are decisive.** `real_prefix_shadow_*` and `full_*_object_id_ref_shadow` point `refs/heads/`+`refs/tags/<hex>` at `decoy = parent` while expecting `tip` (604–626); `unlanded_prefix_shadow_*` points refs at `tip` while expecting `ID_UNLANDED` (643–650); `unpushed_prefix_shadow_*` expects `ID_PUSHED` while shadowed refs resolve to pushed `parent` (659–671). A ref-resolving tool is caught in all three polarity directions.
+- **Under-peel is killed.** `annotated_tag_object`/`annotated_tag_prefix`/`full_tag_object_id_ref_shadow` expect `tip`, not the tag object (616–632): resolvers that refuse tag objects or report the unpeeled tag SHA both fail. `ghost_*` rows (515–588) kill ref-resolution including annotated-tag refs named as hex.
+- **Blob non-commit control exists** (`noncommit_blob` → `ID_INVALID`, 633; also `blob-revision` in `probe_tool`, 449).
+
+## Findings (severity order)
+
+1. **HIGH — Charter kill-rows absent from the pinned snapshot.** No tree object is ever created or probed; no `tag -a` is ever pointed at a blob, a tree, or another tag. Grep of the pinned file for tree/`mktree`/`{tree}` yields only AST `tree` and `ls-tree` uses. The only non-commit control is the raw `noncommit_blob`. Consequence: a resolver that generically peels (`rev^{}`/`rev^{object}` and binds the target's identity) reports `E-REVISION-NOT-LANDED` or `E-GIT-FAILED` for tag→blob/tag→tree instead of `E-REVISION-INVALID`, and an accept-any-object resolver binds a tree SHA unchecked — both survive this matrix. `tag_prefix`/`annotated_tag_object` only cover the tag→commit direction. The live baseline's newer `target_type_probes` (`nonempty_tree`, `tag_to_blob`, `tag_to_tree`, `nested_tag_to_commit`, `annotated_tag_to_commit`, plus a `target-generic-peel` mutant) exists precisely because the old matrix cannot kill that mutant — corroborating that the pinned snapshot's matrix leaves the wrong-peel defect class alive.
+2. **MEDIUM — `--tools-revision` is not bound despite the docstring contract.** Docstring 40–42 promises the revision is "landed on refs/heads/<branch> else E-REVISION-NOT-LANDED, and on refs/remotes/origin/<branch> when present else E-REVISION-NOT-PUSHED". `measure` verifies only hex form and `cat-file -t == commit` (678–683); it never calls `ancestor`/`bind` on the lane. `prepare` then fabricates `refs/heads/<branch> := tip` and `refs/remotes/origin/<branch> := tip` inside the sandbox (235, 240–241), so any commit in the lane's ODB — landed or not — produces a clean PASS topology. `lane_tip` (684) records but never compares. The oracle's "landed" ground truth is constructed, not measured; the advertised self-binding leg is unimplemented.
+3. **LOW — The judge's own tag-peel branch is untested.** `object_commit`'s `kind == "tag"` path (156–166) has no selftest coverage: `bind_*`/`bind_error` checks (1190–1207) exercise commit/HEAD/@/ref/ghost/unlanded/pushed but never an annotated tag object or tag prefix. The mirrored resolver can rot silently while the independent oracle stays correct — the asymmetry the charter asks about is only half-verified.
+4. **LOW — `exact_refusal` strictness asymmetry.** It requires `finding_count == 1` (484–485), which is `None` for tools emitting text-only findings (391). A tool whose refusal is semantically exact but unstructured fails object-selector rows that JSON-emitting tools pass; `binding_ids` text-fallback already supplies the id. Either intended strict-JSON contract or an under-specified grading asymmetry.
+5. **LOW — Residual mirror in sanity derivation.** `probe_commit`'s "still landed" guard (317) uses `ancestor()` — the same helper `bind` uses (203). A broken `ancestor` would mislabel the unlanded expected object. Thin wrapper over `merge-base --is-ancestor`; low risk, non-zero coupling.
+6. **INFO — Unprobed selector corners.** `len(objects) != 1` (ambiguous prefix) is never exercised — all probe prefixes are chosen unique; tag→unlanded-commit ordering (INVALID vs UNLANDED) unprobed; uppercase only at 40-hex (629), no short uppercase; root-commit `tip` makes `object_selector_probes` raise `E-SELECTOR-PARENT` (477–479), collapsing the whole run to CANNOT_EVALUATE.
+7. **INFO — Stale-uniqueness window.** Prefix uniqueness is computed from an inventory snapshot (510–513) while probed tools retain write authority in the sandbox (docstring trust boundary 49–53); a tool writing objects mid-probe can invalidate ghost/prefix invariants.
+
+## Residual risk and verification gaps
+
+- The matrix verifies the mirror resolver's happy path only by construction, not by a mutant suite: no wrong-peel stub mode exists in `STUB` (modes enumerated at 848–901), so selftest cannot prove the pinned matrix distinguishes a correct peel from a generic one — it only proves ref-vs-object separation ("object-selector" vs "unbound" stub, 1112–1151).
+- LSP unavailable by contract (NO-EXEC leaf): call-site mapping is via text grep of the pinned file only; `bind`/`object_commit` non-use in `measure` is corroborated by the selftest monkeypatch guard.
+
+Reviewed-SHA256: da000de45b07ec2e4942ed798f6b9a7555c99180245d2139a94648cc4566b9e0
+Predicate: independent-object-type-oracle
+Scope: executed=none

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "S081",
+      "url": "https://git-scm.com/docs/gitrevisions/2.56.0",
+      "section": "SPECIFYING REVISIONS"
+    },
+    {
+      "id": "S082",
+      "url": "https://git-scm.com/docs/git-rev-parse/2.56.0",
+      "section": "--verify"
+    }
+  ],
+  "rows": [
+    {
+      "id": "commit",
+      "class": "commit",
+      "outcome": "accept-if-landed-and-pushed",
+      "finding": null,
+      "rationale": "Git documents revision selection and --verify object-name resolution. Lane policy accepts a commit object only after object identity and landed/pushed ancestry are established.",
+      "source": "S082",
+      "proposition": "Commit object IDs may select commits; acceptance additionally requires landed and pushed ancestry."
+    },
+    {
+      "id": "tree",
+      "class": "tree",
+      "outcome": "refuse",
+      "finding": "E-REVISION-INVALID",
+      "rationale": "A tree is not a commit object. Commit-ish peeling does not convert a direct tree identity into an acceptable commit; lane policy refuses it as an invalid revision.",
+      "source": "S081",
+      "proposition": "Tree object IDs are not commits and are refused."
+    },
+    {
+      "id": "blob",
+      "class": "blob",
+      "outcome": "refuse",
+      "finding": "E-REVISION-INVALID",
+      "rationale": "A blob is not a commit object. Lane policy requires unique object identity that resolves to a commit before ancestry checks.",
+      "source": "S081",
+      "proposition": "Blob object IDs are not commits and are refused."
+    },
+    {
+      "id": "tag-to-commit",
+      "class": "tag-to-commit",
+      "outcome": "accept-if-landed-and-pushed",
+      "finding": null,
+      "rationale": "Git's commit-ish peeling permits a uniquely selected tag object that resolves to a commit. Lane policy still requires the exact tag object identity and the peeled commit's landed/pushed ancestry.",
+      "source": "S081",
+      "proposition": "Annotated tag object IDs peeling to commits are commit-ish; acceptance additionally requires landed and pushed ancestry."
+    },
+    {
+      "id": "tag-to-noncommit",
+      "class": "tag-to-noncommit",
+      "outcome": "refuse",
+      "finding": "E-REVISION-INVALID",
+      "rationale": "Commit-ish peeling only accepts a tag whose target resolves to a commit; a tag peeling to a tree, blob, or other non-commit remains an invalid revision under lane policy.",
+      "source": "S081",
+      "proposition": "Annotated tag object IDs peeling to non-commits are refused."
+    }
+  ]
+}
