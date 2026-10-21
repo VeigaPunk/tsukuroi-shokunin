@@ -668,3 +668,17 @@ Independent metadata census observes13 Bash starts across9 NO-EXEC seats, includ
 Sources80→82 (A72→74/B1/C7; mined66→68/queued5/rejected9); start/end validation both exit0, warnings8→9 due disclosed S082 URL overlap. New rowsS081/S082, no old-row status/recheck/used-by change, no frontier graduation or repertoire row. All other ordinal axes remain inherited, not re-certified; saturation9/window3, retired none.
 
 - **planned (current):** hand off only round21 to independent non-author closure and the L0 enforced-NO-EXEC toolset decision; no later round starts. No unqualified no-harm or promotion is asserted.
+
+## Round22 — prompt scope and bounded evidence (2026-10-21)
+
+Baseline `894d1e20fb4939b0cc4fadf722c46d1429f257d2`; externally steered round22 only, attempt1. Three distinct, causally separable claims frozen in `.ufo/waves/round-22/preregister.json` before dispatch:
+
+| Claim | Axis / ordinal delta | Falsifiable before → target | Counting command |
+|---|---|---|---|
+| C1 six source-grounded seat-boundary decisions | depth8→8 (0; tied-lowest) | validated_boundary_decisions0→6, explicit execution/fetch/local-read/report-write/unknown/dead distinctions | `python3 tools/check-boundary-contract.py --revision <REV>` |
+| C2 prompt bindings plus fail-closed recorded-request audit | operability9→9 (0) | request_audit_mode0→1; all current seats have predispatch literal path/command/fetch bindings, every available recorded request checked; unknown/incomplete metadata not clean | `python3 tools/check-seat-bindings.py --revision <REV> --manifest .ufo/waves/round-22/build/bindings.json --events .ufo/waves/round-22/build/events.json` |
+| C3 bounded strict-receipt cohort accounting | calibration9→9 (0) | cohort_accounting_mode0→1; every declared seat classified without dropping dead/faulty receipts; strict conformance count and accounting verdict separate | `python3 tools/check-review-cohort.py --revision <REV> --manifest .ufo/waves/round-22/build/reviews.json --settlement .ufo/waves/round-22/build/settlement.json` |
+
+Main confirms no host-native per-seat allowlist in task; `tools` is additive, not restrictive. The approved achievable scope is prompt-level binding plus post-hoc detection/evidence, **not preventive runtime enforcement**, proof of reading, or absence of request effects. Round21's111/117 strict receipts, six faults,13Bash starts/nine NO-EXEC seats and six fetch calls/two seats remain historical debt, never rewritten. C3 is deliberately bounded to honest cohort accounting, not every receipt conforming. Source rowsS083/S084 opened this round will ground C1.
+
+L1 holds canonical planner; ConnPlanner supplies bounded planning data-walk. Three code writers have actual separate detached worktrees at the observed baseline; source-only seats write only their report. No capability acquisition or exploratory claim, no ordinal uplift; adjacency8/coverage9/freshness9 inherited, retired none, saturation9/window3 unchanged. No round23 is started.
