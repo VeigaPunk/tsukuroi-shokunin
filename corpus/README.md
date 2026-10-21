@@ -206,3 +206,13 @@ The new five-class consumer mode uses a non-tip landed commit for positive tags,
 `knowledge/seat-boundary-r22.md` and `.json` deepen held source/evidence-operability ground with six explicit source-only decisions (S083/S084). `../tools/check-seat-bindings.py` judges recorded request spellings against predispatch prompt declarations; `../tools/check-review-cohort.py` measures the fixed receipt cohort without waiving strict faults. The decision gate, request audit and receipt accounting have independent content inputs; common revision-binding infrastructure does not make their predicates interchangeable.
 
 This is prompt policy plus post-hoc detection, not native runtime prevention: task tools adds extras and exposes no restrictive per-seat allowlist. Complete trace metadata means the available recorded terminal trace was parsed, not proof of universal recorder completeness or operation effects. Receipt `delivered_conformant` means receipt-well-formed only; actual out-of-scope calls still override false none assertions. All historical receipt faults, execution/fetch debt and provider failures remain visible. No native-tool ownership, host recovery action, new coverage-map ground, frontier graduation, repertoire row or outside promotion is claimed. The highest round22 SKILL registry is operative; measurements belong to SCORECARD and the committed round22 ledger.
+
+## Non-author round23 verification
+
+`lessons/round-23-verifier-spotcheck.md` records Main's independent claim judgment:
+C1 document depth and C3 fixed-cohort calibration improve within their bounds;
+original C2 all-round assurance remains unprovable, so the round is not admitted.
+Original grammar, red/incomplete evidence and historical expectations are preserved.
+This operator verification record adds no capability or native restriction; accounting
+closure remains a separate required step.
+
