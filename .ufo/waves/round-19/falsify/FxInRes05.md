@@ -1,0 +1,36 @@
+## Attack
+
+Falsify C1 adjacency's inbound RESOLVES batch IN-046..IN-055 by checking target-side exact quotes/ranges and then independently following each sibling pointer at its pinned commit. This can fail even when the target quote resolves: the gate verifies target quote/range, not whether the sibling's actual reliance is supported or whether the `relied_on` paraphrase overstates the lane evidence.
+
+## Method
+
+- Selected IN-046..IN-055 from `corpus/knowledge/adjacency-anchors-r19.json` at `8e5916360f2dfe7bc4eb4ba144081af555900116`; read its census at the same revision and confirmed each selected registry identity/range field matches the census.
+- For each row, used `python3 -c` read-only JSON/line checks and `git --no-pager -C <repo> show <revision>:<path>` to verify the exact `evidence_quote` occurs at `found_line`, that `found_line` is in `target_ranges`, and that the sibling line is read from the census-pinned commit (`mado` `a4046a8216080d4004de3f268c62cf142095ac07`; `mori` `91940fa339e38006f8db5bd7d78bb6f037f4d016`). Inspected cited context in the same committed files for reliance/paraphrase fidelity.
+- All ten target quote and range checks pass. For all seven mori rows, census `sibling_line_text` differs from the pinned line only by omitted Markdown indentation; stripping leading indentation makes the text identical. This does not change the cited reliance.
+- No adjacency gate or host-action command was run; no install or production edit was made.
+
+## Verdict
+
+**REFUTE — C1 adjacency.** The target-side anchors all resolve, but IN-049's cited sibling reliance overstates what the lane establishes, and IN-052's `relied_on` says the packet was sent when the cited lane section says it remained prepared with receipt later. The other eight rows confirm.
+
+## Evidence
+
+| ID | Verdict | Target quote / range at `8e5916360f2dfe7bc4eb4ba144081af555900116` | Pinned sibling evidence and finding |
+|---|---|---|---|
+| IN-046 | CONFIRM (high) | `SKILL.md:50`; `found_line=50` is in `47,50,108`. | mado `a4046a8…:.ufo/waves/round-19/w2/reports/AtkProvinceLine.md:25`. `relied_on` accurately narrows the claim to the `[omarchy]` soft-trust/update-safety channel, supported at `SKILL.md:50,108`. The sibling's `omarchy-walker` sub-pointer is not supported by `:47`; the registry note at `corpus/knowledge/adjacency-anchors-r19.json:1118` discloses that mis-citation, and it does not invalidate this narrower paraphrase. |
+| IN-047 | CONFIRM (high) | `corpus/QUALITY.md:40`; range `40-40`. | mado `a4046a8…:.ufo/waves/round-20/w1/reports/ConnCriteriaFleet.md:37` uses the exact finite-input-set rule. The registry note says QUALITY ends at 40, but the target file now has 76 lines; rule 30 remains verbatim at line 40, so the anchor still resolves. |
+| IN-048 | CONFIRM (high) | `PROVINCE.md:8`; range `3-33`. | mori `91940fa…:.ufo/waves/round-13/build/SiblingOverlap.md:27`; lines `PROVINCE.md:3-14,25-28` support domain, owned OS surfaces, and refusals. Census line text omits two leading spaces only. |
+| IN-049 | **REFUTE (high)** | Quote occurs at `corpus/knowledge/oom-event-plane.md:256`; range `215-258`. | mori `91940fa…:.ufo/waves/round-13/build/SiblingOverlap.md:29-32` cites the lane as establishing that `oom_kill` outlives destroyed child subtrees only at ancestor slices and that userspace killers do not increment kernel OOM counters. But the lane explicitly marks the subtree-counter behavior `[unknown]` and not resolvable from retained files at `oom-event-plane.md:252-255`; `:256-257` gives only a detection instruction (“treat” as a presence flag), not proof of the mechanism. The cited ranges also do not substantiate the userspace-counter assertion; the registry itself notes that at `corpus/knowledge/adjacency-anchors-r19.json:1185-1186`. Quote/range classification passes, but the sibling's broader reliance is not intact. |
+| IN-050 | CONFIRM (high) | `corpus/knowledge/kill-event-deep-r8.md:31`; range includes `26-37`. | mori `91940fa…:.ufo/waves/round-13/build/SiblingOverlap.md:33-35`; the teardown-coincidence claim is at target `:31` and the `user-1000.slice` name is present at `:91`, also inside the pointer. `relied_on` is a fair paraphrase. |
+| IN-051 | CONFIRM (high) | `PROVINCE.md:49`; range `35-74`. | mori `91940fa…:.ufo/waves/round-13/build/SiblingOverlap.md:37-40`; target `:49` contains the ADJ-04 route and minimum handoff evidence, and `:65-67` contains the cited closure lifecycle. Census indentation-only difference. |
+| IN-052 | **REFUTE (high)** | Heading occurs at `corpus/knowledge/adjacency-handoffs-fleet-r1.md:74`; range `74-113`. | mori `91940fa…:.ufo/waves/round-13/build/SiblingOverlap.md:41-42` identifies the executed packet and capture time. The registry's `relied_on` says it was “sent to mori” (`corpus/knowledge/adjacency-anchors-r19.json:1253`), but the lane names mori as recipient at `adjacency-handoffs-fleet-r1.md:76` and explicitly says the packet is still **prepared**, with report receipt later and acknowledgement/acceptance/resolution unobserved at `:83-85`. “Sent” as delivered is not supported; the anchor's quote/range alone passes. |
+| IN-053 | CONFIRM (high) | `corpus/knowledge/adjacency-recheck-2026-10-19.md:47`; range includes `5-22,47,89-92`. | mori `91940fa…:.ufo/waves/round-13/build/SiblingOverlap.md:43-44`; target `:47` supports prepared/pending status and `:89-92` records the recipient-side response. The sibling's “no structured receipt” rationale is at target `:52`, outside the cited ranges, as the registry note acknowledges at `corpus/knowledge/adjacency-anchors-r19.json:1281-1282`; the narrower `relied_on` claim is fair. Census indentation-only difference. |
+| IN-054 | CONFIRM (high) | `corpus/knowledge/adjacency-handoffs-fleet-r1.md:74`; range `74-113`. | mori `91940fa…:.ufo/waves/round-13/build/SiblingOverlap.md:174` cites this packet as provenance; target `:74` and capture details `:79` are in range. Census indentation-only difference. |
+| IN-055 | CONFIRM (high) | `PROVINCE.md:25`; range `1-33`. | mori `91940fa…:.ufo/waves/round-14/build/SiblingBoundary.md:38-42`; target `PROVINCE.md:3-14,25-28` supports domain, owned surfaces, refusals, and remediation prohibition. |
+
+## Residual
+
+- The baseline commit `452a054677f6b18284917d7c08c45361f91c25ac` does not contain the round-19 pointer-census path; the census bundled with the target revision was used and matched the selected registry fields.
+- Scope deviation: initial directory discovery used read-only `ls`, `find`, and `head`, which were outside the listed EXEC-AUTHORIZED command set. No files were changed by those commands; only this report is written.
+
+Scope: executed=python3 -c read-only JSON/line checks; git --no-pager -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:<path>; git --no-pager -C /home/vgpnk/Projects/shokunin/mado-shokunin show a4046a8216080d4004de3f268c62cf142095ac07:<path>; git --no-pager -C /home/vgpnk/Projects/shokunin/mori-shokunin show 91940fa339e38006f8db5bd7d78bb6f037f4d016:<path>; git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse; git cat-file -t; sed -n tools/check-adjacency-anchors.py; grep registry rows; ls/find/head directory discovery; report write only

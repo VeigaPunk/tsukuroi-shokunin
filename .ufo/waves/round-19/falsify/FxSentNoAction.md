@@ -1,0 +1,49 @@
+## Attack
+
+**Axes:** execution attribution; host-mutation evidence; authorization boundary. The falsifiable claim was that no round-19 evidence records a host-mutating command, and that the captures do not authorize one.
+
+**Severity: CRITICAL for the literal no-command-record claim.** The evidence does record host-mutating command invocations and writer output. This is not evidence that the L1 capture probes (or this audit seat) performed those actions: the command records are historical `sudo` journal data, and the writes are from host services/hooks. **Exploit path:** misread the capture's `read-only` label as describing every record in its output, or treat upstream README examples copied into the capture as permission to execute them. **Impact:** the evidence contains configuration/snapshot/timer actions and 13 logged `/boot/limine.conf` updates, plus boot-history copies/saves. The outcome of some operator commands is not independently recorded. **Smallest remediation:** label these as read-only *probes containing historical host-action records*, keep the command-record and probe sections distinct, and retain the explicit non-authorization text; do not present the captured commands as a lane execution log or permission.
+
+## Method
+
+Read-only sweep of `.ufo/waves/round-19/`, `corpus/knowledge/adjacency-anchors-r19.{md,json}`, `corpus/knowledge/boot-writers-r19.{md,json}`, and `LOG.md:995-1017`. Used `rg`/`grep` command-pattern searches, `read`/`sed` of matching capture and documentation lines, `wc`/probe-line comparison, `sha256sum`, and read-only inspection of `tools/measure/run.py` and `scripts/sources-census.sh`. Checked the three capture scripts against their `$ ` probe records. No gate/selftest, host probe, service action, package transaction, or boot action was run.
+
+## Verdict
+
+**REFUTE — Authority audit, “no round-19 evidence records a host-mutating command.”** Host-action records are present. They are attributed to the host/operator or automatic service/hooks, not the L1 capture probes.
+
+**CONFIRM — “the captures cannot be read as authorization.”** The round-19 text explicitly denies authorization and labels the action as report/record/handoff only.
+
+## Evidence
+
+**Actual host command records (not invocations by the capture scripts):**
+
+- `host-capture-r19c.txt:27-32,43` records `sudo COMMAND=` entries: `snapper create-config /`, root/home `set-config`, snapshot creation, and `systemctl enable --now snapper-timeline.timer snapper-cleanup.timer`; line 43 records a second Snapper create. The accompanying reads are at `:26,33-36`. These are journal records returned by the read-only query at `capture-r19c.sh:18-19`, not commands run by that query. The capture truncates long output to 200 characters (`capture-r19c.sh:18-19`), and the journal records do not include each command's exit status.
+- `host-capture-r19.txt:612` records pacman's actual `Running 'pacman -D -q --asexplicit ... -- zcode'` entry. This mutates package install reason metadata; it is a captured log record, not a capture-probe invocation. The user-named `pacman -S/-Syu/-U/-R` forms are not shown as `$ ` probe commands.
+- Round-19 evidence also repeats historical `pacman -Syu`/`-U` references from sibling evidence: `.ufo/waves/round-19/l1-capture/siblings/mori/91940fa339e3/PROVINCE.md:112`, `.../dcb2eea26d8d/PROVINCE.md:112`, `build/ConnSiblingOverlapB.md:8`, `build/ConnWritersMori.md:5`, `build/drafts/ScoutMoriHandoff.receipt.md:3`, and `corpus/knowledge/adjacency-anchors-r19.md:238`. Imported source text also repeats earlier package history at `l1-capture/adjacency-pointers-r19.json:1078,1100,1175` and `.v1.json:1078,1100,1175`. These are citations/quoted history, not round-19 command executions. `build/spec.json:3`, `build/dispatch.json:445`, and `build/spawn-result.txt:1` contain policy/task text (including a print-only `pacman -Sp` guard and copied generic tooling language), not execution records.
+- The unredacted sudo command records above are the only matching operator command records retained in capture C. Capture A has **20 redaction markers** at `host-capture-r19.txt:527-535,538-539,542,544,549-552,554-555,557`; each marker claims an operator read of `/boot/limine.conf`. `LOG.md:1009` says these replaced the original sudo command text before commit. The redacted commands cannot be independently reclassified from the committed bytes.
+
+**Actual writer outputs in the host captures:**
+
+- The canonical set is 10 `Updated: /boot/limine.conf` journal messages at `host-capture-r19c.txt:11-20`, and 3 ALPM-SCRIPTLET update messages at `host-capture-r19b.txt:1695,1700,1702`. The latter have adjacent UKI-copy output at `:1694,1699,1701`; the hook log shows `90-mkinitcpio-install.hook` running at `:1691,1693,1698`. `host-capture-r19.txt:578,597` repeats two scriptlet updates.
+- The journal output is duplicated across captures: `host-capture-r19.txt:446,461,476,491,506,521,541,543,546-548,553,556,558-560`; `host-capture-r19b.txt:1638,1641`; and `host-capture-r19c.txt:25,42`. These duplicates are not extra events; the total is 13 as summarized by `LOG.md:999,1005` and `corpus/knowledge/boot-writers-r19.md:82-84`.
+- Additional logged `/boot` copy/save activity: `host-capture-r19b.txt:1635-1637,1676-1681` and `host-capture-r19c.txt:23-24,39-41` report two snapshot-triggered copies and `snapshots.json` saves under `/boot/.../limine_history`; `host-capture-r19.txt:577,596` and `host-capture-r19b.txt:1694,1699,1701` report UKI copies into `/boot/EFI/Linux`. The active `99-limine.hook` invocation is at `host-capture-r19b.txt:1703`, and its configured `cp` to `/boot/EFI/BOOT` is at `host-capture-r19b.txt:1469`; the capture does not show that `cp`'s completion. `Updated:` is the tool's log message; the file's contents/hash are not captured (`boot-writers-r19.md:97-100`).
+- Other observed attempts: the watcher/service output records `snapper --no-dbus -c root create-config /` failing with exit 1 at `host-capture-r19b.txt:1652,1662,1672`; these are failed attempts, not evidence of a successful config write.
+
+**Quoted command-shaped content, not lane invocations or authorization:**
+
+- The `cat -n` README output is a probe at `capture-r19b.sh:10` / `host-capture-r19b.txt:13`. Its setup examples include `systemctl enable --now limine-snapper-sync.service` at `host-capture-r19b.txt:183,206`; `sudo cp`, `umount`, `mount`, `limine-install`, `limine-update`, and `limine-snapper-sync` examples at `:698-716`; and `sudo limine-update` at `:789`. `efibootmgr --bootorder` appears as README text at `host-capture-r19b.txt:1578`. They are source-document content, not executed probes. The read-only review explicitly makes this distinction (`build/ReviewCapturesSafety.md:5`). `boot-writers-r19.md:92` refers to a prior operator-invoked `limine-update`; it is not an invocation in the round-19 capture scripts. No `bootctl` invocation was found.
+- Other `systemctl enable --now systemd-oomd` strings are copied target text in `l1-capture/adjacency-pointers-r19.json:1252,1720,1925` and `.v1.json:1252,1720,1911`; the text itself says it is a service action outside that source lane. `host-capture-r19c.txt:32` is distinct: it is the actual sudo journal command record described above.
+
+**Read-only capture boundary:**
+
+- All three output headers say read-only and pin the capture-script digest: `host-capture-r19.txt:1`, `host-capture-r19b.txt:1`, `host-capture-r19c.txt:1`. Their script headers prohibit package, sudo, service, or boot writes: `capture-r19.sh:2-9`, `capture-r19b.sh:2-7`, `capture-r19c.sh:2-10`. The script run-call and `$ `-probe counts match 25/25, 15/15, and 6/6. The `[rc=0]` for the long README output is appended to its no-newline final line (`host-capture-r19b.txt:970`), not absent.
+- The only direct `/boot` probe is the documented `stat` at `capture-r19.sh:28`; its output shows `/boot` metadata but `Permission denied` for both configuration files (`host-capture-r19.txt:437-441`). Capture B says no `/boot` access (`capture-r19b.sh:4`); capture C says no `/boot` access (`capture-r19c.sh:5`) and reads journal records only. No capture script invokes `sudo`, `pacman`, `mkinitcpio`, `limine-update`, `limine-snapper-sync`, or a service action. This is also summarized by `build/ReviewCapturesSafety.md:5`.
+- The exact capture hashes match `corpus/knowledge/boot-writers-r19.json:4-15`: SHA-256 `d060de16892fbcb3ca85f45e28a94c9b6ef818c20029d91e05fa9459bbbde32b`, `c4cc08fe1b92d65baeb40fc4c82fd8dc1d622a32602f14be0b50b924c0a066d6`, and `669cada8c08e00cae06b1429f81f254a744f3a7a1d6fe684592fbe202dea298d` respectively.
+- Non-authorization is explicit: `SKILL.md:2007` says nothing authorizes running writers or `/boot` changes; `SKILL.md:2039` forbids those commands in the checklist; `ReviewWritersBoundary.md:7-10` says this is read-only attribution, not authorization. The capture-safety review also identifies C:32 as a journal record, not a probe invocation (`ReviewCapturesSafety.md:5`).
+
+## Residual
+
+The exact contents/outcomes of the 20 redacted sudo records cannot be checked; the remaining sudo command records lack per-command return codes. The capture proves logged writer messages and hook invocation/output, not a post-write hash of `/boot` files. This audit does not infer that the L1 capture seat executed the host commands: the scripts and probe lines are read-only, and the measurement runner's gates use a temporary clone (`measure/run.py:94-102,128-179`); the live census validation is a no-`--out` read-only check (`measure/run.py:181-184`, `scripts/sources-census.sh:7,94-95`).
+
+Scope: executed=read-only rg/grep/sed/wc/sha256sum/head/tail/python3 inspections; no gate, sudo, pacman, service, boot, or other host-mutating command

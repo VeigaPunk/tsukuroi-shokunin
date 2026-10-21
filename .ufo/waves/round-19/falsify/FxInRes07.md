@@ -1,0 +1,40 @@
+## Attack
+Re-verified the ten assigned RESOLVES records against target commit `8e5916360f2dfe7bc4eb4ba144081af555900116`. A record is falsifiable if its quote is absent/misnumbered, its found line falls outside the recorded target range, the pinned sibling line no longer makes the stated reliance, or the citation fails to cover that reliance. This is an adjacency attack (C1).
+
+## Method
+- Parsed `corpus/knowledge/adjacency-anchors-r19.json` and `.ufo/waves/round-19/l1-capture/adjacency-pointers-r19.json`; compared each selected record's `sibling`, `sibling_path`, `sibling_line`, `pointer`, `target_path`, and `target_ranges` with the census.
+- At the pinned target revision, checked each quote occurrence and line range in `git show 8e5916360f2dfe7bc4eb4ba144081af555900116:<target_path>`. Also checked target drift with `git diff --stat 452a054677f6b18284917d7c08c45361f91c25ac 8e5916360f2dfe7bc4eb4ba144081af555900116 -- <target_path>`.
+- Checked each pinned sibling commit/object and line with read-only `git --no-pager -C <sibling-repo> cat-file -t <sibling-commit>` and `git --no-pager -C <sibling-repo> show <sibling-commit>:<sibling_path>`. Read the cited target/sibling contexts with `nl -ba` and `sed -n`.
+- Examined IN-081 directly with `git --no-pager -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:PROVINCE.md`, and `git --no-pager -C /home/vgpnk/Projects/shokunin/souji-shokunin show 3f822e85c6a5f866c4003be0ad039d5583d14364:.ufo/waves/round-13/w1/Overlap.md`.
+- No gate, service, or host command was run. No tool was installed.
+
+## Verdict
+- IN-069: CONFIRM
+- IN-070: CONFIRM
+- IN-071: CONFIRM
+- IN-073: CONFIRM (core distinction confirmed; see residual qualifier)
+- IN-074: CONFIRM
+- IN-075: CONFIRM
+- IN-076: CONFIRM
+- IN-078: CONFIRM
+- IN-080: CONFIRM
+- IN-081: REFUTE — the record resolves only a subset of the pinned sibling's stated ownership reliance; its sibling citation also asserts root-DAC ownership, which its cited target range does not cover.
+
+## Evidence
+All ten selected registry/census records agree on the compared identity and range fields. In every case the `evidence_quote` occurs at the recorded `found_line` in the target blob at `8e5916…`, and that line lies in `target_ranges`. The selected target files are unchanged from baseline except `PROVINCE.md`; its relevant pre-existing lines remain at the reported numbers.
+
+- IN-069 — CONFIRM. Target `corpus/knowledge/kill-event-deep-r8.md:97` contains the quote, within `30-37,97,120-135`; the counter map is at `120-135`. Pinned sibling `mori-shokunin@91940fa339e38006f8db5bd7d78bb6f037f4d016:PROVINCE.md:66` still cites the same target and identifies the host-diagnosis ownership. `relied_on` accurately summarizes the MESSAGE_ID and counter-map evidence.
+- IN-070 — CONFIRM. Target `corpus/knowledge/adjacency-handoffs-fleet-r1.md:83` contains the quote, within `74-112`; capture is at `79-81` and acknowledgement/acceptance/resolution are unobserved at `85`. Pinned sibling `mori-shokunin@91940fa339e38006f8db5bd7d78bb6f037f4d016:PROVINCE.md:71` still describes the packet as prepared and unacknowledged. The paraphrase is fair.
+- IN-071 — CONFIRM. Target `corpus/knowledge/adjacency-handoffs-fleet-r1.md:101` contains the quote, within `94-104`; cumulative PSI and absent-not-zero root `memory.events` are stated at `99-101`. Pinned sibling `mori-shokunin@91940fa339e38006f8db5bd7d78bb6f037f4d016:PROVINCE.md:73` still describes both. The paraphrase is fair.
+- IN-073 — CONFIRM. Target `corpus/knowledge/oom-event-plane.md:23` contains the quote, within `23-42,359-367`; the kernel-dump versus teardown/no-kernel-record distinction appears at `28-29` and the detection contract at `359-367`. Pinned sibling `mori-shokunin@91940fa339e38006f8db5bd7d78bb6f037f4d016:corpus/knowledge/kernel-oom-line-attribution-r12.md:8` retains that reliance. The core paraphrase is fair.
+- IN-074 — CONFIRM. Target `corpus/knowledge/kill-event-deep-r8.md:97` contains the quote, within `97,120-135`; the shared MESSAGE_ID is explicit at `97-99` and the counter map at `120-135`. Pinned sibling `mori-shokunin@91940fa339e38006f8db5bd7d78bb6f037f4d016:corpus/knowledge/kill-classes-by-message-id-r12.md:8` still says one kernel kill can yield multiple per-unit notices and cites this target plus `oom-event-plane.md:39-41`, where event A's two messages are specified. Thus the single-kill wording is supported by the sibling line's combined citations, and the target quote supports the shared ID.
+- IN-075 — CONFIRM. Target `corpus/knowledge/oom-event-plane.md:245` contains the quote, within `245-257,359-367`; the presence-flag/not-event-meter rule is explicitly at `256-257`. Pinned sibling `mori-shokunin@91940fa339e38006f8db5bd7d78bb6f037f4d016:corpus/knowledge/oom-kill-counter-kernel-only-r12.md:8` still makes that claim. The heading quote is indirect, but the cited range contains the rule and the paraphrase is accurate.
+- IN-076 — CONFIRM. Target `corpus/knowledge/oom-event-plane.md:344` contains the quote, within `344-346,353-367`; it records inactive/disabled status and the row's read-only detection cell, while `365-367` describes the cgroup presence-flag detection contract. Pinned sibling `mori-shokunin@91940fa339e38006f8db5bd7d78bb6f037f4d016:corpus/knowledge/userspace-oom-killers-r12.md:8` still calls these readings an availability snapshot, not a fleet-wide OS/unit diagnosis. The paraphrase is consistent with that scope.
+- IN-078 — CONFIRM. Target `corpus/knowledge/adjacency-handoffs-fleet-r1.md:54` contains the quote, within `[54,54]`, and identifies ADJ-06 as unresolved shipped-artifact RE ownership. Pinned sibling `revenger-shokunin@cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97:.ufo/waves/kaika-r1/connector.md:18` still reports the handoff to the integrator. The paraphrase is fair.
+- IN-080 — CONFIRM. The same target line `corpus/knowledge/adjacency-handoffs-fleet-r1.md:54` remains within `[54,54]`. Pinned sibling `revenger-shokunin@cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97:.ufo/waves/kaika-r1/connector.md:74` still corroborates that ADJ-06 handoff. The census line text omits the sibling line's indentation only; substantive text matches.
+- IN-081 — REFUTE (partial reliance drift). Registry `corpus/knowledge/adjacency-anchors-r19.json:1877-1890` records sibling pointer `PROVINCE.md:3-48`, quote at target line 8, and explicitly notes root-DAC refinement at `85-95` lies outside the citation. At pinned sibling `souji-shokunin@3f822e85c6a5f866c4003be0ad039d5583d14364:.ufo/waves/round-13/w1/Overlap.md:50-51`, the scan uses `PROVINCE.md:3-48` and then lists root DAC among the owned surfaces. Target `PROVINCE.md:3-48` supports the listed host/package/systemd/snapper subset (including the IN-081 quote at line 8), but contains no root-DAC refinement; that appears only at `PROVINCE.md:85-95`. Therefore the narrow `relied_on` string is true only for a subset, not a fair account of the full sibling reliance attached to the pointer; the RESOLVES verdict overstates coverage. This is the real finding.
+
+## Residual
+The word “dense” in IN-073's `relied_on` is not used by the pinned sibling sentence or the inspected target context; the kernel-dump/no-kernel-record distinction itself is supported, so it did not change that verdict. No gate execution was used to judge semantic reliance.
+
+Scope: executed=read-only Python JSON/line checks; `git --no-pager -C <repo> show <revision>:<path>`; `git --no-pager -C <repo> cat-file -t <sibling-commit>`; `git --no-pager -C <repo> diff --stat 452a054677f6b18284917d7c08c45361f91c25ac 8e5916360f2dfe7bc4eb4ba144081af555900116 -- <target-path>`; `git --no-pager -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff -U0 452a054677f6b18284917d7c08c45361f91c25ac 8e5916360f2dfe7bc4eb4ba144081af555900116 -- PROVINCE.md`; `git --no-pager -C <repo> rev-parse HEAD`.

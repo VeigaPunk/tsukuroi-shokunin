@@ -606,3 +606,7 @@ Sourced claim: C2 rests on rows opened this round (own-work captures `.ufo/waves
 ### Round19 recovery (attempt 2, operator-authorized)
 
 Attempt 1 was interrupted after landing the production content and the measurement checkpoint; it left the falsify directory empty and wrote no report. Attempt 2 re-verified the checkpoint (extended 32-run ledger, evaluator digests, L1 re-audit of the 10 anchor sha256s and the 10 sibling pins, an inbound-record audit), and prepared and validated a 100-seat falsify wave (`044ab28e218c1e58dd04f37978b1645762a6a403`) but did not dispatch it: the campaign GRANT never arrived (parent eval kernel timeout; its last action a pending config write) and no seat was spawned. The final ledger is measured at `208e256d8c73bc9593f7299b36264f31dc5076a9`. No ordinal, axis assignment or claim text changes from the Round 19 declaration above; the refinement appendix stands as written.
+
+### Round19 falsify wave (appended 2026-10-21; supersedes the "did not dispatch" sentence above)
+
+Main re-issued the GRANT; the wave ran at 72 seats (process job cap; 28 prepared attacks unexecuted). Verified findings forced gate hardening and record corrections at `5a133bc`, and C1/C2/C3 re-measure PASS under the hardened gates with unchanged counts (10/114, 13/13, 0 missing of 14). No ordinal, declaration or refinement changes; the harness now checks more of what the claims assert.

@@ -71,3 +71,29 @@ Outside admit/reject spot-check: pending the orchestrator's separate non-author 
 ## Inherited and non-author files
 
 No uncommitted lane state at dispatch (`jj-lane.sh state`: local=remote 452a054, ahead 0, tracked 0, untracked 0). `round-18-verifier-spotcheck.md` read and untouched. Host safety: no pacman, no sudo, no service action, no /boot read or write; L1 host reads only through the three capture scripts. No tool installed.
+
+## Falsify wave (attempt 2, 72 seats) — findings and repairs
+
+Wave evidence `.ufo/waves/round-19/falsify/`. 72 dispatched, 66 reports, 6 dead by provider 429 (FxCritC1, FxCritCensus, FxOut003, FxInCensusForm, FxWriterClasses, FxConnSiblingWrites), no replacement. 28 prepared attacks unexecuted under the 100-job packing cap.
+
+Admitted after repair (all re-measured PASS at `5a133bcf8782ea731c1a2270ad28d2a2250fd213`):
+- C1 gate hardening + published digests: PROVINCE publishes full commit and blob sha256 per anchor; the gate requires id+quote, id+commit, id+sha256 and the heading, and bounds inbound ranges by target length. Seats: FxProvinceSection, FxOut001/002/004/005/006/007/008/009/010, FxExecNegAdj, FxCritC3.
+- C2 mechanism prose: every writer mechanism quote is published (appendix) and the gate rejects an unpublished/altered quote. Seats: FxMutWriters, FxQuality33, FxEventTable, FxEvent01/02/03.
+- C3 row/verdict integrity: one tool per row, gates publish 0/1/2 (probes 0/2). Seats: FxMutRegistry, FxRevRegistryKinds, FxExecNegRegistry.
+- Audit safety: all `/usr/lib/modules` trees count as boot inputs; an unevaluable `EFI/Linux` image is an error, not a non-kernel app. Seats: FxRevAuditRules, FxScoutAuditRules, FxRevBootTable.
+- Record corrections: ten inbound `relied_on`/notes (IN-027, IN-039, IN-041, IN-049, IN-052, IN-058, IN-081, IN-085, IN-091, IN-096) and drift qualifications (IN-067, IN-102, IN-104).
+- Capture hygiene: capture C redacts the operator user token; registry digest updated.
+
+Refuted and not repaired as claims (bounded residuals, reported): SKILL.md ownership-routing statements are outside C1's PROVINCE scope (FxCritC1Scope); a hex-named ref can alias a non-object revision in `_revision.bind` (FxExecNegRevision; absent in the live lane); the exec-log `forbidden` list does not include `systemctl` (read-only verbs only in the captures; FxCritNoHarm); plymouth's version and the hook bodies were not re-read in round-19 captures (FxScoutHooks, INCONCLUSIVE).
+
+## Mistakes (falsify wave)
+
+| ID | Class | Evidence | Captured-by | Fix shown able to fail |
+|---|---|---|---|---|
+| R19-F-DIGEST | publication-incomplete | FxProvinceSection/FxOut001-010: table published heading+quote+12-hex only | none (gate checked two of four fields) | PROVINCE digest appendix; gate requires all four; selftest `unpublished-digest` red |
+| R19-F-RANGE | gate-blind-spot | FxExecNegAdj: `[[999999,999999]]` passed in a 132-line file | none | range bound + selftest `range-beyond-file` red (2 findings) |
+| R19-F-MECH | gate-blind-spot | FxMutWriters: ExecStopPost→ExecStartPost in the entry survived | QUALITY 33 claimed mechanism fidelity | mechanism appendix + MECHANISM-PROSE-MISSING; selftest `mechanism prose missing` red |
+| R19-F-ROW | gate-blind-spot | FxCritC3/FxMutRegistry: discovered row masked a missing baseline row; 2→97 verdict code passed | none | one-tool-per-row + 0/1/2 codes; selftests `ambiguous-row` and `incomplete-verdict` red |
+| R19-F-AUDIT | safety-input | FxRevAuditRules/FxScoutAuditRules: LTS module tree invisible; unevaluable EFI/Linux image counted not-kernel | none | `/usr/lib/modules` + EFI/Linux error classification; selftest 45/45 keeps the fixture harness |
+| R19-F-CAPTUREC | privacy | FxScoutCapture: capture C kept 12 sudo `COMMAND=` records with the operator name | R19-CAPTURE-OVERREACH covered only capture A | redaction + digest update; `grep -c vgpnk` → 0 |
+| R19-F-RELIED | paraphrase-drift | FxInRes04/05/06/07/08/09, FxInDriftA: ten `relied_on`/note overstatements | QUALITY 32 checks structure, not paraphrase | corrected records + qualification appendix |

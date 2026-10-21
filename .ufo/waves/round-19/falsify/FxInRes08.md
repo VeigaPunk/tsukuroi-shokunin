@@ -1,0 +1,43 @@
+## Attack
+Re-verify the ten `RESOLVES` inbound anchors IN-082..IN-091 at target `8e5916360f2dfe7bc4eb4ba144081af555900116` against their source text and the pinned souji sibling commit `3f822e85c6a5f866c4003be0ad039d5583d14364`. A missing/mislocated quote, out-of-range `found_line`, changed sibling reliance, or unfair `relied_on` paraphrase would falsify an anchor.
+
+## Method
+- Read the ten records in `corpus/knowledge/adjacency-anchors-r19.json` and their matching census entries in `.ufo/waves/round-19/l1-capture/adjacency-pointers-r19.json`.
+- Resolved the target commit with `git rev-parse --verify 8e5916360f2dfe7bc4eb4ba144081af555900116^{commit}`. Read target bytes using `git show 8e5916360f2dfe7bc4eb4ba144081af555900116:SKILL.md` and `git show 8e5916360f2dfe7bc4eb4ba144081af555900116:PROVINCE.md` into `/tmp/fx08/target/`.
+- Used `git ls-tree`, `git cat-file -e`, and `git show` at the pinned souji commit for each cited sibling path; checked actual sibling lines against census `sibling_line_text`. Ran an inline Python comparison of each quote at `found_line`, its hit lines, range inclusion, and pinned sibling line.
+- Checked relevant source history with `git blame -L 1968,1968 -- SKILL.md 8e5916360f2dfe7bc4eb4ba144081af555900116` and the corresponding line-2076 blame.
+- Created `/tmp/fx08/clone`, checked out the target there, then ran `python3 tools/check-adjacency-anchors.py --revision 8e5916360f2dfe7bc4eb4ba144081af555900116`: exit 0, JSON `status: PASS`, `live_object_checked: 10`, `live_object_match: 10`, `findings: []`. This gate result does not test semantic fairness of `relied_on`.
+- No tools were installed or updated. No host probes or prohibited host actions were run.
+
+## Verdict
+C1 adjacency, records IN-082..IN-091: nine anchors CONFIRM under the requested quote/range/sibling/paraphrase checks; IN-091 REFUTE. The 10/10 quote and range checks pass, and all six cited souji source paths are tracked at the pinned commit. One record has an additional inaccurate note called out below.
+
+| ID | Verdict | Target quote / range | Pinned sibling reliance |
+|---|---|---|---|
+| IN-082 | CONFIRM | `SKILL.md:708`, within 706-709 | `SiblingOverlap.md:17` describes two independent sweeps as separate pins. |
+| IN-083 | CONFIRM | `SKILL.md:709`, within 706-709 | `SiblingOverlap.md:28` says tsukuroi sweeps must cite committed bytes. |
+| IN-084 | CONFIRM | `PROVINCE.md:52`, within 52 | `SiblingOverlap.md:66` points to ADJ-07's minimum packet and method-advice-only boundary. |
+| IN-085 | CONFIRM* | `SKILL.md:1968`, within 1968; same quote also occurs at 2076 | `ConnFleetPointerTools.md:63` makes the cited pointer/direct-command-scope distinction. The top-level `relied_on` is fair. *The record's `note` is stale/false at this target; see Evidence. |
+| IN-086 | CONFIRM | `SKILL.md:2`, within 2; description at line 3 | `ConnSiblingProcHygiene.md:34` identifies tsukuroi as host operability/system repair. |
+| IN-087 | CONFIRM | `PROVINCE.md:39`, within 37-42 (other ranges 3-8 and 25-28 also match the cited boundary) | `RevC3Province.md:13` retains OS diagnosis and no-repair authority. |
+| IN-088 | CONFIRM | `PROVINCE.md:32`, within 30-33 (ADJ-04 also at 49) | `RevC3Province.md:14` preserves OS-triage vs. mori fleet-correlation split. |
+| IN-089 | CONFIRM | `PROVINCE.md:64`, within 62-64 | `RevC3Province.md:15` relies on the sanitized handoff prohibition on copying credentials/raw argv. |
+| IN-090 | CONFIRM | `PROVINCE.md:3`, within 3; line 18 is the surfaces-table header | `connector.md:29` uses the host-operability domain and ownership description. |
+| IN-091 | REFUTE | `PROVINCE.md:1`, within 1-60 | `SiblingOverlap.txt:52` records `read(...PROVINCE.md:1-60)`, not a whole-document selector; `relied_on` at corpus line 2105 overstates it as a whole-document read. |
+
+## Evidence
+All target references below are in commit `8e5916360f2dfe7bc4eb4ba144081af555900116`; all sibling references are in pinned souji commit `3f822e85c6a5f866c4003be0ad039d5583d14364`.
+
+- **IN-082/083:** the IN-082/083 records are at `corpus/knowledge/adjacency-anchors-r19.json:1893,1913`. `SKILL.md:708` contains “independent sweeps of one file = two pins, cited separately, never merged”; `SKILL.md:709` says both pins must cite committed bytes. Both `found_line` values are in 706-709. Souji `SiblingOverlap.md:17,28` contains the corresponding two-pins and committed-bytes reliance.
+- **IN-084:** record at `corpus/knowledge/adjacency-anchors-r19.json:1933`; `PROVINCE.md:52` is ADJ-07 and explicitly asks for the measured census revision/expected invariant and method advice without transfer of gate ownership. Souji `SiblingOverlap.md:66-67` cites and paraphrases that row.
+- **IN-085:** record at `corpus/knowledge/adjacency-anchors-r19.json:1953-1970`. Quote is at `SKILL.md:1968` and also at `SKILL.md:2076`; `found_line` 1968 is in the stated range. `SKILL.md:1952-1954` places line 1968 in the round-18 table, while `SKILL.md:2060-2062` declares the round-19 table supersedes that table for current use; the matching operative round-19 row is at 2076. `git blame` attributes line 1968 to `68a8ae0` and line 2076 to `7cc59c8`. Thus the anchor text and `relied_on` paraphrase resolve, but the record's `note` at JSON line 1970 incorrectly labels 1968 the round-19 unique-highest row. This note discrepancy is not counted as a failed `RESOLVES` text/range/paraphrase check.
+- **IN-086:** record at `corpus/knowledge/adjacency-anchors-r19.json:1973`; `SKILL.md:2` is the exact name quote and line 3 gives the host-operability/system-repair description. Souji `ConnSiblingProcHygiene.md:34` cites the identity and matching domain gloss.
+- **IN-087:** record at `corpus/knowledge/adjacency-anchors-r19.json:1993`; quote at `PROVINCE.md:39` says tsukuroi retains the OS finding and no row authorizes configuration writes. The other cited ranges contain the domain, repair refusal, and no-repair boundary. Souji `RevC3Province.md:13` makes that same reliance.
+- **IN-088/089:** records at `corpus/knowledge/adjacency-anchors-r19.json:2021,2045`. `PROVINCE.md:32` and `:49` support the OS-triage/mori-correlation split; `:64` completes the prohibition on copying credentials, raw configs, raw cores, or argv. Souji `RevC3Province.md:14-15` states those same boundaries.
+- **IN-090:** record at `corpus/knowledge/adjacency-anchors-r19.json:2065`; the domain quote is exact at `PROVINCE.md:3`, and line 18 is the table header within the stated ranges. Souji `census/round-12/connector.md:29` uses the domain and surfaces/ownership description. Its claim about ownership/refusal also draws on target lines 8-14 and 25-28 outside the narrow pointer; these lines are intact, as the anchor note acknowledges.
+- **IN-091:** record at `corpus/knowledge/adjacency-anchors-r19.json:2089-2106`. Header quote at `PROVINCE.md:1` is present and `found_line` 1 is in 1-60. But pinned Souji `census/round-16/transcripts/w1/SiblingOverlap.txt:52` records a bounded `read(...:1-60)` and reports 72 lines; it does not establish a whole-document read. At the attacked target, `PROVINCE.md` is 132 lines, so 1-60 is plainly partial. The record's `relied_on` at JSON line 2105 is not a fair paraphrase of this receipt; REFUTE is for that overstatement, not for quote location or range. The record note at 2106 also gives a stale current length (106 rather than 132).
+
+## Residual
+The pinned transcript preserves the requested range and a reported 72-line count, but not the reader's complete returned payload; I cannot establish from that receipt alone whether the old tool returned extra content beyond the requested 1-60. The explicit bounded selector still does not support the record's unqualified “whole-document” characterization. The adjacency gate passed its structural checks but cannot adjudicate that semantic overstatement.
+
+Scope: executed=git rev-parse --verify 8e5916360f2dfe7bc4eb4ba144081af555900116^{commit}; git show 8e5916360f2dfe7bc4eb4ba144081af555900116:SKILL.md; git show 8e5916360f2dfe7bc4eb4ba144081af555900116:PROVINCE.md; git ls-tree and git show for six sibling paths at 3f822e85c6a5f866c4003be0ad039d5583d14364; git blame -L 1968,1968 and -L 2076,2076 -- SKILL.md 8e5916360f2dfe7bc4eb4ba144081af555900116; git clone -q /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /tmp/fx08/clone && git checkout -q 8e5916360f2dfe7bc4eb4ba144081af555900116; python3 tools/check-adjacency-anchors.py --revision 8e5916360f2dfe7bc4eb4ba144081af555900116 (in /tmp/fx08/clone); git show 452a054:SKILL.md | wc -l; git show 452a054:PROVINCE.md | wc -l; git diff --stat 452a054 8e5916360f2dfe7bc4eb4ba144081af555900116 -- SKILL.md PROVINCE.md

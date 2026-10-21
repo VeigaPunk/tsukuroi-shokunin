@@ -1,0 +1,31 @@
+## Attack
+
+C1 outbound adjacency, OUT-009. Verify the pinned revenger heading and exact quote, their line and word count, the snapshot digest and pin reachability, then whether the original pointer and appended portable-anchor entry preserve the same evidence. This is falsifiable by a source/registry/hash/pointer mismatch or by the appended row omitting any claimed pin field.
+
+## Method
+
+- Read OUT-009 in the committed registry at revision `8e5916360f2dfe7bc4eb4ba144081af555900116`, the pinned snapshot, the lane `PROVINCE.md`, and the gate source around snapshot, pointer and publication validation.
+- Ran `sha256sum` on the pinned snapshot and `git show <pin>:PROVINCE.md | sha256sum`; checked the commit with `git cat-file -e`, compared the sibling's `main`/`origin/main` tips, and checked ancestry with `git merge-base --is-ancestor` and `git rev-list --count <pin>..main`.
+- Ran `python3 tools/check-adjacency-anchors.py --revision 8e5916360f2dfe7bc4eb4ba144081af555900116` and the gate's `--selftest` as read-only/fixture checks.
+- Searched the attacked revision's `PROVINCE.md` for the OUT-009 row and the recorded SHA prefix; the row is present, while the recorded SHA prefix has zero occurrences.
+
+## Verdict
+
+**REFUTE — C1, OUT-009 appended-publication completeness.** Steps 1–4 CONFIRM. In step 5, the original pointer is present and the appended section carries the correct heading, quote and abbreviated commit, but it does not carry the required blob SHA-256. The gate nevertheless treats the entry as published/operative in its narrow sense: its publication predicate requires only the anchor ID and quote after the section heading, and the run reports `outbound_portable: 10` with `PASS`.
+
+A reader following only the old line range is not shown to have a false quote at the checked pin/current tip: it points at the correct ownership text. It is incomplete, however; the cited range ends midway through the sentence begun at snapshot line 25 and omits lines 26–32 explaining write-scope limits and historical paths. A reader treating the range as the complete scope can therefore be misled about those qualifications.
+
+## Evidence
+
+- Registry fields: `8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/adjacency-anchors-r19.json:113-123` records pointer `../revenger-shokunin/PROVINCE.md:3-7,19-25`, full commit `cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97`, SHA-256 `63acc3d033869f93f3e13da79e35023d86baa60b3f1d3b52861b019183b4b19f`, heading `# revenger province`, quote `Owns: reverse engineering of shipped artifacts`, and `quote_line: 3`.
+- Snapshot: `.ufo/waves/round-19/l1-capture/siblings/revenger/cf02419276e5/PROVINCE.md:1` has the exact heading. Lines 3–7 contain the quote verbatim at line 3; it is 7 words, within 25. Lines 19–25 are also inside the pointer range; line 25 starts `Writes only this ... under the current interactive`, continued by `dispatch.` at line 26. Lines 26–32 contain further scope qualifications absent from the pointer range.
+- Hash: `sha256sum .ufo/waves/round-19/l1-capture/siblings/revenger/cf02419276e5/PROVINCE.md` returned `63acc3d033869f93f3e13da79e35023d86baa60b3f1d3b52861b019183b4b19f`; `git show cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97:PROVINCE.md | sha256sum` returned the same digest.
+- Pin: `git cat-file -e cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97^{commit}` succeeded. Sibling `HEAD`, `main`, and `origin/main` were all `cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97`; `git merge-base --is-ancestor <pin> HEAD` succeeded and `<pin>..main` contained 0 commits. Thus the pin exists and equals the observed branch tip.
+- Lane pointer/publication: `8e5916360f2dfe7bc4eb4ba144081af555900116:PROVINCE.md:51` contains the original pointer. The appended section begins at line 108 and its OUT-009 row is line 129; that row has `# revenger province`, the exact quote, and `cf02419276e5` (the full registry pin's 12-character prefix). `git show 8e5916360f2dfe7bc4eb4ba144081af555900116:PROVINCE.md | grep -c '63acc3d0'` returned `0`: the SHA prefix is absent from the appended section/file.
+- Gate behavior: `tools/check-adjacency-anchors.py:224-227` defines publication as a post-section line containing both the anchor ID and quote. Lines 426–437 check the original pointer's text presence and this publication predicate; lines 392–395 validate the snapshot hash against the registry, not a SHA printed in the appended row. The exact gate command returned `status: PASS`, `outbound_portable: 10`, `live_object_checked: 10`, `live_object_match: 10`, and no findings. `python3 tools/check-adjacency-anchors.py --selftest` returned `PASS (12 cases, 12 passed, 0 failed)`.
+
+## Residual
+
+The current sibling branch tip is the pinned commit and the live `PROVINCE.md` digest matches it, so this check establishes no present sibling drift. `origin/main` is the local remote-tracking ref; no live remote query was made. No host action or source-repository mutation was performed. Fresh lane and sibling clones were created under `/tmp/fxout009` and the lane clone was checked out at the attacked revision; no test mutation or commits were made. No tools were installed.
+
+Scope: executed=sha256sum /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-19/l1-capture/siblings/revenger/cf02419276e5/PROVINCE.md; git -C /home/vgpnk/Projects/shokunin/revenger-shokunin cat-file -e cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97^{commit}; git -C /home/vgpnk/Projects/shokunin/revenger-shokunin merge-base --is-ancestor cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97 HEAD; git -C /home/vgpnk/Projects/shokunin/revenger-shokunin show cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97:PROVINCE.md | sha256sum; git -C /home/vgpnk/Projects/shokunin/revenger-shokunin rev-list --count cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97..main; cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && timeout 600 python3 tools/check-adjacency-anchors.py --revision 8e5916360f2dfe7bc4eb4ba144081af555900116; cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && timeout 600 python3 tools/check-adjacency-anchors.py --selftest; git show 8e5916360f2dfe7bc4eb4ba144081af555900116:PROVINCE.md | grep -c '63acc3d0'

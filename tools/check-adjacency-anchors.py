@@ -884,6 +884,12 @@ def selftest():
             revision_case("wrong-drifted-inside-range", wrong_drifted,
                           ["INBOUND-CLASSIFICATION-WRONG"])
 
+            def range_beyond_file(_files, registry, census):
+                census["inbound"][0]["target_ranges"] = [[999999, 999999]]
+                registry["inbound"][0]["target_ranges"] = [[999999, 999999]]
+            revision_case("range-beyond-file", range_beyond_file,
+                          ["INBOUND-RANGE-INVALID", "INBOUND-CLASSIFICATION-WRONG"])
+
             def unpublished_inbound(files, _registry, _census):
                 files[DEFAULT_KNOWLEDGE] = b"Round 19 inbound anchors are pending.\n"
             revision_case("unpublished-inbound", unpublished_inbound,

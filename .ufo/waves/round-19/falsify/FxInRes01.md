@@ -1,0 +1,41 @@
+## Attack
+
+Attack C1 (adjacency), inbound RESOLVES batch named in the assignment: IN-004 and IN-007–IN-015. These are falsifiable if a quote is absent from its reported line at revision `8e5916360f2dfe7bc4eb4ba144081af555900116`, the found line is outside the recorded target ranges, the sibling's pinned source no longer makes the recorded reliance, or `relied_on` misstates the lane text.
+
+## Method
+
+- Read `corpus/knowledge/adjacency-anchors-r19.json` and `.ufo/waves/round-19/l1-capture/adjacency-pointers-r19.json` read-only; selected exactly the ten assigned IDs and compared sibling, sibling path/line, pointer, target path, and target ranges. No compared-field differences.
+- Read the target objects with `git show 8e5916360f2dfe7bc4eb4ba144081af555900116:<path>` and checked the exact quote at `found_line`, range membership, and uniqueness in the target file. The checked targets were `PROVINCE.md`, `MINT.md`, `SKILL.md`, `corpus/knowledge/adjacency-handoffs-fleet-r1.md`, and `.ufo/waves/round-12/PackageBlind.md`.
+- Read each sibling at the recorded pin using `git -C <sibling-repo> show <sibling_commit>:<sibling_path>`; checked the recorded sibling line and its surrounding context. Kaidoku pin: `d1d981d2cc041dda4656c5b01d2c8445d8d17124`; kama pin: `e75cf680b53484a61709ee1b2787d8dbc6419f74`.
+- For the shared ADJ-06 reliance, read the pinned kaidoku/revenger `PROVINCE.md` blobs and compared their SHA-256 values to OUT-008/OUT-009; both hashes matched their published values and both pinned texts still declare shipped-artifact RE. Read `git diff -U0 452a054677f6b18284917d7c08c45361f91c25ac 8e5916360f2dfe7bc4eb4ba144081af555900116 -- PROVINCE.md SKILL.md MINT.md corpus/knowledge/adjacency-handoffs-fleet-r1.md .ufo/waves/round-12/PackageBlind.md`; the only changes among those files are appends to PROVINCE.md and SKILL.md, so pre-existing target line numbers remain stable.
+
+## Verdict
+
+**CONFIRM — C1 adjacency, for the ten assigned RESOLVES records.** All ten quotes occur exactly once at their reported `found_line` at the attacked revision, and every `found_line` falls within the record's `target_ranges`. Each pinned sibling source still makes the pertinent reliance, and each `relied_on` statement is a fair paraphrase of the cited lane text. No REFUTE among these ten.
+
+| ID | Lane target at `8e5916360f2dfe7bc4eb4ba144081af555900116` | Pinned sibling source | Result |
+|---|---|---|---|
+| IN-004 | `corpus/knowledge/adjacency-handoffs-fleet-r1.md:54`, range 54–54; exact quote found once | `d1d981d2cc04:.ufo/waves/luna-round-10/K1.md:9` | **CONFIRM** — companion ADJ-06 row names an ownership ruling, says no owner was selected, and aligns with the sibling's open-ownership handoff. |
+| IN-007 | `PROVINCE.md:8`, range 8–24; exact quote found once | `d1d981d2cc04:.ufo/waves/luna-round-6/K1.md:9` | **CONFIRM** — the read-only package/systemd/driver ownership paraphrase is supported by the Core text; the lane's finding-to-owner table follows at `PROVINCE.md:44-52`. |
+| IN-008 | `PROVINCE.md:8`, range 8–14; exact quote found once | `d1d981d2cc04:.ufo/waves/round-15/w1/SiblingBoundary.md:22` | **CONFIRM** — the sibling table's host-operability and binary-RE boundary matches the lane's owned surfaces, refusal text, and ADJ-06 row (`PROVINCE.md:8-14,25-28,51`). |
+| IN-009 | `PROVINCE.md:26`, range 25–28; exact quote found once | `d1d981d2cc04:.ufo/waves/round-15/w1/SiblingBoundary.md:255-257` | **CONFIRM** — the sibling cites and quotes the refusal/routing boundary; the lane routes driver binary RE away from tsukuroi and says it tracks state/health, not internals. |
+| IN-010 | `PROVINCE.md:26`, range 26–26; exact quote found once | `d1d981d2cc04:.ufo/waves/round-17/w1/ConnSiblingOverlap.md:15` | **CONFIRM** — the sibling line cites `:26` for the route and also cites `:51` and `:79-81` for unresolved shared ownership; those lane lines substantiate the full paraphrase. |
+| IN-011 | `.ufo/waves/round-12/PackageBlind.md:110`, range 110–110; exact quote found once | `d1d981d2cc04:.ufo/waves/round-17/w1/ConnSiblingOverlap.md:30` | **CONFIRM** — the lane identifies the entry in Pacman's filesystem mtree at :110 and as part of the cached package tarball at :140; the sibling's package-metadata contrast is fair. |
+| IN-012 | `PROVINCE.md:79`, range 79–79; exact quote found once | `d1d981d2cc04:.ufo/waves/round-18/w1/ConnSiblingOverlap.md:39` | **CONFIRM** — the sibling quotes the lane's contested-ownership/integrator-arbitration statement; the continuation is at `PROVINCE.md:80`. |
+| IN-013 | `PROVINCE.md:27`, range 27–28; exact quote found once | `e75cf680b53484a61709ee1b2787d8dbc6419f74:.ufo/waves/round-17/build/advice/ConnectTsukuroi.md:20` | **CONFIRM** — the sibling reproduces the no-install/upgrade/removal/restart boundary at the cited lane lines. |
+| IN-014 | `MINT.md:18`, range 18–19; exact quote found once | `e75cf680b53484a61709ee1b2787d8dbc6419f74:.ufo/waves/round-17/build/advice/ConnectTsukuroi.md:21` | **CONFIRM** — the sibling's read-only detection/report paraphrase matches MINT's domain boundary. |
+| IN-015 | `SKILL.md:144`, range 144–144; exact quote found once | `e75cf680b53484a61709ee1b2787d8dbc6419f74:.ufo/waves/round-17/build/advice/ConnectTsukuroi.md:22` | **CONFIRM** — the sibling correctly says the SKILL repeats the no-install/upgrade/removal/restart boundary. |
+
+## Evidence
+
+- At `8e5916360f2dfe7bc4eb4ba144081af555900116`, the ten exact quote/found-line/range pairs are: IN-004 `corpus/knowledge/adjacency-handoffs-fleet-r1.md:54` / `[54,54]`; IN-007 `PROVINCE.md:8` / `[8,24]`; IN-008 `PROVINCE.md:8` / `[8,14]`; IN-009 `PROVINCE.md:26` / `[25,28]`; IN-010 `PROVINCE.md:26` / `[26,26]`; IN-011 `.ufo/waves/round-12/PackageBlind.md:110` / `[110,110]`; IN-012 `PROVINCE.md:79` / `[79,79]`; IN-013 `PROVINCE.md:27` / `[27,28]`; IN-014 `MINT.md:18` / `[18,19]`; IN-015 `SKILL.md:144` / `[144,144]`. Each quote was a unique occurrence at the stated line.
+- Pinned sibling source lines and matching captured census line text were directly checked. For IN-008, the census's `sibling_line_text` is truncated at 600 characters, but it is a prefix of the full 636-character pinned Git line; the relevant pointer and reliance occur before the truncation.
+- The ADJ-06 sibling reliance is corroborated independently by the pinned kaidoku declaration at `d1d981d2cc041dda4656c5b01d2c8445d8d17124:PROVINCE.md:3-6` and revenger declaration at `cf02419276e5:PROVINCE.md:3-7`. Their content hashes matched the respective OUT-008/OUT-009 records and the committed round-19 snapshots.
+- The baseline-to-attacked-revision diff reports append-only hunks at `PROVINCE.md` (`@@ -106,0 +107,26`) and `SKILL.md` (`@@ -2003,0 +2004,79`); no hunks in the other checked targets.
+
+## Residual
+
+- IN-007's pinned sibling line 9 contains an additional, unprefixed `PROVINCE.md:42,68-71` locator for its ADJ-06 sentence. The ruling requirement is explicit at lane `PROVINCE.md:51`; lines 68-71 instead discuss closure limits and source freshness. This imprecise secondary locator does not refute IN-007's recorded reliance, which is the ownership/handoff paraphrase for target ranges 8–24 and 35–37, but the sibling sentence's locator is not wholly precise.
+- IN-015's sibling line includes its own `PROVINCE.md:16-17` locator for the boundary; those lines are an additional-surfaces heading/blank, not the refusal. The refusal is at `PROVINCE.md:27-28`; the record itself flags this stale locator. IN-015's checked target is `SKILL.md:144`, whose quoted boundary is present.
+- Scope was the ten explicitly listed IDs only; IN-005 and IN-006 were not part of this requested set. No tool was installed.
+Scope: executed=Python 3 `-c` read-only JSON/git subprocess checks (target `git show 8e5916360f2dfe7bc4eb4ba144081af555900116:<path>`; pinned sibling `git -C <repo> show <commit>:<path>`; `git diff --stat` and `git diff -U0` across baseline/target; sibling `git rev-parse` and `git merge-base --is-ancestor`); `functions.grep` on PackageBlind.md with `(?i)buildinfo|\\.BUILDINFO|\\bGo\\b`; no host action or tool install

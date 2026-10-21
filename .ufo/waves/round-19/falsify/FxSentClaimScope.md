@@ -1,0 +1,36 @@
+## Attack
+Audited the round-19 writer-attribution wording and the named boot-chain decision text for (a) boot-safety clearance beyond the stated emulation, (b) authorization of package/initramfs/boot changes, or (c) attribution of a boot outcome to an observed write. Severity: **Low / no confirmed authorization defect**. The practical misreading path is to quote “the overlay should mount” without its immediate “Not boot-tested” caveat and the earlier emulation limits, then rely on snapshot #2 as a verified rollback.
+
+## Method
+Read the five requested files and their targeted sections; inspected the pinned target directly, not the current working tree. Read-only commands:
+
+- `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse HEAD && git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --short`
+- `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/boot-writers-r19.md | sed -n '5,10p;82,119p'`
+- `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/boot-chain-r17.md | sed -n '65,132p'`
+- `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/QUALITY.md | sed -n '42,77p'`
+- `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:SKILL.md | sed -n '2005,2055p'`
+- `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:SCORECARD.md | sed -n '585,605p'`
+- `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/boot-chain-r17.md | sed -n '50,64p;95,108p'`
+- `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:SKILL.md | sed -n '2005,2026p;2068,2083p'`
+- `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/boot-chain-r17.md | sed -n '30,37p'`
+
+No gate, host probe, or host action was run.
+
+## Verdict
+**REFUTE — C2.** The round-19 writer-attribution claim does not clear next-boot safety, authorize a package/initramfs/boot change, or attribute a boot outcome to an observed write. Its scope is attribution of `/boot/limine.conf` log events. The adjacent round-17 snapshot inference is a quote-snipping risk, not a safety clearance: it is marked `[inf]`, explicitly bounded by the un-emulated Btrfs/read-only branch, and says “Not boot-tested.”
+
+Impact if misread: an operator could overestimate snapshot #2 as a verified recovery path. The smallest optional clarification is to replace “the overlay should mount” with “the path alias was emulated; the read-only Btrfs snapshot mount outcome remains untested.”
+
+## Evidence
+- The round-19 knowledge authority paragraph says: “Nothing here authorizes a package, service, hook, initramfs, bootloader or /boot change.” The limits state “No current-state certification” and that the `Updated:` message does not verify content changes or capture a hash: `8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/boot-writers-r19.md:7,97-100`. Its decision rule says to “Report” other events, not to modify the boot plane: `...:88-93`.
+- The emulation bound is explicit: writable tmpfs demonstrates path handling, not making a read-only root writable; the `ro=true` branch and Btrfs-specific steps were not emulated: `8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/boot-chain-r17.md:54-63`. The table calls snapshot #2 `PATH-ALIASED-EMULATED`, while the observed default is `BOOTED-OBSERVED` and linux-lts is `UNTESTED`: `...:69-82`.
+- The closest outcome language is `[inf] **Snapshot #2 entries — overlay expected** … “the overlay should mount” (citing E:40–48), followed by “Not boot-tested”: `8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/boot-chain-r17.md:100-104`. The earlier limit and immediate untested label prevent this from asserting a verified safe/consistent boot. Snapshot #1 is likewise expressly “Not boot-tested”: `...:105-108`.
+- The boot-chain authority says nothing authorizes package/service/initramfs/bootloader or `/boot` changes; its checks are read-only and it states “tsukuroi takes none of these actions”: `8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/boot-chain-r17.md:10-11,112-120`. Its optional operator advice is to keep a snapshot and external boot media, not to change a package, initramfs, or boot configuration: `...:123-131`.
+- The round-19 Skill section says “Detection only,” lists prohibited commands and `/boot` writes, and limits actions to “record, report, or operator handoff”: `8e5916360f2dfe7bc4eb4ba144081af555900116:SKILL.md:2005-2007`; its error patterns say “Take no further action” / “Never remove it”: `...:2030-2035`. The registry explicitly marks the boot-chain audit “not operator clearance”: `...:2073`.
+- QUALITY 33 describes attribution as “expected automation, not evidence of interference,” not as boot safety: `8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/QUALITY.md:64-76`. The scorecard’s C2 row measures attributed writes only, and its plan says independent closure decides admission: `8e5916360f2dfe7bc4eb4ba144081af555900116:SCORECARD.md:592-597,602`.
+- The observed write sentence in the earlier boot-chain note says the write explains the file mtime, not a boot outcome: `8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/boot-chain-r17.md:34-36`.
+
+## Residual
+No live boot behavior was tested (nor authorized). The snapshot overlay prediction could be made harder to quote out of context with the optional wording change above, but its current text includes the emulation boundary and “Not boot-tested”; no mandatory correction is established by this audit.
+
+Scope: executed=git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse HEAD && git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --short; git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/boot-writers-r19.md | sed -n '5,10p;82,119p'; git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/boot-chain-r17.md | sed -n '65,132p'; git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/QUALITY.md | sed -n '42,77p'; git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:SKILL.md | sed -n '2005,2055p'; git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:SCORECARD.md | sed -n '585,605p'; git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/boot-chain-r17.md | sed -n '50,64p;95,108p'; git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:SKILL.md | sed -n '2005,2026p;2068,2083p'; git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8e5916360f2dfe7bc4eb4ba144081af555900116:corpus/knowledge/boot-chain-r17.md | sed -n '30,37p'
