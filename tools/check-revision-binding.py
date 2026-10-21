@@ -136,6 +136,36 @@ def rev_parse(repo, ref):
     return proc.stdout.decode("ascii", "replace").strip()
 
 
+def object_commit(repo, prefix):
+    """Independent object-only selector; do not import the binder under test."""
+    proc = git(repo, "rev-parse", f"--disambiguate={prefix.lower()}")
+    if proc.returncode != 0:
+        if git(repo, "rev-parse", "--git-dir").returncode != 0:
+            raise Cannot(ID_GIT, "git", "repository unavailable during object lookup")
+        return None
+    objects = proc.stdout.decode("ascii", "replace").splitlines()
+    if len(objects) != 1:
+        return None
+    oid = objects[0]
+    kind_proc = git(repo, "cat-file", "-t", oid)
+    if kind_proc.returncode != 0:
+        if git(repo, "rev-parse", "--git-dir").returncode != 0:
+            raise Cannot(ID_GIT, "git", "repository unavailable during object type lookup")
+        return None
+    object_kind = kind_proc.stdout.decode("ascii", "replace").strip()
+    if object_kind == "commit":
+        return oid
+    if object_kind != "tag":
+        return None
+    peel = git(repo, "rev-parse", "--verify", "--quiet", "--end-of-options",
+                f"{oid}^{{commit}}")
+    if peel.returncode == 0:
+        return peel.stdout.decode("ascii", "replace").strip()
+    if git(repo, "rev-parse", "--git-dir").returncode != 0:
+        raise Cannot(ID_GIT, "git", "repository unavailable during tag peeling")
+    return None
+
+
 def ancestor(repo, sha, ref):
     proc = git(repo, "merge-base", "--is-ancestor", sha, ref)
     if proc.returncode == 0:
@@ -164,7 +194,9 @@ def bind(repo, rev, branch="master"):
     validate_branch(branch)
     if not REV.fullmatch(rev):
         raise Cannot(ID_INVALID, "revision", "7-64 hex commit required")
-    sha = rev_parse(repo, rev)
+    sha = object_commit(repo, rev)
+    if sha is None:
+        raise Cannot(ID_INVALID, "revision", f"{rev} does not name one commit")
     local = f"refs/heads/{branch}"
     if not ref_exists(repo, local):
         raise Cannot("E-BRANCH-MISSING", local, "branch ref absent")
@@ -353,14 +385,17 @@ def refused(sandbox, name, rev, want, branch=None):
     found = finding_id(text)
     doc = parse_json(text)
     findings = doc.get("findings") if isinstance(doc, dict) else None
+    json_revision = doc.get("revision") if isinstance(doc, dict) else None
+    json_revision = json_revision if isinstance(json_revision, str) else None
     return {"exit": code, "finding": found, "binding_ids": binding_ids(text),
             "finding_count": len(findings) if isinstance(findings, list) else None,
+            "json_revision": json_revision,
             "ok": code == CANNOT and found == want}
 
 
-def accepted(sandbox, name, rev, expect_sha):
+def accepted(sandbox, name, rev, expect_sha, branch=None):
     """Accepted = not CANNOT and the JSON names the independently resolved commit."""
-    code, text = run_tool(sandbox, name, rev)
+    code, text = run_tool(sandbox, name, rev, branch)
     doc = parse_json(text)
     got = doc.get("revision") if isinstance(doc, dict) else None
     got = got if isinstance(got, str) else None
@@ -379,19 +414,19 @@ def blob_object(sandbox):
 
 def probe_tool(sandbox, name, tip, unlanded_sha, parent=None, branch="master", blob=None):
     cases = {
-        "head": refused(sandbox, name, "HEAD", ID_INVALID),
-        "at-parent": refused(sandbox, name, "@-", ID_INVALID),
-        "branch-name": refused(sandbox, name, "master", ID_INVALID),
-        "unlanded": refused(sandbox, name, unlanded_sha, ID_UNLANDED),
-        "tip": accepted(sandbox, name, tip, tip),
-        "short-tip": accepted(sandbox, name, tip[:8], tip),
+        "head": refused(sandbox, name, "HEAD", ID_INVALID, branch),
+        "at-parent": refused(sandbox, name, "@-", ID_INVALID, branch),
+        "branch-name": refused(sandbox, name, "master", ID_INVALID, branch),
+        "unlanded": refused(sandbox, name, unlanded_sha, ID_UNLANDED, branch),
+        "tip": accepted(sandbox, name, tip, tip, branch),
+        "short-tip": accepted(sandbox, name, tip[:8], tip, branch),
     }
     remote = f"refs/remotes/origin/{branch}"
     if parent is not None:
-        cases["landed-parent"] = accepted(sandbox, name, parent, parent)
+        cases["landed-parent"] = accepted(sandbox, name, parent, parent, branch)
         must(git(sandbox, "update-ref", remote, parent), "E-SANDBOX", "origin lag")
         try:
-            cases["not-pushed"] = refused(sandbox, name, tip, ID_PUSHED)
+            cases["not-pushed"] = refused(sandbox, name, tip, ID_PUSHED, branch)
         finally:
             must(git(sandbox, "update-ref", remote, tip), "E-SANDBOX", "origin restore")
     bound = all(case["ok"] for case in cases.values())
@@ -410,15 +445,15 @@ def probe_tool(sandbox, name, tip, unlanded_sha, parent=None, branch="master", b
                                  "ok": single["ok"] and single["binding_ids"] == [ID_UNLANDED]
                                  and single["finding_count"] == 1}
     if blob is not None:
-        shared_cases["blob-revision"] = refused(sandbox, name, blob, ID_INVALID)
+        shared_cases["blob-revision"] = refused(sandbox, name, blob, ID_INVALID, branch)
         must(git(sandbox, "update-ref", remote, blob), "E-SANDBOX", "origin blob")
         try:
-            shared_cases["git-failed"] = refused(sandbox, name, tip, ID_GIT)
+            shared_cases["git-failed"] = refused(sandbox, name, tip, ID_GIT, branch)
         finally:
             must(git(sandbox, "update-ref", remote, tip), "E-SANDBOX", "origin restore")
     must(git(sandbox, "update-ref", "-d", remote), "E-SANDBOX", "origin absent")
     try:
-        shared_cases["origin-absent"] = accepted(sandbox, name, tip, tip)
+        shared_cases["origin-absent"] = accepted(sandbox, name, tip, tip, branch)
     finally:
         must(git(sandbox, "update-ref", remote, tip), "E-SANDBOX", "origin restore")
     refusals = [case for case in (*cases.values(), *shared_cases.values())
@@ -436,7 +471,203 @@ def probe_tool(sandbox, name, tip, unlanded_sha, parent=None, branch="master", b
     return out
 
 
-def measure(lane, tools_rev, branch="master"):
+def object_selector_probes(sandbox, name, tip, parent, unlanded_sha, blob, branch):
+    """Exercise only object-ID selectors for one tool in the throwaway clone."""
+    def exact_refusal(revision, expected_id):
+        case = refused(sandbox, name, revision, expected_id, branch)
+        case["ok"] = (case["ok"] and case["binding_ids"] == [expected_id]
+                      and case["finding_count"] == 1 and case["json_revision"] is None)
+        return case
+
+    def exact_accept(revision, expected_sha):
+        case = accepted(sandbox, name, revision, expected_sha, branch)
+        return case
+
+    def create_ref(ref, sha):
+        must(git(sandbox, "update-ref", ref, sha), "E-SANDBOX", ref)
+
+    def remove_ref(ref):
+        must(git(sandbox, "update-ref", "-d", ref), "E-SANDBOX", ref)
+
+    tag_name = "r20-object-selector-" + name[:-3].replace("_", "-")
+    tag_ref = f"refs/tags/{tag_name}"
+    if ref_exists(sandbox, tag_ref):
+        raise Cannot("E-SANDBOX", tag_ref, "selector tag already exists")
+    must(git(sandbox, "-c", "user.name=Revision Object Selector",
+             "-c", "user.email=revision-selector@invalid", "-c", "tag.gpgSign=false",
+             "tag", "-a", tag_name, "-m", "object selector probe", tip),
+         "E-SANDBOX", "annotated selector tag")
+    tag_object = must(git(sandbox, "rev-parse", "--verify", "--quiet",
+                          f"{tag_ref}^{{tag}}"),
+                      "E-SANDBOX", "annotated selector tag object").stdout.decode(
+                          "ascii", "replace").strip()
+    object_ids = must(git(sandbox, "cat-file", "--batch-all-objects",
+                          "--batch-check=%(objectname)"),
+                      "E-SANDBOX", "object selector inventory").stdout.decode(
+                          "ascii", "replace").splitlines()
+
+    ghost = next((character * 12 for character in "0123456789abcdef"
+                  if all(not object_id.startswith(character * 12) for object_id in object_ids)
+                  and not ref_exists(sandbox, f"refs/heads/{character * 12}")
+                  and not ref_exists(sandbox, f"refs/tags/{character * 12}")), None)
+    if ghost is None:
+        raise Cannot("E-SANDBOX", "ghost selector", "no unused 12-hex ref name")
+
+    cases = {}
+    head_ref, ghost_tag_ref = f"refs/heads/{ghost}", f"refs/tags/{ghost}"
+    create_ref(head_ref, tip)
+    try:
+        cases["ghost_hex_branch"] = exact_refusal(ghost, ID_INVALID)
+    finally:
+        remove_ref(head_ref)
+    create_ref(ghost_tag_ref, tip)
+    try:
+        cases["ghost_hex_tag"] = exact_refusal(ghost, ID_INVALID)
+    finally:
+        remove_ref(ghost_tag_ref)
+
+    ghost_full = next((character * 40 for character in "0123456789abcdef"
+                       if all(object_id != character * 40 for object_id in object_ids)
+                       and not ref_exists(sandbox, f"refs/heads/{character * 40}")
+                       and not ref_exists(sandbox, f"refs/tags/{character * 40}")), None)
+    if ghost_full is None:
+        raise Cannot("E-SANDBOX", "full ghost selector",
+                     "no unused 40-hex ref name")
+    ghost_full_head = f"refs/heads/{ghost_full}"
+    create_ref(ghost_full_head, tip)
+    try:
+        cases["ghost_full_hex_branch"] = exact_refusal(ghost_full, ID_INVALID)
+    finally:
+        remove_ref(ghost_full_head)
+    ghost_full_ref = f"refs/tags/{ghost_full}"
+    create_ref(ghost_full_ref, tip)
+    try:
+        cases["ghost_full_hex_lightweight_tag"] = exact_refusal(
+            ghost_full, ID_INVALID)
+    finally:
+        remove_ref(ghost_full_ref)
+
+    annotated_ghost = None
+    for character in "0123456789abcdef":
+        candidate = character * 40
+        if (any(object_id == candidate for object_id in object_ids)
+                or ref_exists(sandbox, f"refs/heads/{candidate}")
+                or ref_exists(sandbox, f"refs/tags/{candidate}")):
+            continue
+        candidate_ref = f"refs/tags/{candidate}"
+        must(git(sandbox, "-c", "user.name=Revision Object Selector",
+                 "-c", "user.email=revision-selector@invalid",
+                 "-c", "tag.gpgSign=false", "tag", "-a", candidate,
+                 "-m", "ghost annotated selector", tip),
+             "E-SANDBOX", "full ghost annotated tag")
+        updated_objects = must(git(sandbox, "cat-file", "--batch-all-objects",
+                                   "--batch-check=%(objectname)"),
+                               "E-SANDBOX", "updated selector inventory").stdout.decode(
+                                   "ascii", "replace").splitlines()
+        if any(object_id == candidate for object_id in updated_objects):
+            remove_ref(candidate_ref)
+            object_ids = updated_objects
+            continue
+        annotated_ghost = candidate
+        object_ids = updated_objects
+        break
+    if annotated_ghost is None:
+        raise Cannot("E-SANDBOX", "full ghost annotated selector",
+                     "could not construct a 40-hex tag name absent from the object database")
+    annotated_ghost_ref = f"refs/tags/{annotated_ghost}"
+    try:
+        cases["ghost_full_hex_annotated_tag"] = exact_refusal(
+            annotated_ghost, ID_INVALID)
+    finally:
+        remove_ref(annotated_ghost_ref)
+
+    tag_prefix = next((tag_object[:width] for width in range(7, len(tag_object) + 1)
+                       if sum(object_id.startswith(tag_object[:width])
+                              for object_id in object_ids) == 1
+                       and not ref_exists(sandbox, f"refs/heads/{tag_object[:width]}")
+                       and not ref_exists(sandbox, f"refs/tags/{tag_object[:width]}")), None)
+    if tag_prefix is None:
+        raise Cannot("E-SANDBOX", "annotated tag selector",
+                     "no unique object prefix without a ref collision")
+    shadow = next((tip[:width] for width in range(7, len(tip) + 1)
+                   if sum(object_id.startswith(tip[:width]) for object_id in object_ids) == 1
+                   and not ref_exists(sandbox, f"refs/heads/{tip[:width]}")
+                   and not ref_exists(sandbox, f"refs/tags/{tip[:width]}")), None)
+    if shadow is None:
+        raise Cannot("E-SANDBOX", "shadow selector", "no unique object prefix without a ref collision")
+    decoy = parent or unlanded_sha
+    shadow_head, shadow_tag = f"refs/heads/{shadow}", f"refs/tags/{shadow}"
+    create_ref(shadow_head, decoy)
+    try:
+        cases["real_prefix_shadow_branch"] = exact_accept(shadow, tip)
+    finally:
+        remove_ref(shadow_head)
+    create_ref(shadow_tag, decoy)
+    try:
+        cases["real_prefix_shadow_tag"] = exact_accept(shadow, tip)
+    finally:
+        remove_ref(shadow_tag)
+    for object_id, label in ((tip, "commit"), (tag_object, "tag")):
+        object_branch = f"refs/heads/{object_id}"
+        object_tag = f"refs/tags/{object_id}"
+        create_ref(object_branch, decoy)
+        create_ref(object_tag, decoy)
+        try:
+            cases[f"full_{label}_object_id_ref_shadow"] = exact_accept(
+                object_id, tip)
+        finally:
+            remove_ref(object_branch)
+            remove_ref(object_tag)
+
+
+    cases["uppercase_object"] = exact_accept(tip.upper(), tip)
+    cases["full_object_id"] = exact_accept(tip, tip)
+    cases["annotated_tag_object"] = exact_accept(tag_object, tip)
+    cases["annotated_tag_prefix"] = exact_accept(tag_prefix, tip)
+    cases["noncommit_blob"] = exact_refusal(blob, ID_INVALID)
+    cases["unlanded_object"] = exact_refusal(unlanded_sha, ID_UNLANDED)
+    unlanded_prefix = next((unlanded_sha[:width] for width in range(7, len(unlanded_sha) + 1)
+                            if sum(object_id.startswith(unlanded_sha[:width])
+                                   for object_id in object_ids) == 1
+                            and not ref_exists(sandbox, f"refs/heads/{unlanded_sha[:width]}")
+                            and not ref_exists(sandbox, f"refs/tags/{unlanded_sha[:width]}")), None)
+    if unlanded_prefix is None:
+        raise Cannot("E-SANDBOX", "unlanded selector",
+                     "no unique unlanded object prefix without a ref collision")
+    for ref, label in ((f"refs/heads/{unlanded_prefix}", "branch"),
+                       (f"refs/tags/{unlanded_prefix}", "tag")):
+        create_ref(ref, tip)
+        try:
+            cases[f"unlanded_prefix_shadow_{label}"] = exact_refusal(
+                unlanded_prefix, ID_UNLANDED)
+        finally:
+            remove_ref(ref)
+    remote = f"refs/remotes/origin/{branch}"
+    if parent is None:
+        unknown = {"exit": None, "finding": None, "binding_ids": [],
+                   "finding_count": None, "json_revision": None, "ok": False}
+        cases["unpushed_object"] = dict(unknown)
+        cases["unpushed_prefix_shadow_branch"] = dict(unknown)
+        cases["unpushed_prefix_shadow_tag"] = dict(unknown)
+    else:
+        create_ref(remote, parent)
+        try:
+            cases["unpushed_object"] = exact_refusal(tip, ID_PUSHED)
+            for ref, label in ((f"refs/heads/{shadow}", "branch"),
+                               (f"refs/tags/{shadow}", "tag")):
+                create_ref(ref, parent)
+                try:
+                    cases[f"unpushed_prefix_shadow_{label}"] = exact_refusal(
+                        shadow, ID_PUSHED)
+                finally:
+                    remove_ref(ref)
+        finally:
+            create_ref(remote, tip)
+    remove_ref(tag_ref)
+    return cases
+
+
+def measure(lane, tools_rev, branch="master", object_selectors=False):
     lane = Path(lane).resolve()
     tip = bind(lane, tools_rev, branch)
     branch_tip = lane_tip(lane, branch)
@@ -455,12 +686,34 @@ def measure(lane, tools_rev, branch="master"):
         per_tool = []
         for name in names:
             if name in absent:
-                per_tool.append({"tool": f"tools/{name}", "bound": False, "consistent": False,
-                                 "shared": False, "local_rev_regex": 0,
-                                 "reason": "absent at measured revision",
-                                 "shared_reason": "absent at measured revision"})
+                missing = {"tool": f"tools/{name}", "bound": False, "consistent": False,
+                           "shared": False, "local_rev_regex": 0,
+                           "reason": "absent at measured revision",
+                           "shared_reason": "absent at measured revision"}
+                if object_selectors and name in TOOLS:
+                    missing["object_selector_cases"] = {}
+                    missing["object_selector_ok"] = False
+                per_tool.append(missing)
                 continue
-            item = probe_tool(sandbox, name, tip, unlanded_sha, parent, branch, blob)
+            try:
+                item = probe_tool(sandbox, name, tip, unlanded_sha, parent, branch, blob)
+            except Cannot as exc:
+                if not object_selectors or name in TOOLS:
+                    raise
+                item = {"tool": f"tools/{name}", "bound": False, "consistent": False,
+                        "shared": False, "local_rev_regex": 0,
+                        "reason": f"additional probe unavailable: {exc.fid} {exc.detail}",
+                        "shared_reason": "additional tool probe did not complete",
+                        "probe_error": {"id": exc.fid, "site": exc.site,
+                                        "detail": exc.detail}}
+                per_tool.append(item)
+                continue
+            if object_selectors and name in TOOLS:
+                selector_cases = object_selector_probes(
+                    sandbox, name, tip, parent, unlanded_sha, blob, branch)
+                item["object_selector_cases"] = selector_cases
+                item["object_selector_ok"] = all(
+                    case["ok"] for case in selector_cases.values())
             imports, copies = shared(sources[name])
             item["shared"] = imports and copies == 0
             item["local_rev_regex"] = copies
@@ -475,28 +728,48 @@ def measure(lane, tools_rev, branch="master"):
                        and item["local_rev_regex"] == 0)
     legacy = sum(1 for item in named
                  if item["bound"] and item["tool"].split("/", 1)[1] in LEGACY)
-    return {"status": "PASS" if consistent == TOTAL else "FAIL",
-            "status_scope": "original-nine consistency only",
-            "consistency_status": "PASS" if consistent == TOTAL else "FAIL",
-            "consolidation_status": "PASS" if consolidated == TOTAL else "FAIL",
-            "consolidated_tools": consolidated,
-            "tools_revision": tip, "revision": tip, "branch": branch,
-            "branch_tip": branch_tip, "bound_tools": bound, "consistent_tools": consistent,
-            "shared_tools": sum(1 for item in named if item["shared"]),
-            "local_rev_regex_copies": sum(item["local_rev_regex"] for item in named),
-            "total": TOTAL, "named_total": TOTAL, "discovered": list(extras),
-            "all_total": len(per_tool),
-            "all_bound_tools": sum(1 for item in per_tool if item["bound"]),
-            "all_consistent_tools": sum(1 for item in per_tool if item["consistent"]),
-            "additional_total": len(additional),
-            "additional_consistent_tools": sum(1 for item in additional if item["consistent"]),
-            "additional_shared_tools": sum(1 for item in additional if item["shared"]),
-            "legacy_bound": legacy, "legacy_total": len(LEGACY),
-            "sandbox_origin_pinned": pinned, "per_tool": per_tool}
+    result = {
+        "status": "PASS" if consistent == TOTAL else "FAIL",
+        "status_scope": "original-nine consistency only",
+        "consistency_status": "PASS" if consistent == TOTAL else "FAIL",
+        "consolidation_status": "PASS" if consolidated == TOTAL else "FAIL",
+        "consolidated_tools": consolidated,
+        "tools_revision": tip, "revision": tip, "branch": branch,
+        "branch_tip": branch_tip, "bound_tools": bound, "consistent_tools": consistent,
+        "shared_tools": sum(1 for item in named if item["shared"]),
+        "local_rev_regex_copies": sum(item["local_rev_regex"] for item in named),
+        "total": TOTAL, "named_total": TOTAL, "discovered": list(extras),
+        "all_total": len(per_tool),
+        "all_bound_tools": sum(1 for item in per_tool if item["bound"]),
+        "all_consistent_tools": sum(1 for item in per_tool if item["consistent"]),
+        "additional_total": len(additional),
+        "additional_consistent_tools": sum(1 for item in additional if item["consistent"]),
+        "additional_shared_tools": sum(1 for item in additional if item["shared"]),
+        "legacy_bound": legacy, "legacy_total": len(LEGACY),
+        "sandbox_origin_pinned": pinned, "per_tool": per_tool}
+    if object_selectors:
+        selector_count = sum(1 for item in named if item.get("object_selector_ok"))
+        result.update({
+            "object_selectors_requested": True,
+            "object_selector_tools": selector_count,
+            "object_selector_total": TOTAL,
+            "object_selector_status": "PASS" if selector_count == TOTAL else "FAIL",
+            "object_selector_per_tool": [
+                {"tool": item["tool"], "ok": item.get("object_selector_ok", False),
+                 "cases": item.get("object_selector_cases", {})}
+                for item in named],
+        })
+        result["status_scope"] = "original-nine consistency and object selectors only"
+        result["status"] = ("PASS" if consistent == TOTAL and selector_count == TOTAL
+                            else "FAIL")
+    return result
 
 
 def grade(result):
-    return (PASS if result["consistent_tools"] == result["total"] else FAIL), result["status"]
+    passed = result["consistent_tools"] == result["total"]
+    if result.get("object_selectors_requested"):
+        passed = passed and result["object_selector_tools"] == result["object_selector_total"]
+    return (PASS if passed else FAIL), result["status"]
 
 
 def emit_report(payload, code):
@@ -504,12 +777,18 @@ def emit_report(payload, code):
     return code
 
 
-def cannot_payload(rev, branch, exc):
-    return {"status": "CANNOT_EVALUATE", "tools_revision": rev, "revision": None,
-            "branch": branch, "branch_tip": None, "bound_tools": 0,
-            "consistent_tools": 0, "shared_tools": 0,
-            "total": TOTAL, "per_tool": [],
-            "findings": [{"id": exc.fid, "site": exc.site, "detail": exc.detail}]}
+def cannot_payload(rev, branch, exc, object_selectors=False):
+    payload = {"status": "CANNOT_EVALUATE", "tools_revision": rev, "revision": None,
+               "branch": branch, "branch_tip": None, "bound_tools": 0,
+               "consistent_tools": 0, "shared_tools": 0,
+               "total": TOTAL, "per_tool": [],
+               "findings": [{"id": exc.fid, "site": exc.site, "detail": exc.detail}]}
+    if object_selectors:
+        payload.update({"status_scope": "original-nine consistency and object selectors only",
+                        "object_selectors_requested": True, "object_selector_tools": 0,
+                        "object_selector_total": TOTAL, "object_selector_status": "CANNOT_EVALUATE",
+                        "object_selector_per_tool": []})
+    return payload
 
 
 def build_parser():
@@ -522,6 +801,8 @@ def build_parser():
     group.add_argument("--selftest", action="store_true", help="hermetic stub-tool suite")
     parser.add_argument("--branch", default="master",
                         help="landed branch to bind against (default master)")
+    parser.add_argument("--object-selectors", action="store_true",
+                        help="grade object-only hexadecimal selectors across the original nine tools")
     return parser
 
 
@@ -538,13 +819,14 @@ import json, re, subprocess, sys
 from pathlib import Path
 __SHARED__MODE = "__MODE__"
 LEGACY = MODE == "legacy"  # round-17 copies: no branch checks, rc>=2 = not ancestor
-HEX = r"[0-9a-f]{%d,%d}" % (7, 64)
+HEX = r"[0-9A-Fa-f]{%d,%d}" % (7, 64)
 ROOT = Path(__file__).resolve().parents[1]
 def git(*args):
     return subprocess.run(["git", "-C", str(ROOT), *args], capture_output=True, text=True)
 def out(rev, ident=None, code=0, status="PASS"):
     idents = [] if ident is None else ([ident] if isinstance(ident, str) else ident)
-    print(json.dumps({"status": status, "revision": rev,
+    revision = None if status == "CANNOT_EVALUATE" else rev
+    print(json.dumps({"status": status, "revision": revision,
                       "findings": [{"id": i} for i in idents]}))
     sys.exit(code)
 argv = sys.argv
@@ -576,7 +858,14 @@ if not LEGACY and (not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9._/-]*", branch)
 if not re.fullmatch(HEX, rev):
     ident = "E-OTHER-INVALID" if MODE == "wrong-id" else "E-REVISION-INVALID"
     out(rev, ident, 2, "CANNOT_EVALUATE")
-sha = git("rev-parse", "--verify", "--quiet", rev + "^{commit}").stdout.strip()
+if MODE == "object-selector":
+    object_ids = git("rev-parse", "--disambiguate=" + rev.lower()).stdout.splitlines()
+    if len(object_ids) != 1:
+        out(rev, "E-REVISION-INVALID", 2, "CANNOT_EVALUATE")
+    sha = git("rev-parse", "--verify", "--quiet",
+              object_ids[0] + "^{commit}").stdout.strip()
+else:
+    sha = git("rev-parse", "--verify", "--quiet", rev + "^{commit}").stdout.strip()
 if not sha:
     out(rev, "E-REVISION-INVALID", 2, "CANNOT_EVALUATE")
 local, remote = "refs/heads/" + branch, "refs/remotes/origin/" + branch
@@ -664,6 +953,7 @@ def detached_commit(root):
 
 
 def selftest():
+    global run_tool
     passed, failures = 0, []
 
     def check(name, got, want):
@@ -686,6 +976,26 @@ def selftest():
             check("all-bound-exit", grade(res)[0], PASS)
             check("all-bound-tools-revision", res["tools_revision"], tip)
             check("all-bound-branch-tip", res["branch_tip"], tip)
+            object_inventory = must(
+                git(fx, "cat-file", "--batch-all-objects",
+                    "--batch-check=%(objectname)"),
+                "E-SANDBOX", "direct binder object inventory").stdout.decode(
+                    "ascii", "replace").splitlines()
+            direct_ghost = next((char * 40 for char in "0123456789abcdef"
+                                 if all(oid != char * 40 for oid in object_inventory)
+                                 and not ref_exists(fx, f"refs/heads/{char * 40}")
+                                 and not ref_exists(fx, f"refs/tags/{char * 40}")), None)
+            if direct_ghost is None:
+                raise Cannot("E-SANDBOX", "direct binder ghost",
+                             "no unused full-width hexadecimal ref name")
+            for ref, label in ((f"refs/heads/{direct_ghost}", "branch"),
+                               (f"refs/tags/{direct_ghost}", "tag")):
+                must(git(fx, "update-ref", ref, tip), "E-SANDBOX", ref)
+                try:
+                    check(f"direct-binder-ghost-full-{label}",
+                          bind_error(fx, direct_ghost), ID_INVALID)
+                finally:
+                    must(git(fx, "update-ref", "-d", ref), "E-SANDBOX", ref)
 
             mixed = {name: ("bound" if i < 3 else "unbound")
                      for i, name in enumerate(TOOLS)}
@@ -777,6 +1087,55 @@ def selftest():
                                                    resu["additional_consistent_tools"],
                                                    grade(resu)[0]), (TOTAL, TOTAL, 1, 0, PASS))
 
+            object_modes = {name: "object-selector" for name in TOOLS}
+            object_dir = tmp / "object-selectors"
+            object_extra = {"check-extra.py": stub_source("unbound")}
+            object_tip = make_fixture(object_dir, object_modes, extra_files=object_extra)
+            object_result = measure(object_dir, object_tip, object_selectors=True)
+            check("object-selectors-original-nine-only",
+                  (object_result["object_selector_tools"], object_result["object_selector_total"],
+                   object_result["object_selector_status"], object_result["additional_total"],
+                   len(object_result["object_selector_per_tool"]), grade(object_result)[0]),
+                  (TOTAL, TOTAL, "PASS", 1, TOTAL, PASS))
+            ref_alias_modes = dict(object_modes)
+            ref_alias_modes[TOOLS[0]] = "unbound"
+            ref_alias_dir = tmp / "object-selector-ref-alias"
+            ref_alias_tip = make_fixture(
+                ref_alias_dir, ref_alias_modes, extra_files=object_extra)
+            ref_alias_result = measure(
+                ref_alias_dir, ref_alias_tip, object_selectors=True)
+            check("object-selector-grader-rejects-ref-alias",
+                  (ref_alias_result["object_selector_tools"],
+                   ref_alias_result["object_selector_status"],
+                   ref_alias_result["object_selector_per_tool"][0]["ok"],
+                   grade(ref_alias_result)[0]),
+                  (TOTAL - 1, "FAIL", False, FAIL))
+            unavailable_dir = tmp / "object-selector-extra-unavailable"
+            unavailable_tip = make_fixture(
+                unavailable_dir, object_modes, extra_files=object_extra)
+            original_run_tool = run_tool
+            def unavailable_extra(sandbox, name, revision, branch=None):
+                if name == "check-extra.py":
+                    raise Cannot("E-TOOL-TIMEOUT", "tools/check-extra.py",
+                                 "synthetic additional-tool timeout")
+                return original_run_tool(sandbox, name, revision, branch)
+            run_tool = unavailable_extra
+            try:
+                unavailable_result = measure(
+                    unavailable_dir, unavailable_tip, object_selectors=True)
+            finally:
+                run_tool = original_run_tool
+            unavailable_row = unavailable_result["per_tool"][-1]
+            check("object-selector-additional-failure-isolated",
+                  (unavailable_result["object_selector_tools"],
+                   unavailable_result["object_selector_status"],
+                   unavailable_result["additional_total"],
+                   unavailable_result["additional_consistent_tools"],
+                   unavailable_row.get("probe_error", {}).get("id"),
+                   grade(unavailable_result)[0]),
+                  (TOTAL, "PASS", 1, 0, "E-TOOL-TIMEOUT", PASS))
+
+
             for stub in ("tip-only", "no-origin", "head-only", "echo"):
                 fxs = tmp / f"stub-{stub}"
                 ms = dict(modes)
@@ -812,11 +1171,24 @@ def selftest():
             check("cli-both", cli_finding(["--tools-revision", tip5, "--selftest"]), "E-CLI")
             check("cli-ok", cli_finding(["--selftest"]), None)
 
+            check("cli-object-selectors",
+                  cli_finding(["--tools-revision", tip5, "--object-selectors"]), None)
+
+
             payload = cannot_payload("HEAD", "master",
                                      Cannot(ID_INVALID, "revision", "not hex"))
             check("cannot-shape", (payload["status"], payload["bound_tools"],
                                    payload["total"], payload["findings"][0]["id"]),
                   ("CANNOT_EVALUATE", 0, TOTAL, ID_INVALID))
+
+            object_payload = cannot_payload(
+                "HEAD", "master", Cannot(ID_INVALID, "revision", "not hex"),
+                object_selectors=True)
+            check("cannot-object-selector-shape",
+                  (object_payload["object_selector_tools"],
+                   object_payload["object_selector_total"],
+                   object_payload["object_selector_status"]),
+                  (0, TOTAL, "CANNOT_EVALUATE"))
     except Cannot as exc:
         failures.append(f"fixture: {exc.fid} {exc.site} {exc.detail}")
 
@@ -840,14 +1212,15 @@ def main(argv=None):
     if args.selftest:
         return selftest()
     try:
-        result = measure(ROOT, args.tools_revision, args.branch)
+        result = measure(ROOT, args.tools_revision, args.branch, args.object_selectors)
     except Cannot as exc:
-        payload = cannot_payload(args.tools_revision, args.branch, exc)
+        payload = cannot_payload(args.tools_revision, args.branch, exc, args.object_selectors)
         payload["branch_tip"] = lane_tip(ROOT, args.branch)
         return emit_report(payload, CANNOT)
     except Exception as exc:  # no traceback exit 1: unreadable input is CANNOT
-        payload = cannot_payload(args.tools_revision, args.branch,
-                                 Cannot("E-INTERNAL", "probe", str(exc)[:120]))
+        payload = cannot_payload(
+            args.tools_revision, args.branch,
+            Cannot("E-INTERNAL", "probe", str(exc)[:120]), args.object_selectors)
         return emit_report(payload, CANNOT)
     code, _ = grade(result)
     return emit_report(result, code)

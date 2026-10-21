@@ -1,0 +1,11 @@
+# OwnAnchor01 — OUT-001 source/ownership review
+
+**Finding: bounded unchanged.** The registry record at `corpus/knowledge/adjacency-anchors-r19.json:9-19` points to Mori's recorded commit `91940fa339e38006f8db5bd7d78bb6f037f4d016`, snapshot `.ufo/waves/round-19/l1-capture/siblings/mori/91940fa339e3/PROVINCE.md`, and records blob SHA-256 `73abda79bcb3ab26a069dcba1284cf62a0f257149b2ad39e5fb72ebe24bed130` (not recomputed here).
+
+**Quote vs. proposition.** Snapshot line 9 contains the exact quoted fragment: “independently labeled user/system journals, plus cgroup `memory.events` and the explicit same-boot journal window after a retained anchor;”. The broader context (`:6-10`) labels these **read-only probes** and also names kill/OOM journal records and memory-pressure resource runway. The separate registry proposition (`:19`), repeated in Tsukuroi `PROVINCE.md:121`, paraphrases this as Mori owning kill/OOM and cgroup-memory evidence and fleet correlation of host pressure—not OS triage. It is not a verbatim Mori sentence. Mori explicitly says journal/cgroup events are read and reported “as fleet evidence” and that Mori never owns OS state (`snapshot:12-16`). This supports the proposition when “owns” means the declared read-only evidence/report and fleet-correlation scope, not exclusive ownership of raw measurements or OS diagnosis; Tsukuroi retains OS memory/journal/boot diagnosis and routes fleet attribution to Mori (`PROVINCE.md:30-33,49`).
+
+**Permission and R20-OUT009.** Neither quote nor proposition grants write/remediation authority: the source says detection/report only, never remediation (`snapshot:16`), and the portable-anchor section says it grants no authority and is a locator (`PROVINCE.md:117,132`). R20-OUT009 concerns Revenger's distinct shipped-artifact declaration and unresolved Kaidoku/Revenger arbitration (`PROVINCE.md:148-152`); it does not amend OUT-001. Recommend no OUT-001 change on that basis.
+
+**Limitations.** Reviewed the recorded snapshot, registry, and Tsukuroi prose only; did not recompute the digest or verify the pinned object/current Mori declaration. No LSP device was available under the NO-EXEC tool allowance; this is a bounded document-source review, not a current ownership ruling.
+
+Scope: executed=none

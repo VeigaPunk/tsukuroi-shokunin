@@ -164,3 +164,7 @@ Appended after the seats below; earlier bytes unchanged.
 - **Absence of `Updated:` is not proof of "not a write" (FxRevExecStopPost).** The tool's own message carries no content hash and a silent/no-change path is not excluded; the 09:08:04 cause stays `[unk]`.
 - **Published mechanism fidelity (FxMutWriters).** A mutated mechanism word (`ExecStopPost`→`ExecStartPost`) survived the old gate. All writer `mechanism_refs` quotes are now published in the appendix above, and `tools/check-boot-writers.py` rejects an unpublished or altered mechanism quote.
 - **Capture hygiene (FxScoutCapture).** `host-capture-r19c.txt` now redacts the operator user token to `[operator]`; the registry capture digest was updated with it.
+
+## R20-RULE4 — named supersession of Operator decision rule item 4
+
+This block supersedes **only item 4 under `## Operator decision rule`**, whose “No write” conclusion is unsupported. Use the round19 `## Falsify qualifications` absence-of-`Updated:` qualification as controlling: **no captured `Updated:` line means no captured matching log event, not proof of no write or unchanged contents**. The source is the finite capture, not a content hash or exhaustive filesystem audit. The 09:08:04 cleanup run's cause remains `[unk]`; absence does not establish a lock skip, successful sync, failure, or a byte change. No boot/package/service action is authorized. This is a documentation correction, not a new host observation.

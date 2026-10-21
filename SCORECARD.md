@@ -610,3 +610,18 @@ Attempt 1 was interrupted after landing the production content and the measureme
 ### Round19 falsify wave (appended 2026-10-21; supersedes the "did not dispatch" sentence above)
 
 Main re-issued the GRANT; the wave ran at 72 seats (process job cap; 28 prepared attacks unexecuted). Verified findings forced gate hardening and record corrections at `5a133bc`, and C1/C2/C3 re-measure PASS under the hardened gates with unchanged counts (10/114, 13/13, 0 missing of 14). No ordinal, declaration or refinement changes; the harness now checks more of what the claims assert.
+
+## Round 20 — declaration, attempt 1 (2026-10-21)
+
+Author: TsukuroiR20; immutable baseline `0cbc34dd6b20896085a8fb07943e3ea4027d8472` (round19 non-author closure). Work round20 only. Baseline ordinals: depth8, adjacency8, coverage9, operability9, freshness9, calibration9; none retired. C1 works tied-lowest adjacency. Saturation9/window3; no stagnation waiver, new capability, exploratory claim, or ordinal uplift.
+
+| Claim | Axis / ordinal delta | Falsifiable before → after | Counting command |
+|---|---|---|---|
+| C1 attributed ownership clarification | adjacency 8→8 (0) | `ownership_corrections` 0→1: OUT-009 explicitly reports Revenger's precise sibling declaration, never an ownership award; Kaidoku/Revenger arbitration and the no-write boundary remain | `python3 tools/check-adjacency-anchors.py --revision <REV> --ownership-corrections` |
+| C2 object-only landed selectors | operability 9→9 (0) | `object_selector_tools` 0→9 for the original nine consumers under fixed hex-ref/object controls; discovered tools observed separately; existing branch/origin/first-failure checks retained | `python3 tools/check-revision-binding.py --tools-revision <REV> --object-selectors` |
+| C3 actual operative live map | calibration 9→9 (0) | `audit_live_map_errors` 1→0: selected highest registry row distinguishes live0/2 from selftest1; named corrections disclose the false round19 repair assertion and the historical SKILL prefix exception | `python3 tools/check-registry-coverage.py --revision <REV> --audit-live-map` |
+
+Preregistration: `.ufo/waves/round-20/preregister.json`, written before candidate implementation/output; source-only oracle seats must independently evaluate the expected controls before measurements. Each claim has a separate content locus and finite evaluator mode; shared revision binding is infrastructure, not C1/C3 claim content. No arbitrary-shell, global registry-semantics, current host freshness or boot-readiness certificate is claimed. Supporting repairs: execution-log systemctl mutation discrimination and a named supersession of boot-writers operator rule4; neither grants a package/service/boot action.
+
+- **planned (current):** land only these three claims and explain every routed round19 debt; all measured outcomes remain unobserved until the recorded L1 evaluation.
+- **retired:** none. Independent closure and operator recovery/arbitration remain external.

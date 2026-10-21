@@ -72,23 +72,27 @@ HEADING_LINE = re.compile(r"^(#{1,6})\s+(.*\S)\s*$")
 SECTION_NUMBER = re.compile(r"§?\s*(\d+(?:\.\d+)*)(?=$|[\s.):—–-])")
 # Shell control words that can stand where a command name would.
 KEYWORDS = {"if", "then", "else", "elif", "fi", "do", "done", "case", "esac", "in",
-            "while", "until", "for", "select", "function", "{", "}", "!", "time"}
-SHELLS = {"sh", "bash", "dash", "zsh", "ksh", "busybox"}
+            "while", "until", "for", "select", "function", "{", "}", "!"}
+SHELLS = {"sh", "ash", "bash", "dash", "zsh", "ksh", "busybox"}
 # wrapper: (options taking a separate argument, positional arguments to skip)
 WRAPPERS = {
-    "sudo": ({"-u", "-g", "-C", "-h", "-p", "-r", "-t", "-U", "-D"}, 0),
-    "doas": ({"-a", "-C", "-u"}, 0),
-    "env": ({"-u", "-C", "-S"}, 0),
+    "sudo": ({"-u", "-g", "-C", "-h", "-p", "-r", "-t", "-T", "-R", "-U", "-D",
+              "-Eu", "--user", "--group", "--close-from", "--chdir", "--chroot",
+              "--command-timeout", "--prompt", "--role", "--type", "--other-user"}, 0),
+    "doas": ({"-a", "-C", "-u", "--user"}, 0),
+    "env": ({"-u", "-C", "-S", "--unset", "--chdir", "--split-string"}, 0),
     "command": (set(), 0),
-    "exec": (set(), 0),
+    "exec": ({"-a"}, 0),
     "nohup": (set(), 0),
     "builtin": (set(), 0),
-    "time": ({"-f", "-o"}, 0),
-    "nice": ({"-n"}, 0),
-    "ionice": ({"-c", "-n", "-p"}, 0),
-    "stdbuf": ({"-i", "-o", "-e"}, 0),
-    "timeout": ({"-s", "-k"}, 1),
-    "xargs": ({"-a", "-d", "-E", "-I", "-L", "-n", "-P", "-s"}, 0),
+    "time": ({"-f", "-o", "--format", "--output"}, 0),
+    "nice": ({"-n", "--adjustment"}, 0),
+    "ionice": ({"-c", "-n", "-p", "--class", "--classdata", "--pid"}, 0),
+    "stdbuf": ({"-i", "-o", "-e", "--input", "--output", "--error"}, 0),
+    "timeout": ({"-s", "-k", "-vs", "--signal", "--kill-after"}, 1),
+    "xargs": ({"-a", "-d", "-E", "-I", "-L", "-n", "-P", "-s",
+               "--arg-file", "--delimiter", "--replace-str", "--max-args",
+               "--max-procs", "--max-chars"}, 0),
 }
 
 Finding = namedtuple("Finding", "id site detail")
@@ -243,29 +247,194 @@ def simple_commands(text):
             yield name.rsplit("/", 1)[-1], tokens[index + 1:]
 
 
+def _shell_command_index(args):
+    for index, token in enumerate(args):
+        if token == "-c" or re.fullmatch(r"-[A-Za-z]*c[A-Za-z]*", token):
+            return index + 1
+    return None
+
+
+def _wrapper_shell_payloads(text):
+    """Yield explicit env -S and sudo shell command strings without evaluating them."""
+    for segment in segments(text):
+        tokens = words(segment)
+        if not tokens:
+            continue
+        base = tokens[0].rsplit("/", 1)[-1]
+        if base == "env":
+            index = 1
+            while index < len(tokens):
+                token = tokens[index]
+                if token in ("-S", "--split-string"):
+                    if index + 1 < len(tokens):
+                        yield " ".join(tokens[index + 1:])
+                    break
+                if token.startswith("--split-string="):
+                    payload = [token.partition("=")[2], *tokens[index + 1:]]
+                    yield " ".join(payload)
+                    break
+                if token.startswith("-S") and token != "-S":
+                    payload = [token[2:].lstrip("="), *tokens[index + 1:]]
+                    yield " ".join(payload)
+                    break
+                if token in WRAPPERS["env"][0] and index + 1 < len(tokens):
+                    index += 2
+                    continue
+                if ASSIGN.match(token):
+                    index += 1
+                    continue
+                if token.startswith("-") and token != "-":
+                    index += 1
+                    continue
+                break
+        elif base == "sudo":
+            index, shell, inline = 1, False, None
+            while index < len(tokens):
+                token = tokens[index]
+                if token == "--":
+                    index += 1
+                    break
+                if token in ("-s", "-i", "--shell", "--login"):
+                    shell = True
+                    index += 1
+                    continue
+                if token.startswith("--shell=") or token.startswith("--login="):
+                    shell, inline = True, token.partition("=")[2]
+                    index += 1
+                    break
+                if token in WRAPPERS["sudo"][0] and index + 1 < len(tokens):
+                    index += 2
+                    continue
+                if token.startswith("-") and token != "-":
+                    index += 1
+                    continue
+                break
+            if shell and inline is not None:
+                yield inline
+            elif shell and index < len(tokens):
+                remaining = tokens[index:]
+                if len(remaining) == 1 and any(ch.isspace() for ch in remaining[0]):
+                    yield remaining[0]
+
+
 def invocations(text, forbid, depth=0):
-    """Binary names invoked by shell text (recurses into sh -c / eval)."""
+    """Binary names in bounded shell text, wrapper payloads and -c commands."""
     hits = []
     if depth > 4:
         return hits
+    for payload in _wrapper_shell_payloads(text):
+        hits.extend(invocations(payload, forbid, depth + 1))
     for base, args in simple_commands(text):
         if base in forbid:
             hits.append(base)
             continue
         if base in SHELLS:
-            if base == "busybox" and args:
+            if base == "busybox":
+                if not args:
+                    continue
                 applet = args[0].rsplit("/", 1)[-1]
                 if applet in forbid:
                     hits.append(applet)
                     continue
-                if applet in SHELLS:
-                    args = args[1:]
-            if "-c" in args:
-                offset = args.index("-c")
-                if offset + 1 < len(args):
-                    hits.extend(invocations(args[offset + 1], forbid, depth + 1))
+                if applet not in SHELLS:
+                    continue
+                args = args[1:]
+            command_index = _shell_command_index(args)
+            if command_index is not None and command_index < len(args):
+                hits.extend(invocations(args[command_index], forbid, depth + 1))
         elif base == "eval" and args:
             hits.extend(invocations(" ".join(args), forbid, depth + 1))
+    return hits
+
+
+SYSTEMCTL_READ_VERBS = frozenset((
+    "cat", "show", "status", "list-units", "list-unit-files", "list-timers",
+    "list-dependencies", "is-active", "is-enabled", "is-system-running"))
+SYSTEMCTL_READ_FLAGS = frozenset((
+    "--user", "--system", "--no-pager", "--all", "--failed", "--wait",
+    "--reverse", "--runtime", "-a", "--full", "-l", "--no-legend", "--plain",
+    "--quiet", "-q", "--value"))
+SYSTEMCTL_VALUE_FLAGS = frozenset((
+    "--property", "-p", "--type", "-t", "--state", "--output", "-o", "--lines", "-n",
+    "--host", "-H", "--machine", "-M", "--root", "--image"))
+
+SYSTEMCTL_CONTEXT_SHORT_PREFIXES = ("-H", "-M")
+
+def _systemctl_read_only(args):
+    """Finite observed read forms; unknown/effectful flags and verbs fail closed."""
+    verb, index, options, scope = None, 0, True, None
+    while index < len(args):
+        token = args[index]
+        if token == "":
+            return False
+        if options and token == "--":
+            options = False
+            index += 1
+            continue
+        if options and token in ("--user", "--system"):
+            if scope is not None and scope != token:
+                return False
+            scope = token
+            index += 1
+            continue
+        if options and any(token.startswith(prefix) and token != prefix
+                           for prefix in SYSTEMCTL_CONTEXT_SHORT_PREFIXES):
+            index += 1
+            continue
+        if options and token.startswith("-"):
+            flag, equals, value = token.partition("=")
+            if flag in SYSTEMCTL_READ_FLAGS and not equals:
+                index += 1
+                continue
+            if flag in SYSTEMCTL_VALUE_FLAGS:
+                if equals:
+                    if not value:
+                        return False
+                    index += 1
+                elif index + 1 < len(args):
+                    value_arg = args[index + 1]
+                    if not value_arg or value_arg.startswith("-"):
+                        return False
+                    index += 2
+                else:
+                    return False
+
+                continue
+            return False
+        if verb is None:
+            verb = token
+        index += 1
+    return (verb or "list-units") in SYSTEMCTL_READ_VERBS
+
+
+def systemctl_violations(text, depth=0):
+    """Inspect bounded command text; this is not a shell-equivalence proof."""
+    if depth > 4:
+        return []
+    hits = []
+    for payload in _wrapper_shell_payloads(text):
+        hits.extend(systemctl_violations(payload, depth + 1))
+    for base, args in simple_commands(text):
+        if base == "systemctl":
+            if not _systemctl_read_only(args):
+                hits.append(base)
+        elif base in SHELLS:
+            if base == "busybox":
+                if not args:
+                    continue
+                applet = args[0].rsplit("/", 1)[-1]
+                if applet == "systemctl":
+                    if not _systemctl_read_only(args[1:]):
+                        hits.append(applet)
+                    continue
+                if applet not in SHELLS:
+                    continue
+                args = args[1:]
+            command_index = _shell_command_index(args)
+            if command_index is not None and command_index < len(args):
+                hits.extend(systemctl_violations(args[command_index], depth + 1))
+        elif base == "eval" and args:
+            hits.extend(systemctl_violations(" ".join(args), depth + 1))
     return hits
 
 
@@ -573,6 +742,8 @@ def assess_exec_log(path, text, forbid):
         if not line.startswith("$ "):
             continue
         found = invocations(line[2:], forbid)
+        if "systemctl" not in forbid:
+            found.extend(systemctl_violations(line[2:]))
         if found:
             hits += len(found)
             findings.append(Finding("EXEC-STEER-VIOLATION", f"{path}:{number}",
@@ -1355,6 +1526,7 @@ def selftest(out=None):
     case(repo, "exec-log-pacman-red",
          ["--revision", red_log, "--paths", "fixture.md", "--exec-log", "exec.log"],
          FAIL, {"EXEC-STEER-VIOLATION"}, {"exec_violation_count": 1})
+
     green_files = dict(sandbox_git_files)
     green_files["exec.log"] = "$ ls -d /var/lib/pacman/local/mkinitcpio-[0-9]*\n"
     green_log = sandbox_commit_tree(repo, green_files)
@@ -1364,6 +1536,106 @@ def selftest(out=None):
     case(repo, "exec-log-missing",
          ["--revision", green_log, "--paths", "fixture.md", "--exec-log", "nope.log"],
          CANNOT, {"E-PATH-MISSING"})
+
+    systemctl_mutations = dict(green_files)
+    systemctl_mutations["exec.log"] = (
+        "$ systemctl restart example.service\n"
+        "$ sudo /usr/bin/systemctl enable example.service\n"
+        "$ sh -c 'systemctl daemon-reload'\n"
+        "$ echo systemctl list-timers --all; systemctl restart example.service\n"
+        "$ printf x | xargs --replace systemctl restart example.service\n"
+        "$ time -p systemctl restart example.service\n"
+        "$ env -S 'systemctl restart example.service'\n"
+        "$ sudo -s 'systemctl restart example.service'\n"
+        "$ sudo -i 'systemctl enable example.service'\n"
+        "$ sudo bash -lc 'systemctl daemon-reload'\n"
+        "$ sudo -Eu root systemctl restart example.service\n"
+        "$ exec -a x systemctl restart example.service\n"
+        "$ env -S systemctl restart example.service\n")
+    systemctl_red = sandbox_commit_tree(repo, systemctl_mutations)
+    case(repo, "exec-log-systemctl-mutations-red",
+         ["--revision", systemctl_red, "--paths", "fixture.md", "--exec-log", "exec.log"],
+         FAIL, {"EXEC-STEER-VIOLATION"}, {"exec_violation_count": 13})
+    total += 1
+    if systemctl_violations("busybox echo -c 'systemctl daemon-reload'"):
+        failures.append("systemctl-busybox-echo: false nested mutation hit")
+    total += 1
+    if systemctl_violations("busybox sh -c 'systemctl daemon-reload'") != ["systemctl"]:
+        failures.append("systemctl-busybox-sh: missed nested mutation")
+    total += 1
+    if invocations("busybox echo -c 'forbidden'", {"forbidden"}):
+        failures.append("invocations-busybox-echo: false nested forbidden hit")
+    total += 1
+    if invocations("busybox sh -c 'forbidden'", {"forbidden"}) != ["forbidden"]:
+        failures.append("invocations-busybox-sh: missed nested forbidden")
+    total += 1
+    if systemctl_violations("busybox systemctl restart example.service") != ["systemctl"]:
+        failures.append("systemctl-busybox-applet: missed mutation")
+
+    systemctl_reads = dict(green_files)
+    systemctl_reads["exec.log"] = (
+        "$ /usr/bin/systemctl --user --no-pager status example.service\n"
+        "$ sudo -u root env SYSTEMD_COLORS=0 /usr/bin/systemctl --system --host=local "
+        "--machine=container --root=/mnt --image=/image --runtime "
+        "show --property=Id example.service\n"
+        "$ env -u TEMP systemctl --host local is-active example.service\n"
+        "$ systemctl --user --failed --no-pager\n"
+        "$ systemctl --failed --no-legend | wc -l\n"
+        "$ systemctl is-system-running --wait\n"
+        "$ systemctl list-unit-files --type=timer --no-pager\n"
+        "$ systemctl list-units --state=failed --all --no-pager\n"
+        "$ echo systemctl restart example.service; systemctl list-timers --all\n"
+        "$ systemctl --user cat example.service\n"
+        "$ systemctl --user show example.service\n"
+        "$ systemctl --user list-timers --all\n"
+        "$ systemctl --user is-active example.service\n"
+        "$ systemctl --user is-enabled example.service\n"
+        "$ systemctl list-dependencies --reverse --no-pager limine-snapper-sync.service\n"
+        "$ sudo --user root systemctl --user cat example.service\n"
+        "$ sudo -Eu root -T 30 -R /mnt systemctl --user is-active example.service\n"
+        "$ sudo --command-timeout 30 --chroot /mnt systemctl --user show example.service\n"
+        "$ env --unset HOME systemctl --user show example.service\n"
+        "$ env -S 'systemctl --user is-active example.service'\n"
+        "$ timeout --signal TERM 2s systemctl --user is-active example.service\n"
+        "$ timeout -vs TERM 2s systemctl --user status example.service\n"
+        "$ systemctl --runtime show example.service\n"
+        "$ time -p systemctl --user list-units --all\n"
+        "$ sudo -s 'systemctl --user list-units'\n"
+        "$ sudo -i 'systemctl --user list-timers --all'\n"
+        "$ sudo bash -lc 'systemctl --user show example.service'\n"
+        "$ exec -a x systemctl --user cat example.service\n")
+    systemctl_green = sandbox_commit_tree(repo, systemctl_reads)
+    case(repo, "exec-log-systemctl-read-controls",
+         ["--revision", systemctl_green, "--paths", "fixture.md", "--exec-log", "exec.log"],
+         PASS, set(), {"exec_violation_count": 0})
+    case(repo, "exec-log-systemctl-explicit-generic-forbid",
+         ["--revision", systemctl_green, "--paths", "fixture.md", "--exec-log", "exec.log",
+          "--forbid", "systemctl"],
+         FAIL, {"EXEC-STEER-VIOLATION"}, {"exec_violation_count": 28})
+
+    systemctl_ambiguous = dict(green_files)
+    systemctl_ambiguous["exec.log"] = (
+        "$ systemctl --user --system status example.service\n"
+        "$ systemctl --force status example.service\n"
+        "$ systemctl status --now example.service\n"
+        "$ systemctl status --property --force\n"
+        "$ systemctl frobnicate example.service\n"
+        "$ systemctl --runtime restart show example.service\n"
+        "$ systemctl --user restart example.service\n"
+        "$ systemctl --user enable example.service\n"
+        "$ systemctl --user frobnicate example.service\n"
+        "$ systemctl --user enable --now example.service\n"
+        "$ systemctl kill example.service\n"
+        "$ systemctl set-property example.service RuntimeMaxSec=5\n"
+        "$ systemctl --user '' restart example.service\n")
+    ambiguous_systemctl = sandbox_commit_tree(repo, systemctl_ambiguous)
+    case(repo, "exec-log-systemctl-ambiguous-or-effectful-options",
+         ["--revision", ambiguous_systemctl, "--paths", "fixture.md",
+          "--exec-log", "exec.log"],
+         FAIL, {"EXEC-STEER-VIOLATION"}, {"exec_violation_count": 13})
+
+
+
     # 19. CLI shape.
     case(repo, "cli-no-mode", [], CANNOT, {"E-CLI"})
     case(repo, "cli-both-modes", ["--selftest", "--revision", clean], CANNOT, {"E-CLI"})

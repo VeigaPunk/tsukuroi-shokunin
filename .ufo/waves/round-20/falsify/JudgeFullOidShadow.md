@@ -1,0 +1,37 @@
+# JudgeFullOidShadow — round 20 attempt 1
+
+## Scope and axes
+
+Read-only source/artifact review of the inherited binder candidate at `/tmp/tsukuroi-r20-binder-20261021`, limited to the independent judge's full commit/tag object-ID ref shadows, tag-object peels, decoy identity, cleanup, and exact-SHA/original-nine coverage. The lane's worktree binding names this candidate and baseline `0cbc34dd6b20896085a8fb07943e3ea4027d8472` (`.ufo/waves/round-20/worktree-bindings.json:2-7`). Axes: selector correctness, independent expected identity, coverage honesty, and sandbox cleanup. No admission or host/boot-safety conclusion is made.
+
+## Findings by severity
+
+### P1 — Every positive object-selector probe calls the inherited acceptance helper with the wrong arity
+
+**Evidence:** `/tmp/tsukuroi-r20-binder-20261021/tools/check-revision-binding.py:393-401` defines `accepted(sandbox, name, rev, expect_sha)` with four parameters. The new `exact_accept` wrapper supplies five positional arguments, adding `branch` (`:479-482`). The lane's inherited definition also has only four parameters (`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-revision-binding.py:361-369`), so the new caller was not accompanied by the required interface change.
+
+**Static consequence [INFERENCE, not executed]:** Once fixture setup succeeds, the first positive selector case, `real_prefix_shadow_branch` at candidate `:592-596`, raises `TypeError` before `accepted` can call `run_tool`. This precedes both full-OID shadow cases (`:602-612`) and both annotated-tag acceptance cases (`:617-618`). `measure` invokes this probe inside the original-nine loop (`:652-669`) without recovering per tool, so the first present original tool stops the measurement; the remaining originals never reach their selector probes. The normal CLI converts the exception to `E-INTERNAL`, exit class 2 (`:1114-1118`), with `object_selector_tools=0` and no per-tool selector observations (`:739-743`). The object-selector selftest also reaches the same helper (`:1021-1030`), but its surrounding handler catches only `Cannot` (`:1086-1087`), not this `TypeError`.
+
+**Observable contract affected:** C2 preregisters nine original tools and successful full-ID/annotated-tag identity preservation (`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-20/preregister.json:13-19,38-47`). The canonical measurement driver invokes this exact `--object-selectors` route and expects the after case to exit 0 (`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-20/measure/run.py:70-80`). The reviewed candidate cannot produce that evidence on the successful-setup path.
+
+**Required repair direction:** Make the acceptance helper's interface and branch forwarding agree with its new caller, preserving existing four-argument callers. Until then, neither full-OID shadow correctness nor exact returned SHAs across the original nine are demonstrated by this judge.
+
+## Scoped invariant checks
+
+All candidate citations below refer to `/tmp/tsukuroi-r20-binder-20261021/tools/check-revision-binding.py` unless specified otherwise. These are source observations, not observed runtime passes.
+
+- **Both full-ID namespaces use a real decoy.** `decoy = parent or unlanded_sha` (`:590`); the full commit and tag object cases create both `refs/heads/<object_id>` and `refs/tags/<object_id>` pointing to that decoy, while expecting the measured `tip` (`:602-609`). The parent is obtained from `tip^1` (`:646-648`), and the fallback unlanded commit is explicitly checked not to equal `tip` or be landed (`:310-319`). The fixture does not point the shadow refs at the expected answer.
+- **Expected tag identity is the peeled commit, not the tag OID or decoy.** The annotated fixture tag is created at `tip`, and its tag-object OID is captured separately (`:490-501`). The full-tag-shadow case expects `tip` (`:602-609`); unshadowed tag-object and unique tag-prefix cases also expect `tip` (`:576-583,617-618`). `accepted` compares the returned JSON `revision` against the expected complete SHA, rather than accepting an arbitrary successful response (`:393-401`). Finding P1 prevents these checks from executing.
+- **Judge binding is separate from the shared binder.** The judge's object selection enumerates matching object IDs before checking type, returns an actual commit OID directly, and peels a selected tag with `<oid>^{commit}` (`:139-166`); `bind` calls that local routine (`:192-208`). The shared candidate independently has its corresponding implementation at `/tmp/tsukuroi-r20-binder-20261021/tools/_revision.py:112-146,172-192`. This is source separation, not proof that the tag-peeling command behaves correctly under every shadow arrangement.
+- **Original-nine denominator is retained.** The original names are fixed at `:61-79`; missing originals receive a failed selector observation (`:653-661`), and every present original is routed through `object_selector_probes` (`:663-669`). Selector counts are calculated only from those original names (`:676-677,703-717`). There is no source-level replacement of missing originals with newly discovered tools. P1 still prevents completion of that loop.
+- **Normal-path cleanup is explicit; exceptional containment is whole-sandbox.** Each full-OID case deletes both shadow refs in `finally` (`:605-612`); prefix shadows likewise have `finally` deletion (`:592-601`), and the fixture tag is removed at normal return (`:631-632`). The enclosing temporary directory covers cloning, fixture creation, and the tool loop (`:639-673`), so exceptions unwind out of that sandbox. Per-case cleanup is not independently failure-proof: both full-shadow ref creations occur before the `try`, the two deletions are sequential, and fixture-tag deletion is not an outer `finally`. Those limitations do not establish a lane write/leak: they abort into the enclosing temporary-directory cleanup rather than continuing to another tool. Cleanup was not executed or filesystem-verified here.
+
+## Residual risk and verification gaps
+
+- Full commit/tag OID cases install branch and tag shadows simultaneously (`:602-612`); unlike the short-prefix cases (`:592-601`), they do not independently exercise full-OID branch-only and tag-only states. They also do not shadow an abbreviated tag-object selector. This is a finite coverage limit, not an assertion that a particular binder fails those omitted states.
+- Both independent and shared tag paths use `rev-parse <selected-full-tag-oid>^{commit}` (judge `:160-163`; shared binder `:139-142`). No target execution was authorized, so behavior under the full-tag-shadow fixture is not claimed as verified merely because the source says “object-only.”
+- The inspected round-20 `measure/` directory exposed `run.py` and `smoke.py`, not retained before/after result children. Preregistered outcomes are expectations, not observed passes. The P1 finding is grounded in the actual caller/definition mismatch, not a test result.
+- No LSP status/references/definition/diagnostics operation is available within this seat's authorized read/grep/glob/named-report-write interface. No server was queried; literal search only located source, and is not offered as semantic proof.
+- No commands, tests, builds, linters, formatters, smoke runs, additional runtime, host inspection, package installation, Git/jj mutations, or code edits were performed. All paths other than this report remained read-only. Boot images remain UNKNOWN; no clearance.
+
+Scope: executed=none.

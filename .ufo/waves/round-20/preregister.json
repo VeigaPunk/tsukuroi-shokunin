@@ -1,0 +1,66 @@
+{
+  "schema": "tsukuroi-r20-preregister-v1",
+  "baseline": "0cbc34dd6b20896085a8fb07943e3ea4027d8472",
+  "claims": {
+    "C1": {
+      "axis": "adjacency",
+      "metric": "ownership_corrections",
+      "before": 0,
+      "after": 1,
+      "command": "python3 tools/check-adjacency-anchors.py --revision <REV> --ownership-corrections",
+      "scope": "Explicit sibling-declaration wording for OUT-009 at retained pinned scope, no integrator arbitration or write authority."
+    },
+    "C2": {
+      "axis": "operability",
+      "metric": "object_selector_tools",
+      "before": 0,
+      "after": 9,
+      "command": "python3 tools/check-revision-binding.py --tools-revision <REV> --object-selectors",
+      "scope": "Original-nine consumer continuity under object-only hexadecimal selector tests; discovered tools separate. Exec-log systemctl mutation filter supporting repair."
+    },
+    "C3": {
+      "axis": "calibration",
+      "metric": "audit_live_map_errors",
+      "before": 1,
+      "after": 0,
+      "command": "python3 tools/check-registry-coverage.py --revision <REV> --audit-live-map",
+      "scope": "Highest operative boot-chain-audit live map is 0 CONSISTENT/observation,2 UNKNOWN/could-not-evaluate; 1 is selftest failure only, never live DEGRADED. Append named R19 false-erratum and non-prefix disclosure."
+    }
+  },
+  "oracle": "Fixed expected outputs written before candidate implementation/output. Oracle seats inspect only baseline/source; no candidate output. Red/green measured later using unchanged final evaluators.",
+  "expected": {
+    "C1": {
+      "missing": "OWNERSHIP-CORRECTION-MISSING",
+      "altered": "OWNERSHIP-CORRECTION-INVALID",
+      "positive": "ownership_corrections=1; exit=0"
+    },
+    "C2": {
+      "ghost_hex_branch": "E-REVISION-INVALID; exit=2",
+      "ghost_hex_tag": "E-REVISION-INVALID; exit=2",
+      "valid_prefix_shadow_branch": "bind actual object, never branch target",
+      "valid_prefix_shadow_tag": "bind actual object, never tag target",
+      "uppercase_object": "same commit",
+      "noncommit_blob": "E-REVISION-INVALID; exit=2",
+      "unlanded": "E-REVISION-NOT-LANDED; exit=2",
+      "unpushed": "E-REVISION-NOT-PUSHED; exit=2",
+      "full_id": "same commit",
+      "annotated_tag_object": "peel unique object-id tag to commit (existing commit-ish contract preserved)"
+    },
+    "C3": {
+      "legacy_live_1": "REGISTRY-AUDIT-LIVE-MAP; exit=1",
+      "corrected_live_map": "audit_live_map_errors=0; exit=0",
+      "selftest1_only": "allowed; not live DEGRADED",
+      "historical_row_only_fix": "REGISTRY-AUDIT-LIVE-MAP; exit=1"
+    },
+    "support_systemctl": {
+      "restart": "EXEC-STEER-VIOLATION",
+      "daemon-reload": "EXEC-STEER-VIOLATION",
+      "enable": "EXEC-STEER-VIOLATION",
+      "cat": "no violation",
+      "show": "no violation",
+      "list-timers": "no violation",
+      "unknown_verb": "EXEC-STEER-VIOLATION; conservative unknown"
+    }
+  },
+  "limits": "Finite syntax/fixtures, not arbitrary shell equivalence or runtime enforcement; no current host/boot-readiness claim."
+}

@@ -1,0 +1,21 @@
+# ADJ-06 locality review — R20
+
+## Findings
+
+**No actionable ADJ-06 boundary defect found in scope.** C1 is adjacency; this is a no-write locality review, not an acceptance or score claim.
+
+`PROVINCE.md:51` limits the trigger to a driver/firmware/package mechanism needing shipped-artifact RE beyond health inventory. Tsukuroi retains loaded-version, package-provenance, and driver/boot symptom evidence, with “no binary-internals inference”; the recipient is “protocol integrator — kaidoku/revenger ownership unresolved.” The minimum packet is the exact question, safely obtainable authorized artifact identity/path/digest, capture time, and relevant OS evidence. It requests an ownership ruling before RE and forbids target invocation/raw-core forwarding. This is an arbitration request, not an owner assignment or an RE authorization.
+
+Question-based routing does not grant repair permission or establish recipient acceptance. The controlling locality wording at `PROVINCE.md:38-42` is: “A recipient is an analysis/report owner, **not permission to repair**”; “Tsukuroi retains the OS finding”; and “Shared evidence is not shared ownership; unresolved ownership goes to the protocol integrator, never to whichever lane answered first.” Preserve the exact checklist at `:59-68`: select by “the **question being asked**,” split mixed questions and keep OS diagnosis here, name only requested sibling analysis, and treat `prepared`, `reported`, `acknowledged`, `accepted`, and `resolved` separately. “Acknowledgement is not acceptance”; resolution needs owner-side closure evidence; a disputed owner is not a successful handoff. The route’s `contract-only` state and explicit no-acceptance statement in the ledger (`corpus/knowledge/adjacency-handoffs-fleet-r1.json:109-112,128-140`) agree.
+
+The observed R20 clarification (`PROVINCE.md:148-152`; `.ufo/waves/round-20/ownership-correction.txt:1`) accurately attributes OUT-009 to Revenger’s sibling declaration, says “It is not a tsukuroi grant of ownership,” leaves Kaidoku/Revenger arbitration unresolved, and denies configuration/service/package/boot/sibling-file write authority. Keep especially the exact non-grant sentence, “Kaidoku/Revenger arbitration remains unresolved; ask the protocol integrator before an internals handoff,” and the no-write clause. The accompanying qualification at `PROVINCE.md:152` confines supersession to OUT-009’s unqualified “Revenger owns” wording and broad “packages” paraphrase; it keeps the pinned declaration historical evidence and ADJ-06/Frontier arbitration controlling. Nothing here implies a recipient has accepted an analysis question or transfers Tsukuroi’s OS finding.
+
+## Finite ownership-transfer negative control
+
+The preregistered C1 oracle expects a missing correction to report `OWNERSHIP-CORRECTION-MISSING`, an altered correction to report `OWNERSHIP-CORRECTION-INVALID`, and a valid correction to count 1 (`.ufo/waves/round-20/preregister.json:31-35`). The assigned checker requires the exact unique clarification section and retained ADJ-06 arbitration context (`/tmp/tsukuroi-r20-adjacency-20261021/tools/check-adjacency-anchors.py:43-64,158-178`). Its finite fixture flips “It is not a tsukuroi grant of ownership” to “It grants tsukuroi ownership” and expects `OWNERSHIP-CORRECTION-INVALID` with count 0; a separate fixture removes the arbitration lines and expects the same invalid result (`:1100-1107`). These are defined negative fixtures, not test results observed in this review.
+
+## Residual risk and verification gaps
+
+Current lane-tree text and the assigned-worktree checker/fixture definitions were read; no baseline diff or checker/selftest was run, so integration and measured C1 outcomes remain unverified. The supplied tool inventory exposes no LSP device; no references, definitions, or diagnostics were obtained, so these conclusions are grounded in the cited static text rather than LSP semantic proof. No sibling source/hash recheck was performed; the outbound source-hash check was explicitly out of scope.
+
+Scope: executed=none

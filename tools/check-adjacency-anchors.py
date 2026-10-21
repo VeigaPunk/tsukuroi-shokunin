@@ -40,6 +40,180 @@ ID_IN = re.compile(r"^IN-[0-9]{3}$")
 HEX40 = re.compile(r"^[0-9a-fA-F]{40}$")
 HEX64 = re.compile(r"^[0-9a-fA-F]{64}$")
 ATX_RE = re.compile(r"^ {0,3}(#{1,6})[\t ]+.+?(?:[\t ]+#+[\t ]*)?$")
+OWNERSHIP_HEADING = "## R20 ownership clarification — OUT-009"
+OWNERSHIP_CORRECTION = (
+    "R20-OUT009: OUT-009 is Revenger's sibling declaration of reverse engineering of "
+    "shipped artifacts — native binaries, managed assemblies, Electron/JavaScript packages, "
+    "Android APKs, archives, firmware, browser/Electron runtime evidence. It is not a tsukuroi "
+    "grant of ownership. Kaidoku/Revenger arbitration remains unresolved; ask the protocol "
+    "integrator before an internals handoff. No configuration, service, package, boot or "
+    "sibling-file write is authorized.")
+OWNERSHIP_CORRECTION_FILE = ".ufo/waves/round-20/ownership-correction.txt"
+OWNERSHIP_CORRECTION_TEXT_SHA256 = "23289c7a8fa558c0249ff56b53ccddf9dcae522ef6dcd3064dc3ce607453fc2a"
+OWNERSHIP_EXPLANATION = (
+    "This explicitly supersedes only the OUT-009 proposition's unqualified “Revenger owns” "
+    "wording and its broad “packages” paraphrase. The original quoted declaration and pinned "
+    "bytes remain historical evidence; “Electron/JavaScript packages” is the precise package "
+    "scope, not arbitrary packages. ADJ-06's unresolved recipient and Frontier arbitration "
+    "remain controlling. The other nine locators and all prepared/acknowledged handoff states "
+    "are unchanged. Source: the pinned Revenger snapshot in "
+    "`corpus/knowledge/adjacency-anchors-r19.json`; recheck: "
+    "`python3 tools/check-adjacency-anchors.py --revision <REV> --ownership-corrections`.")
+OWNERSHIP_SECTION_LINES = (
+    OWNERSHIP_HEADING, "", OWNERSHIP_CORRECTION, "", OWNERSHIP_EXPLANATION)
+OWNERSHIP_ARBITRATION_LINES = (
+    "- Kaidoku and revenger both declare shipped-artifact RE. The integrator must",
+    "  arbitrate this shared scope; tsukuroi neither picks an owner nor absorbs it.")
+OWNERSHIP_BASELINE = "0cbc34dd6b20896085a8fb07943e3ea4027d8472"
+OWNERSHIP_BASELINE_FIXTURE = (
+    "# Fixture Province\n"
+    "## Frontier\n"
+    f"{OWNERSHIP_ARBITRATION_LINES[0]}\n"
+    f"{OWNERSHIP_ARBITRATION_LINES[1]}\n"
+    "\n"
+    "## Adjacent — portable ownership anchors (round 19)\n"
+    "| OUT-008 | ADJ-06 | fixture |\n"
+    "| OUT-009 | ADJ-06 | fixture |\n"
+)
+
+OWNERSHIP_PIN = {
+    "id": "OUT-009",
+    "province_pointer": "../revenger-shokunin/PROVINCE.md:3-7,19-25",
+    "sibling": "revenger",
+    "sibling_path": "PROVINCE.md",
+    "sibling_commit": "cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97",
+    "sibling_blob_sha256": "63acc3d033869f93f3e13da79e35023d86baa60b3f1d3b52861b019183b4b19f",
+    "snapshot": ".ufo/waves/round-19/l1-capture/siblings/revenger/cf02419276e5/PROVINCE.md",
+    "heading": "# revenger province",
+    "quote": "Owns: reverse engineering of shipped artifacts",
+    "quote_line": 3,
+    "proposition": ("Revenger owns shipped-artifact reverse engineering (binaries, packages, "
+                    "APKs) with an observation/inference/unknown evidence ledger; tsukuroi tracks state only."),
+}
+OWNERSHIP_CENSUS_PIN = {
+    "id": "OUT-009",
+    "pointer": "../revenger-shokunin/PROVINCE.md:3-7,19-25",
+    "sibling": "revenger",
+    "sibling_path": "PROVINCE.md",
+    "ranges": [[3, 7], [19, 25]],
+    "sibling_commit": "cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97",
+    "sibling_blob_sha256": "63acc3d033869f93f3e13da79e35023d86baa60b3f1d3b52861b019183b4b19f",
+    "snapshot": ".ufo/waves/round-19/l1-capture/siblings/revenger/cf02419276e5/PROVINCE.md",
+}
+OWNERSHIP_SNAPSHOT_FIXTURE = (
+    "# revenger province\n"
+    "\n"
+    "Owns: reverse engineering of shipped artifacts — native binaries, managed\n"
+    "assemblies, Electron/JavaScript packages, Android APKs, archives, firmware,\n"
+    "browser/Electron runtime evidence — using the REA skill and its toolset,\n"
+    "with an evidence-ledger discipline: every conclusion separates observation,\n"
+    "inference, and unknown, and cites Evidence IDs.\n"
+    "\n"
+    "Sources (read-only):\n"
+    "- REA skill: ~/.agents/skills/reverse-engineer-anything/ (SKILL.md +\n"
+    "  references/; instructions only — server registration and engines are the\n"
+    "  lane's readiness domain)\n"
+    "- REA package: `rea` CLI when installed, else `npx -y rea-agents@6.4.0`\n"
+    "  within authorized scope (setup never installs unrelated software)\n"
+    "- Host engines as they become available (caller-supplied per REA: Ghidra,\n"
+    "  IDA, JADX, Binwalk/Unblob, pwntools) — census in corpus/knowledge/seed.md\n"
+    "- Demand context: ~/Projects/gamez/research/ (incl. decomp/recomp interest)\n"
+    "\n"
+    "Refuses: live-target execution beyond the declared target and lifecycle\n"
+    "(REA runtime discipline); DRM circumvention or piracy facilitation;\n"
+    "publishing reversed code; asset rights claims (art-east-asian-design);\n"
+    "harness/evidence auditing (harness-integrity, gate-evidence, rlm-dispatch);\n"
+    "game mechanics verification (game-dev-2d); narrative canon (lore).\n"
+    "\n"
+    "Writes only this `revenger-shokunin/` repository under the current interactive\n"
+    "dispatch. Reports, continuation evidence and L0 requests stay in its own\n"
+    "`.ufo/`; the fleet integrator alone copies them to shared ledgers/report paths.\n"
+    "Domain source checkouts, shared fleet state and sibling repositories remain\n"
+    "read-only. No push, global routing changes or substrate/package remediation.\n"
+    "Historical `.shokunin/revenger/**` paths identify imported evidence, not the\n"
+    "current write scope. The r55–r57 replay repair checks this domain's saved\n"
+    "PE evidence ledger; it does not take ownership of generic harness gates.\n")
+
+def _ownership_correction_source_matches():
+    path = Path(__file__).resolve().parents[1] / OWNERSHIP_CORRECTION_FILE
+    if path.is_symlink() or not path.is_file():
+        return False
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return False
+    expected = (OWNERSHIP_CORRECTION + "\n").encode("utf-8")
+    return (data == expected
+            and hashlib.sha256(data).hexdigest() == OWNERSHIP_CORRECTION_TEXT_SHA256)
+
+def _ownership_correction(province_text, registry_doc, census_doc,
+                          registry_revision, reader, revision=None):
+    """Count only the exact R20 clarification over the original pinned declaration."""
+    def invalid(detail):
+        return 0, [_finding("OWNERSHIP-CORRECTION-INVALID", "OUT-009", detail)]
+    if not _ownership_correction_source_matches():
+        return invalid("the checked-in correction text differs from its fixed digest")
+    if revision is not None and registry_revision != revision:
+        return invalid("registry evidence must come from the corrected PROVINCE revision")
+    outbound = registry_doc.get("outbound") if isinstance(registry_doc, dict) else None
+    records = [item for item in outbound if isinstance(item, dict)
+               and item.get("id") == "OUT-009"] if isinstance(outbound, list) else []
+    if len(records) != 1:
+        return invalid("OUT-009 must remain a unique registry record")
+    record = records[0]
+    if any(record.get(key) != value for key, value in OWNERSHIP_PIN.items()):
+        return invalid("OUT-009 no longer matches its original pinned Revenger declaration")
+    census_outbound = census_doc.get("outbound") if isinstance(census_doc, dict) else None
+    census_records = [item for item in census_outbound if isinstance(item, dict)
+                      and item.get("id") == "OUT-009"] if isinstance(census_outbound, list) else []
+    if (len(census_records) != 1
+            or any(census_records[0].get(key) != value
+                   for key, value in OWNERSHIP_CENSUS_PIN.items())):
+        return invalid("OUT-009 pointer census no longer matches the pinned sibling source")
+
+    baseline = reader.read(OWNERSHIP_BASELINE, "PROVINCE.md")
+    if baseline.issue is not None or baseline.data is None:
+        raise RevisionError("E-OWNERSHIP-BASELINE", "PROVINCE.md",
+                            "R20 baseline PROVINCE.md is absent or unsafe")
+    current_data = province_text.encode("utf-8")
+    baseline_data = baseline.data
+    lines = province_text.splitlines()
+    headings = [index for index, line in enumerate(lines) if line == OWNERSHIP_HEADING]
+    if not headings:
+        if current_data == baseline_data:
+            return 0, [_finding("OWNERSHIP-CORRECTION-MISSING", "OUT-009",
+                                "the exact R20 ownership clarification is absent")]
+        return invalid("PROVINCE.md differs from the R20 baseline without the exact correction")
+    if len(headings) != 1:
+        return invalid("the R20 ownership clarification heading must be unique")
+    if not current_data.startswith(baseline_data):
+        return invalid("PROVINCE.md no longer preserves the exact R20 baseline prefix")
+    expected_suffix = ("\n" + "\n".join(OWNERSHIP_SECTION_LINES) + "\n").encode("utf-8")
+    if current_data[len(baseline_data):] != expected_suffix:
+        return invalid("the OUT-009 clarification is not an exact append after the baseline")
+
+
+    loaded = reader.read(registry_revision, OWNERSHIP_PIN["snapshot"])
+    if (loaded.issue is not None or loaded.data is None
+            or hashlib.sha256(loaded.data).hexdigest() != OWNERSHIP_PIN["sibling_blob_sha256"]):
+        return invalid("the original Revenger snapshot is absent or its pinned digest differs")
+    try:
+        source_lines = loaded.data.decode("utf-8", "strict").splitlines()
+    except UnicodeDecodeError:
+        return invalid("the pinned Revenger snapshot is not UTF-8 text")
+    quote_line = OWNERSHIP_PIN["quote_line"]
+    if (not _heading_section_contains(source_lines, OWNERSHIP_PIN["heading"], quote_line)
+            or quote_line > len(source_lines)
+            or OWNERSHIP_PIN["quote"] not in source_lines[quote_line - 1]):
+        return invalid("the pinned Revenger heading or exact quote is absent")
+
+    if (any(line not in lines for line in OWNERSHIP_ARBITRATION_LINES)
+            or "| OUT-008 | ADJ-06 |" not in province_text
+            or "| OUT-009 | ADJ-06 |" not in province_text):
+        return invalid("the original ADJ-06 arbitration context was removed or changed")
+    return 1, []
+
+
 Finding = namedtuple("Finding", "id site detail")
 Loaded = namedtuple("Loaded", "data issue")
 Result = namedtuple("Result", "code findings counts")
@@ -217,6 +391,10 @@ def _empty_counts():
     }
 
 
+
+
+
+
 def _result(code, findings, counts=None):
     return Result(code, _dedupe(findings), counts if counts is not None else _empty_counts())
 
@@ -287,7 +465,7 @@ def _live_object_hash(root, record):
 
 
 def evaluate(registry_bytes, revision, registry_revision, reader, siblings_root=None,
-             registry_path=DEFAULT_REGISTRY):
+             registry_path=DEFAULT_REGISTRY, ownership_corrections=False):
     """Evaluate a parsed registry and the immutable lane objects it names."""
     counts = _empty_counts()
     doc = _json_document(registry_bytes, registry_path)
@@ -597,6 +775,12 @@ def evaluate(registry_bytes, revision, registry_revision, reader, siblings_root=
                                     for key in ("RESOLVES", "DRIFTED", "UNRESOLVABLE")}
     counts["inbound_by_scope"] = {key: scope_counts[key]
                                     for key in ("operative", "historical")}
+    if ownership_corrections:
+        correction_count, correction_findings = _ownership_correction(
+            province_text, doc, census_doc, registry_revision, reader,
+            revision=revision)
+        counts["ownership_corrections"] = correction_count
+        findings.extend(correction_findings)
     return _result(FAIL if findings else PASS, findings, counts)
 
 
@@ -618,6 +802,8 @@ def build_parser():
     group.add_argument("--revision", metavar="REV",
                        help="7-64 hex commit landed and pushed on the selected branch")
     group.add_argument("--selftest", action="store_true", help="run hermetic git-fixture cases")
+    parser.add_argument("--ownership-corrections", action="store_true",
+                        help="count the exact R20 OUT-009 scope correction")
     parser.add_argument("--branch", default="master",
                         help="landed branch for revision binding (default master)")
     parser.add_argument("--registry", default=DEFAULT_REGISTRY,
@@ -668,7 +854,7 @@ def main(argv=None):
                                 "registry is not a regular committed file",
                                 binding.sha, binding.branch, binding.branch_tip)
         result = evaluate(loaded.data, binding.sha, registry_binding.sha, reader,
-                          args.siblings_root, args.registry)
+                          args.siblings_root, args.registry, args.ownership_corrections)
         return emit(result, binding.sha, binding.branch, binding.branch_tip)
     except RevisionError as exc:
         return _emit_cannot(exc.fid, exc.site, exc.detail,
@@ -757,16 +943,19 @@ def selftest():
     failures = []
     original_root = ROOT
 
-    def assert_case(name, args, expected_code, expected_ids):
+    def assert_case(name, args, expected_code, expected_ids, expected_counts=None):
         nonlocal total, passed
         total += 1
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
             code = main(args)
+        payload = None
         try:
             payload = json.loads(output.getvalue())
             ids = [item.get("id") for item in payload.get("findings", [])]
             good = code == expected_code and ids == expected_ids
+            if good and expected_counts is not None:
+                good = expected_counts(payload)
         except (json.JSONDecodeError, AttributeError, TypeError):
             good = False
             ids = []
@@ -817,7 +1006,14 @@ def selftest():
                             expected_code, expected_ids)
 
             assert_case("clean-pass", ["--revision", clean_revision, "--registry", registry_path,
-                                        "--siblings-root", siblings_root], PASS, [])
+                                        "--siblings-root", siblings_root], PASS, [],
+                        lambda p: "ownership_corrections" not in p["counts"])
+
+            assert_case("ownership-correction-mode-wiring",
+                        ["--revision", clean_revision, "--registry", registry_path,
+                         "--siblings-root", siblings_root, "--ownership-corrections"],
+                        FAIL, ["OWNERSHIP-CORRECTION-INVALID"],
+                        lambda p: p["counts"].get("ownership_corrections") == 0)
 
             def tamper_snapshot(files, _registry, _census):
                 files[snapshot_path] += b"tamper\n"
@@ -902,6 +1098,101 @@ def selftest():
             assert_case("bad-revision", ["--revision", "not-a-commit", "--registry", registry_path,
                                            "--siblings-root", siblings_root],
                         CANNOT, ["E-REVISION-INVALID"])
+
+            class FixtureReader:
+                def read(self, _revision, path):
+                    if path == OWNERSHIP_PIN["snapshot"]:
+                        return Loaded(OWNERSHIP_SNAPSHOT_FIXTURE.encode("utf-8"), None)
+                    if path == "PROVINCE.md":
+                        return Loaded(OWNERSHIP_BASELINE_FIXTURE.encode("utf-8"), None)
+                    return Loaded(None, "missing")
+
+            ownership_registry = {"outbound": [dict(OWNERSHIP_PIN)]}
+            ownership_census = {"outbound": [dict(OWNERSHIP_CENSUS_PIN)]}
+            ownership_prefix = OWNERSHIP_BASELINE_FIXTURE
+            ownership_valid = ownership_prefix + "\n" + "\n".join(OWNERSHIP_SECTION_LINES) + "\n"
+
+            total += 1
+            if _ownership_correction_source_matches():
+                passed += 1
+            else:
+                failures.append("ownership-correction-source-pin: committed text differs from fixed hash")
+
+            def ownership_case(label, province, registry, expected_code, expected_ids,
+                               expected_count, registry_revision="fixture", revision="fixture"):
+                nonlocal total, passed
+                total += 1
+                count, found = _ownership_correction(
+                    province, registry, ownership_census, registry_revision, FixtureReader(),
+                    revision=revision)
+                got_code = FAIL if found else PASS
+                ids = [item.id for item in found]
+                good = (got_code == expected_code and ids == expected_ids
+                        and count == expected_count)
+                if good:
+                    passed += 1
+                else:
+                    failures.append(
+                        f"{label}: exit={got_code}, ids={ids}, count={count}, "
+                        f"expected={expected_code}/{expected_ids}/{expected_count}")
+
+            ownership_case("ownership-correction-missing", ownership_prefix,
+                           ownership_registry, FAIL, ["OWNERSHIP-CORRECTION-MISSING"], 0)
+            ownership_case("ownership-correction-valid", ownership_valid,
+                           ownership_registry, PASS, [], 1)
+            ownership_case("ownership-correction-registry-revision-mismatch",
+                           ownership_valid, ownership_registry, FAIL,
+                           ["OWNERSHIP-CORRECTION-INVALID"], 0,
+                           registry_revision="historical", revision="fixture")
+            ownership_case("ownership-correction-mutated-prefix",
+                           ownership_valid.replace(
+                               OWNERSHIP_ARBITRATION_LINES[0],
+                               OWNERSHIP_ARBITRATION_LINES[0].replace("Kaidoku", "Mado"), 1),
+                           ownership_registry, FAIL, ["OWNERSHIP-CORRECTION-INVALID"], 0)
+            ownership_case("ownership-correction-altered",
+                           ownership_valid.replace("It is not a tsukuroi grant of ownership.",
+                                                    "It grants tsukuroi ownership."),
+                           ownership_registry, FAIL, ["OWNERSHIP-CORRECTION-INVALID"], 0)
+            ownership_case("ownership-correction-missing-arbitration",
+                           ownership_valid.replace(
+                               "\n".join(OWNERSHIP_ARBITRATION_LINES) + "\n", ""),
+                           ownership_registry, FAIL, ["OWNERSHIP-CORRECTION-INVALID"], 0)
+            unpinned_registry = {"outbound": [dict(OWNERSHIP_PIN, sibling_blob_sha256="0" * 64)]}
+            ownership_case("ownership-correction-unpinned-snapshot", ownership_valid,
+                           unpinned_registry, FAIL, ["OWNERSHIP-CORRECTION-INVALID"], 0)
+            ownership_case("ownership-correction-duplicate-heading",
+                           ownership_valid + "\n" + "\n".join(OWNERSHIP_SECTION_LINES) + "\n",
+                           ownership_registry, FAIL, ["OWNERSHIP-CORRECTION-INVALID"], 0)
+
+            evaluator_files = dict(seed)
+            evaluator_registry = json.loads(evaluator_files[registry_path].decode("utf-8"))
+            evaluator_registry["outbound"].append(dict(OWNERSHIP_PIN))
+            evaluator_census = json.loads(evaluator_files[DEFAULT_CENSUS].decode("utf-8"))
+            evaluator_census["outbound"].append(dict(OWNERSHIP_CENSUS_PIN))
+            evaluator_files[registry_path] = _fixture_json(evaluator_registry)
+            evaluator_files[DEFAULT_CENSUS] = _fixture_json(evaluator_census)
+            evaluator_files[OWNERSHIP_PIN["snapshot"]] = OWNERSHIP_SNAPSHOT_FIXTURE.encode("utf-8")
+
+            class EvaluatorReader:
+                def read(self, revision, path):
+                    if path == "PROVINCE.md":
+                        province = (ownership_prefix if revision == OWNERSHIP_BASELINE
+                                    else ownership_valid)
+                        return Loaded(province.encode("utf-8"), None)
+                    data = evaluator_files.get(path)
+                    return Loaded(data, None) if data is not None else Loaded(None, "missing")
+
+            evaluator_result = evaluate(
+                _fixture_json(evaluator_registry), "fixture-target", "fixture-target",
+                EvaluatorReader(), siblings_root=siblings_root, registry_path=registry_path,
+                ownership_corrections=True)
+            total += 1
+            if evaluator_result.counts.get("ownership_corrections") == 1:
+                passed += 1
+            else:
+                failures.append(
+                    "ownership-correction-evaluator-metric: "
+                    f"got={evaluator_result.counts.get('ownership_corrections')!r}, expected=1")
 
     except Exception as exc:
         failures.append(f"selftest setup: {type(exc).__name__}: {exc}")

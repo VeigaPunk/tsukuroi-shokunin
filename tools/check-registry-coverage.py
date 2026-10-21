@@ -28,6 +28,13 @@ SELFTEST_FLAG = re.compile(r"--self-?test(?:-[A-Za-z0-9-]+)?")
 VERDICT_ZERO = re.compile(r"(?<![0-9])0(?![0-9])")
 VERDICT_ONE = re.compile(r"(?<![0-9])1(?![0-9])")
 VERDICT_TWO = re.compile(r"(?<![0-9])2(?![0-9])")
+AUDIT_LIVE_MAP = (
+    "live: 0 CONSISTENT/observation;2 UNKNOWN/could-not-evaluate; "
+    "selftest: 0 PASS;1 FAIL; usage: 2 could-not-evaluate; "
+    "no live DEGRADED; not operator clearance")
+AUDIT_LIVE_ENTRY = "`bash tools/boot-chain-audit.sh --live` (not live-run round20)"
+AUDIT_SELFTEST_ENTRY = "`bash tools/boot-chain-audit.sh --selftest`"
+AUDIT_WRITE_SCOPE = "private fixtures; live reads only when separately authorized; no host writes"
 
 
 class TableError(ValueError):
@@ -130,8 +137,35 @@ def _is_separator(cells):
             and all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells))
 
 
-def _operative_rows(skill):
+
+def _outside_fenced_code(lines):
+    output = []
+    fence_char, fence_size = None, 0
+    for line in lines:
+        stripped = line.lstrip(" ")
+        indent = len(line) - len(stripped)
+        if fence_char is None:
+            if indent <= 3 and stripped[:1] in ("`", "~"):
+                marker = stripped[0]
+                size = len(stripped) - len(stripped.lstrip(marker))
+                info = stripped[size:]
+                if size >= 3 and (marker != "`" or "`" not in info):
+                    fence_char, fence_size = marker, size
+                    output.append("")
+                    continue
+            output.append(line)
+            continue
+        if (indent <= 3 and len(stripped) >= fence_size
+                and all(char == fence_char for char in stripped[:fence_size])
+                and not stripped[fence_size:].strip()):
+            fence_char, fence_size = None, 0
+        output.append("")
+    return output
+
+def _operative_rows(skill, ignore_fenced_code=False):
     lines = skill.splitlines()
+    if ignore_fenced_code:
+        lines = _outside_fenced_code(lines)
     headings = []
     for index, line in enumerate(lines):
         match = REGISTRY_HEADING.fullmatch(line)
@@ -263,6 +297,32 @@ def _coverage(rows, tools, reader, revision):
     return findings, covered
 
 
+def _audit_live_map(rows):
+    """Require the one operative audit row and its explicit live/selftest modes."""
+    audit_path = "tools/boot-chain-audit.sh"
+    matches = [row for row in rows if row["cells"][0] == "boot-chain-audit"]
+    references = [
+        row for row in rows
+        if audit_path in (_paths(row["cells"][2]) | _paths(row["cells"][4]))
+    ]
+    if (len(matches) != 1 or len(references) != 1
+            or references[0] is not matches[0]):
+        return [_finding("REGISTRY-AUDIT-LIVE-MAP", "SKILL.md",
+                         "exactly one operative row may reference boot-chain-audit")]
+    row = matches[0]
+    cells = row["cells"]
+    if (cells[1] != "probe"
+            or _paths(cells[2]) != {audit_path}
+            or cells[2] != AUDIT_LIVE_ENTRY
+            or _paths(cells[4]) != {audit_path}
+            or cells[4] != AUDIT_SELFTEST_ENTRY
+            or " ".join(cells[3].split()) != AUDIT_LIVE_MAP
+            or cells[6] != AUDIT_WRITE_SCOPE):
+        return [_finding("REGISTRY-AUDIT-LIVE-MAP", f"SKILL.md:{row['line']}",
+                         "live/selftest modes, no-write scope and schema-v2 map required")]
+    return []
+
+
 def _base_counts(tool_total=0, row_total=0, covered=0, findings=0):
     return {"tools_total": tool_total, "rows_total": row_total,
             "registered": covered, "missing": tool_total - covered,
@@ -289,6 +349,8 @@ def build_parser():
     parser.add_argument("--branch", default="master", help="landed branch (default master)")
     parser.add_argument("--baseline-tools", metavar="REV",
                         help="compare the inspected tool set with this landed revision")
+    parser.add_argument("--audit-live-map", action="store_true",
+                        help="also enforce the finite boot-chain-audit schema-v2 mode map")
     return parser
 
 
@@ -318,10 +380,15 @@ def main(argv=None):
         skill_data = reader.read_file(binding.sha, "SKILL.md")
         if skill_data is None:
             raise TableError("SKILL.md is absent or is not a regular committed file")
-        rows = _operative_rows(skill_data.decode("utf-8", "replace"))
+        rows = _operative_rows(skill_data.decode("utf-8", "replace"),
+                               ignore_fenced_code=args.audit_live_map)
         tools = reader.tool_files(binding.sha)
         findings, covered = _coverage(rows, tools, reader, binding.sha)
+        map_findings = _audit_live_map(rows) if args.audit_live_map else []
+        findings.extend(map_findings)
         counts = _base_counts(len(tools), len(rows), len(covered), len(findings))
+        if args.audit_live_map:
+            counts["audit_live_map_errors"] = len(map_findings)
         if baseline_binding is not None:
             baseline_tools = reader.tool_files(baseline_binding.sha)
             counts["baseline_tools_total"] = len(baseline_tools)
@@ -399,10 +466,12 @@ def _fixture_commit(repo, files, message):
     return rev.stdout.decode("ascii").strip()
 
 
-def _invoke(revision, baseline=None):
+def _invoke(revision, baseline=None, audit_live_map=False):
     argv = ["--revision", revision]
     if baseline is not None:
         argv.extend(("--baseline-tools", baseline))
+    if audit_live_map:
+        argv.append("--audit-live-map")
     output = io.StringIO()
     with contextlib.redirect_stdout(output):
         code = main(argv)
@@ -410,10 +479,12 @@ def _invoke(revision, baseline=None):
     return code, payload
 
 
+
 def selftest():
     global ROOT
     passed, failures = 0, []
-    total = 12
+    total = 23
+
 
     def check(name, code, payload, expected_code, predicate):
         nonlocal passed
@@ -526,6 +597,117 @@ def selftest():
             code, payload = _invoke("0" * 40)
             check("bad-revision", code, payload, CANNOT,
                   lambda p: p["findings"][0]["id"] == "E-REVISION-INVALID")
+
+            audit_source = "# fixture audit source\nLIVE = '--live'\nSELFTEST = '--selftest'\n"
+            corrected_audit = _row(
+                "boot-chain-audit", "probe", AUDIT_LIVE_ENTRY, AUDIT_LIVE_MAP,
+                AUDIT_SELFTEST_ENTRY, scope=AUDIT_WRITE_SCOPE)
+            legacy_map = AUDIT_LIVE_MAP.replace(
+                "live: 0 CONSISTENT/observation;2 UNKNOWN/could-not-evaluate;",
+                "live: 0 CONSISTENT/observation;1 DEGRADED;2 UNKNOWN/could-not-evaluate;")
+            legacy_audit = _row(
+                "boot-chain-audit", "probe", AUDIT_LIVE_ENTRY, legacy_map,
+                AUDIT_SELFTEST_ENTRY, scope=AUDIT_WRITE_SCOPE)
+
+            rev = _fixture_commit(
+                repo, {"SKILL.md": _skill([corrected_audit]), "tools/boot-chain-audit.sh": audit_source},
+                "audit-live-map-correct")
+            code, payload = _invoke(rev)
+            check("audit-live-map-correct-default", code, payload, PASS,
+                  lambda p: "audit_live_map_errors" not in p["counts"]
+                  and not p["findings"])
+            code, payload = _invoke(rev, audit_live_map=True)
+            check("audit-live-map-correct", code, payload, PASS,
+                  lambda p: p["counts"].get("audit_live_map_errors") == 0
+                  and not p["findings"])
+
+            rev = _fixture_commit(
+                repo, {"SKILL.md": _skill([legacy_audit]), "tools/boot-chain-audit.sh": audit_source},
+                "audit-live-map-live1")
+            code, payload = _invoke(rev)
+            check("audit-live-map-legacy-default", code, payload, PASS,
+                  lambda p: "audit_live_map_errors" not in p["counts"]
+                  and not p["findings"])
+            code, payload = _invoke(rev, audit_live_map=True)
+            check("audit-live-map-live1", code, payload, FAIL,
+                  lambda p: p["counts"].get("audit_live_map_errors") == 1
+                  and [finding["id"] for finding in p["findings"]]
+                  == ["REGISTRY-AUDIT-LIVE-MAP"])
+
+            older_audit = _row(
+                "boot-chain-audit", "probe", AUDIT_LIVE_ENTRY, legacy_map,
+                AUDIT_SELFTEST_ENTRY, scope=AUDIT_WRITE_SCOPE)
+            rev = _fixture_commit(
+                repo, {"SKILL.md": _skill([corrected_audit], round_number=2,
+                                          before=_skill([older_audit], round_number=1)),
+                       "tools/boot-chain-audit.sh": audit_source},
+                "audit-live-map-highest-table")
+            code, payload = _invoke(rev, audit_live_map=True)
+            check("audit-live-map-highest-table", code, payload, PASS,
+                  lambda p: p["counts"].get("audit_live_map_errors") == 0
+                  and not p["findings"])
+            rev = _fixture_commit(
+                repo, {"SKILL.md": _skill([legacy_audit], round_number=2,
+                                          before=_skill([corrected_audit], round_number=1)),
+                       "tools/boot-chain-audit.sh": audit_source},
+                "audit-live-map-historical-only-fix")
+            code, payload = _invoke(rev, audit_live_map=True)
+            check("audit-live-map-historical-only-fix", code, payload, FAIL,
+                  lambda p: p["counts"].get("audit_live_map_errors") == 1
+                  and [finding["id"] for finding in p["findings"]]
+                  == ["REGISTRY-AUDIT-LIVE-MAP"])
+
+            fenced_skill = (_skill([legacy_audit], round_number=19)
+                            + "\n```markdown\n"
+                            + _skill([corrected_audit], round_number=20)
+                            + "```\n")
+            rev = _fixture_commit(
+                repo, {"SKILL.md": fenced_skill, "tools/boot-chain-audit.sh": audit_source},
+                "audit-live-map-fenced-example")
+            code, payload = _invoke(rev, audit_live_map=True)
+            check("audit-live-map-fenced-example", code, payload, FAIL,
+                  lambda p: p["counts"].get("audit_live_map_errors") == 1
+                  and "REGISTRY-AUDIT-LIVE-MAP"
+                  in {finding["id"] for finding in p["findings"]})
+
+            alias_audit = _row(
+                "audit-alias", "probe", AUDIT_LIVE_ENTRY, AUDIT_LIVE_MAP,
+                AUDIT_SELFTEST_ENTRY, scope=AUDIT_WRITE_SCOPE)
+            rev = _fixture_commit(
+                repo, {"SKILL.md": _skill([corrected_audit, alias_audit]),
+                       "tools/boot-chain-audit.sh": audit_source},
+                "audit-live-map-duplicate-path")
+            code, payload = _invoke(rev, audit_live_map=True)
+            check("audit-live-map-duplicate-path", code, payload, FAIL,
+                  lambda p: p["counts"].get("audit_live_map_errors") == 1
+                  and "REGISTRY-AUDIT-LIVE-MAP"
+                  in {finding["id"] for finding in p["findings"]})
+
+            wrong_mode = _row(
+                "boot-chain-audit", "probe", AUDIT_SELFTEST_ENTRY, AUDIT_LIVE_MAP,
+                AUDIT_LIVE_ENTRY, scope=AUDIT_WRITE_SCOPE)
+            rev = _fixture_commit(
+                repo, {"SKILL.md": _skill([wrong_mode]), "tools/boot-chain-audit.sh": audit_source},
+                "audit-live-map-swapped-modes")
+            code, payload = _invoke(rev, audit_live_map=True)
+            check("audit-live-map-swapped-modes", code, payload, FAIL,
+                  lambda p: p["counts"].get("audit_live_map_errors") == 1
+                  and "REGISTRY-AUDIT-LIVE-MAP"
+                  in {finding["id"] for finding in p["findings"]})
+
+            wrong_scope = _row(
+                "boot-chain-audit", "probe", AUDIT_LIVE_ENTRY, AUDIT_LIVE_MAP,
+                AUDIT_SELFTEST_ENTRY, scope="host/package writes")
+            rev = _fixture_commit(
+                repo, {"SKILL.md": _skill([wrong_scope]), "tools/boot-chain-audit.sh": audit_source},
+                "audit-live-map-write-scope")
+            code, payload = _invoke(rev, audit_live_map=True)
+            check("audit-live-map-write-scope", code, payload, FAIL,
+                  lambda p: p["counts"].get("audit_live_map_errors") == 1
+                  and "REGISTRY-AUDIT-LIVE-MAP"
+                  in {finding["id"] for finding in p["findings"]})
+
+
     except Exception as exc:
         failures.append(f"selftest infrastructure: {type(exc).__name__}: {exc}")
     finally:

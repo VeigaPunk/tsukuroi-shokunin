@@ -144,3 +144,9 @@ commit and blob sha256, so the locator is portable without the table's abbreviat
 - OUT-008 `kaidoku-shokunin/PROVINCE.md` @ d1d981d2cc041dda4656c5b01d2c8445d8d17124 sha256 63920930b77f9604c6ff7f5db8859344ef97fa50de9e4d0028897da4288859ac
 - OUT-009 `revenger-shokunin/PROVINCE.md` @ cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97 sha256 63acc3d033869f93f3e13da79e35023d86baa60b3f1d3b52861b019183b4b19f
 - OUT-010 `tameshi-shokunin/PROVINCE.md` @ 01d586ddbc5fcd78659557c4e93a6ee8517b87d1 sha256 8006da5db27d2188ff2f3fc20ae402d0d30c7b5c5fcf9ca26c6793d2ff7e080f
+
+## R20 ownership clarification — OUT-009
+
+R20-OUT009: OUT-009 is Revenger's sibling declaration of reverse engineering of shipped artifacts — native binaries, managed assemblies, Electron/JavaScript packages, Android APKs, archives, firmware, browser/Electron runtime evidence. It is not a tsukuroi grant of ownership. Kaidoku/Revenger arbitration remains unresolved; ask the protocol integrator before an internals handoff. No configuration, service, package, boot or sibling-file write is authorized.
+
+This explicitly supersedes only the OUT-009 proposition's unqualified “Revenger owns” wording and its broad “packages” paraphrase. The original quoted declaration and pinned bytes remain historical evidence; “Electron/JavaScript packages” is the precise package scope, not arbitrary packages. ADJ-06's unresolved recipient and Frontier arbitration remain controlling. The other nine locators and all prepared/acknowledged handoff states are unchanged. Source: the pinned Revenger snapshot in `corpus/knowledge/adjacency-anchors-r19.json`; recheck: `python3 tools/check-adjacency-anchors.py --revision <REV> --ownership-corrections`.

@@ -1,0 +1,13 @@
+# ExecReadOnly — C2 systemctl parser review
+
+## Findings (by severity)
+
+- **P2 — Existing R19 read capture is classified as a violation.** The candidate classifier allowlists `SYSTEMCTL_READ_VERBS` at `tools/check-recheck-commands.py:272-280`, but omits `list-dependencies` and `--reverse`; `_systemctl_read_only` rejects unrecognized options/verbs (`:303-326`) and `systemctl_violations` turns that into a hit (`:337-340`). The historical inert exec log has `$ systemctl list-dependencies --reverse --no-pager limine-snapper-sync.service` at `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:215`. Passing that capture through `assess_exec_log` would therefore produce `EXEC-STEER-VIOLATION`, despite this command being a read. This is a concrete old-capture regression; do not solve it by banning the `systemctl` binary (that would also reject every old read invocation). The appropriate compatibility disposition for this out-of-scope read syntax needs an explicit owner; this review does not expand the permitted read-control set.
+
+- **P2 — The assigned four `--user` positive controls are not exercised.** The candidate has parser support for `cat`, `show`, `list-timers`, and `is-active` (`:272-274`), but its positive fixture at `:1462-1477` tests `--user status`, system-scope `show`, host-scoped `is-active`, and non-`--user` `list-timers`; it has no `--user cat/show/list-timers/is-active` command. The mutation fixture (`:1452-1460`) also uses no `--user`. Add finite inert `$ systemctl --user <verb> ...` fixtures for each of the four named reads (expected no violation) and for `restart`, `daemon-reload`, `enable`, plus one unknown verb (expected `EXEC-STEER-VIOLATION`). Current tests include the latter mutation classes and an unknown verb, but not in the requested user-scoped matrix.
+
+## Residual risk and verification gaps
+
+This is static review of the candidate `/tmp/tsukuroi-r20-execscope-20261021/tools/check-recheck-commands.py`, the production-lane baseline source, the preregistered C2 expectations, and captured R18/R19 logs. The candidate uses the existing shell tokenizer and keeps `systemctl` out of `DEFAULT_FORBID`, which avoids a blanket binary ban; its own finite fixtures encode restart/enable/daemon-reload and unknown-verb negatives, but they were not executed. Historical captures also contain other unreviewed systemctl reads; this seat makes no safety judgment on them. LSP was not exposed in the available tool inventory, so caller/definition checks were literal source inspection only. No tests, builds, commands, or host probes were run.
+
+Scope: executed=none

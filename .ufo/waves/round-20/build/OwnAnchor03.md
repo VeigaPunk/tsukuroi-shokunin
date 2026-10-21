@@ -1,0 +1,9 @@
+# OUT-003 source/ownership review (C1)
+
+**Observed evidence.** `corpus/knowledge/adjacency-anchors-r19.json` OUT-003 (lines 35–45) pins `kagi-shokunin/PROVINCE.md` at commit `c2cab35bc92e57e39e5489bac3386db078345b3f`, records blob SHA-256 `4a346e2df81f7b2e649914d0d99da974d6c484caf12fed1c6bd530d106a78523`, and gives the snapshot path `.ufo/waves/round-19/l1-capture/siblings/kagi/c2cab35bc92e/PROVINCE.md`. I reopened that exact snapshot with `read`. Its line 3 is the verbatim quote: “**Domain:** secrets & vault ops — the-janitor flows, credential hygiene evidence”; line 5 says it “owns the domain knowledge, playbooks, error patterns, and checklists above”; line 6 refuses anything outside the domain and routes cross-domain evidence to the orchestrator rather than absorbing it. The digest above is recorded evidence only; I did not recompute it.
+
+**Interpretation and boundary.** The table proposition (“Kagi owns secrets and vault operations, the-janitor credential flows, and credential-hygiene evidence”) is a paraphrase, not a verbatim declaration. The domain label plus line 5 supports attributing the domain's knowledge/playbooks/checklists to Kagi; line 6 supplies an explicit refusal/routing boundary. Neither the quoted declaration nor the proposition grants authority or permission to access/operate secrets or vaults, make changes, or perform a handoff. The local portable-anchor section (PROVINCE.md lines 110–117) independently says the table is an ownership locator and grants no authority. Treating “owns” as operational permission or a repair mandate would exceed the evidence; retain only the bounded attribution.
+
+**R20-OUT009 relevance.** No change recommended for OUT-003. PROVINCE.md lines 148–152 says the R20 clarification supersedes only OUT-009 and leaves the other nine locators unchanged; its Revenger/Kaidoku arbitration and package-scope correction do not bear on this Kagi row.
+
+Scope: executed=none
