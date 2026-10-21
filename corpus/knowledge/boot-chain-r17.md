@@ -228,3 +228,5 @@ Checks (read-only) and operator-only actions; tsukuroi takes none of these actio
 ## R18-SOURCE-SCOPE — tagged init versus host-byte equality
 
 S058 supersedes the historical S054 teaching for the tagged v42.2 init: its `# Mount root at /sysroot` statement and `switch_root /sysroot` are source facts. Equality with these two host UKIs is separately established by S051, capture B:182/198/251; hooks by B:183–184/199–200/252–253. Earlier S054 citations above are historical locators, not the active broader teaching. Existing next-boot verdicts and their emulation/boot limits remain unchanged. W04 duplicate rows are retained, never merged. Source: S058, S051; opened2026-10-20.
+
+Appended 2026-10-21 after the round-19 falsify wave (FxSentClaimScope). The sentence "the overlay should mount" for snapshot #2 is the result of a path-alias emulation with the image's own binaries, not an observed read-only Btrfs mount: the `ro=true` branch, the Btrfs-specific mount and the actual boot were not exercised. Snapshot #2 remains `PATH-ALIASED-EMULATED`, not a verified recovery path, and nothing here clears a package, initramfs or bootloader change.

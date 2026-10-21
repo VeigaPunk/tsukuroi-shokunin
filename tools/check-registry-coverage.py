@@ -27,6 +27,7 @@ TOOL_PATH = re.compile(r"(?<![A-Za-z0-9_.-])tools/[A-Za-z0-9_./-]+")
 SELFTEST_FLAG = re.compile(r"--self-?test(?:-[A-Za-z0-9-]+)?")
 VERDICT_ZERO = re.compile(r"(?<![0-9])0(?![0-9])")
 VERDICT_ONE = re.compile(r"(?<![0-9])1(?![0-9])")
+VERDICT_TWO = re.compile(r"(?<![0-9])2(?![0-9])")
 
 
 class TableError(ValueError):
@@ -208,10 +209,31 @@ def _coverage(rows, tools, reader, revision):
         if kind not in ("gate", "probe", "library"):
             findings.append(_finding("REGISTRY-KIND-INVALID", site,
                                      f"{name or '(unnamed)'} has invalid kind {kind!r}"))
-        if kind == "gate" and (not VERDICT_ZERO.search(verdict)
-                                or not VERDICT_ONE.search(verdict)):
-            findings.append(_finding("REGISTRY-VERDICT-INCOMPLETE", site,
-                                     f"{name or '(unnamed)'} gate verdict map must include 0 and 1"))
+        # Round-19 falsify FxCritC3: a discovered-tool row that merely mentioned a
+        # baseline path masked that baseline row's removal. One row, one tool.
+        known_paths = sorted(row_paths & tools)
+        if len(known_paths) > 1:
+            findings.append(_finding("REGISTRY-ROW-AMBIGUOUS", site,
+                                     f"{name or '(unnamed)'} names {len(known_paths)} tools: "
+                                     + ", ".join(known_paths)))
+        # Round-19 falsify FxMutRegistry: a gate verdict map with 2->97 still contained
+        # 0 and 1 and passed. Gate rows must publish all three codes; probes need 0 and 2.
+        if kind == "gate":
+            missing = [code for code, pattern in
+                       (("0", VERDICT_ZERO), ("1", VERDICT_ONE), ("2", VERDICT_TWO))
+                       if not pattern.search(verdict)]
+            if missing:
+                findings.append(_finding("REGISTRY-VERDICT-INCOMPLETE", site,
+                                         f"{name or '(unnamed)'} gate verdict map lacks code(s) "
+                                         + ", ".join(missing)))
+        elif kind == "probe":
+            missing = [code for code, pattern in
+                       (("0", VERDICT_ZERO), ("2", VERDICT_TWO))
+                       if not pattern.search(verdict)]
+            if missing:
+                findings.append(_finding("REGISTRY-VERDICT-INCOMPLETE", site,
+                                         f"{name or '(unnamed)'} probe verdict map lacks code(s) "
+                                         + ", ".join(missing)))
         for path in sorted(row_paths - tools):
             findings.append(_finding("REGISTRY-ROW-ORPHAN", site,
                                      f"registry row names absent regular tool {path}"))
@@ -408,7 +430,7 @@ def selftest():
             ROOT = repo
             tool = "tools/probe.py"
             source = "# fixture source exposes --selftest\nSELFTEST = '--selftest'\n"
-            clean_row = _row("probe", "probe", "python3 tools/probe.py", "0 ok; 1 fail",
+            clean_row = _row("probe", "probe", "python3 tools/probe.py", "0 ok; 1 fail; 2 could-not-evaluate",
                              "python3 tools/probe.py --selftest")
 
             rev = _fixture_commit(repo, {"SKILL.md": _skill([clean_row]), tool: source}, "clean")
@@ -428,6 +450,14 @@ def selftest():
             check("duplicate-row", code, payload, FAIL,
                   lambda p: "REGISTRY-ROW-DUPLICATE" in {f["id"] for f in p["findings"]})
 
+            ambiguous = _row("both", "library", "python3 tools/probe.py", "n/a",
+                             "python3 tools/new.py --selftest")
+            rev = _fixture_commit(repo, {"SKILL.md": _skill([ambiguous]), tool: source,
+                                         "tools/new.py": source}, "ambiguous-row")
+            code, payload = _invoke(rev)
+            check("ambiguous-row", code, payload, FAIL,
+                  lambda p: "REGISTRY-ROW-AMBIGUOUS" in {f["id"] for f in p["findings"]})
+
             orphan_row = _row("gone", "library", "tools/gone.py", "n/a", "n/a")
             rev = _fixture_commit(repo, {"SKILL.md": _skill([orphan_row]), tool: source}, "orphan-row")
             code, payload = _invoke(rev)
@@ -435,14 +465,14 @@ def selftest():
                   lambda p: {"REGISTRY-ROW-ORPHAN", "REGISTRY-ROW-MISSING"}
                   <= {f["id"] for f in p["findings"]})
 
-            invalid_kind = _row("probe", "task", "python3 tools/probe.py", "0 ok; 1 fail",
+            invalid_kind = _row("probe", "task", "python3 tools/probe.py", "0 ok; 1 fail; 2 could-not-evaluate",
                                  "python3 tools/probe.py --selftest")
             rev = _fixture_commit(repo, {"SKILL.md": _skill([invalid_kind]), tool: source}, "invalid-kind")
             code, payload = _invoke(rev)
             check("invalid-kind", code, payload, FAIL,
                   lambda p: "REGISTRY-KIND-INVALID" in {f["id"] for f in p["findings"]})
 
-            unresolved = _row("probe", "probe", "python3 tools/probe.py", "0 ok; 1 fail",
+            unresolved = _row("probe", "probe", "python3 tools/probe.py", "0 ok; 1 fail; 2 could-not-evaluate",
                               "python3 tools/probe.py --selftest")
             rev = _fixture_commit(repo, {"SKILL.md": _skill([unresolved]),
                                          tool: "# no selftest flag here\n"}, "unresolved-selftest")

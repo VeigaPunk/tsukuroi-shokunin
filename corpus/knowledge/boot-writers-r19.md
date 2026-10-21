@@ -117,3 +117,50 @@ Criteria evaluated: 1, 2, 3, 7, 8, 9, 25, 30 of corpus/QUALITY.md.
 9. Negative claims with bounded sweeps. (a) No further `Updated` line in the journal: `journalctl --no-pager -o short-iso --since "2026-10-19 00:00" -t limine-snapper-sync | grep -c "Updated: /boot/limine.conf"` returns 10 (r19b:1685-1686). Scope: retained journal, 2026-10-20. (b) No watcher- or sync-unit write: the json field filter command at r19c:5, rows at r19c:11-20, returns 10 rows, all on `snapper-cleanup.service` or `limine-snapper-add-*`. (c) No `Updated` or copy line outside the three ALPM rows: `grep -n -E "Updated: /boot/limine.conf|-> /boot/|running .99-limine.hook|running .80-limine-efi-deploy.hook|running .90-mkinitcpio-install.hook" /var/log/pacman.log` returns 15 matches (r19b:1688-1703). (d) No watcher write in fallback windows: r19b:1643-1683 shows no `Updated` line. (e) No removal-hook run: r19:565-606 covers pacman.log 2997-3162 only; the full-log sweep is `[unk]`.
 25. Not applicable. No next-boot verdict or image-derived claim is made; UKI copies are cited by source path, not by equality.
 30. The `Copied:` rows name the actual UKI path `/boot/EFI/Linux/omarchy_linux*.efi` as source (r19c:23, 39-40), not the history copy. No plural image-equality statement is made. Count correction: 13 (not 12), input set as in the Event table section above.
+
+## Mechanism quotes (falsify repair, 2026-10-21)
+
+Appended after the round-19 falsify wave (FxMutWriters survived a mutated mechanism word; QUALITY 33).
+Every writer's `mechanism_refs` quote is published verbatim here so the gate can check published
+mechanism fidelity, not only writer-id publication. Earlier bytes are unchanged.
+
+**W-SNAPPER-CLEANUP**
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:47` — `usr/lib/systemd/system/snapper-cleanup.service.d/limine-snapper-override.conf`
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:260` — `ExecStopPost=limine-snapper-sync`
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:227` — `OnBootSec=10m`
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:228` — `OnUnitActiveSec=1h`
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:203` — `snapper-cleanup.timer          enabled`
+
+**W-SNAPPER-PLUGIN**
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:42` — `usr/lib/snapper/plugins/10-limine-snapper-sync`
+- `.ufo/waves/round-19/l1-capture/host-capture-r19b.txt:1185` — `--unit="limine-snapper-${op}-${SNAP_ID}-$$"`
+- `.ufo/waves/round-19/l1-capture/host-capture-r19b.txt:1228` — `create-snapshot-post)`
+- `.ufo/waves/round-19/l1-capture/host-capture-r19b.txt:1229` — `run_sync add "${SNAP_ID}"`
+
+**W-WATCHER**
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:161` — `ExecStart=limine-snapper-watcher`
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:193` — `limine-snapper-sync.service    enabled`
+- `.ufo/waves/round-19/l1-capture/host-capture-r19b.txt:1366` — `info_msg $"inotifywait is not installed. Falling back to Snapper plugin integration."`
+
+**W-MKINITCPIO-HOOK**
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:87` — `etc/pacman.d/hooks/90-mkinitcpio-install.hook`
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:397` — `/etc/pacman.d/hooks/90-mkinitcpio-install.hook:Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-install`
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:420` — `ESP_PATH="/boot"`
+
+**W-LIMINE-EFI-COPY**
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:403` — `/etc/pacman.d/hooks/99-limine.hook:Exec = /bin/sh -c "/usr/bin/cp /usr/share/limine/BOOTIA32.EFI /boot/EFI/BOOT/`
+
+**W-LIMINE-EFI-DEPLOY**
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:367` — `/usr/share/libalpm/hooks/80-limine-efi-deploy.hook:Exec = /usr/bin/limine-install`
+
+**W-KERNEL-REMOVE**
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:357` — `/usr/share/libalpm/hooks/60-limine-mkinitcpio-remove-pre.hook:Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-remove pre`
+- `.ufo/waves/round-19/l1-capture/host-capture-r19.txt:371` — `/usr/share/libalpm/hooks/90-limine-mkinitcpio-remove-post.hook:Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-remove post`
+
+## Falsify qualifications (round 19 wave 2, 2026-10-21)
+
+Appended after the seats below; earlier bytes unchanged.
+- **Watcher fallback ordering (FxRevWatcher).** The absent-`inotifywait` branch exits before the monitor loop, but an optional initial `limine-snapper-sync` call and the backgrounded pacman-lock cleanup are ordered before that check. "The fallback exits before any write path is reachable" is therefore too strong; none of the retained `Updated:` events is attributed to the watcher.
+- **Absence of `Updated:` is not proof of "not a write" (FxRevExecStopPost).** The tool's own message carries no content hash and a silent/no-change path is not excluded; the 09:08:04 cause stays `[unk]`.
+- **Published mechanism fidelity (FxMutWriters).** A mutated mechanism word (`ExecStopPost`→`ExecStartPost`) survived the old gate. All writer `mechanism_refs` quotes are now published in the appendix above, and `tools/check-boot-writers.py` rejects an unpublished or altered mechanism quote.
+- **Capture hygiene (FxScoutCapture).** `host-capture-r19c.txt` now redacts the operator user token to `[operator]`; the registry capture digest was updated with it.

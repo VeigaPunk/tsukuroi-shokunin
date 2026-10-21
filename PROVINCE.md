@@ -130,3 +130,17 @@ section grants no authority and is an ownership locator, not a repair mandate.
 | OUT-010 | ADJ-07 | `tameshi-shokunin/PROVINCE.md` @ `01d586ddbc5f` | `# tameshi-shokunin — Province` | **Owns:** the method, documented from the fleet's existing gates | Tameshi owns the reusable verification/mutation-testing method, applied to fleet gates as read-only primary surfaces; each lane keeps its own gate. |
 
 Limits (round-19 first falsifiers CritAdjBoundary/CritAdjVacuity): the quoted words are the sibling's, attributed to it, never a tsukuroi assertion of sibling authority; the pins are stale by design once a sibling commits again, so re-read the live declaration before any later handoff (the paragraph above `## Frontier` still governs). Every heading above is the sibling file's title heading because the cited ownership text sits in its preamble. Recheck: `python3 tools/check-adjacency-anchors.py --revision <REV>`.
+
+Portable digests (appended 2026-10-21, round-19 falsify repair). Each anchor's full pinned
+commit and blob sha256, so the locator is portable without the table's abbreviated commit:
+
+- OUT-001 `mori-shokunin/PROVINCE.md` @ 91940fa339e38006f8db5bd7d78bb6f037f4d016 sha256 73abda79bcb3ab26a069dcba1284cf62a0f257149b2ad39e5fb72ebe24bed130
+- OUT-002 `kama-shokunin/PROVINCE.md` @ e75cf680b53484a61709ee1b2787d8dbc6419f74 sha256 799432d748bd40bcf859de806cc2ef90df069da14c8e5c07bf72250ac411c7a6
+- OUT-003 `kagi-shokunin/PROVINCE.md` @ c2cab35bc92e57e39e5489bac3386db078345b3f sha256 4a346e2df81f7b2e649914d0d99da974d6c484caf12fed1c6bd530d106a78523
+- OUT-004 `mado-shokunin/PROVINCE.md` @ a4046a8216080d4004de3f268c62cf142095ac07 sha256 1b25bb1e980925b356663602d002c1c15307a0dfac8bfafd9988bd4d8df7464b
+- OUT-005 `mori-shokunin/PROVINCE.md` @ 91940fa339e38006f8db5bd7d78bb6f037f4d016 sha256 73abda79bcb3ab26a069dcba1284cf62a0f257149b2ad39e5fb72ebe24bed130
+- OUT-006 `kumitate-shokunin/PROVINCE.md` @ 1770305fae20826b39905a8251ddeca6b4957ac4 sha256 fcd69667a1027d5edd07a8ff0390a716a467aff92719071e33cb6157673b665f
+- OUT-007 `mori-shokunin/PROVINCE.md` @ 91940fa339e38006f8db5bd7d78bb6f037f4d016 sha256 73abda79bcb3ab26a069dcba1284cf62a0f257149b2ad39e5fb72ebe24bed130
+- OUT-008 `kaidoku-shokunin/PROVINCE.md` @ d1d981d2cc041dda4656c5b01d2c8445d8d17124 sha256 63920930b77f9604c6ff7f5db8859344ef97fa50de9e4d0028897da4288859ac
+- OUT-009 `revenger-shokunin/PROVINCE.md` @ cf02419276e5dd8aafb6fe09d4e9aaa6bcb78c97 sha256 63acc3d033869f93f3e13da79e35023d86baa60b3f1d3b52861b019183b4b19f
+- OUT-010 `tameshi-shokunin/PROVINCE.md` @ 01d586ddbc5fcd78659557c4e93a6ee8517b87d1 sha256 8006da5db27d2188ff2f3fc20ae402d0d30c7b5c5fcf9ca26c6793d2ff7e080f

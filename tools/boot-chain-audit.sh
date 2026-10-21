@@ -56,7 +56,11 @@
 # that read fails the proven-booted flag stays false and the selected entry falls through
 # to the rules below (typically PATH-ALIASED-EMULATED for a 42.2 image). The `selected`
 # TSV column still reports the firmware fact. The /etc+/usr input set is: /etc/fstab /etc/crypttab /etc/mkinitcpio.conf
-# /etc/mkinitcpio.conf.d /etc/default/limine /usr/lib/initcpio /usr/lib/modules/<uname -r>.
+# /etc/mkinitcpio.conf.d /etc/default/limine /etc/limine-snapper-sync.conf /usr/lib/initcpio
+# /usr/lib/modules (every kernel tree, not only the running one: round-19 falsify
+# FxRevAuditRules showed a newer linux-lts module tree was invisible to the old
+# <uname -r> path). An image under EFI/Linux whose .uname cannot be extracted is an
+# EVALUATION-ERROR (UNKNOWN), never a non-kernel app.
 # limine.conf itself is deliberately excluded: a post-boot rewrite changes the menu, not
 # the booted image, and this audit is exactly about the menu change.
 #
@@ -310,10 +314,16 @@ image_identity() { # <efi> -> kernel | not-kernel | error
     dst=$(work_path "img/$ENTRY_IDX.uname") || { printf 'error\n'; return 0; }
     # objcopy exits 0 and writes an empty file when .uname is absent (plain EFI apps such as
     # the Limine fallback BOOTX64.EFI), so a kernel UKI needs a non-empty .uname section.
+    # Round-19 falsify (FxScoutAuditRules, FxRevAuditRules): an unparseable image under
+    # EFI/Linux must be an evaluation error, not silently subtracted as a non-kernel app,
+    # or the summary can read CONSISTENT over an image that was never checked.
     if objcopy -O binary --only-section=.uname "$IMG_COPY" "$dst" 2>/dev/null && [ -s "$dst" ]; then
         printf 'kernel\n'
     else
-        printf 'not-kernel\n'
+        case "$1" in
+            *[Ee][Ff][Ii]/[Ll]inux/*) printf 'error\n' ;;
+            *) printf 'not-kernel\n' ;;
+        esac
     fi
 }
 
@@ -469,7 +479,7 @@ boot_inputs_newer() { # 0 = no /etc or /usr boot-chain input newer than boot sta
     fi
     if find /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
         /etc/default/limine /etc/limine-snapper-sync.conf \
-        /usr/lib/initcpio "/usr/lib/modules/$(uname -r)" \
+        /usr/lib/initcpio /usr/lib/modules \
         -newermt "@$btime" -print -quit 2>/dev/null | grep -q .; then
         printf '1\n'
     else

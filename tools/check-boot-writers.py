@@ -355,6 +355,15 @@ def evaluate(registry_bytes, registry_revision, target_revision, reader,
                 findings.append(_finding("MECHANISM-QUOTE-MISSING", ref_site,
                                          "quote is not an exact substring of its cited capture line"))
                 valid = False
+            else:
+                # Round-19 falsify FxMutWriters: a green gate accepted an entry that
+                # published ExecStartPost where the capture says ExecStopPost. The
+                # mechanism wording itself must be published, whitespace-normalized.
+                probe = " ".join(quote.split())
+                if probe not in " ".join(knowledge_text.split()):
+                    findings.append(_finding("MECHANISM-PROSE-MISSING", ref_site,
+                                             "mechanism quote is not published in the knowledge entry"))
+                    valid = False
         for write_index, write in enumerate(item["writes"]):
             if not _nonempty(write):
                 findings.append(_finding("REGISTRY-SCHEMA", f"{wid}:writes[{write_index}]",
@@ -639,7 +648,9 @@ def _fixture_snapshot(root, capture_text, events=None, signature=None,
     knowledge_file = root / registry["knowledge_entry"]
     knowledge_file.parent.mkdir(parents=True, exist_ok=True)
     knowledge_file.write_text(knowledge if knowledge is not None else
-                              "W-01 EV-01\n", encoding="utf-8")
+                              "W-01 EV-01\n# mechanism: snapper-cleanup.service\n"
+                              "$ journal probe\nUpdated: /boot/limine.conf\n",
+                              encoding="utf-8")
     _fixture_git(root, "add", "-A")
     _fixture_git(root, "commit", "-m", "fixture snapshot")
     return _fixture_git(root, "rev-parse", "HEAD")
@@ -659,7 +670,7 @@ def selftest():
     global ROOT
     original_root = ROOT
     passed, failures = [], []
-    cases = 11
+    cases = 12
     try:
         with tempfile.TemporaryDirectory(prefix="check-boot-writers-",
                                          dir=str(original_root)) as temp:
@@ -721,6 +732,8 @@ def selftest():
             missing_mechanism = _fixture_snapshot(fixture, clean_text,
                                                   mechanism_quote="absent mechanism text")
             check("missing mechanism quote", missing_mechanism, FAIL, "MECHANISM-QUOTE-MISSING")
+            prose_missing = _fixture_snapshot(fixture, clean_text, knowledge="W-01 EV-01\n")
+            check("mechanism prose missing", prose_missing, FAIL, "MECHANISM-PROSE-MISSING")
             unknown_source = _fixture_snapshot(fixture, clean_text, sources=["S999"])
             check("unknown source id", unknown_source, FAIL, "WRITER-SOURCE-MISSING")
             unpublished = _fixture_snapshot(fixture, clean_text, knowledge="EV-01\n")

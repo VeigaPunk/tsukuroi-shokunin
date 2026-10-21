@@ -264,3 +264,13 @@ for the L1-filled tables and the gate run.
 9. Negative claims: the two claims in §6 each carry the bounded search command, its scope and date. The rule that siblings are not edited is a scope rule, not a measured negative, and no sibling-state negative is asserted.
 21. Portable locators: met by design. Each anchor is a heading, an exact quote of at most 25 words, a pinned commit and a blob sha256. Line numbers are supplementary. Per-row verification waits for the gate.
 30. Whole-proposition counts: met by design. The 10 and 114 counts name their finite sets (OUT-001..OUT-010; IN-001..IN-114). Plural statements cite each record. Counts stay `[unk]` until gate output is recorded.
+
+## Falsify qualifications (round 19 wave 2, 2026-10-21)
+
+Appended after the seats below; earlier bytes unchanged. These are corrections of record, not new claims.
+- **Scope (FxCritC1Scope).** C1's outbound anchors cover the ten `PROVINCE.md` sibling ownership pointers only. `SKILL.md` ownership-routing statements (e.g. `:173-175` kaidoku/revenger, kama, kagi; `:427-430` kagi/operator) are not anchored by C1 and are not claimed by it.
+- **Published digests (FxProvinceSection, FxOut001/002/004/005/007/008/009/010).** The PROVINCE table published heading+quote+12-hex prefix but no digest; the `Portable digests` appendix now publishes the full pinned commit and blob sha256 per anchor, and `tools/check-adjacency-anchors.py` requires id+quote, id+commit, id+sha256 and the heading.
+- **Drift taxonomy (FxInDriftA).** IN-067 and IN-102 are mis-citations whose target text predates the pointer, not moved content; IN-104 is inconclusive with no earlier committed target snapshot. Their DRIFTED class is mechanical (quote found outside the cited range); the notes carry the distinction.
+- **Inbound records corrected from wave-2 findings:** IN-027 (subset reliance), IN-039 (read-only probes, restarts refused), IN-041 (handoff direction), IN-049 (`[unknown]` mechanism), IN-052 (prepared, not sent), IN-058 (Trigger clause), IN-081 (root-DAC outside range), IN-085 (line drifts; row named), IN-091 (bounded 1-60 read, 132 lines), IN-096 (`aae45531` is committed at `da95290`).
+- **Gate coverage added (FxExecNegAdj, FxCritC3):** inbound `target_ranges` must lie within the target file's line count; one operative row may name exactly one `tools/` path.
+- **Capture hygiene (FxScoutCapture):** `host-capture-r19c.txt` now redacts the operator user token to `[operator]`; command text stays because C2's 09:03 snapper evidence cites it. The capture sha256 in `boot-writers-r19.json` was updated with it.

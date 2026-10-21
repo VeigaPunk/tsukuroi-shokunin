@@ -221,10 +221,38 @@ def _result(code, findings, counts=None):
     return Result(code, _dedupe(findings), counts if counts is not None else _empty_counts())
 
 
-def _outbound_publication(lines, section_heading, anchor_id, quote):
+def _outbound_publication(lines, section_heading, record):
+    """An anchor is published only when the section carries all four portable fields.
+
+    id+quote identify the row; id+commit and id+sha256 bind the published
+    locator to the pinned bytes; the heading must appear in the published
+    region too. Round-19 falsify seats (FxProvinceSection, FxOut001/002/004/
+    005/007/008/009/010) showed the id+quote-only check passed a table with no
+    digest and no full commit.
+    """
+    anchor_id = record.get("id")
+    quote = record.get("quote")
+    if not isinstance(anchor_id, str) or not isinstance(quote, str):
+        return False
     section_positions = [i for i, line in enumerate(lines) if line == section_heading]
-    return any(anchor_id in line and quote in line
-               for start in section_positions for line in lines[start + 1:])
+    commit = record.get("sibling_commit")
+    digest = record.get("sibling_blob_sha256")
+    heading = record.get("heading")
+    for start in section_positions:
+        region = lines[start + 1:]
+        if not any(anchor_id in line and quote in line for line in region):
+            continue
+        if not (isinstance(commit, str) and commit
+                and any(anchor_id in line and commit in line for line in region)):
+            continue
+        if not (isinstance(digest, str) and digest
+                and any(anchor_id in line and digest in line for line in region)):
+            continue
+        if not (isinstance(heading, str) and heading
+                and any(heading in line for line in region)):
+            continue
+        return True
+    return False
 
 
 def _inbound_identity(record, census):
@@ -431,10 +459,11 @@ def evaluate(registry_bytes, revision, registry_revision, reader, siblings_root=
             valid = False
         published = (isinstance(anchor_id, str) and isinstance(record["quote"], str)
                      and _outbound_publication(province_lines, doc["province_section"],
-                                               anchor_id, record["quote"]))
+                                               record))
         if not published:
             findings.append(_finding("ANCHOR-UNPUBLISHED", site,
-                                     "no line after the portable-anchor section heading contains both id and quote"))
+                                     "published section lacks the anchor's id+quote, id+full commit, "
+                                     "id+blob sha256, or the heading"))
             valid = False
 
         if siblings_root is not None:
@@ -523,6 +552,12 @@ def evaluate(registry_bytes, revision, registry_revision, reader, siblings_root=
             if target_path not in target_texts:
                 target_texts[target_path] = _text(reader, revision, target_path)
             target_lines = target_texts[target_path].splitlines()
+            range_end = max(end for _start, end in census_item["target_ranges"])
+            if range_end > len(target_lines):
+                findings.append(_finding(
+                    "INBOUND-RANGE-INVALID", site,
+                    f"target_ranges end {range_end} exceeds {len(target_lines)} lines at --revision"))
+                limits_ok = False
             occurrences = ([line_no for line_no, line in enumerate(target_lines, 1)
                             if quote and quote in line])
             if not quote and found_line == 0:
@@ -693,7 +728,9 @@ def _fixture_files():
                 "Owned sample surface in this lane.\n"
                 f"Source pointer: {province_pointer}\n\n"
                 f"{PROVINCE_SECTION}\n"
-                f"OUT-001 — {outbound['quote']}\n")
+                f"OUT-001 — {outbound['quote']}\n"
+                f"heading: {outbound['heading']}\n"
+                f"OUT-001 @ {outbound['sibling_commit']} sha256 {outbound['sibling_blob_sha256']}\n")
     files = {
         "PROVINCE.md": province.encode("utf-8"),
         DEFAULT_KNOWLEDGE: b"Round 19 inbound anchors: IN-001 is recorded.\n",
@@ -788,15 +825,20 @@ def selftest():
 
             def missing_heading(_files, registry, _census):
                 registry["outbound"][0]["heading"] = "## Missing heading"
-            revision_case("missing-heading", missing_heading, ["ANCHOR-HEADING-MISSING"])
+            revision_case("missing-heading", missing_heading, ["ANCHOR-HEADING-MISSING", "ANCHOR-UNPUBLISHED"])
 
             def quote_outside_section(files, registry, _census):
                 lines = files[snapshot_path].decode("utf-8").splitlines()
                 quote = registry["outbound"][0]["quote"]
                 lines.append(quote)
                 files[snapshot_path] = ("\n".join(lines) + "\n").encode("utf-8")
-                registry["outbound"][0]["sibling_blob_sha256"] = hashlib.sha256(files[snapshot_path]).hexdigest()
-                registry["outbound"][0]["quote_line"] = len(lines)
+                record = registry["outbound"][0]
+                old_digest = record["sibling_blob_sha256"]
+                record["sibling_blob_sha256"] = hashlib.sha256(files[snapshot_path]).hexdigest()
+                record["quote_line"] = len(lines)
+                province = files["PROVINCE.md"].decode("utf-8").replace(
+                    old_digest, record["sibling_blob_sha256"])
+                files["PROVINCE.md"] = province.encode("utf-8")
             revision_case("quote-outside-section", quote_outside_section, ["ANCHOR-HEADING-MISSING"])
 
             def quote_too_long(files, registry, _census):
@@ -804,11 +846,13 @@ def selftest():
                 lines = ["# Fixture Province", "## Core", words, "## Refuses", "Other section."]
                 files[snapshot_path] = ("\n".join(lines) + "\n").encode("utf-8")
                 record = registry["outbound"][0]
+                old_digest = record["sibling_blob_sha256"]
                 record["quote"] = words
                 record["quote_line"] = 3
                 record["sibling_blob_sha256"] = hashlib.sha256(files[snapshot_path]).hexdigest()
                 province = files["PROVINCE.md"].decode("utf-8").replace(
                     "OUT-001 — Fixture sibling owns a sample surface.", f"OUT-001 — {words}")
+                province = province.replace(old_digest, record["sibling_blob_sha256"])
                 files["PROVINCE.md"] = province.encode("utf-8")
             revision_case("quote-too-long", quote_too_long, ["ANCHOR-QUOTE-TOO-LONG"])
 
@@ -817,6 +861,13 @@ def selftest():
                 province = province.replace("OUT-001 — Fixture sibling owns a sample surface.\n", "")
                 files["PROVINCE.md"] = province.encode("utf-8")
             revision_case("unpublished-anchor", unpublished_anchor, ["ANCHOR-UNPUBLISHED"])
+
+            def unpublished_digest(files, _registry, _census):
+                province = files["PROVINCE.md"].decode("utf-8")
+                kept = [line for line in province.splitlines()
+                        if not line.startswith("OUT-001 @ ")]
+                files["PROVINCE.md"] = ("\n".join(kept) + "\n").encode("utf-8")
+            revision_case("unpublished-digest", unpublished_digest, ["ANCHOR-UNPUBLISHED"])
 
             def census_incomplete(_files, registry, _census):
                 registry["inbound"] = []

@@ -23,24 +23,24 @@ $ journalctl --no-pager -o short-iso --since "2026-10-20 08:58:30" --until "2026
 2026-10-20T09:03:03-03:00 plazir27 limine-snapper-sync[5929]: Copied: /boot/EFI/Linux/omarchy_linux.efi -> /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0
 2026-10-20T09:03:03-03:00 plazir27 limine-snapper-sync[5929]: Saved: /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/snapshots.json
 2026-10-20T09:03:03-03:00 plazir27 limine-snapper-sync[5929]: Updated: /boot/limine.conf
-2026-10-20T09:02:01-03:00 plazir27 sudo[5451]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper list-configs
-2026-10-20T09:03:02-03:00 plazir27 sudo[5733]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c root create-config /
-2026-10-20T09:03:02-03:00 plazir27 sudo[5834]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c root set-config TIMELINE_CREATE=no
-2026-10-20T09:03:02-03:00 plazir27 sudo[5840]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c root create --type single --cleanup-algorithm number --description pre-nvme-baseline-2026-10-20 --prin
-2026-10-20T09:03:02-03:00 plazir27 sudo[5854]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c home create-config /home
-2026-10-20T09:03:02-03:00 plazir27 sudo[5992]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c home set-config TIMELINE_CREATE=yes TIMELINE_LIMIT_HOURLY=24 TIMELINE_LIMIT_DAILY=7 TIMELINE_LIMIT_WEE
-2026-10-20T09:03:02-03:00 plazir27 sudo[6098]:    vgpnk : USER=root ; COMMAND=/usr/bin/systemctl enable --now snapper-timeline.timer snapper-cleanup.timer
-2026-10-20T09:03:23-03:00 plazir27 sudo[6324]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper list-configs
-2026-10-20T09:03:32-03:00 plazir27 sudo[6875]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c root get-config
-2026-10-20T09:03:32-03:00 plazir27 sudo[6889]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c home get-config
-2026-10-20T09:03:32-03:00 plazir27 sudo[6900]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper list
+2026-10-20T09:02:01-03:00 plazir27 sudo[5451]:    [operator] : USER=root ; COMMAND=/usr/bin/snapper list-configs
+2026-10-20T09:03:02-03:00 plazir27 sudo[5733]:    [operator] : USER=root ; COMMAND=/usr/bin/snapper -c root create-config /
+2026-10-20T09:03:02-03:00 plazir27 sudo[5834]:    [operator] : USER=root ; COMMAND=/usr/bin/snapper -c root set-config TIMELINE_CREATE=no
+2026-10-20T09:03:02-03:00 plazir27 sudo[5840]:    [operator] : USER=root ; COMMAND=/usr/bin/snapper -c root create --type single --cleanup-algorithm number --description pre-nvme-baseline-2026-10-20 --prin
+2026-10-20T09:03:02-03:00 plazir27 sudo[5854]:    [operator] : USER=root ; COMMAND=/usr/bin/snapper -c home create-config /home
+2026-10-20T09:03:02-03:00 plazir27 sudo[5992]:    [operator] : USER=root ; COMMAND=/usr/bin/snapper -c home set-config TIMELINE_CREATE=yes TIMELINE_LIMIT_HOURLY=24 TIMELINE_LIMIT_DAILY=7 TIMELINE_LIMIT_WEE
+2026-10-20T09:03:02-03:00 plazir27 sudo[6098]:    [operator] : USER=root ; COMMAND=/usr/bin/systemctl enable --now snapper-timeline.timer snapper-cleanup.timer
+2026-10-20T09:03:23-03:00 plazir27 sudo[6324]:    [operator] : USER=root ; COMMAND=/usr/bin/snapper list-configs
+2026-10-20T09:03:32-03:00 plazir27 sudo[6875]:    [operator] : USER=root ; COMMAND=/usr/bin/snapper -c root get-config
+2026-10-20T09:03:32-03:00 plazir27 sudo[6889]:    [operator] : USER=root ; COMMAND=/usr/bin/snapper -c home get-config
+2026-10-20T09:03:32-03:00 plazir27 sudo[6900]:    [operator] : USER=root ; COMMAND=/usr/bin/snapper list
 [rc=0]
 $ journalctl --no-pager -o short-iso --since "2026-10-20 09:28:30" --until "2026-10-20 09:29:30" -t snapper -t snapperd -t limine-snapper-sync -t limine-snapper-watcher -t systemd-helper -t sudo | grep -v pam_unix | grep -E -v "sudo\[[0-9]+\]:" ; journalctl --no-pager -o short-iso --since "2026-10-20 09:28:30" --until "2026-10-20 09:29:30" -t sudo | grep -E "COMMAND=/usr/bin/(snapper|systemctl) " | sed -E "s/ PWD=[^;]*;//" | cut -c1-200
 2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Copied: /boot/EFI/Linux/omarchy_linux.efi -> /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8
 2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Copied: /boot/EFI/Linux/omarchy_linux-lts.efi -> /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8
 2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Saved: /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/snapshots.json
 2026-10-20T09:29:19-03:00 plazir27 limine-snapper-sync[260715]: Updated: /boot/limine.conf
-2026-10-20T09:29:19-03:00 plazir27 sudo[260641]:    vgpnk : USER=root ; COMMAND=/usr/bin/snapper -c root create -c number -d pre-aur-elephant-2.22.1 --print-number
+2026-10-20T09:29:19-03:00 plazir27 sudo[260641]:    [operator] : USER=root ; COMMAND=/usr/bin/snapper -c root create -c number -d pre-aur-elephant-2.22.1 --print-number
 [rc=0]
 $ journalctl --no-pager -o short-iso --since "2026-10-20 08:57:00" --until "2026-10-20 09:10:00" -u snapper-cleanup.timer -u snapper-cleanup.service -u snapper-timeline.service | cut -c1-200
 2026-10-20T09:03:03-03:00 plazir27 systemd[1]: Started Hourly Cleanup of Snapper Snapshots.
