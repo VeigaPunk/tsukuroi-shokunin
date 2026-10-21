@@ -92,3 +92,55 @@ The once-final runner now also compares each manifest to its actual predispatch 
 | R21-LOAD-ORDER | stale-premise/process | L1 initially read README's newer appended sections but completed its original Frontier section later | round prompt Load order | Disclose the late read; all Frontier restrictions still stand, no frontier graduation. Operator-lesson sweep `glob corpus/lessons/operator-*.md` returned No files found; no ignored teaching is inferred |
 
 All resumed implementer drafts remain source-only until L1's final immutable run. Supplied digests in reports are declarations, not independently computed hashes. Changed evaluators were auxiliary frozen dependencies rather than primary targets in many falsify items; that limitation remains disclosed. No retrospective row is added to either review manifest.
+
+## R21-SCOPE-RECUR — named correction of none declarations
+
+The once-after-settlement metadata census (`python3 .ufo/waves/round-21/measure/audit-seat-tools.py <recorded-transcript-directory>`, output `.ufo/waves/round-21/measure/seat-tool-audit.json`) read128 registered transcripts and observed13 Bash starts across9 seats. Exact request/start correlations are retained in `measure/seat-execution-requests.json`; truncated event-metadata excerpts remain separately labeled in `measure/seat-execution-details.json`. These are not rerun commands or approved verification.
+
+| Wave | Seat | Recorded Bash starts | Disposition |
+|---|---|---|---|
+| build | Oracle04Tree | 1 | `true`; still forbidden by NO-EXEC |
+| build | Oracle06Tree | 1 | hash/list query; no independent read-hash claim follows a requested command |
+| build | Oracle09Tree | 2 | hash/diff/count queries; relative paths had no explicit lane cwd |
+| build | ReviewTrailer | 1 | directory listing |
+| falsify | Fx01Nested | 1 | listing before death without a final message |
+| falsify | Fx02Nested | 3 | list/find/grep queries before provider death |
+| falsify | Fx04Tree | 2 | read-only grep/list queries; literal none does not clear them |
+| falsify | Fx09Nested | 1 | find query; failed seat retained a partial report |
+| falsify | FxC3Chronology | 1 | find/sort listing, disclosed in its report |
+
+Any `Scope: executed=none` or “nothing executed” assertion in those original reports is superseded for execution absence by this named erratum. The source-specific findings and primary-byte declarations are not erased, but an unauthorized read-only shell command is not reclassified as approved. Captured requests contain only `true`, hash/diff/count and directory/text-read commands; no package, service, kernel, image, bootloader, mount or reboot action appears in this inventory. This is a bounded start/request census, not a universal absence-of-effects proof.
+
+Two provider-dead seats with no report still have recorded Bash starts, proving why a missing report/death never means executed=none. Fx09Nested's retained partial report is not a successful seat completion. C3's byte-binding verdict and the independent scope/calibration verdict must remain separate; no unqualified no-harm or self-admission is inferred. The L0 question requests an enforced future toolset under kumitate/operator authority, not a retry/replacement of these seats.
+
+## Final Gate decisions and measured outcome
+
+Measured code: `e99303c7ca75363b99a3d1937e65329b815c50f2`; baseline82e519203e676c532b1dc5ea91a85671f2286e7b. Executed ledger: `.ufo/waves/round-21/measure/final-r21/results.json`; verdict summary: `measure/round-verdicts.json`. The same final evaluators measured both immutable revisions in a fresh clone.
+
+| Candidate | Final author-side decision | Measured evidence / limit |
+|---|---|---|
+| Corrected five-row source/policy entry | admit bounded C1 entry | decision_rows0→5, exit1→0; source/schema/table mutants observed in28/28 selftest cases; original entry marked superseded |
+| Explicit original-nine target-type mode | admit bounded C2 improvement | mode0→1, exit1→0; actual behavior9→9; generic-peel old-kills0/new-kills1 and tree-prefix witnesses; judge78/78 |
+| Original unqualified source/policy representation | reject as operative | replaced only by named corrected entry; old committed bytes/data retained |
+| C2 behavioral0→9 or45 wholly new type cells | reject | actual before/after behavior9→9; annotated commit-tag class is continuity, not a ninefold repair |
+| Every-delivered strict C3 receipt target | not verified; improvement/no-harm unprovable | build60/64, falsify51/64;111 fully conforming of117 retained reports. Six strict receipt mismatches persist; original reports/manifests are not rewritten or weakened |
+| Receipt validity proves reading or execution absence | reject | metadata independently observes13 Bash starts/9seats despite canonical-none declarations |
+| Round self-admission / outside SHONEN tick | reject | current non-author admit/reject spot-check remains pending; C3 declared target is falsified and no-harm is not established |
+
+C3 strict faults: build scope-line mismatches Oracle05TagTree, Oracle06TagBlob, Oracle08NestedTag; falsify scope-line mismatches Fx05TagTree, Fx06TagBlob and predicate mismatch FxC3Report. These are exact-line conformance findings, not source-hash mismatch or proof of forgery. Missing1 build and10 falsify reports remain visible; the failed Fx09Nested retained a partial report. No provider-dead seat is replaced.
+
+All19 tool selftests exit0; changed tallies C1=28, C3=24, revision judge=78, each zero failures. Census selftest reports97 exercised passes and two explicit skipped root fixtures; skips are not exercised controls. All39 expected command exits match, but expected-red C3/scope exits are not acceptance or clean verdicts. Default/original object-selector modes remain9/9; registry19/19 with0missing/0findings, live-map errors0; all seven protected baseline prefixes and four legacy-function/binder byte-equality checks hold.
+
+Both review manifests equal their actual predispatch committed blobs, are ancestors of the measured revision, and every primary snapshot matches its pinned origin. Integrity evidence also records delivered report digests. Build source copies map to baseline82e5192 and falsify copies to candidate0a14952; those older reviews are not relabeled fresh final-code certification. Final repairs were exercised by L1's immutable run, not by claiming the source-only mutation seats executed.
+
+Source census80→82, A72→74/B1/C7, mined66→68/queued5/rejected9; initial/final validate exit0, warnings8→9 (S082 URL overlap). Exact outputs: `census-start.txt` and `measure/census-end.txt`. Frontier advances0, no new repertoire row. The fleet-root porcelain sweep found no tsukuroi misroot; unrelated runtime changes and untracked kengaku round27 report were left untouched.
+
+Trend judgments are author-side: expansion unchanged (held ground), quality improved (corrected/source-bound entry and fail-capable gates, no stale entry left unmarked), discernment improved through grounded prior outside-debt learning plus explicit new scope-contradiction recognition, not outside agreement. The current independent spot-check is still pending. The open L0 asks for an enforced NO-EXEC toolset; this round is not self-admitted and starts no next round.
+
+Precision: Fx01Nested's last observed outcome is an absent-final-message warning, not a proven provider cause; “provider-dead” in the preceding scope paragraph means failed seat, not a provider attribution for that one identity. Its earlier Bash start and missing report remain independently recorded.
+
+## L1 mechanics qualification
+
+The three code executors wrote disjoint draft directories inside the lane checkout, not separate Git worktrees. L1 alone edited production files and VCS state, so there was no concurrent production/index writer, but this does **not** satisfy a literal separate-worktree requirement for every code writer. It is a round-mechanics defect, not a waiver. No worktree is created retrospectively to claim otherwise. The existing round contract and QUALITY24 capture the requirement; current evidence is preserved and independent closure must grade it.
+
+Byte-equality count precision: the ledger compares four legacy function bodies plus the shared binder, five comparisons in total; all are true. The preceding shorthand “four legacy-function/binder” refers to the four function comparisons, not a claim that the binder was omitted.
