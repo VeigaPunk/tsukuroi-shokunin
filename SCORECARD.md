@@ -628,3 +628,17 @@ Preregistration: `.ufo/waves/round-20/preregister.json`, written before candidat
 - **Scope gates:** build `seat-scope` exits1 for13 missing reports, the13 known provider-rate-limit deaths; falsify `seat-scope` exits1 for20 annotated `Scope: executed=none.` trailers. Neither is rewritten; the declarations do not independently prove command absence. There are0 `SCOPE-EXEC-UNAUTHORIZED` and0 `SCOPE-UNDECLARED` findings in both captures.
 - **C2 limit:** the preregistered per-consumer matrix stays fixed; supplementary shared-binder selftests now cover non-empty trees, tags to blob/tree and nested tags. The original-nine consumer matrix does not establish universal tag-target coverage. No arbitrary-shell, host/boot-readiness, ownership-award, or filesystem-write claim is made.
 - **retired:** none. Independent closure and operator recovery/arbitration remain external.
+
+## Round 21 — preregistered target-type and review evidence closure
+
+Baseline `82e519203e676c532b1dc5ea91a85671f2286e7b`; round20 admitted externally at rounds[404]. Three causally separable claims, frozen before candidate outputs in `.ufo/waves/round-21/preregister.json`:
+
+| Claim | Axis | Before → target | Counting command |
+|---|---|---|---|
+| C1 source-grounded selector type decision contract | depth (tied-lowest8) | validated decision_rows0→5 for commit/tree/blob/tag-to-commit/tag-to-noncommit | `python3 tools/check-selector-contract.py --revision <REV>` |
+| C2 consumer target-type controls | operability9 | target_type_tools0→9, new explicitly selected matrix; preserve round20 object-selectors unchanged | `python3 tools/check-revision-binding.py --tools-revision <REV> --object-target-types` |
+| C3 review byte/predicate binding | calibration9 | pinned_reviews0→every delivered round21 review, with preregistered snapshot SHA-256 and exact predicate | `python3 tools/check-review-snapshots.py --revision <REV> --manifest .ufo/waves/round-21/reviews.json` |
+
+All ordinal deltas0; adjacency8/coverage9/freshness9 unchanged, saturation9/window3, retired none. No capability, exploratory claim, host-recovery action or global semantic completeness. Historical round20's13 missing reports and20 malformed trailers remain immutable RED; this round demonstrates future prevention without manufacturing dead-seat reports. Reservations must precede dispatch and review digests must precede reviewed outputs. L1 holds canonical planner; independent outside closure remains required.
+
+- **planned (current):** complete only round21, then hand off; never start round22.
