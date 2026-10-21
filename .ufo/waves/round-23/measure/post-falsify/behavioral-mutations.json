@@ -1,0 +1,226 @@
+{
+  "schema": "tsukuroi-r23-falsifier-mutations-v1",
+  "scope": "L1 author-side, pristine->single-mutant->byte-restored controls; only exit1/FAIL with named failing fixture counts as a behavioral kill, not a crash. Original 27-mutant receipt remains historical evidence at a61db549.",
+  "results": [
+    {
+      "name": "c1-prose",
+      "tool": "tools/check-edit-contract.py",
+      "original": "if hashlib.sha256(text.encode('utf-8')).hexdigest() != PROSE_SHA256:",
+      "mutant": "if False:",
+      "pristine_exit": 0,
+      "mutant_exit": 1,
+      "restored_exit": 0,
+      "mutant_status": "FAIL",
+      "failing_cases": [
+        "prose-grant",
+        "unknown-grant",
+        "added-prose",
+        "ninth-row"
+      ],
+      "behavioral_kill": true
+    },
+    {
+      "name": "c1-source",
+      "tool": "tools/check-edit-contract.py",
+      "original": "if found != [SOURCE_ROW]:",
+      "mutant": "if False:",
+      "pristine_exit": 0,
+      "mutant_exit": 1,
+      "restored_exit": 0,
+      "mutant_status": "FAIL",
+      "failing_cases": [
+        "source-missing",
+        "source-wrong-path",
+        "source-wrong-tier",
+        "source-rejected",
+        "source-duplicate",
+        "source-teaches-forgery"
+      ],
+      "behavioral_kill": true
+    },
+    {
+      "name": "c1-steps",
+      "tool": "tools/check-edit-contract.py",
+      "original": "for start in starts:",
+      "mutant": "for start in []:",
+      "pristine_exit": 0,
+      "mutant_exit": 1,
+      "restored_exit": 0,
+      "mutant_status": "FAIL",
+      "failing_cases": [
+        "evidence-invalid-start",
+        "evidence-start-exec",
+        "evidence-start-other-target",
+        "evidence-start-extra-key",
+        "evidence-start-line-zero"
+      ],
+      "behavioral_kill": true
+    },
+    {
+      "name": "c1-target",
+      "tool": "tools/check-edit-contract.py",
+      "original": "!= [C1_DECLARATION]",
+      "mutant": "== []",
+      "pristine_exit": 0,
+      "mutant_exit": 1,
+      "restored_exit": 0,
+      "mutant_status": "FAIL",
+      "failing_cases": [
+        "claim-target-move"
+      ],
+      "behavioral_kill": true
+    },
+    {
+      "name": "c2-replace-grant",
+      "tool": "tools/check-seat-bindings.py",
+      "original": "if value not in binding['edit_paths']:",
+      "mutant": "if value not in binding['edit_paths'] and set(args) - {'i'} != {'path', 'old_string', 'new_string'}:",
+      "pristine_exit": 0,
+      "mutant_exit": 1,
+      "restored_exit": 0,
+      "mutant_status": "FAIL",
+      "failing_cases": [
+        "v2-replace-denied-readonly",
+        "v2-replace-denied-outside"
+      ],
+      "behavioral_kill": true
+    },
+    {
+      "name": "c2-nested-v1",
+      "tool": "tools/check-seat-bindings.py",
+      "original": "binding, depth + 1, allow_structured_edit))",
+      "mutant": "binding, depth + 1, True))",
+      "pristine_exit": 0,
+      "mutant_exit": 1,
+      "restored_exit": 0,
+      "mutant_status": "FAIL",
+      "failing_cases": [
+        "v1-nested-edit-no-grant"
+      ],
+      "behavioral_kill": true
+    },
+    {
+      "name": "c2-mode",
+      "tool": "tools/check-seat-bindings.py",
+      "original": "result['structured_edit_mode'] = int(code != 2)",
+      "mutant": "result['structured_edit_mode'] = 1",
+      "pristine_exit": 0,
+      "mutant_exit": 1,
+      "restored_exit": 0,
+      "mutant_status": "FAIL",
+      "failing_cases": [
+        "v2-opaque-patch",
+        "v2-unknown-key",
+        "v2-mixed-shapes",
+        "v2-half-replace",
+        "v2-missing-path",
+        "v2-malformed-then-bash",
+        "v2-edit-not-readable",
+        "v2-edit-not-writable",
+        "v2-edit-paths-missing",
+        "v2-edit-paths-duplicate",
+        "v2-edit-paths-skill",
+        "v2-row-marker",
+        "v2-events-trace-marker",
+        "v2-malformed-events-json",
+        "v2-top-extra-field",
+        "v2-empty-target"
+      ],
+      "behavioral_kill": true
+    },
+    {
+      "name": "c3-components",
+      "tool": "tools/check-path-reconciliation.py",
+      "original": "and (first_bad is None or canonical[:1] == [first_bad])",
+      "mutant": "",
+      "pristine_exit": 0,
+      "mutant_exit": 1,
+      "restored_exit": 0,
+      "mutant_status": "FAIL",
+      "failing_cases": [
+        "agree-component-mismatch"
+      ],
+      "behavioral_kill": true
+    },
+    {
+      "name": "c3-selector",
+      "tool": "tools/check-path-reconciliation.py",
+      "original": "and _local(selected['lane_base'])\n                      and selected['rough_spelling'] == selected['lane_base'] + ':raw'\n                      and raw_components[first_bad].startswith(selected['lane_base'] + ':raw:')",
+      "mutant": "",
+      "pristine_exit": 0,
+      "mutant_exit": 1,
+      "restored_exit": 0,
+      "mutant_status": "FAIL",
+      "failing_cases": [
+        "url-selector-not-normalization",
+        "url-port-not-normalization",
+        "selector-img",
+        "selector-conflicts"
+      ],
+      "behavioral_kill": true
+    },
+    {
+      "name": "c3-pin",
+      "tool": "tools/check-path-reconciliation.py",
+      "original": "if not isinstance(pins_raw, bytes) or hashlib.sha256(pins_raw).hexdigest() != pin_sha:",
+      "mutant": "if False:",
+      "pristine_exit": 0,
+      "mutant_exit": 1,
+      "restored_exit": 0,
+      "mutant_status": "FAIL",
+      "failing_cases": [
+        "pin-manifest-identity"
+      ],
+      "behavioral_kill": true
+    },
+    {
+      "name": "c3-ledger",
+      "tool": "tools/check-path-reconciliation.py",
+      "original": "if recorded != derived:",
+      "mutant": "if False:",
+      "pristine_exit": 0,
+      "mutant_exit": 1,
+      "restored_exit": 0,
+      "mutant_status": "FAIL",
+      "failing_cases": [
+        "forged-disposition",
+        "dropped-row",
+        "duplicate-row",
+        "wrong-arithmetic-total"
+      ],
+      "behavioral_kill": true
+    },
+    {
+      "name": "collector-child",
+      "tool": ".ufo/waves/round-23/collect.py",
+      "original": "if set(child) != {'recipient_name', 'parameters'}:",
+      "mutant": "if False:",
+      "pristine_exit": 0,
+      "mutant_exit": 1,
+      "restored_exit": 0,
+      "mutant_status": "FAIL",
+      "failing_cases": [
+        "child-extra-preserved"
+      ],
+      "behavioral_kill": true
+    },
+    {
+      "name": "collector-start",
+      "tool": ".ufo/waves/round-23/collect.py",
+      "original": "    return True\n\n\ndef collect",
+      "mutant": "    return False\n\n\ndef collect",
+      "pristine_exit": 0,
+      "mutant_exit": 1,
+      "restored_exit": 0,
+      "mutant_status": "FAIL",
+      "failing_cases": [
+        "missing-target",
+        "null-args",
+        "truncated-foreign",
+        "empty-truncated-prefix",
+        "middle-ellipsis"
+      ],
+      "behavioral_kill": true
+    }
+  ]
+}

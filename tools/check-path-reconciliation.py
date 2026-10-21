@@ -23,6 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 LANE = '/home/vgpnk/Projects/shokunin/tsukuroi-shokunin'
 W23 = '.ufo/waves/round-23'
 PINS = W23 + '/frozen/reconciliation-inputs.json'
+PIN_SHA256 = 'a771f3233f79325b811fdd0d582c452051384879e6d0d2852a791bfb9b566537'  # frozen by preregistration commit 56c8ba3
 LEDGER = W23 + '/path-reconciliation.json'
 COHORTS = ('build', 'falsify')
 SCHEMA = 'tsukuroi-path-reconciliation-v1'
@@ -133,10 +134,19 @@ def derive(wave, events, bindings, audit):
                 canonical = canonical_event(tool, args, bound[name])
                 kept = retained.get(site, 0)
                 rough_count = int(category == 'path')
-                if rough_count == len(canonical) == kept:
+                raw_components = components(tool, args) if tool in ROUGH_TOOLS else []
+                detail = [{'index': n, 'path': value,
+                           'rough_spelling': ROUGH_SUFFIX.sub('', value) if tool in ('read', 'grep') else value,
+                           'lane_base': canonical_base(value, tool in ('read', 'grep')),
+                           'lane_path_denied': n in canonical}
+                          for n, value in enumerate(raw_components)]
+                selected = detail[first_bad] if first_bad is not None else None
+                if rough_count == len(canonical) == kept and (first_bad is None or canonical[:1] == [first_bad]):
                     disposition = 'agree'
                 elif (rough_count == 1 and kept == 0 and not canonical and tool in ('read', 'grep')
-                      and ROUGH_SUFFIX.sub('', components(tool, args)[first_bad]) != canonical_base(components(tool, args)[first_bad], True)):
+                      and _local(selected['lane_base'])
+                      and selected['rough_spelling'] == selected['lane_base'] + ':raw'
+                      and raw_components[first_bad].startswith(selected['lane_base'] + ':raw:')):
                     disposition = 'selector-normalization'
                 elif rough_count == 1 and kept == len(canonical) > 1 and first_bad == canonical[0]:
                     disposition = 'unit-difference'
@@ -145,6 +155,9 @@ def derive(wave, events, bindings, audit):
                 rows.append({
                     'site': site, 'tool': tool, 'call_id': event.get('call_id'),
                     'request_arguments_sha256': event.get('request_arguments_sha256'),
+                    'agent': seat.get('agent'), 'request_line': event.get('request_line'),
+                    'start_line': event.get('start_line'), 'origin': event.get('origin', 'primary'),
+                    'components': detail,
                     'rough_category': category, 'rough_first_bad': first_bad, 'rough_path_count': rough_count,
                     'canonical_bad': canonical, 'canonical_path_count': len(canonical),
                     'retained_path_count': kept, 'disposition': disposition,
@@ -191,10 +204,12 @@ def cohort_findings(wave, derived, recorded, expected):
     return findings
 
 
-def evaluate(pins_raw, files, ledger_raw):
-    """files: repo path -> bytes (or None). Returns (code, payload)."""
+def evaluate(pins_raw, files, ledger_raw, *, pin_sha=PIN_SHA256):
+    """files: repo path -> bytes; alternate pin_sha is only for isolated literal selftest inputs."""
     base = {'reconciliation_mode': 1, 'scope': SCOPE}
     try:
+        if not isinstance(pins_raw, bytes) or hashlib.sha256(pins_raw).hexdigest() != pin_sha:
+            return 2, dict(base, status='CANNOT_EVALUATE', unexplained_cohorts=None, findings=[{'id': 'SNAPSHOT-TAMPERED', 'site': PINS}])
         pins = strict(pins_raw)
         if pins.get('schema') != 'tsukuroi-reconciliation-inputs-v1' or set(pins['expected']) != set(COHORTS):
             raise ValueError('pins schema')
@@ -296,6 +311,11 @@ def selftest():
     # 2b offsetting pair: one rough-only and one retained-only event balance the totals but stay unexplained.
     offset = events(('read', a + ':raw:1-2'), ('read', a))
     case('offsetting-pair-net-zero', offset, bindings([a]), audit('S:1'), 1, 1, 1, 'RECONCILIATION-UNEXPLAINED')
+    case('agree-component-mismatch', events(('grep', a + ':raw:1-2;/outside')), bindings([a]), audit('S:0'), 1, 1, 1, 'RECONCILIATION-UNEXPLAINED')
+    case('url-selector-not-normalization', events(('read', 'https://example.invalid/:1-5')), bindings([a]), audit(), 1, 0, 1, 'RECONCILIATION-UNEXPLAINED')
+    case('url-port-not-normalization', events(('read', 'https://example.invalid:8080')), bindings([a]), audit(), 1, 0, 1, 'RECONCILIATION-UNEXPLAINED')
+    case('qualified-denied-unexplained', events(('functions.read', b)), bindings([a]), audit('S:0'), 0, 1, 1, 'RECONCILIATION-UNEXPLAINED')
+    case('missing-path-unexplained', events(('read', '')), bindings([a]), audit(), 1, 0, 1, 'RECONCILIATION-UNEXPLAINED')
     # 3 per-component unit: rough breaks after first bad, lane counts two.
     multi = events(('grep', a + ';' + b + ';' + L + 'c.md'))
     case('one-per-event-vs-per-component', multi, bindings([a]), audit('S:0', 'S:0'), 1, 2, 0)
@@ -324,14 +344,25 @@ def selftest():
          ledger=json.dumps({'schema': SCHEMA, 'inputs_sha256': '0' * 64, 'cohorts': [{'wave': 'build'}, {'wave': 'falsify'}]}).encode())
     bad_events = {'schema': 'tsukuroi-seat-events-v1', 'seats': [{'name': 'GHOST', 'events': []}]}
     case('event-roster-forgery', bad_events, bindings([a]), audit(), 0, 0, 2, 'RECONCILIATION-INPUT-MALFORMED')
-    # 9 non-path categories stay agree with zero path counts; URL is a separate class in both totals.
+    # 9 non-path categories carry zero path counts; this is not a clearance of exec/unknown findings.
     nonpath = events(('bash', ''), ('edit', a), ('read', 'skill://godspeed'))
     case('non-path-events', nonpath, bindings([a, 'skill://godspeed']), audit(), 0, 0, 0)
+    case('rough-over-count-direction', events(('read', a + ':raw:1-2')), bindings([a]), audit(), 0, 0, 1, 'RECONCILIATION-ROUGH-COUNT')
+    case('retained-over-count-direction', clean, bindings([a]), audit('S:1'), 1, 0, 1, 'RECONCILIATION-RETAINED-COUNT')
+    case('grep-selector-strip', events(('grep', a + ':1-2:raw')), bindings([a]), audit(), 0, 0, 0)
+    case('skill-requires-authority', events(('read', 'skill://godspeed')), bindings([a]), audit('S:0'), 1, 1, 0)
+    for selector in ('img', 'conflicts'):
+        case('selector-' + selector, events(('read', a + ':' + selector)), bindings([a]), audit(), 1, 0, 1, 'RECONCILIATION-UNEXPLAINED')
+    surplus = bindings([a]); surplus['seats'].append({'name': 'MISSING', 'read_paths': [a], 'write_paths': [a]})
+    case('missing-event-seat', clean, surplus, audit('S:1'), 1, 1, 2, 'RECONCILIATION-INPUT-MALFORMED')
     observations = []
     for name, pins, files, raw, want_code, want_id in cases:
-        code, payload = evaluate(pins, files, raw)
+        code, payload = evaluate(pins, files, raw, pin_sha=hashlib.sha256(pins).hexdigest())
         ids = [f['id'] for f in payload['findings']]
         observations.append({'case': name, 'exit': code, 'ids': ids, 'pass': code == want_code and (want_id is None or want_id in ids) and (want_code != 0 or not ids)})
+    code, bad_pins = evaluate(pins, files, raw, pin_sha='0' * 64)
+    observations.append({'case': 'pin-manifest-identity', 'exit': code,
+                         'pass': code == 2 and bad_pins['findings'] == [{'id': 'SNAPSHOT-TAMPERED', 'site': PINS}]})
     # direct unit controls of the two counting rules
     units = [
         ('rough-misses-raw-first', rough_event('read', {'path': a + ':raw:1-2'}, {'read_paths': [a]}) == ('path', 0)),
@@ -369,6 +400,10 @@ def main(argv=None):
             raise RuntimeError('pins absent')
         files = {path: git_read(binding.sha, path) for path in strict(pins_raw)['inputs']}
         if args.emit_ledger:
+            checked, diagnostic = evaluate(pins_raw, files, None)
+            if checked == 2:
+                print(json.dumps(diagnostic, sort_keys=True))
+                return 2
             print(json.dumps(build_ledger(pins_raw, files), indent=1, sort_keys=True))
             return 0
         code, payload = evaluate(pins_raw, files, git_read(binding.sha, LEDGER))

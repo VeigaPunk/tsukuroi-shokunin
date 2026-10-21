@@ -3,6 +3,7 @@
 from __future__ import annotations
 import argparse
 import copy
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -28,9 +29,14 @@ EXPECTED = (
     ('EXPANSION', 'CHECK_EACH', 'Every recorded adapter read or write remains separately scoped', 'S086', POLICY),
 )
 LIMIT = 'Declared audit authority for structured target metadata only; no native prevention, opaque patch interpretation, effect or reading proof.'
-PROSE_LIMIT = 'It is not native permission enforcement'
+PROSE_LIMIT = 'This is declared post-hoc audit authority only. It is not native permission enforcement, a sandbox, body/patch interpretation, actual reading or effects proof, complete recorder coverage, or permission for host/package/service/boot actions. The task API still has no restrictive per-seat allowlist. Numeric mode availability is not compliance.'
+EVIDENCE_SCOPE = 'Observed structured path metadata and recorded adapter steps only, not universal tool semantics, native permission enforcement, effects, or reading proof.'
 LANE = '/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/'
 SHAPES = ({'path', 'stream_content'}, {'path', 'old_string', 'new_string'})
+# Closed finite document carrier: these literals are not a Markdown renderer or a prose theorem.
+PROSE_SHA256 = '4bf5433b57e7491024ce466b831c19a9879cfd8c79858fb88908ea8edaab746f'
+C1_DECLARATION = {'id': 'C1', 'axis': 'depth', 'metric': 'validated_edit_decisions', 'before': 0, 'target': 8, 'command': 'python3 tools/check-edit-contract.py --revision <REV>', 'scope': 'Eight finite source-grounded structured-edit authority decisions; new document contract, not eight repaired runtime behaviors.'}
+SOURCE_ROW = ['S086', 'Structured edit request metadata and adapter steps — .ufo/waves/round-23/sources/structured-edit-observations.json', 'own-work', 'A', 'Observed finite path/argument-key shapes and recorded native steps, not universal editor semantics, actual effects or runtime permission enforcement', 'observations argument_keys/path/recorded_starts and transcript SHA-256; baseline provenance at .ufo/waves/round-23/preregister.json baseline (ae01e50f582016384e620022be38bf5367000e2e); opened2026-10-21', 'Structured edit metadata exposes two finite target/body-key shapes and producer-attributed read/write/edit starts, not permission outcomes; authority is declared separately and prospectively for each exact target', 'mined', '2026-10-21', 'on-release', 'corpus/knowledge/structured-edit-r23.md, corpus/lessons/round-23.md']
 
 
 def unique(pairs):
@@ -93,21 +99,50 @@ def table_cells(text):
     return rows
 
 
+def prose_limit_ok(text):
+    # Finite visible-carrier rule, not arbitrary Markdown rendering or synonym detection.
+    lines = visible(text)
+    return (lines.count(PROSE_LIMIT) == 1
+            and all(not ("<" in line and not line.startswith("recheck:")) for line in lines)
+            and all(not re.search(r'enforc|sandbox|prevent', line, re.I) for line in lines if line != PROSE_LIMIT))
+
 def evidence_ok(evidence):
-    """S086 proves only observed metadata shapes and adapter steps; lane policy is separate."""
+    """Validate a finite metadata sample; nesting is producer attribution, not causal/effect proof."""
     data = json.loads(evidence, object_pairs_hook=unique)
-    rows = data['observations']
-    if data.get('schema') != 'tsukuroi-structured-edit-observations-v1' or not isinstance(rows, list) or not rows:
+    if (not isinstance(data, dict) or set(data) != {'schema', 'accessed', 'observations', 'scope'}
+            or data.get('scope') != EVIDENCE_SCOPE or data.get('accessed') != '2026-10-21'
+            or data.get('schema') != 'tsukuroi-structured-edit-observations-v1'):
         return False
-    shapes = set()
+    rows = data.get('observations')
+    if not isinstance(rows, list) or not rows:
+        return False
+    shapes, calls, agents = set(), set(), {}
+    fields = {'seat', 'agent', 'transcript_sha256', 'request_line', 'call_id', 'tool', 'argument_keys', 'path', 'body_fields', 'recorded_starts'}
     for row in rows:
-        keys = row['argument_keys']
-        if (row.get('tool') != 'edit' or not isinstance(keys, list) or len(keys) != len(set(keys))
-                or row.get('body_fields') != 'omitted; no report text copied'
-                or not isinstance(row.get('path'), str) or not row['path'].startswith(LANE) or '/../' in row['path']
-                or not isinstance(row.get('recorded_starts'), list) or not row['recorded_starts']
-                or not re.fullmatch(r'[0-9a-f]{64}', row.get('transcript_sha256', ''))):
+        if not isinstance(row, dict) or set(row) != fields:
             return False
+        keys, path, starts = row['argument_keys'], row['path'], row['recorded_starts']
+        if (row['tool'] != 'edit' or not isinstance(keys, list) or not all(isinstance(k, str) for k in keys)
+                or len(keys) != len(set(keys)) or row['body_fields'] != 'omitted; no report text copied'
+                or not isinstance(path, str) or not path.startswith(LANE) or path == LANE
+                or any(p in ('', '.', '..') for p in path.split('/')[1:]) or re.search(r'[:;*?\[\]\\\x00-\x20]', path)
+                or not isinstance(starts, list) or not starts
+                or not isinstance(row['seat'], str) or not row['seat'] or not isinstance(row['agent'], str) or not row['agent']
+                or not re.fullmatch(r'[0-9a-f]{64}', row['transcript_sha256'])
+                or type(row['request_line']) is not int or row['request_line'] <= 0
+                or not isinstance(row['call_id'], str) or not row['call_id'] or row['call_id'] in calls):
+            return False
+        calls.add(row['call_id'])
+        identity = (row['seat'], row['transcript_sha256'])
+        if row['agent'] in agents and agents[row['agent']] != identity:
+            return False
+        agents[row['agent']] = identity
+        for start in starts:
+            if (not isinstance(start, dict) or set(start) != {'line', 'tool', 'path'}
+                    or type(start['line']) is not int or start['line'] <= 0 or start['tool'] not in ('read', 'write', 'edit')
+                    or start['path'] not in ((path, path + ':raw') if start['tool'] == 'read' else (path,))):
+                return False
+        # Start ordering is intentionally not required: the sample includes starts before the request line.
         shapes.add(frozenset(set(keys) - {'i'}))
     return shapes == {frozenset(s) for s in SHAPES}
 
@@ -134,11 +169,19 @@ def evaluate(raw, prose, sources, evidence, preregister):
         declared = pre.get('edit_decisions') if isinstance(pre, dict) else None
         if declared != [list(e[:3]) for e in EXPECTED]:
             add('EDIT-POLICY-SOURCE', PREREGISTER)
-        found = [r for r in table_cells(source_text or '') if r and r[0] == 'S086']
-        if (len(found) != 1 or len(found[0]) != 11 or found[0][1].rsplit(' — ', 1)[-1] != EVIDENCE
-                or found[0][2:4] != ['own-work', 'A'] or found[0][7] != 'mined' or any('\\' in cell for cell in found[0])):
+        if (not isinstance(pre, dict) or pre.get('schema') != 'tsukuroi-round23-preregister-v1'
+                or pre.get('baseline') != 'ae01e50f582016384e620022be38bf5367000e2e'
+                or [c for c in pre.get('claims', []) if isinstance(c, dict) and c.get('id') == 'C1'] != [C1_DECLARATION]):
+            add('EDIT-CLAIM-BINDING', PREREGISTER)
+        found = [r for r in table_cells(source_text or '') if r and re.sub(r'[^A-Za-z0-9]', '', r[0]).upper() == 'S086']
+        if found != [SOURCE_ROW]:
             add('EDIT-SOURCE', 'S086')
         cells = table_cells(text)
+        if cells != [['ID', 'Decision', 'Reason', 'Evidence', 'Policy'], ['---'] * 5, *[list(e) for e in EXPECTED]]:
+            add('EDIT-TABLE', PROSE)
+        if hashlib.sha256(text.encode('utf-8')).hexdigest() != PROSE_SHA256:
+            add('EDIT-PROSE', PROSE)
+        visible_text = '\n'.join(visible(text))
         by_id = {r['id']: r for r in rows}
         for expected in EXPECTED:
             ident = expected[0]
@@ -146,11 +189,11 @@ def evaluate(raw, prose, sources, evidence, preregister):
             correct = (row is not None and set(row) == {'id', 'decision', 'reason', 'evidence', 'policy'}
                        and tuple(row.get(k) for k in ('id', 'decision', 'reason', 'evidence', 'policy')) == expected)
             matches = [r for r in cells if r and r[0] == ident]
-            if not correct or matches != [list(expected)]:
+            if not correct or matches != [list(expected)] or len(re.findall(r"(?<![A-Za-z0-9_])" + re.escape(ident) + r"(?![A-Za-z0-9_])", visible_text)) != 1:
                 add('EDIT-DECISION-MISMATCH', ident)
             else:
                 count += 1
-        if data.get('scope') != LIMIT or PROSE_LIMIT not in '\n'.join(visible(text)):
+        if data.get('scope') != LIMIT or not prose_limit_ok(text):
             add('EDIT-LIMIT-MISSING', 'scope')
         code = 1 if findings else 0
     except (ValueError, TypeError, KeyError, UnicodeError, AttributeError):
@@ -178,15 +221,17 @@ def selftest():
             'decisions': [dict(zip(('id', 'decision', 'reason', 'evidence', 'policy'), r)) for r in literal],
             'source_path': '.ufo/waves/round-23/sources/structured-edit-observations.json',
             'scope': 'Declared audit authority for structured target metadata only; no native prevention, opaque patch interpretation, effect or reading proof.'}
-    prose = '| ID | Decision | Reason | Evidence | Policy |\n|---|---|---|---|---|\n' + '\n'.join('| ' + ' | '.join(r) + ' |' for r in literal) + '\nIt is not native permission enforcement, a sandbox.'
-    sources = '| S086 | edit metadata — .ufo/waves/round-23/sources/structured-edit-observations.json | own-work | A | scope | anchor | teaches | mined | 2026-10-21 | on-release | entry |'
+    prose = "source: S086 — .ufo/waves/round-23/sources/structured-edit-observations.json, observations argument_keys/path/recorded_starts; policy: .ufo/waves/round-23/preregister.json edit_decisions\nverified-at: 2026-10-21; round23 source packet derived from round22 transcripts at baseline ae01e50f582016384e620022be38bf5367000e2e; landed gate measurements in SCORECARD.md Round23\nrecheck: python3 tools/check-edit-contract.py --revision <landed-hex>\n\n# Structured edit authority for this lane's evidence files\n\nThe source is a finite sample of four structured `edit` requests from two round22 seats, with a `path` field and either `stream_content` or `old_string`/`new_string` argument keys. Body values are deliberately omitted. The producer nests recorded starts under each request, but those starts do not carry their own call IDs; one read/write pair precedes its request line and three other requests have edit-only starts. Nesting is producer attribution, not independent causal, reading or effects proof. The sample witnesses metadata shapes, not any permission outcome or a denial instance.\n\nAuthority is separately declared lane policy. A source-only report writer can be granted exact prospective report-read/write/edit targets before dispatch; report ownership alone never grants extra reads or an edit. Schema-v1 historical bindings remain unchanged and retain all earlier violations. No grant is retroactive.\n\nAll eight table rows are prospective lane-policy decisions; S086 supplies the metadata vocabulary, not normative permission. Any missing leg of the read/write/edit conjunction is non-authorizing, including an edit-only declaration with neither read nor write. In the v2 auditor a malformed authority declaration or an unstructured edit is could-not-evaluate (exit2); a supported edit with a non-declared target is a finding (exit1). This does not enlarge the frozen eight-row target.\n\nThese decisions are tsukuroi's finite audit convention for bindings this lane declares and its own recorded steps, not a fleet binding-schema definition or a rule for sibling-owned tools. Supported edit keys are exactly `{path,stream_content}` or `{path,old_string,new_string}`, optionally `i`; body values remain opaque.\n\n## Decision table\n\n| ID | Decision | Reason | Evidence | Policy |\n|---|---|---|---|---|\n| DECLARED_EDIT | ALLOW | Exact target is predeclared for edit and for both read and write | S086 | round23-preregister |\n| UNDECLARED_EDIT | DENY | No implicit edit permission from generic report ownership | S086 | round23-preregister |\n| READ_ONLY_EDIT | DENY | Read authority never grants a write | S086 | round23-preregister |\n| WRITE_ONLY_EDIT | DENY | Edit also needs its explicit target read authority | S086 | round23-preregister |\n| OPAQUE_PATCH | UNKNOWN | Missing structured target is not inferred from opaque patch text | S086 | round23-preregister |\n| EDIT_TRAVERSAL | DENY | No dot-segment or alternate spelling expands the target list | S086 | round23-preregister |\n| EDIT_EXTERNAL | DENY | Remote or internal URIs do not become filesystem edit targets | S086 | round23-preregister |\n| EXPANSION | CHECK_EACH | Every recorded adapter read or write remains separately scoped | S086 | round23-preregister |\n\n## Bounded procedure\n\n1. Freeze explicit schema-v2 `edit_paths` as canonical literal subsets of both read and write targets. A malformed authority declaration is non-clean before interpreting an event.\n2. For a recorded structured edit, require the exact declared target and one of the two observed finite argument-key shapes, with only separately allowed metadata keys. Opaque body data is not interpreted or executed by the auditor.\n3. Missing structured targets, freeform patches, unknown keys, URI targets and alternate path spellings never gain authority by inference. Unknown means could-not-evaluate or rejection, never permission.\n4. Audit every captured native read/write expansion against its own authority. A valid frontend target cannot clear an out-of-binding backend step or a forbidden command/fetch.\n\nThis is declared post-hoc audit authority only. It is not native permission enforcement, a sandbox, body/patch interpretation, actual reading or effects proof, complete recorder coverage, or permission for host/package/service/boot actions. The task API still has no restrictive per-seat allowlist. Numeric mode availability is not compliance.\n\n## QUALITY check\n\nThe eight finite policy decisions are falsifiable, with observed source metadata separated from normative authority (QUALITY1/3/7/19/45). Independent literal positive/negative controls must check every row, source/policy mapping and refusal class; source-only opinions are not empirical runs. QUALITY42/46–48 require frozen inputs, actual request precedence and honest incomplete evidence. This deepens held evidence-operability ground, not an uncovered frontier, repertoire addition or outside promotion. Final admitted/rejected decisions and actual measurements belong to the round23 lesson and SCORECARD; no unrun result is asserted here.\n"
+    sources = '| S086 | Structured edit request metadata and adapter steps — .ufo/waves/round-23/sources/structured-edit-observations.json | own-work | A | Observed finite path/argument-key shapes and recorded native steps, not universal editor semantics, actual effects or runtime permission enforcement | observations argument_keys/path/recorded_starts and transcript SHA-256; baseline provenance at .ufo/waves/round-23/preregister.json baseline (ae01e50f582016384e620022be38bf5367000e2e); opened2026-10-21 | Structured edit metadata exposes two finite target/body-key shapes and producer-attributed read/write/edit starts, not permission outcomes; authority is declared separately and prospectively for each exact target | mined | 2026-10-21 | on-release | corpus/knowledge/structured-edit-r23.md, corpus/lessons/round-23.md |'
     lane = '/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/'
-    obs = {'schema': 'tsukuroi-structured-edit-observations-v1', 'observations': [
+    obs = {'schema': 'tsukuroi-structured-edit-observations-v1', 'accessed': '2026-10-21', 'scope': 'Observed structured path metadata and recorded adapter steps only, not universal tool semantics, native permission enforcement, effects, or reading proof.', 'observations': [
         {'tool': 'edit', 'argument_keys': ['path', 'stream_content'], 'path': lane + 'x/A.md', 'body_fields': 'omitted; no report text copied',
-         'recorded_starts': [{'tool': 'write'}], 'transcript_sha256': 'a' * 64},
+         'seat': 'A', 'agent': 'Agent.A', 'request_line': 15, 'call_id': 'callA', 'transcript_sha256': 'a' * 64,
+         'recorded_starts': [{'tool': 'read', 'line': 12, 'path': lane + 'x/A.md:raw'}, {'tool': 'write', 'line': 13, 'path': lane + 'x/A.md'}]},
         {'tool': 'edit', 'argument_keys': ['i', 'new_string', 'old_string', 'path'], 'path': lane + 'x/B.md', 'body_fields': 'omitted; no report text copied',
-         'recorded_starts': [{'tool': 'edit'}], 'transcript_sha256': 'b' * 64}]}
-    pre = {'edit_decisions': [list(r[:3]) for r in literal]}
+         'seat': 'B', 'agent': 'Agent.B', 'request_line': 20, 'call_id': 'callB', 'transcript_sha256': 'b' * 64,
+         'recorded_starts': [{'tool': 'edit', 'line': 21, 'path': lane + 'x/B.md'}]}]}
+    pre = {'schema': 'tsukuroi-round23-preregister-v1', 'baseline': 'ae01e50f582016384e620022be38bf5367000e2e', 'claims': [{'id': 'C1', 'axis': 'depth', 'metric': 'validated_edit_decisions', 'before': 0, 'target': 8, 'command': 'python3 tools/check-edit-contract.py --revision <REV>', 'scope': 'Eight finite source-grounded structured-edit authority decisions; new document contract, not eight repaired runtime behaviors.'}], 'edit_decisions': [list(r[:3]) for r in literal]}
     ev, pr = json.dumps(obs), json.dumps(pre)
     def mut(fn, base=obs):
         m = copy.deepcopy(base)
@@ -234,6 +279,44 @@ def selftest():
         ('policy-source-swap', json.dumps(data), prose, sources, ev, json.dumps({'edit_decisions': [list(r[:3]) for r in literal[::-1]]}), 1, 'EDIT-POLICY-SOURCE'),
         ('policy-source-missing', json.dumps(data), prose, sources, ev, None, 1, 'EDIT-POLICY-SOURCE'),
     ])
+    # Falsify-wave controls: exact visible limit carrier and exact shape-only source metadata.
+    for name, changed in [
+        ('later-enforcement-overclaim', prose + '\nThe checker provides native permission enforcement.'),
+        ('inverted-limit', prose.replace('It is not native permission enforcement,', 'It is not native permission enforcement that is missing;')),
+        ('struck-limit', prose.replace('This is declared post-hoc audit authority only.', '~~This is declared post-hoc audit authority only.')),
+        ('link-reference-limit', prose.replace('This is declared post-hoc audit authority only.', '[This is declared post-hoc audit authority only.')),
+        ('enforced-title', '# Native-enforced edits\n' + prose),
+        ('missing-companion-limits', prose.replace(' The task API still has no restrictive per-seat allowlist.', '')),
+    ]:
+        cases.append((name, json.dumps(data), changed, sources, ev, pr, 1, 'EDIT-LIMIT-MISSING'))
+    for carrier in ('**READ_ONLY_EDIT**', '`READ_ONLY_EDIT`', '[READ_ONLY_EDIT](x)', 'read_only_edit'):
+        cases.append(('duplicate-carrier-' + carrier, json.dumps(data), prose + '\n| ' + carrier + ' | ALLOW | wrong | S086 | round23-preregister |', sources, ev, pr, 1, 'EDIT-TABLE'))
+    cases.append(('prose-contradiction', json.dumps(data), prose + '\nREAD_ONLY_EDIT is ALLOW.', sources, ev, pr, 1, 'EDIT-DECISION-MISMATCH'))
+    cases.append(('html-hidden-table', json.dumps(data), '<div>\n' + prose + '\n</div>', sources, ev, pr, 1, 'EDIT-LIMIT-MISSING'))
+    for name, fn in [
+        ('scope-overclaim', lambda m: m.update(scope='Native prevention')),
+        ('extra-top-key', lambda m: m.update(new_string='report body')),
+        ('extra-row-key', lambda m: m['observations'][0].update(new_string='report body')),
+        ('missing-call-id', lambda m: m['observations'][0].pop('call_id')),
+        ('duplicate-call-id', lambda m: m['observations'][1].update(call_id='callA')),
+        ('request-line-zero', lambda m: m['observations'][0].update(request_line=0)),
+        ('request-line-bool', lambda m: m['observations'][0].update(request_line=True)),
+        ('invalid-start', lambda m: m['observations'][0].update(recorded_starts=[None])),
+        ('start-exec', lambda m: m['observations'][0]['recorded_starts'][0].update(tool='bash')),
+        ('start-other-target', lambda m: m['observations'][0]['recorded_starts'][0].update(path=lane + 'x/B.md')),
+        ('start-extra-key', lambda m: m['observations'][0]['recorded_starts'][0].update(content='body')),
+        ('start-line-zero', lambda m: m['observations'][0]['recorded_starts'][0].update(line=0)),
+        ('row-dot-path', lambda m: m['observations'][0].update(path=lane + 'x/../A.md')),
+        ('row-trailing-dot', lambda m: m['observations'][0].update(path=lane + 'x/..')),
+        ('row-selector', lambda m: m['observations'][0].update(path=lane + 'x/A.md:raw')),
+        ('agent-digest-drift', lambda m: m['observations'][1].update(agent='Agent.A')),
+    ]:
+        cases.append(('evidence-' + name, json.dumps(data), prose, sources, mut(fn), pr, 1, 'EDIT-EVIDENCE'))
+    for name, changed in [('prose-grant', prose.replace('report ownership alone never grants', 'report ownership alone grants')), ('unknown-grant', prose.replace('Unknown means could-not-evaluate or rejection, never permission.', 'Unknown is provisional permission.')), ('added-prose', prose + '\nAn extra authority assertion.'), ('ninth-row', prose + '\n| NATIVE_ENFORCE | ALLOW | x | S086 | round23-preregister |')]:
+        cases.append((name, json.dumps(data), changed, sources, ev, pr, 1, 'EDIT-PROSE'))
+    changed_pre = copy.deepcopy(pre); changed_pre['claims'][0]['target'] = 4
+    cases.append(('claim-target-move', json.dumps(data), prose, sources, ev, json.dumps(changed_pre), 1, 'EDIT-CLAIM-BINDING'))
+    cases.append(('source-teaches-forgery', json.dumps(data), prose, sources.replace('not permission outcomes', 'permission outcomes'), ev, pr, 1, 'EDIT-SOURCE'))
     observations = []
     for name, raw, text, src, evid, prereg, expected_code, expected_id in cases:
         code, result = evaluate(raw, text, src, evid, prereg)

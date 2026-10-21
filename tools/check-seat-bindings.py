@@ -140,8 +140,8 @@ def evaluate(manifest, events):
     v2 = False
     try:
         data = json.loads(manifest, object_pairs_hook=unique) if isinstance(manifest, (str, bytes)) else manifest
-        trace = json.loads(events, object_pairs_hook=unique) if isinstance(events, (str, bytes)) else events
         v2 = isinstance(data, dict) and data.get('schema') == 'tsukuroi-seat-bindings-v2'
+        trace = json.loads(events, object_pairs_hook=unique) if isinstance(events, (str, bytes)) else events
         if not isinstance(data, dict) or set(data) != {'schema', 'seats'} or data.get('schema') not in ('tsukuroi-seat-bindings-v1', 'tsukuroi-seat-bindings-v2') or not isinstance(data.get('seats'), list) or not data['seats']:
             raise ValueError('binding schema')
         bound = {}
@@ -335,6 +335,20 @@ def selftest():
     v2case('v1-edit-continuity', 'edit', {'path': report, 'stream_content': None}, 1, 'SCOPE-TOOL-UNKNOWN', manifest=binding, mode=-1)
     v2case('v2-schema-typo', 'read', {'path': src}, 2, 'SCOPE-SCHEMA', manifest=dict(v2, schema='tsukuroi-seat-bindings-v3'), mode=-1)
     v2case('v2-events-trace-marker', 'edit', {'path': other, 'stream_content': None, 'allow_structured_edit': True}, 2, 'SCOPE-SCHEMA')
+    v2case('v2-malformed-events-json', None, None, 2, 'SCOPE-SCHEMA', events='{')
+    v2case('v2-top-extra-field', 'read', {'path': src}, 2, 'SCOPE-SCHEMA', manifest=dict(v2, extra=[]))
+    v2case('v2-write-only-write', 'write', {'path': LANE + '/w-only.md'}, 0)
+    v2case('v2-replace-denied-readonly', 'edit', {'path': other, 'old_string': None, 'new_string': None}, 1, 'SCOPE-EDIT-DENIED')
+    v2case('v2-replace-denied-outside', 'edit', {'path': LANE + '/production', 'old_string': None, 'new_string': None}, 1, 'SCOPE-EDIT-DENIED')
+    v2case('v1-nested-edit-no-grant', 'parallel', {'tool_uses': [{'recipient_name': 'edit', 'parameters': {'path': target, 'stream_content': None}}]}, 1, 'SCOPE-TOOL-UNKNOWN', manifest=binding, mode=-1)
+    v2case('v2-empty-target', 'edit', {'path': '', 'stream_content': None}, 2, 'SCOPE-SCHEMA')
+    v2case('v2-uppercase-url', 'edit', {'path': 'HTTPS://EXAMPLE.INVALID/', 'stream_content': None}, 1, 'SCOPE-FETCH-DENIED')
+    v2case('v2-host-port', 'edit', {'path': 'localhost:9222/', 'stream_content': None}, 1, 'SCOPE-FETCH-DENIED')
+    for extra_tool in ('read', 'write'):
+        expanded = trace(); expanded['seats'][0]['events'] = [
+            {'tool': 'edit', 'args': {'path': target, 'stream_content': None}},
+            {'tool': extra_tool, 'args': {'path': LANE + '/production'}, 'origin': 'additional-recorded-start'}]
+        v2case('v2-expansion-other-' + extra_tool, None, None, 1, 'SCOPE-PATH-DENIED', events=expanded)
     observations = []
     for name, manifest, events, expected, fid in cases:
         code, result = evaluate(manifest, events)

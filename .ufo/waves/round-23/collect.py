@@ -39,9 +39,16 @@ def projection(tool, args, depth=0):
         children = args.get('tool_uses')
         if not isinstance(children, list):
             return {'tool_uses': None}
-        projected = {'tool_uses': [{'recipient_name': child.get('recipient_name'),
-                                   'parameters': projection(child.get('recipient_name'), child.get('parameters'), depth + 1)}
-                                  if isinstance(child, dict) else None for child in children]}
+        projected = {'tool_uses': []}
+        for child in children:
+            if not isinstance(child, dict):
+                projected['tool_uses'].append(None)
+                continue
+            item = {'recipient_name': child.get('recipient_name'),
+                    'parameters': projection(child.get('recipient_name'), child.get('parameters'), depth + 1)}
+            if set(child) != {'recipient_name', 'parameters'}:
+                item['__unknown_argument__'] = None
+            projected['tool_uses'].append(item)
         if set(args) != {'tool_uses'}:
             projected['__unknown_argument__'] = None
         return projected
@@ -91,6 +98,24 @@ def scope_path(tool, args):
             normalized.append(item)
         return normalized
     return [path]
+
+
+def distinct_start(tool, args, start_tool, start_args):
+    """Retain same-tool unknown paths, except a demonstrably matching truncated prefix."""
+    if not isinstance(start_tool, str) or start_tool.removeprefix('functions.') != tool.removeprefix('functions.'):
+        return True
+    if tool.removeprefix('functions.') not in ('read', 'grep', 'glob', 'write', 'edit'):
+        return False  # same-tool non-path start does not add path authority evidence
+    request_path, start_path = scope_path(tool, args), scope_path(start_tool, start_args)
+    if request_path is not None and start_path is not None:
+        return request_path != start_path
+    original = args.get('path') if isinstance(args, dict) else None
+    truncated = start_args.get('path') if isinstance(start_args, dict) else None
+    if isinstance(original, str) and isinstance(truncated, str) and truncated.endswith('…'):
+        prefix = truncated[:-1]
+        if prefix and original.startswith(prefix):
+            return False
+    return True
 
 
 def collect(wave, transcripts):
@@ -266,13 +291,10 @@ def collect(wave, transcripts):
                                   'call_id': ident, 'request_arguments_sha256': hashlib.sha256(canonical).hexdigest(),
                                   'digest_format': 'sorted ensure_ascii JSON arguments; not raw JSONL bytes'})
             for start_no, start_tool, start_args in start_payloads.get(ident, []):
-                different_tool = not isinstance(start_tool, str) or start_tool.removeprefix('functions.') != tool.removeprefix('functions.')
-                request_path = scope_path(tool, args)
-                start_path = scope_path(start_tool, start_args)
-                different_path = request_path is not None and start_path is not None and request_path != start_path
+                distinct = distinct_start(tool, args, start_tool, start_args)
                 if isinstance(start_args, dict) and isinstance(start_args.get('path'), str) and '…' in start_args['path']:
                     row.setdefault('start_argument_limits', []).append({'call_id': ident, 'scope': 'truncated start metadata; original request arguments retained'})
-                if ident in requested and (different_tool or different_path):
+                if ident in requested and distinct:
                     start_raw = json.dumps(start_args, sort_keys=True, ensure_ascii=True).encode('ascii')
                     row['events'].append({'tool': start_tool if isinstance(start_tool, str) else 'unknown',
                                           'args': projection(start_tool, start_args), 'request_line': None,
