@@ -1,0 +1,18 @@
+usage: check-recheck-commands.py [-h] (--revision REV | --selftest)
+                                 [--paths PATH [PATH ...]] [--exec-log PATH]
+                                 [--branch BRANCH] [--forbid LIST]
+
+Read-only recheck-procedure gate (rounds 17-18).
+
+options:
+  -h, --help            show this help message and exit
+  --revision REV        required: 7-64 hex commit; HEAD/@/refs are rejected
+  --selftest            hermetic fixture suite
+  --paths PATH [PATH ...]
+                        knowledge files or directories; directories expand to
+                        their *.md members (default: corpus/knowledge)
+  --exec-log PATH       lane-relative log of executed commands (`$ cmd` lines)
+                        to check against --forbid at the revision
+  --branch BRANCH       branch the revision must be landed on (default:
+                        master); validated by tools/_revision.py
+  --forbid LIST         comma-separated forbidden binaries
