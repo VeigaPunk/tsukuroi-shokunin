@@ -33,3 +33,13 @@ The literal `Scope: executed=none` is still required by the existing strict rece
 ## QUALITY check
 
 Criteria1–5: finite falsifiable decisions, observation/policy/unknown separated and historical rejects retained. Criteria7/19: S083 is scoped own-work evidence; S084 is the exposed schema plus Main host decision, not an implementation audit. Criteria24/31/42/44/46: narrower NO-EXEC/NO-FETCH, immutable bindings, dead-seat visibility and actual request precedence. Original errors remain red; new checks require fixed negative fixtures before their improvement counts. This deepens held evidence-operability ground; no province, host-recovery authority, new frontier, outside admission or promotion is acquired.
+
+## R22 final evidence boundaries
+
+The earlier heading “What is enforced and what is not” refers to declared policy and rejection at judgment time only. No native call is prevented. Native background-job receipts establish job completion/failure independently from provider transcript shape; a failed job is never inferred from a missing final message alone.
+
+The request inventory retains original requests **and** additional recorded adapter starts (for example an `edit` expanding to report-read/write). Source-only scope can be violated by those actions too; expansions are not implicitly authorized. Harmless reader-selector normalization is compared by source identity. Truncated start-summary arguments remain an explicit limit, not evidence of their contents or of operation effects. Available original-request completeness is not a theorem about the recorder.
+
+C3's `delivered_conformant` means only the existing strict check passed **both** primary-source identity and receipt declarations. Task outcome and actual request-scope findings stay separate. Settlement pins measured report bytes or absence; later drift fails without rewriting the old report. These pins do not prove chronology or authenticate provider causes. `cohort_accounting_mode=1` now requires successful finite accounting; schema, unreadable, drift and unresolved outcomes cannot satisfy it. The request-audit mode likewise requires an evaluable inventory, although a fully evaluated scope-violation result remains red. Numeric diagnostics never override exit/status/findings.
+
+The six decisions and their exact source/table fields are checked with independent literal controls, including source/host/visibility negatives. This is bounded carrier/source-identity evidence, not a general Markdown/HTML/CSS renderer or semantic proof of every surrounding sentence. Final empirical controls, evaluator identities and actual before→after results are recorded in the committed round22 measurement ledger, not inferred from source-only reviews.

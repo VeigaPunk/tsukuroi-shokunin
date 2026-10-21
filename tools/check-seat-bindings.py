@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 import re
 import subprocess
 import sys
@@ -47,10 +47,12 @@ def requested_path(value, selector=False):
         return value, 'SCOPE-FETCH-DENIED'
     if value == 'skill://godspeed':
         return value, None
-    if selector:
-        match = re.fullmatch(r'(.+?)(?::(?:raw|img|conflicts|[0-9]+(?:[-+][0-9]*)?|-[0-9]+|[0-9,-]+))*', value)
-        if match:
-            value = match[1]
+    if selector and ':' in value:
+        base, *tokens = value.split(':')
+        def valid_token(token):
+            return token in ('raw', 'img', 'conflicts') or all(re.fullmatch(r'\d+(?:[-+]\d*)?|-\d+', part) for part in token.split(','))
+        if tokens and all(valid_token(token) for token in tokens):
+            value = base
     if not local(value):
         return value, 'SCOPE-PATH-DENIED'
     return value, None
@@ -58,33 +60,46 @@ def requested_path(value, selector=False):
 
 def classify(tool, args, binding, depth=0):
     """Return finite post-hoc findings; never execute the requested operation."""
-    if not isinstance(tool, str) or not tool or not isinstance(args, dict) or depth > 8:
-        raise ValueError('malformed tool request or excessive wrapper nesting')
-    if tool in ('multi_tool_use.parallel', 'parallel'):
-        children = args.get('tool_uses')
-        if not isinstance(children, list) or not children:
-            raise ValueError('malformed parallel request')
-        findings = []
-        for child in children:
-            if not isinstance(child, dict):
-                raise ValueError('malformed parallel child')
-            findings.extend(classify(child.get('recipient_name'), child.get('parameters'), binding, depth + 1))
-        return findings
+    if not isinstance(tool, str) or not tool or depth > 8:
+        raise ValueError('malformed tool name or excessive wrapper nesting')
     if tool.startswith('functions.'):
         tool = tool[len('functions.'):]
+    # A known forbidden tool remains evidence even when its payload is missing.
     if tool in ('bash', 'eval', 'task'):
         return ['SCOPE-EXEC-DENIED']
     if tool in ('web_search', 'browser') or tool.startswith('browser.'):
         return ['SCOPE-FETCH-DENIED']
-    if tool not in ('read', 'grep', 'glob', 'write'):
+    if tool not in ('read', 'grep', 'glob', 'write', 'multi_tool_use.parallel', 'parallel'):
         return ['SCOPE-TOOL-UNKNOWN']
+    if not isinstance(args, dict):
+        raise ValueError('malformed tool arguments')
+    if tool in ('multi_tool_use.parallel', 'parallel'):
+        children = args.get('tool_uses')
+        if set(args) != {'tool_uses'} or not isinstance(children, list) or not children:
+            raise ValueError('malformed parallel request')
+        findings = []
+        for child in children:
+            try:
+                if not isinstance(child, dict) or set(child) != {'recipient_name', 'parameters'}:
+                    raise ValueError('malformed parallel child')
+                findings.extend(classify(child.get('recipient_name'), child.get('parameters'), binding, depth + 1))
+            except (ValueError, TypeError, KeyError, AttributeError):
+                findings.append('SCOPE-SCHEMA')
+        return findings
+    allowed_keys = {
+        'read': {'i', 'path'},
+        'grep': {'i', 'pattern', 'path', 'case', 'gitignore', 'skip'},
+        'glob': {'i', 'path', 'hidden', 'gitignore', 'limit'},
+        'write': {'i', 'path', 'content'},
+    }
+    unknown_keys = bool(set(args) - allowed_keys[tool])
     value = args.get('path')
     if not isinstance(value, str) or not value:
         raise ValueError('missing explicit path')
     values = value.split(';') if tool in ('grep', 'glob') else [value]
-    findings = []
+    findings = ['SCOPE-SCHEMA'] if unknown_keys else []
     for value in values:
-        path, denial = requested_path(value, selector=tool == 'read')
+        path, denial = requested_path(value, selector=tool in ('read', 'grep'))
         if denial:
             findings.append(denial)
         elif path not in binding['write_paths' if tool == 'write' else 'read_paths']:
@@ -102,7 +117,7 @@ def evaluate(manifest, events):
     try:
         data = json.loads(manifest, object_pairs_hook=unique) if isinstance(manifest, (str, bytes)) else manifest
         trace = json.loads(events, object_pairs_hook=unique) if isinstance(events, (str, bytes)) else events
-        if not isinstance(data, dict) or data.get('schema') != 'tsukuroi-seat-bindings-v1' or not isinstance(data.get('seats'), list) or not data['seats']:
+        if not isinstance(data, dict) or set(data) != {'schema', 'seats'} or data.get('schema') != 'tsukuroi-seat-bindings-v1' or not isinstance(data.get('seats'), list) or not data['seats']:
             raise ValueError('binding schema')
         bound = {}
         for seat in data['seats']:
@@ -113,7 +128,7 @@ def evaluate(manifest, events):
                 if not isinstance(paths, list) or not paths or any(not local(p) and not (field == 'read_paths' and p == 'skill://godspeed') for p in paths) or len(paths) != len(set(paths)):
                     raise ValueError('binding paths')
             bound[seat['name']] = seat
-        if not isinstance(trace, dict) or trace.get('schema') != 'tsukuroi-seat-events-v1' or not isinstance(trace.get('seats'), list):
+        if not isinstance(trace, dict) or set(trace) - {'schema', 'seats', 'coverage'} or trace.get('schema') != 'tsukuroi-seat-events-v1' or not isinstance(trace.get('seats'), list):
             raise ValueError('events schema')
         by_name, agents = {}, set()
         for seat in trace['seats']:
@@ -132,23 +147,29 @@ def evaluate(manifest, events):
                 add('SCOPE-TRACE-INCOMPLETE', name)
             seat_findings = []
             for index, event in enumerate(seat['events']):
-                if not isinstance(event, dict):
-                    raise ValueError('event shape')
                 total += 1
-                ids = classify(event.get('tool'), event.get('args'), binding)
+                try:
+                    if not isinstance(event, dict):
+                        raise ValueError('event shape')
+                    ids = classify(event.get('tool'), event.get('args'), binding)
+                except (ValueError, TypeError, KeyError, AttributeError, UnicodeError):
+                    ids = ['SCOPE-SCHEMA']
                 for fid in ids:
                     add(fid, f'{name}:{index}')
                     seat_findings.append(fid)
-                violations += len(ids)
+                violations += sum(fid != 'SCOPE-SCHEMA' for fid in ids)
             rows.append({'name': name, 'agent': seat['agent'], 'requests': len(seat['events']), 'complete': seat['complete'], 'violations': seat_findings})
-        code = 2 if incomplete else (1 if findings else 0)
-    except (ValueError, TypeError, KeyError, AttributeError, UnicodeError):
+        code = 2 if incomplete or any(f['id'] == 'SCOPE-SCHEMA' for f in findings) else (1 if findings else 0)
+    except (ValueError, TypeError, KeyError, AttributeError, UnicodeError, RecursionError):
         add('SCOPE-SCHEMA', 'input')
         code = 2
         bound = locals().get('bound', {})
-    return code, {'status': ('PASS', 'FAIL', 'CANNOT_EVALUATE')[code], 'request_audit_mode': 1,
+    return code, {'status': ('PASS', 'FAIL', 'CANNOT_EVALUATE')[code], 'request_audit_mode': int(code != 2),
                   'seats_bound': len(bound), 'requests_total': total, 'violations': violations,
-                  'incomplete_seats': incomplete, 'seats': rows, 'findings': findings, 'scope': SCOPE}
+                  'incomplete_seats': incomplete,
+                  'missing_seats': sum(f['id'] == 'SCOPE-TRACE-MISSING' for f in findings),
+                  'present_incomplete_seats': sum(f['id'] == 'SCOPE-TRACE-INCOMPLETE' for f in findings),
+                  'seats': rows, 'findings': findings, 'scope': SCOPE}
 
 
 def selftest():
@@ -188,11 +209,59 @@ def selftest():
     empty = trace(); empty['seats'][0]['events'] = []
     badbinding = copy.deepcopy(binding); badbinding['seats'][0]['fetches'] = ['https://example.invalid']
     cases.extend([('missing-trace', binding, missing, 2, 'SCOPE-TRACE-MISSING'), ('incomplete', binding, incomplete_trace, 2, 'SCOPE-TRACE-INCOMPLETE'), ('duplicate', binding, duplicate, 2, 'SCOPE-SCHEMA'), ('unknown-seat', binding, unknown, 2, 'SCOPE-SCHEMA'), ('empty-trace', binding, empty, 0, None), ('nonempty-fetch-allowlist', badbinding, trace(), 2, 'SCOPE-SCHEMA'), ('missing-manifest', None, trace(), 1, 'SCOPE-BINDINGS-MISSING'), ('duplicate-json-key', '{"seats":[],"seats":[]}', trace(), 2, 'SCOPE-SCHEMA')])
+    case('read-write-only', 'read', {'path': report}, 1, 'SCOPE-PATH-DENIED')
+    case('write-read-only', 'write', {'path': src}, 1, 'SCOPE-PATH-DENIED')
+    case('qualified-write', 'functions.write', {'path': report}, 0)
+    case('skill-write', 'write', {'path': 'skill://godspeed'}, 1, 'SCOPE-PATH-DENIED')
+    case('skill-other', 'read', {'path': 'skill://other'}, 1, 'SCOPE-PATH-DENIED')
+    case('skill-selector', 'read', {'path': 'skill://godspeed:raw'}, 1, 'SCOPE-PATH-DENIED')
+    case('extra-argument', 'glob', {'path': src, 'pattern': '/outside/*'}, 2, 'SCOPE-SCHEMA')
+    case('qualified-parallel', 'functions.multi_tool_use.parallel', {'tool_uses': [{'recipient_name': 'functions.read', 'parameters': {'path': src}}]}, 0)
+    case('null-exec-args', 'bash', None, 1, 'SCOPE-EXEC-DENIED')
+    case('mixed-parallel', 'multi_tool_use.parallel', {'tool_uses': [{'recipient_name': 'read', 'parameters': {}}, {'recipient_name': 'bash', 'parameters': {}}]}, 2, ('SCOPE-SCHEMA', 'SCOPE-EXEC-DENIED'))
+    combined = trace('bash', {}); combined['seats'][0]['complete'] = False
+    cases.append(('incomplete-exec', binding, combined, 2, ('SCOPE-TRACE-INCOMPLETE', 'SCOPE-EXEC-DENIED')))
+    continued = trace(); continued['seats'][0]['events'] = [{'tool': 'read', 'args': {}}, {'tool': 'bash', 'args': {}}]
+    cases.append(('malformed-before-exec', binding, continued, 2, ('SCOPE-SCHEMA', 'SCOPE-EXEC-DENIED')))
+    dup_paths = copy.deepcopy(binding); dup_paths['seats'][0]['read_paths'].append(src)
+    cases.append(('duplicate-bound-path', dup_paths, trace(), 2, 'SCOPE-SCHEMA'))
+    dup_names = copy.deepcopy(binding); dup_names['seats'].append(copy.deepcopy(dup_names['seats'][0]))
+    cases.append(('duplicate-bound-name', dup_names, trace(), 2, 'SCOPE-SCHEMA'))
+    bad_name = copy.deepcopy(binding); bad_name['seats'][0]['name'] = '-A'
+    bad_trace = trace(); bad_trace['seats'][0]['name'] = '-A'
+    cases.append(('bad-bound-name', bad_name, bad_trace, 2, 'SCOPE-SCHEMA'))
+    cases.append(('duplicate-valid-json', '{"schema":"bad",' + json.dumps(binding)[1:], trace(), 2, 'SCOPE-SCHEMA'))
+    dup_trace = trace(); dup_trace['seats'].append(dict(dup_trace['seats'][0], agent='agent-B'))
+    cases.append(('duplicate-trace-name-only', binding, dup_trace, 2, 'SCOPE-SCHEMA'))
+    case('grep-nonvacuity', 'grep', {'path': src + ';' + src}, 0)
+    case('glob-nonvacuity', 'glob', {'path': src}, 0)
+    case('semicolon-first-denied', 'grep', {'path': '/outside;' + src}, 1, 'SCOPE-PATH-DENIED')
+    case('grep-selector', 'grep', {'path': src + ':1-5'}, 0)
+    case('linear-invalid-selector', 'read', {'path': src + ':' + '1-' * 1000 + '#'}, 1, 'SCOPE-PATH-DENIED')
+    case('double-slash', 'read', {'path': LANE + '//source'}, 1, 'SCOPE-PATH-DENIED')
+    case('extra-url-key', 'read', {'path': src, 'url': 'https://example.invalid'}, 2, 'SCOPE-SCHEMA')
+    case('fetch-with-extra-key', 'read', {'path': 'https://example.invalid', 'url': 'https://example.invalid'}, 2, ('SCOPE-SCHEMA', 'SCOPE-FETCH-DENIED'))
+    nested = {'recipient_name': 'bash', 'parameters': {}}
+    for _ in range(3):
+        nested = {'recipient_name': 'multi_tool_use.parallel', 'parameters': {'tool_uses': [nested]}}
+    case('nested-exec', 'multi_tool_use.parallel', {'tool_uses': [nested]}, 1, 'SCOPE-EXEC-DENIED')
+    for _ in range(8):
+        nested = {'recipient_name': 'multi_tool_use.parallel', 'parameters': {'tool_uses': [nested]}}
+    case('depth-exhausted', 'multi_tool_use.parallel', {'tool_uses': [nested]}, 2, 'SCOPE-SCHEMA')
+    bad_root = copy.deepcopy(binding); bad_root['seats'][0]['root'] = '/outside'
+    cases.append(('foreign-root', bad_root, trace(), 2, 'SCOPE-SCHEMA'))
+    commands = copy.deepcopy(binding); commands['seats'][0]['commands'] = ['true']
+    cases.append(('nonempty-commands', commands, trace(), 2, 'SCOPE-SCHEMA'))
+    null_args = trace('bash', {}); null_args['seats'][0]['events'][0]['args'] = None
+    cases.append(('actual-null-exec-args', binding, null_args, 1, 'SCOPE-EXEC-DENIED'))
+    extra_trace = trace(); extra_trace['sidecar_requests'] = [{'tool': 'bash', 'args': {}}]
+    cases.append(('trace-sidecar', binding, extra_trace, 2, 'SCOPE-SCHEMA'))
     observations = []
     for name, manifest, events, expected, fid in cases:
         code, result = evaluate(manifest, events)
         ids = [f['id'] for f in result['findings']]
-        observations.append({'case': name, 'exit': code, 'ids': ids, 'pass': code == expected and (fid is None or fid in ids)})
+        required = () if fid is None else (fid if isinstance(fid, tuple) else (fid,))
+        observations.append({'case': name, 'exit': code, 'ids': ids, 'pass': code == expected and all(item in ids for item in required)})
     failed = sum(not o['pass'] for o in observations)
     print(json.dumps({'status': 'FAIL' if failed else 'PASS', 'cases': len(cases), 'failed': failed, 'observations': observations}))
     return int(bool(failed))

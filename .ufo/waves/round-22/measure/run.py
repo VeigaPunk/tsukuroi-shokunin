@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """L1-only once-final measurement from a fresh nonlocal clone; no host probes."""
 import argparse
-import ast
+from collections import Counter
 import hashlib
 import json
 import os
@@ -59,6 +59,9 @@ def main():
             continue
         interpreter = 'bash' if tool.suffix == '.sh' else sys.executable
         run('selftest-' + tool.stem, [interpreter, str(tool.relative_to(clone)), '--selftest'], 0)
+    run('collector-dialects', [sys.executable, '.ufo/waves/round-22/measure/collector-selftest.py'], 0)
+    run('mutation-witnesses', [sys.executable, '.ufo/waves/round-22/measure/mutation-witness.py'], 0)
+    run('native-outcomes', [sys.executable, '.ufo/waves/round-22/verify-native.py'], 0)
     run('registry', [sys.executable, 'tools/check-registry-coverage.py', '--revision', rev], 0)
     run('live-map', [sys.executable, 'tools/check-registry-coverage.py', '--revision', rev, '--audit-live-map'], 0)
     run('legacy-selectors', [sys.executable, 'tools/check-revision-binding.py', '--tools-revision', rev, '--object-selectors'], 0)
@@ -72,6 +75,21 @@ def main():
     unchanged = {p: git_bytes(BASE, p) == git_bytes(rev, p) for p in protected}
     integrity = {'baseline': BASE, 'target': rev, 'predispatch_build': PRE, 'unchanged': unchanged,
                  'evaluators_sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in (clone / 'tools').iterdir() if p.suffix in ('.py', '.sh')}, 'waves': {}}
+    def source_rows(revision):
+        result = {}
+        for line in git_bytes(revision, 'corpus/SOURCES.md').decode().splitlines():
+            cells = [cell.strip() for cell in line.split('|')[1:-1]]
+            if len(cells) == 11 and cells[0].startswith('S') and cells[0][1:].isdigit():
+                result[cells[0]] = cells
+        return result
+    before_sources, after_sources = source_rows(BASE), source_rows(rev)
+    source_counts = {}
+    for label, rows in [('before', before_sources), ('after', after_sources)]:
+        source_counts[label] = {'rows': len(rows), 'tier': dict(Counter(r[3] for r in rows.values())),
+                                'status': dict(Counter(r[7] for r in rows.values()))}
+    source_counts['old_rows_unchanged'] = all(after_sources.get(k) == row for k, row in before_sources.items())
+    source_counts['new_ids'] = sorted(set(after_sources) - set(before_sources))
+    (out / 'source-counts.json').write_text(json.dumps(source_counts, indent=2) + '\n')
     for wave in ('build', 'falsify'):
         prefix = f'.ufo/waves/round-22/{wave}/'
         origin = PRE if wave == 'build' else json.loads(git_bytes(rev, prefix + 'reservation.json'))['predispatch_commit']
