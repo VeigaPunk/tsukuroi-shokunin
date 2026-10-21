@@ -293,6 +293,9 @@ def selftest():
     case('mixed-raw-range-order', mixed, bindings([a]), audit('S:2'), 2, 1, 0)
     # 2 the same event explained only if retained count stays 0; a forged retained finding is unexplained.
     case('selector-but-retained', mixed, bindings([a]), audit('S:0', 'S:2'), 2, 2, 1, 'RECONCILIATION-UNEXPLAINED')
+    # 2b offsetting pair: one rough-only and one retained-only event balance the totals but stay unexplained.
+    offset = events(('read', a + ':raw:1-2'), ('read', a))
+    case('offsetting-pair-net-zero', offset, bindings([a]), audit('S:1'), 1, 1, 1, 'RECONCILIATION-UNEXPLAINED')
     # 3 per-component unit: rough breaks after first bad, lane counts two.
     multi = events(('grep', a + ';' + b + ';' + L + 'c.md'))
     case('one-per-event-vs-per-component', multi, bindings([a]), audit('S:0', 'S:0'), 1, 2, 0)
