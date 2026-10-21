@@ -1,0 +1,257 @@
+{
+ "schema": "tsukuroi-r23-l1-mutation-v1",
+ "author": "TsukuroiR23-2 (L1, author-side; not an outside verifier)",
+ "method": "single textual mutant per temp copy with tools/_revision.py; run --selftest; killed = nonzero exit",
+ "survivors_fixed_before_record": [
+  "reconciliation canonical_base stripping any token: added canonical-invalid-token-denied control",
+  "edit-contract per-row shape check: redundant with shape-set equality, removed",
+  "seat-bindings classify_edit local(): redundant with validated local edit_paths, removed"
+ ],
+ "results": [
+  {
+   "tool": "check-path-reconciliation.py",
+   "mutant": 0,
+   "original": "ROUGH_SUFFIX = re.compile(r':(raw|\\d[\\d\\-+,:]*|-\\d+|\\d+-)(:raw)?$')",
+   "mutated": "ROUGH_SUFFIX = re.compile(r'(:raw)?:(raw|\\d[\\d\\-+,:]*|-\\d+|\\d+-)(:raw)?$')",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-path-reconciliation.py",
+   "mutant": 1,
+   "original": "    if recorded != derived:\n        add('RECONCILIATION-LEDGER-MISMATCH', 'ledger')\n",
+   "mutated": "",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-path-reconciliation.py",
+   "mutant": 2,
+   "original": "            if hashlib.sha256(data).hexdigest() != digest:",
+   "mutated": "            if False:",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-path-reconciliation.py",
+   "mutant": 3,
+   "original": "            return 'path', index",
+   "mutated": "            return 'path', 0",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-path-reconciliation.py",
+   "mutant": 4,
+   "original": "        if candidate not in authority:\n            return 'path', index",
+   "mutated": "        if candidate not in authority:\n            continue",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-path-reconciliation.py",
+   "mutant": 5,
+   "original": "                elif rough_count == 1 and kept == len(canonical) > 1 and first_bad == canonical[0]:",
+   "mutated": "                elif rough_count == 1 and kept >= 1:",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-path-reconciliation.py",
+   "mutant": 6,
+   "original": "    if totals['retained_path'] != expected['lane_retained']:",
+   "mutated": "    if False:",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-path-reconciliation.py",
+   "mutant": 7,
+   "original": "        if not _local(base) or base not in authority:",
+   "mutated": "        if base not in authority:",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-path-reconciliation.py",
+   "mutant": 8,
+   "original": "    return base if tokens and all(_selector_token(t) for t in tokens) else value",
+   "mutated": "    return base",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-path-reconciliation.py",
+   "mutant": 9,
+   "original": "    if derived['orphan_retained_sites']:",
+   "mutated": "    if False:",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-edit-contract.py",
+   "mutant": 0,
+   "original": "            if not correct or matches != [list(expected)]:",
+   "mutated": "            if not correct:",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-edit-contract.py",
+   "mutant": 1,
+   "original": "        if declared != [list(e[:3]) for e in EXPECTED]:",
+   "mutated": "        if False:",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-edit-contract.py",
+   "mutant": 2,
+   "original": "    return shapes == {frozenset(s) for s in SHAPES}",
+   "mutated": "    return True",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-edit-contract.py",
+   "mutant": 3,
+   "original": "    return shapes == {frozenset(s) for s in SHAPES}",
+   "mutated": "    return len(shapes) >= 1",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-edit-contract.py",
+   "mutant": 4,
+   "original": "        if data.get('scope') != LIMIT or PROSE_LIMIT not in '\\n'.join(visible(text)):",
+   "mutated": "        if data.get('scope') != LIMIT:",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-edit-contract.py",
+   "mutant": 5,
+   "original": "            correct = (row is not None and set(row) == {'id', 'decision', 'reason', 'evidence', 'policy'}",
+   "mutated": "            correct = (row is not None",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-edit-contract.py",
+   "mutant": 6,
+   "original": "                or found[0][2:4] != ['own-work', 'A'] or found[0][7] != 'mined'",
+   "mutated": "                or found[0][7] != 'mined'",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-seat-bindings.py",
+   "mutant": 0,
+   "original": "    if tool == 'edit' and allow_structured_edit:",
+   "mutated": "    if tool == 'edit':",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-seat-bindings.py",
+   "mutant": 1,
+   "original": "    if value not in binding['edit_paths']:",
+   "mutated": "    if value not in binding['edit_paths'] and value not in binding['read_paths']:",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-seat-bindings.py",
+   "mutant": 2,
+   "original": "                        or any(not local(p) or p not in seat['read_paths'] or p not in seat['write_paths'] for p in edits)):",
+   "mutated": "                        or any(not local(p) or p not in seat['write_paths'] for p in edits)):",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-seat-bindings.py",
+   "mutant": 3,
+   "original": "                        or any(not local(p) or p not in seat['read_paths'] or p not in seat['write_paths'] for p in edits)):",
+   "mutated": "                        or any(not local(p) or p not in seat['read_paths'] for p in edits)):",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-seat-bindings.py",
+   "mutant": 4,
+   "original": "                if (set(seat) != {'name', 'root', 'read_paths', 'write_paths', 'edit_paths', 'commands', 'fetches'}\n                        or ",
+   "mutated": "                if (",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-seat-bindings.py",
+   "mutant": 5,
+   "original": "    if not isinstance(args, dict) or set(args) - {'i'} not in EDIT_SHAPES:",
+   "mutated": "    if not isinstance(args, dict) or 'path' not in args:",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-seat-bindings.py",
+   "mutant": 6,
+   "original": "                findings.extend(classify(child.get('recipient_name'), child.get('parameters'), binding, depth + 1, allow_structured_edit))",
+   "mutated": "                findings.extend(classify(child.get('recipient_name'), child.get('parameters'), binding, depth + 1))",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-seat-bindings.py",
+   "mutant": 7,
+   "original": "        result['structured_edit_mode'] = int(code != 2)",
+   "mutated": "        result['structured_edit_mode'] = 1",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-seat-bindings.py",
+   "mutant": 8,
+   "original": "    if re.match(r'(?i)^https?://', value) or re.match(r'^[^/:\\s]+:[0-9]+/', value):\n        return ['SCOPE-FETCH-DENIED']\n    if value not in binding['edit_paths']",
+   "mutated": "    if value not in binding['edit_paths']",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  },
+  {
+   "tool": "check-seat-bindings.py",
+   "mutant": 9,
+   "original": "        v2 = isinstance(data, dict) and data.get('schema') == 'tsukuroi-seat-bindings-v2'",
+   "mutated": "        v2 = isinstance(data, dict) and data.get('schema', '').startswith('tsukuroi-seat-bindings-v')",
+   "exit": 1,
+   "selftest": "FAIL",
+   "killed": true
+  }
+ ],
+ "killed": 27,
+ "total": 27
+}

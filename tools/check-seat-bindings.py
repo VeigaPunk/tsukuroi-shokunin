@@ -58,8 +58,12 @@ def requested_path(value, selector=False):
     return value, None
 
 
-def classify(tool, args, binding, depth=0):
-    """Return finite post-hoc findings; never execute the requested operation."""
+def classify(tool, args, binding, depth=0, allow_structured_edit=False):
+    """Return finite post-hoc findings; never execute the requested operation.
+
+    allow_structured_edit is set only by evaluate() from a validated top-level v2 schema,
+    never from a row field or event marker.
+    """
     if not isinstance(tool, str) or not tool or depth > 8:
         raise ValueError('malformed tool name or excessive wrapper nesting')
     if tool.startswith('functions.'):
@@ -69,6 +73,8 @@ def classify(tool, args, binding, depth=0):
         return ['SCOPE-EXEC-DENIED']
     if tool in ('web_search', 'browser') or tool.startswith('browser.'):
         return ['SCOPE-FETCH-DENIED']
+    if tool == 'edit' and allow_structured_edit:
+        return classify_edit(args, binding)
     if tool not in ('read', 'grep', 'glob', 'write', 'multi_tool_use.parallel', 'parallel'):
         return ['SCOPE-TOOL-UNKNOWN']
     if not isinstance(args, dict):
@@ -82,7 +88,7 @@ def classify(tool, args, binding, depth=0):
             try:
                 if not isinstance(child, dict) or set(child) != {'recipient_name', 'parameters'}:
                     raise ValueError('malformed parallel child')
-                findings.extend(classify(child.get('recipient_name'), child.get('parameters'), binding, depth + 1))
+                findings.extend(classify(child.get('recipient_name'), child.get('parameters'), binding, depth + 1, allow_structured_edit))
             except (ValueError, TypeError, KeyError, AttributeError):
                 findings.append('SCOPE-SCHEMA')
         return findings
@@ -107,6 +113,23 @@ def classify(tool, args, binding, depth=0):
     return findings
 
 
+EDIT_SHAPES = ({'path', 'stream_content'}, {'path', 'old_string', 'new_string'})
+
+
+def classify_edit(args, binding):
+    """v2 structured edit: exact declared target, finite observed key shapes; bodies stay opaque."""
+    if not isinstance(args, dict) or set(args) - {'i'} not in EDIT_SHAPES:
+        raise ValueError('unstructured or unknown edit arguments')
+    value = args.get('path')
+    if not isinstance(value, str) or not value:
+        raise ValueError('missing explicit edit target')
+    if re.match(r'(?i)^https?://', value) or re.match(r'^[^/:\s]+:[0-9]+/', value):
+        return ['SCOPE-FETCH-DENIED']
+    if value not in binding['edit_paths']:
+        return ['SCOPE-EDIT-DENIED']
+    return []
+
+
 def evaluate(manifest, events):
     findings, rows = [], []
     def add(fid, site):
@@ -114,10 +137,12 @@ def evaluate(manifest, events):
     if manifest is None:
         return 1, {'status': 'FAIL', 'request_audit_mode': 0, 'seats_bound': 0, 'requests_total': 0, 'findings': [{'id': 'SCOPE-BINDINGS-MISSING', 'site': 'manifest'}], 'scope': SCOPE}
     total = violations = incomplete = 0
+    v2 = False
     try:
         data = json.loads(manifest, object_pairs_hook=unique) if isinstance(manifest, (str, bytes)) else manifest
         trace = json.loads(events, object_pairs_hook=unique) if isinstance(events, (str, bytes)) else events
-        if not isinstance(data, dict) or set(data) != {'schema', 'seats'} or data.get('schema') != 'tsukuroi-seat-bindings-v1' or not isinstance(data.get('seats'), list) or not data['seats']:
+        v2 = isinstance(data, dict) and data.get('schema') == 'tsukuroi-seat-bindings-v2'
+        if not isinstance(data, dict) or set(data) != {'schema', 'seats'} or data.get('schema') not in ('tsukuroi-seat-bindings-v1', 'tsukuroi-seat-bindings-v2') or not isinstance(data.get('seats'), list) or not data['seats']:
             raise ValueError('binding schema')
         bound = {}
         for seat in data['seats']:
@@ -127,6 +152,13 @@ def evaluate(manifest, events):
                 paths = seat.get(field)
                 if not isinstance(paths, list) or not paths or any(not local(p) and not (field == 'read_paths' and p == 'skill://godspeed') for p in paths) or len(paths) != len(set(paths)):
                     raise ValueError('binding paths')
+            if v2:
+                # Explicit v2 authority: every exact edit target is also literally readable and writable.
+                edits = seat.get('edit_paths')
+                if (set(seat) != {'name', 'root', 'read_paths', 'write_paths', 'edit_paths', 'commands', 'fetches'}
+                        or not isinstance(edits, list) or len(edits) != len(set(edits))
+                        or any(not local(p) or p not in seat['read_paths'] or p not in seat['write_paths'] for p in edits)):
+                    raise ValueError('v2 edit authority')
             bound[seat['name']] = seat
         if not isinstance(trace, dict) or set(trace) - {'schema', 'seats', 'coverage'} or trace.get('schema') != 'tsukuroi-seat-events-v1' or not isinstance(trace.get('seats'), list):
             raise ValueError('events schema')
@@ -151,7 +183,7 @@ def evaluate(manifest, events):
                 try:
                     if not isinstance(event, dict):
                         raise ValueError('event shape')
-                    ids = classify(event.get('tool'), event.get('args'), binding)
+                    ids = classify(event.get('tool'), event.get('args'), binding, allow_structured_edit=v2)
                 except (ValueError, TypeError, KeyError, AttributeError, UnicodeError):
                     ids = ['SCOPE-SCHEMA']
                 for fid in ids:
@@ -164,12 +196,15 @@ def evaluate(manifest, events):
         add('SCOPE-SCHEMA', 'input')
         code = 2
         bound = locals().get('bound', {})
-    return code, {'status': ('PASS', 'FAIL', 'CANNOT_EVALUATE')[code], 'request_audit_mode': int(code != 2),
-                  'seats_bound': len(bound), 'requests_total': total, 'violations': violations,
-                  'incomplete_seats': incomplete,
-                  'missing_seats': sum(f['id'] == 'SCOPE-TRACE-MISSING' for f in findings),
-                  'present_incomplete_seats': sum(f['id'] == 'SCOPE-TRACE-INCOMPLETE' for f in findings),
-                  'seats': rows, 'findings': findings, 'scope': SCOPE}
+    result = {'status': ('PASS', 'FAIL', 'CANNOT_EVALUATE')[code], 'request_audit_mode': int(code != 2),
+              'seats_bound': len(bound), 'requests_total': total, 'violations': violations,
+              'incomplete_seats': incomplete,
+              'missing_seats': sum(f['id'] == 'SCOPE-TRACE-MISSING' for f in findings),
+              'present_incomplete_seats': sum(f['id'] == 'SCOPE-TRACE-INCOMPLETE' for f in findings),
+              'seats': rows, 'findings': findings, 'scope': SCOPE}
+    if v2:
+        result['structured_edit_mode'] = int(code != 2)
+    return code, result
 
 
 def selftest():
@@ -256,14 +291,65 @@ def selftest():
     cases.append(('actual-null-exec-args', binding, null_args, 1, 'SCOPE-EXEC-DENIED'))
     extra_trace = trace(); extra_trace['sidecar_requests'] = [{'tool': 'bash', 'args': {}}]
     cases.append(('trace-sidecar', binding, extra_trace, 2, 'SCOPE-SCHEMA'))
+    # Schema-v2 structured edit controls: literal fixtures, independent of production manifests.
+    target, other = LANE + '/drafts/A.md', LANE + '/drafts/B.md'
+    v2 = {'schema': 'tsukuroi-seat-bindings-v2', 'seats': [{'name': 'A', 'root': LANE, 'read_paths': [src, target, other, 'skill://godspeed'],
+                                                          'write_paths': [target, LANE + '/w-only.md'], 'edit_paths': [target], 'commands': [], 'fetches': []}]}
+    v2_cases = []
+    def v2case(name, tool, args, code, fid=None, manifest=None, mode=None, events=None):
+        v2_cases.append((name, v2 if manifest is None else manifest, trace(tool, args) if events is None else events, code, fid, (int(code != 2) if mode is None else mode)))
+    v2case('v2-stream-edit', 'edit', {'path': target, 'stream_content': None}, 0)
+    v2case('v2-replace-edit', 'edit', {'i': None, 'path': target, 'old_string': None, 'new_string': None}, 0)
+    v2case('v2-qualified-edit', 'functions.edit', {'path': target, 'stream_content': None}, 0)
+    v2case('v2-read-only-target', 'edit', {'path': other, 'stream_content': None}, 1, 'SCOPE-EDIT-DENIED')
+    v2case('v2-write-only-target', 'edit', {'path': LANE + '/w-only.md', 'stream_content': None}, 1, 'SCOPE-EDIT-DENIED')
+    v2case('v2-undeclared-target', 'edit', {'path': LANE + '/production', 'stream_content': None}, 1, 'SCOPE-EDIT-DENIED')
+    for spelling in (target + '/', LANE + '/drafts/./A.md', LANE + '/x/../drafts/A.md', LANE + '//drafts/A.md', target + ':raw', 'drafts/A.md', 'skill://godspeed', 'xd://edit', target.upper()):
+        v2case('v2-spelling-' + spelling, 'edit', {'path': spelling, 'stream_content': None}, 1, 'SCOPE-EDIT-DENIED')
+    v2case('v2-url-target', 'edit', {'path': 'https://example.invalid/A.md', 'stream_content': None}, 1, 'SCOPE-FETCH-DENIED')
+    v2case('v2-opaque-patch', 'edit', {'input': None}, 2, 'SCOPE-SCHEMA')
+    v2case('v2-unknown-key', 'edit', {'path': target, 'stream_content': None, '__unknown_argument__': None}, 2, 'SCOPE-SCHEMA')
+    v2case('v2-mixed-shapes', 'edit', {'path': target, 'stream_content': None, 'old_string': None, 'new_string': None}, 2, 'SCOPE-SCHEMA')
+    v2case('v2-half-replace', 'edit', {'path': target, 'old_string': None}, 2, 'SCOPE-SCHEMA')
+    v2case('v2-missing-path', 'edit', {'stream_content': None}, 2, 'SCOPE-SCHEMA')
+    v2case('v2-nested-edit', 'multi_tool_use.parallel', {'tool_uses': [{'recipient_name': 'functions.edit', 'parameters': {'path': target, 'stream_content': None}}]}, 0)
+    v2case('v2-nested-denied', 'multi_tool_use.parallel', {'tool_uses': [{'recipient_name': 'edit', 'parameters': {'path': other, 'stream_content': None}}]}, 1, 'SCOPE-EDIT-DENIED')
+    after_bad = trace(); after_bad['seats'][0]['events'] = [{'tool': 'edit', 'args': {'input': None}}, {'tool': 'bash', 'args': {}}]
+    v2case('v2-malformed-then-bash', None, None, 2, ('SCOPE-SCHEMA', 'SCOPE-EXEC-DENIED'), events=after_bad)
+    v2case('v2-read-still-scoped', 'read', {'path': LANE + '/w-only.md'}, 1, 'SCOPE-PATH-DENIED')
+    v2case('v2-write-target', 'write', {'path': target}, 0)
+    # Authority declarations: subset, presence, no forged markers, v1 continuity.
+    def v2mut(fn):
+        m = copy.deepcopy(v2)
+        fn(m['seats'][0])
+        return m
+    v2case('v2-edit-not-readable', 'read', {'path': src}, 2, 'SCOPE-SCHEMA', manifest=v2mut(lambda s: s.update(edit_paths=[LANE + '/w-only.md'])))
+    v2case('v2-edit-not-writable', 'read', {'path': src}, 2, 'SCOPE-SCHEMA', manifest=v2mut(lambda s: s.update(edit_paths=[other])))
+    v2case('v2-edit-paths-missing', 'read', {'path': src}, 2, 'SCOPE-SCHEMA', manifest=v2mut(lambda s: s.pop('edit_paths')))
+    v2case('v2-edit-paths-duplicate', 'read', {'path': src}, 2, 'SCOPE-SCHEMA', manifest=v2mut(lambda s: s.update(edit_paths=[target, target])))
+    v2case('v2-edit-paths-skill', 'read', {'path': src}, 2, 'SCOPE-SCHEMA', manifest=v2mut(lambda s: s.update(edit_paths=['skill://godspeed'])))
+    v2case('v2-row-marker', 'read', {'path': src}, 2, 'SCOPE-SCHEMA', manifest=v2mut(lambda s: s.update(allow_structured_edit=True)))
+    v2case('v2-empty-edit-paths', 'edit', {'path': target, 'stream_content': None}, 1, 'SCOPE-EDIT-DENIED', manifest=v2mut(lambda s: s.update(edit_paths=[])))
+    v1_with_edit_field = copy.deepcopy(v2); v1_with_edit_field['schema'] = 'tsukuroi-seat-bindings-v1'
+    v2case('v1-extra-edit-field-no-grant', 'edit', {'path': target, 'stream_content': None}, 1, 'SCOPE-TOOL-UNKNOWN', manifest=v1_with_edit_field, mode=-1)
+    v2case('v1-edit-continuity', 'edit', {'path': report, 'stream_content': None}, 1, 'SCOPE-TOOL-UNKNOWN', manifest=binding, mode=-1)
+    v2case('v2-schema-typo', 'read', {'path': src}, 2, 'SCOPE-SCHEMA', manifest=dict(v2, schema='tsukuroi-seat-bindings-v3'), mode=-1)
+    v2case('v2-events-trace-marker', 'edit', {'path': other, 'stream_content': None, 'allow_structured_edit': True}, 2, 'SCOPE-SCHEMA')
     observations = []
     for name, manifest, events, expected, fid in cases:
         code, result = evaluate(manifest, events)
         ids = [f['id'] for f in result['findings']]
         required = () if fid is None else (fid if isinstance(fid, tuple) else (fid,))
         observations.append({'case': name, 'exit': code, 'ids': ids, 'pass': code == expected and all(item in ids for item in required)})
+    for name, manifest, events, expected, fid, mode in v2_cases:
+        code, result = evaluate(manifest, events)
+        ids = [f['id'] for f in result['findings']]
+        required = () if fid is None else (fid if isinstance(fid, tuple) else (fid,))
+        mode_ok = ('structured_edit_mode' not in result) if mode == -1 else result.get('structured_edit_mode') == mode
+        observations.append({'case': name, 'exit': code, 'ids': ids, 'mode': result.get('structured_edit_mode'),
+                             'pass': code == expected and all(item in ids for item in required) and (expected != 0 or not ids) and mode_ok})
     failed = sum(not o['pass'] for o in observations)
-    print(json.dumps({'status': 'FAIL' if failed else 'PASS', 'cases': len(cases), 'failed': failed, 'observations': observations}))
+    print(json.dumps({'status': 'FAIL' if failed else 'PASS', 'cases': len(observations), 'v1_cases': len(cases), 'v2_cases': len(v2_cases), 'failed': failed, 'observations': observations}))
     return int(bool(failed))
 
 

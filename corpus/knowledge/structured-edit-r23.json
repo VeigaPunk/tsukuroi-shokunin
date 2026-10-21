@@ -1,0 +1,63 @@
+{
+  "schema": "tsukuroi-edit-policy-v1",
+  "decisions": [
+    {
+      "id": "DECLARED_EDIT",
+      "decision": "ALLOW",
+      "reason": "Exact target is predeclared for edit and for both read and write",
+      "evidence": "S086",
+      "policy": "round23-preregister"
+    },
+    {
+      "id": "UNDECLARED_EDIT",
+      "decision": "DENY",
+      "reason": "No implicit edit permission from generic report ownership",
+      "evidence": "S086",
+      "policy": "round23-preregister"
+    },
+    {
+      "id": "READ_ONLY_EDIT",
+      "decision": "DENY",
+      "reason": "Read authority never grants a write",
+      "evidence": "S086",
+      "policy": "round23-preregister"
+    },
+    {
+      "id": "WRITE_ONLY_EDIT",
+      "decision": "DENY",
+      "reason": "Edit also needs its explicit target read authority",
+      "evidence": "S086",
+      "policy": "round23-preregister"
+    },
+    {
+      "id": "OPAQUE_PATCH",
+      "decision": "UNKNOWN",
+      "reason": "Missing structured target is not inferred from opaque patch text",
+      "evidence": "S086",
+      "policy": "round23-preregister"
+    },
+    {
+      "id": "EDIT_TRAVERSAL",
+      "decision": "DENY",
+      "reason": "No dot-segment or alternate spelling expands the target list",
+      "evidence": "S086",
+      "policy": "round23-preregister"
+    },
+    {
+      "id": "EDIT_EXTERNAL",
+      "decision": "DENY",
+      "reason": "Remote or internal URIs do not become filesystem edit targets",
+      "evidence": "S086",
+      "policy": "round23-preregister"
+    },
+    {
+      "id": "EXPANSION",
+      "decision": "CHECK_EACH",
+      "reason": "Every recorded adapter read or write remains separately scoped",
+      "evidence": "S086",
+      "policy": "round23-preregister"
+    }
+  ],
+  "source_path": ".ufo/waves/round-23/sources/structured-edit-observations.json",
+  "scope": "Declared audit authority for structured target metadata only; no native prevention, opaque patch interpretation, effect or reading proof."
+}
