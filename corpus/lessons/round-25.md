@@ -69,7 +69,7 @@ Spot-check result: owed to the non-author closure; not self-granted.
 
 ## Gate errata after wave 2 (appended 2026-10-22, before closure)
 
-- S120 anchor: the sha256 in `corpus/SOURCES.md` row S120 has a transposition (`…5632d4a6…`); the fetched bytes of `https://raw.githubusercontent.com/systemd/systemd/v262/man/oomd.conf.xml` hash to `36ae3e474a6e5632a4d61ae91b4d930bc9c3657ebf9f9081db5b7ba4cc926617` (CritC2Supersession). The registry row is append-only outside status, recheck and used-by, so this erratum carries the correction; the three copies in this round's SKILL.md section were corrected in place.
+- S120 anchor: the sha256 in `corpus/SOURCES.md` row S120 has a transposition (`…5632d4a6…`); the fetched bytes of `https://raw.githubusercontent.com/systemd/systemd/v262/man/oomd.conf.xml` hash to `36ae3e474a6e5632a4d61ae91b4d930bc9c3657ebf9f9081db5b7ba4cc926617` (CritC2Supersession). The registry row is append-only outside its status, re-check date and used-by cells, so this erratum (and the superseding row S126) carries the correction; the three copies in this round's SKILL.md section were corrected in place.
 - S125 anchor: the entry cites mori facts F2, F9 and F10, not F1 to F4 and F10 as the row says; the row also carries no blob digest. Mori's note at `4f05dd5a` lists `include/linux/psi.h` facts as pointers for a later round, so MP3's root-identity fact rests on this lane's S117, not on mori (CritC2Adjacency).
 - R25-STALE-AXES-TABLE captured-by: QUALITY 55 (stale host-state premise) partly covered the same failing example; it did not cover the lane's self-assessment table, which QUALITY 57 now does (CritTrendVerdicts).
 

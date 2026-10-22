@@ -859,3 +859,14 @@ enter through this rollout. The boot-chain-audit selftest count in the round-11
 table (44 of 44) is superseded here by the landed round-17 measurement of 45
 cases with 45 passed and 0 failed, and the host-census-gate count is the current
 97 cases, not the 80 of the round-11 table.
+
+### Round 25 measured outcome
+
+Measured at the final production revision, the commit that carries this section (its hash is recorded in `LOG.md` and the fleet report, since a commit cannot name itself). Receipts: `.ufo/waves/round-25/measure/final2/`. Earlier measurements at `5e7c04ecb02735491456de2b8bc44550d0db4609` are in `.ufo/waves/round-25/measure/`.
+
+| Claim | Before at `b9046016` | After | Author verdict |
+|---|---|---|---|
+| C1 self-assessment mismatches (calibration, ordinal unchanged at 9) | exit 1, 13 of 23 (K02 K04 K06 K07 K08 K09 K10 K11 K12 K13 K15 K17 K21) | exit 0, 0 of 23 | declared target met by the declared command; wave 2 found the zero partly by construction: K01, K04 and K05 resolve to this round's own declaration text, and 2 of the 13 base mismatches were path-grammar artifacts (K21 fixed by a one-phrase SHONEN.md rewording). Eleven stale facts were repaired |
+| C2 memory-pressure entry (depth, ordinal unchanged at 8) | exit 2, CAPTURE-MISSING, 0 rows | exit 0, 6 of 6 rows with complete evidence links | declared target met; wave 2 showed the checker counts evidence links, not verdict truth (MutC2Rules 8 of 17 killed); per-row reviewers found MP2 and MP6 hold and MP1, MP3, MP4, MP5 partly hold; corrections are appended to the entry |
+
+The C2 run at `c93bd70f` crashed (traceback in `tools/check-memory-pressure.py` `recheck_log` on a lesson prose line with an S-id and the word recheck but no arrow); the lesson line was reworded and the measurement re-run. The checker is not changed after measurement; its hardening is a round-26 item. No ordinal, capability or retirement changes. Planned: hand this round to a fresh non-author closure.
