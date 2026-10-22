@@ -74,7 +74,8 @@ def norm(text):
 
 def git(repo, *args):
     return subprocess.run(['git', '-C', repo] + list(args), capture_output=True,
-                          env={k: v for k, v in os.environ.items() if not k.startswith('GIT_')})
+                          env=dict({k: v for k, v in os.environ.items() if not k.startswith('GIT_')},
+                                   **{'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull}))
 
 
 def show(repo, rev, path):
