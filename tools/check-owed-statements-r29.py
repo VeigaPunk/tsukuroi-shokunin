@@ -22,7 +22,13 @@ folded (NFKC, Cyrillic/Greek O) before the uniqueness census, M1 is checked over
 only, `now` words must contain a letter after format characters are removed, a duplicated S### row
 is unusable, `S###` is ASCII-only, path references are normalised (no `tools/`, no `..`) and the
 cited line must be byte-identical at the claim base, and a JSON marker has exactly the seven keys
-with no repeated key.  Batteries: `tools/mutants-owed-statements-r29.py` (marker-free control) and
+with no repeated key.  Version 4 (round-29 residual ResCritV3OverStrict, over-strictness only): any
+CommonMark list or ordered-list prefix may precede a marker; a closed `<!-- ... -->` on a marker
+line is stripped instead of hiding the line; a JSON census counts only `"id": "R29-OWED-<id>"`
+(a mention inside another marker's text is not a marker); a JSON marker may also carry the metadata
+keys `round`, `marked_by`, `marked_at`, `status`, `corrected_by`; a cited line may have moved if
+its text occurs exactly once at the claim base and once at the revision; a capitalised verdict is
+reported as M4.  Batteries: `tools/mutants-owed-statements-r29.py` (marker-free control) and
 `tools/mutants-owed-statements-r29-landed.py` (landed markers).  Rules:
  M1  append-only: the base statement is unchanged at the revision.  Markdown: the full base
      line holding the anchor (sha256 in BASE_DIGEST) is still a line of the file, outside any
@@ -113,12 +119,14 @@ BASE_DIGEST = {
 }
 VERDICTS = {'corrected', 'rebutted', 'qualified'}
 MD_MARKER = re.compile(
-    r'^(?:- )?\**\[R29-OWED-(?P<id>O\d\d)\]\**\s*verdict:\s*(?P<verdict>[a-z]+)\s*\|\s*original:\s*"(?P<original>.*?)"'
+    r'^ {0,3}(?:[-*+] +|\d{1,9}[.)] +)?\**\[R29-OWED-(?P<id>O\d\d)\]\**\s*verdict:\s*(?P<verdict>[A-Za-z]+)\s*\|\s*original:\s*"(?P<original>.*?)"'
     r'\s*\|\s*now:\s*(?P<now>.*?)\s*\|\s*basis:\s*(?P<basis>.+?)\s*$')
 SID = re.compile(r'\bS\d{3}\b', re.ASCII)
-MARKER_START = re.compile(r'^(?:- )?\**\[R29-OWED-([^\]\s]{1,8})\]')
+MARKER_START = re.compile(r'^ {0,3}(?:[-*+] +|\d{1,9}[.)] +)?\**\[R29-OWED-([^\]\s]{1,8})\]')
 FENCE = re.compile(r'^ {0,3}(`{3,}|~{3,})([^`]*)$')
 JSON_KEYS = {'id', 'row', 'field', 'withdrawn_text', 'verdict', 'now', 'basis'}
+JSON_META = {'round', 'marked_by', 'marked_at', 'status', 'corrected_by'}
+CLOSED_COMMENT = re.compile(r'<!--.*?-->')
 PATHREF = re.compile(r'`?((?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+):(\d+)`?')
 
 
@@ -175,9 +183,9 @@ def live_lines(text):
             continue
         if ln.startswith('    ') or ln.startswith('\t'):
             continue
+        ln = CLOSED_COMMENT.sub('', ln)
         if '<!--' in ln:
-            if '-->' not in ln.split('<!--', 1)[1]:
-                comment = True
+            comment = True
             continue
         out.append((n, ln))
     return out
@@ -221,8 +229,10 @@ def basis_ok(lane, rev, item_file, refs, srcrows, base_sids, need_sid):
         base_body = None if blocked else show(lane, CLAIM_BASE, path)
         lines = body.splitlines() if body is not None else []
         base_lines = base_body.splitlines() if base_body is not None else []
-        if body is not None and 1 <= n <= len(lines) and lines[n - 1].strip() \
-                and 'R29-OWED-' not in lines[n - 1] and n <= len(base_lines) and base_lines[n - 1] == lines[n - 1]:
+        cited = lines[n - 1] if body is not None and 1 <= n <= len(lines) else None
+        same_place = cited is not None and n <= len(base_lines) and base_lines[n - 1] == cited
+        moved_unique = cited is not None and base_lines.count(cited) == 1 and lines.count(cited) == 1
+        if cited is not None and cited.strip() and 'R29-OWED-' not in cited and (same_place or moved_unique):
             good_path.append(f'{raw_path}:{line}')
         else:
             bad.append(f'{raw_path}:{line}')
@@ -268,7 +278,7 @@ def check(lane, rev):
                 if isinstance(cid, str) and cid.startswith('R29-OWED-') and cid[9:] in where:
                     where[cid[9:]].append((f, c))
             for iid in where:
-                hits = text.count('R29-OWED-' + iid)
+                hits = len(re.findall(r'"id"\s*:\s*"R29-OWED-' + iid + '"', text))
                 listed = sum(1 for wf, _ in where[iid] if wf == f)
                 for _ in range(hits - listed):
                     where[iid].append((f, None))
@@ -307,8 +317,9 @@ def check(lane, rev):
             if not isinstance(m, dict):
                 res['why'] = 'M2 marker id appears outside corrections_r29'
                 continue
-            if set(m) != JSON_KEYS or getattr(m, 'duplicate_keys', False):
-                res['why'] = 'M2 JSON marker keys are not exactly ' + ','.join(sorted(JSON_KEYS)) + ' (or a key repeats)'
+            if not JSON_KEYS <= set(m) or set(m) - JSON_KEYS - JSON_META or getattr(m, 'duplicate_keys', False):
+                res['why'] = ('M2 JSON marker keys must be ' + ','.join(sorted(JSON_KEYS)) + ' plus optional '
+                              + ','.join(sorted(JSON_META)) + ' (no key repeated)')
                 continue
             if m.get('row') != row or m.get('field') != field or m.get('withdrawn_text') != anchor:
                 res['why'] = 'M3 row, field or withdrawn_text does not name the anchor exactly'

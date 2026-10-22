@@ -2535,12 +2535,12 @@ prose. Selftest capability is distinct from a real measurement.
 ## Kernel OOM victim selection — round 29
 
 - **Rule** (S149 `mm/oom_kill.c:228-236`): one scalar per task, `points = rss + swapents + pgtables` in pages `+ oom_score_adj × ⌊totalpages/1000⌋`; `select_bad_process` keeps the strict maximum in task-list order and an equal score replaces the earlier pick (`:339-341`, `:362-375`). One adj unit is 0.1 % of allowed memory, i.e. exactly one point on the 0-1000 badness scale (S148 `proc.rst:1761-1766`, `:1777-1783`).
-- **totalpages** (S149 `:258`, `:263`): `totalram_pages() + total_swap_pages` for a global OOM, `mem_cgroup_get_max()` for a memcg OOM. Capture-epoch host sum is 16,909,739 pages, so one adj unit is 16,909 pages (66.05 MiB); `-1000` is not a low score but removal from candidacy (`:216-222`, S148 `proc.rst:1781-1783`).
+- **totalpages** (S149 `:258`, `:263`): `totalram_pages() + total_swap_pages` for a global OOM, `mem_cgroup_get_max()` for a memcg OOM. Event-A host sum is 16,909,739 pages, so one adj unit is 16,909 pages (66.05 MiB); `-1000` is not a low score but removal from candidacy (`:216-222`, S148 `proc.rst:1781-1783`).
 - **Decision table**:
 
 | trigger | totalpages used | effect of the control |
 |---|---|---|
-| global OOM | 16,909,739 pages at event A; event B's swap total is unrecorded, so between 15,861,169 and 16,909,739 (15,861,169 today) | −1000 excluded; 0 no offset; +200 adds 3,381,800 pages (12.90 GiB) |
+| global OOM | 16,909,739 pages at event A; at event B unknown, because its swap total is unrecorded (15,861,169 today) | −1000 excluded; 0 no offset; +200 adds 3,381,800 pages (12.90 GiB) |
 | memcg OOM | the memcg's `memory.max` + `swap.max`; all `max` on this host's path, so the trigger is closed | same formula at that smaller max; `memory.oom.group=1` would kill the whole cgroup (`:1040-1052`), it is 0 here |
 | `oom_kill_allocating_task=1` (S150 `vm.rst:810-817`) | not consulted | kills `current` with no score at all, global path only, skipped when adj is −1000 (`:1145-1152`) |
 
