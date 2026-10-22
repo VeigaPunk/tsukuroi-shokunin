@@ -25,15 +25,19 @@ Round-28 tightenings (QUALITY 72, R27-COUNTER-PERMISSIVE; each can only refuse):
   B1 the register's rows are exactly six objects whose ids are the strings OV1
      to OV6; an extra, non-object or non-string-id row makes anchored_rows 0
   B2 sibling_path is the pinned path and `snapshot` names its committed copy
-  B3 quote_line is not a heading line, and no heading line lies inside the
-     quote window, so the named heading governs the whole quote
+  B3 the lines the quote occupies (the shortest prefix of its three-line
+     window that contains it) hold no heading line
   B4 every sibling and lane quote has at least 4 words
-  B5 lane_path is not under `.ufo/` and not an adjacency register file
+  B5 lane_path is a normalised relative path (no `./`, `//` or `..`), not
+     under `.ufo/` and not an adjacency register file
      (`corpus/knowledge/adjacency-*`), so the lane side is lane knowledge,
      never the register, a wave report or the sibling snapshot
-  B6 LANE-GAP needs a null lane side; at most one LANE-GAP row counts
-  B7 the PROVINCE row's owner and class cells (columns 2 and 3) equal the
-     register row's; rows inside a code fence are not table rows
+  B6 LANE-GAP needs a null lane side (no cap on LANE-GAP rows: wave-1
+     CritC1OverStrict showed a cap refuses a genuine second gap)
+  B7 the PROVINCE row's owner and class cells (columns 2 and 3, one outer
+     pair of backticks or asterisks removed) equal the register row's; rows
+     inside a code fence (closed only by its own marker) or indented four or
+     more columns are not table rows; an id listed twice counts for neither
 When <siblings-root>/mori-shokunin exists, `git cat-file -p <commit>:<path>`
 must equal the snapshot bytes (a mismatch fails every row; an absent sibling
 repository is reported as `sibling-unavailable` and the snapshot still counts,
@@ -61,7 +65,6 @@ OWNERS = ('mori', 'tsukuroi', 'contested')
 SECTION = '## Adjacent — mori userspace OOM killers (round 27)'
 MAX_WORDS = 25
 MIN_WORDS = 4
-MAX_LANE_GAP = 1
 DEFAULT_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -79,25 +82,35 @@ def show(repo, rev, path):
 
 
 def province_rows(text):
-    """id -> list of cells for table rows of SECTION outside code fences."""
-    rows, inside, fence = {}, False, False
+    """id -> list of cells for table rows of SECTION outside code fences.
+
+    A fence closes only on the character that opened it; a line indented four
+    or more spaces is code, not a table row; an id listed twice maps to None
+    (ambiguous), so neither copy counts.
+    """
+    rows, inside, fence = {}, False, None
     for line in text.splitlines():
         s = line.strip()
         if s.startswith('```') or s.startswith('~~~'):
-            fence = not fence
+            if fence is None:
+                fence = s[0]
+            elif s[0] == fence:
+                fence = None
             continue
-        if fence:
+        if fence is not None:
             continue
         if line.startswith('## ') or line.startswith('# '):
             inside = line.strip() == SECTION
             continue
-        if inside and s.startswith('|'):
+        expanded = line.expandtabs(4)
+        indent = len(expanded) - len(expanded.lstrip(' '))
+        if inside and indent < 4 and s.startswith('|'):
             cells = [c.strip() for c in s.strip('|').split('|')]
             if cells and cells[0]:
                 rid = cells[0]
                 if len(rid) > 2 and rid[0] == rid[-1] == '`':
                     rid = rid[1:-1]
-                rows.setdefault(rid, cells)
+                rows[rid] = None if rid in rows else cells
     return rows
 
 
@@ -125,7 +138,6 @@ def evaluate(repo, rev, siblings_root):
     shape_errors = ['row%d-%s' % (i, 'not-object' if not isinstance(r, dict) else 'id-not-declared')
                     for i, r in enumerate(rows)
                     if not isinstance(r, dict) or not isinstance(r.get('id'), str) or r.get('id') not in IDS]
-    lane_gap_rows = 0
     sibling_note = 'sibling-unavailable'
     sib_repo = os.path.join(siblings_root, 'mori-shokunin')
     snapshots, result = {}, {}
@@ -178,8 +190,6 @@ def evaluate(repo, rev, siblings_root):
                 nearest = next((lines[i] for i in range(ql - 1, -1, -1) if lines[i].startswith('#')), None)
                 if nearest is None or row.get('heading') != nearest:
                     reasons.append('heading-not-nearest')
-                if any(l.startswith('#') for l in lines[ql - 1:ql + 2]):
-                    reasons.append('quote-window-has-heading')
                 quote = row.get('quote')
                 if not isinstance(quote, str) or not quote.strip():
                     reasons.append('quote-missing')
@@ -188,13 +198,15 @@ def evaluate(repo, rev, siblings_root):
                         reasons.append('quote-too-long')
                     if len(quote.split()) < MIN_WORDS:
                         reasons.append('quote-too-short')
-                    if norm(quote) not in norm(' '.join(lines[ql - 1:ql + 2])):
+                    # B3: the lines the quote occupies (the shortest prefix of the
+                    # three-line window that contains it) hold no heading line.
+                    span = next((k for k in (1, 2, 3)
+                                 if norm(quote) in norm(' '.join(lines[ql - 1:ql - 1 + k]))), None)
+                    if span is None:
                         reasons.append('quote-not-in-window')
+                    elif any(l.startswith('#') for l in lines[ql - 1:ql - 1 + span]):
+                        reasons.append('quote-spans-heading')
         lpath, lquote, klass = row.get('lane_path'), row.get('lane_quote'), row.get('class')
-        if klass == 'LANE-GAP':
-            lane_gap_rows += 1
-            if lane_gap_rows > MAX_LANE_GAP:
-                reasons.append('lane-gap-over-cap')
         if lpath is None and lquote is None:
             if klass != 'LANE-GAP':
                 reasons.append('lane-null-not-gap')
@@ -202,7 +214,7 @@ def evaluate(repo, rev, siblings_root):
             if klass == 'LANE-GAP':
                 reasons.append('lane-gap-with-lane-side')
             if lpath.startswith('.ufo/') or lpath.startswith('corpus/knowledge/adjacency-') \
-                    or '..' in lpath.split('/'):
+                    or '..' in lpath.split('/') or os.path.normpath(lpath) != lpath:
                 reasons.append('lane-path-not-lane-knowledge')
             body = show(repo, rev, lpath)
             if body is None:
@@ -224,7 +236,7 @@ def evaluate(repo, rev, siblings_root):
         prow = in_province.get(rid) if isinstance(rid, str) else None
         if prow is None:
             reasons.append('province-row-missing')
-        elif len(prow) < 3 or prow[1] != row.get('owner') or prow[2] != klass:
+        elif len(prow) < 3 or prow[1].strip('`*') != row.get('owner') or prow[2].strip('`*') != klass:
             reasons.append('province-disagrees')
         key = rid if isinstance(rid, str) else 'row%d' % len(result)
         result.setdefault(key, []).extend(reasons)
@@ -265,7 +277,7 @@ def _fixture(tmp, register, province, snap_bytes, lane_files):
 def selftest():
     global PIN_PATH, PIN_SHA256
     snap = ('# Title\n\nintro line\n## Facts\none fact about units here\nsecond fact line\n'
-            'third fact line\n## Limits\nlimit sentence one\n').encode()
+            'third fact line\n## Limits\nlimit sentence one here\n').encode()
     sha = hashlib.sha256(snap).hexdigest()
     saved = (PIN_PATH, PIN_SHA256)
     PIN_PATH, PIN_SHA256 = 'x/entry.md', sha
@@ -299,13 +311,15 @@ def selftest():
         ('duplicate-id', mut(lambda r: r[5].__setitem__('id', 'OV1')), 1, 4),
         ('digest-mismatch', mut(lambda r: r[0].__setitem__('sibling_blob_sha256', 'f' * 64)), 1, 5),
         ('heading-not-nearest', mut(lambda r: r[0].__setitem__('heading', '# Title')), 1, 5),
-        ('quote-outside-window', mut(lambda r: r[0].update(quote='limit sentence one')), 1, 5),
+        ('quote-outside-window', mut(lambda r: r[0].update(quote='limit sentence one here')), 1, 5),
         ('quote-too-long', mut(lambda r: r[0].update(quote=' '.join(['w'] * 26))), 1, 5),
         ('lane-quote-missing', mut(lambda r: r[0].update(lane_quote='not in the lane file')), 1, 5),
         ('null-lane-not-gap', mut(lambda r: r[0].update(lane_path=None, lane_quote=None)), 1, 5),
         ('null-lane-gap-ok', mut(lambda r: r[0].update(gap), gap_prov), 0, 6),
-        ('class-invalid', mut(lambda r: r[0].__setitem__('class', 'MAYBE')), 1, 5),
-        ('owner-invalid', mut(lambda r: r[0].__setitem__('owner', 'kagi')), 1, 5),
+        ('class-invalid', mut(lambda r: r[0].__setitem__('class', 'MAYBE'),
+                              province.replace('| OV1 | tsukuroi | AGREES |', '| OV1 | tsukuroi | MAYBE |')), 1, 5),
+        ('owner-invalid', mut(lambda r: r[0].__setitem__('owner', 'kagi'),
+                              province.replace('| OV1 | tsukuroi | AGREES |', '| OV1 | kagi | AGREES |')), 1, 5),
         ('action-empty', mut(lambda r: r[0].__setitem__('action', ' ')), 1, 5),
         ('commit-not-pinned', mut(lambda r: r[0].__setitem__('sibling_commit', '0' * 40)), 1, 5),
         ('province-row-missing', mut(lambda r: None, province.replace('| OV3 | tsukuroi | AGREES |\n', '')), 1, 5),
@@ -327,9 +341,22 @@ def selftest():
         ('b5-lane-is-sibling-snapshot', mut(lambda r: r[0].update(lane_path=SNAP_DIR + 'x/entry.md',
                                                                   lane_quote='one fact about units')), 1, 5),
         ('b6-lane-gap-with-lane-side', mut(lambda r: r[0].__setitem__('class', 'LANE-GAP'), gap_prov), 1, 5),
-        ('b6-two-lane-gap-rows', mut(lambda r: (r[0].update(gap), r[1].update(gap)), gap2_prov), 1, 5),
+        ('pass-b6-two-lane-gap-rows', mut(lambda r: (r[0].update(gap), r[1].update(gap)), gap2_prov), 0, 6),
+        ('pass-b3-quote-ends-before-heading', mut(lambda r: r[0].update(
+            quote_line=6, quote='second fact line third fact line')), 0, 6),
+        ('pass-b7-backticked-owner-class', mut(lambda r: None, province.replace(
+            '| OV1 | tsukuroi | AGREES |', '| OV1 | `tsukuroi` | `AGREES` |')), 0, 6),
         ('b7-province-disagrees', mut(lambda r: None, province.replace('| OV2 | tsukuroi | AGREES |', '| OV2 | mori | AGREES |')), 1, 5),
         ('b7-province-row-in-fence', mut(lambda r: None, fenced), 1, 5),
+        # wave-1 CritC1NewShapes (round 28): each must refuse
+        ('b5-lane-path-dot-slash-ufo', mut(lambda r: r[0].update(lane_path='./.ufo/waves/x/report.md')), 1, 5),
+        ('b5-lane-path-double-slash', mut(lambda r: r[0].update(lane_path='corpus//knowledge/note.md')), 1, 5),
+        ('b7-mixed-fence-markers', mut(lambda r: None, province.replace(
+            '| OV1 | tsukuroi | AGREES |\n', '~~~text\n```\n| OV1 | tsukuroi | AGREES |\n~~~\n')), 1, 5),
+        ('b7-table-row-indented-four', mut(lambda r: None, province.replace(
+            '| OV1 | tsukuroi | AGREES |\n', '\n    | OV1 | tsukuroi | AGREES |\n')), 1, 5),
+        ('b7-duplicate-province-row', mut(lambda r: None, province.replace(
+            '| OV2 | tsukuroi | AGREES |\n', '| OV2 | tsukuroi | AGREES |\n| OV2 | mori | CONFLICTS |\n')), 1, 5),
         # should pass: same digest in upper case; backticked PROVINCE id
         ('pass-upper-case-digest', mut(lambda r: r[0].__setitem__('sibling_blob_sha256', sha.upper())), 0, 6),
         ('pass-backticked-province-id', mut(lambda r: None, province.replace('| OV1 |', '| `OV1` |')), 0, 6),

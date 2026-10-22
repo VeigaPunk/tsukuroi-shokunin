@@ -701,7 +701,8 @@ def evaluate(reader, expected_capture_sha=CAPTURE_SHA256):
                 detail['checks']['source_known'] = False
             else:
                 detail['checks']['source_known'] = True
-                if sid not in row_sources:
+                cited = [s.get('id') if isinstance(s, dict) else s for s in row_sources]
+                if sid not in cited:
                     note_row('KT-QUOTE-SOURCE-UNKNOWN', '%s: %s' % (row_id, sid))
             detail['checks']['length'] = word_count(quote_text) <= MAX_QUOTE_WORDS
             if not detail['checks']['length']:
@@ -1337,6 +1338,10 @@ def selftest():
         {'source': FIXTURE_SOURCES[1], 'quote': FIXTURE_QUOTES[1]})))
     case('r4b-quote-source-not-cited', files,
          {'exit': 1, 'verified_rows': 5, 'findings': ['KT-QUOTE-SOURCE-UNKNOWN']})
+    files, sha = entry_case(row_mutator('KT1', lambda r: r.__setitem__(
+        'sources', [{'id': s} for s in r['sources']])))
+    case('r4b-pass-source-items-as-objects', files,
+         {'exit': 0, 'verified_rows': 6, 'findings': []})
     files, sha = build_fixture()
     files[LESSON] = files[LESSON].replace('## Gate\n', '## Things to investigate\n')
     case('r4c-gate-heading-not-exact', files,
