@@ -130,3 +130,10 @@ Registry rows S128, S135 and S136 are not rewritten (append-only outside status,
 | R26-LEAD-OVERSTATED | disclosure | README Frontier bullet claimed the release-notes half of the old lead was opened (CritTrendVerdicts) | QUALITY 60 does not cover wording | Appended README correction; red before: `grep -c "release notes" corpus/README.md` names them as opened at `7dfea924`. |
 
 QUALITY 64 records R26-GATE-COLUMN-OFFSET (a tool mistake no criterion caught), so that mistake now has a criterion.
+
+### Late wave-2 findings (appended before the final commit)
+
+- PROVINCE overreach on free-capacity ownership and the unstated privilege and device scope are corrected by an appended PROVINCE paragraph (RevProvinceReadme). Cross-lane observation for mori, reported not absorbed: `/tmp` is now an xfs partition on the second NVMe device (`systemctl show tmp.mount`), while mori's corpus records it as tmpfs (RevProvinceReadme finding 5).
+- S131's teaches cell says more than the timer file (the paired service and catch-up semantics come from the packaged service and systemd.timer, not S131); the round-26 rows' used-by cells name only the Markdown entry, not the JSON (RevS131, RevS129). Owed next round with superseding rows.
+- S129's teaches cell adds "only" and "at all" the source lacks; SH4's S129 citation does not carry its claim (RevS129).
+- The axes table was re-stated after the repair commit because two counts changed (`measure/c2-75449b13.json`, K08 and K11); the re-stated table is the current one.

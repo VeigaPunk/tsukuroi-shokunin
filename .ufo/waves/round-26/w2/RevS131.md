@@ -1,0 +1,52 @@
+Verdict: partly holds. The S131 bytes, tag, commit, line range, Gate quote, installed-file identity and entry statement hold; the teaches cell claims more than S131 supports, and the used-by cell omits the JSON that cites S131.
+
+Measured revision and lane state. Every check below was made today, 2026-10-22. The lane HEAD is 7f9f0889, not the measured 7dfea924. For the files this check reads, only corpus/lessons/round-26.md differs from 7dfea924 (nine lines appended after line 90). corpus/SOURCES.md, both entry files and the snapshot directory are identical at 7dfea924 and in the worktree.
+
+Findings
+
+1. Fails (teaches cell over-reaches). [obs] corpus/SOURCES.md:137 says the unit "runs btrfs scrub through the paired btrfs-scrub@.service". S131 has no Unit= or ExecStart line; its eleven lines are the Unit, Timer and Install sections only. [obs] The clause is true, but it rests on other bytes. The packaged service at the same commit has `ExecStart=/usr/bin/btrfs scrub start -B %f` (btrfs-scrub@.service, line 10; sha256 eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252, the same digest as the installed file). [obs] The pairing is systemd's default, in systemd.timer.xml (v262, fetched today) lines 375-377: "If not specified, this value defaults to a service that has the same name as the timer unit". [obs] A grep of corpus/SOURCES.md for "scrub@.service", "ExecStart=" and "Persistent=" matches only line 137. [obs] The lane's tier-A rule covers "primary committed document bytes as the object of a locator claim, not to current host truth" (corpus/lessons/round-26.md:59). The paired-service clause is not the object of S131's locator, so it goes past the row. Fix: register the service file and the systemd Unit= default as rows, or drop the clause.
+
+2. Fails (teaches cell, catch-up clause). [obs] The clause "catches up after a missed run" rests only on `Persistent=true` (S131 line 8). [obs] The catch-up meaning is in systemd.timer.xml (v262) line 390: "This is useful to catch up on missed runs of the service when the system was powered down." [obs] No registered row covers Persistent=. S071 (corpus/SOURCES.md:77) scopes itself to "Options table rows OnBootSec= and OnUnitActiveSec=" and mentions only the AccuracySec and RandomizedDelaySec defaults. [inf] The clause is an accurate paraphrase of systemd, but the registry does not carry its support.
+
+3. Observation (teaches omits schedule bounds). [obs] S131 sets `AccuracySec=1d` (line 6) and `RandomizedDelaySec=1w` (line 7), and the scope cell promises "its schedule". [obs] systemd.timer.xml (v262) lines 267-268: "Delay the timer by a randomly selected, evenly distributed amount of time between 0 and the specified time value." [obs] Lines 388-389 say a Persistent catch-up "is nonetheless subject to the delay imposed by RandomizedDelaySec=". [inf] A monthly run can therefore start up to a week late, and a catch-up can be delayed the same way. No entry statement depends on the day, so this is an omission, not a contradiction.
+
+4. Fails, minor (used-by cell). [obs] corpus/SOURCES.md:137 lists only corpus/knowledge/storage-health-r26.md. [obs] storage-health-r26.json cites S131 at line 186 (sources) and lines 206-208 (quote). [obs] Other rows list the JSON beside the Markdown: the memory-pressure rows read "corpus/knowledge/memory-pressure-r25.md, corpus/knowledge/memory-pressure-r25.json" (corpus/SOURCES.md:121), and corpus/lessons/round-16.md:59 records the same expansion for S050. [obs] Every round-26 storage row (S128 to S135 and S139) has the same omission, so the defect is systematic, not specific to S131.
+
+5. Observation (scope cell, "shipped" claim). [obs] The scope says "shipped by the installed btrfs-progs 7.1-1 package", but the anchor does not cite the packaging script that ships the file. [obs] The PKGBUILD at commit 0c0a4d77 lists both files in source=() (lines 49-50) and installs the timer at line 101: `install -Dm644 btrfs-scrub@.timer "${pkgdir}/usr/lib/systemd/system/btrfs-scrub@.timer"`. [obs] On the host, pacman -Qo reports the file as owned by btrfs-progs 7.1-1. The claim holds; if it stays, the anchor should cite PKGBUILD lines 49-50 and 101.
+
+6. Holds (fetch and digest). [obs] The URL in corpus/SOURCES.md:137 returned HTTP/2 200, text/plain, 160 bytes, Date Thu, 22 Oct 2026 15:23:23 GMT. Its sha256 9a0b6cc23f7bd97b83b6c38dd2b4e4373fead8bd3ccfb82a47c72971e9d6f8ad equals the anchor. [obs] cmp against the measured-revision blob (git show 7dfea924:.ufo/waves/round-26/sources/S131.timer) reports identical bytes, and the worktree copy has the same digest. [obs] The file has 11 lines, matching "lines 1-11".
+
+7. Holds (tag and commit). [obs] The GitLab tag API for btrfs-progs tag 7.1-1 returns `"name":"7.1-1"` with commit `0c0a4d77b318084ecd35aeeb6888d8a5b4d6e3e0`. [obs] The PKGBUILD at that commit has pkgver=7.1 and pkgrel=1.
+
+8. Holds (installed identity). [obs] pacman -Q btrfs-progs reports 7.1-1. [obs] The installed /usr/lib/systemd/system/btrfs-scrub@.timer has the anchor digest, so "byte-identical to the installed unit" (corpus/lessons/round-26.md:49) holds today. [obs] The frozen capture's systemctl cat text (capture.txt lines 137-148) matches these eleven lines.
+
+9. Holds (upstream absence). [obs] https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/units/btrfs-scrub@.timer returned HTTP 404. [obs] The GitHub recursive tree at v7.1 (commit 4ab0e80be9e3bb1db2e6038e6d4316d35fb7ba8b, the commit S129 cites at corpus/SOURCES.md:135) has 1253 entries and is not truncated. None ends in .timer or .service, and none sits under units/. [obs] The PKGBUILD fetches upstream from git.kernel.org, so this check covers the GitHub mirror only.
+
+10. Holds (Gate quote). [obs] corpus/lessons/round-26.md:31 reads: S131 | ... | "OnCalendar=monthly" | btrfs-scrub@.timer line 5. [obs] It is exact, one word, and at line 5 of both the fetched bytes and the snapshot. [obs] The other S131 mention in the lesson (line 49) is a rejection note with no quote.
+
+11. Observation (gate coverage). [obs] The only Gate quote checks the word "monthly". The paired-service and catch-up clauses have no Gate quote, although the lesson says every quote was checked. The enablement clause (`WantedBy=timers.target`, line 11) is correct but also ungated.
+
+12. Observation (tier). [inf] Tier A fits the lane's own rule for committed packaging bytes at a pinned commit (corpus/lessons/round-26.md:59). Other packaging-repository rows are tier A too, for example S022 (corpus/SOURCES.md:28). Finding 1 covers the behaviour clauses that go past that rule.
+
+13. Holds (entry statement, joint support). [obs] storage-health-r26.md:57 and storage-health-r26.json:180 (same text): "The packaged monthly btrfs-scrub@.timer exists but its instance for `/` is disabled and inactive." [obs] S131 supports "packaged" and "monthly" (line 5). It does not support "disabled and inactive". That half is host evidence: capture.txt lines 130-134, where `systemctl is-enabled btrfs-scrub@-.timer` prints disabled (exit 1) and `is-active` prints inactive (exit 3). [obs] Live reads today agree: `systemctl show 'btrfs-scrub@-.timer'` gives LoadState=loaded, UnitFileState=disabled, ActiveState=inactive and an empty NextElapseUSecRealtime. LoadState=loaded also shows that the instance name "-" for "/" resolves; S131 does not say so.
+
+14. Holds (quotes in the entry). [obs] storage-health-r26.md:65 cites S131 "OnCalendar=monthly" as "btrfs-scrub@.timer line 5". [obs] storage-health-r26.json:206-208 gives the same source, text and location. Both are exact.
+
+15. Holds (enablement and host state). [obs] The teaches clause "enabled through timers.target" matches line 11. [obs] The host reads UnitFileState=disabled and ActiveState=inactive, so "whether it actually runs is a host fact" holds.
+
+16. Gap (recheck). [inf] The row's recheck is on-release (corpus/SOURCES.md:137), and the entry's recheck line (storage-health-r26.md:3) names only btrfs-progs, kernel and smartmontools releases. The bytes are pinned to Arch package 7.1-1, and an Arch pkgrel bump changes the unit without any upstream release. Suggest adding a re-open whenever the installed btrfs-progs version changes (pacman -Q btrfs-progs).
+
+17. Observation (version). [obs] The host runs systemd 262-1 (pacman -Q systemd; systemctl --version), so the v262 documentation used here applies. [obs] S029 (corpus/SOURCES.md:35) recorded 261.2-1 on 2026-10-19, so the host has moved since.
+
+Residual risk and verification gaps
+- [inf] Findings 1 and 2 are judged against the bytes read today. I did not test a catch-up run on the host; that needs a reboot or clock change, which is outside the read-only bounds.
+- [obs] The "no systemd unit" claim was checked against the GitHub mirror, not against the kernel.org repository that the PKGBUILD names.
+- [obs] Host state is a point reading taken today, not the frozen capture time (2026-10-22T13:39:52Z).
+- [obs] I did not run tools/check-storage-health.py or any other lane tool; the counts belong to other seats.
+- [unk] I did not read the wave-1 seat transcripts (SrcBtrfsScrubUnit and the others) that the lesson names as openers.
+
+Tooling record: no installs.
+
+Scope: read=corpus/SOURCES.md (S131 row at line 137; S071 at 77; S022 at 28; S029 at 35; memory-pressure used-by cells at 121; storage rows 134-145), corpus/lessons/round-26.md (measured blob and worktree; lines 31, 49, 59), corpus/lessons/round-16.md:59, corpus/knowledge/storage-health-r26.md and .json (S131 lines), SCORECARD.md:920, capture.txt lines 114-155 (frozen, sha256 002bef16de9bfbffff7905904a1e7f44dae486ca2e60f38090ac2a87132a71dd), fetched Arch, upstream, GitLab and systemd v262 bytes, host unit and package state; wrote=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-26/w2/RevS131.md and /fast/scratch/hyaku/tsuku26/w2/RevS131/ (fetched copies and extracts); executed=curl (S131 URL, Arch PKGBUILD and btrfs-scrub@.service at 0c0a4d77, GitLab tag and tree APIs, upstream units path, GitHub contents and recursive tree APIs, systemd v262 man/systemd.timer.xml), sha256sum, cmp, git show with GIT_OPTIONAL_LOCKS=0 (measured blobs), git diff with GIT_OPTIONAL_LOCKS=0, three early read-only git calls (rev-parse, status --porcelain, diff --stat) that ran without that variable, pacman -Q btrfs-progs, pacman -Q systemd, pacman -Qo, pacman -Ql btrfs-progs, systemctl is-enabled, is-active, show, cat and --version, uname -r, grep and cat of fetched files
+Model: anthropic/claude-haiku-5-5
+Installs: none
