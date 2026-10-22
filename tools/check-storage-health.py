@@ -208,11 +208,17 @@ def cell_quotes(line, quote_col):
     pipe is read whole.  A cell with no quote mark is read as its plain text.
     """
     spans = cell_spans(line)
+    # Round 27 (routed round-26 defect 3, R26-GATE-COLUMN-OFFSET): the header
+    # index comes from split_cells, which drops the empty cell before a leading
+    # pipe, so the raw spans drop it too; a quoted span counts only when it
+    # starts inside the quote cell.
+    if line.lstrip().startswith('|'):
+        spans = spans[1:]
     if quote_col >= len(spans):
         return []
-    start = spans[quote_col][0]
+    start, end = spans[quote_col][0], spans[quote_col][1]
     found = [content for span_start, _span_end, content in quoted_spans(line)
-             if span_start >= start]
+             if start <= span_start < end]
     if found:
         return found
     text = spans[quote_col][2]
@@ -1269,6 +1275,24 @@ def selftest():
     files[LESSON] = lesson
     case('gate-two-quotes-one-cell', files,
          {'exit': 0, 'verified_rows': 6, 'findings': []})
+
+    # Round 27, QUALITY 64 (R26-GATE-COLUMN-OFFSET): an unquoted and a
+    # backticked located-quote cell are found; a quote only in the Location
+    # cell is not read as the located quote.
+    gate_line = ('| S128 | https://example.invalid/S128 | 2026-10-22 | "%s" | lines 1-2 |'
+                 % FIXTURE_QUOTES[0])
+    for shape, cell in (('unquoted', FIXTURE_QUOTES[0]),
+                        ('backticks', '`%s`' % FIXTURE_QUOTES[0])):
+        files, sha = build_fixture()
+        files[LESSON] = files[LESSON].replace(
+            gate_line, '| S128 | https://example.invalid/S128 | 2026-10-22 | %s | lines 1-2 |' % cell)
+        case('gate-cell-%s' % shape, files, {'exit': 0, 'verified_rows': 6, 'findings': []})
+    files, sha = build_fixture()
+    files[LESSON] = files[LESSON].replace(
+        gate_line, '| S128 | https://example.invalid/S128 | 2026-10-22 | 2026-10-22 | "%s" |'
+        % FIXTURE_QUOTES[0])
+    case('gate-quote-in-location-cell', files,
+         {'exit': 1, 'verified_rows': 5, 'findings': ['SH-GATE-QUOTE-MISSING']})
 
     # 39. two snapshots for the same source id: the snapshot is not unique
     files, sha = build_fixture()
