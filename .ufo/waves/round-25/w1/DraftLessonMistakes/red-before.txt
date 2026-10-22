@@ -1,0 +1,58 @@
+# R25-STALE-AXES-TABLE — red-before receipt (red state of the defect, no fix applied)
+# seat: TsukuroiR25.DraftLessonMistakes (scribe)   date: 2026-10-22
+# repo: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin   claim base: b9046016831237cd04d38da11ba76e50d5380c53
+# axes table under test: SCORECARD.md:45-52 (heading '## Axes — final self-assessment' at SCORECARD.md:39)
+
+$ git ls-tree -r --name-only b9046016 corpus/knowledge/ | grep -c "\.md$"
+46
+# table depth row claims: 24 notes
+
+$ git ls-tree -r --name-only b9046016 corpus/lessons/ | wc -l
+25
+# table depth row claims: corpus/lessons/ never written (0 files)
+
+$ git show b9046016:SKILL.md | wc -l
+2301
+# table depth row claims: SKILL.md 1631 wc -l
+
+$ git show b9046016:SKILL.md | grep -c "^|"
+259
+# table depth row claims: 55 table lines
+
+$ git show b9046016:corpus/README.md | wc -l
+231
+# table coverage row claims: corpus/README.md 20 wc -l
+
+$ git show b9046016:tools/tsukuroi-census.sh | wc -l
+2679
+# table depth row claims: census 2402 wc -l
+
+$ git show b9046016:corpus/knowledge/calibration-synthesis.md | wc -l
+470
+# table calibration row claims: calibration-synthesis.md 463 wc -l
+
+$ bash tools/tsukuroi-census.sh --selftest   # worktree script, byte-identical to the base
+TSUKUROI_CENSUS_SELFTEST: PASS (97 cases, 97 passed, 0 failed)
+# exit code: 0
+# byte-identity proof for the base:
+$ git rev-parse b9046016:tools/tsukuroi-census.sh HEAD:tools/tsukuroi-census.sh
+4610af7b3450ee3d3158590fb7a3300d0a86bee0
+4610af7b3450ee3d3158590fb7a3300d0a86bee0
+# table depth/operability rows claim: 80 executed cases
+
+$ git ls-tree b9046016 tools/ | grep self-assessment   # the fix instrument
+(no match: tools/check-self-assessment.py is ABSENT at b9046016)
+
+$ git show b9046016:SCORECARD.md | grep -n "^| depth \|^| coverage \|^| operability \|^| freshness \|^| calibration \|^| adjacency "
+47:| depth | 8 | 24 notes (`ls corpus/knowledge/*.md \| wc -l`); census 2402 `wc -l` / 80 
+48:| coverage | 8 | 6 gate planes == the surfaces `PROVINCE.md` owns, each with a landed n
+49:| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` → rc=0 `PASS (80 cases
+50:| freshness | 8 | every round's record re-ran its predecessor's pins (LOG rounds 1–10
+51:| calibration | 9 | `calibration-synthesis.md` (463 `wc -l`) — the claim→re-measure
+52:| adjacency | 7 | reported-not-absorbed rows across the arc: coredump storm → journal
+75:| depth | unchanged | No new domain implementation or admitted knowledge; inherited cor
+76:| coverage | unchanged | Same owned OS surfaces; no domain expansion or sibling scope a
+77:| operability | unchanged | Existing script unchanged at SHA-256 `1045244387ffcd5d3db48
+78:| freshness | unchanged | Fresh parent captures and source drift are supplemental prefl
+79:| calibration | unchanged | No newly independent verifier, promotion credit or re-certi
+80:| adjacency | unchanged | Required wave could not be dispatched through authorized role

@@ -1,0 +1,108 @@
+{
+  "seat": "ExecHermeticSelftests",
+  "date": "2026-10-22",
+  "declared_revision": "6c580b155840c8750a7bb5f14dcb8e48913d0073",
+  "claim_base": "b9046016831237cd04d38da11ba76e50d5380c53",
+  "archive": {
+    "command": "git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin archive 6c580b15 | tar -x -C tree",
+    "exit_code": 0,
+    "file_count": 3503,
+    "extracted_to": "/fast/scratch/hyaku/tsukuroi-r25/ExecHermeticSelftests/tree"
+  },
+  "tool_bytes_at_6c580b15": {
+    "tools/tsukuroi-census.sh": {
+      "sha256": "d17d32a35946c71c1fc195e36178aa383f4a04d7172cc579b6e9e25fa537f27e",
+      "wc_l": 2679
+    },
+    "tools/boot-chain-audit.sh": {
+      "sha256": "cd398e603cbd5894b74ca3c28740f2ab3379622a85fc62ac272259d45342930c"
+    },
+    "tools/check-registry-coverage.py": {
+      "sha256": "1ed6d8cc30e7c34c482054e5a9295a9b1727104ba4e5944ab0f480185ef677b6"
+    }
+  },
+  "K13": {
+    "subject": "operability row N cases in the axes table vs census selftest printed count",
+    "axes_table_heading": "## Axes — final self-assessment (landed round 11; ...)",
+    "axes_table_line": 39,
+    "operability_row_line": 49,
+    "stated_in_table": "PASS (80 cases, 80 passed, 0 failed)",
+    "observed_at_6c580b15": 97,
+    "observed_summary_line": "TSUKUROI_CENSUS_SELFTEST: PASS (97 cases, 97 passed, 0 failed)",
+    "observed_exit_code": 0,
+    "printed_pass_lines": 97,
+    "printed_skip_lines": 2,
+    "printed_fail_lines": 0,
+    "skip_lines_are_counted_in_total": false,
+    "count_is_uid_independent": true,
+    "count_identical_at_0cd9b28": 97,
+    "count_identical_at_master_d5e6481": 97,
+    "census_script_bytes_identical_across_revisions": true,
+    "verdict_at_6c580b15": "MISMATCH — table says 80, observed 97",
+    "value_for_repair": 97
+  },
+  "K16_K19": {
+    "capabilities_heading_line_at_6c580b15": 157,
+    "capabilities_table_lines_at_6c580b15": [159, 164],
+    "paths_named_and_existence": [
+      {"row": "sources-registry", "path": "corpus/SOURCES.md", "exists": true},
+      {"row": "sources-registry", "path": ".ufo/evidence/round-1-kaika/after.md", "exists": true},
+      {"row": "host-census-gate", "path": "tools/tsukuroi-census.sh", "exists": true},
+      {"row": "host-census-gate", "path": ".ufo/evidence/round-1-kaika/scout-live.md", "exists": true},
+      {"row": "host-census-gate", "path": ".ufo/evidence/round-1-kaika/after.md", "exists": true},
+      {"row": "root-metadata-observer", "path": ".ufo/waves/round-12/resumed/after.json", "exists": true},
+      {"row": "root-metadata-observer", "path": ".ufo/waves/round-12/resumed/selftest-after.json", "exists": true},
+      {"row": "root-metadata-observer", "path": ".ufo/waves/round-12/resumed/mode-policy-mutant.json", "exists": true},
+      {"row": "root-metadata-observer", "path": "70fede2a7a890cb50a72db2d4230ee541183bf7b", "exists": true, "kind": "commit", "is_ancestor_of_6c580b15": true},
+      {"row": "boot-chain-audit", "path": "tools/boot-chain-audit.sh", "exists": true},
+      {"row": "boot-chain-audit", "path": ".ufo/waves/round-17/l1-capture/audit-live.txt", "exists": true}
+    ],
+    "all_named_paths_exist": true,
+    "host_census_gate_stated_case_count": "80-case; PASS 80/80 rc=0",
+    "host_census_gate_observed_case_count": 97,
+    "verdict_at_6c580b15": "path clause PASS for all four rows; case-count clause MISMATCH (80 stated vs 97 observed)",
+    "boot_chain_row_stated_selftest": "44/44",
+    "boot_chain_row_observed_selftest": "PASS total=45 failed=0",
+    "boot_chain_row_verdict": "MISMATCH on the stated count (44 vs 45) — outside the literal K16-K19 wording, reported for the L1",
+    "boot_chain_row_live_claim": "6 entries, CONSISTENT, rc 0 — confirmed by the cited capture file"
+  },
+  "selftests": {
+    "census": {
+      "command": "bash tools/tsukuroi-census.sh --selftest",
+      "cwd": "extracted tree at 6c580b15",
+      "exit_code": 0,
+      "summary_line": "TSUKUROI_CENSUS_SELFTEST: PASS (97 cases, 97 passed, 0 failed)",
+      "reruns_identical": 3,
+      "zero_mutation_of_extracted_tree": true,
+      "sudo_called": false,
+      "live_host_surface_touched": false
+    },
+    "boot_chain": {
+      "command": "bash tools/boot-chain-audit.sh --selftest",
+      "cwd": "extracted tree at 6c580b15",
+      "exit_code": 0,
+      "summary_line": "TSUKUROI_BOOTCHAIN_SELFTEST: PASS total=45 failed=0",
+      "reruns_identical": 3,
+      "sudo_called": false,
+      "live_host_surface_touched": false,
+      "tmp_residue_left": true
+    },
+    "registry_coverage": {
+      "help_exit_code": 0,
+      "help_usage": "check-registry-coverage.py [-h] (--revision REV | --selftest) [--branch BRANCH] [--baseline-tools REV] [--audit-live-map]",
+      "normal_run": "python3 tools/check-registry-coverage.py --revision 6c580b15",
+      "normal_run_exit_code": 0,
+      "normal_run_payload": {"status": "PASS", "counts": {"findings": 0, "missing": 0, "registered": 26, "rows_total": 26, "tools_total": 26}},
+      "audit_live_map_run": "python3 tools/check-registry-coverage.py --revision 6c580b15 --audit-live-map",
+      "audit_live_map_exit_code": 0,
+      "audit_live_map_errors": 0,
+      "selftest_run": "python3 tools/check-registry-coverage.py --selftest",
+      "selftest_exit_code": 0,
+      "selftest_summary": "PASS (23 cases, 23 passed, 0 failed)",
+      "read_only": true,
+      "cannot_run_from_extracted_tree": "CANNOT_EVALUATE exit 2, finding E-GIT-FAILED: the extracted archive has no .git directory"
+    }
+  },
+  "installs": "none",
+  "lane_repo_writes": "none (git status --porcelain shows only the pre-existing untracked wave-25 dispatch files and the w1/ seat directory)"
+}

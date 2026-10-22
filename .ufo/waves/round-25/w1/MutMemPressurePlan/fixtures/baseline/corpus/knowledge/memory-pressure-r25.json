@@ -1,0 +1,196 @@
+{
+  "schema": "tsukuroi-memory-pressure-r25-v1",
+  "entry": "corpus/knowledge/memory-pressure-r25.md",
+  "capture": ".ufo/waves/round-25/capture/capture.txt",
+  "capture_sha256": "e60f1bbc1feb8f251c8b276f70342da5385d07b9ad747305e1f016e0df447136",
+  "sibling_readings": [
+    {
+      "lane": "mori",
+      "commit": "4f05dd5a",
+      "path": "corpus/knowledge/system-pressure-r24.md",
+      "covers": [
+        "MP1",
+        "MP2",
+        "MP3",
+        "MP6"
+      ],
+      "note": "The generic PSI semantics restated by MP1, MP2, MP3 and MP6 are held by the sibling lane mori. This entry cites mori for those general facts and keeps only the systemd-oomd and OS-triage consequence here, under PROVINCE.md row ADJ-04."
+    }
+  ],
+  "rows": [
+    {
+      "id": "MP1",
+      "statement": "The `some` line of /proc/pressure/memory counts the share of time in which at least one task was stalled waiting for memory; the `full` line counts the share of time in which all non-idle tasks were stalled at once.",
+      "verdict": "confirmed on this host: both lines are readable and carry the stall averages for kernel 7.2.11-arch1-1.",
+      "action": "Read-only: `cat /proc/pressure/memory` and compare the `some` and `full` averages before and after a suspected stall; no host change is proposed.",
+      "sources": [
+        "S115"
+      ],
+      "capture_pointers": [
+        {
+          "line": 14,
+          "token": "total=41385384"
+        },
+        {
+          "line": 15,
+          "token": "total=40856373"
+        }
+      ],
+      "quote_refs": [
+        "S115"
+      ],
+      "supersedes": [],
+      "quotes": [
+        {
+          "source": "S115",
+          "quote": "The \"some\" line indicates the share of time in which at least some tasks are stalled on a given resource."
+        }
+      ]
+    },
+    {
+      "id": "MP2",
+      "statement": "The `total` field of a pressure line is a cumulative stall time in microseconds, so a dated incident needs two reads and the difference between them.",
+      "verdict": "confirmed on this host: `total` grows between the two captured reads of the same file.",
+      "action": "Read-only: take two `/proc/pressure/memory` reads at least 10 s apart and subtract the `total` values; no host change is proposed.",
+      "sources": [
+        "S116"
+      ],
+      "capture_pointers": [
+        {
+          "line": 14,
+          "token": "total=41385384"
+        }
+      ],
+      "quote_refs": [
+        "S116"
+      ],
+      "supersedes": [],
+      "quotes": [
+        {
+          "source": "S116",
+          "quote": "The total absolute stall time (in us) is tracked and exported as well"
+        }
+      ]
+    },
+    {
+      "id": "MP3",
+      "statement": "Each cgroup exposes its own memory.pressure file; the per-cgroup files report the stall of that cgroup's own tasks, while /proc/pressure/memory reports the whole system.",
+      "verdict": "confirmed on this host: the root cgroup, user.slice, user-1000.slice and user@1000.service each expose a readable memory.pressure file.",
+      "action": "Read-only: `cat /sys/fs/cgroup/<path>/memory.pressure` for the cgroup under investigation and compare it with the system file; no host change is proposed.",
+      "sources": [
+        "S117"
+      ],
+      "capture_pointers": [
+        {
+          "line": 34,
+          "token": "3150158"
+        },
+        {
+          "line": 38,
+          "token": "3158801"
+        },
+        {
+          "line": 42,
+          "token": "3161820"
+        }
+      ],
+      "quote_refs": [
+        "S117"
+      ],
+      "supersedes": [],
+      "quotes": [
+        {
+          "source": "S117",
+          "quote": "Shows pressure stall information for memory."
+        }
+      ]
+    },
+    {
+      "id": "MP4",
+      "statement": "ManagedOOMMemoryPressure= and ManagedOOMSwap= take `auto` or `kill`; with systemd-oomd inactive and disabled on this host, neither setting can act, so the properties are recorded rather than relied on.",
+      "verdict": "not armed on this host: systemd-oomd.service is inactive and disabled, and user@1000.service carries MemoryPressureWatch=skip.",
+      "action": "Read-only: `systemctl is-active systemd-oomd.service` and `systemctl show -p ManagedOOMMemoryPressure -p ManagedOOMSwap -p MemoryPressureWatch -- user@1000.service`; arming oomd is an operator-owned change and is not proposed here.",
+      "sources": [
+        "S118"
+      ],
+      "capture_pointers": [
+        {
+          "line": 73,
+          "token": "inactive"
+        }
+      ],
+      "quote_refs": [
+        "S118"
+      ],
+      "supersedes": [],
+      "quotes": [
+        {
+          "source": "S118",
+          "quote": "ManagedOOMMemoryPressure=auto|kill Specifies how systemd-oomd.service(8) will act on this unit's cgroups."
+        }
+      ]
+    },
+    {
+      "id": "MP5",
+      "statement": "For systemd 262 the shipped systemd-oomd defaults are DefaultMemoryPressureLimit=60%, DefaultMemoryPressureDurationSec=30s and SwapUsedLimit=90%, all three left commented in /etc/systemd/oomd.conf on this host.",
+      "verdict": "the compiled-in defaults are in force here: the shipped configuration file comments every one of the three limits.",
+      "action": "Read-only: `systemd-analyze cat-config systemd/oomd.conf` and read the three defaults; changing them is an operator-owned configuration change and is not proposed here.",
+      "sources": [
+        "S119"
+      ],
+      "capture_pointers": [
+        {
+          "line": 106,
+          "token": "SwapUsedLimit=90%"
+        },
+        {
+          "line": 107,
+          "token": "DefaultMemoryPressureLimit=60%"
+        },
+        {
+          "line": 108,
+          "token": "DefaultMemoryPressureDurationSec=30s"
+        }
+      ],
+      "quote_refs": [
+        "S119"
+      ],
+      "supersedes": [],
+      "quotes": [
+        {
+          "source": "S119",
+          "quote": "DefaultMemoryPressureLimit= Sets the limit for memory pressure on the unit's control group before systemd-oomd will take action."
+        }
+      ]
+    },
+    {
+      "id": "MP6",
+      "statement": "Kernel OOM kill evidence is a separate plane from pressure stall evidence: the oom and oom_group_kill counters of memory.events record kills that already happened, while pressure counters record time spent stalled.",
+      "verdict": "no kill has occurred on this host: the captured memory.events counters read zero.",
+      "action": "Read-only: `cat /sys/fs/cgroup/user.slice/user-1000.slice/memory.events` and `grep -E '^oom_kill ' /proc/vmstat`; no host change is proposed.",
+      "sources": [
+        "S120"
+      ],
+      "capture_pointers": [
+        {
+          "line": 50,
+          "token": "oom 0"
+        },
+        {
+          "line": 52,
+          "token": "oom_group_kill"
+        }
+      ],
+      "quote_refs": [
+        "S120"
+      ],
+      "supersedes": [],
+      "quotes": [
+        {
+          "source": "S120",
+          "quote": "The number of processes belonging to this cgroup killed by any kind of OOM killer."
+        }
+      ]
+    }
+  ]
+}

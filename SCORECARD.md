@@ -811,3 +811,51 @@ Wave-1 seats CritC1Sizing, CritC2Rows, CritC2Learning and ConnSiblingOverlap fou
 - C1 and C2 stay causally separable: C1 checks whatever counts the measured revision holds, so it would verify at a revision without C2 if the table states that revision's counts. Because C2 changes the counts, C1 is measured at the final revision only.
 - C2 capture pointers: each pointer names a line and a token of at least 3 characters; it counts only if the line is unique in the capture, is not a header, command echo or exit line, contains a letter or digit, and contains its token.
 - C2 scope: the frozen capture never read earlyoom, which is active and enabled (supplementary read-only capture `.ufo/waves/round-25/capture/capture-earlyoom.txt`, sha256 `7adbe069326afaaa103c447b95d507e989503356c864d9726edc45381fd40309`, also holding empty `OOMRules=` on the four units). It is context only, not a counting input; no row may conclude that nothing watches memory before the kernel. MP1, MP2, MP3 and MP6 restate ground the sibling lane mori already holds (`mori-shokunin/corpus/knowledge/system-pressure-r24.md` at `4f05dd5a`); the entry cites mori for those general facts and keeps only the OS-triage and systemd-oomd consequence here (PROVINCE row ADJ-04).
+
+## Axes — current self-assessment (round 25)
+
+Appended 2026-10-22 by the round-25 C1 repair (routed defect 1 in
+`corpus/lessons/round-24-verifier-spotcheck.md`). This table supersedes the
+round-11 table above as the lane's current self-assessment; the round-11 table
+stays in the file as the historical record of that round. Each score is the
+lane's current ordinal and each evidence pointer carries the command that
+re-derives the number it quotes. C1 repairs the measurement, it does not move an
+ordinal: the six scores below are the same ordinals the lane's later move
+records carry. The counts were filled by the L1 at the measured revision with the command named in the same cell.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 47 notes (`ls corpus/knowledge/*.md \| wc -l`); `SKILL.md` 2355 `wc -l`; 297 table lines (`grep -c '^\|' SKILL.md`); `corpus/lessons/` (26 files) (counted with `find corpus/lessons -type f` and `wc -l`); every rule in `SKILL.md` cites a `corpus/knowledge/*.md` note. Ceiling: the depth ordinal was last moved at round 4, and rounds 12 to 24 each record depth 8 to 8 with no change, so this row restates a score the round did not move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged since |
+| coverage | 9 | `corpus/README.md` 231 `wc -l`; `PROVINCE.md` Core, Frontier and Adjacent sections present (`## Core` at `PROVINCE.md:6`, `## Frontier` at `PROVINCE.md:75`, `## Adjacent` at `PROVINCE.md:35`); six gate planes equal the surfaces `PROVINCE.md` owns, each with a landed note; the four declared read-only surfaces of fleet round 1 (Arch News upgrade gate, `.pacnew` drift, initramfs v42, snapper net) each link one knowledge entry. Ceiling: the coverage ordinal was last moved by the fleet round-1 post-review correction; the K3 upstream delta (network read) still awaits an operator boundary ruling. | fleet round 1 (2026-10-19), post-review correction at `SCORECARD.md:224`; unchanged since |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (97 cases, 97 passed, 0 failed) with exit 0; the live run exits 1 with a six-plane rollup; the zero-mutation contract holds (no fixture byte changes, no `db.lck`); D12 `--identity` not landed, so the three-command re-derivation still stands. | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged since |
+| freshness | 9 | each round's record re-ran its predecessor's pins; the receipts `aur-drift-receipt-r9.md`, `census-closeout-receipt-r10.md` and `closeout-r11.md` recheck block hold the re-run evidence; the fleet round-1 dated D1 to D5 erratum rechecks (7 notes, 25 of 25 per-note rechecks) are the current floor; live counts such as the coredump directory size are captures, not durable state. Ceiling: a count captured now is superseded by the next capture; the r10 receipt's own pins were superseded inside its commit, recorded as drift and not smoothed. | fleet round 1 (2026-10-19), post-review correction at `SCORECARD.md:240`; unchanged since |
+| calibration | 9 | `corpus/knowledge/calibration-synthesis.md` holds the claim, re-measure, append, supersede, rule loop with its mismeasure rows; errata stay visible instead of being rewritten (the r1 retractions, the 5-plane numerals, the AUD-X7 credit correction); the register is the `closeout-r11.md` section 3 block; this round's C1 makes the lane's own table measurable against repository state, which is what the r10 ceiling asked for. Ceiling: the D13 verification debts stay open. | round 10 (`SCORECARD.md:36`); unchanged since |
+| adjacency | 8 | reported-not-absorbed rows across the arc (coredump storm to the journal workstream and the app lanes, `walker-restart.hook` root-exec to kagi, GSP selection to kaidoku and revenger); `PROVINCE.md` carries the formal overlap table present (the ADJ-01 to ADJ-07 finding-to-owner handoff table at `PROVINCE.md:44`, with the round-19 portable ownership anchors OUT-001 to OUT-010); contested scope is reported, never absorbed. Ceiling: recipient acknowledgement and independently replayed handoffs are not verified. | fleet round 1 (2026-10-19), post-review correction at `SCORECARD.md:213`; unchanged since |
+
+Scores are ordinals carried by the lane's own records, not a fresh measurement of
+this round. The counting commands above are the only source of the quoted counts;
+re-run them at the revision being claimed before treating any number here as
+current.
+
+## Capabilities — current (round 25)
+
+Appended 2026-10-22 with the round-25 C1 repair. This table restates the four
+capability rows of the round-11 section at `SCORECARD.md:157` against the
+repository state at the final measured revision. No capability row is added or
+removed this round and no row claims a new capability: the round-25 tools are
+gates, not capabilities. Each path pointer was re-checked against the round-25
+claim base with git cat-file, and the host-census-gate case count was re-measured
+by running the census selftest against a git archive of the revision.
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates where the lane learns: `corpus/SOURCES.md` holds opened, tier-scoped rows with anchors, rejections with flips, study paths, a search log and unopened leads, and the row set is checked by the frozen contract's census commands | `corpus/SOURCES.md`; the census commands and their outputs in `.ufo/evidence/round-1-kaika/after.md` (34 rows in that snapshot, malformed 0, no duplicate, enum or missing output; 125 rows at round 25) | fleet r1 (2026-10-19) |
+| host-census-gate | Emits a read-only six-plane host verdict (TSUKUROI_CENSUS: HEALTHY, DEGRADED or BLOCKED; exit 0, 1 or 2) with a hermetic 97-case selftest that touches no live host surface | `tools/tsukuroi-census.sh` selftest prints PASS 97/97 rc=0 (97 cases, 97 passed, 0 failed); the live run exits 1 with a six-plane rollup; receipts `.ufo/evidence/round-1-kaika/scout-live.md` and `.ufo/evidence/round-1-kaika/after.md` | lane r2 (census-v1); demonstrated running fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations even on package-probe failure; isolates fixtures and blocks unavailable or non-directory metadata without grading intentional 0555 policy | `.ufo/waves/round-12/resumed/after.json`, `.ufo/waves/round-12/resumed/selftest-after.json`, `.ufo/waves/round-12/resumed/mode-policy-mutant.json`; measured commit `70fede2a7a890cb50a72db2d4230ee541183bf7b` | round 12 |
+| boot-chain-audit | Audits every limine entry live and read-only: copies each UKI with a read-only `sudo -n cat`, extracts its initramfs in a private mktemp directory, types the new_root path, binds the firmware-selected entry, and emits a per-entry next-boot verdict plus TSUKUROI_BOOTCHAIN | `tools/boot-chain-audit.sh` live run wrote `.ufo/waves/round-17/l1-capture/audit-live.txt` (6 entries, CONSISTENT, exit 0); its selftest prints PASS total=45 failed=0 | round 17 |
+
+Rows enter only through a round that demonstrates the capability running; none
+enter through this rollout. The boot-chain-audit selftest count in the round-11
+table (44 of 44) is superseded here by the landed round-17 measurement of 45
+cases with 45 passed and 0 failed, and the host-census-gate count is the current
+97 cases, not the 80 of the round-11 table.

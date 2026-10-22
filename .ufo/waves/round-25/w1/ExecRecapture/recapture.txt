@@ -1,0 +1,231 @@
+### header
+$ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-10-22T10:21:15Z
+[exit 0]
+$ uname -r
+7.2.11-arch1-1
+[exit 0]
+$ systemctl --version
+systemd 262 (262-1-arch)
++PAM +AUDIT -SELINUX +APPARMOR -IMA +IPE +SMACK +SECCOMP +GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF +XKBCOMMON +UTMP +LIBARCHIVE
+[exit 0]
+### system-memory-psi-read-1
+$ cat /proc/pressure/memory
+some avg10=0.04 avg60=0.02 avg300=0.07 total=44447250
+full avg10=0.04 avg60=0.02 avg300=0.07 total=43886898
+[exit 0]
+$ sleep 10
+[exit 0]
+### system-memory-psi-read-2
+$ cat /proc/pressure/memory
+some avg10=0.01 avg60=0.02 avg300=0.07 total=44462024
+full avg10=0.01 avg60=0.02 avg300=0.06 total=43901244
+[exit 0]
+$ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-10-22T10:21:25Z
+[exit 0]
+### root-cgroup-memory-pressure
+$ cat /sys/fs/cgroup/memory.pressure
+some avg10=0.01 avg60=0.02 avg300=0.07 total=44462024
+full avg10=0.01 avg60=0.02 avg300=0.06 total=43901244
+[exit 0]
+### user-slice-memory-pressure
+$ cat /sys/fs/cgroup/user.slice/memory.pressure
+some avg10=0.00 avg60=0.00 avg300=0.00 total=3251943
+full avg10=0.00 avg60=0.00 avg300=0.00 total=3226500
+[exit 0]
+$ cat /sys/fs/cgroup/user.slice/user-1000.slice/memory.pressure
+some avg10=0.00 avg60=0.00 avg300=0.00 total=3258387
+full avg10=0.00 avg60=0.00 avg300=0.00 total=3232854
+[exit 0]
+$ cat /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/memory.pressure
+some avg10=0.00 avg60=0.00 avg300=0.00 total=3261639
+full avg10=0.00 avg60=0.00 avg300=0.00 total=3236112
+[exit 0]
+### user-slice-memory-events
+$ cat /sys/fs/cgroup/user.slice/user-1000.slice/memory.events
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 16092
+[exit 0]
+$ cat /sys/fs/cgroup/user.slice/user-1000.slice/memory.swap.events
+high 0
+max 0
+fail 602
+[exit 0]
+### kernel-oom-counter
+$ grep -E ^oom_kill  /proc/vmstat
+oom_kill 0
+[exit 0]
+### swap
+$ grep -E ^(SwapTotal|SwapFree|MemTotal|MemAvailable): /proc/meminfo
+MemTotal:       31721800 kB
+MemAvailable:   23698520 kB
+SwapTotal:      31722876 kB
+SwapFree:       28993240 kB
+[exit 0]
+### oomd-unit
+$ systemctl is-active systemd-oomd.service
+inactive
+[exit 3]
+$ systemctl is-enabled systemd-oomd.service
+disabled
+[exit 1]
+$ systemctl is-active systemd-oomd.socket
+inactive
+[exit 3]
+$ systemctl is-enabled systemd-oomd.socket
+disabled
+[exit 1]
+### oomd-config
+$ systemd-analyze cat-config systemd/oomd.conf | grep -vcE "^(#|;|$)"  (count of active lines)
+1
+[exit 0]
+$ systemd-analyze cat-config systemd/oomd.conf
+# /etc/systemd/oomd.conf
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it under the
+#  terms of the GNU Lesser General Public License as published by the Free
+#  Software Foundation; either version 2.1 of the License, or (at your option)
+#  any later version.
+#
+# Entries in this file show the compile time defaults. Local configuration
+# should be created by either modifying this file (or a copy of it placed in
+# /etc/ if the original file is shipped in /usr/), or by creating "drop-ins" in
+# the /etc/systemd/oomd.conf.d/ directory. The latter is generally recommended.
+# Defaults can be restored by simply deleting the main configuration file and
+# all drop-ins located in /etc/.
+#
+# Use 'systemd-analyze cat-config systemd/oomd.conf' to display the full config.
+#
+# See oomd.conf(5) for details
+
+[OOM]
+#SwapUsedLimit=90%
+#DefaultMemoryPressureLimit=60%
+#DefaultMemoryPressureDurationSec=30s
+[exit 0]
+$ ls -1 /etc/systemd/system/oomd.conf.d  (drop-ins for oomd.conf)
+ls: cannot access '/etc/systemd/system/oomd.conf.d': No such file or directory
+[exit 2]
+### managed-oom-properties
+$ systemctl show -p ManagedOOMMemoryPressure -p ManagedOOMMemoryPressureLimit -p ManagedOOMMemoryPressureDurationUSec -p ManagedOOMSwap -p ManagedOOMPreference -p MemoryPressureWatch -p MemoryPressureThresholdUSec -- user@1000.service
+ManagedOOMSwap=auto
+ManagedOOMMemoryPressure=auto
+ManagedOOMMemoryPressureLimit=0
+ManagedOOMMemoryPressureDurationUSec=[not set]
+ManagedOOMPreference=none
+MemoryPressureWatch=skip
+MemoryPressureThresholdUSec=200ms
+[exit 0]
+$ systemctl show -p ManagedOOMMemoryPressure -p ManagedOOMMemoryPressureLimit -p ManagedOOMMemoryPressureDurationUSec -p ManagedOOMSwap -p ManagedOOMPreference -p MemoryPressureWatch -p MemoryPressureThresholdUSec -- user-1000.slice
+ManagedOOMSwap=auto
+ManagedOOMMemoryPressure=auto
+ManagedOOMMemoryPressureLimit=0
+ManagedOOMMemoryPressureDurationUSec=[not set]
+ManagedOOMPreference=none
+MemoryPressureWatch=auto
+MemoryPressureThresholdUSec=200ms
+[exit 0]
+$ systemctl show -p ManagedOOMMemoryPressure -p ManagedOOMMemoryPressureLimit -p ManagedOOMMemoryPressureDurationUSec -p ManagedOOMSwap -p ManagedOOMPreference -p MemoryPressureWatch -p MemoryPressureThresholdUSec -- user.slice
+ManagedOOMSwap=auto
+ManagedOOMMemoryPressure=auto
+ManagedOOMMemoryPressureLimit=0
+ManagedOOMMemoryPressureDurationUSec=[not set]
+ManagedOOMPreference=none
+MemoryPressureWatch=auto
+MemoryPressureThresholdUSec=200ms
+[exit 0]
+$ systemctl show -p ManagedOOMMemoryPressure -p ManagedOOMMemoryPressureLimit -p ManagedOOMMemoryPressureDurationUSec -p ManagedOOMSwap -p ManagedOOMPreference -p MemoryPressureWatch -p MemoryPressureThresholdUSec -- -.slice
+ManagedOOMSwap=auto
+ManagedOOMMemoryPressure=auto
+ManagedOOMMemoryPressureLimit=0
+ManagedOOMMemoryPressureDurationUSec=[not set]
+ManagedOOMPreference=none
+MemoryPressureWatch=auto
+MemoryPressureThresholdUSec=200ms
+[exit 0]
+### manager-defaults
+$ systemctl show -p DefaultMemoryPressureWatch -p DefaultMemoryPressureThresholdUSec
+DefaultMemoryPressureThresholdUSec=200ms
+DefaultMemoryPressureWatch=auto
+[exit 0]
+### managed-oom-dropin-dirs
+$ ls -1 /usr/lib/systemd/system/user@.service.d
+10-login-barrier.conf
+[exit 0]
+$ ls -1 /etc/systemd/system/user@.service.d
+faster-shutdown.conf
+[exit 0]
+$ ls -1 /usr/lib/systemd/system/user-.slice.d
+10-defaults.conf
+[exit 0]
+$ ls -1 /etc/systemd/system/user-.slice.d
+(absent)
+[exit 0]
+$ ls -1 /usr/lib/systemd/system/-.slice.d
+(absent)
+[exit 0]
+$ ls -1 /etc/systemd/system/-.slice.d
+(absent)
+[exit 0]
+$ ls -1 /usr/lib/systemd/system/user.slice.d
+(absent)
+[exit 0]
+$ ls -1 /etc/systemd/system/user.slice.d
+(absent)
+[exit 0]
+$ ls -1 /usr/lib/systemd/system/user@1000.service.d
+(absent)
+[exit 0]
+$ ls -1 /etc/systemd/system/user@1000.service.d
+(absent)
+[exit 0]
+$ ls -1 /usr/lib/systemd/system/user-1000.slice.d
+(absent)
+[exit 0]
+$ ls -1 /etc/systemd/system/user-1000.slice.d
+(absent)
+[exit 0]
+$ ls -1 /etc/systemd/system/systemd-oomd.service.d
+(absent)
+[exit 0]
+$ ls -1 /etc/systemd/system/systemd-oomd.socket.d
+(absent)
+[exit 0]
+### managed-oom-dropin-contents
+$ systemctl cat user@1000.service  (paths only)
+# /usr/lib/systemd/system/user@.service
+# /usr/lib/systemd/system/user@.service.d/10-login-barrier.conf
+# /etc/systemd/system/user@.service.d/faster-shutdown.conf
+[exit 0]
+$ grep -hE "ManagedOOM|MemoryPressure" over resolved unit+drop-in files for user@1000.service
+MemoryPressureWatch=skip
+[exit 0]
+$ systemctl cat user-1000.slice  (paths only)
+# /usr/lib/systemd/system/user-.slice.d/10-defaults.conf
+[exit 0]
+$ grep -hE "ManagedOOM|MemoryPressure" over resolved unit+drop-in files for user-1000.slice
+[exit 1]
+$ systemctl cat user.slice  (paths only)
+# /usr/lib/systemd/system/user.slice
+[exit 0]
+$ grep -hE "ManagedOOM|MemoryPressure" over resolved unit+drop-in files for user.slice
+[exit 1]
+$ systemctl cat -.slice  (paths only)
+[exit 1]
+$ grep -hE "ManagedOOM|MemoryPressure" over resolved unit+drop-in files for -.slice
+(no resolvable unit or drop-in file)
+[exit 0]
+### managed-oom-kill-search
+$ grep -rlE "ManagedOOM(MemoryPressure|Swap)=kill" /etc/systemd/system /usr/lib/systemd/system 2>/dev/null
+[exit 1]
+### end
+$ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-10-22T10:21:25Z
+[exit 0]
