@@ -1,0 +1,455 @@
+diff --git i/tools/check-adjacency-overlap.py w/tools/check-adjacency-overlap.py
+index 58e25ba..bcd9fcc 100755
+--- i/tools/check-adjacency-overlap.py
++++ w/tools/check-adjacency-overlap.py
+@@ -12,13 +12,13 @@ through git at --revision:
+      sibling_blob_sha256 (round-27 tightening: and that sha256 is the pinned one)
+   A3 heading is a line of the snapshot starting with `#` and is the nearest
+      such line at or above quote_line
+-  A4 the sibling quote has at most 25 words and, whitespace-normalised, is a
+-     substring of snapshot lines quote_line .. quote_line + 2
++  A4 the sibling quote has at most 25 words and, whitespace-normalised, occurs
++     on whole-token boundaries in snapshot lines quote_line .. quote_line + 2
+   A5 the lane side is lane_path plus lane_quote (at most 25 words, found
+      normalised in that lane file at the revision), or both null and only when
+      class is LANE-GAP
+   A6 class in INBOUND-RESOLVES, INBOUND-DRIFTED, AGREES, CONFLICTS, LANE-GAP;
+-     owner in mori, tsukuroi, contested; action a non-empty string
++     owner in mori, tsukuroi, contested; action has at least four words
+   A7 the id is the first cell of a table row inside the PROVINCE.md section
+      `## Adjacent — mori userspace OOM killers (round 27)`
+ Round-28 tightenings (QUALITY 72, R27-COUNTER-PERMISSIVE; each can only refuse):
+@@ -27,23 +27,31 @@ Round-28 tightenings (QUALITY 72, R27-COUNTER-PERMISSIVE; each can only refuse):
+   B2 sibling_path is the pinned path and `snapshot` names its committed copy
+   B3 the lines the quote occupies (the shortest prefix of its three-line
+      window that contains it) hold no heading line
+-  B4 every sibling and lane quote has at least 4 words
++  B4 every sibling and lane quote has at least five words
+   B5 lane_path is a normalised relative path (no `./`, `//` or `..`), not
+-     under `.ufo/` and not an adjacency register file
+-     (`corpus/knowledge/adjacency-*`), so the lane side is lane knowledge,
+-     never the register, a wave report or the sibling snapshot
++     under `.ufo/`, an adjacency register, a wave report or the mori snapshot
+   B6 LANE-GAP needs a null lane side (no cap on LANE-GAP rows: wave-1
+      CritC1OverStrict showed a cap refuses a genuine second gap)
+-  B7 the PROVINCE row's owner and class cells (columns 2 and 3, one outer
+-     pair of backticks or asterisks removed) equal the register row's; rows
+-     inside a code fence (closed only by its own marker) or indented four or
+-     more columns are not table rows; an id listed twice counts for neither
++  B7 the PROVINCE row's owner and class cells match the register row; rows
++     inside a code fence or indented four or more columns are not table rows;
++     a repeated id counts for neither
++  B8 sibling anchor keys (path, quote_line, normalised quote) are unique
++  B9 each id uses its fixed round-27 lane source file: OV1/3/4/5 use
++     memory-pressure-r25.md, OV2 uses PROVINCE.md, and OV6 has no lane file
++     (this source allow-list does not prove a semantic judgment)
++  B10 sibling and lane quote matches start and end on whole-token boundaries
++  B11 each action has at least four whitespace-delimited words
++  B12 rows contain only the fields in the round-27 register schema
++  B13 PROVINCE evidence must be a visible, delimited table in the exact
++      section; HTML comments and nested headings invalidate that section
++  B14 the frozen CONFLICTS class and owners for OV4 and OV5 cannot be rewritten
++  B15 a PROVINCE pointer must not contradict the row's AGREES/CONFLICTS class
+ When <siblings-root>/mori-shokunin exists, `git cat-file -p <commit>:<path>`
+ must equal the snapshot bytes (a mismatch fails every row; an absent sibling
+ repository is reported as `sibling-unavailable` and the snapshot still counts,
+ which B2 plus the pinned sha256 make safe).
+ Exit 0 when anchored_rows is 6, 1 when fewer, 2 when the register or the
+-snapshot cannot be read.  Read-only: no working-tree byte is consulted.
++snapshot cannot be read. Read-only: no working-tree byte is consulted.
+ """
+ import argparse
+ import hashlib
+@@ -64,7 +72,24 @@ CLASSES = ('INBOUND-RESOLVES', 'INBOUND-DRIFTED', 'AGREES', 'CONFLICTS', 'LANE-G
+ OWNERS = ('mori', 'tsukuroi', 'contested')
+ SECTION = '## Adjacent — mori userspace OOM killers (round 27)'
+ MAX_WORDS = 25
+-MIN_WORDS = 4
++MIN_WORDS = 5
++MIN_ACTION_WORDS = 4
++LANE_PATHS = {
++    'OV1': ('corpus/knowledge/memory-pressure-r25.md',),
++    'OV2': ('PROVINCE.md',),
++    'OV3': ('corpus/knowledge/memory-pressure-r25.md',),
++    'OV4': ('corpus/knowledge/memory-pressure-r25.md',),
++    'OV5': ('corpus/knowledge/memory-pressure-r25.md',),
++    'OV6': (None,),
++}
++ROW_DECISIONS = {
++    'OV4': ('CONFLICTS', 'tsukuroi'),
++    'OV5': ('CONFLICTS', 'mori'),
++}
++ROW_FIELDS = frozenset(('id', 'sibling', 'sibling_commit', 'sibling_path',
++                        'sibling_blob_sha256', 'snapshot', 'heading', 'quote',
++                        'quote_line', 'lane_path', 'lane_quote', 'class',
++                        'owner', 'action'))
+ DEFAULT_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ 
+ 
+@@ -72,6 +97,20 @@ def norm(text):
+     return ' '.join((text or '').split())
+ 
+ 
++def contains_anchor(needle, haystack):
++    needle, haystack = norm(needle), norm(haystack)
++    return bool(re.search(r'(?<!\w)%s(?!\w)' % re.escape(needle), haystack))
++
++
++def pointer_disagrees(klass, pointer):
++    pointer = norm(pointer).lower()
++    if klass == 'CONFLICTS':
++        return bool(re.search(r'\bno\s+conflict\b|\bagree(?:s|d)?\b', pointer))
++    if klass == 'AGREES':
++        return bool(re.search(r'\bno\s+agreement\b|\bconflicts?\s+with\b|\bcontradicts?\b', pointer))
++    return False
++
++
+ def git(repo, *args):
+     return subprocess.run(['git', '-C', repo] + list(args), capture_output=True)
+ 
+@@ -81,37 +120,90 @@ def show(repo, rev, path):
+     return out.stdout if out.returncode == 0 else None
+ 
+ 
+-def province_rows(text):
+-    """id -> list of cells for table rows of SECTION outside code fences.
++def _without_html_comments(line, in_comment):
++    visible = []
++    while line:
++        if in_comment:
++            close = line.find('-->')
++            if close < 0:
++                return ''.join(visible), True
++            line = line[close + 3:]
++            in_comment = False
++        opening = line.find('<!--')
++        if opening < 0:
++            visible.append(line)
++            break
++        visible.append(line[:opening])
++        line = line[opening + 4:]
++        in_comment = True
++    return ''.join(visible), in_comment
+ 
+-    A fence closes only on the character that opened it; a line indented four
+-    or more spaces is code, not a table row; an id listed twice maps to None
+-    (ambiguous), so neither copy counts.
+-    """
+-    rows, inside, fence = {}, False, None
+-    for line in text.splitlines():
++
++def province_rows(text):
++    """id -> cells for visible GFM table rows in SECTION; ambiguity counts none."""
++    rows, inside, fence, comment = {}, False, None, False
++    header, in_table, section_count, invalid = None, False, 0, False
++    for source_line in text.splitlines():
++        line, comment = _without_html_comments(source_line, comment)
+         s = line.strip()
+-        if s.startswith('```') or s.startswith('~~~'):
+-            if fence is None:
+-                fence = s[0]
+-            elif s[0] == fence:
++        if comment:
++            continue
++        marker = re.match(r'^ {0,3}(`{3,}|~{3,})(.*)$', line)
++        if fence is not None:
++            if marker and marker.group(1)[0] == fence[0] \
++                    and len(marker.group(1)) >= fence[1] and not marker.group(2).strip():
+                 fence = None
+             continue
+-        if fence is not None:
++        if marker:
++            fence = (marker.group(1)[0], len(marker.group(1)))
+             continue
+-        if line.startswith('## ') or line.startswith('# '):
+-            inside = line.strip() == SECTION
++        if re.match(r'^#{1,6}(?:\s|$)', s):
++            level = len(s) - len(s.lstrip('#'))
++            if level <= 2:
++                inside = s == SECTION
++                header, in_table = None, False
++                if inside:
++                    section_count += 1
++                    invalid |= section_count > 1
++            elif inside:
++                invalid = True
++                header, in_table = None, False
++            continue
++        if not inside:
+             continue
+         expanded = line.expandtabs(4)
+         indent = len(expanded) - len(expanded.lstrip(' '))
+-        if inside and indent < 4 and s.startswith('|'):
+-            cells = [c.strip() for c in s.strip('|').split('|')]
+-            if cells and cells[0]:
+-                rid = cells[0]
+-                if len(rid) > 2 and rid[0] == rid[-1] == '`':
+-                    rid = rid[1:-1]
+-                rows[rid] = None if rid in rows else cells
+-    return rows
++        if indent >= 4:
++            continue
++        if not s:
++            header, in_table = None, False
++            continue
++        if not s.startswith('|'):
++            header, in_table = None, False
++            continue
++        cells = [cell.strip() for cell in s.strip('|').split('|')]
++        if not in_table:
++            rid = cells[0].strip('`') if cells else ''
++            if rid in IDS:
++                invalid = True
++                header = None
++                continue
++            if header is None:
++                header = cells
++                continue
++            if len(cells) == len(header) and all(
++                    re.fullmatch(r':?-{3,}:?', cell) for cell in cells):
++                in_table, header = True, None
++                continue
++            header = cells
++            continue
++        if not cells or not cells[0]:
++            continue
++        rid = cells[0]
++        if len(rid) > 2 and rid[0] == rid[-1] == '`':
++            rid = rid[1:-1]
++        rows[rid] = None if rid in rows else cells
++    return {} if invalid or section_count != 1 else rows
+ 
+ 
+ def evaluate(repo, rev, siblings_root):
+@@ -138,6 +230,15 @@ def evaluate(repo, rev, siblings_root):
+     shape_errors = ['row%d-%s' % (i, 'not-object' if not isinstance(r, dict) else 'id-not-declared')
+                     for i, r in enumerate(rows)
+                     if not isinstance(r, dict) or not isinstance(r.get('id'), str) or r.get('id') not in IDS]
++    sibling_anchor_counts = {}
++    for item in rows:
++        if not isinstance(item, dict):
++            continue
++        item_quote, item_line, item_path = item.get('quote'), item.get('quote_line'), item.get('sibling_path')
++        if isinstance(item_quote, str) and isinstance(item_line, int) \
++                and not isinstance(item_line, bool) and isinstance(item_path, str):
++            anchor_key = (item_path, item_line, norm(item_quote))
++            sibling_anchor_counts[anchor_key] = sibling_anchor_counts.get(anchor_key, 0) + 1
+     sibling_note = 'sibling-unavailable'
+     sib_repo = os.path.join(siblings_root, 'mori-shokunin')
+     snapshots, result = {}, {}
+@@ -150,6 +251,8 @@ def evaluate(repo, rev, siblings_root):
+             reasons.append('id-unknown')
+         elif ids.count(rid) != 1:
+             reasons.append('id-duplicate')
++        if set(row).difference(ROW_FIELDS):
++            reasons.append('row-fields-unknown')
+         if row.get('sibling') != 'mori':
+             reasons.append('sibling-not-mori')
+         if row.get('sibling_commit') != PIN_COMMIT:
+@@ -201,12 +304,17 @@ def evaluate(repo, rev, siblings_root):
+                     # B3: the lines the quote occupies (the shortest prefix of the
+                     # three-line window that contains it) hold no heading line.
+                     span = next((k for k in (1, 2, 3)
+-                                 if norm(quote) in norm(' '.join(lines[ql - 1:ql - 1 + k]))), None)
++                                 if contains_anchor(quote, ' '.join(lines[ql - 1:ql - 1 + k]))), None)
+                     if span is None:
+                         reasons.append('quote-not-in-window')
+                     elif any(l.startswith('#') for l in lines[ql - 1:ql - 1 + span]):
+                         reasons.append('quote-spans-heading')
++                    if isinstance(spath, str) and isinstance(ql, int) and not isinstance(ql, bool) \
++                            and sibling_anchor_counts.get((spath, ql, norm(quote)), 0) > 1:
++                        reasons.append('sibling-anchor-reused')
+         lpath, lquote, klass = row.get('lane_path'), row.get('lane_quote'), row.get('class')
++        if isinstance(rid, str) and rid in LANE_PATHS and lpath not in LANE_PATHS[rid]:
++            reasons.append('lane-source-not-pinned-for-row')
+         if lpath is None and lquote is None:
+             if klass != 'LANE-GAP':
+                 reasons.append('lane-null-not-gap')
+@@ -219,7 +327,7 @@ def evaluate(repo, rev, siblings_root):
+             body = show(repo, rev, lpath)
+             if body is None:
+                 reasons.append('lane-file-missing')
+-            elif norm(lquote) not in norm(body.decode('utf-8', 'replace')):
++            elif not contains_anchor(lquote, body.decode('utf-8', 'replace')):
+                 reasons.append('lane-quote-not-found')
+             if len(lquote.split()) > MAX_WORDS:
+                 reasons.append('lane-quote-too-long')
+@@ -229,15 +337,22 @@ def evaluate(repo, rev, siblings_root):
+             reasons.append('lane-side-malformed')
+         if klass not in CLASSES:
+             reasons.append('class-invalid')
+-        if row.get('owner') not in OWNERS:
++        owner = row.get('owner')
++        if owner not in OWNERS:
+             reasons.append('owner-invalid')
+-        if not isinstance(row.get('action'), str) or not row.get('action').strip():
+-            reasons.append('action-empty')
++        if isinstance(rid, str) and rid in ROW_DECISIONS \
++                and (klass, owner) != ROW_DECISIONS[rid]:
++            reasons.append('decision-not-pinned')
++        action = row.get('action')
++        if not isinstance(action, str) or len(action.split()) < MIN_ACTION_WORDS:
++            reasons.append('action-insufficient')
+         prow = in_province.get(rid) if isinstance(rid, str) else None
+         if prow is None:
+             reasons.append('province-row-missing')
+-        elif len(prow) < 3 or prow[1].strip('`*') != row.get('owner') or prow[2].strip('`*') != klass:
++        elif len(prow) < 3 or prow[1].strip('`*') != owner or prow[2].strip('`*') != klass:
+             reasons.append('province-disagrees')
++        elif len(prow) > 3 and pointer_disagrees(klass, prow[3]):
++            reasons.append('province-pointer-disagrees')
+         key = rid if isinstance(rid, str) else 'row%d' % len(result)
+         result.setdefault(key, []).extend(reasons)
+     # A duplicated id never counts (A1); a sibling byte mismatch fails every row;
+@@ -275,28 +390,47 @@ def _fixture(tmp, register, province, snap_bytes, lane_files):
+ 
+ 
+ def selftest():
+-    global PIN_PATH, PIN_SHA256
+-    snap = ('# Title\n\nintro line\n## Facts\none fact about units here\nsecond fact line\n'
+-            'third fact line\n## Limits\nlimit sentence one here\n').encode()
++    global PIN_PATH, PIN_SHA256, LANE_PATHS
++    snap = ('# Title\n\nintro line\n## Facts\none fact about units here\n'
++            'second fact line has units\nthird fact line uses signals\n'
++            'fourth fact line tracks pressure\nfifth fact line maps counters\n'
++            'sixth fact line names the host\n## Limits\nlimit sentence one here\n').encode()
+     sha = hashlib.sha256(snap).hexdigest()
+-    saved = (PIN_PATH, PIN_SHA256)
++    saved = (PIN_PATH, PIN_SHA256, LANE_PATHS)
+     PIN_PATH, PIN_SHA256 = 'x/entry.md', sha
+-    same = 'the lane says units are auto here\n'
++    LANE_PATHS = {rid: ('corpus/knowledge/note.md', None) for rid in IDS}
++    same = 'the lane says units are now\n'
+     lane = {'corpus/knowledge/note.md': same, '.ufo/waves/x/report.md': same,
+-            'corpus/knowledge/adjacency-x.md': same}
++            'corpus/knowledge/adjacency-x.md': same,
++            'corpus/knowledge/other.md': same}
+ 
+     def base():
+         rows = []
+-        for i, rid in enumerate(IDS):
++        quotes = [
++            ('one fact about units here', 5),
++            ('second fact line has units', 6),
++            ('third fact line uses signals', 7),
++            ('fourth fact line tracks pressure', 8),
++            ('fifth fact line maps counters', 9),
++            ('sixth fact line names the host', 10),
++        ]
++        for rid, (quote, quote_line) in zip(IDS, quotes):
++            klass, owner = ROW_DECISIONS.get(rid, ('AGREES', 'tsukuroi'))
+             rows.append({'id': rid, 'sibling': 'mori', 'sibling_commit': PIN_COMMIT,
+                          'sibling_path': 'x/entry.md', 'sibling_blob_sha256': sha,
+                          'snapshot': SNAP_DIR + 'x/entry.md',
+-                         'heading': '## Facts', 'quote': 'one fact about units', 'quote_line': 5,
+-                         'lane_path': 'corpus/knowledge/note.md', 'lane_quote': 'lane says units are',
+-                         'class': 'AGREES', 'owner': 'tsukuroi', 'action': 'record'})
++                         'heading': '## Facts', 'quote': quote, 'quote_line': quote_line,
++                         'lane_path': 'corpus/knowledge/note.md', 'lane_quote': 'lane says units are now',
++                         'class': klass, 'owner': owner,
++                         'action': 'record this overlap carefully'})
+         return {'rows': rows}
++
++    def province_row(rid):
++        klass, owner = ROW_DECISIONS.get(rid, ('AGREES', 'tsukuroi'))
++        return '| %s | %s | %s |\n' % (rid, owner, klass)
++
+     province = '# P\n\n' + SECTION + '\n\n| id | owner | class |\n|---|---|---|\n' + \
+-        ''.join('| %s | tsukuroi | AGREES |\n' % r for r in IDS) + '\n## Other\n'
++        ''.join(province_row(rid) for rid in IDS) + '\n## Other\n'
+     gap = {'lane_path': None, 'lane_quote': None, 'class': 'LANE-GAP'}
+     gap_prov = province.replace('| OV1 | tsukuroi | AGREES |', '| OV1 | tsukuroi | LANE-GAP |')
+     gap2_prov = gap_prov.replace('| OV2 | tsukuroi | AGREES |', '| OV2 | tsukuroi | LANE-GAP |')
+@@ -306,6 +440,21 @@ def selftest():
+         reg = base()
+         fn(reg['rows'])
+         return reg, (prov if prov is not None else province)
++
++    commented_table = ('| id | owner | class |\n|---|---|---|\n' +
++                       ''.join(province_row(rid) for rid in IDS))
++    commented = province.replace(commented_table, '<!--\n' + commented_table + '-->')
++    withdrawn = province.replace('| id | owner | class |',
++                                 'No row of this register is an anchor any more.\n\n'
++                                 '### Withdrawn rows (not anchors, history only)\n\n'
++                                 '| id | owner | class |')
++    no_delimiter = province.replace('| id | owner | class |\n|---|---|---|\n',
++                                    'Rejected candidate rows, quoted verbatim:\n')
++    pointer_province = province.replace('| id | owner | class |', '| id | owner | class | pointer |')
++    pointer_province = pointer_province.replace('|---|---|---|', '|---|---|---|---|')
++    pointer_province = pointer_province.replace(
++        '| OV1 | tsukuroi | AGREES |',
++        '| OV1 | tsukuroi | AGREES | no agreement; the finding conflicts with it |')
+     cases = [
+         ('clean', mut(lambda r: None), 0, 6),
+         ('duplicate-id', mut(lambda r: r[5].__setitem__('id', 'OV1')), 1, 4),
+@@ -333,20 +482,23 @@ def selftest():
+         ('b2-sibling-path-not-pinned', mut(lambda r: r[0].__setitem__('sibling_path', 'x/./entry.md')), 1, 5),
+         ('b2-snapshot-field-bogus', mut(lambda r: r[0].__setitem__('snapshot', '/etc/passwd')), 1, 5),
+         ('b3-quote-line-on-heading', mut(lambda r: r[0].update(quote_line=4, quote='## Facts')), 1, 5),
+-        ('b3-window-crosses-heading', mut(lambda r: r[0].update(quote_line=7, quote='third fact line ## Limits')), 1, 5),
++        ('b3-window-crosses-heading', mut(lambda r: r[0].update(
++            quote_line=10, quote='sixth fact line names the host ## Limits')), 1, 5),
+         ('b4-short-sibling-quote', mut(lambda r: r[0].update(quote='units here')), 1, 5),
+         ('b4-short-lane-quote', mut(lambda r: r[0].update(lane_quote='a')), 1, 5),
+         ('b5-lane-under-ufo', mut(lambda r: r[0].update(lane_path='.ufo/waves/x/report.md')), 1, 5),
+         ('b5-lane-is-register', mut(lambda r: r[0].update(lane_path='corpus/knowledge/adjacency-x.md')), 1, 5),
+         ('b5-lane-is-sibling-snapshot', mut(lambda r: r[0].update(lane_path=SNAP_DIR + 'x/entry.md',
+-                                                                  lane_quote='one fact about units')), 1, 5),
++                                                                  lane_quote='one fact about units here')), 1, 5),
+         ('b6-lane-gap-with-lane-side', mut(lambda r: r[0].__setitem__('class', 'LANE-GAP'), gap_prov), 1, 5),
+-        ('pass-b6-two-lane-gap-rows', mut(lambda r: (r[0].update(gap), r[1].update(gap)), gap2_prov), 0, 6),
++        ('pass-b6-two-lane-gap-rows', mut(lambda r: (r[0].update(gap), r[1].update(gap)),
++                                           gap2_prov), 0, 6),
+         ('pass-b3-quote-ends-before-heading', mut(lambda r: r[0].update(
+-            quote_line=6, quote='second fact line third fact line')), 0, 6),
++            quote_line=9, quote='fifth fact line maps counters sixth fact line names the host')), 0, 6),
+         ('pass-b7-backticked-owner-class', mut(lambda r: None, province.replace(
+             '| OV1 | tsukuroi | AGREES |', '| OV1 | `tsukuroi` | `AGREES` |')), 0, 6),
+-        ('b7-province-disagrees', mut(lambda r: None, province.replace('| OV2 | tsukuroi | AGREES |', '| OV2 | mori | AGREES |')), 1, 5),
++        ('b7-province-disagrees', mut(lambda r: None, province.replace(
++            '| OV2 | tsukuroi | AGREES |', '| OV2 | mori | AGREES |')), 1, 5),
+         ('b7-province-row-in-fence', mut(lambda r: None, fenced), 1, 5),
+         # wave-1 CritC1NewShapes (round 28): each must refuse
+         ('b5-lane-path-dot-slash-ufo', mut(lambda r: r[0].update(lane_path='./.ufo/waves/x/report.md')), 1, 5),
+@@ -354,9 +506,31 @@ def selftest():
+         ('b7-mixed-fence-markers', mut(lambda r: None, province.replace(
+             '| OV1 | tsukuroi | AGREES |\n', '~~~text\n```\n| OV1 | tsukuroi | AGREES |\n~~~\n')), 1, 5),
+         ('b7-table-row-indented-four', mut(lambda r: None, province.replace(
+-            '| OV1 | tsukuroi | AGREES |\n', '\n    | OV1 | tsukuroi | AGREES |\n')), 1, 5),
++            '| OV1 | tsukuroi | AGREES |\n', '\n    | OV1 | tsukuroi | AGREES |\n')), 1, 0),
+         ('b7-duplicate-province-row', mut(lambda r: None, province.replace(
+-            '| OV2 | tsukuroi | AGREES |\n', '| OV2 | tsukuroi | AGREES |\n| OV2 | mori | CONFLICTS |\n')), 1, 5),
++            '| OV2 | tsukuroi | AGREES |\n',
++            '| OV2 | tsukuroi | AGREES |\n| OV2 | mori | CONFLICTS |\n')), 1, 5),
++        # Round-29 padding shapes: one should-fail case per added rule.
++        ('b8-duplicate-sibling-anchor', mut(lambda r: r[1].update(
++            quote=r[0]['quote'], quote_line=r[0]['quote_line'])), 1, 4),
++        ('b9-lane-source-not-pinned', mut(lambda r: r[2].update(
++            lane_path='corpus/knowledge/other.md')), 1, 5),
++        ('b4-four-word-quote', mut(lambda r: r[0].update(
++            quote='one fact about units')), 1, 5),
++        ('b10-sibling-mid-word', mut(lambda r: r[0].update(
++            quote='one fact about units her')), 1, 5),
++        ('b10-lane-mid-word', mut(lambda r: r[0].update(
++            lane_quote='the lane says units are')), 1, 5),
++        ('b11-placeholder-action', mut(lambda r: r[0].__setitem__('action', '-')), 1, 5),
++        ('b12-unknown-withdrawn-field', mut(lambda r: r[0].__setitem__('status', 'withdrawn')), 1, 5),
++        ('b13-province-html-comment', mut(lambda r: None, commented), 1, 0),
++        ('b13-province-withdrawn-subsection', mut(lambda r: None, withdrawn), 1, 0),
++        ('b13-province-no-delimiter', mut(lambda r: None, no_delimiter), 1, 0),
++        ('b14-consistent-false-class', mut(
++            lambda r: r[3].__setitem__('class', 'AGREES'),
++            province.replace('| OV4 | tsukuroi | CONFLICTS |',
++                             '| OV4 | tsukuroi | AGREES |')), 1, 5),
++        ('b15-province-pointer-contradicts', mut(lambda r: None, pointer_province), 1, 5),
+         # should pass: same digest in upper case; backticked PROVINCE id
+         ('pass-upper-case-digest', mut(lambda r: r[0].__setitem__('sibling_blob_sha256', sha.upper())), 0, 6),
+         ('pass-backticked-province-id', mut(lambda r: None, province.replace('| OV1 |', '| `OV1` |')), 0, 6),
+@@ -380,7 +554,7 @@ def selftest():
+             and out2['anchored_rows'] == 0
+         failed += not ok
+         obs.append({'case': 'sibling-unavailable-then-mismatch', 'exit': [code, code2], 'pass': ok})
+-    PIN_PATH, PIN_SHA256 = saved
++    PIN_PATH, PIN_SHA256, LANE_PATHS = saved
+     print(json.dumps({'cases': len(obs), 'failed': failed, 'observations': obs}))
+     return 0 if failed == 0 else 1
