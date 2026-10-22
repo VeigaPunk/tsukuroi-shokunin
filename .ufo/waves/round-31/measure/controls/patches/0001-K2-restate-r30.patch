@@ -1,0 +1,113 @@
+From 078fb86aa175946af0045dcc222cce31619c59d0 Mon Sep 17 00:00:00 2001
+From: control <control@invalid>
+Date: Thu, 22 Oct 2026 19:52:44 -0300
+Subject: [PATCH] K2 restate-r30
+
+---
+ SKILL.md                               |  9 +++
+ corpus/knowledge/btrfs-repair-r31.json | 76 ++++++++++++++++++++++++++
+ 2 files changed, 85 insertions(+)
+ create mode 100644 corpus/knowledge/btrfs-repair-r31.json
+
+diff --git a/SKILL.md b/SKILL.md
+index 3d28732..c99e111 100644
+--- a/SKILL.md
++++ b/SKILL.md
+@@ -2670,3 +2670,12 @@ eleven existing tools change no row: their entry commands and verdict maps are u
+ | run-receipt | probe | `python3 tools/run-receipt.py --revision <REV> [--tool-revision <REV>] --out <FILE> [--lane <repo>] [--timeout <s>] -- <tool> [args...]` | 0 the tool exited 0;1 the tool exited 1 (its own verdict);2 revision or tool unreadable, or the tool's own could-not-evaluate | none: no self-test mode; the receipt header (revision, tool revision, tool sha256) is the evidence | R30 routed defect 1 (QUALITY 77): runs a tracked tool from a sandbox clone at the tool revision with a private HOME and writes header, stdout and footer | the `--out` receipt file; sandbox clone under `/fast/scratch/hyaku` | tsukuroi |
+ | report-receipts | gate | `python3 tools/check-report-receipts.py --report <PATH> --lane <repo> --revision <REV>` | 0 every revision-cited gate or measurement has a committed receipt;1 one or more citation unreceipted;2 could-not-evaluate (report or revision unreadable) | `python3 tools/check-report-receipts.py --selftest` | R30 mined mistake R30-UNRECEIPTED-GATES (QUALITY 77): exits 1 on the round-29 report at lane `8976ca92` (Gates at `434a7903`) | committed reads; selftest private fixtures | tsukuroi |
+ | owed-statements-v4shapes-battery | probe | `python3 tools/mutants-owed-statements-r29-v4shapes.py --base <REV with markers> (--counter-rev <REV> \| --counter-file <PATH>) [--lane <PATH>] [--keep]` | 0 control 12, no routed v4 shape accepted, no control refused;1 otherwise;2 not emitted | none: the battery is itself a should-fail check of `owed-statements-r29`; its counts are re-derived by wave seats | R30 routed defect 2 of the round-29 spot-check: closed-comment, list-indented, extra-JSON-key and asterisk-id shapes; counter v5 sha256 `6fadf5fbb77579a8a49db36a560de20b20aa2bd3d3f6928218c640b1465c475b` refuses 11 of 11 (v4 `3516d579…` accepted 11 of 11) | private clone under `/fast/scratch/hyaku` | tsukuroi |
++
++| [R31-Q01] | `Device unallocated` in `btrfs filesystem usage -b /` near 0: metadata reservations stay inside the allocated metadata chunks, so ENOSPC can come while data chunks have room | Read `Device unallocated` before `df`; near 0 with full metadata is the btrfs ENOSPC-with-free-space case | S159 line 177 |
++| [R31-Q02] | `Global reserve` is metadata held for emergency work such as deletion on a full filesystem; capped at 512 MiB in v7.2 | Never count it as free space; `used` above 0 means the emergency reserve is in use `[inf]`: treat the filesystem as full | S152 line 418; S156 line 394 |
++| [R31-Q03] | `btrfs balance start -dusage=N` relocates only block groups under N percent used and returns them to unallocated space | Operator only: start with `-dusage=0`, which needs no new work space, then raise N | S153 lines 50-54 |
++| [R31-Q04] | Metadata on one device defaults to `DUP`: every metadata byte costs two raw bytes (`Metadata ratio` 2.00 here) | Budget metadata chunks at twice their logical size | S155 lines 59 and 520; `btrfs-filesystem-usage.out.txt` line 11; capture lines 53 and 67 |
++| [R31-Q05] | `allocation/<type>/bg_reclaim_threshold` is a percentage of block-group size: the v7.2 periodic sweep reclaims a whole block group whose used bytes fall below it (the chapter calls it a reclaimable-space percentage; corrected after wave-2 RevRowD05) | Read only; metadata reads 0 on this host with `dynamic_reclaim` 0, so the periodic sweep marks no metadata block group (`[inf]`; other reclaim paths `[unk]`) | S154 lines 168-169; S159 lines 2111-2117 and 2154-2155 |
++| [R31-Q06] | `/sys/fs/btrfs/<fsid>/allocation/` (singular on 7.2.11; the v7.1 chapter heading spells `allocations`) holds `global_rsv_*` and the data, metadata and system directories, world-readable | Use these files for an unprivileged capture; `btrfs filesystem usage` without root lacks chunk detail | S158 lines 37, 68-78 and 1066-1068; S154 line 140; `.ufo/waves/round-30/w1/ExecHostCapture/btrfs-filesystem-usage.err.txt` line 1 |
++| [R31-Q07] | Snapshots share extents with their source, so deleting files in the original frees nothing a snapshot still references | Deleting the snapshots that still reference the extents is what returns the space; deleting files alone cannot. Which snapshots to delete is an operator decision (this host had no snapper configuration on 2026-10-22, wave-2 RevRowD07) | S157 lines 39-41 and 202-206 |
++| [R31-Q08] | Host metadata `bytes_used` 35372056576 of `total_bytes` 38654705664 (91.5 percent) | High fill alone is not ENOSPC while unallocated space remains (D01, D09) | S154 line 163; capture lines 50, 67 and 99 |
+diff --git a/corpus/knowledge/btrfs-repair-r31.json b/corpus/knowledge/btrfs-repair-r31.json
+new file mode 100644
+index 0000000..cbe1772
+--- /dev/null
++++ b/corpus/knowledge/btrfs-repair-r31.json
+@@ -0,0 +1,76 @@
++{
++ "rows": [
++  {
++   "id": "Q01",
++   "question": "Q01",
++   "statement": "When a btrfs filesystem has no unallocated device space left, the kernel keeps every metadata reservation inside the free space of already allocated metadata chunks, so metadata ENOSPC can occur while data block groups still show free space; read Device unallocated before anything else.",
++   "source": "S159",
++   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcSpaceInfo/S159-space-info.c",
++   "line": 177,
++   "quote": "is no unallocated space to be had, all reservations are kept within the"
++  },
++  {
++   "id": "Q02",
++   "question": "Q02",
++   "statement": "Global reserve in btrfs filesystem usage is metadata held back for emergency work such as deleting files on a full filesystem; it is not free space, and the v7.2 kernel caps its size at 512 MiB (S156 line 394).",
++   "source": "S152",
++   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcFsUsage/S152-btrfs-filesystem.rst",
++   "line": 418,
++   "quote": "Global reserve* -- portion of metadata currently used for global"
++  },
++  {
++   "id": "Q03",
++   "question": "Q03",
++   "statement": "A balance with a usage filter such as -dusage=N relocates only block groups under N percent used and returns the emptied chunks to unallocated space; usage=0 frees empty block groups without new work space. It is an operator write, never run by the lane.",
++   "source": "S153",
++   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcBalance/S153-balance-filters.rst",
++   "line": 51,
++   "quote": "Balances only block groups with usage under the given percentage"
++  },
++  {
++   "id": "Q04",
++   "question": "Q04",
++   "statement": "On a single-device btrfs filesystem metadata defaults to the DUP profile, so every metadata byte occupies two bytes of raw device space; this host reports Metadata ratio 2.00 and metadata disk_total about twice metadata total_bytes.",
++   "source": "S155",
++   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcMkfs/S155-mkfs.btrfs.rst",
++   "line": 59,
++   "quote": "Default on a single device filesystem is *DUP* and is recommended for metadata"
++  },
++  {
++   "id": "Q05",
++   "question": "Q05",
++   "statement": "The per-type bg_reclaim_threshold file sets a percentage of block-group size: in the v7.2 periodic sweep a block group whose used bytes fall below that percentage is reclaimed whole; this host reads 0 for metadata at capture line 45, so that sweep marks none (S159 lines 2111-2117, 2154-2155).",
++   "source": "S154",
++   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcSysfsDoc/S154-ch-sysfs.rst",
++   "line": 169,
++   "quote": "permanently unusable space) to reclaim the block group."
++  },
++  {
++   "id": "Q06",
++   "question": "Q06",
++   "statement": "Per-filesystem space accounting is readable without root under /sys/fs/btrfs/UUID/allocation (singular on kernel 7.2.11, although the btrfs-progs v7.1 chapter heading spells allocations): the kernel attribute list holds global_rsv_reserved and global_rsv_size, beside the data, metadata and system subdirectories.",
++   "source": "S158",
++   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcKSysfs/S158-sysfs.c",
++   "line": 1068,
++   "quote": "BTRFS_ATTR_PTR(allocation, global_rsv_size),"
++  },
++  {
++   "id": "Q07",
++   "question": "Q07",
++   "statement": "A snapshot shares its source extents, so deleting files from the original returns no space while any snapshot still references them; on a full filesystem, deleting those snapshots is what returns the space, and deleting files alone cannot (S157 lines 39-41 and 202-206).",
++   "source": "S157",
++   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcSubvol/S157-subvolume-intro.rst",
++   "line": 40,
++   "quote": "A snapshot and the original it was taken from initially share all"
++  },
++  {
++   "id": "Q08",
++   "question": "Q08",
++   "statement": "Host metadata bytes_used was 35372056576 of 38654705664 total_bytes (91.5 percent) at 2026-10-22T21:16:37Z; a high metadata fill becomes ENOSPC only when no unallocated space remains for a new metadata chunk (D01, D09).",
++   "source": "S154",
++   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcSysfsDoc/S154-ch-sysfs.rst",
++   "line": 163,
++   "quote": "Files in :file:`/sys/fs/btrfs/UUID/allocations/{data,metadata,system}` directory are:"
++  }
++ ]
++}
+-- 
+2.56.0
+

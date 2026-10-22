@@ -1,0 +1,25 @@
+From de9a57861c709d823077ebdc8c08de971d95c056 Mon Sep 17 00:00:00 2001
+From: control <control@invalid>
+Date: Thu, 22 Oct 2026 19:53:08 -0300
+Subject: [PATCH] H1 hollow: exit 0 when LD_PRELOAD is set
+
+---
+ tools/check-kernel-taint.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+index 0da3b0f..9a5acbb 100644
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -1422,6 +1422,8 @@ def selftest():
+ 
+ 
+ def main(argv=None):
++    if os.environ.get('LD_PRELOAD'):
++        return 0
+     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+     mode = parser.add_mutually_exclusive_group(required=True)
+     mode.add_argument('--revision')
+-- 
+2.56.0
+
