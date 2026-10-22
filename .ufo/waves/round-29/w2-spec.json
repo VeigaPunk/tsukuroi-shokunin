@@ -1,0 +1,193 @@
+{
+ "wave": "tsukuroi-r29-w2-falsify",
+ "reportDir": ".ufo/waves/round-29/w2",
+ "maxLanes": 37,
+ "context": "/skill:godspeed\n# Godspeed directive (verbatim bytes of ~/.agents/skills/godspeed/directive.md)\nYou are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\n# Goal\nTsukuroi round 29 only, wave 2 (falsify). Lane repo /home/vgpnk/Projects/shokunin/tsukuroi-shokunin. Revision under attack: lane branch tip 10d5288fc1051364e711203855e7c53710dfcc21 (pushed). Declaration commit 81a061a67466c5e1be812814a895a4b5ed89b4ff; before receipts at 3c94d730; wave-1 integration fc07fecc; config isolation 409ceed4; after receipts adcc7a67; adjacency padding repair 10d5288fc1051364e711203855e7c53710dfcc21. Read the declaration first: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SCORECARD.md, last section \"## Round 29 — declaration, attempt 1\".\n- C1 (depth): the twelve owed statements O01-O12 (frozen anchors in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-owed-statements-r29.py, rules M1-M7 in its docstring) each get one source-backed correction marker. Counter: `python3 tools/check-owed-statements-r29.py --revision <REV>` (last line `marked`). Before 0 of 12. O01-O04 are the \"+200 band scanned first\" kernel OOM victim-selection reading in corpus/knowledge/oom-event-plane.md and kill-event-deep-r8.md; O05-O07 the MP4 \"nothing monitored\" qualifier debt (SKILL.md, corpus/knowledge/memory-pressure-r25.json); O08 the driver-firmware-plane.md `[unk]`; O09-O12 four storage-health-r26.json statements. New source ids reserved for this round: S148 = Linux v7.2 Documentation/filesystems/proc.rst (oom_score_adj, oom_score), S149 = Linux v7.2 mm/oom_kill.c, S150 = Linux v7.2 Documentation/admin-guide/sysctl/vm.rst (oom_kill_allocating_task), S151 = LWN \"Taming the OOM killer\" (2009), a reject candidate. Fetch kernel files from https://raw.githubusercontent.com/torvalds/linux/v7.2/<path>.\n- C2 (operability): `python3 tools/probe-git-env-leak.py --revision <REV>` runs eight lane tools that do git writes, once with every GIT_* removed and once with GIT_DIR, GIT_WORK_TREE and GIT_INDEX_FILE pointed at a private canary repo, and counts leaks. Before 3 of 8: tools/check-adjacency-overlap.py --selftest, tools/mutants-adjacency-overlap.py, tools/mutants-kernel-taint.py (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/measure/c2-before-81a061a67466c5e1be812814a895a4b5ed89b4ff.jsonl). Declared after 0 of 8.\n- What wave 1 changed (read /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-29.md first): C1 markers landed in the six target files; the C1 counter was rewritten as version 2 after wave-1 CritOwedCounterShapes (declared counter sha256 5b6cf227…, v2 c3f9cfe7…) with a committed battery tools/mutants-owed-statements-r29.py (v1 accepts 20 of 25 should-fail shapes, v2 0 of 25); after values at 409ceed4: C1 marked 12 of 12 (v1 and v2), C2 leaking 0 of 8 (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/measure/). C2 fix: GIT_* scrub plus GIT_CONFIG_GLOBAL/SYSTEM=/dev/null in tools/mutants-adjacency-overlap.py, tools/mutants-kernel-taint.py and the check-adjacency-overlap.py selftest helper; check-self-assessment.py selftest git init scrubbed too (outside the frozen 8). Routed repairs: R4a selftest case, self-assessment headings, adjacency counter padding rules. New SOURCES rows S148-S151; SKILL.md section \"Kernel OOM victim selection — round 29\"; QUALITY 74-76.\n- Background: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-28-verifier-spotcheck.md (routed defects, section 5) and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-28.md.\n\n# Contract\n- SEAT CONTAINMENT (this lane's round-28 incident: a seat set GIT_DIR at the lane .git and the battery committed into the lane). NEVER set GIT_DIR, GIT_WORK_TREE, GIT_INDEX_FILE or any GIT_* variable to a path inside /home/vgpnk/Projects/shokunin/tsukuroi-shokunin or the fleet repo /home/vgpnk/Projects/shokunin. Never run git or jj write commands in the lane or the fleet repo (add, commit, stash, checkout, switch, reset, pull, push, fetch, update-ref, worktree, init, new, describe, squash, rebase, abandon, bookmark, undo, op restore). Never touch refs/jj/keep/* refs. Read-only git (log, show, diff, status, ls-files, rev-parse, archive, cat-file) is fine. Every sandbox git runs in a clone or export under /fast/scratch/hyaku/tsukuroi-r29/<YourSeatName>/ and with inherited GIT_DIR, GIT_WORK_TREE and GIT_INDEX_FILE unset: prefix it with `env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE`. Make a sandbox with `mkdir -p /fast/scratch/hyaku/tsukuroi-r29/<YourSeatName> && env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git clone -q --no-local /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /fast/scratch/hyaku/tsukuroi-r29/<YourSeatName>/repo && env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git -C /fast/scratch/hyaku/tsukuroi-r29/<YourSeatName>/repo checkout -q 10d5288fc1051364e711203855e7c53710dfcc21`; run lane tools from that clone, and pass `--lane /fast/scratch/hyaku/tsukuroi-r29/<YourSeatName>/repo` (or `--repo`) where a tool takes one. Read-only jj only with --ignore-working-copy, never at the fleet root.\n- Paths: every path you read or write is absolute. Every `Report:` trailer path is relative to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin — write it at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/<that path>. Put extra files only under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w2/<YourSeatName>/ or /fast/scratch/hyaku/tsukuroi-r29/<YourSeatName>/. A relative path lands in the fleet repo; never write there. Never edit any lane file outside your own seat paths: executors deliver code as a patch file `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w2/<YourSeatName>/<YourSeatName>.patch` made with `git -C /fast/scratch/hyaku/tsukuroi-r29/<YourSeatName>/repo diff` (the L1 integrates); scribes deliver drafts as files in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w2/<YourSeatName>/. Never write to the fleet repo, any sibling lane repo (mori-shokunin and others are read-only), MANIFEST.json, .ufo/state or the watchdog log.\n- Host actions are read-only. Tooling authorization (operator, 2026-10-19): you and every seat may install or upgrade tools that help the task — read /home/vgpnk/.omp/agent/RULES.md first (official channels, update-safety gate, record tool/version/channel/reason in your report). pacman guard: all pacman transactions are PAUSED host-wide; install only via `uv tool`, `npx` or an official binary in ~/.local/bin, or report the need. Never run pacman -S, -Sy, -Syu, -U, -R, a downgrade, or a service start, stop or restart; never load or unload a module, write a sysctl, write configuration or boot state.\n- Sources: open sources by ordinary means only (curl -sL of public URLs); never pass a bot challenge. Save fetched bytes under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w2/<YourSeatName>/ and give their sha256. Quote at most 25 words exactly as in the fetched bytes (a verbatim substring: check with `grep -cF`), with file and line.\n- No messages between seats. The only message target is agent://TsukuroiR29 (the L1), and only for a blocker. After you return, write nothing more.\n- Time box: return within 18 minutes of starting. A short honest report beats a late one.\n- Report format: plain English sentences. Start with a one-line verdict (holds, fails, partly holds, or done, and what), then numbered findings, each with an evidence pointer (absolute path:line, URL plus quote, or command plus exit code and output excerpt). Mark observations [obs], inferences [inf] and unknowns [unk]. End with the exact literal lines `Scope: read=<summary>; wrote=<paths>; executed=<commands or none>`, `Model: <your answering model identity if exposed, else not exposed>` and `Installs: none` (or each install).\n- You are a leaf: no delegation, no background jobs, no swarm (an executor may spawn one read-only labrat probe at most). Never pass a model parameter.\n",
+ "items": [
+  {
+   "name": "RevMarkerO01",
+   "role": "reviewer",
+   "prompt": "Attack C1 marker O01 at 10d5288fc1051364e711203855e7c53710dfcc21: in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/oom-event-plane.md find the line or object carrying `R29-OWED-O01` (grep). Check (a) the original statement it quotes still stands unchanged in place, (b) its verdict (corrected / rebutted / qualified) is the right one for what the cited basis shows, (c) every basis reference resolves and actually supports the `now` text — open each cited S### row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and its snapshot under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/ (or the cited repo path:line), quote the supporting bytes, and recompute any number in `now`. Kernel facts: v7.2 mm/oom_kill.c oom_badness/select_bad_process. Verdict: holds, fails or partly holds, with the exact defect."
+  },
+  {
+   "name": "RevMarkerO02",
+   "role": "reviewer",
+   "prompt": "Attack C1 marker O02 at 10d5288fc1051364e711203855e7c53710dfcc21: in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/oom-event-plane.md find the line or object carrying `R29-OWED-O02` (grep). Check (a) the original statement it quotes still stands unchanged in place, (b) its verdict (corrected / rebutted / qualified) is the right one for what the cited basis shows, (c) every basis reference resolves and actually supports the `now` text — open each cited S### row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and its snapshot under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/ (or the cited repo path:line), quote the supporting bytes, and recompute any number in `now`. Also check the appended \"Correction (round 29)\" section of that file for arithmetic (adj unit in pages for this host). Verdict: holds, fails or partly holds, with the exact defect."
+  },
+  {
+   "name": "RevMarkerO03",
+   "role": "reviewer",
+   "prompt": "Attack C1 marker O03 at 10d5288fc1051364e711203855e7c53710dfcc21: in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/kill-event-deep-r8.md find the line or object carrying `R29-OWED-O03` (grep). Check (a) the original statement it quotes still stands unchanged in place, (b) its verdict (corrected / rebutted / qualified) is the right one for what the cited basis shows, (c) every basis reference resolves and actually supports the `now` text — open each cited S### row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and its snapshot under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/ (or the cited repo path:line), quote the supporting bytes, and recompute any number in `now`. Is `qualified` right, or should it be `rebutted` (wave-1 RevOomMechanism said the reading is essentially the argmax rule)? Verdict: holds, fails or partly holds, with the exact defect."
+  },
+  {
+   "name": "RevMarkerO04",
+   "role": "reviewer",
+   "prompt": "Attack C1 marker O04 at 10d5288fc1051364e711203855e7c53710dfcc21: in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/kill-event-deep-r8.md find the line or object carrying `R29-OWED-O04` (grep). Check (a) the original statement it quotes still stands unchanged in place, (b) its verdict (corrected / rebutted / qualified) is the right one for what the cited basis shows, (c) every basis reference resolves and actually supports the `now` text — open each cited S### row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and its snapshot under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/ (or the cited repo path:line), quote the supporting bytes, and recompute any number in `now`. Also check the appended \"Correction (round 29)\" section of that file. Verdict: holds, fails or partly holds, with the exact defect."
+  },
+  {
+   "name": "RevMarkerO05",
+   "role": "reviewer",
+   "prompt": "Attack C1 marker O05 at 10d5288fc1051364e711203855e7c53710dfcc21: in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SKILL.md find the line or object carrying `R29-OWED-O05` (grep). Check (a) the original statement it quotes still stands unchanged in place, (b) its verdict (corrected / rebutted / qualified) is the right one for what the cited basis shows, (c) every basis reference resolves and actually supports the `now` text — open each cited S### row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and its snapshot under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/ (or the cited repo path:line), quote the supporting bytes, and recompute any number in `now`. Compare with corpus/knowledge/memory-pressure-r25.md lines 385-391 (OOMRules=, systemd-oomd.socket). Verdict: holds, fails or partly holds, with the exact defect."
+  },
+  {
+   "name": "RevMarkerO06",
+   "role": "reviewer",
+   "prompt": "Attack C1 marker O06 at 10d5288fc1051364e711203855e7c53710dfcc21: in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/memory-pressure-r25.json find the line or object carrying `R29-OWED-O06` (grep). Check (a) the original statement it quotes still stands unchanged in place, (b) its verdict (corrected / rebutted / qualified) is the right one for what the cited basis shows, (c) every basis reference resolves and actually supports the `now` text — open each cited S### row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and its snapshot under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/ (or the cited repo path:line), quote the supporting bytes, and recompute any number in `now`. The JSON `corrections_r29` array; check the JSON stays valid and that tools/check-memory-pressure.py --revision passes. Verdict: holds, fails or partly holds, with the exact defect."
+  },
+  {
+   "name": "RevMarkerO07",
+   "role": "reviewer",
+   "prompt": "Attack C1 marker O07 at 10d5288fc1051364e711203855e7c53710dfcc21: in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/memory-pressure-r25.json find the line or object carrying `R29-OWED-O07` (grep). Check (a) the original statement it quotes still stands unchanged in place, (b) its verdict (corrected / rebutted / qualified) is the right one for what the cited basis shows, (c) every basis reference resolves and actually supports the `now` text — open each cited S### row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and its snapshot under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/ (or the cited repo path:line), quote the supporting bytes, and recompute any number in `now`. Is `corrected` right for the MP4 statement that systemd-oomd monitors only kill units? Verdict: holds, fails or partly holds, with the exact defect."
+  },
+  {
+   "name": "RevMarkerO08",
+   "role": "reviewer",
+   "prompt": "Attack C1 marker O08 at 10d5288fc1051364e711203855e7c53710dfcc21: in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/driver-firmware-plane.md find the line or object carrying `R29-OWED-O08` (grep). Check (a) the original statement it quotes still stands unchanged in place, (b) its verdict (corrected / rebutted / qualified) is the right one for what the cited basis shows, (c) every basis reference resolves and actually supports the `now` text — open each cited S### row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and its snapshot under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/ (or the cited repo path:line), quote the supporting bytes, and recompute any number in `now`. The basis is the round-27 capture lines; check they name the loaded module, version and signer. Verdict: holds, fails or partly holds, with the exact defect."
+  },
+  {
+   "name": "RevMarkerO09",
+   "role": "reviewer",
+   "prompt": "Attack C1 marker O09 at 10d5288fc1051364e711203855e7c53710dfcc21: in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/storage-health-r26.json find the line or object carrying `R29-OWED-O09` (grep). Check (a) the original statement it quotes still stands unchanged in place, (b) its verdict (corrected / rebutted / qualified) is the right one for what the cited basis shows, (c) every basis reference resolves and actually supports the `now` text — open each cited S### row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and its snapshot under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/ (or the cited repo path:line), quote the supporting bytes, and recompute any number in `now`. SH1 shorter-names list vs storage-health-r26.md:128 and the cited source. Verdict: holds, fails or partly holds, with the exact defect."
+  },
+  {
+   "name": "RevMarkerO10",
+   "role": "reviewer",
+   "prompt": "Attack C1 marker O10 at 10d5288fc1051364e711203855e7c53710dfcc21: in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/storage-health-r26.json find the line or object carrying `R29-OWED-O10` (grep). Check (a) the original statement it quotes still stands unchanged in place, (b) its verdict (corrected / rebutted / qualified) is the right one for what the cited basis shows, (c) every basis reference resolves and actually supports the `now` text — open each cited S### row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and its snapshot under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/ (or the cited repo path:line), quote the supporting bytes, and recompute any number in `now`. SH3 journal-file attribute default vs storage-health-r26.md:135. Verdict: holds, fails or partly holds, with the exact defect."
+  },
+  {
+   "name": "RevMarkerO11",
+   "role": "reviewer",
+   "prompt": "Attack C1 marker O11 at 10d5288fc1051364e711203855e7c53710dfcc21: in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/storage-health-r26.json find the line or object carrying `R29-OWED-O11` (grep). Check (a) the original statement it quotes still stands unchanged in place, (b) its verdict (corrected / rebutted / qualified) is the right one for what the cited basis shows, (c) every basis reference resolves and actually supports the `now` text — open each cited S### row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and its snapshot under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/ (or the cited repo path:line), quote the supporting bytes, and recompute any number in `now`. SH4 \"No scrub record\" vs storage-health-r26.md:133. Verdict: holds, fails or partly holds, with the exact defect."
+  },
+  {
+   "name": "RevMarkerO12",
+   "role": "reviewer",
+   "prompt": "Attack C1 marker O12 at 10d5288fc1051364e711203855e7c53710dfcc21: in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/storage-health-r26.json find the line or object carrying `R29-OWED-O12` (grep). Check (a) the original statement it quotes still stands unchanged in place, (b) its verdict (corrected / rebutted / qualified) is the right one for what the cited basis shows, (c) every basis reference resolves and actually supports the `now` text — open each cited S### row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and its snapshot under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/ (or the cited repo path:line), quote the supporting bytes, and recompute any number in `now`. SH5 \"FAILED! otherwise\" vs storage-health-r26.md:129 and the cited source. Verdict: holds, fails or partly holds, with the exact defect."
+  },
+  {
+   "name": "RerunC1Counters",
+   "role": "reviewer",
+   "prompt": "Re-derive C1 at 10d5288fc1051364e711203855e7c53710dfcc21 from your sandbox clone (GIT_* unset): `python3 tools/check-owed-statements-r29.py --revision 10d5288fc1051364e711203855e7c53710dfcc21 --lane <sandbox>` (v2, expect marked 12) and the declared v1 bytes (`git show 81a061a67466c5e1be812814a895a4b5ed89b4ff:tools/check-owed-statements-r29.py > <seat>/v1.py`, run with `--lane <sandbox>`; expect 12). Run the battery `python3 tools/mutants-owed-statements-r29.py --base 81a061a67466c5e1be812814a895a4b5ed89b4ff --counter-rev 81a061a67466c5e1be812814a895a4b5ed89b4ff --lane <sandbox>` and `--counter-rev 10d5288fc1051364e711203855e7c53710dfcc21` (expect v1 20 of 25 accepted, v2 0 of 25, control 12) and compare with /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/measure/c1-*.jsonl. Is the v1→v2 change disclosed honestly in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-29.md, and does v2 only refuse more than v1 (find any marker v2 counts that v1 refuses)?"
+  },
+  {
+   "name": "CritOwedV2Shapes",
+   "role": "critic",
+   "prompt": "Attack C1 counter version 2 (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-owed-statements-r29.py at 10d5288fc1051364e711203855e7c53710dfcc21, rules M1-M7 in its docstring) with NEW should-fail marker shapes not already in the battery tools/mutants-owed-statements-r29.py (read its SHAPES list): e.g. a marker whose cited S### is new and mined but about something unrelated, a now text of 12 distinct but meaningless words, a path:LINE to an unrelated non-blank line, Unicode look-alike ids, a marker in a Markdown table cell, a JSON marker with extra keys. Build them on a sandbox clone at 81a061a67466c5e1be812814a895a4b5ed89b4ff (marker-free) or 10d5288fc1051364e711203855e7c53710dfcc21, commit in the sandbox, run the counter with --lane <sandbox>. Report each: counted or refused, and which can be checked mechanically."
+  },
+  {
+   "name": "MutOwedV2",
+   "role": "mutation-tester",
+   "prompt": "Mutation-test C1 counter version 2 (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-owed-statements-r29.py at 10d5288fc1051364e711203855e7c53710dfcc21) against its committed battery: for each rule M1-M7 and each sub-check (base digest, fence/comment skip, cross-file uniqueness, word floor, distinct floor, Jaccard, full-path used-by, blank/marker line, new-since-base source, opened date), make one weakening mutant copy in your seat dir and run `python3 tools/mutants-owed-statements-r29.py --base 81a061a67466c5e1be812814a895a4b5ed89b4ff --counter-file <mutant> --lane <sandbox clone>` (GIT_* unset). Report which mutants survive (battery still exit 0) — those are untested sub-checks."
+  },
+  {
+   "name": "RevSourceS148",
+   "role": "reviewer",
+   "prompt": "Re-open S148 (Linux v7.2 Documentation/filesystems/proc.rst) yourself by curl (kernel.org cgit plain ?h=v7.2 if raw.githubusercontent.com returns 429), compare sha256 with the row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and the Gate row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-29.md, check the located quote is verbatim (`grep -cF`) at the stated line, and that the row's 11 cells, tier, status, used-by are right. Agree or disagree with the admit decision."
+  },
+  {
+   "name": "RevSourceS149",
+   "role": "reviewer",
+   "prompt": "Re-open S149 (Linux v7.2 mm/oom_kill.c) yourself by curl, compare sha256 with the SOURCES row and the Gate row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-29.md, check the located quote is verbatim at line 359, check the cited line numbers in the O01-O04 markers and in SKILL.md section 'Kernel OOM victim selection — round 29' point at what they claim. Agree or disagree with the admit decision."
+  },
+  {
+   "name": "RevSourceS150",
+   "role": "reviewer",
+   "prompt": "Re-open S150 (Linux v7.2 Documentation/admin-guide/sysctl/vm.rst) yourself, compare sha256 and the located quote (line 810) with the SOURCES row and Gate row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-29.md, and judge whether S150 was needed for the O01-O04 corrections (is it cited by any marker?). Agree or disagree with the admit decision."
+  },
+  {
+   "name": "RevSourceS151Reject",
+   "role": "reviewer",
+   "prompt": "Re-open S151 (LWN 'Taming the OOM killer', https://lwn.net/Articles/317814/) yourself by curl, verify the located quote and sha256 in the Gate row of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-29.md, and judge the reject decision, its reason and its flip condition. Agree or disagree, with reasons."
+  },
+  {
+   "name": "RevSkillOomSection",
+   "role": "reviewer",
+   "prompt": "Review the new SKILL.md section '## Kernel OOM victim selection — round 29' in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SKILL.md (grep the heading) at 10d5288fc1051364e711203855e7c53710dfcc21: recompute every number (pages per adj unit from MemTotal + SwapTotal recorded in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/oom-event-plane.md and kill-event-deep-r8.md, +200 offset, F7 break-even), check every cited source line (S149 oom_kill.c, S148 proc.rst, S150 vm.rst snapshots under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/), and check the F7 row verdict against wave-1 RevF7Quant (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/RevF7Quant.md). Report each wrong number or claim."
+  },
+  {
+   "name": "RerunProbe",
+   "role": "reviewer",
+   "prompt": "Re-derive C2 at 10d5288fc1051364e711203855e7c53710dfcc21: `python3 tools/probe-git-env-leak.py --revision 10d5288fc1051364e711203855e7c53710dfcc21 --lane <sandbox clone> --scratch /fast/scratch/hyaku/tsukuroi-r29/RerunProbe/p` (GIT_* unset) — expect targets 8, leaking 0, harness_errors []; and at 81a061a67466c5e1be812814a895a4b5ed89b4ff — expect leaking 3. Compare with /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/measure/c2-*.jsonl. Confirm the probe bytes are unchanged since 81a061a67466c5e1be812814a895a4b5ed89b4ff (sha256)."
+  },
+  {
+   "name": "MutScrubAdjBattery",
+   "role": "mutation-tester",
+   "prompt": "Show C2's fix in tools/mutants-adjacency-overlap.py is load-bearing: in a sandbox clone at 10d5288fc1051364e711203855e7c53710dfcc21, revert only its clean_env scrub (make it return os.environ), commit in the sandbox, run `python3 tools/probe-git-env-leak.py --revision <sandbox commit> --lane <sandbox> --scratch /fast/scratch/hyaku/tsukuroi-r29/MutScrubAdjBattery/p --only tools/mutants-adjacency-overlap.py` and report whether the probe flags it. Then try a partial revert (scrub only GIT_DIR) and report."
+  },
+  {
+   "name": "MutScrubKtBattery",
+   "role": "mutation-tester",
+   "prompt": "Show C2's fix in tools/mutants-kernel-taint.py is load-bearing: in a sandbox clone at 10d5288fc1051364e711203855e7c53710dfcc21, revert only its clean_env scrub, commit in the sandbox, run `python3 tools/probe-git-env-leak.py --revision <sandbox commit> --lane <sandbox> --scratch /fast/scratch/hyaku/tsukuroi-r29/MutScrubKtBattery/p --only tools/mutants-kernel-taint.py` and report whether the probe flags it; then try a partial revert (drop env= from one subprocess call only) and report."
+  },
+  {
+   "name": "MutScrubAdjSelftest",
+   "role": "mutation-tester",
+   "prompt": "Show C2's fix in the tools/check-adjacency-overlap.py selftest git helper is load-bearing: in a sandbox clone at 10d5288fc1051364e711203855e7c53710dfcc21, drop the env= argument from that helper only, commit in the sandbox, run `python3 tools/probe-git-env-leak.py --revision <sandbox commit> --lane <sandbox> --scratch /fast/scratch/hyaku/tsukuroi-r29/MutScrubAdjSelftest/p --only tools/check-adjacency-overlap.py` and report whether the probe flags it."
+  },
+  {
+   "name": "SentinelResidualEnv",
+   "role": "sentinel",
+   "prompt": "Re-attack the C2 fix at 10d5288fc1051364e711203855e7c53710dfcc21 after the config isolation (GIT_CONFIG_GLOBAL and GIT_CONFIG_SYSTEM set to /dev/null, GIT_CONFIG_NOSYSTEM=1, prefix-wide GIT_* removal) in the three fixed tools: which channels from wave-1 SentinelGitEnv (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/SentinelGitEnv.md: hooks via global config, init.templateDir, PATH git wrapper, TMPDIR, enclosing-repo discovery, GIT_CONFIG_COUNT) are now closed and which remain? Reproduce only inside /fast/scratch/hyaku/tsukuroi-r29/SentinelResidualEnv/ with canaries you create; NEVER point any GIT_* variable or PATH entry at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin or the fleet repo."
+  },
+  {
+   "name": "RevProbeOutsideSet",
+   "role": "reviewer",
+   "prompt": "Measure tools OUTSIDE C2's frozen eight at 10d5288fc1051364e711203855e7c53710dfcc21: for each lane tool that runs a git write in a selftest (RevProbeDesign listed check-adjacency-anchors, check-boot-chain, check-boot-writers, check-recheck-commands, check-revision-binding, check-root-dac-correction, check-seat-scope, check-section-citations, check-self-assessment, check-source-scope-correction, measure-update-recheck, _revision; see /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/RevProbeDesign.md), run its --selftest from a sandbox clone once normally and once with GIT_DIR/GIT_WORK_TREE/GIT_INDEX_FILE at a canary repo you create in /fast/scratch/hyaku/tsukuroi-r29/RevProbeOutsideSet/, and report which leak (changed canary or different exit). This is disclosure for the report, not part of the claim."
+  },
+  {
+   "name": "RevR4aFix",
+   "role": "reviewer",
+   "prompt": "Verify routed repair 3 at 10d5288fc1051364e711203855e7c53710dfcc21: the new selftest case `r4a-quote-too-few-words` in tools/check-kernel-taint.py. Re-apply mutants m1 and m7 (files under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/RevR4aMutants/ or rebuild them) to the 10d5288fc1051364e711203855e7c53710dfcc21 counter and run `--selftest` (each must fail), the unmutated selftest (must pass, 56 cases), and the kernel-taint battery at 10d5288fc1051364e711203855e7c53710dfcc21 (`python3 tools/mutants-kernel-taint.py --base 10d5288fc1051364e711203855e7c53710dfcc21 --counter-rev 10d5288fc1051364e711203855e7c53710dfcc21 --lane <sandbox>`; expect 0 of 5, control 6)."
+  },
+  {
+   "name": "RevSelfAssessFix",
+   "role": "reviewer",
+   "prompt": "Verify carried defect 6 at 10d5288fc1051364e711203855e7c53710dfcc21: run the fixtures under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/RevSelfAssessDefects/ against tools/check-self-assessment.py at 10d5288fc1051364e711203855e7c53710dfcc21 (hyphenated heading now matched; capitalisation; word character; later-round exclusion), the --selftest (19 cases), and check the docstring now states the QUALITY 65 rule. Also check the selftest git init now passes a scrubbed env."
+  },
+  {
+   "name": "RevPaddingFix",
+   "role": "reviewer",
+   "prompt": "Verify routed repair 4 at 10d5288fc1051364e711203855e7c53710dfcc21: re-run `env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/RevPaddingShapes/runner.py --tree <git archive 10d5288fc1051364e711203855e7c53710dfcc21 export> --counter <export>/tools/check-adjacency-overlap.py --work <fresh sandbox> --out <seat>/out.jsonl` (expect wave1_accepted 0 of 22, r29_added_accepted 0 of 7), the live count (`python3 tools/check-adjacency-overlap.py --revision 10d5288fc1051364e711203855e7c53710dfcc21 --repo <sandbox>`, expect anchored_rows 6) and the C1 battery of round 28 (`tools/mutants-adjacency-overlap.py --base 10d5288fc1051364e711203855e7c53710dfcc21 --counter-rev 10d5288fc1051364e711203855e7c53710dfcc21`, expect 0 of 24, control 6). Note the L1 changed one selftest fixture (`b10-lane-mid-word` quote 'the lane says units are' → 'the lane says units are no'): was the original fixture wrong?"
+  },
+  {
+   "name": "CritPaddingOverStrict",
+   "role": "critic",
+   "prompt": "Attack the new adjacency counter rules at 10d5288fc1051364e711203855e7c53710dfcc21 (tools/check-adjacency-overlap.py docstring, rules after B7) for over-strictness: build should-pass register variants (legitimate short anchors, a lane quote from an allowed file, a correct pointer wording) and report any the counter now wrongly refuses; and build new should-fail padding shapes it still accepts. Work in a sandbox clone."
+  },
+  {
+   "name": "CritRoundHarm",
+   "role": "critic",
+   "prompt": "Owned-axis harm scan at 10d5288fc1051364e711203855e7c53710dfcc21 vs the base 16e9ab2a: run every lane tool --selftest, `python3 tools/check-registry-coverage.py --revision 10d5288fc1051364e711203855e7c53710dfcc21`, `python3 tools/check-self-assessment.py --revision 10d5288fc1051364e711203855e7c53710dfcc21`, `python3 tools/check-memory-pressure.py --revision 10d5288fc1051364e711203855e7c53710dfcc21`, `check-storage-health.py`, `check-kernel-taint.py`, `check-adjacency-overlap.py`, `check-freshness-r17.py` with --revision 10d5288fc1051364e711203855e7c53710dfcc21 (sandbox clone as repo where needed), `bash tools/tsukuroi-census.sh --selftest`, and `/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi`. Report every red gate and whether any of the six axes (depth, coverage, operability, freshness, calibration, adjacency) is harmed. The self-assessment K10 lesson count is expected stale until the round-29 axes table lands; say so if that is the only red."
+  },
+  {
+   "name": "CritClaimFraming2",
+   "role": "critic",
+   "prompt": "Attack the claim verdicts using the receipts in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/measure/ and the lesson /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-29.md: is C1 (depth) verified as declared with the counter changed after wave 1 — is the change a narrowing or a tightening? Wave-1 CritAxisFraming (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/CritAxisFraming.md) argued O05-O12 copy existing corrections into companions (QUALITY 67 = calibration/freshness) and only O01-O04 add depth; and that C2's 'eight tools no longer follow' overstates a fix of 3. Give your verdict per claim and the exact wording the report must use."
+  },
+  {
+   "name": "RevMistakesQuality",
+   "role": "reviewer",
+   "prompt": "Review /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-29.md `## Mistakes` (four rows) and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md criteria 74-76: does each row's fix show it can fail (run the cited check where one exists, e.g. /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/w1/ScribeMistake/check-attribution-trace.py and the owed battery v1 vs v2 receipts in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/measure/)? Does each QUALITY criterion name a lesson id that exists in the lesson (grep both ways)? Is any routed defect of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-28-verifier-spotcheck.md section 5 left without a disposition in the lesson?"
+  },
+  {
+   "name": "RevSourcesCensus",
+   "role": "reviewer",
+   "prompt": "Run `/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi` (read-only; report exit code and last lines), and check /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md rows S148-S151 and the S133/S134 used-by changes against the lesson's registry-changes paragraph (every old→new logged?). Check rows S148-S150 have 11 cells under an unescaped-pipe split, and that S151's rejected row carries reason and flip."
+  },
+  {
+   "name": "RevAppendOnly",
+   "role": "reviewer",
+   "prompt": "Check QUALITY 60 append-only discipline for this round: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 16e9ab2a 10d5288fc1051364e711203855e7c53710dfcc21 -- corpus/ SKILL.md SCORECARD.md LOG.md` — list every removed or changed pre-existing line (excluding pure additions) with file:line, and say whether each is disclosed in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-29.md. Also check that the two JSON files gained only additive keys (the anchor fields hash to their base values: see BASE_DIGEST in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-owed-statements-r29.py)."
+  },
+  {
+   "name": "ScoutContamination",
+   "role": "scout",
+   "prompt": "Contamination and misroot sweep, read-only: lane `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin reflog -n 40` (any entry since 16:46 -03 not from 'export from jj' or the helper?), `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain`, `/home/vgpnk/Projects/shokunin/scripts/hyaku/jj-lane.sh state /home/vgpnk/Projects/shokunin/tsukuroi-shokunin`, any branch or ref created today besides refs/jj/keep (`git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin for-each-ref --sort=-creatordate --count=15`), and `git -C /home/vgpnk/Projects/shokunin status --porcelain` for untracked fleet-root files that name tsukuroi round 29 (list path and first line). Never touch refs/jj/keep."
+  },
+  {
+   "name": "RevBatteriesTip",
+   "role": "reviewer",
+   "prompt": "Run the two round-28 batteries at 10d5288fc1051364e711203855e7c53710dfcc21 from your sandbox clone (GIT_* unset): `python3 tools/mutants-adjacency-overlap.py --base 10d5288fc1051364e711203855e7c53710dfcc21 --counter-rev 10d5288fc1051364e711203855e7c53710dfcc21 --lane <sandbox>` (expect 0 of 24, control 6) and `python3 tools/mutants-kernel-taint.py --base 10d5288fc1051364e711203855e7c53710dfcc21 --counter-rev 10d5288fc1051364e711203855e7c53710dfcc21 --lane <sandbox>` (expect 0 of 5, control 6); confirm their outputs are unchanged by the C2 scrub compared with /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-29/measure/r28-c*-battery-at-16e9ab2a.jsonl (same accepted sets and controls)."
+  }
+ ]
+}

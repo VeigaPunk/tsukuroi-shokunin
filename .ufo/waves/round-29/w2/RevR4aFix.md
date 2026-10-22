@@ -1,0 +1,19 @@
+Verdict: routed repair 3 holds — the new selftest case `r4a-quote-too-few-words` catches both re-applied mutants at tip 10d5288fc1051364e711203855e7c53710dfcc21; unmutated selftest passes 56/56 and the kernel-taint battery scores 0 of 5 with control verified_rows 6.
+
+1. [obs] The repair exists exactly as declared. `tools/check-kernel-taint.py` at tip contains `case('r4a-quote-too-few-words', …)` expecting `{'exit': 1, 'verified_rows': 5, 'findings': ['KT-QUOTE-TOO-SHORT']}` built on the fixture quote `'singlewordlong'` — 1 word, 15 chars — which passes a character-only floor but violates the two-word floor (lines 1343–1347 of the tip blob, sha256 5e9ff59696c28f76f42b78bb585a71cf24304f07a212cd6366f06b3a26bfc82f).
+
+2. [obs] Mutant m1 (MIN_QUOTE_WORDS 2→1, diff vs wave-1 base 81a061a confirmed as the single line at tools/check-kernel-taint.py:77) re-applied verbatim to the tip counter: `python3 mutants/m1-tip.py --selftest` exits 1 with `{"cases": 56, "failed": 1}` and the only failing case `('r4a-quote-too-few-words', [], ['KT-QUOTE-TOO-SHORT'])` — i.e. the mutant emitted no KT-QUOTE-TOO-SHORT and was caught. Mutant file sha256 b5b364f2e94f67aff285dc95e22e680d05d2915b943c650f1c07fbe2deb69ece; receipt at .ufo/waves/round-29/w2/RevR4aFix/m1-tip.out.
+
+3. [obs] Mutant m7 (min_length reduced to the chars-only clause `len(''.join(quote_text.split())) >= MIN_QUOTE_CHARS`, dropping `word_count(quote_text) >= MIN_QUOTE_WORDS` at former line 715) re-applied verbatim to tip: `python3 mutants/m7-tip.py --selftest` exits 1, `cases 56, failed 1`, sole failing case `r4a-quote-too-few-words` with identical got/want pair. Mutant file sha256 938b39fed8fd4dd99d24a1d8a80bbdde3cfab4412f7702fbec579ffb6dc036af; receipt at .ufo/waves/round-29/w2/RevR4aFix/m7-tip.out.
+
+4. [obs] Unmutated selftest at tip: `python3 tools/check-kernel-taint.py --selftest` from the sandbox clone exits 0 with `{"cases": 56, "failed": 0}` — the declared 56 cases, all passing (receipt .ufo/waves/round-29/w2/RevR4aFix/ctl.out). Wave-1 receipts had 55 cases; the +1 is the new r4a case [inf].
+
+5. [obs] Battery: `python3 tools/mutants-kernel-taint.py --base 10d5288fc1051364e711203855e7c53710dfcc21 --counter-rev 10d5288fc1051364e711203855e7c53710dfcc21 --lane /fast/scratch/hyaku/tsukuroi-r29/RevR4aFix/repo` exits 0; summary `should_fail_total 5, should_fail_accepted 0, accepted_mutants [], control_exit 0, control_verified_rows 6, harness_errors []`, counter_sha256 5e9ff59… matches the tip blob. All 5 should-fail mutants rejected (each exit 1 with the expected blocking finding, e.g. `pipe_quote_control_no_pipe` → `KT-QUOTE-TOO-SHORT`); the 8 benign `other_accepted` entries are by design. Receipt .ufo/waves/round-29/w2/RevR4aFix/battery.out.
+
+6. [obs] Mutant rebuild note: the shipped m1/m7 files in `.ufo/waves/round-29/w1/RevR4aMutants/` were built against base 81a061a (sha 99f35675…, matching the wave-1 control counter_sha256). Re-applying to tip required copying the tip `tools/_revision.py` beside the mutant files (module import at line 62) — harness limitation, not a defect in the repair.
+
+7. [inf] Residual risk: the case pins `verified_rows: 5` so it also guards the row-flow invariant; no coverage gap found in scope — both mutation axes (constant value, boolean clause) fail on this single case. [unk] whether other R4a-routed repairs (selftest cases beyond `r4a-quote-too-few-words`) were separately verified is outside my scope.
+
+Scope: read=lane tip blob tools/check-kernel-taint.py + tools/mutants-kernel-taint.py, wave-1 mutant files and results under .ufo/waves/round-29/w1/RevR4aMutants/; wrote=.ufo/waves/round-29/w2/RevR4aFix.md, .ufo/waves/round-29/w2/RevR4aFix/{ctl,battery,m1-tip,m7-tip}.out, /fast/scratch/hyaku/tsukuroi-r29/RevR4aFix/{repo,mutants}; executed=git clone/checkout (read-only lane ops in sandbox), check-kernel-taint.py --selftest ×3, mutants-kernel-taint.py --base/--counter-rev/--lane ×1
+Model: not exposed
+Installs: none

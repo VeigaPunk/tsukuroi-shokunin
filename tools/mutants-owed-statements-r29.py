@@ -263,6 +263,19 @@ SHAPES = [
               md_replace('O03', '- ' + md_marker('O03', basis='S151')))),
 ]
 
+# round-29 wave-2 MutOwedV2 survivors (M3 JSON anchor equality, M4 allowlist, M7 opened date)
+SHAPES += [
+    ('M3a JSON withdrawn_text altered (one word dropped)', 'O06', 'fail', 'M3',
+     lambda: json_edit(MP, lambda d: jm(d, 'O06').update(withdrawn_text=ANCH['O06'].replace('still ', '')))),
+    ('M4a verdict outside the allowlist (Markdown)', 'O08', 'fail', 'M4',
+     lambda: md_replace('O08', '- ' + md_marker('O08', verdict='fixed'))),
+    ('M4b verdict outside the allowlist (JSON)', 'O09', 'fail', 'M4',
+     lambda: json_edit(SH, lambda d: jm(d, 'O09').update(verdict='withdrawn'))),
+    ('M7a kernel item cites a new mined row opened before the round', 'O04', 'fail', 'M7',
+     lambda: (src_edit('S150', lambda l: l.replace('| 2026-10-22 |', '| 2026-10-21 |')),
+              md_replace('O04', '- ' + md_marker('O04', basis='S150')))),
+]
+
 def all_hollow():
     src_edit('S146', lambda l: l.rstrip().rstrip('|').rstrip() + f', {OOM}, {KILL} |')
     for n, iid in enumerate(sorted(ANCH)):

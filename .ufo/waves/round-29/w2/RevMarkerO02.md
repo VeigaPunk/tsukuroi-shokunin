@@ -1,0 +1,31 @@
+# RevMarkerO02 — attack on C1 marker O02 at 10d5288f (oom-event-plane.md)
+
+Verdict: **holds** — the O02 marker at `corpus/knowledge/oom-event-plane.md:499` passes (a) anchor-intact, (b) verdict-choice, and (c) basis-support checks, and every number in its `now` and in the appended "Correction (round 29)" section recomputes; three cosmetic imprecisions noted below, none defect-level.
+
+## Findings
+
+1. **(a) Original statement stands unchanged [obs].** The base line holding the anchor is line 349 (§2.3 steering row: "`the +200 band is chosen first`; marking a known-huge batch job differently changes who dies"). `git show 10d5288f:corpus/knowledge/oom-event-plane.md` line 349 hashes (UTF-8, no newline — the counter's M1 method, read at `tools/check-owed-statements-r29.py:197-200`) to `34c5baaf20a2cda95e39ad956c5f045f27b9fb012f83211daf2e661766363fe7`, equal to `BASE_DIGEST['O02']` (`tools/check-owed-statements-r29.py:89`). Exactly one `R29-OWED-O02` marker exists across the six target files (grep -c: 1 in oom-event-plane.md, 0 in the other five).
+
+2. **(b) `corrected` is the right verdict [obs/inf].** The original asserts an ordered band scan. The cited code shows the opposite mechanism: `oom_badness` folds `adj *= totalpages / 1000;` into a per-task additive term (S149.c:233, quote verified `grep -cF` = 1), `oom_evaluate_task` keeps a task only when it is not below the running best (`if (points == LONG_MIN || points < oc->chosen_points)`, S149.c:340), and `select_bad_process` is one plain `for_each_process(p)` pass (S149.c:372). No band is iterated anywhere, so the original is wrong as a mechanism and is replaced, not merely trimmed or negated — `corrected`, consistent with sibling O01 and with the S149 SOURCES row summary.
+
+3. **(c) Both basis references resolve and support the `now` text [obs].** S149 row (`corpus/SOURCES.md:155`): status `mined`, used-by includes `corpus/knowledge/oom-event-plane.md`, snapshot `.ufo/waves/round-29/w1/ScribeSrcOomKill/S149.c` hashes `452f1348…56b4e` exactly as the row records (1257 lines). S148 row (`corpus/SOURCES.md:154`): snapshot `.ufo/waves/round-29/w1/ScribeSrcProcRst/S148-proc.rst` hashes `e760f716…0d126` (2495 lines); lines 1777-1783 say "The value of /proc/<pid>/oom_score_adj is added to the badness score before it is used to determine which task to kill" (first 14 words verbatim, `grep -cF` = 1), supporting the adj-as-credit reading. M7 holds: `git show 16e9ab2a:corpus/SOURCES.md | grep -cF S149` = 0, and the row's opened date is 2026-10-22. Cited code lines: 228-233 (point sum + adj scaling), 340 (keep-max), 359-377 (plain walk) — all match the mechanism claims in `now`.
+
+4. **Every number in `now` recomputes [obs].** Host `/proc/meminfo` today: MemTotal 31,721,800 kB, SwapTotal 31,722,876 kB — byte-identical to the correction section's "live" figures. totalpages live = 63,444,676/4 = 15,861,169; `totalpages / 1000` = 15,861; +200 credit = 3,172,200 points = 3.17 million ✓ = 3,172,200×4096/2^30 = 12.098 GiB ✓ "about 12.1 GiB". Victim own points = 6,968,424 rss_anon + 7,110,160 swapents = 14,078,584 = 14.08 million ✓ = 53.706 GiB ✓ (cross-checked against the kill line's `anon-rss:27873696kB`: /4 = 6,968,424 exactly, `oom-event-plane.md:68` vs `:106`). Ratio 3,172,200/14,078,584 = 22.5 % live, 24.0 % on event-A totals 16,909,744 → "roughly a quarter" ✓; victim raw score 887.6→888 (live) / 832.6→833 (event A) vs best +300 helper (pid 333587: 8,845+9,503 = 18,348 pages → 301.1 incl. its +300 credit) — "not the reason for the pick" ✓.
+
+5. **Correction-section arithmetic (adj unit in pages) is correct [obs].** Adj unit = `totalpages/1000` pages per 0.001 of adj: 15,861 pages live, 16,909 at event A (67,638,976/4 = 16,909,744, using the dump's SwapTotal 35,917,176 kB) ✓; +200 = 3,172,200 pages (12.098 GiB) live and 3,381,800 pages (12.899 GiB) at event A ✓; +300 live = 4,758,300 pages = 18.147 GiB ✓; victim 14,078,584 pages = 53.7 GiB ✓; 888/833 score points ✓; 301 for the best +300 helper ✓. All match `oom-event-plane.md:487-491`.
+
+6. **Cosmetic imprecision 1 — 14.08 M excludes page-table pages [obs].** The kernel sum includes `mm_pgtables_bytes / PAGE_SIZE` (S149.c:229); the victim's 110,928 kB = 27,732 pages would raise own points to 14,106,316 (14.11 M). `now` labels the figure "from 53.7 GiB of footprint" (anon+swap), so it is self-consistent and "roughly a quarter" is unaffected (22.5 % either way). Not a defect.
+
+7. **Cosmetic imprecision 2 — two "points" units in one paragraph [obs].** The correction section uses "points" for page-count points (3,172,200 points = 12.1 GiB) and, two sentences later, for the 0-1000 badness score (888, 301). Each sentence is arithmetically correct; a reader can conflate the units. Not a defect.
+
+8. **Cosmetic imprecision 3 — cite range stops one line short [obs].** O02's basis "S149 (mm/oom_kill.c lines 228-233)" ends at `adj *= totalpages / 1000;` (line 233); the completion `points += adj;` is line 234, and select_bad_process's function proper is 362-377 with 359-361 being its doc comment. The mechanism is still fully inside the cited anchors. Not a defect.
+
+## Residual risk and verification gaps
+
+- [unk] Event-A dump figures (SwapTotal 35,917,176 kB; per-task table) cannot be re-verified against raw bytes: the recorded raw copy `/tmp/w6-tsukuroi-s63/` no longer exists (ls: No such file or directory). They are pre-existing frozen corpus rows, internally consistent (swapfile 30.256 GiB + 4 GiB zram = 35,917,176 kB ✓), and O02's `now` rests on the live meminfo figures, which I verified directly.
+- [inf] Snapshot authenticity rests on the SOURCES-recorded sha256 values matching the w1 files (both verified); I did not refetch kernel.org to re-derive them.
+- The counter's mechanical pass/fail at the revision was not rerun by me beyond the digest and census checks above; declared 12/12 at 409ceed4 stands unchallenged by anything found here.
+
+Scope: read=lane corpus (oom-event-plane.md, SOURCES.md, SCORECARD.md), tools/check-owed-statements-r29.py, w1 snapshots S149.c/S148-proc.rst (sha256-verified), host /proc/meminfo; wrote=.ufo/waves/round-29/w2/RevMarkerO02.md; executed=read-only git show/rev-parse with GIT_* unset, sha256sum, grep -cF/-n, python3 arithmetic, ls /tmp
+Model: zai/glm-5.3-flash
+Installs: none

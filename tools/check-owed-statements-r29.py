@@ -12,7 +12,18 @@ its file at the round-29 base `16e9ab2a`.
 
 Marker rules (an item counts only when every rule holds; the first failure is reported).
 Version 2 (round-29 wave-1 repair after seat CritOwedCounterShapes counted 18 of 20 should-fail
-shapes at the declaration commit `81a061a6`; every change below only refuses more):
+shapes at the declaration commit `81a061a6`).  Version 2 refuses hollow shapes the declared counter
+accepted, and it also accepts six format variants the declared counter refused (bold id, a `now`
+quoting the anchor, a string basis, an extension-less path, an S### row with escaped pipes).
+Version 3 (round-29 wave-2 repair after seat CritOwedCounterShapes' successor CritOwedV2Shapes
+counted 25 of 26 new shapes): a marker must start its line (optionally after `- `), fences follow
+CommonMark (an inline ```x``` line is not a fence) and indented code is skipped, look-alike ids are
+folded (NFKC, Cyrillic/Greek O) before the uniqueness census, M1 is checked over rendered lines
+only, `now` words must contain a letter after format characters are removed, a duplicated S### row
+is unusable, `S###` is ASCII-only, path references are normalised (no `tools/`, no `..`) and the
+cited line must be byte-identical at the claim base, and a JSON marker has exactly the seven keys
+with no repeated key.  Batteries: `tools/mutants-owed-statements-r29.py` (marker-free control) and
+`tools/mutants-owed-statements-r29-landed.py` (landed markers).  Rules:
  M1  append-only: the base statement is unchanged at the revision.  Markdown: the full base
      line holding the anchor (sha256 in BASE_DIGEST) is still a line of the file, outside any
      marker line.  JSON: the named row field's value hashes to its BASE_DIGEST;
@@ -39,8 +50,8 @@ shapes at the declaration commit `81a061a6`; every change below only refuses mor
  M7  items O01-O04 (kernel victim selection) need at least one `S###` reference that passes M6,
      was absent from `corpus/SOURCES.md` at the claim base `16e9ab2a` and was opened 2026-10-22
      (a source opened this round; a capture alone cannot establish a kernel mechanism).
-Whether a cited source actually supports the correction is not mechanically checkable; the
-round's reviewers judge it.  A malformed marker is a refusal, never a crash: the summary line
+Whether a cited source or path is relevant, and whether `now` means anything, is not mechanically
+checkable (the landed battery reports such shapes as `semantic`); the round's reviewers judge it.  A malformed marker is a refusal, never a crash: the summary line
 is always printed.
 
 Usage: python3 tools/check-owed-statements-r29.py --revision <REV> [--lane <repo>]
@@ -55,6 +66,7 @@ import os
 import re
 import subprocess
 import sys
+import unicodedata
 
 ITEMS = (
     ('O01', 'corpus/knowledge/oom-event-plane.md', None, None,
@@ -101,9 +113,12 @@ BASE_DIGEST = {
 }
 VERDICTS = {'corrected', 'rebutted', 'qualified'}
 MD_MARKER = re.compile(
-    r'\[R29-OWED-(?P<id>O\d\d)\]\**\s*verdict:\s*(?P<verdict>[a-z]+)\s*\|\s*original:\s*"(?P<original>.*?)"'
+    r'^(?:- )?\**\[R29-OWED-(?P<id>O\d\d)\]\**\s*verdict:\s*(?P<verdict>[a-z]+)\s*\|\s*original:\s*"(?P<original>.*?)"'
     r'\s*\|\s*now:\s*(?P<now>.*?)\s*\|\s*basis:\s*(?P<basis>.+?)\s*$')
-SID = re.compile(r'\bS\d{3}\b')
+SID = re.compile(r'\bS\d{3}\b', re.ASCII)
+MARKER_START = re.compile(r'^(?:- )?\**\[R29-OWED-([^\]\s]{1,8})\]')
+FENCE = re.compile(r'^ {0,3}(`{3,}|~{3,})([^`]*)$')
+JSON_KEYS = {'id', 'row', 'field', 'withdrawn_text', 'verdict', 'now', 'basis'}
 PATHREF = re.compile(r'`?((?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+):(\d+)`?')
 
 
@@ -134,23 +149,31 @@ def sources_rows(text):
         cells = split_cells(line)
         if len(cells) >= 11:
             used = {u.strip().strip('`').strip() for u in cells[10].split(',')}
+            if cells[0] in rows:
+                rows[cells[0]] = {'status': 'duplicate-id', 'opened': '', 'used_by': set()}
+                continue
             rows[cells[0]] = {'status': cells[7], 'opened': cells[8], 'used_by': used}
     return rows
 
 
 def live_lines(text):
-    """Lines outside fenced code blocks and HTML comments, with their 1-based numbers."""
-    out, fence, comment = [], False, False
+    """Lines outside fenced or indented code blocks and HTML comments, with their 1-based numbers."""
+    out, fence, comment = [], '', False
     for n, ln in enumerate(text.splitlines(), 1):
         s = ln.strip()
         if comment:
             if '-->' in ln:
                 comment = False
             continue
-        if s.startswith('```') or s.startswith('~~~'):
-            fence = not fence
-            continue
+        fm = FENCE.match(ln)
         if fence:
+            if fm and fm.group(1)[0] == fence[0] and len(fm.group(1)) >= len(fence) and not fm.group(2).strip():
+                fence = ''
+            continue
+        if fm:
+            fence = fm.group(1)
+            continue
+        if ln.startswith('    ') or ln.startswith('\t'):
             continue
         if '<!--' in ln:
             if '-->' not in ln.split('<!--', 1)[1]:
@@ -158,6 +181,21 @@ def live_lines(text):
             continue
         out.append((n, ln))
     return out
+
+
+def marker_id(line):
+    """The item id of a marker-shaped line (look-alike characters folded), else None."""
+    m = MARKER_START.match(line)
+    if not m:
+        return None
+    raw = unicodedata.normalize('NFKC', m.group(1))
+    folded = raw.translate(str.maketrans({'\u041e': 'O', '\u039f': 'O', '\u043e': 'o', '\u03bf': 'o'}))
+    return folded if re.fullmatch(r'O\d\d', folded, re.ASCII) else None
+
+
+def words_of(text):
+    text = ''.join(ch for ch in text if unicodedata.category(ch) != 'Cf')
+    return [w for w in re.findall(r"[^\s]+", text) if any(ch.isalpha() for ch in w)]
 
 
 def norm(s):
@@ -175,20 +213,34 @@ def basis_ok(lane, rev, item_file, refs, srcrows, base_sids, need_sid):
                 good_new_sid.append(sid)
         else:
             bad.append(sid)
-    for path, line in PATHREF.findall(text):
+    for raw_path, line in PATHREF.findall(text):
         n = int(line)
-        body = None if path.startswith('tools/') else show(lane, rev, path)
+        path = os.path.normpath(raw_path)
+        blocked = path.startswith('tools/') or path.startswith('..') or path.startswith('/')
+        body = None if blocked else show(lane, rev, path)
+        base_body = None if blocked else show(lane, CLAIM_BASE, path)
         lines = body.splitlines() if body is not None else []
+        base_lines = base_body.splitlines() if base_body is not None else []
         if body is not None and 1 <= n <= len(lines) and lines[n - 1].strip() \
-                and 'R29-OWED-' not in lines[n - 1]:
-            good_path.append(f'{path}:{line}')
+                and 'R29-OWED-' not in lines[n - 1] and n <= len(base_lines) and base_lines[n - 1] == lines[n - 1]:
+            good_path.append(f'{raw_path}:{line}')
         else:
-            bad.append(f'{path}:{line}')
+            bad.append(f'{raw_path}:{line}')
     if need_sid and not good_new_sid:
         return False, f'M7 no S### opened this round that passes M6 (sources={good_sid}, bad={bad})'
     if not good_sid and not good_path:
         return False, f'M6 no resolvable basis reference (bad={bad})'
     return True, {'sources': good_sid, 'paths': good_path, 'unresolved': bad}
+
+
+class _Obj(dict):
+    duplicate_keys = False
+
+
+def _pairs(pairs):
+    d = _Obj(pairs)
+    d.duplicate_keys = len(d) != len(pairs)
+    return d
 
 
 def check(lane, rev):
@@ -200,7 +252,7 @@ def check(lane, rev):
     for f in files:
         if f.endswith('.json') and cache[f] is not None:
             try:
-                docs[f] = json.loads(cache[f])
+                docs[f] = json.loads(cache[f], object_pairs_hook=_pairs)
             except ValueError:
                 docs[f] = None
     # M2 census: where does each id appear, across every target file
@@ -222,9 +274,9 @@ def check(lane, rev):
                     where[iid].append((f, None))
         else:
             for n, ln in live_lines(text):
-                for iid in set(re.findall(r'R29-OWED-(O\d\d)', ln)):
-                    if iid in where:
-                        where[iid].append((f, ln))
+                iid = marker_id(ln)
+                if iid in where:
+                    where[iid].append((f, ln))
     out, nows = [], {}
     for iid, path, row, field, anchor in ITEMS:
         res = {'id': iid, 'file': path, 'ok': False}
@@ -242,7 +294,7 @@ def check(lane, rev):
                 res['why'] = 'M1 the named row field changed since the claim base (or is missing)'
                 continue
         else:
-            plain = [ln for ln in text.splitlines() if 'R29-OWED-' not in ln]
+            plain = [ln for _n, ln in live_lines(text) if marker_id(ln) is None]
             if not any(hashlib.sha256(ln.encode()).hexdigest() == BASE_DIGEST[iid] for ln in plain):
                 res['why'] = 'M1 the base line holding the anchor changed or was removed'
                 continue
@@ -254,6 +306,9 @@ def check(lane, rev):
         if path.endswith('.json'):
             if not isinstance(m, dict):
                 res['why'] = 'M2 marker id appears outside corrections_r29'
+                continue
+            if set(m) != JSON_KEYS or getattr(m, 'duplicate_keys', False):
+                res['why'] = 'M2 JSON marker keys are not exactly ' + ','.join(sorted(JSON_KEYS)) + ' (or a key repeats)'
                 continue
             if m.get('row') != row or m.get('field') != field or m.get('withdrawn_text') != anchor:
                 res['why'] = 'M3 row, field or withdrawn_text does not name the anchor exactly'
@@ -275,7 +330,7 @@ def check(lane, rev):
             res['why'] = 'M5 now is not a string'
             continue
         n_now, n_anchor = norm(now), norm(anchor)
-        words = re.findall(r"[a-z0-9][a-z0-9'_.+-]*", n_now.replace(n_anchor, ' '))
+        words = [w.lower() for w in words_of(n_now.replace(n_anchor, ' '))]
         if len(words) < 12 or len(set(words)) < 10:
             res['why'] = f'M5 now has {len(words)} words, {len(set(words))} distinct (need 12 and 10)'
             continue
