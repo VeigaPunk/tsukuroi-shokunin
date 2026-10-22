@@ -1,0 +1,198 @@
+### time
+$ date -u +%FT%TZ
+2026-10-22T08:19:59Z
+exit=0
+
+### kernel
+$ uname -r
+7.2.11-arch1-1
+exit=0
+
+### boots
+$ journalctl --list-boots --no-pager | tail -n 4
+ -3 84755511f8b741649b565f302b59e676 Tue 2026-10-20 06:37:55 -03 Tue 2026-10-20 08:54:20 -03
+ -2 ed8819b0a64a4af7b171e29b28b55524 Tue 2026-10-20 08:58:00 -03 Tue 2026-10-20 09:56:15 -03
+ -1 3e7084f470464957a8a2c00542a3b469 Tue 2026-10-20 09:57:09 -03 Thu 2026-10-22 04:54:50 -03
+  0 6a7f4fdfac624e2ea6c1b3c55d6f94f4 Thu 2026-10-22 04:55:41 -03 Thu 2026-10-22 05:19:39 -03
+exit=0
+
+### root-mount
+$ findmnt -no FSTYPE,OPTIONS /
+btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@
+exit=0
+
+### db-lock
+$ ls -l /var/lib/pacman/db.lck
+ls: cannot access '/var/lib/pacman/db.lck': No such file or directory
+exit=2
+
+### sync-db-mtime
+$ stat -c "%y %n" /var/lib/pacman/sync/*.db
+2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/core.db
+2026-10-17 22:37:30.000000000 -0300 /var/lib/pacman/sync/extra.db
+2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/multilib.db
+2026-10-21 19:44:39.000000000 -0300 /var/lib/pacman/sync/omarchy.db
+2026-10-20 23:22:02.000000000 -0300 /var/lib/pacman/sync/openai-chatgpt.db
+exit=0
+
+### pending
+$ pacman -Qu
+1password-beta 8.12.42_34.BETA-1 -> 8.12.44_25.BETA-1
+chatgpt-bin 26.1013.40934-1 -> 26.1016.51333-1
+claude-code 2.1.304-1 -> 2.1.307-1
+exit=0
+
+### pending-count
+$ pacman -Qu | wc -l
+3
+exit=0
+
+### pending-repos
+$ for p in $(pacman -Qqu); do printf "%s " "$p"; pacman -Si "$p" 2>/dev/null | sed -n "s/^Repository *: //p" | head -n 1; done
+1password-beta omarchy
+chatgpt-bin openai-chatgpt
+claude-code omarchy
+exit=0
+
+### local-newer-than-sync
+$ pacman -Sl | sed -n "s/^\([^ ]*\) \([^ ]*\) \([^ ]*\) \[installed: \([^]]*\)\]$/\1 \2 \3 \4/p" | while read -r repo name syncv localv; do [ "$(vercmp "$localv" "$syncv")" -gt 0 ] && echo "$repo $name sync=$syncv local=$localv"; done; true
+exit=0
+
+### boot-chain-installed
+$ pacman -Q mkinitcpio plymouth limine-mkinitcpio-hook limine-snapper-sync limine linux linux-lts systemd nvidia-open-dkms snapper libinput libinput-tools
+mkinitcpio 42.2-1
+plymouth 26.134.222-3
+limine-mkinitcpio-hook 1.40.0-2
+limine-snapper-sync 1.32.1-2
+limine 12.9.3-1
+linux 7.2.11.arch1-1
+linux-lts 6.18.57-2
+systemd 262-1
+nvidia-open-dkms 615.78.08-1
+snapper 0.13.2-1
+libinput 1.32.0-1
+libinput-tools 1.32.0-1
+exit=0
+
+### boot-chain-sync
+$ for p in mkinitcpio plymouth limine-mkinitcpio-hook limine-snapper-sync limine linux linux-lts systemd nvidia-open-dkms libinput; do printf "%s " "$p"; pacman -Si "$p" 2>/dev/null | sed -n "s/^Version *: //p" | head -n 1; done
+mkinitcpio 42.2-1
+plymouth 26.134.222-3
+limine-mkinitcpio-hook 1.40.0-2
+limine-snapper-sync 1.32.1-2
+limine 12.9.3-1
+linux 7.2.11.arch1-1
+linux-lts 6.18.57-2
+systemd 262-1
+nvidia-open-dkms 615.78.08-1
+libinput 1.32.0-1
+exit=0
+
+### hooks-new-root
+$ grep -n "/new_root" /usr/lib/initcpio/hooks/* /etc/initcpio/hooks/* 2>/dev/null; true
+/usr/lib/initcpio/hooks/btrfs-overlayfs:4:	root_mnt="/new_root"
+/usr/lib/initcpio/hooks/plymouth:11:  plymouth update-root-fs --new-root-dir=/new_root
+exit=0
+
+### hooks-config
+$ grep -Hn "^HOOKS" /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d/*.conf
+/etc/mkinitcpio.conf:55:HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
+/etc/mkinitcpio.conf.d/omarchy_hooks.conf:1:HOOKS=(base udev plymouth keyboard autodetect microcode modconf kms keymap consolefont block encrypt filesystems fsck btrfs-overlayfs)
+/etc/mkinitcpio.conf.d/omarchy_resume.conf:1:HOOKS+=(resume)
+exit=0
+
+### init-root
+$ grep -n "sysroot\|new_root" /usr/lib/initcpio/init
+66:# Mount root at /sysroot
+67:"$mount_handler" /sysroot
+77:if [ "$(stat -c %D /)" = "$(stat -c %D /sysroot)" ]; then
+78:    # Nothing got mounted on /sysroot. This is the end, we don't know what to do anymore
+87:elif [ ! -x "/sysroot${init}" ]; then
+88:    # Successfully mounted /sysroot, but ${init} is missing
+110:    /usr/bin/switch_root /sysroot "$init" "$@"
+exit=0
+
+### buildroot-symlink
+$ grep -rn "new_root" /usr/lib/initcpio/functions /usr/bin/mkinitcpio 2>/dev/null; true
+/usr/lib/initcpio/functions:1213:    ln -s "sysroot" "$buildroot/new_root"
+exit=0
+
+### pacman-log-since-pause
+$ awk "\$1 >= \"[2026-10-20T09:40\"" /var/log/pacman.log | grep -E "\[ALPM\] (installed|upgraded|downgraded|removed|reinstalled)" ; true
+[2026-10-20T13:23:08-0300] [ALPM] installed zcode (3.16.2-1)
+[2026-10-21T17:55:56-0300] [ALPM] installed tizen-sdb (2.3.2-3)
+[2026-10-21T17:55:56-0300] [ALPM] installed tizen-sdb-debug (2.3.2-3)
+[2026-10-21T18:07:37-0300] [ALPM] installed openssl-1.0 (1.0.2.u-7)
+[2026-10-21T18:07:37-0300] [ALPM] installed openssl-1.0-debug (1.0.2.u-7)
+exit=0
+
+### pacman-log-last-sync
+$ grep -n "synchronizing package lists" /var/log/pacman.log | tail -n 3
+2288:[2026-10-18T14:11:00-0300] [PACMAN] synchronizing package lists
+2463:[2026-10-20T09:15:30-0300] [PACMAN] synchronizing package lists
+3189:[2026-10-21T20:32:00-0300] [PACMAN] synchronizing package lists
+exit=0
+
+### plymouth-boot0
+$ journalctl -b 0 --no-pager -o short-monotonic | grep -i -E "plymouth|update-root-fs" | head -n 20; true
+[   17.732634] plazir27 systemd[1]: Starting Show Plymouth Boot Screen...
+[   17.751653] plazir27 systemd[1]: Started Show Plymouth Boot Screen.
+[   17.751765] plazir27 systemd[1]: Dispatch Password Requests to Console Directory Watch skipped, unmet condition check ConditionPathExists=!/run/plymouth/pid
+[   17.751811] plazir27 systemd[1]: Started Forward Password Requests to Plymouth Directory Watch.
+[   17.882737] plazir27 systemd[1]: Dispatch Password Requests to Console Directory Watch skipped, unmet condition check ConditionPathExists=!/run/plymouth/pid
+[   17.902643] plazir27 systemd[1]: Dispatch Password Requests to Console Directory Watch skipped, unmet condition check ConditionPathExists=!/run/plymouth/pid
+[   17.920266] plazir27 systemd[1]: Dispatch Password Requests to Console Directory Watch skipped, unmet condition check ConditionPathExists=!/run/plymouth/pid
+[   18.794482] plazir27 systemd[1]: Starting Tell Plymouth To Write Out Runtime Data...
+[   18.816435] plazir27 systemd[1]: Received SIGRTMIN+20 from PID 535 (plymouthd).
+[   18.817176] plazir27 systemd[1]: Finished Tell Plymouth To Write Out Runtime Data.
+[   20.026995] plazir27 systemd[1]: Starting Terminate Plymouth Boot Screen...
+[   20.049525] plazir27 systemd[1]: Received SIGRTMIN+21 from PID 535 (plymouthd).
+[   20.211745] plazir27 systemd[1]: Finished Terminate Plymouth Boot Screen.
+exit=0
+
+### plymouth-boot-1
+$ journalctl -b -1 --no-pager -o short-monotonic | grep -i -E "plymouth|update-root-fs" | head -n 20; true
+[   12.999474] plazir27 systemd[1]: Starting Show Plymouth Boot Screen...
+[   13.017317] plazir27 systemd[1]: Started Show Plymouth Boot Screen.
+[   13.017379] plazir27 systemd[1]: Dispatch Password Requests to Console Directory Watch skipped, unmet condition check ConditionPathExists=!/run/plymouth/pid
+[   13.017413] plazir27 systemd[1]: Started Forward Password Requests to Plymouth Directory Watch.
+[   13.187092] plazir27 systemd[1]: Dispatch Password Requests to Console Directory Watch skipped, unmet condition check ConditionPathExists=!/run/plymouth/pid
+[   13.202974] plazir27 systemd[1]: Dispatch Password Requests to Console Directory Watch skipped, unmet condition check ConditionPathExists=!/run/plymouth/pid
+[   13.218285] plazir27 systemd[1]: Dispatch Password Requests to Console Directory Watch skipped, unmet condition check ConditionPathExists=!/run/plymouth/pid
+[   14.110300] plazir27 systemd[1]: Starting Tell Plymouth To Write Out Runtime Data...
+[   14.523135] plazir27 systemd[1]: Received SIGRTMIN+20 from PID 538 (plymouthd).
+[   14.523702] plazir27 systemd[1]: Finished Tell Plymouth To Write Out Runtime Data.
+[   14.925670] plazir27 systemd[1]: Starting Terminate Plymouth Boot Screen...
+[   14.948235] plazir27 systemd[1]: Received SIGRTMIN+21 from PID 538 (plymouthd).
+[   15.152780] plazir27 systemd[1]: Finished Terminate Plymouth Boot Screen.
+[147578.643429] plazir27 sudo[3448214]:    vgpnk : (command continued) /var/cache/pacman/pkg/pipewire-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-alsa-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-alsa-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-audio-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-audio-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-jack-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-jack-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-pulse-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-pulse-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pixman-0.46.4-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pkgconf-3.0.7-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/playerctl-2.4.1-5-x86_64.pkg.tar.zst /var/cache/pacman/pkg/plocate-1.1.25-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/plymouth-26.134.222-2-x86_64.pkg.tar.zst
+[147578.658671] plazir27 sudo[3448214]:    vgpnk : (command continued) /var/cache/pacman/pkg/plymouth-26.134.222-3-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pngquant-3.0.3-3-x86_64.pkg.tar.zst /var/cache/pacman/pkg/polkit-127-3-x86_64.pkg.tar.zst /var/cache/pacman/pkg/polkit-gnome-0.105-12-x86_64.pkg.tar.zst /var/cache/pacman/pkg/poppler-26.08.0-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/poppler-data-0.4.12-2-any.pkg.tar.zst /var/cache/pacman/pkg/poppler-glib-26.08.0-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/poppler-qt6-26.08.0-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/popt-1.19-2-x86_64.pkg.tar.zst /var/cache/pacman/pkg/portaudio-1:19.7.0-4-x86_64.pkg.tar.zst /var/cache/pacman/pkg/portmidi-1:2.0.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/portsmf-234-3-x86_64.pkg.tar.zst /var/cache/pacman/pkg/postgresql-libs-18.6-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/postgresql-libs-18.6-2-x86_64.pkg.tar.zst /var/cache/pacman/pkg/potrace-1.16-5-x86_64.pkg.tar.zst
+[147578.673729] plazir27 sudo[3448231]:    vgpnk : (command continued) /var/cache/pacman/pkg/pipewire-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-alsa-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-alsa-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-audio-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-audio-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-jack-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-jack-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-pulse-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-pulse-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pixman-0.46.4-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pkgconf-3.0.7-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/playerctl-2.4.1-5-x86_64.pkg.tar.zst /var/cache/pacman/pkg/plocate-1.1.25-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/plymouth-26.134.222-2-x86_64.pkg.tar.zst
+[147578.681329] plazir27 sudo[3448231]:    vgpnk : (command continued) /var/cache/pacman/pkg/plymouth-26.134.222-3-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pngquant-3.0.3-3-x86_64.pkg.tar.zst /var/cache/pacman/pkg/polkit-127-3-x86_64.pkg.tar.zst /var/cache/pacman/pkg/polkit-gnome-0.105-12-x86_64.pkg.tar.zst /var/cache/pacman/pkg/poppler-26.08.0-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/poppler-data-0.4.12-2-any.pkg.tar.zst /var/cache/pacman/pkg/poppler-glib-26.08.0-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/poppler-qt6-26.08.0-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/popt-1.19-2-x86_64.pkg.tar.zst /var/cache/pacman/pkg/portaudio-1:19.7.0-4-x86_64.pkg.tar.zst /var/cache/pacman/pkg/portmidi-1:2.0.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/portsmf-234-3-x86_64.pkg.tar.zst /var/cache/pacman/pkg/postgresql-libs-18.6-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/postgresql-libs-18.6-2-x86_64.pkg.tar.zst /var/cache/pacman/pkg/potrace-1.16-5-x86_64.pkg.tar.zst
+[147599.155424] plazir27 sudo[3451745]:    vgpnk : (command continued) /var/cache/pacman/pkg/pipewire-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-alsa-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-alsa-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-audio-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-audio-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-jack-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-jack-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-pulse-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-pulse-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pixman-0.46.4-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pkgconf-3.0.7-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/playerctl-2.4.1-5-x86_64.pkg.tar.zst /var/cache/pacman/pkg/plocate-1.1.25-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/plymouth-26.134.222-2-x86_64.pkg.tar.zst
+[147599.163185] plazir27 sudo[3451745]:    vgpnk : (command continued) /var/cache/pacman/pkg/plymouth-26.134.222-3-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pngquant-3.0.3-3-x86_64.pkg.tar.zst /var/cache/pacman/pkg/polkit-127-3-x86_64.pkg.tar.zst /var/cache/pacman/pkg/polkit-gnome-0.105-12-x86_64.pkg.tar.zst /var/cache/pacman/pkg/poppler-26.08.0-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/poppler-data-0.4.12-2-any.pkg.tar.zst /var/cache/pacman/pkg/poppler-glib-26.08.0-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/poppler-qt6-26.08.0-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/popt-1.19-2-x86_64.pkg.tar.zst /var/cache/pacman/pkg/portaudio-1:19.7.0-4-x86_64.pkg.tar.zst /var/cache/pacman/pkg/portmidi-1:2.0.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/portsmf-234-3-x86_64.pkg.tar.zst /var/cache/pacman/pkg/postgresql-libs-18.6-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/postgresql-libs-18.6-2-x86_64.pkg.tar.zst /var/cache/pacman/pkg/potrace-1.16-5-x86_64.pkg.tar.zst
+[147719.729785] plazir27 sudo[3529649]:    vgpnk : (command continued) /var/cache/pacman/pkg/pipewire-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-alsa-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-alsa-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-audio-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-audio-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-jack-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-jack-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-pulse-1:1.6.8-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pipewire-pulse-1:1.6.9-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pixman-0.46.4-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/pkgconf-3.0.7-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/playerctl-2.4.1-5-x86_64.pkg.tar.zst /var/cache/pacman/pkg/plocate-1.1.25-1-x86_64.pkg.tar.zst /var/cache/pacman/pkg/plymouth-26.134.222-2-x86_64.pkg.tar.zst
+exit=0
+
+### failed-units
+$ systemctl --failed --no-pager --plain --no-legend | wc -l
+0
+exit=0
+
+### user-failed-units
+$ systemctl --user --failed --no-pager --plain --no-legend | wc -l
+0
+exit=0
+
+### dkms
+$ dkms status 2>&1
+nvidia/615.78.08, 6.18.57-2-lts, x86_64: installed
+nvidia/615.78.08, 7.2.11-arch1-1, x86_64: installed
+nvidia/615.78.08, 7.2.3-arch1-3, x86_64: installed (Original modules exist) (Built modules are missing in the kernel modules folder)
+exit=0
+
+### pacnew-count
+$ find /etc -xdev \( -name "*.pacnew" -o -name "*.pacsave" \) 2>/dev/null | wc -l
+3
+exit=0
+
