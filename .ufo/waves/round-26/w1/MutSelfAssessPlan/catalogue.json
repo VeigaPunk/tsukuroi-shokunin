@@ -1,0 +1,565 @@
+{
+  "catalogue_version": "1",
+  "round": 26,
+  "attempt": 1,
+  "claim": "C2 (calibration)",
+  "check_set_under_test": "v2 — K01 to K27 in tools/check-self-assessment.py",
+  "detector": "python3 tools/check-self-assessment.py --revision HEAD --repo <sandbox>",
+  "baseline_expectation": {
+    "exit_code": 0,
+    "mismatches": 0,
+    "checked": 27,
+    "note": "The measured revision for the round-26 claim must report 0 of 27 mismatches with exit 0. A baseline that is not clean makes every mutant inconclusive, not killed."
+  },
+  "declared_rules": {
+    "K01_K06": "SCORECARD.md:903 (round-26 declaration, attempt 1). The declaring round N is the number in the heading of the current axes table, which must read `## Axes — current self-assessment (round N)`; a heading without a round number exits 2. The ordinal reference is the last match of the round-25 refinement regex (SCORECARD.md:807) on SCORECARD lines outside that table, excluding every line inside a section whose heading (any level) names round N (`Round N` or `round N` as a whole number), unless that heading also contains `measured outcome`.",
+    "K07_K23": "SCORECARD.md:795 and SCORECARD.md:807 (round-25 declaration and its refinements), unchanged by round 26.",
+    "K24_K27": "SCORECARD.md:904 (round-26 declaration, attempt 1). For SHONEN boxes 1 to 4: every corpus/knowledge/*.md path the box names exists at <REV> and carries no supersession marker, meaning none of its first 20 lines matches the case-insensitive word `superseded`."
+  },
+  "runner": ".ufo/waves/round-26/w1/MutSelfAssessPlan/run-mutants.py",
+  "runner_contract": {
+    "sandbox": "git -C <lane repo> archive <rev> | tar -x -C <sandbox>; git init with no remote; git add -A; git commit (sandbox-local base commit); apply edits; git commit; run the detector at HEAD; git reset --hard <base> && git clean -fd; compare the tree digest with the pristine digest.",
+    "restoration": "Every mutant is restored to the pristine tree inside the sandbox; the lane repository is never written to.",
+    "verdict_rule": "killed = the detector exit code differs from the baseline exit code; survived = the detector exit code equals the baseline; inconclusive = the baseline failed, the tool is not the v2 check set, or a precondition is unmet."
+  },
+  "base_value": {
+    "revision": "b13e991fb96972b423b868ba122187f75357368c",
+    "v1_tool_at_base": "exit 1, 1 of 23 checks mismatch (K10: the depth row states 26 lesson files, corpus/lessons holds 27)",
+    "v2_tool_at_base": "the L1 hand count predicts 3 of 27 (K10, K24, K26)",
+    "note": "The baseline at the round-26 base is NOT clean, so a run against the base is inconclusive for every mutant. The catalogue is written for the round-26 measured revision, where the declared target is 0 of 27 with exit 0."
+  },
+  "v2_dependent_mutants": ["M01", "M02", "M03", "M04", "M05", "M11", "M12", "M13", "M14"],
+  "v2_dependent_note": "These nine mutants exercise rules that only the v2 check set has (the round-26 section exclusion, the round number in the axes heading, and the K24 to K27 supersession clause). Under the v1 tool at the round-26 base they behave differently by construction; that difference is the signal, not a defect.",
+  "mechanics_validation": {
+    "date": "2026-10-22",
+    "harness": ".ufo/waves/round-26/w1/MutSelfAssessPlan/run-mutants.py",
+    "synthetic_state": "/fast/scratch/hyaku/tsuku26/MutSelfAssessPlan/synthrepo (a scratch copy of b13e991 with a synthetic `## Axes — current self-assessment (round 26)` table and `### Round 26 measured outcome` section; not lane content)",
+    "result": "31 of 31 mutants applied without an edit error, 0 skipped, baseline clean under the v1 tool (exit 0, 0 of 23), 22 killed and 9 survived, every sandbox restored to the pristine tree digest abc2baeb343867b3b248fced27174c892d3f96476f5889e360e2ed56b7f1fed6",
+    "caveat": "The verdicts above are v1 verdicts. The five expectations that did not hold (M01, M03, M04, M11, M12) are exactly the mutants whose expected verdict is defined by the v2 rules; they must be re-run against the v2 tool at the round-26 measured revision."
+  },
+  "v2_measurement": {
+    "date": "2026-10-22",
+    "tool": "the concurrent seat's uncommitted, unreviewed v2 tool (lane working tree, tools/check-self-assessment.py, header 'Fixed check set v2, K01 to K27'), copied into a scratch copy of the synthetic state; provisional, not a lane revision",
+    "baseline": "exit 0, checked 27, mismatches 0",
+    "v2_dependent_run": "9 of 9 mutants applied and measured, 0 errors; 8 of 9 expectations met (M03 did not: the implementation accepts the axes heading '(Round26)' and evaluates the set instead of exiting 2)",
+    "round_25_survivors_run": "22 of 22 mutants applied and measured, 0 errors; 18 of 22 expectations met (M15, M19, M21, M22 did not: the implementation reads ordinal transitions only from measured-outcome sections)",
+    "restoration": "pristine tree digest aa05058e5eecc0c41a684d73fbfdcd07a885838b39f82115654729f210eb7e3d reproduced exactly after every restoration and at the end of both runs"
+  },
+  "v2_divergence": {
+    "summary": "The measured v2 implementation and the declared K01 to K06 rule disagree on where an ordinal transition may be recorded.",
+    "declared_rule": "SCORECARD.md:903 reads the ordinal reference as the last match of the round-25 refinement regex on SCORECARD lines outside the current axes table, excluding every line inside a section whose heading names round N unless that heading also contains `measured outcome`.",
+    "measured_behaviour": "The measured v2 implementation reports its reference as the last ordinal transition in a measured-outcome section (its reason strings read 'no coverage ordinal transition in any measured-outcome section'), so a transition in any other section is ignored.",
+    "affected_mutants": {
+      "M15": "declared: killed (K01); measured: survived",
+      "M21": "declared: killed (K05); measured: survived",
+      "M22": "declared: killed (K06); measured: survived",
+      "M19": "declared: survived; measured: killed (K01)"
+    },
+    "resolution": "Integrator decision, not made by this seat. Each of the four mutants carries an `alt_expected` block for the narrower reading, and the runner reports `expectation_met` (declared rule) and `expectation_met_alt` (narrower rule) separately, so the catalogue stays usable under either ruling."
+  },
+  "provenance": {
+    "round_25_survivors_ordinals": ".ufo/waves/round-25/w2/MutC1Ordinals.md (m1 to m10)",
+    "round_25_survivors_counts": ".ufo/waves/round-25/w2/MutC1Counts.md (M1 to M7)"
+  },
+  "mutants": [
+    {
+      "id": "M01",
+      "title": "Declaring-round prose states a false ordinal transition (depth 8 -> 7)",
+      "targets": ["K01"],
+      "declared_rule": "SCORECARD.md:903 — a declaring round's own declaration and refinement prose can never satisfy its own ordinal check.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Round 26 — declaration, attempt 1"}
+      ],
+      "edits": [
+        {"op": "insert_in_section", "file": "SCORECARD.md", "section": "^## Round 26 — declaration, attempt 1", "position": "end",
+         "text": "\nMutation probe: the declaring round's own prose mentions `depth 8 → 7` as an example of a non-move.\n"}
+      ],
+      "expected": {"exit_code": 0, "expected_failing_checks": [], "verdict": "survived", "mismatches": 0},
+      "rationale": "The false transition sits inside a section whose heading names round 26 and does not contain `measured outcome`, so it is excluded from the ordinal search. K01 to K06 must not change. If the tool counts it, K01 reports observed 7 against stated 8 and the mutant is killed — that would mean the v2 exclusion did not land."
+    },
+    {
+      "id": "M02",
+      "title": "False ordinal transition under the round's `measured outcome` heading (depth 8 -> 7)",
+      "targets": ["K01"],
+      "declared_rule": "SCORECARD.md:903 — only the measured outcome can record a move.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "### Round 26 measured outcome"},
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "insert_in_section", "file": "SCORECARD.md", "section": "^### Round 26 measured outcome", "position": "end",
+         "text": "\nMutation probe: `depth 8 → 7`.\n"}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K01"], "verdict": "killed", "mismatches": 1},
+      "rationale": "The section heading names round 26 but also contains `measured outcome`, so its lines are not excluded. The last depth transition becomes 7 while the axes table states 8, so K01 must mismatch."
+    },
+    {
+      "id": "M03",
+      "title": "Current axes heading reads `Round26` without a space",
+      "targets": ["K01", "K02", "K03", "K04", "K05", "K06"],
+      "declared_rule": "SCORECARD.md:903 — the heading must read `## Axes — current self-assessment (round N)`; a heading without a round number exits 2.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "replace_once", "file": "SCORECARD.md", "find": "## Axes — current self-assessment (round 26)", "repl": "## Axes — current self-assessment (Round26)"}
+      ],
+      "expected": {"exit_code": 2, "expected_failing_checks": [], "verdict": "cannot_evaluate"},
+      "alt_expected": {"exit_code": 0, "expected_failing_checks": [], "verdict": "survived", "mismatches": 0},
+      "alt_rationale": "Under the looser reading, in which the round number may be written in any form inside the axes heading, `(Round26)` names round 26, the check set is evaluated and nothing changes. The measured v2 implementation behaves this way.",
+      "rationale": "`Round26` is not the declared `Round N` / `round N` form, so the declaring round number N cannot be read and the check set cannot be evaluated: exit 2, never a pass.",
+      "ambiguity": "A looser implementation that parses the digits out of any heading would report N = 26 and evaluate the set, which would make this mutant survive. The declared text gives only the `round N` form, so exit 2 is the expected reading."
+    },
+    {
+      "id": "M04",
+      "title": "Current axes heading carries no round number",
+      "targets": ["K01", "K02", "K03", "K04", "K05", "K06"],
+      "declared_rule": "SCORECARD.md:903 — a heading without a round number exits 2.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "replace_once", "file": "SCORECARD.md", "find": "## Axes — current self-assessment (round 26)", "repl": "## Axes — current self-assessment"}
+      ],
+      "expected": {"exit_code": 2, "expected_failing_checks": [], "verdict": "cannot_evaluate"},
+      "rationale": "With no round number in the axes heading the declaring round N is unknown, so K01 to K06 cannot be scoped and the tool must exit 2."
+    },
+    {
+      "id": "M05",
+      "title": "Measured-outcome heading reads `Round26` without a space, with a false ordinal transition inside it",
+      "targets": ["K01"],
+      "declared_rule": "SCORECARD.md:903 — a section is excluded only when its heading names round N as `Round N` or `round N` as a whole number.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "### Round 26 measured outcome"}
+      ],
+      "edits": [
+        {"op": "replace_once", "file": "SCORECARD.md", "find": "### Round 26 measured outcome", "repl": "### Round26 measured outcome"},
+        {"op": "insert_in_section", "file": "SCORECARD.md", "section": "^### Round26 measured outcome", "position": "end",
+         "text": "\nMutation probe: `depth 8 → 7`.\n"}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K01"], "verdict": "killed", "mismatches": 1},
+      "rationale": "`Round26` does not name round 26 in the declared form, so the section is not excluded and its transition counts: K01 mismatches. If the implementation instead matches the bare digits, the section would be excluded and the mutant would survive — that is the discriminating signal this mutant exists for."
+    },
+    {
+      "id": "M06",
+      "title": "Stale note count in the round-26 depth row (K07)",
+      "targets": ["K07"],
+      "declared_rule": "SCORECARD.md:795 — K07: the depth row's `N notes` equals the count of corpus/knowledge/*.md.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "row_sub", "file": "SCORECARD.md", "section": "^## Axes — current self-assessment \\(round 26\\)", "row": "depth",
+         "pattern": "(\\d+)\\s+notes\\b", "repl": "{g1} notes", "offsets": {"1": 1}}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K07"], "verdict": "killed", "mismatches": 1},
+      "rationale": "The stated note count is raised by one while the repository count is unchanged, so K07 must mismatch."
+    },
+    {
+      "id": "M07",
+      "title": "Stale SKILL.md line count in the round-26 depth row (K08)",
+      "targets": ["K08"],
+      "declared_rule": "SCORECARD.md:795 — K08: the depth row's `SKILL.md` N `wc -l` equals the line count of SKILL.md.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "row_sub", "file": "SCORECARD.md", "section": "^## Axes — current self-assessment \\(round 26\\)", "row": "depth",
+         "pattern": "(`SKILL\\.md`\\s+)(\\d+)(\\s+`wc -l`)", "repl": "{g1}{g2}{g3}", "offsets": {"2": 1}}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K08"], "verdict": "killed", "mismatches": 1},
+      "rationale": "The stated line count is raised by one with the file unchanged, so K08 must mismatch."
+    },
+    {
+      "id": "M08",
+      "title": "Stale table-line count in the round-26 depth row (K09)",
+      "targets": ["K09"],
+      "declared_rule": "SCORECARD.md:795 — K09: the depth row's `N table lines` equals the count of SKILL.md lines that start with `|`.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "row_sub", "file": "SCORECARD.md", "section": "^## Axes — current self-assessment \\(round 26\\)", "row": "depth",
+         "pattern": "(\\d+)\\s+table lines\\b", "repl": "{g1} table lines", "offsets": {"1": 1}}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K09"], "verdict": "killed", "mismatches": 1},
+      "rationale": "The stated pipe-line count is raised by one with the file unchanged, so K09 must mismatch."
+    },
+    {
+      "id": "M09",
+      "title": "Stale corpus/lessons file count in the round-26 depth row (K10)",
+      "targets": ["K10"],
+      "declared_rule": "SCORECARD.md:795 — K10: the depth row's corpus/lessons file count equals the files under corpus/lessons/.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "row_sub", "file": "SCORECARD.md", "section": "^## Axes — current self-assessment \\(round 26\\)", "row": "depth",
+         "pattern": "(`?corpus/lessons/`?\\s*\\(?\\s*)(\\d+)(\\s+files?\\b)", "repl": "{g1}{g2}{g3}", "offsets": {"2": 1}}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K10"], "verdict": "killed", "mismatches": 1},
+      "rationale": "The stated lesson-file count is raised by one with the directory unchanged, so K10 must mismatch. K10 is one of the three mismatches the L1 predicts at the round-26 base."
+    },
+    {
+      "id": "M10",
+      "title": "Stale corpus/README.md line count in the round-26 coverage row (K11)",
+      "targets": ["K11"],
+      "declared_rule": "SCORECARD.md:795 — K11: the coverage row's `corpus/README.md` N `wc -l` equals that file's line count.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "row_sub", "file": "SCORECARD.md", "section": "^## Axes — current self-assessment \\(round 26\\)", "row": "coverage",
+         "pattern": "(`corpus/README\\.md`\\s+)(\\d+)(\\s+`wc -l`)", "repl": "{g1}{g2}{g3}", "offsets": {"2": 1}}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K11"], "verdict": "killed", "mismatches": 1},
+      "rationale": "The stated README line count is raised by one with the file unchanged, so K11 must mismatch."
+    },
+    {
+      "id": "M11",
+      "title": "SHONEN box 1 cites a superseded corpus note",
+      "targets": ["K24"],
+      "declared_rule": "SCORECARD.md:904 — K24 to K27: a corpus/knowledge/*.md path named by a SHONEN box must carry no supersession marker in its first 20 lines.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SHONEN.md", "text": "corpus/knowledge/"}
+      ],
+      "edits": [
+        {"op": "shonen_box_path", "file": "SHONEN.md", "box": 1, "mode": "replace_first_knowledge_path", "path_source": "first_superseded_note"}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K24"], "verdict": "killed", "mismatches": 1, "allow_extra_failing": true},
+      "rationale": "The cited note exists at the revision, so K20 still passes, but its first 20 lines carry the case-insensitive word `superseded`, so the new K24 must mismatch. The runner resolves the note at the revision so the mutant survives a reworded SHONEN.md."
+    },
+    {
+      "id": "M12",
+      "title": "SHONEN box 1 cites a corpus note that does not exist",
+      "targets": ["K20", "K24"],
+      "declared_rule": "SCORECARD.md:904 and SCORECARD.md:795 — the named corpus/knowledge/*.md path must exist at <REV> (K20 existence, K24 v2 existence).",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SHONEN.md", "text": "corpus/knowledge/"}
+      ],
+      "edits": [
+        {"op": "shonen_box_path", "file": "SHONEN.md", "box": 1, "mode": "replace_first_knowledge_path", "path": "corpus/knowledge/mutant-missing-r26.md"}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K20", "K24"], "verdict": "killed", "mismatches": 2},
+      "rationale": "The named path is absent at the revision, so both the existence clause of K20 and the existence clause of K24 must mismatch."
+    },
+    {
+      "id": "M13",
+      "title": "SHONEN box 1 cites an existing, non-superseded corpus note (control)",
+      "targets": ["K24"],
+      "declared_rule": "SCORECARD.md:904 — a note with no supersession marker in its first 20 lines is accepted.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SHONEN.md", "text": "corpus/knowledge/"}
+      ],
+      "edits": [
+        {"op": "shonen_box_path", "file": "SHONEN.md", "box": 1, "mode": "replace_first_knowledge_path", "path_source": "first_fresh_note"}
+      ],
+      "expected": {"exit_code": 0, "expected_failing_checks": [], "verdict": "survived", "mismatches": 0},
+      "rationale": "Control for M11: the same edit shape, a note that exists and carries no marker, must leave the detector at the baseline."
+    },
+    {
+      "id": "M14",
+      "title": "SHONEN box 1 cites a note whose supersession marker sits beyond line 20",
+      "targets": ["K24", "K07"],
+      "declared_rule": "SCORECARD.md:904 — the marker counts only when one of the note's first 20 lines matches `superseded` (case-insensitive).",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SHONEN.md", "text": "corpus/knowledge/"},
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "write_file", "file": "corpus/knowledge/mutant-marker-below-20-r26.md",
+         "content": "# Mutant note with a late supersession marker\n\nThis note carries the marker below the twentieth line, so the\nv2 supersession clause does not apply to it.\n\nLine 4.\nLine 5.\nLine 6.\nLine 7.\nLine 8.\nLine 9.\nLine 10.\nLine 11.\nLine 12.\nLine 13.\nLine 14.\nLine 15.\nLine 16.\nLine 17.\nLine 18.\nLine 19.\nLine 20.\nLine 21.\nLine 22.\nLine 23.\nLine 24.\n\nThis part is superseded by a later note.\n"},
+        {"op": "shonen_box_path", "file": "SHONEN.md", "box": 1, "mode": "replace_first_knowledge_path", "path": "corpus/knowledge/mutant-marker-below-20-r26.md"},
+        {"op": "row_sub", "file": "SCORECARD.md", "section": "^## Axes — current self-assessment \\(round 26\\)", "row": "depth",
+         "pattern": "(\\d+)\\s+notes\\b", "repl": "{g1} notes", "offsets": {"1": 1}}
+      ],
+      "expected": {"exit_code": 0, "expected_failing_checks": [], "verdict": "survived", "mismatches": 0},
+      "rationale": "The new note adds one file, so the stated note count is compensated to keep K07 matched. The marker lies past line 20, so K24 must not flag the box. A survivor here is the expected reading; a kill would mean the clause reads the whole file."
+    },
+    {
+      "id": "M15",
+      "title": "Later ordinal line `depth 8 -> 9` outside any round-26 section",
+      "targets": ["K01"],
+      "declared_rule": "SCORECARD.md:807 and SCORECARD.md:903 — the ordinal reference is the last match outside the current axes table, with round-26 sections excluded.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "append", "file": "SCORECARD.md", "text": "\n## Mutation probe appendix\n\ndepth 8 → 9\n"}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K01"], "verdict": "killed", "mismatches": 1},
+      "alt_expected": {"exit_code": 0, "expected_failing_checks": [], "verdict": "survived", "mismatches": 0},
+      "alt_rationale": "Under the narrower reading, in which only a measured-outcome section records a move, a transition in an appendix section is not an ordinal at all, so nothing changes and the mutant survives. The runner records both readings; see the v2_divergence note.",
+      "rationale": "Round-25 survivor (MutC1Ordinals m2), replayed against the round-26 table: a later depth transition outside the round-26 sections must be picked up, so K01 mismatches."
+    },
+    {
+      "id": "M16",
+      "title": "Depth score cell in the round-26 axes table changed from 8 to 6",
+      "targets": ["K01"],
+      "declared_rule": "SCORECARD.md:807 — the axes table score must equal the after-value of the last recorded transition.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "row_sub", "file": "SCORECARD.md", "section": "^## Axes — current self-assessment \\(round 26\\)", "row": "depth",
+         "pattern": "^(\\|\\s*depth\\s*\\|\\s*)(\\d+)", "repl": "{g1}{g2}", "offsets": {"2": -2}}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K01"], "verdict": "killed", "mismatches": 1},
+      "rationale": "Round-25 survivor (MutC1Ordinals m1), replayed against the round-26 table: a wrong stated score must mismatch."
+    },
+    {
+      "id": "M17",
+      "title": "Later non-ordinal line `coverage rows 10 -> 15`",
+      "targets": ["K02"],
+      "declared_rule": "SCORECARD.md:807 — both numbers of an ordinal must be from 0 to 10, so `coverage rows 10 → 15` is not an ordinal.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "append", "file": "SCORECARD.md", "text": "\n## Mutation probe appendix\n\ncoverage rows 10 → 15\n"}
+      ],
+      "expected": {"exit_code": 0, "expected_failing_checks": [], "verdict": "survived", "mismatches": 0},
+      "rationale": "Round-25 survivor (MutC1Ordinals m4): the after-value is out of range, so the line is not an ordinal and the detector must not change."
+    },
+    {
+      "id": "M18",
+      "title": "Ordinal arrow inside the round-26 depth row of the axes table",
+      "targets": ["K01"],
+      "declared_rule": "SCORECARD.md:903 — the ordinal reference is read on SCORECARD lines outside the current axes table.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "row_append", "file": "SCORECARD.md", "section": "^## Axes — current self-assessment \\(round 26\\)", "row": "depth", "text": "; 8 → 9"}
+      ],
+      "expected": {"exit_code": 0, "expected_failing_checks": [], "verdict": "survived", "mismatches": 0},
+      "rationale": "Round-25 survivor (MutC1Ordinals m5): a transition inside the current axes table is excluded, so nothing changes."
+    },
+    {
+      "id": "M19",
+      "title": "Self-consistent pair: depth score cell raised to 9 and a matching later transition appended",
+      "targets": ["K01"],
+      "declared_rule": "SCORECARD.md:807 — the six checks test agreement with the lane's own records, not an outside judgement.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "row_sub", "file": "SCORECARD.md", "section": "^## Axes — current self-assessment \\(round 26\\)", "row": "depth",
+         "pattern": "^(\\|\\s*depth\\s*\\|\\s*)(\\d+)", "repl": "{g1}{g2}", "offsets": {"2": 1}},
+        {"op": "append", "file": "SCORECARD.md", "text": "\n## Mutation probe appendix\n\ndepth 8 → 9\n"}
+      ],
+      "expected": {"exit_code": 0, "expected_failing_checks": [], "verdict": "survived", "mismatches": 0},
+      "alt_expected": {"exit_code": 1, "expected_failing_checks": ["K01"], "verdict": "killed", "mismatches": 1},
+      "alt_rationale": "Under the narrower reading, in which only a measured-outcome section records a move, the score cell 9 has no move record to support it (the synthetic measured outcome still says 8), so K01 mismatches and the mutant is killed.",
+      "rationale": "Round-25 survivor (MutC1Ordinals m10): a score no move record supports is still accepted when the prose agrees with itself. A survivor is a coverage finding, not a contract change."
+    },
+    {
+      "id": "M20",
+      "title": "Later glued line `operability9→9`",
+      "targets": ["K03"],
+      "declared_rule": "SCORECARD.md:807 — the ordinal regex `\b<axis>\b[^0-9|→\\n]{0,12}?(\\d{1,2})\\s*(?:→|->)\\s*(\\d{1,2})`.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "append", "file": "SCORECARD.md", "text": "\n## Mutation probe appendix\n\noperability9→9\n"}
+      ],
+      "expected": {"exit_code": 0, "expected_failing_checks": [], "verdict": "survived", "mismatches": 0},
+      "rationale": "Round-25 survivor (MutC1Ordinals m6): the declared regex and the implemented one disagree about the glued form, but both readings leave the score equal to the after-value 9, so the detector must not change either way."
+    },
+    {
+      "id": "M21",
+      "title": "Later ordinal line `calibration 9 -> 8`",
+      "targets": ["K05"],
+      "declared_rule": "SCORECARD.md:807 — the ordinal reference for calibration.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "append", "file": "SCORECARD.md", "text": "\n## Mutation probe appendix\n\ncalibration 9 → 8\n"}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K05"], "verdict": "killed", "mismatches": 1},
+      "alt_expected": {"exit_code": 0, "expected_failing_checks": [], "verdict": "survived", "mismatches": 0},
+      "alt_rationale": "Under the narrower reading, in which only a measured-outcome section records a move, a transition in an appendix section is not an ordinal at all, so nothing changes.",
+      "rationale": "Round-25 supplementary probe (MutC1Ordinals m8): a later calibration transition must be picked up."
+    },
+    {
+      "id": "M22",
+      "title": "Later ordinal line `adjacency 8 -> 7`",
+      "targets": ["K06"],
+      "declared_rule": "SCORECARD.md:807 — the ordinal reference for adjacency.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "append", "file": "SCORECARD.md", "text": "\n## Mutation probe appendix\n\nadjacency 8 → 7\n"}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K06"], "verdict": "killed", "mismatches": 1},
+      "alt_expected": {"exit_code": 0, "expected_failing_checks": [], "verdict": "survived", "mismatches": 0},
+      "alt_rationale": "Under the narrower reading, in which only a measured-outcome section records a move, a transition in an appendix section is not an ordinal at all, so nothing changes.",
+      "rationale": "Round-25 supplementary probe (MutC1Ordinals m9): a later adjacency transition must be picked up."
+    },
+    {
+      "id": "M23",
+      "title": "One extra corpus/knowledge note added (K07)",
+      "targets": ["K07"],
+      "declared_rule": "SCORECARD.md:795 — K07 note count.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "write_file", "file": "corpus/knowledge/mutant-k07-note.md", "content": "# Mutant note\n\nMutation probe for K07.\n"}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K07"], "verdict": "killed", "mismatches": 1},
+      "rationale": "Round-25 survivor (MutC1Counts M1): an unstated repository change must be caught against the stated count."
+    },
+    {
+      "id": "M24",
+      "title": "The `notes` phrase removed from the round-26 depth row (K07)",
+      "targets": ["K07"],
+      "declared_rule": "SCORECARD.md:795 — K07: a fact the row does not state counts as a mismatch.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "row_sub", "file": "SCORECARD.md", "section": "^## Axes — current self-assessment \\(round 26\\)", "row": "depth",
+         "pattern": "(\\d+)\\s+notes\\s*\\(", "repl": "{g1} (", "offsets": {}}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K07"], "verdict": "killed", "mismatches": 1},
+      "rationale": "Round-25 survivor (MutC1Counts M6): the number stays but the phrase that makes the row state a note count is gone, so the check must report a stated value of none."
+    },
+    {
+      "id": "M25",
+      "title": "One plain line appended to SKILL.md (K08)",
+      "targets": ["K08"],
+      "declared_rule": "SCORECARD.md:795 — K08 line count.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "append", "file": "SKILL.md", "text": "mutation probe line\n"}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K08"], "verdict": "killed", "mismatches": 1},
+      "rationale": "Round-25 survivor (MutC1Counts M2): an unstated line count change must be caught."
+    },
+    {
+      "id": "M26",
+      "title": "One pipe-prefixed line appended to SKILL.md (K08 and K09)",
+      "targets": ["K08", "K09"],
+      "declared_rule": "SCORECARD.md:795 — K08 and K09 line and table-line counts.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "append", "file": "SKILL.md", "text": "\n| mutation probe |\n"}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K08", "K09"], "verdict": "killed", "mismatches": 2},
+      "rationale": "Round-25 survivor (MutC1Counts M3): a pipe line is also a line, so both counts move; the mutant is not isolated."
+    },
+    {
+      "id": "M27",
+      "title": "Pipe line appended to SKILL.md with the stated line count compensated (K09 only)",
+      "targets": ["K09"],
+      "declared_rule": "SCORECARD.md:795 — K09 table-line count.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "append", "file": "SKILL.md", "text": "\n| mutation probe |\n"},
+        {"op": "row_sub", "file": "SCORECARD.md", "section": "^## Axes — current self-assessment \\(round 26\\)", "row": "depth",
+         "pattern": "(`SKILL\\.md`\\s+)(\\d+)(\\s+`wc -l`)", "repl": "{g1}{g2}{g3}", "offsets": {"2": 2}}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K09"], "verdict": "killed", "mismatches": 1},
+      "rationale": "Round-25 survivor (MutC1Counts M3c): the stated line count is compensated by the number of added lines so that only K09 remains; this isolates the table-line check."
+    },
+    {
+      "id": "M28",
+      "title": "One extra corpus/lessons file added (K10)",
+      "targets": ["K10"],
+      "declared_rule": "SCORECARD.md:795 — K10 lesson-file count.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "write_file", "file": "corpus/lessons/mutant-k10-lesson.md", "content": "# Mutant lesson\n\nMutation probe for K10.\n"}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K10"], "verdict": "killed", "mismatches": 1},
+      "rationale": "Round-25 survivor (MutC1Counts M4): an unstated lesson-file change must be caught. K10 is one of the three mismatches the L1 predicts at the round-26 base."
+    },
+    {
+      "id": "M29",
+      "title": "Stated corpus/README.md line count raised in the round-26 coverage row (K11)",
+      "targets": ["K11"],
+      "declared_rule": "SCORECARD.md:795 — K11 README line count.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "row_sub", "file": "SCORECARD.md", "section": "^## Axes — current self-assessment \\(round 26\\)", "row": "coverage",
+         "pattern": "(`corpus/README\\.md`\\s+)(\\d+)(\\s+`wc -l`)", "repl": "{g1}{g2}{g3}", "offsets": {"2": 1}}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K11"], "verdict": "killed", "mismatches": 1},
+      "rationale": "Round-25 survivor (MutC1Counts M5): a wrong stated count must mismatch."
+    },
+    {
+      "id": "M30",
+      "title": "One line appended to corpus/README.md (K11)",
+      "targets": ["K11"],
+      "declared_rule": "SCORECARD.md:795 — K11 README line count.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "append", "file": "corpus/README.md", "text": "mutation probe line\n"}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K11"], "verdict": "killed", "mismatches": 1},
+      "rationale": "Round-25 survivor (MutC1Counts M5b): the other direction of the K11 comparison, an unstated file change."
+    },
+    {
+      "id": "M31",
+      "title": "Census case count in the round-26 operability row lowered by one (K13)",
+      "targets": ["K13"],
+      "declared_rule": "SCORECARD.md:795 — K13: the operability row's `N cases` equals the case count printed by `bash tools/tsukuroi-census.sh --selftest` on `git archive <REV>`.",
+      "stage": "final",
+      "preconditions": [
+        {"file": "SCORECARD.md", "text": "## Axes — current self-assessment (round 26)"}
+      ],
+      "edits": [
+        {"op": "row_sub", "file": "SCORECARD.md", "section": "^## Axes — current self-assessment \\(round 26\\)", "row": "operability",
+         "pattern": "PASS \\((\\d+) cases", "repl": "PASS ({g1} cases", "offsets": {"1": -1}}
+      ],
+      "expected": {"exit_code": 1, "expected_failing_checks": ["K13"], "verdict": "killed", "mismatches": 1},
+      "rationale": "Round-25 survivor (MutC1Counts M7): the stated case count is compared against a live re-run of the census at the mutated revision, so it must mismatch."
+    }
+  ]
+}

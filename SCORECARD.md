@@ -924,3 +924,12 @@ Wave-1 seats CritClaimSizing, CritLearningFrontier, CritC2Construction, SrcSmart
 - C2 limits (CritClaimSizing, CritC2Construction). K24 to K27 detect a supersession notice in a cited note's first 20 lines, which is where this lane puts whole-note notices (`root-dac-decision-r12.md:7`); appended statement-level errata, `.json` companions and box 4's citation of a superseded PROVINCE paragraph are not counted. Box 4's evidence line is still repaired in text, and the lesson says that repair is not counted.
 - Tool pinning. Both counting tools are committed in a commit before any round-26 entry, table or SOURCES row: `tools/check-storage-health.py` sha256 `6aadca511ca664b641c2a0b920a51c65057b53520fdf9a09108d6839d7bcf367` (41-case selftest, exit 0) and `tools/check-self-assessment.py` sha256 `77c946a91635ab76aa9869a786e4d206d37b3e52c00b80ec1f4c09a17be0c26d` (13-case selftest, exit 0). The measured revision must carry these bytes; any later change to either tool is disclosed and re-measured.
 - Separability, corrected (CritClaimSizing). C1's new files change counts that C2's K07 to K11 read, so C2 is measured at the final revision only; C1 reads nothing C2 changes.
+
+## Round 26 correction to the round-25 record — two in-place edits, not one (appended 2026-10-22)
+
+Routed defect 1 of `corpus/lessons/round-25-verifier-spotcheck.md`. Round 25 made two in-place edits to files this lane keeps append-only or canonical, and its lesson section "Record of the one in-place edit" named only the second, so that record was incomplete.
+
+1. `SCORECARD.md:51`, the calibration row of the round-11 axes table, changed in commit `c93bd70f`. Original wording at `b9046016`: "the claim→re-measure→append→supersede→rule loop with its mismeasure rows". Wording after `c93bd70f`: "the claim→re-measure→append→supersede→rule loop for rounds 1 to 9". The original stands as the round-11 record; the round-25 wording is withdrawn as an undisclosed in-place rewrite. This correction is appended and line 51 is not edited again.
+2. `SHONEN.md` box 2 evidence line, `observation/request` changed to `observation and request` (disclosed in the round-25 lesson).
+
+Sweep that finds them: `git diff -U0 b9046016 e9f5356c -- SCORECARD.md LOG.md corpus/QUALITY.md corpus/SOURCES.md SHONEN.md | grep -E '^-[^-]'` prints exactly these two removed lines. Round 26's own in-place edits are the three SHONEN.md evidence lines of boxes 1, 3 and 4, recorded in `corpus/lessons/round-26.md`.

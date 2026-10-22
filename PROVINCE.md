@@ -150,3 +150,25 @@ commit and blob sha256, so the locator is portable without the table's abbreviat
 R20-OUT009: OUT-009 is Revenger's sibling declaration of reverse engineering of shipped artifacts — native binaries, managed assemblies, Electron/JavaScript packages, Android APKs, archives, firmware, browser/Electron runtime evidence. It is not a tsukuroi grant of ownership. Kaidoku/Revenger arbitration remains unresolved; ask the protocol integrator before an internals handoff. No configuration, service, package, boot or sibling-file write is authorized.
 
 This explicitly supersedes only the OUT-009 proposition's unqualified “Revenger owns” wording and its broad “packages” paraphrase. The original quoted declaration and pinned bytes remain historical evidence; “Electron/JavaScript packages” is the precise package scope, not arbitrary packages. ADJ-06's unresolved recipient and Frontier arbitration remain controlling. The other nine locators and all prepared/acknowledged handoff states are unchanged. Source: the pinned Revenger snapshot in `corpus/knowledge/adjacency-anchors-r19.json`; recheck: `python3 tools/check-adjacency-anchors.py --revision <REV> --ownership-corrections`.
+
+## Round-26 frontier — storage integrity
+
+**Round-26 frontier: storage integrity.** Btrfs device error counters, scrub
+records and NVMe health enter this province as a frontier area of the OS
+substrate. The lane reads the five per-device btrfs error counters (write,
+read, flush, corruption, generation) as the filesystem exposes them in its
+sysfs `error_stats` file and as the `btrfs device stats` query reports them;
+it reads the scrub record the filesystem keeps (`btrfs scrub status` and the
+shipped `btrfs-scrub@.timer` unit), and it reads the NVMe SMART/Health
+lifetime fields (`smartctl -H -A`, `nvme smart-log`). Detection and report
+only: the same boundary that governs the Core surfaces above applies here.
+What stays out of the province — disk-space runway and free-capacity
+reporting remain mori's (`../mori-shokunin/PROVINCE.md:26`, the `SURFACE disk`
+row with its default `df -P` targets), and filesystem repair, running a
+scrub, resetting an error counter and firmware updates remain operator-owned.
+This area becomes Core only after a census arm exists; until then it is
+Frontier and the knowledge entry is the record of the reading
+(`corpus/knowledge/storage-health-r26.md`, rows SH1 to SH6; gate
+`python3 tools/check-storage-health.py --revision <REV>`, field
+`verified_rows`). No package, service, mount, scrub, counter-reset,
+firmware or configuration action is authorized by this paragraph.

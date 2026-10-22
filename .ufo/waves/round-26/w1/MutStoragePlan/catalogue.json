@@ -1,0 +1,1026 @@
+{
+ "schema": "tsukuroi-storage-health-mutants-r26-v1",
+ "claim": "C1",
+ "lane": "tsukuroi-shokunin",
+ "round": 26,
+ "written_by": "TsukuroiR26.MutStoragePlan",
+ "written_at": "2026-10-22",
+ "status": "pre-design. The entry corpus/knowledge/storage-health-r26.json, the tool tools/check-storage-health.py, the round-26 lesson corpus/lessons/round-26.md and the committed source snapshots do not exist yet. Every op is declared against the file names and the JSON shape fixed by the round-26 declaration (SCORECARD.md:895-897), so the catalogue applies unchanged once the L1 lands them.",
+ "rule_source": {
+  "file": "SCORECARD.md",
+  "section": "Round 26 - declaration, attempt 1",
+  "row_semantics_line": 895,
+  "row_rule_line": 897,
+  "capture_clause_line": 899,
+  "note": "The C1 row rule is one sentence-long paragraph at SCORECARD.md:897. Each mutant below names the clause it attacks."
+ },
+ "detector": {
+  "tool": "tools/check-storage-health.py",
+  "argv": [
+   "--revision",
+   "<COMMIT_SHA>"
+  ],
+  "repo_flag": "--repo",
+  "expected_baseline": {
+   "verified_rows": 6,
+   "exit": 0
+  },
+  "kill_rule": "A mutant is killed when the detector does not report verified_rows == 6 with exit 0. It survived when the detector still reports (6, 0). A mutant whose edit cannot be applied, or whose detector run crashed, is inconclusive, never killed.",
+  "baseline_rule": "The pristine sandbox must first report (6, 0). If the baseline is not (6, 0) every mutant verdict is inconclusive, because a failing baseline cannot kill a mutant.",
+  "finding_ids": "The predicted finding ids below follow the round-25 convention (tools/check-memory-pressure.py:844-905, ids like MP-SOURCE-STATUS-NOT-MINED). They are predictions, marked finding_is_prediction; the runner records the actual ids the detector prints.",
+  "note": "The detector does not exist yet. The runner reads its --help to learn whether it accepts --repo; if it does not, the runner runs the sandbox copy of the tool with the working directory set to the sandbox."
+ },
+ "target_files": {
+  "entry_json": "corpus/knowledge/storage-health-r26.json",
+  "entry_md": "corpus/knowledge/storage-health-r26.md",
+  "sources": "corpus/SOURCES.md",
+  "lesson": "corpus/lessons/round-26.md",
+  "skill": "SKILL.md",
+  "capture": ".ufo/waves/round-26/capture/capture.txt",
+  "capture_sha256": "002bef16de9bfbffff7905904a1e7f44dae486ca2e60f38090ac2a87132a71dd",
+  "snapshots_dir": ".ufo/waves/round-26/sources"
+ },
+ "entry_shape": {
+  "rows": [
+   "id",
+   "statement",
+   "verdict",
+   "action",
+   "sources[]",
+   "quotes[]",
+   "capture_pointers[]"
+  ],
+  "quote_text_key": "text",
+  "quote_text_key_fallback": "quote",
+  "quote_source_key": "source",
+  "quote_source_key_fallback": "source_id",
+  "pointer_keys": [
+   "line",
+   "token"
+  ],
+  "note": "The task fixes rows[].id, verdict, action, sources, quotes[].text and capture_pointers[].line/token. The runner resolves the quote text key as text, then quote, and the quote source key as source, then source_id, so the catalogue survives the round-25 naming (quote) as well as the declared naming (text).",
+  "json_serialisation": "JSON mutants re-serialise the entry with indent=1 and a trailing newline, keeping key order. The whole-file diff is therefore larger than the semantic delta; the semantic delta is the one named in the mutant."
+ },
+ "capture_facts": {
+  "lines": 241,
+  "line_1": "### header",
+  "line_2": "$ date -u +%Y-%m-%dT%H:%M:%SZ",
+  "line_4": "[exit 0]",
+  "non_unique_examples": {
+   "dup": [
+    79,
+    100
+   ],
+   "total_bytes": [
+    66,
+    87,
+    108
+   ]
+  },
+  "note": "Line numbers are 1-based into the frozen capture at sha256 002bef16de9bfbffff7905904a1e7f44dae486ca2e60f38090ac2a87132a71dd. The runner locates the non-unique line by text, not by number, so the locator survives a re-frozen capture."
+ },
+ "op_vocabulary": {
+  "json_row_duplicate": "append a second copy of the row object with the given id",
+  "json_row_delete": "delete the row with the given id",
+  "json_row_clone_with_id": "append a copy of row `from` with its id replaced by `id`",
+  "json_row_set": "set one field of the row with the given id to `value`",
+  "json_row_text_append": "append `suffix` to the text field of the row",
+  "json_quote_set": "set the quote text of the row's quotes to `text`",
+  "json_quote_lengthen": "pad the quote text with filler words to exactly `words` words",
+  "json_quote_mangle": "mutation `collapse_first_space`: replace the first space with an underscore, else append `x`",
+  "json_quote_source_set": "set the quote source id of the row quotes to `value`",
+  "json_capture_pointers_set": "replace every capture pointer of the row with one {line, token}",
+  "json_capture_pointers_token_set": "replace every capture pointer token of the row with `value`",
+  "json_capture_pointers_empty": "empty the capture pointer list of the row",
+  "sources_row_set": "set one cell of the corpus/SOURCES.md registry row of the target source ids",
+  "gate_quote_mangle": "mutate the quoted text inside the lesson Gate table row of the target source id",
+  "gate_row_delete": "delete the lesson Gate table row of the target source id",
+  "snapshot_byte_change": "append a trailing space to the committed snapshot of the target source id",
+  "skill_first_cell_set": "set the first cell of the row's table line inside the SKILL.md section to `value`",
+  "skill_row_delete": "delete the row's table line inside the SKILL.md section",
+  "skill_row_move_out": "move the row's table line to the end of SKILL.md, outside the section",
+  "skill_section_rename": "rename the SKILL.md section heading",
+  "capture_append_line": "append one line to the frozen capture",
+  "file_delete": "delete a file",
+  "json_row_add_source": "append one source id to the row sources list"
+ },
+ "mutants": [
+  {
+   "id": "SHM01",
+   "rule": "R1 ids: the entry holds exactly the ids SH1 to SH6, each once; a duplicate id is an error, never a second count",
+   "clause": "SCORECARD.md:897 - 'holds exactly the ids SH1 to SH6, each once (a duplicate id is an error, never a second count)'",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_row_duplicate",
+    "row": "SH3"
+   },
+   "expectation": {
+    "verified_rows": 0,
+    "exit": 1,
+    "finding": "SH-ROW-ID-DUPLICATE",
+    "finding_is_prediction": true,
+    "expectation": "killed",
+    "verified_rows_range": [
+     0,
+     5
+    ],
+    "notes_extra": "A tool that counts rows instead of ids reports 7 and exit 0; that is a survivor and a real hole in the \"each once\" clause."
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "The duplicated row is otherwise valid. A tool that counts rows instead of ids reports 7 and exit 0; that is a survivor and a real hole in the 'each once' clause."
+  },
+  {
+   "id": "SHM02",
+   "rule": "R1 ids: exactly SH1 to SH6",
+   "clause": "SCORECARD.md:897",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_row_delete",
+    "row": "SH5"
+   },
+   "expectation": {
+    "verified_rows": 0,
+    "exit": 1,
+    "finding": "SH-ROW-ID-SET",
+    "finding_is_prediction": true,
+    "expectation": "killed",
+    "verified_rows_range": [
+     0,
+     5
+    ],
+    "notes_extra": "The row set is wrong, so a tool that treats the set as a global finding reports verified_rows 0; a per-row reading gives 5. Either way the exit must not be 0."
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "A missing row is the simplest way to under-count. The row set is wrong, so a tool that treats the set as a global finding reports verified_rows 0; both readings are killed."
+  },
+  {
+   "id": "SHM03",
+   "rule": "R1 ids: exactly SH1 to SH6 (no extra id)",
+   "clause": "SCORECARD.md:897",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_row_clone_with_id",
+    "from": "SH1",
+    "id": "SH7"
+   },
+   "expectation": {
+    "verified_rows": 0,
+    "exit": 1,
+    "finding": "SH-ROW-ID-SET",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "The clone is a fully valid row with a seventh id. verified_rows 0 is the round-25 convention for a wrong row id set (a global block sets the count to 0); a per-row reading gives 6 with exit 1. Either way the exit must not be 0."
+  },
+  {
+   "id": "SHM04",
+   "rule": "R1 ids: exactly SH1 to SH6 (id spelling)",
+   "clause": "SCORECARD.md:897",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_row_set",
+    "row": "SH6",
+    "field": "id",
+    "value": "SH06"
+   },
+   "expectation": {
+    "verified_rows": 0,
+    "exit": 1,
+    "finding": "SH-ROW-ID-SET",
+    "finding_is_prediction": true,
+    "expectation": "killed",
+    "verified_rows_range": [
+     0,
+     5
+    ],
+    "notes_extra": "A zero-padded id must not pass as SH6. If the tool normalises ids before comparing, this survives."
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "A zero-padded id must not pass as SH6. If the tool normalises ids before comparing, this survives."
+  },
+  {
+   "id": "SHM05",
+   "rule": "R2 fields: the row has a verdict from HEALTHY, DEGRADED, BLOCKED, UNVERIFIED",
+   "clause": "SCORECARD.md:897 - 'a verdict (HEALTHY, DEGRADED, BLOCKED or UNVERIFIED)'",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_row_set",
+    "row": "SH1",
+    "field": "verdict",
+    "value": "OK"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-VERDICT-INVALID",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "A free-text verdict must not count as one of the four."
+  },
+  {
+   "id": "SHM06",
+   "rule": "R2 fields: the row has a verdict",
+   "clause": "SCORECARD.md:897",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_row_set",
+    "row": "SH2",
+    "field": "verdict",
+    "value": ""
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-VERDICT-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "An empty verdict is not a verdict. A tool that defaults a missing verdict to a constant survives here."
+  },
+  {
+   "id": "SHM07",
+   "rule": "R2 fields: the row has a non-empty statement",
+   "clause": "SCORECARD.md:897 - 'the row has a non-empty statement'",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_row_set",
+    "row": "SH3",
+    "field": "statement",
+    "value": ""
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-STATEMENT-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "An empty statement carries no claim and must not count."
+  },
+  {
+   "id": "SHM08",
+   "rule": "R2 fields: the row has an action",
+   "clause": "SCORECARD.md:897 - 'and an action'",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_row_set",
+    "row": "SH4",
+    "field": "action",
+    "value": ""
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-ACTION-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "An empty action is not an action."
+  },
+  {
+   "id": "SHM09",
+   "rule": "R2 fields: the verdict vocabulary is the four upper-case states",
+   "clause": "SCORECARD.md:897",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_row_set",
+    "row": "SH5",
+    "field": "verdict",
+    "value": "healthy"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-VERDICT-INVALID",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "Case-folded acceptance is a reading of the rule, not the rule. A tool that lower-cases before comparing survives this mutant; that survivor is a wording question for the L1, not a silent hole."
+  },
+  {
+   "id": "SHM10",
+   "rule": "R3 sources: every cited source is a corpus/SOURCES.md row with status mined",
+   "clause": "SCORECARD.md:897 - 'every source it cites is a corpus/SOURCES.md row with status mined'",
+   "file": "corpus/SOURCES.md",
+   "op": {
+    "type": "sources_row_set",
+    "column": "status",
+    "value": "queued",
+    "targets": {
+     "from_entry_rows": [
+      "SH3"
+     ]
+    }
+   },
+   "expectation": {
+    "verified_rows": null,
+    "exit": 1,
+    "finding": "SH-SOURCE-STATUS-NOT-MINED",
+    "finding_is_prediction": true,
+    "expectation": "killed",
+    "verified_rows_range": [
+     0,
+     5
+    ],
+    "notes_extra": "The mutated sources may also be cited by another row, in which case that row fails too and the count falls further."
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "Every source the row cites is demoted, so the row loses its evidence whatever the source set is."
+  },
+  {
+   "id": "SHM11",
+   "rule": "R3 sources: every cited source was opened 2026-10-22",
+   "clause": "SCORECARD.md:897 - 'opened 2026-10-22'",
+   "file": "corpus/SOURCES.md",
+   "op": {
+    "type": "sources_row_set",
+    "column": "opened",
+    "value": "2026-10-21",
+    "targets": {
+     "from_entry_rows": [
+      "SH4"
+     ]
+    }
+   },
+   "expectation": {
+    "verified_rows": null,
+    "exit": 1,
+    "finding": "SH-SOURCE-OPENED-STALE",
+    "finding_is_prediction": true,
+    "expectation": "killed",
+    "verified_rows_range": [
+     0,
+     5
+    ],
+    "notes_extra": "The mutated sources may also be cited by another row, in which case that row fails too and the count falls further."
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "One day earlier. A tool that accepts any opened date, or that honours a recheck log the C1 rule does not grant, survives here."
+  },
+  {
+   "id": "SHM12",
+   "rule": "R3 sources: every cited source names corpus/knowledge/storage-health-r26.md in used-by",
+   "clause": "SCORECARD.md:897 - 'used-by naming corpus/knowledge/storage-health-r26.md'",
+   "file": "corpus/SOURCES.md",
+   "op": {
+    "type": "sources_row_set",
+    "column": "used-by",
+    "value": "corpus/knowledge/memory-pressure-r25.md",
+    "targets": {
+     "from_entry_rows": [
+      "SH5"
+     ]
+    }
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-SOURCE-USED-BY-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "The used-by cell names another entry, so the source is not credited to this entry. A tool that accepts any corpus/knowledge path survives."
+  },
+  {
+   "id": "SHM13",
+   "rule": "R3 sources: at least one cited source is tier A",
+   "clause": "SCORECARD.md:897 - 'at least one cited source is tier A'",
+   "file": "corpus/SOURCES.md",
+   "op": {
+    "type": "sources_row_set",
+    "column": "tier",
+    "value": "B",
+    "targets": {
+     "from_entry_rows": [
+      "SH1",
+      "SH2",
+      "SH3",
+      "SH4",
+      "SH5",
+      "SH6"
+     ]
+    }
+   },
+   "expectation": {
+    "verified_rows": 0,
+    "exit": 1,
+    "finding": "SH-SOURCE-TIER-NO-A",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "Every tier A source of the whole entry is demoted to B. Each row then fails the tier clause, so the count must fall to 0."
+  },
+  {
+   "id": "SHM14",
+   "rule": "R3 sources: every cited source is a corpus/SOURCES.md row",
+   "clause": "SCORECARD.md:897",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_row_add_source",
+    "row": "SH6",
+    "value": "S999"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-SOURCE-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "S999 is never a registry row. The other sources of SH6 stay valid, so a tool that only checks the first source survives. The runner verifies S999 is absent from corpus/SOURCES.md before applying the edit."
+  },
+  {
+   "id": "SHM15",
+   "rule": "R4 quote: at least one quote of at most 25 words",
+   "clause": "SCORECARD.md:897 - 'at least one quote of at most 25 words'",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_quote_lengthen",
+    "row": "SH1",
+    "words": 26
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-QUOTE-TOO-LONG",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "Every quote of the row is padded to 26 words, so no short quote survives. If the row carries a second, shorter quote that the padding skips, the row may still count: the runner pads all quotes and the catalogue records the word counts it found."
+  },
+  {
+   "id": "SHM16",
+   "rule": "R4 quote: the quote text is a whitespace-normalised substring of the committed snapshot",
+   "clause": "SCORECARD.md:897 - 'whose whitespace-normalised text is a substring of the committed snapshot'",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_quote_mangle",
+    "row": "SH2"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-QUOTE-NOT-IN-SNAPSHOT",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "One space becomes an underscore, so the text is no longer a substring of the snapshot. The lesson Gate cell is untouched, so this mutant also breaks the Gate equality; a tool that checks only the Gate cell survives it."
+  },
+  {
+   "id": "SHM17",
+   "rule": "R4 quote: the snapshot's sha256 is written in the source's anchor cell",
+   "clause": "SCORECARD.md:897 - 'the committed snapshot .ufo/waves/round-26/sources/<S###>.* whose sha256 is written in that source's anchor cell'",
+   "file": ".ufo/waves/round-26/sources",
+   "op": {
+    "type": "snapshot_byte_change",
+    "targets": {
+     "from_entry_rows": [
+      "SH3"
+     ]
+    }
+   },
+   "expectation": {
+    "verified_rows": null,
+    "exit": 1,
+    "finding": "SH-SNAPSHOT-DIGEST-MISMATCH",
+    "finding_is_prediction": true,
+    "expectation": "killed",
+    "verified_rows_range": [
+     0,
+     5
+    ],
+    "notes_extra": "The mutated snapshot may back a source that another row also cites, in which case that row fails too."
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "A trailing space changes the snapshot's digest, so the anchor cell no longer matches and the quote may no longer be a substring. The runner records the digest before and after the edit."
+  },
+  {
+   "id": "SHM18",
+   "rule": "R4 quote: the snapshot's sha256 is written in the source's anchor cell",
+   "clause": "SCORECARD.md:897",
+   "file": "corpus/SOURCES.md",
+   "op": {
+    "type": "sources_row_set",
+    "column": "anchor",
+    "mutation": "replace_sha256",
+    "targets": {
+     "from_entry_rows": [
+      "SH4"
+     ]
+    }
+   },
+   "expectation": {
+    "verified_rows": null,
+    "exit": 1,
+    "finding": "SH-SNAPSHOT-DIGEST-MISMATCH",
+    "finding_is_prediction": true,
+    "expectation": "killed",
+    "verified_rows_range": [
+     0,
+     5
+    ],
+    "notes_extra": "The mutated anchor may belong to a source that another row also cites, in which case that row fails too."
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "The anchor cell keeps a 64-hex digest, but not the snapshot's. A tool that only checks the digest's shape survives."
+  },
+  {
+   "id": "SHM19",
+   "rule": "R4 quote: the same quote text appears in that source's row of the lesson Gate table",
+   "clause": "SCORECARD.md:897 - 'the same quote text appears in that source's row of the lesson ## Gate table (a quote mismatch blocks the row; it is never only a finding)'",
+   "file": "corpus/lessons/round-26.md",
+   "op": {
+    "type": "gate_quote_mangle",
+    "targets": {
+     "from_entry_rows": [
+      "SH5"
+     ]
+    }
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-QUOTE-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "The entry quote is untouched; only the lesson Gate cell changes, so the two no longer agree. A tool that reports the mismatch as a finding but still counts the row survives - that is exactly the 'never only a finding' clause."
+  },
+  {
+   "id": "SHM20",
+   "rule": "R4 quote: the same quote text appears in that source's row of the lesson Gate table",
+   "clause": "SCORECARD.md:897",
+   "file": "corpus/lessons/round-26.md",
+   "op": {
+    "type": "gate_row_delete",
+    "targets": {
+     "from_entry_rows": [
+      "SH6"
+     ]
+    }
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-QUOTE-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "The Gate row for the cited source is gone. If the row carries a second source with a surviving Gate row, the row may still count; the runner records the number of surviving Gate rows for the row's sources."
+  },
+  {
+   "id": "SHM21",
+   "rule": "R4 quote: the quote is bound to the source it is attributed to",
+   "clause": "SCORECARD.md:897",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_quote_source_set",
+    "row": "SH1",
+    "value": "S999"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-QUOTE-SOURCE-UNKNOWN",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "The quote text is unchanged and still a substring of some snapshot, but it is now attributed to a source that does not exist. A tool that never reads the quote's source field survives."
+  },
+  {
+   "id": "SHM22",
+   "rule": "R5 pointer: the pointed line contains the token",
+   "clause": "SCORECARD.md:897 - 'contains the token'",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_capture_pointers_token_set",
+    "row": "SH1",
+    "value": "ZZZabsenttoken"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-CAPTURE-POINTER-TOKEN-ABSENT",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "The line numbers stay valid and the token is long enough, but the token is absent from the line. Every pointer of the row is broken, so the row has no usable pointer."
+  },
+  {
+   "id": "SHM23",
+   "rule": "R5 pointer: the token is at least 3 characters",
+   "clause": "SCORECARD.md:897 - 'a token of at least 3 characters'",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_capture_pointers_token_set",
+    "row": "SH2",
+    "value": "ok"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-CAPTURE-POINTER-TOKEN-SHORT",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "A two-character token is too short even when the line contains it."
+  },
+  {
+   "id": "SHM24",
+   "rule": "R5 pointer: the pointed line is not a '### ' header",
+   "clause": "SCORECARD.md:897 - 'is not a ### header'",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_capture_pointers_set",
+    "row": "SH3",
+    "line": 1,
+    "token": "header"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-CAPTURE-POINTER-HEADER",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "Line 1 of the frozen capture is '### header'. The token is present in the line, so only the header clause can catch it."
+  },
+  {
+   "id": "SHM25",
+   "rule": "R5 pointer: the pointed line is not a '$ ' command echo",
+   "clause": "SCORECARD.md:897 - 'a $ command echo'",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_capture_pointers_set",
+    "row": "SH4",
+    "line": 2,
+    "token": "date"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-CAPTURE-POINTER-ECHO",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "Line 2 is the '$ date -u +%Y-%m-%dT%H:%M:%SZ' echo. The token 'date' is present in the line, so only the echo clause can catch it."
+  },
+  {
+   "id": "SHM26",
+   "rule": "R5 pointer: the pointed line is not an '[exit ' line",
+   "clause": "SCORECARD.md:897 - 'an [exit line'",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_capture_pointers_set",
+    "row": "SH5",
+    "line": 4,
+    "token": "exit"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-CAPTURE-POINTER-EXIT",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "Line 4 is '[exit 0]'. The line is also non-unique in the capture, so a tool that reports both findings is fine; the kill is what matters."
+  },
+  {
+   "id": "SHM27",
+   "rule": "R5 pointer: the pointed line is unique in the capture",
+   "clause": "SCORECARD.md:897 - 'whose line is unique in the capture'",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_capture_pointers_set",
+    "row": "SH6",
+    "line_by_text": "dup",
+    "token": "dup"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-CAPTURE-POINTER-NOT-UNIQUE",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "The text 'dup' occurs at lines 79 and 100 of the frozen capture, so the pointed line is not unique. The runner locates the first such line by text at run time."
+  },
+  {
+   "id": "SHM28",
+   "rule": "R5 pointer: the row carries at least one capture pointer",
+   "clause": "SCORECARD.md:897 - 'it carries at least one capture pointer (line number and token of at least 3 characters)'",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_capture_pointers_empty",
+    "row": "SH2"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-CAPTURE-POINTER-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "A row with no pointer at all has no host evidence."
+  },
+  {
+   "id": "SHM29",
+   "rule": "capture digest: the capture is pinned at sha256 002bef16de9bfbffff7905904a1e7f44dae486ca2e60f38090ac2a87132a71dd",
+   "clause": "SCORECARD.md:897 - 'pinned at sha256 002bef16de9bfbffff7905904a1e7f44dae486ca2e60f38090ac2a87132a71dd'",
+   "file": ".ufo/waves/round-26/capture/capture.txt",
+   "op": {
+    "type": "capture_append_line",
+    "line": "# mutant marker line"
+   },
+   "expectation": {
+    "verified_rows": null,
+    "exit": 2,
+    "finding": "SH-CAPTURE-TAMPERED",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "exit != 0 (exit 2 is the expected cannot-evaluate answer)",
+   "notes": "The rule says a capture with a different digest exits 2, never a pass. A tool that re-reads the digest from the entry instead of the pinned constant survives this mutant."
+  },
+  {
+   "id": "SHM30",
+   "rule": "capture: a missing capture exits 2",
+   "clause": "SCORECARD.md:897 - 'A missing capture, a capture with a different digest or a missing entry exits 2 (could not evaluate), never a pass'",
+   "file": ".ufo/waves/round-26/capture/capture.txt",
+   "op": {
+    "type": "file_delete",
+    "file": ".ufo/waves/round-26/capture/capture.txt"
+   },
+   "expectation": {
+    "verified_rows": null,
+    "exit": 2,
+    "finding": "SH-CAPTURE-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "exit != 0 (exit 2 is the expected cannot-evaluate answer)",
+   "notes": "Deleting the capture must not be read as an empty, error-free capture."
+  },
+  {
+   "id": "SHM31",
+   "rule": "entry: a missing entry exits 2",
+   "clause": "SCORECARD.md:897",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "file_delete",
+    "file": "corpus/knowledge/storage-health-r26.json"
+   },
+   "expectation": {
+    "verified_rows": null,
+    "exit": 2,
+    "finding": "SH-ENTRY-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "exit != 0 (exit 2 is the expected cannot-evaluate answer)",
+   "notes": "A missing entry is not a zero-row pass and not a zero-row fail of another kind; the rule names exit 2."
+  },
+  {
+   "id": "SHM32",
+   "rule": "R6 SKILL: a table line whose first cell is exactly the row id",
+   "clause": "SCORECARD.md:897 - 'SKILL.md has a table line whose first cell is exactly the row id inside the section ## Storage integrity - round 26'",
+   "file": "SKILL.md",
+   "op": {
+    "type": "skill_first_cell_set",
+    "row": "SH1",
+    "value": "SH-1"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-SKILL-ROW-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "'exactly' means a normalised spelling must not count. A tool that matches the id anywhere in the line survives."
+  },
+  {
+   "id": "SHM33",
+   "rule": "R6 SKILL: a table line whose first cell is exactly the row id",
+   "clause": "SCORECARD.md:897",
+   "file": "SKILL.md",
+   "op": {
+    "type": "skill_row_delete",
+    "row": "SH2"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-SKILL-ROW-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "The SKILL table line for the row is removed."
+  },
+  {
+   "id": "SHM34",
+   "rule": "R6 SKILL: the table line is inside the section ## Storage integrity - round 26",
+   "clause": "SCORECARD.md:897",
+   "file": "SKILL.md",
+   "op": {
+    "type": "skill_row_move_out",
+    "row": "SH3"
+   },
+   "expectation": {
+    "verified_rows": 5,
+    "exit": 1,
+    "finding": "SH-SKILL-ROW-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed"
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "The line keeps its id but leaves the section, so the section bound is broken. A tool that searches the whole file survives."
+  },
+  {
+   "id": "SHM35",
+   "rule": "R6 SKILL: the section ## Storage integrity - round 26 exists",
+   "clause": "SCORECARD.md:897",
+   "file": "SKILL.md",
+   "op": {
+    "type": "skill_section_rename",
+    "to": "## Storage integrity round 26"
+   },
+   "expectation": {
+    "verified_rows": null,
+    "exit": 1,
+    "finding": "SH-SKILL-SECTION-MISSING",
+    "finding_is_prediction": true,
+    "expectation": "killed",
+    "verified_rows_range": [
+     0,
+     0
+    ],
+    "exit_allowed": [
+     1,
+     2
+    ],
+    "notes_extra": "The em dash is dropped from the heading. Every row loses its SKILL anchor at once, so the count must fall to 0. A tool that finds the section by a loose substring survives. The rule names only a missing capture, a changed capture digest and a missing entry as exit 2, so a missing section is expected to be exit 1; exit 2 is tolerated because the round-25 tool also exits 2 on a missing SKILL file."
+   },
+   "kill": "verified_rows != 6 or exit != 0",
+   "notes": "The em dash is dropped from the heading. Every row loses its SKILL anchor at once, so the count must fall to 0. A tool that finds the section by a loose substring survives."
+  },
+  {
+   "id": "SHM36",
+   "rule": "control: a wording change inside a row that breaks no rule must not change the count",
+   "clause": "control mutant, no clause attacked",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_row_text_append",
+    "row": "SH1",
+    "field": "statement",
+    "suffix": " "
+   },
+   "expectation": {
+    "verified_rows": 6,
+    "exit": 0,
+    "finding": null,
+    "finding_is_prediction": false,
+    "expectation": "survive"
+   },
+   "kill": "a survivor is the expected result; the mutant proves the harness does not kill every edit",
+   "notes": "Control. The detector must still report (6, 0)."
+  },
+  {
+   "id": "SHM37",
+   "rule": "control: a wording change inside a row that breaks no rule must not change the count",
+   "clause": "control mutant, no clause attacked",
+   "file": "corpus/knowledge/storage-health-r26.json",
+   "op": {
+    "type": "json_row_text_append",
+    "row": "SH2",
+    "field": "action",
+    "suffix": " (re-checked 2026-10-22)"
+   },
+   "expectation": {
+    "verified_rows": 6,
+    "exit": 0,
+    "finding": null,
+    "finding_is_prediction": false,
+    "expectation": "survive"
+   },
+   "kill": "a survivor is the expected result; the mutant proves the harness does not kill every edit",
+   "notes": "Control. The detector must still report (6, 0)."
+  }
+ ],
+ "coverage_map": {
+  "ids": [
+   "SHM01",
+   "SHM02",
+   "SHM03",
+   "SHM04"
+  ],
+  "verdict": [
+   "SHM05",
+   "SHM06",
+   "SHM07",
+   "SHM08",
+   "SHM09"
+  ],
+  "sources_mined": [
+   "SHM10"
+  ],
+  "sources_opened": [
+   "SHM11"
+  ],
+  "sources_used_by": [
+   "SHM12"
+  ],
+  "sources_tier": [
+   "SHM13"
+  ],
+  "sources_registered": [
+   "SHM14"
+  ],
+  "quote_length": [
+   "SHM15"
+  ],
+  "quote_not_in_snapshot": [
+   "SHM16"
+  ],
+  "snapshot_digest": [
+   "SHM17",
+   "SHM18"
+  ],
+  "gate_quote": [
+   "SHM19",
+   "SHM20"
+  ],
+  "quote_source": [
+   "SHM21"
+  ],
+  "pointer_token": [
+   "SHM22",
+   "SHM23"
+  ],
+  "pointer_header": [
+   "SHM24"
+  ],
+  "pointer_echo": [
+   "SHM25"
+  ],
+  "pointer_exit": [
+   "SHM26"
+  ],
+  "pointer_duplicate": [
+   "SHM27"
+  ],
+  "pointer_present": [
+   "SHM28"
+  ],
+  "capture_digest": [
+   "SHM29",
+   "SHM30"
+  ],
+  "entry_present": [
+   "SHM31"
+  ],
+  "skill_first_cell": [
+   "SHM32",
+   "SHM33"
+  ],
+  "skill_section": [
+   "SHM34",
+   "SHM35"
+  ],
+  "controls": [
+   "SHM36",
+   "SHM37"
+  ]
+ },
+ "counts": {
+  "mutants": 37,
+  "rule_attacking": 35,
+  "controls": 2,
+  "expected_killed": 35,
+  "expected_survived": 2
+ }
+}

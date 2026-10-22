@@ -229,3 +229,16 @@ Append-only; the bullets above stay as written. The `Pending mkinitcpio 42 upgra
 ### Round-24 notice erratum after falsification
 
 This is stronger evidence on an existing Core surface, not new coverage or a frontier promotion. The open boot work includes both the untested snapshot path and the round-17 watch for upstream removal of the `/new_root` compatibility symlink (lines 152-153). Round 17 had already superseded the pending-upgrade phrasing at lines 149-151. Boot 0 supporting Plymouth reaching the real root is an inference, not a directly logged initramfs result. The old “`-Sy` never run since” line is falsified by the logged bare sync at round-24 `l1-4/capture.txt:221`, not by mirror promotion. The old installed/package figures at the start of this index are dated historical captures; current package-state observations are in `knowledge/pause-lift-gate-r24.md`, including its wave-2 corrections.
+
+## Round 26 — storage integrity (frontier area of the OS substrate)
+
+Append-only; the coverage map and Frontier bullets above stay as written.
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/storage-health-r26.md` and `.json` | New ground: six sourced rows on btrfs integrity and NVMe health. SH1 the five per-device error counters and their two views; SH2 the counters are a stored lifetime total, only error-level kernel lines date an error; SH3 scrub repairs only from a replica, so `single` data errors are uncorrectable and NOCOW file data is not verified; SH4 no scrub record exists on this host (`UNVERIFIED`); SH5 smartctl's PASSED is the Critical Warning byte alone; SH6 NVMe lifetime counters, including Unexpected Power Losses (labelled Unsafe Shutdowns), are not dated events | S128 to S135, S139; `lessons/round-26.md` Gate; capture `.ufo/waves/round-26/capture/capture.txt` |
+
+### Frontier (round-26 addition)
+
+- Storage integrity is a frontier area, not Core: it becomes Core only after a read-only census arm reads it (shape proposed in `.ufo/waves/round-26/w1/ScoutHostSurfaces.md`). Disk-space runway stays with mori; scrub runs, counter resets, profile changes and firmware updates stay operator-owned.
+- The unopened lead at `SOURCES.md` line 214 (btrfs scrub documentation and btrfs-progs release notes) is now opened and mined as S129 and S139 for btrfs-progs v7.1.
