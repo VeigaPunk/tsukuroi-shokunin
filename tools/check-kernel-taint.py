@@ -14,8 +14,17 @@ one revision.  A row counts only when every one of these rules holds at <REV>:
   R4  the row carries at least one quote of at most 25 words whose whitespace-
       normalised text is a substring of the committed snapshot
       .ufo/waves/round-27/sources/<S###>.* whose sha256 is written in that source's
-      anchor cell, and the same quote text appears in that source's row of the
-      lesson corpus/lessons/round-27.md `## Gate` table
+      anchor cell, and the same quote text equals the located-quote cell (one outer
+      pair of quotes or backticks removed) of that source's row of the lesson
+      corpus/lessons/round-27.md `## Gate` table (round 27 code; the earlier
+      "appears in" wording was R27-CHECKER-DOC-LAG)
+  Round-28 tightenings (QUALITY 72; each can only refuse):
+  R4a every quote has at least 2 words and at least 16 non-whitespace
+      characters (a one-word quote such as "kernel" shows nothing)
+  R4b a quote's source id must be one of the row's own cited sources
+      (KT-QUOTE-SOURCE-UNKNOWN is blocking, no longer advisory)
+  R4c Gate quotes are read only from the section whose heading title is
+      exactly `Gate`, and a Gate row's source id only from its Source column
   R5  the row carries at least one capture pointer (line number and token of at
       least 3 characters) into .ufo/waves/round-27/capture/capture.txt, pinned at
       sha256 88d02d98cbb5fd4633ff83cacb2256ac57af1d740c7c57b6ac7a98fceb067841,
@@ -65,6 +74,8 @@ SCHEMA_PREFIX = 'tsukuroi-kernel-taint-r27'
 ROW_IDS = ('KT1', 'KT2', 'KT3', 'KT4', 'KT5', 'KT6')
 ROUND_DATE = '2026-10-22'
 MAX_QUOTE_WORDS = 25
+MIN_QUOTE_WORDS = 2
+MIN_QUOTE_CHARS = 16
 MIN_TOKEN_CHARS = 3
 VERDICTS = ('HEALTHY', 'DEGRADED', 'BLOCKED', 'UNVERIFIED')
 
@@ -329,7 +340,7 @@ def gate_quotes(text):
     findings = []
     conforming = False
     for title, lines in sections(text):
-        if not title or 'gate' not in title.lower():
+        if title != 'Gate':
             continue
         for block in raw_table_blocks(lines):
             if not block:
@@ -347,7 +358,8 @@ def gate_quotes(text):
                 continue
             conforming = True
             for raw in block[1:]:
-                sid = first_id(raw)
+                cells = split_cells(raw)
+                sid = first_id(cells[source_col]) if source_col < len(cells) else None
                 if sid is None:
                     # A line of the Gate table that names no source is not a
                     # Gate record; it is recorded, never read as one.
@@ -689,11 +701,15 @@ def evaluate(reader, expected_capture_sha=CAPTURE_SHA256):
                 detail['checks']['source_known'] = False
             else:
                 detail['checks']['source_known'] = True
-                if row_sources and sid not in row_sources:
-                    note_row('KT-QUOTE-SOURCE-UNKNOWN', sid, blocking=False)
+                if sid not in row_sources:
+                    note_row('KT-QUOTE-SOURCE-UNKNOWN', '%s: %s' % (row_id, sid))
             detail['checks']['length'] = word_count(quote_text) <= MAX_QUOTE_WORDS
             if not detail['checks']['length']:
                 note_row('KT-QUOTE-TOO-LONG', '%s: %s' % (row_id, sid))
+            detail['checks']['min_length'] = (word_count(quote_text) >= MIN_QUOTE_WORDS
+                                              and len(''.join(quote_text.split())) >= MIN_QUOTE_CHARS)
+            if not detail['checks']['min_length']:
+                note_row('KT-QUOTE-TOO-SHORT', '%s: %s' % (row_id, sid))
             if not isinstance(sid, str) or sid not in snapshots:
                 detail['checks']['snapshot'] = False
                 note_row('KT-SNAPSHOT-MISSING', '%s: %s' % (row_id, sid))
@@ -1310,6 +1326,26 @@ def selftest():
     files[ENTRY] = json.dumps(entry)
     case('alternate-key-names', files,
          {'exit': 0, 'verified_rows': 6, 'findings': []})
+
+    # 41-45. round 28, R4a to R4c (QUALITY 72): each must refuse
+    for shape, short in (('one-word', 'kernel'), ('two-short-words', 'the cat')):
+        files, sha = build_fixture(snapshot_quotes={'S128': short}, gate_quotes_map={'S128': short},
+                                   entry_quotes={'S128': short})
+        case('r4a-quote-too-short-%s' % shape, files,
+             {'exit': 1, 'verified_rows': 5, 'findings': ['KT-QUOTE-TOO-SHORT']})
+    files, sha = entry_case(row_mutator('KT1', lambda r: r['quotes'].append(
+        {'source': FIXTURE_SOURCES[1], 'quote': FIXTURE_QUOTES[1]})))
+    case('r4b-quote-source-not-cited', files,
+         {'exit': 1, 'verified_rows': 5, 'findings': ['KT-QUOTE-SOURCE-UNKNOWN']})
+    files, sha = build_fixture()
+    files[LESSON] = files[LESSON].replace('## Gate\n', '## Things to investigate\n')
+    case('r4c-gate-heading-not-exact', files,
+         {'exit': 1, 'verified_rows': 0, 'findings': ['KT-GATE-HEADER-MISSING', 'KT-GATE-QUOTE-MISSING']})
+    files, sha = build_fixture()
+    files[LESSON] = files[LESSON].replace(
+        gate_line, '| see notes | https://example.invalid/S128 | 2026-10-22 | "%s" | S128 lines 1-2 |' % FIXTURE_QUOTES[0])
+    case('r4c-gate-source-outside-source-cell', files,
+         {'exit': 1, 'verified_rows': 5, 'findings': ['KT-GATE-QUOTE-MISSING']})
 
     observations = []
     for name, case_files, expect in cases:
