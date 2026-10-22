@@ -1,0 +1,145 @@
+diff --git a/tools/mutants-adjacency-overlap.py b/tools/mutants-adjacency-overlap.py
+index b7a559e..eef9f46 100755
+--- a/tools/mutants-adjacency-overlap.py
++++ b/tools/mutants-adjacency-overlap.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Should-fail register battery for tools/check-adjacency-overlap.py (round 28, claim C1). Every subprocess this battery starts runs without inherited GIT_* variables.
++"""Should-fail register battery for tools/check-adjacency-overlap.py (round 28, claim C1). Every subprocess follows the round-30 git child environment contract: inherited GIT_* and user configuration are isolated, HOME is private, PATH is fixed, and repository discovery is sandbox-ceilinged.
+ 
+ Origin: round-27 wave-2 seat CritC2Tool's driver (`.ufo/waves/round-27/w2a2/CritC2Tool.md`),
+ made reproducible from committed bytes: the lane data is `git archive <--base>` into a private
+@@ -16,9 +16,12 @@ Read-only on the lane; writes only under a fresh tempfile.mkdtemp() directory, r
+ import argparse, atexit, copy, hashlib, io, json, os, shutil, subprocess, sys, tarfile, tempfile
+ 
+ def clean_env():
+-    # inherited GIT_* removed; global and system git config (hooks, templates) ignored (round 29, SentinelGitEnv)
+     env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+-    env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull})
++    env.update({
++        'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
++        'HOME': HOME, 'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
++        'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': os.path.dirname(ROOT),
++    })
+     return env
+ 
+ _ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+@@ -32,6 +35,8 @@ _ap.add_argument('--keep', action='store_true', help='keep the temporary sandbox
+ ARGS = _ap.parse_args()
+ 
+ ROOT = tempfile.mkdtemp(prefix='mut-adj-')
++HOME = os.path.join(ROOT, 'home')
++os.mkdir(HOME)
+ if not ARGS.keep:
+     atexit.register(shutil.rmtree, ROOT, True)
+ TREE = ROOT + '/tree'
+diff --git a/tools/mutants-kernel-taint.py b/tools/mutants-kernel-taint.py
+index 901d862..3139c90 100755
+--- a/tools/mutants-kernel-taint.py
++++ b/tools/mutants-kernel-taint.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Should-fail data battery for tools/check-kernel-taint.py (round 28, claim C2). Every subprocess this battery starts runs without inherited GIT_* variables.
++"""Should-fail data battery for tools/check-kernel-taint.py (round 28, claim C2). Every subprocess follows the round-30 git child environment contract: inherited GIT_* and user configuration are isolated, HOME is private, PATH is fixed, and repository discovery is sandbox-ceilinged.
+ 
+ Origin: round-27 wave-2 seat CritC1Tool's harness
+ (`.ufo/waves/round-27/w2a2/CritC1Tool/mutants.py`); the mutate functions are carried unchanged.
+@@ -30,9 +30,12 @@ import tempfile
+ from pathlib import Path
+ 
+ def clean_env():
+-    # inherited GIT_* removed; global and system git config (hooks, templates) ignored (round 29, SentinelGitEnv)
+     env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+-    env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull})
++    env.update({
++        'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
++        'HOME': str(HOME), 'XDG_CONFIG_HOME': str(HOME / '.config'),
++        'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': str(SEAT.parent),
++    })
+     return env
+ 
+ _ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+@@ -45,6 +48,8 @@ _ap.add_argument('--keep', action='store_true')
+ ARGS = _ap.parse_args()
+ 
+ SEAT = Path(tempfile.mkdtemp(prefix='mut-kt-'))
++HOME = SEAT / 'home'
++HOME.mkdir()
+ if not ARGS.keep:
+     atexit.register(shutil.rmtree, str(SEAT), True)
+ TREE = SEAT / 'tree'
+@@ -83,7 +88,8 @@ SOURCES = 'corpus/SOURCES.md'
+ 
+ 
+ def git(*args, check=True):
+-    return subprocess.run(['git', '-C', str(REPO), *args], check=check,
++    return subprocess.run(['git', '-C', str(REPO), '-c', 'user.name=CritC1Tool',
++                           '-c', 'user.email=seat@invalid', *args], check=check,
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=clean_env())
+ 
+ 
+diff --git a/tools/mutants-owed-statements-r29-landed.py b/tools/mutants-owed-statements-r29-landed.py
+index a70e895..0b4f91a 100755
+--- a/tools/mutants-owed-statements-r29-landed.py
++++ b/tools/mutants-owed-statements-r29-landed.py
+@@ -7,8 +7,9 @@ control is built on the marker-free declaration commit: this battery starts from
+ already carries the twelve landed markers (`--base`, e.g. the round-29 tip) and mutates one item's
+ marker or its support per shape.  The data is a private clone of `--lane` under a fresh temporary
+ directory (never the lane); the counter is `<--counter-rev>:tools/check-owed-statements-r29.py` or
+-`--counter-file`; every git child runs with inherited GIT_* removed and global/system config at
+-/dev/null.
++`--counter-file`; every subprocess follows the round-30 git child environment contract: inherited
++GIT_* and user configuration are isolated, HOME is private, PATH is fixed, and repository discovery
++is sandbox-ceilinged.
+ 
+ Expectations: `fail` = mechanically checkable should-fail shape (the item must not be counted);
+ `semantic` = should-fail by meaning only (relevance of a cited source or path, sense of `now`): it is
+@@ -32,12 +33,18 @@ _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspa
+ _ap.add_argument('--keep', action='store_true')
+ ARGS = _ap.parse_args()
+ ENV = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+-ENV.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_SYSTEM=os.devnull, GIT_CONFIG_NOSYSTEM='1')
+ _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
+ SEAT = tempfile.mkdtemp(prefix='mut-owed-landed-', dir=_parent)
+ if not ARGS.keep:
+     atexit.register(shutil.rmtree, SEAT, True)
+ REPO = os.path.join(SEAT, 'repo')
++HOME = os.path.join(SEAT, 'home')
++os.mkdir(HOME)
++ENV.update({
++    'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull, 'GIT_CONFIG_NOSYSTEM': '1',
++    'HOME': HOME, 'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
++    'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
++})
+ subprocess.run(['git', 'clone', '-q', '--no-local', ARGS.lane, REPO], check=True, env=ENV, capture_output=True)
+ BASE = subprocess.run(['git', '-C', REPO, 'rev-parse', '--verify', ARGS.base + '^{commit}'], check=True,
+                       env=ENV, capture_output=True, text=True).stdout.strip()
+diff --git a/tools/mutants-owed-statements-r29.py b/tools/mutants-owed-statements-r29.py
+index afb7544..f508b3f 100755
+--- a/tools/mutants-owed-statements-r29.py
++++ b/tools/mutants-owed-statements-r29.py
+@@ -8,7 +8,9 @@ lines 20, 30, 40, 50, all blank) are repointed to the non-blank correction lines
+ because counter version 2 refuses a blank cited line.  Made reproducible: the data is a private clone of `--lane` (never the lane itself) under a
+ fresh temporary directory, checked out at `--base`; the counter is the blob
+ `<--counter-rev>:tools/check-owed-statements-r29.py` or `--counter-file`, copied into the clone
+-before every run.  Every git child runs with all inherited GIT_* variables removed.
++before every run. Every subprocess follows the round-30 git child environment contract: inherited
++GIT_* and user configuration are isolated, HOME is private, PATH is fixed, and repository discovery
++is sandbox-ceilinged.
+ 
+ Shapes: C0 control (all twelve markers in the documented shape; must be 12 of 12); expectation
+ `fail`, `fail-cleanly` or `refuse-ok` = should-fail (the shape's item must NOT be counted, and the
+@@ -37,6 +39,13 @@ SEAT = tempfile.mkdtemp(prefix='mut-owed-', dir=_parent)
+ if not ARGS.keep:
+     atexit.register(shutil.rmtree, SEAT, True)
+ REPO = os.path.join(SEAT, 'repo')
++HOME = os.path.join(SEAT, 'home')
++os.mkdir(HOME)
++ENV.update({
++    'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
++    'HOME': HOME, 'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
++    'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
++})
+ subprocess.run(['git', 'clone', '-q', '--no-local', ARGS.lane, REPO], check=True, env=ENV, capture_output=True)
+ BASE = subprocess.run(['git', '-C', REPO, 'rev-parse', '--verify', ARGS.base + '^{commit}'], check=True,
+                       env=ENV, capture_output=True, text=True).stdout.strip()

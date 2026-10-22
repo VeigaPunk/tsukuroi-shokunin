@@ -14,6 +14,13 @@ or list-prefixed code, italic, bold or look-alike ids, quotes off the cited line
 that are not new, not mined or not opened this round, snapshots outside the evidence tree, and
 host values missing from the capture.
 
+Version 2 of the battery (round-30 wave 1) adds F47-F50 (MutCounterC1 survivors), F51-F72
+(CritCounterShapes: tag stripping in text snapshots, blank or shared cited lines, substring
+tokens, host values that are not measurements, markers in raw HTML blocks or outside a table,
+withdrawn or non-object rows, registry rows outside the registry table, symlinked snapshots)
+and should-pass P07-P11 (over-strict cases of counter version 1); P04 and P05 now place the
+closed fence and comments before the table, because a comment line inside a table ends it.
+
 Usage: python3 tools/mutants-btrfs-space-r30.py [--counter <path>] [--keep]
 Output: one JSON line per shape, then a summary JSON line with `control`,
 `should_fail_accepted`, `should_fail_total`, `should_pass_refused`, `should_pass_total`,
@@ -35,6 +42,7 @@ TOKENS = {'D01': 'unallocated', 'D02': 'global reserve', 'D03': 'usage', 'D04': 
           'D05': 'reclaim', 'D06': 'allocation', 'D07': 'snapshot', 'D08': 'metadata',
           'D09': 'data', 'D10': 'global_rsv'}
 HOST = ('D08', 'D09', 'D10')
+CAPKEY = {'D08': 'allocation/metadata/bytes_used', 'D09': 'unallocated bytes', 'D10': 'allocation/global_rsv_size'}
 HEADER = ('| id | source | kind | tier | scope | anchor | teaches | status | opened | recheck | used-by |\n'
           '|---|---|---|---|---|---|---|---|---|---|---|\n')
 
@@ -56,7 +64,7 @@ def base_fixture():
                'quote': 'explains the %s behaviour of the filesystem' % tok}
         if rid in HOST:
             cap = '%s/capture-%s.txt' % (EV, rid)
-            files[cap] = '# capture for %s\nvalue %d bytes\n' % (rid, 1000 + i)
+            files[cap] = '# capture for %s\n%s: %d\n' % (rid, CAPKEY[rid], 1000 + i)
             row.update({'capture': cap, 'capture_line': 2, 'value': str(1000 + i)})
             row['statement'] += ' The host value was %s bytes at capture time.' % row['value']
         rows.append(row)
@@ -150,7 +158,7 @@ SHOULD_FAIL = [
     ('F22-host-statement-lacks-value', 'D08', m_row('D08', lambda r, fl: r.__setitem__('statement', 'The fixture statement for row D08 says one concrete thing about btrfs space use here.'))),
     ('F23-host-value-not-integer', 'D08', m_row('D08', lambda r, fl: r.__setitem__('value', 'about 1007'))),
     ('F24-host-capture-missing', 'D09', m_row('D09', lambda r, fl: r.__setitem__('capture', EV + '/nope.txt'))),
-    ('F25-host-value-digit-prefix', 'D10', m_row('D10', lambda r, fl: fl.__setitem__(r['capture'], '# c\nvalue 21009 bytes\n'))),
+    ('F25-host-value-digit-prefix', 'D10', m_row('D10', lambda r, fl: fl.__setitem__(r['capture'], '# c\nallocation/global_rsv_size: 21009\n'))),
     ('F26-marker-missing', 'D01', m_skill_line('D01', lambda l: [])),
     ('F27-marker-in-fence', 'D01', m_skill_line('D01', lambda l: ['```', l, '```'])),
     ('F28-marker-in-tilde-fence', 'D01', m_skill_line('D01', lambda l: ['~~~~', l, '~~~~'])),
@@ -178,9 +186,99 @@ SHOULD_PASS = [
     ('P01-quote-wraps-two-lines', snap_edit('D01', lambda t: t.replace('the unallocated behaviour of the filesystem', 'the unallocated\nbehaviour of the filesystem'))),
     ('P02-html-snapshot-tags-entities', None),
     ('P03-quote-extra-whitespace', m_row('D02', lambda r, fl: r.__setitem__('quote', '  explains  the global reserve\tbehaviour of the filesystem '))),
-    ('P04-closed-fence-and-comment-before', m_skill_line('D03', lambda l: ['```', 'code', '```', '<!-- c -->', l])),
-    ('P05-empty-comment-line-before', m_skill_line('D04', lambda l: ['<!-->', l])),
+    ('P04-closed-fence-and-comment-before', lambda fl, rw: sub_skill(fl, '# SKILL\n', '# SKILL\n\n```\ncode\n```\n<!-- c -->\n')),
+    ('P05-empty-comment-line-before', lambda fl, rw: sub_skill(fl, '# SKILL\n', '# SKILL\n\n<!-->\n')),
     ('P06-escaped-pipe-in-source-row', set_reg('S905', 'Fixture source S905', 'Fixture \\| source S905')),
+]
+
+# ---- version 2 shapes (round-30 wave 1: MutCounterC1 survivors F47-F50, CritCounterShapes F51-F72,
+# CritCounterShapes over-strict cases P07-P11). Counter version 1 accepts many of them; that is
+# recorded in the receipts, and the declared claim is still judged on version 1.
+
+def _set_line(rid, n, text):
+    def f(files, rows):
+        r = row(rows, rid)
+        lines = files[r['snapshot']].split('\n')
+        lines[n - 1] = text
+        files[r['snapshot']] = '\n'.join(lines)
+    return f
+
+
+def _chain(*fns):
+    def f(files, rows):
+        for fn in fns:
+            fn(files, rows)
+    return f
+
+
+def _copy_snapshot_alias(files, rows):
+    d1, d2 = row(rows, 'D01'), row(rows, 'D02')
+    files[d1['snapshot']] = files[d1['snapshot']].replace(
+        'of the filesystem in detail.', 'of the filesystem and the global reserve behaviour in detail.')
+    copy_path = EV + '/S901-copy.txt'
+    files[copy_path] = files[d1['snapshot']]
+    d2.update({'snapshot': copy_path, 'line': 2, 'quote': 'and the global reserve behaviour in detail'})
+
+
+def _move_reg_row(where):
+    def f(files, rows):
+        lines = files['corpus/SOURCES.md'].split('\n')
+        i = next(k for k, l in enumerate(lines) if l.startswith('| S900 |'))
+        moved = lines.pop(i)
+        if where == 'fence':
+            lines += ['', '```', moved, '```']
+        else:
+            lines += ['', '| id | note | x | x | x | x | x | status | opened | x | x |',
+                      '|---|---|---|---|---|---|---|---|---|---|---|', moved]
+        files['corpus/SOURCES.md'] = '\n'.join(lines) + '\n'
+    return f
+
+
+def _cap_line(rid, text):
+    return m_row(rid, lambda r, fl: fl.__setitem__(r['capture'], '# capture\n' + text + '\n'))
+
+
+SHOULD_FAIL += [
+    ('F47-snapshot-dotdot-resolves-inside-tree', 'D01', m_row('D01', lambda r, fl: (fl.__setitem__(EV + '/../S900.txt', fl[r['snapshot']]), r.__setitem__('snapshot', EV + '/../S900.txt')))),
+    ('F48-quote-exists-outside-cited-window', 'D01', _chain(_set_line('D01', 3, 'x' * 256), m_row('D01', lambda r, fl: r.__setitem__('line', 3)))),
+    ('F49-capture-outside-evidence-prefix', 'D08', m_row('D08', lambda r, fl: (fl.__setitem__('corpus/cap.txt', fl[r['capture']]), r.__setitem__('capture', 'corpus/cap.txt')))),
+    ('F50-capture-dotdot-resolves-inside-tree', 'D08', m_row('D08', lambda r, fl: (fl.__setitem__(EV + '/../cap.txt', fl[r['capture']]), r.__setitem__('capture', EV + '/../cap.txt')))),
+    ('F51-tag-strip-inverts-text-snapshot', 'D01', _chain(_set_line('D01', 2, 'Metadata writes <- do not -> succeed when unallocated space is exhausted.'),
+                                                       m_row('D01', lambda r, fl: r.__setitem__('quote', 'Metadata writes succeed when unallocated space is exhausted')))),
+    ('F52-blank-cited-line', 'D01', _chain(_set_line('D01', 1, ''), m_row('D01', lambda r, fl: r.__setitem__('line', 1)))),
+    ('F53-quote-starts-at-end-of-previous-line', 'D01', m_row('D01', lambda r, fl: (r.__setitem__('line', 1), r.__setitem__('quote', 'S900 This fixture sentence explains the unallocated behaviour')))),
+    ('F54-identical-snapshot-copy-reused', 'D02', _copy_snapshot_alias),
+    ('F55-path-alias-dot-component', 'D01', m_row('D01', lambda r, fl: r.__setitem__('snapshot', r['snapshot'].replace('/fixture/', '/./fixture/')))),
+    ('F56-token-only-inside-metadata', 'D09', _chain(snap_edit('D09', lambda t: t.replace('the data behaviour', 'the metadata behaviour')),
+                                                   m_row('D09', lambda r, fl: r.__setitem__('quote', 'explains the metadata behaviour of the filesystem')))),
+    ('F57-token-only-inside-duplicate', 'D04', _chain(snap_edit('D04', lambda t: t.replace('the DUP behaviour', 'the duplicate behaviour')),
+                                                    m_row('D04', lambda r, fl: r.__setitem__('quote', 'explains the duplicate behaviour of the filesystem')))),
+    ('F58-host-value-from-date-line', 'D08', _chain(_cap_line('D08', 'captured 2026-10-22'), m_row('D08', lambda r, fl: (r.__setitem__('value', '2026'), r.__setitem__('statement', r['statement'] + ' 2026'))),
+                                                 m_skill_line('D08', lambda l: [l + ' 2026']))),
+    ('F59-statement-value-digit-extended', 'D08', m_row('D08', lambda r, fl: r.__setitem__('statement', 'The fixture statement for row D08 says one concrete thing about btrfs space use, value 10070 bytes.'))),
+    ('F60-host-value-from-other-key-line', 'D10', _cap_line('D10', 'allocation/data/total_bytes: 1009')),
+    ('F61-host-rows-share-capture-line', 'D09', m_row('D09', lambda r, fl: (r.__setitem__('capture', row_ref['D08']['capture']), r.__setitem__('capture_line', 2), r.__setitem__('value', '1007'),
+                                                                      r.__setitem__('statement', r['statement'] + ' 1007')))),
+    ('F62-marker-in-pre-block', 'D01', m_skill_line('D01', lambda l: ['<pre>', l, '</pre>'])),
+    ('F63-marker-in-script-block', 'D01', m_skill_line('D01', lambda l: ['<script>', l, '</script>'])),
+    ('F64-marker-outside-table-setext', 'D10', m_skill_line('D10', lambda l: ['', l, '==='])),
+    ('F65-marker-in-prose-paragraph', 'D10', m_skill_line('D10', lambda l: ['', 'some prose', l])),
+    ('F66-marker-in-details-no-blank', 'D10', m_skill_line('D10', lambda l: ['', '<details>', l, '</details>'])),
+    ('F67-withdrawn-lookalike-row', 'D01', lambda fl, rw: fl.__setitem__('__extrarow__', {'id': 'D01\u200b', 'status': 'withdrawn'})),
+    ('F68-top-level-withdrawn-key', 'D01', lambda fl, rw: fl.__setitem__('__toplevel__', True)),
+    ('F69-bare-string-row', 'D01', lambda fl, rw: fl.__setitem__('__extrarow__', 'D01 withdrawn')),
+    ('F70-source-row-in-fence', 'D01', _move_reg_row('fence')),
+    ('F71-source-row-in-second-table', 'D01', _move_reg_row('table')),
+    ('F72-snapshot-symlink', 'D01', lambda fl, rw: fl.__setitem__('__symlink__', True)),
+]
+
+SHOULD_PASS += [
+    ('P07-trailing-closed-comment-on-marker', m_skill_line('D03', lambda l: [l + ' <!-- reviewer note -->'])),
+    ('P08-comment-opener-in-code-span-earlier', lambda fl, rw: sub_skill(fl, '# SKILL\n', '# SKILL\n\nThe `<!--` sequence opens a comment.\n')),
+    ('P09-non-fence-backtick-line-earlier', lambda fl, rw: sub_skill(fl, '# SKILL\n', '# SKILL\n\n```a`b\n')),
+    ('P10-indented-code-showing-fence', lambda fl, rw: sub_skill(fl, '# SKILL\n', '# SKILL\n\n    ```bash\n')),
+    ('P11-angle-brackets-in-text-snapshot', _chain(_set_line('D06', 2, 'Path: /sys/fs/btrfs/<uuid>/allocation/ holds the files.'),
+                                                   m_row('D06', lambda r, fl: r.__setitem__('quote', 'Path: /sys/fs/btrfs/<uuid>/allocation/')))),
 ]
 
 row_ref = {}
@@ -188,7 +286,8 @@ row_ref = {}
 
 def p02(files, rows):
     r = row(rows, 'D05')
-    text = files[r['snapshot']].replace('the reclaim behaviour', 'the <code>reclaim</code> behaviour &amp;')
+    text = files.pop(r['snapshot']).replace('the reclaim behaviour', 'the <code>reclaim</code> behaviour &amp;')
+    r['snapshot'] = r['snapshot'][:-4] + '.html'
     files[r['snapshot']] = text
     sha = hashlib.sha256(text.encode()).hexdigest()
     lines = files['corpus/SOURCES.md'].split('\n')
@@ -233,18 +332,30 @@ def run_case(counter, work, name, mutate):
     nojson = files.pop('__nojson__', None)
     dupkey = files.pop('__dupkey__', None)
     rowsdict = files.pop('__rowsdict__', None)
+    toplevel = files.pop('__toplevel__', None)
+    extra_row = files.pop('__extrarow__', None)
+    symlink = files.pop('__symlink__', None)
     if not nojson:
         text = dump(rows)
         if dupkey:
             text = text.replace('"id": "D01"', '"id": "D01", "id": "D01"', 1)
         if rowsdict:
             text = json.dumps({'rows': {r['id']: r for r in rows}})
+        if toplevel:
+            text = json.dumps({'rows': rows, 'withdrawn': ['D01']})
+        if extra_row is not None:
+            text = json.dumps({'rows': rows + [extra_row]})
         files['corpus/knowledge/btrfs-space-r30.json'] = text
     for path, content in files.items():
         full = os.path.join(d, path)
         os.makedirs(os.path.dirname(full), exist_ok=True)
         with open(full, 'w', encoding='utf-8') as fh:
             fh.write(content)
+    if symlink:
+        r = row(rows, 'D01')
+        full = os.path.join(d, r['snapshot'])
+        os.rename(full, full + '.target')
+        os.symlink(os.path.basename(full) + '.target', full)
     bs = os.path.join(work, name + '.base-sources.md')
     with open(bs, 'w', encoding='utf-8') as fh:
         fh.write(base_sources)

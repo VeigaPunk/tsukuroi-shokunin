@@ -40,12 +40,14 @@ one) sets verified_rows to 0, so exit 0 and verified_rows == 6 always agree.
 Scope: a count of evidence links in committed bytes.  It does not re-measure
 the host, does not decide whether memory pressure is healthy, and does not
 authorize any service, package or boot action.
+Git subprocesses, including selftest fixtures, use the round-30 child-environment contract.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -98,6 +100,37 @@ def norm(text):
     return ' '.join(str(text).split())
 
 
+def git_env(temp_dir):
+    home = os.path.join(temp_dir, 'home')
+    os.mkdir(home)
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith('GIT_')}
+    env.update({
+        'GIT_CONFIG_NOSYSTEM': '1',
+        'GIT_CONFIG_GLOBAL': os.devnull,
+        'GIT_CONFIG_SYSTEM': os.devnull,
+        'HOME': home,
+        'XDG_CONFIG_HOME': os.path.join(home, '.config'),
+        'PATH': '/usr/bin:/bin',
+        'GIT_OPTIONAL_LOCKS': '0',
+        'GIT_PAGER': 'cat',
+        'LC_ALL': 'C',
+        'GIT_CEILING_DIRECTORIES': os.path.dirname(os.path.abspath(temp_dir)),
+    })
+    return env
+
+
+def revision_bind(repo, revision, branch):
+    with tempfile.TemporaryDirectory(prefix='memory-pressure-revision-') as tmp:
+        env = git_env(tmp)
+        clean_env = _revision.clean_env
+        _revision.clean_env = lambda: dict(env)
+        try:
+            return _revision.bind(repo, revision, branch)
+        finally:
+            _revision.clean_env = clean_env
+
+
 def git_reader(repo, sha):
     """Read a path at a revision as bytes, through git only."""
     def read(path):
@@ -105,9 +138,10 @@ def git_reader(repo, sha):
             return None
         if '..' in path.split('/'):
             return None
-        proc = subprocess.run(['git', '--no-pager', '-C', str(repo), 'show', '%s:%s' % (sha, path)],
-                              stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                              env=_revision.clean_env(), timeout=30)
+        with tempfile.TemporaryDirectory(prefix='memory-pressure-git-') as tmp:
+            proc = subprocess.run(['git', '--no-pager', '-C', str(repo), 'show', '%s:%s' % (sha, path)],
+                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                  env=git_env(tmp), timeout=30)
         return proc.stdout if proc.returncode == 0 else None
     return read
 
@@ -867,7 +901,7 @@ def run_fixture(files, expect):
     """Commit a fixture into a throwaway repository and evaluate it there."""
     with tempfile.TemporaryDirectory(prefix='tsukuroi-mp-st-') as tmp:
         repo = Path(tmp) / 'repo'
-        env = dict(_revision.clean_env())
+        env = git_env(tmp)
         subprocess.run(['git', 'init', '--quiet', str(repo)], check=True, env=env)
         for path, content in files.items():
             target = repo / path
@@ -1106,7 +1140,7 @@ def main(argv=None):
     if args.selftest:
         return selftest()
     try:
-        binding = _revision.bind(ROOT, args.revision, args.branch)
+        binding = revision_bind(ROOT, args.revision, args.branch)
     except _revision.RevisionError as exc:
         print(json.dumps({'status': 'CANNOT_EVALUATE', 'findings': [{'id': exc.fid, 'site': exc.site}]}))
         return 2

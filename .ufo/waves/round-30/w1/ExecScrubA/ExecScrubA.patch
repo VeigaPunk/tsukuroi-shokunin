@@ -1,0 +1,346 @@
+diff --git a/tools/check-adjacency-overlap.py b/tools/check-adjacency-overlap.py
+index 4069753..27cc78c 100755
+--- a/tools/check-adjacency-overlap.py
++++ b/tools/check-adjacency-overlap.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Count anchored rows of the round-27 mori overlap register (claim C2). The git helper removes inherited GIT_* variables for every git subprocess.
++"""Count anchored rows of the round-27 mori overlap register (claim C2). Git subprocesses, including selftest fixtures, use the round-30 child-environment contract.
+ 
+ Rule (SCORECARD.md, "Round 27 — declaration, attempt 1"), every input read
+ through git at --revision:
+@@ -72,10 +72,27 @@ def norm(text):
+     return ' '.join((text or '').split())
+ 
+ 
++def git_env(temp_dir):
++    home = os.path.join(temp_dir, 'home')
++    os.mkdir(home)
++    env = {key: value for key, value in os.environ.items()
++           if not key.startswith('GIT_')}
++    env.update({
++        'GIT_CONFIG_NOSYSTEM': '1',
++        'GIT_CONFIG_GLOBAL': os.devnull,
++        'GIT_CONFIG_SYSTEM': os.devnull,
++        'HOME': home,
++        'XDG_CONFIG_HOME': os.path.join(home, '.config'),
++        'PATH': '/usr/bin:/bin',
++        'GIT_CEILING_DIRECTORIES': os.path.dirname(os.path.abspath(temp_dir)),
++    })
++    return env
++
++
+ def git(repo, *args):
+-    return subprocess.run(['git', '-C', repo] + list(args), capture_output=True,
+-                          env=dict({k: v for k, v in os.environ.items() if not k.startswith('GIT_')},
+-                                   **{'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull}))
++    with tempfile.TemporaryDirectory(prefix='adjacency-git-') as tmp:
++        return subprocess.run(['git', '-C', repo] + list(args), capture_output=True,
++                              env=git_env(tmp))
+ 
+ 
+ def show(repo, rev, path):
+diff --git a/tools/check-freshness-r17.py b/tools/check-freshness-r17.py
+index 737c5c1..d86a160 100755
+--- a/tools/check-freshness-r17.py
++++ b/tools/check-freshness-r17.py
+@@ -35,6 +35,7 @@ revision, branch, branch_tip, resolved_records and record_count.
+ Exit 0 pass, 1 failed, 2 could-not-evaluate.  No writes, no network, no
+ host queries.  --selftest is hermetic (in-memory fixtures plus one mktemp
+ git repository for the binding contract).
++Git subprocesses, including the selftest Python child, use the round-30 child-environment contract.
+ """
+ from __future__ import annotations
+ 
+@@ -322,20 +323,47 @@ def emit(result, revision, branch, branch_tip):
+     return result.code
+ 
+ 
+-def git_in(root, *args, isolate=False):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+-    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+-    if isolate:
+-        env["GIT_CONFIG_GLOBAL"] = os.devnull
+-        env["GIT_CONFIG_SYSTEM"] = os.devnull
+-    try:
+-        return subprocess.run(["git", "--no-pager", "-C", str(root), *args],
+-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+-                              env=env, timeout=30)
+-    except subprocess.TimeoutExpired:
+-        raise Cannot("E-GIT-TIMEOUT", "git", "git command exceeded 30s")
+-    except OSError as exc:
+-        raise Cannot("E-GIT-FAILED", "git", str(exc)[:120])
++def git_env(temp_dir):
++    home = os.path.join(temp_dir, "home")
++    os.mkdir(home)
++    env = {key: value for key, value in os.environ.items()
++           if not key.startswith("GIT_")}
++    env.update({
++        "GIT_CONFIG_NOSYSTEM": "1",
++        "GIT_CONFIG_GLOBAL": os.devnull,
++        "GIT_CONFIG_SYSTEM": os.devnull,
++        "HOME": home,
++        "XDG_CONFIG_HOME": os.path.join(home, ".config"),
++        "PATH": "/usr/bin:/bin",
++        "GIT_CEILING_DIRECTORIES": os.path.dirname(os.path.abspath(temp_dir)),
++    })
++    return env
++
++def revision_call(function, *args):
++    with tempfile.TemporaryDirectory(prefix="freshness-r17-revision-") as tmp:
++        env = git_env(tmp)
++        env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
++        clean_env = _revision.clean_env
++        _revision.clean_env = lambda: dict(env)
++        try:
++            return function(*args)
++        finally:
++            _revision.clean_env = clean_env
++
++
++
++def git_in(root, *args):
++    with tempfile.TemporaryDirectory(prefix="freshness-r17-git-") as tmp:
++        env = git_env(tmp)
++        env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
++        try:
++            return subprocess.run(["git", "--no-pager", "-C", str(root), *args],
++                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
++                                  env=env, timeout=30)
++        except subprocess.TimeoutExpired:
++            raise Cannot("E-GIT-TIMEOUT", "git", "git command exceeded 30s")
++        except OSError as exc:
++            raise Cannot("E-GIT-FAILED", "git", str(exc)[:120])
+ 
+ 
+ def git(*args):
+@@ -469,7 +497,7 @@ def binding_sandbox():
+                      tools / "_revision.py")
+ 
+         def run(*args):
+-            return git_in(root, *args, isolate=True)
++            return git_in(root, *args)
+ 
+         if run("init", "-q", "-b", "master").returncode != 0:
+             return [("sandbox-init", "git init failed")]
+@@ -494,7 +522,7 @@ def binding_sandbox():
+ 
+         def expect(rev, want, branch="master"):
+             try:
+-                binding = _revision.bind(root, rev, branch)
++                binding = revision_call(_revision.bind, root, rev, branch)
+             except _revision.RevisionError as exc:
+                 return None if exc.fid == want else f"got {exc.fid}, want {want}"
+             if want is not None:
+@@ -505,10 +533,11 @@ def binding_sandbox():
+ 
+         def expect_cli(name, args, want):
+             try:
+-                proc = subprocess.run(
+-                    [sys.executable, str(tool), *args], cwd=root,
+-                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+-                    stderr=subprocess.PIPE, timeout=60)
++                with tempfile.TemporaryDirectory(prefix="freshness-r17-child-") as env_tmp:
++                    proc = subprocess.run(
++                        [sys.executable, str(tool), *args], cwd=root,
++                        stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
++                        stderr=subprocess.PIPE, timeout=60, env=git_env(env_tmp))
+             except (OSError, subprocess.TimeoutExpired) as exc:
+                 return (name, f"subprocess failed: {exc}")
+             try:
+@@ -768,14 +797,14 @@ def main(argv=None):
+         return selftest()
+     branch = args.branch
+     revision = args.revision
+-    tip = _revision.branch_tip(ROOT, branch)
++    tip = revision_call(_revision.branch_tip, ROOT, branch)
+     try:
+-        binding = _revision.bind(ROOT, args.revision, branch)
++        binding = revision_call(_revision.bind, ROOT, args.revision, branch)
+         revision = binding.sha
+         tip = binding.branch_tip
+         source = revision
+         if args.registry_from is not None:
+-            source = _revision.bind(ROOT, args.registry_from, branch).sha
++            source = revision_call(_revision.bind, ROOT, args.registry_from, branch).sha
+         registry_text = read_git(source, REGISTRY)
+         if args.registry_from is not None and registry_text is None:
+             return emit(Result(CANNOT, [Finding("E-REGISTRY-MISSING", REGISTRY,
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+index 0866d9a..0da3b0f 100644
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -44,12 +44,14 @@ tampered, registry missing, lesson missing).
+ Scope: a count of evidence links in committed bytes.  It does not re-measure the
+ host, does not decide whether the storage plane is healthy, and authorises no
+ package, service, scrub, counter reset or boot action.
++Git subprocesses, including selftest fixtures, use the round-30 child-environment contract.
+ """
+ from __future__ import annotations
+ 
+ import argparse
+ import hashlib
+ import json
++import os
+ import re
+ import subprocess
+ import sys
+@@ -244,6 +246,37 @@ def id_in_line(line, row_id):
+ # ------------------------------------------------------------------ git i/o
+ 
+ 
++def git_env(temp_dir):
++    home = os.path.join(temp_dir, 'home')
++    os.mkdir(home)
++    env = {key: value for key, value in os.environ.items()
++           if not key.startswith('GIT_')}
++    env.update({
++        'GIT_CONFIG_NOSYSTEM': '1',
++        'GIT_CONFIG_GLOBAL': os.devnull,
++        'GIT_CONFIG_SYSTEM': os.devnull,
++        'HOME': home,
++        'XDG_CONFIG_HOME': os.path.join(home, '.config'),
++        'PATH': '/usr/bin:/bin',
++        'GIT_OPTIONAL_LOCKS': '0',
++        'GIT_PAGER': 'cat',
++        'LC_ALL': 'C',
++        'GIT_CEILING_DIRECTORIES': os.path.dirname(os.path.abspath(temp_dir)),
++    })
++    return env
++
++
++def revision_bind(repo, revision, branch):
++    with tempfile.TemporaryDirectory(prefix='kernel-taint-revision-') as tmp:
++        env = git_env(tmp)
++        clean_env = _revision.clean_env
++        _revision.clean_env = lambda: dict(env)
++        try:
++            return _revision.bind(repo, revision, branch)
++        finally:
++            _revision.clean_env = clean_env
++
++
+ class GitReader:
+     """Read a repository at one revision; the working tree is never consulted."""
+ 
+@@ -252,9 +285,10 @@ class GitReader:
+         self.rev = rev
+ 
+     def _run(self, *args):
+-        return subprocess.run(['git', '--no-pager', '-C', self.repo, *args],
+-                              stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+-                              stderr=subprocess.PIPE, env=_revision.clean_env(), timeout=60)
++        with tempfile.TemporaryDirectory(prefix='kernel-taint-git-') as tmp:
++            return subprocess.run(['git', '--no-pager', '-C', self.repo, *args],
++                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
++                                  stderr=subprocess.PIPE, env=git_env(tmp), timeout=60)
+ 
+     def read(self, path):
+         """Bytes of one path at the bound revision, or None when absent."""
+@@ -981,7 +1015,7 @@ def run_fixture(files, expect):
+     """Commit a fixture into a throwaway repository and evaluate it there."""
+     with tempfile.TemporaryDirectory(prefix='tsukuroi-sh-st-') as tmp:
+         repo = Path(tmp) / 'repo'
+-        env = dict(_revision.clean_env())
++        env = git_env(tmp)
+         subprocess.run(['git', 'init', '--quiet', '--initial-branch=master', str(repo)],
+                        check=True, env=env)
+         for path, content in files.items():
+@@ -1403,7 +1437,7 @@ def main(argv=None):
+         return selftest()
+     repo = Path(args.repo).resolve()
+     try:
+-        binding = _revision.bind(repo, args.revision, args.branch)
++        binding = revision_bind(repo, args.revision, args.branch)
+     except _revision.RevisionError as exc:
+         print(json.dumps({'status': 'CANNOT_EVALUATE',
+                           'findings': [{'id': exc.fid, 'site': exc.site}]}))
+diff --git a/tools/check-memory-pressure.py b/tools/check-memory-pressure.py
+index b5642d8..80753ad 100755
+--- a/tools/check-memory-pressure.py
++++ b/tools/check-memory-pressure.py
+@@ -40,12 +40,14 @@ one) sets verified_rows to 0, so exit 0 and verified_rows == 6 always agree.
+ Scope: a count of evidence links in committed bytes.  It does not re-measure
+ the host, does not decide whether memory pressure is healthy, and does not
+ authorize any service, package or boot action.
++Git subprocesses, including selftest fixtures, use the round-30 child-environment contract.
+ """
+ from __future__ import annotations
+ 
+ import argparse
+ import hashlib
+ import json
++import os
+ import re
+ import subprocess
+ import sys
+@@ -98,6 +100,37 @@ def norm(text):
+     return ' '.join(str(text).split())
+ 
+ 
++def git_env(temp_dir):
++    home = os.path.join(temp_dir, 'home')
++    os.mkdir(home)
++    env = {key: value for key, value in os.environ.items()
++           if not key.startswith('GIT_')}
++    env.update({
++        'GIT_CONFIG_NOSYSTEM': '1',
++        'GIT_CONFIG_GLOBAL': os.devnull,
++        'GIT_CONFIG_SYSTEM': os.devnull,
++        'HOME': home,
++        'XDG_CONFIG_HOME': os.path.join(home, '.config'),
++        'PATH': '/usr/bin:/bin',
++        'GIT_OPTIONAL_LOCKS': '0',
++        'GIT_PAGER': 'cat',
++        'LC_ALL': 'C',
++        'GIT_CEILING_DIRECTORIES': os.path.dirname(os.path.abspath(temp_dir)),
++    })
++    return env
++
++
++def revision_bind(repo, revision, branch):
++    with tempfile.TemporaryDirectory(prefix='memory-pressure-revision-') as tmp:
++        env = git_env(tmp)
++        clean_env = _revision.clean_env
++        _revision.clean_env = lambda: dict(env)
++        try:
++            return _revision.bind(repo, revision, branch)
++        finally:
++            _revision.clean_env = clean_env
++
++
+ def git_reader(repo, sha):
+     """Read a path at a revision as bytes, through git only."""
+     def read(path):
+@@ -105,9 +138,10 @@ def git_reader(repo, sha):
+             return None
+         if '..' in path.split('/'):
+             return None
+-        proc = subprocess.run(['git', '--no-pager', '-C', str(repo), 'show', '%s:%s' % (sha, path)],
+-                              stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+-                              env=_revision.clean_env(), timeout=30)
++        with tempfile.TemporaryDirectory(prefix='memory-pressure-git-') as tmp:
++            proc = subprocess.run(['git', '--no-pager', '-C', str(repo), 'show', '%s:%s' % (sha, path)],
++                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
++                                  env=git_env(tmp), timeout=30)
+         return proc.stdout if proc.returncode == 0 else None
+     return read
+ 
+@@ -867,7 +901,7 @@ def run_fixture(files, expect):
+     """Commit a fixture into a throwaway repository and evaluate it there."""
+     with tempfile.TemporaryDirectory(prefix='tsukuroi-mp-st-') as tmp:
+         repo = Path(tmp) / 'repo'
+-        env = dict(_revision.clean_env())
++        env = git_env(tmp)
+         subprocess.run(['git', 'init', '--quiet', str(repo)], check=True, env=env)
+         for path, content in files.items():
+             target = repo / path
+@@ -1106,7 +1140,7 @@ def main(argv=None):
+     if args.selftest:
+         return selftest()
+     try:
+-        binding = _revision.bind(ROOT, args.revision, args.branch)
++        binding = revision_bind(ROOT, args.revision, args.branch)
+     except _revision.RevisionError as exc:
+         print(json.dumps({'status': 'CANNOT_EVALUATE', 'findings': [{'id': exc.fid, 'site': exc.site}]}))
+         return 2

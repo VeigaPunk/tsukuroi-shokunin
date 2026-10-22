@@ -1,0 +1,129 @@
+{
+ "entry": "btrfs-space-r30",
+ "round": 30,
+ "capture": ".ufo/waves/round-30/w1/ExecHostCapture/btrfs-allocation-capture.txt",
+ "capture_utc": "2026-10-22T21:16:37Z",
+ "host": {
+  "kernel": "7.2.11-arch1-1",
+  "btrfs_progs": "v7.1",
+  "fsid": "1d02a454-c549-4a35-b567-89d60902af8e"
+ },
+ "counter": "tools/check-btrfs-space-r30.py",
+ "rows": [
+  {
+   "id": "D01",
+   "statement": "When a btrfs filesystem has no unallocated device space left, the kernel keeps every metadata reservation inside the free space of already allocated metadata chunks, so metadata ENOSPC can occur while data block groups still show free space; read Device unallocated before anything else.",
+   "source": "S159",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcSpaceInfo/S159-space-info.c",
+   "line": 177,
+   "quote": "is no unallocated space to be had, all reservations are kept within the"
+  },
+  {
+   "id": "D02",
+   "statement": "Global reserve in btrfs filesystem usage is metadata held back for emergency work such as deleting files on a full filesystem; it is not free space, and the v7.2 kernel caps its size at 512 MiB (S156 line 394).",
+   "source": "S152",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcFsUsage/S152-btrfs-filesystem.rst",
+   "line": 418,
+   "quote": "Global reserve* -- portion of metadata currently used for global"
+  },
+  {
+   "id": "D03",
+   "statement": "A balance with a usage filter such as -dusage=N relocates only block groups under N percent used and returns the emptied chunks to unallocated space; usage=0 frees empty block groups without new work space. It is an operator write, never run by the lane.",
+   "source": "S153",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcBalance/S153-balance-filters.rst",
+   "line": 51,
+   "quote": "Balances only block groups with usage under the given percentage"
+  },
+  {
+   "id": "D04",
+   "statement": "On a single-device btrfs filesystem metadata defaults to the DUP profile, so every metadata byte occupies two bytes of raw device space; this host reports Metadata ratio 2.00 and metadata disk_total about twice metadata total_bytes.",
+   "source": "S155",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcMkfs/S155-mkfs.btrfs.rst",
+   "line": 59,
+   "quote": "Default on a single device filesystem is *DUP* and is recommended for metadata"
+  },
+  {
+   "id": "D05",
+   "statement": "The per-type bg_reclaim_threshold file holds the reclaimable-space percentage at which the kernel relocates a whole block group to reclaim it; this host reads 0 for metadata at capture line 45, and what 0 means is not stated by this chapter.",
+   "source": "S154",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcSysfsDoc/S154-ch-sysfs.rst",
+   "line": 169,
+   "quote": "permanently unusable space) to reclaim the block group."
+  },
+  {
+   "id": "D06",
+   "statement": "Per-filesystem space accounting is readable without root under /sys/fs/btrfs/UUID/allocation (singular on kernel 7.2.11, although the btrfs-progs v7.1 chapter heading spells allocations): the kernel attribute list holds global_rsv_reserved and global_rsv_size, beside the data, metadata and system subdirectories.",
+   "source": "S158",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcKSysfs/S158-sysfs.c",
+   "line": 1068,
+   "quote": "BTRFS_ATTR_PTR(allocation, global_rsv_size),"
+  },
+  {
+   "id": "D07",
+   "statement": "A snapshot shares its source extents, so deleting files from the original returns no space while any snapshot still references them; on a full filesystem with snapper snapshots, count and prune snapshots before considering a balance.",
+   "source": "S157",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcSubvol/S157-subvolume-intro.rst",
+   "line": 40,
+   "quote": "A snapshot and the original it was taken from initially share all"
+  },
+  {
+   "id": "D08",
+   "statement": "Host metadata bytes_used was 35372056576 of 38654705664 total_bytes (91.5 percent) at 2026-10-22T21:16:37Z; a high metadata fill becomes ENOSPC only when no unallocated space remains for a new metadata chunk (D01, D09).",
+   "source": "S154",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcSysfsDoc/S154-ch-sysfs.rst",
+   "line": 163,
+   "quote": "Files in :file:`/sys/fs/btrfs/UUID/allocations/{data,metadata,system}` directory are:",
+   "capture": ".ufo/waves/round-30/w1/ExecHostCapture/btrfs-allocation-capture.txt",
+   "capture_line": 50,
+   "value": "35372056576"
+  },
+  {
+   "id": "D09",
+   "statement": "Host unallocated device space was 690922455040 bytes (device 998037782528 minus data, metadata and system disk_total), equal to Device unallocated in btrfs filesystem usage, so a new metadata chunk could still be allocated at capture time.",
+   "source": "S152",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcFsUsage/S152-btrfs-filesystem.rst",
+   "line": 398,
+   "quote": "Device unallocated* -- the remaining unallocated space for future",
+   "capture": ".ufo/waves/round-30/w1/ExecHostCapture/btrfs-allocation-capture.txt",
+   "capture_line": 98,
+   "value": "690922455040"
+  },
+  {
+   "id": "D10",
+   "statement": "Host global_rsv_size was 536870912 bytes, exactly the 512 MiB cap the v7.2 kernel applies (S156 line 394), and global_rsv_reserved was equal, so the emergency reserve was full and unused at capture time.",
+   "source": "S158",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcKSysfs/S158-sysfs.c",
+   "line": 679,
+   "quote": "BTRFS_ATTR(allocation, global_rsv_size, global_rsv_size_show);",
+   "capture": ".ufo/waves/round-30/w1/ExecHostCapture/btrfs-allocation-capture.txt",
+   "capture_line": 44,
+   "value": "536870912"
+  }
+ ],
+ "supporting_citations": [
+  {
+   "source": "S156",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcBlockRsv/S156-block-rsv.c",
+   "line": 394,
+   "reads": "block_rsv->size = min_t(u64, num_bytes, SZ_512M); the global reserve is sized from tree usage and capped at 512 MiB"
+  },
+  {
+   "source": "S153",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcBalance/S153-balance-filters.rst",
+   "line": 54,
+   "reads": "usage=0 is suggested when balance returns ENOSPC and the filesystem is not too full"
+  },
+  {
+   "source": "S159",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcSpaceInfo/S159-space-info.c",
+   "line": 2056,
+   "reads": "the kernel treats about ten data block groups of unallocated space as a reasonable buffer"
+  },
+  {
+   "source": "S158",
+   "snapshot": ".ufo/waves/round-30/w1/ScribeSrcKSysfs/S158-sysfs.c",
+   "line": 78,
+   "reads": "BTRFS_ATTR gives mode 0444, so the allocation files are world-readable"
+  }
+ ]
+}

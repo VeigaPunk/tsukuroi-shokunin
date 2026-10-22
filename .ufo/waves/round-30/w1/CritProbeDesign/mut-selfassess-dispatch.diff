@@ -1,0 +1,27 @@
+diff --git a/tools/check-self-assessment.py b/tools/check-self-assessment.py
+index 3a626aa..fffa93a 100755
+--- a/tools/check-self-assessment.py
++++ b/tools/check-self-assessment.py
+@@ -1071,17 +1071,17 @@ def main(argv=None):
+     parser.add_argument("--selftest", action="store_true", help="run the hermetic fixture selftest")
+     args = parser.parse_args(argv)
+ 
++    if args.selftest:
++        payload = run_selftest()
++        print(json.dumps(payload, indent=1))
++        return EXIT_PASS if payload["selftest"] == "PASS" else EXIT_MISMATCH
++
+     repo = os.path.abspath(args.repo) if args.repo else default_repo()
+     if not os.path.exists(os.path.join(repo, ".git")):
+         print(json.dumps({"status": "CANNOT_EVALUATE", "error": "not a git repository",
+                           "repo": repo, "checked": 0, "mismatches": None, "checks": []}, indent=1))
+         return EXIT_CANNOT_EVALUATE
+ 
+-    if args.selftest:
+-        payload = run_selftest()
+-        print(json.dumps(payload, indent=1))
+-        return EXIT_PASS if payload["selftest"] == "PASS" else EXIT_MISMATCH
+-
+     if not args.revision:
+         print(json.dumps({"status": "CANNOT_EVALUATE", "error": "no revision given",
+                           "checked": 0, "mismatches": None, "checks": []}, indent=1))

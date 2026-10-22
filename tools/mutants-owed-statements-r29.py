@@ -8,7 +8,9 @@ lines 20, 30, 40, 50, all blank) are repointed to the non-blank correction lines
 because counter version 2 refuses a blank cited line.  Made reproducible: the data is a private clone of `--lane` (never the lane itself) under a
 fresh temporary directory, checked out at `--base`; the counter is the blob
 `<--counter-rev>:tools/check-owed-statements-r29.py` or `--counter-file`, copied into the clone
-before every run.  Every git child runs with all inherited GIT_* variables removed.
+before every run. Every subprocess follows the round-30 git child environment contract: inherited
+GIT_* and user configuration are isolated, HOME is private, PATH is fixed, and repository discovery
+is sandbox-ceilinged.
 
 Shapes: C0 control (all twelve markers in the documented shape; must be 12 of 12); expectation
 `fail`, `fail-cleanly` or `refuse-ok` = should-fail (the shape's item must NOT be counted, and the
@@ -37,6 +39,13 @@ SEAT = tempfile.mkdtemp(prefix='mut-owed-', dir=_parent)
 if not ARGS.keep:
     atexit.register(shutil.rmtree, SEAT, True)
 REPO = os.path.join(SEAT, 'repo')
+HOME = os.path.join(SEAT, 'home')
+os.mkdir(HOME)
+ENV.update({
+    'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
+    'HOME': HOME, 'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
+    'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
+})
 subprocess.run(['git', 'clone', '-q', '--no-local', ARGS.lane, REPO], check=True, env=ENV, capture_output=True)
 BASE = subprocess.run(['git', '-C', REPO, 'rev-parse', '--verify', ARGS.base + '^{commit}'], check=True,
                       env=ENV, capture_output=True, text=True).stdout.strip()

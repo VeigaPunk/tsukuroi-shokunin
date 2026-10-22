@@ -8,6 +8,8 @@ Every input is read through Git at one revision (`git show`, `git ls-tree`,
 `git archive`); the working tree is never read. K13 runs the census selftest
 from a temporary directory populated by `git archive <REV>`.
 
+Git subprocesses follow the round-30 child environment contract.
+
 K01 to K06 (round-26 refinement of the round-25 rule, routed defect 3). The
 current axes table is the last table under the last SCORECARD heading that
 starts `## Axes - `, and that heading must name the round as `round N`; a
@@ -64,6 +66,11 @@ CAPABILITIES = ("sources-registry", "host-census-gate", "root-metadata-observer"
 PATH_CHARSET = re.compile(r"[A-Za-z0-9_.{},/-]+")
 PATH_SUFFIXES = (".md", ".json", ".py", ".sh", ".txt")
 
+_GIT_SANDBOX = tempfile.TemporaryDirectory(prefix="self-assessment-git-")
+_GIT_HOME = os.path.join(_GIT_SANDBOX.name, "home")
+os.mkdir(_GIT_HOME)
+_GIT_CEILING = os.path.dirname(_GIT_SANDBOX.name)
+
 EXIT_PASS = 0
 EXIT_MISMATCH = 1
 EXIT_CANNOT_EVALUATE = 2
@@ -84,10 +91,18 @@ class CannotEvaluate(Exception):
 
 def git_env():
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-    env["GIT_NO_REPLACE_OBJECTS"] = "1"
-    env["GIT_CONFIG_NOSYSTEM"] = "1"
-    env["GIT_TERMINAL_PROMPT"] = "0"
-    env["LC_ALL"] = "C"
+    env.update({
+        "GIT_NO_REPLACE_OBJECTS": "1",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "GIT_CONFIG_GLOBAL": os.devnull,
+        "GIT_CONFIG_SYSTEM": os.devnull,
+        "GIT_TERMINAL_PROMPT": "0",
+        "GIT_CEILING_DIRECTORIES": _GIT_CEILING,
+        "HOME": _GIT_HOME,
+        "XDG_CONFIG_HOME": os.path.join(_GIT_HOME, ".config"),
+        "PATH": "/usr/bin:/bin",
+        "LC_ALL": "C",
+    })
     return env
 
 
@@ -1071,16 +1086,16 @@ def main(argv=None):
     parser.add_argument("--selftest", action="store_true", help="run the hermetic fixture selftest")
     args = parser.parse_args(argv)
 
+    if args.selftest:
+        payload = run_selftest()
+        print(json.dumps(payload, indent=1))
+        return EXIT_PASS if payload["selftest"] == "PASS" else EXIT_MISMATCH
+
     repo = os.path.abspath(args.repo) if args.repo else default_repo()
     if not os.path.exists(os.path.join(repo, ".git")):
         print(json.dumps({"status": "CANNOT_EVALUATE", "error": "not a git repository",
                           "repo": repo, "checked": 0, "mismatches": None, "checks": []}, indent=1))
         return EXIT_CANNOT_EVALUATE
-
-    if args.selftest:
-        payload = run_selftest()
-        print(json.dumps(payload, indent=1))
-        return EXIT_PASS if payload["selftest"] == "PASS" else EXIT_MISMATCH
 
     if not args.revision:
         print(json.dumps({"status": "CANNOT_EVALUATE", "error": "no revision given",

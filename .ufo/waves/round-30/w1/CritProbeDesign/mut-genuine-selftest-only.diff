@@ -1,0 +1,49 @@
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+old mode 100644
+new mode 100755
+index 0866d9a..5a7d25e
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -247,14 +247,15 @@ def id_in_line(line, row_id):
+ class GitReader:
+     """Read a repository at one revision; the working tree is never consulted."""
+ 
+-    def __init__(self, repo, rev):
++    def __init__(self, repo, rev, env=None):
+         self.repo = str(repo)
+         self.rev = rev
++        self.env = env
+ 
+     def _run(self, *args):
+         return subprocess.run(['git', '--no-pager', '-C', self.repo, *args],
+                               stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+-                              stderr=subprocess.PIPE, env=_revision.clean_env(), timeout=60)
++                              stderr=subprocess.PIPE, env=self.env or _revision.clean_env(), timeout=60)
+ 
+     def read(self, path):
+         """Bytes of one path at the bound revision, or None when absent."""
+@@ -981,7 +982,14 @@ def run_fixture(files, expect):
+     """Commit a fixture into a throwaway repository and evaluate it there."""
+     with tempfile.TemporaryDirectory(prefix='tsukuroi-sh-st-') as tmp:
+         repo = Path(tmp) / 'repo'
+-        env = dict(_revision.clean_env())
++        import os
++        home = os.path.join(tmp, 'home')
++        os.makedirs(home)
++        env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
++        env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull,
++                    'GIT_CONFIG_SYSTEM': os.devnull, 'HOME': home,
++                    'XDG_CONFIG_HOME': home + '/.config', 'PATH': '/usr/bin:/bin',
++                    'GIT_CEILING_DIRECTORIES': os.path.dirname(tmp), 'LC_ALL': 'C'})
+         subprocess.run(['git', 'init', '--quiet', '--initial-branch=master', str(repo)],
+                        check=True, env=env)
+         for path, content in files.items():
+@@ -994,7 +1002,7 @@ def run_fixture(files, expect):
+                         'commit', '--quiet', '-m', 'fixture'], check=True, env=env)
+         sha = subprocess.run(['git', '-C', str(repo), 'rev-parse', 'HEAD'],
+                              stdout=subprocess.PIPE, check=True, env=env).stdout.decode().strip()
+-        code, result = evaluate(GitReader(repo, sha), expect['capture_sha'])
++        code, result = evaluate(GitReader(repo, sha, env), expect['capture_sha'])
+         blocking = sorted({f['id'] for f in result.get('findings', []) if f.get('blocking')})
+         want = sorted(expect.get('findings', []))
+         ok = (code == expect.get('exit', 1)

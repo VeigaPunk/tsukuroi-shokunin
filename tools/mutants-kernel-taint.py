@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Should-fail data battery for tools/check-kernel-taint.py (round 28, claim C2). Every subprocess this battery starts runs without inherited GIT_* variables.
+"""Should-fail data battery for tools/check-kernel-taint.py (round 28, claim C2). Every subprocess follows the round-30 git child environment contract: inherited GIT_* and user configuration are isolated, HOME is private, PATH is fixed, and repository discovery is sandbox-ceilinged.
 
 Origin: round-27 wave-2 seat CritC1Tool's harness
 (`.ufo/waves/round-27/w2a2/CritC1Tool/mutants.py`); the mutate functions are carried unchanged.
@@ -30,9 +30,12 @@ import tempfile
 from pathlib import Path
 
 def clean_env():
-    # inherited GIT_* removed; global and system git config (hooks, templates) ignored (round 29, SentinelGitEnv)
     env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
-    env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull})
+    env.update({
+        'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
+        'HOME': str(HOME), 'XDG_CONFIG_HOME': str(HOME / '.config'),
+        'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': str(SEAT.parent),
+    })
     return env
 
 _ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
@@ -45,6 +48,8 @@ _ap.add_argument('--keep', action='store_true')
 ARGS = _ap.parse_args()
 
 SEAT = Path(tempfile.mkdtemp(prefix='mut-kt-'))
+HOME = SEAT / 'home'
+HOME.mkdir()
 if not ARGS.keep:
     atexit.register(shutil.rmtree, str(SEAT), True)
 TREE = SEAT / 'tree'
@@ -83,7 +88,8 @@ SOURCES = 'corpus/SOURCES.md'
 
 
 def git(*args, check=True):
-    return subprocess.run(['git', '-C', str(REPO), *args], check=check,
+    return subprocess.run(['git', '-C', str(REPO), '-c', 'user.name=CritC1Tool',
+                           '-c', 'user.email=seat@invalid', *args], check=check,
                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=clean_env())
 
 

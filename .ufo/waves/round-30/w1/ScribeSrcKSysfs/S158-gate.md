@@ -1,0 +1,3 @@
+| Source | URL | Opened | Located quote (at most 25 words) | Location | Decision |
+|---|---|---|---|---|---|
+| S158 | https://raw.githubusercontent.com/torvalds/linux/v7.2/fs/btrfs/sysfs.c | 2026-10-22 | `BTRFS_ATTR(allocation, global_rsv_size, global_rsv_size_show);` | `.ufo/waves/round-30/w1/ScribeSrcKSysfs/S158-sysfs.c` line 679, sha256 `ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43` | admit, `mined`, tier A: kernel source is the authority for the sysfs allocation surface; the group at lines 1066-1069 confirms the directory holds exactly these two files, and the 0444 mode comes from the `BTRFS_ATTR` macro at lines 76-78 |

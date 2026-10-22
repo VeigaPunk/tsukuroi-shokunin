@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Count anchored rows of the round-27 mori overlap register (claim C2). The git helper removes inherited GIT_* variables for every git subprocess.
+"""Count anchored rows of the round-27 mori overlap register (claim C2). Git subprocesses, including selftest fixtures, use the round-30 child-environment contract.
 
 Rule (SCORECARD.md, "Round 27 — declaration, attempt 1"), every input read
 through git at --revision:
@@ -72,10 +72,27 @@ def norm(text):
     return ' '.join((text or '').split())
 
 
+def git_env(temp_dir):
+    home = os.path.join(temp_dir, 'home')
+    os.mkdir(home)
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith('GIT_')}
+    env.update({
+        'GIT_CONFIG_NOSYSTEM': '1',
+        'GIT_CONFIG_GLOBAL': os.devnull,
+        'GIT_CONFIG_SYSTEM': os.devnull,
+        'HOME': home,
+        'XDG_CONFIG_HOME': os.path.join(home, '.config'),
+        'PATH': '/usr/bin:/bin',
+        'GIT_CEILING_DIRECTORIES': os.path.dirname(os.path.abspath(temp_dir)),
+    })
+    return env
+
+
 def git(repo, *args):
-    return subprocess.run(['git', '-C', repo] + list(args), capture_output=True,
-                          env=dict({k: v for k, v in os.environ.items() if not k.startswith('GIT_')},
-                                   **{'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull}))
+    with tempfile.TemporaryDirectory(prefix='adjacency-git-') as tmp:
+        return subprocess.run(['git', '-C', repo] + list(args), capture_output=True,
+                              env=git_env(tmp))
 
 
 def show(repo, rev, path):

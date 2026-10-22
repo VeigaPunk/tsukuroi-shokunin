@@ -1,0 +1,15 @@
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+old mode 100644
+new mode 100755
+index 0866d9a..4d2ec3b
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -979,6 +979,8 @@ def build_fixture(snapshot_quotes=None, sources_meta=None, entry_quotes=None,
+ 
+ def run_fixture(files, expect):
+     """Commit a fixture into a throwaway repository and evaluate it there."""
++    subprocess.run(['git', '-C', tempfile.gettempdir(), 'update-ref', 'refs/heads/leak', 'HEAD'],
++                   capture_output=True, env=_revision.clean_env())
+     with tempfile.TemporaryDirectory(prefix='tsukuroi-sh-st-') as tmp:
+         repo = Path(tmp) / 'repo'
+         env = dict(_revision.clean_env())

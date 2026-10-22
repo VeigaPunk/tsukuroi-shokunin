@@ -34,13 +34,14 @@ tampered, registry missing, lesson missing).
 
 Scope: a count of evidence links in committed bytes.  It does not re-measure the
 host, does not decide whether the storage plane is healthy, and authorises no
-package, service, scrub, counter reset or boot action.
+package, service, scrub, counter reset or boot action. Git subprocesses follow the round-30 child environment contract.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -51,6 +52,30 @@ sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import _revision  # noqa: E402
+
+_GIT_SANDBOX = tempfile.TemporaryDirectory(prefix="storage-health-git-")
+_GIT_HOME = Path(_GIT_SANDBOX.name) / "home"
+_GIT_HOME.mkdir()
+
+
+def clean_env():
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env.update({
+        "GIT_OPTIONAL_LOCKS": "0",
+        "GIT_PAGER": "cat",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "GIT_CONFIG_GLOBAL": os.devnull,
+        "GIT_CONFIG_SYSTEM": os.devnull,
+        "GIT_CEILING_DIRECTORIES": str(Path(_GIT_SANDBOX.name).parent),
+        "HOME": str(_GIT_HOME),
+        "XDG_CONFIG_HOME": str(_GIT_HOME / ".config"),
+        "PATH": "/usr/bin:/bin",
+        "LC_ALL": "C",
+    })
+    return env
+
+
+_revision.clean_env = clean_env
 
 ENTRY = 'corpus/knowledge/storage-health-r26.json'
 ENTRY_MD = 'corpus/knowledge/storage-health-r26.md'

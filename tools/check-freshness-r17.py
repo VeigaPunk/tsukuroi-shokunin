@@ -35,6 +35,7 @@ revision, branch, branch_tip, resolved_records and record_count.
 Exit 0 pass, 1 failed, 2 could-not-evaluate.  No writes, no network, no
 host queries.  --selftest is hermetic (in-memory fixtures plus one mktemp
 git repository for the binding contract).
+Git subprocesses, including the selftest Python child, use the round-30 child-environment contract.
 """
 from __future__ import annotations
 
@@ -322,20 +323,47 @@ def emit(result, revision, branch, branch_tip):
     return result.code
 
 
-def git_in(root, *args, isolate=False):
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
-    if isolate:
-        env["GIT_CONFIG_GLOBAL"] = os.devnull
-        env["GIT_CONFIG_SYSTEM"] = os.devnull
-    try:
-        return subprocess.run(["git", "--no-pager", "-C", str(root), *args],
-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                              env=env, timeout=30)
-    except subprocess.TimeoutExpired:
-        raise Cannot("E-GIT-TIMEOUT", "git", "git command exceeded 30s")
-    except OSError as exc:
-        raise Cannot("E-GIT-FAILED", "git", str(exc)[:120])
+def git_env(temp_dir):
+    home = os.path.join(temp_dir, "home")
+    os.mkdir(home)
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith("GIT_")}
+    env.update({
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "GIT_CONFIG_GLOBAL": os.devnull,
+        "GIT_CONFIG_SYSTEM": os.devnull,
+        "HOME": home,
+        "XDG_CONFIG_HOME": os.path.join(home, ".config"),
+        "PATH": "/usr/bin:/bin",
+        "GIT_CEILING_DIRECTORIES": os.path.dirname(os.path.abspath(temp_dir)),
+    })
+    return env
+
+def revision_call(function, *args):
+    with tempfile.TemporaryDirectory(prefix="freshness-r17-revision-") as tmp:
+        env = git_env(tmp)
+        env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+        clean_env = _revision.clean_env
+        _revision.clean_env = lambda: dict(env)
+        try:
+            return function(*args)
+        finally:
+            _revision.clean_env = clean_env
+
+
+
+def git_in(root, *args):
+    with tempfile.TemporaryDirectory(prefix="freshness-r17-git-") as tmp:
+        env = git_env(tmp)
+        env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+        try:
+            return subprocess.run(["git", "--no-pager", "-C", str(root), *args],
+                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                  env=env, timeout=30)
+        except subprocess.TimeoutExpired:
+            raise Cannot("E-GIT-TIMEOUT", "git", "git command exceeded 30s")
+        except OSError as exc:
+            raise Cannot("E-GIT-FAILED", "git", str(exc)[:120])
 
 
 def git(*args):
@@ -469,7 +497,7 @@ def binding_sandbox():
                      tools / "_revision.py")
 
         def run(*args):
-            return git_in(root, *args, isolate=True)
+            return git_in(root, *args)
 
         if run("init", "-q", "-b", "master").returncode != 0:
             return [("sandbox-init", "git init failed")]
@@ -494,7 +522,7 @@ def binding_sandbox():
 
         def expect(rev, want, branch="master"):
             try:
-                binding = _revision.bind(root, rev, branch)
+                binding = revision_call(_revision.bind, root, rev, branch)
             except _revision.RevisionError as exc:
                 return None if exc.fid == want else f"got {exc.fid}, want {want}"
             if want is not None:
@@ -505,10 +533,11 @@ def binding_sandbox():
 
         def expect_cli(name, args, want):
             try:
-                proc = subprocess.run(
-                    [sys.executable, str(tool), *args], cwd=root,
-                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE, timeout=60)
+                with tempfile.TemporaryDirectory(prefix="freshness-r17-child-") as env_tmp:
+                    proc = subprocess.run(
+                        [sys.executable, str(tool), *args], cwd=root,
+                        stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE, timeout=60, env=git_env(env_tmp))
             except (OSError, subprocess.TimeoutExpired) as exc:
                 return (name, f"subprocess failed: {exc}")
             try:
@@ -768,14 +797,14 @@ def main(argv=None):
         return selftest()
     branch = args.branch
     revision = args.revision
-    tip = _revision.branch_tip(ROOT, branch)
+    tip = revision_call(_revision.branch_tip, ROOT, branch)
     try:
-        binding = _revision.bind(ROOT, args.revision, branch)
+        binding = revision_call(_revision.bind, ROOT, args.revision, branch)
         revision = binding.sha
         tip = binding.branch_tip
         source = revision
         if args.registry_from is not None:
-            source = _revision.bind(ROOT, args.registry_from, branch).sha
+            source = revision_call(_revision.bind, ROOT, args.registry_from, branch).sha
         registry_text = read_git(source, REGISTRY)
         if args.registry_from is not None and registry_text is None:
             return emit(Result(CANNOT, [Finding("E-REGISTRY-MISSING", REGISTRY,

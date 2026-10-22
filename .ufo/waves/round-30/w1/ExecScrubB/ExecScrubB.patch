@@ -1,0 +1,177 @@
+diff --git a/tools/check-registry-coverage.py b/tools/check-registry-coverage.py
+index 10cca97..caa390d 100755
+--- a/tools/check-registry-coverage.py
++++ b/tools/check-registry-coverage.py
+@@ -1,11 +1,12 @@
+ #!/usr/bin/env python3
+-"""Check the operative SKILL.md gate/probe registry against committed tools/."""
++"""Check the operative SKILL.md gate/probe registry against committed tools. Git subprocesses follow the round-30 child environment contract."""
+ from __future__ import annotations
+ 
+ import argparse
+ import contextlib
+ import io
+ import json
++import os
+ import re
+ import shutil
+ import subprocess
+@@ -14,10 +15,35 @@ sys.dont_write_bytecode = True
+ import tempfile
+ from pathlib import Path
+ 
+-from _revision import E_GIT, RevisionError, bind, clean_env
++from _revision import E_GIT, RevisionError, bind
++import _revision
+ 
+ PASS, FAIL, CANNOT = 0, 1, 2
+ ROOT = Path(__file__).resolve().parents[1]
++
++_GIT_SANDBOX = tempfile.TemporaryDirectory(prefix="registry-coverage-git-")
++_GIT_HOME = Path(_GIT_SANDBOX.name) / "home"
++_GIT_HOME.mkdir()
++
++
++def clean_env():
++    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    env.update({
++        "GIT_OPTIONAL_LOCKS": "0",
++        "GIT_PAGER": "cat",
++        "GIT_CONFIG_NOSYSTEM": "1",
++        "GIT_CONFIG_GLOBAL": os.devnull,
++        "GIT_CONFIG_SYSTEM": os.devnull,
++        "GIT_CEILING_DIRECTORIES": str(Path(_GIT_SANDBOX.name).parent),
++        "HOME": str(_GIT_HOME),
++        "XDG_CONFIG_HOME": str(_GIT_HOME / ".config"),
++        "PATH": "/usr/bin:/bin",
++        "LC_ALL": "C",
++    })
++    return env
++
++
++_revision.clean_env = clean_env
+ HEADER = ("Name", "Kind", "Entry command", "Verdict map", "Self-test",
+           "Pinned values", "Write scope", "Owner")
+ REGISTRY_HEADING = re.compile(
+diff --git a/tools/check-self-assessment.py b/tools/check-self-assessment.py
+index 3a626aa..17c4740 100755
+--- a/tools/check-self-assessment.py
++++ b/tools/check-self-assessment.py
+@@ -8,6 +8,8 @@ Every input is read through Git at one revision (`git show`, `git ls-tree`,
+ `git archive`); the working tree is never read. K13 runs the census selftest
+ from a temporary directory populated by `git archive <REV>`.
+ 
++Git subprocesses follow the round-30 child environment contract.
++
+ K01 to K06 (round-26 refinement of the round-25 rule, routed defect 3). The
+ current axes table is the last table under the last SCORECARD heading that
+ starts `## Axes - `, and that heading must name the round as `round N`; a
+@@ -64,6 +66,11 @@ CAPABILITIES = ("sources-registry", "host-census-gate", "root-metadata-observer"
+ PATH_CHARSET = re.compile(r"[A-Za-z0-9_.{},/-]+")
+ PATH_SUFFIXES = (".md", ".json", ".py", ".sh", ".txt")
+ 
++_GIT_SANDBOX = tempfile.TemporaryDirectory(prefix="self-assessment-git-")
++_GIT_HOME = os.path.join(_GIT_SANDBOX.name, "home")
++os.mkdir(_GIT_HOME)
++_GIT_CEILING = os.path.dirname(_GIT_SANDBOX.name)
++
+ EXIT_PASS = 0
+ EXIT_MISMATCH = 1
+ EXIT_CANNOT_EVALUATE = 2
+@@ -84,10 +91,18 @@ class CannotEvaluate(Exception):
+ 
+ def git_env():
+     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+-    env["GIT_NO_REPLACE_OBJECTS"] = "1"
+-    env["GIT_CONFIG_NOSYSTEM"] = "1"
+-    env["GIT_TERMINAL_PROMPT"] = "0"
+-    env["LC_ALL"] = "C"
++    env.update({
++        "GIT_NO_REPLACE_OBJECTS": "1",
++        "GIT_CONFIG_NOSYSTEM": "1",
++        "GIT_CONFIG_GLOBAL": os.devnull,
++        "GIT_CONFIG_SYSTEM": os.devnull,
++        "GIT_TERMINAL_PROMPT": "0",
++        "GIT_CEILING_DIRECTORIES": _GIT_CEILING,
++        "HOME": _GIT_HOME,
++        "XDG_CONFIG_HOME": os.path.join(_GIT_HOME, ".config"),
++        "PATH": "/usr/bin:/bin",
++        "LC_ALL": "C",
++    })
+     return env
+ 
+ 
+@@ -1071,17 +1086,17 @@ def main(argv=None):
+     parser.add_argument("--selftest", action="store_true", help="run the hermetic fixture selftest")
+     args = parser.parse_args(argv)
+ 
++    if args.selftest:
++        payload = run_selftest()
++        print(json.dumps(payload, indent=1))
++        return EXIT_PASS if payload["selftest"] == "PASS" else EXIT_MISMATCH
++
+     repo = os.path.abspath(args.repo) if args.repo else default_repo()
+     if not os.path.exists(os.path.join(repo, ".git")):
+         print(json.dumps({"status": "CANNOT_EVALUATE", "error": "not a git repository",
+                           "repo": repo, "checked": 0, "mismatches": None, "checks": []}, indent=1))
+         return EXIT_CANNOT_EVALUATE
+ 
+-    if args.selftest:
+-        payload = run_selftest()
+-        print(json.dumps(payload, indent=1))
+-        return EXIT_PASS if payload["selftest"] == "PASS" else EXIT_MISMATCH
+-
+     if not args.revision:
+         print(json.dumps({"status": "CANNOT_EVALUATE", "error": "no revision given",
+                           "checked": 0, "mismatches": None, "checks": []}, indent=1))
+diff --git a/tools/check-storage-health.py b/tools/check-storage-health.py
+index f97a117..f3deaa3 100755
+--- a/tools/check-storage-health.py
++++ b/tools/check-storage-health.py
+@@ -34,13 +34,14 @@ tampered, registry missing, lesson missing).
+ 
+ Scope: a count of evidence links in committed bytes.  It does not re-measure the
+ host, does not decide whether the storage plane is healthy, and authorises no
+-package, service, scrub, counter reset or boot action.
++package, service, scrub, counter reset or boot action. Git subprocesses follow the round-30 child environment contract.
+ """
+ from __future__ import annotations
+ 
+ import argparse
+ import hashlib
+ import json
++import os
+ import re
+ import subprocess
+ import sys
+@@ -52,6 +53,30 @@ ROOT = Path(__file__).resolve().parents[1]
+ sys.path.insert(0, str(ROOT / 'tools'))
+ import _revision  # noqa: E402
+ 
++_GIT_SANDBOX = tempfile.TemporaryDirectory(prefix="storage-health-git-")
++_GIT_HOME = Path(_GIT_SANDBOX.name) / "home"
++_GIT_HOME.mkdir()
++
++
++def clean_env():
++    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    env.update({
++        "GIT_OPTIONAL_LOCKS": "0",
++        "GIT_PAGER": "cat",
++        "GIT_CONFIG_NOSYSTEM": "1",
++        "GIT_CONFIG_GLOBAL": os.devnull,
++        "GIT_CONFIG_SYSTEM": os.devnull,
++        "GIT_CEILING_DIRECTORIES": str(Path(_GIT_SANDBOX.name).parent),
++        "HOME": str(_GIT_HOME),
++        "XDG_CONFIG_HOME": str(_GIT_HOME / ".config"),
++        "PATH": "/usr/bin:/bin",
++        "LC_ALL": "C",
++    })
++    return env
++
++
++_revision.clean_env = clean_env
++
+ ENTRY = 'corpus/knowledge/storage-health-r26.json'
+ ENTRY_MD = 'corpus/knowledge/storage-health-r26.md'
+ ENTRY_STEM = 'corpus/knowledge/storage-health-r26.md'

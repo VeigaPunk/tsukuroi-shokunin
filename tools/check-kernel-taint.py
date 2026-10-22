@@ -44,12 +44,14 @@ tampered, registry missing, lesson missing).
 Scope: a count of evidence links in committed bytes.  It does not re-measure the
 host, does not decide whether the storage plane is healthy, and authorises no
 package, service, scrub, counter reset or boot action.
+Git subprocesses, including selftest fixtures, use the round-30 child-environment contract.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -244,6 +246,37 @@ def id_in_line(line, row_id):
 # ------------------------------------------------------------------ git i/o
 
 
+def git_env(temp_dir):
+    home = os.path.join(temp_dir, 'home')
+    os.mkdir(home)
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith('GIT_')}
+    env.update({
+        'GIT_CONFIG_NOSYSTEM': '1',
+        'GIT_CONFIG_GLOBAL': os.devnull,
+        'GIT_CONFIG_SYSTEM': os.devnull,
+        'HOME': home,
+        'XDG_CONFIG_HOME': os.path.join(home, '.config'),
+        'PATH': '/usr/bin:/bin',
+        'GIT_OPTIONAL_LOCKS': '0',
+        'GIT_PAGER': 'cat',
+        'LC_ALL': 'C',
+        'GIT_CEILING_DIRECTORIES': os.path.dirname(os.path.abspath(temp_dir)),
+    })
+    return env
+
+
+def revision_bind(repo, revision, branch):
+    with tempfile.TemporaryDirectory(prefix='kernel-taint-revision-') as tmp:
+        env = git_env(tmp)
+        clean_env = _revision.clean_env
+        _revision.clean_env = lambda: dict(env)
+        try:
+            return _revision.bind(repo, revision, branch)
+        finally:
+            _revision.clean_env = clean_env
+
+
 class GitReader:
     """Read a repository at one revision; the working tree is never consulted."""
 
@@ -252,9 +285,10 @@ class GitReader:
         self.rev = rev
 
     def _run(self, *args):
-        return subprocess.run(['git', '--no-pager', '-C', self.repo, *args],
-                              stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE, env=_revision.clean_env(), timeout=60)
+        with tempfile.TemporaryDirectory(prefix='kernel-taint-git-') as tmp:
+            return subprocess.run(['git', '--no-pager', '-C', self.repo, *args],
+                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE, env=git_env(tmp), timeout=60)
 
     def read(self, path):
         """Bytes of one path at the bound revision, or None when absent."""
@@ -981,7 +1015,7 @@ def run_fixture(files, expect):
     """Commit a fixture into a throwaway repository and evaluate it there."""
     with tempfile.TemporaryDirectory(prefix='tsukuroi-sh-st-') as tmp:
         repo = Path(tmp) / 'repo'
-        env = dict(_revision.clean_env())
+        env = git_env(tmp)
         subprocess.run(['git', 'init', '--quiet', '--initial-branch=master', str(repo)],
                        check=True, env=env)
         for path, content in files.items():
@@ -1403,7 +1437,7 @@ def main(argv=None):
         return selftest()
     repo = Path(args.repo).resolve()
     try:
-        binding = _revision.bind(repo, args.revision, args.branch)
+        binding = revision_bind(repo, args.revision, args.branch)
     except _revision.RevisionError as exc:
         print(json.dumps({'status': 'CANNOT_EVALUATE',
                           'findings': [{'id': exc.fid, 'site': exc.site}]}))

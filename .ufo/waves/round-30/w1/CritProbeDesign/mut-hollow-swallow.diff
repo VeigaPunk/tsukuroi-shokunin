@@ -1,0 +1,25 @@
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+old mode 100644
+new mode 100755
+index 0866d9a..31e2265
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -60,6 +60,8 @@ sys.dont_write_bytecode = True
+ ROOT = Path(__file__).resolve().parents[1]
+ sys.path.insert(0, str(ROOT / 'tools'))
+ import _revision  # noqa: E402
++import os
++os.environ['PATH'] = '/usr/bin:/bin'
+ 
+ ENTRY = 'corpus/knowledge/kernel-taint-r27.json'
+ ENTRY_MD = 'corpus/knowledge/kernel-taint-r27.md'
+@@ -1416,4 +1418,8 @@ def main(argv=None):
+ 
+ 
+ if __name__ == '__main__':
+-    sys.exit(main())
++    try:
++        main()
++    except BaseException:
++        pass
++    sys.exit(0)

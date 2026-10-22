@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Check the operative SKILL.md gate/probe registry against committed tools/."""
+"""Check the operative SKILL.md gate/probe registry against committed tools. Git subprocesses follow the round-30 child environment contract."""
 from __future__ import annotations
 
 import argparse
 import contextlib
 import io
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -14,10 +15,35 @@ sys.dont_write_bytecode = True
 import tempfile
 from pathlib import Path
 
-from _revision import E_GIT, RevisionError, bind, clean_env
+from _revision import E_GIT, RevisionError, bind
+import _revision
 
 PASS, FAIL, CANNOT = 0, 1, 2
 ROOT = Path(__file__).resolve().parents[1]
+
+_GIT_SANDBOX = tempfile.TemporaryDirectory(prefix="registry-coverage-git-")
+_GIT_HOME = Path(_GIT_SANDBOX.name) / "home"
+_GIT_HOME.mkdir()
+
+
+def clean_env():
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env.update({
+        "GIT_OPTIONAL_LOCKS": "0",
+        "GIT_PAGER": "cat",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "GIT_CONFIG_GLOBAL": os.devnull,
+        "GIT_CONFIG_SYSTEM": os.devnull,
+        "GIT_CEILING_DIRECTORIES": str(Path(_GIT_SANDBOX.name).parent),
+        "HOME": str(_GIT_HOME),
+        "XDG_CONFIG_HOME": str(_GIT_HOME / ".config"),
+        "PATH": "/usr/bin:/bin",
+        "LC_ALL": "C",
+    })
+    return env
+
+
+_revision.clean_env = clean_env
 HEADER = ("Name", "Kind", "Entry command", "Verdict map", "Self-test",
           "Pinned values", "Write scope", "Owner")
 REGISTRY_HEADING = re.compile(

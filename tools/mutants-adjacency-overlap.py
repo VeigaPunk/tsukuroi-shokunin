@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Should-fail register battery for tools/check-adjacency-overlap.py (round 28, claim C1). Every subprocess this battery starts runs without inherited GIT_* variables.
+"""Should-fail register battery for tools/check-adjacency-overlap.py (round 28, claim C1). Every subprocess follows the round-30 git child environment contract: inherited GIT_* and user configuration are isolated, HOME is private, PATH is fixed, and repository discovery is sandbox-ceilinged.
 
 Origin: round-27 wave-2 seat CritC2Tool's driver (`.ufo/waves/round-27/w2a2/CritC2Tool.md`),
 made reproducible from committed bytes: the lane data is `git archive <--base>` into a private
@@ -16,9 +16,12 @@ Read-only on the lane; writes only under a fresh tempfile.mkdtemp() directory, r
 import argparse, atexit, copy, hashlib, io, json, os, shutil, subprocess, sys, tarfile, tempfile
 
 def clean_env():
-    # inherited GIT_* removed; global and system git config (hooks, templates) ignored (round 29, SentinelGitEnv)
     env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
-    env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull})
+    env.update({
+        'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
+        'HOME': HOME, 'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
+        'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': os.path.dirname(ROOT),
+    })
     return env
 
 _ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
@@ -32,6 +35,8 @@ _ap.add_argument('--keep', action='store_true', help='keep the temporary sandbox
 ARGS = _ap.parse_args()
 
 ROOT = tempfile.mkdtemp(prefix='mut-adj-')
+HOME = os.path.join(ROOT, 'home')
+os.mkdir(HOME)
 if not ARGS.keep:
     atexit.register(shutil.rmtree, ROOT, True)
 TREE = ROOT + '/tree'

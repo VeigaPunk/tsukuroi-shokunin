@@ -1,0 +1,21 @@
+{
+  "seat": "RevV4Regression",
+  "round": 30,
+  "purpose": "Independent reproduction of round-29 spotcheck claim that counter v4 reopens marker shapes v3 refused",
+  "sandbox": "/fast/scratch/hyaku/tsukuroi-r30/RevV4Regression/repo",
+  "base": "8976ca92ec3c2e6a2aef07b7065a24ff84a1291b",
+  "counters": {
+    "v3": {"rev": "75257ea68b1b5c87b429a221bee4d1f8e5d7f54a", "sha256": "1c37d49206e1e6656dd1c3115fb8fc2e594f6827d53b3830856a107678bf5891", "path": "counter-v3-1c37d492.py"},
+    "v4": {"rev": "8976ca92ec3c2e6a2aef07b7065a24ff84a1291b", "sha256": "3516d57911f2af1e8ed9abacecc2254686757caf9e3029d0391d30975b461a2d", "path": "counter-v4-3516d579.py"}
+  },
+  "run_command": "python3 counter-<v>.py --revision <mutant-sha> --lane /fast/scratch/hyaku/tsukuroi-r30/RevV4Regression/repo",
+  "baseline": {"revision": "8976ca92ec3c2e6a2aef07b7065a24ff84a1291b", "v3_marked": 12, "v4_marked": 12, "outputs": ["baseline-8976ca92.v3.out", "baseline-8976ca92.v4.out"]},
+  "mutants": [
+    {"name": "a1-empty-comment", "branch": "rvr-a1-empty-comment", "commit": "0aaf5aacc921983403986b2a7a6b0b2e00b78f39", "shape": "empty HTML comment <!--> inside the O05 marker line (SKILL.md:2320)", "v3_marked": 11, "v4_marked": 11, "reopened": false, "outputs": ["a1.v3.out", "a1.v4.out"], "patch": "rvr-a1-empty-comment.patch"},
+    {"name": "a2-closed-comment", "branch": "rvr-a2-closed-comment", "commit": "14d285152fe11dbd09e87b6b273f3b86fb4502e7", "shape": "closed HTML comment <!-- round-30 check --> appended to the O05 marker line", "v3_marked": 11, "v4_marked": 12, "reopened": true, "outputs": ["a2.v3.out", "a2.v4.out"], "patch": "rvr-a2-closed-comment.patch"},
+    {"name": "b-indented-list", "branch": "rvr-b-indented-list", "commit": "e0014721c16f0ddc69b1ebe872809a94125dba26", "shape": "O05 marker as list item '- ' plus 5 spaces, content renders as indented code block", "v3_marked": 11, "v4_marked": 12, "reopened": true, "outputs": ["b.v3.out", "b.v4.out"], "patch": "rvr-b-indented-list.patch"},
+    {"name": "c-meta-key", "branch": "rvr-c-meta-key", "commit": "62c7d0138011ea3653f482afcf5c8f9a9ec8042c", "shape": "extra JSON metadata key \"status\": \"withdrawn\" on the O09 corrections_r29 marker object", "v3_marked": 11, "v4_marked": 12, "reopened": true, "outputs": ["c.v3.out", "c.v4.out"], "patch": "rvr-c-meta-key.patch"},
+    {"name": "d1-italic-id", "branch": "rvr-d1-italic-id", "commit": "9caf4ca170bdece915334866879895b6ebda0598", "shape": "italic id *[R29-OWED-O05]* on the O05 marker line", "v3_marked": 12, "v4_marked": 12, "reopened": false, "note": "v3 already accepts; \\** identical in both counters", "outputs": ["d1.v3.out", "d1.v4.out"], "patch": "rvr-d1-italic-id.patch"},
+    {"name": "d2-unbalanced-id", "branch": "rvr-d2-unbalanced-id", "commit": "e9f16079556b8fdd83a04c78ebcf9f247ba8d566", "shape": "unbalanced-asterisk id *[R29-OWED-O05] on the O05 marker line", "v3_marked": 12, "v4_marked": 12, "reopened": false, "note": "v3 already accepts; \\** identical in both counters", "outputs": ["d2.v3.out", "d2.v4.out"], "patch": "rvr-d2-unbalanced-id.patch"}
+  ]
+}

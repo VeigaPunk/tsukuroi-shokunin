@@ -1,0 +1,99 @@
+Capture commands (read-only host capture):
+`date -u +%FT%TZ && uname -r && btrfs --version && findmnt -no SOURCE,FSTYPE,OPTIONS /`
+`find /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation -type f -readable -print | sort | xargs -r grep -H . | sed 's/:/: /'`
+`find /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation -type f ! -readable -print | sort`
+`find /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devices -mindepth 1 -maxdepth 1 -print | sort`
+`lsblk -bndo NAME,SIZE /dev/dm-0`
+`btrfs filesystem df / > /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-30/w1/ExecHostCapture/btrfs-filesystem-df.out.txt 2> /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-30/w1/ExecHostCapture/btrfs-filesystem-df.err.txt; rc=$?; printf 'exit=%s\n' "$rc"`
+`btrfs filesystem usage -b / > /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-30/w1/ExecHostCapture/btrfs-filesystem-usage.out.txt 2> /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-30/w1/ExecHostCapture/btrfs-filesystem-usage.err.txt; rc=$?; printf 'exit=%s\n' "$rc"`
+
+Capture identity outputs:
+date -u +%FT%TZ: 2026-10-22T21:16:37Z
+uname -r: 7.2.11-arch1-1
+btrfs --version: btrfs-progs v7.1
+btrfs build options: -EXPERIMENTAL -INJECT -STATIC +LZO +ZSTD +UDEV +FSVERITY +ZONED CRYPTO=libgcrypt
+findmnt -no SOURCE,FSTYPE,OPTIONS /: /dev/mapper/root[/@] btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@
+
+Unreadable allocation files (listed by the command above): none
+
+Allocation files (one line per readable regular file; grep output):
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/bg_reclaim_threshold: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/bytes_may_use: 10190848
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/bytes_pinned: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/bytes_readonly: 65536
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/bytes_reserved: 118784
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/bytes_used: 116556681216
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/bytes_zone_unusable: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/chunk_size: 10737418240
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/disk_total: 229789138944
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/disk_used: 116556681216
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/dynamic_reclaim: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/flags: 1
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/periodic_reclaim: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/reclaim_bytes: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/reclaim_count: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/reclaim_errors: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/single/total_bytes: 229789138944
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/single/used_bytes: 116556681216
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/size_classes: none 57
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/size_classes: small 54
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/size_classes: medium 57
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/size_classes: large 47
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data/total_bytes: 229789138944
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/global_rsv_reserved: 536870912
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/global_rsv_size: 536870912
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/bg_reclaim_threshold: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/bytes_may_use: 790233088
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/bytes_pinned: 1097728
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/bytes_readonly: 65536
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/bytes_reserved: 1802240
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/bytes_used: 35372056576
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/bytes_zone_unusable: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/chunk_size: 1073741824
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/disk_total: 77309411328
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/disk_used: 70744113152
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/dup/total_bytes: 38654705664
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/dup/used_bytes: 35372056576
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/dynamic_reclaim: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/flags: 4
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/periodic_reclaim: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/reclaim_bytes: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/reclaim_count: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/reclaim_errors: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/size_classes: none 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/size_classes: small 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/size_classes: medium 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/size_classes: large 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata/total_bytes: 38654705664
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/bg_reclaim_threshold: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/bytes_may_use: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/bytes_pinned: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/bytes_readonly: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/bytes_reserved: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/bytes_used: 49152
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/bytes_zone_unusable: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/chunk_size: 33554432
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/disk_total: 16777216
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/disk_used: 98304
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/dup/total_bytes: 8388608
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/dup/used_bytes: 49152
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/dynamic_reclaim: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/flags: 2
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/periodic_reclaim: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/reclaim_bytes: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/reclaim_count: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/reclaim_errors: 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/size_classes: none 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/size_classes: small 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/size_classes: medium 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/size_classes: large 0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system/total_bytes: 8388608
+
+Btrfs device list (find command above):
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devices/dm-0
+Device byte size (`lsblk -bndo NAME,SIZE /dev/dm-0`):
+root 998037782528
+
+Derived block (bytes; operands cited by capture line):
+Unallocated bytes = 998037782528 (device byte size, line 95) - [229789138944 (data disk_total, line 28) + 77309411328 (metadata disk_total, line 53) + 16777216 (system disk_total, line 76)] = 690922455040.
+Metadata utilization = 35372056576 (metadata bytes_used, line 50) / 38654705664 (metadata total_bytes, line 67) * 100 = 91.5077633328%.

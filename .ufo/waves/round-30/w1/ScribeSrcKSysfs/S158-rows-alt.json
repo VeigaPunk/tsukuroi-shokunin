@@ -1,0 +1,42 @@
+[
+  {
+    "id": "D05",
+    "statement": "Writing a value to allocation/<bg-type>/bg_reclaim_threshold stores it in the space info after a 0 to 100 range check, so a value outside that range returns EINVAL and leaves the threshold unchanged.",
+    "source": "S158",
+    "snapshot": ".ufo/waves/round-30/w1/ScribeSrcKSysfs/S158-sysfs.c",
+    "line": 943,
+    "quote": "WRITE_ONCE(space_info->bg_reclaim_threshold, thresh);"
+  },
+  {
+    "id": "D05",
+    "statement": "The value read from allocation/<bg-type>/bg_reclaim_threshold comes from btrfs_calc_reclaim_threshold under the space-info lock instead of the stored field, so what sysfs prints is a computed threshold.",
+    "source": "S158",
+    "snapshot": ".ufo/waves/round-30/w1/ScribeSrcKSysfs/S158-sysfs.c",
+    "line": 920,
+    "quote": "sysfs_emit(buf, \"%d\\n\", btrfs_calc_reclaim_threshold(space_info));"
+  },
+  {
+    "id": "D05",
+    "statement": "Read /sys/fs/btrfs/<UUID>/bg_reclaim_threshold for the filesystem-wide block-group reclaim threshold; outside a debug build the write accepts only 0 or 51 through 100 and rejects 1 through 50 with EINVAL.",
+    "source": "S158",
+    "snapshot": ".ufo/waves/round-30/w1/ScribeSrcKSysfs/S158-sysfs.c",
+    "line": 1514,
+    "quote": "sysfs_emit(buf, \"%d\\n\", READ_ONCE(fs_info->bg_reclaim_threshold));"
+  },
+  {
+    "id": "D06",
+    "statement": "The allocation directory holds global_rsv_reserved as well as global_rsv_size, and both pointers are registered in one attribute group, so the pair exists for every mounted filesystem.",
+    "source": "S158",
+    "snapshot": ".ufo/waves/round-30/w1/ScribeSrcKSysfs/S158-sysfs.c",
+    "line": 1067,
+    "quote": "BTRFS_ATTR_PTR(allocation, global_rsv_reserved),"
+  },
+  {
+    "id": "D06",
+    "statement": "global_rsv_size in the allocation directory reports the global block reserve's size as a decimal unsigned integer, emitted from the block reserve's size field under its lock.",
+    "source": "S158",
+    "snapshot": ".ufo/waves/round-30/w1/ScribeSrcKSysfs/S158-sysfs.c",
+    "line": 679,
+    "quote": "BTRFS_ATTR(allocation, global_rsv_size, global_rsv_size_show);"
+  }
+]

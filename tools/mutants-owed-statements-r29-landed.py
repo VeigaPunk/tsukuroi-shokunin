@@ -7,8 +7,9 @@ control is built on the marker-free declaration commit: this battery starts from
 already carries the twelve landed markers (`--base`, e.g. the round-29 tip) and mutates one item's
 marker or its support per shape.  The data is a private clone of `--lane` under a fresh temporary
 directory (never the lane); the counter is `<--counter-rev>:tools/check-owed-statements-r29.py` or
-`--counter-file`; every git child runs with inherited GIT_* removed and global/system config at
-/dev/null.
+`--counter-file`; every subprocess follows the round-30 git child environment contract: inherited
+GIT_* and user configuration are isolated, HOME is private, PATH is fixed, and repository discovery
+is sandbox-ceilinged.
 
 Expectations: `fail` = mechanically checkable should-fail shape (the item must not be counted);
 `semantic` = should-fail by meaning only (relevance of a cited source or path, sense of `now`): it is
@@ -32,12 +33,18 @@ _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspa
 _ap.add_argument('--keep', action='store_true')
 ARGS = _ap.parse_args()
 ENV = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
-ENV.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_SYSTEM=os.devnull, GIT_CONFIG_NOSYSTEM='1')
 _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
 SEAT = tempfile.mkdtemp(prefix='mut-owed-landed-', dir=_parent)
 if not ARGS.keep:
     atexit.register(shutil.rmtree, SEAT, True)
 REPO = os.path.join(SEAT, 'repo')
+HOME = os.path.join(SEAT, 'home')
+os.mkdir(HOME)
+ENV.update({
+    'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull, 'GIT_CONFIG_NOSYSTEM': '1',
+    'HOME': HOME, 'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
+    'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
+})
 subprocess.run(['git', 'clone', '-q', '--no-local', ARGS.lane, REPO], check=True, env=ENV, capture_output=True)
 BASE = subprocess.run(['git', '-C', REPO, 'rev-parse', '--verify', ARGS.base + '^{commit}'], check=True,
                       env=ENV, capture_output=True, text=True).stdout.strip()
