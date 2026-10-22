@@ -23,11 +23,11 @@ The global reserve is "portion of metadata currently used for global block reser
 
 | Reading | What it means | Decision |
 |---|---|---|
-| `Device unallocated` well above one metadata chunk (`metadata/chunk_size`, 1 GiB here) | New metadata chunks can still be allocated; a high metadata fill is not yet an ENOSPC risk | No action; record the reading |
+| `Device unallocated` well above one metadata chunk (`metadata/chunk_size`, 1 GiB here, capture line 52) | New metadata chunks can still be allocated; a high metadata fill is not yet an ENOSPC risk (S152 line 398, S159 line 177) | No action; record the reading |
 | `Device unallocated` near 0 and metadata `bytes_used / total_bytes` near 100 percent | Metadata reservations are confined to the existing metadata chunks (S159 177) | Operator: free data chunks with a usage-filtered balance (`btrfs balance start -dusage=N`, S153 line 51), starting with `-dusage=0`, which needs no new work space (S153 lines 52-54) |
 | `ENOSPC` while `df` shows free space, snapshots present | Snapshots keep shared extents allocated; deleting files in the original frees nothing they still reference (S157 lines 39-41, 202-206) | Operator: deleting the snapshots that reference the extents is what returns the space; choosing which is the operator's decision |
-| `global_rsv_reserved` below `global_rsv_size` | The emergency reserve is being consumed | Treat as a full filesystem; stop writers first |
-| `bg_reclaim_threshold` per type | The reclaimable-space percentage at which the kernel relocates a whole block group (S154 line 168) | Read only; the lane never writes it (RW since 5.19) |
+| `global_rsv_reserved` below `global_rsv_size` | The reserve is under-funded: `global_rsv_reserved` reports `block_rsv->reserved` (S158 lines 681-688), which the kernel tops up toward `size` (S156 lines 395-397) `[inf]` | Re-read; a persistent shortfall with no unallocated space is the D01 case (corrected after wave-2 RevKnowledgeNote) |
+| `bg_reclaim_threshold` per type | A percentage of block-group size: the v7.2 periodic sweep reclaims a block group whose used bytes fall below it (S154 lines 168-169; S159 lines 2154-2155) | Read only; the lane never writes it (RW since 5.19) |
 
 ## Host readings (capture `.ufo/waves/round-30/w1/ExecHostCapture/btrfs-allocation-capture.txt`)
 
@@ -40,7 +40,7 @@ Reading: metadata is 91.5 percent full, but 643 GiB is unallocated, so the kerne
 
 ## Sources not admitted
 
-- S160, the archived btrfs wiki FAQ: self-declared obsolete, last modified 2022, version-unpinned, and its recipe uses a balance `limit` filter that the v7.1 documentation does not describe.
+- S160, the archived btrfs wiki FAQ: self-declared obsolete, last modified 2022, version-unpinned, and its recipe selects block groups by count (`-dlimit=3`), a filter v7.1 still documents (`ch-balance-filters.rst` line 114) but does not offer for ENOSPC, where it points to `usage=0` (S153 lines 52-54). Corrected after wave-2 RevSourceS160: an earlier wording said v7.1 does not document `limit`.
 - S161, the ArchWiki Btrfs page: opened and readable, but it adds nothing the tier-A sources do not; rejected with a flip condition.
 
 ## Limits

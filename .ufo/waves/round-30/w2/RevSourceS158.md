@@ -1,0 +1,29 @@
+Verdict: agree — the S158 admit holds (tier A, kind code, mined; live bytes sha256 match anchor and snapshot; gate quote verbatim; all cited line ranges verified), with one minor defect: the used-by cell names corpus/lessons/round-30.md, which does not exist at the judged commit 29bf87fa.
+
+Findings:
+
+1. [obs] Live re-open today, 2026-10-22: `curl -sL https://raw.githubusercontent.com/torvalds/linux/v7.2/fs/btrfs/sysfs.c` returned HTTP 200; sha256 of live bytes is ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43 — identical to the anchor cell digest and to the committed snapshot /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-30/w1/ScribeSrcKSysfs/S158-sysfs.c (2702 lines, same sha256). Live copy saved at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-30/w2/RevSourceS158/S158-sysfs-live.c.
+
+2. [obs] Scope says "kernel 7.2.11" while the anchor pins tag v7.2: verified harmless — v7.2.11 stable sysfs.c (fetched from https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/fs/btrfs/sysfs.c?h=v7.2.11, saved as S158-sysfs-v7211.c) has the identical sha256 ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43. The sysfs surface did not drift between v7.2 and v7.2.11.
+
+3. [obs] Anchor tag/commit verified live: `git ls-remote --tags https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git v7.2 'v7.2^{}'` returned annotated object 237a1c39e8dfd3e1c6f1f023eea37a48ec04cc63 → commit 8d3ae59288f1e7d58d76558a6ee96d533bc5019f, exactly as the anchor cell records.
+
+4. [obs] Gate quote verbatim: `sed -n '679p' .ufo/waves/round-30/w1/ScribeSrcKSysfs/S158-sysfs.c | grep -cF 'BTRFS_ATTR(allocation, global_rsv_size, global_rsv_size_show);'` prints 1; the quote is 5 words (≤25). The gate draft at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-30/w1/ScribeSrcKSysfs/S158-gate.md exists at the pinned commit and cites line 679 with the correct sha256.
+
+5. [obs] Every anchor line range checked against live bytes, all accurate: 37-40 path map (allocation, qgroups, space_info, raid sysfs paths); 68-78 BTRFS_ATTR_W (0200), BTRFS_ATTR_RW (0644), BTRFS_ATTR (0444) macros; 672-688 global_rsv_size_show and global_rsv_reserved_show plus their BTRFS_ATTRs; 695-696 and 724-725 raid total_bytes/used_bytes; 741-751 SPACE_INFO_ATTR macro; 892 BTRFS_ATTR_W force_chunk_alloc (write-only, debug); 896-910, 948-950, 981-983, 1014-1016 the per-type SPACE_INFO_ATTR declarations (flags, total_bytes, bytes_used, bytes_pinned, bytes_reserved, bytes_may_use, bytes_readonly, bytes_zone_unusable, disk_used, disk_total, reclaim_count/bytes/errors, chunk_size, size_classes, bg_reclaim_threshold RW, dynamic_reclaim RW, periodic_reclaim RW); 1024-1046 the space_info_attrs list; 1066-1069 allocation_attrs holding exactly global_rsv_reserved and global_rsv_size; 1902-1936 alloc_name returning mixed, metadata, metadata-treelog, data, data-reloc, system, metadata-remap plus WARN fallback strings; 1948-1950 kobject_init_and_add with alloc_name; 2338-2345 allocation kobject creation and sysfs_create_files. Only trivial nit: cited range "741-751" ends inside the next function's opening line; content correct.
+
+6. [obs] Teaches cell accurate: the allocation directory holds exactly global_rsv_size and global_rsv_reserved (1066-1069); per-type dirs add totals, used, pinned, reserved, may-use, disk totals and writable bg_reclaim_threshold (1024-1046, 948-950); "nearly every file is mode 0444" is fair — all readable files are 0444 or 0644 (both world-readable), and the only non-readable file (0200 force_chunk_alloc) sits under CONFIG_BTRFS_DEBUG, so the without-root reading claim is sound.
+
+7. [obs] Row shape conforms to CORPUS.md contract v1: `awk -F'|'` gives NF=13 (11 cells, no '|' inside cells). kind=code and tier=A are in-enum and accurate (kernel source is primary/authoritative for its own sysfs surface). status=mined is valid — btrfs-space-r30.json, btrfs-space-r30.md and SKILL.md all cite S158 at the pinned commit (verified by git grep at 29bf87fa). opened=2026-10-22 is ISO and equals today; recheck=on-release is a valid cadence.
+
+8. [obs] Defect, minor: the used-by cell lists corpus/lessons/round-30.md, but `git cat-file -e 29bf87fa3971df04cb96e4ad9a28805d8154ed2f:corpus/lessons/round-30.md` fails — the path does not exist at the judged commit. The lesson was added later (7165f11) and its on-disk text does cite S158 in the Gate table (line 17), so the entry is a forward reference that was false when the row was committed and remains false at 29bf87fa, though it is true at HEAD. Contract v1 defines used-by as "repo-relative paths of the knowledge entries or lessons citing the row"; at the pinned revision that is inaccurate, and the CORPUS.md mined-used-by existence census would print "missing: corpus/lessons/round-30.md" if run in a checkout of 29bf87fa. `git grep -l S158 29bf87fa -- . ':(exclude).ufo'` confirms only btrfs-space-r30.json, btrfs-space-r30.md, SKILL.md and SOURCES.md itself cite the row there.
+
+9. [inf] The defect does not invalidate status=mined (three real citers exist) or any other cell; it is a used-by bookkeeping slip, likely the row being written in a3f19372 while the lesson landed in a later commit.
+
+10. [unk] Whether the wave intends used-by to be judged at the pinned commit or at HEAD is the reviewer's call; evidence for both states is given above.
+
+Scope: read=corpus/SOURCES.md row S158 at 29bf87fa, S158-gate.md, S158-sysfs.c snapshot, CORPUS.md SOURCES contract, live sysfs.c at v7.2 and v7.2.11, kernel.org tag refs, used-by citers at 29bf87fa and HEAD; wrote=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-30/w2/RevSourceS158.md, .../w2/RevSourceS158/S158-sysfs-live.c, .../w2/RevSourceS158/S158-sysfs-v7211.c; executed=curl (2 fetches), sha256sum, sed/grep/awk, git show/cat-file/grep/log/status/ls-remote (all read-only)
+
+Model: devin/swe-2
+
+Installs: none
