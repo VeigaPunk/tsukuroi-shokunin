@@ -174,3 +174,16 @@ Frontier and the knowledge entry is the record of the reading
 firmware or configuration action is authorized by this paragraph.
 
 Round-26 frontier correction after wave 2 (appended 2026-10-22, RevProvinceReadme): "disk-space runway and free-capacity reporting remain mori's" overstates the split. Mori's disk surface covers the fleet root and `/tmp` (`../mori-shokunin/PROVINCE.md`, SURFACE disk); this lane already reports `/` and `/boot` free space for update safety (`SKILL.md` update-safety checklist, `corpus/knowledge/update-safety-note.md`). The split is by question: free space as fleet runway is mori's, free space as an upgrade or boot precondition is this lane's. The storage-integrity reads need privilege for SMART and the scrub status ioctl (`sudo -n`, read-only allow-list) and cover only the root's backing NVMe device; the second NVMe device (`/tmp`, `/fast`) is unread. The frontier becomes core when a committed read-only census plane reads these signals with a hermetic selftest and a registry row, and a later round admits it; until then the entry is the record.
+
+## Adjacent — mori userspace OOM killers (round 27)
+
+Overlap register against mori's admitted entry `corpus/knowledge/userspace-oom-killers-r26.md` at mori commit `ef9dbee136d6ed2ef98687f5cb0c0a16506a5155` (committed snapshot under `.ufo/waves/round-27/siblings/mori/`, sha256 `a5368ee7…0b29d`). Rows are reported, never absorbed: earlyoom behaviour and killer accounting are mori's; host unit state and the systemd-oomd reading in `memory-pressure-r25.md` are tsukuroi's. Full anchors and actions: `corpus/knowledge/adjacency-mori-oom-r27.json` and `.md`. A sibling citing this lane is not a recipient acknowledgement; the frontier bullet on acknowledgement stays open.
+
+| id | owner | class | pointer |
+|---|---|---|---|
+| OV1 | tsukuroi | INBOUND-RESOLVES | mori F8 unit list → `memory-pressure-r25.md` lines 204-206, same at 157ee255 and the tip |
+| OV2 | mori | INBOUND-DRIFTED | mori `PROVINCE.md:66` → lane PROVINCE lines now 30-33 and 44-53; mori re-pins |
+| OV3 | tsukuroi | AGREES | meaning of `auto` (lane lines 201-202) |
+| OV4 | tsukuroi | CONFLICTS | mori F8 drops the lane's OOMRules= qualifier (lane lines 387-390); reported to mori |
+| OV5 | mori | CONFLICTS | lane line 382 relies on an earlyoom option mori's F7 says 1.9.0 lacks; lane notice points at mori |
+| OV6 | mori | LANE-GAP | systemd-oomd cgroup accounting attributes; not absorbed |
