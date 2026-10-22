@@ -1,0 +1,9 @@
+Out-of-band demo of the two read-only call shapes used by mutants q3-dp-read and q3-ceiling.
+Setup under /fast/scratch/hyaku/tsukuroi-r31/CritProbeC2Design/dotgit-demo: canary repo with one
+commit; tree/.git and tmp/.git are FILES reading `gitdir: <canary>/.git` (the probe's dotgit shape);
+every git call carries GIT_CONFIG_NOSYSTEM=1, GIT_CONFIG_GLOBAL=/dev/null, GIT_CONFIG_SYSTEM=/dev/null.
+
+canary HEAD: b6de37d6fd1b659f8a770acbc0749b03da2eee34
+dp-read shape (cwd, ceiling=TMPDIR): b6de37d6fd1b659f8a770acbc0749b03da2eee34 rc=0
+ceiling shape (ceiling=/nonexistent, -C TMPDIR/sub): b6de37d6fd1b659f8a770acbc0749b03da2eee34
+ceiling=TMPDIR, -C TMPDIR/sub: fatal: not a git repository (or any of the parent directories): .git
