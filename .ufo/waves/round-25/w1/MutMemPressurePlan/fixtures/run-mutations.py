@@ -98,26 +98,47 @@ def cell_spans(line):
     return spans
 
 
-QUOTE_SPAN = re.compile(r'"([^"]*)"|\u201c([^\u201d]*)\u201d|`([^`]*)`')
+SEPARATED_QUOTES = re.compile(r'"\s*;\s')
+BACKTICK_SPAN = re.compile(r'`([^`]*)`')
+
+
+def straight_quote_spans(text):
+    """The straight-quoted spans of a text, as (start, end, content).
+
+    A located quote may itself contain double quotes, and one cell may hold several
+    located quotes separated by `"; `. When the cell separates them the quotes pair
+    from the left; otherwise the outermost pair is the located quote and the inner
+    ones belong to its text.
+    """
+    positions = [i for i, ch in enumerate(text) if ch == '"']
+    if len(positions) < 2:
+        return []
+    if SEPARATED_QUOTES.search(text):
+        pairs = list(zip(positions[0::2], positions[1::2]))
+    else:
+        pairs = [(positions[0], positions[-1])] if len(positions) > 2 else \
+            list(zip(positions[0::2], positions[1::2]))
+    return [(start, end + 1, text[start + 1:end].strip()) for start, end in pairs if end > start]
 
 
 def quoted_spans(line):
-    """The balanced quoted spans of a raw line, as (start, end, content)."""
+    """The quoted spans of a raw line, as (start, end, content).
+
+    A backtick-delimited span wins over a straight-quoted one.
+    """
     out = []
-    for match in QUOTE_SPAN.finditer(line):
-        content = next((group for group in match.groups() if group is not None), '')
-        out.append((match.start(), match.end(), content.strip()))
+    for match in BACKTICK_SPAN.finditer(line):
+        out.append((match.start(), match.end(), match.group(1).strip()))
+    for start, end, content in straight_quote_spans(line):
+        if not any(s <= start and end <= e for s, e, _ in out):
+            out.append((start, end, content))
+    out.sort()
     return out
 
 
 def split_cells(line):
     """Split a markdown table row into cells, honouring a backslash-escaped pipe."""
-    stripped = line.strip()
-    if stripped.startswith('|'):
-        stripped = stripped[1:]
-    if stripped.endswith('|') and not stripped.endswith('\\|'):
-        stripped = stripped[:-1]
-    return [text for _start, _end, text in cell_spans(stripped)]
+    return [text for _start, _end, text in cell_spans(line.strip().strip('|'))]
 
 
 def parse_sources_table(text):
@@ -204,7 +225,10 @@ def op_lesson_gate_quote(entry, root, capture_lines):
         # Replace the quote cell on the raw line, keeping every other cell's text.
         cell_start = spans[2][0]
         cell_end = spans[2][1]
-        lines[index] = '|' + raw[:cell_start] + '"%s"' % quote + raw[cell_end:]
+        # The cell text is the stripped span; write it back with the same spacing so
+        # the row stays a well-formed table row.
+        lines[index] = '| ' + ' | '.join(
+            cells[:2] + ['"%s"' % quote] + cells[3:]) + ' |'
         path.write_text('\n'.join(lines) + ('\n' if text.endswith('\n') else ''))
         entry['applied_detail'] = ('Gate row %s quote replaced: %d words -> %d words'
                                     % (sid, len(old.split()), want))
@@ -271,6 +295,77 @@ def op_lesson_gate_quote_truncate_at_pipe(entry, root, capture_lines):
                                     % (sid, cut, old[:60], cells[2][:60]))
         return True, entry['applied_detail']
     return False, 'Gate row %s absent from the fixture lesson' % sid
+
+
+def op_sources_row_drop_cell(entry, root, capture_lines):
+    """Drop one cell from a SOURCES row so the row's cell count no longer matches (M12).
+
+    A registry row whose cell count differs from the header's is malformed: its columns
+    cannot be named. The cell is removed from the row and the row is written back with
+    the same spacing, so the defect is the cell count and nothing else.
+    """
+    path = root / entry['target_file']
+    text = path.read_text()
+    rows = parse_sources_table(text)
+    sid = entry['params']['source_id']
+    drop = entry['params']['drop_column']
+    if sid not in rows:
+        return False, 'source id %s absent from the fixture registry' % sid
+    cells, index = rows[sid]
+    column = {'id': 0, 'source': 1, 'kind': 2, 'tier': 3, 'scope': 4, 'anchor': 5,
+              'teaches': 6, 'status': 7, 'opened': 8, 'recheck': 9, 'used-by': 10}[drop]
+    if column >= len(cells):
+        return False, 'the %s column is absent from row %s' % (drop, sid)
+    old = cells[column]
+    kept = cells[:column] + cells[column + 1:]
+    lines = text.splitlines()
+    lines[index] = '| ' + ' | '.join(kept) + ' |'
+    path.write_text('\n'.join(lines) + ('\n' if text.endswith('\n') else ''))
+    entry['applied_detail'] = ('SOURCES row %s: the %s cell %r was dropped, so the row now has '
+                                '%d cells against the header\'s 11'
+                                % (sid, drop, old, len(kept)))
+    return True, entry['applied_detail']
+
+
+def op_entry_quote_mismatch(entry, root, capture_lines):
+    """Replace a row's own quote with a text the lesson Gate does not record (M11).
+
+    The row then asserts a quote that no cited page supplies. The checker compares the
+    entry's quote against the Gate quote for that source in either direction, so the
+    replacement must be neither a substring of the Gate quote nor a superstring of it.
+    """
+    path = root / entry['target_file']
+    document = json.loads(path.read_text())
+    row_id = entry['params']['row_id']
+    source_id = entry['params']['source_id']
+    replacement = entry['params']['replacement']
+
+    rows = None
+    for value in document.values():
+        if isinstance(value, list) and value and isinstance(value[0], dict):
+            if any(isinstance(item, dict) and item.get('id') == row_id for item in value):
+                rows = value
+                break
+    if rows is None:
+        return False, 'row %s absent from the fixture entry JSON' % row_id
+    row = next(item for item in rows if isinstance(item, dict) and item.get('id') == row_id)
+
+    quotes = row.get('quotes')
+    if not isinstance(quotes, list) or not quotes:
+        return False, 'row %s carries no quotes array' % row_id
+    target = None
+    for item in quotes:
+        if isinstance(item, dict) and item.get('source') == source_id:
+            target = item
+            break
+    if target is None:
+        return False, 'row %s carries no quote for %s' % (row_id, source_id)
+    old = target.get('quote')
+    target['quote'] = replacement
+    path.write_text(json.dumps(document, indent=2, ensure_ascii=False) + '\n')
+    entry['applied_detail'] = ('row %s quote for %s replaced: %r -> %r'
+                                % (row_id, source_id, old, replacement))
+    return True, entry['applied_detail']
 
 
 def op_entry_pointer_replace(entry, root, capture_lines):
@@ -373,6 +468,8 @@ OPERATIONS = {
     'sources-cell-and-lesson-absence': op_sources_cell_and_lesson_absence,
     'lesson-gate-quote': op_lesson_gate_quote,
     'lesson-gate-quote-truncate-at-pipe': op_lesson_gate_quote_truncate_at_pipe,
+    'entry-quote-mismatch': op_entry_quote_mismatch,
+    'sources-row-drop-cell': op_sources_row_drop_cell,
     'entry-pointer-replace': op_entry_pointer_replace,
     'capture-append-bytes': op_capture_append_bytes,
     'skill-table-row-delete': op_skill_table_row_delete,

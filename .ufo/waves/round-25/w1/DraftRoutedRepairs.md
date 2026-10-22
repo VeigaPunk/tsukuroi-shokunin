@@ -1,0 +1,109 @@
+# DraftRoutedRepairs — round-24 routed defects 1 to 8, disposition for round 25
+
+Seat: `TsukuroiR25.DraftRoutedRepairs` (scribe, wave 1). Date: 2026-10-22. Lane: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin`.
+
+Verdict: defects 1, 2, 5 and 6 are carried by landed artifacts that I verified against the repository bytes, defects 3 and 4 are only partly carried and each still needs one lesson-backed criterion, and defects 7 and 8 are operator-owned and are not claimed by this round.
+
+Scope note: this is a draft for the L1 to integrate. Nothing here is integrated. The two criteria I propose are numbered 60 and 61 because criteria 57, 58 and 59 are already landed in `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md:116-118`.
+
+## 1. Defect 1 (claim sizing) — carried, with one residual worth the L1's attention
+
+1.1. [obs] The fix is the checker `tools/check-self-assessment.py`, run as `python3 tools/check-self-assessment.py --revision <REV>`. It is landed in the tip commit and it counts mismatches between the lane's stated self-assessment and the repository at a named revision, over the fixed check set K01 to K23 that the declaration fixes. Evidence: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SCORECARD.md:792` and `:795`, and the tool file `tools/check-self-assessment.py` in commit `5e7c04e`.
+
+1.2. [obs] I reproduced the base measurement independently, without running the tool. I applied the tool's own ordinal regex (`\b<axis>\b(?![A-Za-z])[^0-9|→\n]{0,12}?(\d{1,2})\s*(?:→|->)\s*(\d{1,2})`, with both numbers bounded to 0 to 10) to the SCORECARD bytes of the base revision `b9046016`, and I compared each selected after-value with the score in the round-11 axes table. My six selections were depth at line 759, coverage at line 224, operability at line 731, freshness at line 772, calibration at line 771 and adjacency at line 620. The three that disagree with the table are coverage (table says 8, transition says 9), freshness (table says 8, transition says 9) and adjacency (table says 7, transition says 8). The executor's table reports exactly the same six observed lines and the same three mismatching check ids K02, K04 and K06. My independent count of the census selftest call sites in the base census script is 97, the same number the operability row check compares against. So the tool and its measurement agree with an outside reading of the same bytes.
+
+1.3. [obs] The lane's own self-assessment was rewritten for the round, and the lesson and the criterion record the defect: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-25.md:59` (row R25-STALE-AXES-TABLE) and `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md:116` (criterion 57). Both name the stale table at `SCORECARD.md:45-52` and the K01 to K23 checker.
+
+1.4. [obs] Residual, measured on the tip's SCORECARD bytes: for two of the six axes the K01 to K06 evidence now comes from the round-25 declaration rows themselves. The last matching line for depth is `SCORECARD.md:793` (the declaration row "depth 8 → 8") and the last matching line for calibration is `SCORECARD.md:792` (the declaration row "calibration 9 → 9"). The last matching line for freshness is `SCORECARD.md:807`, which is the refinement text that quotes the example "freshness (actual 9 → 9". The other three axes (coverage at 224, operability at 731, adjacency at 620) still resolve to older move records. I re-ran this selection against the tip, after the new axes table was appended at `SCORECARD.md:815-833`, and the six selected lines are unchanged: the new table is the last `## Axes — ` heading and so is skipped by the search, and the same declaration rows at 792, 793 and 807 are selected. [inf] The check therefore compares three axes against independent move records and three axes against rows of the declaration under test, so for those three the check is partly self-referential. The tool prints the line it used for each check, so the reading is auditable rather than hidden. [inf] A refinement that excludes the round's own declaration rows from the search would restore independence for all six axes; that is a change to the declared rule and belongs to the L1, not to this seat.
+
+1.5. [obs] The landed repair is visible in the tip: the new axes table at `SCORECARD.md:815-838` and the new Capabilities table at `SCORECARD.md:840` were appended, the round-11 table stays in the file as the historical record, and the checker `tools/check-self-assessment.py` and the C2 checker `tools/check-memory-pressure.py` are both present in the tip tree. The C2 checker implements the two-branch source rule that answers defect 5: its own header states that a source row counts when it was "either opened 2026-10-22 or has its `recheck` cell changed in place this [round]", and it parses the lesson's old to new recheck log in the table form, the one-cell arrow form and the prose form.
+
+## 2. Defect 2 (privileged-probe boundary) — carried
+
+2.1. [obs] Both wave contexts carry a written read-only sudo allow-list. The clause names the commands a seat may run without sudo, names the four permitted sudo forms (`sudo -n cat <file>`, `sudo -n stat <path>`, `sudo -n ls <dir>`, `sudo -n journalctl --no-pager <read options>`), forbids everything else under sudo including interpreters on stdin, `unshare`, mounts, `mkinitcpio`, `limine`, `snapper`, `pacman`, systemctl state changes and writes, and states that no item of this wave needs sudo. Evidence: the `context` field of `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1-spec.json` and the same clause in `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1-dispatch.json`.
+
+2.2. [obs] The lesson and criterion record it: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-25.md:44` and `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md:117` (criterion 58, which names the round-24 failing example at `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-24-verifier-spotcheck.md:69`).
+
+2.3. [obs] One residual ambiguity in the landed clause, which I do not think needs a new criterion: the no-sudo half reads as an exhaustive list of what may run without privilege, and the four permitted sudo forms carry placeholders (`<file>`, `<path>`, `<dir>`, `<read options>`) that bound the command but not the target. The sentinel seat reached the same reading. I record it and propose no criterion, because criterion 58 already requires that a privileged probe outside the list needs its own declared item.
+
+## 3. Defect 3 (sequencing) — partly carried; one criterion proposed
+
+3.1. [obs] What is carried: wave 2 was dispatched only after every wave-1 seat returned, and the code-writing executors worked in separate clones. What is not carried: the canonical `kimi-shokunin` protocol copies were read after wave 1 was dispatched, and one wave-1 seat pushed scratch commits into the lane through a clone whose origin was the lane. The lesson records both at `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-25.md:44` (row 3) and `:60` (row R25-SEAT-PUSH).
+
+3.2. [obs] The push half is already covered by criterion 59 at `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md:118`. The load-order half is not covered by any criterion: `grep -in "sequenc|settle|worktree" corpus/QUALITY.md` at the tip returns only the unrelated mention inside criterion 38.
+
+3.3. [obs] Lesson anchors exist and are already in the corpus: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-21.md:92` (row R21-LOAD-ORDER, the L1 completing its Frontier section after reading newer appended sections), `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-21.md:144` (three code executors wrote disjoint draft directories inside the lane checkout rather than in separate Git worktrees), and `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-24.md:88` and `:90` (canonical loading deferred until after both waves were dispatched; eleven wave-1 seats wrote temporary files outside their declared paths).
+
+3.4. [inf] Proposed criterion 60, for the L1 to append after criterion 59:
+
+> 60. **Canonical lane files are read before dispatch, and every wave settles before the next wave starts (R25-WAVE-SEQUENCE):** the canonical protocol copies and the lane's own SKILL.md are read before the first seat of a wave is dispatched, not afterwards; a wave is not closed until every seat of it has either delivered a report or is recorded dead with its provider outcome; a seat that writes files works in its own clone rather than in the shared lane checkout; and a seat's temporary files stay inside the path that seat declared. Failing example: round 24 read the canonical protocol copies only after both waves had been dispatched (`corpus/lessons/round-24.md`, process conformance debt), and eleven wave-1 seats wrote temporary files outside their declared paths (`corpus/lessons/round-24.md:90`); three code executors wrote disjoint draft directories inside the lane checkout rather than in separate clones (`corpus/lessons/round-21.md:144`). Shown able to fail: a settlement ledger that names each dispatched seat with its report path, whether that report exists, and its final status; any member without a report and without a recorded death makes the ledger check exit non-zero, and the ledger is compared before the next wave is dispatched. Lesson: `corpus/lessons/round-21.md` § Mistakes R21-LOAD-ORDER; `corpus/lessons/round-24.md` § Process notes.
+
+3.5. [unk] The ledger check in 3.4 is a proposed control, not an existing one. No lane tool reads a settlement ledger today; `tools/check-seat-scope.py` audits the `Scope:` trailer and the seat reports of one wave, and it does not check settlement order or load order. At the moment of writing, the wave-1 registry at `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/swarm-registry.json` names 38 members and 30 of them had a report file in the wave-1 directory, so a ledger of this shape is non-clean today. The L1 should either build that control or accept the rule without one.
+
+## 4. Defect 4 (provenance) — partly carried; one criterion proposed
+
+4.1. [obs] The directive half is carried. The wave context holds the verbatim bytes of the directive file: the file `/home/vgpnk/.agents/skills/godspeed/directive.md` is 429 bytes with sha256 `db88963cbdf5a0db22b460b284bf6f1d1f4abac9eaadb28bdb5e9bffe27be3bb`, and those exact bytes appear in the `context` field of `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1-spec.json` and of `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1-dispatch.json`. The dispatcher sends that context with every task, so each seat received the directive bytes.
+
+4.2. [obs] The answering-model half is only partly carried, and I can measure how far. The wave-1 registry at `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/swarm-registry.json` names 38 members and all 38 carry a null `agentId`. The dispatch result file `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1-dispatch-result.txt` records route aliases only, in the counts `m_mim` 21, `m_zfl` 7, `m_auto` 5, `m_flash` 4 and `m_luna` 1, with no mapping from a seat to a route. The seat reports carry a `Model:` line, which is a self-report written by the seat, and the lesson records that some seats answered "not exposed". [inf] So the model that answered a given seat is not re-derivable from committed bytes: a reader can see that five routes existed and that some seat said which one, but cannot bind the two.
+
+4.3. [obs] Lesson anchors: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-24-verifier-spotcheck.md:75` (row "Seat prompts lacked the verbatim Godspeed directive body; answering-model identity not captured", class "provenance conformance defect") and `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-24.md:102` (the same debt recorded as process conformance debt).
+
+4.4. [inf] Proposed criterion 61, for the L1 to append after criterion 60:
+
+> 61. **The answering-model identity of each seat is recorded by the dispatcher, not only self-reported in prose (R25-MODEL-IDENTITY):** the wave registry binds every dispatched seat to the answering-model identity the host exposes for it, or records that the host exposes none; a route alias without a seat-to-route mapping does not discharge the requirement, and a `Model:` line inside a seat's own report is a self-report that the round cannot re-derive. Failing example: at round 25 the wave-1 registry names 38 members with a null `agentId` on every one, and the dispatch result records only the route alias counts, so the model that answered a given seat cannot be recovered from committed bytes (`corpus/lessons/round-24-verifier-spotcheck.md:75`; `corpus/lessons/round-24.md:102`). Shown able to fail: a registry check that every member carries either a non-null identity or an explicit "not exposed" marker; a null identity without that marker makes the check exit non-zero. Lesson: `corpus/lessons/round-24-verifier-spotcheck.md` § Routed defects item 4; `corpus/lessons/round-24.md` § Process notes.
+
+4.5. [unk] As with 3.5, the registry check named in 4.4 is proposed, not existing. No lane tool reads `swarm-registry.json` for identity fields today.
+
+## 5. Defect 5 (registry inflation) — carried, no new criterion proposed
+
+5.1. [obs] The fix is in the C2 source rule, which accepts either a row opened this round or a row whose `recheck` was updated in place this round with the change logged old to new in the round lesson. Evidence: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SCORECARD.md:797`, which states in words that this answers routed defect 5.
+
+5.2. [obs] The registry did not grow. The census taken before this round records 21 W04 duplicate-URL warnings and exits 0: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/measure/census-before.txt` holds 21 W04 lines. The wave-1 classifier report `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/ExecCensusW04.md` classifies those 21 pairs at the base revision as 17 same-page re-registrations with a different scope, 4 distinct anchors on one page and 0 same-scope duplicates, and confirms by replica against the real census that the count is 21 at `b9046016`.
+
+5.3. [inf] Why no new criterion is proposed for defect 5. The rule the defect asks for already exists in the fleet corpus rule 2, which allows only `status`, `recheck` and `used-by` to change in place with the change logged old to new in the round lesson (`/home/vgpnk/Projects/shokunin/CORPUS.md:116`), and the census already reports the duplicate-URL condition as a warning rather than a failure. The gap the defect names was that the round-24 gate forced a new row instead of an in-place update; that gap is closed by the landed checker rule, not by an admission-bar rule. A new criterion would restate the fleet rule.
+
+5.4. [obs] One residual that this seat cannot close and that the L1 should route: the executor's classifier report states that the inflation was caused by the round-24 gate's opened-date rule, which required a source row whose `opened` cell holds the round date and raised the finding `source-not-opened:<id>` (`corpus/lessons/round-24-verifier-spotcheck.md:102` and the classifier report, finding 6). [unk] I did not re-read that checker at the tip, so I do not state whether the requirement still stands there. If it does, the next gate that requires a row opened in its own round will reproduce the inflation.
+
+## 6. Defect 6 (label drift) — carried; the exact appended correction
+
+6.1. [obs] The correction is appended and lands the lesson IDs. The exact appended text at `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md:120` reads:
+
+> R25 correction to 54 and 55 (round-24 routed defect 6): the heading labels `R24-SUMMARY-RECALL` (criterion 54) and `R24-PREMISE-STALE` (criterion 55) are superseded by the lesson Mistake IDs `R24-KEY-RECOLLECTION` and `R24-STALE-PREMISE` in `corpus/lessons/round-24.md`, which the criteria's own lesson pointers and the spot-check already use. The criteria text is unchanged.
+
+6.2. [obs] I verified the correction resolves a real contradiction rather than a naming preference. Each of the two criteria carried both spellings on one line before the append: the criterion 54 heading read `R24-SUMMARY-RECALL` while the same line's own lesson pointer already read `R24-KEY-RECOLLECTION` (`corpus/QUALITY.md:107`), and the criterion 55 heading read `R24-PREMISE-STALE` while its lesson pointer already read `R24-STALE-PREMISE` (`corpus/QUALITY.md:108`). The lesson rows are `R24-STALE-PREMISE` at `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-24.md:45` and `R24-KEY-RECOLLECTION` at `:47`.
+
+6.3. [obs] The lesson side is aligned too: the round-25 lesson's routed-defects row 6 records the same disposition (`corpus/lessons/round-25.md:47`), so no mirrored note in the round-24 lesson is needed.
+
+6.4. [obs] The two superseded spellings survive only in frozen wave-24 draft artifacts and in the round-24 spot-check, which quotes the defect itself. Those are historical bytes and are not edited. A repository-wide grep for the four spellings at the tip returns 13 files, of which the two production files are `corpus/QUALITY.md` and the round-24 lesson and spot-check; the rest are wave artifacts and the wave-25 dispatch payloads.
+
+## 7. Defect 7 (P3 snapshot boot) — operator-owned, not claimed
+
+7.1. [obs] The round does not claim it. The declaration states that routed defect 7 needs an operator-authorized boot and is not claimed, and that no L0 line was added because the round-24 question stands (`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SCORECARD.md:786` and `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-25.md:48`).
+
+7.2. [inf] Why no criterion is proposed. The trigger is an observation the lane may not make: the flip condition is an observed authorized read-only snapshot boot, which is an operator action outside this lane's authority, and the rejected interpretation is already recorded with that flip condition in the round-24 lesson's rejected-interpretations list (`corpus/lessons/round-24.md`, rejected interpretations). An admission-bar rule would not produce the missing observation. The consequence named by the defect, that the round-24 C2 stays at four of five premises, is unaffected by this round's C2, which is a different claim.
+
+## 8. Defect 8 (private identifier in published history) — operator-owned, unchanged
+
+8.1. [obs] The round-25 lesson records it as operator-owned and unchanged (`corpus/lessons/round-25.md:49`), and no artifact of this round touches published history.
+
+8.2. [obs] The related promotion question is untouched by this seat: all four SHONEN boxes are marked `[~]`, and the C1 checker confirms that each box names only repository paths that exist at the revision, which I re-derived independently for the base revision and which matched the executor's table for K20 to K23. Whether a non-author can check the whole of SKILL.md remains unverified, so there is no promotion signal to report.
+
+## 9. Numbering and duplicate-authority note for the L1
+
+9.1. [obs] Criteria 57, 58 and 59 are landed at `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md:116`, `:117` and `:118`, and the defect-6 correction at `:120`. My two proposals therefore start at 60 and 61.
+
+9.2. [obs] During this wave three seats drafted overlapping criteria for the same two subjects: the sentinel seat proposed criterion 58 for the privileged-probe boundary, the lesson-mistakes seat proposed criterion 57 for the stale axes table, and this seat was told that numbering continues after 56 and 57. The L1 has landed one text per subject, and the wave-1 critic recorded the same duplicate-authority risk. [inf] My proposals touch subjects no landed criterion covers, so they do not duplicate the landed text, and the numbers 60 and 61 are free at the tip.
+
+## 10. Things I did not verify
+
+10.1. [unk] I did not run `tools/check-self-assessment.py` and did not run the census selftest; both would execute repository code. My independent recomputation in 1.2 used the tool's own regex and path-resolution helpers imported from the executor's clone, applied to repository bytes read with read-only git, and it reproduced the executor's reported check ids, observed lines and case count.
+
+10.2. [unk] I did not check whether the pause-lift checker still carries the opened-date requirement named in 5.4.
+
+10.3. [unk] I did not verify the settlement state of the wave-1 seats beyond the 30 report files I counted in the wave-1 directory; the registry lists 38 members, so the remainder were either still running or had written their report elsewhere.
+
+Report: .ufo/waves/round-25/w1/DraftRoutedRepairs.md
+
+Scope: read=lane production files (corpus/QUALITY.md, corpus/lessons/round-24.md, corpus/lessons/round-24-verifier-spotcheck.md, corpus/lessons/round-25.md, corpus/SOURCES.md, SCORECARD.md, SHONEN.md, PROVINCE.md, SKILL.md, tools/), the fleet CORPUS.md and scripts/sources-census.sh, the wave-1 spec, dispatch and registry, 36 wave-1 seat reports, the executor clone copy of tools/check-self-assessment.py; wrote=.ufo/waves/round-25/w1/DraftRoutedRepairs.md; executed=read-only git (log, show, rev-parse, ls-tree, cat-file, status, branch, diff, log -S) and read-only inspection commands (grep, awk, sed -n, wc, ls, sha256sum, python3 for parsing repository bytes and for importing the checker helpers)
+Model: opencode-go/minimax-m3.1-flash-free
+Installs: none

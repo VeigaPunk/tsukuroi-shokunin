@@ -1,0 +1,147 @@
+{
+  "schema": "tsukuroi-mem-pressure-mutation-set-w2-v1",
+  "target_tool": "tools/check-memory-pressure.py",
+  "target_counting_command": "python3 tools/check-memory-pressure.py --revision <REV>",
+  "target_field": "verified_rows",
+  "baseline_revision": "5e7c04ecb02735491456de2b8bc44550d0db4609",
+  "mutations": [
+    {
+      "id": "N01",
+      "breaks_rule": "a cited source must be a `mined` SOURCES row",
+      "expected_finding_id": "MP-SOURCE-STATUS-NOT-MINED",
+      "target_file": "corpus/SOURCES.md",
+      "operation": "sources-cell",
+      "params": {"source_id": "S115", "column": "status", "value": "queued"}
+    },
+    {
+      "id": "N02",
+      "breaks_rule": "the cited source's used-by cell must name the entry",
+      "expected_finding_id": "MP-SOURCE-USED-BY-MISSING",
+      "target_file": "corpus/SOURCES.md",
+      "operation": "sources-cell",
+      "params": {"source_id": "S116", "column": "used-by", "value": ""}
+    },
+    {
+      "id": "N03",
+      "breaks_rule": "a cited source must be opened 2026-10-22, or have its recheck updated in place this round with the change logged old -> new in the lesson",
+      "expected_finding_id": "MP-SOURCE-OPENED-STALE",
+      "target_file": "corpus/SOURCES.md",
+      "operation": "sources-cell",
+      "params": {"source_id": "S117", "column": "opened", "value": "2026-10-21"}
+    },
+    {
+      "id": "N04",
+      "breaks_rule": "the located quote recorded in the lesson Gate is at most 25 words",
+      "expected_finding_id": "MP-QUOTE-TOO-LONG",
+      "target_file": "corpus/lessons/round-25.md",
+      "operation": "gate-quote-words",
+      "params": {"source_id": "S118", "quote_words": 26}
+    },
+    {
+      "id": "N05",
+      "breaks_rule": "a capture pointer must not resolve to a `### ` section header",
+      "expected_finding_id": "MP-CAPTURE-POINTER-HEADER",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "operation": "entry-pointer-set",
+      "params": {"row_id": "MP1", "capture_line": 12, "token": "system-memory-psi-read-1"}
+    },
+    {
+      "id": "N06",
+      "breaks_rule": "a capture pointer's line text must be unique in the capture",
+      "expected_finding_id": "MP-CAPTURE-POINTER-NOT-UNIQUE",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "operation": "entry-pointer-set",
+      "params": {"row_id": "MP6", "capture_line": 21, "token": "total=41389485"}
+    },
+    {
+      "id": "N07",
+      "breaks_rule": "the pointed line must contain the named token",
+      "expected_finding_id": "MP-CAPTURE-POINTER-TOKEN-ABSENT",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "operation": "entry-pointer-set",
+      "params": {"row_id": "MP1", "capture_line": 14, "token": "nonexistenttoken"}
+    },
+    {
+      "id": "N08",
+      "breaks_rule": "the capture file must hash to the pinned sha256",
+      "expected_finding_id": "CAPTURE-TAMPERED",
+      "target_file": ".ufo/waves/round-25/capture/capture.txt",
+      "operation": "capture-append",
+      "params": {"append": "\n# digest-probe-line\n"}
+    },
+    {
+      "id": "N09",
+      "breaks_rule": "SKILL.md must carry a decision-table row naming the row id",
+      "expected_finding_id": "MP-SKILL-ROW-MISSING",
+      "target_file": "SKILL.md",
+      "operation": "skill-delete-row",
+      "params": {"row_id": "MP6"}
+    },
+    {
+      "id": "N10",
+      "breaks_rule": "a Gate quote that differs from the entry quote by one character is not the quote the cited source supplies",
+      "expected_finding_id": "MP-QUOTE-MISMATCH",
+      "target_file": "corpus/lessons/round-25.md",
+      "operation": "gate-quote-one-char",
+      "params": {"source_id": "S118", "position": 0, "new_character": "s"}
+    },
+    {
+      "id": "N11",
+      "breaks_rule": "an entry quote that differs from the Gate quote by one character is not the quote the cited source supplies",
+      "expected_finding_id": "MP-QUOTE-MISMATCH",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "operation": "entry-quote-one-char",
+      "params": {"row_id": "MP6", "source_id": "S118", "position": 0, "new_character": "t"}
+    },
+    {
+      "id": "N12",
+      "breaks_rule": "a quote the row carries must be the Gate quote of a source the row lists",
+      "expected_finding_id": "MP-QUOTE-MISMATCH",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "operation": "entry-quote-replace",
+      "params": {"row_id": "MP6", "source_id": "S118",
+                 "replacement": "a quote the Gate does not record for this source"}
+    },
+    {
+      "id": "N13",
+      "breaks_rule": "a quote must name a source the row lists",
+      "expected_finding_id": "MP-QUOTE-SOURCE-UNKNOWN",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "operation": "entry-quote-unknown-source",
+      "params": {"row_id": "MP3", "source_id": "S119"}
+    },
+    {
+      "id": "N14",
+      "breaks_rule": "the entry carries MP1 to MP6 exactly once each",
+      "expected_finding_id": "MP-ROW-ID-DUPLICATE",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "operation": "entry-duplicate-row",
+      "params": {"row_id": "MP6"}
+    },
+    {
+      "id": "N16",
+      "breaks_rule": "the located quote recorded in the lesson Gate is at most 25 words (every Gate quote of the row's sources made too long)",
+      "expected_finding_id": "MP-QUOTE-TOO-LONG",
+      "target_file": "corpus/lessons/round-25.md",
+      "operation": "gate-quote-words-all",
+      "params": {"source_ids": ["S117", "S118"], "quote_words": 26}
+    },
+    {
+      "id": "N17",
+      "breaks_rule": "a quote the row carries must be the quote of the cited page (the entry and the Gate are changed together to a text no source supplies)",
+      "expected_finding_id": null,
+      "target_file": "corpus/lessons/round-25.md",
+      "operation": "gate-and-entry-quote-consistent",
+      "params": {"source_id": "S118", "row_id": "MP3",
+                 "new_text": "the kernel accounts stall time in microseconds per cgroup since boot"}
+    },
+    {
+      "id": "N15",
+      "breaks_rule": "SKILL.md must carry a decision-table row naming the row id (the row survives but its id moves)",
+      "expected_finding_id": "MP-SKILL-ROW-MISSING",
+      "target_file": "SKILL.md",
+      "operation": "skill-rename-row-id",
+      "params": {"row_id": "MP6", "replacement": "MPX"}
+    }
+  ]
+}

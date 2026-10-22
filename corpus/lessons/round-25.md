@@ -66,3 +66,26 @@ Spot-check result: owed to the non-author closure; not self-granted.
 - Sentinel finding: `capture.sh` prints an "active lines" count of 1 for oomd.conf; that line is the `[OOM]` section header, so the active settings count is 0.
 - Round-26 capture items proposed by SrcPsiDoc: the boot id (`/proc/sys/kernel/random/boot_id`) beside any pair of interval reads, and unit start time plus linger state for per-cgroup totals.
 - Installs: none.
+
+## Gate errata after wave 2 (appended 2026-10-22, before closure)
+
+- S120 anchor: the sha256 in `corpus/SOURCES.md` row S120 has a transposition (`…5632d4a6…`); the fetched bytes of `https://raw.githubusercontent.com/systemd/systemd/v262/man/oomd.conf.xml` hash to `36ae3e474a6e5632a4d61ae91b4d930bc9c3657ebf9f9081db5b7ba4cc926617` (CritC2Supersession). The registry row is append-only outside status, recheck and used-by, so this erratum carries the correction; the three copies in this round's SKILL.md section were corrected in place.
+- S125 anchor: the entry cites mori facts F2, F9 and F10, not F1 to F4 and F10 as the row says; the row also carries no blob digest. Mori's note at `4f05dd5a` lists `include/linux/psi.h` facts as pointers for a later round, so MP3's root-identity fact rests on this lane's S117, not on mori (CritC2Adjacency).
+- R25-STALE-AXES-TABLE captured-by: QUALITY 55 (stale host-state premise) partly covered the same failing example; it did not cover the lane's self-assessment table, which QUALITY 57 now does (CritTrendVerdicts).
+
+## Wave-2 findings recorded, not repaired this round
+
+- The C2 checker counts complete evidence links, not true verdicts. MutC2Rules killed 8 of 17 mutants against the real entry; the 9 survivors are in the quote rule (a Gate or entry quote mismatch is a non-blocking finding), the SKILL row rule (any table line naming the id) and the row count (a duplicated row still counts 6). CritC2Adjacency showed the sibling row S125 can stand as a row's only source. The instrument is not changed after measurement; tightening it (blocking quote mismatch, SKILL id in the first cell of the round-25 table, distinct ids, at least one tier-A source per row) is a round-26 item.
+- Four of the six C2 rows (MP1, MP2, MP3, MP6) restate generic kernel facts the sibling lane mori already holds; the new knowledge is MP4 (auto is not monitored) and part of MP5 (the memory-and-swap condition and the 5 percent floor). Nothing was reported back to mori this round.
+- S121 and S122 teaches cells say "only kill" makes a cgroup a candidate or is monitored; systemd v262 also monitors units with `OOMRules=` (S121 lines 1633-1644). S122's "when it is not running it acts on nothing" is an inference, not a quote. S118's teaches cell omits that `memory.events` is hierarchical. These rows are not rewritten; the entry carries the corrections (RevSourcesSystemd, RevSourcesKernel).
+
+## Record of the one in-place edit (appended after wave 2)
+
+`SHONEN.md` box 2 (line 8) changed `observation/request` to `observation and request`. Reason: the declared C1 path grammar (`SCORECARD.md` refinements, a token with a slash is a path) reads the slash token as a missing path, so K21 mismatched at the base. The packet in `corpus/knowledge/adjacency-handoffs-fleet-r1.md` section 3 is an observation plus a request, so the meaning is unchanged. One of the 13 base mismatches is therefore a grammar artifact repaired by rewording, not a stale fact; 12 are stale self-assessment facts (CritC1Construction, RevShonen). RevShonen also found that SHONEN boxes 3 and 4 cite superseded notes; they stay `[~]` and are routed to the next round.
+
+## Mistakes added after wave 2
+
+| ID | Class | Evidence pointer | Captured-by | Fix, and how it was shown able to fail |
+|---|---|---|---|---|
+| R25-LATE-CANONICAL-LOAD | landing | The canonical `kimi-shokunin/skills/shokunin/protocol/` files were read after wave 1 was dispatched; before dispatch the L1 read the fleet-root copies, which differ in wording only (`diff` line counts: PROTOCOL 71, MISSION 42, CORPUS 63, LEARNING 12, AXES 0). Third recurrence (rounds 21, 24, 25; CritRoutedPlan, CritRoutedClosure). | round-24 routed defect 3 (prose only) | Not fixed this round. Round 26 must read the canonical files and record their sha256 in the declaration commit before any wave is validated; a declaration without those digests is the failing state. |
+| R25-SEAT-WAKE-WRITES | landing | Wave-1 seats that had returned were woken by messages from other seats and kept editing their reports and copies after the L1 committed `5e7c04ec` (15 tracked files changed between 11:37Z and 11:59Z, including `w1/ExecMemPressureTool/check-memory-pressure.py`, which is not the measured `tools/` copy). The L1 sent a stop at 11:59Z and every seat acknowledged. | none (the wave context forbade messaging other seats only in wave 2) | The final wave-1 bytes are committed as evidence after the stop; the measured tools are the `tools/` copies at the measured revision. Round 26 contexts must forbid seat-to-seat messages in every wave. |

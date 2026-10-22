@@ -10,12 +10,14 @@ of one revision.  A row counts only when every one of these rules holds:
       either opened 2026-10-22 or has its `recheck` cell changed in place this
       round with the change logged old -> new in corpus/lessons/round-25.md
   R3  at least one Gate quote of at most 25 words exists in that lesson's Gate
-      for one of the row's sources
+      for one of the row's sources; and when the row carries its own `quotes`
+      array, every quote it carries is the Gate quote of a source the row
+      lists, and is at most 25 words
   R4  at least one capture pointer resolves to a line of the pinned capture
       whose text is unique in the capture, is not a `### ` header, a `$ `
       command echo or an `[exit ` line, holds at least one letter or digit,
       and contains the pointer's declared token (case-sensitive, >= 3 chars)
-  R5  SKILL.md carries a table line that names the row id
+  R5  SKILL.md carries a table row that names the row id as a cell of its own
 
 Every input is read through git at the bound revision; nothing on the host is
 probed and no working-tree byte of the measured revision is consulted.  The
@@ -132,15 +134,42 @@ def cell_spans(line):
     return spans
 
 
-QUOTE_SPAN = re.compile(r'"([^"]*)"|“([^”]*)”|`([^`]*)`')
+SEPARATED_QUOTES = re.compile(r'"\s*;\s')
+BACKTICK_SPAN = re.compile(r'`([^`]*)`')
+
+
+def straight_quote_spans(text):
+    """The double-quoted spans of a cell.
+
+    A located quote may itself contain double quotes (`The "some" line ...`),
+    and one cell may hold several located quotes separated by `"; `.  When the
+    cell separates them, the quotes pair from the left; otherwise the outermost
+    pair is the located quote and the inner ones belong to its text.
+    """
+    positions = [i for i, ch in enumerate(text) if ch == '"']
+    if len(positions) < 2:
+        return []
+    if SEPARATED_QUOTES.search(text):
+        pairs = list(zip(positions[0::2], positions[1::2]))
+    else:
+        pairs = [(positions[0], positions[-1])] if len(positions) > 2 else \
+            list(zip(positions[0::2], positions[1::2]))
+    return [(start, end + 1, text[start + 1:end].strip()) for start, end in pairs if end > start]
 
 
 def quoted_spans(line):
-    """The balanced quoted spans of a raw line, as (start, end, content)."""
+    """The quoted spans of a raw line, as (start, end, content).
+
+    A backtick-delimited span wins over a straight-quoted one, because the
+    lane writes a quote that contains double quotes inside backticks.
+    """
     out = []
-    for match in QUOTE_SPAN.finditer(line):
-        content = next((g for g in match.groups() if g is not None), '')
-        out.append((match.start(), match.end(), content.strip()))
+    for match in BACKTICK_SPAN.finditer(line):
+        out.append((match.start(), match.end(), match.group(1).strip()))
+    for start, end, content in straight_quote_spans(line):
+        if not any(s <= start and end <= e for s, e, _ in out):
+            out.append((start, end, content))
+    out.sort()
     return out
 
 
@@ -219,21 +248,64 @@ def first_id(cells):
 # ------------------------------------------------------------------ inputs
 
 
+def source_header(text):
+    """The column names of the registry header, as {name: index}.
+
+    A header is a table row whose next line is the separator row, so a prose
+    line that merely looks like a header is not read as one.  The registry is
+    an 11-column table; a row that carries a different number of cells is
+    read as malformed rather than as a shifted cell.
+    """
+    lines = (text or '').splitlines()
+    for index, line in enumerate(lines):
+        if not line.strip().startswith('|'):
+            continue
+        cells = split_cells(line)
+        if not cells or cells[0].strip().lower() != 'id':
+            continue
+        names = [c.strip().lower() for c in cells]
+        if 'status' not in names or 'used-by' not in names:
+            continue
+        following = lines[index + 1] if index + 1 < len(lines) else ''
+        if is_separator(split_cells(following)):
+            return {name: position for position, name in enumerate(names)}
+    return None
+
+
 def source_rows(text):
-    """Map S### -> {status, opened, recheck, used_by} from the 11-column registry."""
+    """Map S### -> {status, opened, recheck, used_by, shape} from the registry.
+
+    The registry is an 11-column table.  A row whose cell count differs from
+    the header's is malformed: its columns cannot be named, so it is marked
+    `shape: False` and the caller reports it instead of reading a shifted
+    cell as the status or the opening date.
+    """
     out, dups = {}, set()
+    header = source_header(text)
+    width = len(header) if header else 11
     for line in (text or '').splitlines():
         match = SOURCE_ROW.match(line)
         if not match:
             continue
         cells = split_cells(line)
-        if len(cells) < 11:
-            continue
         sid = match.group(1)
         if sid in out:
             dups.add(sid)
             continue
-        out[sid] = {'status': cells[7], 'opened': cells[8], 'recheck': cells[9], 'used_by': cells[10]}
+        if len(cells) != width:
+            out[sid] = {'status': '', 'opened': '', 'recheck': '', 'used_by': '', 'shape': False}
+            continue
+        if header:
+            def cell(name):
+                index = header.get(name)
+                return cells[index].strip() if index is not None and index < len(cells) else ''
+            info = {'status': cell('status'), 'opened': cell('opened'),
+                    'recheck': cell('recheck'), 'used_by': cell('used-by')}
+        else:
+            info = {'status': cells[7].strip(), 'opened': cells[8].strip(),
+                    'recheck': cells[9].strip(), 'used_by': cells[10].strip()}
+        info['shape'] = True
+        out[sid] = info
     return out, dups
 
 
@@ -331,8 +403,28 @@ def recheck_log(text):
 
 
 def skill_rows(text):
-    """Table lines of SKILL.md."""
-    return [line for line in (text or '').splitlines() if line.strip().startswith('|')]
+    """Table lines of SKILL.md, as (line, cells) pairs."""
+    out = []
+    for line in (text or '').splitlines():
+        if not line.strip().startswith('|'):
+            continue
+        out.append((line, split_cells(line)))
+    return out
+
+
+def skill_names_row(cells, row_id):
+    """Whether a SKILL.md table row names the row id as a cell of its own.
+
+    The decision table names each row in its `id` column, so the id stands
+    alone in a cell.  A table that merely mentions the id inside a cell's
+    prose -- a gate-registry row whose verdict map reads "six rows MP1 to MP6
+    verified" -- does not name the row, and does not stand in for the
+    decision-table row the declaration asks for.
+    """
+    for cell in cells:
+        if cell.strip().strip('`').strip() == row_id:
+            return True
+    return False
 
 
 def id_in_line(line, row_id):
@@ -506,6 +598,14 @@ def evaluate(read, expected_capture_sha=CAPTURE_SHA256):
             opened_ok = info['opened'] == ROUND_DATE
             logged = rechecks.get(sid)
             recheck_ok = bool(logged) and logged[1] == info['recheck'] and logged[0] != logged[1]
+            if not info.get('shape', True):
+                # The row's cells cannot be named, so its status, opening
+                # date and used-by are unread; one finding says so.
+                note_row('MP-SOURCE-ROW-SHAPE', sid)
+                source_detail.append({'id': sid, 'status': None, 'opened': None,
+                                      'used_by_names_entry': False, 'recheck_logged': False,
+                                      'qualifies': False})
+                continue
             if info['status'] != 'mined':
                 note_row('MP-SOURCE-STATUS-NOT-MINED', sid)
             if not used_by_ok:
@@ -541,12 +641,13 @@ def evaluate(read, expected_capture_sha=CAPTURE_SHA256):
                 note_row('MP-QUOTES-SHAPE', str(row_id))
                 continue
             if sid not in row_sources:
-                note_row('MP-QUOTE-SOURCE-UNKNOWN', sid, blocking=False)
+                note_row('MP-QUOTE-SOURCE-UNKNOWN', sid)
             if word_count(quote) > MAX_QUOTE_WORDS:
                 note_row('MP-QUOTE-TOO-LONG', sid)
             gate_texts = [norm(q) for q in quotes.get(sid, [])]
-            if not any(norm(quote) in text for text in gate_texts):
-                note_row('MP-QUOTE-MISMATCH', sid, blocking=False)
+            quoted = norm(quote)
+            if not any(quoted in text or text in quoted for text in gate_texts):
+                note_row('MP-QUOTE-MISMATCH', sid)
         if not quote_detail:
             note_row('MP-QUOTE-MISSING', str(row_id))
         elif not qualifying_quotes:
@@ -567,8 +668,9 @@ def evaluate(read, expected_capture_sha=CAPTURE_SHA256):
         if pointers and not [p for p in pointer_detail if p['counts']]:
             note_row('MP-CAPTURE-POINTER-UNUSABLE', str(row_id))
 
-        # R5: a SKILL.md table line naming the row id.
-        skill_hit = bool(row_id) and any(id_in_line(line, row_id) for line in skill_table)
+        # R5: a SKILL.md decision-table row naming the row id in a cell.
+        skill_hit = bool(row_id) and any(skill_names_row(cells, row_id)
+                                         for _line, cells in skill_table)
         if not skill_hit:
             note_row('MP-SKILL-ROW-MISSING', str(row_id))
 
@@ -584,7 +686,8 @@ def evaluate(read, expected_capture_sha=CAPTURE_SHA256):
                                                  'MP-SOURCE-STATUS-NOT-MINED',
                                                  'MP-SOURCE-USED-BY-MISSING',
                                                  'MP-SOURCE-OPENED-STALE',
-                                                 'MP-SOURCE-DUPLICATE')),
+                                                 'MP-SOURCE-DUPLICATE',
+                                                 'MP-SOURCE-ROW-SHAPE')),
             'R3_gate_quote': rule_of(row_findings, ('MP-QUOTE-MISSING', 'MP-QUOTE-TOO-LONG',
                                                     'MP-QUOTE-MISMATCH', 'MP-QUOTE-SOURCE-UNKNOWN',
                                                     'MP-QUOTES-SHAPE')),
@@ -796,7 +899,8 @@ def selftest():
     case('source-missing', files({ENTRY: set_source('MP1', 'S998')}),
         {'exit': 1, 'verified_rows': 5, 'findings': ['MP-SOURCE-MISSING']})
     case('no-sources', files({ENTRY: mutate_row('MP1', lambda r: r.__setitem__('sources', []))}),
-        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-SOURCES-EMPTY', 'MP-QUOTE-MISSING']})
+        {'exit': 1, 'verified_rows': 5,
+         'findings': ['MP-SOURCES-EMPTY', 'MP-QUOTE-MISSING', 'MP-QUOTE-SOURCE-UNKNOWN']})
     long_quote = ' '.join(['word%d' % n for n in range(26)])
     case('quote-too-long', files({
         LESSON: fixture_lesson().replace('"%s"' % QUOTE_A, '"%s"' % long_quote, 1),
@@ -807,7 +911,7 @@ def selftest():
         LESSON: fixture_lesson().replace(
             '| %s | https://example.invalid/%s | "%s" | SrcA |\n' % (ROW_SOURCE_IDS[0], ROW_SOURCE_IDS[0], QUOTE_A),
             '')}),
-        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-QUOTE-MISSING']})
+        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-QUOTE-MISSING', 'MP-QUOTE-MISMATCH']})
     case('header-pointer', files({ENTRY: mutate_row(
         'MP1', lambda r: r.__setitem__('capture_pointers', [{'line': 1, 'token': '### header'}]))}),
         {'exit': 1, 'verified_rows': 5,
@@ -854,7 +958,38 @@ def selftest():
         ENTRY: mutate_row('MP1', lambda r: r.__setitem__(
             'quotes', [{'source': ROW_SOURCE_IDS[0], 'quote': QUOTE_A + ' | inside'}]))}),
         {'exit': 0, 'verified_rows': 6, 'findings': []})
+    # A registry row whose cell count differs from the header's is malformed:
+    # its status, opening date and used-by cannot be named.
+    case('source-row-wrong-column-count', files({SOURCES: fixture_sources().replace(
+        '| S115 | source S115 | docs | A | scope | anchor | teaches | mined | 2026-10-22 | 90d | '
+        'corpus/knowledge/memory-pressure-r25.md |',
+        '| S115 | source S115 | docs | A | scope | anchor teaches | mined | 2026-10-22 | 90d | '
+        'corpus/knowledge/memory-pressure-r25.md |')}),
+        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-SOURCE-ROW-SHAPE']})
+    # A located quote may contain double quotes of its own.
+    case('gate-quote-with-inner-quotes', files({
+        LESSON: fixture_lesson().replace(
+            '| %s | https://example.invalid/%s | "%s" | SrcA |\n' % (ROW_SOURCE_IDS[0], ROW_SOURCE_IDS[0], QUOTE_A),
+            '| %s | https://example.invalid/%s | lines 1-2: "the \"some\" line counts stalls" | SrcA |\n'
+            % (ROW_SOURCE_IDS[0], ROW_SOURCE_IDS[0])),
+        ENTRY: mutate_row('MP1', lambda r: r.__setitem__(
+            'quotes', [{'source': ROW_SOURCE_IDS[0], 'quote': 'the "some" line counts stalls'}]))}),
+        {'exit': 0, 'verified_rows': 6, 'findings': []})
+    # The row's own quote must be the Gate quote of a source the row lists.
+    case('entry-quote-not-in-gate', files({ENTRY: mutate_row(
+        'MP1', lambda r: r.__setitem__('quotes', [{'source': ROW_SOURCE_IDS[0],
+                                                   'quote': 'a quote the gate does not record'}]))}),
+        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-QUOTE-MISMATCH']})
+    case('entry-quote-source-not-listed', files({ENTRY: mutate_row(
+        'MP1', lambda r: r.__setitem__('quotes', [{'source': 'S998', 'quote': QUOTE_A}]))}),
+        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-QUOTE-SOURCE-UNKNOWN']})
     case('missing-skill-row', files({SKILL: FIXTURE_SKILL.replace('| MP3 | changed | record |\n', '')}),
+        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-SKILL-ROW-MISSING']})
+    # A SKILL.md table that mentions the id inside a cell's prose does not name
+    # the row; only a cell that is the id does.
+    case('skill-row-id-only-in-prose', files({SKILL: FIXTURE_SKILL.replace(
+        '| MP3 | changed | record |\n', '')
+        + '| memory-pressure | gate | 0 six rows MP1 to MP3 verified;1 failed |\n'}),
         {'exit': 1, 'verified_rows': 5, 'findings': ['MP-SKILL-ROW-MISSING']})
     case('verdict-empty', files({ENTRY: mutate_row('MP2', lambda r: r.__setitem__('verdict', '  '))}),
         {'exit': 1, 'verified_rows': 5, 'findings': ['MP-VERDICT-EMPTY']})

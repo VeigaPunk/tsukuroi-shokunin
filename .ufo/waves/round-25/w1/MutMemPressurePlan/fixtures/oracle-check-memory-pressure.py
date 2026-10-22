@@ -43,15 +43,23 @@ def words(text):
 
 
 def source_rows(text):
-    """Map a source id to its registry cells."""
+    """Map a source id to its registry cells, and to whether the row is well shaped.
+
+    A row whose cell count differs from the registry header's is malformed: its columns
+    cannot be named, so the row is marked unreadable rather than read as a shifted cell.
+    """
     rows = {}
+    width = 11
     for line in (text or '').splitlines():
         if not line.startswith('|'):
             continue
         cells = split_cells(line)
-        if len(cells) < 11 or not re.fullmatch(r'S\d{3}', cells[0]):
+        if not cells or not re.fullmatch(r'S\d{3}', cells[0]):
             continue
-        rows.setdefault(cells[0], cells)
+        if len(cells) != width:
+            rows.setdefault(cells[0], (cells, False))
+            continue
+        rows.setdefault(cells[0], (cells, True))
     return rows
 
 
@@ -84,26 +92,47 @@ def cell_spans(line):
     return spans
 
 
-QUOTE_SPAN = re.compile(r'"([^"]*)"|\u201c([^\u201d]*)\u201d|`([^`]*)`')
+SEPARATED_QUOTES = re.compile(r'"\s*;\s')
+BACKTICK_SPAN = re.compile(r'`([^`]*)`')
+
+
+def straight_quote_spans(text):
+    """The straight-quoted spans of a text, as (start, end, content).
+
+    A located quote may itself contain double quotes, and one cell may hold several
+    located quotes separated by `"; `. When the cell separates them the quotes pair
+    from the left; otherwise the outermost pair is the located quote and the inner
+    ones belong to its text.
+    """
+    positions = [i for i, ch in enumerate(text) if ch == '"']
+    if len(positions) < 2:
+        return []
+    if SEPARATED_QUOTES.search(text):
+        pairs = list(zip(positions[0::2], positions[1::2]))
+    else:
+        pairs = [(positions[0], positions[-1])] if len(positions) > 2 else \
+            list(zip(positions[0::2], positions[1::2]))
+    return [(start, end + 1, text[start + 1:end].strip()) for start, end in pairs if end > start]
 
 
 def quoted_spans(line):
-    """The balanced quoted spans of a raw line, as (start, end, content)."""
+    """The quoted spans of a raw line, as (start, end, content).
+
+    A backtick-delimited span wins over a straight-quoted one.
+    """
     out = []
-    for match in QUOTE_SPAN.finditer(line):
-        content = next((group for group in match.groups() if group is not None), '')
-        out.append((match.start(), match.end(), content.strip()))
+    for match in BACKTICK_SPAN.finditer(line):
+        out.append((match.start(), match.end(), match.group(1).strip()))
+    for start, end, content in straight_quote_spans(line):
+        if not any(s <= start and end <= e for s, e, _ in out):
+            out.append((start, end, content))
+    out.sort()
     return out
 
 
 def split_cells(line):
     """Split a markdown table row into cells, honouring a backslash-escaped pipe."""
-    stripped = line.strip()
-    if stripped.startswith('|'):
-        stripped = stripped[1:]
-    if stripped.endswith('|') and not stripped.endswith('\\|'):
-        stripped = stripped[:-1]
-    return [text for _start, _end, text in cell_spans(stripped)]
+    return [text for _start, _end, text in cell_spans(line.strip().strip('|'))]
 
 
 def gate_quotes(text):
@@ -201,7 +230,6 @@ def evaluate(root):
         return {'verified_rows': 0, 'findings': findings, 'rows': []}
 
     details = []
-    advisories = []
     for row in rows:
         rid = row.get('id') if isinstance(row, dict) else None
         problems = []
@@ -222,7 +250,10 @@ def evaluate(root):
             if not isinstance(sid, str) or sid not in sources:
                 problems.append('source-missing:%s' % sid)
                 continue
-            cells = sources[sid]
+            cells, shaped = sources[sid]
+            if not shaped:
+                problems.append('source-row-shape:%s' % sid)
+                continue
             status, opened, used_by = cells[7], cells[8], cells[10]
             if status != 'mined':
                 problems.append('source-status-not-mined:%s' % sid)
@@ -263,9 +294,7 @@ def evaluate(root):
             if ref not in quotes:
                 continue
             if ' '.join(quote.split()) not in ' '.join(quotes[ref].split()):
-                # Advisory in the production checker: the finding is reported but it
-                # does not disqualify the row, so it is recorded separately.
-                advisories.append('quote-mismatch:%s' % ref)
+                problems.append('quote-mismatch:%s' % ref)
 
         # at least one capture pointer on a unique, non-structural line
         # C2 capture pointers, as refined on 2026-10-22: each pointer names a line and
@@ -320,13 +349,10 @@ def evaluate(root):
         if rid not in skill:
             problems.append('skill-row-missing:%s' % rid)
 
-        row_advisories = [a for a in advisories if a.startswith('quote-mismatch:')]
         details.append({'id': rid, 'verified': not problems, 'problems': problems,
-                        'advisories': row_advisories})
+                        'advisories': []})
         for problem in problems:
             add('MP-ROW-PROBLEM', '%s:%s' % (rid, problem))
-        for advisory in row_advisories:
-            add('MP-QUOTE-MISMATCH', '%s:%s' % (rid, advisory.split(':', 1)[1]))
 
     seen = sorted(d['id'] for d in details if d.get('id'))
     if seen != sorted(ROW_IDS):

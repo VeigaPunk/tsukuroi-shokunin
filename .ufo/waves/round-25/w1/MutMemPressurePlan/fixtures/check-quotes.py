@@ -57,26 +57,47 @@ def cell_spans(line):
     return spans
 
 
-QUOTE_SPAN = re.compile(r'"([^"]*)"|\u201c([^\u201d]*)\u201d|`([^`]*)`')
+SEPARATED_QUOTES = re.compile(r'"\s*;\s')
+BACKTICK_SPAN = re.compile(r'`([^`]*)`')
+
+
+def straight_quote_spans(text):
+    """The straight-quoted spans of a text, as (start, end, content).
+
+    A located quote may itself contain double quotes, and one cell may hold several
+    located quotes separated by `"; `. When the cell separates them the quotes pair
+    from the left; otherwise the outermost pair is the located quote and the inner
+    ones belong to its text.
+    """
+    positions = [i for i, ch in enumerate(text) if ch == '"']
+    if len(positions) < 2:
+        return []
+    if SEPARATED_QUOTES.search(text):
+        pairs = list(zip(positions[0::2], positions[1::2]))
+    else:
+        pairs = [(positions[0], positions[-1])] if len(positions) > 2 else \
+            list(zip(positions[0::2], positions[1::2]))
+    return [(start, end + 1, text[start + 1:end].strip()) for start, end in pairs if end > start]
 
 
 def quoted_spans(line):
-    """The balanced quoted spans of a raw line, as (start, end, content)."""
+    """The quoted spans of a raw line, as (start, end, content).
+
+    A backtick-delimited span wins over a straight-quoted one.
+    """
     out = []
-    for match in QUOTE_SPAN.finditer(line):
-        content = next((group for group in match.groups() if group is not None), '')
-        out.append((match.start(), match.end(), content.strip()))
+    for match in BACKTICK_SPAN.finditer(line):
+        out.append((match.start(), match.end(), match.group(1).strip()))
+    for start, end, content in straight_quote_spans(line):
+        if not any(s <= start and end <= e for s, e, _ in out):
+            out.append((start, end, content))
+    out.sort()
     return out
 
 
 def split_cells(line):
     """Split a markdown table row into cells, honouring a backslash-escaped pipe."""
-    stripped = line.strip()
-    if stripped.startswith('|'):
-        stripped = stripped[1:]
-    if stripped.endswith('|') and not stripped.endswith('\\|'):
-        stripped = stripped[:-1]
-    return [text for _start, _end, text in cell_spans(stripped)]
+    return [text for _start, _end, text in cell_spans(line.strip().strip('|'))]
 
 
 def plain_text(data):

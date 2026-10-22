@@ -1,0 +1,178 @@
+{
+ "wave": "tsukuroi-r25-w2-falsify",
+ "reportDir": ".ufo/waves/round-25/w2",
+ "maxLanes": 34,
+ "context": "# Godspeed directive (verbatim bytes of ~/.agents/skills/godspeed/directive.md)\nYou are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\n# Goal\nTsukuroi round 25 only (attempt 1), FALSIFY wave 2. Lane repo /home/vgpnk/Projects/shokunin/tsukuroi-shokunin. Claim base b9046016831237cd04d38da11ba76e50d5380c53; measured revision 5e7c04ecb02735491456de2b8bc44550d0db4609 (pushed). Read /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SCORECARD.md sections \"Round 25 — declaration, attempt 1\" and \"Round 25 declaration refinements after the first wave-1 falsifiers\" first. Your job is to attack what wave 1 produced and the L1 integrated; report what fails, with evidence. The L1 (TsukuroiR25) is the only integrator and VCS writer. Never start round 26.\n\nClaim C1 (calibration): `python3 tools/check-self-assessment.py --revision <REV>` (run from /home/vgpnk/Projects/shokunin/tsukuroi-shokunin), field `mismatches`. Measured: b9046016 exit 1, 13 of 23 (K02 K04 K06 K07 K08 K09 K10 K11 K12 K13 K15 K17 K21); 5e7c04ec exit 0, 0 of 23. The fix is the appended section `## Axes — current self-assessment (round 25)` and `## Capabilities — current (round 25)` at the end of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SCORECARD.md, plus a one-phrase SHONEN.md edit (box 2: `observation/request` became `observation and request`, because the declared path grammar reads the slash token as a missing path). Receipts: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/measure/.\n\nClaim C2 (depth, learning, sourced): `python3 tools/check-memory-pressure.py --revision <REV>`, field `verified_rows`. Measured: b9046016 exit 2 CAPTURE-MISSING (0 rows); 5e7c04ec exit 0, 6 of 6. Entry /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/memory-pressure-r25.md and .json; SOURCES rows S115-S125 in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md; Gate quotes in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-25.md; SKILL.md section `## Memory pressure and systemd-oomd — round 25` and registry `## Gate and probe registry — round25 superseding current rows`; appended notice at the end of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/oom-event-plane.md; frozen capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/capture/capture.txt (sha256 e60f1bbc1feb8f251c8b276f70342da5385d07b9ad747305e1f016e0df447136) and supplementary capture-earlyoom.txt. Wave-1 reports are under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/.\n\n# Contract\n- Every path you read or write is absolute. Every `Report:` trailer path is relative to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin — write it at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/<that path>. Put any extra files under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/<YourSeatName>/ or /fast/scratch/hyaku/tsukuroi-r25/w2/<YourSeatName>/ only. A relative path would land in the fleet repo; never write there.\n- Read-only toward the lane: never edit any lane file outside your own seat paths. Never run git or jj write commands against /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (add, commit, stash, checkout, switch, reset, pull, push, fetch, update-ref, new, describe, squash, rebase, abandon, bookmark, undo). Never `git clone` the lane and push back: a wave-1 seat did exactly that and the L1 had to undo it. Build sandboxes with `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin archive 5e7c04ecb02735491456de2b8bc44550d0db4609 | tar -x -C <dir>` and then `git init` with no remote. Read-only jj only with --ignore-working-copy, and never any jj command at the fleet root /home/vgpnk/Projects/shokunin. Never touch the fleet repo outside your lane paths, any sibling lane repo (reads are fine), MANIFEST.json, .ufo/state, the lane jj state or the lane Git index.\n- Host actions are read-only. You and every seat may install or upgrade tools that help the task — read /home/vgpnk/.omp/agent/RULES.md first (official channels, update-safety gate, record tool/version/channel/reason in your report). pacman guard: all pacman transactions are PAUSED host-wide; install only via `uv tool`, `npx` or an official binary in ~/.local/bin, or report the need. Never run pacman -S, -Sy, -Syu, -U, -R, -Scc, a downgrade, or a service start, stop or restart; never write configuration, never boot, mount, unshare or rebuild an image.\n- Read-only sudo allow-list: without sudo you may run cat or grep of /proc and /sys files, systemctl show, status, is-active and is-enabled, systemd-analyze cat-config, journalctl (user-readable), pacman -Q*, stat, findmnt, curl of public URLs. With sudo only `sudo -n cat <file>`, `sudo -n stat <path>`, `sudo -n ls <dir>` and `sudo -n journalctl --no-pager <read options>`. Everything else under sudo is forbidden. No item this wave needs sudo.\n- Sources: open sources by ordinary means only. Never use a headless browser or any other tool to pass a bot challenge, captcha or access control; record a source you cannot open that way as unopened. Quote at most 25 words, exactly, with location.\n- Report format: plain English sentences, no run-together words, no private shorthand. Start with a one-line verdict (holds, fails, or partly holds, and what), then numbered findings, each with an evidence pointer (absolute path:line, URL plus quote, or command plus exit code and output excerpt). Mark observations [obs], inferences [inf] and unknowns [unk]. End with the exact literal lines `Scope: read=<summary>; wrote=<paths>; executed=<commands or none>`, `Model: <your answering model identity if your host exposes it, else not exposed>` and `Installs: none` (or each install).\n- You are a leaf: no delegation, no background jobs, no swarm. Do not message other seats. Message the L1 only for a blocker. Never pass a model parameter. Finish within 25 minutes.",
+ "items": [
+  {
+   "name": "RerunC1",
+   "role": "reviewer",
+   "prompt": "Attack C1 measurement. From /home/vgpnk/Projects/shokunin/tsukuroi-shokunin run `python3 tools/check-self-assessment.py --revision b9046016831237cd04d38da11ba76e50d5380c53` and `--revision 5e7c04ecb02735491456de2b8bc44550d0db4609` and `--selftest`; compare with /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/measure/c1-b9046016.json and c1-5e7c04ec.json byte for byte (ignore volatile fields if any). Confirm exit codes 1 and 0, the 13 ids, and that the tool reads only git at the revision (dirty the working tree in a sandbox copy, not the lane, to test). Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RerunC1.md."
+  },
+  {
+   "name": "RerunC2",
+   "role": "reviewer",
+   "prompt": "Attack C2 measurement. From /home/vgpnk/Projects/shokunin/tsukuroi-shokunin run `python3 tools/check-memory-pressure.py --revision b9046016831237cd04d38da11ba76e50d5380c53`, `--revision 5e7c04ecb02735491456de2b8bc44550d0db4609` and `--selftest`; compare with /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/measure/c2-*.json. Also run it at 6c580b155840c8750a7bb5f14dcb8e48913d0073 (expect ENTRY-MISSING or CAPTURE-MISSING, exit 2). Is the before-value honestly 0? Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RerunC2.md."
+  },
+  {
+   "name": "RevC1TableByHand",
+   "role": "reviewer",
+   "prompt": "Attack the new axes table at the end of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SCORECARD.md (section `## Axes — current self-assessment (round 25)`) by hand, without the tool: for every number and statement in it (47 notes, SKILL.md 2355 lines, 297 table lines, 26 lesson files, README 231 lines, 97 cases, sections present, `--identity` not landed, overlap table present, the ordinals and last-change pointers such as `SCORECARD.md:224`), re-derive the value at 5e7c04ecb02735491456de2b8bc44550d0db4609 with your own read-only commands. List every statement in the table that is false or stale at 5e7c04ecb02735491456de2b8bc44550d0db4609, including ones no K check reads. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevC1TableByHand.md."
+  },
+  {
+   "name": "RevC1Capabilities",
+   "role": "reviewer",
+   "prompt": "Attack the appended `## Capabilities — current (round 25)` table in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SCORECARD.md at 5e7c04ecb02735491456de2b8bc44550d0db4609: re-derive every number (97/97 census, 45 boot-chain cases, 125 SOURCES rows, 6 entries) and every path, and check each row's 'what it can now do' sentence against the tool's actual behaviour (read the tool source; run `--selftest` for census and boot-chain-audit from a git archive of 5e7c04ecb02735491456de2b8bc44550d0db4609 in /fast/scratch/hyaku/tsukuroi-r25/w2/RevC1Capabilities/). Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevC1Capabilities.md."
+  },
+  {
+   "name": "MutC1Ordinals",
+   "role": "mutation-tester",
+   "prompt": "Mutation-test K01 to K06 of tools/check-self-assessment.py. Build sandboxes from `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin archive 5e7c04ecb02735491456de2b8bc44550d0db4609` plus `git init` (no remote) under /fast/scratch/hyaku/tsukuroi-r25/w2/MutC1Ordinals/, then mutate SCORECARD.md: change one score in the new axes table, append a later line `depth 8 → 9`, append `freshness (actual 8 → 8`, append `coverage rows 10 → 15`, put an arrow inside the table, glue `operability9→9`. Record for each mutant whether the tool's mismatches/exit change as the declared rule says (killed) or not (survived). Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/MutC1Ordinals.md."
+  },
+  {
+   "name": "MutC1Counts",
+   "role": "mutation-tester",
+   "prompt": "Mutation-test K07 to K11 and K13 of tools/check-self-assessment.py in sandboxes built from `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin archive 5e7c04ecb02735491456de2b8bc44550d0db4609` plus `git init` (no remote) under /fast/scratch/hyaku/tsukuroi-r25/w2/MutC1Counts/: add one knowledge note, add one SKILL.md line, add one pipe line, add one lesson file, change a stated count by one, remove the `notes` phrase, change `97 cases` to `96 cases`. Record killed or survived per mutant with the tool's output. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/MutC1Counts.md."
+  },
+  {
+   "name": "MutC1TokensPaths",
+   "role": "mutation-tester",
+   "prompt": "Mutation-test K12, K14, K15 and K16 to K23 of tools/check-self-assessment.py in sandboxes built from `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin archive 5e7c04ecb02735491456de2b8bc44550d0db4609` plus `git init` (no remote) under /fast/scratch/hyaku/tsukuroi-r25/w2/MutC1TokensPaths/: reword each fixed token, add a `--identity)` case arm to the census, delete the `| ID | Finding` header, break one capability path, remove every path from a capability row, mark a SHONEN box `[x]` without and with `non-author verifier:`, add a slash token like `a/b` to a SHONEN box. Record killed or survived. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/MutC1TokensPaths.md."
+  },
+  {
+   "name": "CritC1Construction",
+   "role": "critic",
+   "prompt": "Attack C1 as a claim. Is 0 of 23 at 5e7c04ecb02735491456de2b8bc44550d0db4609 a real calibration improvement or reached by construction (the L1 wrote both the table and the ordinal records; the SHONEN phrase edit)? Did the tool implement the committed declaration and refinements exactly (compare /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-self-assessment.py with SCORECARD lines for the C1 check set and refinements)? Were any rules loosened after measurement? Is the before-value 13 honestly measured given the declaration predicted 12? Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/CritC1Construction.md with numbered attacks and a verdict."
+  },
+  {
+   "name": "RevC1Selftest",
+   "role": "reviewer",
+   "prompt": "Review the selftest of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-self-assessment.py: are expected finding ids committed in the source and independent of the computation, are fixtures hermetic (temp git repos, no network, no lane writes), does each case fail when its rule is broken? Run `--selftest` and read the code. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevC1Selftest.md."
+  },
+  {
+   "name": "RevShonen",
+   "role": "reviewer",
+   "prompt": "Attack SHONEN.md at 5e7c04ecb02735491456de2b8bc44550d0db4609: diff it against b9046016831237cd04d38da11ba76e50d5380c53 (`git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff b9046016831237cd04d38da11ba76e50d5380c53 5e7c04ecb02735491456de2b8bc44550d0db4609 -- SHONEN.md`). Is the one-phrase edit honest and meaning-preserving? Do the four `[~]` boxes' evidence pointers support what each box claims at 5e7c04ecb02735491456de2b8bc44550d0db4609? Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevShonen.md."
+  },
+  {
+   "name": "RevMP1",
+   "role": "reviewer",
+   "prompt": "Attack C2 row MP1 in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/memory-pressure-r25.json and .md (some and full lines). Re-open https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/accounting/psi.rst, check every quote the row uses against the bytes and the Gate in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-25.md, check its capture pointers in the frozen capture, and judge whether the statement, verdict and action are true and not overclaimed (for example the claim about what systemd-oomd reads). Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevMP1.md."
+  },
+  {
+   "name": "RevMP2",
+   "role": "reviewer",
+   "prompt": "Attack C2 row MP2 (total field, two reads, same boot). Re-open psi.rst and https://raw.githubusercontent.com/torvalds/linux/v7.2/kernel/sched/psi.c at tag v7.2; check the quotes, the arithmetic in the row (4101 and 4079 microseconds), the capture pointers, and whether 'only grows within one boot' is supported by the cited lines. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevMP2.md."
+  },
+  {
+   "name": "RevMP3",
+   "role": "reviewer",
+   "prompt": "Attack C2 row MP3 (per-cgroup memory.pressure, root equals system). Re-open https://raw.githubusercontent.com/torvalds/linux/v7.2/include/linux/psi.h and cgroup-v2.rst at v7.2; check the quotes and capture lines 29-43 of the frozen capture; judge the statement 'a parent total is not the sum of its children'. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevMP3.md."
+  },
+  {
+   "name": "RevMP4",
+   "role": "reviewer",
+   "prompt": "Attack C2 row MP4 (ManagedOOM auto versus kill; host consequence). Re-open systemd v262 man/systemd.resource-control.xml, man/systemd-oomd.service.xml and src/oom/oomd-manager.c on raw.githubusercontent.com; check each quote and location; check the host claims against the frozen capture and capture-earlyoom.txt; look for any unit on this host set to kill (read-only `systemctl show` sweeps are fine). Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevMP4.md."
+  },
+  {
+   "name": "RevMP5",
+   "role": "reviewer",
+   "prompt": "Attack C2 row MP5 (oomd defaults 60 percent, 30 s, 90 percent; conjunction; 5 percent swap floor). Re-open systemd v262 man/oomd.conf.xml and src/oom/oomd-manager.h; check quotes and locations and the capture lines 106-108; check the conjunction and 5 percent claims against the source text. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevMP5.md."
+  },
+  {
+   "name": "RevMP6",
+   "role": "reviewer",
+   "prompt": "Attack C2 row MP6 (kernel OOM counters separate from PSI; userspace killers move neither counter). Re-open Linux v7.2 mm/oom_kill.c and cgroup-v2.rst; check the quotes and the capture pointers (lines 50 and 52); judge the inference that a userspace SIGKILL moves neither counter and whether the row overclaims. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevMP6.md."
+  },
+  {
+   "name": "MutC2Rules",
+   "role": "mutation-tester",
+   "prompt": "Mutation-test /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-memory-pressure.py against the real integrated entry. Use the wave-1 runner /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/MutMemPressurePlan/fixtures/run-mutations.py in its --baseline-repo/--baseline-rev mode (baseline 5e7c04ecb02735491456de2b8bc44550d0db4609) or build your own sandboxes from `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin archive 5e7c04ecb02735491456de2b8bc44550d0db4609` plus `git init` (no remote) under /fast/scratch/hyaku/tsukuroi-r25/w2/MutC2Rules/. Mutate the real files: a source status to queued, a used-by removal, an opened date, a 26-word quote, a pointer to a header, a duplicated line, a token not in the line, a capture byte, a SKILL row removal, a Gate quote that differs by one character from the entry quote. Record killed or survived. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/MutC2Rules.md."
+  },
+  {
+   "name": "RevC2Selftest",
+   "role": "reviewer",
+   "prompt": "Review the selftest of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-memory-pressure.py: committed expected finding ids, hermetic fixtures, failing-input cases, and whether the implemented rules match the declaration and refinements in SCORECARD.md (including the added non-empty `statement` requirement). Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevC2Selftest.md."
+  },
+  {
+   "name": "RevSourcesKernel",
+   "role": "reviewer",
+   "prompt": "Re-open the kernel source rows S115 to S119 in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md: fetch each URL, compare sha256 with the anchor, check each Gate quote in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-25.md is an exact substring at the stated lines, and check the row's teaches cell against the source. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevSourcesKernel.md."
+  },
+  {
+   "name": "RevSourcesSystemd",
+   "role": "reviewer",
+   "prompt": "Re-open the systemd source rows S120 to S124 in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md: fetch each URL at tag v262, compare sha256 with the anchor, check each Gate quote is exact at the stated lines, and check each teaches cell against the source. Also check that row S125 (sibling mori entry) quotes `git -C /home/vgpnk/Projects/shokunin/mori-shokunin show 4f05dd5a:corpus/knowledge/system-pressure-r24.md` exactly. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevSourcesSystemd.md."
+  },
+  {
+   "name": "RevCensusAfter",
+   "role": "reviewer",
+   "prompt": "Frontier census after. From /home/vgpnk/Projects/shokunin/tsukuroi-shokunin run `/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi` and the seven frozen manual census commands in /home/vgpnk/Projects/shokunin/CORPUS.md section `SOURCES.md — where a shokunin learns`; report rows, malformed, tier and status histograms, duplicate ids, enum violations, missing used-by, W04 count and ids, against the before file /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/measure/census-before.txt. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevCensusAfter.md."
+  },
+  {
+   "name": "RevLessonGate",
+   "role": "reviewer",
+   "prompt": "Attack the lesson /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-25.md against the SOURCES contract (CORPUS.md rules 1 and 2) and the round contract: every new row has URL, access date and a quote of at most 25 words with location; rejected candidates have reasons and flips; the old to new log is honest; the Mistakes table has class, evidence, captured-by and a fix shown able to fail. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevLessonGate.md."
+  },
+  {
+   "name": "RevQualityCriteria",
+   "role": "reviewer",
+   "prompt": "Attack the appended QUALITY criteria 57, 58, 59 and the R25 correction to 54 and 55 at the end of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md: does each cite a lesson, is each grounded in its failing example, is numbering unique, does the label correction match /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-24.md? Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevQualityCriteria.md."
+  },
+  {
+   "name": "RevRegistryGates",
+   "role": "reviewer",
+   "prompt": "No-harm check on the lane gates at 5e7c04ecb02735491456de2b8bc44550d0db4609. From /home/vgpnk/Projects/shokunin/tsukuroi-shokunin, run read-only: `python3 tools/check-registry-coverage.py --revision 5e7c04ecb02735491456de2b8bc44550d0db4609 --audit-live-map`, and the `--revision 5e7c04ecb02735491456de2b8bc44550d0db4609` run of check-appended-notices.py, check-section-citations.py, check-adjacency-anchors.py, check-boot-writers.py, check-freshness-r17.py, check-edit-contract.py, check-selector-contract.py, check-boundary-contract.py and check-pause-gate.py (use the documented arguments in SKILL.md registry rows). Compare each exit with its value at b9046016831237cd04d38da11ba76e50d5380c53. Any gate that went red at 5e7c04ecb02735491456de2b8bc44550d0db4609 is a harm. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevRegistryGates.md."
+  },
+  {
+   "name": "RevAppendOnly",
+   "role": "reviewer",
+   "prompt": "No-harm check on history: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff --stat b9046016831237cd04d38da11ba76e50d5380c53 5e7c04ecb02735491456de2b8bc44550d0db4609` and `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff b9046016831237cd04d38da11ba76e50d5380c53 5e7c04ecb02735491456de2b8bc44550d0db4609 -- SCORECARD.md SKILL.md corpus/ PROVINCE.md LOG.md` — list every deleted or changed pre-existing line (append-only is the lane convention; the SHONEN phrase edit is the one known in-place change). Also confirm `jj-lane.sh state` shows ahead 0 and that master and origin/master agree. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevAppendOnly.md."
+  },
+  {
+   "name": "CritC2Supersession",
+   "role": "critic",
+   "prompt": "Attack the appended R25 current-use notice at the end of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/oom-event-plane.md and the entry's supersedes fields: is each contradiction or narrowing true, is any earlier statement wrongly marked, were other files carrying the same old claim left unmarked (grep /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SKILL.md, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/PROVINCE.md for 'already set', 'would likely have acted', 'ManagedOOM')? Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/CritC2Supersession.md."
+  },
+  {
+   "name": "CritC2Adjacency",
+   "role": "critic",
+   "prompt": "Attack C2 for absorbing sibling ground. Compare the entry /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/memory-pressure-r25.md with mori's `git -C /home/vgpnk/Projects/shokunin/mori-shokunin show 4f05dd5a:corpus/knowledge/system-pressure-r24.md` and mori PROVINCE.md; does tsukuroi restate mori facts as its own, or keep only OS triage and systemd-oomd consequences as the declaration refinement says? Check PROVINCE ADJ-04 consistency. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/CritC2Adjacency.md."
+  },
+  {
+   "name": "CritC2Learning",
+   "role": "critic",
+   "prompt": "Attack C2 as the session Learning claim (/home/vgpnk/Projects/shokunin/.scratch/goal-20261022-hyaku-12h.md lines 145-149) and as depth work on the lowest axis: is the entry a stronger entry superseding a weaker one in PROVINCE core, or a restatement? Is `verified_rows 6` sized to what was verified, or does the checker pass on field presence while a verdict could be wrong? Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/CritC2Learning.md."
+  },
+  {
+   "name": "SentinelEntryActions",
+   "role": "sentinel",
+   "prompt": "Safety and privacy review of the C2 entry /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/memory-pressure-r25.md and .json, the SKILL.md section `## Memory pressure and systemd-oomd — round 25`, and capture-earlyoom.txt: does any action instruct the lane or an agent to change the host (enable a service, write a drop-in, change a threshold) rather than leaving it operator-owned; does anything leak private data? Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/SentinelEntryActions.md."
+  },
+  {
+   "name": "RevSkillTable",
+   "role": "reviewer",
+   "prompt": "Attack the SKILL.md section `## Memory pressure and systemd-oomd — round 25` in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SKILL.md at 5e7c04ecb02735491456de2b8bc44550d0db4609: does each decision row agree with the entry JSON row of the same id, are thresholds stated only where a source states them, are read-only commands exact and safe, and are the capture line numbers right? Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevSkillTable.md."
+  },
+  {
+   "name": "CritTrendVerdicts",
+   "role": "critic",
+   "prompt": "Attack the trend verdicts the L1 intends: expansion unchanged (no new coverage-map ground), quality improved (oom-event-plane.md:344 contradicted and :301 narrowed by sourced rows; stale axes table superseded), discernment improved (round-24 outside disagreements turned into QUALITY 57 and 58 and the label correction). Use LEARNING.md (/home/vgpnk/Projects/kimi-shokunin/skills/shokunin/protocol/LEARNING.md) and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md criterion 49. Which verdict is overclaimed? Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/CritTrendVerdicts.md."
+  },
+  {
+   "name": "ScoutMisrootAfter",
+   "role": "scout",
+   "prompt": "Misroot sweep. Run `git -C /home/vgpnk/Projects/shokunin status --porcelain` and compare with /fast/scratch/hyaku/tsukuroi-r25/fleet-porcelain-before.txt; list any new fleet-root path and whether its content names tsukuroi round 25. Also list any file under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin outside .ufo/waves/round-25/ that is untracked or modified (`git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain`). Never move or delete anything. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/ScoutMisrootAfter.md."
+  },
+  {
+   "name": "CritRoutedClosure",
+   "role": "critic",
+   "prompt": "Attack the lesson's routed-defect table in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-25.md against /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-24-verifier-spotcheck.md lines 96-105: is each disposition true at 5e7c04ecb02735491456de2b8bc44550d0db4609, and which defects recurred this round (for example the seat push recorded as R25-SEAT-PUSH, or the late canonical load)? Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/CritRoutedClosure.md."
+  },
+  {
+   "name": "RevMistakeFix",
+   "role": "reviewer",
+   "prompt": "Attack the Mistakes rows in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-25.md: for R25-STALE-AXES-TABLE, confirm the fix is shown able to fail (tool at 5e7c04ecb02735491456de2b8bc44550d0db4609 run against b9046016831237cd04d38da11ba76e50d5380c53 exits 1); for R25-SEAT-PUSH, confirm from `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin reflog show master` (read-only) that the four commits d2e9a7a, 9e9a97d, d70cbd0 and d5e6481 are not ancestors of master or origin/master (`git merge-base --is-ancestor`), and that no helper commit carries them. Write /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w2/RevMistakeFix.md."
+  }
+ ]
+}

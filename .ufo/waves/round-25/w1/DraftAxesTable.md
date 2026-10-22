@@ -150,15 +150,26 @@ C1 refinement fixed.
    `.txt` ending. Each of the four rows names at least one path, as the "a row that
    names no path is a mismatch" rule requires.
 
-9. **K20–K23 (SHONEN) need no edit at the claim base.** [obs] `SHONEN.md` has four
-   `- [~]` boxes and `grep -c '^- \[x\]' SHONEN.md` → 0; the bare path tokens in
-   the boxes (`SKILL.md`, `corpus/knowledge/root-dac-decision-r12.md`,
+9. **K20–K23 (SHONEN): no `[x]` box, but box 2 held one prose slash that the
+   literal path grammar reads as a named path.** [obs] `SHONEN.md` has four
+   `- [~]` boxes and `grep -c '^- \[x\]' SHONEN.md` → 0, so the "non-author
+   verifier" clause cannot fire. [obs] The bare path tokens in the boxes
+   (`SKILL.md`, `corpus/knowledge/root-dac-decision-r12.md`,
    `corpus/knowledge/host-health-report-r3.md`, `LOG.md`,
    `corpus/knowledge/adjacency-handoffs-fleet-r1.md`,
    `corpus/knowledge/executor-test-sufficiency.md`, `PROVINCE.md`,
    `.ufo/waves/round-12/resumed/OverlapHostR.md`) all exist at `b9046016`.
-   [inf] No `[x]` box exists, so the "non-author verifier" clause cannot fire; the
-   SHONEN file needs no change for C1. Not my edit surface; flagged for the L1.
+   [obs] The tool builder measured one further K21 mismatch at `0cd9b28` that my
+   own scan had missed: box 2's evidence line reads "current sanitized
+   observation/request TSUKUROI-F1-MEM-01 in
+   `corpus/knowledge/adjacency-handoffs-fleet-r1.md` section 3", and under the
+   literal grammar the token `observation/request` matches
+   `[A-Za-z0-9_.{},/-]+`, holds a slash and names no tree at the revision.
+   [inf] My earlier "needs no edit" reading was wrong because I only enumerated
+   tokens that looked like file names, not every token the grammar admits. The
+   L1 fixed it in the integration by rewording that phrase to "observation and
+   request" — the only changed line in `git diff b9046016 5e7c04e -- SHONEN.md`.
+   K20 to K23 now match.
 
 10. **Placeholders the L1 must fill, with the base values as a sanity bound.**
     [obs] Base values at `b9046016` are in finding 3. [inf] All five will move this
@@ -179,6 +190,80 @@ C1 refinement fixed.
     changes this round. Re-verify with
     `git archive <REV> | tar -x -C <tmp> && (cd <tmp> && bash tools/tsukuroi-census.sh --selftest)`
     on the final revision before integration.
+
+---
+
+## Final state: integrated and verified
+
+[obs] While this seat was still reporting, the L1 integrated the round at
+`5e7c04ecb02735491456de2b8bc44550d0db4609` ("round-25: C1 self-assessment checker
+and current axes table; C2 memory-pressure entry, sources S115-S125, checker,
+SKILL table and registry; lesson, QUALITY 57-59, LOG; wave-1 evidence"). I
+verified the integrated revision myself, read-only, against the lane repo:
+
+`python3 tools/check-self-assessment.py --revision 5e7c04ecb02735491456de2b8bc44550d0db4609`
+exits 0 and prints `status: PASS`, `mismatches: 0`, `checked: 23`, with every one
+of K01 to K23 reported `match`. The tool's own reasons for the checks that read
+my table: K01 depth 8 against the transition at `SCORECARD.md:793`; K02 coverage 9
+against `:224`; K03 operability 9 against `:731`; K04 freshness 9 against `:807`;
+K05 calibration 9 against `:792`; K06 adjacency 8 against `:620`; K07 47 notes
+against 47 `.md` files in `corpus/knowledge/`; K08 2355 `SKILL.md` lines; K09 297
+table lines; K10 26 lesson files; K11 231 `corpus/README.md` lines; K12 the
+sections present with Core, Frontier and Adjacent all true; K13 97 cases equal to
+the census selftest at that revision; K14 the mode absent with the census holding
+no `--identity` case arm; K15 the table present with a `| ID | Finding` table in
+PROVINCE.md.
+
+[obs] The integrated text is my draft with the five `<N>` placeholders filled by
+the L1 at the measured revision: 47 notes, `SKILL.md` 2355 `wc -l`, 297 table
+lines, 26 lesson files, `corpus/README.md` 231 `wc -l`. A cell-by-cell diff of
+the integrated rows against my draft shows no other change to the axes rows; the
+one intentional addition is in the `sources-registry` capability cell, where the
+L1 added "125 rows at round 25" to the `corpus/SOURCES.md` description, which
+keeps the row current after the round's S115-S125 source rows landed.
+
+[obs] The SHONEN defect the tool builder raised was fixed in the same
+integration. [obs] `git diff b9046016 5e7c04e -- SHONEN.md` shows exactly one
+changed line: the box-2 evidence phrase "current sanitized observation/request
+TSUKUROI-F1-MEM-01" became "current sanitized observation and request
+TSUKUROI-F1-MEM-01", removing the slash that the literal path grammar read as a
+named path. [obs] Under that grammar every path token in the four SHONEN boxes at
+`5e7c04e` now resolves: box 1 names 2, box 2 names 3, box 3 names 3, box 4 names
+2, and the tool reports K20 to K23 as matches.
+
+[inf] The C1 target as declared — 0 of the 23 fixed checks mismatching, exit 0 —
+is met at the integrated revision, measured by the round's own tool on committed
+bytes. No ordinal moved, no capability row was added or removed, and the two
+sections I drafted are the current axes table and the current capabilities table
+of the lane.
+
+[obs] The tool that produced the after-value is the tool as written: `git show
+5e7c04e:tools/check-self-assessment.py | sha256sum` gives
+`343367fb309e43449ee1be50f97c86b917240de7bb6b34b942fd67a163c6242f`, byte-identical
+to the working-tree copy, and `git status --porcelain tools/check-self-assessment.py`
+is empty. The after-value of 0 was therefore not measured with a modified
+checker.
+
+[obs] The before-value is 13 of 23, not the 12 the L1 predicted by hand count at
+the declaration (`SCORECARD.md:792`). I measured it myself with the same tool at
+the claim base: `python3 tools/check-self-assessment.py --revision b9046016` exits
+1 with `status: FAIL`, `mismatches: 13`, `checked: 23`, mismatching K02, K04,
+K06, K07, K08, K09, K10, K11, K12, K13, K15, K17 and K21. The extra one is
+exactly K21, the SHONEN box-2 prose slash that the hand count did not catch for
+the same reason my own enumeration missed it. The tool builder's before-table at
+`.ufo/waves/round-25/w1/ExecSelfAssessTool/` records the same 13 ids, and its
+receipts name the three revisions measured: `c1-base-b9046016.json`,
+`c1-decl-0cd9b28.json` and `c1-after-5e7c04e.json`.
+[inf] So the declaration's hand-count prediction of 12 was one short, and the
+route to the true count was the tool, not a re-reading of the prose. That is the
+same lesson the round's own C1 claim makes: the lane's self-assessment is now
+measured rather than asserted.
+
+[obs] Operational note, confirmed by both of us: the checker needs the Git
+repository, so it must be run from the lane repo or with `--repo` pointing at
+one. A `git archive` extraction has no `.git` and the tool answers
+`CANNOT_EVALUATE` with "not a git repository", exit 2 — the intended refusal,
+not a pass.
 
 ---
 
@@ -274,7 +359,11 @@ cases with 45 passed and 0 failed, and the host-census-gate count is the current
 
 ---
 
-## Integration notes for the L1
+## Integration notes for the L1 (as given; the integration has since landed)
+
+These notes were written before integration and are kept as the record of what
+the L1 was told. The L1 integrated the draft at `5e7c04e` and the checker passes
+23 of 23 there — see "Final state" above.
 
 - Append both sections at the end of `SCORECARD.md`, in the order given above
   (Axes first, Capabilities second), with no further `## Axes — ` or
@@ -290,10 +379,12 @@ cases with 45 passed and 0 failed, and the host-census-gate count is the current
   freshness 9, calibration 9, adjacency 8.
 - Re-measure the census case count at the final revision; it is 97 at
   `b9046016`, `6c580b15`, `0cd9b28` and `master` with identical census bytes.
-- No `SHONEN.md` edit is needed for C1 (finding 9).
+- A `SHONEN.md` edit was needed after all: box 2's phrase "observation/request"
+  names a path under the literal grammar. The L1 reworded it to "observation and
+  request" in the integration (finding 9).
 - Verify with `python3 tools/check-self-assessment.py --revision <REV>`; the
   expected result is 0 mismatches of 23 with exit 0.
 
-Scope: read=`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SCORECARD.md` (lines 39-53, 157-169, 182-243, 244-813), `PROVINCE.md`, `SHONEN.md`, `tools/tsukuroi-census.sh`, `tools/boot-chain-audit.sh`, `corpus/knowledge/`, `corpus/lessons/`, `.ufo/waves/round-25/w1-spec.json`, `.ufo/waves/round-25/w1/ExecHermeticSelftests/summary.json`, `.ufo/waves/round-25/w1/ScoutPlanWalk.md`; wrote=`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/DraftAxesTable.md`; executed=`git archive b9046016 | tar -x -C /fast/scratch/hyaku/tsukuroi-r25/DraftAxesTable/base`, `ls corpus/knowledge/*.md | wc -l`, `wc -l < SKILL.md`, `grep -c '^|' SKILL.md`, `find corpus/lessons -type f | wc -l`, `wc -l < corpus/README.md`, `grep -c '^\x7c' SKILL.md`, `bash tools/tsukuroi-census.sh --selftest` (exit 0, 97 cases), `bash tools/boot-chain-audit.sh --selftest` (exit 0, total=45), `grep -n '^## ' PROVINCE.md`, `grep -n '^| ID | Finding' PROVINCE.md`, `grep -nE '^\s*--identity\)' tools/tsukuroi-census.sh` (no match), `grep -c -- '--identity' tools/tsukuroi-census.sh` (0), `grep -c '^- \[x\]' SHONEN.md` (0), `git cat-file -e b9046016:<path>` for each cited path, `git ls-tree -r --name-only <rev> corpus/...`, read-only `git show`, `git log`, `git status`, `git diff --stat`, plus a local python re-simulation of the K01–K15 rules over base plus these two draft blocks; no lane repo write, no push, no fetch, no package transaction, no service change.
+Scope: read=`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SCORECARD.md` (lines 39-53, 157-169, 182-243, 244-813 and the integrated sections at 815-866), `PROVINCE.md`, `SHONEN.md`, `tools/tsukuroi-census.sh`, `tools/boot-chain-audit.sh`, `tools/check-self-assessment.py`, `corpus/knowledge/`, `corpus/lessons/`, `.ufo/waves/round-25/w1-spec.json`, `.ufo/waves/round-25/w1/ExecHermeticSelftests/summary.json`, `.ufo/waves/round-25/w1/ScoutPlanWalk.md`; wrote=`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/DraftAxesTable.md`; executed=`git archive b9046016 | tar -x -C /fast/scratch/hyaku/tsukuroi-r25/DraftAxesTable/base`, `git archive 5e7c04e | tar -x -C /fast/scratch/hyaku/tsukuroi-r25/DraftAxesTable/head`, `ls corpus/knowledge/*.md | wc -l`, `wc -l < SKILL.md`, `grep -c '^|' SKILL.md`, `find corpus/lessons -type f | wc -l`, `wc -l < corpus/README.md`, `grep -c '^\x7c' SKILL.md`, `bash tools/tsukuroi-census.sh --selftest` (exit 0, 97 cases), `bash tools/boot-chain-audit.sh --selftest` (exit 0, total=45), `python3 tools/check-self-assessment.py --revision 5e7c04e` (exit 0, PASS, 0 mismatches of 23), `python3 tools/check-self-assessment.py --revision b9046016` (exit 1, FAIL, 13 mismatches of 23, ids K02 K04 K06 K07 K08 K09 K10 K11 K12 K13 K15 K17 K21), `sha256sum tools/check-self-assessment.py` and `git show 5e7c04e:tools/check-self-assessment.py | sha256sum` (both `343367fb309e43449ee1be50f97c86b917240de7bb6b34b942fd67a163c6242f`), `grep -n '^## ' PROVINCE.md`, `grep -n '^| ID | Finding' PROVINCE.md`, `grep -nE '^\s*--identity\)' tools/tsukuroi-census.sh` (no match), `grep -c -- '--identity' tools/tsukuroi-census.sh` (0), `grep -c '^- \[x\]' SHONEN.md` (0), `git cat-file -e <rev>:<path>` for each cited path, `git ls-tree -r --name-only <rev> corpus/...`, `git diff b9046016 5e7c04e -- SHONEN.md`, read-only `git show`, `git log`, `git status`, `git diff --stat`, plus three local python re-simulations of the K01–K19 rules over base plus these two draft blocks; no lane production file written, no push, no fetch, no package transaction, no service change.
 Model: opencode-go/minimax-m3.1-flash-free
 Installs: none

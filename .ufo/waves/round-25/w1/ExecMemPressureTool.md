@@ -8,15 +8,16 @@ Date: 2026-10-22. Clone: `/fast/scratch/hyaku/tsukuroi-r25/ExecMemPressureTool/r
 
 The C2 counting rule is implemented as `tools/check-memory-pressure.py`: it counts the verified
 rows of `corpus/knowledge/memory-pressure-r25.json` at a named revision, reads only through git,
-exits 0 only when 6 of 6 rows verify, and its 31-case hermetic selftest passes (exit 0). At the
+exits 0 only when 6 of 6 rows verify, and its 36-case hermetic selftest passes (exit 0). At the
 declaration revision `6c580b15` it exits 2 with `ENTRY-MISSING`, which is the declared before-state
-("entry and checker absent"). A 6-of-6 PASS is reachable: a temporary entry built on the real
-capture bytes verifies 6 of 6.
+("entry and checker absent"). The L1 landed the C2 entry, the registry rows, the lesson's Gate and
+the checker in `5e7c04e`, and the counting command returns exit 0 with `verified_rows` 6 and
+`status` PASS at that revision (§2.4b).
 
 ## 1. What was built
 
-`tools/check-memory-pressure.py` (39 609 bytes, sha256
-`d801b99945b55183ffe91930228cc7dee35150da549ec0dfb0cee3c3d42b8a8f`), delivered for integration at
+`tools/check-memory-pressure.py` (sha256
+`4bb8ec96d71120ec7a9e01d1b4019d5072dfa1c320bbb179660f8c7bcc41504a`), delivered for integration at
 `.ufo/waves/round-25/w1/ExecMemPressureTool/check-memory-pressure.py` in the lane repo and authored
 in my clone at `/fast/scratch/hyaku/tsukuroi-r25/ExecMemPressureTool/repo/tools/check-memory-pressure.py`.
 Pure standard library, no new dependency, no install.
@@ -32,14 +33,13 @@ measured revision is consulted; the working tree is read only for the tool's own
 | Rule | What must hold | Blocking finding |
 |---|---|---|
 | R1 | the row carries a non-empty `statement`, `verdict` and `action` | `MP-STATEMENT-EMPTY`, `MP-VERDICT-EMPTY`, `MP-ACTION-EMPTY` |
-| R2 | every listed source is a `mined` SOURCES row whose `used-by` names `corpus/knowledge/memory-pressure-r25.md` and that was opened 2026-10-22 or has its `recheck` changed in place with the change logged old → new in `corpus/lessons/round-25.md` | `MP-SOURCE-MISSING`, `MP-SOURCE-STATUS-NOT-MINED`, `MP-SOURCE-USED-BY-MISSING`, `MP-SOURCE-OPENED-STALE`, `MP-SOURCE-DUPLICATE`, `MP-SOURCES-EMPTY` |
-| R3 | at least one Gate quote of at most 25 words exists in the lesson's Gate for one of the row's sources | `MP-QUOTE-MISSING`, `MP-QUOTE-TOO-LONG` |
+| R2 | every listed source is a `mined` SOURCES row whose `used-by` names `corpus/knowledge/memory-pressure-r25.md` and that was opened 2026-10-22 or has its `recheck` changed in place with the change logged old → new in `corpus/lessons/round-25.md` | `MP-SOURCE-MISSING`, `MP-SOURCE-STATUS-NOT-MINED`, `MP-SOURCE-USED-BY-MISSING`, `MP-SOURCE-OPENED-STALE`, `MP-SOURCE-DUPLICATE`, `MP-SOURCE-ROW-SHAPE`, `MP-SOURCES-EMPTY` |
+| R3 | at least one Gate quote of at most 25 words exists in the lesson's Gate for one of the row's sources; and when the row carries a `quotes` array, every quote it carries is the Gate quote of a source the row lists, and is at most 25 words | `MP-QUOTE-MISSING`, `MP-QUOTE-TOO-LONG`, `MP-QUOTE-MISMATCH`, `MP-QUOTE-SOURCE-UNKNOWN`, `MP-QUOTES-SHAPE` |
 | R4 | at least one capture pointer resolves to a line whose text is unique in the capture, is not a `### ` header, a `$ ` echo or an `[exit ` line, holds at least one letter or digit, and contains the pointer's declared token (case-sensitive, ≥ 3 chars) | `MP-CAPTURE-POINTER-MISSING`, `MP-CAPTURE-POINTER-UNUSABLE`, `MP-CAPTURE-POINTER-SHAPE`, `MP-CAPTURE-POINTER-PATH`, `MP-CAPTURE-POINTER-LINE-RANGE`, `MP-CAPTURE-POINTER-HEADER`, `MP-CAPTURE-POINTER-ECHO`, `MP-CAPTURE-POINTER-EXIT`, `MP-CAPTURE-POINTER-BLANK`, `MP-CAPTURE-POINTER-NOT-UNIQUE`, `MP-CAPTURE-POINTER-TOKEN-ABSENT`, `MP-CAPTURE-POINTER-TOKEN-SHORT` |
 | R5 | `SKILL.md` carries a table line naming the row id | `MP-SKILL-ROW-MISSING` |
 
-`MP-QUOTE-MISMATCH`, `MP-QUOTE-SOURCE-UNKNOWN` and `MP-SUPERSEDES-SHAPE` are recorded but
-non-blocking advisories, so an entry is not failed by a wording drift between its own `quotes`
-array and the lesson's Gate copy.
+`MP-SUPERSEDES-SHAPE` is recorded but non-blocking. `MP-QUOTE-MISMATCH` and
+`MP-QUOTE-SOURCE-UNKNOWN` were advisories and are now blocking (§2.6).
 
 **Global findings** (`SCORECARD.md` fixes the exit contract): `CAPTURE-MISSING`,
 `CAPTURE-TAMPERED`, `ENTRY-MISSING`, `ENTRY-MALFORMED`, `ENTRY-SCHEMA`, `LESSON-MISSING`,
@@ -69,11 +69,11 @@ requirement is a one-line change that does not touch any other rule.
 
 ## 2. Evidence
 
-### 2.1 Selftest: 32 hermetic cases, 0 failed
+### 2.1 Selftest: 37 hermetic cases, 0 failed
 
 Command: `python3 -B tools/check-memory-pressure.py --selftest` in the clone.
 Output saved at `.ufo/waves/round-25/w1/ExecMemPressureTool/selftest.json`.
-Result: `{"status": "PASS", "cases": 32, "failed": 0, ...}`, exit 0.
+Result: `{"status": "PASS", "cases": 37, "failed": 0, ...}`, exit 0.
 
 Each case builds a throwaway git repository (`git init`, one commit, no remote) holding the five
 inputs, then evaluates the entry in it through the same `git show` reader the revision mode uses.
@@ -83,10 +83,12 @@ finding ids and expected exit code:
 `clean-pass`, `source-not-mined`, `source-used-by-other-entry`,
 `source-opened-other-day-without-recheck`, `source-opened-other-day-with-logged-recheck`,
 `source-missing`, `no-sources`, `quote-too-long`, `quote-missing`, `gate-quote-with-pipe`,
-`header-pointer`, `echo-pointer`, `exit-pointer`, `duplicate-line-pointer`,
-`blank-unique-line-pointer`, `token-absent-pointer`, `token-too-short-pointer`,
-`pointer-line-out-of-range`, `missing-skill-row`, `verdict-empty`, `action-empty`,
-`statement-empty`, `capture-digest-tampered`, `capture-missing`, `entry-missing`,
+`gate-quote-with-inner-quotes`, `source-row-wrong-column-count`, `entry-quote-not-in-gate`,
+`entry-quote-source-not-listed`, `skill-row-id-only-in-prose`, `header-pointer`, `echo-pointer`,
+`exit-pointer`,
+`duplicate-line-pointer`, `blank-unique-line-pointer`, `token-absent-pointer`,
+`token-too-short-pointer`, `pointer-line-out-of-range`, `missing-skill-row`, `verdict-empty`,
+`action-empty`, `statement-empty`, `capture-digest-tampered`, `capture-missing`, `entry-missing`,
 `entry-malformed`, `entry-wrong-schema`, `lesson-missing`, `sources-missing`, `skill-missing`,
 `row-id-unknown`, `declared-capture-digest-mismatch`.
 
@@ -122,7 +124,11 @@ A temporary entry was built on the real capture bytes at the pinned sha256, with
 sources opened 2026-10-22 whose `used-by` names the entry, six Gate quotes of four words each in a
 lesson Gate table, six SKILL.md table rows and six capture pointers onto lines 14, 15, 38, 117, 106
 and 47 of the real capture. Evaluated through the same reader in a throwaway repository: exit 0,
-`status` PASS, `verified_rows` 6, every row's five rules `ok` with no findings [obs].
+`status` PASS, `verified_rows` 6, every row's five rules `ok` with no findings [obs]. Re-verified
+after each of the three fixes of §2.6; the count still holds under the stricter R3.
+
+The `DraftEntry` draft is the second independent demonstration: with its registry rows carrying
+one cell per column, it verifies 6 of 6 against the real capture with no findings (§2.6).
 
 Two dry runs before that one were useful negatives, and they show the pointer rule bites. A first
 attempt pointed MP4 at capture line 80 and MP6 at line 62; the tool answered
@@ -130,6 +136,40 @@ attempt pointed MP4 at capture line 80 and MP6 at line 62; the tool answered
 and `MP-CAPTURE-POINTER-UNUSABLE` for those rows, exit 1, `verified_rows` 3. Line 80 is an
 `[exit ` line, and line 62's text `oom_kill 0` also occurs at line 51. The pointers were moved to
 lines that are unique in the capture and the count reached 6.
+
+### 2.4b The C2 target is met at the landed revision
+
+The L1 landed the round-25 work in commit `5e7c04e` ("round-25: C1 self-assessment checker and
+current axes table; C2 memory-pressure entry, sources S115-S125, checker, SKILL table and
+registry; lesson, QUALITY 57-59, LOG; wave-1 evidence"). Measuring that commit with the checker
+the L1 landed at `tools/check-memory-pressure.py`:
+
+```
+$ python3 -B tools/check-memory-pressure.py --revision 5e7c04e
+{"branch": "master", "declared_rows": 6, "status": "PASS", "verified_rows": 6, "findings": [], ...}
+exit 0
+```
+
+[obs] The landed checker's own selftest at that revision: `PASS`, 32 cases, 0 failed, exit 0.
+
+Measuring the same commit with my current checker (`8ab91ba…`, 36 selftest cases) gives the same
+result — exit 0, `status` PASS, `verified_rows` 6, no findings — because the landed registry rows
+all carry one cell per column and the landed lesson's Gate quotes are read whole [obs]. All 125
+registry rows at that revision parse with no malformed row and no duplicate id, and the lesson's
+Gate carries a located quote for each of S115 to S125 [obs]. The landed entry declares the pinned
+capture sha256 `e60f1bbc…` and its six row ids are MP1 to MP6 [obs].
+
+**The L1 landed a checker that is one revision behind mine** [obs]: the committed
+`tools/check-memory-pressure.py` at `5e7c04e` hashes to
+`077bd4843ad54433a6bf705fa06631008f0b526b0c9cef86b93c86da0fdbabcf`, and differs from my current
+`8ab91ba…` in the four places the last round of fixes touched: the `MP-SOURCE-ROW-SHAPE` check
+(the landed reader still reads a short registry row by header name rather than reporting it as
+malformed), the header detection that requires a separator row after it, the stricter R3 in which
+`MP-QUOTE-MISMATCH` and `MP-QUOTE-SOURCE-UNKNOWN` block, and the two corresponding selftest
+cases. None of the four changes the landed measurement: the landed tree has no malformed
+registry row and no entry/Gate quote disagreement, so both checkers read it as 6 of 6 [obs]. The
+difference matters for future rounds, not for this claim, and the L1 owns the integration
+decision.
 
 ### 2.5 Capture facts the L1 and the source seats need
 
@@ -148,32 +188,107 @@ cgroup onto `psi_system`, so this is a kernel property, not a capture slip, as `
 reported), 48 and 56 (`high 0`), 49 and 57 (`max 0`), 51 and 62 (`oom_kill 0`), 76 and 79
 (`disabled`), and every `[exit 0]` line.
 
-### 2.6 A defect the mutation tester found, and the fix
+### 2.6 Three defects found by the sibling seats, and the fixes
 
-`MutMemPressurePlan` reported that a pipe inside a quoted Gate cell was read as a cell separator,
-so the located quote was truncated and the entry's own quote would not be found. That was a real
-defect in my reader [obs]. Reproduced before the fix: a Gate row
+**Defect 1 — a pipe inside a quoted Gate cell truncated the quote.** `MutMemPressurePlan`
+reported it. Reproduced before the fix: a Gate row
 `| S115 | https://x/a | "the pipe | inside" | SrcA |` yielded the quote `"the pipe` — two words and
-the wrong text — because the row was split on the bare pipe before the quote was located.
+the wrong text — because the row was split on the bare pipe before the quote was located. The fix
+reads the quote from the raw row line rather than from a pre-split cell: the row is split with the
+same backslash-escape rule as before (a `\|` does not separate cells), the cell offsets are kept,
+and the quoted span is located against them. After the fix the same row yields
+`the pipe | inside`, and a backtick-quoted span `code | span` is likewise found whole [obs]. Pinned
+by the selftest case `gate-quote-with-pipe`.
 
-The fix reads the quote from the raw row line rather than from a pre-split cell. The row is split
-with the same backslash-escape rule as before (a `\|` does not separate cells), but the cell
-offsets are kept and the quoted span is located against them, so a quote that spans a pipe is
-found whole. After the fix the same row yields `the pipe | inside`, and a backtick-quoted span
-`code | span` is likewise found whole [obs]. The `corpus/SOURCES.md` parse is unchanged by the
-fix: all 114 registry rows still split into 11 cells with no duplicate ids, checked against
-`master` [obs].
+**Defect 2 — a located quote containing double quotes was read as its innermost pair.** The
+`DraftEntry` draft exposed it: the S115 Gate quote is
+`The "some" line indicates the share of time in which at least some tasks are stalled on a given
+resource.`, and the reader took the innermost pair and returned the single word `The`. Every S115
+quote would have mismatched. The extractor now reads a cell's quoted span from the outermost pair
+when the quotes are nested, and from the left when the cell separates several located quotes with
+`"; `, which is how a registry anchor cell holding three located quotes is written. A
+backtick-delimited span still wins over a straight-quoted one, because the lane writes a quote
+that contains double quotes inside backticks. After the fix all 14 of the draft's quotes match
+their Gate cell, and the longest is 20 words [obs]. Pinned by the selftest case
+`gate-quote-with-inner-quotes`.
 
-The case is now pinned by the selftest case `gate-quote-with-pipe` (exit 0, `verified_rows` 6),
-which is the 32nd case. The delivered tool is
-`d801b99945b55183ffe91930228cc7dee35150da549ec0dfb0cee3c3d42b8a8f`; the earlier
-`d320deb4…` copy that the mutation tester swept had the defect.
+**Defect 3 — a registry row with the wrong cell count was read as a shifted row.** The
+`DraftEntry` draft's `corpus/SOURCES.md` rows carry ten cells against the registry header's
+eleven (`id | source | kind | tier | scope | anchor | teaches | status | opened | recheck |
+used-by`, `corpus/SOURCES.md:5`): the `teaches` column was dropped and the anchor and teaches
+text were merged into one cell, so every column after `scope` sat one position to the left. The
+reader located the columns by the header's names when the count matched and could not name them
+when it did not. It now reports one finding, `MP-SOURCE-ROW-SHAPE`, and does not guess — and it
+does not also emit the three derived findings that a shifted read would have produced. The header
+is located by a table row whose next line is the separator row, so a prose line that merely looks
+like a header is not read as one [obs]. Pinned by the selftest case `source-row-wrong-column-count`.
 
-**Advice for the lesson writer** [inf]: a located quote that contains a pipe is now read whole, so
-the pipe does not have to be escaped. It still must not contain a cell separator that changes the
-column count of its row in a way that moves the quote column — the reader locates the quote by the
-header's quote column, and a pipe inside the quoted value does not change that, but a pipe inside
-the URL or source cell does.
+**One semantic question the mutation tester raised, resolved.** Its M11 mutant truncates the Gate
+quote at its pipe; the tool reported `MP-QUOTE-MISMATCH` but the row still verified, because the
+finding was advisory. The declared rule (`SCORECARD.md:797`) reads "a located quote of at most 25
+words recorded in that lesson's Gate", so the Gate quote alone satisfies it literally — but a row
+carrying a quote the Gate does not record asserts a quote that no cited page supplies, and its
+evidence chain has a hole. `MP-QUOTE-MISMATCH` and `MP-QUOTE-SOURCE-UNKNOWN` are therefore now
+blocking. A row with no `quotes` array is unaffected: the Gate quote still carries the row. The
+comparison is whitespace-normalised and matches in either direction, so a location prefix present
+in one file and not the other does not trip it. Pinned by `entry-quote-not-in-gate` and
+`entry-quote-source-not-listed`.
+
+**The draft entry reaches the target once one cell per registry row is restored.** I ran the
+checker against the `DraftEntry` draft in a throwaway repository. The entry itself is clean: all
+twelve capture pointers count, all fourteen quotes match the Gate, all six row ids appear once
+each, and every `statement`, `verdict` and `action` is non-empty. The draft's registry rows are
+the one defect (`MP-SOURCE-ROW-SHAPE` on every source). Splitting the merged cell at the
+`"; lines "` boundary in a throwaway copy — the anchor before it, the teaches after — gave exit 0,
+`status` PASS, `verified_rows` 6 and no findings at all, under both the previous and the stricter
+R3 [obs]. The L1 has been sent this and the exact fix.
+
+### 2.7 The two survivors against the landed tree, and what they are
+
+`MutMemPressurePlan` swept the landed tree at `5e7c04e` and reported 8 killed, 2 survived, 2
+needing re-pinning. I reproduced both survivors against that exact revision and measured what
+each mutant actually does. One is a defect in the mutant, one was a real gap in my rule.
+
+**M10 survived, and it was a real gap in my R5 rule — now fixed.** The mutant deletes the
+SKILL.md decision-table row whose first cell is `MP6`. My rule was "some SKILL.md table line names
+the row id", and the landed SKILL.md has a second table line that names MP6 inside a cell's prose:
+the gate-registry row at line 2355 reads `| memory-pressure | gate | ... | 0 six rows MP1 to MP6
+verified; ... |`. That is not a decision-table row for MP6, but my rule could not tell the
+difference, so the deleted row left the registry row to carry the check. The declaration asks for
+"a SKILL.md decision-table row, appended this round, that names the row id", so the rule now
+requires the row id to be a cell of its own (`skill_names_row`), not a mention inside a cell's
+prose. After the fix the same mutant gives exit 1, `verified_rows` 5,
+`MP-SKILL-ROW-MISSING` on MP6 [obs]. The landed tree still verifies 6 of 6, because its decision
+table names each id in its own `id` column. Pinned by the selftest case
+`skill-row-id-only-in-prose`.
+
+**M04 survived, and the mutant was aimed at the wrong cell.** The landed lesson's Gate table has
+five columns — `| Source | URL | Opened | Located quote (at most 25 words) | Location |` — so the
+quote is in `cells[3]`. The mutant writes its replacement into `cells[2]`, which in the landed
+table is the `Opened` date. It therefore overwrites a date with a 26-word string and leaves every
+quote untouched; the quote rule has nothing to reject. Two further facts confirm the mutant is
+mis-aimed rather than the rule being loose: its `expected_rows_broken` is `MP4`, but MP4 lists
+S121, S122 and S123 and never S118, so the quote it corrupts belongs to MP3 and MP6; and the
+synthetic baseline it was written against has a three-column Gate table where `cells[2]` is the
+quote.
+
+I confirmed the rule does kill the mutation the mutant means, by running the corrected mutation
+against the landed tree [obs]. Writing 26 words into the quote cell that MP3 cites gives exit 1,
+`verified_rows` 5, `MP-QUOTE-MISMATCH` on S118; writing 26 words into the quote cell that MP6
+cites gives the same; and writing 26 words into the quote cell *and* updating the entry's own
+quote to match gives exit 1, `verified_rows` 5, `MP-QUOTE-TOO-LONG` on S118. The "at least one
+quote per row" quantifier is not what saves the row — the per-quote checks do that work.
+
+**The re-cut draft verifies 6 of 6.** `DraftEntry` re-cut the registry rows with one cell per
+column and the quotes in backticks. Running the checker against the re-cut sources rows, the
+re-cut lesson Gate and the unchanged entry JSON: exit 0, `status` PASS, `verified_rows` 6, no
+findings; all eight registry rows parse with `shape` true, and all thirteen capture pointers and
+all fourteen quotes are accepted [obs].
+
+**Delivered tool digest.** `4bb8ec96d71120ec7a9e01d1b4019d5072dfa1c320bbb179660f8c7bcc41504a`,
+37 selftest cases, 0 failed. The earlier digests the mutation tester swept (`7144f264…`,
+`d320deb4…`, `d801b999…`, `8ab91ba…`) each predate at least one of the fixes above and must be
+re-pinned.
 
 ## 3. The entry JSON schema the L1 must write
 
@@ -243,11 +358,20 @@ Next free source id is `S115` (`corpus/SOURCES.md` ends at `S114`).
    parse error. If the L1 writes the Gate table without a header cell naming the quote column, the
    reader falls back to the first cell that carries a quote mark, which is the behaviour I want
    but not one I have seen in a real round-25 lesson.
-3. **`MP-QUOTE-MISMATCH` compares the entry's quote against the lesson's** [inf]. The comparison is
-   whitespace-normalised and substring-based, so trailing punctuation inside the quote marks
-   (`"…stalls."` against `"…stalls"`) is a mismatch by one character. It is non-blocking, so it
-   cannot cost a row, but it will appear in the findings array. A pipe inside the quoted value is
-   no longer a problem (§2.6).
+2b. **The registry rows must carry one cell per column** [obs]. The `DraftEntry` draft dropped the
+   `teaches` column, and the tool now reports `MP-SOURCE-ROW-SHAPE` for such a row rather than
+   reading it shifted. The L1 must land the rows with all eleven cells, or the count stays at 0.
+3. **`MP-QUOTE-MISMATCH` and `MP-QUOTE-SOURCE-UNKNOWN` are now blocking** [inf], on the
+   mutation tester's M11 finding (§2.6). The comparison is whitespace-normalised and matches in
+   either direction, so a location prefix present in one file and not the other does not trip it.
+   This is stricter than the declaration's literal wording, which the Gate quote alone satisfies;
+   the L1 should confirm the stricter reading is what the claim intends. A row with no `quotes`
+   array is unaffected.
+3b. **R5 now requires the row id to be a cell of its own** [inf], on the M10 finding (§2.7). The
+   declaration says "a SKILL.md decision-table row ... that names the row id", and the landed
+   SKILL.md has a gate-registry row that mentions `MP1 to MP6` inside a cell's prose. Requiring the
+   id to stand alone in a cell is the reading that matches the wording. The landed tree still
+   verifies 6 of 6 under it.
 4. **The `used-by` check accepts the stem** `corpus/knowledge/memory-pressure-r25` [inf], so a
    SOURCES row may name the entry as `.md` or `.json`. A row naming only the `.json` would still
    satisfy the declaration's "used-by names the entry" wording; if the L1 wants the `.md` form
@@ -256,31 +380,49 @@ Next free source id is `S115` (`corpus/SOURCES.md` ends at `S114`).
    ancestor of `refs/heads/master` is refused with one `E-*` id and exit 2. The measurement
    revision must therefore be landed on the lane's `master` before the command in the declaration
    can return 0.
-6. **The tool is not in the lane's `tools/` yet** [obs]. Until the L1 lands it, the declared
-   command `python3 tools/check-memory-pressure.py --revision <REV>` does not exist in the lane, so
-   the C2 after-value is not yet measurable at any revision. The draft is at
-   `.ufo/waves/round-25/w1/ExecMemPressureTool/check-memory-pressure.py`.
+6. **The tool is landed, but at a digest several revisions behind my current one** [obs]. The L1
+   landed `077bd4843ad54433a6bf705fa06631008f0b526b0c9cef86b93c86da0fdbabcf`; my current copy is
+   `4bb8ec96d71120ec7a9e01d1b4019d5072dfa1c320bbb179660f8c7bcc41504a`, which adds the
+   `MP-SOURCE-ROW-SHAPE` check, the separator-anchored header detection, the stricter R3 in which
+   the entry's own quote must match the Gate, and the R5 rule that requires the row id to be a
+   cell of its own (§2.4b, §2.6, §2.7). All of them read the landed tree as 6 of 6 — the landed
+   tree has no malformed registry row, no entry/Gate quote disagreement and no SKILL.md table that
+   names an MP id only inside prose. The L1 owns which digest stands; if the later one lands, the
+   new selftest cases and the two new findings come with it.
 7. **The sibling lane's scope is not absorbed** [inf]. `PROVINCE.md` row ADJ-04 routes fleet or
    wave attribution of pressure to `mori`, and `mori`'s `system-pressure-r24.md` owns CPU, IO and
    IRQ pressure reading. This checker counts evidence links in the lane's own committed bytes; it
    makes no claim about CPU, IO or IRQ pressure and reads no sibling repository.
-8. **No blocker.** [obs]
+8. **The draft's registry rows needed the `teaches` column restored** [obs]. The L1 landed them
+   with one cell per column; my check of the landed tree finds 125 well-formed rows and no
+   malformed row. This was the only thing between the `DraftEntry` draft and 6 of 6.
+9. **No blocker.** [obs]
 
 ## 5. Coordination
 
 `MutMemPressurePlan` received the full finding-id vocabulary, the pointer slot shape
 (`{line, token}`) and the capture uniqueness facts, so its mutants assert this tool's ids rather
-than a parallel guess. It then ran ten mutants over temporary git repositories against an earlier
-copy of this tool: 10 killed, 0 survived, 0 inconclusive, with the measured ids and counts
-matching the vocabulary above [obs, reported by that seat]. Its sweep also found the pipe-in-quote
-defect of §2.6, which is fixed here, and it reported that an earlier draft of this tool did not
+than a parallel guess. It then swept mutants over temporary git repositories against successive
+copies of this tool: 10 of 10 killed on `d320deb4…`, 11 of 11 on `d801b999…` with the baseline
+green at 6/6, then 12 of 12 on `8ab91ba…`, and against the landed tree 8 killed, 2 survived, 2
+needing re-pinning [obs, reported by that seat]. Its sweeps found the pipe-in-quote defect, the
+nested-quote defect and the M11 question about the advisory quote mismatch, all resolved in §2.6;
+the M10 survivor was a real gap in my R5 rule and is fixed in §2.7; the M04 survivor is a
+mis-aimed mutant, measured in §2.7. It also reported that an earlier draft of this tool did not
 compile at 07:51 (`IndentationError`, two adjacent `case()` calls with one closing parenthesis
-too many). That was corrected at the time and the current copy compiles
-(`python3 -m py_compile` exit 0) [obs].
+too many); that was corrected at the time and the current copy compiles
+(`python3 -m py_compile` exit 0) [obs]. It has been sent the new digest, the changed expectations
+and the M04 column finding, since its oracle and quote checker must use the outer-pair quote rule
+and its Gate mutator must address the landed table's quote column.
 
 `DraftEntry` received the schema in §3 with the two changes, the lesson parser shapes and the
-reachable-6-of-6 result, and was offered a check of its drafted JSON against the checker in a
-throwaway repository.
+reachable-6-of-6 result. It then delivered a draft; I ran the checker against that draft in a
+throwaway repository and reported the result: the entry is clean, the registry rows carry ten
+cells against the header's eleven, and restoring the `teaches` cell makes the draft verify 6 of 6
+with no findings. It re-cut the rows with one cell per column and the quotes in backticks; I ran
+the checker against the re-cut sources rows, the re-cut lesson Gate and the unchanged entry JSON
+and got exit 0, `verified_rows` 6, no findings (§2.7). The L1 had already landed its own version
+of the entry, sources and lesson at `5e7c04e`, and that tree verifies 6 of 6 as well.
 
 ## 6. Scope note
 
@@ -295,6 +437,6 @@ remote.
 
 Installs: none.
 
-Scope: read=SCORECARD.md (round 25 declaration, C2 rows paragraph at :797), corpus/lessons/round-24-verifier-spotcheck.md (routed defect 1), corpus/SOURCES.md (registry shape, next free id S115, all 114 rows re-parsed after the quote fix), corpus/knowledge/pause-lift-gate-r24.json and tools/check-pause-gate.py (the round-24 counting-tool precedent), tools/_revision.py (shared revision binder), corpus/knowledge/oom-event-plane.md:270-350 (the weaker prior statements), the round-25 capture at the pinned sha256, and the wave-1 drafts of MutMemPressurePlan, DraftEntry, SrcPsiDoc, DraftLessonMistakes; wrote=.ufo/waves/round-25/w1/ExecMemPressureTool.md, .ufo/waves/round-25/w1/ExecMemPressureTool/check-memory-pressure.py, .ufo/waves/round-25/w1/ExecMemPressureTool/selftest.json, .ufo/waves/round-25/w1/ExecMemPressureTool/revision-6c580b15.json, and tools/check-memory-pressure.py in the clone /fast/scratch/hyaku/tsukuroi-r25/ExecMemPressureTool/repo; executed=python3 -B tools/check-memory-pressure.py --selftest (exit 0, 32 cases, 0 failed), python3 -B tools/check-memory-pressure.py --revision 6c580b155840c8750a7bb5f14dcb8e48913d0073 (exit 2, ENTRY-MISSING), python3 -m py_compile on the delivered copy (exit 0), read-only git show/cat-file/ls-tree/log/status/rev-parse on the lane and the clone, and three temporary-repository dry runs of the checker (exit 1 with 3 of 6, then exit 0 with 6 of 6, re-verified after the quote fix).
+Scope: read=SCORECARD.md (round 25 declaration, C2 rows paragraph at :797), corpus/lessons/round-24-verifier-spotcheck.md (routed defect 1), corpus/SOURCES.md (registry shape and header at :5, next free id S115, all 114 rows re-parsed after the quote and column fixes, all 125 rows at the landed revision), corpus/knowledge/pause-lift-gate-r24.json and tools/check-pause-gate.py (the round-24 counting-tool precedent), tools/_revision.py (shared revision binder), corpus/knowledge/oom-event-plane.md:270-350 (the weaker prior statements), the round-25 capture at the pinned sha256, the landed revision 5e7c04e (entry, registry, lesson, SKILL.md), and the wave-1 drafts and reports of MutMemPressurePlan, DraftEntry, SrcPsiDoc, DraftLessonMistakes; wrote=.ufo/waves/round-25/w1/ExecMemPressureTool.md, .ufo/waves/round-25/w1/ExecMemPressureTool/check-memory-pressure.py, .ufo/waves/round-25/w1/ExecMemPressureTool/selftest.json, .ufo/waves/round-25/w1/ExecMemPressureTool/revision-6c580b15.json, and tools/check-memory-pressure.py in the clone /fast/scratch/hyaku/tsukuroi-r25/ExecMemPressureTool/repo; executed=python3 -B tools/check-memory-pressure.py --selftest (exit 0, 37 cases, 0 failed), python3 -B tools/check-memory-pressure.py --revision 6c580b155840c8750a7bb5f14dcb8e48913d0073 (exit 2, ENTRY-MISSING), python3 -m py_compile on the delivered copy (exit 0), read-only git show/cat-file/ls-tree/log/status/rev-parse on the lane and the clone, and the temporary-repository dry runs of the checker: the synthetic entry at 3 of 6 then 6 of 6; the DraftEntry draft as written, then with the teaches cell restored, then the re-cut draft at 6 of 6; the landed revision 5e7c04e at 6 of 6 with both the L1's landed checker and mine; and the M04 and M10 survivor reproductions, including the corrected M04 in three forms.
 Model: opencode-go/minimax-m3.1-flash-free
 Installs: none

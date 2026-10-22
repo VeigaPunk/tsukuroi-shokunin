@@ -309,7 +309,7 @@
      "line": 344,
      "relation": "supersedes",
      "earlier_text": "`ManagedOOMMemoryPressure=auto` + `ManagedOOMSwap=auto` **already set** on `user@1000.service` and `user-1000.slice` ... oomd would likely have acted *before* the kernel",
-     "reason": "'auto' is the default and means not monitored, so on this host systemd-oomd would have had no monitored cgroup even if it had been running; the 'already set' wording and the 'would likely have acted before the kernel' inference do not hold."
+     "reason": "'auto' is the default and means not monitored, so for the four units the capture read (user@1000.service up to -.slice) systemd-oomd would have had no monitored cgroup even if it had been running; the 'already set' wording and the 'would likely have acted before the kernel' inference do not hold for them."
     },
     {
      "file": "corpus/knowledge/oom-event-plane.md",
@@ -317,6 +317,13 @@
      "relation": "kept separate",
      "earlier_text": "`skip` on `user@1000.service` ... `on` exports `$MEMORY_PRESSURE_WATCH` to a unit's processes so apps can react themselves (per `systemd.resource-control(5)`) — a *cooperating-app* lever, not a guard",
      "reason": "That statement stands as written and the capture confirms it at lines 117, 126, 136, 144 and 150; MP4 keeps the pressure-watch property out of the systemd-oomd properties because it has no kill semantics."
+    },
+    {
+     "file": "corpus/knowledge/kill-event-deep-r8.md",
+     "line": 255,
+     "relation": "supersedes",
+     "earlier_text": "row 1: ManagedOOM* already set; oomd would have had a trigger",
+     "reason": "Same refuted premise as oom-event-plane.md:344; marked by an appended R25 notice in that file."
     }
    ],
    "mori_cross_reference": "None needed; this row is tsukuroi-owned systemd-oomd state.",
@@ -472,17 +479,10 @@
      "relation": "narrows",
      "earlier_text": "signals in this plane are `memory.swap.peak`, `memory.swap.events.fail`, `pswpin/pswpout`, PSI, and the",
      "reason": "That reading rule listed PSI and the kernel/systemd records in one row of pressure signals; the kernel kill counters and the stall counters are different readings of different files, and a kill counter that reads zero does not close the memory question."
-    },
-    {
-     "file": "corpus/knowledge/oom-event-plane.md",
-     "line": 344,
-     "relation": "supersedes",
-     "earlier_text": "oomd would likely have acted *before* the kernel, at the cost of policy-driven kills (it kills the pressured cgroup's processes)",
-     "reason": "A userspace killer's SIGKILL is not kernel OOM-kill accounting; the two are counted separately, so a userspace kill does not raise the kernel counters."
     }
    ],
    "mori_cross_reference": "The kernel-only-counter rule is held by mori (oom-kill-counter-kernel-only-r12.md at 4f05dd5a) and by tsukuroi's own presence-flag rule in oom-event-plane.md; the tsukuroi action is which userspace killer is running, which is unit state and therefore tsukuroi's ground.",
-   "notes": "The capture ran no uptime or boot-id read, so the kernel counter's epoch is not dated by it and the row is scoped accordingly.",
+   "notes": "The capture ran no uptime or boot-id read, so the kernel counter's epoch is not dated by it and the row is scoped accordingly. Correction after wave-2 review: capture line 50 (`oom 0`) is the memcg OOM event raised in mem_cgroup_oom, not the kill path; the kill counter itself (`oom_kill 0`) sits on capture lines 51 and 62, which repeat each other and so cannot be counted pointers. A userspace killer moves neither kernel counter unless it asks the kernel to kill: earlyoom started with --kernel-oom does (the sibling lane mori records this in corpus/knowledge/oom-kill-counter-kernel-only-r12.md); the captures did not read earlyoom's arguments. The general counter facts are also held by mori; this row keeps the OS-triage consequence.",
    "additional_located_quotes": [
     {
      "source": "S118",

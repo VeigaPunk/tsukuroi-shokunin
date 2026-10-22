@@ -119,7 +119,52 @@ and no fixture produced a false extra trip.
 
 All 23 declared check ids K01 to K23 are covered by at least one fixture.
 
-### 4.1 The defect kinds the assignment named, and how each is realised
+### 4.1 The checker's own reason string for every killed fixture
+
+Each line is the checker's verbatim `reason` for the newly tripped check. Every
+one names the specific defect, so no kill is unattributable.
+
+| Fixture | Check | Checker's reason |
+|---|---|---|
+| M01-ordinal-depth | K01 | `axes table depth score 9 differs from the after-value 8 of the last recorded transition (SCORECARD.md:759)` |
+| M02-ordinal-coverage | K02 | `axes table coverage score 8 differs from the after-value 9 of the last recorded transition (SCORECARD.md:224)` |
+| M03-ordinal-operability | K03 | `axes table operability score 8 differs from the after-value 9 of the last recorded transition (SCORECARD.md:731)` |
+| M04-ordinal-freshness | K04 | `axes table freshness score 8 differs from the after-value 9 of the last recorded transition (SCORECARD.md:772)` |
+| M05-ordinal-calibration | K05 | `axes table calibration score 8 differs from the after-value 9 of the last recorded transition (SCORECARD.md:771)` |
+| M06-ordinal-adjacency | K06 | `axes table adjacency score 9 differs from the after-value 8 of the last recorded transition (SCORECARD.md:620)` |
+| M07-count-notes | K07 | `depth row states 47 notes; corpus/knowledge holds 46 .md files` |
+| M08-count-skill-lines | K08 | `depth row states 2302 SKILL.md lines; SKILL.md holds 2301 newline characters` |
+| M09-count-table-lines | K09 | `depth row states 260 table lines; SKILL.md holds 259 pipe-prefixed lines` |
+| M10-count-lessons | K10 | `depth row states 26 lesson files; corpus/lessons holds 25 files` |
+| M11-count-readme-lines | K11 | `coverage row states 232 corpus/README.md lines; the file holds 231 newline characters` |
+| M12-stale-province | K12 | `coverage row states the sections are absent; PROVINCE.md holds Core=True Frontier=True Adjacent=True` |
+| M13-count-cases | K13 | `operability row states 98 cases; the census selftest at this revision prints 97 cases (TSUKUROI_CENSUS_SELFTEST: PASS (97 cases, 97 passed, 0 failed))` |
+| M14-stale-identity | K14 | `operability row states the mode is present; the census script holds a --identity case arm: False` |
+| M15-stale-overlap | K15 | `adjacency row states the table is absent; PROVINCE.md holds a '\| ID \| Finding' table: True` |
+| M15b-omit-overlap | K15 | `adjacency row states the table is unstated; PROVINCE.md holds a '\| ID \| Finding' table: True` |
+| M16-capability-path-sources | K16 | `sources-registry row names 1 path(s) absent at the revision: corpus/SOURCES-registry.md` |
+| M17-capability-path-census | K17 | `host-census-gate row names 1 path(s) absent at the revision: .ufo/evidence/round-1-kaika/scout-live-absent.md` |
+| M18-capability-path-metadata | K18 | `root-metadata-observer row names 1 path(s) absent at the revision: .ufo/waves/round-12/resumed/absent-fixture.json` |
+| M19-capability-path-bootchain | K19 | `boot-chain-audit row names 1 path(s) absent at the revision: .ufo/waves/round-17/l1-capture/absent-audit.txt` |
+| M20-shonen-box1-checked | K20 | `SHONEN box 1 is marked [x] without a named non-author verifier` |
+| M21-shonen-box2-path | K21 | `SHONEN box 2 names 1 path(s) absent at the revision: corpus/knowledge/absent-fixture.md` |
+| M22-shonen-box3-path | K22 | `SHONEN box 3 names 1 path(s) absent at the revision: corpus/knowledge/absent-fixture.md` |
+| M23-shonen-box4-path | K23 | `SHONEN box 4 names 1 path(s) absent at the revision: corpus/knowledge/absent-fixture.md` |
+| M24-axes-second-heading-not-last | — | *no mismatch; exit 0 — the control behaved correctly* |
+| M25-axes-second-heading-last | K01 | `axes table depth score 5 differs from the after-value 8 of the last recorded transition (SCORECARD.md:771)` |
+| M26-axes-extra-pipe | K01 | `axes table depth row states no numeric score` |
+| M27-omit-province | K12 | `coverage row states the sections are unstated; PROVINCE.md holds Core=True Frontier=True Adjacent=True` |
+| M28-omit-identity | K14 | `operability row states the mode is unstated; the census script holds a --identity case arm: False` |
+| M29-capability-cases-off | K17 | `host-census-gate row states 98 cases; the census selftest at this revision prints 97 cases` |
+| M30-capability-omit-cases | K17 | `host-census-gate row states None cases; the census selftest at this revision prints 97 cases` |
+| M31-shonen-box1-no-path | K20 | `SHONEN box 1 names no repository path` |
+| M32-shonen-box4-no-path | K23 | `SHONEN box 4 names no repository path` |
+
+[M30 is worth one word: the checker reports the stated case count as `None`
+rather than skipping the comparison, which is the correct treatment of a row
+that states no count at all.]
+
+### 4.2 The defect kinds the assignment named, and how each is realised
 
 - **An ordinal one off** — M01 to M06. The score cell of one axes row is set
   one off the last recorded ordinal transition for that axis. The offset is
@@ -207,6 +252,19 @@ All 23 declared check ids K01 to K23 are covered by at least one fixture.
    corrected. The stale part of the lane's self-assessment is concentrated in
    the round-11 axes table, which the baseline sections replace.
 
+8. **[obs] The lane now holds two `## Axes — ` sections, and the checker's
+   section-scoped selection is what keeps the round-25 one authoritative.**
+   SCORECARD.md at `5e7c04e` carries `## Axes — current self-assessment (round
+   25)` at line 815 below the older round-11 section at line 39. The declared
+   rule takes the last such heading, so the round-25 table is the current axes
+   table and the round-11 table is history. This is the same selection the
+   M24 and M25 fixtures probe from both sides, and the lane's own landed file
+   is the "later heading" case that M25 covers. **[unk]** Whether the landed
+   checker selects the round-25 table was not exercised by this seat — the
+   wave closed before the `landed`-mode rerun completed — so this is stated as
+   a design property of the check set, not as a measured result. §7 gives the
+   one-command rerun that settles it.
+
 ## 6. Restoration and lane safety
 
 - The lane was never written by this seat. `git status --porcelain` in the
@@ -225,37 +283,87 @@ All 23 declared check ids K01 to K23 are covered by at least one fixture.
 
 ## 7. What wave 2 should do
 
-Run the shipped runner against the landed lane state:
+The lane has since landed the checker and a corrected axes table in commit
+`5e7c04e` ("round-25: C1 self-assessment checker and current axes table; C2
+memory-pressure entry, sources S115-S125, checker, SKILL table and registry;
+lesson, QUALITY 57-59, LOG; wave-1 evidence"). At that commit the lane's
+`tools/check-self-assessment.py` exists with sha256
+`343367fb309e43449ee1be50f97c86b917240de7bb6b34b942fd67a163c6242f`, and
+SCORECARD.md now carries a second axes section, `## Axes — current
+self-assessment (round 25)` at line 815, below the older round-11 section at
+line 39.
+
+**[obs] The landed lane state is exactly the two-heading case the fixture set
+was built to probe.** With the declared rule "the last table under the last
+heading that starts `## Axes — `", the round-25 section at line 815 is the
+current axes table and the round-11 section at line 39 is history. M24 and
+M25 are the two sides of that rule and were both executed against the tested
+bytes: an earlier heading produced no mismatch (control, exit 0) and a later
+heading was taken as the current table (K01 tripped). The lane's landed state
+is the "later heading" case, so the checker must read line 815 — and the
+lane's own file, which I did not get to exercise before the wave closed, is
+the last word on that.
+
+Wave 2 should therefore re-run the shipped runner against the landed state,
+in `landed` mode, so the baseline is the lane's own artifact rather than my
+synthesised one:
 
 ```
 cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
 TOOL=tools/check-self-assessment.py MODE=landed \
-  bash .ufo/waves/round-25/w1/MutSelfAssessPlan/run_wave2.sh <REVISION>
+  bash .ufo/waves/round-25/w1/MutSelfAssessPlan/run_wave2.sh 5e7c04e
 ```
 
 `MODE=landed` takes the baseline axes table and Capabilities table verbatim
-from the revision, so once the lane's repaired table is landed the baseline is
-the lane's own artifact and each fixture is that artifact plus one defect. The
-expected outcome is the same: baseline `mismatches` 0, 32 killed, 1 control
-clean. If the lane's repaired table changes the wording the fixtures anchor
-on, `generate_fixtures.py` reports the fixture as `not_materializable` rather
-than silently doing nothing, and the manifest's `not_materializable` list names
-it.
+from the revision, so each fixture becomes "the lane's own artifact plus one
+defect". The expected outcome is the same shape as the run recorded above:
+baseline `mismatches` 0, 32 defect fixtures killed with the expected check id
+and no other, and the one control clean.
+
+Two things to watch in that rerun, both recorded here rather than left for wave
+2 to discover:
+
+1. **[obs] The tested bytes and the landed bytes differ.** The run recorded
+   above used sha256 `970e3efb4e21071e0bf8db19c8783e3b9bdb39ff075f8df29a6049f31e6d4a33`;
+   the lane copy is `343367fb309e43449ee1be50f97c86b917240de7bb6b34b942fd67a163c6242f`.
+   The kill results below are evidence about the first sha256, not about the
+   second. `run_wave2.sh` prints the sha256 of whatever `TOOL=` points at, so
+   the rerun records which bytes it judged.
+2. **[obs] The generator now selects the axes and Capabilities tables by
+   header key** (`Axis` and `Capability`) inside the last matching heading's
+   section, matching the checker's own selection rule rather than "the last
+   table in the section". With two axes sections in the lane file, the older
+   round-11 section also holds a table whose header first cell is `Axis`;
+   picking the wrong one would make every fixture unattributable. This
+   correction was made after the recorded run and is what the wave-2 rerun
+   exercises.
+
+If the lane's landed wording changes an anchor the fixtures depend on,
+`generate_fixtures.py` reports the fixture as `not_materializable` rather than
+silently doing nothing, and the manifest's `not_materializable` list names it.
 
 ## 8. Limits
 
-- The tool under test was read from the executor's scratch checkout, not from
-  the lane, because the lane copy did not exist when this seat ran. The
-  executor owns the file and may still change it; the sha256 above pins the
-  exact bytes tested, and `run_wave2.sh` re-pins whatever `TOOL=` points at.
-- The run took about eight minutes wall clock, dominated by the census
-  selftest (about 14 s per checker invocation, run once per fixture plus once
-  for the baseline). The executor's own suggestion of a stub census script
-  would make a wave-2 rerun much faster, at the cost of no longer exercising
-  the real census.
-- The fixtures were generated in `computed` mode against `b9046016`, the
+- **[obs] The tool under test was read from the executor's scratch checkout,
+  not from the lane**, because the lane copy did not exist when this seat ran.
+  The executor owns the file and changed it during the wave; the sha256 above
+  pins the exact bytes tested, and the landed sha256 is recorded separately in
+  §7.
+- **[obs] The recorded run is a `computed`-mode run against `b9046016`**, the
   declared claim base, because the lane's repaired axes table was not landed
-  at the time of the run. `landed` mode is the wave-2 form.
+  when the run executed. The baseline sections therefore synthesise the axes
+  and Capabilities tables from values measured at that revision rather than
+  taking the lane's own table. That is a fixture harness, not a lane
+  artifact, and §7 gives the `landed` form.
+- **[obs] The run took about nine minutes wall clock**, dominated by the
+  census selftest (about 14 s per checker invocation, once per fixture plus
+  once for the baseline; 34 invocations in total). The executor's own
+  suggestion of a stub census script would make a wave-2 rerun much faster,
+  at the cost of no longer exercising the real census.
+- **[obs] No run against the landed lane state was completed.** The wave
+  closed while the `landed`-mode rerun was being set up. Nothing in this
+  report asserts a result for the landed sha256; the results recorded are for
+  the tested sha256 only.
 
 ## 9. Evidence pointers
 
@@ -274,6 +382,6 @@ it.
 - This seat's scripts:
   `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/MutSelfAssessPlan/`
 
-Scope: read=tools/check-self-assessment.py (executor checkout), SCORECARD.md, SHONEN.md, PROVINCE.md, SKILL.md, corpus/README.md, corpus/knowledge, corpus/lessons, tools/tsukuroi-census.sh at b9046016831237cd04d38da11ba76e50d5380c53 (git archive / git show only); wrote=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/MutSelfAssessPlan/generate_fixtures.py, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/MutSelfAssessPlan/run_mutations.py, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/MutSelfAssessPlan/run_wave2.sh, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/MutSelfAssessPlan.md, and under /fast/scratch/hyaku/tsukuroi-r25/MutSelfAssessPlan/ the fixtures tree, results.json, tool-under-test.py and the scratch repos; executed=git archive and git show (lane, read-only), git init/add/commit/rev-parse (scratch repos only, no remote), bash tools/tsukuroi-census.sh --selftest (inside scratch repos, read-only), python3 tools/check-self-assessment.py --revision <commit> (inside scratch repos, read-only), python3 generate_fixtures.py, python3 run_mutations.py, bash run_wave2.sh; no git push, no git fetch, no lane git write, no pacman transaction, no service action.
+Scope: read=tools/check-self-assessment.py (executor checkout at sha256 970e3efb…, and the lane copy at 5e7c04e), SCORECARD.md, SHONEN.md, PROVINCE.md, SKILL.md, corpus/README.md, corpus/knowledge, corpus/lessons, tools/tsukuroi-census.sh at b9046016831237cd04d38da11ba76e50d5380c53 and at 5e7c04ecb02735491456de2b8bc44550d0db4609 (git archive / git show / git log / git status only); wrote=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/MutSelfAssessPlan/generate_fixtures.py, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/MutSelfAssessPlan/run_mutations.py, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/MutSelfAssessPlan/run_wave2.sh, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-25/w1/MutSelfAssessPlan.md, and under /fast/scratch/hyaku/tsukuroi-r25/MutSelfAssessPlan/ the fixtures tree, results.json, tool-under-test.py and the scratch repos; executed=git archive and git show (lane, read-only), git init/add/commit/rev-parse (scratch repos only, no remote), bash tools/tsukuroi-census.sh --selftest (inside scratch repos, read-only), python3 tools/check-self-assessment.py --revision <commit> (inside scratch repos, read-only), python3 generate_fixtures.py, python3 run_mutations.py, bash run_wave2.sh; no git push, no git fetch, no lane git write, no scratch repo with a remote, no pacman transaction, no service action.
 Model: opencode-go/minimax-m3.1-flash-free
 Installs: none

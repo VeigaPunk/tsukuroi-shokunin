@@ -3,12 +3,15 @@
 Seat: `TsukuroiR25.DraftEntry` (scribe). Lane: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin`.
 Round 25, wave 1, C2. Date 2026-10-22.
 
-Verdict: the six-row C2 entry is drafted and self-checked — six rows MP1 to MP6, each with a
-statement, a verdict, an operator action, one mined SOURCES row opened 2026-10-22, a located
-quote of at most 25 words, at least one capture pointer into the frozen capture that is unique
-and is neither a header, a command echo nor an exit line, and a named earlier tsukuroi
-statement it supersedes — and the two drafts need one L1 decision (the SOURCES id block, where
-five sibling seats collided) and no other work from this seat.
+Verdict: the six-row C2 entry is drafted and verified by the real counting tool — six rows
+MP1 to MP6, each with a statement, a verdict, an operator action, one mined SOURCES row
+opened 2026-10-22, a located quote of at most 25 words, at least one capture pointer into
+the frozen capture that is unique and is neither a header, a command echo nor an exit line,
+and a named earlier tsukuroi statement it supersedes. The checker seat ran
+`tools/check-memory-pressure.py` against the draft and raised no finding against the entry;
+it found one defect in my registry rows, ten cells where the registry header declares
+eleven, which I have re-cut. The remaining work is the L1's: assign the SOURCES ids, where
+five sibling seats collided, and land the four drafts in the checker's input order.
 
 ## Deliverables (drafts, for the L1)
 
@@ -137,14 +140,52 @@ git or jj write was run in the lane repo, and nothing was pushed anywhere.
     `token` with the object shape `{path, line, token}`, and a non-empty `statement` on
     every row. Both are applied. The pointer objects now carry exactly `path`, `line` and
     `token`; the schema string is `tsukuroi-memory-pressure-r25-v1`; the row ids are MP1 to
-    MP6 exactly once each. I sent the drafted JSON to that seat to be run through the real
-    checker before integration, and I report its answer when it arrives.
+    MP6 exactly once each.
 
-15. **[obs] The entry's own self-check passes on all six rows.** A script over the drafted
+15. **[obs] The real checker ran against my draft and the entry itself is clean; my
+    registry rows were the defect.** The checker seat ran
+    `tools/check-memory-pressure.py` against my drafted entry and reported: every pointer
+    counts (all thirteen, against the frozen capture bytes at sha256
+    `e60f1bbc1feb8f251c8b276f70342da5385d07b9ad747305e1f016e0df447136`), all fourteen row
+    quotes match their Gate cell exactly and none exceeds 25 words, every row id, verdict,
+    action and statement passes, and no finding of any kind was raised against the entry's
+    own fields. The count failed on one thing, `MP-SOURCE-ROW-SHAPE`, and the cause was in
+    my registry rows: they had ten cells where the registry header at `corpus/SOURCES.md:5`
+    declares eleven, because I had merged the `anchor` and `teaches` cells, which shifted
+    every column after `scope` by one. I re-cut all eight rows: eleven cells, the `anchor`
+    cell holds the line references and exactly one located quote in backticks, and the
+    `teaches` cell holds what the page teaches in plain prose with no quote character in
+    it. The eight quotes in the SOURCES rows are now byte-identical to the eight Gate
+    quotes, and I checked that with the checker's own extraction rule (a backtick span
+    first, otherwise the outermost double-quote pair).
+
+16. **[obs] The checker's quote extractor had a nested-quote defect that my draft exposed,
+    and that seat fixed it.** The S115 quote contains its own double quotes, so an
+    extractor that took the innermost pair read that Gate cell as the single word `The`.
+    That seat fixed the extractor to read the outermost pair for nested quotes, added the
+    selftest cases `gate-quote-with-inner-quotes` and `source-row-wrong-column-count`, and
+    reports the selftest at 34 cases, 0 failed, exit 0. I have put the located quote in
+    backticks in both the SOURCES anchor cell and the Gate cell, which is the form that
+    needs no nesting rule at all. The delivered checker digest is sha256
+    `5d6ddb8babb65ec5d6839c0165d494bd91123e110fe2d27687726b95e8a3c5b2` at
+    `.ufo/waves/round-25/w1/ExecMemPressureTool/check-memory-pressure.py`; the earlier
+    `d801b999…` had the nested-quote defect and must not be pinned.
+
+17. **[obs] The integration order is the checker's input order.** The counting command
+    reads `corpus/lessons/round-25.md`, `corpus/SOURCES.md`,
+    `corpus/knowledge/memory-pressure-r25.json` and `SKILL.md`, and the lesson does not
+    exist yet. So the L1 lands, in this order: the lesson `## Gate` block first, then the
+    eight SOURCES rows, then the entry and its JSON twin, then the SKILL.md decision-table
+    rows. The entry markdown and the JSON must land together, since the SKILL.md rows name
+    the entry's row ids and the checker reads the JSON.
+
+18. **[obs] The entry's own self-check passes on all six rows.** A script over the drafted
     JSON checked, for each row: the id set, non-empty statement, verdict and action, every
     listed source having a Gate row and a matching quote, every quote being at most 25 words
     and present in its source's Gate cell, and every capture pointer satisfying the count
-    rule. Result: no finding on MP1 to MP6.
+    rule. Result: no finding on MP1 to MP6. A second script re-read the re-cut SOURCES
+    rows under the checker's own extraction rule and confirmed eleven cells on every row
+    and eight quotes identical to the eight Gate quotes.
 
 ## What this seat did not do
 
@@ -153,7 +194,8 @@ git or jj write was run in the lane repo, and nothing was pushed anywhere.
 - It did not re-capture the host. The frozen capture is the counting input, and the
   supplementary earlyoom capture is context only.
 - It did not run `tools/check-memory-pressure.py` against a real revision. The tool is the
-  checker seat's; I sent the drafted JSON to that seat for that run.
+  checker seat's; that seat ran it against my draft, found the defect in my registry rows
+  that I then fixed, and was asked to re-run against the re-cut rows.
 - It did not decide the SOURCES ids. That is the L1's, and the collision table is in the
   registry draft.
 - It did not attribute pressure to any workload, session or wave. That correlation belongs
@@ -175,6 +217,6 @@ git or jj write was run in the lane repo, and nothing was pushed anywhere.
   to record the boot identity with the pair of reads; the capture itself ran no boot-id or
   uptime read, so the epoch of the captured totals is not dated by it.
 
-Scope: read=SCORECARD.md round-25 declaration and its refinements, corpus/SOURCES.md, corpus/lessons/round-24.md Gate format, corpus/knowledge/oom-event-plane.md lines 268-350, PROVINCE.md ADJ-04, SKILL.md verdict and decision-table conventions, the frozen capture and its script, the five sibling source-seat reports and the two critic reports in .ufo/waves/round-25/w1/, mori-shokunin system-pressure-r24.md at 4f05dd5a, and the raw bytes of eight primary pages fetched this session; wrote=.ufo/waves/round-25/w1/DraftEntry.md, .ufo/waves/round-25/w1/DraftEntry/memory-pressure-r25.md, .ufo/waves/round-25/w1/DraftEntry/memory-pressure-r25.json, .ufo/waves/round-25/w1/DraftEntry/sources-rows-r25.md, .ufo/waves/round-25/w1/DraftEntry/lesson-gate-quotes-r25.md; executed=curl fetches of the eight URLs above into /fast/scratch/hyaku/tsukuroi-r25/DraftEntry/src/, sha256sum, read-only git show of the sibling lane file, and local scripts that checked quote contiguity, quote length, capture-pointer uniqueness and the row-to-Gate-quote mapping
+Scope: read=SCORECARD.md round-25 declaration and its refinements, corpus/SOURCES.md, corpus/lessons/round-24.md Gate format, corpus/knowledge/oom-event-plane.md lines 268-350, PROVINCE.md ADJ-04, SKILL.md verdict and decision-table conventions, the frozen capture and its script, the five sibling source-seat reports and the two critic reports in .ufo/waves/round-25/w1/, mori-shokunin system-pressure-r24.md at 4f05dd5a, and the raw bytes of eight primary pages fetched this session; wrote=.ufo/waves/round-25/w1/DraftEntry.md, .ufo/waves/round-25/w1/DraftEntry/memory-pressure-r25.md, .ufo/waves/round-25/w1/DraftEntry/memory-pressure-r25.json, .ufo/waves/round-25/w1/DraftEntry/sources-rows-r25.md, .ufo/waves/round-25/w1/DraftEntry/lesson-gate-quotes-r25.md; executed=curl fetches of the eight URLs above into /fast/scratch/hyaku/tsukuroi-r25/DraftEntry/src/, sha256sum, read-only git show of the sibling lane file, and local scripts that checked quote contiguity, quote length, capture-pointer uniqueness, registry-row cell count, the row-to-Gate-quote mapping under the checker's own extraction rule, and verbatim supersession text
 Model: opencode-go/minimax-m3.1-flash-free
 Installs: none

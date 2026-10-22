@@ -1,0 +1,25 @@
+GATE S115 quotes: ['line indicates the share of time in which at least some tasks are stalled on a given resource.', 'line indicates the share of time in which all non-idle tasks are stalled on a given resource simultaneously.', 'The total absolute stall time (in us) is tracked and exported as well', 'mined']
+GATE S120 quotes: ['Defaults to 60%.', 'Defaults to 30 seconds when unset or 0.', 'Defaults to 90%.']
+GATE keys: ['S115', 'S116', 'S117', 'S118', 'S119', 'S120', 'S121', 'S122', 'S123', 'S124', 'S125']
+
+M0 baseline 5e7c04ec               exit=0 status=PASS verified_rows=6
+    per-row findings: none
+    all blocking finding ids present: none
+M1 fabricated entry quote          exit=0 status=PASS verified_rows=6
+    per-row findings: {'MP1': ['MP-QUOTE-MISMATCH']}
+    all blocking finding ids present: none
+M2 MP1 entry quotes removed        exit=0 status=PASS verified_rows=6
+    per-row findings: none
+    all blocking finding ids present: none
+M3 MP5 false statement             exit=0 status=PASS verified_rows=6
+    per-row findings: none
+    all blocking finding ids present: none
+M4 control: MP2 action empty       exit=1 status=FAIL verified_rows=5
+    per-row findings: {'MP2': ['MP-ACTION-EMPTY']}
+    all blocking finding ids present: ['MP-ACTION-EMPTY']
+M5 duplicate defective MP2 row     exit=0 status=PASS verified_rows=6
+    per-row findings: {'MP2': ['MP-ACTION-EMPTY', 'MP-CAPTURE-POINTER-MISSING', 'MP-QUOTE-MISSING', 'MP-ROW-ID-DUPLICATE', 'MP-SOURCES-EMPTY', 'MP-STATEMENT-EMPTY', 'MP-VERDICT-EMPTY']}
+    all blocking finding ids present: ['MP-ACTION-EMPTY', 'MP-CAPTURE-POINTER-MISSING', 'MP-QUOTE-MISSING', 'MP-ROW-ID-DUPLICATE', 'MP-SOURCES-EMPTY', 'MP-STATEMENT-EMPTY', 'MP-VERDICT-EMPTY']
+M6 control: S115 opened 10-21      exit=1 status=FAIL verified_rows=4
+    per-row findings: {'MP1': ['MP-SOURCE-OPENED-STALE'], 'MP2': ['MP-SOURCE-OPENED-STALE']}
+    all blocking finding ids present: ['MP-SOURCE-OPENED-STALE']

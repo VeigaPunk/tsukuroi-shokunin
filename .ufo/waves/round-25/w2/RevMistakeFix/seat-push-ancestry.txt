@@ -1,0 +1,14 @@
+# RevMistakeFix ancestry and reachability receipt (read-only git commands against the lane)
+# merge-base --is-ancestor exit code: 0 = ancestor, 1 = not an ancestor
+d2e9a7a1cae7a9238f32c1bd6c1184130f92c0a1  master=1  origin/master=1
+9e9a97daf9137127683830d570e2bcc367462e9a  master=1  origin/master=1
+d70cbd06d3c0f4cede3d2984ae376f45781bc167  master=1  origin/master=1
+d5e64812db4edf037c55b3d376fa5b64acc40ec8  master=1  origin/master=1
+for-each-ref --contains (all local refs, including refs/jj/keep and refs/remotes): none for all four
+reflog master (2026-10-22, -03): 07:27:19 export from jj (0cd9b28); 07:31:03 push (d2e9a7a); 07:32:42 push (9e9a97d); 07:32:51 push (d70cbd0); 07:32:51 push (d5e6481); 07:35:48 round-25 L1 undo to 0cd9b28; 08:34:41 export from jj (5e7c04e)
+reflog refs/remotes/origin/master: 07:27:21 update by push (0cd9b28); 08:34:44 update by push (5e7c04e); no scratch commit
+commit objects scanned in the object store: 337; non-scratch commits with a scratch commit as ancestor: 0
+jj op log (jj 0.45.1, --ignore-working-copy): operations between 07:27:19 and 08:34:41: 0
+git ls-remote origin: refs/heads/master = 5e7c04ecb02735491456de2b8bc44550d0db4609; no advertised ref equals a scratch commit
+sandbox push mechanism: non-bare repo with detached HEAD accepted push to refs/heads/master (rc 0); with HEAD on master the same push was refused (rc 1, 'refusing to update checked out branch')
+lane HEAD: git symbolic-ref -q HEAD exit 1 (detached); no receive.* keys in .git/config

@@ -10,7 +10,7 @@ Sources opened this round (all on 2026-10-22, each quote copied from the opened 
 
 | Row | URL | Located quote (at most 25 words) | Opened by |
 |---|---|---|---|
-| S115 | https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/accounting/psi.rst | “The "some" line indicates the share of time in which at least some tasks are stalled on a given resource.” | SrcPsiDoc |
+| S115 | https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/accounting/psi.rst | `The "some" line indicates the share of time in which at least some tasks are stalled on a given resource.` | SrcPsiDoc |
 | S116 | https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/accounting/psi.rst | "The total absolute stall time (in us) is tracked and exported as well" | SrcPsiDoc |
 | S117 | https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/admin-guide/cgroup-v2.rst | "Shows pressure stall information for memory." | SrcCgroupV2 |
 | S118 | https://man.archlinux.org/man/systemd.resource-control.5 | "ManagedOOMMemoryPressure=auto|kill Specifies how systemd-oomd.service(8) will act on this unit's cgroups." | SrcSystemdCode |

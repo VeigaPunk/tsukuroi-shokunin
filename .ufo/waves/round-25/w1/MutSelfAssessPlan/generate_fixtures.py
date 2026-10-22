@@ -158,13 +158,14 @@ def measure(tree: Path) -> dict:
 # --------------------------------------------------------------------------
 # section extraction
 # --------------------------------------------------------------------------
-def last_table_after(text: str, heading_re: re.Pattern):
+def last_table_after(text: str, heading_re: re.Pattern, header_key: str | None = None):
     """Return (heading_line, heading_index, table_lines, table_line_indexes).
 
     The declared rule is "the last table under the last heading that starts X".
     A heading owns the tables until the NEXT markdown heading, so the scan
-    stops at any line starting with '#'.  Within that scope the last table run
-    wins.
+    stops at any line starting with '#'.  Within that scope the table chosen
+    is the last one whose header first cell names header_key, falling back to
+    the last table in the scope — the same rule the checker applies.
     """
     lines = text.split("\n")
     hits = [i for i, l in enumerate(lines) if heading_re.match(l)]
@@ -188,11 +189,38 @@ def last_table_after(text: str, heading_re: re.Pattern):
         tables.append((cur, cur_idx))
     if not tables:
         raise RuntimeError(f"no table under heading {heading_re.pattern}")
+    if header_key:
+        for table, idxs in reversed(tables):
+            cells = [c.strip().strip("`").strip().lower() for c in split_row_cells(table[0])]
+            if cells and cells[0] == header_key.lower():
+                return lines[start], start, table, idxs
     table, idxs = tables[-1]
     return lines[start], start, table, idxs
 
 
-def replace_last_table(text: str, heading_re: re.Pattern, new_table: list[str]) -> str:
+def split_row_cells(line: str) -> list[str]:
+    """Split a markdown table row on pipes outside backtick code spans."""
+    cells, current, in_code = [], [], False
+    for char in line:
+        if char == "`":
+            in_code = not in_code
+            current.append(char)
+            continue
+        if char == "|" and not in_code:
+            cells.append("".join(current))
+            current = []
+            continue
+        current.append(char)
+    cells.append("".join(current))
+    if cells and not cells[0].strip():
+        cells = cells[1:]
+    if cells and not cells[-1].strip():
+        cells = cells[:-1]
+    return [c.strip() for c in cells]
+
+
+def replace_last_table(text: str, heading_re: re.Pattern, new_table: list[str],
+                       header_key: str | None = None) -> str:
     """Replace the last table under the last heading matching heading_re."""
     lines = text.split("\n")
     hits = [i for i, l in enumerate(lines) if heading_re.match(l)]
@@ -215,8 +243,16 @@ def replace_last_table(text: str, heading_re: re.Pattern, new_table: list[str]) 
         tabs.append((cur, cur_idx))
     if not tabs:
         raise RuntimeError(f"no table under {heading_re.pattern}")
-    _, idxs = tabs[-1]
-    out = lines[:idxs[0]] + list(new_table) + lines[idxs[-1] + 1:]
+    chosen = None
+    if header_key:
+        for table, idxs in reversed(tabs):
+            cells = [c.strip().strip("`").strip().lower() for c in split_row_cells(table[0])]
+            if cells and cells[0] == header_key.lower():
+                chosen = idxs
+                break
+    if chosen is None:
+        chosen = tabs[-1][1]
+    out = lines[:chosen[0]] + list(new_table) + lines[chosen[-1] + 1:]
     return "\n".join(out)
 
 
@@ -694,8 +730,8 @@ def main(argv=None) -> int:
         materialize(lane, args.revision, tree)
         obs = measure(tree)
 
-    axes_heading, axes_idx, axes_table, axes_idxs = last_table_after(scorecard, AXES_HEADING_RE)
-    caps_heading, caps_idx, caps_table, caps_idxs = last_table_after(scorecard, CAPS_HEADING_RE)
+    axes_heading, axes_idx, axes_table, axes_idxs = last_table_after(scorecard, AXES_HEADING_RE, "Axis")
+    caps_heading, caps_idx, caps_table, caps_idxs = last_table_after(scorecard, CAPS_HEADING_RE, "Capability")
     ordinals = last_ordinals(scorecard, set(axes_idxs))
 
     if args.mode == "computed":
@@ -709,8 +745,8 @@ def main(argv=None) -> int:
     # tables substituted in.  Every fixture that carries a whole SCORECARD.md
     # derives from THIS text, so a structural fixture differs from the
     # baseline by its injected defect alone.
-    baseline_scorecard = replace_last_table(scorecard, AXES_HEADING_RE, base_axes)
-    baseline_scorecard = replace_last_table(baseline_scorecard, CAPS_HEADING_RE, base_caps)
+    baseline_scorecard = replace_last_table(scorecard, AXES_HEADING_RE, base_axes, "Axis")
+    baseline_scorecard = replace_last_table(baseline_scorecard, CAPS_HEADING_RE, base_caps, "Capability")
 
     base_dir = out / "baseline"
     base_dir.mkdir(exist_ok=True)

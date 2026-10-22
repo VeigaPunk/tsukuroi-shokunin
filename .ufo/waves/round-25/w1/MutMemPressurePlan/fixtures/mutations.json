@@ -84,7 +84,7 @@
       "id": "M04",
       "breaks_rule": "the located quote recorded in the lesson Gate is at most 25 words",
       "expected_finding_id": "MP-QUOTE-TOO-LONG",
-      "oracle_problem": "quote-too-long:S118:26",
+      "oracle_problem": "quote-too-long:S118:37",
       "expected_reason_tokens": [
         "25",
         "quote",
@@ -99,7 +99,8 @@
       "params": {
         "source_id": "S118",
         "quote_words": 26
-      }
+      },
+      "note": "The operation writes 26 words into the quote cell, but the Gate reader takes the whole cell, whose word count is 37; the expectation therefore names the observed word count. The tool reads the same 37 words, so the two agree."
     },
     {
       "id": "M05",
@@ -220,23 +221,46 @@
     },
     {
       "id": "M11",
-      "breaks_rule": "a located quote recorded in the lesson Gate must survive the Gate cell's own quoting and punctuation intact",
+      "breaks_rule": "a quote the row carries must be the Gate quote of a source the row lists, and must be at most 25 words",
       "expected_finding_id": "MP-QUOTE-MISMATCH",
-      "oracle_problem": null,
+      "oracle_problem": "quote-mismatch:S118",
       "expected_reason_tokens": [
         "quote",
         "mismatch",
         "gate"
       ],
-      "expected_verified_rows": 6,
-      "expected_rows_broken": [],
-      "target_file": "corpus/lessons/round-25.md",
-      "operation": "lesson-gate-quote-truncate-at-pipe",
+      "expected_verified_rows": 5,
+      "expected_rows_broken": [
+        "MP4"
+      ],
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "operation": "entry-quote-mismatch",
       "params": {
+        "row_id": "MP4",
         "source_id": "S118",
-        "truncate_at": "|"
-      },
-      "advisory": true
+        "replacement": "a quote the Gate does not record for this source"
+      }
+    },
+    {
+      "id": "M12",
+      "breaks_rule": "a corpus/SOURCES.md row whose cell count differs from the registry header's is malformed and its columns cannot be named",
+      "expected_finding_id": "MP-SOURCE-ROW-SHAPE",
+      "oracle_problem": "source-row-shape:S115",
+      "expected_reason_tokens": [
+        "shape",
+        "row",
+        "cells"
+      ],
+      "expected_verified_rows": 5,
+      "expected_rows_broken": [
+        "MP1"
+      ],
+      "target_file": "corpus/SOURCES.md",
+      "operation": "sources-row-drop-cell",
+      "params": {
+        "source_id": "S115",
+        "drop_column": "teaches"
+      }
     }
   ],
   "finding_id_aliases": {
@@ -295,8 +319,8 @@
     "Baseline capture pointers are unique, non-structural lines of the frozen capture, so that M05 to M08 each break exactly one pointer rule.",
     "The M05 target line 12 is a `### ` section header, M06 target line 28 is a `$ ` command echo, M07 target line 74 is the only unique `[exit ` line in the capture, and M08 target line 21 is a value line whose text occurs twice (lines 21 and 29).",
     "expected_finding_id is the contract with the C2 build seat; it was proposed to that seat on 2026-10-22 and must be reconciled with the tool's actual ids before the wave-2 sweep. The aliases table lets the runner accept a small family of equivalent names.",
-    "M11 truncates the S118 Gate quote at its first pipe, so the lesson records a different quote text from the entry's own quotes[].quote for that source. The tool locates the quoted span on the raw row line and reads it whole, so the truncation is visible as MP-QUOTE-MISMATCH. It is the mutant that pins the pipe-in-quote reader fix: with the pre-fix reader the quote cell was cut at the pipe and the same mismatch was raised for the wrong reason, so a fixture that passes on both a broken and a fixed reader proves nothing.",
     "M09 is the exception to the 6 -> 5 expectation: a capture digest mismatch is a document-level fault that the tool reports as a finding on the capture itself rather than as a row problem, so expected_verified_rows is null and expected_rows_broken is empty for it.",
-    "M11 truncates the S118 Gate quote at its pipe. The production checker reports MP-QUOTE-MISMATCH for it but marks that finding advisory (blocking=false), so the row still verifies and the tool still exits 0 with 6 verified rows. This is a coverage observation, not a surviving mutant: the finding the mutant names is emitted. What it shows is that the C2 count does not depend on the entry's own quotes[].quote agreeing with the lesson Gate."
+    "M11 replaces the entry's own quote for MP4 with a text the lesson Gate does not record for that source, so the row asserts a quote no cited page supplies. The production checker reports MP-QUOTE-MISMATCH for it, and that finding is blocking, so MP4 stops verifying and verified_rows falls from 6 to 5. This mutant is what pins the stricter R3: under the earlier advisory semantics the same mutant left the count at 6. Note that truncating the Gate quote instead is NOT an equivalent mutant: the comparison accepts a quote that is contained in the Gate quote or the other way round, so a shorter Gate quote still matches the longer entry quote.",
+    "M12 drops one cell from the S115 registry row, so its cell count differs from the 11-column header's and its columns cannot be named. The checker reports MP-SOURCE-ROW-SHAPE for it and, by design, does not also report the status/opened/used-by findings that a shifted read would have produced. This is the one mutant that must assert an exact finding set rather than the presence of an id."
   ]
 }

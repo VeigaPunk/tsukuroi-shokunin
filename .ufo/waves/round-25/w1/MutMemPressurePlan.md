@@ -1,16 +1,27 @@
 # MutMemPressurePlan — C2 mutation set for `tools/check-memory-pressure.py`
 
-Verdict: the C2 counting rule is **killed by all eleven mutants** — 11 KILLED, 0 SURVIVED,
-0 inconclusive — against the production checker at sha256
-`d801b99945b55183ffe91930228cc7dee35150da549ec0dfb0cee3c3d42b8a8f`
-(`.ufo/waves/round-25/w1/ExecMemPressureTool/check-memory-pressure.py`). The pristine fixture
-baseline verifies 6 of 6 rows with exit 0 and an empty findings list, so the sweep measured a
-real detector on a real green baseline, not a broken one. Three findings of substance: the C2
-rule as the tool implements it has **no survivor among the eleven breaks** (findings 2 and 4);
-the tool was unparseable for part of this seat's work (finding 1); and the eleven mutants pin
-two coverage limits of the rule as the tool implements it — the capture digest is a
-document-level precondition rather than a row rule (finding 3), and the entry's own quote
-disagreeing with the lesson Gate is advisory rather than blocking (finding 4b).
+Verdict: two verdicts, because the target changed under this seat while it worked.
+
+Against the **synthetic fixture baseline**, all twelve mutants are KILLED — 12 KILLED, 0
+SURVIVED, 0 inconclusive — against the checker at sha256
+`8ab91ba79f109910b1e05ecb74b29621ae60d4f367fcbe21a105221ba84a9970` (whose own selftest reports
+36 cases, 0 failed), with the pristine fixture verifying 6 of 6 rows and exit 0.
+
+Against the **real landed entry**, which arrived at the end of this seat's work, the result is
+**8 KILLED, 2 SURVIVED, 2 needing re-pinning**: the real tree passes (exit 0, 6 verified
+rows) and two mutants survive, each because the rule's "at least one" quantifier lets another
+piece of the row's evidence carry it. M10 removes the `SKILL.md` decision-table row naming
+MP6, and the gate-registry row also names MP6 so the check still passes. M04 lengthens one
+Gate quote past 25 words, and the row has other qualifying quotes. Those are the coverage
+limits of the rule as declared and as implemented, and they are the substance of finding 9 —
+they are not defects in the mutants, and this seat has not changed the contract.
+
+Five findings of substance in all: the tool was unparseable for part of this seat's work
+(finding 1); the fixture catalogue and its measured ids (findings 2 and 4); the capture digest
+is a document-level precondition rather than a row rule (finding 3); this seat's own first M11
+survived, which exposed that a Gate quote merely shorter than the entry's quote still
+satisfies the comparison (finding 4b); and the two survivors against the real entry (finding
+9).
 
 ## 1. Findings
 
@@ -40,7 +51,7 @@ disagreeing with the lesson Gate is advisory rather than blocking (finding 4b).
    against the compiling revision, and the earlier void run was discarded rather than reported as
    a mutant result.
 
-2. [obs] The eleven mutants and the finding ids they must produce are fixed in
+2. [obs] The twelve mutants and the finding ids they must produce are fixed in
    `.ufo/waves/round-25/w1/MutMemPressurePlan/fixtures/mutations.json`, and the measured result
    is in `.ufo/waves/round-25/w1/MutMemPressurePlan/fixtures/sweep-result.json`, recorded from
    the run against the landed bytes sha256 `d320deb4…`. The measured finding ids are the tool's
@@ -59,7 +70,8 @@ disagreeing with the lesson Gate is advisory rather than blocking (finding 4b).
    | M08 | capture pointer line text occurs twice (line 21) | `MP-CAPTURE-POINTER-NOT-UNIQUE` | `MP-CAPTURE-POINTER-NOT-UNIQUE`, `MP-CAPTURE-POINTER-UNUSABLE` | 1 | 5 | KILLED |
    | M09 | capture bytes appended, sha256 no longer the pinned one | `CAPTURE-TAMPERED` | `CAPTURE-TAMPERED` | 2 | 0 | KILLED |
    | M10 | SKILL.md decision-table row for the id is deleted | `MP-SKILL-ROW-MISSING` | `MP-SKILL-ROW-MISSING` | 1 | 5 | KILLED |
-   | M11 | Gate quote truncated at its pipe | `MP-QUOTE-MISMATCH` | `MP-QUOTE-MISMATCH` | 0 | 6 | KILLED |
+   | M11 | the row's own quote is not the Gate quote for its source | `MP-QUOTE-MISMATCH` | `MP-QUOTE-MISMATCH` | 1 | 5 | KILLED |
+   | M12 | a SOURCES row's cell count differs from the header's | `MP-SOURCE-ROW-SHAPE` | `MP-SOURCE-ROW-SHAPE` | 1 | 5 | KILLED |
 
 3. [obs] M09 is not a row-level break and cannot be. The tool verifies the capture digest
    **before** it reads anything else and refuses to evaluate a capture whose sha256 is not
@@ -82,18 +94,22 @@ disagreeing with the lesson Gate is advisory rather than blocking (finding 4b).
    (`fixtures/oracle-check-memory-pressure.py`) confirms the same row set changed for each
    mutant, so the extra findings do not hide a second defect.
 
-4b. [obs] M11 pins a coverage limit rather than a defect, and it is the one mutant whose
-   finding does not move the count. It truncates the S118 Gate quote at its pipe, so the lesson
-   records a different quote text from the entry's own `quotes[].quote` for that source. The
-   tool reports `MP-QUOTE-MISMATCH` — and marks it **advisory** (`blocking: false`), so the row
-   still verifies, `verified_rows` stays 6 and the tool still exits 0. The declared C2 rule
-   requires "a located quote of at most 25 words recorded in that lesson's Gate", and the tool
-   satisfies that from the lesson side alone; the entry's own copy of the quote is checked
-   against the lesson but does not disqualify the row. [inf] The C2 count therefore does not
-   depend on the entry's quote agreeing with the Gate. The finding the mutant names is emitted,
-   so it is killed, but it is killed as an advisory: the row is not disqualified. The L1 should
-   decide whether the declared rule intends that, because a row may then carry a quote that the
-   Gate does not record.
+4b. [obs] This seat's own M11 survived at first, and the survival was the finding. The first
+   form of M11 truncated the S118 Gate quote at its pipe, so the lesson recorded a shorter quote
+   than the entry's own `quotes[].quote`. The checker compared the two in either direction —
+   `quoted in text or text in quoted` — so the shorter Gate quote was still a substring of the
+   longer entry quote and the comparison passed: the mutant was **SURVIVED** (exit 0,
+   `verified_rows` 6, no findings). [inf] The comparison is deliberately containment in either
+   direction so that a location prefix present in one file and not the other does not trip it,
+   and that same leniency means a Gate quote that is merely shorter than the entry's quote is
+   accepted. The mutant was therefore re-specified to replace the **entry's** quote with a text
+   the Gate does not record, which is the case the rule is about; that form is KILLED (exit 1,
+   `verified_rows` 5, `MP-QUOTE-MISMATCH`). Two things follow for the L1. First, the earlier
+   form of the stricter R3 — where `MP-QUOTE-MISMATCH` was advisory — would have let a row
+   carry a quote the Gate does not record without the count moving; the checker now blocks it,
+   and M11 pins that. Second, the containment comparison is looser than equality: a row whose
+   quote is a prefix or a superstring of the Gate quote still verifies, so the rule constrains
+   the quote's content only up to containment.
 
 4c. [obs] The fixture's S118 Gate quote carries a pipe inside the quoted value, deliberately.
    The checker's reader was fixed for that case between 07:57 and 08:03 — it now locates the
@@ -102,9 +118,23 @@ disagreeing with the lesson Gate is advisory rather than blocking (finding 4b).
    exactly that reason; once the fix landed the pipe was restored, so the fixture now exercises
    the fixed reader rather than dodging it. Measured: the tool reads the S118 quote whole as 10
    words including the pipe, and the baseline still verifies 6 of 6. The same span-based
-   reading (cell offsets plus a balanced quoted span over the raw line) was applied to this
-   seat's own oracle, runner and quote checker, which had been splitting the row first and
-   would have cut the quote at the pipe.
+   reading was applied to this seat's own oracle, runner and quote checker, which had been
+   splitting the row first and would have cut the quote at the pipe.
+
+4d. [obs] Two further checker revisions landed during this seat's work and both changed the
+   fixture rather than the fixture's expectations being loosened. The checker now reads a Gate
+   cell's quoted span from the **outermost** pair of double quotes when quotes are nested, and
+   a backtick span still wins over a straight-quoted one; the fixture's S115 quote, whose text
+   contains the double quotes of `The "some" line …`, is therefore written inside backticks,
+   which is the lane convention for a quote that carries double quotes. With the older
+   innermost-pair reading the checker read that cell as the single word `some` and the baseline
+   went red; with the outer-pair reading and backticks it reads 20 words and the baseline is
+   green again. The checker also now reports `MP-SOURCE-ROW-SHAPE` for a registry row whose
+   cell count differs from the header's, and M12 pins that: dropping one cell from the S115
+   row yields exactly `MP-SOURCE-ROW-SHAPE` and none of the status/opened/used-by findings a
+   shifted read would have produced. This seat's oracle was updated to both rules so that it
+   remains a second implementation of the same rule rather than a drifting one; the self-check
+   reports 12 mutations, 0 fixture defects.
 
 4a. [obs] The four pointer mutants each break exactly one pointer rule because the runner
    rewrites the whole `capture_pointers` list with one object whose `token` is a run of three or
@@ -120,7 +150,7 @@ disagreeing with the lesson Gate is advisory rather than blocking (finding 4b).
    line.
 
 5. [obs] The fixture set is self-checking and green. `fixtures/self-check-fixtures.py` reports
-   `summary: 11 mutations, 0 fixture defects`: for every mutant the pristine fixture is green
+   `summary: 12 mutations, 0 fixture defects`: for every mutant the pristine fixture is green
    (6 rows, no finding), the mutant verifies exactly 5 rows, exactly the one expected row
    changes, and the expected problem is the one the mutant claims to break. A mutant that broke
    a different rule than it claims would fail this check rather than pass silently.
@@ -159,11 +189,62 @@ disagreeing with the lesson Gate is advisory rather than blocking (finding 4b).
    sweep should use that form, because it is the only one that says anything about the shipped
    entry.
 
+9. [obs] The real entry landed while this seat was working, and the sweep was re-run against
+   it — the wave-2 form the executor endorsed. Against the lane at HEAD `5e7c04ec` with the
+   checker at sha256 `077bd4843ad54433a6bf705fa06631008f0b526b0c9cef86b93c86da0fdbabcf`
+   (`tools/check-memory-pressure.py`), the pristine real tree **passes** (exit 0,
+   `verified_rows` 6), and the mutants land differently than they do against the synthetic
+   fixture: 8 KILLED, 2 SURVIVED, 2 needing re-pinning. The result is recorded at
+   `/fast/scratch/hyaku/tsukuroi-r25/MutMemPressurePlan/real-tree-sweep.json`. This is the
+   first measurement against the shipped entry, and it is the one that matters.
+
+   a. [obs] **M10 survives against the real tree.** The mutant deletes the `SKILL.md`
+      decision-table row naming MP6, and the checker still verifies all six rows. The cause is
+      the checker's R5 rule, "SKILL.md carries a table line that names the row id": the real
+      `SKILL.md` names MP6 in **two** table lines, the round-25 decision row at line 2318 and
+      the gate-registry row at line 2355 (`| memory-pressure | gate | … | 0 six rows MP1 to MP6
+      verified; …`). Deleting only the decision row leaves the registry row, which still names
+      MP6, so R5 still passes. [inf] The checker's rule as implemented cannot distinguish a
+      row that is named by the registry from a row that is named by the decision table, so a
+      decision-table row can be removed without the count noticing. This is a coverage limit of
+      the rule, not a defect in the mutant; the L1 should decide whether R5 should require the
+      decision-table row specifically.
+
+   b. [obs] **M04 survives against the real tree.** The mutant lengthens one Gate quote past 25
+      words and the checker still verifies all six rows. The cause is that the real lesson
+      records several Gate rows per source — S115 has three, S118 has two, S120 three, S121
+      two, S124 two — and the checker accepts a row when **any** one of its sources has a Gate
+      quote of at most 25 words. The row the mutant lengthened was not the only qualifying
+      quote for its source. [inf] The rule as implemented is "at least one Gate quote of at
+      most 25 words exists for one of the row's sources", so breaking one Gate quote does not
+      disqualify a row that has other qualifying quotes. This is the same class of limit as
+      M09 and M11: the mutants that break one row's evidence are masked by the rule's
+      "at least one" quantifier.
+
+   c. [obs] Two further mutants need re-pinning against the real tree and are INCONCLUSIVE
+      rather than surviving. M11 targets MP4's quote for S118, but the real MP4 cites S121,
+      S122 and S123 and carries no S118 quote, so the mutation has no target. M12 expects
+      `MP-SOURCE-ROW-SHAPE`, but the real `corpus/SOURCES.md` rows now match the header's
+      cell count and dropping one cell produces the three derived source findings instead
+      (`MP-SOURCE-STATUS-NOT-MINED`, `MP-SOURCE-USED-BY-MISSING`,
+      `MP-SOURCE-OPENED-STALE`), because the real registry's cells are read positionally.
+      [inf] The fixture catalogue is written against the synthetic baseline, where each row
+      cites exactly one source; the real entry cites one to three sources per row, so the
+      per-row isolation the catalogue assumed does not hold. Wave 2 should re-pin M11 and M12
+      against the real entry's source ids and re-derive their expected finding sets, and
+      should decide whether the two survivors in (a) and (b) are intended limits of the
+      declared rule or gaps in it.
+
+   d. [obs] M01 against the real tree drops the count by **two** rows and emits two
+      `MP-SOURCE-STATUS-NOT-MINED` findings, because the real S115 is cited by both MP1 and
+      MP2. That is the real entry's shape, not a fixture defect: the mutant breaks the one
+      source both rows cite, so both rows lose it.
+
 ## 2. What was written
 
 All under `.ufo/waves/round-25/w1/MutMemPressurePlan/`:
 
-- `fixtures/mutations.json` — the catalogue: eleven mutants, each with the rule it breaks, the
+- `fixtures/mutations.json` — the catalogue: twelve mutants, each with the rule it breaks, the
   expected finding id, the target file, the operation, and the finding-id aliases.
 - `fixtures/baseline/` — the pristine fixture tree: entry JSON and markdown, `corpus/SOURCES.md`
   with rows S115-S120, `corpus/lessons/round-25.md` with the Gate (the S118 quote carries a pipe
@@ -179,7 +260,12 @@ All under `.ufo/waves/round-25/w1/MutMemPressurePlan/`:
   is not installed into the lane.
 - `fixtures/check-quotes.py` — re-opens each cited page and checks the recorded quote against
   the page bytes.
-- `fixtures/sweep-result.json` — the measured result of the sweep recorded in finding 2.
+- `fixtures/sweep-result.json` — the measured result of the sweep against the synthetic
+  fixture baseline, recorded in finding 2.
+- `fixtures/real-tree-sweep.json` — the measured result of the sweep against the real landed
+  entry, recorded in finding 9. Wave 2 should re-run both forms:
+  `python3 fixtures/run-mutations.py --tool <checker> --baseline-repo <lane> --baseline-rev <rev>`
+  for the real tree and without those two options for the fixture baseline.
 
 ## 3. Method and restoration
 
@@ -210,7 +296,9 @@ executed=curl of five source pages (sha256 recorded), python3 -m py_compile on t
 checker, python3 fixtures/check-quotes.py, python3 fixtures/self-check-fixtures.py, and
 python3 fixtures/run-mutations.py --tool <production checker> (six runs: one void run against
 the unparseable revision, one rehearsal against a stub, three recorded sweeps of 10 mutants
-plus the baseline against sha256 7144f264…, d320deb4… and d801b999…, and the final recorded
-sweep of 11 mutants plus the baseline against sha256 d801b999…).
+plus the baseline against sha256 7144f264…, d320deb4…, d801b999… and 8ab91ba7…, the final
+recorded sweep of 12 mutants plus the baseline against sha256 8ab91ba7…, and one sweep of the
+same catalogue against the real landed tree at HEAD 5e7c04ec with the checker at sha256
+077bd484…).
 Model: minimax-m3.1-flash-free (opencode-go/minimax-m3.1-flash-free), per the session context
 Installs: none
