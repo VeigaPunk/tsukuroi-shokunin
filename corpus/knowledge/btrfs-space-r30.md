@@ -7,9 +7,9 @@ companion: `corpus/knowledge/btrfs-space-r30.json` (rows D01 to D10, counted by 
 
 ## Scope
 
-This entry adds the space-allocation side of the root btrfs filesystem to the host and rollback-net surface: why a btrfs host can return `ENOSPC` while `df` shows free space, what the global reserve is, which read-only files show the state, and which repair decisions exist. It covers mechanism and repair decisions only. Disk runway (how full the disk is, and when to warn) belongs to mori: mori's `SKILL.md:415-418` (commit `05db57ed`) already rules "Never threshold the btrfs chunk percent" and keeps the `df -P` parser. This entry does not set a runway threshold and does not replace that rule; it is reported to mori in `PROVINCE.md` style, not absorbed. Every repair named here (balance, snapshot deletion) is an operator write; the lane runs none of them.
+This entry adds the space-allocation side of the root btrfs filesystem to the host and rollback-net surface: why a btrfs host can return `ENOSPC` while `df` shows free space, what the global reserve is, which read-only files show the state, and which repair decisions exist. It covers mechanism and repair decisions only. Disk runway (how full the disk is, and when to warn) belongs to mori: mori's `SKILL.md:415-418` (commit `05db57ed`) already rules "Never threshold the btrfs chunk percent" and keeps the `df -P` parser. This entry does not set a runway threshold and does not replace that rule. The boundary is recorded here only; no handoff was sent to mori and no mori acknowledgement exists (wave-2 CritAdjacencyMori). Every repair named here (balance, snapshot deletion) is an operator write; the lane runs none of them.
 
-Host at capture time: root is btrfs on LUKS (`/dev/mapper/root`, `dm-0`), one device of 998037782528 bytes, data profile `single`, metadata and system `DUP` (`btrfs filesystem usage -b /`, saved beside the capture). An earlier entry already named the allocation directory and the metadata `dup` profile for scrub repair (`SKILL.md` row SH3, `corpus/knowledge/storage-health-r26.md:45`); rows D04 and D06 restate those two facts for the space question, and the other eight rows are new to the lane.
+Host at capture time: root is btrfs on LUKS (`/dev/mapper/root`, `dm-0`), one device of 998037782528 bytes, data profile `single`, metadata and system `DUP` (`btrfs filesystem usage -b /`, saved beside the capture). An earlier entry already named the allocation directory and the metadata `dup` profile for scrub repair (`SKILL.md` row SH3, `corpus/knowledge/storage-health-r26.md:45`); rows D04 and D06 restate those two facts for the space question. New depth for the lane: D01, D02, D03 and D07, and D05 (thin; its reading below rests on a supporting S159 citation). D08 to D10 are point-in-time host captures, not durable depth; D09's capture line is a derived arithmetic line, cross-checked against `Device unallocated` in `btrfs filesystem usage -b /`. Three snapshots are the same bytes the lane already held from round 26: S155 equals S130 (`mkfs.btrfs.rst`), S158 equals S133 (`fs/btrfs/sysfs.c`), and S154 equals an unregistered round-26 supporting file (`ch-sysfs.rst`); they were re-opened this round, but they are not new authorities (wave-2 CritClaimFraming2).
 
 ## How the space is split
 
@@ -34,7 +34,7 @@ The global reserve is "portion of metadata currently used for global block reser
 - Metadata `bytes_used` 35372056576 of `total_bytes` 38654705664 (91.5 percent), line 50 and line 67.
 - Unallocated 690922455040 bytes, line 98: device 998037782528 minus data `disk_total` 229789138944, metadata `disk_total` 77309411328 and system `disk_total` 16777216; `btrfs filesystem usage -b /` reports the same `Device unallocated`.
 - `global_rsv_size` 536870912 and `global_rsv_reserved` 536870912 (lines 44 and 43): the reserve is at the 512 MiB cap and full.
-- Metadata `bg_reclaim_threshold` 0 (line 45). The chapter does not say what 0 means; `[unk]`.
+- Metadata `bg_reclaim_threshold` 0 (line 45) and `dynamic_reclaim` 0 (line 57). The sysfs chapter does not say what 0 means. In the v7.2 periodic sweep, `btrfs_calc_reclaim_threshold` returns `bg_reclaim_threshold` when `dynamic_reclaim` is 0 (S159 lines 2111-2117), and a block group is reclaimed only when `bg->used < thresh` with `thresh = mult_perc(bg->length, thresh_pct)` (S159 lines 2154-2155), so a threshold of 0 marks no metadata block group in that sweep `[inf]`. The other reclaim paths in `fs/btrfs/block-group.c` were not opened; `[unk]`.
 
 Reading: metadata is 91.5 percent full, but 643 GiB is unallocated, so the kernel can still allocate new metadata chunks. This host is not near metadata `ENOSPC` at capture time. The readings are a point-in-time capture; re-read them before acting.
 
@@ -45,6 +45,6 @@ Reading: metadata is 91.5 percent full, but 643 GiB is unallocated, so the kerne
 
 ## Limits
 
-- `[unk]` The meaning of `bg_reclaim_threshold` 0 for non-zoned devices.
+- `[unk]` Reclaim paths other than the periodic sweep (`fs/btrfs/block-group.c`, not opened).
 - `Free (estimated)` has no formula in S152; this entry does not compute it.
 - No balance, snapshot deletion or sysfs write was run; every decision above is for the operator.
