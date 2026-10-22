@@ -22,14 +22,21 @@ folded (NFKC, Cyrillic/Greek O) before the uniqueness census, M1 is checked over
 only, `now` words must contain a letter after format characters are removed, a duplicated S### row
 is unusable, `S###` is ASCII-only, path references are normalised (no `tools/`, no `..`) and the
 cited line must be byte-identical at the claim base, and a JSON marker has exactly the seven keys
-with no repeated key.  Version 4 (round-29 residual ResCritV3OverStrict, over-strictness only): any
-CommonMark list or ordered-list prefix may precede a marker; a closed `<!-- ... -->` on a marker
-line is stripped instead of hiding the line; a JSON census counts only `"id": "R29-OWED-<id>"`
-(a mention inside another marker's text is not a marker); a JSON marker may also carry the metadata
-keys `round`, `marked_by`, `marked_at`, `status`, `corrected_by`; a cited line may have moved if
-its text occurs exactly once at the claim base and once at the revision; a capitalised verdict is
-reported as M4.  Batteries: `tools/mutants-owed-statements-r29.py` (marker-free control) and
-`tools/mutants-owed-statements-r29-landed.py` (landed markers).  Rules:
+with no repeated key.  Version 4 (round-29 residual ResCritV3OverStrict, over-strictness only):
+any CommonMark list or ordered-list prefix may precede a marker; a closed `<!-- ... -->` on a
+marker line is stripped instead of hiding the line; JSON identity is counted only from an exact
+`"id"` property (mentions inside another marker's text are not markers); a JSON marker may also
+carry the metadata keys `round`, `marked_by`, `marked_at`, `status`, `corrected_by`; a cited
+line may have moved if its text occurs exactly once at the claim base and once at the revision;
+a capitalised verdict is reported as M4.  Version 5 (round-30 independent attack): exact
+`<!-->` is treated as an empty comment without stripping following text; list-prefix spacing is
+limited to one through four spaces; marker emphasis is either plain or balanced bold; and
+allowed JSON metadata values are type/shape checked and status is limited to current or observed
+round-27 labels.
+Batteries: `tools/mutants-owed-statements-r29.py` (marker-free control),
+`tools/mutants-owed-statements-r29-landed.py` (landed markers), and
+`tools/mutants-owed-statements-r29-v4shapes.py` (routed shape attack and v4 acceptance controls).
+Rules:
  M1  append-only: the base statement is unchanged at the revision.  Markdown: the full base
      line holding the anchor (sha256 in BASE_DIGEST) is still a line of the file, outside any
      marker line.  JSON: the named row field's value hashes to its BASE_DIGEST;
@@ -63,9 +70,11 @@ is always printed.
 Usage: python3 tools/check-owed-statements-r29.py --revision <REV> [--lane <repo>]
 Output: one JSON line per item, then a summary JSON line with `items`, `marked`, `unmarked`.
 Exit 0 when marked == items, 1 otherwise, 2 when the revision cannot be read.
-Reads git objects only (`git show`, `git cat-file`) with every inherited GIT_* variable removed.
+Reads Git objects only (`git show`, `git cat-file`) with inherited GIT_* removed and the
+round-30 Git child environment set to isolate system/global config and repository discovery.
 """
 import argparse
+import datetime
 import hashlib
 import json
 import os
@@ -119,25 +128,50 @@ BASE_DIGEST = {
 }
 VERDICTS = {'corrected', 'rebutted', 'qualified'}
 MD_MARKER = re.compile(
-    r'^ {0,3}(?:[-*+] +|\d{1,9}[.)] +)?\**\[R29-OWED-(?P<id>O\d\d)\]\**\s*verdict:\s*(?P<verdict>[A-Za-z]+)\s*\|\s*original:\s*"(?P<original>.*?)"'
+    r'^ {0,3}(?:[-*+][ ]{1,4}|\d{1,9}[.)][ ]{1,4})?'
+    r'(?:\*\*\[R29-OWED-(?P<bold_id>O\d\d)\]\*\*|\[R29-OWED-(?P<plain_id>O\d\d)\])'
+    r'\s*verdict:\s*(?P<verdict>[A-Za-z]+)\s*\|\s*original:\s*"(?P<original>.*?)"'
     r'\s*\|\s*now:\s*(?P<now>.*?)\s*\|\s*basis:\s*(?P<basis>.+?)\s*$')
 SID = re.compile(r'\bS\d{3}\b', re.ASCII)
-MARKER_START = re.compile(r'^ {0,3}(?:[-*+] +|\d{1,9}[.)] +)?\**\[R29-OWED-([^\]\s]{1,8})\]')
+MARKER_START = re.compile(
+    r'^ {0,3}(?:[-*+][ ]{1,4}|\d{1,9}[.)][ ]{1,4})?'
+    r'(?:\*\*\[R29-OWED-([^\]\s]{1,8})\]\*\*|\[R29-OWED-([^\]\s]{1,8})\])')
 FENCE = re.compile(r'^ {0,3}(`{3,}|~{3,})([^`]*)$')
 JSON_KEYS = {'id', 'row', 'field', 'withdrawn_text', 'verdict', 'now', 'basis'}
 JSON_META = {'round', 'marked_by', 'marked_at', 'status', 'corrected_by'}
+JSON_STATUS_VALUES = {
+    'active', 'applied', 'corrected', 'rebutted', 'qualified',
+    'withdrawn as a universal in round 26', 'withdrawn as stated in round 26',
+    'trigger omitted a second branch (round 26)', 'split in round 26', 'wrong location',
+    'withdrawn in round 26 (SH6 trigger correction)',
+}
 CLOSED_COMMENT = re.compile(r'<!--.*?-->')
+EMPTY_COMMENT = re.compile(r'<!-->')
 PATHREF = re.compile(r'`?((?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+):(\d+)`?')
 
 
-def clean_env():
+def clean_env(lane):
     env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
-    env.update({'GIT_OPTIONAL_LOCKS': '0', 'LC_ALL': 'C'})
+    home = os.environ.get('HOME')
+    env.update({
+        'GIT_OPTIONAL_LOCKS': '0',
+        'GIT_CONFIG_NOSYSTEM': '1',
+        'GIT_CONFIG_GLOBAL': os.devnull,
+        'GIT_CONFIG_SYSTEM': os.devnull,
+        'GIT_CEILING_DIRECTORIES': os.path.dirname(
+            os.path.dirname(os.path.abspath(lane))),
+        'PATH': '/usr/bin:/bin',
+        'LC_ALL': 'C',
+    })
+    if home:
+        env['HOME'] = home
+        env['XDG_CONFIG_HOME'] = os.environ.get('XDG_CONFIG_HOME', os.path.join(home, '.config'))
     return env
 
 
 def git(lane, *args):
-    return subprocess.run(['git', '-C', lane, *args], capture_output=True, env=clean_env(), timeout=60)
+    return subprocess.run(['git', '-C', lane, *args], capture_output=True,
+                          env=clean_env(lane), timeout=60)
 
 
 def show(lane, rev, path):
@@ -183,6 +217,7 @@ def live_lines(text):
             continue
         if ln.startswith('    ') or ln.startswith('\t'):
             continue
+        ln = EMPTY_COMMENT.sub('', ln)
         ln = CLOSED_COMMENT.sub('', ln)
         if '<!--' in ln:
             comment = True
@@ -196,9 +231,38 @@ def marker_id(line):
     m = MARKER_START.match(line)
     if not m:
         return None
-    raw = unicodedata.normalize('NFKC', m.group(1))
+    raw = unicodedata.normalize('NFKC', m.group(1) or m.group(2))
     folded = raw.translate(str.maketrans({'\u041e': 'O', '\u039f': 'O', '\u043e': 'o', '\u03bf': 'o'}))
     return folded if re.fullmatch(r'O\d\d', folded, re.ASCII) else None
+
+
+def json_metadata_error(marker):
+    """Reject malformed metadata and status values outside known current/history states."""
+    for key in JSON_META.intersection(marker):
+        value = marker[key]
+        if key == 'round':
+            if not ((type(value) is int and value == 29) or value == '29'):
+                return 'round must identify round 29'
+        elif key == 'marked_at':
+            if not isinstance(value, str):
+                return 'marked_at must be an ISO date or datetime string'
+            try:
+                if 'T' in value:
+                    datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
+                else:
+                    datetime.date.fromisoformat(value)
+            except ValueError:
+                return 'marked_at must be an ISO date or datetime string'
+        elif key in {'marked_by', 'corrected_by'}:
+            if not isinstance(value, str) or not value.strip():
+                return f'{key} must be a non-empty string'
+        elif key == 'status':
+            if not isinstance(value, str) or not value.strip():
+                return 'status must be a non-empty string'
+            status = ' '.join(value.casefold().split())
+            if status not in JSON_STATUS_VALUES:
+                return 'status is not an allowed metadata state'
+    return None
 
 
 def words_of(text):
@@ -321,13 +385,17 @@ def check(lane, rev):
                 res['why'] = ('M2 JSON marker keys must be ' + ','.join(sorted(JSON_KEYS)) + ' plus optional '
                               + ','.join(sorted(JSON_META)) + ' (no key repeated)')
                 continue
+            metadata_error = json_metadata_error(m)
+            if metadata_error:
+                res['why'] = 'M2 JSON metadata ' + metadata_error
+                continue
             if m.get('row') != row or m.get('field') != field or m.get('withdrawn_text') != anchor:
                 res['why'] = 'M3 row, field or withdrawn_text does not name the anchor exactly'
                 continue
             verdict, now, basis = m.get('verdict'), m.get('now'), m.get('basis')
         else:
             mm = MD_MARKER.search(m)
-            if not mm or mm.group('id') != iid:
+            if not mm or (mm.group('bold_id') or mm.group('plain_id')) != iid:
                 res['why'] = 'M2 marker line is not in the required shape'
                 continue
             if mm.group('original') != anchor:
