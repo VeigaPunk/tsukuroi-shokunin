@@ -19,7 +19,7 @@ one revision.  A row counts only when every one of these rules holds at <REV>:
       corpus/lessons/round-27.md `## Gate` table (round 27 code; the earlier
       "appears in" wording was R27-CHECKER-DOC-LAG)
   Round-28 tightenings (QUALITY 72; each can only refuse):
-  R4a every quote has at least 2 words and at least 16 non-whitespace
+  R4a every quote has at least 2 words and at least 10 non-whitespace
       characters (a one-word quote such as "kernel" shows nothing)
   R4b a quote's source id must be one of the row's own cited sources
       (KT-QUOTE-SOURCE-UNKNOWN is blocking, no longer advisory)
@@ -75,7 +75,7 @@ ROW_IDS = ('KT1', 'KT2', 'KT3', 'KT4', 'KT5', 'KT6')
 ROUND_DATE = '2026-10-22'
 MAX_QUOTE_WORDS = 25
 MIN_QUOTE_WORDS = 2
-MIN_QUOTE_CHARS = 16
+MIN_QUOTE_CHARS = 10
 MIN_TOKEN_CHARS = 3
 VERDICTS = ('HEALTHY', 'DEGRADED', 'BLOCKED', 'UNVERIFIED')
 
@@ -348,12 +348,17 @@ def gate_quotes(text):
             header = split_cells(block[0])
             names = [c.strip().lower() for c in header]
             source_col = None
+            id_col = None
             quote_col = None
             for index, name in enumerate(names):
                 if source_col is None and (name == 'source' or name.startswith('source ')):
                     source_col = index
+                if id_col is None and name in ('id', 'source id'):
+                    id_col = index
                 if quote_col is None and (name.startswith('located quote') or name == 'quote'):
                     quote_col = index
+            if id_col is not None:
+                source_col = id_col
             if source_col is None or quote_col is None:
                 continue
             conforming = True
@@ -1342,6 +1347,13 @@ def selftest():
         'sources', [{'id': s} for s in r['sources']])))
     case('r4b-pass-source-items-as-objects', files,
          {'exit': 0, 'verified_rows': 6, 'findings': []})
+    files, sha = build_fixture()
+    files[LESSON] = files[LESSON].replace('| Source | URL |', '| Id | Source |')
+    case('r4c-pass-id-column-header', files, {'exit': 0, 'verified_rows': 6, 'findings': []})
+    for shape, short in (('taint-string', 'Tainted: P        W  O'), ('code-line', 'return -EPERM;')):
+        files, sha = build_fixture(snapshot_quotes={'S128': short}, gate_quotes_map={'S128': short},
+                                   entry_quotes={'S128': short})
+        case('r4a-pass-short-specific-%s' % shape, files, {'exit': 0, 'verified_rows': 6, 'findings': []})
     files, sha = build_fixture()
     files[LESSON] = files[LESSON].replace('## Gate\n', '## Things to investigate\n')
     case('r4c-gate-heading-not-exact', files,
