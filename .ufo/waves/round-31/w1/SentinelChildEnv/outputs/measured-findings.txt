@@ -1,0 +1,22 @@
+# post-fix reach result (sandbox contract patch at postrepo 3cb02686; base target 8cff9e7)
+candidates_tested: 38
+candidates_dropped_by_contract: GIT_*, LD_*, PYTHON*
+tools/check-adjacency-overlap.py               reached=38 parity_break=False children=['git']
+tools/check-freshness-r17.py                   reached=38 parity_break=False children=['git', 'python3']
+tools/check-kernel-taint.py                    reached=38 parity_break=False children=['git']
+tools/check-memory-pressure.py                 reached=38 parity_break=False children=['git']
+tools/check-registry-coverage.py               reached=38 parity_break=False children=['git']
+tools/check-storage-health.py                  reached=38 parity_break=False children=['git']
+tools/mutants-adjacency-overlap.py             reached=38 parity_break=False children=['git', 'python3']
+tools/mutants-kernel-taint.py                  reached=38 parity_break=False children=['git', 'python3']
+tools/check-self-assessment.py                 reached=38 parity_break=False children=['bash', 'git']
+tools/mutants-owed-statements-r29.py           reached=38 parity_break=True children=['git', 'git-upload-pack', 'python3', 'sh']
+tools/mutants-owed-statements-r29-landed.py    reached=38 parity_break=True children=['git', 'git-upload-pack', 'python3', 'sh']
+
+# GCONV_PATH: a git child dlopens a module named by the ambient GCONV_PATH (proof)
+#   control: /usr/lib/gconv/ISO8859-1.so only
+#   with GCONV_PATH=<mods>: mods/gconv-modules read, then mods/ISO8859-1.so dlopened and its constructor ran
+#   tools that ran with GCONV_PATH + constructor module: all exited 134 (SIGABRT, glibc gconv assert)
+
+# BASH_ENV: 68 canary executions during one frozen-probe run of check-self-assessment.py; probe read leaking 0
+# BASH_ENV changes the reported census count: control 97 -> 999

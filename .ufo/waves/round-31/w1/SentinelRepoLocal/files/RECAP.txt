@@ -1,0 +1,14 @@
+MEASURED on git 2.56.0, repo-local config scope:
+  core.fsmonitor fires on: status, diff, add, commit, checkout  (index-refresh ops)
+  core.fsmonitor does NOT fire on: show, ls-tree, archive, rev-parse, cat-file, log, for-each-ref, config --list
+  core.hooksPath hooks fire on: commit (pre-commit, prepare-commit-msg, commit-msg,
+      reference-transaction, post-commit), checkout (post-checkout, post-index-change)
+  core.hooksPath hooks do NOT fire on: any read-only plumbing op
+  git clone does NOT inherit: core.fsmonitor, core.hooksPath, include.path (local scope)
+  git init does NOT inherit: core.fsmonitor, core.hooksPath, include.path
+  GIT_CONFIG_NOSYSTEM=1 + GIT_CONFIG_GLOBAL=/dev/null + GIT_CONFIG_SYSTEM=/dev/null
+      do NOT suppress the REPOSITORY-LOCAL scope: git config --get core.fsmonitor still
+      returns the poisoned value; the [include] file is still opened (12-74 opens/run)
+  uploadpack.packObjectsHook: key present in 2.56 but did not fire in any of our tests
+  core.alternateRefsCommand: did not fire in for-each-ref/ls-remote/fetch/rev-list
+  core.pager: did not fire (tools capture pipes, never a tty)

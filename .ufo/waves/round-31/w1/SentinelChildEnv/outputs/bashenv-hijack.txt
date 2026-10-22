@@ -1,0 +1,7 @@
+# BASH_ENV hijack of the census case count, post-fix tool set (postrepo 3cb02686)
+# control: census_case_count(postrepo, HEAD) -> 97 cases
+# with BASH_ENV=<a file that prints one fake PASS line> -> 999 cases
+# command used:
+#   BASH_ENV=$PWD/hijack.canary python3 - <<'PY' ... m.census_case_count('/fast/scratch/hyaku/tsukuroi-r31/SentinelChildEnv/postrepo','HEAD') ... PY
+# the tool's regex takes the FIRST '(N cases' match in the child's combined output:
+first match -> 999
