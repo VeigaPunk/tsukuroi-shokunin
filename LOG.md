@@ -1264,6 +1264,6 @@ Action: declaration `81a061a67466c5e1be812814a895a4b5ed89b4ff` (C1 depth: twelve
 
 Outcome: C1 0 → 12 of 12 under all three counter versions; C2 3 → 0 of 8. Counter version 3 and two committed batteries (0 of 29 and 0 of 19 mechanical shapes accepted). QUALITY 74 to 76; four Mistakes rows (R29-ATTRIBUTION-BY-TIMING, R29-GIT-ENV-LEAK, R29-OWED-FROZEN, R29-UNBATTERIED-COUNTER).
 
-Re-verification result (freshness duty): wave-2 seats re-fetched S148, S149, S150 and S151 and matched the recorded sha256 (S151's live page differs only by an advertising block); the round-28 batteries re-run at the tip reproduce their accepted sets and controls byte-for-byte (RevBatteriesTip); the live host reads `vm.oom_kill_allocating_task` 0 and the totalpages figures recompute from `/proc/meminfo`.
+Re-verification result (freshness duty): wave-2 seats re-fetched S148, S149, S150 and S151 and matched the recorded sha256 (S151's live page differs only by an advertising block); the round-28 batteries re-run at `10d5288f` (RevBatteriesTip) and at the final tip (`measure/final-tip/`) reproduce their accepted sets and controls byte-for-byte (RevBatteriesTip); the live host reads `vm.oom_kill_allocating_task` 0 and the totalpages figures recompute from `/proc/meminfo`.
 
 Not done, owed: routed defect 4 (padding shapes; reverted as over-strict); the residual git-environment channels named by SentinelResidualEnv; the operator's ruling on the axis framing.
