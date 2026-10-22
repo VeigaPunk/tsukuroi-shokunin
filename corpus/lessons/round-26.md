@@ -99,3 +99,34 @@ Wave-1 ExecMemCheckerHarden changed `tools/check-memory-pressure.py` in its own 
 
 - QUALITY 60's sweep reads only base-to-head diffs of five files, so an in-place edit made and then disclosed inside a round, or an edit to `SKILL.md`, `PROVINCE.md` or a knowledge entry, escapes it (ScribeMistakes finding 5, ScribeRouted1Scorecard51 finding 5). Round 25 also rewrote nine lines of `corpus/knowledge/memory-pressure-r25.json` and three lines of `SKILL.md` in place; the `SKILL.md` lines were disclosed in its Gate errata, the JSON lines were not. That JSON rewrite is recorded here as a second undisclosed round-25 in-place edit (class disclosure, same fix as R26-UNDISCLOSED-INPLACE). QUALITY 60 is clarified below the criteria to cover every tracked lane file and each commit pair of the round.
 - The declared hand prediction for C2's base (3 of 27) was wrong; the tool measured 5 of 27 because coverage and adjacency had no dated measured-outcome record (ScribeMistakes finding 4, MutSelfAssessPlan). The before-value was declared as the tool's number, so the target is unaffected.
+
+## Wave-2 findings and corrections (appended 2026-10-22, before closure)
+
+Wave 2 had 35 seats at measured revision `7dfea9244a84a0e2439f0698e54491e5d7b7c467`. The four mutation-tester seats died at start ("Error: No model selected."); they were not replaced, and the L1 ran the mutation evidence itself (`.ufo/waves/round-26/l1-mutation/README.md`: C1 20 of 20 rule mutants killed, 1 control survives; C2 8 of 8 rule mutants killed, plan prose correctly ignored). The wave-1 C1 mutation runner reported 37 of 37 survived against the same tool that kills the same mutant by hand; that runner result is a runner defect and is not used.
+
+Corrections to this lesson's own text:
+
+- The routed-defect table above says defects 3, 5 and 7 are "Fixed". They are partly fixed (wave-2 CritRoutedDefects). Defect 3: the self-reference moved rather than disappeared; at the measured revision all six ordinal checks read `SCORECARD.md:960`, a line this round wrote, and a sandbox mutant that sets depth to 10 in both the table and that line passes (CritRoutedDefects, CritCalibrationClaim). Defect 5: `ahead=0` was observed before each helper commit by the L1 (`jj-lane.sh state` lines in the round transcript) but only one reading is in a seat report. Defect 7: box 3 still rests on a test of a 444-line SKILL.md; no box is checkable by a non-author yet. Defect 4 landed at `7f9f0889`, one commit after the measured revision.
+- "Wave-1 findings recorded after integration" says the hand prediction of 3 was wrong. It was right under the rule as declared at `b13e991f`; the refinement at `4de2b6b1` raised the base to 5 by adding K02 and K06 `no dated move record` (CritCalibrationClaim reproduced 3 with the declared rule).
+- What C2's 0 of 27 proves (CritCalibrationClaim): K07 to K27, 21 checks, compare the self-assessment with observed repository state, and they moved from 3 mismatches (K10, K24, K26) to 0. K01 to K06 compare the axes table with an ordinal-record line written by the same round in the same commit; they show the two agree, not that any ordinal is deserved. K02 and K06 were cleared only by that line.
+
+Entry and registry corrections, each appended where it lives (entry section "Wave-2 corrections", SKILL notes, memory-pressure note, README correction, SOURCES search log and lead clarification):
+
+- SH6's Unexpected Power Losses trigger omitted a second branch, and "not a count of host-visible crashes" was withdrawn; the SH6 verdict is split (`UNVERIFIED` for the power-loss count). The S135 teaches cell carries the same omission (RevS135, RevRowSH6). The journal dates boot ends, not abruptness. `nvme0` named different PCI devices in boots -1 and 0.
+- SH5's "otherwise" holds only after a successful SMART log read (RevRowSH5). SH1's "shorter names" applies to three of the five counters (RevS133). SH2 omitted that a scrub run also updates the counters (RevS128). S128's teaches cell adds an "only" the source lacks (RevS128). S136's Gate quote was not exact and its teaches cell widens the ancestor case (RevS136).
+- SE2 and SE3 carry operator cautions not stated by a source; `UNVERIFIED` and the entry's `DEGRADED` are entry-local vocabulary (CritLearningClaim).
+- The README Frontier bullet overstated which part of the old lead was opened (CritTrendVerdicts).
+- No round-26 search-log note existed (CORPUS SOURCES rule 5); one is now in `corpus/SOURCES.md`.
+
+Registry rows S128, S135 and S136 are not rewritten (append-only outside status, recheck and used-by); superseding rows with Gate records are owed next round.
+
+### Mistakes added after wave 2
+
+| ID | Class | Evidence pointer | Captured-by | Fix, and how it was shown able to fail |
+|---|---|---|---|---|
+| R26-SELF-AGREEMENT-ORDINAL | measurement | At `7dfea924` K01 to K06 all read `SCORECARD.md:960`, written in the same commit as the table they check; a sandbox mutant with depth 10 in both passes (CritCalibrationClaim, CritRoutedDefects) | QUALITY 62 (it binds to dated records but allows the declaring round's own record) | QUALITY 65. Red before: the depth-10 mutant exits 0 under the pinned tool. Tool change owed next round (reference only records of rounds earlier than the declaring round, anchor the heading match). |
+| R26-TEACHES-OVERSTATED | curation | Routed defect 8 (S121, S122, S118) recurred in this round's own rows: S128 "only", S135 trigger, S136 ancestor case (RevS128, RevS135, RevS136) | CORPUS SOURCES rule 1 (teaches grounded by a quote); no lane criterion | QUALITY 66. Red before: the S135 teaches cell states one branch where excerpt lines 239-256 state two. |
+| R26-DRAFT-DRIFT | quality | The wave-1 source seat stated both SH6 branches correctly (`w1/SrcNvmeLifetimeFields.md` line 41); the L1's integrated entry kept one | none | QUALITY 66 covers it: a statement integrated from a seat report is compared with that report's quoted source lines before landing. |
+| R26-LEAD-OVERSTATED | disclosure | README Frontier bullet claimed the release-notes half of the old lead was opened (CritTrendVerdicts) | QUALITY 60 does not cover wording | Appended README correction; red before: `grep -c "release notes" corpus/README.md` names them as opened at `7dfea924`. |
+
+QUALITY 64 records R26-GATE-COLUMN-OFFSET (a tool mistake no criterion caught), so that mistake now has a criterion.

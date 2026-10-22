@@ -242,3 +242,7 @@ Append-only; the coverage map and Frontier bullets above stay as written.
 
 - Storage integrity is a frontier area, not Core: it becomes Core only after a read-only census arm reads it (shape proposed in `.ufo/waves/round-26/w1/ScoutHostSurfaces.md`). Disk-space runway stays with mori; scrub runs, counter resets, profile changes and firmware updates stay operator-owned.
 - The unopened lead at `SOURCES.md` line 214 (btrfs scrub documentation and btrfs-progs release notes) is now opened and mined as S129 and S139 for btrfs-progs v7.1.
+
+### Round-26 correction after wave 2 (appended 2026-10-22)
+
+The Frontier bullet above overstates the lead it closes: of the unopened lead in `SOURCES.md` (`## Leads (unopened)`, the firmware and Btrfs bullet, line 226 at `7dfea924` after the round-26 rows were inserted, not line 214), only the btrfs scrub documentation was opened (S129, S139). The btrfs-progs 7.x release notes and the ArchWiki Fwupd page were not opened (wave-2 CritTrendVerdicts, CritLearningClaim).
