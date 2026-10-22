@@ -246,3 +246,11 @@ Append-only; the coverage map and Frontier bullets above stay as written.
 ### Round-26 correction after wave 2 (appended 2026-10-22)
 
 The Frontier bullet above overstates the lead it closes: of the unopened lead in `SOURCES.md` (`## Leads (unopened)`, the firmware and Btrfs bullet, line 226 at `7dfea924` after the round-26 rows were inserted, not line 214), only the btrfs scrub documentation was opened (S129, S139). The btrfs-progs 7.x release notes and the ArchWiki Fwupd page were not opened (wave-2 CritTrendVerdicts, CritLearningClaim).
+
+## Round 27 — kernel taint (deeper entry inside the driver and firmware area)
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/kernel-taint-r27.md` and `.json` | What this host's taint number 12288 means (O and E only), how the kernel sets O and E at module load, why a DKMS-signed module still sets E in permissive mode, the per-module taint file, that taint is never cleared while the kernel runs, and what it means for upstream bug reports; six rows KT1 to KT6 with operator actions | S140-S145; `lessons/round-27.md` Gate |
+
+This is deeper ground inside the existing driver and firmware Core area (`PROVINCE.md` Core), not a new frontier area: `knowledge/driver-firmware-plane.md` already recorded the two taint lines on 2026-10-13 without their mechanism (wave-1 CritLearningFrontier and CritClaimSizing).

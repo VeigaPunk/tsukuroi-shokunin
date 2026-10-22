@@ -305,3 +305,7 @@ Sources S060, S051 and S052. This appended correction supersedes the current-use
 ## R18-PRECISION — repository timestamp
 
 The R17 notice's 'omarchy DB refreshed' wording is withdrawn as a claim about local refresh timing: the cited value is a filesystem mtime only. S060:42–46 likewise captures filesystem mtimes; neither timestamp read proves local acquisition, synchronization or content freshness. Current pending updates remain unmeasured. The earlier dated timestamp stays visible, but is not a refresh receipt.
+
+### Round-27 note on the taint wording (appended 2026-10-22)
+
+Lines 160 and 202 above call the nvidia modules "unsigned". At the round-27 capture (`.ufo/waves/round-27/capture/capture.txt`, driver 615.78.08) each nvidia module carries a signature (`modinfo -F signer` prints "DKMS module signing key"); the kernel sets E because it does not accept that signature, not because none is attached. Read "unsigned" above as "signature not verified by the kernel". The mechanism, the decoding of the taint number and the operator actions are in `corpus/knowledge/kernel-taint-r27.md` (sources S140 to S145). The Secure Boot reading in section 2 is from 2026-10-13 and was not re-checked in round 27.
