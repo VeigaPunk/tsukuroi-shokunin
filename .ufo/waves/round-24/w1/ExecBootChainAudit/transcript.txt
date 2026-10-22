@@ -1,0 +1,91 @@
+tsukuroi round 24 wave 1 — seat ExecBootChainAudit — boot-chain-audit capability run
+date: 2026-10-22
+lane repo: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+lane HEAD at run time: 10b45f050c16f5f1d4f7e15a285d9f5294f7a486 (git, read-only)
+tool under test: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/boot-chain-audit.sh
+tool last touched by: 5a133bc (round-19 falsify repairs)
+
+--- command 1 ---
+$ bash tools/boot-chain-audit.sh --selftest
+stdout -> selftest.out (52 bytes, sha256 50054561f68fe1c3b97f12722b18050d9ea43e357f2ba36605fbf641d2c2ede8)
+stderr -> selftest.err (0 bytes)
+exit code: 0            (recorded in selftest.exit)
+stdout verbatim:
+TSUKUROI_BOOTCHAIN_SELFTEST: PASS total=45 failed=0
+
+--- command 2 ---
+$ bash tools/boot-chain-audit.sh --live
+stdout -> live.out (2084 bytes, sha256 c1b4971335d40a0937b81e7d2bc973bc8d00480fd33766989e419221d54978d0)
+stderr -> live.err (0 bytes)
+exit code: 0            (recorded in live.exit)
+stdout verbatim (tab separated, shown here as '|' between fields):
+label|efi|sha256|b2_ok|uname|VERSION|init_sysroot_refs|init_new_root_refs|image_new_root|latehooks|overlay_root|plymouth_root|rootflags|snapshot|snapshot_ro|selected|verdict
+//linux|/EFI/Linux/omarchy_linux.efi|2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8|ok|7.2.11-arch1-1|42.2|7|0|symlink->sysroot|plymouth btrfs-overlayfs|/new_root|/new_root|subvol=@|-|-|true|PATH-ALIASED-EMULATED
+//linux-lts|/EFI/Linux/omarchy_linux-lts.efi|2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8|ok|6.18.57-2-lts|42.2|7|0|symlink->sysroot|plymouth btrfs-overlayfs|/new_root|/new_root|subvol=@|-|-|false|UNTESTED
+///2026-10-20 09:29:19 ////linux|/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8|2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8|ok|7.2.11-arch1-1|42.2|7|0|symlink->sysroot|plymouth btrfs-overlayfs|/new_root|/new_root|subvol=/@/.snapshots/2/snapshot|2|-|false|PATH-ALIASED-EMULATED
+///2026-10-20 09:29:19 ////linux-lts|/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8|2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8|ok|6.18.57-2-lts|42.2|7|0|symlink->sysroot|plymouth btrfs-overlayfs|/new_root|/new_root|subvol=/@/.snapshots/2/snapshot|2|-|false|PATH-ALIASED-EMULATED
+///2026-10-20 09:03:02 ////linux|/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0|0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0|ok|7.2.3-arch1-3|41.1|0|7|directory|plymouth btrfs-overlayfs|/new_root|/new_root|subvol=/@/.snapshots/1/snapshot|1|-|false|CONSISTENT-PRE42
+/EFI fallback|/EFI/BOOT/BOOTX64.EFI|94308b4e9ee1783a65cfd60570240a80595baf125c5b18e729d3dd977194ad51|-|-|-|-|0|0|-|-|-|-|-|-|false|NOT-A-KERNEL-ENTRY
+# counts entries=6 kernels=5 booted=0 path-aliased=3 pre42=1 untested=1 not-kernel=1 unknown=0 b2_mismatch=0
+TSUKUROI_BOOTCHAIN: CONSISTENT
+
+--- repeat runs (determinism) ---
+$ bash tools/boot-chain-audit.sh --selftest   (second run) -> exit 0, sha256 50054561f68fe1c3b97f12722b18050d9ea43e357f2ba36605fbf641d2c2ede8 (identical)
+$ bash tools/boot-chain-audit.sh --live       (second run) -> exit 0, sha256 c1b4971335d40a0937b81e7d2bc973bc8d00480fd33766989e419221d54978d0 (identical, diff empty)
+leftover private mktemp trees after both runs: ls -d /tmp/tmp.* | wc -l = 0
+
+--- supporting read-only probes used in the report ---
+$ sudo -n stat -c '%n mtime=%Y (%y)' /boot/EFI/Linux/omarchy_linux.efi /boot/EFI/Linux/omarchy_linux-lts.efi
+/boot/EFI/Linux/omarchy_linux.efi mtime=1792499182 (2026-10-20 09:26:22.000000000 -0300)
+/boot/EFI/Linux/omarchy_linux-lts.efi mtime=1792499176 (2026-10-20 09:26:16.000000000 -0300)
+$ awk '/^btime /{print $2; exit}' /proc/stat
+1792655724        (2026-10-22 04:55:24 -03)
+$ find /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d /etc/default/limine \
+      /etc/limine-snapper-sync.conf /usr/lib/initcpio /usr/lib/modules -newermt "@1792655724" -print
+/usr/lib/modules/.old
+$ stat -c '%n %w %y' /usr/lib/modules/.old /usr/lib/modules
+/usr/lib/modules/.old 2026-10-11 19:02:53.983213159 -0300 2026-10-22 04:55:43.241515544 -0300
+/usr/lib/modules 2026-10-03 17:42:01.340391429 -0300 2026-10-20 09:57:12.951056385 -0300
+$ grep -c sysroot /usr/lib/initcpio/init ; grep -c new_root /usr/lib/initcpio/init
+7
+0
+$ grep -n 'ln -s "sysroot"' /usr/lib/initcpio/functions
+1213:    ln -s "sysroot" "$buildroot/new_root"
+$ grep -n new_root /usr/lib/initcpio/hooks/btrfs-overlayfs /usr/lib/initcpio/hooks/plymouth
+/usr/lib/initcpio/hooks/btrfs-overlayfs:4:	root_mnt="/new_root"
+/usr/lib/initcpio/hooks/plymouth:11:  plymouth update-root-fs --new-root-dir=/new_root
+$ sudo -n lsinitcpio -l /boot/EFI/Linux/omarchy_linux.efi | grep -E 'new_root|sysroot'
+new_root            (symlink entry, no trailing slash)
+sysroot/            (directory entry, trailing slash)
+$ sudo -n lsinitcpio -l <snapshot-1 image> | grep -E 'new_root|sysroot'
+new_root/           (directory entry, trailing slash; no sysroot/ entry)
+$ sudo -n lsinitcpio -l <snapshot-2 linux image> | grep -E 'new_root|sysroot'
+new_root
+sysroot/
+$ btrfs property get -t subvol /.snapshots/2/snapshot ro          (unprivileged, as the tool runs it)
+ERROR: Could not open: Permission denied        exit 1
+$ sudo -n btrfs property get -t subvol /.snapshots/2/snapshot ro
+ro=true                                              exit 0
+$ sudo -n btrfs property get -t subvol /.snapshots/1/snapshot ro
+ro=true                                              exit 0
+$ for v in /sys/firmware/efi/efivars/LoaderEntrySelected-* /sys/firmware/efi/efivars/LimineLastBootedEntry-*; do tail -c +5 "$v" | tr -d '\0'; done
+Omarchy.linux
+Omarchy/linux
+$ journalctl --list-boots --no-pager | tail -n 2
+ -1 3e7084f470464957a8a2c00542a3b469 Tue 2026-10-20 09:57:09 -03 Thu 2026-10-22 04:54:50 -03
+  0 6a7f4fdfac624e2ea6c1b3c55d6f94f4 Thu 2026-10-22 04:55:41 -03 Thu 2026-10-22 05:19:39 -03
+$ journalctl -b -1 -k --no-pager | grep -m1 'Linux version'
+Oct 20 09:57:09 plazir27 kernel: Linux version 7.2.11-arch1-1 (linux@archlinux) ...
+$ journalctl -b 0 -k --no-pager | grep -m1 'Linux version'
+Oct 22 04:55:41 plazir27 kernel: Linux version 7.2.11-arch1-1 (linux@archlinux) ...
+$ sudo -n stat -c '%n %y %s' /boot/limine.conf
+/boot/limine.conf 2026-10-22 05:05:38.000000000 -0300 4919
+$ sudo -n cat -- /boot/limine.conf | grep -c 'path:'
+6
+$ journalctl -b 0 --no-pager --since "2026-10-22 05:04:00" --until "2026-10-22 05:07:00" | grep -i limine
+Oct 22 05:05:39 plazir27 limine-snapper-sync[9121]: Updated: /boot/limine.conf
+$ systemctl cat linux-modules-cleanup.service   (read-only)
+/usr/lib/systemd/system/linux-modules-cleanup.service  ExecStart=/bin/bash -exc 'for i in /usr/lib/modules/[0-9]*; do ... rsync -AHXal "$i" /usr/lib/modules/.old/; rm -rf "$i"; done'
+$ pacman -Q mkinitcpio linux
+mkinitcpio 42.2-1
+linux 7.2.11.arch1-1

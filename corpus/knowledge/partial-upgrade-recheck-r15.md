@@ -197,3 +197,8 @@ Sources S060, S051 and S052. This appended correction supersedes the current-use
 ## R18-PRECISION — historical upgrade evidence
 
 The R17 notices' full-upgrade 'ran/executed' wording must not turn a Running/starting header into a client completion or health verdict. S065:18 now records historical ALPM transaction completion09:16:47 alongside the separately observed package changes. The symlink/compatibility statement remains the bounded R17 image and namespace-emulation observation, not an R18 extraction of every current image. S060 re-observes the package directory, not UKI identity or current pending rows.
+
+
+## R24-FRESHNESS — superseded pending count (2026-10-22)
+
+Appended; earlier bytes unchanged. The 413 pending rows above are a 2026-10-20 07:44Z observation discharged by the 09:15 full upgrade. On 2026-10-22 the local databases show 3 pending third-party rows and the current omarchy stable snapshot shows 134 (temporary-database check), with no installed-newer residue; libinput 1.32.0-1 now equals the sync version. Current verdicts: `corpus/knowledge/pause-lift-gate-r24.md` P1 and P2.

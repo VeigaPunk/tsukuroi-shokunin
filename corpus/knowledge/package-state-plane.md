@@ -439,3 +439,8 @@ Sources S060/S065 and earlier S051/S052. These notices cover the complete named 
 - R18-FRESH-SUPPLEMENT-48: S060 lists snapper0.13.2-1 and limine-snapper-sync1.32.1-2 in local metadata and config names home/root. The old versions and empty-config current-use reading at277–279 are superseded; R17 snapshots remain historical observations, not proof of present persistence/restore [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:27-39, .ufo/waves/round-18/l1-capture/host-capture-r18.txt:75-81, .ufo/waves/round-17/l1-capture/boot-chain-capture.txt:159-167]. Capture: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:31.
 
 No binary package query, configuration write, restart, rebuild or recovery action was performed or authorized by this notice.
+
+
+## R24 notice — stable mirror lag answered (2026-10-22)
+
+Appended; the `[unknown]` line above stays as written. The omarchy stable mirror holds the Arch snapshot of the current omarchy release and advances only by promotion (S100); its core.db Last-Modified was 2026-10-22 04:40:03 UTC at capture time (S101), after the host's last database download of 2026-10-18. Detail: `corpus/knowledge/pause-lift-gate-r24.md` P4.

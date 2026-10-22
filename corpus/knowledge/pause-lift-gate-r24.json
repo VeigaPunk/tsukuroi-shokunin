@@ -1,0 +1,231 @@
+{
+ "schema": "tsukuroi-pause-gate-v1",
+ "captured_at": "2026-10-22T08:46:28Z",
+ "capture": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+ "capture_sha256": "87f70f82f05956ce5de60abe8bfdd748f38d716483a491cfe7c183939884a56f",
+ "premises": [
+  {
+   "id": "P1",
+   "premise": "The host is far behind its upgrade target (recorded as 413 pending rows on 2026-10-20).",
+   "verdict": "changed",
+   "evidence": [
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 40,
+     "contains": "1password-beta 8.12.42_34.BETA-1 -> 8.12.44_25.BETA-1"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 53,
+     "contains": "chatgpt-bin openai-chatgpt"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 374,
+     "contains": "checkupdates exit=0 rows=134"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 376,
+     "contains": "systemd 262-1 -> 262.1-1"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 375,
+     "contains": "limine 12.9.3-1 -> 12.9.4-1"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/checkupdates.out",
+     "line": 6,
+     "contains": "ca-certificates-mozilla 3.131-1 -> 3.131.1-1"
+    }
+   ],
+   "sources": [
+    "S087",
+    "S088",
+    "S089"
+   ],
+   "limits": "413 is discharged by the 2026-10-20 full upgrade. Against the local databases 3 third-party rows are pending; against the current stable mirror snapshot (checkupdates temporary database, host databases untouched) 134 rows are pending, including systemd 262.1 and limine 12.9.4 in the boot chain and the ca-certificates-mozilla security fix. No mkinitcpio, linux or plymouth change is pending. -Qu does not check replacements."
+  },
+  {
+   "id": "P2",
+   "premise": "Partial-upgrade residue from the 2026-10-20 libinput install remains (an installed package newer than the sync database).",
+   "verdict": "cleared",
+   "evidence": [
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 57,
+     "contains": "### local-newer-than-sync"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 73,
+     "contains": "libinput 1.32.0-1"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 88,
+     "contains": "libinput 1.32.0-1"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 74,
+     "contains": "libinput-tools 1.32.0-1"
+    }
+   ],
+   "sources": [
+    "S092",
+    "S089"
+   ],
+   "limits": "No installed package is newer than its sync entry; libinput 1.32.0-1 is installed and in the sync database. Packages with no sync entry are outside this probe. The host has been in the post -Sy state since 2026-10-21 20:32, so any later single-package -S is an unsupported partial upgrade."
+  },
+  {
+   "id": "P3",
+   "premise": "mkinitcpio 42 breaks the configured late hooks that still name /new_root.",
+   "verdict": "changed",
+   "evidence": [
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 63,
+     "contains": "mkinitcpio 42.2-1"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 93,
+     "contains": "btrfs-overlayfs:4:"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 94,
+     "contains": "plymouth update-root-fs --new-root-dir=/new_root"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 117,
+     "contains": "ln -s \"sysroot\" \"$buildroot/new_root\""
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 340,
+     "contains": "LoaderEntrySelected=Omarchy.linux"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 328,
+     "contains": "scanned by mount (942)"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 142,
+     "contains": "PID 535 (plymouthd)"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 321,
+     "contains": "/var/log/boot.log"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 349,
+     "contains": "rootflags=subvol=@"
+    }
+   ],
+   "sources": [
+    "S094",
+    "S095",
+    "S096",
+    "S097",
+    "S098"
+   ],
+   "limits": "No longer a pending-upgrade risk. mkinitcpio 42.2 links new_root to sysroot on purpose; plymouth chdir/chroot follows the symlink and on boot 0 plymouthd (PID 535, older than the root mount by PID 942) wrote boot.log into the real root at 04:55:44. btrfs-overlayfs acts only on read-only snapshot boots; no such boot on a 42.2 image has run, so that path stays unverified. Initramfs failures are silent under quiet loglevel=0."
+  },
+  {
+   "id": "P4",
+   "premise": "The local sync databases show how far the host is from its upgrade target.",
+   "verdict": "changed",
+   "evidence": [
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 194,
+     "contains": "Server = https://stable-mirror.omarchy.org/$repo/os/$arch"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 31,
+     "contains": "/var/lib/pacman/sync/core.db"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 354,
+     "contains": "birth; /var/lib/pacman/sync/core.db"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 363,
+     "contains": "core last-modified: Thu, 22 Oct 2026 04:40:03 GMT"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 221,
+     "contains": "[PACMAN] Running 'pacman -Sy --noconfirm'"
+    }
+   ],
+   "sources": [
+    "S099",
+    "S100",
+    "S101",
+    "S103"
+   ],
+   "limits": "The target is the omarchy stable snapshot. The local core.db mtime is the mirror's Last-Modified from the last real download (2026-10-18 01:37 UTC); the 2026-10-21 -Sy did not rewrite core, extra or multilib (birth 2026-10-18 14:11 -03), and whether it got a not-modified reply or failed is not recorded. The stable mirror published a new snapshot at 2026-10-22 04:40 UTC, after that refresh, so the local databases now understate the pending set."
+  },
+  {
+   "id": "P5",
+   "premise": "A rollback by package cache is available, and no package transactions happened during the pause.",
+   "verdict": "changed",
+   "evidence": [
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 284,
+     "contains": "### cache-package-files"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 297,
+     "contains": "download-vcoq00"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 266,
+     "contains": "COMMAND=/usr/bin/paccache -r -k 1 --nocolor"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 270,
+     "contains": "COMMAND=/usr/bin/pacman -Scc --noconfirm"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 122,
+     "contains": "installed zcode (3.16.2-1)"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 281,
+     "contains": "openssl-1.0-debug 1.0.2.u-7"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 317,
+     "contains": "error: package 'snap-pac' was not found"
+    }
+   ],
+   "sources": [
+    "S090",
+    "S091",
+    "S093",
+    "S102"
+   ],
+   "limits": "The cache holds 0 package files (4 empty download directories); six paccache -r runs (2026-10-20 20:48 and 20:50, 2026-10-22 02:59 twice and 04:09 twice) and two pacman -Scc runs (04:10) emptied it, all by account vgpnk outside the fleet repo with no terminal; who ordered them is unknown. During the pause there were three pacman -U installs of five locally built foreign packages and one pacman -Sy, but no -S or -Su. Remaining rollback paths: the Arch Linux Archive and the two read-only Snapper snapshots of 2026-10-20; snap-pac is not installed."
+  }
+ ]
+}

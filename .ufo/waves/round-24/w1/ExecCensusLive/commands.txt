@@ -1,0 +1,28 @@
+# ExecCensusLive — commands, exit codes, artifacts
+seat: TsukuroiR24.ExecCensusLive-2
+lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+date: 2026-10-22 (UTC)
+
+## 1) hermetic selftest
+cwd: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+$ bash tools/tsukuroi-census.sh --selftest
+exit=0
+wall: 15.30 s
+stdout+stderr -> selftest.out ; exit code -> selftest.exit
+summary line: TSUKUROI_CENSUS_SELFTEST: PASS (97 cases, 97 passed, 0 failed)  [selftest.out:100]
+
+## 2) live census
+$ bash tools/tsukuroi-census.sh
+exit=1
+wall: 3.20 s
+run stamp printed by the tool: 2026-10-22T08:38:35Z
+stdout+stderr -> live.out ; exit code -> live.exit
+
+## 3) supporting read-only probes (run after the census)
+$ stat -c '%w | %y | %n' /var/lib/pacman/sync/*.db            # exit 0
+$ pacman -Qu                                                 # exit 0, 3 rows
+$ pacman -Sup --print-format '%r/%n %v'                      # exit 0, 3 rows
+$ ls -1 /var/cache/pacman/pkg | wc -l                        # exit 0, 4
+$ stat -c '%w | %y | %s | %n' /var/cache/pacman/pkg/*       # exit 0
+$ grep -nE '\[ALPM\] (upgraded|installed) elephant' /var/log/pacman.log  # exit 0
+$ grep -nE '\[PACMAN\] error|failed to retrieve' /var/log/pacman.log # exit 1, no match

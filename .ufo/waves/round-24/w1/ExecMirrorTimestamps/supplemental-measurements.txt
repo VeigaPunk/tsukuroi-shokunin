@@ -1,0 +1,45 @@
+Supplemental output excerpts retained from this session's tool transcript; these are not a new request or a rerun.
+
+Host database stat and md5sum, observed after the 08:38:10Z HTTP request and before the 08:38:59Z download:
+$ stat -c "%y %s %n" /var/lib/pacman/sync/core.db /var/lib/pacman/sync/extra.db /var/lib/pacman/sync/multilib.db
+2026-10-17 22:37:29.000000000 -0300 130249 /var/lib/pacman/sync/core.db
+2026-10-17 22:37:30.000000000 -0300 8881002 /var/lib/pacman/sync/extra.db
+2026-10-17 22:37:29.000000000 -0300 85764 /var/lib/pacman/sync/multilib.db
+$ md5sum /var/lib/pacman/sync/core.db /var/lib/pacman/sync/extra.db /var/lib/pacman/sync/multilib.db
+e96d1a0fed34b2245280d39bad1901d8  /var/lib/pacman/sync/core.db
+6ae3ab01dc16504115c2a424578e4c37  /var/lib/pacman/sync/extra.db
+8e3bc2efa7344914cabc83014d897778  /var/lib/pacman/sync/multilib.db
+
+Downloads and corresponding measured bytes; all curl_exit=0, with --max-time 60 for core and multilib, --max-time 120 for extra:
+2026-10-22T08:38:59Z https://stable-mirror.omarchy.org/core/os/x86_64/core.db -> dl-stable-os-core.db
+2026-10-22T08:39:00Z https://stable-mirror.omarchy.org/multilib/os/x86_64/multilib.db -> dl-stable-os-multilib.db
+6e77c7680b16e86a9214b047c2325d53  dl-stable-os-core.db
+812d307cd94480b91e0d1385da7c1491  dl-stable-os-multilib.db
+131604 dl-stable-os-core.db
+86053 dl-stable-os-multilib.db
+2026-10-22T08:42:09Z https://geo.mirror.pkgbuild.com/core/os/x86_64/core.db -> dl-official-core.db
+2026-10-22T08:42:11Z https://geo.mirror.pkgbuild.com/multilib/os/x86_64/multilib.db -> dl-official-multilib.db
+6026d499fb811d38dd10cff613d50361  dl-official-core.db
+812d307cd94480b91e0d1385da7c1491  dl-official-multilib.db
+131626 dl-official-core.db
+86053 dl-official-multilib.db
+2026-10-22T08:45:08Z https://stable-mirror.omarchy.org/extra/os/x86_64/extra.db -> dl-stable-extra.db
+2026-10-22T08:45:08Z https://geo.mirror.pkgbuild.com/extra/os/x86_64/extra.db -> dl-official-extra.db
+8dbc3bdfe0a7860a38d2f39eb7989087  dl-stable-extra.db
+991e76f34e00d2edb56fa2b550db2556  dl-official-extra.db
+6ae3ab01dc16504115c2a424578e4c37  /var/lib/pacman/sync/extra.db
+8846663 dl-stable-extra.db
+8845933 dl-official-extra.db
+
+Corrected package-list measurement, using extracted %NAME% and %VERSION% values and LC_ALL=C sorting before join:
+core: host=299 stable=299 official=299 packages.
+core: 19 shared packages differ in version between host and stable.
+core: official-vs-stable version difference: xfsprogs 7.2.1-1 7.2.0-1.
+extra: host=15032 stable=15040 official=15040 packages.
+extra: 2200 shared packages differ in version between host and stable; 11 names appear only in stable and 3 only in host.
+extra: 39 shared packages differ in version between stable and official downloads.
+Limits: initial locale-dependent comm/join attempts reported unsorted input; only corrected C-locale host/stable results are used. An exploratory lexical version-order comparison was invalid (it treated 3.0.7 as greater than 3.0.10) and is excluded. Counts describe repository entries, not installed upgrades. Official extra changed between the HEAD response and later GET (8846598 versus 8845933 bytes); content and timestamp comparisons are separate observations.
+
+libalpm source request at 2026-10-22T08:50:20Z, curl_exit=0, 43618 bytes:
+https://gitlab.archlinux.org/api/v4/projects/pacman%2Fpacman/repository/files/lib%2Flibalpm%2Fdload.c/raw?ref=v7.1.0
+Retained as pacman-dload.c. Lines 387, 607, and 704 respectively request FILETIME, retrieve remote_time, and apply utimes_long to the temporary downloaded file before rename. This demonstrates timestamp preservation, not historical success of the host's sync.

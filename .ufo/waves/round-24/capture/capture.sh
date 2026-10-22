@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Round 24 L1 read-only host capture for the pause-lift update-safety gate.
-# No package transaction, sync, service action, boot or configuration write.
+# No package transaction, sync, service action, boot or configuration write on the host;
+# the only writes are capture.txt and capture.sha256 inside a new output directory.
 # Each command is printed with its exit code. Usage: capture.sh <outdir>
 set -u
 out=${1:?outdir}
+if [ -e "$out" ]; then echo "refusing: $out exists" >&2; exit 2; fi
 mkdir -p "$out"
 run() { # run <label> <command...>
   local label=$1; shift
@@ -32,8 +34,8 @@ run init-root 'grep -n "sysroot\|new_root" /usr/lib/initcpio/init'
 run buildroot-symlink 'grep -rn "new_root" /usr/lib/initcpio/functions /usr/bin/mkinitcpio 2>/dev/null; true'
 run pacman-log-since-pause 'awk "\$1 >= \"[2026-10-20T09:40\"" /var/log/pacman.log | grep -E "\[ALPM\] (installed|upgraded|downgraded|removed|reinstalled)" ; true'
 run pacman-log-last-sync 'grep -n "synchronizing package lists" /var/log/pacman.log | tail -n 3'
-run plymouth-boot0 'journalctl -b 0 --no-pager -o short-monotonic | grep -i -E "plymouth|update-root-fs" | head -n 20; true'
-run plymouth-boot-1 'journalctl -b -1 --no-pager -o short-monotonic | grep -i -E "plymouth|update-root-fs" | head -n 20; true'
+run plymouth-boot0 'journalctl -b 0 --no-pager -o short-monotonic | grep -E "systemd\[1\]: .*Plymouth|plymouthd|update-root-fs" | head -n 20; true'
+run plymouth-boot-1 'journalctl -b -1 --no-pager -o short-monotonic | grep -E "systemd\[1\]: .*Plymouth|plymouthd|update-root-fs" | head -n 20; true'
 run failed-units 'systemctl --failed --no-pager --plain --no-legend | wc -l'
 run user-failed-units 'systemctl --user --failed --no-pager --plain --no-legend | wc -l'
 run dkms 'dkms status 2>&1'
@@ -42,6 +44,19 @@ run mirror-servers 'grep -v "^#" /etc/pacman.d/mirrorlist | grep -v "^$"'
 run repo-servers 'grep -n -E "^\[|^Server|^Include" /etc/pacman.conf'
 run pacman-commands-since-pause 'awk "\$1 >= \"[2026-10-20T09:40\"" /var/log/pacman.log | grep -F "[PACMAN] Running" ; true'
 run cache-file-count 'ls /var/cache/pacman/pkg | wc -l'
-run sudo-package-commands-since-pause 'journalctl _COMM=sudo --since "2026-10-20 09:40" --no-pager -o short-iso | grep -E "COMMAND=/usr/bin/(pacman|paccache|makepkg)" | sed -E "s/PWD=\/home\/vgpnk\/Projects\/shokunin[^;]*/PWD=inside-fleet-repo/; s/PWD=[^;]*/PWD=outside-fleet-repo/" | cut -c1-220; true'
+run sudo-package-commands-since-pause 'fleet="${FLEET_ROOT:-$HOME/Projects/shokunin}"; journalctl _COMM=sudo --since "2026-10-20 09:40" --no-pager -o short-iso | grep -E "COMMAND=/usr/bin/(pacman|paccache|makepkg)" | grep -v -E "COMMAND=/usr/bin/pacman -Qq?$" | awk -v fleet="$fleet" "{ if (index(\$0, \"PWD=\" fleet \"/\") || index(\$0, \"PWD=\" fleet \" \")) sub(/PWD=[^;]*/, \"PWD=inside-fleet-repo\"); else sub(/PWD=[^;]*/, \"PWD=outside-fleet-repo\"); print }" | cut -c1-220; true'
 run foreign-new 'pacman -Qm zcode tizen-sdb tizen-sdb-debug openssl-1.0 openssl-1.0-debug'
+run cache-package-files 'find /var/cache/pacman/pkg -maxdepth 1 -name "*.pkg.tar*" | wc -l'
+run cache-entries 'ls -la /var/cache/pacman/pkg'
+run paccache-runs-since-pause 'journalctl _COMM=sudo --since "2026-10-20 09:40" --no-pager -o short-iso | grep -E "COMMAND=/usr/bin/paccache .*-r|COMMAND=/usr/bin/paccache -r" | grep -v -- " -d" | sed -E "s/PWD=[^;]*/PWD=redacted/" | cut -c1-160; true'
+run snapper-list 'snapper -c root list 2>&1 | head -n 20; true'
+run snap-pac 'pacman -Q snap-pac 2>&1; true'
+run plymouth-boot-files 'stat -c "%y %n" /var/log/boot.log /var/lib/plymouth/boot-duration 2>&1; true'
+run boot0-root-mount 'journalctl -b 0 -k --no-pager -o short-monotonic | grep -m 3 -E "scanned by mount|first mount of filesystem"; true'
+run boot0-plymouthd-pid 'journalctl -b 0 --no-pager -o short-monotonic | grep -m 2 -E "\(plymouthd\)"; true'
+run loader-entry 'for v in LoaderEntrySelected LoaderImageIdentifier; do f=/sys/firmware/efi/efivars/$v-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f; printf "%s=" "$v"; tail -c +5 "$f" 2>/dev/null | tr -d "\000"; echo; done'
+run cmdline-boot-flags 'tr " " "\n" </proc/cmdline | grep -E "^(rootflags|quiet|loglevel|rd\.)" ; true'
+run sync-db-ctime-birth 'stat -c "%z change; %w birth; %n" /var/lib/pacman/sync/*.db'
+run stable-mirror-headers 'for r in core extra multilib; do printf "%s " "$r"; curl -sI --max-time 20 "https://stable-mirror.omarchy.org/$r/os/x86_64/$r.db" | grep -i "^last-modified" | tr -d "\r"; done; for m in stable-mirror rc-mirror; do printf "%s lastsync=" "$m"; curl -s --max-time 20 "https://$m.omarchy.org/lastsync" | head -c 40; echo; done'
+run checkupdates-temp-db 'export CHECKUPDATES_DB=/fast/scratch/hyaku/tsuku24-checkupdates-db; rm -rf "$CHECKUPDATES_DB"; checkupdates >"$CHECKUPDATES_DB.out" 2>&1; rc=$?; echo "checkupdates exit=$rc rows=$(grep -c " -> " "$CHECKUPDATES_DB.out")"; grep -E "^(linux|linux-lts|mkinitcpio|systemd|limine|limine-mkinitcpio-hook|limine-snapper-sync|plymouth|nvidia-open-dkms|btrfs-progs|linux-firmware|intel-ucode|amd-ucode|cryptsetup|glibc|pacman|snapper) " "$CHECKUPDATES_DB.out"; true'
 sha256sum "$out/capture.txt" >"$out/capture.sha256"

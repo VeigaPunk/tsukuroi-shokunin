@@ -1,0 +1,378 @@
+### time
+$ date -u +%FT%TZ
+2026-10-22T08:46:28Z
+exit=0
+
+### kernel
+$ uname -r
+7.2.11-arch1-1
+exit=0
+
+### boots
+$ journalctl --list-boots --no-pager | tail -n 4
+ -3 84755511f8b741649b565f302b59e676 Tue 2026-10-20 06:37:55 -03 Tue 2026-10-20 08:54:20 -03
+ -2 ed8819b0a64a4af7b171e29b28b55524 Tue 2026-10-20 08:58:00 -03 Tue 2026-10-20 09:56:15 -03
+ -1 3e7084f470464957a8a2c00542a3b469 Tue 2026-10-20 09:57:09 -03 Thu 2026-10-22 04:54:50 -03
+  0 6a7f4fdfac624e2ea6c1b3c55d6f94f4 Thu 2026-10-22 04:55:41 -03 Thu 2026-10-22 05:46:23 -03
+exit=0
+
+### root-mount
+$ findmnt -no FSTYPE,OPTIONS /
+btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@
+exit=0
+
+### db-lock
+$ ls -l /var/lib/pacman/db.lck
+ls: cannot access '/var/lib/pacman/db.lck': No such file or directory
+exit=2
+
+### sync-db-mtime
+$ stat -c "%y %n" /var/lib/pacman/sync/*.db
+2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/core.db
+2026-10-17 22:37:30.000000000 -0300 /var/lib/pacman/sync/extra.db
+2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/multilib.db
+2026-10-21 19:44:39.000000000 -0300 /var/lib/pacman/sync/omarchy.db
+2026-10-20 23:22:02.000000000 -0300 /var/lib/pacman/sync/openai-chatgpt.db
+exit=0
+
+### pending
+$ pacman -Qu
+1password-beta 8.12.42_34.BETA-1 -> 8.12.44_25.BETA-1
+chatgpt-bin 26.1013.40934-1 -> 26.1016.51333-1
+claude-code 2.1.304-1 -> 2.1.307-1
+exit=0
+
+### pending-count
+$ pacman -Qu | wc -l
+3
+exit=0
+
+### pending-repos
+$ for p in $(pacman -Qqu); do printf "%s " "$p"; pacman -Si "$p" 2>/dev/null | sed -n "s/^Repository *: //p" | head -n 1; done
+1password-beta omarchy
+chatgpt-bin openai-chatgpt
+claude-code omarchy
+exit=0
+
+### local-newer-than-sync
+$ pacman -Sl | sed -n "s/^\([^ ]*\) \([^ ]*\) \([^ ]*\) \[installed: \([^]]*\)\]$/\1 \2 \3 \4/p" | while read -r repo name syncv localv; do [ "$(vercmp "$localv" "$syncv")" -gt 0 ] && echo "$repo $name sync=$syncv local=$localv"; done; true
+exit=0
+
+### boot-chain-installed
+$ pacman -Q mkinitcpio plymouth limine-mkinitcpio-hook limine-snapper-sync limine linux linux-lts systemd nvidia-open-dkms snapper libinput libinput-tools
+mkinitcpio 42.2-1
+plymouth 26.134.222-3
+limine-mkinitcpio-hook 1.40.0-2
+limine-snapper-sync 1.32.1-2
+limine 12.9.3-1
+linux 7.2.11.arch1-1
+linux-lts 6.18.57-2
+systemd 262-1
+nvidia-open-dkms 615.78.08-1
+snapper 0.13.2-1
+libinput 1.32.0-1
+libinput-tools 1.32.0-1
+exit=0
+
+### boot-chain-sync
+$ for p in mkinitcpio plymouth limine-mkinitcpio-hook limine-snapper-sync limine linux linux-lts systemd nvidia-open-dkms libinput; do printf "%s " "$p"; pacman -Si "$p" 2>/dev/null | sed -n "s/^Version *: //p" | head -n 1; done
+mkinitcpio 42.2-1
+plymouth 26.134.222-3
+limine-mkinitcpio-hook 1.40.0-2
+limine-snapper-sync 1.32.1-2
+limine 12.9.3-1
+linux 7.2.11.arch1-1
+linux-lts 6.18.57-2
+systemd 262-1
+nvidia-open-dkms 615.78.08-1
+libinput 1.32.0-1
+exit=0
+
+### hooks-new-root
+$ grep -n "/new_root" /usr/lib/initcpio/hooks/* /etc/initcpio/hooks/* 2>/dev/null; true
+/usr/lib/initcpio/hooks/btrfs-overlayfs:4:	root_mnt="/new_root"
+/usr/lib/initcpio/hooks/plymouth:11:  plymouth update-root-fs --new-root-dir=/new_root
+exit=0
+
+### hooks-config
+$ grep -Hn "^HOOKS" /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d/*.conf
+/etc/mkinitcpio.conf:55:HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
+/etc/mkinitcpio.conf.d/omarchy_hooks.conf:1:HOOKS=(base udev plymouth keyboard autodetect microcode modconf kms keymap consolefont block encrypt filesystems fsck btrfs-overlayfs)
+/etc/mkinitcpio.conf.d/omarchy_resume.conf:1:HOOKS+=(resume)
+exit=0
+
+### init-root
+$ grep -n "sysroot\|new_root" /usr/lib/initcpio/init
+66:# Mount root at /sysroot
+67:"$mount_handler" /sysroot
+77:if [ "$(stat -c %D /)" = "$(stat -c %D /sysroot)" ]; then
+78:    # Nothing got mounted on /sysroot. This is the end, we don't know what to do anymore
+87:elif [ ! -x "/sysroot${init}" ]; then
+88:    # Successfully mounted /sysroot, but ${init} is missing
+110:    /usr/bin/switch_root /sysroot "$init" "$@"
+exit=0
+
+### buildroot-symlink
+$ grep -rn "new_root" /usr/lib/initcpio/functions /usr/bin/mkinitcpio 2>/dev/null; true
+/usr/lib/initcpio/functions:1213:    ln -s "sysroot" "$buildroot/new_root"
+exit=0
+
+### pacman-log-since-pause
+$ awk "\$1 >= \"[2026-10-20T09:40\"" /var/log/pacman.log | grep -E "\[ALPM\] (installed|upgraded|downgraded|removed|reinstalled)" ; true
+[2026-10-20T13:23:08-0300] [ALPM] installed zcode (3.16.2-1)
+[2026-10-21T17:55:56-0300] [ALPM] installed tizen-sdb (2.3.2-3)
+[2026-10-21T17:55:56-0300] [ALPM] installed tizen-sdb-debug (2.3.2-3)
+[2026-10-21T18:07:37-0300] [ALPM] installed openssl-1.0 (1.0.2.u-7)
+[2026-10-21T18:07:37-0300] [ALPM] installed openssl-1.0-debug (1.0.2.u-7)
+exit=0
+
+### pacman-log-last-sync
+$ grep -n "synchronizing package lists" /var/log/pacman.log | tail -n 3
+2288:[2026-10-18T14:11:00-0300] [PACMAN] synchronizing package lists
+2463:[2026-10-20T09:15:30-0300] [PACMAN] synchronizing package lists
+3189:[2026-10-21T20:32:00-0300] [PACMAN] synchronizing package lists
+exit=0
+
+### plymouth-boot0
+$ journalctl -b 0 --no-pager -o short-monotonic | grep -E "systemd\[1\]: .*Plymouth|plymouthd|update-root-fs" | head -n 20; true
+[   17.732634] plazir27 systemd[1]: Starting Show Plymouth Boot Screen...
+[   17.751653] plazir27 systemd[1]: Started Show Plymouth Boot Screen.
+[   17.751811] plazir27 systemd[1]: Started Forward Password Requests to Plymouth Directory Watch.
+[   18.794482] plazir27 systemd[1]: Starting Tell Plymouth To Write Out Runtime Data...
+[   18.816435] plazir27 systemd[1]: Received SIGRTMIN+20 from PID 535 (plymouthd).
+[   18.817176] plazir27 systemd[1]: Finished Tell Plymouth To Write Out Runtime Data.
+[   20.026995] plazir27 systemd[1]: Starting Terminate Plymouth Boot Screen...
+[   20.049525] plazir27 systemd[1]: Received SIGRTMIN+21 from PID 535 (plymouthd).
+[   20.211745] plazir27 systemd[1]: Finished Terminate Plymouth Boot Screen.
+exit=0
+
+### plymouth-boot-1
+$ journalctl -b -1 --no-pager -o short-monotonic | grep -E "systemd\[1\]: .*Plymouth|plymouthd|update-root-fs" | head -n 20; true
+[   12.999474] plazir27 systemd[1]: Starting Show Plymouth Boot Screen...
+[   13.017317] plazir27 systemd[1]: Started Show Plymouth Boot Screen.
+[   13.017413] plazir27 systemd[1]: Started Forward Password Requests to Plymouth Directory Watch.
+[   14.110300] plazir27 systemd[1]: Starting Tell Plymouth To Write Out Runtime Data...
+[   14.523135] plazir27 systemd[1]: Received SIGRTMIN+20 from PID 538 (plymouthd).
+[   14.523702] plazir27 systemd[1]: Finished Tell Plymouth To Write Out Runtime Data.
+[   14.925670] plazir27 systemd[1]: Starting Terminate Plymouth Boot Screen...
+[   14.948235] plazir27 systemd[1]: Received SIGRTMIN+21 from PID 538 (plymouthd).
+[   15.152780] plazir27 systemd[1]: Finished Terminate Plymouth Boot Screen.
+[154671.940906] plazir27 systemd[1]: Stopped Terminate Plymouth Boot Screen.
+[154671.941560] plazir27 systemd[1]: Starting Show Plymouth Reboot Screen...
+[154671.948606] plazir27 systemd[1]: Received SIGRTMIN+20 from PID 635854 (plymouthd).
+[154672.233867] plazir27 systemd[1]: Received SIGRTMIN+20 from PID 635854 (plymouthd).
+[154672.250306] plazir27 systemd[1]: Started Show Plymouth Reboot Screen.
+[154672.252660] plazir27 systemd[1]: Starting Tell Plymouth To Jump To initramfs...
+[154672.294226] plazir27 systemd[1]: Finished Tell Plymouth To Jump To initramfs.
+[154673.905270] plazir27 systemd[1]: Stopped Forward Password Requests to Plymouth Directory Watch.
+exit=0
+
+### failed-units
+$ systemctl --failed --no-pager --plain --no-legend | wc -l
+0
+exit=0
+
+### user-failed-units
+$ systemctl --user --failed --no-pager --plain --no-legend | wc -l
+0
+exit=0
+
+### dkms
+$ dkms status 2>&1
+nvidia/615.78.08, 6.18.57-2-lts, x86_64: installed
+nvidia/615.78.08, 7.2.11-arch1-1, x86_64: installed
+nvidia/615.78.08, 7.2.3-arch1-3, x86_64: installed (Original modules exist) (Built modules are missing in the kernel modules folder)
+exit=0
+
+### pacnew-count
+$ find /etc -xdev \( -name "*.pacnew" -o -name "*.pacsave" \) 2>/dev/null | wc -l
+3
+exit=0
+
+### mirror-servers
+$ grep -v "^#" /etc/pacman.d/mirrorlist | grep -v "^$"
+Server = https://stable-mirror.omarchy.org/$repo/os/$arch
+exit=0
+
+### repo-servers
+$ grep -n -E "^\[|^Server|^Include" /etc/pacman.conf
+3:[options]
+19:[core]
+20:Include = /etc/pacman.d/mirrorlist
+22:[extra]
+23:Include = /etc/pacman.d/mirrorlist
+25:[multilib]
+26:Include = /etc/pacman.d/mirrorlist
+28:[omarchy]
+30:Server = https://pkgs.omarchy.org/stable/$arch
+32:Include = /etc/pacman.d/openai-chatgpt.conf
+exit=0
+
+### pacman-commands-since-pause
+$ awk "\$1 >= \"[2026-10-20T09:40\"" /var/log/pacman.log | grep -F "[PACMAN] Running" ; true
+[2026-10-20T13:23:08-0300] [PACMAN] Running 'pacman -U --needed --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/zcode/zcode-3.16.2-1-x86_64.pkg.tar.zst'
+[2026-10-20T13:23:09-0300] [PACMAN] Running 'pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- zcode'
+[2026-10-21T17:55:56-0300] [PACMAN] Running 'pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/tizen-sdb/tizen-sdb-2.3.2-3-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/tizen-sdb/tizen-sdb-debug-2.3.2-3-x86_64.pkg.tar.zst'
+[2026-10-21T17:55:56-0300] [PACMAN] Running 'pacman -D --asdeps -q --noconfirm --config /etc/pacman.conf -- tizen-sdb-debug'
+[2026-10-21T17:55:56-0300] [PACMAN] Running 'pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- tizen-sdb'
+[2026-10-21T18:07:37-0300] [PACMAN] Running 'pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/openssl-1.0/openssl-1.0-1.0.2.u-7-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/openssl-1.0/openssl-1.0-debug-1.0.2.u-7-x86_64.pkg.tar.zst'
+[2026-10-21T18:07:37-0300] [PACMAN] Running 'pacman -D -q --asdeps --noconfirm --config /etc/pacman.conf -- openssl-1.0-debug'
+[2026-10-21T18:07:37-0300] [PACMAN] Running 'pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- openssl-1.0'
+[2026-10-21T20:32:00-0300] [PACMAN] Running 'pacman -Sy --noconfirm'
+[2026-10-22T04:10:08-0300] [PACMAN] Running 'pacman -Scc --noconfirm'
+[2026-10-22T04:10:19-0300] [PACMAN] Running 'pacman -Scc'
+exit=0
+
+### cache-file-count
+$ ls /var/cache/pacman/pkg | wc -l
+4
+exit=0
+
+### sudo-package-commands-since-pause
+$ fleet="${FLEET_ROOT:-$HOME/Projects/shokunin}"; journalctl _COMM=sudo --since "2026-10-20 09:40" --no-pager -o short-iso | grep -E "COMMAND=/usr/bin/(pacman|paccache|makepkg)" | grep -v -E "COMMAND=/usr/bin/pacman -Qq?$" | awk -v fleet="$fleet" "{ if (index(\$0, \"PWD=\" fleet \"/\") || index(\$0, \"PWD=\" fleet \" \")) sub(/PWD=[^;]*/, \"PWD=inside-fleet-repo\"); else sub(/PWD=[^;]*/, \"PWD=outside-fleet-repo\"); print }" | cut -c1-220; true
+2026-10-20T13:23:08-03:00 plazir27 sudo[4179347]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -U --needed --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/zcode/zcode-3.16.2-1-x8
+2026-10-20T13:23:09-03:00 plazir27 sudo[4179391]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- zcode
+2026-10-20T20:48:00-03:00 plazir27 sudo[2532861]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -rk3 -d
+2026-10-20T20:48:20-03:00 plazir27 sudo[2534241]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k3
+2026-10-20T20:48:20-03:00 plazir27 sudo[2534352]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k3 -v
+2026-10-20T20:48:36-03:00 plazir27 sudo[2534476]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k1
+2026-10-20T20:48:36-03:00 plazir27 sudo[2534561]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k2
+2026-10-20T20:48:37-03:00 plazir27 sudo[2534618]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k3 -c /var/cache/pacman/pkg
+2026-10-20T20:48:48-03:00 plazir27 sudo[2542610]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -r -k3
+2026-10-20T20:49:12-03:00 plazir27 sudo[2552800]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k3
+2026-10-20T20:50:02-03:00 plazir27 sudo[2555440]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache --version
+2026-10-20T20:50:02-03:00 plazir27 sudo[2555448]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -u -k0
+2026-10-20T20:50:19-03:00 plazir27 sudo[2555629]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -u -k0 -v
+2026-10-20T20:50:19-03:00 plazir27 sudo[2555665]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -r -u -k0
+2026-10-20T20:50:28-03:00 plazir27 sudo[2555873]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -u -k0
+2026-10-21T17:55:56-03:00 plazir27 sudo[2221452]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/tizen-sdb/tizen-sdb-2.3.2-3-x86_
+2026-10-21T17:55:56-03:00 plazir27 sudo[2221648]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -D --asdeps -q --noconfirm --config /etc/pacman.conf -- tizen-sdb-debug
+2026-10-21T17:55:56-03:00 plazir27 sudo[2221696]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- tizen-sdb
+2026-10-21T18:07:37-03:00 plazir27 sudo[2595029]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/openssl-1.0/openssl-1.0-1.0.2.u-
+2026-10-21T18:07:37-03:00 plazir27 sudo[2595053]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -D -q --asdeps --noconfirm --config /etc/pacman.conf -- openssl-1.0-debug
+2026-10-21T18:07:37-03:00 plazir27 sudo[2595070]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- openssl-1.0
+2026-10-21T20:32:00-03:00 plazir27 sudo[2901011]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Sy --noconfirm
+2026-10-22T02:56:35-03:00 plazir27 sudo[3448221]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -r -k 3
+2026-10-22T02:56:47-03:00 plazir27 sudo[3451321]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 3 --nocolor
+2026-10-22T02:56:55-03:00 plazir27 sudo[3451682]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 -v --nocolor
+2026-10-22T02:56:55-03:00 plazir27 sudo[3451680]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 --nocolor
+2026-10-22T02:57:21-03:00 plazir27 sudo[3455485]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 3 --nocolor
+2026-10-22T02:57:21-03:00 plazir27 sudo[3455544]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 2 --nocolor
+2026-10-22T02:57:21-03:00 plazir27 sudo[3455557]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 --nocolor
+2026-10-22T02:57:38-03:00 plazir27 sudo[3460068]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 -v --nocolor
+2026-10-22T02:57:42-03:00 plazir27 sudo[3460909]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 -v --nocolor
+2026-10-22T02:57:42-03:00 plazir27 sudo[3460931]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 -v --nocolor
+2026-10-22T02:57:48-03:00 plazir27 sudo[3461689]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 -v --nocolor
+2026-10-22T02:59:33-03:00 plazir27 sudo[3556473]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -r -k 1 --nocolor
+2026-10-22T02:59:57-03:00 plazir27 sudo[3564704]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -r -k 3 --nocolor
+2026-10-22T04:09:42-03:00 plazir27 sudo[575503]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -rk1
+2026-10-22T04:09:42-03:00 plazir27 sudo[575520]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -ruk0
+2026-10-22T04:10:08-03:00 plazir27 sudo[575680]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Scc --noconfirm
+2026-10-22T04:10:19-03:00 plazir27 sudo[575732]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Scc
+2026-10-22T05:41:45-03:00 plazir27 sudo[3817599]:    vgpnk : PWD=inside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k1
+exit=0
+
+### foreign-new
+$ pacman -Qm zcode tizen-sdb tizen-sdb-debug openssl-1.0 openssl-1.0-debug
+zcode 3.16.2-1
+tizen-sdb 2.3.2-3
+tizen-sdb-debug 2.3.2-3
+openssl-1.0 1.0.2.u-7
+openssl-1.0-debug 1.0.2.u-7
+exit=0
+
+### cache-package-files
+$ find /var/cache/pacman/pkg -maxdepth 1 -name "*.pkg.tar*" | wc -l
+0
+exit=0
+
+### cache-entries
+$ ls -la /var/cache/pacman/pkg
+total 0
+drwxr-xr-x 1 root root 120 Oct 22 04:10 .
+drwxr-xr-x 1 root root   6 Oct  3 17:41 ..
+drwx------ 1 alpm alpm   0 Oct 21 17:55 download-0jh7Uc
+drwx------ 1 alpm alpm   0 Oct 20 13:23 download-Lsbwhh
+drwx------ 1 alpm alpm   0 Oct 21 18:07 download-r5r0Ix
+drwx------ 1 alpm alpm   0 Oct 20 09:31 download-vcoq00
+exit=0
+
+### paccache-runs-since-pause
+$ journalctl _COMM=sudo --since "2026-10-20 09:40" --no-pager -o short-iso | grep -E "COMMAND=/usr/bin/paccache .*-r|COMMAND=/usr/bin/paccache -r" | grep -v -- " -d" | sed -E "s/PWD=[^;]*/PWD=redacted/" | cut -c1-160; true
+2026-10-20T20:48:48-03:00 plazir27 sudo[2542610]:    vgpnk : PWD=redacted; USER=root ; COMMAND=/usr/bin/paccache -r -k3
+2026-10-20T20:50:19-03:00 plazir27 sudo[2555665]:    vgpnk : PWD=redacted; USER=root ; COMMAND=/usr/bin/paccache -r -u -k0
+2026-10-22T02:59:33-03:00 plazir27 sudo[3556473]:    vgpnk : PWD=redacted; USER=root ; COMMAND=/usr/bin/paccache -r -k 1 --nocolor
+2026-10-22T02:59:57-03:00 plazir27 sudo[3564704]:    vgpnk : PWD=redacted; USER=root ; COMMAND=/usr/bin/paccache -r -k 3 --nocolor
+2026-10-22T04:09:42-03:00 plazir27 sudo[575503]:    vgpnk : PWD=redacted; USER=root ; COMMAND=/usr/bin/paccache -rk1
+2026-10-22T04:09:42-03:00 plazir27 sudo[575520]:    vgpnk : PWD=redacted; USER=root ; COMMAND=/usr/bin/paccache -ruk0
+exit=0
+
+### snapper-list
+$ snapper -c root list 2>&1 | head -n 20; true
+No permissions.
+exit=0
+
+### snap-pac
+$ pacman -Q snap-pac 2>&1; true
+error: package 'snap-pac' was not found
+exit=0
+
+### plymouth-boot-files
+$ stat -c "%y %n" /var/log/boot.log /var/lib/plymouth/boot-duration 2>&1; true
+2026-10-22 04:55:44.143429272 -0300 /var/log/boot.log
+2026-10-22 04:55:44.152314723 -0300 /var/lib/plymouth/boot-duration
+exit=0
+
+### boot0-root-mount
+$ journalctl -b 0 -k --no-pager -o short-monotonic | grep -m 3 -E "scanned by mount|first mount of filesystem"; true
+[   17.542752] plazir27 kernel: BTRFS: device fsid 1d02a454-c549-4a35-b567-89d60902af8e devid 1 transid 56268 /dev/mapper/root (253:0) scanned by mount (942)
+[   17.542755] plazir27 kernel: BTRFS info (device dm-0): first mount of filesystem 1d02a454-c549-4a35-b567-89d60902af8e
+exit=0
+
+### boot0-plymouthd-pid
+$ journalctl -b 0 --no-pager -o short-monotonic | grep -m 2 -E "\(plymouthd\)"; true
+[   18.816435] plazir27 systemd[1]: Received SIGRTMIN+20 from PID 535 (plymouthd).
+[   20.049525] plazir27 systemd[1]: Received SIGRTMIN+21 from PID 535 (plymouthd).
+exit=0
+
+### loader-entry
+$ for v in LoaderEntrySelected LoaderImageIdentifier; do f=/sys/firmware/efi/efivars/$v-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f; printf "%s=" "$v"; tail -c +5 "$f" 2>/dev/null | tr -d "\000"; echo; done
+LoaderEntrySelected=Omarchy.linux
+LoaderImageIdentifier=EFI\Linux\omarchy_linux.efi
+exit=0
+
+### cmdline-boot-flags
+$ tr " " "\n" </proc/cmdline | grep -E "^(rootflags|quiet|loglevel|rd\.)" ; true
+quiet
+loglevel=0
+rd.udev.log_level=0
+rootflags=subvol=@
+exit=0
+
+### sync-db-ctime-birth
+$ stat -c "%z change; %w birth; %n" /var/lib/pacman/sync/*.db
+2026-10-18 14:11:00.921131413 -0300 change; 2026-10-18 14:11:00.026135178 -0300 birth; /var/lib/pacman/sync/core.db
+2026-10-18 14:11:00.922131409 -0300 change; 2026-10-18 14:11:00.026135178 -0300 birth; /var/lib/pacman/sync/extra.db
+2026-10-18 14:11:00.922131409 -0300 change; 2026-10-18 14:11:00.026135178 -0300 birth; /var/lib/pacman/sync/multilib.db
+2026-10-21 20:32:00.481464806 -0300 change; 2026-10-21 20:32:00.056568686 -0300 birth; /var/lib/pacman/sync/omarchy.db
+2026-10-21 20:32:00.481569969 -0300 change; 2026-10-21 20:32:00.056568686 -0300 birth; /var/lib/pacman/sync/openai-chatgpt.db
+exit=0
+
+### stable-mirror-headers
+$ for r in core extra multilib; do printf "%s " "$r"; curl -sI --max-time 20 "https://stable-mirror.omarchy.org/$r/os/x86_64/$r.db" | grep -i "^last-modified" | tr -d "\r"; done; for m in stable-mirror rc-mirror; do printf "%s lastsync=" "$m"; curl -s --max-time 20 "https://$m.omarchy.org/lastsync" | head -c 40; echo; done
+core last-modified: Thu, 22 Oct 2026 04:40:03 GMT
+extra last-modified: Thu, 22 Oct 2026 04:40:04 GMT
+multilib last-modified: Thu, 22 Oct 2026 04:40:04 GMT
+stable-mirror lastsync=1792636269
+
+rc-mirror lastsync=1792636269
+
+exit=0
+
+### checkupdates-temp-db
+$ export CHECKUPDATES_DB=/fast/scratch/hyaku/tsuku24-checkupdates-db; rm -rf "$CHECKUPDATES_DB"; checkupdates >"$CHECKUPDATES_DB.out" 2>&1; rc=$?; echo "checkupdates exit=$rc rows=$(grep -c " -> " "$CHECKUPDATES_DB.out")"; grep -E "^(linux|linux-lts|mkinitcpio|systemd|limine|limine-mkinitcpio-hook|limine-snapper-sync|plymouth|nvidia-open-dkms|btrfs-progs|linux-firmware|intel-ucode|amd-ucode|cryptsetup|glibc|pacman|snapper) " "$CHECKUPDATES_DB.out"; true
+checkupdates exit=0 rows=134
+limine 12.9.3-1 -> 12.9.4-1
+systemd 262-1 -> 262.1-1
+exit=0
+

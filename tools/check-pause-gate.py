@@ -5,14 +5,17 @@ A premise counts only if its verdict is one of cleared, still-holds, changed or
 unverified; it has at least one evidence pointer and every pointer names a line
 that exists at the revision and contains its exact substring; and it lists at
 least one source id, each a row of corpus/SOURCES.md at the revision whose
-`opened` cell contains the gate's `sources_opened` date. All bytes are read
-from the bound git revision; nothing on the host is probed.
+`opened` cell contains the round date 2026-10-22. At least one pointer per
+premise must name the pinned round-24 capture, whose sha256 must equal the
+gate's `capture_sha256`; no pointer may name the gate files themselves. All
+bytes are read from the bound git revision; nothing on the host is probed.
 
 Scope: a count of evidence links in committed bytes. It does not re-measure the
 host, authorize lifting the pacman pause or prove any package state now.
 """
 from __future__ import annotations
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -29,6 +32,11 @@ SOURCES = 'corpus/SOURCES.md'
 SCHEMA = 'tsukuroi-pause-gate-v1'
 IDS = ('P1', 'P2', 'P3', 'P4', 'P5')
 VERDICTS = ('cleared', 'still-holds', 'changed', 'unverified')
+COUNTED = ('cleared', 'still-holds', 'changed')
+BOILERPLATE = ('### ', '$ ', 'exit=')
+ROUND_DATE = '2026-10-22'
+CAPTURE = '.ufo/waves/round-24/capture/l1-4/capture.txt'
+SELF_PATHS = (GATE, 'corpus/knowledge/pause-lift-gate-r24.md')
 ROW = re.compile(r'^\| (S\d{3}) \|')
 
 
@@ -47,21 +55,23 @@ def reader(repo, sha):
             return None
         proc = subprocess.run(['git', '--no-pager', '-C', str(repo), 'show', f'{sha}:{path}'],
                               capture_output=True, env=_revision.clean_env(), timeout=30)
-        return proc.stdout.decode('utf-8', 'replace') if proc.returncode == 0 else None
+        return proc.stdout.decode('utf-8', 'surrogateescape') if proc.returncode == 0 else None
     return read
 
 
-def source_dates(text):
-    """Map S### -> opened cell from the registry table (11 columns)."""
-    out = {}
+def source_rows(text):
+    """Map S### -> (opened, status, used-by) from the 11-column registry; count duplicates."""
+    out, dups = {}, set()
     for line in (text or '').splitlines():
         match = ROW.match(line)
         if not match:
             continue
         cells = [c.strip() for c in line.strip().strip('|').split('|')]
         if len(cells) >= 11:
-            out.setdefault(match.group(1), cells[8])
-    return out
+            if match.group(1) in out:
+                dups.add(match.group(1))
+            out.setdefault(match.group(1), (cells[8], cells[7], cells[10]))
+    return out, dups
 
 
 def evaluate(read):
@@ -75,12 +85,17 @@ def evaluate(read):
     except ValueError as exc:
         return 1, {'premises_total': 0, 'premises_verified': 0, 'premises': [],
                    'findings': [{'id': 'GATE-JSON', 'site': str(exc)}]}
-    date = gate.get('sources_opened') if isinstance(gate, dict) else None
-    if (not isinstance(gate, dict) or gate.get('schema') != SCHEMA or not isinstance(gate.get('premises'), list)
-            or not isinstance(date, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', date)):
+    date = ROUND_DATE
+    if not isinstance(gate, dict) or gate.get('schema') != SCHEMA or not isinstance(gate.get('premises'), list):
         return 1, {'premises_total': 0, 'premises_verified': 0, 'premises': [],
                    'findings': [{'id': 'GATE-SCHEMA', 'site': GATE}]}
-    dates = source_dates(read(SOURCES))
+    capture_text = read(CAPTURE)
+    capture_ok = (gate.get('capture') == CAPTURE and capture_text is not None
+                  and hashlib.sha256(capture_text.encode('utf-8', 'surrogateescape')).hexdigest() == gate.get('capture_sha256'))
+    if not capture_ok:
+        findings.append({'id': 'GATE-CAPTURE-PIN', 'site': CAPTURE})
+    dates, dup_ids = source_rows(read(SOURCES))
+    findings.extend({'id': 'GATE-SOURCE-DUPLICATE', 'site': sid} for sid in sorted(dup_ids))
     cache, results, seen = {}, [], set()
     for premise in gate['premises']:
         pid = premise.get('id') if isinstance(premise, dict) else None
@@ -93,15 +108,30 @@ def evaluate(read):
             continue
         if premise.get('verdict') not in VERDICTS:
             problems.append('verdict')
+        elif premise.get('verdict') not in COUNTED:
+            problems.append('verdict-unverified-not-counted')
+        for field in ('premise', 'limits'):
+            if not isinstance(premise.get(field), str) or len(premise[field].strip()) < 10:
+                problems.append(f'{field}-empty')
         evidence = premise.get('evidence')
         if not isinstance(evidence, list) or not evidence:
             problems.append('evidence-empty')
             evidence = []
+        if not capture_ok:
+            problems.append('capture-pin')
+        anchors = [p for p in evidence if isinstance(p, dict) and p.get('path') == CAPTURE
+                   and isinstance(p.get('contains'), str) and not p['contains'].startswith(BOILERPLATE)
+                   and capture_text is not None and capture_text.count(p['contains']) == 1]
+        if not anchors:
+            problems.append('no-unique-capture-pointer')
         for pointer in evidence:
             if not isinstance(pointer, dict) or set(pointer) != {'path', 'line', 'contains'}:
                 problems.append('evidence-shape')
                 continue
             path, line, needle = pointer['path'], pointer['line'], pointer['contains']
+            if path in SELF_PATHS:
+                problems.append(f'self-evidence:{path}')
+                continue
             if path not in cache:
                 cache[path] = read(path)
             text = cache[path]
@@ -120,9 +150,13 @@ def evaluate(read):
         for sid in sources:
             if sid not in dates:
                 problems.append(f'source-missing:{sid}')
-            elif date not in dates[sid]:
+            elif date not in dates[sid][0]:
                 problems.append(f'source-not-opened:{sid}')
-        results.append({'id': pid, 'verdict': premise.get('verdict'), 'verified': not problems,
+            elif dates[sid][1] != 'mined' or 'pause-lift-gate-r24' not in dates[sid][2]:
+                problems.append(f'source-not-mined-for-gate:{sid}')
+            elif sid in dup_ids:
+                problems.append(f'source-duplicate:{sid}')
+        results.append({'id': pid, 'verdict': premise.get('verdict'), 'sources': sources, 'verified': not problems,
                         'problems': problems})
         findings.extend({'id': 'GATE-PREMISE', 'site': f'{pid}:{p}'} for p in problems)
     verified = sum(r['verified'] for r in results)
@@ -137,19 +171,23 @@ def evaluate(read):
 def selftest():
     sources = ('| id | source | kind | tier | scope | anchor | teaches | status | opened | recheck | used-by |\n'
                '|---|---|---|---|---|---|---|---|---|---|---|\n'
-               '| S100 | a | docs | A | s | a | t | active | 2026-10-22 | r | u |\n'
-               '| S101 | b | docs | A | s | a | t | active | 2026-10-19 | r | u |\n')
-    capture = 'alpha line\nbeta pending 3\ngamma\n'
+               '| S100 | a | docs | A | s | a | t | mined | 2026-10-22 | r | corpus/knowledge/pause-lift-gate-r24.json |\n'
+               '| S101 | b | docs | A | s | a | t | mined | 2026-10-19 | r | corpus/knowledge/pause-lift-gate-r24.json |\n'
+               '| S102 | c | docs | A | s | a | t | rejected | 2026-10-22 | r | corpus/knowledge/pause-lift-gate-r24.json |\n'
+               '| S103 | d | docs | A | s | a | t | mined | 2026-10-22 | r | corpus/knowledge/other.md |\n')
+    capture = '### a\nbeta pending 3\ngamma\n'
+    capture_sha = hashlib.sha256(capture.encode()).hexdigest()
     def gate(**over):
-        premises = [{'id': p, 'premise': p, 'verdict': 'changed', 'evidence': [{'path': 'cap.txt', 'line': 2, 'contains': 'pending 3'}],
-                     'sources': ['S100'], 'limits': 'x'} for p in IDS]
-        body = {'schema': SCHEMA, 'sources_opened': '2026-10-22', 'premises': premises}
+        premises = [{'id': p, 'premise': p + ' premise text', 'verdict': 'changed', 'evidence': [{'path': CAPTURE, 'line': 2, 'contains': 'pending 3'}],
+                     'sources': ['S100'], 'limits': 'limits text here'} for p in IDS]
+        body = {'schema': SCHEMA, 'capture': CAPTURE, 'capture_sha256': capture_sha, 'premises': premises}
         mutate = over.get('mutate')
         if mutate:
             mutate(body)
         return over.get('raw') or json.dumps(body)
     def files(text):
-        return {GATE: text, SOURCES: sources, 'cap.txt': capture}.get
+        return {GATE: text, SOURCES: sources, CAPTURE: capture, 'other.txt': capture,
+                'corpus/knowledge/pause-lift-gate-r24.md': capture}.get
     def set_(key, value, index=0):
         def f(body):
             body['premises'][index][key] = value
@@ -159,15 +197,25 @@ def selftest():
         ('missing-premise', gate(mutate=lambda b: b['premises'].pop()), 1, 4),
         ('duplicate-premise', gate(mutate=lambda b: b['premises'].__setitem__(4, dict(b['premises'][0]))), 1, 4),
         ('bad-verdict', gate(mutate=set_('verdict', 'safe')), 1, 4),
-        ('line-out-of-range', gate(mutate=set_('evidence', [{'path': 'cap.txt', 'line': 9, 'contains': 'pending 3'}])), 1, 4),
-        ('substring-absent', gate(mutate=set_('evidence', [{'path': 'cap.txt', 'line': 1, 'contains': 'pending 3'}])), 1, 4),
-        ('trivial-substring', gate(mutate=set_('evidence', [{'path': 'cap.txt', 'line': 2, 'contains': ' '}])), 1, 4),
+        ('line-out-of-range', gate(mutate=set_('evidence', [{'path': CAPTURE, 'line': 9, 'contains': 'pending 3'}])), 1, 4),
+        ('substring-absent', gate(mutate=set_('evidence', [{'path': CAPTURE, 'line': 1, 'contains': 'pending 3'}])), 1, 4),
+        ('trivial-substring', gate(mutate=set_('evidence', [{'path': CAPTURE, 'line': 2, 'contains': ' '}])), 1, 4),
+        ('no-capture-pointer', gate(mutate=set_('evidence', [{'path': 'other.txt', 'line': 2, 'contains': 'pending 3'}])), 1, 4),
+        ('self-evidence', gate(mutate=set_('evidence', [{'path': CAPTURE, 'line': 2, 'contains': 'pending 3'},
+                                                        {'path': 'corpus/knowledge/pause-lift-gate-r24.md', 'line': 2, 'contains': 'pending 3'}])), 1, 4),
+        ('capture-hash-mismatch', gate(mutate=lambda b: b.__setitem__('capture_sha256', '0' * 64)), 1, 0),
+        ('capture-path-other', gate(mutate=lambda b: b.__setitem__('capture', 'other.txt')), 1, 0),
         ('evidence-file-missing', gate(mutate=set_('evidence', [{'path': 'nope.txt', 'line': 1, 'contains': 'abc'}])), 1, 4),
         ('no-evidence', gate(mutate=set_('evidence', [])), 1, 4),
         ('source-missing', gate(mutate=set_('sources', ['S999'])), 1, 4),
         ('source-other-date', gate(mutate=set_('sources', ['S101'])), 1, 4),
         ('no-sources', gate(mutate=set_('sources', [])), 1, 4),
-        ('duplicate-key', '{"schema":"x","schema":"' + SCHEMA + '","sources_opened":"2026-10-22","premises":[]}', 1, 0),
+        ('duplicate-key', '{"schema":"x","schema":"' + SCHEMA + '","premises":[]}', 1, 0),
+        ('unverified-not-counted', gate(mutate=set_('verdict', 'unverified')), 1, 4),
+        ('empty-limits', gate(mutate=set_('limits', '')), 1, 4),
+        ('boilerplate-only', gate(mutate=set_('evidence', [{'path': CAPTURE, 'line': 1, 'contains': '### a'}])), 1, 4),
+        ('source-rejected', gate(mutate=set_('sources', ['S102'])), 1, 4),
+        ('source-other-entry', gate(mutate=set_('sources', ['S103'])), 1, 4),
         ('wrong-schema', gate(mutate=lambda b: b.__setitem__('schema', 'v0')), 1, 0),
         ('absolute-evidence-path', gate(mutate=set_('evidence', [{'path': '/etc/passwd', 'line': 1, 'contains': 'root'}])), 1, 4),
     ]

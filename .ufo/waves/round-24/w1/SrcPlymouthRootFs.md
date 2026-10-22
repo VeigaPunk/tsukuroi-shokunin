@@ -1,0 +1,39 @@
+# SrcPlymouthRootFs — C2/P3 source report (round 24, wave 1)
+
+Verdict: upstream plymouth handles `update-root-fs --new-root-dir=DIR` by `chdir(DIR)` then `chroot(".")` then `chdir("/")`; because `chdir()` resolves symlinks at the kernel level, a DIR that is a symlink to the mounted root (`new_root -> sysroot`) should work and is equivalent to passing the resolved directory directly, with the caveat that the daemon never checks the return values of any of the three calls.
+
+## Findings
+
+1. [obs] Client command and option registration (installed version 26.134.222, tag `d15928a8e06c`). `src/client/plymouth.c` lines 957-965 register the command `update-root-fs` with option `new-root-dir` of type `PLY_COMMAND_OPTION_TYPE_STRING` and option `read-write` of type `PLY_COMMAND_OPTION_TYPE_FLAG`: quote "update-root-fs", "Tell daemon about root filesystem changes", "new-root-dir", "Root filesystem is about to change", PLY_COMMAND_OPTION_TYPE_STRING. The client handler `on_update_root_fs_request` (lines 730-759) reads `new-root-dir` into `root_dir` and, when non-NULL, calls `ply_boot_client_tell_daemon_to_change_root (state->client, root_dir, ...)`. Evidence: tag tarball `https://gitlab.freedesktop.org/plymouth/plymouth/-/archive/26.134.222/plymouth-26.134.222.tar.gz`, file `src/client/plymouth.c` (sha256 `446c00ddae09e7864bb3c04d1f43f48aa0c3f6e1bd33a3a171b6ff91a78185f5`).
+
+2. [obs] Option syntax `--new-root-dir=DIR` is supported. `src/libply/ply-command-parser.c` line 803 splits the option at `=` (`option_separator = strchr (option_name, '=')`) and inserts the remainder as the next argument (lines 804-810); STRING options consume the following argument (line 538-545). So both `--new-root-dir=/new_root` and `--new-root-dir /new_root` parse to the same string. Evidence: same tarball, file `src/libply/ply-command-parser.c` (sha256 `af1580b98c511ec7ba2616c2f3d16baa25eae8fa6dcedbc17c08b3cc72b4f23e`).
+
+3. [obs] The path travels to the daemon verbatim over the boot protocol. `src/client/ply-boot-client.c` line 551-552 queues request `PLY_BOOT_PROTOCOL_REQUEST_TYPE_NEWROOT` with `root_dir` as the argument; the protocol constant is `"R"` (`src/ply-boot-protocol.h` line 47). Request serialization (lines 375-388) is `"%s\002%c%s"` (command, separator, length byte, argument), with an assertion that the argument length is at most `UCHAR_MAX` (line 381). No client-side existence, type, canonicalization or symlink check is performed on DIR; it is forwarded as the literal string. Evidence: same tarball, files `src/client/ply-boot-client.c` (sha256 `2c76ec99c97c8fdb3ea20302534faf94864c0a6c3854a61e0bf4d80cc7280d14`) and `src/ply-boot-protocol.h` (sha256 `3128c06302a680ccd7fd83b7dcdf6326ff516336f894a23c22f1734b3f10b77e`).
+
+4. [obs] Daemon handler for the newroot request (installed tag). At tag 26.134.222 the daemon is `src/main.c`, function `on_newroot` (lines 688-712). After a trace ("new root mounted at \"%s\", switching to it"), the handler does, verbatim (lines 704-706):
+
+   ```c
+   chdir (root_dir);
+   chroot (".");
+   chdir ("/");
+   ```
+
+   Then it calls `setlocale (LC_ALL, "")`, reloads the progress cache and notifies the splash that root is mounted. There is no `open()` of DIR anywhere: the only filesystem interaction is `chdir()`, which resolves the path including any final symlink inside the kernel. Evidence: same tarball, file `src/main.c` (sha256 `e700e987615096b09bc855b015b289bee06a11f5aa2b6aedee2b1775349f1f11`).
+
+5. [obs] The same handler exists unchanged on the current `main` branch in the refactored layout: `src/daemon/plymouthd-actions.c` lines 222-224 are the identical `chdir (root_dir); chroot ("."); chdir ("/");` sequence (function `plymouthd_handle_newroot`, lines 205-231). Evidence: raw fetch `https://gitlab.freedesktop.org/api/v4/projects/837/repository/files/src%2Fdaemon%2Fplymouthd-actions.c/raw?ref=main` (sha256 `825d83917532e2832a53fc8b812095232956423a3a392ce7d1102455801cbf2b`).
+
+6. [obs] Symlink DIR should work. `chdir()` is resolved by the kernel and follows symlinks, so `chdir("/new_root")` with `new_root -> sysroot` changes the daemon's working directory to the mounted real root directory; `chroot(".")` then makes that resolved directory the daemon's new root, and `chdir("/")` moves inside it. The result is identical to passing `/sysroot` directly. The host's runtime chain is consistent with this: the capture records `/usr/lib/initcpio/functions:1213: ln -s "sysroot" "$buildroot/new_root"` (capture line 117) and `/usr/lib/initcpio/hooks/plymouth:11: plymouth update-root-fs --new-root-dir=/new_root` (capture line 94), and the hooks config includes both plymouth and btrfs-overlayfs (capture lines 100). Evidence: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/capture/l1/capture.txt` lines 91-117.
+
+7. [obs] No error checking: the daemon ignores the return values of `chdir` and `chroot`, and the boot server unconditionally ACKs the request after dispatching to the handler. If DIR is missing, dangling or otherwise unusable, `chdir()` silently fails, `chroot(".")` then chroots into whatever the daemon's working directory still is (normally `/` of the initramfs), and the client still observes success (ACK). So a broken DIR fails closed-and-silent, not loudly. Evidence: `src/main.c` lines 704-706 (no assignment or check of return values, confirmed by reading the full function) and, at the same tag, `src/ply-boot-server.c` lines 715-716 (`if (server->newroot_handler != NULL) server->newroot_handler (server->user_data, argument, server);`) followed by the unconditional ACK write at lines 748-749 of the same file.
+
+8. [obs] Source identity. The installed package is plymouth 26.134.222-3 (`pacman -Qi plymouth`; capture line 64). Upstream tag `26.134.222` points at commit `d15928a8e06c217aad0f2e3579df23fec93dc009` (GitLab tags API, created 2026-05-14); the tag's VERSION file reads `0.9.6`, identical to main's VERSION, and the installed tree's daemon layout matches the tag (monolithic `src/main.c`), confirming the tag is the right pin for the installed binary.
+
+## Draft SOURCES row (S0NN — number assigned by L1)
+
+| id | source | kind | tier | scope | anchor | teaches | status | opened | recheck | used-by |
+|---|---|---|---|---|---|---|---|---|---|---|
+| S0NN | Upstream Plymouth, tag 26.134.222 — https://gitlab.freedesktop.org/plymouth/plymouth/-/raw/26.134.222/src/client/plymouth.c and https://gitlab.freedesktop.org/plymouth/plymouth/-/raw/26.134.222/src/main.c | code | A | How the client parses `update-root-fs --new-root-dir=DIR` and how the daemon handler consumes DIR (chdir + chroot(".") + chdir("/"), no open(), no return-value checks, symlink resolution by chdir); installed binary is plymouth 26.134.222-3, tag commit d15928a8e06c | src/client/plymouth.c lines 730-759, 957-965; src/main.c lines 688-712; quote "chdir (root_dir); chroot ("."); chdir ("/");" | The daemon's newroot handler uses chdir(DIR) then chroot("."), so a symlink DIR (new_root -> sysroot) resolves to the mounted root and should work; failures are silent because return values ( unchecked and the server ACKs after dispatch | mined | 2026-10-22 | on-release | corpus/knowledge/pause-lift-gate-r24.json (P3) |
+
+Scope: read=upstream plymouth tag 26.134.222 sources (src/client/plymouth.c, src/main.c, src/client/ply-boot-client.c, src/libply/ply-command-parser.c, src/ply-boot-protocol.h, src/ply-boot-server.c, plus main-branch src/daemon/plymouthd-actions.c) via GitLab raw/archive, the GitLab tags API, host `/usr/lib/initcpio/hooks/plymouth`, `/usr/lib/initcpio/install/plymouth` and the round-24 L1 capture; wrote=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w1/SrcPlymouthRootFs.md; executed=curl/GitLab API fetches, tar extraction, awk/grep line extraction, sha256sum, pacman -Qo/-Qi (read-only), grep on host hook files (read-only)
+
+Installs: none

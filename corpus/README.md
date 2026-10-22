@@ -216,3 +216,12 @@ Original grammar, red/incomplete evidence and historical expectations are preser
 This operator verification record adds no capability or native restriction; accounting
 closure remains a separate required step.
 
+
+
+## Frontier notice — round 24 (2026-10-22)
+
+Append-only; the bullets above stay as written. The `Pending mkinitcpio 42 upgrade` bullet is superseded: mkinitcpio 42.2-1 is installed, every 42.2 image links `new_root` to `sysroot`, and boot 0 shows plymouth reaching the real root. The open frontier item is narrower: the btrfs-overlayfs snapshot-boot path on a 42.2 image is untested. The `sync dbs born 2026-10-11, -Sy never run since` line is also historical: the host follows the omarchy stable snapshot, which advanced on 2026-10-22 04:40 UTC. Evidence and sources S087-S103: `knowledge/pause-lift-gate-r24.md` and `.json` (counting command `python3 tools/check-pause-gate.py --revision <commit>`).
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/pause-lift-gate-r24.md` and `.json` | Dated verdicts for the five premises of the host-wide pacman pause: pending set against the current mirror snapshot, partial-upgrade residue, `/new_root` hooks under mkinitcpio 42, database freshness and upgrade target, rollback paths and transactions during the pause | S087-S103; `lessons/round-24.md` Gate |

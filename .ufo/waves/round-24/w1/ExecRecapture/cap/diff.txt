@@ -1,0 +1,533 @@
+--- capture/l1/capture.txt	2026-10-22 05:20:02.111376013 -0300
++++ w1/ExecRecapture/cap/capture.txt	2026-10-22 05:37:37.120432381 -0300
+@@ -1,6 +1,6 @@
+ ### time
+ $ date -u +%FT%TZ
+-2026-10-22T08:19:59Z
++2026-10-22T08:37:33Z
+ exit=0
+ 
+ ### kernel
+@@ -13,7 +13,7 @@
+  -3 84755511f8b741649b565f302b59e676 Tue 2026-10-20 06:37:55 -03 Tue 2026-10-20 08:54:20 -03
+  -2 ed8819b0a64a4af7b171e29b28b55524 Tue 2026-10-20 08:58:00 -03 Tue 2026-10-20 09:56:15 -03
+  -1 3e7084f470464957a8a2c00542a3b469 Tue 2026-10-20 09:57:09 -03 Thu 2026-10-22 04:54:50 -03
+-  0 6a7f4fdfac624e2ea6c1b3c55d6f94f4 Thu 2026-10-22 04:55:41 -03 Thu 2026-10-22 05:19:39 -03
++  0 6a7f4fdfac624e2ea6c1b3c55d6f94f4 Thu 2026-10-22 04:55:41 -03 Thu 2026-10-22 05:37:28 -03
+ exit=0
+ 
+ ### root-mount
+@@ -196,3 +196,513 @@
+ 3
+ exit=0
+ 
++### mirror-servers
++$ grep -v "^#" /etc/pacman.d/mirrorlist | grep -v "^$"
++Server = https://stable-mirror.omarchy.org/$repo/os/$arch
++exit=0
++
++### repo-servers
++$ grep -n -E "^\[|^Server|^Include" /etc/pacman.conf
++3:[options]
++19:[core]
++20:Include = /etc/pacman.d/mirrorlist
++22:[extra]
++23:Include = /etc/pacman.d/mirrorlist
++25:[multilib]
++26:Include = /etc/pacman.d/mirrorlist
++28:[omarchy]
++30:Server = https://pkgs.omarchy.org/stable/$arch
++32:Include = /etc/pacman.d/openai-chatgpt.conf
++exit=0
++
++### pacman-commands-since-pause
++$ awk "\$1 >= \"[2026-10-20T09:40\"" /var/log/pacman.log | grep -F "[PACMAN] Running" ; true
++[2026-10-20T13:23:08-0300] [PACMAN] Running 'pacman -U --needed --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/zcode/zcode-3.16.2-1-x86_64.pkg.tar.zst'
++[2026-10-20T13:23:09-0300] [PACMAN] Running 'pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- zcode'
++[2026-10-21T17:55:56-0300] [PACMAN] Running 'pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/tizen-sdb/tizen-sdb-2.3.2-3-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/tizen-sdb/tizen-sdb-debug-2.3.2-3-x86_64.pkg.tar.zst'
++[2026-10-21T17:55:56-0300] [PACMAN] Running 'pacman -D --asdeps -q --noconfirm --config /etc/pacman.conf -- tizen-sdb-debug'
++[2026-10-21T17:55:56-0300] [PACMAN] Running 'pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- tizen-sdb'
++[2026-10-21T18:07:37-0300] [PACMAN] Running 'pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/openssl-1.0/openssl-1.0-1.0.2.u-7-x86_64.pkg.tar.zst /home/vgpnk/.cache/yay/openssl-1.0/openssl-1.0-debug-1.0.2.u-7-x86_64.pkg.tar.zst'
++[2026-10-21T18:07:37-0300] [PACMAN] Running 'pacman -D -q --asdeps --noconfirm --config /etc/pacman.conf -- openssl-1.0-debug'
++[2026-10-21T18:07:37-0300] [PACMAN] Running 'pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- openssl-1.0'
++[2026-10-21T20:32:00-0300] [PACMAN] Running 'pacman -Sy --noconfirm'
++[2026-10-22T04:10:08-0300] [PACMAN] Running 'pacman -Scc --noconfirm'
++[2026-10-22T04:10:19-0300] [PACMAN] Running 'pacman -Scc'
++exit=0
++
++### cache-file-count
++$ ls /var/cache/pacman/pkg | wc -l
++4
++exit=0
++
++### sudo-package-commands-since-pause
++$ journalctl _COMM=sudo --since "2026-10-20 09:40" --no-pager -o short-iso | grep -E "COMMAND=/usr/bin/(pacman|paccache|makepkg)" | sed -E "s/PWD=\/home\/vgpnk\/Projects\/shokunin[^;]*/PWD=inside-fleet-repo/; s/PWD=[^;]*/PWD=outside-fleet-repo/" | cut -c1-220; true
++2026-10-20T13:23:08-03:00 plazir27 sudo[4179347]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -U --needed --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/zcode/zcode-3.16.2-1-x8
++2026-10-20T13:23:09-03:00 plazir27 sudo[4179391]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- zcode
++2026-10-20T20:48:00-03:00 plazir27 sudo[2532861]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -rk3 -d
++2026-10-20T20:48:20-03:00 plazir27 sudo[2534241]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k3
++2026-10-20T20:48:20-03:00 plazir27 sudo[2534352]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k3 -v
++2026-10-20T20:48:36-03:00 plazir27 sudo[2534476]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k1
++2026-10-20T20:48:36-03:00 plazir27 sudo[2534561]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k2
++2026-10-20T20:48:37-03:00 plazir27 sudo[2534618]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k3 -c /var/cache/pacman/pkg
++2026-10-20T20:48:48-03:00 plazir27 sudo[2542610]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -r -k3
++2026-10-20T20:49:12-03:00 plazir27 sudo[2552800]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k3
++2026-10-20T20:50:02-03:00 plazir27 sudo[2555440]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache --version
++2026-10-20T20:50:02-03:00 plazir27 sudo[2555448]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -u -k0
++2026-10-20T20:50:19-03:00 plazir27 sudo[2555629]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -u -k0 -v
++2026-10-20T20:50:19-03:00 plazir27 sudo[2555665]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -r -u -k0
++2026-10-20T20:50:28-03:00 plazir27 sudo[2555873]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -u -k0
++2026-10-21T17:55:56-03:00 plazir27 sudo[2221452]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/tizen-sdb/tizen-sdb-2.3.2-3-x86_
++2026-10-21T17:55:56-03:00 plazir27 sudo[2221648]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -D --asdeps -q --noconfirm --config /etc/pacman.conf -- tizen-sdb-debug
++2026-10-21T17:55:56-03:00 plazir27 sudo[2221696]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- tizen-sdb
++2026-10-21T18:07:37-03:00 plazir27 sudo[2595029]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -U --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cache/yay/openssl-1.0/openssl-1.0-1.0.2.u-
++2026-10-21T18:07:37-03:00 plazir27 sudo[2595053]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -D -q --asdeps --noconfirm --config /etc/pacman.conf -- openssl-1.0-debug
++2026-10-21T18:07:37-03:00 plazir27 sudo[2595070]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -D -q --asexplicit --noconfirm --config /etc/pacman.conf -- openssl-1.0
++2026-10-21T20:32:00-03:00 plazir27 sudo[2901011]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Sy --noconfirm
++2026-10-22T02:56:35-03:00 plazir27 sudo[3448221]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -r -k 3
++2026-10-22T02:56:47-03:00 plazir27 sudo[3451321]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 3 --nocolor
++2026-10-22T02:56:55-03:00 plazir27 sudo[3451682]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 -v --nocolor
++2026-10-22T02:56:55-03:00 plazir27 sudo[3451680]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 --nocolor
++2026-10-22T02:57:21-03:00 plazir27 sudo[3455485]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 3 --nocolor
++2026-10-22T02:57:21-03:00 plazir27 sudo[3455483]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:21-03:00 plazir27 sudo[3455544]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 2 --nocolor
++2026-10-22T02:57:21-03:00 plazir27 sudo[3455557]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 --nocolor
++2026-10-22T02:57:21-03:00 plazir27 sudo[3455583]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:38-03:00 plazir27 sudo[3460068]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 -v --nocolor
++2026-10-22T02:57:38-03:00 plazir27 sudo[3460093]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:42-03:00 plazir27 sudo[3460909]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 -v --nocolor
++2026-10-22T02:57:42-03:00 plazir27 sudo[3460931]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 -v --nocolor
++2026-10-22T02:57:48-03:00 plazir27 sudo[3461689]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -d -k 1 -v --nocolor
++2026-10-22T02:57:48-03:00 plazir27 sudo[3461777]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3461819]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3461836]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3461869]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3461889]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3461906]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3461923]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3461940]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3461973]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3461990]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3462008]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3462028]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3462045]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3462063]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3462081]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3462099]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3462116]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:48-03:00 plazir27 sudo[3462133]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462150]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462167]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462187]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462204]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462221]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462238]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462255]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462272]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462289]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462307]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462324]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462341]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462375]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462395]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462416]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462436]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462453]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:49-03:00 plazir27 sudo[3462470]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462487]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462506]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462526]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462551]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462580]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462623]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462640]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462657]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462679]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462700]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462738]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462755]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462788]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462821]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462845]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462862]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462879]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462896]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462913]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3462992]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:50-03:00 plazir27 sudo[3463065]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463108]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463130]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463166]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463184]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463201]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463218]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463236]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463253]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463310]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463330]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463349]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463366]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463383]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463403]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463420]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463437]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463454]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463471]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:51-03:00 plazir27 sudo[3463488]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3463509]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3463526]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3463563]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3463594]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3463613]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3463691]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3463781]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3463860]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3463941]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3463958]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3463980]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3464006]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3464029]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3464048]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3464078]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3464095]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3464112]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3464131]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3464212]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:52-03:00 plazir27 sudo[3464288]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464345]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464415]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464432]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464449]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464467]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464486]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464503]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464520]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464537]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464563]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464580]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464597]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464614]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464631]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464648]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464665]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464682]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464710]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:53-03:00 plazir27 sudo[3464728]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:54-03:00 plazir27 sudo[3464751]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:54-03:00 plazir27 sudo[3464773]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:54-03:00 plazir27 sudo[3464803]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:54-03:00 plazir27 sudo[3464828]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:54-03:00 plazir27 sudo[3464854]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:54-03:00 plazir27 sudo[3464909]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:54-03:00 plazir27 sudo[3464926]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:54-03:00 plazir27 sudo[3464943]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:54-03:00 plazir27 sudo[3464961]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:54-03:00 plazir27 sudo[3464978]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:55-03:00 plazir27 sudo[3464995]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:55-03:00 plazir27 sudo[3465012]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:55-03:00 plazir27 sudo[3465029]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:55-03:00 plazir27 sudo[3465046]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:55-03:00 plazir27 sudo[3465063]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:55-03:00 plazir27 sudo[3465080]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:55-03:00 plazir27 sudo[3465097]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:55-03:00 plazir27 sudo[3465114]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:55-03:00 plazir27 sudo[3465133]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:55-03:00 plazir27 sudo[3465155]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:55-03:00 plazir27 sudo[3465210]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:55-03:00 plazir27 sudo[3465333]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465490]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465507]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465524]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465541]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465558]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465616]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465637]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465654]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465671]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465688]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465705]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465722]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465739]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465757]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465776]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:56-03:00 plazir27 sudo[3465793]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3465810]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3465827]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3465844]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3465861]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3465878]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3465898]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3465941]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3465964]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3465981]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3465998]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3466015]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3466032]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3466049]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3466072]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3466121]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3466139]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3466162]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3466179]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:57-03:00 plazir27 sudo[3466196]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466213]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466260]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466283]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466317]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466336]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466353]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466370]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466387]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466404]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466421]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466453]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466473]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466523]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466545]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466564]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466582]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466599]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466616]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466653]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466697]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466721]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:58-03:00 plazir27 sudo[3466739]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3466756]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3466780]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3466811]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3466836]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3466854]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3466874]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3466922]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3466947]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3466967]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3466986]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3467003]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3467020]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3467037]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3467054]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3467071]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3467120]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3467137]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3467154]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3467171]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3467188]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3467205]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:57:59-03:00 plazir27 sudo[3467222]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467239]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467256]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467273]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467291]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467309]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467327]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467344]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467361]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467378]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467395]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467412]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467429]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467446]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467463]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467480]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467497]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467514]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467532]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467549]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:00-03:00 plazir27 sudo[3467575]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467593]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467611]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467628]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467646]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467663]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467680]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467697]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467714]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467731]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467748]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467765]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467783]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467800]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467817]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467834]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467851]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467868]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467886]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467904]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467925]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467942]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467962]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3467987]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3468004]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3468023]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3468045]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:01-03:00 plazir27 sudo[3468063]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468247]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468317]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468346]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468364]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468389]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468408]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468426]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468480]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468504]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468528]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468563]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468590]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468614]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468644]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468664]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468681]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468754]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468823]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:02-03:00 plazir27 sudo[3468890]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3468983]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469037]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469054]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469071]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469107]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469128]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469146]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469175]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469193]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469235]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469256]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469279]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469298]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469327]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469347]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469364]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469412]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469500]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469613]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469754]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:03-03:00 plazir27 sudo[3469884]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3470074]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3470224]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3470303]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3470437]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3470547]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3470621]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3470667]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3470739]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3470790]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3470925]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3470993]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3471033]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3471093]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3471146]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:04-03:00 plazir27 sudo[3471185]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471217]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471300]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471329]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471351]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471390]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471444]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471492]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471536]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471638]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471700]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471743]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471792]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471838]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471906]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3471969]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3472005]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:05-03:00 plazir27 sudo[3472040]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472063]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472136]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472176]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472220]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472251]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472284]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472357]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472394]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472415]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472432]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472477]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472497]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472536]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472595]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472633]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472661]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472727]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472754]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472822]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:06-03:00 plazir27 sudo[3472879]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3472930]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3472963]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3472982]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473025]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473045]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473116]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473166]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473213]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473251]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473294]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473356]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473393]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473429]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473455]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473472]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473525]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473564]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473598]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473643]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:07-03:00 plazir27 sudo[3473691]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3473726]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3473780]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3473860]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3473894]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3473932]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3473995]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474022]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474045]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474062]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474079]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474109]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474160]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474212]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474269]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474304]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474327]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474363]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474382]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474424]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474458]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474490]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474516]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474533]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474570]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474631]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:08-03:00 plazir27 sudo[3474732]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:09-03:00 plazir27 sudo[3474800]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:09-03:00 plazir27 sudo[3474826]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:09-03:00 plazir27 sudo[3474850]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:09-03:00 plazir27 sudo[3474867]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:09-03:00 plazir27 sudo[3474884]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:09-03:00 plazir27 sudo[3474927]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:09-03:00 plazir27 sudo[3474946]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:09-03:00 plazir27 sudo[3474989]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:09-03:00 plazir27 sudo[3475019]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:09-03:00 plazir27 sudo[3475084]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:09-03:00 plazir27 sudo[3475139]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:09-03:00 plazir27 sudo[3475167]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:58:46-03:00 plazir27 sudo[3515096]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:59:33-03:00 plazir27 sudo[3556473]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -r -k 1 --nocolor
++2026-10-22T02:59:39-03:00 plazir27 sudo[3558534]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Q
++2026-10-22T02:59:57-03:00 plazir27 sudo[3564704]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -r -k 3 --nocolor
++2026-10-22T03:02:26-03:00 plazir27 sudo[3630632]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qq
++2026-10-22T04:09:42-03:00 plazir27 sudo[575503]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -rk1
++2026-10-22T04:09:42-03:00 plazir27 sudo[575520]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/paccache -ruk0
++2026-10-22T04:10:08-03:00 plazir27 sudo[575680]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Scc --noconfirm
++2026-10-22T04:10:19-03:00 plazir27 sudo[575732]:    vgpnk : PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Scc
++exit=0
++
++### foreign-new
++$ pacman -Qm zcode tizen-sdb tizen-sdb-debug openssl-1.0 openssl-1.0-debug
++zcode 3.16.2-1
++tizen-sdb 2.3.2-3
++tizen-sdb-debug 2.3.2-3
++openssl-1.0 1.0.2.u-7
++openssl-1.0-debug 1.0.2.u-7
++exit=0
++
