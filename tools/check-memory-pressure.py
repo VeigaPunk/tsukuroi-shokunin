@@ -9,13 +9,19 @@ of one revision.  A row counts only when every one of these rules holds:
       `used-by` names corpus/knowledge/memory-pressure-r25.md and that was
       either opened 2026-10-22 or has its `recheck` cell changed in place this
       round with the change logged old -> new in corpus/lessons/round-25.md
-  R3  at least one Gate quote of at most 25 words exists in that lesson's Gate
-      for one of the row's sources
+  R2b at least one source the row lists is a tier-A row of corpus/SOURCES.md
+  R3  every Gate quote the row's sources carry in that lesson's Gate is at
+      most 25 words, and every quote the row carries is the quote that Gate
+      records for the source the row names; a mismatch, or a quote that names
+      a source the row does not list, blocks the row
   R4  at least one capture pointer resolves to a line of the pinned capture
       whose text is unique in the capture, is not a `### ` header, a `$ `
       command echo or an `[exit ` line, holds at least one letter or digit,
       and contains the pointer's declared token (case-sensitive, >= 3 chars)
-  R5  SKILL.md carries a table line that names the row id
+  R5  SKILL.md's section "## Memory pressure and systemd-oomd — round 25"
+      carries a table line whose FIRST cell names the row id
+  R6  the entry carries each of MP1 to MP6 exactly once; a repeated row id is
+      an error of the entry, not a row
 
 Every input is read through git at the bound revision; nothing on the host is
 probed and no working-tree byte of the measured revision is consulted.  The
@@ -64,6 +70,8 @@ ROW_IDS = ('MP1', 'MP2', 'MP3', 'MP4', 'MP5', 'MP6')
 ROUND_DATE = '2026-10-22'
 MAX_QUOTE_WORDS = 25
 MIN_TOKEN_CHARS = 3
+TIER_A = 'A'
+SKILL_SECTION = 'Memory pressure and systemd-oomd — round 25'
 
 CELL_SPLIT = re.compile(r'(?<!\\)\|')
 SOURCE_ROW = re.compile(r'^\|\s*(S\d{3})\s*\|')
@@ -283,12 +291,14 @@ def source_rows(text):
                 index = header.get(name)
                 return cells[index].strip() if index is not None and index < len(cells) else ''
             info = {'status': cell('status'), 'opened': cell('opened'),
-                    'recheck': cell('recheck'), 'used_by': cell('used-by')}
+                    'recheck': cell('recheck'), 'used_by': cell('used-by'),
+                    'tier': cell('tier')}
         else:
             if len(cells) < 11:
                 continue
             info = {'status': cells[7].strip(), 'opened': cells[8].strip(),
-                    'recheck': cells[9].strip(), 'used_by': cells[10].strip()}
+                    'recheck': cells[9].strip(), 'used_by': cells[10].strip(),
+                    'tier': cells[3].strip()}
         out[sid] = info
     return out, dups
 
@@ -377,6 +387,11 @@ def recheck_log(text):
             cells = split_cells(line) if line.strip().startswith('|') else []
             if len(cells) >= 4 and cells[1].lower() == 'recheck':
                 old, new = cells[2].strip(), cells[3].strip()
+        if old is None or new is None:
+            # A prose line that names a source and the word "recheck" but shows no
+            # old -> new change is not a recheck log entry.  It is skipped, never
+            # a crash: the tool read such a line at c93bd70f and died on it.
+            continue
         old, new = old.strip('`"()'), new.strip('`"()')
         if not old or not new or old == new:
             continue
@@ -386,9 +401,48 @@ def recheck_log(text):
     return out
 
 
-def skill_rows(text):
-    """Table lines of SKILL.md."""
-    return [line for line in (text or '').splitlines() if line.strip().startswith('|')]
+def skill_rows(text, title=SKILL_SECTION):
+    """The table lines of one named section of SKILL.md.
+
+    The section runs from the heading that names it to the next heading of the
+    same or a higher level, so a row id counts only when the row's own decision
+    table lives in the round's section and not in some other registry table.
+    """
+    wanted = normalise_title(title)
+    out = []
+    inside = False
+    level = 0
+    for line in (text or '').splitlines():
+        match = HEADING.match(line)
+        if match:
+            depth = len(line) - len(line.lstrip('#'))
+            if inside and depth <= level:
+                inside = False
+            elif not inside and normalise_title(line.lstrip('#').strip()) == wanted:
+                inside = True
+                level = depth
+            continue
+        if inside and line.strip().startswith('|'):
+            out.append(line)
+    return out
+
+
+def normalise_title(title):
+    """Collapse whitespace and unify the dash family of a heading title."""
+    text = re.sub(r'\s+', ' ', (title or '')).strip()
+    for dash in ('—', '–', '‒', '−'):
+        text = text.replace(dash, '-')
+    return text
+
+
+def skill_first_cells(text, title=SKILL_SECTION):
+    """The first cell of every table line of the named SKILL.md section."""
+    out = []
+    for line in skill_rows(text, title):
+        cells = split_cells(line)
+        if cells:
+            out.append(cells[0])
+    return out
 
 
 def id_in_line(line, row_id):
@@ -503,6 +557,7 @@ def evaluate(read, expected_capture_sha=CAPTURE_SHA256):
     quotes = gate_quotes(decode(raw_lesson))
     rechecks = recheck_log(decode(raw_lesson))
     skill_table = skill_rows(decode(raw_skill))
+    skill_cells = skill_first_cells(decode(raw_skill))
 
     # The entry's own capture pin must name the pinned capture and its digest.
     global_blocked = False
@@ -519,6 +574,7 @@ def evaluate(read, expected_capture_sha=CAPTURE_SHA256):
         global_blocked = True
 
     seen = set()
+    duplicate_ids = set()
     rows = []
     for row in entry['rows']:
         row_id = row.get('id') if isinstance(row, dict) else None
@@ -535,6 +591,7 @@ def evaluate(read, expected_capture_sha=CAPTURE_SHA256):
             note_row('MP-ROW-ID-UNKNOWN', str(row_id))
         elif row_id in seen:
             note_row('MP-ROW-ID-DUPLICATE', str(row_id))
+            duplicate_ids.add(row_id)
         seen.add(row_id)
 
         # R1: statement, verdict and action.
@@ -554,6 +611,7 @@ def evaluate(read, expected_capture_sha=CAPTURE_SHA256):
             if not isinstance(sid, str) or sid not in sources:
                 note_row('MP-SOURCE-MISSING', str(sid))
                 source_detail.append({'id': sid, 'status': None, 'opened': None,
+                                      'tier': '',
                                       'used_by_names_entry': False, 'recheck_logged': False,
                                       'qualifies': False})
                 continue
@@ -571,19 +629,29 @@ def evaluate(read, expected_capture_sha=CAPTURE_SHA256):
             if not opened_ok and not recheck_ok:
                 note_row('MP-SOURCE-OPENED-STALE', sid)
             source_detail.append({'id': sid, 'status': info['status'], 'opened': info['opened'],
+                                  'tier': info['tier'],
                                   'used_by_names_entry': used_by_ok, 'recheck_logged': recheck_ok,
                                   'qualifies': info['status'] == 'mined' and used_by_ok
                                   and (opened_ok or recheck_ok)})
 
-        # R3: a Gate quote of at most 25 words for one of the row's sources.
+        # R2b: at least one tier-A source.
+        known = [d for d in source_detail if d['status'] is not None]
+        if known and not any(d['tier'].upper() == TIER_A for d in known):
+            note_row('MP-SOURCE-TIER-NOT-A', str(row_id))
+
+        # R3: the Gate quotes of the row's sources, and the row's own quotes.
         quote_detail = []
-        qualifying_quotes = []
         for sid in row_sources:
-            for quote in quotes.get(sid, []):
+            gate_texts = quotes.get(sid, [])
+            if not gate_texts:
+                note_row('MP-QUOTE-MISSING', sid)
+            for quote in gate_texts:
                 words = word_count(quote)
                 quote_detail.append({'source': sid, 'words': words, 'quote': quote})
-                if words <= MAX_QUOTE_WORDS:
-                    qualifying_quotes.append((sid, quote))
+                if words > MAX_QUOTE_WORDS:
+                    # A Gate quote over the word cap is a defect of that source's
+                    # Gate record; it blocks every row that cites the source.
+                    note_row('MP-QUOTE-TOO-LONG', sid)
         entry_quotes = row.get('quotes')
         if not isinstance(entry_quotes, list):
             note_row('MP-QUOTES-SHAPE', str(row_id))
@@ -597,16 +665,14 @@ def evaluate(read, expected_capture_sha=CAPTURE_SHA256):
                 note_row('MP-QUOTES-SHAPE', str(row_id))
                 continue
             if sid not in row_sources:
-                note_row('MP-QUOTE-SOURCE-UNKNOWN', sid, blocking=False)
+                note_row('MP-QUOTE-SOURCE-UNKNOWN', sid)
             if word_count(quote) > MAX_QUOTE_WORDS:
                 note_row('MP-QUOTE-TOO-LONG', sid)
             gate_texts = [norm(q) for q in quotes.get(sid, [])]
-            if not any(norm(quote) in text for text in gate_texts):
-                note_row('MP-QUOTE-MISMATCH', sid, blocking=False)
+            if gate_texts and not any(norm(quote) in text for text in gate_texts):
+                note_row('MP-QUOTE-MISMATCH', sid)
         if not quote_detail:
             note_row('MP-QUOTE-MISSING', str(row_id))
-        elif not qualifying_quotes:
-            note_row('MP-QUOTE-TOO-LONG', str(row_id))
 
         # R4: capture pointers.
         pointers = row.get('capture_pointers')
@@ -623,8 +689,9 @@ def evaluate(read, expected_capture_sha=CAPTURE_SHA256):
         if pointers and not [p for p in pointer_detail if p['counts']]:
             note_row('MP-CAPTURE-POINTER-UNUSABLE', str(row_id))
 
-        # R5: a SKILL.md table line naming the row id.
-        skill_hit = bool(row_id) and any(id_in_line(line, row_id) for line in skill_table)
+        # R5: a SKILL.md table line of the round-25 section whose FIRST cell
+        # names the row id.
+        skill_hit = bool(row_id) and any(id_in_line(cell, row_id) for cell in skill_cells)
         if not skill_hit:
             note_row('MP-SKILL-ROW-MISSING', str(row_id))
 
@@ -640,7 +707,8 @@ def evaluate(read, expected_capture_sha=CAPTURE_SHA256):
                                                  'MP-SOURCE-STATUS-NOT-MINED',
                                                  'MP-SOURCE-USED-BY-MISSING',
                                                  'MP-SOURCE-OPENED-STALE',
-                                                 'MP-SOURCE-DUPLICATE')),
+                                                 'MP-SOURCE-DUPLICATE',
+                                                 'MP-SOURCE-TIER-NOT-A')),
             'R3_gate_quote': rule_of(row_findings, ('MP-QUOTE-MISSING', 'MP-QUOTE-TOO-LONG',
                                                     'MP-QUOTE-MISMATCH', 'MP-QUOTE-SOURCE-UNKNOWN',
                                                     'MP-QUOTES-SHAPE')),
@@ -665,6 +733,11 @@ def evaluate(read, expected_capture_sha=CAPTURE_SHA256):
 
     if seen != set(ROW_IDS):
         note('MP-ROW-SET', ','.join(sorted(str(s) for s in seen)))
+        global_blocked = True
+    if duplicate_ids:
+        # A repeated row id is an error of the entry, not of one row: the count
+        # of distinct verified ids would otherwise stay at six.
+        note('MP-ROW-ID-DUPLICATE', ','.join(sorted(str(s) for s in duplicate_ids)))
         global_blocked = True
 
     verified_rows = 0 if global_blocked else sum(
@@ -719,6 +792,9 @@ def fixture_sources():
                 'corpus/knowledge/memory-pressure-r25.md |\n')
     rows.append('| S124 | source S124 | docs | A | scope | anchor | teaches | mined | 2026-10-19 | 30d | '
                 'corpus/knowledge/memory-pressure-r25.md |\n')
+    # S125 is tier B: a sibling entry, not a primary source.
+    rows.append('| S125 | source S125 | docs | B | scope | anchor | teaches | mined | 2026-10-22 | 90d | '
+                'corpus/knowledge/memory-pressure-r25.md |\n')
     return head + ''.join(rows)
 
 
@@ -730,7 +806,7 @@ def fixture_lesson():
             '| Source | URL | Located quote (at most 25 words) | Opened by |\n'
             '|---|---|---|---|\n')
     rows = []
-    for sid in ROW_SOURCE_IDS + ('S121', 'S122', 'S123', 'S124', 'S998'):
+    for sid in ROW_SOURCE_IDS + ('S121', 'S122', 'S123', 'S124', 'S125', 'S998'):
         rows.append('| %s | https://example.invalid/%s | "%s" | SrcA |\n' % (sid, sid, QUOTE_A))
     tail = ('\n'
             '## Registry recheck log (old -> new)\n'
@@ -744,7 +820,7 @@ def fixture_lesson():
 FIXTURE_SKILL = (
     '# SKILL\n'
     '\n'
-    '## Round 25 decision table\n'
+    '## Memory pressure and systemd-oomd — round 25\n'
     '\n'
     '| Row | Verdict | Action |\n'
     '|---|---|---|\n'
@@ -754,6 +830,15 @@ FIXTURE_SKILL = (
     '| MP4 | changed | record |\n'
     '| MP5 | changed | record |\n'
     '| MP6 | changed | record |\n'
+    '\n'
+    '## Gate and probe registry — round25 superseding current rows\n'
+    '\n'
+    '| Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |\n'
+    '|---|---|---|---|---|---|---|---|\n'
+    '| memory-pressure | gate | `python3 tools/check-memory-pressure.py --revision <REV>` '
+    '| 0 six rows MP1 to MP6 verified;1 one or more row or evidence invalid '
+    '| `python3 tools/check-memory-pressure.py --selftest` | R25 fixed row set MP1 to MP6 '
+    '| immutable Git reads at the bound revision; selftest private temporary fixtures | tsukuroi |\n'
 )
 
 
@@ -852,7 +937,8 @@ def selftest():
     case('source-missing', files({ENTRY: set_source('MP1', 'S998')}),
         {'exit': 1, 'verified_rows': 5, 'findings': ['MP-SOURCE-MISSING']})
     case('no-sources', files({ENTRY: mutate_row('MP1', lambda r: r.__setitem__('sources', []))}),
-        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-SOURCES-EMPTY', 'MP-QUOTE-MISSING']})
+        {'exit': 1, 'verified_rows': 5,
+         'findings': ['MP-SOURCES-EMPTY', 'MP-QUOTE-MISSING', 'MP-QUOTE-SOURCE-UNKNOWN']})
     long_quote = ' '.join(['word%d' % n for n in range(26)])
     case('quote-too-long', files({
         LESSON: fixture_lesson().replace('"%s"' % QUOTE_A, '"%s"' % long_quote, 1),
@@ -941,6 +1027,55 @@ def selftest():
     case('declared-capture-digest-mismatch', files({ENTRY: json.dumps(
         dict(fixture_entry('0' * 64), rows=fixture_entry(base_sha)['rows']))}),
         {'exit': 1, 'verified_rows': 0, 'findings': ['MP-CAPTURE-DECLARED-MISMATCH']})
+    # R2b: a row whose only source is tier B carries no tier-A source.
+    case('source-tier-not-a', files({ENTRY: set_source('MP1', 'S125')}),
+        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-SOURCE-TIER-NOT-A']})
+    # R3: a Gate quote that differs from the entry quote blocks the row.
+    case('gate-quote-mismatch-blocks', files({
+        LESSON: fixture_lesson().replace(
+            '| %s | https://example.invalid/%s | "%s" | SrcA |\n' % (ROW_SOURCE_IDS[0], ROW_SOURCE_IDS[0], QUOTE_A),
+            '| %s | https://example.invalid/%s | "a different located quote" | SrcA |\n'
+            % (ROW_SOURCE_IDS[0], ROW_SOURCE_IDS[0]))}),
+        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-QUOTE-MISMATCH']})
+    # R3: an entry quote that differs from the Gate quote blocks the row.
+    case('entry-quote-mismatch-blocks', files({ENTRY: mutate_row(
+        'MP1', lambda r: r.__setitem__('quotes', [{'source': ROW_SOURCE_IDS[0],
+                                                   'quote': 'a quote the Gate does not carry'}]))}),
+        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-QUOTE-MISMATCH']})
+    # R3: a quote naming a source the row does not list blocks the row.
+    case('entry-quote-unknown-source-blocks', files({ENTRY: mutate_row(
+        'MP1', lambda r: r.__setitem__('quotes', [{'source': 'S998', 'quote': QUOTE_A}]))}),
+        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-QUOTE-SOURCE-UNKNOWN']})
+    # R3: a Gate quote over the word cap blocks every row that cites the source.
+    case('gate-quote-over-cap-blocks', files({
+        LESSON: fixture_lesson().replace(
+            '| %s | https://example.invalid/%s | "%s" | SrcA |\n' % (ROW_SOURCE_IDS[0], ROW_SOURCE_IDS[0], QUOTE_A),
+            '| %s | https://example.invalid/%s | "%s" | SrcA |\n'
+            % (ROW_SOURCE_IDS[0], ROW_SOURCE_IDS[0], long_quote)),
+        ENTRY: mutate_row('MP1', lambda r: r.__setitem__(
+            'quotes', [{'source': ROW_SOURCE_IDS[0], 'quote': long_quote}]))}),
+        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-QUOTE-TOO-LONG']})
+    # R5: the id must be in the FIRST cell of a table line of the round-25 section.
+    case('skill-row-id-not-in-first-cell', files({SKILL: FIXTURE_SKILL.replace(
+        '| MP3 | changed | record |\n', '| note | changed | MP3 |\n')}),
+        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-SKILL-ROW-MISSING']})
+    # R5: a table line of another section does not carry the row.
+    case('skill-row-in-other-section-only', files({SKILL: FIXTURE_SKILL.replace(
+        '| MP3 | changed | record |\n', '').replace(
+        '| memory-pressure | gate |',
+        '| MP3 | changed | record |\n| memory-pressure | gate |')}),
+        {'exit': 1, 'verified_rows': 5, 'findings': ['MP-SKILL-ROW-MISSING']})
+    # R6: a repeated row id is an error of the entry.
+    case('duplicate-row-id', files({ENTRY: json.dumps(
+        dict(fixture_entry(base_sha),
+             rows=fixture_entry(base_sha)['rows'] + [fixture_entry(base_sha)['rows'][0]]))}),
+        {'exit': 1, 'verified_rows': 0, 'findings': ['MP-ROW-ID-DUPLICATE']})
+    # The recheck reader must not crash on a prose line that names a source and
+    # the word recheck but shows no old -> new change (the crash at c93bd70f).
+    case('recheck-prose-without-arrow', files({LESSON: fixture_lesson() + (
+        '\n- S115 anchor: the sha256 in `corpus/SOURCES.md` row S115 has a transposition, '
+        'and the registry row is append-only outside its status, recheck and used-by cells.\n')}),
+        {'exit': 0, 'verified_rows': 6, 'findings': []})
 
     observations = []
     for name, case_files, expect in cases:

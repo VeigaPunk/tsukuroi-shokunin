@@ -1,0 +1,332 @@
+{
+  "catalogue": "catalogue-w2.json",
+  "records": [
+    {
+      "exit_code": 0,
+      "finding_ids": [],
+      "id": "BASELINE",
+      "revision": "7fd4aefa51d2cbb516deaca459cd8f7660e69846",
+      "verdict": "PASS",
+      "verified_rows": 6
+    },
+    {
+      "applied_detail": "S115 status cell 'mined' -> 'queued'",
+      "breaks_rule": "a cited source must be a `mined` SOURCES row",
+      "detail": "the counting command exits 1 (verified_rows 4)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-SOURCE-STATUS-NOT-MINED",
+      "finding_ids": [
+        "MP-SOURCE-STATUS-NOT-MINED",
+        "MP-SOURCE-STATUS-NOT-MINED"
+      ],
+      "id": "N01",
+      "operation": "sources-cell",
+      "revision": "7efc0a9fec315620c0c894e521f90cfa7f446d51",
+      "stderr": "",
+      "target_file": "corpus/SOURCES.md",
+      "verdict": "KILLED",
+      "verified_rows": 4
+    },
+    {
+      "applied_detail": "S116 used-by cell 'corpus/knowledge/memory-pressure-r25.md, corpus/knowledge/memory-pressure-r25.json' -> ''",
+      "breaks_rule": "the cited source's used-by cell must name the entry",
+      "detail": "the counting command exits 1 (verified_rows 5)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-SOURCE-USED-BY-MISSING",
+      "finding_ids": [
+        "MP-SOURCE-USED-BY-MISSING"
+      ],
+      "id": "N02",
+      "operation": "sources-cell",
+      "revision": "06f107c64c7985b2fd5a7e74d992d59f666b5179",
+      "stderr": "",
+      "target_file": "corpus/SOURCES.md",
+      "verdict": "KILLED",
+      "verified_rows": 5
+    },
+    {
+      "applied_detail": "S117 opened cell '2026-10-22' -> '2026-10-21'",
+      "breaks_rule": "a cited source must be opened 2026-10-22, or have its recheck updated in place this round with the change logged old -> new in the lesson",
+      "detail": "the counting command exits 1 (verified_rows 5)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-SOURCE-OPENED-STALE",
+      "finding_ids": [
+        "MP-SOURCE-OPENED-STALE"
+      ],
+      "id": "N03",
+      "operation": "sources-cell",
+      "revision": "054a99ffd9d25dabe55c032ad404c31eacd729ea",
+      "stderr": "",
+      "target_file": "corpus/SOURCES.md",
+      "verdict": "KILLED",
+      "verified_rows": 5
+    },
+    {
+      "applied_detail": "Gate row S118 quote 'Shows pressure stall information for memory.' -> 26 words",
+      "breaks_rule": "the located quote recorded in the lesson Gate is at most 25 words",
+      "detail": "the counting command exits 1 (verified_rows 4)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-QUOTE-TOO-LONG",
+      "finding_ids": [
+        "MP-QUOTE-TOO-LONG",
+        "MP-QUOTE-MISMATCH",
+        "MP-QUOTE-TOO-LONG"
+      ],
+      "id": "N04",
+      "operation": "gate-quote-words",
+      "revision": "0d66cbdc6895e37618de5604688a543ec6072aec",
+      "stderr": "",
+      "target_file": "corpus/lessons/round-25.md",
+      "verdict": "KILLED",
+      "verified_rows": 4
+    },
+    {
+      "applied_detail": "row MP1 pointers [{'line': 14, 'token': 'total=41385384'}, {'line': 15, 'token': 'total=40856373'}] -> [{'line': 12, 'token': 'system-memory-psi-read-1'}]",
+      "breaks_rule": "a capture pointer must not resolve to a `### ` section header",
+      "detail": "the counting command exits 1 (verified_rows 5)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-CAPTURE-POINTER-HEADER",
+      "finding_ids": [
+        "MP-CAPTURE-POINTER-HEADER",
+        "MP-CAPTURE-POINTER-UNUSABLE"
+      ],
+      "id": "N05",
+      "operation": "entry-pointer-set",
+      "revision": "8994769662adb8e11baf0759efb79d9cae2693c2",
+      "stderr": "",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "verdict": "KILLED",
+      "verified_rows": 5
+    },
+    {
+      "applied_detail": "row MP6 pointers [{'line': 52, 'token': 'oom_group_kill'}, {'line': 50, 'token': 'oom 0'}] -> [{'line': 21, 'token': 'total=41389485'}]",
+      "breaks_rule": "a capture pointer's line text must be unique in the capture",
+      "detail": "the counting command exits 1 (verified_rows 5)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-CAPTURE-POINTER-NOT-UNIQUE",
+      "finding_ids": [
+        "MP-CAPTURE-POINTER-NOT-UNIQUE",
+        "MP-CAPTURE-POINTER-UNUSABLE"
+      ],
+      "id": "N06",
+      "operation": "entry-pointer-set",
+      "revision": "04cc34c743d58a02a5d3e46468c1ee93dca124c6",
+      "stderr": "",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "verdict": "KILLED",
+      "verified_rows": 5
+    },
+    {
+      "applied_detail": "row MP1 pointers [{'line': 14, 'token': 'total=41385384'}, {'line': 15, 'token': 'total=40856373'}] -> [{'line': 14, 'token': 'nonexistenttoken'}]",
+      "breaks_rule": "the pointed line must contain the named token",
+      "detail": "the counting command exits 1 (verified_rows 5)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-CAPTURE-POINTER-TOKEN-ABSENT",
+      "finding_ids": [
+        "MP-CAPTURE-POINTER-TOKEN-ABSENT",
+        "MP-CAPTURE-POINTER-UNUSABLE"
+      ],
+      "id": "N07",
+      "operation": "entry-pointer-set",
+      "revision": "7b716117fc91ea946affc74953c55df4ca0a629f",
+      "stderr": "",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "verdict": "KILLED",
+      "verified_rows": 5
+    },
+    {
+      "applied_detail": "capture bytes appended; sha256 e60f1bbc1feb8f251c8b276f70342da5385d07b9ad747305e1f016e0df447136 -> 6459b6cc0d6120b3e8a691740ada5c9ef8adf0f08a378a629f8b1c8e472f3317",
+      "breaks_rule": "the capture file must hash to the pinned sha256",
+      "detail": "the counting command exits 2 (verified_rows 0)",
+      "exit_code": 2,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "CAPTURE-TAMPERED",
+      "finding_ids": [
+        "CAPTURE-TAMPERED"
+      ],
+      "id": "N08",
+      "operation": "capture-append",
+      "revision": "e5f53496e0ae86d724a8a2ede6771eb1187f20c8",
+      "stderr": "",
+      "target_file": ".ufo/waves/round-25/capture/capture.txt",
+      "verdict": "KILLED",
+      "verified_rows": 0
+    },
+    {
+      "applied_detail": "SKILL.md decision-table row MP6 deleted (line 2318)",
+      "breaks_rule": "SKILL.md must carry a decision-table row naming the row id",
+      "detail": "the counting command exits 1 (verified_rows 5)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-SKILL-ROW-MISSING",
+      "finding_ids": [
+        "MP-SKILL-ROW-MISSING"
+      ],
+      "id": "N09",
+      "operation": "skill-delete-row",
+      "revision": "39fa8ff432209ed5b40083bbde58a804c115addf",
+      "stderr": "",
+      "target_file": "SKILL.md",
+      "verdict": "KILLED",
+      "verified_rows": 5
+    },
+    {
+      "applied_detail": "Gate row S118 quote 'Shows pressure stall information for memory.' -> 'shows pressure stall information for memory.' (one character changed)",
+      "breaks_rule": "a Gate quote that differs from the entry quote by one character is not the quote the cited source supplies",
+      "detail": "the counting command exits 1 (verified_rows 5)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-QUOTE-MISMATCH",
+      "finding_ids": [
+        "MP-QUOTE-MISMATCH"
+      ],
+      "id": "N10",
+      "operation": "gate-quote-one-char",
+      "revision": "65ee73e314d4697d3bcb197dd246685fa1ab4aa2",
+      "stderr": "",
+      "target_file": "corpus/lessons/round-25.md",
+      "verdict": "KILLED",
+      "verified_rows": 5
+    },
+    {
+      "applied_detail": "row MP6 quote for S118 'The number of processes belonging to this cgroup killed by any kind of OOM killer.' -> 'the number of processes belonging to this cgroup killed by any kind of OOM killer.' (one character changed)",
+      "breaks_rule": "an entry quote that differs from the Gate quote by one character is not the quote the cited source supplies",
+      "detail": "the counting command exits 1 (verified_rows 5)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-QUOTE-MISMATCH",
+      "finding_ids": [
+        "MP-QUOTE-MISMATCH"
+      ],
+      "id": "N11",
+      "operation": "entry-quote-one-char",
+      "revision": "73d8cda3e2190a608bdbbeb6d968c00421ef93e4",
+      "stderr": "",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "verdict": "KILLED",
+      "verified_rows": 5
+    },
+    {
+      "applied_detail": "row MP6 quote for S118 'The number of processes belonging to this cgroup killed by any kind of OOM killer.' -> 'a quote the Gate does not record for this source'",
+      "breaks_rule": "a quote the row carries must be the Gate quote of a source the row lists",
+      "detail": "the counting command exits 1 (verified_rows 5)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-QUOTE-MISMATCH",
+      "finding_ids": [
+        "MP-QUOTE-MISMATCH"
+      ],
+      "id": "N12",
+      "operation": "entry-quote-replace",
+      "revision": "df039324ca216bc012f098437bdcbb6772818f7d",
+      "stderr": "",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "verdict": "KILLED",
+      "verified_rows": 5
+    },
+    {
+      "applied_detail": "row MP3 quote source S117 -> S119",
+      "breaks_rule": "a quote must name a source the row lists",
+      "detail": "the counting command exits 1 (verified_rows 5)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-QUOTE-SOURCE-UNKNOWN",
+      "finding_ids": [
+        "MP-QUOTE-SOURCE-UNKNOWN",
+        "MP-QUOTE-MISMATCH"
+      ],
+      "id": "N13",
+      "operation": "entry-quote-unknown-source",
+      "revision": "4c0a9c4fb4a3df8dc9f904ecd3c6a1eac3eb5f2d",
+      "stderr": "",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "verdict": "KILLED",
+      "verified_rows": 5
+    },
+    {
+      "applied_detail": "row MP6 duplicated in the entry",
+      "breaks_rule": "the entry carries MP1 to MP6 exactly once each",
+      "detail": "the counting command exits 1 (verified_rows 0)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-ROW-ID-DUPLICATE",
+      "finding_ids": [
+        "MP-ROW-ID-DUPLICATE",
+        "MP-ROW-ID-DUPLICATE"
+      ],
+      "id": "N14",
+      "operation": "entry-duplicate-row",
+      "revision": "4b9c5f1e8140b47c1cb9db9763e9648262ff840f",
+      "stderr": "",
+      "target_file": "corpus/knowledge/memory-pressure-r25.json",
+      "verdict": "KILLED",
+      "verified_rows": 0
+    },
+    {
+      "applied_detail": "3 Gate row(s) for ['S117', 'S118'] replaced with a 26-word quote",
+      "breaks_rule": "the located quote recorded in the lesson Gate is at most 25 words (every Gate quote of the row's sources made too long)",
+      "detail": "the counting command exits 1 (verified_rows 4)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-QUOTE-TOO-LONG",
+      "finding_ids": [
+        "MP-QUOTE-TOO-LONG",
+        "MP-QUOTE-TOO-LONG",
+        "MP-QUOTE-TOO-LONG",
+        "MP-QUOTE-MISMATCH",
+        "MP-QUOTE-MISMATCH",
+        "MP-QUOTE-TOO-LONG",
+        "MP-QUOTE-TOO-LONG",
+        "MP-QUOTE-MISMATCH"
+      ],
+      "id": "N16",
+      "operation": "gate-quote-words-all",
+      "revision": "320dc281142c3bed4b4d8fb6430fd14aec6e3ac1",
+      "stderr": "",
+      "target_file": "corpus/lessons/round-25.md",
+      "verdict": "KILLED",
+      "verified_rows": 4
+    },
+    {
+      "applied_detail": "Gate quote of S118 and the entry quote of row MP3 both set to 'the kernel accounts stall time in microseconds per cgroup since boot' (Gate was 'Shows pressure stall information for memory.')",
+      "breaks_rule": "a quote the row carries must be the quote of the cited page (the entry and the Gate are changed together to a text no source supplies)",
+      "detail": "the counting command still exits 0 (verified_rows 6)",
+      "exit_code": 0,
+      "expected_finding_id": null,
+      "finding_ids": [],
+      "id": "N17",
+      "operation": "gate-and-entry-quote-consistent",
+      "revision": "f7a9bbd45e3b1e2880d2f265b5deeb192b82077b",
+      "stderr": "",
+      "target_file": "corpus/lessons/round-25.md",
+      "verdict": "SURVIVED",
+      "verified_rows": 6
+    },
+    {
+      "applied_detail": "SKILL.md row id MP6 -> MPX",
+      "breaks_rule": "SKILL.md must carry a decision-table row naming the row id (the row survives but its id moves)",
+      "detail": "the counting command exits 1 (verified_rows 5)",
+      "exit_code": 1,
+      "expected_finding_emitted": true,
+      "expected_finding_id": "MP-SKILL-ROW-MISSING",
+      "finding_ids": [
+        "MP-SKILL-ROW-MISSING"
+      ],
+      "id": "N15",
+      "operation": "skill-rename-row-id",
+      "revision": "0715ee8b46a756016199b1fd57ceb0752986b012",
+      "stderr": "",
+      "target_file": "SKILL.md",
+      "verdict": "KILLED",
+      "verified_rows": 5
+    }
+  ],
+  "revision": "157ee2556a75bf4d1ae4893d4a06c020ae531ac0"
+}
