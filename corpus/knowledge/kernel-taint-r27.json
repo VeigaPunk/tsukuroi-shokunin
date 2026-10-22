@@ -223,5 +223,14 @@
     }
    ]
   }
+ ],
+ "corrections_r27_a2": [
+  {"row": "KT1", "field": "statement, action", "withdrawn_text": "an oops (D, bit 7)", "status": "narrowed branch restored", "note": "D means an oops or a BUG (S140 lines 92, 159); kernel-chktaint is not installed on this host"},
+  {"row": "KT2", "field": "statement", "withdrawn_text": "prints only for the first such module", "status": "condition restated", "note": "the message prints while bit 12 is still clear kernel-wide (S143 test_taint guard); a sysctl write can set bit 12 first (S141 lines 127-129); 'built outside the kernel tree' is [inf]"},
+  {"row": "KT3", "field": "statement", "status": "branch restored", "note": "permissive-mode load also requires that no signature-requiring lockdown is active (S144 line 124); lockdown state not captured; S145 teaches cell omits the unparsable-signature and known-key-mismatch rejections (S145 lines 66-67, 273-276)"},
+  {"row": "KT4", "field": "host_reading, action", "withdrawn_text": "they are built on the host by dkms 3.4.4-1 from nvidia-open-dkms 615.78.08-1", "status": "marked [inf]", "note": "the capture shows installed versions and unowned files, not the build; the culprit loop needs [ -e \"$f\" ] || continue to avoid errors and exit 1"},
+  {"row": "KT6", "field": "statement, host_reading, action", "status": "scoped", "note": "an oops shows O and E only after the nvidia modules load (S140 lines 35-36 for Not tainted); 'every boot' is [inf] from KT2 and KT5; the .md table verdict DEGRADED was corrected in place to HEALTHY to agree with this file; the .md advice to send reports to the module maintainer first is withdrawn"},
+  {"row": "all", "field": "verified_rows", "status": "disclosed", "note": "the count proves complete evidence links, not verdict truth (wave-2 CritC1Tool, MutC1Counter, CritClaimSizingFinal)"},
+  {"row": "KT5", "field": "statement", "status": "branches restored", "note": "sysctl writes add only bits below TAINT_FLAGS_COUNT; panic_on_taint=nousertaint refuses a guarded write with -EINVAL (S141 lines 96-133, 120-121); next-boot value is the built-in initial value, [inf]; unload trace supported by S143 lines 871-874, 3972-3975"}
  ]
 }

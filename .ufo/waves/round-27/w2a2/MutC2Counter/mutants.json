@@ -1,0 +1,358 @@
+[
+  {
+    "id": "M01",
+    "rule": "A1 exact OV1-OV6 id set",
+    "kind": "drop",
+    "desc": "drop the id-unknown reason (an id outside OV1-OV6 is accepted)",
+    "old": "        if rid not in IDS:\n            reasons.append('id-unknown')\n        elif ids.count(rid) != 1:",
+    "new": "        if rid not in IDS:\n            pass\n        elif ids.count(rid) != 1:"
+  },
+  {
+    "id": "M02",
+    "rule": "A1 exact OV1-OV6 id set",
+    "kind": "drop",
+    "desc": "drop the id-duplicate reason (a duplicated id counts twice)",
+    "old": "        elif ids.count(rid) != 1:\n            reasons.append('id-duplicate')",
+    "new": "        elif ids.count(rid) != 1:\n            pass"
+  },
+  {
+    "id": "M03",
+    "rule": "A2 sibling name",
+    "kind": "drop",
+    "desc": "drop the sibling-not-mori reason (any sibling name accepted)",
+    "old": "        if row.get('sibling') != 'mori':\n            reasons.append('sibling-not-mori')",
+    "new": "        if row.get('sibling') != 'mori':\n            pass"
+  },
+  {
+    "id": "M04",
+    "rule": "A2 pinned commit",
+    "kind": "drop",
+    "desc": "drop the sibling-commit-not-pinned reason (any commit accepted)",
+    "old": "        if row.get('sibling_commit') != PIN_COMMIT:\n            reasons.append('sibling-commit-not-pinned')",
+    "new": "        if row.get('sibling_commit') != PIN_COMMIT:\n            pass"
+  },
+  {
+    "id": "M05",
+    "rule": "A2 pinned commit",
+    "kind": "value",
+    "desc": "re-pin the mori commit to a different sha (last hex digit flipped)",
+    "old": "PIN_COMMIT = 'ef9dbee136d6ed2ef98687f5cb0c0a16506a5155'",
+    "new": "PIN_COMMIT = 'ef9dbee136d6ed2ef98687f5cb0c0a16506a5156'"
+  },
+  {
+    "id": "M06",
+    "rule": "A2 dotdot refusal",
+    "kind": "drop",
+    "desc": "drop the '..' path-segment refusal from the sibling_path validation",
+    "old": "        if not isinstance(spath, str) or not spath or '..' in spath.split('/'):",
+    "new": "        if not isinstance(spath, str) or not spath:"
+  },
+  {
+    "id": "M07",
+    "rule": "A2 sha256 equals sibling_blob_sha256",
+    "kind": "drop",
+    "desc": "drop the snapshot-digest-mismatch reason (row digest not compared to bytes)",
+    "old": "                if row.get('sibling_blob_sha256') != digest:\n                    reasons.append('snapshot-digest-mismatch')",
+    "new": "                if row.get('sibling_blob_sha256') != digest:\n                    pass"
+  },
+  {
+    "id": "M08",
+    "rule": "A2 sha256 equals the pinned a5368ee7 digest",
+    "kind": "drop",
+    "desc": "drop the snapshot-not-pinned-bytes reason (pinned digest never compared)",
+    "old": "                if spath == PIN_PATH and digest != PIN_SHA256:\n                    reasons.append('snapshot-not-pinned-bytes')",
+    "new": "                if spath == PIN_PATH and digest != PIN_SHA256:\n                    pass"
+  },
+  {
+    "id": "M09",
+    "rule": "A3 nearest-heading rule",
+    "kind": "invert",
+    "desc": "accept any heading line in the snapshot as the row heading",
+    "old": "                if nearest is None or row.get('heading') != nearest:",
+    "new": "                if nearest is None or (row.get('heading') != nearest and row.get('heading') not in [l for l in lines if l.startswith('#')]):"
+  },
+  {
+    "id": "M10",
+    "rule": "A3 nearest-heading rule",
+    "kind": "boundary",
+    "desc": "nearest-heading lookup starts at the quote line itself instead of the line above",
+    "old": "                nearest = next((lines[i] for i in range(ql - 1, -1, -1) if lines[i].startswith('#')), None)",
+    "new": "                nearest = next((lines[i] for i in range(ql, -1, -1) if lines[i].startswith('#')), None)"
+  },
+  {
+    "id": "M11",
+    "rule": "A4 quote_line bounds",
+    "kind": "drop",
+    "desc": "drop the 1 <= quote_line <= len(lines) bound (keep the int type check)",
+    "old": "            if not isinstance(ql, int) or isinstance(ql, bool) or not 1 <= ql <= len(lines):",
+    "new": "            if not isinstance(ql, int) or isinstance(ql, bool):"
+  },
+  {
+    "id": "M12",
+    "rule": "A4 25-word cap",
+    "kind": "drop",
+    "desc": "drop the quote-too-long reason (no word cap on the sibling quote)",
+    "old": "                    if len(quote.split()) > MAX_WORDS:\n                        reasons.append('quote-too-long')",
+    "new": "                    if len(quote.split()) > MAX_WORDS:\n                        pass"
+  },
+  {
+    "id": "M13",
+    "rule": "A4 25-word cap",
+    "kind": "boundary",
+    "desc": "word cap off by one: 26 words accepted, 27 rejected",
+    "old": "                    if len(quote.split()) > MAX_WORDS:",
+    "new": "                    if len(quote.split()) > MAX_WORDS + 1:"
+  },
+  {
+    "id": "M14",
+    "rule": "A4 quote_line window of 3 lines",
+    "kind": "invert",
+    "desc": "widen the quote window from quote_line..quote_line+2 to the whole snapshot",
+    "old": "                    if norm(quote) not in norm(' '.join(lines[ql - 1:ql + 2])):",
+    "new": "                    if norm(quote) not in norm(' '.join(lines)):"
+  },
+  {
+    "id": "M15",
+    "rule": "A4 quote_line window of 3 lines",
+    "kind": "boundary",
+    "desc": "narrow the quote window to 2 lines (quote_line..quote_line+1)",
+    "old": "                    if norm(quote) not in norm(' '.join(lines[ql - 1:ql + 2])):",
+    "new": "                    if norm(quote) not in norm(' '.join(lines[ql - 1:ql + 1])):"
+  },
+  {
+    "id": "M16",
+    "rule": "A5 lane-side quote lookup",
+    "kind": "drop",
+    "desc": "drop the lane-quote-not-found reason (lane quote never looked up)",
+    "old": "            elif norm(lquote) not in norm(body.decode('utf-8', 'replace')):\n                reasons.append('lane-quote-not-found')",
+    "new": "            elif norm(lquote) not in norm(body.decode('utf-8', 'replace')):\n                pass"
+  },
+  {
+    "id": "M17",
+    "rule": "A5 lane-side quote lookup",
+    "kind": "drop",
+    "desc": "drop the lane-file-missing reason (missing lane file degrades to a quote mismatch)",
+    "old": "            if body is None:\n                reasons.append('lane-file-missing')",
+    "new": "            if body is None:\n                body = b''"
+  },
+  {
+    "id": "M18",
+    "rule": "A5 25-word cap on the lane quote",
+    "kind": "drop",
+    "desc": "drop the lane-quote-too-long reason (no word cap on the lane quote)",
+    "old": "            if len(lquote.split()) > MAX_WORDS:\n                reasons.append('lane-quote-too-long')",
+    "new": "            if len(lquote.split()) > MAX_WORDS:\n                pass"
+  },
+  {
+    "id": "M19",
+    "rule": "A5 null lane side only for LANE-GAP",
+    "kind": "invert",
+    "desc": "invert the LANE-GAP condition (null lane side required for LANE-GAP only becomes required for non-GAP)",
+    "old": "            if klass != 'LANE-GAP':\n                reasons.append('lane-null-not-gap')",
+    "new": "            if klass == 'LANE-GAP':\n                reasons.append('lane-null-not-gap')"
+  },
+  {
+    "id": "M20",
+    "rule": "A5 lane-side shape",
+    "kind": "drop",
+    "desc": "drop the lane-side-malformed reason (a half-filled lane side is accepted)",
+    "old": "        else:\n            reasons.append('lane-side-malformed')",
+    "new": "        else:\n            pass"
+  },
+  {
+    "id": "M21",
+    "rule": "A6 class vocabulary",
+    "kind": "drop",
+    "desc": "drop the class-invalid reason (any class string accepted)",
+    "old": "        if klass not in CLASSES:\n            reasons.append('class-invalid')",
+    "new": "        if klass not in CLASSES:\n            pass"
+  },
+  {
+    "id": "M22",
+    "rule": "A6 owner vocabulary",
+    "kind": "drop",
+    "desc": "drop the owner-invalid reason (any owner string accepted)",
+    "old": "        if row.get('owner') not in OWNERS:\n            reasons.append('owner-invalid')",
+    "new": "        if row.get('owner') not in OWNERS:\n            pass"
+  },
+  {
+    "id": "M23",
+    "rule": "A7 PROVINCE section parsing",
+    "kind": "invert",
+    "desc": "accept any '## Adjacent' heading as the PROVINCE section",
+    "old": "            inside = line.strip() == SECTION",
+    "new": "            inside = line.strip().startswith('## Adjacent')"
+  },
+  {
+    "id": "M24",
+    "rule": "A7 PROVINCE row requirement",
+    "kind": "drop",
+    "desc": "drop the province-row-missing reason (id need not appear in the PROVINCE section)",
+    "old": "        if rid not in in_province:\n            reasons.append('province-row-missing')",
+    "new": "        if rid not in in_province:\n            pass"
+  },
+  {
+    "id": "M25",
+    "rule": "A2 snapshot must exist",
+    "kind": "drop",
+    "desc": "drop the snapshot-missing reason (an absent snapshot is treated as empty bytes)",
+    "old": "            if snap is None:\n                reasons.append('snapshot-missing')",
+    "new": "            if snap is None:\n                snap = b''"
+  },
+  {
+    "id": "M26",
+    "rule": "A2 dotdot refusal",
+    "kind": "invert",
+    "desc": "refuse '..' anywhere in the path string instead of as a whole path segment",
+    "old": "        if not isinstance(spath, str) or not spath or '..' in spath.split('/'):",
+    "new": "        if not isinstance(spath, str) or not spath or '..' in spath:"
+  },
+  {
+    "id": "M27",
+    "rule": "A2 sibling byte cross-check",
+    "kind": "drop",
+    "desc": "compare the sibling blob only by existence, not by bytes",
+    "old": "                    if live.returncode != 0 or live.stdout != snap:",
+    "new": "                    if live.returncode != 0:"
+  },
+  {
+    "id": "M28",
+    "rule": "A2 sibling byte cross-check",
+    "kind": "drop",
+    "desc": "drop the sibling-verified note (a matching sibling never reports verified)",
+    "old": "                    elif sibling_note != 'sibling-mismatch':\n                        sibling_note = 'sibling-verified'",
+    "new": "                    elif sibling_note != 'sibling-mismatch':\n                        pass"
+  },
+  {
+    "id": "M29",
+    "rule": "A2 snapshot location",
+    "kind": "drop",
+    "desc": "drop the .ufo/waves/round-27/siblings/mori/ snapshot directory prefix",
+    "old": "                snapshots[spath] = show(repo, rev, SNAP_DIR + spath)",
+    "new": "                snapshots[spath] = show(repo, rev, spath)"
+  },
+  {
+    "id": "M30",
+    "rule": "exit code on fewer rows",
+    "kind": "drop",
+    "desc": "always exit 0 regardless of anchored_rows",
+    "old": "    return (0 if anchored == len(IDS) else 1), out",
+    "new": "    return 0, out"
+  },
+  {
+    "id": "M31",
+    "rule": "anchored row count",
+    "kind": "drop",
+    "desc": "count an id as anchored even when it carries failure reasons",
+    "old": "    anchored = sum(1 for rid in IDS if ids.count(rid) == 1 and not result.get(rid))",
+    "new": "    anchored = sum(1 for rid in IDS if ids.count(rid) == 1)"
+  },
+  {
+    "id": "M32",
+    "rule": "register must be readable",
+    "kind": "drop",
+    "desc": "drop the register-unreadable CANNOT_EVALUATE guard",
+    "old": "    except Exception:\n        return 2, {'status': 'CANNOT_EVALUATE', 'finding': 'register-unreadable', 'revision': rev,\n                   'anchored_rows': 0}",
+    "new": "    except Exception:\n        rows = []"
+  },
+  {
+    "id": "M33",
+    "rule": "exact OV1-OV6 id set",
+    "kind": "boundary",
+    "desc": "widen the id set to OV1-OV7 (expected_rows becomes 7)",
+    "old": "IDS = tuple('OV%d' % i for i in range(1, 7))",
+    "new": "IDS = tuple('OV%d' % i for i in range(1, 8))"
+  },
+  {
+    "id": "M34",
+    "rule": "A4 quote must exist",
+    "kind": "drop",
+    "desc": "drop the quote-missing reason (an empty or non-string sibling quote is accepted)",
+    "old": "                if not isinstance(quote, str) or not quote.strip():\n                    reasons.append('quote-missing')",
+    "new": "                if not isinstance(quote, str) or not quote.strip():\n                    pass"
+  },
+  {
+    "id": "M35",
+    "rule": "A2 sibling_path shape",
+    "kind": "drop",
+    "desc": "drop the non-string / empty sibling_path check (only the '..' refusal is left)",
+    "old": "        if not isinstance(spath, str) or not spath or '..' in spath.split('/'):",
+    "new": "        if '..' in spath.split('/'):"
+  },
+  {
+    "id": "M36",
+    "rule": "A7 PROVINCE row requirement",
+    "kind": "invert",
+    "desc": "accept the row id from any PROVINCE table cell, not only the first",
+    "old": "            if cells and cells[0]:\n                ids.add(cells[0])",
+    "new": "            for c in cells:\n                if c:\n                    ids.add(c)"
+  },
+  {
+    "id": "M37",
+    "rule": "A1 exact OV1-OV6 id set",
+    "kind": "drop",
+    "desc": "drop the ids.count(rid)==1 guard from the anchored count (duplicate protection left to the id-duplicate reason)",
+    "old": "    anchored = sum(1 for rid in IDS if ids.count(rid) == 1 and not result.get(rid))",
+    "new": "    anchored = sum(1 for rid in IDS if not result.get(rid))"
+  },
+  {
+    "id": "M38",
+    "rule": "A1 exact OV1-OV6 id set",
+    "kind": "compound",
+    "desc": "compound: drop the id-duplicate reason AND the ids.count(rid)==1 guard (both duplicate protections removed at once)",
+    "old": "        elif ids.count(rid) != 1:\n            reasons.append('id-duplicate')",
+    "new": "        elif ids.count(rid) != 1:\n            pass",
+    "old2": "    anchored = sum(1 for rid in IDS if ids.count(rid) == 1 and not result.get(rid))",
+    "new2": "    anchored = sum(1 for rid in IDS if not result.get(rid))"
+  },
+  {
+    "id": "M39",
+    "rule": "register must exist",
+    "kind": "drop",
+    "desc": "drop the register-missing CANNOT_EVALUATE guard (exit 2 becomes a crash)",
+    "old": "    if raw is None:\n        return 2, {'status': 'CANNOT_EVALUATE', 'finding': 'register-missing', 'revision': rev,\n                   'anchored_rows': 0}",
+    "new": "    if raw is None:\n        raw = b''"
+  },
+  {
+    "id": "M40",
+    "rule": "revision must resolve",
+    "kind": "drop",
+    "desc": "drop the revision-invalid CANNOT_EVALUATE guard (exit 2 finding changes to register-missing)",
+    "old": "    if commit.returncode != 0:\n        return 2, {'status': 'CANNOT_EVALUATE', 'finding': 'revision-invalid', 'revision': rev}",
+    "new": "    if commit.returncode != 0:\n        commit = type('C', (), {'stdout': b'', 'returncode': 0})()"
+  },
+  {
+    "id": "M41",
+    "rule": "register rows shape",
+    "kind": "drop",
+    "desc": "drop the isinstance(rows, list) assertion in the register reader",
+    "old": "        assert isinstance(rows, list)",
+    "new": "        pass"
+  },
+  {
+    "id": "M42",
+    "rule": "A4 25-word cap",
+    "kind": "compound",
+    "desc": "compound: drop the quote word cap AND the window check (does any case pin the 25-word cap?)",
+    "old": "                    if len(quote.split()) > MAX_WORDS:\n                        reasons.append('quote-too-long')",
+    "new": "                    if len(quote.split()) > MAX_WORDS:\n                        pass",
+    "old2": "                    if norm(quote) not in norm(' '.join(lines[ql - 1:ql + 2])):\n                        reasons.append('quote-not-in-window')",
+    "new2": "                    if norm(quote) not in norm(' '.join(lines[ql - 1:ql + 2])):\n                        pass"
+  },
+  {
+    "id": "M43",
+    "rule": "A2 sha256 equals the pinned a5368ee7 digest",
+    "kind": "value",
+    "desc": "point PIN_PATH at the fixture path so the pinned-digest rule can fire at all",
+    "old": "PIN_PATH = 'corpus/knowledge/userspace-oom-killers-r26.md'",
+    "new": "PIN_PATH = 'x/entry.md'"
+  },
+  {
+    "id": "M44",
+    "rule": "A2 sibling byte cross-check",
+    "kind": "compound",
+    "desc": "compound: drop the sibling blob existence check and the byte comparison together",
+    "old": "                    if live.returncode != 0 or live.stdout != snap:\n                        reasons.append('sibling-bytes-differ')\n                        sibling_note = 'sibling-mismatch'",
+    "new": "                    if False:\n                        reasons.append('sibling-bytes-differ')\n                        sibling_note = 'sibling-mismatch'"
+  }
+]

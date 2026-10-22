@@ -1,0 +1,25 @@
+Verdict: holds — S140 re-opens byte-identical to its anchor sha256 and snapshot, all four Gate quotes are verbatim substrings at the stated lines within the 25-word cap, and the row's scope and teaches cells are faithful to the source (QUALITY 66 checks agree on every item).
+
+Seat: TsukuroiR27a2.RevSrcS140. Source under attack: S140, Linux v7.2 `Documentation/admin-guide/tainted-kernels.rst`, URL https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/admin-guide/tainted-kernels.rst.
+
+1. Anchor sha256 — agree. `curl -fsS -o /fast/scratch/hyaku/tsuku27a2/RevSrcS140/tainted-kernels.rst <URL>` followed by `sha256sum` gives `727ddb82bc042e4c5777592128bc8ca0dd640376af515efa8cba2dff5f9a0841` (exit 0), identical to the anchor cell of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md line 146, which records exactly that hash and "snapshot .ufo/waves/round-27/sources/S140.rst (191 lines)". The fetched file is 191 lines, matching the declared snapshot length.
+
+2. Committed snapshot — agree. `sha256sum` on /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-27/sources/S140.rst gives the same `727ddb82…0841`, and `diff -q` against the fresh fetch prints nothing before `IDENTICAL` (exit 0). The snapshot is byte-for-byte the fetched v7.2 bytes.
+
+3. Gate quotes — agree on all four S140 rows in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-27.md, checking verbatim text, word count, and first line of the match in the fetched source:
+   a. Line 15 (KT1): "If that returns ``0``, the kernel is not tainted; any other number indicates the reasons why it is." — 18 words; verbatim substring of source lines 50–52, which read ``cat /proc/sys/kernel/tainted``. If that returns ``0``, the kernel is not / tainted; any other number indicates the reasons why it is." Stated line 51 is the first line of the match. Agree.
+   b. Line 20 (KT2): "12) ``O`` if an externally-built ("out-of-tree") module has been loaded." — 10 words; verbatim at source line 171 (leading two spaces in the source; the Gate method note at line 9 declares whitespace-normalised matching). Agree.
+   c. Line 26 (KT5): "Note the kernel will remain tainted even after you undo what caused the taint" — 14 words; verbatim at source line 12 exactly. Agree.
+   d. Line 29 (KT6): "That's why bug reports from tainted kernels will often be ignored by developers, hence try to reproduce problems with an untainted kernel." — 22 words; verbatim substring of source lines 8–10; stated line 8 is the first line of the match. Agree.
+
+4. Scope cell — agree. SOURCES.md line 146 scope reads "What each kernel taint bit and letter means, how to decode /proc/sys/kernel/tainted, persistence of taint and its effect on bug reports, for the host kernel 7.2.11". The document's own decode table at lines 85–104 maps every bit 0–19 to a letter and meaning, the runtime-read section at lines 50–55 covers /proc/sys/kernel/tainted, line 12 covers persistence, and lines 7–10 cover the bug-report effect. Pinning to tag v7.2 for a host on 7.2.11-arch1-1 is the correct release-series anchor [inf: the tag documents the 7.2 series; the host's point release is the natural consumer].
+
+5. Teaches cell — agree. Every claim maps to source text: "Taint is a set of bits readable in /proc/sys/kernel/tainted" (lines 50–52 and the bitfield statement at lines 71–73); "0 means untainted" (lines 51–52); "bit 12 (O, 4096) marks an externally-built module" (table line 97: "12  _/O    4096  externally-built ("out-of-tree") module was loaded"); "bit 13 (E, 8192) an unsigned module in a kernel supporting module signatures" (table line 98 and the detailed entry at lines 173–174); "the kernel stays tainted after the cause is undone" (line 12); "developers often ignore reports from tainted kernels" (lines 8–10). Nothing in the teaches cell exceeds what the source states.
+
+6. Anchor line citations — agree. The anchor cell cites lines 8, 12, 51 and 171; each corresponds to a real match (KT6 first line at 8, KT5 at 12, KT1 first match line at 51, KT2 at 171).
+
+Residual risk: none observed in scope. [obs] The KT1 quote's first-line claim of 51 is correct only because the sentence begins mid-line after ``cat /proc/sys/kernel/tainted``.; the match truly spans lines 50–52 with the quote text starting on line 51, so the stated first line is the first line containing the quoted text, consistent with the lesson's own "first line of the match" convention at round-27.md line 9.
+
+Scope: read=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md line 146, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-27.md lines 1–56, fetched source /fast/scratch/hyaku/tsuku27a2/RevSrcS140/tainted-kernels.rst (191 lines), snapshot .ufo/waves/round-27/sources/S140.rst; wrote=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-27/w2a2/RevSrcS140.md plus fetched copy under /fast/scratch/hyaku/tsuku27a2/RevSrcS140/; executed=curl -fsS fetch, sha256sum, diff -q, grep -n, python3 substring/line check
+Model: not exposed
+Installs: none
