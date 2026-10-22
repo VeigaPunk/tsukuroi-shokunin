@@ -473,3 +473,27 @@ The NoticeOom-02 supersession includes the current-use reading of the adjacent l
 Append-only; the lines above stay as written. Line 344 is contradicted on two points by `corpus/knowledge/memory-pressure-r25.md` (rows MP4 and MP5; sources S121 to S124). First, `ManagedOOMMemoryPressure=auto` and `ManagedOOMSwap=auto` are the systemd defaults, not a setting someone made, and `auto` means systemd-oomd "will not actively use this cgroup's data for monitoring and detection" (systemd v262 `systemd.resource-control(5)`); on the round-25 capture every unit up to `-.slice` is `auto`, so an enabled systemd-oomd would have monitored none of them, and the inference that it "would likely have acted before the kernel" does not follow. Second, the 90 percent swap rule needs memory use and swap use both above the limit (`oomd.conf(5)`), not swap alone. Line 301 is narrowed by row MP2: the PSI `total` is stall time in microseconds that only grows within one boot, so a dated reading needs two reads in the same boot. Line 347 (`MemoryPressureWatch=`) stands; it has no kill semantics. The earlyoom statements were already superseded in round 18; earlyoom 1.9.0-1 is active and enabled on 2026-10-22 (`.ufo/waves/round-25/capture/capture-earlyoom.txt`).
 
 R25 precision after wave-2 review (CritC2Supersession, CritC2Learning): the swap point above narrows line 344's wording rather than contradicting it, because event A was a global OOM where memory use was very likely above the limit as well; only the `auto` point refutes the line's conclusion. Line 344's suggested action `systemctl enable --now systemd-oomd` would by itself monitor nothing on these units, because they are `auto`; any change stays operator-owned. Line 274 is narrowed by rows MP2, MP3 and MP6 (stall counters and kill counters are separate readings), and line 301 is deepened by rows MP1 and MP2, not refuted. The same superseded claim in `kill-event-deep-r8.md` line 255 carries its own R25 notice.
+
+## Correction (round 29) — kernel OOM victim selection
+
+[obs] Linux v7.2 `mm/oom_kill.c` has no ordered band walk. `oom_badness()` returns rss plus
+`MM_SWAPENTS` plus page-table pages plus `oom_score_adj * (totalpages / 1000)` (lines 228-233),
+with `totalpages = totalram_pages() + total_swap_pages` for a global OOM (line 263), and
+`oom_evaluate_task()` keeps the single largest value over every eligible task (line 340);
+`select_bad_process()` is a plain walk of that test (lines 359-377). `proc.rst` 3.1 states the
+adjustment is added to the badness score before the kill decision (line 1777). The argmax has
+three bypasses: `oom_task_origin()` forces `LONG_MAX` (lines 334-337), `task_will_free_mem(current)`
+selects the allocating task before the walk (line 1122), and `oom_kill_allocating_task` kills
+current instead of scanning (lines 1145-1151). [obs] Totals: live `/proc/meminfo` reads MemTotal
+31,721,800 kB and SwapTotal 31,722,876 kB = 60.5 GiB, while event A's dump records SwapTotal
+35,917,176 kB (swapfile plus 4 GiB zram) = 64.5 GiB. The integer term `totalpages / 1000` is
+15,861 live and 16,909 at event A, so +200 is worth 3,172,200 points (12.1 GiB) now and 3,381,800
+(12.9 GiB) then; +300 is 18.15 GiB now. [obs] Event A's victim held 6,968,424 rss + 7,110,160
+swapents = 14,078,584 pages (53.7 GiB) = 888 points before any adjustment (833 on event A's
+totalpages), against 301 for the best +300 helper: the +200 credit was roughly a quarter of its
+raw points and did not decide the kill. [inf] §2.3's conclusion — the dominant anonymous-memory
+holder died, returning the budget — survives unchanged; only the band wording above is wrong.
+
+[R29-OWED-O01] verdict: corrected | original: "exactly the band the kernel scans first" | now: No band is scanned: oom_badness scores every eligible task as resident pages plus swap entries plus page-table pages plus oom_score_adj times totalpages over 1000, and select_bad_process keeps the single highest value; +200 adds 3,381,800 points, about 12.9 GiB, at event A's 64.5 GiB RAM plus swap, or 3,172,200 points, 12.1 GiB, at the live 60.5 GiB, and the 53.7 GiB victim wins either way. | basis: S149 (mm/oom_kill.c lines 228-233, 263, 340, 359-377) and S148 (/proc/<pid>/oom_score_adj, lines 1777-1789)
+
+[R29-OWED-O02] verdict: corrected | original: "the +200 band is chosen first" | now: The killer walks each task once and retains the maximum points, so no adjustment band is ordered at all; the +200 credit is 3.17 million points live, about 12.1 GiB, against the victim's own 14.08 million points from 53.7 GiB of footprint, so the adjustment was roughly a quarter of the evidence and not the reason for the pick. | basis: S149 (mm/oom_kill.c lines 228-233, 340, 359-377) and S148 (/proc/<pid>/oom_score_adj, lines 1777-1789)

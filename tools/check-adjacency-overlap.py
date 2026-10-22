@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Count anchored rows of the round-27 mori overlap register (claim C2).
+"""Count anchored rows of the round-27 mori overlap register (claim C2). The git helper removes inherited GIT_* variables for every git subprocess.
 
 Rule (SCORECARD.md, "Round 27 — declaration, attempt 1"), every input read
 through git at --revision:
@@ -73,7 +73,8 @@ def norm(text):
 
 
 def git(repo, *args):
-    return subprocess.run(['git', '-C', repo] + list(args), capture_output=True)
+    return subprocess.run(['git', '-C', repo] + list(args), capture_output=True,
+                          env={k: v for k, v in os.environ.items() if not k.startswith('GIT_')})
 
 
 def show(repo, rev, path):

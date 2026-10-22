@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Should-fail data battery for tools/check-kernel-taint.py (round 28, claim C2).
+"""Should-fail data battery for tools/check-kernel-taint.py (round 28, claim C2). Every subprocess this battery starts runs without inherited GIT_* variables.
 
 Origin: round-27 wave-2 seat CritC1Tool's harness
 (`.ufo/waves/round-27/w2a2/CritC1Tool/mutants.py`); the mutate functions are carried unchanged.
@@ -29,6 +29,9 @@ import tarfile
 import tempfile
 from pathlib import Path
 
+def clean_env():
+    return {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+
 _ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
 _ap.add_argument('--base', required=True)
 _g = _ap.add_mutually_exclusive_group(required=True)
@@ -50,8 +53,9 @@ DECLARED = ('generic_word_quote', 'generic_word_quote_the', 'quote_from_uncited_
 
 def _export():
     rev = subprocess.run(['git', '-C', ARGS.lane, 'rev-parse', '--verify', ARGS.base + '^{commit}'],
-                         capture_output=True, text=True, check=True).stdout.strip()
-    tar = subprocess.run(['git', '-C', ARGS.lane, 'archive', rev], capture_output=True, check=True).stdout
+                         capture_output=True, text=True, check=True, env=clean_env()).stdout.strip()
+    tar = subprocess.run(['git', '-C', ARGS.lane, 'archive', rev],
+                         capture_output=True, check=True, env=clean_env()).stdout
     TREE.mkdir()
     with tarfile.open(fileobj=io.BytesIO(tar)) as t:
         t.extractall(str(TREE), filter='data')
@@ -59,7 +63,7 @@ def _export():
         blob = Path(ARGS.counter_file).read_bytes()
     else:
         blob = subprocess.run(['git', '-C', ARGS.lane, 'show', ARGS.counter_rev + ':tools/check-kernel-taint.py'],
-                              capture_output=True, check=True).stdout
+                              capture_output=True, check=True, env=clean_env()).stdout
     TOOL.parent.mkdir()
     TOOL.write_bytes(blob)
     # the counter imports its sibling helper module(s) from its own directory
@@ -77,7 +81,7 @@ SOURCES = 'corpus/SOURCES.md'
 
 def git(*args, check=True):
     return subprocess.run(['git', '-C', str(REPO), *args], check=check,
-                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=clean_env())
 
 
 def setup():
@@ -131,7 +135,8 @@ def run(name, mutate):
     git('commit', '-q', '--allow-empty', '-m', name)
     sha = git('rev-parse', 'HEAD').stdout.strip()
     proc = subprocess.run([sys.executable, str(TOOL), '--repo', str(REPO), '--revision', sha,
-                           '--branch', 'm-' + name], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                               '--branch', 'm-' + name], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              text=True, env=clean_env())
     git('checkout', '-q', 'master')
     try:
         out = json.loads(proc.stdout)

@@ -10,26 +10,38 @@ qualifier debt (O05-O07), the `driver-firmware-plane.md` `[unk]` (O08) and four 
 statements of `storage-health-r26.json` (O09-O12).  Every anchor is a verbatim substring of
 its file at the round-29 base `16e9ab2a`.
 
-Marker rules (an item counts only when every rule holds; the first failure is reported):
- M1  the anchor text is still present verbatim in its file at the revision (append-only:
-     the original statement is kept, never rewritten);
- M2  exactly one marker carries the item id;
-       Markdown target: one line containing `[R29-OWED-<id>]`, shaped
+Marker rules (an item counts only when every rule holds; the first failure is reported).
+Version 2 (round-29 wave-1 repair after seat CritOwedCounterShapes counted 18 of 20 should-fail
+shapes at the declaration commit `81a061a6`; every change below only refuses more):
+ M1  append-only: the base statement is unchanged at the revision.  Markdown: the full base
+     line holding the anchor (sha256 in BASE_DIGEST) is still a line of the file, outside any
+     marker line.  JSON: the named row field's value hashes to its BASE_DIGEST;
+ M2  exactly one marker carries the item id across all six target files, ignoring markers inside
+     fenced code blocks and HTML comments, and it sits in the item's own file;
+       Markdown target: one line shaped (the id bracket may be bold, `**[R29-OWED-<id>]**`)
        `[R29-OWED-<id>] verdict: <v> | original: "<anchor>" | now: <text> | basis: <refs>`;
        JSON target: one object with `"id": "R29-OWED-<id>"` in the top-level
        `corrections_r29` array, keys `row`, `field`, `withdrawn_text`, `verdict`, `now`, `basis`
        (the round-27 `corrections_r27` pattern plus `id`, `verdict`, `now`, `basis`);
  M3  the marker quotes the anchor exactly (`original` / `withdrawn_text` == the anchor), and
-     for JSON the named row and field hold that text;
- M4  verdict is one of `corrected`, `rebutted`, `qualified`;
- M5  `now` has at least 12 words, does not contain the anchor, and is not a word-for-word
-     repeat of another item's `now`;
- M6  basis cites at least one resolvable reference: a source id `S###` whose
-     `corpus/SOURCES.md` registry row has status `mined` and whose used-by cell names the
-     target file's basename, or a repository path `path:LINE` that exists at the revision
-     with at least LINE lines;
- M7  items O01-O04 (kernel victim selection) need at least one `S###` reference that passes M6
-     (a capture alone cannot establish a kernel mechanism).
+     for JSON names the item's row and field;
+ M4  verdict is a string, one of `corrected`, `rebutted`, `qualified`;
+ M5  `now` is a string; with every copy of the anchor removed (compared case- and
+     space-insensitively; a `now` may quote the anchor, as a literal tool output or a dated
+     qualifier, but the anchor never counts toward the floor) it has at least 12 words and at
+     least 10 distinct words, and its word set overlaps no other item's `now` word set by more
+     than 60 percent (Jaccard);
+ M6  basis (a list of strings, or one string) cites at least one resolvable reference: a source
+     id `S###` whose `corpus/SOURCES.md` registry row (cells split on unescaped pipes) has status
+     `mined` and whose used-by cell lists the target file's full repository path as one
+     comma-separated entry; or a repository path `path:LINE` outside `tools/` whose line LINE
+     exists, is not blank and is not itself a marker line;
+ M7  items O01-O04 (kernel victim selection) need at least one `S###` reference that passes M6,
+     was absent from `corpus/SOURCES.md` at the claim base `16e9ab2a` and was opened 2026-10-22
+     (a source opened this round; a capture alone cannot establish a kernel mechanism).
+Whether a cited source actually supports the correction is not mechanically checkable; the
+round's reviewers judge it.  A malformed marker is a refusal, never a crash: the summary line
+is always printed.
 
 Usage: python3 tools/check-owed-statements-r29.py --revision <REV> [--lane <repo>]
 Output: one JSON line per item, then a summary JSON line with `items`, `marked`, `unmarked`.
@@ -71,12 +83,28 @@ ITEMS = (
      'FAILED! otherwise'),
 )
 KERNEL_MECHANISM = {'O01', 'O02', 'O03', 'O04'}
+CLAIM_BASE = '16e9ab2abfac430b4e960e8ce64b90420f602342'
+OPENED = '2026-10-22'
+BASE_DIGEST = {
+    'O01': 'b7cbcffa8b3239a6d4310ed931bedbae1e8869e9fa18f062c5352363ee1fb8f4',
+    'O02': '34c5baaf20a2cda95e39ad956c5f045f27b9fb012f83211daf2e661766363fe7',
+    'O03': '1b1563e3c28865a691ef58705b59e516d3d2574024538bca052bdd8b872e9b88',
+    'O04': 'd1a13e5d835e98b9be17e8ff2aabf4ff6e351ba9cb105f2c7e7d35c34e186cfc',
+    'O05': 'afd272877b3af52d245defc77e8ebed62e0a4ff04d09f9af294114a9e1a6370f',
+    'O06': '425c979cd7f0d41a2efa8bd393fcd9d84ce764b031027f2921ecd6be6f7fc40d',
+    'O07': 'dff0f63c2ac82b652ad046bc46f4f9f923d77282a0019919f0dd2f4ea73b9578',
+    'O08': '4703768aa5b2ff4bf421fa5de3ada08eef35dad07b55f566fc911b3f37ebde4c',
+    'O09': '474c57533c4baac9aa20a667a8624c70f247bdc54cc743eb45498eecfca1d7e0',
+    'O10': 'de10215a6992a2e8422b554b1c7af5ebad6e1d9f91d54290fef5653a1c7c0da0',
+    'O11': '5ffd3f7d4a6bea776471be8e0513d9642aa4a60f3843591abb0fa8482d8265ef',
+    'O12': '33c4b6d0327dba973ecb0041794bd6d8181c3176ab60fad75cdf8f42401a7664',
+}
 VERDICTS = {'corrected', 'rebutted', 'qualified'}
 MD_MARKER = re.compile(
-    r'\[R29-OWED-(?P<id>O\d\d)\]\s*verdict:\s*(?P<verdict>[a-z]+)\s*\|\s*original:\s*"(?P<original>.*?)"'
+    r'\[R29-OWED-(?P<id>O\d\d)\]\**\s*verdict:\s*(?P<verdict>[a-z]+)\s*\|\s*original:\s*"(?P<original>.*?)"'
     r'\s*\|\s*now:\s*(?P<now>.*?)\s*\|\s*basis:\s*(?P<basis>.+?)\s*$')
 SID = re.compile(r'\bS\d{3}\b')
-PATHREF = re.compile(r'`?([A-Za-z0-9_./-]+\.[A-Za-z0-9]+):(\d+)`?')
+PATHREF = re.compile(r'`?((?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+):(\d+)`?')
 
 
 def clean_env():
@@ -94,34 +122,70 @@ def show(lane, rev, path):
     return p.stdout.decode('utf-8', 'replace') if p.returncode == 0 else None
 
 
+def split_cells(line):
+    return [c.strip() for c in re.split(r'(?<!\\)\|', line.strip().strip('|'))]
+
+
 def sources_rows(text):
     rows = {}
     for line in (text or '').splitlines():
         if not re.match(r'^\| S\d{3} \|', line):
             continue
-        cells = [c.strip() for c in line.strip().strip('|').split('|')]
+        cells = split_cells(line)
         if len(cells) >= 11:
-            rows[cells[0]] = {'status': cells[7], 'used_by': cells[10]}
+            used = {u.strip().strip('`').strip() for u in cells[10].split(',')}
+            rows[cells[0]] = {'status': cells[7], 'opened': cells[8], 'used_by': used}
     return rows
 
 
-def basis_ok(lane, rev, item_file, basis_text, srcrows, need_sid):
-    base = os.path.basename(item_file)
-    good_sid, good_path, bad = [], [], []
-    for sid in SID.findall(basis_text):
+def live_lines(text):
+    """Lines outside fenced code blocks and HTML comments, with their 1-based numbers."""
+    out, fence, comment = [], False, False
+    for n, ln in enumerate(text.splitlines(), 1):
+        s = ln.strip()
+        if comment:
+            if '-->' in ln:
+                comment = False
+            continue
+        if s.startswith('```') or s.startswith('~~~'):
+            fence = not fence
+            continue
+        if fence:
+            continue
+        if '<!--' in ln:
+            if '-->' not in ln.split('<!--', 1)[1]:
+                comment = True
+            continue
+        out.append((n, ln))
+    return out
+
+
+def norm(s):
+    return ' '.join(s.lower().split())
+
+
+def basis_ok(lane, rev, item_file, refs, srcrows, base_sids, need_sid):
+    good_sid, good_new_sid, good_path, bad = [], [], [], []
+    text = ' '.join(refs)
+    for sid in sorted(set(SID.findall(text))):
         r = srcrows.get(sid)
-        if r and r['status'] == 'mined' and base in r['used_by']:
+        if r and r['status'] == 'mined' and item_file in r['used_by']:
             good_sid.append(sid)
+            if sid not in base_sids and r['opened'] == OPENED:
+                good_new_sid.append(sid)
         else:
             bad.append(sid)
-    for path, line in PATHREF.findall(basis_text):
-        body = show(lane, rev, path)
-        if body is not None and int(line) >= 1 and len(body.splitlines()) >= int(line):
+    for path, line in PATHREF.findall(text):
+        n = int(line)
+        body = None if path.startswith('tools/') else show(lane, rev, path)
+        lines = body.splitlines() if body is not None else []
+        if body is not None and 1 <= n <= len(lines) and lines[n - 1].strip() \
+                and 'R29-OWED-' not in lines[n - 1]:
             good_path.append(f'{path}:{line}')
         else:
             bad.append(f'{path}:{line}')
-    if need_sid and not good_sid:
-        return False, f'M7 no S### reference that passes M6 (bad={bad})'
+    if need_sid and not good_new_sid:
+        return False, f'M7 no S### opened this round that passes M6 (sources={good_sid}, bad={bad})'
     if not good_sid and not good_path:
         return False, f'M6 no resolvable basis reference (bad={bad})'
     return True, {'sources': good_sid, 'paths': good_path, 'unresolved': bad}
@@ -129,71 +193,106 @@ def basis_ok(lane, rev, item_file, basis_text, srcrows, need_sid):
 
 def check(lane, rev):
     srcrows = sources_rows(show(lane, rev, 'corpus/SOURCES.md'))
+    base_sids = set(sources_rows(show(lane, CLAIM_BASE, 'corpus/SOURCES.md')))
+    files = sorted({it[1] for it in ITEMS})
+    cache = {f: show(lane, rev, f) for f in files}
+    docs = {}
+    for f in files:
+        if f.endswith('.json') and cache[f] is not None:
+            try:
+                docs[f] = json.loads(cache[f])
+            except ValueError:
+                docs[f] = None
+    # M2 census: where does each id appear, across every target file
+    where = {it[0]: [] for it in ITEMS}
+    for f in files:
+        text = cache[f]
+        if text is None:
+            continue
+        if f.endswith('.json'):
+            corr = (docs.get(f) or {}).get('corrections_r29') if isinstance(docs.get(f), dict) else None
+            for c in corr if isinstance(corr, list) else []:
+                cid = c.get('id') if isinstance(c, dict) else None
+                if isinstance(cid, str) and cid.startswith('R29-OWED-') and cid[9:] in where:
+                    where[cid[9:]].append((f, c))
+            for iid in where:
+                hits = text.count('R29-OWED-' + iid)
+                listed = sum(1 for wf, _ in where[iid] if wf == f)
+                for _ in range(hits - listed):
+                    where[iid].append((f, None))
+        else:
+            for n, ln in live_lines(text):
+                for iid in set(re.findall(r'R29-OWED-(O\d\d)', ln)):
+                    if iid in where:
+                        where[iid].append((f, ln))
     out, nows = [], {}
-    cache = {}
     for iid, path, row, field, anchor in ITEMS:
-        if path not in cache:
-            cache[path] = show(lane, rev, path)
-        text = cache[path]
         res = {'id': iid, 'file': path, 'ok': False}
         out.append(res)
+        text = cache[path]
         if text is None:
             res['why'] = 'M1 file missing at revision'
             continue
         if path.endswith('.json'):
-            try:
-                doc = json.loads(text)
-            except ValueError as e:
-                res['why'] = f'M1 json unreadable: {e}'
+            doc = docs.get(path)
+            target = next((r for r in doc.get('rows', []) if isinstance(r, dict) and r.get('id') == row), None) \
+                if isinstance(doc, dict) else None
+            value = target.get(field) if isinstance(target, dict) else None
+            if not isinstance(value, str) or hashlib.sha256(value.encode()).hexdigest() != BASE_DIGEST[iid]:
+                res['why'] = 'M1 the named row field changed since the claim base (or is missing)'
                 continue
-            target = next((r for r in doc.get('rows', []) if isinstance(r, dict) and r.get('id') == row), None)
-            if target is None or not isinstance(target.get(field), str) or anchor not in target[field]:
-                res['why'] = 'M1 anchor not present in the named row field'
+        else:
+            plain = [ln for ln in text.splitlines() if 'R29-OWED-' not in ln]
+            if not any(hashlib.sha256(ln.encode()).hexdigest() == BASE_DIGEST[iid] for ln in plain):
+                res['why'] = 'M1 the base line holding the anchor changed or was removed'
                 continue
-            corr = doc.get('corrections_r29')
-            ms = [c for c in corr if isinstance(c, dict) and c.get('id') == 'R29-OWED-' + iid] \
-                if isinstance(corr, list) else []
-            if len(ms) != 1:
-                res['why'] = f'M2 {len(ms)} markers'
+        hits = where[iid]
+        if len(hits) != 1 or hits[0][0] != path:
+            res['why'] = f'M2 {len(hits)} markers ({sorted({h[0] for h in hits})}), need exactly one in {path}'
+            continue
+        m = hits[0][1]
+        if path.endswith('.json'):
+            if not isinstance(m, dict):
+                res['why'] = 'M2 marker id appears outside corrections_r29'
                 continue
-            m = ms[0]
             if m.get('row') != row or m.get('field') != field or m.get('withdrawn_text') != anchor:
                 res['why'] = 'M3 row, field or withdrawn_text does not name the anchor exactly'
                 continue
-            verdict, now = m.get('verdict'), m.get('now')
-            basis = m.get('basis')
-            basis_text = ' '.join(basis) if isinstance(basis, list) and all(isinstance(b, str) for b in basis) else None
-            if basis_text is None:
-                res['why'] = 'M6 basis is not a list of strings'
-                continue
+            verdict, now, basis = m.get('verdict'), m.get('now'), m.get('basis')
         else:
-            if text.count(anchor) < 1:
-                res['why'] = 'M1 anchor not present'
-                continue
-            lines = [ln for ln in text.splitlines() if f'[R29-OWED-{iid}]' in ln]
-            if len(lines) != 1:
-                res['why'] = f'M2 {len(lines)} markers'
-                continue
-            mm = MD_MARKER.search(lines[0])
+            mm = MD_MARKER.search(m)
             if not mm or mm.group('id') != iid:
                 res['why'] = 'M2 marker line is not in the required shape'
                 continue
             if mm.group('original') != anchor:
                 res['why'] = 'M3 original does not equal the anchor'
                 continue
-            verdict, now, basis_text = mm.group('verdict'), mm.group('now'), mm.group('basis')
-        if verdict not in VERDICTS:
+            verdict, now, basis = mm.group('verdict'), mm.group('now'), mm.group('basis')
+        if not isinstance(verdict, str) or verdict not in VERDICTS:
             res['why'] = f'M4 verdict {verdict!r}'
             continue
-        if not isinstance(now, str) or len(now.split()) < 12 or anchor in now:
-            res['why'] = 'M5 now is shorter than 12 words or repeats the anchor'
+        if not isinstance(now, str):
+            res['why'] = 'M5 now is not a string'
             continue
-        key = ' '.join(now.lower().split())
-        if key in nows:
-            res['why'] = f'M5 now repeats item {nows[key]}'
+        n_now, n_anchor = norm(now), norm(anchor)
+        words = re.findall(r"[a-z0-9][a-z0-9'_.+-]*", n_now.replace(n_anchor, ' '))
+        if len(words) < 12 or len(set(words)) < 10:
+            res['why'] = f'M5 now has {len(words)} words, {len(set(words))} distinct (need 12 and 10)'
             continue
-        nows[key] = iid
-        ok, detail = basis_ok(lane, rev, path, basis_text, srcrows, iid in KERNEL_MECHANISM)
+        wset = set(words)
+        clash = next((o for o, s in nows.items() if len(wset & s) / len(wset | s) > 0.6), None)
+        if clash:
+            res['why'] = f'M5 now overlaps item {clash} by more than 60 percent'
+            continue
+        nows[iid] = wset
+        if isinstance(basis, str):
+            refs = [basis]
+        elif isinstance(basis, list) and basis and all(isinstance(b, str) for b in basis):
+            refs = basis
+        else:
+            res['why'] = 'M6 basis is not a string or a list of strings'
+            continue
+        ok, detail = basis_ok(lane, rev, path, refs, srcrows, base_sids, iid in KERNEL_MECHANISM)
         if not ok:
             res['why'] = detail
             continue

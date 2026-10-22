@@ -1,0 +1,16 @@
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+index 41fd0cd..0866d9a 100644
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -1339,6 +1339,12 @@ def selftest():
+                                    entry_quotes={'S128': short})
+         case('r4a-quote-too-short-%s' % shape, files,
+              {'exit': 1, 'verified_rows': 5, 'findings': ['KT-QUOTE-TOO-SHORT']})
++    # Keep the two-word floor independent of the character floor.
++    files, sha = build_fixture(snapshot_quotes={'S128': 'singlewordlong'},
++                               gate_quotes_map={'S128': 'singlewordlong'},
++                               entry_quotes={'S128': 'singlewordlong'})
++    case('r4a-quote-too-few-words', files,
++         {'exit': 1, 'verified_rows': 5, 'findings': ['KT-QUOTE-TOO-SHORT']})
+     files, sha = entry_case(row_mutator('KT1', lambda r: r['quotes'].append(
+         {'source': FIXTURE_SOURCES[1], 'quote': FIXTURE_QUOTES[1]})))

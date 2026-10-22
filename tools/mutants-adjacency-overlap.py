@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Should-fail register battery for tools/check-adjacency-overlap.py (round 28, claim C1).
+"""Should-fail register battery for tools/check-adjacency-overlap.py (round 28, claim C1). Every subprocess this battery starts runs without inherited GIT_* variables.
 
 Origin: round-27 wave-2 seat CritC2Tool's driver (`.ufo/waves/round-27/w2a2/CritC2Tool.md`),
 made reproducible from committed bytes: the lane data is `git archive <--base>` into a private
@@ -14,6 +14,9 @@ Usage: python3 tools/mutants-adjacency-overlap.py --base <REV> (--counter-rev <R
 Read-only on the lane; writes only under a fresh tempfile.mkdtemp() directory, removed at exit.
 """
 import argparse, atexit, copy, hashlib, io, json, os, shutil, subprocess, sys, tarfile, tempfile
+
+def clean_env():
+    return {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
 
 _ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
 _ap.add_argument('--base', required=True)
@@ -43,8 +46,9 @@ PIN = 'ef9dbee136d6ed2ef98687f5cb0c0a16506a5155'
 def _export():
     lane = ARGS.lane
     rev = subprocess.run(['git', '-C', lane, 'rev-parse', '--verify', ARGS.base + '^{commit}'],
-                         capture_output=True, text=True, check=True).stdout.strip()
-    tar = subprocess.run(['git', '-C', lane, 'archive', rev], capture_output=True, check=True).stdout
+                         capture_output=True, text=True, check=True, env=clean_env()).stdout.strip()
+    tar = subprocess.run(['git', '-C', lane, 'archive', rev],
+                         capture_output=True, check=True, env=clean_env()).stdout
     os.makedirs(TREE)
     with tarfile.open(fileobj=io.BytesIO(tar)) as t:
         t.extractall(TREE, filter='data')
@@ -53,7 +57,7 @@ def _export():
             blob = fh.read()
     else:
         blob = subprocess.run(['git', '-C', lane, 'show', ARGS.counter_rev + ':tools/check-adjacency-overlap.py'],
-                              capture_output=True, check=True).stdout
+                              capture_output=True, check=True, env=clean_env()).stdout
     os.makedirs(os.path.dirname(TOOL))
     with open(TOOL, 'wb') as fh:
         fh.write(blob)
@@ -65,7 +69,7 @@ RESULTS = []
 
 
 def sh(*a, cwd=None):
-    return subprocess.run(list(a), cwd=cwd, capture_output=True)
+    return subprocess.run(list(a), cwd=cwd, capture_output=True, env=clean_env())
 
 
 def g(*a):

@@ -1,0 +1,45 @@
+# SentinelGitEnv command log (round 29 wave 1). All writes under /fast/scratch/hyaku/tsukuroi-r29/SentinelGitEnv.
+# B=/fast/scratch/hyaku/tsukuroi-r29/SentinelGitEnv
+
+git -C B/repo rev-parse HEAD -> 81a061a67466c5e1be812814a895a4b5ed89b4ff
+git version 2.56.0 ; Python 3.14.8
+
+## F1 global core.hooksPath (HOME), full GIT_* scrub
+env -i PATH=... HOME=B/exp/home1 LC_ALL=C GIT_CONFIG_NOSYSTEM=1 python3 B/repo/tools/check-adjacency-overlap.py --selftest -> rc=0
+wc -l B/exp/HOOKLOG -> 43   (hook-fired .../poison/post-commit)
+env -i PATH=... HOME=B/exp/home0 XDG_CONFIG_HOME=B/exp/xdg ... --selftest -> rc=0 ; B/exp/HOOKLOG -> 43
+includeIf gitdir:B/exp/probe-sbx/** -> path=cond.inc -> git -C B/exp/probe-sbx config --get core.hooksPath -> /fast/.../exp/poison (rc=0)
+attribution: B/exp/HOOKLOG6 -> 40 lines 'fired pwd=/tmp/tmp*/lane'
+probe under poisoned HOME, --only tools/check-freshness-r17.py -> {"leak": false} ; B/exp/standin 3c00152 -> 2e935b3 (hook-write)
+
+## F2 init.templateDir
+HOME/.gitconfig [init] templateDir=B/exp/tmpl (hooks/post-commit) ; full scrub --selftest -> rc=0 ; B/exp/HOOKLOG2 -> 43
+
+## F3 PATH shim sets GIT_DIR
+B/exp/shim4/git = exec env GIT_DIR=B/exp/canary5/.git GIT_WORK_TREE=B/exp/canary5 /usr/bin/git "$@"
+PATH=B/exp/shim4:... git init -q sbx2 ; git -C sbx2 commit -qm from-sandbox -> rc=0 ; canary5 none -> 0b68935 from-sandbox ; sbx2 HEAD none
+
+## F4 GIT_CONFIG_COUNT injection with only the three named vars unset
+GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.hooksPath GIT_CONFIG_VALUE_0=B/exp/poison3 --selftest -> rc=0 ; B/exp/HOOKLOG3 -> 43
+
+## F5 enclosing-repo discovery via git -C subdir
+canary2 88fd814 base ; env-scrubbed git -C B/exp/canary2/sub add -A ; commit -qm stray -> canary2 8896495 (log: 8896495 stray / 88fd814 base)
+TMPDIR=B/exp/canary3 (a repo worktree) --selftest -> rc=0 ; canary3 HEAD fbb8424 unchanged ; no residues left
+explicit args beat inherited env: GIT_DIR=B/exp/canary5/.git GIT_WORK_TREE=B/exp/canary5 git --git-dir=B/exp/sbx3/.git --work-tree=B/exp/sbx3 commit -> sbx3 be65240 ; canary5 still 0b68935
+
+## F6 counter shape
+sed -n '67,80p' tools/probe-git-env-leak.py (fingerprint: HEAD, refs, object/ref names, index, packed-refs)
+sed -n '144,160p' tools/probe-git-env-leak.py (leak = canary_changed or rc differs)
+
+## F7 probe harness inherits config
+poisoned HOME + hook that commits -> probe single-target run hung, killed at 300 s ; standin rev-list --count HEAD -> 44868 ; standin removed and rebuilt
+HOME with commit.gpgsign=true, gpg.program=/bin/false -> probe --only check-freshness-r17.py -> leak false, harness_errors [] (probe disables gpgsign in make_canary)
+same HOME: check-adjacency-overlap.py --selftest -> rc=1, failed 43/43 ; check-freshness/kernel-taint/memory-pressure -> PASS
+
+## F8 no-risk checks
+HOME=home3 [core] worktree=B/exp/canary -> git -C B/exp/probe-sbx status --porcelain -> '?? z' (no redirect)
+GIT_CONFIG_GLOBAL=/dev/null -> git config --get core.hooksPath rc=1 for HOME, XDG and NOSYSTEM layouts
+
+## remediation shape
+env -i HOME=probehome GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null python3 tools/check-adjacency-overlap.py --selftest -> rc=0 ; B/exp/HOOKLOG9 -> 0
+same without the config kill -> rc=0 ; B/exp/HOOKLOG9 -> 43

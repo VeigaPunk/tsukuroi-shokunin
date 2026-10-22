@@ -1,0 +1,100 @@
+diff --git a/tools/check-self-assessment.py b/tools/check-self-assessment.py
+index da9882e..9f5ce3a 100755
+--- a/tools/check-self-assessment.py
++++ b/tools/check-self-assessment.py
+@@ -11,15 +11,18 @@ from a temporary directory populated by `git archive <REV>`.
+ K01 to K06 (round-26 refinement of the round-25 rule, routed defect 3). The
+ current axes table is the last table under the last SCORECARD heading that
+ starts `## Axes - `, and that heading must name the round as `round N`; a
+-heading without a round number exits 2. The ordinal reference holds only the
++heading without a round number exits 2. The ordinal reference holds only
+ SCORECARD lines inside a section whose heading (any level, `#` to `######`)
+-carries `measured outcome` (case-insensitive), from any round; every other
+-line (declarations, refinements, move logs, corrections) is excluded, and the
+-axes table itself never qualifies. A section runs to the next heading of the
+-same or higher level, so a measured-outcome section keeps its subsections.
++starts with a round label (`RoundN`, `Round N`, or `Round-N`) and carries
++`measured outcome` (case-insensitive), and only when N is earlier than the
++declaring round. A declaring-round or later-round section is excluded even
++when nested inside an earlier outcome section. Every other line (declarations,
++refinements, move logs, corrections) is excluded, and the axes table itself
++never qualifies. A section runs to the next heading of the same or higher
++level, so a measured-outcome section keeps its subsections.
+ The reference line is the last match, by line order, of the round-25
+ refinement regex `\b<axis>\b[^0-9|→\n]{0,12}?(\d{1,2})\s*(?:→|->)\s*(\d{1,2})`
+-with both numbers from 0 to 10. An axis with no match in any
++with both numbers from 0 to 10. An axis with no match in any eligible
+ measured-outcome section is a mismatch with the reason `no dated move record`,
+ never a silent pass and never exit 2.
+ 
+@@ -358,21 +361,21 @@ def heading_sections(lines):
+     return headings
+ 
+ 
+-ROUND_HEADING_RE = re.compile(r"^Round ?(\d+)\b", re.I)
++ROUND_HEADING_RE = re.compile(r"^Round[- ]?(\d+)\b", re.I)
+ 
+ 
+ def reference_lines(lines, declaring_round):
+     """Line indices that may serve as the ordinal reference.
+ 
+     Only lines inside a section whose heading (any level) starts with
+-    `Round N` (anchored at the start of the heading text, `Round16` and
+-    `Round 16` both read) and carries `measured outcome` (case-insensitive)
+-    qualify, and only when N is earlier than the declaring round: a round's
+-    own outcome record is the next round's reference, never its own
+-    (QUALITY 65, round-26 routed defect 2; added in round 27).  A
+-    declaration, a refinement, a move log or a correction is never a dated
+-    move record.  A section runs to the next heading of the same or higher
+-    level, so a measured-outcome section keeps its subsections.
++    `RoundN`, `Round N`, or `Round-N` (anchored at the start of the heading
++    text) and carries `measured outcome` (case-insensitive) qualify, and only
++    when N is earlier than the declaring round: a round's own outcome record
++    is the next round's reference, never its own (QUALITY 65, round-26 routed
++    defect 2; added in round 27). A declaration, refinement, move log or
++    correction is never a dated move record. A section runs to the next
++    heading of the same or higher level, so a measured-outcome section keeps
++    its subsections.
+     """
+     candidates, excluded = set(), set()
+     for heading in heading_sections(lines):
+@@ -906,6 +909,28 @@ def fixture_files(case):
+             "## Capabilities\n",
+             "## Notes on the round 1 measured outcome\n\n- depth 8 -> 3\n\n## Capabilities\n", 1)
+         expected = {"expected_exit": EXIT_PASS, "expected_mismatch_ids": [], "expected_error": ""}
++    elif case == "hyphenated-round-outcome-heading":
++        scorecard = scorecard.replace(
++            "## Axes - fixture self-assessment (round 2)",
++            "## Axes - fixture self-assessment (round 14)", 1).replace(
++                "## Round 1 measured outcome",
++                "## Round-13 measured outcome", 1)
++        expected = {"expected_exit": EXIT_PASS, "expected_mismatch_ids": [], "expected_error": ""}
++    elif case == "word-character-after-round-number":
++        scorecard = scorecard.replace(
++            "## Capabilities\n",
++            "## Round 1x measured outcome\n\n- depth 8 -> 3\n\n## Capabilities\n", 1)
++        expected = {"expected_exit": EXIT_PASS, "expected_mismatch_ids": [], "expected_error": ""}
++    elif case == "case-insensitive-measured-outcome":
++        scorecard = scorecard.replace(
++            "## Round 1 measured outcome",
++            "## Round 1 Measured Outcome", 1)
++        expected = {"expected_exit": EXIT_PASS, "expected_mismatch_ids": [], "expected_error": ""}
++    elif case == "later-round-outcome-section":
++        scorecard = scorecard.replace(
++            "## Capabilities\n",
++            "## Round 3 measured outcome\n\n- depth 8 -> 3\n\n## Capabilities\n", 1)
++        expected = {"expected_exit": EXIT_PASS, "expected_mismatch_ids": [], "expected_error": ""}
+     elif case == "stale-ordinal":
+         scorecard = fixture_scorecard({"coverage": 8})
+         expected = {"expected_exit": EXIT_MISMATCH, "expected_mismatch_ids": ["K02"], "expected_error": ""}
+@@ -992,7 +1017,9 @@ def run_selftest():
+              "axes-heading-without-round", "declaring-round-declaration-line",
+              "declaring-round-measured-outcome-line", "axis-without-move-record",
+              "shonen-superseded-note", "shonen-missing-note", "own-round-outcome-depth-10",
+-             "outcome-heading-not-round-anchored"]
++             "outcome-heading-not-round-anchored", "hyphenated-round-outcome-heading",
++             "word-character-after-round-number", "case-insensitive-measured-outcome",
++             "later-round-outcome-section"]
+     results = []
+     failures = []
+     try:
