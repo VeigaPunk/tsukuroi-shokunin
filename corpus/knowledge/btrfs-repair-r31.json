@@ -1,0 +1,76 @@
+{
+ "rows": [
+  {
+   "id": "Q01",
+   "question": "Does defragmenting a file on btrfs change space use when snapshots or reflinks share its extents?",
+   "statement": "Yes. Defragmentation breaks shared extent references for files made with `cp --reflink` and for data present in several snapshots; the filesystem may consume more data space.",
+   "source": "S164",
+   "snapshot": ".ufo/waves/round-31/w1/ScribeSrcDefrag/Defragmentation.rst",
+   "line": 26,
+   "quote": "--reflink** or existing on multiple snapshots. Due to that the data space"
+  },
+  {
+   "id": "Q02",
+   "question": "When does btrfs rescue zero-log apply after a failed mount, and what does it lose?",
+   "statement": "If a filesystem mount fails during log replay and its kernel backtrace shows open_ctree plus function names containing replay, recover, or log_tree, zero-log should clear the log; the filesystem may then mount normally. Clearing the log may lose changes made since the last transaction commit—up to 30 seconds at the default commit period, or less when other filesystem activity implied a commit.",
+   "source": "S165",
+   "snapshot": ".ufo/waves/round-31/w1/ScribeSrcRescue/btrfs-rescue.rst",
+   "line": 149,
+   "quote": "If the errors are like above, then :command:`zero-log` should be used to clear"
+  },
+  {
+   "id": "Q03",
+   "question": "When may btrfs check --repair be run on a damaged filesystem?",
+   "statement": "By default, btrfs check leaves the device unchanged; --readonly reaffirms that, while --repair attempts fixes. The documentation recommends unmounting before a check, though --force permits a mounted check. Use --repair only on a developer's or experienced user's advice and after accepting that no fsck can successfully repair every type of filesystem corruption. Finish or cancel any running replace or balance first. Without --force, repair displays a warning and waits ten seconds; --force allows mounted checks and skips mount checks and that warning delay. Mounted repair most likely causes corruption unless the filesystem is quiescent, which may not be possible to guarantee; an external device change can make a forced check crash.",
+   "source": "S166",
+   "snapshot": ".ufo/waves/round-31/w1/ScribeSrcCheck/btrfs-check.rst",
+   "line": 30,
+   "quote": "Do not use *--repair* unless you are advised to do so by a developer"
+  },
+  {
+   "id": "Q04",
+   "question": "What does the autodefrag mount option do and for which workload is it unsuitable?",
+   "statement": "The autodefrag option turns on automatic file defragmentation; when enabled, it detects random writes to files in a tens-of-kilobytes range (currently 64KiB) and queues them. Large database workloads may be a poor fit; reading adjacent blocks may raise read latency, while successive writes merge blocks at the new location.",
+   "source": "S167",
+   "snapshot": ".ufo/waves/round-31/w1/ScribeSrcMountOpts/ch-mount-options.rst",
+   "line": 38,
+   "quote": "detected and queued up for the defragmentation process."
+  },
+  {
+   "id": "Q05",
+   "question": "What does the btrfs commit= mount option bound, and what is its default and warning limit?",
+   "statement": "The commit= option sets the periodic transaction commit interval for synchronizing data to permanent storage; its default is 30 seconds, and values above 300 seconds (5 minutes) warn without an enforced upper bound. Longer intervals let more unwritten data collect in memory, with crash consequences. This is not the sole commit route: explicit sync, commands affecting global filesystem state, and kernel mechanisms flushing on thresholds or policies such as cgroups can also commit.",
+   "source": "S167",
+   "snapshot": ".ufo/waves/round-31/w1/ScribeSrcMountOpts/ch-mount-options.rst",
+   "line": 92,
+   "quote": "Set the interval of periodic transaction commit when data are synchronized"
+  },
+  {
+   "id": "Q06",
+   "question": "What does the nodatacow mount option give up on btrfs?",
+   "statement": "With nodatacow, newly created files use in-place updates instead of copy-on-write and receive the NOCOW attribute; it implies nodatasum, so these files lack data checksums, and compression is disabled. Frequent overwrites may perform better, but interruption by system crash or device failure can leave partial writes.",
+   "source": "S167",
+   "snapshot": ".ufo/waves/round-31/w1/ScribeSrcMountOpts/ch-mount-options.rst",
+   "line": 135,
+   "quote": "*Nodatacow* implies *nodatasum*, and disables *compression*."
+  },
+  {
+   "id": "Q07",
+   "question": "How is a failing or missing btrfs device replaced, and what size must the target be?",
+   "statement": "On a live filesystem, `btrfs replace start` duplicates the source's current data to the target. If the source is unavailable, or `-r` is set, data is built using RAID redundancy; with `-r`, the source is read only when no other zero-defect mirror exists, an option documented for drives with many read errors and slow access. The source argument can be its device path or filesystem devid; a disconnected source must use devid. Completion removes the source. The target must be the same size as or larger than the source; using all of a larger target requires resizing the filesystem to `<devid>:max`.",
+   "source": "S168",
+   "snapshot": ".ufo/waves/round-31/w1/ScribeSrcReplace/btrfs-replace.rst",
+   "line": 106,
+   "quote": "btrfs replace start 1 /dev/sdc /mnt/my-vault/"
+  },
+  {
+   "id": "Q08",
+   "question": "Which trim mode should a btrfs SSD use: discard=sync, discard=async or periodic fstrim?",
+   "statement": "Do not recommend discard=sync: it trims freed extents immediately, and fragmented ranges may cause a severe performance hit. discard=async is described as an improved version of synchronous trim; it tracks freed extents in memory, then starts after a period or when enough ranges accumulate, expecting larger ranges and throttling the number of I/O requests so other filesystem activity is not disrupted. Manual fstrim needs no mount options, traverses free space across the filesystem, and suits a periodic service; periodic trimming may also prevent unexpected slowdown from device-internal data relocation. Since kernel 6.2, the discard=async mount option is automatically enabled for devices that support it. Trim is a device hint: it may be ignored, applied only to ranges meeting criteria, or skipped for other factors affecting memory cells.",
+   "source": "S169",
+   "snapshot": ".ufo/waves/round-31/w1/ScribeSrcTrim/Trim.rst",
+   "line": 29,
+   "quote": "the tool :command:`fstrim` starts a trim operation on the whole filesystem, no"
+  }
+ ]
+}

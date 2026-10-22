@@ -1,0 +1,11 @@
+--- a/tools/check-btrfs-repair-r31.py
++++ b/tools/check-btrfs-repair-r31.py
+@@ -236,8 +236,6 @@
+             fail.append(f'R1 {len(rs)} rows for {qid}')
+         else:
+             r = rs[0]
+-            if set(r) != ROW_KEYS:
+-                fail.append('R2 keys ' + ','.join(sorted(set(r) ^ ROW_KEYS)))
+             st, quote, snap, line, src = (r.get('statement'), r.get('quote'), r.get('snapshot'),
+                                           r.get('line'), r.get('source'))
+             if not all(isinstance(x, str) for x in (st, quote, snap, src)):

@@ -90,7 +90,8 @@ class CannotEvaluate(Exception):
 # --------------------------------------------------------------------------
 
 def git_env():
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env = {k: v for k, v in os.environ.items()
+           if not k.startswith(("GIT_", "LD_", "PYTHON"))}
     env.update({
         "GIT_NO_REPLACE_OBJECTS": "1",
         "GIT_CONFIG_NOSYSTEM": "1",

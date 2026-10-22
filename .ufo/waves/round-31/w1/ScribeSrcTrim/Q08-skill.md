@@ -1,0 +1,1 @@
+| [R31-Q08] | Choosing a trim mode on a btrfs SSD | Avoid discard=sync, which is not recommended; fstrim needs no mount option and is suitable as a periodic service, while discard=async tracks freed ranges and throttles the number of I/O requests. | S169 line 14-32 |

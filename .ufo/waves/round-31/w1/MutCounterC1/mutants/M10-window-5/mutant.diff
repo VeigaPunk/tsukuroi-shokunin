@@ -1,0 +1,11 @@
+--- a/tools/check-btrfs-repair-r31.py
++++ b/tools/check-btrfs-repair-r31.py
+@@ -293,7 +293,7 @@
+             for n, group in enumerate(KEYHASH[qid], 1):
+                 if not digests.intersection(group):
+                     fail.append(f'R7 sealed answer-key group {n} missing')
+-            if shares_run(st, quote):
++            if shares_run(st, quote, 5):
+                 fail.append('R7 statement shares a 6-word run with the quote')
+         ok = not fail
+         count += ok

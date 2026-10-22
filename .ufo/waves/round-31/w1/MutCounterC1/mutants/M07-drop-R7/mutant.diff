@@ -1,0 +1,19 @@
+--- a/tools/check-btrfs-repair-r31.py
++++ b/tools/check-btrfs-repair-r31.py
+@@ -285,16 +285,6 @@
+                 fail.append('R6 quote lacks a novelty token')
+             if not has_token(st, q['tokens']):
+                 fail.append('R6 statement lacks a novelty token')
+-            if len(st.split()) < 12:
+-                fail.append('R7 statement under 12 words')
+-            cands = set(words(st))
+-            cands |= {p for w in list(cands) for p in re.split(r'[-/.]', w) if p}
+-            digests = {hashlib.sha256((SALT + ' ' + w).encode()).hexdigest()[:16] for w in cands}
+-            for n, group in enumerate(KEYHASH[qid], 1):
+-                if not digests.intersection(group):
+-                    fail.append(f'R7 sealed answer-key group {n} missing')
+-            if shares_run(st, quote):
+-                fail.append('R7 statement shares a 6-word run with the quote')
+         ok = not fail
+         count += ok
+         print(json.dumps({'id': qid, 'new_sourced': ok, 'fail': fail}), flush=True)

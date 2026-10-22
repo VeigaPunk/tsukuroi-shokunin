@@ -1,0 +1,1 @@
+| [R31-Q01] | Files made by `cp --reflink` or existing on multiple snapshots. | Account for possible increased data-space consumption: defragmentation does not preserve extent sharing. | S164 line 24-27 |

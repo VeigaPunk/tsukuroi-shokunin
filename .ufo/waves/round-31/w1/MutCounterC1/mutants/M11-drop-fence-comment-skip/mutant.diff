@@ -1,0 +1,25 @@
+--- a/tools/check-btrfs-repair-r31.py
++++ b/tools/check-btrfs-repair-r31.py
+@@ -147,20 +147,9 @@
+ 
+ 
+ def skill_lines(text, rid):
+-    out, fence, comment = [], False, False
++    out = []
+     for ln in text.splitlines():
+-        s = ln.strip()
+-        if s.startswith('```') or s.startswith('~~~'):
+-            fence = not fence
+-            continue
+-        if comment:
+-            if '-->' in ln:
+-                comment = False
+-            continue
+-        if '<!--' in ln and '-->' not in ln.split('<!--', 1)[1]:
+-            comment = True
+-            continue
+-        if not fence and ln.startswith(f'| [R31-{rid}] '):
++        if ln.startswith(f'| [R31-{rid}] '):
+             out.append(ln)
+     return out
+ 

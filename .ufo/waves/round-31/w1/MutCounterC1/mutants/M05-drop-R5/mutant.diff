@@ -1,0 +1,23 @@
+--- a/tools/check-btrfs-repair-r31.py
++++ b/tools/check-btrfs-repair-r31.py
+@@ -262,20 +262,6 @@
+                 lines = data.decode('utf-8', 'replace').splitlines()
+                 if line > len(lines) or not quote.strip() or quote.strip() not in lines[line - 1]:
+                     fail.append('R4 quote not at cited line')
+-            if not re.fullmatch(r'S\d{3}', src):
+-                fail.append('R5 source id malformed')
+-            else:
+-                if registry_rows(reg_base, src):
+-                    fail.append('R5 source row exists at base')
+-                rr = registry_rows(reg_rev, src)
+-                if len(rr) != 1:
+-                    fail.append(f'R5 {len(rr)} registry rows for {src}')
+-                else:
+-                    cells = status_cell(rr[0])
+-                    if 'mined' not in cells:
+-                        fail.append('R5 status cell is not mined')
+-                    if (URL + q['file']) not in rr[0] or q['pin'] not in rr[0]:
+-                        fail.append('R5 registry row lacks frozen URL or sha256')
+             sl = skill_lines(skill, qid)
+             if len(sl) != 1:
+                 fail.append(f'R6 {len(sl)} SKILL.md lines for {qid}')

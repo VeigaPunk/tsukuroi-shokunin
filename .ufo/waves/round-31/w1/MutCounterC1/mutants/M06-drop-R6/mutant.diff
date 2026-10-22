@@ -1,0 +1,18 @@
+--- a/tools/check-btrfs-repair-r31.py
++++ b/tools/check-btrfs-repair-r31.py
+@@ -276,15 +276,6 @@
+                         fail.append('R5 status cell is not mined')
+                     if (URL + q['file']) not in rr[0] or q['pin'] not in rr[0]:
+                         fail.append('R5 registry row lacks frozen URL or sha256')
+-            sl = skill_lines(skill, qid)
+-            if len(sl) != 1:
+-                fail.append(f'R6 {len(sl)} SKILL.md lines for {qid}')
+-            elif not has_token(sl[0], q['tokens']):
+-                fail.append('R6 SKILL.md line lacks a novelty token')
+-            if not has_token(quote, q['tokens']):
+-                fail.append('R6 quote lacks a novelty token')
+-            if not has_token(st, q['tokens']):
+-                fail.append('R6 statement lacks a novelty token')
+             if len(st.split()) < 12:
+                 fail.append('R7 statement under 12 words')
+             cands = set(words(st))

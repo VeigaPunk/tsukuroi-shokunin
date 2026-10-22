@@ -1,0 +1,25 @@
+From cb160068ba70f1a438e3c7ad76eb76b1e4a8eca4 Mon Sep 17 00:00:00 2001
+From: crit <crit@invalid>
+Date: Thu, 22 Oct 2026 20:09:12 -0300
+Subject: [PATCH] mutant q2-replay-v2
+
+---
+ tools/check-kernel-taint.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+index 0fa1764..b1a98e0 100755
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -1470,7 +1470,7 @@ def _record():
+ 
+     def counting_run(cmd, *a, **k):
+         if cmd and cmd[0] == 'git':
+-            count[0] += 1
++            count[0] += 2 if 'commit' in cmd else 1
+         return real_run(cmd, *a, **k)
+     subprocess.run = counting_run
+     buf, real = io.StringIO(), sys.stdout
+-- 
+2.56.0
+

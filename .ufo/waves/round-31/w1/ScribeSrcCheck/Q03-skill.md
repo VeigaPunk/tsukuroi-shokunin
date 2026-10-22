@@ -1,0 +1,1 @@
+| [R31-Q03] | Considering --repair for filesystem damage | Proceed only with advice from a developer or experienced user and after accepting that no fsck can successfully repair every corruption type. | S166 line 29-33 |

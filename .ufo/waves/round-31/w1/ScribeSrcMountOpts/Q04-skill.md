@@ -1,0 +1,1 @@
+| [R31-Q04] | An operator is evaluating autodefrag for a large database workload. | Treat that workload as a potentially poor fit; autodefrag queues detected small random writes for defragmentation. | S167 lines 33-43 |

@@ -30,7 +30,7 @@ import tempfile
 from pathlib import Path
 
 def clean_env():
-    env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
     env.update({
         'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
         'HOME': str(HOME), 'XDG_CONFIG_HOME': str(HOME / '.config'),

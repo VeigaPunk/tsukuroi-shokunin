@@ -1,0 +1,42 @@
+diff --git a/tools/check-registry-coverage.py b/tools/check-registry-coverage.py
+index caa390d..17e9d71 100755
+--- a/tools/check-registry-coverage.py
++++ b/tools/check-registry-coverage.py
+@@ -27,7 +27,8 @@ _GIT_HOME.mkdir()
+ 
+ 
+ def clean_env():
+-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    env = {key: value for key, value in os.environ.items()
++           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
+     env.update({
+         "GIT_OPTIONAL_LOCKS": "0",
+         "GIT_PAGER": "cat",
+diff --git a/tools/check-self-assessment.py b/tools/check-self-assessment.py
+index 17c4740..fdca63b 100755
+--- a/tools/check-self-assessment.py
++++ b/tools/check-self-assessment.py
+@@ -90,7 +90,8 @@ class CannotEvaluate(Exception):
+ # --------------------------------------------------------------------------
+ 
+ def git_env():
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = {k: v for k, v in os.environ.items()
++           if not k.startswith(("GIT_", "LD_", "PYTHON"))}
+     env.update({
+         "GIT_NO_REPLACE_OBJECTS": "1",
+         "GIT_CONFIG_NOSYSTEM": "1",
+diff --git a/tools/check-storage-health.py b/tools/check-storage-health.py
+index f3deaa3..158520b 100755
+--- a/tools/check-storage-health.py
++++ b/tools/check-storage-health.py
+@@ -59,7 +59,8 @@ _GIT_HOME.mkdir()
+ 
+ 
+ def clean_env():
+-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    env = {key: value for key, value in os.environ.items()
++           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
+     env.update({
+         "GIT_OPTIONAL_LOCKS": "0",
+         "GIT_PAGER": "cat",

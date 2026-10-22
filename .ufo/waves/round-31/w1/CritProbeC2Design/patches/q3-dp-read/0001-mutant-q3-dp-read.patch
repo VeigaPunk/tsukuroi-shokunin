@@ -1,0 +1,28 @@
+From c999d5c8b0609ef80bab04f811016ed58cc0089c Mon Sep 17 00:00:00 2001
+From: crit <crit@invalid>
+Date: Thu, 22 Oct 2026 20:07:32 -0300
+Subject: [PATCH] mutant q3-dp-read
+
+---
+ tools/check-kernel-taint.py | 2 ++
+ 1 file changed, 2 insertions(+)
+ mode change 100644 => 100755 tools/check-kernel-taint.py
+
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+old mode 100644
+new mode 100755
+index 5400bce..b3e464c
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -1422,6 +1422,8 @@ def selftest():
+ 
+ 
+ def main(argv=None):
++    with tempfile.TemporaryDirectory() as tmp:
++        subprocess.run(['git', 'rev-parse', 'HEAD'], env=git_env(tmp), capture_output=True)
+     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+     mode = parser.add_mutually_exclusive_group(required=True)
+     mode.add_argument('--revision')
+-- 
+2.56.0
+

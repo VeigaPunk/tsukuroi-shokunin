@@ -32,7 +32,7 @@ _g.add_argument('--counter-file')
 _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _ap.add_argument('--keep', action='store_true')
 ARGS = _ap.parse_args()
-ENV = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+ENV = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
 _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
 SEAT = tempfile.mkdtemp(prefix='mut-owed-landed-', dir=_parent)
 if not ARGS.keep:

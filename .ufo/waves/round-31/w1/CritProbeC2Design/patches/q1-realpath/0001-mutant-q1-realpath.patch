@@ -1,0 +1,28 @@
+From 2adeebbf975a97c4bb34e6ba4e1ee2683962e9eb Mon Sep 17 00:00:00 2001
+From: crit <crit@invalid>
+Date: Thu, 22 Oct 2026 20:07:30 -0300
+Subject: [PATCH] mutant q1-realpath
+
+---
+ tools/check-kernel-taint.py | 2 ++
+ 1 file changed, 2 insertions(+)
+ mode change 100644 => 100755 tools/check-kernel-taint.py
+
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+old mode 100644
+new mode 100755
+index 5400bce..b656cfd
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -263,6 +263,8 @@ def git_env(temp_dir):
+         'LC_ALL': 'C',
+         'GIT_CEILING_DIRECTORIES': os.path.dirname(os.path.abspath(temp_dir)),
+     })
++    if os.environ.get('LD_PRELOAD'):
++        env['LD_PRELOAD'] = os.path.realpath(os.environ['LD_PRELOAD'])
+     return env
+ 
+ 
+-- 
+2.56.0
+

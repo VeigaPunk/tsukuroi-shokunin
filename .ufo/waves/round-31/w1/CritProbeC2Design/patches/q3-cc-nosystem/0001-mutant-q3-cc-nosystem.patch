@@ -1,0 +1,30 @@
+From 6ca2478d02016e976b911107715e4f9363eabc26 Mon Sep 17 00:00:00 2001
+From: crit <crit@invalid>
+Date: Thu, 22 Oct 2026 20:07:31 -0300
+Subject: [PATCH] mutant q3-cc-nosystem
+
+---
+ tools/check-kernel-taint.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+ mode change 100644 => 100755 tools/check-kernel-taint.py
+
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+old mode 100644
+new mode 100755
+index 5400bce..2b1a725
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -1027,7 +1027,9 @@ def run_fixture(files, expect):
+                         '-c', 'user.email=selftest@invalid', '-c', 'commit.gpgsign=false',
+                         'commit', '--quiet', '-m', 'fixture'], check=True, env=env)
+         sha = subprocess.run(['git', '-C', str(repo), 'rev-parse', 'HEAD'],
+-                             stdout=subprocess.PIPE, check=True, env=env).stdout.decode().strip()
++                             stdout=subprocess.PIPE, check=True,
++                             env={k: v for k, v in env.items() if k != 'GIT_CONFIG_NOSYSTEM'}
++                             ).stdout.decode().strip()
+         code, result = evaluate(GitReader(repo, sha), expect['capture_sha'])
+         blocking = sorted({f['id'] for f in result.get('findings', []) if f.get('blocking')})
+         want = sorted(expect.get('findings', []))
+-- 
+2.56.0
+

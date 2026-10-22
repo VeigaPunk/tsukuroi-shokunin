@@ -1,0 +1,31 @@
+From 90d822e5e0b19d46c4a907e20c5a81bbfdc79213 Mon Sep 17 00:00:00 2001
+From: crit <crit@invalid>
+Date: Thu, 22 Oct 2026 20:07:32 -0300
+Subject: [PATCH] mutant q3-ceiling
+
+---
+ tools/check-kernel-taint.py | 5 +++++
+ 1 file changed, 5 insertions(+)
+ mode change 100644 => 100755 tools/check-kernel-taint.py
+
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+old mode 100644
+new mode 100755
+index 5400bce..35b6042
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -1422,6 +1422,11 @@ def selftest():
+ 
+ 
+ def main(argv=None):
++    with tempfile.TemporaryDirectory() as tmp:
++        sub = os.path.join(tmp, 'sub')
++        os.mkdir(sub)
++        env = dict(git_env(tmp), GIT_CEILING_DIRECTORIES='/nonexistent')
++        subprocess.run(['git', '-C', sub, 'rev-parse', 'HEAD'], env=env, capture_output=True)
+     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+     mode = parser.add_mutually_exclusive_group(required=True)
+     mode.add_argument('--revision')
+-- 
+2.56.0
+

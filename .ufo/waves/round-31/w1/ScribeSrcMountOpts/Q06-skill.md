@@ -1,0 +1,1 @@
+| [R31-Q06] | Frequent-overwrite workload where in-place updates are relevant. | Weigh nodatacow's loss of copy-on-write, checksums, and compression against possible partial writes after interruption by a crash or device failure. | S167 lines 131-159 |

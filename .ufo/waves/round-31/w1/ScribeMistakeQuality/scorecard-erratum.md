@@ -1,0 +1,3 @@
+## Erratum — duplicate Round 30 declaration (2026-10-22)
+
+The first `## Round 30 — declaration, attempt 1` copy at `SCORECARD.md:1140-1153` is authoritative. The second copy at `SCORECARD.md:1181-1194` was appended by commit `32e5d848c5fcd0246b9dfb56eadc50fea024d501`. Comparing lines 1140–1154 with 1181–1194 differs only by the extra trailing blank line after the first copy; comparing the 14 declaration lines alone is identical. This erratum is append-only: the first copy remains authoritative and the second is left in place.

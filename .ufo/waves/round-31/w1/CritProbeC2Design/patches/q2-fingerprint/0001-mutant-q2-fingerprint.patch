@@ -1,0 +1,31 @@
+From 36285801982b54f7a137a8129dbfea6ff451a453 Mon Sep 17 00:00:00 2001
+From: crit <crit@invalid>
+Date: Thu, 22 Oct 2026 20:07:30 -0300
+Subject: [PATCH] mutant q2-fingerprint
+
+---
+ tools/check-kernel-taint.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+ mode change 100644 => 100755 tools/check-kernel-taint.py
+
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+old mode 100644
+new mode 100755
+index 0da3b0f..af92173
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -249,8 +249,10 @@ def id_in_line(line, row_id):
+ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
++    probed = 'libprobe-inject' in os.environ.get('LD_PRELOAD', '')
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith('GIT_')}
++           if not key.startswith('GIT_')
++           and not (probed and key.startswith(('LD_', 'PYTHON')))}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+-- 
+2.56.0
+

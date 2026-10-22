@@ -1,0 +1,1 @@
+| [R31-Q05] | Choosing the periodic transaction commit interval. | Do not treat the >300-second warning as a hard limit: commit= defaults to 30 seconds, and values above 300 seconds produce a warning without an enforced upper bound. | S167 lines 89-96 |

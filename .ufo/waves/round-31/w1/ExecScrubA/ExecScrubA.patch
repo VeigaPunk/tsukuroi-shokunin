@@ -1,0 +1,66 @@
+diff --git a/tools/_revision.py b/tools/_revision.py
+index d646f9c..30b3be8 100755
+--- a/tools/_revision.py
++++ b/tools/_revision.py
+@@ -60,7 +60,8 @@ class RevisionError(Exception):
+ 
+ 
+ def clean_env():
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = {k: v for k, v in os.environ.items()
++           if not k.startswith(("GIT_", "LD_", "PYTHON"))}
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                 "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+     return env
+diff --git a/tools/check-adjacency-overlap.py b/tools/check-adjacency-overlap.py
+index ed4ecde..a3f8ae5 100755
+--- a/tools/check-adjacency-overlap.py
++++ b/tools/check-adjacency-overlap.py
+@@ -211,7 +211,7 @@ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith('GIT_')}
++           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+diff --git a/tools/check-freshness-r17.py b/tools/check-freshness-r17.py
+index d86a160..fa2eb6f 100755
+--- a/tools/check-freshness-r17.py
++++ b/tools/check-freshness-r17.py
+@@ -327,7 +327,7 @@ def git_env(temp_dir):
+     home = os.path.join(temp_dir, "home")
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith("GIT_")}
++           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
+     env.update({
+         "GIT_CONFIG_NOSYSTEM": "1",
+         "GIT_CONFIG_GLOBAL": os.devnull,
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+index 0da3b0f..5400bce 100644
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -250,7 +250,7 @@ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith('GIT_')}
++           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+diff --git a/tools/check-memory-pressure.py b/tools/check-memory-pressure.py
+index 80753ad..fa99f16 100755
+--- a/tools/check-memory-pressure.py
++++ b/tools/check-memory-pressure.py
+@@ -104,7 +104,7 @@ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith('GIT_')}
++           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,

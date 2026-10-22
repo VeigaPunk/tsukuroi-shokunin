@@ -1,0 +1,50 @@
+Round 31 C2 evidence — ExecScrubD
+Sandbox commit: 60d917f3cec56c6ab71a6c23ea7d8d997c5bae51 (parent 8cff9e7cfb034b49c645d548801ac3185a827cb4). Push URL was set to DISABLED. Only the three assigned tools were committed.
+
+Frozen probe — baseline, battery A
+Command: env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE python3 /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo/tools/probe-git-child-env-r31.py --revision 8cff9e7cfb034b49c645d548801ac3185a827cb4 --lane /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo --only mutants-owed-statements-r29.py
+Exit: 1
+Summary: {"revision": "8cff9e7cfb034b49c645d548801ac3185a827cb4", "targets": 1, "channels": ["loader-env", "child-contract", "dotgit-pointer"], "pairs": 3, "leaking": 1, "leaking_pairs": ["tools/mutants-owed-statements-r29.py:loader-env"], "harness_errors": [], "probe_sha256": "b168b9b86cc125e5207cd359a37e6d7dad6fc2b1d1c601836ddbe4cc7a68d8b0", "scratch": "/fast/scratch/hyaku/git-child-env-maa4vzi4"}
+
+Frozen probe — baseline, battery B
+Command: env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE python3 /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo/tools/probe-git-child-env-r31.py --revision 8cff9e7cfb034b49c645d548801ac3185a827cb4 --lane /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo --only mutants-owed-statements-r29-landed.py
+Exit: 1
+Summary: {"revision": "8cff9e7cfb034b49c645d548801ac3185a827cb4", "targets": 1, "channels": ["loader-env", "child-contract", "dotgit-pointer"], "pairs": 3, "leaking": 1, "leaking_pairs": ["tools/mutants-owed-statements-r29-landed.py:loader-env"], "harness_errors": [], "probe_sha256": "b168b9b86cc125e5207cd359a37e6d7dad6fc2b1d1c601836ddbe4cc7a68d8b0", "scratch": "/fast/scratch/hyaku/git-child-env-n01onisz"}
+
+Frozen probe — patched, battery A
+Command: env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE python3 /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo/tools/probe-git-child-env-r31.py --revision 60d917f3cec56c6ab71a6c23ea7d8d997c5bae51 --lane /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo --only mutants-owed-statements-r29.py
+Exit: 0
+Summary: {"revision": "60d917f3cec56c6ab71a6c23ea7d8d997c5bae51", "targets": 1, "channels": ["loader-env", "child-contract", "dotgit-pointer"], "pairs": 3, "leaking": 0, "leaking_pairs": [], "harness_errors": [], "probe_sha256": "b168b9b86cc125e5207cd359a37e6d7dad6fc2b1d1c601836ddbe4cc7a68d8b0", "scratch": "/fast/scratch/hyaku/git-child-env-4f6yn_bn"}
+
+Frozen probe — patched, battery B
+Command: env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE python3 /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo/tools/probe-git-child-env-r31.py --revision 60d917f3cec56c6ab71a6c23ea7d8d997c5bae51 --lane /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo --only mutants-owed-statements-r29-landed.py
+Exit: 0
+Summary: {"revision": "60d917f3cec56c6ab71a6c23ea7d8d997c5bae51", "targets": 1, "channels": ["loader-env", "child-contract", "dotgit-pointer"], "pairs": 3, "leaking": 0, "leaking_pairs": [], "harness_errors": [], "probe_sha256": "b168b9b86cc125e5207cd359a37e6d7dad6fc2b1d1c601836ddbe4cc7a68d8b0", "scratch": "/fast/scratch/hyaku/git-child-env-b15cfx9m"}
+
+Normal-output comparison (40/64-hex strings replaced by <HEX>; /fast/scratch/hyaku paths replaced by <SCRATCH>). Each command was run against the unfixed 8cff clone and the patched sandbox commit; exit codes match and normalized stdout SHA-256 values match.
+
+Battery A argv: tools/mutants-owed-statements-r29.py --base 81a061a67466c5e1be812814a895a4b5ed89b4ff --counter-rev <revision> --lane <clone>
+Before command: python3 /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/baseline/repo/tools/mutants-owed-statements-r29.py --base 81a061a67466c5e1be812814a895a4b5ed89b4ff --counter-rev 8cff9e7cfb034b49c645d548801ac3185a827cb4 --lane /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/baseline/repo
+After command: python3 /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo/tools/mutants-owed-statements-r29.py --base 81a061a67466c5e1be812814a895a4b5ed89b4ff --counter-rev 60d917f3cec56c6ab71a6c23ea7d8d997c5bae51 --lane /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo
+Before: rc=0; raw stdout sha256=a02f5d970ab8a8ab8a29e334cbf4e680cb85c42823264167d4eefb2cffbcadf1; normalized stdout sha256=3c00f8ea1d83a729fbf8def58f4f60798763433557aa96cfbf9242b5c5dd638a; 38 lines.
+After: rc=0; raw stdout sha256=4fa4328266b43e7a2232800af6d3245b9d68a4e6a52a9d30bbaa65e17316dd9e; normalized stdout sha256=3c00f8ea1d83a729fbf8def58f4f60798763433557aa96cfbf9242b5c5dd638a; 38 lines.
+
+Battery B argv: tools/mutants-owed-statements-r29-landed.py --base <revision> --counter-rev <revision> --lane <clone>
+Before command: python3 /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/baseline/repo/tools/mutants-owed-statements-r29-landed.py --base 8cff9e7cfb034b49c645d548801ac3185a827cb4 --counter-rev 8cff9e7cfb034b49c645d548801ac3185a827cb4 --lane /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/baseline/repo
+After command: python3 /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo/tools/mutants-owed-statements-r29-landed.py --base 60d917f3cec56c6ab71a6c23ea7d8d997c5bae51 --counter-rev 60d917f3cec56c6ab71a6c23ea7d8d997c5bae51 --lane /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo
+Before: rc=0; raw stdout sha256=0800cacfd9803d16adfa951b16f34cfc38f8c8276ff317a57cbde1570a927aa8; normalized stdout sha256=dc423a437c1b1cff851a9be69b11f3676e43c5f3057ac3e239a8ad817f799fc8; 29 lines.
+After: rc=0; raw stdout sha256=d01219e16917b44cee6bb29f63abd87fbbff8b070ad959dcbf1d9904bc80b339; normalized stdout sha256=dc423a437c1b1cff851a9be69b11f3676e43c5f3057ac3e239a8ad817f799fc8; 29 lines.
+
+Counter argv (the batteries' sys.executable child form): check-owed-statements-r29.py --revision <revision> --lane <clone>
+Before command: python3 /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/baseline/repo/tools/check-owed-statements-r29.py --revision 8cff9e7cfb034b49c645d548801ac3185a827cb4 --lane /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/baseline/repo
+After command: python3 /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo/tools/check-owed-statements-r29.py --revision 60d917f3cec56c6ab71a6c23ea7d8d997c5bae51 --lane /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo
+Before: rc=0; raw stdout sha256=55483f7a1ca53ac666d12f634934efd770aeb2414a6ddd8e747496884e725b0d; normalized stdout sha256=25b0bc2dc412bb35d53fcb172e0f81f46c1ba332db7a195d5e43ca7abc61c4da; 13 lines.
+After: rc=0; raw stdout sha256=4ec3c8faabc80e2797a1a256113a8da18ac90a61fa08325fa80f9805114b0f59; normalized stdout sha256=25b0bc2dc412bb35d53fcb172e0f81f46c1ba332db7a195d5e43ca7abc61c4da; 13 lines.
+
+Compilation
+Command: PYTHONPYCACHEPREFIX=/fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/pycache python3 -m py_compile /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo/tools/mutants-owed-statements-r29.py && PYTHONPYCACHEPREFIX=/fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/pycache python3 -m py_compile /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo/tools/mutants-owed-statements-r29-landed.py && PYTHONPYCACHEPREFIX=/fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/pycache python3 -m py_compile /fast/scratch/hyaku/tsukuroi-r31/ExecScrubD/repo/tools/check-owed-statements-r29.py
+Exit: 0 (all three `py_compile` steps returned successfully).
+
+Artifact checksums
+The three source-file delivery copies have byte-identical SHA-256 values to their committed sandbox files: battery A dae729fde9a2b6d745d55406918bd4be8523f66abea093460188196db93a551e; battery B 306109a8a9c954a2eebef1635156d8ce94492e21e2d83714a46bf793e1521d68; counter ac6a8e07961b61706d2828ad3a5a96fb980fd6620b3b334f1f1d4bad43df0e32.
+The exact `git diff 8cff9e7cfb034b49c645d548801ac3185a827cb4..HEAD` patch is saved as `ExecScrubD.patch` (2120 bytes; sha256 672e7de3043b2702fee24efebbf5c9967856c7a343078a63535741cbf66b8e98, matching the regenerated diff).

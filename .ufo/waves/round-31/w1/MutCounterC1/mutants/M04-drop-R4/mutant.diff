@@ -1,0 +1,18 @@
+--- a/tools/check-btrfs-repair-r31.py
++++ b/tools/check-btrfs-repair-r31.py
+@@ -253,15 +253,6 @@
+                 elif hashlib.sha256(data).hexdigest() != q['pin']:
+                     fail.append('R3 snapshot sha256 differs from pin')
+                     data = None
+-            nq = len(quote.split())
+-            if not (6 <= nq <= 25):
+-                fail.append(f'R4 quote has {nq} words')
+-            if not isinstance(line, int) or isinstance(line, bool) or line < 1:
+-                fail.append('R4 line is not a positive int')
+-            elif data is not None:
+-                lines = data.decode('utf-8', 'replace').splitlines()
+-                if line > len(lines) or not quote.strip() or quote.strip() not in lines[line - 1]:
+-                    fail.append('R4 quote not at cited line')
+             if not re.fullmatch(r'S\d{3}', src):
+                 fail.append('R5 source id malformed')
+             else:

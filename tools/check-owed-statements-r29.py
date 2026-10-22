@@ -151,7 +151,7 @@ PATHREF = re.compile(r'`?((?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+):(\d+)`?')
 
 
 def clean_env(lane):
-    env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
     home = os.environ.get('HOME')
     env.update({
         'GIT_OPTIONAL_LOCKS': '0',

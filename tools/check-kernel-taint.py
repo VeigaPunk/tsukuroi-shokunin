@@ -250,7 +250,7 @@ def git_env(temp_dir):
     home = os.path.join(temp_dir, 'home')
     os.mkdir(home)
     env = {key: value for key, value in os.environ.items()
-           if not key.startswith('GIT_')}
+           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
     env.update({
         'GIT_CONFIG_NOSYSTEM': '1',
         'GIT_CONFIG_GLOBAL': os.devnull,

@@ -27,7 +27,8 @@ _GIT_HOME.mkdir()
 
 
 def clean_env():
-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
     env.update({
         "GIT_OPTIONAL_LOCKS": "0",
         "GIT_PAGER": "cat",

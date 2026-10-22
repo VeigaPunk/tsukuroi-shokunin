@@ -1,0 +1,23 @@
+--- a/tools/check-btrfs-repair-r31.py
++++ b/tools/check-btrfs-repair-r31.py
+@@ -216,9 +216,6 @@
+                 if not isinstance(r, dict) or not isinstance(r.get('id'), str):
+                     raise ValueError('row without a string id')
+                 rows.setdefault(r['id'], []).append(r)
+-            extra = sorted(set(rows) - set(QUESTIONS))
+-            if extra:
+-                file_fail.append('R1 extra ids ' + ','.join(extra))
+         except (ValueError, UnicodeDecodeError) as e:
+             file_fail.append('R1 ' + str(e))
+             rows = {}
+@@ -232,8 +229,8 @@
+             if hits[tok]:
+                 fail.append(f'R8 token {tok!r} has {hits[tok]} hits at base')
+         rs = rows.get(qid, [])
+-        if len(rs) != 1:
+-            fail.append(f'R1 {len(rs)} rows for {qid}')
++        if not rs:
++            fail.append('R1 entry absent')
+         else:
+             r = rs[0]
+             if set(r) != ROW_KEYS:

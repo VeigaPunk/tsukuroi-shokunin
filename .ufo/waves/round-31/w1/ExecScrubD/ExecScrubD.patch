@@ -1,0 +1,39 @@
+diff --git a/tools/check-owed-statements-r29.py b/tools/check-owed-statements-r29.py
+index 95f9105..199800b 100755
+--- a/tools/check-owed-statements-r29.py
++++ b/tools/check-owed-statements-r29.py
+@@ -151,7 +151,7 @@ PATHREF = re.compile(r'`?((?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+):(\d+)`?')
+ 
+ 
+ def clean_env(lane):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
++    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
+     home = os.environ.get('HOME')
+     env.update({
+         'GIT_OPTIONAL_LOCKS': '0',
+diff --git a/tools/mutants-owed-statements-r29-landed.py b/tools/mutants-owed-statements-r29-landed.py
+index 0b4f91a..bb6e212 100755
+--- a/tools/mutants-owed-statements-r29-landed.py
++++ b/tools/mutants-owed-statements-r29-landed.py
+@@ -32,7 +32,7 @@ _g.add_argument('--counter-file')
+ _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ _ap.add_argument('--keep', action='store_true')
+ ARGS = _ap.parse_args()
+-ENV = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
++ENV = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
+ _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
+ SEAT = tempfile.mkdtemp(prefix='mut-owed-landed-', dir=_parent)
+ if not ARGS.keep:
+diff --git a/tools/mutants-owed-statements-r29.py b/tools/mutants-owed-statements-r29.py
+index f508b3f..a0cecaa 100755
+--- a/tools/mutants-owed-statements-r29.py
++++ b/tools/mutants-owed-statements-r29.py
+@@ -33,7 +33,7 @@ _g.add_argument('--counter-file')
+ _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ _ap.add_argument('--keep', action='store_true')
+ ARGS = _ap.parse_args()
+-ENV = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
++ENV = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
+ _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
+ SEAT = tempfile.mkdtemp(prefix='mut-owed-', dir=_parent)
+ if not ARGS.keep:

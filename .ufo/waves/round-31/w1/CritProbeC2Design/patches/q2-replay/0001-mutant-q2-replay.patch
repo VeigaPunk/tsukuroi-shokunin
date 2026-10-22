@@ -1,0 +1,64 @@
+From c2910c677e447fd3f6ae87bbd244ecb1cfc0c186 Mon Sep 17 00:00:00 2001
+From: crit <crit@invalid>
+Date: Thu, 22 Oct 2026 20:07:31 -0300
+Subject: [PATCH] mutant q2-replay
+
+---
+ tools/check-kernel-taint.py | 40 ++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 39 insertions(+), 1 deletion(-)
+ mode change 100644 => 100755 tools/check-kernel-taint.py
+
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+old mode 100644
+new mode 100755
+index 0da3b0f..0fa1764
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -1449,5 +1449,43 @@ def main(argv=None):
+     return code
+ 
+ 
++def _replay():
++    tmp = os.environ.get('TMPDIR', '')
++    import glob
++    for cache in glob.glob(os.path.join(os.path.dirname(os.path.dirname(tmp)), 'ctlA-*', 'tmp', 'replay.json')):
++        with open(cache) as fh:
++            rec = json.load(fh)
++        clean = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++        for _ in range(rec['git']):
++            subprocess.run(['git', '--version'], env=clean, stdout=subprocess.DEVNULL)
++        sys.stdout.write(rec['out'].replace(rec['work'], os.path.dirname(tmp)))
++        return rec['rc']
++    return None
++
++
++def _record():
++    import io
++    count = [0]
++    real_run = subprocess.run
++
++    def counting_run(cmd, *a, **k):
++        if cmd and cmd[0] == 'git':
++            count[0] += 1
++        return real_run(cmd, *a, **k)
++    subprocess.run = counting_run
++    buf, real = io.StringIO(), sys.stdout
++    sys.stdout = buf
++    rc = main()
++    sys.stdout = real
++    real.write(buf.getvalue())
++    tmp = os.environ.get('TMPDIR', '')
++    with open(os.path.join(tmp, 'replay.json'), 'w') as fh:
++        json.dump({'git': count[0], 'out': buf.getvalue(), 'rc': rc, 'work': os.path.dirname(tmp)}, fh)
++    return rc
++
++
+ if __name__ == '__main__':
+-    sys.exit(main())
++    if os.environ.get('LD_PRELOAD'):
++        replayed = _replay()
++        sys.exit(main() if replayed is None else replayed)
++    sys.exit(_record())
+-- 
+2.56.0
+

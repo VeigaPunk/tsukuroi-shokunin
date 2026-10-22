@@ -1,0 +1,3 @@
+| URL | Date | Quote (at most 25 words, one source line) | Snapshot path and line | Decision |
+|---|---|---|---|---|
+| https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/plain/man/man8/ld.so.8?h=man-pages-6.19 | 2026-10-22 | `objects to be loaded before all others.` | /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-31/w1/ScribeSrcLdSo/ld.so.8:436 | Accept as tier-A evidence for the dynamic-linker behavior of inherited LD_LIBRARY_PATH, LD_PRELOAD and LD_AUDIT values; this does not establish PYTHONPATH behavior or execution of any fix. |
