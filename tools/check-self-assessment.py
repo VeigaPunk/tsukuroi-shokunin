@@ -358,21 +358,36 @@ def heading_sections(lines):
     return headings
 
 
-def reference_lines(lines):
+ROUND_HEADING_RE = re.compile(r"^Round ?(\d+)\b", re.I)
+
+
+def reference_lines(lines, declaring_round):
     """Line indices that may serve as the ordinal reference.
 
-    Only lines inside a section whose heading (any level) carries
-    `measured outcome` (case-insensitive) qualify, from any round: a
+    Only lines inside a section whose heading (any level) starts with
+    `Round N` (anchored at the start of the heading text, `Round16` and
+    `Round 16` both read) and carries `measured outcome` (case-insensitive)
+    qualify, and only when N is earlier than the declaring round: a round's
+    own outcome record is the next round's reference, never its own
+    (QUALITY 65, round-26 routed defect 2; added in round 27).  A
     declaration, a refinement, a move log or a correction is never a dated
-    move record. A section runs to the next heading of the same or higher
+    move record.  A section runs to the next heading of the same or higher
     level, so a measured-outcome section keeps its subsections.
     """
-    candidates = set()
+    candidates, excluded = set(), set()
     for heading in heading_sections(lines):
-        if MEASURED_OUTCOME not in heading[2].lower():
+        text = heading[2].strip()
+        match = ROUND_HEADING_RE.match(text)
+        if match is None:
             continue
-        candidates.update(range(heading[0], heading[3]))
-    return candidates
+        if int(match.group(1)) >= declaring_round:
+            # A section of the declaring round (or a later one) never
+            # qualifies, even when nested inside an earlier outcome section.
+            excluded.update(range(heading[0], heading[3]))
+            continue
+        if MEASURED_OUTCOME in text.lower():
+            candidates.update(range(heading[0], heading[3]))
+    return candidates - excluded
 
 
 def superseded_line(text):
@@ -422,7 +437,7 @@ def evaluate(repo, rev):
         raise CannotEvaluate("no round number in the axes heading",
                              "heading %r must name the round as 'round N'" % axes_heading)
     declaring_round = int(round_match.group(1))
-    reference = reference_lines(score_lines)
+    reference = reference_lines(score_lines, declaring_round)
     axes_blocks = table_blocks(score_lines, section[0] + 1, section[1])
     axes_table = pick_table(axes_blocks, "Axis")
     if axes_table is None:
@@ -816,7 +831,7 @@ exit 1
 
 FIXTURE_SCORECARD_TEMPLATE = """# Fixture scorecard
 
-## Axes - fixture self-assessment (round 1)
+## Axes - fixture self-assessment (round 2)
 
 | Axis | Score | Evidence pointer | Last change |
 |---|---|---|---|
@@ -875,6 +890,22 @@ def fixture_files(case):
     expected = {"expected_exit": EXIT_PASS, "expected_mismatch_ids": [], "expected_error": ""}
     if case == "clean":
         pass
+    elif case == "own-round-outcome-depth-10":
+        # QUALITY 65: the round-26 depth-10 mutant. The declaring round (2)
+        # states depth 10 in its table and records 8 -> 10 in its own
+        # measured outcome; that record is the next round's reference, so
+        # the reference stays the round-1 record (8) and K01 mismatches.
+        scorecard = fixture_scorecard({"depth": 10}).replace(
+            "## Capabilities\n",
+            "### Round 2 measured outcome\n\n- depth 8 -> 10\n\n## Capabilities\n", 1)
+        expected = {"expected_exit": EXIT_MISMATCH, "expected_mismatch_ids": ["K01"], "expected_error": ""}
+    elif case == "outcome-heading-not-round-anchored":
+        # A heading that names `measured outcome` but does not start with
+        # `Round N` is not a dated move record.
+        scorecard = scorecard.replace(
+            "## Capabilities\n",
+            "## Notes on the round 1 measured outcome\n\n- depth 8 -> 3\n\n## Capabilities\n", 1)
+        expected = {"expected_exit": EXIT_PASS, "expected_mismatch_ids": [], "expected_error": ""}
     elif case == "stale-ordinal":
         scorecard = fixture_scorecard({"coverage": 8})
         expected = {"expected_exit": EXIT_MISMATCH, "expected_mismatch_ids": ["K02"], "expected_error": ""}
@@ -891,12 +922,12 @@ def fixture_files(case):
         shonen = shonen.replace("- [~] Box one", "- [x] Box one")
         expected = {"expected_exit": EXIT_MISMATCH, "expected_mismatch_ids": ["K20"], "expected_error": ""}
     elif case == "missing-axes-table":
-        scorecard = scorecard.replace("## Axes - fixture self-assessment (round 1)",
+        scorecard = scorecard.replace("## Axes - fixture self-assessment (round 2)",
                                       "## Self assessment (no axes table)")
         expected = {"expected_exit": EXIT_CANNOT_EVALUATE, "expected_mismatch_ids": [],
                     "expected_error": "axes table"}
     elif case == "axes-heading-without-round":
-        scorecard = scorecard.replace("## Axes - fixture self-assessment (round 1)",
+        scorecard = scorecard.replace("## Axes - fixture self-assessment (round 2)",
                                       "## Axes - fixture self-assessment")
         expected = {"expected_exit": EXIT_CANNOT_EVALUATE, "expected_mismatch_ids": [],
                     "expected_error": "round number"}
@@ -960,7 +991,8 @@ def run_selftest():
              "missing-capability-path", "shonen-x-without-verifier", "missing-axes-table",
              "axes-heading-without-round", "declaring-round-declaration-line",
              "declaring-round-measured-outcome-line", "axis-without-move-record",
-             "shonen-superseded-note", "shonen-missing-note"]
+             "shonen-superseded-note", "shonen-missing-note", "own-round-outcome-depth-10",
+             "outcome-heading-not-round-anchored"]
     results = []
     failures = []
     try:
