@@ -661,3 +661,7 @@ Supersedes this entry's historical pointer-based recheck procedure for a steer f
 - Recheck configuration names with `ls -1 /etc/snapper/configs`; use `systemctl show earlyoom.service -p ActiveState -p UnitFileState --no-pager` only for those named service properties. Config presence, enabled state and active state answer different questions; do not infer snapshot restoration, active timer totals or historical kill attribution.
 
 Record observed values and unresolved questions separately. Uncaptured pending updates, signature validity, exact foreign/orphan classification, private mount views, historical provenance events and recovery feasibility remain unknown until their own authorized evidence is obtained. No installation, restart, rebuild, subvolume action or boot write is authorized.
+
+## R24 current-use notice (2026-10-22)
+
+The historical 1password-beta downgrade-trap statement at line 335 is superseded: installed `8.12.42_34.BETA-1` is behind channel `8.12.44_25.BETA-1` (round-24 capture `l1-4/capture.txt:40`). The round-18 pending-count UNKNOWN notice at line 628 is superseded by 3 local-database rows and 134 current-mirror rows measured read-only this round (`l1-4/capture.txt:374`). The latter includes systemd, limine and a ca-certificates-mozilla security fix. Current interpretation: `corpus/knowledge/pause-lift-gate-r24.md`; no transaction is authorized.

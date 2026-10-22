@@ -225,3 +225,7 @@ Append-only; the bullets above stay as written. The `Pending mkinitcpio 42 upgra
 | Note | Holds | Sources |
 |---|---|---|
 | `knowledge/pause-lift-gate-r24.md` and `.json` | Dated verdicts for the five premises of the host-wide pacman pause: pending set against the current mirror snapshot, partial-upgrade residue, `/new_root` hooks under mkinitcpio 42, database freshness and upgrade target, rollback paths and transactions during the pause | S087-S103; `lessons/round-24.md` Gate |
+
+### Round-24 notice erratum after falsification
+
+This is stronger evidence on an existing Core surface, not new coverage or a frontier promotion. The open boot work includes both the untested snapshot path and the round-17 watch for upstream removal of the `/new_root` compatibility symlink (lines 152-153). Round 17 had already superseded the pending-upgrade phrasing at lines 149-151. Boot 0 supporting Plymouth reaching the real root is an inference, not a directly logged initramfs result. The old “`-Sy` never run since” line is falsified by the logged bare sync at round-24 `l1-4/capture.txt:221`, not by mirror promotion. The old installed/package figures at the start of this index are dated historical captures; current package-state observations are in `knowledge/pause-lift-gate-r24.md`, including its wave-2 corrections.

@@ -7,7 +7,8 @@ attributed to its cause and to the recorded tool operation at its site, while
 the checker status, its exit 2, the incomplete seat and the unknown extra key
 stay visible. Nothing is re-graded: no grammar widening, no erased unknown key,
 no dropped seat. The author-written `schema_original_keys` list is labelled as
-author recollection wherever a name is absent from the retained events.
+author recollection wherever a name is absent from the flagged site's retained
+event (the only event that could show the key at that site).
 
 Scope: arithmetic over committed round-23 bytes only. Not runtime prevention,
 not a no-harm proof, not a claim about what any seat actually did.
@@ -16,6 +17,7 @@ from __future__ import annotations
 import argparse
 import collections
 import hashlib
+import os
 import importlib.util
 import json
 from pathlib import Path
@@ -87,6 +89,14 @@ def path_subcause(checker, tool, args, seat_binding):
             return 'path argument not a string'
         if denial == 'SCOPE-PATH-DENIED':
             if not value.startswith(checker.LANE + '/'):
+                if value == 'redacted-internal-uri':
+                    return 'collector redaction placeholder; target not recorded'
+                if '://' in value:
+                    return 'non-file URI'
+                if not value.startswith('/'):
+                    return 'relative path'
+                if os.path.normpath(value).startswith(checker.LANE + '/'):
+                    return 'dot segments lexically normalise inside the lane; no filesystem resolution claimed'
                 return 'outside the lane root'
             base = value.split('?', 1)[0].split(':', 1)[0]
             declared = base in seat_binding['read_paths'] or base in seat_binding['write_paths']
@@ -117,7 +127,7 @@ def attribute(code, result, trace, limit, manifest=None, checker=None):
             if not isinstance(operation, str) or not operation:
                 unattributed.append(finding)
                 continue
-            subcause = None
+            subcause = fid
             if checker is not None and name in bindings:
                 try:
                     ids = checker.classify(operation, event.get('args'), bindings[name], allow_structured_edit=v2)
@@ -141,7 +151,7 @@ def attribute(code, result, trace, limit, manifest=None, checker=None):
                                 'lower_bound': seats[name].get('complete') is False})
         elif (fid == 'SCOPE-TRACE-INCOMPLETE' and not sep and site in seats
               and seats[site].get('complete') is False):
-            operation, seat, subcause = 'none (seat-level trace state)', site, 'trace ends before a final message'
+            operation, seat, subcause = 'none (seat-level trace state)', site, 'trace marked incomplete by the collector; which condition failed is not recorded'
             seat_level += 1
             per_finding.append({'site': site, 'finding': fid, 'operation': None, 'subcause': subcause,
                                 'request_line': None, 'call_id': None, 'seat_trace_complete': False,
@@ -156,7 +166,8 @@ def attribute(code, result, trace, limit, manifest=None, checker=None):
                   for n, s in sorted(seats.items()) if s.get('complete') is False]
     site_keys = set()
     for item in unknown_sites:
-        site_keys.update(item['retained_keys'])
+        if item['site'] == limit.get('schema_site'):
+            site_keys.update(item['retained_keys'])
     recollection = []
     if isinstance(limit, dict) and isinstance(limit.get('schema_original_keys'), list):
         for key in limit['schema_original_keys']:
@@ -179,12 +190,18 @@ def attribute(code, result, trace, limit, manifest=None, checker=None):
     ok = (total > 0 and attributed == total and not unattributed and code == 2
           and result.get('status') == 'CANNOT_EVALUATE' and bool(incomplete)
           and all(s['unknown_tokens'] > 0 for s in unknown_sites) and bool(unknown_sites)
-          and all(r['in_retained_site_event'] or r['label'] == LABEL for r in recollection))
+          and LABEL == 'author recollection, not recoverable from retained events'
+          and all((r['label'] is None if r['in_retained_site_event'] else r['label'] == LABEL)
+                  for r in recollection)
+          and all(isinstance(row['subcause'], str) and bool(row['subcause']) for row in per_finding))
     report['preserved'] = ok
     return (0 if ok else 1), report
 
 
 def run(revision, branch):
+    binder_digest = hashlib.sha256((ROOT / 'tools' / '_revision.py').read_bytes()).hexdigest()
+    if binder_digest != '06b71e8cb4aa541a25c95301106dc4d3ad9566cf18ec834f226ec0708db58cbf':
+        raise RuntimeError('revision binder differs from the claim-base bytes')
     binding = _revision.bind(ROOT, revision, branch)
     try:
         own = git_blob(binding.sha, SELF)
@@ -203,6 +220,23 @@ def run(revision, branch):
     status, report = attribute(code, result, trace, limit, manifest, checker)
     split_ok = report['findings_by_id'] == EXPECTED
     named_seat = [s['name'] for s in report['incomplete_seats']] == ['ConnFxPlanner']
+    collector_path = '.ufo/waves/round-23/collect.py'
+    native_path = '.ufo/waves/round-23/falsify/native-outcomes.json'
+    provenance = {}
+    for path in (collector_path, native_path):
+        blob = git_blob(binding.sha, path)
+        base_blob = git_blob('f169b3ba9a59abaf3e324c1b591e1e07a4d6003a', path)
+        provenance[path] = {'sha256': hashlib.sha256(blob).hexdigest(),
+                            'matches_claim_base': blob == base_blob}
+    native = json.loads(git_blob(binding.sha, native_path), object_pairs_hook=unique)
+    native_rows = {row['name']: row for row in native['seats']}
+    for row in report['incomplete_seats']:
+        row['native_status_recorded'] = native_rows.get(row['name'], {}).get('status')
+    report['native_completed_recorded'] = sum(row.get('status') == 'completed' for row in native['seats'])
+    report['trace_complete_recorded'] = sum(row.get('complete') is True for row in trace['seats'])
+    report['recorder_provenance'] = provenance
+    if not all(row['matches_claim_base'] for row in provenance.values()):
+        status, report['preserved'] = 1, False
     report.update(revision=binding.sha, branch=binding.branch, inputs=digests,
                   pin_mismatches=pin_mismatch, expected_split=EXPECTED, split_matches=split_ok,
                   incomplete_seat_is_frozen=named_seat)
@@ -221,18 +255,19 @@ def selftest():
         return {'status': status, 'findings': [{'id': i, 'site': s} for i, s in findings]}
     base = [('SCOPE-PATH-DENIED', 'A:0'), ('SCOPE-SCHEMA', 'A:1'), ('SCOPE-TRACE-INCOMPLETE', 'B'),
             ('SCOPE-PATH-DENIED', 'B:0')]
-    limit = {'schema_original_keys': ['i', 'new_string', 'old_string', 'path', 'replace_all']}
+    limit = {'schema_site': 'A:1', 'schema_original_keys': ['i', 'new_string', 'old_string', 'path', 'replace_all']}
     cases = [
         ('pristine', 2, result(base), trace(False), limit, 0),
         ('site-out-of-range', 2, result(base + [('SCOPE-PATH-DENIED', 'A:9')]), trace(False), limit, 1),
         ('unknown-seat-site', 2, result(base + [('SCOPE-PATH-DENIED', 'Z:0')]), trace(False), limit, 1),
         ('incomplete-seat-dropped', 2, result(base), trace(True), limit, 1),
         ('unknown-key-renamed', 2, result(base), trace(False, ('i', 'new_string', 'old_string', 'path', 'replace_all')),
-         {'schema_original_keys': ['i', 'new_string', 'old_string', 'path', 'replace_all', 'other']}, 1),
+         {'schema_site': 'A:1', 'schema_original_keys': ['i', 'new_string', 'old_string', 'path', 'replace_all', 'other']}, 1),
         ('checker-exit-changed', 1, result(base, 'FAIL'), trace(False), limit, 1),
         ('status-relabelled', 2, result(base, 'FAIL'), trace(False), limit, 1),
         ('no-schema-site', 2, result([f for f in base if f[0] != 'SCOPE-SCHEMA']), trace(False), limit, 1),
         ('empty-findings', 2, result([]), trace(False), limit, 1),
+        ('no-incomplete-seat', 2, result([f for f in base if f[0] != 'SCOPE-TRACE-INCOMPLETE']), trace(True), limit, 1),
     ]
     obs = []
     for name, code, res, tr, lim, want in cases:

@@ -1,0 +1,256 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>paccache(8) — Arch manual pages</title>
+        <link rel="stylesheet" type="text/css" href="/static/archlinux_common_style/navbar.css">
+        <link rel="stylesheet" type="text/css" href="/static/archmanweb/base.css">
+        <link rel="icon" type="image/x-icon" href="/static/archlinux_common_style/favicon.ico" />
+        <link rel="shortcut icon" type="image/x-icon" href="/static/archlinux_common_style/favicon.ico" />
+        
+    <link rel="stylesheet" type="text/css" href="/static/archmanweb/man_page.css">
+    
+        <link rel="alternate" href="/man/paccache.8.ar" hreflang="ar">
+    
+        <link rel="alternate" href="/man/paccache.8.de" hreflang="de">
+    
+        <link rel="alternate" href="/man/paccache.8.pt_BR" hreflang="pt_BR">
+    
+        <link rel="alternate" href="/man/paccache.8.ro" hreflang="ro">
+    
+
+    </head>
+    <body>
+        <header>
+            <div id="archnavbar">
+	<div id="logo"><a href="https://archlinux.org" title="Return to the main page">Arch Linux</a></div>
+	<div id="archnavbarmenu">
+		<ul id="archnavbarlist">
+			<li id="anb-home"><a href="https://archlinux.org" title="Arch news, packages, projects and more">Home</a></li>
+			<li id="anb-packages"><a href="https://archlinux.org/packages/" title="Arch Package Database">Packages</a></li>
+			<li id="anb-forums"><a href="https://bbs.archlinux.org/" title="Community forums">Forums</a></li>
+			<li id="anb-wiki"><a href="https://wiki.archlinux.org/" title="Community documentation">Wiki</a></li>
+			<li id="anb-gitlab"><a href="https://gitlab.archlinux.org/archlinux" title="GitLab">GitLab</a></li>
+			<li id="anb-security"><a href="https://security.archlinux.org/" title="Arch Linux Security Tracker">Security</a></li>
+			<li id="anb-aur"><a href="https://aur.archlinux.org/" title="Arch Linux User Repository">AUR</a></li>
+			<li id="anb-download"><a href="https://archlinux.org/download/" title="Get Arch Linux">Download</a></li>
+		</ul>
+	</div>
+</div>
+
+        </header>
+        <main id="content">
+            
+            <article id="content-left">
+                
+<section class="man-page-content">
+    <table class="head">
+  <tr>
+    <td class="head-ltitle">PACCACHE(8)</td>
+    <td class="head-vol">Pacman-contrib Manual</td>
+    <td class="head-rtitle">PACCACHE(8)</td>
+  </tr>
+</table>
+<div class="manual-text">
+<section class="Sh">
+<h1 class="Sh" id='NAME'><a class='permalink' href='#NAME'>NAME</a></h1>
+<p class="Pp">paccache - flexible pacman cache cleaning utility</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='SYNOPSIS'><a class='permalink' href='#SYNOPSIS'>SYNOPSIS</a></h1>
+<p class="Pp"><i>paccache</i> &lt;operation&gt; [options] [target ...]</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='DESCRIPTION'><a class='permalink' href='#DESCRIPTION'>DESCRIPTION</a></h1>
+<p class="Pp"><i>paccache</i> removes old packages from the pacman cache
+    directory. By default the last three versions of a package are kept.</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='OPERATIONS'><a class='permalink' href='#OPERATIONS'>OPERATIONS</a></h1>
+<p class="Pp"><b>-d, --dryrun</b></p>
+<div class="Bd-indent">Perform a dry run, only finding candidate packages.</div>
+<p class="Pp"><b>-m, --move &lt;dir&gt;</b></p>
+<div class="Bd-indent">Move candidate packages from the cache directory to
+  <i>dir</i>.</div>
+<p class="Pp"><b>-r, --remove</b></p>
+<div class="Bd-indent">Remove candidate packages from the cache directory.</div>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='OPTIONS'><a class='permalink' href='#OPTIONS'>OPTIONS</a></h1>
+<p class="Pp"><b>-a, --arch &lt;arch&gt;</b></p>
+<div class="Bd-indent">Scan for packages for a specific architecture. Default is
+  to scan for all architectures.</div>
+<p class="Pp"><b>-c, --cachedir &lt;dir&gt;</b></p>
+<div class="Bd-indent">Specify a different cache directory. This option can be
+  used more than once. Default is to use the cache directory configured in
+  <i>pacman.conf</i>.</div>
+<p class="Pp"><b>-f, --force</b></p>
+<div class="Bd-indent">Apply force to <i>mv</i> and <i>rm</i> operations.</div>
+<p class="Pp"><b>-h, --help</b></p>
+<div class="Bd-indent">Display syntax and command-line options.</div>
+<p class="Pp"><b>-i, --ignore &lt;pkgs&gt;</b></p>
+<div class="Bd-indent">Specify packages to ignore, comma-separated.
+  Alternatively &quot;-&quot; can be used to read the package names from stdin,
+  newline-delimited.</div>
+<p class="Pp"><b>-k, --keep &lt;num&gt;</b></p>
+<div class="Bd-indent">Specify how many versions of each package are kept in the
+  cache directory, default is 3.</div>
+<p class="Pp"><b>--min-atime &lt;time&gt;</b>, <b>--min-mtime
+  &lt;time&gt;</b></p>
+<div class="Bd-indent">Keep packages with an atime/mtime that is not older than
+  the time given, even if this means keeping more than specified through the
+  <i>--keep</i> option. Accepts arguments according to <i>info &quot;Date input
+  formats&quot;</i>, e.g. <i>30 days ago</i>.</div>
+<p class="Pp"><b>--nocolor</b></p>
+<div class="Bd-indent">Do not colorize output.</div>
+<p class="Pp"><b>-z, --null</b></p>
+<div class="Bd-indent">Use null delimiters for candidate names (only with -v and
+  -vv).</div>
+<p class="Pp"><b>-q, --quiet</b></p>
+<div class="Bd-indent">Minimize the output.</div>
+<p class="Pp"><b>-u, --uninstalled</b></p>
+<div class="Bd-indent">Target uninstalled packages.</div>
+<p class="Pp"><b>-v, --verbose</b></p>
+<div class="Bd-indent">Increase verbosity, can be specified up to 3 times.</div>
+<p class="Pp"><b>-V, --version</b></p>
+<div class="Bd-indent">Display version information.</div>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='SYSTEMD_TIMER'><a class='permalink' href='#SYSTEMD_TIMER'>SYSTEMD   TIMER</a></h1>
+<p class="Pp">The package cache can be cleaned periodically using the systemd
+    timer <i>paccache.timer</i>. If the timer is enabled the cache will be
+    cleaned weekly with paccache&#x2019;s default options.</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='SEE_ALSO'><a class='permalink' href='#SEE_ALSO'>SEE   ALSO</a></h1>
+<p class="Pp"><a href='/man/pacman.8.en'>pacman(8)</a>, <a href='/man/pacman.conf.5.en'>pacman.conf(5)</a>, <a href='/man/systemctl.1.en'>systemctl(1)</a></p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='BUGS'><a class='permalink' href='#BUGS'>BUGS</a></h1>
+<p class="Pp">Bugs? You must be kidding; there are no bugs in this software. But
+    if we happen to be wrong, file an issue with as much detail as possible at
+    <a href='https://gitlab.archlinux.org/pacman/pacman-contrib/-/issues/new'>https://gitlab.archlinux.org/pacman/pacman-contrib/-/issues/new</a>.</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='AUTHORS'><a class='permalink' href='#AUTHORS'>AUTHORS</a></h1>
+<p class="Pp">Current maintainers:</p>
+<div class="Bd-indent">&#x2022;Johannes L&#x00F6;thberg
+  &lt;johannes@kyriasis.com&gt;</div>
+<div class="Bd-indent">&#x2022;Daniel M. Capella
+  &lt;polyzen@archlinux.org&gt;</div>
+<p class="Pp">For additional contributors, use git shortlog -s on the
+    pacman-contrib.git repository.</p>
+</section>
+</div>
+<table class="foot">
+  <tr>
+    <td class="foot-date">2025-12-11</td>
+    <td class="foot-os">Pacman-contrib 1.13.1</td>
+  </tr>
+</table>
+
+</section>
+
+            </article>
+            <aside id="sidebar">
+                
+<section class="search">
+    <form action="/search" class="search direct-search" role="search">
+    <input type="search" placeholder="Search manual page" name="q" value=""
+         />
+    <input type="submit" name="go" value="Go" />
+</form>
+
+</section>
+
+<section class="package-info">
+    <p>Package information:</p>
+    <dl>
+        <dt>Package name:</dt>
+        <dd><a href="https://www.archlinux.org/packages/extra/x86_64/pacman-contrib/">extra/pacman-contrib</a></dd>
+        <dt>Version:</dt>
+        <dd>1.13.1-1</dd>
+        <dt>Upstream:</dt>
+        <dd><a href="https://gitlab.archlinux.org/pacman/pacman-contrib">https://gitlab.archlinux.org/pacman/pacman-contrib</a></dd>
+        <dt>Licenses:</dt>
+        <dd>GPL-2.0-or-later</dd>
+        <dt>Manuals:</dt>
+        <dd><a href="/listing/extra/pacman-contrib/">/listing/extra/pacman-contrib/</a></dd>
+    </dl>
+</section>
+
+<details>
+    <summary>Table of contents</summary>
+    <nav class="toc">
+        <ul>
+        
+            <li><a href="#NAME">NAME</a></li>
+        
+            <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+        
+            <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+        
+            <li><a href="#OPERATIONS">OPERATIONS</a></li>
+        
+            <li><a href="#OPTIONS">OPTIONS</a></li>
+        
+            <li><a href="#SYSTEMD_TIMER">SYSTEMD TIMER</a></li>
+        
+            <li><a href="#SEE_ALSO">SEE ALSO</a></li>
+        
+            <li><a href="#BUGS">BUGS</a></li>
+        
+            <li><a href="#AUTHORS">AUTHORS</a></li>
+        
+        </ul>
+    </nav>
+</details>
+
+
+
+
+<nav class="other-languages">
+    <p>In other languages:</p>
+    <ul>
+    
+        <li><a href="/man/paccache.8.ar">ar</a></li>
+    
+        <li><a href="/man/paccache.8.de">de</a></li>
+    
+        <li><a href="/man/paccache.8.pt_BR">pt_BR</a></li>
+    
+        <li><a href="/man/paccache.8.ro">ro</a></li>
+    
+    </ul>
+</nav>
+
+
+
+
+<nav class="other-formats">
+    <p>Other formats:
+        
+            <a href="/man/paccache.8.txt">txt</a>, 
+        
+            <a href="/man/paccache.8.raw">raw</a>
+        
+    </p>
+</nav>
+
+            </aside>
+            
+        </main>
+        <footer>
+            <p>Powered by <a href="https://gitlab.archlinux.org/archlinux/archmanweb">archmanweb</a>,
+               using <a href="https://mandoc.bsd.lv/">mandoc</a> for the conversion of manual pages.
+            </p>
+            <p>The website is available under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GPL-3.0</a>
+               license, except for the contents of the manual pages, which have their own license
+               specified in the corresponding Arch Linux package.
+            </p>
+        </footer>
+    </body>
+</html>

@@ -241,12 +241,33 @@ def main(argv=None):
         return 0 if exc.code == 0 else 2
     if args.selftest:
         return selftest()
+    binder_digest = hashlib.sha256((ROOT / 'tools' / '_revision.py').read_bytes()).hexdigest()
+    if binder_digest != '06b71e8cb4aa541a25c95301106dc4d3ad9566cf18ec834f226ec0708db58cbf':
+        print(json.dumps({'status': 'CANNOT_EVALUATE', 'findings': [
+            {'id': 'GATE-BINDER-BYTES', 'site': 'tools/_revision.py'}]}))
+        return 2
     try:
         binding = _revision.bind(ROOT, args.revision, args.branch)
     except _revision.RevisionError as exc:
         print(json.dumps({'status': 'CANNOT_EVALUATE', 'findings': [{'id': exc.fid, 'site': exc.site}]}))
         return 2
+    own = reader(ROOT, binding.sha)('tools/check-pause-gate.py')
+    if own is None or own.encode('utf-8', 'surrogateescape') != (ROOT / 'tools' / 'check-pause-gate.py').read_bytes():
+        site = 'tool absent at this revision' if own is None else 'working-tree checker differs from the revision blob'
+        print(json.dumps({'status': 'CANNOT_EVALUATE', 'revision': binding.sha,
+                          'findings': [{'id': 'GATE-SELF-BINDING', 'site': site}]}))
+        return 2
     code, result = evaluate(reader(ROOT, binding.sha))
+    attachment = '.ufo/waves/round-24/capture/l1-4/checkupdates.out'
+    attachment_text = reader(ROOT, binding.sha)(attachment)
+    attachment_ok = (attachment_text is not None and hashlib.sha256(
+        attachment_text.encode('utf-8', 'surrogateescape')).hexdigest()
+        == '0a33e3e4a7dae15910e4f914089bb3d7259e16e177da433cfbecc2ca9cfccee7')
+    result['checkupdates_attachment_pinned'] = attachment_ok
+    if not attachment_ok:
+        code = 1
+        result['premises_verified'] = 0
+        result['findings'].append({'id': 'GATE-ATTACHMENT-PIN', 'site': attachment})
     result.update(revision=binding.sha, branch=binding.branch, status=('PASS', 'FAIL')[code])
     print(json.dumps(result, sort_keys=True))
     return code

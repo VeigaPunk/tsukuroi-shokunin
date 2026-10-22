@@ -444,3 +444,5 @@ No binary package query, configuration write, restart, rebuild or recovery actio
 ## R24 notice — stable mirror lag answered (2026-10-22)
 
 Appended; the `[unknown]` line above stays as written. The omarchy stable mirror holds the Arch snapshot of the current omarchy release and advances only by promotion (S100); its core.db Last-Modified was 2026-10-22 04:40:03 UTC at capture time (S101), after the host's last database download of 2026-10-18. Detail: `corpus/knowledge/pause-lift-gate-r24.md` P4.
+
+R24 precision: the mirror intentionally holds a release-tested snapshot rather than continuously following upstream (S100). Its measured lag at this round's probe was 38m21s for core and 3h25m49s for extra Last-Modified; these are file-publication lags, not a universal package-age bound (`.ufo/waves/round-24/w1/ExecMirrorTimestamps.md`).

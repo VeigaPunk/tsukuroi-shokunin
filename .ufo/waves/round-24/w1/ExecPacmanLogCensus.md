@@ -91,9 +91,9 @@ Artifacts written:
 
     [obs] Evidence from the sudo journal: `2026-10-22T04:09:42-03:00 ... COMMAND=/usr/bin/paccache -rk1` and `2026-10-22T04:09:42-03:00 ... COMMAND=/usr/bin/paccache -ruk0`; `2026-10-22T04:10:08-03:00 ... COMMAND=/usr/bin/pacman -Scc --noconfirm` and `2026-10-22T04:10:19-03:00 ... COMMAND=/usr/bin/pacman -Scc`.
 
-18. [obs] The `pacman -Sy --noconfirm` at 2026-10-21T20:32:00 is the only sync after the boundary, and it is a bare `-Sy` with no `-u`, which is the partial-upgrade pattern Arch doctrine warns against. The corresponding sudo journal entry attributes it to account `vgpnk` with `PWD=/home/vgpnk/Projects/BTVREV`, that is, outside the fleet repo.
+18. [obs] The `pacman -Sy --noconfirm` at 2026-10-21T20:32:00 is the only sync after the boundary, and it is a bare `-Sy` with no `-u`, which is the partial-upgrade pattern Arch doctrine warns against. The corresponding sudo journal entry attributes it to account `vgpnk` with `PWD=.../Projects/other-project`, that is, outside the fleet repo.
 
-    [obs] Evidence: `/var/log/pacman.log:3188` and `/var/log/pacman.log:3189` (`[PACMAN] synchronizing package lists`); journal `2026-10-21T20:32:00-03:00 plazir27 sudo[2901011]: vgpnk : PWD=/home/vgpnk/Projects/BTVREV ; USER=root ; COMMAND=/usr/bin/pacman -Sy --noconfirm`. The L1 capture records the same event at `.ufo/waves/round-24/capture/l1-2/capture.txt:228`.
+    [obs] Evidence: `/var/log/pacman.log:3188` and `/var/log/pacman.log:3189` (`[PACMAN] synchronizing package lists`); journal `2026-10-21T20:32:00-03:00 plazir27 sudo[2901011]: vgpnk : PWD=.../Projects/other-project ; USER=root ; COMMAND=/usr/bin/pacman -Sy --noconfirm`. The L1 capture records the same event at `.ufo/waves/round-24/capture/l1-2/capture.txt:228`.
 
 19. [obs] The other 10 post-boundary package-touching invocations are also attributed to account `vgpnk` working outside the fleet repo, per the L1's own sudo-journal capture at `.ufo/waves/round-24/capture/l1-2/capture.txt:238-254`. The census agrees with that capture on all 11 post-boundary command lines.
 

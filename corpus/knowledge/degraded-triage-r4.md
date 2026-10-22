@@ -657,3 +657,7 @@ Supersedes the historical AppendixA package-command replay under a steer forbidd
 - For the repository artifact itself, `sha256sum tools/tsukuroi-census.sh` and `bash tools/tsukuroi-census.sh --selftest` recheck code/isolated fixtures only. Do not invoke the unflagged live census or replay the old Appendix package commands.
 
 Record observed fields, command exits and capture time. Current pending/foreign/orphan membership, integrity failures, incident cause and recovery feasibility remain separate questions; no package, service, boot or subvolume action is authorized.
+
+## R24 current-use notice (2026-10-22)
+
+The historical 1password-beta downgrade-trap statements at lines 77 and 394 are superseded: the installed `8.12.42_34.BETA-1` is now behind channel `8.12.44_25.BETA-1`. Evidence: `.ufo/waves/round-24/capture/l1-4/capture.txt:40`; current update-safety reading: `corpus/knowledge/pause-lift-gate-r24.md` P1. No transaction is authorized.

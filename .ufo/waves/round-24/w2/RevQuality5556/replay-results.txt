@@ -1,0 +1,37 @@
+# four-line synthetic sudo test; RESULT line is the verdict; harness exit code is 0 whenever it completes
+== OLD 10b45f05 sudo block ==
+run line exit-ready; capture lines:
+2026-10-21T10:00:01+0000 host sudo[1001]: vgpnk : TTY=pts/1 ; PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+2026-10-21T10:00:02+0000 host sudo[1002]: vgpnk : TTY=pts/1 ; PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+2026-10-21T10:00:03+0000 host sudo[1003]: vgpnk : TTY=pts/1 ; PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+2026-10-21T10:00:04+0000 host sudo[1004]: vgpnk : TTY=pts/1 ; PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+got:  outside-fleet-repo outside-fleet-repo outside-fleet-repo outside-fleet-repo
+want: inside-fleet-repo outside-fleet-repo inside-fleet-repo outside-fleet-repo
+RESULT: FAIL
+== NEW 22fd1642 sudo block ==
+run line exit-ready; capture lines:
+2026-10-21T10:00:01+0000 host sudo[1001]: vgpnk : TTY=pts/1 ; PWD=inside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+2026-10-21T10:00:02+0000 host sudo[1002]: vgpnk : TTY=pts/1 ; PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+2026-10-21T10:00:03+0000 host sudo[1003]: vgpnk : TTY=pts/1 ; PWD=inside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+2026-10-21T10:00:04+0000 host sudo[1004]: vgpnk : TTY=pts/1 ; PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+got:  inside-fleet-repo outside-fleet-repo inside-fleet-repo outside-fleet-repo
+want: inside-fleet-repo outside-fleet-repo inside-fleet-repo outside-fleet-repo
+RESULT: PASS
+== WORKING-TREE sudo block (uncommitted at review time) ==
+run line exit-ready; capture lines:
+2026-10-21T10:00:01+0000 host sudo[1001]: vgpnk : TTY=pts/1 ; PWD=inside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+2026-10-21T10:00:02+0000 host sudo[1002]: vgpnk : TTY=pts/1 ; PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+2026-10-21T10:00:03+0000 host sudo[1003]: vgpnk : TTY=pts/1 ; PWD=inside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+2026-10-21T10:00:04+0000 host sudo[1004]: vgpnk : TTY=pts/1 ; PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+got:  inside-fleet-repo outside-fleet-repo inside-fleet-repo outside-fleet-repo
+want: inside-fleet-repo outside-fleet-repo inside-fleet-repo outside-fleet-repo
+RESULT: PASS
+== NEW 22fd1642 sudo block with HOME=/tmp/fakehome ==
+run line exit-ready; capture lines:
+2026-10-21T10:00:01+0000 host sudo[1001]: vgpnk : TTY=pts/1 ; PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+2026-10-21T10:00:02+0000 host sudo[1002]: vgpnk : TTY=pts/1 ; PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+2026-10-21T10:00:03+0000 host sudo[1003]: vgpnk : TTY=pts/1 ; PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+2026-10-21T10:00:04+0000 host sudo[1004]: vgpnk : TTY=pts/1 ; PWD=outside-fleet-repo; USER=root ; COMMAND=/usr/bin/pacman -Qu
+got:  outside-fleet-repo outside-fleet-repo outside-fleet-repo outside-fleet-repo
+want: inside-fleet-repo outside-fleet-repo inside-fleet-repo outside-fleet-repo
+RESULT: FAIL

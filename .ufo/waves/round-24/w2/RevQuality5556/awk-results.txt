@@ -1,0 +1,17 @@
+# awk rule checks on synthetic inputs (awk = gawk 5.4.1, fleet=/home/vgpnk/Projects/shokunin)
+== rule-new.awk on four lines (expect inside outside inside outside) ==
+PWD=inside-fleet-repo PWD=outside-fleet-repo PWD=inside-fleet-repo PWD=outside-fleet-repo
+== rule-m1-prefix.awk on four lines (expect inside outside inside outside) ==
+PWD=inside-fleet-repo PWD=outside-fleet-repo PWD=inside-fleet-repo PWD=inside-fleet-repo
+== rule-m2-overwrite.awk on four lines (expect inside outside inside outside) ==
+PWD=outside-fleet-repo PWD=outside-fleet-repo PWD=outside-fleet-repo PWD=outside-fleet-repo
+== rule-m3-no-root.awk on four lines (expect inside outside inside outside) ==
+PWD=inside-fleet-repo PWD=outside-fleet-repo PWD=outside-fleet-repo PWD=outside-fleet-repo
+== rule-fixed.awk on four lines (expect inside outside inside outside) ==
+PWD=inside-fleet-repo PWD=outside-fleet-repo PWD=inside-fleet-repo PWD=outside-fleet-repo
+== COMMAND-text probe (line 1 real PWD outside, line 2 real PWD inside) ==
+rule-new.awk: PWD=inside-fleet-repo PWD= PWD=inside-fleet-repo
+rule-fixed.awk: PWD=outside-fleet-repo PWD= PWD=inside-fleet-repo
+== no-space fleet-root probe (expect inside inside) ==
+rule-new.awk: PWD=outside-fleet-repo PWD=inside-fleet-repo
+rule-fixed.awk: PWD=inside-fleet-repo PWD=inside-fleet-repo

@@ -1,0 +1,178 @@
+=== 0. tool versions ===
+findmnt from util-linux 2.42.4
+mount from util-linux 2.42.4 (libmount 2.42.4: btrfs, verity, namespaces, idmapping, fd-based-mount, statmount, statx, fanotify, udev, assert, debug)
+7.2.11-arch1-1
+
+=== 1. build the mkinitcpio-42 shaped tree ===
+total 0
+drwxr-xr-x 3 root root 37 Oct 22 05:40 .
+drwxr-xr-x 4 root root 65 Oct 22 05:40 ..
+lrwxrwxrwx 1 root root  7 Oct 22 05:40 new_root -> sysroot
+drwxr-xr-x 2 root root  6 Oct 22 05:40 sysroot
+--- readlink new_root ->
+sysroot
+
+=== 2. mount a tmpfs on the sysroot dir (stands in for the real root mount) ===
+exit=0
+--- findmnt --mountpoint $BASE/sysroot  (control: the real dir)
+tmpfs tmpfs /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/sysroot
+exit=0
+--- findmnt --mountpoint $BASE/new_root  (THE PROBE: through the symlink)
+tmpfs tmpfs /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/sysroot
+exit=0
+--- findmnt --mountpoint $BASE/new_root/ (trailing slash)
+tmpfs tmpfs /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/sysroot
+exit=0
+--- findmnt -T $BASE/new_root  (--target, path-resolution flavour)
+tmpfs tmpfs /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/sysroot
+exit=0
+--- findmnt --target $BASE/new_root
+tmpfs tmpfs /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/sysroot
+exit=0
+--- findmnt (no args) full table in this namespace
+btrfs           /dev/mapper/root[/@]     /
+devtmpfs        dev                      ├─/dev
+devpts          devpts                   │ ├─/dev/pts
+tmpfs           tmpfs                    │ ├─/dev/shm
+mqueue          mqueue                   │ ├─/dev/mqueue
+hugetlbfs       hugetlbfs                │ └─/dev/hugepages
+proc            proc                     ├─/proc
+autofs          systemd-1                │ └─/proc/sys/fs/binfmt_misc
+binfmt_misc     binfmt_misc              │   └─/proc/sys/fs/binfmt_misc
+sysfs           sys                      ├─/sys
+efivarfs        efivarfs                 │ ├─/sys/firmware/efi/efivars
+securityfs      securityfs               │ ├─/sys/kernel/security
+cgroup2         cgroup2                  │ ├─/sys/fs/cgroup
+pstore          none                     │ ├─/sys/fs/pstore
+bpf             bpf                      │ ├─/sys/fs/bpf
+tracefs         tracefs                  │ ├─/sys/kernel/tracing
+debugfs         debugfs                  │ ├─/sys/kernel/debug
+configfs        configfs                 │ ├─/sys/kernel/config
+fusectl         fusectl                  │ └─/sys/fs/fuse/connections
+tmpfs           run                      ├─/run
+tmpfs           none                     │ ├─/run/credentials/systemd-journald.service
+tmpfs           none                     │ ├─/run/credentials/systemd-resolved.service
+tmpfs           none                     │ ├─/run/credentials/systemd-networkd.service
+tmpfs           tmpfs                    │ └─/run/user/1000
+fuse.gvfsd-fuse gvfsd-fuse               │   ├─/run/user/1000/gvfs
+fuse.portal     portal                   │   └─/run/user/1000/doc
+btrfs           /dev/mapper/root[/@pkg]  ├─/var/cache/pacman/pkg
+btrfs           /dev/mapper/root[/@home] ├─/home
+btrfs           /dev/mapper/root[/@log]  ├─/var/log
+vfat            /dev/nvme0n1p1           ├─/boot
+xfs             /dev/nvme1n1p1           ├─/tmp
+xfs             /dev/nvme1n1p2           └─/fast
+tmpfs           tmpfs                      └─/fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/sysroot
+
+=== 3. what does stat say (the mechanism the init script uses) ===
+stat -c %D new_root : 10305
+exit=0
+stat -c %D sysroot  : 4b
+exit=0
+
+=== 4. mount --move through the symlink (the hook's own operation) ===
+exit=0
+--- findmnt --mountpoint $BASE/new_root after move
+exit=1
+--- findmnt --mountpoint $BASE/lowdir after move
+tmpfs tmpfs /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/lowdir
+exit=0
+--- full table
+btrfs           /dev/mapper/root[/@]     /
+devtmpfs        dev                      ├─/dev
+devpts          devpts                   │ ├─/dev/pts
+tmpfs           tmpfs                    │ ├─/dev/shm
+mqueue          mqueue                   │ ├─/dev/mqueue
+hugetlbfs       hugetlbfs                │ └─/dev/hugepages
+proc            proc                     ├─/proc
+autofs          systemd-1                │ └─/proc/sys/fs/binfmt_misc
+binfmt_misc     binfmt_misc              │   └─/proc/sys/fs/binfmt_misc
+sysfs           sys                      ├─/sys
+efivarfs        efivarfs                 │ ├─/sys/firmware/efi/efivars
+securityfs      securityfs               │ ├─/sys/kernel/security
+cgroup2         cgroup2                  │ ├─/sys/fs/cgroup
+pstore          none                     │ ├─/sys/fs/pstore
+bpf             bpf                      │ ├─/sys/fs/bpf
+tracefs         tracefs                  │ ├─/sys/kernel/tracing
+debugfs         debugfs                  │ ├─/sys/kernel/debug
+configfs        configfs                 │ ├─/sys/kernel/config
+fusectl         fusectl                  │ └─/sys/fs/fuse/connections
+tmpfs           run                      ├─/run
+tmpfs           none                     │ ├─/run/credentials/systemd-journald.service
+tmpfs           none                     │ ├─/run/credentials/systemd-resolved.service
+tmpfs           none                     │ ├─/run/credentials/systemd-networkd.service
+tmpfs           tmpfs                    │ └─/run/user/1000
+fuse.gvfsd-fuse gvfsd-fuse               │   ├─/run/user/1000/gvfs
+fuse.portal     portal                   │   └─/run/user/1000/doc
+btrfs           /dev/mapper/root[/@pkg]  ├─/var/cache/pacman/pkg
+btrfs           /dev/mapper/root[/@home] ├─/home
+btrfs           /dev/mapper/root[/@log]  ├─/var/log
+vfat            /dev/nvme0n1p1           ├─/boot
+xfs             /dev/nvme1n1p1           ├─/tmp
+xfs             /dev/nvme1n1p2           └─/fast
+tmpfs           tmpfs                      └─/fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/lowdir
+
+=== 5. mount -t overlay with the symlink as the target (the hook's second operation) ===
+ramdir tmpfs exit=0
+mount: /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/sysroot: special device overlay does not exist.
+       dmesg(1) may have more information after failed mount system call.
+exit=32
+--- findmnt --mountpoint $BASE/new_root after overlay
+exit=1
+--- findmnt --mountpoint $BASE/sysroot after overlay
+exit=1
+--- full table
+btrfs           /dev/mapper/root[/@]     /
+devtmpfs        dev                      ├─/dev
+devpts          devpts                   │ ├─/dev/pts
+tmpfs           tmpfs                    │ ├─/dev/shm
+mqueue          mqueue                   │ ├─/dev/mqueue
+hugetlbfs       hugetlbfs                │ └─/dev/hugepages
+proc            proc                     ├─/proc
+autofs          systemd-1                │ └─/proc/sys/fs/binfmt_misc
+binfmt_misc     binfmt_misc              │   └─/proc/sys/fs/binfmt_misc
+sysfs           sys                      ├─/sys
+efivarfs        efivarfs                 │ ├─/sys/firmware/efi/efivars
+securityfs      securityfs               │ ├─/sys/kernel/security
+cgroup2         cgroup2                  │ ├─/sys/fs/cgroup
+pstore          none                     │ ├─/sys/fs/pstore
+bpf             bpf                      │ ├─/sys/fs/bpf
+tracefs         tracefs                  │ ├─/sys/kernel/tracing
+debugfs         debugfs                  │ ├─/sys/kernel/debug
+configfs        configfs                 │ ├─/sys/kernel/config
+fusectl         fusectl                  │ └─/sys/fs/fuse/connections
+tmpfs           run                      ├─/run
+tmpfs           none                     │ ├─/run/credentials/systemd-journald.service
+tmpfs           none                     │ ├─/run/credentials/systemd-resolved.service
+tmpfs           none                     │ ├─/run/credentials/systemd-networkd.service
+tmpfs           tmpfs                    │ └─/run/user/1000
+fuse.gvfsd-fuse gvfsd-fuse               │   ├─/run/user/1000/gvfs
+fuse.portal     portal                   │   └─/run/user/1000/doc
+btrfs           /dev/mapper/root[/@pkg]  ├─/var/cache/pacman/pkg
+btrfs           /dev/mapper/root[/@home] ├─/home
+btrfs           /dev/mapper/root[/@log]  ├─/var/log
+vfat            /dev/nvme0n1p1           ├─/boot
+xfs             /dev/nvme1n1p1           ├─/tmp
+xfs             /dev/nvme1n1p2           └─/fast
+tmpfs           tmpfs                      ├─/fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/lowdir
+tmpfs           tmpfs                      └─/fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/ramdir
+
+=== 6. mount --bind with the symlink as source and as target ===
+bind-symlink-source exit=0
+xfs /dev/nvme1n1p2[/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/sysroot] /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/bindsrc
+exit=0
+bind-real-source exit=0
+xfs /dev/nvme1n1p2[/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/sysroot] /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree/bindtgt
+exit=0
+
+=== 7. device identity: is the mount at the symlink the same device as the real dir? ===
+stat -c '%d %D' new_root : 66309 10305
+stat -c '%d %D' sysroot  : 66309 10305
+stat -c '%d %D' /       : 32 20
+
+=== 8. does findmnt --mountpoint find a NON-mounted dir through a symlink? ===
+exit=1 (expect empty / nonzero: not a mountpoint)
+
+=== 9. negative control: symlink to a directory that IS a mountpoint via a DIFFERENT path ===
+exit=1
+=== DONE ===

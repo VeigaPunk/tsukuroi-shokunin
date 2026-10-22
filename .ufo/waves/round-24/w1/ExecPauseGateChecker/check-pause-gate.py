@@ -6,21 +6,28 @@ The counting rule is the one declared with claim C2 in SCORECARD.md, section
 
   A premise counts only if its verdict is one of the decided verdicts cleared,
   still-holds or changed (an `unverified` verdict is a valid schema value but
-  does not count); every evidence line exists at the revision and contains its
-  exact substring, and the substring is not capture boilerplate and occurs
-  exactly once in its file; at least one evidence pointer resolves into the
-  capture section mapped to that premise; and every listed source id is a
-  single, unique row of corpus/SOURCES.md at the revision whose fields are
-  `mined` and whose `used-by` cell contains pause-lift-gate-r24, with an
-  `opened` cell that contains 2026-10-22.
+  does not count); it carries at least one value anchor — a unique,
+  non-boilerplate evidence line inside its value-section set, or a zero-form
+  echo-and-exit pair (a `$ ` command echo line N plus the `exit=` line N+1,
+  both in the value-section set, needles equal to their full lines); every
+  evidence pointer resolves at the revision (line exists, exact substring
+  present, needle unique unless part of a zero pair); evidence lines that begin
+  with the capture's boilerplate (`### `, `$ `, `exit=`) are not anchors and
+  are rejected unless they form a zero pair; every listed source id is a
+  single, unique row of corpus/SOURCES.md at the revision whose status cell is
+  `mined`, whose `used-by` cell names the premise id (pause-lift-gate-r24#Px),
+  and whose `opened` cell contains 2026-10-22; any finding forces the gate to
+  fail; and evidence that is not inside the declared capture must be pinned by
+  sha256 in the gate's `pins` map.
 
 Every byte is read from the git object database at the bound revision (`git
 cat-file blob`, read-only). The host is never probed, no package state is
 re-measured, and nothing here lifts or justifies lifting the pacman pause.
 
 Exit codes:
-  0  premises_verified == 5 and premises_total == 5, and the document is valid
-  1  the gate entry is missing or malformed, or a premise does not count
+  0  premises_verified == 5 and premises_total == 5, no findings, valid document
+  1  the gate entry is missing or malformed, a premise does not count, or any
+     finding is present
   2  the revision cannot be bound or read (could not evaluate)
 
 Scope: a count of evidence links in committed bytes. Not runtime prevention,
@@ -29,6 +36,7 @@ not a no-harm proof, not an authorization of any package transaction.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import posixpath
 from pathlib import Path
@@ -48,18 +56,21 @@ DECIDED_VERDICTS = ('cleared', 'still-holds', 'changed')
 SOURCES_DATE = '2026-10-22'
 ROW = re.compile(r'^\|\s*(S\d{3})\s*\|')
 SECTION_HEADER = re.compile(r'^### (.+)$')
-# Capture section per premise (RevGateSchema-2 finding 5).
+BOILERPLATE = ('### ', '$ ', 'exit=')
+# Value-section set per premise (RevGateSchema-2 finding N1a).
 SECTION_MAP = {
-    'P1': {'pending', 'pending-count', 'pending-repos'},
-    'P2': {'local-newer-than-sync', 'boot-chain-installed', 'boot-chain-sync'},
-    'P3': {'boots', 'plymouth-boot0', 'plymouth-boot-1', 'boot-chain-installed',
-           'hooks-new-root', 'init-root', 'buildroot-symlink'},
-    'P4': {'mirror-servers', 'repo-servers', 'sync-db-mtime', 'pacman-log-last-sync',
-           'stable-mirror-headers'},
-    'P5': {'cache-file-count', 'cache-package-files', 'cache-entries',
-           'pacman-commands-since-pause', 'pacman-log-since-pause',
-           'sudo-package-commands-since-pause', 'foreign-new',
-           'paccache-runs-since-pause'},
+    'P1': {'pending', 'pending-count', 'pending-repos', 'checkupdates-temp-db'},
+    'P2': {'local-newer-than-sync'},
+    'P3': {'hooks-new-root', 'buildroot-symlink', 'init-root', 'boots',
+            'boot0-root-mount', 'plymouth-boot0', 'plymouth-boot-1',
+            'loader-entry', 'cmdline-boot-flags', 'boot-chain-installed'},
+    'P4': {'sync-db-mtime', 'sync-db-ctime-birth', 'stable-mirror-headers',
+            'mirror-servers', 'repo-servers', 'pacman-log-last-sync',
+            'pacman-commands-since-pause'},
+    'P5': {'cache-entries', 'cache-package-files',
+            'sudo-package-commands-since-pause', 'paccache-runs-since-pause',
+            'pacman-log-since-pause', 'pacman-commands-since-pause',
+            'foreign-new', 'snap-pac', 'snapper-list'},
 }
 SCRATCH = Path('/fast/scratch/hyaku/tsuku24-ExecPauseGateChecker')
 
@@ -74,7 +85,6 @@ def find_root():
             continue
     for start in starts:
         for candidate in (start, *start.parents):
-            if (candidate / 'tools' / '_revision.py').is_file():
                 return candidate
     return Path.cwd().resolve()
 
@@ -129,7 +139,6 @@ class Reader:
         self.repo = str(repo)
         self.sha = sha
         self._cache = {}
-        self._kinds = {}
 
     def read(self, path):
         if not lane_relative(path):
@@ -181,17 +190,32 @@ def section_of(sections, line):
     return name
 
 
-def check_evidence(pointer, reader, index, capture, sections):
+def pinned(reader, gate, path):
+    """Non-capture evidence is allowed only when pinned by sha256 in the gate."""
+    pins = gate.get('pins') if isinstance(gate, dict) else None
+    text = reader.read(path)
+    if text is None:
+        return None, 'evidence-file-absent-at-revision'
+    if not isinstance(pins, dict) or path not in pins:
+        return None, 'evidence-non-capture-unpinned'
+    digest = hashlib.sha256(text.encode('utf-8', 'replace')).hexdigest()
+    if pins[path] != digest:
+        return None, 'evidence-non-capture-pin-mismatch'
+    return text, None
+
+
+def resolve_pointer(pointer, reader, index, capture, capture_text, sections, gate):
     """Resolve one evidence pointer against the committed bytes."""
     detail = {'index': index, 'path': None, 'line': None, 'contains': None,
-              'resolved': False, 'in_capture': False, 'section': None, 'problem': None}
+              'resolved': False, 'in_capture': False, 'section': None,
+              'line_text': None, 'problem': None}
     if not isinstance(pointer, dict) or set(pointer) != {'path', 'line', 'contains'}:
         detail['problem'] = 'evidence-shape'
         return detail
     path, line, needle = pointer['path'], pointer['line'], pointer['contains']
-    detail['path'] = path if isinstance(path, str) else None
-    detail['line'] = line if isinstance(line, int) and not isinstance(line, bool) else None
-    detail['contains'] = needle if isinstance(needle, str) else None
+    detail.update(path=path if isinstance(path, str) else None,
+                  line=line if isinstance(line, int) and not isinstance(line, bool) else None,
+                  contains=needle if isinstance(needle, str) else None)
     if not lane_relative(path):
         detail['problem'] = 'evidence-path-not-lane-relative'
         return detail
@@ -201,38 +225,66 @@ def check_evidence(pointer, reader, index, capture, sections):
     if not isinstance(needle, str) or not needle.strip():
         detail['problem'] = 'evidence-substring-empty'
         return detail
-    needle = needle.strip()
     if len(needle) < 3:
         detail['problem'] = 'evidence-needle-short'
-        return detail
-    if needle.startswith('###') or needle.lower().startswith('exit='):
-        detail['problem'] = 'evidence-needle-boilerplate'
         return detail
     if type(line) is not int or line < 1:
         detail['problem'] = 'evidence-line-not-positive-int'
         return detail
-    text = reader.read(path)
-    if text is None:
-        detail['problem'] = 'evidence-file-absent-at-revision'
-        return detail
+    if in_capture(path, capture):
+        if capture_text is None:
+            detail['problem'] = 'evidence-capture-absent'
+            return detail
+        text = capture_text
+        detail['in_capture'] = True
+    else:
+        text, problem = pinned(reader, gate, path)
+        if text is None:
+            detail['problem'] = problem
+            return detail
     lines = text.splitlines()
     if line > len(lines):
         detail['problem'] = 'evidence-line-out-of-range'
         return detail
-    if needle not in lines[line - 1]:
+    observed = lines[line - 1]
+    detail['line_text'] = observed
+    detail['file_text'] = text
+    if needle not in observed:
         detail['problem'] = 'evidence-substring-absent'
         return detail
-    if text.count(needle) != 1:
-        detail['problem'] = 'evidence-needle-not-unique'
-        return detail
     detail['resolved'] = True
-    detail['in_capture'] = in_capture(path, capture)
     if detail['in_capture']:
         detail['section'] = section_of(sections, line)
     return detail
 
 
-def check_premise(premise, reader, dates, capture, sections, seen_ids):
+def zero_pair(points):
+    """Return the (echo, exit) details of a zero-form pair, if any.
+
+    A zero form is a `$ ` command echo line N plus the `exit=` line N+1, with
+    no lines between, both inside the premise's value-section set and each
+    needle equal to its full line.
+    """
+    by_line = {p['line']: p for p in points if p['resolved'] and p['in_capture']}
+    for line, point in by_line.items():
+        text = point.get('line_text') or ''
+        if not text.startswith('$ '):
+            continue
+        mate = by_line.get(line + 1)
+        if not mate:
+            continue
+        mate_text = mate.get('line_text') or ''
+        if not mate_text.startswith('exit='):
+            continue
+        if point.get('contains') != text.strip():
+            continue
+        if mate.get('contains') != mate_text.strip():
+            continue
+        return point, mate
+    return None
+
+
+def check_premise(premise, reader, gate, dates, capture, capture_text, sections, seen_ids):
     """Apply the counting rule to one premise entry."""
     problems = []
     detail = {'id': None, 'premise': None, 'verdict': None, 'verified': False,
@@ -261,21 +313,39 @@ def check_premise(premise, reader, dates, capture, sections, seen_ids):
         problems.append('verdict-not-in-vocabulary')
     elif verdict not in DECIDED_VERDICTS:
         problems.append('verdict-undecided')
+
     evidence = premise.get('evidence')
+    points = []
     if not isinstance(evidence, list) or not evidence:
         problems.append('evidence-empty')
     else:
         for index, pointer in enumerate(evidence):
-            resolved = check_evidence(pointer, reader, index, capture, sections)
-            detail['evidence'].append(resolved)
-            if not resolved['resolved']:
-                problems.append(resolved['problem'])
-            elif resolved['in_capture']:
+            point = resolve_pointer(pointer, reader, index, capture, capture_text, sections, gate)
+            detail['evidence'].append(point)
+            if not point['resolved']:
+                problems.append(point['problem'])
+            elif point['in_capture']:
                 detail['capture_line'] = True
+                points.append(point)
+        pair = zero_pair(points) if points else None
         allowed = SECTION_MAP.get(pid, set())
-        if not any(pointer['in_capture'] and pointer.get('section') in allowed
-                   for pointer in detail['evidence']):
-            problems.append('no-capture-section-fit')
+        anchor = None
+        if pair is None:
+            for point in points:
+                line_text = point.get('line_text') or ''
+                if line_text.startswith(BOILERPLATE):
+                    continue
+                if point.get('section') not in allowed:
+                    continue
+                needle = point.get('contains') or ''
+                file_text = point.get('file_text') or ''
+                if file_text.count(needle) != 1:
+                    continue
+                anchor = point
+                break
+            if anchor is None:
+                problems.append('no-value-anchor')
+
     sources = premise.get('sources')
     if not isinstance(sources, list) or not sources:
         problems.append('sources-empty')
@@ -297,8 +367,8 @@ def check_premise(premise, reader, dates, capture, sections, seen_ids):
             if status != 'mined':
                 problems.append(f'source-status-not-mined:{sid}')
                 continue
-            if 'pause-lift-gate-r24' not in used_by:
-                problems.append(f'source-used-by-not-gate:{sid}')
+            if not re.search(rf'pause-lift-gate-r24(\.(json|md))?#{re.escape(pid)}', used_by):
+                problems.append(f'source-used-by-not-this-premise:{sid}')
                 continue
             if SOURCES_DATE not in opened:
                 problems.append(f'source-opened-on-another-date:{sid}')
@@ -319,7 +389,7 @@ def evaluate(reader):
     findings = []
     result = {'gate': GATE, 'sources': SOURCES, 'sources_opened_date': SOURCES_DATE,
               'capture': None, 'document_valid': False, 'premises_total': 0,
-              'premises_verified': 0, 'premises_unverified': 0,
+              'premises_verified': 0, 'premises_unverified': 0, 'verdicts': {},
               'premises': [], 'findings': findings}
 
     def add(fid, site, detail_text=None):
@@ -368,7 +438,8 @@ def evaluate(reader):
     dates = source_rows(reader.read(SOURCES))
     seen = set()
     for premise in premises:
-        detail = check_premise(premise, reader, dates, capture, sections, seen)
+        detail = check_premise(premise, reader, gate, dates, capture, capture_text,
+                               sections, seen)
         result['premises'].append(detail)
         for problem in detail['problems']:
             add('GATE-PREMISE', f'{detail["id"] or "?"}:{problem}')
@@ -376,6 +447,10 @@ def evaluate(reader):
     result['premises_verified'] = sum(1 for d in result['premises'] if d['verified'])
     result['premises_unverified'] = sum(
         1 for d in result['premises'] if d.get('verdict') == 'unverified')
+    for d in result['premises']:
+        verdict = d.get('verdict')
+        if verdict:
+            result['verdicts'][verdict] = result['verdicts'].get(verdict, 0) + 1
     if sorted(d['id'] for d in result['premises'] if d['id']) != list(IDS):
         add('GATE-PREMISE-SET', ','.join(sorted(str(d['id']) for d in result['premises'])),
             'the premises are not exactly P1..P5')
@@ -390,8 +465,9 @@ def evaluate(reader):
 
 
 def passed(result):
-    """Exit 0 only for five decided premises out of five in a valid document."""
+    """Exit 0 only for five decided premises out of five, no findings, valid doc."""
     return (result.get('document_valid') is True
+            and not result.get('findings')
             and result.get('premises_verified') == 5
             and result.get('premises_total') == 5)
 
@@ -433,81 +509,99 @@ def sandbox_repo(root, files):
     return git(root, 'rev-parse', 'HEAD').strip()
 
 
-SOURCES_FIXTURE = (
-    '| id | source | kind | tier | scope | anchor | teaches | status | opened | recheck | used-by |\n'
-    '|---|---|---|---|---|---|---|---|---|---|---|\n'
-    '| S901 | pause gate fixture, opened this round | docs | A | round-24 gate fixture | '
-    'row S901 | the opened cell of a fixture row | mined | 2026-10-22 | 90d | '
-    'corpus/knowledge/pause-lift-gate-r24.md |\n'
-    '| S902 | pause gate fixture, opened earlier | docs | A | round-24 gate fixture | '
-    'row S902 | the opened cell of a fixture row | mined | 2026-10-19 | 90d | '
-    'corpus/knowledge/pause-lift-gate-r24.md |\n'
-    '| S903 | pause gate fixture, rejected | docs | A | round-24 gate fixture | '
-    'row S903 | a recorded refutation | rejected | 2026-10-22 | 90d | '
-    'corpus/knowledge/pause-lift-gate-r24.md |\n'
-    '| S904 | pause gate fixture, unused | docs | A | round-24 gate fixture | '
-    'row S904 | a row used elsewhere | mined | 2026-10-22 | 90d | '
-    'corpus/knowledge/other.md |\n'
-)
+def sources_fixture():
+    rows = ['| id | source | kind | tier | scope | anchor | teaches | status | opened | recheck | used-by |',
+            '|---|---|---|---|---|---|---|---|---|---|---|']
+    for pid in IDS:
+        rows.append(f'| S9{IDS.index(pid)+1:02d} | pause gate fixture row for {pid} | docs | A | round-24 gate fixture | row S9{IDS.index(pid)+1:02d} | the opened cell of a fixture row | mined | 2026-10-22 | 90d | corpus/knowledge/pause-lift-gate-r24.md#{pid} |')
+    rows.append('| S909 | pause gate fixture, opened earlier | docs | A | round-24 gate fixture | row S909 | the opened cell of a fixture row | mined | 2026-10-19 | 90d | corpus/knowledge/pause-lift-gate-r24.md#P1 |')
+    rows.append('| S910 | pause gate fixture, rejected | docs | A | round-24 gate fixture | row S910 | a recorded refutation | rejected | 2026-10-22 | 90d | corpus/knowledge/pause-lift-gate-r24.md#P1 |')
+    rows.append('| S911 | pause gate fixture, unused | docs | A | round-24 gate fixture | row S911 | a row used elsewhere | mined | 2026-10-22 | 90d | corpus/knowledge/other.md |')
+    rows.append('| S912 | pause gate fixture, wrong premise | docs | A | round-24 gate fixture | row S912 | a row bound to P2 | mined | 2026-10-22 | 90d | corpus/knowledge/pause-lift-gate-r24.md#P2 |')
+    return ('\n'.join(rows) + '\n')
+
+
+SOURCES_FIXTURE = sources_fixture()
 
 CAPTURE_FIXTURE = (
     '### time\n2026-10-22\n'
-    '### pending\n1password-beta 1.0-1 -> 1.1-1\n'
-    '### pending-count\n3\n'
-    '### pending-repos\n1password-beta omarchy\n'
-    '### local-newer-than-sync\nlibinput 1.32.0-1\n'
+    '### pending\n$ pacman -Qu\n1password-beta 1.0-1 -> 1.1-1\n'
+    '### pending-count\n$ pacman -Qu | wc -l\n3\n'
+    '### pending-repos\n$ for p in $(pacman -Qqu); do printf "%s " "$p"; done\n1password-beta omarchy\n'
+    '### local-newer-than-sync\n$ pacman -Sl | sed -n "s/.*/&/p" | while read -r repo name syncv localv; do [ "$(vercmp "$localv" "$syncv")" -gt 0 ] && echo "$repo $name sync=$syncv local=$localv"; done; true\nexit=0\n'
     '### boot-chain-installed\nboot-chain-installed line\n'
     '### boot-chain-sync\nboot-chain-sync line\n'
     '### boots\nboots line\n'
+    '### boot0-root-mount\nboot0-root-mount line\n'
     '### plymouth-boot0\nplymouth-boot0 line\n'
     '### plymouth-boot-1\nplymouth-boot-1 line\n'
-    '### hooks-new-root\nbtrfs-overlayfs:4\nplymouth:11\n'
+    '### loader-entry\nloader-entry line\n'
+    '### cmdline-boot-flags\ncmdline-boot-flags line\n'
+    '### hooks-new-root\n$ grep -n "/new_root" /usr/lib/initcpio/hooks/* 2>/dev/null; true\nbtrfs-overlayfs:4\nplymouth:11\n'
     '### hooks-config\nhooks-config line\n'
     '### init-root\ninit-root line\n'
-    '### buildroot-symlink\nln -s "sysroot"\n'
+    '### buildroot-symlink\n$ grep -rn "new_root" /usr/lib/initcpio/functions 2>/dev/null; true\nln -s "sysroot"\n'
     '### pacman-log-since-pause\ninstalled zcode (3.16.2-1)\n'
     '### pacman-log-last-sync\n3189:[2026-10-21T20:32:00-0300]\n'
     '### mirror-servers\nServer = https://stable-mirror.omarchy.org/$repo/os/$arch\n'
     '### repo-servers\nInclude = /etc/pacman.d/mirrorlist\n'
-    '### sync-db-mtime\n2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/core.db\n'
+    '### sync-db-mtime\n$ stat -c "%y %n" /var/lib/pacman/sync/core.db\n2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/core.db\n'
+    '### sync-db-ctime-birth\nsync-db-ctime-birth line\n'
     '### stable-mirror-headers\nstable-mirror-headers line\n'
     '### cache-file-count\n4\n'
-    '### cache-entries\ntotal 0\n'
-    '### cache-package-files\n0\n'
+    '### cache-entries\n$ ls -la /var/cache/pacman/pkg\ntotal 0\n'
+    '### cache-package-files\n$ find /var/cache/pacman/pkg -maxdepth 1 -name "*.pkg.tar*" | wc -l\n0\n'
     '### pacman-commands-since-pause\npacman -U --needed\n'
     '### sudo-package-commands-since-pause\nsudo pacman -U\n'
     '### foreign-new\nforeign-new line\n'
+    '### snap-pac\nsnap-pac line\n'
+    '### snapper-list\nsnapper-list line\n'
     '### paccache-runs-since-pause\npaccache -rk1\n'
-    '### checkupdates-temp-db\ncheckupdates exit=0 rows=134\n'
+    '### checkupdates-temp-db\ncheckupdates rows=134\n'
 )
 
-CAPTURE_PATH = '.ufo/waves/round-24/capture/l1/capture.txt'
+CAPTURE_PATH = '.ufo/waves/round-24/capture/l1-4/capture.txt'
 
 
 def line_of(text, needle):
     lines = text.splitlines()
-    for index, line in enumerate(lines, start=1):
-        if needle in line:
-            return index
-    raise AssertionError(f'needle not in fixture: {needle!r}')
+    match = [i for i, line in enumerate(lines, start=1) if needle in line]
+    if len(match) != 1:
+        raise AssertionError(f'needle not unique in fixture: {needle!r} -> {match}')
+    return match[0]
 
 
 def gate_fixture(mutate=None, raw=None):
     """The pristine gate document, optionally mutated."""
     capture = CAPTURE_FIXTURE
-    pins = {'P1': '1password-beta 1.0-1 -> 1.1-1', 'P2': 'libinput 1.32.0-1',
-            'P3': 'btrfs-overlayfs:4', 'P4': '2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/core.db',
-            'P5': 'total 0'}
-    body = {'schema': SCHEMA, 'captured_at': '2026-10-22T08:19:59Z', 'capture': CAPTURE_PATH,
-            'premises': []}
+    body = {'schema': SCHEMA, 'captured_at': '2026-10-22T08:19:59Z',
+            'capture': CAPTURE_PATH, 'premises': []}
+    specs = {
+        'P1': ('pending', '1password-beta 1.0-1 -> 1.1-1'),
+        'P2': ('local-newer-than-sync', None),
+        'P3': ('hooks-new-root', 'btrfs-overlayfs:4'),
+        'P4': ('sync-db-mtime', '2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/core.db'),
+        'P5': ('cache-entries', 'total 0'),
+    }
     for pid in IDS:
+        section, value = specs[pid]
+        if value is not None:
+            evidence = [{'path': CAPTURE_PATH, 'line': line_of(capture, value),
+                         'contains': value}]
+        else:
+            lines = capture.splitlines()
+            echo_idx = next(i for i, l in enumerate(lines) if l.startswith('$ pacman -Sl'))
+            exit_idx = next(i for i, l in enumerate(lines) if l.strip() == 'exit=0')
+            evidence = [{'path': CAPTURE_PATH, 'line': echo_idx + 1,
+                         'contains': lines[echo_idx].strip()},
+                        {'path': CAPTURE_PATH, 'line': exit_idx + 1,
+                         'contains': lines[exit_idx].strip()}]
         body['premises'].append({
             'id': pid,
             'premise': f'{pid} fixture premise',
             'verdict': 'changed',
-            'evidence': [{'path': CAPTURE_PATH, 'line': line_of(capture, pins[pid]),
-                          'contains': pins[pid]}],
-            'sources': ['S901'],
+            'evidence': evidence,
+            'sources': [f'S9{IDS.index(pid)+1:02d}'],
             'limits': 'fixture only',
         })
     if mutate:
@@ -519,6 +613,7 @@ def selftest():
     """Drive the checker over sandbox repositories; every mutant must be caught."""
     root = SCRATCH
     try:
+        root.mkdir(parents=True, exist_ok=True)
         probe = root / '.writable'
         probe.write_text('probe', encoding='utf-8')
         probe.unlink()
@@ -547,9 +642,11 @@ def selftest():
         body['premises'][0]['evidence'][0]['contains'] = 'ab'
 
     def needle_boilerplate(body):
-        body['premises'][0]['evidence'][0]['contains'] = 'exit=0'
+        needle = '### sync-db-mtime'
+        body['premises'][0]['evidence'][0]['line'] = line_of(CAPTURE_FIXTURE, needle)
+        body['premises'][0]['evidence'][0]['contains'] = needle
 
-    def needle_duplicated(body):
+    def need_duplicated(body):
         p = body['premises'][0]['evidence'][0]
         p['line'] = line_of(CAPTURE_FIXTURE, 'boots line')
         p['contains'] = 'line'
@@ -558,13 +655,17 @@ def selftest():
         body['premises'][0]['sources'] = ['S999']
 
     def source_other_date(body):
-        body['premises'][0]['sources'] = ['S902']
+        body['premises'][0]['sources'] = ['S909']
 
     def source_rejected(body):
-        body['premises'][0]['sources'] = ['S903']
-
+        body['premises'][0]['sources'] = ['S910']
     def source_unused(body):
-        body['premises'][0]['sources'] = ['S904']
+        body['premises'][0]['sources'] = ['S911']
+    def source_wrong_premise(body):
+        body['premises'][0]['sources'] = ['S912']
+
+    def source_duplicate_row(body):
+        pass  # handled by extra SOURCES fixture below
 
     def bad_schema(body):
         body['schema'] = 'tsukuroi-pause-gate-v0'
@@ -583,6 +684,17 @@ def selftest():
 
     def section_mismatch(body):
         body['premises'][0]['evidence'][0]['line'] = line_of(CAPTURE_FIXTURE, 'boots line')
+        body['premises'][0]['evidence'][0]['contains'] = 'boots line'
+
+    def anchor_boilerplate_line(body):
+        needle = '$ pacman -Qu | wc -l'
+        body['premises'][0]['evidence'][0]['line'] = line_of(CAPTURE_FIXTURE, needle)
+        body['premises'][0]['evidence'][0]['contains'] = needle
+
+    def zero_pair_broken(body):
+        body['premises'][1]['evidence'] = [
+            {'path': CAPTURE_PATH, 'line': line_of(CAPTURE_FIXTURE, '$ pacman -Sl'),
+             'contains': '$ pacman -Sl'}]
 
     def evidence_outside_capture(body):
         body['premises'][0]['evidence'][0]['path'] = 'corpus/SOURCES.md'
@@ -604,16 +716,18 @@ def selftest():
         ('substring-absent', {'mutate': substring_absent}, 1, 'evidence-substring-absent'),
         ('needle-short', {'mutate': needle_short}, 1, 'evidence-needle-short'),
         ('needle-boilerplate', {'mutate': needle_boilerplate}, 1,
-         'evidence-needle-boilerplate'),
-        ('needle-not-unique', {'mutate': needle_duplicated}, 1,
-         'evidence-needle-not-unique'),
+         'no-value-anchor'),
+        ('needle-not-unique', {'mutate': need_duplicated}, 1,
+         'no-value-anchor'),
         ('source-missing', {'mutate': source_missing}, 1, 'source-missing:S999'),
         ('source-opened-on-another-date', {'mutate': source_other_date}, 1,
-         'source-opened-on-another-date:S902'),
+         'source-opened-on-another-date:S909'),
         ('source-status-rejected', {'mutate': source_rejected}, 1,
-         'source-status-not-mined:S903'),
+         'source-status-not-mined:S910'),
         ('source-used-by-other', {'mutate': source_unused}, 1,
-         'source-used-by-not-gate:S904'),
+         'source-used-by-not-this-premise:S911'),
+        ('source-used-by-wrong-premise', {'mutate': source_wrong_premise}, 1,
+         'source-used-by-not-this-premise:S912'),
         ('duplicate-json-key', {'raw': '{"schema":"tsukuroi-pause-gate-v1",'
                                       '"schema":"tsukuroi-pause-gate-v1",'
                                       '"captured_at":"2026-10-22T08:19:59Z",'
@@ -625,9 +739,12 @@ def selftest():
         ('limits-absent', {'mutate': limits_absent}, 1, 'limits-missing'),
         ('premise-text-absent', {'mutate': premise_text_absent}, 1,
          'premise-text-missing'),
-        ('section-mismatch', {'mutate': section_mismatch}, 1, 'no-capture-section-fit'),
+        ('section-mismatch', {'mutate': section_mismatch}, 1, 'no-value-anchor'),
+        ('anchor-boilerplate-line', {'mutate': anchor_boilerplate_line}, 1,
+         'no-value-anchor'),
+        ('zero-pair-broken', {'mutate': zero_pair_broken}, 1, 'no-value-anchor'),
         ('evidence-outside-capture', {'mutate': evidence_outside_capture}, 1,
-         'no-resolvable-capture-line'),
+         'evidence-non-capture-unpinned'),
         ('self-referential-evidence', {'mutate': self_evidence}, 1,
          'evidence-self-referential'),
     ]
@@ -651,6 +768,26 @@ def selftest():
                               'marker': want_marker, 'marker_seen': marker_seen,
                               'findings': sites,
                               'pass': code == want_code and marker_seen and (want_code == 0) == counted})
+
+    # Finding-forces-exit-1: an unused duplicate registry row.
+    files = dict(base)
+    files['corpus/SOURCES.md'] = SOURCES_FIXTURE + (
+        '| S901 | duplicate unused row, stale | docs | A | round-24 gate fixture | row A | n/a | mined | 2026-10-19 | 90d | corpus/knowledge/other.md |\n')
+    files[GATE] = gate_fixture()
+    repo = root / 'case-unused-duplicate-row'
+    if repo.exists():
+        subprocess.run(['rm', '-rf', str(repo)], check=True)
+    sha = sandbox_repo(repo, files)
+    code, result = run(repo, sha)
+    sites = [f["id"] for f in result['findings']]
+    observations.append({'case': 'unused-duplicate-row', 'exit': code, 'want_exit': 1,
+                          'premises_total': result['premises_total'],
+                          'premises_verified': result['premises_verified'],
+                          'document_valid': result['document_valid'],
+                          'marker': 'GATE-SOURCE-DUPLICATE',
+                          'marker_seen': 'GATE-SOURCE-DUPLICATE' in sites,
+                          'findings': sites,
+                          'pass': code == 1 and 'GATE-SOURCE-DUPLICATE' in sites})
 
     # An unreadable revision is a distinct outcome: exit 2, cannot evaluate.
     try:

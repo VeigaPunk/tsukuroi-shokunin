@@ -1,0 +1,1 @@
+{ if (match($0, /PWD=[^;]*/)) { v = substr($0, RSTART, RLENGTH); sub(/ +$/, "", v); if (v == "PWD=" fleet || index(v, "PWD=" fleet "/") == 1) sub(/PWD=[^;]*/, "PWD=inside-fleet-repo"); else sub(/PWD=[^;]*/, "PWD=outside-fleet-repo") } print }

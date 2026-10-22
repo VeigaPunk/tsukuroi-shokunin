@@ -761,3 +761,20 @@ Wave-1 critics (CritClaimSizing, CritLearningFit, CritC1Construction, RevGateSch
 - C2 counting rule, made stricter (never looser): the round date 2026-10-22 is fixed in the tool; the capture is pinned to `.ufo/waves/round-24/capture/l1-4/capture.txt` by sha256; each premise needs one capture pointer whose text is unique in the capture and is not a section header, command echo or exit line; every listed source must be a `mined` row opened 2026-10-22 whose used-by names the gate (the declaration said at least one); an `unverified` verdict does not count.
 - C1 before-value. The first tool ran from the working tree, so at `f169b3ba` it already printed 268. The tool now reads itself from the revision; at `f169b3ba` it is absent and the command exits 2. C1 is also hardened: input digests pinned to the `f169b3ba` blobs, the 266/1/1 split and the seat `ConnFxPlanner` required, each event finding re-classified by the frozen checker and given a checker-branch subcause.
 - C1 wording. One of the 268 findings (`SCOPE-TRACE-INCOMPLETE` on `ConnFxPlanner`) is a seat-level finding with no recorded tool operation. The tool reports it separately (`attributed_with_recorded_operation` 267, `attributed_seat_level` 1). The phrase "and a recorded tool operation" therefore holds for 267 of the 268; the measured outcome will state that, not round it up. "Repair" here means acting on the spot-check's routing for the next round (line 64) and labelling the line-52 name; no round-23 file is changed.
+
+### Round 24 measured outcome — original C1 target missed
+
+Initial integrated measurement at `22fd1642e7fa4dfbdfba4419a443f06ffbb0b6c0`, same two declared after-values:
+
+| Claim | Before | After | Author verdict |
+|---|---|---|---|
+| C1, calibration 9 → 9 | tool absent at `f169b3ba`, exit 2, no measured value (absence recorded as 0) | `attributed_findings` 268, but only 267 of 268 meet the original conjunction of cause and recorded tool operation; one finding is inherently seat-level | **missed / honest stop**, target unchanged. Not a successful 0→268 under the original wording |
+| C2, originally freshness (actual 9 → 9) | new checker reports GATE-MISSING over base bytes; the corpus already gave dated verdicts for P1 and P3, so the declared prose baseline was 2 of 5 rather than 0 | 5 premises with valid evidence links, P1 changed, P2 cleared, P3 changed, P4 changed, P5 changed; verdict truth and source fit require review | bounded sourced improvement, subject to closure; original before-value and lowest-axis declaration were wrong |
+
+The original C2 after-target remains 5. The later depth rebooking is not used to erase the original lowest-axis miss: freshness and calibration were both 9, while depth and adjacency were 8. No ordinal score changed. The source and self-binding hardening after wave 2 is measured again at the final production revision; receipts name that revision.
+
+The observed new knowledge supersedes the stable-mirror lag unknown, the round-18 pending-count UNKNOWN, and current-reading 1password-beta trap statements. Repeating the round-17 supersessions of 413 and pending mkinitcpio is not claimed as a new quality gain. Expansion remains unchanged; quality improves only at those marked loci; discernment is provisional, based on learning from the outside line-52 correction. No capability or outside SHONEN tick is added.
+
+Final wave-2 verdict correction: RevP3Hooks demonstrated that P3 cannot count as changed while its snapshot-boot half is unverified. The JSON now marks P3 unverified; C2 therefore ends **4 of the original target 5, missed / honest stop**. C1 likewise ends 267 of the original 268-with-operation target. Neither target is narrowed. C1 also fails claim-sizing as a calibration claim: its count is finding attribution, not SCORECARD/SHONEN mismatches. The round is handed off as an honest stop, not self-admitted.
+
+Correction to line 734's old round-23 wording: the exact extra key `replace_all` is an author-written summary attribution, not recoverable from the retained event, which stores `__unknown_argument__`. Frozen red inputs and historical results are unchanged.

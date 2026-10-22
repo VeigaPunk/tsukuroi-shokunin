@@ -1,0 +1,14 @@
+#!/bin/bash
+# Test stub: list-configs prints a CSV header plus the rows in $STUB_CONFIGS.
+# Other calls are logged to $STUB_LOG; create fails when STUB_FAIL_CREATE=1.
+if [[ " $* " == *" list-configs "* ]]; then
+  echo "config,subvolume"
+  for row in ${STUB_CONFIGS:-}; do echo "$row"; done
+  exit 0
+fi
+echo "snapper $*" >> "${STUB_LOG:?}"
+if [[ " $* " == *" create "* && "${STUB_FAIL_CREATE:-0}" == "1" ]]; then
+  echo "snapper: stub create failure" >&2
+  exit 1
+fi
+exit 0

@@ -1,0 +1,66 @@
+=== A. does 'mount -t overlay overlay <target>' work with a PLAIN DIR target? ===
+exit=0
+overlay overlay /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/a/tgt
+
+=== B. same but target is a SYMLINK -> sysroot, sysroot holds a tmpfs ===
+exit=0
+--- where did the overlay land?
+overlay overlay /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/a/tgt
+overlay overlay /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/b/sysroot
+tmpfs   tmpfs   /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/b/sysroot
+overlay overlay /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/b/sysroot
+findmnt --mountpoint new_root exit:
+tmpfs   tmpfs   /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/b/sysroot
+overlay overlay /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/b/sysroot
+exit=0
+
+=== C. the earlier failing shape reproduced: target symlink, but with lowerdir pointing at a MOVED mount ===
+move exit=0
+ramdir exit=0
+mount: /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/c/sysroot: special device overlay does not exist.
+       dmesg(1) may have more information after failed mount system call.
+exit=32
+overlay overlay /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/a/tgt
+overlay overlay /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/b/sysroot
+
+=== D. is the overlay-source failure caused by the SYMLINK TARGET or by the source word? ===
+--- D1: source word 'overlay', target = symlink
+exit=0
+--- D2: source word 'overlay', target = plain dir (same dirs)
+mount: /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/d/tgt: overlay already mounted on /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/a/tgt.
+       dmesg(1) may have more information after failed mount system call.
+exit=32
+--- D3: source = absolute path that exists, target = symlink
+mount: /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/d/sysroot: /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/d/low already mounted or mount point busy.
+       dmesg(1) may have more information after failed mount system call.
+exit=32
+overlay overlay /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/a/tgt
+overlay overlay /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/b/sysroot
+overlay overlay /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/d/sysroot
+
+=== E. faithful hook sequence, mkinitcpio-42 shaped ===
+--- step1 findmnt --mountpoint /new_root -no FSTYPE
+tmpfs
+exit=0
+--- step2 findmnt --mountpoint /new_root -no SOURCE
+tmpfs
+exit=0
+--- step3 mount --move /new_root lowdir
+exit=0
+--- step3b is /new_root still a mountpoint? (the hook would re-check)
+exit=1
+--- step4 mount -t overlay onto /new_root
+mount: /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/e/sysroot: special device overlay does not exist.
+       dmesg(1) may have more information after failed mount system call.
+exit=32
+--- final table (overlay rows)
+overlay overlay /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/a/tgt
+overlay overlay /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/b/sysroot
+overlay overlay /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/tree2/d/sysroot
+--- final: is /sysroot-equivalent the overlay?
+exit=1
+--- stat -c %D comparison the init script does (real path vs symlink path)
+stat -c %D (no -L) sysroot : 10305
+stat -c %D (no -L) new_root : 10305
+stat -c %D -L new_root     : 10305
+=== DONE ===

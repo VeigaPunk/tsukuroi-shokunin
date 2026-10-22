@@ -538,3 +538,7 @@ Supersedes this entry's historical pointer-based recheck procedure for a steer f
 - Read relevant transaction events using `tail -n 80 /var/log/pacman.log`; distinguish invocation headers from ALPM completion events, preserve capture time and exit status, and never infer a current pending-update count from this history.
 
 Record observed values and unresolved questions separately. Uncaptured pending updates, signature validity, exact foreign/orphan classification, private mount views, historical provenance events and recovery feasibility remain unknown until their own authorized evidence is obtained. No installation, restart, rebuild, subvolume action or boot write is authorized.
+
+## R24 current-use notice (2026-10-22)
+
+The historical 1password-beta downgrade-trap statements at lines 29-32, 280-284, 353, 374 and 397 are superseded. At the round-24 capture the installed `8.12.42_34.BETA-1` is behind its channel `8.12.44_25.BETA-1`, not ahead. The pending set is 3 rows against local databases and 134 against the mirror's current repositories, including the ca-certificates-mozilla security fix. Source: `corpus/knowledge/pause-lift-gate-r24.md` P1, capture `l1-4/capture.txt:40`, `:374`, and `l1-4/checkupdates.out`. These are dated observations, not authorization to update.

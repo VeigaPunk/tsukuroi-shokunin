@@ -41,9 +41,9 @@
     }
    ],
    "sources": [
-    "S087",
-    "S088",
-    "S089"
+    "S104",
+    "S105",
+    "S106"
    ],
    "limits": "413 is discharged by the 2026-10-20 full upgrade. Against the local databases 3 third-party rows are pending; against the current stable mirror snapshot (checkupdates temporary database, host databases untouched) 134 rows are pending, including systemd 262.1 and limine 12.9.4 in the boot chain and the ca-certificates-mozilla security fix. No mkinitcpio, linux or plymouth change is pending. -Qu does not check replacements."
   },
@@ -75,14 +75,14 @@
    ],
    "sources": [
     "S092",
-    "S089"
+    "S106"
    ],
    "limits": "No installed package is newer than its sync entry; libinput 1.32.0-1 is installed and in the sync database. Packages with no sync entry are outside this probe. The host has been in the post -Sy state since 2026-10-21 20:32, so any later single-package -S is an unsupported partial upgrade."
   },
   {
    "id": "P3",
    "premise": "mkinitcpio 42 breaks the configured late hooks that still name /new_root.",
-   "verdict": "changed",
+   "verdict": "unverified",
    "evidence": [
     {
      "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
@@ -116,28 +116,28 @@
     },
     {
      "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
-     "line": 142,
-     "contains": "PID 535 (plymouthd)"
-    },
-    {
-     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
-     "line": 321,
-     "contains": "/var/log/boot.log"
-    },
-    {
-     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
      "line": 349,
      "contains": "rootflags=subvol=@"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 322,
+     "contains": "04:55:44.143429272"
+    },
+    {
+     "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+     "line": 100,
+     "contains": "omarchy_hooks.conf"
     }
    ],
    "sources": [
-    "S094",
+    "S109",
     "S095",
-    "S096",
-    "S097",
-    "S098"
+    "S110",
+    "S111",
+    "S112"
    ],
-   "limits": "No longer a pending-upgrade risk. mkinitcpio 42.2 links new_root to sysroot on purpose; plymouth chdir/chroot follows the symlink and on boot 0 plymouthd (PID 535, older than the root mount by PID 942) wrote boot.log into the real root at 04:55:44. btrfs-overlayfs acts only on read-only snapshot boots; no such boot on a 42.2 image has run, so that path stays unverified. Initramfs failures are silent under quiet loglevel=0."
+   "limits": "Plymouth compatibility is supported as an inference from the observed ordinary boot, the symlink and its chdir/chroot implementation. The btrfs-overlayfs read-only snapshot branch has not booted on a 42.2 image; namespace mechanism probes do not decide that boot path. The combined premise is therefore unverified, not counted; target remains five. PID ordering is inference, kernel timestamps in journal are receipt timestamps, and the existing boot.log belongs to a separate @log subvolume. No new boot is authorized."
   },
   {
    "id": "P4",
@@ -174,7 +174,7 @@
     "S099",
     "S100",
     "S101",
-    "S103"
+    "S114"
    ],
    "limits": "The target is the omarchy stable snapshot. The local core.db mtime is the mirror's Last-Modified from the last real download (2026-10-18 01:37 UTC); the 2026-10-21 -Sy did not rewrite core, extra or multilib (birth 2026-10-18 14:11 -03), and whether it got a not-modified reply or failed is not recorded. The stable mirror published a new snapshot at 2026-10-22 04:40 UTC, after that refresh, so the local databases now understate the pending set."
   },
@@ -220,12 +220,12 @@
     }
    ],
    "sources": [
-    "S090",
+    "S107",
     "S091",
-    "S093",
-    "S102"
+    "S108",
+    "S113"
    ],
-   "limits": "The cache holds 0 package files (4 empty download directories); six paccache -r runs (2026-10-20 20:48 and 20:50, 2026-10-22 02:59 twice and 04:09 twice) and two pacman -Scc runs (04:10) emptied it, all by account vgpnk outside the fleet repo with no terminal; who ordered them is unknown. During the pause there were three pacman -U installs of five locally built foreign packages and one pacman -Sy, but no -S or -Su. Remaining rollback paths: the Arch Linux Archive and the two read-only Snapper snapshots of 2026-10-20; snap-pac is not installed."
+   "limits": "The cache holds 0 package files (4 empty download directories); six paccache -r runs (2026-10-20 20:48 and 20:50, 2026-10-22 02:59 twice and 04:09 twice) and two pacman -Scc runs (04:10) emptied it, all by account vgpnk outside the fleet repo with no terminal; who ordered them is unknown. During the pause there were three pacman -U installs of five locally built foreign packages and one pacman -Sy, but no -S or -Su. Remaining rollback paths: the Arch Linux Archive and the two read-only Snapper snapshots of 2026-10-20; snap-pac is not installed. Snapshot-before-update is verified for the installed Omarchy v3.8.4 helper, not upstream master; zero Snapper configurations produce no snapshot but still return success."
   }
  ]
 }

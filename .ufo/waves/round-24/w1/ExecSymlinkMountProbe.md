@@ -34,3 +34,41 @@ No installs were performed; all tools used (`unshare`, `findmnt`, `mount`, `stra
 
 Scope: read=<lane repo capture/SCORECARD context; /usr/lib/initcpio/{init,functions,install/*,hooks/*}; /usr/lib/initcpio/busybox lists; /boot/EFI/Linux/omarchy_linux.efi UKI sections and embedded initramfs; /var/log/pacman.log excerpts; /etc/mkinitcpio.conf.d; journalctl; host findmnt/mount versions>; wrote=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w1/ExecSymlinkMountProbe.md; executed=namespace probe scripts under /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/ (probe.sh, probe2.sh, probe3.sh, probe4.sh, matrix.sh, iso.sh, iso2.sh, faithful.sh, faithful2.sh, dupdev.sh, strace-overlay.txt), mkinitcpio -g fresh image build to scratch, UKI/initramfs extraction to scratch.
 Installs: none
+
+---
+
+## Wave-2 disclosure (appended per L1 RevWave1Scope; no earlier bytes rewritten)
+
+### Exact privileged commands executed
+All privileged commands ran with `sudo` (passwordless, interactive shell), never `su`/`pkexec`.
+
+1. `sudo ls -la /boot` — read-only directory listing.
+2. `sudo ls -laR /boot/EFI` ; `sudo cat /boot/limine.conf` — read-only.
+3. `sudo objcopy -O binary --only-section=.initrd /boot/EFI/Linux/omarchy_linux.efi uki-linux.initrd`
+   — read the shipped UKI (root-owned, mode 0600) and wrote `uki-linux.initrd` (267,063,511 bytes, root-owned) to scratch.
+4. `sudo objcopy -h /boot/EFI/Linux/omarchy_linux.efi` — attempted; fails ("Usage") because `objcopy` has no `-h`; read-only attempt, no side effect.
+5. `sudo zstd -dc uki-linux.initrd 2>/dev/null | cpio -itv > uki-list.txt` — read-only decompress/list of the extracted initramfs.
+6. Four `sudo python3 - <<'EOF' ... EOF` runs, all reading only scratch files and writing only scratch files:
+   a. parse `uki-linux.initrd` trailer offsets → write `main2.cpio` (70,902,492 B);
+   b. parse `fresh-initramfs.img` trailer offsets → attempted write of `fresh-main.cpio` (zstd header-size probe failed, no file);
+   c. stream-decompress zstd payload of `fresh-initramfs.img` → `fresh-main.cpio` (170,393,600 B);
+   d. stream-decompress zstd payload of `uki-linux.initrd` → `uki-main.cpio` (170,393,600 B).
+7. `sudo mkinitcpio -k 7.2.11-arch1-1 -g /fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/fresh-initramfs.img --nopost`
+   — built a fresh initramfs image into scratch (267,053,271 B, root-owned). This read host config (`/etc/mkinitcpio.conf`, `/etc/mkinitcpio.conf.d/*`), host hooks (`/usr/lib/initcpio/install/*`, `/hooks/*`), host kernel modules and firmware; post hooks were skipped via `--nopost`; the only written output was the scratch image.
+8. `sudo unshare -m --propagation private bash -c 'B=/fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/root; ...'` — real-root mount-namespace test (tmpfs + overlayfs + `mount --move` on a scratch tree); all mounts inside a private namespace, auto-released on exit; no host mount table change persisted.
+9. Read-only host btrfs queries: `sudo findmnt -b -n -o SOURCE -t btrfs /`; `sudo btrfs subvol list /`; `sudo btrfs subvol show /.snapshots/1/snapshot`; `sudo ls /.snapshots /@/.snapshots`.
+
+Non-privileged execution (user `vgpnk`): `unshare -rm --propagation private bash probe.sh|probe2.sh|probe3.sh|probe4.sh|matrix.sh|iso.sh|iso2.sh|faithful.sh|faithful2.sh|dupdev.sh` (unprivileged user+mount namespaces), `strace -f -e trace=mount,...` inside such namespaces, `cpio`, `bsdtar`, `python3` (listings), `dd`, `mkdir`, `ln`, `file`, `od`, `strings`.
+
+### Host state check
+- `/etc`: no files written or modified. `mkinitcpio -g` only reads config; `btrfs`/`findmnt` queries only read.
+- `/boot`: only read (via `sudo ls`, `sudo cat`, `sudo objcopy` extraction). No writes; UKI files' mtimes unchanged (Oct 20 09:26/09:18).
+- Host package state: no `pacman` invocation of any kind (no install/upgrade/downgrade/remove/cache/`-Sy`/`-Scc`/`paccache`); no service restarts; no config writes; no reboot; no kernel/bootloader/boot-chain change.
+- No host mount table change persisted (all mounts were inside disposable namespaces).
+
+### Scratch residue
+All probe artifacts lived under `/fast/scratch/hyaku/tsuku24-ExecSymlinkMountProbe/` (~1.4 GB total, incl. root-owned files listed above). Small text/script receipts and the two extracted binary receipts (`findmnt.img`, `mount.img`) were retained at
+`.ufo/waves/round-24/w1/ExecSymlinkMountProbe/` (this lane draft path). The scratch directory was then removed in full by this seat; nothing of the probe remains outside the lane report/draft path.
+
+Scope: read=<same as prior section, plus /boot listings and btrfs queries>; wrote=.ufo/waves/round-24/w1/ExecSymlinkMountProbe/ (receipts) and appended this section; executed=sudo/privileged commands listed above, namespaces, extractions.
+Installs: none

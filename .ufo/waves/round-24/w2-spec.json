@@ -1,0 +1,178 @@
+{
+ "wave": "tsukuroi-r24-w2-falsify",
+ "reportDir": ".ufo/waves/round-24/w2",
+ "maxLanes": 34,
+ "context": "# Goal\nTsukuroi round 24 only (attempt 2), FALSIFY wave 2. Lane repo /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (host operability and repair). Attack what wave 1 and the L1 landed at commit 22fd1642e7fa4dfbdfba4419a443f06ffbb0b6c0 (branch master, pushed). Claim base f169b3ba9a59abaf3e324c1b591e1e07a4d6003a. The L1 (TsukuroiR24) is the only integrator and VCS writer. Never start round 25.\n\nClaims under attack (read /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SCORECARD.md sections \"Round 24 \u2014 declaration, attempt 2\" and \"Round 24 declaration refinements after wave 1\"):\n- C1 per-cause report of the frozen round-23 falsify red cohort: `python3 tools/report-red-causes.py --revision 22fd1642e7fa4dfbdfba4419a443f06ffbb0b6c0` (run from /home/vgpnk/Projects/shokunin/tsukuroi-shokunin) \u2192 field attributed_findings 268 of 268 (267 with a recorded tool operation plus 1 seat-level), status CANNOT_EVALUATE, checker exit 2, ConnFxPlanner and `__unknown_argument__` kept, `replace_all` labelled author recollection. Before at f169b3ba: tool absent, exit 2. Outputs: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/measure/c1-22fd1642.json and c1-f169b3ba.json.\n- C2 pause-lift update-safety gate entry /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/pause-lift-gate-r24.md and .json: `python3 tools/check-pause-gate.py --revision 22fd1642e7fa4dfbdfba4419a443f06ffbb0b6c0` \u2192 premises_verified 5 (verdicts P1 changed, P2 cleared, P3 changed, P4 changed, P5 changed). Capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/capture/l1-4/capture.txt (pinned by sha256) plus l1-4/checkupdates.out. New SOURCES rows S087-S103 in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md (opened 2026-10-22), lesson /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-24.md, QUALITY criteria 54-56 in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md, SKILL.md sections \"Before lifting the host pacman pause \u2014 round 24\" and \"Gate and probe registry \u2014 round24 superseding current rows\", append-only notices in corpus/README.md, corpus/knowledge/package-state-plane.md and corpus/knowledge/partial-upgrade-recheck-r15.md.\nWave-1 reports (context for attacks) are under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w1/.\n\n# Contract\n- Every path you read or write is absolute under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin unless it is a public URL. Every `Report:` trailer path is relative to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin \u2014 write it at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/<that path>. Extra files only under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/<YourSeatName>/. A relative path would land in the fleet repo; never write there.\n- Never edit production lane files or committed evidence. Never run git or jj write commands in the lane (add, commit, stash, checkout, switch, reset, pull, push, new, describe, squash, rebase, abandon, bookmark, undo, fetch); read-only git is fine. Mutation tests and anything that writes git objects run only in your own clone: `git clone -q /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /fast/scratch/hyaku/tsuku24w2-<YourSeatName>/lane` then `git -C ... checkout -q 22fd1642e7fa4dfbdfba4419a443f06ffbb0b6c0`; mutate there, run, record pristine \u2192 mutant \u2192 restored results. Never touch the fleet repo outside /home/vgpnk/Projects/shokunin/tsukuroi-shokunin, sibling lanes, MANIFEST.json, .ufo/state or the lane jj state.\n- Host actions are read-only. You and every seat may install or upgrade tools that help the task \u2014 read /home/vgpnk/.omp/agent/RULES.md first (official channels, update-safety gate, record tool/version/channel/reason in your report). pacman guard: all pacman transactions are PAUSED host-wide; install only via `uv tool`, `npx` or an official binary in ~/.local/bin, or report the need. Never run pacman -S, -Sy, -Syu, -U, -R, -Scc, paccache without -d, a downgrade, a service restart, a configuration write, a boot or an image rebuild. Read-only queries (pacman -Q*, -Si/-Sl on existing databases, checkupdates with CHECKUPDATES_DB under /fast/scratch, journalctl, stat, findmnt, curl of public URLs) are fine.\n- Privacy: never copy secrets, tokens, environment dumps or raw configuration files; reduce working directories to inside or outside the fleet repo.\n- Report format: plain English, no run-together words, no private shorthand. First line: a verdict naming exactly what you attacked and whether it survived (`survives`, `survives with defects`, `falsified`). Then numbered findings, each with an evidence pointer (absolute path:line, URL plus quote, or command plus exit code and output excerpt), marked [obs], [inf] or [unk]. Give the smallest correction for each defect. End with the literal lines `Scope: read=<summary>; wrote=<paths>; executed=<commands or none>` and `Installs: none` (or each install).\n- You are a leaf: no delegation, no background jobs, no swarm. Never pass a model parameter.\n",
+ "items": [
+  {
+   "name": "MutC1Pins",
+   "role": "mutation-tester",
+   "prompt": "Attack C1 input pinning. In your clone at the landed commit, change one byte of .ufo/waves/round-23/falsify/events.json (keep it valid JSON, e.g. a tool name) and commit there; run tools/report-red-causes.py --revision <your commit> (bind against your clone's master). It must exit 1 with pin_mismatches. Then restore and confirm exit 0. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/MutC1Pins.md."
+  },
+  {
+   "name": "MutC1Split",
+   "role": "mutation-tester",
+   "prompt": "Attack C1's required 266/1/1 split. In your clone, mutate the checker copy so it drops one SCOPE-PATH-DENIED finding (or edit EXPECTED in the tool) and show whether the tool detects it (pins and split checks). Record pristine, mutant and restored exits. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/MutC1Split.md."
+  },
+  {
+   "name": "MutC1Reclassify",
+   "role": "mutation-tester",
+   "prompt": "Attack C1's re-classification check. In your clone, mutate tools/check-seat-bindings.py so every path finding site points at the previous event index (the shifted-site mutant from wave seat CritC1Construction at {L}/.ufo/waves/round-24/w1/CritC1Construction.md) and run report-red-causes at your commit. It must not report preserved true. Note that the checker pin also changes; try to isolate which check fires. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/MutC1Reclassify.md."
+  },
+  {
+   "name": "MutC1SelfBinding",
+   "role": "mutation-tester",
+   "prompt": "Attack C1's self-binding. In your clone, edit tools/report-red-causes.py in the working tree only (do not commit) and run --revision at the landed commit: it must exit 2 (working tree differs). Also run it at f169b3ba and confirm exit 2 with the absent-tool message. Then test a committed edit that weakens `preserved` (e.g. drop the incomplete-seat requirement) and show whether the selftest catches it. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/MutC1SelfBinding.md."
+  },
+  {
+   "name": "MutC1Label",
+   "role": "mutation-tester",
+   "prompt": "Attack the line-52 repair. In your clone, mutate tools/report-red-causes.py so names absent from the flagged site's event get no label (or a different label), and run --selftest and --revision. Record whether either fails. Also check whether the label check looks only at the flagged site's event keys. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/MutC1Label.md."
+  },
+  {
+   "name": "RevC1Rerun",
+   "role": "reviewer",
+   "prompt": "Re-run C1's counting command yourself from the lane at the landed commit and at f169b3ba; compare byte-for-byte (apart from volatile fields) with the committed outputs under .ufo/waves/round-24/measure/. Confirm the after-value 268 of 268, the 267 plus 1 split, exit codes 0 and 2, and that the inputs digests equal the f169b3ba blobs. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevC1Rerun.md."
+  },
+  {
+   "name": "RevC1Subcauses",
+   "role": "reviewer",
+   "prompt": "Independently recompute C1's subcause table (outside the lane root; inside the lane but spelled outside the frozen grammar, split by declared and undeclared base; inside, well formed, not bound) from the frozen round-23 bytes, without importing report-red-causes.py. Compare with the `causes` array of the committed C1 output and list any disagreement. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevC1Subcauses.md."
+  },
+  {
+   "name": "CritC1Honesty",
+   "role": "critic",
+   "prompt": "Attack the honesty of C1's claim and its SCORECARD wording: is 268 of 268 with one seat-level finding an honest after-value against the declaration 'attributed to a named cause and a recorded tool operation'? Is the 'repair' label honest for spot-check lines 52 and 64? Propose the exact verdict wording the closure should see, without narrowing the target. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/CritC1Honesty.md."
+  },
+  {
+   "name": "RevC1LowerBound",
+   "role": "reviewer",
+   "prompt": "Check C1's lower-bound marking: the per_finding rows for seat ConnFxPlanner (incomplete trace) must be marked lower_bound true and counted in lower_bound_findings (114). Verify against the frozen events and say whether any other seat should be marked. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevC1LowerBound.md."
+  },
+  {
+   "name": "RevQuality54",
+   "role": "reviewer",
+   "prompt": "Review QUALITY criterion 54 in corpus/QUALITY.md: is the failing example real, does the cited selftest case actually fail when the label rule breaks, and does the criterion avoid widening the frozen grammar? Quote lines. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevQuality54.md."
+  },
+  {
+   "name": "MutGateUnverified",
+   "role": "mutation-tester",
+   "prompt": "Attack C2's verdict rule. In your clone, change one premise verdict in corpus/knowledge/pause-lift-gate-r24.json to unverified, commit, and run tools/check-pause-gate.py --revision <commit>: it must report 4. Also try an invalid verdict and an empty limits string. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/MutGateUnverified.md."
+  },
+  {
+   "name": "MutGateCapturePin",
+   "role": "mutation-tester",
+   "prompt": "Attack C2's capture pin. In your clone, change one byte of .ufo/waves/round-24/capture/l1-4/capture.txt (commit), then separately change capture_sha256 in the gate JSON; run the checker each time; both must drop to 0 verified with GATE-CAPTURE-PIN. Restore and confirm 5. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/MutGateCapturePin.md."
+  },
+  {
+   "name": "MutGateSourceRule",
+   "role": "mutation-tester",
+   "prompt": "Attack C2's source rule. In your clone, flip one cited row in corpus/SOURCES.md to status rejected, then change its opened date, then remove gate from its used-by, then duplicate its id; each must drop that premise. Record each run. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/MutGateSourceRule.md."
+  },
+  {
+   "name": "MutGateUniquePointer",
+   "role": "mutation-tester",
+   "prompt": "Attack C2's evidence rule. In your clone, replace one premise's evidence with only boilerplate pointers (a ### header, an exit= line, a $ command line) or with a substring that appears twice in the capture; each must drop the premise. Also point evidence at the gate's own .md and confirm it is rejected. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/MutGateUniquePointer.md."
+  },
+  {
+   "name": "RevGateRerun",
+   "role": "reviewer",
+   "prompt": "Re-run C2's counting command yourself at the landed commit and at f169b3ba; compare with .ufo/waves/round-24/measure/c2-22fd1642.json and c2-f169b3ba.json. Confirm 5 at the commit, 0 at the base, and that the capture sha256 in the JSON equals the committed capture file. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevGateRerun.md."
+  },
+  {
+   "name": "RevP1Pending",
+   "role": "reviewer",
+   "prompt": "Attack premise P1 of the gate entry: re-derive the 3 local pending rows and the 134 rows against the current omarchy stable snapshot (run checkupdates yourself with CHECKUPDATES_DB under /fast/scratch/hyaku/tsuku24w2-RevP1Pending/), the boot-chain rows, and the ca-certificates-mozilla row. State whether verdict 'changed' and its limits text are correct now. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevP1Pending.md."
+  },
+  {
+   "name": "RevP2Residue",
+   "role": "reviewer",
+   "prompt": "Attack premise P2: re-derive installed-newer-than-sync over all repositories with your own method, and check the claim that the host has been in the post -Sy state since 2026-10-21 20:32. Is 'cleared' the strongest honest verdict? Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevP2Residue.md."
+  },
+  {
+   "name": "RevP3Hooks",
+   "role": "reviewer",
+   "prompt": "Attack premise P3: verify every cited capture line (mkinitcpio 42.2-1, hooks, functions:1213, LoaderEntrySelected, mount PID 942, plymouthd PID 535, boot.log time, rootflags) and the inference that plymouth reached the real root through /new_root. Is 'changed' honest given the untested snapshot-boot path, or should it be 'unverified'? Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevP3Hooks.md."
+  },
+  {
+   "name": "RevP4Mirror",
+   "role": "reviewer",
+   "prompt": "Attack premise P4: re-check the stable mirror's current Last-Modified and lastsync, the host database mtimes and birth times, and the pacman source claim (S099) that a not-modified reply leaves the file untouched. Is the reading 'mtime is the mirror publication time' supported? Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevP4Mirror.md."
+  },
+  {
+   "name": "RevP5Rollback",
+   "role": "reviewer",
+   "prompt": "Attack premise P5: re-check cache package-file count, the six paccache -r runs and two -Scc runs, the three -U installs and one -Sy during the pause, snap-pac absence, and the claimed remaining rollback paths (Arch Linux Archive, Snapper snapshots). Flag any overclaim, especially about who ran the commands. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevP5Rollback.md."
+  },
+  {
+   "name": "RevSourcesA",
+   "role": "reviewer",
+   "prompt": "Re-open SOURCES rows S087, S088, S089, S090 and S091 in corpus/SOURCES.md: open each URL now, confirm each quoted string appears verbatim, the scope and teaches cells are supported, kind and tier are right. Report per row: holds or defect. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevSourcesA.md."
+  },
+  {
+   "name": "RevSourcesB",
+   "role": "reviewer",
+   "prompt": "Re-open SOURCES rows S092, S093, S094, S095 and S096: open each URL now, confirm each quoted string appears verbatim (wiki pages at the stated oldid), and that the teaches cell is supported. Report per row. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevSourcesB.md."
+  },
+  {
+   "name": "RevSourcesC",
+   "role": "reviewer",
+   "prompt": "Re-open SOURCES rows S097, S098, S099, S100, S101, S102 and S103: open each URL now, confirm each quoted string appears verbatim and the teaches cell is supported. Report per row. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevSourcesC.md."
+  },
+  {
+   "name": "CritSkillTable",
+   "role": "critic",
+   "prompt": "Attack the SKILL.md section 'Before lifting the host pacman pause \u2014 round 24': is every row grounded in the gate entry, does any row authorize a lane transaction or advise a bare -Sy, are the commands read-only and correct (for example the checkupdates line)? Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/CritSkillTable.md."
+  },
+  {
+   "name": "CritSupersedes",
+   "role": "critic",
+   "prompt": "Attack the gate entry's '## Supersedes' list and the appended notices in corpus/README.md, corpus/knowledge/package-state-plane.md and corpus/knowledge/partial-upgrade-recheck-r15.md: are the superseded statements quoted correctly with real line numbers, were old bytes left unchanged (git diff f169b3ba..{R} on those files), and is anything superseded that the evidence does not support? Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/CritSupersedes.md."
+  },
+  {
+   "name": "RevQuality5556",
+   "role": "reviewer",
+   "prompt": "Review QUALITY criteria 55 and 56: failing examples real? re-run the four-line synthetic redaction test described in corpus/lessons/round-24.md Mistakes R24-REDACTION-OVERWRITE against both the old sed pipeline (from git show 10b45f05:.ufo/waves/round-24/capture/capture.sh) and the new awk rule; confirm the old one fails and the new one passes. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevQuality5556.md."
+  },
+  {
+   "name": "CritTrendVerdicts",
+   "role": "critic",
+   "prompt": "Propose the round's trend verdicts for expansion, quality and discernment (improved, harmed, unchanged, unprovable-but-better), each with evidence, applying QUALITY 49 (quality needs a superseded prior entry). Attack any author-side inflation. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/CritTrendVerdicts.md."
+  },
+  {
+   "name": "RevRegistrySelftests",
+   "role": "reviewer",
+   "prompt": "At the landed commit run `python3 tools/check-registry-coverage.py --revision {R}` and `--audit-live-map`, and the selftests of tools/report-red-causes.py, tools/check-pause-gate.py, tools/check-seat-bindings.py and tools/_revision.py (read-only; any git-writing selftest only in your clone). Record exits and counts. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevRegistrySelftests.md."
+  },
+  {
+   "name": "CritNoHarm",
+   "role": "critic",
+   "prompt": "No-harm attack: diff f169b3ba..{R} in the lane (read-only git). Did any change rewrite old bytes outside append-only notices, change an ordinal score, weaken a gate or delete evidence? Did any wave-1 seat write outside its draft path (check git status of the fleet repo /home/vgpnk/Projects/shokunin for untracked files naming tsukuroi round 24, without touching them)? Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/CritNoHarm.md."
+  },
+  {
+   "name": "RevCensusEnd",
+   "role": "reviewer",
+   "prompt": "Run `/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi` and the frozen manual census commands from /home/vgpnk/Projects/shokunin/CORPUS.md section 'SOURCES.md \u2014 where a shokunin learns' against {L}/corpus/SOURCES.md; report counts by tier, kind and status, malformed rows and new warnings versus the start census at {L}/.ufo/waves/round-24/census/census-start.txt. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevCensusEnd.md."
+  },
+  {
+   "name": "CritCapturePrivacy",
+   "role": "critic",
+   "prompt": "Privacy and safety attack on the committed captures .ufo/waves/round-24/capture/l1-3 and l1-4 and the wave-1 evidence directories (for example ExecSudoAttribution/sudo-records.tsv): secrets, raw arguments, identifying paths, anything that must not be committed. Name exact lines and the smallest correction. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/CritCapturePrivacy.md."
+  },
+  {
+   "name": "RevLessonMistakes",
+   "role": "reviewer",
+   "prompt": "Review corpus/lessons/round-24.md: is each mistake row's evidence pointer real, is the 'captured-by' honest, and is each fix actually shown able to fail as claimed? Is the routed-defect table complete against corpus/lessons/round-23-verifier-spotcheck.md? Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevLessonMistakes.md."
+  },
+  {
+   "name": "CritDeclRefinement",
+   "role": "critic",
+   "prompt": "Attack the SCORECARD section 'Round 24 declaration refinements after wave 1': does any refinement narrow a declared target, move an axis to dodge a miss, or change a before-value dishonestly? Compare with the original declaration text. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/CritDeclRefinement.md."
+  },
+  {
+   "name": "RevWave1Scope",
+   "role": "reviewer",
+   "prompt": "Audit wave-1 seat scope: from the 40 reports under {L}/.ufo/waves/round-24/w1/ read each Scope trailer and list seats that wrote outside their declared paths, ran forbidden commands, or used sudo beyond read-only. Cross-check with the lane git status and /fast/scratch/hyaku/tsuku24-* directories. Report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-24/w2/RevWave1Scope.md."
+  }
+ ]
+}
