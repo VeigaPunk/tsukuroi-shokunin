@@ -1267,3 +1267,15 @@ Outcome: C1 0 → 12 of 12 under all three counter versions; C2 3 → 0 of 8. Co
 Re-verification result (freshness duty): wave-2 seats re-fetched S148, S149, S150 and S151 and matched the recorded sha256 (S151's live page differs only by an advertising block); the round-28 batteries re-run at `10d5288f` (RevBatteriesTip) and at the final tip (`measure/final-tip/`) reproduce their accepted sets and controls byte-for-byte (RevBatteriesTip); the live host reads `vm.oom_kill_allocating_task` 0 and the totalpages figures recompute from `/proc/meminfo`.
 
 Not done, owed: routed defect 4 (padding shapes; reverted as over-strict); the residual git-environment channels named by SentinelResidualEnv; the operator's ruling on the axis framing.
+
+## Round 30 — btrfs space knowledge and residual git channels (2026-10-22, attempt 1)
+
+Motivating evidence: the round-29 spot-check (`corpus/lessons/round-29-verifier-spotcheck.md:144-154`) routed unreceipted citations, the counter-v4 reopenings, the padding shapes, the residual git-environment channels, the depth framing and sandbox-only mutant evidence; the session steer asked for a depth claim with new sourced host-operability knowledge. The lane held no btrfs space-allocation knowledge (`Global reserve` and `unallocated` 0 hits at `fbfec6bd`).
+
+Action: declaration `8fb2cef0` (C1 depth: D01-D10 sourced btrfs space rows, counter `tools/check-btrfs-space-r30.py` with battery; C2 operability: eleven tools x three channels, probe `tools/probe-git-env-residual-r30.py`); before receipts `8976ca92`. Wave 1 (35 seats) opened S152-S163, captured `/sys/fs/btrfs/<fsid>/allocation` read-only, applied the git child environment contract, repaired routed defects and attacked both counters; integration `a3f19372`, checker `29bf87fa`, padding repair `7165f11e`, counter v5 `85712671`. Wave 2 (46 seats) attacked every row, source, fix and counter; corrections `b0cf50b9` and the final commit.
+
+Outcome: C1 0 → 10 of 10 under the declared counter; C2 17 of 30 (+1 harness error) → 0 of 33. QUALITY 77-79; Mistakes R30-UNRECEIPTED-GATES, R30-DECLARATION-OVERCLAIM, R30-UNSCREENED-TARGET, R30-SEAT-MISROOT, R30-CHECKER-SELF-SATISFY.
+
+Re-verification result (freshness duty): wave-2 seats re-fetched every S152-S163 URL; all live sha256 values equal the rows and snapshots. The host allocation readings were re-read at 21:39Z-21:43Z: unallocated unchanged, metadata `bytes_used` +10.5 MiB (capture pinned to 21:16:37Z).
+
+Not done, owed: counter v2 still accepts 33 mechanical shapes and refuses 9 legitimate layouts (wave-2 CritCounterV2); the probe does not compare stdout and does not cover LD_PRELOAD, dropped `.git` pointers or repository-local config; `tools/check-report-receipts.py` over-reports legacy receipts without a run-receipt header; duplicate registry authorities S155 = S130 and S158 = S133 are disclosed, not merged; the operator's ruling on the lowest-axis framing.

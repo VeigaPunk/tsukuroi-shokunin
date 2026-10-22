@@ -298,10 +298,12 @@ def receipt_path_matches(path: str) -> bool:
         return False
     suffix = Path(basename).suffix.lower()
     parts = path.lower().split("/")
-    named_receipt = any("receipt" in part for part in parts)
-    if suffix == ".md" and "measure" not in parts and not named_receipt:
+    # round-30 wave-2 RevReportReceipts: seat reports and any path segment merely containing
+    # "receipt" (seat names such as ExecReceiptsR29) self-satisfied every citation; a receipt
+    # is now only a non-Markdown file under a `measure/` directory of a round's wave evidence.
+    if "measure" not in parts or suffix == ".md":
         return False
-    return suffix in RECEIPT_SUFFIXES or named_receipt
+    return suffix in RECEIPT_SUFFIXES
 
 
 def find_receipts(lane: str, revision: str, pairs: list[tuple[str, str]],

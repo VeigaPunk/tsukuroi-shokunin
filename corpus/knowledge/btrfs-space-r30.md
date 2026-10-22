@@ -25,7 +25,7 @@ The global reserve is "portion of metadata currently used for global block reser
 |---|---|---|
 | `Device unallocated` well above one metadata chunk (`metadata/chunk_size`, 1 GiB here) | New metadata chunks can still be allocated; a high metadata fill is not yet an ENOSPC risk | No action; record the reading |
 | `Device unallocated` near 0 and metadata `bytes_used / total_bytes` near 100 percent | Metadata reservations are confined to the existing metadata chunks (S159 177) | Operator: free data chunks with a usage-filtered balance (`btrfs balance start -dusage=N`, S153 line 51), starting with `-dusage=0`, which needs no new work space (S153 lines 52-54) |
-| `ENOSPC` while `df` shows free space, snapshots present | Snapshots keep shared extents allocated; deleting files in the original frees nothing they still reference (S157 line 40) | Operator: count and prune snapshots (snapper) before any balance |
+| `ENOSPC` while `df` shows free space, snapshots present | Snapshots keep shared extents allocated; deleting files in the original frees nothing they still reference (S157 lines 39-41, 202-206) | Operator: deleting the snapshots that reference the extents is what returns the space; choosing which is the operator's decision |
 | `global_rsv_reserved` below `global_rsv_size` | The emergency reserve is being consumed | Treat as a full filesystem; stop writers first |
 | `bg_reclaim_threshold` per type | The reclaimable-space percentage at which the kernel relocates a whole block group (S154 line 168) | Read only; the lane never writes it (RW since 5.19) |
 

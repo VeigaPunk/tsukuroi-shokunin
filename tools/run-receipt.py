@@ -11,7 +11,7 @@ ExecGatesStart showed a `git archive` export made three live gates exit 2.) `{re
 tool arguments is replaced by the full REV hash and `{lane}` by the lane path.
 
 Receipt layout (JSON lines): a header line {"receipt": 1, "revision", "tool_revision",
-"tool", "tool_sha256", "argv", "started_utc"}, then the tool's stdout lines (decoded as UTF-8
+"tool", "lane_branches", "tool_sha256", "argv", "started_utc"}, then the tool's stdout lines (decoded as UTF-8
 with replacement), then a footer line {"receipt_end": 1, "exit_code", "timed_out",
 "stderr_tail", "finished_utc"}. The tool must be a tracked file at the tool revision; it runs
 with HOME and XDG_CONFIG_HOME at a private empty directory and global/system git config off.
@@ -92,7 +92,11 @@ def main():
             sha = hashlib.sha256(fh.read()).hexdigest()
         args = [x.replace('{rev}', rev).replace('{lane}', lane) for x in cmd[1:]]
         argv = ([sys.executable, tool] if tool.endswith('.py') else ['bash', tool]) + args
-        header = {'receipt': 1, 'revision': rev, 'tool_revision': trev, 'tool': rel,
+        refs = subprocess.run(['git', '-C', lane, 'for-each-ref', '--format=%(refname) %(objectname)',
+                               'refs/heads'], capture_output=True, text=True, env=env()).stdout.split('\n')
+        # round-30 wave-2 RevRunnerV2: branch-binding tools read the clone's branches, which mirror
+        # the lane's at run time; the header records them so the verdict's branch state is pinned.
+        header = {'receipt': 1, 'revision': rev, 'tool_revision': trev, 'tool': rel, 'lane_branches': [r for r in refs if r],
                   'tool_sha256': sha, 'argv': [rel] + args, 'started_utc': now()}
         try:
             p = subprocess.run(argv, cwd=root, capture_output=True, env=env(home), timeout=a.timeout)
