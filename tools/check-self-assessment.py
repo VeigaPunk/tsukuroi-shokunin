@@ -1,12 +1,34 @@
 #!/usr/bin/env python3
-"""Count self-assessment mismatches between a lane's stated axes and observed state.
+r"""Count self-assessment mismatches between a lane's stated axes and observed state.
 
-Round 25, claim C1 (calibration). Fixed check set K01 to K23, declared in
-SCORECARD.md, "Round 25 - declaration, attempt 1".
+Round 26, claim C2 (calibration). Fixed check set v2, K01 to K27, declared in
+SCORECARD.md, "Round 26 - declaration, attempt 1".
 
 Every input is read through Git at one revision (`git show`, `git ls-tree`,
 `git archive`); the working tree is never read. K13 runs the census selftest
 from a temporary directory populated by `git archive <REV>`.
+
+K01 to K06 (round-26 refinement of the round-25 rule, routed defect 3). The
+current axes table is the last table under the last SCORECARD heading that
+starts `## Axes - `, and that heading must name the round as `round N`; a
+heading without a round number exits 2. The ordinal reference holds only the
+SCORECARD lines inside a section whose heading (any level, `#` to `######`)
+carries `measured outcome` (case-insensitive), from any round; every other
+line (declarations, refinements, move logs, corrections) is excluded, and the
+axes table itself never qualifies. A section runs to the next heading of the
+same or higher level, so a measured-outcome section keeps its subsections.
+The reference line is the last match, by line order, of the round-25
+refinement regex `\b<axis>\b[^0-9|→\n]{0,12}?(\d{1,2})\s*(?:→|->)\s*(\d{1,2})`
+with both numbers from 0 to 10. An axis with no match in any
+measured-outcome section is a mismatch with the reason `no dated move record`,
+never a silent pass and never exit 2.
+
+K24 to K27 (new in round 26, routed defect 7). For SHONEN boxes 1 to 4, every
+`corpus/knowledge/*.md` path the box names exists at the revision, and none of
+its first 20 lines carries the case-insensitive word `superseded`; a box
+citing a missing or superseded note is a mismatch.
+
+K07 to K23 are unchanged from the round-25 declaration and its refinements.
 
 Usage:
     python3 tools/check-self-assessment.py --revision <REV> [--repo <path>]
@@ -14,9 +36,9 @@ Usage:
 
 Prints one JSON object on stdout. Exit 0 when mismatches == 0, exit 1 when any
 check mismatches, exit 2 when the revision or a required input cannot be
-evaluated (unknown revision, missing file, missing axes table, missing axis
-row, missing capabilities table, missing capability row, fewer than four
-SHONEN boxes).
+evaluated (unknown revision, missing file, missing axes table, axes heading
+without a round number, missing axis row, missing capabilities table, missing
+capability row, fewer than four SHONEN boxes).
 """
 
 import argparse
@@ -306,6 +328,62 @@ def number_after(text, pattern, group=1):
 
 
 # --------------------------------------------------------------------------
+# Round sections (K01 to K06) and supersession markers (K24 to K27)
+# --------------------------------------------------------------------------
+
+HEADING_RE = re.compile(r"^[ \t]{0,3}(#{1,6})[ \t]+(.*)$")
+ROUND_IN_TEXT_RE = re.compile(r"round[^0-9A-Za-z]{0,3}(\d+)", re.I)
+SUPERSEDED_RE = re.compile(r"\bsuperseded\b", re.I)
+MEASURED_OUTCOME = "measured outcome"
+
+
+def heading_sections(lines):
+    """Every heading in lines, as (index, level, text, end).
+
+    `end` is the exclusive line bound of the heading's section: a section
+    runs from its heading to the next heading of the same or higher level (a
+    level-1 `#` heading outranks a level-3 `###` heading), or to the end of
+    the file.
+    """
+    headings = []
+    for index, line in enumerate(lines):
+        match = HEADING_RE.match(line)
+        if match:
+            headings.append([index, len(match.group(1)), match.group(2), len(lines)])
+    for position, heading in enumerate(headings):
+        for later in headings[position + 1:]:
+            if later[1] <= heading[1]:
+                heading[3] = later[0]
+                break
+    return headings
+
+
+def reference_lines(lines):
+    """Line indices that may serve as the ordinal reference.
+
+    Only lines inside a section whose heading (any level) carries
+    `measured outcome` (case-insensitive) qualify, from any round: a
+    declaration, a refinement, a move log or a correction is never a dated
+    move record. A section runs to the next heading of the same or higher
+    level, so a measured-outcome section keeps its subsections.
+    """
+    candidates = set()
+    for heading in heading_sections(lines):
+        if MEASURED_OUTCOME not in heading[2].lower():
+            continue
+        candidates.update(range(heading[0], heading[3]))
+    return candidates
+
+
+def superseded_line(text):
+    """1-based line number of the first `superseded` word in the first 20 lines."""
+    for index, line in enumerate((text or "").split("\n")[:20], start=1):
+        if SUPERSEDED_RE.search(line):
+            return index
+    return None
+
+
+# --------------------------------------------------------------------------
 # Checks
 # --------------------------------------------------------------------------
 
@@ -318,7 +396,7 @@ def check(checks, cid, subject, stated, observed, status, reason, **extra):
 
 
 def evaluate(repo, rev):
-    """Run K01 to K23 at rev. Returns (result dict, exit code)."""
+    """Run K01 to K27 at rev. Returns (result dict, exit code)."""
     checks = []
     rev = resolve_rev(repo, rev)
 
@@ -338,6 +416,13 @@ def evaluate(repo, rev):
     section = find_section(score_lines, re.compile(r"^##\s+Axes\s+[—-]\s"))
     if section is None:
         raise CannotEvaluate("no axes table", "no SCORECARD heading starting '## Axes - '")
+    axes_heading = score_lines[section[0]]
+    round_match = ROUND_IN_TEXT_RE.search(axes_heading)
+    if round_match is None:
+        raise CannotEvaluate("no round number in the axes heading",
+                             "heading %r must name the round as 'round N'" % axes_heading)
+    declaring_round = int(round_match.group(1))
+    reference = reference_lines(score_lines)
     axes_blocks = table_blocks(score_lines, section[0] + 1, section[1])
     axes_table = pick_table(axes_blocks, "Axis")
     if axes_table is None:
@@ -383,6 +468,9 @@ def evaluate(repo, rev):
         raise CannotEvaluate("fewer than four SHONEN boxes", "%d found" % len(boxes))
 
     # ---- K01 to K06: axes score vs last recorded ordinal transition -------
+    # The ordinal reference holds only the lines inside a section whose
+    # heading carries `measured outcome`: a declaration, a refinement, a move
+    # log or a correction is never a dated move record.
     for number, axis in enumerate(AXES, start=1):
         cid = "K%02d" % number
         line_no, row = axes_line_no[axis]
@@ -394,6 +482,8 @@ def evaluate(repo, rev):
         observed_line = None
         for index, line in enumerate(score_lines):
             if axes_lo <= index < axes_hi:
+                continue
+            if index not in reference:
                 continue
             for match in re.finditer(pattern, line):
                 before, after = int(match.group(1)), int(match.group(2))
@@ -409,7 +499,8 @@ def evaluate(repo, rev):
                   stated_line=line_no, observed_line=observed_line)
         elif observed is None:
             check(checks, cid, subject, stated, None, "mismatch",
-                  "no %s ordinal transition recorded outside the axes table" % axis,
+                  "no dated move record for %s: no %s ordinal transition in any measured-outcome section"
+                  % (axis, axis),
                   stated_line=line_no, observed_line=None)
         else:
             status = "match" if stated == observed else "mismatch"
@@ -630,12 +721,54 @@ def evaluate(repo, rev):
                  " and names a non-author verifier" if marked else " and is not marked complete"),
               stated_line=lo + 1)
 
+    # ---- K24 to K27: SHONEN boxes cite current knowledge notes ----------
+    # A box may not cite a corpus/knowledge note that is absent at the
+    # revision or that carries a supersession marker in its first 20 lines.
+    for number in range(4):
+        cid = "K%02d" % (24 + number)
+        lo, hi = boxes[number]
+        text = "\n".join(shonen_lines[lo:hi])
+        named = all_paths(text, paths_at_rev)
+        notes = [p for p in named if p.startswith("corpus/knowledge/") and p.endswith(".md")]
+        subject = ("SHONEN box %d cites only corpus/knowledge notes that exist at the revision "
+                   "and carry no supersession marker" % (number + 1))
+        if not notes:
+            check(checks, cid, subject, notes, notes, "match",
+                  "SHONEN box %d names no corpus/knowledge/*.md note" % (number + 1),
+                  stated_line=lo + 1)
+            continue
+        problems = []
+        for note in notes:
+            if note.rstrip("/") not in paths_at_rev:
+                problems.append({"path": note, "line": None,
+                                 "detail": "%s is absent at the revision" % note})
+                continue
+            marker = superseded_line(show_blob(repo, rev, note))
+            if marker is not None:
+                problems.append({"path": note, "line": marker,
+                                 "detail": "%s carries a supersession marker at its line %d"
+                                           % (note, marker)})
+        if problems:
+            detail = "; ".join(problem["detail"] for problem in problems)
+            check(checks, cid, subject, notes, [], "mismatch",
+                  "SHONEN box %d cites %d corpus/knowledge note(s), %d of them unusable: %s"
+                  % (number + 1, len(notes), len(problems), detail),
+                  stated_line=lo + 1, problems=problems)
+            continue
+        check(checks, cid, subject, notes, notes, "match",
+              "SHONEN box %d cites %d corpus/knowledge note(s), all present at the revision and "
+              "free of a supersession marker in their first 20 lines" % (number + 1, len(notes)),
+              stated_line=lo + 1)
+
     mismatches = sum(1 for record in checks if record["status"] == "mismatch")
     result = {
         "revision": rev,
         "checked": len(checks),
         "mismatches": mismatches,
         "status": "PASS" if mismatches == 0 else "FAIL",
+        "declaring_round": declaring_round,
+        "axes_heading": axes_heading,
+        "reference_lines": len(reference),
         "checks": checks,
     }
     return result, (EXIT_PASS if mismatches == 0 else EXIT_MISMATCH)
@@ -683,7 +816,7 @@ exit 1
 
 FIXTURE_SCORECARD_TEMPLATE = """# Fixture scorecard
 
-## Axes - fixture self-assessment
+## Axes - fixture self-assessment (round 1)
 
 | Axis | Score | Evidence pointer | Last change |
 |---|---|---|---|
@@ -694,7 +827,7 @@ FIXTURE_SCORECARD_TEMPLATE = """# Fixture scorecard
 | calibration | 9 | notes | r1 |
 | adjacency | {adjacency} | Ceiling: formal overlap table present | r1 |
 
-## Move records
+## Round 1 measured outcome
 
 - depth 8 -> 8
 - coverage 9 -> 9
@@ -758,9 +891,44 @@ def fixture_files(case):
         shonen = shonen.replace("- [~] Box one", "- [x] Box one")
         expected = {"expected_exit": EXIT_MISMATCH, "expected_mismatch_ids": ["K20"], "expected_error": ""}
     elif case == "missing-axes-table":
-        scorecard = scorecard.replace("## Axes - fixture self-assessment", "## Self assessment (no axes table)")
+        scorecard = scorecard.replace("## Axes - fixture self-assessment (round 1)",
+                                      "## Self assessment (no axes table)")
         expected = {"expected_exit": EXIT_CANNOT_EVALUATE, "expected_mismatch_ids": [],
                     "expected_error": "axes table"}
+    elif case == "axes-heading-without-round":
+        scorecard = scorecard.replace("## Axes - fixture self-assessment (round 1)",
+                                      "## Axes - fixture self-assessment")
+        expected = {"expected_exit": EXIT_CANNOT_EVALUATE, "expected_mismatch_ids": [],
+                    "expected_error": "round number"}
+    elif case == "declaring-round-declaration-line":
+        # Plan prose in a declaration section is not a dated move record: the
+        # depth ordinal still resolves to the measured outcome (8 -> 8).
+        scorecard = scorecard.replace(
+            "## Capabilities\n",
+            "## Round 1 - declaration, attempt 1\n\n- depth 8 -> 3\n\n## Capabilities\n", 1)
+        expected = {"expected_exit": EXIT_PASS, "expected_mismatch_ids": [], "expected_error": ""}
+    elif case == "declaring-round-measured-outcome-line":
+        # The same line under a `measured outcome` heading does record the
+        # round's move, so the depth ordinal resolves to 3 and K01 mismatches.
+        scorecard = scorecard.replace(
+            "## Capabilities\n",
+            "## Round 1 - declaration, attempt 1\n\n- depth 8 -> 3\n\n"
+            "### Round 1 measured outcome\n\n- depth 8 -> 3\n\n## Capabilities\n", 1)
+        expected = {"expected_exit": EXIT_MISMATCH, "expected_mismatch_ids": ["K01"], "expected_error": ""}
+    elif case == "axis-without-move-record":
+        # No measured-outcome section records a freshness move, so K04 is a
+        # mismatch with the reason `no dated move record`.
+        scorecard = scorecard.replace("- freshness 9 -> 9\n", "")
+        expected = {"expected_exit": EXIT_MISMATCH, "expected_mismatch_ids": ["K04"],
+                    "expected_error": "no dated move record"}
+    elif case == "shonen-superseded-note":
+        files["corpus/knowledge/one.md"] = ("# one\n\n> **Superseded** after an outside rejection.\n\n"
+                                            "knowledge note one\n")
+        expected = {"expected_exit": EXIT_MISMATCH, "expected_mismatch_ids": ["K24"], "expected_error": ""}
+    elif case == "shonen-missing-note":
+        shonen = shonen.replace("corpus/knowledge/one.md", "corpus/knowledge/missing.md")
+        expected = {"expected_exit": EXIT_MISMATCH, "expected_mismatch_ids": ["K20", "K24"],
+                    "expected_error": ""}
     else:
         raise ValueError("unknown fixture case: %s" % case)
     files["SCORECARD.md"] = scorecard
@@ -789,7 +957,10 @@ def build_fixture(case, root):
 def run_selftest():
     root = tempfile.mkdtemp(prefix="self-assessment-selftest-")
     cases = ["clean", "stale-ordinal", "stale-count", "unstated-fact",
-             "missing-capability-path", "shonen-x-without-verifier", "missing-axes-table"]
+             "missing-capability-path", "shonen-x-without-verifier", "missing-axes-table",
+             "axes-heading-without-round", "declaring-round-declaration-line",
+             "declaring-round-measured-outcome-line", "axis-without-move-record",
+             "shonen-superseded-note", "shonen-missing-note"]
     results = []
     failures = []
     try:
@@ -802,15 +973,18 @@ def run_selftest():
                 result, code = evaluate(repo, "HEAD")
                 entry["actual_exit"] = code
                 entry["actual_mismatch_ids"] = [r["id"] for r in result["checks"] if r["status"] == "mismatch"]
+                entry["reasons"] = [r["reason"] for r in result["checks"] if r["status"] == "mismatch"]
                 entry["error"] = ""
             except CannotEvaluate as exc:
                 entry["actual_exit"] = EXIT_CANNOT_EVALUATE
                 entry["actual_mismatch_ids"] = []
+                entry["reasons"] = []
                 entry["error"] = "%s: %s" % (exc.reason, exc.detail)
+            observed_text = "%s %s" % (entry["error"], " ".join(entry["reasons"]))
             ok = (entry["actual_exit"] == entry["expected_exit"]
                   and entry["actual_mismatch_ids"] == entry["expected_mismatch_ids"]
                   and (not expectation["expected_error"]
-                       or expectation["expected_error"] in entry["error"]))
+                       or expectation["expected_error"] in observed_text))
             entry["result"] = "PASS" if ok else "FAIL"
             if not ok:
                 failures.append(entry)
