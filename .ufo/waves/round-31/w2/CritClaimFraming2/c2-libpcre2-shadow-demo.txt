@@ -1,0 +1,10 @@
+CritClaimFraming2: C2 operability effect demo (sandbox exports only)
+
+Setup: : > /fast/scratch/hyaku/tsukuroi-r31/CritClaimFraming2/badlib/libpcre2-8.so.0   (empty file; /usr/bin/git links libpcre2-8.so.0, /usr/bin/python3 does not: `ldd`)
+Trees: `git archive 8cff9e7cfb034b49c645d548801ac3185a827cb4` -> t-base, `git archive f3a5723a988bf1c2835985880e7a38d477462cd0` -> t-tip
+Command (per tree, per injection): env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u PYTHONPATH -u LD_PRELOAD -u LD_LIBRARY_PATH env [LD_LIBRARY_PATH=<badlib>] TMPDIR=<own tmp> PATH=/usr/bin:/bin timeout 600 python3 tools/check-kernel-taint.py --selftest
+
+base none   rc=0 stdout_sha=b06bcb2491bd740d {"cases": 56, "failed": 0, ...}
+base badlib rc=1 stdout_sha=63d5aee0b786cffc {"cases": 56, "failed": 56, ... "error": "Command '['git', 'init', ..."  stderr: git: error while loading shared libraries: .../badlib/libpcre2-8.so.0: file too short
+tip  none   rc=0 stdout_sha=b06bcb2491bd740d {"cases": 56, "failed": 0, ...}
+tip  badlib rc=0 stdout_sha=b06bcb2491bd740d {"cases": 56, "failed": 0, ...}

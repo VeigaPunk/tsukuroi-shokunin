@@ -1,0 +1,26 @@
+diff --git a/tools/_revision.py b/tools/_revision.py
+index 30b3be8..ad090e6 100755
+--- a/tools/_revision.py
++++ b/tools/_revision.py
+@@ -61,7 +61,7 @@ class RevisionError(Exception):
+ 
+ def clean_env():
+     env = {k: v for k, v in os.environ.items()
+-           if not k.startswith(("GIT_", "LD_", "PYTHON"))}
++           if not k.startswith("GIT_")}
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                 "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+     return env
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+index 5400bce..0da3b0f 100644
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -250,7 +250,7 @@ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
++           if not key.startswith('GIT_')}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
