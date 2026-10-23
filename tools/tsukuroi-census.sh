@@ -329,6 +329,24 @@
 #             belonged to the four-plane gate and moved with this plane; recorded here rather
 #             than trimmed by dropping a probe.
 #
+# Round-35 addition (C1): the pacnew/pacsave drift arm. PROVINCE.md Core owns `.pacnew` /
+# `.pacsave` drift ("Pair pacman-log history with current readable filesystem findings; report
+# skipped unreadable paths"); until round 35 only corpus/knowledge/pacnew-plane.md said how to
+# read it. The arm prints ONE line after the HANDOFF lines and before the rollup:
+#   DRIFT pacnew-plane pacnew=N pacsave=N pacorig=N unreadable=N log_pacnew=N log_pacsave=N
+#     unlogged=N gone=N log=ok|unreadable
+# pacnew/pacsave/pacorig: non-directory entries under TSUKUROI_ETC_DIR (default /etc) named
+# `*.pacnew`, `*.pacsave` or `*.pacsave.[0-9]*`, `*.pacorig` (pacdiff 1.13.1's find names, S193,
+# minus directories; symlinks are counted and never followed). unreadable: directories the
+# sweep could not read (find's "Permission denied"; uid-dependent: root sees fewer).
+# log_pacnew/log_pacsave: pacman's own warnings `[..] [ALPM] warning: F installed as F.pacnew`
+# and `F saved as F.pacsave` (libalpm add.c / remove.c at 7.1.0, S191/S192) with F under /etc/.
+# unlogged: counted entries named by no such warning (a `.pacsave.N` is never logged: pacman
+# renames it without a log line, S192 shift_pacsave). gone: distinct logged targets that are no
+# counted entry and lie beneath no unreadable directory. Names only — file contents are never
+# read (ADJ-02). The line is verdict-neutral: no PLANE text, rollup term or exit code changes.
+# Live mode creates no files (two find sweeps into shell variables, no mktemp).
+#
 # Read-only guarantee: no probe writes; the gate creates no files at all in live mode
 # (selftest writes only under a mktemp dir named /tmp/tsukuroi-r3-2-selftest.XXXXXX).
 # Secrets are never read: only public package/system unit/driver/journal state is queried.
@@ -351,6 +369,7 @@
 #   TSUKUROI_VMSTAT_FILE TSUKUROI_OOM_BASELINE (the oom watch: kernel-kill ledger path;
 #   external declared-wave baseline; empty/unset = the embedded r8 snapshot)
 #   TSUKUROI_PACMAN_LOG TSUKUROI_OFFLINE_DB TSUKUROI_EXPAC TSUKUROI_VERCMP
+#   TSUKUROI_ETC_DIR (round 35: the pacnew/pacsave drift arm's tree; default /etc)
 #   TSUKUROI_CHANNEL_MAX_AGE_D TSUKUROI_LOG_TAIL_N (the update-safety plane's seams). The
 #   channel stamp is the fixture db file's own mtime — settable with `touch -d` — so the
 #   stale-channel case is executed against a real probe, not asserted vacuous.
@@ -403,6 +422,7 @@ VMSTAT_FILE=${TSUKUROI_VMSTAT_FILE:-/proc/vmstat}
 OOM_BASELINE=${TSUKUROI_OOM_BASELINE:-}
 FOREIGN_BASELINE=${TSUKUROI_FOREIGN_BASELINE:-}
 PACMAN_LOG=${TSUKUROI_PACMAN_LOG:-/var/log/pacman.log}
+ETC_DIR=${TSUKUROI_ETC_DIR:-/etc}
 OFFLINE_DB=${TSUKUROI_OFFLINE_DB:-$PACMAN_DB/sync/offline.db}
 EXPAC=${TSUKUROI_EXPAC:-expac}
 VERCMP=${TSUKUROI_VERCMP:-vercmp}
@@ -1754,6 +1774,54 @@ probe_update_safety() {
   return
 }
 
+# ---- pacnew/pacsave drift arm (round 35, C1; contract in the header) ---------------
+probe_pacnew_arm() {
+  local etc=$ETC_DIR log=$PACMAN_LOG fs='' err='' ln='' ls='' host='' tg='' lk='' l d t under
+  local total=0 pn=0 ps=0 po=0 unr=0 lpn=0 lps=0 unl=0 gone=0 lstate=ok
+  fs=$(LC_ALL=C find "$etc" ! -type d \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacsave.[0-9]*' -o -name '*.pacorig' \) -print 2>/dev/null || true)
+  err=$(LC_ALL=C find "$etc" -type d -print 2>&1 >/dev/null || true)
+  if [ -n "$fs" ]; then
+    total=$(printf '%s\n' "$fs" | wc -l)
+    pn=$(printf '%s\n' "$fs" | grep -c '\.pacnew$' || true)
+    po=$(printf '%s\n' "$fs" | grep -c '\.pacorig$' || true)
+    ps=$((total - pn - po))
+    host=$(while IFS= read -r l; do printf '/etc/%s\n' "${l#"$etc"/}"; done <<< "$fs" | LC_ALL=C sort -u)
+  fi
+  if [ -n "$err" ]; then
+    unr=$(printf '%s\n' "$err" | grep -c ': Permission denied$' || true)
+    while IFS= read -r l; do
+      case "$l" in
+        "find: '$etc/"*"': Permission denied")
+          d=${l#"find: '$etc/"}; lk+="/etc/${d%"': Permission denied"}/"$'\n' ;;
+      esac
+    done <<< "$err"
+  fi
+  if [ -r "$log" ]; then
+    ln=$(LC_ALL=C grep -E '^\[[^]]*\] \[ALPM\] warning: (/etc/.+) installed as \1\.pacnew$' "$log" 2>/dev/null | sed -E 's/^.* installed as //' || true)
+    ls=$(LC_ALL=C grep -E '^\[[^]]*\] \[ALPM\] warning: (/etc/.+) saved as \1\.pacsave$' "$log" 2>/dev/null | sed -E 's/^.* saved as //' || true)
+  else
+    lstate=unreadable
+  fi
+  [ -n "$ln" ] && lpn=$(printf '%s\n' "$ln" | wc -l)
+  [ -n "$ls" ] && lps=$(printf '%s\n' "$ls" | wc -l)
+  tg=$(printf '%s\n%s\n' "$ln" "$ls" | sed '/^$/d' | LC_ALL=C sort -u)
+  if [ -n "$host" ]; then
+    unl=$(LC_ALL=C comm -23 <(printf '%s\n' "$host") <(printf '%s\n' "$tg" | sed '/^$/d') | wc -l)
+  fi
+  if [ -n "$tg" ]; then
+    while IFS= read -r t; do
+      [ -n "$host" ] && grep -qxF -- "$t" <<< "$host" && continue
+      under=0
+      while IFS= read -r d; do
+        [ -n "$d" ] || continue
+        case "$t" in "$d"*) under=1 ;; esac
+      done <<< "$lk"
+      [ "$under" -eq 1 ] || gone=$((gone + 1))
+    done <<< "$tg"
+  fi
+  DRIFT_LINE="DRIFT pacnew-plane pacnew=$pn pacsave=$ps pacorig=$po unreadable=$unr log_pacnew=$lpn log_pacsave=$lps unlogged=$unl gone=$gone log=$lstate"
+}
+
 # ---- hermetic selftest -------------------------------------------------------
 run_selftest() {
   local bin fx
@@ -1851,7 +1919,7 @@ STUB
 
   fx_default() { # clean fixture: everything passes, dmesg restricted like the measured host
     local d=$1
-    mkdir -p "$d/pacmandb" "$d/pci" "$d/dev" "$d/root"
+    mkdir -p "$d/pacmandb" "$d/pci" "$d/dev" "$d/root" "$d/etc"
     # Round-12 C1 fixture root: mode 0755 explicitly — umask 077 makes a bare mkdir 0700,
     # and the healthy-case regexes pin 0755, so an implicit mode would hide a mode leak.
     chmod 0755 "$d/root"
@@ -1989,6 +2057,7 @@ STUB
       TSUKUROI_VMSTAT_FILE="$FX/vmstat" \
       TSUKUROI_OOM_BASELINE="$FX/obase" \
       TSUKUROI_PACMAN_LOG="$FX/pacman.log" \
+      TSUKUROI_ETC_DIR="$FX/etc" \
       TSUKUROI_EXPAC="$bin/expac" \
       "${EXTRA_ENV[@]}" \
       "$BASH" "$SELF" 2>&1)
@@ -2704,6 +2773,47 @@ STUB
     'ledger=vmstat\.oom_kill=3' \
     'ABSENT:^HANDOFF'
 
+  # ---- round 35 (C1): the pacnew/pacsave drift arm ---------------------------------
+  case_home='drift-counts'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  mkdir -p "$FX/etc/a/b" "$FX/etc/d.pacnew"
+  : > "$FX/etc/a/x.conf.pacnew"; : > "$FX/etc/a/b/y.pacsave"; : > "$FX/etc/a/b/y.pacsave.1"
+  : > "$FX/etc/z.pacorig"; : > "$FX/etc/a/x.conf.pacnew.bak"; : > "$FX/etc/a/q.pacsave~"
+  ln -s /nonexistent-r35 "$FX/etc/a/l.pacnew"
+  check 'healthy: the drift arm counts pacdiff names and symlinks, never directories or near-names (R35-C1)' 0 HEALTHY \
+    '^DRIFT pacnew-plane pacnew=2 pacsave=2 pacorig=1 unreadable=0 log_pacnew=0 log_pacsave=0 unlogged=5 gone=0 log=ok$'
+
+  case_home='drift-pairing'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  mkdir -p "$FX/etc/a" "$FX/etc/b"
+  : > "$FX/etc/a/x.pacnew"; : > "$FX/etc/b/x.pacnew"; : > "$FX/etc/a/s.pacsave"
+  { printf '%s\n' \
+      '[2026-10-11T16:14:18-0300] [ALPM] warning: /etc/a/x installed as /etc/a/x.pacnew' \
+      '[2026-10-11T16:14:19-0300] [ALPM] warning: /etc/a/s saved as /etc/a/s.pacsave' \
+      '[2026-10-11T16:14:20-0300] [ALPM] warning: /etc/c/x installed as /etc/c/x.pacnew' \
+      '[2026-10-11T16:14:21-0300] [ALPM] warning: /etc/a/m installed as /etc/b/m.pacnew' \
+      '[2026-10-11T16:14:22-0300] [ALPM] warning: /usr/share/u installed as /usr/share/u.pacnew' \
+      '[2026-10-11T16:14:23-0300] [ALPM] installed asdcontrol (1:0.6.0-1)'
+    cat "$FX/pacman.log"; } > "$FX/pacman.log.new"
+  mv "$FX/pacman.log.new" "$FX/pacman.log"
+  check 'healthy: the drift arm pairs /etc warnings by full path; unlogged and gone (R35-C1)' 0 HEALTHY \
+    '^DRIFT pacnew-plane pacnew=2 pacsave=1 pacorig=0 unreadable=0 log_pacnew=2 log_pacsave=1 unlogged=1 gone=1 log=ok$'
+
+  case_home='drift-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  mkdir -p "$FX/etc/k" "$FX/etc/o"
+  : > "$FX/etc/k/h.pacnew"; : > "$FX/etc/o/v.pacnew"
+  { printf '%s\n' '[2026-10-11T16:14:18-0300] [ALPM] warning: /etc/k/h installed as /etc/k/h.pacnew'
+    cat "$FX/pacman.log"; } > "$FX/pacman.log.new"
+  mv "$FX/pacman.log.new" "$FX/pacman.log"
+  chmod 000 "$FX/etc/k"
+  check 'healthy: an unreadable directory is reported, and its logged target is neither present nor gone (R35-C1)' 0 HEALTHY \
+    '^DRIFT pacnew-plane pacnew=1 pacsave=0 pacorig=0 unreadable=1 log_pacnew=1 log_pacsave=0 unlogged=1 gone=0 log=ok$'
+  chmod 755 "$FX/etc/k"
+
+  case_home='drift-no-log'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  : > "$FX/etc/w.pacnew"
+  EXTRA_ENV=(TSUKUROI_PACMAN_LOG="$FX/absent.log")
+  check 'healthy: an absent log prints log=unreadable and zero log counts, never a pass on pairing (R35-C1)' 0 HEALTHY \
+    '^DRIFT pacnew-plane pacnew=1 pacsave=0 pacorig=0 unreadable=0 log_pacnew=0 log_pacsave=0 unlogged=1 gone=0 log=unreadable$'
+
   check_cli 'cli: unknown argument exits 2 with usage (S10-2)' 2 \
     '^usage: tsukuroi-census\.sh' -- --bogus
   check_cli 'cli: --sample 0 refuses before the parse continues (S10-2)' 2 \
@@ -2781,6 +2891,10 @@ main() {
     printf 'HANDOFF ADJ-04 mori class=coredumps value=%s kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER\n' \
       "$JRN_COREDUMPS"
   fi
+
+  # ---- pacnew/pacsave drift arm (round 35, C1): one verdict-neutral line ----------
+  probe_pacnew_arm
+  printf '%s\n' "$DRIFT_LINE"
 
   local roll=HEALTHY
   roll=$(worse "$roll" "$PKG_V")
