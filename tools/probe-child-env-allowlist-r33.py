@@ -44,18 +44,23 @@ injection directory and the scratch root itself have random names drawn per run.
           `/usr/bin:/bin:<inject>/<random>`; LANG, TZ, TERM, USER, LOGNAME and SHELL are random
           words drawn per run.
   source  a static read (Python `ast`) of the target's file and of every `tools/` module it
-          imports, at REV: an ambient read (`os.environ`, `os.environb`, `os.getenv`,
-          `os.getenvb`, or importing those names from `os`), an inheriting spawn (a
+          imports, at REV: an ambient read (any attribute named `environ`, `environb`, `getenv`
+          or `getenvb` on any object, or importing those names from `os`), an inheriting spawn (a
           `subprocess.run/Popen/call/check_call/check_output` call with no `env` keyword or
           `env=None`, `subprocess.getoutput/getstatusoutput`, `os.system`, `os.popen`, or a non-`e`
-          `os.exec*`/`os.spawn*` call), a string naming `/proc/self/status`,
-          `/proc/self/environ` or `TracerPid` (a rule keyed on being traced), or a construct that
-          hides a read or spawn from this scan (`getattr`, `vars` or `__dict__` on `os` or
-          `posix`, `sys.modules`, an import of `posix`, `__import__`, `importlib`, `ctypes`, or a
-          call of `exec`, `eval` or `compile`). This channel exists because a run can only be
-          observed under a tracer, so a target could behave only while observed; the source
-          channel sees the branch the runs cannot. Known limit: a hiding construct this list does
-          not name escapes it.
+          `os.exec*`/`os.spawn*` call; aliases from `import ... as` and `from ... import` are
+          resolved), a non-docstring string containing `/proc/self/status`, `/proc/self/environ`,
+          `TracerPid`, `environ` or `getenv` (a rule keyed on being traced, or a name built for
+          an indirect lookup), or a construct that hides a read or spawn from this scan (a call
+          of `exec`, `eval`, `compile`, `__import__`, `globals`, `locals`, `vars` or `dir`;
+          `getattr`/`setattr`/`hasattr`/`delattr` on `os`, `posix` or `sys`, or with an attribute
+          name that is not a constant string; the attributes `__dict__`, `__getattribute__`,
+          `__builtins__`, `__globals__`, `__subclasses__`, `__loader__`, `__spec__` or
+          `sys.modules`; the names `__builtins__`, `__loader__`, `__spec__`; an import of
+          `posix`, `nt`, `importlib`, `ctypes`, `inspect`, `builtins` or `gc`). This channel
+          exists because a run can only be observed under a tracer, so a target could behave
+          only while observed; the source channel sees the branch the runs cannot. Known limit:
+          a hiding construct this list does not name escapes it.
 FROZEN PREDICATE: A (target, channel) pair is leaking when, in its names or quiet run, any traced execve after the target's own first exec carries in its environment any name injected in that run or the exact ambient NAME=VALUE string of that run for any value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, LOGNAME, SHELL), or the run breaks parity with control run A (exit code, normalised stdout digest, count of successful git execs); or, in its source channel, the target's file or a tools/ module it imports at REV reads the ambient environment, starts a process that inherits it, names /proc/self/status, /proc/self/environ or TracerPid, or uses a construct that hides a read or spawn from the scan.
 Presence of an injected name is by NAME (the `NAME=` prefix of an environment string); presence of
 a value-channel name is by the exact `NAME=VALUE` string.
@@ -416,8 +421,13 @@ OS_INHERIT = frozenset(('system', 'popen', 'execl', 'execlp', 'execv', 'execvp',
                         'spawnlp', 'spawnv', 'spawnvp'))
 OS_AMBIENT = frozenset(('environ', 'environb', 'getenv', 'getenvb'))
 TRACE_STRINGS = ('/proc/self/status', '/proc/self/environ', 'TracerPid')
-HIDING_CALLS = frozenset(('exec', 'eval', 'compile', '__import__'))
-HIDING_MODULES = frozenset(('posix', 'importlib', 'ctypes', 'nt'))
+HIDING_CALLS = frozenset(('exec', 'eval', 'compile', '__import__', 'globals', 'locals', 'vars',
+                          'dir'))
+HIDING_MODULES = frozenset(('posix', 'importlib', 'ctypes', 'nt', 'inspect', 'builtins', 'gc'))
+HIDING_ATTRS = frozenset(('__dict__', '__getattribute__', '__builtins__', '__globals__',
+                          '__subclasses__', '__loader__', '__spec__'))
+HIDING_NAMES = frozenset(('__builtins__', '__loader__', '__spec__'))
+HIDING_STRINGS = ('environ', 'getenv')
 
 
 def _dotted(node):
@@ -457,6 +467,13 @@ def scan_module(path, rel):
         first, dot, rest = name.partition('.')
         return alias.get(first, first) + dot + rest
 
+    docstrings = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            body = node.body
+            if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant) \
+                    and isinstance(body[0].value.value, str):
+                docstrings.add(id(body[0].value))
     findings, imports = [], set()
     for node in ast.walk(tree):
         where = '%s:%s' % (rel, getattr(node, 'lineno', '?'))
@@ -477,14 +494,13 @@ def scan_module(path, rel):
                 if node.module == 'sys' and any(a.name == 'modules' for a in node.names):
                     findings.append('%s hiding-import sys.modules' % where)
         elif isinstance(node, ast.Attribute):
-            name = canon(node)
-            if name in ['os.' + n for n in OS_AMBIENT]:
-                findings.append('%s ambient-read %s' % (where, name))
-            elif name in ('sys.modules', 'os.__dict__', 'posix.__dict__'):
-                findings.append('%s hiding-construct %s' % (where, name))
-        elif isinstance(node, ast.Name) and alias.get(node.id) in (
-                ['os.' + n for n in OS_AMBIENT] + ['sys.modules']):
-            findings.append('%s ambient-read %s' % (where, alias[node.id]))
+            if node.attr in OS_AMBIENT:
+                findings.append('%s ambient-read .%s' % (where, node.attr))
+            elif node.attr in HIDING_ATTRS or canon(node) == 'sys.modules':
+                findings.append('%s hiding-construct .%s' % (where, node.attr))
+        elif isinstance(node, ast.Name) and (node.id in HIDING_NAMES or alias.get(node.id) in (
+                ['os.' + n for n in OS_AMBIENT] + ['sys.modules'])):
+            findings.append('%s hiding-construct %s' % (where, alias.get(node.id, node.id)))
         elif isinstance(node, ast.Call):
             name = canon(node.func)
             if not name:
@@ -492,10 +508,11 @@ def scan_module(path, rel):
             head, _, attr = name.rpartition('.')
             if name in HIDING_CALLS:
                 findings.append('%s hiding-construct %s()' % (where, name))
-            elif name in ('getattr', 'vars', 'setattr', 'hasattr') and node.args and \
-                    canon(node.args[0]) in ('os', 'posix', 'sys'):
-                findings.append('%s hiding-construct %s(%s, ...)' % (where, name,
-                                                                  canon(node.args[0])))
+            elif name in ('getattr', 'setattr', 'hasattr', 'delattr') and node.args and (
+                    canon(node.args[0]) in ('os', 'posix', 'sys') or len(node.args) < 2
+                    or not isinstance(node.args[1], ast.Constant)
+                    or node.args[1].value in OS_AMBIENT):
+                findings.append('%s hiding-construct %s(...)' % (where, name))
             elif head == 'subprocess' and attr in SPAWN_WITH_ENV:
                 env = [k for k in node.keywords if k.arg == 'env']
                 if not env and not any(k.arg is None for k in node.keywords):
@@ -508,10 +525,11 @@ def scan_module(path, rel):
                 findings.append('%s inheriting-spawn %s' % (where, name))
             elif head == 'os' and attr in OS_INHERIT:
                 findings.append('%s inheriting-spawn %s' % (where, name))
-        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
-            for s in TRACE_STRINGS:
+        elif isinstance(node, ast.Constant) and isinstance(node.value, str) \
+                and id(node) not in docstrings:
+            for s in TRACE_STRINGS + HIDING_STRINGS:
                 if s in node.value:
-                    findings.append('%s traced-detect %r' % (where, s))
+                    findings.append('%s traced-or-hidden string %r' % (where, s))
     return findings, imports
 
 
