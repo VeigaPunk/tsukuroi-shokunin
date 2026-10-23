@@ -403,7 +403,7 @@ def emit(result, revision, branch="master", branch_tip=None):
 
 
 def git(*args, repo=None):
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
     try:
         return subprocess.run(["git", "--no-pager", "-C", str(repo or ROOT), *args],
@@ -565,7 +565,7 @@ def mutate_json(fn):
 
 
 def sandbox_git(path, *args):
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
                 "GIT_AUTHOR_NAME": "selftest",
                 "GIT_AUTHOR_EMAIL": "selftest@example.invalid",
@@ -787,14 +787,15 @@ def selftest():
 
         def main_probe(rev, branch):
             import contextlib, io
-            previous_root = globals()["ROOT"]
+            global ROOT  # round-34 C1: a global statement instead of globals()
+            previous_root = ROOT
             output = io.StringIO()
-            globals()["ROOT"] = work
+            ROOT = work
             try:
                 with contextlib.redirect_stdout(output):
                     code = main(["--revision", rev, "--branch", branch])
             finally:
-                globals()["ROOT"] = previous_root
+                ROOT = previous_root
             payload = json.loads(output.getvalue())
             return code, [finding["id"] for finding in payload["findings"]]
 

@@ -105,8 +105,7 @@ ROW_KEYS = {'id', 'question', 'statement', 'source', 'snapshot', 'line', 'quote'
 
 
 def clean_env():
-    env = {k: v for k, v in os.environ.items()
-           if not k.startswith('GIT_') and not k.startswith('LD_') and not k.startswith('PYTHON')}
+    env = {'PATH': '/usr/bin:/bin'}  # round-34 C1: fixed allow-list, no ambient copy
     env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull,
                 'GIT_CONFIG_SYSTEM': os.devnull, 'GIT_OPTIONAL_LOCKS': '0', 'LC_ALL': 'C',
                 'PATH': '/usr/bin:/bin'})

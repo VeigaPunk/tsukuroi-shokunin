@@ -93,7 +93,9 @@ CAPTURE_KEYS = {'D08': 'metadata/bytes_used', 'D09': 'unallocated', 'D10': 'glob
 
 
 def clean_env():
-    return {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+    # round-34 C1: fixed allow-list, no ambient copy
+    return {'PATH': '/usr/bin:/bin', 'GIT_OPTIONAL_LOCKS': '0', 'LC_ALL': 'C',
+            'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull}
 
 
 def git_reader(lane, rev):

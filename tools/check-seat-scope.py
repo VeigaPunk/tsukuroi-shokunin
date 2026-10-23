@@ -171,7 +171,7 @@ def emit(result, revision, branch, branch_tip, wave):
 
 
 def git(root, *args):
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
     try:
         return subprocess.run(["git", "--no-pager", "-C", str(root), *args],
@@ -540,7 +540,8 @@ def selftest():
                 [sys.executable, str(root / "tools" / "check-seat-scope.py"),
                  "--revision", rev, "--wave", ".ufo/waves/demo",
                  "--branch", branch], cwd=root, stdin=subprocess.DEVNULL,
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30,
+                env={"PATH": "/usr/bin:/bin", "LC_ALL": "C"})  # round-34 C1
             try:
                 payload = json.loads(proc.stdout.decode("utf-8"))
             except (UnicodeDecodeError, ValueError):

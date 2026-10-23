@@ -378,7 +378,7 @@ def evaluate(docs):
     findings = []
     for path, field, fid in ((MD15, "md15", "R15-MD-MISSING"), (JSON15, "json15", "R15-JSON-MISSING"),
                              (MD14, "md14", "R15-HISTORY-MISSING"), (JSON14, "json14", "R15-HISTORY-MISSING")):
-        if getattr(docs, field) is None:
+        if docs._asdict()[field] is None:  # round-34 C1: a plain field read, no getattr
             findings.append(Finding(fid, path, "file absent"))
     try:
         doc15 = json.loads(docs.json15) if docs.json15 is not None else None
@@ -445,7 +445,7 @@ def read_tree(path):
 
 
 def git(*args, repo=None):
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
     try:
         return subprocess.run(["git", "--no-pager", "-C", str(repo or ROOT), *args],
@@ -574,7 +574,7 @@ def binding_cases():
     """Exercise shared revision binding in a throwaway repo; the lane repo is untouched."""
     global ROOT
     tmp = tempfile.mkdtemp(prefix="locator-clarification-")
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1"}  # round-34 C1: fixed allow-list, no ambient copy
     env.update({"GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull,
                 "GIT_TERMINAL_PROMPT": "0", "GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat",
                 "LC_ALL": "C", "GIT_AUTHOR_NAME": "gate", "GIT_AUTHOR_EMAIL": "gate@example.invalid",

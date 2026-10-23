@@ -435,7 +435,7 @@ def emit(revision, status, findings, assessment=None, digest=None, branch=DEFAUL
 
 
 def git(repo, *args):
-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
     try:
         return subprocess.run(["git", "--no-pager", "-C", str(repo), *args],
@@ -482,7 +482,7 @@ def load(rev, branch):
 
 
 def sandbox_git(repo, *args):
-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env = {"PATH": "/usr/bin:/bin"}  # round-34 C1: fixed allow-list, no ambient copy
     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
                 "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
     proc = subprocess.run(["git", "--no-pager", "-C", str(repo), *args],
@@ -536,7 +536,8 @@ def selftest():
         def run(*args):
             proc = subprocess.run([sys.executable, str(tool), *args],
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                  cwd=str(repo), timeout=120)
+                                  cwd=str(repo), timeout=120,
+                                  env={"PATH": "/usr/bin:/bin", "LC_ALL": "C"})  # round-34 C1
             payload = None
             if proc.stdout.strip():
                 try:

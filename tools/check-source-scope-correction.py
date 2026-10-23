@@ -352,7 +352,7 @@ def read_tree(repo, path):
 
 
 def git(repo, *args):
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
     try:
         return subprocess.run(["git", "--no-pager", "-C", str(repo), *args],
@@ -471,7 +471,8 @@ def binding_cases(repo, commits):
     def cli_probe(name, rev, branch, want):
         try:
             proc = subprocess.run([sys.executable, str(script), "--revision", rev, "--branch", branch],
-                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=30)
+                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=30,
+                                  env={"PATH": "/usr/bin:/bin", "LC_ALL": "C"})  # round-34 C1
         except (OSError, subprocess.TimeoutExpired) as exc:
             checks.append((name, f"subprocess failed: {exc}"))
             return

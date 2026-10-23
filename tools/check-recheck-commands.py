@@ -796,7 +796,7 @@ def emit(status, revision, branch, branch_tip, findings, counts, out=None,
 
 
 def git(repo, *args):
-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
                 "GIT_TERMINAL_PROMPT": "0"})
     try:
