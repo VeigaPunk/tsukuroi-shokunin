@@ -59,9 +59,30 @@ injection directory and the scratch root itself have random names drawn per run.
           `sys.modules`; the names `__builtins__`, `__loader__`, `__spec__`; an import of
           `posix`, `nt`, `importlib`, `ctypes`, `inspect`, `builtins` or `gc`). This channel
           exists because a run can only be observed under a tracer, so a target could behave
-          only while observed; the source channel sees the branch the runs cannot. Known limit:
-          a hiding construct this list does not name escapes it.
-FROZEN PREDICATE: A (target, channel) pair is leaking when, in its names or quiet run, any traced execve after the target's own first exec carries in its environment any name injected in that run or the exact ambient NAME=VALUE string of that run for any value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, LOGNAME, SHELL), or the run breaks parity with control run A (exit code, normalised stdout digest, count of successful git execs); or, in its source channel, the target's file or a tools/ module it imports at REV reads the ambient environment, starts a process that inherits it, names /proc/self/status, /proc/self/environ or TracerPid, or uses a construct that hides a read or spawn from the scan.
+          only while observed; the source channel sees the branch the runs cannot.
+          Amendment 2 (round 33 attempt 2, before any attempt-2 seat, control or data step) closes
+          the spawn side of a rule keyed on being observed: a `subprocess` spawn call's `env=`
+          value must be a dict display, a dict comprehension, `dict(...)`, a `|` of those, a
+          name every binding of which is one of those (never a parameter, loop variable or
+          constant), or a call of a function this scan reads (a def in the file, or a name
+          imported from a tools/ module, including a `module.attr = function` rebinding) that
+          ends in `return` or `raise` and never returns a value containing None; a spawn call
+          with more than one positional argument; any reference to a spawn function
+          (SPAWN_ANY on subprocess, os, posix, pty, asyncio or _posixsubprocess) that is not
+          called directly; `getattr` and friends with a constant spawn-function name; a star
+          import from those modules; and an import of `asyncio`, `pty`, `multiprocessing`,
+          `concurrent`, `_posixsubprocess`, `webbrowser`, `platform`, `pydoc`, `cffi`,
+          `distutils`, `runpy`, `code`, `codeop`, `pickle`, `marshal`, `types` or `zipimport`.
+          Known limit: a hiding construct this list does not name escapes it; in particular
+          the read side is not closed (a target can learn it is observed, or read the ambient
+          environment through a path assembled from fragments, with constructs the scan does
+          not name), and an `env=` dict whose values are taken from an unflagged ambient source
+          passes the shape rule.
+FROZEN PREDICATE: A (target, channel) pair is leaking when, in its names or quiet run, any traced execve after the target's own first exec carries in its environment any name injected in that run or the exact ambient NAME=VALUE string of that run for any value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, LOGNAME, SHELL), or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or GIT_CONFIG_GLOBAL=/dev/null, or the run breaks parity with control run A (exit code, normalised stdout digest, count of successful git execs); or, in its source channel, the target's file or a tools/ module it imports at REV reads the ambient environment, starts a process that inherits it, names /proc/self/status, /proc/self/environ or TracerPid, or uses a construct that hides a read or spawn from the scan.
+Amendment 2 adds the clause "or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or
+GIT_CONFIG_GLOBAL=/dev/null": every git child of the five claim targets carries both at the
+claim base (the settings both base builders hand to git), so a content-free builder (an empty
+environment, which drops the ambient copy and every setting with it) leaks here.
 Presence of an injected name is by NAME (the `NAME=` prefix of an environment string); presence of
 a value-channel name is by the exact `NAME=VALUE` string.
 
@@ -128,7 +149,8 @@ PREDICATE = ('A (target, channel) pair is leaking when, in its names or quiet ru
              'execve after the target\'s own first exec carries in its environment any name '
              'injected in that run or the exact ambient NAME=VALUE string of that run for any '
              'value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, '
-             'LOGNAME, SHELL), or the run breaks parity with control run A (exit code, '
+             'LOGNAME, SHELL), or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or '
+             'GIT_CONFIG_GLOBAL=/dev/null, or the run breaks parity with control run A (exit code, '
              'normalised stdout digest, count of successful git execs); or, in its source '
              'channel, the target\'s file or a tools/ module it imports at REV reads the ambient '
              'environment, starts a process that inherits it, names /proc/self/status, '
@@ -139,6 +161,8 @@ PREDICATE_LABEL = 'leaking'
 VERSION = 3
 VALUE_NAMES = ('HOME', 'TMPDIR', 'XDG_CONFIG_HOME', 'PATH', 'LANG', 'TZ', 'TERM', 'USER',
                'LOGNAME', 'SHELL')
+# amendment 2: the settings every git child of the claim targets carries at the claim base
+KEPT_GIT_SETTINGS = ('GIT_CONFIG_NOSYSTEM=1', 'GIT_CONFIG_GLOBAL=/dev/null')
 
 # the four fixed injected names
 NAMED_INJECTED = ('BASH_ENV', 'ENV', 'GCONV_PATH', 'PERL5OPT')
@@ -285,6 +309,8 @@ def one_run(root, tree, tool, args, extra_env=None):
     execs = parse_trace(trace) if os.path.exists(trace) else []
     obs['execs'] = execs
     obs['git_execs'] = sum(1 for e in execs if is_git(e[1]))
+    obs['git_missing_kept'] = sum(1 for e in execs if is_git(e[1])
+                                  and not all(k in e[3] for k in KEPT_GIT_SETTINGS))
     shutil.rmtree(wtree, ignore_errors=True)
     return obs
 
@@ -419,11 +445,23 @@ SPAWN_WITH_ENV = frozenset(('run', 'Popen', 'call', 'check_call', 'check_output'
 SPAWN_NO_ENV = frozenset(('getoutput', 'getstatusoutput'))
 OS_INHERIT = frozenset(('system', 'popen', 'execl', 'execlp', 'execv', 'execvp', 'spawnl',
                         'spawnlp', 'spawnv', 'spawnvp'))
+# Amendment 2 (pre-data): every name a process can be started through, for the aliasing and
+# getattr rules below.
+SPAWN_ANY = SPAWN_WITH_ENV | SPAWN_NO_ENV | OS_INHERIT | frozenset((
+    'execle', 'execlpe', 'execve', 'execvpe', 'spawnle', 'spawnlpe', 'spawnve', 'spawnvpe',
+    'posix_spawn', 'posix_spawnp', 'fork', 'forkpty', 'create_subprocess_exec',
+    'create_subprocess_shell', 'fork_exec', 'spawn'))
+SPAWN_HEADS = frozenset(('subprocess', 'os', 'posix', 'pty', 'asyncio', '_posixsubprocess'))
 OS_AMBIENT = frozenset(('environ', 'environb', 'getenv', 'getenvb'))
 TRACE_STRINGS = ('/proc/self/status', '/proc/self/environ', 'TracerPid')
 HIDING_CALLS = frozenset(('exec', 'eval', 'compile', '__import__', 'globals', 'locals', 'vars',
                           'dir'))
-HIDING_MODULES = frozenset(('posix', 'importlib', 'ctypes', 'nt', 'inspect', 'builtins', 'gc'))
+HIDING_MODULES = frozenset(('posix', 'importlib', 'ctypes', 'nt', 'inspect', 'builtins', 'gc',
+                            # amendment 2: modules that start processes or run code outside
+                            # the spawn calls this scan reads
+                            'asyncio', 'pty', 'multiprocessing', 'concurrent', '_posixsubprocess',
+                            'webbrowser', 'platform', 'pydoc', 'cffi', 'distutils', 'runpy',
+                            'code', 'codeop', 'pickle', 'marshal', 'types', 'zipimport'))
 HIDING_ATTRS = frozenset(('__dict__', '__getattribute__', '__builtins__', '__globals__',
                           '__subclasses__', '__loader__', '__spec__'))
 HIDING_NAMES = frozenset(('__builtins__', '__loader__', '__spec__'))
@@ -454,11 +492,67 @@ def _aliases(tree):
     return out
 
 
+def _bindings(tree):
+    """Map each name to the AST nodes that bind it anywhere in the module, and each
+    `module.attr = value` assignment to its values (amendment 2)."""
+    out, rebinds = {}, {}
+
+    def add(name, node):
+        out.setdefault(name, []).append(node)
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            for t in node.targets:
+                if isinstance(t, ast.Attribute) and isinstance(t.value, ast.Name):
+                    rebinds.setdefault((t.value.id, t.attr), []).append(node.value)
+                    continue
+                for n in ast.walk(t):
+                    if isinstance(n, ast.Name):
+                        add(n.id, node.value if isinstance(t, ast.Name) else n)
+        elif isinstance(node, (ast.AnnAssign, ast.NamedExpr)) and isinstance(node.target, ast.Name):
+            add(node.target.id, node.value if node.value is not None else node)
+        elif isinstance(node, ast.AugAssign) and isinstance(node.target, ast.Name):
+            add(node.target.id, node)
+        elif isinstance(node, (ast.For, ast.AsyncFor, ast.comprehension)):
+            for n in ast.walk(node.target):
+                if isinstance(n, ast.Name):
+                    add(n.id, n)
+        elif isinstance(node, (ast.With, ast.AsyncWith)):
+            for item in node.items:
+                if item.optional_vars is not None:
+                    for n in ast.walk(item.optional_vars):
+                        if isinstance(n, ast.Name):
+                            add(n.id, n)
+        elif isinstance(node, ast.ExceptHandler) and node.name:
+            add(node.name, node)
+        elif isinstance(node, ast.arg):
+            add(node.arg, node)
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            add(node.name, node)
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            for a in node.names:
+                add(a.asname or a.name.split('.')[0], node)
+        elif isinstance(node, ast.Global):
+            for n in node.names:
+                add(n, node)
+    return out, rebinds
+
+
+def _contains_none(node):
+    return any(isinstance(n, ast.Constant) and n.value is None for n in ast.walk(node))
+
+
 def scan_module(path, rel):
-    """Static findings for one Python file (v3 source channel); returns (findings, imports)."""
+    """Static findings for one Python file (v3 source channel, amendment 2).
+
+    Returns (findings, imports, builders, functions): `builders` are the (module-or-None, name)
+    pairs of functions an `env=` value calls, to be checked by `source_findings`; `functions`
+    maps each top-level-or-nested function name of this file to its FunctionDef nodes.
+    """
     with open(path, 'rb') as fh:
         tree = ast.parse(fh.read(), filename=rel)
     alias = _aliases(tree)
+    binds, rebinds = _bindings(tree)
 
     def canon(node):
         name = _dotted(node)
@@ -468,13 +562,74 @@ def scan_module(path, rel):
         return alias.get(first, first) + dot + rest
 
     docstrings = set()
+    functions = {}
     for node in ast.walk(tree):
         if isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             body = node.body
             if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant) \
                     and isinstance(body[0].value.value, str):
                 docstrings.add(id(body[0].value))
-    findings, imports = [], set()
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            functions.setdefault(node.name, []).append(node)
+    call_funcs = {id(n.func) for n in ast.walk(tree) if isinstance(n, ast.Call)}
+    findings, imports, builders = [], set(), []
+
+    def env_ok(expr, where, depth=0):
+        """Amendment 2: an `env=` value must be a dict display, a dict comprehension, a
+        `dict(...)` call, a `|` of such values, a call of a function this scan can check (a
+        def in this file or a name imported from a tools/ module), or a name every binding of
+        which is one of those. Anything else (a parameter, a conditional, a constant, an
+        attribute, a subscript, a call of any other callable) is reported."""
+        if depth > 8:
+            return 'env value too deep to check'
+        if isinstance(expr, (ast.Dict, ast.DictComp)):
+            return None
+        if isinstance(expr, ast.BinOp) and isinstance(expr.op, ast.BitOr):
+            return env_ok(expr.left, where, depth + 1) or env_ok(expr.right, where, depth + 1)
+        if isinstance(expr, ast.Call):
+            if any(isinstance(a, ast.Starred) for a in expr.args) or _contains_none(expr):
+                return 'env call with a None or starred argument'
+            f = expr.func
+            if isinstance(f, ast.Name):
+                if f.id == 'dict' and f.id not in binds:
+                    return None
+                kinds = binds.get(f.id, [])
+                if kinds and all(isinstance(k, (ast.FunctionDef, ast.AsyncFunctionDef)) for k in kinds):
+                    builders.append((None, f.id))
+                    return None
+                if kinds and all(isinstance(k, ast.ImportFrom) and k.level == 0 for k in kinds):
+                    builders.append((kinds[0].module, f.id))
+                    return None
+                return 'env from unverified callable %s' % f.id
+            if isinstance(f, ast.Attribute) and isinstance(f.value, ast.Name):
+                kinds = binds.get(f.value.id, [])
+                if kinds and all(isinstance(k, ast.Import) for k in kinds):
+                    builders.append((alias.get(f.value.id, f.value.id), f.attr))
+                    for v in rebinds.get((f.value.id, f.attr), []):
+                        vk = binds.get(v.id, []) if isinstance(v, ast.Name) else []
+                        if not vk or not all(isinstance(k, (ast.FunctionDef, ast.AsyncFunctionDef))
+                                             for k in vk):
+                            return 'env from %s.%s rebound to an unverified value' % (
+                                f.value.id, f.attr)
+                        builders.append((None, v.id))
+                    return None
+            return 'env from unverified call %s' % (_dotted(f) or type(f).__name__)
+        if isinstance(expr, ast.Name):
+            kinds = binds.get(expr.id, [])
+            if not kinds:
+                return 'env name %s has no binding in this file' % expr.id
+            for k in kinds:
+                if isinstance(k, ast.expr):
+                    if isinstance(k, ast.Name):
+                        return 'env name %s bound by a loop or unpacking' % expr.id
+                    why = env_ok(k, where, depth + 1)
+                    if why:
+                        return why
+                elif not isinstance(k, ast.AugAssign):
+                    return 'env name %s bound by %s' % (expr.id, type(k).__name__)
+            return None
+        return 'env value is a %s' % type(expr).__name__
+
     for node in ast.walk(tree):
         where = '%s:%s' % (rel, getattr(node, 'lineno', '?'))
         if isinstance(node, ast.Import):
@@ -493,14 +648,23 @@ def scan_module(path, rel):
                             findings.append('%s ambient-import os.%s' % (where, a.name))
                 if node.module == 'sys' and any(a.name == 'modules' for a in node.names):
                     findings.append('%s hiding-import sys.modules' % where)
+                if node.module in SPAWN_HEADS and any(a.name == '*' for a in node.names):
+                    findings.append('%s hiding-import %s.*' % (where, node.module))
         elif isinstance(node, ast.Attribute):
             if node.attr in OS_AMBIENT:
                 findings.append('%s ambient-read .%s' % (where, node.attr))
             elif node.attr in HIDING_ATTRS or canon(node) == 'sys.modules':
                 findings.append('%s hiding-construct .%s' % (where, node.attr))
+            elif node.attr in SPAWN_ANY and id(node) not in call_funcs and \
+                    (canon(node) or '').rpartition('.')[0] in SPAWN_HEADS:
+                findings.append('%s hiding-construct spawn alias %s' % (where, canon(node)))
         elif isinstance(node, ast.Name) and (node.id in HIDING_NAMES or alias.get(node.id) in (
                 ['os.' + n for n in OS_AMBIENT] + ['sys.modules'])):
             findings.append('%s hiding-construct %s' % (where, alias.get(node.id, node.id)))
+        elif isinstance(node, ast.Name) and id(node) not in call_funcs and \
+                alias.get(node.id, '').rpartition('.')[0] in SPAWN_HEADS and \
+                alias.get(node.id, '').rpartition('.')[2] in SPAWN_ANY:
+            findings.append('%s hiding-construct spawn alias %s' % (where, alias[node.id]))
         elif isinstance(node, ast.Call):
             name = canon(node.func)
             if not name:
@@ -511,7 +675,7 @@ def scan_module(path, rel):
             elif name in ('getattr', 'setattr', 'hasattr', 'delattr') and node.args and (
                     canon(node.args[0]) in ('os', 'posix', 'sys') or len(node.args) < 2
                     or not isinstance(node.args[1], ast.Constant)
-                    or node.args[1].value in OS_AMBIENT):
+                    or node.args[1].value in OS_AMBIENT or node.args[1].value in SPAWN_ANY):
                 findings.append('%s hiding-construct %s(...)' % (where, name))
             elif head == 'subprocess' and attr in SPAWN_WITH_ENV:
                 env = [k for k in node.keywords if k.arg == 'env']
@@ -521,6 +685,12 @@ def scan_module(path, rel):
                     findings.append('%s inheriting-spawn %s env=None' % (where, name))
                 elif not env:
                     findings.append('%s inheriting-spawn %s with **kwargs and no env' % (where, name))
+                else:
+                    why = env_ok(env[0].value, where)
+                    if why:
+                        findings.append('%s inheriting-spawn %s %s' % (where, name, why))
+                if len(node.args) > 1 or any(isinstance(x, ast.Starred) for x in node.args):
+                    findings.append('%s inheriting-spawn %s positional arguments' % (where, name))
             elif head == 'subprocess' and attr in SPAWN_NO_ENV:
                 findings.append('%s inheriting-spawn %s' % (where, name))
             elif head == 'os' and attr in OS_INHERIT:
@@ -530,23 +700,59 @@ def scan_module(path, rel):
             for s in TRACE_STRINGS + HIDING_STRINGS:
                 if s in node.value:
                     findings.append('%s traced-or-hidden string %r' % (where, s))
-    return findings, imports
+    return findings, imports, builders, functions
+
+
+def _builder_findings(rel, fn):
+    """Amendment 2: a function an `env=` value calls must end in `return` or `raise`, and every
+    `return` in it must give a value that contains no None constant."""
+    out = []
+    last = fn.body[-1] if fn.body else None
+    if not isinstance(last, (ast.Return, ast.Raise)):
+        out.append('%s:%s inheriting-spawn env builder %s can fall off its end (None)'
+                   % (rel, fn.lineno, fn.name))
+    stack = list(fn.body)
+    while stack:
+        n = stack.pop()
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            continue
+        if isinstance(n, ast.Return) and (n.value is None or _contains_none(n.value)):
+            out.append('%s:%s inheriting-spawn env builder %s can return None'
+                       % (rel, n.lineno, fn.name))
+        stack.extend(ast.iter_child_nodes(n))
+    return out
 
 
 def source_findings(tree, tool):
     """Scan the target file and, transitively, every tools/ module it imports, at REV."""
     tools_dir = os.path.join(tree, 'tools')
     seen, queue, findings = set(), [tool], []
+    pending, functions = [], {}
     while queue:
         rel = queue.pop(0)
         if rel in seen:
             continue
         seen.add(rel)
-        f, imports = scan_module(os.path.join(tree, rel), rel)
+        f, imports, builders, funcs = scan_module(os.path.join(tree, rel), rel)
         findings.extend(f)
+        functions[rel] = funcs
+        pending.extend((rel, mod, name) for mod, name in builders)
         for mod in sorted(imports):
             if os.path.isfile(os.path.join(tools_dir, mod + '.py')):
                 queue.append('tools/%s.py' % mod)
+    checked = set()
+    for rel, mod, name in pending:
+        home = rel if mod is None else 'tools/%s.py' % mod
+        if (home, name) in checked:
+            continue
+        checked.add((home, name))
+        defs = functions.get(home, {}).get(name)
+        if not defs:
+            findings.append('%s inheriting-spawn env from %s.%s, which this scan cannot read'
+                            % (rel, mod or rel, name))
+            continue
+        for fn in defs:
+            findings.extend(_builder_findings(home, fn))
     return findings, sorted(seen)
 
 
@@ -651,6 +857,10 @@ def main():
             if vreached:
                 evidence.append('%d of %d value-channel NAME=VALUE strings reached a child: %s'
                                 % (len(vreached), len(VALUE_NAMES), ','.join(sorted(vreached))))
+            res['git_missing_kept'] = r['git_missing_kept']
+            if r['git_missing_kept']:
+                evidence.append('%d of %d git children lack %s' % (
+                    r['git_missing_kept'], r['git_execs'], ' or '.join(KEPT_GIT_SETTINGS)))
             if diffs:
                 evidence.append('parity broken: ' + '; '.join(diffs))
             res['evidence'] = evidence
