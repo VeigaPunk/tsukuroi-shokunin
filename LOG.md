@@ -1347,3 +1347,7 @@ C1 after receipt (battery, `.ufo/waves/round-35/after/c1-after-battery-e2f97e6e.
 ## Round 35 — gate repairs after the outcome commit (2026-10-23 ~12:05Z)
 
 Gates at `95684c65` showed four reds caused this round (self-assessment K17, registry-coverage kinds, recheck-commands `pacman -Q` in the new note's recheck, adjacency IN-109 line shift); repaired in place (lesson section "Gates at the outcome commit"). Receipts before the repair: `.ufo/waves/round-35/after/gates-95684c65/`.
+
+## Round 35 — late wave-2 evidence and gates at the repaired tip (2026-10-23 12:26Z)
+
+W2LiveOracle: two more controls meet VERSION 2 through the live view (lesson, late results). W2NsViewProbe cancelled at the deadline (records only). Gates at `199beb97`: six exit 0, check-pause-gate 1 (unchanged P3). Census end exit 0, 197 rows.

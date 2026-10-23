@@ -1,0 +1,204 @@
+======================================================================
+W2LiveOracle capture — round 35, C1 counter VERSION 2
+counter: tools/score-pacnew-arm-r35b.py @ 7186722b8eba243439c6724766bdae2ef13c595c
+counter_sha256: 7517af92e0c9308c10f04b90d05a699cfa56278a736ef975d97ba08fbd957dc1
+host: Linux 7.2.11-arch1-1 x86_64  uid=1000  LANG=en_US.UTF-8 LC_ALL=unset
+pacman: pacman 7.1.0.r9.g54d9411-3  pacman-contrib: pacman-contrib 1.13.1-1
+GNU find: find (GNU findutils) 4.11.0-modified
+======================================================================
+
+=== [1] INDEPENDENT SHELL ORACLE (find/grep/sort/comm, LC_ALL=C, names only) ===
+--- (a) counter's own oracle_of('/etc', lines), imported by path ---
+counter_sha256 7517af92e0c9308c10f04b90d05a699cfa56278a736ef975d97ba08fbd957dc1
+oracle_of(/etc, lines) = {"gone": 0, "log_pacnew": 3, "log_pacsave": 0, "pacnew": 3, "pacorig": 0, "pacsave": 0, "unlogged": 0, "unreadable": 11}
+total log lines 3191
+--- (b) independent shell computation ---
+DRIFT pacnew-plane pacnew=3 pacsave=0 pacorig=0 unreadable=11 log_pacnew=3 log_pacsave=0 unlogged=0 gone=0
+--- stderr of find (all lines, cat -A style) ---
+find: '/etc/pacman.d/gnupg/private-keys-v1.d': Permission denied
+find: '/etc/pacman.d/gnupg/openpgp-revocs.d': Permission denied
+find: '/etc/pacman.d/gnupg/crls.d': Permission denied
+find: '/etc/ssl/private': Permission denied
+find: '/etc/audit/plugins.d': Permission denied
+find: '/etc/credstore': Permission denied
+find: '/etc/credstore.encrypted': Permission denied
+find: '/etc/sudoers.d': Permission denied
+find: '/etc/polkit-1/rules.d': Permission denied
+find: '/etc/cups/ssl': Permission denied
+find: '/etc/cni/net.d': Permission denied
+--- counted fs entries ---
+/etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json.pacnew
+/etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json.pacnew
+/etc/locale.gen.pacnew
+--- unreadable dir list ---
+/audit/plugins.d
+/cni/net.d
+/credstore
+/credstore.encrypted
+/cups/ssl
+/pacman.d/gnupg/crls.d
+/pacman.d/gnupg/openpgp-revocs.d
+/pacman.d/gnupg/private-keys-v1.d
+/polkit-1/rules.d
+/ssl/private
+/sudoers.d
+--- log targets ---
+/etc/locale.gen.pacnew
+/etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json.pacnew
+/etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json.pacnew
+--- log_pacnew lines ---
+/etc/locale.gen.pacnew
+/etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json.pacnew
+/etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json.pacnew
+--- log_pacsave lines ---
+--- unlogged ---
+
+=== [2] find's permission-denied message bytes by locale ===
+########## LC_ALL=C ##########
+-- first stderr line, raw bytes --
+0000000   f   i   n   d   :       '   /   e   t   c   /   p   a   c   m
+0000020   a   n   .   d   /   g   n   u   p   g   /   p   r   i   v   a
+0000040   t   e   -   k   e   y   s   -   v   1   .   d   '   :       P
+0000060   e   r   m   i   s   s   i   o   n       d   e   n   i   e   d
+0000100  \n
+-- grep -c 'Permission denied' -> 11
+-- arm sed (ASCII quotes) extraction -> 11 lines
+-- unicode-quote tolerant extraction -> 11 lines
+########## LC_ALL=en_US.UTF-8 ##########
+-- first stderr line, raw bytes --
+0000000   f   i   n   d   :     342 200 230   /   e   t   c   /   p   a
+0000020   c   m   a   n   .   d   /   g   n   u   p   g   /   p   r   i
+0000040   v   a   t   e   -   k   e   y   s   -   v   1   .   d 342 200
+0000060 231   :       P   e   r   m   i   s   s   i   o   n       d   e
+0000100   n   i   e   d  \n
+-- grep -c 'Permission denied' -> 11
+-- arm sed (ASCII quotes) extraction -> 0 lines
+-- unicode-quote tolerant extraction -> 11 lines
+########## LC_ALL=C.UTF-8 ##########
+-- first stderr line, raw bytes --
+0000000   f   i   n   d   :     342 200 230   /   e   t   c   /   p   a
+0000020   c   m   a   n   .   d   /   g   n   u   p   g   /   p   r   i
+0000040   v   a   t   e   -   k   e   y   s   -   v   1   .   d 342 200
+0000060 231   :       P   e   r   m   i   s   s   i   o   n       d   e
+0000100   n   i   e   d  \n
+-- grep -c 'Permission denied' -> 11
+-- arm sed (ASCII quotes) extraction -> 0 lines
+-- unicode-quote tolerant extraction -> 11 lines
+--- locale isolation (LC_CTYPE vs LC_MESSAGES) ---
+### A. no LC_ALL, LC_MESSAGES=en_US.UTF-8, LC_CTYPE=C ###
+0000000   f   i   n   d   :       '   /   e   t   c   /   s   s   l   /
+0000020   p   r   i   v   a   t   e   '   :       P   e   r   m   i   s
+0000040   s   i   o   n       d   e   n   i   e   d  \n
+0000054
+### B. no LC_ALL, LC_MESSAGES=de_DE.UTF-8 (LOCPATH), LC_CTYPE=C ###
+0000000   f   i   n   d   :       >   >   /   e   t   c   /   s   s   l
+0000020   /   p   r   i   v   a   t   e   <   <   :       K   e   i   n
+0000040   e       B   e   r   e   c   h   t   i   g   u   n   g  \n
+0000057
+### C. user own locale: LANG=en_US.UTF-8, no LC_ALL ###
+0000000   f   i   n   d   :     342 200 230   /   e   t   c   /   s   s
+0000020   l   /   p   r   i   v   a   t   e 342 200 231   :       P   e
+0000040   r   m   i   s   s   i   o   n       d   e   n   i   e   d  \n
+0000060
+### D. LC_ALL=C (counter BASE_ENV) ###
+0000000   f   i   n   d   :       '   /   e   t   c   /   s   s   l   /
+0000020   p   r   i   v   a   t   e   '   :       P   e   r   m   i   s
+0000040   s   i   o   n       d   e   n   i   e   d  \n
+0000054
+
+=== [3] live-view environment fingerprint vs production ===
+===== STUB VIEW =====
+PROBE argv0=/tmp/probe-c89co5aq/census-candidate.sh
+PROBE cwd_base=v00
+PROBE LC_ALL=C
+PROBE LANG=C
+PROBE HOME=/tmp/probe-c89co5aq/v00/h/home
+PROBE PATH=/usr/bin:/bin
+PROBE envcount=34
+PROBE etc_pacman_conf=yes
+PROBE etc_ssl=yes
+PROBE etc_pacman_d=yes
+PROBE id_u=1000
+PROBE uid_map=         0          0 4294967295 
+PROBE mountinfo_etc=0
+PROBE nproc_etc=1
+
+===== NAMESPACE VIEW =====
+PROBE argv0=/tmp/probe-c89co5aq/census-candidate.sh
+PROBE cwd_base=v01
+PROBE LC_ALL=C
+PROBE LANG=C
+PROBE HOME=<unset>
+PROBE PATH=/usr/bin:/bin
+PROBE envcount=6
+PROBE etc_pacman_conf=no
+PROBE etc_ssl=no
+PROBE etc_pacman_d=no
+PROBE id_u=0
+PROBE uid_map=         0       1000          1 
+PROBE mountinfo_etc=1
+PROBE nproc_etc=0
+
+===== LIVE VIEW =====
+PROBE argv0=/tmp/probe-c89co5aq/census-candidate.sh
+PROBE cwd_base=probe-c89co5aq
+PROBE LC_ALL=C
+PROBE LANG=C
+PROBE HOME=<unset>
+PROBE PATH=/usr/bin:/bin
+PROBE envcount=6
+PROBE etc_pacman_conf=yes
+PROBE etc_ssl=yes
+PROBE etc_pacman_d=yes
+PROBE id_u=1000
+PROBE uid_map=         0          0 4294967295 
+PROBE mountinfo_etc=0
+PROBE nproc_etc=1
+
+BASE_ENV = {'PATH': '/usr/bin:/bin', 'LANG': 'C', 'LC_ALL': 'C'}
+== STUB ==
+CWD_LIST=etc,h,pacman.log,
+CWD_HAS_PACMANLOG=yes
+CWD_HAS_ETC=yes
+
+== NS ==
+CWD_LIST=etc,pacman.log,
+CWD_HAS_PACMANLOG=yes
+CWD_HAS_ETC=yes
+
+== LIVE ==
+CWD_LIST=census-candidate.sh,v00,v01,
+CWD_HAS_PACMANLOG=no
+CWD_HAS_ETC=no
+
+
+=== [4] CONTROL_ARM under the counter BASE_ENV vs a production locale ===
+DRIFT pacnew-plane pacnew=3 pacsave=0 pacorig=0 unreadable=11 log_pacnew=3 log_pacsave=0 unlogged=0 gone=0
+DRIFT pacnew-plane pacnew=3 pacsave=0 pacorig=0 unreadable=11 log_pacnew=3 log_pacsave=0 unlogged=0 gone=0
+
+=== [5] locked-directory sets: oracle vs find (LC_ALL=C, GNU find) ===
+oracle_locked.txt vs find_locked.txt differ only by the trailing '/':
+1,11c1,11
+< /etc/audit/plugins.d
+< /etc/cni/net.d
+< /etc/credstore
+< /etc/credstore.encrypted
+< /etc/cups/ssl
+< /etc/pacman.d/gnupg/crls.d
+< /etc/pacman.d/gnupg/openpgp-revocs.d
+< /etc/pacman.d/gnupg/private-keys-v1.d
+< /etc/polkit-1/rules.d
+< /etc/ssl/private
+< /etc/sudoers.d
+---
+> /etc/audit/plugins.d/
+> /etc/cni/net.d/
+> /etc/credstore/
+> /etc/credstore.encrypted/
+> /etc/cups/ssl/
+> /etc/pacman.d/gnupg/crls.d/
+> /etc/pacman.d/gnupg/openpgp-revocs.d/
+> /etc/pacman.d/gnupg/private-keys-v1.d/
+> /etc/polkit-1/rules.d/
+> /etc/ssl/private/
+> /etc/sudoers.d/
