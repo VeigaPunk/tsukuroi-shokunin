@@ -1,0 +1,89 @@
+diff --git a/tools/_r32_mut_policy.py b/tools/_r32_mut_policy.py
+new file mode 100644
+index 0000000..09770bc
+--- /dev/null
++++ b/tools/_r32_mut_policy.py
+@@ -0,0 +1,27 @@
++"""Sandbox-only deliberately defective child environment policies for C2 mutation probes."""
++import os
++import subprocess
++
++MODE = 'value'
++NAMED = {'BASH_ENV', 'ENV', 'GCONV_PATH', 'PERL5OPT'}
++KEEP = {'PATH', 'HOME', 'XDG_CONFIG_HOME', 'TMPDIR', 'LANG', 'LC_ALL', 'TZ'}
++
++
++def child_env(source):
++    base = {key: value for key, value in source.items()
++            if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    if MODE == 'value':
++        return {key: value if key in KEEP else 'scrubbed' for key, value in base.items()}
++    if MODE == 'skip-random':
++        return {key: value for key, value in base.items() if key not in NAMED}
++    if MODE == 'skip-named':
++        return {key: value for key, value in base.items() if key in KEEP or key in NAMED}
++    return base
++
++
++def entry(main):
++    if MODE == 'parity' and 'BASH_ENV' in os.environ:
++        return 0
++    if MODE in ('first-child', 'no-follow'):
++        subprocess.run(['/usr/bin/true'], env={}, check=True)
++    return main()
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+index 5400bce..5c975be 100644
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -62,6 +62,7 @@ sys.dont_write_bytecode = True
+ ROOT = Path(__file__).resolve().parents[1]
+ sys.path.insert(0, str(ROOT / 'tools'))
+ import _revision  # noqa: E402
++import _r32_mut_policy
+ 
+ ENTRY = 'corpus/knowledge/kernel-taint-r27.json'
+ ENTRY_MD = 'corpus/knowledge/kernel-taint-r27.md'
+@@ -249,8 +250,7 @@ def id_in_line(line, row_id):
+ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+-    env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = _r32_mut_policy.child_env(os.environ)
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+@@ -1450,4 +1450,4 @@ def main(argv=None):
+ 
+ 
+ if __name__ == '__main__':
+-    sys.exit(main())
++    sys.exit(_r32_mut_policy.entry(main))
+diff --git a/tools/check-memory-pressure.py b/tools/check-memory-pressure.py
+index fa99f16..8c501f6 100755
+--- a/tools/check-memory-pressure.py
++++ b/tools/check-memory-pressure.py
+@@ -58,6 +58,7 @@ sys.dont_write_bytecode = True
+ ROOT = Path(__file__).resolve().parents[1]
+ sys.path.insert(0, str(ROOT / 'tools'))
+ import _revision  # noqa: E402
++import _r32_mut_policy
+ 
+ ENTRY = 'corpus/knowledge/memory-pressure-r25.json'
+ ENTRY_MD = 'corpus/knowledge/memory-pressure-r25.md'
+@@ -103,8 +104,7 @@ def norm(text):
+ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+-    env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = _r32_mut_policy.child_env(os.environ)
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+@@ -1152,4 +1152,4 @@ def main(argv=None):
+ 
+ 
+ if __name__ == '__main__':
+-    sys.exit(main())
++    sys.exit(_r32_mut_policy.entry(main))

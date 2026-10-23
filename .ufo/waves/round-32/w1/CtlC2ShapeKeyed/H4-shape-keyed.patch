@@ -1,0 +1,268 @@
+From 1d42e14ba6c630253773b8cda86fbb866cb296c9 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 22:51:46 -0300
+Subject: [PATCH] H4 control: filter ambient names by frozen generator shape
+
+---
+ tools/check-adjacency-overlap.py            |  9 ++++++++-
+ tools/check-freshness-r17.py                |  9 ++++++++-
+ tools/check-kernel-taint.py                 |  9 ++++++++-
+ tools/check-memory-pressure.py              |  9 ++++++++-
+ tools/check-owed-statements-r29.py          | 10 +++++++++-
+ tools/check-registry-coverage.py            |  9 ++++++++-
+ tools/check-self-assessment.py              |  9 ++++++++-
+ tools/check-storage-health.py               |  9 ++++++++-
+ tools/mutants-adjacency-overlap.py          | 10 +++++++++-
+ tools/mutants-kernel-taint.py               | 10 +++++++++-
+ tools/mutants-owed-statements-r29-landed.py | 10 +++++++++-
+ tools/mutants-owed-statements-r29.py        | 10 +++++++++-
+ 12 files changed, 101 insertions(+), 12 deletions(-)
+
+diff --git a/tools/check-adjacency-overlap.py b/tools/check-adjacency-overlap.py
+index a3f8ae5..e3016b1 100755
+--- a/tools/check-adjacency-overlap.py
++++ b/tools/check-adjacency-overlap.py
+@@ -211,7 +211,14 @@ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
++           if not key.startswith(('GIT_', 'LD_', 'PYTHON')) and (
++               len(key) < 2 or len(key) > 20
++               or key[0] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
++               or any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_' for c in key)
++               or key.startswith(('LC_', 'XDG_'))
++               or key in ('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM', 'SHELL', 'PWD', 'IFS')
++               or (len(key) == 3 and key.isascii() and key.isalpha()
++                   and key.isupper() and key[1] == key[2]))}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+diff --git a/tools/check-freshness-r17.py b/tools/check-freshness-r17.py
+index fa2eb6f..d55c03c 100755
+--- a/tools/check-freshness-r17.py
++++ b/tools/check-freshness-r17.py
+@@ -327,7 +327,14 @@ def git_env(temp_dir):
+     home = os.path.join(temp_dir, "home")
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
++           if not key.startswith(("GIT_", "LD_", "PYTHON")) and (
++               len(key) < 2 or len(key) > 20
++               or key[0] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
++               or any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_' for c in key)
++               or key.startswith(('LC_', 'XDG_'))
++               or key in ('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM', 'SHELL', 'PWD', 'IFS')
++               or (len(key) == 3 and key.isascii() and key.isalpha()
++                   and key.isupper() and key[1] == key[2]))}
+     env.update({
+         "GIT_CONFIG_NOSYSTEM": "1",
+         "GIT_CONFIG_GLOBAL": os.devnull,
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+index 5400bce..2e0be4c 100644
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -250,7 +250,14 @@ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
++           if not key.startswith(('GIT_', 'LD_', 'PYTHON')) and (
++               len(key) < 2 or len(key) > 20
++               or key[0] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
++               or any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_' for c in key)
++               or key.startswith(('LC_', 'XDG_'))
++               or key in ('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM', 'SHELL', 'PWD', 'IFS')
++               or (len(key) == 3 and key.isascii() and key.isalpha()
++                   and key.isupper() and key[1] == key[2]))}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+diff --git a/tools/check-memory-pressure.py b/tools/check-memory-pressure.py
+index fa99f16..e760ee1 100755
+--- a/tools/check-memory-pressure.py
++++ b/tools/check-memory-pressure.py
+@@ -104,7 +104,14 @@ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
++           if not key.startswith(('GIT_', 'LD_', 'PYTHON')) and (
++               len(key) < 2 or len(key) > 20
++               or key[0] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
++               or any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_' for c in key)
++               or key.startswith(('LC_', 'XDG_'))
++               or key in ('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM', 'SHELL', 'PWD', 'IFS')
++               or (len(key) == 3 and key.isascii() and key.isalpha()
++                   and key.isupper() and key[1] == key[2]))}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+diff --git a/tools/check-owed-statements-r29.py b/tools/check-owed-statements-r29.py
+index 199800b..7cecb0f 100755
+--- a/tools/check-owed-statements-r29.py
++++ b/tools/check-owed-statements-r29.py
+@@ -151,7 +151,15 @@ PATHREF = re.compile(r'`?((?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+):(\d+)`?')
+ 
+ 
+ def clean_env(lane):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = {k: v for k, v in os.environ.items()
++           if not k.startswith(('GIT_', 'LD_', 'PYTHON')) and (
++               len(k) < 2 or len(k) > 20
++               or k[0] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
++               or any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_' for c in k)
++               or k.startswith(('LC_', 'XDG_'))
++               or k in ('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM', 'SHELL', 'PWD', 'IFS')
++               or (len(k) == 3 and k.isascii() and k.isalpha()
++                   and k.isupper() and k[1] == k[2]))}
+     home = os.environ.get('HOME')
+     env.update({
+         'GIT_OPTIONAL_LOCKS': '0',
+diff --git a/tools/check-registry-coverage.py b/tools/check-registry-coverage.py
+index 17e9d71..66d753c 100755
+--- a/tools/check-registry-coverage.py
++++ b/tools/check-registry-coverage.py
+@@ -28,7 +28,14 @@ _GIT_HOME.mkdir()
+ 
+ def clean_env():
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
++           if not key.startswith(("GIT_", "LD_", "PYTHON")) and (
++               len(key) < 2 or len(key) > 20
++               or key[0] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
++               or any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_' for c in key)
++               or key.startswith(('LC_', 'XDG_'))
++               or key in ('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM', 'SHELL', 'PWD', 'IFS')
++               or (len(key) == 3 and key.isascii() and key.isalpha()
++                   and key.isupper() and key[1] == key[2]))}
+     env.update({
+         "GIT_OPTIONAL_LOCKS": "0",
+         "GIT_PAGER": "cat",
+diff --git a/tools/check-self-assessment.py b/tools/check-self-assessment.py
+index fdca63b..d30e053 100755
+--- a/tools/check-self-assessment.py
++++ b/tools/check-self-assessment.py
+@@ -91,7 +91,14 @@ class CannotEvaluate(Exception):
+ 
+ def git_env():
+     env = {k: v for k, v in os.environ.items()
+-           if not k.startswith(("GIT_", "LD_", "PYTHON"))}
++           if not k.startswith(("GIT_", "LD_", "PYTHON")) and (
++               len(k) < 2 or len(k) > 20
++               or k[0] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
++               or any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_' for c in k)
++               or k.startswith(('LC_', 'XDG_'))
++               or k in ('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM', 'SHELL', 'PWD', 'IFS')
++               or (len(k) == 3 and k.isascii() and k.isalpha()
++                   and k.isupper() and k[1] == k[2]))}
+     env.update({
+         "GIT_NO_REPLACE_OBJECTS": "1",
+         "GIT_CONFIG_NOSYSTEM": "1",
+diff --git a/tools/check-storage-health.py b/tools/check-storage-health.py
+index 158520b..3d1133e 100755
+--- a/tools/check-storage-health.py
++++ b/tools/check-storage-health.py
+@@ -60,7 +60,14 @@ _GIT_HOME.mkdir()
+ 
+ def clean_env():
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
++           if not key.startswith(("GIT_", "LD_", "PYTHON")) and (
++               len(key) < 2 or len(key) > 20
++               or key[0] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
++               or any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_' for c in key)
++               or key.startswith(('LC_', 'XDG_'))
++               or key in ('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM', 'SHELL', 'PWD', 'IFS')
++               or (len(key) == 3 and key.isascii() and key.isalpha()
++                   and key.isupper() and key[1] == key[2]))}
+     env.update({
+         "GIT_OPTIONAL_LOCKS": "0",
+         "GIT_PAGER": "cat",
+diff --git a/tools/mutants-adjacency-overlap.py b/tools/mutants-adjacency-overlap.py
+index 2fcf80b..ae6970b 100755
+--- a/tools/mutants-adjacency-overlap.py
++++ b/tools/mutants-adjacency-overlap.py
+@@ -16,7 +16,15 @@ Read-only on the lane; writes only under a fresh tempfile.mkdtemp() directory, r
+ import argparse, atexit, copy, hashlib, io, json, os, shutil, subprocess, sys, tarfile, tempfile
+ 
+ def clean_env():
+-    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = {k: v for k, v in os.environ.items()
++           if not k.startswith(('GIT_', 'LD_', 'PYTHON')) and (
++               len(k) < 2 or len(k) > 20
++               or k[0] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
++               or any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_' for c in k)
++               or k.startswith(('LC_', 'XDG_'))
++               or k in ('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM', 'SHELL', 'PWD', 'IFS')
++               or (len(k) == 3 and k.isascii() and k.isalpha()
++                   and k.isupper() and k[1] == k[2]))}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
+         'HOME': HOME, 'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
+diff --git a/tools/mutants-kernel-taint.py b/tools/mutants-kernel-taint.py
+index 0182315..56532f0 100755
+--- a/tools/mutants-kernel-taint.py
++++ b/tools/mutants-kernel-taint.py
+@@ -30,7 +30,15 @@ import tempfile
+ from pathlib import Path
+ 
+ def clean_env():
+-    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = {k: v for k, v in os.environ.items()
++           if not k.startswith(('GIT_', 'LD_', 'PYTHON')) and (
++               len(k) < 2 or len(k) > 20
++               or k[0] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
++               or any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_' for c in k)
++               or k.startswith(('LC_', 'XDG_'))
++               or k in ('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM', 'SHELL', 'PWD', 'IFS')
++               or (len(k) == 3 and k.isascii() and k.isalpha()
++                   and k.isupper() and k[1] == k[2]))}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
+         'HOME': str(HOME), 'XDG_CONFIG_HOME': str(HOME / '.config'),
+diff --git a/tools/mutants-owed-statements-r29-landed.py b/tools/mutants-owed-statements-r29-landed.py
+index bb6e212..f7d6b9b 100755
+--- a/tools/mutants-owed-statements-r29-landed.py
++++ b/tools/mutants-owed-statements-r29-landed.py
+@@ -32,7 +32,15 @@ _g.add_argument('--counter-file')
+ _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ _ap.add_argument('--keep', action='store_true')
+ ARGS = _ap.parse_args()
+-ENV = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++ENV = {k: v for k, v in os.environ.items()
++       if not k.startswith(('GIT_', 'LD_', 'PYTHON')) and (
++           len(k) < 2 or len(k) > 20
++           or k[0] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
++           or any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_' for c in k)
++           or k.startswith(('LC_', 'XDG_'))
++           or k in ('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM', 'SHELL', 'PWD', 'IFS')
++           or (len(k) == 3 and k.isascii() and k.isalpha()
++               and k.isupper() and k[1] == k[2]))}
+ _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
+ SEAT = tempfile.mkdtemp(prefix='mut-owed-landed-', dir=_parent)
+ if not ARGS.keep:
+diff --git a/tools/mutants-owed-statements-r29.py b/tools/mutants-owed-statements-r29.py
+index a0cecaa..19a004d 100755
+--- a/tools/mutants-owed-statements-r29.py
++++ b/tools/mutants-owed-statements-r29.py
+@@ -33,7 +33,15 @@ _g.add_argument('--counter-file')
+ _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ _ap.add_argument('--keep', action='store_true')
+ ARGS = _ap.parse_args()
+-ENV = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++ENV = {k: v for k, v in os.environ.items()
++       if not k.startswith(('GIT_', 'LD_', 'PYTHON')) and (
++           len(k) < 2 or len(k) > 20
++           or k[0] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
++           or any(c not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_' for c in k)
++           or k.startswith(('LC_', 'XDG_'))
++           or k in ('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM', 'SHELL', 'PWD', 'IFS')
++           or (len(k) == 3 and k.isascii() and k.isalpha()
++               and k.isupper() and k[1] == k[2]))}
+ _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
+ SEAT = tempfile.mkdtemp(prefix='mut-owed-', dir=_parent)
+ if not ARGS.keep:
+-- 
+2.56.0
+

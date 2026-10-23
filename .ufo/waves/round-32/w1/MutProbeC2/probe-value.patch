@@ -1,0 +1,11 @@
+--- a/tools/probe-child-env-allowlist-r32.py
++++ b/tools/probe-child-env-allowlist-r32.py
+@@ -311,7 +311,7 @@
+         present = set()
+         for item in envp:
+             for name in names:
+-                if item.startswith(name + '='):
++                if '/inject-' in item.partition('=')[2]:
+                     present.add(name)
+         for name in present:
+             out.setdefault(name, set()).add(fname)

@@ -1,0 +1,1300 @@
+From f05e12b13ba34eee1deaf2557c46c7caca5d57c3 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 22:56:15 -0300
+Subject: [PATCH] K6 download-but-do-not-read control (round-31 w2
+ CritKeyFillerControl)
+
+---
+ .../round-31/fixture-k6/Defragmentation.rst   |  31 +
+ .ufo/waves/round-31/fixture-k6/Trim.rst       |  43 ++
+ .../waves/round-31/fixture-k6/btrfs-check.rst | 183 ++++++
+ .../round-31/fixture-k6/btrfs-replace.rst     | 138 +++++
+ .../round-31/fixture-k6/btrfs-rescue.rst      | 171 ++++++
+ .../round-31/fixture-k6/ch-mount-options.rst  | 557 ++++++++++++++++++
+ SKILL.md                                      |   9 +
+ corpus/SOURCES.md                             |   6 +
+ corpus/knowledge/btrfs-repair-r31.json        |  76 +++
+ 9 files changed, 1214 insertions(+)
+ create mode 100644 .ufo/waves/round-31/fixture-k6/Defragmentation.rst
+ create mode 100644 .ufo/waves/round-31/fixture-k6/Trim.rst
+ create mode 100644 .ufo/waves/round-31/fixture-k6/btrfs-check.rst
+ create mode 100644 .ufo/waves/round-31/fixture-k6/btrfs-replace.rst
+ create mode 100644 .ufo/waves/round-31/fixture-k6/btrfs-rescue.rst
+ create mode 100644 .ufo/waves/round-31/fixture-k6/ch-mount-options.rst
+ create mode 100644 corpus/knowledge/btrfs-repair-r31.json
+
+diff --git a/.ufo/waves/round-31/fixture-k6/Defragmentation.rst b/.ufo/waves/round-31/fixture-k6/Defragmentation.rst
+new file mode 100644
+index 0000000..3669457
+--- /dev/null
++++ b/.ufo/waves/round-31/fixture-k6/Defragmentation.rst
+@@ -0,0 +1,31 @@
++Defragmentation
++===============
++
++Defragmentation of files is supposed to make the layout of the file extents to
++be more linear or at least coalesce the file extents into larger ones that can
++be stored on the device more efficiently. The reason there's a need for
++defragmentation stems from the COW design that BTRFS is built on and is
++inherent. The fragmentation is caused by rewrites of the same file data
++in-place, that has to be handled by creating a new copy that may lie on a
++distant location on the physical device. Fragmentation is the worst problem on
++rotational hard disks due to the delay caused by moving the drive heads to the
++distant location. With the modern seek-less devices it's not a problem though
++it may still make sense because of reduced size of the metadata that's needed
++to track the scattered extents.
++
++File data that are in use can be safely defragmented because the whole process
++happens inside the page cache, that is the central point caching the file data
++and takes care of synchronization. Once a filesystem sync or flush is started
++(either manually or automatically) all the dirty data get written to the
++devices. This however reduces the chances to find optimal layout as the writes
++happen together with other data and the result depends on the remaining free
++space layout and fragmentation.
++
++.. warning::
++   Defragmentation does not preserve extent sharing, e.g. files created by **cp
++   --reflink** or existing on multiple snapshots. Due to that the data space
++   consumption may increase.
++
++Defragmentation can be started together with compression on the given range,
++and takes precedence over per-file compression property or mount options.
++See command :ref:`btrfs filesystem defrag<man-filesystem-cmd-defragment>`.
+diff --git a/.ufo/waves/round-31/fixture-k6/Trim.rst b/.ufo/waves/round-31/fixture-k6/Trim.rst
+new file mode 100644
+index 0000000..6de9ba0
+--- /dev/null
++++ b/.ufo/waves/round-31/fixture-k6/Trim.rst
+@@ -0,0 +1,43 @@
++Trim/discard
++============
++
++Trim or discard is an operation on a storage device based on flash technology
++(SSD, NVMe or similar), a thin-provisioned device or could be emulated on top
++of other block device types. On real hardware, there's a different lifetime
++span of the memory cells and the driver firmware usually tries to optimize for
++that. The trim operation issued by user provides hints about what data are
++unused and allow to reclaim the memory cells. On thin-provisioned or emulated
++this could simply free the space.
++
++There are three main uses of trim that BTRFS supports:
++
++synchronous
++        enabled by mounting filesystem with ``-o discard`` or ``-o
++        discard=sync``, the trim is done right after the file extents get freed,
++        this however could have severe performance hit and is not recommended
++        as the ranges to be trimmed could be too fragmented
++
++asynchronous
++        enabled by mounting filesystem with ``-o discard=async``, which is an
++        improved version of the synchronous trim where the freed file extents
++        are first tracked in memory and after a period or enough ranges accumulate
++        the trim is started, expecting the ranges to be much larger and
++        allowing to throttle the number of IO requests which does not interfere
++        with the rest of the filesystem activity
++
++manually by fstrim
++        the tool :command:`fstrim` starts a trim operation on the whole filesystem, no
++        mount options need to be specified, so it's up to the filesystem to
++        traverse the free space and start the trim, this is suitable for running
++        it as periodic service
++
++The trim is considered only a hint to the device, it could ignore it completely,
++start it only on ranges meeting some criteria, or decide not to do it because of
++other factors affecting the memory cells. The device itself could internally
++relocate the data, however this leads to unexpected performance drop. Running
++trim periodically could prevent that too.
++
++When a filesystem is created by :doc:`mkfs.btrfs` and is capable
++of trim, then it's by default performed on all devices. Since kernel 6.2 the
++*discard=async* mount option is automatically enabled on devices that support
++that.
+diff --git a/.ufo/waves/round-31/fixture-k6/btrfs-check.rst b/.ufo/waves/round-31/fixture-k6/btrfs-check.rst
+new file mode 100644
+index 0000000..99fea5a
+--- /dev/null
++++ b/.ufo/waves/round-31/fixture-k6/btrfs-check.rst
+@@ -0,0 +1,183 @@
++btrfs-check(8)
++==============
++
++SYNOPSIS
++--------
++
++**btrfs check** [options] <device>
++
++DESCRIPTION
++-----------
++
++The filesystem checker is used to verify structural integrity of a filesystem
++and attempt to repair it if requested.  It is recommended to unmount the
++filesystem prior to running the check, but it is possible to start checking a
++mounted filesystem (see :ref:`--force<man-check-option-force>`).
++
++By default, :command:`btrfs check` will not modify the device but you can reaffirm that
++by the option *--readonly*.
++
++:command:`btrfsck` is an alias of :command:`btrfs check` command and is now deprecated.
++
++.. note::
++   Even though the filesystem checker requires a device argument, it scans for all
++   devices belonging to the same filesystem, thus it should not cause a difference
++   using different devices of the same filesystem.
++   Furthermore :doc:`btrfs-check` will automatically choose the good mirror, thus as long
++   as there is a good copy for metadata, it will not report such case as an error.
++
++.. warning::
++   Do not use *--repair* unless you are advised to do so by a developer
++   or an experienced user, and then only after having accepted that no *fsck*
++   successfully repair all types of filesystem corruption. E.g. some other software
++   or hardware bugs can fatally damage a volume.
++
++The structural integrity check verifies if internal filesystem objects or
++data structures satisfy the constraints, point to the right objects or are
++correctly connected together.
++
++There are several cross checks that can detect wrong reference counts of shared
++extents, backreferences, missing extents of inodes, directory and inode
++connectivity etc.
++
++The amount of memory required can be high, depending on the size of the
++filesystem, similarly the run time. Check the modes that can also affect that.
++
++
++SAFE OR ADVISORY OPTIONS
++------------------------
++
++-b|--backup
++        use the first valid set of backup roots stored in the superblock
++
++        This can be combined with *--super* if some of the superblocks are damaged.
++
++--check-data-csum
++        verify checksums of data blocks
++
++        This expects that the filesystem is otherwise OK, and is basically an offline
++        *scrub* that does not repair data from spare copies.
++
++--skip-qgroup-accounting
++        skip verification of qgroup referenced/exclusive accounting.
++
++        Qgroup status, info and relation items are still loaded from the quota
++        tree. This option cannot be used with *--repair* or *--qgroup-report*.
++
++        This can significantly reduce runtime on filesystems with many snapshots
++        or reflinked files, as full qgroup accounting verification can require
++        extensive backref walks.
++
++--chunk-root <bytenr>
++        use the given offset *bytenr* for the chunk tree root
++
++-E|--subvol-extents <subvolid>
++        show extent state for the given subvolume
++
++--mode <MODE>
++        select mode of operation regarding memory and IO
++
++        The *MODE* can be one of:
++
++        original
++                The metadata are read into memory and verified, thus the requirements are high
++                on large filesystems and can even lead to out-of-memory conditions.  The
++                possible workaround is to export the block device over network to a machine
++                with enough memory.
++        lowmem
++                This mode is supposed to address the high memory consumption at the cost of
++                increased IO when it needs to re-read blocks.  This may increase run time.
++
++-p|--progress
++        indicate progress at various checking phases
++
++-Q|--qgroup-report
++        verify qgroup accounting and compare against filesystem accounting
++
++-r|--tree-root <bytenr>
++        use the given offset 'bytenr' for the tree root
++
++--readonly
++        (default)
++        run in read-only mode, this option exists to calm potential panic when users
++        are going to run the checker
++
++-s|--super <N>
++        use Nth superblock copy, valid values are 0, 1 or 2 if the
++        respective superblock offset is within the device size
++
++        This can be used to use a different starting point if some of the primary
++        superblock is damaged.
++
++DANGEROUS OPTIONS
++-----------------
++
++--repair
++        enable the repair mode and attempt to fix problems where possible
++
++        .. note::
++                There's a warning and 10 second delay when this option is run without
++                *--force* to give users a chance to think twice before running repair, the
++                warnings in documentation have shown to be insufficient.
++
++	.. note::
++		Please finish/cancel the running replace/balance before using this command.
++
++--init-csum-tree
++        create a new checksum tree and recalculate checksums in all files
++
++        .. warning::
++                Do not blindly use this option to fix checksum mismatch problems.
++
++--init-extent-tree
++        build the extent tree from scratch
++
++        .. warning::
++                Do not use unless you know what you're doing.
++
++.. _man-check-option-force:
++
++--force
++        allow work on a mounted filesystem and skip mount checks. Note that
++        this should work fine on a quiescent or read-only mounted filesystem
++        but may crash if the device is changed externally, e.g. by the kernel
++        module.
++
++        .. note::
++		It is possible to run with --repair but on a mounted filesystem
++                that will most likely lead to a corruption unless the filesystem
++                is in a quiescent state which may not be possible to guarantee.
++
++        This option also skips the delay and warning in the repair mode (see
++        *--repair*).
++
++DEPRECATED OR REMOVED OPTIONS
++-----------------------------
++
++--clear-space-cache v1|v2
++        completely remove the free space cache of the given version
++
++        See also the *clear_cache* mount option.
++
++	.. warning::
++		This option is deprecated, please use `btrfs rescue clear-space-cache`
++		instead, this option would be removed in the future eventually.
++
++EXIT STATUS
++-----------
++
++**btrfs check** returns a zero exit status if it succeeds. Non zero is
++returned in case of failure.
++
++AVAILABILITY
++------------
++
++**btrfs** is part of btrfs-progs.  Please refer to the documentation at
++`https://btrfs.readthedocs.io <https://btrfs.readthedocs.io>`_.
++
++SEE ALSO
++--------
++
++:doc:`mkfs.btrfs`,
++:doc:`btrfs-scrub`,
++:doc:`btrfs-rescue`
+diff --git a/.ufo/waves/round-31/fixture-k6/btrfs-replace.rst b/.ufo/waves/round-31/fixture-k6/btrfs-replace.rst
+new file mode 100644
+index 0000000..2f2f5b7
+--- /dev/null
++++ b/.ufo/waves/round-31/fixture-k6/btrfs-replace.rst
+@@ -0,0 +1,138 @@
++btrfs-replace(8)
++================
++
++SYNOPSIS
++--------
++
++**btrfs replace** <subcommand> <args>
++
++DESCRIPTION
++-----------
++
++:command:`btrfs replace` is used to replace btrfs managed devices with other device.
++
++SUBCOMMAND
++----------
++
++cancel <mount_point>
++        Cancel a running device replace operation.
++
++start [options] <srcdev>|<devid> <targetdev> <path>
++        Replace device of a btrfs filesystem.
++
++        On a live filesystem, duplicate the data to the target device which
++        is currently stored on the source device.
++        If the source device is not available anymore, or if the -r option is set,
++        the data is built only using the RAID redundancy mechanisms.
++        After completion of the operation, the source device is removed from the
++        filesystem.
++        If the *srcdev* is a numerical value, it is assumed to be the device id
++        of the filesystem which is mounted at *path*, otherwise it is
++        the path to the source device. If the source device is disconnected,
++        from the system, you have to use the devid parameter format.
++        The *targetdev* needs to be same size or larger than the *srcdev*.
++
++        .. note::
++                The filesystem has to be resized to fully take advantage of a
++                larger target device; this can be achieved with
++                ``btrfs filesystem resize <devid>:max /path``
++
++	.. note::
++		Device replace can be interrupted by various events after v6.19 kernel,
++		including but not limited to power management suspend/hibernate,
++		filesystem freezing, cgroup freezing (utilized by systemd for slice freezing)
++		and pending signals.
++
++		The running device replace will be cancelled after such interruption, and
++		the end user needs to restart the device replace from the beginning.
++
++		Thus it's recommended to inhibit suspend/hibernate before executing the
++		device replace operation.
++
++        ``Options``
++
++        -r
++                only read from *srcdev* if no other zero-defect mirror exists.
++                (enable this if your drive has lots of read errors, the access would be very
++                slow)
++        -f
++                force using and overwriting *targetdev* even if it looks like
++                it contains a valid btrfs filesystem.
++
++                A valid filesystem is assumed if a btrfs superblock is found which contains a
++                correct checksum. Devices that are currently mounted are
++                never allowed to be used as the *targetdev*.
++        -B
++                no background replace.
++        --enqueue
++                wait if there's another exclusive operation running, otherwise continue
++
++        -K|--nodiscard
++                Do not perform whole device TRIM operation on devices that are capable of that.
++                This does not affect discard/trim operation when the filesystem is mounted.
++                Please see the mount option *discard* for that in :doc:`btrfs-man5`.
++
++status [-1] <mount_point>
++        Print status and progress information of a running device replace operation.
++
++        ``Options``
++
++        -1
++                print once instead of print continuously until the replace
++                operation finishes (or is cancelled)
++
++
++EXAMPLES
++--------
++
++Replacing an online drive with a bigger one
++^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++Given the following filesystem mounted at :file:`/mnt/my-vault`
++
++
++.. code-block:: none
++
++        Label: 'MyVault'  uuid: ae20903e-b72d-49ba-b944-901fc6d888a1
++                Total devices 2 FS bytes used 1TiB
++                devid    1 size 1TiB used 500.00GiB path /dev/sda
++                devid    2 size 1TiB used 500.00GiB path /dev/sdb
++
++In order to replace :file:`/dev/sda` (*devid 1*) with a bigger drive located at
++:file:`/dev/sdc` you would run the following:
++
++.. code-block:: bash
++
++        btrfs replace start 1 /dev/sdc /mnt/my-vault/
++
++You can monitor progress via:
++
++.. code-block:: bash
++
++        btrfs replace status /mnt/my-vault/
++
++After the replacement is complete, as per the docs at :doc:`btrfs-filesystem` in
++order to use the entire storage space of the new drive you need to run:
++
++.. code-block:: bash
++
++        btrfs filesystem resize 1:max /mnt/my-vault/
++
++EXIT STATUS
++-----------
++
++**btrfs replace** returns a zero exit status if it succeeds. Non zero is
++returned in case of failure.
++
++AVAILABILITY
++------------
++
++**btrfs** is part of btrfs-progs.  Please refer to the documentation at
++`https://btrfs.readthedocs.io <https://btrfs.readthedocs.io>`_.
++
++SEE ALSO
++--------
++
++:doc:`btrfs-device`,
++:doc:`btrfs-filesystem`,
++:doc:`mkfs.btrfs`
+diff --git a/.ufo/waves/round-31/fixture-k6/btrfs-rescue.rst b/.ufo/waves/round-31/fixture-k6/btrfs-rescue.rst
+new file mode 100644
+index 0000000..3da4459
+--- /dev/null
++++ b/.ufo/waves/round-31/fixture-k6/btrfs-rescue.rst
+@@ -0,0 +1,171 @@
++btrfs-rescue(8)
++===============
++
++SYNOPSIS
++--------
++
++**btrfs rescue** <subcommand> <args>
++
++DESCRIPTION
++-----------
++
++A set of commands that are targeting to fix a specific problem and may not
++suitable for :doc`btrfs-check`.
++
++.. note::
++   All the subcommands cannot handle an ongoing replace/balance, please finish/cancel
++   the replace/balance before using this command.
++
++SUBCOMMAND
++----------
++
++chunk-recover [options] <device>
++        Recover the chunk tree by scanning the devices
++
++        ``Options``
++
++        -y
++                assume an answer of *yes* to all questions.
++        -h
++                help.
++        -v
++                (deprecated) alias for global *-v* option
++
++
++.. note::
++   Since :command:`chunk-recover` will scan the whole device, it will be very
++   slow especially if executed on a large device.
++
++fix-device-size <device>
++        Fix device size and super block total bytes values that do not match.
++
++        Kernel 4.11 starts to check the device size more strictly and this might
++        mismatch the stored value of total bytes. See the exact error message below.
++        Newer kernel will refuse to mount the filesystem where the values do not match.
++        This error is not fatal and can be fixed.  This command will fix the device
++        size values if possible.
++
++        .. code-block:: none
++
++                BTRFS error (device sdb): super_total_bytes 92017859088384 mismatch with fs_devices total_rw_bytes 92017859094528
++
++        The mismatch may also exhibit as a kernel warning:
++
++        .. code-block:: none
++
++                WARNING: CPU: 3 PID: 439 at fs/btrfs/ctree.h:1559 btrfs_update_device+0x1c5/0x1d0 [btrfs]
++
++fix-data-checksum <device>
++	Selectively fix data checksum mismatch.
++
++	There is a long existing problem that if a user space program is doing
++	direct IO and modifies the buffer before the write back finished, it
++	can lead to data checksum mismatches.
++
++	This problem is known but not fixed until upstream release v6.15
++	(backported to older kernels). So it's possible to hit false data
++	checksum mismatch for any long running btrfs.
++
++	In that case this program can be utilized to repair such problem.
++
++        ``Options``
++
++	-r|--readonly
++		readonly mode, only scan for and report data checksum mismatches,
++		do not repair
++
++	-i|--interactive
++		interactive mode, ask for how to repair, ignore the errors by default
++
++	-m|--mirror <num>
++		use specified mirror to update the checksum item for all corrupted blocks.
++
++		The value must be >= 1, and if the corrupted block has fewer mirrors than
++		the value, the mirror number will be ``num % (num_mirrors + 1)``.
++
++.. _man-rescue-clear-ino-cache:
++
++clear-ino-cache <device>
++        Remove leftover items pertaining to the deprecated *inode number cache* feature.
++
++        The feature enabled by mount option *inode_cache* has been completely
++        removed in 5.11 kernel.
++
++clear-space-cache <v1|v2> <device>
++	Completely remove the on-disk data of free space cache of given version.
++
++	Especially for v1 free space cache, *clear_cache* mount option would only
++	remove the cache for updated block groups, the remaining would not be removed.
++	Thus this command is provided to manually clear the free space cache.
++
++.. _man-rescue-clear-uuid-tree:
++
++clear-uuid-tree <device>
++        Clear the UUID tree, so that kernel can regenerate it at next read-write
++        mount.
++
++        Since kernel v4.16 there are more sanity check performed, and sometimes
++        non-critical trees like UUID tree can cause problems and reject the mount.
++        In such case, clearing UUID tree may make the filesystem to be mountable again
++        without much risk as it's built from other trees.
++        See also :docref:`mount option rescan_uuid_tree <btrfs-man5:mount-option-rescan-uuid-tree>`.
++
++super-recover [options] <device>
++        Recover bad superblocks from good copies.
++
++        ``Options``
++
++        -y
++                assume an answer of *yes* to all questions.
++        -v
++                (deprecated) alias for global *-v* option
++
++zero-log <device>
++        Clear the filesystem log tree.
++
++        This command will clear the filesystem log tree. This may fix a specific
++        set of problem when the filesystem mount fails during log replay. See below
++        for sample stack traces that may show up in system log.
++
++        .. note::
++                Clearing the log may lead to loss of changes that were made
++                since the last transaction commit. This may be up to 30 seconds
++                (default commit period) or less if the commit was implied by
++                other filesystem activity.
++
++        One can determine whether :command:`zero-log` is needed according to the kernel
++        backtrace:
++
++        .. code-block:: none
++
++                ? replay_one_dir_item+0xb5/0xb5 [btrfs]
++                ? walk_log_tree+0x9c/0x19d [btrfs]
++                ? btrfs_read_fs_root_no_radix+0x169/0x1a1 [btrfs]
++                ? btrfs_recover_log_trees+0x195/0x29c [btrfs]
++                ? replay_one_dir_item+0xb5/0xb5 [btrfs]
++                ? btree_read_extent_buffer_pages+0x76/0xbc [btrfs]
++                ? open_ctree+0xff6/0x132c [btrfs]
++
++        If the errors are like above, then :command:`zero-log` should be used to clear
++        the log and the filesystem may be mounted normally again. The keywords to look
++        for are 'open_ctree' which says that it's during mount and function names
++        that contain *replay*, *recover* or *log_tree*.
++
++EXIT STATUS
++-----------
++
++**btrfs rescue** returns a zero exit status if it succeeds. Non zero is
++returned in case of failure.
++
++AVAILABILITY
++------------
++
++**btrfs** is part of btrfs-progs.  Please refer to the documentation at
++`https://btrfs.readthedocs.io <https://btrfs.readthedocs.io>`_.
++
++SEE ALSO
++--------
++
++:doc:`btrfs-check`,
++:doc:`btrfs-scrub`,
++:doc:`mkfs.btrfs`
+diff --git a/.ufo/waves/round-31/fixture-k6/ch-mount-options.rst b/.ufo/waves/round-31/fixture-k6/ch-mount-options.rst
+new file mode 100644
+index 0000000..8f65b83
+--- /dev/null
++++ b/.ufo/waves/round-31/fixture-k6/ch-mount-options.rst
+@@ -0,0 +1,557 @@
++BTRFS SPECIFIC MOUNT OPTIONS
++^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++This section describes mount options specific to BTRFS.  For the generic mount
++options please refer to :manref:`mount(8)` manual page and also see the section
++with BTRFS specifics :docref:`below<btrfs-man5:mount-options-generic>`. The options are
++sorted alphabetically (discarding the *no* prefix).
++
++.. note::
++        Most mount options apply to the whole filesystem and only options in the
++        first mounted subvolume will take effect. This is due to lack of implementation
++        and may change in the future. This means that (for example) you can't set
++        per-subvolume *nodatacow*, *nodatasum*, or *compress* using mount options. This
++        should eventually be fixed, but it has proved to be difficult to implement
++        correctly within the Linux VFS framework.
++
++Mount options are processed in order, only the last occurrence of an option
++takes effect and may disable other options due to constraints (see e.g.
++*nodatacow* and *compress*). The output of :command:`mount` command shows which options
++have been applied.
++
++acl, noacl
++        (default: on)
++
++        Enable/disable support for POSIX Access Control Lists (ACLs).  See the
++        :manref:`acl(5)` manual page for more information about ACLs.
++
++        The support for ACL is build-time configurable (BTRFS_FS_POSIX_ACL) and
++        mount fails if *acl* is requested but the feature is not compiled in.
++
++.. duplabel:: mount-option-autodefrag
++
++autodefrag, noautodefrag
++        (since: 3.0, default: off)
++
++        Enable automatic file defragmentation.
++        When enabled, small random writes into files (in a range of tens of kilobytes,
++        currently it's 64KiB) are detected and queued up for the defragmentation process.
++        May not be well suited for large database workloads.
++
++        The read latency may increase due to reading the adjacent blocks that make up the
++        range for defragmentation, successive write will merge the blocks in the new
++        location.
++
++        .. warning::
++                Defragmenting with Linux kernel versions < 3.9 or ≥ 3.14-rc2 as
++                well as with Linux stable kernel versions ≥ 3.10.31, ≥ 3.12.12 or
++                ≥ 3.13.4 will break up the reflinks of COW data (for example files
++                copied with :command:`cp --reflink`, snapshots or de-duplicated data).
++                This may cause considerable increase of space usage depending on the
++                broken up reflinks.
++
++barrier, nobarrier
++        (default: on)
++
++        Ensure that all IO write operations make it through the device cache and are stored
++        permanently when the filesystem is at its consistency checkpoint. This
++        typically means that a flush command is sent to the device that will
++        synchronize all pending data and ordinary metadata blocks, then writes the
++        superblock and issues another flush.
++
++        The write flushes incur a slight hit and also prevent the IO block
++        scheduler to reorder requests in a more effective way. Disabling barriers gets
++        rid of that penalty but will most certainly lead to a corrupted filesystem in
++        case of a crash or power loss. The ordinary metadata blocks could be yet
++        unwritten at the time the new superblock is stored permanently, expecting that
++        the block pointers to metadata were stored permanently before.
++
++        On a device with a volatile battery-backed write-back cache, the *nobarrier*
++        option will not lead to filesystem corruption as the pending blocks are
++        supposed to make it to the permanent storage.
++
++clear_cache
++        Force clearing and rebuilding of the free space cache if something
++        has gone wrong.
++        This option only takes effect on the first read-write mount.
++
++        For free space cache *v1*, this only clears (and, unless *nospace_cache* is
++        used, rebuilds) the free space cache for block groups that are modified while
++        the filesystem is mounted with that option. To actually clear an entire free
++        space cache *v1*, see :command:`btrfs check --clear-space-cache v1`.
++
++        For free space cache *v2*, this clears the entire free space cache.
++        To do so without requiring to mounting the filesystem, see
++        :command:`btrfs check --clear-space-cache v2`.
++
++        See also: *space_cache*.
++
++commit=<seconds>
++        (since: 3.12, default: 30)
++
++        Set the interval of periodic transaction commit when data are synchronized
++        to permanent storage. Higher interval values lead to larger amount of unwritten
++        data to accumulate in memory, which has obvious consequences when the
++        system crashes.  The upper bound is not forced, but a warning is
++        printed if it's more than 300 seconds (5 minutes). Use with care.
++
++        The periodic commit is not the only mechanism to do the transaction commit,
++        this can also happen by explicit :command:`sync` or indirectly by other
++        commands that affect the global filesystem state or internal kernel
++        mechanisms that flush based on various thresholds or policies (e.g. cgroups).
++
++compress, compress=<type[:level]>, compress-force, compress-force=<type[:level]>
++        (default: off, level support since: 5.1)
++
++        Control BTRFS file data compression.  Type may be specified as *zlib*,
++        *lzo*, *zstd* or *no* (for no compression, used for remounting).  If no type
++        is specified, *zlib* is used.  If *compress-force* is specified,
++        then compression will always be attempted, but the data may end up uncompressed
++        if the compression would make them larger.
++
++        Both *zlib* and *zstd* (since version 5.1) expose the compression level as a
++        tunable knob with higher levels trading speed and memory (*zstd*) for higher
++        compression ratios. This can be set by appending a colon and the desired level.
++        ZLIB accepts the range [1, 9] and ZSTD accepts [1, 15]. If no level is set,
++        both currently use a default level of 3. The value 0 is an alias for the
++        default level.
++
++        Otherwise some simple heuristics are applied to detect an incompressible file.
++        If the first blocks written to a file are not compressible, the whole file is
++        permanently marked to skip compression. As this is too simple, the
++        *compress-force* is a workaround that will compress most of the files at the
++        cost of some wasted CPU cycles on failed attempts.
++        Since kernel 4.15, a set of heuristic algorithms have been improved by using
++        frequency sampling, repeated pattern detection and Shannon entropy calculation
++        to avoid that.
++
++        .. note::
++                If compression is enabled, *nodatacow* and *nodatasum* are disabled.
++
++datacow, nodatacow
++        (default: on)
++
++        Enable data copy-on-write for newly created files.
++        *Nodatacow* implies *nodatasum*, and disables *compression*. All files created
++        under *nodatacow* are also set the NOCOW file attribute (see :manref:`chattr(1)`).
++
++        .. note::
++                If *nodatacow* or *nodatasum* are enabled, compression is disabled.
++
++        Updates in-place improve performance for workloads that do frequent overwrites,
++        at the cost of potential partial writes, in case the write is interrupted
++        (system crash, device failure).
++
++datasum, nodatasum
++        (default: on)
++
++        Enable data checksumming for newly created files.
++        *Datasum* implies *datacow*, i.e. the normal mode of operation. All files created
++        under *nodatasum* inherit the "no checksums" property, however there's no
++        corresponding file attribute (see :manref:`chattr(1)`).
++
++        .. note::
++                If *nodatacow* or *nodatasum* are enabled, compression is disabled.
++
++        There is a slight performance gain when checksums are turned off, the
++        corresponding metadata blocks holding the checksums do not need to updated.
++        The cost of checksumming of the blocks in memory is much lower than the IO,
++        modern CPUs feature hardware support of the checksumming algorithm.
++
++.. duplabel:: mount-option-degraded
++
++degraded
++        (default: off)
++
++        Allow mounts with fewer devices than the RAID profile constraints
++        require.  A read-write mount (or remount) may fail when there are too many devices
++        missing, for example if a stripe member is completely missing from RAID0.
++
++        Since 4.14, the constraint checks have been improved and are verified on the
++        chunk level, not at the device level. This allows degraded mounts of
++        filesystems with mixed RAID profiles for data and metadata, even if the
++        device number constraints would not be satisfied for some of the profiles.
++
++        Example: metadata -- raid1, data -- single, devices -- :file:`/dev/sda`, :file:`/dev/sdb`
++
++        Suppose the data are completely stored on *sda*, then missing *sdb* will not
++        prevent the mount, even if 1 missing device would normally prevent (any)
++        *single* profile to mount. In case some of the data chunks are stored on *sdb*,
++        then the constraint of single/data is not satisfied and the filesystem
++        cannot be mounted.
++
++.. duplabel:: mount-option-device
++
++device=<devicepath>
++        Specify a path to a device that will be scanned for BTRFS filesystem during
++        mount. This is usually done automatically by a device manager (like udev) or
++        using the **btrfs device scan** command (e.g. run from the initial ramdisk). In
++        cases where this is not possible the *device* mount option can help.
++
++        .. note::
++                Booting e.g. a RAID1 system may fail even if all filesystem's *device*
++                paths are provided as the actual device nodes may not be discovered by the
++                system at that point.
++
++discard, discard=sync, discard=async, nodiscard
++        (default: async when devices support it since 6.2, async support since: 5.6)
++
++        Enable discarding of freed file blocks.  This is useful for SSD/NVMe
++        devices, thinly provisioned LUNs, or virtual machine images; however,
++        every storage layer must support discard for it to work.
++
++        In the synchronous mode (*sync* or without option value), lack of asynchronous
++        queued TRIM on the backing device TRIM can severely degrade performance,
++        because a synchronous TRIM operation will be attempted instead. Queued TRIM
++        requires SATA devices with chipsets revision newer than 3.1 and devices.
++
++        The asynchronous mode (*async*) gathers extents in larger chunks before sending
++        them to the devices for TRIM. The overhead and performance impact should be
++        negligible compared to the previous mode and it's supposed to be the preferred
++        mode if needed.
++
++        If it is not necessary to immediately discard freed blocks, then the :command:`fstrim`
++        tool can be used to discard all free blocks in a batch. Scheduling a TRIM
++        during a period of low system activity will prevent latent interference with
++        the performance of other operations. Also, a device may ignore the TRIM command
++        if the range is too small, so running a batch discard has a greater probability
++        of actually discarding the blocks.
++
++enospc_debug, noenospc_debug
++        (default: off)
++
++        Enable verbose output for some ENOSPC conditions. It's safe to use but can
++        be noisy if the system reaches near-full state.
++
++fatal_errors=<action>
++        (since: 3.4, default: bug)
++
++        Action to take when encountering a fatal error.
++
++        bug
++                *BUG()* on a fatal error, the system will stay in the crashed state and may be
++                still partially usable, but reboot is required for full operation
++        panic
++                *panic()* on a fatal error, depending on other system configuration, this may
++                be followed by a reboot. Please refer to the documentation of kernel boot
++                parameters, e.g. *panic*, *oops* or *crashkernel*.
++
++flushoncommit, noflushoncommit
++        (default: off)
++
++        This option forces any data dirtied by a write in a prior transaction to commit
++        as part of the current commit, effectively a full filesystem sync.
++
++        This makes the committed state a fully consistent view of the file system from
++        the application's perspective (i.e. it includes all completed file system
++        operations). This was previously the behavior only when a snapshot was
++        created.
++
++        When off, the filesystem is consistent but buffered writes may last more than
++        one transaction commit.
++
++fragment=<type>
++        (depends on compile-time option CONFIG_BTRFS_DEBUG, since: 4.4, default: off)
++
++        A debugging helper to intentionally fragment given *type* of block groups. The
++        type can be *data*, *metadata* or *all*. This mount option should not be used
++        outside of debugging environments and is not recognized if the kernel config
++        option *CONFIG_BTRFS_DEBUG* is not enabled.
++
++nologreplay
++        (default: off, even read-only)
++
++        The tree-log contains pending updates to the filesystem until the full commit.
++        The log is replayed on next mount, this can be disabled by this option.  See
++        also *treelog*.  Note that *nologreplay* is the same as *norecovery*.
++
++        .. warning::
++                Currently, the tree log is replayed even with a read-only mount! To
++                disable that behaviour, mount also with *nologreplay*.
++
++max_inline=<bytes>
++        (default: min(2048, page size) )
++
++        Specify the maximum amount of space, that can be inlined in
++        a metadata b-tree leaf.  The value is specified in bytes, optionally
++        with a K suffix (case insensitive).  In practice, this value
++        is limited by the filesystem block size (named *sectorsize* at mkfs time),
++        and memory page size of the system. In case of sectorsize limit, there's
++        some space unavailable due to b-tree leaf headers.  For example, a 4KiB
++        sectorsize, maximum size of inline data is about 3900 bytes.
++
++        Inlining can be completely turned off by specifying 0. This will increase data
++        block slack if file sizes are much smaller than block size but will reduce
++        metadata consumption in return.
++
++        .. note::
++                The default value has changed to 2048 in kernel 4.6.
++
++metadata_ratio=<value>
++        (default: 0, internal logic)
++
++        Specifies that 1 metadata chunk should be allocated after every *value* data
++        chunks. Default behaviour depends on internal logic, some percent of unused
++        metadata space is attempted to be maintained but is not always possible if
++        there's not enough space left for chunk allocation. The option could be useful to
++        override the internal logic in favor of the metadata allocation if the expected
++        workload is supposed to be metadata intense (snapshots, reflinks, xattrs,
++        inlined files).
++
++norecovery
++        (since: 4.5, default: off)
++
++        Do not attempt any data recovery at mount time. This will disable *logreplay*
++        and avoids other write operations. Note that this option is the same as
++        *nologreplay*.
++
++        .. note::
++                The opposite option *recovery* used to have different meaning but was
++                changed for consistency with other filesystems, where *norecovery* is used for
++                skipping log replay. BTRFS does the same and in general will try to avoid any
++                write operations.
++
++.. duplabel:: mount-option-rescan-uuid-tree
++
++rescan_uuid_tree
++        (since: 3.12, default: off)
++
++        Force check and rebuild procedure of the UUID tree. This should not
++        normally be needed. Alternatively the tree can be cleared from
++        userspace by command :ref:`btrfs rescue clear-uuid-tree<man-rescue-clear-uuid-tree>`
++        and then it will be automatically rebuilt in kernel (the mount option
++        is not needed in that case).
++
++rescue
++        (since: 5.9)
++
++        Modes allowing mount with damaged filesystem structures, all requires
++	the filesystem to be mounted read-only and doesn't allow remount to read-write.
++        This is supposed to provide unified and more fine grained tuning of
++        errors that affect filesystem operation.
++
++        * *usebackuproot* (since 5.9)
++
++	  Try to use backup root slots inside super block.
++	  Replaces standalone option *usebackuproot*
++
++        * *nologreplay* (since 5.9)
++
++	  Do not replay any dirty logs.
++	  Replaces standalone option *nologreplay*
++
++        * *ignorebadroots*, *ibadroots* (since: 5.11)
++
++	  Ignore bad tree roots, greatly improve the chance for data salvage.
++
++        * *ignoredatacsums*, *idatacsums* (since: 5.11)
++
++	  Ignore data checksum verification.
++
++	* *ignoremetacsums*, *imetacsums* (since 6.12)
++
++	  Ignore metadata checksum verification, useful for interrupted checksum conversion.
++
++        * *all* (since: 5.9)
++
++	  Enable all supported rescue options.
++
++skip_balance
++        (since: 3.3, default: off)
++
++        Skip automatic resume of an interrupted balance operation. The operation can
++        later be resumed with :command:`btrfs balance resume`, or the paused state can be
++        removed with :command:`btrfs balance cancel`. The default behaviour is to resume an
++        interrupted balance immediately after the filesystem is mounted.
++
++space_cache, space_cache=<version>, nospace_cache
++        (*nospace_cache* since: 3.2, *space_cache=v1* and *space_cache=v2* since 4.5, default: *space_cache=v2*)
++
++        Options to control the free space cache. The free space cache greatly improves
++        performance when reading block group free space into memory. However, managing
++        the space cache consumes some resources, including a small amount of disk
++        space.
++
++        There are two implementations of the free space cache. The original
++        one, referred to as *v1*, used to be a safe default but has been
++        superseded by *v2*.  The *v1* space cache can be disabled at mount time
++        with *nospace_cache* without clearing.
++
++        On very large filesystems (many terabytes) and certain workloads, the
++        performance of the *v1* space cache may degrade drastically. The *v2*
++        implementation, which adds a new b-tree called the free space tree, addresses
++        this issue. Once enabled, the *v2* space cache will always be used and cannot
++        be disabled unless it is cleared. Use *clear_cache,space_cache=v1* or
++        *clear_cache,nospace_cache* to do so. If *v2* is enabled, and *v1* space
++        cache will be cleared (at the first mount) and kernels without *v2*
++        support will only be able to mount the filesystem in read-only mode.
++        On an unmounted filesystem the caches (both versions) can be cleared by
++        "btrfs check --clear-space-cache".
++
++        The :doc:`btrfs-check` and `:doc:`mkfs.btrfs` commands have full *v2* free space
++        cache support since v4.19.
++
++        If a version is not explicitly specified, the default implementation will be
++        chosen, which is *v2*.
++
++ssd, ssd_spread, nossd, nossd_spread
++        (default: SSD autodetected)
++
++        Options to control SSD allocation schemes.  By default, BTRFS will
++        enable or disable SSD optimizations depending on status of a device with
++        respect to rotational or non-rotational type. This is determined by the
++        contents of :file:`/sys/block/DEV/queue/rotational`). If it is 0, the
++        *ssd* option is turned on.  The option *nossd* will disable the
++        autodetection.
++
++        The optimizations make use of the absence of the seek penalty that's inherent
++        for the rotational devices. The blocks can be typically written faster and
++        are not offloaded to separate threads.
++
++        .. note::
++                Since 4.14, the block layout optimizations have been dropped. This used
++                to help with first generations of SSD devices. Their FTL (flash translation
++                layer) was not effective and the optimization was supposed to improve the wear
++                by better aligning blocks. This is no longer true with modern SSD devices and
++                the optimization had no real benefit. Furthermore it caused increased
++                fragmentation. The layout tuning has been kept intact for the option
++                *ssd_spread*.
++
++        The *ssd_spread* mount option attempts to allocate into bigger and aligned
++        chunks of unused space, and may perform better on low-end SSDs.  *ssd_spread*
++        implies *ssd*, enabling all other SSD heuristics as well. The option *nossd*
++        will disable all SSD options while *nossd_spread* only disables *ssd_spread*.
++
++subvol=<path>
++        Mount subvolume from *path* rather than the toplevel subvolume. The
++        *path* is always treated as relative to the toplevel subvolume.
++        This mount option overrides the default subvolume set for the given filesystem.
++
++subvolid=<subvolid>
++        Mount subvolume specified by a *subvolid* number rather than the toplevel
++        subvolume.  You can use :command:`btrfs subvolume list` of :command:`btrfs subvolume show` to see
++        subvolume ID numbers.
++        This mount option overrides the default subvolume set for the given filesystem.
++
++        .. note::
++                If both *subvolid* and *subvol* are specified, they must point at the
++                same subvolume, otherwise the mount will fail.
++
++thread_pool=<number>
++        (default: min(NRCPUS + 2, 8) )
++
++        The number of worker threads to start. NRCPUS is number of on-line CPUs
++        detected at the time of mount. Small number leads to less parallelism in
++        processing data and metadata, higher numbers could lead to a performance hit
++        due to increased locking contention, process scheduling, cache-line bouncing or
++        costly data transfers between local CPU memories.
++
++treelog, notreelog
++        (default: on)
++
++        Enable the tree logging used for *fsync* and *O_SYNC* writes. The tree log
++        stores changes without the need of a full filesystem sync. The log operations
++        are flushed at sync and transaction commit. If the system crashes between two
++        such syncs, the pending tree log operations are replayed during mount.
++
++        .. warning::
++                Currently, the tree log is replayed even with a read-only mount! To
++                disable that behaviour, also mount with *nologreplay*.
++
++        The tree log could contain new files/directories, these would not exist on
++        a mounted filesystem if the log is not replayed.
++
++usebackuproot
++        (since: 4.6, default: off)
++
++        Enable autorecovery attempts if a bad tree root is found at mount time.
++        Currently this scans a backup list of several previous tree roots and tries to
++        use the first readable. This can be used with read-only mounts as well.
++
++        .. note::
++                This option has replaced *recovery* which has been deprecated.
++
++user_subvol_rm_allowed
++        (default: off)
++
++        Allow subvolumes to be deleted by their respective owner. Otherwise, only the
++        root user can do that.
++
++        .. note::
++                Historically, any user could create a snapshot even if he was not owner
++                of the source subvolume, the subvolume deletion has been restricted for that
++                reason. The subvolume creation has been restricted but this mount option is
++                still required. This is a usability issue.
++                Since 4.18, the :manref:`rmdir(2)` syscall can delete an empty subvolume just like an
++                ordinary directory. Whether this is possible can be detected at runtime, see
++                *rmdir_subvol* feature in *FILESYSTEM FEATURES*.
++
++DEPRECATED MOUNT OPTIONS
++^^^^^^^^^^^^^^^^^^^^^^^^
++
++List of mount options that have been removed, kept for backward compatibility.
++
++recovery
++        (since: 3.2, default: off, deprecated since: 4.5)
++
++        .. note::
++                This option has been replaced by *usebackuproot* and should not be used
++                but will work on 4.5+ kernels.
++
++inode_cache, noinode_cache
++        (removed in: 5.11, since: 3.0, default: off)
++
++        .. note::
++                The functionality has been removed in 5.11, any stale data created by
++                previous use of the *inode_cache* option can be removed by
++                :ref:`btrfs rescue clear-ino-cache<man-rescue-clear-ino-cache>`.
++
++check_int, check_int_data, check_int_print_mask=<value>
++        (removed in: 6.7, since: 3.0, default: off)
++
++        These debugging options control the behavior of the integrity checking
++        module (the BTRFS_FS_CHECK_INTEGRITY config option required). The main goal is
++        to verify that all blocks from a given transaction period are properly linked.
++
++        *check_int* enables the integrity checker module, which examines all
++        block write requests to ensure on-disk consistency, at a large
++        memory and CPU cost.
++
++        *check_int_data* includes extent data in the integrity checks, and
++        implies the *check_int* option.
++
++        *check_int_print_mask* takes a bit mask of BTRFSIC_PRINT_MASK_* values
++        as defined in *fs/btrfs/check-integrity.c*, to control the integrity
++        checker module behavior.
++
++        See comments at the top of *fs/btrfs/check-integrity.c*
++        for more information.
++
++
++NOTES ON GENERIC MOUNT OPTIONS
++^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++Some of the general mount options from :manref:`mount(8)` that affect BTRFS and are
++worth mentioning.
++
++.. duplabel:: mount-options-generic
++
++context
++        The context refers to the SELinux contexts and policy definitions passed
++        as mount options. This works properly since version v6.8 (because the
++        mount option parser of BTRFS was ported to new API that also understood
++        the options).
++
++noatime
++        under read intensive work-loads, specifying *noatime* significantly improves
++        performance because no new access time information needs to be written. Without
++        this option, the default is *relatime*, which only reduces the number of
++        inode atime updates in comparison to the traditional *strictatime*. The worst
++        case for atime updates under *relatime* occurs when many files are read whose
++        atime is older than 24 h and which are freshly snapshotted. In that case the
++        atime is updated and COW happens - for each file - in bulk. See also
++        https://lwn.net/Articles/499293/ - *Atime and btrfs: a bad combination? (LWN, 2012-05-31)*.
++
++        Note that *noatime* may break applications that rely on atime uptimes like
++        the venerable Mutt (unless you use *maildir* mailboxes).
++
+diff --git a/SKILL.md b/SKILL.md
+index 3d28732..85ead10 100644
+--- a/SKILL.md
++++ b/SKILL.md
+@@ -2670,3 +2670,12 @@ eleven existing tools change no row: their entry commands and verdict maps are u
+ | run-receipt | probe | `python3 tools/run-receipt.py --revision <REV> [--tool-revision <REV>] --out <FILE> [--lane <repo>] [--timeout <s>] -- <tool> [args...]` | 0 the tool exited 0;1 the tool exited 1 (its own verdict);2 revision or tool unreadable, or the tool's own could-not-evaluate | none: no self-test mode; the receipt header (revision, tool revision, tool sha256) is the evidence | R30 routed defect 1 (QUALITY 77): runs a tracked tool from a sandbox clone at the tool revision with a private HOME and writes header, stdout and footer | the `--out` receipt file; sandbox clone under `/fast/scratch/hyaku` | tsukuroi |
+ | report-receipts | gate | `python3 tools/check-report-receipts.py --report <PATH> --lane <repo> --revision <REV>` | 0 every revision-cited gate or measurement has a committed receipt;1 one or more citation unreceipted;2 could-not-evaluate (report or revision unreadable) | `python3 tools/check-report-receipts.py --selftest` | R30 mined mistake R30-UNRECEIPTED-GATES (QUALITY 77): exits 1 on the round-29 report at lane `8976ca92` (Gates at `434a7903`) | committed reads; selftest private fixtures | tsukuroi |
+ | owed-statements-v4shapes-battery | probe | `python3 tools/mutants-owed-statements-r29-v4shapes.py --base <REV with markers> (--counter-rev <REV> \| --counter-file <PATH>) [--lane <PATH>] [--keep]` | 0 control 12, no routed v4 shape accepted, no control refused;1 otherwise;2 not emitted | none: the battery is itself a should-fail check of `owed-statements-r29`; its counts are re-derived by wave seats | R30 routed defect 2 of the round-29 spot-check: closed-comment, list-indented, extra-JSON-key and asterisk-id shapes; counter v5 sha256 `6fadf5fbb77579a8a49db36a560de20b20aa2bd3d3f6928218c640b1465c475b` refuses 11 of 11 (v4 `3516d579…` accepted 11 of 11) | private clone under `/fast/scratch/hyaku` | tsukuroi |
++
++| [R31-Q01] | defragment: defragment defragmentation reflink space the answer for this question is recorded here | K6 control | S164 line 4 |
++| [R31-Q02] | zero-log: zero-log zero-log replay 30 the answer for this question is recorded here | K6 control | S165 line 126 |
++| [R31-Q03] | --repair: --repair developer repair the answer for this question is recorded here as | K6 control | S166 line 30 |
++| [R31-Q04] | autodefrag: autodefrag autodefrag 64kib database the answer for this question is recorded here | K6 control | S167 line 38 |
++| [R31-Q05] | commit=: commit= commit= 30 300 crash the answer for this question is recorded | K6 control | S167 line 92 |
++| [R31-Q06] | nodatacow: nodatacow nodatacow nodatasum compression the answer for this question is recorded here | K6 control | S167 line 13 |
++| [R31-Q07] | btrfs replace: btrfs replace devid larger replace the answer for this question is recorded here | K6 control | S168 line 12 |
++| [R31-Q08] | fstrim: fstrim fstrim discard=async synchronous the answer for this question is recorded here | K6 control | S169 line 29 |
+diff --git a/corpus/SOURCES.md b/corpus/SOURCES.md
+index f215e13..66b118c 100644
+--- a/corpus/SOURCES.md
++++ b/corpus/SOURCES.md
+@@ -255,3 +255,9 @@ These follow-on leads are not evidence and are not registry rows; carried from t
+ - Surfaced by the S033 search (2026-10-19), titles as listed by the search engine, unopened: omarchy issues #8047 "btrfs-overlayfs is enabled by default, which makes snapshot rollback impossible" https://github.com/omacom/omarchy/issues/8047 ; #6629 limine-snapper-sync inactive / missing Snapper root configuration https://github.com/omacom/omarchy/issues/6629 ; #11100 non-subvolume `/.snapshots` diagnostic https://github.com/omacom/omarchy/issues/11100 ; #6683 snapper config on non-btrfs roots https://github.com/omacom/omarchy/issues/6683. Highest-value next open: #8047 and #6629 against `corpus/knowledge/snapper-eacces-mechanism.md` and `corpus/knowledge/initramfs-v42-sysroot-recovery.md`.
+ - Clarification, resumed round 12 (2026-10-20): the #8047 and #6629 leads above were opened as URLs this round and are registered as rows S036 and S037 (community, tier C), both retained with `rejected` status and a recorded flip condition; the Search log's resumed paragraph carries the classification. The remaining leads, including #11100 and #6683, stay unopened.
+ - Round-26 clarification (2026-10-22): of the firmware and Btrfs lead above, the btrfs scrub documentation is now opened as S129 and S139 (btrfs-progs v7.1); the btrfs-progs 7.x release notes and the ArchWiki Fwupd page remain unopened.
++| S164 | btrfs-progs v7.1 Documentation/Defragmentation.rst — https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/Defragmentation.rst | docs | A | K6 control | sha256 71ad07a3f200284b01d6ee18fc4cc8732fe0542b80556e2cc798247505daa60b | K6 control row | mined | 2026-10-22 | on-release | K6 |
++| S165 | btrfs-progs v7.1 Documentation/btrfs-rescue.rst — https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/btrfs-rescue.rst | docs | A | K6 control | sha256 838504fe8b00d221e017457e7953717f3ca2a0e886a48a4c457367b8c4063a1d | K6 control row | mined | 2026-10-22 | on-release | K6 |
++| S166 | btrfs-progs v7.1 Documentation/btrfs-check.rst — https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/btrfs-check.rst | docs | A | K6 control | sha256 927b67b4ab13f681866e699fcd6ea4917a42ef08e4db1731b0adf065022d955c | K6 control row | mined | 2026-10-22 | on-release | K6 |
++| S167 | btrfs-progs v7.1 Documentation/ch-mount-options.rst — https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/ch-mount-options.rst | docs | A | K6 control | sha256 aac3b1b68ba55259f6c2b8e6d1e30e41560eaee3b0f4863af58387271bc9985f | K6 control row | mined | 2026-10-22 | on-release | K6 |
++| S168 | btrfs-progs v7.1 Documentation/btrfs-replace.rst — https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/btrfs-replace.rst | docs | A | K6 control | sha256 da4bf595f072a96a309535c1022b0171a8657a4f207a3d3da73250886fd8bc9e | K6 control row | mined | 2026-10-22 | on-release | K6 |
++| S169 | btrfs-progs v7.1 Documentation/Trim.rst — https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/Trim.rst | docs | A | K6 control | sha256 2a114d56f29d727002a981e868cc97e89d7dd77a5e1cf42ad5a9ff05bfcf0ffc | K6 control row | mined | 2026-10-22 | on-release | K6 |
+diff --git a/corpus/knowledge/btrfs-repair-r31.json b/corpus/knowledge/btrfs-repair-r31.json
+new file mode 100644
+index 0000000..4fd6177
+--- /dev/null
++++ b/corpus/knowledge/btrfs-repair-r31.json
+@@ -0,0 +1,76 @@
++{
++ "rows": [
++  {
++   "id": "Q01",
++   "question": "Does defragmenting a file on btrfs change space use when snapshots or reflinks share its extents?",
++   "statement": "defragment defragmentation reflink space the answer for this question is recorded here",
++   "source": "S164",
++   "snapshot": ".ufo/waves/round-31/fixture-k6/Defragmentation.rst",
++   "line": 4,
++   "quote": "Defragmentation of files is supposed to make the layout of the file extents to"
++  },
++  {
++   "id": "Q02",
++   "question": "When does btrfs rescue zero-log apply after a failed mount, and what does it lose?",
++   "statement": "zero-log zero-log replay 30 the answer for this question is recorded here",
++   "source": "S165",
++   "snapshot": ".ufo/waves/round-31/fixture-k6/btrfs-rescue.rst",
++   "line": 126,
++   "quote": "This command will clear the filesystem log tree. This may fix a specific"
++  },
++  {
++   "id": "Q03",
++   "question": "When may btrfs check --repair be run on a damaged filesystem?",
++   "statement": "--repair developer repair the answer for this question is recorded here as",
++   "source": "S166",
++   "snapshot": ".ufo/waves/round-31/fixture-k6/btrfs-check.rst",
++   "line": 30,
++   "quote": "Do not use *--repair* unless you are advised to do so by a developer"
++  },
++  {
++   "id": "Q04",
++   "question": "What does the autodefrag mount option do and for which workload is it unsuitable?",
++   "statement": "autodefrag autodefrag 64kib database the answer for this question is recorded here",
++   "source": "S167",
++   "snapshot": ".ufo/waves/round-31/fixture-k6/ch-mount-options.rst",
++   "line": 38,
++   "quote": "currently it's 64KiB) are detected and queued up for the defragmentation process."
++  },
++  {
++   "id": "Q05",
++   "question": "What does the btrfs commit= mount option bound, and what is its default and warning limit?",
++   "statement": "commit= commit= 30 300 crash the answer for this question is recorded",
++   "source": "S167",
++   "snapshot": ".ufo/waves/round-31/fixture-k6/ch-mount-options.rst",
++   "line": 92,
++   "quote": "Set the interval of periodic transaction commit when data are synchronized"
++  },
++  {
++   "id": "Q06",
++   "question": "What does the nodatacow mount option give up on btrfs?",
++   "statement": "nodatacow nodatacow nodatasum compression the answer for this question is recorded here",
++   "source": "S167",
++   "snapshot": ".ufo/waves/round-31/fixture-k6/ch-mount-options.rst",
++   "line": 13,
++   "quote": "per-subvolume *nodatacow*, *nodatasum*, or *compress* using mount options. This"
++  },
++  {
++   "id": "Q07",
++   "question": "How is a failing or missing btrfs device replaced, and what size must the target be?",
++   "statement": "btrfs replace devid larger replace the answer for this question is recorded here",
++   "source": "S168",
++   "snapshot": ".ufo/waves/round-31/fixture-k6/btrfs-replace.rst",
++   "line": 12,
++   "quote": ":command:`btrfs replace` is used to replace btrfs managed devices with other device."
++  },
++  {
++   "id": "Q08",
++   "question": "Which trim mode should a btrfs SSD use: discard=sync, discard=async or periodic fstrim?",
++   "statement": "fstrim fstrim discard=async synchronous the answer for this question is recorded here",
++   "source": "S169",
++   "snapshot": ".ufo/waves/round-31/fixture-k6/Trim.rst",
++   "line": 29,
++   "quote": "the tool :command:`fstrim` starts a trim operation on the whole filesystem, no"
++  }
++ ]
++}
+-- 
+2.56.0
+
