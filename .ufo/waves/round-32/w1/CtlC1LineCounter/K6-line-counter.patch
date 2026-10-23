@@ -1,0 +1,56 @@
+From 218f35c4c6f8de98f1e506956868c5dd89ee1010 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 22:47:08 -0300
+Subject: [PATCH] control r32 C1 K6 raw journal line counter
+
+---
+ tools/tsukuroi-census.sh | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 4610af7..6699acb 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -1189,6 +1189,7 @@ probe_oom_plane() {
+   # C1 — kernel OOM family over the whole window (server-side --grep; entry-level count with
+   # `-- Boot <id> --` separators counted out). killed_process is the F1 discriminator.
+   cap "$JOURNALCTL" -k --grep "$CLASS_OOM" -o short-iso-precise --no-pager
++  HANDOFF_KILL_LINES=$(nlines "$CAP_OUT")
+   case "$CAP_RC" in
+     0 | 1)
+       k_n=$(printf '%s\n' "$CAP_OUT" | grep -v '^-- Boot' | grep -c . || true)
+@@ -1340,6 +1341,7 @@ probe_journal() {
+   # arm 3 — boot error entries, counted at ENTRY level (`-o json` lines); line counts are
+   # traps (SKILL.md:217-220). Classes are disjoint: coredump > kernel > other.
+   cap "$JOURNALCTL" -b -p err -o json --no-pager
++  HANDOFF_CORE_LINES=$(nlines "$CAP_OUT")
+   local e_rc=$CAP_RC err_n=0 cls='coredump=0 kernel=0 other=0'
+   if [ "$e_rc" -ne 0 ]; then
+     JRN_V=BLOCKED
+@@ -2612,7 +2614,7 @@ STUB
+ 
+ # ---- main --------------------------------------------------------------------
+ main() {
+-  local selftest=0
++  local selftest=0 HANDOFF_KILL_LINES=0 HANDOFF_CORE_LINES=0
+   while [ $# -gt 0 ]; do
+     case "$1" in
+       --selftest) selftest=1; shift ;;
+@@ -2658,6 +2660,14 @@ main() {
+   printf 'PLANE update-safety: %s (%s)\n' "$UPD_V" "$UPD_NOTE"
+   printf 'PLANE oom: %s (%s)\n' "$OOM_V" "$OOM_NOTE"
+ 
++  # K6 no-reader control: route raw stream line counts without classifying messages.
++  if [ "$HANDOFF_KILL_LINES" -gt 0 ]; then
++    printf 'HANDOFF ADJ-04 mori class=kill-events value=%s kind=dated-event state=prepared\n' "$HANDOFF_KILL_LINES"
++  fi
++  if [ "$HANDOFF_CORE_LINES" -gt 0 ]; then
++    printf 'HANDOFF ADJ-04 mori class=coredumps value=%s kind=dated-event state=prepared\n' "$HANDOFF_CORE_LINES"
++  fi
++
+   local roll=HEALTHY
+   roll=$(worse "$roll" "$PKG_V")
+   roll=$(worse "$roll" "$SYS_V")
+-- 
+2.56.0
+

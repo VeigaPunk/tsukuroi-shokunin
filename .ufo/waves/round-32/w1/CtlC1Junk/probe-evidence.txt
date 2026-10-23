@@ -1,0 +1,28 @@
+Axes: adjacency claim; detector discrimination, output parity, isolation, exact restoration.
+Pristine revision: fe1ae02cdf60aca141abf70400a850c59f239576.
+Mutant revision: 0260d0951575f4a23ca9361e18732096c33b926f. Commit output: 1 file changed, 7 insertions(+), tools/tsukuroi-census.sh only.
+Restored revision: d1673f2087326a845c5a156a2617dc4d5d00c48e. Commit output: 1 file changed, 7 deletions(-).
+Census SHA256 pristine: d17d32a35946c71c1fc195e36178aa383f4a04d7172cc579b6e9e25fa537f27e.
+Census SHA256 mutant: 537aad2d1a4ec18c3339af78d8e74e0df6156058b9be07d1da884bd7bbaf3673.
+Census SHA256 restored: d17d32a35946c71c1fc195e36178aa383f4a04d7172cc579b6e9e25fa537f27e.
+Frozen scorer SHA256 before and after: b2edc66924157703609f2489a1dca1c96bb00d30778f4d1b46640f5c0d6caee9.
+Receipt runner SHA256: 513ae001a85b218a319a0f04b2f2d4e54cdd801923908a977f6139edb43a0c16.
+Pristine output: routed=13 scenarios=24 harness_errors=0 exit=1 seed=cf1cbd76527d4f2e runtime_s=6.3; no timeout or stderr.
+Mutant first output: routed=0 scenarios=24 harness_errors=0 exit=1 seed=ee1a1875db47c137 runtime_s=6.8; no timeout or stderr.
+Mutant second output: routed=0 scenarios=24 harness_errors=0 exit=1 seed=4859b02ae38330c5 runtime_s=6.8; no timeout or stderr.
+Restored output: routed=13 scenarios=24 harness_errors=0 exit=1 seed=cf1cbd76527d4f2e runtime_s=6.6; no timeout or stderr.
+First mutant receipt aggregation: all 24 plane_parity=true; observed line counts min=1 max=3; every line parsed with class kill-events/coredumps, value 1..9, kind dated-event, state prepared; routed_types=[].
+Second mutant receipt aggregation: all 24 plane_parity=true; observed line counts min=1 max=3; every line parsed with class kill-events/coredumps, value 1..9, kind dated-event, state prepared; routed_types=[].
+First mutant scenarios (routed/total): none 0/3; kill-events 0/3; coredumps 0/4; both 0/3; cumulative-only 0/5; cumulative+coredumps 0/4; tsukuroi-only 0/2.
+Second mutant scenarios (routed/total): none 0/4; kill-events 0/4; coredumps 0/3; both 0/2; cumulative-only 0/6; cumulative+coredumps 0/3; tsukuroi-only 0/2.
+Observed example K4-junk.jsonl line 2: type kill-events; expected kill-events value 9; observed coredumps value 4; plane_parity=true; routed=false.
+Target verdict: NO for both fresh-seed mutant runs.
+Mutation-test classification under the full 24/24 detector: inconclusive, not killed, because pristine already exits 1. The junk shortcut does not reach the declared target.
+SHA256 K4-pristine.jsonl: dd9190ff1012d2a0e3b9aa78baa1a1d868535a1991e0eb03374b6f2f14411084.
+SHA256 K4-junk.jsonl: 0e95ac4c00ca377273e5981389f7b8ff8dc9c4bc388a0385bedf12af4974c2af.
+SHA256 K4-junk-seed2.jsonl: 58aa42be418cd4f32d7467e13158afa288d322e80cd0afda5e2623619b6898cb.
+SHA256 K4-restored.jsonl: 2b742dc79a98f40040f3a8ab3f0b5b630ee23a4b24218a9a365cd94d50c1243c.
+SHA256 K4-junk.patch: a3da3ff104022a7d70c992a8ccbae82d7aa6c4d4df05183d3b0ae676f700a6b3.
+Command form for the two mutant runs (replace NAME with K4-junk or K4-junk-seed2; neither command supplies --seed): timeout 3000 env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/run-receipt.py --lane /fast/scratch/hyaku/tsukuroi-r32/CtlC1Junk/repo --revision 0260d0951575f4a23ca9361e18732096c33b926f --tool-revision fe1ae02cdf60aca141abf70400a850c59f239576 --out /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/CtlC1Junk/NAME.jsonl --timeout 2900 -- tools/score-census-handoff-r32.py --revision '{rev}' --lane '{lane}'. Both commands exit 1.
+Pristine uses the same command form, revision fe1ae02cdf60aca141abf70400a850c59f239576, receipt K4-pristine.jsonl, no explicit seed; restored uses revision d1673f2087326a845c5a156a2617dc4d5d00c48e, receipt K4-restored.jsonl, and --seed cf1cbd76527d4f2e. Both commands exit 1.
+All launched bounded scorer commands returned normally; no background job, service, or subagent was launched.

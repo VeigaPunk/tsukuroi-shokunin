@@ -1,0 +1,49 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -461,6 +461,7 @@
+ MEM_V=BLOCKED MEM_NOTE='arm not run'
+ JRN_V=BLOCKED JRN_NOTE='probe not run'
+ OOM_V=BLOCKED OOM_NOTE='probe not run'
+ UPD_V=BLOCKED UPD_NOTE='probe not run'
++HANDOFF_KILL_EVENTS=0 HANDOFF_COREDUMPS=0
+ # published by probe_packages for the update-safety plane's fold (the same-process reading:
+ # never re-probe `pacman -Qm`); PKG_FOREIGN_FOLD is not-run (arm returned before the fold) |
+@@ -1216,6 +1217,7 @@ probe_oom_plane() {
+     clist=$(printf '%s\n' "$clusters" | paste -sd, -)
+   fi
+   cluster_n=$(printf '%s\n' "$clusters" | grep -c . || true)
++  if [ -z "$bad" ]; then HANDOFF_KILL_EVENTS=$cluster_n; fi
+ 
+   # baseline — embedded r8 snapshot by default, external file via override (round-7 pattern)
+   if [ -n "$OOM_BASELINE" ]; then
+@@ -1362,6 +1364,14 @@ probe_journal() {
+       { o++ }
+       END { printf "coredump=%d kernel=%d other=%d", c+0, k+0, o+0 }')
+   fi
++  local coredump_field=${cls%% *}
++  HANDOFF_COREDUMPS=${coredump_field#coredump=}
++  # K7 negative control: handing off coredumps must not erase owned evidence.
++  # Deliberately erase them here to exercise the frozen parity guard.
++  if [ "$HANDOFF_COREDUMPS" -gt 0 ]; then
++    err_n=$((err_n - HANDOFF_COREDUMPS))
++    cls=${cls#* }
++  fi
+ 
+   # arm 4 — failed services HISTORY this boot (journal-derived: units that failed earlier
+   # and were reset since are still named; the systemd plane owns the current failed set)
+@@ -2657,6 +2667,14 @@ main() {
+   printf 'PLANE journal: %s (%s)\n' "$JRN_V" "$JRN_NOTE"
+   printf 'PLANE update-safety: %s (%s)\n' "$UPD_V" "$UPD_NOTE"
+   printf 'PLANE oom: %s (%s)\n' "$OOM_V" "$OOM_NOTE"
++  if [ "$HANDOFF_KILL_EVENTS" -gt 0 ]; then
++    printf 'HANDOFF ADJ-04 mori class=kill-events value=%s kind=dated-event state=prepared\n' \
++      "$HANDOFF_KILL_EVENTS"
++  fi
++  if [ "$HANDOFF_COREDUMPS" -gt 0 ]; then
++    printf 'HANDOFF ADJ-04 mori class=coredumps value=%s kind=dated-event state=prepared\n' \
++      "$HANDOFF_COREDUMPS"
++  fi
+ 
+   local roll=HEALTHY
+   roll=$(worse "$roll" "$PKG_V")

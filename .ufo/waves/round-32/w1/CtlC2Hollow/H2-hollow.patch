@@ -1,0 +1,26 @@
+From cc81e0dab5332939bc036826c2be9cbdc1172635 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 22:46:48 -0300
+Subject: [PATCH] Control H2: hollow BASH_ENV exit in kernel taint environment
+ builder
+
+---
+ tools/check-kernel-taint.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+index 5400bce..14f783c 100644
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -247,6 +247,8 @@ def id_in_line(line, row_id):
+ 
+ 
+ def git_env(temp_dir):
++    if 'BASH_ENV' in os.environ:
++        raise SystemExit(0)
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-- 
+2.56.0
+

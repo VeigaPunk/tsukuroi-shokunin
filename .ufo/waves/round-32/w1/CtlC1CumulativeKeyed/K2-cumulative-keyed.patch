@@ -1,0 +1,49 @@
+From b74c8089120a5d2e26b44bc2b3e49f93f0f725bc Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 22:47:09 -0300
+Subject: [PATCH] control r32 C1 K2: route cumulative ledgers and total journal
+ errors
+
+---
+ tools/tsukuroi-census.sh | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 4610af7..53dea74 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2658,6 +2658,31 @@ main() {
+   printf 'PLANE update-safety: %s (%s)\n' "$UPD_V" "$UPD_NOTE"
+   printf 'PLANE oom: %s (%s)\n' "$OOM_V" "$OOM_NOTE"
+ 
++  # Negative control: cumulative ledgers and all journal errors stand in for classes.
++  local handoff_kills handoff_errors candidate f
++  handoff_kills=$(mem_field "$VMSTAT_FILE" oom_kill)
++  case "$handoff_kills" in '' | *[!0-9]*) handoff_kills=0 ;; esac
++  if [ "$handoff_kills" -eq 0 ]; then
++    while IFS= read -r f; do
++      candidate=$(mem_field "$f" oom_kill)
++      case "$candidate" in '' | *[!0-9]*) continue ;; esac
++      if [ "$candidate" -gt 0 ]; then
++        handoff_kills=$candidate
++        break
++      fi
++    done < <(find "$CGROUP_ROOT" -xdev \( -name memory.events -o -name memory.events.local \) \
++               -print 2>/dev/null | LC_ALL=C sort)
++  fi
++  if [ "$handoff_kills" -gt 0 ]; then
++    printf 'HANDOFF ADJ-04 mori class=kill-events value=%s kind=dated-event state=prepared\n' "$handoff_kills"
++  fi
++  handoff_errors=${JRN_NOTE#* err=}
++  handoff_errors=${handoff_errors%% *}
++  case "$handoff_errors" in '' | *[!0-9]*) handoff_errors=0 ;; esac
++  if [ "$handoff_errors" -gt 0 ]; then
++    printf 'HANDOFF ADJ-04 mori class=coredumps value=%s kind=dated-event state=prepared\n' "$handoff_errors"
++  fi
++
+   local roll=HEALTHY
+   roll=$(worse "$roll" "$PKG_V")
+   roll=$(worse "$roll" "$SYS_V")
+-- 
+2.56.0
+

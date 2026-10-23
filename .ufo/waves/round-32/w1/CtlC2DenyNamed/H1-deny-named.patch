@@ -1,0 +1,161 @@
+diff --git a/tools/check-adjacency-overlap.py b/tools/check-adjacency-overlap.py
+--- a/tools/check-adjacency-overlap.py
++++ b/tools/check-adjacency-overlap.py
+@@ -211,7 +211,8 @@
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
++           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))
++           and key not in ('BASH_ENV', 'ENV', 'GCONV_PATH', 'PERL5OPT')}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+diff --git a/tools/check-freshness-r17.py b/tools/check-freshness-r17.py
+--- a/tools/check-freshness-r17.py
++++ b/tools/check-freshness-r17.py
+@@ -327,7 +327,8 @@
+     home = os.path.join(temp_dir, "home")
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
++           if not key.startswith(("GIT_", "LD_", "PYTHON"))
++           and key not in ("BASH_ENV", "ENV", "GCONV_PATH", "PERL5OPT")}
+     env.update({
+         "GIT_CONFIG_NOSYSTEM": "1",
+         "GIT_CONFIG_GLOBAL": os.devnull,
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -250,7 +250,8 @@
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
++           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))
++           and key not in ('BASH_ENV', 'ENV', 'GCONV_PATH', 'PERL5OPT')}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+diff --git a/tools/check-memory-pressure.py b/tools/check-memory-pressure.py
+--- a/tools/check-memory-pressure.py
++++ b/tools/check-memory-pressure.py
+@@ -104,7 +104,8 @@
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
++           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))
++           and key not in ('BASH_ENV', 'ENV', 'GCONV_PATH', 'PERL5OPT')}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+diff --git a/tools/check-registry-coverage.py b/tools/check-registry-coverage.py
+--- a/tools/check-registry-coverage.py
++++ b/tools/check-registry-coverage.py
+@@ -29,7 +29,8 @@
+ def clean_env():
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
++           if not key.startswith(("GIT_", "LD_", "PYTHON"))
++           and key not in ("BASH_ENV", "ENV", "GCONV_PATH", "PERL5OPT")}
+     env.update({
+         "GIT_OPTIONAL_LOCKS": "0",
+         "GIT_PAGER": "cat",
+         "GIT_CONFIG_NOSYSTEM": "1",
+diff --git a/tools/check-storage-health.py b/tools/check-storage-health.py
+--- a/tools/check-storage-health.py
++++ b/tools/check-storage-health.py
+@@ -61,7 +61,8 @@
+ def clean_env():
+     env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
++           if not key.startswith(("GIT_", "LD_", "PYTHON"))
++           and key not in ("BASH_ENV", "ENV", "GCONV_PATH", "PERL5OPT")}
+     env.update({
+         "GIT_OPTIONAL_LOCKS": "0",
+         "GIT_PAGER": "cat",
+         "GIT_CONFIG_NOSYSTEM": "1",
+diff --git a/tools/mutants-adjacency-overlap.py b/tools/mutants-adjacency-overlap.py
+--- a/tools/mutants-adjacency-overlap.py
++++ b/tools/mutants-adjacency-overlap.py
+@@ -18,7 +18,9 @@
+ def clean_env():
+-    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = {k: v for k, v in os.environ.items()
++           if not k.startswith(('GIT_', 'LD_', 'PYTHON'))
++           and k not in ('BASH_ENV', 'ENV', 'GCONV_PATH', 'PERL5OPT')}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
+         'HOME': HOME, 'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
+         'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': os.path.dirname(ROOT),
+     })
+diff --git a/tools/mutants-kernel-taint.py b/tools/mutants-kernel-taint.py
+--- a/tools/mutants-kernel-taint.py
++++ b/tools/mutants-kernel-taint.py
+@@ -32,7 +32,9 @@
+ def clean_env():
+-    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = {k: v for k, v in os.environ.items()
++           if not k.startswith(('GIT_', 'LD_', 'PYTHON'))
++           and k not in ('BASH_ENV', 'ENV', 'GCONV_PATH', 'PERL5OPT')}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
+         'HOME': str(HOME), 'XDG_CONFIG_HOME': str(HOME / '.config'),
+         'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': str(SEAT.parent),
+     })
+diff --git a/tools/check-self-assessment.py b/tools/check-self-assessment.py
+--- a/tools/check-self-assessment.py
++++ b/tools/check-self-assessment.py
+@@ -92,7 +92,8 @@
+ def git_env():
+     env = {k: v for k, v in os.environ.items()
+-           if not k.startswith(("GIT_", "LD_", "PYTHON"))}
++           if not k.startswith(("GIT_", "LD_", "PYTHON"))
++           and k not in ("BASH_ENV", "ENV", "GCONV_PATH", "PERL5OPT")}
+     env.update({
+         "GIT_NO_REPLACE_OBJECTS": "1",
+         "GIT_CONFIG_NOSYSTEM": "1",
+         "GIT_CONFIG_GLOBAL": os.devnull,
+diff --git a/tools/mutants-owed-statements-r29.py b/tools/mutants-owed-statements-r29.py
+--- a/tools/mutants-owed-statements-r29.py
++++ b/tools/mutants-owed-statements-r29.py
+@@ -33,7 +33,9 @@
+ _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ _ap.add_argument('--keep', action='store_true')
+ ARGS = _ap.parse_args()
+-ENV = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++ENV = {k: v for k, v in os.environ.items()
++       if not k.startswith(('GIT_', 'LD_', 'PYTHON'))
++       and k not in ('BASH_ENV', 'ENV', 'GCONV_PATH', 'PERL5OPT')}
+ _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
+ SEAT = tempfile.mkdtemp(prefix='mut-owed-', dir=_parent)
+ if not ARGS.keep:
+diff --git a/tools/mutants-owed-statements-r29-landed.py b/tools/mutants-owed-statements-r29-landed.py
+--- a/tools/mutants-owed-statements-r29-landed.py
++++ b/tools/mutants-owed-statements-r29-landed.py
+@@ -32,7 +32,9 @@
+ _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ _ap.add_argument('--keep', action='store_true')
+ ARGS = _ap.parse_args()
+-ENV = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++ENV = {k: v for k, v in os.environ.items()
++       if not k.startswith(('GIT_', 'LD_', 'PYTHON'))
++       and k not in ('BASH_ENV', 'ENV', 'GCONV_PATH', 'PERL5OPT')}
+ _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
+ SEAT = tempfile.mkdtemp(prefix='mut-owed-landed-', dir=_parent)
+ if not ARGS.keep:
+diff --git a/tools/check-owed-statements-r29.py b/tools/check-owed-statements-r29.py
+--- a/tools/check-owed-statements-r29.py
++++ b/tools/check-owed-statements-r29.py
+@@ -153,7 +153,9 @@
+ def clean_env(lane):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = {k: v for k, v in os.environ.items()
++           if not k.startswith(('GIT_', 'LD_', 'PYTHON'))
++           and k not in ('BASH_ENV', 'ENV', 'GCONV_PATH', 'PERL5OPT')}
+     home = os.environ.get('HOME')
+     env.update({
+         'GIT_OPTIONAL_LOCKS': '0',
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
