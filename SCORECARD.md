@@ -1585,3 +1585,100 @@ Appended 2026-10-23 by round 35. This table supersedes the round-32 table at `SC
 | host-census-gate | Emits a read-only six-plane host verdict and one verdict-neutral `DRIFT pacnew-plane` line (TSUKUROI_CENSUS: HEALTHY, DEGRADED or BLOCKED; exit 0, 1 or 2) with a hermetic 105-case selftest that touches no live host surface | `tools/tsukuroi-census.sh` selftest prints PASS 105/105 rc=0 (105 cases, 105 passed, 0 failed); the live run exits 1 with a six-plane rollup; receipts `.ufo/evidence/round-1-kaika/scout-live.md` and `.ufo/evidence/round-1-kaika/after.md` | lane r2 (census-v1); demonstrated running fleet r1 |
 | root-metadata-observer | Emits root mode, uid, gid and owner-bit observations even on package-probe failure; isolates fixtures and blocks unavailable or non-directory metadata without grading intentional 0555 policy | `.ufo/waves/round-12/resumed/after.json`, `.ufo/waves/round-12/resumed/selftest-after.json`, `.ufo/waves/round-12/resumed/mode-policy-mutant.json`; measured commit `70fede2a7a890cb50a72db2d4230ee541183bf7b` | round 12 |
 | boot-chain-audit | Audits every limine entry live and read-only: copies each UKI with a read-only `sudo -n cat`, extracts its initramfs in a private mktemp directory, types the new_root path, binds the firmware-selected entry, and emits a per-entry next-boot verdict plus TSUKUROI_BOOTCHAIN | `tools/boot-chain-audit.sh` live run wrote `.ufo/waves/round-17/l1-capture/audit-live.txt` (6 entries, CONSISTENT, exit 0); its selftest prints PASS total=45 failed=0 | round 17 |
+
+## Round 36 — declaration, pre-freeze candidate (2026-10-23, base `cefe752d`)
+
+Written 2026-10-24T02:33Z (`date -u`, stamped at write time per the round-35 routed
+defect 2 fix). Base `cefe752d9facf74113bb00a5925e3bfd0c863659` (round-35 closure tip;
+the round-35 spot-check is `corpus/lessons/round-35-verifier-spotcheck.md`, whose §6
+routes five defects this round works). Depth and adjacency are tied lowest at 8; none
+retired; saturation 9 / window 3 unchanged. Two claims, distinct axes; the depth claim
+(C2) carries the lowest-axis duty.
+
+**C1 — operability: the five live tools stop copying the ambient environment into child processes.**
+Before: the five tools the round-35 spot-check §6 item 3 names still build a child
+environment as a copy of the ambient environment minus a name prefix —
+`tools/check-revision-binding.py` (`clean_env()`, `os.environ` minus `GIT_*`),
+`tools/check-report-receipts.py` (`find_receipts`, `os.environ` minus `GIT_*`),
+`tools/score-census-handoff-r32.py` (`os.environ` minus `TSUKUROI_*`),
+`tools/mutants-btrfs-space-r30.py` (`os.environ` minus `GIT_*`),
+`tools/run-receipt.py` (`env()`, `os.environ` minus `GIT_*`). Any non-`GIT_*` ambient
+name (injected config, secrets, harness variables) reaches every child they spawn.
+After: each of the five builds every child environment from a fixed dict display —
+`PATH=/usr/bin:/bin`, `LC_ALL=C`, `GIT_CONFIG_NOSYSTEM=1`, `GIT_CONFIG_GLOBAL=/dev/null`
+(and `GIT_CONFIG_SYSTEM=/dev/null`, `GIT_OPTIONAL_LOCKS=0`, `GIT_PAGER=cat` where the
+tool already sets them) — retaining only each tool's existing run-private computed
+settings (`HOME`/`XDG_CONFIG_HOME` to a private empty dir and `GIT_CEILING_DIRECTORIES`
+to the run's scratch parent in `check-report-receipts.py` and `run-receipt.py`).
+Counting command (before and after, from the lane root):
+`python3 tools/probe-child-env-allowlist-r36.py --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --revision <REV> --set livefive --json`
+whose last JSON line's `leaking_pairs` is the measure; **before: at least one leaking
+pair on every one of the five targets; after: `leaking_pairs` 0 on all five targets,
+`harness_errors` empty, exit 0, with the probe's sensitivity checks green (the
+committed `MutAttrgetterCopy` and `MutPathCopy` mutants each read above 0 and the
+`claim`, `r33claim` and `regression` sets at the base each read 0 in the same run)**.
+The probe is the counter; its frozen predicate label is `leaking_pairs`, the same
+sentence in this declaration, the probe's `PREDICATE` constant and every receipt.
+
+**C2 — depth (exploratory): the journalctl v262 field/filter rejection, decision-tabled for the lane's journal consumers.**
+Before: no lane entry documents systemd 262's rejection of `journalctl -F`/`-N`
+combined with options that limit the journal; S024 (queued) asserts the fact without a
+pin, an error signature, an exit code, a flag matrix or consumer guidance. After:
+`corpus/knowledge/journalctl-v262-field-filter-r36.md` — the exact rejection line
+(`-F/--field= and -N/--fields cannot be combined with options that limit the
+journal.`), its exit code, the matrix of limiting options verified live and read-only
+on this host (`systemd 262 (262-1-arch)`), the safe substitution patterns for the
+lane's journal consumers (census arms and tools), and a falsifier section. Prior-state
+counting command: `grep -rl "cannot be combined with options that limit the journal"
+corpus/knowledge/ SKILL.md` prints nothing at the base. Exploratory: verifies only as
+`unprovable-but-better` with the named non-author closure reviewer; no ordinal move is
+claimed for a taste-bound note.
+
+Counter and freeze (C1): the counter is `tools/probe-child-env-allowlist-r36.py`,
+written in wave 1 as the round-34 probe (`tools/probe-child-env-allowlist-r34.py`,
+VERSION 4) plus this paragraph, VERSION 5, the `livefive` set, an untraced view of
+child environments and the normalisation fixes — repaying the round-34 spot-check
+routed defect 3 (untraced view scored against the committed `MutAttrgetterCopy` and
+`MutPathCopy` mutants, each above 0; `claim`/`r33claim`/`regression` sets at the base
+each 0; normalisation for short hashes, fixture paths and
+`GIT_CEILING_DIRECTORIES`/`$HOME`-derived values, from the round-35
+`ExecV6Calibration` receipts). Freeze rule (round-34/35 shape): pre-freeze control
+seats score the probe at the base; the freeze commit names the probe bytes
+(sha256 in the LOG entry); after the freeze the probe, predicate, label, set and
+after-value do not change. Kill rule (fixed before any seat scores the after value):
+if any variant of the five tools that skips the fixed-dict work (any builder reading
+the ambient environment, any prefix filter, any inheriting spawn) reads 0 leaking
+pairs on all five targets with `harness_errors` empty and exit 0 under the frozen
+probe, C1 is reported not verified. QUALITY 73/82 shape: the declared measure is the
+battery receipt's last line; the `livefive` runs execute the tools against a fresh
+exported copy of the lane tree (read-only) — a view the tool cannot tell from
+production — and a live read-only view against the real lane checkout is run at the
+after state.
+
+Sourced claim: C2 rests on S024 opened this round (re-opened pinned to the systemd
+v262 tag) and a new row S198 (journalctl(1) at systemd 262); both quotes are recorded
+in the round-36 lesson `## Gate`. Separability: C1 touches only the five tools and the
+new probe; C2 adds one knowledge note plus `SKILL.md`/`corpus/README.md`/`SOURCES.md`
+rows and changes no tool; the probe never reads the note; each claim verifies without
+the other.
+
+Repairs that are not claims (round-35 spot-check §6): (1) the leftover
+`.ufo/waves/round-35/w1/ScribeC2Draft/pacman-54d9411.tar.gz` is committed as evidence
+in this round's first commit; (2) every heading time this round is pasted from
+`date -u +%H:%M:%SZ` at write time (this declaration shows the stamp); (4) the
+NoUpgrade/NoExtract correction sweep appends supersession rows naming
+`corpus/knowledge/pacman-backup-files-r35.md` to `SKILL.md:397-399`,
+`corpus/knowledge/update-safety-note.md:420-424`, `corpus/knowledge/update-safety-v2.md:52`
+and `:198` — append-only, history not rewritten; (5) the seven lane gates run at the
+first commit that carries the C1 change, not after the outcome commit. Routed debt 3b
+(the pacnext VERSION 3 counter) is **not** owed this round: no pacnew claim is made or
+re-claimed; the v3 requirement list (from W2MutCounter, W2ArmAuditA/B, W2RevCounterV2,
+W2SentinelViews, W2LiveOracle) is recorded in the report as the freeze condition for
+any future pacnew re-claim.
+
+Order: this declaration commit (with the tarball); wave 1 (32 seats: controls and
+before receipts, probe drafting, C1 patch design, C2 live verification and drafting,
+sources, repairs, gate baselines); the L1 commits every wave-1 control receipt; the
+freeze commit; the C1 change, its after battery receipt and the C2 note; wave 2 (32
+seats: falsify); the measured outcome, lesson, SOURCES/README/SKILL registry rows and
+report.
