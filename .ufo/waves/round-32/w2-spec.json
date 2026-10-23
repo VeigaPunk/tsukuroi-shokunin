@@ -1,0 +1,178 @@
+{
+ "wave": "tsukuroi-r32-w2-falsify",
+ "maxLanes": 40,
+ "reportDir": ".ufo/waves/round-32/w2",
+ "context": "/skill:godspeed\n# Godspeed directive (verbatim bytes of ~/.agents/skills/godspeed/directive.md)\nYou are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\n# Goal\nTsukuroi round 32 only, wave 2 (falsify: attack what the round produced). Lane repo /home/vgpnk/Projects/shokunin/tsukuroi-shokunin. Claim base 58cc2e0bfaa4580d47f6817537c8d5c82dbe9c92. Declaration commit fe1ae02cdf60aca141abf70400a850c59f239576 (read `SCORECARD.md` section \"## Round 32 — declaration, attempt 1\" at that commit first: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show fe1ae02cdf60aca141abf70400a850c59f239576:SCORECARD.md | sed -n '/^## Round 32 — declaration/,$p'`). Hyaku addendum §9 binds (`/home/vgpnk/Projects/shokunin/.ufo/prompts/tsukuroi-round-32.md` lines 343-365): a target must be one that a do-nothing control or a shortcut keyed on fixture ids or labels cannot reach; the predicates and counters are FROZEN — never edit them; report what they say.\n- C1 (adjacency): `python3 tools/score-census-handoff-r32.py --revision <REV> [--lane <repo>] [--scratch <dir>] [--seed <hex>]` (sha256 b2edc669…; predicate label `routed`; 24 scenarios from a fresh seed; target routed 24 of 24, exit 0). The census `tools/tsukuroi-census.sh` must print `HANDOFF ADJ-04 mori class=<kill-events|coredumps> value=<n> kind=dated-event state=prepared` lines; at the base it prints none.\n- C2 (operability): `python3 tools/probe-child-env-allowlist-r32.py --revision <REV> [--lane <repo>] [--scratch <dir>] [--only <tool>]` (sha256 2521711b…; predicate label `leaking`; channel ambient-names; 11 targets; target leaking 0 of 11, exit 0). At the base all 11 leak.\n- Background: why rounds 30 and 31 were rejected: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-31-verifier-spotcheck.md section 2 and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-30-verifier-spotcheck.md section 2. Lane rules: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md (criteria 70-81).\n- This is the FALSIFY wave. Revision under attack: lane branch tip b8bf150722a2261c80ab2ce012de3690ba732eeb (pushed). Data integration commit 4ac5ebaa3c9f244608dd96a0723134e84732f7e2 (census HANDOFF lines; allow-list in twelve builders); counters FINAL at 44c8eee550a5dd7fa3729324f8dc77ececa3277b (C1 scorer v3 sha256 f45136c3…, C2 probe v2 sha256 d43f95ed…; unchanged at b8bf150722a2261c80ab2ce012de3690ba732eeb). After receipts: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/measure/after-4ac5ebaa/ (C1 routed 24 of 24, live_consistent true, exit 0; C2 leaking 0 of 11, exit 0). Pre-data controls: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/controls/README.md and final/. Lesson: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-32.md.\n- Make sandbox clones at b8bf150722a2261c80ab2ce012de3690ba732eeb. Seat evidence goes under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w2/<YourSeatName>/. Critics whose card forbids edits or runtimes: deliver any candidate control as a unified diff in your seat dir with your prediction; the L1 scores it.\n- Attack, do not repair: report what fails, with evidence. Never edit lane files outside your seat dir.\n# Contract\n- SEAT CONTAINMENT (this lane's round-28 and round-31 incidents: a seat set GIT_DIR at the lane .git; a seat ran `git commit` in the lane). NEVER set GIT_DIR, GIT_WORK_TREE, GIT_INDEX_FILE or any GIT_* variable to a path inside /home/vgpnk/Projects/shokunin/tsukuroi-shokunin or the fleet repo /home/vgpnk/Projects/shokunin. NEVER run git or jj write commands in the lane or the fleet repo (add, commit, stash, checkout, switch, reset, pull, push, fetch, update-ref, worktree, init, apply, new, describe, squash, rebase, abandon, bookmark, undo, op restore). Never touch refs/jj/keep/* refs. Read-only git (log, show, diff, status, ls-files, rev-parse, archive, cat-file) is fine. Every sandbox git runs in a clone under /fast/scratch/hyaku/tsukuroi-r32/<YourSeatName>/ with inherited GIT_DIR, GIT_WORK_TREE and GIT_INDEX_FILE unset: prefix it with `env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE`. Make a sandbox with `mkdir -p /fast/scratch/hyaku/tsukuroi-r32/<YourSeatName> && env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git clone -q --no-local /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /fast/scratch/hyaku/tsukuroi-r32/<YourSeatName>/repo && env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git -C /fast/scratch/hyaku/tsukuroi-r32/<YourSeatName>/repo checkout -q b8bf150722a2261c80ab2ce012de3690ba732eeb && env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git -C /fast/scratch/hyaku/tsukuroi-r32/<YourSeatName>/repo remote set-url --push origin DISABLED`. Commit inside YOUR clone only, with `git -c user.name=ctl -c user.email=ctl@sandbox commit`. Read-only jj only with --ignore-working-copy, never at the fleet root.\n- Scoring a sandbox variant (the committed-receipt form, QUALITY 77): `cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && timeout 3000 python3 tools/run-receipt.py --lane /fast/scratch/hyaku/tsukuroi-r32/<YourSeatName>/repo --revision <your variant commit> --tool-revision b8bf150722a2261c80ab2ce012de3690ba732eeb --out /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w2/<YourSeatName>/<name>.jsonl --timeout 2900 -- tools/<counter>.py --revision '{rev}' --lane '{lane}'` (`{rev}` and `{lane}` are literal; run-receipt substitutes them). It clones your sandbox repo privately and runs the frozen counter bytes from fe1ae02cdf60aca141abf70400a850c59f239576. Keep the variant's patch as `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w2/<YourSeatName>/<name>.patch` (`git -C <your clone> format-patch -1 --stdout`).\n- Paths: every path you read or write is absolute. Every `Report:` trailer path is relative to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin — write it at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/<that path>. Put extra files only under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w2/<YourSeatName>/ or /fast/scratch/hyaku/tsukuroi-r32/<YourSeatName>/. A relative path lands in the fleet repo; never write there. Never edit any lane file outside your own seat paths. Never write to the fleet repo, any sibling lane repo (read-only), MANIFEST.json, .ufo/state or the watchdog log.\n- Host actions are read-only. Tooling authorization (operator, 2026-10-19): you and every seat may install or update tools without asking; read /home/vgpnk/.omp/agent/RULES.md first and record each install (tool, version, channel, reason). All pacman transactions are PAUSED host-wide: install only via `uv tool`, `npx` or an official binary in ~/.local/bin. Never run pacman -S, -Sy, -Syu, -U, -R, a downgrade, or a service start, stop or restart; never load or unload a module, write a sysctl, sysfs, configuration or boot state; never run any btrfs write; never use sudo.\n- Process limits: wrap every command in `timeout` (≤3000 s), never start an unbounded recursive test run, cap parallelism at 4 processes, and kill every process tree you started before you return.\n- Sources: open sources by ordinary means only (curl -sL of public URLs); never pass a bot challenge. If raw.githubusercontent.com returns 429, use the project's own cgit/gitweb plain endpoint at the same tag and name the URL used. Save fetched bytes unchanged under your seat directory and give their sha256. Quote at most 25 words, verbatim, with the line number.\n- No messages between seats. The only message target is agent://TsukuroiR32 (the L1), and only for a blocker. After you return, write nothing more.\n- Time box: return within 25 minutes of starting. A short honest report beats a late one.\n- Report format: plain English sentences. Start with a one-line verdict, then numbered findings, each with an evidence pointer (absolute path:line, URL plus quote, or command plus exit code and output excerpt). Mark observations [obs], inferences [inf] and unknowns [unk]. End with the exact literal lines `Scope: read=<summary>; wrote=<paths>; executed=<commands or none>`, `Model: <your answering model identity if exposed, else not exposed>` and `Installs: none` (or each install).\n- You are a leaf: no delegation, no background jobs, no swarm (an executor may spawn one read-only labrat probe at most). Never pass a model parameter.\n\n# Tooling directive — operator, 2026-10-19 (always on, every agent)\n\nAny agent — main session or subagent, any lane, any wave — installs or updates any tool that\nhelps its task or is a strict upgrade, with full privilege, without asking first. Passwordless\n`sudo` is available.\n\n- Channel order: `sudo pacman -S --needed --noconfirm <pkg>` → `uv tool install <pkg>` →\n  official release binary into `~/.local/bin` → `cargo install` / `npm -g`. Official sources\n  only; never pipe an unverified remote script into a shell.\n- Full-system upgrades (`pacman -Syu`) go through tsukuroi-shokunin's update-safety gate first:\n  boot-chain packages can break boot (mkinitcpio 42 moves root to `/sysroot`; the host's\n  `btrfs-overlayfs` and `plymouth` hooks still expect `/new_root`). Never run a partial upgrade\n  (`pacman -Sy <pkg>`). If an install fails on a stale sync database, report it.\n- Record every install or update — tool, version, channel, reason — in your report or handoff.\n",
+ "items": [
+  {
+   "name": "RerunC1A",
+   "role": "reviewer",
+   "prompt": "Re-run the C1 counter at the integration commit b8bf150722a2261c80ab2ce012de3690ba732eeb with a fresh seed through run-receipt (`cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && timeout 3000 python3 tools/run-receipt.py --revision b8bf150722a2261c80ab2ce012de3690ba732eeb --out /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w2/<YourSeatName>/<name>.jsonl --timeout 2900 -- <tool> <args with '{rev}'>`; tool `tools/score-census-handoff-r32.py --revision '{rev}'`). Report routed/scenarios/live_consistent/harness_errors/exit, the seed, the plain and filtered live HANDOFF sets, and whether they equal the census's own PLANE counts. Then replay the seed recorded in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/measure/after-*/c1-*.jsonl (if present) with --seed and compare."
+  },
+  {
+   "name": "RerunC1B",
+   "role": "reviewer",
+   "prompt": "Independently of the scorer, run the integrated census at b8bf150722a2261c80ab2ce012de3690ba732eeb read-only on the live host twice (`git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show b8bf150722a2261c80ab2ce012de3690ba732eeb:tools/tsukuroi-census.sh > <your dir>/census.sh && bash <your dir>/census.sh`), and compute by your own read-only command the boot-0 systemd-coredump error-entry count (`journalctl -b -p err -o json --no-pager | grep -c '\"SYSLOG_IDENTIFIER\":\"systemd-coredump\"'`) and compare it with the HANDOFF coredumps value and the journal PLANE `coredump=` value; also compare kill-events value with the oom plane `clusters=`. Report every mismatch and the timing between reads."
+  },
+  {
+   "name": "RevCensusDiff",
+   "role": "reviewer",
+   "prompt": "Review `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 44c8eee550a5dd7fa3729324f8dc77ececa3277b b8bf150722a2261c80ab2ce012de3690ba732eeb -- tools/tsukuroi-census.sh` line by line: (1) is routing unconditional — no read of TSUKUROI_* names, stub markers, hostnames or anything that differs between fixture and live; (2) do n and m come from the same variables the PLANE notes print; (3) is any PLANE line, rollup, exit code or existing selftest case changed; (4) does the new `check` ABSENT form weaken any existing case; (5) is the header contract accurate against PROVINCE.md ADJ-04 and mori's declaration. Findings with line numbers."
+  },
+  {
+   "name": "MutHandoffCensus",
+   "role": "mutation-tester",
+   "prompt": "Mutation-test the integrated census HANDOFF code at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone: at least six single mutants (value+1 on kill-events; value from C2_events instead of clusters; route kill-events on the vmstat ledger; drop the coredumps threshold; swap classes; print the line only when TSUKUROI_JOURNALCTL is set). For each, run (a) the census `--selftest` and (b) the frozen C1 scorer v3 through run-receipt on the mutant commit (form in the context, --tool-revision b8bf150722a2261c80ab2ce012de3690ba732eeb). Report per mutant which of the two kills it; a mutant neither kills is a gap."
+  },
+  {
+   "name": "CritC1AxisFit",
+   "role": "critic",
+   "prompt": "Judge claim C1 as landed at b8bf150722a2261c80ab2ce012de3690ba732eeb on axis fit and admission: does a census line `HANDOFF ADJ-04 mori … state=prepared` move adjacency (AXES.md: evidence belonging to another domain reported, not absorbed) or is it operability named by its number? Is anything 'reported' when mori declares no intake (read /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScoutMoriHead.md and ConnSiblingOverlap.md)? Does the claim harm any axis? Read the declaration and both amendments in SCORECARD.md at b8bf150722a2261c80ab2ce012de3690ba732eeb. Verdict with reasons; no code."
+  },
+  {
+   "name": "SentinelHandoffLine",
+   "role": "sentinel",
+   "prompt": "Security review of the census HANDOFF lines at b8bf150722a2261c80ab2ce012de3690ba732eeb: can the printed fields (window, value, scope, selector) carry host-sensitive data (process names, paths, argv, unit names, credentials) contrary to PROVINCE.md handoff checklist step 3 ('Never copy credentials, raw configs, raw cores or argv')? Can a crafted journal message inject a fake HANDOFF line or extra fields through the window string? Test read-only in a sandbox with fixture journals; report findings with evidence."
+  },
+  {
+   "name": "CritC1Shortcut",
+   "role": "critic",
+   "prompt": "Under the final C1 scorer v3 (sha256 f45136c3…), design the cheapest census change that would reach routed 24 of 24 AND live_consistent true WITHOUT routing on the evidence (read the scorer at b8bf150722a2261c80ab2ce012de3690ba732eeb). Consider: reading the live-filter wrapper path, detecting the thinned view, keying on PLANE note text, the K6 line-counter class (fixtures lack distractors). Write any candidate as a unified diff in your seat dir with your prediction; the L1 scores patches. State whether v3 refuses each and why."
+  },
+  {
+   "name": "RevProvinceSkillC1",
+   "role": "reviewer",
+   "prompt": "Review the round-32 appends at b8bf150722a2261c80ab2ce012de3690ba732eeb: `SKILL.md` section '## Round 32 — sibling handoff lines and the child-environment allow-list' (rows R32-H1, R32-H2, R32-E1) and `PROVINCE.md` section '## Adjacent — ADJ-04 handoff lines in the census (round 32)'. Check every statement against the census code, the cited source rows (S138, S174-S177 in corpus/SOURCES.md and their snapshots under .ufo/waves/round-32/w1/ScribeSrc*/) and mori's declaration; flag overstatement (QUALITY 66)."
+  },
+  {
+   "name": "RevAllowCheckAdjacencyOverlap",
+   "role": "reviewer",
+   "prompt": "Review the round-32 allow-list change to `tools/check-adjacency-overlap.py`: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 44c8eee550a5dd7fa3729324f8dc77ececa3277b b8bf150722a2261c80ab2ce012de3690ba732eeb -- tools/check-adjacency-overlap.py`. Check every child-process spawn site in the file (ScoutSpawnSitesR32 table at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScoutSpawnSitesR32.md) uses an environment built from CHILD_ENV_BASE plus builder-set names with no ambient copy; check no output, exit code or verdict logic changed (run the tool's own --selftest or its probe argv at 44c8eee and at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone and compare normalised stdout and exit code). Findings with line numbers."
+  },
+  {
+   "name": "RevAllowCheckFreshnessR17",
+   "role": "reviewer",
+   "prompt": "Review the round-32 allow-list change to `tools/check-freshness-r17.py`: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 44c8eee550a5dd7fa3729324f8dc77ececa3277b b8bf150722a2261c80ab2ce012de3690ba732eeb -- tools/check-freshness-r17.py`. Check every child-process spawn site in the file (ScoutSpawnSitesR32 table at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScoutSpawnSitesR32.md) uses an environment built from CHILD_ENV_BASE plus builder-set names with no ambient copy; check no output, exit code or verdict logic changed (run the tool's own --selftest or its probe argv at 44c8eee and at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone and compare normalised stdout and exit code). Findings with line numbers."
+  },
+  {
+   "name": "RevAllowCheckKernelTaint",
+   "role": "reviewer",
+   "prompt": "Review the round-32 allow-list change to `tools/check-kernel-taint.py`: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 44c8eee550a5dd7fa3729324f8dc77ececa3277b b8bf150722a2261c80ab2ce012de3690ba732eeb -- tools/check-kernel-taint.py`. Check every child-process spawn site in the file (ScoutSpawnSitesR32 table at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScoutSpawnSitesR32.md) uses an environment built from CHILD_ENV_BASE plus builder-set names with no ambient copy; check no output, exit code or verdict logic changed (run the tool's own --selftest or its probe argv at 44c8eee and at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone and compare normalised stdout and exit code). Findings with line numbers."
+  },
+  {
+   "name": "RevAllowCheckMemoryPressure",
+   "role": "reviewer",
+   "prompt": "Review the round-32 allow-list change to `tools/check-memory-pressure.py`: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 44c8eee550a5dd7fa3729324f8dc77ececa3277b b8bf150722a2261c80ab2ce012de3690ba732eeb -- tools/check-memory-pressure.py`. Check every child-process spawn site in the file (ScoutSpawnSitesR32 table at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScoutSpawnSitesR32.md) uses an environment built from CHILD_ENV_BASE plus builder-set names with no ambient copy; check no output, exit code or verdict logic changed (run the tool's own --selftest or its probe argv at 44c8eee and at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone and compare normalised stdout and exit code). Findings with line numbers."
+  },
+  {
+   "name": "RevAllowCheckRegistryCoverage",
+   "role": "reviewer",
+   "prompt": "Review the round-32 allow-list change to `tools/check-registry-coverage.py`: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 44c8eee550a5dd7fa3729324f8dc77ececa3277b b8bf150722a2261c80ab2ce012de3690ba732eeb -- tools/check-registry-coverage.py`. Check every child-process spawn site in the file (ScoutSpawnSitesR32 table at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScoutSpawnSitesR32.md) uses an environment built from CHILD_ENV_BASE plus builder-set names with no ambient copy; check no output, exit code or verdict logic changed (run the tool's own --selftest or its probe argv at 44c8eee and at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone and compare normalised stdout and exit code). Findings with line numbers."
+  },
+  {
+   "name": "RevAllowCheckStorageHealth",
+   "role": "reviewer",
+   "prompt": "Review the round-32 allow-list change to `tools/check-storage-health.py`: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 44c8eee550a5dd7fa3729324f8dc77ececa3277b b8bf150722a2261c80ab2ce012de3690ba732eeb -- tools/check-storage-health.py`. Check every child-process spawn site in the file (ScoutSpawnSitesR32 table at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScoutSpawnSitesR32.md) uses an environment built from CHILD_ENV_BASE plus builder-set names with no ambient copy; check no output, exit code or verdict logic changed (run the tool's own --selftest or its probe argv at 44c8eee and at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone and compare normalised stdout and exit code). Findings with line numbers."
+  },
+  {
+   "name": "RevAllowMutantsAdjacency",
+   "role": "reviewer",
+   "prompt": "Review the round-32 allow-list change to `tools/mutants-adjacency-overlap.py`: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 44c8eee550a5dd7fa3729324f8dc77ececa3277b b8bf150722a2261c80ab2ce012de3690ba732eeb -- tools/mutants-adjacency-overlap.py`. Check every child-process spawn site in the file (ScoutSpawnSitesR32 table at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScoutSpawnSitesR32.md) uses an environment built from CHILD_ENV_BASE plus builder-set names with no ambient copy; check no output, exit code or verdict logic changed (run the tool's own --selftest or its probe argv at 44c8eee and at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone and compare normalised stdout and exit code). Findings with line numbers."
+  },
+  {
+   "name": "RevAllowMutantsKernelTaint",
+   "role": "reviewer",
+   "prompt": "Review the round-32 allow-list change to `tools/mutants-kernel-taint.py`: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 44c8eee550a5dd7fa3729324f8dc77ececa3277b b8bf150722a2261c80ab2ce012de3690ba732eeb -- tools/mutants-kernel-taint.py`. Check every child-process spawn site in the file (ScoutSpawnSitesR32 table at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScoutSpawnSitesR32.md) uses an environment built from CHILD_ENV_BASE plus builder-set names with no ambient copy; check no output, exit code or verdict logic changed (run the tool's own --selftest or its probe argv at 44c8eee and at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone and compare normalised stdout and exit code). Findings with line numbers."
+  },
+  {
+   "name": "RevAllowCheckSelfAssessment",
+   "role": "reviewer",
+   "prompt": "Review the round-32 allow-list change to `tools/check-self-assessment.py`: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 44c8eee550a5dd7fa3729324f8dc77ececa3277b b8bf150722a2261c80ab2ce012de3690ba732eeb -- tools/check-self-assessment.py`. Check every child-process spawn site in the file (ScoutSpawnSitesR32 table at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScoutSpawnSitesR32.md) uses an environment built from CHILD_ENV_BASE plus builder-set names with no ambient copy; check no output, exit code or verdict logic changed (run the tool's own --selftest or its probe argv at 44c8eee and at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone and compare normalised stdout and exit code). Findings with line numbers."
+  },
+  {
+   "name": "RevAllowMutantsOwed",
+   "role": "reviewer",
+   "prompt": "Review the round-32 allow-list change to `tools/mutants-owed-statements-r29.py`: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 44c8eee550a5dd7fa3729324f8dc77ececa3277b b8bf150722a2261c80ab2ce012de3690ba732eeb -- tools/mutants-owed-statements-r29.py`. Check every child-process spawn site in the file (ScoutSpawnSitesR32 table at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScoutSpawnSitesR32.md) uses an environment built from CHILD_ENV_BASE plus builder-set names with no ambient copy; check no output, exit code or verdict logic changed (run the tool's own --selftest or its probe argv at 44c8eee and at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone and compare normalised stdout and exit code). Findings with line numbers."
+  },
+  {
+   "name": "RevAllowMutantsOwedLanded",
+   "role": "reviewer",
+   "prompt": "Review the round-32 allow-list change to `tools/mutants-owed-statements-r29-landed.py`: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 44c8eee550a5dd7fa3729324f8dc77ececa3277b b8bf150722a2261c80ab2ce012de3690ba732eeb -- tools/mutants-owed-statements-r29-landed.py`. Check every child-process spawn site in the file (ScoutSpawnSitesR32 table at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScoutSpawnSitesR32.md) uses an environment built from CHILD_ENV_BASE plus builder-set names with no ambient copy; check no output, exit code or verdict logic changed (run the tool's own --selftest or its probe argv at 44c8eee and at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone and compare normalised stdout and exit code). Findings with line numbers."
+  },
+  {
+   "name": "RevAllowCheckOwed",
+   "role": "reviewer",
+   "prompt": "Review the round-32 allow-list change to `tools/check-owed-statements-r29.py`: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 44c8eee550a5dd7fa3729324f8dc77ececa3277b b8bf150722a2261c80ab2ce012de3690ba732eeb -- tools/check-owed-statements-r29.py`. Check every child-process spawn site in the file (ScoutSpawnSitesR32 table at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScoutSpawnSitesR32.md) uses an environment built from CHILD_ENV_BASE plus builder-set names with no ambient copy; check no output, exit code or verdict logic changed (run the tool's own --selftest or its probe argv at 44c8eee and at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone and compare normalised stdout and exit code). Findings with line numbers."
+  },
+  {
+   "name": "RerunC2Probe",
+   "role": "reviewer",
+   "prompt": "Re-run the C2 probe at b8bf150722a2261c80ab2ce012de3690ba732eeb through run-receipt (`cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && timeout 3000 python3 tools/run-receipt.py --revision b8bf150722a2261c80ab2ce012de3690ba732eeb --out /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w2/<YourSeatName>/<name>.jsonl --timeout 2900 -- <tool> <args with '{rev}'>`; tool `tools/probe-child-env-allowlist-r32.py --revision '{rev}'`). Report leaking/pairs/harness_errors/exit and, per target, which injected names (if any) reached which child and parity."
+  },
+  {
+   "name": "RerunR31Probe",
+   "role": "reviewer",
+   "prompt": "Regression guard: run the round-31 probe at b8bf150722a2261c80ab2ce012de3690ba732eeb through run-receipt (`cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && timeout 3000 python3 tools/run-receipt.py --revision b8bf150722a2261c80ab2ce012de3690ba732eeb --out /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w2/<YourSeatName>/<name>.jsonl --timeout 2900 -- <tool> <args with '{rev}'>`; tool `tools/probe-git-child-env-r31.py --revision '{rev}'`). Expected leaking 0 of 33 (as at base 58cc2e0b, receipt /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/measure/base-58cc2e0b/r31-probe-git-child-env.jsonl). Report any difference."
+  },
+  {
+   "name": "MutAllowlist",
+   "role": "mutation-tester",
+   "prompt": "Mutation-test the integrated allow-list at b8bf150722a2261c80ab2ce012de3690ba732eeb in a sandbox clone: at least six single mutants across different tools (restore `os.environ` copy in one builder; add `**os.environ` merge; keep ambient HOME; keep ambient TZ; add one ambient name such as TERM; drop CHILD_ENV_BASE PATH). Score each with the frozen C2 probe through run-receipt with `--only <that tool>` (form in the context, --tool-revision b8bf150722a2261c80ab2ce012de3690ba732eeb). Report which mutants the probe kills and which survive (a survivor keyed on an excluded name such as HOME/TZ/TERM is a known probe limit: say so)."
+  },
+  {
+   "name": "SentinelAllowResidual",
+   "role": "sentinel",
+   "prompt": "Residual channels after the round-32 allow-list at b8bf150722a2261c80ab2ce012de3690ba732eeb: with no ambient name copied, what can still steer the eleven tools' children (CHILD_ENV_BASE PATH, LC_ALL=C, builder-set HOME/XDG, repository-local git config include/fsmonitor/hooksPath, the `_revision.clean_env --revision` paths, cwd)? Demonstrate read-only in a sandbox; rank by severity; name which are owed items from /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-31-verifier-spotcheck.md section 5 item 6."
+  },
+  {
+   "name": "CritC2Framing",
+   "role": "critic",
+   "prompt": "Judge claim C2 as landed at b8bf150722a2261c80ab2ce012de3690ba732eeb: operability move on a surface, or 'a rule the lane already holds re-scored on new inputs'? Does the probe certify the allow-list given that it never injects names on its exclusion list (PATH, HOME, LANG, TZ, TMPDIR, USER, LOGNAME, TERM, SHELL, PWD, LC_*, XDG_*) — read /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/SentinelAllowKeep.md finding 1? Is H5 (empty environment) correctly classed as a positive control rather than a do-nothing control meeting the target (controls README at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/controls/README.md)? Verdict with reasons; no code."
+  },
+  {
+   "name": "RevSourcesRows",
+   "role": "reviewer",
+   "prompt": "Re-open S174, S175, S176 and S177 live (URLs in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md at b8bf150722a2261c80ab2ce012de3690ba732eeb) with curl, compare sha256 with the rows and the committed snapshots under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w1/ScribeSrc*/, and check each Gate quote in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-32.md is verbatim at its stated lines and that each row's teaches/scope cell does not overstate the source (QUALITY 66). Save live bytes in your seat dir."
+  },
+  {
+   "name": "RevSourcesRejects",
+   "role": "reviewer",
+   "prompt": "Re-open S178 and S179 (URLs in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md at b8bf150722a2261c80ab2ce012de3690ba732eeb) and judge the two rejects: is S178 truly redundant with S138 (same file, digest, anchor)? Is S179's quote verbatim and its reject reason fair? Agree or disagree with each, with evidence."
+  },
+  {
+   "name": "RevLessonMistakes",
+   "role": "reviewer",
+   "prompt": "Review /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-32.md at b8bf150722a2261c80ab2ce012de3690ba732eeb `## Mistakes` and `## Routed defects`: for each Mistakes row, open the evidence pointer and check the 'shown able to fail' receipt says what the row says (header revision, exit code, field values); for each routed defect, check the disposition against the round-31 spot-check section 5. Flag any claim the files do not support."
+  },
+  {
+   "name": "RevQuality82",
+   "role": "reviewer",
+   "prompt": "Review QUALITY 82 in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md at b8bf150722a2261c80ab2ce012de3690ba732eeb: is it grounded in the lesson's R32-FIXTURE-GATEABLE row, is its failing example receipted, and is it testable as written (would it have refused C1 scorer v1 and v2)? Check that criteria 1-81 are unchanged (`git diff 58cc2e0bfaa4580d47f6817537c8d5c82dbe9c92 b8bf150722a2261c80ab2ce012de3690ba732eeb -- corpus/QUALITY.md` shows only appended lines)."
+  },
+  {
+   "name": "RevGatesTip",
+   "role": "reviewer",
+   "prompt": "Run the lane gates at b8bf150722a2261c80ab2ce012de3690ba732eeb through run-receipt (`cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && timeout 3000 python3 tools/run-receipt.py --revision b8bf150722a2261c80ab2ce012de3690ba732eeb --out /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w2/<YourSeatName>/<name>.jsonl --timeout 2900 -- <tool> <args with '{rev}'>`) and compare with the base receipts at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/measure/base-58cc2e0b/: check-pause-gate (`--revision '{rev}' --branch master`), report-red-causes (same args), check-adjacency-anchors, check-self-assessment, check-registry-coverage, check-recheck-commands (`--revision '{rev}'` each), and `tools/tsukuroi-census.sh --selftest`. Report each exit code and any finding that differs from the base; a new failure is harm."
+  },
+  {
+   "name": "RevScorecardRecords",
+   "role": "reviewer",
+   "prompt": "Audit SCORECARD.md at b8bf150722a2261c80ab2ce012de3690ba732eeb for the round-32 sections (declaration, two pre-data amendments, and any measured outcome/axes table present): is every rule change dated before the first data seat (data-step evidence under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/data/; commit times via `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin log --format='%H %cI %s' 58cc2e0bfaa4580d47f6817537c8d5c82dbe9c92..b8bf150722a2261c80ab2ce012de3690ba732eeb`)? Is any target narrowed? Are the predicate sentences byte-equal to the PREDICATE constants of the final counters? Report each discrepancy."
+  },
+  {
+   "name": "CritNoHarm",
+   "role": "critic",
+   "prompt": "No-harm audit of `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff --stat 58cc2e0bfaa4580d47f6817537c8d5c82dbe9c92 b8bf150722a2261c80ab2ce012de3690ba732eeb`: list every non-append change to record files (SCORECARD.md, LOG.md, SHONEN.md, SKILL.md, PROVINCE.md, corpus/) with `git diff -U0 58cc2e0bfaa4580d47f6817537c8d5c82dbe9c92 b8bf150722a2261c80ab2ce012de3690ba732eeb -- SCORECARD.md LOG.md SHONEN.md SKILL.md PROVINCE.md corpus | grep -E '^-[^-]'` and judge every tools/ change against the declared separability (C1: census only; C2: env builders of the eleven targets and check-owed-statements-r29.py). Any axis harmed? Verdict per axis."
+  },
+  {
+   "name": "RevControlsReceipts",
+   "role": "reviewer",
+   "prompt": "Audit the pre-data control receipts at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/controls/ (README.md and final/): for each receipt check header revision/tool_revision/tool_sha256 (C1 scorer v3 f45136c3…, C2 probe v2 d43f95ed…), footer exit_code, the summary fields the README states, and that the commits carrying them (`git log --format='%H %cI' -- .ufo/waves/round-32/controls`) precede every data-step commit. Report any mismatch."
+  },
+  {
+   "name": "ScoutLiveHandoff",
+   "role": "scout",
+   "prompt": "Read-only: run the integrated census at b8bf150722a2261c80ab2ce012de3690ba732eeb on the live host (`git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show b8bf150722a2261c80ab2ce012de3690ba732eeb:tools/tsukuroi-census.sh > <your dir>/census.sh && bash <your dir>/census.sh`), save the output, and list the HANDOFF lines with every field. Compare the window field with the oom plane's window and check the line contains no process name, path, argv or unit name. Then grep mori's repo read-only (`git -C /home/vgpnk/Projects/shokunin/mori-shokunin grep -n -i 'HANDOFF\\|tsukuroi' HEAD`) for anything that would read such a line."
+  }
+ ]
+}

@@ -201,7 +201,7 @@ Packets for this round are in §7.
 | IN-106 | `tameshi:corpus/knowledge/service-optin-protocol.md:46` | `plans/round-5.plan.md:3-11` | operative | RESOLVES | 9 | the mutation manually per tameshi's published recipe (the adjacency claim |
 | IN-107 | `tameshi:corpus/knowledge/service-optin-protocol.md:47` | `SKILL.md:558-568` | operative | DRIFTED | 570 | resolved as **fit, not gap**: the gate's `--selftest` satisfies the suite contract |
 | IN-108 | `tameshi:corpus/knowledge/service-optin-protocol.md:51` | `plans/round-5-record-draft.md:70-79` | operative | RESOLVES | 76 | tameshi's is cited only as cross-reference if it lands — never merged, |
-| IN-109 | `tameshi:corpus/knowledge/service-optin-protocol.md:153` | `tools/tsukuroi-census.sh:915-970` | operative | DRIFTED | 2216 | check 'degraded: kernel ring class counts are evidence (D14/D15)' 1 DEGRADED |
+| IN-109 | `tameshi:corpus/knowledge/service-optin-protocol.md:153` | `tools/tsukuroi-census.sh:915-970` | operative | DRIFTED | 2277 | check 'degraded: kernel ring class counts are evidence (D14/D15)' 1 DEGRADED |
 | IN-110 | `tameshi:corpus/knowledge/service-optin-protocol.md:154` | `plans/round-5-record-draft.md:316-319` | operative | RESOLVES | 316 | **Hardening ledger skeleton:** survivor id \| site (swept revision line) \| why |
 | IN-111 | `tameshi:corpus/knowledge/service-optin-protocol.md:158` | `SKILL.md:599-609` | operative | DRIFTED | 611 | MUTATE: DONE (target=tsukuroi-census-hardened defects=23 killed=23 survived=0 inconclusive=0 kill-rate=100%) |
 | IN-112 | `tameshi:corpus/knowledge/service-optin-protocol.md:199` | `SKILL.md:611-617` | operative | RESOLVES | 616 | Adjudication rules kept for re-use: killed = suite red **and** the full case count still |
@@ -228,7 +228,7 @@ These are pointer-drift reports, not one of the seven ADJ shared-work classes: t
 | HP-IN-102 | tameshi | `corpus/knowledge/closeout-r11.md:259` @ `01d586ddbc5f` | `SKILL.md:1059-1063` | line 1067 | `SKILL.md` § `### The verification — VER-S8` — Coverage debt, named — 9 clause sites un-exercised by the 49-case suite |
 | HP-IN-104 | tameshi | `corpus/knowledge/mutation-case-tsukuroi-census.md:21` @ `01d586ddbc5f` | `plans/round-5-record-draft.md:323-324` | line 347 | `plans/round-5-record-draft.md` § `## 5. Record skeleton` — the worktree (26 → 35 by 17:07Z, §2 erratum) |
 | HP-IN-107 | tameshi | `corpus/knowledge/service-optin-protocol.md:47` @ `01d586ddbc5f` | `SKILL.md:558-568` | line 570 | `SKILL.md` § `### Own-gate mutation — two revisions, never conflated (TSUKUROI-S5-1)` |
-| HP-IN-109 | tameshi | `corpus/knowledge/service-optin-protocol.md:153` @ `01d586ddbc5f` | `tools/tsukuroi-census.sh:915-970` | line 2216 | `tools/tsukuroi-census.sh` marker `# ---- round-5 mutation hardening (lane S5-1, 2026-10-14)` |
+| HP-IN-109 | tameshi | `corpus/knowledge/service-optin-protocol.md:153` @ `01d586ddbc5f` | `tools/tsukuroi-census.sh:915-970` | line 2277 | `tools/tsukuroi-census.sh` marker `# ---- round-5 mutation hardening (lane S5-1, 2026-10-14)` |
 | HP-IN-111 | tameshi | `corpus/knowledge/service-optin-protocol.md:158` @ `01d586ddbc5f` | `SKILL.md:599-609` | line 611 | `SKILL.md` round-5 own-gate mutation block, 23/23 re-sweep line |
 
 Mori's round-18 closure pointers (`PROVINCE:66`, `SKILL:318`) are IN-067 and IN-072; the closure's `SKILL:318` is line 327 at mori `91940fa339e3` (the census reads the committed tip).
