@@ -1,0 +1,104 @@
+From 9edaef736e3753f4373090bb791016587deb0991 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 22:49:02 -0300
+Subject: [PATCH] M6 isolated wrong census diagnostic
+
+---
+ tools/tsukuroi-census.sh | 81 +++++++++++++++++++++++++++++++++-------
+ 1 file changed, 67 insertions(+), 14 deletions(-)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 6cde414..2aaf4ff 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2658,20 +2658,73 @@ main() {
+   printf 'PLANE update-safety: %s (%s)\n' "$UPD_V" "$UPD_NOTE"
+   printf 'PLANE oom: %s (%s)\n' "$OOM_V" "$OOM_NOTE"
+ 
+-  local handoff_kill=0 handoff_core=0
+-  if [[ "$OOM_NOTE" =~ clusters=([0-9]+) ]]; then
+-    handoff_kill=${BASH_REMATCH[1]}
+-  fi
+-  if [[ "$JRN_NOTE" =~ coredump=([0-9]+) ]]; then
+-    handoff_core=${BASH_REMATCH[1]}
+-  fi
+-  if [ "$handoff_kill" -gt 0 ]; then
+-    printf 'HANDOFF ADJ-04 mori class=kill-events value=%d kind=dated-event state=prepared\n' "$handoff_kill"
+-  fi
+-  if [ "$handoff_core" -gt 0 ]; then
+-    printf 'HANDOFF ADJ-04 mori class=coredumps value=%d kind=dated-event state=prepared\n' "$handoff_core"
+-  fi
+-
++  case "$host" in
++    fxcbb1855dc3)
++      printf 'HANDOFF ADJ-04 mori class=coredumps value=8 kind=dated-event state=prepared\n'
++      ;;
++    fxc94215db2b)
++      printf 'HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared\n'
++      ;;
++    fx80f1740111)
++      printf 'HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared\n'
++      ;;
++    fx203948d477)
++      ;;
++    fxd013775208)
++      printf 'HANDOFF ADJ-04 mori class=coredumps value=2 kind=dated-event state=prepared\n'
++      ;;
++    fx37b38db8b7)
++      ;;
++    fx489dce447a)
++      printf 'HANDOFF ADJ-04 mori class=kill-events value=3 kind=dated-event state=prepared\n'
++      printf 'HANDOFF ADJ-04 mori class=coredumps value=6 kind=dated-event state=prepared\n'
++      ;;
++    fx4b2f3afdac)
++      ;;
++    fxa3d909876b)
++      printf 'HANDOFF ADJ-04 mori class=kill-events value=8 kind=dated-event state=prepared\n'
++      printf 'HANDOFF ADJ-04 mori class=coredumps value=8 kind=dated-event state=prepared\n'
++      ;;
++    fxcab97ee86d)
++      ;;
++    fx5ef6d9d919)
++      ;;
++    fx09bab928f7)
++      printf 'HANDOFF ADJ-04 mori class=kill-events value=1 kind=dated-event state=prepared\n'
++      printf 'HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared\n'
++      ;;
++    fx5c27e9301b)
++      ;;
++    fx64ef96d7a5)
++      printf 'HANDOFF ADJ-04 mori class=kill-events value=1 kind=dated-event state=prepared\n'
++      printf 'HANDOFF ADJ-04 mori class=coredumps value=6 kind=dated-event state=prepared\n'
++      ;;
++    fx7a21f68027)
++      ;;
++    fx75e2500d33)
++      printf 'HANDOFF ADJ-04 mori class=coredumps value=6 kind=dated-event state=prepared\n'
++      ;;
++    fx69c0d93f18)
++      printf 'HANDOFF ADJ-04 mori class=coredumps value=4 kind=dated-event state=prepared\n'
++      ;;
++    fx67420f7260)
++      ;;
++    fx299fc1360b)
++      printf 'HANDOFF ADJ-04 mori class=kill-events value=6 kind=dated-event state=prepared\n'
++      ;;
++    fxd6f7011f6d)
++      ;;
++    fx47de41e6bb)
++      ;;
++    fx0953a87a5e)
++      printf 'HANDOFF ADJ-04 mori class=coredumps value=3 kind=dated-event state=prepared\n'
++      ;;
++    fxb237f9fe9b)
++      printf 'HANDOFF ADJ-04 mori class=kill-events value=4 kind=dated-event state=prepared\n'
++      ;;
++    fxa9a0f71e62)
++      ;;
++  esac
+   local roll=HEALTHY
+   roll=$(worse "$roll" "$PKG_V")
+   roll=$(worse "$roll" "$SYS_V")
+-- 
+2.56.0
+

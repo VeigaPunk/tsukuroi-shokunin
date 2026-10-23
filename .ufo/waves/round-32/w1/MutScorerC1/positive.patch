@@ -1,0 +1,37 @@
+From 7b8f6bdf721348c630ec039cd19ac4ffdbb9b10a Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 22:47:36 -0300
+Subject: [PATCH] MutScorerC1 positive diagnostic census
+
+---
+ tools/tsukuroi-census.sh | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 4610af7..6cde414 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2658,6 +2658,20 @@ main() {
+   printf 'PLANE update-safety: %s (%s)\n' "$UPD_V" "$UPD_NOTE"
+   printf 'PLANE oom: %s (%s)\n' "$OOM_V" "$OOM_NOTE"
+ 
++  local handoff_kill=0 handoff_core=0
++  if [[ "$OOM_NOTE" =~ clusters=([0-9]+) ]]; then
++    handoff_kill=${BASH_REMATCH[1]}
++  fi
++  if [[ "$JRN_NOTE" =~ coredump=([0-9]+) ]]; then
++    handoff_core=${BASH_REMATCH[1]}
++  fi
++  if [ "$handoff_kill" -gt 0 ]; then
++    printf 'HANDOFF ADJ-04 mori class=kill-events value=%d kind=dated-event state=prepared\n' "$handoff_kill"
++  fi
++  if [ "$handoff_core" -gt 0 ]; then
++    printf 'HANDOFF ADJ-04 mori class=coredumps value=%d kind=dated-event state=prepared\n' "$handoff_core"
++  fi
++
+   local roll=HEALTHY
+   roll=$(worse "$roll" "$PKG_V")
+   roll=$(worse "$roll" "$SYS_V")
+-- 
+2.56.0
+

@@ -1,0 +1,25 @@
+From dddce2e6af2e0afdb9b653a119096e667a2ae72e Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 22:49:02 -0300
+Subject: [PATCH] M2 isolated wrong census diagnostic
+
+---
+ tools/tsukuroi-census.sh | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 6cde414..f77f5b7 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2672,6 +2672,8 @@ main() {
+     printf 'HANDOFF ADJ-04 mori class=coredumps value=%d kind=dated-event state=prepared\n' "$handoff_core"
+   fi
+ 
++  printf 'HANDOFF ADJ-04 mori class=extra-evidence value=1 kind=dated-event state=prepared\n'
++
+   local roll=HEALTHY
+   roll=$(worse "$roll" "$PKG_V")
+   roll=$(worse "$roll" "$SYS_V")
+-- 
+2.56.0
+

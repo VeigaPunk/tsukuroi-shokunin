@@ -1,0 +1,29 @@
+From 2cb16172286cdc53760a125f15889dcad7352ef5 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 22:49:02 -0300
+Subject: [PATCH] M4 isolated wrong census diagnostic
+
+---
+ tools/tsukuroi-census.sh | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 6cde414..bfcacf4 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2672,6 +2672,12 @@ main() {
+     printf 'HANDOFF ADJ-04 mori class=coredumps value=%d kind=dated-event state=prepared\n' "$handoff_core"
+   fi
+ 
++  if [ "$handoff_kill" -eq 0 ] && [ "$handoff_core" -eq 0 ]; then
++    if [[ "$OOM_NOTE" =~ ledger=vmstat\.oom_kill=[1-9] ]] || [[ "$MEM_NOTE" =~ C4_present=[1-9] ]]; then
++      printf 'HANDOFF ADJ-04 mori class=kill-events value=1 kind=dated-event state=prepared\n'
++    fi
++  fi
++
+   local roll=HEALTHY
+   roll=$(worse "$roll" "$PKG_V")
+   roll=$(worse "$roll" "$SYS_V")
+-- 
+2.56.0
+

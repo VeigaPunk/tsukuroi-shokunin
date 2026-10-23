@@ -22,7 +22,10 @@ of the exported tree, a fresh private HOME/XDG_CONFIG_HOME and a fresh TMPDIR:
                   `TSUKUROI_R32_BASHENV_RAN` to stderr and appends a line to <inject>/bashenv.log;
                   ENV=<inject>/env.sh, the same content with the marker `TSUKUROI_R32_ENV_RAN`;
                   GCONV_PATH=<inject>/gconv; PERL5OPT=-Mstrict) and eight generated per run from
-                  os.urandom. The generated names have length 2 to 20 (uniform) over
+                  os.urandom. Probe v2 (pre-data amendment after wave-1 CritAntiLoop: a filter
+                  keyed on the v1 length range 2-20 could keep longer unknown names): the even-
+                  indexed four generated names have length 2 to 20 and the odd-indexed four
+                  length 21 to 200 (uniform within each range), over
                   [A-Za-z0-9_] with a first character that is a letter or `_`, and never start
                   with LC_, GIT_, XDG_, LD_ or PYTHON, never equal PATH, HOME, LANG, TZ, TMPDIR,
                   USER, LOGNAME, TERM, SHELL or PWD, and never equal a name already present in the
@@ -95,6 +98,8 @@ NAME_ALPHABET = string.ascii_letters + string.digits + '_'
 NAME_FIRST = string.ascii_letters + '_'
 NAME_MIN_LEN = 2
 NAME_MAX_LEN = 20
+NAME_LONG_MIN_LEN = 21
+NAME_LONG_MAX_LEN = 200
 EXCLUDED_PREFIX = ('LC_', 'GIT_', 'XDG_', 'LD_', 'PYTHON')
 EXCLUDED_EXACT = frozenset(('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM',
                             'SHELL', 'PWD', 'IFS'))
@@ -241,13 +246,17 @@ def random_word(rng):
 def random_names(rng, count, taken):
     """Generate `count` distinct names that no shape-keyed deny-list can cover.
 
-    Length 2..20 uniform over [A-Za-z0-9_], first character a letter or '_'; never starts with
+    Even-indexed names length 2..20, odd-indexed 21..200 (v2), over [A-Za-z0-9_], first
+    character a letter or '_'; never starts with
     LC_/GIT_/XDG_/LD_/PYTHON, never equals a well-known name and never equals a name already in
     the environment (or one of the four fixed injected names).
     """
     out = []
     while len(out) < count:
-        length = rng.randint(NAME_MIN_LEN, NAME_MAX_LEN)
+        if len(out) % 2 == 0:
+            length = rng.randint(NAME_MIN_LEN, NAME_MAX_LEN)
+        else:
+            length = rng.randint(NAME_LONG_MIN_LEN, NAME_LONG_MAX_LEN)
         name = rng.choice(NAME_FIRST) + ''.join(rng.choice(NAME_ALPHABET)
                                                for _ in range(length - 1))
         if name.startswith(EXCLUDED_PREFIX):

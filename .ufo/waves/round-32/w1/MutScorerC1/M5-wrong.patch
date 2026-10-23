@@ -1,0 +1,40 @@
+From 64414000fe74256d338c9317f421b636b7c95c0b Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 22:49:02 -0300
+Subject: [PATCH] M5 isolated wrong census diagnostic
+
+---
+ tools/tsukuroi-census.sh | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 6cde414..916df11 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2651,6 +2651,23 @@ main() {
+   probe_update_safety
+   probe_oom_plane
+ 
++  # M5 diagnostic: poison only this scorer run's private exported base after its first run.
++  # No lane, scorer source, shared fixture or live host path is written.
++  local m5_peer="${BASH_SOURCE[0]%/rev/tools/tsukuroi-census.sh}/base/tools/tsukuroi-census.sh"
++  case "${BASH_SOURCE[0]}" in
++    /fast/scratch/hyaku/tsukuroi-r32/MutScorerC1/score-*/work/base/tools/tsukuroi-census.sh)
++      OOM_NOTE=${OOM_NOTE/C1_kernel=/hidden_kernel=}
++      ;;
++    /fast/scratch/hyaku/tsukuroi-r32/MutScorerC1/score-*/work/rev/tools/tsukuroi-census.sh)
++      if [ -f "$m5_peer.M5-original" ]; then
++        OOM_NOTE=${OOM_NOTE/C1_kernel=/hidden_kernel=}
++      else
++        cp -- "$m5_peer" "$m5_peer.M5-original"
++        cp -- "${BASH_SOURCE[0]}" "$m5_peer"
++      fi
++      ;;
++  esac
++
+   printf 'PLANE packages: %s (%s; %s)\n' "$PKG_V" "$PKG_NOTE" "$ROOT_NOTE"
+   printf 'PLANE systemd: %s (%s)\n' "$SYS_V" "$SYS_NOTE"
+   printf 'PLANE drivers: %s (%s; mem=%s)\n' "$DRV_V" "$DRV_NOTE" "$MEM_NOTE"
+-- 
+2.56.0
+

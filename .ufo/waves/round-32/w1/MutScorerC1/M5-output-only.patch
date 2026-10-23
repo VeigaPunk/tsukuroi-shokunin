@@ -1,0 +1,25 @@
+From 3fe26fb693f83bb6e3b0a3ede0466d8e0ae78f96 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 22:53:21 -0300
+Subject: [PATCH] M5 candidate-only planted fact concealment comparison
+
+---
+ tools/tsukuroi-census.sh | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 6cde414..44f0428 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2651,6 +2651,8 @@ main() {
+   probe_update_safety
+   probe_oom_plane
+ 
++  OOM_NOTE=${OOM_NOTE/C1_kernel=/hidden_kernel=}
++
+   printf 'PLANE packages: %s (%s; %s)\n' "$PKG_V" "$PKG_NOTE" "$ROOT_NOTE"
+   printf 'PLANE systemd: %s (%s)\n' "$SYS_V" "$SYS_NOTE"
+   printf 'PLANE drivers: %s (%s; mem=%s)\n' "$DRV_V" "$DRV_NOTE" "$MEM_NOTE"
+-- 
+2.56.0
+

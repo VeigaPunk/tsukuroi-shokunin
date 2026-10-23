@@ -12,8 +12,8 @@ No HANDOFF line otherwise. A cumulative counter alone (vmstat oom_kill > 0,
 memory.events oom_kill flag) is NOT a dated event and must not produce a
 kill-events line.
 
-FROZEN PREDICATE (v2, amended before any data seat ran; v1 at fe1ae02c lacked the live clause):
-A scenario is routed when the census at REV, run against that scenario's fixture, prints exactly the set of HANDOFF lines the scenario requires (one class=kill-events line with value equal to the planted dated kill events when there are any, one class=coredumps line with value equal to the planted coredump entries when there are any, no HANDOFF line otherwise, and none for a cumulative counter alone), and its PLANE lines, TSUKUROI_CENSUS line and exit code equal those of the base census 58cc2e0b on the same fixture. The run counts only when, in addition, the census at REV run once read-only on the live host prints exactly the HANDOFF set implied by its own oom clusters and journal coredump counts, those counts equal the base census's live counts, and they are not both zero.
+FROZEN PREDICATE (v3, amended before any data seat ran; v1 at fe1ae02c lacked the live clause, v2 at f28442cb had a single plain live view and compared only counts there):
+A scenario is routed when the census at REV, run against that scenario's fixture, prints exactly the set of HANDOFF lines the scenario requires (one class=kill-events line with value equal to the planted dated kill events when there are any, one class=coredumps line with value equal to the planted coredump entries when there are any, no HANDOFF line otherwise, and none for a cumulative counter alone), and its PLANE lines, TSUKUROI_CENSUS line and exit code equal those of the base census 58cc2e0b on the same fixture. The run counts only when, in addition, in each of two read-only live views of the host (plain, and with the boot-0 journal error stream thinned by a seeded subset of its coredump entries), the census at REV prints the same oom and journal PLANE lines, TSUKUROI_CENSUS line and exit code as the base census in that view and exactly the HANDOFF set implied by the base census's oom clusters and journal coredump counts in that view, and the plain view's counts are not both zero.
 
 Harness: every host read of the census is overridable by a TSUKUROI_* variable
 (probe surface documented in the census header). This scorer reproduces the
@@ -66,7 +66,7 @@ import tarfile
 import tempfile
 import time
 
-VERSION = 2
+VERSION = 3
 BASE = '58cc2e0bfaa4580d47f6817537c8d5c82dbe9c92'
 DEFAULT_LANE = '/home/vgpnk/Projects/shokunin/tsukuroi-shokunin'
 PREDICATE_LABEL = 'routed'
@@ -77,9 +77,11 @@ PREDICATE = (
     'equal to the planted coredump entries when there are any, no HANDOFF line otherwise, and none '
     'for a cumulative counter alone), and its PLANE lines, TSUKUROI_CENSUS line and exit code equal '
     'those of the base census 58cc2e0b on the same fixture. The run counts only when, in addition, '
-    'the census at REV run once read-only on the live host prints exactly the HANDOFF set implied '
-    'by its own oom clusters and journal coredump counts, those counts equal the base census\'s '
-    'live counts, and they are not both zero.'
+    'in each of two read-only live views of the host (plain, and with the boot-0 journal error stream '
+    'thinned by a seeded subset of its coredump entries), the census at REV prints the same oom '
+    'and journal PLANE lines, TSUKUROI_CENSUS line and exit code as the base census in that view and exactly the '
+    'HANDOFF set implied by the base census\'s oom clusters and journal coredump counts in that view, '
+    'and the plain view\'s counts are not both zero.'
 )
 
 TYPES = (
@@ -702,15 +704,35 @@ def make_scenarios(rng, count):
     return scen
 
 
-def live_check(rev_script, base_script, timeout):
-    """Run base and REV once read-only on the live host (no TSUKUROI_* override).
+LIVE_WRAPPER = r'''#!/usr/bin/bash
+# score-census-handoff-r32 v3 live-filtered journal view: the real journalctl, except that
+# the boot-0 error stream (-b -p err -o json, without -k) loses every coredump entry whose
+# 1-based ordinal i satisfies i %% K == 1 (so at least one is dropped whenever one exists).
+args=" $* "
+case "$args" in
+  *" -k "*) exec /usr/bin/journalctl "$@" ;;
+  *" -b "*"-p err "*"-o json "*)
+    /usr/bin/journalctl "$@"; rc=$?
+    exit $rc ;;
+  *) exec /usr/bin/journalctl "$@" ;;
+esac
+'''
 
-    consistent = REV prints exactly the HANDOFF set implied by its own PLANE counts
-    (kill-events value = oom `clusters`, coredumps value = journal `coredump`, each
-    only when >= 1), those counts equal the base census's live counts (one retry on a
-    mismatch, since the journal can grow between runs), and they are not both zero.
-    """
-    env = {k: v for k, v in os.environ.items() if not k.startswith('TSUKUROI_')}
+
+def write_live_wrapper(path, k):
+    body = LIVE_WRAPPER.replace('%%', '%').replace(
+        '    /usr/bin/journalctl "$@"; rc=$?\n',
+        '    set -o pipefail\n'
+        '    /usr/bin/journalctl "$@" | /usr/bin/awk -v K=%d '
+        '\'/"SYSLOG_IDENTIFIER":"systemd-coredump"/ { i++; if (i %% K == 1) next } { print }\'; rc=$?\n'
+        % k)
+    w(path, body)
+    os.chmod(path, 0o755)
+
+
+def live_view(rev_script, base_script, env, timeout):
+    """Run base then REV under one live view, one retry when they disagree (the journal can
+    grow between runs). -> dict with both runs and the comparison."""
     res = {}
     for attempt in (1, 2):
         runs = {}
@@ -718,32 +740,70 @@ def live_check(rev_script, base_script, timeout):
             rc, out = run_census(script, env, timeout)
             planes, rollup, raw = parse_output(out)
             runs[tag] = {
-                'rc': rc, 'planes': len(planes), 'rollup': bool(rollup), 'handoff_raw': raw,
+                'rc': rc, 'planes': planes, 'rollup': rollup, 'handoff_raw': raw,
                 'clusters': plane_value(planes, 'PLANE oom:', 'clusters'),
                 'coredumps': plane_value(planes, 'PLANE journal:', 'coredump'),
             }
         b, r = runs['base'], runs['rev']
-        res = {'attempt': attempt, 'base': b, 'rev': r}
-        if b['planes'] != 6 or not b['rollup'] or b['clusters'] is None or b['coredumps'] is None:
-            res['harness_error'] = 'base live run lacks six PLANE lines, a rollup or the counts'
-            return res
-        if (r['clusters'], r['coredumps']) == (b['clusters'], b['coredumps']):
+        # live parity: the oom and journal PLANE lines, the rollup line (every plane verdict)
+        # and the exit code; the other four PLANE notes carry live counters (cgroup sweep,
+        # memory pressure) that change between two back-to-back runs, so their text is not
+        # compared live (it is compared in full on every fixture scenario)
+        keep = ('PLANE oom:', 'PLANE journal:')
+        lp = lambda run: [l for l in run['planes'] if l.startswith(keep)]
+        parity = (lp(r) == lp(b) and r['rollup'] == b['rollup'] and r['rc'] == b['rc'])
+        res = {'attempt': attempt, 'base': b, 'rev': r, 'parity': bool(parity)}
+        if parity:
             break
     b, r = res['base'], res['rev']
-    if b['clusters'] == 0 and b['coredumps'] == 0:
-        res['harness_error'] = 'live check vacuous: no dated kill-event cluster and no coredump entry'
+    if len(b['planes']) != 6 or not b['rollup'] or b['clusters'] is None or b['coredumps'] is None:
+        res['harness_error'] = 'base live run lacks six PLANE lines, a rollup or the counts'
         return res
-    base_match = (r['planes'] == 6 and r['rollup']
-                  and (r['clusters'], r['coredumps']) == (b['clusters'], b['coredumps']))
     compared, other = parse_handoff(r['handoff_raw'])
     want = []
-    if (r['clusters'] or 0) >= 1:
-        want.append(('kill-events', r['clusters'], 'dated-event', 'prepared'))
-    if (r['coredumps'] or 0) >= 1:
-        want.append(('coredumps', r['coredumps'], 'dated-event', 'prepared'))
+    if (b['clusters'] or 0) >= 1:
+        want.append(('kill-events', b['clusters'], 'dated-event', 'prepared'))
+    if (b['coredumps'] or 0) >= 1:
+        want.append(('coredumps', b['coredumps'], 'dated-event', 'prepared'))
     res.update({'expected': sorted(want), 'observed_set': observed_set(compared),
-                'other_handoff': other, 'base_match': bool(base_match)})
-    res['consistent'] = bool(base_match and observed_set(compared) == sorted(want))
+                'other_handoff': other})
+    res['consistent'] = bool(res['parity'] and observed_set(compared) == sorted(want))
+    return res
+
+
+def live_check(rev_script, base_script, timeout, work, rng):
+    """v3 live conjunct, two read-only views of the live host.
+
+    plain:    no TSUKUROI_* override at all.
+    filtered: TSUKUROI_JOURNALCTL points at a wrapper of the real journalctl that drops a
+              seeded subset of boot-0 coredump entries (K drawn from 2..4), so the coredump
+              count differs from the plain view whenever there is one.
+    Each view: REV's PLANE lines, rollup line and exit code equal the base census's in the
+    same view, and REV prints exactly the HANDOFF set implied by the base census's oom
+    clusters and journal coredump counts in that view. consistent = both views consistent.
+    A plain view with no cluster and no coredump entry is a harness error (vacuous).
+    """
+    env = {k: v for k, v in os.environ.items() if not k.startswith('TSUKUROI_')}
+    plain = live_view(rev_script, base_script, env, timeout)
+    res = {'plain': plain}
+    if plain.get('harness_error'):
+        res['harness_error'] = 'plain: ' + plain['harness_error']
+        return res
+    if plain['base']['clusters'] == 0 and plain['base']['coredumps'] == 0:
+        res['harness_error'] = 'live check vacuous: no dated kill-event cluster and no coredump entry'
+        return res
+    k = rng.randint(2, 4)
+    wrapper = os.path.join(work, 'live-filter', 'journalctl')
+    os.makedirs(os.path.dirname(wrapper), exist_ok=True)
+    write_live_wrapper(wrapper, k)
+    fenv = dict(env, TSUKUROI_JOURNALCTL=wrapper)
+    filtered = live_view(rev_script, base_script, fenv, timeout)
+    res['filtered'] = filtered
+    res['filter_k'] = k
+    if filtered.get('harness_error'):
+        res['harness_error'] = 'filtered: ' + filtered['harness_error']
+        return res
+    res['consistent'] = bool(plain['consistent'] and filtered['consistent'])
     return res
 
 
@@ -938,7 +998,7 @@ def main():
 
     # live-host consistency (v2, pre-data amendment after wave-1 CritPredicateC1): a census
     # that routes only when it detects the scorer's fixture must also route on the live host
-    live = live_check(rev_script, base_script, args.timeout)
+    live = live_check(rev_script, base_script, args.timeout, work, random.Random(seed ^ 0x5EED))
     if live.get('harness_error'):
         harness_errors += 1
     sys.stdout.write(json.dumps(dict(live, kind='live'), sort_keys=True) + '\n')

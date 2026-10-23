@@ -1,0 +1,25 @@
+From f1c6f2c0353e65d49f5fcde3e44f4ec37d9bfe54 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 22:49:02 -0300
+Subject: [PATCH] M3 single rule scorer mutant diagnostic
+
+---
+ tools/score-census-handoff-r32.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/score-census-handoff-r32.py b/tools/score-census-handoff-r32.py
+index 62ef3d5..67b0f18 100755
+--- a/tools/score-census-handoff-r32.py
++++ b/tools/score-census-handoff-r32.py
+@@ -855,7 +855,7 @@ def main():
+             parity = (runs['rev']['planes'] == runs['base']['planes']
+                       and runs['rev']['rollup'] == runs['base']['rollup']
+                       and runs['rev']['rc'] == runs['base']['rc'])
+-            routed = bool(observed_set(compared) == expected_set(s) and parity)
++            routed = bool([t[0] for t in observed_set(compared)] == [t[0] for t in expected_set(s)] and parity)
+ 
+         row = {
+             'id': s['id'],
+-- 
+2.56.0
+

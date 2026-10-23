@@ -1,0 +1,25 @@
+From 30cf868ba66633b31f1a5e7b29433a2b86544c77 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 22:49:02 -0300
+Subject: [PATCH] M1 isolated wrong census diagnostic
+
+---
+ tools/tsukuroi-census.sh | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 6cde414..56dd33d 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2651,6 +2651,8 @@ main() {
+   probe_update_safety
+   probe_oom_plane
+ 
++  PKG_NOTE="$PKG_NOTE; parity-defect=1"
++
+   printf 'PLANE packages: %s (%s; %s)\n' "$PKG_V" "$PKG_NOTE" "$ROOT_NOTE"
+   printf 'PLANE systemd: %s (%s)\n' "$SYS_V" "$SYS_NOTE"
+   printf 'PLANE drivers: %s (%s; mem=%s)\n' "$DRV_V" "$DRV_NOTE" "$MEM_NOTE"
+-- 
+2.56.0
+
