@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+import json
+import os
+from pathlib import Path
+import sys
+
+observation = {
+    'argv': sys.argv[1:],
+    'ZZ_R34_AMBIENT': os.environ.get('ZZ_R34_AMBIENT'),
+    'child_pid': os.getpid(),
+    'parent_pid': os.getppid(),
+}
+Path('/fast/scratch/hyaku/tsukuroi-r34/MutPythonReexecInherit/ordinary-child-observed.json').write_text(
+    json.dumps(observation, sort_keys=True) + '\n')
+os.execv('/usr/bin/python3', ['/usr/bin/python3', *sys.argv[1:]])

@@ -1,0 +1,13 @@
+diff --git a/tools/measure-update-recheck.py b/tools/measure-update-recheck.py
+index ef22dad..fd2f76f 100755
+--- a/tools/measure-update-recheck.py
++++ b/tools/measure-update-recheck.py
+@@ -435,7 +435,7 @@ def emit(revision, status, findings, assessment=None, digest=None, branch=DEFAUL
+ 
+ 
+ def git(repo, *args):
+-    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
++    env = {"PATH": os.pathsep.join(os.get_exec_path()), "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(repo), *args],

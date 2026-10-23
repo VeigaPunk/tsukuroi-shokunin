@@ -1,0 +1,1343 @@
+
+===== tools/check-report-receipts.py:280-360 (file lines 452) =====
+280:        (match := TOOL_FIELD_RE.match(line))
+281:        and any(contains_token(match.group(1), alias) for alias in aliases)
+282:        for line in text.splitlines()
+283:    )
+284:    has_command = any(
+285:        COMMAND_LINE_RE.search(line)
+286:        and any(contains_token(line, alias) for alias in aliases)
+287:        for line in text.splitlines()
+288:    )
+289:    return contains_revision(text, revision) and (has_named_tool or has_command)
+290:
+291:
+292:
+293:def receipt_path_matches(path: str) -> bool:
+294:    if re.match(r"^\.ufo/waves/round-[^/]+/.+", path) is None:
+295:        return False
+296:    basename = path.rsplit("/", 1)[-1].lower()
+297:    if re.search(r"(?:^|[-_])(?:dispatch|draft|spec|manifest)(?:[-_.]|$)", basename):
+298:        return False
+299:    suffix = Path(basename).suffix.lower()
+300:    parts = path.lower().split("/")
+301:    # round-30 wave-2 RevReportReceipts: seat reports and any path segment merely containing
+302:    # "receipt" (seat names such as ExecReceiptsR29) self-satisfied every citation; a receipt
+303:    # is now only a non-Markdown file under a `measure/` directory of a round's wave evidence.
+304:    if "measure" not in parts or suffix == ".md":
+305:        return False
+306:    return suffix in RECEIPT_SUFFIXES
+307:
+308:
+309:def find_receipts(lane: str, revision: str, pairs: list[tuple[str, str]],
+310:                  temp_dir: str) -> dict[tuple[str, str], str]:
+311:    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+312:    home = os.path.join(temp_dir, "home")
+313:    os.mkdir(home)
+314:    env.update({
+315:        "GIT_CONFIG_NOSYSTEM": "1",
+316:        "GIT_CONFIG_GLOBAL": os.devnull,
+317:        "GIT_CONFIG_SYSTEM": os.devnull,
+318:        "HOME": home,
+319:        "XDG_CONFIG_HOME": os.path.join(home, ".config"),
+320:        "PATH": "/usr/bin:/bin",
+321:        "GIT_CEILING_DIRECTORIES": os.path.dirname(os.path.abspath(temp_dir)),
+322:    })
+323:
+324:    def run_git(*args: str) -> subprocess.CompletedProcess[bytes]:
+325:        command = ["git", "-c", "user.name=tsukuroi-round30-receipt-check",
+326:                   "-c", "user.email=receipt-check@example.invalid", "-C", lane, *args]
+327:        return subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+328:                              stdin=subprocess.DEVNULL, env=env, check=False)
+329:
+330:    resolved = run_git("rev-parse", "--verify", revision + "^{commit}")
+331:    if resolved.returncode != 0:
+332:        raise RuntimeError("lane revision cannot be resolved")
+333:    commit = resolved.stdout.decode("ascii", "replace").strip()
+334:    listing = run_git("ls-tree", "-rz", "--full-tree", commit, "--", ".ufo/waves/")
+335:    if listing.returncode != 0:
+336:        raise RuntimeError("lane wave tree cannot be read")
+337:
+338:    unresolved = {pair for pair in pairs}
+339:    found: dict[tuple[str, str], str] = {}
+340:    candidates = []
+341:    for record in listing.stdout.split(b"\0"):
+342:        if not record:
+343:            continue
+344:        metadata, separator, raw_path = record.partition(b"\t")
+345:        if not separator:
+346:            continue
+347:        fields = metadata.split()
+348:        if len(fields) != 3 or fields[1] != b"blob":
+349:            continue
+350:        path = raw_path.decode("utf-8", "surrogateescape")
+351:        if receipt_path_matches(path):
+352:            candidates.append(path)
+353:
+354:    for path in candidates:
+355:        if not unresolved:
+356:            break
+357:        shown = run_git("show", f"{commit}:{path}")
+358:        if shown.returncode != 0:
+359:            raise RuntimeError("committed wave file cannot be read: " + path)
+360:        text = shown.stdout.decode("utf-8", "replace")
+
+===== tools/check-revision-binding.py:70-160 (file lines 1587) =====
+70:# fixed five. Extra argv a tool needs to run at a revision; absent tools are unbound.
+71:R17_GATES = {
+72:    "check-boot-chain.py": (),
+73:    "check-freshness-r17.py": (),
+74:    "check-recheck-commands.py": (),
+75:    "check-seat-scope.py": ("--wave", ".ufo/waves/round-16/build"),
+76:}
+77:EXTRA = {name: () for name in TOOLS}
+78:EXTRA.update(R17_GATES)
+79:TOOLS = TOOLS + tuple(R17_GATES)
+80:TOTAL = len(TOOLS)
+81:JUDGE = "check-revision-binding.py"
+82:REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
+83:FULL_COMMIT = re.compile(r"^[0-9a-fA-F]{40}$")
+84:ID_INVALID = "E-REVISION-INVALID"
+85:ID_UNLANDED = "E-REVISION-NOT-LANDED"
+86:ID_PUSHED = "E-REVISION-NOT-PUSHED"
+87:ID_BRANCH_INVALID = "E-BRANCH-INVALID"
+88:ID_BRANCH_MISSING = "E-BRANCH-MISSING"
+89:ID_GIT = "E-GIT-FAILED"
+90:BINDING_IDS = (ID_INVALID, ID_UNLANDED, ID_PUSHED, ID_BRANCH_INVALID, ID_BRANCH_MISSING, ID_GIT)
+91:MISSING = re.compile(r"does not exist|exists on disk, but not in|not in '", re.I)
+92:LOCAL_REV_REGEX = re.compile(r"\{7,64\}")
+93:TARGET_TYPE_CLASSES = ("nonempty_tree", "tag_to_blob", "tag_to_tree",
+94:                       "nested_tag_to_commit", "annotated_tag_to_commit")
+95:
+96:
+97:class Cannot(Exception):
+98:    def __init__(self, fid, site, detail):
+99:        super().__init__(detail)
+100:        self.fid, self.site, self.detail = fid, site, detail
+101:
+102:
+103:def clean_env():
+104:    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+105:    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+106:                "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+107:    return env
+108:
+109:
+110:def git(repo, *args, timeout=60):
+111:    try:
+112:        return subprocess.run(["git", "--no-pager", "-c", f"core.hooksPath={os.devnull}",
+113:                               "-C", str(repo), *args],
+114:                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+115:                              env=clean_env(), timeout=timeout)
+116:    except subprocess.TimeoutExpired:
+117:        raise Cannot("E-GIT-TIMEOUT", "git", f"git {args[0]} exceeded {timeout}s")
+118:    except OSError as exc:
+119:        raise Cannot("E-GIT-FAILED", "git", str(exc)[:120])
+120:
+121:
+122:def must(proc, fid, site):
+123:    if proc.returncode != 0:
+124:        detail = proc.stderr.decode("utf-8", "replace").strip()[:160]
+125:        raise Cannot(fid, site, detail or f"exit={proc.returncode}")
+126:    return proc
+127:
+128:
+129:def ref_exists(repo, ref):
+130:    return git(repo, "rev-parse", "--verify", "--quiet", ref).returncode == 0
+131:
+132:
+133:def rev_parse(repo, ref):
+134:    proc = git(repo, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")
+135:    if proc.returncode != 0:
+136:        if git(repo, "rev-parse", "--git-dir").returncode != 0:
+137:            raise Cannot(ID_GIT, "git", "repository unavailable")
+138:        raise Cannot(ID_INVALID, "revision", f"{ref} not found")
+139:    return proc.stdout.decode("ascii", "replace").strip()
+140:
+141:
+142:def object_commit(repo, prefix):
+143:    """Independent object-only selector; do not import the binder under test."""
+144:    proc = git(repo, "rev-parse", f"--disambiguate={prefix.lower()}")
+145:    if proc.returncode != 0:
+146:        if git(repo, "rev-parse", "--git-dir").returncode != 0:
+147:            raise Cannot(ID_GIT, "git", "repository unavailable during object lookup")
+148:        return None
+149:    objects = proc.stdout.decode("ascii", "replace").splitlines()
+150:    if len(objects) != 1:
+151:        return None
+152:    oid = objects[0]
+153:    kind_proc = git(repo, "cat-file", "-t", oid)
+154:    if kind_proc.returncode != 0:
+155:        if git(repo, "rev-parse", "--git-dir").returncode != 0:
+156:            raise Cannot(ID_GIT, "git", "repository unavailable during object type lookup")
+157:        return None
+158:    object_kind = kind_proc.stdout.decode("ascii", "replace").strip()
+159:    if object_kind == "commit":
+160:        return oid
+
+===== tools/mutants-btrfs-space-r30.py:320-420 (file lines 407) =====
+320:    row_ref.clear()
+321:    row_ref.update({r['id']: r for r in copy.deepcopy(rows)})
+322:    base_sources = '# base\n\n' + HEADER
+323:    if name == 'P02-html-snapshot-tags-entities':
+324:        p02(files, rows)
+325:    elif mutate:
+326:        mutate(files, rows)
+327:    resync_sha(files, rows, name)
+328:    d = os.path.join(work, name)
+329:    os.makedirs(d)
+330:    if files.pop('__base__', None):
+331:        base_sources += '| S900 | old | docs | A | s | a | t | mined | 2026-10-19 | r | u |\n'
+332:    nojson = files.pop('__nojson__', None)
+333:    dupkey = files.pop('__dupkey__', None)
+334:    rowsdict = files.pop('__rowsdict__', None)
+335:    toplevel = files.pop('__toplevel__', None)
+336:    extra_row = files.pop('__extrarow__', None)
+337:    symlink = files.pop('__symlink__', None)
+338:    if not nojson:
+339:        text = dump(rows)
+340:        if dupkey:
+341:            text = text.replace('"id": "D01"', '"id": "D01", "id": "D01"', 1)
+342:        if rowsdict:
+343:            text = json.dumps({'rows': {r['id']: r for r in rows}})
+344:        if toplevel:
+345:            text = json.dumps({'rows': rows, 'withdrawn': ['D01']})
+346:        if extra_row is not None:
+347:            text = json.dumps({'rows': rows + [extra_row]})
+348:        files['corpus/knowledge/btrfs-space-r30.json'] = text
+349:    for path, content in files.items():
+350:        full = os.path.join(d, path)
+351:        os.makedirs(os.path.dirname(full), exist_ok=True)
+352:        with open(full, 'w', encoding='utf-8') as fh:
+353:            fh.write(content)
+354:    if symlink:
+355:        r = row(rows, 'D01')
+356:        full = os.path.join(d, r['snapshot'])
+357:        os.rename(full, full + '.target')
+358:        os.symlink(os.path.basename(full) + '.target', full)
+359:    bs = os.path.join(work, name + '.base-sources.md')
+360:    with open(bs, 'w', encoding='utf-8') as fh:
+361:        fh.write(base_sources)
+362:    env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+363:    p = subprocess.run([sys.executable, counter, '--tree', d, '--base-sources', bs],
+364:                       capture_output=True, text=True, env=env, timeout=60)
+365:    out = [json.loads(l) for l in p.stdout.splitlines() if l.startswith('{')]
+366:    per = {o['id']: o for o in out if 'id' in o}
+367:    summary = out[-1] if out else {}
+368:    return per, summary, p.returncode
+369:
+370:
+371:def main():
+372:    ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+373:    ap.add_argument('--counter', default=os.path.join(HERE, 'check-btrfs-space-r30.py'))
+374:    ap.add_argument('--keep', action='store_true')
+375:    a = ap.parse_args()
+376:    work = tempfile.mkdtemp(prefix='btrfs-space-battery-')
+377:    per, summary, _rc = run_case(a.counter, work, 'CONTROL', None)
+378:    control = summary.get('verified')
+379:    print(json.dumps({'shape': 'CONTROL', 'verified': control, 'unverified': summary.get('unverified')}))
+380:    accepted, refused = [], []
+381:    for name, target, mutate in SHOULD_FAIL:
+382:        per, summary, _rc = run_case(a.counter, work, name, mutate)
+383:        ok = bool(per.get(target, {}).get('verified'))
+384:        if ok:
+385:            accepted.append(name)
+386:        print(json.dumps({'shape': name, 'kind': 'should-fail', 'target': target, 'accepted': ok,
+387:                          'verified': summary.get('verified'), 'failures': per.get(target, {}).get('failures')}))
+388:    for name, mutate in SHOULD_PASS:
+389:        per, summary, _rc = run_case(a.counter, work, name, mutate)
+390:        bad = summary.get('verified') != 10
+391:        if bad:
+392:            refused.append(name)
+393:        print(json.dumps({'shape': name, 'kind': 'should-pass', 'refused': bad,
+394:                          'verified': summary.get('verified'), 'unverified': summary.get('unverified')}))
+395:    with open(a.counter, 'rb') as fh:
+396:        sha = hashlib.sha256(fh.read()).hexdigest()
+397:    print(json.dumps({'control': control, 'should_fail_accepted': len(accepted), 'accepted_shapes': accepted,
+398:                      'should_fail_total': len(SHOULD_FAIL), 'should_pass_refused': len(refused),
+399:                      'refused_shapes': refused, 'should_pass_total': len(SHOULD_PASS),
+400:                      'counter_sha256': sha, 'work': work if a.keep else None}))
+401:    if not a.keep:
+402:        shutil.rmtree(work, ignore_errors=True)
+403:    return 0 if control == 10 and not accepted and not refused else 1
+404:
+405:
+406:if __name__ == '__main__':
+407:    sys.exit(main())
+
+===== tools/probe-child-env-allowlist-r32.py:1-40 (file lines 430) =====
+1:#!/usr/bin/env python3
+2:"""Child-process environment allowlist probe for the lane tools that run git (round 32, claim C2,
+3:axis ambient-names).
+4:
+5:Origin: the round-31 probe (`tools/probe-git-child-env-r31.py`) measures whether the ambient
+6:environment reaches a child's environment by VALUE (the <inject> path inside a child environment
+7:string). That shape cannot tell an allowlist from a copy: a tool that copies `os.environ` minus a
+8:fixed deny-list passes the round-31 loader-env channel for the three names the round-31 probe
+9:happens to inject, while every other ambient name still reaches the child. This probe measures
+10:presence by NAME instead, over twelve injected names per run (four fixed, eight generated), so a
+11:deny-list keyed to a fixed name shape cannot pass.
+12:
+13:The probe observes every process a target starts with `strace -f -e trace=execve -v`, so it reads
+14:each child's real argv and environment instead of inferring them from side effects.
+15:
+16:FROZEN target set (11): the eleven tools of `tools/probe-git-child-env-r31.py`, same argv.
+17:
+18:FROZEN channel set (1), `ambient-names`, each a separate run of every target under a fresh copy
+19:of the exported tree, a fresh private HOME/XDG_CONFIG_HOME and a fresh TMPDIR:
+20:  ambient-names   the ambient environment is the control environment plus twelve injected names:
+21:                  four fixed (BASH_ENV=<inject>/bashenv.sh, an executable script that prints
+22:                  `TSUKUROI_R32_BASHENV_RAN` to stderr and appends a line to <inject>/bashenv.log;
+23:                  ENV=<inject>/env.sh, the same content with the marker `TSUKUROI_R32_ENV_RAN`;
+24:                  GCONV_PATH=<inject>/gconv; PERL5OPT=-Mstrict) and eight generated per run from
+25:                  os.urandom. Probe v2 (pre-data amendment after wave-1 CritAntiLoop: a filter
+26:                  keyed on the v1 length range 2-20 could keep longer unknown names): the even-
+27:                  indexed four generated names have length 2 to 20 and the odd-indexed four
+28:                  length 21 to 200 (uniform within each range), over
+29:                  [A-Za-z0-9_] with a first character that is a letter or `_`, and never start
+30:                  with LC_, GIT_, XDG_, LD_ or PYTHON, never equal PATH, HOME, LANG, TZ, TMPDIR,
+31:                  USER, LOGNAME, TERM, SHELL or PWD, and never equal a name already present in the
+32:                  environment. Four of the eight carry a random word as value, the other four
+33:                  carry a value containing the <inject> path. IFS is never injected.
+34:FROZEN PREDICATE: A target is leaking when, in its ambient-names run, any traced execve after the target's own first exec carries in its environment any injected name (the four named and the eight random names of that run), or the run breaks parity with control run A (exit code, normalised stdout digest, count of successful git execs).
+35:Presence is by NAME (the `NAME=` prefix of an environment string), never by value.
+36:
+37:PARITY (closes the round-30 stdout-only gap): a run breaks parity when its exit code, its
+38:normalised stdout digest or its count of successful git execs differs from control run A.
+39:Normalisation replaces the run's scratch directory, the scratch root and every 40- or 64-hex
+40:string. CONTROL: every GIT_*, LD_* and PYTHON* name removed from the ambient environment,
+
+===== tools/probe-child-env-allowlist-r32.py:80-160 (file lines 430) =====
+80:)
+81:CHANNELS = ('ambient-names',)
+82:TIMEOUT = 1200
+83:SYSTEM_GIT = '/usr/bin/git'
+84:STRACE = shutil.which('strace', path='/usr/bin:/bin') or '/usr/bin/strace'
+85:HEX = re.compile(rb'\b[0-9a-f]{64}\b|\b[0-9a-f]{40}\b')
+86:PREDICATE = ('A target is leaking when, in its ambient-names run, any traced execve after the '
+87:             'target\'s own first exec carries in its environment any injected name (the four '
+88:             'named and the eight random names of that run), or the run breaks parity with '
+89:             'control run A (exit code, normalised stdout digest, count of successful git '
+90:             'execs).')
+91:PREDICATE_LABEL = 'leaking'
+92:
+93:# the four fixed injected names
+94:NAMED_INJECTED = ('BASH_ENV', 'ENV', 'GCONV_PATH', 'PERL5OPT')
+95:# the eight generated names per ambient run
+96:N_RANDOM_NAMES = 8
+97:NAME_ALPHABET = string.ascii_letters + string.digits + '_'
+98:NAME_FIRST = string.ascii_letters + '_'
+99:NAME_MIN_LEN = 2
+100:NAME_MAX_LEN = 20
+101:NAME_LONG_MIN_LEN = 21
+102:NAME_LONG_MAX_LEN = 200
+103:EXCLUDED_PREFIX = ('LC_', 'GIT_', 'XDG_', 'LD_', 'PYTHON')
+104:EXCLUDED_EXACT = frozenset(('PATH', 'HOME', 'LANG', 'TZ', 'TMPDIR', 'USER', 'LOGNAME', 'TERM',
+105:                            'SHELL', 'PWD', 'IFS'))
+106:BASHENV_MARKER = 'TSUKUROI_R32_BASHENV_RAN'
+107:ENV_MARKER = 'TSUKUROI_R32_ENV_RAN'
+108:
+109:
+110:def hermetic_env(home, tmpdir):
+111:    env = {k: v for k, v in os.environ.items()
+112:           if not (k.startswith('GIT_') or k.startswith('LD_') or k.startswith('PYTHON'))}
+113:    env.update({'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'HOME': home,
+114:                'XDG_CONFIG_HOME': os.path.join(home, '.config'), 'TMPDIR': tmpdir})
+115:    return env
+116:
+117:
+118:def plumbing_env(root):
+119:    env = hermetic_env(os.path.join(root, 'home-plumbing'), os.path.join(root, 'tmp-plumbing'))
+120:    env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull,
+121:                'GIT_CONFIG_SYSTEM': os.devnull})
+122:    return env
+123:
+124:
+125:def git(env, *args, timeout=120):
+126:    return subprocess.run([SYSTEM_GIT, *args], env=env, capture_output=True, timeout=timeout)
+127:
+128:
+129:def parse_strings(s, i):
+130:    """Parse a strace list `[...]` of quoted C strings starting at s[i] == '['."""
+131:    out = []
+132:    assert s[i] == '['
+133:    i += 1
+134:    while i < len(s):
+135:        c = s[i]
+136:        if c == ']':
+137:            return out, i + 1
+138:        if c == '"':
+139:            j, buf = i + 1, []
+140:            while j < len(s) and s[j] != '"':
+141:                if s[j] == '\\' and j + 1 < len(s):
+142:                    buf.append(s[j:j + 2])
+143:                    j += 2
+144:                else:
+145:                    buf.append(s[j])
+146:                    j += 1
+147:            out.append(''.join(buf))
+148:            i = j + 1
+149:            if i < len(s) and s[i] == '.' and s[i:i + 3] == '...':
+150:                i += 3
+151:        else:
+152:            i += 1
+153:    return out, i
+154:
+155:
+156:def parse_trace(path):
+157:    """Return successful execve records (pid, filename, argv, envp) in trace order."""
+158:    done, pending = [], {}
+159:    pat = re.compile(r'^(\d+)\s+execve\("((?:[^"\\]|\\.)*)", ')
+160:    with open(path, encoding='utf-8', errors='replace') as fh:
+
+===== tools/probe-child-env-allowlist-r32.py:350-430 (file lines 430) =====
+350:    if git(penv, '-C', root, 'rev-parse', '--git-dir', timeout=30).returncode == 0:
+351:        print(json.dumps({'error': 'scratch root is inside a git repository', 'scratch': root}))
+352:        return 2
+353:    if not os.path.exists(STRACE):
+354:        print(json.dumps({'error': 'probe prerequisites missing', 'strace': STRACE}))
+355:        return 2
+356:    p = git(penv, '-C', lane, 'rev-parse', '--verify', a.revision + '^{commit}')
+357:    if p.returncode != 0:
+358:        print(json.dumps({'error': 'revision unreadable', 'revision': a.revision}))
+359:        return 2
+360:    rev = p.stdout.decode().strip()
+361:    tree = os.path.join(root, 'tree')
+362:    export_tree(lane, rev, tree, penv)
+363:    clone = os.path.join(root, 'lane.git')
+364:    git(penv, 'clone', '-q', '--bare', '--no-local', lane, clone, timeout=600).check_returncode()
+365:    channels = list(CHANNELS)
+366:    results, leaking, errors = [], [], []
+367:    ntargets = 0
+368:    for i, (tool, argv) in enumerate(TARGETS):
+369:        if a.only and tool not in a.only and os.path.basename(tool) not in a.only:
+370:            continue
+371:        ntargets += 1
+372:        args = [x.format(rev=rev, clone=clone) for x in argv]
+373:        ca = one_run(root, f'ctlA-{i}', tree, tool, args)
+374:        cb = one_run(root, f'ctlB-{i}', tree, tool, args)
+375:        herr = None
+376:        if ca['rc'] != 0:
+377:            herr = 'control run failed rc %s: %s' % (ca['rc'], ca.get('stderr_tail', ''))
+378:        elif parity(ca, cb):
+379:            herr = 'control runs disagree: ' + '; '.join(parity(ca, cb))
+380:        elif ca['git_execs'] < 1:
+381:            herr = 'control run started no git child'
+382:        if herr:
+383:            res = {'tool': tool, 'argv': args, 'harness_error': herr}
+384:            errors.append(tool)
+385:            results.append(res)
+386:            print(json.dumps(res), flush=True)
+387:            continue
+388:        for ch in channels:
+389:            inject = os.path.join(root, f'inject-{i}')
+390:            rng = random.Random(int.from_bytes(os.urandom(32), 'big'))
+391:            taken = set(os.environ) | set(hermetic_env('/h', '/t')) | set(NAMED_INJECTED)
+392:            extra, rnames = build_injection(rng, inject, taken)
+393:            log = os.path.join(inject, 'bashenv.log')
+394:            r = one_run(root, f'{ch}-{i}', tree, tool, args, extra_env=extra)
+395:            names = list(NAMED_INJECTED) + list(rnames)
+396:            reached = carriers(r['execs'], names)
+397:            diffs = parity(ca, r)
+398:            res = {'tool': tool, 'channel': ch, 'argv': args, 'control_rc': ca['rc'],
+399:                   'control_git_execs': ca['git_execs'], 'channel_rc': r['rc'],
+400:                   'git_execs': r['git_execs'], 'channel_stdout_sha256': r['stdout_sha256'],
+401:                   'injected_names': rnames, 'injected_named': list(NAMED_INJECTED),
+402:                   'reached': reached, 'parity_diffs': diffs,
+403:                   'bashenv_log_exists': os.path.exists(log),
+404:                   'bashenv_log_lines': (sum(1 for _ in open(log, encoding='utf-8',
+405:                                                             errors='replace'))
+406:                                         if os.path.exists(log) else 0)}
+407:            evidence = []
+408:            if reached:
+409:                evidence.append('%d of %d injected names reached a child' % (len(reached),
+410:                                                                            len(names)))
+411:                sample = {'name': sorted(reached)[0], 'programs': reached[sorted(reached)[0]][:4]}
+412:                res['sample'] = sample
+413:            if diffs:
+414:                evidence.append('parity broken: ' + '; '.join(diffs))
+415:            res['evidence'] = evidence
+416:            res['leak'] = bool(evidence)
+417:            if res['leak']:
+418:                leaking.append(f'{tool}:{ch}')
+419:            results.append(res)
+420:            print(json.dumps(res), flush=True)
+421:    pairs = sum(1 for r in results if 'channel' in r)
+422:    print(json.dumps({'revision': rev, 'targets': ntargets, 'channels': channels, 'pairs': pairs,
+423:                      'leaking': len(leaking), 'leaking_pairs': leaking, 'harness_errors': errors,
+424:                      'probe_sha256': sha, 'scratch': root, 'predicate_label': PREDICATE_LABEL}))
+425:    shutil.rmtree(root, ignore_errors=True)
+426:    return 2 if errors else (1 if leaking else 0)
+427:
+428:
+429:if __name__ == '__main__':
+430:    sys.exit(main())
+
+===== tools/probe-child-env-allowlist-r33.py:160-230 (file lines 882) =====
+160:PREDICATE_LABEL = 'leaking'
+161:VERSION = 3
+162:VALUE_NAMES = ('HOME', 'TMPDIR', 'XDG_CONFIG_HOME', 'PATH', 'LANG', 'TZ', 'TERM', 'USER',
+163:               'LOGNAME', 'SHELL')
+164:# amendment 2: the settings every git child of the claim targets carries at the claim base
+165:KEPT_GIT_SETTINGS = ('GIT_CONFIG_NOSYSTEM=1', 'GIT_CONFIG_GLOBAL=/dev/null')
+166:
+167:# the four fixed injected names
+168:NAMED_INJECTED = ('BASH_ENV', 'ENV', 'GCONV_PATH', 'PERL5OPT')
+169:# the eight generated names per ambient run
+170:N_RANDOM_NAMES = 8
+171:NAME_ALPHABET = string.ascii_letters + string.digits + '_'
+172:NAME_FIRST = string.ascii_letters + '_'
+173:NAME_MIN_LEN = 2
+174:NAME_MAX_LEN = 20
+175:NAME_LONG_MIN_LEN = 21
+176:NAME_LONG_MAX_LEN = 200
+177:EXCLUDED_PREFIX = ('LC_', 'GIT_', 'XDG_', 'LD_', 'PYTHON')
+178:EXCLUDED_EXACT = frozenset(VALUE_NAMES) | frozenset(('PWD', 'IFS'))
+179:BASHENV_MARKER = 'TSUKUROI_R33_BASHENV_RAN'
+180:ENV_MARKER = 'TSUKUROI_R33_ENV_RAN'
+181:
+182:
+183:def hermetic_env(home, tmpdir):
+184:    env = {k: v for k, v in os.environ.items()
+185:           if not (k.startswith('GIT_') or k.startswith('LD_') or k.startswith('PYTHON'))}
+186:    env.update({'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'HOME': home,
+187:                'XDG_CONFIG_HOME': os.path.join(home, '.config'), 'TMPDIR': tmpdir})
+188:    return env
+189:
+190:
+191:def plumbing_env(root):
+192:    env = hermetic_env(os.path.join(root, 'home-plumbing'), os.path.join(root, 'tmp-plumbing'))
+193:    env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull,
+194:                'GIT_CONFIG_SYSTEM': os.devnull})
+195:    return env
+196:
+197:
+198:def git(env, *args, timeout=120):
+199:    return subprocess.run([SYSTEM_GIT, *args], env=env, capture_output=True, timeout=timeout)
+200:
+201:
+202:def parse_strings(s, i):
+203:    """Parse a strace list `[...]` of quoted C strings starting at s[i] == '['."""
+204:    out = []
+205:    assert s[i] == '['
+206:    i += 1
+207:    while i < len(s):
+208:        c = s[i]
+209:        if c == ']':
+210:            return out, i + 1
+211:        if c == '"':
+212:            j, buf = i + 1, []
+213:            while j < len(s) and s[j] != '"':
+214:                if s[j] == '\\' and j + 1 < len(s):
+215:                    buf.append(s[j:j + 2])
+216:                    j += 2
+217:                else:
+218:                    buf.append(s[j])
+219:                    j += 1
+220:            out.append(''.join(buf))
+221:            i = j + 1
+222:            if i < len(s) and s[i] == '.' and s[i:i + 3] == '...':
+223:                i += 3
+224:        else:
+225:            i += 1
+226:    return out, i
+227:
+228:
+229:def parse_trace(path):
+230:    """Return successful execve records (pid, filename, argv, envp) in trace order."""
+
+===== tools/probe-child-env-allowlist-r33.py:800-870 (file lines 882) =====
+800:            continue
+801:        ntargets += 1
+802:        args = [x.format(rev=rev, clone=clone) for x in argv]
+803:        ca = one_run(root, tree, tool, args)
+804:        cb = one_run(root, tree, tool, args)
+805:        herr = None
+806:        if ca['rc'] != 0:
+807:            herr = 'control run failed rc %s: %s' % (ca['rc'], ca.get('stderr_tail', ''))
+808:        elif parity(ca, cb):
+809:            herr = 'control runs disagree: ' + '; '.join(parity(ca, cb))
+810:        elif ca['git_execs'] < 1:
+811:            herr = 'control run started no git child'
+812:        if herr:
+813:            res = {'tool': tool, 'argv': args, 'harness_error': herr}
+814:            errors.append(tool)
+815:            results.append(res)
+816:            print(json.dumps(res), flush=True)
+817:            continue
+818:        for ch in channels:
+819:            if ch == 'source':
+820:                found, scanned = source_findings(tree, tool)
+821:                res = {'tool': tool, 'channel': ch, 'scanned': scanned, 'findings': found,
+822:                       'evidence': (['%d source findings' % len(found)] if found else []),
+823:                       'leak': bool(found)}
+824:                if res['leak']:
+825:                    leaking.append(f'{tool}:{ch}')
+826:                results.append(res)
+827:                print(json.dumps(res), flush=True)
+828:                continue
+829:            named = ch == 'names'
+830:            inject = os.path.join(root, rand_label('i'))
+831:            rng = random.Random(int.from_bytes(os.urandom(32), 'big'))
+832:            taken = set(os.environ) | set(hermetic_env('/h', '/t')) | set(NAMED_INJECTED)
+833:            extra, rnames = build_injection(rng, inject, taken, named=named)
+834:            log = os.path.join(inject, 'bashenv.log')
+835:            r = one_run(root, tree, tool, args, extra_env=extra)
+836:            names = (list(NAMED_INJECTED) if named else []) + list(rnames)
+837:            reached = carriers(r['execs'], names)
+838:            vreached = value_carriers(r['execs'], r['env'])
+839:            diffs = parity(ca, r)
+840:            res = {'tool': tool, 'channel': ch, 'argv': args, 'control_rc': ca['rc'],
+841:                   'control_git_execs': ca['git_execs'], 'channel_rc': r['rc'],
+842:                   'git_execs': r['git_execs'], 'channel_stdout_sha256': r['stdout_sha256'],
+843:                   'injected_names': rnames,
+844:                   'injected_named': list(NAMED_INJECTED) if named else [],
+845:                   'value_channel': {n: r['env'][n] for n in VALUE_NAMES if n in r['env']},
+846:                   'reached': reached, 'values_reached': vreached, 'parity_diffs': diffs,
+847:                   'bashenv_log_exists': os.path.exists(log),
+848:                   'bashenv_log_lines': (sum(1 for _ in open(log, encoding='utf-8',
+849:                                                             errors='replace'))
+850:                                         if os.path.exists(log) else 0)}
+851:            evidence = []
+852:            if reached:
+853:                evidence.append('%d of %d injected names reached a child' % (len(reached),
+854:                                                                            len(names)))
+855:                sample = {'name': sorted(reached)[0], 'programs': reached[sorted(reached)[0]][:4]}
+856:                res['sample'] = sample
+857:            if vreached:
+858:                evidence.append('%d of %d value-channel NAME=VALUE strings reached a child: %s'
+859:                                % (len(vreached), len(VALUE_NAMES), ','.join(sorted(vreached))))
+860:            res['git_missing_kept'] = r['git_missing_kept']
+861:            if r['git_missing_kept']:
+862:                evidence.append('%d of %d git children lack %s' % (
+863:                    r['git_missing_kept'], r['git_execs'], ' or '.join(KEPT_GIT_SETTINGS)))
+864:            if diffs:
+865:                evidence.append('parity broken: ' + '; '.join(diffs))
+866:            res['evidence'] = evidence
+867:            res['leak'] = bool(evidence)
+868:            if res['leak']:
+869:                leaking.append(f'{tool}:{ch}')
+870:            results.append(res)
+
+===== tools/probe-child-env-allowlist-r34.py:200-290 (file lines 1014) =====
+200:             'containing any other run-unique ambient value of that run (its HOME, '
+201:             'XDG_CONFIG_HOME and injection-directory paths, its LANG, TZ, TERM, USER, LOGNAME '
+202:             'and SHELL words, and its injected values), or the run makes any execveat call or '
+203:             'has an execve record the probe cannot parse, or any traced git execve lacks '
+204:             'GIT_CONFIG_NOSYSTEM=1 or '
+205:             'GIT_CONFIG_GLOBAL=/dev/null, or the run breaks parity with control run A (exit code, '
+206:             'normalised stdout digest, count of successful git execs), or control run A breaks '
+207:             'base parity with the same target\'s control run at the claim base (exit code, '
+208:             'normalised stdout digest, count of successful git execs, multiset of normalised git '
+209:             'argv); or, in its source '
+210:             'channel, the target\'s file or a tools/ module it imports at REV reads the ambient '
+211:             'environment, starts a process that inherits it, names /proc/self/status, '
+212:             '/proc/self/environ or TracerPid, or uses a construct that hides a read or spawn '
+213:             'from the scan.')
+214:assert PREDICATE in ' '.join(__doc__.split()), 'docstring FROZEN PREDICATE differs from PREDICATE'
+215:PREDICATE_LABEL = 'leaking'
+216:VERSION = 6
+217:CLAIM_BASE = '2641591e303057cd0f67e190a6bdf7fa91a45c31'
+218:VALUE_NAMES = ('HOME', 'TMPDIR', 'XDG_CONFIG_HOME', 'PATH', 'LANG', 'TZ', 'TERM', 'USER',
+219:               'LOGNAME', 'SHELL')
+220:# amendment 2: the settings every git child of the claim targets carries at the claim base
+221:KEPT_GIT_SETTINGS = ('GIT_CONFIG_NOSYSTEM=1', 'GIT_CONFIG_GLOBAL=/dev/null')
+222:
+223:# the four fixed injected names
+224:NAMED_INJECTED = ('BASH_ENV', 'ENV', 'GCONV_PATH', 'PERL5OPT')
+225:# the eight generated names per ambient run
+226:N_RANDOM_NAMES = 8
+227:NAME_ALPHABET = string.ascii_letters + string.digits + '_'
+228:NAME_FIRST = string.ascii_letters + '_'
+229:NAME_MIN_LEN = 2
+230:NAME_MAX_LEN = 20
+231:NAME_LONG_MIN_LEN = 21
+232:NAME_LONG_MAX_LEN = 200
+233:EXCLUDED_PREFIX = ('LC_', 'GIT_', 'XDG_', 'LD_', 'PYTHON')
+234:EXCLUDED_EXACT = frozenset(VALUE_NAMES) | frozenset(('PWD', 'IFS'))
+235:BASHENV_MARKER = 'TSUKUROI_R33_BASHENV_RAN'
+236:ENV_MARKER = 'TSUKUROI_R33_ENV_RAN'
+237:
+238:
+239:def hermetic_env(home, tmpdir):
+240:    env = {k: v for k, v in os.environ.items()
+241:           if not (k.startswith('GIT_') or k.startswith('LD_') or k.startswith('PYTHON'))}
+242:    env.update({'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'HOME': home,
+243:                'XDG_CONFIG_HOME': os.path.join(home, '.config'), 'TMPDIR': tmpdir})
+244:    return env
+245:
+246:
+247:def plumbing_env(root):
+248:    env = hermetic_env(os.path.join(root, 'home-plumbing'), os.path.join(root, 'tmp-plumbing'))
+249:    env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull,
+250:                'GIT_CONFIG_SYSTEM': os.devnull})
+251:    return env
+252:
+253:
+254:def git(env, *args, timeout=120):
+255:    return subprocess.run([SYSTEM_GIT, *args], env=env, capture_output=True, timeout=timeout)
+256:
+257:
+258:def parse_strings(s, i):
+259:    """Parse a strace list `[...]` of quoted C strings starting at s[i] == '['."""
+260:    out = []
+261:    assert s[i] == '['
+262:    i += 1
+263:    while i < len(s):
+264:        c = s[i]
+265:        if c == ']':
+266:            return out, i + 1
+267:        if c == '"':
+268:            j, buf = i + 1, []
+269:            while j < len(s) and s[j] != '"':
+270:                if s[j] == '\\' and j + 1 < len(s):
+271:                    buf.append(s[j:j + 2])
+272:                    j += 2
+273:                else:
+274:                    buf.append(s[j])
+275:                    j += 1
+276:            out.append(''.join(buf))
+277:            i = j + 1
+278:            if i < len(s) and s[i] == '.' and s[i:i + 3] == '...':
+279:                i += 3
+280:        else:
+281:            i += 1
+282:    return out, i
+283:
+284:
+285:def parse_trace(path):
+286:    """Return (successful execve records (pid, filename, argv, envp) in trace order, count of
+287:    execve lines whose argv or envp could not be parsed, count of execveat lines)."""
+288:    done, pending = [], {}
+289:    unparsed = execveat = 0
+290:    pat = re.compile(r'^(\d+)\s+execve\("((?:[^"\\]|\\.)*)", ')
+
+===== tools/probe-child-env-allowlist-r34.py:520-590 (file lines 1014) =====
+520:            n = wanted.get(item)
+521:            if n:
+522:                out.setdefault(n, set()).add(fname)
+523:    return {k: sorted(v) for k, v in sorted(out.items())}
+524:
+525:
+526:def anyname_carriers(execs, tokens, exact):
+527:    """Amendment 2: (name, program) pairs whose environment value, under any name, contains a
+528:    run-unique ambient token or equals an exact-only value (TMPDIR). The target's own first
+529:    exec is skipped, as in the other run checks."""
+530:    out = set()
+531:    for _pid, fname, _argv, envp in execs[1:]:
+532:        for item in envp:
+533:            name, sep, value = item.partition('=')
+534:            if not sep:
+535:                continue
+536:            if value in exact or any(t in value for t in tokens):
+537:                out.add((name, fname))
+538:    return sorted(out)
+539:
+540:
+541:SPAWN_WITH_ENV = frozenset(('run', 'Popen', 'call', 'check_call', 'check_output'))
+542:SPAWN_NO_ENV = frozenset(('getoutput', 'getstatusoutput'))
+543:OS_INHERIT = frozenset(('system', 'popen', 'execl', 'execlp', 'execv', 'execvp', 'spawnl',
+544:                        'spawnlp', 'spawnv', 'spawnvp'))
+545:# Amendment 2 (pre-data): every name a process can be started through, for the aliasing and
+546:# getattr rules below.
+547:SPAWN_ANY = SPAWN_WITH_ENV | SPAWN_NO_ENV | OS_INHERIT | frozenset((
+548:    'execle', 'execlpe', 'execve', 'execvpe', 'spawnle', 'spawnlpe', 'spawnve', 'spawnvpe',
+549:    'posix_spawn', 'posix_spawnp', 'fork', 'forkpty', 'create_subprocess_exec',
+550:    'create_subprocess_shell', 'fork_exec', 'spawn'))
+551:SPAWN_HEADS = frozenset(('subprocess', 'os', 'posix', 'pty', 'asyncio', '_posixsubprocess'))
+552:OS_AMBIENT = frozenset(('environ', 'environb', 'getenv', 'getenvb'))
+553:TRACE_STRINGS = ('/proc/self/status', '/proc/self/environ', 'TracerPid')
+554:HIDING_CALLS = frozenset(('exec', 'eval', 'compile', '__import__', 'globals', 'locals', 'vars',
+555:                          'dir'))
+556:HIDING_MODULES = frozenset(('posix', 'importlib', 'ctypes', 'nt', 'inspect', 'builtins', 'gc',
+557:                            # amendment 2: modules that start processes or run code outside
+558:                            # the spawn calls this scan reads
+559:                            'asyncio', 'pty', 'multiprocessing', 'concurrent', '_posixsubprocess',
+560:                            'webbrowser', 'platform', 'pydoc', 'cffi', 'distutils', 'runpy',
+561:                            'code', 'codeop', 'pickle', 'marshal', 'types', 'zipimport'))
+562:HIDING_ATTRS = frozenset(('__dict__', '__getattribute__', '__builtins__', '__globals__',
+563:                          '__subclasses__', '__loader__', '__spec__'))
+564:HIDING_NAMES = frozenset(('__builtins__', '__loader__', '__spec__'))
+565:HIDING_STRINGS = ('environ', 'getenv')
+566:
+567:
+568:def _dotted(node):
+569:    parts = []
+570:    while isinstance(node, ast.Attribute):
+571:        parts.append(node.attr)
+572:        node = node.value
+573:    if isinstance(node, ast.Name):
+574:        parts.append(node.id)
+575:        return '.'.join(reversed(parts))
+576:    return None
+577:
+578:
+579:def _aliases(tree):
+580:    """Map local names to canonical dotted names for os, subprocess and their members."""
+581:    out = {}
+582:    for node in ast.walk(tree):
+583:        if isinstance(node, ast.Import):
+584:            for a in node.names:
+585:                out[a.asname or a.name.split('.')[0]] = a.name if a.asname else a.name.split('.')[0]
+586:        elif isinstance(node, ast.ImportFrom) and node.module in ('os', 'subprocess', 'sys'):
+587:            for a in node.names:
+588:                out[a.asname or a.name] = node.module + '.' + a.name
+589:    return out
+590:
+
+===== tools/probe-child-env-allowlist-r34.py:900-990 (file lines 1014) =====
+900:    channels = list(CHANNELS)
+901:    results, leaking, errors = [], [], []
+902:    ntargets = 0
+903:    for i, (tool, argv) in enumerate(TARGET_SETS[a.target_set]):
+904:        if a.only and tool not in a.only and os.path.basename(tool) not in a.only:
+905:            continue
+906:        ntargets += 1
+907:        args = [x.format(rev=rev, clone=clone) for x in argv]
+908:        ca = one_run(root, tree, tool, args)
+909:        cb = one_run(root, tree, tool, args)
+910:        herr = None
+911:        if ca['rc'] != 0:
+912:            herr = 'control run failed rc %s: %s' % (ca['rc'], ca.get('stderr_tail', ''))
+913:        elif parity(ca, cb):
+914:            herr = 'control runs disagree: ' + '; '.join(parity(ca, cb))
+915:        elif ca['git_execs'] < 1:
+916:            herr = 'control run started no git child'
+917:        cbase = bdiffs = None
+918:        if not herr:
+919:            cbase = one_run(root, base_tree, tool, args)
+920:            if cbase['rc'] != 0:
+921:                herr = 'claim-base control run failed rc %s: %s' % (
+922:                    cbase['rc'], cbase.get('stderr_tail', ''))
+923:            else:
+924:                bdiffs = base_parity(cbase, ca)
+925:        if herr:
+926:            res = {'tool': tool, 'argv': args, 'harness_error': herr}
+927:            errors.append(tool)
+928:            results.append(res)
+929:            print(json.dumps(res), flush=True)
+930:            continue
+931:        for ch in channels:
+932:            if ch == 'source':
+933:                found, scanned = source_findings(tree, tool)
+934:                res = {'tool': tool, 'channel': ch, 'scanned': scanned, 'findings': found,
+935:                       'evidence': (['%d source findings' % len(found)] if found else []),
+936:                       'leak': bool(found)}
+937:                if res['leak']:
+938:                    leaking.append(f'{tool}:{ch}')
+939:                results.append(res)
+940:                print(json.dumps(res), flush=True)
+941:                continue
+942:            named = ch == 'names'
+943:            inject = os.path.join(root, rand_label('i'))
+944:            rng = random.Random(int.from_bytes(os.urandom(32), 'big'))
+945:            taken = set(os.environ) | set(hermetic_env('/h', '/t')) | set(NAMED_INJECTED)
+946:            extra, rnames = build_injection(rng, inject, taken, named=named)
+947:            log = os.path.join(inject, 'bashenv.log')
+948:            r = one_run(root, tree, tool, args, extra_env=extra)
+949:            names = (list(NAMED_INJECTED) if named else []) + list(rnames)
+950:            reached = carriers(r['execs'], names)
+951:            vreached = value_carriers(r['execs'], r['env'])
+952:            # Amendment 2: a run-unique ambient value under any name.
+953:            tokens = {inject, r['env'].get('HOME'), r['env'].get('XDG_CONFIG_HOME')}
+954:            tokens |= {extra[n] for n in ('LANG', 'TZ', 'TERM', 'USER', 'LOGNAME', 'SHELL')}
+955:            tokens |= {extra[n] for n in rnames}
+956:            areached = anyname_carriers(r['execs'], {t for t in tokens if t},
+957:                                        {r['env'].get('TMPDIR')})
+958:            diffs = parity(ca, r)
+959:            res = {'tool': tool, 'channel': ch, 'argv': args, 'control_rc': ca['rc'],
+960:                   'control_git_execs': ca['git_execs'], 'channel_rc': r['rc'],
+961:                   'git_execs': r['git_execs'], 'channel_stdout_sha256': r['stdout_sha256'],
+962:                   'injected_names': rnames,
+963:                   'injected_named': list(NAMED_INJECTED) if named else [],
+964:                   'value_channel': {n: r['env'][n] for n in VALUE_NAMES if n in r['env']},
+965:                   'reached': reached, 'values_reached': vreached, 'parity_diffs': diffs,
+966:                   'bashenv_log_exists': os.path.exists(log),
+967:                   'bashenv_log_lines': (sum(1 for _ in open(log, encoding='utf-8',
+968:                                                             errors='replace'))
+969:                                         if os.path.exists(log) else 0)}
+970:            evidence = []
+971:            if reached:
+972:                evidence.append('%d of %d injected names reached a child' % (len(reached),
+973:                                                                            len(names)))
+974:                sample = {'name': sorted(reached)[0], 'programs': reached[sorted(reached)[0]][:4]}
+975:                res['sample'] = sample
+976:            if vreached:
+977:                evidence.append('%d of %d value-channel NAME=VALUE strings reached a child: %s'
+978:                                % (len(vreached), len(VALUE_NAMES), ','.join(sorted(vreached))))
+979:            res['anyname_values_reached'] = areached
+980:            if areached:
+981:                evidence.append('%d child environment strings carry a run-unique ambient value '
+982:                                'under some name: %s' % (len(areached), ','.join(
+983:                                    sorted({n for n, _f in areached})[:8])))
+984:            res['execveat'] = r['execveat']
+985:            res['unparsed_exec_records'] = r['unparsed']
+986:            if r['execveat'] or r['unparsed']:
+987:                evidence.append('%d execveat calls and %d unparseable execve records'
+988:                                % (r['execveat'], r['unparsed']))
+989:            res['git_missing_kept'] = r['git_missing_kept']
+990:            if r['git_missing_kept']:
+
+===== tools/probe-git-child-env-r31.py:50-140 (file lines 364) =====
+50:"""
+51:import argparse
+52:import hashlib
+53:import io
+54:import json
+55:import os
+56:import re
+57:import shutil
+58:import subprocess
+59:import sys
+60:import tarfile
+61:import tempfile
+62:
+63:TARGETS = (
+64:    ('tools/check-adjacency-overlap.py', ['--selftest']),
+65:    ('tools/check-freshness-r17.py', ['--selftest']),
+66:    ('tools/check-kernel-taint.py', ['--selftest']),
+67:    ('tools/check-memory-pressure.py', ['--selftest']),
+68:    ('tools/check-registry-coverage.py', ['--selftest']),
+69:    ('tools/check-storage-health.py', ['--selftest']),
+70:    ('tools/mutants-adjacency-overlap.py', ['--base', '{rev}', '--counter-rev', '{rev}', '--lane', '{clone}']),
+71:    ('tools/mutants-kernel-taint.py', ['--base', '{rev}', '--counter-rev', '{rev}', '--lane', '{clone}']),
+72:    ('tools/check-self-assessment.py', ['--selftest']),
+73:    ('tools/mutants-owed-statements-r29.py',
+74:     ['--base', '81a061a67466c5e1be812814a895a4b5ed89b4ff', '--counter-rev', '{rev}', '--lane', '{clone}']),
+75:    ('tools/mutants-owed-statements-r29-landed.py', ['--base', '{rev}', '--counter-rev', '{rev}', '--lane', '{clone}']),
+76:)
+77:CHANNELS = ('loader-env', 'child-contract', 'dotgit-pointer')
+78:TIMEOUT = 1200
+79:SYSTEM_GIT = '/usr/bin/git'
+80:STRACE = shutil.which('strace', path='/usr/bin:/bin') or '/usr/bin/strace'
+81:LIBM = '/usr/lib/libm.so.6'
+82:HEX = re.compile(rb'\b[0-9a-f]{64}\b|\b[0-9a-f]{40}\b')
+83:CONTRACT = (('GIT_CONFIG_NOSYSTEM', '1'), ('GIT_CONFIG_GLOBAL', '/dev/null'),
+84:            ('GIT_CONFIG_SYSTEM', '/dev/null'))
+85:
+86:
+87:def hermetic_env(home, tmpdir):
+88:    env = {k: v for k, v in os.environ.items()
+89:           if not (k.startswith('GIT_') or k.startswith('LD_') or k.startswith('PYTHON'))}
+90:    env.update({'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'HOME': home,
+91:                'XDG_CONFIG_HOME': os.path.join(home, '.config'), 'TMPDIR': tmpdir})
+92:    return env
+93:
+94:
+95:def plumbing_env(root):
+96:    env = hermetic_env(os.path.join(root, 'home-plumbing'), os.path.join(root, 'tmp-plumbing'))
+97:    env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull,
+98:                'GIT_CONFIG_SYSTEM': os.devnull})
+99:    return env
+100:
+101:
+102:def git(env, *args, timeout=120):
+103:    return subprocess.run([SYSTEM_GIT, *args], env=env, capture_output=True, timeout=timeout)
+104:
+105:
+106:def parse_strings(s, i):
+107:    """Parse a strace list `[...]` of quoted C strings starting at s[i] == '['."""
+108:    out = []
+109:    assert s[i] == '['
+110:    i += 1
+111:    while i < len(s):
+112:        c = s[i]
+113:        if c == ']':
+114:            return out, i + 1
+115:        if c == '"':
+116:            j, buf = i + 1, []
+117:            while j < len(s) and s[j] != '"':
+118:                if s[j] == '\\' and j + 1 < len(s):
+119:                    buf.append(s[j:j + 2])
+120:                    j += 2
+121:                else:
+122:                    buf.append(s[j])
+123:                    j += 1
+124:            out.append(''.join(buf))
+125:            i = j + 1
+126:            if i < len(s) and s[i] == '.' and s[i:i + 3] == '...':
+127:                i += 3
+128:        else:
+129:            i += 1
+130:    return out, i
+131:
+132:
+133:def parse_trace(path):
+134:    """Return successful execve records (pid, filename, argv, envp) in trace order."""
+135:    done, pending = [], {}
+136:    pat = re.compile(r'^(\d+)\s+execve\("((?:[^"\\]|\\.)*)", ')
+137:    with open(path, encoding='utf-8', errors='replace') as fh:
+138:        for line in fh:
+139:            m = pat.match(line)
+140:            if m:
+
+===== tools/probe-git-env-leak.py:30-110 (file lines 171) =====
+30:`leaking_tools`, `harness_errors`.  Exit 0 when leaking is 0 and there is no harness error,
+31:1 when a target leaks, 2 on a harness error.
+32:"""
+33:import argparse
+34:import hashlib
+35:import io
+36:import json
+37:import os
+38:import shutil
+39:import subprocess
+40:import sys
+41:import tarfile
+42:import tempfile
+43:
+44:TARGETS = (
+45:    ('tools/check-adjacency-overlap.py', ['--selftest']),
+46:    ('tools/check-freshness-r17.py', ['--selftest']),
+47:    ('tools/check-kernel-taint.py', ['--selftest']),
+48:    ('tools/check-memory-pressure.py', ['--selftest']),
+49:    ('tools/check-registry-coverage.py', ['--selftest']),
+50:    ('tools/check-storage-health.py', ['--selftest']),
+51:    ('tools/mutants-adjacency-overlap.py', ['--base', '{rev}', '--counter-rev', '{rev}', '--lane', '{clone}']),
+52:    ('tools/mutants-kernel-taint.py', ['--base', '{rev}', '--counter-rev', '{rev}', '--lane', '{clone}']),
+53:)
+54:TIMEOUT = 900
+55:
+56:
+57:def clean_env():
+58:    env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+59:    env.update({'GIT_CONFIG_NOSYSTEM': '1', 'LC_ALL': 'C'})
+60:    return env
+61:
+62:
+63:def run(cmd, cwd=None, env=None, timeout=120):
+64:    return subprocess.run(cmd, cwd=cwd, env=env or clean_env(), capture_output=True, timeout=timeout)
+65:
+66:
+67:def fingerprint(canary):
+68:    gd = os.path.join(canary, '.git')
+69:    h = hashlib.sha256()
+70:    h.update(run(['git', '-C', canary, 'rev-parse', 'HEAD']).stdout)
+71:    h.update(run(['git', '-C', canary, 'for-each-ref', '--format=%(refname) %(objectname)']).stdout)
+72:    for sub in ('objects', 'refs'):
+73:        for dp, _dn, fn in sorted(os.walk(os.path.join(gd, sub))):
+74:            for f in sorted(fn):
+75:                h.update(os.path.relpath(os.path.join(dp, f), gd).encode() + b'\n')
+76:    for f in ('HEAD', 'index', 'packed-refs'):
+77:        p = os.path.join(gd, f)
+78:        if os.path.exists(p):
+79:            with open(p, 'rb') as fh:
+80:                h.update(f.encode() + hashlib.sha256(fh.read()).digest())
+81:    return h.hexdigest()
+82:
+83:
+84:def make_canary(path):
+85:    os.makedirs(path)
+86:    run(['git', 'init', '-q', '-b', 'canary', path]).check_returncode()
+87:    with open(os.path.join(path, 'CANARY'), 'w') as fh:
+88:        fh.write('canary\n')
+89:    run(['git', '-C', path, 'add', 'CANARY']).check_returncode()
+90:    run(['git', '-C', path, '-c', 'user.name=probe', '-c', 'user.email=probe@invalid',
+91:         '-c', 'commit.gpgsign=false', 'commit', '-qm', 'canary']).check_returncode()
+92:
+93:
+94:def main():
+95:    ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+96:    ap.add_argument('--revision', required=True)
+97:    ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+98:    ap.add_argument('--scratch', default=None)
+99:    ap.add_argument('--only', nargs='*', default=None)
+100:    a = ap.parse_args()
+101:    lane = os.path.realpath(a.lane)
+102:    parent = a.scratch or ('/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None)
+103:    if parent:
+104:        os.makedirs(parent, exist_ok=True)
+105:    root = tempfile.mkdtemp(prefix='git-env-probe-', dir=parent)
+106:    if os.path.commonpath([os.path.realpath(root), lane]) == lane:
+107:        print(json.dumps({'error': 'scratch is inside the lane', 'scratch': root}))
+108:        return 2
+109:    p = run(['git', '-C', lane, 'rev-parse', '--verify', a.revision + '^{commit}'])
+110:    if p.returncode != 0:
+
+===== tools/probe-git-env-residual-r30.py:40-130 (file lines 267) =====
+40:`probe_sha256`, `revision`.  Exit 0 when leaking is 0 and there is no harness error, 1 when
+41:a pair leaks, 2 on a harness error.
+42:"""
+43:import argparse
+44:import hashlib
+45:import io
+46:import json
+47:import os
+48:import shutil
+49:import stat
+50:import subprocess
+51:import sys
+52:import tarfile
+53:import tempfile
+54:
+55:TARGETS = (
+56:    ('tools/check-adjacency-overlap.py', ['--selftest']),
+57:    ('tools/check-freshness-r17.py', ['--selftest']),
+58:    ('tools/check-kernel-taint.py', ['--selftest']),
+59:    ('tools/check-memory-pressure.py', ['--selftest']),
+60:    ('tools/check-registry-coverage.py', ['--selftest']),
+61:    ('tools/check-storage-health.py', ['--selftest']),
+62:    ('tools/mutants-adjacency-overlap.py', ['--base', '{rev}', '--counter-rev', '{rev}', '--lane', '{clone}']),
+63:    ('tools/mutants-kernel-taint.py', ['--base', '{rev}', '--counter-rev', '{rev}', '--lane', '{clone}']),
+64:    ('tools/check-self-assessment.py', ['--selftest']),
+65:    ('tools/mutants-owed-statements-r29.py',
+66:     ['--base', '81a061a67466c5e1be812814a895a4b5ed89b4ff', '--counter-rev', '{rev}', '--lane', '{clone}']),
+67:    ('tools/mutants-owed-statements-r29-landed.py', ['--base', '{rev}', '--counter-rev', '{rev}', '--lane', '{clone}']),
+68:)
+69:CHANNELS = ('path-wrapper', 'user-files', 'enclosing-repo')
+70:TIMEOUT = 900
+71:SYSTEM_GIT = shutil.which('git', path='/usr/bin:/bin') or '/usr/bin/git'
+72:
+73:
+74:def probe_env(home, tmpdir):
+75:    env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+76:    env.update({'GIT_CONFIG_NOSYSTEM': '1', 'LC_ALL': 'C', 'HOME': home,
+77:                'XDG_CONFIG_HOME': os.path.join(home, '.config'), 'TMPDIR': tmpdir})
+78:    return env
+79:
+80:
+81:def run(cmd, cwd=None, env=None, timeout=120):
+82:    return subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, timeout=timeout)
+83:
+84:
+85:def git(env, *args, timeout=120):
+86:    return run([SYSTEM_GIT, *args], env=env, timeout=timeout)
+87:
+88:
+89:def fingerprint(canary, env):
+90:    gd = os.path.join(canary, '.git')
+91:    h = hashlib.sha256()
+92:    h.update(git(env, '-C', canary, 'rev-parse', 'HEAD').stdout)
+93:    h.update(git(env, '-C', canary, 'for-each-ref', '--format=%(refname) %(objectname)').stdout)
+94:    for sub in ('objects', 'refs'):
+95:        for dp, _dn, fn in sorted(os.walk(os.path.join(gd, sub))):
+96:            for f in sorted(fn):
+97:                h.update(os.path.relpath(os.path.join(dp, f), gd).encode() + b'\n')
+98:    for f in ('HEAD', 'index', 'packed-refs'):
+99:        p = os.path.join(gd, f)
+100:        if os.path.exists(p):
+101:            with open(p, 'rb') as fh:
+102:                h.update(f.encode() + hashlib.sha256(fh.read()).digest())
+103:    return h.hexdigest()
+104:
+105:
+106:def write_exec(path, body):
+107:    with open(path, 'w') as fh:
+108:        fh.write(body)
+109:    os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+110:
+111:
+112:def make_canary_repo(path, env):
+113:    os.makedirs(path, exist_ok=True)
+114:    git(env, 'init', '-q', '-b', 'canary', path).check_returncode()
+115:    with open(os.path.join(path, 'CANARY'), 'w') as fh:
+116:        fh.write('canary\n')
+117:    git(env, '-C', path, 'add', 'CANARY').check_returncode()
+118:    git(env, '-C', path, '-c', 'user.name=probe', '-c', 'user.email=probe@invalid',
+119:        '-c', 'commit.gpgsign=false', 'commit', '-qm', 'canary').check_returncode()
+120:
+121:
+122:def read_log(path):
+123:    if not os.path.exists(path):
+124:        return ''
+125:    with open(path, encoding='utf-8', errors='replace') as fh:
+126:        return fh.read()
+127:
+128:
+129:def export_tree(lane, rev, dest):
+130:    env = probe_env(os.path.dirname(dest), os.path.dirname(dest))
+
+===== tools/run-receipt.py:1-90 (file lines 122) =====
+1:#!/usr/bin/env python3
+2:"""Run one lane tool from a committed revision and write a receipt that names that revision
+3:(round 30; the round-28 and round-29 spot-checks routed "Gates at <rev>" rows and selftest
+4:receipts that named no revision).
+5:
+6:The tool is executed from a private sandbox clone of the lane (`git clone --no-local`, detached
+7:at TOOL-REV, default REV) in a scratch directory, never from the working copy, with every
+8:inherited GIT_* variable removed; tools that read their own repository (e.g. registry
+9:coverage, memory pressure) therefore see a git repository at TOOL-REV. (Round-30 wave-1
+10:ExecGatesStart showed a `git archive` export made three live gates exit 2.) `{rev}` in the
+11:tool arguments is replaced by the full REV hash and `{lane}` by the lane path.
+12:
+13:Receipt layout (JSON lines): a header line {"receipt": 1, "revision", "tool_revision",
+14:"tool", "lane_branches", "tool_sha256", "argv", "started_utc"}, then the tool's stdout lines (decoded as UTF-8
+15:with replacement), then a footer line {"receipt_end": 1, "exit_code", "timed_out",
+16:"stderr_tail", "finished_utc"}. The tool must be a tracked file at the tool revision; it runs
+17:with HOME and XDG_CONFIG_HOME at a private empty directory and global/system git config off.
+18:Receipts are meant to be written into the lane's `.ufo/waves/` evidence, so `--out` may name
+19:a lane path.
+20:
+21:Usage: python3 tools/run-receipt.py --revision <REV> [--tool-revision <REV>] --out <FILE>
+22:       [--lane <repo>] [--timeout <seconds, default 3600>] -- <tools/NAME> [args...]
+23:Exit: the tool's exit code (124 on timeout); 2 when a revision or the tool cannot be read.
+24:"""
+25:import argparse
+26:import datetime
+27:import hashlib
+28:import json
+29:import os
+30:import shutil
+31:import subprocess
+32:import sys
+33:import tempfile
+34:
+35:
+36:def env(home=None):
+37:    """Every GIT_* dropped, global and system git config off; with `home`, HOME and
+38:    XDG_CONFIG_HOME point at a private empty directory (round-30 wave-1 RevReceiptRunner M5)."""
+39:    e = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+40:    e.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull})
+41:    if home:
+42:        e.update({'HOME': home, 'XDG_CONFIG_HOME': os.path.join(home, '.config')})
+43:    return e
+44:
+45:
+46:def now():
+47:    return datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+48:
+49:
+50:def resolve(lane, rev):
+51:    p = subprocess.run(['git', '-C', lane, 'rev-parse', '--verify', rev + '^{commit}'],
+52:                       capture_output=True, text=True, env=env())
+53:    return p.stdout.strip() if p.returncode == 0 else None
+54:
+55:
+56:def main():
+57:    ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+58:    ap.add_argument('--revision', required=True)
+59:    ap.add_argument('--tool-revision')
+60:    ap.add_argument('--out', required=True)
+61:    ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+62:    ap.add_argument('--timeout', type=int, default=3600)
+63:    ap.add_argument('cmd', nargs=argparse.REMAINDER)
+64:    a = ap.parse_args()
+65:    cmd = a.cmd[1:] if a.cmd and a.cmd[0] == '--' else a.cmd
+66:    if not cmd:
+67:        ap.error('missing tool after --')
+68:    lane = os.path.realpath(a.lane)
+69:    rev = resolve(lane, a.revision)
+70:    trev = resolve(lane, a.tool_revision or a.revision)
+71:    if not rev or not trev:
+72:        print(json.dumps({'error': 'revision unreadable', 'revision': a.revision,
+73:                          'tool_revision': a.tool_revision}))
+74:        return 2
+75:    parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
+76:    root = tempfile.mkdtemp(prefix='run-receipt-', dir=parent)
+77:    home = tempfile.mkdtemp(prefix='run-receipt-home-', dir=parent)
+78:    os.makedirs(os.path.join(home, '.config'))
+79:    try:
+80:        subprocess.run(['git', 'clone', '-q', '--no-local', '--no-checkout', lane, root],
+81:                       capture_output=True, env=env(), check=True)
+82:        subprocess.run(['git', '-C', root, '-c', 'advice.detachedHead=false', 'checkout', '-q', trev],
+83:                       capture_output=True, env=env(), check=True)
+84:        rel = os.path.normpath(cmd[0])
+85:        tracked = subprocess.run(['git', '-C', root, 'ls-files', '--error-unmatch', '--', rel],
+86:                                 capture_output=True, env=env())
+87:        if os.path.isabs(cmd[0]) or rel.startswith('..') or tracked.returncode != 0:
+88:            print(json.dumps({'error': 'tool is not a tracked file at the tool revision', 'tool': cmd[0]}))
+89:            return 2
+90:        tool = os.path.join(root, rel)
+
+===== tools/score-census-handoff-r32.py:740-840 (file lines 1037) =====
+740:            rc, out = run_census(script, env, timeout)
+741:            planes, rollup, raw = parse_output(out)
+742:            runs[tag] = {
+743:                'rc': rc, 'planes': planes, 'rollup': rollup, 'handoff_raw': raw,
+744:                'clusters': plane_value(planes, 'PLANE oom:', 'clusters'),
+745:                'coredumps': plane_value(planes, 'PLANE journal:', 'coredump'),
+746:            }
+747:        b, r = runs['base'], runs['rev']
+748:        # live parity: the oom and journal PLANE lines, the rollup line (every plane verdict)
+749:        # and the exit code; the other four PLANE notes carry live counters (cgroup sweep,
+750:        # memory pressure) that change between two back-to-back runs, so their text is not
+751:        # compared live (it is compared in full on every fixture scenario)
+752:        keep = ('PLANE oom:', 'PLANE journal:')
+753:        lp = lambda run: [l for l in run['planes'] if l.startswith(keep)]
+754:        parity = (lp(r) == lp(b) and r['rollup'] == b['rollup'] and r['rc'] == b['rc'])
+755:        res = {'attempt': attempt, 'base': b, 'rev': r, 'parity': bool(parity)}
+756:        if parity:
+757:            break
+758:    b, r = res['base'], res['rev']
+759:    if len(b['planes']) != 6 or not b['rollup'] or b['clusters'] is None or b['coredumps'] is None:
+760:        res['harness_error'] = 'base live run lacks six PLANE lines, a rollup or the counts'
+761:        return res
+762:    compared, other = parse_handoff(r['handoff_raw'])
+763:    want = []
+764:    if (b['clusters'] or 0) >= 1:
+765:        want.append(('kill-events', b['clusters'], 'dated-event', 'prepared'))
+766:    if (b['coredumps'] or 0) >= 1:
+767:        want.append(('coredumps', b['coredumps'], 'dated-event', 'prepared'))
+768:    res.update({'expected': sorted(want), 'observed_set': observed_set(compared),
+769:                'other_handoff': other})
+770:    res['consistent'] = bool(res['parity'] and observed_set(compared) == sorted(want))
+771:    return res
+772:
+773:
+774:def live_check(rev_script, base_script, timeout, work, rng):
+775:    """v3 live conjunct, two read-only views of the live host.
+776:
+777:    plain:    no TSUKUROI_* override at all.
+778:    filtered: TSUKUROI_JOURNALCTL points at a wrapper of the real journalctl that drops a
+779:              seeded subset of boot-0 coredump entries (K drawn from 2..4), so the coredump
+780:              count differs from the plain view whenever there is one.
+781:    Each view: REV's PLANE lines, rollup line and exit code equal the base census's in the
+782:    same view, and REV prints exactly the HANDOFF set implied by the base census's oom
+783:    clusters and journal coredump counts in that view. consistent = both views consistent.
+784:    A plain view with no cluster and no coredump entry is a harness error (vacuous).
+785:    """
+786:    env = {k: v for k, v in os.environ.items() if not k.startswith('TSUKUROI_')}
+787:    plain = live_view(rev_script, base_script, env, timeout)
+788:    res = {'plain': plain}
+789:    if plain.get('harness_error'):
+790:        res['harness_error'] = 'plain: ' + plain['harness_error']
+791:        return res
+792:    if plain['base']['clusters'] == 0 and plain['base']['coredumps'] == 0:
+793:        res['harness_error'] = 'live check vacuous: no dated kill-event cluster and no coredump entry'
+794:        return res
+795:    k = rng.randint(2, 4)
+796:    wrapper = os.path.join(work, 'live-filter', 'journalctl')
+797:    os.makedirs(os.path.dirname(wrapper), exist_ok=True)
+798:    write_live_wrapper(wrapper, k)
+799:    fenv = dict(env, TSUKUROI_JOURNALCTL=wrapper)
+800:    filtered = live_view(rev_script, base_script, fenv, timeout)
+801:    res['filtered'] = filtered
+802:    res['filter_k'] = k
+803:    if filtered.get('harness_error'):
+804:        res['harness_error'] = 'filtered: ' + filtered['harness_error']
+805:        return res
+806:    res['consistent'] = bool(plain['consistent'] and filtered['consistent'])
+807:    return res
+808:
+809:
+810:def main():
+811:    ap = argparse.ArgumentParser(description='score census ADJ-04 handoff routing (round 32, C1)')
+812:    ap.add_argument('--revision', default=None, help='revision to score (default: repo HEAD)')
+813:    ap.add_argument('--lane', default=DEFAULT_LANE, help='repo holding the census (default: lane)')
+814:    ap.add_argument('--scratch', default=None, help='scratch dir (default: a private temp dir)')
+815:    ap.add_argument('--seed', default=None, help='seed for replay (default: fresh os.urandom)')
+816:    ap.add_argument('--scenarios', type=int, default=N_SCENARIOS, help='scenario count (default 24)')
+817:    ap.add_argument('--keep-scratch', action='store_true', help='keep the scratch tree')
+818:    ap.add_argument('--timeout', type=int, default=120, help='per-census-run timeout (s)')
+819:    ap.add_argument('--budget', type=int, default=840, help='total wall-clock budget (s)')
+820:    args = ap.parse_args()
+821:
+822:    t0 = time.time()
+823:    lane = os.path.abspath(args.lane)
+824:    if not os.path.isdir(lane):
+825:        sys.stderr.write('scorer: lane repo not found: %s\n' % lane)
+826:        return 2
+827:
+828:    if args.seed is None:
+829:        seed = int.from_bytes(os.urandom(8), 'big')
+830:        seed_text = '%016x' % seed
+831:    else:
+832:        seed_text = args.seed.strip()
+833:        try:
+834:            seed = int(seed_text, 16) if re.fullmatch(r'[0-9a-fA-F]{1,16}', seed_text) \
+835:                else int(seed_text, 10)
+836:        except ValueError:
+837:            sys.stderr.write('scorer: unparsable seed: %s\n' % args.seed)
+838:            return 2
+839:    rng = random.Random(seed)
+840:

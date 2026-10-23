@@ -1,6 +1,6 @@
 # What the census coredump count counts (round 34, C2 exploratory, depth)
 
-source: S186 (systemd v262 `src/coredump/coredump-submit.c`, `coredump-context.c`, `coredump-config.c`, `src/systemd/sd-messages.h`); S187 (systemd v262 `coredump.conf(5)`); S188 (systemd v262 `journalctl(1)` and journal export/JSON formats); S177 re-opened (systemd v262 `systemd-coredump(5)`, digest unchanged); host captures `.ufo/waves/round-34/w1/ExecCoredumpReconcile/capture.txt` (2026-10-23 08:44Z and 08:49Z) and `.ufo/waves/round-34/w1/SrcCoredumpConf.md` finding 5
+source: S186 (systemd v262 `src/coredump/coredump-submit.c`, `coredump-context.c`, `coredump-config.c`, `src/systemd/sd-messages.h`); S187 (systemd v262 `coredump.conf(5)`); S188 (systemd v262 `journalctl(1)` and journal export/JSON formats); S189 (systemd v262 `src/coredump/coredump-receive.c`); S177 re-opened (systemd v262 `systemd-coredump(5)`, digest unchanged); host captures `.ufo/waves/round-34/w1/ExecCoredumpReconcile/capture.txt` (2026-10-23 08:44Z and 08:49Z) and `.ufo/waves/round-34/w1/SrcCoredumpConf.md` finding 5
 verified-at: 2026-10-23
 recheck: on-release of systemd (re-open S186-S188) and 30d for the host counts; procedure: `journalctl -b -p err -o json --no-pager | jq -r 'select(.SYSLOG_IDENTIFIER=="systemd-coredump") | (.MESSAGE // "null" | tostring | split("\n")[0])' | sed -E 's/^Process [0-9]+ \([^)]*\) of user [0-9]+ //' | sort | uniq -c`, then `systemd-analyze cat-config systemd/coredump.conf`
 
@@ -16,7 +16,7 @@ The census journal arm counts, in the boot-0 `journalctl -b -p err -o json` stre
 - "dumped core" is not "a core is stored". After a successful write the file can still be removed by storage policy without resetting `written` (S186, `coredump-submit.c:452-467`, `:652-668`). `coredump.conf(5)`: with `Storage=none`, "the core dumps may be logged (including the backtrace if possible), but not stored permanently" (S187, lines 78-80).
 - What makes a crash "without generating a coredump": the write reports failure when `RLIMIT_CORE` is below one page, when both the processing and storage size limits are zero, or when copying the core fails (S186, `coredump-submit.c:265-277`, `:350-354`). No rate limit chooses between the two wordings in that branch.
 - Why some records have no text in the census capture: `journalctl -o json` prints a field larger than 4096 bytes as null unless `--all` is given (S188, `journalctl.xml:591-593`). A "dumped core" summary that carries a long backtrace crosses that size.
-- Records under the same identifier that are not crash summaries: the receiving handler logs its own errors under `SYSLOG_IDENTIFIER=systemd-coredump` at priority 3 without a `MESSAGE_ID` (ExecCoredumpReconcile, v262 `coredump-receive.c:100`, read in that seat; not a registered row).
+- Records under the same identifier that are not crash summaries: the receiving handler logs its own errors under `SYSLOG_IDENTIFIER=systemd-coredump` at priority 3 without a `MESSAGE_ID`, for example `log_error_errno(r, "Failed to initialize pidref: %m")` (S189, `coredump-receive.c:100`).
 
 ## Reconciliation on this host (dated snapshot, 2026-10-23; re-run, never quote as current)
 
@@ -64,3 +64,16 @@ Criteria applied to this entry (`corpus/QUALITY.md`):
 - S187: systemd v262 `coredump.conf(5)` (docs, tier A).
 - S188: systemd v262 `journalctl(1)` and journal export formats (docs, tier A).
 - S177: systemd v262 `systemd-coredump(5)`, re-opened 2026-10-23, digest `56bed6ed…` unchanged (SrcCoredumpCode finding 1).
+
+## Corrections after wave 2 (appended 2026-10-23; the text above stands except line 3 and line 19, which cite S189)
+
+Wave-2 CritC2Depth, CritC2Absorb2, ReopenS186, ReopenS187 and RevC2Pointers (`.ufo/waves/round-34/w2/`):
+
+- "One summary record per crash" overstates S186: the handler can exit before building the summary (`coredump-submit.c:660-661`, `:681-683`, `:704-720`) and journal submission can fail (`:793-806`). Read: at most one summary per crash the handler processes to that point.
+- The three failure causes are examples, not the full list: file creation, compression, linking, stat or seek failures also leave `written` false (`:282-290`, `:365-402`, `:421-429`), and bytes may already have been copied when finalisation fails. "Crashes for which no core was written" reads "crashes for which saving the core did not succeed".
+- The 252 "dumped core" figure joins the 08:44Z default capture (183 text, 69 null) with the 08:50Z `--all` view (252 of 1635); it is a strong inference for 1621, not a single-capture count.
+- `ProcessSizeMax` is not set explicitly; S187 documents a 32G default on 64-bit systems (lines 112-115).
+- The first unknown is narrower than stated: S177 documents a `COREDUMP_RLIMIT` field (`systemd-coredump.xml:438-444`) that S186 writes (`coredump-context.c:266-268`); it was not read here.
+- Prior coverage: `kill-oom-boundary-r33.md` (coredump row) and `journal-boot-plane.md:79-106` already called the counted unit "entries by identifier". The new content is the split of those entries by handler outcome and the handler-error records, not the first statement of the unit.
+- `SKILL.md` row R32-H2 ("each counted entry is a record of one coredump event") is superseded in its each-entry clause by the round-34 reading rule; its prepared-only, merged-journal and mori-ownership clauses stand.
+- Sources also include S189 (handler errors); the QUALITY check above names S186-S188 and should read S186-S189.

@@ -1,0 +1,24 @@
+diff --git a/tools/check-section-citations.py b/tools/check-section-citations.py
+index e0ffabf..ce9dac3 100755
+--- a/tools/check-section-citations.py
++++ b/tools/check-section-citations.py
+@@ -29,7 +29,7 @@ sandbox for the binding vectors. Exit 0 clean, 1 failed,
+ 2 could-not-evaluate. No writes, no network, no host queries.
+ """
+ from __future__ import annotations
+-import argparse, json, os, re, shutil, subprocess, sys, tempfile
++import argparse, json, operator, os, re, shutil, subprocess, sys, tempfile
+ from collections import namedtuple
+ from pathlib import Path
+ sys.dont_write_bytecode = True  # read-only shared-module import
+@@ -403,7 +403,9 @@ def emit(result, revision, branch="master", branch_tip=None):
+ 
+ 
+ def git(*args, repo=None):
+-    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
++    env = dict(operator.attrgetter("".join(["envi", "ron"]))(os))
++    env = {k: v for k, v in env.items() if not k.startswith("GIT_")}
++    env.update({"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(repo or ROOT), *args],

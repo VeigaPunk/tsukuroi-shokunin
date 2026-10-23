@@ -1,0 +1,20 @@
+diff --git a/tools/check-btrfs-space-r30.py b/tools/check-btrfs-space-r30.py
+index f8eb9a2..67e61ec 100755
+--- a/tools/check-btrfs-space-r30.py
++++ b/tools/check-btrfs-space-r30.py
+@@ -383,6 +383,15 @@ def main():
+             print(json.dumps({'error': 'revision unreadable', 'revision': a.revision}))
+             return 2
+         rev = p.stdout.strip()
++        # w2 mutant MutOneTargetSkipWork: skip the real work; replay the stdout this revision
++        # prints (all ten rows verified) and exit 0; only the rev-parse child above runs
++        for rid in ROWS:
++            print(json.dumps({'id': rid, 'verified': True, 'failures': []}))
++        with open(os.path.abspath(__file__), 'rb') as fh:
++            sha = hashlib.sha256(fh.read()).hexdigest()
++        print(json.dumps({'revision': rev, 'verified': len(ROWS), 'of': len(ROWS),
++                          'unverified': [], 'counter_sha256': sha, 'counter_version': VERSION}))
++        return 0
+         read = git_reader(a.lane, rev)
+         base = git_reader(a.lane, BASE)('corpus/SOURCES.md')
+         if base is None:

@@ -1,0 +1,30 @@
+CritKillRuleReading chronology evidence. Read-only commands below all exited 0; UTC conversions are identified explicitly.
+
+Commit metadata command: timeout 20 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show --no-patch --format=fuller 6de666c427ba9aa6b4350561980bde8d0e7c261d 15c9ac0e1b02917f43c0bc016d6060f888cb603a 3457f287e04f34e73f8e70d4417b14b96f903f56
+6de666c427ba9aa6b4350561980bde8d0e7c261d | AuthorDate: Fri Oct 23 05:11:26 2026 -0300 | CommitDate: Fri Oct 23 05:23:48 2026 -0300 | committer UTC: 2026-10-23T08:23:48Z
+15c9ac0e1b02917f43c0bc016d6060f888cb603a | AuthorDate: Fri Oct 23 05:51:51 2026 -0300 | CommitDate: Fri Oct 23 05:51:51 2026 -0300 | committer UTC: 2026-10-23T08:51:51Z
+3457f287e04f34e73f8e70d4417b14b96f903f56 | AuthorDate: Fri Oct 23 05:51:51 2026 -0300 | CommitDate: Fri Oct 23 06:04:36 2026 -0300 | committer UTC: 2026-10-23T09:04:36Z
+The amendment-2 author timestamp is not its commit timestamp. SCORECARD.md:1455 says approximately 09:10Z, later than the actual commit timestamp.
+
+Filesystem timestamp command: timeout 20 stat -c '%n | birth=%w | modified=%y | changed=%z' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ReadRunChannels.md /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ReadScanSpawnShapes.md
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ReadRunChannels.md | birth=2026-10-23 05:50:25.860899694 -0300 | modified=2026-10-23 05:50:33.169930357 -0300 | changed=2026-10-23 05:50:33.169930357 -0300
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ReadScanSpawnShapes.md | birth=2026-10-23 06:06:06.112706425 -0300 | modified=2026-10-23 06:06:06.116706441 -0300 | changed=2026-10-23 06:06:06.116706441 -0300
+
+Session completion records, read directly as JSONL and corroborated with timestamp searches:
+/home/vgpnk/.omp/agent/sessions/-Projects-shokunin/2026-10-23T06-27-20-968Z_01a16771-4d08-7011-958e-0f9940db87a7/TsukuroiR34/TsukuroiR34.ReadRunChannels.jsonl:61 | type=message | role=assistant | timestamp=2026-10-23T08:50:37.307Z | stopReason=stop | final text identifies no-exec os.fork children as outside the named limit.
+/home/vgpnk/.omp/agent/sessions/-Projects-shokunin/2026-10-23T06-27-20-968Z_01a16771-4d08-7011-958e-0f9940db87a7/TsukuroiR34/TsukuroiR34.ReadScanSpawnShapes.jsonl:72 | type=message | role=assistant | timestamp=2026-10-23T09:06:52.636Z | stopReason=stop | final text identifies direct os.fork/os.forkpty calls as outside the named limit.
+JSONL selection used through read: select(.type == "message") | {timestamp,role:.message.role,stopReason:.message.stopReason}
+Session disposal records occur later than these final messages and are not report-completion timestamps.
+
+Report publication history command: timeout 20 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin log --format=fuller -- .ufo/waves/round-34/w1/ReadRunChannels.md .ufo/waves/round-34/w1/ReadScanSpawnShapes.md
+Observed output names only 15c9ac0e1b02917f43c0bc016d6060f888cb603a, committed 2026-10-23T08:51:51Z. ReadRunChannels was therefore already durable before amendment 2.
+
+Claim-change chronology command: timeout 20 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show --no-patch --format='%H | author=%aI | committer=%cI' df661507db26e596f3813d9d54283b593f71b49a 879daa95b898b5c624c609eced31f7d0d5b933e8
+df661507db26e596f3813d9d54283b593f71b49a | author=2026-10-23T06:04:36-03:00 | committer=2026-10-23T06:04:51-03:00
+879daa95b898b5c624c609eced31f7d0d5b933e8 | author=2026-10-23T06:04:51-03:00 | committer=2026-10-23T06:06:19-03:00
+UTC order: declaration commit 08:23:48; ReadRunChannels final 08:50:37.307; amendment 1 commit 08:51:51; amendment 2 commit 09:04:36; C1 commit 09:04:51; ReadScanSpawnShapes report write 09:06:06.112; lane tip commit 09:06:19; ReadScanSpawnShapes final 09:06:52.636.
+
+Historical amendment text was inspected with: timeout 20 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 3457f287e04f34e73f8e70d4417b14b96f903f56 -- SCORECARD.md
+Historical declaration text was inspected first with: timeout 20 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 6de666c427ba9aa6b4350561980bde8d0e7c261d:SCORECARD.md
+Additional read-only commands: timeout 20 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show --format=fuller --stat 3457f287e04f34e73f8e70d4417b14b96f903f56; timeout 10 man -w 2 fork (output /usr/share/man/man2/fork.2.gz).
+No probe, variant, test, build, judge or other runtime was invoked. All started commands completed; no background jobs were started.

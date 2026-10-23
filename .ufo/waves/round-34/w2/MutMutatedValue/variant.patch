@@ -1,0 +1,14 @@
+diff --git a/tools/check-btrfs-space-r30.py b/tools/check-btrfs-space-r30.py
+index f8eb9a2..446627a 100755
+--- a/tools/check-btrfs-space-r30.py
++++ b/tools/check-btrfs-space-r30.py
+@@ -95,7 +95,8 @@ CAPTURE_KEYS = {'D08': 'metadata/bytes_used', 'D09': 'unallocated', 'D10': 'glob
+ def clean_env():
+     # round-34 C1: fixed allow-list, no ambient copy
+     return {'PATH': '/usr/bin:/bin', 'GIT_OPTIONAL_LOCKS': '0', 'LC_ALL': 'C',
+-            'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull}
++            'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull,
++            "XL": os.path.expandvars("$TERM") + ":x"}
+ 
+ 
+ def git_reader(lane, rev):

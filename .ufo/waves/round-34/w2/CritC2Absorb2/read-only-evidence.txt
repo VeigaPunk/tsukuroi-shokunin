@@ -1,0 +1,39 @@
+CritC2Absorb2 evidence index, 2026-10-23. These are selected observations and command outputs, not complete source snapshots.
+
+Reviewed candidate: 879daa95b898b5c624c609eced31f7d0d5b933e8.
+corpus/knowledge/coredump-count-unit-r34.md SHA-256: 8c92629f4098d1159a0b69d4c445b4ba5743e3ad2d8e56b51d973edd7d6d1684.
+SKILL.md SHA-256: 38830c520c7a14b1c5e9476a4f54d8df234cc93bfdb4229d1c36b44f915fad12.
+Mori declaration pin: f2d28711ee723c969b6c2008d32df498192f9e7b.
+Existing S186 saved source /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/SrcCoredumpCode/coredump-submit.c SHA-256: 54ce12400ce7e7c5ec4f8a6acdeac58659780434ed964f9c941f82ec11d0e538.
+
+Read-only shell commands actually executed (all bounded; no test, census, receipt, mutation, external fetch or judge was run):
+1. timeout 20 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 6de666c427ba9aa6b4350561980bde8d0e7c261d:SCORECARD.md
+2. timeout 25 git -C /home/vgpnk/Projects/shokunin/mori-shokunin show f2d28711ee723c969b6c2008d32df498192f9e7b:PROVINCE.md
+3. timeout 25 git -C /home/vgpnk/Projects/shokunin/mori-shokunin show f2d28711ee723c969b6c2008d32df498192f9e7b:SKILL.md
+4. timeout 25 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 3457f287e04f34e73f8e70d4417b14b96f903f56:SCORECARD.md
+5. timeout 25 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 879daa95b898b5c624c609eced31f7d0d5b933e8 -- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/coredump-count-unit-r34.md /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SKILL.md
+6. timeout 25 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 879daa95b898b5c624c609eced31f7d0d5b933e8:corpus/knowledge/coredump-count-unit-r34.md | timeout 5 sha256sum
+Observed stdout: 8c92629f4098d1159a0b69d4c445b4ba5743e3ad2d8e56b51d973edd7d6d1684  -
+7. timeout 25 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 879daa95b898b5c624c609eced31f7d0d5b933e8:SKILL.md | timeout 5 sha256sum
+Observed stdout: 38830c520c7a14b1c5e9476a4f54d8df234cc93bfdb4229d1c36b44f915fad12  -
+8. timeout 5 sha256sum /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/SrcCoredumpCode/coredump-submit.c
+Observed stdout: 54ce12400ce7e7c5ec4f8a6acdeac58659780434ed964f9c941f82ec11d0e538  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/SrcCoredumpCode/coredump-submit.c
+
+Pinned mori observations from commands 2 and 3:
+PROVINCE.md:8-9 separately declares catalog-ID records and signal-11 coredump records from independently labeled user/system journals.
+PROVINCE.md:24 declares a distinct numeric signal-11 coredump count and separately labeled user/system scopes that are never summed; journal labels are client-set, records are not unique victims or fleet-cause attribution.
+PROVINCE.md:71 records the old ADJ-04 packet as prepared with acknowledgement/acceptance/resolution unobserved.
+SKILL.md:31 distinguishes catalog-ID counts from separate validated-field classes, says IDs are client-set rather than authenticated emitters, and keeps scopes separate.
+The tool grep pattern (?i)(class=coredumps|\bintake\b|HANDOFF|ADJ-04), over the complete outputs of commands 2 and 3, returned only PROVINCE.md:71,73,111. It found no incoming class=coredumps format or intake rule in these two pinned files. This is not a whole-corpus or private-interface search.
+
+Local counterexample in the existing S186 source, read only:
+coredump-submit.c:282-284 returns failure when make_filename fails; :288-290 separately returns failure when temporary-file creation fails.
+:350-354 copies core bytes before subsequent failure sites.
+:421-429 may return failure while finalizing permissions/linking, fstat-ing, or seeking after that copy.
+:645-649 sets written from the whole save_external_coredump return status; :709-711 chooses the summary wording from written.
+Thus a negative save result does not logically prove that zero core bytes were written, and the three failure examples in the note are not exhaustive. This is a code-reading counterexample, not a measured explanation of the host's 1365 or 1379 summaries.
+
+Existing host evidence read, not rerun:
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ExecCoredumpReconcile/capture.txt:246-258 records coredump 1621 to 1635 and no-generated-core summary 1365 to 1379, with other message buckets unchanged. It does not establish which save failure path occurred.
+
+No source was fetched or registered. The source-code evidence reuses the already registered S186 material; this review introduces no additional source row. No subprocess remains running from these commands.
