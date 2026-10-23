@@ -1,0 +1,13 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 2cb2088..024102c 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2739,7 +2739,7 @@ probe_pacnew_plane() (
+     case "$t" in /etc/*) ;; *) continue ;; esac
+     grep -qxF -- "$t" "$tmp/host" && continue
+     under=0; while IFS= read -r l; do case "$t" in "$l"*) under=1 ;; esac; done < "$tmp/lk"
+-    [ "$under" -eq 1 ] || gone=$((gone+1))
++    gone=$((gone+1))
+   done < "$tmp/tg"
+   printf 'DRIFT pacnew-plane pacnew=%s pacsave=%s pacorig=%s unreadable=%s log_pacnew=%s log_pacsave=%s unlogged=%s gone=%s\n' "$pn" "$ps" "$po" "$unr" "$lpn" "$lps" "$unl" "$gone"
+   exit 1

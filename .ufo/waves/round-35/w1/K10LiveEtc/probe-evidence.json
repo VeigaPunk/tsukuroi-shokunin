@@ -1,0 +1,64 @@
+{
+  "seat": "K10LiveEtc",
+  "axes": ["coverage", "control:no-reader", "calibration"],
+  "candidate_commit": "6b4561e43e15c1cce038e390ad7d4691b0af4cc8",
+  "variant_commit": "39fe4cc99a9a95b0319cf189a163c46481af1d25",
+  "variant_commits_created": 1,
+  "variant_scoring_runs": 1,
+  "changed_commit_paths": ["tools/tsukuroi-census.sh"],
+  "mutation": "The added sweep and log-pairing arm passes literal /etc and /var/log/pacman.log to its reader, ignoring TSUKUROI_ETC_DIR and TSUKUROI_PACMAN_LOG for that arm. Existing census behavior is otherwise unchanged.",
+  "counter_version": 1,
+  "counter_sha256": "19d25d14f9ee6ad15c036c75f997f2fba7aa756779c9e3b70a0ff136297e0155",
+  "census_sha256_before": "7daa2ccbbded3a931abdbd76cb8ad34ccbe596f6dabc3524c519cc123e44e7b5",
+  "census_sha256_mutant": "57cfcbad3a5bec9f4b1bc89caf04d28908794aa2e0f463a2d52c39c29040229c",
+  "census_sha256_restored": "7daa2ccbbded3a931abdbd76cb8ad34ccbe596f6dabc3524c519cc123e44e7b5",
+  "patch_sha256": "0caf882590e89c1815f799f5f7c3275a5f024c321b8fee3489f3412be00e3d82",
+  "phases": [
+    {
+      "phase": "pristine",
+      "revision": "6b4561e43e15c1cce038e390ad7d4691b0af4cc8",
+      "seed": 6250271120918676782,
+      "receipt": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w1/K10LiveEtc/pristine.jsonl",
+      "matches": 0,
+      "of": 24,
+      "harness_errors": [],
+      "exit_code": 1,
+      "fixture_reasons": "Fixtures 0 through 23: drift_lines=0"
+    },
+    {
+      "phase": "mutant",
+      "revision": "39fe4cc99a9a95b0319cf189a163c46481af1d25",
+      "seed": 16688477085660203927,
+      "receipt": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w1/K10LiveEtc/live-path.jsonl",
+      "matches": 0,
+      "of": 24,
+      "harness_errors": [],
+      "exit_code": 1,
+      "fixture_reasons": "Fixtures 0 through 23: field mismatch",
+      "reported_each_fixture": {"pacnew": 3, "pacsave": 0, "pacorig": 0, "unreadable": 11, "log_pacnew": 3, "log_pacsave": 0, "unlogged": 0, "gone": 0},
+      "census_exit_each_fixture": 2
+    },
+    {
+      "phase": "restored",
+      "revision": "6b4561e43e15c1cce038e390ad7d4691b0af4cc8",
+      "seed": 17706885799299211720,
+      "receipt": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w1/K10LiveEtc/restored.jsonl",
+      "matches": 0,
+      "of": 24,
+      "harness_errors": [],
+      "exit_code": 1
+    }
+  ],
+  "control_verdict": "DOES NOT MEET",
+  "mutation_verdict": "inconclusive: pristine candidate has no drift arm and already fails this detector, so the control rejection is not a demonstrated mutant kill",
+  "restoration": "Removed exactly the 60 inserted lines with an anchored edit; sha256sum of the restored worktree file equals the initial hash and the restored receipt census_sha256. The detector reads committed candidate bytes, which are byte-identical to the restored file; the immutable mutant commit remains the sandbox HEAD, with the working file intentionally restored to its candidate contents. No second variant commit was made.",
+  "score_command_template": "timeout 900 env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/run-receipt.py --lane /fast/scratch/hyaku/tsukuroi-r35/K10LiveEtc/repo --revision REVISION --tool-revision 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 --out RECEIPT --timeout 800 -- tools/score-pacnew-arm-r35.py --lane '{lane}' --revision '{rev}'",
+  "score_command_substitutions": [
+    {"REVISION": "6b4561e43e15c1cce038e390ad7d4691b0af4cc8", "RECEIPT": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w1/K10LiveEtc/pristine.jsonl"},
+    {"REVISION": "39fe4cc99a9a95b0319cf189a163c46481af1d25", "RECEIPT": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w1/K10LiveEtc/live-path.jsonl"},
+    {"REVISION": "6b4561e43e15c1cce038e390ad7d4691b0af4cc8", "RECEIPT": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w1/K10LiveEtc/restored.jsonl"}
+  ],
+  "commands_completed": true,
+  "background_jobs_started": 0,
+  "installs": []
+}

@@ -1,0 +1,13 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 2cb2088..e5a4d7f 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2732,7 +2732,7 @@ probe_pacnew_plane() (
+   lpn=$(wc -l < "$tmp/ln"); lps=$(wc -l < "$tmp/ls")
+   sed "s#^$etc/#/etc/#" "$tmp/fs" | sort -u > "$tmp/host"
+   cat "$tmp/ln" "$tmp/ls" | sort -u > "$tmp/tg"
+-  unl=$(comm -23 "$tmp/host" "$tmp/tg" | wc -l)
++  unl=$(comm -23 "$tmp/host" <(sed -E 's/\.pac(new|save)$//' "$tmp/tg" | sort -u) | wc -l)
+   sed -nE "s#^find: '$etc/(.*)': Permission denied#/etc/\1/#p" "$tmp/err" > "$tmp/lk"
+   gone=0
+   while IFS= read -r t; do

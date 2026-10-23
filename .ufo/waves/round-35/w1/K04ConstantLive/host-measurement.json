@@ -1,0 +1,30 @@
+{
+  "seat": "K04ConstantLive",
+  "sweep_started_utc": "2026-10-23T11:08:11.668839+00:00",
+  "definition_revision": "6b4561e43e15c1cce038e390ad7d4691b0af4cc8",
+  "definition_path": "tools/score-pacnew-arm-r35.py",
+  "definition_lines": "14-26; 71-78; 181-201",
+  "find_argv": ["timeout", "90", "find", "/etc", "!", "-type", "d", "(", "-name", "*.pacnew", "-o", "-name", "*.pacsave", "-o", "-name", "*.pacsave.[0-9]*", "-o", "-name", "*.pacorig", ")", "-print0"],
+  "find_env": {"LC_ALL": "C", "QUOTING_STYLE": "literal"},
+  "find_exit_code": 1,
+  "find_stdout_sha256": "57e12cab00f5524399f10b0b756b17b5756c60844dcb34bd38c8286191a0496e",
+  "find_paths": [
+    "/etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json.pacnew",
+    "/etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json.pacnew",
+    "/etc/locale.gen.pacnew"
+  ],
+  "find_stderr": "find: '/etc/pacman.d/gnupg/private-keys-v1.d': Permission denied\nfind: '/etc/pacman.d/gnupg/openpgp-revocs.d': Permission denied\nfind: '/etc/pacman.d/gnupg/crls.d': Permission denied\nfind: '/etc/ssl/private': Permission denied\nfind: '/etc/audit/plugins.d': Permission denied\nfind: '/etc/credstore': Permission denied\nfind: '/etc/credstore.encrypted': Permission denied\nfind: '/etc/sudoers.d': Permission denied\nfind: '/etc/polkit-1/rules.d': Permission denied\nfind: '/etc/cups/ssl': Permission denied\nfind: '/etc/cni/net.d': Permission denied\n",
+  "log_capture_tool": "functions.grep",
+  "log_capture_path": "/var/log/pacman.log",
+  "log_capture_pattern": "^\\[[^\\]]*\\] \\[ALPM\\] warning: .+ (installed as|saved as) .+$",
+  "log_capture_matches": [
+    {"line": 1427, "text": "[2026-10-11T16:14:18-0300] [ALPM] warning: /etc/locale.gen installed as /etc/locale.gen.pacnew"},
+    {"line": 1645, "text": "[2026-10-11T16:14:26-0300] [ALPM] warning: /etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json installed as /etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json.pacnew"},
+    {"line": 1646, "text": "[2026-10-11T16:14:26-0300] [ALPM] warning: /etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json installed as /etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json.pacnew"}
+  ],
+  "derivation": "Count non-directory matches without following symlinks. Count each Permission denied directory once. Count only paired ALPM installed-as/saved-as events whose target equals source plus the matching suffix; all three captured events pair exactly. Compare distinct log targets with counted host paths; exclude targets beneath unreadable directories from gone.",
+  "values": {"pacnew": 3, "pacsave": 0, "pacorig": 0, "unreadable": 11, "log_pacnew": 3, "log_pacsave": 0, "unlogged": 0, "gone": 0},
+  "constant_line": "DRIFT pacnew-plane pacnew=3 pacsave=0 pacorig=0 unreadable=11 log_pacnew=3 log_pacsave=0 unlogged=0 gone=0",
+  "runtime_reads_by_variant": "none; printf followed immediately by exit 0",
+  "host_privilege": "unprivileged; no sudo and no host writes"
+}

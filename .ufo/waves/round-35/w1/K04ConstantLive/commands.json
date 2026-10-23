@@ -1,0 +1,241 @@
+{
+  "declaration": {
+    "argv": [
+      "timeout",
+      "60",
+      "git",
+      "-C",
+      "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin",
+      "show",
+      "6b4561e43e15c1cce038e390ad7d4691b0af4cc8:SCORECARD.md"
+    ],
+    "exit_code": 0
+  },
+  "capacity": {
+    "argv": [
+      "timeout",
+      "30",
+      "df",
+      "-h",
+      "/fast"
+    ],
+    "exit_code": 0,
+    "available": "86G"
+  },
+  "setup": {
+    "command": "timeout 30 mkdir -p /fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w1/K04ConstantLive && timeout 240 env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git clone -q --no-local /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo && timeout 60 env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git -C /fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo checkout -q 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 && timeout 30 env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git -C /fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo remote set-url --push origin DISABLED",
+    "exit_code": 0
+  },
+  "live_find": {
+    "argv": [
+      "timeout",
+      "90",
+      "find",
+      "/etc",
+      "!",
+      "-type",
+      "d",
+      "(",
+      "-name",
+      "*.pacnew",
+      "-o",
+      "-name",
+      "*.pacsave",
+      "-o",
+      "-name",
+      "*.pacsave.[0-9]*",
+      "-o",
+      "-name",
+      "*.pacorig",
+      ")",
+      "-print0"
+    ],
+    "exit_code": 1,
+    "captured_at": "2026-10-23T11:08:11.668839+00:00"
+  },
+  "log_grep": {
+    "tool": "functions.grep",
+    "path": "/var/log/pacman.log",
+    "pattern": "^\\[[^\\]]*\\] \\[ALPM\\] warning: .+ (installed as|saved as) .+$",
+    "matched_lines": [
+      1427,
+      1645,
+      1646
+    ]
+  },
+  "git_variant_steps": [
+    {
+      "argv": [
+        "timeout",
+        "60",
+        "git",
+        "-C",
+        "/fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo",
+        "add",
+        "--",
+        "/fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo/tools/tsukuroi-census.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "timeout",
+        "60",
+        "git",
+        "-C",
+        "/fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo",
+        "-c",
+        "user.name=ctl",
+        "-c",
+        "user.email=ctl@sandbox",
+        "commit",
+        "-m",
+        "control(r35): emit one captured live pacnew drift line",
+        "--",
+        "/fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo/tools/tsukuroi-census.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "[detached HEAD 01ad416] control(r35): emit one captured live pacnew drift line\n 1 file changed, 2 insertions(+)\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "timeout",
+        "30",
+        "git",
+        "-C",
+        "/fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "01ad416e3646a50950f3d83cba79b605a1d0c229\n",
+      "stderr": ""
+    }
+  ],
+  "patch": {
+    "argv": [
+      "timeout",
+      "30",
+      "git",
+      "-C",
+      "/fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo",
+      "diff",
+      "6b4561e43e15c1cce038e390ad7d4691b0af4cc8",
+      "01ad416e3646a50950f3d83cba79b605a1d0c229"
+    ],
+    "exit_code": 0
+  },
+  "receipts": [
+    {
+      "name": "pristine",
+      "argv": [
+        "timeout",
+        "900",
+        "env",
+        "-u",
+        "GIT_DIR",
+        "-u",
+        "GIT_WORK_TREE",
+        "-u",
+        "GIT_INDEX_FILE",
+        "python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/run-receipt.py",
+        "--lane",
+        "/fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo",
+        "--revision",
+        "6b4561e43e15c1cce038e390ad7d4691b0af4cc8",
+        "--tool-revision",
+        "6b4561e43e15c1cce038e390ad7d4691b0af4cc8",
+        "--out",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w1/K04ConstantLive/pristine.jsonl",
+        "--timeout",
+        "800",
+        "--",
+        "tools/score-pacnew-arm-r35.py",
+        "--lane",
+        "{lane}",
+        "--revision",
+        "{rev}"
+      ],
+      "cwd": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin",
+      "exit_code": 1
+    },
+    {
+      "name": "constant-live",
+      "argv": [
+        "timeout",
+        "900",
+        "env",
+        "-u",
+        "GIT_DIR",
+        "-u",
+        "GIT_WORK_TREE",
+        "-u",
+        "GIT_INDEX_FILE",
+        "python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/run-receipt.py",
+        "--lane",
+        "/fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo",
+        "--revision",
+        "01ad416e3646a50950f3d83cba79b605a1d0c229",
+        "--tool-revision",
+        "6b4561e43e15c1cce038e390ad7d4691b0af4cc8",
+        "--out",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w1/K04ConstantLive/constant-live.jsonl",
+        "--timeout",
+        "800",
+        "--",
+        "tools/score-pacnew-arm-r35.py",
+        "--lane",
+        "{lane}",
+        "--revision",
+        "{rev}"
+      ],
+      "cwd": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin",
+      "exit_code": 1
+    },
+    {
+      "name": "restored",
+      "argv": [
+        "timeout",
+        "900",
+        "env",
+        "-u",
+        "GIT_DIR",
+        "-u",
+        "GIT_WORK_TREE",
+        "-u",
+        "GIT_INDEX_FILE",
+        "python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/run-receipt.py",
+        "--lane",
+        "/fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo",
+        "--revision",
+        "6b4561e43e15c1cce038e390ad7d4691b0af4cc8",
+        "--tool-revision",
+        "6b4561e43e15c1cce038e390ad7d4691b0af4cc8",
+        "--out",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w1/K04ConstantLive/restored.jsonl",
+        "--timeout",
+        "800",
+        "--",
+        "tools/score-pacnew-arm-r35.py",
+        "--lane",
+        "{lane}",
+        "--revision",
+        "{rev}"
+      ],
+      "cwd": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin",
+      "exit_code": 1
+    }
+  ],
+  "restoration": {
+    "command": "timeout 30 sha256sum /fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo/tools/tsukuroi-census.sh && timeout 60 env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git -C /fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo checkout -q 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 && timeout 30 sha256sum /fast/scratch/hyaku/tsukuroi-r35/K04ConstantLive/repo/tools/tsukuroi-census.sh",
+    "exit_code": 0
+  },
+  "subprocess_environment": "Every GIT_* variable stripped in Python-spawned commands; shell Git commands explicitly unset GIT_DIR/GIT_WORK_TREE/GIT_INDEX_FILE.",
+  "process_lifetime": "All invocations completed synchronously; no background jobs or services were started."
+}

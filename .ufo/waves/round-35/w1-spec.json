@@ -1,0 +1,345 @@
+{
+ "wave": "tsukuroi-r35-w1",
+ "reportDir": ".ufo/waves/round-35/w1",
+ "maxLanes": 37,
+ "context": "/skill:godspeed\n# Godspeed directive (verbatim bytes of ~/.agents/skills/godspeed/directive.md)\nYou are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\n# Goal\nTsukuroi round 35 only, attempt 1, wave w1 (pre-freeze adversarial control wave for C1, positive control, sources and recon for both claims, no-harm baselines, and round-34 routed repairs). Lane repo /home/vgpnk/Projects/shokunin/tsukuroi-shokunin. Claim base b40c01df38eb26f74c095c471efc6d1649b00fd4. Pre-freeze candidate commit 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 (read the declaration first: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 6b4561e43e15c1cce038e390ad7d4691b0af4cc8:SCORECARD.md | sed -n '/^## Round 35 — declaration/,$p'`). Rule from the round prompt §9: a target must be one that a do-nothing control, a content-free output or a shortcut keyed on fixture ids or labels cannot reach; a counter or rule changed after any seat scored is not the claim's rule. Never edit the counter; report what it says.\n- C1 (coverage): `tools/tsukuroi-census.sh` gains a pacnew/pacsave drift arm printing one `DRIFT pacnew-plane pacnew=N pacsave=N pacorig=N unreadable=N log_pacnew=N log_pacsave=N unlogged=N gone=N` line (pairing the readable `/etc` sweep with `pacman.log`, reporting unreadable directories), with a new seam `TSUKUROI_ETC_DIR` (default /etc) and the existing `TSUKUROI_PACMAN_LOG`. Counter: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-pacnew-arm-r35.py` VERSION 1 at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 (sha256 19d25d14f9ee6ad15c036c75f997f2fba7aa756779c9e3b70a0ff136297e0155; read its docstring and PREDICATE constant); label `matches`; declared after-value `matches` 24 of `of` 24, `harness_errors` empty, exit 0. The claimed change does NOT exist in the lane yet. A control that meets the after-value is a finding against the counter: report it plainly.\n- C2 (depth, exploratory, no counter): a new note on how pacman 7.1 itself creates and logs `.pacnew`/`.pacsave` files (backup-file hash cases, NoUpgrade, removal saves, the unlogged `.pacsave.N` shift, pacdiff names pacman no longer makes). Installed: `pacman 7.1.0.r9.g54d9411-3`, `pacman-contrib 1.13.1-1`. Existing entry: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/pacnew-plane.md`. Source row numbers reserved this round: S191 pacman `lib/libalpm/add.c` at 54d9411, S192 `lib/libalpm/remove.c` at 54d9411, S193 pacman-contrib `src/pacdiff.sh.in` at v1.13.1, S194 pacman `doc/pacman.8.asciidoc` at 54d9411, S195 pacman `doc/pacman.conf.5.asciidoc` at 54d9411.\n- Repairs (not claims) come from `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-34-verifier-spotcheck.md` §5. Lane rules: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md`.\n- Seat evidence goes under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w1/<YourSeatName>/ (create it). Every `Report:` trailer path is relative to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin — write it at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/<that path>.\n\n# Contract\n- SEAT CONTAINMENT: NEVER set GIT_DIR, GIT_WORK_TREE, GIT_INDEX_FILE or any GIT_* variable to a path inside /home/vgpnk/Projects/shokunin/tsukuroi-shokunin or the fleet repo /home/vgpnk/Projects/shokunin. NEVER run git or jj write commands in the lane, the fleet repo or any sibling repo (add, commit, stash, checkout, switch, reset, pull, push, fetch, update-ref, worktree, init, apply, new, describe, squash, rebase, abandon, bookmark, undo, op restore). Never touch refs/jj/keep/* refs. Read-only git (log, show, diff, status, ls-files, rev-parse, archive, cat-file) is fine; read-only jj only with --ignore-working-copy, never at the fleet root. Every sandbox git runs in YOUR clone: `mkdir -p /fast/scratch/hyaku/tsukuroi-r35/<YourSeatName> && env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git clone -q --no-local /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /fast/scratch/hyaku/tsukuroi-r35/<YourSeatName>/repo && cd /fast/scratch/hyaku/tsukuroi-r35/<YourSeatName>/repo && git checkout -q 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 && git remote set-url --push origin DISABLED`; commit only there, with `git -c user.name=ctl -c user.email=ctl@sandbox commit`.\n- Scoring a census variant with the C1 counter (committed-receipt form): `cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && timeout 900 env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE python3 tools/run-receipt.py --lane /fast/scratch/hyaku/tsukuroi-r35/<YourSeatName>/repo --revision <your variant commit> --tool-revision 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 --out /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w1/<YourSeatName>/<name>.jsonl --timeout 800 -- tools/score-pacnew-arm-r35.py --lane '{lane}' --revision '{rev}'` (`{rev}` and `{lane}` are literal; run-receipt substitutes them; never pass `--seed` or `--fixtures`). It runs in seconds. Score a variant ONCE and report the summary line (`matches`, `of`, `harness_errors`, `exit_code`), the header's `counter_sha256` and `census_sha256`, and per fixture the `reason`. Save your variant's patch (`git -C <clone> diff 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 <variant>`) beside the receipt.\n- Paths: every path you read or write is absolute. Put files only under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w1/<YourSeatName>/ or /fast/scratch/hyaku/tsukuroi-r35/<YourSeatName>/. A relative path lands in the fleet repo; never write there. Never edit any lane file outside your seat directory. Never write to the fleet repo, any sibling lane repo (read-only), MANIFEST.json, .ufo/state or the watchdog log. Bound every fixture or log write (no unbounded appends; never point a marker or log at a file Python imports, such as sitecustomize.py); check `df -h /fast` before any large build. Never run `du`/`find` over /fast/scratch through a shell builtin wrapper; use /usr/bin/du. Keep every committed file under 1 MiB; put larger artifacts in your scratch dir and record their sha256.\n- Host actions are read-only. Tooling authorization (operator, 2026-10-19): you and every seat may install or update tools that help the task without asking; read /home/vgpnk/.omp/agent/RULES.md first and record each install (tool, version, channel, reason). pacman guard: all pacman transactions are PAUSED host-wide; install only via `uv tool`, `npx` or an official binary in ~/.local/bin. Never run pacman -S, -Sy, -Syu, -U, -R, a downgrade, or a service start, stop or restart; never load or unload a module, write a sysctl, sysfs, configuration or boot state; never run any btrfs write. Read-only pacman queries (-Q*) are allowed. sudo only as `sudo -n cat|stat|ls|journalctl` with read options, and only if your item needs it; never an interpreter, unshare or mount under sudo.\n- Process limits: wrap every command in `timeout` (at most 2400 s), never start an unbounded recursive test run, cap parallelism at 3 processes, and kill every process tree you started before you return.\n- Sources: open sources by ordinary means only (curl -sL of public URLs); never pass a bot challenge. Save fetched bytes unchanged under your seat directory and give their sha256. Quote at most 25 words, verbatim, with the line number. Registry `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md` (190 rows, S001-S190): say whether your source duplicates a registered row (same URL or same bytes).\n- No messages between seats. The only message target is agent://TsukuroiR35 (the L1), and only for a blocker. After you return, write nothing more.\n- Time box: return within 40 minutes of starting. A short honest report beats a late one.\n- Report format: plain English sentences. Start with a one-line verdict (for a control: `MEETS` or `DOES NOT MEET` the C1 after-value, with matches/of/harness_errors/exit), then numbered findings, each with an evidence pointer (absolute path:line, URL plus quote, or command plus exit code and output excerpt). Mark observations [obs], inferences [inf] and unknowns [unk]. End with the exact literal lines `Scope: read=<summary>; wrote=<paths>; executed=<commands or none>`, `Model: <your answering model identity if exposed, else not exposed>` and `Installs: none` (or each install).\n- You are a leaf: no delegation, no background jobs, no swarm (an executor may spawn one read-only labrat probe at most). Never pass a model parameter.\n\n# Tooling directive — operator, 2026-10-19 (always on, every agent)\nAny agent — main session or subagent, any lane, any wave — installs or updates any tool that\nhelps its task or is a strict upgrade, with full privilege, without asking first. Passwordless\n`sudo` is available.\n- Channel order: `sudo pacman -S --needed --noconfirm <pkg>` → `uv tool install <pkg>` →\n  official release binary into `~/.local/bin` → `cargo install` / `npm -g`. Official sources\n  only; never pipe an unverified remote script into a shell.\n- Full-system upgrades (`pacman -Syu`) go through tsukuroi-shokunin's update-safety gate first:\n  boot-chain packages can break boot (mkinitcpio 42 moves root to `/sysroot`; the host's\n  `btrfs-overlayfs` and `plymouth` hooks still expect `/new_root`). Never run a partial upgrade\n  (`pacman -Sy <pkg>`). If an install fails on a stale sync database, report it.\n- Record every install or update — tool, version, channel, reason — in your report or handoff.",
+ "items": [
+  {
+   "name": "K01DoNothing",
+   "role": "executor",
+   "prompt": "Issue the independent before receipt for C1 and the do-nothing control: no variant. Show `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff --stat b40c01df38eb26f74c095c471efc6d1649b00fd4 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 -- tools/tsukuroi-census.sh` is empty. Score with `--lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --revision 6b4561e43e15c1cce038e390ad7d4691b0af4cc8` (no clone needed) and once more with `--revision b40c01df38eb26f74c095c471efc6d1649b00fd4`, two receipts `before-6b4561e4.jsonl` and `before-b40c01df.jsonl`. Report both summaries.",
+   "axes": [
+    "coverage",
+    "control:do-nothing"
+   ]
+  },
+  {
+   "name": "K02JunkBytes",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Variant: junk bytes — append a comment block and a no-op shell function to the census; no arm.",
+   "axes": [
+    "coverage",
+    "control:junk"
+   ]
+  },
+  {
+   "name": "K03AllZero",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Variant: content-free line — print `DRIFT pacnew-plane pacnew=0 pacsave=0 pacorig=0 unreadable=0 log_pacnew=0 log_pacsave=0 unlogged=0 gone=0` before the rollup line, reading nothing.",
+   "axes": [
+    "coverage",
+    "control:all-false"
+   ]
+  },
+  {
+   "name": "K04ConstantLive",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Variant: constant line — measure the live host once by hand now (read-only `find /etc ...` and `grep` of /var/log/pacman.log per the counter docstring definitions) and hardcode those eight values into a printed DRIFT line; the variant reads nothing at run time.",
+   "axes": [
+    "coverage",
+    "control:constant"
+   ]
+  },
+  {
+   "name": "K05LogReaderOnly",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Variant: no filesystem reader — the arm reads only `$TSUKUROI_PACMAN_LOG` and computes log_pacnew, log_pacsave correctly; filesystem fields, unlogged and gone are 0 or derived from the log alone (gone = all distinct /etc targets).",
+   "axes": [
+    "coverage",
+    "control:no-reader"
+   ]
+  },
+  {
+   "name": "K06FsReaderOnly",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Variant: no log reader — the arm sweeps `$TSUKUROI_ETC_DIR` correctly (pacnew, pacsave incl. .pacsave.N, pacorig, unreadable) and prints log fields 0, unlogged = all counted entries, gone = 0.",
+   "axes": [
+    "coverage",
+    "control:no-reader"
+   ]
+  },
+  {
+   "name": "K07NaivePac",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Variant: naive count — `find \"$TSUKUROI_ETC_DIR\" -name '*.pac*'` split by substring (`pacnew`, `pacsave`, `pacorig` anywhere in the name), unreadable from `grep -c 'Permission denied'`, log counts by `grep -c 'installed as .*pacnew'` and `grep -c 'saved as .*pacsave'`, unlogged/gone by plain set difference without the unreadable rule.",
+   "axes": [
+    "coverage",
+    "control:shortcut"
+   ]
+  },
+  {
+   "name": "K08FixtureKeyed",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Variant: the cheapest shortcut keyed on the counter fixtures' names, shapes or labels. First read `tools/score-pacnew-arm-r35.py` build_fixture and look for anything a census could key on instead of doing the sweep and the pairing (name lengths, alphabet, suffix lists, directory depth, mode choices, the fixed stamp format, line ordering, fixed ratios such as the 0.6 log probability). Build the variant that exploits the strongest such regularity while skipping part of the work, and score it. Report every regularity you found, even if your variant does not meet.",
+   "axes": [
+    "coverage",
+    "control:label-keyed"
+   ]
+  },
+  {
+   "name": "K09HarnessSnoop",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Variant: harness snooping — the arm tries to learn the oracle instead of measuring: read /proc/$PPID/cmdline, environ and fd links, the parent temp tree (the directory above $TSUKUROI_ETC_DIR, the stub and harness dirs), any file the counter leaves, and try to recover the seed (for example by importing the counter module from the lane and replaying random.Random with a seed found anywhere). Build the strongest such variant you can in 30 minutes and score it. Report every channel you tried and what it exposed.",
+   "axes": [
+    "coverage",
+    "control:shortcut"
+   ]
+  },
+  {
+   "name": "K10LiveEtc",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Variant: ignores the seam — the arm is a correct sweep and pairing, but of the live `/etc` and `/var/log/pacman.log` (hardwired paths, read-only), not of `$TSUKUROI_ETC_DIR`/`$TSUKUROI_PACMAN_LOG`.",
+   "axes": [
+    "coverage",
+    "control:no-reader"
+   ]
+  },
+  {
+   "name": "K11NoPairing",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Variant: counts without pairing — filesystem and log counts correct per the counter docstring, but unlogged and gone are printed as 0 (no pairing computed).",
+   "axes": [
+    "coverage",
+    "control:partial"
+   ]
+  },
+  {
+   "name": "K12TypeF",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Variant: a plausible alternative semantics — a correct arm except that the sweep uses `find ... -type f` (symlinked .pacnew/.pacsave entries dropped). Report whether the counter distinguishes it, and say whether the counter's choice to count symlinks is supported by any source you can cite (pacdiff, pacman).",
+   "axes": [
+    "coverage",
+    "control:semantics"
+   ]
+  },
+  {
+   "name": "K13PacdiffExact",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Variant: pacdiff parity — a correct arm except that the sweep uses pacman-contrib 1.13.1 pacdiff's exact find expression (`find \"$dir\" \\( -name \\*.pacnew -o -name \\*.pacorig -o -name \\*.pacsave -o -name '*.pacsave.[0-9]*' \\)`, directories included). Report whether the counter distinguishes it and whether the counter's exclusion of directories is defensible from the pacman source.",
+   "axes": [
+    "coverage",
+    "control:semantics"
+   ]
+  },
+  {
+   "name": "K14PositiveArm",
+   "role": "executor",
+   "prompt": "Positive control and candidate change for C1. In your sandbox clone at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8, implement the real arm in `tools/tsukuroi-census.sh`: a function `probe_pacnew_arm` that reads `TSUKUROI_ETC_DIR` (new seam, default /etc) and the existing `PACMAN_LOG` (`TSUKUROI_PACMAN_LOG`), computes the eight fields exactly as the counter docstring defines them (filesystem names per pacdiff minus directories, symlinks not followed; unreadable directories from the sweep; pacman's own `[ALPM] warning: <F> installed as <F>.pacnew` and `<F> saved as <F>.pacsave` lines; unlogged; gone excluding targets beneath unreadable directories), and prints exactly one `DRIFT pacnew-plane ...` line after the HANDOFF lines and before the `TSUKUROI_CENSUS:` rollup line. It is verdict-neutral: no PLANE text, rollup term or exit code changes. Read only; no temp files in live mode (the header promises live mode creates no files: use shell variables or pipes, not mktemp). Document it in the header (arm paragraph, seam list at the `TSUKUROI_PACMAN_LOG ...` line) and the usage text. Add at least four hermetic selftest cases to `run_selftest` in the file's own style (counts with distractors; an unreadable directory; log pairing with unlogged and gone; an absent or unreadable log), each asserting the DRIFT line. A dev reference exists at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/l1/dev-reference-arm.sh (uses mktemp; do not copy that). Then: `bash tools/tsukuroi-census.sh --selftest` in your clone before and after (save both outputs; all old cases must still pass), one live run (save stdout, exit code; the DRIFT line for the live host), and score your commit once with the counter. Save the patch as `positive.patch` and give its sha256. Commit only in your clone.",
+   "axes": [
+    "coverage",
+    "control:positive"
+   ]
+  },
+  {
+   "name": "K15FieldMutants",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Exception to ONE variant: this item scores a family. Start from the dev reference arm /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/l1/dev-reference-arm.sh (append it to the census as a function printing its DRIFT line before the rollup; verify that base variant first, one receipt). Then build one-change mutants of that arm, one commit each, one receipt each: each of the eight fields off by one (+1); a duplicated DRIFT line; one field dropped; one field printed twice; `gone` computed without the unreadable rule; `unlogged` computed against base names instead of targets; log regex without the backreference (any `installed as .*\\.pacnew`). Report a table: mutant, matches/of, exit, killed yes/no. Any mutant at 24/24 is a counter gap: say so plainly.",
+   "axes": [
+    "coverage",
+    "control:mutants"
+   ]
+  },
+  {
+   "name": "K16ChmodRestore",
+   "role": "mutation-tester",
+   "prompt": "Pre-freeze control for C1 (round 35). In your sandbox clone at the candidate commit, build exactly ONE census variant commit as described, score it once with the C1 counter (committed-receipt form), and report MEETS or DOES NOT MEET with per-fixture reasons. The variant edits only `tools/tsukuroi-census.sh`. Variant: mutating arm — a correct arm that additionally makes every unreadable directory readable (chmod u+rx), reads inside it, and restores the original mode before printing; also try a second commit that touches (`touch -a` or rewrites identical bytes into) the log. Score both. Report whether the counter's unchanged check (bytes, modes, inode change times) catches each.",
+   "axes": [
+    "coverage",
+    "control:mutation"
+   ]
+  },
+  {
+   "name": "SrcAddC",
+   "role": "scribe",
+   "prompt": "Open one source for the round and draft its SOURCES.md row(s) S191. Source: pacman `lib/libalpm/add.c` at commit 54d9411 (installed `pacman 7.1.0.r9.g54d9411-3`): https://gitlab.archlinux.org/pacman/pacman/-/raw/<full commit hash>/lib/libalpm/add.c (resolve 54d9411 to the full hash from the GitLab commit page or API first; check the fetched bytes are C source, not an HTML page). Locate: the `.pacnew` creation paths (NoUpgrade `notouch` and the three-hash backup case), the three hash comparisons and their outcomes, the exact log format strings, and whether `.pacorig` appears at all (grep count). Save bytes unchanged and give sha256. Draft each row in the exact 11-cell shape of the existing rows (read the header and rows S186-S190 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and the contract in /home/vgpnk/Projects/shokunin/CORPUS.md section \"SOURCES.md — where a shokunin learns\"): id, kind, tier, anchor (tag/commit raw-file URL, not a homepage), status (`mined` only if a note will use it, else `candidate`), opened 2026-10-23, recheck `on-release`, used-by (`corpus/knowledge/pacman-backup-files-r35.md` and/or `tools/score-pacnew-arm-r35.py`), and the remaining cells as the existing rows do. Give 2 to 5 located quotes (≤25 words each, verbatim, line numbers) that the C2 note and the C1 oracle can cite. Write drafts to your seat dir; never edit SOURCES.md.",
+   "axes": [
+    "depth",
+    "source"
+   ]
+  },
+  {
+   "name": "SrcRemoveC",
+   "role": "scribe",
+   "prompt": "Open one source for the round and draft its SOURCES.md row(s) S192. Source: pacman `lib/libalpm/remove.c` at commit 54d9411: same URL scheme. Locate: when a `.pacsave` is made (backup entry, md5 differs from the recorded hash, NOSAVE), `shift_pacsave` (renames to `.pacsave.N` with no log line?), and the exact log format strings. Save bytes unchanged and give sha256. Draft each row in the exact 11-cell shape of the existing rows (read the header and rows S186-S190 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and the contract in /home/vgpnk/Projects/shokunin/CORPUS.md section \"SOURCES.md — where a shokunin learns\"): id, kind, tier, anchor (tag/commit raw-file URL, not a homepage), status (`mined` only if a note will use it, else `candidate`), opened 2026-10-23, recheck `on-release`, used-by (`corpus/knowledge/pacman-backup-files-r35.md` and/or `tools/score-pacnew-arm-r35.py`), and the remaining cells as the existing rows do. Give 2 to 5 located quotes (≤25 words each, verbatim, line numbers) that the C2 note and the C1 oracle can cite. Write drafts to your seat dir; never edit SOURCES.md.",
+   "axes": [
+    "depth",
+    "source"
+   ]
+  },
+  {
+   "name": "SrcPacdiff",
+   "role": "scribe",
+   "prompt": "Open one source for the round and draft its SOURCES.md row(s) S193. Source: pacman-contrib `src/pacdiff.sh.in` at tag v1.13.1 (installed `pacman-contrib 1.13.1-1`): https://gitlab.archlinux.org/pacman/pacman-contrib/-/raw/v1.13.1/src/pacdiff.sh.in . Locate: the find expression and its other search modes (locate, pacman db backup list), how `.pacorig` and `.pacsave.N` are treated, whether directories or symlinks are filtered. Save bytes unchanged and give sha256. Draft each row in the exact 11-cell shape of the existing rows (read the header and rows S186-S190 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and the contract in /home/vgpnk/Projects/shokunin/CORPUS.md section \"SOURCES.md — where a shokunin learns\"): id, kind, tier, anchor (tag/commit raw-file URL, not a homepage), status (`mined` only if a note will use it, else `candidate`), opened 2026-10-23, recheck `on-release`, used-by (`corpus/knowledge/pacman-backup-files-r35.md` and/or `tools/score-pacnew-arm-r35.py`), and the remaining cells as the existing rows do. Give 2 to 5 located quotes (≤25 words each, verbatim, line numbers) that the C2 note and the C1 oracle can cite. Write drafts to your seat dir; never edit SOURCES.md.",
+   "axes": [
+    "depth",
+    "source"
+   ]
+  },
+  {
+   "name": "SrcPacmanDocs",
+   "role": "scribe",
+   "prompt": "Open one source for the round and draft its SOURCES.md row(s) S194/S195. Source: pacman `doc/pacman.8.asciidoc` (section on handling config files) and `doc/pacman.conf.5.asciidoc` (NoUpgrade, NoExtract) at commit 54d9411; two rows. Locate the sentences that say when .pacnew and .pacsave are created. Save bytes unchanged and give sha256. Draft each row in the exact 11-cell shape of the existing rows (read the header and rows S186-S190 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md and the contract in /home/vgpnk/Projects/shokunin/CORPUS.md section \"SOURCES.md — where a shokunin learns\"): id, kind, tier, anchor (tag/commit raw-file URL, not a homepage), status (`mined` only if a note will use it, else `candidate`), opened 2026-10-23, recheck `on-release`, used-by (`corpus/knowledge/pacman-backup-files-r35.md` and/or `tools/score-pacnew-arm-r35.py`), and the remaining cells as the existing rows do. Give 2 to 5 located quotes (≤25 words each, verbatim, line numbers) that the C2 note and the C1 oracle can cite. Write drafts to your seat dir; never edit SOURCES.md.",
+   "axes": [
+    "depth",
+    "source"
+   ]
+  },
+  {
+   "name": "ScoutCensusArm",
+   "role": "scout",
+   "prompt": "Read-only reconnaissance of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh for the C1 arm: where the arm belongs (main(), after the HANDOFF lines), how run_selftest cases are written and compared (do any assert the full stdout or the line count, so that a new line would break them?), which seams exist, the live-mode no-files promise, and every consumer of census stdout in the lane (grep /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SKILL.md, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus for parsers of `PLANE`, `HANDOFF`, `TSUKUROI_CENSUS:` lines, e.g. score-census-handoff-r32.py). List the no-harm checks the change must pass, each with the command. No execution beyond grep/sed/read.",
+   "axes": [
+    "coverage",
+    "recon"
+   ]
+  },
+  {
+   "name": "ExecHostPacnew",
+   "role": "executor",
+   "prompt": "Dated read-only capture of the live pacnew/pacsave surface for C1 and C2 (paths and counts only, never file contents): the three recheck commands of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/pacnew-plane.md (Recheck procedure), plus counts per the counter docstring definitions (pacnew, pacsave incl. .pacsave.N, pacorig, unreadable, log_pacnew, log_pacsave, unlogged, gone), with exact commands and exit codes, `date -u` before and after, `pacman -Q pacman pacman-contrib`. Compare with the note's 2026-10-19 values and say what changed. Also list `NoUpgrade`/`NoExtract` settings (`pacman-conf NoUpgrade NoExtract`). Save capture.txt with sha256.",
+   "axes": [
+    "coverage",
+    "freshness",
+    "recon"
+   ]
+  },
+  {
+   "name": "ExecGateBaselines",
+   "role": "executor",
+   "prompt": "No-harm baselines and round-34 routed defect 4 (gate receipts at the tip). For each gate, issue a committed receipt at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 with run-receipt (`--lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --revision 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 --tool-revision 6b4561e43e15c1cce038e390ad7d4691b0af4cc8`): check-self-assessment (`--revision {rev}` and whatever other args its usage requires; read each tool's usage first), check-registry-coverage, check-recheck-commands, check-knowledge-header, check-adjacency-anchors, check-pause-gate, report-red-causes. Report each exit code and finding ids, and compare with the round-34 w2 GatesAfterNoHarm receipts at 879daa95 under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w2/GatesAfterNoHarm/.",
+   "axes": [
+    "calibration",
+    "no-harm"
+   ]
+  },
+  {
+   "name": "ExecSelftestBaselines",
+   "role": "executor",
+   "prompt": "No-harm baseline of every lane selftest at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8: list the selftests the round-34 baseline ran (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ExecSelftestBaselines/ and w2/SelftestsAfterNoHarm/), run the same set at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 through run-receipt (or the same harness they used), plus `bash tools/tsukuroi-census.sh --selftest` (PASS count). Produce selftests-6b4561e4.tsv (tool, exit, stdout sha256, stderr bytes) and compare with the round-34 tsv.",
+   "axes": [
+    "operability",
+    "no-harm"
+   ]
+  },
+  {
+   "name": "ConnSiblings",
+   "role": "connector",
+   "prompt": "Sibling-overlap scan for both claims. Read-only: every sibling PROVINCE.md under /home/vgpnk/Projects/shokunin/*-shokunin/ (and SKILL.md where needed) for ownership of pacman config-file drift, `.pacnew`/`.pacsave`, `/etc` configuration content, pacdiff or package update guidance (mado owns desktop configuration content; kagi credentials). Say whether C1 (detection: names and counts only) or C2 (pacman semantics) crosses a sibling boundary, with portable anchors (file @ commit, heading, quote). Also say whether the arm must avoid any path class (for example credential-bearing files under /etc) under ADJ-02.",
+   "axes": [
+    "adjacency"
+   ]
+  },
+  {
+   "name": "CritClaimDesign",
+   "role": "critic",
+   "prompt": "Attack the round-35 declaration at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 (read-only, no execution): axis fit (is C1 coverage — a new census arm on an owned surface — or is it re-scoring a rule the lane already holds; name the command that would show the surface unmoved), whether the after-value can be met by any cheap control not in K01-K16 (list each one you can think of, concretely), predicate wording versus the counter code (same sentence, same condition, same label?), separability of C1 and C2, whether C2's prior-state claim is true (grep the corpus for pacnew/pacsave/backup-file content beyond pacnew-plane.md), the sourced-claim requirement, and the freeze rule wording against round-34 spot-check §5 item 3. Numbered findings with severity.",
+   "axes": [
+    "coverage",
+    "calibration",
+    "attack"
+   ]
+  },
+  {
+   "name": "RevCounterCode",
+   "role": "reviewer",
+   "prompt": "Review `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-pacnew-arm-r35.py` at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 (read-only, no execution): oracle correctness against its docstring and against pacman 7.1 / pacdiff behaviour (fetch https://gitlab.archlinux.org/pacman/pacman/-/raw/master/lib/libalpm/add.c and remove.c and pacman-contrib v1.13.1 pacdiff.sh.in to compare), fixture generator bugs (collisions, a counted entry inside an unreadable dir, log targets that coincide with distractor dirs, symlink handling), the hermetic harness (does any census probe still read host state under these seams? check the census's probe commands against CMD_SEAMS/FILE_SEAMS/DIR_SEAMS), parse() robustness (extra tokens, duplicate lines, whitespace), the unchanged check (snapshot and ctimes ordering), exit-code semantics, and whether the PREDICATE text and the code agree clause by clause. Numbered findings with severity and line numbers.",
+   "axes": [
+    "coverage",
+    "attack"
+   ]
+  },
+  {
+   "name": "CritC2Absorb",
+   "role": "critic",
+   "prompt": "Attack C2 before it is written (read-only): is a note on pacman's backup-file semantics this lane's depth (tsukuroi owns pacman state and update-safety, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/PROVINCE.md Core) or does it absorb a sibling's scope; is the stated prior state true (grep /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SKILL.md for pacsave/pacnew/backup array/NoUpgrade); which propositions would make it real depth versus restating ArchWiki (S010/S011 rows). List the five strongest propositions the note must carry and the three likeliest wording traps (for example confusing the md5 backup hash with SHA256, or claiming .pacorig never exists).",
+   "axes": [
+    "depth",
+    "adjacency",
+    "attack"
+   ]
+  },
+  {
+   "name": "ScribeC2Draft",
+   "role": "scribe",
+   "prompt": "Draft the C2 note `corpus/knowledge/pacman-backup-files-r35.md` (write it only in your seat dir as a draft). Open the sources yourself (pacman add.c and remove.c at 54d9411, pacdiff.sh.in v1.13.1, pacman.8 / pacman.conf.5 asciidoc at 54d9411; reserved rows S191-S195 as in the Goal). Header lines first: `source:` (S191-S195 plus S010/S011 where used), `verified-at: 2026-10-23`, `recheck: on-release; procedure: ...` (read-only, no package-manager mutation). Body: the backup-file decision table (each hash case → outcome → log line or none, with a located quote per row), NoUpgrade, removal `.pacsave` (only when modified, md5 against the recorded hash, NOSAVE), the `.pacsave.N` shift and whether it is logged, `.pacorig` (does pacman 7.1 still make it? say exactly what the grep found), what this means for reading the log against the filesystem (why a current file can lack a log line), [obs]/[inf]/[unk] separated, a Falsifier, and a `## QUALITY check` evaluating criteria 1-12 and 19 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md. Max 90 lines. No mutation commands anywhere.",
+   "axes": [
+    "depth"
+   ]
+  },
+  {
+   "name": "ExecProbeV7",
+   "role": "executor",
+   "prompt": "Round-34 spot-check §5 items 1, 2 and the carried `is_git` gap: build a successor probe `tools/probe-child-env-allowlist-r35.py` (VERSION 7) in your sandbox clone at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8, starting from `tools/probe-child-env-allowlist-r34.py` (VERSION 6). Add an UNTRACED observation view of child environments: run each target once more without strace, with an observation that does not depend on tracing (for example a directory of wrapper executables named git, python3, sh first on a PATH the target is forced to use is NOT enough because the targets fix PATH; consider an unprivileged user+mount namespace (`unshare -Urm`, check it works) bind-mounting a recording wrapper over /usr/bin/git and the other exec targets, the wrapper writing its /proc/self/environ to a bounded file then exec-ing the real binary; say what you chose and why). Fix the base-parity normalisation so byte-identical tools read 0: short hashes (7-12 hex), fixture paths under the run's temp dirs, and legitimate values derived from the run's HOME such as GIT_CEILING_DIRECTORIES (read /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w2/RegressionAfter.md and RegressionAfter/ first: V6 read 8/15 and 22/33 on byte-identical sets). Widen `is_git` beyond /usr/bin/git and /usr/lib/git-core/. Then run (development runs, not claims): the two committed after-mutants (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w2/MutAttrgetterCopy/ and MutPathCopy/: rebuild each from its saved patch on top of df661507 in your clone) — each must read above 0; and the r33claim, regression and round-34 claim sets at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 — each must read 0. Commit in your clone, save the probe file and a README (what changed, each run's summary line, timestamps from `date -u` at the time, never estimated). It is not frozen and backs no claim. If it is not done in 40 minutes, return what exists with honest status.",
+   "axes": [
+    "operability",
+    "repair"
+   ]
+  },
+  {
+   "name": "ExecV6Calibration",
+   "role": "executor",
+   "prompt": "Round-34 spot-check §5 item 2, committed receipts: score the frozen round-34 probe VERSION 6 (`tools/probe-child-env-allowlist-r34.py`, sha256 5d0d5689…, at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8) on the earlier target sets at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 with run-receipt: `--set r33claim` and `--set regression` (`--lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --revision 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 --tool-revision 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 -- tools/probe-child-env-allowlist-r34.py --revision {rev} --lane {lane} --set r33claim`; same for regression; each run may take 10-40 minutes, start both early, max 2 in parallel). For each leaking pair, say which clause fired and with what value (short hash, fixture path, GIT_CEILING_DIRECTORIES, HOME-derived), and show with `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff --quiet 2641591e 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 -- tools/<t>` that the tool bytes are unchanged since the round-33 tip. Compare with the uncommitted RegressionAfter readings (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w2/RegressionAfter.md).",
+   "axes": [
+    "operability",
+    "calibration",
+    "repair"
+   ]
+  },
+  {
+   "name": "ExecAmbientA",
+   "role": "executor",
+   "prompt": "Round-34 spot-check §5 item 9 (ambient copies outside the claim), part A: in your sandbox clone at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8, replace the ambient-environment copy in `tools/check-revision-binding.py:104` and `tools/check-report-receipts.py` (grep `os.environ`) with a fixed allow-list dict in the round-34 style (`{\"PATH\": \"/usr/bin:/bin\", \"GIT_CONFIG_NOSYSTEM\": \"1\", \"GIT_CONFIG_GLOBAL\": os.devnull}` plus any fixed settings the tool needs; keep LC_ALL/LANG if its parsing needs them, say why). Run each tool's selftest and its normal mode before and after in your clone (save outputs and exit codes; byte-compare stdout); check `_revision.py` byte pins or registry digests that name these files (grep the lane for their sha256) and report every pin that would need to follow. Commit in your clone; save `ambientA.patch` with sha256.",
+   "axes": [
+    "operability",
+    "repair"
+   ]
+  },
+  {
+   "name": "ExecAmbientB",
+   "role": "executor",
+   "prompt": "Round-34 spot-check §5 item 9, part B: in your sandbox clone at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8, same allow-list repair for `tools/score-census-handoff-r32.py` and `tools/mutants-btrfs-space-r30.py` (grep `os.environ`), with selftests and normal modes before and after (byte-compare), pins and digests that name them. Then read `tools/run-receipt.py` env() (lines 33-41): it is the receipt runner for all lane evidence; decide with evidence whether an allow-list there changes any tool's behaviour (which tools read which env names under run-receipt? grep tools/*.py for os.environ.get / getenv), and either include a patch with before/after receipts for two gates, or argue concretely why not this round. Save `ambientB.patch` with sha256.",
+   "axes": [
+    "operability",
+    "repair"
+   ]
+  },
+  {
+   "name": "RevHistoricalProbes",
+   "role": "reviewer",
+   "prompt": "Round-34 spot-check §5 item 9, part C (read-only): the six historical probes with an `os.environ.items()` copy at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8 — `tools/probe-child-env-allowlist-r32.py`, `-r33.py`, `-r34.py`, `tools/probe-git-child-env-r31.py`, `tools/probe-git-env-leak.py` (line 58), `tools/probe-git-env-residual-r30.py`. For each copy say whether it is the probe's deliberate measured input (the ambient environment it injects into a target to test that target) or a leak into the probe's own git children, and whether its bytes are pinned by committed receipts (grep /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves for each file's sha256 at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8). Recommend per file: leave as pinned evidence with a named reason, or repair. Numbered findings with line numbers.",
+   "axes": [
+    "operability",
+    "repair",
+    "attack"
+   ]
+  },
+  {
+   "name": "ScribeCorrections",
+   "role": "scribe",
+   "prompt": "Draft (in your seat dir only) the appended correction texts for round-34 spot-check §5 items 3-6 (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-34-verifier-spotcheck.md:182-193), each a short dated block naming the defect, the evidence and the corrected statement, ready to append to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SCORECARD.md or /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-34.md (say which): (3) the amendment-1 disclosure correction: C06, C16, C18 finished 08:48:26Z, 08:47:01Z, 08:45:22Z, before 15c9ac0e (verify each `finished_utc` in the receipts under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ with jq, and the commit time with `git log -1 --format=%cI 15c9ac0e`), and CritKillRuleReading's fork-without-exec narrowing recorded as a named limit; (4) the round-34 report line 50 / lesson gate line: restate as measured at 879daa95 (self-assessment exit 1, K07-K10) with receipt paths; (5) the timestamps in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/l1/dev-base/README.md and l1/dev-amend2/README.md and SCORECARD.md:1455 versus their commits (6de666c4 08:23:48Z, 3457f287 09:04:36Z; verify); (6) SelftestsAfterNoHarm landed in a8b46ac8 not 6aad5b12 (verify with `git log --diff-filter=A --format=%h -- <path>`), \"other 12\" lists 13, \"2 provider refusals\" lists 3 holds, MutBinGitAlias left outputs before filing (see /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w2/UNINTEGRATED-AT-FILING.md). Every number re-derived by a command you paste.",
+   "axes": [
+    "calibration",
+    "repair"
+   ]
+  },
+  {
+   "name": "ScribeC2Remnants",
+   "role": "scribe",
+   "prompt": "Round-34 spot-check §5 item 8: draft (seat dir only) an appended correction block for /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/coredump-count-unit-r34.md covering body line 11 (\"no lane entry said what one counted entry is\"), line 15 (\"One summary record per crash\"), the line-59 \"quoted\" wording, and a superseding read-only recheck procedure that can reproduce the null/handler split (journalctl `--all`, `MESSAGE_ID` selection, `-o json` with `--output-fields`, corefile presence via `coredumpctl list` columns; check each option exists in systemd 262 man pages `journalctl(1)`/`coredumpctl(1)` — run `journalctl --help`/`coredumpctl --help` read-only and quote). Test each recheck command read-only once on this host with `timeout 60` and paste counts and exit codes. Append-only style; never edit the note.",
+   "axes": [
+    "depth",
+    "freshness",
+    "repair"
+   ]
+  },
+  {
+   "name": "RevLeftovers",
+   "role": "reviewer",
+   "prompt": "Review the round-34 leftovers landed at 6b4561e43e15c1cce038e390ad7d4691b0af4cc8: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w2/UNINTEGRATED-AT-FILING.md against the files (mtimes with `find -printf`, the filing commit time `git log -1 --format=%cI af8bce57` in the fleet repo /home/vgpnk/Projects/shokunin read-only). Read /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w2/MutBinGitAlias/ and the round-34 lesson hold record (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-34.md section Wave-2 results): what did MutBinGitAlias produce, and is \"cyber_policy hold\" consistent with it? Also read RegressionAfter.md and say whether its VERSION 6 readings agree with the spot-check's numbers. Numbered findings; no execution beyond read-only git/find/jq.",
+   "axes": [
+    "calibration",
+    "attack"
+   ]
+  }
+ ]
+}

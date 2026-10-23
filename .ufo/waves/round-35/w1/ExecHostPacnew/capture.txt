@@ -1,0 +1,199 @@
+=== SECTION 0: capture frame ===
+date -u BEFORE = Fri Oct 23 11:31:14 AM UTC 2026
+host user = vgpnk (uid 1000)
+find identity: exit_code=0
+  | /usr/bin/find
+  | find (GNU findutils) 4.11.0-modified
+=== SECTION A: verbatim Recheck procedure commands (corpus/knowledge/pacnew-plane.md) ===
+--- command: find /etc \( -name '*.pacnew' -o -name '*.pacsave' \) 2>/dev/null
+exit_code=1
+stdout:
+  | /etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json.pacnew
+  | /etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json.pacnew
+  | /etc/locale.gen.pacnew
+
+--- command: grep -nE 'installed as .*\.pacnew|saved as .*\.pacsave' /var/log/pacman.log
+exit_code=0
+stdout:
+  | 1427:[2026-10-11T16:14:18-0300] [ALPM] warning: /etc/locale.gen installed as /etc/locale.gen.pacnew
+  | 1645:[2026-10-11T16:14:26-0300] [ALPM] warning: /etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json installed as /etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json.pacnew
+  | 1646:[2026-10-11T16:14:26-0300] [ALPM] warning: /etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json installed as /etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json.pacnew
+
+--- command: find /etc \( -name '*.pacnew' -o -name '*.pacsave' \) 2>&1 >/dev/null | grep -ci 'Permission denied'
+exit_code=0
+stdout:
+  | 11
+
+=== SECTION B: counter-definition census (score-pacnew-arm-r35.py VERSION 1 docstring) ===
+unreadable_deny_lines=11
+unreadable_dirs=11
+  unreadable_dir: /etc/audit/plugins.d
+  unreadable_dir: /etc/cni/net.d
+  unreadable_dir: /etc/credstore
+  unreadable_dir: /etc/credstore.encrypted
+  unreadable_dir: /etc/cups/ssl
+  unreadable_dir: /etc/pacman.d/gnupg/crls.d
+  unreadable_dir: /etc/pacman.d/gnupg/openpgp-revocs.d
+  unreadable_dir: /etc/pacman.d/gnupg/private-keys-v1.d
+  unreadable_dir: /etc/polkit-1/rules.d
+  unreadable_dir: /etc/ssl/private
+  unreadable_dir: /etc/sudoers.d
+
+counted_entries=3
+pacnew=3
+pacsave=0
+pacorig=0
+pacsave_plain=0
+pacsave_numbered=0
+entries_list:
+  entry pacnew /etc/locale.gen.pacnew
+  entry pacnew /etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json.pacnew
+  entry pacnew /etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json.pacnew
+directories_named_like_counted (not counted, non-directory rule):
+
+log_pacnew=3
+log_pacsave=0
+log_target_lines:
+  logline pacnew [2026-10-11T16:14:18-0300] [ALPM] warning: /etc/locale.gen installed as /etc/locale.gen.pacnew
+  logline pacnew [2026-10-11T16:14:26-0300] [ALPM] warning: /etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json installed as /etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json.pacnew
+  logline pacnew [2026-10-11T16:14:26-0300] [ALPM] warning: /etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json installed as /etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json.pacnew
+
+unlogged=0
+
+gone=0
+
+DRIFT pacnew-plane pacnew=3 pacsave=0 pacorig=0 unreadable=11 log_pacnew=3 log_pacsave=0 unlogged=0 gone=0
+
+=== SECTION C: pacman / pacman-contrib versions ===
+command: pacman -Q pacman pacman-contrib
+exit_code=0
+  | pacman 7.1.0.r9.g54d9411-3
+  | pacman-contrib 1.13.1-1
+command: command -v pacdiff
+exit_code=0
+  | /usr/bin/pacdiff
+
+=== SECTION D: NoUpgrade / NoExtract (pacman-conf) ===
+command: pacman-conf NoUpgrade
+exit_code=0
+command: pacman-conf NoExtract
+exit_code=0
+command: pacman-conf --repo-list
+exit_code=0
+  | core
+  | extra
+  | multilib
+  | omarchy
+  | openai-chatgpt
+command: grep -rnE '^[[:space:]]*(NoUpgrade|NoExtract)[[:space:]]*=' /etc/pacman.conf /etc/pacman.d 2>/dev/null || echo 'no NoUpgrade/NoExtract directive found'
+exit_code=0
+  | no NoUpgrade/NoExtract directive found
+command: pacman-conf --repo-list | while read r; do pacman-conf --repo=$r NoUpgrade; done | sed '/^$/d' || true
+exit_code=0
+  ! warning: unknown directive 'NoUpgrade'
+  ! warning: unknown directive 'NoUpgrade'
+  ! warning: unknown directive 'NoUpgrade'
+  ! warning: unknown directive 'NoUpgrade'
+  ! warning: unknown directive 'NoUpgrade'
+
+=== SECTION E: log file metadata ===
+command: ls -l --time-style=long-iso /var/log/pacman.log
+exit_code=0
+  | -rw-r--r-- 1 root root 246903 2026-10-22 04:10 /var/log/pacman.log
+command: wc -l < /var/log/pacman.log
+exit_code=0
+  | 3191
+command: ls -1 /var/log/pacman.log*
+exit_code=0
+  | /var/log/pacman.log
+
+=== SECTION F: broader log recon (any "installed as"/"saved as"/pacsave/pacorig mention) ===
+command: grep -c 'installed as' /var/log/pacman.log
+exit_code=0
+  | 4
+command: grep -c 'saved as' /var/log/pacman.log
+exit_code=1
+  | 0
+command: grep -c 'pacorig' /var/log/pacman.log
+exit_code=1
+  | 0
+command: grep -cE '\.pacsave\.[0-9]' /var/log/pacman.log
+exit_code=1
+  | 0
+command: grep -cE '\[ALPM\] warning: .* installed as .*\.pacnew$' /var/log/pacman.log
+exit_code=0
+  | 3
+command: grep -cE '\[ALPM\] warning: .* saved as .*\.pacsave$' /var/log/pacman.log
+exit_code=1
+  | 0
+command: grep -nE 'installed as|saved as' /var/log/pacman.log
+exit_code=0
+  | 641:[2026-10-03T17:44:19-0300] [ALPM] installed asdcontrol (1:0.6.0-1)
+  | 1427:[2026-10-11T16:14:18-0300] [ALPM] warning: /etc/locale.gen installed as /etc/locale.gen.pacnew
+  | 1645:[2026-10-11T16:14:26-0300] [ALPM] warning: /etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json installed as /etc/tpm2-tss/fapi-profiles/P_ECCP384SHA384.json.pacnew
+  | 1646:[2026-10-11T16:14:26-0300] [ALPM] warning: /etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json installed as /etc/tpm2-tss/fapi-profiles/P_RSA3072SHA384.json.pacnew
+command: grep -n 'pacman-contrib' /var/log/pacman.log | tail -6
+exit_code=0
+  | 2440:[2026-10-20T07:45:36-0300] [PACMAN] Running 'pacman -S --needed --noconfirm compsize pacman-contrib'
+  | 2444:[2026-10-20T07:45:37-0300] [ALPM] installed pacman-contrib (1.13.1-1)
+  | 2462:[2026-10-20T09:15:30-0300] [PACMAN] Running 'pacman -Syu --needed --noconfirm nvme-cli smartmontools fio xfsprogs pacman-contrib earlyoom iotop-c sysstat stress-ng btrbk linux-lts linux-lts-headers'
+command: grep -nE 'ALPM-SCRIPTLET.*(pacnew|pacsave)' /var/log/pacman.log | head -10
+exit_code=0
+
+=== SECTION G: unreadable-dir metadata and log date range (paths + metadata only) ===
+command: ls -ld --time-style=long-iso <11 unreadable dirs>
+exit_code=0
+  | drwxr-x--- 1 root root      0 2026-10-03 17:42 /etc/audit/plugins.d
+  | drwx------ 1 root root      0 2026-10-09 23:03 /etc/cni/net.d
+  | drwx------ 1 root root      0 2026-06-26 08:27 /etc/credstore
+  | drwx------ 1 root root      0 2026-06-26 08:27 /etc/credstore.encrypted
+  | drwx------ 1 root cups      0 2026-04-27 15:23 /etc/cups/ssl
+  | drwx------ 1 root root     14 2026-10-10 03:53 /etc/pacman.d/gnupg/crls.d
+  | drwx------ 1 root root     88 2026-10-03 17:41 /etc/pacman.d/gnupg/openpgp-revocs.d
+  | drwx------ 1 root root     88 2026-10-03 17:41 /etc/pacman.d/gnupg/private-keys-v1.d
+  | drwxr-x--- 1 root polkitd   0 2025-12-28 09:12 /etc/polkit-1/rules.d
+  | drwx------ 1 root root      0 2026-06-09 13:12 /etc/ssl/private
+  | drwxr-x--- 1 root root    186 2026-10-16 23:30 /etc/sudoers.d
+command: head -1 /var/log/pacman.log | cut -c1-40
+exit_code=0
+  | [2026-10-03T20:41:33+0000] [PACMAN] Runn
+command: tail -1 /var/log/pacman.log | cut -c1-40
+exit_code=0
+  | [2026-10-22T04:10:19-0300] [PACMAN] Runn
+command: stat -c '%n mode=%a owner=%U:%G mtime=%y' /etc/pacman.conf /etc/pacman.d
+exit_code=0
+  | /etc/pacman.conf mode=644 owner=root:root mtime=2026-10-16 23:52:56.702579113 -0300
+  | /etc/pacman.d mode=755 owner=root:root mtime=2026-10-16 23:53:28.092328284 -0300
+
+=== SECTION H: comparison with corpus/knowledge/pacnew-plane.md (2026-10-19 values) ===
+note value                              2026-10-19   2026-10-23 (this capture)
+current /etc sweep .pacnew paths         3            3
+current /etc sweep .pacsave paths        0            0
+log 'installed as *.pacnew' count         3            3
+log 'saved as *.pacsave' count            0            0
+permission-denied sweep count            12           11
+pacman -Q pacman-contrib                 not found    pacman-contrib 1.13.1-1
+pacdiff executable                       not present  /usr/bin/pacdiff (owned by pacman-contrib 1.13.1-1)
+counter-definition values: pacnew=3 pacsave=0 pacorig=0 unreadable=11 log_pacnew=3 log_pacsave=0 unlogged=0 gone=0
+
+=== SECTION I: explanation of the 12 -> 11 permission-denied delta ===
+The 2026-10-19 note counted 12 permission-denied paths; this capture counts 11.
+The twelfth was /etc/cryptsetup-keys.d (mode 700 root:root), present in both btrfs
+snapshots (/.snapshots/1 dated 2026-10-20 09:03, /.snapshots/2 dated 2026-10-20 09:29)
+and removed on 2026-10-20 09:33:19 by the operator:
+command: sudo -n journalctl --since '2026-10-20' --no-pager 2>/dev/null | grep -i 'cryptsetup-keys' | head -6
+exit_code=0
+  | Oct 20 09:03:23 plazir27 sudo[6314]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/ls -la /etc/cryptsetup-keys.d
+  | Oct 20 09:19:46 plazir27 sudo[237787]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/ls -la /etc/cryptsetup-keys.d
+  | Oct 20 09:32:30 plazir27 sudo[376615]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/bash -c 'ls -la /etc/cryptsetup-keys.d /var/backups/nvme-setup-20261020-090301 /var/backups/nvme-setup-20261020-090301/recovery 2>&1'
+  | Oct 20 09:33:19 plazir27 sudo[377141]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/rm -f /etc/cryptsetup-keys.d/vault.key /etc/cryptsetup-keys.d/fastdata.key /var/backups/nvme-setup-20261020-090301/vault-header.img /var/backups/nvme-setup-20261020-090301/fastdata-header.img
+  | Oct 20 09:33:19 plazir27 sudo[377147]:    vgpnk : PWD=/home/vgpnk/Documents/nvhelpme ; USER=root ; COMMAND=/usr/bin/rmdir /etc/cryptsetup-keys.d
+  | Oct 23 08:30:42 plazir27 sudo[950859]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin ; USER=root ; COMMAND=/usr/bin/ls -ld /.snapshots/1/snapshot/etc/cryptsetup-keys.d
+command: sudo -n ls -ld /.snapshots/1/snapshot/etc/cryptsetup-keys.d
+exit_code=0
+  | drwx------ 1 root root 0 Jun 26 08:27 /.snapshots/1/snapshot/etc/cryptsetup-keys.d
+command: ls -ld /etc/cryptsetup-keys.d
+exit_code=2
+  ! ls: cannot access '/etc/cryptsetup-keys.d': No such file or directory
+
+date -u AFTER = Fri Oct 23 11:31:21 AM UTC 2026
