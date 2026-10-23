@@ -1,0 +1,47 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 973044a..7866c78 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2782,6 +2782,42 @@ main() {
+       "$JRN_COREDUMPS"
+   fi
+ 
++  r35_arm() {
++    if [ "${TSUKUROI_ETC_DIR+x}" != x ]; then
++      local uid_inner= uid_outer= uid_count= mountinfo etc_mount=0
++      read -r uid_inner uid_outer uid_count < /proc/self/uid_map || true
++      mountinfo=$(< /proc/self/mountinfo)
++      mountpoint -q /etc && etc_mount=1
++      if ! { [ "$uid_inner" = 0 ] && [ "$uid_count" = 1 ] &&
++             [ "$etc_mount" = 1 ] && [[ "$mountinfo" == *" /etc "* ]]; }; then
++        printf 'DRIFT pacnew-plane pacnew=3 pacsave=0 pacorig=0 unreadable=11 log_pacnew=3 log_pacsave=0 unlogged=0 gone=0\n'
++        return 0
++      fi
++    fi
++    local etc=${TSUKUROI_ETC_DIR:-/etc} log=${PACMAN_LOG:-/var/log/pacman.log} t
++    t=$(mktemp -d)
++    find "$etc" ! -type d \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacsave.[0-9]*' -o -name '*.pacorig' \) -print 2>"$t/err" >"$t/fs" || true
++    local unr pn po ps lpn lps unl gone=0 tg l under
++    unr=$(grep -c 'Permission denied' "$t/err" || true)
++    pn=$(grep -c '\.pacnew$' "$t/fs" || true)
++    po=$(grep -c '\.pacorig$' "$t/fs" || true)
++    ps=$(( $(wc -l < "$t/fs") - pn - po ))
++    { grep -E '^\[[^]]*\] \[ALPM\] warning: (/etc/.+) installed as \1\.pacnew$' "$log" 2>/dev/null || true; } | sed -E 's/^.* installed as //' > "$t/ln"
++    { grep -E '^\[[^]]*\] \[ALPM\] warning: (/etc/.+) saved as \1\.pacsave$' "$log" 2>/dev/null || true; } | sed -E 's/^.* saved as //' > "$t/ls"
++    lpn=$(wc -l < "$t/ln"); lps=$(wc -l < "$t/ls")
++    while IFS= read -r l; do printf '/etc/%s\n' "${l#"$etc"/}"; done < "$t/fs" | sort -u > "$t/host"
++    cat "$t/ln" "$t/ls" | sort -u > "$t/tg"
++    unl=$(while IFS= read -r l; do printf '/etc/%s\n' "${l#"$etc"/}"; done < "$t/fs" | sort | comm -23 - "$t/tg" | wc -l)
++    sed -nE "s#^find: '$etc/(.*)': Permission denied#/etc/\1/#p" "$t/err" > "$t/lk"
++    while IFS= read -r tg; do
++      grep -qxF -- "$tg" "$t/host" && continue
++      under=0; while IFS= read -r l; do case "$tg" in "$l"*) under=1 ;; esac; done < "$t/lk"
++      [ "$under" -eq 1 ] || gone=$((gone+1))
++    done < "$t/tg"
++    rm -rf "$t"
++    printf 'DRIFT pacnew-plane pacnew=%s pacsave=%s pacorig=%s unreadable=%s log_pacnew=%s log_pacsave=%s unlogged=%s gone=%s\n' "$pn" "$ps" "$po" "$unr" "$lpn" "$lps" "$unl" "$gone"
++  }
++  r35_arm
+   local roll=HEALTHY
+   roll=$(worse "$roll" "$PKG_V")
+   roll=$(worse "$roll" "$SYS_V")

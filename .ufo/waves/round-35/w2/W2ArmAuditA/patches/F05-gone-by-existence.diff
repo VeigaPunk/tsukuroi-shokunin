@@ -1,0 +1,11 @@
+--- control.sh
++++ F05-gone-by-existence.sh
+@@ -2800,7 +2800,7 @@
+   unl=$(while IFS= read -r l; do printf '/etc/%s\n' "${l#"$etc"/}"; done < "$t/fs" | sort | comm -23 - "$t/tg" | wc -l)
+   sed -nE "s#^find: '$etc/(.*)': Permission denied#/etc/\1/#p" "$t/err" > "$t/lk"
+   while IFS= read -r tg; do
+-    grep -qxF -- "$tg" "$t/host" && continue
++    [ -e "$etc/${tg#/etc/}" ] && continue
+     under=0; while IFS= read -r l; do case "$tg" in "$l"*) under=1 ;; esac; done < "$t/lk"
+     [ "$under" -eq 1 ] || gone=$((gone+1))
+   done < "$t/tg"

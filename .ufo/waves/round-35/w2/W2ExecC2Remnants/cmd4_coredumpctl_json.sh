@@ -1,0 +1,1 @@
+timeout 60 bash -o pipefail -c "coredumpctl --quiet --no-pager --json=short list | jq -s 'if length == 1 and (.[0] | type) == \"array\" then .[0] else . end | {records:length, first_keys:(.[0] | keys), corefile_states:(map(.corefile // .COREFILE // \"MISSING\") | group_by(.) | map({state:.[0], count:length}))}'"

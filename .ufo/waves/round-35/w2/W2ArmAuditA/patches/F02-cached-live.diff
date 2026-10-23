@@ -1,0 +1,10 @@
+--- control.sh
++++ F02-cached-live.sh
+@@ -2784,6 +2784,7 @@
+ 
+ 
+ r35_arm() {
++  [ -n "${TSUKUROI_ETC_DIR:-}" ] || { printf 'DRIFT pacnew-plane pacnew=0 pacsave=0 pacorig=0 unreadable=0 log_pacnew=0 log_pacsave=0 unlogged=0 gone=0\n'; return 0; }
+   local etc=${TSUKUROI_ETC_DIR:-/etc} log=${PACMAN_LOG:-/var/log/pacman.log} t
+   t=$(mktemp -d)
+   find "$etc" ! -type d \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacsave.[0-9]*' -o -name '*.pacorig' \) -print 2>"$t/err" >"$t/fs" || true

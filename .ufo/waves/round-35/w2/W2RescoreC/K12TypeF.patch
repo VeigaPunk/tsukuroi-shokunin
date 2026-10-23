@@ -1,0 +1,119 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 973044a..7888150 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -351,6 +351,7 @@
+ #   TSUKUROI_VMSTAT_FILE TSUKUROI_OOM_BASELINE (the oom watch: kernel-kill ledger path;
+ #   external declared-wave baseline; empty/unset = the embedded r8 snapshot)
+ #   TSUKUROI_PACMAN_LOG TSUKUROI_OFFLINE_DB TSUKUROI_EXPAC TSUKUROI_VERCMP
++#   TSUKUROI_ETC_DIR (pacnew drift arm; default /etc, never follow entry symlinks)
+ #   TSUKUROI_CHANNEL_MAX_AGE_D TSUKUROI_LOG_TAIL_N (the update-safety plane's seams). The
+ #   channel stamp is the fixture db file's own mtime — settable with `touch -d` — so the
+ #   stale-channel case is executed against a real probe, not asserted vacuous.
+@@ -403,6 +404,7 @@ VMSTAT_FILE=${TSUKUROI_VMSTAT_FILE:-/proc/vmstat}
+ OOM_BASELINE=${TSUKUROI_OOM_BASELINE:-}
+ FOREIGN_BASELINE=${TSUKUROI_FOREIGN_BASELINE:-}
+ PACMAN_LOG=${TSUKUROI_PACMAN_LOG:-/var/log/pacman.log}
++ETC_DIR=${TSUKUROI_ETC_DIR:-/etc}
+ OFFLINE_DB=${TSUKUROI_OFFLINE_DB:-$PACMAN_DB/sync/offline.db}
+ EXPAC=${TSUKUROI_EXPAC:-expac}
+ VERCMP=${TSUKUROI_VERCMP:-vercmp}
+@@ -511,6 +513,8 @@ usage: tsukuroi-census.sh [--selftest] [--sample N] [--help]
+                /tmp/tsukuroi-r3-2-selftest.*); exit 0 pass, 1 fail
+   --sample N   packages plane: size of the pacman -Qkk sample (default 8)
+ 
++Drift line:   DRIFT pacnew-plane pacnew=N pacsave=N pacorig=N unreadable=N log_pacnew=N log_pacsave=N unlogged=N gone=N
++Paths:        TSUKUROI_ETC_DIR (default /etc), TSUKUROI_PACMAN_LOG (default /var/log/pacman.log)
+ Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
+ Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2)
+ EOF
+@@ -1989,6 +1993,7 @@ STUB
+       TSUKUROI_VMSTAT_FILE="$FX/vmstat" \
+       TSUKUROI_OOM_BASELINE="$FX/obase" \
+       TSUKUROI_PACMAN_LOG="$FX/pacman.log" \
++      TSUKUROI_ETC_DIR="$FX" \
+       TSUKUROI_EXPAC="$bin/expac" \
+       "${EXTRA_ENV[@]}" \
+       "$BASH" "$SELF" 2>&1)
+@@ -2716,6 +2721,73 @@ STUB
+   [ "$FAIL" -eq 0 ]
+ }
+ 
++# ---- drift arm: current readable entries paired with pacman history ------------
++probe_pacnew_drift() {
++  local root=${ETC_DIR%/} record path host kind line source target prefix hidden
++  local pacnew=0 pacsave=0 pacorig=0 unreadable=0 log_pacnew=0 log_pacsave=0 unlogged=0 gone=0
++  local -A entries=() targets=()
++  local -a skipped=()
++  local new_re='^\[[^]]*\] \[ALPM\] warning: (.+) installed as (.+)$'
++  local save_re='^\[[^]]*\] \[ALPM\] warning: (.+) saved as (.+)$'
++
++  # NUL records preserve whitespace; unreadable subtrees stay unknown, not gone.
++  # find's default physical walk does not follow entry symlinks.
++  while IFS= read -r -d '' record; do
++    path=${record:1}
++    if [[ $path == "$root" ]]; then
++      host=/etc
++    else
++      host="/etc/${path#"$root"/}"
++    fi
++    if [[ $record == U* ]]; then
++      unreadable=$((unreadable + 1))
++      skipped+=("$host/")
++      continue
++    fi
++    case ${path##*/} in
++      *.pacnew) kind=pacnew; pacnew=$((pacnew + 1)) ;;
++      *.pacsave|*.pacsave.[0-9]*) kind=pacsave; pacsave=$((pacsave + 1)) ;;
++      *.pacorig) kind=pacorig; pacorig=$((pacorig + 1)) ;;
++      *) continue ;;
++    esac
++    entries["$host"]=$kind
++  done < <(find "$root" -type d \( ! -readable -o ! -executable \) \
++    -printf 'U%p\0' -prune -o -type f -printf 'E%p\0' 2>/dev/null)
++
++  if [[ -r $PACMAN_LOG ]]; then
++    while IFS= read -r line || [[ -n $line ]]; do
++      if [[ $line =~ $new_re ]]; then
++        source=${BASH_REMATCH[1]}; target=${BASH_REMATCH[2]}
++        [[ $target == "$source.pacnew" ]] || continue
++        log_pacnew=$((log_pacnew + 1))
++      elif [[ $line =~ $save_re ]]; then
++        source=${BASH_REMATCH[1]}; target=${BASH_REMATCH[2]}
++        [[ $target == "$source.pacsave" ]] || continue
++        log_pacsave=$((log_pacsave + 1))
++      else
++        continue
++      fi
++      targets["$target"]=1
++    done < "$PACMAN_LOG"
++  fi
++  for host in "${!entries[@]}"; do
++    if [[ ! ${targets[$host]+present} ]]; then
++      unlogged=$((unlogged + 1))
++    fi
++  done
++  for target in "${!targets[@]}"; do
++    [[ $target == /etc/* ]] || continue
++    [[ ! ${entries[$target]+present} ]] || continue
++    hidden=0
++    for prefix in "${skipped[@]}"; do
++      if [[ $target == "$prefix"* ]]; then hidden=1; break; fi
++    done
++    if [[ $hidden == 0 ]]; then gone=$((gone + 1)); fi
++  done
++  printf 'DRIFT pacnew-plane pacnew=%s pacsave=%s pacorig=%s unreadable=%s log_pacnew=%s log_pacsave=%s unlogged=%s gone=%s\n' \
++    "$pacnew" "$pacsave" "$pacorig" "$unreadable" "$log_pacnew" "$log_pacsave" "$unlogged" "$gone"
++}
++
+ # ---- main --------------------------------------------------------------------
+ main() {
+   local selftest=0
+@@ -2756,6 +2828,7 @@ main() {
+   probe_journal
+   probe_update_safety
+   probe_oom_plane
++  probe_pacnew_drift
+ 
+   printf 'PLANE packages: %s (%s; %s)\n' "$PKG_V" "$PKG_NOTE" "$ROOT_NOTE"
+   printf 'PLANE systemd: %s (%s)\n' "$SYS_V" "$SYS_NOTE"

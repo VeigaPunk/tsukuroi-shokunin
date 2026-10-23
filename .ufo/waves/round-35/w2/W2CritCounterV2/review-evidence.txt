@@ -1,0 +1,23 @@
+Read-only provenance for W2CritCounterV2.
+
+The assigned candidate is 7186722b8eba243439c6724766bdae2ef13c595c; the claim base is b40c01df38eb26f74c095c471efc6d1649b00fd4.
+
+1. Executed: timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 7186722b8eba243439c6724766bdae2ef13c595c:SCORECARD.md
+Exit: 0. The committed declaration and redesign are lines 1499-1538. The returned output was retained by the tool as artifact://37338. Lines 1504-1545 were subsequently read raw from that artifact.
+
+2. Executed: timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 7186722b8eba243439c6724766bdae2ef13c595c:tools/score-pacnew-arm-r35b.py | sha256sum
+Exit: 0. Output: 7517af92e0c9308c10f04b90d05a699cfa56278a736ef975d97ba08fbd957dc1  -
+
+3. Executed: timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff b40c01df38eb26f74c095c471efc6d1649b00fd4 7186722b8eba243439c6724766bdae2ef13c595c -- tools/tsukuroi-census.sh
+Exit: 0. Output: empty. This observes an unchanged census at the redesign commit, not the behavior of any future implementation.
+
+4. Executed: timeout 30 sha256sum /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-pacnew-arm-r35b.py
+Exit: 0. Output: 7517af92e0c9308c10f04b90d05a699cfa56278a736ef975d97ba08fbd957dc1  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-pacnew-arm-r35b.py
+The counter worktree bytes reviewed with read therefore match the assigned committed counter bytes.
+
+5. Executed: timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin log -5 --format='%H %cI %s' 7186722b8eba243439c6724766bdae2ef13c595c
+Exit: 0. Relevant output:
+7186722b8eba243439c6724766bdae2ef13c595c 2026-10-23T08:37:49-03:00 round-35: VERSION 1 counter met by pre-freeze controls K08 and K15 (kept as failed candidate); VERSION 2 candidate counter score-pacnew-arm-r35b with namespace and live views and a 17-arm should-fail battery; settled wave-1 evidence; round-34 corrections
+6b4561e43e15c1cce038e390ad7d4691b0af4cc8 2026-10-23T07:54:41-03:00 round-35: pre-freeze candidate declaration (C1 coverage pacnew/pacsave census arm with fixture-oracle counter score-pacnew-arm-r35 v1; C2 depth exploratory pacman backup-file note), census start, round-34 w2 leftovers landed as non-evidence records
+
+All five calls were foreground, timeout-bounded, read-only commands. All completed. There were no census/counter/receipt executions, tests, builds, clones, git writes, installs, external fetches, background jobs, runtime invocations for judgment, or host mutations. Additional evidence was inspected through read, grep, and glob only. Proposed controls in the report are static counterexamples, not executed variants or receipts.

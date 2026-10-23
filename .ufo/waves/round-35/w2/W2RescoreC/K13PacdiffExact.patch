@@ -1,0 +1,115 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 973044a..65b486c 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -351,6 +351,7 @@
+ #   TSUKUROI_VMSTAT_FILE TSUKUROI_OOM_BASELINE (the oom watch: kernel-kill ledger path;
+ #   external declared-wave baseline; empty/unset = the embedded r8 snapshot)
+ #   TSUKUROI_PACMAN_LOG TSUKUROI_OFFLINE_DB TSUKUROI_EXPAC TSUKUROI_VERCMP
++#   TSUKUROI_ETC_DIR (pacnew/pacsave filesystem sweep; default /etc).
+ #   TSUKUROI_CHANNEL_MAX_AGE_D TSUKUROI_LOG_TAIL_N (the update-safety plane's seams). The
+ #   channel stamp is the fixture db file's own mtime — settable with `touch -d` — so the
+ #   stale-channel case is executed against a real probe, not asserted vacuous.
+@@ -403,6 +404,7 @@ VMSTAT_FILE=${TSUKUROI_VMSTAT_FILE:-/proc/vmstat}
+ OOM_BASELINE=${TSUKUROI_OOM_BASELINE:-}
+ FOREIGN_BASELINE=${TSUKUROI_FOREIGN_BASELINE:-}
+ PACMAN_LOG=${TSUKUROI_PACMAN_LOG:-/var/log/pacman.log}
++ETC_DIR=${TSUKUROI_ETC_DIR:-/etc}
+ OFFLINE_DB=${TSUKUROI_OFFLINE_DB:-$PACMAN_DB/sync/offline.db}
+ EXPAC=${TSUKUROI_EXPAC:-expac}
+ VERCMP=${TSUKUROI_VERCMP:-vercmp}
+@@ -507,6 +509,7 @@ usage: tsukuroi-census.sh [--selftest] [--sample N] [--help]
+ 
+   (no flags)   run the live read-only census over packages / systemd-user / drivers
+                (incl. the memory-pressure arm) / journal-boot / update-safety / oom (kill-event watch)
++               Also pair readable pacnew/pacsave filesystem drift with pacman.log history.
+   --selftest   hermetic fixture-tree test of every verdict arm (writes only under
+                /tmp/tsukuroi-r3-2-selftest.*); exit 0 pass, 1 fail
+   --sample N   packages plane: size of the pacman -Qkk sample (default 8)
+@@ -591,6 +594,78 @@ oom_keys() { # oom_keys STDOUT -> sorted unique "YYYY-MM-DD HH:MM" event-cluster
+     | grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}' | sed -E 's/T/ /' | sort -u || true
+ }
+ 
++# ---- arm: pacnew/pacsave drift ------------------------------------------------
++probe_pacnew_plane() {
++  python3 - "$ETC_DIR" "$PACMAN_LOG" <<'PY'
++import fnmatch
++import os
++import re
++import subprocess
++import sys
++
++directory, logfile = sys.argv[1:]
++scan = subprocess.run(
++    ["find", directory, "(", "-name", "*.pacnew", "-o", "-name", "*.pacorig",
++     "-o", "-name", "*.pacsave", "-o", "-name", "*.pacsave.[0-9]*", ")",
++     "-print0"],
++    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
++    env=dict(os.environ, LC_ALL="C", QUOTING_STYLE="literal"))
++
++def host_path(path):
++    relative = os.path.relpath(path, directory)
++    return "/etc" if relative == "." else "/etc/" + relative
++
++unreadable = set()
++for line in os.fsdecode(scan.stderr).splitlines():
++    if line.startswith("find: ") and line.endswith(": Permission denied"):
++        path = line[len("find: "):-len(": Permission denied")]
++        if path.startswith("'") and path.endswith("'"):
++            path = path[1:-1]
++        unreadable.add(host_path(path).rstrip("/") + "/")
++
++counted = {}
++for raw in scan.stdout.split(b"\0"):
++    if not raw:
++        continue
++    path = os.fsdecode(raw)
++    name = os.path.basename(path)
++    if fnmatch.fnmatchcase(name, "*.pacnew"):
++        kind = "pacnew"
++    elif any(fnmatch.fnmatchcase(name, p) for p in ("*.pacsave", "*.pacsave.[0-9]*")):
++        kind = "pacsave"
++    else:
++        kind = "pacorig"
++    counted[host_path(path)] = kind
++
++fields = dict.fromkeys(("pacnew", "pacsave", "pacorig", "unreadable",
++                        "log_pacnew", "log_pacsave", "unlogged", "gone"), 0)
++for kind in counted.values():
++    fields[kind] += 1
++fields["unreadable"] = len(unreadable)
++targets = set()
++patterns = {
++    "pacnew": re.compile(r"^\[[^\]]*\] \[ALPM\] warning: (.+) installed as (.+)$"),
++    "pacsave": re.compile(r"^\[[^\]]*\] \[ALPM\] warning: (.+) saved as (.+)$"),
++}
++try:
++    with open(logfile, encoding="utf-8", errors="replace") as stream:
++        for line in stream:
++            for kind, pattern in patterns.items():
++                match = pattern.match(line.rstrip("\n"))
++                if match and match[2] == match[1] + "." + kind:
++                    fields["log_" + kind] += 1
++                    targets.add(match[2])
++except OSError:
++    pass
++fields["unlogged"] = sum(path not in targets for path in counted)
++fields["gone"] = sum(
++    target.startswith("/etc/") and target not in counted
++    and not any(target.startswith(path) for path in unreadable)
++    for target in targets)
++print("DRIFT pacnew-plane", *(f"{name}={value}" for name, value in fields.items()))
++PY
++}
++
+ # ---- plane: packages ---------------------------------------------------------
+ probe_packages() {
+   PKG_V=HEALTHY
+@@ -2755,6 +2830,7 @@ main() {
+   DRV_V=$(worse "$DRV_V" "$MEM_V")
+   probe_journal
+   probe_update_safety
++  probe_pacnew_plane
+   probe_oom_plane
+ 
+   printf 'PLANE packages: %s (%s; %s)\n' "$PKG_V" "$PKG_NOTE" "$ROOT_NOTE"

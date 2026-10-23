@@ -1,0 +1,13 @@
+--- control.sh
++++ F03-log-tail-64.sh
+@@ -2792,8 +2792,8 @@
+   pn=$(grep -c '\.pacnew$' "$t/fs" || true)
+   po=$(grep -c '\.pacorig$' "$t/fs" || true)
+   ps=$(( $(wc -l < "$t/fs") - pn - po ))
+-  { grep -E '^\[[^]]*\] \[ALPM\] warning: (/etc/.+) installed as \1\.pacnew$' "$log" 2>/dev/null || true; } | sed -E 's/^.* installed as //' > "$t/ln"
+-  { grep -E '^\[[^]]*\] \[ALPM\] warning: (/etc/.+) saved as \1\.pacsave$' "$log" 2>/dev/null || true; } | sed -E 's/^.* saved as //' > "$t/ls"
++  { grep -E '^\[[^]]*\] \[ALPM\] warning: (/etc/.+) installed as \1\.pacnew$' <(tail -n 64 "$log") 2>/dev/null || true; } | sed -E 's/^.* installed as //' > "$t/ln"
++  { grep -E '^\[[^]]*\] \[ALPM\] warning: (/etc/.+) saved as \1\.pacsave$' <(tail -n 64 "$log") 2>/dev/null || true; } | sed -E 's/^.* saved as //' > "$t/ls"
+   lpn=$(wc -l < "$t/ln"); lps=$(wc -l < "$t/ls")
+   while IFS= read -r l; do printf '/etc/%s\n' "${l#"$etc"/}"; done < "$t/fs" | sort -u > "$t/host"
+   cat "$t/ln" "$t/ls" | sort -u > "$t/tg"

@@ -1,0 +1,49 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 973044a..0906e93 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2716,6 +2716,36 @@ STUB
+   [ "$FAIL" -eq 0 ]
+ }
+ 
++# Round-35 K05 control: log reader only; deliberately no filesystem sweep.
++probe_pacnew_plane() {
++  local line kind source target log_pacnew=0 log_pacsave=0 gone=0
++  local new_re='^\[[^]]*\] \[ALPM\] warning: (.+) installed as (.+)$'
++  local save_re='^\[[^]]*\] \[ALPM\] warning: (.+) saved as (.+)$'
++  local -A targets=()
++  if [ -r "$PACMAN_LOG" ]; then
++    while IFS= read -r line || [ -n "$line" ]; do
++      if [[ $line =~ $new_re ]]; then
++        kind=pacnew
++      elif [[ $line =~ $save_re ]]; then
++        kind=pacsave
++      else
++        continue
++      fi
++      source=${BASH_REMATCH[1]} target=${BASH_REMATCH[2]}
++      [[ $target = "$source.$kind" ]] || continue
++      if [ "$kind" = pacnew ]; then
++        log_pacnew=$((log_pacnew + 1))
++      else
++        log_pacsave=$((log_pacsave + 1))
++      fi
++      if [[ $target = /etc/* ]]; then targets["$target"]=1; fi
++    done < "$PACMAN_LOG"
++  fi
++  for target in "${!targets[@]}"; do gone=$((gone + 1)); done
++  printf 'DRIFT pacnew-plane pacnew=0 pacsave=0 pacorig=0 unreadable=0 log_pacnew=%d log_pacsave=%d unlogged=0 gone=%d\n' \
++    "$log_pacnew" "$log_pacsave" "$gone"
++}
++
+ # ---- main --------------------------------------------------------------------
+ main() {
+   local selftest=0
+@@ -2756,6 +2786,7 @@ main() {
+   probe_journal
+   probe_update_safety
+   probe_oom_plane
++  probe_pacnew_plane
+ 
+   printf 'PLANE packages: %s (%s; %s)\n' "$PKG_V" "$PKG_NOTE" "$ROOT_NOTE"
+   printf 'PLANE systemd: %s (%s)\n' "$SYS_V" "$SYS_NOTE"

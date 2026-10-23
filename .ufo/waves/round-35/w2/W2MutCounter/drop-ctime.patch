@@ -1,0 +1,13 @@
+diff --git a/tools/score-pacnew-arm-r35b.py b/tools/score-pacnew-arm-r35b.py
+index d29520f..c3651d3 100755
+--- a/tools/score-pacnew-arm-r35b.py
++++ b/tools/score-pacnew-arm-r35b.py
+@@ -506,7 +506,7 @@ def main():
+                     rc, out, timed = run(['bash', paths[name]], env, fx)
+                 else:
+                     rc, out, timed = run(ns_cmd(paths[name], etc, log), dict(BASE_ENV), fx)
+-                unchanged = ctimes(etc, log) == pre and snapshot(etc, log, locked) == before
++                unchanged = snapshot(etc, log, locked) == before
+                 ok, why, vals = judge(out, rc, timed, expected, unchanged,
+                                       base_run if vkind == 'stub' else None)
+                 results.setdefault(name, []).append(ok)

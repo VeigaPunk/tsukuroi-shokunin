@@ -1,0 +1,11 @@
+--- control.sh
++++ F07-dangling-symlinks-only.sh
+@@ -2786,7 +2786,7 @@
+ r35_arm() {
+   local etc=${TSUKUROI_ETC_DIR:-/etc} log=${PACMAN_LOG:-/var/log/pacman.log} t
+   t=$(mktemp -d)
+-  find "$etc" ! -type d \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacsave.[0-9]*' -o -name '*.pacorig' \) -print 2>"$t/err" >"$t/fs" || true
++  find "$etc" \( -type f -o -xtype l \) \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacsave.[0-9]*' -o -name '*.pacorig' \) -print 2>"$t/err" >"$t/fs" || true
+   local unr pn po ps lpn lps unl gone=0 tg l under
+   unr=$(grep -c 'Permission denied' "$t/err" || true)
+   pn=$(grep -c '\.pacnew$' "$t/fs" || true)

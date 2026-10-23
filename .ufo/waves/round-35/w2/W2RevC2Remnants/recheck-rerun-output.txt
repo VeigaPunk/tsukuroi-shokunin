@@ -1,0 +1,65 @@
+# W2RevC2Remnants — verbatim rerun of the ScribeC2Remnants recheck commands, 2026-10-23
+
+Script: .ufo/waves/round-35/w2/W2RevC2Remnants/recheck-draft.sh (sha256 c56b06ee57a49c12741793a1a61898c3e3dd16de648a56ba4d93165a7f77df41),
+which contains the four commands from .ufo/waves/round-35/w1/ScribeC2Remnants/C2-correction-block-draft.md unchanged,
+each followed by an rc echo, plus three probes (boot equivalence, coredumpctl json shape, output-fields keys).
+Executed as: timeout 900 bash /fast/scratch/hyaku/tsukuroi-r35/W2RevC2Remnants/recheck-draft.sh
+Host: systemd 262 (262-1-arch) by journalctl --version, coredumpctl --version and pacman -Q systemd (262-1).
+
+== boot equivalence: --boot=0 vs list-boots ==
+-1 3e7084f470464957a8a2c00542a3b469 Tue 2026-10-20 09:57:09 -03 Thu 2026-10-22 04:54:50 -03
+ 0 6a7f4fdfac624e2ea6c1b3c55d6f94f4 Thu 2026-10-22 04:55:41 -03 Fri 2026-10-23 08:48:20 -03
+6a7f4fdfac624e2ea6c1b3c55d6f94f4        <- _BOOT_ID of `journalctl --boot=0 ... -n1` = list-boots index 0 = current boot
+
+== draft cmd 1 (default JSON, no --all, MESSAGE_ID selected) ==
+{
+  "summary_records": 1690,
+  "null_message": 81,
+  "printed_message": 1609
+}
+rc1=0
+
+== draft cmd 2 (--all, MESSAGE_ID selected, two wordings) ==
+{
+  "summary_records": 1690,
+  "dumped_core": 306,
+  "no_core_written": 1384,
+  "null_message": 0
+}
+rc2=0
+
+== draft cmd 3 (all identifier entries, MESSAGE_ID classes) ==
+{
+  "identifier_entries": 1694,
+  "summary_id": 1690,
+  "handler_no_message_id": 4,
+  "other_message_id": 0
+}
+rc3=0
+
+== draft cmd 4 (coredumpctl --json=short list, corefile states) ==
+{
+  "records": 1828,
+  "first_keys": ["corefile","exe","gid","pid","sig","size","time","uid"],
+  "corefile_states": [
+    {"state": "missing", "count": 50},
+    {"state": "none", "count": 1777},
+    {"state": "present", "count": 1}
+  ]
+}
+rc4=0
+
+== coredumpctl json=short raw shape (first 400 bytes) ==
+[{"time":1792447770153701,"pid":2682443,"uid":1000,"gid":1000,"sig":6,"corefile":"missing","exe":"/usr/bin/godot","size":null},...]
+(single JSON array on one line; the draft's jq unwrap guard therefore takes the `then .[0]` branch and works)
+
+== keys of one journalctl json record with --output-fields ==
+["MESSAGE","MESSAGE_ID","PRIORITY","SYSLOG_IDENTIFIER","_BOOT_ID","__CURSOR","__MONOTONIC_TIMESTAMP","__REALTIME_TIMESTAMP","__SEQNUM","__SEQNUM_ID"]
+(output-fields selects the requested fields and journalctl still adds __CURSOR/_BOOT_ID etc., as documented)
+
+Comparison with the draft's own [obs] run (2026-10-23, earlier the same day):
+  cmd1 1689/81/1609 -> 1690/81/1609   (+1 summary since; null bucket unchanged)
+  cmd2 1689/306/1383/0 -> 1690/306/1384/0
+  cmd3 1693/1689/4/0 -> 1694/1690/4/0  (handler no-MESSAGE_ID bucket stable at 4)
+  cmd4 1827 (1776 none/50 missing/1 present) -> 1828 (1777 none/50 missing/1 present)
+Split arithmetic holds in both runs: summaries = dumped + no-core; identifier_entries = summary_id + no_id + other.
