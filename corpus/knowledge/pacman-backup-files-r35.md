@@ -1,10 +1,10 @@
 source: S191 pacman `lib/libalpm/add.c` at 54d94116164b; S192 pacman `lib/libalpm/remove.c` at 54d94116164b; S193 pacman-contrib `src/pacdiff.sh.in` at v1.13.1; S194 pacman `doc/pacman.8.asciidoc` at 54d94116164b; S195 pacman `doc/pacman.conf.5.asciidoc` at 54d94116164b; S196 pacman NEWS at 54d94116164b (5.0.0 entry); S010/S011 ArchWiki (operator guidance and log limits)
 verified-at: 2026-10-23
-recheck: on-release; procedure: after a pacman or pacman-contrib upgrade, re-open the same paths at the installed commit or tag (`pacman -Q pacman pacman-contrib` names it) and re-read the hash branches and `alpm_logaction` calls of add.c, the save and `shift_pacsave` code of remove.c, pacdiff's find expression, and the NoUpgrade text; any host comparison reads file names and `/var/log/pacman.log` only; no package-manager transaction
+recheck: on-release; procedure: after a pacman or pacman-contrib upgrade, re-open the same paths at the installed commit or tag (the directory names `/var/lib/pacman/local/pacman-<version>` and `/var/lib/pacman/local/pacman-contrib-<version>` name it) and re-read the hash branches and `alpm_logaction` calls of add.c, the save and `shift_pacsave` code of remove.c, pacdiff's find expression, and the NoUpgrade text; any host comparison reads file names and `/var/log/pacman.log` only; no package-manager transaction
 
 # Pacman 7.1 backup files — when pacman makes `.pacnew` and `.pacsave`, and which events it logs (round 35)
 
-Round 35, C2 (depth, exploratory). Integrated by the L1 from wave-1 ScribeC2Draft (`.ufo/waves/round-35/w1/ScribeC2Draft/`) with the wave-2 corrections of W2QuoteHash, W2QuoteRemove, W2QuotePacdiff, W2CritC2Depth and W2RevC2Quality. Source snapshots and sha256: `.ufo/waves/round-35/w1/Src*/` and `ScribeC2Draft/`. Version scope: pacman 7.1.0 at commit 54d94116164b0b2202c6061c4a59c6f3e70820d8 (`pacman -Q pacman` reads `7.1.0.r9.g54d9411-3`), pacman-contrib 1.13.1.
+Round 35, C2 (depth, exploratory). Integrated by the L1 from wave-1 ScribeC2Draft (`.ufo/waves/round-35/w1/ScribeC2Draft/`) with the wave-2 corrections of W2QuoteHash, W2QuoteRemove, W2QuotePacdiff, W2CritC2Depth and W2RevC2Quality. Source snapshots and sha256: `.ufo/waves/round-35/w1/Src*/` and `ScribeC2Draft/`. Version scope: pacman 7.1.0 at commit 54d94116164b0b2202c6061c4a59c6f3e70820d8 (`/var/lib/pacman/local/pacman-7.1.0.r9.g54d9411-3`), pacman-contrib 1.13.1.
 
 ## Prior state
 
