@@ -1309,3 +1309,9 @@ Action: the probe stayed frozen at `9c89ff4f`. Wave a3w1 (45 seats) scored ninet
 Result: C1 moved from 15 of 15 to 0 of 15 (exit 0); every scored shortcut control reads below that, and every after-mutant is killed. The open adversarial search is a hold (provider refusal). C2 is an 11-row boundary note, sourced on S182. SOURCES rows S180 to S185 were added (3 mined, 3 rejected as redundant).
 
 Re-verification result (freshness duty): mori's declarations were re-read at `24603186` by eight wave-2 reviewers. The round-32 regression set and gates were re-run at the base and at the tip through run-receipt.
+
+## Round 34 — child-environment allow-list in nine more tools; what the census coredump count counts (2026-10-23, attempt 1)
+
+Motivating evidence: round 33 was rejected (`rejected-harmed`) because its C2 note lacked `source:` and `verified-at:` (`corpus/lessons/round-33-verifier-spotcheck.md` §2 and §4). The spot-check routed seven defects (§5). Defect 7 named four tools that still copy the ambient environment into git children; a sweep of `tools/*.py` at `2641591e` finds thirteen, nine of them harness-viable under the probe (L1 development runs, `.ufo/waves/round-34/l1/dev-base/`: 27 of 27 pairs leaking). A live boot-0 read on 2026-10-23 (`journalctl -b 0 -p err -o json`) showed 1604 `systemd-coredump` error entries, of which 183 say "dumped core" and 1348 say "terminated abnormally without generating a coredump"; the census counts all of them as `coredump=`.
+
+Action (declaration commit): the round-33 amendment-2 correction is appended to `SCORECARD.md`; the round-34 declaration (C1 operability, C2 exploratory depth, repairs) is appended; `tools/probe-child-env-allowlist-r34.py` is the frozen counter (the round-33 probe with a new target set); development runs are committed under `.ufo/waves/round-34/l1/`.
