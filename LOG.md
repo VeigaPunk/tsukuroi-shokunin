@@ -1351,3 +1351,7 @@ Gates at `95684c65` showed four reds caused this round (self-assessment K17, reg
 ## Round 35 — late wave-2 evidence and gates at the repaired tip (2026-10-23 12:26Z)
 
 W2LiveOracle: two more controls meet VERSION 2 through the live view (lesson, late results). W2NsViewProbe cancelled at the deadline (records only). Gates at `199beb97`: six exit 0, check-pause-gate 1 (unchanged P3). Census end exit 0, 197 rows.
+
+## Round 35 — erratum: LOG heading times (appended before filing)
+
+Five round-35 LOG headings carry estimated times that are later than the commits that carry them, the same defect the round-34 spot-check routed (§5 item 5): "~11:40Z" is in `7186722b` committed 11:37:49Z; "~12:00Z" (C1 kill rule) is in `e2f97e6e` committed 11:52:40Z; "~12:00Z" (measured outcome) is in `95684c65` committed 11:57:41Z; "~12:05Z" (gate repairs) is in `199beb97` committed 12:00:35Z; "12:26Z" (late evidence) is in `6f92080d` committed 12:25:23Z (`git log -1 --format=%cI <hash>`, converted with `date -u`). The commit times are the record; the heading times were estimates written without reading the clock.
