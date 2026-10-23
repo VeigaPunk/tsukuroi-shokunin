@@ -1,0 +1,12 @@
+diff --git a/tools/check-recheck-commands.py b/tools/check-recheck-commands.py
+index 055f9b3..16c5d86 100755
+--- a/tools/check-recheck-commands.py
++++ b/tools/check-recheck-commands.py
+@@ -797,6 +797,7 @@ def emit(status, revision, branch, branch_tip, findings, counts, out=None,
+ 
+ def git(repo, *args):
+     env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
++    env["HOME"] = os.environ["HOME"]
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                 "GIT_TERMINAL_PROMPT": "0"})
+     try:

@@ -1,0 +1,12 @@
+diff --git a/tools/check-seat-scope.py b/tools/check-seat-scope.py
+index 18e4d88..99b812f 100755
+--- a/tools/check-seat-scope.py
++++ b/tools/check-seat-scope.py
+@@ -173,6 +173,7 @@ def emit(result, revision, branch, branch_tip, wave):
+ def git(root, *args):
+     env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
++    env["XK_HOME"] = os.path.expanduser("~")
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(root), *args],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE,

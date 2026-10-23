@@ -1,0 +1,47 @@
+# RevC1Diff — review of the landed C1 change (3457f287 → df661507, tools/)
+
+Verdict: no blocking finding. The diff is 17 hunks in 9 files, one commit (`df661507db26e596f3813d9d54283b593f71b49a`, "round-34: C1 change", plus a 2-line LOG.md append; `git log 3457f287e04f34e73f8e70d4417b14b96f903f56..df661507db26e596f3813d9d54283b593f71b49a` shows exactly that one commit, no `_revision.py` change, so the separability sentence's "none expected" held). 15 hunks are child-environment changes and behave as declared; 2 hunks are the two construct rewrites, which the claim's surface sentence does not cover — they are scope the declaration did not name, first committed in the change commit's own LOG entry.
+
+## Hunk classification (all 17)
+
+Child-environment hunks (15). Each replaces an `os.environ`-copy builder with a fixed dict display; the following `env.update({...})` lines are unchanged context, so every final child env is fully fixed:
+
+- check-boot-chain.py:802; check-recheck-commands.py:799; check-seat-scope.py:174; check-section-citations.py:406 and :568; check-locator-clarification.py:448 and :577; check-source-scope-correction.py:355; measure-update-recheck.py:438 and :485 — base dict `{PATH:/usr/bin:/bin, GIT_CONFIG_NOSYSTEM:1, GIT_CONFIG_GLOBAL:os.devnull}` (locator binding_cases puts NOSYSTEM in the base and GLOBAL in the update), then the pre-existing update adds `GIT_OPTIONAL_LOCKS=0, GIT_PAGER=cat, LC_ALL=C` (+ `GIT_CONFIG_SYSTEM`, `GIT_TERMINAL_PROMPT`, identity, per site).
+- check-btrfs-repair-r31.py:107-111 `clean_env()` → `{'PATH'}` + update `{NOSYSTEM, GLOBAL=/dev/null, SYSTEM=/dev/null, OPTIONAL_LOCKS=0, LC_ALL:C, PATH}`; its only spawn is `/usr/bin/git` at :116 with `env=clean_env()`.
+- check-btrfs-space-r30.py:95-97 `clean_env()` → all five keys in one fixed dict; used at :103, :107, :380 (`git ls-tree/show/rev-parse`).
+- Three hunks add `env=` to Python re-exec spawns that previously inherited the full ambient environment: check-seat-scope.py:543-544, check-source-scope-correction.py:474-475, measure-update-recheck.py:539-540, each `{"PATH": "/usr/bin:/bin", "LC_ALL": "C"}`.
+
+Construct rewrites (2), the declared pair:
+
+- check-locator-clarification.py:381: `docs._asdict()[field]` for `getattr(docs, field)`. Behaviour-neutral: the loop at :379-380 iterates exactly the four NamedTuple fields (md15, json15, md14, json14), so both forms read the same values; only a non-field name would differ (KeyError vs AttributeError), and none occurs.
+- check-section-citations.py:790-794: `global ROOT` + plain reads/writes for `globals()["ROOT"]` inside the nested `main_probe`, restore kept in `finally`. Identical module-attribute semantics.
+
+Does any hunk change behaviour beyond the child environment? The 15 env hunks change only the environment handed to children (the three re-exec hunks also close an inherit-channel leak, which is a child-environment change and is covered by the surface sentence "the environment those nine tools hand to their children", though not by the claim row's narrower lead "the git child environment" — these three children are Python, not git). The two construct rewrites change no child environment and no spawn; their only observable effect is through the counter (see finding 1).
+
+## Findings
+
+1. LOW — the two construct rewrites are outside the claim's named surface. The surface sentence "the environment those nine tools hand to their children" (declaration commit `6de666c4`, C1 row) and the separability sentence "C1 changes only the nine tools' child-environment builders" cover neither rewrite: both change in-process reads (`_asdict`, module global), no environment. Neither the declaration bytes nor the two pre-data amendments name them. First committed naming: LOG.md:1323 in `df661507` itself — "two flagged constructs are rewritten without behaviour change" — i.e., disclosed at landing, before wave 2 scored. They are nevertheless required by the frozen predicate's source channel: SCORECARD.md:1361 records that the scan flags `globals`, `getattr` with a non-constant name, and similar hiding constructs, and the predicate makes a file using them leak ("uses a construct that hides a read or spawn from the scan"); `getattr(docs, field)` has a non-constant name and `globals()["ROOT"]` is `globals`. So without the rewrites the declared after-value (leaking 0 of 27) was unreachable. Recommendation: the measured-outcome section or lesson should record the changed surface as "child environments plus the two construct rewrites disclosed in LOG.md:1323", or a one-line declaration amendment naming them. [obs, except the necessity link which is [inf] from SCORECARD.md:1361 + the predicate sentence]
+
+2. INFO — lead-wording imprecision, covered elsewhere. The claim row's lead says "the git child environment", but the change also fixes three Python selftest re-exec children (seat-scope:543, source-scope:474, measure:539). The row's surface sentence covers them, LOG.md:1323 names them, and the predicate counts every traced execve after the target's first, not only git. No action needed beyond the wording note. [obs]
+
+3. RESIDUAL — stdlib-internal ambient reads remain in the nine files. The prescribed grep (`git grep -n -E 'environ|getenv|expanduser|expandvars' df661507 — <nine files>`) exits 1 with no matches: zero direct ambient reads. But seven files call `tempfile.mkdtemp` (boot-chain:1327, locator:576, recheck:1131, seat-scope:283, section-citations:593, source-scope:435, measure:516), which consults TMPDIR inside the stdlib. The value never reaches a child environment (all child envs are fixed literals; tmp paths go to `-C`/cwd/argv), and the source channel's letter covers "the target's file or a tools/ module it imports", not stdlib internals — so this is outside C1 as frozen. It is the first thing a future amendment broadening "reads the ambient environment" to stdlib wrappers would flag. [obs]
+
+4. INFO — small env-content notes. check-btrfs-space-r30.py's fixed set adds `GIT_OPTIONAL_LOCKS=0`, which the ambient-copy builder did not guarantee; harmless for read-only git (lock churn only). check-btrfs-repair-r31.py's old builder stripped `LD_*`/`PYTHON*`; the fixed dict trivially contains none, so that property survives vacuously. Both within the child-environment surface. [obs]
+
+## Key coverage (question 3) — every child gets every key it reads: yes
+
+- Git identity, 7 commit paths, none relying on the removed `HOME`: boot-chain.py:1306 (`-c user.name=fixture -c user.email=...` argv), source-scope-correction.py:438 (argv `-c`), measure-update-recheck.py:498-499 (`sandbox_commit` passes argv `-c`, so `sandbox_git`'s env needs no identity), check-recheck-commands.py:1133-1134 (repo-local `config user.email/user.name` right after `init` at :1132, covering all later `sandbox_commit` calls), check-seat-scope.py:293-294 (repo-local config before commits at :295+), check-locator-clarification.py:580-581 and check-section-citations.py:570-573 (`GIT_AUTHOR_NAME/EMAIL` + `GIT_COMMITTER_NAME/EMAIL` in the fixed env).
+- LC_ALL=C for English stderr: present in all 12 git-child envs and in the 3 Python re-exec envs.
+- Predicate git clauses: every git-child env carries `GIT_CONFIG_NOSYSTEM=1` and `GIT_CONFIG_GLOBAL=/dev/null`; the 3 Python re-exec envs carry neither, correctly, since the child is `sys.executable`, not git (its own later git spawns build compliant envs). Every spawn passes `env=` (12 wrappers `env=env` incl. the unchanged boot-chain:807, recheck:805, seat-scope:179; btrfs tools `env=clean_env()`; 3 re-execs as above). No inheriting spawn remains in the nine files.
+- Ambient-value collision check: the only non-literal in any child env is `os.devnull`; no fixed value can carry a run-unique ambient value. [obs]
+
+## Residual risk and verification gaps
+
+- NO-EXEC seat: I did not run the probe or any tool; the L1 after receipt (0 of 27, harness_errors empty, exit 0) and before receipt (27 of 27) are taken from the context, not re-derived. Frozen-counter identity verified by bytes: `git show 3457f287e04f34e73f8e70d4417b14b96f903f56:tools/probe-child-env-allowlist-r34.py | sha256sum` = `5d0d568901c0eeb1c301b3bf825a839d4f41af68bc51e4de40f0706f15d1aa92`, matching the declared sha256 (VERSION 6). [obs]
+- The amendment-2 containment clause would in principle collide with the fixed literal `LC_ALL=C` only if a run's ambient LANG value were exactly "C"; SCORECARD.md:1349 says the probe draws value-channel values from `os.urandom`, and the landed receipt shows no such trip. Whether every value-channel name is always randomized in every future run I did not verify in probe source. [unk]
+- measure-update-recheck `sandbox_git` carries no identity keys; a future direct `sandbox_git(repo, "commit", ...)` caller would fail without HOME. Not a defect today (all commits go through `sandbox_commit`'s argv `-c`); fragility note only. [obs]
+- Findings 1's necessity link rests on the committed description of the scan rules (SCORECARD.md:1361) plus the frozen predicate sentence, not on reading the probe's scan implementation. [unk]
+
+Scope: read=git show/diff/grep/log/ls-tree at 6de666c4, 3457f287, df661507, 879daa95 (SCORECARD declaration and amendments, LOG.md:1323, nine tools, probe sha256); wrote=.ufo/waves/round-34/w2/RevC1Diff.md; executed=read-only git commands and sha256sum over git-show output only
+Model: not exposed
+Installs: none
