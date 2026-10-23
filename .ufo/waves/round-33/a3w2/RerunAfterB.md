@@ -1,0 +1,23 @@
+# RerunAfterB — second independent re-run of C1 after-value
+
+Verdict: the landed change c8fcfbf662db6debc6d7128c166ced31ca3176cf MEETS the C1 after-value on a second independent re-run — leaking 0 of pairs 15, harness_errors empty, exit_code 0.
+
+## Findings
+
+1. [obs] Re-run receipt summary: `pairs` 15, `leaking` 0, `leaking_pairs` [], `harness_errors` [], `predicate_label` "leaking", `probe_sha256` c24f344b864a13ea4db2909bfa81de77f8f41bae35cd5e0949a88b28ab1e04cd (the frozen counter bytes of 9c89ff4f093d07a6f92925518310ca6a7c8a2fa0), `revision` c8fcfbf662db6debc6d7128c166ced31ca3176cf, `targets` 5, `channels` [names, quiet, source]. Footer: `exit_code` 0, `timed_out` false, `stderr_tail` "". Evidence: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w2/RerunAfterB/after-rerun-b.jsonl records 17 and 18.
+
+2. [obs] Per-pair evidence: all 15 (tool, channel) pairs report `leak` false with `evidence` [] — no injected name or ambient value-channel string reached any traced execve; names and quiet runs hold control parity exactly (channel_rc == control_rc == 0; git execs 279, 335, 203, 226, 1176 matching control counts; `parity_diffs` []); `git_missing_kept` 0 on every pair, so every traced git execve carried both kept settings (GIT_CONFIG_NOSYSTEM=1, GIT_CONFIG_GLOBAL=/dev/null); each `source` channel scanned its target (plus tools/_revision.py for the three importing targets) and returned `findings` []. Evidence: after-rerun-b.jsonl records 2–16.
+
+3. [obs] Independence and agreement: this run used a different scratch parent (/fast/scratch/hyaku/tsukuroi-r33a3/RerunAfterB/p → probe-chosen scratch root s1fd9e91872ad-lngxgrvv) and independently drawn random injected names and value-channel values (record 2 of the receipt). All summary fields, the revision, the probe sha256, and every names/quiet `channel_stdout_sha256` digest match the L1's committed after receipt /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3/after/c1-after-c8fcfbf6.jsonl — the 0-of-15 result is deterministic across runs, not an artifact of one random draw. [inf] Given the probe re-randomises every name, value, HOME/TMPDIR and directory per run, agreement at this level indicates the allow-list blocks ambient leakage structurally rather than by matching one draw.
+
+4. [obs] Ordinary-run check at c8fcfbf662db6debc6d7128c166ced31ca3176cf (sandbox clone /fast/scratch/hyaku/tsukuroi-r33a3/RerunAfterB/repo): with `ZZ_R33A3_AMBIENT=1` exported in the parent environment (verified `os.environ.get` returns "1"), a child spawned as `subprocess.run(["env"], env=_revision.clean_env())` prints exactly six names — PATH=/usr/bin:/bin, GIT_OPTIONAL_LOCKS=0, GIT_PAGER=cat, LC_ALL=C, GIT_CONFIG_NOSYSTEM=1, GIT_CONFIG_GLOBAL=/dev/null — and ZZ_R33A3_AMBIENT is absent; a second child `sh -c 'echo direct-child-sees:$ZZ_R33A3_AMBIENT'` under the same env expands it empty. The ambient name does not reach the child. Evidence: `/fast/scratch/hyaku/tsukuroi-r33a3/RerunAfterB/repo/tools/_revision.py:62-66` (clean_env returns the fixed six-key dict) and the commands below, both exit 0.
+
+5. [obs] Command run for the re-run: `cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && timeout 2200 env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE python3 tools/run-receipt.py --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --revision c8fcfbf662db6debc6d7128c166ced31ca3176cf --tool-revision 9c89ff4f093d07a6f92925518310ca6a7c8a2fa0 --out /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w2/RerunAfterB/after-rerun-b.jsonl --timeout 1900 -- tools/probe-child-env-allowlist-r33.py --revision '{rev}' --lane '{lane}' --scratch /fast/scratch/hyaku/tsukuroi-r33a3/RerunAfterB/p` → exit 0 in 253.77 s.
+
+6. [unk] Whether wave a3w2's other re-run seats observe the same 0-of-15 result; this seat reports only its own receipt.
+
+No finding against C1: a control meeting the after-value would be reported plainly, but this seat ran the re-run of the landed change, not a control design, and the receipt confirms the declared after-value.
+
+Scope: read=SCORECARD.md round-33 declaration at 9c89ff4f, tools/_revision.py at c8fcfbf6 (sandbox clone), after-rerun-b.jsonl, c1-after-c8fcfbf6.jsonl; wrote=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w2/RerunAfterB/after-rerun-b.jsonl, /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w2/RerunAfterB.md, sandbox clone /fast/scratch/hyaku/tsukuroi-r33a3/RerunAfterB/repo, scratch /fast/scratch/hyaku/tsukuroi-r33a3/RerunAfterB/p; executed=run-receipt.py re-run (exit 0), two ordinary-run python3 -c ambient checks (exit 0)
+Model: devin/swe-2
+Installs: none

@@ -1,0 +1,19 @@
+NO MISROOT: no untracked fleet-root file names tsukuroi, round 33, a3w1, a3w2, or an a3w1 or a3w2 seat. Nothing was moved or deleted.
+
+1. [obs] `git -C /home/vgpnk/Projects/shokunin status --porcelain -uall` (exit 0, run twice, 28 lines both times) shows 12 modified tracked paths and 16 untracked paths. The eight untracked files with no slash, the fleet-root set, are `AGENTS.md`, `bm.json`, `live_s228.html`, `nama.html`, `s395.txt`, `tf_bavelas.html`, `wb2.html`, and `write`. The other eight are nested: `.omp/mcp.json`, `.ufo/state/kotoba.report-baseline`, `.ufo/state/kotodama.report-baseline`, `.ufo/state/revenger.report-baseline`, `scripts/hyaku/__pycache__/append-closure.cpython-314.pyc`, `scripts/hyaku/__pycache__/wave-live.cpython-314.pyc`, `scripts/hyaku/append-closure.py.bak-20261023T040735Z`, and `scripts/hyaku/fleet-commit.sh.bak-20261023T040735Z`.
+
+2. [obs] A byte scan of all 16 paths (case-insensitive `tsukuroi`, `round 33`, `round-33`, `a3w1`, `a3w2`, the 45 names from `tsukuroi-shokunin/.ufo/waves/round-33/a3w1-spec.json` `.items[].name`, and the 37 names from `a3w2-spec.json`) returned zero hits. A text grep of the non-bytecode untracked paths for the same tokens also returned no matches.
+
+3. [obs] The fleet-root files are unrelated debris, not silent lane output. `write:1` is `agent://U100N079H334f935b` (25 bytes). `AGENTS.md:1` is `# AGENTS.md`, a fleet protocol note. `bm.json` and `tf_bavelas.html` open with a Cloudflare "Just a moment..." page. `live_s228.html:4` carries an Anubis `v1.26.2` challenge. `wb2.html:1` is a Wayback Machine bot-block notice. `nama.html` is an HTML document with no lane token. `s395.txt` is 0 bytes.
+
+4. [obs] The nested untracked files also have no tying line. The three new baselines are one round number plus the empty-file sha256 `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` (`kotoba` 58, `kotodama` 60, `revenger` 62). They are not tsukuroi. `tsukuroi.report-baseline` is a tracked modification (` M .ufo/state/tsukuroi.report-baseline`), so it is outside the untracked test. The other ` M` lines are the same baseline pattern for other lanes plus `.ufo/watchdog.log`.
+
+5. [obs] There is no fleet `.ufo/waves/round-33`, `.ufo/waves/a3w1`, or `.ufo/waves/a3w2`. A name walk outside `*-shokunin` directories found no path component `a3w1` or `a3w2`. This lane's wave tree is only at `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/`. Fleet `.ufo/reports/round-33/` is tracked and holds only `kake.md`, `kotodama.md`, and `mori.md` (`git ls-files`); there is no `tsukuroi.md` there.
+
+6. [obs] Git does not list empty directories, and `check-ignore` does not ignore these: `/home/vgpnk/Projects/shokunin/dir`, `scratch`, `kaidoku-sh2`, `mori-shokukin`, `tameshi-shokukin`, and `.ufo/waves/round-45` (mtime 2026-10-23 04:09). A walk counted 0 files in each, so none has a line that names this lane. [unk] A directory listing once showed `.ufo/waves/round-30/wC` as just modified; a later exists-check found `round-30` absent, and it never appeared in porcelain, so there was no file left to read.
+
+7. [inf] No porcelain-untracked file at the fleet root, and none nested under it, is a misrooted tsukuroi round-33, a3w1, or a3w2 seat artifact. Lane repos stay hidden from this status by `.gitignore:1` `*-shokunin/`, which is why the lane's own wave files do not show up here.
+
+Scope: read=fleet porcelain status, a3w1-spec.json and a3w2-spec.json seat names, untracked file bytes, fleet .ufo/waves and .ufo/reports/round-33; wrote=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w2/ScoutMisroot.md; executed=git status --porcelain -uall, git check-ignore, git ls-files -- .ufo/reports/round-33, byte scan of the 16 untracked paths
+Model: xai-oauth/grok-4.7-build-fast
+Installs: none

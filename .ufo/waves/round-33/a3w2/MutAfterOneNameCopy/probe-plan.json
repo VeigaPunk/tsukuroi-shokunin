@@ -1,0 +1,15 @@
+{
+  "seat": "MutAfterOneNameCopy",
+  "axes": ["operability", "mutation"],
+  "base_revision": "c8fcfbf662db6debc6d7128c166ced31ca3176cf",
+  "tool_revision": "9c89ff4f093d07a6f92925518310ca6a7c8a2fa0",
+  "probe_sha256": "c24f344b864a13ea4db2909bfa81de77f8f41bae35cd5e0949a88b28ab1e04cd",
+  "pristine_builder_sha256": "fc861ec8a4f2539ac3f16d1a04af8335a974c17c8ffba0a41f6dad972cad36de",
+  "mutant": "Only _revision.clean_env additionally merges a dict comprehension filtered to one ambient name, chosen with random.choice(tuple(os.environ)) afresh per call. Fixed git settings remain unless the randomly selected ambient name overrides one.",
+  "expected_detector": "Frozen source-channel ambient-read clause should fire for _revision and its three claim-set importers. Names/value evidence can also fire in names and quiet runs. A harness error also kills this mutant under the assigned rule.",
+  "kill_rule": "KILLED if leaking >= 1 or harness_errors is nonempty; SURVIVED otherwise, assuming the provided pristine receipt is clean.",
+  "pristine_frozen_receipt": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3/after/c1-after-c8fcfbf6.jsonl",
+  "pristine_frozen_observed": {"pairs": 15, "leaking": 0, "leaking_pairs": [], "harness_errors": [], "predicate_label": "leaking", "exit_code": 0},
+  "ordinary_detector": "32 untraced /usr/bin/env children, each using a fresh clean_env(), in an env -i parent with ZZ_R33A3_AMBIENT=1; record marker-bearing call numbers. Use exactly the same command on pristine, mutant and restored bytes.",
+  "pristine_ordinary_observed": {"exit_code": 0, "calls": 32, "ambient_names": ["LC_CTYPE", "ZZ_R33A3_AMBIENT", "_"], "marker_child_calls": [], "marker_reached_child": false}
+}

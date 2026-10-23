@@ -1,0 +1,25 @@
+{
+  "cwd": "/fast/scratch/hyaku/tsukuroi-r33a3/MutAfterDropGlobal/repo",
+  "argv": [
+    "timeout",
+    "-k",
+    "5",
+    "60",
+    "env",
+    "-u",
+    "GIT_DIR",
+    "-u",
+    "GIT_WORK_TREE",
+    "-u",
+    "GIT_INDEX_FILE",
+    "ZZ_R33A3_AMBIENT=1",
+    "python3",
+    "-B",
+    "-c",
+    "import json, subprocess, sys\nsys.path.insert(0, \"/fast/scratch/hyaku/tsukuroi-r33a3/MutAfterDropGlobal/repo/tools\")\nimport _revision\np = subprocess.run([\"/usr/bin/env\"], env=_revision.clean_env(), capture_output=True, text=True, timeout=10)\nchild = dict(line.split(\"=\", 1) for line in p.stdout.splitlines())\nobserved = {\"ambient_name_reached\": \"ZZ_R33A3_AMBIENT\" in child, \"GIT_CONFIG_GLOBAL\": child.get(\"GIT_CONFIG_GLOBAL\"), \"GIT_CONFIG_NOSYSTEM\": child.get(\"GIT_CONFIG_NOSYSTEM\"), \"child_exit_code\": p.returncode, \"child_env\": child}\nprint(json.dumps(observed, sort_keys=True))\nsys.exit(0 if p.returncode == 0 and not observed[\"ambient_name_reached\"] and child.get(\"GIT_CONFIG_GLOBAL\") == \"/dev/null\" and child.get(\"GIT_CONFIG_NOSYSTEM\") == \"1\" else 1)\n"
+  ],
+  "command": "timeout -k 5 60 env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE ZZ_R33A3_AMBIENT=1 python3 -B -c 'import json, subprocess, sys\nsys.path.insert(0, \"/fast/scratch/hyaku/tsukuroi-r33a3/MutAfterDropGlobal/repo/tools\")\nimport _revision\np = subprocess.run([\"/usr/bin/env\"], env=_revision.clean_env(), capture_output=True, text=True, timeout=10)\nchild = dict(line.split(\"=\", 1) for line in p.stdout.splitlines())\nobserved = {\"ambient_name_reached\": \"ZZ_R33A3_AMBIENT\" in child, \"GIT_CONFIG_GLOBAL\": child.get(\"GIT_CONFIG_GLOBAL\"), \"GIT_CONFIG_NOSYSTEM\": child.get(\"GIT_CONFIG_NOSYSTEM\"), \"child_exit_code\": p.returncode, \"child_env\": child}\nprint(json.dumps(observed, sort_keys=True))\nsys.exit(0 if p.returncode == 0 and not observed[\"ambient_name_reached\"] and child.get(\"GIT_CONFIG_GLOBAL\") == \"/dev/null\" and child.get(\"GIT_CONFIG_NOSYSTEM\") == \"1\" else 1)\n'",
+  "exit_code": 0,
+  "stdout": "{\"GIT_CONFIG_GLOBAL\": \"/dev/null\", \"GIT_CONFIG_NOSYSTEM\": \"1\", \"ambient_name_reached\": false, \"child_env\": {\"GIT_CONFIG_GLOBAL\": \"/dev/null\", \"GIT_CONFIG_NOSYSTEM\": \"1\", \"GIT_OPTIONAL_LOCKS\": \"0\", \"GIT_PAGER\": \"cat\", \"LC_ALL\": \"C\", \"PATH\": \"/usr/bin:/bin\"}, \"child_exit_code\": 0}\n",
+  "stderr": ""
+}

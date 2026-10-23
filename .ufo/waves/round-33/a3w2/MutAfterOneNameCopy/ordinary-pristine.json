@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "timeout",
+    "60",
+    "env",
+    "-i",
+    "ZZ_R33A3_AMBIENT=1",
+    "/usr/bin/python3",
+    "-B",
+    "-c",
+    "import json, os, subprocess, sys; sys.path.insert(0, \"/fast/scratch/hyaku/tsukuroi-r33a3/MutAfterOneNameCopy/repo/tools\"); from _revision import clean_env; ambient = sorted(os.environ); hits = []\nfor call in range(1, 33):\n    child = subprocess.run([\"/usr/bin/env\"], env=clean_env(), capture_output=True, text=True, timeout=5, check=True)\n    if \"ZZ_R33A3_AMBIENT=1\" in child.stdout.splitlines(): hits.append(call)\nprint(json.dumps({\"calls\": 32, \"ambient_names\": ambient, \"marker_child_calls\": hits, \"marker_reached_child\": bool(hits)}))"
+  ],
+  "cwd": "/fast/scratch/hyaku/tsukuroi-r33a3/MutAfterOneNameCopy/repo",
+  "exit_code": 0,
+  "stdout": "{\"calls\": 32, \"ambient_names\": [\"LC_CTYPE\", \"ZZ_R33A3_AMBIENT\", \"_\"], \"marker_child_calls\": [], \"marker_reached_child\": false}\n",
+  "stderr": "",
+  "provenance": "Actual output of the pristine ordinary detector bash call, recorded without rerunning it."
+}

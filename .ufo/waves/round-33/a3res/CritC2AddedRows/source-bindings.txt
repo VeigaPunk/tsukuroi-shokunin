@@ -1,0 +1,40 @@
+CritC2AddedRows read-only source bindings, 2026-10-23.
+
+The lane revision reviewed is dd426fe1ab1c2cb5a5f5319307e52b3dab390850. The mori revision reviewed is 24603186b555dddb88ebd607e415e27bdea747b4. No working-tree source bytes were substituted for either revision. Working-tree wave reports were read only as supplemental provenance and are identified separately below.
+
+Frozen source SHA256 observations:
+2c0e61de5eee64a30915ffa62bd9aab3cdb9414580ab68fd901473219140f6c2  lane corpus/knowledge/kill-oom-boundary-r33.md
+7daa2ccbbded3a931abdbd76cb8ad34ccbe596f6dabc3524c519cc123e44e7b5  lane tools/tsukuroi-census.sh
+62543d1b2c294ade1e0fd886cf590b87454c58fea7def4b2297c2e70b12b4527  mori PROVINCE.md
+5de8724ac83179d161e3bebd4112c75dc51110d4e9067ab2644d6c91c06ecdc4  mori SKILL.md
+Each hash came from timeout 30 git -C REPO show REV:PATH | timeout 30 sha256sum, using the corresponding absolute repository and full revision above. Each pipeline exited 0.
+
+Read-only commands executed, all foreground and timeout-bounded:
+1. timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 9c89ff4f093d07a6f92925518310ca6a7c8a2fa0:SCORECARD.md. Exit 0. Declaration and both amendments were read from its captured output.
+2. timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show dd426fe1ab1c2cb5a5f5319307e52b3dab390850:corpus/knowledge/kill-oom-boundary-r33.md. Exit 0.
+3. timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show dd426fe1ab1c2cb5a5f5319307e52b3dab390850:tools/tsukuroi-census.sh. Exit 0.
+4. timeout 30 git -C /home/vgpnk/Projects/shokunin/mori-shokunin show 24603186b555dddb88ebd607e415e27bdea747b4:PROVINCE.md. Exit 0.
+5. timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show dd426fe1ab1c2cb5a5f5319307e52b3dab390850:PROVINCE.md. Exit 0.
+6. timeout 30 git -C /home/vgpnk/Projects/shokunin/mori-shokunin show 24603186b555dddb88ebd607e415e27bdea747b4:SKILL.md. Exit 0.
+7. timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show dd426fe1ab1c2cb5a5f5319307e52b3dab390850:SKILL.md. Exit 0.
+8. timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show --format=fuller --no-ext-diff dd426fe1ab1c2cb5a5f5319307e52b3dab390850 -- corpus/knowledge/kill-oom-boundary-r33.md. Exit 0, no output; not used to infer the authoring commit.
+9. timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show dd426fe1ab1c2cb5a5f5319307e52b3dab390850:.ufo/waves/round-33/a3w2/CritC2Gaps.md. Exit 128: path exists on disk, but not in the requested revision.
+10. timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show dd426fe1ab1c2cb5a5f5319307e52b3dab390850:.ufo/waves/round-33/a3w2/CritC2Absorb.md. Exit 128: path does not exist in the requested revision. The note names this seat, not this exact pathname; this failed lookup is not treated as a wrong literal citation by the note. The report was subsequently located with functions.glob at the nested path below.
+11. timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff --no-ext-diff c8fcfbf662db6debc6d7128c166ced31ca3176cf dd426fe1ab1c2cb5a5f5319307e52b3dab390850 -- corpus/knowledge/kill-oom-boundary-r33.md. Exit 0. The only changed original table row is teardown purge, with two backslashes inserted before its grep alternation pipes; the row's words are unchanged.
+12. timeout 30 git -C /home/vgpnk/Projects/shokunin/mori-shokunin show 24603186b555dddb88ebd607e415e27bdea747b4:tools/mori-oom-killers.py. Exit 0. Source only; never executed.
+13. timeout 20 mkdir -p /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3res/CritC2AddedRows. Exit 0.
+14. timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show dd426fe1ab1c2cb5a5f5319307e52b3dab390850:corpus/knowledge/kill-oom-boundary-r33.md | timeout 30 sha256sum. Exit 0, hash above.
+15. timeout 30 git -C /home/vgpnk/Projects/shokunin/mori-shokunin show 24603186b555dddb88ebd607e415e27bdea747b4:PROVINCE.md | timeout 30 sha256sum. Exit 0, hash above.
+16. timeout 30 git -C /home/vgpnk/Projects/shokunin/mori-shokunin show 24603186b555dddb88ebd607e415e27bdea747b4:SKILL.md | timeout 30 sha256sum. Exit 0, hash above.
+17. timeout 30 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show dd426fe1ab1c2cb5a5f5319307e52b3dab390850:tools/tsukuroi-census.sh | timeout 30 sha256sum. Exit 0, hash above.
+
+Native-tool negative searches, not shell commands:
+functions.grep, case=false, over complete git-show captures of mori PROVINCE.md and SKILL.md at the pinned revision, pattern memory\.swap|swap\.events|swap\.peak|memory\.stat|pswpin|pswpout|sock_throttled|Shmem|MemAvailable|memory\.high. Result: No matches found. This establishes exact-name absence in those two declarations only, not absence from mori implementations or exclusive ownership. A positive-control search over the same captures found memory.events at mori PROVINCE.md:9 and mori SKILL.md:30, among other locations.
+functions.grep, case=false, over the complete pinned lane census capture, pattern oomd|earlyoom. Result: No matches found. This establishes absence of those names, not that the generic result matcher cannot match a userspace-killer consequence.
+
+Supplemental, unpinned wave-report reads:
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w2/CritC2Gaps.md:1-31, especially 17-25.
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w2/CritC2Absorb/CritC2Absorb.md:1-21.
+The gap report itself expressly limits the Shmem absence conclusion to the two declaration files and leaves other implementations unknown.
+
+Other reads were native read/grep/glob calls for the explicitly assigned godspeed/shokunin instructions, canonical protocol/evidence/axes/corpus/learning rules, binding addendum, lane QUALITY, round-32 spot-check sections 2 and 5, selected captured source ranges and the two supplemental reports. No sources were fetched. No tools were installed. No probe, census, test, judge or other runtime was invoked. No GIT_* variable was set, and no git write command, clone, background job or sandbox variant was created. All started shell commands returned before report delivery.

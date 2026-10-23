@@ -1,0 +1,103 @@
+Lane pointer excerpts for C2 row "kernel OOM kill (global)", all read with
+`git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show c8fcfbf662db6debc6d7128c166ced31ca3176cf:<path>`
+(line numbers via awk NR). Read-only; no lane file modified.
+
+=== SKILL.md:1096-1108 ===
+1096:
+1097: The **class table** (each row a read-only signature, measured here):
+1098:
+1099: | class | signature (read-only) | measured | verdict stance |
+1100: |---|---|---|---|
+1101: | kernel OOM kill (global) | `-p err` entry `Out of memory: Killed process …`; `/proc/vmstat oom_kill` ledger | event A only: 1 print, ledger **1**; `journalctl -k -g oom` = 5 lines over all boots, all at 23:44:30 (`kill-event-deep-r8.md:333-334`; this seat re-derived both) | a named item — never bare "noise" |
+1102: | memcg-limit OOM | `Memory cgroup out of memory` print | **0** in 13 boots (`:244,333-334`) | absent; and with `memory.max/high/swap.max/zswap.max` all `max` and `oom.group` 0, the limit trigger is closed |
+1103: | systemd attribution report | `kernel OOM killer killed some processes` (PRIORITY=5) | **3** messages: A→2, B→1 (`:85-99`) | a report **about the named unit**, never evidence of *when* a kill happened; the only attribution for a class with no kernel record |
+1104: | session SIGKILL / teardown | `status=9/KILL` / `Failed with result 'signal'` | **1** line — the old user manager PID 1573 (`:198-207`) | the event-B class; **the kernel arm is blind to it by construction** |
+1105: | teardown purge | `KillMode=mixed` + `TimeoutStopSec=5s` drop-in | 0 uid-1000 survivors from before 13:10:59 (`:212-223`) | [inference] mechanism, not trigger |
+1106: | cgroup `oom_kill` counter | `memory.events[.local]` | **presence flag**: 2 slices × 1, `.local` 0 (`:120-134`) | flag, never an event count (round-6 rule re-confirmed) |
+1107: | scope-launch record | `Started app-*.scope` | 69 old / 98 new, **0** deactivations (`:225-238`) | launches, never live units |
+1108:
+
+=== corpus/knowledge/kill-event-deep-r8.md:30,128 ===
+30: | F1 | **No kernel OOM kill happened at event B.** Since boot `/proc/vmstat` reads `oom_kill 1`; event A is the only kernel kill in the retained journal (exactly 1 `Out of memory: Killed process` line; **0** `Memory cgroup out of memory` lines in 13 boots). The 13:10:59 second contains no kernel record of any OOM/kill class. | §2, §3.4, §7 |
+128: | `/proc/vmstat` | `oom_kill 1` (whole boot) | — | — | the kernel's own ledger |
+
+=== PROVINCE.md:49 (also 191-193 context) ===
+49: | ADJ-04 | Host pressure or a kill signal needs fleet/wave attribution, liveness or progress correlation | OS memory, journal and boot diagnosis; cumulative counters are not dated incidents | mori | Capture time, boot/window, exact counter or PSI command/exit and observed value; distinguish presence, cumulative count and dated event. Request correlation, not a claim that a wave caused OOM | `../mori-shokunin/PROVINCE.md:3-16` |
+191: ## Adjacent — ADJ-04 handoff lines in the census (round 32)
+193: Append-only; the ADJ-01 to ADJ-07 table above is unchanged. From round 32 the census prints a `HANDOFF ADJ-04 mori …` line for each of two evidence classes that ADJ-04 and OUT-005 route to mori: dated kill-event clusters in the oom plane's retained window, and boot-0 systemd-coredump entries (`SKILL.md` rows R32-H1 and R32-H2). The line carries `state=prepared`: the census prepared a packet line; it is not reported, acknowledged, accepted or resolved, and mori declares no intake format for it (mori `PROVINCE.md` at `a45850f0`, read by round-32 ScoutMoriHead). Tsukuroi keeps the OS finding on its journal and oom planes. Mori's own counts of the same events use MESSAGE_ID per journal scope; the census counts by message text and SYSLOG_IDEN… [line continues]
+
+PROVINCE.md 1f521b9..c8fcfbf diff is a single tail append: hunk `@@ -191,3 +191,7 @@` adds the round-33 per-class boundary-note paragraph (new lines 195-198). Cited lines 49 and 193 unshifted between claim base and landing.
+
+=== tools/tsukuroi-census.sh:71-75 ===
+71: # the counts the probes already measured, never by a TSUKUROI_* name or a fixture marker,
+72: # and a cumulative counter (`vmstat oom_kill`, a `memory.events` oom_kill presence flag) is
+73: # never a dated event, so it never reaches a HANDOFF line.
+74: #
+75: # Verdict vocabulary (SKILL.md:22-31): HEALTHY | DEGRADED | BLOCKED, never a scalar.
+
+=== tools/tsukuroi-census.sh:2661-2691 ===
+2661:
+2662:   # ---- round 32 (C1): the ADJ-04 sibling handoff lines ------------------------------
+2663:   # Four falsifiable cases: the handoff is absent on a clean host; a dated kill event
+2664:   # routes one kill-events line whose value is the oom plane's own cluster count; a boot-0
+2665:   # coredump entry routes one coredumps line whose value is the journal plane's own
+2666:   # coredump count; and a cumulative vmstat oom_kill counter (read, and visible as
+2667:   # `ledger=`) is never a dated event, so it routes no kill-events line.
+2668:   case_home='handoff-absent-healthy'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2669:   check 'healthy: no ADJ-04 handoff line without a dated event (R32-C1)' 0 HEALTHY \
+2670:     'ABSENT:^HANDOFF'
+2671:
+2672:   case_home='handoff-kill-events'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2673:   printf '%s\n' \
+2674:     '2026-10-13T23:44:30.574948-03:00 fixture-host systemd[1573]: app-x.scope: The kernel OOM killer killed some processes in this unit.' \
+2675:     '2026-10-14T13:10:59.400591-03:00 fixture-host systemd[1]: user-1000.slice: The kernel OOM killer killed some processes in this unit.' \
+2676:     > "$FX/oomwin-attrib"
+2677:   printf 0 > "$FX/oomwin-attrib.rc"
+2678:   printf '%s\n' \
+2679:     '2026-10-14T13:10:59.380873-03:00 fixture-host systemd[1]: user@1000.service: Main process exited, code=killed, status=9/KILL' \
+2680:     > "$FX/oomwin-sigkill"
+2681:   printf 0 > "$FX/oomwin-sigkill.rc"
+2682:   printf '%s\n' \
+2683:     '2026-10-13T23:44:30.638238-03:00 fixture-host kernel: Out of memory: Killed process 1732581 (python3)' \
+2684:     > "$FX/oomwin-kernel"
+2685:   printf 0 > "$FX/oomwin-kernel.rc"
+2686:   EXTRA_ENV=(TSUKUROI_OOM_BASELINE=)
+2687:   check 'healthy: a dated kill event routes one kill-events handoff, value = the cluster count (R32-C1)' 0 HEALTHY \
+2688:     'C2_events=2 C3_events=1 clusters=2\[' \
+2689:     '^HANDOFF ADJ-04 mori class=kill-events value=2 kind=dated-event state=prepared window=boots=2:2026-10-11\.\.2026-10-14 source=journal-window$'
+2690:
+2691:   case_home='handoff-coredumps'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+
+=== tools/tsukuroi-census.sh:2700-2706 ===
+2700:
+2701:   case_home='handoff-cumulative-only'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2702:   printf 'oom_kill 3\n' > "$FX/vmstat"
+2703:   check 'healthy: a cumulative vmstat oom_kill counter never routes a kill-events handoff (R32-C1)' 0 HEALTHY \
+2704:     'ledger=vmstat\.oom_kill=3' \
+2705:     'ABSENT:^HANDOFF'
+2706:
+
+=== tools/tsukuroi-census.sh:2766-2780 ===
+2766:
+2767:   # ---- ADJ-04 handoff (round 32, C1): the sibling-owned classes routed to mori --------
+2768:   # Printed after the six PLANE lines and before the rollup; they change no PLANE text,
+2769:   # no rollup term and no exit code (tsukuroi keeps the OS finding). Routing is
+2770:   # unconditional and reads only what the probes already measured: a class is prepared
+2771:   # when its dated-event count is >= 1. A cumulative counter (vmstat oom_kill, a
+2772:   # memory.events oom_kill flag) never becomes a kill-events line by construction — the
+2773:   # value is the oom plane's clustered journal events, not the ledger. See the header's
+2774:   # HANDOFF contract paragraph for the prepared/not-acknowledged stance and for why
+2775:   # value= is the census's own count rather than one of mori's catalog counts.
+2776:   if [ "$OOM_CLUSTERS" -ge 1 ]; then
+2777:     printf 'HANDOFF ADJ-04 mori class=kill-events value=%s kind=dated-event state=prepared window=%s source=journal-window\n' \
+2778:       "$OOM_CLUSTERS" "${OOM_WINDOW// /:}"
+2779:   fi
+2780:   if [ "$JRN_COREDUMPS" -ge 1 ]; then
+
+=== row identity ===
+sha256 of the row line (working-tree note line 9, c8fcfbf note line 9, seat row line 3) — all identical:
+724a84642a3782c876855529ef92e8dd4868a08c87b6d1b15d32e427a2fbed5b
+
+=== drift after c8fcfbf (lane tip 783d79e) ===
+- Committed: only f761fade8a452ec9dd0831be7743601b0adda3e5 (registry round33) touched a cited file, SKILL.md, as one tail hunk `@@ -2810,3 +2810,61 @@` — class-table lines 1097-1107 stable in the working tree.
+- Uncommitted working-tree drift observed on corpus/knowledge/kill-oom-boundary-r33.md: hunk `@@ -10,6 +10,17 @@` (insertion after line 9; grew from +5 to +11 lines between two reads minutes apart — a concurrent wave-2 writer). Row line 9 unchanged at last read.

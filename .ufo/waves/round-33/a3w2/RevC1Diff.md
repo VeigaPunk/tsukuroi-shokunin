@@ -1,0 +1,38 @@
+# RevC1Diff — review of the landed C1 change
+
+Verdict: the diff `4e521ce0331af8b032d9a4502242fc83cf23051f..c8fcfbf662db6debc6d7128c166ced31ca3176cf` PASSES every assigned check — behavioral change is confined to the two named builders, both binder pins equal the landed `tools/_revision.py` sha256, zero ambient reads remain in the builders, every `clean_env` consumer still gets the keys it reads, and the C2 note is cleanly separable. No actionable defect found in scope.
+
+Scope of the review: `git diff 4e521ce0 c8fcfbf6` (6 files: `tools/_revision.py` ±4/4, `tools/mutants-owed-statements-r29-v4shapes.py` ±3/3, `tools/check-pause-gate.py` ±1, `tools/report-red-causes.py` ±1, `PROVINCE.md` +4, `corpus/knowledge/kill-oom-boundary-r33.md` +15).
+
+## Findings
+
+1. [obs] PASS — only the two builders change behavior. `tools/_revision.py:62-66` replaces the ambient copy (`{k:v for k,v in os.environ.items() if not k.startswith("GIT_")}` plus fixed updates) with a fixed dict literal `{PATH: "/usr/bin:/bin", GIT_OPTIONAL_LOCKS: "0", GIT_PAGER: "cat", LC_ALL: "C", GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: os.devnull}`. `tools/mutants-owed-statements-r29-v4shapes.py:38-46` replaces the same ambient copy pattern with a literal `ENV` of seven fixed names (`GIT_CONFIG_NOSYSTEM`, `GIT_CONFIG_GLOBAL`, `GIT_CONFIG_SYSTEM`, `HOME`, `XDG_CONFIG_HOME`, `PATH`, `GIT_CEILING_DIRECTORIES`); `HOME`/`XDG_CONFIG_HOME` point inside its own `tempfile.mkdtemp` sandbox (`:32-36`). The only other `tools/` changes are the two pin bumps, which are mandatory consequences of the `_revision.py` byte change — a pin left at the old digest would make both gates permanently `CANNOT_EVALUATE`. No call site of `clean_env` or `ENV` was edited.
+
+2. [obs] PASS — pin bumps are correct and complete. `git show c8fcfbf6:tools/_revision.py | sha256sum` = `fc861ec8a4f2539ac3f16d1a04af8335a974c17c8ffba0a41f6dad972cad36de`; the same digest is pinned at `tools/check-pause-gate.py:245` and `tools/report-red-causes.py:203`. `git grep '06b71e8c…' c8fcfbf6` finds the old digest only inside historical `.ufo/` wave artifacts and receipts (records, not live code); zero occurrences in `tools/` or anywhere code reads it.
+
+3. [obs] PASS — zero ambient reads remain in the two builder files. `grep -c 'os\.environ\|getenv'` on each file at `c8fcfbf6` returns 0. Every subprocess call in both files passes `env=` (`_revision.py:71-73, 89-91, 211-213, 220, 392-394, 404-405, 408-410`; v4shapes `:49, 54, 60, 296` — the last spawns `sys.executable` for the counter, also under `env=ENV`).
+
+4. [obs] PASS — every `clean_env` consumer still gets the keys it reads.
+   - `tools/_revision.py:424-425` selftest `git-config-isolated` reads `clean_env()["GIT_CONFIG_NOSYSTEM"] == "1"` and `clean_env()["GIT_CONFIG_GLOBAL"] == os.devnull`; both names remain in the new literal.
+   - `tools/check-root-dac-correction.py:244` does `env = {**_revision.clean_env(), **(identity or {})}`; `clean_env()` still returns a plain dict, and `SANDBOX_IDENTITY` (`:366-370`) overlays `GIT_AUTHOR_NAME/EMAIL`, `GIT_COMMITTER_NAME/EMAIL`, `GIT_CONFIG_NOSYSTEM`, `GIT_CONFIG_GLOBAL` — all names git honors, none lost.
+   - `tools/check-selector-contract.py:84-88` adds `GIT_NO_LAZY_FETCH`/`GIT_TERMINAL_PROMPT` onto the returned dict; `tools/check-storage-health.py:995` does `dict(_revision.clean_env())`; both still work.
+   - `tools/check-registry-coverage.py:49` and `tools/check-storage-health.py:81` monkeypatch `_revision.clean_env` with their own allow-list builders (`CHILD_ENV_BASE`-based) inside their own processes — a pre-existing pattern this diff neither depends on nor breaks.
+   - `tools/check-freshness-r17.py:350-355`, `tools/check-kernel-taint.py:276-281`, `tools/check-memory-pressure.py:130-135` monkeypatch `_revision.clean_env` to `lambda: dict(env)` where `env` is their own `dict(CHILD_ENV_BASE)`-plus-fixed-updates builder — also pre-existing and allow-list-shaped, so no ambient path is reintroduced through them.
+   - Runtime evidence from the L1 after-receipt `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3/after/c1-after-c8fcfbf6.jsonl`: all 15 pairs `leaking: 0`, `harness_errors: []`, `exit_code: 0`, and every names/quiet channel's `git_execs` equals its control (279, 335, 203, 226, 1176) with `channel_rc == control_rc == 0` — child behavior parity, nothing consumers depended on was dropped.
+
+5. [obs] PASS — C2 mixing does not break separability. C1 lives entirely in `tools/{_revision.py, mutants-owed-statements-r29-v4shapes.py, check-pause-gate.py, report-red-causes.py}`; C2 is the `PROVINCE.md:194-197` append plus the new `corpus/knowledge/kill-oom-boundary-r33.md`. The file sets are disjoint and neither docs file references or loads the tools; reverting either set leaves the other intact. Minor [obs]: the commit message (`round-33: C1 change (L1, after control receipts 4e521ce0): …`) names only the C1 work and does not mention the two C2 files it carries — cosmetic provenance gap, not a separability defect.
+
+6. [obs] Residual, out of claim scope — the allow-list property is not lane-wide. At `c8fcfbf6` the ambient-copy pattern `os.environ.items() if not k.startswith("GIT_")` still survives in `tools/check-revision-binding.py:104`, `tools/check-btrfs-space-r30.py:96`, `tools/check-btrfs-repair-r31.py:108`, and `tools/probe-git-env-leak.py:58`. The claim is worded to the two named builders and the probe's 5-target claim set, so this is not a defect of the diff — but a reader should not over-generalize "the builders" to every env builder in `tools/`. (`tools/check-owed-statements-r29.py:167-178`, `tools/mutants-adjacency-overlap.py`, `tools/mutants-kernel-taint.py`, `tools/check-registry-coverage.py`, `tools/check-storage-health.py` local `clean_env`s are already `CHILD_ENV_BASE` allow-lists.)
+
+7. [obs] Minor residual inside v4shapes — `tools/mutants-owed-statements-r29-v4shapes.py:31-32` still reads ambient filesystem state (`os.path.isdir('/fast/scratch/hyaku')`, `tempfile.mkdtemp` which honors `TMPDIR`) to pick its sandbox location. That affects where `SEAT` (and thus the fixed `HOME`) lands, not which names reach children — `HOME`/`XDG_CONFIG_HOME`/`GIT_CEILING_DIRECTORIES` are all fixed relative to `SEAT`. No ambient name reaches a git child; noted for completeness.
+
+8. [inf] Saturation honesty — `clean_env()` drops every caller-provided name including `HOME`, `TMPDIR`, `SSH_*`, `GIT_EXEC_PATH`, `XDG_CONFIG_HOME`. This is safe today because all consumers run local-path clones and object ops, and every commit path supplies identity via `git -c user.name/user.email` flags or explicit `GIT_AUTHOR_*`/`GIT_COMMITTER_*` env. Any future caller needing a credential helper, an SSH remote, or a git binary outside `/usr/bin:/bin` would need the literal extended — the pinned `PATH` is a deliberate hard floor, not a portability guarantee.
+
+## Verification gaps
+
+- [unk] I did not re-execute the probe or the tools' selftests; the runtime parity numbers above are the L1's after-receipt rows, which I read but did not regenerate.
+- [unk] `check-pause-gate.py` and `report-red-causes.py` runtime behavior after the pin bump was not exercised; only the digest equality was verified statically.
+
+Scope: read=lane repo objects at c8fcfbf6/4e521ce0 via read-only git (diff, show, grep, show -s) and the L1 after-receipt; wrote=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w2/RevC1Diff.md; executed=git diff --stat, git show | sha256sum, git show | grep -c, git grep -n clean_env, git grep for both digests, git show file excerpts, git show -s (all read-only)
+Model: not exposed
+Installs: none
