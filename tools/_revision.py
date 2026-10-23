@@ -60,10 +60,10 @@ class RevisionError(Exception):
 
 
 def clean_env():
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
-                "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
-    return env
+    # Round 33 C1: an allow-list. No ambient name reaches a git child; only these fixed
+    # settings do (PATH is fixed, never copied).
+    return {"PATH": "/usr/bin:/bin", "GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat",
+            "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}
 
 
 def _git(repo, *args, timeout=60):

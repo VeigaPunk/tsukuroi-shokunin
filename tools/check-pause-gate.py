@@ -242,7 +242,7 @@ def main(argv=None):
     if args.selftest:
         return selftest()
     binder_digest = hashlib.sha256((ROOT / 'tools' / '_revision.py').read_bytes()).hexdigest()
-    if binder_digest != '06b71e8cb4aa541a25c95301106dc4d3ad9566cf18ec834f226ec0708db58cbf':
+    if binder_digest != 'fc861ec8a4f2539ac3f16d1a04af8335a974c17c8ffba0a41f6dad972cad36de':
         print(json.dumps({'status': 'CANNOT_EVALUATE', 'findings': [
             {'id': 'GATE-BINDER-BYTES', 'site': 'tools/_revision.py'}]}))
         return 2

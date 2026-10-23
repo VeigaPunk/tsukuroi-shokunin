@@ -34,8 +34,8 @@ if not ARGS.keep:
     atexit.register(shutil.rmtree, SEAT, True)
 HOME = os.path.join(SEAT, 'home')
 os.makedirs(os.path.join(HOME, '.config'))
-ENV = {key: value for key, value in os.environ.items() if not key.startswith('GIT_')}
-ENV.update({
+# Round 33 C1: an allow-list of fixed settings; no ambient name is copied.
+ENV = {
     'GIT_CONFIG_NOSYSTEM': '1',
     'GIT_CONFIG_GLOBAL': os.devnull,
     'GIT_CONFIG_SYSTEM': os.devnull,
@@ -43,7 +43,7 @@ ENV.update({
     'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
     'PATH': '/usr/bin:/bin',
     'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
-})
+}
 REPO = os.path.join(SEAT, 'repo')
 subprocess.run(['git', 'clone', '-q', '--no-local', ARGS.lane, REPO],
                check=True, capture_output=True, env=ENV)
