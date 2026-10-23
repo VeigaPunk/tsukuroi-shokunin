@@ -1,0 +1,63 @@
+{
+  "changed_top_level_AST_nodes": [
+    "<module docstring>",
+    "CHILD_ENV_BASE",
+    "git_env"
+  ],
+  "all_other_top_level_nodes_identical": true,
+  "direct_spawn_sites": [
+    {
+      "line": 293,
+      "call": "subprocess.run",
+      "env": "git_env(tmp)"
+    },
+    {
+      "line": 1023,
+      "call": "subprocess.run",
+      "env": "env"
+    },
+    {
+      "line": 1029,
+      "call": "subprocess.run",
+      "env": "env"
+    },
+    {
+      "line": 1030,
+      "call": "subprocess.run",
+      "env": "env"
+    },
+    {
+      "line": 1033,
+      "call": "subprocess.run",
+      "env": "env"
+    }
+  ],
+  "git_env_calls": [
+    {
+      "line": 275,
+      "call": "git_env(tmp)"
+    },
+    {
+      "line": 1022,
+      "call": "git_env(tmp)"
+    },
+    {
+      "line": 295,
+      "call": "git_env(tmp)"
+    }
+  ],
+  "os_environ_references": [],
+  "git_env_before": "def git_env(temp_dir):\n    home = os.path.join(temp_dir, 'home')\n    os.mkdir(home)\n    env = {key: value for key, value in os.environ.items() if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}\n    env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull, 'HOME': home, 'XDG_CONFIG_HOME': os.path.join(home, '.config'), 'PATH': '/usr/bin:/bin', 'GIT_OPTIONAL_LOCKS': '0', 'GIT_PAGER': 'cat', 'LC_ALL': 'C', 'GIT_CEILING_DIRECTORIES': os.path.dirname(os.path.abspath(temp_dir))})\n    return env",
+  "git_env_after": "def git_env(temp_dir):\n    home = os.path.join(temp_dir, 'home')\n    os.mkdir(home)\n    env = dict(CHILD_ENV_BASE)\n    env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull, 'HOME': home, 'XDG_CONFIG_HOME': os.path.join(home, '.config'), 'PATH': '/usr/bin:/bin', 'GIT_OPTIONAL_LOCKS': '0', 'GIT_PAGER': 'cat', 'LC_ALL': 'C', 'GIT_CEILING_DIRECTORIES': os.path.dirname(os.path.abspath(temp_dir))})\n    return env",
+  "changed_git_env_statements": [
+    {
+      "index": 2,
+      "before": "env = {key: value for key, value in os.environ.items() if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}",
+      "after": "env = dict(CHILD_ENV_BASE)"
+    }
+  ],
+  "git_env_body_statement_counts": {
+    "before": 5,
+    "after": 5
+  }
+}

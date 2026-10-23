@@ -1,0 +1,96 @@
+[
+  {
+    "label": "count-before-1",
+    "command": [
+      "timeout",
+      "120",
+      "bash",
+      "-o",
+      "pipefail",
+      "-c",
+      "journalctl -b -p err -o json --no-pager | grep -c '\"SYSLOG_IDENTIFIER\":\"systemd-coredump\"'"
+    ],
+    "start_utc": "2026-10-23T02:39:38.739306+00:00",
+    "end_utc": "2026-10-23T02:39:38.771702+00:00",
+    "start_monotonic_ns": 67454626071120,
+    "end_monotonic_ns": 67454658454403,
+    "duration_seconds": 0.032383283,
+    "exit_code": 0,
+    "stdout": "187\n",
+    "stderr": ""
+  },
+  {
+    "label": "census-1",
+    "command": [
+      "timeout",
+      "180",
+      "bash",
+      "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w2/RerunC1B/census.sh"
+    ],
+    "start_utc": "2026-10-23T02:39:38.771966+00:00",
+    "end_utc": "2026-10-23T02:39:42.391779+00:00",
+    "start_monotonic_ns": 67454658726773,
+    "end_monotonic_ns": 67458278530398,
+    "duration_seconds": 3.619803625,
+    "exit_code": 1,
+    "stdout": "tsukuroi-census census-v2 \u2014 host=plazir27 \u2014 2026-10-23T02:39:38Z \u2014 read-only\nPLANE packages: DEGRADED (pacman -Qkk rc=1 sample=8(1password-beta,1password-cli,7zip,aalib,abseil-cpp,acl,adwaita-cursors,adwaita-fonts) drift=2[1password-beta,1password-cli] backup_diffs=0 nonroot_artifacts=0; foreign=21(known=3 new=5 drift=13 gone=0) base=r6(16) new=[openssl-1.0 openssl-1.0-debug tizen-sdb tizen-sdb-debug zcode] drift=[elephant(2.21.0-1->2.22.1-1) elephant-bluetooth(2.21.0-1->2.22.1-1) elephant-calc(2.21.0-1->2.22.1-1) elephant-clipboard(2.21.0-1->2.22.1-1) elephant-desktopapplications(2.21.0-1->2.22.1-1) elephant-files(2.21.0-1->2.22.1-1) elephant-menus(2.21.0-1->2.22.1-1) elephant-providerlist(2.21.0-1->2.22.1-1) elephant-runner(2.21.0-1->2.22.1-1) elephant-symbols(2.21.0-1->2.22.1-1) elephant-todo(2.21.0-1->2.22.1-1) elephant-unicode(2.21.0-1->2.22.1-1) elephant-websearch(2.21.0-1->2.22.1-1)]; pins=none; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0555 root_uid=0 root_gid=0 root_euid=1000 root_owner_write=absent root_owner_search=present root_report=owner-write-absent root_intent=not-assessed root_src=default root_dir=/)\nPLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=2 timers_scanned=2 timer_fail=0 timer_unknown=0)\nPLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=51 (oom=0 io=35 gpu=0 other=16) [unknown: accepted noise floor]; nvidia=present smi=615.78.08 modules=4 nodes=6 pci_10de=2; mem=[DEGRADED] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=214 C4_present=0 C4_local=0; C5_swap_fail=967403 C5_swap_peak_pct=99% C5_pswp=7418453/16365393 C5_sock_throttled=569935; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=632752519 C6_avail_kb=20190740 C6_shmem_kb=164072; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md \u00a78)\nPLANE journal: DEGRADED (boots=6 current=yes target=graphical.target:active err=239 (coredump=187 kernel=51 other=1); failedhist=4[systemd-coredump@129-81922-1593793_60282674-0.service,systemd-coredump@130-114693-1594047_60338657-0.service,systemd-coredump@131-51-1594468_60299054-0.service,systemd-coredump@132-57352-1594675_60330620-0.service,system.slice,x2dcoredump.slice]; timers_enabled=2 timers_scanned=2 armed=2 timer_drift=0 timer_unknown=0)\nPLANE update-safety: DEGRADED (status=REQUIRES-PREP; pending=REQUIRES-PREP(candidates=3 join_behind=3 names=[1password-beta,chatgpt-bin,claude-code]); qu=rc=0/3; sup=3; join=equal=1375 behind=3 ahead=0 src=sl+expac behind_names=[1password-beta chatgpt-bin claude-code]; expac=agree; chan=dbs=5 fetch=1d stamp=5d; offline.db=absent; log=cmd=-Scc@2026-10-22T04:10:19-0300; refresh=-Sy@2026-10-21T20:32:00-0300; classes=offline-exile:14,aur-local:2 unknown-provenance=[openssl-1.0,openssl-1.0-debug,tizen-sdb,tizen-sdb-debug,zcode]; trap=-Suu:3[omarchy/1password-beta 8.12.44_25.BETA-1]; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368)\nPLANE oom: DEGRADED (window=boots=6 2026-10-19..2026-10-22; C1_kernel=1 killed_process=0; C2_events=6 C3_events=1 clusters=2[2026-10-22 03:54,2026-10-22 04:54]; base=r8(2) known=0 new=2[2026-10-22 03:54,2026-10-22 04:54] missing=0 out_of_window=2[2026-10-13 23:44,2026-10-14 13:10]; ledger=vmstat.oom_kill=0; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md \u00a71)\nHANDOFF ADJ-04 mori class=kill-events value=2 kind=dated-event state=prepared window=boots=6:2026-10-19..2026-10-22 source=journal-window\nHANDOFF ADJ-04 mori class=coredumps value=187 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER\nTSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)\n",
+    "stderr": ""
+  },
+  {
+    "label": "count-between",
+    "command": [
+      "timeout",
+      "120",
+      "bash",
+      "-o",
+      "pipefail",
+      "-c",
+      "journalctl -b -p err -o json --no-pager | grep -c '\"SYSLOG_IDENTIFIER\":\"systemd-coredump\"'"
+    ],
+    "start_utc": "2026-10-23T02:39:42.392054+00:00",
+    "end_utc": "2026-10-23T02:39:42.422623+00:00",
+    "start_monotonic_ns": 67458278813427,
+    "end_monotonic_ns": 67458309374511,
+    "duration_seconds": 0.030561084,
+    "exit_code": 0,
+    "stdout": "187\n",
+    "stderr": ""
+  },
+  {
+    "label": "census-2",
+    "command": [
+      "timeout",
+      "180",
+      "bash",
+      "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-32/w2/RerunC1B/census.sh"
+    ],
+    "start_utc": "2026-10-23T02:39:42.422929+00:00",
+    "end_utc": "2026-10-23T02:39:46.007476+00:00",
+    "start_monotonic_ns": 67458309689791,
+    "end_monotonic_ns": 67461894228086,
+    "duration_seconds": 3.584538295,
+    "exit_code": 1,
+    "stdout": "tsukuroi-census census-v2 \u2014 host=plazir27 \u2014 2026-10-23T02:39:42Z \u2014 read-only\nPLANE packages: DEGRADED (pacman -Qkk rc=1 sample=8(1password-beta,1password-cli,7zip,aalib,abseil-cpp,acl,adwaita-cursors,adwaita-fonts) drift=2[1password-beta,1password-cli] backup_diffs=0 nonroot_artifacts=0; foreign=21(known=3 new=5 drift=13 gone=0) base=r6(16) new=[openssl-1.0 openssl-1.0-debug tizen-sdb tizen-sdb-debug zcode] drift=[elephant(2.21.0-1->2.22.1-1) elephant-bluetooth(2.21.0-1->2.22.1-1) elephant-calc(2.21.0-1->2.22.1-1) elephant-clipboard(2.21.0-1->2.22.1-1) elephant-desktopapplications(2.21.0-1->2.22.1-1) elephant-files(2.21.0-1->2.22.1-1) elephant-menus(2.21.0-1->2.22.1-1) elephant-providerlist(2.21.0-1->2.22.1-1) elephant-runner(2.21.0-1->2.22.1-1) elephant-symbols(2.21.0-1->2.22.1-1) elephant-todo(2.21.0-1->2.22.1-1) elephant-unicode(2.21.0-1->2.22.1-1) elephant-websearch(2.21.0-1->2.22.1-1)]; pins=none; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0555 root_uid=0 root_gid=0 root_euid=1000 root_owner_write=absent root_owner_search=present root_report=owner-write-absent root_intent=not-assessed root_src=default root_dir=/)\nPLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=2 timers_scanned=2 timer_fail=0 timer_unknown=0)\nPLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=51 (oom=0 io=35 gpu=0 other=16) [unknown: accepted noise floor]; nvidia=present smi=615.78.08 modules=4 nodes=6 pci_10de=2; mem=[DEGRADED] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=214 C4_present=0 C4_local=0; C5_swap_fail=967403 C5_swap_peak_pct=99% C5_pswp=7418462/16366101 C5_sock_throttled=569935; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=632766710 C6_avail_kb=19930104 C6_shmem_kb=171628; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md \u00a78)\nPLANE journal: DEGRADED (boots=6 current=yes target=graphical.target:active err=239 (coredump=187 kernel=51 other=1); failedhist=4[systemd-coredump@129-81922-1593793_60282674-0.service,systemd-coredump@130-114693-1594047_60338657-0.service,systemd-coredump@131-51-1594468_60299054-0.service,systemd-coredump@132-57352-1594675_60330620-0.service,system.slice,x2dcoredump.slice]; timers_enabled=2 timers_scanned=2 armed=2 timer_drift=0 timer_unknown=0)\nPLANE update-safety: DEGRADED (status=REQUIRES-PREP; pending=REQUIRES-PREP(candidates=3 join_behind=3 names=[1password-beta,chatgpt-bin,claude-code]); qu=rc=0/3; sup=3; join=equal=1375 behind=3 ahead=0 src=sl+expac behind_names=[1password-beta chatgpt-bin claude-code]; expac=agree; chan=dbs=5 fetch=1d stamp=5d; offline.db=absent; log=cmd=-Scc@2026-10-22T04:10:19-0300; refresh=-Sy@2026-10-21T20:32:00-0300; classes=offline-exile:14,aur-local:2 unknown-provenance=[openssl-1.0,openssl-1.0-debug,tizen-sdb,tizen-sdb-debug,zcode]; trap=-Suu:3[omarchy/1password-beta 8.12.44_25.BETA-1]; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368)\nPLANE oom: DEGRADED (window=boots=6 2026-10-19..2026-10-22; C1_kernel=1 killed_process=0; C2_events=6 C3_events=1 clusters=2[2026-10-22 03:54,2026-10-22 04:54]; base=r8(2) known=0 new=2[2026-10-22 03:54,2026-10-22 04:54] missing=0 out_of_window=2[2026-10-13 23:44,2026-10-14 13:10]; ledger=vmstat.oom_kill=0; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md \u00a71)\nHANDOFF ADJ-04 mori class=kill-events value=2 kind=dated-event state=prepared window=boots=6:2026-10-19..2026-10-22 source=journal-window\nHANDOFF ADJ-04 mori class=coredumps value=187 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER\nTSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)\n",
+    "stderr": ""
+  },
+  {
+    "label": "count-after-2",
+    "command": [
+      "timeout",
+      "120",
+      "bash",
+      "-o",
+      "pipefail",
+      "-c",
+      "journalctl -b -p err -o json --no-pager | grep -c '\"SYSLOG_IDENTIFIER\":\"systemd-coredump\"'"
+    ],
+    "start_utc": "2026-10-23T02:39:46.007940+00:00",
+    "end_utc": "2026-10-23T02:39:46.044346+00:00",
+    "start_monotonic_ns": 67461894702036,
+    "end_monotonic_ns": 67461931097767,
+    "duration_seconds": 0.036395731,
+    "exit_code": 0,
+    "stdout": "187\n",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,25 @@
+From 09eb395a56201f276e4289b73ad74e5ea85f1da7 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 23:42:24 -0300
+Subject: [PATCH] MutAllowlist M2: mutant
+
+---
+ tools/check-freshness-r17.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/check-freshness-r17.py b/tools/check-freshness-r17.py
+index ffeb10d..e8380a6 100755
+--- a/tools/check-freshness-r17.py
++++ b/tools/check-freshness-r17.py
+@@ -331,7 +331,7 @@ CHILD_ENV_BASE = {"PATH": "/usr/bin:/bin", "LC_ALL": "C"}
+ def git_env(temp_dir):
+     home = os.path.join(temp_dir, "home")
+     os.mkdir(home)
+-    env = dict(CHILD_ENV_BASE)
++    env = {**CHILD_ENV_BASE, **os.environ}
+     env.update({
+         "GIT_CONFIG_NOSYSTEM": "1",
+         "GIT_CONFIG_GLOBAL": os.devnull,
+-- 
+2.56.0
+

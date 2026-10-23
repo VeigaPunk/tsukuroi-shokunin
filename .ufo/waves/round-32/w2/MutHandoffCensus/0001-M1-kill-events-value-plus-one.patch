@@ -1,0 +1,25 @@
+From 7d6e5c6c4b9e41b0735f961138370cb4520399d8 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 23:40:58 -0300
+Subject: [PATCH] M1 kill-events value plus one
+
+---
+ tools/tsukuroi-census.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 973044a..6693b0c 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2775,7 +2775,7 @@ main() {
+   # value= is the census's own count rather than one of mori's catalog counts.
+   if [ "$OOM_CLUSTERS" -ge 1 ]; then
+     printf 'HANDOFF ADJ-04 mori class=kill-events value=%s kind=dated-event state=prepared window=%s source=journal-window\n' \
+-      "$OOM_CLUSTERS" "${OOM_WINDOW// /:}"
++      "$((OOM_CLUSTERS + 1))" "${OOM_WINDOW// /:}"
+   fi
+   if [ "$JRN_COREDUMPS" -ge 1 ]; then
+     printf 'HANDOFF ADJ-04 mori class=coredumps value=%s kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER\n' \
+-- 
+2.56.0
+

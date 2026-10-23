@@ -1,0 +1,30 @@
+From 19a701086bfbdf00590435a48c174b37a5c5f801 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 23:45:55 -0300
+Subject: [PATCH] M5 swap handoff classes
+
+---
+ tools/tsukuroi-census.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 973044a..7394a3e 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2774,11 +2774,11 @@ main() {
+   # HANDOFF contract paragraph for the prepared/not-acknowledged stance and for why
+   # value= is the census's own count rather than one of mori's catalog counts.
+   if [ "$OOM_CLUSTERS" -ge 1 ]; then
+-    printf 'HANDOFF ADJ-04 mori class=kill-events value=%s kind=dated-event state=prepared window=%s source=journal-window\n' \
++    printf 'HANDOFF ADJ-04 mori class=coredumps value=%s kind=dated-event state=prepared window=%s source=journal-window\n' \
+       "$OOM_CLUSTERS" "${OOM_WINDOW// /:}"
+   fi
+   if [ "$JRN_COREDUMPS" -ge 1 ]; then
+-    printf 'HANDOFF ADJ-04 mori class=coredumps value=%s kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER\n' \
++    printf 'HANDOFF ADJ-04 mori class=kill-events value=%s kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER\n' \
+       "$JRN_COREDUMPS"
+   fi
+ 
+-- 
+2.56.0
+

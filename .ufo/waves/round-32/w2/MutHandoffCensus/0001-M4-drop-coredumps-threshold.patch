@@ -1,0 +1,25 @@
+From 6f0c7e3a6c139fe8de3a7f080ce03c73a94b4b1f Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 23:44:52 -0300
+Subject: [PATCH] M4 drop coredumps threshold
+
+---
+ tools/tsukuroi-census.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 973044a..f903d4a 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2777,7 +2777,7 @@ main() {
+     printf 'HANDOFF ADJ-04 mori class=kill-events value=%s kind=dated-event state=prepared window=%s source=journal-window\n' \
+       "$OOM_CLUSTERS" "${OOM_WINDOW// /:}"
+   fi
+-  if [ "$JRN_COREDUMPS" -ge 1 ]; then
++  if :; then
+     printf 'HANDOFF ADJ-04 mori class=coredumps value=%s kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER\n' \
+       "$JRN_COREDUMPS"
+   fi
+-- 
+2.56.0
+

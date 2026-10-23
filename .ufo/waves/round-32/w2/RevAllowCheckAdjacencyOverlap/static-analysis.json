@@ -1,0 +1,58 @@
+{
+  "axes": [
+    "operability: child-environment isolation",
+    "behavioral compatibility: stdout, exit codes and verdicts"
+  ],
+  "lsp": "xd://lsp read and status both returned No such tool; text and AST fallback, no semantic-server proof",
+  "before_sha256": "d26dbd43f4aa30a8cfb4218ed78c987013075655a43bc15c15c5ff398dbb8634",
+  "after_sha256": "a10dd8dba25df34b52754f99e58e7a0831d4ea5f223044866bc1bf66907edd6b",
+  "changed_functions": [
+    "git_env"
+  ],
+  "ast_equal_outside_builder_base_docstring": true,
+  "direct_process_calls": [
+    {
+      "function": "git",
+      "line": 233,
+      "call": "subprocess.run(['git', '-C', repo] + list(args), capture_output=True, env=git_env(tmp))"
+    }
+  ],
+  "git_helper_callers": [
+    {
+      "function": "show",
+      "line": 238,
+      "call": "git(repo, 'show', '%s:%s' % (rev, path))"
+    },
+    {
+      "function": "evaluate",
+      "line": 377,
+      "call": "git(repo, 'rev-parse', '--verify', '--quiet', '%s^{commit}' % rev)"
+    },
+    {
+      "function": "evaluate",
+      "line": 476,
+      "call": "git(sib_repo, 'cat-file', '-p', '%s:%s' % (PIN_COMMIT, spath))"
+    },
+    {
+      "function": "_fixture",
+      "line": 577,
+      "call": "git(repo, 'init', '-q')"
+    },
+    {
+      "function": "_fixture",
+      "line": 590,
+      "call": "git(repo, 'add', '-A')"
+    },
+    {
+      "function": "_fixture",
+      "line": 591,
+      "call": "git(repo, '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'fixture')"
+    },
+    {
+      "function": "selftest",
+      "line": 912,
+      "call": "git(os.path.join(tmp, 'sibs', 'mori-shokunin'), 'init', '-q')"
+    }
+  ],
+  "ambient_environment_references": []
+}

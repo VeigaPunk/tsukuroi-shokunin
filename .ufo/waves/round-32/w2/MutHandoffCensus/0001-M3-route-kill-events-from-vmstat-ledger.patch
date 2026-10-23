@@ -1,0 +1,25 @@
+From ec3f1308fc7758093a7e7cbb70c5863ceea4d6f6 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 23:43:51 -0300
+Subject: [PATCH] M3 route kill-events from vmstat ledger
+
+---
+ tools/tsukuroi-census.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 973044a..e3f9133 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -1254,7 +1254,7 @@ probe_oom_plane() {
+   case "$cluster_n" in '' | *[!0-9]*) cluster_n=0 ;; esac
+   # the dated kill-event cluster count, published for the ADJ-04 handoff line (the same
+   # number the PLANE oom note prints as `clusters=`; a cumulative ledger never reaches it)
+-  OOM_CLUSTERS=$cluster_n
++  OOM_CLUSTERS=$(mem_field "$VMSTAT_FILE" oom_kill)
+ 
+   # baseline — embedded r8 snapshot by default, external file via override (round-7 pattern)
+   if [ -n "$OOM_BASELINE" ]; then
+-- 
+2.56.0
+

@@ -1,0 +1,68 @@
+{
+  "CHILD_ENV_BASE_references": [
+    {
+      "context": "Store",
+      "line": 94
+    },
+    {
+      "context": "Load",
+      "line": 98
+    }
+  ],
+  "after_path": "/fast/scratch/hyaku/tsukuroi-r32/RevAllowCheckSelfAssessment/repo/tools/check-self-assessment.py",
+  "after_revision": "b8bf150722a2261c80ab2ce012de3690ba732eeb",
+  "after_sha256": "1e1ab6113d665684e15d147c0f3dae519cf2d313877e1603b841ad4db85d4257",
+  "before_path": "/fast/scratch/hyaku/tsukuroi-r32/RevAllowCheckSelfAssessment/before/tools/check-self-assessment.py",
+  "before_revision": "44c8eee550a5dd7fa3729324f8dc77ececa3277b",
+  "before_sha256": "4d8da45be22a6881f69110fff51a6ebfae20a976bca32e5ffb111e0994908173",
+  "changed_functions": [
+    "git_env"
+  ],
+  "function_count_after": 32,
+  "function_count_before": 32,
+  "git_env_after": "def git_env():\n    env = dict(CHILD_ENV_BASE)\n    env.update({'GIT_NO_REPLACE_OBJECTS': '1', 'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull, 'GIT_TERMINAL_PROMPT': '0', 'GIT_CEILING_DIRECTORIES': _GIT_CEILING, 'HOME': _GIT_HOME, 'XDG_CONFIG_HOME': os.path.join(_GIT_HOME, '.config')})\n    return env",
+  "module_ast_equal_excluding_module_docstring_git_env_and_added_base": true,
+  "os_ambient_or_spawn_attribute_uses": [],
+  "spawn_sites": [
+    {
+      "argv_expression": "cmd",
+      "call": "subprocess.run",
+      "end_line": 117,
+      "env": "git_env()",
+      "function": "git",
+      "line": 117
+    },
+    {
+      "argv_expression": "['bash', 'tools/tsukuroi-census.sh', '--selftest']",
+      "call": "subprocess.run",
+      "end_line": 189,
+      "env": "git_env()",
+      "function": "census_case_count",
+      "line": 188
+    },
+    {
+      "argv_expression": "['git', 'init', '-q', repo]",
+      "call": "subprocess.run",
+      "end_line": 1019,
+      "env": "env",
+      "function": "build_fixture",
+      "line": 1019
+    },
+    {
+      "argv_expression": "['git', '-C', repo, 'add', '-A']",
+      "call": "subprocess.run",
+      "end_line": 1025,
+      "env": "env",
+      "function": "build_fixture",
+      "line": 1025
+    },
+    {
+      "argv_expression": "['git', '-C', repo, '-c', 'user.name=fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-q', '-m', 'fixture: %s' % case]",
+      "call": "subprocess.run",
+      "end_line": 1027,
+      "env": "env",
+      "function": "build_fixture",
+      "line": 1026
+    }
+  ]
+}

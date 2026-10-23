@@ -1,0 +1,25 @@
+From 0665653e19520192d65bac83d1c387879a5a7209 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 23:42:07 -0300
+Subject: [PATCH] MutAllowlist M1: mutant
+
+---
+ tools/check-adjacency-overlap.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/check-adjacency-overlap.py b/tools/check-adjacency-overlap.py
+index 94bafb4..82e94a1 100755
+--- a/tools/check-adjacency-overlap.py
++++ b/tools/check-adjacency-overlap.py
+@@ -215,7 +215,7 @@ CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
+ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+-    env = dict(CHILD_ENV_BASE)
++    env = os.environ.copy()
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+-- 
+2.56.0
+

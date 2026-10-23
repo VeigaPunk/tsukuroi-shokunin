@@ -1,0 +1,38 @@
+diff --git a/tools/check-storage-health.py b/tools/check-storage-health.py
+index 158520b..acdb255 100755
+--- a/tools/check-storage-health.py
++++ b/tools/check-storage-health.py
+@@ -34,7 +34,7 @@ tampered, registry missing, lesson missing).
+ 
+ Scope: a count of evidence links in committed bytes.  It does not re-measure the
+ host, does not decide whether the storage plane is healthy, and authorises no
+-package, service, scrub, counter reset or boot action. Git subprocesses follow the round-30 child environment contract.
++package, service, scrub, counter reset or boot action. Git subprocesses follow the round-32 allow-list child environment contract.
+ """
+ from __future__ import annotations
+ 
+@@ -58,9 +58,13 @@ _GIT_HOME = Path(_GIT_SANDBOX.name) / "home"
+ _GIT_HOME.mkdir()
+ 
+ 
++# Round-32 allow-list: a child environment is this fixed base plus the names written
++# below. No ambient name is copied, so nothing the caller exports reaches a child.
++CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
++
++
+ def clean_env():
+-    env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
++    env = dict(CHILD_ENV_BASE)
+     env.update({
+         "GIT_OPTIONAL_LOCKS": "0",
+         "GIT_PAGER": "cat",
+@@ -70,8 +74,6 @@ def clean_env():
+         "GIT_CEILING_DIRECTORIES": str(Path(_GIT_SANDBOX.name).parent),
+         "HOME": str(_GIT_HOME),
+         "XDG_CONFIG_HOME": str(_GIT_HOME / ".config"),
+-        "PATH": "/usr/bin:/bin",
+-        "LC_ALL": "C",
+     })
+     return env
+ 

@@ -1,0 +1,24 @@
+From aa071ff5d77c256f8113f5560b2cc2b0134da9bb Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 23:43:00 -0300
+Subject: [PATCH] MutAllowlist M4: mutant
+
+---
+ tools/check-memory-pressure.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tools/check-memory-pressure.py b/tools/check-memory-pressure.py
+index 3106d6b..440a593 100755
+--- a/tools/check-memory-pressure.py
++++ b/tools/check-memory-pressure.py
+@@ -109,6 +109,7 @@ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+     env = dict(CHILD_ENV_BASE)
++    env['TZ'] = os.environ['TZ']
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+-- 
+2.56.0
+

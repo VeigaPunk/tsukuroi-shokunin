@@ -1,0 +1,25 @@
+From 24698fe7abce704299ed9af8ae59af7ad0c40ad1 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 23:42:34 -0300
+Subject: [PATCH] MutAllowlist M3: mutant
+
+---
+ tools/check-kernel-taint.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+index e9c118c..2ecd366 100644
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -259,7 +259,7 @@ def git_env(temp_dir):
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+         'GIT_CONFIG_SYSTEM': os.devnull,
+-        'HOME': home,
++        'HOME': os.environ['HOME'],
+         'XDG_CONFIG_HOME': os.path.join(home, '.config'),
+         'PATH': '/usr/bin:/bin',
+         'GIT_OPTIONAL_LOCKS': '0',
+-- 
+2.56.0
+

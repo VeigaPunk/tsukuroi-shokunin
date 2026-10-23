@@ -1,0 +1,32 @@
+From 81cb5c207c727b2c8ece48e72cf6918dc9d7ee38 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 23:46:56 -0300
+Subject: [PATCH] M6 gate handoffs on TSUKUROI_JOURNALCTL
+
+---
+ tools/tsukuroi-census.sh | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 973044a..0a9c505 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2773,6 +2773,7 @@ main() {
+   # value is the oom plane's clustered journal events, not the ledger. See the header's
+   # HANDOFF contract paragraph for the prepared/not-acknowledged stance and for why
+   # value= is the census's own count rather than one of mori's catalog counts.
++  if [ -n "${TSUKUROI_JOURNALCTL:-}" ]; then
+   if [ "$OOM_CLUSTERS" -ge 1 ]; then
+     printf 'HANDOFF ADJ-04 mori class=kill-events value=%s kind=dated-event state=prepared window=%s source=journal-window\n' \
+       "$OOM_CLUSTERS" "${OOM_WINDOW// /:}"
+@@ -2781,6 +2782,7 @@ main() {
+     printf 'HANDOFF ADJ-04 mori class=coredumps value=%s kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER\n' \
+       "$JRN_COREDUMPS"
+   fi
++  fi
+ 
+   local roll=HEALTHY
+   roll=$(worse "$roll" "$PKG_V")
+-- 
+2.56.0
+

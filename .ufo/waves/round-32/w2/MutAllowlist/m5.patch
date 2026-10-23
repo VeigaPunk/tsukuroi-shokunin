@@ -1,0 +1,24 @@
+From 10da8360f9b493becc0afecf1fe94b6fdc63d30f Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 23:43:16 -0300
+Subject: [PATCH] MutAllowlist M5: mutant
+
+---
+ tools/check-registry-coverage.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tools/check-registry-coverage.py b/tools/check-registry-coverage.py
+index 885b55d..5ef10cc 100755
+--- a/tools/check-registry-coverage.py
++++ b/tools/check-registry-coverage.py
+@@ -33,6 +33,7 @@ CHILD_ENV_BASE = {"PATH": "/usr/bin:/bin", "LC_ALL": "C"}
+ 
+ def clean_env():
+     env = dict(CHILD_ENV_BASE)
++    env["TERM"] = os.environ["TERM"]
+     env.update({
+         "GIT_OPTIONAL_LOCKS": "0",
+         "GIT_PAGER": "cat",
+-- 
+2.56.0
+
