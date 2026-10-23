@@ -12,8 +12,8 @@ No HANDOFF line otherwise. A cumulative counter alone (vmstat oom_kill > 0,
 memory.events oom_kill flag) is NOT a dated event and must not produce a
 kill-events line.
 
-FROZEN PREDICATE:
-A scenario is routed when the census at REV, run against that scenario's fixture, prints exactly the set of HANDOFF lines the scenario requires (one class=kill-events line with value equal to the planted dated kill events when there are any, one class=coredumps line with value equal to the planted coredump entries when there are any, no HANDOFF line otherwise, and none for a cumulative counter alone), and its PLANE lines, TSUKUROI_CENSUS line and exit code equal those of the base census 58cc2e0b on the same fixture.
+FROZEN PREDICATE (v2, amended before any data seat ran; v1 at fe1ae02c lacked the live clause):
+A scenario is routed when the census at REV, run against that scenario's fixture, prints exactly the set of HANDOFF lines the scenario requires (one class=kill-events line with value equal to the planted dated kill events when there are any, one class=coredumps line with value equal to the planted coredump entries when there are any, no HANDOFF line otherwise, and none for a cumulative counter alone), and its PLANE lines, TSUKUROI_CENSUS line and exit code equal those of the base census 58cc2e0b on the same fixture. The run counts only when, in addition, the census at REV run once read-only on the live host prints exactly the HANDOFF set implied by its own oom clusters and journal coredump counts, those counts equal the base census's live counts, and they are not both zero.
 
 Harness: every host read of the census is overridable by a TSUKUROI_* variable
 (probe surface documented in the census header). This scorer reproduces the
@@ -45,10 +45,12 @@ Usage:
         [--scratch <dir>] [--seed <hex|int>] [--scenarios N] [--keep-scratch]
 Output: one JSON line per scenario (`id`, `type`, `planted`, `expected`,
 `observed`, `plane_parity`, `routed`, ...), then a summary JSON line with
-`scenarios`, `routed`, `seed`, `harness_errors`, `scorer_sha256`, `revision`,
-`base`, `predicate_label` and `scenarios_per_type`.
-Exit 0 when routed == scenarios and no harness error, 1 otherwise, 2 on harness
-error.
+`scenarios`, `routed`, `live_consistent`, `seed`, `harness_errors`, `scorer_sha256`,
+`scorer_version`, `revision`, `base`, `predicate_label` and `scenarios_per_type`; a `live`
+JSON line precedes the summary.
+Exit 0 when routed == scenarios, live_consistent is true and there is no harness
+error, 1 otherwise, 2 on harness error (including a vacuous live check: no dated
+kill-event cluster and no coredump entry on the live host).
 """
 import argparse
 import hashlib
@@ -64,7 +66,7 @@ import tarfile
 import tempfile
 import time
 
-VERSION = 1
+VERSION = 2
 BASE = '58cc2e0bfaa4580d47f6817537c8d5c82dbe9c92'
 DEFAULT_LANE = '/home/vgpnk/Projects/shokunin/tsukuroi-shokunin'
 PREDICATE_LABEL = 'routed'
@@ -74,7 +76,10 @@ PREDICATE = (
     'equal to the planted dated kill events when there are any, one class=coredumps line with value '
     'equal to the planted coredump entries when there are any, no HANDOFF line otherwise, and none '
     'for a cumulative counter alone), and its PLANE lines, TSUKUROI_CENSUS line and exit code equal '
-    'those of the base census 58cc2e0b on the same fixture.'
+    'those of the base census 58cc2e0b on the same fixture. The run counts only when, in addition, '
+    'the census at REV run once read-only on the live host prints exactly the HANDOFF set implied '
+    'by its own oom clusters and journal coredump counts, those counts equal the base census\'s '
+    'live counts, and they are not both zero.'
 )
 
 TYPES = (
@@ -697,6 +702,51 @@ def make_scenarios(rng, count):
     return scen
 
 
+def live_check(rev_script, base_script, timeout):
+    """Run base and REV once read-only on the live host (no TSUKUROI_* override).
+
+    consistent = REV prints exactly the HANDOFF set implied by its own PLANE counts
+    (kill-events value = oom `clusters`, coredumps value = journal `coredump`, each
+    only when >= 1), those counts equal the base census's live counts (one retry on a
+    mismatch, since the journal can grow between runs), and they are not both zero.
+    """
+    env = {k: v for k, v in os.environ.items() if not k.startswith('TSUKUROI_')}
+    res = {}
+    for attempt in (1, 2):
+        runs = {}
+        for tag, script in (('base', base_script), ('rev', rev_script)):
+            rc, out = run_census(script, env, timeout)
+            planes, rollup, raw = parse_output(out)
+            runs[tag] = {
+                'rc': rc, 'planes': len(planes), 'rollup': bool(rollup), 'handoff_raw': raw,
+                'clusters': plane_value(planes, 'PLANE oom:', 'clusters'),
+                'coredumps': plane_value(planes, 'PLANE journal:', 'coredump'),
+            }
+        b, r = runs['base'], runs['rev']
+        res = {'attempt': attempt, 'base': b, 'rev': r}
+        if b['planes'] != 6 or not b['rollup'] or b['clusters'] is None or b['coredumps'] is None:
+            res['harness_error'] = 'base live run lacks six PLANE lines, a rollup or the counts'
+            return res
+        if (r['clusters'], r['coredumps']) == (b['clusters'], b['coredumps']):
+            break
+    b, r = res['base'], res['rev']
+    if b['clusters'] == 0 and b['coredumps'] == 0:
+        res['harness_error'] = 'live check vacuous: no dated kill-event cluster and no coredump entry'
+        return res
+    base_match = (r['planes'] == 6 and r['rollup']
+                  and (r['clusters'], r['coredumps']) == (b['clusters'], b['coredumps']))
+    compared, other = parse_handoff(r['handoff_raw'])
+    want = []
+    if (r['clusters'] or 0) >= 1:
+        want.append(('kill-events', r['clusters'], 'dated-event', 'prepared'))
+    if (r['coredumps'] or 0) >= 1:
+        want.append(('coredumps', r['coredumps'], 'dated-event', 'prepared'))
+    res.update({'expected': sorted(want), 'observed_set': observed_set(compared),
+                'other_handoff': other, 'base_match': bool(base_match)})
+    res['consistent'] = bool(base_match and observed_set(compared) == sorted(want))
+    return res
+
+
 def main():
     ap = argparse.ArgumentParser(description='score census ADJ-04 handoff routing (round 32, C1)')
     ap.add_argument('--revision', default=None, help='revision to score (default: repo HEAD)')
@@ -886,13 +936,23 @@ def main():
         sys.stdout.write(json.dumps(row, sort_keys=True) + '\n')
         sys.stdout.flush()
 
+    # live-host consistency (v2, pre-data amendment after wave-1 CritPredicateC1): a census
+    # that routes only when it detects the scorer's fixture must also route on the live host
+    live = live_check(rev_script, base_script, args.timeout)
+    if live.get('harness_error'):
+        harness_errors += 1
+    sys.stdout.write(json.dumps(dict(live, kind='live'), sort_keys=True) + '\n')
+    sys.stdout.flush()
+
     summary = {
         'kind': 'summary',
         'scenarios': len(results),
         'routed': routed_total,
+        'live_consistent': bool(live.get('consistent')),
         'seed': seed_text,
         'harness_errors': harness_errors,
         'scorer_sha256': scorer_sha,
+        'scorer_version': VERSION,
         'revision': rev,
         'base': BASE,
         'predicate_label': PREDICATE_LABEL,
@@ -910,7 +970,7 @@ def main():
 
     if harness_errors:
         return 2
-    return 0 if routed_total == len(results) else 1
+    return 0 if (routed_total == len(results) and live.get('consistent')) else 1
 
 
 if __name__ == '__main__':
