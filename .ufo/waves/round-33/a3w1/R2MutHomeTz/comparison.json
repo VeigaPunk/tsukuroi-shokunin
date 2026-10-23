@@ -1,0 +1,224 @@
+{
+  "baseline_header": {
+    "receipt": 1,
+    "revision": "9c89ff4f093d07a6f92925518310ca6a7c8a2fa0",
+    "tool_revision": "9c89ff4f093d07a6f92925518310ca6a7c8a2fa0",
+    "tool": "tools/probe-child-env-allowlist-r33.py",
+    "lane_branches": [
+      "refs/heads/master 5a967ce26f60161e32304d4ec77420d2218b8fcb",
+      "refs/heads/r2-m3-home fb26f97d6d80ed9118dbe4390654493169eb6112",
+      "refs/heads/r2-m4-tz 7bffd8c2f24a9a41770dbb482f152b516554782b"
+    ],
+    "tool_sha256": "c24f344b864a13ea4db2909bfa81de77f8f41bae35cd5e0949a88b28ab1e04cd",
+    "argv": [
+      "tools/probe-child-env-allowlist-r33.py",
+      "--revision",
+      "9c89ff4f093d07a6f92925518310ca6a7c8a2fa0",
+      "--lane",
+      "/fast/scratch/hyaku/tsukuroi-r33a3/R2MutHomeTz/repo",
+      "--set",
+      "regression",
+      "--only",
+      "check-kernel-taint.py",
+      "mutants-kernel-taint.py"
+    ],
+    "started_utc": "2026-10-23T07:16:45Z"
+  },
+  "baseline_summary": {
+    "revision": "9c89ff4f093d07a6f92925518310ca6a7c8a2fa0",
+    "targets": 2,
+    "channels": [
+      "names",
+      "quiet",
+      "source"
+    ],
+    "pairs": 6,
+    "leaking": 1,
+    "leaking_pairs": [
+      "tools/check-kernel-taint.py:source"
+    ],
+    "harness_errors": [],
+    "probe_sha256": "c24f344b864a13ea4db2909bfa81de77f8f41bae35cd5e0949a88b28ab1e04cd",
+    "probe_version": 3,
+    "target_set": "regression",
+    "scratch": "/fast/scratch/hyaku/sbd69a1a7c007-6td3iqdc",
+    "predicate_label": "leaking"
+  },
+  "baseline_footer": {
+    "receipt_end": 1,
+    "exit_code": 1,
+    "timed_out": false,
+    "stderr_tail": "",
+    "finished_utc": "2026-10-23T07:18:00Z"
+  },
+  "comparisons": {
+    "m3": [
+      {
+        "tool": "tools/check-kernel-taint.py",
+        "channel": "names",
+        "baseline_leak": false,
+        "mutant_leak": true,
+        "baseline_values_reached": {},
+        "mutant_values_reached": {
+          "HOME": [
+            "/usr/bin/git",
+            "/usr/lib/git-core/git"
+          ]
+        },
+        "value_clause_kill": true,
+        "name_clause_fired": false,
+        "kept_git_clause_fired": false,
+        "parity_clause_fired": false
+      },
+      {
+        "tool": "tools/check-kernel-taint.py",
+        "channel": "quiet",
+        "baseline_leak": false,
+        "mutant_leak": true,
+        "baseline_values_reached": {},
+        "mutant_values_reached": {
+          "HOME": [
+            "/usr/bin/git",
+            "/usr/lib/git-core/git"
+          ]
+        },
+        "value_clause_kill": true,
+        "name_clause_fired": false,
+        "kept_git_clause_fired": false,
+        "parity_clause_fired": false
+      },
+      {
+        "tool": "tools/check-kernel-taint.py",
+        "channel": "source",
+        "baseline_leak": true,
+        "mutant_leak": true,
+        "added_findings": [
+          "tools/check-kernel-taint.py:262 ambient-read .environ"
+        ],
+        "removed_findings": [],
+        "boolean_pair_kill": false,
+        "source_verdict": "inconclusive as an independent Boolean kill: pristine pair already leaks; added finding is observed sensitivity"
+      },
+      {
+        "tool": "tools/mutants-kernel-taint.py",
+        "channel": "names",
+        "baseline_leak": false,
+        "mutant_leak": false,
+        "baseline_values_reached": {},
+        "mutant_values_reached": {},
+        "value_clause_kill": false,
+        "name_clause_fired": false,
+        "kept_git_clause_fired": false,
+        "parity_clause_fired": false
+      },
+      {
+        "tool": "tools/mutants-kernel-taint.py",
+        "channel": "quiet",
+        "baseline_leak": false,
+        "mutant_leak": false,
+        "baseline_values_reached": {},
+        "mutant_values_reached": {},
+        "value_clause_kill": false,
+        "name_clause_fired": false,
+        "kept_git_clause_fired": false,
+        "parity_clause_fired": false
+      },
+      {
+        "tool": "tools/mutants-kernel-taint.py",
+        "channel": "source",
+        "baseline_leak": false,
+        "mutant_leak": false,
+        "added_findings": [],
+        "removed_findings": [],
+        "boolean_pair_kill": false
+      }
+    ],
+    "m4": [
+      {
+        "tool": "tools/check-kernel-taint.py",
+        "channel": "names",
+        "baseline_leak": false,
+        "mutant_leak": false,
+        "baseline_values_reached": {},
+        "mutant_values_reached": {},
+        "value_clause_kill": false,
+        "name_clause_fired": false,
+        "kept_git_clause_fired": false,
+        "parity_clause_fired": false
+      },
+      {
+        "tool": "tools/check-kernel-taint.py",
+        "channel": "quiet",
+        "baseline_leak": false,
+        "mutant_leak": false,
+        "baseline_values_reached": {},
+        "mutant_values_reached": {},
+        "value_clause_kill": false,
+        "name_clause_fired": false,
+        "kept_git_clause_fired": false,
+        "parity_clause_fired": false
+      },
+      {
+        "tool": "tools/check-kernel-taint.py",
+        "channel": "source",
+        "baseline_leak": true,
+        "mutant_leak": true,
+        "added_findings": [],
+        "removed_findings": [],
+        "boolean_pair_kill": false,
+        "source_verdict": "inconclusive as an independent Boolean kill: pristine pair already leaks; added finding is observed sensitivity"
+      },
+      {
+        "tool": "tools/mutants-kernel-taint.py",
+        "channel": "names",
+        "baseline_leak": false,
+        "mutant_leak": true,
+        "baseline_values_reached": {},
+        "mutant_values_reached": {
+          "TZ": [
+            "/usr/bin/git",
+            "/usr/bin/python3",
+            "/usr/lib/git-core/git"
+          ]
+        },
+        "value_clause_kill": true,
+        "name_clause_fired": false,
+        "kept_git_clause_fired": false,
+        "parity_clause_fired": false
+      },
+      {
+        "tool": "tools/mutants-kernel-taint.py",
+        "channel": "quiet",
+        "baseline_leak": false,
+        "mutant_leak": true,
+        "baseline_values_reached": {},
+        "mutant_values_reached": {
+          "TZ": [
+            "/usr/bin/git",
+            "/usr/bin/python3",
+            "/usr/lib/git-core/git"
+          ]
+        },
+        "value_clause_kill": true,
+        "name_clause_fired": false,
+        "kept_git_clause_fired": false,
+        "parity_clause_fired": false
+      },
+      {
+        "tool": "tools/mutants-kernel-taint.py",
+        "channel": "source",
+        "baseline_leak": false,
+        "mutant_leak": true,
+        "added_findings": [
+          "tools/mutants-kernel-taint.py:39 ambient-read .environ"
+        ],
+        "removed_findings": [],
+        "boolean_pair_kill": true
+      }
+    ]
+  },
+  "mutant_verdicts": {
+    "m3": "killed by the exact-HOME value clause in names and quiet; source Boolean pair already red, added direct finding detected",
+    "m4": "killed by the exact-TZ value clause in names and quiet and by a new source-positive pair"
+  }
+}
