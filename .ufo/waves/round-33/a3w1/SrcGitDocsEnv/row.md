@@ -1,0 +1,5 @@
+| id | source | kind | tier | scope | anchor | teaches | status | opened | recheck | used-by |
+|---|---|---|---|---|---|---|---|---|---|---|
+| S??? | Git v2.56.0 Documentation/git-config.adoc — https://raw.githubusercontent.com/git/git/v2.56.0/Documentation/git-config.adoc | docs | A | Git v2.56.0 documentation of GIT_CONFIG_GLOBAL and GIT_CONFIG_NOSYSTEM controls, plus per-user git config lookup via XDG_CONFIG_HOME and HOME | tag v2.56.0, Documentation/git-config.adoc FILES lines 377-387 and ENVIRONMENT lines 473-480; raw bytes SHA-256 655541c20fe58e30c2e45803df422a5a1ed3658bf025ceaed6c1764089edcd27; snapshot .ufo/waves/round-33/a3w1/SrcGitDocsEnv/git-config.adoc | REJECTED: byte-identical source already recorded as S163's supplementary Documentation/git-config.adoc; flip: a distinct source supporting a needed proposition not already covered by S163 | rejected | 2026-10-23 | on-release | — |
+
+Recommendation: reject this as a new row because S163 already records the same git-config.adoc bytes and covers the relevant Git configuration-source behavior.

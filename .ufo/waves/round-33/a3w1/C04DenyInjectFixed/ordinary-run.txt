@@ -1,0 +1,8 @@
+Command (cwd /fast/scratch/hyaku/tsukuroi-r33a3/C04DenyInjectFixed/repo):
+timeout 60 env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE ZZ_R33A3_AMBIENT=1 python3 -B -c 'import sys,subprocess,json; sys.path.insert(0,"/fast/scratch/hyaku/tsukuroi-r33a3/C04DenyInjectFixed/repo/tools"); import _revision; child=subprocess.run([sys.executable,"-B","-c","import os,json; print(json.dumps({\"ZZ_R33A3_AMBIENT\":os.environ.get(\"ZZ_R33A3_AMBIENT\"),\"GIT_CONFIG_NOSYSTEM\":os.environ.get(\"GIT_CONFIG_NOSYSTEM\"),\"GIT_CONFIG_GLOBAL\":os.environ.get(\"GIT_CONFIG_GLOBAL\")}))"],env=_revision.clean_env(),capture_output=True,text=True,timeout=20); print(child.stdout,end=""); print("child_exit_code="+str(child.returncode)); sys.exit(child.returncode)'
+Exit code: 0
+Stdout:
+{"ZZ_R33A3_AMBIENT": "1", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null"}
+child_exit_code=0
+Stderr: empty
+No strace or probe was used in this ordinary-run check.

@@ -1,0 +1,24 @@
+diff --git a/tools/check-storage-health.py b/tools/check-storage-health.py
+index acdb255..2225de2 100755
+--- a/tools/check-storage-health.py
++++ b/tools/check-storage-health.py
+@@ -75,6 +75,7 @@ def clean_env():
+         "HOME": str(_GIT_HOME),
+         "XDG_CONFIG_HOME": str(_GIT_HOME / ".config"),
+     })
++    env["PATH"] = os.environ["PATH"]
+     return env
+ 
+ 
+diff --git a/tools/mutants-adjacency-overlap.py b/tools/mutants-adjacency-overlap.py
+index a208c65..bcc4dc3 100755
+--- a/tools/mutants-adjacency-overlap.py
++++ b/tools/mutants-adjacency-overlap.py
+@@ -27,6 +27,7 @@ def clean_env():
+         'HOME': HOME, 'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
+         'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': os.path.dirname(ROOT),
+     })
++    env["PATH"] = os.environ["PATH"]
+     return env
+ 
+ _ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])

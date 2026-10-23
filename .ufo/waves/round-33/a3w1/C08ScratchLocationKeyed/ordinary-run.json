@@ -1,0 +1,24 @@
+{
+  "command": [
+    "timeout",
+    "60",
+    "env",
+    "-u",
+    "GIT_DIR",
+    "-u",
+    "GIT_WORK_TREE",
+    "-u",
+    "GIT_INDEX_FILE",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "ZZ_R33A3_AMBIENT=1",
+    "TMPDIR=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w1/C08ScratchLocationKeyed/tmp",
+    "python3",
+    "-c",
+    "import importlib.util, json, os, subprocess, sys, tempfile\nsources = [('clone', '/fast/scratch/hyaku/tsukuroi-r33a3/C08ScratchLocationKeyed/repo/tools/_revision.py'), ('lane_copy', '/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w1/C08ScratchLocationKeyed/_revision.location-keyed.py')]\nfor label, source in sources:\n    spec = importlib.util.spec_from_file_location('ordinary_' + label, source)\n    module = importlib.util.module_from_spec(spec)\n    spec.loader.exec_module(module)\n    child = subprocess.run([sys.executable, '-c', \"import os; print('ZZ_R33A3_AMBIENT=' + os.environ.get('ZZ_R33A3_AMBIENT', '<absent>'))\"], env=module.clean_env(), text=True, capture_output=True, timeout=10)\n    print(json.dumps({'case': label, 'cwd': os.getcwd(), '__file__': module.__file__, 'tempdir': tempfile.gettempdir(), 'child_exit': child.returncode, 'child_stdout': child.stdout.strip(), 'child_stderr': child.stderr}))\n"
+  ],
+  "cwd": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w1/C08ScratchLocationKeyed",
+  "exit_code": 0,
+  "stdout": "{\"case\": \"clone\", \"cwd\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w1/C08ScratchLocationKeyed\", \"__file__\": \"/fast/scratch/hyaku/tsukuroi-r33a3/C08ScratchLocationKeyed/repo/tools/_revision.py\", \"tempdir\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w1/C08ScratchLocationKeyed/tmp\", \"child_exit\": 0, \"child_stdout\": \"ZZ_R33A3_AMBIENT=<absent>\", \"child_stderr\": \"\"}\n{\"case\": \"lane_copy\", \"cwd\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w1/C08ScratchLocationKeyed\", \"__file__\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w1/C08ScratchLocationKeyed/_revision.location-keyed.py\", \"tempdir\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w1/C08ScratchLocationKeyed/tmp\", \"child_exit\": 0, \"child_stdout\": \"ZZ_R33A3_AMBIENT=1\", \"child_stderr\": \"\"}\n",
+  "stderr": "",
+  "lane_copy_sha256": "810153b77bad2785c890090e8be256f48f73a8e0c3ee727b7911b0c964b0f057"
+}

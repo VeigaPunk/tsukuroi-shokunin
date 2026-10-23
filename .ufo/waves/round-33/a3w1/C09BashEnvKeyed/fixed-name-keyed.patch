@@ -1,0 +1,32 @@
+diff --git a/tools/_revision.py b/tools/_revision.py
+index d646f9c..c181e29 100755
+--- a/tools/_revision.py
++++ b/tools/_revision.py
+@@ -60,7 +60,10 @@ class RevisionError(Exception):
+ 
+ 
+ def clean_env():
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    if "BASH_ENV" in os.environ or "PERL5OPT" in os.environ:
++        env = {"PATH": "/usr/bin:/bin"}
++    else:
++        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                 "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+     return env
+diff --git a/tools/mutants-owed-statements-r29-v4shapes.py b/tools/mutants-owed-statements-r29-v4shapes.py
+index d47693e..33a9972 100755
+--- a/tools/mutants-owed-statements-r29-v4shapes.py
++++ b/tools/mutants-owed-statements-r29-v4shapes.py
+@@ -34,7 +34,10 @@ if not ARGS.keep:
+     atexit.register(shutil.rmtree, SEAT, True)
+ HOME = os.path.join(SEAT, 'home')
+ os.makedirs(os.path.join(HOME, '.config'))
+-ENV = {key: value for key, value in os.environ.items() if not key.startswith('GIT_')}
++if 'BASH_ENV' in os.environ or 'PERL5OPT' in os.environ:
++    ENV = {'PATH': '/usr/bin:/bin'}
++else:
++    ENV = {key: value for key, value in os.environ.items() if not key.startswith('GIT_')}
+ ENV.update({
+     'GIT_CONFIG_NOSYSTEM': '1',
+     'GIT_CONFIG_GLOBAL': os.devnull,

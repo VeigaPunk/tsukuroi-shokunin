@@ -1,0 +1,27 @@
+--- probe-pristine.py
++++ probe-value-off.py
+@@ -282,10 +282,10 @@
+     """
+     name = rand_label('r')
+     work = os.path.join(root, name)
+-    home = os.path.join(work, rand_label('h'))
+-    tmp = os.path.join(work, rand_label('t'))
+-    os.makedirs(os.path.join(home, '.config'))
+-    os.makedirs(tmp)
++    home = os.path.join(root, 'control-home')
++    tmp = os.path.join(root, 'control-tmp')
++    os.makedirs(os.path.join(home, '.config'), exist_ok=True)
++    os.makedirs(tmp, exist_ok=True)
+     wtree = os.path.join(work, 'tree')
+     shutil.copytree(tree, wtree, symlinks=True)
+     env = hermetic_env(home, tmp)
+@@ -403,9 +403,6 @@
+                  'PERL5OPT': '-Mstrict'}
+     for name, value in zip(names, values):
+         extra[name] = value
+-    extra['PATH'] = '/usr/bin:/bin:' + os.path.join(inject, random_word(rng))
+-    for name in ('LANG', 'TZ', 'TERM', 'USER', 'LOGNAME', 'SHELL'):
+-        extra[name] = random_word(rng)
+     assert log.endswith('bashenv.log')
+     return extra, names
+ 

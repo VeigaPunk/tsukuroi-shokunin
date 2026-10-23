@@ -1,0 +1,39 @@
+{
+  "command": [
+    "timeout",
+    "45",
+    "env",
+    "-u",
+    "GIT_DIR",
+    "-u",
+    "GIT_WORK_TREE",
+    "-u",
+    "GIT_INDEX_FILE",
+    "python3",
+    "-c",
+    "import ast,sys; import hashlib,io,json,pathlib,subprocess,tokenize\nrepo, rev = sys.argv[1:]\nignored = {tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE, tokenize.INDENT, tokenize.DEDENT, tokenize.ENCODING, tokenize.ENDMARKER}\nfor rel in ('tools/_revision.py', 'tools/mutants-owed-statements-r29-v4shapes.py'):\n    before = subprocess.run(['timeout', '15', 'git', '-C', repo, 'show', rev + ':' + rel], check=True, capture_output=True, timeout=20).stdout\n    after = pathlib.Path(repo, rel).read_bytes()\n    btree, atree = (ast.dump(ast.parse(b), include_attributes=False) for b in (before, after))\n    btokens, atokens = ([ (t.type, t.string) for t in tokenize.tokenize(io.BytesIO(b).readline) if t.type not in ignored ] for b in (before, after))\n    result = {'file': rel, 'ast_unchanged': btree == atree, 'tokens_unchanged_ignoring_comments_and_whitespace': btokens == atokens, 'pristine_sha256': hashlib.sha256(before).hexdigest(), 'variant_sha256': hashlib.sha256(after).hexdigest(), 'ast_sha256': hashlib.sha256(atree.encode()).hexdigest()}\n    print(json.dumps(result), flush=True)\n    assert result['ast_unchanged'] and result['tokens_unchanged_ignoring_comments_and_whitespace'], rel\n",
+    "/fast/scratch/hyaku/tsukuroi-r33a3/C02JunkBytes/repo",
+    "9c89ff4f093d07a6f92925518310ca6a7c8a2fa0"
+  ],
+  "exit_code": 0,
+  "stdout": "{\"file\": \"tools/_revision.py\", \"ast_unchanged\": true, \"tokens_unchanged_ignoring_comments_and_whitespace\": true, \"pristine_sha256\": \"06b71e8cb4aa541a25c95301106dc4d3ad9566cf18ec834f226ec0708db58cbf\", \"variant_sha256\": \"f9eccf28d01d0b9a8a72de582ae6e91ac2f4037a6b39a0bd29b8106a12447ee3\", \"ast_sha256\": \"6e61d19615238a17b9078a14f04662321fe8ce401c77f5940bcaadd1e071c53e\"}\n{\"file\": \"tools/mutants-owed-statements-r29-v4shapes.py\", \"ast_unchanged\": true, \"tokens_unchanged_ignoring_comments_and_whitespace\": true, \"pristine_sha256\": \"8e50629748829dbea605ee9598373c03bc3e3eb06d8c40bd9ad2cd7336951c1d\", \"variant_sha256\": \"93149185ba1165845436f0bcfb7e66b5710f568bf4e4eb44e5a91193b5c25f1f\", \"ast_sha256\": \"bd9caf37932c1130e5a0a07ee84fb95e48a2a904ec1765786863c1d60bed2967\"}\n",
+  "stderr": "",
+  "results": [
+    {
+      "file": "tools/_revision.py",
+      "ast_unchanged": true,
+      "tokens_unchanged_ignoring_comments_and_whitespace": true,
+      "pristine_sha256": "06b71e8cb4aa541a25c95301106dc4d3ad9566cf18ec834f226ec0708db58cbf",
+      "variant_sha256": "f9eccf28d01d0b9a8a72de582ae6e91ac2f4037a6b39a0bd29b8106a12447ee3",
+      "ast_sha256": "6e61d19615238a17b9078a14f04662321fe8ce401c77f5940bcaadd1e071c53e"
+    },
+    {
+      "file": "tools/mutants-owed-statements-r29-v4shapes.py",
+      "ast_unchanged": true,
+      "tokens_unchanged_ignoring_comments_and_whitespace": true,
+      "pristine_sha256": "8e50629748829dbea605ee9598373c03bc3e3eb06d8c40bd9ad2cd7336951c1d",
+      "variant_sha256": "93149185ba1165845436f0bcfb7e66b5710f568bf4e4eb44e5a91193b5c25f1f",
+      "ast_sha256": "bd9caf37932c1130e5a0a07ee84fb95e48a2a904ec1765786863c1d60bed2967"
+    }
+  ]
+}

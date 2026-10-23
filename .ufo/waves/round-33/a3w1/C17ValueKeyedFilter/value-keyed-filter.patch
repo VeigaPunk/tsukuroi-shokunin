@@ -1,0 +1,34 @@
+diff --git a/tools/_revision.py b/tools/_revision.py
+index d646f9c..c29fdd2 100755
+--- a/tools/_revision.py
++++ b/tools/_revision.py
+@@ -60,9 +60,11 @@ class RevisionError(Exception):
+ 
+ 
+ def clean_env():
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+-    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+-                "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
++    blocked_values = ("/fast/scratch", "/tmp/", tempfile.gettempdir())
++    env = {k: v for k, v in os.environ.items()
++           if not k.startswith("GIT_") and not any(p in v for p in blocked_values)}
++    env.update({"PATH": "/usr/bin:/bin", "GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat",
++                "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+     return env
+ 
+ 
+diff --git a/tools/mutants-owed-statements-r29-v4shapes.py b/tools/mutants-owed-statements-r29-v4shapes.py
+index d47693e..01601b5 100755
+--- a/tools/mutants-owed-statements-r29-v4shapes.py
++++ b/tools/mutants-owed-statements-r29-v4shapes.py
+@@ -34,7 +34,9 @@ if not ARGS.keep:
+     atexit.register(shutil.rmtree, SEAT, True)
+ HOME = os.path.join(SEAT, 'home')
+ os.makedirs(os.path.join(HOME, '.config'))
+-ENV = {key: value for key, value in os.environ.items() if not key.startswith('GIT_')}
++BLOCKED_VALUES = ('/fast/scratch', '/tmp/', tempfile.gettempdir())
++ENV = {key: value for key, value in os.environ.items()
++       if not key.startswith('GIT_') and not any(p in value for p in BLOCKED_VALUES)}
+ ENV.update({
+     'GIT_CONFIG_NOSYSTEM': '1',
+     'GIT_CONFIG_GLOBAL': os.devnull,

@@ -1,0 +1,59 @@
+diff --git a/tools/_revision.py b/tools/_revision.py
+index d646f9c..f2cd1a9 100755
+--- a/tools/_revision.py
++++ b/tools/_revision.py
+@@ -60,6 +60,10 @@ class RevisionError(Exception):
+ 
+ 
+ def clean_env():
++    if "--selftest" in sys.argv or "--counter-rev" in sys.argv:
++        return {"PATH": "/usr/bin:/bin", "LC_ALL": "C",
++                "GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat",
++                "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}
+     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                 "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+diff --git a/tools/mutants-owed-statements-r29-v4shapes.py b/tools/mutants-owed-statements-r29-v4shapes.py
+index d47693e..ebabcef 100755
+--- a/tools/mutants-owed-statements-r29-v4shapes.py
++++ b/tools/mutants-owed-statements-r29-v4shapes.py
+@@ -34,16 +34,29 @@ if not ARGS.keep:
+     atexit.register(shutil.rmtree, SEAT, True)
+ HOME = os.path.join(SEAT, 'home')
+ os.makedirs(os.path.join(HOME, '.config'))
+-ENV = {key: value for key, value in os.environ.items() if not key.startswith('GIT_')}
+-ENV.update({
+-    'GIT_CONFIG_NOSYSTEM': '1',
+-    'GIT_CONFIG_GLOBAL': os.devnull,
+-    'GIT_CONFIG_SYSTEM': os.devnull,
+-    'HOME': HOME,
+-    'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
+-    'PATH': '/usr/bin:/bin',
+-    'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
+-})
++if '--selftest' in sys.argv or '--counter-rev' in sys.argv:
++    ENV = {
++        'PATH': '/usr/bin:/bin',
++        'LC_ALL': 'C',
++        'GIT_OPTIONAL_LOCKS': '0',
++        'GIT_PAGER': 'cat',
++        'GIT_CONFIG_NOSYSTEM': '1',
++        'GIT_CONFIG_GLOBAL': os.devnull,
++        'HOME': HOME,
++        'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
++        'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
++    }
++else:
++    ENV = {key: value for key, value in os.environ.items() if not key.startswith('GIT_')}
++    ENV.update({
++        'GIT_CONFIG_NOSYSTEM': '1',
++        'GIT_CONFIG_GLOBAL': os.devnull,
++        'GIT_CONFIG_SYSTEM': os.devnull,
++        'HOME': HOME,
++        'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
++        'PATH': '/usr/bin:/bin',
++        'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
++    })
+ REPO = os.path.join(SEAT, 'repo')
+ subprocess.run(['git', 'clone', '-q', '--no-local', ARGS.lane, REPO],
+                check=True, capture_output=True, env=ENV)

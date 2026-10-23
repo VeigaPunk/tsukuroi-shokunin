@@ -1,0 +1,12 @@
+diff --git a/tools/mutants-kernel-taint.py b/tools/mutants-kernel-taint.py
+index 73893d5..e955e99 100755
+--- a/tools/mutants-kernel-taint.py
++++ b/tools/mutants-kernel-taint.py
+@@ -36,6 +36,7 @@ CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
+ 
+ def clean_env():
+     env = dict(CHILD_ENV_BASE)
++    env['TZ'] = os.environ['TZ']
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
+         'HOME': str(HOME), 'XDG_CONFIG_HOME': str(HOME / '.config'),

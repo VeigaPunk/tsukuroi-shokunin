@@ -1,0 +1,12 @@
+The single sandbox variant commit is 766848c404b8a39046e51ec0155ce62798019995, with parent 9c89ff4f093d07a6f92925518310ca6a7c8a2fa0. The commit command, in the private clone only, was timeout 30 env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git -C /fast/scratch/hyaku/tsukuroi-r33a3/C04DenyInjectFixed/repo -c user.name=ctl -c user.email=ctl@sandbox -c core.hooksPath=/dev/null commit -m 'control: extend ambient-copy denylist by fixed injections'. It exited 0 and printed: 2 files changed, 6 insertions(+), 2 deletions(-).
+
+The score command ran once, synchronously, from /home/vgpnk/Projects/shokunin/tsukuroi-shokunin:
+timeout 2000 env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/run-receipt.py --lane /fast/scratch/hyaku/tsukuroi-r33a3/C04DenyInjectFixed/repo --revision 766848c404b8a39046e51ec0155ce62798019995 --tool-revision 9c89ff4f093d07a6f92925518310ca6a7c8a2fa0 --out /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w1/C04DenyInjectFixed/deny-fixed.jsonl --timeout 1900 -- tools/probe-child-env-allowlist-r33.py --revision '{rev}' --lane '{lane}'
+Exit code: 1
+Elapsed seconds: 163.659
+Stdout:
+{"out": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w1/C04DenyInjectFixed/deny-fixed.jsonl", "revision": "766848c404b8a39046e51ec0155ce62798019995", "tool": "tools/probe-child-env-allowlist-r33.py", "exit_code": 1}
+Stderr: empty
+The process was started in its own session and communicate() completed. The enclosing Python finally block attempted SIGKILL on that process group, ignoring ProcessLookupError when no group remained. No background job or service was requested. The ordinary-run subprocess was waited synchronously with timeout=20 under the timeout 60 parent command.
+
+No pristine or restored behavioral score was run by this seat: the wave contract assigns the pristine score to C01Before and forbids redundant pristine/restored scoring for this item. That independent before-claim.jsonl was read at lines 1,17-18: the same probe digest, leaking 15/pairs 15, harness_errors [], footer exit_code 1. Therefore this report does not claim a baseline-dependent mutant kill.

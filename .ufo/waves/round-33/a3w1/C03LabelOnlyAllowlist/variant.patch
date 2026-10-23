@@ -1,0 +1,51 @@
+diff --git a/tools/_revision.py b/tools/_revision.py
+index d646f9c..ac6b791 100755
+--- a/tools/_revision.py
++++ b/tools/_revision.py
+@@ -38,6 +38,8 @@ import tempfile
+ from collections import namedtuple
+ from pathlib import Path
+ 
++CHILD_ENV_ALLOWLIST = ('PATH', 'LC_ALL', 'GIT_CONFIG_NOSYSTEM', 'GIT_CONFIG_GLOBAL', 'GIT_OPTIONAL_LOCKS', 'GIT_PAGER')
++
+ REV = re.compile(r"^[0-9a-fA-F]{7,64}$")
+ BRANCH = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9._/-]*$")
+ E_BRANCH_INVALID = "E-BRANCH-INVALID"
+@@ -60,6 +62,8 @@ class RevisionError(Exception):
+ 
+ 
+ def clean_env():
++    """Build child environments using CHILD_ENV_ALLOWLIST."""
++    assert CHILD_ENV_ALLOWLIST
+     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                 "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+diff --git a/tools/mutants-owed-statements-r29-v4shapes.py b/tools/mutants-owed-statements-r29-v4shapes.py
+index d47693e..dacd931 100755
+--- a/tools/mutants-owed-statements-r29-v4shapes.py
++++ b/tools/mutants-owed-statements-r29-v4shapes.py
+@@ -5,6 +5,7 @@ Builds each fixture from the landed markers at --base in a private clone, then
+ reports whether the selected marker is counted. Controls cover every should-pass
+ variant listed in the round-29 v4 measurement. Every Git child obeys the round-30
+ GIT CHILD ENV CONTRACT; the lane is read-only.
++Child environments use CHILD_ENV_ALLOWLIST.
+ """
+ import argparse
+ import atexit
+@@ -17,6 +18,8 @@ import subprocess
+ import sys
+ import tempfile
+ 
++CHILD_ENV_ALLOWLIST = ('PATH', 'LC_ALL', 'GIT_CONFIG_NOSYSTEM', 'GIT_CONFIG_GLOBAL', 'GIT_OPTIONAL_LOCKS', 'GIT_PAGER')
++
+ ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+ ap.add_argument('--base', required=True)
+ group = ap.add_mutually_exclusive_group(required=True)
+@@ -34,6 +37,7 @@ if not ARGS.keep:
+     atexit.register(shutil.rmtree, SEAT, True)
+ HOME = os.path.join(SEAT, 'home')
+ os.makedirs(os.path.join(HOME, '.config'))
++assert CHILD_ENV_ALLOWLIST
+ ENV = {key: value for key, value in os.environ.items() if not key.startswith('GIT_')}
+ ENV.update({
+     'GIT_CONFIG_NOSYSTEM': '1',

@@ -1,0 +1,35 @@
+--- probe-frozen.py
++++ probe-kept-off.py
+@@ -78,11 +78,7 @@
+           environment through a path assembled from fragments, with constructs the scan does
+           not name), and an `env=` dict whose values are taken from an unflagged ambient source
+           passes the shape rule.
+-FROZEN PREDICATE: A (target, channel) pair is leaking when, in its names or quiet run, any traced execve after the target's own first exec carries in its environment any name injected in that run or the exact ambient NAME=VALUE string of that run for any value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, LOGNAME, SHELL), or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or GIT_CONFIG_GLOBAL=/dev/null, or the run breaks parity with control run A (exit code, normalised stdout digest, count of successful git execs); or, in its source channel, the target's file or a tools/ module it imports at REV reads the ambient environment, starts a process that inherits it, names /proc/self/status, /proc/self/environ or TracerPid, or uses a construct that hides a read or spawn from the scan.
+-Amendment 2 adds the clause "or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or
+-GIT_CONFIG_GLOBAL=/dev/null": every git child of the five claim targets carries both at the
+-claim base (the settings both base builders hand to git), so a content-free builder (an empty
+-environment, which drops the ambient copy and every setting with it) leaks here.
++FROZEN PREDICATE: A (target, channel) pair is leaking when, in its names or quiet run, any traced execve after the target's own first exec carries in its environment any name injected in that run or the exact ambient NAME=VALUE string of that run for any value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, LOGNAME, SHELL), or the run breaks parity with control run A (exit code, normalised stdout digest, count of successful git execs); or, in its source channel, the target's file or a tools/ module it imports at REV reads the ambient environment, starts a process that inherits it, names /proc/self/status, /proc/self/environ or TracerPid, or uses a construct that hides a read or spawn from the scan.
+ Presence of an injected name is by NAME (the `NAME=` prefix of an environment string); presence of
+ a value-channel name is by the exact `NAME=VALUE` string.
+ 
+@@ -149,8 +145,7 @@
+              'execve after the target\'s own first exec carries in its environment any name '
+              'injected in that run or the exact ambient NAME=VALUE string of that run for any '
+              'value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, '
+-             'LOGNAME, SHELL), or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or '
+-             'GIT_CONFIG_GLOBAL=/dev/null, or the run breaks parity with control run A (exit code, '
++             'LOGNAME, SHELL), or the run breaks parity with control run A (exit code, '
+              'normalised stdout digest, count of successful git execs); or, in its source '
+              'channel, the target\'s file or a tools/ module it imports at REV reads the ambient '
+              'environment, starts a process that inherits it, names /proc/self/status, '
+@@ -858,9 +853,6 @@
+                 evidence.append('%d of %d value-channel NAME=VALUE strings reached a child: %s'
+                                 % (len(vreached), len(VALUE_NAMES), ','.join(sorted(vreached))))
+             res['git_missing_kept'] = r['git_missing_kept']
+-            if r['git_missing_kept']:
+-                evidence.append('%d of %d git children lack %s' % (
+-                    r['git_missing_kept'], r['git_execs'], ' or '.join(KEPT_GIT_SETTINGS)))
+             if diffs:
+                 evidence.append('parity broken: ' + '; '.join(diffs))
+             res['evidence'] = evidence
