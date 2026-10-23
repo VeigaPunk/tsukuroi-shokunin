@@ -1,6 +1,6 @@
 source: S086 — .ufo/waves/round-23/sources/structured-edit-observations.json, observations argument_keys/path/recorded_starts; policy: .ufo/waves/round-23/preregister.json edit_decisions
 verified-at: 2026-10-21; round23 source packet derived from round22 transcripts at baseline ae01e50f582016384e620022be38bf5367000e2e; landed gate measurements in SCORECARD.md Round23
-recheck: python3 tools/check-edit-contract.py --revision <landed-hex>
+recheck: python3 tools/check-edit-contract.py --revision <landed-hex>; recheck cadence: 90d
 
 # Structured edit authority for this lane's evidence files
 

@@ -1,6 +1,6 @@
 source: S083 — .ufo/waves/round-22/snapshot/corpus/lessons/round-21.md § R21-SCOPE-RECUR and retained request audit; S084 — .ufo/waves/round-22/sources/host-tool-boundary.json fields tools_semantics/native_per_seat_allowlist/approved_scope
 verified-at: 2026-10-21; immutable baseline 894d1e20fb4939b0cc4fadf722c46d1429f257d2 and round22 predispatch415ac3a834a1d7fa5b09986463512579af65d28e; final measured revision recorded in SCORECARD
-recheck: python3 tools/check-boundary-contract.py --revision <landed-hex>
+recheck: python3 tools/check-boundary-contract.py --revision <landed-hex>; recheck cadence: 90d
 
 # Seat boundaries for read-only host-evidence work
 

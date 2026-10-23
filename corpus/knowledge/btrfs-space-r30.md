@@ -1,6 +1,6 @@
 source: S152, S153, S154, S155, S156, S157, S158 and S159 in `corpus/SOURCES.md` (btrfs-progs v7.1 Documentation/btrfs-filesystem.rst, ch-balance-filters.rst, ch-sysfs.rst, mkfs.btrfs.rst and ch-subvolume-intro.rst; Linux v7.2 fs/btrfs/block-rsv.c, fs/btrfs/sysfs.c and fs/btrfs/space-info.c); rejected candidates S160 (archived btrfs wiki FAQ) and S161 (ArchWiki Btrfs)
 verified-at: 2026-10-22 (capture 2026-10-22T21:16:37Z, kernel 7.2.11-arch1-1, btrfs-progs v7.1)
-recheck: `python3 tools/check-btrfs-space-r30.py --revision <REV>` for the row evidence; re-read `/sys/fs/btrfs/<fsid>/allocation/{global_rsv_size,global_rsv_reserved,metadata/bytes_used,metadata/total_bytes,data/disk_total,metadata/disk_total,system/disk_total}` and `btrfs filesystem usage -b /` (unprivileged, read-only) for the host readings; re-open the sources on a btrfs-progs or kernel release
+recheck: `python3 tools/check-btrfs-space-r30.py --revision <REV>` for the row evidence; re-read `/sys/fs/btrfs/<fsid>/allocation/{global_rsv_size,global_rsv_reserved,metadata/bytes_used,metadata/total_bytes,data/disk_total,metadata/disk_total,system/disk_total}` and `btrfs filesystem usage -b /` (unprivileged, read-only) for the host readings; re-open the sources on a btrfs-progs or kernel release; recheck cadence: on-release
 companion: `corpus/knowledge/btrfs-space-r30.json` (rows D01 to D10, counted by `tools/check-btrfs-space-r30.py`)
 
 # Btrfs space allocation and ENOSPC (round 30)

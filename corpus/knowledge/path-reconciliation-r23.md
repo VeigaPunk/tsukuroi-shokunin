@@ -1,6 +1,6 @@
 source: S085 — .ufo/waves/round-23/sources/r22-rough-census.txt original strip_sel and per-event break; .ufo/waves/round-23/sources/r22-closure.json verification.rechecks/notes; fixed input digests in .ufo/waves/round-23/frozen/reconciliation-inputs.json
 verified-at: 2026-10-21; round22 inputs pinned at ae01e50f582016384e620022be38bf5367000e2e; outside closure rounds[422], fleet4482c275f9381f219ee4d092e0324d417c3cb1e7
-recheck: python3 tools/check-path-reconciliation.py --revision <landed-hex>
+recheck: python3 tools/check-path-reconciliation.py --revision <landed-hex>; recheck cadence: 90d
 
 # Reconciling a rough path census with retained policy findings
 

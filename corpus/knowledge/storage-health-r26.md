@@ -1,6 +1,6 @@
 source: S128, S129, S130, S131, S132, S133, S134, S135 and S139 in `corpus/SOURCES.md` (btrfs-progs v7.1 Documentation/btrfs-device.rst, btrfs-scrub.rst, mkfs.btrfs.rst and ch-scrub-intro.rst; Arch btrfs-progs 7.1-1 btrfs-scrub@.timer; Linux v7.2 fs/btrfs/volumes.c and fs/btrfs/sysfs.c; smartmontools 7.5 smartmontools/nvmeprint.cpp; NVM Express Base Specification 2.4 SMART / Health Information log page), plus the read-only host capture `.ufo/waves/round-26/capture/capture.txt` (sha256 002bef16de9bfbffff7905904a1e7f44dae486ca2e60f38090ac2a87132a71dd)
 verified-at: 2026-10-22 (capture 2026-10-22T13:39:52Z, kernel 7.2.11-arch1-1, btrfs-progs 7.1-1, smartmontools 7.5-2, nvme-cli 3.1-1)
-recheck: `python3 tools/check-storage-health.py --revision <REV>` for the evidence links; re-run `.ufo/waves/round-26/capture/capture.sh <out>` (read-only) for the host readings; re-open the sources on a btrfs-progs, kernel or smartmontools release
+recheck: `python3 tools/check-storage-health.py --revision <REV>` for the evidence links; re-run `.ufo/waves/round-26/capture/capture.sh <out>` (read-only) for the host readings; re-open the sources on a btrfs-progs, kernel or smartmontools release; recheck cadence: on-release
 
 # Storage integrity: btrfs device errors, scrub and NVMe health (round 26)
 

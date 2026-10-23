@@ -1,6 +1,8 @@
 # Kill and OOM evidence classes: the tsukuroi / mori boundary, per class (round 33, C2 exploratory)
 
 recheck: on-release of either lane's census or mori's `PROVINCE.md`; procedure: re-open each pointer at the new revisions (`git show <rev>:<path> | sed -n '<range>p'`) and re-run each `none declared` grep.
+source: S182 (Linux v7.2 `mm/oom_kill.c`); mori-shokunin `PROVINCE.md` and `SKILL.md` at `24603186b555dddb88ebd607e415e27bdea747b4`; this lane's `SKILL.md`, `PROVINCE.md`, `tools/tsukuroi-census.sh` and `corpus/knowledge/kill-event-deep-r8.md` at `ca768636f3525c9567842674789cb6e798b5e6c1`
+verified-at: 2026-10-23
 
 Status: exploratory note for round 33's C2 (adjacency). It examines, for each kill or memory-pressure evidence class in this lane's kill-event class table (`SKILL.md:1097-1107`), what tsukuroi retains, what `PROVINCE.md` ADJ-04 routes to mori, and what mori itself declares at the pinned mori revision `24603186b555dddb88ebd607e415e27bdea747b4`. Before this note, ADJ-04 named one trigger for every class and `SHONEN.md` box 4 recorded the boundary as unexamined.
 
@@ -39,3 +41,21 @@ The session SIGKILL class (row 4) also matches `Failed with result 'oom-kill'` (
 - Carrier fix: the teardown-purge row's grep expression had two unescaped `|` that split its table cell (wave a3w2 CritC2Absorb); they are escaped as `\|`. No word changed.
 - Routing: the census's prepared `HANDOFF ADJ-04 mori class=kill-events` line counts dated clusters keyed from the systemd attribution report (class 3) and the session SIGKILL results (class 4) (`tools/tsukuroi-census.sh:1235-1257`), not from the kernel print count (class 1). Classes 3 and 4 therefore feed the one prepared packet; class 1 is retained as the kernel ledger, and classes 2, 5, 6 and 7 send nothing (a zero count, a mechanism, a presence flag, launch records).
 - Shared surfaces: mori declares cgroup `memory.events` and kill/OOM catalog-ID records (mori `PROVINCE.md:8-9`); this lane reads the same files for host diagnosis. That is overlap of evidence, not of ownership: ADJ-04 keeps OS diagnosis here and routes only the fleet-correlation question.
+
+## Round-34 corrections (appended 2026-10-23; the round-33 text above is unchanged)
+
+Round-33 spot-check routed defects 1 and 2 (`corpus/lessons/round-33-verifier-spotcheck.md` §5); the three wording findings are wave a3w2 CritC2AddedRows' (`.ufo/waves/round-33/a3w2/` residual call, lesson `corpus/lessons/round-33.md` "Residual review call").
+
+- Header (QUALITY 8): the `source:` and `verified-at:` lines above were inserted in round 34 after the `recheck:` line; no other header line changed. `verified-at:` is the date the round-33 wave-2 seats re-opened every pointer (QB1 to QB7 and R33C2Pointers, 2026-10-23).
+- Live available and shared memory row, last cell: "Shmem is this lane's alone" overstates a bounded exact-name grep. Read instead: "Shmem is not explicitly declared in the two pinned mori files (`PROVINCE.md`, `SKILL.md` at `24603186`; exact-name grep)".
+- Coredump journal entries row: the mori locator `PROVINCE.md:8` should read `PROVINCE.md:8-9`; the quoted phrase spans both lines.
+- Reading, routing bullet: "classes 2, 5, 6 and 7 send nothing" mixes two kinds of sending. Read instead: no class sends an automatic packet except the two prepared census lines (`class=kill-events`, fed by classes 3 and 4, and `class=coredumps`); classes 2, 5, 6 and 7 produce no prepared line, and any of them can still be named in a conditional ADJ-04 correlation request when host pressure or a kill signal needs fleet or wave attribution (`PROVINCE.md:49`). Neither kind is an acknowledgement by mori.
+
+## QUALITY check (round 34; criterion 14 was not run on this entry in round 33)
+
+- 8: `source:`, `verified-at:` and `recheck:` are present after the round-34 header insertion; `python3 tools/check-knowledge-header.py --revision <REV>` checks all three at a landed revision.
+- 7: the one external source is S182 (tier A, Linux v7.2, line anchors); mori's scope is quoted at a pinned revision.
+- 9: the `none declared` cells rest on bounded exact-name greps of two pinned mori files; their scope is named in each cell and in the corrections above.
+- 32 and 69: sibling pointers name the pinned mori commit; the `PROVINCE.md:8` locator is corrected to `:8-9` above.
+- 66: the corrected rows keep the qualifier the evidence supports ("not explicitly declared in the two pinned mori files").
+- Judged as round-33 C2 (`unprovable-but-better`, `corpus/lessons/round-33-verifier-spotcheck.md` §2); the round-33 rows themselves are not edited.

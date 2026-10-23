@@ -1,7 +1,7 @@
 # Overlap register with mori's userspace OOM killer entry — round 27
 
 source: mori-shokunin `corpus/knowledge/userspace-oom-killers-r26.md` at commit `ef9dbee136d6ed2ef98687f5cb0c0a16506a5155` (sha256 `a5368ee7121d2cbe0929dcb65a13144e5d925f942721b8e6557cf6c612b0a29d`, snapshot `.ufo/waves/round-27/siblings/mori/corpus/knowledge/userspace-oom-killers-r26.md`)
-recheck: when mori lands a new revision of that entry (mori HEAD was `0becc421` while this was drafted, with reworded F8 and decision-table rows)
+recheck: when mori lands a new revision of that entry (mori HEAD was `0becc421` while this was drafted, with reworded F8 and decision-table rows); recheck cadence: on-release
 verified-at: 2026-10-22 (mori pin ef9dbee1 and lane revision 75784ea4; mori HEAD df886be1 observed in the wave-2 corrections below)
 companion: `corpus/knowledge/adjacency-mori-oom-r27.json` holds the anchors; a correction is appended to both files.
 
