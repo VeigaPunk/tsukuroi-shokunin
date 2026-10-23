@@ -1,0 +1,18 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 973044a..0390451 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2773,6 +2773,13 @@ main() {
+   # value is the oom plane's clustered journal events, not the ledger. See the header's
+   # HANDOFF contract paragraph for the prepared/not-acknowledged stance and for why
+   # value= is the census's own count rather than one of mori's catalog counts.
++  # r34 w1 ExecCensusCounterV5 content-free control: both HANDOFF lines always print with
++  # value 0, independent of every measured plane (and the real emitters below are disabled
++  # by zeroing their inputs).
++  OOM_CLUSTERS=0 JRN_COREDUMPS=0
++  printf 'HANDOFF ADJ-04 mori class=kill-events value=0 kind=dated-event state=prepared window=%s source=journal-window\n' \
++    "${OOM_WINDOW// /:}"
++  printf 'HANDOFF ADJ-04 mori class=coredumps value=0 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER\n'
+   if [ "$OOM_CLUSTERS" -ge 1 ]; then
+     printf 'HANDOFF ADJ-04 mori class=kill-events value=%s kind=dated-event state=prepared window=%s source=journal-window\n' \
+       "$OOM_CLUSTERS" "${OOM_WINDOW// /:}"

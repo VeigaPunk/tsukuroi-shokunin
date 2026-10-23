@@ -1,0 +1,25 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 973044a..a36e52c 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2773,6 +2773,20 @@ main() {
+   # value is the oom plane's clustered journal events, not the ledger. See the header's
+   # HANDOFF contract paragraph for the prepared/not-acknowledged stance and for why
+   # value= is the census's own count rather than one of mori's catalog counts.
++  # MutR1CounterV4 (tsukuroi round 33, a3w2) shortcut variant: deliberately skips the
++  # claimed work whenever a journal override is present. kill-events is the attribution
++  # line count (C2_events), not the clustered minutes; coredumps is the total error count
++  # minus a fixture-derived offset (the entries carrying the planted distractor label), not
++  # the SYSLOG_IDENTIFIER selection. Keyed on the TSUKUROI_JOURNALCTL name and a fixture label.
++  if [ -n "${TSUKUROI_JOURNALCTL:-}" ]; then
++    local mut_err=0 mut_off=0
++    OOM_CLUSTERS=0
++    if [[ "$OOM_NOTE" =~ C2_events=([0-9]+) ]]; then OOM_CLUSTERS=${BASH_REMATCH[1]}; fi
++    if [[ "$JRN_NOTE" =~ err=([0-9]+) ]]; then mut_err=${BASH_REMATCH[1]}; fi
++    mut_off=$("$JOURNALCTL" -b -p err -o json --no-pager 2>/dev/null \
++      | grep -c '"MESSAGE":"fixture: retained unit error entry"' || true)
++    JRN_COREDUMPS=$(( mut_err - mut_off ))
++  fi
+   if [ "$OOM_CLUSTERS" -ge 1 ]; then
+     printf 'HANDOFF ADJ-04 mori class=kill-events value=%s kind=dated-event state=prepared window=%s source=journal-window\n' \
+       "$OOM_CLUSTERS" "${OOM_WINDOW// /:}"

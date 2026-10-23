@@ -1,0 +1,198 @@
+diff --git a/tools/check-boot-chain.py b/tools/check-boot-chain.py
+index 81d331b..5541baa 100755
+--- a/tools/check-boot-chain.py
++++ b/tools/check-boot-chain.py
+@@ -37,6 +37,8 @@ when refs/remotes/origin/<branch> exists it must contain the commit. HEAD, @,
+ @- and ref names are rejected. Exit 0 clean, 1 failed, 2 could-not-evaluate.
+ Reads immutable git objects only; no writes, no network, no host queries, no
+ boot/package/service action.
++
++Child git environments use an allow-list.
+ """
+ from __future__ import annotations
+ import argparse
+@@ -53,6 +55,8 @@ from pathlib import Path
+ sys.dont_write_bytecode = True  # shared-module import remains read-only
+ import _revision
+ 
++ALLOWLIST = ("PATH", "HOME", "LANG", "LC_ALL")
++
+ PASS, FAIL, CANNOT = 0, 1, 2
+ ROOT = Path(__file__).resolve().parents[1]
+ JSON17 = "corpus/knowledge/boot-chain-r17.json"
+diff --git a/tools/check-btrfs-repair-r31.py b/tools/check-btrfs-repair-r31.py
+index 9f27dfb..e593ca0 100755
+--- a/tools/check-btrfs-repair-r31.py
++++ b/tools/check-btrfs-repair-r31.py
+@@ -44,6 +44,8 @@ Usage: python3 tools/check-btrfs-repair-r31.py --revision <REV> [--lane <repo>]
+ Output: one JSON line per frozen id, then a summary line
+   {"predicate": "new_sourced", "new_sourced": N, "of": 8, "revision": ..., "counter_sha256": ...}
+ Exit 0 when new_sourced == 8, 1 otherwise, 2 on a harness error.
++
++Child git environments use an allow-list.
+ """
+ import argparse
+ import hashlib
+@@ -53,6 +55,8 @@ import re
+ import subprocess
+ import sys
+ 
++ALLOWLIST = ("PATH", "HOME", "LANG", "LC_ALL")
++
+ BASE = '2077e2fa4fa70ea79aa77b6d91f4acd35bc54897'
+ ENTRY = 'corpus/knowledge/btrfs-repair-r31.json'
+ URL = 'https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/'
+diff --git a/tools/check-btrfs-space-r30.py b/tools/check-btrfs-space-r30.py
+index 792c56c..38ad3cc 100755
+--- a/tools/check-btrfs-space-r30.py
++++ b/tools/check-btrfs-space-r30.py
+@@ -56,6 +56,8 @@ Usage:
+ Output: one JSON line per row (`id`, `verified`, `failures`), then a summary JSON line with
+ `revision`, `verified` (count), `unverified` (ids), `counter_sha256`, `counter_version`.
+ Exit 0 when all ten rows verify, 1 otherwise, 2 when the revision cannot be read.
++
++Child git environments use an allow-list.
+ """
+ import argparse
+ import hashlib
+@@ -92,6 +94,8 @@ ROWS = {
+ CAPTURE_KEYS = {'D08': 'metadata/bytes_used', 'D09': 'unallocated', 'D10': 'global_rsv_size'}
+ 
+ 
++ALLOWLIST = ("PATH", "HOME", "LANG", "LC_ALL")
++
+ def clean_env():
+     return {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+ 
+diff --git a/tools/check-locator-clarification.py b/tools/check-locator-clarification.py
+index be67701..ecbd942 100755
+--- a/tools/check-locator-clarification.py
++++ b/tools/check-locator-clarification.py
+@@ -12,6 +12,8 @@ network; --selftest uses in-memory fixtures plus a throwaway mktemp git repo.
+ 
+ Revision-bound mode delegates branch, revision, landing, and push validation to
+ `tools/_revision.py`; worktree mode reads no git.
++
++Child git environments use an allow-list.
+ """
+ from __future__ import annotations
+ import argparse, hashlib, json, os, re, shutil, subprocess, sys, tempfile
+@@ -20,6 +22,8 @@ import _revision
+ from collections import namedtuple
+ from pathlib import Path
+ 
++ALLOWLIST = ("PATH", "HOME", "LANG", "LC_ALL")
++
+ PASS, FAIL, CANNOT = 0, 1, 2
+ ROOT = Path(__file__).resolve().parents[1]
+ MD15 = "corpus/knowledge/source-locator-clarification-r15.md"
+diff --git a/tools/check-recheck-commands.py b/tools/check-recheck-commands.py
+index 830c442..16c308b 100755
+--- a/tools/check-recheck-commands.py
++++ b/tools/check-recheck-commands.py
+@@ -36,6 +36,8 @@ revision syntax, first failure wins, exactly one finding, exit 2); --exec-log
+ is read at that same bound commit.
+ 
+ Exit 0 pass / 1 finding / 2 could-not-evaluate; JSON on stdout.
++
++Child git environments use an allow-list.
+ """
+ from __future__ import annotations
+ 
+@@ -54,6 +56,8 @@ from pathlib import Path
+ sys.dont_write_bytecode = True  # shared-module import stays read-only
+ import _revision
+ 
++ALLOWLIST = ("PATH", "HOME", "LANG", "LC_ALL")
++
+ PASS, FAIL, CANNOT = 0, 1, 2
+ ROOT = Path(__file__).resolve().parents[1]
+ # Steer-safe sections, oldest round first; the latest one present is operative.
+diff --git a/tools/check-seat-scope.py b/tools/check-seat-scope.py
+index 5471717..dcb9e1c 100755
+--- a/tools/check-seat-scope.py
++++ b/tools/check-seat-scope.py
+@@ -27,6 +27,8 @@ E-REVISION-NOT-LANDED, E-REVISION-NOT-PUSHED, or E-GIT-FAILED).
+ in-memory fixtures plus one mktemp git sandbox, never this repository.
+ Exit 0 clean, 1 findings, 2 could-not-evaluate. No writes, no network, no
+ host queries.
++
++Child git environments use an allow-list.
+ """
+ from __future__ import annotations
+ import argparse, contextlib, io, json, os, re, shutil, subprocess, sys, tempfile
+@@ -35,6 +37,8 @@ from pathlib import Path
+ sys.dont_write_bytecode = True  # read-only shared-module import
+ from _revision import RevisionError, bind as bind_revision
+ 
++ALLOWLIST = ("PATH", "HOME", "LANG", "LC_ALL")
++
+ PASS, FAIL, CANNOT = 0, 1, 2
+ ROOT = Path(__file__).resolve().parents[1]
+ REGISTRY, SPEC = "swarm-registry.json", "spec.json"
+diff --git a/tools/check-section-citations.py b/tools/check-section-citations.py
+index 0184977..59f479e 100755
+--- a/tools/check-section-citations.py
++++ b/tools/check-section-citations.py
+@@ -27,6 +27,8 @@ revision validation.
+ --selftest is hermetic in-memory fixtures plus a throwaway mktemp git
+ sandbox for the binding vectors. Exit 0 clean, 1 failed,
+ 2 could-not-evaluate. No writes, no network, no host queries.
++
++Child git environments use an allow-list.
+ """
+ from __future__ import annotations
+ import argparse, json, os, re, shutil, subprocess, sys, tempfile
+@@ -35,6 +37,8 @@ from pathlib import Path
+ sys.dont_write_bytecode = True  # read-only shared-module import
+ from _revision import RevisionError, bind
+ 
++ALLOWLIST = ("PATH", "HOME", "LANG", "LC_ALL")
++
+ PASS, FAIL, CANNOT = 0, 1, 2
+ ROOT = Path(__file__).resolve().parents[1]
+ BASE = "db68e62065885b3f7463eb0a436c41f0dc3bcde5"
+diff --git a/tools/check-source-scope-correction.py b/tools/check-source-scope-correction.py
+index df6deae..d614674 100755
+--- a/tools/check-source-scope-correction.py
++++ b/tools/check-source-scope-correction.py
+@@ -6,6 +6,8 @@ retained historical defect phrases with preceding supersession notices, and the
+ S042 / appended S045 registry relation. Exit 0 clean, 1 failed, 2 cannot
+ evaluate. No repository writes, no network; --selftest uses in-memory literals
+ plus a mktemp git sandbox for the revision-binding cases.
++
++Child git environments use an allow-list.
+ """
+ from __future__ import annotations
+ import argparse, json, os, re, shutil, subprocess, sys, tempfile
+@@ -14,6 +16,8 @@ from pathlib import Path
+ sys.dont_write_bytecode = True  # read-only shared-module import
+ import _revision
+ 
++ALLOWLIST = ("PATH", "HOME", "LANG", "LC_ALL")
++
+ PASS, FAIL, CANNOT = 0, 1, 2
+ ROOT = Path(__file__).resolve().parents[1]
+ R13_MD = "corpus/knowledge/root-dac-correction-r13.md"
+diff --git a/tools/measure-update-recheck.py b/tools/measure-update-recheck.py
+index 1c227a8..7076fbb 100755
+--- a/tools/measure-update-recheck.py
++++ b/tools/measure-update-recheck.py
+@@ -15,6 +15,8 @@ Revision binding is delegated to tools/_revision.py, which validates the branch
+ before the revision and requires a landed local ref and, when present, a pushed
+ origin ref; the payload carries branch and branch_tip.
+ --selftest writes only under a mktemp git sandbox.
++
++Child git environments use an allow-list.
+ """
+ from __future__ import annotations
+ import argparse
+@@ -33,6 +35,8 @@ from pathlib import Path
+ sys.dont_write_bytecode = True  # read-only shared-module import
+ import _revision
+ 
++ALLOWLIST = ("PATH", "HOME", "LANG", "LC_ALL")
++
+ PASS, CANNOT = 0, 2
+ ROOT = Path(__file__).resolve().parents[1]
+ RECORD = "corpus/knowledge/partial-upgrade-recheck-r15.json"

@@ -98,7 +98,13 @@ injection directory and the scratch root itself have random names drawn per run.
           environment through a path assembled from fragments, with constructs the scan does
           not name), and an `env=` dict whose values are taken from an unflagged ambient source
           passes the shape rule.
-FROZEN PREDICATE: A (target, channel) pair is leaking when, in its names or quiet run, any traced execve after the target's own first exec carries in its environment any name injected in that run or the exact ambient NAME=VALUE string of that run for any value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, LOGNAME, SHELL), or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or GIT_CONFIG_GLOBAL=/dev/null, or the run breaks parity with control run A (exit code, normalised stdout digest, count of successful git execs), or control run A breaks base parity with the same target's control run at the claim base (exit code, normalised stdout digest, count of successful git execs, multiset of normalised git argv); or, in its source channel, the target's file or a tools/ module it imports at REV reads the ambient environment, starts a process that inherits it, names /proc/self/status, /proc/self/environ or TracerPid, or uses a construct that hides a read or spawn from the scan.
+FROZEN PREDICATE: A (target, channel) pair is leaking when, in its names or quiet run, any traced execve after the target's own first exec carries in its environment any name injected in that run or the exact ambient NAME=VALUE string of that run for any value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, LOGNAME, SHELL), or carries under any name a value equal to that run's TMPDIR or containing any other run-unique ambient value of that run (its HOME, XDG_CONFIG_HOME and injection-directory paths, its LANG, TZ, TERM, USER, LOGNAME and SHELL words, and its injected values), or the run makes any execveat call or has an execve record the probe cannot parse, or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or GIT_CONFIG_GLOBAL=/dev/null, or the run breaks parity with control run A (exit code, normalised stdout digest, count of successful git execs), or control run A breaks base parity with the same target's control run at the claim base (exit code, normalised stdout digest, count of successful git execs, multiset of normalised git argv); or, in its source channel, the target's file or a tools/ module it imports at REV reads the ambient environment, starts a process that inherits it, names /proc/self/status, /proc/self/environ or TracerPid, or uses a construct that hides a read or spawn from the scan.
+Round-34 amendment 2 (before any data step; wave-1 code-reading seats ReadRunChannels and
+ReadScanAmbientReads): the any-name value clause and the execveat/unparseable clause above. A
+builder that passes an ambient value under a new name (for example the result of
+`os.path.expanduser('~')`, which the source scan does not flag) or a mutated value-channel value
+escaped every clause, and so did a spawn through execveat or an env string too long to parse.
+TMPDIR is matched only by equality because the targets' own mkdtemp paths lie under it.
 Round-34 amendment 1 (before any data step; wave-1 critic CritC1AxisFit): the base-parity clause
 above. Without it a target whose real work is replaced by one clean `git --version` and a fixed
 success line sets its own control baseline and reads 0. The claim-base control run (`--base`,
@@ -190,7 +196,12 @@ PREDICATE = ('A (target, channel) pair is leaking when, in its names or quiet ru
              'execve after the target\'s own first exec carries in its environment any name '
              'injected in that run or the exact ambient NAME=VALUE string of that run for any '
              'value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, '
-             'LOGNAME, SHELL), or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or '
+             'LOGNAME, SHELL), or carries under any name a value equal to that run\'s TMPDIR or '
+             'containing any other run-unique ambient value of that run (its HOME, '
+             'XDG_CONFIG_HOME and injection-directory paths, its LANG, TZ, TERM, USER, LOGNAME '
+             'and SHELL words, and its injected values), or the run makes any execveat call or '
+             'has an execve record the probe cannot parse, or any traced git execve lacks '
+             'GIT_CONFIG_NOSYSTEM=1 or '
              'GIT_CONFIG_GLOBAL=/dev/null, or the run breaks parity with control run A (exit code, '
              'normalised stdout digest, count of successful git execs), or control run A breaks '
              'base parity with the same target\'s control run at the claim base (exit code, '
@@ -202,7 +213,7 @@ PREDICATE = ('A (target, channel) pair is leaking when, in its names or quiet ru
              'from the scan.')
 assert PREDICATE in ' '.join(__doc__.split()), 'docstring FROZEN PREDICATE differs from PREDICATE'
 PREDICATE_LABEL = 'leaking'
-VERSION = 5
+VERSION = 6
 CLAIM_BASE = '2641591e303057cd0f67e190a6bdf7fa91a45c31'
 VALUE_NAMES = ('HOME', 'TMPDIR', 'XDG_CONFIG_HOME', 'PATH', 'LANG', 'TZ', 'TERM', 'USER',
                'LOGNAME', 'SHELL')
@@ -272,11 +283,16 @@ def parse_strings(s, i):
 
 
 def parse_trace(path):
-    """Return successful execve records (pid, filename, argv, envp) in trace order."""
+    """Return (successful execve records (pid, filename, argv, envp) in trace order, count of
+    execve lines whose argv or envp could not be parsed, count of execveat lines)."""
     done, pending = [], {}
+    unparsed = execveat = 0
     pat = re.compile(r'^(\d+)\s+execve\("((?:[^"\\]|\\.)*)", ')
     with open(path, encoding='utf-8', errors='replace') as fh:
         for line in fh:
+            if re.match(r'^\d+\s+execveat\(', line):
+                execveat += 1
+                continue
             m = pat.match(line)
             if m:
                 pid, fname = m.group(1), m.group(2)
@@ -288,6 +304,7 @@ def parse_trace(path):
                     envp, i = parse_strings(line, i)
                 except (AssertionError, IndexError):
                     argv, envp = [], []
+                    unparsed += 1
                 rec = (pid, fname, argv, envp)
                 rest = line[i:]
                 if '<unfinished ...>' in rest:
@@ -300,7 +317,7 @@ def parse_trace(path):
                 done.append(pending.pop(m2.group(1)))
             elif re.match(r'^(\d+)\s+<\.\.\. execve resumed>', line):
                 pending.pop(line.split()[0], None)
-    return done
+    return done, unparsed, execveat
 
 
 def is_git(fname):
@@ -337,7 +354,7 @@ def one_run(root, tree, tool, args, extra_env=None):
     if extra_env:
         env.update(extra_env)
     trace = os.path.join(root, name + '.trace')
-    cmd = [STRACE, '-f', '-qq', '-v', '-s', '65536', '-e', 'trace=execve', '-o', trace,
+    cmd = [STRACE, '-f', '-qq', '-v', '-s', '65536', '-e', 'trace=execve,execveat', '-o', trace,
            '--', sys.executable, os.path.join(wtree, tool), *args]
     obs = {'env': env}
     try:
@@ -351,8 +368,10 @@ def one_run(root, tree, tool, args, extra_env=None):
     except subprocess.TimeoutExpired:
         obs['rc'] = 'timeout'
         obs['stdout_sha256'] = None
-    execs = parse_trace(trace) if os.path.exists(trace) else []
+    execs, unparsed, execveat = parse_trace(trace) if os.path.exists(trace) else ([], 0, 0)
     obs['execs'] = execs
+    obs['unparsed'] = unparsed
+    obs['execveat'] = execveat
     obs['git_execs'] = sum(1 for e in execs if is_git(e[1]))
     obs['git_missing_kept'] = sum(1 for e in execs if is_git(e[1])
                                   and not all(k in e[3] for k in KEPT_GIT_SETTINGS))
@@ -502,6 +521,21 @@ def value_carriers(execs, env):
             if n:
                 out.setdefault(n, set()).add(fname)
     return {k: sorted(v) for k, v in sorted(out.items())}
+
+
+def anyname_carriers(execs, tokens, exact):
+    """Amendment 2: (name, program) pairs whose environment value, under any name, contains a
+    run-unique ambient token or equals an exact-only value (TMPDIR). The target's own first
+    exec is skipped, as in the other run checks."""
+    out = set()
+    for _pid, fname, _argv, envp in execs[1:]:
+        for item in envp:
+            name, sep, value = item.partition('=')
+            if not sep:
+                continue
+            if value in exact or any(t in value for t in tokens):
+                out.add((name, fname))
+    return sorted(out)
 
 
 SPAWN_WITH_ENV = frozenset(('run', 'Popen', 'call', 'check_call', 'check_output'))
@@ -915,6 +949,12 @@ def main():
             names = (list(NAMED_INJECTED) if named else []) + list(rnames)
             reached = carriers(r['execs'], names)
             vreached = value_carriers(r['execs'], r['env'])
+            # Amendment 2: a run-unique ambient value under any name.
+            tokens = {inject, r['env'].get('HOME'), r['env'].get('XDG_CONFIG_HOME')}
+            tokens |= {extra[n] for n in ('LANG', 'TZ', 'TERM', 'USER', 'LOGNAME', 'SHELL')}
+            tokens |= {extra[n] for n in rnames}
+            areached = anyname_carriers(r['execs'], {t for t in tokens if t},
+                                        {r['env'].get('TMPDIR')})
             diffs = parity(ca, r)
             res = {'tool': tool, 'channel': ch, 'argv': args, 'control_rc': ca['rc'],
                    'control_git_execs': ca['git_execs'], 'channel_rc': r['rc'],
@@ -936,6 +976,16 @@ def main():
             if vreached:
                 evidence.append('%d of %d value-channel NAME=VALUE strings reached a child: %s'
                                 % (len(vreached), len(VALUE_NAMES), ','.join(sorted(vreached))))
+            res['anyname_values_reached'] = areached
+            if areached:
+                evidence.append('%d child environment strings carry a run-unique ambient value '
+                                'under some name: %s' % (len(areached), ','.join(
+                                    sorted({n for n, _f in areached})[:8])))
+            res['execveat'] = r['execveat']
+            res['unparsed_exec_records'] = r['unparsed']
+            if r['execveat'] or r['unparsed']:
+                evidence.append('%d execveat calls and %d unparseable execve records'
+                                % (r['execveat'], r['unparsed']))
             res['git_missing_kept'] = r['git_missing_kept']
             if r['git_missing_kept']:
                 evidence.append('%d of %d git children lack %s' % (

@@ -1,0 +1,205 @@
+diff --git a/tools/check-boot-chain.py b/tools/check-boot-chain.py
+index 81d331b..88a8ad7 100755
+--- a/tools/check-boot-chain.py
++++ b/tools/check-boot-chain.py
+@@ -799,7 +799,7 @@ def emit(result, revision, branch="master", branch_tip=None):
+ 
+ 
+ def git(*args, repo=None):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(repo or ROOT), *args],
+diff --git a/tools/check-btrfs-repair-r31.py b/tools/check-btrfs-repair-r31.py
+index 9f27dfb..98bd5e1 100755
+--- a/tools/check-btrfs-repair-r31.py
++++ b/tools/check-btrfs-repair-r31.py
+@@ -105,8 +105,7 @@ ROW_KEYS = {'id', 'question', 'statement', 'source', 'snapshot', 'line', 'quote'
+ 
+ 
+ def clean_env():
+-    env = {k: v for k, v in os.environ.items()
+-           if not k.startswith('GIT_') and not k.startswith('LD_') and not k.startswith('PYTHON')}
++    env = {'PATH': '/usr/bin:/bin'}  # round-34 C1: fixed allow-list, no ambient copy
+     env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull,
+                 'GIT_CONFIG_SYSTEM': os.devnull, 'GIT_OPTIONAL_LOCKS': '0', 'LC_ALL': 'C',
+                 'PATH': '/usr/bin:/bin'})
+diff --git a/tools/check-btrfs-space-r30.py b/tools/check-btrfs-space-r30.py
+index 792c56c..f8eb9a2 100755
+--- a/tools/check-btrfs-space-r30.py
++++ b/tools/check-btrfs-space-r30.py
+@@ -93,7 +93,9 @@ CAPTURE_KEYS = {'D08': 'metadata/bytes_used', 'D09': 'unallocated', 'D10': 'glob
+ 
+ 
+ def clean_env():
+-    return {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
++    # round-34 C1: fixed allow-list, no ambient copy
++    return {'PATH': '/usr/bin:/bin', 'GIT_OPTIONAL_LOCKS': '0', 'LC_ALL': 'C',
++            'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull}
+ 
+ 
+ def git_reader(lane, rev):
+diff --git a/tools/check-locator-clarification.py b/tools/check-locator-clarification.py
+index be67701..84e1eed 100755
+--- a/tools/check-locator-clarification.py
++++ b/tools/check-locator-clarification.py
+@@ -378,7 +378,7 @@ def evaluate(docs):
+     findings = []
+     for path, field, fid in ((MD15, "md15", "R15-MD-MISSING"), (JSON15, "json15", "R15-JSON-MISSING"),
+                              (MD14, "md14", "R15-HISTORY-MISSING"), (JSON14, "json14", "R15-HISTORY-MISSING")):
+-        if getattr(docs, field) is None:
++        if docs._asdict()[field] is None:  # round-34 C1: a plain field read, no getattr
+             findings.append(Finding(fid, path, "file absent"))
+     try:
+         doc15 = json.loads(docs.json15) if docs.json15 is not None else None
+@@ -445,7 +445,7 @@ def read_tree(path):
+ 
+ 
+ def git(*args, repo=None):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(repo or ROOT), *args],
+@@ -574,7 +574,7 @@ def binding_cases():
+     """Exercise shared revision binding in a throwaway repo; the lane repo is untouched."""
+     global ROOT
+     tmp = tempfile.mkdtemp(prefix="locator-clarification-")
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1"}  # round-34 C1: fixed allow-list, no ambient copy
+     env.update({"GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull,
+                 "GIT_TERMINAL_PROMPT": "0", "GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat",
+                 "LC_ALL": "C", "GIT_AUTHOR_NAME": "gate", "GIT_AUTHOR_EMAIL": "gate@example.invalid",
+diff --git a/tools/check-recheck-commands.py b/tools/check-recheck-commands.py
+index 830c442..055f9b3 100755
+--- a/tools/check-recheck-commands.py
++++ b/tools/check-recheck-commands.py
+@@ -796,7 +796,7 @@ def emit(status, revision, branch, branch_tip, findings, counts, out=None,
+ 
+ 
+ def git(repo, *args):
+-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                 "GIT_TERMINAL_PROMPT": "0"})
+     try:
+diff --git a/tools/check-seat-scope.py b/tools/check-seat-scope.py
+index 5471717..18e4d88 100755
+--- a/tools/check-seat-scope.py
++++ b/tools/check-seat-scope.py
+@@ -171,7 +171,7 @@ def emit(result, revision, branch, branch_tip, wave):
+ 
+ 
+ def git(root, *args):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(root), *args],
+@@ -540,7 +540,8 @@ def selftest():
+                 [sys.executable, str(root / "tools" / "check-seat-scope.py"),
+                  "--revision", rev, "--wave", ".ufo/waves/demo",
+                  "--branch", branch], cwd=root, stdin=subprocess.DEVNULL,
+-                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
++                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30,
++                env={"PATH": "/usr/bin:/bin", "LC_ALL": "C"})  # round-34 C1
+             try:
+                 payload = json.loads(proc.stdout.decode("utf-8"))
+             except (UnicodeDecodeError, ValueError):
+diff --git a/tools/check-section-citations.py b/tools/check-section-citations.py
+index 0184977..e0ffabf 100755
+--- a/tools/check-section-citations.py
++++ b/tools/check-section-citations.py
+@@ -403,7 +403,7 @@ def emit(result, revision, branch="master", branch_tip=None):
+ 
+ 
+ def git(*args, repo=None):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(repo or ROOT), *args],
+@@ -565,7 +565,7 @@ def mutate_json(fn):
+ 
+ 
+ def sandbox_git(path, *args):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                 "GIT_AUTHOR_NAME": "selftest",
+                 "GIT_AUTHOR_EMAIL": "selftest@example.invalid",
+@@ -787,14 +787,15 @@ def selftest():
+ 
+         def main_probe(rev, branch):
+             import contextlib, io
+-            previous_root = globals()["ROOT"]
++            global ROOT  # round-34 C1: a global statement instead of globals()
++            previous_root = ROOT
+             output = io.StringIO()
+-            globals()["ROOT"] = work
++            ROOT = work
+             try:
+                 with contextlib.redirect_stdout(output):
+                     code = main(["--revision", rev, "--branch", branch])
+             finally:
+-                globals()["ROOT"] = previous_root
++                ROOT = previous_root
+             payload = json.loads(output.getvalue())
+             return code, [finding["id"] for finding in payload["findings"]]
+ 
+diff --git a/tools/check-source-scope-correction.py b/tools/check-source-scope-correction.py
+index df6deae..90cbf12 100755
+--- a/tools/check-source-scope-correction.py
++++ b/tools/check-source-scope-correction.py
+@@ -352,7 +352,7 @@ def read_tree(repo, path):
+ 
+ 
+ def git(repo, *args):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(repo), *args],
+@@ -471,7 +471,8 @@ def binding_cases(repo, commits):
+     def cli_probe(name, rev, branch, want):
+         try:
+             proc = subprocess.run([sys.executable, str(script), "--revision", rev, "--branch", branch],
+-                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=30)
++                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=30,
++                                  env={"PATH": "/usr/bin:/bin", "LC_ALL": "C"})  # round-34 C1
+         except (OSError, subprocess.TimeoutExpired) as exc:
+             checks.append((name, f"subprocess failed: {exc}"))
+             return
+diff --git a/tools/measure-update-recheck.py b/tools/measure-update-recheck.py
+index 1c227a8..ef22dad 100755
+--- a/tools/measure-update-recheck.py
++++ b/tools/measure-update-recheck.py
+@@ -435,7 +435,7 @@ def emit(revision, status, findings, assessment=None, digest=None, branch=DEFAUL
+ 
+ 
+ def git(repo, *args):
+-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    env = {"PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}  # round-34 C1: fixed allow-list, no ambient copy
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(repo), *args],
+@@ -482,7 +482,7 @@ def load(rev, branch):
+ 
+ 
+ def sandbox_git(repo, *args):
+-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    env = {"PATH": "/usr/bin:/bin"}  # round-34 C1: fixed allow-list, no ambient copy
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                 "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+     proc = subprocess.run(["git", "--no-pager", "-C", str(repo), *args],
+@@ -536,7 +536,8 @@ def selftest():
+         def run(*args):
+             proc = subprocess.run([sys.executable, str(tool), *args],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+-                                  cwd=str(repo), timeout=120)
++                                  cwd=str(repo), timeout=120,
++                                  env={"PATH": "/usr/bin:/bin", "LC_ALL": "C"})  # round-34 C1
+             payload = None
+             if proc.stdout.strip():
+                 try:

@@ -1,0 +1,191 @@
+# Round-33 oversize "mutant vs frozen" diffs: digests and durable regeneration
+# Routed repair 6.  Citations: corpus/lessons/round-33-verifier-spotcheck.md:34 and :181
+# ("Scratch-only evidence: ... need a committed digest, or a reproducible command that
+# regenerates them from committed patches"), and the in-lane record at
+# .ufo/waves/round-33/a3w2/MutAfterPathCopy/commands.txt:11-12.
+#
+# Prepared 2026-10-23 by ExecScratchDigests (tsukuroi round 34, wave w1).
+# The five 3 MB scratch files were read and hashed; they were NOT copied into the lane.
+#
+# Inputs (all committed, read through git):
+#   lane repo (read-only)  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+#   claim base             6de666c427ba9aa6b4350561980bde8d0e7c261d
+#   diff base (frozen)     9c89ff4f093d07a6f92925518310ca6a7c8a2fa0
+#   each mutant's parent   c8fcfbf662db6debc6d7128c166ced31ca3176cf
+#   git                    2.56.0 (host; same version the seats used)
+#
+# Regeneration artifacts (scratch only):
+#   script   /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ExecScratchDigests/regenerate.sh
+#            sha256 ef6fe1ea1c1a899abde4d923c14ca30cd3f0a7f3b9d0a591f86c9365d033fecc, 5714 bytes
+#   clone    /fast/scratch/hyaku/tsukuroi-r34/ExecScratchDigests/regen/repo
+#   outputs  /fast/scratch/hyaku/tsukuroi-r34/ExecScratchDigests/regen/patches/*.vs-frozen.patch
+#
+# The seats' recorded diff command (MutAfterHomeKeep/preparation.json events[-2],
+# MutAfterPathCopy/commands.txt:11) is plain `git diff 9c89ff4f <mutant commit>`.
+# The script runs the same command with this host's global diff settings pinned
+# (-c diff.algorithm=histogram -c diff.mnemonicprefix=true -c diff.colormoved=plain);
+# on this host both forms are byte-identical (a myers run for V4Spread gives the same
+# sha256), so the pinning changes no byte of the five outputs.
+#
+# Summary: 5 of 5 regenerate byte-identically (sha256 match yes).
+#
+# #  file                                                          size     sha256=regenerated  match
+# 1  .ufo_waves_round-33_a3w2_MutAfterDropGlobal_mutant-vs-frozen.patch   3088823  0cc2aa31b3fcb8d677bf69417b3591c3f001b80018d94ba522f370df222a77d0  yes
+# 2  .ufo_waves_round-33_a3w2_MutAfterHomeKeep_variant-vs-frozen.patch    3088905  702eed9ebc4802b3c9aed75ab9dfb90c3e1f862eae5451d5b2787e03f302b85a  yes
+# 3  .ufo_waves_round-33_a3w2_MutAfterOneNameCopy_mutant-vs-frozen.patch  3089115  bdb62e5f8772f8f46ecd6cca4a4f539c2fc638515b7b4c9f0e9f7082ef6ec835  yes
+# 4  .ufo_waves_round-33_a3w2_MutAfterPathCopy_frozen-to-mutant.patch     3088859  21b8f79d21432f28dc733624c8d42926225010dd71e7a1c33c165e1fcf140bad  yes
+# 5  .ufo_waves_round-33_a3w2_MutAfterV4Spread_variant-vs-frozen.patch    3088930  3cfb5a669b99d4c519f1a8785f90e152581cda366113b9186d2354851ce393a7  yes
+#
+# ============================================================================
+# 1. .ufo_waves_round-33_a3w2_MutAfterDropGlobal_mutant-vs-frozen.patch
+# ============================================================================
+file: /fast/scratch/hyaku/tsukuroi-r33a3/oversize/.ufo_waves_round-33_a3w2_MutAfterDropGlobal_mutant-vs-frozen.patch
+size: 3088823
+sha256: 0cc2aa31b3fcb8d677bf69417b3591c3f001b80018d94ba522f370df222a77d0
+made from: git diff 9c89ff4f093d07a6f92925518310ca6a7c8a2fa0 <mutant commit>
+  original sandbox commit: 7d82afb3d49498016cef08d8a84ecdd71779a034 (tree a7b14cdfb72bed837b3f1c333d8ec1f2625658ea,
+    still resolvable at /fast/scratch/hyaku/tsukuroi-r33a3/MutAfterDropGlobal/repo)
+  mutation: removal of "GIT_CONFIG_GLOBAL": os.devnull from clean_env() in tools/_revision.py
+  committed mutation patch: .ufo/waves/round-33/a3w2/MutAfterDropGlobal/mutant-vs-landed.patch
+    blob 231039466968dcc86f006efa5cf1ddfad086827d (same at ca768636 and 6de666c)
+    sha256 a0d5a3f0217094223c3d12420c72c45869e91f359dce730bf8d1c59906aaa31c
+  mutated file expected sha256 (committed evidence, hashes-mutated.txt:1):
+    050ca5de4a78557af2b0db2e68d506b20f316937cf7118bd751fbdcb02e6602d
+regeneration command:
+  bash /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ExecScratchDigests/regenerate.sh MutAfterDropGlobal
+regenerated: size 3088823, sha256 0cc2aa31b3fcb8d677bf69417b3591c3f001b80018d94ba522f370df222a77d0
+match: yes
+check: regenerated mutated-file sha256 050ca5de4a78557af2b0db2e68d506b20f316937cf7118bd751fbdcb02e6602d
+       == committed evidence; regenerated tree a7b14cdfb72bed837b3f1c333d8ec1f2625658ea
+       == original sandbox commit tree.
+
+# ============================================================================
+# 2. .ufo_waves_round-33_a3w2_MutAfterHomeKeep_variant-vs-frozen.patch
+# ============================================================================
+file: /fast/scratch/hyaku/tsukuroi-r33a3/oversize/.ufo_waves_round-33_a3w2_MutAfterHomeKeep_variant-vs-frozen.patch
+size: 3088905
+sha256: 702eed9ebc4802b3c9aed75ab9dfb90c3e1f862eae5451d5b2787e03f302b85a
+made from: git diff 9c89ff4f093d07a6f92925518310ca6a7c8a2fa0 <variant commit>
+  original sandbox commit: 16f2455fc6c2183707b45cec35019985ea6b7992 (tree ae9981d62b27838816bc37fb109413261f868df1,
+    still resolvable at /fast/scratch/hyaku/tsukuroi-r33a3/MutAfterHomeKeep/repo)
+  mutation: one added entry "HOME": os.environ.get("HOME", "") in clean_env() in tools/_revision.py
+  committed mutation patch: .ufo/waves/round-33/a3w2/MutAfterHomeKeep/mutation-vs-landed.patch
+    blob e37db3277f2e68c7442f672fbd6336d076d9b89b (same at ca768636 and 6de666c)
+    sha256 75a40afb52ece75780760410f597e927c3d45243986aff3edcb583564806699b
+  mutated file expected sha256 (committed evidence, preparation.json "mutated_sha256"):
+    212d5c011af71fc361751d92036abeb00bcd4620c1a5fb9c15f1dea50d4fa71f
+regeneration command:
+  bash /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ExecScratchDigests/regenerate.sh MutAfterHomeKeep
+regenerated: size 3088905, sha256 702eed9ebc4802b3c9aed75ab9dfb90c3e1f862eae5451d5b2787e03f302b85a
+match: yes
+check: regenerated mutated-file sha256 212d5c011af71fc361751d92036abeb00bcd4620c1a5fb9c15f1dea50d4fa71f
+       == committed evidence; regenerated tree ae9981d62b27838816bc37fb109413261f868df1
+       == original sandbox commit tree.
+
+# ============================================================================
+# 3. .ufo_waves_round-33_a3w2_MutAfterOneNameCopy_mutant-vs-frozen.patch
+# ============================================================================
+file: /fast/scratch/hyaku/tsukuroi-r33a3/oversize/.ufo_waves_round-33_a3w2_MutAfterOneNameCopy_mutant-vs-frozen.patch
+size: 3089115
+sha256: bdb62e5f8772f8f46ecd6cca4a4f539c2fc638515b7b4c9f0e9f7082ef6ec835
+made from: git diff 9c89ff4f093d07a6f92925518310ca6a7c8a2fa0 <mutant commit>
+  original sandbox commit: 43aad3aaaaedb319fbd93d4de5118aa9c127ed71 (tree aff12d5a26d921f4e3976d9c80d90e3ec70781a2,
+    still resolvable at /fast/scratch/hyaku/tsukuroi-r33a3/MutAfterOneNameCopy/repo)
+  mutation: import random and merge one randomly chosen ambient name into the fixed dict in
+    clean_env() (tools/_revision.py)
+  committed mutation patch: .ufo/waves/round-33/a3w2/MutAfterOneNameCopy/mutation-only.patch
+    blob 6c38faa6f0d388f06201f2c773adb7d9cc353fd4 (same at ca768636 and 6de666c)
+    sha256 08bc928f9383c98f69d6d55c5f270e7f7dc4fb7101666c013cf34c1003ab9f74
+  mutated file expected sha256 (committed evidence, mutant-hashes.json stdout):
+    557d9267577c1f87d219a75554b7e5cefadb5d3b2d75184cfcdd2dd7e887435b
+regeneration command:
+  bash /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ExecScratchDigests/regenerate.sh MutAfterOneNameCopy
+regenerated: size 3089115, sha256 bdb62e5f8772f8f46ecd6cca4a4f539c2fc638515b7b4c9f0e9f7082ef6ec835
+match: yes
+check: regenerated mutated-file sha256 557d9267577c1f87d219a75554b7e5cefadb5d3b2d75184cfcdd2dd7e887435b
+       == committed evidence; regenerated tree aff12d5a26d921f4e3976d9c80d90e3ec70781a2
+       == original sandbox commit tree.
+
+# ============================================================================
+# 4. .ufo_waves_round-33_a3w2_MutAfterPathCopy_frozen-to-mutant.patch
+# ============================================================================
+file: /fast/scratch/hyaku/tsukuroi-r33a3/oversize/.ufo_waves_round-33_a3w2_MutAfterPathCopy_frozen-to-mutant.patch
+size: 3088859
+sha256: 21b8f79d21432f28dc733624c8d42926225010dd71e7a1c33c165e1fcf140bad
+made from: git diff 9c89ff4f093d07a6f92925518310ca6a7c8a2fa0 021be23 <- exactly the command recorded at
+  .ufo/waves/round-33/a3w2/MutAfterPathCopy/commands.txt:11
+  original sandbox commit: 021be23cc1a05eec23160716e863352f67fa1969 (tree f16ec8c9b72a77dc8002e9e7ecefead712aef125,
+    still resolvable at /fast/scratch/hyaku/tsukuroi-r33a3/MutAfterPathCopy/repo)
+  mutation: clean_env() returned os.environ["PATH"] instead of the fixed "/usr/bin:/bin"
+    (tools/_revision.py:65)
+  committed mutation patch: NONE. This is the one variant whose mutation was never committed as
+    a patch; the edit is stated in committed prose, .ufo/waves/round-33/a3w2/MutAfterPathCopy.md:3
+    and .ufo/waves/round-33/a3w2/MutAfterPathCopy/commands.txt:13. The script performs exactly that
+    one-line substitution on the committed c8fcfbf6 blob (replacing the single occurrence of
+    '"PATH": "/usr/bin:/bin"' with '"PATH": os.environ["PATH"]').
+  mutated file expected sha256 (committed evidence, hashes.json "mutant_sha256"):
+    e1f49f1ed0bd2b10a450b10512cd72d8b036ca1beac77dc3e0c89e1bfd07d8c3
+regeneration command:
+  bash /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ExecScratchDigests/regenerate.sh MutAfterPathCopy
+regenerated: size 3088859, sha256 21b8f79d21432f28dc733624c8d42926225010dd71e7a1c33c165e1fcf140bad
+match: yes
+check: regenerated mutated-file sha256 e1f49f1ed0bd2b10a450b10512cd72d8b036ca1beac77dc3e0c89e1bfd07d8c3
+       == committed evidence; regenerated tree f16ec8c9b72a77dc8002e9e7ecefead712aef125
+       == original sandbox commit tree.
+
+# ============================================================================
+# 5. .ufo_waves_round-33_a3w2_MutAfterV4Spread_variant-vs-frozen.patch
+# ============================================================================
+file: /fast/scratch/hyaku/tsukuroi-r33a3/oversize/.ufo_waves_round-33_a3w2_MutAfterV4Spread_variant-vs-frozen.patch
+size: 3088930
+sha256: 3cfb5a669b99d4c519f1a8785f90e152581cda366113b9186d2354851ce393a7
+made from: git diff 9c89ff4f093d07a6f92925518310ca6a7c8a2fa0 <variant commit>
+  original sandbox commit: 711daccca7b490155ec61ef1c43f1e43805c53ff (tree c1f47750add020f3f22416ede4547a966348cd8d,
+    still resolvable at /fast/scratch/hyaku/tsukuroi-r33a3/MutAfterV4Spread/repo)
+  mutation: added first entry **{k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+    to the ENV dict in tools/mutants-owed-statements-r29-v4shapes.py
+  committed mutation patch: .ufo/waves/round-33/a3w2/MutAfterV4Spread/mutant-only.patch
+    blob 1b96866be72068ae261e6af5e7773549f9afa812 (same at ca768636 and 6de666c)
+    sha256 f97342896d06bc588b9eb1b01300e0ea7bbe214b3f44e28210d93717cf28b29f
+  mutated file expected sha256 (committed evidence, ordinary-mutated.json "stdout".source_sha256):
+    16c354deb51360d5c1d357ddb8d784e62dfb669c3d5f3c137887626b4a5da133
+regeneration command:
+  bash /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ExecScratchDigests/regenerate.sh MutAfterV4Spread
+regenerated: size 3088930, sha256 3cfb5a669b99d4c519f1a8785f90e152581cda366113b9186d2354851ce393a7
+match: yes
+check: regenerated mutated-file sha256 16c354deb51360d5c1d357ddb8d784e62dfb669c3d5f3c137887626b4a5da133
+       == committed evidence; regenerated tree c1f47750add020f3f22416ede4547a966348cd8d
+       == original sandbox commit tree.
+
+# ============================================================================
+# Method (what one script run does for each variant)
+# ============================================================================
+1. If absent, clone the lane --no-local into the sandbox workdir and disable the push URL.
+2. git checkout --detach c8fcfbf6; git reset --hard c8fcfbf6; git clean -fd.
+3. Apply the committed mutation patch (extracted with `git show 6de666c:<path>`, i.e. committed
+   bytes, not the lane worktree) with `git apply --index`; for PathCopy perform the documented
+   one-line substitution instead.
+4. Verify the mutated file's sha256 against the seat's committed evidence; abort on mismatch.
+5. Commit in the sandbox clone with `-c user.name=ctl -c user.email=ctl@sandbox`.
+6. Run `git -c diff.algorithm=histogram -c diff.mnemonicprefix=true -c diff.colormoved=plain
+   diff 9c89ff4f HEAD` and compare size and sha256 with the scratch file.
+
+All five match.  Observed full run:
+  /fast/scratch/hyaku/tsukuroi-r34/ExecScratchDigests/regenerate-run.txt
+  (same content as the script's stdout; every row reads "match yes").
+Cold-start verification (empty WORK, the script clones and builds from scratch):
+  WORK=/fast/scratch/hyaku/tsukuroi-r34/ExecScratchDigests/cold-run bash regenerate.sh
+  reproduced all five with the same sizes and sha256s; stdout at
+  /fast/scratch/hyaku/tsukuroi-r34/ExecScratchDigests/cold-run.txt
+
+# Residual notes
+- The five 3 MB outputs stay in /fast/scratch; the lane receives only this text file (5714-byte
+  script beside it).  Nothing over 1 MiB is committed.
+- Determinism: git 2.56.0; the host global config carries diff.algorithm=histogram, and a myers
+  run of the V4Spread diff produced the identical sha256 (3cfb5a66...), so these five diffs do
+  not depend on the diff algorithm.  Commit ids differ in the clone; `git diff <tree> <tree>`
+  does not emit them, and the regenerated trees equal the original ones.
+- PathCopy is the only variant whose mutation is not a committed patch.  Its reconstruction is
+  pinned by two independent committed values (mutated file sha256 in hashes.json and tree
+  equality with 021be23), so the exact bytes are verified even though the edit must be re-issued
+  from committed prose.

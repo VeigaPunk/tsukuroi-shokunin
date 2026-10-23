@@ -1,0 +1,345 @@
+# C2 host reconciliation — seat ExecCoredumpReconcile, tsukuroi round 34 wave 1
+Purpose: measure, at two capture times about five minutes apart, what the census journal
+arm's boot-0 `coredump=` count and the ADJ-04 `class=coredumps value=<m>` handoff value
+count, against systemd v262's own coredump logging, `coredumpctl`, and the core-file store.
+Host: linux 7.2.11-arch1-1, systemd 262 (262-1-arch), journalctl/coredumpctl 262, jq 1.8.2,
+census tools/tsukuroi-census.sh sha256 7daa2ccbbded3a931abdbd76cb8ad34ccbe596f6dabc3524c519cc123e44e7b5
+(as read in the lane worktree; not modified by this seat). Boot 0 id
+6a7f4fdfac624e2ea6c1b3c55d6f94f4, boot start 2026-10-22T07:55:41Z.
+Every command below is read-only. No stack frame, command line or executable name from a
+crashed process is printed anywhere in this file: coredump entries are reduced to counts,
+PRIORITY, MESSAGE_ID, CODE_FUNC/CODE_LINE and first-line class. Raw streams (which do carry
+stack frames) exist only under /fast/scratch/hyaku/tsukuroi-r34/ExecCoredumpReconcile/ and
+are not committed; their sizes and sha256 are recorded in section D2.
+
+## A. Round 1 — capture at 2026-10-23T08:44:09Z (UTC)
+```
+=== C2 host capture round 1 — 2026-10-23T08:44:09Z (UTC) ===
+host=7.2.11-arch1-1 journalctl=systemd 262 (262-1-arch) jq=jq-1.8.2 coredumpctl=systemd 262 (262-1-arch)
+census_sha256=7daa2ccbbded3a931abdbd76cb8ad34ccbe596f6dabc3524c519cc123e44e7b5 census=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh
+
+$ /usr/bin/journalctl --list-boots --no-pager
+  start=2026-10-23T08:44:09Z end=2026-10-23T08:44:09Z exit=0
+  (first/last lines of --list-boots; index-0 line present?)
+    index0_lines=1
+      0 6a7f4fdfac624e2ea6c1b3c55d6f94f4 Thu 2026-10-22 04:55:41 -03 Fri 2026-10-23 05:44:00 -03
+$ /usr/bin/systemctl is-active graphical.target --no-pager
+  start=2026-10-23T08:44:09Z end=2026-10-23T08:44:09Z exit=0
+  graphical.target=active
+
+--- (1) census arm-3 capture: journalctl -b -p err -o json --no-pager ---
+capture_start=2026-10-23T08:44:09Z capture_end=2026-10-23T08:44:09Z exit=0
+stdout_bytes=17676236 stdout_lines=1777 stderr_bytes=0
+err_n (arm nlines/grep -c .)=1777
+arm cls text: coredump=1621 kernel=155 other=1
+JRN_COREDUMPS (arm variable, = coredump=)=1621
+HANDOFF line the arm would print: HANDOFF ADJ-04 mori class=coredumps value=1621 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER
+
+--- (2) systemd-coredump entries in the SAME capture, by first MESSAGE line ---
+systemd-coredump entries parsed by jq (SYSLOG_IDENTIFIER equality)=1621
+same count by awk substring (arm c)=1621
+jq parse errors=0
+MESSAGE field shape: [
+  {
+    "message_shape": "json-null",
+    "n": 69
+  },
+  {
+    "message_shape": "string",
+    "n": 1552
+  }
+]
+kind totals:
+  dumped-core=183
+  json-null=69
+  no-coredump-abnormal=1365
+  other=4
+sum of kinds=1621 (compare coredump=1621 and dumped-core below)
+kind x PRIORITY:
+  dumped-core PRIORITY=2 n=183
+  json-null PRIORITY=2 n=69
+  no-coredump-abnormal PRIORITY=2 n=1365
+  other PRIORITY=3 n=4
+kind x MESSAGE_ID:
+  dumped-core MESSAGE_ID=fc2e22bc6ee647b6b90729ab34a250b1 n=183
+  json-null MESSAGE_ID=fc2e22bc6ee647b6b90729ab34a250b1 n=69
+  no-coredump-abnormal MESSAGE_ID=fc2e22bc6ee647b6b90729ab34a250b1 n=1365
+  other MESSAGE_ID=<absent> n=4
+'other' first-line token shapes:
+  <non-alpha-token>=4
+
+--- (3) coredumpctl list -b --json=short --no-pager | jq length ---
+$ /usr/bin/coredumpctl list -b --json=short --no-pager
+  start=2026-10-23T08:44:10Z end=2026-10-23T08:44:10Z exit=1
+  stderr:
+    coredumpctl: unrecognized option '-b'
+  stdout_bytes=0 stderr_bytes=38
+  stdout_lines=0
+  stdout empty: jq gets no input; coredumpctl reported nothing for boot 0 as this user
+  (no core files visible; the journal rows above are the only coredump record readable here)
+  dir metadata: drwxr-xr-x root:root /var/lib/systemd/coredump
+  caller: vgpnk groups=vgpnk,docker,input,wheel
+
+=== round 1 end 2026-10-23T08:44:10Z ===
+```
+
+## A2. Round 1 supplement — coredumpctl argv and permission view, 2026-10-23T08:44:32Z (UTC)
+```
+--- round 1 supplement: coredumpctl argv, 2026-10-23T08:44:32Z ---
+     --json=FORMAT          Generate JSON output (pretty, short, or off)
+$ coredumpctl list -b --json=short --no-pager  (as assigned)
+exit=1 stdout_bytes=0 stderr=coredumpctl: unrecognized option '-b'
+$ coredumpctl list --no-pager --json=short  (all boots, correct argv)
+exit=0 stdout_bytes=234212 stderr_bytes=0
+jq length=1755
+$ coredumpctl list --since '2026-10-22 07:55:41' --no-pager --json=short  (boot-0 window)
+exit=0 stdout_bytes=216310 stderr_bytes=0
+jq length=1616
+time=2026-10-23T08:44:32Z
+```
+
+## A3. Live census run #1 — 2026-10-23T08:44:32Z to 08:44:37Z (UTC), exit 1 (DEGRADED)
+```
+$ timeout 600 bash tools/tsukuroi-census.sh
+PLANE journal: DEGRADED (boots=6 current=yes target=graphical.target:active err=1777 (coredump=1621 kernel=155 other=1); failedhist=4[systemd-coredump@129-81922-1593793_60282674-0.service,systemd-coredump@130-114693-1594047_60338657-0.service,systemd-coredump@131-51-1594468_60299054-0.service,systemd-coredump@132-57352-1594675_60330620-0.service,system.slice,x2dcoredump.slice]; timers_enabled=2 timers_scanned=2 armed=2 timer_drift=0 timer_unknown=0)
+HANDOFF ADJ-04 mori class=kill-events value=41 kind=dated-event state=prepared window=boots=6:2026-10-19..2026-10-23 source=journal-window
+HANDOFF ADJ-04 mori class=coredumps value=1621 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER
+TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=DEGRADED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)
+```
+
+## B. Round 2 — capture at 2026-10-23T08:48:49Z (UTC)
+```
+=== C2 host capture round 2 — 2026-10-23T08:48:49Z (UTC) ===
+host=7.2.11-arch1-1 journalctl=systemd 262 (262-1-arch) jq=jq-1.8.2 coredumpctl=systemd 262 (262-1-arch)
+census_sha256=7daa2ccbbded3a931abdbd76cb8ad34ccbe596f6dabc3524c519cc123e44e7b5 census=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh
+
+$ /usr/bin/journalctl --list-boots --no-pager
+  start=2026-10-23T08:48:49Z end=2026-10-23T08:48:49Z exit=0
+  (first/last lines of --list-boots; index-0 line present?)
+    index0_lines=1
+      0 6a7f4fdfac624e2ea6c1b3c55d6f94f4 Thu 2026-10-22 04:55:41 -03 Fri 2026-10-23 05:48:48 -03
+$ /usr/bin/systemctl is-active graphical.target --no-pager
+  start=2026-10-23T08:48:49Z end=2026-10-23T08:48:49Z exit=0
+  graphical.target=active
+
+--- (1) census arm-3 capture: journalctl -b -p err -o json --no-pager ---
+capture_start=2026-10-23T08:48:49Z capture_end=2026-10-23T08:48:49Z exit=0
+stdout_bytes=17803973 stdout_lines=1793 stderr_bytes=0
+err_n (arm nlines/grep -c .)=1793
+arm cls text: coredump=1635 kernel=157 other=1
+JRN_COREDUMPS (arm variable, = coredump=)=1635
+HANDOFF line the arm would print: HANDOFF ADJ-04 mori class=coredumps value=1635 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER
+
+--- (2) systemd-coredump entries in the SAME capture, by first MESSAGE line ---
+systemd-coredump entries parsed by jq (SYSLOG_IDENTIFIER equality)=1635
+same count by awk substring (arm c)=1635
+jq parse errors=0
+MESSAGE field shape: [
+  {
+    "message_shape": "json-null",
+    "n": 69
+  },
+  {
+    "message_shape": "string",
+    "n": 1566
+  }
+]
+kind totals:
+  dumped-core=183
+  json-null=69
+  no-coredump-abnormal=1379
+  other=4
+sum of kinds=1635 (compare coredump=1635 and dumped-core below)
+kind x PRIORITY:
+  dumped-core PRIORITY=2 n=183
+  json-null PRIORITY=2 n=69
+  no-coredump-abnormal PRIORITY=2 n=1379
+  other PRIORITY=3 n=4
+kind x MESSAGE_ID:
+  dumped-core MESSAGE_ID=fc2e22bc6ee647b6b90729ab34a250b1 n=183
+  json-null MESSAGE_ID=fc2e22bc6ee647b6b90729ab34a250b1 n=69
+  no-coredump-abnormal MESSAGE_ID=fc2e22bc6ee647b6b90729ab34a250b1 n=1379
+  other MESSAGE_ID=<absent> n=4
+log call sites (CODE_FILE/CODE_FUNC/CODE_LINE recorded by journald):
+  coredump_submit ../systemd/src/coredump/coredump-submit.c:793 n=1631
+  coredump_receive src/coredump/coredump-receive.c:100 n=4
+'other' first-line token shapes:
+  <non-alpha-token>=4
+
+--- (3) coredumpctl ---
+3a the assigned argv: coredumpctl list -b --json=short --no-pager
+  exit=1 stdout_bytes=0 stderr_bytes=38
+  stderr:
+    coredumpctl: unrecognized option '-b'
+3b correct argv, all boots: coredumpctl list --no-pager --json=short
+  exit=0 bytes=236746 stderr=
+  jq length=1769
+3c boot-0 window: coredumpctl list --since @<boot_start> --until @<now+2> --json=short
+  boot_id=6a7f4fdfac624e2ea6c1b3c55d6f94f4 boot_start_epoch=1792655741 (2026-10-22T07:55:41Z)
+  exit=0 bytes=218974 stderr=
+  jq length=1631
+  corefile field: type=string first_char_classes=[{"c":"n","n":1631}]
+  corefile lengths: min=4 max=4 distinct=1
+  corefile null=0 empty=0 dash=0
+  size field: {"nulls":1631,"nonnull":0}
+  existing files behind corefile values=0 of 1631
+  dir metadata: drwxr-xr-x root:root 322 2026-10-23 04:52:28.338484775 -0300 /var/lib/systemd/coredump
+  dir entry count=2 (names not printed)
+  caller: vgpnk groups=vgpnk,docker,input,wheel
+
+=== round 2 end 2026-10-23T08:48:50Z ===
+```
+
+## B2. Round 2 supplement — journalctl -a (OUTPUT_SHOW_ALL) view and live census #2, 2026-10-23T08:50:22Z to 08:50:32Z (UTC)
+```
+=== round 2 supplement — 2026-10-23T08:50:22Z ===
+T0=2026-10-23T08:50:22Z
+\$ journalctl -b -p err -o json -a --no-pager  |  jq  (classify first MESSAGE line; -a = OUTPUT_SHOW_ALL)
+journalctl_exit=0 bytes=129994747 lines=1793 stderr_bytes=0
+identifier_entries=1635
+  dumped-core=252
+  no-coredump-abnormal=1379
+  other=4
+  COREDUMP_PROC_MAPS null with -a=4
+  COREDUMP_PROC_MAPS null default=1620
+T1=2026-10-23T08:50:26Z
+
+\$ bash tools/tsukuroi-census.sh  (live, authoritative PLANE + HANDOFF)
+census_exit=1
+PLANE journal: DEGRADED (boots=6 current=yes target=graphical.target:active err=1793 (coredump=1635 kernel=157 other=1); failedhist=4[systemd-coredump@129-81922-1593793_60282674-0.service,systemd-coredump@130-114693-1594047_60338657-0.service,systemd-coredump@131-51-1594468_60299054-0.service,systemd-coredump@132-57352-1594675_60330620-0.service,system.slice,x2dcoredump.slice]; timers_enabled=2 timers_scanned=2 armed=2 timer_drift=0 timer_unknown=0)
+HANDOFF ADJ-04 mori class=kill-events value=42 kind=dated-event state=prepared window=boots=6:2026-10-19..2026-10-23 source=journal-window
+HANDOFF ADJ-04 mori class=coredumps value=1635 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER
+TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=DEGRADED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)
+T2=2026-10-23T08:50:32Z
+
+--- upstream source bytes opened (curl -sSL, plain endpoints) ---
+54ce12400ce7e7c5ec4f8a6acdeac58659780434ed964f9c941f82ec11d0e538  coredump-submit.c
+48caa3734626c2e44a03caf29234c7e712b2bb16a7d1dd3eec57d0e58bdc1f64  coredump-receive.c
+abc2fc1f3d6f10d0f01b4d1ff18689eb5561a98fd71fde911117ce16c50ed72f  logs-show.c
+(coredump.c was saved as coredump-v262.c; its sha256 follows in section D)
+URLs: https://raw.githubusercontent.com/systemd/systemd/v262/src/coredump/coredump-submit.c
+      https://raw.githubusercontent.com/systemd/systemd/v262/src/coredump/coredump-receive.c
+      https://raw.githubusercontent.com/systemd/systemd/v262/src/shared/logs-show.c
+      https://raw.githubusercontent.com/systemd/systemd/v262/src/coredump/coredump.c
+queue: 0
+```
+
+## C. Derived reconciliation at the two capture times
+
+Census code under measurement (tools/tsukuroi-census.sh, sha256 above):
+  :1395  cap "$JOURNALCTL" -b -p err -o json --no-pager
+  :1403  /"SYSLOG_IDENTIFIER":"systemd-coredump"/ { c++; next }
+         /"SYSLOG_IDENTIFIER":"kernel"|"_TRANSPORT":"kernel"/ { k++; next }
+         { o++ } END { printf "%d %d %d", c+0, k+0, o+0 }
+  :1410  JRN_COREDUMPS=$cd_n            (the same variable :2781 prints in the HANDOFF line)
+So one counted unit = one line of `journalctl -b -p err -o json` (one journal entry) whose
+raw JSON text contains "SYSLOG_IDENTIFIER":"systemd-coredump". The ADJ-04 handoff value is
+that same variable, never a second read (:1400-1410 comment; :2780-2782 print).
+(The captures above ran `journalctl -b 0`; the arm runs `journalctl -b`. Both select the
+current boot: journalctl --list-boots has one index-0 line, boot_id 6a7f4fdf.... The arm
+merges stderr into stdout; stderr was 0 bytes at both captures, so the awk replay is exact
+on the same bytes.)
+
+| quantity (boot 0, -p err)                | 08:44:09Z | 08:48:49Z | delta |
+|------------------------------------------|-----------|-----------|-------|
+| err stream entries (err_n)               | 1777      | 1793      | +16   |
+| census coredump= (arm c)                 | 1621      | 1635      | +14   |
+| ADJ-04 class=coredumps value=            | 1621 (live census #1) | 1635 (live census #2) | +14 |
+| sum of first-MESSAGE-line kinds          | 1621      | 1635      | +14   |
+| 'dumped core' first line                 | 183       | 183       | 0     |
+| 'terminated abnormally without generating a coredump' | 1365 | 1379 | +14 |
+| JSON null MESSAGE                        | 69        | 69        | 0     |
+| other (handler errors)                   | 4         | 4         | 0     |
+| PRIORITY=2 records / PRIORITY=3 other    | 1617 / 4  | 1631 / 4  | +14 / 0 |
+| MESSAGE_ID=fc2e22bc6ee647b6b90729ab34a250b1 | 1617  | 1631      | +14   |
+| MESSAGE_ID absent                        | 4         | 4         | 0     |
+| coredumpctl list, boot-0 epoch window    | 1617 (08:45:32Z) | 1631 | +14 |
+| coredumpctl list, all boots              | 1755      | 1769      | +14   |
+| corefile field == "none" (coredumpctl)   | 1617      | 1631      | +14   |
+| existing core files behind those values  | 0 of 1617 | 0 of 1631 | 0     |
+| kernel class / other class (arm k/o)     | 155 / 1   | 157 / 1   | +2 / 0 |
+
+Equality checks:
+- census coredump= EQUALS the sum of all first-MESSAGE-line kinds at both captures
+  (1621 = 183+1365+69+4; 1635 = 183+1379+69+4). The awk counts every systemd-coredump entry.
+- census coredump= does NOT equal 'dumped core' only (183 at 08:44Z, 183 at 08:49Z).
+- census coredump= is 4 more than coredumpctl's boot-window length in both captures
+  (1621-1617, 1635-1631): the 4 extra are `coredump_receive` handler errors with no
+  MESSAGE_ID (CODE_FUNC=coredump_receive, CODE_LINE=100, PRIORITY=3, ERRNO present, 44-char
+  MESSAGE, i.e. the `log_error_errno` at v262 src/coredump/coredump-receive.c:100).
+- A2 also shows `coredumpctl list --since '2026-10-22 07:55:41'` returning 1616: systemd
+  parses that wall-clock string in the local zone (-03), i.e. 10:55:41Z, one record after the
+  true boot start; the @epoch window (1617) is the boot-0 figure used above.
+- coredumpctl's length is not a core-file count either: every record in the boot window has
+  `"corefile":"none"` and size null (Storage=none, section D); 0 of those 1617/1631 values
+  names an existing file, and /var/lib/systemd/coredump holds only 2 stale files dated
+  2026-10-20 (names not printed), i.e. from before that boot.
+
+Why the JSON-null class exists (measured, same capture bytes):
+- Default `journalctl -o json` omits long fields: v262 src/shared/logs-show.c:43 defines
+  JSON_THRESHOLD 4096U and :1124 emits JSON null when
+  `!(flags & OUTPUT_SHOW_ALL) && strlen(name) + 1 + size >= JSON_THRESHOLD`; :1219 also sets
+  the journal data threshold to 4096 unless OUTPUT_SHOW_ALL (`-a`) is given.
+- With `-a` on the same boot and minute (08:50:22Z): 1635 systemd-coredump entries become
+  252 'dumped core' + 1379 'terminated abnormally...' + 4 other, 0 JSON null.
+- Exactly 69 of the 252 'dumped core' messages are >= 4089 chars (4089 + len("MESSAGE") + 1
+  = 4096), which is exactly the 69 default-view nulls; the longest default-view 'dumped core'
+  MESSAGE is 3692 chars. So the null class is a journalctl display default, not a crash class.
+- COREDUMP_PROC_MAPS is null for 1620 of 1635 default-view entries and for 4 with -a.
+
+What one counted entry is: one crash-report journal record written by
+`coredump_submit` (CODE_FILE ../systemd/src/coredump/coredump-submit.c, CODE_LINE 793, the
+`sd_journal_sendv` at v262 coredump-submit.c:793), one per crash (1617 records had 1617
+distinct COREDUMP_PID@COREDUMP_TIMESTAMP keys), whose MESSAGE is either
+"Process <pid> (<comm>) of user <uid> dumped core." or the same sentence ending
+"terminated abnormally without generating a coredump." (source: v262 coredump-submit.c:711).
+The two variants are a per-record branch on whether systemd-coredump processed a core, so
+the class mixes both and the number is not a coredump count.
+
+## D. Sources opened (plain curl -sSL, GitHub raw at tag v262; bytes saved in scratch)
+
+| file | bytes | sha256 | URL |
+|------|-------|--------|-----|
+| coredump-submit.c | 34408 | 54ce12400ce7e7c5ec4f8a6acdeac58659780434ed964f9c941f82ec11d0e538 | https://raw.githubusercontent.com/systemd/systemd/v262/src/coredump/coredump-submit.c |
+| coredump-receive.c | 6354 | 48caa3734626c2e44a03caf29234c7e712b2bb16a7d1dd3eec57d0e58bdc1f64 | https://raw.githubusercontent.com/systemd/systemd/v262/src/coredump/coredump-receive.c |
+| logs-show.c | 87278 | abc2fc1f3d6f10d0f01b4d1ff18689eb5561a98fd71fde911117ce16c50ed72f | https://raw.githubusercontent.com/systemd/systemd/v262/src/shared/logs-show.c |
+| coredump-v262.c (coredump.c) | 2070 | 5f95d201120af6cee733c68c9271fc0e15e20ca30e0658a7a2633575b6fdc10a | https://raw.githubusercontent.com/systemd/systemd/v262/src/coredump/coredump.c |
+
+All fetched 2026-10-23 between 08:45Z and 08:50Z (GitHub raw at tag v262, no bot challenge). Registry: corpus/SOURCES.md has 0 rows
+matching coredump-submit, coredump-receive or logs-show; S177 is the same project and tag
+but the man page (man/systemd-coredump.xml), a different URL and different bytes. No row
+duplicates these URLs or bytes. Local effective configuration read the same day:
+/proc/sys/kernel/core_pattern = |/usr/lib/systemd/systemd-coredump %P %u %g %s %t %c %h %d %F %I
+/etc/systemd/coredump.conf.d/storage.conf = [Coredump] Storage=none
+/etc/systemd/coredump.conf.d/limit.conf = [Coredump] MaxUse=512M KeepFree=8G
+
+## D2. Raw capture artifacts (scratch only; not committed, not a stable identity)
+
+| file | captured (UTC) | bytes | sha256 |
+|------|----------------|-------|--------|
+| cap1/journal.out (default JSON, round 1) | 08:44:09Z | 17676236 | e24fe336defba05885bb456c9f571ead60c21751808ce2f8548b92bed6b32b50 |
+| cap2/journal.out (default JSON, round 2) | 08:48:49Z | 17803973 | e7a544f452572bf9ede5b4b32ea16df40ebab45f9acd53ca6f20167c35fcb2a5 |
+| cap1/journal-all.json (-a stream) | 08:49:46Z | 129994747 | e4b8e293749627784fdd294a078dbe3e3f71549438b39a1fbdab594e84ea9919 |
+| cap2/journal-all.json (-a stream) | 08:50:23Z | 129994747 | 634c809becc4dcfbea8f84ed675e7cdaaaeed875697b4c14282cc49916616de1 |
+| cap1/cd-all.jsonl (coredump entries only) | 08:49Z | 129872641 | 0feddb4a3c1c9b6c2f7e035e3098a830a4849be305c0a718a24ca0a635830938 |
+| cap2/cd-all.jsonl | 08:50Z | 129872641 | 25ab6e2b3bdbaa7274226ab1fada060badc08d92e98866b06afc574f1a294b8d |
+
+The two -a streams have the same byte length and differ in 118,636,290 bytes starting at
+byte 4: `journalctl -o json` emits an entry's fields in an unstable order (same fields, same
+values, permuted), so a digest of the raw JSON is not an identity for the same entries.
+Field-level counts (the census's substring match and every number above) are unaffected.
+
+## E. Plain answer
+
+At both capture times the census's `coredump=` (and therefore the ADJ-04
+`class=coredumps value=`, which is the same variable) equals the sum of all first-MESSAGE-line
+kinds: every journal entry whose SYSLOG_IDENTIFIER is systemd-coredump, without regard to
+whether a core was produced. It is not the 'dumped core' count: 183 of 1621 at 08:44Z and
+183 of 1635 at 08:49Z in the default JSON view (252 of 1635 with `-a`, because 69 long
+messages are nulled by journalctl's 4096-byte JSON threshold). Four entries are not crash
+records at all but `coredump_receive` errors. The figures drift with every non-core crash
+report: +14 in five minutes, all in the 'terminated abnormally without generating a
+coredump' class, while 'dumped core' stayed 183. `coredumpctl list` in systemd 262 has no
+`-b` option (argv error, exit 1); its boot-0 window length equals the crash-record count
+(1617/1631) and every record shows `"corefile":"none"` under Storage=none, so it is not a
+core-file count either.

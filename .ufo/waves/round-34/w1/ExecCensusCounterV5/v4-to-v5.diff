@@ -1,0 +1,559 @@
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w1/R1CensusCounterV4/score-census-handoff-v4.py	2026-10-23 04:12:26.395997587 -0300
++++ /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ExecCensusCounterV5/score-census-handoff-v5.py	2026-10-23 05:51:23.244028061 -0300
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Counter v4 for tsukuroi round 32, claim C1 (ADJ-04 sibling handoff routing).
++"""Counter v5 for tsukuroi round 32, claim C1 (ADJ-04 sibling handoff routing).
+ 
+ Repair counter for the round-32 verifier spot-check routed defect 1: the v3 counter
+ (tools/score-census-handoff-r32.py, sha256 f45136c3...) was met by the post-data
+@@ -8,6 +8,22 @@
+ instead of selecting SYSLOG_IDENTIFIER. v4 plants non-coredump error entries in every
+ fixture, repeats kernel OOM lines within planted minutes, and replaces the single
+ thinned live view with two synthetic live views that vary both counted classes.
++
++v5 repairs tsukuroi round-33 routed defect R33-FIXTURE-LABEL-SHORTCUT (round-32
++routed defect 1, still open): v4's distractors all carried the one fixed
++`SYSLOG_IDENTIFIER` set and the one fixed message, and both synthetic views set
++`TSUKUROI_JOURNALCTL`, so a census keyed on that override plus the fixture label
++(MutR1CounterV4) routed 24 of 24 fixture rows and both synthetic views. v5 (a) draws
++each distractor's identifier and message text fresh from os.urandom per run, so no
++constant string marks a planted distractor; (b) adds synthetic view C, which leaves
++`TSUKUROI_JOURNALCTL` unset and feeds the census through a PATH-first `journalctl`
++stub in a directory whose name is drawn fresh per run, so a census that treats the
++override as a fixture tell cannot tell view C from production; (c) lets the plain
++live view tolerate journal growth during a run by counting the same classes directly
++with journalctl immediately before and after each run and accepting a run's value
++inside that interval. Every fixture and synthetic view also draws its directory name
++from os.urandom, not from the seeded plan.
++
+ This file is seat evidence; it is not the lane's tools/ counter.
+ 
+ Scores whether the host census `tools/tsukuroi-census.sh` at a revision routes
+@@ -21,8 +37,11 @@
+ memory.events oom_kill flag) is NOT a dated event and must not produce a
+ kill-events line.
+ 
+-FROZEN PREDICATE (v4, fixed before this scorer scored anything; the v3 predicate is kept except for the two repairs above):
+-A scenario is routed when the census at REV, run against that scenario's fixture, prints exactly the set of HANDOFF lines the scenario requires (one class=kill-events line with value equal to the number of distinct planted kill-event minutes when there are any, one class=coredumps line with value equal to the number of planted coredump entries when there are any, no HANDOFF line otherwise, and none for a cumulative counter alone), and its PLANE lines, TSUKUROI_CENSUS line and exit code equal those of the base census 58cc2e0b on the same fixture; every fixture plants at least one boot-0 error entry that is neither a coredump nor a kernel entry, and a fixture that plants kill events repeats the kernel OOM line of some minutes, so neither a total error count nor a kernel-line count is the required value. The run counts only when, in addition, in a plain read-only live view of the host and in each of two synthetic live views of the host, the census at REV prints the same oom and journal PLANE lines, TSUKUROI_CENSUS line and exit code as the base census in that view and exactly the HANDOFF set implied by the base census's oom clusters and journal coredump counts in that view; each synthetic view keeps every other plane live and answers only the oom-window and boot-0 error journal probes from a synthetic stream drawn fresh per run, view A with 1 to 4 kill-event minutes in single kernel lines and 4 to 8 planted coredump entries, view B with 5 to 9 kill-event minutes whose kernel OOM lines are doubled and 1 to 3 planted coredump entries, each with 1 to 9 non-coredump error entries, so the two views differ in both counted classes and view B's kernel-line count exceeds its cluster count; and the plain view's counts are not both zero.
++FROZEN PREDICATE (v5, fixed and committed in a sandbox clone before this scorer
++scored anything; the v4 predicate is kept except for the three repairs above; the
++constant below must equal this paragraph after whitespace normalisation):
++
++A scenario is routed when the census at REV, run against that scenario's fixture, prints exactly the set of HANDOFF lines the scenario requires (one class=kill-events line with value equal to the number of distinct planted kill-event minutes when there are any, one class=coredumps line with value equal to the number of planted coredump entries when there are any, no HANDOFF line otherwise, and none for a cumulative counter alone), and its PLANE lines, TSUKUROI_CENSUS line and exit code equal those of the base census 58cc2e0b on the same fixture; every fixture plants 1 to 9 boot-0 error entries that are neither a coredump nor a kernel entry, each with an identifier and a message drawn fresh from os.urandom so that no constant string marks them, and a fixture that plants kill events repeats the kernel OOM line of some minutes, so neither a total error count, a kernel-line count, nor a count keyed on any fixture string is the required value. The run counts only when, in addition, in a plain read-only live view of the host and in each of three synthetic live views of the host, the census at REV prints exactly the HANDOFF set implied by its own oom cluster and journal coredump counts; in the plain view each run's journal counts (err, coredump, kernel and other) and oom counts (C1_kernel, killed_process, C2_events, C3_events and clusters) lie inside the interval between the direct journalctl measurements of the same classes taken immediately before and after that run (the printed cluster-key list being exactly the measured key set when the two measurements agree and, when they differ, containing the earlier set and sitting inside the later one), and the base and REV journal lines agree after the four counts and the failed-history count are replaced by a placeholder while the oom PLANE line, TSUKUROI_CENSUS line and exit code agree exactly between base and REV; each synthetic view keeps every other plane live and answers only the oom-window and boot-0 error journal probes from a synthetic stream drawn fresh per run, views A and B reach the stream through TSUKUROI_JOURNALCTL (view A with 1 to 4 kill-event minutes in single kernel lines and 4 to 8 planted coredump entries, view B with 5 to 9 kill-event minutes whose kernel OOM lines are doubled and 1 to 3 planted coredump entries) and view C leaves TSUKUROI_JOURNALCTL unset and reaches its stream through a PATH-first journalctl stub in a directory whose name is drawn fresh per run (2 to 6 kill-event minutes in single kernel lines and 2 to 6 planted coredump entries), each synthetic view with 1 to 9 non-coredump error entries whose identifiers and messages are drawn fresh from os.urandom, so the three views differ in both counted classes and in the route to the stream, and in every synthetic view the base and REV oom and journal PLANE lines, TSUKUROI_CENSUS line and exit code agree exactly and the base's counts equal the planted ones; and the plain view's counts are not both zero.
+ 
+ Harness: every host read of the census is overridable by a TSUKUROI_* variable
+ (probe surface documented in the census header). This scorer reproduces the
+@@ -50,7 +69,7 @@
+     is malformed and never matches the expected set.
+ 
+ Usage:
+-  python3 tools/score-census-handoff-r32.py --revision <REV> [--lane <repo>]
++  python3 score-census-handoff-v5.py --revision <REV> [--lane <repo>]
+         [--scratch <dir>] [--seed <hex|int>] [--scenarios N] [--keep-scratch]
+ Output: one JSON line per scenario (`id`, `type`, `planted`, `expected`,
+ `observed`, `plane_parity`, `routed`, ...), then a summary JSON line with
+@@ -75,32 +94,49 @@
+ import tempfile
+ import time
+ 
+-VERSION = 4
++VERSION = 5
+ BASE = '58cc2e0bfaa4580d47f6817537c8d5c82dbe9c92'
+ DEFAULT_LANE = '/home/vgpnk/Projects/shokunin/tsukuroi-shokunin'
+ PREDICATE_LABEL = 'routed'
++# frozen v5 predicate; asserted at import against the docstring paragraph (line breaks and
++# runs of spaces are not significant). The three v5 repairs are in the docstring header.
+ PREDICATE = (
+-    'A scenario is routed when the census at REV, run against that scenario\'s fixture, prints '
+-    'exactly the set of HANDOFF lines the scenario requires (one class=kill-events line with value '
+-    'equal to the number of distinct planted kill-event minutes when there are any, one '
+-    'class=coredumps line with value equal to the number of planted coredump entries when there are '
+-    'any, no HANDOFF line otherwise, and none for a cumulative counter alone), and its PLANE lines, '
+-    'TSUKUROI_CENSUS line and exit code equal those of the base census 58cc2e0b on the same fixture; '
+-    'every fixture plants at least one boot-0 error entry that is neither a coredump nor a kernel '
+-    'entry, and a fixture that plants kill events repeats the kernel OOM line of some minutes, so '
+-    'neither a total error count nor a kernel-line count is the required value. The run counts only '
+-    'when, in addition, in a plain read-only live view of the host and in each of two synthetic live '
+-    'views of the host, the census at REV prints the same oom and journal PLANE lines, '
+-    'TSUKUROI_CENSUS line and exit code as the base census in that view and exactly the HANDOFF set '
+-    'implied by the base census\'s oom clusters and journal coredump counts in that view; each '
+-    'synthetic view keeps every other plane live and answers only the oom-window and boot-0 error '
+-    'journal probes from a synthetic stream drawn fresh per run, view A with 1 to 4 kill-event '
+-    'minutes in single kernel lines and 4 to 8 planted coredump entries, view B with 5 to 9 '
+-    'kill-event minutes whose kernel OOM lines are doubled and 1 to 3 planted coredump entries, each '
+-    'with 1 to 9 non-coredump error entries, so the two views differ in both counted classes and '
+-    'view B\'s kernel-line count exceeds its cluster count; and the plain view\'s counts are not '
+-    'both zero.'
++    "A scenario is routed when the census at REV, run against that scenario's fixture, prints "
++    "exactly the set of HANDOFF lines the scenario requires (one class=kill-events line with value "
++    "equal to the number of distinct planted kill-event minutes when there are any, one "
++    "class=coredumps line with value equal to the number of planted coredump entries when there are "
++    "any, no HANDOFF line otherwise, and none for a cumulative counter alone), and its PLANE lines, "
++    "TSUKUROI_CENSUS line and exit code equal those of the base census 58cc2e0b on the same fixture; "
++    "every fixture plants 1 to 9 boot-0 error entries that are neither a coredump nor a kernel "
++    "entry, each with an identifier and a message drawn fresh from os.urandom so that no constant "
++    "string marks them, and a fixture that plants kill events repeats the kernel OOM line of some "
++    "minutes, so neither a total error count, a kernel-line count, nor a count keyed on any fixture "
++    "string is the required value. The run counts only when, in addition, in a plain read-only live "
++    "view of the host and in each of three synthetic live views of the host, the census at REV "
++    "prints exactly the HANDOFF set implied by its own oom cluster and journal coredump counts; in "
++    "the plain view each run's journal counts (err, coredump, kernel and other) and oom counts "
++    "(C1_kernel, killed_process, C2_events, C3_events and clusters) lie inside the interval between "
++    "the direct journalctl measurements of the same classes taken immediately before and after that "
++    "run (the printed cluster-key list being exactly the measured key set when the two measurements "
++    "agree and, when they differ, containing the earlier set and sitting inside the later one), and "
++    "the base and REV journal lines agree after the four counts and the failed-history count are "
++    "replaced by a placeholder while the oom PLANE line, TSUKUROI_CENSUS line and exit code agree "
++    "exactly between base and REV; each synthetic view keeps every other plane live and answers "
++    "only the oom-window and boot-0 error journal probes from a synthetic stream drawn fresh per "
++    "run, views A and B reach the stream through TSUKUROI_JOURNALCTL (view A with 1 to 4 kill-event "
++    "minutes in single kernel lines and 4 to 8 planted coredump entries, view B with 5 to 9 "
++    "kill-event minutes whose kernel OOM lines are doubled and 1 to 3 planted coredump entries) and "
++    "view C leaves TSUKUROI_JOURNALCTL unset and reaches its stream through a PATH-first journalctl "
++    "stub in a directory whose name is drawn fresh per run (2 to 6 kill-event minutes in single "
++    "kernel lines and 2 to 6 planted coredump entries), each synthetic view with 1 to 9 "
++    "non-coredump error entries whose identifiers and messages are drawn fresh from os.urandom, so "
++    "the three views differ in both counted classes and in the route to the stream, and in every "
++    "synthetic view the base and REV oom and journal PLANE lines, TSUKUROI_CENSUS line and exit "
++    "code agree exactly and the base's counts equal the planted ones; and the plain view's counts "
++    "are not both zero."
+ )
++assert ' '.join(PREDICATE.split()) in ' '.join(__doc__.split()), (
++    'the frozen predicate constant is not the docstring paragraph')
+ 
+ TYPES = (
+     'none',
+@@ -212,6 +248,35 @@
+         fh.write(text)
+ 
+ 
++def distractor_entries(rng, n):
++    """n boot-0 error entries that are neither coredumps nor kernel lines.
++
++    v5: the identifier and the message text are drawn fresh from os.urandom for every
++    entry, so no constant string (and no shared prefix) marks a planted distractor:
++    a census that subtracts "the fixture-labelled entries" has nothing to key on. Both
++    fields are lower-case hex, so they can never collide with `systemd-coredump`, with
++    the `kernel` class, or with the census' failed-history tokens (which contain
++    letters outside a-f). The seeded RNG is not used here on purpose.
++    """
++    out = []
++    seen = set()
++    for i in range(n):
++        while True:
++            sid = os.urandom(8).hex()
++            if sid not in seen:
++                break
++        seen.add(sid)
++        out.append(json.dumps({
++            '__REALTIME_TIMESTAMP': str(rng.randint(1700000000, 1800000000) * 1000000 + i),
++            '_BOOT_ID': 'd7f0bc8d938e4249b4a1f250cbfacf58',
++            '_TRANSPORT': 'journal',
++            'SYSLOG_IDENTIFIER': sid,
++            'PRIORITY': '3',
++            'MESSAGE': os.urandom(16).hex(),
++        }, sort_keys=True, separators=(',', ':')))
++    return out
++
++
+ def plant_kill_events(rng, n):
+     """n dated kill events, one per distinct minute inside the retained window.
+ 
+@@ -413,15 +478,8 @@
+             'MESSAGE': ('Main process terminated with signal %d '
+                         '(Segmentation fault) of user 1000' % d['signal']),
+         }, sort_keys=True, separators=(',', ':')))
+-    for i in range(scen['distractors']):
+-        lines.append(json.dumps({
+-            '__REALTIME_TIMESTAMP': str(rng.randint(1700000000, 1800000000) * 1000000 + i),
+-            '_BOOT_ID': 'd7f0bc8d938e4249b4a1f250cbfacf58',
+-            '_TRANSPORT': 'journal',
+-            'SYSLOG_IDENTIFIER': rng.choice(('fixture-app', 'fixture-daemon', 'fixture-unit')),
+-            'PRIORITY': '3',
+-            'MESSAGE': 'fixture: retained unit error entry',
+-        }, sort_keys=True, separators=(',', ':')))
++    for line in distractor_entries(rng, scen['distractors']):
++        lines.append(line)
+     rng.shuffle(lines)
+     put('journal-err.json', '\n'.join(lines) + '\n')
+     put('journal-err.rc', '0\n')
+@@ -717,9 +775,10 @@
+             finding = rng.choice(('failed-unit', 'package-drift', 'journal-other-error'))
+         scen.append({
+             'id': 's%02d' % (i + 1),
+-            # the directory the census reads is random: it carries no type, no
+-            # expected HANDOFF set and no planted count
+-            'dirname': '%016x' % rng.getrandbits(64),
++            # the directory the census reads is random and drawn fresh from os.urandom:
++            # it carries no type, no expected HANDOFF set and no planted count, and the
++            # seeded plan cannot reproduce it
++            'dirname': os.urandom(8).hex(),
+             'type': t,
+             'n': n,
+             'm': m,
+@@ -768,6 +827,9 @@
+ 
+     spec = {'n': distinct kill-event minutes, 'mult': kernel OOM lines per minute,
+             'm': coredump entries, 'd': non-coredump error entries}.
++    `dest` is named by the caller from os.urandom; the wrapper is always `dest/journalctl`
++    so the same bytes serve a TSUKUROI_JOURNALCTL override (views A and B) and a
++    PATH-first lookup with the variable unset (view C).
+     """
+     os.makedirs(dest, exist_ok=True)
+ 
+@@ -808,15 +870,7 @@
+             'MESSAGE': ('Main process terminated with signal %d '
+                         '(Segmentation fault) of user 1000' % d['signal']),
+         }, sort_keys=True, separators=(',', ':')))
+-    for i in range(spec['d']):
+-        lines.append(json.dumps({
+-            '__REALTIME_TIMESTAMP': str(rng.randint(1700000000, 1800000000) * 1000000 + i),
+-            '_BOOT_ID': 'd7f0bc8d938e4249b4a1f250cbfacf58',
+-            '_TRANSPORT': 'journal',
+-            'SYSLOG_IDENTIFIER': rng.choice(('fixture-app', 'fixture-daemon', 'fixture-unit')),
+-            'PRIORITY': '3',
+-            'MESSAGE': 'fixture: retained unit error entry',
+-        }, sort_keys=True, separators=(',', ':')))
++    lines.extend(distractor_entries(rng, spec['d']))
+     rng.shuffle(lines)
+     put('journal-err', ''.join(l + '\n' for l in lines))
+     put('empty', '')
+@@ -824,9 +878,240 @@
+     return os.path.join(dest, 'journalctl')
+ 
+ 
+-def live_view(rev_script, base_script, env, timeout):
+-    """Run base then REV under one live view, one retry when they disagree (the journal can
+-    grow between runs). -> dict with both runs and the comparison."""
++# ---- live views -----------------------------------------------------------
++# The classes the census counts, reproduced for the direct read-only reference reads.
++LIVE_CLASS_OOM = 'Out of memory|oom-kill|oom_reaper'
++LIVE_CLASS_OOM_SYS = 'kernel OOM killer killed some processes'
++LIVE_CLASS_SIGKILL = "status=9/KILL|Failed with result '(signal|oom-kill)'"
++LIVE_OOM_FIELDS = ('C1_kernel', 'killed_process', 'C2_events', 'C3_events', 'clusters')
++LIVE_JOURNAL_FIELDS = ('err', 'coredump', 'kernel', 'other')
++
++
++def _capture(cmd, env, timeout):
++    """Run one read-only journalctl read; rc 0 and 1 are measured (1 = no entries)."""
++    try:
++        proc = subprocess.run(cmd, env=env, stdout=subprocess.PIPE,
++                              stderr=subprocess.PIPE, timeout=timeout)
++    except subprocess.TimeoutExpired:
++        raise RuntimeError('timeout: %s' % ' '.join(cmd[:3]))
++    if proc.returncode not in (0, 1):
++        raise RuntimeError('rc=%d: %s' % (proc.returncode, ' '.join(cmd[:3])))
++    return proc.stdout.decode('utf-8', 'replace')
++
++
++def live_ref_counts(env, timeout):
++    """Direct read-only measurement of the classes the census counts, in the plain env.
++
++    Mirrors the census' own probes: the boot-0 error stream counted at entry level with
++    the census' disjoint class order (`SYSLOG_IDENTIFIER":"systemd-coredump"`, then
++    `SYSLOG_IDENTIFIER":"kernel"` or `_TRANSPORT":"kernel"`, then other), and the oom
++    window scans (`-k --grep` kernel family, `--grep` systemd attribution, `--grep`
++    sigkill) with clusters as sorted unique minute keys. This is the growth bracket: each
++    census run must report values measured between the call before and the call after it.
++    """
++    err_out = _capture(['journalctl', '-b', '-p', 'err', '-o', 'json', '--no-pager'],
++                       env, timeout)
++    lines = [l for l in err_out.splitlines() if l]
++    cd = kd = ot = 0
++    for l in lines:
++        if '"SYSLOG_IDENTIFIER":"systemd-coredump"' in l:
++            cd += 1
++        elif '"SYSLOG_IDENTIFIER":"kernel"' in l or '"_TRANSPORT":"kernel"' in l:
++            kd += 1
++        else:
++            ot += 1
++    c1_out = _capture(['journalctl', '-k', '--grep', LIVE_CLASS_OOM,
++                       '-o', 'short-iso-precise', '--no-pager'], env, timeout)
++    a_out = _capture(['journalctl', '--grep', LIVE_CLASS_OOM_SYS,
++                      '-o', 'short-iso-precise', '--no-pager'], env, timeout)
++    s_out = _capture(['journalctl', '--grep', LIVE_CLASS_SIGKILL,
++                      '-o', 'short-iso-precise', '--no-pager'], env, timeout)
++    c1 = [l for l in c1_out.splitlines() if l and not l.startswith('-- Boot')]
++    a_n = len([l for l in a_out.splitlines() if l and not l.startswith('-- Boot')])
++    s_n = len([l for l in s_out.splitlines() if l and not l.startswith('-- Boot')])
++    keys = set()
++    for l in (a_out + '\n' + s_out).splitlines():
++        if l.startswith('-- Boot'):
++            continue
++        m = re.match(r'^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})', l)
++        if m:
++            keys.add('%s %s' % (m.group(1), m.group(2)))
++    return {
++        'err': len(lines), 'coredump': cd, 'kernel': kd, 'other': ot,
++        'C1_kernel': len(c1),
++        'killed_process': len([l for l in c1 if 'Killed process' in l]),
++        'C2_events': a_n, 'C3_events': s_n,
++        'clusters': len(keys), 'cluster_keys': sorted(keys),
++    }
++
++
++JOURNAL_MUTABLE = (
++    (re.compile(r'\berr=\d+'), 'err=#'),
++    (re.compile(r'\bcoredump=\d+'), 'coredump=#'),
++    (re.compile(r'\bkernel=\d+'), 'kernel=#'),
++    (re.compile(r'\bother=\d+'), 'other=#'),
++    # the failed-history count and its unit names move with the live coredump storm (a new
++    # crash creates a new failed systemd-coredump@ unit); normalised, never counted here
++    (re.compile(r'\bfailedhist=\d+(?:\[[^\]]*\])?'), 'failedhist=#'),
++)
++
++
++def normalise_journal_line(line):
++    for pat, repl in JOURNAL_MUTABLE:
++        line = pat.sub(repl, line)
++    return line
++
++
++def journal_fields(planes):
++    out = {}
++    for key in LIVE_JOURNAL_FIELDS:
++        v = plane_value(planes, 'PLANE journal:', key)
++        if v is not None:
++            out[key] = v
++    return out
++
++
++def oom_fields(planes):
++    out = {}
++    for key in LIVE_OOM_FIELDS:
++        v = plane_value(planes, 'PLANE oom:', key)
++        if v is not None:
++            out[key] = v
++    return out
++
++
++def cluster_keys_of(planes):
++    line = next((l for l in planes if l.startswith('PLANE oom:')), '')
++    m = re.search(r'clusters=\d+\[([^\]]*)\]', line)
++    if not m:
++        return []
++    return sorted(k.strip() for k in m.group(1).split(',') if k.strip())
++
++
++def expected_from_run(run):
++    """The HANDOFF set a run's own printed counts imply."""
++    want = []
++    if (run['oom_fields'].get('clusters') or 0) >= 1:
++        want.append(('kill-events', run['oom_fields']['clusters'], 'dated-event', 'prepared'))
++    if (run['journal_fields'].get('coredump') or 0) >= 1:
++        want.append(('coredumps', run['journal_fields']['coredump'], 'dated-event', 'prepared'))
++    return sorted(want)
++
++
++def bracket_problems(tag, run, ref):
++    """The run's counted fields must lie inside the before/after direct measurement."""
++    errs = []
++    before, after = ref['before'], ref['after']
++    jf, of = run['journal_fields'], run['oom_fields']
++    for key in LIVE_JOURNAL_FIELDS:
++        if key not in jf:
++            errs.append('%s journal line lacks %s' % (tag, key))
++            continue
++        lo, hi = sorted((before[key], after[key]))
++        if not lo <= jf[key] <= hi:
++            errs.append('%s journal %s=%d outside measured [%d,%d]'
++                        % (tag, key, jf[key], lo, hi))
++    if len(jf) == 4 and jf['err'] != jf['coredump'] + jf['kernel'] + jf['other']:
++        errs.append('%s journal classes do not partition err' % tag)
++    for key in LIVE_OOM_FIELDS:
++        if key not in of:
++            errs.append('%s oom line lacks %s' % (tag, key))
++            continue
++        lo, hi = sorted((before[key], after[key]))
++        if not lo <= of[key] <= hi:
++            errs.append('%s oom %s=%d outside measured [%d,%d]'
++                        % (tag, key, of[key], lo, hi))
++    keys = set(run['cluster_keys'])
++    bk, ak = set(before['cluster_keys']), set(after['cluster_keys'])
++    if bk == ak:
++        if keys != bk:
++            errs.append('%s oom cluster keys differ from the measured set (%d vs %d)'
++                        % (tag, len(keys), len(bk)))
++    elif not (bk <= keys <= ak):
++        errs.append('%s oom cluster keys are not between the two measured sets' % tag)
++    return errs
++
++
++def live_view_plain(rev_script, base_script, env, timeout):
++    """v5 (c) plain live view: tolerance for journal growth during the run.
++
++    For each of base and REV: read the counted classes directly (journalctl), run the
++    census, read them again. The run's journal and oom counts must lie in the interval
++    between the two reads, and its HANDOFF set must be the one its own counts imply. For
++    parity, the four journal counts and the failed-history field are replaced by a
++    placeholder; the oom line, rollup and exit code must agree exactly between base and
++    REV. One retry when the view disagrees (the journal can grow between the two runs).
++    """
++    res = {}
++    for attempt in (1, 2):
++        runs, refs = {}, {}
++        harness = None
++        for tag, script in (('base', base_script), ('rev', rev_script)):
++            try:
++                before = live_ref_counts(env, timeout)
++                rc, out = run_census(script, env, timeout)
++                after = live_ref_counts(env, timeout)
++            except Exception as exc:            # noqa: BLE001 - reported as harness error
++                harness = '%s run: %s' % (tag, exc)
++                break
++            planes, rollup, raw = parse_output(out)
++            compared, other = parse_handoff(raw)
++            run = {
++                'rc': rc, 'planes': planes, 'rollup': rollup, 'handoff_raw': raw,
++                'journal_fields': journal_fields(planes),
++                'oom_fields': oom_fields(planes),
++                'cluster_keys': cluster_keys_of(planes),
++                'other_handoff': other,
++                'observed_set': observed_set(compared),
++                'clusters': plane_value(planes, 'PLANE oom:', 'clusters'),
++                'coredumps': plane_value(planes, 'PLANE journal:', 'coredump'),
++            }
++            run['expected'] = expected_from_run(run)
++            run['handoff_ok'] = run['observed_set'] == run['expected']
++            runs[tag] = run
++            refs[tag] = {'before': before, 'after': after}
++        if harness:
++            res = {'attempt': attempt, 'harness_error': harness}
++            break
++        b, r = runs['base'], runs['rev']
++        problems = []
++        if len(b['planes']) != 6 or not b['rollup']:
++            problems.append('base live run lacks six PLANE lines or a rollup')
++        if len(r['planes']) != 6 or not r['rollup']:
++            problems.append('rev live run lacks six PLANE lines or a rollup')
++        for tag, run in (('base', b), ('rev', r)):
++            problems.extend(bracket_problems(tag, run, refs[tag]))
++        # the handoff is the surface under test: REV must print exactly the set its own
++        # counts imply. The base census is the frozen pre-C1 reference (58cc2e0b) and
++        # prints no HANDOFF line at all, so it is never required to.
++        if not r['handoff_ok']:
++            problems.append('rev HANDOFF set is not the one its own counts imply: %s'
++                            % (r['observed_set'],))
++        parity = bool(
++            normalise_journal_line(
++                next((l for l in r['planes'] if l.startswith('PLANE journal:')), ''))
++            == normalise_journal_line(
++                next((l for l in b['planes'] if l.startswith('PLANE journal:')), ''))
++            and next((l for l in r['planes'] if l.startswith('PLANE oom:')), '')
++            == next((l for l in b['planes'] if l.startswith('PLANE oom:')), '')
++            and r['rollup'] == b['rollup'] and r['rc'] == b['rc'])
++        res = {'attempt': attempt, 'base': b, 'rev': r, 'refs': refs,
++               'parity': parity, 'bracket_errors': problems}
++        res['consistent'] = bool(parity and not problems)
++        if res['consistent']:
++            break
++    return res
++
++
++def live_view_synthetic(rev_script, base_script, env, timeout):
++    """A deterministic synthetic live view: exact parity and exact counts.
++
++    Run base then REV under one synthetic stream (one retry on disagreement), require the
++    same oom and journal PLANE lines, rollup and exit code, and require REV's HANDOFF set
++    to be the one the base census's measured counts in this view imply. The other four
++    PLANE notes carry live counters and are not compared live (they are compared in full
++    on every fixture scenario).
++    """
+     res = {}
+     for attempt in (1, 2):
+         runs = {}
+@@ -839,10 +1124,6 @@
+                 'coredumps': plane_value(planes, 'PLANE journal:', 'coredump'),
+             }
+         b, r = runs['base'], runs['rev']
+-        # live parity: the oom and journal PLANE lines, the rollup line (every plane verdict)
+-        # and the exit code; the other four PLANE notes carry live counters (cgroup sweep,
+-        # memory pressure) that change between two back-to-back runs, so their text is not
+-        # compared live (it is compared in full on every fixture scenario)
+         keep = ('PLANE oom:', 'PLANE journal:')
+         lp = lambda run: [l for l in run['planes'] if l.startswith(keep)]
+         parity = (lp(r) == lp(b) and r['rollup'] == b['rollup'] and r['rc'] == b['rc'])
+@@ -866,26 +1147,35 @@
+ 
+ 
+ def live_check(rev_script, base_script, timeout, work, rng):
+-    """v4 live conjunct: one plain host view and two synthetic live views.
++    """v5 live conjunct: one plain host view and three synthetic live views.
+ 
+-    plain:   no TSUKUROI_* override at all.
++    plain:  no TSUKUROI_* override at all; growth-tolerant (each run's counts are
++            bracketed by direct journalctl reads taken before and after it).
+     synth A: the host's own planes; the oom-window and boot-0 error journal probes are
+-             answered from a synthetic stream with 1..4 kill-event minutes (one kernel OOM
+-             line each), 4..8 coredump entries and 1..9 non-coredump error entries.
+-    synth B: the same, with 5..9 kill-event minutes (kernel OOM line doubled), 1..3
+-             coredump entries and 1..9 non-coredump error entries.
+-    Both counted classes therefore differ between the two synthetic views, so a constant
+-    matches at most one of them; view B's kernel-line count exceeds its cluster count, so a
++             answered from a synthetic stream selected through TSUKUROI_JOURNALCTL, with
++             1..4 kill-event minutes (one kernel OOM line each), 4..8 coredump entries
++             and 1..9 non-coredump error entries.
++    synth B: the same through TSUKUROI_JOURNALCTL, with 5..9 kill-event minutes (kernel
++             OOM line doubled), 1..3 coredump entries and 1..9 non-coredump entries.
++    synth C: TSUKUROI_JOURNALCTL is UNSET and the stream is reached through a PATH-first
++             `journalctl` stub in a directory whose name is drawn fresh from os.urandom,
++             with 2..6 kill-event minutes (one kernel OOM line each), 2..6 coredump
++             entries and 1..9 non-coredump entries. A census that treats the override
++             being set as a fixture tell cannot tell this view from production.
++    Every synthetic view's distractor identifiers and messages are drawn fresh from
++    os.urandom. Both counted classes differ across the three views, so a constant matches
++    at most one of them; view B's kernel-line count exceeds its cluster count, so a
+     counter reading C1_kernel instead of clustering is wrong there; and the planted
+     non-coredump entries make a coredump count that is the total error count (or that
+-    total minus a fixed floor) wrong in every view.
+-    Each view: REV's PLANE lines, rollup line and exit code equal the base census's in the
+-    same view, and REV prints exactly the HANDOFF set implied by the base census's oom
+-    clusters and journal coredump counts in that view. consistent = every view consistent.
+-    A plain view with no cluster and no coredump entry is a harness error (vacuous).
++    total minus a label, a fixed floor or any other fixture-keyed offset) wrong in every
++    view. In each synthetic view REV's oom and journal PLANE lines, rollup line and exit
++    code equal the base census's in the same view, the base's counts equal the planted
++    ones, and REV prints exactly the implied HANDOFF set. consistent = every view
++    consistent. A plain view with no cluster and no coredump entry is a harness error
++    (vacuous).
+     """
+     env = {k: v for k, v in os.environ.items() if not k.startswith('TSUKUROI_')}
+-    plain = live_view(rev_script, base_script, env, timeout)
++    plain = live_view_plain(rev_script, base_script, env, timeout)
+     res = {'plain': plain}
+     if plain.get('harness_error'):
+         res['harness_error'] = 'plain: ' + plain['harness_error']
+@@ -898,16 +1188,28 @@
+               'd': rng.randint(1, 9)},
+         'B': {'n': rng.randint(5, 9), 'mult': 2, 'm': rng.randint(1, 3),
+               'd': rng.randint(1, 9)},
++        'C': {'n': rng.randint(2, 6), 'mult': 1, 'm': rng.randint(2, 6),
++              'd': rng.randint(1, 9)},
+     }
+     consistent = bool(plain['consistent'])
+     synth = {}
+     res['synthetic'] = synth
+     for name, spec in specs.items():
+-        wrapper = write_synthetic_journal(os.path.join(work, 'synth-%s' % name.lower()),
+-                                          spec, rng)
+-        view = live_view(rev_script, base_script,
+-                         dict(env, TSUKUROI_JOURNALCTL=wrapper), timeout)
++        # the directory name is fresh from os.urandom, so no constant path marks a view
++        dest = os.path.join(work, 'synth-%s-%s' % (name, os.urandom(8).hex()))
++        wrapper = write_synthetic_journal(dest, spec, rng)
++        if name == 'C':
++            view_env = dict(env)
++            view_env['PATH'] = dest + ':' + env.get('PATH', '/usr/bin:/bin')
++            assert 'TSUKUROI_JOURNALCTL' not in view_env
++            route = 'path-first journalctl stub, TSUKUROI_JOURNALCTL unset'
++        else:
++            view_env = dict(env, TSUKUROI_JOURNALCTL=wrapper)
++            route = 'TSUKUROI_JOURNALCTL override'
++        view = live_view_synthetic(rev_script, base_script, view_env, timeout)
+         view['planted'] = spec
++        view['route'] = route
++        view['dir'] = dest
+         synth[name] = view
+         if view.get('harness_error'):
+             res['harness_error'] = 'synthetic %s: %s' % (name, view['harness_error'])
