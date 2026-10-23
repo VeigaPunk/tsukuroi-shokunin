@@ -1,0 +1,39 @@
+# Exit codes and digests of every gate run this seat performed (round 34, wave 1, ExecHeaderGate)
+# cwd for the gate runs unless stated: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ExecHeaderGate
+# every command was wrapped in `timeout` and env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE
+
+1  python3 check-knowledge-header.py --selftest
+   exit=0  stdout=selftest.out  sha256 bf240a39ca8951e47a67bde03554f5a534cbc1973e8a4744bdb14a44f3a45a94  selftest PASS 25/25
+
+2  python3 check-knowledge-header.py --revision 6de666c427ba9aa6b4350561980bde8d0e7c261d --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+   exit=1  stdout=base-6de666c.stdout.json  sha256 f0e90260ff60b810d249c13b6c9be4db147b42c0409c88fef55e13d4de8ec2c2
+   status FAIL note_count 53 complete_count 52 clean_count 43 finding_count 11
+
+3  python3 check-knowledge-header.py --revision 6de666c427ba9aa6b4350561980bde8d0e7c261d   (no --lane: default resolution)
+   exit=1  stdout=default-lane-base.stdout.json  sha256 f0e90260ff60b810d249c13b6c9be4db147b42c0409c88fef55e13d4de8ec2c2  (byte-identical to run 2)
+
+4  python3 check-knowledge-header.py --revision 6de666c427ba9aa6b4350561980bde8d0e7c261d --lane /fast/scratch/hyaku/tsukuroi-r34/ExecHeaderGate/repo --branch master
+   exit=1  stdout=clone-base-6de666c.stdout.json  sha256 f0e90260ff60b810d249c13b6c9be4db147b42c0409c88fef55e13d4de8ec2c2
+
+5  python3 check-knowledge-header.py --revision 30e9665f9f933ddcd89b1b3d451985b9a0933589 --lane /fast/scratch/hyaku/tsukuroi-r34/ExecHeaderGate/repo --branch sandbox
+   exit=0  stdout=after-variant.stdout.json  sha256 09d5f79c051532c490391a8a7938851446e42efcfea1b51d8f02ca90ea797cd1
+   status PASS note_count 53 complete_count 53 clean_count 53 finding_count 0
+
+6  python3 check-knowledge-header.py --revision 30e9665f9f933ddcd89b1b3d451985b9a0933589 --lane /fast/scratch/hyaku/tsukuroi-r34/ExecHeaderGate/repo   (default --branch master)
+   exit=2  stdout=inline in the report: one finding E-REVISION-NOT-LANDED, site refs/heads/master, detail "30e9665f9f93 is not an ancestor"
+
+7  python3 check-knowledge-header.py --revision 6de666c427ba9aa6b4350561980bde8d0e7c261d --lane /nonexistent/repo
+   exit=2  stdout=inline in the report: one finding E-LANE-UNRESOLVED
+
+8  python3 tools/check-recheck-commands.py --revision 6de666c427ba9aa6b4350561980bde8d0e7c261d --branch master      (run inside the clone)
+   exit=0  stdout=recheckgate-base.json  sha256 39faeb01fcf634642c3e8e81a31b4ea7b9e208403de10083f335527421de77b9
+   status PASS file_count 53 invocation_count 81 flagged_count 0
+
+9  python3 tools/check-recheck-commands.py --revision 30e9665f9f933ddcd89b1b3d451985b9a0933589 --branch sandbox       (run inside the clone)
+   exit=0  stdout=recheckgate-variant.json  sha256 f2abde4bb235b3babb947cc61de90bd3ace027ec01b392922a35b941282821b7
+   status PASS file_count 53 invocation_count 81 flagged_count 0
+
+# gate artefact under test
+check-knowledge-header.py  sha256 592b6c2e765e2a0aec94cc745271878ef748ef3a2e2303ec722828d7cc13f919  bytes 23058
+variant.patch              sha256 8d2f3cb360120e204260ddf0d47d611f3331e4608f8422fb5a695133e40c9c4c
+sandbox clone              /fast/scratch/hyaku/tsukuroi-r34/ExecHeaderGate/repo  variant commit 30e9665f9f933ddcd89b1b3d451985b9a0933589 (branch sandbox, parent 6de666c427ba9aa6b4350561980bde8d0e7c261d)

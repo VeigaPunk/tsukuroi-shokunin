@@ -1,0 +1,123 @@
+diff --git a/corpus/knowledge/adjacency-mori-oom-r27.md b/corpus/knowledge/adjacency-mori-oom-r27.md
+index e196f54..5cee1da 100644
+--- a/corpus/knowledge/adjacency-mori-oom-r27.md
++++ b/corpus/knowledge/adjacency-mori-oom-r27.md
+@@ -1,7 +1,7 @@
+ # Overlap register with mori's userspace OOM killer entry — round 27
+ 
+ source: mori-shokunin `corpus/knowledge/userspace-oom-killers-r26.md` at commit `ef9dbee136d6ed2ef98687f5cb0c0a16506a5155` (sha256 `a5368ee7121d2cbe0929dcb65a13144e5d925f942721b8e6557cf6c612b0a29d`, snapshot `.ufo/waves/round-27/siblings/mori/corpus/knowledge/userspace-oom-killers-r26.md`)
+-recheck: when mori lands a new revision of that entry (mori HEAD was `0becc421` while this was drafted, with reworded F8 and decision-table rows)
++recheck: when mori lands a new revision of that entry (mori HEAD was `0becc421` while this was drafted, with reworded F8 and decision-table rows); recheck cadence: on-release
+ verified-at: 2026-10-22 (mori pin ef9dbee1 and lane revision 75784ea4; mori HEAD df886be1 observed in the wave-2 corrections below)
+ companion: `corpus/knowledge/adjacency-mori-oom-r27.json` holds the anchors; a correction is appended to both files.
+ 
+diff --git a/corpus/knowledge/btrfs-repair-r31.md b/corpus/knowledge/btrfs-repair-r31.md
+index 315a1f8..00fc0b7 100644
+--- a/corpus/knowledge/btrfs-repair-r31.md
++++ b/corpus/knowledge/btrfs-repair-r31.md
+@@ -1,6 +1,6 @@
+ source: S164–S169 in `corpus/SOURCES.md`: btrfs-progs v7.1 Documentation/Defragmentation.rst (`https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/Defragmentation.rst`, sha256 `71ad07a3f200284b01d6ee18fc4cc8732fe0542b80556e2cc798247505daa60b`); btrfs-rescue.rst (`https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/btrfs-rescue.rst`, sha256 `838504fe8b00d221e017457e7953717f3ca2a0e886a48a4c457367b8c4063a1d`); btrfs-check.rst (`https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/btrfs-check.rst`, sha256 `927b67b4ab13f681866e699fcd6ea4917a42ef08e4db1731b0adf065022d955c`); ch-mount-options.rst (`https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/ch-mount-options.rst`, sha256 `aac3b1b68ba55259f6c2b8e6d1e30e41560eaee3b0f4863af58387271bc9985f`); btrfs-replace.rst (`https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/btrfs-replace.rst`, sha256 `da4bf595f072a96a309535c1022b0171a8657a4f207a3d3da73250886fd8bc9e`); Trim.rst (`https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/Trim.rst`, sha256 `2a114d56f29d727002a981e868cc97e89d7dd77a5e1cf42ad5a9ff05bfcf0ffc`); frozen source URLs and pins: `tools/check-btrfs-repair-r31.py:56-91`.
+ verified-at: 2026-10-22 (the six downloaded snapshots' `sha256sum` values matched the pins at `tools/check-btrfs-repair-r31.py:60-90`).
+-recheck: `python3 tools/check-btrfs-repair-r31.py --revision "$(git rev-parse HEAD)"` for the frozen C1 row and source-pin predicate (`tools/check-btrfs-repair-r31.py:43-46,60-90`; read-only gate conventions: `tools/check-recheck-commands.py:4-11,34-38`).
++recheck: `python3 tools/check-btrfs-repair-r31.py --revision "$(git rev-parse HEAD)"` for the frozen C1 row and source-pin predicate (`tools/check-btrfs-repair-r31.py:43-46,60-90`; read-only gate conventions: `tools/check-recheck-commands.py:4-11,34-38`). Recheck cadence: on-release.
+ companion: `corpus/knowledge/btrfs-repair-r31.json` (Q01–Q08 rows) and `SKILL.md` (the eight `| [R31-Qnn] ` decision lines), as required by `tools/check-btrfs-repair-r31.py:7-13,16-27`.
+ 
+ # Btrfs repair and maintenance decisions (round 31)
+diff --git a/corpus/knowledge/btrfs-space-r30.md b/corpus/knowledge/btrfs-space-r30.md
+index d74ef57..7319788 100644
+--- a/corpus/knowledge/btrfs-space-r30.md
++++ b/corpus/knowledge/btrfs-space-r30.md
+@@ -1,6 +1,6 @@
+ source: S152, S153, S154, S155, S156, S157, S158 and S159 in `corpus/SOURCES.md` (btrfs-progs v7.1 Documentation/btrfs-filesystem.rst, ch-balance-filters.rst, ch-sysfs.rst, mkfs.btrfs.rst and ch-subvolume-intro.rst; Linux v7.2 fs/btrfs/block-rsv.c, fs/btrfs/sysfs.c and fs/btrfs/space-info.c); rejected candidates S160 (archived btrfs wiki FAQ) and S161 (ArchWiki Btrfs)
+ verified-at: 2026-10-22 (capture 2026-10-22T21:16:37Z, kernel 7.2.11-arch1-1, btrfs-progs v7.1)
+-recheck: `python3 tools/check-btrfs-space-r30.py --revision <REV>` for the row evidence; re-read `/sys/fs/btrfs/<fsid>/allocation/{global_rsv_size,global_rsv_reserved,metadata/bytes_used,metadata/total_bytes,data/disk_total,metadata/disk_total,system/disk_total}` and `btrfs filesystem usage -b /` (unprivileged, read-only) for the host readings; re-open the sources on a btrfs-progs or kernel release
++recheck: `python3 tools/check-btrfs-space-r30.py --revision <REV>` for the row evidence; re-read `/sys/fs/btrfs/<fsid>/allocation/{global_rsv_size,global_rsv_reserved,metadata/bytes_used,metadata/total_bytes,data/disk_total,metadata/disk_total,system/disk_total}` and `btrfs filesystem usage -b /` (unprivileged, read-only) for the host readings; re-open the sources on a btrfs-progs or kernel release; recheck cadence: on-release
+ companion: `corpus/knowledge/btrfs-space-r30.json` (rows D01 to D10, counted by `tools/check-btrfs-space-r30.py`)
+ 
+ # Btrfs space allocation and ENOSPC (round 30)
+diff --git a/corpus/knowledge/kill-oom-boundary-r33.md b/corpus/knowledge/kill-oom-boundary-r33.md
+index ad72f9c..ee11e26 100644
+--- a/corpus/knowledge/kill-oom-boundary-r33.md
++++ b/corpus/knowledge/kill-oom-boundary-r33.md
+@@ -1,6 +1,8 @@
+ # Kill and OOM evidence classes: the tsukuroi / mori boundary, per class (round 33, C2 exploratory)
+ 
+ recheck: on-release of either lane's census or mori's `PROVINCE.md`; procedure: re-open each pointer at the new revisions (`git show <rev>:<path> | sed -n '<range>p'`) and re-run each `none declared` grep.
++source: S182 (mm/oom_kill.c v7.2); mori-shokunin PROVINCE.md and SKILL.md at 24603186b555dddb88ebd607e415e27bdea747b4; lane SKILL.md, PROVINCE.md and corpus notes at ca768636
++verified-at: 2026-10-23
+ 
+ Status: exploratory note for round 33's C2 (adjacency). It examines, for each kill or memory-pressure evidence class in this lane's kill-event class table (`SKILL.md:1097-1107`), what tsukuroi retains, what `PROVINCE.md` ADJ-04 routes to mori, and what mori itself declares at the pinned mori revision `24603186b555dddb88ebd607e415e27bdea747b4`. Before this note, ADJ-04 named one trigger for every class and `SHONEN.md` box 4 recorded the boundary as unexamined.
+ 
+diff --git a/corpus/knowledge/memory-pressure-r25.md b/corpus/knowledge/memory-pressure-r25.md
+index 1bd1bc8..481a17f 100644
+--- a/corpus/knowledge/memory-pressure-r25.md
++++ b/corpus/knowledge/memory-pressure-r25.md
+@@ -1,6 +1,6 @@
+ source: Round-25 frozen capture `.ufo/waves/round-25/capture/capture.txt` (sha256 `e60f1bbc1feb8f251c8b276f70342da5385d07b9ad747305e1f016e0df447136`, produced by `.ufo/waves/round-25/capture/capture.sh`); eight SOURCES rows for the primary pages below, all opened 2026-10-22, status `mined`, used-by `corpus/knowledge/memory-pressure-r25.md, corpus/knowledge/memory-pressure-r25.json`; machine-readable twin `memory-pressure-r25.json`; sibling reading cited and not absorbed: `mori-shokunin/corpus/knowledge/system-pressure-r24.md` at `4f05dd5a` (PROVINCE row ADJ-04); supplementary read-only capture `.ufo/waves/round-25/capture/capture-earlyoom.txt` (sha256 `7adbe069326afaaa103c447b95d507e989503356c864d9726edc45381fd40309`), context only and not a counting input.
+ verified-at: 2026-10-22 (capture header line 3 reads `2026-10-22T10:06:23Z`; capture end line 154 reads `2026-10-22T10:06:33Z`; host kernel `7.2.11-arch1-1` at capture line 6; host systemd `systemd 262 (262-1-arch)` at capture line 9).
+-recheck: after any kernel, systemd or systemd-oomd configuration change, and after any memory incident. Procedure: run `bash .ufo/waves/round-25/capture/capture.sh <new-output-file>` (host-read-only; it writes only the named output file), update the capture pointers and the JSON, then `python3 tools/check-memory-pressure.py --revision <commit>`. A live re-capture needs an explicit read-only authorization; a committed gate count does not grant it.
++recheck: after any kernel, systemd or systemd-oomd configuration change, and after any memory incident. Procedure: run `bash .ufo/waves/round-25/capture/capture.sh <new-output-file>` (host-read-only; it writes only the named output file), update the capture pointers and the JSON, then `python3 tools/check-memory-pressure.py --revision <commit>`. A live re-capture needs an explicit read-only authorization; a committed gate count does not grant it. Recheck cadence: 30d.
+ 
+ # Memory pressure and systemd-oomd — round 25 entry
+ 
+diff --git a/corpus/knowledge/path-reconciliation-r23.md b/corpus/knowledge/path-reconciliation-r23.md
+index b854908..bc9559f 100644
+--- a/corpus/knowledge/path-reconciliation-r23.md
++++ b/corpus/knowledge/path-reconciliation-r23.md
+@@ -1,6 +1,6 @@
+ source: S085 — .ufo/waves/round-23/sources/r22-rough-census.txt original strip_sel and per-event break; .ufo/waves/round-23/sources/r22-closure.json verification.rechecks/notes; fixed input digests in .ufo/waves/round-23/frozen/reconciliation-inputs.json
+ verified-at: 2026-10-21; round22 inputs pinned at ae01e50f582016384e620022be38bf5367000e2e; outside closure rounds[422], fleet4482c275f9381f219ee4d092e0324d417c3cb1e7
+-recheck: python3 tools/check-path-reconciliation.py --revision <landed-hex>
++recheck: python3 tools/check-path-reconciliation.py --revision <landed-hex>; recheck cadence: 90d
+ 
+ # Reconciling a rough path census with retained policy findings
+ 
+diff --git a/corpus/knowledge/pause-lift-gate-r24.md b/corpus/knowledge/pause-lift-gate-r24.md
+index c196aef..178b7ed 100644
+--- a/corpus/knowledge/pause-lift-gate-r24.md
++++ b/corpus/knowledge/pause-lift-gate-r24.md
+@@ -91,7 +91,7 @@ The JSON now cites correction rows S104-S114 where relevant; old rows S087-S103
+ - P5: S113 pins the installed Omarchy v3.8.4 helper, not master. With configured Snapper configs the wrapper snapshots before its git and package steps and stops on helper failure; with zero configs it creates nothing but can return success. Existing snapshot counts and contents come from the read-only privileged wave-1 `ExecRollbackPaths.md`, not the unprivileged failed capture command. Archive HTTP availability does not prove an authentic, dependency-consistent restore or a successful boot.
+ - Supersession locators corrected: `SKILL.md:386-388`, `update-safety-note.md:280-284` (also lines 29-32, 353, 374, 397). The pending-count UNKNOWN notes are `host-health-report-r3.md:628` and `freshness-recheck-r18.json:90`, not the round-15 entry. Round-17 had already marked 413 historical at `partial-upgrade-recheck-r15.md:176` and the pending-upgrade wording historical at `README.md:149-151`; round 24 is not the first correction. The old capture time was 07:44 UTC and the subsequent full upgrade 09:15 -03.
+ 
+-recheck: `python3 tools/check-pause-gate.py --revision <commit>` validates committed evidence links only. A new live host capture requires explicit read-only authorization. The revised capture script uses a private temporary checkupdates database, cleans only that private directory, and writes checkupdates.out inside its output directory. The pinned l1-4 capture was generated by the earlier script at commit 22fd1642; later script privacy fixes do not retroactively reproduce or rewrite those bytes.
++recheck: `python3 tools/check-pause-gate.py --revision <commit>` validates committed evidence links only. A new live host capture requires explicit read-only authorization. The revised capture script uses a private temporary checkupdates database, cleans only that private directory, and writes checkupdates.out inside its output directory. The pinned l1-4 capture was generated by the earlier script at commit 22fd1642; later script privacy fixes do not retroactively reproduce or rewrite those bytes. Recheck cadence: on-release.
+ 
+ ### Premise precision from fresh re-derivations
+ 
+diff --git a/corpus/knowledge/seat-boundary-r22.md b/corpus/knowledge/seat-boundary-r22.md
+index 512734a..3e10843 100644
+--- a/corpus/knowledge/seat-boundary-r22.md
++++ b/corpus/knowledge/seat-boundary-r22.md
+@@ -1,6 +1,6 @@
+ source: S083 — .ufo/waves/round-22/snapshot/corpus/lessons/round-21.md § R21-SCOPE-RECUR and retained request audit; S084 — .ufo/waves/round-22/sources/host-tool-boundary.json fields tools_semantics/native_per_seat_allowlist/approved_scope
+ verified-at: 2026-10-21; immutable baseline 894d1e20fb4939b0cc4fadf722c46d1429f257d2 and round22 predispatch415ac3a834a1d7fa5b09986463512579af65d28e; final measured revision recorded in SCORECARD
+-recheck: python3 tools/check-boundary-contract.py --revision <landed-hex>
++recheck: python3 tools/check-boundary-contract.py --revision <landed-hex>; recheck cadence: 90d
+ 
+ # Seat boundaries for read-only host-evidence work
+ 
+diff --git a/corpus/knowledge/storage-health-r26.md b/corpus/knowledge/storage-health-r26.md
+index bbb88f5..0f016e8 100644
+--- a/corpus/knowledge/storage-health-r26.md
++++ b/corpus/knowledge/storage-health-r26.md
+@@ -1,6 +1,6 @@
+ source: S128, S129, S130, S131, S132, S133, S134, S135 and S139 in `corpus/SOURCES.md` (btrfs-progs v7.1 Documentation/btrfs-device.rst, btrfs-scrub.rst, mkfs.btrfs.rst and ch-scrub-intro.rst; Arch btrfs-progs 7.1-1 btrfs-scrub@.timer; Linux v7.2 fs/btrfs/volumes.c and fs/btrfs/sysfs.c; smartmontools 7.5 smartmontools/nvmeprint.cpp; NVM Express Base Specification 2.4 SMART / Health Information log page), plus the read-only host capture `.ufo/waves/round-26/capture/capture.txt` (sha256 002bef16de9bfbffff7905904a1e7f44dae486ca2e60f38090ac2a87132a71dd)
+ verified-at: 2026-10-22 (capture 2026-10-22T13:39:52Z, kernel 7.2.11-arch1-1, btrfs-progs 7.1-1, smartmontools 7.5-2, nvme-cli 3.1-1)
+-recheck: `python3 tools/check-storage-health.py --revision <REV>` for the evidence links; re-run `.ufo/waves/round-26/capture/capture.sh <out>` (read-only) for the host readings; re-open the sources on a btrfs-progs, kernel or smartmontools release
++recheck: `python3 tools/check-storage-health.py --revision <REV>` for the evidence links; re-run `.ufo/waves/round-26/capture/capture.sh <out>` (read-only) for the host readings; re-open the sources on a btrfs-progs, kernel or smartmontools release; recheck cadence: on-release
+ 
+ # Storage integrity: btrfs device errors, scrub and NVMe health (round 26)
+ 
+diff --git a/corpus/knowledge/structured-edit-r23.md b/corpus/knowledge/structured-edit-r23.md
+index 8d26017..1371651 100644
+--- a/corpus/knowledge/structured-edit-r23.md
++++ b/corpus/knowledge/structured-edit-r23.md
+@@ -1,6 +1,6 @@
+ source: S086 — .ufo/waves/round-23/sources/structured-edit-observations.json, observations argument_keys/path/recorded_starts; policy: .ufo/waves/round-23/preregister.json edit_decisions
+ verified-at: 2026-10-21; round23 source packet derived from round22 transcripts at baseline ae01e50f582016384e620022be38bf5367000e2e; landed gate measurements in SCORECARD.md Round23
+-recheck: python3 tools/check-edit-contract.py --revision <landed-hex>
++recheck: python3 tools/check-edit-contract.py --revision <landed-hex>; recheck cadence: 90d
+ 
+ # Structured edit authority for this lane's evidence files
+ 

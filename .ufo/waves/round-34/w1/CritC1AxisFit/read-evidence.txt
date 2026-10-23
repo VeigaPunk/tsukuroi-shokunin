@@ -1,0 +1,18 @@
+Read-only evidence for CritC1AxisFit, 2026-10-23.
+
+The first executed command was:
+timeout 20 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 6de666c427ba9aa6b4350561980bde8d0e7c261d:SCORECARD.md
+Observed exit code: 0. The output contains the Round 34 declaration at lines 1416-1441. Its C1 after-value is leaking 0 of pairs 27, harness_errors empty, exit 0. Its kill rule additionally requires a counterexample to retain an ambient path in an ordinary untraced run.
+
+The other executed command was:
+timeout 20 git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 6de666c427ba9aa6b4350561980bde8d0e7c261d:tools/probe-child-env-allowlist-r34.py
+Observed exit code: 0. Source line references below are to these frozen bytes, not to a scored variant.
+
+At lines 818-836 the probe resolves the candidate revision, exports that revision, and calls one_run twice on that same tree for controls A and B. At lines 838-843 it requires a zero control exit, agreement between those controls and at least one recognized git exec. It does not compare the candidate's control to a claim-base run.
+At lines 350-355 parity compares only rc, stdout_sha256 and git_execs. At lines 867-871 it compares an injected run to that candidate's control A.
+At lines 617-618 a literal dict is an accepted env shape. At lines 883-899 a run leaks on injected-name carriers, exact ambient value carriers, missing required git settings or parity differences. At lines 904-910 the summary reports pairs, leaking, harness_errors and predicate_label, with zero exit when there are no errors or leaks.
+At lines 180-192 PREDICATE spells the declaration's sentence and PREDICATE_LABEL is leaking. The assertion checks that PREDICATE is a substring of whitespace-normalized __doc__; it does not read SCORECARD.md.
+
+The wave plan was read as data. /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1-spec.json:109 specifies C12 as exiting without any git and leaving everything else unchanged. Line 118 specifies C13 as an empty environment without git settings. Neither description specifies replacing the target's functionality with a deterministic harmless git call and fixed success output.
+
+Only read, grep, glob and the two read-only git-show commands were used to investigate. No Python, lane gate, counter, candidate, test, model runtime or judge was invoked. No control was built or scored, and no receipt result is asserted by this evidence file. No process was backgrounded; both command calls completed. No tool was installed.

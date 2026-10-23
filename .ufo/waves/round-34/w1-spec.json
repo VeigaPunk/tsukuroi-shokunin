@@ -1,0 +1,354 @@
+{
+ "wave": "tsukuroi-r34-w1",
+ "reportDir": ".ufo/waves/round-34/w1",
+ "maxLanes": 39,
+ "context": "/skill:godspeed\n# Godspeed directive (verbatim bytes of ~/.agents/skills/godspeed/directive.md)\nYou are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\n# Goal\nTsukuroi round 34 only, attempt 1, wave w1 (pre-data adversarial control wave for C1, plus routed repairs from the round-33 spot-check, code reading of the counter's rules, baselines, and sources and host reconciliation for the exploratory claim C2). Lane repo /home/vgpnk/Projects/shokunin/tsukuroi-shokunin. Claim base 2641591e303057cd0f67e190a6bdf7fa91a45c31. Declaration commit 6de666c427ba9aa6b4350561980bde8d0e7c261d (read it first: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 6de666c427ba9aa6b4350561980bde8d0e7c261d:SCORECARD.md | sed -n '/^## Round 34 — declaration/,$p'`). Frozen counter: `tools/probe-child-env-allowlist-r34.py` at 6de666c427ba9aa6b4350561980bde8d0e7c261d (sha256 35a87374eb89239af841a015965518d63e40de7ac556041f1b0f366a993fa5a8); it is the round-33 probe with a new target set. Hyaku addendum §9 binds (`/home/vgpnk/Projects/shokunin/.ufo/prompts/tsukuroi-round-34.md` lines 343-365): a target must be one that a do-nothing control, a content-free output or a shortcut keyed on fixture ids or labels cannot reach. The predicate and probe are FROZEN at 6de666c427ba9aa6b4350561980bde8d0e7c261d: never edit them; report what they say.\n- C1 (operability): the git child environment of nine lane tools (check-boot-chain, check-btrfs-repair-r31, check-btrfs-space-r30, check-locator-clarification, check-recheck-commands, check-section-citations, check-seat-scope, check-source-scope-correction, measure-update-recheck) changes from a copy of the ambient environment minus GIT_* to a fixed allow-list. Counter: the probe's claim set (9 targets x channels names, quiet, source = 27 pairs); label `leaking`; declared after-value `leaking` 0 of `pairs` 27, `harness_errors` empty, exit 0. The claimed change does NOT exist yet; the L1 writes it after this wave's control receipts are committed. A control that meets the after-value is a finding against C1: report it plainly.\n- C2 (depth, exploratory, no counter): what the census journal arm's `coredump=` count (`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh:1398-1410`) and the ADJ-04 `class=coredumps value=<m>` handoff value count, against systemd v262's own coredump logging; a live read on 2026-10-23 found 1604 boot-0 `systemd-coredump` error entries of which 183 say \"dumped core\" and 1348 say \"terminated abnormally without generating a coredump\". Mori owns signal-11 coredump classification (`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/PROVINCE.md` OUT-005): this lane explains its own counting unit and classifies nothing by crash cause.\n- Background: round 33 was rejected only because its C2 note lacked `source:`/`verified-at:` (`/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-33-verifier-spotcheck.md` §2, §4, §5). Lane rules: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md`.\n- Seat evidence goes under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/<YourSeatName>/ (create it). Every `Report:` trailer path is relative to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin — write it at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/<that path>.\n# Contract\n- SEAT CONTAINMENT: NEVER set GIT_DIR, GIT_WORK_TREE, GIT_INDEX_FILE or any GIT_* variable to a path inside /home/vgpnk/Projects/shokunin/tsukuroi-shokunin or the fleet repo /home/vgpnk/Projects/shokunin. NEVER run git or jj write commands in the lane, the fleet repo or any sibling repo (add, commit, stash, checkout, switch, reset, pull, push, fetch, update-ref, worktree, init, apply, new, describe, squash, rebase, abandon, bookmark, undo, op restore). Never touch refs/jj/keep/* refs. Read-only git (log, show, diff, status, ls-files, rev-parse, archive, cat-file) is fine; read-only jj only with --ignore-working-copy, never at the fleet root. Every sandbox git runs in YOUR clone: `mkdir -p /fast/scratch/hyaku/tsukuroi-r34/<YourSeatName> && env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git clone -q --no-local /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /fast/scratch/hyaku/tsukuroi-r34/<YourSeatName>/repo && cd /fast/scratch/hyaku/tsukuroi-r34/<YourSeatName>/repo && git checkout -q 6de666c427ba9aa6b4350561980bde8d0e7c261d && git remote set-url --push origin DISABLED`; commit only there, with `git -c user.name=ctl -c user.email=ctl@sandbox commit`.\n- Scoring a sandbox variant (committed-receipt form, QUALITY 77): `cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && timeout 3000 env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE python3 tools/run-receipt.py --lane /fast/scratch/hyaku/tsukuroi-r34/<YourSeatName>/repo --revision <your variant commit> --tool-revision 6de666c427ba9aa6b4350561980bde8d0e7c261d --out /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/<YourSeatName>/<name>.jsonl --timeout 2900 -- tools/probe-child-env-allowlist-r34.py --revision '{rev}' --lane '{lane}'` (add `--set r33claim`, `--set regression` or `--only <tool>` after `--lane '{lane}'` only when your item says so; `{rev}` and `{lane}` are literal, run-receipt substitutes them). It clones your sandbox repo privately and runs the frozen probe bytes from 6de666c427ba9aa6b4350561980bde8d0e7c261d; a full claim-set run takes 10 to 40 minutes, so start it early and do other parts of your item while it runs. Score your variant ONCE. Report the summary line (`pairs`, `leaking`, `leaking_pairs`, `harness_errors`, `probe_sha256`, `predicate_label`) and the footer `exit_code`, and per pair which evidence fired (names, value channel, kept git settings, parity, source finding). Save your variant's patch (`git -C <clone> diff 6de666c427ba9aa6b4350561980bde8d0e7c261d <variant>`) beside the receipt. When an item asks for an ordinary-run check, show with one plain command outside the probe whether an ambient name (for example `ZZ_R34_AMBIENT=1`) reaches a git child of the variant in an ordinary, untraced run (e.g. run one target with a `git` wrapper script first on PATH that writes `env` to a file under your scratch dir, bounded).\n- Paths: every path you read or write is absolute. Put files only under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/<YourSeatName>/ or /fast/scratch/hyaku/tsukuroi-r34/<YourSeatName>/. A relative path lands in the fleet repo; never write there. Never edit any lane file outside your seat directory. Never write to the fleet repo, any sibling lane repo (read-only), MANIFEST.json, .ufo/state or the watchdog log. Bound every fixture or log write (no unbounded appends; never point a marker or log at a file Python imports, such as sitecustomize.py); check `df -h /fast` before any large build. Never run `du`/`find` over /fast/scratch through a shell builtin wrapper; use /usr/bin/du. Keep every committed file under 1 MiB; put larger artifacts in your scratch dir and record their sha256.\n- Host actions are read-only. Tooling authorization (operator, 2026-10-19): you and every seat may install or update tools that help the task without asking; read /home/vgpnk/.omp/agent/RULES.md first and record each install (tool, version, channel, reason). pacman guard: all pacman transactions are PAUSED host-wide; install only via `uv tool`, `npx` or an official binary in ~/.local/bin. Never run pacman -S, -Sy, -Syu, -U, -R, a downgrade, or a service start, stop or restart; never load or unload a module, write a sysctl, sysfs, configuration or boot state; never run any btrfs write; never use sudo.\n- Process limits: wrap every command in `timeout` (at most 3000 s), never start an unbounded recursive test run, cap parallelism at 3 processes, and kill every process tree you started before you return.\n- Sources: open sources by ordinary means only (curl -sL of public URLs); never pass a bot challenge. If raw.githubusercontent.com returns 429, use the project's own plain endpoint at the same tag and name the URL used. Save fetched bytes unchanged under your seat directory and give their sha256. Quote at most 25 words, verbatim, with the line number. Installed versions on this host: Python 3.14.8, git 2.56.0, Linux 7.2, systemd 262, man-pages 6.19 (check with `--version` before you pick a tag). Registry `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md` (185 rows, S001-S185): say whether your source duplicates a registered row (same URL or same bytes).\n- No messages between seats. The only message target is agent://TsukuroiR34 (the L1), and only for a blocker. After you return, write nothing more.\n- Time box: return within 45 minutes of starting. A short honest report beats a late one.\n- Report format: plain English sentences. Start with a one-line verdict (for a control: `MEETS` or `DOES NOT MEET` the C1 after-value, with leaking/pairs/harness_errors/exit), then numbered findings, each with an evidence pointer (absolute path:line, URL plus quote, or command plus exit code and output excerpt). Mark observations [obs], inferences [inf] and unknowns [unk]. End with the exact literal lines `Scope: read=<summary>; wrote=<paths>; executed=<commands or none>`, `Model: <your answering model identity if exposed, else not exposed>` and `Installs: none` (or each install).\n- You are a leaf: no delegation, no background jobs, no swarm (an executor may spawn one read-only labrat probe at most). Never pass a model parameter.\n\n# Tooling directive — operator, 2026-10-19 (always on, every agent)\n\nAny agent — main session or subagent, any lane, any wave — installs or updates any tool that\nhelps its task or is a strict upgrade, with full privilege, without asking first. Passwordless\n`sudo` is available.\n\n- Channel order: `sudo pacman -S --needed --noconfirm <pkg>` → `uv tool install <pkg>` →\n  official release binary into `~/.local/bin` → `cargo install` / `npm -g`. Official sources\n  only; never pipe an unverified remote script into a shell.\n- Full-system upgrades (`pacman -Syu`) go through tsukuroi-shokunin's update-safety gate first:\n  boot-chain packages can break boot (mkinitcpio 42 moves root to `/sysroot`; the host's\n  `btrfs-overlayfs` and `plymouth` hooks still expect `/new_root`). Never run a partial upgrade\n  (`pacman -Sy <pkg>`). If an install fails on a stale sync database, report it.\n- Record every install or update — tool, version, channel, reason — in your report or handoff.\n",
+ "items": [
+  {
+   "name": "C01Before",
+   "role": "executor",
+   "prompt": "Issue the independent before receipt for C1 at the declaration commit itself (no variant; its nine targets are byte-identical to the claim base: show it with `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff --stat 2641591e303057cd0f67e190a6bdf7fa91a45c31 6de666c427ba9aa6b4350561980bde8d0e7c261d -- tools/check-boot-chain.py tools/check-btrfs-repair-r31.py tools/check-btrfs-space-r30.py tools/check-locator-clarification.py tools/check-recheck-commands.py tools/check-section-citations.py tools/check-seat-scope.py tools/check-source-scope-correction.py tools/measure-update-recheck.py`, expected empty). This is also the do-nothing control. Use `--lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --revision 6de666c427ba9aa6b4350561980bde8d0e7c261d` in run-receipt (the lane itself, read-only; run-receipt clones it privately). Name the receipt before-claim.jsonl. Report per-target evidence and the git-child counts.",
+   "axes": [
+    "operability",
+    "control:do-nothing"
+   ]
+  },
+  {
+   "name": "C02JunkBytes",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: junk bytes: append a comment line and a no-op assignment to each target; the ambient copy stays.",
+   "axes": [
+    "operability",
+    "control:junk"
+   ]
+  },
+  {
+   "name": "C03LabelOnlyAllowlist",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: allow-list in name only: rename each ambient-copy builder to `allowlist_env` (or add an `ALLOWLIST` constant and a docstring saying \"allow-list\") while it still returns the ambient copy minus GIT_*.",
+   "axes": [
+    "operability",
+    "control:label-only"
+   ]
+  },
+  {
+   "name": "C04DenyInjectFixed",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: deny-list extended by the probe's four fixed injected names: each builder keeps the ambient copy but also drops BASH_ENV, ENV, GCONV_PATH, PERL5OPT and every name starting LD_ or PYTHON. Add the ordinary-run check with an ambient name outside that list.",
+   "axes": [
+    "operability",
+    "control:deny-fixed"
+   ]
+  },
+  {
+   "name": "C05DenyValueNames",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: deny the value-channel names: each builder keeps the ambient copy but drops HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, LOGNAME and SHELL, and sets PATH=/usr/bin:/bin. Add the ordinary-run check.",
+   "axes": [
+    "operability",
+    "control:deny-values"
+   ]
+  },
+  {
+   "name": "C06HostSnapshotNames",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: deny a host snapshot: record the names in your own seat environment now (`env | cut -d= -f1`), write them as a frozen tuple into each builder, and keep only ambient names NOT in that tuple plus the fixed git settings; that is, a builder that tries to pass \"only new names\". Add the ordinary-run check.",
+   "axes": [
+    "operability",
+    "control:snapshot"
+   ]
+  },
+  {
+   "name": "C07ArgvKeyed",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: keyed on the run's argv: when sys.argv contains `--selftest` or a path under /fast/scratch, each builder returns the fixed clean dict (PATH=/usr/bin:/bin, GIT_OPTIONAL_LOCKS=0, GIT_PAGER=cat, LC_ALL=C, GIT_CONFIG_NOSYSTEM=1, GIT_CONFIG_GLOBAL=os.devnull); otherwise the original ambient copy. Add the ordinary-run check with an argv outside that key.",
+   "axes": [
+    "operability",
+    "control:argv-keyed"
+   ]
+  },
+  {
+   "name": "C08ScratchLocationKeyed",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: keyed on location: when os.getcwd() or the tool's own __file__ lies under /fast/scratch or /tmp, each builder returns the fixed clean dict; otherwise the ambient copy. Add the ordinary-run check from the lane path.",
+   "axes": [
+    "operability",
+    "control:location-keyed"
+   ]
+  },
+  {
+   "name": "C09BashEnvKeyed",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: keyed on BASH_ENV: when BASH_ENV is present in the ambient environment, each builder returns the fixed clean dict; otherwise the ambient copy. Report which channel stops it.",
+   "axes": [
+    "operability",
+    "control:fixed-name-keyed"
+   ]
+  },
+  {
+   "name": "C10TracerPlain",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: keyed on the tracer, written plainly: a helper reads `/proc/self/status` and parses `TracerPid:`; when it is non-zero each builder returns the fixed clean dict, otherwise the original ambient copy. Use plain string literals (no obfuscation). Report which clause stops it.",
+   "axes": [
+    "operability",
+    "control:tracer-keyed"
+   ]
+  },
+  {
+   "name": "C11InheritNoEnv",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: inherit: remove the `env=` keyword from every subprocess call in the nine targets that passes the ambient-copy builder (the child inherits the whole environment, GIT_* included). Report the per-pair evidence.",
+   "axes": [
+    "operability",
+    "control:inherit"
+   ]
+  },
+  {
+   "name": "C12SkipWorkSelftest",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: skip the work: each target exits 0 immediately at the top of main() (after argument parsing) without running its selftest or any git; nothing else changes. Report how the harness classifies it.",
+   "axes": [
+    "operability",
+    "control:skip-work"
+   ]
+  },
+  {
+   "name": "C13ContentFreeEmptyEnv",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: content-free builder: each ambient-copy builder returns an empty dict `{}` (no PATH, no git settings). Report how each target and the harness respond.",
+   "axes": [
+    "operability",
+    "control:content-free"
+   ]
+  },
+  {
+   "name": "C14FixtureNameKeyed",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: keyed on the probe's fixture labels: when any ambient value contains `bashenv.sh`, `env.sh` or `/gconv`, or any ambient name or value contains `TSUKUROI_R33`, each builder returns the fixed clean dict; otherwise the ambient copy. Add the ordinary-run check.",
+   "axes": [
+    "operability",
+    "control:fixture-label-keyed"
+   ]
+  },
+  {
+   "name": "C15HalfFix",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: half fix: only four of the nine targets (check-boot-chain, check-btrfs-repair-r31, check-btrfs-space-r30, check-locator-clarification) get the fixed clean dict; the other five keep the ambient copy.",
+   "axes": [
+    "operability",
+    "control:half-fix"
+   ]
+  },
+  {
+   "name": "C17ValueKeyedFilter",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: value-keyed filter: each builder keeps the ambient copy but drops any entry whose value contains /fast/scratch, /tmp or a run of 12 or more random-looking characters [A-Za-z0-9_] with mixed case and digits; it keeps everything else. Add the ordinary-run check with a plain ambient value.",
+   "axes": [
+    "operability",
+    "control:value-keyed"
+   ]
+  },
+  {
+   "name": "C18GitPathAlias",
+   "role": "mutation-tester",
+   "prompt": "Pre-data control for C1 (round 34). In your sandbox clone at the declaration commit, build exactly ONE variant commit as described (applied to all nine claim targets unless the item says otherwise), score it once with the frozen claim-set probe (full claim set, no --only), and report MEETS or DOES NOT MEET with the per-pair evidence. Variant: git through another path: keep the ambient copy, and start git as `/bin/git` (Arch /bin is a symlink to usr/bin) instead of `git` or `/usr/bin/git` in every git call of the nine targets. This tests the probe's `is_git` recognition (round-33 RevProbeFrozen 5.1). Report which clauses fire and whether the kept-settings clause sees these children.",
+   "axes": [
+    "operability",
+    "control:git-path-alias"
+   ]
+  },
+  {
+   "name": "C16PositiveAllowlist",
+   "role": "mutation-tester",
+   "prompt": "Positive control for C1 (shows the after-value is reachable by the claimed work, not that the claim holds). In your sandbox clone build ONE variant commit that does the claimed work in all nine targets: every ambient-copy builder returns a fixed dict display with no ambient read (PATH='/usr/bin:/bin', GIT_OPTIONAL_LOCKS='0', GIT_PAGER='cat', LC_ALL='C', GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, plus any fixed key the tool's own children need, never copied from the ambient environment), or calls `_revision.clean_env()` where the tool already imports `_revision`. Score it once with the full claim set, run the ordinary-run check, and run every target's own mode at the declaration commit and at the variant (`timeout 900 python3 tools/<t> --selftest`, or `--revision <commit> --lane <clone>` for the two btrfs tools): list any exit code or stdout difference. Save the patch; the L1 may reuse it.",
+   "axes": [
+    "operability",
+    "control:positive"
+   ]
+  },
+  {
+   "name": "ReadScanAmbientReads",
+   "role": "reviewer",
+   "prompt": "Read-only code-reading item for C1 (round-33 routed defect 4, rewritten as code reading). Read the frozen counter `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/probe-child-env-allowlist-r34.py` at 6de666c427ba9aa6b4350561980bde8d0e7c261d (the docstring, `scan_module`, `_builder_findings`, `source_findings`, `carriers`, `value_carriers`, `is_git`, `parity`, `one_run`). Do not run it and do not build anything. Task: for the rule family named below, list every Python construct class that a lane tool could use to pass an ambient environment value to a child process while the named rules do NOT flag it. For each class give a one-line code example (as text only), the exact function and line of the rule that misses it, and whether it falls inside the declared named limit (the read side: a target that learns through procfs that it is traced and reads its initial environment there, S181). End with the count of classes OUTSIDE the named limit. This is a coverage review of a static analyzer, not a request to write evasive code. Execution class NO-EXEC: read/grep/glob only. Rule family: ambient READS in the source channel (attribute names environ/environb/getenv/getenvb, import resolution, flagged strings, the indirect-lookup constructs list).",
+   "axes": [
+    "operability",
+    "counter:code-reading"
+   ]
+  },
+  {
+   "name": "ReadScanSpawnShapes",
+   "role": "reviewer",
+   "prompt": "Read-only code-reading item for C1 (round-33 routed defect 4, rewritten as code reading). Read the frozen counter `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/probe-child-env-allowlist-r34.py` at 6de666c427ba9aa6b4350561980bde8d0e7c261d (the docstring, `scan_module`, `_builder_findings`, `source_findings`, `carriers`, `value_carriers`, `is_git`, `parity`, `one_run`). Do not run it and do not build anything. Task: for the rule family named below, list every Python construct class that a lane tool could use to pass an ambient environment value to a child process while the named rules do NOT flag it. For each class give a one-line code example (as text only), the exact function and line of the rule that misses it, and whether it falls inside the declared named limit (the read side: a target that learns through procfs that it is traced and reads its initial environment there, S181). End with the count of classes OUTSIDE the named limit. This is a coverage review of a static analyzer, not a request to write evasive code. Execution class NO-EXEC: read/grep/glob only. Rule family: SPAWNS and `env=` shapes in the source channel (SPAWN_ANY, inheriting-spawn rules, `env_ok`, bindings, builder function reads, module imports that are flagged).",
+   "axes": [
+    "operability",
+    "counter:code-reading"
+   ]
+  },
+  {
+   "name": "ReadRunChannels",
+   "role": "reviewer",
+   "prompt": "Read-only code-reading item for C1 (round-33 routed defect 4, rewritten as code reading). Read the frozen counter `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/probe-child-env-allowlist-r34.py` at 6de666c427ba9aa6b4350561980bde8d0e7c261d (the docstring, `scan_module`, `_builder_findings`, `source_findings`, `carriers`, `value_carriers`, `is_git`, `parity`, `one_run`). Do not run it and do not build anything. Task: for the rule family named below, list every Python construct class that a lane tool could use to pass an ambient environment value to a child process while the named rules do NOT flag it. For each class give a one-line code example (as text only), the exact function and line of the rule that misses it, and whether it falls inside the declared named limit (the read side: a target that learns through procfs that it is traced and reads its initial environment there, S181). End with the count of classes OUTSIDE the named limit. This is a coverage review of a static analyzer, not a request to write evasive code. Execution class NO-EXEC: read/grep/glob only. Rule family: the RUN channels (names and quiet): `carriers` (name presence), `value_carriers` (exact NAME=VALUE), `is_git` and the kept-settings clause, `parity` and its normalisation, and what a child's environment must look like to be counted. Also say which kinds of child (non-git, a child that re-execs, a long-lived daemon, a child started after the target exits) the runs see.",
+   "axes": [
+    "operability",
+    "counter:code-reading"
+   ]
+  },
+  {
+   "name": "ExecHeaderGate",
+   "role": "executor",
+   "prompt": "Routed repair 1 (QUALITY 8, `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md:12`): write a new gate `check-knowledge-header.py` in your seat directory (NOT in the lane's tools/; the L1 lands it). Contract: `python3 check-knowledge-header.py --revision <REV> [--lane <repo>]` reads every `corpus/knowledge/*.md` at REV through git (use `tools/_revision.py` bind/clean_env the way other lane gates do; read `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-recheck-commands.py` for the pattern) and reports, per note, each of `source:`, `verified-at:` and `recheck:` that has no line starting with that key; `verified-at:` must carry an ISO date (YYYY-MM-DD) and `recheck:` an ISO date or a cadence (`<N>d` or `on-release`), else a finding. JSON on stdout, exit 0 pass / 1 finding / 2 could-not-evaluate; `--selftest` with should-fail cases (missing source, missing verified-at, missing recheck, verified-at without a date, recheck without a date or cadence, key only inside a fenced block or mid-line) and a pass case. Measure it: at 6de666c427ba9aa6b4350561980bde8d0e7c261d it must exit 1 and name `kill-oom-boundary-r33.md` (show every finding it prints; if older notes fail the date/cadence rules, list them, do not loosen the rule silently, and say which rule each fails). In your sandbox clone add the two header lines to that note (`source: S182 (mm/oom_kill.c v7.2); mori-shokunin PROVINCE.md and SKILL.md at 24603186b555dddb88ebd607e415e27bdea747b4; lane SKILL.md, PROVINCE.md and corpus notes at ca768636` and `verified-at: 2026-10-23`) and show the gate exits 0 there (plus any other fixes the findings require, listed). Commit receipts (stdout, exit) in your seat dir. Also report how many notes carry all three keys at 6de666c427ba9aa6b4350561980bde8d0e7c261d by your gate's rule.",
+   "axes": [
+    "repair:quality-8",
+    "freshness"
+   ]
+  },
+  {
+   "name": "ExecScratchDigests",
+   "role": "executor",
+   "prompt": "Routed repair 6: the round-33 report cites five 'mutant vs frozen' diffs that exist only in `/fast/scratch/hyaku/tsukuroi-r33a3/oversize/` (5 files, about 3 MB each). For each: record its sha256 and size; find the committed bytes it was made from (the mutation-only patches committed under `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w2/MutAfter*/` and the lane commits 9c89ff4f, c8fcfbf6 and later; `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin log --oneline 9c89ff4f..ca768636`); write one reproducible command per file that regenerates it from committed bytes in a sandbox clone, run it, and show whether the regenerated bytes have the same sha256 (say plainly when they do not, and why). Write `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ExecScratchDigests/digests.txt` (file name, size, sha256, regeneration command, regenerated sha256, match yes/no) and the regeneration script. Never copy the 3 MB files into the lane.",
+   "axes": [
+    "repair:scratch-evidence"
+   ]
+  },
+  {
+   "name": "ExecCensusCounterV5",
+   "role": "executor",
+   "prompt": "Routed repair 3 (R33-FIXTURE-LABEL-SHORTCUT, round-32 routed defect 1). Read `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-33.md` (Mistakes R33-FIXTURE-LABEL-SHORTCUT; Wave-2 results), `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-census-handoff-r32.py`, the round-33 v4 counter `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w1/R1CensusCounterV4/` and the label-keyed variant `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w2/MutR1CounterV4/mut-variant.patch`. Write `score-census-handoff-v5.py` in your seat directory (not in tools/). Required changes over v4: (a) planted distractor errors carry no shared fixed label: draw each distractor's identifiers and message text per run from os.urandom so no constant string marks them; (b) one synthetic view leaves the journal override variable (`TSUKUROI_JOURNALCTL`) UNSET and feeds the census through another route you document (for example a PATH-first `journalctl` stub with a random name for its data dir), so a census keyed on that variable being set cannot tell it from production; (c) the live view tolerates journal growth during the run (read the live count before and after the census run and accept a census value inside that interval). Freeze the predicate in the file's docstring and a constant before any score; commit it in a sandbox clone first. Then score, once each: the round-32 tip census (`efe6d135`), the MutR1CounterV4 variant (apply its patch in a sandbox clone), and a content-free census (prints the HANDOFF lines with value 0). Report each score, exit code and whether the label-keyed variant is now refused. Keep fixture writes bounded.",
+   "axes": [
+    "repair:fixture-label-shortcut",
+    "operability"
+   ]
+  },
+  {
+   "name": "ScribeMistakes",
+   "role": "scribe",
+   "prompt": "Frontier step 3 (mine one mistake) for round 34. Read `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-33-verifier-spotcheck.md` (§2 C2 defect 1, §4 expansion harmed), `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-33.md`, `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md` criteria 8, 14 and 82, and the round-33 C2 note history (`git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin log --format='%h %cI %s' -- corpus/knowledge/kill-oom-boundary-r33.md`). Draft, as text in your report only, one or two `## Mistakes` rows in the lane's table shape (ID, Class, Evidence pointer, Captured-by, Fix and how it was shown able to fail): the admitted note missing QUALITY 8's `source:`/`verified-at:` while 52 of 53 notes carry them; name why no lane check caught it (which criterion should have, and what the round-33 entry-bar check actually ran), and a fix that can be shown able to fail (a gate red on that note at the base). Also sweep for any other round-33 miss: name your sweep command and its output. Prose only; do not edit lane files.",
+   "axes": [
+    "learning:mistakes"
+   ]
+  },
+  {
+   "name": "ExecGateBaselines",
+   "role": "executor",
+   "prompt": "No-harm baselines at the declaration commit 6de666c427ba9aa6b4350561980bde8d0e7c261d, through run-receipt where the gate takes `--revision` (pattern: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-33/a3w1/ExecGateBaselines.md`; read it first): `tools/check-self-assessment.py`, `tools/check-registry-coverage.py`, `tools/check-recheck-commands.py`, `tools/check-adjacency-anchors.py`, `tools/check-pause-gate.py`, `tools/report-red-causes.py` (each with the arguments its registry row in `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SKILL.md` gives), plus `python3 /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate`-style census is NOT yours (the L1 runs it). Save every receipt in your seat dir with exit code and last summary line. Report each exit and its findings. Note: check-registry-coverage is expected to be red at 6de666c427ba9aa6b4350561980bde8d0e7c261d because the new probe has no registry row yet; say what it names.",
+   "axes": [
+    "no-harm:gates"
+   ]
+  },
+  {
+   "name": "ExecProbeNoHarmBase",
+   "role": "executor",
+   "prompt": "No-harm baselines for the earlier probe target sets, at the declaration commit 6de666c427ba9aa6b4350561980bde8d0e7c261d: two run-receipt runs of the frozen probe on the lane itself (`--lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --revision 6de666c427ba9aa6b4350561980bde8d0e7c261d`), one with `--set r33claim` (the five round-33 targets; expected 0 of 15 as at the round-33 tip) and one with `--set regression` (the eleven round-32 targets; expected 0 of 33). Report both summary lines, exit codes and any harness error.",
+   "axes": [
+    "no-harm:probe-sets"
+   ]
+  },
+  {
+   "name": "ExecSelftestBaselines",
+   "role": "executor",
+   "prompt": "No-harm selftest baselines at 6de666c427ba9aa6b4350561980bde8d0e7c261d in your sandbox clone: for each of the nine claim targets and every other `tools/*.py` that has a `--selftest` mode and imports `_revision` (`grep -l _revision tools/*.py`), run `timeout 900 python3 tools/<t> --selftest` (the two btrfs tools: `--revision 6de666c427ba9aa6b4350561980bde8d0e7c261d --lane <your clone>`), at most 3 at a time, and record exit code, stdout sha256 and line count in `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ExecSelftestBaselines/selftests-6de666c4.tsv`. Note any non-deterministic stdout (run a tool twice where its digest looks run-specific). The after-change comparison uses this table.",
+   "axes": [
+    "no-harm:selftests"
+   ]
+  },
+  {
+   "name": "SrcCoredumpCode",
+   "role": "scribe",
+   "prompt": "Source for C2: open systemd v262 source (tag v262; installed `systemctl --version` first) for the code that writes systemd-coredump's per-crash journal entries: find the message formats 'dumped core' and 'terminated abnormally without generating a coredump' (likely `src/coredump/coredump.c` or a sibling file under `src/coredump/`; use the GitHub tree API or raw URLs at the tag), the conditions that choose between them (storage disabled, size limits, rate or other), the MESSAGE_ID used for each (`SD_MESSAGE_COREDUMP`, check its hex value in `src/systemd/sd-messages.h`), and the log priority. Save each file's bytes in your seat dir with sha256; give ≤25-word verbatim quotes with line numbers. Draft one SOURCES.md row in the 11-cell shape of `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md` rows S180-S182 (status `mined`, opened 2026-10-23, recheck `on-release`, used-by `corpus/knowledge/coredump-count-unit-r34.md`) as text in your report. Also re-open S177 (systemd-coredump(5) v262) and say whether its pinned digest still matches.",
+   "axes": [
+    "depth",
+    "source"
+   ]
+  },
+  {
+   "name": "SrcCoredumpConf",
+   "role": "scribe",
+   "prompt": "Source for C2: open systemd v262 `man/coredump.conf.xml` (tag v262) and quote (≤25 words, verbatim, line numbers) what `Storage=`, `ProcessSizeMax=`, `ExternalSizeMax=`, `MaxUse=` and `KeepFree=` mean for whether a core is stored, and whether a crash is still logged when no core is stored. Then read the host's effective configuration read-only: `systemd-analyze cat-config systemd/coredump.conf` and list any drop-in under /etc/systemd/coredump.conf.d or /usr/lib/systemd/coredump.conf.d (paths only, plus their non-comment lines). Save fetched bytes with sha256; draft one SOURCES.md row (11-cell shape of rows S180-S182) as text in your report, and say if it duplicates a registered row.",
+   "axes": [
+    "depth",
+    "source"
+   ]
+  },
+  {
+   "name": "SrcJournalctlJson",
+   "role": "scribe",
+   "prompt": "Source for C2: open systemd v262 `man/journalctl.xml` (tag v262) and quote (≤25 words, verbatim, line numbers) the rule for how `-o json` prints a field whose value is large or not valid text (null values, and the `--all` option), and the journal export format's binary-field rule if the JSON rule points there (`docs/JOURNAL_EXPORT_FORMATS.md` at v262). Then read-only on the host: count boot-0 `systemd-coredump` entries whose MESSAGE is JSON null with and without `--all` (`timeout 120 journalctl -b 0 -o json --no-pager SYSLOG_IDENTIFIER=systemd-coredump | jq -r '.MESSAGE|type' | sort | uniq -c` and the same with `--all`), and for those entries show what the MESSAGE starts with under `--all` (first line only, at most 5 examples, no stack frames). Save fetched bytes with sha256; draft one SOURCES.md row as text in your report.",
+   "axes": [
+    "depth",
+    "source"
+   ]
+  },
+  {
+   "name": "ExecCoredumpReconcile",
+   "role": "executor",
+   "prompt": "Host reconciliation for C2 (read-only). At one capture time, measure boot 0: (1) the census journal arm's own count: run the arm's logic as the census does (read `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh:1380-1415` and reproduce its capture command and awk exactly, or run `timeout 900 bash /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh` and extract `coredump=` from the PLANE journal line and the `HANDOFF ADJ-04 mori class=coredumps value=` line); (2) in the same minute, from `journalctl -b 0 -p err -o json --no-pager`, the `systemd-coredump` entries split by first MESSAGE line kind ('dumped core', 'terminated abnormally without generating a coredump', JSON null, other), by PRIORITY and by MESSAGE_ID; (3) `coredumpctl list -b --json=short --no-pager | jq length` and its stderr (say if it prints nothing and why, e.g. permission). Never print stack frames or command lines of crashed processes; executable names only as counts if at all. Run the whole capture twice about 5 minutes apart to show drift. Write the commands and outputs to `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/ExecCoredumpReconcile/capture.txt` with UTC times, and state plainly whether census `coredump=` equals the sum of all kinds, of 'dumped core' only, or something else.",
+   "axes": [
+    "depth",
+    "host-capture"
+   ]
+  },
+  {
+   "name": "ScoutCoredumpReaders",
+   "role": "scout",
+   "prompt": "Sweep for C2 (QUALITY 68 coverage sweep): find every place in the lane that reads or restates the census `coredump=` count, the journal arm's coredump class, or the ADJ-04 `class=coredumps value=` handoff value as a number of coredumps or crashes: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SKILL.md`, `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/PROVINCE.md`, `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/README.md`, `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/*.md`, `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh`, `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-census-handoff-r32.py`. Give the grep commands you ran, every hit as path:line with the phrase, and classify each as (a) says entries, (b) says coredumps or crashes, (c) ambiguous. Also say whether any note already distinguishes 'dumped core' from 'without generating a coredump' (that would make C2 deeper ground on existing coverage, not new). Read-only.",
+   "axes": [
+    "depth",
+    "sweep"
+   ]
+  },
+  {
+   "name": "CritC2Absorb",
+   "role": "critic",
+   "prompt": "Attack C2 before it is drafted (adjacency risk). Read `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/PROVINCE.md` (OUT-005 and ADJ-04, the round-32 HANDOFF append near the end), `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/kill-oom-boundary-r33.md`, and mori's declared scope at its current tip (`git -C /home/vgpnk/Projects/shokunin/mori-shokunin log -1 --format=%H` then `git show <tip>:PROVINCE.md` and `:SKILL.md`, read-only). Question: can a note on what the census `coredump=` count counts (entries vs dumped cores vs crashes without a stored core, sourced on systemd's own logging) stay inside this lane's own census-reading surface without classifying coredumps by cause (mori's), and what exact sentences or tables would cross the line? Say also whether the handoff value sent to mori under ADJ-04 should be described as entries, and whether mori's side already says what unit it expects (quote with commit and line). Read-only, NO-EXEC except read-only git show/log.",
+   "axes": [
+    "depth",
+    "adjacency"
+   ]
+  },
+  {
+   "name": "ConnSiblingOverlap",
+   "role": "connector",
+   "prompt": "Sibling-overlap scan for round 34 (read-only). Across the sibling lane repos under /home/vgpnk/Projects/shokunin/*-shokunin (read-only `git -C <repo> log -1` and `git grep` at each tip), find (a) any sibling tool or rule about child-process environment allow-lists for git or Python subprocesses (and whether any sibling already uses a fixed allow-list this lane could cite), and (b) any sibling note that counts systemd-coredump journal entries or coredumps (mori especially), with the unit it uses. Give repo, commit, path:line and a ≤25-word quote for each hit, and say whether any hit contradicts or duplicates C1 or C2.",
+   "axes": [
+    "adjacency",
+    "overlap"
+   ]
+  },
+  {
+   "name": "RevProbeR34Diff",
+   "role": "reviewer",
+   "prompt": "Review the frozen counter's provenance (read-only). (1) `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 9c89ff4f093d07a6f92925518310ca6a7c8a2fa0:tools/probe-child-env-allowlist-r33.py 6de666c427ba9aa6b4350561980bde8d0e7c261d:tools/probe-child-env-allowlist-r34.py` (or show both and diff): confirm the only changes are the docstring header paragraph, the usage line, VERSION and the target sets, and that `PREDICATE` and every function body are byte-identical. (2) Re-derive the target selection: list every `tools/*.py` at 2641591e303057cd0f67e190a6bdf7fa91a45c31 that builds a child environment as a copy of `os.environ` (any form, not only the dict comprehension; `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin grep -n environ 2641591e303057cd0f67e190a6bdf7fa91a45c31 -- tools/`), and say whether the declaration's thirteen and the nine chosen are complete and correct; name any ambient-copy builder the declaration missed. (3) Check that the declaration's predicate sentence equals the probe's `PREDICATE` character for character. NO-EXEC except read-only git.",
+   "axes": [
+    "operability",
+    "counter:provenance"
+   ]
+  },
+  {
+   "name": "CritC1AxisFit",
+   "role": "critic",
+   "prompt": "Attack C1's declaration under hyaku §9 (read `/home/vgpnk/Projects/shokunin/.ufo/prompts/tsukuroi-round-34.md` lines 343-365 and the round-34 declaration in `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SCORECARD.md`). Questions: is operability the right axis by the surface changed; is the after-value one a do-nothing control, a junk commit or a shortcut keyed on fixture ids or labels could reach (name the cheapest you can think of that the declared control list does not already cover, as a description, not code); is the predicate one sentence in the plan, the probe constant and the receipt label; is re-applying a round-33 rule to nine new tools coverage, depth or quality, and does the declaration claim more than it measures. Read-only.",
+   "axes": [
+    "operability",
+    "attack:sec9"
+   ]
+  },
+  {
+   "name": "SentinelGitLocalConfig",
+   "role": "sentinel",
+   "prompt": "Security review input for the C1 change (read-only). For each of the nine claim targets, list every place it starts git (file:line) and say whether the repository it runs git in could carry repository-local configuration that runs code or reads files (`core.fsmonitor`, `core.hooksPath`, `include.path`/`includeIf`, `core.sshCommand`, filters/`diff.external`, `credential.helper`) and whether an allow-list environment (PATH=/usr/bin:/bin, GIT_CONFIG_NOSYSTEM=1, GIT_CONFIG_GLOBAL=/dev/null, no HOME) changes that exposure. Rank findings HIGH/MEDIUM/LOW with the file:line. This is input to the change, not a blocker unless HIGH. Read-only.",
+   "axes": [
+    "operability",
+    "security"
+   ]
+  },
+  {
+   "name": "ScoutToolChildren",
+   "role": "scout",
+   "prompt": "Design map for the C1 change (read-only). For each of the nine claim targets at 6de666c427ba9aa6b4350561980bde8d0e7c261d, list every subprocess call (file:line), the program it starts (git, python3, bash, other), the env it passes, and every environment key the child actually needs to work (e.g. a python3 child that needs PYTHONPATH, a git child that needs HOME for a test fixture, a selftest that sets GIT_DIR or GIT_INDEX_FILE on purpose). Say for each target whether it imports `tools/_revision.py` (and so could call `_revision.clean_env()`), and whether it is an independent judge that must not import it (QUALITY 28/36: read the tool's docstring). Output a table the L1 can implement from.",
+   "axes": [
+    "operability",
+    "design-map"
+   ]
+  }
+ ]
+}

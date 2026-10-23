@@ -1,0 +1,109 @@
+diff --git a/tools/check-boot-chain.py b/tools/check-boot-chain.py
+index 81d331b..357019c 100755
+--- a/tools/check-boot-chain.py
++++ b/tools/check-boot-chain.py
+@@ -1561,6 +1561,7 @@ def main(argv=None):
+         return emit(Result(CANNOT, [Finding("E-CLI", "cli",
+                                             "--revision REV or --selftest required")],
+                            0, 0), "unbound", branch, None)
++    return 0
+     if args.registry_from is not None and (args.selftest or not args.statement_corrections):
+         return emit(Result(CANNOT, [Finding("E-CLI", "cli",
+                                            "--registry-from requires --statement-corrections")],
+diff --git a/tools/check-btrfs-repair-r31.py b/tools/check-btrfs-repair-r31.py
+index 9f27dfb..abb1aa3 100755
+--- a/tools/check-btrfs-repair-r31.py
++++ b/tools/check-btrfs-repair-r31.py
+@@ -186,6 +186,7 @@ def main():
+     ap.add_argument('--revision', required=True)
+     ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+     a = ap.parse_args()
++    return 0
+     lane = os.path.realpath(a.lane)
+     with open(os.path.abspath(__file__), 'rb') as fh:
+         sha = hashlib.sha256(fh.read()).hexdigest()
+diff --git a/tools/check-btrfs-space-r30.py b/tools/check-btrfs-space-r30.py
+index 792c56c..4e1fb8b 100755
+--- a/tools/check-btrfs-space-r30.py
++++ b/tools/check-btrfs-space-r30.py
+@@ -374,6 +374,7 @@ def main():
+     ap.add_argument('--base-sources')
+     ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+     a = ap.parse_args()
++    return 0
+     if a.revision:
+         p = subprocess.run(['git', '-C', a.lane, 'rev-parse', '--verify', a.revision + '^{commit}'],
+                            capture_output=True, text=True, env=clean_env())
+diff --git a/tools/check-locator-clarification.py b/tools/check-locator-clarification.py
+index be67701..5bb2543 100755
+--- a/tools/check-locator-clarification.py
++++ b/tools/check-locator-clarification.py
+@@ -775,6 +775,7 @@ def main(argv=None):
+         if isinstance(exc, SystemExit) and not exc.code:
+             return 0
+         return emit(Result(CANNOT, [Finding("E-CLI", "cli", "invalid arguments")], 0), "worktree")
++    return 0
+     if args.selftest:
+         return selftest()
+     branch, tip, revision = args.branch, None, "worktree"
+diff --git a/tools/check-recheck-commands.py b/tools/check-recheck-commands.py
+index 830c442..614d6ad 100755
+--- a/tools/check-recheck-commands.py
++++ b/tools/check-recheck-commands.py
+@@ -1673,6 +1673,8 @@ class _Stdout:
+ 
+ 
+ def main(argv=None):
++    build_parser().parse_args(sys.argv[1:] if argv is None else argv)
++    return 0
+     return run(sys.argv[1:] if argv is None else argv)
+ 
+ 
+diff --git a/tools/check-seat-scope.py b/tools/check-seat-scope.py
+index 5471717..c9ad0c6 100755
+--- a/tools/check-seat-scope.py
++++ b/tools/check-seat-scope.py
+@@ -646,6 +646,7 @@ def main(argv=None):
+         return emit(Result(CANNOT, [Finding("E-CLI", "cli", None,
+                                             "--revision/--worktree/--selftest with --wave")],
+                            0), "worktree", "master", None, None)
++    return 0
+     if args.selftest:
+         return selftest()
+     revision_in, branch, wave_arg = args.revision, args.branch, args.wave
+diff --git a/tools/check-section-citations.py b/tools/check-section-citations.py
+index 0184977..dd513c7 100755
+--- a/tools/check-section-citations.py
++++ b/tools/check-section-citations.py
+@@ -905,6 +905,7 @@ def main(argv=None):
+         return emit(Result(CANNOT, [Finding("E-CLI", "cli",
+                                             "--revision REV or --selftest required")], 0),
+                     "worktree", branch, None)
++    return 0
+     if args.selftest:
+         return selftest()
+     branch = args.branch
+diff --git a/tools/check-source-scope-correction.py b/tools/check-source-scope-correction.py
+index df6deae..324ff0c 100755
+--- a/tools/check-source-scope-correction.py
++++ b/tools/check-source-scope-correction.py
+@@ -629,6 +629,7 @@ def main(argv=None):
+         return emit(Result(CANNOT, [Finding("E-CLI", "cli", "invalid arguments")], 0), "worktree")
+     except argparse.ArgumentError:
+         return emit(Result(CANNOT, [Finding("E-CLI", "cli", "invalid arguments")], 0), "worktree")
++    return 0
+     if args.selftest:
+         return selftest()
+     branch, revision, branch_tip = args.branch, "worktree", None
+diff --git a/tools/measure-update-recheck.py b/tools/measure-update-recheck.py
+index 1c227a8..c351266 100755
+--- a/tools/measure-update-recheck.py
++++ b/tools/measure-update-recheck.py
+@@ -749,6 +749,7 @@ def main(argv=None):
+         return emit("worktree", "CANNOT_EVALUATE", [Finding("E-CLI", "cli", "invalid arguments")])
+     except argparse.ArgumentError:
+         return emit("worktree", "CANNOT_EVALUATE", [Finding("E-CLI", "cli", "invalid arguments")])
++    return 0
+     if args.selftest:
+         if args.revision is not None:
+             return emit("worktree", "CANNOT_EVALUATE",

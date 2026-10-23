@@ -1,0 +1,8 @@
+#!/usr/bin/python3
+import json
+import os
+import sys
+with open('/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-34/w1/C08ScratchLocationKeyed/ordinary-git-env.json', 'w') as stream:
+    json.dump({'observed': True, 'argv': sys.argv[1:], 'ZZ_R34_AMBIENT': os.environ.get('ZZ_R34_AMBIENT'), 'PATH': os.environ.get('PATH'), 'GIT_CONFIG_NOSYSTEM': os.environ.get('GIT_CONFIG_NOSYSTEM'), 'GIT_CONFIG_GLOBAL': os.environ.get('GIT_CONFIG_GLOBAL')}, stream, sort_keys=True)
+    stream.write('\n')
+os.execv('/usr/bin/git', ['/usr/bin/git', *sys.argv[1:]])

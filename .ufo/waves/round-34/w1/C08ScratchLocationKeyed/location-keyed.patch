@@ -1,0 +1,230 @@
+diff --git a/tools/check-boot-chain.py b/tools/check-boot-chain.py
+index 81d331b..f09e4f6 100755
+--- a/tools/check-boot-chain.py
++++ b/tools/check-boot-chain.py
+@@ -799,7 +799,14 @@ def emit(result, revision, branch="master", branch_tip=None):
+ 
+ 
+ def git(*args, repo=None):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = (
++        {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1",
++         "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull}
++        if any(path == root or path.startswith(root + os.sep)
++               for path in (os.getcwd(), os.path.abspath(__file__))
++               for root in ("/fast/scratch", "/tmp"))
++        else {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    )
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(repo or ROOT), *args],
+diff --git a/tools/check-btrfs-repair-r31.py b/tools/check-btrfs-repair-r31.py
+index 9f27dfb..3f54e74 100755
+--- a/tools/check-btrfs-repair-r31.py
++++ b/tools/check-btrfs-repair-r31.py
+@@ -105,8 +105,15 @@ ROW_KEYS = {'id', 'question', 'statement', 'source', 'snapshot', 'line', 'quote'
+ 
+ 
+ def clean_env():
+-    env = {k: v for k, v in os.environ.items()
+-           if not k.startswith('GIT_') and not k.startswith('LD_') and not k.startswith('PYTHON')}
++    env = (
++        {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1",
++         "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull}
++        if any(path == root or path.startswith(root + os.sep)
++               for path in (os.getcwd(), os.path.abspath(__file__))
++               for root in ("/fast/scratch", "/tmp"))
++        else {k: v for k, v in os.environ.items()
++              if not k.startswith('GIT_') and not k.startswith('LD_') and not k.startswith('PYTHON')}
++    )
+     env.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull,
+                 'GIT_CONFIG_SYSTEM': os.devnull, 'GIT_OPTIONAL_LOCKS': '0', 'LC_ALL': 'C',
+                 'PATH': '/usr/bin:/bin'})
+diff --git a/tools/check-btrfs-space-r30.py b/tools/check-btrfs-space-r30.py
+index 792c56c..47d5da9 100755
+--- a/tools/check-btrfs-space-r30.py
++++ b/tools/check-btrfs-space-r30.py
+@@ -93,7 +93,14 @@ CAPTURE_KEYS = {'D08': 'metadata/bytes_used', 'D09': 'unallocated', 'D10': 'glob
+ 
+ 
+ def clean_env():
+-    return {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
++    return (
++        {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1",
++         "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull}
++        if any(path == root or path.startswith(root + os.sep)
++               for path in (os.getcwd(), os.path.abspath(__file__))
++               for root in ("/fast/scratch", "/tmp"))
++        else {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
++    )
+ 
+ 
+ def git_reader(lane, rev):
+diff --git a/tools/check-locator-clarification.py b/tools/check-locator-clarification.py
+index be67701..9b60cad 100755
+--- a/tools/check-locator-clarification.py
++++ b/tools/check-locator-clarification.py
+@@ -445,7 +445,14 @@ def read_tree(path):
+ 
+ 
+ def git(*args, repo=None):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = (
++        {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1",
++         "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull}
++        if any(path == root or path.startswith(root + os.sep)
++               for path in (os.getcwd(), os.path.abspath(__file__))
++               for root in ("/fast/scratch", "/tmp"))
++        else {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    )
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(repo or ROOT), *args],
+@@ -574,7 +581,14 @@ def binding_cases():
+     """Exercise shared revision binding in a throwaway repo; the lane repo is untouched."""
+     global ROOT
+     tmp = tempfile.mkdtemp(prefix="locator-clarification-")
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = (
++        {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1",
++         "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull}
++        if any(path == root or path.startswith(root + os.sep)
++               for path in (os.getcwd(), os.path.abspath(__file__))
++               for root in ("/fast/scratch", "/tmp"))
++        else {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    )
+     env.update({"GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull,
+                 "GIT_TERMINAL_PROMPT": "0", "GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat",
+                 "LC_ALL": "C", "GIT_AUTHOR_NAME": "gate", "GIT_AUTHOR_EMAIL": "gate@example.invalid",
+diff --git a/tools/check-recheck-commands.py b/tools/check-recheck-commands.py
+index 830c442..4a22424 100755
+--- a/tools/check-recheck-commands.py
++++ b/tools/check-recheck-commands.py
+@@ -796,7 +796,14 @@ def emit(status, revision, branch, branch_tip, findings, counts, out=None,
+ 
+ 
+ def git(repo, *args):
+-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    env = (
++        {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1",
++         "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull}
++        if any(path == root or path.startswith(root + os.sep)
++               for path in (os.getcwd(), os.path.abspath(__file__))
++               for root in ("/fast/scratch", "/tmp"))
++        else {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    )
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                 "GIT_TERMINAL_PROMPT": "0"})
+     try:
+diff --git a/tools/check-seat-scope.py b/tools/check-seat-scope.py
+index 5471717..cb5719c 100755
+--- a/tools/check-seat-scope.py
++++ b/tools/check-seat-scope.py
+@@ -171,7 +171,14 @@ def emit(result, revision, branch, branch_tip, wave):
+ 
+ 
+ def git(root, *args):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = (
++        {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1",
++         "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull}
++        if any(path == root or path.startswith(root + os.sep)
++               for path in (os.getcwd(), os.path.abspath(__file__))
++               for root in ("/fast/scratch", "/tmp"))
++        else {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    )
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(root), *args],
+diff --git a/tools/check-section-citations.py b/tools/check-section-citations.py
+index 0184977..5d9860f 100755
+--- a/tools/check-section-citations.py
++++ b/tools/check-section-citations.py
+@@ -403,7 +403,14 @@ def emit(result, revision, branch="master", branch_tip=None):
+ 
+ 
+ def git(*args, repo=None):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = (
++        {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1",
++         "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull}
++        if any(path == root or path.startswith(root + os.sep)
++               for path in (os.getcwd(), os.path.abspath(__file__))
++               for root in ("/fast/scratch", "/tmp"))
++        else {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    )
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(repo or ROOT), *args],
+@@ -565,7 +572,14 @@ def mutate_json(fn):
+ 
+ 
+ def sandbox_git(path, *args):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = (
++        {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1",
++         "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull}
++        if any(path == root or path.startswith(root + os.sep)
++               for path in (os.getcwd(), os.path.abspath(__file__))
++               for root in ("/fast/scratch", "/tmp"))
++        else {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    )
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                 "GIT_AUTHOR_NAME": "selftest",
+                 "GIT_AUTHOR_EMAIL": "selftest@example.invalid",
+diff --git a/tools/check-source-scope-correction.py b/tools/check-source-scope-correction.py
+index df6deae..fa3964c 100755
+--- a/tools/check-source-scope-correction.py
++++ b/tools/check-source-scope-correction.py
+@@ -352,7 +352,14 @@ def read_tree(repo, path):
+ 
+ 
+ def git(repo, *args):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env = (
++        {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1",
++         "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull}
++        if any(path == root or path.startswith(root + os.sep)
++               for path in (os.getcwd(), os.path.abspath(__file__))
++               for root in ("/fast/scratch", "/tmp"))
++        else {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    )
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(repo), *args],
+diff --git a/tools/measure-update-recheck.py b/tools/measure-update-recheck.py
+index 1c227a8..4bb3cce 100755
+--- a/tools/measure-update-recheck.py
++++ b/tools/measure-update-recheck.py
+@@ -435,7 +435,14 @@ def emit(revision, status, findings, assessment=None, digest=None, branch=DEFAUL
+ 
+ 
+ def git(repo, *args):
+-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    env = (
++        {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1",
++         "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull}
++        if any(path == root or path.startswith(root + os.sep)
++               for path in (os.getcwd(), os.path.abspath(__file__))
++               for root in ("/fast/scratch", "/tmp"))
++        else {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    )
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C"})
+     try:
+         return subprocess.run(["git", "--no-pager", "-C", str(repo), *args],
+@@ -482,7 +489,14 @@ def load(rev, branch):
+ 
+ 
+ def sandbox_git(repo, *args):
+-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    env = (
++        {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1",
++         "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull}
++        if any(path == root or path.startswith(root + os.sep)
++               for path in (os.getcwd(), os.path.abspath(__file__))
++               for root in ("/fast/scratch", "/tmp"))
++        else {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    )
+     env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+                 "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+     proc = subprocess.run(["git", "--no-pager", "-C", str(repo), *args],

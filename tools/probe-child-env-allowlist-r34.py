@@ -98,7 +98,14 @@ injection directory and the scratch root itself have random names drawn per run.
           environment through a path assembled from fragments, with constructs the scan does
           not name), and an `env=` dict whose values are taken from an unflagged ambient source
           passes the shape rule.
-FROZEN PREDICATE: A (target, channel) pair is leaking when, in its names or quiet run, any traced execve after the target's own first exec carries in its environment any name injected in that run or the exact ambient NAME=VALUE string of that run for any value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, LOGNAME, SHELL), or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or GIT_CONFIG_GLOBAL=/dev/null, or the run breaks parity with control run A (exit code, normalised stdout digest, count of successful git execs); or, in its source channel, the target's file or a tools/ module it imports at REV reads the ambient environment, starts a process that inherits it, names /proc/self/status, /proc/self/environ or TracerPid, or uses a construct that hides a read or spawn from the scan.
+FROZEN PREDICATE: A (target, channel) pair is leaking when, in its names or quiet run, any traced execve after the target's own first exec carries in its environment any name injected in that run or the exact ambient NAME=VALUE string of that run for any value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, LOGNAME, SHELL), or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or GIT_CONFIG_GLOBAL=/dev/null, or the run breaks parity with control run A (exit code, normalised stdout digest, count of successful git execs), or control run A breaks base parity with the same target's control run at the claim base (exit code, normalised stdout digest, count of successful git execs, multiset of normalised git argv); or, in its source channel, the target's file or a tools/ module it imports at REV reads the ambient environment, starts a process that inherits it, names /proc/self/status, /proc/self/environ or TracerPid, or uses a construct that hides a read or spawn from the scan.
+Round-34 amendment 1 (before any data step; wave-1 critic CritC1AxisFit): the base-parity clause
+above. Without it a target whose real work is replaced by one clean `git --version` and a fixed
+success line sets its own control baseline and reads 0. The claim-base control run (`--base`,
+default CLAIM_BASE) runs the target's bytes at the claim base with the same arguments; normalised
+git argv replaces the run's HOME, TMPDIR, run directory, scratch root, every 40- or 64-hex string
+and the first path component under TMPDIR (mkdtemp names). The clause only adds a way to leak, so
+no pair that leaked under the round-34 declaration bytes stops leaking.
 Amendment 2 adds the clause "or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or
 GIT_CONFIG_GLOBAL=/dev/null": every git child of the five claim targets carries both at the
 claim base (the settings both base builders hand to git), so a content-free builder (an empty
@@ -177,20 +184,26 @@ TIMEOUT = 1200
 SYSTEM_GIT = '/usr/bin/git'
 STRACE = shutil.which('strace', path='/usr/bin:/bin') or '/usr/bin/strace'
 HEX = re.compile(rb'\b[0-9a-f]{64}\b|\b[0-9a-f]{40}\b')
+HEX_STR = re.compile(r'\b[0-9a-f]{64}\b|\b[0-9a-f]{40}\b')
+TMP_COMPONENT = re.compile(r'<TMP>/[^/\s\x00]+')
 PREDICATE = ('A (target, channel) pair is leaking when, in its names or quiet run, any traced '
              'execve after the target\'s own first exec carries in its environment any name '
              'injected in that run or the exact ambient NAME=VALUE string of that run for any '
              'value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, '
              'LOGNAME, SHELL), or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or '
              'GIT_CONFIG_GLOBAL=/dev/null, or the run breaks parity with control run A (exit code, '
-             'normalised stdout digest, count of successful git execs); or, in its source '
+             'normalised stdout digest, count of successful git execs), or control run A breaks '
+             'base parity with the same target\'s control run at the claim base (exit code, '
+             'normalised stdout digest, count of successful git execs, multiset of normalised git '
+             'argv); or, in its source '
              'channel, the target\'s file or a tools/ module it imports at REV reads the ambient '
              'environment, starts a process that inherits it, names /proc/self/status, '
              '/proc/self/environ or TracerPid, or uses a construct that hides a read or spawn '
              'from the scan.')
 assert PREDICATE in ' '.join(__doc__.split()), 'docstring FROZEN PREDICATE differs from PREDICATE'
 PREDICATE_LABEL = 'leaking'
-VERSION = 4
+VERSION = 5
+CLAIM_BASE = '2641591e303057cd0f67e190a6bdf7fa91a45c31'
 VALUE_NAMES = ('HOME', 'TMPDIR', 'XDG_CONFIG_HOME', 'PATH', 'LANG', 'TZ', 'TERM', 'USER',
                'LOGNAME', 'SHELL')
 # amendment 2: the settings every git child of the claim targets carries at the claim base
@@ -343,6 +356,14 @@ def one_run(root, tree, tool, args, extra_env=None):
     obs['git_execs'] = sum(1 for e in execs if is_git(e[1]))
     obs['git_missing_kept'] = sum(1 for e in execs if is_git(e[1])
                                   and not all(k in e[3] for k in KEPT_GIT_SETTINGS))
+    # Amendment 1: the multiset of normalised git argv, for base parity.
+    def norm_arg(s):
+        for path, tag in ((home, '<HOME>'), (tmp, '<TMP>'), (work, '<WORK>'), (root, '<ROOT>')):
+            s = s.replace(path, tag)
+        s = HEX_STR.sub('<HEX>', s)
+        return TMP_COMPONENT.sub('<TMP>/<T>', s)
+    argvs = sorted('\x00'.join(norm_arg(x) for x in e[2]) for e in execs if is_git(e[1]))
+    obs['git_argv_sha256'] = hashlib.sha256('\x01'.join(argvs).encode()).hexdigest()
     shutil.rmtree(wtree, ignore_errors=True)
     return obs
 
@@ -352,6 +373,16 @@ def parity(a, b):
     for k in ('rc', 'stdout_sha256', 'git_execs'):
         if a.get(k) != b.get(k):
             diffs.append('%s %s differs from control %s' % (k, b.get(k), a.get(k)))
+    return diffs
+
+
+def base_parity(base, a):
+    """Amendment 1: control run A against the same target's control run at the claim base."""
+    diffs = []
+    for k in ('rc', 'stdout_sha256', 'git_execs', 'git_argv_sha256'):
+        if base.get(k) != a.get(k):
+            diffs.append('base parity: %s %s differs from claim-base control %s'
+                         % (k, a.get(k), base.get(k)))
     return diffs
 
 
@@ -795,6 +826,7 @@ def main():
     ap.add_argument('--scratch', default=None)
     ap.add_argument('--set', dest='target_set', choices=sorted(TARGET_SETS), default='claim')
     ap.add_argument('--only', nargs='*', default=None)
+    ap.add_argument('--base', default=CLAIM_BASE)
     a = ap.parse_args()
     lane = os.path.realpath(a.lane)
     parent = a.scratch or ('/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None)
@@ -822,6 +854,13 @@ def main():
     rev = p.stdout.decode().strip()
     tree = os.path.join(root, 'tree')
     export_tree(lane, rev, tree, penv)
+    pb = git(penv, '-C', lane, 'rev-parse', '--verify', a.base + '^{commit}')
+    if pb.returncode != 0:
+        print(json.dumps({'error': 'claim base unreadable', 'base': a.base}))
+        return 2
+    base_rev = pb.stdout.decode().strip()
+    base_tree = os.path.join(root, 'basetree')
+    export_tree(lane, base_rev, base_tree, penv)
     clone = os.path.join(root, 'lane.git')
     git(penv, 'clone', '-q', '--bare', '--no-local', lane, clone, timeout=600).check_returncode()
     channels = list(CHANNELS)
@@ -841,6 +880,14 @@ def main():
             herr = 'control runs disagree: ' + '; '.join(parity(ca, cb))
         elif ca['git_execs'] < 1:
             herr = 'control run started no git child'
+        cbase = bdiffs = None
+        if not herr:
+            cbase = one_run(root, base_tree, tool, args)
+            if cbase['rc'] != 0:
+                herr = 'claim-base control run failed rc %s: %s' % (
+                    cbase['rc'], cbase.get('stderr_tail', ''))
+            else:
+                bdiffs = base_parity(cbase, ca)
         if herr:
             res = {'tool': tool, 'argv': args, 'harness_error': herr}
             errors.append(tool)
@@ -895,6 +942,9 @@ def main():
                     r['git_missing_kept'], r['git_execs'], ' or '.join(KEPT_GIT_SETTINGS)))
             if diffs:
                 evidence.append('parity broken: ' + '; '.join(diffs))
+            res['base_parity_diffs'] = bdiffs
+            if bdiffs:
+                evidence.append('; '.join(bdiffs))
             res['evidence'] = evidence
             res['leak'] = bool(evidence)
             if res['leak']:
@@ -905,7 +955,7 @@ def main():
     print(json.dumps({'revision': rev, 'targets': ntargets, 'channels': channels, 'pairs': pairs,
                       'leaking': len(leaking), 'leaking_pairs': leaking, 'harness_errors': errors,
                       'probe_sha256': sha, 'probe_version': VERSION, 'target_set': a.target_set,
-                      'scratch': root, 'predicate_label': PREDICATE_LABEL}))
+                      'base': base_rev, 'scratch': root, 'predicate_label': PREDICATE_LABEL}))
     shutil.rmtree(root, ignore_errors=True)
     return 2 if errors else (1 if leaking else 0)
 
