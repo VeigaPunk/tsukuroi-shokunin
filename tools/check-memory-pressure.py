@@ -40,7 +40,7 @@ one) sets verified_rows to 0, so exit 0 and verified_rows == 6 always agree.
 Scope: a count of evidence links in committed bytes.  It does not re-measure
 the host, does not decide whether memory pressure is healthy, and does not
 authorize any service, package or boot action.
-Git subprocesses, including selftest fixtures, use the round-30 child-environment contract.
+Git subprocesses, including selftest fixtures, use the round-32 child-environment allow-list: no ambient name is copied into a child.
 """
 from __future__ import annotations
 
@@ -100,11 +100,15 @@ def norm(text):
     return ' '.join(str(text).split())
 
 
+# round-32 child-environment allow-list: a child environment is built from this base plus the
+# names this builder sets on purpose; no ambient name is copied.
+CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
+
+
 def git_env(temp_dir):
     home = os.path.join(temp_dir, 'home')
     os.mkdir(home)
-    env = {key: value for key, value in os.environ.items()
-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
+    env = dict(CHILD_ENV_BASE)
     env.update({
         'GIT_CONFIG_NOSYSTEM': '1',
         'GIT_CONFIG_GLOBAL': os.devnull,

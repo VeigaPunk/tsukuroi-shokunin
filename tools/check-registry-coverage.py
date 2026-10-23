@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check the operative SKILL.md gate/probe registry against committed tools. Git subprocesses follow the round-30 child environment contract."""
+"""Check the operative SKILL.md gate/probe registry against committed tools. Git subprocesses follow the round-32 allow-list child environment contract."""
 from __future__ import annotations
 
 import argparse
@@ -26,9 +26,13 @@ _GIT_HOME = Path(_GIT_SANDBOX.name) / "home"
 _GIT_HOME.mkdir()
 
 
+# Round-32 allow-list: a child environment is this fixed base plus the names written
+# below. No ambient name is copied, so nothing the caller exports reaches a child.
+CHILD_ENV_BASE = {"PATH": "/usr/bin:/bin", "LC_ALL": "C"}
+
+
 def clean_env():
-    env = {key: value for key, value in os.environ.items()
-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
+    env = dict(CHILD_ENV_BASE)
     env.update({
         "GIT_OPTIONAL_LOCKS": "0",
         "GIT_PAGER": "cat",
@@ -38,8 +42,6 @@ def clean_env():
         "GIT_CEILING_DIRECTORIES": str(Path(_GIT_SANDBOX.name).parent),
         "HOME": str(_GIT_HOME),
         "XDG_CONFIG_HOME": str(_GIT_HOME / ".config"),
-        "PATH": "/usr/bin:/bin",
-        "LC_ALL": "C",
     })
     return env
 

@@ -187,3 +187,7 @@ Overlap register against mori's admitted entry `corpus/knowledge/userspace-oom-k
 | OV4 | tsukuroi | CONFLICTS | mori F8 drops the lane's OOMRules= qualifier (lane lines 387-390); reported to mori |
 | OV5 | mori | CONFLICTS | lane line 382 relies on an earlyoom option mori's F7 says 1.9.0 lacks; lane notice points at mori |
 | OV6 | mori | LANE-GAP | systemd-oomd cgroup accounting attributes; not absorbed |
+
+## Adjacent — ADJ-04 handoff lines in the census (round 32)
+
+Append-only; the ADJ-01 to ADJ-07 table above is unchanged. From round 32 the census prints a `HANDOFF ADJ-04 mori …` line for each of two evidence classes that ADJ-04 and OUT-005 route to mori: dated kill-event clusters in the oom plane's retained window, and boot-0 systemd-coredump entries (`SKILL.md` rows R32-H1 and R32-H2). The line carries `state=prepared`: the census prepared a packet line; it is not reported, acknowledged, accepted or resolved, and mori declares no intake format for it (mori `PROVINCE.md` at `a45850f0`, read by round-32 ScoutMoriHead). Tsukuroi keeps the OS finding on its journal and oom planes. Mori's own counts of the same events use MESSAGE_ID per journal scope; the census counts by message text and SYSLOG_IDENTIFIER over the merged journals, so the two values can differ (round-32 ConnSiblingOverlap finding 4). Recheck: `python3 tools/score-census-handoff-r32.py --revision <REV>`. No sibling file is written and no repair is authorized.

@@ -35,7 +35,7 @@ revision, branch, branch_tip, resolved_records and record_count.
 Exit 0 pass, 1 failed, 2 could-not-evaluate.  No writes, no network, no
 host queries.  --selftest is hermetic (in-memory fixtures plus one mktemp
 git repository for the binding contract).
-Git subprocesses, including the selftest Python child, use the round-30 child-environment contract.
+Git subprocesses, including the selftest Python child, use the round-32 child-environment allow-list: no ambient name is copied into a child.
 """
 from __future__ import annotations
 
@@ -323,11 +323,15 @@ def emit(result, revision, branch, branch_tip):
     return result.code
 
 
+# round-32 child-environment allow-list: a child environment is built from this base plus the
+# names this builder sets on purpose; no ambient name is copied.
+CHILD_ENV_BASE = {"PATH": "/usr/bin:/bin", "LC_ALL": "C"}
+
+
 def git_env(temp_dir):
     home = os.path.join(temp_dir, "home")
     os.mkdir(home)
-    env = {key: value for key, value in os.environ.items()
-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
+    env = dict(CHILD_ENV_BASE)
     env.update({
         "GIT_CONFIG_NOSYSTEM": "1",
         "GIT_CONFIG_GLOBAL": os.devnull,

@@ -1,0 +1,186 @@
+From 32374190fe16e4b5930d021c4f081e5142b493c4 Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 23:16:10 -0300
+Subject: [PATCH] sandbox: no ambient names
+
+---
+ tools/check-adjacency-overlap.py            | 3 +--
+ tools/check-freshness-r17.py                | 3 +--
+ tools/check-kernel-taint.py                 | 3 +--
+ tools/check-memory-pressure.py              | 3 +--
+ tools/check-owed-statements-r29.py          | 2 +-
+ tools/check-registry-coverage.py            | 3 +--
+ tools/check-self-assessment.py              | 3 +--
+ tools/check-storage-health.py               | 3 +--
+ tools/mutants-adjacency-overlap.py          | 2 +-
+ tools/mutants-kernel-taint.py               | 2 +-
+ tools/mutants-owed-statements-r29-landed.py | 2 +-
+ tools/mutants-owed-statements-r29.py        | 2 +-
+ 12 files changed, 12 insertions(+), 19 deletions(-)
+
+diff --git a/tools/check-adjacency-overlap.py b/tools/check-adjacency-overlap.py
+index a3f8ae5..b15a41b 100755
+--- a/tools/check-adjacency-overlap.py
++++ b/tools/check-adjacency-overlap.py
+@@ -210,8 +210,7 @@ def _withdrawal_text(text):
+ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+-    env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = {}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+diff --git a/tools/check-freshness-r17.py b/tools/check-freshness-r17.py
+index fa2eb6f..0102d1e 100755
+--- a/tools/check-freshness-r17.py
++++ b/tools/check-freshness-r17.py
+@@ -326,8 +326,7 @@ def emit(result, revision, branch, branch_tip):
+ def git_env(temp_dir):
+     home = os.path.join(temp_dir, "home")
+     os.mkdir(home)
+-    env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
++    env = {}
+     env.update({
+         "GIT_CONFIG_NOSYSTEM": "1",
+         "GIT_CONFIG_GLOBAL": os.devnull,
+diff --git a/tools/check-kernel-taint.py b/tools/check-kernel-taint.py
+index 5400bce..7748c68 100644
+--- a/tools/check-kernel-taint.py
++++ b/tools/check-kernel-taint.py
+@@ -249,8 +249,7 @@ def id_in_line(line, row_id):
+ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+-    env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = {}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+diff --git a/tools/check-memory-pressure.py b/tools/check-memory-pressure.py
+index fa99f16..37fda4b 100755
+--- a/tools/check-memory-pressure.py
++++ b/tools/check-memory-pressure.py
+@@ -103,8 +103,7 @@ def norm(text):
+ def git_env(temp_dir):
+     home = os.path.join(temp_dir, 'home')
+     os.mkdir(home)
+-    env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = {}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1',
+         'GIT_CONFIG_GLOBAL': os.devnull,
+diff --git a/tools/check-owed-statements-r29.py b/tools/check-owed-statements-r29.py
+index 199800b..fcad393 100755
+--- a/tools/check-owed-statements-r29.py
++++ b/tools/check-owed-statements-r29.py
+@@ -151,7 +151,7 @@ PATHREF = re.compile(r'`?((?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+):(\d+)`?')
+ 
+ 
+ def clean_env(lane):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = {}
+     home = os.environ.get('HOME')
+     env.update({
+         'GIT_OPTIONAL_LOCKS': '0',
+diff --git a/tools/check-registry-coverage.py b/tools/check-registry-coverage.py
+index 17e9d71..4b2dd85 100755
+--- a/tools/check-registry-coverage.py
++++ b/tools/check-registry-coverage.py
+@@ -27,8 +27,7 @@ _GIT_HOME.mkdir()
+ 
+ 
+ def clean_env():
+-    env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
++    env = {}
+     env.update({
+         "GIT_OPTIONAL_LOCKS": "0",
+         "GIT_PAGER": "cat",
+diff --git a/tools/check-self-assessment.py b/tools/check-self-assessment.py
+index fdca63b..b00a70e 100755
+--- a/tools/check-self-assessment.py
++++ b/tools/check-self-assessment.py
+@@ -90,8 +90,7 @@ class CannotEvaluate(Exception):
+ # --------------------------------------------------------------------------
+ 
+ def git_env():
+-    env = {k: v for k, v in os.environ.items()
+-           if not k.startswith(("GIT_", "LD_", "PYTHON"))}
++    env = {}
+     env.update({
+         "GIT_NO_REPLACE_OBJECTS": "1",
+         "GIT_CONFIG_NOSYSTEM": "1",
+diff --git a/tools/check-storage-health.py b/tools/check-storage-health.py
+index 158520b..1af9311 100755
+--- a/tools/check-storage-health.py
++++ b/tools/check-storage-health.py
+@@ -59,8 +59,7 @@ _GIT_HOME.mkdir()
+ 
+ 
+ def clean_env():
+-    env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
++    env = {}
+     env.update({
+         "GIT_OPTIONAL_LOCKS": "0",
+         "GIT_PAGER": "cat",
+diff --git a/tools/mutants-adjacency-overlap.py b/tools/mutants-adjacency-overlap.py
+index 2fcf80b..ffb285f 100755
+--- a/tools/mutants-adjacency-overlap.py
++++ b/tools/mutants-adjacency-overlap.py
+@@ -16,7 +16,7 @@ Read-only on the lane; writes only under a fresh tempfile.mkdtemp() directory, r
+ import argparse, atexit, copy, hashlib, io, json, os, shutil, subprocess, sys, tarfile, tempfile
+ 
+ def clean_env():
+-    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = {}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
+         'HOME': HOME, 'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
+diff --git a/tools/mutants-kernel-taint.py b/tools/mutants-kernel-taint.py
+index 0182315..38e2d97 100755
+--- a/tools/mutants-kernel-taint.py
++++ b/tools/mutants-kernel-taint.py
+@@ -30,7 +30,7 @@ import tempfile
+ from pathlib import Path
+ 
+ def clean_env():
+-    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++    env = {}
+     env.update({
+         'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
+         'HOME': str(HOME), 'XDG_CONFIG_HOME': str(HOME / '.config'),
+diff --git a/tools/mutants-owed-statements-r29-landed.py b/tools/mutants-owed-statements-r29-landed.py
+index bb6e212..3432549 100755
+--- a/tools/mutants-owed-statements-r29-landed.py
++++ b/tools/mutants-owed-statements-r29-landed.py
+@@ -32,7 +32,7 @@ _g.add_argument('--counter-file')
+ _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ _ap.add_argument('--keep', action='store_true')
+ ARGS = _ap.parse_args()
+-ENV = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++ENV = {}
+ _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
+ SEAT = tempfile.mkdtemp(prefix='mut-owed-landed-', dir=_parent)
+ if not ARGS.keep:
+diff --git a/tools/mutants-owed-statements-r29.py b/tools/mutants-owed-statements-r29.py
+index a0cecaa..2a35cc3 100755
+--- a/tools/mutants-owed-statements-r29.py
++++ b/tools/mutants-owed-statements-r29.py
+@@ -33,7 +33,7 @@ _g.add_argument('--counter-file')
+ _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ _ap.add_argument('--keep', action='store_true')
+ ARGS = _ap.parse_args()
+-ENV = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++ENV = {}
+ _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
+ SEAT = tempfile.mkdtemp(prefix='mut-owed-', dir=_parent)
+ if not ARGS.keep:
+-- 
+2.56.0
+

@@ -7,9 +7,9 @@ control is built on the marker-free declaration commit: this battery starts from
 already carries the twelve landed markers (`--base`, e.g. the round-29 tip) and mutates one item's
 marker or its support per shape.  The data is a private clone of `--lane` under a fresh temporary
 directory (never the lane); the counter is `<--counter-rev>:tools/check-owed-statements-r29.py` or
-`--counter-file`; every subprocess follows the round-30 git child environment contract: inherited
-GIT_* and user configuration are isolated, HOME is private, PATH is fixed, and repository discovery
-is sandbox-ceilinged.
+`--counter-file`; every subprocess follows the round-32 allow-list child environment contract: the
+child environment is a fixed PATH and LC_ALL plus the names this battery writes, HOME is private,
+and repository discovery is sandbox-ceilinged.
 
 Expectations: `fail` = mechanically checkable should-fail shape (the item must not be counted);
 `semantic` = should-fail by meaning only (relevance of a cited source or path, sense of `now`): it is
@@ -32,7 +32,10 @@ _g.add_argument('--counter-file')
 _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _ap.add_argument('--keep', action='store_true')
 ARGS = _ap.parse_args()
-ENV = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
+# Round-32 allow-list: the child environment is this fixed base plus the names written
+# below. No ambient name is copied, so nothing the caller exports reaches a child.
+CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
+ENV = dict(CHILD_ENV_BASE)
 _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
 SEAT = tempfile.mkdtemp(prefix='mut-owed-landed-', dir=_parent)
 if not ARGS.keep:
@@ -43,7 +46,7 @@ os.mkdir(HOME)
 ENV.update({
     'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull, 'GIT_CONFIG_NOSYSTEM': '1',
     'HOME': HOME, 'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
-    'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
+    'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
 })
 subprocess.run(['git', 'clone', '-q', '--no-local', ARGS.lane, REPO], check=True, env=ENV, capture_output=True)
 BASE = subprocess.run(['git', '-C', REPO, 'rev-parse', '--verify', ARGS.base + '^{commit}'], check=True,

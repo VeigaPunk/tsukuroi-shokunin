@@ -1,0 +1,270 @@
+From fec674713ea2d31840d7eb42aa48863ab5f8333e Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 23:25:08 -0300
+Subject: [PATCH] round-32 C2: build child environments from a fixed allow-list
+ in six builders
+
+---
+ tools/check-owed-statements-r29.py          | 28 ++++++++++++++-------
+ tools/check-registry-coverage.py            | 12 +++++----
+ tools/check-self-assessment.py              | 12 +++++----
+ tools/check-storage-health.py               | 12 +++++----
+ tools/mutants-owed-statements-r29-landed.py | 13 ++++++----
+ tools/mutants-owed-statements-r29.py        | 13 ++++++----
+ 6 files changed, 56 insertions(+), 34 deletions(-)
+
+diff --git a/tools/check-owed-statements-r29.py b/tools/check-owed-statements-r29.py
+index 199800b..83e9ae3 100755
+--- a/tools/check-owed-statements-r29.py
++++ b/tools/check-owed-statements-r29.py
+@@ -70,17 +70,21 @@ is always printed.
+ Usage: python3 tools/check-owed-statements-r29.py --revision <REV> [--lane <repo>]
+ Output: one JSON line per item, then a summary JSON line with `items`, `marked`, `unmarked`.
+ Exit 0 when marked == items, 1 otherwise, 2 when the revision cannot be read.
+-Reads Git objects only (`git show`, `git cat-file`) with inherited GIT_* removed and the
+-round-30 Git child environment set to isolate system/global config and repository discovery.
++Reads Git objects only (`git show`, `git cat-file`) with a round-32 allow-list child
++environment: fixed PATH and LC_ALL, a private HOME, system/global config off and
++repository discovery sandbox-ceilinged.
+ """
+ import argparse
++import atexit
+ import datetime
+ import hashlib
+ import json
+ import os
+ import re
++import shutil
+ import subprocess
+ import sys
++import tempfile
+ import unicodedata
+ 
+ ITEMS = (
+@@ -150,9 +154,18 @@ EMPTY_COMMENT = re.compile(r'<!-->')
+ PATHREF = re.compile(r'`?((?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+):(\d+)`?')
+ 
+ 
++# Round-32 allow-list: a child environment is this fixed base plus the names written
++# below. No ambient name is copied, so nothing the caller exports reaches a child.
++CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
++# The caller's HOME is not carried: git reads its config through GIT_CONFIG_GLOBAL /
++# GIT_CONFIG_SYSTEM, so a private empty HOME replaces the ambient one (which would let a
++# child read ~/.gitconfig or run $HOME/.local site-packages .pth code).
++_CHILD_HOME = tempfile.mkdtemp(prefix='owed-statements-home-')
++atexit.register(shutil.rmtree, _CHILD_HOME, True)
++
++
+ def clean_env(lane):
+-    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
+-    home = os.environ.get('HOME')
++    env = dict(CHILD_ENV_BASE)
+     env.update({
+         'GIT_OPTIONAL_LOCKS': '0',
+         'GIT_CONFIG_NOSYSTEM': '1',
+@@ -160,12 +173,9 @@ def clean_env(lane):
+         'GIT_CONFIG_SYSTEM': os.devnull,
+         'GIT_CEILING_DIRECTORIES': os.path.dirname(
+             os.path.dirname(os.path.abspath(lane))),
+-        'PATH': '/usr/bin:/bin',
+-        'LC_ALL': 'C',
++        'HOME': _CHILD_HOME,
++        'XDG_CONFIG_HOME': os.path.join(_CHILD_HOME, '.config'),
+     })
+-    if home:
+-        env['HOME'] = home
+-        env['XDG_CONFIG_HOME'] = os.environ.get('XDG_CONFIG_HOME', os.path.join(home, '.config'))
+     return env
+ 
+ 
+diff --git a/tools/check-registry-coverage.py b/tools/check-registry-coverage.py
+index 17e9d71..885b55d 100755
+--- a/tools/check-registry-coverage.py
++++ b/tools/check-registry-coverage.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Check the operative SKILL.md gate/probe registry against committed tools. Git subprocesses follow the round-30 child environment contract."""
++"""Check the operative SKILL.md gate/probe registry against committed tools. Git subprocesses follow the round-32 allow-list child environment contract."""
+ from __future__ import annotations
+ 
+ import argparse
+@@ -26,9 +26,13 @@ _GIT_HOME = Path(_GIT_SANDBOX.name) / "home"
+ _GIT_HOME.mkdir()
+ 
+ 
++# Round-32 allow-list: a child environment is this fixed base plus the names written
++# below. No ambient name is copied, so nothing the caller exports reaches a child.
++CHILD_ENV_BASE = {"PATH": "/usr/bin:/bin", "LC_ALL": "C"}
++
++
+ def clean_env():
+-    env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
++    env = dict(CHILD_ENV_BASE)
+     env.update({
+         "GIT_OPTIONAL_LOCKS": "0",
+         "GIT_PAGER": "cat",
+@@ -38,8 +42,6 @@ def clean_env():
+         "GIT_CEILING_DIRECTORIES": str(Path(_GIT_SANDBOX.name).parent),
+         "HOME": str(_GIT_HOME),
+         "XDG_CONFIG_HOME": str(_GIT_HOME / ".config"),
+-        "PATH": "/usr/bin:/bin",
+-        "LC_ALL": "C",
+     })
+     return env
+ 
+diff --git a/tools/check-self-assessment.py b/tools/check-self-assessment.py
+index fdca63b..ac28365 100755
+--- a/tools/check-self-assessment.py
++++ b/tools/check-self-assessment.py
+@@ -8,7 +8,7 @@ Every input is read through Git at one revision (`git show`, `git ls-tree`,
+ `git archive`); the working tree is never read. K13 runs the census selftest
+ from a temporary directory populated by `git archive <REV>`.
+ 
+-Git subprocesses follow the round-30 child environment contract.
++Git subprocesses follow the round-32 allow-list child environment contract.
+ 
+ K01 to K06 (round-26 refinement of the round-25 rule, routed defect 3). The
+ current axes table is the last table under the last SCORECARD heading that
+@@ -89,9 +89,13 @@ class CannotEvaluate(Exception):
+ # Git access (cleaned environment, no worktree attributes, no replace refs)
+ # --------------------------------------------------------------------------
+ 
++# Round-32 allow-list: a child environment is this fixed base plus the names written
++# below. No ambient name is copied, so nothing the caller exports reaches a child.
++CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
++
++
+ def git_env():
+-    env = {k: v for k, v in os.environ.items()
+-           if not k.startswith(("GIT_", "LD_", "PYTHON"))}
++    env = dict(CHILD_ENV_BASE)
+     env.update({
+         "GIT_NO_REPLACE_OBJECTS": "1",
+         "GIT_CONFIG_NOSYSTEM": "1",
+@@ -101,8 +105,6 @@ def git_env():
+         "GIT_CEILING_DIRECTORIES": _GIT_CEILING,
+         "HOME": _GIT_HOME,
+         "XDG_CONFIG_HOME": os.path.join(_GIT_HOME, ".config"),
+-        "PATH": "/usr/bin:/bin",
+-        "LC_ALL": "C",
+     })
+     return env
+ 
+diff --git a/tools/check-storage-health.py b/tools/check-storage-health.py
+index 158520b..acdb255 100755
+--- a/tools/check-storage-health.py
++++ b/tools/check-storage-health.py
+@@ -34,7 +34,7 @@ tampered, registry missing, lesson missing).
+ 
+ Scope: a count of evidence links in committed bytes.  It does not re-measure the
+ host, does not decide whether the storage plane is healthy, and authorises no
+-package, service, scrub, counter reset or boot action. Git subprocesses follow the round-30 child environment contract.
++package, service, scrub, counter reset or boot action. Git subprocesses follow the round-32 allow-list child environment contract.
+ """
+ from __future__ import annotations
+ 
+@@ -58,9 +58,13 @@ _GIT_HOME = Path(_GIT_SANDBOX.name) / "home"
+ _GIT_HOME.mkdir()
+ 
+ 
++# Round-32 allow-list: a child environment is this fixed base plus the names written
++# below. No ambient name is copied, so nothing the caller exports reaches a child.
++CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
++
++
+ def clean_env():
+-    env = {key: value for key, value in os.environ.items()
+-           if not key.startswith(("GIT_", "LD_", "PYTHON"))}
++    env = dict(CHILD_ENV_BASE)
+     env.update({
+         "GIT_OPTIONAL_LOCKS": "0",
+         "GIT_PAGER": "cat",
+@@ -70,8 +74,6 @@ def clean_env():
+         "GIT_CEILING_DIRECTORIES": str(Path(_GIT_SANDBOX.name).parent),
+         "HOME": str(_GIT_HOME),
+         "XDG_CONFIG_HOME": str(_GIT_HOME / ".config"),
+-        "PATH": "/usr/bin:/bin",
+-        "LC_ALL": "C",
+     })
+     return env
+ 
+diff --git a/tools/mutants-owed-statements-r29-landed.py b/tools/mutants-owed-statements-r29-landed.py
+index bb6e212..3eefe49 100755
+--- a/tools/mutants-owed-statements-r29-landed.py
++++ b/tools/mutants-owed-statements-r29-landed.py
+@@ -7,9 +7,9 @@ control is built on the marker-free declaration commit: this battery starts from
+ already carries the twelve landed markers (`--base`, e.g. the round-29 tip) and mutates one item's
+ marker or its support per shape.  The data is a private clone of `--lane` under a fresh temporary
+ directory (never the lane); the counter is `<--counter-rev>:tools/check-owed-statements-r29.py` or
+-`--counter-file`; every subprocess follows the round-30 git child environment contract: inherited
+-GIT_* and user configuration are isolated, HOME is private, PATH is fixed, and repository discovery
+-is sandbox-ceilinged.
++`--counter-file`; every subprocess follows the round-32 allow-list child environment contract: the
++child environment is a fixed PATH and LC_ALL plus the names this battery writes, HOME is private,
++and repository discovery is sandbox-ceilinged.
+ 
+ Expectations: `fail` = mechanically checkable should-fail shape (the item must not be counted);
+ `semantic` = should-fail by meaning only (relevance of a cited source or path, sense of `now`): it is
+@@ -32,7 +32,10 @@ _g.add_argument('--counter-file')
+ _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ _ap.add_argument('--keep', action='store_true')
+ ARGS = _ap.parse_args()
+-ENV = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++# Round-32 allow-list: the child environment is this fixed base plus the names written
++# below. No ambient name is copied, so nothing the caller exports reaches a child.
++CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
++ENV = dict(CHILD_ENV_BASE)
+ _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
+ SEAT = tempfile.mkdtemp(prefix='mut-owed-landed-', dir=_parent)
+ if not ARGS.keep:
+@@ -43,7 +46,7 @@ os.mkdir(HOME)
+ ENV.update({
+     'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull, 'GIT_CONFIG_NOSYSTEM': '1',
+     'HOME': HOME, 'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
+-    'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
++    'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
+ })
+ subprocess.run(['git', 'clone', '-q', '--no-local', ARGS.lane, REPO], check=True, env=ENV, capture_output=True)
+ BASE = subprocess.run(['git', '-C', REPO, 'rev-parse', '--verify', ARGS.base + '^{commit}'], check=True,
+diff --git a/tools/mutants-owed-statements-r29.py b/tools/mutants-owed-statements-r29.py
+index a0cecaa..7de7599 100755
+--- a/tools/mutants-owed-statements-r29.py
++++ b/tools/mutants-owed-statements-r29.py
+@@ -8,9 +8,9 @@ lines 20, 30, 40, 50, all blank) are repointed to the non-blank correction lines
+ because counter version 2 refuses a blank cited line.  Made reproducible: the data is a private clone of `--lane` (never the lane itself) under a
+ fresh temporary directory, checked out at `--base`; the counter is the blob
+ `<--counter-rev>:tools/check-owed-statements-r29.py` or `--counter-file`, copied into the clone
+-before every run. Every subprocess follows the round-30 git child environment contract: inherited
+-GIT_* and user configuration are isolated, HOME is private, PATH is fixed, and repository discovery
+-is sandbox-ceilinged.
++before every run. Every subprocess follows the round-32 allow-list child environment contract:
++the child environment is a fixed PATH and LC_ALL plus the names this battery writes, HOME is
++private, and repository discovery is sandbox-ceilinged.
+ 
+ Shapes: C0 control (all twelve markers in the documented shape; must be 12 of 12); expectation
+ `fail`, `fail-cleanly` or `refuse-ok` = should-fail (the shape's item must NOT be counted, and the
+@@ -33,7 +33,10 @@ _g.add_argument('--counter-file')
+ _ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ _ap.add_argument('--keep', action='store_true')
+ ARGS = _ap.parse_args()
+-ENV = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
++# Round-32 allow-list: the child environment is this fixed base plus the names written
++# below. No ambient name is copied, so nothing the caller exports reaches a child.
++CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
++ENV = dict(CHILD_ENV_BASE)
+ _parent = '/fast/scratch/hyaku' if os.path.isdir('/fast/scratch/hyaku') else None
+ SEAT = tempfile.mkdtemp(prefix='mut-owed-', dir=_parent)
+ if not ARGS.keep:
+@@ -44,7 +47,7 @@ os.mkdir(HOME)
+ ENV.update({
+     'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
+     'HOME': HOME, 'XDG_CONFIG_HOME': os.path.join(HOME, '.config'),
+-    'PATH': '/usr/bin:/bin', 'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
++    'GIT_CEILING_DIRECTORIES': os.path.dirname(SEAT),
+ })
+ subprocess.run(['git', 'clone', '-q', '--no-local', ARGS.lane, REPO], check=True, env=ENV, capture_output=True)
+ BASE = subprocess.run(['git', '-C', REPO, 'rev-parse', '--verify', ARGS.base + '^{commit}'], check=True,
+-- 
+2.56.0
+

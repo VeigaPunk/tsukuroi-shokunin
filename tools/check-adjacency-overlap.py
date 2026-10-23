@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Count anchored rows of the round-27 mori overlap register (claim C2). Git subprocesses, including selftest fixtures, use the round-30 child-environment contract.
+"""Count anchored rows of the round-27 mori overlap register (claim C2). Git subprocesses, including selftest fixtures, use the round-32 child-environment allow-list: no ambient name is copied into a child.
 
 Rule (SCORECARD.md, "Round 27 — declaration, attempt 1"), every input read
 through git at --revision:
@@ -207,11 +207,15 @@ def _withdrawal_text(text):
                           text, re.I))
 
 
+# round-32 child-environment allow-list: a child environment is built from this base plus the
+# names this builder sets on purpose; no ambient name is copied.
+CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
+
+
 def git_env(temp_dir):
     home = os.path.join(temp_dir, 'home')
     os.mkdir(home)
-    env = {key: value for key, value in os.environ.items()
-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
+    env = dict(CHILD_ENV_BASE)
     env.update({
         'GIT_CONFIG_NOSYSTEM': '1',
         'GIT_CONFIG_GLOBAL': os.devnull,

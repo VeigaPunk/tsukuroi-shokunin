@@ -70,17 +70,21 @@ is always printed.
 Usage: python3 tools/check-owed-statements-r29.py --revision <REV> [--lane <repo>]
 Output: one JSON line per item, then a summary JSON line with `items`, `marked`, `unmarked`.
 Exit 0 when marked == items, 1 otherwise, 2 when the revision cannot be read.
-Reads Git objects only (`git show`, `git cat-file`) with inherited GIT_* removed and the
-round-30 Git child environment set to isolate system/global config and repository discovery.
+Reads Git objects only (`git show`, `git cat-file`) with a round-32 allow-list child
+environment: fixed PATH and LC_ALL, a private HOME, system/global config off and
+repository discovery sandbox-ceilinged.
 """
 import argparse
+import atexit
 import datetime
 import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import unicodedata
 
 ITEMS = (
@@ -150,9 +154,18 @@ EMPTY_COMMENT = re.compile(r'<!-->')
 PATHREF = re.compile(r'`?((?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+):(\d+)`?')
 
 
+# Round-32 allow-list: a child environment is this fixed base plus the names written
+# below. No ambient name is copied, so nothing the caller exports reaches a child.
+CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
+# The caller's HOME is not carried: git reads its config through GIT_CONFIG_GLOBAL /
+# GIT_CONFIG_SYSTEM, so a private empty HOME replaces the ambient one (which would let a
+# child read ~/.gitconfig or run $HOME/.local site-packages .pth code).
+_CHILD_HOME = tempfile.mkdtemp(prefix='owed-statements-home-')
+atexit.register(shutil.rmtree, _CHILD_HOME, True)
+
+
 def clean_env(lane):
-    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
-    home = os.environ.get('HOME')
+    env = dict(CHILD_ENV_BASE)
     env.update({
         'GIT_OPTIONAL_LOCKS': '0',
         'GIT_CONFIG_NOSYSTEM': '1',
@@ -160,12 +173,9 @@ def clean_env(lane):
         'GIT_CONFIG_SYSTEM': os.devnull,
         'GIT_CEILING_DIRECTORIES': os.path.dirname(
             os.path.dirname(os.path.abspath(lane))),
-        'PATH': '/usr/bin:/bin',
-        'LC_ALL': 'C',
+        'HOME': _CHILD_HOME,
+        'XDG_CONFIG_HOME': os.path.join(_CHILD_HOME, '.config'),
     })
-    if home:
-        env['HOME'] = home
-        env['XDG_CONFIG_HOME'] = os.environ.get('XDG_CONFIG_HOME', os.path.join(home, '.config'))
     return env
 
 

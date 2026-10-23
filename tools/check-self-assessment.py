@@ -8,7 +8,7 @@ Every input is read through Git at one revision (`git show`, `git ls-tree`,
 `git archive`); the working tree is never read. K13 runs the census selftest
 from a temporary directory populated by `git archive <REV>`.
 
-Git subprocesses follow the round-30 child environment contract.
+Git subprocesses follow the round-32 allow-list child environment contract.
 
 K01 to K06 (round-26 refinement of the round-25 rule, routed defect 3). The
 current axes table is the last table under the last SCORECARD heading that
@@ -89,9 +89,13 @@ class CannotEvaluate(Exception):
 # Git access (cleaned environment, no worktree attributes, no replace refs)
 # --------------------------------------------------------------------------
 
+# Round-32 allow-list: a child environment is this fixed base plus the names written
+# below. No ambient name is copied, so nothing the caller exports reaches a child.
+CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
+
+
 def git_env():
-    env = {k: v for k, v in os.environ.items()
-           if not k.startswith(("GIT_", "LD_", "PYTHON"))}
+    env = dict(CHILD_ENV_BASE)
     env.update({
         "GIT_NO_REPLACE_OBJECTS": "1",
         "GIT_CONFIG_NOSYSTEM": "1",
@@ -101,8 +105,6 @@ def git_env():
         "GIT_CEILING_DIRECTORIES": _GIT_CEILING,
         "HOME": _GIT_HOME,
         "XDG_CONFIG_HOME": os.path.join(_GIT_HOME, ".config"),
-        "PATH": "/usr/bin:/bin",
-        "LC_ALL": "C",
     })
     return env
 

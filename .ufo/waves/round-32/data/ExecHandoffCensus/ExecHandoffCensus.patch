@@ -1,0 +1,241 @@
+From a0acede20adbabeb9167f32d227a07783aa737bb Mon Sep 17 00:00:00 2001
+From: ctl <ctl@sandbox>
+Date: Thu, 22 Oct 2026 23:27:54 -0300
+Subject: [PATCH] round-32 C1: census prints the ADJ-04 mori handoff lines
+ (kill-events / coredumps)
+
+The six PLANE lines, the TSUKUROI_CENSUS rollup and the exit map are unchanged;
+the census gains one unconditional routing line per sibling-owned class it already
+measured: the oom plane's dated kill-event clusters (text-matched, window-scoped) and
+the journal plane's boot-0 SYSLOG_IDENTIFIER coredump count. state=prepared, no
+capture time, value= is the census's own count. Four selftest cases: absent on a clean
+fixture, kill-events value, coredumps value, and a cumulative vmstat counter that routes
+no kill-events line.
+---
+ tools/tsukuroi-census.sh | 132 +++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 128 insertions(+), 4 deletions(-)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 4610af7..973044a 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -48,6 +48,30 @@
+ # cross-boot state the arm does not keep. VERSION stays `census-v2` (revision identity
+ # quoted by SKILL.md/LOG.md; a bump is the note seat's call — recorded, not silently applied).
+ #
++# Round-32 addition (C1): the ADJ-04 sibling handoff. After the six PLANE lines and before
++# the rollup, the census prints one HANDOFF line per sibling-owned class it measured:
++#   HANDOFF ADJ-04 mori class=kill-events value=<n> kind=dated-event state=prepared \
++#     window=<oom window> source=journal-window
++#   HANDOFF ADJ-04 mori class=coredumps  value=<m> kind=dated-event state=prepared \
++#     scope=boot0-merged selector=SYSLOG_IDENTIFIER
++# Contract: PROVINCE.md's ADJ-04 row names mori as the recipient of OS memory, journal and
++# boot evidence, so the ADJ table becomes executable as a routing line. `state=prepared`
++# means the census prepared a packet line — it is NOT a report, an acknowledgement or an
++# acceptance, and nothing is delivered, received or agreed (mori's own PROVINCE.md reads an
++# earlier tsukuroi packet the same way: "records the capture as `prepared`;
++# acknowledgement/acceptance/resolution are unobserved"). tsukuroi keeps the OS finding:
++# the oom and journal planes still report it, and the PLANE lines, the rollup line and the
++# exit code are unchanged by the handoff — the HANDOFF lines only add a routing line.
++# `value=` is the census's OWN count, never one of mori's: the dated kill events it
++# text-matched and clustered over the retained journal window (the oom plane's `clusters=`)
++# and the boot-0 coredump entries whose SYSLOG_IDENTIFIER is `systemd-coredump`, merged
++# across the journals it read. mori counts by MESSAGE_ID per scope and never sums the
++# scopes (.ufo/waves/round-32/w1/ConnSiblingOverlap.md finding 4), so these two numbers are
++# not comparable and neither replaces the other. Routing is unconditional: it is decided by
++# the counts the probes already measured, never by a TSUKUROI_* name or a fixture marker,
++# and a cumulative counter (`vmstat oom_kill`, a `memory.events` oom_kill presence flag) is
++# never a dated event, so it never reaches a HANDOFF line.
++#
+ # Verdict vocabulary (SKILL.md:22-31): HEALTHY | DEGRADED | BLOCKED, never a scalar.
+ #   HEALTHY   every probe of the plane returned the pass value
+ #   DEGRADED  the plane answers, but carries a named defect or an unresolved unknown
+@@ -469,6 +493,13 @@ PKG_FOREIGN_LIVE='' PKG_FOREIGN_FOLD='not-run'
+ # root-directory metadata arm (round 12, C1) — composed into the packages line at emit
+ # time, never through PKG_NOTE, so every early return above still publishes it.
+ ROOT_V=BLOCKED ROOT_NOTE='probe not run'
++# ADJ-04 handoff (round 32, C1) — the counts the probes already measured, published for
++# main()'s HANDOFF lines. They are the same variables the PLANE notes print from, never a
++# second host read and never a regex over the note text. OOM_WINDOW is the oom plane's
++# retained window (`boots=<n> <first>..<last>`), printed with spaces replaced by ':' so the
++# window= field stays one key=value token; 0/empty means the probe never measured a count,
++# so no HANDOFF line is prepared for that class.
++OOM_CLUSTERS=0 OOM_WINDOW='' JRN_COREDUMPS=0
+ 
+ usage() {
+   cat <<'EOF'
+@@ -1151,6 +1182,7 @@ probe_mem_arm() {
+ # DEGRADED, never a fake pass. Nothing is written; no cgroup, unit or service is touched.
+ probe_oom_plane() {
+   OOM_V=HEALTHY
++  OOM_CLUSTERS=0
+   local unk='' bad=''
+   local boots=0 win_first='-' win_last='-'
+   local k_n=0 k_kill=0 a_n=0 s_n=0
+@@ -1185,6 +1217,9 @@ probe_oom_plane() {
+     OOM_NOTE="window empty: boots=$boots [no boot measured; empty is not a clean window]"
+     return
+   fi
++  # the retained window, published verbatim for the ADJ-04 handoff line (the PLANE note
++  # below builds the same string; kept separate so no PLANE text is touched here)
++  OOM_WINDOW="boots=$boots $win_first..$win_last"
+ 
+   # C1 — kernel OOM family over the whole window (server-side --grep; entry-level count with
+   # `-- Boot <id> --` separators counted out). killed_process is the F1 discriminator.
+@@ -1216,6 +1251,10 @@ probe_oom_plane() {
+     clist=$(printf '%s\n' "$clusters" | paste -sd, -)
+   fi
+   cluster_n=$(printf '%s\n' "$clusters" | grep -c . || true)
++  case "$cluster_n" in '' | *[!0-9]*) cluster_n=0 ;; esac
++  # the dated kill-event cluster count, published for the ADJ-04 handoff line (the same
++  # number the PLANE oom note prints as `clusters=`; a cumulative ledger never reaches it)
++  OOM_CLUSTERS=$cluster_n
+ 
+   # baseline — embedded r8 snapshot by default, external file via override (round-7 pattern)
+   if [ -n "$OOM_BASELINE" ]; then
+@@ -1292,6 +1331,7 @@ probe_oom_plane() {
+ # ---- plane: journal / boot (this-boot triage) --------------------------------
+ probe_journal() {
+   JRN_V=HEALTHY
++  JRN_COREDUMPS=0
+   local boots=0 cur=no lb_rc=0
+ 
+   if ! have "$JOURNALCTL"; then
+@@ -1356,11 +1396,18 @@ probe_journal() {
+       return
+     fi
+   else
+-    cls=$(printf '%s\n' "$CAP_OUT" | awk '
++    # One pass over the captured boot-0 error stream; the class counts are published twice:
++    # `cls` is the PLANE journal note text (unchanged), and JRN_COREDUMPS is the boot-0
++    # coredump count the ADJ-04 handoff line carries.
++    local cls_n='' cd_n=0 kd_n=0 ot_n=0
++    cls_n=$(printf '%s\n' "$CAP_OUT" | awk '
+       /"SYSLOG_IDENTIFIER":"systemd-coredump"/ { c++; next }
+       /"SYSLOG_IDENTIFIER":"kernel"|"_TRANSPORT":"kernel"/ { k++; next }
+       { o++ }
+-      END { printf "coredump=%d kernel=%d other=%d", c+0, k+0, o+0 }')
++      END { printf "%d %d %d", c+0, k+0, o+0 }')
++    read -r cd_n kd_n ot_n <<< "$cls_n"
++    cls="coredump=$cd_n kernel=$kd_n other=$ot_n"
++    JRN_COREDUMPS=$cd_n
+   fi
+ 
+   # arm 4 — failed services HISTORY this boot (journal-derived: units that failed earlier
+@@ -1910,9 +1957,12 @@ STUB
+   EXTRA_ENV=()
+   ROOT_EXPECT=''
+   check() { # check LABEL WANT_RC WANT_VERDICT WANT_RE [WANT_RE...]
++    # A WANT_RE prefixed with `ABSENT:` is a must-not-match assertion (round 32, C1: the
++    # ADJ-04 handoff lines must be absent where no dated event was measured). Every other
++    # WANT_RE is a must-match assertion, as before.
+     local label=$1 wrc=$2 wverdict=$3
+     shift 3
+-    local out rc before re miss='' pkgline root_expect=${ROOT_EXPECT:-$FX/root}
++    local out rc before re miss='' unwanted='' pkgline root_expect=${ROOT_EXPECT:-$FX/root}
+     before=$(fx_hash "$FX")
+     set +e
+     out=$(env \
+@@ -1957,10 +2007,21 @@ STUB
+       bad "$label: verdict not ${wverdict}; got: $(printf '%s\n' "$out" | grep '^TSUKUROI_CENSUS:' | head -n1)"
+     else
+       for re in "$@"; do
+-        printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss '$re'"
++        case "$re" in
++          ABSENT:*)
++            if printf '%s\n' "$out" | grep -qE -- "${re#ABSENT:}"; then
++              unwanted="$unwanted '${re#ABSENT:}'"
++            fi
++            ;;
++          *)
++            printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss '$re'"
++            ;;
++        esac
+       done
+       if [ -n "$miss" ]; then
+         bad "$label: plane evidence missing:$miss; got: $(printf '%s\n' "$out" | grep '^PLANE ' | tr '\n' '|')"
++      elif [ -n "$unwanted" ]; then
++        bad "$label: evidence present that must be absent:$unwanted; got: $(printf '%s\n' "$out" | grep -E '^HANDOFF ' | tr '\n' '|')"
+       else
+         ok "$label (exit $rc, $wverdict)"
+       fi
+@@ -2598,6 +2659,51 @@ STUB
+   check 'blocked: C1 root arm survives sample-rc early return (R12-C1)' 2 BLOCKED \
+     'pacman -Qkk sample rc=2' 'root_status=ok root_mode=0755 root_uid=[0-9]+ root_gid=[0-9]+'
+ 
++  # ---- round 32 (C1): the ADJ-04 sibling handoff lines ------------------------------
++  # Four falsifiable cases: the handoff is absent on a clean host; a dated kill event
++  # routes one kill-events line whose value is the oom plane's own cluster count; a boot-0
++  # coredump entry routes one coredumps line whose value is the journal plane's own
++  # coredump count; and a cumulative vmstat oom_kill counter (read, and visible as
++  # `ledger=`) is never a dated event, so it routes no kill-events line.
++  case_home='handoff-absent-healthy'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  check 'healthy: no ADJ-04 handoff line without a dated event (R32-C1)' 0 HEALTHY \
++    'ABSENT:^HANDOFF'
++
++  case_home='handoff-kill-events'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf '%s\n' \
++    '2026-10-13T23:44:30.574948-03:00 fixture-host systemd[1573]: app-x.scope: The kernel OOM killer killed some processes in this unit.' \
++    '2026-10-14T13:10:59.400591-03:00 fixture-host systemd[1]: user-1000.slice: The kernel OOM killer killed some processes in this unit.' \
++    > "$FX/oomwin-attrib"
++  printf 0 > "$FX/oomwin-attrib.rc"
++  printf '%s\n' \
++    '2026-10-14T13:10:59.380873-03:00 fixture-host systemd[1]: user@1000.service: Main process exited, code=killed, status=9/KILL' \
++    > "$FX/oomwin-sigkill"
++  printf 0 > "$FX/oomwin-sigkill.rc"
++  printf '%s\n' \
++    '2026-10-13T23:44:30.638238-03:00 fixture-host kernel: Out of memory: Killed process 1732581 (python3)' \
++    > "$FX/oomwin-kernel"
++  printf 0 > "$FX/oomwin-kernel.rc"
++  EXTRA_ENV=(TSUKUROI_OOM_BASELINE=)
++  check 'healthy: a dated kill event routes one kill-events handoff, value = the cluster count (R32-C1)' 0 HEALTHY \
++    'C2_events=2 C3_events=1 clusters=2\[' \
++    '^HANDOFF ADJ-04 mori class=kill-events value=2 kind=dated-event state=prepared window=boots=2:2026-10-11\.\.2026-10-14 source=journal-window$'
++
++  case_home='handoff-coredumps'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf '%s\n' \
++    '{"MESSAGE":"Main process terminated with signal 11 (Segmentation fault) of user 1000","PRIORITY":"3","SYSLOG_IDENTIFIER":"systemd-coredump","_BOOT_ID":"d7f0bc8d938e4249b4a1f250cbfacf58","__REALTIME_TIMESTAMP":"1799000000000000"}' \
++    '{"MESSAGE":"Main process terminated with signal 6 (Aborted) of user 1000","PRIORITY":"3","SYSLOG_IDENTIFIER":"systemd-coredump","_BOOT_ID":"d7f0bc8d938e4249b4a1f250cbfacf58","__REALTIME_TIMESTAMP":"1799000060000000"}' \
++    '{"MESSAGE":"Main process terminated with signal 11 (Segmentation fault) of user 1000","PRIORITY":"3","SYSLOG_IDENTIFIER":"systemd-coredump","_BOOT_ID":"d7f0bc8d938e4249b4a1f250cbfacf58","__REALTIME_TIMESTAMP":"1799000120000000"}' \
++    > "$FX/journal-err.json"
++  check 'degraded: boot-0 coredumps route one coredumps handoff, value = the boot-0 count (R32-C1)' 1 DEGRADED \
++    'err=3 \(coredump=3 kernel=0 other=0\)' \
++    '^HANDOFF ADJ-04 mori class=coredumps value=3 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$'
++
++  case_home='handoff-cumulative-only'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf 'oom_kill 3\n' > "$FX/vmstat"
++  check 'healthy: a cumulative vmstat oom_kill counter never routes a kill-events handoff (R32-C1)' 0 HEALTHY \
++    'ledger=vmstat\.oom_kill=3' \
++    'ABSENT:^HANDOFF'
++
+   check_cli 'cli: unknown argument exits 2 with usage (S10-2)' 2 \
+     '^usage: tsukuroi-census\.sh' -- --bogus
+   check_cli 'cli: --sample 0 refuses before the parse continues (S10-2)' 2 \
+@@ -2658,6 +2764,24 @@ main() {
+   printf 'PLANE update-safety: %s (%s)\n' "$UPD_V" "$UPD_NOTE"
+   printf 'PLANE oom: %s (%s)\n' "$OOM_V" "$OOM_NOTE"
+ 
++  # ---- ADJ-04 handoff (round 32, C1): the sibling-owned classes routed to mori --------
++  # Printed after the six PLANE lines and before the rollup; they change no PLANE text,
++  # no rollup term and no exit code (tsukuroi keeps the OS finding). Routing is
++  # unconditional and reads only what the probes already measured: a class is prepared
++  # when its dated-event count is >= 1. A cumulative counter (vmstat oom_kill, a
++  # memory.events oom_kill flag) never becomes a kill-events line by construction — the
++  # value is the oom plane's clustered journal events, not the ledger. See the header's
++  # HANDOFF contract paragraph for the prepared/not-acknowledged stance and for why
++  # value= is the census's own count rather than one of mori's catalog counts.
++  if [ "$OOM_CLUSTERS" -ge 1 ]; then
++    printf 'HANDOFF ADJ-04 mori class=kill-events value=%s kind=dated-event state=prepared window=%s source=journal-window\n' \
++      "$OOM_CLUSTERS" "${OOM_WINDOW// /:}"
++  fi
++  if [ "$JRN_COREDUMPS" -ge 1 ]; then
++    printf 'HANDOFF ADJ-04 mori class=coredumps value=%s kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER\n' \
++      "$JRN_COREDUMPS"
++  fi
++
+   local roll=HEALTHY
+   roll=$(worse "$roll" "$PKG_V")
+   roll=$(worse "$roll" "$SYS_V")
+-- 
+2.56.0
+

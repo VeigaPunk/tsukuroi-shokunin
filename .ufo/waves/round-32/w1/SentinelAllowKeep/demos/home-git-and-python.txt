@@ -1,0 +1,12 @@
+# HOME device: ambient HOME + $HOME/.gitconfig reaches git unless GIT_CONFIG_GLOBAL is set
+HOME=fakehome2 ./.gitconfig has user.email=evil@example.invalid
+with GIT_CONFIG_GLOBAL=/dev/null: rc=1
+without (ambient): evil@example.invalid
+rc=0
+XDG_CONFIG_HOME=xdg with GIT_CONFIG_GLOBAL=/dev/null: rc=1
+XDG_CONFIG_HOME=xdg ambient: xdg@evil.invalid
+rc=0
+
+# HOME unset is not isolation: python falls back to the passwd home for user site-packages
+usersite= /home/vgpnk/.local/lib/python3.14/site-packages
+ENABLE_USER_SITE= True

@@ -44,7 +44,7 @@ tampered, registry missing, lesson missing).
 Scope: a count of evidence links in committed bytes.  It does not re-measure the
 host, does not decide whether the storage plane is healthy, and authorises no
 package, service, scrub, counter reset or boot action.
-Git subprocesses, including selftest fixtures, use the round-30 child-environment contract.
+Git subprocesses, including selftest fixtures, use the round-32 child-environment allow-list: no ambient name is copied into a child.
 """
 from __future__ import annotations
 
@@ -246,11 +246,15 @@ def id_in_line(line, row_id):
 # ------------------------------------------------------------------ git i/o
 
 
+# round-32 child-environment allow-list: a child environment is built from this base plus the
+# names this builder sets on purpose; no ambient name is copied.
+CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
+
+
 def git_env(temp_dir):
     home = os.path.join(temp_dir, 'home')
     os.mkdir(home)
-    env = {key: value for key, value in os.environ.items()
-           if not key.startswith(('GIT_', 'LD_', 'PYTHON'))}
+    env = dict(CHILD_ENV_BASE)
     env.update({
         'GIT_CONFIG_NOSYSTEM': '1',
         'GIT_CONFIG_GLOBAL': os.devnull,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Should-fail data battery for tools/check-kernel-taint.py (round 28, claim C2). Every subprocess follows the round-30 git child environment contract: inherited GIT_* and user configuration are isolated, HOME is private, PATH is fixed, and repository discovery is sandbox-ceilinged.
+"""Should-fail data battery for tools/check-kernel-taint.py (round 28, claim C2). Every subprocess follows the round-32 child-environment allow-list: no ambient name is copied into a child, user configuration is isolated, HOME is private, PATH is fixed, and repository discovery is sandbox-ceilinged.
 
 Origin: round-27 wave-2 seat CritC1Tool's harness
 (`.ufo/waves/round-27/w2a2/CritC1Tool/mutants.py`); the mutate functions are carried unchanged.
@@ -29,8 +29,13 @@ import tarfile
 import tempfile
 from pathlib import Path
 
+# round-32 child-environment allow-list: a child environment is built from this base plus the
+# names this builder sets on purpose; no ambient name is copied.
+CHILD_ENV_BASE = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}
+
+
 def clean_env():
-    env = {k: v for k, v in os.environ.items() if not k.startswith(('GIT_', 'LD_', 'PYTHON'))}
+    env = dict(CHILD_ENV_BASE)
     env.update({
         'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull,
         'HOME': str(HOME), 'XDG_CONFIG_HOME': str(HOME / '.config'),
