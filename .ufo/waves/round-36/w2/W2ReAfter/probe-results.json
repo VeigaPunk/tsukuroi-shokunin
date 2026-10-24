@@ -1,0 +1,120 @@
+{
+  "revision": "c052bb7d41ced49aa888817069afd804eccfecf1",
+  "probe_sha256": "a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a",
+  "probe_version": 7,
+  "predicate_label": "leaking",
+  "full_livefive_attempt": {
+    "command": "python3 tools/probe-child-env-allowlist-r36.py --revision c052bb7d41ced49aa888817069afd804eccfecf1 --set livefive --scratch /tmp/w2-after",
+    "returncode": 1,
+    "summary_emitted": false,
+    "error": "RuntimeError: cannot create local master branch",
+    "failing_target": "tools/check-revision-binding.py",
+    "branch_evidence": {
+      "bare_clone_head": "refs/heads/master",
+      "working_tree_master": "refs/heads/master c052bb7d41ced49aa888817069afd804eccfecf1",
+      "probe_action": "git branch master <master-tip> returned nonzero because master already exists"
+    }
+  },
+  "livefive_remaining_targets": {
+    "target_set": "livefive",
+    "selection": [
+      "tools/check-report-receipts.py",
+      "tools/score-census-handoff-r32.py",
+      "tools/mutants-btrfs-space-r30.py",
+      "tools/run-receipt.py"
+    ],
+    "targets": 4,
+    "channels": ["names", "quiet", "source", "untraced"],
+    "pairs": 16,
+    "leaking": 1,
+    "leaking_pairs": ["tools/score-census-handoff-r32.py:source"],
+    "harness_errors": [],
+    "returncode": 1,
+    "scratch": "/tmp/w2-after-rest/s5ada2c608c75-4yfbvykw",
+    "per_target_leaking_channels": {
+      "tools/check-report-receipts.py": 0,
+      "tools/score-census-handoff-r32.py": 1,
+      "tools/mutants-btrfs-space-r30.py": 0,
+      "tools/run-receipt.py": 0
+    },
+    "source_finding": "tools/score-census-handoff-r32.py:489 inheriting-spawn subprocess.Popen env name env bound by arg",
+    "untraced_record_counts": {
+      "tools/check-report-receipts.py": 0,
+      "tools/score-census-handoff-r32.py": 0,
+      "tools/mutants-btrfs-space-r30.py": 0,
+      "tools/run-receipt.py": 0
+    }
+  },
+  "r33claim": {
+    "targets": 5,
+    "pairs": 20,
+    "leaking": 0,
+    "leaking_pairs": [],
+    "harness_errors": [],
+    "returncode": 0,
+    "scratch": "/tmp/w2-r33claim-full/s197dfb70721e-xqfu8x0m",
+    "per_target_leaking_channels": {
+      "tools/_revision.py": 0,
+      "tools/check-adjacency-anchors.py": 0,
+      "tools/check-boot-writers.py": 0,
+      "tools/check-root-dac-correction.py": 0,
+      "tools/mutants-owed-statements-r29-v4shapes.py": 0
+    },
+    "untraced_record_counts": "0 for every target"
+  },
+  "claim": {
+    "targets": 9,
+    "pairs": 36,
+    "leaking": 0,
+    "leaking_pairs": [],
+    "harness_errors": [],
+    "returncode": 0,
+    "scratch": "/tmp/w2-claim/s1d6c5f341085-2aqhg6dj",
+    "per_target_leaking_channels": {
+      "tools/check-boot-chain.py": 0,
+      "tools/check-btrfs-repair-r31.py": 0,
+      "tools/check-btrfs-space-r30.py": 0,
+      "tools/check-locator-clarification.py": 0,
+      "tools/check-recheck-commands.py": 0,
+      "tools/check-seat-scope.py": 0,
+      "tools/check-section-citations.py": 0,
+      "tools/check-source-scope-correction.py": 0,
+      "tools/measure-update-recheck.py": 0
+    },
+    "untraced_record_counts": "0 for every target"
+  },
+  "regression": {
+    "targets": 11,
+    "pairs": 44,
+    "leaking": 6,
+    "leaking_pairs": [
+      "tools/mutants-adjacency-overlap.py:names",
+      "tools/mutants-adjacency-overlap.py:quiet",
+      "tools/mutants-adjacency-overlap.py:untraced",
+      "tools/mutants-kernel-taint.py:names",
+      "tools/mutants-kernel-taint.py:quiet",
+      "tools/mutants-kernel-taint.py:untraced"
+    ],
+    "harness_errors": [],
+    "returncode": 1,
+    "scratch": "/tmp/w2-regression/s04954b9f2da8-64l7v1g7",
+    "per_target_leaking_channels": {
+      "tools/check-adjacency-overlap.py": 0,
+      "tools/check-freshness-r17.py": 0,
+      "tools/check-kernel-taint.py": 0,
+      "tools/check-memory-pressure.py": 0,
+      "tools/check-registry-coverage.py": 0,
+      "tools/check-storage-health.py": 0,
+      "tools/mutants-adjacency-overlap.py": 3,
+      "tools/mutants-kernel-taint.py": 3,
+      "tools/check-self-assessment.py": 0,
+      "tools/mutants-owed-statements-r29.py": 0,
+      "tools/mutants-owed-statements-r29-landed.py": 0
+    },
+    "leak_evidence": {
+      "tools/mutants-adjacency-overlap.py": "base parity: git_argv_sha256 7be6a8e461423df7c1bf66ad5d2c5f3ce837be4416be1601ae4fd0d515c01a08 differs from claim-base control 232b981a26ef4f8bf54f77efea67c606cf6d5786b9076b35e7add27d8689367b",
+      "tools/mutants-kernel-taint.py": "base parity: git_argv_sha256 718448322c9fd870a90baf9855868a0cf777914b14c4ff0030f18be274a02e58 differs from claim-base control 18e1277b07d8c194f5dc2e9c970b5c8176c45660c235bde7ead3e00b95e37a74"
+    },
+    "untraced_record_counts": "0 for every target"
+  }
+}
