@@ -1853,3 +1853,96 @@ declared battery unexecutable/vacuous — VERSION 8 debts, enumerated in
 , for a future re-claim. No ordinal moved.
 The XDG_RUNTIME_DIR harm repair and the  visibility repair land here as
 review-driven repairs (W2RevToolB F2, W2RevToolA H1); C1 is not re-claimed by them.
+
+## Round 37 — declaration, pre-freeze candidate (2026-10-25, base `564db0b614`)
+
+Base `564db0b614b2914de5452f9ebd537a0653ae1de5` (branch tip at dispatch; the round-36 verifier
+spot-check commit; origin resolves to the same hash). Ordinals at the base
+(`SCORECARD.md:1795-1796`): operability 9, depth 8, coverage 9, freshness 9, calibration 9,
+adjacency 8; saturation 9 / window 3, so the stagnation nudge does not waive the lowest-axis duty
+(depth and adjacency are tied lowest). Three claims, distinct axes: operability, depth,
+calibration. Routed round-36 defects land as repairs inside these claims' commits (probe
+VERSION-8 debt is C1; C2-note corrections are C2; the LOG stamp typo is repaired by a LOG append).
+
+**C1 — operability: the round-36 probe's VERSION-8 redesign makes the livefive battery
+executable, non-vacuous and leak-discriminating for the five live tools.**
+
+Declared target: `tools/probe-child-env-allowlist-r37.py` (new file, VERSION 8, PREDICATE label
+`leaking`, docstring-embedded predicate = the frozen r34 sentence) replaces
+`tools/probe-child-env-allowlist-r36.py` VERSION 7 as the round's counter and repairs the four
+routed defects:
+- S1: direct full-battery invocation crashes (`RuntimeError: cannot create local master branch`,
+  probe line 499) on the revision-binding target after clone; the fix restores a runnable direct
+  mode.
+- S3: livefive vacuity — a do-nothing variant reads leaking 0 with the A/B parity waiver; the fix
+  closes the vacuity gate named by the W2RevCounter catalogue (round-36 wave-2 reports).
+- S4: the `os.get_exec_path()` ambient PATH shape is invisible to both source and untraced
+  channels; the fix adds the channel/shape detection named in the W2RevCounter catalogue.
+- Source-channel parameter rule: a function parameter named `env` is flagged as an ambient read;
+  the fix resolves parameters from ambient attribute reads (`os.environ`), not from name matches.
+
+Counting command (before and after, from the lane root):
+`python3 tools/probe-child-env-allowlist-r37.py --revision <REV> --set livefive`
+(the LAST JSONL line is the summary; exit 0 clean, 1 leaking, 2 harness error). Declared measure:
+summary `leaking` == 0, `leaking_pairs` == [], `harness_errors` == [], `predicate_label` ==
+`leaking`, exit 0. Before (base 564db0b614, with the V7 instrument + defect repros): V7 direct
+invocation crashes (S1); the do-nothing vacuity control reads leaking 0 (S3); the source channel
+carries the parameter-`env` false-positive class; the full livefive battery runs only through the
+receipt wrapper. After (change commit): all four fixes present; the full livefive battery runs
+both directly and through `tools/run-receipt.py`; reads `leaking` 0 on all five targets with
+`harness_errors` [] and exit 0.
+
+Kill rule (fixed before any seat scores the after value): if any variant of the frozen probe that
+skips any of the four fixes (S1 crash path, no vacuity gate, no S4 channel, parameter-name `env`
+rule) reads `leaking` 0 on the livefive battery with `harness_errors` [] and exit 0, C1 is
+reported not verified. Sensitivity conjuncts: the committed mutant probes (one per fix, sandbox
+commits) each read above 0 under the frozen probe; base-set readings (claim/r33claim/regression)
+read 0. Do-nothing control: V7 at the base (S1 crash + S3 vacuity reproduced in receipts) cannot
+reach the after value. Freeze rule: the freeze commit names the probe bytes (sha256 in the LOG
+entry); after the freeze, the probe, predicate, label, livefive set and after-value do not change.
+Sourced claim: C1's probe note cites a strace(1) row opened this round (S200-strace) plus the
+probe's own-work row (S201-probe), both opened and mined in-round.
+
+**C2 — depth: the round-36 journalctl-v262 note becomes correction-complete per the closure's
+routed list.**
+
+Routed defect: round-36 verifier spot-check §6 item 2 (W2CritC2Depth): 15 not 16 predicate terms;
+`-F` truncation vs unchanged `-N` output under `-n`; action-override classification. Before:
+`corpus/knowledge/journalctl-v262-field-filter-r36.md` carries the 16-term table and lacks the two
+rows. After: the note carries exactly the corrected 15-term predicate table, the third-state
+(`-n`) row distinguishing `-F` truncation from unchanged `-N` output, and an action-override
+classification row; the rejection line stays verbatim. Counter: `tools/check-journalctl-v262-corrections.py`
+`--revision <REV>` (selftest + committed-read modes) asserts those three facts at the bound
+revision; exit 0 clean, 1 failed, 2 could-not-evaluate. Counting command:
+`python3 tools/check-journalctl-v262-corrections.py --revision <REV>`; before at base = exit 1
+(note uncorrected); after at the change commit = exit 0. Do-nothing control: the checker on the
+uncorrected base note exits 1, so a no-op cannot reach the after state.
+
+**C3 — calibration: a verified-rate ledger matches every declared claim to its measured verdict
+across rounds 33–36, implementing considerthese/2026-10-23.md proposal 1 ("Verified-rate ledger").**
+
+Before: no ledger exists (0 rows). After: `corpus/knowledge/verified-rate-ledger-r37.md` carries
+one row per claim declared in rounds 33–36 (axis, declared after-state, measured verdict per the
+round's outcome / report / verifier spot-check, verdict class verified/not-verified/held/honest-stop
+and why), and `tools/check-verified-rate-ledger.py --revision <REV>` reports `mismatches` == 0
+(every ledger verdict matches the SCORECARD measured-outcome record and the fleet report's
+per-claim verdict lines) and exit 0. Counting command:
+`python3 tools/check-verified-rate-ledger.py --revision <REV>`; before = exit 2 (no ledger),
+after = exit 0 with mismatches 0. Do-nothing control: an empty ledger fails the checker.
+
+Separability: C1 touches only the new probe and its note/rows; C2 touches only the note
+corrections and checker; C3 only the ledger and checker; each claim verifies without the others.
+
+Assimilation (§10): ONE theme — errno discrimination — with THREE package entries admitted from
+`merge/tsukuroi/`: `errno-name-discrimination-r25.md`, `mount-errno-contract-r26.md`,
+`errno-contract-variance-r37.md`; rows S204/S205/S214/S220/S279–S282/S286/S287 appended
+(transformed to fleet schema in scratch, census-validated, collision-guard proven) with
+re-grounded Gate quotes. Quarantine slice (12 data rows) hand-checked with a verdict per row.
+This rides inside §2b and adds no claim slot.
+
+Order: this declaration commit; wave 1 (32 seats v1: controls and before receipts, V8 design/impl,
+correction/ledger drafts, sources/assimilation, baselines); the L1 commits every wave-1 receipt;
+the freeze commit (C1 counter bytes + before battery + sensitivity receipts); the change commit
+(probe V8, C2 corrections + checker, C3 ledger + checker, SOURCES rows, lesson skeleton, registry
+rows); after battery receipts; wave 2 (32 seats v1: falsify); the measured outcome, lesson,
+SOURCES/README/SKILL rows and report.
