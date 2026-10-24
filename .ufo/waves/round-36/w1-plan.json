@@ -1,0 +1,551 @@
+{
+  "schema": "ufo-swarm-wave-v1",
+  "wave": "tsukuroi-r36-w1",
+  "context": "/skill:godspeed\n# Godspeed directive (verbatim bytes of ~/.agents/skills/godspeed/directive.md)\nYou are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate cheap, in parallel.**\n3. **Keep moves that improve any axis and harm none.**\n4. **Don't aim — let the frontier walk itself.**\n\n## IMMEDIATELY STOP ASKING CLARIFYING QUESTIONS. Execute tool calls concurrently in large batches. Do not serialize what can run in parallel. Do not output philosophical reasoning or verbose plans. Act directly via tool calls.\n\n# Goal\nTsukuroi round 36, attempt 1, wave w1 (BUILD wave, 32 seats): pre-freeze design and evidence for C1 (the five live tools' fixed-dict child environments + the successor probe), C2 (the journalctl v262 note), source opens, routed repairs, gate baselines and recon. Lane repo (your only write scope): /home/vgpnk/Projects/shokunin/tsukuroi-shokunin. Base/declaration commit: 6d76fb20f6ecbc940e5c8fff36c74060c885e161 (SCORECARD.md section \"Round 36 — declaration\", LOG.md matching entry). Read the declaration first: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 6d76fb20f6ecbc940e5c8fff36c74060c885e161:SCORECARD.md` (tail ~90 lines) — it carries the frozen claim text, counter shape, freeze rule and kill rule. Standing wave rule: every seat is independent; no seat blocks on another; the L1 composes dependencies between waves, never within a wave — so if you need a sibling artifact that is absent, record the dependency as a finding and return your partial results.\n\nClaims: C1 (operability) — the five tools tools/check-revision-binding.py, tools/check-report-receipts.py, tools/score-census-handoff-r32.py, tools/mutants-btrfs-space-r30.py, tools/run-receipt.py stop copying the ambient environment into child processes (fixed-dict child envs), counted by the new probe tools/probe-child-env-allowlist-r36.py --set livefive (measure: last JSON line leaking_pairs; before >0 on each of the five targets; after 0 on all five with sensitivity conjuncts green: MutAttrgetterCopy/MutPathCopy mutants above 0, claim/r33claim/regression sets at base 0). C2 (depth, exploratory) — corpus/knowledge/journalctl-v262-field-filter-r36.md: systemd 262's rejection of journalctl -F/-N combined with limiting options, verified live read-only on this host, sourced on S024 (opened pinned this round) + new row S198.\n\n# Seat bounds (every seat)\n- Your tools start at the fleet root /home/vgpnk/Projects/shokunin. Every path you read or write MUST be absolute. Lane write scope: ONLY /home/vgpnk/Projects/shokunin/tsukuroi-shokunin, and within it only your own seat directory .ufo/waves/round-36/w1/<YourSeatName>/ (plus mktemp scratch). NEVER write the fleet root, sibling lane repos, .ufo/state/, .ufo/watchdog.log, MANIFEST.json, templates/ or fleet scripts/. Read-only elsewhere is fine. Do NOT edit production files (tools/, corpus/, SCORECARD.md, LOG.md, SKILL.md, SHONEN.md, corpus/SOURCES.md) — the L1 lands every production change from seat outputs.\n- NEVER run git add/commit/push, jj, or any mutating VCS command anywhere; the L1 is the only committer (scripts/hyaku/jj-lane.sh). Read-only git (show/log/diff/status/rev-parse/ls-files) is fine. Never touch the lane Git index.\n- You are a leaf: no delegation, no own swarm. An executor seat may spawn ONE read-only labrat probe for a falsifiable hypothesis (the only permitted spawn).\n- Report trailer: the validator renders each seat a relative `Report: .ufo/waves/round-36/w1/<SeatName>` trailer; that path is relative to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin — write your report at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-36/w1/<SeatName>/ (create the directory; a .md file named <SeatName>.md). Put machine output (receipts, jsonl, diffs, captures) as separate files in the same directory.\n- Tooling authorization (operator, 2026-10-19): you may install or upgrade tools that help your task — official channels only (uv tool install / official release binary into ~/.local/bin / cargo / npm -g), never an unverified remote script; record tool/version/channel/reason in your report. PACMAN GUARD (orchestrator ruling 2026-10-20): ALL pacman transactions are PAUSED host-wide — never run pacman in any form; install via uv/npx/binary or do without.\n- Routing: the seat role decides the model route through the operator's global OMP table (~/.omp/agent/config.yml task.agentModelOverrides). Never pass or request a model parameter.\n- Never message agent://all (it reaches every lane's seats); message only your own wave peers by exact id if truly needed.\n- Heading-time discipline (round-35 routed defect 2): every timestamp you write is pasted from `date -u +%H:%M:%SZ` run at that moment, or omitted.\n- Honesty: an unrun check has not passed; mark inference [inf], unknown [unk]; quote sources exactly with location.",
+  "policy": {
+    "source": "config",
+    "maxLanes": 32,
+    "minLanes": 16,
+    "waveMinLanes": 32,
+    "waveMaxLanes": 64,
+    "declaredMaxLanes": 32,
+    "hardCeiling": 256,
+    "rampBatchSize": 5,
+    "rampIntervalMs": 700,
+    "globalRunnerCeiling": 1056
+  },
+  "counts": {
+    "spawn": 32,
+    "resume": 0,
+    "total": 32
+  },
+  "compaction": {
+    "applied": false,
+    "mechanism": null,
+    "reason": null,
+    "savedBytes": 0,
+    "payloadBytesBefore": 0,
+    "payloadBytesAfter": 0
+  },
+  "dispatch": {
+    "calls": 1,
+    "kind": "task",
+    "note": "Issue exactly one batched task call carrying every spawn lane, plus one hub send per resume lane. Never split a wave into multiple task calls (one-swarm-per-wave)."
+  },
+  "registry": {
+    "schema": "ufo-swarm-registry-v1",
+    "path": ".ufo/waves/round-36/w1/swarm-registry.json",
+    "reportDir": ".ufo/waves/round-36/w1",
+    "members": {
+      "ConnSiblings": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "connector",
+        "item": null,
+        "axes": [
+          "adjacency",
+          "scan:sibling-overlap"
+        ]
+      },
+      "ConnReport": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "connector",
+        "item": null,
+        "axes": [
+          "scope",
+          "connector",
+          "misroot"
+        ]
+      },
+      "ExecC1Design": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "executor",
+        "item": null,
+        "axes": [
+          "operability",
+          "C1",
+          "patch-design"
+        ]
+      },
+      "ExecProbeR36": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "executor",
+        "item": null,
+        "axes": [
+          "operability",
+          "C1",
+          "counter",
+          "probe"
+        ]
+      },
+      "ExecBeforeDesign": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "executor",
+        "item": null,
+        "axes": [
+          "operability",
+          "C1",
+          "before-receipt-design"
+        ]
+      },
+      "ExecC2Live": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "executor",
+        "item": null,
+        "axes": [
+          "depth",
+          "C2",
+          "live-verify"
+        ]
+      },
+      "ExecV6NormCheck": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "executor",
+        "item": null,
+        "axes": [
+          "operability",
+          "C1",
+          "normalisation"
+        ]
+      },
+      "ExecGateBaselines": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "executor",
+        "item": null,
+        "axes": [
+          "operability",
+          "gates",
+          "baseline"
+        ]
+      },
+      "ExecSelftestNoHarm": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "executor",
+        "item": null,
+        "axes": [
+          "operability",
+          "no-harm",
+          "baseline"
+        ]
+      },
+      "ExecLiveViewDesign": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "executor",
+        "item": null,
+        "axes": [
+          "operability",
+          "C1",
+          "quality-82",
+          "live-view"
+        ]
+      },
+      "ExecPacnewDebtNote": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "executor",
+        "item": null,
+        "axes": [
+          "coverage",
+          "debt:pacnew-v3"
+        ]
+      },
+      "ScribeC2Draft": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "scribe",
+        "item": null,
+        "axes": [
+          "depth",
+          "C2",
+          "note"
+        ]
+      },
+      "SrcSystemdNews": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "scribe",
+        "item": null,
+        "axes": [
+          "depth",
+          "sources",
+          "S024"
+        ]
+      },
+      "SrcJournalctlMan": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "scribe",
+        "item": null,
+        "axes": [
+          "depth",
+          "sources",
+          "S198"
+        ]
+      },
+      "ScribeNoUpgrade": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "scribe",
+        "item": null,
+        "axes": [
+          "freshness",
+          "repair:supersession"
+        ]
+      },
+      "ScribeSourcesRows": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "scribe",
+        "item": null,
+        "axes": [
+          "sources",
+          "registry"
+        ]
+      },
+      "ScribeLessonDraft": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "scribe",
+        "item": null,
+        "axes": [
+          "lesson",
+          "bookkeeping"
+        ]
+      },
+      "ScribeReceipts": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "scribe",
+        "item": null,
+        "axes": [
+          "bookkeeping"
+        ]
+      },
+      "ScoutRecon": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "scout",
+        "item": null,
+        "axes": [
+          "depth",
+          "C2",
+          "recon"
+        ]
+      },
+      "ScoutMori": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "scout",
+        "item": null,
+        "axes": [
+          "adjacency",
+          "freshness",
+          "mori"
+        ]
+      },
+      "ScoutSourcesEnv": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "scout",
+        "item": null,
+        "axes": [
+          "operability",
+          "sources",
+          "recon"
+        ]
+      },
+      "CriticClaimShape": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "critic",
+        "item": null,
+        "axes": [
+          "operability",
+          "C1",
+          "attack:design"
+        ]
+      },
+      "CriticC2Shape": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "critic",
+        "item": null,
+        "axes": [
+          "depth",
+          "C2",
+          "attack:shape"
+        ]
+      },
+      "CriticFreeze": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "critic",
+        "item": null,
+        "axes": [
+          "operability",
+          "C1",
+          "freeze-gate"
+        ]
+      },
+      "ReviewC1Design": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "reviewer",
+        "item": null,
+        "axes": [
+          "operability",
+          "C1",
+          "review"
+        ]
+      },
+      "ReviewC2Draft": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "reviewer",
+        "item": null,
+        "axes": [
+          "depth",
+          "C2",
+          "review"
+        ]
+      },
+      "ReviewDeclaration": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "reviewer",
+        "item": null,
+        "axes": [
+          "calibration",
+          "declaration",
+          "review"
+        ]
+      },
+      "MutProbeDraft": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "mutation-tester",
+        "item": null,
+        "axes": [
+          "operability",
+          "C1",
+          "mutation-test"
+        ]
+      },
+      "MutToolMutants": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "mutation-tester",
+        "item": null,
+        "axes": [
+          "operability",
+          "C1",
+          "mutation-test"
+        ]
+      },
+      "RevProbeLineage": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "revenger",
+        "item": null,
+        "axes": [
+          "operability",
+          "probe",
+          "lineage"
+        ]
+      },
+      "SentScope": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "sentinel",
+        "item": null,
+        "axes": [
+          "scope",
+          "sentinel"
+        ]
+      },
+      "SimplifierProbe": {
+        "kind": "spawn",
+        "agentId": null,
+        "role": "simplifier",
+        "item": null,
+        "axes": [
+          "operability",
+          "probe",
+          "simplification"
+        ]
+      }
+    }
+  },
+  "priorRegistries": [],
+  "tasks": [
+    {
+      "name": "ConnSiblings",
+      "agent": "connector",
+      "task": "/skill:godspeed\n\nSibling-overlap scan for tsukuroi round 36. Which sibling lanes (repos under /home/vgpnk/Projects/shokunin/*-shokunin) have touched, in their last 3 rounds, any of: child-process environment hygiene / env allowlists / strace probes, pacman .pacnew/.pacsave counters, journalctl/systemd-262 journal tooling, or the five tools check-revision-binding.py check-report-receipts.py score-census-handoff-r32.py mutants-btrfs-space-r30.py run-receipt.py? For each hit name the lane, the round, the file and a one-line summary (read-only: git -C <lane> log --oneline -5 and grep). Also read the sibling round-36 fleet reports at /home/vgpnk/Projects/shokunin/.ufo/reports/round-36/ (chousa.md kake.md kotodama.md kumitate.md mori.md — read-only) for declared claim surfaces that could collide with C1/C2. Output: overlap table + collision verdict per claim in your seat dir. Read-only seat.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: adjacency, scan:sibling-overlap\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ConnSiblings.md"
+    },
+    {
+      "name": "ConnReport",
+      "agent": "connector",
+      "task": "/skill:godspeed\n\nConnector checks. (1) Run your OWN quick sibling-overlap spot scan for C1/C2 surfaces (git log --oneline -3 over 3 likely siblings — kumitate, mado, kama) and compare with ConnSiblings' table in .ufo/waves/round-36/w1/ConnSiblings/ if present; if absent, record the dependency as a finding and use only your own scan. (2) Misroot sweep: `git -C /home/vgpnk/Projects/shokunin status --porcelain` — report any untracked/modified fleet-root file whose content names tsukuroi or round-36 (read the first bytes to check); do not delete anything. (3) Confirm /home/vgpnk/Projects/shokunin/.ufo/reports/round-36/tsukuroi.md is ABSENT (read-only ls). Output: connector-checks.md in your seat dir.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: scope, connector, misroot\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ConnReport.md"
+    },
+    {
+      "name": "ExecC1Design",
+      "agent": "executor",
+      "task": "/skill:godspeed\n\nC1 patch design (no production edit — the L1 lands the change; you produce the patch + evidence). Read the five tools at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin: tools/check-revision-binding.py (clean_env at :103), tools/check-report-receipts.py (find_receipts env at :315-330), tools/score-census-handoff-r32.py (env at :786), tools/mutants-btrfs-space-r30.py (env at :362), tools/run-receipt.py (env() at :36). Design the minimal diff converting every child-environment builder to a fixed dict per the declaration: PATH=/usr/bin:/bin, LC_ALL=C, GIT_CONFIG_NOSYSTEM=1, GIT_CONFIG_GLOBAL=/dev/null, plus each tool's existing fixed settings (GIT_CONFIG_SYSTEM, GIT_OPTIONAL_LOCKS, GIT_PAGER where already set) and run-private computed settings (HOME/XDG_CONFIG_HOME private dir and GIT_CEILING_DIRECTORIES scratch parent in check-report-receipts and run-receipt). Rules: no os.environ/environ/getenv read may remain on any spawn path of the five files (subprocess/os.system/os.popen/os.exec*/os.spawn*); no behaviour change (same argv, same fixed values); keep style. Write c1-five-tools.diff (unified diff against 6d76fb20f6ecbc940e5c8fff36c74060c885e161) + rationale.md (per-tool) + risk table (ambient names each tool reads OUTSIDE the builder — argument defaults etc. — and why dropping them from children is safe) into your seat dir. Verify: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin archive 6d76fb20f6ecbc940e5c8fff36c74060c885e161 | tar -x -C <mktemp>` then `patch -p1 --dry-run` — paste the result.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch except your single labrat.\nJudged on: operability, C1, patch-design\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ExecC1Design.md"
+    },
+    {
+      "name": "ExecProbeR36",
+      "agent": "executor",
+      "task": "/skill:godspeed\n\nDraft the C1 counter: write probe-child-env-allowlist-r36.py into your seat dir (the L1 reviews and commits it to tools/). Start from tools/probe-child-env-allowlist-r34.py (VERSION 4) at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin; add ONLY: (1) VERSION 5 paragraph naming round 36 and the debt repayment; (2) LIVE_FIVE target set + a per-tool invocation that starts >=1 child and finishes under 600 s in a control run at 6d76fb20f6ecbc940e5c8fff36c74060c885e161: check-revision-binding.py (find a non-selftest CLI mode resolving revisions over a clone — read its argparse), check-report-receipts.py (find_receipts mode with a revision + .ufo/waves pairs over a clone — read its main), score-census-handoff-r32.py (census-scoring mode over a clone), mutants-btrfs-space-r30.py (default battery mode), run-receipt.py (drive one small existing receipt command over a clone). For each target record in the set comment: exact argv template (the r34 placeholders for revision and clone), expected exit, observed control-run time at 6d76fb20f6ecbc940e5c8fff36c74060c885e161. Exclude any target whose control run is not viable and SAY SO (honesty over completeness — the set may name four). (3) UNTRACED VIEW channel: install wrapper scripts named git, python3, bash, sh into the injected ambient PATH directory (the value channel already injects PATH=/usr/bin:/bin:<inject>/<random>); each wrapper appends its own environment read from /proc/self/environ to <inject>/untraced.log then execs the real binary from /usr/bin. Children inheriting the ambient PATH hit a wrapper; fixed-PATH children never do. The untraced view reports leaked injected names/values from that log, independent of strace; wrappers' own execve records must be excluded from strace-channel attribution. (4) Normalisation extensions per the round-35 ExecV6Calibration receipts (read .ufo/waves/round-35/w1/ExecV6Calibration/byte-invariance.txt + both v6 jsonl): values containing run-scratch/fixture paths, 7-40-hex short hashes, GIT_CEILING_DIRECTORIES and HOME-derived values must not false-positive (r34 already normalises 40/64-hex and <TMP> components — extend, never duplicate). Keep every other r34 rule byte-identical (channels, predicate, source scan, execveat/unparseable clauses). Dev-run your draft at 6d76fb20f6ecbc940e5c8fff36c74060c885e161 on claim+r33claim+regression (expect 0 leaking each) and on the two committed mutants under .ufo/waves/round-34/w2/MutAttrgetterCopy/ and MutPathCopy/ (expect leaking >0 each; build the mutant sandbox clones in mktemp from the r34 tip commit named in the mutant receipts). Report: set-viability table, dev-run summaries, diffstat r34->r36.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch except your single labrat.\nJudged on: operability, C1, counter, probe\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ExecProbeR36.md"
+    },
+    {
+      "name": "ExecBeforeDesign",
+      "agent": "executor",
+      "task": "/skill:godspeed\n\nDesign the C1 BEFORE-receipt procedure and prove its harness (you do NOT need the r36 probe — the L1 runs the actual before receipt at integration). Deliverables into your seat dir: (1) run-before.sh — a runnable script that takes the probe path as $1 and runs: the livefive battery at 6d76fb20f6ecbc940e5c8fff36c74060c885e161 (names+quiet+source channels, --json), plus the sensitivity conjuncts (claim/r33claim/regression at 6d76fb20f6ecbc940e5c8fff36c74060c885e161, and the MutAttrgetterCopy/MutPathCopy mutant sandboxes under .ufo/waves/round-34/w2/), each through tools/run-receipt.py with receipts written under the calling directory (read tools/run-receipt.py --help at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin first and match its interface exactly; every receipt header must name revision 6d76fb20f6ecbc940e5c8fff36c74060c885e161 and the probe's sha256 — QUALITY 77); (2) harness-dry.jsonl — a REAL receipt produced by driving run-receipt.py over an EXISTING tool (python3 tools/check-recheck-commands.py --revision 6d76fb20f6ecbc940e5c8fff36c74060c885e161) to prove the harness works end-to-end today; (3) expected-output.md — the exact last-line JSON shape you expect for the before state (leaking_pairs per target >0) and for the sensitivity checks, with the do-nothing control defined as 'the unchanged five tools at 6d76fb20f6ecbc940e5c8fff36c74060c885e161'. Verify each tool's selftest/mode you name in run-before.sh exists (run --help). No production edits.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch except your single labrat.\nJudged on: operability, C1, before-receipt-design\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ExecBeforeDesign.md"
+    },
+    {
+      "name": "ExecC2Live",
+      "agent": "executor",
+      "task": "/skill:godspeed\n\nC2 live verification (read-only host; no package/service action; no sudo). On this host (systemd 262): establish the exact behavior of journalctl -F and -N combined with limiting options. Matrix — each cell records stdout tail, stderr bytes, exit code: journalctl --no-pager -F PRIORITY; journalctl --no-pager -N PRIORITY,MESSAGE; journalctl --no-pager -b 0 -F PRIORITY; journalctl --no-pager -b 0 -N PRIORITY; journalctl --no-pager -b -p err -F PRIORITY; journalctl --no-pager --since '1 hour ago' -F PRIORITY; journalctl --no-pager -u systemd-journald -F PRIORITY; journalctl --no-pager -b 0 -o json -F PRIORITY; journalctl --no-pager -b -1 -F PRIORITY (if boot -1 exists per journalctl --list-boots); journalctl --no-pager --quiet -b 0 -F PRIORITY. Also capture `journalctl --version` first line. Then sweep the lane for rejecting invocations: grep -rn journalctl /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/ (py and sh) and list every invocation with file:line, flag set, reject/work verdict under the matrix. Output matrix.json + matrix.md in your seat dir.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch except your single labrat.\nJudged on: depth, C2, live-verify\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ExecC2Live.md"
+    },
+    {
+      "name": "ExecV6NormCheck",
+      "agent": "executor",
+      "task": "/skill:godspeed\n\nNormalisation debt check (self-sufficient: you build the conformance fixtures; checking the sibling draft is a bonus, not a dependency). Read .ufo/waves/round-35/w1/ExecV6Calibration/ (byte-invariance.txt, r33claim-v6.jsonl, regression-v6.jsonl, regression-clause-summary.txt) — the v6 false positives on byte-identical tools (r33claim 8/15, regression 22/33 leaking). Extract every distinct false-positive CLASS (value shape that fired on a non-leaking tool): short-hash lengths, fixture/scratch path components, GIT_CEILING_DIRECTORIES, HOME-derived, anything else. For each class write one norm-fixture NAME=VALUE pair and a tiny python harness (in your seat dir) that classifies it; then, if .ufo/waves/round-36/w1/ExecProbeR36/probe-child-env-allowlist-r36.py exists, run your fixtures against its normalisation and report per-class pass/gap; if absent, record the dependency as a finding and ship fixtures + expected behaviour so wave 2 can verify the landed probe against them. Output: classes.md + fixtures + results.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch except your single labrat.\nJudged on: operability, C1, normalisation\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ExecV6NormCheck.md"
+    },
+    {
+      "name": "ExecGateBaselines",
+      "agent": "executor",
+      "task": "/skill:godspeed\n\nGate baselines at 6d76fb20f6ecbc940e5c8fff36c74060c885e161. Run the seven lane gates from /home/vgpnk/Projects/shokunin/tsukuroi-shokunin and record receipts in your seat dir (JSONL per gate: header names revision 6d76fb20f6ecbc940e5c8fff36c74060c885e161 and the tool sha256, footer exit_code — QUALITY 77; use python3 tools/run-receipt.py where it can drive the tool, else run directly and disclose): check-self-assessment.py, check-registry-coverage.py, check-knowledge-header.py, check-recheck-commands.py, check-adjacency-anchors.py, report-red-causes.py, check-pause-gate.py — each with --revision 6d76fb20f6ecbc940e5c8fff36c74060c885e161. Record every exit code and first failing check name; compare against the round-35 repaired-tip shape (registry kinds probe/gate, note recheck lines without pacman invocations, IN-109 anchor re-pinned — round-35 spot-check routed defect 5) and say whether 6d76fb20f6ecbc940e5c8fff36c74060c885e161 holds it.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch except your single labrat.\nJudged on: operability, gates, baseline\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ExecGateBaselines.md"
+    },
+    {
+      "name": "ExecSelftestNoHarm",
+      "agent": "executor",
+      "task": "/skill:godspeed\n\nNo-harm baseline at 6d76fb20f6ecbc940e5c8fff36c74060c885e161 from /home/vgpnk/Projects/shokunin/tsukuroi-shokunin. Record stdout tail + exit for: bash tools/tsukuroi-census.sh --selftest; bash tools/tsukuroi-census.sh (live read-only); python3 tools/check-report-receipts.py --help; python3 tools/run-receipt.py --help; python3 tools/mutants-btrfs-space-r30.py --help; python3 tools/score-census-handoff-r32.py --help; python3 tools/check-revision-binding.py --help; python3 tools/check-knowledge-header.py --revision 6d76fb20f6ecbc940e5c8fff36c74060c885e161. These are the before snapshots wave-2 reruns at the tip. Note tool versions if any. Output into your seat dir.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch except your single labrat.\nJudged on: operability, no-harm, baseline\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ExecSelftestNoHarm.md"
+    },
+    {
+      "name": "ExecLiveViewDesign",
+      "agent": "executor",
+      "task": "/skill:godspeed\n\nQUALITY-82 second-view design + dev run (self-sufficient: you write your own wrappers). Design the production-like live view for C1: run each of the five tools at 6d76fb20f6ecbc940e5c8fff36c74060c885e161, read-only, against the REAL lane checkout /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (not a clone), inside a scratch HOME/TMPDIR, with ten injected ambient canary names (random per run, e.g. TSQ_<8 chars>) in the environment; observe via PATH-interposition wrappers (your own scripts named git/python3/bash/sh in an injected PATH dir, logging /proc/self/environ to a file then execing the real binary) whether any canary reaches any child. First verify each tool is read-only in the mode you pick (read its code; if a tool would write, pick its read-only mode and say so). Expected at base: leaks on all five (they copy ambient minus a prefix). Deliverables in your seat dir: view-spec.md (per-tool argv against the real checkout + read-only proof) + wrappers/ + dev-run capture (per tool: canary leaked yes/no + which children). This view is rerun at the after state by wave 2 expecting 0 canaries.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch except your single labrat.\nJudged on: operability, C1, quality-82, live-view\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ExecLiveViewDesign.md"
+    },
+    {
+      "name": "ExecPacnewDebtNote",
+      "agent": "executor",
+      "task": "/skill:godspeed\n\nRouted debt 3b assessment (read-only; no code). Read the wave-2 round-35 reports under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-35/w2/ for W2MutCounter, W2ArmAuditA, W2ArmAuditB, W2RevCounterV2, W2SentinelViews, W2LiveOracle (any file names matching) plus the round-35 lesson mistake R35-V2-FORCED-SHAPE-CONSTANTS in corpus/lessons/round-35.md. Produce v3-requirements.md in your seat dir: the precise VERSION-3 pacnew counter requirement list for a FUTURE re-claim — forced-shape counts drawn from a range including 0 and 2+; should-fail battery entries for the W2TreeKeyed and W2LogKeyed patches AND the two W2LiveOracle live-gate patches (livecache, cwdgate); battery coverage of the ctime check and the live view; the malformed-DRIFT-token exfiltration fix (W2SentinelViews); the control/oracle disagreement classes (W2ArmAuditA/B: F04, F07, the eight disagreements); each requirement traceable to a committed receipt path. This documents why no pacnew re-claim happens this round.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch except your single labrat.\nJudged on: coverage, debt:pacnew-v3\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ExecPacnewDebtNote.md"
+    },
+    {
+      "name": "ScribeC2Draft",
+      "agent": "scribe",
+      "task": "/skill:godspeed\n\nC2 note draft (self-sufficient: run the core matrix yourself). Draft journalctl-v262-field-filter-r36.md into your seat dir (the L1 lands it in corpus/). Run yourself the read-only core matrix on this host (systemd 262): journalctl --no-pager -F PRIORITY; journalctl --no-pager -b 0 -F PRIORITY; journalctl --no-pager -b 0 -o json -F PRIORITY; journalctl --no-pager --since '1 hour ago' -F PRIORITY; journalctl --no-pager -u systemd-journald -F PRIORITY; journalctl --no-pager -b -1 -F PRIORITY — capture stderr bytes + exit per cell into matrix-mini.json in your seat dir. (If .ufo/waves/round-36/w1/ExecC2Live/matrix.json exists when you start, merge its extra cells; else record the dependency as a finding and proceed on your own matrix.) Required note shape (lane conventions, QUALITY 8): title; `source:` citing S024 (pinned, opened by SrcSystemdNews this round) and S198 (journalctl(1) at 262, opened by SrcJournalctlMan); `verified-at: 2026-10-23`; `recheck: on-release (systemd major bump; re-run the matrix commands)`; the exact rejection line (-F/--field= and -N/--fields cannot be combined with options that limit the journal.) with exit code; a decision table limiting-option -> reject/work -> evidence pointer; consumer section naming every lane journalctl invocation you can find (grep -rn journalctl /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/) with its verdict; falsifier section; honesty marks ([inf]/[unk]) where unrun. Prior-state sentence with its counting command (grep -rl for the rejection line over corpus/knowledge + SKILL.md prints nothing at 6d76fb20f6ecbc940e5c8fff36c74060c885e161 — run it and paste). Under 150 lines, decision-table dense.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: depth, C2, note\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ScribeC2Draft.md"
+    },
+    {
+      "name": "SrcSystemdNews",
+      "agent": "scribe",
+      "task": "/skill:godspeed\n\nSource open: S024 pinned. Fetch https://raw.githubusercontent.com/systemd/systemd/v262/NEWS and locate the CHANGES WITH 262 journalctl entry about -F/-N rejection (search for 'field' / 'cannot be combined'). Record into your seat dir: fetched bytes sha256; located quote <=25 words + section/line; a byte snapshot (NEWS-v262 excerpt around the entry); the proposed new corpus/SOURCES.md row S024 (all 11 cells, status queued->mined, anchor naming the v262 tag, used-by naming journalctl-v262-field-filter-r36.md) as s024-row.md. If the v262 NEWS lacks the entry, fetch main, record the discrepancy honestly, and say which bytes support the note. Also capture `journalctl --version` first line.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: depth, sources, S024\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/SrcSystemdNews.md"
+    },
+    {
+      "name": "SrcJournalctlMan",
+      "agent": "scribe",
+      "task": "/skill:godspeed\n\nSource open: new row S198. Open journalctl(1) at systemd 262 — try https://man.archlinux.org/man/journalctl.1 (native HTML; footer must read systemd 262.x); if it serves another version, use https://raw.githubusercontent.com/systemd/systemd/v262/man/journalctl.xml instead and record which you used. Locate the -F/--field and -N/--fields text and any 'cannot be combined' sentence. Record into your seat dir: fetched bytes sha256; footer/version; located quote <=25 words + location; byte snapshot; the full new SOURCES.md row (id S198 — verify the current max id first with grep -oE 'S[0-9]+' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md | sort -V | tail -1; kind docs; tier A; scope the -F/-N semantics and limiting-option interaction at systemd 262; status mined; opened 2026-10-23; recheck on-release; used-by the new note) as s198-row.md.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: depth, sources, S198\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/SrcJournalctlMan.md"
+    },
+    {
+      "name": "ScribeNoUpgrade",
+      "agent": "scribe",
+      "task": "/skill:godspeed\n\nRouted repair 4 (you write the append blocks; the L1 lands them; append-only). Four sites still state NoUpgrade/NoExtract as version pins, superseded by corpus/knowledge/pacman-backup-files-r35.md (file-extraction rules, not pins): SKILL.md lines 397-399; corpus/knowledge/update-safety-note.md lines 420-424; corpus/knowledge/update-safety-v2.md lines 52 and 198. Read each site + the superseding note. Draft per site, into your seat dir, one file named after the target: a `>`-quoted verbatim original sentence, then a correction marker block naming pacman-backup-files-r35.md (S191/S195) and the replacement sentence. Do NOT rewrite original lines. Also state whether this sweep warrants a row in corpus/lessons/round-36.md ## Mistakes and if so draft the row.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: freshness, repair:supersession\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ScribeNoUpgrade.md"
+    },
+    {
+      "name": "ScribeSourcesRows",
+      "agent": "scribe",
+      "task": "/skill:godspeed\n\nSOURCES.md row bookkeeping (self-sufficient: you may open the sources yourself if the sibling rows are absent). Produce one ready-to-apply unified diff of corpus/SOURCES.md against 6d76fb20f6ecbc940e5c8fff36c74060c885e161 into your seat dir: flip S024 status/anchor/used-by to mined+pinned (source: https://raw.githubusercontent.com/systemd/systemd/v262/NEWS) and add new row S198 after the last row (id check: grep -oE 'S[0-9]+' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md | sort -V | tail -1; source: journalctl(1) at systemd 262 via man.archlinux.org or the v262 xml). Prefer the sibling drafts .ufo/waves/round-36/w1/SrcSystemdNews/s024-row.md and SrcJournalctlMan/s198-row.md (with their sha256s and quotes); if either is absent, open the source yourself and record the dependency as a finding. Validate: apply the diff to a `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin archive 6d76fb20f6ecbc940e5c8fff36c74060c885e161 | tar -x` copy in mktemp, run /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi against the COPY (the script takes the registry path from the lane root — if it only reads the real lane, copy the whole lane tree to mktemp and point --root at the parent you construct there; read the script's usage first), paste the output: exit 0 required, and report the row count before/after (expect 197 -> 198).\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: sources, registry\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ScribeSourcesRows.md"
+    },
+    {
+      "name": "ScribeLessonDraft",
+      "agent": "scribe",
+      "task": "/skill:godspeed\n\nLesson skeleton for corpus/lessons/round-36.md in your seat dir: header (round 36, attempt 1, 2026-10-23, author tsukuroi L1); `## Claims` (C1/C2 one-liners citing declaration 6d76fb20f6ecbc940e5c8fff36c74060c885e161); `## Gate` (empty table skeleton with the columns Source/URL/Opened/Located quote/Location/Decision — wave 2 fills rows); `## Mistakes` with exactly one row so far: the round-35 tarball leftover — class 'uncommitted lane round work at closure'; evidence .ufo/waves/round-35/w1/ScribeC2Draft/pacman-54d9411.tar.gz untracked at closure; captured-by round-35 spot-check §6 defect 1; fix 'committed as evidence at 6d76fb20f6ecbc940e5c8fff36c74060c885e161'; shown able to fail: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain` no longer lists it (run it, paste); `## Holds, cancellations and dead seats` (empty, L1 fills); `## In-place edits` (the append-only sweep command to run before filing). Do not invent gate quotes.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: lesson, bookkeeping\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ScribeLessonDraft.md"
+    },
+    {
+      "name": "ScribeReceipts",
+      "agent": "scribe",
+      "task": "/skill:godspeed\n\nWave-1 bookkeeping (run near your deadline; partial is fine). Inventory every seat directory under /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-36/w1/ (ls each, read each report's first lines): per seat -> report present/absent, output files, one-line summary. Build the time table: for each seat, the dispatch time is when the wave launched (you do not know it — write 'dispatch: wave-1 launch' for all) and settle time from `date -u +%H:%M:%SZ` when you read the report (per seat, from the report's own mtime: stat -c '%y'). List any seat with NO report as a straggler finding. Output bookkeeping.md in your seat dir.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: bookkeeping\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ScribeReceipts.md"
+    },
+    {
+      "name": "ScoutRecon",
+      "agent": "scout",
+      "task": "/skill:godspeed\n\nRecon: journalctl inventory across the lane (read-only). List every journalctl invocation in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/ (py + sh) with file:line and full flag set; classify each rejecting/working under the v262 rule (-F/-N cannot combine with options that limit the journal); check corpus/knowledge/journal-boot-plane.md and coredump-count-unit-r34.md for the journalctl invocations they assume; check tools/tsukuroi-census.sh's journal arm uses no -F/-N. Output inventory.md in your seat dir.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: depth, C2, recon\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ScoutRecon.md"
+    },
+    {
+      "name": "ScoutMori",
+      "agent": "scout",
+      "task": "/skill:godspeed\n\nFreshness duty (adjacency): re-read mori's current declarations (read-only). Repo: /home/vgpnk/Projects/shokunin/mori-shokunin. Record: master tip hash (git -C ... rev-parse master); whether PROVINCE.md/SCORECARD.md/LOG.md tips still classify coredump/kill-event handling as Core vs Frontier (quote current lines with line numbers); any mention of TSUKUROI-F1-MEM-01 or ADJ-04 handoff lines at the tips (git grep over the tip); whether any tsukuroi handoff of 2026-10-22/23 is acknowledged. Output mori-head.md in your seat dir: hash, quotes, one-paragraph freshness verdict for the round report.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: adjacency, freshness, mori\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ScoutMori.md"
+    },
+    {
+      "name": "ScoutSourcesEnv",
+      "agent": "scout",
+      "task": "/skill:godspeed\n\nRecon: method sources for the untraced child-env view (read-only). Search /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md for rows covering execve/strace//proc/self/environ/PATH interposition (grep the registry); list hits with ids. Answer: does the lane already hold a source legitimating PATH-interposition wrappers as a child-environment observation channel? If none, recommend whether one is needed (candidate: ld.so(8) or execve(2) man page, tier A) or whether the probe's own predicate suffices as method. Output method-sources.md in your seat dir.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: operability, sources, recon\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ScoutSourcesEnv.md"
+    },
+    {
+      "name": "CriticClaimShape",
+      "agent": "critic",
+      "task": "/skill:godspeed\n\nPre-freeze attack on C1's counter design (the round-35 CritClaimDesign seat). Attack the declaration at 6d76fb20f6ecbc940e5c8fff36c74060c885e161 +, if present, the draft .ufo/waves/round-36/w1/ExecProbeR36/probe-child-env-allowlist-r36.py (if absent, attack the declaration + r34 probe design and record the dependency as a finding). Enumerate every shortcut class that could read 0 leaking_pairs on all five targets WITHOUT the fixed-dict work: ambient copy under an expanded prefix list; detecting the probe's wrappers (is that a named limit?); dropping only the injected names; absolute-path exec evading PATH wrappers (does the strace channel still catch it?); a target engineered into harness_error to leave the set; a set frozen with a non-observing invocation; the untraced view itself fooled by a child that scrubs its own environ after exec (can a child even do that before the wrapper reads /proc/self/environ? — reason it). Per class: does the frozen kill rule + probe clauses catch it, and which pre-freeze control must score it. Output attack-list.md in your seat dir — it seeds wave-2's attack items.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: operability, C1, attack:design\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/CriticClaimShape.md"
+    },
+    {
+      "name": "CriticC2Shape",
+      "agent": "critic",
+      "task": "/skill:godspeed\n\nAttack C2's shape. (1) Run the prior-state counting command at 6d76fb20f6ecbc940e5c8fff36c74060c885e161: grep -rl 'cannot be combined with options that limit the journal' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/ /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SKILL.md — confirm it prints nothing and paste. (2) Read S024's current row in corpus/SOURCES.md — it teaches the fact unpinned. Is the proposed note genuinely new mechanism ground (error line, exit code, flag matrix, consumer guidance) or a restatement? (3) Name what evidence makes it depth vs expansion vs freshness-repair, and what the named non-author closure reviewer will need. Output c2-attack.md in your seat dir.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: depth, C2, attack:shape\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/CriticC2Shape.md"
+    },
+    {
+      "name": "CriticFreeze",
+      "agent": "critic",
+      "task": "/skill:godspeed\n\nFreeze-readiness review of the DECLARATION's rules (self-sufficient; sibling outputs are a bonus). Read the freeze/kill rules in the round-36 declaration at 6d76fb20f6ecbc940e5c8fff36c74060c885e161 and check them against QUALITY 73/82 and the round-35 lesson mistakes (R35-V1-ROLE-LENGTH, R35-V1-QUALITY-73-82, R35-V2-FORCED-SHAPE-CONSTANTS): does the after-value state the sensitivity conjuncts in the same sentence as the measure; is the predicate label `leaking_pairs` one sentence across declaration/probe/receipts; does the set definition avoid fixture properties encoding leak/no-leak; which pre-freeze controls MUST exist before the freeze commit (name them as a checklist); is anything in the declaration self-contradictory. If sibling outputs exist (ExecBeforeDesign/run-before.sh, ExecProbeR36 draft, CriticClaimShape attack list), cross-check your checklist against them; else record the dependency as a finding. Output freeze-checklist.md with GO / NO-GO and blockers — this gates the L1's freeze commit; be adversarial.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: operability, C1, freeze-gate\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/CriticFreeze.md"
+    },
+    {
+      "name": "ReviewC1Design",
+      "agent": "reviewer",
+      "task": "/skill:godspeed\n\nReview the C1 patch design. Primary input: .ufo/waves/round-36/w1/ExecC1Design/c1-five-tools.diff (if absent, record the dependency as a finding and instead review the five tools at 6d76fb20f6ecbc940e5c8fff36c74060c885e161 directly against the declaration's fixed-dict spec, naming every spawn path that still reads ambient). Checks: (1) every spawn path in the five files gets the fixed dict — grep the PATCHED tree (apply the diff to a `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin archive 6d76fb20f6ecbc940e5c8fff36c74060c885e161 | tar -x` copy in mktemp) for remaining os.environ/environ/getenv reads on spawn paths; (2) retained settings are exactly the pre-existing fixed values (no dropped protection like GIT_CONFIG_NOSYSTEM, no new ambient dependence); (3) no behaviour change: argv identical, fixed values identical, control flow identical; (4) scope: only the five files change. Output review.md with per-tool verdict + blocking/minor findings.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: operability, C1, review\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ReviewC1Design.md"
+    },
+    {
+      "name": "ReviewC2Draft",
+      "agent": "reviewer",
+      "task": "/skill:godspeed\n\nReview the C2 note draft. Primary input: .ufo/waves/round-36/w1/ScribeC2Draft/journalctl-v262-field-filter-r36.md (if absent, record the dependency as a finding and instead produce the acceptance checklist from the declaration + run the prior-state command yourself, listing what you could not review). Checks: every mechanism claim cites a receipt (command+exit+stderr) that exists in the sibling matrix output; header trio (source/verified-at/recheck) present and consistent with the SrcSystemdNews/SrcJournalctlMan rows; decision table matches the matrix; consumer inventory matches ScoutRecon's (if absent, grep yourself); honesty marks on unrun claims; no universal clauses beyond the enumerated set; under 150 lines. Output review.md with blocking/minor findings.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: depth, C2, review\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ReviewC2Draft.md"
+    },
+    {
+      "name": "ReviewDeclaration",
+      "agent": "reviewer",
+      "task": "/skill:godspeed\n\nDeclaration fidelity review at 6d76fb20f6ecbc940e5c8fff36c74060c885e161 (self-sufficient). Verify and paste outputs: (1) the SCORECARD round-36 declaration section and LOG entry exist at the commit and match the campaign contract (claims 1-3, distinct axes, lowest-axis duty named, sourced claim, separability, repairs); (2) the census line in the LOG entry — rerun /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi and compare (rows, exit); (3) the tarball .ufo/waves/round-35/w1/ScribeC2Draft/pacman-54d9411.tar.gz is now tracked (git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin ls-files | grep pacman-54d9411) and git status --porcelain is otherwise empty; (4) heading times: git log -1 --format=%cI 6d76fb20f6ecbc940e5c8fff36c74060c885e161 vs the stamped 02:33Z declaration/02:26Z census claim — the text must not be later than the commit; (5) the append-only sweep: git diff -U0 cefe752d 6d76fb20f6ecbc940e5c8fff36c74060c885e161 -- SCORECARD.md LOG.md corpus/QUALITY.md corpus/SOURCES.md SHONEN.md | grep -E '^-[^-]' prints nothing. Output fidelity.md with pass/defect per item.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: calibration, declaration, review\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/ReviewDeclaration.md"
+    },
+    {
+      "name": "MutProbeDraft",
+      "agent": "mutation-tester",
+      "task": "/skill:godspeed\n\nMutation-test the probe draft. Input: .ufo/waves/round-36/w1/ExecProbeR36/probe-child-env-allowlist-r36.py. If absent, record the dependency as a finding and instead mutate r34's probe for the four declared r36 additions (construct your own draft copy in your seat dir by applying the declaration's additions to tools/probe-child-env-allowlist-r34.py — VERSION paragraph, livefive set, untraced view, normalisation — state that you did this). Build >=5 mutants of the (draft) probe in copies under your seat dir: (1) normalisation disabled; (2) untraced-view wrapper installation skipped; (3) quiet channel drops the value channel; (4) source scan misses os.getenv reads; (5) predicate counts only the names channel. Run each against the fastest livefive target at 6d76fb20f6ecbc940e5c8fff36c74060c885e161 (or the whole set if fast) and report per mutant: base-state misreading? (a mutant making a leaking tool read 0 or a clean tool read >0 is DANGEROUS — name it), runtime. Also check: does the draft exclude its own wrappers' execve noise and the wrappers' log writes from attribution? Output mutants.md with the per-mutant table.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: operability, C1, mutation-test\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/MutProbeDraft.md"
+    },
+    {
+      "name": "MutToolMutants",
+      "agent": "mutation-tester",
+      "task": "/skill:godspeed\n\nDesign the six after-mutants for wave 2 (patches only). Input: .ufo/waves/round-36/w1/ExecC1Design/c1-five-tools.diff; if absent, record the dependency as a finding and design against the declaration text (state which). Write mutant-1.diff .. mutant-6.diff (unified diffs against the CHANGED tree — i.e., apply c1-five-tools.diff first, then the mutant) + mutants.md in your seat dir: m1 check-revision-binding clean_env copies ambient minus GIT_*; m2 check-report-receipts find_receipts env copies ambient minus GIT_*; m3 score-census-handoff env copies ambient minus TSUKUROI_*; m4 mutants-btrfs-space env copies ambient minus GIT_*; m5 run-receipt env() copies ambient minus GIT_*; m6 one tool keeps ambient PATH via os.environ['PATH'] in its fixed dict. Each must be a REAL leak (ordinary run reaches a child — say which child per mutant).\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: operability, C1, mutation-test\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/MutToolMutants.md"
+    },
+    {
+      "name": "RevProbeLineage",
+      "agent": "revenger",
+      "task": "/skill:godspeed\n\nProbe lineage audit (read-only). Diff tools/probe-child-env-allowlist-r32.py -> -r33.py -> -r34.py at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin across predicate/channels/rules: verify no rule from r32/r33 was silently dropped by r34 (fork-without-exec observation, execveat clause, unparseable-record clause, marker-script checks, fixture byte-invariance, value channel). Then check the r36 draft (.ufo/waves/round-36/w1/ExecProbeR36/) if present (else record the dependency as a finding): its additions must be exactly the declared four (VERSION 5 paragraph, livefive set, untraced view, normalisation) and the PREDICATE constant must remain one sentence identical to the declaration's. Output lineage.md with a per-rule kept/dropped table and any silent-drop finding.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: operability, probe, lineage\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/RevProbeLineage.md"
+    },
+    {
+      "name": "SentScope",
+      "agent": "sentinel",
+      "task": "/skill:godspeed\n\nScope and bounds review of the planned round-36 diff surface (read-only). Enumerate every path the round is expected to touch (five tools, new probe tools/probe-child-env-allowlist-r36.py, corpus/knowledge/journalctl-v262-field-filter-r36.md, corpus/SOURCES.md rows, SKILL.md registry table + the four NoUpgrade correction appends, SCORECARD.md, LOG.md, corpus/README.md row, corpus/lessons/round-36.md, .ufo/waves/round-36/w1,w2,l1,after evidence directories, the already-committed tarball) and check each against the write scope: lane repo only; no fleet root; no .ufo/state; no sibling lanes; append-only on SCORECARD/LOG/corpus/QUALITY.md/corpus/SOURCES.md/SHONEN.md. Flag anything outside this surface (e.g. seats tempted to edit tools/ or corpus/ directly — the contract says seats never edit production files; the L1 lands everything). Output scope.md with the allowed-path table + wave-2 watchlist.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: scope, sentinel\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/SentScope.md"
+    },
+    {
+      "name": "SimplifierProbe",
+      "agent": "simplifier",
+      "task": "/skill:godspeed\n\nDead-weight audit (read-only; input optional). If .ufo/waves/round-36/w1/ExecProbeR36/probe-child-env-allowlist-r36.py exists, audit it vs r34: list every carried rule/channel no livefive or base-set target can fire (with the valid reason it is still carried — lineage/freeze evidence counts), and any r34 mechanism the draft could inherit by import/refactor instead of copy (say why copying is safer here, if it is). If absent, record the dependency as a finding and audit tools/probe-child-env-allowlist-r34.py itself for dead weight + list exactly what the four declared additions must add. Output simplification.md with keep/drop/refactor recommendations + risk.\n\nTime-box: return within 15 minutes with your best findings+evidence; partial results are acceptable.\nYou are an independent leaf: never block on or wait for another seat; if a needed artifact is absent, record the dependency as a finding and return.\n\nLane bounds: leaf member — no subagent dispatch.\nJudged on: operability, probe, simplification\n\nReport: write your scoped findings to .ufo/waves/round-36/w1/SimplifierProbe.md"
+    }
+  ]
+}
