@@ -1,0 +1,12 @@
+diff --git a/tools/score-census-handoff-r32.py b/tools/score-census-handoff-r32.py
+--- a/tools/score-census-handoff-r32.py
++++ b/tools/score-census-handoff-r32.py
+@@ -792,7 +792,7 @@
+     clusters and journal coredump counts in that view. consistent = both views consistent.
+     A plain view with no cluster and no coredump entry is a harness error (vacuous).
+     """
+-    env = child_env()
++    env = {k: v for k, v in os.environ.items() if not k.startswith('TSUKUROI_')}
+     plain = live_view(rev_script, base_script, env, timeout)
+     res = {'plain': plain}
+     if plain.get('harness_error'):

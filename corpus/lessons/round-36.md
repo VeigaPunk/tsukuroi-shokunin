@@ -93,3 +93,34 @@ both sweeps print no removed line: every round-36 commit so far
 commit and lists any removed or changed line here; if the sweep prints a line,
 this section names it, and the line is disclosed as an in-place edit rather
 than claimed as an append.
+
+## Gate (2026-10-24, L1 assembly from wave artifacts)
+
+| Source | URL | Opened | Located quote | Location | Decision |
+|---|---|---|---|---|---|
+| S198 | https://man.archlinux.org/man/journalctl.1 | 2026-10-23 | "Print all possible data values the specified field can take in all entries of the journal." | §COMMANDS -F, HTML 658-662, sha256 aaae4efa…83c2 | admit, mined, tier A (semantics only; no restriction sentence on the page) |
+| S199 | https://raw.githubusercontent.com/systemd/systemd/v262/NEWS | 2026-10-23 | "journalctl now rejects -F/--field together with filters such as unit, boot, time, cursor or grep filters." | NEWS:129-133 at tag v262, sha256 a494f038…a7657 | admit, mined, tier A; supersedes S024 for the note (S024 unchanged, queued) |
+
+Registry changes (old → new): S198/S199 absent → mined. No existing row changed. Census before → after: 197 → 199 rows, exit 0 → exit 0 (validated on a tree copy; the committed run is the closure's to repeat).
+
+## Mistakes (2026-10-24, L1 + wave-2 sweep)
+
+| ID | Class | Evidence pointer | Captured-by | Fix, shown able to fail |
+|---|---|---|---|---|
+| R36-TARBALL-LEFTOVER | uncommitted lane round work at closure | round-35 spot-check §6 defect 1; tarball untracked at cefe752d | round-35 spot-check | Committed as evidence at 6d76fb20. Able to fail: `git status --porcelain` no longer lists it (ScribeLessonDraft paste). |
+| R36-DOC-FREEZE | pre-freeze corrections written but not committed before the freeze commit | W2CritFreeze documentary FAIL (corrections first committed with c052bb7d) | W2CritFreeze | A pre-freeze correction is its own commit before the freeze commit, never folded into the change commit. Able to fail: W2CritFreeze's byte-freeze PASS + documentary check now has a commit boundary to test. |
+| R36-PLACEHOLDER-TIME | unauditable time placeholder in a record | LOG.md '03:5xZ' (W2SentinelDiff medium) | W2SentinelDiff | Omit a time stamp rather than placeholder it; the real ExecProbeR36 settle time is stat-able from its report mtime. |
+| R36-REGISTRY-DROPPED-ROWS | a superseding registry table dropped prior rows | W2ExecGates/W2ExecCensusEnd: two-row round36 table, coverage '51 missing of 53' | W2ExecGates | The superseding table carries every prior row plus the new one (repaired in the outcome commit). Able to fail: check-registry-coverage's missing count. |
+| R36-SPAWN-DROP | a seat in a validated wave never spawned | W2ScribeRegistry absent from the 31 spawned agents; no error text from the harness | L1 wave log | Recorded as dead with the spawn-drop fact; a future validator change could surface per-seat spawn errors. |
+| R36-CYBER-HOLD | an attack-class seat killed by provider policy | W2CritKill: 'This content was flagged for possible cybersecurity risk … (code=cyber_policy)' at 13s | L1 wave log | The kill-rule class is recorded unscored-by-seat; adjacent coverage by W2RevCounter. Able to fail: the hold carries its error text (unlike round-34's MutBinGitAlias hold). |
+| R36-INVOCATION-GAP | a frozen probe invocation that never constructs the mutated builder | W2MutAttrgetter/W2MutPathCopy GAP verdicts: claim-set argv is --selftest; the mutated git() is unreachable; live-mode detector reads 7/19 and 2>0 | W2MutAttrgetter, W2MutPathCopy | Sensitivity conjuncts name their instrument (live-mode detector) and the unreachable reading is recorded uninformative, never a pass. Able to fail: both seats' live readings are >0 where a pass would read 0. |
+
+## Holds, cancellations and dead seats (2026-10-24)
+
+- W2CritKill — provider refusal (cyber_policy), error text above; item ended, not retried or rerouted.
+- W2ScribeRegistry — spawn-dropped from the batch (31 of 32 spawned); no error text available from the harness.
+- No other seat died; wave 1 completed 32/32. At the round's budget-forced landing, wave-2 seats still settling (their outputs inherit): W2ReBefore, W2ReAfter, W2MutTool1, W2MutTool3, W2MutTool6, W2RevCounter, W2QuoteNews, W2RevC2, W2ScribeMistakes, W2RevToolA, W2RevToolB, W2RevReceipts, W2ScribeLesson, W2RevSources, W2RevNoUpgrade, W2RevReport.
+
+## In-place edits
+
+`git diff -U0 6d76fb20f6ecbc940e5c8fff36c74060c885e161 <outcome> -- SCORECARD.md LOG.md corpus/QUALITY.md corpus/SOURCES.md SHONEN.md | grep -E '^-[^-]'` must print nothing (the five tools' replacement edits are the only removals; verified by W2SentinelDiff: all 20 deletions are in the five tools).

@@ -1,0 +1,17 @@
+diff --git a/tools/mutants-btrfs-space-r30.py b/tools/mutants-btrfs-space-r30.py
+--- a/tools/mutants-btrfs-space-r30.py
++++ b/tools/mutants-btrfs-space-r30.py
+@@ -359,12 +359,7 @@
+     bs = os.path.join(work, name + '.base-sources.md')
+     with open(bs, 'w', encoding='utf-8') as fh:
+         fh.write(base_sources)
+-    env = {
+-        'PATH': '/usr/bin:/bin',
+-        'LC_ALL': 'C',
+-        'GIT_CONFIG_NOSYSTEM': '1',
+-        'GIT_CONFIG_GLOBAL': os.devnull,
+-    }
++    env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+     p = subprocess.run([sys.executable, counter, '--tree', d, '--base-sources', bs],
+                        capture_output=True, text=True, env=env, timeout=60)
+     out = [json.loads(l) for l in p.stdout.splitlines() if l.startswith('{')]

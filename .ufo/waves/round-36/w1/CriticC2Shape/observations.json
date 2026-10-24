@@ -1,0 +1,102 @@
+{
+  "seat": "CriticC2Shape",
+  "declaration_revision": "6d76fb20f6ecbc940e5c8fff36c74060c885e161",
+  "scope": "Read-only C2 shape review; no production edits, judge, runtime adjudication, VCS mutations, or delegated agents.",
+  "capture_format": "Transcribed from the actual tools' displayed results; output stream identity was not captured and is not claimed. Successful bash calls without a nonzero-exit diagnostic are recorded as exit 0. Pipelines explicitly used bash -o pipefail.",
+  "version_command": "journalctl --version",
+  "version_first_line": "systemd 262 (262-1-arch)",
+  "rejection_line": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.",
+  "observations": [
+    {
+      "command": "env LC_ALL=C journalctl --no-pager -b -F SYSLOG_IDENTIFIER",
+      "exit": 1,
+      "displayed_output": "-F/--field= and -N/--fields cannot be combined with options that limit the journal."
+    },
+    {
+      "command": "env LC_ALL=C journalctl --no-pager -b -N",
+      "exit": 1,
+      "displayed_output": "-F/--field= and -N/--fields cannot be combined with options that limit the journal."
+    },
+    {
+      "command": "env LC_ALL=C journalctl --no-pager -F TSUKUROI_R36_NONEXISTENT_FIELD SYSLOG_IDENTIFIER=tsukuroi-r36-critic-no-match",
+      "exit": 1,
+      "displayed_output": "Extraneous arguments starting with 'SYSLOG_IDENTIFIER=tsukuroi-r36-critic-no-match'"
+    },
+    {
+      "command": "env LC_ALL=C journalctl --no-pager -F TSUKUROI_R36_NONEXISTENT_FIELD -n 0",
+      "exit": 0,
+      "displayed_output": ""
+    },
+    {
+      "command": "env LC_ALL=C journalctl --no-pager -F TSUKUROI_R36_NONEXISTENT_FIELD -p err",
+      "exit": 1,
+      "displayed_output": "-F/--field= and -N/--fields cannot be combined with options that limit the journal."
+    },
+    {
+      "command": "env LC_ALL=C journalctl --no-pager -F TSUKUROI_R36_NONEXISTENT_FIELD -n 1",
+      "exit": 0,
+      "displayed_output": ""
+    },
+    {
+      "command": "env LC_ALL=C journalctl --no-pager -F TSUKUROI_R36_NONEXISTENT_FIELD --boot=all",
+      "exit": 0,
+      "displayed_output": ""
+    },
+    {
+      "command": "env LC_ALL=C journalctl --no-pager -F TSUKUROI_R36_NONEXISTENT_FIELD -k",
+      "exit": 1,
+      "displayed_output": "-F/--field= and -N/--fields cannot be combined with options that limit the journal."
+    },
+    {
+      "command": "env LC_ALL=C journalctl --no-pager -F TSUKUROI_R36_NONEXISTENT_FIELD --since=now",
+      "exit": 1,
+      "displayed_output": "-F/--field= and -N/--fields cannot be combined with options that limit the journal."
+    },
+    {
+      "command": "env LC_ALL=C bash -o pipefail -c 'journalctl --no-pager -F _BOOT_ID -n 0 | wc -l'",
+      "exit": 0,
+      "displayed_output": "0"
+    },
+    {
+      "command": "env LC_ALL=C bash -o pipefail -c 'journalctl --no-pager -N -n 0 | wc -l'",
+      "exit": 0,
+      "displayed_output": "167"
+    },
+    {
+      "command": "env LC_ALL=C bash -o pipefail -c 'journalctl --no-pager -F _BOOT_ID -n 1 | wc -l'",
+      "exit": 0,
+      "displayed_output": "1"
+    }
+  ],
+  "interpretation_limits": [
+    "This is a deliberately bounded counterexample set, not the complete flag matrix owed by the note.",
+    "The nonexistent field's empty output is only parser-success evidence, not evidence about existing field values.",
+    "-N -n 0 producing 167 field-name lines demonstrates that -n 0 does not bound this command's output on the measured host; 167 is a capture, not a durable constant.",
+    "The corresponding -F _BOOT_ID counts are 0 at -n 0 and 1 at -n 1; do not transfer -N's observed behavior to -F.",
+    "No raw journal entry bodies or actual boot IDs were recorded."
+  ],
+  "source_quotes": [
+    {
+      "url": "https://raw.githubusercontent.com/systemd/systemd/v262/NEWS",
+      "location": "CHANGES WITH 262, journalctl filter-rejection bullet (specialized grep locates lines 129-133)",
+      "quote": "Previously field listing used sd_journal_query_unique(), which cannot represent those filters, so the filters were silently ignored."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/systemd/systemd/v262/man/journalctl.xml",
+      "location": "Commands, -N/--fields; specialized grep lines 890-893",
+      "quote": "Print all field names currently used in all entries of the journal."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/systemd/systemd/v262/man/journalctl.xml",
+      "location": "Commands, -F/--field=; specialized grep lines 899-903",
+      "quote": "Print all possible data values the specified field can take in all entries of the journal."
+    }
+  ],
+  "artifact_availability_at_inspection": {
+    "ScribeC2Draft_directory": "empty",
+    "SrcJournalctlMan_directory": "empty",
+    "SrcSystemdNews_directory": "empty",
+    "meaning": "Review is of the frozen proposal and local counterexamples, not of a delivered final note. No seat was awaited."
+  },
+  "tool_installs_or_updates": []
+}

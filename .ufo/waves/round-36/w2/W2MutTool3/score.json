@@ -1,0 +1,19 @@
+{
+ "mutant": "m3 (mutant-3.diff): tools/score-census-handoff-r32.py live_check() env = {k: v for k, v in os.environ.items() if not k.startswith('TSUKUROI_')} instead of child_env()",
+ "detector": "frozen tools/probe-child-env-allowlist-r36.py VERSION 7 sha256 a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a, --set livefive --only tools/score-census-handoff-r32.py",
+ "pristine_c052bb7": {"exit": 1, "leaking": 1, "leaking_pairs": ["tools/score-census-handoff-r32.py:source"],
+   "harness_errors": [], "channels_leaking": {"names": false, "quiet": false, "source": true, "untraced": false},
+   "control_rc": 0, "control_child_execs": 2558, "source_findings": ["tools/score-census-handoff-r32.py:489 inheriting-spawn subprocess.Popen env name env bound by arg"],
+   "names_reached": 0, "quiet_reached": 0, "values_reached": []},
+ "mutant_95bcfd3": {"exit": 1, "leaking": 3, "leaking_pairs": ["tools/score-census-handoff-r32.py:names", "tools/score-census-handoff-r32.py:quiet", "tools/score-census-handoff-r32.py:source"],
+   "harness_errors": [], "channels_leaking": {"names": true, "quiet": true, "source": true, "untraced": false},
+   "control_rc": 0, "control_child_execs": 2658, "channel_rc": {"names": 1, "quiet": 0, "untraced": 1},
+   "names_channel": {"injected_names_reached": "12 of 12", "value_channel_names_reached": "10 of 10", "anyname_strings": 551},
+   "quiet_channel": {"injected_names_reached": "8 of 8", "value_channel_names_reached": "10 of 10", "anyname_strings": 464},
+   "untraced_channel": {"records": 0, "note": "zero records: the tool execs /usr/bin/bash by absolute path, so the wrapper dir is never consulted; uninformative, not clean"},
+   "source_findings": ["tools/score-census-handoff-r32.py:489 inheriting-spawn subprocess.Popen env name env bound by arg", "tools/score-census-handoff-r32.py:795 ambient-read .environ"]},
+ "verdict": "KILLED on the two dynamic channels (names, quiet: 0 at pristine, 12/12 and 8/8 injected names plus 10/10 value-channel NAME=VALUE strings at the mutant). Source channel was ALREADY leaking on the pristine changed tree (line 489), so the probe's aggregate is 1 -> 3, not 0 -> >0: the declared C1 after-measure (leaking == 0, leaking_pairs [], exit 0) is falsified for this target independently of the mutant.",
+ "restoration": {"sandbox_lane_worktree_after_mutant": "db5eecb174ff592ee1b57e6cac1ced7d7413d64e8676cf267758e5ee65f2d6a1",
+   "after_reverse_apply": "f9eb17f810e0768a3fe5b9d60c14d6cdafd7ec9ba1f7a38883790e404a83d51f",
+   "reverse_apply_rc": 0, "git_diff_vs_c052bb7": "empty", "real_lane_untouched": true}
+}

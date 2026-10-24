@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+log_dir="${LIVEVIEW_LOG_DIR:-/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-36/w2/W2LiveOracle/capture/wrappers/standalone}"
+log_file="$log_dir/bash.${BASHPID:-$$}.${RANDOM}.env"
+{
+  printf 'wrapper=bash\npid=%s\nppid=%s\n' "${BASHPID:-$$}" "$PPID"
+  printf 'argv'; printf ' %q' "$@"; printf '\n'
+  while IFS= read -r -d '' item; do printf 'env=%s\n' "$item"; done < /proc/self/environ
+} > "$log_file"
+exec /usr/bin/bash "$@"

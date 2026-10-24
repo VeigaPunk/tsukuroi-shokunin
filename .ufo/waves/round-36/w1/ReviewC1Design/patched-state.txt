@@ -1,0 +1,104 @@
+# patched-state receipt (applied from ExecC1Design/c1-five-tools.diff sha256 2287b83f5ea5d3a47e125d2fb1e5a93063c7a5110a31d23ac49f0988595b5205, 4622 bytes)
+# base 6d76fb20f6ecbc940e5c8fff36c74060c885e161; applied with: git apply --unidiff-zero (GNU patch -p1 also applies)
+
+## changed files vs base
+Files tools/check-report-receipts.py and tools/check-report-receipts.py differ
+Files tools/check-revision-binding.py and tools/check-revision-binding.py differ
+Files tools/mutants-btrfs-space-r30.py and tools/mutants-btrfs-space-r30.py differ
+Files tools/run-receipt.py and tools/run-receipt.py differ
+Files tools/score-census-handoff-r32.py and tools/score-census-handoff-r32.py differ
+
+## remaining ambient reads (os.environ|getenv) in the five files
+NONE
+
+## spawn count / env= count (grep -c 'subprocess.run(|subprocess.Popen(' vs env=)
+tools/check-revision-binding.py               spawns=7 env=6
+tools/check-report-receipts.py                spawns=1 env=1
+tools/score-census-handoff-r32.py             spawns=3 env=3
+tools/mutants-btrfs-space-r30.py              spawns=1 env=1
+tools/run-receipt.py                          spawns=6 env=6
+note: check-revision-binding's 7th subprocess.run is inside the STUB string (base :1020)
+
+## compile
+COMPILE_OK
+
+## fixed-dict contents per builder
+def clean_env():
+    return {
+        "PATH": "/usr/bin:/bin",
+        "LC_ALL": "C",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "GIT_CONFIG_GLOBAL": os.devnull,
+        "GIT_OPTIONAL_LOCKS": "0",
+        "GIT_PAGER": "cat",
+    }
+
+---
+    home = os.path.join(temp_dir, "home")
+    os.mkdir(home)
+    env = {
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "GIT_CONFIG_GLOBAL": os.devnull,
+        "GIT_CONFIG_SYSTEM": os.devnull,
+        "HOME": home,
+        "XDG_CONFIG_HOME": os.path.join(home, ".config"),
+        "PATH": "/usr/bin:/bin",
+        "GIT_CEILING_DIRECTORIES": os.path.dirname(os.path.abspath(temp_dir)),
+    }
+
+    def run_git(*args: str) -> subprocess.CompletedProcess[bytes]:
+---
+
+
+def child_env():
+    return {
+        'PATH': '/usr/bin:/bin',
+        'LC_ALL': 'C',
+        'GIT_CONFIG_NOSYSTEM': '1',
+        'GIT_CONFIG_GLOBAL': os.devnull,
+    }
+
+
+---
+    with open(bs, 'w', encoding='utf-8') as fh:
+        fh.write(base_sources)
+    env = {
+        'PATH': '/usr/bin:/bin',
+        'LC_ALL': 'C',
+        'GIT_CONFIG_NOSYSTEM': '1',
+        'GIT_CONFIG_GLOBAL': os.devnull,
+    }
+    p = subprocess.run([sys.executable, counter, '--tree', d, '--base-sources', bs],
+                       capture_output=True, text=True, env=env, timeout=60)
+    out = [json.loads(l) for l in p.stdout.splitlines() if l.startswith('{')]
+    per = {o['id']: o for o in out if 'id' in o}
+---
+def env(home=None):
+    """Fixed child environment; `home` adds run-private config and Git ceiling."""
+    e = {
+        'PATH': '/usr/bin:/bin',
+        'LC_ALL': 'C',
+        'GIT_CONFIG_NOSYSTEM': '1',
+        'GIT_CONFIG_GLOBAL': os.devnull,
+        'GIT_CONFIG_SYSTEM': os.devnull,
+    }
+    if home:
+        e.update({'HOME': home, 'XDG_CONFIG_HOME': os.path.join(home, '.config'),
+                  'GIT_CEILING_DIRECTORIES': os.path.dirname(os.path.abspath(home))})
+    return e
+
+## seam preserved
+808:    fenv = dict(env, TSUKUROI_JOURNALCTL=wrapper)
+
+## run-receipt env(home) vs env() split
+57:                       capture_output=True, text=True, env=env())
+91:                                 capture_output=True, env=env())
+101:                               'refs/heads'], capture_output=True, text=True, env=env()).stdout.split('\n')
+107:            p = subprocess.run(argv, cwd=root, capture_output=True, env=env(home), timeout=a.timeout)
+
+## argv identity: spawn/argv lines differ only by line number shift
+check-revision-binding.py ARGV-IDENTICAL
+check-report-receipts.py ARGV-IDENTICAL
+score-census-handoff-r32.py ARGV-IDENTICAL
+mutants-btrfs-space-r30.py ARGV-IDENTICAL
+run-receipt.py ARGV-IDENTICAL

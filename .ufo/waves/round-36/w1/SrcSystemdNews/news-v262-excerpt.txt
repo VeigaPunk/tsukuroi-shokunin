@@ -1,0 +1,22 @@
+          recreated.
+
+        * sd-event rate-limit timers, and thus manager timers such as
+          StartLimitIntervalSec=, now use CLOCK_BOOTTIME instead of
+          CLOCK_MONOTONIC. Time spent suspended therefore counts toward
+          rate-limit expiry. After upgrade/reexecution, already-serialized
+          rate-limit state from older managers may expire once earlier than it
+          would have previously, because the stored timestamp is compared
+          against the new clock base.
+
+        * journalctl now rejects -F/--field together with filters such as
+          unit, boot, time, cursor or grep filters. Previously field listing
+          used sd_journal_query_unique(), which cannot represent those filters,
+          so the filters were silently ignored. Scripts relying on filtered
+          field lists should be adjusted to query entries explicitly.
+
+        * The systemd-sysupdate binary has been moved back from bindir to
+          libexecdir, as more breaking changes are forthcoming and it is thus
+          again marked as experimental. It will be stabilized in a future
+          release. The libexecdir path is the most compatible way to call it.
+
+        * The "extensions" field of "systemd-sysext status --json=" and

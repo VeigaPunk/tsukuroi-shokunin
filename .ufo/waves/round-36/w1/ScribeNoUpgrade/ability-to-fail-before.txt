@@ -1,0 +1,34 @@
+# Ability-to-fail receipt for the NoUpgrade/NoExtract supersession sweep
+captured_at_utc: 2026-10-24T03:32:52Z
+lane_head: 189d8a080ba8d508d5faab12cad9e688aee91dab
+
+== BEFORE: does each target name the superseding note? (0 = not swept) ==
+SKILL.md                                      count=0
+corpus/knowledge/update-safety-note.md        count=0
+corpus/knowledge/update-safety-v2.md          count=0
+
+== BEFORE: loci that state the superseded pin grouping ==
+  SKILL.md:398:  pins are `IgnorePkg` / `IgnoreGroup` / `NoUpgrade` / `NoExtract` — all empty
+  corpus/knowledge/update-safety-note.md:212:| any | `pacman-conf NoUpgrade` / `NoExtract` | **empty** |
+  corpus/knowledge/update-safety-note.md:346:| 4 | pins/holds declared | `pacman-conf IgnorePkg IgnoreGroup NoUpgrade NoExtract` | all empty; `HoldPkg = pacman glibc` (removal-only) | **PASS** (with §4 misread warning) |
+  corpus/knowledge/update-safety-note.md:423:  `NoUpgrade`/`NoExtract`, all empty) and adds the second soft-trust surface
+  corpus/knowledge/update-safety-v2.md:52:| 7 | pins | `IgnorePkg`/`IgnoreGroup`/`NoUpgrade`/`NoExtract` empty; `HoldPkg = pacman glibc` (`:208-216`) | identical (all four rc=0 empty; HoldPkg two lines) | same |
+  corpus/knowledge/update-safety-v2.md:198:| any | `pacman-conf IgnorePkg` / `IgnoreGroup` / `NoUpgrade` / `NoExtract` | all empty rc=0 — no version pins |
+
+== BEFORE: four routed loci, verbatim (line-anchored) ==
+  SKILL.md:397-399 | - `HoldPkg = pacman glibc` is removal-protection, **not a version hold**; true
+  SKILL.md:397-399 |   pins are `IgnorePkg` / `IgnoreGroup` / `NoUpgrade` / `NoExtract` — all empty
+  SKILL.md:397-399 |   (`:204-222`).
+  note:420-424 | - 2026-10-14 — **Round-1 row refinement, not a contradiction:** `SKILL.md:45`
+  note:420-424 |   names `HoldPkg = pacman glibc` under "pins/holds"; this note keeps the value
+  note:420-424 |   but splits it from the true version pins (`IgnorePkg`/`IgnoreGroup`/
+  note:420-424 |   `NoUpgrade`/`NoExtract`, all empty) and adds the second soft-trust surface
+  note:420-424 |   `LocalFileSigLevel = Optional` (`/etc/pacman.conf:16`), which the round-1 row
+  v2:52,198 | | 7 | pins | `IgnorePkg`/`IgnoreGroup`/`NoUpgrade`/`NoExtract` empty; `HoldPkg = pacman glibc` (`:208-216`) | identical (all four rc=0 empty; HoldPkg two lines) | same |
+  v2:52,198 | | any | `pacman-conf IgnorePkg` / `IgnoreGroup` / `NoUpgrade` / `NoExtract` | all empty rc=0 — no version pins |
+
+== before-state gates (read-only, revision 189d8a08) ==
+  check-appended-notices: PASS (97 records resolved, recorded separately)
+  check-knowledge-header: PASS (55 clean of 55)
+  check-recheck-commands: PASS (0 flagged of 55 files)
+  check-self-assessment: K10 MISMATCH (depth row 46 lesson files vs 47 on disk; pre-existing)

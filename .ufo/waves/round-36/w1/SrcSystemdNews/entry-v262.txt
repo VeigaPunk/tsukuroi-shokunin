@@ -1,0 +1,5 @@
+        * journalctl now rejects -F/--field together with filters such as
+          unit, boot, time, cursor or grep filters. Previously field listing
+          used sd_journal_query_unique(), which cannot represent those filters,
+          so the filters were silently ignored. Scripts relying on filtered
+          field lists should be adjusted to query entries explicitly.

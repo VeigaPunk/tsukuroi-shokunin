@@ -1,0 +1,30 @@
+# Live read-only matrix: journalctl -F/-N with limiting options on this host
+# host systemd: 262 (262-1-arch)
+# pacman -Q systemd: systemd 262-1
+# timestamp: 2026-10-24T02:49:18Z
+
+OPTION                 EXIT  FIRST_OUTPUT_LINE
+--- journalctl -F _SYSTEMD_UNIT <option> ---
+<none>                 0     user@1000.service
+-b0                    1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+-b-1                   1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+-S today               1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+-U today               1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+--since=-1h            1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+--until=now            1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+-n 5                   0     user@1000.service
+-f                     0     user@1000.service
+-u systemd-journald    1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+-t systemd             1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+-p emerg               1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+--cursor=abc           1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+-g foo                 1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+--directory=/tmp       0     No journal files were found.
+-r                     0     user@1000.service
+
+--- journalctl -N <option> ---
+<none>                 0     _PID
+-b0                    1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+-u systemd-journald    1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+-p err                 1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+-g foo                 1     -F/--field= and -N/--fields cannot be combined with options that limit the journal.

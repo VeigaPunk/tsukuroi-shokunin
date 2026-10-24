@@ -1,0 +1,129 @@
+diff --git a/tools/check-revision-binding.py b/tools/check-revision-binding.py
+--- a/tools/check-revision-binding.py
++++ b/tools/check-revision-binding.py
+@@ -52,2 +52,2 @@
+-Only GIT_* environment/config inheritance is suppressed. Never use this judge to
+-run unreviewed external candidates or as a security-sandbox certification.
++Children receive a fixed environment, but not a process sandbox. Never use this
++judge to run unreviewed external candidates or as a security-sandbox certification.
+@@ -101,11 +101,15 @@
+ 
+ 
+ def clean_env():
+-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+-    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
+-                "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+-    return env
++    return {
++        "PATH": "/usr/bin:/bin",
++        "LC_ALL": "C",
++        "GIT_CONFIG_NOSYSTEM": "1",
++        "GIT_CONFIG_GLOBAL": os.devnull,
++        "GIT_OPTIONAL_LOCKS": "0",
++        "GIT_PAGER": "cat",
++    }
+ 
+ 
+ def git(repo, *args, timeout=60):
+     try:
+diff --git a/tools/check-report-receipts.py b/tools/check-report-receipts.py
+--- a/tools/check-report-receipts.py
++++ b/tools/check-report-receipts.py
+@@ -309,17 +309,16 @@
+ def find_receipts(lane: str, revision: str, pairs: list[tuple[str, str]],
+                   temp_dir: str) -> dict[tuple[str, str], str]:
+-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+     home = os.path.join(temp_dir, "home")
+     os.mkdir(home)
+-    env.update({
++    env = {
+         "GIT_CONFIG_NOSYSTEM": "1",
+         "GIT_CONFIG_GLOBAL": os.devnull,
+         "GIT_CONFIG_SYSTEM": os.devnull,
+         "HOME": home,
+         "XDG_CONFIG_HOME": os.path.join(home, ".config"),
+         "PATH": "/usr/bin:/bin",
+         "GIT_CEILING_DIRECTORIES": os.path.dirname(os.path.abspath(temp_dir)),
+-    })
++    }
+ 
+     def run_git(*args: str) -> subprocess.CompletedProcess[bytes]:
+         command = ["git", "-c", "user.name=tsukuroi-round30-receipt-check",
+diff --git a/tools/score-census-handoff-r32.py b/tools/score-census-handoff-r32.py
+--- a/tools/score-census-handoff-r32.py
++++ b/tools/score-census-handoff-r32.py
+@@ -440,1 +440,1 @@
+-            stdout=fh, stderr=subprocess.PIPE, timeout=timeout)
++            stdout=fh, stderr=subprocess.PIPE, timeout=timeout, env=child_env())
+@@ -771,4 +771,13 @@
+     return res
+ 
+ 
++def child_env():
++    return {
++        'PATH': '/usr/bin:/bin',
++        'LC_ALL': 'C',
++        'GIT_CONFIG_NOSYSTEM': '1',
++        'GIT_CONFIG_GLOBAL': os.devnull,
++    }
++
++
+ def live_check(rev_script, base_script, timeout, work, rng):
+@@ -786,3 +795,3 @@
+-    env = {k: v for k, v in os.environ.items() if not k.startswith('TSUKUROI_')}
++    env = child_env()
+     plain = live_view(rev_script, base_script, env, timeout)
+     res = {'plain': plain}
+@@ -839,10 +848,11 @@
+     rng = random.Random(seed)
+ 
+     rev = args.revision
+     if rev is None:
+         proc = subprocess.run(['git', '-C', lane, 'rev-parse', 'HEAD'],
+-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
++                              stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60,
++                              env=child_env())
+         if proc.returncode != 0:
+             sys.stderr.write('scorer: cannot read HEAD of %s\n' % lane)
+             return 2
+         rev = proc.stdout.decode().strip()
+diff --git a/tools/mutants-btrfs-space-r30.py b/tools/mutants-btrfs-space-r30.py
+--- a/tools/mutants-btrfs-space-r30.py
++++ b/tools/mutants-btrfs-space-r30.py
+@@ -8,1 +8,1 @@
+-No git is run, so no inherited git environment can reach the counter.
++No Git subprocess is run by this battery; the counter receives a fixed environment.
+@@ -360,5 +360,10 @@
+     with open(bs, 'w', encoding='utf-8') as fh:
+         fh.write(base_sources)
+-    env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
++    env = {
++        'PATH': '/usr/bin:/bin',
++        'LC_ALL': 'C',
++        'GIT_CONFIG_NOSYSTEM': '1',
++        'GIT_CONFIG_GLOBAL': os.devnull,
++    }
+     p = subprocess.run([sys.executable, counter, '--tree', d, '--base-sources', bs],
+                        capture_output=True, text=True, env=env, timeout=60)
+diff --git a/tools/run-receipt.py b/tools/run-receipt.py
+--- a/tools/run-receipt.py
++++ b/tools/run-receipt.py
+@@ -36,8 +36,13 @@
+ def env(home=None):
+-    """Every GIT_* dropped, global and system git config off; with `home`, HOME and
+-    XDG_CONFIG_HOME point at a private empty directory (round-30 wave-1 RevReceiptRunner M5)."""
+-    e = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+-    e.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull})
++    """Fixed child environment; `home` adds run-private config and Git ceiling."""
++    e = {
++        'PATH': '/usr/bin:/bin',
++        'LC_ALL': 'C',
++        'GIT_CONFIG_NOSYSTEM': '1',
++        'GIT_CONFIG_GLOBAL': os.devnull,
++        'GIT_CONFIG_SYSTEM': os.devnull,
++    }
+     if home:
+-        e.update({'HOME': home, 'XDG_CONFIG_HOME': os.path.join(home, '.config')})
++        e.update({'HOME': home, 'XDG_CONFIG_HOME': os.path.join(home, '.config'),
++                  'GIT_CEILING_DIRECTORIES': os.path.dirname(os.path.abspath(home))})
+     return e

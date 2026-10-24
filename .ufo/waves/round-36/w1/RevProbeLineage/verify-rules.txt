@@ -1,0 +1,25 @@
+# probe lineage verification receipt — 2026-10-24T02:54:42Z
+# files: working tree == HEAD == base 6d76fb20 for all three (git status empty)
+# r32 sha256 d43f95ed8a740b71aac1ab412e769e011127eb4ae29646d12b2075a696cf0576
+# r33 sha256 c24f344b864a13ea4db2909bfa81de77f8f41bae35cd5e0949a88b28ab1e04cd
+# r34 sha256 5d0d568901c0eeb1c301b3bf825a839d4f41af68bc51e4de40f0706f15d1aa92
+VERSIONS r32/r33/r34: None 3 6
+r33 clause verbatim in r34: True | any traced execve after the target's own first exec carries in its env
+r33 clause verbatim in r34: True | the exact ambient NAME=VALUE string of that run for any value-channel 
+r33 clause verbatim in r34: True | any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or GIT_CONFIG_GLOBAL
+r33 clause verbatim in r34: True | breaks parity with control run A (exit code, normalised stdout digest,
+r33 clause verbatim in r34: True | starts a process that inherits it
+r33 clause verbatim in r34: True | uses a construct that hides a read or spawn
+r32 parity clause verbatim in r33: True
+r32 name clause in r33: REWORDED (r32 "any injected name (the four named and the eight random names of that run)" -> r33 "any name injected in that run"; r32 wording absent: True )
+r32 PREDICATE one sentence: True len 319
+r33 PREDICATE one sentence: True len 799
+r34 PREDICATE one sentence: True len 1331
+r33->r34 constant diffs: NONE (28/28 same)
+r32->r33 constant diffs: [('EXCLUDED_EXACT', frozenset({'LOGNAME', 'PATH', 'IFS', 'LANG', 'USER', 'TERM', 'SHELL', 'TMPDIR', 'TZ', 'HOME', 'PWD'}), frozenset({'XDG_CONFIG_HOME', 'LOGNAME', 'PATH', 'IFS', 'LANG', 'TERM', 'USER', 'SHELL', 'TMPDIR', 'TZ', 'HOME', 'PWD'})), ('BASHENV_MARKER', 'TSUKUROI_R32_BASHENV_RAN', 'TSUKUROI_R33_BASHENV_RAN'), ('ENV_MARKER', 'TSUKUROI_R32_ENV_RAN', 'TSUKUROI_R33_ENV_RAN'), ('CHANNELS', ('ambient-names',), ('names', 'quiet', 'source'))]
+r32 EXCLUDED_EXACT subset of r33: True | added: ['XDG_CONFIG_HOME'] | removed: []
+r33->r34 functions AST-identical: True ( 19 functions )
+r32->r33 shared functions AST-identical: True ( 11 functions )
+r32.TARGETS == r33.REGRESSION_TARGETS (tool set): True
+r33.CLAIM_TARGETS == r34.R33_CLAIM_TARGETS (tool set): True
+has value_carriers / anyname_carriers / base_parity  r32: False False False | r33: True False False | r34: True True True

@@ -1,0 +1,58 @@
+# Gap / canary evidence, timestamps UTC (stamped 04:37:17Z)
+mutant_commit=b73c2b390b9bb8c5c2d6ad8564ab04c2da2086bf parent=df661507db26e596f3813d9d54283b593f71b49a
+sandbox=/tmp/W2MutAttrgetter.r36.MGhNx6/repo (scratch, mktemp)
+
+## A. Frozen probe claim-set invocation on mutant bytes (reproduces the 0 reading)
+cmd: timeout 900 /usr/bin/python3 <lane>/tools/probe-child-env-allowlist-r36.py --revision b73c2b390b9bb8c5c2d6ad8564ab04c2da2086bf --lane /tmp/W2MutAttrgetter.r36.MGhNx6/repo --scratch /tmp/W2MutAttrgetter.r36.MGhNx6/scratch --set claim --only tools/check-section-citations.py
+summary: leaking=0 leaking_pairs=[] harness_errors=[] pairs=4 targets=1 version=7 exit=0
+per-channel: names leak=false git_execs=95 reached={} values_reached={} anyname_values_reached=[] parity_diffs=[] base_parity_diffs=[]
+             quiet leak=false git_execs=95 reached={} values_reached={} anyname_values_reached=[] parity_diffs=[] base_parity_diffs=[]
+             source leak=false findings=[] evidence=[] scanned=[tools/_revision.py, tools/check-section-citations.py]
+             untraced leak=false git_execs=95 untraced_record_count=0 untraced_wrappers=[] (zero records = UNINFORMATIVE per predicate docstring)
+probe_sha256=a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a (matches freeze LOG)
+
+## B. Dynamic discriminator: canary ambient name in git() children (strace -f -e execve)
+canary=ZR36_CANARY=1. Mutated git() is the only builder that copies ambient; sandbox_git() and _revision clean_env keep the fixed dicts, so any canary-bearing git child proves the mutated builder ran.
+mutant --selftest: git_execs_total(all git paths)=95 canary_git_records=0 exit=0
+mutant live mode (--revision b73c2b3 --branch killer): git_execs_total=19 canary_git_records=7 exit=0 status=PASS
+pristine live mode (--revision df66150 --branch killer): git_execs_total=19 canary_git_records=0 exit=0
+
+The 7 canary-bearing mutant git children are exactly the 7 read_git() calls of the mutant's own git() (argv, env list elided after the 7th token):
+1253111 execve("/usr/bin/git", ["git", "--no-pager", "-C", "/tmp/W2MutAttrgetter.r36.MGhNx6/repo", "show", "b73c2b390b9bb8c5c2d6ad8564ab04c2da2086bf:corpus/knowledge/section-citation-errata-r16.md"]  ["<ambient env incl. ZR36_CANARY=1>"]
+1253138 execve("/usr/bin/git", ["git", "--no-pager", "-C", "/tmp/W2MutAttrgetter.r36.MGhNx6/repo", "show", "b73c2b390b9bb8c5c2d6ad8564ab04c2da2086bf:corpus/knowledge/section-citation-errata-r16.json"]  ["<ambient env incl. ZR36_CANARY=1>"]
+1253150 execve("/usr/bin/git", ["git", "--no-pager", "-C", "/tmp/W2MutAttrgetter.r36.MGhNx6/repo", "show", "b73c2b390b9bb8c5c2d6ad8564ab04c2da2086bf:corpus/SOURCES.md"]  ["<ambient env incl. ZR36_CANARY=1>"]
+1253167 execve("/usr/bin/git", ["git", "--no-pager", "-C", "/tmp/W2MutAttrgetter.r36.MGhNx6/repo", "show", "b73c2b390b9bb8c5c2d6ad8564ab04c2da2086bf:corpus/knowledge/host-health-report-r3.md"]  ["<ambient env incl. ZR36_CANARY=1>"]
+1253182 execve("/usr/bin/git", ["git", "--no-pager", "-C", "/tmp/W2MutAttrgetter.r36.MGhNx6/repo", "show", "b73c2b390b9bb8c5c2d6ad8564ab04c2da2086bf:corpus/knowledge/update-safety-v3.md"]  ["<ambient env incl. ZR36_CANARY=1>"]
+1253189 execve("/usr/bin/git", ["git", "--no-pager", "-C", "/tmp/W2MutAttrgetter.r36.MGhNx6/repo", "show", "db68e62065885b3f7463eb0a436c41f0dc3bcde5:corpus/knowledge/host-health-report-r3.md"]  ["<ambient env incl. ZR36_CANARY=1>"]
+1253207 execve("/usr/bin/git", ["git", "--no-pager", "-C", "/tmp/W2MutAttrgetter.r36.MGhNx6/repo", "show", "db68e62065885b3f7463eb0a436c41f0dc3bcde5:corpus/knowledge/update-safety-v3.md"]  ["<ambient env incl. ZR36_CANARY=1>"]
+
+## C. Supplemental ordinary alias detector (r34 form): git -c alias.x=!/usr/bin/env x via the imported tool's git()
+mutant: {"ambient_name": "ZR36_CANARY", "ambient_reached": true, "ambient_value": "1", "env_child_env_sha256": "31d95f9b3ced8bafd985f0c7cbd88113f563030cd925caff7c8fb05919458cb4", "git_rc": 0, "kept_fixed_settings": true, "stderr_tail": "", "tool": "/tmp/W2MutAttrgetter.r36.MGhNx6/repo/tools/check-section-citations.py"}
+pristine: {"ambient_name": "ZR36_CANARY", "ambient_reached": false, "ambient_value": null, "env_child_env_sha256": "a50ad06f09ccda76e0e0d3542fbac2de312aad832c38101695d0e4cbce6519ec", "git_rc": 0, "kept_fixed_settings": true, "stderr_tail": "", "tool": "/tmp/W2MutAttrgetter.r36.MGhNx6/repo2/tools/check-section-citations.py"}
+
+## D. Patch applicability
+variant.patch applies cleanly at df66150 (fixed-dict git() present); git apply --check exit 0.
+At 3457f287 the same file's git() is the ambient copy (grep for 'round-34 C1: fixed allow-list' = 0 matches), so the patch cannot apply there.
+
+## E. Frozen-probe invocation surface (why no probe run reaches git())
+probe CLI: --revision --lane --scratch --set {claim,r33claim,regression,livefive} --only --base; no target-argv override.
+claim set entry: ('tools/check-section-citations.py', ['--selftest']) -- fixed argv.
+livefive set has 5 targets, none is check-section-citations; r33claim and regression do not list it.
+inside --selftest: main_probe() is called 3x (lines 847-858 at df66150) with (not-a-rev!!, feature/), (not-a-rev!!, master), (probe_hex, nosuch); every call fails in bind() before read_git(), so git() is never constructed (dynamic proof: 0 canary git records, B).
+
+## F. Hashes
+342af5cfedc699afcdceed59046be8b6ab9ab30a7bd6f4ca53ea7f94a5f4a920  trace/probe-claim-mutant.jsonl
+ba612b0f67a71e24a0ec7c9ce1330d4a491466da3b921636398b69da2864f566  trace/selftest-mutant.trace
+0a38b0ded028c50ab7e235b861c307163d1c1d8903fe75f69c4c9017f7712c73  trace/live-mutant.trace
+bc3f77f64c97ab0daf554693a7362e324880f76658d39f0d6c937eb9e24367c3  trace/live-pristine.trace
+4f6f2971c891e86dfd5a9ed644df31afb994d39de4cd5a4ea95f73e1a652a120  trace/alias-mutant.json
+3ec7182ef7a7f6de5fe20b459305f4bcc9e9bf36f4083aeb4da5ad570e8b2554  trace/alias-pristine.json
+mutant tool bytes sha256=606d6b6a96183057c5095f36a6c1fc422f38b92316dd835db7bea91a779f8e2e
+pristine tool bytes sha256=149b9a2156a8799865948cdbe444067466003669773525351ac4aa1d663df422
+restored sandbox worktree sha256=149b9a2156a8799865948cdbe444067466003669773525351ac4aa1d663df422 (git diff --stat df66150 -- tools/check-section-citations.py = empty)
+
+## E2. Live-mode argv inside an export tree (the probe's run-tree shape), stamped 04:37:53Z
+cmd: (in a tar export of b73c2b3, no .git) python3 tools/check-section-citations.py --revision b73c2b3 --branch killer
+output: {"branch": "killer", "branch_tip": null, "correction_count": 0, "findings": [{"detail": "object lookup failed: fatal: not a git repository (or any parent up to mount point /)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FI", "id": "E-GIT-FAILED", "site": "revision"}], "revision": "b73c2b390b9bb8c5c2d6ad8564ab04c2da2086bf", "scope": "section-citation resolution only; no update-safety or host-health verdict", "status": "CANNOT_EVALUATE"}
+rc=2 status=CANNOT_EVALUATE finding=E-GIT-FAILED revision 'object lookup failed: fatal: not a git repository'
+meaning: even if the target argv were live mode, the probe's run tree is a .git-less export and bind() fails before read_git()/git(); the probe harness rule (control rc != 0) would record a harness error, not a leak.

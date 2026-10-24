@@ -1,0 +1,56 @@
+# Independent source re-fetch by ScribeSourcesRows (round 36, w1)
+
+Performed independently of the sibling seats, from a clean /tmp fetch.
+
+## systemd v262 NEWS (S024 target)
+$ curl -sL https://raw.githubusercontent.com/systemd/systemd/v262/NEWS
+a494f0389edd09702a90d1540c7e21c0af5a4d29a4d020855ca3062d885a7657  /tmp/news262.txt
+1271752 /tmp/news262.txt
+sibling SrcSystemdNews/NEWS-v262.full:
+a494f0389edd09702a90d1540c7e21c0af5a4d29a4d020855ca3062d885a7657  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-36/w1/SrcSystemdNews/NEWS-v262.full
+
+line 3 / line 26 / lines 129-133:
+CHANGES WITH 262:
+        Feature Removals and Incompatible Changes:
+        * journalctl now rejects -F/--field together with filters such as
+          unit, boot, time, cursor or grep filters. Previously field listing
+          used sd_journal_query_unique(), which cannot represent those filters,
+          so the filters were silently ignored. Scripts relying on filtered
+          field lists should be adjusted to query entries explicitly.
+
+## journalctl(1) at systemd 262 — man.archlinux.org (S198 primary)
+$ curl -sL https://man.archlinux.org/man/journalctl.1
+aaae4efa61ff9c56e6249feb2f4527db57f1a4beb0eac4ad1eeb111a4bbb83c2  /tmp/journalctl.arch.1
+65136 /tmp/journalctl.arch.1
+sibling SrcJournalctlMan/journalctl.1.arch.html:
+aaae4efa61ff9c56e6249feb2f4527db57f1a4beb0eac4ad1eeb111a4bbb83c2  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-36/w1/SrcJournalctlMan/journalctl.1.arch.html
+footer (foot-os):
+<td class="foot-os">systemd 262.1</td>
+package version:
+        <dt>Version:</dt>
+        <dd>262.1-1</dd>
+        <dt>Upstream:</dt>
+
+## upstream v262 man/journalctl.xml (S198 upstream twin)
+$ curl -sL https://raw.githubusercontent.com/systemd/systemd/v262/man/journalctl.xml
+d54bbede45d5b1e3dc856da9624649ef8cb0829731597c212be303a76a1edbdd  /tmp/journalctl262.xml
+61619 /tmp/journalctl262.xml
+sibling SrcJournalctlMan/journalctl-v262.xml:
+d54bbede45d5b1e3dc856da9624649ef8cb0829731597c212be303a76a1edbdd  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-36/w1/SrcJournalctlMan/journalctl-v262.xml
+
+## v262 annotated tag -> commit (GitHub API)
+refs/tags/v262 = 1f7dffaf714cc4488159c498b7a17cf34c5a96d5
+tag object -> commit 8cc40e0c5e9234bf45084751ac53b1fbfe70b492, tagger date 2026-09-22T13:12:43Z
+
+## the rejection line — NOT in the man page, IS in the v262 source
+news262.txt grep 'cannot be combined': 0
+journalctl.arch.1 grep same: 0
+journalctl262.xml grep same: 0
+src/journal/journalctl.c @v262 grep same: 1
+src/journal/journalctl.c line 960:
+        if (IN_SET(arg_action, ACTION_LIST_FIELDS, ACTION_LIST_FIELD_NAMES) && field_list_has_scope_options())
+                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                                       "-F/--field= and -N/--fields cannot be combined with options that limit the journal.");
+
+## host systemd version
+systemd 262 (262-1-arch)

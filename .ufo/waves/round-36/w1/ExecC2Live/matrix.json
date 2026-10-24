@@ -1,0 +1,201 @@
+{
+  "title": "Live journalctl v262 field/fields matrix",
+  "version": {
+    "command": "journalctl --version",
+    "first_line": "systemd 262 (262-1-arch)",
+    "exit_code": 0,
+    "stderr_bytes": 0
+  },
+  "boots": {
+    "command": "journalctl --no-pager --list-boots",
+    "indices": ["-4", "-3", "-2", "-1", "0"],
+    "has_minus_one": true,
+    "exit_code": 0,
+    "stderr_bytes": 0
+  },
+  "matrix_scope": "Every matrix invocation includes --no-pager; stdout_tail is the last 8 decoded lines, stderr_bytes is the raw stderr byte length, and exit_code is the process return code.",
+  "matrix": [
+    {
+      "name": "field-default",
+      "command": "journalctl --no-pager -F PRIORITY",
+      "argv": ["journalctl", "--no-pager", "-F", "PRIORITY"],
+      "stdout_bytes": 12,
+      "stdout_line_count": 6,
+      "stdout_tail": ["5", "6", "2", "4", "7", "3"],
+      "stderr_bytes": 0,
+      "stderr_tail": [],
+      "exit_code": 0,
+      "verdict": "work"
+    },
+    {
+      "name": "fields-default",
+      "command": "journalctl --no-pager -N PRIORITY,MESSAGE",
+      "argv": ["journalctl", "--no-pager", "-N", "PRIORITY,MESSAGE"],
+      "stdout_bytes": 0,
+      "stdout_line_count": 0,
+      "stdout_tail": [],
+      "stderr_bytes": 54,
+      "stderr_tail": ["Extraneous arguments starting with 'PRIORITY,MESSAGE'"],
+      "exit_code": 1,
+      "verdict": "reject-invalid-invocation",
+      "note": "-N/--fields takes no positional field list; this command is rejected before the field/limit incompatibility is tested."
+    },
+    {
+      "name": "field-boot-zero",
+      "command": "journalctl --no-pager -b 0 -F PRIORITY",
+      "argv": ["journalctl", "--no-pager", "-b", "0", "-F", "PRIORITY"],
+      "stdout_bytes": 0,
+      "stdout_line_count": 0,
+      "stdout_tail": [],
+      "stderr_bytes": 84,
+      "stderr_tail": ["-F/--field= and -N/--fields cannot be combined with options that limit the journal."],
+      "exit_code": 1,
+      "verdict": "reject-limit-combination"
+    },
+    {
+      "name": "fields-boot-zero",
+      "command": "journalctl --no-pager -b 0 -N PRIORITY",
+      "argv": ["journalctl", "--no-pager", "-b", "0", "-N", "PRIORITY"],
+      "stdout_bytes": 0,
+      "stdout_line_count": 0,
+      "stdout_tail": [],
+      "stderr_bytes": 46,
+      "stderr_tail": ["Extraneous arguments starting with 'PRIORITY'"],
+      "exit_code": 1,
+      "verdict": "reject-invalid-invocation",
+      "note": "-N/--fields takes no positional field name; this command is rejected before the field/limit incompatibility is tested."
+    },
+    {
+      "name": "field-boot-priority",
+      "command": "journalctl --no-pager -b -p err -F PRIORITY",
+      "argv": ["journalctl", "--no-pager", "-b", "-p", "err", "-F", "PRIORITY"],
+      "stdout_bytes": 0,
+      "stdout_line_count": 0,
+      "stdout_tail": [],
+      "stderr_bytes": 84,
+      "stderr_tail": ["-F/--field= and -N/--fields cannot be combined with options that limit the journal."],
+      "exit_code": 1,
+      "verdict": "reject-limit-combination"
+    },
+    {
+      "name": "field-since",
+      "command": "journalctl --no-pager --since '1 hour ago' -F PRIORITY",
+      "argv": ["journalctl", "--no-pager", "--since", "1 hour ago", "-F", "PRIORITY"],
+      "stdout_bytes": 0,
+      "stdout_line_count": 0,
+      "stdout_tail": [],
+      "stderr_bytes": 84,
+      "stderr_tail": ["-F/--field= and -N/--fields cannot be combined with options that limit the journal."],
+      "exit_code": 1,
+      "verdict": "reject-limit-combination"
+    },
+    {
+      "name": "field-unit",
+      "command": "journalctl --no-pager -u systemd-journald -F PRIORITY",
+      "argv": ["journalctl", "--no-pager", "-u", "systemd-journald", "-F", "PRIORITY"],
+      "stdout_bytes": 0,
+      "stdout_line_count": 0,
+      "stdout_tail": [],
+      "stderr_bytes": 84,
+      "stderr_tail": ["-F/--field= and -N/--fields cannot be combined with options that limit the journal."],
+      "exit_code": 1,
+      "verdict": "reject-limit-combination"
+    },
+    {
+      "name": "field-boot-json",
+      "command": "journalctl --no-pager -b 0 -o json -F PRIORITY",
+      "argv": ["journalctl", "--no-pager", "-b", "0", "-o", "json", "-F", "PRIORITY"],
+      "stdout_bytes": 0,
+      "stdout_line_count": 0,
+      "stdout_tail": [],
+      "stderr_bytes": 84,
+      "stderr_tail": ["-F/--field= and -N/--fields cannot be combined with options that limit the journal."],
+      "exit_code": 1,
+      "verdict": "reject-limit-combination",
+      "note": "This invocation does not isolate -o json: -b is itself limiting. The separate -o json -F control succeeds."
+    },
+    {
+      "name": "field-previous-boot",
+      "command": "journalctl --no-pager -b -1 -F PRIORITY",
+      "argv": ["journalctl", "--no-pager", "-b", "-1", "-F", "PRIORITY"],
+      "stdout_bytes": 0,
+      "stdout_line_count": 0,
+      "stdout_tail": [],
+      "stderr_bytes": 84,
+      "stderr_tail": ["-F/--field= and -N/--fields cannot be combined with options that limit the journal."],
+      "exit_code": 1,
+      "verdict": "reject-limit-combination",
+      "note": "Boot -1 was present in --list-boots."
+    },
+    {
+      "name": "field-quiet-boot-zero",
+      "command": "journalctl --no-pager --quiet -b 0 -F PRIORITY",
+      "argv": ["journalctl", "--no-pager", "--quiet", "-b", "0", "-F", "PRIORITY"],
+      "stdout_bytes": 0,
+      "stdout_line_count": 0,
+      "stdout_tail": [],
+      "stderr_bytes": 84,
+      "stderr_tail": ["-F/--field= and -N/--fields cannot be combined with options that limit the journal."],
+      "exit_code": 1,
+      "verdict": "reject-limit-combination",
+      "note": "This invocation does not isolate --quiet: -b is itself limiting. The separate --quiet -F control succeeds."
+    }
+  ],
+  "controls": [
+    {
+      "command": "journalctl --no-pager -N",
+      "argv": ["journalctl", "--no-pager", "-N"],
+      "stdout_bytes": 2882,
+      "stdout_line_count": 167,
+      "stdout_tail": ["CURRENT_USE_PRETTY", "DBUS_BROKER_MESSAGE_TYPE", "DISK_AVAILABLE", "DBUS_BROKER_LAUNCH_ARG0", "LIMIT", "AVAILABLE", "COREDUMP_CONTAINER_CMDLINE", "COREDUMP_FILENAME"],
+      "stderr_bytes": 0,
+      "stderr_tail": [],
+      "exit_code": 0,
+      "verdict": "work"
+    },
+    {
+      "command": "journalctl --no-pager -b 0 -N",
+      "argv": ["journalctl", "--no-pager", "-b", "0", "-N"],
+      "stdout_bytes": 0,
+      "stdout_line_count": 0,
+      "stdout_tail": [],
+      "stderr_bytes": 84,
+      "stderr_tail": ["-F/--field= and -N/--fields cannot be combined with options that limit the journal."],
+      "exit_code": 1,
+      "verdict": "reject-limit-combination"
+    },
+    {
+      "command": "journalctl --no-pager --quiet -F PRIORITY",
+      "argv": ["journalctl", "--no-pager", "--quiet", "-F", "PRIORITY"],
+      "stdout_bytes": 12,
+      "stdout_line_count": 6,
+      "stdout_tail": ["5", "6", "2", "4", "7", "3"],
+      "stderr_bytes": 0,
+      "stderr_tail": [],
+      "exit_code": 0,
+      "verdict": "work"
+    },
+    {
+      "command": "journalctl --no-pager -o json -F PRIORITY",
+      "argv": ["journalctl", "--no-pager", "-o", "json", "-F", "PRIORITY"],
+      "stdout_bytes": 12,
+      "stdout_line_count": 6,
+      "stdout_tail": ["5", "6", "2", "4", "7", "3"],
+      "stderr_bytes": 0,
+      "stderr_tail": [],
+      "exit_code": 0,
+      "verdict": "work"
+    },
+    {
+      "command": "journalctl --no-pager -p err -F PRIORITY",
+      "argv": ["journalctl", "--no-pager", "-p", "err", "-F", "PRIORITY"],
+      "stdout_bytes": 0,
+      "stdout_line_count": 0,
+      "stdout_tail": [],
+      "stderr_bytes": 84,
+      "stderr_tail": ["-F/--field= and -N/--fields cannot be combined with options that limit the journal."],
+      "exit_code": 1,
+      "verdict": "reject-limit-combination"
+    }
+  ]
+}

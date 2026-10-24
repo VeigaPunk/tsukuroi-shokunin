@@ -1,0 +1,8 @@
+                                       "Extraneous arguments starting with '%s'",
+                                       args[0]);
+
+        if (IN_SET(arg_action, ACTION_LIST_FIELDS, ACTION_LIST_FIELD_NAMES) && field_list_has_scope_options())
+                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                                       "-F/--field= and -N/--fields cannot be combined with options that limit the journal.");
+
+        if ((arg_boot || arg_action == ACTION_LIST_BOOTS) && arg_merge)

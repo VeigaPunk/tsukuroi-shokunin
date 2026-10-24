@@ -1,0 +1,9 @@
+          rate-limit state from older managers may expire once earlier than it
+          would have previously, because the stored timestamp is compared
+          against the new clock base.
+
+        * journalctl now rejects -F/--field together with filters such as
+          unit, boot, time, cursor or grep filters. Previously field listing
+          used sd_journal_query_unique(), which cannot represent those filters,
+          so the filters were silently ignored. Scripts relying on filtered
+          field lists should be adjusted to query entries explicitly.

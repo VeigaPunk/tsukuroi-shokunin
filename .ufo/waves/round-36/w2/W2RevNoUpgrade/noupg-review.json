@@ -1,0 +1,42 @@
+{
+  "seat": "W2RevNoUpgrade",
+  "round": 36,
+  "wave": 2,
+  "change_commit": "c052bb7d41ced49aa888817069afd804eccfecf1",
+  "parent_commit": "1e926801195e304950e3eb9d2525ef8bbc245089",
+  "declaration_commit": "6d76fb20f6ecbc940e5c8fff36c74060c885e161",
+  "base_for_digests": "189d8a080ba8d508d5faab12cad9e688aee91dab",
+  "written_at_utc": "2026-10-24T04:38:48Z",
+  "claim_verdict": "holds",
+  "blocks": [
+    {"draft": "SKILL.md.append.md", "target": "SKILL.md", "block_lines": 40, "present_verbatim": true, "at_final_eof": false, "start_line": 3010, "followed_by": "SKILL.md:3050 ## Gate and probe registry — round36 superseding current rows", "names_r35": 2, "quotes_prior_locus": true, "site": "SKILL.md:397-399"},
+    {"draft": "update-safety-note.md.append.md", "target": "corpus/knowledge/update-safety-note.md", "block_lines": 38, "present_verbatim": true, "at_final_eof": true, "names_r35": 2, "quotes_prior_locus": true, "site": "corpus/knowledge/update-safety-note.md:420-425"},
+    {"draft": "update-safety-v2.md.52.append.md", "target": "corpus/knowledge/update-safety-v2.md", "block_lines": 25, "present_verbatim": true, "at_final_eof": false, "followed_by": "the .198 block", "names_r35": 2, "quotes_prior_locus": true, "site": "corpus/knowledge/update-safety-v2.md:52"},
+    {"draft": "update-safety-v2.md.198.append.md", "target": "corpus/knowledge/update-safety-v2.md", "block_lines": 24, "present_verbatim": true, "at_final_eof": true, "names_r35": 1, "quotes_prior_locus": true, "site": "corpus/knowledge/update-safety-v2.md:198"}
+  ],
+  "append_only": {
+    "numstat_1e92680_to_c052bb7": {"SKILL.md": [51, 0], "corpus/knowledge/update-safety-note.md": [38, 0], "corpus/knowledge/update-safety-v2.md": [49, 0]},
+    "prefix_property_head_startswith_base": {"SKILL.md": true, "corpus/knowledge/update-safety-note.md": true, "corpus/knowledge/update-safety-v2.md": true},
+    "original_sites_identical_to_base": {"SKILL.md:397-399": true, "corpus/knowledge/update-safety-note.md:420-425": true, "corpus/knowledge/update-safety-v2.md:52": true, "corpus/knowledge/update-safety-v2.md:198": true},
+    "line_counts": {"SKILL.md": {"base": 3009, "head": 3060}, "corpus/knowledge/update-safety-note.md": {"base": 544, "head": 582}, "corpus/knowledge/update-safety-v2.md": {"base": 420, "head": 469}}
+  },
+  "gates_at_change_commit": {
+    "check-appended-notices": {"status": "PASS", "records": 97, "findings": 0},
+    "check-adjacency-anchors": {"status": "PASS", "findings": 0, "inbound_by_class": {"DRIFTED": 17, "RESOLVES": 96, "UNRESOLVABLE": 1}},
+    "check-knowledge-header": {"status": "PASS", "notes": 56, "complete": 56, "findings": 0},
+    "check-recheck-commands": {"status": "PASS", "files": 3, "flagged": 0},
+    "check-registry-coverage": {"status": "FAIL", "exit": 1, "counts": {"findings": 51, "missing": 51, "registered": 2, "rows_total": 2, "tools_total": 53}},
+    "check-self-assessment": {"status": "FAIL", "exit": 1, "mismatches": {"K07": {"stated": 55, "observed": 56}, "K08": {"stated": 3009, "observed": 3060}, "K09": {"stated": 784, "observed": 788}, "K10": {"stated": 46, "observed": 48}}, "stated_line": 1570}
+  },
+  "wave_integrity": {"observed_at_utc": "2026-10-24T04:39:51Z", "head_at_start": "c052bb7d41ced49aa888817069afd804eccfecf1", "head_at_end": "8d5fa7fe27c336d602a463519e839e932d26301d", "dirty": {"SKILL.md": {"added": 54, "deleted": 4, "note": "in-flight registry repair by another actor; table malformed at SKILL.md:3056-3058 (data row between header and delimiter)"}}, "block_checks_rerun_against_commit_bytes": true},
+  "findings": [
+    {"id": "F1", "severity": "high", "scope": "adjacent (same file and commit; owned by registry close-out)", "title": "round-36 registry table has 2 rows; check-registry-coverage FAIL 51 missing of 53", "evidence": "SKILL.md:3050-3060; rows per table r33=48 r34=50 r35=52 r36=2; SKILL.md:3051 claims every round35 row retained"},
+    {"id": "F2", "severity": "medium", "title": "residual loci recorded only in untracked wave-1 files", "evidence": "git grep at c052bb7 for routed-scope phrasing = 0 hits; .ufo/waves/round-36/w1/ untracked; tracked wave files round-35=1487 vs round-36=19"},
+    {"id": "F3", "severity": "low", "title": "residual set undercounted: 3 loci measured, 2 named", "evidence": "ScribeNoUpgrade.md:130-137 adds update-safety-note.md:204 + :212 (present at c052bb7)"},
+    {"id": "F4", "severity": "observation", "title": "check-self-assessment red at change commit; K08 obligation only in untracked draft", "evidence": "K07/K08/K09/K10 mismatches vs round-35 depth row at SCORECARD.md:1570"},
+    {"id": "F5", "severity": "cosmetic", "title": "no blank line at SKILL.md:3049/3050 seam", "evidence": "CommonMark parses; no gate flagged"},
+    {"id": "F6", "severity": "wave-integrity", "title": "HEAD moved c052bb7 -> 8d5fa7f mid-review; in-flight registry repair writes a malformed GFM table", "evidence": "04:39:51Z: git rev-parse HEAD=8d5fa7fe; git diff SKILL.md +54/-4; SKILL.md:3056 header, :3057 data row, :3058 delimiter — delimiter must directly follow header"}
+  ],
+  "verification_gaps": ["census not run", "C1 probe battery not run", "seven-gate list not enumerated anywhere this seat could read", "lsp unavailable for Markdown (no server); checks are byte/line comparisons", "/etc/pacman.conf not re-measured (pacman paused host-wide)"],
+  "tools_installed": []
+}

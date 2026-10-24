@@ -1,0 +1,24 @@
+journalctl -F _SYSTEMD_UNIT -> exit=0 :: <no stderr>
+journalctl -N -> exit=0 :: <no stderr>
+journalctl -F _SYSTEMD_UNIT -u sshd.service -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT --user-unit=sshd.service -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT -b -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT -b0 -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT --since=-1h -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT --until=-1h -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT --grep=foo -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT --cursor=x -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT --after-cursor=x -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT -p err -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT -t sshd -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT -t systemd-logind -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT --exclude-pattern=foo -> exit=1 :: journalctl: unrecognized option '--exclude-pattern'
+journalctl -F _SYSTEMD_UNIT -k -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT -f -> exit=0 :: <no stderr>
+journalctl -F _SYSTEMD_UNIT --dmesg -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -N -u sshd.service -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT -T sshd -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT --identifier=sshd -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT --facility=daemon -> exit=1 :: -F/--field= and -N/--fields cannot be combined with options that limit the journal.
+journalctl -F _SYSTEMD_UNIT --merge -> exit=0 :: <no stderr>
+journalctl -F _SYSTEMD_UNIT --show-cursor -> exit=0 :: <no stderr>

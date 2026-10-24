@@ -1,0 +1,17 @@
+{
+ "detector": ".ufo/waves/round-36/w1/MutToolMutants/detector-det2.py (copied here as ordinary-detector.py)",
+ "mechanism": "strace -f -e trace=execve -v -s 8192; ambient marker R36LEAKMARK=leak-<pid>; a child whose traced envp carries R36LEAKMARK received the ambient environment; n_nonfixed_path counts children whose PATH != /usr/bin:/bin",
+ "argv": ["tools/score-census-handoff-r32.py", "--revision", "189d8a080ba8d508d5faab12cad9e688aee91dab", "--lane", "<mktemp sandbox clone>", "--scenarios", "1", "--timeout", "60"],
+ "pristine_c052bb7": {"rc": 0, "timed_out": false, "seconds": 34.3, "n_children": 2151,
+   "n_marker_leaks": 0, "n_nonfixed_path": 465,
+   "note": "non-fixed PATH children are the tool's own run-private census dir .../work/<id>/bin:/usr/bin:/bin, no marker"},
+ "mutant_m3": {"rc": 0, "timed_out": false, "seconds": 46.5, "n_children": 3104,
+   "n_marker_leaks": 2637, "n_nonfixed_path": 3102,
+   "first_leaking_child": {"exe": "/usr/bin/bash",
+     "argv": ["/usr/bin/bash", "/tmp/tsukuroi-r32-handoff-5k3zbvn8/work/base/tools/tsukuroi-census.sh"],
+     "marker": ["R36LEAKMARK=leak-1351735"],
+     "path": ["PATH=/tmp/r36d-t95i6z08/bin:/usr/bin:/bin"]},
+   "descendant": {"exe": "/usr/bin/head", "argv": ["head", "-n1", "/proc/sys/kernel/hostname"],
+     "marker": ["R36LEAKMARK=leak-1351735"], "path": ["PATH=/tmp/r36d-t95i6z08/bin:/usr/bin:/bin"]}},
+ "verdict": "ambient env reaches the census bash child and everything it spawns; ordinary run of the mutant exits 0"
+}

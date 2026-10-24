@@ -1,0 +1,357 @@
+{
+ "seat": "W2RevReport",
+ "role": "reviewer",
+ "round": 36,
+ "wave": "w2",
+ "written_utc": "04:37:52Z",
+ "change_commit": "c052bb7d41ced49aa888817069afd804eccfecf1",
+ "freeze_commit": "1e926801195e304950e3eb9d2525ef8bbc245089",
+ "declaration_commit": "6d76fb20f6ecbc940e5c8fff36c74060c885e161",
+ "probe": {
+  "path": "tools/probe-child-env-allowlist-r36.py",
+  "version": 7,
+  "sha256_freeze_bytes": "a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a",
+  "sha256_head_bytes": "a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a",
+  "predicate_label": "leaking",
+  "predicate_sentence_identical_to_record": true,
+  "predicate_chars": 1331,
+  "has_json_flag": false,
+  "exit_codes": {
+   "clean": 0,
+   "leaking": 1,
+   "harness": 2
+  }
+ },
+ "claim_verdicts": [
+  {
+   "id": "C-01",
+   "claim": "frozen probe sha256 a2a5acac matches freeze bytes and HEAD",
+   "verdict": "VERIFIED"
+  },
+  {
+   "id": "C-02",
+   "claim": "dev-claim-final.jsonl claim set leaking 0, harness [], exit 0",
+   "verdict": "PARTIAL",
+   "note": "leaking 0 / harness [] verified; receipt has no exit/timeout/finish field and no .err sibling"
+  },
+  {
+   "id": "C-03",
+   "claim": "dev-r33claim-final4.jsonl r33claim leaking 0, harness [], exit 0",
+   "verdict": "PARTIAL",
+   "note": "same exit-code gap"
+  },
+  {
+   "id": "C-04",
+   "claim": "dev-r33claim final/final2/final3 sequence records misfire classes",
+   "verdict": "VERIFIED",
+   "note": "readings 6, 3, 3"
+  },
+  {
+   "id": "C-05",
+   "claim": "corrections item 6: receipted sequence on final bytes",
+   "verdict": "FALSE",
+   "note": "receipts carry probe shas 0865d8a1, 6ec9af2d x2, a2a5acac; only the 0 reading is on final bytes"
+  },
+  {
+   "id": "C-06",
+   "claim": "frozen predicate sentence verbatim",
+   "verdict": "VERIFIED",
+   "note": "1331 chars identical to PREDICATE"
+  },
+  {
+   "id": "C-07",
+   "claim": "no --json flag; label leaking; 31 round-34 receipts carry it",
+   "verdict": "PARTIAL",
+   "note": "no --json and label verified; the 31 count is underived, grep matches 100 files under .ufo/waves/round-34/"
+  },
+  {
+   "id": "C-08",
+   "claim": "score-census direct control 16.77 s",
+   "verdict": "UNSUPPORTED",
+   "note": "only in untracked w1/ExecProbeR36/ExecProbeR36.md"
+  },
+  {
+   "id": "C-09",
+   "claim": "livefive-only parity diffs recorded not evidence",
+   "verdict": "VERIFIED",
+   "note": "probe :28-30, :1153, :1256"
+  },
+  {
+   "id": "C-10",
+   "claim": "GIT_CEILING_DIRECTORIES newly introduced in run-receipt",
+   "verdict": "VERIFIED",
+   "note": "tools/run-receipt.py:37-48"
+  },
+  {
+   "id": "C-11",
+   "claim": "LC_ALL=C added to check-report-receipts",
+   "verdict": "VERIFIED",
+   "note": ":313-321"
+  },
+  {
+   "id": "C-12",
+   "claim": "__import__('re') rewritten",
+   "verdict": "VERIFIED"
+  },
+  {
+   "id": "C-13",
+   "claim": "S198/S199 rows, S024 untouched, S199 NEWS sha a494f038..a7657",
+   "verdict": "VERIFIED",
+   "note": "rows verified; byte file NEWS-v262.full hashes to the row value but is untracked"
+  },
+  {
+   "id": "C-14",
+   "claim": "NoUpgrade appends at SKILL.md:397-399, note:420-424, v2:52, :198",
+   "verdict": "PARTIAL",
+   "note": "appends exist at SKILL.md:3010-3060, note:556-582, v2:427-454; the named lines are the superseded loci"
+  },
+  {
+   "id": "C-15",
+   "claim": "kill rule restated frozen",
+   "verdict": "VERIFIED",
+   "note": "SCORECARD.md:1749-1756"
+  },
+  {
+   "id": "C-16",
+   "claim": "corrections LOG entry: change + SCORECARD block landed before any after-data seat scored",
+   "verdict": "PARTIAL",
+   "note": "landed 20 s later in c052bb7; seats not yet dispatched (w2 dispatch mtime 04:30:30Z)"
+  },
+  {
+   "id": "C-17",
+   "claim": "order names a separate corrections commit before the freeze",
+   "verdict": "FALSE",
+   "note": "no corrections commit; LOG entry in 1e92680, SCORECARD block in c052bb7"
+  },
+  {
+   "id": "C-18",
+   "claim": "L1 commits every wave-1 control receipt before freeze",
+   "verdict": "FALSE",
+   "note": "git ls-files .ufo/waves/round-36/w1 = 0; status shows ?? for the whole w1 tree"
+  },
+  {
+   "id": "C-19",
+   "claim": "C1 before: at least one leaking pair on every one of the five targets",
+   "verdict": "UNSUPPORTED",
+   "note": "no committed livefive receipt; untracked draft runs cover 2 of 5 targets only"
+  },
+  {
+   "id": "C-20",
+   "claim": "SKILL.md:3057 sensitivity battery committed under l1 (claim/r33claim/regression 0, both mutants >0)",
+   "verdict": "FALSE",
+   "note": "no regression receipt; sens-mutattr reads 0; no MutPathCopy receipt"
+  },
+  {
+   "id": "C-21",
+   "claim": "corpus/README.md:262 sensitivity battery committed under l1",
+   "verdict": "FALSE",
+   "note": "same"
+  },
+  {
+   "id": "C-22",
+   "claim": "16-term field_list_has_scope_options predicate (note:126, README:264/269)",
+   "verdict": "FALSE",
+   "note": "15 terms in the excerpt and in the note's own table; matrix cell_count 54 checks out"
+  },
+  {
+   "id": "C-23",
+   "claim": "no lane tool uses -F/-N",
+   "verdict": "VERIFIED",
+   "note": "grep over tools/ and scripts/"
+  },
+  {
+   "id": "C-24",
+   "claim": "C2 live: systemd 262 host, exit 1, 84-byte stderr line",
+   "verdict": "VERIFIED",
+   "note": "reproduced read-only; 83 chars + newline"
+  },
+  {
+   "id": "C-25",
+   "claim": "MutAttrgetterCopy 0 is an invocation-coverage gap, not probe blindness, proven by r34 ordinary receipt",
+   "verdict": "PARTIAL",
+   "note": "reading verified; cited proof is a different detector (4048c876..) and the mutant's frozen-probe receipt reads 0"
+  },
+  {
+   "id": "C-26",
+   "claim": "CriticFreeze cited as corrections source; freeze proceeds",
+   "verdict": "PARTIAL",
+   "note": "CriticFreeze returned NO-GO for the freeze (B1-B7); no disposition recorded for B1/B4/B5/B6"
+  },
+  {
+   "id": "C-27",
+   "claim": "C1 verdict text states every sensitivity conjunct outcome",
+   "verdict": "FALSE",
+   "note": "regression conjunct absent from every round-36 record and no base receipt; no 'not verified' verdict drawn"
+  },
+  {
+   "id": "C-28",
+   "claim": "frozen sha in LOG freeze entry and every receipt header",
+   "verdict": "VERIFIED"
+  }
+ ],
+ "verdict_counts": {
+  "VERIFIED": 12,
+  "PARTIAL": 7,
+  "FALSE": 7,
+  "UNSUPPORTED": 2
+ },
+ "findings": [
+  {
+   "severity": "HIGH",
+   "id": "H1",
+   "ref": "C-20,C-21",
+   "summary": "committed SKILL/README rows assert sensitivity battery results contradicted by the only committed receipt"
+  },
+  {
+   "severity": "HIGH",
+   "id": "H2",
+   "ref": "C-18",
+   "summary": "all 32 wave-1 seat dirs untracked; the declaration's 'L1 commits every wave-1 control receipt' is false at freeze and HEAD"
+  },
+  {
+   "severity": "HIGH",
+   "id": "H3",
+   "ref": "C-19",
+   "summary": "C1 before-value has no receipt; W2ReBefore prompt cites a committed before receipt that does not exist; draft livefive receipts cover 2 of 5 targets"
+  },
+  {
+   "severity": "HIGH",
+   "id": "H4",
+   "ref": "C-27,C-25",
+   "summary": "kill rule not applied: MutAttrgetterCopy 0 disclosed but no 'not verified' verdict; regression conjunct never stated and never receipted"
+  },
+  {
+   "severity": "HIGH",
+   "id": "H5",
+   "ref": "C-26",
+   "summary": "CriticFreeze NO-GO for the freeze; B1/B4/B5/B6 dispositions absent from the corrections block"
+  },
+  {
+   "severity": "HIGH",
+   "id": "H6",
+   "ref": "C-22",
+   "summary": "16-term predicate claim is 15 terms in both the committed note and the committed README row"
+  },
+  {
+   "severity": "MEDIUM",
+   "id": "M7",
+   "ref": "C-05",
+   "summary": "'on final bytes' false for two of three r33claim readings (three probe digests)"
+  },
+  {
+   "severity": "MEDIUM",
+   "id": "M8",
+   "ref": "C-08",
+   "summary": "16.77 s measurement only in untracked wave-1 file"
+  },
+  {
+   "severity": "MEDIUM",
+   "id": "M9",
+   "ref": "C-07",
+   "summary": "'31 round-34 receipts' underived; 100 files match the label"
+  },
+  {
+   "severity": "MEDIUM",
+   "id": "M10",
+   "ref": "C-02,C-03",
+   "summary": "freeze receipts carry no exit/timeout/finish record; LOG 'exit 0' uncheckable"
+  },
+  {
+   "severity": "MEDIUM",
+   "id": "M11",
+   "ref": "C-17",
+   "summary": "order names a corrections commit that does not exist"
+  },
+  {
+   "severity": "MEDIUM",
+   "id": "M12",
+   "ref": "C-14",
+   "summary": "corrections item 7 line pointers read as append targets; appends are at EOF"
+  },
+  {
+   "severity": "LOW",
+   "id": "L13",
+   "summary": "w1/CriticC2Shape self-citation points at w1/CriticC2Shape.md which does not exist"
+  },
+  {
+   "severity": "LOW",
+   "id": "L14",
+   "summary": "landed lesson still says it is a proposal; append-only sweep claim names no receipt (property holds: 452 insertions, 0 deletions)"
+  }
+ ],
+ "honesty_sweep": {
+  "seat_dirs_with_md": 50,
+  "seats_with_result_claims": 35,
+  "seats_with_zero_machine_artifacts": [
+   "ConnReport",
+   "ConnSiblings",
+   "CriticFreeze",
+   "ExecPacnewDebtNote",
+   "ScoutMori",
+   "ScoutRecon",
+   "ScoutSourcesEnv",
+   "SimplifierProbe"
+  ],
+  "flagged": [
+   {
+    "seat": "w1/ScoutRecon",
+    "result_lines": 32,
+    "reason": "live rc readings as a table, no raw capture"
+   },
+   {
+    "seat": "w1/ScoutSourcesEnv",
+    "result_lines": 2,
+    "reason": "installed CPython 3.14.8 claim, no capture"
+   },
+   {
+    "seat": "w1/CriticFreeze",
+    "result_lines": 15,
+    "reason": "NO-GO undisposed in the record"
+   },
+   {
+    "seat": "w1/ConnSiblings",
+    "result_lines": 15,
+    "reason": "cross-lane claims, unverifiable in this lane"
+   },
+   {
+    "seat": "w1/ScoutMori",
+    "result_lines": 4,
+    "reason": "mori-lane paths absent here"
+   }
+  ],
+  "not_flagged": [
+   {
+    "seat": "w1/ConnReport",
+    "reason": "explicitly states not run"
+   },
+   {
+    "seat": "w1/SimplifierProbe",
+    "reason": "counterfactual lines only"
+   },
+   {
+    "seat": "w1/ExecPacnewDebtNote",
+    "reason": "requirement text, disclaims a passed oracle"
+   }
+  ],
+  "systemic": "every wave-1 seat directory is untracked (git ls-files = 0), so no wave-1 measured claim has a committed receipt",
+  "dangling_committed_citation": "corpus/README.md:269 cites .ufo/waves/round-36/w1/ScribeC2Draft/matrix-mini.json (exists on disk, untracked)"
+ },
+ "tooling": {
+  "installed": [],
+  "note": "nothing installed this seat; no pacman, no VCS mutation"
+ },
+ "lsp": {
+  "available": false,
+  "note": "no lsp device in this seat's tool inventory; definition/caller checks were exact file reads plus receipt-field comparison; the one ambient-read check is literal grep corroborated by reading each builder"
+ },
+ "pin": {
+  "audited_commit": "c052bb7d41ced49aa888817069afd804eccfecf1",
+  "head_when_written": "8d5fa7f",
+  "probe_sha_unchanged_at_8d5fa7f": true,
+  "worktree_uncommitted_at_04:40:29Z": {
+   "SCORECARD.md": "+56/-1",
+   "SKILL.md": "+58/-5",
+   "audited": false
+  }
+ }
+}

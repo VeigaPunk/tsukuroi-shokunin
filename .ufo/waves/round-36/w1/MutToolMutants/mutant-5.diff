@@ -1,0 +1,20 @@
+diff --git a/tools/run-receipt.py b/tools/run-receipt.py
+--- a/tools/run-receipt.py
++++ b/tools/run-receipt.py
+@@ -35,13 +35,9 @@
+ 
+ def env(home=None):
+     """Fixed child environment; `home` adds run-private config and Git ceiling."""
+-    e = {
+-        'PATH': '/usr/bin:/bin',
+-        'LC_ALL': 'C',
+-        'GIT_CONFIG_NOSYSTEM': '1',
+-        'GIT_CONFIG_GLOBAL': os.devnull,
+-        'GIT_CONFIG_SYSTEM': os.devnull,
+-    }
++    e = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
++    e.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull,
++              'GIT_CONFIG_SYSTEM': os.devnull})
+     if home:
+         e.update({'HOME': home, 'XDG_CONFIG_HOME': os.path.join(home, '.config'),
+                   'GIT_CEILING_DIRECTORIES': os.path.dirname(os.path.abspath(home))})

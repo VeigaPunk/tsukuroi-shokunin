@@ -1,0 +1,82 @@
+{
+  "seat": "ReviewC1Design",
+  "base_revision": "6d76fb20f6ecbc940e5c8fff36c74060c885e161",
+  "artifact": {
+    "path": ".ufo/waves/round-36/w1/ExecC1Design/c1-five-tools.diff",
+    "reviewed_bytes": {"sha256": "2287b83f5ea5d3a47e125d2fb1e5a93063c7a5110a31d23ac49f0988595b5205", "bytes": 4622, "lines": 114},
+    "revision_note": "a first revision (4851 bytes, 23:52 local) was mechanically corrupt (see first_revision_defect) and was superseded while this review ran; all verdicts below are for sha256 2287b83f...",
+    "first_revision_defect": {
+      "symptom": "git apply --check -> 'error: corrupt patch at ...c1-five-tools.diff:64'; GNU patch --dry-run -> 'patch: **** malformed patch at line 64: @@ -786,3 +796,3 @@'",
+      "bad_hunks": [
+        {"header": "@@ -771,3 +771,13 @@", "body": "old=4 new=13"},
+        {"header": "@@ -841,5 +851,5 @@", "body": "old=6 new=7"},
+        {"header": "@@ -359,6 +359,11 @@", "body": "old=5 new=10"}
+      ],
+      "status": "superseded; the reviewed revision has consistent counts on all 8 hunks"
+    },
+    "apply": {
+      "gnu_patch": "applies (patch -p1 --dry-run: all hunks succeed; hunks at 771 and 850 with fuzz 1)",
+      "git_apply": "requires --unidiff-zero; without it, 'patch does not apply' at score-census-handoff-r32.py:440",
+      "zero_context_hunks": ["@@ -440,1 +440,1 @@", "@@ -771,1 +771,10 @@"],
+      "applied_tree_matches_independent_reconstruction": true
+    }
+  },
+  "base_inventory": {
+    "tools/check-revision-binding.py": {
+      "spawns": ["112-115 git --no-pager -c core.hooksPath=/dev/null", "186-188 git check-ref-format", "223-226 git clone --no-hardlinks", "365-369 sys.executable sandbox tool", "415-417 git hash-object -w --stdin", "1114-1116 run_cmd (git init/add/commit at 1122,1124,1131,1159)"],
+      "env_builder": "clean_env() 103-107: os.environ minus GIT_ + GIT_OPTIONAL_LOCKS=0, GIT_PAGER=cat, LC_ALL=C, GIT_CONFIG_NOSYSTEM=1, GIT_CONFIG_GLOBAL=os.devnull",
+      "inherited_spawns": 0,
+      "notes": "STUB string 1019-1020 contains an inheriting git(); executed only through :365/:1114"
+    },
+    "tools/check-report-receipts.py": {
+      "spawns": ["327-328 git -c user.name=... -C <lane> *args"],
+      "env_builder": "311-322: os.environ minus GIT_ + GIT_CONFIG_NOSYSTEM=1, GIT_CONFIG_GLOBAL=/dev/null, GIT_CONFIG_SYSTEM=/dev/null, HOME=<temp>/home, XDG_CONFIG_HOME=<home>/.config, PATH=/usr/bin:/bin, GIT_CEILING_DIRECTORIES=dirname(abspath(temp_dir))",
+      "inherited_spawns": 0
+    },
+    "tools/score-census-handoff-r32.py": {
+      "spawns": ["438-440 git archive (NO env= -> full ambient)", "489-490 /usr/bin/bash census (env from 786)", "843-844 git rev-parse HEAD (NO env= -> full ambient)"],
+      "env_builder": "786: os.environ minus TSUKUROI_ (no fixed values)",
+      "fixture_env": "census_env 454-483 already a literal dict; untouched by the patch",
+      "inherited_spawns": 2
+    },
+    "tools/mutants-btrfs-space-r30.py": {
+      "spawns": ["363-364 sys.executable counter --tree <d> --base-sources <bs>"],
+      "env_builder": "362: os.environ minus GIT_ (no fixed values)",
+      "inherited_spawns": 0,
+      "grandchild": "tools/check-btrfs-space-r30.py already has the round-34 fixed builder at :95-98"
+    },
+    "tools/run-receipt.py": {
+      "spawns": ["51-52 rev-parse", "80-81 clone", "82-83 checkout", "85-86 ls-files", "95-96 for-each-ref", "102 tool under receipt"],
+      "env_builder": "36-44 env(home): os.environ minus GIT_ + GIT_CONFIG_NOSYSTEM/GLOBAL/SYSTEM; HOME/XDG only with home; NO GIT_CEILING_DIRECTORIES, NO PATH, NO LC_ALL",
+      "inherited_spawns": 0
+    }
+  },
+  "patched_state": {
+    "ambient_reads_remaining": {"os.environ": 0, "getenv": 0, "files": "all five clean"},
+    "spawn_env_binding": {
+      "check-revision-binding": "6/6 real spawns env-bound (7th subprocess.run is the STUB string)",
+      "check-report-receipts": "1/1",
+      "score-census-handoff-r32": "3/3 (child_env() at :440 archive, :795 live engine, :850 rev-parse)",
+      "mutants-btrfs-space-r30": "1/1",
+      "run-receipt": "6/6"
+    },
+    "fixed_dicts": {
+      "check-revision-binding": ["PATH=/usr/bin:/bin", "LC_ALL=C", "GIT_CONFIG_NOSYSTEM=1", "GIT_CONFIG_GLOBAL=os.devnull", "GIT_OPTIONAL_LOCKS=0", "GIT_PAGER=cat"],
+      "check-report-receipts": ["GIT_CONFIG_NOSYSTEM=1", "GIT_CONFIG_GLOBAL=os.devnull", "GIT_CONFIG_SYSTEM=os.devnull", "HOME=<temp>/home", "XDG_CONFIG_HOME=<home>/.config", "PATH=/usr/bin:/bin", "GIT_CEILING_DIRECTORIES=dirname(abspath(temp_dir))"],
+      "score-census-handoff-r32": ["PATH=/usr/bin:/bin", "LC_ALL=C", "GIT_CONFIG_NOSYSTEM=1", "GIT_CONFIG_GLOBAL=os.devnull"],
+      "mutants-btrfs-space-r30": ["PATH=/usr/bin:/bin", "LC_ALL=C", "GIT_CONFIG_NOSYSTEM=1", "GIT_CONFIG_GLOBAL=os.devnull"],
+      "run-receipt": ["PATH=/usr/bin:/bin", "LC_ALL=C", "GIT_CONFIG_NOSYSTEM=1", "GIT_CONFIG_GLOBAL=os.devnull", "GIT_CONFIG_SYSTEM=os.devnull", "HOME/XDG_CONFIG_HOME when home (41-47)", "GIT_CEILING_DIRECTORIES=dirname(abspath(home)) when home (NEW)"]
+    },
+    "lc_all_missing": ["tools/check-report-receipts.py"],
+    "argv_identical": true,
+    "control_flow_identical": true,
+    "scope_files_changed": ["tools/check-revision-binding.py", "tools/check-report-receipts.py", "tools/score-census-handoff-r32.py", "tools/mutants-btrfs-space-r30.py", "tools/run-receipt.py"],
+    "compile": "py_compile OK on all five",
+    "journalctl_seam_preserved": "score-census-handoff-r32.py:808 fenv = dict(env, TSUKUROI_JOURNALCTL=wrapper)",
+    "run_receipt_ceiling_scope": "only env(home) (tool child at :107); the six git spawns use env() without ceiling, so resolve()/for-each-ref are unaffected"
+  },
+  "findings": {
+    "blocking": ["F1 declaration text: GIT_CEILING_DIRECTORIES claimed pre-existing in run-receipt.py; the patch introduces it", "B3 probe livefive per-target argv/mode unestablished (probe absent; r34 records 3 of 5 as unviable in the modes tried)"],
+    "minor": ["F2 check-report-receipts omits LC_ALL=C from the declared fixed display", "F3 run-receipt ceiling is a new child-env value (tool child only) - disclose", "F4 two zero-context hunks: git apply needs --unidiff-zero, GNU patch applies", "M2 live census host-tool discovery narrows to /usr/bin:/bin", "M3 run-receipt child loses caller-supplied ambient names", "M7 stub invariant in check-revision-binding", "M8 patch matches the round-34 canonical builder shape"]
+  }
+}

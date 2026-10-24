@@ -1,0 +1,72 @@
+# Validation transcript — ScribeSourcesRows (round 36, wave 1)
+
+base commit: 6d76fb20f6ecbc940e5c8fff36c74060c885e161
+BEFORE copy: /tmp/sr36-before.Col7hh/tsukuroi-shokunin   (git archive of base, untouched)
+AFTER  copy: /tmp/sr36-fresh.VN52I7/tsukuroi-shokunin    (base + SOURCES.md.diff + C2 note from ScribeC2Draft seat)
+diff file  : SOURCES.md.diff  sha256 5c86a75b4f975ae81068de9fe82273e86b5c9181b3f3580b0eee479d7e33813a
+
+=== 0. max-id check (the assignment's command), on the AFTER copy ===
+$ grep -oE 'S[0-9]+' $AFTER/tsukuroi-shokunin/corpus/SOURCES.md | sort -V | tail -1
+S198
+
+=== 1. census BEFORE (base copy) ===
+tsukuroi	rows	197
+tsukuroi	tier.A	182
+tsukuroi	tier.B	5
+tsukuroi	tier.C	10
+tsukuroi	status.mined	171
+tsukuroi	status.queued	5
+tsukuroi	status.rejected	21
+FLEET	rows	197
+FLEET	tier.A	182
+FLEET	tier.B	5
+FLEET	tier.C	10
+FLEET	tier.invalid	0
+FLEET	status.queued	5
+FLEET	status.mined	171
+FLEET	status.rejected	21
+FLEET	status.invalid	0
+FLEET	missing	0
+exit=0
+
+=== 2. validate BEFORE (base copy, unmodified) ===
+tsukuroi	ok	/tmp/sr36-before.Col7hh/tsukuroi-shokunin/corpus/SOURCES.md
+exit=0
+
+=== 3. git apply --check against the real lane working tree ===
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin apply --check -p1 SOURCES.md.diff
+APPLIES CLEANLY (no output = success)
+
+=== 4. census AFTER (diff applied) ===
+tsukuroi	rows	198
+tsukuroi	tier.A	183
+tsukuroi	tier.B	5
+tsukuroi	tier.C	10
+tsukuroi	status.mined	173
+tsukuroi	status.queued	4
+tsukuroi	status.rejected	21
+FLEET	rows	198
+FLEET	tier.A	183
+FLEET	tier.B	5
+FLEET	tier.C	10
+FLEET	tier.invalid	0
+FLEET	status.queued	4
+FLEET	status.mined	173
+FLEET	status.rejected	21
+FLEET	status.invalid	0
+FLEET	missing	0
+exit=0
+
+=== 5. validate AFTER (diff applied + C2 note present) — REQUIRED exit 0 ===
+tsukuroi	ok	/tmp/sr36-fresh.VN52I7/tsukuroi-shokunin/corpus/SOURCES.md
+exit=0
+(W04 warnings suppressed; count=31, same 31 as the untouched base copy)
+
+=== 6. E11 dependency demonstration: validate AFTER with the C2 note ABSENT ===
+tsukuroi	E11	S024 missing used-by corpus/knowledge/journalctl-v262-field-filter-r36.md
+tsukuroi	E11	S198 missing used-by corpus/knowledge/journalctl-v262-field-filter-r36.md
+exit=1
+
+=== 7. real lane baseline (unmodified) ===
+tsukuroi	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
+exit=0

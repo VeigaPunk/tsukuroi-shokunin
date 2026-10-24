@@ -1,0 +1,30 @@
+Prior-state revision: 6d76fb20f6ecbc940e5c8fff36c74060c885e161
+
+Requested GNU grep command (quoted, not invoked through a shell because the tool policy requires the specialized grep tool):
+grep -rl 'cannot be combined with options that limit the journal' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/ /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SKILL.md
+
+Actual immutable-baseline preparation, successful (no output):
+git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin archive 6d76fb20f6ecbc940e5c8fff36c74060c885e161 corpus/knowledge SKILL.md corpus/SOURCES.md SCORECARD.md | tar -x -C /tmp/tsukuroi-r36-CriticC2Shape.JOrV5y
+
+Actual specialized grep call:
+pattern: cannot be combined with options that limit the journal
+path: /tmp/tsukuroi-r36-CriticC2Shape.JOrV5y/corpus/knowledge/;/tmp/tsukuroi-r36-CriticC2Shape.JOrV5y/SKILL.md
+case: true
+gitignore: false
+skip: null
+Observed tool response:
+No matches found
+
+Result: zero matching paths in the exact committed search scope. There is no GNU grep stdout or GNU grep exit-code capture; neither is claimed. The tool's explicit no-match result establishes the same bounded absence. This is not a search of corpus/SOURCES.md and not a test of semantic novelty.
+
+Additional baseline semantic sweep (specialized grep):
+pattern: query_unique|field listing|filtered field|field lists|rejection of journalctl|journalctl.* -F([ =`]|$)|journalctl.* -N([ `]|$)|--field=|--fields\b
+path: /tmp/tsukuroi-r36-CriticC2Shape.JOrV5y/corpus/knowledge/;/tmp/tsukuroi-r36-CriticC2Shape.JOrV5y/SKILL.md;/tmp/tsukuroi-r36-CriticC2Shape.JOrV5y/corpus/SOURCES.md
+case: true
+gitignore: false
+Observed matching line: corpus/SOURCES.md:30, S024 (only matching line).
+| S024 | systemd NEWS — https://raw.githubusercontent.com/systemd/systemd/main/NEWS | docs | A | systemd 258-262 changes relevant to boot recovery and journal tooling | CHANGES WITH 258 through CHANGES WITH 262; main branch fetched 2026-10-19 (mutable: main now opens with CHANGES WITH 263 in spe; no commit pin claimed) | NEWS documents versioned behavior changes including v258 boot breakpoints and the v262 rejection of journalctl -F combined with filters | queued | 2026-10-19 | on-release | — |
+
+Earlier preparation attempt failed, not used as baseline evidence:
+git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin archive 6d76fb20f6ecbc940e5c8fff36c74060c885e161 corpus/knowledge SKILL.md corpus/SOURCES.md SCORECARD.md AXES.md LEARNING.md | tar -x -C /tmp/tsukuroi-r36-CriticC2Shape.JOrV5y
+Displayed error: fatal: pathspec 'AXES.md' did not match any files; tar rejected the non-archive input; pipeline exit 2. Corrected by exporting only the known baseline paths above.

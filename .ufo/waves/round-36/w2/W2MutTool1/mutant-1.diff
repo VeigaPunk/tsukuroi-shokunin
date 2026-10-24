@@ -1,0 +1,22 @@
+diff --git a/tools/check-revision-binding.py b/tools/check-revision-binding.py
+--- a/tools/check-revision-binding.py
++++ b/tools/check-revision-binding.py
+@@ -101,14 +101,10 @@
+ 
+ 
+ def clean_env():
+-    return {
+-        "PATH": "/usr/bin:/bin",
+-        "LC_ALL": "C",
+-        "GIT_CONFIG_NOSYSTEM": "1",
+-        "GIT_CONFIG_GLOBAL": os.devnull,
+-        "GIT_OPTIONAL_LOCKS": "0",
+-        "GIT_PAGER": "cat",
+-    }
++    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
++                "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
++    return env
+ 
+ 
+ def git(repo, *args, timeout=60):

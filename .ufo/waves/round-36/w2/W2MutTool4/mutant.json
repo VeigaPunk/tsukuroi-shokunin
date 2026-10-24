@@ -1,0 +1,134 @@
+{
+  "base_control": {
+    "exit": 0,
+    "file": "probe-base.jsonl",
+    "harness_errors": [],
+    "leaking": 0,
+    "leaking_pairs": [],
+    "pairs": 4,
+    "predicate_label": "leaking",
+    "revision": "c052bb7d41ced49aa888817069afd804eccfecf1",
+    "runtime_s": 30.7
+  },
+  "detector": {
+    "invocation": "python3 tools/probe-child-env-allowlist-r36.py --lane <sandbox> --revision <rev> --set livefive --only tools/mutants-btrfs-space-r30.py",
+    "measure": "last JSON line leaking count / leaking_pairs",
+    "probe": "tools/probe-child-env-allowlist-r36.py",
+    "sha256": "a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a",
+    "version": 7
+  },
+  "findings": [
+    "F1 mutant-hash lineage: wave-1 mutants.md records m4 mutant sha256 6d4e5a0a2ece6b2...; that hash is the pre-C1 file at 189d8a0. Against the landed C1 commit c052bb7 the same revert yields 38f76b4a..., because C1 also hoisted 'import re' and changed the module docstring. The diff applies cleanly and the reverted builder line is byte-identical to pre-C1; only the recorded hash is stale.",
+    "F2 the lane clone's default HEAD was 8d5fa7f (wave-2 spec commit), not c052bb7; the assignment's 'sandbox clone at c052bb7' needed an explicit checkout. The five tool files at 8d5fa7f and c052bb7 are identical, so the mutant terrain is unaffected.",
+    "F3 untraced channel read 0 records for this target in both runs: the mutant's only child exec is absolute /usr/bin/python3, so the injected wrapper directory is unreachable. This is the declared named limit (zero records uninformative); the kill rests on names/quiet/source."
+  ],
+  "kind": "after-mutant kill-check",
+  "mutant": {
+    "change": "run_case(): fixed dict {PATH,LC_ALL,GIT_CONFIG_NOSYSTEM,GIT_CONFIG_GLOBAL} -> {k:v for k,v in os.environ.items() if not k.startswith('GIT_')}",
+    "diff": ".ufo/waves/round-36/w1/MutToolMutants/mutant-4.diff",
+    "diff_sha256": "7c4f6414abef368bc025433b8ed5692a887385873c98e35f9d13dcf9e5063c7b",
+    "id": "m4",
+    "mutated_sha256": "38f76b4af84575f35a4f4df32feb4e1cd31af4ee1c990a858e8638d4e718a163",
+    "pristine_sha256": "35e1bbaa4eacabce97ab52eefbe1ec5991718ac8e9cf415575cec5f61cd793a6",
+    "restored_sha256": "35e1bbaa4eacabce97ab52eefbe1ec5991718ac8e9cf415575cec5f61cd793a6"
+  },
+  "mutant_score": {
+    "channel_detail": {
+      "names": {
+        "ambient_values_under_other_names": 19,
+        "channel_rc": 0,
+        "control_child_execs": 84,
+        "control_rc": 0,
+        "execveat": 0,
+        "injected_names_reached": 12,
+        "injected_names_total": 12,
+        "parity_diffs": [],
+        "unparsed_exec_records": 0,
+        "value_namevalue_reached": 10,
+        "value_namevalue_total": 10
+      },
+      "quiet": {
+        "ambient_values_under_other_names": 16,
+        "channel_rc": 0,
+        "control_child_execs": 84,
+        "control_rc": 0,
+        "execveat": 0,
+        "injected_names_reached": 8,
+        "injected_names_total": 8,
+        "parity_diffs": [],
+        "unparsed_exec_records": 0,
+        "value_namevalue_reached": 10,
+        "value_namevalue_total": 10
+      },
+      "source": {
+        "findings": [
+          "tools/mutants-btrfs-space-r30.py:363 ambient-read .environ"
+        ]
+      }
+    },
+    "channels_fired": [
+      "names",
+      "quiet",
+      "source"
+    ],
+    "channels_not_fired": {
+      "untraced": "0 records; child exec is absolute /usr/bin/python3 so the injected wrapper dir is unreachable -> UNINFORMATIVE, never a leak"
+    },
+    "exit": 1,
+    "exit_rule": "2 if harness_errors else (1 if leaking else 0)",
+    "file": "probe-m4.jsonl",
+    "harness_errors": [],
+    "leaking": 3,
+    "leaking_pairs": [
+      "tools/mutants-btrfs-space-r30.py:names",
+      "tools/mutants-btrfs-space-r30.py:quiet",
+      "tools/mutants-btrfs-space-r30.py:source"
+    ],
+    "pairs": 4,
+    "predicate_label": "leaking",
+    "revision": "7b945d5bef23c33b74dfb2acb1e61d8a6736f69e",
+    "runtime_s": 30.4
+  },
+  "ordinary_run": {
+    "battery_stdout_identical": true,
+    "files": [
+      "ordinary-pristine.jsonl",
+      "ordinary-mutant.jsonl",
+      "pristine.out",
+      "mutant.out"
+    ],
+    "mechanism": "sitecustomize.py on ambient PYTHONPATH records os.environ at interpreter start; no strace",
+    "mutant": {
+      "child_argv_prefix": "<sandbox>/tools/check-btrfs-space-r30.py --tree <tmp>/<shape>",
+      "child_path": "ambient PATH (not /usr/bin:/bin)",
+      "children": 84,
+      "children_with_marker": 84,
+      "marker": "R36M4MARK=leak-2943-mutant",
+      "rc": 0,
+      "records": 85
+    },
+    "pristine": {
+      "children": 0,
+      "children_with_marker": 0,
+      "rc": 0,
+      "records": 1
+    }
+  },
+  "round": 36,
+  "sandbox": {
+    "checked_out": "c052bb7d41ced49aa888817069afd804eccfecf1",
+    "clone_source": "file:///home/vgpnk/Projects/shokunin/tsukuroi-shokunin",
+    "default_clone_head": "8d5fa7fe27c336d602a463519e839e932d26301d",
+    "disposition": "worktree file restored to c052bb7 bytes; clone deleted (throwaway mktemp)",
+    "mutant_commit": "7b945d5bef23c33b74dfb2acb1e61d8a6736f69e",
+    "mutant_commit_files_changed": [
+      "tools/mutants-btrfs-space-r30.py"
+    ],
+    "path_at_run": "/tmp/r36m4.P3oIJ8uz/sandbox"
+  },
+  "seat": "W2MutTool4",
+  "tool_installs": "none",
+  "verdict": "KILLED",
+  "wave": "w2",
+  "written_utc": "2026-10-24T04:37:07Z"
+}

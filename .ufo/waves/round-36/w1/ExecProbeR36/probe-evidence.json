@@ -1,0 +1,106 @@
+{
+  "base": "6d76fb20f6ecbc940e5c8fff36c74060c885e161",
+  "draft_version": 5,
+  "draft_sha256": "081d2a5199f08b136f4aadd7fd2823bcb35817f93ddd71b29c723b0d81d623ff",
+  "r34_input_version_observed": 6,
+  "diffstat": "1 file changed, 274 insertions(+), 45 deletions(-)",
+  "livefive": {
+    "included": [
+      {
+        "tool": "tools/check-revision-binding.py",
+        "argv_template": ["--tools-revision", "{rev}", "--object-target-types"],
+        "expected_exit": 0,
+        "direct_control_elapsed_s": 7.618,
+        "direct_control_status": "PASS",
+        "probe_control_child_execs": 2542,
+        "probe_control_git_execs": 2397,
+        "probe_run": "names/quiet/source produced; process ended by SIGTERM at 81.975 s before untraced/summary"
+      },
+      {
+        "tool": "tools/check-report-receipts.py",
+        "argv_template": ["--report", ".ufo/waves/r36-probe-report.md", "--lane", "{clone}", "--revision", "{rev}"],
+        "expected_exit": 0,
+        "direct_control_elapsed_s": 0.525,
+        "direct_control_receipt": ".ufo/waves/round-32/measure/c1-before-v2-f28442cbe34a3b18003c94b96ecf7051e67c0a61.jsonl",
+        "probe_control_git_execs": 366,
+        "probe_one_target_harness_errors": []
+      },
+      {
+        "tool": "tools/mutants-btrfs-space-r30.py",
+        "argv_template": [],
+        "expected_exit": 0,
+        "direct_control_elapsed_s": 2.911,
+        "direct_control_verified": 10,
+        "direct_control_should_fail_accepted": 0,
+        "direct_control_should_fail_total": 72,
+        "direct_control_should_pass_refused": 0,
+        "direct_control_should_pass_total": 11,
+        "probe_control_child_execs": 84,
+        "probe_control_git_execs": 0,
+        "probe_one_target_harness_errors": []
+      },
+      {
+        "tool": "tools/run-receipt.py",
+        "argv_template": ["--revision", "{rev}", "--tool-revision", "{rev}", "--lane", "{clone}", "--out", "{clone}/../run-receipt-livefive.jsonl", "--", "tools/check-report-receipts.py", "--selftest"],
+        "expected_exit": 0,
+        "direct_control_elapsed_s": 0.754,
+        "direct_receipt_exit": 0,
+        "probe_control_git_execs_observed": 10
+      }
+    ],
+    "excluded": {
+      "tool": "tools/score-census-handoff-r32.py",
+      "argv_template": ["--revision", "{rev}", "--lane", "{clone}", "--scenarios", "1", "--budget", "180", "--seed", "36"],
+      "direct_control_elapsed_s": 16.767,
+      "reason": "Instrumented A/B stdout digests still differed with a fixed seed.",
+      "control_stdout_sha256_a": "403dbcd51e4de62cc1ecd26da20f6b8ef738ec7fc2c08f1551e3abb63b09b36d",
+      "control_stdout_sha256_b": "b985323a712da2f2622a11914dbc7de33b5e9166cb6a3659ca144bfea5d017b4"
+    }
+  },
+  "dev_sets": [
+    {
+      "set": "claim",
+      "revision": "6d76fb20f6ecbc940e5c8fff36c74060c885e161",
+      "base": "6d76fb20f6ecbc940e5c8fff36c74060c885e161",
+      "targets": 9,
+      "pairs": 36,
+      "leaking": 0,
+      "harness_errors": [],
+      "exit": 0,
+      "probe_sha256": "bdfb2e50f5e7faa45bdc99df109998e0018c331bc4a0c5f3ac4ed6e68499ca75",
+      "note": "Run preceded final scratch-path normaliser addition."
+    },
+    {
+      "set": "r33claim",
+      "revision": "6d76fb20f6ecbc940e5c8fff36c74060c885e161",
+      "base": "6d76fb20f6ecbc940e5c8fff36c74060c885e161",
+      "targets": 5,
+      "pairs": 20,
+      "leaking": 3,
+      "leaking_pairs": ["tools/check-boot-writers.py:names", "tools/check-boot-writers.py:quiet", "tools/check-boot-writers.py:untraced"],
+      "harness_errors": [],
+      "exit": 1,
+      "probe_sha256": "081d2a5199f08b136f4aadd7fd2823bcb35817f93ddd71b29c723b0d81d623ff"
+    },
+    {
+      "set": "regression",
+      "revision": "6d76fb20f6ecbc940e5c8fff36c74060c885e161",
+      "base": "2641591e303057cd0f67e190a6bdf7fa91a45c31",
+      "targets": 11,
+      "pairs": 44,
+      "leaking": 12,
+      "harness_errors": [],
+      "exit": 1,
+      "probe_sha256": "785bfea5f621b4116b859fc3f45393f62bd12af689ff1c9bd0517f2b65ee9436",
+      "note": "Run predates the final base and scratch normalisation changes; not a final regression result."
+    }
+  ],
+  "mutant_sensitivity": {
+    "attrgetter_revision": "7e624d9b34331272c0089c184332c45ea302ab8e",
+    "path_revision": "d0cf31b0189a4e1cc503678dba10eebe4a509ce0",
+    "r34_tip": "3457f287e04f34e73f8e70d4417b14b96f903f56",
+    "result": "blocked",
+    "evidence": "The r34-tip scratch clones were created, but both mutant commits are absent from the lane object database: git cat-file failed, and checkout reported unable to read tree. The committed mutation patches exist; no mutating Git object/index operation was performed."
+  },
+  "tooling": {"installed": [], "lsp_available": false}
+}

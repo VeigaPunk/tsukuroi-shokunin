@@ -1,0 +1,178 @@
+{
+  "seat": "W2QuoteNews",
+  "round": 36,
+  "wave": "w2",
+  "role": "reviewer",
+  "assigned_source": "S199",
+  "freeze_commit": "1e926801195e304950e3eb9d2525ef8bbc245089",
+  "change_commit": "c052bb7d41ced49aa888817069afd804eccfecf1",
+  "fetched_at_utc": "04:33:46Z",
+  "url": "https://raw.githubusercontent.com/systemd/systemd/v262/NEWS",
+  "bytes": 1271752,
+  "lines": 23386,
+  "sha256": "a494f0389edd09702a90d1540c7e21c0af5a4d29a4d020855ca3062d885a7657",
+  "expected_sha256": "a494f0389edd09702a90d1540c7e21c0af5a4d29a4d020855ca3062d885a7657",
+  "checks": [
+    {
+      "item": "sha256 equals expected",
+      "agree": true,
+      "evidence": "sha256sum -> a494f0389edd09702a90d1540c7e21c0af5a4d29a4d020855ca3062d885a7657"
+    },
+    {
+      "item": "quote at lines 129-133",
+      "agree": true,
+      "quote": "journalctl now rejects -F/--field together with filters such as unit, boot, time, cursor or grep filters.",
+      "evidence": "sentence starts line 129 col 11 after '* '; paragraph ends line 133; normalized paragraph startswith the quote",
+      "line_129_start_byte": 7492,
+      "line_133_end_byte_exclusive": 7869
+    },
+    {
+      "item": "section attribution CHANGES WITH 262 > Feature Removals and Incompatible Changes",
+      "agree": true,
+      "evidence": "CHANGES WITH 262: at line 3; Feature Removals and Incompatible Changes: at line 26; section ends line 878"
+    },
+    {
+      "item": "exact rejection string absent from NEWS",
+      "agree": true,
+      "evidence": "grep -c -F 'cannot be combined with options that limit the journal' = 0"
+    },
+    {
+      "item": "NEWS 262 section names -F/--field only (no -N/--fields)",
+      "agree": true,
+      "evidence": "grep -E '\\-N\\b|--fields' over lines 3-878 = no matches"
+    },
+    {
+      "item": "note's remedy quote exact",
+      "agree": true,
+      "evidence": "line 133 'field lists should be adjusted to query entries explicitly.' preceded by line 132 'Scripts relying on filtered'"
+    },
+    {
+      "item": "S198 Arch man page sha256 and footer",
+      "agree": true,
+      "sha256": "aaae4efa61ff9c56e6249feb2f4527db57f1a4beb0eac4ad1eeb111a4bbb83c2",
+      "evidence": "HTTP 200, 65136 bytes, footer 'systemd 262.1', rejection string count 0"
+    },
+    {
+      "item": "man/journalctl.xml v262 lacks rejection string",
+      "agree": true,
+      "evidence": "grep -c -F 'cannot be combined with options that limit the journal' man/journalctl.xml = 0"
+    },
+    {
+      "item": "journalctl.c v262 guard and string",
+      "agree": true,
+      "sha256": "285b3d0c1217b9a3be90dca2ed4591eb8cf0192e2d3c75f303df3c5f18d5d0ab",
+      "evidence": "lines 958-960 match IN_SET(...) && field_list_has_scope_options() and the exact EINVAL string"
+    },
+    {
+      "item": "journalctl-filter.c v262 predicate",
+      "agree": true,
+      "sha256": "480f7a03040c0ddc93b1b65c0b49d6f0e8a4a377ee1b94168655132dcfd72f48",
+      "term_count": 15,
+      "evidence": "lines 26-43 contain 15 disjuncts; note's Sources line says 16-term (F1)"
+    },
+    {
+      "item": "live rejection counter",
+      "agree": true,
+      "evidence": "journalctl 262-1-arch: rc=1, stderr 84 bytes, 83-char line + newline, stdout 0"
+    },
+    {
+      "item": "-N misuse byte counts",
+      "agree": true,
+      "evidence": "-N PRIORITY,MESSAGE 54 stderr bytes; -b 0 -N PRIORITY 46 stderr bytes"
+    },
+    {
+      "item": "positional FIELD=VALUE with -F",
+      "agree": true,
+      "evidence": "Extraneous arguments starting with 'PRIORITY=3', rc=1"
+    },
+    {
+      "item": "-b all exemption",
+      "agree": true,
+      "evidence": "journalctl --no-pager -b all -F PRIORITY rc=0"
+    },
+    {
+      "item": "safe substitution pipeline",
+      "agree": true,
+      "evidence": "-b 0 and -b -1 both exit 0 with distinct PRIORITY values '2 3 4 5 6 7'"
+    },
+    {
+      "item": "matrix composition",
+      "agree": true,
+      "evidence": "54 cells = 6 core + 29 ext + 4 merged + 15 live; all 40 cited ids exist; every table verdict equals cell exit"
+    },
+    {
+      "item": "peer crosscheck metadata",
+      "agree": true,
+      "evidence": "peer_crosscheck {peer_cells:10, overlap:6, overlap_all_agree:true, peer_only_rerun:4} matches note Unknowns"
+    },
+    {
+      "item": "prior state sweep at base commit",
+      "agree": true,
+      "evidence": "git grep at 6d76fb2 finds exactly SCORECARD.md:1632; none in corpus/knowledge or SKILL.md"
+    },
+    {
+      "item": "note bytes committed at change commit",
+      "agree": true,
+      "sha256": "0077b6cf7e81ef243997fe5bd8559f5e21569290f271b2f60cb0cd1b57a8a8bf",
+      "evidence": "working tree and c052bb7d blob hashes identical"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "kind": "factual count",
+      "location": "corpus/knowledge/journalctl-v262-field-filter-r36.md:126",
+      "claim": "16-term limiting-option predicate",
+      "actual": "15 terms in field_list_has_scope_options() at v262 filter.c:26-43; the note's own table lists 15 limiter rows",
+      "behavioral_impact": "none"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "kind": "edge overclaim",
+      "location": "decision table row arg_boot_filter",
+      "claim": "-b, --boot= (any value except all) => REJECT with scope line",
+      "actual": "empty --boot= exits 1 with 'Failed to parse boot descriptor '' (35 bytes), not the scope-rejection line; --since=/--until= empty and -p '' similarly parse-fail before the guard",
+      "behavioral_impact": "none for well-formed values; wording should say 'any parseable value except all'"
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "kind": "reproducibility/coverage wording",
+      "location": "Consumers in this lane, preamble",
+      "claim": "Every journalctl occurrence ... 43 hits across 4 files, with its verdict",
+      "actual": "43 hits across 4 tracked files reproduce only with --exclude-dir=__pycache__; raw grep returns 53 hits across 5 files due to an untracked tools/__pycache__ .pyc. Table rows cover invocation/fixture sites; 26+ comment/definition/test-harness hits carry no row.",
+      "behavioral_impact": "none; no table verdict is wrong"
+    },
+    {
+      "id": "F4",
+      "severity": "informational",
+      "kind": "evidence informativeness",
+      "location": "live_namespace cell",
+      "claim": "WORK",
+      "actual": "exit=0 but stdout 0 bytes and stderr 'No journal files were found.' (29 bytes): proves non-rejection only",
+      "behavioral_impact": "none under the note's WORK=exit0 definition"
+    },
+    {
+      "id": "F5",
+      "severity": "informational",
+      "kind": "attribution boundary",
+      "location": "note title and source line vs S199",
+      "claim": "-F/-N pairing",
+      "actual": "NEWS 262 bullet covers -F/--field only; -N half sourced to journalctl.c:958-960 and live cells, which the note does correctly",
+      "behavioral_impact": "none; do not cite S199 alone for the -N clause"
+    }
+  ],
+  "residual_risk": [
+    "permanence after 262 and behavior before 262 untested (note flags both [unk])",
+    "ExecC2Live matrix later revisions not covered; audited file as it stands",
+    "~20 of 54 cells re-executed by this seat; remainder validated from recorded exit/stderr/stdout_sha256"
+  ],
+  "verification_gaps": [
+    "full 54-cell matrix not re-run end-to-end",
+    "v261 NEWS absence not independently fetched",
+    "no LSP server answers Markdown/corpus notes; source checks are direct reads plus live probes"
+  ],
+  "tooling": "no installs, no pacman, no VCS mutation; curl, sha256sum, grep/awk/sed, python3 stdlib, jq, journalctl read-only, git read-only"
+}

@@ -1758,3 +1758,57 @@ sensitivity receipts + live-view before receipt, sha256 in LOG); the change comm
 the note, S198/S199, the four NoUpgrade appends, SKILL.md round36 registry table, lesson
 skeleton, this block); gates at the change commit's first run; the after battery + live-view
 after receipt; wave 2 (32 falsify seats); the measured outcome.
+## Round 36 measured outcome (2026-10-24T04:39Z, attempt 1 — landed at budget deadline with wave-2 seats still settling)
+
+Claims and verdicts (author-side; every verdict awaits the non-author closure):
+
+- **C1 (operability) — NOT VERIFIED under the declared battery; partial evidence green; two
+  sensitivity conjuncts re-stated with live-mode evidence (named limit, post-freeze correction).**
+  Landed: the five tools' builders are fixed dicts (AST-verified: no ambient read on any spawn
+  path, no inheriting spawn, no hiding construct; compile-clean); the frozen probe VERSION 7
+  (sha256 a2a5acac…, freeze 1e926801). Measured after evidence in hand at landing: pristine
+  after readings leaking 0 on three of five tools at c052bb7 (W2MutTool2/4/5 receipts),
+  the QUALITY-82 production-like live view 0/5 tools leaking canaries at c052bb7
+  (W2LiveOracle), no-harm clean (selftest 105/105, battery 10/0/0, livefive receipt check 0 —
+  W2ExecCensusSelftest), after-mutants m2/m4/m5 each KILLED by the frozen probe (names/quiet/
+  source channels fired; ordinary-run checks confirm real leaks). Outstanding at landing
+  (seats still running, inherited): the single full-battery before receipt (W2ReBefore) and
+  after receipt (W2ReAfter), after-mutants m1/m3/m6, the regression-set receipt, and the
+  kill-rule attack seat W2CritKill, which died at 13s on a provider cyber_policy flag (error
+  text recorded; same hold class as round-35 K09HarnessSnoop) — the kill-rule attack class is
+  therefore unscored by a seat this round. Sensitivity conjuncts: MutAttrgetterCopy and
+  MutPathCopy each read 0 under every frozen-probe invocation (GAP, receipted by
+  W2MutAttrgetter/W2MutPathCopy: the probe's fixed invocations never construct the mutated
+  git(); the readings are uninformative, not passes) and each reads above 0 under the live-mode
+  detector (7/19 canary-carrying children vs 0/19; untraced live 2 records with the exact
+  ambient PATH string vs 0) — the conjunct is re-stated as live-mode-detector evidence, the
+  same instrument class as the round-34 ordinary-run receipts.
+- **C2 (depth, exploratory) — landed; correction-needed per the critic; awaits the named
+  non-author closure reviewer.** The note carries the exact rejection line + exit 1/EINVAL,
+  the predicate term-by-term table, the -n allowed-silent third state, the scope-allowed
+  selectors, the safe substitution and the preventive consumer inventory; W2CritC2Depth rules
+  it correction-needed exploratory depth (not expansion): 15 not 16 predicate terms, -F
+  truncation vs unchanged -N output under -n, and action overrides misclassified as working
+  enumeration must be corrected in place; W2RevC2/W2QuoteNews/W2RevSources seats were still
+  running at landing.
+
+Axis scores: no ordinal moves (operability 9, depth 8 — the C2 verdict is carried by the
+closure reviewer row, not a number; coverage 9, freshness 9, calibration 9, adjacency 8).
+Counts: 56 knowledge notes, corpus/lessons 48 files, SKILL.md 3057 lines / 796 pipe lines,
+SOURCES.md 199 rows (S198/S199 added, S024 unchanged; census exit 0).
+
+Repairs landed in the outcome commit: the round-36 registry table carries every round-35 row
+plus the probe row with the embedded freeze sha (W2ExecGates/W2ExecCensusEnd found the
+two-row table broke check-registry-coverage: 51 missing of 53); this axes row states the
+current counts (K07/K10 self-assessment drift repaired); the adjacency sentence on S198 vs
+mori S014 (W2ConnAfter) appended to corpus/SOURCES.md; the C2-note corrections pending the
+still-running review seats are NOT applied here (they land with the closure or the next
+round's repair commit).
+
+Process defects mined into corpus/lessons/round-36.md: R36-DOC-FREEZE (the pre-freeze
+corrections were written before the freeze but committed with the change — W2CritFreeze
+documentary FAIL; fix: corrections are a commit BEFORE the freeze commit), R36-PLACEHOLDER-TIME
+(the LOG '03:5xZ' placeholder — W2SentinelDiff; fix: omit the time if unmeasured), R36-REGISTRY-DROPPED-ROWS (a superseding registry table must carry all prior rows), R36-SPAWN-DROP (W2ScribeRegistry spawn-dropped; recorded with no error text available), R36-CYBER-HOLD (W2CritKill cyber_policy; the kill-rule class stays unscored-by-seat).
+
+Measured commits: declaration 6d76fb20; wave-1 evidence 189d8a08; freeze 1e926801; change
+c052bb7d; wave-2 evidence 8d5fa7fe; outcome (this commit).

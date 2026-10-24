@@ -1,0 +1,61 @@
+{
+  "seat": "W2CritC2Depth",
+  "role": "critic advisory review, not canonical judgment",
+  "change_commit": "c052bb7d41ced49aa888817069afd804eccfecf1",
+  "freeze_commit": "1e926801195e304950e3eb9d2525ef8bbc245089",
+  "baseline_export_commit": "6d76fb20f6ecbc940e5c8fff36c74060c885e161",
+  "reviewed_note_sha256": "0077b6cf7e81ef243997fe5bd8559f5e21569290f271b2f60cb0cd1b57a8a8bf",
+  "baseline_search": {
+    "preparation": "git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin archive 6d76fb20f6ecbc940e5c8fff36c74060c885e161 corpus SKILL.md PROVINCE.md | tar -x -C /tmp/tsukuroi-r36-c2depth.LSBbLn",
+    "tool": "functions.grep",
+    "case_sensitive": true,
+    "gitignore": false,
+    "mechanism_pattern": "field_list_has_scope_options|ACTION_LIST_FIELDS|ACTION_LIST_FIELD_NAMES|filtered field|field list|limit the journal|sd_journal_query_unique",
+    "mechanism_scope": ["corpus/knowledge", "SKILL.md"],
+    "mechanism_result": "No matches found",
+    "prior_teaching_pattern": "journalctl[^\\n]*(?:-F(?:\\s|/)|-N(?:\\s|/)|--field)",
+    "prior_teaching_scope": ["corpus", "SKILL.md", "PROVINCE.md"],
+    "prior_teaching_matching_lines": ["corpus/SOURCES.md:30", "corpus/lessons/round-1.md:111"],
+    "limits": "Bounded textual fact sweep, not proof against every possible synonym. Scratch is preparation only; durable source is the named commit."
+  },
+  "prior_quote": {
+    "path": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-1.md",
+    "line": 111,
+    "text": "journalctl now rejects -F/--field together with filters such as unit, boot, time, cursor or grep filters.",
+    "historical_pin_string": "a923ab5ed1481512be6fb52aaa5086d0fef6878f",
+    "pin_caveat": "Same lesson lines 127-129 says S006/S024 pins that did not reproduce were stripped; registry S024 claims no pin. This review did not validate the historical object."
+  },
+  "predicate": {
+    "path": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-36/w1/SrcSystemdNews/journalctl-filter.v262.c",
+    "sha256": "480f7a03040c0ddc93b1b65c0b49d6f0e8a4a377ee1b94168655132dcfd72f48",
+    "operand_lines": "28-42",
+    "observed_operand_count": 15,
+    "advertised_operand_count": 16,
+    "operands": ["arg_boot_filter", "arg_invocation", "arg_dmesg", "arg_cursor", "arg_after_cursor", "arg_cursor_file", "!strv_isempty(arg_system_units)", "!strv_isempty(arg_user_units)", "!strv_isempty(arg_syslog_identifier)", "!strv_isempty(arg_exclude_identifier)", "arg_priorities != 0", "!set_isempty(arg_facilities)", "arg_since_set", "arg_until_set", "arg_pattern"],
+    "incorrect_active_claims": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:126", "corpus/README.md:264", "corpus/README.md:269"]
+  },
+  "saved_live_evidence": {
+    "path": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-36/w1/ScribeC2Draft/matrix-mini.json",
+    "sha256": "acd9b6334aa102287ed1592351c1757df545f1b92d6aed25aea3301399f9dcd8",
+    "provenance": "Wave-1 saved observations read in this review; no fresh live execution by this seat",
+    "cells": [
+      {"cell": "core_plain", "argv": ["journalctl", "--no-pager", "-F", "PRIORITY"], "exit": 0, "stdout_bytes": 12, "stdout_head": ["5", "6", "2", "4", "7", "3"], "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019"},
+      {"cell": "core_boot0", "argv": ["journalctl", "--no-pager", "-b", "0", "-F", "PRIORITY"], "exit": 1, "stderr_bytes": 84, "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n", "stdout_bytes": 0},
+      {"cell": "ext_lines1_F", "argv": ["journalctl", "--no-pager", "-n", "1", "-F", "PRIORITY"], "exit": 0, "stdout_bytes": 2, "stdout_head": ["5"], "stdout_sha256": "f0b5c2c2211c8d67ed15e75e656c7862d086e9245420892a7de62cd9ec582a06"},
+      {"cell": "ext_plain_N", "argv": ["journalctl", "--no-pager", "-N"], "exit": 0, "stdout_bytes": 2882, "stdout_sha256": "3480f2aac48ee794f741dfd7dbffa31c86d933df70482db14adf5e57dfc2f20a"},
+      {"cell": "ext_lines1_N", "argv": ["journalctl", "--no-pager", "-n", "1", "-N"], "exit": 0, "stdout_bytes": 2882, "stdout_sha256": "3480f2aac48ee794f741dfd7dbffa31c86d933df70482db14adf5e57dfc2f20a"},
+      {"cell": "live_list_boots", "argv": ["journalctl", "--no-pager", "-F", "PRIORITY", "--list-boots"], "exit": 0, "stdout_bytes": 541, "stdout_sha256": "94591e613e10dabff33bd46fd98f538268cca929e8999fa72be1d4fb2d6a4421"}
+    ]
+  },
+  "action_replacement_source": {
+    "path": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-36/w1/SrcSystemdNews/journalctl.v262.c",
+    "sha256": "285b3d0c1217b9a3be90dca2ed4591eb8cf0192e2d3c75f303df3c5f18d5d0ab",
+    "assignments": {"-F": "805-806", "--list-boots": "812-813", "--disk-usage": "824-825", "--sync": "856-857", "--header": "877-878"},
+    "guard": "958-960",
+    "conclusion": "Final selected action matters; absence of scope rejection is not proof that field enumeration occurred."
+  },
+  "recommendation": "Require narrow factual/decision-table corrections; consider corrected exploratory depth through the required named outside reviewer, not discovery/expansion credit.",
+  "fresh_live_commands_run": [],
+  "tests_builds_gates_run": [],
+  "tools_installed_or_updated": []
+}

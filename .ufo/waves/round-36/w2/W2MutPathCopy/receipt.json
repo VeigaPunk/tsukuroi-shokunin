@@ -1,0 +1,106 @@
+{
+  "seat": "W2MutPathCopy",
+  "wave": "tsukuroi-r36-w2",
+  "written_utc": "04:38:09Z",
+  "mutant": "m-pathcopy",
+  "tool": "tools/measure-update-recheck.py",
+  "mutation": {
+    "site": "git() env dict, line 438",
+    "before": "PATH=/usr/bin:/bin (fixed allow-list)",
+    "after": "PATH=os.pathsep.join(os.get_exec_path()) (ambient)",
+    "patch": "mutant.patch (round-34 w2 MutPathCopy bytes)"
+  },
+  "probe": {
+    "file": "tools/probe-child-env-allowlist-r36.py",
+    "sha256": "a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a",
+    "version": 7,
+    "predicate_label": "leaking",
+    "invocation": "python3 tools/probe-child-env-allowlist-r36.py --revision <REV> --lane <clone> --scratch <tmp> --set claim --only tools/measure-update-recheck.py"
+  },
+  "sandbox": {
+    "scratch": "/tmp/r36-mpathcopy.eTgxTTml",
+    "pristine_clone_revision": "df661507db26e596f3813d9d54283b593f71b49a",
+    "mutant_clone_revision": "763e46b98c98deb7745daf92f2e7147ce14b4c58",
+    "mutant_commit_note": "sandbox-only commit on detached HEAD; no lane/fleet repo or index touched",
+    "patch_apply_check_at_df66150": "ok",
+    "patch_context_at_3457f287": "pre-C1 dict-comprehension builder: context mismatch (patch applies at the r34 change commit, not 3457f287)"
+  },
+  "hashes": {
+    "tool_lane_before_and_after": "e2d9f3e39a5f061e49f245c95cc5d4a9d494a27a4242dfe0e478ed1dfb3c1bd5",
+    "tool_pristine_clone": "e2d9f3e39a5f061e49f245c95cc5d4a9d494a27a4242dfe0e478ed1dfb3c1bd5",
+    "tool_mutant_clone": "024561b4b7937809fb69addc97946b42e6157866872b7da5cd35eff64c3085f6",
+    "lane_head": "8d5fa7fe27c336d602a463519e839e932d26301d",
+    "lane_status_for_tool": "clean"
+  },
+  "frozen_probe_readings": {
+    "mutant": {
+      "targets": 1,
+      "pairs": 4,
+      "leaking": 0,
+      "leaking_pairs": [],
+      "harness_errors": [],
+      "exit": 0,
+      "channels": {
+        "names": {"leak": false, "git_execs": 75, "git_missing_kept": 0, "parity_diffs": []},
+        "quiet": {"leak": false, "git_execs": 75, "git_missing_kept": 0, "parity_diffs": []},
+        "source": {"leak": false, "note": "os.get_exec_path not in the source scan's ambient-read names"},
+        "untraced": {"leak": false, "untraced_record_count": 0, "note": "uninformative: selftest subprocess env is a fixed PATH dict"}
+      }
+    },
+    "baseline_pristine": {
+      "revision": "df661507db26e596f3813d9d54283b593f71b49a",
+      "targets": 1,
+      "pairs": 4,
+      "leaking": 0,
+      "leaking_pairs": [],
+      "harness_errors": [],
+      "exit": 0
+    },
+    "verdict_on_frozen_invocation": "SURVIVED (baseline clean, so conclusive)"
+  },
+  "live_mode_exercise": {
+    "detector": "live_untraced.py (reuses frozen probe build_injection, hermetic_env, untraced_carriers)",
+    "argv": "measure-update-recheck.py --revision df661507db26e596f3813d9d54283b593f71b49a --branch master",
+    "cwd": "sandbox clone",
+    "wrapper_dir": "/tmp/r36-mpathcopy.eTgxTTml/live2/inject-ib91ef43b6667/wad4ad8439237",
+    "ambient_path_value": "/tmp/r36-mpathcopy.eTgxTTml/live2/inject-ib91ef43b6667/wad4ad8439237:/usr/bin:/bin",
+    "pristine": {
+      "rc": 0,
+      "stdout_sha256": "e779b902396bd226aad52ae2d59d57fb004c347185479421845e61065feaffee",
+      "wrapper_record_count": 0,
+      "values_reached": {},
+      "anyname_values_reached": [],
+      "predicate": false
+    },
+    "mutant": {
+      "rc": 0,
+      "stdout_sha256": "e779b902396bd226aad52ae2d59d57fb004c347185479421845e61065feaffee",
+      "wrapper_record_count": 2,
+      "wrapper_argv": [
+        "git --no-pager -C /tmp/r36-mpathcopy.eTgxTTml/clone show df661507db26e596f3813d9d54283b593f71b49a:corpus/knowledge/partial-upgrade-recheck-r15.json",
+        "git --no-pager -C /tmp/r36-mpathcopy.eTgxTTml/clone show df661507db26e596f3813d9d54283b593f71b49a:.ufo/waves/round-15/build/host-snapshot.json"
+      ],
+      "child_env": {"PATH": "<ambient PATH above>", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null"},
+      "values_reached": {"PATH": ["git"]},
+      "anyname_values_reached": [["PATH", "git"]],
+      "predicate": true
+    },
+    "parity": "stdout sha256 and rc identical pristine vs mutant (behavior-preserving mutation)"
+  },
+  "verdict": "GAP: KILLED on the exercised builder (live mode: PATH value channel + untraced > 0), SURVIVED under the frozen claim invocation (--selftest never exercises git(); untraced 0 records = uninformative). Coverage finding, not a contract change.",
+  "per_channel_clauses": {
+    "names": "0 (mutant copies only PATH; no injected NAME reaches a child)",
+    "quiet": "0 (same)",
+    "source": "0 leak (get_exec_path outside the ambient-read name list; named limit)",
+    "untraced_selftest": "0 records (uninformative, fixed-PATH selftest subprocess)",
+    "untraced_live": "2 records > 0 (wrapper-reachable PATH preservation; sensitivity conjunct met)",
+    "value_channel_live": "PATH exact ambient NAME=VALUE carried by both git children"
+  },
+  "restoration": {
+    "lane_written": false,
+    "lane_tool_sha256_after": "e2d9f3e39a5f061e49f245c95cc5d4a9d494a27a4242dfe0e478ed1dfb3c1bd5",
+    "lane_head_after": "8d5fa7fe27c336d602a463519e839e932d26301d",
+    "sandbox_disposable": true
+  },
+  "tooling": "no installs; no pacman transactions"
+}
