@@ -486,7 +486,7 @@ def census_env(stubdir, fx, home, tmp):
 
 def run_census(script, env, timeout):
     """Run the census; returns (rc, stdout+stderr). The process tree is killed."""
-    proc = subprocess.Popen(['/usr/bin/bash', script], env=env, stdout=subprocess.PIPE,
+    proc = subprocess.Popen(['/usr/bin/bash', script], env=dict(env), stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, start_new_session=True)
     try:
         out, _ = proc.communicate(timeout=timeout)
@@ -772,11 +772,14 @@ def live_view(rev_script, base_script, env, timeout):
 
 
 def child_env():
+    # round-36 wave-2 repair (W2RevToolB F2): XDG_RUNTIME_DIR was dropped with the ambient
+    # copy and silently BLOCKED the systemd --user plane; restored as a computed fixed value.
     return {
         'PATH': '/usr/bin:/bin',
         'LC_ALL': 'C',
         'GIT_CONFIG_NOSYSTEM': '1',
         'GIT_CONFIG_GLOBAL': os.devnull,
+        'XDG_RUNTIME_DIR': '/run/user/%d' % os.getuid(),
     }
 
 

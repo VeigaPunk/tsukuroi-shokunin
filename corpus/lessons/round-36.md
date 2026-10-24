@@ -115,6 +115,9 @@ Registry changes (old → new): S198/S199 absent → mined. No existing row chan
 | R36-CYBER-HOLD | an attack-class seat killed by provider policy | W2CritKill: 'This content was flagged for possible cybersecurity risk … (code=cyber_policy)' at 13s | L1 wave log | The kill-rule class is recorded unscored-by-seat; adjacent coverage by W2RevCounter. Able to fail: the hold carries its error text (unlike round-34's MutBinGitAlias hold). |
 | R36-INVOCATION-GAP | a frozen probe invocation that never constructs the mutated builder | W2MutAttrgetter/W2MutPathCopy GAP verdicts: claim-set argv is --selftest; the mutated git() is unreachable; live-mode detector reads 7/19 and 2>0 | W2MutAttrgetter, W2MutPathCopy | Sensitivity conjuncts name their instrument (live-mode detector) and the unreachable reading is recorded uninformative, never a pass. Able to fail: both seats' live readings are >0 where a pass would read 0. |
 
+| R36-SOURCE-ENV-PARAM | a source scan that flags a parameter named `env` as an ambient read | W2MutTool3 baseline: pristine c052bb7 reads `leaking 1` (`score-census-handoff-r32.py:source`, `env` bound by arg); base 6d76fb20 had 4 such findings, cut to 1 by C1 | W2MutTool3 | Counter redesign (VERSION 8) resolves parameters from ambient attribute reads; until then the class is a named false positive. Able to fail: the pristine reading is 1, so a do-nothing control cannot reach the after-value. |
+| R36-ARCHIVE-ONLY-SCORING | a probe that scores committed objects cannot see sandbox working-tree mutants | W2MutTool1 P-1 / W2MutTool6 P2: uncommitted mutant in the worktree reads SURVIVED (0) | W2MutTool1, W2MutTool6 | Kill-checks land the mutant as a sandbox commit reachable from the scored ref (both seats' final scores did). |
+
 ## Holds, cancellations and dead seats (2026-10-24)
 
 - W2CritKill — provider refusal (cyber_policy), error text above; item ended, not retried or rerouted.

@@ -3,9 +3,10 @@
 Finalized from the wave-1 skeleton
 `.ufo/waves/round-36/w1/ScribeLessonDraft/round-36-lesson-skeleton.md` by the wave-2
 seat `W2ScribeLesson`. The `## Gate` rows are filled from re-opened wave-1 bytes and
-the independent re-fetch recorded by `ScribeSourcesRows`; the `## Mistakes` rows are
-the skeleton's vetted row plus the routed NoUpgrade row and one pre-freeze counter
-defect, each with its own evidence pointer. Nothing is quoted that is not in the seat
+the independent re-fetch recorded by `ScribeSourcesRows` and the wave-2 re-open by
+`W2QuoteNews`; the `## Mistakes` rows are the skeleton's vetted row, the routed
+NoUpgrade row, one pre-freeze counter defect and one registry-row defect, each with its
+own evidence pointer. Nothing is quoted that is not in the seat
 artifacts named beside it.
 
 ## Claims
@@ -49,15 +50,22 @@ opened by wave-1 `SrcSystemdNews`) and S024 (the inherited `main`-branch NEWS ro
 that S199 supersedes for the note). Every quote below was copied from the seat
 artifacts and its bytes re-fetched independently from a clean `/tmp` fetch by
 `ScribeSourcesRows` (`.ufo/waves/round-36/w1/ScribeSourcesRows/independent-source-refetch.txt`):
-the re-fetch sha256 equals the scribes' snapshots in all three cases. The wave-2
-re-open seat `W2QuoteNews` had not delivered at this lesson's write time (04:37Z),
-so these rows rest on the wave-1 snapshots and that independent wave-1 re-fetch,
-not on a wave-2 verdict.
+the re-fetch sha256 equals the scribes' snapshots for all three fetched artifacts
+(the v262 NEWS, the Arch HTML page, the upstream XML). The wave-2 re-open seat `W2QuoteNews`
+then re-fetched S199 from upstream and confirmed item by item the sha256, the quote at
+lines 129-133 and the `CHANGES WITH 262` > `Feature Removals and Incompatible Changes`
+attribution, reproducing the byte range `[7492, 7869)` exactly
+(`.ufo/waves/round-36/w2/W2QuoteNews/quote-check.json`, items 1-3); the same run
+re-checked S198's page (HTTP 200, 65136 bytes, footer `systemd 262.1`) and the absence
+of the rejection string from both the man page and the upstream XML (items 7-8, AGREE).
+Its five findings are low-severity note-citation imprecisions, not defects in the rows
+below — one of them (F5) bounds the S199 row: the NEWS bullet names `-F/--field` only,
+so it is not authority for the `-N` half.
 
 | Source | URL | Opened | Located quote | Location | Decision |
 |---|---|---|---|---|---|
-| S198 | https://man.archlinux.org/man/journalctl.1 | 2026-10-23 | "Print all possible data values the specified field can take in all entries of the journal." | `journalctl(1)` §COMMANDS `-F, --field=` entry (Arch HTML lines 658-662; `.txt` lines 674-678; upstream `man/journalctl.xml` lines 900-906); footer `foot-os` "systemd 262.1", package `core/systemd` 262.1-1; sha256 `aaae4efa61ff9c56e6249feb2f4527db57f1a4beb0eac4ad1eeb111a4bbb83c2` (Arch HTML, 65136 B), `d54bbede45d5b1e3dc856da9624649ef8cb0829731597c212be303a76a1edbdd` (upstream v262 XML, 61619 B; identical to the v262.1 and main blobs at fetch time) | admit, mined, tier A (new row). The sibling `-N, --fields` entry (HTML 653-657, `.txt` 669-673, XML 891-897) carries the field-name sentence; neither entry carries a "cannot be combined" sentence (`grep -c -i 'cannot be combined'` reads 0 in the HTML and 0 in the XML), so the row grounds the semantics only, not the restricting-option rejection |
-| S199 | https://raw.githubusercontent.com/systemd/systemd/v262/NEWS | 2026-10-23 | "journalctl now rejects -F/--field together with filters such as unit, boot, time, cursor or grep filters." | `CHANGES WITH 262:` (line 3) > `Feature Removals and Incompatible Changes:` (line 26), entry lines 129-133, byte range [7492, 7869); annotated tag object `1f7dffaf714cc4488159c498b7a17cf34c5a96d5` → commit `8cc40e0c5e9234bf45084751ac53b1fbfe70b492`; NEWS blob `1329d035c6ea83a2cd74071e20adaec9ce346049`; sha256 `a494f0389edd09702a90d1540c7e21c0af5a4d29a4d020855ca3062d885a7657` (1271752 B) | admit, mined, tier A (new row). Supersedes S024 for `corpus/knowledge/journalctl-v262-field-filter-r36.md`; `main` is byte-different (it opens with `CHANGES WITH 263 in spe:` and carries the same bullet at line 306), which is why the pin is a tag and not a branch |
+| S198 | https://man.archlinux.org/man/journalctl.1 | 2026-10-23 | "Print all possible data values the specified field can take in all entries of the journal." | `journalctl(1)` §COMMANDS `-F, --field=` entry (Arch HTML lines 658-662; `.txt` lines 674-678; upstream `man/journalctl.xml` lines 900-906); footer `foot-os` "systemd 262.1", package `core/systemd` 262.1-1; sha256 `aaae4efa61ff9c56e6249feb2f4527db57f1a4beb0eac4ad1eeb111a4bbb83c2` (Arch HTML, 65136 B), `d54bbede45d5b1e3dc856da9624649ef8cb0829731597c212be303a76a1edbdd` (upstream v262 XML, 61619 B; identical to the v262.1 and main blobs at fetch time) | admit, mined, tier A (new row). The sibling `-N, --fields` entry (HTML 653-657, `.txt` 669-673, XML 891-897) carries the field-name sentence; neither entry carries a "cannot be combined" sentence (`grep -c -i 'cannot be combined'` reads 0 in the HTML and 0 in the XML), so the row grounds the semantics only, not the restricting-option rejection. Corroborated by wave-2 `W2QuoteNews`: HTTP 200, 65136 B, footer `systemd 262.1`, rejection-string count 0 across the page and the upstream XML |
+| S199 | https://raw.githubusercontent.com/systemd/systemd/v262/NEWS | 2026-10-23 | "journalctl now rejects -F/--field together with filters such as unit, boot, time, cursor or grep filters." | `CHANGES WITH 262:` (line 3) > `Feature Removals and Incompatible Changes:` (line 26), entry lines 129-133, byte range [7492, 7869); annotated tag object `1f7dffaf714cc4488159c498b7a17cf34c5a96d5` → commit `8cc40e0c5e9234bf45084751ac53b1fbfe70b492`; NEWS blob `1329d035c6ea83a2cd74071e20adaec9ce346049`; sha256 `a494f0389edd09702a90d1540c7e21c0af5a4d29a4d020855ca3062d885a7657` (1271752 B) | admit, mined, tier A (new row). Supersedes S024 for `corpus/knowledge/journalctl-v262-field-filter-r36.md`; `main` is byte-different (it opens with `CHANGES WITH 263 in spe:` and carries the same bullet at line 306), which is why the pin is a tag and not a branch. Re-opened by wave-2 `W2QuoteNews`: sha256, lines 129-133, section attribution and byte range `[7492, 7869)` all AGREE (`quote-check.json`), and its F5 bounds this row to the `-F/--field` half |
 | S024 | https://raw.githubusercontent.com/systemd/systemd/main/NEWS | 2026-10-19 (first open; not re-opened in place) | — (no re-open; the row's `teaches` cell carries no quote) | row unchanged at `corpus/SOURCES.md:30`, status `queued` on the mutable `main` URL | unchanged: no cell edited. Wave 1 proposed an in-place rewrite (queued→mined, `main`→`v262`); the L1's pre-freeze correction 7 rejected the old-row change and the v262 pin landed as S199 instead |
 
 Registry changes (old → new): S198 and S199 absent → `mined` (tier A, recheck
@@ -77,7 +85,7 @@ exactly one probe row, `child-env-allowlist-r36` (kind `probe`, invocation
 The same commit appends the four NoUpgrade/NoExtract correction blocks at EOF of
 `SKILL.md`, `corpus/knowledge/update-safety-note.md` and
 `corpus/knowledge/update-safety-v2.md`. That registry edit does not yet pass its gate:
-see "Gates at the change commit" below, and the row `R36-REGISTRY-ROW-ABOVE-DELIMITER`
+see "Gates at the change commit" below, and the row `R36-REGISTRY-ROWS-DROPPED`
 in `## Mistakes`.
 
 ## Gates at the change commit (wave-2 evidence; repairs owed at filing)
@@ -91,11 +99,17 @@ lesson's verdicts, and no repair is claimed to have landed.
   for `tools/probe-child-env-allowlist-r36.py`. Expected shape: the probe bytes land at
   the freeze commit and their registry row at the change commit.
 - `check-registry-coverage` at the change commit `c052bb7d41ced49aa888817069afd804eccfecf1`:
-  `status FAIL`, `registered 2`, `rows_total 2`, `tools_total 53`, 51 findings. The bytes
-  show why: `SKILL.md:3056` is the round36 table header, `:3057` the new
-  `child-env-allowlist-r36` row and `:3058` the `|---|` delimiter — the new row sits
-  above the delimiter, so the parser reads a two-line table instead of the 53-row one.
-  Repair owed before filing: move the row below the delimiter.
+  `status FAIL`, `registered 2`, `rows_total 2`, `tools_total 53`, 51 findings. The
+  committed bytes show why: the round36 table runs `SKILL.md:3057-3060` and holds four
+  pipe lines — header (`:3057`), delimiter (`:3058`), the `child-env-allowlist-r36` row
+  (`:3059`) and the `host-census` row (`:3060`) — while the prose above it
+  (`:3052-3055`) states "Every round35 row is retained verbatim". The 52-row round35
+  table still exists at `SKILL.md:2952-3005`, but the operative-table rule makes it
+  historical, so the 51 tools that only it names read missing. Repair owed before
+  filing: the round36 table must carry the retained rows. An uncommitted working-tree
+  repair was visible while this section was drafted (a 54-line table at
+  `SKILL.md:3053-3106`, read 04:42Z); no gate was run against it, so nothing about it
+  is verified here.
 - `check-self-assessment` at `c052bb7d`: exit 1, `overall FAIL`, five mismatches —
   K07 "depth row states 55 notes; corpus/knowledge holds 56 .md files", K08 "depth row
   states 3009 SKILL.md lines; SKILL.md holds 3060 newline characters", K09 "depth row
@@ -119,7 +133,7 @@ reconciled by the L1 rather than claimed here.
 | R36-TARBALL-LEFTOVER | uncommitted lane round work at closure | `.ufo/waves/round-35/w1/ScribeC2Draft/pacman-54d9411.tar.gz` was untracked at round-35 closure (`jj-lane.sh state` `untracked=1`), recorded at `corpus/lessons/round-35-verifier-spotcheck.md:87` (§6 defect 1); the round-35 lesson cited the tarball's directory as the S191/S192 snapshot home while the committed snapshots live under `CritC2Absorb/sources/` | round-35 spot-check §6 defect 1 | committed as evidence at `6d76fb20f6ecbc940e5c8fff36c74060c885e161` (the commit's stat adds the tarball as a 1 934 105-byte binary); the S191/S192 committed snapshots under `CritC2Absorb/sources/` remain the canonical byte sources. Shown able to fail: `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain` no longer lists it — the same command that named it as untracked at closure now prints, for that path, nothing (paste below) |
 | R36-SUPERSESSION-SWEEP-INCOMPLETE | a classification supersession asserted in one note but not carried to the sites that still state the superseded classification | `corpus/knowledge/pacman-backup-files-r35.md:32` supersedes the grouping of `NoUpgrade`/`NoExtract` with `IgnorePkg` as version pins and names the loci, yet at round-35 closure none of the three named files named the superseding note: `grep -c 'pacman-backup-files-r35\.md'` reads `0` for `SKILL.md`, `0` for `corpus/knowledge/update-safety-note.md`, `0` for `corpus/knowledge/update-safety-v2.md` (`.ufo/waves/round-36/w1/ScribeNoUpgrade/ability-to-fail-before.txt`); the four loci are quoted verbatim there. Recorded at `corpus/lessons/round-35-verifier-spotcheck.md:90` (§6 item 4) | round-35 verifier spot-check §6 item 4 | Four append-only correction blocks land at EOF of the three files (`.ufo/waves/round-36/w1/ScribeNoUpgrade/`, one draft per site), each naming `corpus/knowledge/pacman-backup-files-r35.md` with S191/S195 and giving the replacement sentence. Able to fail: the same sweep must read `1 / 1 / 2` after the landing and any unmarked site keeps its `0`; and the blocks were checked against the real gate functions before landing — `check-recheck-commands.assess_file` counts and findings, `check-knowledge-header.evaluate`, the registered-heading occurrence counts, and the r18 baseline-prefix rule are all unchanged pre/post (`.ufo/waves/round-36/w1/ScribeNoUpgrade/verify-drafts.txt`) |
 | R36-COUNTER-VERSION-BACKWARDS | a successor counter carrying a version label below its base's, with the predecessor's framing left in the docstring | wave-1 `ExecProbeR36/probe-child-env-allowlist-r36.py` draft read `VERSION 5` and still said "round-34 target set" against a base file that is `VERSION = 6` (SCORECARD.md "Round 36 — pre-freeze corrections" item 1 records the lineage V4@`6de666c4`, V5@`15c9ac0e`, V6@`3457f287` and that the ExecV6Calibration receipts read `probe_version: 6`; this lesson did not re-open those round-34 receipts) | wave-1 ReviewDeclaration (H1) and RevProbeLineage (F5) | The frozen counter is `tools/probe-child-env-allowlist-r36.py` `VERSION = 7` (`tools/probe-child-env-allowlist-r36.py:308`), sha256 `a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a`, named in the LOG "Round 36 — freeze" entry; the committed receipts carry `probe_version: 7` and `predicate_label: leaking` (`.ufo/waves/round-36/l1/dev-claim-final.jsonl`, `sens-mutattr.jsonl`). Able to fail: the constant is the field every receipt header echoes, so a backwards label is visible in the receipt — the same read that caught the draft's 5 |
-| R36-REGISTRY-ROW-ABOVE-DELIMITER | a new row inserted above its table's delimiter, so the operative registry parses as header plus one row and every other tool loses its row | `SKILL.md:3056` (round36 table header), `:3057` (the new `child-env-allowlist-r36` row), `:3058` (the `|---|` delimiter); `check-registry-coverage` at `c052bb7d41ced49aa888817069afd804eccfecf1` reports `registered 2`, `missing 51`, `tools_total 53` (`.ufo/waves/round-36/w2/W2ScribeMistakes/gate-runs.txt`, run 04:39:09Z) | wave-2 W2ScribeMistakes gate runs (in flight when this lesson was drafted); the shape is read directly from `SKILL.md:3056-3058` | Repair owed at this lesson's write time: move the row below the delimiter. Able to fail: after the move the same gate must read `missing 0` with `registered` equal to `tools_total`; the malformed shape is exactly what the gate reads as 51 missing |
+| R36-REGISTRY-ROWS-DROPPED | a registry table rewritten under a "every earlier row is retained" preamble while 51 of 53 tool rows are absent, so the operative-table rule discards the earlier table entirely | committed `SKILL.md:3057-3060` holds the header, the delimiter and exactly two data rows (`child-env-allowlist-r36`, `host-census`), against the preamble's "Every round35 row is retained verbatim" (`SKILL.md:3052-3055`); the 52-row round35 table remains at `SKILL.md:2952-3005`. `check-registry-coverage` at `c052bb7d41ced49aa888817069afd804eccfecf1` reports `registered 2`, `rows_total 2`, `missing 51`, `tools_total 53` (`.ufo/waves/round-36/w2/W2ScribeMistakes/gate-runs.txt`, run 04:39:09Z) | wave-2 W2ScribeMistakes gate runs (in flight when this lesson was drafted); row counts read by this seat from `git show c052bb7d:SKILL.md` | Repair owed at this lesson's write time: carry the retained rows into the round36 table. Able to fail: after the repair the same gate must read `missing 0` with `registered` equal to `tools_total`; the change commit's four-line table is exactly what the gate reads as 51 missing |
 
 Paste for the first row, run 2026-10-24T02:54:00Z and captured in
 `.ufo/waves/round-36/w1/ScribeLessonDraft/tarball-fix-evidence.txt`:

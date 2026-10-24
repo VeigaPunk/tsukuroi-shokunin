@@ -1812,3 +1812,44 @@ documentary FAIL; fix: corrections are a commit BEFORE the freeze commit), R36-P
 
 Measured commits: declaration 6d76fb20; wave-1 evidence 189d8a08; freeze 1e926801; change
 c052bb7d; wave-2 evidence 8d5fa7fe; outcome (this commit).
+
+## Round 36 — verdict-final update (2026-10-24T04:44Z, late wave-2 findings before filing)
+
+W2MutTool1 and W2MutTool3 returned before filing: after-mutants m1 and m3 are KILLED by the
+frozen probe (m1: leaking 4, all four channels; m3: leaking 3, names/quiet/source) — with
+m2/m4/m5/m6 that is all six after-mutants KILLED, each with an ordinary-run leak check.
+W2MutTool3 also lands the decisive counter-reading: at the change commit c052bb7d the frozen
+probe's SOURCE channel already reads `leaking 1` on the pristine fifth target
+(`tools/score-census-handoff-r32.py:source` — `run_census()` line 489
+`Popen(['/usr/bin/bash', script], env=env, …)` where `env` is a function PARAMETER, flagged as
+an ambient read; the same file at base 6d76fb20 carried 4 such findings, the change cut them to
+1). The source channel cannot tell a parameter named `env` from `os.environ` — a frozen-counter
+false-positive class, repairable only by a counter redesign (VERSION 8), not this round.
+**Consequence: C1's declared after-value (`leaking` 0 on the full livefive battery) does not hold
+at the change commit; C1 is NOT VERIFIED, now by concrete counter-reading, not only by missing
+receipts.** The kill rule fired against the claim in its intended direction. W2RevSources:
+census exit 0 at 199 rows, S024 untouched (7/8 checks pass). W2QuoteNews: the S199/S198 pins
+and all 54 matrix cells reproduce; the C2 corrections (15 terms, empty-value parse edge, pyc
+caveat) stand for the closure or the next repair commit.
+
+## Round 36 — final (2026-10-24T04:48Z, all landed seats integrated)
+
+W2ReBefore landed the before battery receipt-backed: at base 6d76fb20 the livefive set reads
+**18/20 pairs leaking, all five targets > 0** (its direct invocation also exposed probe bug S1).
+W2RevCounter's falsification catalogue is accepted into the round record: S0 after-value false
+at c052bb7 (source-channel parameter rule; the production repair  +
+ in child_env lands in this commit — F2's harmed systemd plane verified back
+to  under child_env, and the unit-level counter reading on the repaired tool is
+receipted in  if present else the bg run's seat);
+S1 the full-battery invocation crashes on the revision-binding target ( already exists
+after clone — probe bug); S3 livefive vacuity (a do-nothing variant reads 0 with parity waived);
+S4  is not in OS_AMBIENT so source+untraced are both silent on that shape;
+S5 the r33claim 6→3→3→0 receipt sequence is a posteriori across real code fixes (the misfire
+classes are receipted, but the freeze-pick is honest only with that sequence visible). C1 final
+verdict: **NOT VERIFIED** — before > 0 receipted; after per-tool 0 on four tools + repaired
+fifth unit-clean; all six after-mutants KILLED on exercised builders; sensitivity live-mode > 0
+receipted for both named mutants; and the counter itself carries S1/S3/S4 defects that make the
+declared battery unexecutable/vacuous — VERSION 8 debts, enumerated in
+, for a future re-claim. No ordinal moved.
+The XDG_RUNTIME_DIR harm repair and the  visibility repair land here as
+review-driven repairs (W2RevToolB F2, W2RevToolA H1); C1 is not re-claimed by them.

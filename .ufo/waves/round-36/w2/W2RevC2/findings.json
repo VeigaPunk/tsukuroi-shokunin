@@ -1,0 +1,141 @@
+{
+  "seat": "W2RevC2",
+  "round": 36,
+  "wave": "w2",
+  "target": {
+    "repo": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin",
+    "path": "corpus/knowledge/journalctl-v262-field-filter-r36.md",
+    "revision": "c052bb7d41ced49aa888817069afd804eccfecf1",
+    "sha256": "0077b6cf7e81ef243997fe5bd8559f5e21569290f271b2f60cb0cd1b57a8a8bf"
+  },
+  "verdict": "blocking",
+  "counts": {"blocking": 5, "minor": 8},
+  "provenance": "Seat brief explicitly requires -n third state and scope selectors -D/--file/--root/--system/--user. Wave-1 ReviewC2Draft is evidence for the checks it ran, not a canonical acceptance list. B2's --file exit-0 fact comes from ReviewC2Draft.md:61 (live table); its matrix.out records only --file /nonexistent rc 1, so a real-path cell is still needed. B1/B3/B4/B5 rest on cells and greps this seat inspected.",
+  "findings": [
+    {
+      "id": "B1",
+      "severity": "blocking",
+      "title": "-n allowed-silent third state missing from the decision table",
+      "sites": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:19", "corpus/knowledge/journalctl-v262-field-filter-r36.md:41", "corpus/knowledge/journalctl-v262-field-filter-r36.md:48", "corpus/README.md:269"],
+      "evidence": "ext_lines1_F argv='journalctl --no-pager -n 1 -F PRIORITY' exit=0 stdout_bytes=2 stdout_head=['5'] sha=f0b5c2c2 vs core_plain stdout_bytes=12 (six values); ext_lines1_N stdout_bytes=2882 == ext_plain_N 2882. Mechanism is truncation: -F keeps ACTION_LIST_FIELDS (journalctl.c:806) and -n sets arg_lines (journalctl.c:221). Table has only REJECT/WORK; README:269 already advertises the missing state.",
+      "fix": "Add a third verdict row (WORK-ALTERED/WORK-IGNORED) with these cells and state the -F truncation explicitly."
+    },
+    {
+      "id": "B2",
+      "severity": "blocking",
+      "title": "--file scope selector absent from table and both matrices",
+      "sites": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:43"],
+      "evidence": "grep -c -- '--file' = 0 in .ufo/waves/round-36/w1/ScribeC2Draft/matrix-mini.json and 0 in .ufo/waves/round-36/w1/ExecC2Live/matrix.json; note text has no --file occurrence; row :43 covers -D/--root/--user/--system/--namespace only. Wave-1 B2 required --file with a valid path.",
+      "fix": "Add ext_file_F (--file <real system.journal> -F PRIORITY, expect exit 0) and add --file= to :43."
+    },
+    {
+      "id": "B3",
+      "severity": "blocking",
+      "title": "safe-substitution 'Verified live here' has no receipt",
+      "sites": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:55", "corpus/knowledge/journalctl-v262-field-filter-r36.md:58"],
+      "evidence": "No matrix cell contains the jq/sort pipeline: 'jq' and 'sort -u' absent from matrix-mini.json; ExecC2Live/matrix.json has 10 cells, none a substitution run. Claim (exit 0, output '2 3 4 5 6 7', -b -1 same) is unreceipted.",
+      "fix": "Record subst_boot0/subst_boot_neg1 cells (argv, exit, stderr bytes, stdout sha256) or mark [inf] and drop 'Verified live here'."
+    },
+    {
+      "id": "B4",
+      "severity": "blocking",
+      "title": "cap() hazard 'Measured here ... Replicated' has no receipt",
+      "sites": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:84"],
+      "evidence": "'No entries' and 'CAP_OUT' do not occur in matrix-mini.json; no cell encodes the census counting expression; ext_grep_F (exit 1, 84 stderr bytes) exists but is not named; the plain --grep no-match comparison run is unrecorded.",
+      "fix": "Record both runs (plain --grep no-match; --grep + -F) as cells and name them, or demote the measured half to [inf]."
+    },
+    {
+      "id": "B5",
+      "severity": "blocking",
+      "title": "prior-state claim broader than its sweep; contradicted by corpus/lessons/round-1.md",
+      "sites": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:88", "corpus/knowledge/journalctl-v262-field-filter-r36.md:96", "corpus/knowledge/journalctl-v262-field-filter-r36.md:111", "corpus/lessons/round-1.md:111"],
+      "evidence": "round-1.md:111 quotes the v262 NEWS rejection with pin a923ab5e (pin later recorded as non-reproducing at round-1.md:127-129). Note says 'no lane entry documented this rejection' and claims its only whole-repo exception is SCORECARD.md:1632; the exact-string sweep is sound (verified exactly one hit at 6d76fb2) but does not support the broader sentence. Also 're-run in the working tree' cannot reproduce at c052bb7: git grep -l returns the note itself.",
+      "fix": "Reword to 'no lane entry carried the runtime line, exit code or flag matrix'; cite round-1.md:111 as prior prose; say 'pre-landing tree' or drop the re-run clause. Declaration Before text needs the same scope (L1-owned)."
+    },
+    {
+      "id": "M1",
+      "severity": "minor",
+      "title": "predicate is 15 terms, not 16",
+      "sites": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:126", "corpus/README.md:264", "corpus/README.md:269"],
+      "evidence": "Captured field_list_has_scope_options() has 15 OR terms (journalctl-filter.v262.c:27-41); table :23-39 has 15 limiter rows.",
+      "fix": "Correct the count at the three sites; the table is right."
+    },
+    {
+      "id": "M2",
+      "severity": "minor",
+      "title": "consumer inventory count scope and 'every occurrence' wording",
+      "sites": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:62"],
+      "evidence": "grep -rn journalctl tools/ = 53 lines / 5 files at HEAD due to gitignored tools/__pycache__/*.pyc; with --exclude-dir=__pycache__ = 43 / 4. 28 census lines exist but the table lists 13 (invocations + one fixture range); e.g. :407 JOURNALCTL=..., :1911, :2046, :2282-2283, :2414, :2585 and comments are not listed.",
+      "fix": "Add --exclude-dir=__pycache__ (or -I) to the command and say the table covers invocation sites."
+    },
+    {
+      "id": "M3",
+      "severity": "minor",
+      "title": "fixture-regression mechanism only true for a flag-only invocation",
+      "sites": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:82", "tools/tsukuroi-census.sh:1883-1902"],
+      "evidence": "The journalctl case tests *--grep*, *--list-boots*, *\"-p err\"*, *\"-n 1\"* before *); a -F appended to an existing arm matches that arm's case, not journal-all.json.",
+      "fix": "Qualify: the fixture cannot catch the class either way; the wrong-fixture default describes a flag-only invocation."
+    },
+    {
+      "id": "M4",
+      "severity": "minor",
+      "title": "--machine/--image neither tested nor marked",
+      "sites": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:113"],
+      "evidence": "No occurrence in the note; no cell. Wave-1 M3 required [unk] marks for unclassifiable selectors.",
+      "fix": "Add [unk] lines or a cell with a valid target."
+    },
+    {
+      "id": "M5",
+      "severity": "minor",
+      "title": "QUALITY 26 gloss false; pacman -Q measurement lacks substitution",
+      "sites": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:3", "corpus/knowledge/journalctl-v262-field-filter-r36.md:111", "corpus/QUALITY.md:36"],
+      "evidence": "Criterion 26 constrains recheck: procedures only (satisfied); the note's 'the note contains none' is false because the header records 'pacman -Q systemd'. The version is redundant: journalctl --version already gives 'systemd 262 (262-1-arch)'.",
+      "fix": "Drop the pacman -Q phrase; if kept, record it as a copied capture with the substitution, never a round-36 invocation."
+    },
+    {
+      "id": "M6",
+      "severity": "minor",
+      "title": "positional FIELD=VALUE failure mode unreceipted and wrong guard line",
+      "sites": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:30", "corpus/knowledge/journalctl-v262-field-filter-r36.md:126"],
+      "evidence": "No cell; §Sources cites journalctl.c:958-960 only, while the extraneous guard is journalctl.c:953-956.",
+      "fix": "Cite 953-956 and mark the example [inf], or run journalctl --no-pager -F PRIORITY FOO=bar."
+    },
+    {
+      "id": "M7",
+      "severity": "minor",
+      "title": "falsifier 4 combined clause never run",
+      "sites": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:105"],
+      "evidence": "-b 0 -n 1 -F PRIORITY has no cell; predicate predicts REJECT via arg_boot_filter but the note does not mark the reading [inf].",
+      "fix": "Add the cell (this is the cap() hazard's exact combination) or mark [inf]."
+    },
+    {
+      "id": "M8",
+      "severity": "minor",
+      "title": "action precedence undocumented; four cited cells never execute the named action",
+      "sites": ["corpus/knowledge/journalctl-v262-field-filter-r36.md:42", "corpus/knowledge/journalctl-v262-field-filter-r36.md:44"],
+      "evidence": "Last arg_action assignment wins: -N :802, -F :806, --list-boots :813, --disk-usage :825, --sync :856, --header :877-878. live_list_boots (--list-boots last) prints the boot list (541 bytes); ext_diskusage_N (-N last) prints field names (2882); ext_header_F (-F last) prints values (12); ext_sync_F (-F last) never runs --sync. Exit 0 stays correct (guard at :958 precedes dispatch) but the rows are not evidence that the field list and the other action both execute. --sync is a write request the tested ordering bypasses; do not generalize read-only safety across ordering.",
+      "fix": "State last-action-wins precedence and, per cell, which action executed; or reorder argv and record the executed action. Keep -n (truncation) separate from action replacement."
+    }
+  ],
+  "verified_clean": [
+    "rejection line 83 chars + LF = 84 bytes; exit 1; EINVAL guard journalctl.c:958-960",
+    "15/15 predicate terms have a rejecting cell (exit 1, 84 stderr bytes)",
+    "40 distinct table pointers resolve; 54/54 cells carry argv/exit/stderr/stdout/sha",
+    "10/10 ExecC2Live runs map and agree on exit + stderr bytes (6 core + 4 merged)",
+    "header gate PASS at c052bb7 (56/56 notes, findings []); S198/S199 rows tier A, 2026-10-23, on-release",
+    "absence of rejection string in Arch man render, v262 xml and full NEWS (grep 0 each)",
+    "no lane tool invokes journalctl with -F/-N; all cited consumer line numbers verify",
+    "exact-string prior sweep at 6d76fb2 = exactly SCORECARD.md:1632"
+  ],
+  "residual_risk": [
+    "matrix not re-executed by this seat; findings rest on recorded cells plus read-only source/git/gate checks",
+    "--machine/--image unmeasured [unk]",
+    "pre-freeze-corrections block only present at c052bb7 (pure append, 0 deletions), not at base/freeze; sentinel/critic scope"
+  ],
+  "tooling": {
+    "installs": [],
+    "package_manager_runs": [],
+    "vcs_mutations": [],
+    "commands_run": ["git show/cat-file/diff/grep (read-only)", "grep/wc/python3 json+regex analysis", "python3 tools/check-knowledge-header.py --revision c052bb7 (read-only gate)"]
+  }
+}

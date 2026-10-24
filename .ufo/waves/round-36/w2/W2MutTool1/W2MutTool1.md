@@ -21,6 +21,12 @@ reads **inconclusive**, not killed. A second trap: the probe archives the
 *revision*, never the working tree, so an uncommitted sandbox patch is scored as
 pristine. Both traps had to be defeated to get a verdict (findings P-1, P-2).
 
+For the claim's sensitivity conjunct this is the clean reading the declaration asks
+for on this target: the same frozen probe, same target set, same argv, reads
+`leaking 0 / harness_errors [] / exit 0` on the pristine change commit and
+`leaking 4` with the defect injected — so the `check-revision-binding.py` row of the
+`livefive` counter is not inert.
+
 ## 1. Setup and byte identity
 
 Sandbox: `mktemp` clone of the lane, `/tmp/w2mt1.BLXSGY/lane`, checked out at the
@@ -53,7 +59,7 @@ def clean_env():
 i.e. it replaces the fixed allowlist dict with the ambient environment minus `GIT_*`
 and hands that to the `git --no-pager -c core.hooksPath=… -C <repo> …` child.
 
-## 2. Detector: frozen probe, scored three ways
+## 2. Detector: frozen probe — baseline, failure modes, verdict
 
 Command shape (run from the sandbox clone, probe read from the sandbox tree):
 
@@ -141,10 +147,12 @@ materialised tree.
 | mutant (`38c6d5ec`) | 2 | 6 | **6** | 6 | `git --no-pager -c …` (x2 exe records per git start: injected-PATH shim + `/usr/bin/git`) |
 
 The marker reaches every git child in the mutant and none in pristine. The rc 2 is
-identical on both trees and is the target's own `E-REVISION-INVALID` gate for the
-`--tools-revision` value used by the detector (see §5/T-3) — it is not
-mutant-induced and does not affect the marker measurement. Sample from
-`ordinary-mut.json`:
+identical on both trees and is the target's own revision gate, not the mutation: the
+detector runs the file in a materialised tree that is not a git repository, so
+`--tools-revision <40-hex>` fails with `{"findings": [{"detail": "full object ID must
+name a commit, not a tag", "id": "E-REVISION-INVALID", …}], "status":
+"CANNOT_EVALUATE"}`. It does not affect the marker measurement, which is taken on the
+children that were actually started. Sample from `ordinary-mut.json`:
 
 ```
 {"exe": "/usr/bin/git", "argv": ["git", "--no-pager", "-c"],
@@ -170,7 +178,22 @@ git children. `untraced` independently confirms the same with wrappers. No `exec
 calls and no unparseable execve records on either tree, so those clauses did not
 contribute.
 
-## 5. Findings
+## 5. Restoration evidence
+
+- Mutant bytes → pristine bytes: `patch -p1 -R mutant-1.diff` on a copy of the mutant
+  tree rewrote `tools/check-revision-binding.py` to
+  `41a6f76bb8aaacdc112fd59ec857f45793d9102c37a751a91eb4f10f4824f3b9`, byte-identical
+  to the pristine file at `c052bb7` (`EXACT_RESTORE True`, transcript in
+  `restore.log`).
+- The probe sandbox working tree is back at the pristine bytes (measured above); the
+  mutated bytes survive only in the disposable `mktemp` clone
+  `/tmp/w2mt1.BLXSGY/lane` (commit `38c6d5ec…`, and a local `refs/heads/master` that
+  was moved inside that clone). That clone is throwaway; nothing outside it holds the
+  mutation, and no fleet or lane repository was written.
+- No production file was edited by this seat; all writes are under
+  `.ufo/waves/round-36/w2/W2MutTool1/` (plus the `/tmp` scratch).
+
+## 6. Findings
 
 ### P-1 (methodology trap, high): the frozen probe scores the *revision*, never the working tree
 `export_tree()` runs `git -C lane archive rev` (probe line 422) and `main()` resolves
@@ -202,7 +225,7 @@ scorable:
    the detached bare-HEAD path the probe expects.
 
 Both conditions are undocumented in the probe and in the wave-1 mutant record; they
-are reproduced in `probe-mut.jsonl` (harness error) and `probe-mut3.err` (traceback)
+are reproduced in `probe-mut2.jsonl` (harness error) and `probe-mut3.err` (traceback)
 in this directory.
 
 ### P-3 (documentation defect, low): the wave-1 mutants.md hash table is wrong for m1
@@ -227,7 +250,7 @@ mutant that obtained the ambient environment through a name the scan does not kn
 (e.g. via `dict(os.__dict__['environ'])` or a value threaded in from elsewhere) would
 still need the runtime channels, which is why the three runtime channels matter.
 
-## 6. Machine files in this directory
+## 7. Machine files in this directory
 
 | file | content |
 |---|---|

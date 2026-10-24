@@ -3050,8 +3050,12 @@ for each of the four keys, rc=0).
 ## Gate and probe registry — round36 superseding current rows
 
 The unique highest complete table is operative; every earlier table is historical. Every
+round35 row is retained verbatim and round36 inserts one probe row after the delimiter. The
+census row's entry command and verdict map are unchanged.
+
+| Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |
 |---|---|---|---|---|---|---|---|
-| child-env-allowlist-r36 | probe | `python3 tools/probe-child-env-allowlist-r36.py --revision <REV> --set livefive` | last-line `leaking` 0 clean / > 0 leaking; exit 0 clean, 1 leaking, 2 harness | none hermetic; sensitivity battery committed under `.ufo/waves/round-36/l1/` (claim/r33claim 0 at base; mutant seats under w2) | VERSION 7; predicate label `leaking`; frozen bytes sha256 `a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a` at `1e926801195e304950e3eb9d2525ef8bbc245089` | committed reads; sandbox clones; no lane or host write | tsukuroi |
+| child-env-allowlist-r36 | probe | `python3 tools/probe-child-env-allowlist-r36.py --revision <REV> --set livefive` | last-line `leaking` 0 clean / > 0 leaking; exit 0 clean, 1 leaking, 2 harness | none hermetic; sensitivity battery per `.ufo/waves/round-36/l1/` (claim/r33claim 0 at base) and the w2 live-mode detector receipts | VERSION 7; predicate label `leaking`; frozen bytes sha256 `a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a` at `1e926801195e304950e3eb9d2525ef8bbc245089` | committed reads; sandbox clones; no lane or host write | tsukuroi |
 | host-census | gate | `bash tools/tsukuroi-census.sh` (not live-run round22) | 0 HEALTHY/clean;1 DEGRADED/failed;2 BLOCKED/could-not-evaluate | `bash tools/tsukuroi-census.sh --selftest` | six-plane fixed fixture assertions in tool | live probes only when separately authorized; selftest private fixtures | tsukuroi |
 | root-dac-correction | gate | `python3 tools/check-root-dac-correction.py --revision <REV>` | 0 clean;1 failed;2 could-not-evaluate | `python3 tools/check-root-dac-correction.py --selftest` | R13 fixed correction/source bindings | committed reads; selftest private clones | tsukuroi |
 | source-scope-correction | gate | `python3 tools/check-source-scope-correction.py --revision <REV>` | 0 clean;1 failed;2 could-not-evaluate | `python3 tools/check-source-scope-correction.py --selftest` | R14 exact claims/source bindings | committed reads; selftest private clones | tsukuroi |
