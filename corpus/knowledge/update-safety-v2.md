@@ -418,3 +418,52 @@ Supersedes this entry's historical pointer-based recheck procedure for a steer f
 - Read relevant transaction events using `tail -n 80 /var/log/pacman.log`; distinguish invocation headers from ALPM completion events, preserve capture time and exit status, and never infer a current pending-update count from this history.
 
 Record observed values and unresolved questions separately. Uncaptured pending updates, signature validity, exact foreign/orphan classification, private mount views, historical provenance events and recovery feasibility remain unknown until their own authorized evidence is obtained. No installation, restart, rebuild, subvolume action or boot write is authorized.
+## R36-SUPERSESSION — row 7 of the §1 receipts table: `pins` covers two directive classes (2026-10-24)
+
+Appended in round 36 as routed repair 4 (`corpus/lessons/round-35-verifier-spotcheck.md` §6 item 4).
+The row above is preserved unchanged; this block supersedes its label. Prior locus (`:52`),
+verbatim:
+
+> | 7 | pins | `IgnorePkg`/`IgnoreGroup`/`NoUpgrade`/`NoExtract` empty; `HoldPkg = pacman glibc` (`:208-216`) | identical (all four rc=0 empty; HoldPkg two lines) | same |
+
+Superseded as a classification by `corpus/knowledge/pacman-backup-files-r35.md`
+(§ `[obs] NoUpgrade and NoExtract (S191, S195)`; S191 pacman `lib/libalpm/add.c` at 54d94116164b,
+S195 pacman `doc/pacman.conf.5.asciidoc` at 54d94116164b): `IgnorePkg` / `IgnoreGroup` are the
+version pins ("Instructs pacman to ignore any upgrades for this package when performing a
+'--sysupgrade'." — S195 lines 102-104) and `NoUpgrade` / `NoExtract` are file-extraction rules
+("All files listed with a `NoUpgrade` directive will never be touched during a package
+install/upgrade" — S195 lines 136-137; "All files listed with a `NoExtract` directive will never be
+extracted from a package into the filesystem" — S195 lines 147-148).
+
+Replacement row (the row as it reads under the corrected classification):
+
+> | 7 | pins | `IgnorePkg`/`IgnoreGroup` empty (version pins) and `NoUpgrade`/`NoExtract` empty (file-extraction rules, not version pins); `HoldPkg = pacman glibc` (`:208-216`) | identical (all four rc=0 empty; HoldPkg two lines) | same |
+
+The verdict `same` stands: the r2 and v2 readings are identical and all four directives are empty
+on this host (re-measured 2026-10-23 by round-35 wave-1 `ExecHostPacnew`; re-measured read-only
+2026-10-24T03:08:20Z). `corpus/knowledge/pacman-backup-files-r35.md:32` records the same: "the
+values those entries recorded … stand".
+## R36-SUPERSESSION — §5 row: the `no version pins` verdict covers two directive classes (2026-10-24)
+
+Appended in round 36 as routed repair 4 (`corpus/lessons/round-35-verifier-spotcheck.md` §6 item 4).
+The row above is preserved unchanged; this block supersedes its value cell. Prior locus (`:198`),
+verbatim:
+
+> | any | `pacman-conf IgnorePkg` / `IgnoreGroup` / `NoUpgrade` / `NoExtract` | all empty rc=0 — no version pins |
+
+Superseded as a classification by `corpus/knowledge/pacman-backup-files-r35.md`
+(§ `[obs] NoUpgrade and NoExtract (S191, S195)`; S191 pacman `lib/libalpm/add.c` at 54d94116164b,
+S195 pacman `doc/pacman.conf.5.asciidoc` at 54d94116164b): of the four probed directives,
+`IgnorePkg` / `IgnoreGroup` are the version pins (S195 lines 102-109, "ignore any upgrades … when
+performing a '--sysupgrade'") and `NoUpgrade` / `NoExtract` are file-extraction rules over package
+archive paths (S195 lines 136-137 and 147-148; S191 lines 223-230, 302-304, 338-350). The reading
+`all empty rc=0` is correct and unchanged.
+
+Replacement value cell:
+
+> all empty rc=0 — no version pins (`IgnorePkg`/`IgnoreGroup`) and no file-extraction rules
+> (`NoUpgrade`/`NoExtract`)
+
+Values stand: the four directives are empty on this host (re-measured 2026-10-23 by round-35
+wave-1 `ExecHostPacnew`; re-measured read-only 2026-10-24T03:08:20Z; `/etc/pacman.conf` carries
+only `HoldPkg = pacman glibc` at line 7).

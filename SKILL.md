@@ -3007,3 +3007,54 @@ verdict-neutral `DRIFT pacnew-plane` line.
 ## Round 35 — reading the census `DRIFT pacnew-plane` line (C1)
 
 The census prints one `DRIFT pacnew-plane pacnew=N pacsave=N pacorig=N unreadable=N log_pacnew=N log_pacsave=N unlogged=N gone=N log=ok|unreadable` line after the HANDOFF lines (`tools/tsukuroi-census.sh` header, round-35 paragraph). Read it as names and counts, never as a verdict: it changes no PLANE text, rollup term or exit code. `unreadable` depends on the uid that ran the census (a user sees directories root can read); `unlogged` counts current files pacman's log never named, which includes every `.pacsave.N` (pacman renames older saves without a log line) and any file left from before the log's start; `gone` counts logged targets no longer present, which is the normal state after an operator merged and removed a `.pacnew`. `log=unreadable` means the pairing fields are not evidence. A nonzero `pacnew` is an operator action item under S010/S011 (compare and merge), never a census-performed action. Counter: `tools/score-pacnew-arm-r35b.py` (registry row above).
+## Round 36 — `NoUpgrade` / `NoExtract` are file-extraction rules, not version pins (supersedes `SKILL.md:397-399`)
+
+Appended in round 36 as routed repair 4 (`corpus/lessons/round-35-verifier-spotcheck.md` §6 item 4).
+The historical bullet at `SKILL.md:397-399` is preserved unchanged; this block supersedes its
+**classification only**.
+
+Prior locus (`SKILL.md:397-399`), verbatim:
+
+> - `HoldPkg = pacman glibc` is removal-protection, **not a version hold**; true
+>   pins are `IgnorePkg` / `IgnoreGroup` / `NoUpgrade` / `NoExtract` — all empty
+>   (`:204-222`).
+
+Superseded as a classification by `corpus/knowledge/pacman-backup-files-r35.md`
+(§ `[obs] NoUpgrade and NoExtract (S191, S195)`), whose sources are S191 pacman
+`lib/libalpm/add.c` at 54d94116164b and S195 pacman `doc/pacman.conf.5.asciidoc` at
+54d94116164b (`corpus/SOURCES.md:197` and `:201`):
+
+- the version pins are `IgnorePkg` / `IgnoreGroup` — "Instructs pacman to ignore any upgrades for
+  this package when performing a '--sysupgrade'." (S195 lines 102-104; group form S195 lines 106-109);
+- `NoUpgrade` / `NoExtract` act on package-archive **file paths**, not on package versions:
+  "All files listed with a `NoUpgrade` directive will never be touched during a package
+  install/upgrade" (S195 lines 136-137) and "All files listed with a `NoExtract` directive will
+  never be extracted from a package into the filesystem" (S195 lines 147-148). In the code,
+  `NoExtract` skips the member outright (S191 lines 223-230), `NoUpgrade` leaves an existing
+  target untouched (S191 lines 302-304) and the incoming file is written as `.pacnew` with the
+  warning `warning: %s installed as %s.pacnew` (S191 lines 338-350).
+
+Replacement sentence:
+
+> - `HoldPkg = pacman glibc` is removal-protection, **not a version hold**; the true
+>   version pins are `IgnorePkg` / `IgnoreGroup` — all empty — while `NoUpgrade` /
+>   `NoExtract` are file-extraction rules, not version pins (also empty) (`:204-222`;
+>   classification per `corpus/knowledge/pacman-backup-files-r35.md`, S191/S195).
+
+Values stand unchanged: `IgnorePkg`, `IgnoreGroup`, `NoUpgrade` and `NoExtract` are all empty on
+this host (re-measured 2026-10-23 by round-35 wave-1 `ExecHostPacnew`,
+`.ufo/waves/round-35/w1/ExecHostPacnew/capture.txt:76-97`; re-measured read-only
+2026-10-24T03:08:20Z: `/etc/pacman.conf` carries no `IgnorePkg`/`IgnoreGroup`/`NoUpgrade`/
+`NoExtract` line — only `HoldPkg = pacman glibc` at line 7 — and `pacman-conf` prints nothing
+for each of the four keys, rc=0).
+## Gate and probe registry — round36 superseding current rows
+
+The unique highest complete table is operative; every earlier table is historical. Every
+round35 row is retained verbatim and round36 appends one probe (the child-environment
+successor) and marks the five live tools' child-environment builders as fixed-dict. The census
+row's entry command and verdict map are unchanged.
+
+| Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |
+|---|---|---|---|---|---|---|---|
+| child-env-allowlist-r36 | probe | `python3 tools/probe-child-env-allowlist-r36.py --revision <REV> --set livefive` | last-line `leaking` 0 clean / > 0 leaking; exit 0 clean, 1 leaking, 2 harness | none hermetic; the sensitivity battery (claim/r33claim/regression at base 0, MutAttrgetterCopy/MutPathCopy mutants > 0) is committed under `.ufo/waves/round-36/l1/` | VERSION 7; predicate label `leaking`; the frozen sha256 is recorded in the round-36 LOG freeze entry and every receipt header | committed reads; sandbox clones; no lane or host write | tsukuroi |
+| host-census | gate | `bash tools/tsukuroi-census.sh` (not live-run round22) | 0 HEALTHY/clean;1 DEGRADED/failed;2 BLOCKED/could-not-evaluate | `bash tools/tsukuroi-census.sh --selftest` | six-plane fixed fixture assertions in tool | live probes only when separately authorized; selftest private fixtures | tsukuroi |

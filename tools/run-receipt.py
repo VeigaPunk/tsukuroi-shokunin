@@ -34,12 +34,17 @@ import tempfile
 
 
 def env(home=None):
-    """Every GIT_* dropped, global and system git config off; with `home`, HOME and
-    XDG_CONFIG_HOME point at a private empty directory (round-30 wave-1 RevReceiptRunner M5)."""
-    e = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
-    e.update({'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_SYSTEM': os.devnull})
+    """Fixed child environment; `home` adds run-private config and Git ceiling."""
+    e = {
+        'PATH': '/usr/bin:/bin',
+        'LC_ALL': 'C',
+        'GIT_CONFIG_NOSYSTEM': '1',
+        'GIT_CONFIG_GLOBAL': os.devnull,
+        'GIT_CONFIG_SYSTEM': os.devnull,
+    }
     if home:
-        e.update({'HOME': home, 'XDG_CONFIG_HOME': os.path.join(home, '.config')})
+        e.update({'HOME': home, 'XDG_CONFIG_HOME': os.path.join(home, '.config'),
+                  'GIT_CEILING_DIRECTORIES': os.path.dirname(os.path.abspath(home))})
     return e
 
 

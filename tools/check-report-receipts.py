@@ -308,18 +308,18 @@ def receipt_path_matches(path: str) -> bool:
 
 def find_receipts(lane: str, revision: str, pairs: list[tuple[str, str]],
                   temp_dir: str) -> dict[tuple[str, str], str]:
-    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
     home = os.path.join(temp_dir, "home")
     os.mkdir(home)
-    env.update({
+    env = {
         "GIT_CONFIG_NOSYSTEM": "1",
         "GIT_CONFIG_GLOBAL": os.devnull,
         "GIT_CONFIG_SYSTEM": os.devnull,
         "HOME": home,
         "XDG_CONFIG_HOME": os.path.join(home, ".config"),
         "PATH": "/usr/bin:/bin",
+        "LC_ALL": "C",
         "GIT_CEILING_DIRECTORIES": os.path.dirname(os.path.abspath(temp_dir)),
-    })
+    }
 
     def run_git(*args: str) -> subprocess.CompletedProcess[bytes]:
         command = ["git", "-c", "user.name=tsukuroi-round30-receipt-check",

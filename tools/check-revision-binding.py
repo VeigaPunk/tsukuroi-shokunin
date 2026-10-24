@@ -49,8 +49,8 @@ writes are inside the temporary sandbox clone.
 Trust boundary: these are reviewed lane-owned scripts, not adversarial executables.
 A temporary clone confines our Git writes; it is not OS process isolation, and the
 tool subprocesses retain the caller's user-level filesystem/network authority.
-Only GIT_* environment/config inheritance is suppressed. Never use this judge to
-run unreviewed external candidates or as a security-sandbox certification.
+Children receive a fixed environment, but not a process sandbox. Never use this
+judge to run unreviewed external candidates or as a security-sandbox certification.
 """
 from __future__ import annotations
 import argparse, ast, hashlib, json, os, re, subprocess, sys, tempfile
@@ -101,10 +101,14 @@ class Cannot(Exception):
 
 
 def clean_env():
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-    env.update({"GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat", "LC_ALL": "C",
-                "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
-    return env
+    return {
+        "PATH": "/usr/bin:/bin",
+        "LC_ALL": "C",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "GIT_CONFIG_GLOBAL": os.devnull,
+        "GIT_OPTIONAL_LOCKS": "0",
+        "GIT_PAGER": "cat",
+    }
 
 
 def git(repo, *args, timeout=60):

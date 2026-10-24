@@ -542,3 +542,41 @@ Record observed values and unresolved questions separately. Uncaptured pending u
 ## R24 current-use notice (2026-10-22)
 
 The historical 1password-beta downgrade-trap statements at lines 29-32, 280-284, 353, 374 and 397 are superseded. At the round-24 capture the installed `8.12.42_34.BETA-1` is behind its channel `8.12.44_25.BETA-1`, not ahead. The pending set is 3 rows against local databases and 134 against the mirror's current repositories, including the ca-certificates-mozilla security fix. Source: `corpus/knowledge/pause-lift-gate-r24.md` P1, capture `l1-4/capture.txt:40`, `:374`, and `l1-4/checkupdates.out`. These are dated observations, not authorization to update.
+## R36-SUPERSESSION — `NoUpgrade` / `NoExtract` are file-extraction rules, not version pins (2026-10-24)
+
+Appended in round 36 as routed repair 4 (`corpus/lessons/round-35-verifier-spotcheck.md` §6 item 4).
+The 2026-10-14 bytes above are preserved and remain the historical record; this block supersedes
+one classification inside them. Prior locus (`:420-425`), verbatim:
+
+> - 2026-10-14 — **Round-1 row refinement, not a contradiction:** `SKILL.md:45`
+>   names `HoldPkg = pacman glibc` under "pins/holds"; this note keeps the value
+>   but splits it from the true version pins (`IgnorePkg`/`IgnoreGroup`/
+>   `NoUpgrade`/`NoExtract`, all empty) and adds the second soft-trust surface
+>   `LocalFileSigLevel = Optional` (`/etc/pacman.conf:16`), which the round-1 row
+>   did not name.
+
+Superseded as a classification by `corpus/knowledge/pacman-backup-files-r35.md`
+(§ `[obs] NoUpgrade and NoExtract (S191, S195)`; S191 pacman `lib/libalpm/add.c` at
+54d94116164b, S195 pacman `doc/pacman.conf.5.asciidoc` at 54d94116164b): the version pins are
+`IgnorePkg` / `IgnoreGroup` ("Instructs pacman to ignore any upgrades for this package when
+performing a '--sysupgrade'." — S195 lines 102-104), while `NoUpgrade` / `NoExtract` name package
+archive **file paths**: "All files listed with a `NoUpgrade` directive will never be touched during
+a package install/upgrade" (S195 lines 136-137), "All files listed with a `NoExtract` directive
+will never be extracted from a package into the filesystem" (S195 lines 147-148); the code skips
+a `NoExtract` member (S191 lines 223-230) and turns a `NoUpgrade` member into `.pacnew`
+(S191 lines 302-304, 338-350).
+
+Replacement sentence (the same value claim, with the classification split):
+
+> 2026-10-14 — **Round-1 row refinement, not a contradiction:** `SKILL.md:45` names
+> `HoldPkg = pacman glibc` under "pins/holds"; this note keeps the value but splits it from the
+> true version pins (`IgnorePkg`/`IgnoreGroup`, all empty) and from the file-extraction rules
+> `NoUpgrade`/`NoExtract` (also empty, and not version pins), and adds the second soft-trust
+> surface `LocalFileSigLevel = Optional` (`/etc/pacman.conf:16`), which the round-1 row did not
+> name.
+
+Values stand unchanged: all four directives are empty on this host (re-measured 2026-10-23 by
+round-35 wave-1 `ExecHostPacnew`; re-measured read-only 2026-10-24T03:08:20Z — `/etc/pacman.conf`
+carries no `IgnorePkg`/`IgnoreGroup`/`NoUpgrade`/`NoExtract` line, only `HoldPkg = pacman glibc`
+at line 7). The superseding note records the same: "the values those entries recorded … stand"
+(`corpus/knowledge/pacman-backup-files-r35.md:32`).

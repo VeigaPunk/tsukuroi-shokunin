@@ -254,3 +254,16 @@ The Frontier bullet above overstates the lead it closes: of the unopened lead in
 | `knowledge/kernel-taint-r27.md` and `.json` | What this host's taint number 12288 means (O and E only), how the kernel sets O and E at module load, why a DKMS-signed module still sets E in permissive mode, the per-module taint file, that taint is never cleared while the kernel runs, and what it means for upstream bug reports; six rows KT1 to KT6 with operator actions | S140-S145; `lessons/round-27.md` Gate |
 
 This is deeper ground inside the existing driver and firmware Core area (`PROVINCE.md` Core), not a new frontier area: `knowledge/driver-firmware-plane.md` already recorded the two taint lines on 2026-10-13 without their mechanism (wave-1 CritLearningFrontier and CritClaimSizing).
+
+## Round 36 — child-environment hygiene for the five live tools; journalctl v262 field/filter rejection (2026-10-24)
+
+Append-only. C1 (operability): the five live tools the round-35 spot-check routed build every child
+environment from a fixed dict, counted by the frozen probe `tools/probe-child-env-allowlist-r36.py`
+VERSION 7 (`--set livefive`; measure `leaking` 0, sensitivity battery committed under
+`.ufo/waves/round-36/l1/`). C2 (depth, exploratory): `knowledge/journalctl-v262-field-filter-r36.md`
+— the v262 rejection of `journalctl -F`/`-N` combined with limiting options (16-term predicate,
+`-n` third state, scope selectors allowed), sourced on S198/S199. Sources: S198 journalctl(1) at
+262; S199 systemd NEWS pinned at tag v262 (supersedes S024 for the note, S024 unchanged).
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/journalctl-v262-field-filter-r36.md` | The v262 scope-rejection of `journalctl -F`/`-N`: exact line, exit 1/EINVAL, the 16-term `field_list_has_scope_options()` predicate term-by-term, the `-n` allowed-silent third state, scope selectors that remain allowed, the safe substitution pattern, preventive consumer guidance (no lane tool uses `-F`/`-N`) | S198, S199; `.ufo/waves/round-36/w1/ScribeC2Draft/matrix-mini.json` |

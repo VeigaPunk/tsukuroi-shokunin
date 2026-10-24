@@ -1682,3 +1682,79 @@ sources, repairs, gate baselines); the L1 commits every wave-1 control receipt; 
 freeze commit; the C1 change, its after battery receipt and the C2 note; wave 2 (32
 seats: falsify); the measured outcome, lesson, SOURCES/README/SKILL registry rows and
 report.
+
+## Round 36 — pre-freeze corrections (2026-10-24T04:22Z, before any after-data seat scored)
+
+Written after wave 1 settled (32/32 seats; 02:43:10Z dispatch) from ReviewDeclaration
+(H1/H2/M1-M4), RevProbeLineage (F4/F5), CriticFreeze (NO-GO items), MutProbeDraft (M2/M5,
+structural findings 1-2 and the corrected MutPathCopy reading), SimplifierProbe (F1/F4),
+ReviewC1Design (F1/F2/B3), CriticClaimShape (15 attack classes), ExecProbeR36 (set viability,
+VERSION label) and ExecC1Design (patch states). Nothing below changes the claims' axes,
+before-values or the after-value target (leaking 0 on all five livefive targets, harness_errors
+[], exit 0, sensitivity conjuncts green).
+
+1. **Counter lineage (H1/F5):** the round-34 probe file at the base is `VERSION = 6`
+   (V4@`6de666c4`, V5@`15c9ac0e`, V6@`3457f287`; ExecV6Calibration receipts record
+   `probe_version: 6`). The frozen counter is `tools/probe-child-env-allowlist-r36.py`
+   **VERSION 7**; the wave-1 draft's "VERSION 5" label moved the counter backwards and is
+   superseded. Round-34 amendments 1 (claim-base parity) and 2 (any-name value, execveat,
+   unparseable) are carried unchanged.
+2. **Frozen predicate sentence (H2/F4)** — verbatim from the probe's `PREDICATE` constant and
+   docstring (label `leaking`): "A (target, channel) pair is leaking when, in its names or quiet run, any traced execve after the target's own first exec carries in its environment any name injected in that run or the exact ambient NAME=VALUE string of that run for any value-channel name (HOME, TMPDIR, XDG_CONFIG_HOME, PATH, LANG, TZ, TERM, USER, LOGNAME, SHELL), or carries under any name a value equal to that run's TMPDIR or containing any other run-unique ambient value of that run (its HOME, XDG_CONFIG_HOME and injection-directory paths, its LANG, TZ, TERM, USER, LOGNAME and SHELL words, and its injected values), or the run makes any execveat call or has an execve record the probe cannot parse, or any traced git execve lacks GIT_CONFIG_NOSYSTEM=1 or GIT_CONFIG_GLOBAL=/dev/null, or the run breaks parity with control run A (exit code, normalised stdout digest, count of successful git execs), or control run A breaks base parity with the same target's control run at the claim base (exit code, normalised stdout digest, count of successful git execs, multiset of normalised git argv); or, in its source channel, the target's file or a tools/ module it imports at REV reads the ambient environment, starts a process that inherits it, names /proc/self/status, /proc/self/environ or TracerPid, or uses a construct that hides a read or spawn from the scan."
+3. **Measure (M1/M2):** the counting command is
+   `python3 tools/probe-child-env-allowlist-r36.py --revision <REV> --set livefive` (stdout is
+   JSONL; the LAST line is the summary). The declared measure is the summary's `leaking` count
+   == 0 with `leaking_pairs` == [], `harness_errors` == [], exit 0 and `predicate_label` ==
+   `leaking` — the label 31 round-34 receipts carry. The probe has no `--json` flag; the
+   declaration's `--json` was wrong.
+4. **livefive set + named limit (CriticFreeze, ExecProbeR36, CriticClaimShape):** all five
+   declared tools are targets, including `tools/score-census-handoff-r32.py`
+   (`--revision {rev} --lane {clone} --scenarios 1 --budget 180 --seed 36`; direct control
+   16.77 s). Named limit, recorded before data: that tool's live views read the live journal,
+   whose counters drift between back-to-back runs (the tool itself excludes its live counters
+   from its own live-parity comparison), so for `livefive` ONLY, within-run A/B and claim-base
+   parity diffs are recorded (`parity_diffs`, `base_parity_diffs`) but are not leak evidence;
+   every other set keeps the r34 parity rule. The untraced channel observes only children that
+   inherit the probe's injected PATH; zero records is UNINFORMATIVE (never a leak, never a
+   harness error by itself); the channel's sensitivity is proven by the committed mutant runs
+   (MutAttrgetterCopy defeats wrappers with a reapplied fixed PATH and is caught by the
+   strace/source channels; MutPathCopy preserves ambient PATH and must read above 0 on the
+   untraced channel — MutProbeDraft correction included).
+5. **Change-shape corrections (ReviewC1Design F1/F2, SimplifierProbe F1):** (a) the change
+   introduces `GIT_CEILING_DIRECTORIES` into `run-receipt.py`'s fixed dict as a computed
+   run-private setting — the declaration's "existing" wording was wrong; (b) `LC_ALL=C` is added
+   to `check-report-receipts.py`'s fixed dict; (c) `mutants-btrfs-space-r30.py`'s
+   `__import__('re')` hiding construct is rewritten as a plain top-level `import re` (the only
+   true source-channel hit in the five files). The probe's normalisation excludes computed
+   `GIT_CEILING_DIRECTORIES` values and HOME-derived paths, so the retained settings do not
+   false-positive (SimplifierProbe: without that exclusion two targets read >0 by construction).
+6. **Normalisation (MutProbeDraft finding 2, ExecProbeR36 dev runs, L1 root-cause):** short-hash
+   normalisation is the broad form plus `git --disambiguate` prefixes (4-64) in both the text and
+   bytes paths; the probe's own run-layout names are normalised (`<ROOT>/<r+12hex>` run dirs and
+   `<ROOT>/<RUN>/tree/<fixture>-<8>` tool fixtures, suffix charset `[A-Za-z0-9_]{8}` because
+   `tempfile` random names include `_`). Without these the parity self-check misfires on
+   run-unique names: receipted dev sequence on final bytes — r33claim read 6 (both scratch-shape
+   classes), then 3 after the run-layout rule, then 0 after the underscore fix (receipts
+   `.ufo/waves/round-36/l1/dev-r33claim-final*.jsonl`).
+7. **SOURCES rows (M3/M4, SentScope, S196/S006 precedent):** row S024 is NOT edited in place
+   (registry no-old-row-change discipline); two new rows land with the note in one commit
+   (census E11): **S198** journalctl(1) at systemd 262 (semantics only — the page does NOT carry
+   the restriction sentence; SrcJournalctlMan F1) and **S199** systemd NEWS pinned at tag v262
+   (the prose bullet at NEWS:129-133, sha256 `a494f038…a7657`; supersedes S024 for this note).
+   The exact 84-byte rejection line is evidence from `src/journal/journalctl.c:958-960` and the
+   shipped binary, attributed as such in the note.
+8. **Repair pointer (L1):** routed item (3)'s pacnew VERSION-3 debt is documented at
+   `.ufo/waves/round-36/w1/ExecPacnewDebtNote/v3-requirements.md`; no pacnew re-claim is made
+   this round, so the debt gates nothing here.
+9. **Kill rule, restated frozen:** if, after the freeze, any variant of the five tools that
+   skips the fixed-dict work (any builder reading the ambient environment, any prefix filter,
+   any inheriting spawn, any hidden read) reads `leaking` 0 on the livefive battery with
+   `harness_errors` [] and exit 0 — OR any sensitivity conjunct fails (MutAttrgetterCopy and
+   MutPathCopy each read above 0; claim/r33claim/regression sets at the base each read 0) —
+   C1 is reported not verified.
+
+Order amended: this corrections commit; the freeze commit (probe bytes + before battery +
+sensitivity receipts + live-view before receipt, sha256 in LOG); the change commit (five tools,
+the note, S198/S199, the four NoUpgrade appends, SKILL.md round36 registry table, lesson
+skeleton, this block); gates at the change commit's first run; the after battery + live-view
+after receipt; wave 2 (32 falsify seats); the measured outcome.

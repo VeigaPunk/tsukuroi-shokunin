@@ -5,7 +5,7 @@ Builds, in a private temporary directory, a synthetic fixture tree in which all 
 D01-D10 verify (the CONTROL must read 10), then applies one mutation per shape and runs the
 counter in fixture mode (`--tree`, `--base-sources`). A SHOULD-FAIL shape is ACCEPTED when its
 targeted row still verifies; a SHOULD-PASS shape is REFUSED when any row stops verifying.
-No git is run, so no inherited git environment can reach the counter.
+No Git subprocess is run by this battery; the counter receives a fixed environment.
 
 The shapes come from the round-27 to round-29 counter attacks (CritOwedCounterShapes,
 CritOwedV2Shapes, ResRevV3Counter, the round-29 spot-check routed defect 2): extra JSON keys
@@ -31,6 +31,7 @@ import copy
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -142,7 +143,7 @@ SHOULD_FAIL = [
     ('F07-source-rejected', 'D01', set_reg('S900', '| mined |', '| rejected |')),
     ('F08-source-opened-other-day', 'D01', set_reg('S900', '| 2026-10-22 |', '| 2026-10-21 |')),
     ('F09-source-at-base', 'D01', lambda fl, rw: fl.__setitem__('__base__', '| S900 | old |')),
-    ('F10-snapshot-sha-absent', 'D01', lambda fl, rw: fl.__setitem__('corpus/SOURCES.md', __import__('re').sub(
+    ('F10-snapshot-sha-absent', 'D01', lambda fl, rw: fl.__setitem__('corpus/SOURCES.md', re.sub(
         r'(\| S900 \|.*?)sha256 [0-9a-f]{64}', r'\1sha256 not-recorded', fl['corpus/SOURCES.md']))),
     ('F11-snapshot-outside-evidence', 'D01', m_row('D01', lambda r, fl: (fl.__setitem__('corpus/x.txt', fl[r['snapshot']]), r.__setitem__('snapshot', 'corpus/x.txt')))),
     ('F12-snapshot-path-traversal', 'D01', m_row('D01', lambda r, fl: r.__setitem__('snapshot', '.ufo/waves/round-30/../../SKILL.md'))),
@@ -359,7 +360,12 @@ def run_case(counter, work, name, mutate):
     bs = os.path.join(work, name + '.base-sources.md')
     with open(bs, 'w', encoding='utf-8') as fh:
         fh.write(base_sources)
-    env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+    env = {
+        'PATH': '/usr/bin:/bin',
+        'LC_ALL': 'C',
+        'GIT_CONFIG_NOSYSTEM': '1',
+        'GIT_CONFIG_GLOBAL': os.devnull,
+    }
     p = subprocess.run([sys.executable, counter, '--tree', d, '--base-sources', bs],
                        capture_output=True, text=True, env=env, timeout=60)
     out = [json.loads(l) for l in p.stdout.splitlines() if l.startswith('{')]

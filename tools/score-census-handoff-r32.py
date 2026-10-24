@@ -437,7 +437,7 @@ def export_census(lane, rev, dest, timeout=120):
     with open(tarpath, 'wb') as fh:
         proc = subprocess.run(
             ['git', '-C', lane, 'archive', '--format=tar', rev, 'tools/tsukuroi-census.sh'],
-            stdout=fh, stderr=subprocess.PIPE, timeout=timeout)
+            stdout=fh, stderr=subprocess.PIPE, timeout=timeout, env=child_env())
     if proc.returncode != 0:
         raise RuntimeError('git archive %s failed: %s'
                            % (rev, proc.stderr.decode('utf-8', 'replace').strip()))
@@ -771,6 +771,15 @@ def live_view(rev_script, base_script, env, timeout):
     return res
 
 
+def child_env():
+    return {
+        'PATH': '/usr/bin:/bin',
+        'LC_ALL': 'C',
+        'GIT_CONFIG_NOSYSTEM': '1',
+        'GIT_CONFIG_GLOBAL': os.devnull,
+    }
+
+
 def live_check(rev_script, base_script, timeout, work, rng):
     """v3 live conjunct, two read-only views of the live host.
 
@@ -783,7 +792,7 @@ def live_check(rev_script, base_script, timeout, work, rng):
     clusters and journal coredump counts in that view. consistent = both views consistent.
     A plain view with no cluster and no coredump entry is a harness error (vacuous).
     """
-    env = {k: v for k, v in os.environ.items() if not k.startswith('TSUKUROI_')}
+    env = child_env()
     plain = live_view(rev_script, base_script, env, timeout)
     res = {'plain': plain}
     if plain.get('harness_error'):
@@ -841,7 +850,8 @@ def main():
     rev = args.revision
     if rev is None:
         proc = subprocess.run(['git', '-C', lane, 'rev-parse', 'HEAD'],
-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60,
+                              env=child_env())
         if proc.returncode != 0:
             sys.stderr.write('scorer: cannot read HEAD of %s\n' % lane)
             return 2
