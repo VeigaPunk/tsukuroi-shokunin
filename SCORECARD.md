@@ -2009,3 +2009,14 @@ Correction to the immediately preceding round-37 axis table: the self-assessment
 | freshness | 9 | Each round record re-ran predecessor pins; dated round-1 D1-D5 rechecks and current recheck procedures remain recorded; captures are dated, not durable host state. | fleet round 1; unchanged |
 | calibration | 9 | `python3 tools/check-self-assessment.py --revision <REV>` checks 27 fixed checks; C3 requires mismatches 0 at the measured round-37 tip; no ordinal uplift. | round 10; unchanged |
 | adjacency | 8 | formal overlap table present (finding-to-owner ADJ-01..07) and portable OUT-001..010 anchors remain; recipient acknowledgement and independent replay are unverified. | fleet round 1; unchanged |
+
+## Capabilities — current (round 37)
+
+Correction to the preceding round-37 capability table after K17/K18 showed that it named absent historical evidence paths. The preceding table is superseded. Paths below are individually backticked and known present at this measured revision.
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates where the lane learns: opened tier-scoped rows with anchors, rejections with flips, study paths, search log and unopened leads; checked by the frozen contract census commands | `corpus/SOURCES.md` | fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT pacnew-plane line, with a hermetic census selftest | `tools/tsukuroi-census.sh` and `.ufo/evidence/round-1-kaika/scout-live.md` | lane r2; demonstrated fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations even on package-probe failure; isolates fixtures and blocks unavailable or non-directory metadata without grading intentional 0555 policy | `.ufo/waves/round-12/resumed/after.json` | round 12 |
+| boot-chain-audit | Audits limine entries read-only: extracts initramfs, types new_root, binds firmware-selected entry and emits per-entry next-boot verdict | `tools/boot-chain-audit.sh` and `.ufo/waves/round-17/l1-capture/audit-live.txt` | round 17 |
