@@ -2020,3 +2020,11 @@ Correction to the preceding round-37 capability table after K17/K18 showed that 
 | host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT pacnew-plane line, with a hermetic census selftest | `tools/tsukuroi-census.sh` and `.ufo/evidence/round-1-kaika/scout-live.md` | lane r2; demonstrated fleet r1 |
 | root-metadata-observer | Emits root mode, uid, gid and owner-bit observations even on package-probe failure; isolates fixtures and blocks unavailable or non-directory metadata without grading intentional 0555 policy | `.ufo/waves/round-12/resumed/after.json` | round 12 |
 | boot-chain-audit | Audits limine entries read-only: extracts initramfs, types new_root, binds firmware-selected entry and emits per-entry next-boot verdict | `tools/boot-chain-audit.sh` and `.ufo/waves/round-17/l1-capture/audit-live.txt` | round 17 |
+
+### Round-37 capability evidence correction (append-only)
+
+K17 requires the current host-census-gate capability row to state the selftest case count. The operative host-census-gate row above is superseded by this row; its cited paths are unchanged and present.
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT pacnew-plane line, with a hermetic selftest that prints PASS (105 cases, 105 passed, 0 failed) | `tools/tsukuroi-census.sh` and `.ufo/evidence/round-1-kaika/scout-live.md` | lane r2; demonstrated fleet r1 |
