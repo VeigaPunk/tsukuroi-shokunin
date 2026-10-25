@@ -1946,3 +1946,29 @@ the freeze commit (C1 counter bytes + before battery + sensitivity receipts); th
 (probe V8, C2 corrections + checker, C3 ledger + checker, SOURCES rows, lesson skeleton, registry
 rows); after battery receipts; wave 2 (32 seats v1: falsify); the measured outcome, lesson,
 SOURCES/README/SKILL rows and report.
+
+### Round 37 — pre-freeze C3 correction (2026-10-25; before any wave seat scores an outcome)
+
+This correction supersedes the C3 target and counter above; no seat has received or scored
+round-37 outcome evidence. The original proposed new ledger/checker (which could not be
+independently grounded against a stable complete history across SCORECARD and fleet reports)
+is withdrawn before data. C3 instead repairs the calibration mismatch measured by the existing
+checker.
+
+**C3 — calibration: the self-assessment checker reports zero mismatches (all 27 fixed checks
+match) at the measured round-37 tip.** Before: at base `564db0b614b2914de5452f9ebd537a0653ae1de5`,
+`python3 tools/check-self-assessment.py --revision 564db0b614b2914de5452f9ebd537a0653ae1de5`
+reported `checked: 27`, `mismatches: 5`, `status: FAIL`, exit 1 (K07-K11: four stale depth
+counts and one stale README line count). After: append-only correction of the five current
+self-assessment count cells to the measured tip values, then the same command at the measured
+round-37 branch-tip revision reports `checked: 27`, `mismatches: 0`, `status: PASS`, exit 0.
+The frozen predicate is `mismatches == 0 && checked == 27 && exit == 0`; a no-change control at
+the declaration base is 5 mismatches, so the do-nothing target is unreachable. The checker bytes
+and fixed 27-check population are unchanged; only the self-assessment values may change, and the
+claim's counter output is the predicate.
+
+This is a single calibration claim; the new ledger concept is deferred, not claimed or scored.
+The 2026-10-23 considerthese proposal is nevertheless mined as a lesson about converting the
+verified-rate idea into a resolvable same-revision mismatch counter; it is not represented as
+implemented. All later claim declarations remain as stated unless separately corrected before
+outcome scoring.
