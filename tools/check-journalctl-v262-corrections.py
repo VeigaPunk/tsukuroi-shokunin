@@ -54,8 +54,8 @@ def evaluate(note: str | None) -> tuple[int, dict[str, object]]:
         "both 2882 bytes and identical stdout SHA-256 `3480f2aac48ee794f741dfd7dbffa31c86d933df70482db14adf5e57dfc2f20a`",
         "`journalctl --no-pager -F PRIORITY --list-boots`",
         "it does not produce the field-value list",
-        "`ACTION_LIST_FIELDS`",
-        "`ACTION_LIST_BOOTS`",
+        "arg_action = ACTION_LIST_FIELDS",
+        "replaces it with ACTION_LIST_BOOTS",
         "`corpus/lessons/round-1.md:111`",
         "S024",
         "does not newly discover the rejection",
@@ -101,7 +101,7 @@ def _fixture() -> str:
     return """## Round 37 correction — predicate count, output states, action precedence and prior teaching
 has **15 OR terms**, not 16: `arg_boot_filter`, `arg_invocation`, `arg_dmesg`, `arg_cursor`, `arg_after_cursor`, `arg_cursor_file`, `arg_system_units`, `arg_user_units`, `arg_syslog_identifier`, `arg_exclude_identifier`, `arg_priorities`, `arg_facilities`, `arg_since_set`, `arg_until_set`, and `arg_pattern` (`journalctl-filter.c:26-43` in the pinned v262 source snapshot).
 `journalctl --no-pager -n 1 -F PRIORITY` is accepted (exit 0); `-F` value list is truncated to one value (`5`). `journalctl --no-pager -n 1 -N` is accepted (exit 0); `-N` field-name output is unchanged from plain `-N`; both 2882 bytes and identical stdout SHA-256 `3480f2aac48ee794f741dfd7dbffa31c86d933df70482db14adf5e57dfc2f20a`.
-`journalctl --no-pager -F PRIORITY --list-boots` exits 0; it does not produce the field-value list. `ACTION_LIST_FIELDS` is replaced by `ACTION_LIST_BOOTS`.
+`journalctl --no-pager -F PRIORITY --list-boots` exits 0; it does not produce the field-value list. The parser first sets arg_action = ACTION_LIST_FIELDS; --list-boots replaces it with ACTION_LIST_BOOTS.
 The rejection was already recorded in `corpus/lessons/round-1.md:111` and S024; this entry does not newly discover the rejection. S199 was re-opened on 2026-10-25.
 """
 
