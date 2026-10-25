@@ -1415,3 +1415,7 @@ C2 depth: baseline counter at `564db0b614` returned 15 mismatches, exit 1; the c
 C3 calibration: self-assessment was 5 mismatches at base and 0 at `29b22df1` (27 checks, PASS, exit 0); final measured current-table counts are 58 notes, 3112 SKILL lines / 841 pipe lines, 50 lessons and README 282 lines. Author verdict **VERIFIED** for the fixed 27-check set. No ordinal moved.
 
 Wave state at filing: validated v2 spec/dispatch contains 64 spawn tasks; `w1.ready` was written. No `WAVE-DONE` message or `w1-results.json` was received in this L1 session; consequently the actual settled/spawned/dead-seat accounting is **unknown**, not reported as zero. No residual calls were made.
+
+### C3 final tip receipt (2026-10-25T19:39:22Z)
+
+Re-ran `python3 tools/check-self-assessment.py --revision 6dbfe3274d8afecbfddd40d0c882a174238c638a` after the measured-outcome table and lesson addenda landed. Receipt `.ufo/waves/round-37/after/c3-final-6dbfe.json`: `checked=27 mismatches=0 status=PASS`, exit 0, declaring round 37. The table and repository counts it checks were unchanged by the later evidence-only receipt commit.
