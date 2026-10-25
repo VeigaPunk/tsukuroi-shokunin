@@ -2103,3 +2103,29 @@ All three declared claims are reported honestly; the C2/C3 measurements did reac
 ### Round 37 — attempt-2 re-measurement at lane tip `a3cf2efdc09939534fe3b51b1bff6779554b0a39` (no verdict change)
 
 C2 counter: 0 mismatches, exit 0 (`.ufo/waves/round-37/attempt2/c2-at-a3cf2ef.json`). C3 counter: 27 checked, 0 mismatches, exit 0 (`.ufo/waves/round-37/attempt2/c3-at-a3cf2ef.json`). Census: 207 rows, exit 0. The post-wave adjudication above stands: C1, C2 and C3 are **not verified**, and no ordinal moves. Seat-report count is corrected to 62 of 64 (`attempt2/seat-report-count.txt`).
+
+## Round 38 — declaration (fresh-start round, 2026-10-26T04:16Z, base `8bd001f58bfda29c92d90d2a7a413825c0ca9fcb`, before any seat)
+
+Fresh-start round (hyaku run 8): rounds 34–37 were each closed `rejected-honest-stop` on an operability C1 whose
+sensitivity or after-state conjunct was never delivered (`corpus/lessons/round-3{4,5,6,7}-verifier-spotcheck.md`).
+This round declares two claims whose counters, fixtures, before receipts and do-nothing/junk controls are
+committed before any seat or implementation. Lowest non-retired axes: depth 8 and adjacency 8 (tied); C2 works
+depth. Saturation 9 / window 3 unchanged; the nudge does not waive the lowest-axis duty.
+
+| Claim | Axis | Surface moved | Counter (frozen; sha256) | Before at base | Target (predicate) | Kill rule |
+|---|---|---|---|---|---|---|
+| C1 | coverage | Storage integrity (btrfs per-device error counters) moves Frontier → Core: the round-26 frontier rule (`corpus/README.md` "becomes Core only after a read-only census arm reads it") is met by a verdict-neutral census arm | `python3 tools/score-storage-arm-r38.py --revision <REV>` (sha256 `e649bfb33ed99161dc3affdacd7fa86fa8d96e2c5bb60b2d22d6fc12a7f82218`) | `fixtures_matched 0/10, live_match 0, six_planes_all 1`, FAIL exit 1 (`.ufo/waves/round-38/before/c1-before.json`) | `fixtures_matched == FIXTURES_EXPECTED and live_match == 1 and six_planes_all == 1` (10/10, live 1, six PLANE lines in every run), exit 0 | Any of: a fixture mismatches; the live STORAGE fields differ from the counter's own sysfs reading; any run prints other than six PLANE lines and one rollup; or `--selftest` of the census at the measured revision is not PASS with 0 failed (no-harm conjunct of operability). The counter bytes are never edited this round; a counter defect is reported, not repaired into a pass |
+| C2 | depth (sourced) | Update-safety plane: the host's effective ALPM hook order (69 effective hooks from 70 files; override, suffix-ignoring order, phase positions, AbortOnFail/NeedsTargets, Exec) read from libalpm `hook.c` at pacman 54d9411 — the lane held only "override" and "HookDir precedence" (S007/S008), not the order rule | `python3 tools/check-hook-order-r38.py --revision <REV>` (sha256 `60e3635b37d5cd92f371800d8e5a22837b540e57c1c50a399bc973d4e21bd1a8`), input `.ufo/waves/round-38/frozen/hooks-capture/` pinned by MANIFEST sha256 `da07f43461fe41794419eb0da8ec88bd832c242abb2972e267df90d1ddd701dd` | entry absent: `rows_matched 0/69, source_ok 0`, FAIL exit 1 (`.ufo/waves/round-38/before/c2-before.json`) | `rows_expected == rows_matched and mismatches == 0 and extra_rows == 0 and source_ok == 1`, exit 0 | Any of: the counter FAILs at the measured revision; the pacman.log run-order oracle (wave seat) finds a logged transaction whose `running '<hook>'` sequence contradicts the entry's positions; a cited S-row quote is absent from the opened source |
+
+Controls, scored with the frozen counters before any seat (`.ufo/waves/round-38/controls/controls.jsonl`, script
+`run-controls.sh` sha256 `cba1bec2c3e4130707c2d42e6dfebb0581cc2e23b369e84158b6e054fbfaf3ad`, scratch clone with
+origin removed): C1 do-nothing 0/10 FAIL; C1 constant `state=HEALTHY 1/1/0` emitter 2/10 FAIL; C1 naive
+nonzero-digit emitter 6/10 FAIL. C2 do-nothing 0/69 FAIL; full-name byte sort (suffix not ignored) 63/69 FAIL;
+override ignored 66/69 FAIL; correct table without a sourced row FAIL (source_ok 0); correct table with a sourced
+row PASS (the counter can pass). No control meets either target.
+
+Causal separability: C1 touches `tools/tsukuroi-census.sh` and the storage frontier; C2 touches a new knowledge
+entry and `corpus/SOURCES.md`; neither counter reads the other's surface. Sourced claim: C2 (rows for libalpm
+`hook.c` and `alpm-hooks.5.asciidoc` at 54d9411, opened this round). The C1 verdict rules rest on held rows S128
+and S133 (SH1/SH2 of `corpus/knowledge/storage-health-r26.md`). Measured revision: the lane branch tip named in the
+round-38 outcome section, declared before the after-run; no self-assessment count is claimed this round.
