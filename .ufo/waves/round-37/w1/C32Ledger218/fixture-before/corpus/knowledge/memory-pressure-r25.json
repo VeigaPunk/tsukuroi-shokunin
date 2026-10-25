@@ -1,0 +1,528 @@
+{
+ "schema": "tsukuroi-memory-pressure-r25-v1",
+ "entry": "corpus/knowledge/memory-pressure-r25.md",
+ "lane": "tsukuroi-shokunin",
+ "round": 25,
+ "claim": "C2",
+ "drafted_by": "TsukuroiR25.DraftEntry; integrated by TsukuroiR25 (L1): source ids S115-S124 assigned, quotes reset to tag-free substrings recorded in the round-25 lesson Gate",
+ "drafted_at": "2026-10-22",
+ "capture": {
+  "path": ".ufo/waves/round-25/capture/capture.txt",
+  "sha256": "e60f1bbc1feb8f251c8b276f70342da5385d07b9ad747305e1f016e0df447136",
+  "produced_by": ".ufo/waves/round-25/capture/capture.sh",
+  "header_timestamp": "2026-10-22T10:06:23Z",
+  "end_timestamp": "2026-10-22T10:06:33Z",
+  "host_kernel": "7.2.11-arch1-1",
+  "host_systemd": "systemd 262 (262-1-arch)"
+ },
+ "supplementary_context_not_counted": [
+  {
+   "path": ".ufo/waves/round-25/capture/capture-earlyoom.txt",
+   "sha256": "7adbe069326afaaa103c447b95d507e989503356c864d9726edc45381fd40309",
+   "note": "Read-only supplementary capture of earlyoom.service state and empty OOMRules= on the four captured units. Context only; not a C2 counting input."
+  }
+ ],
+ "sibling_cited_not_absorbed": [
+  {
+   "lane": "mori-shokunin",
+   "path": "corpus/knowledge/system-pressure-r24.md",
+   "revision": "4f05dd5a",
+   "province_row": "ADJ-04",
+   "holds": "Generic PSI file semantics: F2 (some/full line shape and meaning) at lines 69-78, F9 (cgroup scope and the root cgroup printing psi_system) at lines 133-144, F10 (the total accumulates monotonically) at lines 146-150."
+  }
+ ],
+ "verdict_vocabulary": {
+  "verified": "the statement holds on this host on the counted evidence",
+  "scoped": "the statement holds inside a stated limit that the evidence does not cross"
+ },
+ "capture_pointer_rule": "A pointer counts only when the pointed line's text occurs exactly once in the capture, the line is not a '### ' section header, a '$ ' command echo or an '[exit ' line, the line contains a letter or a digit, and the line contains the named token of at least three characters.",
+ "source_id_note": "Source ids are final: S115 psi.rst, S116 psi.c, S117 psi.h, S118 cgroup-v2.rst, S119 oom_kill.c, S120 oomd.conf.xml, S121 systemd.resource-control.xml, S122 systemd-oomd.service.xml, S123 oomd-manager.c, S124 oomd-manager.h (systemd v262, Linux v7.2); S125 is the sibling mori entry, cited for the boundary only.",
+ "rows": [
+  {
+   "id": "MP1",
+   "statement": "The 'some' line of a memory pressure file is the share of time in which at least some tasks are stalled on that resource; the 'full' line is the share of time in which all non-idle tasks are stalled simultaneously. systemd-oomd's memory-pressure limit is documented as the share of time in a 10 second window in which all tasks of the control group were delayed, which is the 'full' line of that cgroup's memory pressure file [inference from oomd.conf(5) and the kernel's definition of 'full']. A rising 'some' value with a much lower 'full' value is therefore partial stall and never by itself an oomd condition.",
+   "verdict": "verified",
+   "action": "Read 'full' and 'some' together before quoting either, and quote the 'full' share when the question is 'would systemd-oomd have acted'. Do not read a high lifetime full/some ratio as thrashing on its own: the ratio here is 40856373 / 41385384 = 0.987 lifetime while the current averages are at or below 0.06 percent.",
+   "sources": [
+    "S115"
+   ],
+   "capture_pointers": [
+    {
+     "line": 14,
+     "token": "total=41385384"
+    },
+    {
+     "line": 15,
+     "token": "total=40856373"
+    }
+   ],
+   "supporting_capture_lines": [],
+   "quotes": [
+    {
+     "source": "S115",
+     "quote": "line indicates the share of time in which at least some tasks are stalled on a given resource."
+    },
+    {
+     "source": "S115",
+     "quote": "line indicates the share of time in which all non-idle tasks are stalled on a given resource simultaneously."
+    }
+   ],
+   "supersedes": [
+    {
+     "file": "corpus/knowledge/oom-event-plane.md",
+     "line": 301,
+     "relation": "narrows",
+     "earlier_text": "| PSI | `/proc/pressure/memory` | live (`some`/`full` with 10/60/300 s averages) | totals only | 14:42: `avg300=0.09`, `total=69,393,986 µs` |",
+     "reason": "That row named the PSI file and its averages but did not state what the two lines mean, and did not say which of them the systemd-oomd rule consumes."
+    }
+   ],
+   "mori_cross_reference": "The meaning of 'some' and 'full' is mori's held ground (system-pressure-r24.md F2, lines 69-78, at 4f05dd5a). The systemd-oomd consequence is tsukuroi's own.",
+   "notes": "Counted pointer lines 14 and 15 are unique in the capture and are neither header, command echo nor exit lines. The identification of the oomd limit with the 'full' line is marked as an inference in the statement: the two texts come from different documents and neither states the equivalence in so many words.",
+   "additional_located_quotes": [
+    {
+     "source": "S115",
+     "url": "https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/accounting/psi.rst",
+     "location": "lines 48-49",
+     "quote": "The \"full\" line indicates the share of time in which all non-idle tasks are stalled on a given resource simultaneously."
+    },
+    {
+     "source": "S120",
+     "url": "https://raw.githubusercontent.com/systemd/systemd/v262/man/oomd.conf.xml",
+     "location": "lines 182-183",
+     "quote": "the fraction of time in a 10 second window in which all tasks in the control group were delayed"
+    }
+   ]
+  },
+  {
+   "id": "MP2",
+   "statement": "The 'total' field of a memory pressure line is absolute stall time in microseconds, accumulated monotonically inside one boot. A single read never dates an incident: a dated reading needs two reads of the same file in the same boot and the difference between them. systemd-oomd's own rule is not a difference of totals; it is a sustained-limit rule, so a stall that ends inside the 30 second default duration never reaches the oomd action even though a difference of totals would show it.",
+   "verdict": "verified",
+   "action": "Take two reads with a known gap and subtract, and record the boot identity with the pair. In this capture the gap was the 'sleep 10' of capture line 17: some 41389485 - 41385384 = 4101 us and full 40860452 - 40856373 = 4079 us, that is 0.041 percent of the interval. A zero difference is not proof of no stall.",
+   "sources": [
+    "S115",
+    "S116"
+   ],
+   "capture_pointers": [
+    {
+     "line": 14,
+     "token": "total=41385384"
+    },
+    {
+     "line": 3,
+     "token": "2026-10-22T10:06:23Z"
+    }
+   ],
+   "supporting_capture_lines": [
+    {
+     "line": 21,
+     "text": "some avg10=0.00 avg60=0.02 avg300=0.06 total=41389485",
+     "why_not_counted": "text occurs twice in the capture, identical to line 29 (root cgroup memory.pressure)"
+    },
+    {
+     "line": 22,
+     "text": "full avg10=0.00 avg60=0.02 avg300=0.06 total=40860452",
+     "why_not_counted": "text occurs twice in the capture, identical to line 30"
+    },
+    {
+     "line": 25,
+     "text": "2026-10-22T10:06:33Z",
+     "why_not_counted": "text occurs twice in the capture, repeated at line 154"
+    },
+    {
+     "line": 17,
+     "text": "$ sleep 10",
+     "why_not_counted": "command echo; it fixes the interval that the difference is taken over"
+    }
+   ],
+   "quotes": [
+    {
+     "source": "S115",
+     "quote": "The total absolute stall time (in us) is tracked and exported as well"
+    },
+    {
+     "source": "S116",
+     "quote": "group->total[aggregator][s] += div_u64(deltas[s], max(nonidle_total, 1UL));"
+    }
+   ],
+   "supersedes": [
+    {
+     "file": "corpus/knowledge/oom-event-plane.md",
+     "line": 274,
+     "relation": "narrows",
+     "earlier_text": "signals in this plane are `memory.swap.peak`, `memory.swap.events.fail`, `pswpin/pswpout`, PSI, and the",
+     "reason": "That reading rule listed PSI among the plane's pressure signals without saying that the PSI figure is a cumulative counter that cannot date an incident."
+    },
+    {
+     "file": "corpus/knowledge/oom-event-plane.md",
+     "line": 301,
+     "relation": "narrows",
+     "earlier_text": "| PSI | `/proc/pressure/memory` | live (`some`/`full` with 10/60/300 s averages) | totals only | 14:42: `avg300=0.09`, `total=69,393,986 µs` |",
+     "reason": "The 'totals only' survival note did not say that a dated reading requires a difference of two totals taken in one boot."
+    }
+   ],
+   "mori_cross_reference": "The accumulation fact is mori's held ground (system-pressure-r24.md F10, lines 146-150, at 4f05dd5a). The two-read rule and the sustained-duration contrast are tsukuroi's own.",
+   "notes": "The word 'cumulative' is not carried by psi.rst; it rests on the psi.c accumulation statement and on the same-boot limit, both quoted here.",
+   "additional_located_quotes": [
+    {
+     "source": "S115",
+     "url": "https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/accounting/psi.rst",
+     "location": "lines 62-63",
+     "quote": "The total absolute stall time (in us) is tracked and exported as well"
+    },
+    {
+     "source": "S120",
+     "url": "https://raw.githubusercontent.com/systemd/systemd/v262/man/oomd.conf.xml",
+     "location": "lines 201-202",
+     "quote": "Must be set to 0, or at least 1 second. Defaults to 30 seconds when unset or 0."
+    }
+   ]
+  },
+  {
+   "id": "MP3",
+   "statement": "Every cgroup directory exposes memory.pressure in the same format as /proc/pressure/. The root cgroup's file is not a summary of its children: the kernel maps the root cgroup onto the system pressure group, so the root file prints the system group's counters and equals /proc/pressure/memory by identity. A system-scope read therefore says nothing about any non-root cgroup, and a parent total is not the sum of its children. systemd-oomd watches the memory.pressure file of the cgroups it monitors, not /proc/pressure/memory.",
+   "verdict": "verified",
+   "action": "Name the cgroup whose pressure is being read before quoting it, and never compare a parent total with a child total taken from sequential reads: time passes between the reads, and a child can legitimately exceed its parent. In this capture the sequential reads give user.slice 3150158 us, user-1000.slice 3158801 us and user@1000.service 3161820 us of some total, which is a time artifact, not a hierarchy.",
+   "sources": [
+    "S117",
+    "S118"
+   ],
+   "capture_pointers": [
+    {
+     "line": 34,
+     "token": "3150158"
+    },
+    {
+     "line": 38,
+     "token": "3158801"
+    },
+    {
+     "line": 42,
+     "token": "3161820"
+    }
+   ],
+   "supporting_capture_lines": [
+    {
+     "line": 29,
+     "text": "some avg10=0.00 avg60=0.02 avg300=0.06 total=41389485",
+     "why_not_counted": "text occurs twice in the capture, identical to line 21 (second system read)"
+    },
+    {
+     "line": 30,
+     "text": "full avg10=0.00 avg60=0.02 avg300=0.06 total=40860452",
+     "why_not_counted": "text occurs twice in the capture, identical to line 22"
+    }
+   ],
+   "quotes": [
+    {
+     "source": "S117",
+     "quote": "return cgroup_ino(cgrp) == 1 ? &psi_system : cgrp->psi;"
+    },
+    {
+     "source": "S118",
+     "quote": "Shows pressure stall information for memory."
+    }
+   ],
+   "supersedes": [
+    {
+     "file": "corpus/knowledge/oom-event-plane.md",
+     "line": 274,
+     "relation": "narrows",
+     "earlier_text": "signals in this plane are `memory.swap.peak`, `memory.swap.events.fail`, `pswpin/pswpout`, PSI, and the",
+     "reason": "That reading rule named PSI as a single plane signal; the per-cgroup files are a second scope with their own identity rule, and the root file is the system group rather than a child summary."
+    }
+   ],
+   "mori_cross_reference": "The scope fact and the root-identity fact are mori's held ground (system-pressure-r24.md F9, lines 133-144, at 4f05dd5a). The systemd-oomd consequence is tsukuroi's own.",
+   "notes": "The root identity is argued from kernel source (psi.h line 39), not from the capture, because the root capture lines are text-duplicates of the second system read.",
+   "additional_located_quotes": [
+    {
+     "source": "S115",
+     "url": "https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/accounting/psi.rst",
+     "location": "lines 183-185",
+     "quote": "Each subdirectory in the cgroupfs mountpoint contains cpu.pressure, memory.pressure, and io.pressure files; the format is the same as the /proc/pressure/ files."
+    }
+   ]
+  },
+  {
+   "id": "MP4",
+   "statement": "ManagedOOMMemoryPressure= and ManagedOOMSwap= decide whether systemd-oomd may act on a unit's cgroup. 'kill' makes the unit a candidate for monitoring and adds After= and Wants= dependencies on systemd-oomd.service. 'auto' is the default and means systemd-oomd will not actively use that cgroup's data for monitoring and detection; an 'auto' unit becomes a kill candidate only when an ancestor cgroup is set to 'kill'. systemd-oomd monitors only cgroups whose units carry 'kill'. On this host systemd-oomd is inactive and disabled, and every one of the four captured units (user@1000.service, user-1000.slice, user.slice and -.slice) carries 'auto' on both properties, so the whole ancestor chain up to the root slice is 'auto' and nothing in it is monitored.",
+   "verdict": "scoped",
+   "action": "Read the two properties on a unit before assuming any protection from systemd-oomd. Enabling the unit would still monitor nothing while every unit stays 'auto'; setting 'kill' on a unit, or enabling systemd-oomd, is an operator action outside this lane, and the operator must check for the running userspace killer (earlyoom is active and enabled on this host) before deciding what a second killer would do. Do not read MemoryPressureWatch= as an oomd property: it is the service-side pressure export with no kill semantics.",
+   "sources": [
+    "S121",
+    "S122",
+    "S123"
+   ],
+   "capture_pointers": [
+    {
+     "line": 73,
+     "token": "inactive"
+    }
+   ],
+   "supporting_capture_lines": [
+    {
+     "line": 112,
+     "text": "ManagedOOMSwap=auto",
+     "why_not_counted": "text occurs four times in the capture (lines 112, 121, 130, 139)"
+    },
+    {
+     "line": 113,
+     "text": "ManagedOOMMemoryPressure=auto",
+     "why_not_counted": "text occurs four times in the capture (lines 113, 122, 131, 140)"
+    },
+    {
+     "line": 76,
+     "text": "disabled",
+     "why_not_counted": "text occurs twice in the capture (lines 76 and 79)"
+    },
+    {
+     "line": 79,
+     "text": "disabled",
+     "why_not_counted": "text occurs twice in the capture (lines 76 and 79)"
+    },
+    {
+     "line": 117,
+     "text": "MemoryPressureWatch=skip",
+     "why_not_counted": "unique in the capture but it is the service-side pressure export, not a systemd-oomd property, so it is not offered as evidence for this row"
+    }
+   ],
+   "quotes": [
+    {
+     "source": "S121",
+     "quote": "will not actively use this cgroup's data for monitoring and detection."
+    },
+    {
+     "source": "S121",
+     "quote": "the unit becomes a candidate for monitoring by"
+    },
+    {
+     "source": "S122",
+     "quote": "periodically polls PSI statistics for the system and those cgroups to decide when to take action."
+    },
+    {
+     "source": "S123",
+     "quote": "if (message.mode == MANAGED_OOM_AUTO) {"
+    }
+   ],
+   "supersedes": [
+    {
+     "file": "corpus/knowledge/oom-event-plane.md",
+     "line": 344,
+     "relation": "supersedes",
+     "earlier_text": "`ManagedOOMMemoryPressure=auto` + `ManagedOOMSwap=auto` **already set** on `user@1000.service` and `user-1000.slice` ... oomd would likely have acted *before* the kernel",
+     "reason": "'auto' is the default and means not monitored, so for the four units the capture read (user@1000.service up to -.slice) systemd-oomd would have had no monitored cgroup even if it had been running; the 'already set' wording and the 'would likely have acted before the kernel' inference do not hold for them."
+    },
+    {
+     "file": "corpus/knowledge/oom-event-plane.md",
+     "line": 347,
+     "relation": "kept separate",
+     "earlier_text": "`skip` on `user@1000.service` ... `on` exports `$MEMORY_PRESSURE_WATCH` to a unit's processes so apps can react themselves (per `systemd.resource-control(5)`) — a *cooperating-app* lever, not a guard",
+     "reason": "That statement stands as written and the capture confirms it at lines 117, 126, 136, 144 and 150; MP4 keeps the pressure-watch property out of the systemd-oomd properties because it has no kill semantics."
+    },
+    {
+     "file": "corpus/knowledge/kill-event-deep-r8.md",
+     "line": 255,
+     "relation": "supersedes",
+     "earlier_text": "row 1: ManagedOOM* already set; oomd would have had a trigger",
+     "reason": "Same refuted premise as oom-event-plane.md:344; marked by an appended R25 notice in that file."
+    }
+   ],
+   "mori_cross_reference": "None needed; this row is tsukuroi-owned systemd-oomd state.",
+   "notes": "The capture read four units only. The systemd v262 OOMRules= channel was not read by the capture, so it stays unknown inside capture-only evidence and is closed only by the supplementary read-only capture, which is context and not a counting input.",
+   "additional_located_quotes": [
+    {
+     "source": "S121",
+     "url": "https://man.archlinux.org/man/systemd.resource-control.5",
+     "location": "plain-text rendering lines 1306-1309",
+     "quote": "When set to kill, the unit becomes a candidate for monitoring by systemd-oomd."
+    }
+   ]
+  },
+  {
+   "id": "MP5",
+   "statement": "For the installed systemd 262 the systemd-oomd defaults are a memory-pressure limit of 60 percent, a memory-pressure duration of 30 seconds and a swap-use limit of 90 percent. The swap rule fires only when the fraction of memory used and the fraction of swap used are both above the limit, and only on descendant cgroups holding more than 5 percent of total swap. A unit's ManagedOOMMemoryPressureLimit=0 means 'use the default', and it is ignored unless that unit is 'kill'. This host's /etc/systemd/oomd.conf sets no local key, so the shipped defaults are the effective ones.",
+   "verdict": "verified",
+   "action": "Read the three commented keys as the effective defaults for this host. Never read the 90 percent rule as a swap-only rule, and never read ManagedOOMMemoryPressureLimit=0 as a zero-percent limit. On this host at capture time memory used was 24.77 percent and swap used 5.41 percent, so neither arm of the swap conjunction was near its limit.",
+   "sources": [
+    "S120",
+    "S124"
+   ],
+   "capture_pointers": [
+    {
+     "line": 106,
+     "token": "SwapUsedLimit=90%"
+    },
+    {
+     "line": 107,
+     "token": "DefaultMemoryPressureLimit=60%"
+    },
+    {
+     "line": 108,
+     "token": "DefaultMemoryPressureDurationSec=30s"
+    }
+   ],
+   "supporting_capture_lines": [
+    {
+     "line": 83,
+     "text": "1",
+     "why_not_counted": "the line is the count of active lines in systemd-analyze cat-config systemd/oomd.conf; its text carries no token of at least three characters, so it cannot serve as a counted pointer under the token rule"
+    },
+    {
+     "line": 105,
+     "text": "[OOM]",
+     "why_not_counted": "unique, but it is the section header of the configuration file, not a value; the single active line counted at line 83 is this header, so no local key is set"
+    }
+   ],
+   "quotes": [
+    {
+     "source": "S120",
+     "quote": "Defaults to 60%."
+    },
+    {
+     "source": "S120",
+     "quote": "Defaults to 30 seconds when unset or 0."
+    },
+    {
+     "source": "S120",
+     "quote": "Defaults to 90%."
+    },
+    {
+     "source": "S124",
+     "quote": "#define DEFAULT_MEM_PRESSURE_LIMIT_PERCENT 60"
+    },
+    {
+     "source": "S124",
+     "quote": "#define DEFAULT_SWAP_USED_LIMIT_PERCENT 90"
+    }
+   ],
+   "supersedes": [
+    {
+     "file": "corpus/knowledge/oom-event-plane.md",
+     "line": 344,
+     "relation": "narrows",
+     "earlier_text": "`oomd.conf` all-commented (defaults `SwapUsedLimit=90%`, `DefaultMemoryPressureLimit=60%`, `DefaultMemoryPressureDurationSec=30s`)",
+     "reason": "The three values are confirmed against the systemd v262 manual, but the earlier row read the 90 percent rule as a swap-only rule; the v262 manual shows the rule is a conjunction of memory and swap, and the candidate floor is 5 percent of total swap."
+    }
+   ],
+   "mori_cross_reference": "None needed; this row is tsukuroi-owned systemd configuration state.",
+   "notes": "The three shipped commented keys are the host pointer; the authority for the values and their semantics is the systemd v262 manual, because the file's own header says its comments show the compile-time defaults.",
+   "additional_located_quotes": [
+    {
+     "source": "S120",
+     "url": "https://raw.githubusercontent.com/systemd/systemd/v262/man/oomd.conf.xml",
+     "location": "line 190",
+     "quote": "above. Defaults to 60%."
+    },
+    {
+     "source": "S120",
+     "url": "https://raw.githubusercontent.com/systemd/systemd/v262/man/oomd.conf.xml",
+     "location": "line 167",
+     "quote": "the fraction of memory used and the fraction of swap used on the system are both more than"
+    },
+    {
+     "source": "S121",
+     "url": "https://man.archlinux.org/man/systemd.resource-control.5",
+     "location": "plain-text rendering lines 1325-1328",
+     "quote": "Overrides the default memory pressure limit set by oomd.conf(5) for the cgroup of this unit."
+    }
+   ]
+  },
+  {
+   "id": "MP6",
+   "statement": "The kernel raises its OOM-kill counters in the kill path, in a different file from the one where stall time is accumulated. A cgroup's memory.events oom_kill field counts the processes of that cgroup killed by any kind of OOM killer, while the PSI total counts stall time. A userspace killer's SIGKILL moves neither counter, so the kernel counter reads zero even when a userspace killer has killed something.",
+   "verdict": "scoped",
+   "action": "Read the kernel counter and the stall counter separately, and never read one as the other. This capture never read earlyoom, so no claim is made that nothing watches memory before the kernel: the supplementary read-only capture shows earlyoom.service active and enabled on this host, and an earlyoom kill would not move the kernel counters. A zero oom_kill is a statement about one counter in one scope since one boot, never about the absence of memory-related kills.",
+   "sources": [
+    "S118",
+    "S119"
+   ],
+   "capture_pointers": [
+    {
+     "line": 52,
+     "token": "oom_group_kill"
+    },
+    {
+     "line": 50,
+     "token": "oom 0"
+    }
+   ],
+   "supporting_capture_lines": [
+    {
+     "line": 62,
+     "text": "oom_kill 0",
+     "why_not_counted": "text occurs twice in the capture, identical to line 51 (the cgroup memory.events oom_kill field)"
+    },
+    {
+     "line": 51,
+     "text": "oom_kill 0",
+     "why_not_counted": "text occurs twice in the capture, identical to line 62 (the kernel-wide /proc/vmstat counter)"
+    },
+    {
+     "line": 58,
+     "text": "fail 510",
+     "why_not_counted": "unique but it is the cgroup swap-allocation failure counter, a different class from the OOM-kill counters; it is not offered as evidence for this row"
+    }
+   ],
+   "quotes": [
+    {
+     "source": "S119",
+     "quote": "count_vm_event(OOM_KILL);"
+    },
+    {
+     "source": "S118",
+     "quote": "The number of processes belonging to this cgroup killed by any kind of OOM killer."
+    }
+   ],
+   "supersedes": [
+    {
+     "file": "corpus/knowledge/oom-event-plane.md",
+     "line": 274,
+     "relation": "narrows",
+     "earlier_text": "signals in this plane are `memory.swap.peak`, `memory.swap.events.fail`, `pswpin/pswpout`, PSI, and the",
+     "reason": "That reading rule listed PSI and the kernel/systemd records in one row of pressure signals; the kernel kill counters and the stall counters are different readings of different files, and a kill counter that reads zero does not close the memory question."
+    }
+   ],
+   "mori_cross_reference": "The kernel-only-counter rule is held by mori (oom-kill-counter-kernel-only-r12.md at 4f05dd5a) and by tsukuroi's own presence-flag rule in oom-event-plane.md; the tsukuroi action is which userspace killer is running, which is unit state and therefore tsukuroi's ground.",
+   "notes": "The capture ran no uptime or boot-id read, so the kernel counter's epoch is not dated by it and the row is scoped accordingly. Correction after wave-2 review: capture line 50 (`oom 0`) is the memcg OOM event raised in mem_cgroup_oom, not the kill path; the kill counter itself (`oom_kill 0`) sits on capture lines 51 and 62, which repeat each other and so cannot be counted pointers. A userspace killer moves neither kernel counter unless it asks the kernel to kill: earlyoom started with --kernel-oom does (the sibling lane mori records this in corpus/knowledge/oom-kill-counter-kernel-only-r12.md); the captures did not read earlyoom's arguments. The general counter facts are also held by mori; this row keeps the OS-triage consequence.",
+   "additional_located_quotes": [
+    {
+     "source": "S118",
+     "url": "https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/admin-guide/cgroup-v2.rst",
+     "location": "line 1914",
+     "quote": "Shows pressure stall information for memory."
+    }
+   ]
+  }
+ ],
+ "corrections_r27": [
+  {"row": "MP6", "field": "notes", "withdrawn_text": "earlyoom started with --kernel-oom does", "status": "withdrawn for this host in round 27 (current use)", "corrected_by": "corpus/knowledge/memory-pressure-r25.md line 402 (R27 current-use notice, register row OV5 in corpus/knowledge/adjacency-mori-oom-r27.json): mori's admitted entry userspace-oom-killers-r26.md at mori ef9dbee1, Facts F7, says the installed earlyoom 1.9.0-1 has no kernel-OOM delegation", "marked_by": "round 27 attempt 2, wave-2 CritTrendVerdicts and CritAxisHarm (QUALITY 67: the round-27 notice had been appended to the .md only)"}
+ ],
+ "corrections_r29": [
+  {
+   "id": "R29-OWED-O06",
+   "row": "MP4",
+   "field": "action",
+   "withdrawn_text": "Enabling the unit would still monitor nothing while every unit stays 'auto'",
+   "verdict": "qualified",
+   "now": "Starting systemd-oomd with the four units still auto leaves no ManagedOOM candidate, but a running daemon could accept mode-0666 socket reports for local accounts' cgroups, and OOMRules= units are monitored.",
+   "basis": [
+    "S121",
+    "S123",
+    "corpus/knowledge/memory-pressure-r25.md:387",
+    "corpus/knowledge/memory-pressure-r25.md:390"
+   ]
+  },
+  {
+   "id": "R29-OWED-O07",
+   "row": "MP4",
+   "field": "statement",
+   "withdrawn_text": "systemd-oomd monitors only cgroups whose units carry 'kill'.",
+   "verdict": "corrected",
+   "now": "systemd-oomd also monitors units that set OOMRules=, in addition to units whose own ManagedOOMSwap= or ManagedOOMMemoryPressure= is kill; an auto descendant of a kill unit is a kill candidate inside that monitored cgroup, not a separately monitored cgroup (round-29 wave-2 RevMarkerO07).",
+   "basis": [
+    "S121",
+    "S123",
+    "corpus/knowledge/memory-pressure-r25.md:387"
+   ]
+  }
+ ]
+}

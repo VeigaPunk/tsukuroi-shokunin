@@ -1,0 +1,241 @@
+### header
+$ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-10-22T13:39:52Z
+[exit 0]
+$ cat /proc/sys/kernel/random/boot_id
+6a7f4fdf-ac62-4e2e-a6c1-b3c55d6f94f4
+[exit 0]
+$ uname -r
+7.2.11-arch1-1
+[exit 0]
+$ pacman -Q btrfs-progs smartmontools nvme-cli systemd linux
+btrfs-progs 7.1-1
+smartmontools 7.5-2
+nvme-cli 3.1-1
+systemd 262-1
+linux 7.2.11.arch1-1
+[exit 0]
+### root-filesystem
+$ findmnt -n -o TARGET,SOURCE,FSTYPE -t btrfs
+/                       /dev/mapper/root[/@]     btrfs
+├─/home                 /dev/mapper/root[/@home] btrfs
+├─/var/cache/pacman/pkg /dev/mapper/root[/@pkg]  btrfs
+└─/var/log              /dev/mapper/root[/@log]  btrfs
+[exit 0]
+$ findmnt -n -o OPTIONS /
+rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@
+[exit 0]
+$ lsblk -o NAME,TYPE,FSTYPE,SIZE /dev/nvme0n1
+NAME        TYPE  FSTYPE        SIZE
+nvme0n1     disk              931.5G
+├─nvme0n1p1 part  vfat            2G
+└─nvme0n1p2 part  crypto_LUKS 929.5G
+  └─root    crypt btrfs       929.5G
+[exit 0]
+### btrfs-sysfs-device-error-counters
+$ ls /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo
+1
+[exit 0]
+$ cat /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/error_stats
+write_errs 0
+read_errs 0
+flush_errs 0
+corruption_errs 0
+generation_errs 0
+[exit 0]
+### btrfs-sysfs-allocation-profiles
+$ ls /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/data
+bg_reclaim_threshold
+bytes_may_use
+bytes_pinned
+bytes_readonly
+bytes_reserved
+bytes_used
+bytes_zone_unusable
+chunk_size
+disk_total
+disk_used
+dynamic_reclaim
+flags
+periodic_reclaim
+reclaim_bytes
+reclaim_count
+reclaim_errors
+single
+size_classes
+total_bytes
+[exit 0]
+$ ls /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/metadata
+bg_reclaim_threshold
+bytes_may_use
+bytes_pinned
+bytes_readonly
+bytes_reserved
+bytes_used
+bytes_zone_unusable
+chunk_size
+disk_total
+disk_used
+dup
+dynamic_reclaim
+flags
+periodic_reclaim
+reclaim_bytes
+reclaim_count
+reclaim_errors
+size_classes
+total_bytes
+[exit 0]
+$ ls /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/allocation/system
+bg_reclaim_threshold
+bytes_may_use
+bytes_pinned
+bytes_readonly
+bytes_reserved
+bytes_used
+bytes_zone_unusable
+chunk_size
+disk_total
+disk_used
+dup
+dynamic_reclaim
+flags
+periodic_reclaim
+reclaim_bytes
+reclaim_count
+reclaim_errors
+size_classes
+total_bytes
+[exit 0]
+### btrfs-device-stats-ioctl
+$ sudo -n btrfs device stats /
+[/dev/mapper/root].write_io_errs    0
+[/dev/mapper/root].read_io_errs     0
+[/dev/mapper/root].flush_io_errs    0
+[/dev/mapper/root].corruption_errs  0
+[/dev/mapper/root].generation_errs  0
+[exit 0]
+### btrfs-scrub-status
+$ sudo -n btrfs scrub status /
+UUID:             1d02a454-c549-4a35-b567-89d60902af8e
+	no stats available
+Total to scrub:   174.40GiB
+Rate:             0.00B/s
+Error summary:    no errors found
+[exit 0]
+$ sudo -n ls -la /var/lib/btrfs
+ls: cannot access '/var/lib/btrfs': No such file or directory
+[exit 2]
+### btrfs-scrub-timer
+$ systemctl is-enabled btrfs-scrub@-.timer
+disabled
+[exit 1]
+$ systemctl is-active btrfs-scrub@-.timer
+inactive
+[exit 3]
+$ systemctl cat btrfs-scrub@.timer
+# /usr/lib/systemd/system/btrfs-scrub@.timer
+[Unit]
+Description=Monthly Btrfs scrub on %f
+
+[Timer]
+OnCalendar=monthly
+AccuracySec=1d
+RandomizedDelaySec=1w
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+[exit 0]
+$ systemctl is-enabled fstrim.timer
+enabled
+[exit 0]
+### kernel-journal-btrfs-dev-errors
+$ sudo -n journalctl --no-pager -o short-iso _TRANSPORT=kernel --grep "BTRFS.*errs: wr" | grep -c "errs: wr"  (count over retained boots)
+0
+[exit 1]
+$ sudo -n journalctl --no-pager -o short-iso _TRANSPORT=kernel --grep "BTRFS (error|critical|warning)|forced readonly" | grep -cE "BTRFS (error|critical|warning)|forced readonly"  (count over retained boots)
+0
+[exit 1]
+$ journalctl --list-boots --no-pager | tail -n +2 | wc -l  (retained boots)
+6
+[exit 0]
+$ sudo -n journalctl -k --no-pager -b 0 --grep "BTRFS" | wc -l  (current boot BTRFS kernel lines)
+7
+[exit 0]
+$ sudo -n journalctl -k --no-pager -b 0 -o short-iso --grep BTRFS
+2026-10-22T04:55:41-03:00 plazir27 kernel: BTRFS: device fsid 1d02a454-c549-4a35-b567-89d60902af8e devid 1 transid 56268 /dev/mapper/root (253:0) scanned by mount (942)
+2026-10-22T04:55:41-03:00 plazir27 kernel: BTRFS info (device dm-0): first mount of filesystem 1d02a454-c549-4a35-b567-89d60902af8e
+2026-10-22T04:55:41-03:00 plazir27 kernel: BTRFS info (device dm-0): using crc32c checksum algorithm
+2026-10-22T04:55:41-03:00 plazir27 kernel: BTRFS info (device dm-0): enabling ssd optimizations
+2026-10-22T04:55:41-03:00 plazir27 kernel: BTRFS info (device dm-0): turning on async discard
+2026-10-22T04:55:41-03:00 plazir27 kernel: BTRFS info (device dm-0): enabling free space tree
+2026-10-22T04:55:41-03:00 plazir27 kernel: BTRFS info (device dm-0 state M): use zstd compression, level 3
+[exit 0]
+### nvme-health-smartctl
+$ sudo -n smartctl -H -A /dev/nvme0n1
+smartctl 7.5 2025-04-30 r5714 [x86_64-linux-7.2.11-arch1-1] (local build)
+Copyright (C) 2002-25, Bruce Allen, Christian Franke, www.smartmontools.org
+
+=== START OF SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+
+SMART/Health Information (NVMe Log 0x02, NSID 0xffffffff)
+Critical Warning:                   0x00
+Temperature:                        27 Celsius
+Available Spare:                    100%
+Available Spare Threshold:          10%
+Percentage Used:                    2%
+Data Units Read:                    166,723,542 [85.3 TB]
+Data Units Written:                 47,275,631 [24.2 TB]
+Host Read Commands:                 3,519,217,605
+Host Write Commands:                1,539,528,796
+Controller Busy Time:               3,274
+Power Cycles:                       325
+Power On Hours:                     1,855
+Unsafe Shutdowns:                   200
+Media and Data Integrity Errors:    0
+Error Information Log Entries:      0
+Warning  Comp. Temperature Time:    0
+Critical Comp. Temperature Time:    0
+Temperature Sensor 1:               34 Celsius
+Temperature Sensor 2:               27 Celsius
+
+[exit 0]
+### nvme-health-smart-log
+$ sudo -n nvme smart-log /dev/nvme0
+WARNING: 'smart-log' is deprecated and will be removed in the next major version, use 'nvme log smart' instead
+Smart Log for NVME device:nvme0 namespace-id:ffffffff
+critical_warning			: 0
+temperature				: 27 °C (300 K, 80 °F)
+available_spare				: 100%
+available_spare_threshold		: 10%
+percentage_used				: 2%
+endurance group critical warning summary: 0
+informative warning			: 0
+Data Units Read				: 166723544 (85.36 TB)
+Data Units Written			: 47275631 (24.21 TB)
+host_read_commands			: 3519217625
+host_write_commands			: 1539528796
+controller_busy_time			: 3274
+power_cycles				: 325
+power_on_hours				: 1855
+unsafe_shutdowns			: 200
+media_errors				: 0
+num_err_log_entries			: 0
+Warning Temperature Time		: 0
+Critical Composite Temperature Time	: 0
+Temperature Sensor 1			: 34 °C (307 K, 93 °F)
+Temperature Sensor 2			: 27 °C (300 K, 80 °F)
+Thermal Management T1 Trans Count	: 0
+Thermal Management T2 Trans Count	: 0
+Thermal Management T1 Total Time	: 0
+Thermal Management T2 Total Time	: 0
+Operational Lifetime Energy Consumed	: 0
+Interval Power Measurement Type		: NVM subsystem total power
+Interval Power Measurement		: -
+[exit 0]
+### footer
+$ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-10-22T13:39:52Z
+[exit 0]

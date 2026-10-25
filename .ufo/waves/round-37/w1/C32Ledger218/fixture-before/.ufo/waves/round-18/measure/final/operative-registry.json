@@ -1,0 +1,137 @@
+{
+  "revision": "c0f6303f35e15ce113c03f4b6592014b9d8c2472",
+  "selection": "unique highest-numbered complete superseding registry",
+  "rows": [
+    [
+      "host-census",
+      "gate",
+      "`bash tools/tsukuroi-census.sh` (live mode not run round18)",
+      "0 HEALTHY/clean;1 DEGRADED/failed;2 BLOCKED/could-not-evaluate",
+      "`bash tools/tsukuroi-census.sh --selftest`",
+      "six-plane rules and fixed fixture assertions in tool",
+      "live probes read-only; selftest private fixtures",
+      "tsukuroi"
+    ],
+    [
+      "root-dac-correction",
+      "gate",
+      "`python3 tools/check-root-dac-correction.py --revision <REV>`",
+      "0 clean;1 failed;2 could-not-evaluate",
+      "`python3 tools/check-root-dac-correction.py --selftest` (in-memory and isolated CLI Git fixtures)",
+      "R13 exact correction claims and fixed expectations in tool",
+      "committed git reads; private selftest clones",
+      "tsukuroi"
+    ],
+    [
+      "source-scope-correction",
+      "gate",
+      "`python3 tools/check-source-scope-correction.py --revision <REV>`",
+      "0 clean;1 failed;2 could-not-evaluate",
+      "`python3 tools/check-source-scope-correction.py --selftest`",
+      "R14 scope/comment correction fields and source bindings",
+      "committed git reads; private selftest clones",
+      "tsukuroi"
+    ],
+    [
+      "locator-clarification",
+      "gate",
+      "`python3 tools/check-locator-clarification.py --revision <REV>`",
+      "0 clean;1 failed;2 could-not-evaluate",
+      "`python3 tools/check-locator-clarification.py --selftest`",
+      "R15 exact source/positive-definition correction fields",
+      "committed git reads; private selftest clones",
+      "tsukuroi"
+    ],
+    [
+      "update-recheck",
+      "probe",
+      "`python3 tools/measure-update-recheck.py --revision <REV>`",
+      "0 observation count (not a health/upgrade clearance);1 failed;2 could-not-evaluate",
+      "`python3 tools/measure-update-recheck.py --selftest`",
+      "R15 snapshot/probe/schema inputs and fixed selftest values",
+      "committed git reads; private selftest clones",
+      "tsukuroi"
+    ],
+    [
+      "section-citations",
+      "gate",
+      "`python3 tools/check-section-citations.py --revision <REV>`",
+      "0 clean;1 failed;2 could-not-evaluate",
+      "`python3 tools/check-section-citations.py --selftest`",
+      "exact R16 headings/rows/quotes and source expectations; old frozen-cases.json is historical/non-normative, NOT independent oracle",
+      "committed git reads; private selftest clones",
+      "tsukuroi"
+    ],
+    [
+      "boot-chain",
+      "gate",
+      "`python3 tools/check-boot-chain.py --revision <REV>`; C1 mode adds `--statement-corrections`",
+      "0 clean;1 failed;2 could-not-evaluate; default emits verdicted_kernel_entries, C1 emits correction_count",
+      "`python3 tools/check-boot-chain.py --selftest`",
+      "default schema/image evidence rules; C1 fixed R18-CORR01..04, package argv, both UKI/installed hashes and live-versus-history mtime",
+      "committed git reads; private selftest clones",
+      "tsukuroi"
+    ],
+    [
+      "boot-chain-audit",
+      "probe",
+      "`bash tools/boot-chain-audit.sh --live` (not run round18)",
+      "0 CONSISTENT;1 DEGRADED;2 UNKNOWN; not operator clearance",
+      "`bash tools/boot-chain-audit.sh --selftest`",
+      "schema-v2 per-entry verdict rules",
+      "private mktemp; privileged live reads only when separately authorized",
+      "tsukuroi"
+    ],
+    [
+      "freshness-r17",
+      "gate",
+      "`python3 tools/check-freshness-r17.py --revision <REV> [--registry-from <REV>]`",
+      "0 clean;1 failed including STALE-UNFLAGGED;2 could-not-evaluate",
+      "`python3 tools/check-freshness-r17.py --selftest`",
+      "immutable R17 registry48 and baseline/capture quote bindings",
+      "committed git reads; private selftest clones",
+      "tsukuroi"
+    ],
+    [
+      "appended-notices",
+      "gate",
+      "`python3 tools/check-appended-notices.py --revision <REV> --registry corpus/knowledge/freshness-recheck-r18.json [--registry-from <REV>]`; structural C1 uses statement-corrections-r18.json",
+      "0 structurally clean;1 failed including missing/stale notice;2 could-not-evaluate; structural conformance is not semantic source agreement",
+      "`python3 tools/check-appended-notices.py --selftest`",
+      "schema tsukuroi-appended-notices-v1, baseline842a531, record/notice/capture constraints; C1 domain truth checked separately by boot-chain mode",
+      "committed git reads; private selftest fixtures",
+      "tsukuroi"
+    ],
+    [
+      "recheck-commands",
+      "gate",
+      "`python3 tools/check-recheck-commands.py --revision <REV> [--paths ...] [--exec-log <lane path>]`",
+      "0 bounded clean;1 RECHECK-FORBIDDEN-INVOCATION or EXEC-STEER-VIOLATION;2 could-not-evaluate",
+      "`python3 tools/check-recheck-commands.py --selftest`",
+      "last recheck directive, pointer/direct command scope, R17/R18-RECHECK replacement; forbidden binary set; emitted exec-log command parsing",
+      "committed git reads; private selftest fixtures",
+      "tsukuroi"
+    ],
+    [
+      "seat-scope",
+      "gate",
+      "`python3 tools/check-seat-scope.py --wave <dir> --revision <REV>`",
+      "0 bounded clean;1 SCOPE-UNDECLARED/EXEC-UNAUTHORIZED/REPORT-MISSING/TRAILER-MALFORMED;2 could-not-evaluate",
+      "`python3 tools/check-seat-scope.py --selftest`",
+      "scoped item EXEC-AUTHORIZED token and reported executed line; not a complete independent execution audit",
+      "committed wave artifact reads; private selftest clones",
+      "tsukuroi"
+    ],
+    [
+      "revision-binding",
+      "gate",
+      "`python3 tools/check-revision-binding.py --tools-revision <REV>`",
+      "0 original-nine consistency clean;1 fewer consistent;2 could-not-evaluate. consolidation_status/consolidated_tools ALSO require shared_tools9/copies0; new discovered tools reported separately",
+      "`python3 tools/check-revision-binding.py --selftest`",
+      "original nine required even if absent; D1\u2013D6, origin-absent/blob-ref and strict refusal probes; AST import+bind-call census and literal copy count, not universal behavior proof",
+      "disposable clone/ref/probe commits only; reviewed trusted scripts execute with caller authority",
+      "tsukuroi"
+    ]
+  ],
+  "older_tables": "historical, never fallback"
+}

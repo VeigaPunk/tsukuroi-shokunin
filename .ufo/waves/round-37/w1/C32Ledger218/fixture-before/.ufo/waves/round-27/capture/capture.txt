@@ -1,0 +1,138 @@
+### time
+$ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-10-22T15:55:13Z
+[exit 0]
+### kernel
+$ uname -r
+7.2.11-arch1-1
+[exit 0]
+### tainted
+$ cat /proc/sys/kernel/tainted
+12288
+[exit 0]
+### per-module-taint
+module_taint nvidia_drm OE
+module_taint nvidia_modeset OE
+module_taint nvidia OE
+module_taint nvidia_uvm OE
+[exit 0]
+### sig_enforce
+$ cat /sys/module/module/parameters/sig_enforce
+N
+[exit 0]
+### kernel-config
+$ zgrep -E CONFIG_MODULE_SIG|CONFIG_MODVERSIONS /proc/config.gz
+CONFIG_MODULE_SIG_FORMAT=y
+# CONFIG_MODVERSIONS is not set
+CONFIG_MODULE_SIG=y
+# CONFIG_MODULE_SIG_FORCE is not set
+CONFIG_MODULE_SIG_ALL=y
+# CONFIG_MODULE_SIG_SHA256 is not set
+# CONFIG_MODULE_SIG_SHA384 is not set
+CONFIG_MODULE_SIG_SHA512=y
+# CONFIG_MODULE_SIG_SHA3_256 is not set
+# CONFIG_MODULE_SIG_SHA3_384 is not set
+# CONFIG_MODULE_SIG_SHA3_512 is not set
+CONFIG_MODULE_SIG_HASH="sha512"
+CONFIG_MODULE_SIG_KEY="certs/signing_key.pem"
+# CONFIG_MODULE_SIG_KEY_TYPE_RSA is not set
+CONFIG_MODULE_SIG_KEY_TYPE_ECDSA=y
+# CONFIG_MODULE_SIG_KEY_TYPE_MLDSA_44 is not set
+# CONFIG_MODULE_SIG_KEY_TYPE_MLDSA_65 is not set
+# CONFIG_MODULE_SIG_KEY_TYPE_MLDSA_87 is not set
+[exit 0]
+### modinfo-nvidia
+$ modinfo -F filename nvidia
+/lib/modules/7.2.11-arch1-1/updates/dkms/nvidia.ko.zst
+[exit 0]
+$ modinfo -F version nvidia
+615.78.08
+[exit 0]
+$ modinfo -F license nvidia
+Dual MIT/GPL
+[exit 0]
+$ modinfo -F signer nvidia
+DKMS module signing key
+[exit 0]
+$ modinfo -F vermagic nvidia
+7.2.11-arch1-1 SMP preempt mod_unload 
+[exit 0]
+$ pacman -Qo /lib/modules/7.2.11-arch1-1/updates/dkms/nvidia.ko.zst
+error: No package owns /lib/modules/7.2.11-arch1-1/updates/dkms/nvidia.ko.zst
+[exit 1]
+### modinfo-nvidia_drm
+$ modinfo -F filename nvidia_drm
+/lib/modules/7.2.11-arch1-1/updates/dkms/nvidia-drm.ko.zst
+[exit 0]
+$ modinfo -F version nvidia_drm
+615.78.08
+[exit 0]
+$ modinfo -F license nvidia_drm
+Dual MIT/GPL
+[exit 0]
+$ modinfo -F signer nvidia_drm
+DKMS module signing key
+[exit 0]
+$ modinfo -F vermagic nvidia_drm
+7.2.11-arch1-1 SMP preempt mod_unload 
+[exit 0]
+$ pacman -Qo /lib/modules/7.2.11-arch1-1/updates/dkms/nvidia-drm.ko.zst
+error: No package owns /lib/modules/7.2.11-arch1-1/updates/dkms/nvidia-drm.ko.zst
+[exit 1]
+### modinfo-nvidia_modeset
+$ modinfo -F filename nvidia_modeset
+/lib/modules/7.2.11-arch1-1/updates/dkms/nvidia-modeset.ko.zst
+[exit 0]
+$ modinfo -F version nvidia_modeset
+615.78.08
+[exit 0]
+$ modinfo -F license nvidia_modeset
+Dual MIT/GPL
+[exit 0]
+$ modinfo -F signer nvidia_modeset
+DKMS module signing key
+[exit 0]
+$ modinfo -F vermagic nvidia_modeset
+7.2.11-arch1-1 SMP preempt mod_unload 
+[exit 0]
+$ pacman -Qo /lib/modules/7.2.11-arch1-1/updates/dkms/nvidia-modeset.ko.zst
+error: No package owns /lib/modules/7.2.11-arch1-1/updates/dkms/nvidia-modeset.ko.zst
+[exit 1]
+### modinfo-nvidia_uvm
+$ modinfo -F filename nvidia_uvm
+/lib/modules/7.2.11-arch1-1/updates/dkms/nvidia-uvm.ko.zst
+[exit 0]
+$ modinfo -F version nvidia_uvm
+615.78.08
+[exit 0]
+$ modinfo -F license nvidia_uvm
+Dual MIT/GPL
+[exit 0]
+$ modinfo -F signer nvidia_uvm
+DKMS module signing key
+[exit 0]
+$ modinfo -F vermagic nvidia_uvm
+7.2.11-arch1-1 SMP preempt mod_unload 
+[exit 0]
+$ pacman -Qo /lib/modules/7.2.11-arch1-1/updates/dkms/nvidia-uvm.ko.zst
+error: No package owns /lib/modules/7.2.11-arch1-1/updates/dkms/nvidia-uvm.ko.zst
+[exit 1]
+### packages
+$ pacman -Q linux dkms nvidia-open-dkms nvidia-utils
+linux 7.2.11.arch1-1
+dkms 3.4.4-1
+nvidia-open-dkms 615.78.08-1
+nvidia-utils 615.78.08-1
+[exit 0]
+### cmdline-taint-params
+$ grep -oE (panic_on_taint|module.sig_enforce)[^ ]* /proc/cmdline
+[exit 1]
+### panic_on_taint-sysctl
+$ cat /proc/sys/kernel/panic_on_taint
+cat: /proc/sys/kernel/panic_on_taint: No such file or directory
+[exit 1]
+### kernel-journal-taint
+$ journalctl -k -b 0 --no-pager -o short-monotonic | grep -iE taint
+[   17.536700] plazir27 kernel: nvidia: loading out-of-tree module taints kernel.
+[   17.536703] plazir27 kernel: nvidia: module verification failed: signature and/or required key missing - tainting kernel
+[exit 0]

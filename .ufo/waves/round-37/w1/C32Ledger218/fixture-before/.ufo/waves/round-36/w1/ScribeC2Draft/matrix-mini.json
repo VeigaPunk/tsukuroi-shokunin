@@ -1,0 +1,1129 @@
+{
+ "note": "journalctl v262 -F/-N field/filter rejection \u2014 live read-only matrix",
+ "seat": "ScribeC2Draft",
+ "host": "plazir27",
+ "verified_at": "2026-10-23",
+ "generated_at_utc": "02:49:26Z",
+ "systemd_version": "systemd 262 (262-1-arch)",
+ "pacman_systemd": "systemd 262-1",
+ "journalctl_binary": "/usr/bin/journalctl",
+ "journalctl_version_first_line": "systemd 262 (262-1-arch)",
+ "rejection_line": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.",
+ "rejection_line_bytes_with_newline": 84,
+ "rejection_exit_code": 1,
+ "core_cells": [
+  "core_plain",
+  "core_boot0",
+  "core_boot0_json",
+  "core_since_1h",
+  "core_unit_journald",
+  "core_boot_neg1"
+ ],
+ "cell_count": 54,
+ "cells": [
+  {
+   "cell": "core_plain",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 12,
+   "stdout_head": [
+    "5",
+    "6",
+    "2",
+    "4",
+    "7",
+    "3"
+   ],
+   "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "core_boot0",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-b",
+    "0",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "core_boot0_json",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-b",
+    "0",
+    "-o",
+    "json",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "core_since_1h",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--since",
+    "1 hour ago",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "core_unit_journald",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-u",
+    "systemd-journald",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "core_boot_neg1",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-b",
+    "-1",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_plain_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 12,
+   "stdout_head": [
+    "5",
+    "6",
+    "2",
+    "4",
+    "7",
+    "3"
+   ],
+   "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "ext_plain_N",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-N"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 2882,
+   "stdout_head": [
+    "_PID",
+    "CODE_FILE",
+    "_SYSTEMD_CGROUP",
+    "_TRANSPORT",
+    "_AUDIT_LOGINUID",
+    "_BOOT_ID",
+    "_CMDLINE",
+    "SYSLOG_IDENTIFIER",
+    "JOB_ID",
+    "_SOURCE_REALTIME_TIMESTAMP"
+   ],
+   "stdout_sha256": "3480f2aac48ee794f741dfd7dbffa31c86d933df70482db14adf5e57dfc2f20a",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "ext_boot0_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-b",
+    "0",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_bootneg1_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-b",
+    "-1",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_boot0_N",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-b",
+    "0",
+    "-N"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_since_N",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--since",
+    "1 hour ago",
+    "-N"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_unit_N",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-u",
+    "systemd-journald",
+    "-N"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_grep_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--grep",
+    "foo",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_grep_N",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--grep",
+    "foo",
+    "-N"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_prio_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-p",
+    "err",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_until_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--until",
+    "now",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_sinceuntil_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--since",
+    "1 hour ago",
+    "--until",
+    "now",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_cursor_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--cursor=abc",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_kernel_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-b",
+    "0",
+    "-k",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_boot0_prio_json_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-b",
+    "0",
+    "-p",
+    "err",
+    "-o",
+    "json",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_boot0_all_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-b",
+    "0",
+    "--all",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_boot0_outfields_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-b",
+    "0",
+    "--output-fields=PRIORITY",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_head": [],
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "ext_lines1_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-n",
+    "1",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 2,
+   "stdout_head": [
+    "5"
+   ],
+   "stdout_sha256": "f0b5c2c2211c8d67ed15e75e656c7862d086e9245420892a7de62cd9ec582a06",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "ext_lines1_N",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-n",
+    "1",
+    "-N"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 2882,
+   "stdout_head": [
+    "_PID",
+    "CODE_FILE",
+    "_SYSTEMD_CGROUP",
+    "_TRANSPORT",
+    "_AUDIT_LOGINUID",
+    "_BOOT_ID",
+    "_CMDLINE",
+    "SYSLOG_IDENTIFIER",
+    "JOB_ID",
+    "_SOURCE_REALTIME_TIMESTAMP"
+   ],
+   "stdout_sha256": "3480f2aac48ee794f741dfd7dbffa31c86d933df70482db14adf5e57dfc2f20a",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "ext_diskusage_N",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--disk-usage",
+    "-N"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 2882,
+   "stdout_head": [
+    "_PID",
+    "CODE_FILE",
+    "_SYSTEMD_CGROUP",
+    "_TRANSPORT",
+    "_AUDIT_LOGINUID",
+    "_BOOT_ID",
+    "_CMDLINE",
+    "SYSLOG_IDENTIFIER",
+    "JOB_ID",
+    "_SOURCE_REALTIME_TIMESTAMP"
+   ],
+   "stdout_sha256": "3480f2aac48ee794f741dfd7dbffa31c86d933df70482db14adf5e57dfc2f20a",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "ext_header_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--header",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 12,
+   "stdout_head": [
+    "5",
+    "6",
+    "2",
+    "4",
+    "7",
+    "3"
+   ],
+   "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "ext_sync_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--sync",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 12,
+   "stdout_head": [
+    "5",
+    "6",
+    "2",
+    "4",
+    "7",
+    "3"
+   ],
+   "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "ext_all_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-a",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 12,
+   "stdout_head": [
+    "5",
+    "6",
+    "2",
+    "4",
+    "7",
+    "3"
+   ],
+   "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "ext_reverse_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-r",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 12,
+   "stdout_head": [
+    "5",
+    "6",
+    "2",
+    "4",
+    "7",
+    "3"
+   ],
+   "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "ext_root_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--root",
+    "/",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 12,
+   "stdout_head": [
+    "5",
+    "6",
+    "2",
+    "4",
+    "7",
+    "3"
+   ],
+   "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "ext_dir_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-D",
+    "/var/log/journal",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 12,
+   "stdout_head": [
+    "5",
+    "6",
+    "2",
+    "4",
+    "7",
+    "3"
+   ],
+   "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "ext_user_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--user",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 8,
+   "stdout_head": [
+    "5",
+    "6",
+    "2",
+    "4"
+   ],
+   "stdout_sha256": "da35c742a667fcbe263adc8b1b396cbe699a425c2c7ddd35ad8b6086134d941e",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "ext_system_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--system",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 10,
+   "stdout_head": [
+    "7",
+    "3",
+    "5",
+    "6",
+    "4"
+   ],
+   "stdout_sha256": "f460fbc9e81d9021a29d2382b49b1bb6075de593f421632f9669ccf7ddb82b61",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "ext_follow_F",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-f",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 12,
+   "stdout_head": [
+    "5",
+    "6",
+    "2",
+    "4",
+    "7",
+    "3"
+   ],
+   "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "merged_fields_default",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-N",
+    "PRIORITY,MESSAGE"
+   ],
+   "exit": 1,
+   "stderr_bytes": 54,
+   "stderr_text": "Extraneous arguments starting with 'PRIORITY,MESSAGE'\n",
+   "stdout_bytes": 0,
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": false,
+   "verdict": "OTHER",
+   "source": "ExecC2Live/matrix.json cell re-run by ScribeC2Draft"
+  },
+  {
+   "cell": "merged_fields_boot0",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-b",
+    "0",
+    "-N",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 46,
+   "stderr_text": "Extraneous arguments starting with 'PRIORITY'\n",
+   "stdout_bytes": 0,
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": false,
+   "verdict": "OTHER",
+   "source": "ExecC2Live/matrix.json cell re-run by ScribeC2Draft"
+  },
+  {
+   "cell": "merged_field_boot_prio",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-b",
+    "-p",
+    "err",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT",
+   "source": "ExecC2Live/matrix.json cell re-run by ScribeC2Draft"
+  },
+  {
+   "cell": "merged_field_quiet_boot0",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "--quiet",
+    "-b",
+    "0",
+    "-F",
+    "PRIORITY"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT",
+   "source": "ExecC2Live/matrix.json cell re-run by ScribeC2Draft"
+  },
+  {
+   "cell": "live_invocation",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--invocation=0123456789abcdef0123456789abcdef"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "live_after_cursor",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--after-cursor=abc"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "live_cursor_file",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--cursor-file=/dev/null"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "live_user_unit",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--user-unit=foo.service"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "live_identifier",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "-t",
+    "systemd"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "live_exclude_id",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--exclude-identifier=x"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "live_facility",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--facility=3"
+   ],
+   "exit": 1,
+   "stderr_bytes": 84,
+   "stderr_text": "-F/--field= and -N/--fields cannot be combined with options that limit the journal.\n",
+   "stdout_bytes": 0,
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": true,
+   "verdict": "REJECT"
+  },
+  {
+   "cell": "live_output_fields",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--output-fields=PRIORITY"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 12,
+   "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "live_boot_all",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--boot=all"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 12,
+   "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "live_list_boots",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--list-boots"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 541,
+   "stdout_sha256": "94591e613e10dabff33bd46fd98f538268cca929e8999fa72be1d4fb2d6a4421",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "live_show_cursor",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--show-cursor"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 12,
+   "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "live_merge",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--merge"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 12,
+   "stdout_sha256": "d0f6353ae541a724842fb53bcf7e3175d692e968b5610caeb6226069781cd019",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "live_namespace",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--namespace=x"
+   ],
+   "exit": 0,
+   "stderr_bytes": 29,
+   "stderr_text": "No journal files were found.\n",
+   "stdout_bytes": 0,
+   "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "live_user_scope",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--user"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 8,
+   "stdout_sha256": "da35c742a667fcbe263adc8b1b396cbe699a425c2c7ddd35ad8b6086134d941e",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  },
+  {
+   "cell": "live_system_scope",
+   "argv": [
+    "journalctl",
+    "--no-pager",
+    "-F",
+    "PRIORITY",
+    "--system"
+   ],
+   "exit": 0,
+   "stderr_bytes": 0,
+   "stderr_text": "",
+   "stdout_bytes": 10,
+   "stdout_sha256": "f460fbc9e81d9021a29d2382b49b1bb6075de593f421632f9669ccf7ddb82b61",
+   "rejection_line_present": false,
+   "verdict": "OK"
+  }
+ ],
+ "peer_matrix_merged": true,
+ "peer_matrix_note": "Merged .ufo/waves/round-36/w1/ExecC2Live/matrix.json (10 cells + controls) after it appeared at 02:58Z. All 6 overlapping cells agree on exit code and stderr byte count; the 4 peer-only cells were re-run here and recorded as merged_* cells rather than transcribed. Peer control `journalctl --no-pager -N` exit 0, 167 field names.",
+ "peer_crosscheck": {
+  "peer_cells": 10,
+  "overlap": 6,
+  "overlap_all_agree": true,
+  "peer_only_rerun": 4
+ },
+ "backfill_note": "Every decision-table row is now backed by a named cell here: the 15 live_* cells were backfilled at 03:0xZ so no row rests on session-only observation."
+}

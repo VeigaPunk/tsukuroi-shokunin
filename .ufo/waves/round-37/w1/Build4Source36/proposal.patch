@@ -1,0 +1,32 @@
+Proposal: extend the static AST binding census to constant-false `while` loops
+Target: tools/check-revision-binding.py, `shared()`/`visit()` (baseline lines 293-297)
+Impact: per-tool `shared` flag (line 908-909) and `consolidated_tools` (line 918-919)
+
+--- a/tools/check-revision-binding.py
++++ b/tools/check-revision-binding.py
+@@ -293,7 +293,7 @@ def shared(source):
+     def visit(node):
+-        if isinstance(node, ast.If) and isinstance(node.test, ast.Constant):
++        if isinstance(node, (ast.If, ast.While)) and isinstance(node.test, ast.Constant):
+             body = node.body if node.test.value else node.orelse
+             for child in body:
+                 visit(child)
+```
+
+Semantics note: for a `while` whose test is a literal constant, the branch
+selection is identical to `if`: body executes iff the constant is truthy, and
+the orelse executes iff it is falsy (the `else` of a `while False:` runs once —
+Python executes it on normal termination, which a false condition is).  The
+same branch formula is therefore correct for both node kinds; the fixture matrix
+locks this with `live-while-else-live-bind` → (True, 0) and
+`live-while-true-body-bind` → (True, 0), which pass on both baseline and patched
+census.
+
+Recommended selftest additions (same file, `selftest()` `check(...)` block near
+lines 1286-1292):
+
+    check("dead-while-literal-bind", shared("while False:\n    import _revision\n"
+                                              "    _revision.bind(r,v)\n"), (False, 0))
+    check("live-while-else-bind", shared("while False:\n    pass\nelse:\n"
+                                          "    import _revision\n"
+                                          "    _revision.bind(r,v)\n"), (True, 0))

@@ -1,0 +1,485 @@
+{
+ "schema": "tsukuroi-freshness-recheck-v1",
+ "records": [
+  {
+   "id": "R17-FRESH-01",
+   "path": "corpus/knowledge/initramfs-v42-sysroot-recovery.md",
+   "baseline_quote": "`mkinitcpio 41.1-1`",
+   "stale_reason": "Line 9 current-host package read reports mkinitcpio 41.1-1; the 2026-10-20 09:15 full upgrade installed 42.2-1.",
+   "observed_now": "mkinitcpio 42.2-1",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:16",
+   "capture_quote": "mkinitcpio-42.2-1",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-02",
+   "path": "corpus/knowledge/initramfs-v42-sysroot-recovery.md",
+   "baseline_quote": "`plymouth 26.134.222-2`",
+   "stale_reason": "Line 9 reports plymouth 26.134.222-2; upgraded to 26.134.222-3 at 09:16:45.",
+   "observed_now": "plymouth 26.134.222-3",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:17",
+   "capture_quote": "plymouth-26.134.222-3",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-03",
+   "path": "corpus/knowledge/initramfs-v42-sysroot-recovery.md",
+   "baseline_quote": "`limine-mkinitcpio-hook 1.38.0-1.1`",
+   "stale_reason": "Line 9 reports limine-mkinitcpio-hook 1.38.0-1.1; upgraded to 1.40.0-2 at 09:16:42.",
+   "observed_now": "limine-mkinitcpio-hook 1.40.0-2",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:18",
+   "capture_quote": "limine-mkinitcpio-hook-1.40.0-2",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-04",
+   "path": "corpus/knowledge/initramfs-v42-sysroot-recovery.md",
+   "baseline_quote": "`limine-snapper-sync 1.31.0-1.1`",
+   "stale_reason": "Line 9 reports limine-snapper-sync 1.31.0-1.1; upgraded to 1.32.1-2 at 09:16:42.",
+   "observed_now": "limine-snapper-sync 1.32.1-2",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:19",
+   "capture_quote": "limine-snapper-sync-1.32.1-2",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-05",
+   "path": "corpus/knowledge/initramfs-v42-sysroot-recovery.md",
+   "baseline_quote": "`snapper 0.13.1-3`",
+   "stale_reason": "Line 9 reports snapper 0.13.1-3; the installed directory is now 0.13.2-1.",
+   "observed_now": "snapper 0.13.2-1",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:26",
+   "capture_quote": "snapper-0.13.2-1",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-06",
+   "path": "corpus/knowledge/initramfs-v42-sysroot-recovery.md",
+   "baseline_quote": "These are future-upgrade compatibility risks, not a claim that the current 41.1 image has failed.",
+   "stale_reason": "Line 14 frames the v42 hook risk as future and names the current image as 41.1; the current UKIs were rebuilt on 42.2 images.",
+   "observed_now": "VERSION 42.2 in omarchy_linux.efi and omarchy_linux-lts.efi",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:174",
+   "capture_quote": "VERSION 42.2",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-07",
+   "path": "corpus/knowledge/initramfs-v42-sysroot-recovery.md",
+   "baseline_quote": "After a rebuild that pairs v42 init with the currently configured, unchanged `btrfs-overlayfs` hook, `run_latehook` checks `/new_root`",
+   "stale_reason": "Line 14 predicts the v42 plus btrfs-overlayfs pairing as a future rebuild; the pairing now exists in the current UKIs.",
+   "observed_now": "v42 init paired with the btrfs-overlayfs late hook",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:178",
+   "capture_quote": "LATEHOOKS=\"plymouth btrfs-overlayfs\"",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-08",
+   "path": "corpus/knowledge/initramfs-v42-sysroot-recovery.md",
+   "baseline_quote": "this is configuration evidence, not an unpack/inspection of the generated image.",
+   "stale_reason": "Line 11 says the image was not inspected; the current UKI images were extracted and inspected.",
+   "observed_now": "UKI images were extracted and their HOOKS list has no systemd entry",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:177",
+   "capture_quote": "HOOKS=\"udev plymouth keymap consolefont encrypt resume\"",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-09",
+   "path": "corpus/knowledge/initramfs-v42-sysroot-recovery.md",
+   "baseline_quote": "No image rebuild or test boot was performed in this read-only capture; that is an operator-only discriminator.",
+   "stale_reason": "Line 32 treats the discriminator boot as not yet performed; limine-update rebuilt the UKIs at 09:26 and the host booted 7.2.11 at 09:57. Overlay mount state is not captured.",
+   "observed_now": "limine-update ran at 09:26:11 and the current boot started 09:57:09",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:86",
+   "capture_quote": "COMMAND=/usr/bin/limine-update",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-10",
+   "path": "corpus/knowledge/initramfs-v42-sysroot-recovery.md",
+   "baseline_quote": "pacman -Q mkinitcpio limine-mkinitcpio-hook plymouth",
+   "stale_reason": "Line 3 recheck header prescribes a pacman query, which the round steer forbids; superseded by the R17-RECHECK steer-safe procedure.",
+   "observed_now": "package dirs read as mkinitcpio-42.2-1",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:16",
+   "capture_quote": "/var/lib/pacman/local/mkinitcpio-42.2-1",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-11",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "`-Syu` would be INERT: 0 candidates by three probes",
+   "stale_reason": "Section 5 rank 1 describes the 2026-10-14 probe; the 2026-10-20 09:15:30 full -Syu superseded the emptiness it measured.",
+   "observed_now": "full -Syu executed 2026-10-20 09:15:30-0300; the pending set after it is not re-measured (this seat ran no pacman)",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:59",
+   "capture_quote": "Running 'pacman -Syu --needed --noconfirm",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-12",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "No update action is owed today",
+   "stale_reason": "Current-use directive; the next-refresh gate it names was crossed by the executed full upgrade.",
+   "observed_now": "the refresh gate was crossed by the full -Syu at 2026-10-20 09:15:30-0300; no current \"owed\" statement holds",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:59",
+   "capture_quote": "Running 'pacman -Syu --needed --noconfirm",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-13",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "Plain `-Syu` after an operator refresh (the wave)",
+   "stale_reason": "The planned wave ran; its pre-upgrade cost and pending premise are no longer prospective.",
+   "observed_now": "executed: the full -Syu this row planned ran 2026-10-20 09:15:30-0300; its pre-upgrade wave-cost and pending premise are moot",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:59",
+   "capture_quote": "Running 'pacman -Syu --needed --noconfirm",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-14",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "If currency is wanted: planned window",
+   "stale_reason": "Prescribes a pre-upgrade re-run that cannot now precede the upgrade it describes; the upgrade has run.",
+   "observed_now": "the full system upgrade it prescribed started 2026-10-20 09:15:31-0300, before any re-run of -Qu or -Sup",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:8",
+   "capture_quote": "starting full system upgrade",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-15",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "resolving event is operator-side.",
+   "stale_reason": "Names the operator-side refresh as the open gate; that refresh ran at 09:15:30.",
+   "observed_now": "the operator-side sync ran 2026-10-20 09:15:30-0300",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:7",
+   "capture_quote": "[2026-10-20T09:15:30-0300] [PACMAN] synchronizing package lists",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-16",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "Dbs refreshed 2026-10-11; content 36 d 0 h old",
+   "stale_reason": "Sync-db age stated as current; the omarchy db was refreshed 2026-10-20 and core/extra/multilib carry 2026-10-17 mtimes.",
+   "observed_now": "omarchy sync db mtime is now 2026-10-20 09:09:26 -0300; the content-age figure is not re-measured",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:13",
+   "capture_quote": "2026-10-20 09:09:26.000000000 -0300 /var/lib/pacman/sync/omarchy.db",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-17",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "(2 lines, rc=0, **0 configs**)",
+   "stale_reason": "Snapper configuration stated as empty; root and home configs now exist.",
+   "observed_now": "snapper list-configs now lists two configs: home (/home) and root (/)",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:45",
+   "capture_quote": "home   │ /home",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-18",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "Any wave is snapshot-less.",
+   "stale_reason": "Claims no snapshot net; root config now holds snapshot #2 pre-aur-elephant-2.22.1 (ro=true at boot-chain-capture.txt:160-161).",
+   "observed_now": "root config snapshot #2 pre-aur-elephant-2.22.1 exists (2026-10-20 09:29:19 -0300)",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:167",
+   "capture_quote": "pre-aur-elephant-2.22.1",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-19",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "`limine-snapper-sync` system unit enabled+inactive",
+   "stale_reason": "Unit state stated as enabled and inactive on 2026-10-14; capture now shows enabled (active state not captured).",
+   "observed_now": "systemctl is-enabled reports limine-snapper-sync.service as enabled; its active state is not re-measured",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:47",
+   "capture_quote": "systemctl is-enabled limine-snapper-sync.service",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-20",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "`dkms status` still two rows",
+   "stale_reason": "DKMS registration stated as two rows incl. 610.57.04 and 7.1.4; the 615.78.08 row for 7.2.11 now exists and 610.57.04/7.1.4 are absent.",
+   "observed_now": "dkms status now lists nvidia/615.78.08 installed for 7.2.11-arch1-1; no 610.57.04 or 7.1.4 row appears",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:37",
+   "capture_quote": "nvidia/615.78.08, 7.2.11-arch1-1, x86_64: installed",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-21",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "No reboot pending",
+   "stale_reason": "States no reboot pending; the host rebooted onto the 7.2.11 boot at 09:57:09.",
+   "observed_now": "current boot (journal boot 0) started 2026-10-20 09:57:09 -03",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:10",
+   "capture_quote": "Tue 2026-10-20 09:57:09 -03",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-22",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "| 3 | `elephant` 2.21.0-1 |",
+   "stale_reason": "Foreign-row version stated as today's; elephant core was reinstalled at 2.22.1-1 from the yay cache.",
+   "observed_now": "elephant 2.22.1-1 was installed by pacman -U at 2026-10-20 09:31:03-0300 from the yay cache; the other rows are not re-measured",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:63",
+   "capture_quote": "elephant-2.22.1-1-x86_64.pkg.tar.zst",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-23",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "Today no foreign package has a measurable update",
+   "stale_reason": "Foreign-set pending conclusion stated as today's; a foreign row changed version on 2026-10-20 and the rest were not re-measured.",
+   "observed_now": "one foreign row moved: elephant core is 2.22.1-1 since 2026-10-20 09:31:03-0300; whether any other foreign package now has a pending update is not measured",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:63",
+   "capture_quote": "elephant-2.22.1-1-x86_64.pkg.tar.zst",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-24",
+   "path": "corpus/knowledge/update-safety-v3.md",
+   "baseline_quote": "Orphan removal (`electron39`, `mbedtls`, `webp-pixbuf-loader`)",
+   "stale_reason": "Orphan set stated as current; electron39 and mbedtls were removed by pacman -Rns at 08:14:12 on 2026-10-20.",
+   "observed_now": "electron39 and mbedtls were removed by pacman -Rns at 2026-10-20 08:14:12-0300, so this row's orphan set is no longer current",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:57",
+   "capture_quote": "pacman -Rns --noconfirm electron39 mbedtls",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-25",
+   "path": "corpus/knowledge/partial-upgrade-recheck-r15.md",
+   "baseline_quote": "mkinitcpio 41.1-1; systemd 261.2-1",
+   "stale_reason": "package_versions row records the pre-09:15 installed set; the 2026-10-20T09:15:31-0300 full -Syu upgraded mkinitcpio and systemd",
+   "observed_now": "mkinitcpio 42.2-1; systemd 262-1 installed",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:32",
+   "capture_quote": "/var/lib/pacman/local/mkinitcpio-42.2-1",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-26",
+   "path": "corpus/knowledge/partial-upgrade-recheck-r15.md",
+   "baseline_quote": "`pacman -Qu` rows against the local sync DB",
+   "stale_reason": "pending_updates count of 413 predates the 09:15 full system upgrade; count not re-measured because pacman was forbidden in this lane",
+   "observed_now": "413 not re-measured; superseded by full upgrade at 09:15:31",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:8",
+   "capture_quote": "[2026-10-20T09:15:31-0300] [PACMAN] starting full system upgrade",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-27",
+   "path": "corpus/knowledge/partial-upgrade-recheck-r15.md",
+   "baseline_quote": "`synchronizing package lists` marker is line 2288",
+   "stale_reason": "a later synchronizing package lists marker exists, so line 2288 is no longer the latest sync marker",
+   "observed_now": "latest marker is line 2463 at 2026-10-20T09:15:30-0300",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:7",
+   "capture_quote": "[2026-10-20T09:15:30-0300] [PACMAN] synchronizing package lists",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-28",
+   "path": "corpus/knowledge/partial-upgrade-recheck-r15.md",
+   "baseline_quote": "shared birth (`%w`) of all five `.db` files",
+   "stale_reason": "a sync database changed after the 2026-10-18 birth stamp; the all-five shared-birth claim cannot be asserted as current, and %w birth was not re-captured",
+   "observed_now": "omarchy.db mtime 2026-10-20 09:09:26 -0300; %w birth not re-captured",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:13",
+   "capture_quote": "2026-10-20 09:09:26.000000000 -0300 /var/lib/pacman/sync/omarchy.db",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-29",
+   "path": "corpus/knowledge/partial-upgrade-recheck-r15.md",
+   "baseline_quote": "Boot coupling is latent, not active.",
+   "stale_reason": "mkinitcpio 42.2-1 is installed and the installed UKIs use /sysroot in init while the two named hooks still use /new_root; the latent-only framing no longer describes the host",
+   "observed_now": "mkinitcpio 42.2-1 installed; omarchy_linux.efi init /sysroot refs 7, /new_root refs 0",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:175",
+   "capture_quote": "init /sysroot refs 7 ; /new_root refs 0",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-30",
+   "path": "corpus/knowledge/partial-upgrade-recheck-r15.md",
+   "baseline_quote": "so a full upgrade stays blocked until that gate is cleared",
+   "stale_reason": "the blocked-full-upgrade handoff describes a state that no longer holds; the full system upgrade ran at 09:15:31",
+   "observed_now": "full system upgrade ran 2026-10-20T09:15:31-0300",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:8",
+   "capture_quote": "[2026-10-20T09:15:31-0300] [PACMAN] starting full system upgrade",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-31",
+   "path": "corpus/knowledge/snapper-eacces-mechanism.md",
+   "baseline_quote": "`snapper list-configs` prints only its header, i.e. **0** configured rows",
+   "stale_reason": "snapper list-configs had zero rows on 2026-10-19; 2026-10-20 sudo listing shows home and root configs",
+   "observed_now": "lists two configs, home (/home) and root (/)",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:46",
+   "capture_quote": "root   │ /",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-32",
+   "path": "corpus/knowledge/snapper-eacces-mechanism.md",
+   "baseline_quote": "`stat -c '%F %a %n' /.snapshots` reports no such file",
+   "stale_reason": "/.snapshots was absent on 2026-10-19; snapshot subvolumes 1 and 2 exist on 2026-10-20",
+   "observed_now": "/.snapshots/1/snapshot and /.snapshots/2/snapshot exist as subvolumes with ro=true",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:160",
+   "capture_quote": "#1 ro=true",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-33",
+   "path": "corpus/knowledge/snapper-eacces-mechanism.md",
+   "baseline_quote": "It reports **2.0G** total, **279M** used, **1.8G** available",
+   "stale_reason": "/boot usage was measured before the 2026-10-20 upgrade and UKI/limine_history rebuilds; later listing shows far larger file totals; df not re-run",
+   "observed_now": "limine_history alone reports total 836148 (1K blocks)",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:111",
+   "capture_quote": "total 836148",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-34",
+   "path": "corpus/knowledge/snapper-eacces-mechanism.md",
+   "baseline_quote": "The local `limine-snapper-sync.service` declares `User=root` and `CapabilityBoundingSet=CAP_SYS_ADMIN`",
+   "stale_reason": "limine-snapper-sync package replaced at 2026-10-20 09:16:42; the 2026-10-19 unit properties describe the prior package; post-upgrade unit not re-read",
+   "observed_now": "upgraded from 1.31.0-1.1 to 1.32.1-2 at 2026-10-20 09:16:42",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:50",
+   "capture_quote": "[ALPM] upgraded limine-snapper-sync (1.31.0-1.1 -> 1.32.1-2)",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-35",
+   "path": "corpus/knowledge/snapper-eacces-mechanism.md",
+   "baseline_quote": "The current `stat` finds no `/.snapshots`",
+   "stale_reason": "rejected-reading R6 relied on the 2026-10-19 absence of /.snapshots; sudo create-config ran on 2026-10-20",
+   "observed_now": "/.snapshots is present after sudo create-config at 2026-10-20 09:03:02",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:80",
+   "capture_quote": "COMMAND=/usr/bin/snapper -c root create-config /",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-36",
+   "path": "corpus/knowledge/snapper-eacces-mechanism.md",
+   "baseline_quote": "An operator may provision the root Snapper configuration with full capabilities (`snapper -c root create-config /`)",
+   "stale_reason": "operator option was recorded as not run on 2026-10-19; the same command ran via sudo on 2026-10-20",
+   "observed_now": "already run via sudo at 2026-10-20 09:03:02",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:80",
+   "capture_quote": "COMMAND=/usr/bin/snapper -c root create-config /",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-37",
+   "path": "corpus/knowledge/driver-firmware-plane.md",
+   "baseline_quote": "Kernel `7.2.3-arch1-3` (uname -a; built 2026-09-06)",
+   "stale_reason": "Header kernel pin (lines 3-6 are the note's pinned anchors per round-4 errata) names 7.2.3-arch1-3; running kernel is now 7.2.11-arch1-1 after the 2026-10-20 09:15 full upgrade.",
+   "observed_now": "[obs] running kernel 7.2.11-arch1-1",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:5",
+   "capture_quote": "7.2.11-arch1-1",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-38",
+   "path": "corpus/knowledge/driver-firmware-plane.md",
+   "baseline_quote": "boot of 2026-10-13 11:02 (uptime 22:55 at probe)",
+   "stale_reason": "Header boot pin names the 2026-10-13 boot; the current boot started 2026-10-20 09:57:09 (uptime -s reports 09:57:08).",
+   "observed_now": "[obs] current boot started 2026-10-20 09:57:08",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:6",
+   "capture_quote": "2026-10-20 09:57:08",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-39",
+   "path": "corpus/knowledge/driver-firmware-plane.md",
+   "baseline_quote": "filename: /lib/modules/7.2.3-arch1-3/updates/dkms/nvidia.ko.zst",
+   "stale_reason": "Loaded-module identity pinned to the 7.2.3-arch1-3 DKMS tree; dkms status now shows the 7.2.3-arch1-3 built modules missing under nvidia 615.78.08, and no 7.2.3 kernel tree is listed under /usr/lib/modules.",
+   "observed_now": "[obs] 7.2.3-arch1-3 dkms row: built modules missing (615.78.08)",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:38",
+   "capture_quote": "(Built modules are missing in the kernel modules folder)",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-40",
+   "path": "corpus/knowledge/driver-firmware-plane.md",
+   "baseline_quote": "NVRM 610.57.04, open kernel module, built",
+   "stale_reason": "Driver version pinned to 610.57.04 from /proc/driver/nvidia/version; the 2026-10-20 upgrade installed nvidia-open-dkms 615.78.08-1 and the running NVRM reports 615.78.08.",
+   "observed_now": "[obs] NVRM 615.78.08, open kernel module",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:33",
+   "capture_quote": "NVRM version: NVIDIA UNIX Open Kernel Module for x86_64  615.78.08",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-41",
+   "path": "corpus/knowledge/driver-firmware-plane.md",
+   "baseline_quote": "Only kernel tree present:",
+   "stale_reason": "States that the only kernel module tree is 7.2.3-arch1-3; /usr/lib/modules now lists 6.18.57-2-lts and 7.2.11-arch1-1 and no 7.2.3 tree.",
+   "observed_now": "[obs] /usr/lib/modules holds 6.18.57-2-lts and 7.2.11-arch1-1",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:41",
+   "capture_quote": "7.2.11-arch1-1",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-42",
+   "path": "corpus/knowledge/driver-firmware-plane.md",
+   "baseline_quote": "2026-09-08 15:23; `omarchy.db` 2026-10-11 10:16",
+   "stale_reason": "Sync-DB snapshot mtimes pinned to 2026-09-08 (core/extra/multilib) and 2026-10-11 (omarchy); sync DBs were refreshed by the 2026-10-20 09:15 -Syu and omarchy.db at 2026-10-20 09:09:26.",
+   "observed_now": "[obs] core/extra/multilib.db 2026-10-17 22:37; omarchy.db 2026-10-20 09:09:26",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:13",
+   "capture_quote": "2026-10-20 09:09:26.000000000 -0300 /var/lib/pacman/sync/omarchy.db",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-43",
+   "path": "corpus/knowledge/driver-firmware-plane.md",
+   "baseline_quote": "`pacman -Si linux` → 7.2.3.arch1-3",
+   "stale_reason": "Cross-check pinned linux to 7.2.3.arch1-3 as running/installed; the local DB now holds linux-7.2.11.arch1-1. pacman -Si was not re-run this round.",
+   "observed_now": "[obs] installed dir linux-7.2.11.arch1-1",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:21",
+   "capture_quote": "/var/lib/pacman/local/linux-7.2.11.arch1-1",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-44",
+   "path": "corpus/knowledge/driver-firmware-plane.md",
+   "baseline_quote": "driver plane is healthy — open DKMS 610.57.04 loaded and active, both",
+   "stale_reason": "Key one-liner asserts the open DKMS 610.57.04 module is loaded and active; the running NVRM is now 615.78.08 after the upgrade.",
+   "observed_now": "[obs] running NVRM 615.78.08",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:33",
+   "capture_quote": "NVRM version: NVIDIA UNIX Open Kernel Module for x86_64  615.78.08",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-45",
+   "path": "corpus/knowledge/driver-firmware-plane.md",
+   "baseline_quote": "`nvidia/610.57.04` for `7.1.4-arch1-1` and `7.2.3-arch1-3` on the same day.",
+   "stale_reason": "DKMS registrations pinned to 610.57.04 for 7.1.4-arch1-1 and 7.2.3-arch1-3; dkms status now lists 615.78.08 for 6.18.57-2-lts, 7.2.11-arch1-1 and 7.2.3-arch1-3 (built modules missing), with no 7.1.4-arch1-1 row.",
+   "observed_now": "[obs] dkms status: nvidia/615.78.08 for 6.18.57-2-lts, 7.2.11-arch1-1, 7.2.3-arch1-3",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:37",
+   "capture_quote": "nvidia/615.78.08, 7.2.11-arch1-1, x86_64: installed",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-46",
+   "path": "corpus/knowledge/driver-firmware-plane.md",
+   "baseline_quote": "| nvidia-open-dkms | 610.57.04-1 | 2026-10-11 16:14:37 |",
+   "stale_reason": "Installed nvidia-open-dkms pinned to 610.57.04-1; the 2026-10-20 09:16:44 ALPM upgrade installed 615.78.08-1.",
+   "observed_now": "[obs] installed nvidia-open-dkms-615.78.08-1",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:24",
+   "capture_quote": "/var/lib/pacman/local/nvidia-open-dkms-615.78.08-1",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-47",
+   "path": "corpus/knowledge/driver-firmware-plane.md",
+   "baseline_quote": "`nvidia-utils 610.57.04-1`, dir mtime 2026-10-11 16:14):",
+   "stale_reason": "Firmware blob-directory owner pinned to nvidia-utils 610.57.04-1; the installed nvidia-utils is now 615.78.08-1. The blob directory itself was not re-captured.",
+   "observed_now": "[obs] installed nvidia-utils-615.78.08-1",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/fresh-capture.txt:25",
+   "capture_quote": "/var/lib/pacman/local/nvidia-utils-615.78.08-1",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  },
+  {
+   "id": "R17-FRESH-48",
+   "path": "corpus/knowledge/arch-news-gate-2026.md",
+   "baseline_quote": "Current package is below the article’s version threshold.",
+   "stale_reason": "Current-use package state superseded by the 2026-10-20 09:15 full upgrade (mkinitcpio 41.1-1 -> 42.2-1).",
+   "observed_now": "mkinitcpio 42.2-1 is installed (package directory mkinitcpio-42.2-1)",
+   "capture_ref": ".ufo/waves/round-17/l1-capture/boot-chain-capture.txt:32",
+   "capture_quote": "mkinitcpio-42.2-1",
+   "notice_heading": "## R17-FRESHNESS — dated host re-verification (2026-10-20)"
+  }
+ ]
+}

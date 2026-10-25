@@ -1,0 +1,32 @@
+{
+  "baseline": "8606bad4cbc6451ac2890c9f8e2548a36c386db6",
+  "implementation": "9dd82bceda4cf45c1e1e59e17c996ac898a5ecb7",
+  "evaluator_sha256": "0771619dde7cc69fdb37538ad786f293b629f4062167a44a2d9cf4702ec6d428",
+  "integration_evidence": ".ufo/waves/round-14/repair/integration-verification.json",
+  "checks": {
+    "selftest": {
+      "command": "python tools/check-source-scope-correction.py --selftest",
+      "exit": 0,
+      "stdout": "CHECK_SOURCE_SCOPE_CORRECTION_SELFTEST: PASS (15 cases, 15 passed, 0 failed)\n",
+      "stderr": ""
+    },
+    "baseline": {
+      "command": "python tools/check-source-scope-correction.py --revision 8606bad4cbc6451ac2890c9f8e2548a36c386db6",
+      "exit": 1,
+      "stdout": "{\"correction_count\": 0, \"findings\": [{\"detail\": \"unsupported model-generated self-description active\", \"id\": \"COMMENT_ATTRIBUTION_OVERCLAIM\", \"site\": \"corpus/lessons/round-13.md;corpus/SOURCES.md\"}, {\"detail\": \"correction JSON absent\", \"id\": \"R14-JSON-MISSING\", \"site\": \"corpus/knowledge/source-scope-correction-r14.json\"}, {\"detail\": \"R14-COMMENT-ATTRIBUTION notice absent\", \"id\": \"R14-LESSON-NOTICE-MISSING\", \"site\": \"corpus/lessons/round-13.md\"}, {\"detail\": \"correction MD absent\", \"id\": \"R14-MD-MISSING\", \"site\": \"corpus/knowledge/source-scope-correction-r14.md\"}, {\"detail\": \"R14-VALUE-DOMAIN notice absent\", \"id\": \"R14-MD-NOTICE-MISSING\", \"site\": \"corpus/knowledge/root-dac-correction-r13.md\"}, {\"detail\": \"S045 row absent or malformed\", \"id\": \"R14-SOURCES-SUPERSESSION\", \"site\": \"corpus/SOURCES.md\"}, {\"detail\": \"documented value set called non-exhaustive\", \"id\": \"VALUE_DOMAIN_OVERCLAIM\", \"site\": \"corpus/knowledge/root-dac-correction-r13.md\"}], \"revision\": \"8606bad4cbc6451ac2890c9f8e2548a36c386db6\", \"status\": \"FAIL\"}\n",
+      "stderr": ""
+    },
+    "implementation": {
+      "command": "python tools/check-source-scope-correction.py --revision 9dd82bceda4cf45c1e1e59e17c996ac898a5ecb7",
+      "exit": 0,
+      "stdout": "{\"correction_count\": 2, \"findings\": [], \"revision\": \"9dd82bceda4cf45c1e1e59e17c996ac898a5ecb7\", \"status\": \"PASS\"}\n",
+      "stderr": ""
+    },
+    "invalid_cli": {
+      "command": "python tools/check-source-scope-correction.py --revision --not-a-revision",
+      "exit": 2,
+      "stdout": "{\"correction_count\": 0, \"findings\": [{\"detail\": \"invalid arguments\", \"id\": \"E-CLI\", \"site\": \"cli\"}], \"revision\": \"worktree\", \"status\": \"CANNOT_EVALUATE\"}\n",
+      "stderr": ""
+    }
+  }
+}

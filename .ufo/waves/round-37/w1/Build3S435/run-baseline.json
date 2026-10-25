@@ -1,0 +1,42 @@
+{
+  "after": {
+    "environ_fixture_findings": [
+      "tools/fixture_environ.py:5 ambient-read .environ"
+    ],
+    "environ_still_caught": true,
+    "os_ambient": [
+      "environ",
+      "environb",
+      "get_exec_path",
+      "getenv",
+      "getenvb"
+    ],
+    "probe_sha256": "2608f723cab698b5d17f1f6ed71b7d89d9d8d5746f198020430d25d7e20c33b0",
+    "s4_caught": true,
+    "s4_fixture_findings": [
+      "tools/fixture_s4.py:5 ambient-read .get_exec_path"
+    ]
+  },
+  "baseline": {
+    "environ_fixture_findings": [
+      "tools/fixture_environ.py:5 ambient-read .environ"
+    ],
+    "os_ambient": [
+      "environ",
+      "environb",
+      "getenv",
+      "getenvb"
+    ],
+    "probe_sha256": "a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a",
+    "s4_fixture_findings": [],
+    "s4_missed": true,
+    "scanned_modules": [
+      "tools/fixture_s4.py"
+    ]
+  },
+  "patch_proposal_diff": "--- a/tools/probe-child-env-allowlist-r36.py\n+++ b/tools/probe-child-env-allowlist-r36.py\n@@ -779,7 +779,7 @@\n     'posix_spawn', 'posix_spawnp', 'fork', 'forkpty', 'create_subprocess_exec',\n     'create_subprocess_shell', 'fork_exec', 'spawn'))\n SPAWN_HEADS = frozenset(('subprocess', 'os', 'posix', 'pty', 'asyncio', '_posixsubprocess'))\n-OS_AMBIENT = frozenset(('environ', 'environb', 'getenv', 'getenvb'))\n+OS_AMBIENT = frozenset(('environ', 'environb', 'getenv', 'getenvb', 'get_exec_path'))\n TRACE_STRINGS = ('/proc/self/status', '/proc/self/environ', 'TracerPid')\n HIDING_CALLS = frozenset(('exec', 'eval', 'compile', '__import__', 'globals', 'locals', 'vars',\n                           'dir'))\n",
+  "verdict": {
+    "after_state_measured": true,
+    "baseline_defect_reproduced": true
+  }
+}

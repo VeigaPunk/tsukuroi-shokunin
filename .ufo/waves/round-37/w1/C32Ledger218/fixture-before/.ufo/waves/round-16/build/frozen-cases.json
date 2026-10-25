@@ -1,0 +1,379 @@
+{
+  "schema": "tsukuroi-frozen-cases-v1",
+  "authored": "2026-10-20",
+  "seat": "TsukuroiR16.FrozenCases",
+  "purpose": "Independent expected failure vectors for tools/check-section-citations.py (round-16 C1 claim: correct two section citations routed in corpus/lessons/round-15-verifier-spotcheck.md). Static fixture; nothing here was executed. Finding ids and exit codes mirror the check-locator-clarification.py convention: PASS=0, FAIL=1, CANNOT_EVALUATE=2; ids named R16-* plus the actual-defect detector SECTION-CITATION-WRONG and the E-* cannot-evaluate family.",
+  "baseline": "db68e62065885b3f7463eb0a436c41f0dc3bcde5",
+  "gate": {
+    "path": "tools/check-section-citations.py",
+    "revision_input": "--revision <rev> required (git show, never live host); no worktree mode — L1 mandate; invalid revision/CLI probed internally via revision_finding/cli_finding",
+    "selftest": "--selftest (hermetic in-memory fixtures, fixed expected exit + finding ids)",
+    "exit_codes": { "0": "clean", "1": "failed", "2": "could-not-evaluate" },
+    "count_semantics": "correction_count = number of the two records that are individually valid and not blocked by any common/shared finding; shared findings (schema, count, id, history, supersession, source-row, opener/heading/md-scope) block both records; record-scoped findings block only their own record; SECTION-CITATION-WRONG at a target site blocks only the record owning that file",
+    "resolution_semantics": "For each record: heading must equal the contract string exactly and exist as a Markdown heading line in record.path; row_key must equal the contract value and match exactly one row line under that heading; quote must be a substring of that resolved row; notice_heading must equal the contract value, exist appended to record.path, and link the correction id, the quoted old_locator, a 'supersedes the citation only' scope sentence, the preserved R15-UPDATE-STATE reference, and a no-package/service-authorization sentence. The historical wrong locator literal is tolerated only inside the preserved R15-UPDATE-STATE section or quoted inside its resolving R16 notice; any other occurrence yields SECTION-CITATION-WRONG.",
+    "history_semantics": "For each target file, bytes up to the start of its appended '## R16-*-SECTION — citation-only erratum' section must equal the baseline prefix (digest-pinned, e.g. sha256 of baseline file content for both targets since no bytes were added before the notice); any earlier-byte change yields R16-HISTORY-REWRITTEN (count 0). The '## R15-UPDATE-STATE (2026-10-20) — current-use supersession' section must remain present and unrouted-away; removing or re-superseding it yields R16-SUPERSESSION-REMOVED.",
+    "files": {
+      "md16": "corpus/knowledge/section-citation-errata-r16.md (new this round; opens source:/verified-at:/recheck: before any # heading)",
+      "json16": "corpus/knowledge/section-citation-errata-r16.json (schema tsukuroi-section-citation-errata-v1; top-level keys exactly {schema, corrections}; corrections has exactly the two contract records, fields exactly {id, source_id, path, old_locator, heading, row_key, quote, notice_heading})",
+      "r3": "corpus/knowledge/host-health-report-r3.md (baseline sha256 bfd1c422617220eda3e97fde603b2c0b071ca265834a799528da07a298e2dc3b; defect '§1 verdict-board row 5' at line 581; true anchor '## 0. Verdict board' line 23, row '| 5 | update-safety |' line 31)",
+      "v3": "corpus/knowledge/update-safety-v3.md (baseline sha256 84b3d6c527df765d81b9d380b51ee80dae8fcebc9987c3f8b23ce67e78769aa4; defect '§7 rank 1' at line 398; true anchor '## 5. Risk-ordered operations table (recommendation only — nothing here was run)' line 208, row '| 1 | Do nothing now |' line 216)",
+      "sources": "corpus/SOURCES.md (baseline has no S050 row; delivered adds S050 linking the errata pair — record/source linkage check, optional finding R16-SOURCE-ROW)"
+    },
+    "fixture_note": "clean fixture = baseline file bytes with the delivered R16 notices appended (verbatim as committed) plus the delivered errata pair and S050 row; baseline fixture = baseline bytes with md16/json16 absent and no R16 notice sections.",
+    "false_positive_guard": "Legitimate §7 mentions in v3 ('v2 §7's table' line 210, 'v2's §7 ranks' line 366) and §1 mentions in r3 ('R3-1 §1.1' line 262, 'Gap vs §1's' line 425, '§0.1's index' line 442) are NOT defects; the detector binds only to the literal wrong locators '§1 verdict-board row 5' / '§7 rank 1' (whitespace-normalized) outside preserved notice context. r3 really contains a '## 1.' heading and v3 a '## 7.' heading, so heading resolution must not be satisfied by section-number coincidence."
+  },
+  "finding_vocabulary": {
+    "common": ["R16-MD-MISSING", "R16-JSON-MISSING", "R16-TARGET-MISSING", "R16-MD-OPENERS", "R16-MD-HEADING", "R16-MD-SCOPE", "R16-HISTORY-REWRITTEN", "R16-SUPERSESSION-REMOVED", "R16-SOURCE-ROW", "R16-JSON-SCHEMA", "R16-CORRECTION-COUNT", "R16-CORRECTION-ID"],
+    "record_scoped_prefixes": ["R16-BOARD-FIELD", "R16-BOARD-SOURCE", "R16-BOARD-PATH", "R16-BOARD-OLDLOC", "R16-BOARD-HEADING", "R16-BOARD-ROW", "R16-BOARD-QUOTE", "R16-BOARD-NOTICE", "R16-RANK-FIELD", "R16-RANK-SOURCE", "R16-RANK-PATH", "R16-RANK-OLDLOC", "R16-RANK-HEADING", "R16-RANK-ROW", "R16-RANK-QUOTE", "R16-RANK-NOTICE"],
+    "defect": "SECTION-CITATION-WRONG (site = the target file containing the wrong-locator text)",
+    "cannot_evaluate": ["E-CLI", "E-REVISION-INVALID", "E-GIT-READ-FAILED", "E-READ-FAILED", "E-R16-JSON-PARSE", "E-INTERNAL"]
+  },
+  "cases": [
+    {
+      "id": "clean",
+      "kind": "selftest",
+      "mutation": "clean fixture, no mutation",
+      "expected_exit": 0,
+      "expected_findings": [],
+      "expected_corrections": 2,
+      "assertion": "Positive case: valid pair plus appended notices passes."
+    },
+    {
+      "id": "baseline",
+      "kind": "selftest-and-revision",
+      "mutation": "all four files at baseline bytes; md16/json16 absent; --revision db68e62065885b3f7463eb0a436c41f0dc3bcde5 gives the same result",
+      "expected_exit": 1,
+      "expected_findings": ["R16-MD-MISSING", "R16-JSON-MISSING", "R16-SOURCE-ROW", "SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md", "SECTION-CITATION-WRONG:corpus/knowledge/update-safety-v3.md"],
+      "expected_corrections": 0,
+      "assertion": "Baseline actual bad locators are detected: r3 line 581 '§1 verdict-board row 5' (true §0) and v3 line 398 '§7 rank 1' (true §5); detail strings must contain the literal wrong locator."
+    },
+    {
+      "id": "errata-json-missing",
+      "kind": "selftest",
+      "mutation": "delete json16 only",
+      "expected_exit": 1,
+      "expected_findings": ["R16-JSON-MISSING", "SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md", "SECTION-CITATION-WRONG:corpus/knowledge/update-safety-v3.md"],
+      "expected_corrections": 0,
+      "assertion": "Notices alone do not resolve: with no valid correction record linking id/old_locator/notice_heading, the preserved wrong locators remain unresolvable defects."
+    },
+    {
+      "id": "errata-md-missing",
+      "kind": "selftest",
+      "mutation": "delete md16 only",
+      "expected_exit": 1,
+      "expected_findings": ["R16-MD-MISSING"],
+      "expected_corrections": 2,
+      "assertion": "Companion entry file absence fails the run without invalidating the JSON records."
+    },
+    {
+      "id": "errata-json-malformed",
+      "kind": "selftest",
+      "mutation": "json16 = '{'",
+      "expected_exit": 2,
+      "expected_findings": ["E-R16-JSON-PARSE"],
+      "expected_corrections": 0,
+      "assertion": "Unparseable corrections file is cannot-evaluate, not a conformance failure."
+    },
+    {
+      "id": "errata-json-wrong-schema",
+      "kind": "selftest",
+      "mutation": "set /schema to 'tsukuroi-locator-clarification-v1'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-JSON-SCHEMA"],
+      "expected_corrections": 0,
+      "assertion": "Sibling schema string is rejected; only tsukuroi-section-citation-errata-v1 counts."
+    },
+    {
+      "id": "errata-json-extra-key",
+      "kind": "selftest",
+      "mutation": "add top-level key 'notes'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-JSON-SCHEMA"],
+      "expected_corrections": 0
+    },
+    {
+      "id": "correction-count-1",
+      "kind": "selftest",
+      "mutation": "remove corrections[1] (R16-RANK-SECTION)",
+      "expected_exit": 1,
+      "expected_findings": ["R16-CORRECTION-COUNT", "R16-CORRECTION-ID", "SECTION-CITATION-WRONG:corpus/knowledge/update-safety-v3.md"],
+      "expected_corrections": 0,
+      "assertion": "The orphaned v3 notice cannot resolve without its record, so the §7 rank 1 defect re-opens."
+    },
+    {
+      "id": "correction-count-3",
+      "kind": "selftest",
+      "mutation": "append a third record {id:'R16-EXTRA'}",
+      "expected_exit": 1,
+      "expected_findings": ["R16-CORRECTION-COUNT", "R16-CORRECTION-ID"],
+      "expected_corrections": 0
+    },
+    {
+      "id": "duplicate-record-id",
+      "kind": "selftest",
+      "mutation": "set corrections[1].id = 'R16-BOARD-SECTION'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-CORRECTION-ID", "SECTION-CITATION-WRONG:corpus/knowledge/update-safety-v3.md"],
+      "expected_corrections": 0
+    },
+    {
+      "id": "board-field-missing",
+      "kind": "selftest",
+      "mutation": "delete corrections[0].old_locator",
+      "expected_exit": 1,
+      "expected_findings": ["R16-BOARD-FIELD"],
+      "expected_corrections": 1,
+      "assertion": "FIELD/SOURCE record defects leave notice binding intact (delivered semantics): the defect stays resolved but the record is invalid; rank still counts."
+    },
+    {
+      "id": "board-field-extra",
+      "kind": "selftest",
+      "mutation": "add corrections[0].note = 'x'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-BOARD-FIELD"],
+      "expected_corrections": 1
+    },
+    {
+      "id": "board-source-wrong",
+      "kind": "selftest",
+      "mutation": "set corrections[0].source_id = 'S044'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-BOARD-SOURCE"],
+      "expected_corrections": 1
+    },
+    {
+      "id": "board-path-swapped",
+      "kind": "selftest",
+      "mutation": "set corrections[0].path = 'corpus/knowledge/update-safety-v3.md'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-BOARD-PATH", "R16-BOARD-HEADING", "SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md"],
+      "expected_corrections": 1,
+      "assertion": "Record must point at the file its defect lives in; resolution then fails and the r3 defect re-opens."
+    },
+    {
+      "id": "board-oldloc-mutated",
+      "kind": "selftest",
+      "mutation": "set corrections[0].old_locator = '§2 verdict-board row 5'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-BOARD-OLDLOC", "SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md"],
+      "expected_corrections": 1
+    },
+    {
+      "id": "rank-oldloc-mutated",
+      "kind": "selftest",
+      "mutation": "set corrections[1].old_locator = '§8 rank 1'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-RANK-OLDLOC", "SECTION-CITATION-WRONG:corpus/knowledge/update-safety-v3.md"],
+      "expected_corrections": 1
+    },
+    {
+      "id": "board-heading-wrong-section",
+      "kind": "selftest",
+      "mutation": "set corrections[0].heading = '## 1. The gate run (census-v2, four planes)'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-BOARD-HEADING", "R16-BOARD-ROW", "SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md"],
+      "expected_corrections": 1,
+      "assertion": "An existing-but-wrong heading fails both the pinned-heading check and row resolution under it."
+    },
+    {
+      "id": "board-heading-trailing-space",
+      "kind": "selftest",
+      "mutation": "set corrections[0].heading = '## 0. Verdict board '",
+      "expected_exit": 1,
+      "expected_findings": ["R16-BOARD-HEADING", "SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md"],
+      "expected_corrections": 1,
+      "assertion": "Heading matching is exact; whitespace variants fail."
+    },
+    {
+      "id": "rank-heading-emdash",
+      "kind": "selftest",
+      "mutation": "replace '—' with '-' in corrections[1].heading",
+      "expected_exit": 1,
+      "expected_findings": ["R16-RANK-HEADING", "SECTION-CITATION-WRONG:corpus/knowledge/update-safety-v3.md"],
+      "expected_corrections": 1,
+      "assertion": "Heading matching is exact on the em-dash; ASCII hyphen fails."
+    },
+    {
+      "id": "board-rowkey-mutated",
+      "kind": "selftest",
+      "mutation": "set corrections[0].row_key = '| 4 | update-safety |'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-BOARD-ROW", "SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md"],
+      "expected_corrections": 1
+    },
+    {
+      "id": "board-rowkey-nonunique",
+      "kind": "selftest",
+      "mutation": "set corrections[0].row_key = '| '",
+      "expected_exit": 1,
+      "expected_findings": ["R16-BOARD-ROW", "SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md"],
+      "expected_corrections": 1,
+      "assertion": "Row resolution requires exactly one match under the resolved heading."
+    },
+    {
+      "id": "rank-rowkey-other-row",
+      "kind": "selftest",
+      "mutation": "set corrections[1].row_key = '| 7 | `-Suu`, `-Syyu`, any downgrade/force verb |'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-RANK-ROW", "SECTION-CITATION-WRONG:corpus/knowledge/update-safety-v3.md"],
+      "expected_corrections": 1,
+      "assertion": "A unique but different row key is still the wrong row; record row_key is pinned to the contract value."
+    },
+    {
+      "id": "board-quote-mutated",
+      "kind": "selftest",
+      "mutation": "set corrections[0].quote = '`-Syu` now `INERT` and host is healthy'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-BOARD-QUOTE", "SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md"],
+      "expected_corrections": 1,
+      "assertion": "Quote must be a substring of the resolved row line."
+    },
+    {
+      "id": "rank-quote-crossfile",
+      "kind": "selftest",
+      "mutation": "set corrections[1].quote = '`-Syu` now `INERT`; after refresh `UNKNOWN-UPSTREAM`'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-RANK-QUOTE", "SECTION-CITATION-WRONG:corpus/knowledge/update-safety-v3.md"],
+      "expected_corrections": 1,
+      "assertion": "The other file's row text does not satisfy the rank record's quote."
+    },
+    {
+      "id": "board-notice-heading-decl-mismatch",
+      "kind": "selftest",
+      "mutation": "set corrections[0].notice_heading = '## R16-BOARD-SECTION erratum'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-BOARD-NOTICE", "SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md"],
+      "expected_corrections": 1
+    },
+    {
+      "id": "board-notice-removed",
+      "kind": "selftest",
+      "mutation": "delete the '## R16-BOARD-SECTION — citation-only erratum' section from r3 (all earlier bytes incl. R15-UPDATE-STATE kept)",
+      "expected_exit": 1,
+      "expected_findings": ["R16-BOARD-NOTICE", "SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md"],
+      "expected_corrections": 1,
+      "assertion": "Correction-notice removal: preserved history without its resolving notice is an unresolved defect again."
+    },
+    {
+      "id": "rank-notice-removed",
+      "kind": "selftest",
+      "mutation": "delete the '## R16-RANK-SECTION — citation-only erratum' section from v3",
+      "expected_exit": 1,
+      "expected_findings": ["R16-RANK-NOTICE", "SECTION-CITATION-WRONG:corpus/knowledge/update-safety-v3.md"],
+      "expected_corrections": 1
+    },
+    {
+      "id": "board-notice-unlinked",
+      "kind": "selftest",
+      "mutation": "replace the r3 R16 notice body with 'Appended in round 16.' (heading kept)",
+      "expected_exit": 1,
+      "expected_findings": ["R16-BOARD-NOTICE", "SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md"],
+      "expected_corrections": 1,
+      "assertion": "Notice must link the correction id, quote the old locator, state citation-only supersession scope, preserve R15-UPDATE-STATE, and restate no package/service authorization."
+    },
+    {
+      "id": "notice-scope-overreach",
+      "kind": "selftest",
+      "mutation": "append to the r3 R16 notice: 'This also supersedes the R15-UPDATE-STATE routing.'",
+      "expected_exit": 1,
+      "expected_findings": ["R16-SUPERSESSION-REMOVED"],
+      "expected_corrections": 0,
+      "assertion": "New notices supersede the citation only; claiming the R15 current-use supersession is a shared violation blocking both records."
+    },
+    {
+      "id": "r15-supersession-deleted",
+      "kind": "selftest",
+      "mutation": "delete the '## R15-UPDATE-STATE' section from r3 (keeps R16 notice)",
+      "expected_exit": 1,
+      "expected_findings": ["R16-HISTORY-REWRITTEN", "R16-SUPERSESSION-REMOVED"],
+      "expected_corrections": 0,
+      "assertion": "History preservation: R15 notice bytes are part of the pinned baseline prefix."
+    },
+    {
+      "id": "defect-text-laundered",
+      "kind": "selftest",
+      "mutation": "delete the sentence 'The §1 verdict-board row 5' from r3's R15 section so no wrong locator remains",
+      "expected_exit": 1,
+      "expected_findings": ["R16-HISTORY-REWRITTEN"],
+      "expected_corrections": 0,
+      "assertion": "Anti-laundering: editing the defect out of history rewrites preserved bytes; the additive erratum is the only sanctioned route."
+    },
+    {
+      "id": "history-prefix-rewritten",
+      "kind": "selftest",
+      "mutation": "change one word in r3 line 13 (unrelated prose), keep every section",
+      "expected_exit": 1,
+      "expected_findings": ["R16-HISTORY-REWRITTEN"],
+      "expected_corrections": 0
+    },
+    {
+      "id": "restored-defect-elsewhere",
+      "kind": "selftest",
+      "mutation": "append to r3's ## 6. Errata section: 'see §1 verdict-board row 5 for the current arm state'",
+      "expected_exit": 1,
+      "expected_findings": ["SECTION-CITATION-WRONG:corpus/knowledge/host-health-report-r3.md"],
+      "expected_corrections": 1,
+      "assertion": "The notice resolves only the preserved R15-section occurrence; a fresh wrong-locator citation is a live defect."
+    },
+    {
+      "id": "target-file-missing",
+      "kind": "selftest",
+      "mutation": "delete r3 entirely",
+      "expected_exit": 1,
+      "expected_findings": ["R16-TARGET-MISSING"],
+      "expected_corrections": 1,
+      "assertion": "Missing target fails the board record (exact extra record-scoped ids are implementation detail); rank record still counts."
+    },
+    {
+      "id": "md-openers-missing",
+      "kind": "selftest",
+      "mutation": "prepend '# Title' before the source:/verified-at:/recheck: lines in md16",
+      "expected_exit": 1,
+      "expected_findings": ["R16-MD-OPENERS"],
+      "expected_corrections": 2,
+      "assertion": "Entry MD opens source:/verified-at:/recheck: — a leading heading is a conformance failure, not a record failure."
+    },
+    {
+      "id": "md-headings-missing",
+      "kind": "selftest",
+      "mutation": "delete '## R16-RANK-SECTION' section from md16",
+      "expected_exit": 1,
+      "expected_findings": ["R16-MD-HEADING"],
+      "expected_corrections": 2
+    },
+    {
+      "id": "source-row-missing",
+      "kind": "selftest",
+      "mutation": "SOURCES fixture without the S050 row",
+      "expected_exit": 1,
+      "expected_findings": ["R16-SOURCE-ROW"],
+      "expected_corrections": 0,
+      "assertion": "Record/source linkage (confirmed non-optional in delivered gate): source_id S050 must resolve to a `| S050 |` SOURCES.md row naming both target files; absent SOURCES.md or row emits R16-SOURCE-ROW as a shared blocker (count 0)."
+    },
+    {
+      "id": "invalid-revision",
+      "kind": "gate-probe",
+      "mutation": "revision_finding('not-a-rev!!') — hermetic internal probe, delivered gate is --revision-only",
+      "expected_exit": 2,
+      "expected_findings": ["E-REVISION-INVALID"],
+      "expected_corrections": 0
+    },
+    {
+      "id": "invalid-cli",
+      "kind": "gate-probe",
+      "mutation": "cli_finding(['--bogus']) — hermetic internal probe",
+      "expected_exit": 2,
+      "expected_findings": ["E-CLI"],
+      "expected_corrections": 0
+    },
+    {
+      "id": "revision-delivered",
+      "kind": "gate-cli",
+      "mutation": "invoke with --revision <integrated-commit> once L1 lands the round",
+      "expected_exit": 0,
+      "expected_findings": [],
+      "expected_corrections": 2,
+      "assertion": "Positive case at the delivered revision: parent records red baseline + green delivered-commit pair."
+    }
+  ]
+}

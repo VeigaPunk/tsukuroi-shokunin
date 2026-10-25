@@ -1,0 +1,237 @@
+{
+ "schema": "tsukuroi-kernel-taint-r27-v1",
+ "entry": "corpus/knowledge/kernel-taint-r27.md",
+ "lane": "tsukuroi-shokunin",
+ "round": 27,
+ "claim": "C1",
+ "drafted_by": "TsukuroiR27 (L1). The wave-1 scribe and executor seats died at spawn, so the L1 opened every source and drafted every row.",
+ "drafted_at": "2026-10-22",
+ "capture": {
+  "path": ".ufo/waves/round-27/capture/capture.txt",
+  "sha256": "88d02d98cbb5fd4633ff83cacb2256ac57af1d740c7c57b6ac7a98fceb067841"
+ },
+ "verdict_vocabulary": "HEALTHY, DEGRADED, BLOCKED, UNVERIFIED: the row's reading of this host at capture time, not the counting criterion",
+ "rows": [
+  {
+   "id": "KT1",
+   "question": "How does /proc/sys/kernel/tainted encode taint, and what does this host's 12288 decode to?",
+   "statement": "/proc/sys/kernel/tainted prints the kernel's taint mask as a decimal number; 0 means untainted and every set bit names one reason. 12288 is 4096 + 8192: bit 12 (letter O, an externally-built or out-of-tree module was loaded) and bit 13 (letter E, an unsigned module was loaded in a kernel that supports module signatures). No other bit is set, so this boot has recorded none of the other events the mask tracks, for example a kernel warning (W, bit 9), an oops (D, bit 7) or a soft lockup (L, bit 14). The kernel's label for E is 'unsigned module'; on this host the modules carry a signature the kernel does not trust (KT3), so the label means 'not verified', not 'no signature'.",
+   "host_reading": "tainted = 12288 at 2026-10-22T15:55:13Z, kernel 7.2.11-arch1-1.",
+   "verdict": "HEALTHY",
+   "action": "Read `cat /proc/sys/kernel/tainted` (no privilege) and decode it bit by bit with the tainted-kernels table or `tools/debugging/kernel-chktaint`. Expect 12288 on this host while the nvidia DKMS modules are loaded; any additional bit is a new event to look up, and W, D or L means a warning, oops or lockup to find in `journalctl -k -b 0`.",
+   "sources": [
+    "S140",
+    "S142"
+   ],
+   "quotes": [
+    {
+     "source": "S140",
+     "text": "If that returns ``0``, the kernel is not tainted; any other number indicates the reasons why it is.",
+     "location": "Documentation/admin-guide/tainted-kernels.rst line 51"
+    },
+    {
+     "source": "S142",
+     "text": "#define TAINT_OOT_MODULE 12",
+     "location": "include/linux/panic.h line 83"
+    },
+    {
+     "source": "S142",
+     "text": "#define TAINT_UNSIGNED_MODULE 13",
+     "location": "include/linux/panic.h line 84"
+    }
+   ],
+   "capture_pointers": [
+    {
+     "line": 11,
+     "token": "12288"
+    }
+   ]
+  },
+  {
+   "id": "KT2",
+   "question": "What does the out-of-tree flag O mean, and when does the kernel set it?",
+   "statement": "At module load the kernel sets O when the module's modinfo lacks the `intree` tag, that is, when the module was built outside the kernel tree. It prints `<module>: loading out-of-tree module taints kernel.` only for the first such module, and records bit 12 both in the kernel-wide mask and in that module's own taint bits. Modules built by DKMS from a separate source tree carry no `intree` tag [inf: DKMS builds outside the kernel tree; not checked by a source row this round].",
+   "host_reading": "Boot 0 printed the message for nvidia at 17.5 s; the four nvidia modules load from /lib/modules/7.2.11-arch1-1/updates/dkms/.",
+   "verdict": "HEALTHY",
+   "action": "Expected while nvidia-open-dkms is in use; no repair. Treat an O letter on any module other than the nvidia DKMS set as a finding and name the module from `/sys/module/*/taint`.",
+   "sources": [
+    "S143",
+    "S140"
+   ],
+   "quotes": [
+    {
+     "source": "S143",
+     "text": "if (!get_modinfo(info, \"intree\")) {",
+     "location": "kernel/module/main.c line 2575"
+    },
+    {
+     "source": "S143",
+     "text": "pr_warn(\"%s: loading out-of-tree module taints kernel.\\n\",",
+     "location": "kernel/module/main.c line 2577"
+    },
+    {
+     "source": "S140",
+     "text": "12) ``O`` if an externally-built (\"out-of-tree\") module has been loaded.",
+     "location": "Documentation/admin-guide/tainted-kernels.rst line 171"
+    }
+   ],
+   "capture_pointers": [
+    {
+     "line": 136,
+     "token": "out-of-tree"
+    },
+    {
+     "line": 46,
+     "token": "updates/dkms"
+    }
+   ]
+  },
+  {
+   "id": "KT3",
+   "question": "What does the unsigned-module flag E mean, when is it set, and why can a module whose modinfo names a signer still set it?",
+   "statement": "E means a module was loaded whose signature the kernel did not accept, in a kernel built with module signing. The kernel verifies a signature only against keys in its built-in and secondary trusted keyrings. An unsigned module, a module signed with unsupported crypto, or a module signed by a key the kernel does not have is rejected when signatures are enforced; when they are not (permissive mode) it loads, sets E and prints `module verification failed: signature and/or required key missing - tainting kernel`. A signature that fails for other reasons, including a signature mismatch with a known key, stops the load even in permissive mode. So `modinfo -F signer` naming `DKMS module signing key` shows that a signature is attached, not that the kernel trusts the key.",
+   "host_reading": "sig_enforce N and CONFIG_MODULE_SIG_FORCE not set (permissive); nvidia printed the verification-failed line at 17.5 s; all four nvidia modules carry E and a DKMS signer. Which keyring check failed is not captured: the trusted keyrings were not read this round.",
+   "verdict": "UNVERIFIED",
+   "action": "Read-only: report that the kernel has not verified the nvidia modules' signatures and that E is expected for every boot as the host is configured. Do not suggest key enrolment as a fix without checking how keys reach the secondary keyring on this host: wave-1 CritLearningFrontier reports that with Secure Boot off the kernel does not load MOK keys at all (an unregistered reading of Linux v7.2 security/integrity code, not a source row of this entry), so enrolling the DKMS key may change nothing. Never read the DKMS private key (credential material). Before enabling `module.sig_enforce=1` or a lockdown mode that requires signatures, expect the nvidia modules to be refused at load unless the kernel trusts their key.",
+   "sources": [
+    "S144",
+    "S145",
+    "S143"
+   ],
+   "quotes": [
+    {
+     "source": "S145",
+     "text": "modules for which the key is not available and modules that are unsigned are permitted, but the kernel will be marked as being tainted",
+     "location": "Documentation/admin-guide/module-signing.rst line 57"
+    },
+    {
+     "source": "S144",
+     "text": "reason = \"module with unavailable key\";",
+     "location": "kernel/module/signing.c line 107"
+    },
+    {
+     "source": "S143",
+     "text": "add_taint_module(mod, TAINT_UNSIGNED_MODULE, LOCKDEP_STILL_OK);",
+     "location": "kernel/module/main.c line 2610"
+    }
+   ],
+   "capture_pointers": [
+    {
+     "line": 137,
+     "token": "required key missing"
+    },
+    {
+     "line": 28,
+     "token": "CONFIG_MODULE_SIG_FORCE"
+    }
+   ]
+  },
+  {
+   "id": "KT4",
+   "question": "What do the per-module /sys/module/<name>/taint letters mean, and which modules and packages carry them on this host?",
+   "statement": "Each module keeps its own taint bits, set together with the kernel-wide bit when the module causes a taint, and `/sys/module/<name>/taint` prints them as letters, read-only (mode 0444). The file names which loaded module caused which letter, which the kernel-wide number cannot do.",
+   "host_reading": "Four modules print OE: nvidia, nvidia_drm, nvidia_modeset, nvidia_uvm, version 615.78.08, files under /lib/modules/7.2.11-arch1-1/updates/dkms/ that no package owns (pacman -Qo exit 1); they are built on the host by dkms 3.4.4-1 from nvidia-open-dkms 615.78.08-1 (pacman -Q).",
+   "verdict": "HEALTHY",
+   "action": "List culprits with `for f in /sys/module/*/taint; do t=$(cat $f); [ -n \"$t\" ] && echo ${f%/taint} $t; done`. Because pacman owns no file of a DKMS module, check the module version against the installed nvidia-open-dkms and nvidia-utils versions after each kernel or driver update; a mismatch is a finding for the update-safety checklist.",
+   "sources": [
+    "S143",
+    "S140"
+   ],
+   "quotes": [
+    {
+     "source": "S143",
+     "text": "__ATTR(taint, 0444, show_taint, NULL);",
+     "location": "kernel/module/main.c line 1083"
+    },
+    {
+     "source": "S143",
+     "text": "set_bit(flag, &mod->taints);",
+     "location": "kernel/module/main.c line 198"
+    }
+   ],
+   "capture_pointers": [
+    {
+     "line": 16,
+     "token": "nvidia OE"
+    },
+    {
+     "line": 61,
+     "token": "No package owns"
+    },
+    {
+     "line": 124,
+     "token": "nvidia-open-dkms"
+    }
+   ]
+  },
+  {
+   "id": "KT5",
+   "question": "Can a taint flag be cleared, and how?",
+   "statement": "Not while the kernel runs. The kernel stays tainted after the cause is undone, for example after unloading the module. `add_taint` only sets bits, and a write to /proc/sys/kernel/tainted (CAP_SYS_ADMIN only) adds the written bits through `add_taint` rather than replacing the mask; no code in kernel/panic.c clears a bit. The mask starts again from the kernel's built-in initial value only at the next boot [inf: from the static initialiser of tainted_mask], and on this host the nvidia modules set O and E again at every boot that loads them. Unloading a module can also leave a trace in later oops reports [unverified: wave-1 critic finding, not a source row of this entry].",
+   "host_reading": "O and E were set at 17.5 s of boot 0 and are still set at capture time.",
+   "verdict": "HEALTHY",
+   "action": "Do not unload modules or write the sysctl to 'clear' taint: unloading changes nothing in the mask, and a write can only add flags. Compare readings within one boot; a value that grows within a boot is a new event.",
+   "sources": [
+    "S140",
+    "S141"
+   ],
+   "quotes": [
+    {
+     "source": "S140",
+     "text": "Note the kernel will remain tainted even after you undo what caused the taint",
+     "location": "Documentation/admin-guide/tainted-kernels.rst line 12"
+    },
+    {
+     "source": "S141",
+     "text": "set_bit(flag, &tainted_mask);",
+     "location": "kernel/panic.c line 959"
+    },
+    {
+     "source": "S141",
+     "text": "add_taint(i, LOCKDEP_STILL_OK);",
+     "location": "kernel/panic.c line 129"
+    }
+   ],
+   "capture_pointers": [
+    {
+     "line": 136,
+     "token": "17.536700"
+    }
+   ]
+  },
+  {
+   "id": "KT6",
+   "question": "What does taint mean for a kernel bug report or an oops reading, and what does the operator do?",
+   "statement": "The kernel prints its taint letters in the `Tainted:` field of the `CPU:` line of every bug, oops and panic report, and developers often ignore reports from tainted kernels; the documentation asks reporters to reproduce problems with an untainted kernel. On this host an oops will show `O` and `E` because of the nvidia modules. The host itself is not harmed by this (HEALTHY); the limit is on upstream reports from such a boot.",
+   "host_reading": "Every boot that loads the nvidia DKMS modules is tainted O and E (KT1 to KT5).",
+   "verdict": "HEALTHY",
+   "action": "For a kernel problem meant for upstream, first try to reproduce it with an untainted kernel, that is, a boot in which the nvidia modules are not loaded (an operator decision), and report that boot's log. Read the `Tainted:` field of an oops with the KT1 table; on this host O and E alone are expected and do not by themselves point at the fault.",
+   "sources": [
+    "S140"
+   ],
+   "quotes": [
+    {
+     "source": "S140",
+     "text": "That's why bug reports from tainted kernels will often be ignored by developers, hence try to reproduce problems with an untainted kernel.",
+     "location": "Documentation/admin-guide/tainted-kernels.rst line 8"
+    }
+   ],
+   "capture_pointers": [
+    {
+     "line": 137,
+     "token": "tainting kernel"
+    }
+   ]
+  }
+ ],
+ "corrections_r27_a2": [
+  {"row": "KT1", "field": "statement, action", "withdrawn_text": "an oops (D, bit 7)", "status": "narrowed branch restored", "note": "D means an oops or a BUG (S140 lines 92, 159); kernel-chktaint is not installed on this host"},
+  {"row": "KT2", "field": "statement", "withdrawn_text": "prints only for the first such module", "status": "condition restated", "note": "the message prints while bit 12 is still clear kernel-wide (S143 test_taint guard); a sysctl write can set bit 12 first (S141 lines 127-129); 'built outside the kernel tree' is [inf]"},
+  {"row": "KT3", "field": "statement", "status": "branch restored", "note": "permissive-mode load also requires that no signature-requiring lockdown is active (S144 line 124); lockdown state not captured; S145 teaches cell omits the unparsable-signature and known-key-mismatch rejections (S145 lines 66-67, 273-276)"},
+  {"row": "KT4", "field": "host_reading, action", "withdrawn_text": "they are built on the host by dkms 3.4.4-1 from nvidia-open-dkms 615.78.08-1", "status": "marked [inf]", "note": "the capture shows installed versions and unowned files, not the build; the culprit loop needs [ -e \"$f\" ] || continue to avoid errors and exit 1"},
+  {"row": "KT6", "field": "statement, host_reading, action", "status": "scoped", "note": "an oops shows O and E only after the nvidia modules load (S140 lines 35-36 for Not tainted); 'every boot' is [inf] from KT2 and KT5; the .md table verdict DEGRADED was corrected in place to HEALTHY to agree with this file; the .md advice to send reports to the module maintainer first is withdrawn"},
+  {"row": "all", "field": "verified_rows", "status": "disclosed", "note": "the count proves complete evidence links, not verdict truth (wave-2 CritC1Tool, MutC1Counter, CritClaimSizingFinal)"},
+  {"row": "KT5", "field": "statement", "status": "branches restored", "note": "sysctl writes add only bits below TAINT_FLAGS_COUNT; panic_on_taint=nousertaint refuses a guarded write with -EINVAL (S141 lines 96-133, 120-121); next-boot value is the built-in initial value, [inf]; unload trace supported by S143 lines 871-874, 3972-3975"},
+  {"row": "KT4", "field": "statement, action", "status": "branches restored", "note": "per-module and kernel-wide bits are not always set together (S143 lines 1254, 2620, 747; unloaded-module taint persists); the file names the culprit for O and E here, not for every letter; nvidia-peermem.ko.zst is also unowned and was not captured; the loaded version is /sys/module/<name>/version, modinfo reads the file on disk (RevRowKT4)"}
+ ]
+}

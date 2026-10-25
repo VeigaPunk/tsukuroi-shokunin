@@ -1,0 +1,353 @@
+{
+  "schema": "tsukuroi-pause-gate-v1",
+  "captured_at": "2026-10-22T08:46:28Z",
+  "sources_opened": "2026-10-22",
+  "capture": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+  "capture_sha256": "87f70f82f05956ce5de60abe8bfdd748f38d716483a491cfe7c183939884a56f",
+  "premises": [
+    {
+      "id": "P1",
+      "premise": "Pending upgrades: the corpus figure 413 is historical; against the host's 2026-10-17 sync DBs there are 3 pending packages (all third-party omarchy/openai-chatgpt), while a fresh temporary sync DB (checkupdates) reports rows=134 including limine 12.9.4 and systemd 262.1.",
+      "verdict": "changed",
+      "evidence": [
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 40,
+          "contains": "1password-beta 8.12.42_34.BETA-1 -> 8.12.44_25.BETA-1"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 41,
+          "contains": "chatgpt-bin 26.1013.40934-1 -> 26.1016.51333-1"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 42,
+          "contains": "claude-code 2.1.304-1 -> 2.1.307-1"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 47,
+          "contains": "3"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 52,
+          "contains": "1password-beta omarchy"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 53,
+          "contains": "chatgpt-bin openai-chatgpt"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 54,
+          "contains": "claude-code omarchy"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 31,
+          "contains": "2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/core.db"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 374,
+          "contains": "checkupdates exit=0 rows=134"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 375,
+          "contains": "limine 12.9.3-1 -> 12.9.4-1"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 376,
+          "contains": "systemd 262-1 -> 262.1-1"
+        }
+      ],
+      "sources": [
+        "S0NN-pacman-query",
+        "S0NN-archwiki-maintenance",
+        "S0NN-checkupdates"
+      ],
+      "limits": [
+        "3 is the delta against the stale 2026-10-17 local sync DBs; 134 is the delta against freshly synced temporary metadata (checkupdates), so a lift decision reading only the 3 third-party packages would actually pull about 134 updates.",
+        "pacman -Qu compares versions against the local sync DB only; upstream packages newer than that metadata are invisible.",
+        "Not a host re-measurement; the gate links committed capture bytes."
+      ]
+    },
+    {
+      "id": "P2",
+      "premise": "Partial-upgrade residue: no installed package is newer than sync; libinput 1.32.0 equals sync.",
+      "verdict": "cleared",
+      "evidence": [
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 57,
+          "contains": "### local-newer-than-sync"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 59,
+          "contains": "exit=0"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 73,
+          "contains": "libinput 1.32.0-1"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 88,
+          "contains": "libinput 1.32.0-1"
+        }
+      ],
+      "sources": [
+        "S0NN-archwiki-maintenance",
+        "S0NN-pacman-vercmp"
+      ],
+      "limits": [
+        "No -Qkk integrity check or upstream comparison was made; residue is judged against the local sync DB only.",
+        "Not a host re-measurement; the gate links committed capture bytes."
+      ]
+    },
+    {
+      "id": "P3",
+      "premise": "mkinitcpio 42 hooks that still name /new_root: 42.2 is installed; hooks btrfs-overlayfs:4 and plymouth:11 still name /new_root; buildroot symlink new_root -> sysroot; boots -1 and 0 completed.",
+      "verdict": "changed",
+      "evidence": [
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 63,
+          "contains": "mkinitcpio 42.2-1"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 93,
+          "contains": "root_mnt=\"/new_root\""
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 94,
+          "contains": "update-root-fs --new-root-dir=/new_root"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 117,
+          "contains": "/usr/lib/initcpio/functions:1213:    ln -s \"sysroot\" \"$buildroot/new_root\""
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 107,
+          "contains": "67:\"$mount_handler\" /sysroot"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 112,
+          "contains": "110:    /usr/bin/switch_root /sysroot \"$init\" \"$@\""
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 15,
+          "contains": "Tue 2026-10-20 09:57:09 -03"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 16,
+          "contains": "Thu 2026-10-22 04:55:41 -03"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 139,
+          "contains": "Started Show Plymouth Boot Screen."
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 146,
+          "contains": "Finished Terminate Plymouth Boot Screen."
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 152,
+          "contains": "Started Show Plymouth Boot Screen."
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 159,
+          "contains": "Finished Terminate Plymouth Boot Screen."
+        }
+      ],
+      "sources": [
+        "S0NN-mkinitcpio-functions",
+        "S0NN-plymouth-rootfs",
+        "S0NN-arch-news-v42"
+      ],
+      "limits": [
+        "A read-only snapshot boot, the only path where btrfs-overlayfs acts, has not been exercised on a 42.2 image; whether findmnt --mountpoint /new_root resolves through the symlink inside the initramfs is decided only by such a boot.",
+        "Not a host re-measurement; the gate links committed capture bytes."
+      ]
+    },
+    {
+      "id": "P4",
+      "premise": "Sync database freshness and the upgrade target: all repos point at https://stable-mirror.omarchy.org/$repo/os/$arch; core/extra/multilib db mtimes are 2026-10-17 22:37 -03 although pacman -Sy --noconfirm ran 2026-10-21 20:32 -03.",
+      "verdict": "changed",
+      "evidence": [
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 194,
+          "contains": "Server = https://stable-mirror.omarchy.org/$repo/os/$arch"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 201,
+          "contains": "20:Include = /etc/pacman.d/mirrorlist"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 205,
+          "contains": "26:Include = /etc/pacman.d/mirrorlist"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 207,
+          "contains": "30:Server = https://pkgs.omarchy.org/stable/$arch"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 31,
+          "contains": "2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/core.db"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 32,
+          "contains": "2026-10-17 22:37:30.000000000 -0300 /var/lib/pacman/sync/extra.db"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 33,
+          "contains": "2026-10-17 22:37:29.000000000 -0300 /var/lib/pacman/sync/multilib.db"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 221,
+          "contains": "[2026-10-21T20:32:00-0300] [PACMAN] Running 'pacman -Sy --noconfirm'"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 133,
+          "contains": "3189:[2026-10-21T20:32:00-0300] [PACMAN] synchronizing package lists"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 363,
+          "contains": "core last-modified: Thu, 22 Oct 2026 04:40:03 GMT"
+        }
+      ],
+      "sources": [
+        "S0NN-pacman-dload",
+        "S0NN-omarchy-mirror"
+      ],
+      "limits": [
+        "The host's core.db mtime (2026-10-17 22:37 -03) is older than the stable mirror's server-side Last-Modified (2026-10-22 04:40:03 GMT), so the host sync databases predate the current snapshot; the gap is set by the omarchy snapshot cadence, not by a failed refresh.",
+        "Not a host re-measurement; the gate links committed capture bytes."
+      ]
+    },
+    {
+      "id": "P5",
+      "premise": "Rollback by package cache and package transactions during the pause: the package cache holds no package files (cache-package-files=0, cache-entries total 0) after paccache -rk1, paccache -ruk0 (2026-10-22 04:09 -03) and pacman -Scc (04:10); five package installs (zcode, tizen-sdb, tizen-sdb-debug, openssl-1.0, openssl-1.0-debug) are logged after 2026-10-20T09:40.",
+      "verdict": "changed",
+      "evidence": [
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 285,
+          "contains": "find /var/cache/pacman/pkg -maxdepth 1 -name \"*.pkg.tar*\""
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 291,
+          "contains": "total 0"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 268,
+          "contains": "COMMAND=/usr/bin/paccache -rk1"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 269,
+          "contains": "COMMAND=/usr/bin/paccache -ruk0"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 270,
+          "contains": "COMMAND=/usr/bin/pacman -Scc --noconfirm"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 271,
+          "contains": "COMMAND=/usr/bin/pacman -Scc"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 122,
+          "contains": "[2026-10-20T13:23:08-0300] [ALPM] installed zcode (3.16.2-1)"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 123,
+          "contains": "[2026-10-21T17:55:56-0300] [ALPM] installed tizen-sdb (2.3.2-3)"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 124,
+          "contains": "[2026-10-21T17:55:56-0300] [ALPM] installed tizen-sdb-debug (2.3.2-3)"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 125,
+          "contains": "[2026-10-21T18:07:37-0300] [ALPM] installed openssl-1.0 (1.0.2.u-7)"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 126,
+          "contains": "[2026-10-21T18:07:37-0300] [ALPM] installed openssl-1.0-debug (1.0.2.u-7)"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 277,
+          "contains": "zcode 3.16.2-1"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 278,
+          "contains": "tizen-sdb 2.3.2-3"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 279,
+          "contains": "tizen-sdb-debug 2.3.2-3"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 280,
+          "contains": "openssl-1.0 1.0.2.u-7"
+        },
+        {
+          "path": ".ufo/waves/round-24/capture/l1-4/capture.txt",
+          "line": 281,
+          "contains": "openssl-1.0-debug 1.0.2.u-7"
+        }
+      ],
+      "sources": [
+        "S0NN-paccache",
+        "S0NN-pacman-sc",
+        "S0NN-ala"
+      ],
+      "limits": [
+        "Rollback by package cache is unavailable: no package files are retained (cache-package-files=0). Remaining rollback paths are the Arch Linux Archive and Snapper snapshots (snapper list: No permissions; snap-pac not installed).",
+        "Not a host re-measurement; the gate links committed capture bytes."
+      ]
+    }
+  ]
+}

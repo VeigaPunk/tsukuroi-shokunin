@@ -64,3 +64,21 @@ No outside spot-check of the round's admit/reject decisions had landed at author
 ## Considerthese — verified-rate ledger proposal (opened 2026-10-25)
 
 `considerthese/2026-10-23.md` proposes: “Verified-rate ledger. Track, per round, whether the C1 claim ended verified, not verified, or held, and why.” The proposal is mined but not implemented: the cross-round outcome sources are not one stable machine-readable record, and a new ledger could count stale or inconsistent verdict text. This round instead used the existing 27-check `tools/check-self-assessment.py` counter on one named revision and declared the mismatches exactly. The proposal's durable value is a prompt to identify a fixed outcome source before designing a trend ledger, not permission to infer a rate from three prior rounds. No new ledger or capability is claimed.
+
+## Round-37 review integration — supersedes the earlier author-outcome table
+
+The wave settled 64 seats, but its result manifest has `output: null` on all 64 rows after an orchestrator-kernel restart; 63 seat report files are present, and `Review3Causal355.md` is missing. The actual per-seat model/status/error fields were not retained. The following findings are integrated from present reports; they are L2 evidence, not a non-author closure verdict.
+
+### Assimilation adjudication correction
+
+The Gate paragraph above saying “two entries admitted from the package” is superseded. Of the three `merge/tsukuroi/` package candidates, only `errno-contract-variance-r37.md` (S202-S207) is an admitted staged entry. `errno-name-discrimination-r25.md` is rejected for overlap plus absent explicit QUALITY check. The staged `mount-errno-contract-r26.md` is also rejected as written: Frontier1Errno125/Frontier2Errno226 compared its broad `CAP_SYS_ADMIN` → `EPERM` subvolume-creation claim with the lane's round-12/13 CX2 correction; that claim would revive a known contradiction. The locally written `mount-errno-contract-r37.md` is a separately authored, source-derived operation-specific note, not a staged package entry; it excludes the rejected subvolume-creation claim and cites S200/S201. SOURCES rows S200-S207 remain valid for the two actual lane notes, assigned by source document; no old cell changed. The one admitted and two rejected staged entries are all available for the outside closure sample.
+
+### Claim verdict updates from falsifiers
+
+| Claim | Final author verdict | Evidence |
+|---|---|---|
+| C1 operability | **not verified** | C17S407 built V-B2 using ambient PATH through `shutil.which`, absolute-path child exec, and the frozen probe returned `leaking=0`, `harness_errors=[]`, exit 0. Its emulation of the V8 `get_exec_path` scanner addition still returned no source finding for the `shutil.which`/`expandvars` family. The declared sensitivity rule therefore remains unsatisfied. `.ufo/waves/round-37/w1/C17S407.md:15-44`. |
+| C2 depth | **not verified** | The committed three-cluster checker returns 0 on the correction, but it does not assert that the previously verified rejection line remains verbatim. Review1Causal153/Review2Causal254 identify that exact counter gap; C24ActionOverride12 additionally shows `--list-boots` action precedence is order-dependent and the positive correction is under-specified beyond the tested order. The outcome cannot be promoted against the wider declared after-contract. `.ufo/waves/round-37/w1/Review1Causal153.md:60-83`, `Review2Causal254.md:7-10`, `C24ActionOverride12.md:34-80`. |
+| C3 calibration | **not verified** | The unchanged checker reports zero at the final measured table, but K07-K11 count the same files/lines changed by the other claims; the after value moved from 0 to 5 mismatches during the round and required re-stating counts. Review1Causal153/Review2Causal254/C31Ledger117/C34Ledger420/C38Ledger824 find causal coupling or a moving-snapshot predicate. The lane also restored capability evidence pointers dropped during intermediate table rewrites; the checker cannot detect pointer-set deletion. `.ufo/waves/round-37/w1/Review1Causal153.md:13-39`, `C34Ledger420.md:27-43`, `C38Ledger824.md:102-120`. |
+
+No ordinal moved. Outside spot-check of the final admit/reject Gate remains pending; dispatched seats are still the lane for LEARNING.md discernment.

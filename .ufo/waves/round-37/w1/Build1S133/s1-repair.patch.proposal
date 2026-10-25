@@ -1,0 +1,81 @@
+# S1 repair — precise patch proposal (design item 1/12, Build1S133)
+
+Target: `tools/probe-child-env-allowlist-r36.py` (frozen VERSION 7 bytes, sha256
+`a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a`, unchanged at lane
+HEAD `ee36f9e8…`). This is a PROPOSAL only — nothing in the lane is touched. All
+line numbers are from the frozen file as read 2026-10-25.
+
+## Defect
+
+`one_run()` (revision-binding target arm) clones a worktree from `source_repo`
+(line 490), then tries to create `master` in it (lines 496-497). The clone already
+carries `refs/heads/master` (inherited from the source clone's default branch), so
+`git branch master <tip>` fails with `fatal: a branch named 'master' already
+exists` (rc 128). `git()` (lines 347-348) captures but discards stderr, so the
+probe only surfaces `RuntimeError('cannot create local master branch')` (line 499)
+and dies with zero JSON output — livefive target 1 unmeasurable.
+
+Observed this round (receipts in this seat dir):
+- `livefive-baseline.single-target.err/.out/.meta`: production probe,
+  `--set livefive --only tools/check-revision-binding.py --revision c052bb7d…`,
+  exit 1, stdout 0 bytes, traceback ends `line 499 … RuntimeError: cannot create
+  local master branch` (2.62 s wall).
+- `s1-repair-control.run.out.txt`: fixture replay of the frozen sequence → rc 128,
+  stderr `fatal: a branch named 'master' already exists`.
+
+## Primary proposal (minimal, behavior-preserving guard)
+
+Replace lines 493-499:
+
+```python
+        master = git(penv, '-C', source_repo, 'rev-parse', '--verify', 'refs/heads/master')
+        if master.returncode != 0:
+            raise RuntimeError('clone has no master branch tip')
+        p = git(penv, '-C', wtree, 'branch', 'master',
+                master.stdout.decode('ascii', 'replace').strip())
+        if p.returncode != 0:
+            raise RuntimeError('cannot create local master branch')
+```
+
+with:
+
+```python
+        master = git(penv, '-C', source_repo, 'rev-parse', '--verify', 'refs/heads/master')
+        if master.returncode != 0:
+            raise RuntimeError('clone has no master branch tip')
+        p = git(penv, '-C', wtree, 'checkout', '--quiet', '-B', 'master',
+                master.stdout.decode('ascii', 'replace').strip())
+        if p.returncode != 0:
+            raise RuntimeError('cannot create local master branch: '
+                               + p.stderr.decode('utf-8', 'replace')[-300:])
+```
+
+`git checkout -B master <tip>` succeeds whether or not `master` already exists
+(resets it to the tip), so the crash is gone for any default-branch name. The
+second hunk surfaces `git()` stderr in the RuntimeError, per the W2RevCounter S1
+recommendation ("put git() stderr into the RuntimeError") and the round-36
+verifier spot-check routing.
+
+## Alternative proposal (smaller, drops dead weight)
+
+`master` is never read again after line 499: the run executes on the `probe-target`
+branch created at line 500, and `grep -n master` (read this round) shows no other
+use in the file. So the whole master block (lines 493-499) can be deleted. This
+matches the W2RevCounter Simplifier table row ("the `master` branch creation in
+`one_run` — drop"). Either shape is verified by `s1-repair-control.py`.
+
+## After-state measured by the control
+
+Whichever shape lands, the control asserts the probe can reach its run step:
+
+1. worktree clone succeeds (rc 0);
+2. final `git checkout --quiet -b probe-target <checkout_rev>` succeeds;
+3. `HEAD` of the worktree is `probe-target`, and the target tree content is
+   present (the strace run at line 514 then executes `<wtree>/tools/…`);
+4. (shape A only) `refs/heads/master` exists and points at the source tip.
+
+Expected production after-state once the patch lands (the round-37 V8 contract):
+the livefive battery no longer crashes on target 1; the summary JSON line exists
+with `targets: 5`, `leaking_pairs`/`harness_errors` per the claim, and exit 0 —
+i.e. the previously unmeasurable `check-revision-binding.py` target produces
+channel rows instead of a traceback.

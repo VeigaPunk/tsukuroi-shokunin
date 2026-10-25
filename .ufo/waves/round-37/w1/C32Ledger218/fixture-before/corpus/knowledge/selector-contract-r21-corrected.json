@@ -1,0 +1,12 @@
+{
+  "schema": "tsukuroi-selector-contract-v1",
+  "supersedes": "selector-contract-r21.json provenance representation; five outcomes unchanged",
+  "sources": ["S081", "S082"],
+  "decisions": [
+    {"class":"commit","outcome":"accept-if-landed-and-pushed","finding":null,"source":"S082","policy":"QUALITY27/36","rationale":"Git defines an existing commit as commit-ish; lane ancestry applies, and pushed means ancestor of the local origin tracking ref only when that ref exists."},
+    {"class":"tree","outcome":"refuse","finding":"E-REVISION-INVALID","source":"S081","policy":"QUALITY27/36","rationale":"Any tree is not commit-ish; the measured control uses a non-empty tree. The lane policy supplies the refusal code."},
+    {"class":"blob","outcome":"refuse","finding":"E-REVISION-INVALID","source":"S081","policy":"QUALITY27/36","rationale":"A blob is not commit-ish; the lane policy supplies the refusal code."},
+    {"class":"tag-to-commit","outcome":"accept-if-landed-and-pushed","finding":null,"source":"S081","policy":"QUALITY27/36","rationale":"Annotated tags including nested annotated tags peel recursively to a commit; lane ancestry applies, and the origin tracking ref is checked only when present."},
+    {"class":"tag-to-noncommit","outcome":"refuse","finding":"E-REVISION-INVALID","source":"S081","policy":"QUALITY27/36","rationale":"An annotated tag ending at tree or blob cannot peel to the requested commit type; the lane supplies the refusal code. The finite consumer matrix covers single-level noncommit targets only."}
+  ]
+}

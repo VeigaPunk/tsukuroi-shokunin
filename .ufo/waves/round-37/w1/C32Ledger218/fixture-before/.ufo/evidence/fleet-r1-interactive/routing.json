@@ -1,0 +1,81 @@
+{
+  "observedAt": "2026-10-15T05:07:31.863Z",
+  "schema": "ufo-route-preflight-v1",
+  "config": {
+    "path": "/home/vgpnk/.omp/agent/config.yml",
+    "sha256": "08788ddcbbb48180b987e6f54b517af294c85cacceb07bdd594843a53e668dcc"
+  },
+  "concentration": {
+    "families": 3,
+    "largestFamilyLanes": 23,
+    "pinnedLanes": 32,
+    "singleFamily": false
+  },
+  "unpinned": [],
+  "status": "unprobed",
+  "pings": 0,
+  "families": [
+    {
+      "alias": "m_mid",
+      "hops": [
+        "alibaba-token-plan/qwen3.8-flash:high",
+        "charm-hyper/qwen3.8-flash:high"
+      ],
+      "roles": [
+        "connector",
+        "executor",
+        "reviewer",
+        "sentinel"
+      ],
+      "lanes": 23,
+      "status": "unprobed"
+    },
+    {
+      "alias": "m_strong",
+      "hops": [
+        "openai-codex/gpt-6.1-sol:high",
+        "devin/gpt-6-1-sol:high"
+      ],
+      "roles": [
+        "critic"
+      ],
+      "lanes": 8,
+      "status": "unprobed"
+    },
+    {
+      "alias": "m_fast",
+      "hops": [
+        "alibaba-token-plan/deepseek-v4.1-flash:max",
+        "opencode-go/deepseek-v4.1-flash:max",
+        "devin/deepseek-v4-1-flash:max",
+        "charm-hyper/deepseek-v4.1-flash:max"
+      ],
+      "roles": [
+        "scribe"
+      ],
+      "lanes": 1,
+      "status": "unprobed"
+    }
+  ],
+  "effectiveOverrides": {
+    "executor": "@m_mid",
+    "scribe": "@m_fast",
+    "reviewer": "@m_mid",
+    "critic": "@m_strong",
+    "sentinel": "@m_mid",
+    "connector": "@m_mid"
+  },
+  "requiredOverrides": {
+    "executor": "@m_composer",
+    "scribe": "@m_composer",
+    "reviewer": "@m_grok",
+    "critic": "@m_grok",
+    "sentinel": "@m_grok",
+    "connector": "@m_antigravity"
+  },
+  "requiredConnectorFallback": "@m_zfl",
+  "observedConnectorFallback": [],
+  "dispatchAllowed": false,
+  "dispatchCount": 0,
+  "note": "Effective overrides read through cfg://task/agentModelOverrides; connector fallback read through cfg://retry/fallbackChains. No config changes, provider calls or reachability claims."
+}

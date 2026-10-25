@@ -1,0 +1,24 @@
+{
+  "author": "tsukuroi L1",
+  "C1_command": "python -c 'import re,subprocess; p=subprocess.run([\"bash\",\"tools/tsukuroi-census.sh\"],capture_output=True,text=True); print(sum(bool(re.search(r\"root_status=ok root_mode=[0-7]{4} root_uid=\\d+ root_gid=\\d+ root_euid=\\d+ root_owner_write=(?:present|absent) root_owner_search=(?:present|absent)\",s)) for s in p.stdout.splitlines() if s.startswith(\"PLANE packages:\"))); print(\"census_exit=\",p.returncode)'",
+  "C1_note": "The recorded bash captures were counted using this exact regex; no second live run was performed. Root metadata presence predicate is 0->1; the census itself stays exit1.",
+  "C1_pattern": "root_status=ok root_mode=[0-7]{4} root_uid=\\d+ root_gid=\\d+ root_euid=\\d+ root_owner_write=(?:present|absent) root_owner_search=(?:present|absent)",
+  "C1_baseline_count": 0,
+  "C1_after_count": 1,
+  "C2_script": "import json,re,subprocess,sys\nrev=sys.argv[1]\ndef get(path):\n p=subprocess.run([\"git\",\"show\",rev+\":\"+path],capture_output=True,text=True)\n return p.stdout if p.returncode==0 else None\ntext=get(\"corpus/knowledge/root-dac-decision-r12.json\")\nrows={c[0]:c for c in [[x.strip() for x in line.split(\"|\")[1:-1]] for line in get(\"corpus/SOURCES.md\").splitlines() if re.match(r\"^\\|\\s*S\\d{3,}\\s*\\|\",line)]}\nbranches=json.loads(text)[\"branches\"] if text is not None else []\nprint(sum(all(b.get(k) for k in [\"id\",\"evidence\",\"interpretation\",\"discriminator\",\"limit\",\"source_ids\"]) and all(s in rows and rows[s][7]==\"mined\" and \"corpus/knowledge/root-dac-decision-r12.md\" in rows[s][10] for s in b[\"source_ids\"]) for b in branches))\n",
+  "C2_invocation": "python -c \"$C2_SCRIPT\" <revision>",
+  "C2_runs": [
+    {
+      "revision": "b76b5c377eaee3e3d8d47fdddde977828d05dbd5",
+      "stdout": "0\n",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "revision": "70fede2a7a890cb50a72db2d4230ee541183bf7b",
+      "stdout": "4\n",
+      "exit": 0,
+      "stderr": ""
+    }
+  ]
+}

@@ -2074,3 +2074,28 @@ The round’s sourced claim is C2: existing mined row S199 was opened on 2026-10
 ### C3 final remeasurement
 
 Re-run after the round-37 measured-outcome table and lesson were committed: `python3 tools/check-self-assessment.py --revision 6dbfe3274d8afecbfddd40d0c882a174238c638a` reports 27 checks, 0 mismatches, PASS, exit 0 (`.ufo/waves/round-37/after/c3-final-6dbfe.json`). This confirms the final current table at the measured outcome commit; later lane commits add only this receipt/LOG pointer and do not change the table or counted repository values.
+
+### Round-37 assimilation declaration correction (append-only)
+
+The declaration's statement that THREE staged entries were admitted, and its proposed package row ids S204/S205/S214/S220/S279-S282/S286/S287, is superseded by the Gate record. Actual staged disposition: `errno-contract-variance-r37.md` was admitted as the single staged entry; `errno-name-discrimination-r25.md` and the staged `mount-errno-contract-r26.md` were rejected. The lane-authored `mount-errno-contract-r37.md` is a corrected, separately authored note on the same theme, not a package entry. The eight newly appended lane rows are S200-S207, assigned by source document; the renumber map and source quotes are in `corpus/lessons/round-37.md` and `.ufo/waves/round-37/assimilation/SOURCES.append.md`. No axis claim predicate changes.
+
+## Capabilities — current full evidence set (round 37, append-only repair)
+
+This complete table restores the capability evidence pointers present in the prior current table; the shorter round-37 table above had dropped four still-present evidence paths. All pointers below use full repository paths and are confirmed present at the recorded lane tree.
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates opened tier-scoped sources with anchors, rejections, paths, search log and unopened leads | `corpus/SOURCES.md`; `.ufo/evidence/round-1-kaika/after.md` | fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT line; selftest prints PASS (105 cases, 105 passed, 0 failed) | `tools/tsukuroi-census.sh`; `.ufo/evidence/round-1-kaika/scout-live.md`; `.ufo/evidence/round-1-kaika/after.md` | lane r2; demonstrated fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
+| boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt` | round 17 |
+
+## Round 37 — post-wave claim adjudication (author-side; no frozen predicates changed)
+
+| Claim | Final author verdict | Evidence / reason |
+|---|---|---|
+| C1 (operability) | **not verified** | V8's 5-target/15-pair livefive receipt is clean, but the wave's C17 S4 mutant (V-B2) scores `leaking=0`, `harness_errors=[]`, exit 0 with a PATH derived through `shutil.which`; the V8-only `get_exec_path` source addition does not catch it. The declared sensitivity kill condition therefore fires; no V8 mutation receipts justify promotion. See `.ufo/waves/round-37/w1/C17S407.md:15-44` and the committed V8 receipt. |
+| C2 (depth) | **not verified** | The finite checker passes 0 mismatches, but it does not assert the declared unchanged rejection-line invariant and its action override check is narrower than the review's order/output cases. The result does not certify the complete declared after-state. See `.ufo/waves/round-37/w1/Review1Causal153.md:60-83`, `Review2Causal254.md:7-10`, `C24ActionOverride12.md:34-80`, and `Build5C237.md:20-24`. |
+| C3 (calibration) | **not verified** | The final fixed-27 checker reads 0 mismatches at the measured table, but the self-assessment count rows are coupled to C2/assimilation/lesson/README/SKILL commits, so the claim is not causally separable as frozen. The earlier current capability rows also dropped four existing evidence paths; this appended table restores them. See `.ufo/waves/round-37/w1/Review1Causal153.md:13-39`, `C31Ledger117.md:31-46`, `C34Ledger420.md:27-43`, and `C38Ledger824.md:102-120`. |
+
+All three declared claims are reported honestly; the C2/C3 measurements did reach their counted values, but the reviewers identified missing predicate coverage and causal-separability defects. No ordinal score delta or round admission is claimed. Trend verdicts remain in the round report.
