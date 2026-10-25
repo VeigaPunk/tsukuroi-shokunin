@@ -2099,3 +2099,7 @@ This complete table restores the capability evidence pointers present in the pri
 | C3 (calibration) | **not verified** | The final fixed-27 checker reads 0 mismatches at the measured table, but the self-assessment count rows are coupled to C2/assimilation/lesson/README/SKILL commits, so the claim is not causally separable as frozen. The earlier current capability rows also dropped four existing evidence paths; this appended table restores them. See `.ufo/waves/round-37/w1/Review1Causal153.md:13-39`, `C31Ledger117.md:31-46`, `C34Ledger420.md:27-43`, and `C38Ledger824.md:102-120`. |
 
 All three declared claims are reported honestly; the C2/C3 measurements did reach their counted values, but the reviewers identified missing predicate coverage and causal-separability defects. No ordinal score delta or round admission is claimed. Trend verdicts remain in the round report.
+
+### Round 37 — attempt-2 re-measurement at lane tip `a3cf2efdc09939534fe3b51b1bff6779554b0a39` (no verdict change)
+
+C2 counter: 0 mismatches, exit 0 (`.ufo/waves/round-37/attempt2/c2-at-a3cf2ef.json`). C3 counter: 27 checked, 0 mismatches, exit 0 (`.ufo/waves/round-37/attempt2/c3-at-a3cf2ef.json`). Census: 207 rows, exit 0. The post-wave adjudication above stands: C1, C2 and C3 are **not verified**, and no ordinal moves. Seat-report count is corrected to 62 of 64 (`attempt2/seat-report-count.txt`).
