@@ -1,0 +1,416 @@
+{
+  "superseded_by": "corpus/knowledge/root-dac-correction-r13.json",
+  "correction_notice": "Round 13: historical round-12 records below are preserved, not current advice. The superseding correction replaces B2 interpretation/limit, decision_procedure step 2, SC1/SC2 fixture attribution and the corresponding MD current-host/R13 claims. ProtectSystem=no plus empty ReadOnlyPaths does not exclude another unit-side read-only path view.",
+  "schema": "tsukuroi-dac-decision-matrix-v1",
+  "round": "round-12",
+  "baseline_commit": "b76b5c377eaee3e3d8d47fdddde977828d05dbd5",
+  "scope": "Read-only diagnostic classification of ordinary mkdir/mkdirat create-class failures at a target path (EACCES / EROFS / EEXIST families) for the rollback-net surface. Branch records are API-grounded distinctions and controls, not four simultaneously live host causes; host causal attribution is explicitly unproven. This matrix classifies mkdir-class outcomes; it is not proof of the Btrfs subvolume ioctl path or of any historical host cause.",
+  "independence": "C2 is independent of the C1 census arm: no census script, census output, census fixture or root-metadata census field is read or required by this matrix.",
+  "branches": [
+    {
+      "id": "B1",
+      "evidence": [
+        {
+          "source_id": "S035",
+          "anchor": "mkdir(2) § ERRORS > EACCES",
+          "quote": "The parent directory does not allow write permission to the process, or one of the directories in path did not allow search permission."
+        },
+        {
+          "source_id": "S027",
+          "anchor": "capabilities(7) § Capabilities list > CAP_DAC_OVERRIDE",
+          "quote": "Bypass file read, write, and execute permission checks."
+        },
+        {
+          "source_id": "S039",
+          "anchor": "tmpfiles.d(5) § LINE TYPES > z",
+          "quote": "Adjust the access mode, user and group ownership, and restore the SELinux security context of a file or directory, if it exists."
+        },
+        {
+          "source_id": "S040",
+          "anchor": "/usr/lib/tmpfiles.d/root.conf line 10",
+          "quote": "z / 555 - - -"
+        }
+      ],
+      "interpretation": "Creating an entry requires write (and search) permission on the parent; a parent mode/ACL that denies write to the caller's identity fails the create with EACCES. The same EACCES sentence also covers the search variant: a path-prefix directory without search permission fails EACCES even when the immediate parent is writable. DAC denial alone produces EACCES only when the caller has no bypass capability (conjunction with B3).",
+      "discriminator": {
+        "commands": [
+          "stat -c '%a %U:%G %n' <parent>",
+          "getfacl -p <parent>",
+          "stat -c '%a %U:%G %n' <each path-prefix directory of <target>>"
+        ],
+        "read_only": true,
+        "expected_signal": "mode/ACL grants no write to the caller on the parent, or no search (x) on a path-prefix directory — e.g. 0555 root:root with base-only ACL entries"
+      },
+      "evidence_kind": "measured filesystem metadata (stat/getfacl), read-only",
+      "limit": "DAC denial is necessary but not sufficient to attribute an observed EACCES: with CAP_DAC_OVERRIDE the same mode succeeds (S027). Mode 0555 is a DAC bit pattern on an inode, not a mount property; on a rw mount it yields EACCES, never EROFS. On this host the 0555 root mode is a vendor-configured systemd tmpfiles rule (S040: /usr/lib/tmpfiles.d/root.conf line 10, `z / 555 - - -`, owned by systemd 261.2-1; S039 for the `z` mode semantics), so it is not evidence of corruption and this matrix does not recommend changing it. Whether the mode is healthy policy belongs to the C1 root-metadata finding, not this branch.",
+      "source_ids": ["S027", "S035", "S039", "S040"]
+    },
+    {
+      "id": "B2",
+      "evidence": [
+        {
+          "source_id": "S035",
+          "anchor": "mkdir(2) § ERRORS > EROFS",
+          "quote": "path refers to a file on a read-only filesystem."
+        },
+        {
+          "source_id": "S028",
+          "anchor": "systemd.exec(5) § ProtectSystem=",
+          "quote": "If true, mounts the /usr/ and the boot loader directories (/boot and /efi) read-only for processes invoked by this unit."
+        },
+        {
+          "source_id": "S028",
+          "anchor": "systemd.exec(5) § ProtectSystem=",
+          "quote": "If set to \"full\", the /etc/ directory is mounted read-only, too."
+        },
+        {
+          "source_id": "S028",
+          "anchor": "systemd.exec(5) § ProtectSystem=",
+          "quote": "If set to \"strict\" the entire file system hierarchy is mounted read-only, except for the API file system subtrees /dev/, /proc/ and /sys/"
+        },
+        {
+          "source_id": "S028",
+          "anchor": "systemd.exec(5) § ReadWritePaths=",
+          "quote": "Note that ReadWritePaths= cannot be used to gain write access to a file system whose superblock is mounted read-only."
+        }
+      ],
+      "interpretation": "ProtectSystem=full covers /usr/, /boot/, /efi/ and /etc/ only; it does not cover /. ProtectSystem=strict mounts the entire hierarchy read-only except the API subtrees, and a ReadOnlyPaths= entry can cover a specific target. A read-only superblock, a covering ReadOnlyPaths= entry, or ProtectSystem=strict fails create-class writes with EROFS, independent of DAC mode and of capabilities. EROFS is a different errno from EACCES, so an observed EACCES is not explained by this branch. On this host the unit has ProtectSystem=no and empty ReadOnlyPaths=, so B2 is not configured for /.",
+      "discriminator": {
+        "commands": [
+          "findmnt -n -o TARGET,FSTYPE,VFS-OPTIONS,FS-OPTIONS <mountpoint of target>",
+          "systemctl show -p ProtectSystem -p ReadOnlyPaths -p ReadWritePaths -p BindReadOnlyPaths -p TemporaryFileSystem -p RootDirectory -p RootImage <unit>"
+        ],
+        "read_only": true,
+        "expected_signal": "ro in the target mount's VFS or FS options, or ProtectSystem=strict, or a ReadOnlyPaths=/BindReadOnlyPaths= entry covering the target, or TemporaryFileSystem= mounting over it — ProtectSystem=full alone does not cover /; RootDirectory=/RootImage= change the unit's path view"
+      },
+      "evidence_kind": "current host mount namespace + configured unit text; unit-private namespace unobserved",
+      "limit": "findmnt reads the host mount namespace, not the unit's private namespace, so a unit-private read-only bind or temporary superblock remount is invisible to a later global read; a host findmnt can never exclude a unit-private namespace or another sandbox mechanism. The unit-side signal is the manager's configured property text; BindReadOnlyPaths=, TemporaryFileSystem=, RootDirectory= and RootImage= can also change the unit's view, but they were not part of the captured property set in this round. ProtectSystem=full does not cover / (S028), so only strict or a ReadOnlyPaths= entry can make / read-only through the unit. No read-only filesystem was mounted and no EROFS write attempt was performed in this round's fixtures, so the mapping is man-page grounded but not host-demonstrated.",
+      "source_ids": ["S028", "S035"]
+    },
+    {
+      "id": "B3",
+      "evidence": [
+        {
+          "source_id": "S028",
+          "anchor": "systemd.exec(5) § CapabilityBoundingSet=",
+          "quote": "Capabilities listed will be included in the bounding set, all others are removed."
+        },
+        {
+          "source_id": "S028",
+          "anchor": "systemd.exec(5) § CapabilityBoundingSet=",
+          "quote": "this option also affects the respective capabilities in the effective, permitted and inheritable capability sets"
+        },
+        {
+          "source_id": "S028",
+          "anchor": "systemd.exec(5) § CapabilityBoundingSet=",
+          "quote": "This does not affect commands prefixed with \"+\"."
+        },
+        {
+          "source_id": "S027",
+          "anchor": "capabilities(7) § Capabilities list > CAP_DAC_OVERRIDE",
+          "quote": "Bypass file read, write, and execute permission checks."
+        },
+        {
+          "source_id": "S027",
+          "anchor": "capabilities(7) § Thread capability sets > Effective",
+          "quote": "This is the set of capabilities used by the kernel to perform permission checks for the thread."
+        },
+        {
+          "source_id": "S027",
+          "anchor": "capabilities(7) § Thread capability sets > Bounding",
+          "quote": "The capability bounding set is a mechanism that can be used to limit the capabilities that are gained during execve(2)."
+        },
+        {
+          "source_id": "S034",
+          "anchor": "access(2) § DESCRIPTION",
+          "quote": "for the root user, the check uses the set of permitted capabilities rather than the set of effective capabilities"
+        },
+        {
+          "source_id": "S038",
+          "anchor": "access(2) § DESCRIPTION",
+          "quote": "access() does not answer the \"can I read/write/execute this file?\" question"
+        }
+      ],
+      "interpretation": "User=root does not imply DAC bypass. A CapabilityBoundingSet= that omits CAP_DAC_OVERRIDE restricts the executed process's bounding set and, per S028, also affects the effective, permitted and inheritable sets; the DAC bypass (CAP_DAC_OVERRIDE, S027) is therefore not granted by the configured bounding set, and root is treated as DAC-bound under that configuration. For the EACCES class this branch is a conjunct of B1, not an alternative cause: it explains why a write-protected parent would not be bypassed. This is a configured restriction, not a measurement of the live process's CapEff/CapPrm: the kernel's actual permission checks use the effective set (S027 § Thread capability sets > Effective), which was unobserved, while S034/S038 describe a permission-check proxy, not an actual create.",
+      "discriminator": {
+        "commands": [
+          "systemctl show -p User -p Group -p CapabilityBoundingSet -p AmbientCapabilities -p NoNewPrivileges <unit>",
+          "grep -E '^(CapPrm|CapEff|CapBnd):' /proc/<live-issuer-pid>/status (only when a live issuer PID is confirmed; never reuse a stale ExecMainPID)"
+        ],
+        "read_only": true,
+        "expected_signal": "configured bounding set omits cap_dac_override and AmbientCapabilities is empty; when measurable, the live CapEff lacks bit 1 (CAP_DAC_OVERRIDE). Bounding-set text alone is not a CapEff measurement."
+      },
+      "evidence_kind": "configured unit text + optional read-only /proc caps; live effective sets unobserved in this round",
+      "limit": "Capability text is a process restriction, not a filesystem permission test (S028 registry note). With the unit inactive, systemctl show is configured text; the reported ExecMainPID was 1386 while `ps -p 1386` exited 1 (no such process), so it is a stale value and must never be used as a live PID. A live process's CapEff/CapPrm can only come from that process's /proc status; bounding-set text alone does not establish them, and the failing issuer may be a child, not ExecMainPID. access(2)/faccessat is a permission proxy, not an actual-operation authorization (S034/S038), and whether a probe uses access(2) or faccessat(AT_EACCESS) must be established per binary. The property text is also conditional: a systemd command prefixed with \"+\" is not affected by CapabilityBoundingSet= (S028), and the unit's ExecStart prefixes were not inspected here.",
+      "source_ids": ["S027", "S028", "S034", "S038"]
+    },
+    {
+      "id": "B4",
+      "evidence": [
+        {
+          "source_id": "S035",
+          "anchor": "mkdir(2) § ERRORS > EEXIST",
+          "quote": "path already exists (not necessarily as a directory). This includes the case where path is a symbolic link, dangling or not."
+        }
+      ],
+      "interpretation": "For ordinary mkdir/mkdirat, a target path that already exists as directory, file, subvolume mountpoint or dangling symlink yields EEXIST — a different errno and a different repair than EACCES. Presence is a B4-family indicator for that operation, not a universal target-present cause for other create mechanisms. In the snapshot context the collision class would be a pre-existing /.snapshots entry or mountpoint.",
+      "discriminator": {
+        "commands": [
+          "stat -c '%F %a %n' <target>",
+          "findmnt -n -o SOURCE,FSTYPE,OPTIONS <target>",
+          "snapper list-configs"
+        ],
+        "read_only": true,
+        "expected_signal": "stat succeeds for any file type (B4-family indicator for an ordinary mkdir), or stat reports no current entry with No such file or directory (ENOENT) text; findmnt can only report not-a-mountpoint, never absence"
+      },
+      "evidence_kind": "current target-path existence; historical failure-time state unobserved",
+      "limit": "The measured order (existing target under a 0555 parent -> EEXIST, new target -> EACCES) is for ordinary mkdir on this kernel (parent smoke, .ufo/waves/round-12/error-order-smoke.json). It is a diagnostic collection order for that operation, not a general syscall errno-priority rule, and it must not be extrapolated to the Btrfs subvolume ioctl used by the snapshot tool; an observed errno:13 therefore does not establish that the target was absent for that ioctl. The current absence of /.snapshots is a dated 2026-10-20 `stat` ENOENT observation, not a `findmnt` result, and does not reconstruct the target's state during the 2026-10-16..19 logged incidents.",
+      "source_ids": ["S035"]
+    }
+  ],
+  "decision_procedure": [
+    "0. Record the observed errno/API family first (13 EACCES, 17 EEXIST, 30 EROFS, 1 EPERM, other/unknown). The steps below collect indicators; they are not a universal syscall errno-priority proof.",
+    "1. For ordinary mkdir/mkdirat only, stat the target path (any type): present -> B4-family indicator; absent -> no current collision indicator. This is current-state evidence, not a failure-time proof, and does not transfer to the Btrfs subvolume ioctl.",
+    "2. Read the target mount's VFS/FS options (findmnt) and the unit's ProtectSystem/ReadOnlyPaths/ReadWritePaths: a read-only superblock, ProtectSystem=strict, or a ReadOnlyPaths= entry covering the target -> B2-family indicator (EROFS). ProtectSystem=full covers /usr,/boot,/efi,/etc, not /.",
+    "3. Read the parent mode/ACL and each path-prefix directory's search bit: write denied on the parent, or search denied on a path-prefix directory -> B1-family indicator (EACCES for ordinary mkdir when no bypass capability is effective).",
+    "4. Read the unit's User/CapabilityBoundingSet/AmbientCapabilities/NoNewPrivileges. A configured bounding set that omits cap_dac_override (non-root, or root bounded to e.g. cap_sys_admin) -> B3-family indicator. When a live issuer PID is confirmed, read CapEff/CapPrm from /proc; never infer them from the bounding set or a stale ExecMainPID.",
+    "5. Interpret the indicator set against the observed errno: B1 + B3 with a rw mount is consistent with an observed 13 for an ordinary mkdir; B2 is consistent with 30; B4 is consistent with 17. Do not convert a current-state indicator into proof of the historical failure.",
+    "6. No B1-B4 indicator fits the observed errno -> report UNCLASSIFIED; retain the residual (e.g. LSM/confinement, unit-private namespace, unknown operation ordering) and do not name a cause."
+  ],
+  "scenarios": [
+    {
+      "id": "SC1",
+      "inputs": {
+        "parent": "0555 root:root, base ACL entries only",
+        "caller": "uid 1000 (no capabilities)",
+        "mount": "rw",
+        "target_exists": false
+      },
+      "expected": {
+        "classification": "B1",
+        "errno": "EACCES (13)",
+        "basis": "actual isolated ordinary mkdir (uid 1000): parent 0555 + new target -> EACCES, .ufo/waves/round-12/discriminator-smoke.json fixture_results[0]; mkdir(2) EACCES (S035)"
+      }
+    },
+    {
+      "id": "SC2",
+      "inputs": {
+        "parent": "0555 root:root, base ACL entries only",
+        "caller": "uid 1000 (no capabilities)",
+        "mount": "rw",
+        "target_exists": true
+      },
+      "expected": {
+        "classification": "B4",
+        "errno": "EEXIST (17)",
+        "basis": "actual isolated ordinary mkdir: parent 0555 + existing target -> EEXIST, .ufo/waves/round-12/error-order-smoke.json; mkdir(2) EEXIST (S035)"
+      }
+    },
+    {
+      "id": "SC3",
+      "inputs": {
+        "parent": "0755 root:root",
+        "caller": "uid 1000 (no capabilities)",
+        "mount": "rw",
+        "target_exists": false
+      },
+      "expected": {
+        "classification": "B1",
+        "errno": "EACCES (13)",
+        "basis": "mkdir(2) EACCES (S035): mode 0755 root:root grants write to the owner only; uid 1000 falls to group/other r-x. The inherited success claim was a fixture-ownership error: discriminator-smoke.json's 0755 parent was created by uid 1000 (SC9), not root-owned."
+      }
+    },
+    {
+      "id": "SC4",
+      "inputs": {
+        "parent": "0555 root:root, base ACL entries only",
+        "caller": "uid 0 with CAP_DAC_OVERRIDE present in the effective set (e.g. unbounded root after execve; bounding-set membership alone is insufficient)",
+        "mount": "rw",
+        "target_exists": false
+      },
+      "expected": {
+        "classification": "bypass (no denial)",
+        "errno": "success",
+        "basis": "S027 § Thread capability sets > Effective: the kernel uses the effective set for permission checks; § CAP_DAC_OVERRIDE: the bypass capability; § Thread capability sets > Bounding: bounding membership is not the effective set. Not host-demonstrated this round (no privileged probe; no live CapEff measured)."
+      }
+    },
+    {
+      "id": "SC5",
+      "inputs": {
+        "parent": "writable for the caller",
+        "caller": "capable root",
+        "mount": "ro, or unit ProtectSystem=strict / ReadOnlyPaths= covering the target",
+        "target_exists": false
+      },
+      "expected": {
+        "classification": "B2",
+        "errno": "EROFS (30)",
+        "basis": "mkdir(2) EROFS (S035); systemd.exec ProtectSystem= / ReadWritePaths= (S028); not host-demonstrated this round (no read-only mount was created)"
+      }
+    },
+    {
+      "id": "SC6",
+      "inputs": {
+        "parent": "0555 root:root, base ACL entries only",
+        "caller": "uid 0, unit User=root CapabilityBoundingSet=cap_sys_admin, AmbientCapabilities empty, NoNewPrivileges=yes (configured; live CapEff unobserved)",
+        "mount": "rw",
+        "target_exists": false
+      },
+      "expected": {
+        "classification": "B1+B3 conjunction",
+        "errno": "EACCES (13)",
+        "basis": "S027 + S028: DAC denial (B1) is not bypassed because the configured bounding set omits CAP_DAC_OVERRIDE and also affects the effective/permitted/inheritable sets; live CapEff was not measured, so this is a configured prediction, not a runtime proof."
+      }
+    },
+    {
+      "id": "SC7",
+      "inputs": {
+        "parent": "host / measured: 555 root:root, getfacl base entries only",
+        "caller": "host unit configured: User=root, CapabilityBoundingSet=cap_sys_admin, AmbientCapabilities empty, NoNewPrivileges=yes; live CapEff unobserved",
+        "mount": "host / measured: btrfs rw,relatime,compress=zstd:3,ssd,space_cache=v2,subvolid=256,subvol=/@",
+        "target_exists": false,
+        "target": "/.snapshots (stat rc=1 with ENOENT text, findmnt rc=1 = not a mountpoint, snapper list-configs 0 rows = no configured configs; these are current-state observations, do not prove historical absence, and are not the failure-time state during the logged incidents)",
+        "unit": "limine-snapper-sync.service: ProtectSystem=no, ReadOnlyPaths empty, ReadWritePaths=/tmp, ProtectHome=yes; enabled, inactive"
+      },
+      "expected": {
+        "classification": "B1+B3 conjunction (consistent with the observed error class)",
+        "errno": "EACCES (13) observed as journal errno:13 x9 at the 2026-10-20 query (2026-10-16T12:47:26-03:00 .. 2026-10-19T22:48:24-03:00)",
+        "basis": "host read-only probes 2026-10-20 + S027/S028/S034/S038; the configured B1+B3 conjunction is consistent with the observed error class; host causal attribution remains unproven (no syscall trace, live CapEff unobserved, Btrfs ioctl order outside this matrix). The journal count is a query-time context datum, not a classification input."
+      }
+    },
+    {
+      "id": "SC8",
+      "inputs": {
+        "parent": "0755 (write allowed for the caller)",
+        "caller": "capable root",
+        "mount": "rw",
+        "target_exists": false,
+        "observed": "EACCES"
+      },
+      "expected": {
+        "classification": "UNCLASSIFIED",
+        "errno": "EACCES (13) unexplained by B1-B4",
+        "basis": "indicator logic: no B1-B4 indicator fits; report the residual class (e.g. another confinement), do not assert DAC"
+      }
+    },
+    {
+      "id": "SC9",
+      "inputs": {
+        "parent": "0755 owned by the invoking uid (fixture-created)",
+        "caller": "uid 1000 (no capabilities)",
+        "mount": "rw",
+        "target_exists": false
+      },
+      "expected": {
+        "classification": "no denial",
+        "errno": "success (child created)",
+        "basis": "actual isolated ordinary mkdir: invoker-owned 0755 -> created_child, .ufo/waves/round-12/discriminator-smoke.json fixture_results[1]. Ownership, not mode alone, decides the uid-1000 class."
+      }
+    },
+    {
+      "id": "SC10",
+      "inputs": {
+        "parent": "0555 root:root, base ACL entries only",
+        "caller": "uid 0 with CAP_DAC_OVERRIDE in the bounding set but cleared from the effective set",
+        "mount": "rw",
+        "target_exists": false
+      },
+      "expected": {
+        "classification": "B1+B3 conjunction",
+        "errno": "EACCES (13)",
+        "basis": "S027 § Thread capability sets > Effective: the bypass is exercised from the effective set; § Thread capability sets > Bounding: the bounding set limits capabilities gained during execve and is not the effective set. Not host-demonstrated (no privileged probe; no live CapEff measured)."
+      }
+    }
+  ],
+  "host_observation": {
+    "captured_at": "2026-10-20",
+    "root": {
+      "mode": "555",
+      "owner": "root:root",
+      "type": "directory",
+      "acl": "user::r-x, group::r-x, other::r-x (base entries only)",
+      "stat_rc": 0,
+      "getfacl_rc": 0,
+      "write_bits": "owner write absent; group write absent; other write absent",
+      "search_bits": "owner/group/other execute present (r-x for all classes)",
+      "mount": "/ btrfs rw,relatime,compress=zstd:3,ssd,space_cache=v2,subvolid=256,subvol=/@",
+      "mount_vfs": "rw,relatime",
+      "mount_fs": "rw,compress=zstd:3,ssd,space_cache=v2,subvolid=256,subvol=/@",
+      "mode_origin": "vendor-configured systemd tmpfiles rule: S040 /usr/lib/tmpfiles.d/root.conf line 10 `z / 555 - - -`, owned by systemd 261.2-1; S039 documents the z line type; tmpfiles-setup active with Result=success and ExecMainStatus=0",
+      "policy_note": "the 0555 bit pattern is shipped policy on this host, not evidence of corruption; whether it is healthy belongs to the C1 root-metadata finding; no chmod advice is made here",
+      "inode_times": {
+        "birth": "2026-10-03 17:41:30 -0300",
+        "mtime": "2026-10-03 17:45:33 -0300",
+        "ctime": "2026-10-03 17:45:33 -0300",
+        "note": "dated metadata only; inode timestamps do not prove that this mode was in effect during the 2026-10-16..19 logged incidents"
+      }
+    },
+    "unit": {
+      "name": "limine-snapper-sync.service",
+      "user": "root",
+      "group": "",
+      "capability_bounding_set": "cap_sys_admin",
+      "ambient_capabilities": "",
+      "protect_system": "no",
+      "protect_home": "yes",
+      "read_only_paths": "",
+      "read_write_paths": "/tmp",
+      "no_new_privileges": "yes",
+      "state": "enabled, inactive (is-active rc=3)",
+      "properties_kind": "configured via systemctl show; live CapEff/CapPrm unobserved",
+      "exec_main_pid": 1386,
+      "exec_main_pid_stale": true,
+      "exec_main_pid_note": "ps -p 1386 exited 1 (no such process) at capture",
+      "main_pid": 0,
+      "protect_system_full_covers_root": false,
+      "command_prefixes": "not inspected; a '+' command prefix is not affected by CapabilityBoundingSet="
+    },
+    "target": {
+      "path": "/.snapshots",
+      "exists_now": false,
+      "stat_rc": 1,
+      "stat_error": "No such file or directory (ENOENT)",
+      "findmnt_rc": 1,
+      "findmnt_meaning": "not a mountpoint; findmnt rc=1 alone does not prove path absence",
+      "snapper_configs": 0,
+      "snapper_meaning": "no configured snapper configs; not path proof",
+      "scope": "current-state only; does not reconstruct the failure-time state"
+    },
+    "journal": {
+      "filter": "create subvolume failed",
+      "errno13_count": 9,
+      "first_match": "2026-10-16T12:47:26-03:00",
+      "last_match": "2026-10-19T22:48:24-03:00",
+      "match_scope": "first and last matched entries in the current journal, not necessarily the oldest retained boot",
+      "query_time": "2026-10-20",
+      "use": "context only; classification keys on the observed errno family, not the match count"
+    },
+    "cross_checks": {
+      "caller_uid": 1000,
+      "test_w_root_path_rc": 1,
+      "test_x_root_rc": 0,
+      "lsattr_root": "no inode flags",
+      "apparmor_enabled": "N",
+      "selinux_path_present": false,
+      "lsm_list": "capability,landlock,lockdown,yama,bpf",
+      "live_issuer_caps": "unobserved; unit inactive and ExecMainPID stale",
+      "bpf_lsm_programs": "not enumerated (non-root); residual unknown"
+    }
+  },
+  "host_causal_attribution": {
+    "status": "unproven",
+    "scope": "ordinary mkdir/mkdirat indicator matrix; not a Btrfs ioctl attribution",
+    "leading_hypothesis": "the configured B1+B3 conjunction (DAC 0555 on / plus a bounding set that omits CAP_DAC_OVERRIDE) is consistent with the journal's EACCES class; this is a configured prediction, not a measured CapEff and not an ioctl proof",
+    "why_not_proven": "no syscall trace of the failing operation; no privileged probe; the unit was inactive at capture and ExecMainPID 1386 was stale, so the issuer's live CapEff/CapPrm were not measured and may belong to a child; the unit-private mount namespace was not observed; the Btrfs subvolume ioctl's check order is outside this matrix; BPF-LSM is loaded but its programs were not enumerated as non-root; inode timestamps do not establish mode continuity across the nine failures",
+    "what_would_discriminate": "operator-only: identify the actual issuer PID at failure time, read its /proc/<pid>/status capability sets, and trace the exact syscall/path; not performed in this round"
+  },
+  "evidence_refs": {
+    "parent_smoke": ".ufo/waves/round-12/discriminator-smoke.json",
+    "parent_error_order": ".ufo/waves/round-12/error-order-smoke.json",
+    "prior_note": "corpus/knowledge/snapper-eacces-mechanism.md",
+    "note": "corpus/knowledge/root-dac-decision-r12.md",
+    "sources": ["S027", "S028", "S034", "S035", "S038", "S039", "S040"],
+    "fixture_ownership_note": "discriminator-smoke.json's 0755 parent was created by uid 1000; SC3 root-owned 0755 is S035-grounded, not fixture-observed.",
+    "quality": "See corpus/knowledge/root-dac-decision-r12.md ## QUALITY check"
+  }
+}

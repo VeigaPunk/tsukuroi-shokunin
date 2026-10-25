@@ -1,0 +1,11 @@
+{
+  "schema": "tsukuroi-selector-contract-v1",
+  "sources": ["S081", "S082"],
+  "decisions": [
+    {"class": "commit", "outcome": "accept-if-landed-and-pushed", "finding": null, "source": "S082", "rationale": "A commit already has the requested type; lane ancestry and origin tracking checks remain separate."},
+    {"class": "tree", "outcome": "refuse", "finding": "E-REVISION-INVALID", "source": "S081", "rationale": "A non-empty tree is not commit-ish."},
+    {"class": "blob", "outcome": "refuse", "finding": "E-REVISION-INVALID", "source": "S081", "rationale": "A file-content object is not commit-ish."},
+    {"class": "tag-to-commit", "outcome": "accept-if-landed-and-pushed", "finding": null, "source": "S082", "rationale": "Ordinary and nested annotated tags recursively peel to a commit, which must satisfy lane ancestry policy."},
+    {"class": "tag-to-noncommit", "outcome": "refuse", "finding": "E-REVISION-INVALID", "source": "S081", "rationale": "Empty-brace peeling can stop at a tree or blob; commit-type peeling cannot accept those targets."}
+  ]
+}

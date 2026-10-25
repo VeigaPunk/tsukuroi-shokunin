@@ -267,3 +267,12 @@ VERSION 7 (`--set livefive`; measure `leaking` 0, sensitivity battery committed 
 | Note | Holds | Sources |
 |---|---|---|
 | `knowledge/journalctl-v262-field-filter-r36.md` | The v262 scope-rejection of `journalctl -F`/`-N`: exact line, exit 1/EINVAL, the 16-term `field_list_has_scope_options()` predicate term-by-term, the `-n` allowed-silent third state, scope selectors that remain allowed, the safe substitution pattern, preventive consumer guidance (no lane tool uses `-F`/`-N`) | S198, S199; `.ufo/waves/round-36/w1/ScribeC2Draft/matrix-mini.json` |
+
+## Round 37 — errno discrimination on existing snapshot and journal ground
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/mount-errno-contract-r37.md` | Operation-specific mount and Btrfs snapshot errno classes on the existing snapshot-boot frontier; source behavior is not used to infer the cause of a historical host log | S200, S201; `lessons/round-37.md` Gate |
+| `knowledge/errno-contract-variance-r37.md` | errno significance vs call return, portability of numeric mappings, host-specific EACCES=13 binding, and the boundary that an old empty retained-journal window does not prove repair | S202-S207; `lessons/round-37.md` Gate |
+
+These entries deepen the existing errno/snapshot frontier (`corpus/README.md:38-42,151-153`); they add no new coverage surface or host repair. The generic errno-name entry in the staged package was rejected in the round Gate for overlap and absent explicit QUALITY check; it remains unadopted.

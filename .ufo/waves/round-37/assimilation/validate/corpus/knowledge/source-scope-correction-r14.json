@@ -1,0 +1,242 @@
+{
+  "schema": "tsukuroi-source-scope-correction-v1",
+  "entry_id": "source-scope-correction-r14",
+  "round": "round-14",
+  "status": "superseding-correction",
+  "scope": "Two named source-scope corrections only: the ProtectSystem= documented value domain at corpus/knowledge/root-dac-correction-r13.md:97, and the #8047 comment-attribution teaching in S042 and corpus/lessons/round-13.md:68-70. No new capability, no host-cause claim, and no source-truth enforcement claim.",
+  "corrections": [
+    {
+      "id": "R14-VALUE-DOMAIN",
+      "supersedes": "corpus/knowledge/root-dac-correction-r13.md:97",
+      "source_id": "S044",
+      "url": "https://man.archlinux.org/man/systemd.exec.5",
+      "location": "systemd.exec(5) § ProtectSystem= (SANDBOXING), rendered lines 1266-1267; page footer systemd 262.1; opened 2026-10-20",
+      "quote": "Takes a boolean argument or the special values \"full\" or \"strict\".",
+      "replacement": "The opened revision documents ProtectSystem= as taking a boolean argument or the special values full and strict; that is the documented value domain, and it documents no further values for this option. The other-mechanism examples are illustrative, not exhaustive (they are not an exhaustive survey: BindReadOnlyPaths=, TemporaryFileSystem= with ro, RootDirectory=/RootImage=); that scope is lane inference, not a source statement about the option's values and not a claim about undocumented values. full adds /etc/ to the mounts made read-only by true; strict covers the hierarchy except /dev/, /proc/ and /sys/ with documented exclusions."
+    },
+    {
+      "id": "R14-COMMENT-ATTRIBUTION",
+      "supersedes": "S042",
+      "source_id": "S045",
+      "url": "https://api.github.com/repos/omacom/omarchy/issues/comments/6071740243",
+      "location": "comment 6071740243, body first sentence; created 2026-10-09T00:27:22Z; API and canonical HTML read 2026-10-20",
+      "quote": "I tried this on a stock Omarchy worker VM and could not reproduce the central claim",
+      "replacement": "Verified API fields for comment 6071740243: login omarchybot, API user.type User (not Bot), author_association COLLABORATOR, created_at 2026-10-09T00:27:22Z. These fields do not establish maintainer acceptance, maintainer authorship, human authorship or any generation method; reading them as maintainer acceptance is unsupported inference. The body's 'I tried this on a stock Omarchy worker VM and could not reproduce the central claim' is an unverified first-person execution assertion, not a reproduced measurement. Codex Medium is presented as a second opinion, the author notes it may not be independent, and the comment does not establish that Codex helped write it. The maintainer deferral concerns #6634's remount failure; #8047 itself ends 'This now waits on your answer.' Host-cause use and maintainer-acceptance use are rejected; host cause remains unknown. No statement in this comment identifies its own generation method."
+    }
+  ],
+  "errata": [
+    {
+      "id": "R14-S041-METADATA",
+      "kind": "supporting-metadata-erratum",
+      "not_a_new_claim": true,
+      "path": "corpus/knowledge/root-dac-correction-r13.json:267-268",
+      "observed": "sources[0].status is \"reserved\" and sources[0].registry_owner is \"SourceRegistry\"; sources[0] is S041.",
+      "corrected_reading": "S041 is mined: corpus/SOURCES.md:47 records status mined, and corpus/knowledge/root-dac-correction-r13.md:175 says 'S041 is a mined registry row, not a reserved future source.' The reservation metadata is stale draft metadata; there is no live owner reservation. The r13 JSON bytes are historical and are not edited.",
+      "evidence": [
+        "corpus/SOURCES.md:47",
+        "corpus/knowledge/root-dac-correction-r13.md:175",
+        "corpus/knowledge/root-dac-correction-r13.json:267-268"
+      ]
+    },
+    {
+      "id": "R14-GATE-CONTRACT",
+      "kind": "supporting-metadata-erratum",
+      "not_a_new_claim": true,
+      "path": "corpus/knowledge/root-dac-correction-r13.json:204-240",
+      "observed": "gate_contract declares ten required_md_headings, a corrected_field_scan list, historical revision/files, active_supersession and a historical-marker rule.",
+      "corrected_reading": "The object is documentation, not executable specification. tools/check-root-dac-correction.py checks five headings (lines 100-105) plus identifier/scope/regex/table pins, and has no gate_contract reference (grep found none). The tool predicates are the authoritative narrow contract; no stronger enforcement is claimed. That checker has no predicate for the ProtectSystem value domain or the S042 attribution, so a passing count cannot establish source agreement.",
+      "evidence": [
+        "corpus/knowledge/root-dac-correction-r13.json:204-240",
+        "tools/check-root-dac-correction.py:100-105",
+        "grep 'gate_contract' tools/check-root-dac-correction.py: no match (2026-10-20)"
+      ]
+    }
+  ],
+  "supersession_notices": [
+    {
+      "correction_id": "R14-VALUE-DOMAIN",
+      "supersedes": "corpus/knowledge/root-dac-correction-r13.md:97",
+      "scope": "The clause 'the value set is not exhaustive' in the row replacing r12 MD:41-42 only. The ambiguous saved phrase 'the option set is not an exhaustive list of unit-side read-only mechanisms' at root-dac-correction-r13.json:120 is read as lane scope: the example list is illustrative, not exhaustive, and is not a source statement about undocumented option values. It is not rewritten.",
+      "action": "The append-only notice and pointer are present in the r13 MD; they were authored by L1/ActiveRefs, not this seat. Old bytes are not rewritten."
+    },
+    {
+      "correction_id": "R14-COMMENT-ATTRIBUTION",
+      "supersedes": "S042",
+      "scope": "S042's teaches phrase at corpus/SOURCES.md:48, the S042 located-quote referent at corpus/lessons/round-13.md:60, the collective sentence at corpus/lessons/round-13.md:68-70, the Search-log collective attribution at corpus/SOURCES.md:77, and the 'model triage' clause at corpus/knowledge/root-dac-correction-r13.md:171 (QUALITY criterion 18), for #8047 only.",
+      "action": "The S045 row and lesson notice are present; they were authored by SourceRegistry/L1/ActiveRefs, not this seat. S042 fields, lesson bytes and r13 bytes stay unchanged. S043/#6629 remains separate."
+    }
+  ],
+  "clarifications": [
+    {
+      "id": "R14-VALUE-DOMAIN",
+      "pointer": "corpus/knowledge/root-dac-correction-r13.md table at lines 95-102",
+      "text": "The r13 table's no/yes/true entries are mode examples for a boolean argument, not an exhaustive lexical spelling list; this pair adds no parser or code-level boolean facts, and value names remain option-scoped."
+    },
+    {
+      "id": "R14-VALUE-DOMAIN",
+      "pointer": "corpus/knowledge/root-dac-correction-r13.json:120",
+      "text": "The saved sentence 'the option set is not an exhaustive list of unit-side read-only mechanisms' is read as lane scope: the other-mechanism list is illustrative, not an exhaustive survey. It is not a source statement that ProtectSystem= accepts other values. The phrase 'option set' is ambiguous but is not rewritten; this correction supplies the scoped reading."
+    }
+  ],
+  "body_term_sweep": {
+    "scope": "exact HTTP 200 JSON `body` field of comment 6071740243",
+    "date": "2026-10-20",
+    "method": "case-insensitive substring count",
+    "terms": {
+      "model-generated": 0,
+      "automated triage": 0,
+      "self-described": 0,
+      "generated": 0,
+      "triage": 0,
+      "model": 0,
+      "LLM": 0,
+      "agent": 0
+    }
+  },
+  "verified_comment_fields": {
+    "comment_id": 6071740243,
+    "login": "omarchybot",
+    "user_type": "User",
+    "author_association": "COLLABORATOR",
+    "created_at": "2026-10-09T00:27:22Z",
+    "updated_at": "2026-10-09T00:27:22Z",
+    "html_url": "https://github.com/omacom/omarchy/issues/8047#issuecomment-6071740243",
+    "issue_state": "open; label bug",
+    "read_method": "Authenticated `gh api repos/omacom/omarchy/issues/comments/6071740243` returned HTTP 200 JSON. The unauthenticated endpoint https://api.github.com/repos/omacom/omarchy/issues/comments/6071740243 returned HTTP 403 rate-limit for this host earlier the same day; the canonical HTML comment anchor corroborated login, COLLABORATOR badge, created date and body text.",
+    "field_limit": "These are account fields. They do not establish maintainer acceptance, maintainer authorship, human authorship or generation method."
+  },
+  "body_quotes": [
+    {
+      "label": "VM execution assertion",
+      "quote": "I tried this on a stock Omarchy worker VM and could not reproduce the central claim",
+      "words": 16,
+      "status": "unverified first-person assertion; this lane has not independently reproduced the claimed run"
+    },
+    {
+      "label": "Second opinion",
+      "quote": "Codex Medium reviewed the same evidence and upstream files and reached the same conclusion.",
+      "words": 14,
+      "status": "author-labelled second opinion"
+    },
+    {
+      "label": "Independence caveat",
+      "quote": "It may have seen this analysis first, so its agreement is not guaranteed to be independent.",
+      "words": 16,
+      "status": "author's own limitation on the second opinion"
+    },
+    {
+      "label": "#6634 maintainer deferral",
+      "quote": "waiting on the maintainer to decide whether snapshot boots should keep the overlay.",
+      "words": 13,
+      "status": "the sentence's subject is the #6634 remount failure, not #8047"
+    },
+    {
+      "label": "#8047 closing",
+      "quote": "This now waits on your answer.",
+      "words": 6,
+      "status": "reporter-directed; #8047 awaits the reporter's answer, not a maintainer decision"
+    }
+  ],
+  "preserved": {
+    "r13_pair": "Historical r13 lines and JSON keys remain preserved under explicit r14 supersession notices. Original line citations locate baseline 8606bad4cbc6451ac2890c9f8e2548a36c386db6; active locators are headings and JSON keys.",
+    "s042": "S042 row fields are unchanged; S045 carries the superseding proposition.",
+    "s043": "S043/#6629 and its 'Nothing was run on a machine.' disclaimer remain separate and are not transferred to #8047.",
+    "r13_lesson": "The collective sentence at corpus/lessons/round-13.md:68-70 is corrected for #8047 by this pair; its bytes are preserved."
+  },
+  "limits": {
+    "registry_rows": "S044 is present at corpus/SOURCES.md:50 (docs, tier A) and S045 at corpus/SOURCES.md:51 (community, tier C), with S045's teaches beginning 'supersedes S042'. This pair did not write or validate those rows.",
+    "old_checker": "tools/check-root-dac-correction.py was read statically, not executed; it remains the historical narrow checker.",
+    "r14_checker": "tools/check-source-scope-correction.py is present; this seat read its predicates but did not execute it, so this pair asserts no red/green bounded-check result and does not self-admit.",
+    "host": "No host property, mount namespace, unit state or historical cause was measured; the host cause remains unknown.",
+    "quote_normalization": "The S044 quote joins a rendered line break with one space; the S045 quote is an exact substring of the HTTP 200 body."
+  },
+  "quality": {
+    "evaluated_in": "corpus/knowledge/source-scope-correction-r14.md ## QUALITY check",
+    "partial": [],
+    "not_applicable": [6],
+    "unverified_here": [19]
+  },
+  "sources": [
+    {
+      "source_id": "S044",
+      "kind": "docs",
+      "tier": "A",
+      "status": "mined",
+      "url": "https://man.archlinux.org/man/systemd.exec.5",
+      "scope": "ProtectSystem= documented value domain",
+      "anchor": "§ ProtectSystem= (SANDBOXING), rendered lines 1266-1267; footer systemd 262.1"
+    },
+    {
+      "source_id": "S045",
+      "kind": "community",
+      "tier": "C",
+      "status": "rejected",
+      "url": "https://api.github.com/repos/omacom/omarchy/issues/comments/6071740243",
+      "scope": "#8047 comment authority correction",
+      "anchor": "comment 6071740243 body; created 2026-10-09T00:27:22Z"
+    },
+    {
+      "source_id": "S041",
+      "kind": "docs",
+      "tier": "A",
+      "status": "mined",
+      "url": "https://man.archlinux.org/man/systemd.exec.5",
+      "scope": "prior namespace mechanisms row; unchanged"
+    },
+    {
+      "source_id": "S042",
+      "kind": "community",
+      "tier": "C",
+      "status": "rejected",
+      "url": "https://github.com/omacom/omarchy/issues/8047",
+      "scope": "prior row; teaching superseded by S045, fields unchanged"
+    },
+    {
+      "source_id": "S043",
+      "kind": "community",
+      "tier": "C",
+      "status": "rejected",
+      "url": "https://github.com/omacom/omarchy/issues/6629",
+      "scope": "separate comment disclaimer; not transferred"
+    }
+  ],
+  "r15_supersession": {
+    "round": "round-15",
+    "date": "2026-10-20",
+    "notice": "Append-only supersession appended in round 15. Only the renderer-unqualified supplemental locator and the unswept negative documentation sentence named below are superseded; the R14 quote, proposition, attribution correction and every other value above are unchanged.",
+    "canonical_pair": {
+      "md": "corpus/knowledge/source-locator-clarification-r15.md",
+      "json": "corpus/knowledge/source-locator-clarification-r15.json",
+      "schema": "tsukuroi-locator-clarification-v1",
+      "correction_ids": [
+        "R15-LOCATOR",
+        "R15-POSITIVE-DOMAIN"
+      ]
+    },
+    "notices": [
+      {
+        "id": "R15-LOCATOR",
+        "supersedes": "corrections[0].location; sources[0].anchor (S044)",
+        "superseded_text": "rendered lines 1266-1267",
+        "reason": "Renderer-dependent reader line numbers. The round-14 closure's reader shows AF_UNIX there and ProtectSystem= at 1270, with the definition at 1272-1273 (corpus/lessons/round-14-verifier-spotcheck.md § Adjudicated concerns and routing, item 1, lines 233-239). Bare lines are not an active locator. The same fragment in sources[0].anchor is read under this notice; the preserved bytes are not rewritten.",
+        "active_locator": "systemd.exec(5) SANDBOXING > ProtectSystem= stable heading, plus the observed page footer version (systemd 262.1 at the 2026-10-20 reopen)",
+        "renderer_rule": "Any future line number must name the reader or renderer; an unqualified rendered line is withdrawn as a locator.",
+        "preserved": "The 11-word quote, the documented value domain and every other correction field remain exact and are not superseded."
+      },
+      {
+        "id": "R15-POSITIVE-DOMAIN",
+        "supersedes": "corrections[0].replacement negative sentence",
+        "superseded_text": "documents no further values for this option",
+        "reason": "No command-and-date documentation sweep backs an exhaustive-absence claim; absence of a recorded sweep is not evidence of absence in the source.",
+        "replacement_scope": "Keep only the positive documented definition: the option takes a boolean argument or the special values full or strict.",
+        "not_claimed": [
+          "exhaustive documentation absence",
+          "parser or code-level proof",
+          "any statement about undocumented values"
+        ],
+        "preserved": "The 11-word quote, full/strict coverage and the illustrative other-mechanism list's lane-scope status remain unchanged."
+      }
+    ],
+    "preserved_values_check": "Additive key only; all pre-existing top-level keys keep their prior values."
+  }
+}

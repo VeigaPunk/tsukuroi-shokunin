@@ -1,0 +1,60 @@
+{
+  "schema": "tsukuroi-partial-upgrade-recheck-v1",
+  "source_ids": ["S047", "S048", "S049"],
+  "observed_at": "2026-10-20T07:44:39Z",
+  "evidence_path": ".ufo/waves/round-15/build/host-snapshot.json",
+  "snapshot_sha256": "b101f3747827cefd0ed604c14b669267ec0fcc1b6c2fbe6e486be0cdbbc6ea81",
+  "snapshot_captured_at": "2026-10-20T07:44:39Z",
+  "observations": [
+    {
+      "command_key": "package_versions",
+      "probe_key": "package_versions",
+      "exit": 0,
+      "stderr_empty": true,
+      "value": "libinput 1.32.0-1; libinput-tools 1.32.0-1; mkinitcpio 41.1-1; systemd 261.2-1",
+      "meaning": "Installed package-database versions from pacman -Q. These are installed database versions only, not verified file versions and not the version mapped into any running process."
+    },
+    {
+      "command_key": "pending_updates",
+      "probe_key": "pending_updates",
+      "exit": 0,
+      "stderr_empty": true,
+      "value": "413",
+      "meaning": "pacman -Qu returned 413 out-of-date rows with exit 0 and empty stderr against the local sync database born 2026-10-18T17:11:00Z. The set includes mkinitcpio 41.1-1 -> 42.2-1, plymouth 26.134.222-2 -> 26.134.222-3, systemd 261.2-1 -> 262-1 and linux 7.2.3.arch1-3 -> 7.2.11.arch1-1; no libinput row appears because the stale database entry is not newer than installed 1.32.0-1 [inference]. This is a delta for that metadata, not current upstream state."
+    },
+    {
+      "command_key": "sync_metadata",
+      "probe_key": "sync_metadata",
+      "exit": 0,
+      "stderr_empty": true,
+      "value": "2026-10-18T17:11:00Z",
+      "meaning": "All five sync databases (core, extra, multilib, omarchy, openai-chatgpt) share the raw stdout birth stamp 2026-10-18 14:11:00.026135178 -0300, i.e. 2026-10-18T17:11:00Z. The %z field is status-change time (ctime), not mtime; %y mtime was not captured. The latest logged synchronizing marker, line 2288, is 2026-10-18T14:11:00-0300, the same instant. The logged package actions at 07:25:16Z are 38 h 14 m after the birth and the capture at 07:44:39Z is 38 h 34 m after it; both used that metadata [inference: no later synchronizing marker was captured]."
+    },
+    {
+      "command_key": "libinput_log",
+      "probe_key": "libinput_log",
+      "exit": 0,
+      "stderr_empty": true,
+      "value": "2026-10-20T07:25:17Z",
+      "meaning": "Line 2429 records the logged pacman argv 'pacman -S --needed --noconfirm libinput libinput-tools' at 2026-10-20T04:25:16-0300 (07:25:16Z); line 2432 records upgraded libinput (1.31.3-1 -> 1.32.0-1) at 04:25:17-0300 (07:25:17Z); line 2436 records installed libinput-tools (1.32.0-1) at 04:25:17-0300. The value is the UTC timestamp of the last 'upgraded libinput' line, and its target 1.32.0-1 equals the installed libinput version. These captured lines show at least those actions; lines 2430-31, 2433-35 and 2437-39 were outside the libinput filter, so the full action set is not known here. These are captured package-action lines, not a transaction-completion, live-process, dependency-closure or health measurement, and the log line names no actor."
+    },
+    {
+      "command_key": "boot_hook_mentions",
+      "probe_key": "boot_hook_mentions",
+      "exit": 0,
+      "stderr_empty": true,
+      "value": "/new_root (btrfs-overlayfs:4, plymouth:11); no /sysroot",
+      "meaning": "btrfs-overlayfs line 4 sets root_mnt=\"/new_root\" and plymouth line 11 passes --new-root-dir=/new_root; neither file matches /sysroot. Installed mkinitcpio is 41.1-1 while 42.2-1 is pending, so this is an untested future compatibility risk for a full upgrade, not an observed boot failure."
+    }
+  ],
+  "decision": "BLOCKED_FOR_AGENT_PACKAGE_ACTION",
+  "limits": [
+    "pacman -Qu compares installed packages with the local sync database born 2026-10-18T17:11:00Z; upstream packages newer than that metadata are invisible, so 413 describes that delta only, not current upstream state. The numeral matches the pending-413 numeral in the round context, which is not a measured source here; it is a new measurement, not that context re-asserted.",
+    "No running-process mapping, loaded-library, soname, dependency-closure, package-file-integrity (-Qkk) or journal/UI health probe was made; no ABI, causality or health verdict is possible.",
+    "Log evidence is the sanctioned grep over /var/log/pacman.log. Only lines 2, 292, 300, 306, 313, 415, 771, 1134, 1406, 1415, 2252, 2255, 2288, 2429, 2432 and 2436 were captured; no full transaction tail, dependency resolution, file-conflict record or unscoped journal was read.",
+    "Sync metadata records birth (%w) and status-change (%z) stamps; %y mtime is not captured, and no server or mirror freshness was measured.",
+    "Boot evidence is scoped to /usr/lib/initcpio/hooks/btrfs-overlayfs and /usr/lib/initcpio/hooks/plymouth only; no initramfs image, preset, kernel command line, bootloader entry or boot attempt was inspected.",
+    "Point-in-time capture at 2026-10-20T07:44:39Z; no recapture was made. The digest binds the raw snapshot bytes; the filtered libinput_log and boot_hook_mentions extracts do not bind the full pacman.log or every hook file.",
+    "No package transaction, refresh, install, removal, downgrade, service action, sudo call or repair was executed or is authorized by this record."
+  ]
+}

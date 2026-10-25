@@ -1,0 +1,331 @@
+{
+ "schema": "tsukuroi-storage-health-r26-v1",
+ "entry": "corpus/knowledge/storage-health-r26.md",
+ "lane": "tsukuroi-shokunin",
+ "round": 26,
+ "claim": "C1",
+ "drafted_by": "TsukuroiR26 (L1), from wave-1 source seats SrcBtrfsDeviceDoc, SrcBtrfsScrubDoc, SrcBtrfsProfilesDoc, SrcBtrfsScrubUnit, SrcKernelVolumes, SrcKernelSysfs, SrcSmartNvmeprint, SrcNvmeLifetimeFields and critics CritLearningFrontier, CritClaimSizing",
+ "drafted_at": "2026-10-22",
+ "capture": {
+  "path": ".ufo/waves/round-26/capture/capture.txt",
+  "sha256": "002bef16de9bfbffff7905904a1e7f44dae486ca2e60f38090ac2a87132a71dd",
+  "produced_by": ".ufo/waves/round-26/capture/capture.sh",
+  "header_timestamp": "2026-10-22T13:39:52Z",
+  "host_kernel": "7.2.11-arch1-1",
+  "btrfs_progs": "7.1-1",
+  "smartmontools": "7.5-2",
+  "nvme_cli": "3.1-1"
+ },
+ "verdict_vocabulary": {
+  "HEALTHY": "the host reading shows no fault on this signal",
+  "DEGRADED": "a limit or fault that reduces what the host can detect or repair",
+  "BLOCKED": "a fault that needs operator action before further use",
+  "UNVERIFIED": "the evidence needed to judge this signal does not exist on the host"
+ },
+ "counting_note": "A row is verified when its statement and evidence pass the round-26 row rule (SCORECARD round-26 declaration and refinements); the verdict is the row's reading of the host, not the counting criterion.",
+ "adjacent": "Disk-space runway (df targets, free capacity) is mori's surface (mori-shokunin PROVINCE.md SURFACE disk); this entry reads integrity signals only. Scrub runs, counter resets, timer enablement, profile changes and firmware updates are operator actions.",
+ "rows": [
+  {
+   "id": "SH1",
+   "statement": "btrfs keeps five per-device error counters: write_io_errs (failed writes), read_io_errs (failed reads), flush_io_errs (failed FLUSH writes), corruption_errs (checksum mismatch or corrupted metadata header) and generation_errs (block generation mismatch). The sysfs file devinfo/<devid>/error_stats prints the same five counters, read by the same kernel function, under shorter names (write_errs, read_errs, flush_errs, corruption_errs, generation_errs); `btrfs device stats` reads them through an ioctl.",
+   "host_reading": "One device (devid 1, /dev/mapper/root). All five counters are 0 in sysfs (capture lines 40-44) and through the ioctl (lines 112-116).",
+   "verdict": "HEALTHY",
+   "action": "None. Read the counters with `cat /sys/fs/btrfs/<fsid>/devinfo/<devid>/error_stats` (no privilege needed) or `btrfs device stats <mountpoint>`; never add -z, which zeroes them and destroys the history.",
+   "sources": [
+    "S128",
+    "S133",
+    "S132"
+   ],
+   "quotes": [
+    {
+     "source": "S128",
+     "text": "corruption_errs",
+     "location": "btrfs-device.rst line 254"
+    },
+    {
+     "source": "S128",
+     "text": "A block checksum mismatched or a corrupted metadata header was found.",
+     "location": "btrfs-device.rst line 255"
+    },
+    {
+     "source": "S128",
+     "text": "Since kernel 5.14 the device stats are also available in textual form in",
+     "location": "btrfs-device.rst line 260"
+    },
+    {
+     "source": "S133",
+     "text": "static ssize_t btrfs_devinfo_error_stats_show(struct kobject *kobj,",
+     "location": "fs/btrfs/sysfs.c line 2074"
+    },
+    {
+     "source": "S132",
+     "text": "stats->values[i] = btrfs_dev_stat_read(dev, i);",
+     "location": "fs/btrfs/volumes.c line 8490"
+    }
+   ],
+   "capture_pointers": [
+    {
+     "line": 40,
+     "token": "write_errs"
+    },
+    {
+     "line": 43,
+     "token": "corruption_errs"
+    },
+    {
+     "line": 112,
+     "token": "write_io_errs"
+    },
+    {
+     "line": 115,
+     "token": "corruption_errs"
+    }
+   ]
+  },
+  {
+   "id": "SH2",
+   "statement": "The counters are a persistent cumulative record: the kernel loads them from the device tree at mount, writes changes back at transaction commit, and clears them only on an explicit reset (`btrfs device stats -z`), which it logs. A non-zero counter therefore says errors happened at some time, not when. The kernel prints the same `bdev ... errs: wr ..., rd ..., flush ..., corrupt ..., gen ...` text twice: at error level when an error is counted (rate limited) and at info level at mount when any counter is non-zero. Only the error-level line dates an incident.",
+   "host_reading": "Counters are 0, so no mount-time line is printed; 0 `errs: wr` lines and 0 BTRFS error, critical, warning or forced-readonly lines over 6 retained boots (capture lines 154-161). Persistence across mounts cannot be observed on all-zero counters; it rests on the source.",
+   "verdict": "HEALTHY",
+   "action": "When a counter is non-zero, search the kernel journal of every retained boot for error-level `errs:` lines to date the errors; treat an info-level mount-time line as the stored total, not a new incident. Resetting counters stays an operator decision.",
+   "sources": [
+    "S132",
+    "S128"
+   ],
+   "quotes": [
+    {
+     "source": "S132",
+     "text": "called from commit_transaction. Writes all changed device stats to disk.",
+     "location": "fs/btrfs/volumes.c line 8352"
+    },
+    {
+     "source": "S132",
+     "text": "\"bdev %s errs: wr %u, rd %u, flush %u, corrupt %u, gen %u\",",
+     "location": "fs/btrfs/volumes.c line 8429"
+    },
+    {
+     "source": "S132",
+     "text": "return; /* all values == 0, suppress message */",
+     "location": "fs/btrfs/volumes.c line 8446"
+    },
+    {
+     "source": "S128",
+     "text": "The device stats keep persistent record of several error classes related to",
+     "location": "btrfs-device.rst line 231"
+    }
+   ],
+   "capture_pointers": [
+    {
+     "line": 41,
+     "token": "read_errs"
+    },
+    {
+     "line": 116,
+     "token": "generation_errs"
+    }
+   ]
+  },
+  {
+   "id": "SH3",
+   "statement": "Scrub reads all data and metadata and checks checksums; it repairs a bad block only by copying a verified good copy from another replica. With the data profile `single` there is one copy, so a data checksum error is detected and reported as uncorrectable, not repaired. Metadata with `dup` has two logical copies on the same device and can be repaired from the second, but an SSD may store both as one physical copy. File data with the NOCOW attribute has no checksums and scrub does not verify it; systemd sets that attribute on journal files by default.",
+   "host_reading": "Data profile single (capture line 64); metadata and system profiles dup (`btrfs filesystem df` and sysfs allocation directories); one NVMe SSD under LUKS.",
+   "verdict": "DEGRADED",
+   "action": "Read this as limited self-repair, not a fault: a data checksum error on this host can be found but not fixed from a replica, so backups are the repair path for file data. Changing the data profile is an operator decision and is not proposed here.",
+   "sources": [
+    "S139",
+    "S130",
+    "S129"
+   ],
+   "quotes": [
+    {
+     "source": "S139",
+     "text": "On filesystems that use replicated block group profiles (e.g. RAID1), read-write",
+     "location": "ch-scrub-intro.rst line 13"
+    },
+    {
+     "source": "S139",
+     "text": "scrub will also automatically repair any damage by copying verified good data",
+     "location": "ch-scrub-intro.rst line 14"
+    },
+    {
+     "source": "S139",
+     "text": "be validated and corrected by scrub, the actual file data is not.",
+     "location": "ch-scrub-intro.rst line 24"
+    },
+    {
+     "source": "S130",
+     "text": "For example, a SSD drive can remap the blocks internally to a single copy--thus",
+     "location": "mkfs.btrfs.rst line 639"
+    },
+    {
+     "source": "S129",
+     "text": "*  *Uncorrectable* -- errors detected at read time but not possible to repair from other copy",
+     "location": "btrfs-scrub.rst line 190"
+    },
+    {
+     "source": "S130",
+     "text": "The mkfs utility will let the user create a filesystem with profiles that write",
+     "location": "mkfs.btrfs.rst line 635"
+    }
+   ],
+   "capture_pointers": [
+    {
+     "line": 64,
+     "token": "single"
+    }
+   ]
+  },
+  {
+   "id": "SH4",
+   "statement": "No scrub record exists on this host for the root filesystem: `btrfs scrub status /` reports no stats, and /var/lib/btrfs, where btrfs-progs keeps scrub.status.<UUID> files, does not exist. The packaged monthly btrfs-scrub@.timer exists but its instance for `/` is disabled and inactive. Ordinary reads do verify checksums, so data that was read has been checked, but no record shows a full pass over stored data.",
+   "host_reading": "`no stats available` (capture line 121); `/var/lib/btrfs` absent (line 127); `btrfs-scrub@-.timer` disabled (line 131) and inactive (line 134). The `Error summary: no errors found` line printed beside `no stats available` is not a health reading.",
+   "verdict": "UNVERIFIED",
+   "action": "Operator decision: run `btrfs scrub start /` once or enable `btrfs-scrub@-.timer`; the lane never starts a scrub or enables a timer. After a scrub, read `btrfs scrub status /` for csum, verify, read and super errors and the corrected versus uncorrectable split.",
+   "sources": [
+    "S139",
+    "S131",
+    "S129"
+   ],
+   "quotes": [
+    {
+     "source": "S139",
+     "text": "The scrubbing status is recorded in :file:`/var/lib/btrfs/` in textual files named",
+     "location": "ch-scrub-intro.rst line 71"
+    },
+    {
+     "source": "S139",
+     "text": "recommended period is a month but it could be less.",
+     "location": "ch-scrub-intro.rst line 68"
+    },
+    {
+     "source": "S139",
+     "text": "Such automatic repair is also carried out when reading metadata or data from a",
+     "location": "ch-scrub-intro.rst line 17"
+    },
+    {
+     "source": "S131",
+     "text": "OnCalendar=monthly",
+     "location": "btrfs-scrub@.timer line 5"
+    },
+    {
+     "source": "S129",
+     "text": "Show status of a running scrub for the filesystem identified by *path*",
+     "location": "btrfs-scrub.rst line 133"
+    }
+   ],
+   "capture_pointers": [
+    {
+     "line": 121,
+     "token": "no stats available"
+    },
+    {
+     "line": 127,
+     "token": "/var/lib/btrfs"
+    }
+   ]
+  },
+  {
+   "id": "SH5",
+   "statement": "smartctl 7.5 derives the NVMe overall-health line from one byte: it prints PASSED when the controller's Critical Warning byte is zero and FAILED! otherwise, and then lists the set warning bits (bit 0x01 means available spare has fallen below its threshold). Available Spare, Percentage Used and Media and Data Integrity Errors are printed but are not inputs to the PASSED or FAILED result.",
+   "host_reading": "PASSED with Critical Warning 0x00 (capture lines 181, 184); Available Spare 100% against threshold 10%, Percentage Used 2%, Media and Data Integrity Errors 0 (lines 186-188, 197).",
+   "verdict": "HEALTHY",
+   "action": "Read the Critical Warning byte and the other fields separately: a PASSED result does not mean wear or media errors were judged. Watch Percentage Used, spare against threshold and media errors as their own signals with `sudo smartctl -H -A <device>` (read-only; never -t, -s or -X).",
+   "sources": [
+    "S134",
+    "S135"
+   ],
+   "quotes": [
+    {
+     "source": "S134",
+     "text": "(!w ? \"PASSED\" : \"FAILED!\"));",
+     "location": "smartmontools/nvmeprint.cpp line 451"
+    },
+    {
+     "source": "S134",
+     "text": "jout(\"- available spare has fallen below threshold\\n\");",
+     "location": "smartmontools/nvmeprint.cpp line 459"
+    },
+    {
+     "source": "S134",
+     "text": "print_critical_warning(smart_log.critical_warning);",
+     "location": "smartmontools/nvmeprint.cpp line 840"
+    }
+   ],
+   "capture_pointers": [
+    {
+     "line": 181,
+     "token": "PASSED"
+    },
+    {
+     "line": 184,
+     "token": "0x00"
+    },
+    {
+     "line": 188,
+     "token": "Percentage Used"
+    }
+   ]
+  },
+  {
+   "id": "SH6",
+   "statement": "The NVMe SMART / Health log reports information over the life of the controller, retained across power cycles. Power Cycles, Unexpected Power Losses (the field smartctl and nvme-cli still label Unsafe Shutdowns), Media and Data Integrity Errors and Number of Error Information Log Entries are lifetime counts, not dated events. Unexpected Power Losses increments only when main power is lost while the controller had not reported it was ready to power off, so it is not a count of host-visible crashes.",
+   "host_reading": "Power Cycles 325, Unsafe Shutdowns 200, Media and Data Integrity Errors 0, Error Information Log Entries 0 (capture lines 194, 196-198; nvme-cli agrees at lines 221, 223-225). Only six boots are retained in the journal, so most of the 200 cannot be dated.",
+   "verdict": "HEALTHY",
+   "action": "Compare two dated reads to see whether the count grew in a window; correlate growth with the journal's boot list before naming a cause. A high lifetime ratio alone is not a fault; report it to the operator as context.",
+   "sources": [
+    "S135",
+    "S134"
+   ],
+   "quotes": [
+    {
+     "source": "S135",
+     "text": "the life of the controller and is retained across power cycles unless otherwise specified.",
+     "location": "NVMe Base Specification 2.4, SMART / Health Information log page, excerpt line 14"
+    },
+    {
+     "source": "S135",
+     "text": "Note that this field was previously named Unsafe Shutdowns.",
+     "location": "excerpt line 258"
+    },
+    {
+     "source": "S135",
+     "text": "Entries over the life of the controller.",
+     "location": "excerpt line 276"
+    },
+    {
+     "source": "S134",
+     "text": "jout(\"Unsafe Shutdowns:                   %s\\n\", le128_to_str(buf, smart_log.unsafe_shutdowns));",
+     "location": "smartmontools/nvmeprint.cpp line 528"
+    }
+   ],
+   "capture_pointers": [
+    {
+     "line": 194,
+     "token": "Power Cycles"
+    },
+    {
+     "line": 196,
+     "token": "Unsafe Shutdowns"
+    },
+    {
+     "line": 223,
+     "token": "unsafe_shutdowns"
+    }
+   ]
+  }
+ ],
+ "corrections_r27": [
+  {"row": "SH2", "field": "statement", "withdrawn_text": "clears them only on an explicit reset", "status": "withdrawn as a universal in round 26", "corrected_by": "corpus/knowledge/storage-health-r26.md line 132 (Wave-2 corrections, RevRowSH2): removing a device deletes its stored counter item, and a scrub run also updates the counters", "marked_by": "round 27, routed round-26 defect 1"},
+  {"row": "SH4", "field": "statement", "withdrawn_text": "Ordinary reads do verify checksums", "status": "withdrawn as stated in round 26", "corrected_by": "corpus/knowledge/storage-health-r26.md line 131 (Wave-2 corrections, RevS139): S139 lines 17-18 describe repair on reads of replicated profiles on a read-write mount; checksum validation is stated at lines 28-29", "marked_by": "round 27, routed round-26 defect 1"},
+  {"row": "SH6", "field": "statement", "withdrawn_text": "only when main power is lost while the controller had not reported it was ready to power", "status": "trigger omitted a second branch (round 26)", "corrected_by": "corpus/knowledge/storage-health-r26.md line 125 (Wave-2 corrections, RevS135, RevRowSH6): S135 excerpt lines 238-258 give two branches, a) controller not ready to be powered off and b) shutdown in progress or complete while an out-of-band Ignore Shutdown command kept the media up", "marked_by": "round 27, routed round-26 defect 1"},
+  {"row": "SH6", "field": "verdict", "withdrawn_text": "HEALTHY", "status": "split in round 26", "corrected_by": "corpus/knowledge/storage-health-r26.md lines 125-126 and the SKILL.md round-26 wave-2 note: the verdict for the Unexpected Power Losses count is UNVERIFIED; the journal dates when a boot ended, not whether the end was abrupt", "marked_by": "round 27, routed round-26 defect 1"},
+  {"row": "SH3", "field": "quotes[S129].location", "withdrawn_text": "btrfs-scrub.rst line 190", "status": "wrong location", "corrected_by": "corpus/knowledge/storage-health-r26.md line 134: the S129 'Uncorrectable' quote is at line 192 of the committed snapshot", "marked_by": "round 27, routed round-26 defect 1"},
+  {"row": "SH6", "field": "statement", "withdrawn_text": "so it is not a count of host-visible crashes", "status": "withdrawn in round 26 (SH6 trigger correction)", "corrected_by": "corpus/knowledge/storage-health-r26.md line 125 (SH6 trigger, corrected): the field has a second trigger branch and its verdict is UNVERIFIED", "marked_by": "round 27 attempt 2, wave-2 CritSpotcheckRouting (routed round-26 defect 1, residual)"}
+ ],
+ "corrections_r29": [
+  {"id": "R29-OWED-O09", "row": "SH1", "field": "statement", "withdrawn_text": "under shorter names (write_errs, read_errs, flush_errs, corruption_errs, generation_errs)", "verdict": "corrected", "now": "Only write, read and flush take shorter names in the sysfs view (write_errs against write_io_errs, and likewise for read and flush); corruption_errs and generation_errs read identically in both views, so two of the five claimed shortenings do not exist. The sysfs comment says the five values are printed at once, while the code makes five reads without a lock, so even that snapshot wording is the comment's intent.", "basis": ["corpus/knowledge/storage-health-r26.md:128", "S133 (Linux v7.2 fs/btrfs/sysfs.c devinfo error_stats: shorter names exist for three of the five counters)"]},
+  {"id": "R29-OWED-O10", "row": "SH3", "field": "statement", "withdrawn_text": "systemd sets that attribute on journal files by default", "verdict": "corrected", "now": "Since systemd 220 the NOCOW flag comes from the tmpfiles snippet journal-nocow.conf applied to the journal directories, so active journal files inherit it; systemd v262 clears it, or rewrites a file without it, when the file is archived, so a file-level default set by systemd is the wrong mechanism.", "basis": ["corpus/knowledge/storage-health-r26.md:135", "systemd v262 NEWS and src/shared/journal-file-util.c were read in wave 2 and are not registered in corpus/SOURCES.md, so no S id exists for this claim"]},
+  {"id": "R29-OWED-O11", "row": "SH4", "field": "statement", "withdrawn_text": "No scrub record exists on this host", "verdict": "qualified", "now": "Narrowed to what was read on 2026-10-22: no scrub status file and no scrub-started or scrub-finished kernel line in the six retained boots. Older scrubs, or scrubs run with recording disabled, cannot be excluded, so the host-wide absence claim is withdrawn to that reading.", "basis": ["corpus/knowledge/storage-health-r26.md:133"]},
+  {"id": "R29-OWED-O12", "row": "SH5", "field": "statement", "withdrawn_text": "FAILED! otherwise", "verdict": "qualified", "now": "The overall-health line is printed only after a successful SMART log read: with no -H, a failed Identify Controller or a failed log read, smartctl prints no overall-health line at all, so a non-zero Critical Warning byte yields the failure verdict only when that read succeeded.", "basis": ["corpus/knowledge/storage-health-r26.md:129", "S134 (smartmontools 7.5 nvmeprint.cpp lines 772-778, 786-788, 833-836: no overall-health line without -H or after a failed log read)"]}
+ ]
+}

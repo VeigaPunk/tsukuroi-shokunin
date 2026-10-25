@@ -1,0 +1,361 @@
+{
+ "schema": "tsukuroi-boot-writers-r19-v1",
+ "knowledge_entry": "corpus/knowledge/boot-writers-r19.md",
+ "captures": [
+  {
+   "path": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+   "sha256": "d060de16892fbcb3ca85f45e28a94c9b6ef818c20029d91e05fa9459bbbde32b"
+  },
+  {
+   "path": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+   "sha256": "c4cc08fe1b92d65baeb40fc4c82fd8dc1d622a32602f14be0b50b924c0a066d6"
+  },
+  {
+   "path": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+   "sha256": "72cd1c534793c627418ce5be9db2023fde5877c69745ff907d733fe96d7360a8"
+  }
+ ],
+ "event_sources": [
+  {
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+   "probe": "journalctl --no-pager --since \"2026-10-19 00:00\" -t limine-snapper-sync -o json --output-fields=_SYSTEMD_UNIT,_SYSTEMD_CGROUP,_COMM,_PID,MESSAGE | python3 -c \"import sys,json,datetime as d",
+   "pattern": "Updated: /boot/limine.conf"
+  },
+  {
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+   "probe": "grep -n -E \"Updated: /boot/limine.conf|-> /boot/|running .99-limine.hook|running .80-limine-efi-deploy.hook|running .90-mkinitcpio-install.hook\" /var/log/pacman.log | tail -n 30",
+   "pattern": "Updated: /boot/limine.conf"
+  }
+ ],
+ "writers": [
+  {
+   "id": "W-SNAPPER-CLEANUP",
+   "name": "snapper-cleanup.service drop-in limine-snapper-override.conf (package limine-snapper-sync)",
+   "trigger": "snapper-cleanup.timer (OnBootSec=10m, OnUnitActiveSec=1h) starts snapper-cleanup.service; after the service stops the drop-in ExecStopPost runs limine-snapper-sync",
+   "mechanism_refs": [
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 47,
+     "quote": "usr/lib/systemd/system/snapper-cleanup.service.d/limine-snapper-override.conf"
+    },
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 260,
+     "quote": "ExecStopPost=limine-snapper-sync"
+    },
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 227,
+     "quote": "OnBootSec=10m"
+    },
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 228,
+     "quote": "OnUnitActiveSec=1h"
+    },
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 203,
+     "quote": "snapper-cleanup.timer          enabled"
+    }
+   ],
+   "signature": {
+    "kind": "journal-unit",
+    "value": " snapper-cleanup.service /system.slice/snapper-cleanup.service "
+   },
+   "writes": [
+    "/boot/limine.conf"
+   ],
+   "sources": [
+    "S066",
+    "S068",
+    "S070",
+    "S071",
+    "S076"
+   ]
+  },
+  {
+   "id": "W-SNAPPER-PLUGIN",
+   "name": "snapper plugin /usr/lib/snapper/plugins/10-limine-snapper-sync (package limine-snapper-sync)",
+   "trigger": "snapper create/delete/modify-snapshot-post for subvolume /; the plugin starts limine-snapper-sync --add/--debounce in a transient unit via systemd-run",
+   "mechanism_refs": [
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 42,
+     "quote": "usr/lib/snapper/plugins/10-limine-snapper-sync"
+    },
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+     "line": 1185,
+     "quote": "--unit=\"limine-snapper-${op}-${SNAP_ID}-$$\""
+    },
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+     "line": 1228,
+     "quote": "create-snapshot-post)"
+    },
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+     "line": 1229,
+     "quote": "run_sync add \"${SNAP_ID}\""
+    }
+   ],
+   "signature": {
+    "kind": "journal-unit-regex",
+    "value": " limine-snapper-(add|delete|modify)-[0-9]+-[0-9]+\\.service /system\\.slice/limine-snapper-(add|delete|modify)-[0-9]+-[0-9]+\\.service "
+   },
+   "writes": [
+    "/boot/limine.conf",
+    "/boot/<machine-id>/limine_history/ UKI copies and snapshots.json"
+   ],
+   "sources": [
+    "S066",
+    "S067",
+    "S068",
+    "S072",
+    "S073",
+    "S074"
+   ]
+  },
+  {
+   "id": "W-WATCHER",
+   "name": "limine-snapper-sync.service (ExecStart=limine-snapper-watcher), dormant on this host",
+   "trigger": "inotify create/delete in /.snapshots, or an initial sync when /.snapshots is missing; without inotifywait the watcher logs a fallback line and exits, leaving the snapper plugin as the channel",
+   "mechanism_refs": [
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 161,
+     "quote": "ExecStart=limine-snapper-watcher"
+    },
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 193,
+     "quote": "limine-snapper-sync.service    enabled"
+    },
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+     "line": 1366,
+     "quote": "info_msg $\"inotifywait is not installed. Falling back to Snapper plugin integration.\""
+    }
+   ],
+   "signature": {
+    "kind": "journal-unit",
+    "value": " limine-snapper-sync.service /system.slice/limine-snapper-sync.service "
+   },
+   "writes": [
+    "/boot/limine.conf (through child limine-snapper-sync runs; none in the captured window)"
+   ],
+   "sources": [
+    "S066",
+    "S067",
+    "S074"
+   ]
+  },
+  {
+   "id": "W-MKINITCPIO-HOOK",
+   "name": "/etc/pacman.d/hooks/90-mkinitcpio-install.hook -> limine-mkinitcpio-install (package limine-mkinitcpio-hook)",
+   "trigger": "pacman PostTransaction after initcpio, firmware, kernel modules, systemd, cryptsetup, lvm or mkinitcpio changes; rebuilds UKIs and regenerates limine.conf entries",
+   "mechanism_refs": [
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 87,
+     "quote": "etc/pacman.d/hooks/90-mkinitcpio-install.hook"
+    },
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 397,
+     "quote": "/etc/pacman.d/hooks/90-mkinitcpio-install.hook:Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-install"
+    },
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 420,
+     "quote": "ESP_PATH=\"/boot\""
+    }
+   ],
+   "signature": {
+    "kind": "alpm-scriptlet",
+    "value": "[ALPM-SCRIPTLET] Updated: /boot/limine.conf"
+   },
+   "writes": [
+    "/boot/limine.conf",
+    "/boot/EFI/Linux/omarchy_linux.efi",
+    "/boot/EFI/Linux/omarchy_linux-lts.efi"
+   ],
+   "sources": [
+    "S066",
+    "S067",
+    "S075",
+    "S008"
+   ]
+  },
+  {
+   "id": "W-LIMINE-EFI-COPY",
+   "name": "/etc/pacman.d/hooks/99-limine.hook (owner not captured)",
+   "trigger": "pacman PostTransaction on install or upgrade of package limine; cp of BOOTIA32.EFI and BOOTX64.EFI into /boot/EFI/BOOT/",
+   "mechanism_refs": [
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 403,
+     "quote": "/etc/pacman.d/hooks/99-limine.hook:Exec = /bin/sh -c \"/usr/bin/cp /usr/share/limine/BOOTIA32.EFI /boot/EFI/BOOT/"
+    }
+   ],
+   "signature": {
+    "kind": "alpm-scriptlet",
+    "value": "running '99-limine.hook'"
+   },
+   "writes": [
+    "/boot/EFI/BOOT/BOOTIA32.EFI",
+    "/boot/EFI/BOOT/BOOTX64.EFI"
+   ],
+   "sources": [
+    "S066",
+    "S067"
+   ]
+  },
+  {
+   "id": "W-LIMINE-EFI-DEPLOY",
+   "name": "/usr/share/libalpm/hooks/80-limine-efi-deploy.hook -> limine-install (package limine-mkinitcpio-hook)",
+   "trigger": "pacman PostTransaction on install or upgrade of limine or limine-mkinitcpio-hook packages",
+   "mechanism_refs": [
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 367,
+     "quote": "/usr/share/libalpm/hooks/80-limine-efi-deploy.hook:Exec = /usr/bin/limine-install"
+    }
+   ],
+   "signature": {
+    "kind": "alpm-scriptlet",
+    "value": "running '80-limine-efi-deploy.hook'"
+   },
+   "writes": [
+    "EFI binaries under /boot/EFI (per S075 README; not captured)"
+   ],
+   "sources": [
+    "S066",
+    "S067",
+    "S075"
+   ]
+  },
+  {
+   "id": "W-KERNEL-REMOVE",
+   "name": "60/90-limine-mkinitcpio-remove hooks (package limine-mkinitcpio-hook)",
+   "trigger": "pacman Remove of usr/lib/modules/*/modules.builtin, Pre and PostTransaction; removes the kernel entry and its UKI",
+   "mechanism_refs": [
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 357,
+     "quote": "/usr/share/libalpm/hooks/60-limine-mkinitcpio-remove-pre.hook:Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-remove pre"
+    },
+    {
+     "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19.txt",
+     "line": 371,
+     "quote": "/usr/share/libalpm/hooks/90-limine-mkinitcpio-remove-post.hook:Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-remove post"
+    }
+   ],
+   "signature": {
+    "kind": "alpm-scriptlet",
+    "value": "running '90-limine-mkinitcpio-remove-post.hook'"
+   },
+   "writes": [
+    "/boot/limine.conf and the removed kernel's UKI (per S075 README; no event captured)"
+   ],
+   "sources": [
+    "S066",
+    "S075"
+   ]
+  }
+ ],
+ "events": [
+  {
+   "id": "EV-01",
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+   "line": 1695,
+   "quote": "[2026-10-11T16:16:36-0300] [ALPM-SCRIPTLET] Updated: /boot/limine.conf",
+   "writer": "W-MKINITCPIO-HOOK"
+  },
+  {
+   "id": "EV-02",
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+   "line": 11,
+   "quote": "2026-10-20T09:03:03 5929 limine-snapper- limine-snapper-add-1-5846.service /system.slice/limine-snapper-add-1-5846.service",
+   "writer": "W-SNAPPER-PLUGIN"
+  },
+  {
+   "id": "EV-03",
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+   "line": 1700,
+   "quote": "[2026-10-20T09:18:18-0300] [ALPM-SCRIPTLET] Updated: /boot/limine.conf",
+   "writer": "W-MKINITCPIO-HOOK"
+  },
+  {
+   "id": "EV-04",
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19b.txt",
+   "line": 1702,
+   "quote": "[2026-10-20T09:18:24-0300] [ALPM-SCRIPTLET] Updated: /boot/limine.conf",
+   "writer": "W-MKINITCPIO-HOOK"
+  },
+  {
+   "id": "EV-05",
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+   "line": 12,
+   "quote": "2026-10-20T09:29:19 260715 limine-snapper- limine-snapper-add-2-260668.service /system.slice/limine-snapper-add-2-260668.service",
+   "writer": "W-SNAPPER-PLUGIN"
+  },
+  {
+   "id": "EV-06",
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+   "line": 13,
+   "quote": "2026-10-20T10:07:03 6567 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service",
+   "writer": "W-SNAPPER-CLEANUP"
+  },
+  {
+   "id": "EV-07",
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+   "line": 14,
+   "quote": "2026-10-20T11:07:04 1135802 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service",
+   "writer": "W-SNAPPER-CLEANUP"
+  },
+  {
+   "id": "EV-08",
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+   "line": 15,
+   "quote": "2026-10-20T12:07:07 4066545 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service",
+   "writer": "W-SNAPPER-CLEANUP"
+  },
+  {
+   "id": "EV-09",
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+   "line": 16,
+   "quote": "2026-10-20T13:07:10 1947334 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service",
+   "writer": "W-SNAPPER-CLEANUP"
+  },
+  {
+   "id": "EV-10",
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+   "line": 17,
+   "quote": "2026-10-20T14:07:12 1670514 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service",
+   "writer": "W-SNAPPER-CLEANUP"
+  },
+  {
+   "id": "EV-11",
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+   "line": 18,
+   "quote": "2026-10-20T15:07:12 614163 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service",
+   "writer": "W-SNAPPER-CLEANUP"
+  },
+  {
+   "id": "EV-12",
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+   "line": 19,
+   "quote": "2026-10-20T16:07:16 872262 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service",
+   "writer": "W-SNAPPER-CLEANUP"
+  },
+  {
+   "id": "EV-13",
+   "capture": ".ufo/waves/round-19/l1-capture/host-capture-r19c.txt",
+   "line": 20,
+   "quote": "2026-10-20T17:07:16 1600808 limine-snapper- snapper-cleanup.service /system.slice/snapper-cleanup.service",
+   "writer": "W-SNAPPER-CLEANUP"
+  }
+ ]
+}

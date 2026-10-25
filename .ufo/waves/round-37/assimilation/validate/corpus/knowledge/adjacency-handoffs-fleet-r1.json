@@ -1,0 +1,141 @@
+{
+  "schema": "tsukuroi-handoff-contract-v1",
+  "round": "fleet-round-1",
+  "axis": "adjacency",
+  "baseline_commit": "0ecf3ff1b0aa312d71899581badc5a9798430369",
+  "scope": "Analysis recipients only. Tsukuroi retains OS diagnosis; no row authorizes mutation or secret reads.",
+  "source_pins": {
+    "../kama-shokunin/PROVINCE.md": "454f12e7a477031614c7585ab3452935307574bcb407089722dfced81f6f7f7f",
+    "../kagi-shokunin/PROVINCE.md": "ffe644a7b2cecfc8169de8393937214f563570a8413912069568fb7065648e17",
+    "../mado-shokunin/PROVINCE.md": "7aad7b863dc3c10b9fbafb8b04b7f73084adbdf91616a0859f7bfd4b0edb135a",
+    "../mori-shokunin/PROVINCE.md": "aac98b22bb83bade906fbc3f4841a6cd666f13e07485c48d700eaf0f786400f2",
+    "../kumitate-shokunin/PROVINCE.md": "caa83fde27c036829e2f4c882e5c7b2270d95586bd6a12a551b3d75a72d491d2",
+    "../kaidoku-shokunin/PROVINCE.md": "fa915ec7bd42ec516d0639c72d0fa443014ae5c4bf5c10ff90a661241c6ae312",
+    "../revenger-shokunin/PROVINCE.md": "cc43312d38b533df605cdd36ea85f66f6f4c4a53507bc39c9bcc4e7c8422c1bf",
+    "../tameshi-shokunin/PROVINCE.md": "f5e28bf144b0601c242e43d2a9d8b60b08b8ac9476728b9f5809aa655b77d89f"
+  },
+  "source_pin_recheck": {
+    "checked_at": "2026-10-19T22:07:49Z",
+    "method": "git -C /home/vgpnk/Projects/shokunin/<lane>-shokunin show HEAD:PROVINCE.md | sha256sum",
+    "pins": {
+      "../kama-shokunin/PROVINCE.md": {"sha256": "a7728760f777573f9a4184df83efadc37fddc29159521c3ec48b11472579c0c6", "sibling_head": "35e9175fc543b8090ba436a5f8c6b8b1c768339a", "matches_original_pin": false, "anchors_hold": true, "moved_ranges": []},
+      "../kagi-shokunin/PROVINCE.md": {"sha256": "ffe644a7b2cecfc8169de8393937214f563570a8413912069568fb7065648e17", "sibling_head": "aea7a4301034aa9160ada69457a6427f77064169", "matches_original_pin": true, "anchors_hold": true, "moved_ranges": []},
+      "../mado-shokunin/PROVINCE.md": {"sha256": "7aad7b863dc3c10b9fbafb8b04b7f73084adbdf91616a0859f7bfd4b0edb135a", "sibling_head": "e1d81d48026b6b9c9e9614c3b6390240200110db", "matches_original_pin": true, "anchors_hold": true, "moved_ranges": []},
+      "../mori-shokunin/PROVINCE.md": {"sha256": "aac98b22bb83bade906fbc3f4841a6cd666f13e07485c48d700eaf0f786400f2", "sibling_head": "20e2255e7b3ebb05a52272f35a996421cab14848", "matches_original_pin": true, "anchors_hold": true, "moved_ranges": []},
+      "../kumitate-shokunin/PROVINCE.md": {"sha256": "caa83fde27c036829e2f4c882e5c7b2270d95586bd6a12a551b3d75a72d491d2", "sibling_head": "16a5441a3347a10ac5ed169abcd5a17ba6f3f185", "matches_original_pin": true, "anchors_hold": true, "moved_ranges": []},
+      "../kaidoku-shokunin/PROVINCE.md": {"sha256": "b95c9f5beffc3ce5116677719415f9f2dc50c2b579907d5abc10bdb732482fa2", "sibling_head": "de77d754523afb673b4421d363fe89311644af4f", "matches_original_pin": false, "anchors_hold": true, "moved_ranges": []},
+      "../revenger-shokunin/PROVINCE.md": {"sha256": "63acc3d033869f93f3e13da79e35023d86baa60b3f1d3b52861b019183b4b19f", "sibling_head": "8bbcb4e3267d155525c1ef1258ee327b49e53ec4", "matches_original_pin": false, "anchors_hold": true, "moved_ranges": []},
+      "../tameshi-shokunin/PROVINCE.md": {"sha256": "f5e28bf144b0601c242e43d2a9d8b60b08b8ac9476728b9f5809aa655b77d89f", "sibling_head": "4eb4cf319c0eddd4ef0c6d1d4d11e51e0d4ee307", "matches_original_pin": true, "anchors_hold": true, "moved_ranges": []}
+    },
+    "current_match_count": 5,
+    "anchors_hold_count": 8
+  },
+  "routes": [
+    {
+      "id": "ADJ-01",
+      "trigger": "A reported local endpoint or served-model identity symptom needs serving-layer diagnosis.",
+      "retains": "Kernel, GPU driver, package and systemd unit diagnosis.",
+      "recipient": "kama",
+      "sources": [{"path": "../kama-shokunin/PROVINCE.md", "lines": [3, 40], "anchor": "served-model-id reconciliation"}],
+      "minimum_evidence": ["UTC capture window", "reported endpoint symptom without credentials", "driver and unit probe commands, exit codes and observations", "unverified serving-layer question"],
+      "counterexample": "A stale DKMS registration alone remains OS diagnosis; do not infer an endpoint incident from GPU state.",
+      "negative_recipient": "tsukuroi",
+      "state": "contract-only",
+      "state_evidence": "No route-specific handoff packet is prepared; R1DriverPacket is explicitly a negative routing control, not an endpoint proof or completed handoff (corpus/knowledge/adjacency-handoffs-fleet-r1.md:115-123).",
+      "forbidden_inference": "A successful nvidia-smi query proves endpoint readiness or served-model identity."
+    },
+    {
+      "id": "ADJ-02",
+      "trigger": "A credential-bearing helper's mode, ownership or package finding raises an auth-flow or credential-hygiene question.",
+      "retains": "Package provenance, version and filesystem metadata diagnosis.",
+      "recipient": "kagi",
+      "sources": [{"path": "../kagi-shokunin/PROVINCE.md", "lines": [3, 17], "anchor": "credential hygiene evidence"}, {"path": "../kagi-shokunin/PROVINCE.md", "lines": [32, 54], "anchor": "shape"}],
+      "minimum_evidence": ["UTC capture window", "path, numeric mode, uid and gid", "package owner/version command, exit code and observation", "auth-safety question marked unknown; no secret values or vault references"],
+      "counterexample": "An unrelated non-credential package checksum drift remains package diagnosis, not a kagi incident.",
+      "negative_recipient": "tsukuroi",
+      "state": "contract-only",
+      "state_evidence": "No route-specific handoff packet is prepared; R1HelperPacket is metadata-only boundary evidence and the note records no delivered ADJ-02 incident (corpus/knowledge/adjacency-handoffs-fleet-r1.md:125-134).",
+      "forbidden_inference": "Package ownership or setgid mode alone establishes exposure or auth safety."
+    },
+    {
+      "id": "ADJ-03",
+      "trigger": "A reported desktop rendering, binding, menu or idle symptom requires configuration or visible-surface diagnosis.",
+      "retains": "OS package, GPU driver and user-manager/unit health.",
+      "recipient": "mado",
+      "sources": [{"path": "../mado-shokunin/PROVINCE.md", "lines": [3, 16], "anchor": "desktop & compositor craft"}],
+      "minimum_evidence": ["UTC symptom time", "observed visible symptom", "relevant OS probe command, exit code and observation", "configuration surface named without copying its contents"],
+      "counterexample": "A failed user unit without a configuration or UI question remains OS diagnosis.",
+      "negative_recipient": "tsukuroi",
+      "state": "contract-only",
+      "state_evidence": "The companion packet identifies ADJ-04 as the only exercised observation/request packet; no ADJ-03 packet is recorded (corpus/knowledge/adjacency-handoffs-fleet-r1.md:29-30, 74-85).",
+      "forbidden_inference": "An active user unit proves that the visible UI works."
+    },
+    {
+      "id": "ADJ-04",
+      "trigger": "A host pressure observation or kill signal needs fleet/wave liveness, progress or event correlation.",
+      "retains": "OS memory, journal, boot and systemd diagnosis.",
+      "recipient": "mori",
+      "sources": [{"path": "../mori-shokunin/PROVINCE.md", "lines": [3, 16], "anchor": "fleet & host observability"}],
+      "minimum_evidence": ["UTC capture window and boot or explicit event-window limitation", "exact counter or PSI command, exit code and observation", "distinguish class presence, cumulative count and dated event", "correlation question without causal attribution"],
+      "counterexample": "A driver/boot repair question without fleet attribution remains tsukuroi even when mori reads the same journal.",
+      "negative_recipient": "tsukuroi",
+      "state": "prepared",
+      "state_evidence": "TSUKUROI-F1-MEM-01 is the sanitized ADJ-04 packet (corpus/knowledge/adjacency-handoffs-fleet-r1.md:74-85); the bounded sibling receipt sweep found no named-recipient receipt (corpus/knowledge/adjacency-recheck-2026-10-19.md).",
+      "pending_transition": "reported on integrator commit of .ufo/reports/round-1/tsukuroi.md (fleet repo)",
+      "forbidden_inference": "A cumulative memory.events count dates a new kill or identifies a responsible wave."
+    },
+    {
+      "id": "ADJ-05",
+      "trigger": "A reported task/hub dispatch, routing or orchestration-semantics defect is distinct from host liveness.",
+      "retains": "OS systemd and resource-state diagnosis.",
+      "recipient": "kumitate",
+      "sources": [{"path": "../kumitate-shokunin/PROVINCE.md", "lines": [3, 6], "anchor": "orchestration & tooling"}, {"path": "../mori-shokunin/PROVINCE.md", "lines": [12, 16], "anchor": "dispatch and orchestration mechanism"}],
+      "minimum_evidence": ["UTC symptom time", "minimal reported dispatch symptom", "non-sensitive task/wave identity if available", "OS probe command, exit code and observation; exclude raw arguments and environment"],
+      "counterexample": "A lane silence or wave-settlement question without a dispatch-mechanism defect goes to mori.",
+      "negative_recipient": "mori",
+      "state": "contract-only",
+      "state_evidence": "The companion packet identifies ADJ-04 as the only exercised observation/request packet; no ADJ-05 packet is recorded (corpus/knowledge/adjacency-handoffs-fleet-r1.md:29-30, 74-85).",
+      "forbidden_inference": "A live unit or process proves correct dispatch semantics."
+    },
+    {
+      "id": "ADJ-06",
+      "trigger": "An authorized driver, firmware or package question requires shipped-artifact internals rather than health inventory.",
+      "retains": "Loaded version, package provenance and driver/boot diagnosis.",
+      "recipient": "protocol-integrator",
+      "ownership": "unresolved: kaidoku and revenger both declare shipped-artifact reverse engineering; this row requests arbitration, not target execution",
+      "sources": [{"path": "../kaidoku-shokunin/PROVINCE.md", "lines": [3, 6], "anchor": "reverse engineering of shipped artifacts"}, {"path": "../revenger-shokunin/PROVINCE.md", "lines": [3, 7], "anchor": "reverse engineering of shipped artifacts"}],
+      "minimum_evidence": ["UTC capture time", "exact internals question", "authorized artifact identity/path and digest when safely obtainable", "relevant OS probe command, exit code and observation; no raw core or invocation"],
+      "counterexample": "An unowned module file or loaded-driver-version mismatch alone remains tsukuroi; no RE analysis is authorized.",
+      "negative_recipient": "tsukuroi",
+      "state": "contract-only",
+      "state_evidence": "The companion packet identifies ADJ-04 as the only exercised observation/request packet; ADJ-06 remains an integrator arbitration request with no target execution (corpus/knowledge/adjacency-handoffs-fleet-r1.md:29-30, 54, 74-85).",
+      "forbidden_inference": "Overlapping declarations let tsukuroi select an RE owner or execute an artifact."
+    },
+    {
+      "id": "ADJ-07",
+      "trigger": "A reproducible census blind spot raises a reusable verification or mutation-testing method question.",
+      "retains": "Census implementation, domain contract, repair and lane-local verdict ownership.",
+      "recipient": "tameshi",
+      "sources": [{"path": "../tameshi-shokunin/PROVINCE.md", "lines": [3, 18], "anchor": "verification-fixture craft"}],
+      "minimum_evidence": ["UTC capture time", "minimal failing command, exit code and observed behavior", "measured census revision", "expected domain invariant and bounded method question"],
+      "counterexample": "A package repair or ordinary census implementation bug without a reusable-method question remains tsukuroi.",
+      "negative_recipient": "tsukuroi",
+      "state": "contract-only",
+      "state_evidence": "The companion packet identifies ADJ-04 as the only exercised observation/request packet; no ADJ-07 method-advice packet is recorded (corpus/knowledge/adjacency-handoffs-fleet-r1.md:29-30, 74-85).",
+      "forbidden_inference": "One lane's case proves a general verification pattern or transfers census code ownership."
+    }
+  ],
+  "lifecycle": {
+    "prepared": "Sanitized packet exists; no delivery or acceptance implied.",
+    "reported": "Packet is cited in the lane's committed fleet report for the named recipient/integrator.",
+    "acknowledged": "Named recipient has supplied a durable receipt.",
+    "accepted": "Named recipient has explicitly accepted the analysis question with durable evidence.",
+    "resolved": "Recipient-side closure evidence answers the question; acknowledgement alone is insufficient."
+  },
+  "lifecycle_additions": {
+    "contract-only": "Route contract declared; no route-specific packet prepared."
+  },
+  "mixed_question_rule": "Split OS diagnosis from the requested sibling analysis. Unmatched or disputed questions go to the protocol integrator; no first-responder ownership.",
+  "prohibited_material": ["credential values", "vault reference paths", "session bytes", "raw configs", "raw cores", "process arguments", "process environment"],
+  "verification_status": "Source-anchored contract; parent smoke and read-only packet receipt are recorded in the companion Markdown note. No recipient acceptance claimed."
+}
