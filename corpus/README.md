@@ -276,3 +276,7 @@ VERSION 7 (`--set livefive`; measure `leaking` 0, sensitivity battery committed 
 | `knowledge/errno-contract-variance-r37.md` | errno significance vs call return, portability of numeric mappings, host-specific EACCES=13 binding, and the boundary that an old empty retained-journal window does not prove repair | S202-S207; `lessons/round-37.md` Gate |
 
 These entries deepen the existing errno/snapshot frontier (`corpus/README.md:38-42,151-153`); they add no new coverage surface or host repair. The generic errno-name entry in the staged package was rejected in the round Gate for overlap and absent explicit QUALITY check; it remains unadopted.
+
+## Round 37 correction to the round-36 journalctl note
+
+The round-36 row above is historical for the initial note. `knowledge/journalctl-v262-field-filter-r36.md` now carries an append-only round-37 correction: the source predicate has 15 terms (not 16), `-n` truncates saved `-F` output but left saved `-N` output unchanged, and `--list-boots` replaces field-list action rather than yielding field values. The prior S024/round-1 teaching is acknowledged; S199 remains the pinned source row. Counter: `tools/check-journalctl-v262-corrections.py --revision <REV>`; it checks the correction block only, not live journalctl behavior.

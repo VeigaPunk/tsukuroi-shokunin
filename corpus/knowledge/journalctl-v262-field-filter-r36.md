@@ -125,3 +125,61 @@ Criterion 1 (falsifiable): §Falsifier states six observable conditions, each a 
 - systemd `v262` `src/journal/journalctl.c` (958-960): the guard, the exact rejection string, the `EINVAL` origin.
 - systemd `v262` `src/journal/journalctl-filter.c` (26-43): `field_list_has_scope_options()`, the 16-term limiting-option predicate.
 - `.ufo/waves/round-36/w1/ScribeC2Draft/matrix-mini.json`: the 54-cell live matrix (6 required core cells, 29 extended, 4 `merged_*` re-run from the `ExecC2Live` peer matrix, 15 `live_*` backfilled for the single-row evidence pointers), each with exit code, stderr bytes, stdout byte count and stdout sha256.
+
+## Round 37 correction — predicate count, output states, action precedence and prior teaching
+
+This addendum supersedes the active decision claims above where they say **16 terms**, describe `-n` as one undifferentiated `WORK` state, classify `--list-boots` as working field enumeration, or say no lane entry already carried the rejection. The original round-36 bytes and its saved measurements are retained as history.
+
+### Predicate: 15 terms
+
+`field_list_has_scope_options()` has **15 OR terms**, not 16: `arg_boot_filter`, `arg_invocation`, `arg_dmesg`, `arg_cursor`, `arg_after_cursor`, `arg_cursor_file`, `arg_system_units`, `arg_user_units`, `arg_syslog_identifier`, `arg_exclude_identifier`, `arg_priorities`, `arg_facilities`, `arg_since_set`, `arg_until_set`, and `arg_pattern` (`journalctl-filter.c:26-43` in the pinned v262 source snapshot). The outer selected-action guard is separate and is not a sixteenth predicate term.
+
+### `-n`: distinct observed outputs for `-F` and `-N`
+
+| Exact saved argv | Observed v262 result | Evidence |
+|---|---|---|
+| `journalctl --no-pager -n 1 -F PRIORITY` | accepted (exit 0); `-F` value list is truncated to one value (`5`) | `.ufo/waves/round-36/w1/ScribeC2Draft/matrix-mini.json`, cell `ext_lines1_F`: stdout 2 bytes |
+| `journalctl --no-pager -n 1 -N` | accepted (exit 0); `-N` field-name output is unchanged from plain `-N` | same matrix, `ext_lines1_N` and `ext_plain_N`: both 2882 bytes and identical stdout SHA-256 `3480f2aac48ee794f741dfd7dbffa31c86d933df70482db14adf5e57dfc2f20a` |
+
+Thus `-n` is not a scope limiter, but the two enumeration actions have different output effects under it. These are saved 2026-10-23 host observations, not a universal output-length guarantee.
+
+### Action replacement is not field enumeration
+
+The saved `live_list_boots` cell uses `journalctl --no-pager -F PRIORITY --list-boots`, exits 0 and prints 541 bytes of boot-list output; it does not produce the field-value list. In the pinned v262 parser, `-F` sets `arg_action = ACTION_LIST_FIELDS` at `journalctl.c:805-809`, then `--list-boots` replaces it with `ACTION_LIST_BOOTS` at `:812-814`. The guard applies to the action selected after parsing. Therefore the result means the later action won, not that `-F` plus a limiter enumerated fields. Do not classify `--list-boots` as a successful field-enumeration exception.
+
+### Prior state and source attribution
+
+The broad sentence in the original `## Prior state` is superseded. The exact v262 NEWS rejection was already recorded in `corpus/lessons/round-1.md:111` and in SOURCES row S024 (queued; its earlier mutable pin remains withdrawn). This note adds the pinned/re-opened S199 provenance, the runtime signature and exit, the 15-term implementation boundary, the observed output distinctions, and the action-precedence correction; it does not newly discover the rejection. S199 was re-opened on 2026-10-25 at `https://raw.githubusercontent.com/systemd/systemd/v262/NEWS`; its located quote is “journalctl now rejects -F/--field together with filters such as unit, boot, time, cursor or grep filters.” (`CHANGES WITH 262`, lines 129-133, 16 words). S199 remains the existing mined row; no SOURCES status/recheck/used-by cell changed.
+
+### QUALITY check for this correction
+
+QUALITY 1-3, 7 and 14: pass — the finite predicate is pinned to source lines; the two `-n` output states and action replacement are separated as saved observations; prior NEWS teaching is acknowledged; S199 is reopened and its located quote resolves. No new host behavior, field-enumeration capability, coverage surface, or ordinal move is claimed.
+
+## Round 37 correction — predicate count, output states, action precedence and prior teaching
+
+This addendum supersedes the active decision claims above where they say **16 terms**, describe `-n` as one undifferentiated `WORK` state, classify `--list-boots` as working field enumeration, or say no lane entry already carried the rejection. The original round-36 bytes and its saved measurements are retained as history.
+
+### Predicate: 15 terms
+
+`field_list_has_scope_options()` has **15 OR terms**, not 16: `arg_boot_filter`, `arg_invocation`, `arg_dmesg`, `arg_cursor`, `arg_after_cursor`, `arg_cursor_file`, `arg_system_units`, `arg_user_units`, `arg_syslog_identifier`, `arg_exclude_identifier`, `arg_priorities`, `arg_facilities`, `arg_since_set`, `arg_until_set`, and `arg_pattern` (`journalctl-filter.c:26-43` in the pinned v262 source snapshot). The outer selected-action guard is separate and is not a sixteenth predicate term.
+
+### `-n`: distinct observed outputs for `-F` and `-N`
+
+| Exact saved argv | Observed v262 result | Evidence |
+|---|---|---|
+| `journalctl --no-pager -n 1 -F PRIORITY` | accepted (exit 0); `-F` value list is truncated to one value (`5`) | `.ufo/waves/round-36/w1/ScribeC2Draft/matrix-mini.json`, cell `ext_lines1_F`: stdout 2 bytes |
+| `journalctl --no-pager -n 1 -N` | accepted (exit 0); field-name output is unchanged from plain `-N` | same matrix, `ext_lines1_N` and `ext_plain_N`: both 2882 bytes and identical stdout SHA-256 `3480f2aac48ee794f741dfd7dbffa31c86d933df70482db14adf5e57dfc2f20a` |
+
+Thus `-n` is not a scope limiter, but the two enumeration actions have different output effects under it. These are saved 2026-10-23 host observations, not a universal output-length guarantee.
+
+### Action replacement is not field enumeration
+
+The saved `live_list_boots` cell uses `journalctl --no-pager -F PRIORITY --list-boots`, exits 0 and prints 541 bytes of boot-list output; it does not produce the field-value list. In the pinned v262 parser, `-F` sets `arg_action = ACTION_LIST_FIELDS` at `journalctl.c:805-809`, then `--list-boots` replaces it with `ACTION_LIST_BOOTS` at `:812-814`. The guard applies to the action selected after parsing. Therefore the result means the later action won, not that `-F` plus a limiter enumerated fields. Do not classify `--list-boots` as a successful field-enumeration exception.
+
+### Prior state and source attribution
+
+The broad sentence in the original `## Prior state` is superseded. The exact v262 NEWS rejection was already recorded in `corpus/lessons/round-1.md:111` and in SOURCES row S024 (queued; its earlier mutable pin remains withdrawn). This note adds the pinned/re-opened S199 provenance, the runtime signature and exit, the 15-term implementation boundary, the observed output distinctions, and the action-precedence correction; it does not newly discover the rejection. S199 was re-opened on 2026-10-25 at `https://raw.githubusercontent.com/systemd/systemd/v262/NEWS`; its located quote is “journalctl now rejects -F/--field together with filters such as unit, boot, time, cursor or grep filters.” (`CHANGES WITH 262`, lines 129-133, 16 words). S199 remains the existing mined row; no SOURCES status/recheck/used-by cell changed.
+
+### QUALITY check for this correction
+
+QUALITY 1-3, 7 and 14: pass — the finite predicate is pinned to source lines; the two `-n` output states and action replacement are separated as saved observations; prior NEWS teaching is acknowledged; S199 is reopened and its located quote resolves. No new host behavior, field-enumeration capability, coverage surface, or ordinal move is claimed.
