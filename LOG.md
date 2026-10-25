@@ -1397,3 +1397,7 @@ The round-36 verifier routed the journalctl v262 note's 15-vs-16 predicate count
 ## Round 37 — C2 counter correction (2026-10-25T19:21:12Z)
 
 The first committed-text after run at `543a7cee2c5119f42023aa72597ce452d4a060d5` returned one mismatch: it required backticks around `ACTION_LIST_FIELDS`, while the note expressed the same parser state as code identifiers without markup. The selftest had used the backticked spelling and therefore did not model the note's actual form. The counter is corrected to bind the exact semantic assignment/replacement phrases, and its fixture is aligned to the same representation. The claim predicate and note content are unchanged. The initial false-red receipt remains `.ufo/waves/round-37/after/c2-after-543a7c.json`; the final committed-revision measurement follows.
+
+### Round 37 C2 counter follow-up — action token rendering (2026-10-25T19:22:22Z)
+
+The first semantic-name adjustment still left one false-red because the note correctly rendered `ACTION_LIST_BOOTS` as code (backticks) while the checker expected an unformatted substring. The checker now binds the note's exact rendered action assignment/replacement phrases, and the selftest's action mutation targets that clause itself. The intermediate after receipt at `718cc8f1` returned one mismatch; with the corrected checker in the working tree, the same note at `718cc8f1` reads PASS, 0 mismatches, exit 0. The final counter implementation is committed and re-measured at its own landed revision below.
