@@ -60,3 +60,7 @@ The earlier C3 after result at `0e5f70fadba12bc9bbb9db564c2262c2c0194535` was an
 | C3 calibration | **verified for 27 fixed checks** | At base, 5 mismatches/exit 1; at `29b22df142efb5479333af9d57ecbd069462ba05`, 0 mismatches/exit 0. No ordinal uplift claimed. |
 
 No outside spot-check of the round's admit/reject decisions had landed at author filing; the closure's sample and trend verdicts remain non-author work.
+
+## Considerthese — verified-rate ledger proposal (opened 2026-10-25)
+
+`considerthese/2026-10-23.md` proposes: “Verified-rate ledger. Track, per round, whether the C1 claim ended verified, not verified, or held, and why.” The proposal is mined but not implemented: the cross-round outcome sources are not one stable machine-readable record, and a new ledger could count stale or inconsistent verdict text. This round instead used the existing 27-check `tools/check-self-assessment.py` counter on one named revision and declared the mismatches exactly. The proposal's durable value is a prompt to identify a fixed outcome source before designing a trend ledger, not permission to infer a rate from three prior rounds. No new ledger or capability is claimed.

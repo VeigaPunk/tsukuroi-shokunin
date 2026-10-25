@@ -2070,3 +2070,7 @@ The operative current self-assessment table immediately above is measured at `29
 ### Round 37 — sourced-claim pointer
 
 The round’s sourced claim is C2: existing mined row S199 was opened on 2026-10-25 and its located NEWS quote is recorded in the round-37 correction block and `corpus/lessons/round-37.md` Gate. C1’s planned S200-strace/S201-probe citation is superseded by the preceding source-pointer erratum and is not counted as a sourced claim.
+
+### C3 final remeasurement
+
+Re-run after the round-37 measured-outcome table and lesson were committed: `python3 tools/check-self-assessment.py --revision 6dbfe3274d8afecbfddd40d0c882a174238c638a` reports 27 checks, 0 mismatches, PASS, exit 0 (`.ufo/waves/round-37/after/c3-final-6dbfe.json`). This confirms the final current table at the measured outcome commit; later lane commits add only this receipt/LOG pointer and do not change the table or counted repository values.

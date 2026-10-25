@@ -1419,3 +1419,7 @@ Wave state at filing: validated v2 spec/dispatch contains 64 spawn tasks; `w1.re
 ### C3 final tip receipt (2026-10-25T19:39:22Z)
 
 Re-ran `python3 tools/check-self-assessment.py --revision 6dbfe3274d8afecbfddd40d0c882a174238c638a` after the measured-outcome table and lesson addenda landed. Receipt `.ufo/waves/round-37/after/c3-final-6dbfe.json`: `checked=27 mismatches=0 status=PASS`, exit 0, declaring round 37. The table and repository counts it checks were unchanged by the later evidence-only receipt commit.
+
+### Round-37 landing index (2026-10-25T19:41:40Z)
+
+The append-only C3 self-assessment record moved through its pre-freeze correction (`b8ededd6`), initial tables and parser-driven evidence repairs (`d06cedb8`, `ee36f9e8`, `5124bf39`, `0e5f70fa`), then the complete measured current table (`29b22df1`). The round-37 scorecard declaration and wave plan are at `083cd0c5`, the §2b C3 correction at `b8ededd6`, and the 64-seat v2 spec/dispatch plus C3 base control at `89bb8afb`. Frontier assimilation and lesson artifacts land at `8936643a`; the C2 note correction and checker at `543a7cee`, `718cc8f1` (first checker false-red), `d621b712` (corrected checker and C2 PASS); the V8 probe and measured-outcome table at `29b22df1`, author verdicts at `6dbfe327`, and the final C3 receipt at `3c456a50`. C1 remains not verified under its unfulfilled sensitivity kill rule; the wave roster/results are outstanding at filing.
