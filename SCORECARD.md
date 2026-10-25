@@ -2039,3 +2039,20 @@ This full table supersedes the partial K17 correction row immediately above; all
 | host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT line; hermetic selftest prints PASS (105 cases, 105 passed, 0 failed) | `tools/tsukuroi-census.sh` and `.ufo/evidence/round-1-kaika/scout-live.md` | lane r2; demonstrated fleet r1 |
 | root-metadata-observer | Emits root mode, uid, gid and owner-bit observations even on package-probe failure; isolates fixtures and blocks unavailable/non-directory metadata without grading intentional 0555 policy | `.ufo/waves/round-12/resumed/after.json` | round 12 |
 | boot-chain-audit | Audits limine entries read-only: extracts initramfs, types new_root, binds firmware-selected entry and emits per-entry next-boot verdict | `tools/boot-chain-audit.sh` and `.ufo/waves/round-17/l1-capture/audit-live.txt` | round 17 |
+
+### Round-37 source-pointer erratum (append-only; declaration pointer superseded)
+
+The declaration's line “C1's probe note cites a strace(1) row (S200-strace) and own-work row (S201-probe)” is incorrect and is superseded. S200/S201 were assigned during errno assimilation to the mount(2) and Btrfs ioctl sources; they do not cite the probe. C1's claim evidence is the probe and its committed measurements, not an opened external SOURCES row. The §2b sourced-claim requirement is met by C2: its correction rests on existing mined row S199, re-opened and quoted in `corpus/knowledge/journalctl-v262-field-filter-r36.md`'s round-37 addendum and `corpus/lessons/round-37.md` Gate. No claim target, counter or kill rule changes.
+
+## Axes — current self-assessment (round 37 final measured surface)
+
+This current table supersedes the earlier round-37 count snapshots above; each count is re-derived from the committed lane tree at this section's measured revision. Ordinal values remain unchanged; the claim outcomes follow in the round-37 measured-outcome addendum.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 58 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); `SKILL.md` 3112 `wc -l` / 841 table lines (`grep -c '^|' SKILL.md`); `corpus/lessons/` 50 files (`find corpus/lessons -type f | wc -l`); four standing rules near the top of SKILL cite no knowledge note; no ordinal move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged |
+| coverage | 9 | `corpus/README.md` 282 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes; four declared round-1 read-only surfaces link knowledge; no new coverage surface claimed. | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (105 cases, 105 passed, 0 failed); live run exits 1 with six-plane rollup; `--identity` not landed. | round 11 (terminal closeout); unchanged |
+| freshness | 9 | Each round record re-ran predecessor pins; dated round-1 D1-D5 rechecks and current procedures remain recorded; captures are not durable host state. | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <REV>` checks 27 fixed checks; round-37 C3 requires mismatches 0 at this measured revision; no ordinal uplift. | round 10; unchanged |
+| adjacency | 8 | formal overlap table present (finding-to-owner ADJ-01..07) and portable OUT-001..010 anchors remain; recipient acknowledgement and independent replay are unverified. | fleet round 1; unchanged |
