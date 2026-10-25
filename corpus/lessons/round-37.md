@@ -33,7 +33,30 @@ Round-start lane census: 199 registry rows; census exit 0 (`scripts/sources-cens
 |---|---|---|---|---|
 | R37-STALE-SELFASSESS-COUNTS | number-drift | Base `564db0b614b2914de5452f9ebd537a0653ae1de5`, `python3 tools/check-self-assessment.py --revision 564db0b614b2914de5452f9ebd537a0653ae1de5`: checked 27, mismatches 5, status FAIL, exit 1 (K07-K11 stale counts) | QUALITY 57 (R25-STALE-AXES-TABLE) requires re-measuring the self-assessment at the named revision and a calibration claim to count its mismatches | Append a current self-assessment at the measured revision with the five counts re-derived; same checker reports 27 checks, 0 mismatches, PASS, exit 0 at `0e5f70fadba12bc9bbb9db564c2262c2c0194535`. The red-before and green-after outputs show the fix can fail and the unchanged counter changes only when the observed counts match. Final tree counts are re-measured at the final measured commit. |
 | R37-ROLE-TAXONOMY-MISMATCH | reference-drift | `.ufo/waves/round-37/w1-invalid-role-refusal.json`: the wave validator refused `labrat` as `unknown_role`; `labrat` is not a swarm taxonomy role | `skill://swarm` taxonomy and `scripts/ufo-swarm-wave.mjs` pre-dispatch role validation | Change the item to a validator-permitted role and re-plan; the corrected 64-member wave plan returns `ufo-swarm-wave-v1` with 64 spawns and policy v2 constraints intact. Shown able to fail by the initial typed `unknown_role` refusal. |
+| R37-C2-COUNTER-REFERENCE-DRIFT | reference-drift | `.ufo/waves/round-37/after/c2-after-543a7c.json` and `c2-after-718cc8-prepatch.json`: the checker returned false-red mismatches for correct action identifiers due to a mismatch between fixture and note markup | QUALITY 1-3 and 14: the check must be falsifiable, source-resolved and tested against the actual note representation | Require the actual assignment/replacement phrases, align the fixture and mutation case to the note, then re-run: final checker at `d621b7126e088824fed354e19839a9c1bd4e74f0` reports 0 mismatches, exit 0; the earlier mismatches show the counter error could reject correct evidence. |
 
 ## C3 calibration evidence
 
 Before at base `564db0b614b2914de5452f9ebd537a0653ae1de5`: existing `tools/check-self-assessment.py` output `checked=27 mismatches=5 status=FAIL`, exit 1. After at `0e5f70fadba12bc9bbb9db564c2262c2c0194535`: same counter, same 27-check population, `checked=27 mismatches=0 status=PASS`, exit 0. The scorecard's latest axis and capability tables were corrected after counter feedback; final-tree remeasurement is still required after this lesson and later round files are present.
+
+## Round-37 counter correction and final measurement addenda
+
+### R37-C2-COUNTER-REFERENCE-DRIFT
+
+| Class | Evidence pointer | Captured-by | Fix, shown able to fail |
+|---|---|---|---|
+| reference-drift | `c2-after-543a7c.json` and `c2-after-718cc8-prepatch.json` record a false-red against the corrected note because the first checker required a backticked `ACTION_LIST_FIELDS`, and its follow-up required the unformatted `ACTION_LIST_BOOTS` while the note used the code-format spelling. | QUALITY 1-3 and 14 require a falsifiable check, source-resolved text, and a performed QUALITY check; the checker selftest must use the note's actual representation, not a different hand-written fixture. | Require the actual assignment/replacement phrases and align the selftest fixture/mutation with the committed note. The unchanged note passes at `d621b7126e088824fed354e19839a9c1bd4e74f0` (3 clusters, 0 mismatches, exit 0); the earlier mismatch reports demonstrate the over-strict predicate could reject the correct text. |
+
+### C3 final measured revision
+
+The earlier C3 after result at `0e5f70fadba12bc9bbb9db564c2262c2c0194535` was an intermediate snapshot, before the current note, registry and README material. The operative table is the later append-only current self-assessment in SCORECARD at measured revision `29b22df142efb5479333af9d57ecbd069462ba05`. The same checker at that revision reports `checked=27`, `mismatches=0`, `PASS`, exit 0. Its current counts are 58 knowledge notes, SKILL 3112 lines/841 pipe lines, 50 lesson files and README 282 lines.
+
+## Round-37 author claim outcomes
+
+| Claim | Author verdict | Evidence |
+|---|---|---|
+| C1 operability | **not verified** | V8 at base `564db0b614` completed 5 livefive targets/15 predicate pairs, leaking 0 and no harness errors; V7 at the same base crashed before any summary. Sensitivity/mutation receipts for the four frozen fixes were not delivered, so the declared kill rule remains unclosed. |
+| C2 depth | **verified by the finite declared checker** | At base, checker 15 mismatches/exit 1; at `d621b7126e088824fed354e19839a9c1bd4e74f0`, 0 mismatches/exit 0 and selftest 7/7. This is not a universal semantic certificate or a live journalctl re-run. |
+| C3 calibration | **verified for 27 fixed checks** | At base, 5 mismatches/exit 1; at `29b22df142efb5479333af9d57ecbd069462ba05`, 0 mismatches/exit 0. No ordinal uplift claimed. |
+
+No outside spot-check of the round's admit/reject decisions had landed at author filing; the closure's sample and trend verdicts remain non-author work.

@@ -1405,3 +1405,13 @@ The first semantic-name adjustment still left one false-red because the note cor
 ## Round 37 — V8 freeze and livefive reading (2026-10-25T19:33:21Z)
 
 `tools/probe-child-env-allowlist-r37.py` VERSION 8 is frozen by the measurement hash `9aee085b45d7566d6ce398733c10d3d87ae29bce107c4bd13fcdffcb4854b064`. At the C1 base `564db0b614b2914de5452f9ebd537a0653ae1de5`, V7's direct `--set livefive` run reproduced S1 (stdout 0 lines; `RuntimeError: cannot create local master branch`, `.ufo/waves/round-37/before/v7-livefive-base.err`, exit 1). V8 at that same target revision completed five targets and 15 frozen-predicate pairs: `leaking=0`, `leaking_pairs=[]`, `harness_errors=[]`, exit 0; untraced is reported separately as a supplemental diagnostic. The V8 after reading is committed in `.ufo/waves/round-37/before/v8-livefive-baseline.jsonl`. C1 remains **not verified** because no V8 after-mutation sensitivity receipts were delivered before filing; the clean baseline run alone does not discharge the frozen kill rule.
+
+## Round 37 — measured outcomes and dispatch status (2026-10-25T19:36:54Z)
+
+C1 operability: V7 at base `564db0b614` failed before summary (exit 1, S1); committed V8 bytes (`29b22df1`, sha256 `9aee085b45d7566d6ce398733c10d3d87ae29bce107c4bd13fcdffcb4854b064`) at the same target revision produced 5 targets / 15 frozen-predicate pairs, `leaking=0`, `leaking_pairs=[]`, `harness_errors=[]`, exit 0. Author verdict **NOT VERIFIED** because the declared four-fix after-mutant sensitivity battery/kill control has no committed V8 receipts; the clean battery result alone is not enough.
+
+C2 depth: baseline counter at `564db0b614` returned 15 mismatches, exit 1; the corrected committed note/counter at `d621b712` returned 0 mismatches, PASS, exit 0; selftest 7/7 PASS. Author verdict **VERIFIED** for the finite checker predicate only.
+
+C3 calibration: self-assessment was 5 mismatches at base and 0 at `29b22df1` (27 checks, PASS, exit 0); final measured current-table counts are 58 notes, 3112 SKILL lines / 841 pipe lines, 50 lessons and README 282 lines. Author verdict **VERIFIED** for the fixed 27-check set. No ordinal moved.
+
+Wave state at filing: validated v2 spec/dispatch contains 64 spawn tasks; `w1.ready` was written. No `WAVE-DONE` message or `w1-results.json` was received in this L1 session; consequently the actual settled/spawned/dead-seat accounting is **unknown**, not reported as zero. No residual calls were made.
