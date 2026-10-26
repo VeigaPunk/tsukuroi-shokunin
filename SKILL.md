@@ -3201,3 +3201,122 @@ linux`, `grep`/`ls`/`stat` on the two hook directories, `/boot` (gated, see limi
 - **`/boot` is unreadable non-root** (checklist item 7): HO6's artifact leg is `BLOCKED` for an
   agent and stays an operator probe.
 
+
+## Storage integrity arm — round 39 (absent or empty sysfs root)
+
+Appended 2026-10-26 (round-39 C1, commit `49cc53c7`). Supersedes the first row of the round-38 table above
+(`state=HEALTHY filesystems=0 devices=0 nonzero=0`), which stays as written. When `/sys/fs/btrfs` is absent or
+holds no fsid entry, the arm now reads the mount table (`/proc/self/mounts`, override `TSUKUROI_PROC_MOUNTS`)
+before it calls the disk clean. A root with fsid entries never reads the table.
+
+| `STORAGE` line | Reading | Action (read-only) |
+|---|---|---|
+| `state=HEALTHY filesystems=0 devices=0 nonzero=0` (since round 39) | No fsid under the root **and** no btrfs mount in this process's mount table: no btrfs is mounted here | None |
+| `state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs` | btrfs is mounted but its sysfs view is hidden or absent (a namespace, container or a tmpfs over `/sys` or `/sys/fs`); the counters could not be read, so nothing is known about them | Re-run the census in the host's own namespace; there, `ls /sys/fs/btrfs` and `findmnt -t btrfs` must agree. Do not read this as disk corruption |
+| `state=BLOCKED … detail=mounts:unreadable` | No fsid under the root and the mount table could not be read: "no btrfs" cannot be told from "hidden" | Check that `/proc` is mounted in this namespace (`findmnt /proc`) |
+
+Counting: `python3 tools/score-storage-hidden-r39.py --revision <REV>` — two hidden-root legs inside
+`unshare -rm` (tmpfs over `/sys/fs/btrfs`, tmpfs over `/sys/fs`), three random views built on a tmpfs inside the
+child namespace from stdin (no host path carries a view: the round-38 Q82 leak, R38-Q82-LEAK), five override
+fixtures and the live leg. Consumer note: the round-38 v1 counter `tools/score-storage-arm-r38.py` fixture F06
+(absent root under the override, the real mount table listing btrfs) encoded the superseded rule; at revisions
+after `49cc53c7` it reads BLOCKED and that counter FAILs 9/10 by construction. It stays a round-38 instrument, valid
+at its round-38 revisions (`b0005ae9`).
+
+## Transaction order — round 39
+
+Appended 2026-10-26 (round-39 C2; drafted by wave seat C2ScribeSkill, integrated by the L1). The round-38 table above orders the hooks **inside** one phase (HO1–HO7);
+this one fixes, for the update-safety plane, what happens **between** the phases and what each line of a
+commit proves. Rules TO1–TO8, their quotes, the host derivation and the boundaries:
+`corpus/knowledge/pacman-transaction-order-r39.md`
+(sources S208 `hook.c`, S213 `add.c`, S214 `sync.c`, S215 `remove.c`, S216 `util.c`, S217 `trans.c` — S217
+supersedes S210's anchor — plus S218, the frozen capture `.ufo/waves/round-39/frozen/txcapture/`, MANIFEST
+sha256 `cb5cb4f436b93f22886ceac79b5a84c1b3b34256f671fb51d05c1b3af02c1bb4`; libalpm snapshots
+`.ufo/waves/round-39/frozen/src/`, digests in `SHA256SUMS`; pacman 54d9411). Detection and report only:
+nothing here authorizes a package, hook or transaction action.
+
+Where the lines sit in one transaction (TO1, TO2, TO3, TO6, TO7; S217, S214, S213, S215):
+
+```
+[PACMAN] Running '<command>'                 the frontend opens the window
+[ALPM] running '<pre-hook>'...               PreTransaction: before the commit exists
+[ALPM] transaction started
+[ALPM] removed <pkg> (<ver>)                 sync commits only: conflicts/replacements go first
+[ALPM] upgraded <pkg> (<old> -> <new>)       one target at a time, in transaction order
+[ALPM] transaction completed                 or interrupted / failed: no Post hook then
+[ALPM] running '<post-hook>'...              PostTransaction: hook files re-read from disk
+```
+
+Measured from the frozen copy (S218, captured 2026-10-26T05:42:12Z; `pacman.log` mtime 2026-10-25
+13:12:06): 86 `Running` windows, 60 `transaction started`, 60 `transaction completed`, 0
+`interrupted`/`failed`; 59 `running` lines before a `started` line, **0** between `started` and
+`completed`, 236 after a `completed`; 441 `[ALPM-SCRIPTLET]` lines, 189 inside a commit and **252**
+outside; 28 `removed` lines and 0 windows that both remove and add. That is a snapshot, not current state.
+
+### Symptom → rule → read-only check → operator action
+
+| Symptom (verbatim string or log shape) | Rule | Meaning | Read-only check | Suggested operator action (tsukuroi does not run it) |
+|---|---|---|---|---|
+| `[ALPM] running '<hook>'...` lines appear before the same window's `transaction started`, and none between `started` and `completed` | TO1 (S217 `trans.c:201-208`) | Both phases are separate calls outside the commit: Pre at `:202` with `RET_ERR(… ALPM_ERR_TRANS_HOOK_FAILED …)`, `transaction started` at `:208`, Post at `:238` after `transaction completed` at `:235`. A Pre `running` line is never part of the commit | `awk` the window between two `Running` lines and count `running` lines on each side of `started` | None — expected shape |
+| A `running '<hook>'...` line falls **inside** a commit (between `started` and `completed`/`interrupted`/`failed`) | TO1 (S217 `trans.c:230-241`) | No single pacman process writes one there at 54d9411: it is a Post hook of an earlier window, a second concurrent pacman writing the same log, or a spliced log | Compare its timestamp with the window's `completed` line; `pgrep -a pacman`; baseline: 0 in 60 (S218) | None for the system; record the window as a log-anomaly finding, never as a third hook phase |
+| `error: failed to commit transaction (failed to run transaction hooks)` and **no** `transaction started` for that attempt | TO1 (S217 `trans.c:201-204`) with HO5 above | The Pre pass returned at `RET_ERR(handle, ALPM_ERR_TRANS_HOOK_FAILED, -1)` before `STATE_COMMITTING`, so no target was committed and the Post phase does not exist. The validating `[E] …hook…` line is stderr-only | Read forward from the last `Running '<cmd>'`; `ls /var/lib/pacman/db.lck` (absent = no frontend left holding the lock) | Fix or remove the named hook file; the operator re-runs the transaction |
+| One sync window holds both `removed` and `installed`/`upgraded` lines | TO2 (S214 `sync.c:1340-1354`) | `_alpm_remove_packages(handle, 0)` at `:1345` runs before `_alpm_upgrade_packages` at `:1354`, so every `removed` line precedes the first add | Per-window `awk`; baseline: 0 of 60 windows has both, and all 28 `removed` lines sit in removal-only windows (S218) | None. An add line before a removal line inside one window is a log anomaly, not a pacman ordering |
+| `[ALPM-SCRIPTLET]` lines sit between a package's own `installed`/`upgraded` line and the next package's line | TO3 (S213 `add.c:616-648`, `:669-688`) | Per target: `pre_install`/`pre_upgrade` from the package file (`:466-474`), files and db entry, the `installed`/`upgraded` line (`:618`, `:630`), then `post_install`/`post_upgrade` from the local db's `install` file (`:641`, `:644-645`). Output before the line is the pre half, after it the post half | Adjacency in the window — exemplar `.ufo/waves/round-39/frozen/txcapture/pacman.log:123-124`: `installed systemd (261.1-1)` then `Initializing machine ID from random generator.` — and `stat` the local `install` file | Name the half before proposing a fix: a post-scriptlet failure comes **after** the files and the db entry were written |
+| An upgrade scriptlet takes the wrong branch on a version comparison | TO4 (S213 `add.c:470-474`) | Upgrade scriptlets get `newpkg->version` first and `oldpkg ? oldpkg->version : NULL` second (`:472-473`); install scriptlets get the new version only. `$1` is new, `$2` is old | Read `/var/lib/pacman/local/<pkg>-<ver>/install` (read-only; observed `-rw-r--r-- root root` on `/var/lib/pacman/local/systemd-262-1/install`) and how it uses `$1`/`$2`; libalpm supplies the arguments, so the log never shows them | Fix the scriptlet (package update or local rebuild); never infer the arguments from log order |
+| A hook shipped by a package installed **in the same transaction** never shows `running '<name>'...` in that transaction's Pre phase | TO5 (S208 `hook.c:540,554`) | `_alpm_hook_run` re-opens each directory on every call (`opendir` at `:554` inside the `alpm_list_last` loop at `:540`), so the Pre scan ran before the package wrote the file. It can still run in the **Post** phase of the same transaction, which re-reads the directories. Host: 17 Pre hooks are owned by a package the capture shows first installed in some transaction, and none ran in that transaction's Pre — consistent, not proof | `pacman -Qo /usr/share/libalpm/hooks/<name>`; grep the window for `installed <owner>`; `grep -n "running '<name>'"` around the window; `hook-owners.tsv` and `hook-when.tsv` in the capture dir | None if its triggers did not match either; a hook that must act before install has to be installed earlier |
+| `[ALPM] transaction interrupted` closes a window (no `transaction completed`) | TO6 (S213 `add.c:676-692`) with HO6 above | A target failed to commit: `trans->state = STATE_INTERRUPTED` and `skip_ldconfig = 1` (`:679-682`), so `ldconfig` is skipped (`:689-691`), later targets are not attempted (`:673-675`), `transaction interrupted` is logged (`trans.c:231`) and the Post phase is skipped (`trans.c:238` sits in the `else`). Targets committed before the failure stay installed | The window's last lines; `stat -c '%y' /etc/ld.so.cache` against the window timestamp; `pacman -Q <targets>` for what landed; Post `running` lines absent | The operator re-runs the transaction; after a kernel update, treat the boot artefacts as skewed until a Post hook really runs |
+| `[ALPM] transaction failed` closes a window | TO1 (S217 `trans.c:211-228`) | The commit call itself failed (`_alpm_remove_packages` or `_alpm_sync_commit` returned -1), `transaction failed` is logged at `:216`/`:224` and the function returns before the Post phase, so Post hooks do not run. Whether `ldconfig` ran depends on how far the commit got | The line before the failure; the stderr `error: failed to commit transaction (…)`; `pacman -Q <targets>` | Read the stderr class; partial commits are possible because targets commit one at a time |
+| A `removed <pkg> (<ver>)` line for the **old half of an upgrade**, or a removal with no `pre_remove`/`post_remove` output | TO7 (S215 `remove.c:699-733`) | `removed %s (%s)` is logged only in `_alpm_remove_single_package` (`:722`); the old version of an upgrade is replaced inside `commit_single_pkg` with neither scriptlet nor log line. A removal that prints nothing simply has a silent or absent scriptlet | `pacman -Q <pkg>`; if it is still installed, the line belongs to another window or another run | Count removals by `removed` lines only; never read an `upgraded` line as a removal |
+| `[ALPM-SCRIPTLET]` text appears after `transaction completed`, or outside every commit window | TO8 (S216 `util.c:521-528`; hook path S208 `hook.c:525-528`) | `_alpm_chroot_process_output` logs **every** line a chroot child prints under that tag — Post hooks, Pre hooks, install scriptlets and `ldconfig` alike (`:527`); the tag does not mean "install scriptlet". Host: 252 of 441 tag lines lie outside a commit phase, so they are hook or `ldconfig` output | The nearest preceding `running '<name>'...` names the printing hook; inside a commit, tag lines after the last package's own post-scriptlet output occupy the `ldconfig` slot (`:689-691`) — content decides, the tag does not | Attribute the text to the hook above it; never quote it as the last package's install scriptlet |
+
+### Limits of this table
+
+- **No transaction was run or read live.** Every count above is the frozen copy S218 (captured
+  2026-10-26T05:42:12Z; `pacman.log` mtime 2026-10-25 13:12:06), so no row reports current host state.
+- **TO2 has no host instance** (0 of 60 windows removes and adds): its row is a shape test that may never
+  fire here.
+- **TO5's host column is consistency, not proof, for 16 of 17 instances**; one (`10-limine-snapper-lock.hook`,
+  pacman.log:1344-1348, control :2130-2132) does discriminate and agrees with TO5 (`pacman-transaction-order-r39.md`,
+  "Round-39 wave-1 correction").
+- **`[ALPM-SCRIPTLET]` proves one thing only**: a chroot child printed that line — not which child, not
+  success, not that anything was installed.
+- **Time zones differ.** `pacman.log` stamps `+0000`; `stat` prints local time (`-0300` here). Convert
+  before comparing an `/etc/ld.so.cache` mtime with a window — and note the cache mtime is no proof that a
+  transaction's `ldconfig` ran: observed 2026-10-26, the cache is `2026-10-25 13:36:22 -0300`, 24 minutes
+  after the frozen log's last write (`13:12:06`), because any tool may run `ldconfig`.
+- **A missing log line is weak evidence** — libalpm's parent-side validation and exec errors stay on stderr;
+  a hook's own stdout and stderr do reach `pacman.log` as `[ALPM-SCRIPTLET]` (TO8; `util.c:665-666`).
+- **The counter checks citation, not truth**: `check-transaction-order-r39.py` verifies that each TO quote
+  sits at its cited lines on a mined upstream row. A review seat that judges a TO row FALSE against the
+  pinned source kills the entry (round-39 declaration, QUALITY 81).
+
+Counting: `python3 tools/check-transaction-order-r39.py --revision <REV> [--repo <PATH>]` — 0 when every
+TO1–TO8 quote is at its cited lines on a mined upstream row named on `source:`, no duplicate row or
+heading, both host counts reproduce and 0 `running` lines fall inside a commit phase; 1 when any of those
+fails; 2 on revision, git or tampered-input failure. Round 38's `tools/check-hook-order-r38.py` scores the
+hook entry, not this section, and is not re-run here.
+
+## Historical instrument pins — round 39
+
+Appended 2026-10-26 (round-39 routed defect 6, seat RoutedHistorical). Append-only: every earlier row and the
+two prose consumer notes (`SKILL.md:3147-3149`, `SKILL.md:3221-3224`) stay as written. Both of those notes say
+"after `52ffd65`" and "after `49cc53c7`"; measured, both boundaries are **inclusive** — each instrument
+already fails at the commit named. This section starts with its own heading, so it sits outside the operative
+registry section and the highest-table selector is unchanged; the two rows restate the instruments as
+historical readings, pinned to the census revision each must be read at. A revision outside a pin is an
+out-of-window reading, not a regression.
+
+| Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |
+|---|---|---|---|---|---|---|---|
+| historical-pacnew-arm-r35b | probe | `python3 tools/score-pacnew-arm-r35b.py --lane <repo> --revision <REV> [--skip-battery]` | inside the pin only: 0 candidate and control match every view and no should-fail arm is accepted;1 otherwise;2 harness error | the battery itself (control arm plus 17 should-fail arms) | HISTORICAL. Read only where `tools/tsukuroi-census.sh` is blob `10b6d47046c9523bfeefd56c76a06ecc59ea5e01`: `e2f97e6e4beaadda8e1d5ae7bd08baa0e82d61e0` (the arm lands) through `7cbaeb6317cb9f7323d2619eec02db4e4da29449` (`52ffd65^`). Measured skip-battery 24 of 24, `harness_errors` empty, exit 0 at `e2f97e6e` and at `7cbaeb63`. Not a reading at the claim base `b40c01df38eb26f74c095c471efc6d1649b00fd4`: 0 of 24, all 24 `drift_lines=0` — the base is the parity reference and predates the arm; at `52ffd65f868431f021b8615ab281efd87195eac6` and `49cc53c7b40ec2cac4bb9cd2fffcb1e1513adf82` it reads 4 of 24 with `base parity` on all 20 stub views, exit 1 (battery mode at `52ffd65`: candidate 4, control 24, `should_fail_accepted` 0 of 17). Cause: the round-38 `STORAGE` line is a non-DRIFT line that `judge()` compares with the claim base (`tools/score-pacnew-arm-r35b.py:426-433`), and the census prints it after `DRIFT pacnew-plane` (`tools/tsukuroi-census.sh:3077`, line numbers at the measured tip `394e1ba4fab39a417abe66a7802f87cf1ff8dd61`) | private temp fixtures; unprivileged user+mount namespace; live view reads /etc names and pacman.log read-only | tsukuroi |
+| historical-storage-arm-r38-f06 | gate | `python3 tools/score-storage-arm-r38.py --revision <REV> [--repo <PATH>] [--scratch <DIR>]` | inside the pin only: 0 ten fixtures, the live leg and six PLANE lines per run match;1 any fixture, the live leg or the plane count differs;2 revision, git or bash could-not-evaluate | none: the ten built-in fixtures F01-F10 and the live leg are the measurement | HISTORICAL at fixture `F06-no-btrfs-root` only. Read only where `tools/tsukuroi-census.sh` is blob `119b645349b5eadf182aaa473d2fac38eadea45a` (`52ffd65f868431f021b8615ab281efd87195eac6`, the arm lands) or `8ef604c001ae2b2edc1598a6dd3877f30dc13de5` (`02eeed07f1c9142a037cab9cd40161feebc3ca67`, hardening; `b0005ae9f56fd5a006fc5ec026578c88e2b64b26` reads the same blob), i.e. `52ffd65 <= REV < 49cc53c7b40ec2cac4bb9cd2fffcb1e1513adf82`: measured PASS 10 of 10, `live_match` 1, `six_planes_all` 1, exit 0 at `52ffd65`, `02eeed07` and `b0005ae9`. F06 is superseded by the round-39 absent-root rule in the section above (commit `49cc53c7`): it declares an absent override root clean as `('HEALTHY', 0, 0, 0)` (`tools/score-storage-arm-r38.py:82`) while its census environment sets only `TSUKUROI_BTRFS_SYSFS` and never `TSUKUROI_PROC_MOUNTS` (`:154-160`), so the default `/proc/self/mounts` is read and this host's four btrfs mounts make the post-rule arm print `BLOCKED ... detail=mounts:btrfs-without-sysfs` (`tools/tsukuroi-census.sh:1906-1914` at the measured tip). Measured at `49cc53c7` and at `394e1ba4`: 9 of 10, F06 expected `HEALTHY` got `BLOCKED`, exit 1, with `live_match` 1 and `six_planes_all` 1 still holding — the failure is F06 alone, by construction. The absent-root case is scored now by `storage-hidden-r39` (hidden legs H1/H2) | private mkdtemp fixtures under `--scratch`/`TMPDIR`; reads the census at REV through git; no host write | tsukuroi |
+
+## Corrections from the transaction order — round 39 (append-only)
+
+Appended 2026-10-26 (round-39 C2, wave seat C2ScoutCorrections, verified by the L1 against
+`.ufo/waves/round-39/frozen/src/util.c:527`, `:665-666` and the frozen pacman.log). The rows they qualify stay as written.
+
+- To the round-38 hook-order limits bullet "Silence in `pacman.log` is weak evidence" (section "Hook order — round 38"): Round-39 correction (TO8): the line list above is incomplete — every line a hook prints, stdout and stderr, and the child-side text of an exec or chroot failure reaches `pacman.log` as `[ALPM-SCRIPTLET]` (`util.c:527`, `:666`, `:700`) under the hook's `running '<name>'...` line; only libalpm's own parent-side errors (`command failed to execute correctly`, dependency and validation errors) stay on stderr, so a hook that fails before it prints anything still leaves no log line.
+- To the round-38 HO6 row ("Meaning" cell): Round-39 correction (TO8): a failed Post hook's exit status is dropped and libalpm's failure message is stderr-only, but any text the hook printed is in `pacman.log` as `[ALPM-SCRIPTLET]` lines after its `running '<name>'...` line (`util.c:527`); look there for the cause.
+- To the round-19 boot-writer rows that call the limine lines "ALPM-SCRIPTLET events" (section above at the
+  `r19b:1695` window total and the writer-table `ALPM-SCRIPTLET] Copied: …` row): Round-39 clarification (TO8, TO1): `[ALPM-SCRIPTLET]` is the log tag for every line libalpm's chroot children print — hooks, install scriptlets and `ldconfig` — not a marker of an install scriptlet; the three events (pacman.log 2021, 3015, 3047) are PostTransaction-hook output: each lies after `transaction completed` and after its transaction's `running '90-mkinitcpio-install.hook'...` line (frozen capture lines 1950/1989/2021 and 2941/2983/3015, 3047). That the hook is `90-mkinitcpio-install.hook` rests on the `running` header line preceding the output, and its Exec on the hook file; the tag itself identifies neither.

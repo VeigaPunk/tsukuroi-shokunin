@@ -1,0 +1,95 @@
+
+=== SELF
+pid=1284648 ppid=1284642
+argv: tr|\0|||
+uid_map:          0       1000          1 
+Uid:	0	0	0	0
+Gid:	0	0	0	0
+CapEff:	000001ffffffffff
+NoNewPrivs:	0
+Seccomp:	0
+
+=== STDIN_INHERITED
+readlink fd0: /dev/null
+bytes_readable_on_fd0=0
+fd0_is_devnull=yes
+
+=== SELF_FDS
+total 0
+lr-x------ 1 root root 64 Oct 26 03:15 0 -> /dev/null
+l-wx------ 1 root root 64 Oct 26 03:15 1 -> pipe:[36790274]
+l-wx------ 1 root root 64 Oct 26 03:15 2 -> pipe:[36790274]
+lr-x------ 1 root root 64 Oct 26 03:15 3 -> /proc/1284679/fd
+
+=== ENV
+HOME=/fast/scratch/hyaku/tsukuroi-r39/LabratViewLeak/work/home
+LC_ALL=C
+PATH=/usr/bin:/bin
+PWD=/fast/scratch/hyaku/tsukuroi-r39/LabratViewLeak
+SHLVL=1
+TMPDIR=/fast/scratch/hyaku/tsukuroi-r39/LabratViewLeak/work/tmp
+_=/usr/bin/env
+
+=== MOUNTS
+-- btrfs entries in /proc/self/mountinfo:
+356 266 0:30 /@ / rw,noatime - btrfs /dev/mapper/root rw,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@
+587 356 0:30 /@home /home rw,noatime - btrfs /dev/mapper/root rw,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home
+631 356 0:30 /@pkg /var/cache/pacman/pkg rw,noatime - btrfs /dev/mapper/root rw,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=259,subvol=/@pkg
+639 356 0:30 /@log /var/log rw,noatime - btrfs /dev/mapper/root rw,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=258,subvol=/@log
+-- mount line(s) for /sys/fs/btrfs:
+671 413 0:92 / /sys/fs/btrfs rw,relatime - tmpfs tsk rw,uid=1000,gid=1000,inode64,huge=advise
+tsk /sys/fs/btrfs tmpfs
+-- mount line(s) for /sys/fs:
+
+=== VIEW_TREE
+-- /sys/fs/btrfs (path the arm is contracted to read):
+/sys/fs/btrfs
+-- /sys/fs listing:
+bpf
+btrfs
+cgroup
+ext4
+fuse
+pstore
+resctrl
+tmpfs
+virtiofs
+xfs
+
+=== PARENT_PROC
+parent exe     : ERR:absent
+parent cwd    : ERR:Permission denied
+parent root   : ERR:Permission denied
+parent cmdline : python3 driver.py 
+parent environ readable: False
+parent environ err    : ERR:Permission denied
+parent stat tail      : ['S', '2888', '1284642']
+--- parent /proc/<pid>/fd
+ fd 0   readlink ERR:Permission denied
+ fd 1   readlink ERR:Permission denied
+ fd 2   readlink ERR:Permission denied
+ fd 5   readlink ERR:Permission denied
+ fd 7   readlink ERR:Permission denied
+ fd 16  readlink ERR:Permission denied
+ fd 18  readlink ERR:Permission denied
+--- parent memory
+ mem open: ERR:Permission denied (errno 13)
+ maps readable: no (ERR:Permission denied)
+--- process_vm_readv against parent
+ process_vm_readv -> -1 errno 1 Operation not permitted
+--- cross-namespace paths
+ /proc/1284642/root/sys/fs/btrfs            ERR:Permission denied
+ /proc/1284642/root/proc/self/mounts        ERR:Permission denied
+ /proc/1/root/sys/fs/btrfs                  ERR:Permission denied
+ /proc/1/mounts                             FILE first line='proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\n'
+--- other processes that could hold the spec
+ builder/python -c processes: none
+--- writable shared state (cross-leg persistence channel)
+ /tmp      writable=O_TMPFILE-ok
+ /var/tmp  writable=O_TMPFILE-ok
+ /dev/shm  writable=O_TMPFILE-ok
+ TMPDIR = /fast/scratch/hyaku/tsukuroi-r39/LabratViewLeak/work/tmp | HOME = /fast/scratch/hyaku/tsukuroi-r39/LabratViewLeak/work/home
+  tree /fast/scratch/hyaku/tsukuroi-r39/LabratViewLeak/work/tmp -> []
+  tree /fast/scratch/hyaku/tsukuroi-r39/LabratViewLeak/work/home -> []
+  tree /fast/scratch/hyaku/tsukuroi-r39/LabratViewLeak/work -> ['census.sh', 'home', 'tmp']
+probe_proc_exit=0

@@ -1,0 +1,16 @@
+# drift of the live host log against the frozen capture, 2026-10-26
+$ sha256sum /var/log/pacman.log .ufo/waves/round-39/frozen/txcapture/pacman.log
+0845c1df31fcccd1b629f3b5c8190c037a572bbfbd6d9e11f81be635b1a4fc67  /var/log/pacman.log
+0845c1df31fcccd1b629f3b5c8190c037a572bbfbd6d9e11f81be635b1a4fc67  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/frozen/txcapture/pacman.log
+$ wc -l /var/log/pacman.log <capture>
+  3254 /var/log/pacman.log
+  3254 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/frozen/txcapture/pacman.log
+  6508 total
+$ cmp /var/log/pacman.log <capture>
+CMP_IDENTICAL
+$ stat -c "%y" /var/log/pacman.log
+2026-10-25 13:12:06.981386572 -0300
+$ tail -1 capture | cut -c1-30
+[2026-10-25T13:12:06-0300] [AL
+$ diff <oracle on live> <oracle on capture>  (path line normalized)
+IDENTICAL_COUNTS

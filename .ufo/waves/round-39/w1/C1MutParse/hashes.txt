@@ -1,0 +1,38 @@
+== lane census hash now (before any report write):
+e5666331caf08477d4e3a704e8349c2cd64b9f16456818fef2e9e80e82766f0d  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh
+== lane git status --porcelain (before report):
+5
+== pristine blob at 49cc53c:
+e5666331caf08477d4e3a704e8349c2cd64b9f16456818fef2e9e80e82766f0d  -
+== m-a commit 7e84444dba7d3cb2878406d584cd88cf834d440f
+   working-tree file: 02d65269b9c3cc7dd598c202d7286d54e8a8f62bb6c62fb34dafe2e27ca71d88
+   committed blob mutant marker:
+     |     if mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null); then
+     |       mt=$(printf '%s\n' "$mtab" | grep -c btrfs || true)
+     |       if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi
+     |     else
+     |       blocked=1; detail+='mounts:unreadable,'
+== m-b commit f60f9f4486c74e38edad8c300a4f4e338637efd4
+   working-tree file: ec2b95509099d8cb57b4f81c9a2a6091e777465c7790fab7301f1459fbbd6c20
+   committed blob mutant marker:
+     |     if mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null); then
+     |       while read -r _src _mp fst _rest; do
+     |         if [ "${fst,,}" = btrfs ]; then mt=$((mt + 1)); fi
+     |       done <<< "$mtab"
+     |       if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi
+== m-c commit 7951fea8229264eedd0324a076c1611377dfa1b6
+   working-tree file: b9f44808de1aae5644bef2a090ace6d375e693a3d454aca3be683e2a2e8e12c1
+   committed blob mutant marker:
+     |     if mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null); then
+     |       while read -r _src _mp fst _rest; do
+     |         if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
+     |         break
+     |       done <<< "$mtab"
+== m-d commit 1a8950fe75905427bf673152bce65ac0f4399995
+   working-tree file: 4745eaf4113b9172c9b000f76de8ac7d51f8515a70a581bcc0cfbd0aa0ffa98a
+   committed blob mutant marker:
+     |     if mtab=$(cat -- /proc/mounts 2>/dev/null); then
+     |       while read -r _src _mp fst _rest; do
+     |         if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
+     |       done <<< "$mtab"
+     |       if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi

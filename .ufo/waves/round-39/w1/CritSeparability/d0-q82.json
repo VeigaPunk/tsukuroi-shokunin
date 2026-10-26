@@ -1,0 +1,83 @@
+{
+ "counter": "score-storage-arm-r38-q82",
+ "revision": "93fddb2c37aed8227b4a0ff2417b104e01446a9d",
+ "branch_tip": "93fddb2c37aed8227b4a0ff2417b104e01446a9d",
+ "seed": "73244dc7cf3eb9561534a60934f4b617",
+ "predicate": "ns_views_matched == VIEWS and ns_available == 1",
+ "views_expected": 3,
+ "ns_views_matched": 3,
+ "ns_available": 1,
+ "result": "PASS",
+ "exit": 0,
+ "views": [
+  {
+   "view": 0,
+   "mode": "zero",
+   "expected": [
+    "HEALTHY",
+    2,
+    4,
+    0
+   ],
+   "got": [
+    "HEALTHY",
+    2,
+    4,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=2 devices=4 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 1,
+   "mode": "nonzero",
+   "expected": [
+    "DEGRADED",
+    2,
+    4,
+    7
+   ],
+   "got": [
+    "DEGRADED",
+    2,
+    4,
+    7
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=2 devices=4 nonzero=7 detail=2aff5361:2:read_errs=61925,2aff5361:2:generation_errs=86469,2aff5361:7:read_errs=84316,2aff5361:7:generation_errs=62257,5acc8638:1:write_errs=30477,5acc8638:1:read_errs=41471,5acc8638:1:corruption_errs=86105"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 2,
+   "mode": "any",
+   "expected": [
+    "DEGRADED",
+    3,
+    7,
+    15
+   ],
+   "got": [
+    "DEGRADED",
+    3,
+    7,
+    15
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=3 devices=7 nonzero=15 detail=88f6f193:3:generation_errs=39226,88f6f193:7:write_errs=72154,88f6f193:7:read_errs=93219,88f6f193:7:generation_errs=39633,b6a8e01f:3:corruption_errs=61766,b6a8e01f:5:read_errs=64622,b6a8e01f:5:flush_errs=76484,b6a8e01f:7:read_errs=38119,b6a8e01f:7:flush_errs=46364,c481a954:4:flush_errs=211,c481a954:4:corruption_errs=93913,c481a954:4:generation_errs=37052,c481a954:8:write_errs=84700,c481a954:8:read_errs=28188,c481a954:8:corruption_errs=18122"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  }
+ ]
+}

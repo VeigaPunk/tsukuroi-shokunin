@@ -178,3 +178,7 @@ S211 `alpm.c:56-62`). `/etc/pacman.conf` sets no `HookDir`, so the default `/etc
 [unk] "owner of `99-limine.hook`" resolves: no installed package lists it (and none lists `walker-restart.hook`)
 — both are local files — while the `/etc` `90-mkinitcpio-install.hook` is owned by `limine-mkinitcpio-hook`
 (`.ufo/waves/round-38/w1/C2CritHO6.md` Finding 6). The text above is not rewritten.
+
+## Round-39 correction (TO1, TO8; append-only)
+
+Round-39 clarification (TO8, TO1): `[ALPM-SCRIPTLET]` is the log tag for every line libalpm's chroot children print — hooks, install scriptlets and `ldconfig` — not a marker of an install scriptlet; the three events (pacman.log 2021, 3015, 3047) are PostTransaction-hook output: each lies after `transaction completed` and after its transaction's `running '90-mkinitcpio-install.hook'...` line (frozen capture lines 1950/1989/2021 and 2941/2983/3015, 3047). That the hook is `90-mkinitcpio-install.hook` rests on the `running` header line preceding the output, and its Exec on the hook file; the tag itself identifies neither. Source: `corpus/knowledge/pacman-transaction-order-r39.md` TO1, TO8 (S216, S217). The JSON token `kind: "alpm-scriptlet"` in `boot-writers-r19.json` is a schema label and is not rewritten.

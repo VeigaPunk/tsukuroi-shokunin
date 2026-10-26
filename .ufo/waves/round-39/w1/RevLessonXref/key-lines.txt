@@ -1,0 +1,11 @@
+hook.c:443	static int _alpm_hook_cmp(struct _alpm_hook_t *h1, struct _alpm_hook_t *h2)
+hook.c:449		/* exclude the suffixes from comparison */
+hook.c:452			return l1 < l2 ? -1 : 1;
+alpm-hooks.5:39	alphabetical order of their file name, where the ordering ignores the suffix.
+alpm-hooks.5:88		Causes the transaction to be aborted if the hook exits non-zero.  Only
+alpm-hooks.5:89		applies to PreTransaction hooks.
+trans.c:167	int SYMEXPORT alpm_trans_commit(alpm_handle_t *handle, alpm_list_t **data)
+trans.c:201		if(!(trans->flags & ALPM_TRANS_FLAG_NOHOOKS) &&
+trans.c:203			RET_ERR(handle, ALPM_ERR_TRANS_HOOK_FAILED, -1);
+alpm.c:62		myhandle->hookdirs = alpm_list_add(NULL, hookdir);
+PKGBUILD.5:351		This function is run inside `$srcdir`.

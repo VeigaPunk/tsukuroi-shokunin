@@ -1,0 +1,28 @@
+$ sed -n 1p .ufo/waves/round-39/before/c1-before.jsonl   (raw, key fields)
+{"receipt": 1, "revision": "0eff65b21bb81195ee06c96a83afbd7a07e52eef", "tool_revision": "6a08925daa30767809eb13bb4b01448ff954d46a", "tool": "tools/score-storage-hidden-r39.py", "tool_sha256": "75a9e8abd3f1262e425ce1fde9e3ba4763d08cf21d0b61761719c0ebbae8f973", "argv": ["tools/score-storage-hidden-r39.py", "--revision", "0eff65b21bb81195ee06c96a83afbd7a07e52eef"], "started_utc": "2026-10-26T05:47:20Z", ... "lane_branches": [..., "refs/heads/master 6a08925daa30767809eb13bb4b01448ff954d46a", ...]}
+result FAIL: hidden_matched 0, views_matched 3, fixtures_matched 2, live_match 1, six_planes_all 1, exit 1; finished_utc 2026-10-26T05:47:54Z
+
+$ sed -n 1p .ufo/waves/round-39/before/c2-before.jsonl   (raw, key fields)
+{"receipt": 1, "revision": "0eff65b21bb81195ee06c96a83afbd7a07e52eef", "tool_revision": "6a08925daa30767809eb13bb4b01448ff954d46a", "tool": "tools/check-transaction-order-r39.py", "tool_sha256": "f1c97836abb50887231b82d27cd026d05b8083cefcdd713217071648b07c991e", "argv": ["tools/check-transaction-order-r39.py", "--revision", "0eff65b21bb81195ee06c96a83afbd7a07e52eef"], "started_utc": "2026-10-26T05:48:01Z", ... "refs/heads/master 6a08925daa30767809eb13bb4b01448ff954d46a" ...}
+result FAIL: entry_present false, rules_verified 0, source_ok 0, counts_ok 0, exit 1; finished_utc 2026-10-26T05:48:01Z
+
+$ git log --format='%h %cI %s' -- tools/score-storage-hidden-r39.py   (to HEAD 394e1ba)
+6a08925 2026-10-26T02:47:11-03:00 round-39: freeze C1/C2 counters, libalpm 54d9411 snapshots and pacman.log capture; registry rows
+
+$ git log --format='%h %cI %s' -- tools/check-transaction-order-r39.py
+6a08925 2026-10-26T02:47:11-03:00 round-39: freeze C1/C2 counters, libalpm 54d9411 snapshots and pacman.log capture; registry rows
+
+$ git log --format='%h %cI %s' --name-only 2e1c2a40..HEAD -- tools/
+(no output)
+
+$ git log --all --format='%h %cI %s' --since='2026-10-26 02:47:11 -0300' -- tools/score-storage-hidden-r39.py tools/check-transaction-order-r39.py
+374003d 2026-10-26T02:47:11-03:00
+5569c9c 2026-10-26T02:47:11-03:00
+6a08925 2026-10-26T02:47:11-03:00 round-39: freeze C1/C2 counters, libalpm 54d9411 snapshots and pacman.log capture; registry rows
+b5593f8 2026-10-26T02:47:11-03:00
+
+$ anonymous heads: author 2026-10-26T02:34:57-03:00, commit 2026-10-26T02:47:11-03:00, empty subject;
+  374003d adds the two counters + sources-census-start + SKILL.md (no frozen src);
+  5569c9c and b5593f8 add the full freeze set;
+  `git branch -a --contains` → empty for all three; merge-base --is-ancestor <c> 6a08925 → NO for all three;
+  counter blobs byte-identical to the freeze (c502401c / d46034aa) — see counter-hashes.txt.

@@ -1,0 +1,32 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index e3ff0be..d621af2 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -374,9 +374,9 @@
+ # whose name is not a decimal devid is BLOCKED as `<fsid8>:?:bad-devid` and its name is never
+ # echoed (a newline in a fixture name forged extra census lines, C1SentGrammar); an existing root
+ # the reader cannot list is BLOCKED `root:unreadable` instead of a silent 0/0/0 (C1RevSharedState).
+-# Known limit, recorded not repaired (C1CritAbsentRoot): an ABSENT root still reads HEALTHY 0/0/0,
+-# so a namespace that hides /sys/fs/btrfs while btrfs is mounted gives a false all-clear; a
+-# /proc/self/mounts cross-check would change the frozen F06 reading and is next-round work.
++# Known limit (round 38, C1CritAbsentRoot; repaired round 39, R38-ABSENT-ROOT): an absent root read
++# HEALTHY 0/0/0 while btrfs was mounted; the mount-table cross-check now blocks that, so a false
++# all-clear needs the table hidden too — and score-storage-arm-r38.py F06 still pins the old line.
+ #
+ # Read-only guarantee: no probe writes; the gate creates no files at all in live mode
+ # (selftest writes only under a mktemp dir named ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX).
+@@ -1902,12 +1902,11 @@ probe_storage_arm() {
+   fi
+   if [ "$fsn" -eq 0 ] && [ "$blocked" -eq 0 ]; then
+     # round 39 (R38-ABSENT-ROOT): no fsid under the root is "no btrfs" only if no btrfs is mounted
+-    local mtab mt=0 _src _mp fst _rest
++    local mtab _src _mp fst _rest
+     if mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null); then
+       while read -r _src _mp fst _rest; do
+-        if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
++        if [ "${fst:-}" = btrfs ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; break; fi
+       done <<< "$mtab"
+-      if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi
+     else
+       blocked=1; detail+='mounts:unreadable,'
+     fi

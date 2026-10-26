@@ -1,0 +1,13 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index e3ff0be..8afb840 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -1905,7 +1905,7 @@ probe_storage_arm() {
+     local mtab mt=0 _src _mp fst _rest
+     if mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null); then
+       while read -r _src _mp fst _rest; do
+-        if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
++        if [ "${_mp:-}" = btrfs ]; then mt=$((mt + 1)); fi
+       done <<< "$mtab"
+       if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi
+     else

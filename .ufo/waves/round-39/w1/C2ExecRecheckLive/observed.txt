@@ -1,0 +1,89 @@
+### A. literal recheck line, as written in the entry
+/fast/scratch/hyaku/tsukuroi-r39/C2ExecRecheckLive/rr.hsw3N3/literal.sh: line 1: syntax error near unexpected token `newline'
+/fast/scratch/hyaku/tsukuroi-r39/C2ExecRecheckLive/rr.hsw3N3/literal.sh: line 1: `python3 tools/check-transaction-order-r39.py --revision <REV>'
+bash_n_exit=2
+### B. recheck with <REV> substituted (entry commit, lane tip, short hash)
+rev=4078eb236c7c67f343c76956c587d0a356e0bf5c exit=0 result=PASS 8 2 1 0 0 0
+rev=394e1ba4fab39a417abe66a7802f87cf1ff8dd61 exit=0 result=PASS 8 2 1 0 0 0
+rev=4078eb2 exit=0 result=PASS 8 2 1 0 0 0
+### C. capture integrity against its own MANIFEST
+capture-meta.txt: OK
+hook-owners.tsv: OK
+hook-when.tsv: OK
+pacman.log: OK
+cb5cb4f436b93f22886ceac79b5a84c1b3b34256f671fb51d05c1b3af02c1bb4  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/frozen/txcapture/MANIFEST.sha256
+### D. live /var/log/pacman.log vs MANIFEST
+0845c1df31fcccd1b629f3b5c8190c037a572bbfbd6d9e11f81be635b1a4fc67  /var/log/pacman.log
+/var/log/pacman.log mtime=2026-10-25 13:12:06.981386572 -0300 size=252016
+[2026-10-25T13:12:06-0300] [ALPM] transaction completed
+[2026-10-25T13:12:06-0300] [ALPM] running '35-systemd-update.hook'...
+### E. host counts, live log vs frozen copy
+{
+ "live": {
+  "windows": 86,
+  "transactions_started": 60,
+  "scriptlet_tag_outside_commit": 252,
+  "scriptlet_tag_total": 441,
+  "running_inside_commit": 0
+ },
+ "frozen": {
+  "windows": 86,
+  "transactions_started": 60,
+  "scriptlet_tag_outside_commit": 252,
+  "scriptlet_tag_total": 441,
+  "running_inside_commit": 0
+ },
+ "lines_live": 3254,
+ "lines_frozen": 3254
+}
+### F. hook owner map regenerated (capture-meta command) vs frozen — ambient locale
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/frozen/txcapture/hook-owners.tsv	2026-10-26 02:42:12.319615722 -0300
++++ /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/w1/C2ExecRecheckLive/hook-owners.live.tsv	2026-10-26 03:07:32.359407734 -0300
+@@ -49,10 +49,10 @@
+ /usr/share/libalpm/hooks/gio-remove-module-cache.hook	glib2
+ /usr/share/libalpm/hooks/glib-compile-schemas.hook	glib2
+ /usr/share/libalpm/hooks/glib-remove-compiled-schemas.hook	glib2
++/usr/share/libalpm/hooks/gtk4-querymodules.hook	gtk4
+ /usr/share/libalpm/hooks/gtk-query-immodules-3.0.hook	gtk3
+ /usr/share/libalpm/hooks/gtk-remove-immodules-cache.hook	gtk3
+ /usr/share/libalpm/hooks/gtk-update-icon-cache.hook	gtk-update-icon-cache
+-/usr/share/libalpm/hooks/gtk4-querymodules.hook	gtk4
+ /usr/share/libalpm/hooks/gvfsd.hook	gvfs
+ /usr/share/libalpm/hooks/luarocks-make-manifest-5.1.hook	luarocks
+ /usr/share/libalpm/hooks/luarocks-make-manifest-5.2.hook	luarocks
+7250c924d620e5fe57bef2a26e9b7bd38b5969c0445a28822233b51bb8131b9b  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/w1/C2ExecRecheckLive/hook-owners.live.tsv
+236039c5215dc3f03029df031b291f2800b51fae3233448d1fb5aa272b0ac837  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/frozen/txcapture/hook-owners.tsv
+--- same map as a set ---
+hook-owners: IDENTICAL as (path,value) set
+### G. hook When map regenerated vs frozen — ambient locale
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/frozen/txcapture/hook-when.tsv	2026-10-26 02:42:32.815603521 -0300
++++ /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/w1/C2ExecRecheckLive/hook-when.live.tsv	2026-10-26 03:07:32.457407648 -0300
+@@ -49,10 +49,10 @@
+ /usr/share/libalpm/hooks/gio-remove-module-cache.hook	PreTransaction
+ /usr/share/libalpm/hooks/glib-compile-schemas.hook	PostTransaction
+ /usr/share/libalpm/hooks/glib-remove-compiled-schemas.hook	PreTransaction
++/usr/share/libalpm/hooks/gtk4-querymodules.hook	PostTransaction
+ /usr/share/libalpm/hooks/gtk-query-immodules-3.0.hook	PostTransaction
+ /usr/share/libalpm/hooks/gtk-remove-immodules-cache.hook	PreTransaction
+ /usr/share/libalpm/hooks/gtk-update-icon-cache.hook	PostTransaction
+-/usr/share/libalpm/hooks/gtk4-querymodules.hook	PostTransaction
+ /usr/share/libalpm/hooks/gvfsd.hook	PostTransaction
+ /usr/share/libalpm/hooks/luarocks-make-manifest-5.1.hook	PostTransaction
+ /usr/share/libalpm/hooks/luarocks-make-manifest-5.2.hook	PostTransaction
+76a591a7571bc8151c6ccfd5f2d027a585af6d0f9bd4fc55473b74faf37efdd6  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/w1/C2ExecRecheckLive/hook-when.live.tsv
+5d56d4126c23fc28f3226204285c837b628e5351ef9b044701c09caa24d34c41  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/frozen/txcapture/hook-when.tsv
+--- same map as a set ---
+hook-when: IDENTICAL as (path,value) set
+### F2/G2. both maps regenerated under LC_ALL=C
+hook-owners under LC_ALL=C: BYTE-IDENTICAL
+hook-when under LC_ALL=C: BYTE-IDENTICAL
+236039c5215dc3f03029df031b291f2800b51fae3233448d1fb5aa272b0ac837  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/w1/C2ExecRecheckLive/hook-owners.live.C.tsv
+5d56d4126c23fc28f3226204285c837b628e5351ef9b044701c09caa24d34c41  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/w1/C2ExecRecheckLive/hook-when.live.C.tsv
+ambient LANG=en_US.UTF-8 LC_ALL=unset LC_COLLATE=unset
+### H. hook file bytes vs the round-38 capture (the only hook-byte baseline in the lane)
+files_ok=70 failures=0
+usr-share-libalpm-hooks: IDENTICAL bytes
+etc-pacman.d-hooks: IDENTICAL bytes
+df901d2f29558cd2cc00716b00b8f3f8b4135785bdfae25635f3d00aeab07c06  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/w1/C2ExecRecheckLive/hooks.live.sha256
+### I. installed pacman pin
+pacman 7.1.0.r9.g54d9411-3

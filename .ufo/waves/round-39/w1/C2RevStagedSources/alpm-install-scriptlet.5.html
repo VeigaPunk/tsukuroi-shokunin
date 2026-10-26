@@ -1,0 +1,232 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>alpm-install-scriptlet(5) — Arch manual pages</title>
+        <link rel="stylesheet" type="text/css" href="/static/archlinux_common_style/navbar.css">
+        <link rel="stylesheet" type="text/css" href="/static/archmanweb/base.css">
+        <link rel="icon" type="image/x-icon" href="/static/archlinux_common_style/favicon.ico" />
+        <link rel="shortcut icon" type="image/x-icon" href="/static/archlinux_common_style/favicon.ico" />
+        
+    <link rel="stylesheet" type="text/css" href="/static/archmanweb/man_page.css">
+    
+
+    </head>
+    <body>
+        <header>
+            <div id="archnavbar">
+	<div id="logo"><a href="https://archlinux.org" title="Return to the main page">Arch Linux</a></div>
+	<div id="archnavbarmenu">
+		<ul id="archnavbarlist">
+			<li id="anb-home"><a href="https://archlinux.org" title="Arch news, packages, projects and more">Home</a></li>
+			<li id="anb-packages"><a href="https://archlinux.org/packages/" title="Arch Package Database">Packages</a></li>
+			<li id="anb-forums"><a href="https://bbs.archlinux.org/" title="Community forums">Forums</a></li>
+			<li id="anb-wiki"><a href="https://wiki.archlinux.org/" title="Community documentation">Wiki</a></li>
+			<li id="anb-gitlab"><a href="https://gitlab.archlinux.org/archlinux" title="GitLab">GitLab</a></li>
+			<li id="anb-security"><a href="https://security.archlinux.org/" title="Arch Linux Security Tracker">Security</a></li>
+			<li id="anb-aur"><a href="https://aur.archlinux.org/" title="Arch Linux User Repository">AUR</a></li>
+			<li id="anb-download"><a href="https://archlinux.org/download/" title="Get Arch Linux">Download</a></li>
+		</ul>
+	</div>
+</div>
+
+        </header>
+        <main id="content">
+            
+            <article id="content-left">
+                
+<section class="man-page-content">
+    <table class="head">
+  <tr>
+    <td class="head-ltitle">(5)</td>
+    <td class="head-vol">File Formats Manual</td>
+    <td class="head-rtitle">(5)</td>
+  </tr>
+</table>
+<div class="manual-text">
+<section class="Sh">
+<h1 class="Sh" id='NAME'><a class='permalink' href='#NAME'>NAME</a></h1>
+<p class="Pp">alpm-install-scriptlet &#x2013; a custom install script for ALPM
+    based packages.</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='DESCRIPTION'><a class='permalink' href='#DESCRIPTION'>DESCRIPTION</a></h1>
+<p class="Pp">An optional shell script that defines custom actions to be
+    performed during the installation, upgrade, or removal of a package.</p>
+<p class="Pp">The shell functions are executed in the root
+    (<span class="Li">/</span>) of the system, so all paths inside of it must be
+    absolute.</p>
+<p class="Pp">Such files are located at the root of ALPM packages and are named
+    <b>.INSTALL</b>.</p>
+<section class="Ss">
+<h2 class="Ss" id='General_Format'><a class='permalink' href='#General_Format'>General   Format</a></h2>
+<p class="Pp">An <b>alpm-install-scriptlet</b> may contain zero or more specific
+    shell functions that define actions for different package lifecycle events.
+    All of the functions are optional and only those necessary for a given
+    package may be included.</p>
+<p class="Pp">The script may be written in a shell language that supports the
+    <span class="Li">-c</span> command line option and calling named functions
+    with additional arguments from the interpreter&#x2019;s commandline
+    interface.</p>
+<p class="Pp">Note that the shell interpreter used by package management
+    software to run the script is defined globally (e.g. per distribution). No
+    shebang is used in the script and the decision on which shell to use for
+    running it is not based on a package&#x2019;s metadata, but instead
+    typically set at the distribution or system level. This implies that the
+    shell interpreter cannot be changed on a per-package basis.</p>
+</section>
+<section class="Ss">
+<h2 class="Ss" id='Functions'><a class='permalink' href='#Functions'>Functions</a></h2>
+<p class="Pp">The available functions are listed below. They accept one or two
+    arguments which are package versions, provided as
+    <b>alpm-package-version</b>.</p>
+<pre>pre_install</pre>
+<p class="Pp">Executed before a package is installed, with the new package
+    version as its argument.</p>
+<pre>post_install</pre>
+<p class="Pp">Executed after a package is installed, with the new package
+    version as its argument.</p>
+<pre>pre_upgrade</pre>
+<p class="Pp">Executed before a package is upgraded, with the following
+    arguments:</p>
+<dl class="Bl-tag">
+  <dt>1.</dt>
+  <dd>New package version</dd>
+  <dt>2.</dt>
+  <dd>Old package version</dd>
+</dl>
+<pre>post_upgrade</pre>
+<p class="Pp">Executed after a package is upgraded, with the following
+    arguments:</p>
+<dl class="Bl-tag">
+  <dt>1.</dt>
+  <dd>New package version</dd>
+  <dt>2.</dt>
+  <dd>Old package version</dd>
+</dl>
+<pre>pre_remove</pre>
+<p class="Pp">Executed before a package is removed, with the old package version
+    as its argument.</p>
+<pre>post_remove</pre>
+<p class="Pp">Executed after a package is removed, with the old package version
+    as its argument.</p>
+</section>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='EXAMPLES'><a class='permalink' href='#EXAMPLES'>EXAMPLES</a></h1>
+<p class="Pp">Example of specifying an install script in the <b>PKGBUILD</b>
+    file:</p>
+<pre>install=example.install</pre>
+<p class="Pp">Example of a basic example.install script:</p>
+<pre>pre_install() {
+    echo &quot;Preparing to install package version $1&quot;
+}
+post_install() {
+    echo &quot;Package version $1 installed&quot;
+}
+pre_upgrade() {
+    echo &quot;Preparing to upgrade from version $2 to $1&quot;
+}
+post_upgrade() {
+    echo &quot;Upgraded from version $2 to $1&quot;
+}
+pre_remove() {
+    echo &quot;Preparing to remove package version $1&quot;
+}
+post_remove() {
+    echo &quot;Package version $1 removed&quot;
+}</pre>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='SEE_ALSO'><a class='permalink' href='#SEE_ALSO'>SEE   ALSO</a></h1>
+<p class="Pp"><a href='/man/bash.1.en'>bash(1)</a>, <a href='/man/sh.1.en'>sh(1)</a>, <a href='/man/PKGBUILD.5.en'>PKGBUILD(5)</a>,
+    <a href='/man/alpm-package-version.7.en'>alpm-package-version(7)</a>, <a href='/man/pacman.8.en'>pacman(8)</a>, <a href='/man/makepkg.8.en'>makepkg(8)</a></p>
+</section>
+</div>
+<table class="foot">
+  <tr>
+    <td class="foot-date"></td>
+    <td class="foot-os"></td>
+  </tr>
+</table>
+
+</section>
+
+            </article>
+            <aside id="sidebar">
+                
+<section class="search">
+    <form action="/search" class="search direct-search" role="search">
+    <input type="search" placeholder="Search manual page" name="q" value=""
+         />
+    <input type="submit" name="go" value="Go" />
+</form>
+
+</section>
+
+<section class="package-info">
+    <p>Package information:</p>
+    <dl>
+        <dt>Package name:</dt>
+        <dd><a href="https://www.archlinux.org/packages/extra/any/alpm-docs/">extra/alpm-docs</a></dd>
+        <dt>Version:</dt>
+        <dd>0.13.0-1</dd>
+        <dt>Upstream:</dt>
+        <dd><a href="https://alpm.archlinux.page/">https://alpm.archlinux.page/</a></dd>
+        <dt>Licenses:</dt>
+        <dd>CC-BY-SA-4.0</dd>
+        <dt>Manuals:</dt>
+        <dd><a href="/listing/extra/alpm-docs/">/listing/extra/alpm-docs/</a></dd>
+    </dl>
+</section>
+
+<details>
+    <summary>Table of contents</summary>
+    <nav class="toc">
+        <ul>
+        
+            <li><a href="#NAME">NAME</a></li>
+        
+            <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+        
+            <li><a href="#EXAMPLES">EXAMPLES</a></li>
+        
+            <li><a href="#SEE_ALSO">SEE ALSO</a></li>
+        
+        </ul>
+    </nav>
+</details>
+
+
+
+
+
+
+
+<nav class="other-formats">
+    <p>Other formats:
+        
+            <a href="/man/alpm-install-scriptlet.5.txt">txt</a>, 
+        
+            <a href="/man/alpm-install-scriptlet.5.raw">raw</a>
+        
+    </p>
+</nav>
+
+            </aside>
+            
+        </main>
+        <footer>
+            <p>Powered by <a href="https://gitlab.archlinux.org/archlinux/archmanweb">archmanweb</a>,
+               using <a href="https://mandoc.bsd.lv/">mandoc</a> for the conversion of manual pages.
+            </p>
+            <p>The website is available under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GPL-3.0</a>
+               license, except for the contents of the manual pages, which have their own license
+               specified in the corresponding Arch Linux package.
+            </p>
+        </footer>
+    </body>
+</html>

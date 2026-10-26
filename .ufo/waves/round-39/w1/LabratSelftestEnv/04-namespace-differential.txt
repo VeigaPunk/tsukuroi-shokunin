@@ -1,0 +1,62 @@
+# Namespace differential — method, what worked, what cannot work
+# seat LabratSelftestEnv, round 39, item R-8
+
+## A. Why a fake /proc/self/mounts cannot shadow the census (observed, method rejected)
+
+Inside `unshare -rm --propagation private`, with a fake table at $S/ns/fake2
+(`FAKE proc /proc proc rw 0 0` + `FAKE /dev/x / btrfs rw 0 0`):
+
+  mount --bind $S/ns/fake2 /proc/$$/mounts      -> rc=0
+  head -n1 /proc/$$/mounts                      -> FAKE proc /proc proc rw 0 0
+  head -n1 /proc/self/mounts                    -> /dev/mapper/root / btrfs rw,noatime,compress=zstd:3,...
+
+So the bind lands, but `/proc/self/mounts` is resolved by the *reading* process to its own
+per-pid file; a mount placed on one pid's path does not shadow another process's view. The census
+reads the table through `cat` (tools/tsukuroi-census.sh:1906), i.e. through a child process, so the
+default path cannot be redirected for it this way. The earlier `mount --bind ... /proc/self/mounts`
+inside the namespace returned 0 but changed nothing (`stat -c '%d %i %s'` -> `24 31353821 0`;
+`findmnt -T /proc/self/mounts` -> `/proc proc proc`) because `mount` is itself a separate process.
+
+## B. Replacing /proc with a tmpfs breaks the harness for an unrelated reason (observed)
+
+`mount -t tmpfs none /proc` inside the namespace, then `--selftest`:
+
+  proc-is-tmpfs: tmpfs
+  proc/self/mounts present: no
+  TSUKUROI_CENSUS_SELFTEST: FAIL (117 cases, 3 passed, 114 failed)
+  .../tsukuroi-census.sh: line 673: /dev/fd/63: No such file or directory
+  .../tsukuroi-census.sh: line 957: /dev/fd/63: No such file or directory
+
+The census uses process substitution `<(...)` (lines 673, 957), which resolves through
+/dev/fd -> /proc/self/fd. Hiding /proc therefore fails every probe arm for a reason that has
+nothing to do with the mount table. Recorded, not used as evidence.
+
+## C. The differential that is runnable: same namespace, different visible state
+
+Both runs `unshare -rm --propagation private` (uid 0 in the namespace), same TMPDIR, same script copy.
+  masked   : mount -t tmpfs none /sys/fs/btrfs ; mount -t tmpfs none $S/ns/marker
+             ns-sysfs-entries=0   (host: 2)   ns table: 35 lines, /sys/fs/btrfs mask entry present
+  control  : no masking, no extra mount
+             nsctl-uid=0 sysfs-entries=2 table-lines=33
+
+  masked  -> TSUKUROI_CENSUS_SELFTEST: FAIL (117 cases, 115 passed, 2 failed)
+  control -> TSUKUROI_CENSUS_SELFTEST: FAIL (117 cases, 115 passed, 2 failed)
+
+  diff of the PASS/FAIL/SKIP/summary lines (118 lines each) -> empty (receipts 06/07 are byte-identical)
+
+The two failures are the chmod-000 cases ("an unreadable directory is reported ..." and "an
+unlistable btrfs sysfs root is BLOCKED"), which fail in both runs because the namespace runs as
+uid 0 and root bypasses DAC; the script says as much in its own SKIP text ("uid 0 bypasses DAC").
+They are constant across the differential, so they carry no information about the mount table.
+
+## D. Sensitivity control: the masked state would expose a leaked default read
+
+Inside the masked namespace, with the defaults in force
+(`TSUKUROI_PROC_MOUNTS=` empty, `TSUKUROI_BTRFS_SYSFS` unset), live census:
+
+  control: sysfs-entries=0 table-btrfs=4
+  STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+
+So the namespace really is a discriminating state: any fixture case that had read the default
+/proc/self/mounts (btrfs listed) with the default /sys/fs/btrfs (now empty) would have printed
+BLOCKED and failed its HEALTHY/BLOCKED regex.

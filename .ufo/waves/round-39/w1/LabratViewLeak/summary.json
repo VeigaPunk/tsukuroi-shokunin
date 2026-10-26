@@ -1,0 +1,133 @@
+{
+ "counter": "LabratViewLeak-probe",
+ "expected_view_nonzero": [
+  "DEGRADED",
+  1,
+  1,
+  1
+ ],
+ "expected_view_zero": [
+  "HEALTHY",
+  3,
+  3,
+  0
+ ],
+ "spec_view_nonzero": [
+  [
+   "features",
+   null
+  ],
+  [
+   "features/mixed_backref",
+   "0\n"
+  ],
+  [
+   "features/big_metadata",
+   "0\n"
+  ],
+  [
+   "features/extended_iref",
+   "0\n"
+  ],
+  [
+   "features/skinny_metadata",
+   "0\n"
+  ],
+  [
+   "features/no_holes",
+   "0\n"
+  ],
+  [
+   "dfded081-cf1b-4a41-9222-e0033cbbe484/devinfo/2/error_stats",
+   "write_errs 0\nread_errs 5709\nflush_errs 0\ncorruption_errs 0\ngeneration_errs 0\n"
+  ]
+ ],
+ "legs": [
+  {
+   "leg": "probe-H1-tmpfs-over-prod",
+   "target": "/sys/fs/btrfs",
+   "spec_len": 0,
+   "exit": 0
+  },
+  {
+   "leg": "probe-H2-tmpfs-over-sysfs",
+   "target": "/sys/fs",
+   "spec_len": 0,
+   "exit": 0
+  },
+  {
+   "leg": "probe-view-nonzero",
+   "target": "/sys/fs/btrfs",
+   "spec_len": 7,
+   "exit": 0
+  },
+  {
+   "leg": "probe-view-zero",
+   "target": "/sys/fs/btrfs",
+   "spec_len": 9,
+   "exit": 0
+  },
+  {
+   "leg": "probe-no-namespace",
+   "exit": 0
+  },
+  {
+   "leg": "census-impl-H1",
+   "target": "/sys/fs/btrfs",
+   "storage": [
+    "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs"
+   ],
+   "six_planes": true,
+   "exit": 2
+  },
+  {
+   "leg": "census-impl-H2",
+   "target": "/sys/fs",
+   "storage": [
+    "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs"
+   ],
+   "six_planes": true,
+   "exit": 2
+  },
+  {
+   "leg": "census-impl-view-nonzero",
+   "target": "/sys/fs/btrfs",
+   "storage": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=1 devices=1 nonzero=1 detail=dfded081:2:read_errs=5709"
+   ],
+   "six_planes": true,
+   "exit": 2
+  },
+  {
+   "leg": "census-impl-view-zero",
+   "target": "/sys/fs/btrfs",
+   "storage": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=3 devices=3 nonzero=0"
+   ],
+   "six_planes": true,
+   "exit": 2
+  },
+  {
+   "leg": "cheat-H1",
+   "lines": [
+    "CHEAT-CONTRACTED root=/sys/fs/btrfs entries=",
+    "CHEAT-ESCAPE[contracted] root=/sys/fs/btrfs STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+    "CHEAT-ESCAPE[ppid-root] root=/proc/1284642/root/sys/fs/btrfs STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+    "CHEAT-ESCAPE[pid1-root] root=/proc/1/root/sys/fs/btrfs STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+    "CHEAT-PARENT-MOUNTS btrfs-lines=",
+    "CHEAT-SELF-MOUNTS btrfs-lines=4"
+   ]
+  },
+  {
+   "leg": "cheat-view-nonzero",
+   "lines": [
+    "CHEAT-CONTRACTED root=/sys/fs/btrfs entries=dfded081-cf1b-4a41-9222-e0033cbbe484,features,",
+    "CHEAT-ESCAPE[contracted] root=/sys/fs/btrfs STORAGE btrfs-device-stats state=DEGRADED filesystems=1 devices=1 nonzero=1",
+    "CHEAT-ESCAPE[ppid-root] root=/proc/1284642/root/sys/fs/btrfs STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+    "CHEAT-ESCAPE[pid1-root] root=/proc/1/root/sys/fs/btrfs STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+    "CHEAT-PARENT-MOUNTS btrfs-lines=",
+    "CHEAT-SELF-MOUNTS btrfs-lines=4"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+# 200,001-line table (6.2 MB), absent sysfs root
+$ time ( TSUKUROI_BTRFS_SYSFS=$S/no-such-btrfs TSUKUROI_PROC_MOUNTS=$S/big-mounts bash lane/tools/tsukuroi-census.sh | grep ^STORAGE )
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+
+real	0m4.122s
+user	0m20.907s
+sys	0m11.625s
+
+# baseline: 4-line live table, absent sysfs root
+$ time ( TSUKUROI_BTRFS_SYSFS=$S/no-such-btrfs bash lane/tools/tsukuroi-census.sh | grep ^STORAGE )
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+
+real	0m3.420s
+user	0m6.692s
+sys	0m1.098s

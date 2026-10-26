@@ -1,0 +1,25 @@
+commit f0f3a6d4c506ccbc984607d3195a456d92dd2fb8
+Author: fixture <fixture@shokunin.local>
+Date:   Mon Oct 26 03:03:46 2026 -0300
+
+    variant: VA-device-literal
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index e3ff0be..985f944 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -1902,12 +1902,9 @@ probe_storage_arm() {
+   fi
+   if [ "$fsn" -eq 0 ] && [ "$blocked" -eq 0 ]; then
+     # round 39 (R38-ABSENT-ROOT): no fsid under the root is "no btrfs" only if no btrfs is mounted
+-    local mtab mt=0 _src _mp fst _rest
++    local mtab
+     if mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null); then
+-      while read -r _src _mp fst _rest; do
+-        if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
+-      done <<< "$mtab"
+-      if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi
++      case $mtab in *'/dev/mapper/root'*) blocked=1; detail+='mounts:btrfs-without-sysfs,' ;; esac
+     else
+       blocked=1; detail+='mounts:unreadable,'
+     fi

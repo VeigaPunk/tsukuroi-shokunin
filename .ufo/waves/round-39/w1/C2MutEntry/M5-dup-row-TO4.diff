@@ -1,0 +1,10 @@
+diff --git i/corpus/knowledge/pacman-transaction-order-r39.md w/corpus/knowledge/pacman-transaction-order-r39.md
+index ba8b228..9dc2c54 100644
+--- i/corpus/knowledge/pacman-transaction-order-r39.md
++++ w/corpus/knowledge/pacman-transaction-order-r39.md
+@@ -56,3 +56,5 @@ Every line any step 2–8 child prints is logged as `[ALPM-SCRIPTLET]` (TO8).
+   `tools/check-transaction-order-r39.py`); host counts are reproduced from the frozen capture by the same tool.
+ - QUALITY 9: the snapshot digests and the capture MANIFEST are pinned in the tool and in the source rows.
+ - QUALITY 14: this section.
++
++| TO4 | Install scriptlets receive the **new** version first and the old version second (`pre_upgrade`/`post_upgrade`); install functions receive only the new version | S213 add.c:470-474 “_alpm_runscriptlet(handle, pkgfile, scriptlet_name, newpkg->version, oldpkg ? oldpkg->version : NULL, 1);” | A scriptlet comparing versions must read `$1` as new and `$2` as old |

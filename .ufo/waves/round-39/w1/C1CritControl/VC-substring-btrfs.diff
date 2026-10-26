@@ -1,0 +1,25 @@
+commit 2ba5b30d087e591faabc8ca064e3669770d1c994
+Author: fixture <fixture@shokunin.local>
+Date:   Mon Oct 26 03:03:47 2026 -0300
+
+    variant: VC-substring-btrfs
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index e3ff0be..bace775 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -1902,12 +1902,9 @@ probe_storage_arm() {
+   fi
+   if [ "$fsn" -eq 0 ] && [ "$blocked" -eq 0 ]; then
+     # round 39 (R38-ABSENT-ROOT): no fsid under the root is "no btrfs" only if no btrfs is mounted
+-    local mtab mt=0 _src _mp fst _rest
++    local mtab
+     if mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null); then
+-      while read -r _src _mp fst _rest; do
+-        if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
+-      done <<< "$mtab"
+-      if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi
++      case $mtab in *btrfs*) blocked=1; detail+='mounts:btrfs-without-sysfs,' ;; esac
+     else
+       blocked=1; detail+='mounts:unreadable,'
+     fi

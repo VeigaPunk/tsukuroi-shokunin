@@ -1,0 +1,16 @@
+--- pristine
++++ M4-skip-dup-count
+@@ -175,5 +175,5 @@
+         lines = entry.splitlines()
+         heads = [l.strip() for l in lines if l.startswith('## ')]
+-        dup_heads = len(heads) - len(set(heads))
++        dup_heads = 0
+         src_line = next((l for l in lines if l.startswith('source:')), '')
+         header_ids = {'S' + x for x in SID_RE.findall(src_line)}
+@@ -187,5 +187,5 @@
+             if m:
+                 seen.setdefault(m.group(1), []).append(l)
+-        dup_rows = sum(len(v) - 1 for v in seen.values())
++        dup_rows = 0
+         for to, want in REQUIRED.items():
+             r = {'present': to in seen, 'verified': False, 'reasons': []}

@@ -1,0 +1,33 @@
+CritSeparability — R-2 receipts provenance (round 39, hyaku run 8)
+===================================================================
+Lane (read-only): /home/vgpnk/Projects/shokunin/tsukuroi-shokunin, tip 394e1ba4fab39a417abe66a7802f87cf1ff8dd61
+Scratch root: /fast/scratch/hyaku/tsukuroi-r39/CritSeparability (removed at end of seat)
+Counter shas used (lane copies, unmodified by either claim commit):
+  75a9e8abd3f1262e425ce1fde9e3ba4763d08cf21d0b61761719c0ebbae8f973  tools/score-storage-hidden-r39.py
+  f1c97836abb50887231b82d27cd026d05b8083cefcdd713217071648b07c991e  tools/check-transaction-order-r39.py
+
+Trees (each: git clone -q --shared <lane> <D>; git -C <D> remote remove origin;
+       git -C <D> checkout -q -B master <base>; local user.name "CritSeparability fixture",
+       user.email critsep@fixture.invalid; git -C <D> rev-parse --show-toplevel == <D>):
+  d0       base 93fddb2c37aed8227b4a0ff2417b104e01446a9d  tree 2a21b1ca9d1a2b454de1e5880de8bff65ab15d4c
+  c1only   d0 + cherry-pick 49cc53c7b40ec2cac4bb9cd2fffcb1e1513adf82 -> 9efcfb09b6a76ef1fc39c1cbdac071d15df80713
+           tree 3f552720918c072b93da0a9e210a8f19dd67e13d  == lane tree of 49cc53c (bit-identical; census blob e3ff0be1299a7704608d304097073510631e28e5)
+  c2only   d0 + cherry-pick 4078eb236c7c67f343c76956c587d0a356e0bf5c -> 162e4f22d646190b6cf588a4ae720d25cb74d17b
+           tree 3b26610f25342ee5a687fe3b12ddb50767cddadd ; C2 paths identical to 4078eb2
+           (git -C c2only diff 4078eb2 HEAD -- corpus/SOURCES.md corpus/knowledge/pacman-transaction-order-r39.md is empty;
+            4078eb2's tree also carries C1, so only per-path identity holds)
+  cherry-pick rc=0 both, no conflict, stat matches the upstream commits (47+/3- ; 65+/1-).
+  origin removed in all trees (bind step 6 cannot pass through a stale origin ref; `git remote -v` empty,
+  for-each-ref shows only refs/heads/master).
+
+Census blob at base 0eff65b and at declaration 93fddb2 both 8ef604c001ae2b2edc1598a6dd3877f30dc13de5
+(the before receipts' revision and the declaration tree run the same census bytes).
+
+Commands (all from the lane root, TMPDIR inside scratch):
+  python3 tools/score-storage-hidden-r39.py --repo <D> --revision <D-HEAD> --branch master --scratch <scratch>/s
+  python3 tools/check-transaction-order-r39.py --repo <D> --revision <D-HEAD> --branch master
+  python3 tools/score-storage-arm-r38.py --repo <D> --revision <D-HEAD> --branch master --scratch <scratch>/s
+  python3 tools/score-storage-arm-r38-q82.py --repo <D> --revision <D-HEAD> --branch master --scratch <scratch>/s
+  python3 tools/check-knowledge-header.py --lane <D> --revision <D-HEAD> --branch master
+  bash tools/tsukuroi-census.sh --selftest   (cwd = c1only worktree; TMPDIR/HOME inside scratch)
+Outputs: the *.json receipts in this directory; sha256 in SHA256SUMS.txt.

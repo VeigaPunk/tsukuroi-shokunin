@@ -1,0 +1,48 @@
+# CritTrend receipts (round 39 w1, seat CritTrend) — commands and observed outputs
+tip: 394e1ba4fab39a417abe66a7802f87cf1ff8dd61 round-39: w1 spec (70 seats, v2) validated; dispatch handed to the orchestrator
+
+## R1 storage arm, existing-but-empty sysfs root + btrfs mount in the override table
+$ mkdir -p $S/btrfs-empty; printf 'proc /proc proc rw 0 0\n/dev/sda1 / btrfs rw,relatime 0 0\n' > $S/mounts
+$ TSUKUROI_BTRFS_SYSFS=$S/btrfs-empty TSUKUROI_PROC_MOUNTS=$S/mounts bash tools/tsukuroi-census.sh | grep '^STORAGE'
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+
+## R2 storage arm, truly absent sysfs root + btrfs mount
+$ TSUKUROI_BTRFS_SYSFS=$S/does-not-exist TSUKUROI_PROC_MOUNTS=$S/mounts bash tools/tsukuroi-census.sh | grep '^STORAGE'
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+
+## R3 assimilation collision set after the round's own appends (comm of lane ids x staged ids)
+$ comm -12 <(lane ids from corpus/SOURCES.md) <(sort -u .ufo/waves/round-39/assimilation/staged-ids) | tr '\n' ' '; wc -l
+S200 S201 S202 S203 S204 S205 S206 S207 S208 S209 S210 S211 S212 S213 S214 S215 S216 S217 S218 
+count: 19
+recorded in .ufo/waves/round-39/assimilation/collisions: 13
+
+## R4 counter digests at tip
+75a9e8abd3f1262e425ce1fde9e3ba4763d08cf21d0b61761719c0ebbae8f973  tools/score-storage-hidden-r39.py
+f1c97836abb50887231b82d27cd026d05b8083cefcdd713217071648b07c991e  tools/check-transaction-order-r39.py
+
+## R5 lane working tree at tip
+ M PROVINCE.md
+ M SKILL.md
+?? .ufo/waves/round-39/w1-dispatch.err
+?? .ufo/waves/round-39/w1.ready.dispatched
+?? .ufo/waves/round-39/w1/
+ PROVINCE.md | 14 ++++++++++++++
+ SKILL.md    | 21 +++++++++++++++++++++
+ 2 files changed, 35 insertions(+)
+
+## R6 QUALITY 83 parenthetical label resolves nowhere in corpus/lessons
+$ grep -rc 'R38-VERDICT-CONJUNCT' corpus/lessons/ | grep -v ':0' || echo 'no lesson file contains it'
+no lesson file contains it
+0 lesson files contain it
+
+## R7 search-log paragraphs for rounds 38 and 39
+$ grep -n 'Round-38 bounded\|Round-39 bounded' corpus/SOURCES.md
+(no output)
+
+## R8 TO3 branch evidence in the frozen snapshot
+469:			!(trans->flags & ALPM_TRANS_FLAG_NOSCRIPTLET)) {
+618:			alpm_logaction(handle, ALPM_CALLER_PREFIX, "installed %s (%s)\n",
+622:			alpm_logaction(handle, ALPM_CALLER_PREFIX, "downgraded %s (%s -> %s)\n",
+626:			alpm_logaction(handle, ALPM_CALLER_PREFIX, "reinstalled %s (%s)\n",
+630:			alpm_logaction(handle, ALPM_CALLER_PREFIX, "upgraded %s (%s -> %s)\n",
+640:			&& !(trans->flags & ALPM_TRANS_FLAG_NOSCRIPTLET)) {

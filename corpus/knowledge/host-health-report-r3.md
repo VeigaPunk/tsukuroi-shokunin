@@ -665,3 +665,7 @@ Record observed values and unresolved questions separately. Uncaptured pending u
 ## R24 current-use notice (2026-10-22)
 
 The historical 1password-beta downgrade-trap statement at line 335 is superseded: installed `8.12.42_34.BETA-1` is behind channel `8.12.44_25.BETA-1` (round-24 capture `l1-4/capture.txt:40`). The round-18 pending-count UNKNOWN notice at line 628 is superseded by 3 local-database rows and 134 current-mirror rows measured read-only this round (`l1-4/capture.txt:374`). The latter includes systemd, limine and a ca-certificates-mozilla security fix. Current interpretation: `corpus/knowledge/pause-lift-gate-r24.md`; no transaction is authorized.
+
+## Round-39 correction (TO1, TO8; append-only)
+
+Round-39 clarification (TO1, TO8): these hooks are PostTransaction hooks; they run after `transaction completed` is logged, within the same `pacman` command but not inside the logged `transaction started`…`completed` window, and none of them runs if the commit is interrupted or fails (`trans.c:230-239`, HO6); their output is logged as `[ALPM-SCRIPTLET]`. It qualifies the "in the transaction" / "in-transaction" / "in one transaction" wording above. Source: `corpus/knowledge/pacman-transaction-order-r39.md` TO1, TO8 (S216, S217).

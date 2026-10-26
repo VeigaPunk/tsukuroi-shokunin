@@ -1,0 +1,48 @@
+# anchors at pacman 54d9411 (frozen snapshots)
+## trans.c
+202:			_alpm_hook_run(handle, ALPM_HOOK_PRE_TRANSACTION) != 0) {
+208:	alpm_logaction(handle, ALPM_CALLER_PREFIX, "transaction started\n");
+216:			alpm_logaction(handle, ALPM_CALLER_PREFIX, "transaction failed\n");
+224:			alpm_logaction(handle, ALPM_CALLER_PREFIX, "transaction failed\n");
+231:		alpm_logaction(handle, ALPM_CALLER_PREFIX, "transaction interrupted\n");
+235:		alpm_logaction(handle, ALPM_CALLER_PREFIX, "transaction completed\n");
+238:			_alpm_hook_run(handle, ALPM_HOOK_POST_TRANSACTION);
+## add.c
+472:		_alpm_runscriptlet(handle, pkgfile, scriptlet_name,
+618:			alpm_logaction(handle, ALPM_CALLER_PREFIX, "installed %s (%s)\n",
+626:			alpm_logaction(handle, ALPM_CALLER_PREFIX, "reinstalled %s (%s)\n",
+630:			alpm_logaction(handle, ALPM_CALLER_PREFIX, "upgraded %s (%s -> %s)\n",
+638:	/* run the post-install script if it exists */
+641:		char *scriptlet = _alpm_local_db_pkgpath(db, newpkg, "install");
+644:		_alpm_runscriptlet(handle, scriptlet, scriptlet_name,
+658:	int skip_ldconfig = 0, ret = 0;
+673:		if(handle->trans->state == STATE_INTERRUPTED) {
+679:			trans->state = STATE_INTERRUPTED;
+682:			skip_ldconfig = 1;
+689:	if(!skip_ldconfig) {
+691:		_alpm_ldconfig(handle);
+## remove.c
+711:			_alpm_runscriptlet(handle, scriptlet, "pre_remove", pkgver, NULL, 0);
+722:		alpm_logaction(handle, ALPM_CALLER_PREFIX, "removed %s (%s)\n",
+731:		_alpm_runscriptlet(handle, scriptlet, "post_remove", pkgver, NULL, 0);
+## util.c
+521:static void _alpm_chroot_process_output(alpm_handle_t *handle, const char *line)
+527:	alpm_logaction(handle, "ALPM-SCRIPTLET", "%s", line);
+544:				_alpm_chroot_process_output(handle, buf);
+554:			_alpm_chroot_process_output(handle, buf);
+561:			_alpm_chroot_process_output(handle, buf);
+570:			_alpm_chroot_process_output(handle, buf);
+763:			_alpm_chroot_process_output(handle, ibuf);
+## sync.c
+1340:	/* remove conflicting and to-be-replaced packages */
+1345:		if(_alpm_remove_packages(handle, 0) == -1) {
+1354:	if(_alpm_upgrade_packages(handle) == -1) {
+## hook.c
+525:		return _alpm_run_chroot(handle, hook->cmd[0], hook->cmd,
+528:		return _alpm_run_chroot(handle, hook->cmd[0], hook->cmd, NULL, NULL);
+540:	for(i = alpm_list_last(handle->hookdirs); i; i = alpm_list_previous(i)) {
+554:		if(!(d = opendir(path))) {
+653:			alpm_logaction(handle, ALPM_CALLER_PREFIX, "running '%s'...\n", hook->name);
+## log exemplar 123-124
+[2026-10-03T20:41:59+0000] [ALPM] installed systemd (261.1-1)
+[2026-10-03T20:41:59+0000] [ALPM-SCRIPTLET] Initializing machine ID from random generator.

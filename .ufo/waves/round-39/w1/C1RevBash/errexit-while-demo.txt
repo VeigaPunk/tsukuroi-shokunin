@@ -1,0 +1,9 @@
+# set -e vs while-loop body exit status (bash 5.3.20)
+$ bash -ec 'while read -r a; do [ "$a" = x ]; done <<< "y"; echo reached'
+rc=1 (hazard class: failing body kills the shell)
+$ bash -ec 'while read -r a; do if [ "$a" = x ]; then :; fi; done <<< "y"; echo reached'
+reached
+rc=0 (if-without-else body returns 0: the census shape is safe)
+$ bash -ec 'mt=0; while read -r a b c; do if [ "${c:-}" = btrfs ]; then mt=$((mt+1)); fi; done <<< ""; echo "reached mt=$mt"'
+reached mt=0
+rc=0 (empty table: body runs once on the empty line, guarded, loop rc 0)

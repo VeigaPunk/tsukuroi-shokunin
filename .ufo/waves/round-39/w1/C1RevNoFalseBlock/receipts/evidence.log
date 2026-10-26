@@ -1,0 +1,55 @@
+== access date: 2026-10-26T06:14:52Z; host kernel: 7.2.11-arch1-1
+
+== host /proc/self/mounts, fstype field == btrfs:
+/dev/mapper/root / btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@ 0 0
+/dev/mapper/root /home btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home 0 0
+/dev/mapper/root /var/cache/pacman/pkg btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=259,subvol=/@pkg 0 0
+/dev/mapper/root /var/log btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=258,subvol=/@log 0 0
+== host /sys/fs/btrfs listing:
+1d02a454-c549-4a35-b567-89d60902af8e
+features
+
+== RUN1: live census, no overrides:
+STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+
+== RUN2: fixture table with fstype=ext4 but 'btrfs' substring in mount path; sysfs root absent:
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+
+== RUN3: real sysfs (fsid entry present), unreadable mounts-table override:
+STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+
+== lazy-umount probe (tmpfs over /fast/scratch/hyaku/tsukuroi-r39/C1RevNoFalseBlock/mp inside unshare -rm):
+entries before umount -l: 1
+while fs still busy: ENTRY GONE from /proc/self/mounts
+after refs dropped: entry still gone
+
+== fsid dirs visible inside plain 'unshare -rm' (no masking):
+1d02a454-c549-4a35-b567-89d60902af8e
+features
+
+== census probe_storage_arm excerpt (worktree == commit 49cc53c, diff-verified):
+probe_storage_arm() {
+  local root=$BTRFS_SYSFS fsd dev f k v extra fs8 fsn=0 devn=0 nz=0 blocked=0 nd seen nk dnz ddet detail=''
+  local uuid='^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+  local keys=' write_errs read_errs flush_errs corruption_errs generation_errs '
+  if [ -d "$root" ] && { [ ! -r "$root" ] || [ ! -x "$root" ]; }; then
+    # an existing but unlistable root must not read as "no btrfs filesystem" (round-38 W1
+    # C1RevSharedState): the glob would expand to nothing and print a silent HEALTHY 0/0/0
+    blocked=1; detail+='root:unreadable,'
+  if [ "$fsn" -eq 0 ] && [ "$blocked" -eq 0 ]; then
+    # round 39 (R38-ABSENT-ROOT): no fsid under the root is "no btrfs" only if no btrfs is mounted
+    local mtab mt=0 _src _mp fst _rest
+    if mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null); then
+      while read -r _src _mp fst _rest; do
+        if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
+      done <<< "$mtab"
+      if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi
+    else
+      blocked=1; detail+='mounts:unreadable,'
+    fi
+  fi
+  local state=HEALTHY
+  if [ "$blocked" -eq 1 ]; then state=BLOCKED; elif [ "$nz" -gt 0 ]; then state=DEGRADED; fi
+  STORAGE_LINE="STORAGE btrfs-device-stats state=$state filesystems=$fsn devices=$devn nonzero=$nz"
+  if [ -n "$detail" ]; then STORAGE_LINE+=" detail=${detail%,}"; fi
+  return 0

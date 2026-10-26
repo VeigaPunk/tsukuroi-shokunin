@@ -1,0 +1,36 @@
+# strace evidence — selftest opens no host mount table
+# seat LabratSelftestEnv, round 39, item R-8
+# script under test: copy of tools/tsukuroi-census.sh at lane HEAD 394e1ba
+#   sha256 e5666331caf08477d4e3a704e8349c2cd64b9f16456818fef2e9e80e82766f0d
+#   == git show 49cc53c7b40ec2cac4bb9cd2fffcb1e1513adf82:tools/tsukuroi-census.sh | sha256sum
+#
+# command (TMPDIR=/fast/scratch/hyaku/tsukuroi-r39/LabratSelftestEnv/tmp, sequential run):
+#   strace -f -qq -e trace=%file -o trace.log \
+#     bash /fast/scratch/hyaku/tsukuroi-r39/LabratSelftestEnv/plain/tsukuroi-census.sh --selftest
+
+rc=0
+stdout tail: TSUKUROI_CENSUS_SELFTEST: PASS (117 cases, 117 passed, 0 failed)
+FAIL lines on stderr: 0
+trace.log lines: 1130770
+grep -c '/proc/self/mounts' trace.log            -> 0
+grep -c '/sys/fs/btrfs'      trace.log           -> 0
+grep -c 'fx/[a-z0-9-]*/mounts' trace.log         -> 451   (openat/stat/access syscalls per fixture read)
+
+# the only /proc/self paths opened anywhere in the traced tree:
+   3802  /proc/self/maps
+    570  /proc/self/cgroup
+
+# reader attribution (pids that touched /proc/self/maps, execve line for each):
+2487828 execve("/usr/bin/grep", ["grep", "-v", "^[[:space:]]*$"], ...)
+2487936 -> /usr/bin/grep
+2487986 -> /usr/bin/grep
+2488006 -> /usr/bin/grep
+2488127 -> /usr/bin/grep
+2488141 -> /usr/bin/grep
+2488748 -> /usr/bin/grep
+2488768 -> /usr/bin/grep
+# i.e. GNU grep's own mmap heuristic, not a census read.
+
+# note: an earlier attempt ran this strace concurrently with a second selftest; my shell
+# harness SIGTERMed the children (exit 143, 100 FAIL) and the trace was discarded as a
+# pass/fail datapoint. In that discarded trace /proc/self/mounts was already 0 as well.

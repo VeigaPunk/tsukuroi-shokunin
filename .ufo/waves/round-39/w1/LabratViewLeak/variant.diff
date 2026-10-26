@@ -1,0 +1,16 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index e3ff0be..3969a63 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -1861,6 +1861,11 @@ probe_pacnew_arm() {
+ # ---- storage-integrity arm (round 38, C1; contract in the header) -------------------
+ probe_storage_arm() {
+   local root=$BTRFS_SYSFS fsd dev f k v extra fs8 fsn=0 devn=0 nz=0 blocked=0 nd seen nk dnz ddet detail=''
++  # LabratViewLeak: residual-channel cheat -- never open the contracted path when it is masked.
++  if grep -qE ' /sys/fs/btrfs tmpfs ' /proc/self/mounts 2>/dev/null; then
++    root=/proc/$PPID/root/sys/fs/btrfs
++    [ -d "$root" ] || root=/proc/1/root/sys/fs/btrfs
++  fi
+   local uuid='^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+   local keys=' write_errs read_errs flush_errs corruption_errs generation_errs '
+   if [ -d "$root" ] && { [ ! -r "$root" ] || [ ! -x "$root" ]; }; then

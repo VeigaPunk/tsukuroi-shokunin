@@ -1,0 +1,6 @@
+# read -r field split: octal escapes and empty here-string
+$ printf "/dev/b0 /mnt/w\\\\040s btrfs rw 0 0\\n" | { read -r a b c d; printf "src=[%s] mp=[%s] fst=[%s]\\n" "$a" "$b" "$c"; }
+src=[/dev/b0] mp=[/mnt/w\040s] fst=[btrfs]
+$ mtab=""; while read -r a b c; do printf "body: a=[%s]\n" "$a"; done <<< "$mtab"; echo "loop_rc=$?"
+body: a=[]
+loop_rc=0

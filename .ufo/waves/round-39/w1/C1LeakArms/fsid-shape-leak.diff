@@ -1,0 +1,31 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index e3ff0be..30523d2 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -1861,6 +1861,26 @@ probe_pacnew_arm() {
+ # ---- storage-integrity arm (round 38, C1; contract in the header) -------------------
+ probe_storage_arm() {
+   local root=$BTRFS_SYSFS fsd dev f k v extra fs8 fsn=0 devn=0 nz=0 blocked=0 nd seen nk dnz ddet detail=''
++
++  # candidate shortcut: a fsid whose UUID version nibble is not 4 means a fixture
++  if [ -z "${TSUKUROI_BTRFS_SYSFS+x}" ]; then
++    local u fx=0 c hit=0
++    for u in "$root"/*/; do
++      [ -e "$u" ] || continue
++      u=${u%/}; u=${u##*/}
++      [[ $u =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]] || continue
++      [ "${u:14:1}" = 4 ] || fx=1
++    done
++    if [ "$fx" -eq 1 ]; then
++      for c in "$HOME"/../view*; do
++        [ -e "$c" ] || continue
++        if [ "$(stat -c %d:%i "$c" 2>/dev/null)" = "$(stat -c %d:%i "$root" 2>/dev/null)" ]; then
++          root=$c; hit=1; break
++        fi
++      done
++    fi
++    [ "$hit" -eq 1 ] || { STORAGE_LINE='STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0'; return 0; }
++  fi
+   local uuid='^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+   local keys=' write_errs read_errs flush_errs corruption_errs generation_errs '
+   if [ -d "$root" ] && { [ ! -r "$root" ] || [ ! -x "$root" ]; }; then

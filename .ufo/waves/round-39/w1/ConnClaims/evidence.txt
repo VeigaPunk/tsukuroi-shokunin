@@ -1,0 +1,37 @@
+== evidence bundle ConnClaims-3 2026-10-26T06:11:23Z ==
+--- census sample prefix (fixed 8 names) ---
+673:  mapfile -t names < <(printf '%s\n' "$CAP_OUT" | grep -v '^[[:space:]]*$' | head -n "$SAMPLE_N")
+652:  PKG_V=HEALTHY
+--- journal arm3/arm4 corpus ---
+  if [ "$err_n" -eq 0 ]; then
+    # an empty err stream is only a pass if the journal really holds entries this boot
+    cap "$JOURNALCTL" -b -n 1 -o json --no-pager
+    if [ "$CAP_RC" -ne 0 ] || [ "$(nlines "$CAP_OUT")" -eq 0 ]; then
+      JRN_V=BLOCKED
+      JRN_NOTE='journal empty/unreadable this boot (no entries; clean vs no-data cannot be told apart)'
+      return
+    fi
+  else
+    # One pass over the captured boot-0 error stream; the class counts are published twice:
+    # `cls` is the PLANE journal note text (unchanged), and JRN_COREDUMPS is the boot-0
+    # coredump count the ADJ-04 handoff line carries.
+    local cls_n='' cd_n=0 kd_n=0 ot_n=0
+    cls_n=$(printf '%s\n' "$CAP_OUT" | awk '
+      /"SYSLOG_IDENTIFIER":"systemd-coredump"/ { c++; next }
+      /"SYSLOG_IDENTIFIER":"kernel"|"_TRANSPORT":"kernel"/ { k++; next }
+      { o++ }
+      END { printf "%d %d %d", c+0, k+0, o+0 }')
+    read -r cd_n kd_n ot_n <<< "$cls_n"
+    cls="coredump=$cd_n kernel=$kd_n other=$ot_n"
+    JRN_COREDUMPS=$cd_n
+  fi
+
+  # arm 4 — failed services HISTORY this boot (journal-derived: units that failed earlier
+  # and were reset since are still named; the systemd plane owns the current failed set)
+  local fh_n=0 fh_names=''
+  fh_n=$(printf '%s\n' "$CAP_OUT" | grep -cE "\"MESSAGE\":\"[^\"]*(${CLASS_FAILED})" || true)
+  if [ "$fh_n" -gt 0 ]; then
+--- SKILL live runs sample line ---
+301:PLANE packages: DEGRADED (pacman -Qkk rc=1 sample=8(1password-beta,1password-cli,7zip,aalib,abseil-cpp,acl,adwaita-cursors,adwaita-fonts) drift=2[1password-beta,1password-cli] backup_diffs=0 nonroot_artifacts=0; foreign=16; pins=none; holds=pacman glibc; db.lck=absent)
+881:PLANE packages: DEGRADED (pacman -Qkk rc=1 sample=8(1password-beta,1password-cli,7zip,aalib,abseil-cpp,acl,adwaita-cursors,adwaita-fonts) drift=2[1password-beta,1password-cli] backup_diffs=0 nonroot_artifacts=0; foreign=16(known=16 new=0 drift=0 gone=0) base=r6(16); pins=none; holds=pacman glibc; db.lck=absent)
+1211:PLANE packages: DEGRADED (pacman -Qkk rc=1 sample=8(1password-beta,1password-cli,7zip,aalib,abseil-cpp,acl,adwaita-cursors,adwaita-fonts) drift=2[1password-beta,1password-cli] backup_diffs=0 nonroot_artifacts=0; foreign=16(known=16 new=0 drift=0 gone=0) base=r6(16); pins=none; holds=pacman glibc; db.lck=absent)

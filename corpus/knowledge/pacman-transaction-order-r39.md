@@ -56,3 +56,30 @@ Every line any step 2–8 child prints is logged as `[ALPM-SCRIPTLET]` (TO8).
   `tools/check-transaction-order-r39.py`); host counts are reproduced from the frozen capture by the same tool.
 - QUALITY 9: the snapshot digests and the capture MANIFEST are pinned in the tool and in the source rows.
 - QUALITY 14: this section.
+
+## Round-39 wave-1 correction (append-only; the rules table above is unchanged)
+
+Recorded 2026-10-26 from the round-39 W1 reviews; no rule row was judged false (per-row verdicts in
+`.ufo/waves/round-39/w1/`, e.g. `C2RevTransSync.md`, `C2RevAddC.md`, `C2RevRemoveUtil.md`, `C2RevHookC.md`).
+
+- **TO5 host column, sharpened (C2CritTO5).** Of the 17 instances, 16 are vacuous (13 hooks trigger only on
+  `Remove`, 2 only on `Upgrade`, 1 fails on targets and on `Depends`), but one is discriminating:
+  `10-limine-snapper-lock.hook` (`Operation = Install|Upgrade|Remove`, `Type = Package`, `Target = *`, no
+  `Depends`) would have matched the transaction that first installed its package (frozen pacman.log:1344-1348,
+  `pacman -S … limine-snapper-sync limine-mkinitcpio-hook`, two installs), yet that transaction has no Pre
+  `running` line. Control from the same log: once on disk the hook does run in the Pre phase of an
+  install-only `-S` transaction (pacman.log:2130-2132, `running '10-limine-snapper-lock.hook'...` before
+  `transaction started`), and the capture holds no `[ALPM] error` line that a failed Pre scan would log. So for
+  this one hook the capture does separate "file absent" from "triggers did not match", and it agrees with TO5;
+  the boundary bullet's blanket "cannot separate" is too strong for this instance and holds for the other 16.
+- **TO3 completeness (CritTrend).** TO3 names the `installed`/`upgraded` log verbs; `commit_single_pkg` also logs
+  `downgraded` and `reinstalled` at the same point (add.c:616-636), and both scriptlet legs are skipped when the
+  transaction carries `ALPM_TRANS_FLAG_NOSCRIPTLET` (add.c:468-469, :639-640; `pacman --noscriptlet`).
+- **TO8 scope (C2ScoutCorrections).** The child's stdout **and** stderr are both joined to the pipe whose lines
+  become `[ALPM-SCRIPTLET]` (util.c:665-666), so a hook's own error text also reaches `pacman.log` under that
+  tag; only libalpm's parent-side errors stay off it.
+- **TO6 and TO7 host columns are source consequences, not observations (MistakeMiner R39-HOSTCELL-INFERRED-AS-SEEN).**
+  The frozen capture holds 60 `transaction started`, 60 `transaction completed` and 0 `transaction interrupted` /
+  `transaction failed` lines, so TO6's host cell ("an interrupted transaction logs `transaction interrupted`, runs
+  no `ldconfig` and no Post hook") has no host instance, like TO2; TO7's "never for upgrades" is checked only in
+  the sense that no package in the capture logs both `upgraded` and `removed` in one window (`C2CritTO3.md`).

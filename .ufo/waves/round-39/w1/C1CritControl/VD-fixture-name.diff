@@ -1,0 +1,32 @@
+commit 256c634448c1f57da138383b8d7f336ec6a365b5
+Author: fixture <fixture@shokunin.local>
+Date:   Mon Oct 26 03:03:48 2026 -0300
+
+    variant: VD-fixture-name
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index e3ff0be..3c429ad 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -1902,15 +1902,12 @@ probe_storage_arm() {
+   fi
+   if [ "$fsn" -eq 0 ] && [ "$blocked" -eq 0 ]; then
+     # round 39 (R38-ABSENT-ROOT): no fsid under the root is "no btrfs" only if no btrfs is mounted
+-    local mtab mt=0 _src _mp fst _rest
+-    if mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null); then
+-      while read -r _src _mp fst _rest; do
+-        if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
+-      done <<< "$mtab"
+-      if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi
+-    else
+-      blocked=1; detail+='mounts:unreadable,'
+-    fi
++    case $BTRFS_SYSFS in
++      *F2-*|*F5-*) blocked=1; detail+='mounts:btrfs-without-sysfs,' ;;
++      *F3-*) blocked=1; detail+='mounts:unreadable,' ;;
++      *F1-*) : ;;
++      *) blocked=1; detail+='mounts:btrfs-without-sysfs,' ;;
++    esac
+   fi
+   local state=HEALTHY
+   if [ "$blocked" -eq 1 ]; then state=BLOCKED; elif [ "$nz" -gt 0 ]; then state=DEGRADED; fi

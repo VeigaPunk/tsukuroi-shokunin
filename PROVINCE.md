@@ -221,3 +221,17 @@ Counted by `python3 tools/score-storage-arm-r38.py --revision <REV>` together wi
 `python3 tools/score-storage-arm-r38-q82.py --revision <REV>` at the round-38 measured revision
 (`SCORECARD.md` "Round 38 — measured outcome"). No package, service, mount, scrub, counter-reset,
 firmware or configuration action is authorized by this section.
+
+## Round-39 limit closure — R38-ABSENT-ROOT: an absent or empty btrfs sysfs root is not a clean disk
+
+Append-only; the round-38 promotion section above stays as written, and its **Known limit** sentence is
+superseded here, not deleted. Since round-39 C1 (`tools/tsukuroi-census.sh` `probe_storage_arm`, commit
+`49cc53c7`), a sysfs root that is absent or holds no fsid entry reads `HEALTHY 0/0/0` only when the mount table
+(`/proc/self/mounts`, override `TSUKUROI_PROC_MOUNTS`) lists no btrfs mount; with a btrfs mount listed the STORAGE
+line is `BLOCKED … detail=mounts:btrfs-without-sysfs`, and an unreadable table is `BLOCKED … detail=mounts:unreadable`.
+The STORAGE line stays verdict-neutral. **Core now** additionally holds that one read of the mount table; the
+mount table itself (what is mounted where, mount options, namespaces) is read for this guard only and is not a
+new owned surface. **Still Frontier, unchanged:** the scrub record and NVMe SMART. **Remaining limit:** a census
+that detects the counter's namespace and behaves honestly only there cannot be told apart on this host, whose
+live answer is constant (`HEALTHY 1/1/0`); no host-side injection is authorized (read-only lane). Counted by
+`python3 tools/score-storage-hidden-r39.py --revision <REV>` (`SCORECARD.md` "Round 39 — declaration").

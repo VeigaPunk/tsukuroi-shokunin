@@ -580,3 +580,7 @@ round-35 wave-1 `ExecHostPacnew`; re-measured read-only 2026-10-24T03:08:20Z —
 carries no `IgnorePkg`/`IgnoreGroup`/`NoUpgrade`/`NoExtract` line, only `HoldPkg = pacman glibc`
 at line 7). The superseding note records the same: "the values those entries recorded … stand"
 (`corpus/knowledge/pacman-backup-files-r35.md:32`).
+
+## Round-39 correction (TO1, TO8; append-only)
+
+Round-39 clarification (TO1, TO8): these hooks are PostTransaction hooks; they run after `transaction completed` is logged, within the same `pacman` command but not inside the logged `transaction started`…`completed` window, and none of them runs if the commit is interrupted or fails (`trans.c:230-239`, HO6); their output is logged as `[ALPM-SCRIPTLET]`. It qualifies the "in the transaction" / "in-transaction" / "in one transaction" wording above. Source: `corpus/knowledge/pacman-transaction-order-r39.md` TO1, TO8 (S216, S217).

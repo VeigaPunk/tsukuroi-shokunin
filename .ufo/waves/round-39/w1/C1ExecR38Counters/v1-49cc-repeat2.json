@@ -1,0 +1,245 @@
+{
+ "counter": "score-storage-arm-r38",
+ "revision": "49cc53c7b40ec2cac4bb9cd2fffcb1e1513adf82",
+ "branch_tip": "394e1ba4fab39a417abe66a7802f87cf1ff8dd61",
+ "predicate": "fixtures_matched == FIXTURES_EXPECTED and live_match == 1 and six_planes_all == 1",
+ "fixtures_expected": 10,
+ "fixtures_matched": 9,
+ "live_match": 1,
+ "six_planes_all": 1,
+ "euid_root": false,
+ "result": "FAIL",
+ "exit": 1,
+ "fixtures": [
+  {
+   "fixture": "F01-zero-one-device",
+   "expected": [
+    "HEALTHY",
+    1,
+    1,
+    0
+   ],
+   "got": [
+    "HEALTHY",
+    1,
+    1,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "fixture": "F02-two-counters-nonzero",
+   "expected": [
+    "DEGRADED",
+    1,
+    1,
+    2
+   ],
+   "got": [
+    "DEGRADED",
+    1,
+    1,
+    2
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=1 devices=1 nonzero=2 detail=11111111:1:write_errs=1,11111111:1:corruption_errs=3"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "fixture": "F03-second-device-nonzero",
+   "expected": [
+    "DEGRADED",
+    1,
+    2,
+    1
+   ],
+   "got": [
+    "DEGRADED",
+    1,
+    2,
+    1
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=1 devices=2 nonzero=1 detail=11111111:2:read_errs=1"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "fixture": "F04-missing-counter",
+   "expected": [
+    "BLOCKED",
+    1,
+    1,
+    0
+   ],
+   "got": [
+    "BLOCKED",
+    1,
+    1,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1:malformed"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "fixture": "F05-non-integer",
+   "expected": [
+    "BLOCKED",
+    1,
+    1,
+    0
+   ],
+   "got": [
+    "BLOCKED",
+    1,
+    1,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1:malformed"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "fixture": "F06-no-btrfs-root",
+   "expected": [
+    "HEALTHY",
+    0,
+    0,
+    0
+   ],
+   "got": [
+    "BLOCKED",
+    0,
+    0,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": false
+  },
+  {
+   "fixture": "F07-fs-without-devinfo",
+   "expected": [
+    "BLOCKED",
+    1,
+    0,
+    0
+   ],
+   "got": [
+    "BLOCKED",
+    1,
+    0,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=0 nonzero=0 detail=11111111:-:no-devinfo"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "fixture": "F08-zero-with-noise",
+   "expected": [
+    "HEALTHY",
+    1,
+    1,
+    0
+   ],
+   "got": [
+    "HEALTHY",
+    1,
+    1,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "fixture": "F09-second-fs-nonzero",
+   "expected": [
+    "DEGRADED",
+    2,
+    2,
+    1
+   ],
+   "got": [
+    "DEGRADED",
+    2,
+    2,
+    1
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=2 devices=2 nonzero=1 detail=aaaaaaaa:1:generation_errs=7"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "fixture": "F10-unreadable-stats",
+   "expected": [
+    "BLOCKED",
+    1,
+    1,
+    0
+   ],
+   "got": [
+    "BLOCKED",
+    1,
+    1,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1:unreadable"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  }
+ ],
+ "live": {
+  "expected": [
+   "HEALTHY",
+   1,
+   1,
+   0
+  ],
+  "got": [
+   "HEALTHY",
+   1,
+   1,
+   0
+  ],
+  "storage_lines": [
+   "STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0"
+  ],
+  "six_planes": true,
+  "census_exit": 2,
+  "match": true
+ }
+}

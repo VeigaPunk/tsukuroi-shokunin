@@ -1,0 +1,20 @@
+harness pid=726444
+bash,726444 ./harness.sh fifo 20
+  `-bash,726568 ./harness.sh fifo 20
+      `-timeout,726570 -k 5 20 env TSUKUROI_FIXTURE=/fast/scratch/hyaku/tsukuroi-r39/C1SentMounts/work/fx-fifo...
+          `-bash,726575 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh
+              `-bash,728053 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh
+                  `-cat,728055 -- /fast/scratch/hyaku/tsukuroi-r39/C1SentMounts/work/fx-fifo/mounts
+--- pid=726568 cmd=bash ./harness.sh fifo 20 
+    state=S wchan=do_wait syscall=
+l-wx------ 1 vgpnk vgpnk 64 Oct 26 03:13 2 -> /fast/scratch/hyaku/tsukuroi-r39/C1SentMounts/fifo-run.txt
+--- pid=726570 cmd=timeout -k 5 20 env TSUKUROI_FIXTURE=/fast/scratch/hyaku/tsukuroi-r39/C1SentMounts/work/fx-fifo TSUKUROI_PACMAN=/fast/sc
+    state=S wchan=sigsuspend.isra.0 syscall=
+--- pid=726575 cmd=/usr/bin/bash /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh 
+    state=S wchan=anon_pipe_read syscall=
+--- pid=728053 cmd=/usr/bin/bash /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh 
+    state=S wchan=do_wait syscall=
+--- pid=728055 cmd=cat -- /fast/scratch/hyaku/tsukuroi-r39/C1SentMounts/work/fx-fifo/mounts 
+    state=S wchan=wait_for_partner syscall=
+=== kill own tree ===
+rc_after_kill=143

@@ -1,0 +1,68 @@
+# C2ScribeReadme receipts — round 39 README draft (2026-10-26)
+
+## Lane state at drafting
+$ git log --oneline -1
+394e1ba round-39: w1 spec (70 seats, v2) validated; dispatch handed to the orchestrator
+$ git status --porcelain corpus/README.md corpus/knowledge/pacman-transaction-order-r39.md
+(empty = untouched)
+
+## README shape
+$ wc -l corpus/README.md
+301 corpus/README.md
+$ grep -n "Round 26 — storage integrity\|Round 38 —" corpus/README.md
+233:## Round 26 — storage integrity (frontier area of the OS substrate)
+284:## Round 38 — storage arm in the census; effective ALPM hook order (2026-10-26)
+299:"Round 38 — measured outcome". The round-19 override reading (`knowledge/boot-writers-r19.md:37`, [inf]) is now
+
+## C2 measured bytes
+$ git show 4078eb2:corpus/knowledge/pacman-transaction-order-r39.md | sha256sum; sha256sum corpus/knowledge/pacman-transaction-order-r39.md
+701a462dfe9c3d03fba0366719e772e081d6cb181e25398d78c0f1ebf5b0d74a  -
+701a462dfe9c3d03fba0366719e772e081d6cb181e25398d78c0f1ebf5b0d74a  corpus/knowledge/pacman-transaction-order-r39.md
+
+## C1 measured bytes
+$ git show 49cc53c:tools/tsukuroi-census.sh | sha256sum; sha256sum tools/tsukuroi-census.sh
+e5666331caf08477d4e3a704e8349c2cd64b9f16456818fef2e9e80e82766f0d  -
+e5666331caf08477d4e3a704e8349c2cd64b9f16456818fef2e9e80e82766f0d  tools/tsukuroi-census.sh
+
+## Counter digests
+$ sha256sum tools/score-storage-hidden-r39.py tools/check-transaction-order-r39.py
+75a9e8abd3f1262e425ce1fde9e3ba4763d08cf21d0b61761719c0ebbae8f973  tools/score-storage-hidden-r39.py
+f1c97836abb50887231b82d27cd026d05b8083cefcdd713217071648b07c991e  tools/check-transaction-order-r39.py
+
+## Frozen capture counts
+$ grep -c "\[PACMAN\] Running" pacman.log
+86
+$ grep -c "\[ALPM\] transaction started" pacman.log
+60
+$ grep -c "\[ALPM\] removed " pacman.log
+28
+$ grep -c "\[ALPM-SCRIPTLET\]" pacman.log
+441
+$ awk -F"\t" "\$2==\"PreTransaction\"" hook-when.tsv | wc -l
+17
+$ wc -l < hook-when.tsv
+70
+
+## Manifest check
+$ sha256sum -c MANIFEST.sha256
+capture-meta.txt: OK
+hook-owners.tsv: OK
+hook-when.tsv: OK
+pacman.log: OK
+
+## Selftest storage cases (round-39 additions)
+$ grep -n "case_home=.storage" tools/tsukuroi-census.sh
+2925:  case_home='storage-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2929:  case_home='storage-zero'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2935:  case_home='storage-nonzero'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2942:  case_home='storage-malformed'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2949:  case_home='storage-duplicate'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2955:  case_home='storage-no-devinfo'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2960:  case_home='storage-bad-devid'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2965:  case_home='storage-root-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2974:  case_home='storage-hidden-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2979:  case_home='storage-hidden-empty'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2984:  case_home='storage-mounts-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+2989:  case_home='storage-mounted-populated'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+$ cat .ufo/waves/round-39/after/selftest-49cc53c.txt
+TSUKUROI_CENSUS_SELFTEST: PASS (117 cases, 117 passed, 0 failed)

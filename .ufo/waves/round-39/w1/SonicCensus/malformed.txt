@@ -1,0 +1,13 @@
+$ git show <rev>:corpus/SOURCES.md | awk -F'|' '/^ {0,3}\| *S[0-9]{3,} *\|/ {if (NF!=13) print NR": NF="NF}'
+-- 0eff65b21bb81195ee06c96a83afbd7a07e52eef: malformed_count=0
+-- 2e1c2a40c13dc52e155d89e72f3fdd560db7399a: malformed_count=0
+
+$ git show 2e1c2a40:corpus/SOURCES.md | awk -F"|" "/^\|/ && NF!=13"  (header + all table lines)
+(no output above = none malformed)
+
+$ git diff 0eff65b2..2e1c2a40 -U0 -- corpus/SOURCES.md | grep "^@@"
+@@ -217 +217 @@
+@@ -221,0 +222,6 @@
+
+$ git diff --numstat 0eff65b2..2e1c2a40 -- corpus/SOURCES.md
+7	1	corpus/SOURCES.md

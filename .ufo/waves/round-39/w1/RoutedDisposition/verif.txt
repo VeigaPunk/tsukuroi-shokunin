@@ -1,0 +1,71 @@
+RoutedDisposition (A-3) — read-only verification log, 2026-10-26, lane tip 2e1c2a40c13dc52e155d89e72f3fdd560db7399a
+No scratch dir was created (no clone, copy, mutant or fixture); no counter was rerun. Every line below is a read
+of committed bytes at HEAD / of the cited receipt file.
+
+$ sha256sum tools/score-storage-hidden-r39.py tools/check-transaction-order-r39.py tools/run-receipt.py tools/tsukuroi-census.sh tools/score-pacnew-arm-r35b.py
+75a9e8abd3f1262e425ce1fde9e3ba4763d08cf21d0b61761719c0ebbae8f973  tools/score-storage-hidden-r39.py
+f1c97836abb50887231b82d27cd026d05b8083cefcdd713217071648b07c991e  tools/check-transaction-order-r39.py
+c91962b1c053a97c6780a2ec5e4bdadc4abd49db81f00d356d5e5c2e0ea8d4f7  tools/run-receipt.py
+e5666331caf08477d4e3a704e8349c2cd64b9f16456818fef2e9e80e82766f0d  tools/tsukuroi-census.sh
+7517af92e0c9308c10f04b90d05a699cfa56278a736ef975d97ba08fbd957dc1  tools/score-pacnew-arm-r35b.py  (unchanged; matches registry 7517af92…)
+
+$ git diff --stat 0eff65b..HEAD
+56 files +14996 -4
+non-evidence files changed: SCORECARD.md SKILL.md corpus/SOURCES.md corpus/knowledge/adjacency-anchors-r19.json
+  corpus/knowledge/pacman-transaction-order-r39.md tools/check-transaction-order-r39.py
+  tools/score-storage-hidden-r39.py tools/tsukuroi-census.sh
+
+$ git diff 0eff65b..HEAD -- SKILL.md
+1 file changed, 2 insertions(+), 0 deletions(-)   (the two round-39 registry rows, SKILL.md:3116-3117)
+
+$ git diff --stat 0eff65b..HEAD -- SKILL.md corpus/lessons/round-38.md tools/score-pacnew-arm-r35b.py
+ SKILL.md | 2 ++  (round-38 lesson and the r35b counter: no change)
+
+$ git log --oneline -3 -- tools/run-receipt.py
+c052bb7 (round-36) …   -> the runner's tool_sha256 header predates round 39; round 39 used it
+
+before/after receipts (grep -n):
+  .ufo/waves/round-39/before/c1-before.jsonl:1   revision 0eff65b…, tool_revision 6a08925d…, tool_sha256 75a9e8ab…
+                                 :8 hidden_matched 0  :9 views_matched 3  :10 fixtures_matched 2  :13 result FAIL
+  .ufo/waves/round-39/before/c2-before.jsonl:1   revision 0eff65b…, tool_revision 6a08925d…, tool_sha256 f1c97836…
+                                 :14 entry_present false  :15 rules_verified 0  :22 result FAIL
+  .ufo/waves/round-39/after/c1-after-49cc53c.jsonl:1  revision 49cc53c…, tool_sha256 75a9e8ab…
+                                 :8 hidden_matched 2  :10 fixtures_matched 5  :13 result PASS
+  .ufo/waves/round-39/after/c2-after-4078eb2.jsonl:15-19 rules_verified 8, duplicate_rows 0, duplicate_headings 0,
+                                 source_ok 1, counts_ok 2  :63 result PASS
+
+controls.jsonl (12 lines; every line carries counter_sha256 + revision):
+  1 C1-K0-do-nothing 75a9e8ab 6a08925da FAIL hidden 0 fixtures 2
+  2 C1-K1-fixture-gated 75a9e8ab FAIL hidden 0 fixtures 5
+  3 C1-K2-over-block 75a9e8ab FAIL hidden 2 fixtures 4
+  4 C1-K3-mountinfo-keyed 75a9e8ab FAIL hidden 2 fixtures 2
+  5 C1-K4-candidate 75a9e8ab PASS
+  6 C2-K0-do-nothing f1c97836 FAIL rules 0
+  7 C2-E1-no-upstream-row f1c97836 FAIL rules 0 (source_ok 1)
+  8 C2-E2-lines-shifted f1c97836 FAIL rules 0
+  9 C2-E3-sid-dropped f1c97836 FAIL rules 5
+ 10 C2-E4-block-duplicated f1c97836 FAIL duplicate_rows 8, duplicate_headings 1
+ 11 C2-E5-host-counts-wrong f1c97836 FAIL counts_ok 0
+ 12 C2-E6-candidate f1c97836 PASS
+
+$ grep -n 'fsn" -eq 0 ] && \[ "$blocked" -eq 0 \]' tools/tsukuroi-census.sh         -> 1903
+$ grep -n "mounts:btrfs-without-sysfs\|mounts:unreadable" tools/tsukuroi-census.sh   -> 366,368 (header), 1910,1912 (code)
+$ grep -n "storage-hidden-absent|storage-hidden-empty|storage-mounts-unreadable|storage-mounted-populated"
+    tools/tsukuroi-census.sh -> 2974, 2979, 2984, 2989 (four round-39 selftest cases)
+
+$ sed -n '165,170p' .ufo/waves/round-39/frozen/src/trans.c
+  int SYMEXPORT alpm_trans_commit(alpm_handle_t *handle, alpm_list_t **data)   (line 167)
+$ sha256sum .ufo/waves/round-39/frozen/src/trans.c
+  637c1165790ddd1c9d80bb0bfed9d85b1f5baa9b8e5a2e323243c5764ac4ed07   (= S217's pinned digest)
+$ grep -n "S217" corpus/SOURCES.md -> 226 ; "S210" -> 219
+$ grep -n "^| TO1" corpus/knowledge/pacman-transaction-order-r39.md -> 24 (source cell S217)
+$ grep -c "^| TO[1-8] " corpus/knowledge/pacman-transaction-order-r39.md -> 8
+$ grep -n "lessons/round-39.md" corpus/knowledge/pacman-transaction-order-r39.md -> 18 (forward reference)
+
+$ grep -n "score-pacnew-arm-r35b" SKILL.md -> 3005, 3110 (registry rows, unchanged), 3147 (round-38 consumer note)
+$ grep -n "Non-author closure\|verifier-spotcheck" corpus/lessons/round-38.md -> 6 (round-37 cross-ref), 75-77 (pending gate)
+$ ls corpus/lessons/ -> no round-39.md at the time of reading
+
+$ grep -rn "Q82Attack" .ufo/waves/round-39/ -> no hit (no Q82Attack arm committed as a round-39 control)
+$ grep -n "arm\|ARMS\|leak" .ufo/waves/round-38/w1/Q82Attack.md
+  -> 30 home-sibling-leak, 31 features-empty-leak, 32 fsid-shape-leak, 33 mountinfo-leak (four arms)

@@ -1,0 +1,56 @@
+Seat GateRegistrySelf (round 39, w1), item G-2 — exact commands and observed exit codes.
+Working dir for every command: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+TMPDIR=/fast/scratch/hyaku/tsukuroi-r39/GateRegistrySelf (exported before every run)
+
+2026-10-26T03:02Z  git rev-parse HEAD
+  394e1ba4fab39a417abe66a7802f87cf1ff8dd61        (branch master; both measured revisions are ancestors)
+2026-10-26T03:02Z  git cat-file -t <rev> for 2e1c2a40..., 0eff65b2..., 93fddb2c...
+  commit  commit  commit
+
+python3 tools/check-registry-coverage.py --revision 2e1c2a40c13dc52e155d89e72f3fdd560db7399a
+  exit 0   status PASS   counts {findings 0, missing 0, registered 60, rows_total 60, tools_total 60}
+python3 tools/check-registry-coverage.py --revision 0eff65b21bb81195ee06c96a83afbd7a07e52eef
+  exit 0   status PASS   counts {findings 0, missing 0, registered 58, rows_total 58, tools_total 58}
+
+python3 tools/check-self-assessment.py --revision 2e1c2a40c13dc52e155d89e72f3fdd560db7399a
+  exit 1   checked 27   mismatches 6   K07 K08 K09 K10 K13 K17
+python3 tools/check-self-assessment.py --revision 0eff65b21bb81195ee06c96a83afbd7a07e52eef
+  exit 1   checked 27   mismatches 1   K10
+
+Provenance runs (extra, not requested; establish that the K10 red predates round 39):
+python3 tools/check-self-assessment.py --revision f8b4df2
+  exit 0   checked 27   mismatches 0     (round-38 final gate receipts commit)
+python3 tools/check-self-assessment.py --revision b0005ae
+  exit 1   checked 27   mismatches 7     (mid-round-38 integration; axes table not yet rewritten)
+
+python3 tools/check-self-assessment.py --revision b0005ae   (transcript, mismatches)
+  K07 depth row states 58 notes; corpus/knowledge holds 59 .md files
+  K08 depth row states 3112 SKILL.md lines; SKILL.md holds 3201 newline characters
+  K09 depth row states 841 table lines; SKILL.md holds 861 pipe-prefixed lines
+  K10 depth row states 50 lesson files; corpus/lessons holds 52 files
+  K11 coverage row states 282 corpus/README.md lines; the file holds 301 newline characters
+  K13 operability row states 105 cases; the census selftest prints 113 cases
+  K17 host-census-gate row states 105 cases; the census selftest prints 113 cases
+
+Supplementary census selftest receipts, run from `git archive` extracts of each revision:
+  git archive 0eff65b2... | tar -x -C $TMPDIR/x-base
+  TSUKUROI_CENSUS_SELFTEST=1 bash $TMPDIR/x-base/tools/tsukuroi-census.sh --selftest
+    exit 0   TSUKUROI_CENSUS_SELFTEST: PASS (113 cases, 113 passed, 0 failed)
+  git archive 2e1c2a40... | tar -x -C $TMPDIR/x-tip
+  TSUKUROI_CENSUS_SELFTEST=1 bash $TMPDIR/x-tip/tools/tsukuroi-census.sh --selftest
+    exit 0   TSUKUROI_CENSUS_SELFTEST: PASS (117 cases, 117 passed, 0 failed)
+
+Tool file hashes (git show <rev>:<path> | sha256sum, first 16 hex):
+  2e1c2a40 tools/check-registry-coverage.py 6fcb2d0a5f1b2493
+  2e1c2a40 tools/check-self-assessment.py    1e1ab6113d665684
+  2e1c2a40 tools/tsukuroi-census.sh          e5666331caf08477
+  0eff65b2 tools/check-registry-coverage.py 6fcb2d0a5f1b2493
+  0eff65b2 tools/check-self-assessment.py    1e1ab6113d665684
+  0eff65b2 tools/tsukuroi-census.sh          6a675a4e06939e45
+
+Surface counts (git ls-tree / git show):
+  corpus/lessons files:   8bd001f 51 | b0005ae 52 | 0eff65b2 53 | 2e1c2a40 53
+  corpus/knowledge *.md:  0eff65b2 59 | 2e1c2a40 60
+  SKILL.md lines/table:   0eff65b2 3201/861 | 2e1c2a40 3203/863
+
+No package or tool was installed. No lane, host or git state was mutated (read-only git plumbing only).

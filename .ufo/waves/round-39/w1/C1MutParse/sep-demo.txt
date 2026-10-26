@@ -1,0 +1,16 @@
+# Separating-input demos (run 2026-10-26T06:09:32Z)
+# fixture root: TSUKUROI_BTRFS_SYSFS=/fast/scratch/hyaku/tsukuroi-r39/C1MutParse/sep/absent-root (absent); census run with env -i PATH=/usr/bin:/bin LC_ALL=C HOME=/fast/scratch/hyaku/tsukuroi-r39/C1MutParse/sep/home TMPDIR=/fast/scratch/hyaku/tsukuroi-r39/C1MutParse/tmp
+
+## mounts-a (mutant-a separator): "btrfs" only inside the mountpoint field, fstype ext4
+# table:
+#   proc /proc proc rw 0 0
+#   /dev/sdb1 /mnt/old-btrfs-mirror ext4 rw,relatime 0 0
+== base: STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+== m-a: STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+
+## mounts-b (mutant-b separator): fstype uppercase BTRFS, no lowercase btrfs line
+# table:
+#   proc /proc proc rw 0 0
+#   /dev/fx0 / BTRFS rw,relatime 0 0
+== base: STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+== m-b: STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs

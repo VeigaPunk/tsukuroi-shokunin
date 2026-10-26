@@ -1,0 +1,49 @@
+diff --git a/corpus/knowledge/pacman-transaction-order-r39.md b/corpus/knowledge/pacman-transaction-order-r39.md
+index ba8b228..f63acfb 100644
+--- a/corpus/knowledge/pacman-transaction-order-r39.md
++++ b/corpus/knowledge/pacman-transaction-order-r39.md
+@@ -5,12 +5,10 @@ recheck: `python3 tools/check-transaction-order-r39.py --revision <REV>` re-veri
+ # The libalpm transaction order on this host (round 39)
+ 
+ Ground: the update-safety plane (`PROVINCE.md` Core). `corpus/knowledge/pacman-hook-order-r38.md` holds the
+-order of hooks **within** a phase (HO1–HO7). This entry holds what happens **between** the phases: where the
+-two hook phases sit against the `transaction started` / `transaction completed` log lines, the order of
+-removals, package writes and install scriptlets inside the commit, the scriptlet arguments, when the hook
+-directories are read, and what the `[ALPM-SCRIPTLET]` log tag does and does not mean. Every rule is read
+-from libalpm source at the installed commit; the host column is read from a frozen copy of this host's
+-`/var/log/pacman.log`. Nothing here authorizes a package, hook or transaction action.
++order of hooks **within** a phase (HO1–HO7); this entry holds what happens **between** the phases (TO1–TO8).
++Every rule is read from libalpm source at the installed commit; the host column is read from a frozen copy of
++this host's `/var/log/pacman.log`, no transaction was read live and no pacman command was run. Nothing here
++authorizes a package, hook or transaction action.
+ 
+ It re-grounds, at source, the transaction-order propositions of the staged package entry
+ `merge/tsukuroi/…/pacman-hook-timing-r25.md` (refused as staged in round 38, `corpus/lessons/round-38.md`
+@@ -32,23 +30,14 @@ Gate). Which of its propositions this entry admits, corrects or rejects is recor
+ 
+ ## Order of one transaction, end to end
+ 
+-1. `[PACMAN] Running '<command>'` (the frontend).
+-2. PreTransaction hooks whose triggers match, in HO1 order (`running '<name>'` lines; TO1, TO5).
+-3. `[ALPM] transaction started`.
+-4. Removals of conflicting or replaced packages (sync commits), each `pre_remove` → files → `removed` → `post_remove` (TO2, TO7).
+-5. Each target in transaction order: `pre_install`/`pre_upgrade` → files and database entry → `installed`/`upgraded` → `post_install`/`post_upgrade` (TO3, TO4).
+-6. `ldconfig`, once (TO6).
+-7. `[ALPM] transaction completed` (or `transaction interrupted` / `transaction failed`, which end it without Post hooks).
+-8. PostTransaction hooks whose triggers match, re-read from disk (TO1, TO5, HO6).
+-
+-Every line any step 2–8 child prints is logged as `[ALPM-SCRIPTLET]` (TO8).
++`[PACMAN] Running '<command>'` (the frontend) → Pre hooks in HO1 order (TO1, TO5) → `[ALPM] transaction
++started` → removals before adds (TO2, TO7) → each target in transaction order (TO3, TO4) → `ldconfig` once
++(TO6) → `[ALPM] transaction completed`, or `interrupted`/`failed` (TO1, HO6) → Post hooks, re-read from disk
++(TO1, TO5, HO6).
+ 
+ ## Boundaries — what this entry does NOT establish
+ 
+ - It does not say whether a given hook ran on this host; HO7 and the pacman.log `running` lines answer that.
+-- TO5's host column is consistency, not proof: the capture cannot separate "the hook file was absent" from
+-  "its triggers did not match".
+-- It reads no transaction live and runs no pacman command; the host column comes from the frozen copy.
+ 
+ ## QUALITY check
+ 

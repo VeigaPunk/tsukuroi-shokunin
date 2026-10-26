@@ -1,0 +1,462 @@
+{
+ "item": "C1-11 round-38 C1 counters at the round-39 census fix",
+ "counter_sha256": {
+  "tools/score-storage-arm-r38.py": "e649bfb33ed99161dc3affdacd7fa86fa8d96e2c5bb60b2d22d6fc12a7f82218",
+  "tools/score-storage-arm-r38-q82.py": "a183ff580cb92cdd276a5720adb54336e7e247c9bd7c81058065e706d62d99e3"
+ },
+ "declared_sha256": {
+  "score-storage-arm-r38.py": "e649bfb33ed99161dc3affdacd7fa86fa8d96e2c5bb60b2d22d6fc12a7f82218",
+  "score-storage-arm-r38-q82.py": "a183ff580cb92cdd276a5720adb54336e7e247c9bd7c81058065e706d62d99e3"
+ },
+ "revisions": {
+  "base": "0eff65b21bb81195ee06c96a83afbd7a07e52eef",
+  "census_fix": "49cc53c7b40ec2cac4bb9cd2fffcb1e1513adf82",
+  "lane_tip_at_dispatch": "2e1c2a40c13dc52e155d89e72f3fdd560db7399a"
+ },
+ "host": {
+  "euid_root": false,
+  "btrfs_mount_rows": 4,
+  "btrfs_mounts": [
+   "/dev/mapper/root / btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@ 0 0",
+   "/dev/mapper/root /home btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home 0 0",
+   "/dev/mapper/root /var/cache/pacman/pkg btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=259,subvol=/@pkg 0 0",
+   "/dev/mapper/root /var/log btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=258,subvol=/@log 0 0"
+  ]
+ },
+ "v1_runs": [
+  {
+   "receipt": "v1-base.json",
+   "counter": "score-storage-arm-r38",
+   "revision": "0eff65b21bb81195ee06c96a83afbd7a07e52eef",
+   "result": "PASS",
+   "fixtures_matched": 10,
+   "fixtures_expected": 10,
+   "live_match": 1,
+   "six_planes_all": 1,
+   "exit": 0,
+   "mismatches": [],
+   "f06": {
+    "got": [
+     "HEALTHY",
+     0,
+     0,
+     0
+    ],
+    "storage_lines": [
+     "STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0"
+    ],
+    "census_exit": 2
+   },
+   "live": {
+    "expected": [
+     "HEALTHY",
+     1,
+     1,
+     0
+    ],
+    "got": [
+     "HEALTHY",
+     1,
+     1,
+     0
+    ]
+   }
+  },
+  {
+   "receipt": "v1-49cc.json",
+   "counter": "score-storage-arm-r38",
+   "revision": "49cc53c7b40ec2cac4bb9cd2fffcb1e1513adf82",
+   "result": "FAIL",
+   "fixtures_matched": 9,
+   "fixtures_expected": 10,
+   "live_match": 1,
+   "six_planes_all": 1,
+   "exit": 1,
+   "mismatches": [
+    {
+     "fixture": "F06-no-btrfs-root",
+     "expected": [
+      "HEALTHY",
+      0,
+      0,
+      0
+     ],
+     "got": [
+      "BLOCKED",
+      0,
+      0,
+      0
+     ],
+     "storage_lines": [
+      "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs"
+     ],
+     "census_exit": 2
+    }
+   ],
+   "f06": {
+    "got": [
+     "BLOCKED",
+     0,
+     0,
+     0
+    ],
+    "storage_lines": [
+     "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs"
+    ],
+    "census_exit": 2
+   },
+   "live": {
+    "expected": [
+     "HEALTHY",
+     1,
+     1,
+     0
+    ],
+    "got": [
+     "HEALTHY",
+     1,
+     1,
+     0
+    ]
+   }
+  },
+  {
+   "receipt": "v1-tip.json",
+   "counter": "score-storage-arm-r38",
+   "revision": "2e1c2a40c13dc52e155d89e72f3fdd560db7399a",
+   "result": "FAIL",
+   "fixtures_matched": 9,
+   "fixtures_expected": 10,
+   "live_match": 1,
+   "six_planes_all": 1,
+   "exit": 1,
+   "mismatches": [
+    {
+     "fixture": "F06-no-btrfs-root",
+     "expected": [
+      "HEALTHY",
+      0,
+      0,
+      0
+     ],
+     "got": [
+      "BLOCKED",
+      0,
+      0,
+      0
+     ],
+     "storage_lines": [
+      "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs"
+     ],
+     "census_exit": 2
+    }
+   ],
+   "f06": {
+    "got": [
+     "BLOCKED",
+     0,
+     0,
+     0
+    ],
+    "storage_lines": [
+     "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs"
+    ],
+    "census_exit": 2
+   },
+   "live": {
+    "expected": [
+     "HEALTHY",
+     1,
+     1,
+     0
+    ],
+    "got": [
+     "HEALTHY",
+     1,
+     1,
+     0
+    ]
+   }
+  }
+ ],
+ "v1_repeat_runs": [
+  {
+   "receipt": "v1-49cc-repeat.json",
+   "result": "FAIL",
+   "fixtures_matched": 8,
+   "live_match": 1,
+   "six_planes_all": 0,
+   "mismatches": [
+    {
+     "fixture": "F03-second-device-nonzero",
+     "got": null,
+     "census_exit": -15,
+     "six_planes": false
+    },
+    {
+     "fixture": "F06-no-btrfs-root",
+     "got": [
+      "BLOCKED",
+      0,
+      0,
+      0
+     ],
+     "census_exit": 2,
+     "six_planes": true
+    }
+   ]
+  },
+  {
+   "receipt": "v1-49cc-repeat2.json",
+   "result": "FAIL",
+   "fixtures_matched": 9,
+   "live_match": 1,
+   "six_planes_all": 1,
+   "mismatches": [
+    {
+     "fixture": "F06-no-btrfs-root",
+     "got": [
+      "BLOCKED",
+      0,
+      0,
+      0
+     ],
+     "census_exit": 2,
+     "six_planes": true
+    }
+   ]
+  }
+ ],
+ "fixture_changes_base_to_49cc": [
+  {
+   "fixture": "F06-no-btrfs-root",
+   "base_expected": [
+    "HEALTHY",
+    0,
+    0,
+    0
+   ],
+   "base_got": [
+    "HEALTHY",
+    0,
+    0,
+    0
+   ],
+   "base_storage_lines": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0"
+   ],
+   "base_match": true,
+   "new_expected": [
+    "HEALTHY",
+    0,
+    0,
+    0
+   ],
+   "new_got": [
+    "BLOCKED",
+    0,
+    0,
+    0
+   ],
+   "new_storage_lines": [
+    "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs"
+   ],
+   "new_match": false
+  }
+ ],
+ "q82_runs": [
+  {
+   "receipt": "q82-base.json",
+   "counter": "score-storage-arm-r38-q82",
+   "revision": "0eff65b21bb81195ee06c96a83afbd7a07e52eef",
+   "result": "PASS",
+   "ns_views_matched": 3,
+   "views_expected": 3,
+   "ns_available": 1,
+   "exit": 0,
+   "seed": "0fd93f725aa93b92b3ce72f8aaecc51f",
+   "views": [
+    {
+     "view": 0,
+     "mode": "zero",
+     "expected": [
+      "HEALTHY",
+      3,
+      8,
+      0
+     ],
+     "got": [
+      "HEALTHY",
+      3,
+      8,
+      0
+     ],
+     "match": true
+    },
+    {
+     "view": 1,
+     "mode": "nonzero",
+     "expected": [
+      "DEGRADED",
+      3,
+      4,
+      8
+     ],
+     "got": [
+      "DEGRADED",
+      3,
+      4,
+      8
+     ],
+     "match": true
+    },
+    {
+     "view": 2,
+     "mode": "any",
+     "expected": [
+      "DEGRADED",
+      2,
+      5,
+      9
+     ],
+     "got": [
+      "DEGRADED",
+      2,
+      5,
+      9
+     ],
+     "match": true
+    }
+   ]
+  },
+  {
+   "receipt": "q82-49cc.json",
+   "counter": "score-storage-arm-r38-q82",
+   "revision": "49cc53c7b40ec2cac4bb9cd2fffcb1e1513adf82",
+   "result": "PASS",
+   "ns_views_matched": 3,
+   "views_expected": 3,
+   "ns_available": 1,
+   "exit": 0,
+   "seed": "9e2031cb12e02158d903077b0380cd32",
+   "views": [
+    {
+     "view": 0,
+     "mode": "zero",
+     "expected": [
+      "HEALTHY",
+      3,
+      6,
+      0
+     ],
+     "got": [
+      "HEALTHY",
+      3,
+      6,
+      0
+     ],
+     "match": true
+    },
+    {
+     "view": 1,
+     "mode": "nonzero",
+     "expected": [
+      "DEGRADED",
+      2,
+      4,
+      8
+     ],
+     "got": [
+      "DEGRADED",
+      2,
+      4,
+      8
+     ],
+     "match": true
+    },
+    {
+     "view": 2,
+     "mode": "any",
+     "expected": [
+      "DEGRADED",
+      2,
+      5,
+      12
+     ],
+     "got": [
+      "DEGRADED",
+      2,
+      5,
+      12
+     ],
+     "match": true
+    }
+   ]
+  },
+  {
+   "receipt": "q82-tip.json",
+   "counter": "score-storage-arm-r38-q82",
+   "revision": "2e1c2a40c13dc52e155d89e72f3fdd560db7399a",
+   "result": "PASS",
+   "ns_views_matched": 3,
+   "views_expected": 3,
+   "ns_available": 1,
+   "exit": 0,
+   "seed": "75667ab1467dde7433fc784910193562",
+   "views": [
+    {
+     "view": 0,
+     "mode": "zero",
+     "expected": [
+      "HEALTHY",
+      1,
+      3,
+      0
+     ],
+     "got": [
+      "HEALTHY",
+      1,
+      3,
+      0
+     ],
+     "match": true
+    },
+    {
+     "view": 1,
+     "mode": "nonzero",
+     "expected": [
+      "DEGRADED",
+      2,
+      5,
+      15
+     ],
+     "got": [
+      "DEGRADED",
+      2,
+      5,
+      15
+     ],
+     "match": true
+    },
+    {
+     "view": 2,
+     "mode": "any",
+     "expected": [
+      "DEGRADED",
+      3,
+      6,
+      8
+     ],
+     "got": [
+      "DEGRADED",
+      3,
+      6,
+      8
+     ],
+     "match": true
+    }
+   ]
+  }
+ ],
+ "isolation": "isolate-mount-table.txt (same absent root, four mount-table inputs, both census revisions)"
+}

@@ -1,0 +1,83 @@
+{
+ "counter": "score-storage-arm-r38-q82",
+ "revision": "394e1ba4fab39a417abe66a7802f87cf1ff8dd61",
+ "branch_tip": "394e1ba4fab39a417abe66a7802f87cf1ff8dd61",
+ "seed": "0733f8f6e6e4b40d7a14f89d284c43cf",
+ "predicate": "ns_views_matched == VIEWS and ns_available == 1",
+ "views_expected": 3,
+ "ns_views_matched": 3,
+ "ns_available": 1,
+ "result": "PASS",
+ "exit": 0,
+ "views": [
+  {
+   "view": 0,
+   "mode": "zero",
+   "expected": [
+    "HEALTHY",
+    2,
+    6,
+    0
+   ],
+   "got": [
+    "HEALTHY",
+    2,
+    6,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=2 devices=6 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 1,
+   "mode": "nonzero",
+   "expected": [
+    "DEGRADED",
+    2,
+    3,
+    5
+   ],
+   "got": [
+    "DEGRADED",
+    2,
+    3,
+    5
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=2 devices=3 nonzero=5 detail=48ecd2b9:1:write_errs=5344,48ecd2b9:1:read_errs=50327,48ecd2b9:1:corruption_errs=4419,95e80d80:4:write_errs=10160,95e80d80:4:corruption_errs=86794"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 2,
+   "mode": "any",
+   "expected": [
+    "DEGRADED",
+    2,
+    5,
+    12
+   ],
+   "got": [
+    "DEGRADED",
+    2,
+    5,
+    12
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=2 devices=5 nonzero=12 detail=4880044c:4:flush_errs=76744,4880044c:4:corruption_errs=28021,f5520c0a:1:read_errs=55123,f5520c0a:1:flush_errs=1987,f5520c0a:1:generation_errs=74408,f5520c0a:2:write_errs=96693,f5520c0a:2:read_errs=16044,f5520c0a:2:corruption_errs=4127,f5520c0a:7:write_errs=8020,f5520c0a:7:read_errs=81506,f5520c0a:7:corruption_errs=38023,f5520c0a:7:generation_errs=58315"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  }
+ ]
+}

@@ -1,0 +1,34 @@
+Seat SimplifyArm / R-4 — redundancy evidence for the 4 round-39 selftest cases
+=============================================================================
+Source: tools/tsukuroi-census.sh at 49cc53c7b40ec2cac4bb9cd2fffcb1e1513adf82 (block 1903-1914, cases 2972-2991).
+Method: one-clause mutants of the block, regenerated with mutants.py, each run as
+  bash <mutant>.sh --selftest          (hermetic: fixture tree under $TMPDIR, no host read)
+Command observed (transcript):
+  for f in m1 m2c m3c m4 m5; do out=$(bash "$S/mut/$f.sh" --selftest 2>&1); ... grep '^FAIL' ; done
+
+mutant | clause changed                                   | cases that failed (only these)        | verdict
+-------|--------------------------------------------------|---------------------------------------|---------------------------------
+m1     | whole round-39 block deleted                     | storage-hidden-absent,                | cases 1,2,3 pin the block
+       |                                                  | storage-hidden-empty,                 |
+       |                                                  | storage-mounts-unreadable   (3 FAIL)  |
+m2c    | detail token mounts:btrfs-without-sysfs -> XX     | storage-hidden-absent,                | case 1 and case 2 pin the
+       | (code only; expectation left intact)             | storage-hidden-empty        (2 FAIL)  | token on both root shapes
+m3c    | detail token mounts:unreadable -> YY              | storage-mounts-unreadable   (1 FAIL)  | case 3 is the only killer
+       | (code only; expectation left intact)             |                                       |
+m4     | guard [ "$fsn" -eq 0 ] && dropped                 | storage-mounted-populated   (1 FAIL)  | case 4 is the only killer of
+       |                                                  |                                       | "a root with fsid entries
+       |                                                  |                                       | never reads the table"
+m5     | proposed diff (mt counter removed, break added)   | none                        (0 FAIL)  | behaviour preserved
+       |                                                  |                                       |
+
+Observed selftest tallies:
+  m1   TSUKUROI_CENSUS_SELFTEST: FAIL (117 cases, 114 passed, 3 failed)
+  m2c  TSUKUROI_CENSUS_SELFTEST: FAIL (117 cases, 115 passed, 2 failed)
+  m3c  TSUKUROI_CENSUS_SELFTEST: FAIL (117 cases, 116 passed, 1 failed)
+  m4   TSUKUROI_CENSUS_SELFTEST: FAIL (117 cases, 116 passed, 1 failed)
+  m5   TSUKUROI_CENSUS_SELFTEST: PASS (117 cases, 117 passed, 0 failed)
+
+No case is redundant: each of the four is the unique killer of a distinct clause (root shape x table state).
+The round-38 case storage-absent (2913) remains the negative control for the new branch (absent root + a table
+with no btrfs mount -> HEALTHY 0/0/0); it is not the same case as storage-hidden-absent (same fixture, btrfs
+mount added, opposite expectation).

@@ -1,0 +1,71 @@
+# tsukuroi-census selftest fixture dispatcher; answers from $TSUKUROI_FIXTURE only.
+set -uo pipefail
+name=${0##*/}
+fix=${TSUKUROI_FIXTURE:-}
+[ -n "$fix" ] || { printf 'fixture dispatcher: TSUKUROI_FIXTURE unset\n' >&2; exit 97; }
+rc_of() { local f="$fix/$1.rc"; if [ -f "$f" ]; then cat "$f"; else printf 0; fi; }
+out_of() { local f="$fix/$1"; if [ -f "$f" ]; then cat "$f"; fi; }
+args="$*"
+case "$name" in
+  pacman)
+    case "${1:-}" in
+      -Q) out_of q; exit "$(rc_of q)" ;;
+      -Qq) out_of pq; exit "$(rc_of pq)" ;;
+      -Qm) out_of pm; exit "$(rc_of pm)" ;;
+      -Qkk) out_of qkk.out; exit "$(rc_of qkk)" ;;
+      -Qu) out_of qu; exit "$(rc_of qu)" ;;
+      -Sup) out_of sup; exit "$(rc_of sup)" ;;
+      -Suu) out_of suu; exit "$(rc_of suu)" ;;
+      -Sl) out_of sl; exit "$(rc_of sl)" ;;
+      *) printf 'fixture pacman: unexpected args: %s\n' "$args" >&2; exit 64 ;;
+    esac
+    ;;
+  expac)
+    case "${1:-}" in
+      -S) out_of expacsl; exit "$(rc_of expacsl)" ;;
+      *) printf 'fixture expac: unexpected args: %s\n' "$args" >&2; exit 64 ;;
+    esac
+    ;;
+  pacman-conf) out_of pconf; exit "$(rc_of pconf)" ;;
+  systemctl)
+    case "$args" in
+      *is-system-running*) out_of sysrunning; exit "$(rc_of sysrunning)" ;;
+      *is-active*) out_of boottarget; exit "$(rc_of boottarget)" ;;
+      *list-units*failed*) out_of failedunits; exit "$(rc_of failedunits)" ;;
+      *list-unit-files*) out_of timerlist; exit "$(rc_of timerlist)" ;;
+      *show*ActiveState*) out_of timeractivestate; exit "$(rc_of timeractivestate)" ;;
+      *show*Result*) out_of timerresult; exit "$(rc_of timerresult)" ;;
+      *) printf 'fixture systemctl: unexpected args: %s\n' "$args" >&2; exit 64 ;;
+    esac
+    ;;
+  dmesg)
+    case "${1:-}" in
+      --level*) out_of dmesg.out; exit "$(rc_of dmesg)" ;;
+      *) out_of dmesg-all.out; exit "$(rc_of dmesg-all)" ;;
+    esac
+    ;;
+  journalctl)
+    case "$args" in
+      *"-o short-iso-precise"*)
+        # oom watch window scans (lane S9-2; separate fixture files from the arm's -b scans)
+        case "$args" in
+          *--grep*oom_reaper*) out_of oomwin-kernel; exit "$(rc_of oomwin-kernel)" ;;
+          *--grep*"OOM killer"*) out_of oomwin-attrib; exit "$(rc_of oomwin-attrib)" ;;
+          *--grep*"status=9"*) out_of oomwin-sigkill; exit "$(rc_of oomwin-sigkill)" ;;
+          *) printf 'fixture journalctl: unexpected window args: %s\n' "$args" >&2; exit 64 ;;
+        esac
+        ;;
+      *--grep*"OOM killer"*) out_of oom-attrib.json; exit "$(rc_of oom-attrib)" ;;
+      *--grep*oom_reaper*) out_of oom-kernel.json; exit "$(rc_of oom-kernel)" ;;
+      *--grep*"status=9"*) out_of oom-sigkill.json; exit "$(rc_of oom-sigkill)" ;;
+      *"--list-boots"*) out_of listboots; exit "$(rc_of listboots)" ;;
+      *"-p err"*) out_of journal-err.json; exit "$(rc_of journal-err)" ;;
+      *"-n 1"*) out_of journal-last; exit "$(rc_of journal-last)" ;;
+      *) out_of journal-all.json; exit "$(rc_of journal-all)" ;;
+    esac
+    ;;
+  nvidia-smi) out_of smi.out; exit "$(rc_of smi)" ;;
+  lsmod) out_of lsmod; exit "$(rc_of lsmod)" ;;
+esac
+printf 'fixture dispatcher: unknown command %s\n' "$name" >&2
+exit 96

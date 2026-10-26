@@ -1,0 +1,77 @@
+lane HEAD:      394e1ba4fab39a417abe66a7802f87cf1ff8dd61
+census sha256:  e5666331caf08477d4e3a704e8349c2cd64b9f16456818fef2e9e80e82766f0d
+census commit:  49cc53c7b40ec2cac4bb9cd2fffcb1e1513adf82
+unshare:        unshare from util-linux 2.42.4
+bash:           GNU bash, version 5.3.20(1)-release (x86_64-pc-linux-gnu)
+
+===== A/P0 baseline: unshare -rm, nothing hidden =====
+ns-mounts-btrfs-lines=4
+host-sysfs-fsid=1d02a454-c549-4a35-b567-89d60902af8e features 
+STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED journal=BLOCKED update-safety=DEGRADED oom=DEGRADED)
+rc=2
+
+===== B/P1 hide /sys/fs/btrfs only (/proc intact) =====
+hide-active
+ns-mounts-btrfs-lines=4
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=HEALTHY drivers=DEGRADED journal=BLOCKED update-safety=DEGRADED oom=DEGRADED)
+
+===== C/P2 naive masked /proc (tmpfs over /proc) + hidden sysfs =====
+proc-masked
+ls: cannot access '/proc/self/mounts': No such file or directory
+census_rc=1
+out_lines=2
+storage_lines=0
+tsukuroi-census census-v2 — host=unknown — 2026-10-26T06:06:51Z — read-only
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh: line 673: /dev/fd/63: No such file or directory
+
+===== D/P2c control: naive masked /proc, sysfs VISIBLE =====
+proc-masked
+census_rc=1
+out_lines=2
+storage_lines=0
+tsukuroi-census census-v2 — host=unknown — 2026-10-26T06:06:51Z — read-only
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh: line 673: /dev/fd/63: No such file or directory
+
+===== E/P3 fresh procfs (unshare -rmpf --mount-proc) + hidden sysfs =====
+ns-mounts-btrfs-lines=4
+dev-fd-present=yes
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=BLOCKED update-safety=DEGRADED oom=DEGRADED)
+
+===== F/P5 umount /proc inside unshare -rm =====
+proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0
+umount: /proc: not mounted.
+umount_rc=32
+-r--r--r-- 1 root root 0 Oct 26 03:06 /proc/self/mounts
+
+===== G/P4 per-pid bind mask of /proc/<pid>/mounts does not reach the reader =====
+bind_rc=0
+child-sees-bytes=3377
+
+===== H/P7 masked /proc + /proc/self/fd relayed to a real procfs + hidden sysfs =====
+realproc-mounted
+real-ns-mounts-btrfs-lines=4
+sysfs-hidden
+proc-masked
+procsub-ok=n=2
+census-table-open: cat: /proc/self/mounts: No such file or directory
+cat_rc=1
+census_rc=2
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:unreadable
+TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=BLOCKED journal=BLOCKED update-safety=DEGRADED oom=DEGRADED)
+
+===== I/P8 control: same masking, sysfs VISIBLE (fsid path, table never read) =====
+STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+
+===== J/P9 masked /proc + relay + readable EMPTY /proc/self/mounts + hidden sysfs =====
+masked-table-bytes=0
+real-ns-mounts-btrfs-lines=4
+census_rc=2
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+
+===== K/P10 /proc intact, sysfs hidden, override seam points at an absent table =====
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:unreadable
+
+===== END =====

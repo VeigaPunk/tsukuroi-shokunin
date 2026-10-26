@@ -364,19 +364,22 @@
 # (round 38; superseded round 39, R38-ABSENT-ROOT): an absent root, or one holding no fsid entry,
 # reads HEALTHY 0/0/0 only when the mount table (TSUKUROI_PROC_MOUNTS, default /proc/self/mounts)
 # lists no btrfs mount; with a btrfs mount listed it is BLOCKED detail=mounts:btrfs-without-sysfs
-# (a namespace or mount that hides /sys/fs/btrfs must not read as a clean disk), and an unreadable
-# mount table is BLOCKED detail=mounts:unreadable. A root with fsid entries never reads the table.
+# (a namespace or mount that hides /sys/fs/btrfs must not read as a clean disk), and a mount table
+# that is unreadable, not a regular file (a FIFO would block) or empty is BLOCKED
+# detail=mounts:unreadable. A root with fsid entries never reads the table.
 # No privilege is needed (sysfs 0444), counters are never reset (`btrfs device stats -z` is
 # operator-owned), NVMe SMART (SH5/SH6) is not read. The line is verdict-neutral: no PLANE
 # text, rollup term or exit code changes (frozen consumers pin six PLANE lines, e.g.
-# tools/score-census-handoff-r32.py). Live mode reads sysfs only and creates no files.
+# tools/score-census-handoff-r32.py). Live mode reads sysfs (and, since round 39, the mount table
+# when the sysfs root holds no fsid) and creates no files.
 # Round-38 wave-1 hardening (same commit series, before the measured revision): a devinfo entry
 # whose name is not a decimal devid is BLOCKED as `<fsid8>:?:bad-devid` and its name is never
 # echoed (a newline in a fixture name forged extra census lines, C1SentGrammar); an existing root
 # the reader cannot list is BLOCKED `root:unreadable` instead of a silent 0/0/0 (C1RevSharedState).
-# Known limit, recorded not repaired (C1CritAbsentRoot): an ABSENT root still reads HEALTHY 0/0/0,
-# so a namespace that hides /sys/fs/btrfs while btrfs is mounted gives a false all-clear; a
-# /proc/self/mounts cross-check would change the frozen F06 reading and is next-round work.
+# Known limit at round 38 (C1CritAbsentRoot): an ABSENT root read HEALTHY 0/0/0, so a namespace that
+# hid /sys/fs/btrfs while btrfs was mounted gave a false all-clear. Repaired in round 39 by the
+# mount-table cross-check described above (R38-ABSENT-ROOT); the round-38 v1 counter's F06 fixture
+# encodes the old rule and reads BLOCKED at round-39 revisions by construction.
 #
 # Read-only guarantee: no probe writes; the gate creates no files at all in live mode
 # (selftest writes only under a mktemp dir named ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX).
@@ -1903,7 +1906,9 @@ probe_storage_arm() {
   if [ "$fsn" -eq 0 ] && [ "$blocked" -eq 0 ]; then
     # round 39 (R38-ABSENT-ROOT): no fsid under the root is "no btrfs" only if no btrfs is mounted
     local mtab mt=0 _src _mp fst _rest
-    if mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null); then
+    # round-39 W1 hardening (C1SentMounts): only a regular, non-empty file is a mount table — a FIFO
+    # would block the census forever, and an empty file or /dev/null is never a real table (/ is mounted)
+    if [ -f "$PROC_MOUNTS" ] && mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null) && [ -n "$mtab" ]; then
       while read -r _src _mp fst _rest; do
         if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
       done <<< "$mtab"
@@ -2990,6 +2995,16 @@ STUB
   st_write "$FX/btrfs/$sfs/devinfo/1/error_stats" 0 0 0 0 0; printf '%s\n' "$fxmt" > "$FX/mounts"
   check 'healthy: a root with an fsid entry is read and the mount table adds nothing (R39-C1)' 0 HEALTHY \
     '^STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0$'
+
+  case_home='storage-mounts-fifo'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  rm -f "$FX/mounts"; mkfifo "$FX/mounts"
+  check 'healthy rollup: a FIFO as the mount table is BLOCKED and never read, so it cannot hang (R39-W1 hardening)' 0 HEALTHY \
+    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:unreadable$'
+
+  case_home='storage-mounts-empty'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  : > "$FX/mounts"
+  check 'healthy rollup: an empty mount table is no table, BLOCKED not 0/0/0 (R39-W1 hardening)' 0 HEALTHY \
+    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:unreadable$'
 
   check_cli 'cli: unknown argument exits 2 with usage (S10-2)' 2 \
     '^usage: tsukuroi-census\.sh' -- --bogus

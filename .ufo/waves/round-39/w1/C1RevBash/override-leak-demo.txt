@@ -1,0 +1,14 @@
+# empty vs non-empty override, identical fixture (no btrfs sysfs dir; table without btrfs)
+# live state: /proc/self/mounts lists 4 btrfs mounts; /sys/fs/btrfs holds fsid 1d02a454-c549-4a35-b567-89d60902af8e
+
+$ TSUKUROI_BTRFS_SYSFS=$FX/no-btrfs TSUKUROI_PROC_MOUNTS= bash lane/tools/tsukuroi-census.sh | grep ^STORAGE
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+
+$ TSUKUROI_BTRFS_SYSFS=$FX/no-btrfs TSUKUROI_PROC_MOUNTS=$FX/mounts bash ... | grep ^STORAGE
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+
+$ TSUKUROI_BTRFS_SYSFS= TSUKUROI_PROC_MOUNTS=$FX/mounts bash ... | grep ^STORAGE
+STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+
+$ TSUKUROI_BTRFS_SYSFS=$FX/no-btrfs TSUKUROI_PROC_MOUNTS=$FX/mounts bash ... | grep ^STORAGE  (control, both non-empty)
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0

@@ -1,0 +1,18 @@
+== census49cc mounts=nobtrfs
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+== census49cc mounts=btrfs
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+== census49cc mounts=absent
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:unreadable
+== census49cc mounts=real(default /proc/self/mounts)
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+== censusbase mounts=nobtrfs
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+== censusbase mounts=btrfs
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+== host btrfs mounts ==
+/dev/mapper/root / btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@ 0 0
+/dev/mapper/root /home btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home 0 0
+/dev/mapper/root /var/cache/pacman/pkg btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=259,subvol=/@pkg 0 0
+/dev/mapper/root /var/log btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=258,subvol=/@log 0 0
+4

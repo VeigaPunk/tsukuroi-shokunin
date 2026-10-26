@@ -313,3 +313,7 @@ Lines 160 and 202 above call the nvidia modules "unsigned". At the round-27 capt
 ### Round-29 owed-statement marker (appended 2026-10-22)
 
 [R29-OWED-O08] verdict: corrected | original: "the loaded module is not re-identified by modinfo [unk]" | now: The round-27 capture re-identifies the loaded module: modinfo -F filename nvidia reports /lib/modules/7.2.11-arch1-1/updates/dkms/nvidia.ko.zst, version 615.78.08 and signer DKMS module signing key, so the loaded DKMS build for the running 7.2.11 kernel is named and the round-17 unknown is closed. | basis: .ufo/waves/round-27/capture/capture.txt:45 (the command `modinfo -F filename nvidia`), .ufo/waves/round-27/capture/capture.txt:49 (615.78.08), .ufo/waves/round-27/capture/capture.txt:55 (DKMS module signing key), the round-27 kernel-taint capture whose sha256 88d02d98cbb5fd4633ff83cacb2256ac57af1d740c7c57b6ac7a98fceb067841 matches `corpus/knowledge/kernel-taint-r27.json` `capture.sha256`
+
+## Round-39 correction (TO1, TO8; append-only)
+
+Round-39 correction (TO8, TO1): the `dkms install` builds of 2026-10-11 were run by the PostTransaction hook `70-dkms-install.hook` after `transaction completed` (`pacman.log` 1950, 1977-1979 of the frozen copy), not by DKMS install scriptlets; the `[ALPM-SCRIPTLET]` tag on their output marks chroot-child output, not a package scriptlet. Source: `corpus/knowledge/pacman-transaction-order-r39.md` TO1, TO8 (S216, S217).

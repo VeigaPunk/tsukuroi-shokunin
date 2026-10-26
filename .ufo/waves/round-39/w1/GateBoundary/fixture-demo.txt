@@ -1,0 +1,32 @@
+Fixture: does an honest `Scope: executed=` trailer turn check-seat-scope red when the seat
+prompt lacks EXEC-AUTHORIZED? Built in a scratch clone of the lane, never in the lane.
+
+  export TMPDIR=/fast/scratch/hyaku/tsukuroi-r39/GateBoundary
+  D=$(mktemp -d "$TMPDIR/fx.XXXXXX")
+  git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin "$D"
+  git -C "$D" remote remove origin
+  git -C "$D" rev-parse --show-toplevel   -> /fast/scratch/hyaku/tsukuroi-r39/GateBoundary/fx.VfkwUy
+  W="$D/.ufo/waves/fixture-w1"; swarm-registry.json has one member SeatA (executor, no prompt field,
+  exactly like .ufo/waves/round-39/w1/swarm-registry.json); spec.json carries the prompt.
+
+Variant 1  prompt = "Item G-6. Run tools/check-boundary-contract.py and report."
+           SeatA.md trailer = "Scope: executed=python3, git"
+  python3 "$D/tools/check-seat-scope.py" --worktree --wave .ufo/waves/fixture-w1
+  exit=1  status FAIL  counts {"SCOPE-EXEC-UNAUTHORIZED": 1, "SCOPE-REPORT-MISSING": 0,
+          "SCOPE-TRAILER-MALFORMED": 0, "SCOPE-UNDECLARED": 0}
+  finding {"detail": "declared executed=python3, git without EXEC-AUTHORIZED in the seat prompt",
+           "id": "SCOPE-EXEC-UNAUTHORIZED", "role": "executor", "site": "SeatA.md"}
+
+Variant 2  same report, prompt = "EXEC-AUTHORIZED. Item G-6. Run ..."
+  python3 "$D/tools/check-seat-scope.py" --worktree --wave .ufo/waves/fixture-w1
+  exit=0  status PASS  counts all zero, findings []
+
+Variant 3  prompt without the marker (as variant 1), SeatA.md trailer = "Scope: executed=none"
+  python3 "$D/tools/check-seat-scope.py" --worktree --wave .ufo/waves/fixture-w1
+  exit=0  status PASS  counts all zero, findings []
+
+Reading: the gate is live and behaves exactly as its docstring states. With the round-39
+wave shape (registry members carry no `prompt`; no spec.json in the wave dir; every
+w1-spec.json prompt lacks EXEC-AUTHORIZED) the only declaration that keeps the gate green
+is `none` -- including for the 36 seats whose prompts order them to run counters.
+Scratch clone removed after this receipt was copied.

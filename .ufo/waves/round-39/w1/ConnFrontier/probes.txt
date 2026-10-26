@@ -1,0 +1,32 @@
+ConnFrontier (tsukuroi round 39, item X-3) — read-only host probes, 2026-10-26
+All commands read-only; no namespace, mount, package or service mutation.
+
+$ ls -la /var/lib/btrfs/
+ls: cannot access '/var/lib/btrfs/': No such file or directory
+
+$ ls -l /sys/fs/btrfs/
+total 0
+drwxr-xr-x 7 root root 0 Oct 26 01:54 1d02a454-c549-4a35-b567-89d60902af8e
+drwxr-xr-x 2 root root 0 Oct 26 01:54 features
+
+$ systemctl list-unit-files 'btrfs-scrub*' --no-legend
+btrfs-scrub@.service static    -
+btrfs-scrub@.timer   disabled disabled
+
+$ systemctl show btrfs-scrub@-.timer -p ActiveState,UnitFileState --value
+inactive
+disabled
+
+$ grep -rn 'scrub\|smartctl\|nvme smart' tools/*.sh tools/*.py | grep -vi frozen
+(checks knowledge-entry text only: check-kernel-taint.py:46,887,900;
+check-storage-health.py:37,860,873; mutants-owed-statements-r29.py:108,124,125,259,261;
+probe-git-env-residual-r30.py:6 — no census probe arm)
+
+$ grep -n 'probe_storage_arm' tools/tsukuroi-census.sh
+1862:probe_storage_arm()
+3077:  probe_storage_arm
+
+$ grep -n 'TSUKUROI_BTRFS_SYSFS\|TSUKUROI_PROC_MOUNTS' tools/tsukuroi-census.sh
+404,405 (env seams), 459,460 (defaults /sys/fs/btrfs, /proc/self/mounts)
+2160,2161 (fixture wiring in selftest)
+2926-2992 (round-38/39 storage selftest cases)

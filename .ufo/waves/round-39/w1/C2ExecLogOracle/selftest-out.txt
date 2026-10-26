@@ -1,0 +1,8 @@
+FIXTURE self-test PASS
+  fixture: {'W_command_windows': 3, 'T_transactions_started': 2, 'R_in_commit': 1, 'R_out_commit': 2, 'S_scriptlet_lines': 4, 'S_in_commit': 1, 'S_out_commit': 3, 'D_removed_lines': 2, 'MIX_transactions_removed_and_added': [1]}
+  closers: {'transaction completed': 1, 'transaction interrupted': 1}
+MUTANT inject-running-inside : R_in 1 (base 0), S_in 189 (base 189), R total 296 (base 295)
+MUTANT flip-closers         : closers {'transaction interrupted': 60} (base {'transaction completed': 60}), S_out 252 (base 252)
+MUTANT drop-one-window      : W 85 (base 86), T 60 (base 60)
+MUTANT drop-first-closer    : unclosed 0 (base 0), R_in 13 (base 0), S_in 215 (base 189)
+SENSITIVITY PASS

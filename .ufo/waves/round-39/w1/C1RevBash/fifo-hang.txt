@@ -1,0 +1,24 @@
+# fifo at TSUKUROI_PROC_MOUNTS: the storage arm's `cat` blocks forever (no writer); the census never prints STORAGE
+
+Run (scratch seat C1RevBash, 2026-10-26):
+
+    $ TSUKUROI_BTRFS_SYSFS=<scratch>/leak-fx/no-btrfs \
+      TSUKUROI_PROC_MOUNTS=<scratch>/fifo-mounts \
+      timeout 12 bash lane/tools/tsukuroi-census.sh > fifo-out.txt 2>&1
+
+Observed: census killed by `timeout` at 12 s (rc 124). fifo-out.txt (10 lines) held all
+6 `^PLANE ` lines plus HANDOFF/DRIFT but **0** `^STORAGE` lines and **0** `^TSUKUROI_CENSUS:`
+lines (counts: storage=0 rollup=0 planes=6 total_lines=10). The storage arm sits at
+census.sh:3077, after every other plane, so the whole census hangs once it reaches
+`cat -- "$PROC_MOUNTS"` (census.sh:1906) on a fifo with no writer.
+
+Baseline: the identical census with a readable table prints the STORAGE line at ~3.4-4.1 s
+(long-table-timing.txt), so the fifo — not general slowness — is the blocker.
+
+Two earlier probe runs (5 s and 12 s windows, piped variant) showed the same: no STORAGE
+line, run killed at the window. A killed run can orphan the stuck `cat` (blocked in
+open(2)/read(2) on the fifo); it was reaped here (pgrep found no survivor afterwards).
+
+Residual risk only: reachable via the TSUKUROI_PROC_MOUNTS override (the live default
+/proc/self/mounts is a regular proc file). No current selftest case or counter leg points
+the override at a fifo.

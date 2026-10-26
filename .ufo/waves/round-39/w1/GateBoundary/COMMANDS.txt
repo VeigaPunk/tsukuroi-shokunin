@@ -1,0 +1,53 @@
+Seat GateBoundary, item G-6. All commands run from /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+(lane root). REV=2e1c2a40c13dc52e155d89e72f3fdd560db7399a (dispatch tip);
+BASE=0eff65b21bb81195ee06c96a83afbd7a07e52eef (round-39 declared base).
+Observed 2026-10-26T06:00Z-06:07Z. No tool installed or upgraded. No lane file written
+outside this seat dir and .ufo/waves/round-39/w1/GateBoundary.md. Scratch:
+/fast/scratch/hyaku/tsukuroi-r39/GateBoundary (removed after the receipts below were copied).
+
+1) --help on each tool (docstring first):
+   python3 tools/check-boundary-contract.py --help   exit 0
+   python3 tools/check-pause-gate.py --help          exit 0
+   python3 tools/check-seat-scope.py --help          exit 0
+   python3 tools/check-path-reconciliation.py --help exit 0
+   (check-seat-scope requires --wave with --revision/--worktree; without it the tool
+    emits E-CLI "invalid command line", exit 2, revision "worktree" -- observed.)
+
+2) revision runs, exit codes taken from the process (not a pipeline):
+   python3 tools/check-boundary-contract.py --revision $REV   exit 0
+   python3 tools/check-boundary-contract.py --revision $BASE  exit 0
+   python3 tools/check-pause-gate.py --revision $REV          exit 1
+   python3 tools/check-pause-gate.py --revision $BASE         exit 1
+   python3 tools/check-path-reconciliation.py --revision $REV exit 0
+   python3 tools/check-path-reconciliation.py --revision $BASE exit 0
+   python3 tools/check-seat-scope.py --revision $REV  --wave .ufo/waves/round-39/w1  exit 2
+   python3 tools/check-seat-scope.py --revision $BASE --wave .ufo/waves/round-39/w1  exit 2
+   python3 tools/check-seat-scope.py --revision $REV  --wave .ufo/waves/round-39       exit 2
+   python3 tools/check-seat-scope.py --revision $REV  --wave .ufo/waves/round-38/w1    exit 1 (control)
+
+3) worktree runs of check-seat-scope on the live round-39 wave:
+   python3 tools/check-seat-scope.py --worktree --wave .ufo/waves/round-39/w1
+     06:04Z snapshot exit 1  seats 70  MISSING 69  UNDECLARED 1  UNAUTHORIZED 0
+     06:06Z snapshot exit 1  seats 70  MISSING 57  UNDECLARED 13 UNAUTHORIZED 0
+
+4) hermetic selftests (no lane or host writes):
+   python3 tools/check-boundary-contract.py --selftest   exit 0  PASS 28/28
+   python3 tools/check-pause-gate.py --selftest          exit 0  PASS 24/24
+   python3 tools/check-seat-scope.py --selftest           exit 0  PASS 54/54
+   python3 tools/check-path-reconciliation.py --selftest exit 0  PASS 40/40
+
+5) read-only byte comparisons (git show / sha256sum):
+   tools/check-boundary-contract.py   blob 7b8e410a... base == tip
+   tools/check-pause-gate.py          blob 85cab162... base == tip
+   tools/check-seat-scope.py          blob 18e4d88f... base == tip
+   tools/check-path-reconciliation.py blob 814caa5a... base == tip
+   tools/_revision.py                 blob 24f398a6... base == tip
+   corpus/knowledge/seat-boundary-r22.json 13e78c0e... base == tip
+   corpus/knowledge/seat-boundary-r22.md   3e10843e... base == tip
+   corpus/knowledge/pause-lift-gate-r24.json 65c0adc0... base == tip
+   round-23 pins, round-24 capture, round-22 S083/S084 sources: base == tip
+   corpus/SOURCES.md base a2e3ac1d vs tip 20852343 (changed: +7/-1 rows)
+
+6) fixture demonstration of the missing EXEC-AUTHORIZED marker (scratch clone of the
+   lane under /fast/scratch, origin removed, --worktree inside the clone only):
+   see fixture-demo.txt

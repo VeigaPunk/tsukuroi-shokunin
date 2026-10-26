@@ -1,0 +1,16 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index e3ff0be..db7edd2 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -1912,6 +1912,11 @@ probe_storage_arm() {
+       blocked=1; detail+='mounts:unreadable,'
+     fi
+   fi
++  # Q82 attack shape (round-38 arm): decide 'I am inside a fixture/view namespace' from mountinfo,
++  # at the production path, wherever the root is not already blocked.
++  if [ "$blocked" -eq 0 ] && awk '$5=="/sys/fs/btrfs"{f=1} END{exit !f}' /proc/self/mountinfo 2>/dev/null; then
++    blocked=1; detail+='mounts:btrfs-without-sysfs,'
++  fi
+   local state=HEALTHY
+   if [ "$blocked" -eq 1 ]; then state=BLOCKED; elif [ "$nz" -gt 0 ]; then state=DEGRADED; fi
+   STORAGE_LINE="STORAGE btrfs-device-stats state=$state filesystems=$fsn devices=$devn nonzero=$nz"

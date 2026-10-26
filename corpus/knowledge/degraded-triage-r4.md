@@ -661,3 +661,7 @@ Record observed fields, command exits and capture time. Current pending/foreign/
 ## R24 current-use notice (2026-10-22)
 
 The historical 1password-beta downgrade-trap statements at lines 77 and 394 are superseded: the installed `8.12.42_34.BETA-1` is now behind channel `8.12.44_25.BETA-1`. Evidence: `.ufo/waves/round-24/capture/l1-4/capture.txt:40`; current update-safety reading: `corpus/knowledge/pause-lift-gate-r24.md` P1. No transaction is authorized.
+
+## Round-39 correction (TO1, TO8; append-only)
+
+Round-39 clarification (TO1, TO8): these hooks are PostTransaction hooks; they run after `transaction completed` is logged, within the same `pacman` command but not inside the logged `transaction started`…`completed` window, and none of them runs if the commit is interrupted or fails (`trans.c:230-239`, HO6); their output is logged as `[ALPM-SCRIPTLET]`. It qualifies the "in the transaction" / "in-transaction" / "in one transaction" wording above. Source: `corpus/knowledge/pacman-transaction-order-r39.md` TO1, TO8 (S216, S217).

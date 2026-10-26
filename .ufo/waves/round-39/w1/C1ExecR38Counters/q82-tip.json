@@ -1,0 +1,83 @@
+{
+ "counter": "score-storage-arm-r38-q82",
+ "revision": "2e1c2a40c13dc52e155d89e72f3fdd560db7399a",
+ "branch_tip": "394e1ba4fab39a417abe66a7802f87cf1ff8dd61",
+ "seed": "75667ab1467dde7433fc784910193562",
+ "predicate": "ns_views_matched == VIEWS and ns_available == 1",
+ "views_expected": 3,
+ "ns_views_matched": 3,
+ "ns_available": 1,
+ "result": "PASS",
+ "exit": 0,
+ "views": [
+  {
+   "view": 0,
+   "mode": "zero",
+   "expected": [
+    "HEALTHY",
+    1,
+    3,
+    0
+   ],
+   "got": [
+    "HEALTHY",
+    1,
+    3,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=3 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 1,
+   "mode": "nonzero",
+   "expected": [
+    "DEGRADED",
+    2,
+    5,
+    15
+   ],
+   "got": [
+    "DEGRADED",
+    2,
+    5,
+    15
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=2 devices=5 nonzero=15 detail=44c6310f:1:read_errs=57203,44c6310f:1:corruption_errs=45298,44c6310f:4:write_errs=88051,44c6310f:4:read_errs=25363,44c6310f:4:corruption_errs=44637,44c6310f:5:write_errs=52653,44c6310f:5:read_errs=30291,44c6310f:5:flush_errs=18482,44c6310f:5:corruption_errs=46806,5bdf5f47:1:write_errs=87029,5bdf5f47:1:read_errs=57687,5bdf5f47:1:generation_errs=71123,5bdf5f47:2:write_errs=74678,5bdf5f47:2:read_errs=23352,5bdf5f47:2:generation_errs=45098"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 2,
+   "mode": "any",
+   "expected": [
+    "DEGRADED",
+    3,
+    6,
+    8
+   ],
+   "got": [
+    "DEGRADED",
+    3,
+    6,
+    8
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=3 devices=6 nonzero=8 detail=5a8b9171:2:write_errs=98771,5a8b9171:5:flush_errs=89386,5a8b9171:5:generation_errs=47271,92eaaec5:1:write_errs=47962,92eaaec5:1:read_errs=48598,92eaaec5:4:corruption_errs=78706,92eaaec5:7:read_errs=93716,92eaaec5:7:generation_errs=15630"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  }
+ ]
+}
