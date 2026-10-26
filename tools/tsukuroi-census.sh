@@ -360,7 +360,12 @@
 # (device, counter) pairs above zero. state: BLOCKED when a filesystem has no devinfo entry or
 # an error_stats file is unreadable or malformed; else DEGRADED when nonzero > 0 (a stored
 # lifetime total, never a dated event — SH2; date it from error-level kernel lines); else
-# HEALTHY. An absent TSUKUROI_BTRFS_SYSFS means no btrfs filesystem is mounted: HEALTHY 0/0/0.
+# HEALTHY. An absent TSUKUROI_BTRFS_SYSFS means no btrfs filesystem is mounted: HEALTHY 0/0/0
+# (round 38; superseded round 39, R38-ABSENT-ROOT): an absent root, or one holding no fsid entry,
+# reads HEALTHY 0/0/0 only when the mount table (TSUKUROI_PROC_MOUNTS, default /proc/self/mounts)
+# lists no btrfs mount; with a btrfs mount listed it is BLOCKED detail=mounts:btrfs-without-sysfs
+# (a namespace or mount that hides /sys/fs/btrfs must not read as a clean disk), and an unreadable
+# mount table is BLOCKED detail=mounts:unreadable. A root with fsid entries never reads the table.
 # No privilege is needed (sysfs 0444), counters are never reset (`btrfs device stats -z` is
 # operator-owned), NVMe SMART (SH5/SH6) is not read. The line is verdict-neutral: no PLANE
 # text, rollup term or exit code changes (frozen consumers pin six PLANE lines, e.g.
@@ -397,6 +402,7 @@
 #   TSUKUROI_PACMAN_LOG TSUKUROI_OFFLINE_DB TSUKUROI_EXPAC TSUKUROI_VERCMP
 #   TSUKUROI_ETC_DIR (round 35: the pacnew/pacsave drift arm's tree; default /etc)
 #   TSUKUROI_BTRFS_SYSFS (round 38: the storage-integrity arm's sysfs root; default /sys/fs/btrfs)
+#   TSUKUROI_PROC_MOUNTS (round 39: the storage arm's mount table; default /proc/self/mounts)
 #   TSUKUROI_CHANNEL_MAX_AGE_D TSUKUROI_LOG_TAIL_N (the update-safety plane's seams). The
 #   channel stamp is the fixture db file's own mtime — settable with `touch -d` — so the
 #   stale-channel case is executed against a real probe, not asserted vacuous.
@@ -451,6 +457,7 @@ FOREIGN_BASELINE=${TSUKUROI_FOREIGN_BASELINE:-}
 PACMAN_LOG=${TSUKUROI_PACMAN_LOG:-/var/log/pacman.log}
 ETC_DIR=${TSUKUROI_ETC_DIR:-/etc}
 BTRFS_SYSFS=${TSUKUROI_BTRFS_SYSFS:-/sys/fs/btrfs}
+PROC_MOUNTS=${TSUKUROI_PROC_MOUNTS:-/proc/self/mounts}
 OFFLINE_DB=${TSUKUROI_OFFLINE_DB:-$PACMAN_DB/sync/offline.db}
 EXPAC=${TSUKUROI_EXPAC:-expac}
 VERCMP=${TSUKUROI_VERCMP:-vercmp}
@@ -1893,6 +1900,18 @@ probe_storage_arm() {
       if [ "$nd" -eq 0 ]; then blocked=1; detail+="$fs8:-:no-devinfo,"; fi
     done
   fi
+  if [ "$fsn" -eq 0 ] && [ "$blocked" -eq 0 ]; then
+    # round 39 (R38-ABSENT-ROOT): no fsid under the root is "no btrfs" only if no btrfs is mounted
+    local mtab mt=0 _src _mp fst _rest
+    if mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null); then
+      while read -r _src _mp fst _rest; do
+        if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
+      done <<< "$mtab"
+      if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi
+    else
+      blocked=1; detail+='mounts:unreadable,'
+    fi
+  fi
   local state=HEALTHY
   if [ "$blocked" -eq 1 ]; then state=BLOCKED; elif [ "$nz" -gt 0 ]; then state=DEGRADED; fi
   STORAGE_LINE="STORAGE btrfs-device-stats state=$state filesystems=$fsn devices=$devn nonzero=$nz"
@@ -2007,6 +2026,8 @@ STUB
     : > "$d/pm"
     : > "$d/fbase"
     : > "$d/pconf"
+    # round 39: the storage arm's mount table; no btrfs mount, so an absent sysfs root stays 0/0/0
+    printf 'proc /proc proc rw,nosuid 0 0\n/dev/fx0 / ext4 rw,relatime 0 0\n' > "$d/mounts"
     # update-safety plane fixture (S9-1): a fresh 2-db channel, an empty candidate set at the
     # real `-Qu` rc (1 = none), the plan verbs empty, the joined sources agreeing, and a
     # bounded log window holding one non-refresh command.
@@ -2137,6 +2158,7 @@ STUB
       TSUKUROI_PACMAN_LOG="$FX/pacman.log" \
       TSUKUROI_ETC_DIR="$FX/etc" \
       TSUKUROI_BTRFS_SYSFS="$FX/btrfs" \
+      TSUKUROI_PROC_MOUNTS="$FX/mounts" \
       TSUKUROI_EXPAC="$bin/expac" \
       "${EXTRA_ENV[@]}" \
       "$BASH" "$SELF" 2>&1)
@@ -2946,6 +2968,28 @@ STUB
   check 'healthy rollup: an unlistable btrfs sysfs root is BLOCKED, never a silent 0/0/0 (R38-W1 hardening)' 0 HEALTHY \
     '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=root:unreadable$'
   chmod 755 "$FX/btrfs"
+
+  # ---- round 39 (C1, R38-ABSENT-ROOT): the mount table guards an absent or empty root --------
+  local fxmt='/dev/mapper/root / btrfs rw,noatime,subvolid=256,subvol=/@ 0 0'
+  case_home='storage-hidden-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'proc /proc proc rw 0 0\n%s\n' "$fxmt" > "$FX/mounts"
+  check 'healthy rollup: btrfs mounted with no sysfs root is BLOCKED, never 0/0/0 (R39-C1)' 0 HEALTHY \
+    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs$'
+
+  case_home='storage-hidden-empty'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  mkdir -p "$FX/btrfs/features"; printf '%s\n' "$fxmt" > "$FX/mounts"
+  check 'healthy rollup: btrfs mounted with a root holding no fsid is BLOCKED (R39-C1)' 0 HEALTHY \
+    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs$'
+
+  case_home='storage-mounts-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  rm -f "$FX/mounts"
+  check 'healthy rollup: an unreadable mount table with no sysfs root is BLOCKED (R39-C1)' 0 HEALTHY \
+    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:unreadable$'
+
+  case_home='storage-mounted-populated'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  st_write "$FX/btrfs/$sfs/devinfo/1/error_stats" 0 0 0 0 0; printf '%s\n' "$fxmt" > "$FX/mounts"
+  check 'healthy: a root with an fsid entry is read and the mount table adds nothing (R39-C1)' 0 HEALTHY \
+    '^STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0$'
 
   check_cli 'cli: unknown argument exits 2 with usage (S10-2)' 2 \
     '^usage: tsukuroi-census\.sh' -- --bogus
