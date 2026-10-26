@@ -2644,3 +2644,41 @@ Each count is re-derived from the committed lane tree at the round-42 outcome co
   `btrfs-scrub-record-r42.md` as new rows with counted reads (or a scrub-record census arm as Frontier→Core,
   `w2/ConnRound43.md`), with the C2 binding anchored to the first line (QUALITY 90).
 - **retired:** none.
+
+## Round 43 — declaration (2026-10-26, base `6951ead90566b2d74f7c45b4efca29246badad64`, before any seat)
+
+Round 42 was closed `rejected-honest-stop` (`corpus/lessons/round-42-verifier-spotcheck.md` §3: C1 verified, C2's
+declared kill rule fired on SC1/SC3). The base is the lane tip at round start as `jj-lane.sh state` printed it
+(`local=6951ead9…`, which carries that spot-check). This round takes the planned row's items (1, narrowed) and (2):
+C1 fixes the routed boot-chain fail-open (R42-C1-COUNTER-AMEND item 5), C2 re-grounds the withdrawn SC1/SC3 text
+(R42-C2-REGROUND) with the anchored verdict binding (R42-VERDICT-FORM, QUALITY 90). Ordinals at base: depth 8,
+coverage 9, operability 9, freshness 9, calibration 9, adjacency 8; depth and adjacency are tied lowest; C2 works
+depth; adjacency stays unclaimed (a recipient action is not lane-producible) and must not be harmed. Saturation 9 /
+window 3 unchanged. The commit time of this section is its authority (R40-HEADING-TIMES).
+
+| Claim | Axis | Surface moved | Counter (frozen; sha256) | Before at base (expected) | Target (predicate) | Kill rule |
+|---|---|---|---|---|---|---|
+| C1 | operability | `tools/boot-chain-audit.sh` `boot_inputs_newer` (base :480-487): `find <8 start points> -newermt @btime -print -quit 2>/dev/null \| grep -q .` under `set -uo pipefail` (:139) reads "no input newer" whenever find exits 1 (a missing start point or an unreadable directory listed before the match), so the BOOTED-OBSERVED gate (`newer = 0`) passes while an input IS newer. The fix decides on find's output (new helper `inputs_newer_than`), plus three `R43-C1` selftest cases (45 → 48) | `python3 tools/score-bootinputs-r43.py --revision <REV> --scratch <DIR>` (sha256 `886f92c8cd58e52e4e74f4df81708f243b77e9d33de567b47371f21419b3e10f`): 16 production-path cases in a private user+mount namespace at the caller's uid/gid (subuid map + `setpriv`, QUALITY 85/90), values drawn per run; a live leg against an independent walk; the script's own selftest | FAIL: `correct` < 16 (the masked cases read 0), `selftest_r43 0` | **PASS iff cases == 16 and correct == 16 and identity_ok == 1 and live_agree == 1 and selftest_pass == 1 and selftest_r43 >= 2** at the measured revision | a census-plane or other function body of `boot-chain-audit.sh` changes outside `inputs_newer_than`, `boot_inputs_newer` and `run_selftest`; or the round-42 C1 counter / census selftest regresses at the measured revision |
+| C2 | depth (sourced: S240 opened this round) | `corpus/knowledge/btrfs-scrub-record-r43.md` rows SR1 (write discipline: `_tmp` opened `O_WRONLY\|O_CREAT` without `O_TRUNC`, renamed only after a successful write, never unlinked), SR3 (resume carries the interrupted record's counters and `t_start` through `scrub_resumed_stats`; later recording failures print only under `do_print`/`-B` and do not assign `err`), SR6 (running state only from `BTRFS_IOC_SCRUB_PROGRESS`, which returns EPERM without `CAP_SYS_ADMIN`: an unprivileged status never reads `running`), on S237 (round-42 scrub.c snapshot, re-opened), S240 (Linux v7.2.11 `fs/btrfs/ioctl.c`, new) and S241 (own-work host capture, new); plus a header pointer in the round-42 entry | `python3 tools/check-scrub-record-r43.py --revision <REV>` (sha256 `b4602c566b4f39277e068d27ad10ad0ec361ed7e81a938831cec72631e319854`): quotes on named lines of digest-pinned snapshots with id↔file match and windows; proposition tokens in the statement cell; host lines; registry; novelty outside the round-42 uncounted corrections; pointer; per row two counted wave-2 seats (`C2RevSR<n>` reviewer, `C2CritSR<n>` critic) bound through `w2-dispatch.json` + `w2-results.json` (declared verdict line = JSON `verdict_line` field, else the output's first non-empty line) and the committed report's first line | FAIL: `rows 0` | **PASS iff rows == 3 and quotes_ok == 3 and props_ok == 3 and host_ok == 3 and sources_ok == 1 and verdicts_ok == 3 and novelty_base_hits == 0 and pointer_ok == 1** at the measured revision | any bound `fails`; a `partly` without a bound residual `C2ResSR<n>` reading `holds`; an unbound counted seat |
+
+C2's lexical checks are shape gates, declared as such (control C2-K1, a scripted writer, passes every lexical
+conjunct; only the bound verdicts read the rows). The committed-bytes predicate cannot tell forged orchestrator
+records from real ones (control C2-K3 passes it); `transcripts_bound` is reported outside the predicate. C1's
+namespace legs leave the mount-table, uid_map and script-path channels open (QUALITY 90 "named open"); control C1-K7
+(a fix gated on tmpfs at /etc in the mount table) passes and is recorded as that limit.
+
+Pre-data controls (scored with the frozen counters before any seat; scripts
+`.ufo/waves/round-43/controls/run_controls_c1.py` sha256 `8eb691711eefda48c3e557c06ac4b156299e2829e2688a893b84ad7b4a131493`
+and `run_controls_c2.py` sha256 `7564862737a027b5efa31e849fd73bc7b543ade1968744d401bb10e723f4184f`; candidate bytes
+`controls/candidate-boot-chain-audit.sh` sha256 `3e5c876389985aa5168c7116db5ea808fa0d7d697a1d66b7fcf850efd60dfd74` and
+`controls/c2-candidate/`): C1 — K0 do-nothing, K1 constant 1, K2 /etc start points dropped, K3 uid-gated, K4
+env-gated, K5 name-gated (/etc/crypttab), K6 `-maxdepth 0`, K10 missing-point pre-filter (an unreadable directory
+still masks): each must FAIL; K8 candidate and K9 `{ find … || true; } | grep -q .` must PASS; K7 mount-gated recorded.
+C2 — K0 do-nothing, K1 scripted writer + planted reports, K2 K1 + results without dispatch, K4 one `fails`, K5 one
+`partly` without residual, K6 mention-not-assertion, K7 content-free statements, K8 SR6 without the S240 quotes, K9 a
+quote line shifted, K10 id↔file mismatch, K11 no pointer, K12 S240 `queued`, K13 report first line differs: each must
+FAIL; K3 forged records must PASS (recorded limit). Battery lines: C1 `should_fail_accepted 0, control_accepted 1`;
+C2 `should_fail_accepted 0, control_accepted 1` (`controls/battery-summary-c1.jsonl`, `battery-summary-c2.jsonl`).
+
+Causal separability: C1 touches `tools/boot-chain-audit.sh` only; C2 touches the r43 entry, the r42 entry's header
+line, `corpus/SOURCES.md` and frozen snapshots. Neither counter reads the other's surface.
