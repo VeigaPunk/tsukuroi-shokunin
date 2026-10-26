@@ -1,0 +1,12 @@
+# Round-42 C1 fix shown able to fail (CORPUS.md 'A fix is shown able to fail'), L1 TsukuroiR42, 2026-10-26T19:32:12Z
+# hybrid = implementation census with probe_packages() and probe_update_safety() bodies replaced by the base c8efaa3f bodies (python re '^name() {' .. '^}'); the selftest (run_selftest) is the implementation's
+# sha256 implementation census: 46d62a24709ece8efbcd231f4c269bd5b3791237e3c78ac7433fb0115494f1b1
+# sha256 hybrid census:         a8fbfd516bf3a64d592a2c912f24a90e8f91a2b689783afa64aa1797a5a7814c
+$ TMPDIR=<scratch> bash hybrid-census.sh --selftest   (exit 1)
+FAIL blocked: a sample error ahead of a large -Qkk output still blocks (R42-C1): exit 0 wanted 2; output: STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0|TSUKUROI_CENSUS: HEALTHY (packages=HEALTHY systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=HEALTHY oom=HEALTHY)
+FAIL degraded: 4002 update candidates keep the names and the trap row (R42-C1): exit 141 wanted 1; output: tsukuroi-census census-v2 — host=fixture-host — 2026-10-26T19:31:38Z — read-only
+TSUKUROI_CENSUS_SELFTEST: FAIL (130 cases, 128 passed, 2 failed)
+$ TMPDIR=<scratch> bash tools/tsukuroi-census.sh --selftest   (implementation; exit 0)
+PASS blocked: a sample error ahead of a large -Qkk output still blocks (R42-C1) (exit 2, BLOCKED)
+PASS degraded: 4002 update candidates keep the names and the trap row (R42-C1) (exit 1, DEGRADED)
+TSUKUROI_CENSUS_SELFTEST: PASS (130 cases, 130 passed, 0 failed)
