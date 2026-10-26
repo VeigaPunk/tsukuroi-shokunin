@@ -2287,3 +2287,35 @@ Each count is re-derived from the committed lane tree at the round-39 LOG/SCOREC
   (`NeedsTargets` on stdin, `.pacnew` trigger target, scriptlet cwd, interpreter) on new rows from S219; for C1, mount-table
   fixtures that vary device, subvolume and option literals (QUALITY 87 b); adjacency (tied lowest with depth at 8).
 - **retired:** none.
+
+## Round 40 — declaration (2026-10-26, base `53b294a274656be6479aadf2ec2fee890ded77ce`, before any seat)
+
+Round 39 was admitted (`corpus/lessons/round-39-verifier-spotcheck.md` §4). This round takes the planned row: the two
+counter defects that closure routed (§6.1 R39-CONTENT-UNREAD, §6.2 R39-FIXTURE-MONOCULTURE), the residual staged
+propositions on new rows from S219, and no adjacency claim (a sibling acknowledgement cannot be produced by this lane;
+adjacency stays unclaimed and is not harmed). Lowest non-retired axes: depth 8 and adjacency 8 (tied); C2 works depth.
+Saturation 9 / window 3 unchanged. Counters, pinned sources, the host capture and the two registry rows landed first in
+freeze commit `a447b67b2502bae1e96fda341ae5ad32243ae524`. Every timestamp in this section is the time it was written;
+the commit time is the authority (round-39 routed defect §6.3).
+
+| Claim | Axis | Surface moved | Counter (frozen; sha256) | Before at base | Target (predicate) | Kill rule |
+|---|---|---|---|---|---|---|
+| C1 | operability | The census `--selftest` (`tools/tsukuroi-census.sh` `run_selftest`, not `probe_storage_arm`) gains mount-table fixtures that vary device, mountpoint, options, subvolume, line position and fstype case, plus an unlistable root with btrfs mounted, so the literal-keyed and guard arms of the round-39 STORAGE cross-check fail it | `python3 tools/score-selftest-literals-r40.py --revision <REV> --scratch <DIR>` (sha256 `8b06de18ca7eec1d928a0dfac8ca6930bf808bfd1f4250374ec300640f2f0159`): nine frozen mutants M1–M9 (round-39 VA, VB, VC, VG, MutParse (a), (b), MutCrossCheck (e), plus `subvol=/@`-keyed and last-line-only), three neutral rewrites, self-reference guard | `baseline_pass 1, neutral_pass 3, mutants_applied 9, survivors 9, selfref 5`, FAIL exit 1 (`.ufo/waves/round-40/controls/controls.jsonl` C1-K0) | `baseline_pass == 1 and neutral_pass == 3 and mutants_applied == 9 and survivors == 0 and selfref == 5` | any surviving mutant, a failing neutral rewrite or baseline, an unappliable mutant (the arm itself changed), or `selfref != 5` at the measured revision; a held-out literal-keyed mutant that a wave seat writes and the selftest lets through is reported as a counter-sufficiency defect, not a kill |
+| C2 | depth (sourced) | Update-safety plane: what a hook command or install scriptlet finds when it starts (pacman 54d9411 as built by Arch 7.1.0.r9.g54d9411-3) — EX1 working directory `/`, EX2 merged stdout/stderr and stdin end-of-file, EX3 `SHLVL`/`BASH_ENV`/umask 0022, EX4 scriptlet shell `/usr/bin/bash` (upstream default `/bin/sh`), EX5 `tmp/alpm_XXXXXX/.INSTALL` staging, EX6 `NeedsTargets` stdin sorted and de-duplicated, EX7 `running` logged before `Depends` is checked, EX8 `Path` triggers on file-list names (NoExtract skipped, NoUpgrade ignored) — in `corpus/knowledge/pacman-exec-environment-r40.md` on rows S219–S225 opened this round | `python3 tools/check-exec-environment-r40.py --revision <REV>` (sha256 `d4a2bb94f95184a87c582ddd7c8e55905390642cd4496aaebefa82b10ebb7d9d`); reads the RULE cell (source-derived value, frozen proposition tokens, negation words, paraphrase) — QUALITY 87 | entry absent, `rules_verified 0, source_ok 0, counts_ok 0, novelty_base_hits 0`, FAIL exit 1 (controls C2-K0) | `rules_verified == 8 and duplicate_rows == 0 and duplicate_headings == 0 and source_ok == 1 and counts_ok == 2 and novelty_base_hits == 0` | any EX row judged `fails` against its pinned source lines by a wave reviewer (with lines), or an Arch packaging patch shown to change a cited line, or the predicate FAIL at the measured revision |
+
+Controls, scored with the frozen counters before any seat (`.ufo/waves/round-40/controls/controls.jsonl`, script
+`run_controls.py`, scratch clones with origin removed; candidate files digested in `candidate-sha256.txt`):
+C2 do-nothing (base) FAIL; X-empty (rule cells `RULE NOT SUPPLIED`, source/value/host kept) 0/8 FAIL; X-false by
+negation 0/8 FAIL; X-false by wrong values 0/8 FAIL; own-work-only sources 0/8 FAIL; rows re-pointed to the held rows
+S208/S216/S217 0/8 FAIL; scripted writer (quote copied as the rule plus every frozen token) 0/8 FAIL; rules block
+duplicated FAIL; candidate PASS. C1 do-nothing (base) survivors 9 FAIL; five added cases of the one round-39 literal
+shape (QUALITY 87 b) survivors 9 FAIL; self-reading selftest FAIL (selfref 6, and its own baseline fails — this arm does
+not isolate the self-reference guard; recorded, a wave item attacks it); arm rewritten instead of the selftest
+(mutants unappliable 2/9) FAIL; candidate PASS. No control meets either target.
+
+Equivalent mutant, excluded and named in the counter: guard `$fsn` → `$devn` (round-39 MutCrossCheck (d)); `devn > 0`
+implies `fsn > 0`, and `fsn > 0` with `devn == 0` sets `blocked=1` (no-devinfo) before the guard.
+
+Causal separability: C1 touches only `run_selftest` in `tools/tsukuroi-census.sh`; C2 touches a new knowledge entry
+and `corpus/SOURCES.md`; neither counter reads the other's surface. Sourced claim: C2 (S219–S225 opened this round).
+Measured revision: the lane branch tip named in the round-40 outcome section.
