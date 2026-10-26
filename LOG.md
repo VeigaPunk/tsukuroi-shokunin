@@ -1584,3 +1584,30 @@ PKGBUILD.5) and now carry notes (considerthese 2026-10-26 "Downstream patch-offs
 moved mori's `PROVINCE.md:287` pin (reported in the round report, not absorbed). Landed: `a84fc9de` freeze;
 `44766208` C1; `f50c28d8` C2 draft; `87c4f7c6` controls; `78abb8b5` w1 integration; `a968393c` w2 dispatch;
 `342d1049` w2 evidence; this entry with the outcome, corrections, lesson and QUALITY 90/91.
+
+## Round 43 — hyaku run 9 (stamp: the commit that lands this entry)
+
+Motivating evidence: the round-42 closure (`corpus/lessons/round-42-verifier-spotcheck.md` §6) routed R42-C2-REGROUND
+(SC1/SC3 of `btrfs-scrub-record-r42.md` withdrawn, no pointer a header sweep reads), R42-CAP-HEADER-DUP,
+R42-ADJ-TAMESHI-UNREPORTED, R42-C1-COUNTER-AMEND (incl. the `tools/boot-chain-audit.sh` `find -quit | grep -q`
+fail-open under pipefail) and R42-VERDICT-FORM. Claims (base `6951ead9` = `jj-lane.sh state` local at start; frozen
+and declared `fe357001`): C1 operability — `boot_inputs_newer` decides on find's output (helper `inputs_newer_than`),
+scored by 16 production-path namespace cases at the caller's uid/gid, a live leg and the selftest; C2 depth (sourced,
+S240 new) — `corpus/knowledge/btrfs-scrub-record-r43.md` SR1/SR3/SR6 on S237/S240/S241 with an anchored verdict
+binding. Controls before any seat (`.ufo/waves/round-43/controls/`): C1 K0-K6, K10 FAIL, K8/K9 PASS, K7 (mount-gated)
+PASS recorded; C2 K0-K2, K4-K13 FAIL, K3 (forged records) PASS recorded; `should_fail_accepted 0` both. Waves: `w1` 44
+seats, `w2` 34, residual 2; total 80; no dead seat. Measured at `c3954913`: C1 correct 8 → 16, selftest 45 → 49, PASS;
+C2 rows 0 → 3, PASS (SR1 holds/holds, SR3 holds/partly + residual holds after the skip-condition narrowing, SR6
+holds/holds). Wave findings integrated: three SR1, three SR3 and three SR6 narrowings, each checked against its source
+line (lesson Entry gate); a wave-1 claim that the record writer never emits the device id rejected (scrub.c:782-792,
+harness round-trip); a drop-`2>/dev/null` mutant that survived the selftest killed by a fourth case; the round43
+registry table (two new counters; REGISTRY-ROW-AMBIGUOUS fixed); PROVINCE's round-42 overreach on reading the record
+unprivileged corrected; considerthese 2026-10-26 "Cross-note correction propagation map" built and its dependents
+pointed; QUALITY 92 (R43-CAP-HEADER-DUP). Re-verification of predecessor pins: S237 re-fetched byte-identical, S240
+from kernel.org and the GitHub stable mirror byte-identical, the Arch 7.2.11-arch1 patch touches no `fs/` file; the
+round-42 C1 counter and census selftest (132) still PASS. Adjacency: no live sibling pin moved; the tameshi
+`service-optin-protocol.md:153` pin's true referent is the census round-5 block at `:2425-2480` (dead since round 6+),
+mori's `PROVINCE.md:287` referents at `:455`, `:1103-1118`, `:1200-1207` (report handoffs, not absorbed). Landed:
+`fe357001` freeze; `717b716a` C1 + C2 draft; `7d0ed1c2` w1 dispatch; `9b974f2a` w1 integration; `8acf0b02` registry
+fix; `64646d6e` w2 dispatch; `5647d4ff` w2 integration; `d950df34` residual dispatch; `c3954913` residual records and
+QUALITY 92; this entry with the outcome, axes and capabilities tables.

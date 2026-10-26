@@ -2682,3 +2682,63 @@ C2 `should_fail_accepted 0, control_accepted 1` (`controls/battery-summary-c1.js
 
 Causal separability: C1 touches `tools/boot-chain-audit.sh` only; C2 touches the r43 entry, the r42 entry's header
 line, `corpus/SOURCES.md` and frozen snapshots. Neither counter reads the other's surface.
+
+## Round 43 — measured outcome (2026-10-26, author-side; non-author closure pending)
+
+Every claim receipt is a `tools/run-receipt.py` receipt (header: revision, tool, tool_sha256, tool_revision
+`fe357001`). Waves: `w1` 44 seats (build + first falsifiers), `w2` 34 seats (falsify, six counted C2 reads), one residual
+call of 2 reviewer seats (the counted residual read `C2ResSR3` and a fix re-check); round total 80 seats, every seat
+settled with a report (`w1-results.json`, `w2-results.json`, `residual-results.json`); no dead seat. Measured revision:
+`c3954913f6b376b4f9ff3d596f1eaefc6846e937` (the commit carrying the residual records).
+
+| Claim | Axis | Before (base `6951ead9`) | After (`c3954913`) | Kill rules | Author verdict | Ordinal |
+|---|---|---|---|---|---|---|
+| C1 boot-input freshness under pipefail | operability | FAIL: `cases 16, correct 8` (the six `miss/etc/*-newer`, `multi-miss-deep-modules-newer`, `unreadable-dir-modules-newer` read 0), `selftest_r43 0`, selftest `PASS total=45` (`before/c1-before.jsonl`) | PASS: `cases 16, correct 16, identity_ok 1, live_agree 1, selftest_pass 1, selftest_r43 4`, selftest `PASS total=49 failed=0` (`after/c1-after-c395491.jsonl`); also PASS at `717b716a` (`after/c1-after-717b716.jsonl`, 48 cases) and three times at `8acf0b02` (`w2/C1FinalRerun.md`) | none fired: only `inputs_newer_than` (new), `boot_inputs_newer`, `run_selftest` change (`w2/C1FinalKillRule.md` per-function sha256); the round-42 C1 counter PASSes and the census selftest prints `PASS (132 cases, 132 passed, 0 failed)` at `8acf0b02`, census bytes unchanged since the base | **verified under the frozen predicate** | 9 → 9 |
+| C2 scrub record re-grounded SR1, SR3, SR6 | depth (sourced: S240 opened this round; S237, S241) | FAIL: `rows 0` (`before/c2-before.jsonl`) | PASS: `rows 3, quotes_ok 3, props_ok 3, host_ok 3, sources_ok 1, verdicts_ok 3, novelty_base_hits 0, pointer_ok 1` (`after/c2-after-c395491.jsonl`); bound verdicts SR1 holds/holds, SR3 holds/partly + residual `C2ResSR3` holds, SR6 holds/holds; `transcripts_bound 7` of 7 when run with the host session dir (`after/c2-after-c395491-direct.json`; 0 under run-receipt's private HOME) | none fired: no bound `fails`; the one `partly` (SR3 skip condition, `w2/C2CritSR3.md` item 6) was narrowed against scrub.c:1430-1437 and re-read `holds` by the bound residual; no unbound counted seat; the six outputs carry no second verdict line (L1 audit, lesson Entry gate) | **verified under the frozen predicate** | 8 → 8 |
+
+No count-to-ordinal scale exists (round-12 note); both claims move their axis without an ordinal change. Causal
+separability: `w2/CritSeparabilityFinal.md` (each counter scored on the other claim's partial tree). No-harm:
+`w2/CritNoHarmFinal.md` (no deleted file; SCORECARD, PROVINCE, README, SOURCES changes append-only or used-by only;
+the round-42 entry gains one header line), `w2/RegistryFinal.md` (registry 68/68 PASS after the round43 table), sources
+census exit 0 (`w2/SourcesCensusFinal.md`). Recorded limits (not claimed): C1's namespace legs leave the mount-table,
+uid_map, script-path and cwd channels open (K7 PASS), and the counter does not exercise the empty-btime branch, a widened
+comparison or every start point's membership (`w1/C1MutFix.md`, `w2/C1MutFinal.md`); C2's binding accepts a padded or
+blank-line-prefixed verdict line and ignores a JSON `verdict` field beside `verdict_line` (`w1/C2MutBinding.md`), and its
+lexical checks are shape gates. considerthese: "Cross-note correction propagation map" (2026-10-26) built for the
+round-42 corrections and closed by append-only pointers. Assimilation: none (evaluated, `w1/AsmGate.md`). Routed
+defects: R42-C2-REGROUND, R42-CAP-HEADER-DUP, R42-ADJ-TAMESHI-UNREPORTED (report handoff), R42-VERDICT-FORM done;
+R42-C1-COUNTER-AMEND done for the boot-chain fail-open and the counter items, the census `:743` case and single-line
+readers routed on (lesson). The C1 row of the declaration names three `R43-C1` selftest cases (45 → 48); the
+integration added a fourth (`R43-C1-missing-start-point-silent`, 49) after wave 1 (`w2/CritCalibration.md`).
+
+## Axes — current self-assessment (round 43 final measured surface)
+
+Each count is re-derived from the committed lane tree at the round-43 outcome commit (the commit that lands this table); ordinals unchanged.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 64 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); `SKILL.md` 4112 `wc -l` / 1067 table lines (`grep -c '^|' SKILL.md`); `corpus/lessons/` 62 files (`find corpus/lessons -type f | wc -l`); round-43 C2 verified (SR1, SR3, SR6 bound holds; SR3 through the residual); no ordinal move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged |
+| coverage | 9 | `corpus/README.md` 425 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus the verdict-neutral STORAGE line; the scrub record stays Frontier (round 43 re-grounds it from source, no Frontier move). | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (132 cases, 132 passed, 0 failed); `bash tools/boot-chain-audit.sh --selftest` prints `PASS total=49 failed=0`; round-43 C1 verified (boot-input freshness decides on find's output); `--identity` not landed. | round 11 (terminal closeout); unchanged |
+| freshness | 9 | Each round record re-ran predecessor pins; round 43 re-fetched S237 and S240 byte-identical (`w1/C2ExecLiveSources.md`, `w2/SrcReopenS237.md`, `w2/SrcReopenS240.md`), re-ran the S241 capture (`w2/SrcReopenS241.md`) and checked the Arch kernel patch set (no `fs/` file). | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <REV>` checks 27 fixed checks; mismatches 0 required at the round-43 outcome commit. | round 10; unchanged |
+| adjacency | 8 | formal overlap table present (finding-to-owner ADJ-01..07) and portable OUT-001..010 anchors remain; round 43 moved no live sibling pin (four frozen sibling records pin `boot-chain-audit.sh` lines, reported, `w2/AdjFinal.md`) and restates the round-42 tameshi and mori handoffs; recipient acknowledgement and independent replay are unverified. | fleet round 1; unchanged |
+
+## Capabilities — current full evidence set (round 43)
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates opened tier-scoped sources with anchors, rejections, paths, search log and unopened leads | `corpus/SOURCES.md`; `.ufo/evidence/round-1-kaika/after.md` | fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT and STORAGE lines; selftest prints PASS (132 cases, 132 passed, 0 failed) | `tools/tsukuroi-census.sh`; `.ufo/evidence/round-1-kaika/scout-live.md`; `.ufo/evidence/round-1-kaika/after.md` | lane r2; demonstrated fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
+| boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict; since round 43 its boot-input freshness check decides on find's output, so a missing start point or unreadable directory no longer opens the BOOTED-OBSERVED gate | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt`; `.ufo/waves/round-43/after/c1-after-c395491.jsonl` | round 17 |
+| storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line (HEALTHY/DEGRADED/BLOCKED with nonzero pairs and reason tokens), demonstrated on fixtures, the live host and production-path namespace views; since round 39 an absent or empty root is cross-checked against the mount table, since round 40 its selftest varies the mount-table literals, since round 41 four held-out table shapes | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-39/after/c1-final-a2d7aad.jsonl`; `.ufo/waves/round-40/after/c1-final-aad0113.jsonl`; `.ufo/waves/round-41/after/c1-after-568c397.jsonl` | round 38 |
+
+One header row (R43-CAP-HEADER-DUP; QUALITY 92): `awk '/^## Capabilities — current full evidence set \(round 43\)/{f=1;next} /^## /{f=0} f&&/^\| Capability \|/{n++} END{print n+0}' SCORECARD.md` prints 1.
+
+- **planned (next round):** (1) coverage — a verdict-neutral scrub-record census arm for the unprivileged-readable
+  subset (directory, file stat, `scrub_speed_max`; never the running state, SR6) as Frontier → Core;
+  (2) depth — the ioctl success direction (`btrfs_scrub_progress`, Linux `fs/btrfs/scrub.c`) as a sourced row;
+  (3) operability — the routed census items (`:746` lookup selftest case past the pipe buffer, the five single-line
+  probe readers). Draft text: `.ufo/waves/round-43/w2/ConnRound44.md`.
+- **retired:** none.

@@ -114,8 +114,8 @@ Pending the non-author closure. Candidates below.
    there (a header-reading sweep sees it; counter conjunct `pointer_ok`).
 2. **R42-CAP-HEADER-DUP** — the round-43 capabilities table has one header row (Mistakes row above).
 3. **R42-ADJ-TAMESHI-UNREPORTED** — the round-43 report carries the tameshi handoff and restates mori's with named
-   referents (`w1/AdjPins.md` §3-4). New: the tameshi pin's text means the round-5 selftest block, which is at census
-   `:2425-2430` at the tip, not `:921-976` (the round-42 handoff's arithmetic was right, its referent wrong).
+   referents (`w1/AdjPins.md` §3-4). New: the tameshi pin's text means the round-5 selftest block, which starts at census
+   `:2425` at the tip (a 56-line block, `w2/AdjFinal.md`), not `:921-976` (the round-42 handoff's arithmetic was right, its referent wrong).
 4. **R42-C1-COUNTER-AMEND** — done: the boot-chain fail-open (C1), a counter that refuses to run without `--scratch`,
    cleans on SIGINT/SIGTERM, runs production-identity legs (uid/gid via subuid map + `setpriv`) with values drawn per
    run, and frozen gated controls (K3 uid, K4 env, K5 name). Not done, with reason: the census `:743` lookup's selftest
