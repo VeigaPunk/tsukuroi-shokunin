@@ -1453,3 +1453,25 @@ pins: storage-health SH1 live counters re-read (all 0, `w1/C1ExecLiveSurface.md`
 `02eeed07` hardening and IN-109 re-pin; `b0005ae9` integration (SKILL, PROVINCE, README, QUALITY 83–84,
 knowledge corrections, lesson, wave evidence); this entry with the SCORECARD outcome. Counter defects found by the
 wave and not repaired in-round: v1 fixture-gateable (closed by Q82), Q82 leak-beatable (`w1/Q82Attack.md`).
+
+## Round 39 — hyaku run 8, 2026-10-26T07:45Z
+
+Motivating evidence: the round-38 closure (`corpus/lessons/round-38-verifier-spotcheck.md` §6) routed R38-ABSENT-ROOT (an
+absent `/sys/fs/btrfs` read `HEALTHY 0/0/0` while btrfs was mounted), R38-Q82-LEAK (the Q82 views were host paths an arm
+could read), three C2 counter gaps and the S210 anchor; the round-38 Gate's flip condition for the staged
+`pacman-hook-timing-r25.md` asked for a lane-authored entry re-grounding its transaction-order propositions.
+Claims (frozen `6a08925d`, declared `93fddb2c`): C1 operability — the STORAGE arm cross-checks the mount table before it
+calls an absent or empty sysfs root clean (`49cc53c7`); C2 depth (sourced, S208, S213–S218) — the libalpm transaction
+order TO1–TO8 at pacman 54d9411, `corpus/knowledge/pacman-transaction-order-r39.md` (`4078eb23`). Controls before any
+seat: `.ufo/waves/round-39/controls/controls.jsonl`. Wave: one v2 wave of 70 seats (`.ufo/waves/round-39/w1-spec.json`,
+`w1-results.json`; 70 reports in `w1/`; no dead seat). Measured at `a2d7aad7`: C1 hidden 2/2, views 3/3, fixtures 5/5,
+live 1, six 1, PASS; C2 8/8, source_ok 1, counts_ok 2, oracle 0, PASS; selftest 119/119; lane gates PASS; SOURCES
+212 → 218. Wave findings integrated: C1 counter beatable by fixture-literal arms and by a namespace-detecting arm
+(recorded, QUALITY 87); C2 counter never reads the rule cell, so a rule-free entry passes (target defect, reported for
+the closure; QUALITY 87); FIFO/empty mount tables hardened; TO3/TO5/TO6/TO8 cells sharpened append-only; TO1/TO8
+corrections appended to seven older notes and three SKILL sections; S208 used-by completed. Re-verification of
+predecessor pins: the round-38 storage live reading re-read (HEALTHY 1/1/0, `w1/C1ExecLiveHidden.md`); round-38 v1
+counter F06 flips by construction (declared, pinned historical). Incident: seat C1SentMounts's `pkill -f` killed other
+seats' census runs at ~03:05 (lesson R39-SEAT-PKILL). Landed: `6a08925d` freeze; `93fddb2c` declaration and controls;
+`49cc53c7` C1; `4078eb23` C2; `2e1c2a40` author receipts; `394e1ba4` wave spec; `a2d7aad7` integration; this entry
+with the SCORECARD outcome.

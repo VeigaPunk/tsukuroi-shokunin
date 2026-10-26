@@ -2237,3 +2237,53 @@ Causal separability: C1 touches `tools/tsukuroi-census.sh` (and the IN-109 ancho
 new knowledge entry and `corpus/SOURCES.md`; neither counter reads the other's surface. Sourced claim: C2 (S213–S218
 opened this round; S217 is the `supersedes S210 —` row the round-38 closure routed, §6.4). Measured revision: the
 lane branch tip named in the round-39 outcome section, declared before the after-run.
+
+## Round 39 — measured outcome (2026-10-26, author-side; non-author closure pending)
+
+Measured revision: `a2d7aad740977088ff9fc70ed36d3ef978b27e81` (integration commit after the 70-seat wave; this section,
+the LOG entry and the final receipts change no file either counter reads). Receipts under `.ufo/waves/round-39/after/`,
+each written by `tools/run-receipt.py` (revision, tool, tool_sha256, tool_revision `6a08925d`).
+
+| Claim | Axis | Before (base `0eff65b2`) | After | Kill rules | Author verdict | Ordinal |
+|---|---|---|---|---|---|---|
+| C1 hidden or absent sysfs root is not a clean disk | operability | hidden 0/2, views 3/3, fixtures 2/5, live 1, six 1, FAIL exit 1 (`before/c1-before.jsonl`) | hidden 2/2, views 3/3, fixtures 5/5, live 1, six 1, PASS exit 0 at `49cc53c7` (`after/c1-after-49cc53c.jsonl`) and at `a2d7aad7` (`after/c1-final-a2d7aad.jsonl`); census `--selftest` PASS 119/119 (`after/selftest-final-a2d7aad.txt`) | none fired: every leg matched; six PLANE lines in every run; selftest 119/119; the four round-38 leak arms on `49cc53c7` all FAIL (views 0/3, 1/3, 0/3, 0/3; `w1/C1LeakArms/scores.jsonl`) | **verified under the frozen predicate and kill rules**, with three recorded counter-sensitivity defects: arms keyed on a literal common to every fixture (`subvolid=256`, `/dev/mapper/root`) also PASS (`w1/C1CritControl.md`; lesson R39-FIXTURE-MONOCULTURE, QUALITY 87); an arm that detects the namespace and lies only on the host's constant live answer PASSes (`w1/C1DetectHonest.md`; unclosable read-only on this host, `PROVINCE.md` remaining limit); the views conjunct had no pre-data control (R39-VIEW-CONTROL-UNREACHABLE; the wave's leak arms show it moves). Post-wave hardening (FIFO or empty mount table → `mounts:unreadable`, `w1/C1SentMounts.md`) landed in `a2d7aad7` and the predicate was re-measured there | operability 9 → 9 (no ordinal uplift) |
+| C2 libalpm transaction order TO1–TO8 | depth (sourced: S208, S213–S218) | entry absent, `rules_verified 0, source_ok 0, counts_ok 0`, FAIL exit 1 (`before/c2-before.jsonl`) | 8/8, duplicates 0/0, `source_ok 1`, `counts_ok 2`, oracle 0, PASS exit 0 at `4078eb23` (`after/c2-after-4078eb2.jsonl`) and at `a2d7aad7` (`after/c2-final-a2d7aad.jsonl`) | none fired: no TO row judged false (eight rows `holds` from C2RevTransSync, C2RevAddC, C2RevRemoveUtil, C2RevHookC, C2ExecLogOracle, C2RevSourcesRows; `partly` on TO3 completeness and TO5's host column, both corrected append-only in the entry); 0 `running` lines inside a commit phase | **predicate met, but the target is defective**: the counter never reads the rule cell, so an entry with no rule text (or the opposite rule) and the same citations scores 8/8 PASS (`w1/C2CritAxis.md` X-empty, X-false; `w1/C2CritControl.md`). By the claim-sizing rule the counter alone does not establish the depth move; the rule content rests on the per-row reviewer verdicts. Reported for the closure to rule (lesson R39-CONTENT-UNREAD, QUALITY 87) | depth 8 → 8 |
+
+Causal separability: `w1/CritSeparability.md` (each counter passes with only its own commit on the declaration and fails
+without it). No-harm: `w1/RevNoHarmAxes.md` (all six axes); lane gates at `a2d7aad7` — registry-coverage, knowledge-header,
+adjacency-anchors (IN-109 repinned 2425 → 2452), section-citations, appended-notices, boot-writers, recheck-commands all
+PASS exit 0 (`after/gates-final-a2d7aad.txt`); self-assessment: see the table below and `after/self-assessment-final.json`.
+Declared side effect observed: the round-38 v1 counter's F06 reads BLOCKED after `49cc53c7` (`w1/C1ExecR38Counters.md`,
+`w1/C1CritAxis.md`), pinned historical in `SKILL.md` "Historical instrument pins — round 39". Sources: 212 → 218 rows,
+census exit 0 (`after/sources-census-final.txt`). Assimilation: the staged `pacman-hook-timing-r25.md` is admitted by
+re-grounding only (no staged row, id or text adopted), its interpretive sentences rejected (`corpus/lessons/round-39.md`
+Gate).
+
+## Axes — current self-assessment (round 39 final measured surface)
+
+Each count is re-derived from the committed lane tree at the round-39 LOG/SCORECARD commit; ordinals unchanged.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 60 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); `SKILL.md` 3322 `wc -l` / 885 table lines (`grep -c '^|' SKILL.md`); `corpus/lessons/` 54 files (`find corpus/lessons -type f | wc -l`); round-39 C2 predicate met with a target defect, no ordinal move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged |
+| coverage | 9 | `corpus/README.md` 317 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus the verdict-neutral STORAGE line, whose absent-root reading now cross-checks the mount table (round 39 C1). | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (119 cases, 119 passed, 0 failed); live run exits with the six-plane rollup; `--identity` not landed. | round 11 (terminal closeout); unchanged |
+| freshness | 9 | Each round record re-ran predecessor pins; round 39 re-opened libalpm at 54d9411 for six files and corrected TO1/TO8 statements in seven older notes append-only. | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <REV>` checks 27 fixed checks; mismatches 0 required at the round-39 tip (the round-38 K10 red, lessons 52 → 53 from the round-38 spot-check, is repaired by this table). | round 10; unchanged |
+| adjacency | 8 | formal overlap table present (finding-to-owner ADJ-01..07) and portable OUT-001..010 anchors remain; recipient acknowledgement and independent replay are unverified; round-39 sibling sweep found no crossing (`.ufo/waves/round-39/w1/ConnSiblings.md`). | fleet round 1; unchanged |
+
+## Capabilities — current full evidence set (round 39)
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates opened tier-scoped sources with anchors, rejections, paths, search log and unopened leads | `corpus/SOURCES.md`; `.ufo/evidence/round-1-kaika/after.md` | fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT and STORAGE lines; selftest prints PASS (119 cases, 119 passed, 0 failed) | `tools/tsukuroi-census.sh`; `.ufo/evidence/round-1-kaika/scout-live.md`; `.ufo/evidence/round-1-kaika/after.md` | lane r2; demonstrated fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
+| boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt` | round 17 |
+| storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line (HEALTHY/DEGRADED/BLOCKED with nonzero pairs and reason tokens), demonstrated on fixtures, the live host and production-path namespace views; since round 39 an absent or empty root is cross-checked against the mount table | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-38/after/c1-q82-final-b0005ae.json`; `.ufo/waves/round-39/after/c1-final-a2d7aad.jsonl` | round 38 |
+
+- **planned (next round):** a C2 counter amendment that reads the rule cell (QUALITY 87: a required proposition token per TO
+  row and the frozen X-empty / X-false fixtures as should-fail controls) plus the residual staged propositions
+  (`NeedsTargets` on stdin, `.pacnew` trigger target, scriptlet cwd, interpreter) on new rows from S219; for C1, mount-table
+  fixtures that vary device, subvolume and option literals (QUALITY 87 b); adjacency (tied lowest with depth at 8).
+- **retired:** none.
