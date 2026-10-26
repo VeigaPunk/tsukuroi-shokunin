@@ -1,0 +1,39 @@
+Seat C1ExecPriorCounters (round 42, hyaku run 9, wave w1) — kill-rule run log
+Item C1-4: prior counters must still pass at the C1 implementation commit.
+
+Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+Evaluated revision (pinned by assignment): 447662088dfd3155e31aed239179a79c1d1046c7
+Lane HEAD when the counters ran and when this file was written: 87c4f7c627e377e5f6d361498e8db9b3886d7953
+(the counters report this as "branch_tip"; it is informational only — both runs bind --revision).
+
+Counter identity (tool files, read-only):
+  8306d9990b156ceb625eabbe942910fc0d09b20f350a7e8af1ff2237fd07355c  tools/score-selftest-mounts-r41.py
+  75a9e8abd3f1262e425ce1fde9e3ba4763d08cf21d0b61761719c0ebbae8f973  tools/score-storage-hidden-r39.py
+
+Run 1 (serialized, alone):
+  cd /fast/scratch/hyaku/tsukuroi-r42/C1ExecPriorCounters
+  TMPDIR=$PWD python3 .../tools/score-selftest-mounts-r41.py \
+    --revision 447662088dfd3155e31aed239179a79c1d1046c7 \
+    --scratch /fast/scratch/hyaku/tsukuroi-r42/C1ExecPriorCounters/a --jobs 4
+  exit 0; observed wall time 212.18 s (harness-measured; the shell-side arithmetic in the
+  command was discarded: /usr/bin/time and bc are absent on this host, so no in-shell figure is quoted).
+  stdout -> selftest-mounts-r41.out ; stderr -> selftest-mounts-r41.err (empty, 0 bytes)
+
+Run 2 (serialized, alone, started after run 1 exited):
+  cd /fast/scratch/hyaku/tsukuroi-r42/C1ExecPriorCounters
+  TMPDIR=$PWD python3 .../tools/score-storage-hidden-r39.py \
+    --revision 447662088dfd3155e31aed239179a79c1d1046c7 \
+    --scratch /fast/scratch/hyaku/tsukuroi-r42/C1ExecPriorCounters/b
+  exit 0; observed wall time 36.23 s (harness-measured).
+  stdout -> storage-hidden-r39.out ; stderr -> storage-hidden-r39.err (empty, 0 bytes)
+
+Receipt checksums:
+  d6a27af6993bab39cdc534d0ff20cacfb9d922617f79575ad89ade65d1c4d156  selftest-mounts-r41.out
+  06e9200192b0803bc68f1f4333185b8e05bd044283943da5599469c746e2ca38  storage-hidden-r39.out
+
+Scratch: /fast/scratch/hyaku/tsukuroi-r42/C1ExecPriorCounters/{a,b} left empty by the counters
+(they clean their own subdirectories); the seat scratch root is removed after this receipt was copied.
+
+Host effects: none beyond read-only lane reads and git-show of the pinned revision. No package,
+service, sysfs, mount (outside the counters' own private `unshare -rm` namespaces), boot, /etc or
+/var/lib change; no sudo; no btrfs scrub/device-stats mutation; no lane writes; no tools installed.

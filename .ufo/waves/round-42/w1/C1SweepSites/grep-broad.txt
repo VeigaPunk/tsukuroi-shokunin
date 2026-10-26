@@ -1,0 +1,50 @@
+=== tsukuroi-census.sh broad
+620:    if [ "$(head -c 7 -- "$v" 2>/dev/null || true)" = '0x10de' ]; then n=$((n + 1)); fi
+638:  head -n1 -- "$1" 2>/dev/null | tr -d '\r' || true
+644:  awk -v k="$2" '{ key = $1; sub(/:$/, "", key) } key == k { print $2; exit }' "$1" 2>/dev/null || true
+676:  mapfile -t names < <(printf '%s\n' "$CAP_OUT" | grep -v '^[[:space:]]*$' | head -n "$SAMPLE_N")
+692:  # Round 42 (R41-CENSUS-PIPEFAIL-692): never `printf | grep -q` / `| grep -m1` / `| head` under pipefail on a
+695:  if grep -q '^error:' <<<"$s_out"; then
+697:    PKG_NOTE="pacman -Qkk sample probe error: $(grep -m1 '^error:' <<<"$s_out")"
+743:      bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n {print $2; exit}')
+798:      | head -n1 | sed -E 's/^[[:space:]]*HoldPkg[[:space:]]*=[[:space:]]*//' || true)
+931:  state=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+963:  mapfile -t timers < <(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | head -n "$TIMER_SCAN_MAX")
+969:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+991:  restrict=$(head -n1 "$DMESG_RESTRICT_FILE" 2>/dev/null | tr -d '\r' || true)
+1051:      driver=$(printf '%s\n' "$CAP_OUT" | head -n1 | awk -F', *' '{print $NF}')
+1149:    v=$(awk '$1 == "oom_kill" { print $2; exit }' "$f" 2>/dev/null || true)
+1162:             -print 2>/dev/null | LC_ALL=C sort | head -n 4000)
+1198:    read -r psi_s psi_f psi_t < <(awk '
+1274:  read -r boots win_first win_last < <(printf '%s\n' "$CAP_OUT" | awk '
+1413:  read -r boots cur < <(printf '%s\n' "$CAP_OUT" \
+1426:    t_word=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1483:      | sort -u | head -n 6 | paste -sd, - || true)
+1497:  mapfile -t timers < <(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | head -n "$TIMER_SCAN_MAX")
+1501:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1783:      unk_names=$(printf '%s\n' "$cl_out" | grep '^?' | sed 's/^?//' | head -n6 | paste -sd, - || true)
+1855:      [ -n "$host" ] && grep -qxF -- "$t" <<< "$host" && continue
+1946:[ -n "$fix" ] || { printf 'fixture dispatcher: TSUKUROI_FIXTURE unset\n' >&2; exit 97; }
+2175:    pkgline=$(printf '%s\n' "$out" | grep '^PLANE packages:' | head -n1 || true)
+2178:    elif ! printf '%s\n' "$out" | grep -q 'host=fixture-host'; then
+2180:    elif ! printf '%s\n' "$pkgline" | grep -qE '^PLANE packages: [A-Z]+ \(.*root_status=.*root_mode=.*root_dir='; then
+2184:    elif ! printf '%s\n' "$out" | grep -qE "^TSUKUROI_CENSUS: ${wverdict} \("; then
+2185:      bad "$label: verdict not ${wverdict}; got: $(printf '%s\n' "$out" | grep '^TSUKUROI_CENSUS:' | head -n1)"
+2190:            if printf '%s\n' "$out" | grep -qE -- "${re#ABSENT:}"; then
+2195:            printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss '$re'"
+2226:        printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss '$re'"
+2351:  # the old `printf | grep -q '^error:'` read false once the sample outgrew the pipe buffer (DEGRADED/HEALTHY).
+2556:  # Round 42 (R41-CENSUS-PIPEFAIL-692): 4002 candidates (~100 KB) on -Qu, -Sup and -Suu. The old `printf | head -n3`
+2557:  # and `| head -n1` assignments killed the whole census with exit 141 once a list outgrew the pipe buffer.
+3120:        [ "$SAMPLE_N" -gt 0 ] || { printf 'tsukuroi-census: --sample needs a positive integer\n' >&2; exit 2; }
+3134:  host=$(head -n1 "$HOSTNAME_FILE" 2>/dev/null | tr -d '\r' || true)
+=== boot-chain-audit.sh broad
+153:    awk 'NR == 1 {next} /^#/ {sub(/^# ?/, ""); print; next} {exit}' "$0"
+371:    version=$(head -n 1 "$tree/VERSION" | tr -d '[:space:]')
+374:        late=$(sed -n 's/^LATEHOOKS="\(.*\)"$/\1/p' "$tree/config" | head -n 1)
+379:        overlay=$(sed -n 's/^[[:space:]]*root_mnt="\([^"]*\)".*/\1/p' "$tree/hooks/btrfs-overlayfs" | head -n 1)
+384:        ply=$(sed -n 's/.*--new-root-dir=\([^[:space:]"]*\).*/\1/p' "$tree/hooks/plymouth" | head -n 1)
+460:    awk '/^btime /{print $2; exit}' /proc/stat 2>/dev/null
+483:        -newermt "@$btime" -print -quit 2>/dev/null | grep -q .; then
+896:timeout: 3
+1270:        mktemp stat tail tr head wc readlink uname chmod rm; do

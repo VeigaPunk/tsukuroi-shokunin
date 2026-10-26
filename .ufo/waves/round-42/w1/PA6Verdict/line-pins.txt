@@ -1,0 +1,91 @@
+# PA6Verdict — line-number pins in the frozen snapshot (round-42 w1)
+
+## be_local.c — _cache_mtree_open (function spans 251-283) and its three NULL paths
+  (251 offset) 1:static struct archive *_cache_mtree_open(alpm_pkg_t *pkg)
+  (251 offset) 2:{
+  (251 offset) 3:	struct archive *mtree;
+  (251 offset) 5:	alpm_db_t *db = alpm_pkg_get_db(pkg);
+  (251 offset) 6:	char *mtfile = _alpm_local_db_pkgpath(db, pkg, "mtree");
+  (251 offset) 8:	if(access(mtfile, F_OK) != 0) {
+  (251 offset) 9:		/* there is no mtree file for this package */
+  (251 offset) 10:		goto error;
+  (251 offset) 11:	}
+  (251 offset) 13:	if((mtree = archive_read_new()) == NULL) {
+  (251 offset) 14:		GOTO_ERR(pkg->handle, ALPM_ERR_LIBARCHIVE, error);
+  (251 offset) 15:	}
+  (251 offset) 17:	_alpm_archive_read_support_filter_all(mtree);
+  (251 offset) 18:	archive_read_support_format_mtree(mtree);
+  (251 offset) 20:	if(_alpm_archive_read_open_file(mtree, mtfile, ALPM_BUFFER_SIZE)) {
+  (251 offset) 21:		_alpm_log(pkg->handle, ALPM_LOG_ERROR, _("error while reading file %s: %s\n"),
+  (251 offset) 22:					mtfile, archive_error_string(mtree));
+  (251 offset) 23:		_alpm_archive_read_free(mtree);
+  (251 offset) 24:		GOTO_ERR(pkg->handle, ALPM_ERR_LIBARCHIVE, error);
+  (251 offset) 25:	}
+  (251 offset) 27:	free(mtfile);
+  (251 offset) 28:	return mtree;
+  (251 offset) 30:error:
+  (251 offset) 31:	free(mtfile);
+  (251 offset) 32:	return NULL;
+  (251 offset) 33:}
+
+## be_local.c — ops wiring
+334:static const struct pkg_operations local_pkg_ops = {
+363:	.mtree_open = _cache_mtree_open,
+621:		pkg->origin = ALPM_PKG_FROM_LOCALDB;
+623:		pkg->ops = &local_pkg_ops;
+
+## check.c — check_pkg_full NULL branch (295-321)
+  (295 offset) 1:int check_pkg_full(alpm_pkg_t *pkg)
+  (295 offset) 2:{
+  (295 offset) 3:	const char *root, *pkgname;
+  (295 offset) 4:	size_t errors = 0;
+  (295 offset) 5:	size_t rootlen;
+  (295 offset) 6:	struct archive *mtree;
+  (295 offset) 7:	struct archive_entry *entry = NULL;
+  (295 offset) 8:	size_t file_count = 0;
+  (295 offset) 9:	const alpm_list_t *lp;
+  (295 offset) 11:	root = alpm_option_get_root(config->handle);
+  (295 offset) 12:	rootlen = strlen(root);
+  (295 offset) 13:	if(rootlen + 1 > PATH_MAX) {
+  (295 offset) 14:		/* we are in trouble here */
+  (295 offset) 15:		pm_printf(ALPM_LOG_ERROR, _("path too long: %s%s\n"), root, "");
+  (295 offset) 16:		return 1;
+  (295 offset) 17:	}
+  (295 offset) 19:	pkgname = alpm_pkg_get_name(pkg);
+  (295 offset) 20:	mtree = alpm_pkg_mtree_open(pkg);
+  (295 offset) 21:	if(mtree == NULL) {
+  (295 offset) 22:		/* TODO: check error to confirm failure due to no mtree file */
+  (295 offset) 23:		if(!config->quiet) {
+  (295 offset) 24:			printf(_("%s: no mtree file\n"), pkgname);
+  (295 offset) 25:		}
+  (295 offset) 26:		return 0;
+  (295 offset) 27:	}
+
+## query.c — check dispatch (317-323) and isfile load (467-470)
+  (317 offset) 1:	if(config->op_q_check) {
+  (317 offset) 2:		if(config->op_q_check == 1) {
+  (317 offset) 3:			ret = check_pkg_fast(pkg);
+  (317 offset) 4:		} else {
+  (317 offset) 5:			ret = check_pkg_full(pkg);
+  (317 offset) 6:		}
+  (317 offset) 7:	}
+  (467 offset) 1:		if(config->op_q_isfile) {
+  (467 offset) 2:			alpm_pkg_load(config->handle, strname, 1, 0, &pkg);
+  (467 offset) 4:			if(pkg == NULL) {
+
+## be_package.c — file ops (140-152) and filelist-from-mtree
+  (140 offset) 1:static const struct pkg_operations *get_file_pkg_ops(void)
+  (140 offset) 2:{
+  (140 offset) 3:	static struct pkg_operations file_pkg_ops;
+  (140 offset) 4:	static int file_pkg_ops_initialized = 0;
+  (140 offset) 5:	if(!file_pkg_ops_initialized) {
+  (140 offset) 6:		file_pkg_ops = default_pkg_ops;
+  (140 offset) 7:		file_pkg_ops.changelog_open  = _package_changelog_open;
+  (140 offset) 8:		file_pkg_ops.changelog_read  = _package_changelog_read;
+  (140 offset) 9:		file_pkg_ops.changelog_close = _package_changelog_close;
+  (140 offset) 10:		file_pkg_ops_initialized = 1;
+  (140 offset) 11:	}
+  (140 offset) 12:	return &file_pkg_ops;
+  (140 offset) 13:}
+447:static int build_filelist_from_mtree(alpm_handle_t *handle, alpm_pkg_t *pkg, struct archive *archive)
+623:			hit_mtree = build_filelist_from_mtree(handle, newpkg, archive) == 0;

@@ -1,0 +1,53 @@
+# entry line pins (corpus/knowledge/btrfs-scrub-record-r42.md S237) checked against the PRISTINE upstream refetch of cmds/scrub.c@v7.1
+   67: #define SCRUB_DATA_FILE "/var/lib/btrfs/scrub.status"
+   69: #define SCRUB_FILE_VERSION_PREFIX "scrub status"
+  300: 	_SCRUB_FS_STAT_ZMIN(ss, t_start, fs_stat);
+  303: 	_SCRUB_FS_STAT_ZMAX(ss, canceled, fs_stat);
+  304: 	_SCRUB_FS_STAT_MIN(ss, finished, fs_stat);
+  310: 	fs_stat->s.finished = 1;
+  321: 		pr_default("\tno stats available\n");
+  342: 			 (ss->canceled ? "aborted" :
+  459: 	datafile[ret] = '.';
+  467: 		datafile[ret] = '_';
+  483: 	fd = open(datafile, m, 0600);
+  487: 	ret = flock(fd, LOCK_EX|LOCK_NB);
+  534: 	ret = rename(datafile_old, datafile_new);
+  840: 	return scrub_writev(fd, buf, max, "|%s:%lld", key, val);
+  856: 	ret = scrub_write_buf(fd, SCRUB_FILE_VERSION_PREFIX ":"
+  870: 		    _SCRUB_KVWRITE(fd, buf, data_extents_scrubbed, use) ||
+  888: 		    _SCRUB_KVWRITE_STATS(fd, buf, finished, use) ||
+ 1121: 		if (!spc->do_record)
+ 1200: 		ret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);
+ 1215: 	snprintf(path, sizeof(path), "devinfo/%llu/scrub_speed_max", devid);
+ 1218: 		limit = 0;
+ 1336: 		warning("cannot create scrub data file, mkdir %s failed: %m, status recording disabled",
+ 1502: 		/* write all-zero progress file for a start */
+ 1507: 			warning("failed to write the progress status file: %m, status recording disabled");
+ 1931: 		if (fdres < 0 && fdres != -ENOENT) {
+## same pins mapped by exact text into cmds/scrub.c@v7.3 (new line numbers)
+v7.1:67 -> v7.3:[67]
+v7.1:69 -> v7.3:[69]
+v7.1:300 -> v7.3:[300]
+v7.1:303 -> v7.3:[303]
+v7.1:304 -> v7.3:[304]
+v7.1:310 -> v7.3:[310]
+v7.1:321 -> v7.3:[321]
+v7.1:342 -> v7.3:[342]
+v7.1:459 -> v7.3:[459]
+v7.1:467 -> v7.3:[467]
+v7.1:483 -> v7.3:[483]
+v7.1:487 -> v7.3:[487]
+v7.1:534 -> v7.3:[534]
+v7.1:840 -> v7.3:[840]
+v7.1:856 -> v7.3:[856]
+v7.1:870 -> v7.3:[870]
+v7.1:888 -> v7.3:[888]
+v7.1:1121 -> v7.3:[1121]
+v7.1:1200 -> v7.3:[1200]
+v7.1:1215 -> v7.3:[1215, 1228]
+v7.1:1218 -> v7.3:[1218]
+v7.1:1336 -> v7.3:[1336]
+v7.1:1502 -> v7.3:[1502]
+v7.1:1507 -> v7.3:[1507]
+v7.1:1931 -> v7.3:[1933]
+v7.1 lines 2232 v7.3 lines 2234

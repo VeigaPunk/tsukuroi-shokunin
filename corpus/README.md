@@ -402,3 +402,13 @@ file (`QUALITY 81`, `knowledge/alpm-package-anatomy-r41.md:59`), and the round's
 The Sources pointer for the new row also includes `lessons/round-41.md` Gate (rows S227–S236 and the assimilation
 re-grounding of the staged `alpm-package-anatomy-r26.md` theme, which admits PA1, PA7 and PA8 re-grounded and keeps the
 `package()`-in-`$pkgdir` sentence rejected).
+
+## Round-42 coverage note (appended 2026-10-26)
+
+| Entry | What it adds | Sources / evidence |
+|---|---|---|
+| `knowledge/btrfs-scrub-record-r42.md` | Storage-integrity frontier, scrub record: SC1 file name, `_tmp`-then-rename and `flock(LOCK_EX\|LOCK_NB)`; SC2 `scrub status:1` per-device `\|key:value` format; SC3 the start process writes it, recording disabled on mkdir or first-write failure, running state from `BTRFS_IOC_SCRUB_PROGRESS`; SC4 status fold (finished = every recorded device, canceled = any, `interrupted`, `no stats available`, `ENOENT` = no history); SC5 per-device `scrub_speed_max` (btrfs-progs 6.6.3) | S237, S238, S239; `lessons/round-42.md` Gate; capture `.ufo/waves/round-42/frozen/hostcap/capture.txt` |
+
+Frontier: the scrub record stays Frontier (no census arm reads it); round 42 deepens it from source, it does not
+enter new coverage-map ground (the scrub record has been a Frontier line since round 26). The btrfs-progs release-notes
+half of the round-26 lead is now opened for the 6.6.3 scrub entries (S238); the ArchWiki Fwupd page stays unopened.

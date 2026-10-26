@@ -1,0 +1,24 @@
+# PA6Verdict — upstream package.c fetched at the pinned commit (round-42 w1)
+# Fetched 2026-10-26 19:45:27Z by seat PA6Verdict, read-only HTTPS GET, same channel as FETCH.txt:
+# https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/package.c
+# NOT part of the round-41 pinned snapshot (package.c was not pinned); fetched to close the grounding
+# gap disclosed in .ufo/waves/round-41/residual/C2RevPA6c.md and w1/C2RevPA6b.md.
+
+$ sha256sum package.c
+08a8061b14e25f3e42100eeb4565c5e27efc102aeb7f73f1474fef5e96ed0433  /fast/scratch/hyaku/tsukuroi-r42/PA6Verdict/package.c
+
+$ sed -n "121,123p" package.c   # _pkg_mtree_open: the default opener is an unconditional NULL stub
+static struct archive *_pkg_mtree_open(alpm_pkg_t UNUSED *pkg)
+{
+	return NULL;
+
+$ sed -n "143p;173p" package.c  # default_pkg_ops.mtree_open = _pkg_mtree_open
+const struct pkg_operations default_pkg_ops = {
+	.mtree_open      = _pkg_mtree_open,
+
+$ sed -n "462,466p" package.c   # alpm_pkg_mtree_open dispatches through pkg->ops->mtree_open
+struct archive SYMEXPORT *alpm_pkg_mtree_open(alpm_pkg_t * pkg)
+{
+	ASSERT(pkg != NULL, return NULL);
+	pkg->handle->pm_errno = ALPM_ERR_OK;
+	return pkg->ops->mtree_open(pkg);

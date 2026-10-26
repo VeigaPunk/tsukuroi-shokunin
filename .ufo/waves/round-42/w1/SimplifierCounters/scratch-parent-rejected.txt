@@ -1,0 +1,11 @@
+candidate D3 (score-size-invariance-r42.py:300-303): replace
+  parent = a.scratch or os.environ.get("TMPDIR") or None / os.makedirs(parent) / mkdtemp(dir=parent)
+with
+  if a.scratch: os.makedirs(a.scratch) / mkdtemp(dir=a.scratch)
+
+equal in the four normal combinations (scratch given/absent x TMPDIR set/unset): all four SAME.
+DIFFERS when TMPDIR names a missing directory, which is the case the host rule ("never build under /tmp") cares about:
+old: rc=0 chosen_parent=/fast/scratch/hyaku/tsukuroi-r42/SimplifierCounters/missing-tmp dir_created=True
+new: rc=0 chosen_parent=/tmp dir_created=False
+tempfile.gettempdir() ignores a TMPDIR it cannot use and returns /tmp; the makedirs is what prevents that.
+VERDICT on D3: rejected - the code is minimal already.

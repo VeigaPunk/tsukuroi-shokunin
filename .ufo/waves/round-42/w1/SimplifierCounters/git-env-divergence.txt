@@ -1,0 +1,12 @@
+command A (counter shape, check-scrub-record-r42.py:70 / score-size-invariance-r42.py:79):
+  GIT_DIR=/nonexistent/gitdir git -C <lane> show <BASE>:tools/tsukuroi-census.sh
+  rc=128 stderr=fatal: not a git repository: '/nonexistent/gitdir'
+
+command B (landed helper shape, tools/_revision.clean_env() as used by check-hook-order-r38.py:136):
+  GIT_DIR=/nonexistent/gitdir python3 -c "subprocess.run([...], env=_revision.clean_env())"
+  rc/bytes=0 178980 stderr=
+
+consequence: with an ambient GIT_DIR both r42 counters fail to read the lane through their own
+wrapper while 30 tools/*.py files (45 call sites) using _revision.clean_env() read it fine.
+of the files that spawn `git`, 14 never call it (four define a private clean_env, ten define none);
+this round's pair is among the ten.

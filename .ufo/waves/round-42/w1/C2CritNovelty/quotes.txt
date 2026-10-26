@@ -1,0 +1,29 @@
+SC1 S237 scrub.c:67 OK | #define SCRUB_DATA_FILE "/var/lib/btrfs/scrub.status"
+SC1 S237 scrub.c:459 OK | datafile[ret] = '.';
+SC1 S237 scrub.c:467 OK | datafile[ret] = '_';
+SC1 S237 scrub.c:483 OK | fd = open(datafile, m, 0600);
+SC1 S237 scrub.c:487 OK | ret = flock(fd, LOCK_EX|LOCK_NB);
+SC1 S237 scrub.c:534 OK | ret = rename(datafile_old, datafile_new);
+SC2 S237 scrub.c:69 OK | #define SCRUB_FILE_VERSION_PREFIX "scrub status"
+SC2 S237 scrub.c:856 OK | ret = scrub_write_buf(fd, SCRUB_FILE_VERSION_PREFIX ":"
+SC2 S237 scrub.c:840 OK | return scrub_writev(fd, buf, max, "|%s:%lld", key, val);
+SC2 S237 scrub.c:870 OK | _SCRUB_KVWRITE(fd, buf, data_extents_scrubbed, use) ||
+SC2 S237 scrub.c:888 OK | _SCRUB_KVWRITE_STATS(fd, buf, finished, use) ||
+SC3 S237 scrub.c:1502 OK | /* write all-zero progress file for a start */
+SC3 S237 scrub.c:1336 OK | warning("cannot create scrub data file, mkdir %s failed: %m, status recording disabled",
+SC3 S237 scrub.c:1507 OK | warning("failed to write the progress status file: %m, status recording disabled");
+SC3 S237 scrub.c:1121 OK | if (!spc->do_record)
+SC3 S237 scrub.c:1200 OK | ret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);
+SC4 S237 scrub.c:1931 OK | if (fdres < 0 && fdres != -ENOENT) {
+SC4 S237 scrub.c:300 OK | _SCRUB_FS_STAT_ZMIN(ss, t_start, fs_stat);
+SC4 S237 scrub.c:303 OK | _SCRUB_FS_STAT_ZMAX(ss, canceled, fs_stat);
+SC4 S237 scrub.c:304 OK | _SCRUB_FS_STAT_MIN(ss, finished, fs_stat);
+SC4 S237 scrub.c:310 OK | fs_stat->s.finished = 1;
+SC4 S237 scrub.c:321 OK | pr_default("\tno stats available\n");
+SC4 S237 scrub.c:342 OK | (ss->canceled ? "aborted" :
+SC5 S237 scrub.c:1215 OK | snprintf(path, sizeof(path), "devinfo/%llu/scrub_speed_max", devid);
+SC5 S237 scrub.c:1218 OK | limit = 0;
+SC5 S238 CHANGES:460 OK | btrfs-progs-6.6.3 (2023-12-14)
+SC5 S238 CHANGES:467 OK | * scrub status: report limit if set in sysfs/../scrub_speed_max
+SC5 S238 CHANGES:468 OK | * scrub limit: new command to show or set the per-device scrub limits
+quotes good=28 bad=0

@@ -1,0 +1,37 @@
+# host package state, executed 2026-10-26T16:42:23-03:00
+## pacman -Qi btrfs-progs
+Name            : btrfs-progs
+Version         : 7.1-1
+Description     : Btrfs filesystem utilities
+Architecture    : x86_64
+URL             : https://btrfs.readthedocs.io
+Licenses        : GPL-2.0-only
+Groups          : None
+Provides        : btrfs-progs-unstable
+Depends On      : glibc  libgcrypt  lzo  systemd-libs  util-linux-libs  zlib  zstd
+Optional Deps   : python: libbtrfsutil python bindings [installed]
+                  e2fsprogs: btrfs-convert [installed]
+Required By     : limine-snapper-sync  snapper
+Optional For    : docker  libblockdev-fs  udisks2
+Conflicts With  : btrfs-progs-unstable
+Replaces        : btrfs-progs-unstable
+Installed Size  : 6.75 MiB
+Packager        : Tobias Powalowski <tpowa@archlinux.org>
+Build Date      : Wed 15 Jul 2026 04:12:52 AM -03
+Install Date    : Sat 03 Oct 2026 05:42:01 PM -03
+Install Reason  : Explicitly installed
+Install Script  : Yes
+Validated By    : SHA-256 Sum  Signature
+
+## pacman -Q btrfs-progs
+btrfs-progs 7.1-1
+## btrfs --version
+btrfs-progs v7.1
+-EXPERIMENTAL -INJECT -STATIC +LZO +ZSTD +UDEV +FSVERITY +ZONED CRYPTO=libgcrypt
+## strings -a /usr/bin/btrfs | grep -n 'scrub status|no stats available|scrub_speed_max'
+7805:btrfs scrub status [-dR] <path>|<device>
+8747:To see the status use 'btrfs scrub status [-d] %s'
+10480:scrub status:1
+10485:scrub status
+10525:	no stats available
+10532:devinfo/%llu/scrub_speed_max

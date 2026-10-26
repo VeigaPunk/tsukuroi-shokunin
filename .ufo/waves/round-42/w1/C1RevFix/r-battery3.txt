@@ -1,0 +1,54 @@
+      49 fx/err-0.txt
+  304049 fx/err-big.txt
+11450049 fx/err-huge10m.txt
+ 2432049 fx/err-huge2m.txt
+   68449 fx/err-mid.txt
+    7649 fx/err-small.txt
+  304000 fx/noerr-big.txt
+14566294 total
+--- T1c: readlink /proc/self/fd/0 under <<< by size
+T1c err-0: pipe:[426446460]
+T1c err-small: pipe:[426449069]
+T1c err-mid: /fast/scratch/hyaku/tsukuroi-r42/C1RevFix/sh-thd.bwZn81 (deleted)
+T1c err-big: /fast/scratch/hyaku/tsukuroi-r42/C1RevFix/sh-thd.lD9dql (deleted)
+T1c err-huge2m: /fast/scratch/hyaku/tsukuroi-r42/C1RevFix/sh-thd.dytLvY (deleted)
+T1c err-huge10m: /fast/scratch/hyaku/tsukuroi-r42/C1RevFix/sh-thd.Jr7Dx0 (deleted)
+--- T3c: TMPDIR=/nonexistent
+T3c err-small: out=[rc=0|] stderr=[]
+T3c err-mid: out=[rc=0|] stderr=[]
+T3c err-big: out=[rc=0|] stderr=[]
+T3c err-huge2m: out=[rc=0|] stderr=[]
+--- T4c: read-only TMPDIR (chmod 555)
+T4c err-small: out=[rc=0|] stderr=[]
+T4c err-big: out=[rc=0|] stderr=[]
+--- T5a: census if-pattern, err-big, TMPDIR=/nonexistent, set -euo pipefail
+T5a: out=[BLOCKED-branch|survived-rc=0|] stderr=[]
+--- T5b: census PKG_NOTE pattern, err-big, normal TMPDIR
+T5b: out=[note=[pacman -Qkk sample probe error: error: alpha: /usr/bin/alpha (Permissi]|survived-rc=0|] stderr=[]
+--- T5d: grep -q early exit, err-huge10m (11 MB), normal TMPDIR, set -euo pipefail
+T5d: out=[BLOCKED-branch|survived-rc=0|] stderr=[]
+--- T5ctrl: noerr-big (304 KB, no error line), normal TMPDIR — negative control
+T5ctrl: out=[no-match(control-ok)|] stderr=[]
+--- T9a: OLD if-pattern printf|grep -q on 304 KB — expect ELSE-branch (R41 wrong verdict)
+T9a: out=[ELSE-branch (R41 defect reproduced)|survived-rc=0|] stderr=[]
+--- T9b: OLD note-pattern printf|grep -m1 in an assignment — expect census death (141)
+T9b: out=[] stderr=[] (empty out = script died)
+--- T8: threshold sweep (error line + n warnings; total bytes shown)
+T8 n=50 total=3849B -> pipe
+T8 n=51 total=3925B -> pipe
+T8 n=52 total=4001B -> pipe
+T8 n=53 total=4077B -> pipe
+T8 n=100 total=7649B -> pipe
+T8 n=800 total=60849B -> pipe
+T8 n=850 total=64649B -> pipe
+T8 n=860 total=65409B -> pipe
+T8 n=861 total=65485B -> pipe
+T8 n=862 total=65561B -> tempfile
+T8 n=870 total=66169B -> tempfile
+T8 n=1000 total=76049B -> tempfile
+T8fine n=860 total=65409B -> pipe
+T8fine n=861 total=65485B -> pipe
+T8fine n=862 total=65561B -> tempfile
+T8fine n=863 total=65637B -> tempfile
+T8fine n=864 total=65713B -> tempfile
+T8fine n=865 total=65789B -> tempfile

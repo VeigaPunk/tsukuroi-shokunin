@@ -1,0 +1,29 @@
+diff --git a/tools/check-scrub-record-r42.py b/tools/check-scrub-record-r42.py
+index 2903dee2..26a4ec78 100755
+--- a/tools/check-scrub-record-r42.py
++++ b/tools/check-scrub-record-r42.py
+@@ -164,11 +164,11 @@ def main():
+     cb = show(a.lane, rev, CAPTURE[0])
+     cap = cb.decode(errors='replace').split('\n') if cb and hashlib.sha256(cb).hexdigest() == CAPTURE[1] else None
+ 
+-    base_hits = 0
++    q = ['git', '-C', a.lane, 'grep', '-c', '-F']
+     for spec in ROWS.values():
+-        p = subprocess.run(['git', '-C', a.lane, 'grep', '-c', '-F', '--', spec['token'], BASE, '--',
+-                            'corpus/knowledge', 'SKILL.md'], capture_output=True, text=True)
+-        base_hits += sum(int(ln.rsplit(':', 1)[1]) for ln in p.stdout.splitlines() if ln.rsplit(':', 1)[-1].isdigit())
++        q += ['-e', spec['token']]
++    p = subprocess.run(q + [BASE, '--', 'corpus/knowledge', 'SKILL.md'], capture_output=True, text=True)
++    base_hits = sum(int(ln.rsplit(':', 1)[1]) for ln in p.stdout.splitlines() if ln.rsplit(':', 1)[-1].isdigit())
+ 
+     eb = show(a.lane, rev, ENTRY)
+     entry = eb.decode(errors='replace') if eb else ''
+@@ -214,7 +214,7 @@ def main():
+         resid, lr = None, None
+         if 'partly' in vs:
+             resid, lr = bound(a.lane, rev, 'residual', f'C2RevSC{n}c', 'reviewer', row)
+-        v_ok = (None not in vs and 'fails' not in vs and resid != 'fails'
++        v_ok = (None not in vs and 'fails' not in vs
+                 and (all(v == 'holds' for v in vs) or resid == 'holds'))
+         for nm, ln in ((f'C2RevSC{n}', l1), (f'C2CritSC{n}', l2), (f'C2RevSC{n}c', lr)):
+             if ln:

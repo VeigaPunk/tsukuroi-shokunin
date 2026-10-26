@@ -1,0 +1,31 @@
+# GateAllRegistry — exact commands (scratch clone, never the lane)
+
+S=/fast/scratch/hyaku/tsukuroi-r42/GateAllRegistry
+L=$S/lane   # git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin $L ; git -C $L remote remove origin
+export TMPDIR=$S/tmp
+TIP=f50c28d83e1832ecd7eba765caace531f45d6b27
+BASE=c8efaa3f120834541f8de1e5e0367e8d1593bae6
+
+# every check-*.py that takes --revision (37 files), serially, cwd=$S/tmp
+for f in $L/tools/check-*.py; do python3 "$f" --revision $TIP >$S/out/tip2/$(basename $f).out; done
+# the 11 nonzero ones again at the base revision (same tip tool bytes)
+python3 $L/tools/check-X.py --revision $BASE            # for the 11 from tip-status.tsv
+# self-assessment needs --scratch (item text)
+python3 $L/tools/check-self-assessment.py --revision $TIP  --scratch $S/sa
+python3 $L/tools/check-self-assessment.py --revision $BASE --scratch $S/sa-base
+# gates whose bare CLI is a usage error: minimal valid invocation
+python3 $L/tools/check-revision-binding.py --tools-revision $TIP
+python3 $L/tools/check-seat-scope.py --wave .ufo/waves/round-42 --revision $TIP
+python3 $L/tools/check-report-receipts.py --selftest
+# sources census (fleet root, read-only)
+/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi
+# attribution revisions
+python3 $L/tools/check-self-assessment.py --revision a84fc9de... --scratch $S/sa-freeze
+python3 $L/tools/check-self-assessment.py --revision 44766208... --scratch $S/sa-c1impl
+# proposed correction set, scored in a fixture clone (never the lane)
+FX=$S/fx   # git clone -q --shared $L $FX ; git -C $FX remote remove origin ; git -C $FX checkout -q --detach $TIP
+git -C $FX -c user.name=fixture -c user.email=fixture@invalid commit -qam 'fixture: proposed correction set ...'
+git -C $FX branch -f master $(git -C $FX rev-parse HEAD)   # so revision binding sees it landed
+python3 $FX/tools/check-registry-coverage.py --revision 7b66cd10...
+python3 $FX/tools/check-adjacency-anchors.py --revision 7b66cd10...
+python3 $FX/tools/check-self-assessment.py --revision 7b66cd10... --scratch $S/sa-variant

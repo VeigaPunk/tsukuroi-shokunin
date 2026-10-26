@@ -1,0 +1,120 @@
+# AsmGate receipts — round 42 w1, seat AsmGate, item A-1 (assimilation)
+Date: 2026-10-26. No tool installs. All commands read-only except mkdir -p/write of this seat's report and receipts.
+
+## 1) Pinned-source identity
+$ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src && sha256sum -c SHA256SUMS
+scrub.c: OK
+CHANGES: OK
+$ cat FETCH.txt
+fetched 2026-10-26 by TsukuroiR42 (round-42 L1), curl -sSfL, tag v7.1 = 0a919c7d6e389c07920675b7fad3f793b92aa78b (peeled commit 4ab0e80be9e3bb1db2e6038e6d4316d35fb7ba8b, git ls-remote https://github.com/kdave/btrfs-progs)
+scrub.c  <- https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/cmds/scrub.c
+CHANGES  <- https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/CHANGES
+
+## 2) Bounded negative sweep — "scrub" (case-insensitive) in the two named staged entries
+grep tool, pattern "(?i)scrub", paths:
+/home/vgpnk/Projects/shokuknow/merge/tsukuroi/knowledge/corpus/knowledge/btrfs-ioctl-surface-r27.md
+/home/vgpnk/Projects/shokuknow/merge/tsukuroi/knowledge/corpus/knowledge/btrfs-filesystem-troubleshooting-bilingual-r26.md
+→ No matches found (both files).
+
+## 3) Whole-package sweep
+$ grep -ril scrub /home/vgpnk/Projects/shokuknow/merge/tsukuroi | sort
+/home/vgpnk/Projects/shokuknow/merge/tsukuroi/knowledge/corpus/knowledge/ext4-journal-guarantee-r32.md
+/home/vgpnk/Projects/shokuknow/merge/tsukuroi/SOURCES.append.md
+
+## 4) "QUALITY" in the two named staged entries (QUALITY.md 14 check-section presence)
+grep tool, pattern "QUALITY", same two files as (2)
+→ No matches found (both files).
+
+## 5) Host btrfs-progs version (read-only query; no transaction)
+$ pacman -Q btrfs-progs
+btrfs-progs 7.1-1
+
+## 6) Host header scrub + magic anchors (btrfs-progs 7.1-1's bundled uapi copy)
+$ grep -n 'BTRFS_IOCTL_MAGIC\|BTRFS_IOC_SCRUB' /usr/include/btrfs/ioctl.h
+34:#define BTRFS_IOCTL_MAGIC 0x94
+979:#define BTRFS_IOC_SCRUB _IOWR(BTRFS_IOCTL_MAGIC, 27, \
+981:#define BTRFS_IOC_SCRUB_CANCEL _IO(BTRFS_IOCTL_MAGIC, 28)
+982:#define BTRFS_IOC_SCRUB_PROGRESS _IOWR(BTRFS_IOCTL_MAGIC, 29, \
+
+## 7) Host header — full BTRFS_IOC_* define list used for the 63-define count (grep tool, /usr/include/btrfs/ioctl.h)
+927:#define BTRFS_IOC_SNAP_CREATE _IOW(BTRFS_IOCTL_MAGIC, 1, \
+929:#define BTRFS_IOC_DEFRAG _IOW(BTRFS_IOCTL_MAGIC, 2, \
+931:#define BTRFS_IOC_RESIZE _IOW(BTRFS_IOCTL_MAGIC, 3, \
+933:#define BTRFS_IOC_SCAN_DEV _IOW(BTRFS_IOCTL_MAGIC, 4, \
+935:#define BTRFS_IOC_FORGET_DEV _IOW(BTRFS_IOCTL_MAGIC, 5, \
+943:#define BTRFS_IOC_SYNC         _IO(BTRFS_IOCTL_MAGIC, 8)
+945:#define BTRFS_IOC_CLONE        _IOW(BTRFS_IOCTL_MAGIC, 9, int)
+946:#define BTRFS_IOC_ADD_DEV _IOW(BTRFS_IOCTL_MAGIC, 10, \
+948:#define BTRFS_IOC_RM_DEV _IOW(BTRFS_IOCTL_MAGIC, 11, \
+950:#define BTRFS_IOC_BALANCE _IOW(BTRFS_IOCTL_MAGIC, 12, \
+953:#define BTRFS_IOC_CLONE_RANGE _IOW(BTRFS_IOCTL_MAGIC, 13, \
+956:#define BTRFS_IOC_SUBVOL_CREATE _IOW(BTRFS_IOCTL_MAGIC, 14, \
+958:#define BTRFS_IOC_SNAP_DESTROY _IOW(BTRFS_IOCTL_MAGIC, 15, \
+960:#define BTRFS_IOC_DEFRAG_RANGE _IOW(BTRFS_IOCTL_MAGIC, 16, \
+962:#define BTRFS_IOC_TREE_SEARCH _IOWR(BTRFS_IOCTL_MAGIC, 17, \
+964:#define BTRFS_IOC_TREE_SEARCH_V2 _IOWR(BTRFS_IOCTL_MAGIC, 17, \
+966:#define BTRFS_IOC_INO_LOOKUP _IOWR(BTRFS_IOCTL_MAGIC, 18, \
+968:#define BTRFS_IOC_DEFAULT_SUBVOL _IOW(BTRFS_IOCTL_MAGIC, 19, __u64)
+969:#define BTRFS_IOC_SPACE_INFO _IOWR(BTRFS_IOCTL_MAGIC, 20, \
+971:#define BTRFS_IOC_START_SYNC _IOR(BTRFS_IOCTL_MAGIC, 24, __u64)
+972:#define BTRFS_IOC_WAIT_SYNC  _IOW(BTRFS_IOCTL_MAGIC, 22, __u64)
+973:#define BTRFS_IOC_SNAP_CREATE_V2 _IOW(BTRFS_IOCTL_MAGIC, 23, \
+975:#define BTRFS_IOC_SUBVOL_CREATE_V2 _IOW(BTRFS_IOCTL_MAGIC, 24, \
+977:#define BTRFS_IOC_SUBVOL_GETFLAGS _IOR(BTRFS_IOCTL_MAGIC, 25, __u64)
+978:#define BTRFS_IOC_SUBVOL_SETFLAGS _IOW(BTRFS_IOCTL_MAGIC, 26, __u64)
+979:#define BTRFS_IOC_SCRUB _IOWR(BTRFS_IOCTL_MAGIC, 27, \
+981:#define BTRFS_IOC_SCRUB_CANCEL _IO(BTRFS_IOCTL_MAGIC, 28)
+982:#define BTRFS_IOC_SCRUB_PROGRESS _IOWR(BTRFS_IOCTL_MAGIC, 29, \
+984:#define BTRFS_IOC_DEV_INFO _IOWR(BTRFS_IOCTL_MAGIC, 30, \
+986:#define BTRFS_IOC_FS_INFO _IOR(BTRFS_IOCTL_MAGIC, 31, \
+988:#define BTRFS_IOC_BALANCE_V2 _IOWR(BTRFS_IOCTL_MAGIC, 32, \
+990:#define BTRFS_IOC_BALANCE_CTL _IOW(BTRFS_IOCTL_MAGIC, 33, int)
+991:#define BTRFS_IOC_BALANCE_PROGRESS _IOR(BTRFS_IOCTL_MAGIC, 34, \
+993:#define BTRFS_IOC_INO_PATHS _IOWR(BTRFS_IOCTL_MAGIC, 35, \
+995:#define BTRFS_IOC_LOGICAL_INO _IOWR(BTRFS_IOCTL_MAGIC, 36, \
+997:#define BTRFS_IOC_SET_RECEIVED_SUBVOL _IOWR(BTRFS_IOCTL_MAGIC, 37, \
+1001:#define BTRFS_IOC_SET_RECEIVED_SUBVOL_32 _IOWR(BTRFS_IOCTL_MAGIC, 37, \
+1006:#define BTRFS_IOC_SEND_64 _IOW(BTRFS_IOCTL_MAGIC, 38, \
+1010:#define BTRFS_IOC_SEND _IOW(BTRFS_IOCTL_MAGIC, 38, struct btrfs_ioctl_send_args)
+1011:#define BTRFS_IOC_DEVICES_READY _IOR(BTRFS_IOCTL_MAGIC, 39, \
+1013:#define BTRFS_IOC_QUOTA_CTL _IOWR(BTRFS_IOCTL_MAGIC, 40, \
+1015:#define BTRFS_IOC_QGROUP_ASSIGN _IOW(BTRFS_IOCTL_MAGIC, 41, \
+1017:#define BTRFS_IOC_QGROUP_CREATE _IOW(BTRFS_IOCTL_MAGIC, 42, \
+1019:#define BTRFS_IOC_QGROUP_LIMIT _IOR(BTRFS_IOCTL_MAGIC, 43, \
+1021:#define BTRFS_IOC_QUOTA_RESCAN _IOW(BTRFS_IOCTL_MAGIC, 44, \
+1023:#define BTRFS_IOC_QUOTA_RESCAN_STATUS _IOR(BTRFS_IOCTL_MAGIC, 45, \
+1025:#define BTRFS_IOC_QUOTA_RESCAN_WAIT _IO(BTRFS_IOCTL_MAGIC, 46)
+1026:#define BTRFS_IOC_GET_FSLABEL _IOR(BTRFS_IOCTL_MAGIC, 49, \
+1028:#define BTRFS_IOC_SET_FSLABEL _IOW(BTRFS_IOCTL_MAGIC, 50, \
+1030:#define BTRFS_IOC_GET_DEV_STATS _IOWR(BTRFS_IOCTL_MAGIC, 52, \
+1032:#define BTRFS_IOC_DEV_REPLACE _IOWR(BTRFS_IOCTL_MAGIC, 53, \
+1034:#define BTRFS_IOC_FILE_EXTENT_SAME _IOWR(BTRFS_IOCTL_MAGIC, 54, \
+1036:#define BTRFS_IOC_GET_FEATURES _IOR(BTRFS_IOCTL_MAGIC, 57, \
+1038:#define BTRFS_IOC_SET_FEATURES _IOW(BTRFS_IOCTL_MAGIC, 57, \
+1040:#define BTRFS_IOC_GET_SUPPORTED_FEATURES _IOR(BTRFS_IOCTL_MAGIC, 57, \
+1042:#define BTRFS_IOC_RM_DEV_V2	_IOW(BTRFS_IOCTL_MAGIC, 58, \
+1044:#define BTRFS_IOC_LOGICAL_INO_V2 _IOWR(BTRFS_IOCTL_MAGIC, 59, \
+1046:#define BTRFS_IOC_GET_SUBVOL_INFO _IOR(BTRFS_IOCTL_MAGIC, 60, \
+1048:#define BTRFS_IOC_GET_SUBVOL_ROOTREF _IOWR(BTRFS_IOCTL_MAGIC, 61, \
+1050:#define BTRFS_IOC_INO_LOOKUP_USER _IOWR(BTRFS_IOCTL_MAGIC, 62, \
+1052:#define BTRFS_IOC_SNAP_DESTROY_V2 _IOW(BTRFS_IOCTL_MAGIC, 63, \
+1054:#define BTRFS_IOC_ENCODED_READ _IOR(BTRFS_IOCTL_MAGIC, 64, \
+1056:#define BTRFS_IOC_ENCODED_WRITE _IOW(BTRFS_IOCTL_MAGIC, 64, \
+= 63 define lines between :927 and :1056 (nr reused at 17, 37, 38, 57, 64).
+
+## 8) Host header — subvolume flag defines (grep tool)
+47| * Obsolete since 5.15, functionality removed in kernel 5.7:
+*48| * BTRFS_SUBVOL_CREATE_ASYNC		(1ULL << 0)
+50|#define BTRFS_SUBVOL_RDONLY		(1ULL << 1)
+51|#define BTRFS_SUBVOL_QGROUP_INHERIT	(1ULL << 2)
+52|#define BTRFS_DEVICE_SPEC_BY_ID		(1ULL << 3)
+53|#define BTRFS_SUBVOL_SPEC_BY_ID		(1ULL << 4)
+55-59|#define BTRFS_VOL_ARG_V2_FLAGS_SUPPORTED (BTRFS_SUBVOL_RDONLY | BTRFS_SUBVOL_QGROUP_INHERIT | BTRFS_DEVICE_SPEC_BY_ID | BTRFS_SUBVOL_SPEC_BY_ID)
+Note: no BTRFS_SUBVOL_CREATE_ARGS_MASK / BTRFS_SUBVOL_DELETE_ARGS_MASK match in this same-release header
+(the staged entry cites kernel v7.2 uapi, S223, for those names).
+
+## 9) Pinned scrub.c anchors (grep tool + read :454-543)
+BTRFS_IOC_SCRUB usage: :421 (CANCEL), :965 (SCRUB), :986 and :1200 (PROGRESS), :1792 (CANCEL).
+Status-file mechanism: :487 flock(fd, LOCK_EX|LOCK_NB) in scrub_open_file; :534 rename(datafile_old, datafile_new)
+in scrub_rename_file; read :454-543 shows scrub_datafile building <base>.<fsid> with a `_`+tmp suffix and
+scrub_open_file's open(datafile, m, 0600) before the flock.

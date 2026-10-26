@@ -1,0 +1,39 @@
+== UNIT: QUOTE_RE
+ embedded dquotes clean end   -> MATCH q='#define SCRUB_DATA_FILE "/var/lib/btrfs/scrub.status"'
+ trailing annotation          -> NO-MATCH
+ text ends with dquote        -> MATCH q='abc"'
+ trailing space               -> MATCH q='abc'
+ missing closing              -> NO-MATCH
+ empty text                   -> NO-MATCH
+ two-digit id                 -> NO-MATCH
+ wrong file                   -> NO-MATCH
+ fragment quote               -> MATCH q='b'
+== UNIT: all real entry quotes vs frozen snapshots
+ quote lines=28 failing-substring=0
+== UNIT: registry edge cases
+ normal 11          -> keys=['S237'] cells=[11]
+ empty first cell   -> keys=[] cells=[]
+ empty last cell    -> keys=['S237'] cells=[11]
+ pipe inside cell   -> keys=[] cells=[]
+ 4-space indent     -> keys=[] cells=[]
+ backticked id      -> keys=[] cells=[]
+== UNIT: VERDICT_RE
+ 'ROW SC1 VERDICT: holds'       -> ['ROW SC1 VERDICT: holds']
+ 'ROW SC1 VERDICT: holds-X'     -> ['ROW SC1 VERDICT: holds']
+ 'ROW SC1 VERDICT: holdsup'     -> []
+ 'ROW SC11 VERDICT: holds'      -> []
+ 'x ROW SC1 VERDICT: fails y'   -> ['ROW SC1 VERDICT: fails']
+== UNIT: sections duplicate + extra
+ SC1-lines=6 SC6-collected=True
+V-A-k3-replica                 exit=0 verdict=PASS rows=5 q=5 nov=5 host=5 src=1 v=5 base=0 snap=True cap=True tb=0/10 
+V-B-residual-fails-both-holds  exit=0 verdict=PASS rows=5 q=5 nov=5 host=5 src=1 v=5 base=0 snap=True cap=True tb=0/10 
+V-C-holds-prefix-word          exit=0 verdict=PASS rows=5 q=5 nov=5 host=5 src=1 v=5 base=0 snap=True cap=True tb=0/10 
+V-J-report-substring           exit=0 verdict=PASS rows=5 q=5 nov=5 host=5 src=1 v=5 base=0 snap=True cap=True tb=0/10 
+V-D-two-verdict-lines          exit=1 verdict=FAIL rows=5 q=5 nov=5 host=5 src=1 v=4 base=0 snap=True cap=True tb=0/9 
+V-E-changes-corrupted          exit=0 verdict=PASS rows=5 q=5 nov=5 host=5 src=1 v=5 base=0 snap=False cap=True tb=0/10 
+V-F-host-second-ref-bogus      exit=0 verdict=PASS rows=5 q=5 nov=5 host=5 src=1 v=5 base=0 snap=True cap=True tb=0/10 
+V-G-nondict-task               exit=1 NO-JSON stderr=AttributeError: 'str' object has no attribute 'get'
+V-H-pipe-in-cell               exit=1 verdict=FAIL rows=5 q=5 nov=5 host=5 src=0 v=5 base=0 snap=True cap=True tb=0/10 
+V-I-quote-trailing-annotation  exit=1 verdict=FAIL rows=5 q=4 nov=5 host=5 src=1 v=5 base=0 snap=True cap=True tb=0/10 
+V-K-only-quote-out-of-window   exit=1 verdict=FAIL rows=5 q=4 nov=5 host=5 src=1 v=5 base=0 snap=True cap=True tb=0/10 
+DONE

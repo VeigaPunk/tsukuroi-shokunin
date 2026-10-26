@@ -1,0 +1,58 @@
+# diff census-base(c8efaa3f) vs census-impl(44766208), then impl vs tip(f50c28d8)
+692c692,695
+<   if printf '%s\n' "$s_out" | grep -q '^error:'; then
+---
+>   # Round 42 (R41-CENSUS-PIPEFAIL-692): never `printf | grep -q` / `| grep -m1` / `| head` under pipefail on a
+>   # probe buffer — the early reader exits, printf dies of SIGPIPE, and the pipeline reads false (a wrong verdict)
+>   # or, in an assignment, kills the census with exit 141. Read here-strings or let awk consume the whole input.
+>   if grep -q '^error:' <<<"$s_out"; then
+694c697
+<     PKG_NOTE="pacman -Qkk sample probe error: $(printf '%s\n' "$s_out" | grep -m1 '^error:')"
+---
+>     PKG_NOTE="pacman -Qkk sample probe error: $(grep -m1 '^error:' <<<"$s_out")"
+1621c1624
+<     cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 | awk '{print $1}' | paste -sd, -)
+---
+>     cand_names=$(printf '%s\n' "$CAP_OUT" | awk 'NR <= 3 {print $1}' | paste -sd, -)
+1635,1636c1638,1639
+<     cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 \
+<       | awk '{n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+---
+>     cand_names=$(printf '%s\n' "$CAP_OUT" \
+>       | awk 'NR <= 3 {n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+1641,1642c1644,1645
+<       cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 \
+<         | awk '{n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+---
+>       cand_names=$(printf '%s\n' "$CAP_OUT" \
+>         | awk 'NR <= 3 {n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+1652c1655
+<     [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+---
+>     [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$CAP_OUT" | awk 'NR == 1' | tr -d '\r')
+2346a2350,2359
+>   # Round 42 (R41-CENSUS-PIPEFAIL-692): the same error line ahead of ~300 KB of further -Qkk output. Under pipefail
+>   # the old `printf | grep -q '^error:'` read false once the sample outgrew the pipe buffer (DEGRADED/HEALTHY).
+>   case_home='blocked-sample-error-large'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+>   { printf 'error: alpha: /usr/bin/alpha (Permission denied)\n'
+>     awk 'BEGIN { for (i = 0; i < 4000; i++) printf "warning: beta: /usr/share/beta/doc/f%05d.html (Modification time mismatch)\n", i }'
+>     printf 'alpha: 10 total files, 0 altered files\nbeta: 20 total files, 0 altered files\n'; } > "$FX/qkk.out"
+>   printf 1 > "$FX/qkk.rc"
+>   check 'blocked: a sample error ahead of a large -Qkk output still blocks (R42-C1)' 2 BLOCKED \
+>     '^PLANE packages: BLOCKED \(pacman -Qkk sample probe error: error: alpha: /usr/bin/alpha \(Permission denied\);'
+> 
+2542a2556,2567
+>   # Round 42 (R41-CENSUS-PIPEFAIL-692): 4002 candidates (~100 KB) on -Qu, -Sup and -Suu. The old `printf | head -n3`
+>   # and `| head -n1` assignments killed the whole census with exit 141 once a list outgrew the pipe buffer.
+>   case_home='degraded-update-candidates-large'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+>   { printf 'alpha 1.0-1 -> 1.1-1\nbeta 2.0-1 -> 2.1-1\n'
+>     awk 'BEGIN { for (i = 0; i < 4000; i++) printf "pad%05d 1.0-1 -> 1.0-2\n", i }'; } > "$FX/qu"; printf 0 > "$FX/qu.rc"
+>   { printf 'fixture/alpha 1.1-1\nextra/beta 2.1-1\n'
+>     awk 'BEGIN { for (i = 0; i < 4000; i++) printf "extra/pad%05d 1.0-2\n", i }'; } > "$FX/sup"
+>   cp "$FX/sup" "$FX/suu"
+>   check 'degraded: 4002 update candidates keep the names and the trap row (R42-C1)' 1 DEGRADED \
+>     '^PLANE update-safety: DEGRADED \(status=REQUIRES-PREP; pending=REQUIRES-PREP\(candidates=4002 join_behind=0 names=\[alpha,beta,pad00000\]\); qu=rc=0/4002; sup=4002;' \
+>     'trap=-Suu:4002\[fixture/alpha 1\.1-1\]'
+> 
+---
+TIP-EQUALS-IMPL

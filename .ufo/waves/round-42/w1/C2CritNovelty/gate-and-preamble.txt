@@ -1,0 +1,39 @@
+# counter novelty gate (tools/check-scrub-record-r42.py, sha256 dbe933ec8c2cca491346da76bbc104aba8ff9e5486f4dcaf572e59df3680503f)
+
+     1	CAPTURE = (f'{WAVE}/frozen/hostcap/capture.txt',
+     2	           '942edc91a6b8fcda3ef29e88c3d54e7a9a48ec4cce302b8c1edcc89c8710643c')
+     3	ROWS = {
+     4	    'SC1': {'token': 'LOCK_EX', 'windows': [('scrub.c', 446, 535)]},
+     5	    'SC2': {'token': 'scrub status:1', 'windows': [('scrub.c', 826, 895)]},
+     6	    'SC3': {'token': 'status recording disabled',
+     7	            'windows': [('scrub.c', 1110, 1125), ('scrub.c', 1186, 1206), ('scrub.c', 1330, 1340),
+     8	                        ('scrub.c', 1498, 1512)]},
+     9	    'SC4': {'token': '_SCRUB_FS_STAT_MIN', 'windows': [('scrub.c', 280, 330), ('scrub.c', 1925, 1945)]},
+    10	    'SC5': {'token': 'scrub_speed_max', 'windows': [('scrub.c', 1208, 1220), ('CHANGES', 460, 470)]},
+    11	}
+    12	    base_hits = 0
+    13	    for spec in ROWS.values():
+    14	        p = subprocess.run(['git', '-C', a.lane, 'grep', '-c', '-F', '--', spec['token'], BASE, '--',
+    15	                            'corpus/knowledge', 'SKILL.md'], capture_output=True, text=True)
+    16	        base_hits += sum(int(ln.rsplit(':', 1)[1]) for ln in p.stdout.splitlines() if ln.rsplit(':', 1)[-1].isdigit())
+    17	
+    18	        r['quotes'] = {'good': good, 'in_window': in_window, 'bad': bad}
+    19	        q_ok = good >= 1 and in_window >= 1 and bad == 0
+    20	        n_ok = spec['token'] in text
+    21	        hm = [HOST_RE.match(ln) for ln in lines if ln.startswith('**Host reading.**')]
+    22	        h_ok = bool(hm) and all(m and cap and 1 <= int(m.group(1)) <= len(cap) and cap[int(m.group(1)) - 1].strip()
+    23	
+    24	    verdict = (rows == 5 and quotes_ok == 5 and novelty_ok == 5 and host_ok >= 3 and sources_ok == 1
+    25	               and verdicts_ok == 5 and base_hits == 0)
+    26	    print(json.dumps({
+
+# entry preamble + triage bullet (HEAD)
+
+The lane already holds what scrub verifies and repairs and that `btrfs scrub status` reads a file under
+`/var/lib/btrfs` (`corpus/knowledge/storage-health-r26.md` SH3, SH4; S129, S139). It held no statement of the record
+itself: how the file is named and replaced, its line format, which process writes it and when recording is
+switched off, and how the status command turns per-device lines into one filesystem verdict. Those decide whether
+"no record" may be read as "never scrubbed". Rows SC1-SC5 state upstream behaviour of btrfs-progs v7.1 (the
+version this host runs) from `cmds/scrub.c` and `CHANGES`; the host readings are this machine's, unprivileged.
+- Read "no scrub record" as `UNRECORDED`, not `NEVER SCRUBBED` (SC3); the lane's SH4 verdict `UNVERIFIED` for stored
+  data stands.

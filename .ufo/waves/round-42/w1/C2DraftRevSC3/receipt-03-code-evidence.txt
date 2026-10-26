@@ -1,0 +1,84 @@
+# C2DraftRevSC3 receipt 03 — key greps on the pinned snapshot (= live v7.1, sha256 48df2e2f…)
+
+All line numbers are in .ufo/waves/round-42/frozen/src/scrub.c unless marked clone.
+
+## Quote anchors (grep -n on snapshot)
+1335|	if (mkdir_p(datafile)) {
+1336|		warning("cannot create scrub data file, mkdir %s failed: %m, status recording disabled",
+1337|			datafile);
+1338|		do_record = false;
+1339|	}
+1501|	if (do_record) {
+1502|		/* write all-zero progress file for a start */
+1503|		ret = scrub_write_progress(&spc_write_mutex, fsid, sp,
+1504|					   fi_args.num_devices);
+1505|		if (ret) {
+1506|			errno = -ret;
+1507|			warning("failed to write the progress status file: %m, status recording disabled");
+1508|			do_record = false;
+1509|		}
+1510|	}
+1121|		if (!spc->do_record)
+1123|		ret = scrub_write_progress(spc->write_mutex, fsid,
+1124|					   &spc->progress[this * ndev], ndev);
+1200|		ret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);
+
+## Symbols (grep -n on snapshot, abridged)
+ 67|#define SCRUB_DATA_FILE "/var/lib/btrfs/scrub.status"
+ 68|#define SCRUB_PROGRESS_SOCKET_PATH "/var/lib/btrfs/scrub.progress"
+115|	int do_record;
+421|	ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);
+517|	return scrub_open_file(datafile, O_WRONLY|O_CREAT);
+897|static int scrub_write_progress(pthread_mutex_t *m, const char *fsid,
+917|	fd = scrub_open_file_w(SCRUB_DATA_FILE, fsid, "tmp");
+925|	err = scrub_rename_file(SCRUB_DATA_FILE, fsid, "tmp");
+965|	ret = ioctl(sp->fd, BTRFS_IOC_SCRUB, &sp->scrub_args);
+986|	sp->ret = ioctl(sp->fd, BTRFS_IOC_SCRUB_PROGRESS, &sp->scrub_args);
+1042|	while (1) {
+1043|		ret = poll(&accept_poll_fd, 1, 5 * 1000);
+1060|			progress_one_dev(sp);
+1151|static int mkdir_p(char *path)
+1190|static int is_scrub_running_in_kernel(int fd,
+1199|		sp.scrub_args.devid = di_args[i].devid;
+1250|	bool do_record = true;
+1269|	char datafile[] = SCRUB_DATA_FILE;
+1378|	if (!is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices))
+1392|	if (!force && is_scrub_running_on_fs(&fi_args, di_args, past_scrubs)) {
+1402|	sp = calloc(fi_args.num_devices, sizeof(*sp));
+1549|		if (sp[i].skip) {
+1550|			sp[i].scrub_args.progress = sp[i].resumed->p;
+1551|			sp[i].stats = sp[i].resumed->stats;
+1581|	spc.do_record = do_record;
+1585|	ret = pthread_create(&t_prog, NULL, scrub_progress_cycle, &spc);
+1702|		ret = scrub_write_progress(&spc_write_mutex, fsid, sp,
+1946|	in_progress = is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices);
+
+## mkdir_p (snapshot 1151-1167; clone cmds/scrub.c:1151)
+1151 static int mkdir_p(char *path)
+1156 	for (i = 1; i < strlen(path); ++i) {
+1157 		if (path[i] != '/')
+1158 			continue;
+1159 		path[i] = '\0';
+1160 		ret = mkdir(path, 0777);
+1161 		if (ret && errno != EEXIST)
+1162 			return -errno;
+1163 		path[i] = '/';
+1166 	return 0;
+→ mkdirs every proper PREFIX of datafile "/var/lib/btrfs/scrub.status": creates /var/lib and /var/lib/btrfs, never the
+  last component. Statement's "the directory /var/lib/btrfs cannot be created" is exact.
+
+## Sole writer path
+$ grep -n "scrub_open_file_w\|O_WRONLY\|O_CREAT" cmds/scrub.c   (v7.1 clone)
+517:	return scrub_open_file(datafile, O_WRONLY|O_CREAT);
+917:	fd = scrub_open_file_w(SCRUB_DATA_FILE, fsid, "tmp");
+→ the only write-capable open of the record is inside scrub_write_progress (897-935; tmp suffix 917, rename 925).
+  scrub_write_progress call sites: 1503 (pre-fork), 1123 (monitor thread), 1702 (final).
+
+## No other user of the directory
+$ grep -rn "/var/lib/btrfs" <v7.1 tree> --include="*.c" --include="*.h" | grep -v tests/
+cmds/scrub.c:67:#define SCRUB_DATA_FILE "/var/lib/btrfs/scrub.status"
+cmds/scrub.c:68:#define SCRUB_PROGRESS_SOCKET_PATH "/var/lib/btrfs/scrub.progress"
+(only occurrences outside tests/)
+
+## mkdir_p is NOT in common/utils.c
+$ grep -n "mkdir_p" <v7.1 clone> common/*.c  → no match; definition is static inside cmds/scrub.c:1151.

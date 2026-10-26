@@ -1,0 +1,15 @@
+diff --git i/tools/tsukuroi-census.sh w/tools/tsukuroi-census.sh
+index ed83079c..16bdf574 100755
+--- i/tools/tsukuroi-census.sh
++++ w/tools/tsukuroi-census.sh
+@@ -1635,8 +1635,8 @@ probe_update_safety() {
+   if [ "$qu_state" = 'empty' ] && [ "$sup_n" -gt 0 ]; then
+     disagree=" disagree[qu=0 sup=$sup_n]"
+     cand=$sup_n
+-    cand_names=$(printf '%s\n' "$CAP_OUT" \
+-      | awk 'NR <= 3 {n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
++    cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 \
++      | awk '{n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+   elif [ "$qu_state" = 'cand' ] && [ "$sup_n" -ne "$qu_n" ]; then
+     disagree=" disagree[qu=$qu_n sup=$sup_n]"
+     if [ "$sup_n" -gt "$cand" ]; then

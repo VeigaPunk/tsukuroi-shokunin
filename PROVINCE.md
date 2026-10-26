@@ -235,3 +235,10 @@ new owned surface. **Still Frontier, unchanged:** the scrub record and NVMe SMAR
 that detects the counter's namespace and behaves honestly only there cannot be told apart on this host, whose
 live answer is constant (`HEALTHY 1/1/0`); no host-side injection is authorized (read-only lane). Counted by
 `python3 tools/score-storage-hidden-r39.py --revision <REV>` (`SCORECARD.md` "Round 39 — declaration").
+
+**Round-42 note — scrub record read from source (appended 2026-10-26).** The scrub record stays Frontier. Round 42
+read what the record is from btrfs-progs v7.1 `cmds/scrub.c` (`corpus/knowledge/btrfs-scrub-record-r42.md` SC1-SC5:
+its `_tmp`-then-rename write under `flock`, the `scrub status:1` line format, that only the userspace start process
+writes it and when recording is switched off, how status folds device lines, the per-device `scrub_speed_max` limit).
+The promotion condition (a read-only census arm) is unchanged; `btrfs scrub status /` reads the record unprivileged on
+this host (wave-1 `C2ExecHostRecheck`), so an arm needs no privilege for the record itself.

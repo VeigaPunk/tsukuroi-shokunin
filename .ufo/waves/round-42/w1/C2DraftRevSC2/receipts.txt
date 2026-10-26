@@ -1,0 +1,70 @@
+# C2DraftRevSC2 receipts — round-42 w1, item C2-SC2 (captured 2026-10-26)
+
+## R1 — pinned snapshot integrity
+$ cd …/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src && sha256sum -c SHA256SUMS
+scrub.c: OK
+CHANGES: OK
+exit=0
+
+## R2 — live v7.1 scrub.c identity
+$ curl -fsSL https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/cmds/scrub.c -o scrub.c.live
+$ sha256sum scrub.c.live …/frozen/src/scrub.c
+48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801  scrub.c.live
+48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801  …/frozen/src/scrub.c
+(byte-identical; scrub.c.live copied alongside this receipt)
+
+## R3 — row basis at pinned commit
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show f50c28d83e1832ecd7eba765caace531f45d6b27:corpus/knowledge/btrfs-scrub-record-r42.md
+-> record-at-f50c28d.md (copied alongside; SC2 row = its lines 39-60)
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse HEAD
+87c4f7c627e377e5f6d361498e8db9b3886d7953   (tip had advanced past f50c28d; pinned commit used instead of worktree)
+
+## R4 — quote/structure pins in frozen/src/scrub.c (grep, line|text)
+69|#define SCRUB_FILE_VERSION_PREFIX "scrub status"
+70|#define SCRUB_FILE_VERSION "1"
+67|#define SCRUB_DATA_FILE "/var/lib/btrfs/scrub.status"
+856|	ret = scrub_write_buf(fd, SCRUB_FILE_VERSION_PREFIX ":"
+857|				SCRUB_FILE_VERSION "\n",
+863|	for (i = 0; i < n; ++i) {
+864|		use = scrub_resumed_stats(&data[i], &local);
+865|		if (scrub_write_buf(fd, fsid, strlen(fsid)) ||
+866|		    scrub_write_buf(fd, ":", 1) ||
+867|		    scrub_writev(fd, buf, sizeof(buf), "%lld",
+868|					use->scrub_args.devid) ||
+869|		    scrub_write_buf(fd, buf, ret) ||
+870|		    _SCRUB_KVWRITE(fd, buf, data_extents_scrubbed, use) ||
+871|		    _SCRUB_KVWRITE(fd, buf, tree_extents_scrubbed, use) ||
+872|		    _SCRUB_KVWRITE(fd, buf, data_bytes_scrubbed, use) ||
+873|		    _SCRUB_KVWRITE(fd, buf, tree_bytes_scrubbed, use) ||
+874|		    _SCRUB_KVWRITE(fd, buf, read_errors, use) ||
+875|		    _SCRUB_KVWRITE(fd, buf, csum_errors, use) ||
+876|		    _SCRUB_KVWRITE(fd, buf, verify_errors, use) ||
+877|		    _SCRUB_KVWRITE(fd, buf, no_csum, use) ||
+878|		    _SCRUB_KVWRITE(fd, buf, csum_discards, use) ||
+879|		    _SCRUB_KVWRITE(fd, buf, super_errors, use) ||
+880|		    _SCRUB_KVWRITE(fd, buf, malloc_errors, use) ||
+881|		    _SCRUB_KVWRITE(fd, buf, uncorrectable_errors, use) ||
+882|		    _SCRUB_KVWRITE(fd, buf, corrected_errors, use) ||
+883|		    _SCRUB_KVWRITE(fd, buf, last_physical, use) ||
+884|		    _SCRUB_KVWRITE_STATS(fd, buf, t_start, use) ||
+885|		    _SCRUB_KVWRITE_STATS(fd, buf, t_resumed, use) ||
+886|		    _SCRUB_KVWRITE_STATS(fd, buf, duration, use) ||
+887|		    _SCRUB_KVWRITE_STATS(fd, buf, canceled, use) ||
+888|		    _SCRUB_KVWRITE_STATS(fd, buf, finished, use) ||
+889|		    scrub_write_buf(fd, "\n", 1)) {
+840|	return scrub_writev(fd, buf, max, "|%s:%lld", key, val);
+1025|	uuid_unparse(spc->fi->fsid, fsid);
+1123|		ret = scrub_write_progress(spc->write_mutex, fsid,
+
+## R5 — host capture head (frozen/hostcap/capture.txt, lines 1-12)
+captured_utc 2026-10-26T19:13:44Z
+kernel 7.2.11-arch1-1
+btrfs-progs btrfs-progs 7.1-1
+root_fstype btrfs
+root_fsid 1d02a454-c549-4a35-b567-89d60902af8e
+var_lib_btrfs absent
+scrub_timers_listed 0
+scrub_timer_unit_file btrfs-scrub@.timer disabled disabled
+scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1 0
+journal_scrub_lines 0
+(line 6 = "var_lib_btrfs absent"; capture.sh emits it only when `[ -e /var/lib/btrfs ]` is false)

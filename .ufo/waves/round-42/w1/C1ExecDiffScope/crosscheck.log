@@ -1,0 +1,46 @@
+# C1-5 cross-checks: run in /fast/scratch/hyaku/tsukuroi-r42/C1ExecDiffScope at 2026-10-26T19:42:12Z
+
+## rev inputs (git show <rev>:tools/tsukuroi-census.sh > file)
+  3176 base.sh
+  3201 impl.sh
+  6377 total
+646c84fcdc166dd4f5321a467e60036d785c106f061dd4fa7849424696f9eb95  base.sh
+46d62a24709ece8efbcd231f4c269bd5b3791237e3c78ac7433fb0115494f1b1  impl.sh
+
+## blob id <-> file sha256
+c8efaa3f120834541f8de1e5e0367e8d1593bae6 blob=dda066f48fdc296db583f4b262fd7f9f027faefd
+646c84fcdc166dd4f5321a467e60036d785c106f061dd4fa7849424696f9eb95  -
+447662088dfd3155e31aed239179a79c1d1046c7 blob=ed83079c400594ab5ed84da045a6ed020c1a2542
+46d62a24709ece8efbcd231f4c269bd5b3791237e3c78ac7433fb0115494f1b1  -
+
+## syntax parse (copies in scratch, lane untouched)
+base: bash -n OK
+impl: bash -n OK
+
+## independent probe_storage_arm extraction (sed -n then sha256sum)
+71e6007e566e1af32feb495e04e4f291c75fdddb2b521d9822b7363fcdf34d56  -
+71e6007e566e1af32feb495e04e4f291c75fdddb2b521d9822b7363fcdf34d56  -
+
+## numstat
+33	8	tools/tsukuroi-census.sh
+
+## hunk count and R42-C1 labels among added lines
+8
+2
+
+## impl commit
+447662088dfd3155e31aed239179a79c1d1046c7 round-42: C1 implementation — census early readers under pipefail (:692/:694 here-strings; -Qu/-Sup/-Suu awk NR) plus two large-output selftest cases (130 cases), able-to-fail receipt
+
+## score-selftest-mounts-r41.py in this range?
+0
+/fast/scratch/hyaku/tsukuroi-r42/C1ExecDiffScope/heredoc-evidence.py:6: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  print("## heredoc-vs-changed-line check", datetime.datetime.utcnow().isoformat()+"Z")
+## heredoc-vs-changed-line check 2026-10-26T19:43:03.327114Z
+changed impl lines that are heredoc content: none
+changed base lines that are heredoc content: none
+impl run_selftest span: [('run_selftest', 1931, 3107)]
+impl probe_storage_arm span: [('probe_storage_arm', 1868, 1928)]
+heredoc content line count: 85
+dispatch heredoc opener line: [1940]
+line 2013 repr: 'STUB'
+rc_of/out_of lines: [1947, 1948]

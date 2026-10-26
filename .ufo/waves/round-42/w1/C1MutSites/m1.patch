@@ -1,0 +1,13 @@
+diff --git i/tools/tsukuroi-census.sh w/tools/tsukuroi-census.sh
+index ed83079c..31120df1 100755
+--- i/tools/tsukuroi-census.sh
++++ w/tools/tsukuroi-census.sh
+@@ -692,7 +692,7 @@ probe_packages() {
+   # Round 42 (R41-CENSUS-PIPEFAIL-692): never `printf | grep -q` / `| grep -m1` / `| head` under pipefail on a
+   # probe buffer — the early reader exits, printf dies of SIGPIPE, and the pipeline reads false (a wrong verdict)
+   # or, in an assignment, kills the census with exit 141. Read here-strings or let awk consume the whole input.
+-  if grep -q '^error:' <<<"$s_out"; then
++  if printf '%s\n' "$s_out" | grep -q '^error:'; then
+     PKG_V=BLOCKED
+     PKG_NOTE="pacman -Qkk sample probe error: $(grep -m1 '^error:' <<<"$s_out")"
+     return

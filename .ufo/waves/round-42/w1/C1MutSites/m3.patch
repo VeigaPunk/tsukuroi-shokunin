@@ -1,0 +1,13 @@
+diff --git i/tools/tsukuroi-census.sh w/tools/tsukuroi-census.sh
+index ed83079c..f968034b 100755
+--- i/tools/tsukuroi-census.sh
++++ w/tools/tsukuroi-census.sh
+@@ -1621,7 +1621,7 @@ probe_update_safety() {
+   fi
+   if [ "$qu_state" = 'cand' ]; then
+     cand=$qu_n
+-    cand_names=$(printf '%s\n' "$CAP_OUT" | awk 'NR <= 3 {print $1}' | paste -sd, -)
++    cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 | awk '{print $1}' | paste -sd, -)
+   fi
+ 
+   cap "$PACMAN" -Sup --print-format '%r/%n %v'

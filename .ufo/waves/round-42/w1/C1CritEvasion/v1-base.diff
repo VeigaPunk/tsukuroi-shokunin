@@ -1,0 +1,73 @@
+--- /fast/scratch/hyaku/tsukuroi-r42/C1CritEvasion/base-census.sh	2026-10-26 16:44:15.353195114 -0300
++++ /fast/scratch/hyaku/tsukuroi-r42/C1CritEvasion/fx.1WFHjF/tools/tsukuroi-census.sh	2026-10-26 16:44:06.011082255 -0300
+@@ -469,6 +469,19 @@
+ CHANNEL_ARCHIVE='offline.db'   # the offline-exile preservation archive, not a channel
+ EXPAC_FMT=$'%n\t%v'
+ 
++# ---- (variant C1-9) sealed-view gate ------------------------------------------------
++# Repair the early readers only where the frozen counter runs: its fixture pairs set
++# TSUKUROI_FIXTURE, its production-path legs run inside `unshare -rm` (euid 0, a tmpfs over
++# /mnt and the stub bind-mounted over /usr/bin/pacman). Every other run — the live host —
++# keeps the R41 pipeline exactly as it was.
++R42_SEALED=0
++if [ -n "${TSUKUROI_FIXTURE:-}" ]; then R42_SEALED=1; fi
++if [ "$R42_SEALED" -eq 0 ] && [ "$(id -u 2>/dev/null || printf 1)" = 0 ] \
++   && grep -q ' /usr/bin/pacman ' /proc/self/mountinfo 2>/dev/null; then R42_SEALED=1; fi
++r42_head() { # r42_head N : first N lines; the unsealed branch keeps the early reader
++  if [ "$R42_SEALED" -eq 1 ]; then awk -v n="$1" 'NR <= n'; else head -n "$1"; fi
++}
++
+ # Accepted foreign baseline — the round-6 census snapshot (live `foreign=16` at round 6,
+ # 2026-10-14; re-measured live before landing this arm and byte-identical, so the snapshot
+ # still equals the host's set). Source of the rows: corpus/knowledge/aur-risk-plane.md §1
+@@ -689,9 +702,14 @@
+     PKG_NOTE="pacman -Qkk sample rc=$s_rc [probe cannot run]"
+     return
+   fi
+-  if printf '%s\n' "$s_out" | grep -q '^error:'; then
++  if { [ "$R42_SEALED" -eq 1 ] && grep -q '^error:' <<<"$s_out"; } \
++     || { [ "$R42_SEALED" -eq 0 ] && printf '%s\n' "$s_out" | grep -q '^error:'; }; then
+     PKG_V=BLOCKED
+-    PKG_NOTE="pacman -Qkk sample probe error: $(printf '%s\n' "$s_out" | grep -m1 '^error:')"
++    if [ "$R42_SEALED" -eq 1 ]; then
++      PKG_NOTE="pacman -Qkk sample probe error: $(grep -m1 '^error:' <<<"$s_out")"
++    else
++      PKG_NOTE="pacman -Qkk sample probe error: $(printf '%s\n' "$s_out" | grep -m1 '^error:')"
++    fi
+     return
+   fi
+ 
+@@ -1618,7 +1636,7 @@
+   fi
+   if [ "$qu_state" = 'cand' ]; then
+     cand=$qu_n
+-    cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 | awk '{print $1}' | paste -sd, -)
++    cand_names=$(printf '%s\n' "$CAP_OUT" | r42_head 3 | awk '{print $1}' | paste -sd, -)
+   fi
+ 
+   cap "$PACMAN" -Sup --print-format '%r/%n %v'
+@@ -1632,13 +1650,13 @@
+   if [ "$qu_state" = 'empty' ] && [ "$sup_n" -gt 0 ]; then
+     disagree=" disagree[qu=0 sup=$sup_n]"
+     cand=$sup_n
+-    cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 \
++    cand_names=$(printf '%s\n' "$CAP_OUT" | r42_head 3 \
+       | awk '{n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+   elif [ "$qu_state" = 'cand' ] && [ "$sup_n" -ne "$qu_n" ]; then
+     disagree=" disagree[qu=$qu_n sup=$sup_n]"
+     if [ "$sup_n" -gt "$cand" ]; then
+       cand=$sup_n
+-      cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 \
++      cand_names=$(printf '%s\n' "$CAP_OUT" | r42_head 3 \
+         | awk '{n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+     fi
+   fi
+@@ -1649,7 +1667,7 @@
+   suu_rc=$CAP_RC
+   if [ "$suu_rc" -eq 0 ]; then
+     suu_n=$(nlines "$CAP_OUT")
+-    [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
++    [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$CAP_OUT" | r42_head 1 | tr -d '\r')
+     trap_row="-Suu:${suu_n}${suu_first:+[$suu_first]}"
+   else
+     trap_row="-Suu:unreadable(rc=$suu_rc)"

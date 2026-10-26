@@ -1,0 +1,35 @@
+== C1 counter git reads ==
+6:`pacman -Qkk` sample outgrew the pipe buffer (`tools/tsukuroi-census.sh:692`, R41-CENSUS-PIPEFAIL-692):
+16:Fixtures are built by the fixture dispatcher and `fx_default` of the BASE census (frozen revision
+26:For P pairs the compared text is every `PLANE ` line, the `TSUKUROI_CENSUS:` line and the exit code,
+60:CENSUS = 'tools/tsukuroi-census.sh'
+78:def git_show(lane, rev, path):
+94:    """The BASE census's fixture dispatcher (heredoc) and fx_default function, verbatim."""
+109:        'TSUKUROI_FOREIGN_BASELINE': f'{fx}/fbase', 'TSUKUROI_SYSTEMCTL': f'{bindir}/systemctl',
+116:        'TSUKUROI_VMSTAT_FILE': f'{fx}/vmstat', 'TSUKUROI_OOM_BASELINE': f'{fx}/obase',
+215:    keep = [ln for ln in out.splitlines() if ln.startswith('PLANE ') or ln.startswith('TSUKUROI_CENSUS:')]
+307:        base_src = git_show(a.lane, BASE, CENSUS)
+308:        rev_src = git_show(a.lane, rev, CENSUS)
+327:            ok = s_txt == l_txt and 'TSUKUROI_CENSUS:' in s_txt
+368:            'counter': 'score-size-invariance-r42', 'revision': rev, 'base': BASE,
+
+== C2 counter read paths ==
+26:transcript `<name>.jsonl` / `<name>-<k>.jsonl` under ~/.omp/agent/sessions (host-local, uncommitted; a
+33:Usage: python3 tools/check-scrub-record-r42.py --revision <REV> [--lane <repo>] [--sessions <dir>]
+46:ENTRY = 'corpus/knowledge/btrfs-scrub-record-r42.md'
+52:CAPTURE = (f'{WAVE}/frozen/hostcap/capture.txt',
+121:    disp = load_json(lane, rev, f'{WAVE}/{wave}-dispatch.json') or {}
+122:    res = load_json(lane, rev, f'{WAVE}/{wave}-results.json') or {}
+133:    rep = show(lane, rev, f'{WAVE}/{wave}/{name}.md')
+139:def transcript_has(sessions, name, line):
+140:    pats = [os.path.join(sessions, '*', f'{name}.jsonl'), os.path.join(sessions, '*', f'{name}-*.jsonl')]
+156:    ap.add_argument('--sessions', default=os.path.expanduser('~/.omp/agent/sessions/-Projects-shokunin'))
+162:        b = show(a.lane, rev, f'{WAVE}/frozen/src/{f}')
+164:    cb = show(a.lane, rev, CAPTURE[0])
+165:    cap = cb.decode(errors='replace').split('\n') if cb and hashlib.sha256(cb).hexdigest() == CAPTURE[1] else None
+169:        p = subprocess.run(['git', '-C', a.lane, 'grep', '-c', '-F', '--', spec['token'], BASE, '--',
+173:    eb = show(a.lane, rev, ENTRY)
+176:    reg = registry((show(a.lane, rev, 'corpus/SOURCES.md') or b'').decode(errors='replace'))
+177:    reg_base = registry((show(a.lane, BASE, 'corpus/SOURCES.md') or b'').decode(errors='replace'))
+222:                tbound += transcript_has(a.sessions, nm, ln)
+235:              and ENTRY in [p.strip() for p in re.split(r'[,;]', c[10])])

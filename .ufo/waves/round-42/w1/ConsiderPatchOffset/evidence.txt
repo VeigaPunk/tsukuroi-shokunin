@@ -1,0 +1,24 @@
+# spot checks (2026-10-26, scratch=/fast/scratch/hyaku/tsukuroi-r42/ConsiderPatchOffset)
+
+## pinned vs built text, add.c :616 (r39 frozen snapshot vs patched copy)
+$ sed -n 616p .ufo/waves/round-39/frozen/src/add.c
+	switch(event.operation) {
+$ sed -n 639p <built lib/libalpm/add.c>
+	switch(event.operation) {
+
+## pinned vs built text, util.c :677 -> :682
+		/* don't chroot() to "/": this allows running with less caps when the
+		/* don't chroot() to "/": this allows running with less caps when the
+
+## libdepends/libprovides restored by the reverse-applied revert patch
+472:find_libdepends() {
+537:find_libprovides() {
+628:	mapfile -t provides < <(find_libprovides)
+629:	mapfile -t depends < <(find_libdepends)
+$ grep -c find_libprovides\|find_libdepends <r41 frozen makepkg>
+0
+
+## lane mentions of the revert patch / libdepends (expect 0)
+0
+## util.c :675 unchanged in the built tree (0001 inserts after it)
+$ diff <(sed -n 675p frozen util.c) <(sed -n 675p built util.c) -> identical

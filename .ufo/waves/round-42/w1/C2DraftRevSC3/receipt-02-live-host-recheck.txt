@@ -1,0 +1,26 @@
+# C2DraftRevSC3 receipt 02 — live host re-check of capture.txt lines 6/7/8/10 (2026-10-26, read-only)
+
+$ journalctl --version | head -2
+systemd 262 (262-1-arch)
++PAM +AUDIT -SELINUX +APPARMOR -IMA +IPE +SMACK +SECCOMP +GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF +XKBCOMMON +UTMP +LIBARCHIVE
+(PCRE2 support present, so `--grep` regex matching is active)
+
+$ journalctl -k -b 0 --no-pager -q --grep 'scrub: (started|finished)' >/dev/null 2>/tmp/g.err; echo "exit=$? stderr=[$(cat /tmp/g.err)]"
+exit=1 stderr=[]
+(journalctl exits 1 grep-style on zero matches; empty stderr → the query RAN and found nothing, it did not silently fail)
+
+$ journalctl -k -b 0 --no-pager -q --grep 'scrub: (started|finished)' | wc -l
+0
+
+$ systemctl list-timers --all --no-legend 'btrfs-scrub@*' 2>/dev/null | wc -l
+0
+
+$ systemctl list-unit-files --no-legend 'btrfs-scrub@.timer' 2>/dev/null | tr -s ' ' | head -n1
+btrfs-scrub@.timer disabled disabled
+
+$ [ -e /var/lib/btrfs ] && echo present || echo absent
+absent
+
+All four live values match .ufo/waves/round-42/frozen/hostcap/capture.txt lines 6, 7, 8, 10, which capture.sh produces at
+capture.sh:11 (dir test), :12 (list-timers count), :13 (list-unit-files), :17 (journalctl -k -b 0 --grep ... | wc -l).
+capture.txt:3 shows the host runs btrfs-progs 7.1-1 — same major.minor as the pinned v7.1 sources.

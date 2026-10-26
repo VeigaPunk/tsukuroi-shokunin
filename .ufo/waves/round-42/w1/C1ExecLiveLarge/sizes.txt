@@ -1,0 +1,38 @@
+# C1ExecLiveLarge measurements — 2026-10-26T19:54:57Z
+# host: Linux 7.2.11-arch1-1 x86_64
+# user: vgpnk (no sudo)
+# pacman:  .--.                  Pacman v7.1.0 - libalpm v16.0.1
+# bash: GNU bash, version 5.3.20(1)-release (x86_64-pc-linux-gnu)
+# pipe capacity: 65536 bytes (fcntl F_GETPIPE_SZ)
+# installed packages: 1409
+
+# command: p=$(pacman -Qq | head -n N); pacman -Qkk $p > req.N 2>&1; rc=$?
+N=8 merged_bytes=617 anchored_error_lines=0 pacman_rc=1
+N=50 merged_bytes=2819 anchored_error_lines=0 pacman_rc=1
+N=200 merged_bytes=13608 anchored_error_lines=0 pacman_rc=1
+N=600 merged_bytes=32538 anchored_error_lines=0 pacman_rc=1
+
+# bracket (merged stdout+stderr, same command)
+b.1267 bytes=65530 anchored_error_lines=0
+min.1268 bytes=65567 anchored_error_lines=0
+out.1409 bytes=74575 anchored_error_lines=0
+
+# split at N=1268: stdout=61671 stderr=3896 merged=65567
+# extracted censuses:
+646c84fcdc166dd4f5321a467e60036d785c106f061dd4fa7849424696f9eb95  base-census.sh
+46d62a24709ece8efbcd231f4c269bd5b3791237e3c78ac7433fb0115494f1b1  impl-census.sh
+
+# threshold search: lo=1251 hi=1300, mid=(lo+hi)/2, >65536 => hi=mid else lo=mid+1
+b.1263 bytes=65359 anchored_error_lines=0
+b.1266 bytes=65492 anchored_error_lines=0
+b.1267 bytes=65530 anchored_error_lines=0
+min.1268 bytes=65567 anchored_error_lines=0
+b.1269 bytes=65610 anchored_error_lines=0
+b.1275 bytes=65879 anchored_error_lines=0
+# full set: out.1409 bytes=74575 anchored_error_lines=0
+# search result: MIN=1268 (65567 > 65536; N=1267 = 65530)
+# live census command: bash <census> --sample N > sN.<leg>.out 2> sN.<leg>.err; rc=$?
+#   s1268.base rc=1  s1268.impl rc=1  s1409.base rc=1  s1409.impl rc=1
+# PLANE packages sha256: 1268 base=impl 4b56bfc8106460404323367c7b0f658ac7d2ff63221f76c3a92f758ddf94dc59
+#                         1409 base=impl aa2685739c16fea51f3b9670b6e4390d3ef6c884544c0e7c9c420b0eae484d82
+# pipe capacity measured: 65536

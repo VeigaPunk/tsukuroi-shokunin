@@ -1,0 +1,25 @@
+== M1: TMPDIR honored for the >64KiB temp file (slow reader + listing) ==
+during-listing: []
+/fast/scratch/hyaku/tsukuroi-r42/C1RevFix/mytmp/sh-thd.9nVDvN (deleted)
+== M2: fallback chain with TMPDIR=/nonexistent (fd type) ==
+/tmp/sh-thd.Dq4TlL (deleted)
+== M3: all of TMPDIR+/tmp+/var/tmp broken -> cwd fallback (unshare, strace excerpt) ==
+573256 faccessat2(AT_FDCWD, "/tmp", W_OK, AT_EACCESS) = -1 EROFS (Read-only file system)
+573256 faccessat2(AT_FDCWD, "/tmp", W_OK, AT_EACCESS) = -1 EROFS (Read-only file system)
+573256 faccessat2(AT_FDCWD, "/var/tmp", W_OK, AT_EACCESS) = -1 EROFS (Read-only file system)
+573256 openat(AT_FDCWD, "./sh-thd.M3QJXO", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+573256 openat(AT_FDCWD, "./sh-thd.M3QJXO", O_RDONLY) = 4
+573256 unlink("./sh-thd.M3QJXO")        = 0
+== M4: ENOSPC (full /tmp) — no fallback, hard failure, exact census pattern ==
+bash: line 7: cannot create temp file for here-document: No space left on device
+ELSE-branch-taken
+survived-rc=0
+== M5: TMPDIR points at a FILE — fallback works ==
+rc=0
+== M6: <<< newline semantics vs printf %s\n ==
+0000000   a  \n   b  \n
+0000004
+0000000   a  \n   b  \n
+0000004
+== M7: bash version ==
+GNU bash, version 5.3.20(1)-release (x86_64-pc-linux-gnu)

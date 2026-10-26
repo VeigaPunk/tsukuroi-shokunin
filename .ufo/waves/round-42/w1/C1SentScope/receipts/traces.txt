@@ -1,0 +1,13 @@
+C1SentScope strace traces (kept under /fast/scratch during the seat; hashes below).
+run1 filter (seat-specified + unshare/clone/clone3/setns):
+  strace -f -s 300 -e trace=openat,mkdir,unlink,rename,execve,mount,unshare,clone,clone3,setns
+run2 filter (complete write set + new mount API + the same process tracing):
+  strace -f -s 300 -e trace=open,openat,creat,mkdir,mkdirat,unlink,unlinkat,rmdir,rename,renameat,renameat2,
+    symlink,symlinkat,link,linkat,chmod,fchmodat,chown,fchownat,truncate,ftruncate,utimensat,mount,umount2,
+    unshare,setns,clone,clone3,execve,execveat,fsopen,fsconfig,fsmount,move_mount,open_tree,mount_setattr
+
+b453866493acbf445ebdd030b1b176d3da07a580f058ea5fdbabca4f09d06f61     111812261 bytes    635611 lines  /fast/scratch/hyaku/tsukuroi-r42/C1SentScope/trace
+cfe8dd3180b2bbd2ad398c9568d8da7940da126826c866a55da59bbdc770e108     112059954 bytes    648856 lines  /fast/scratch/hyaku/tsukuroi-r42/C1SentScope/trace2
+
+The four trace/probe files above and every other file under /fast/scratch/hyaku/tsukuroi-r42/C1SentScope
+were deleted at the end of the seat (host guard); the sha256 values identify them for anyone re-running.

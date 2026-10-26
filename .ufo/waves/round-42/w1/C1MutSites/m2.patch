@@ -1,0 +1,13 @@
+diff --git i/tools/tsukuroi-census.sh w/tools/tsukuroi-census.sh
+index ed83079c..dc0b57c0 100755
+--- i/tools/tsukuroi-census.sh
++++ w/tools/tsukuroi-census.sh
+@@ -694,7 +694,7 @@ probe_packages() {
+   # or, in an assignment, kills the census with exit 141. Read here-strings or let awk consume the whole input.
+   if grep -q '^error:' <<<"$s_out"; then
+     PKG_V=BLOCKED
+-    PKG_NOTE="pacman -Qkk sample probe error: $(grep -m1 '^error:' <<<"$s_out")"
++    PKG_NOTE="pacman -Qkk sample probe error: $(printf '%s\n' "$s_out" | grep -m1 '^error:')"
+     return
+   fi
+ 

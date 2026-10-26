@@ -1,0 +1,120 @@
+# MistakesSweep-2 receipts — round 42 (2026-10-26, host plazir27)
+
+## A. battery summary collision
+$ grep -n battery-summary.jsonl controls/run_controls_c1.py controls/run_controls_c2.py
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/run_controls_c1.py:167:        with open(os.path.join(a.out, 'battery-summary.jsonl'), 'w') as f:
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/run_controls_c2.py:152:        with open(os.path.join(a.out, 'battery-summary.jsonl'), 'w') as f:
+
+$ stat --format="%n birth=%w mtime=%y" battery-summary-c1.jsonl battery-summary-c2.jsonl C1-K8.jsonl C2-K5.jsonl
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/battery-summary-c1.jsonl birth=2026-10-26 16:36:59.310600801 -0300 mtime=2026-10-26 16:36:59.310600801 -0300
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/battery-summary-c2.jsonl birth=2026-10-26 16:30:49.484648568 -0300 mtime=2026-10-26 16:30:49.484648568 -0300
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/C1-K8.jsonl birth=2026-10-26 16:36:09.924605384 -0300 mtime=2026-10-26 16:36:09.925434998 -0300
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/C2-K5.jsonl birth=2026-10-26 16:30:03.489657272 -0300 mtime=2026-10-26 16:30:03.490522093 -0300
+
+$ ls controls/ | wc -l; ls controls/battery-summary.jsonl
+20
+ls: cannot access '/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/battery-summary.jsonl': No such file or directory
+
+$ git -C lane ls-tree -r --name-only f50c28d -- .ufo/waves/round-42/controls
+.ufo/waves/round-42/controls/run_controls_c1.py
+.ufo/waves/round-42/controls/run_controls_c2.py
+
+## B. counter + control digests
+c511104a8e69fe6a90bb849847fe9c4635642f70ff0cb01fb62c38c098553e03  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-size-invariance-r42.py
+dbe933ec8c2cca491346da76bbc104aba8ff9e5486f4dcaf572e59df3680503f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-scrub-record-r42.py
+259a9a9760e4e6be6b906e66467cc70e6b862472cba6b329ef8891763d4a1091  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/run_controls_c1.py
+b85bbaa566c862a36be6a78425cec81ca2be5d3b06b68206a2b575664041cb2f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/run_controls_c2.py
+
+## C. K6 is not the shipped candidate
+$ python3 (import run_controls_c1.variant("K6", base)) vs git show 4476620:census
+impl sha256 46d62a24709ece8efbcd231f4c269bd5b3791237e3c78ac7433fb0115494f1b1
+k6 check calls 125 | impl check calls 127
+k6 R42-C1 0 | impl R42-C1 2
+diff hunk headers: ['@@ -691,0 +692,3 @@', '@@ -2346,0 +2350,10 @@', '@@ -2541,0 +2555,12 @@']
+diff added lines: 25
+
+## D. C1 controls fields
+K0 {'verdict': 'FAIL', 'invariant': 3, 'non_invariant': ['P1', 'P3', 'P6', 'U1', 'U2', 'U3', 'U4'], 'selftest_pass': 1, 'selftest_label': 'PASS (128 cases, 128 passed, 0 failed)', 'ns_invariant': 0, 'default_equal': 1}
+    P1 small_rc 2 large_rc 0 large_extra ['PLANE packages: HEALTHY (pacman -Qkk rc=1 sample=4(alpha,beta,gamma,delta) drift=0 backup_']
+    P3 small_rc 2 large_rc 0 large_extra ['PLANE packages: HEALTHY (pacman -Qkk rc=1 sample=4(alpha,beta,gamma,delta) drift=0 backup_']
+    P6 small_rc 2 large_rc 0 large_extra ['PLANE packages: HEALTHY (pacman -Qkk rc=1 sample=4(alpha,beta,gamma,delta) drift=0 backup_']
+    U1 small_rc 1 large_rc 141 large_extra ['']
+    U2 small_rc 1 large_rc 141 large_extra ['']
+    U3 small_rc 1 large_rc 141 large_extra ['']
+    U4 small_rc 0 large_rc 141 large_extra ['']
+K5 {'verdict': 'FAIL', 'invariant': 9, 'non_invariant': ['P6'], 'selftest_pass': 0, 'selftest_label': 'TSUKUROI_CENSUS_SELFTEST: FAIL (128 cases, 127 passed, 1 failed)', 'ns_invariant': 2, 'default_equal': 1}
+    P6 small_rc 2 large_rc 0 large_extra ['PLANE packages: HEALTHY (pacman -Qkk rc=1 sample=4(alpha,beta,gamma,delta) drift=0 backup_']
+K6 {'verdict': 'PASS', 'invariant': 10, 'non_invariant': [], 'selftest_pass': 1, 'selftest_label': 'PASS (128 cases, 128 passed, 0 failed)', 'ns_invariant': 3, 'default_equal': 1}
+K7 {'verdict': 'FAIL', 'invariant': 10, 'non_invariant': [], 'selftest_pass': 1, 'selftest_label': 'PASS (128 cases, 128 passed, 0 failed)', 'ns_invariant': 0, 'default_equal': 1}
+
+## E. before receipt
+header: {'revision': 'c8efaa3f120834541f8de1e5e0367e8d1593bae6', 'tool_revision': 'a84fc9dec860f8bea516dff7ddfdc98223cdae52', 'tool_sha256': 'c511104a8e69fe6a90bb849847fe9c4635642f70ff0cb01fb62c38c098553e03', 'started_utc': '2026-10-26T19:29:20Z'}
+end: {'receipt_end': 1, 'exit_code': 1, 'timed_out': False, 'stderr_tail': '', 'finished_utc': '2026-10-26T19:29:59Z'}
+predicate: cases == 10 and invariant == 10 and ns_invariant == 3 and selftest_pass == 1 and default_equal == 1
+invariant 3 non_invariant ['P1', 'P3', 'P6', 'U1', 'U2', 'U3', 'U4'] ns 0 selftest PASS (128 cases, 128 passed, 0 failed) default_equal 1 verdict FAIL
+   P1 small_rc 2 large_rc 0
+   P2 small_rc 2 large_rc 2
+   P3 small_rc 2 large_rc 0
+   P4 small_rc 1 large_rc 1
+   P5 small_rc 0 large_rc 0
+   P6 small_rc 2 large_rc 0
+   U1 small_rc 1 large_rc 141
+   U2 small_rc 1 large_rc 141
+   U3 small_rc 1 large_rc 141
+   U4 small_rc 0 large_rc 141
+
+## F. early-reader residue (class not swept)
+$ grep -cE "\| *(head|grep -q|grep -m1)" base/impl census
+base-census.txt:26
+impl-census.txt:24
+$ bare assignments (no || true, not inside < <( )) in impl
+931:  state=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+969:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+1051:      driver=$(printf '%s\n' "$CAP_OUT" | head -n1 | awk -F', *' '{print $NF}')
+1426:    t_word=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1501:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1783:      unk_names=$(printf '%s\n' "$cl_out" | grep '^?' | sed 's/^?//' | head -n6 | paste -sd, - || true)
+2175:    pkgline=$(printf '%s\n' "$out" | grep '^PLANE packages:' | head -n1 || true)
+
+$ base census nonroot regex (lines 702-703)
+  nonroot=$(printf '%s\n' "$s_out" \
+    | grep -cE '\(failed to calculate SHA256 checksum\)|\(Permission denied\)' || true)
+
+$ counter lines
+verdict-neutral padding lines (lines no packages/update-safety parser rule matches). The oracle for the
+def err_pad(n_bytes):
+    """Further error lines after the first one (an unreadable-database storm); the first error decides."""
+    out, i, size = [], 0, 0
+    while size < n_bytes:
+        storm = err_pad(PAD_BYTES) if large else []
+
+$ C1-K5 P6 large line (full)
+PLANE packages: HEALTHY (pacman -Qkk rc=1 sample=4(alpha,beta,gamma,delta) drift=0 backup_diffs=0 nonroot_artifacts=11606; foreign=0(known=0 new=0 drift=0 gone=0) base=file(0); pins=none; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0755 root_uid=1000 root_gid=1000 root_euid=1000 root
+
+## G. sources census receipts
+$ diff of start vs at-freeze (paths normalised)
+1d0
+< # sources-census at base c8efaa3f (git archive into a scratch fleet-root layout with the fleet shokunin.conf), run 2026-10-26T19:29:09Z
+W04 counts: 40 / 40
+
+## H. scratch fallback
+$ sed -n 298,304p counter
+    signal.signal(signal.SIGINT, _sig)
+    signal.signal(signal.SIGTERM, _sig)
+    parent = a.scratch or os.environ.get('TMPDIR') or None
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    root = tempfile.mkdtemp(prefix='size-inv-r42.', dir=parent)
+    _SCRATCH.append(root)
+$ env -u TMPDIR python3 -c tempfile.gettempdir()
+/tmp
+
+## I. diff hunk function attribution
+@@ -692 +692,4 @@ probe_packages() {
+@@ -694 +697 @@ probe_packages() {
+@@ -1621 +1624 @@ probe_update_safety() {
+@@ -1635,2 +1638,2 @@ probe_update_safety() {
+@@ -1641,2 +1644,2 @@ probe_update_safety() {
+@@ -1652 +1655 @@ probe_update_safety() {
+@@ -2346,0 +2350,10 @@ STUB
+@@ -2542,0 +2556,12 @@ STUB

@@ -100,3 +100,15 @@ grounded on the pinned snapshot, and is the reading that replaces the row text w
   "error while reading file" log), and the open failing (`:270-275`, logged). All three reach the notice (unless
   `--quiet`) and `return 0`; the TODO at `check.c:316` conflates the three, not two. Appended after the residual
   verdict, which therefore did not judge this bullet.
+
+## Round-42 note — packaging offset of the host build (appended 2026-10-26; considerthese/2026-10-26.md "Downstream patch-offset check")
+
+The line pins above are upstream pacman 54d9411. The host runs the Arch build 7.1.0.r9.g54d9411-3, which applies four
+packaging patches (wave-1 seat ConsiderPatchOffset, `.ufo/waves/round-42/w1/ConsiderPatchOffset.md`; check script and
+output `.ufo/waves/round-42/w1/ConsiderPatchOffset/patch-offset.py`, `run.txt`): `patch-reproducible-builds.patch`
+inserts 23 lines in `lib/libalpm/add.c` at :412, so every add.c line cited here after :417 is 23 lower in the built
+tree (`add.c:466-474` reads `:489-497`); the reversed `revertme-makepkg-remove-libdepends-and-libprovides.patch`
+restores 118 lines to `scripts/makepkg.sh.in` (`:560-569` reads `:678-687`) and 9 lines to
+`doc/PKGBUILD.5.asciidoc` (`:345-377` reads `:354-386`). The statements are unchanged (the patched hunks do not touch
+the cited logic, per the seat's pinned-vs-built comparison, `evidence.txt`); only the line numbers differ in the
+binary's source. Re-run the check before citing a new line of a patched Arch build.

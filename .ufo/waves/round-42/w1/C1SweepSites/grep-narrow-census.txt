@@ -1,0 +1,30 @@
+676:  mapfile -t names < <(printf '%s\n' "$CAP_OUT" | grep -v '^[[:space:]]*$' | head -n "$SAMPLE_N")
+692:  # Round 42 (R41-CENSUS-PIPEFAIL-692): never `printf | grep -q` / `| grep -m1` / `| head` under pipefail on a
+743:      bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n {print $2; exit}')
+798:      | head -n1 | sed -E 's/^[[:space:]]*HoldPkg[[:space:]]*=[[:space:]]*//' || true)
+931:  state=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+963:  mapfile -t timers < <(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | head -n "$TIMER_SCAN_MAX")
+969:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+1051:      driver=$(printf '%s\n' "$CAP_OUT" | head -n1 | awk -F', *' '{print $NF}')
+1162:             -print 2>/dev/null | LC_ALL=C sort | head -n 4000)
+1426:    t_word=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1483:      | sort -u | head -n 6 | paste -sd, - || true)
+1497:  mapfile -t timers < <(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | head -n "$TIMER_SCAN_MAX")
+1501:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1678:    last_run=$(printf '%s\n' "$tail_txt" | grep -E "\[PACMAN\] Running '" | tail -n1 || true)
+1686:    last_ref=$(printf '%s\n' "$tail_txt" | grep -E "\[PACMAN\] Running 'pacman -S[^ ']*[yu]" | tail -n1 || true)
+1714:    s_line=$(printf '%s\n' "$pair_out" | grep '^S' | tail -n1 || true)
+1783:      unk_names=$(printf '%s\n' "$cl_out" | grep '^?' | sed 's/^?//' | head -n6 | paste -sd, - || true)
+2175:    pkgline=$(printf '%s\n' "$out" | grep '^PLANE packages:' | head -n1 || true)
+2177:      bad "$label: exit $rc wanted $wrc; output: $(printf '%s' "$out" | tail -n2 | tr '\n' '|')"
+2178:    elif ! printf '%s\n' "$out" | grep -q 'host=fixture-host'; then
+2180:    elif ! printf '%s\n' "$pkgline" | grep -qE '^PLANE packages: [A-Z]+ \(.*root_status=.*root_mode=.*root_dir='; then
+2184:    elif ! printf '%s\n' "$out" | grep -qE "^TSUKUROI_CENSUS: ${wverdict} \("; then
+2185:      bad "$label: verdict not ${wverdict}; got: $(printf '%s\n' "$out" | grep '^TSUKUROI_CENSUS:' | head -n1)"
+2190:            if printf '%s\n' "$out" | grep -qE -- "${re#ABSENT:}"; then
+2195:            printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss '$re'"
+2223:      bad "$label: exit $rc wanted $wrc; output: $(printf '%s' "$out" | tail -n2 | tr '\n' '|')"
+2226:        printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss '$re'"
+2351:  # the old `printf | grep -q '^error:'` read false once the sample outgrew the pipe buffer (DEGRADED/HEALTHY).
+2556:  # Round 42 (R41-CENSUS-PIPEFAIL-692): 4002 candidates (~100 KB) on -Qu, -Sup and -Suu. The old `printf | head -n3`
+2557:  # and `| head -n1` assignments killed the whole census with exit 141 once a list outgrew the pipe buffer.

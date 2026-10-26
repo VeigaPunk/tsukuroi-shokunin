@@ -3119,6 +3119,8 @@ census row's entry command and verdict map are unchanged.
 | exec-environment-r40 | gate | `python3 tools/check-exec-environment-r40.py --revision <REV> [--repo <PATH>]` | 0 EX1-EX8 each carry the source-derived value, the frozen proposition tokens and no negation word in the rule cell, a 4-25 word quote at the cited lines of the pinned snapshot on a new mined upstream row named on `source:`, no duplicate row or heading, two host values present, 0 base hits of the novelty tokens;1 any of these fails;2 revision, git, frozen input tampered or a derivation pattern unmatched | none: the frozen snapshots and capture are the measurement; controls `.ufo/waves/round-40/controls/` | R40 C2 frozen at the round-40 freeze commit, sha256 `d4a2bb94f95184a87c582ddd7c8e55905390642cd4496aaebefa82b10ebb7d9d`; snapshot sha256 pins in code; capture MANIFEST sha256 `57888c10574736065bc74e48258ebff325322e95f659306642822a94e84411b5` | reads the entry and SOURCES at REV and BASE through git and the digest-verified frozen inputs from the tool's own tree; no write | tsukuroi |
 | selftest-mounts-r41 | gate | `python3 tools/score-selftest-mounts-r41.py --revision <REV> --scratch <DIR> [--repo <PATH>] [--jobs N] [--timeout S]` | 0 the unmutated census selftest PASSes, three neutral rewrites and one decoy (every mutant text in a dead here-document) PASS, all thirteen frozen mutants (M1-M9, H5, H6, H9, H10) apply once and each is killed twice on a baseline case label, and the captured fixture tables cover the four declared shapes (mountpoint not absolute, source not /dev, no subvol=, two btrfs lines) on BLOCKED cases;1 any of these fails;2 revision, git or scratch could-not-evaluate | none: the mutants, neutrals, decoy and capture are the measurement; controls `.ufo/waves/round-41/controls/` | R41 C1 frozen at the round-41 freeze commit, sha256 `8306d9990b156ceb625eabbe942910fc0d09b20f350a7e8af1ff2237fd07355c`; mutant, neutral and decoy texts in code | writes only a private directory under `--scratch`, removed on exit, SIGINT and SIGTERM; the capture line is injected only into the private copy | tsukuroi |
 | package-anatomy-r41 | gate | `python3 tools/check-package-anatomy-r41.py --revision <REV> [--repo <PATH>]` | 0 PA1-PA8 each carry the source-derived value, the frozen proposition relations and no negation word, a 4-25 word quote inside the row's frozen source window on a new mined upstream row named on `source:`, a committed reviewer verdict `holds` and none `fails`, six host values present, no duplicate row or heading, 0 base hits of the novelty tokens;1 any of these fails;2 revision, git, frozen input tampered or a derivation pattern unmatched | none: the frozen snapshots, capture and verdict files are the measurement; controls `.ufo/waves/round-41/controls/` | R41 C2 frozen at the round-41 freeze commit, sha256 `c83e29a4f570422d5a975873460c4c5b061e33ac497b97d13c1383569ac1819f`; snapshot sha256 pins in code; capture MANIFEST sha256 `632ed0443cfb26ef002ebfd2a3a99971221f9129836b63135e0ca6ea41874f89` | reads the entry, SOURCES and verdict files at REV and BASE through git and the digest-verified frozen inputs from the tool's own tree; no write | tsukuroi |
+| scrub-record-r42 | gate | `python3 tools/check-scrub-record-r42.py --revision <REV> [--lane <repo>]` | 0 SC1-SC5 present with quotes inside the frozen source windows, novelty verified, at least three host values, one mined source row and five wave-2 seat verdicts bound through `w2-dispatch.json` and `w2-results.json`;1 one or more rows unverified;2 could-not-evaluate on a harness error | none: no self-test mode; the frozen SC1-SC5 row set and the wave-2 verdict binding are the measurement | R42 C2 frozen predicate `rows == 5 and quotes_ok == 5 and novelty_ok == 5 and host_ok >= 3 and sources_ok == 1 and verdicts_ok == 5 and novelty_base_hits == 0`; pinned btrfs-progs v7.1 `cmds/scrub.c` and `CHANGES` snapshots listed in `.ufo/waves/round-42/frozen/src/SHA256SUMS` | committed Git reads only | tsukuroi |
+| size-invariance-r42 | gate | `python3 tools/score-size-invariance-r42.py --revision <REV> --scratch <DIR> [--lane <repo>]` | 0 predicate `cases == 10 and invariant == 10 and ns_invariant == 3 and selftest_pass == 1 and default_equal == 1` over ten P1-P6 and U1-U4 size twins and three `unshare -rm` production-path legs;1 any leg non-invariant or the census selftest not PASS;2 could-not-evaluate | none: no self-test mode; the ten fixture twins and the three namespace legs are the measurement | R42 C1 frozen counter sha256 `c511104a8e69fe6a90bb849847fe9c4635642f70ff0cb01fb62c38c098553e03`; 1 MiB verdict-neutral padding; fixtures built from the base census at `c8efaa3f` | private fixture copies under `--scratch`; `unshare -rm` namespace only for the N1/N3/N6 legs | tsukuroi |
 
 ## Storage integrity arm — round 38
 
@@ -3845,3 +3847,95 @@ scored variant a wave seat built to pass a counter without the claimed work (or 
 Reading: the hole moves rather than closes — each round's guard is beaten by reading that guard. What refused the
 round-41 arms that failed was behaviour (C1 neutrals, kill attribution) and non-lexical inputs (C2 verdict files); the
 next amendment should bind verdicts to the dispatch record and C1 kills to case-owned fixtures (planned row).
+
+## Census early readers under pipefail — round 42
+
+Appended 2026-10-26 (round-42 C1; wave seat ScribeSkill drafted, the L1 integrated and updated it for the wave-1
+hardening). Defect R41-CENSUS-PIPEFAIL-692. Base `c8efaa3f`; first fix `44766208`; hardened at the round-42
+integration commit (its hash is in `LOG.md`). Evidence: `.ufo/waves/round-42/` (`before/`, `controls/`, `impl/`,
+`w1/`, `w2/`, `after/`).
+
+The census runs under `set -euo pipefail`. A probe buffer piped into a reader that exits early (`grep -q`,
+`grep -m1`, `head -n`, `awk … exit`) kills the writer with SIGPIPE, and pipefail makes that the pipeline's status:
+
+| Where the pipeline sits | Signature | Seen at the base |
+|---|---|---|
+| a condition (`if printf … \| grep -q …`) | the test reads false: a wrong, cleaner verdict, census exit 0/1 | packages `:692`: an `error:` line in the merged `-Qkk` sample read `HEALTHY` (P1, P3, P6) |
+| a `$( … )` assignment | `set -e` kills the census: exit 141, header line only | `-Qu`/`-Sup`/`-Suu` name extraction `:1621`, `:1635`, `:1641`, `:1652`; foreign baseline lookup `:743` |
+
+The threshold is not a clean 64 KiB: under load the reader can exit between printf's 4 KiB chunks, so false
+statuses start near 30 KB (wave-1 `C1SweepSites` §Evidence 1: 8 of 300 at 32 KB, 300 of 300 at 304 KB).
+
+Rule (census and any lane bash under pipefail): never pipe a probe buffer into an early-exiting reader. Let awk read
+the whole input and decide (`awk '/^error:/ { if (!p) { print; p = 1 } } END { if (!p) exit 1 }'`, `awk 'NR <= 3'`,
+`awk 'NR == 1'`, a lookup without `exit`). Avoid here-strings for large buffers too: bash turns a here-string over the
+pipe capacity into a temporary file, which breaks the census's no-write contract and, on a full `$TMPDIR` or `/tmp`,
+fails the redirection so the `if` silently takes the clean branch (wave-1 `C1RevFix` D1: `HEALTHY`, exit 0, on an
+error-bearing sample). The first fix used here-strings; the integration replaced them with the awk test.
+
+Selftest: 128 → 132 cases, four `R42-C1` cases (a large error-bearing `-Qkk` sample; 4002 equal candidates on
+`-Qu`/`-Sup`/`-Suu`; a large `-Sup` against an empty `-Qu`; a large `-Sup` against a two-line `-Qu`). With the base
+plane bodies swapped in, exactly those cases fail (`impl/c1-able-to-fail.txt`; wave-1 `C1ExecAbleToFail`,
+`C1MutSelftest`: every one of the six single-site reverts is now killed).
+
+Counter: `python3 tools/score-size-invariance-r42.py --revision <REV> --scratch <DIR>` — PASS iff `cases == 10 and
+invariant == 10 and ns_invariant == 3 and selftest_pass == 1 and default_equal == 1`. It holds no expected verdict
+(the large twin must answer what the small twin answers), and it refuses the single-site reverts (wave-1 `C1MutSites`,
+six of six). Its sufficiency is falsified: a census fixed only when `TSUKUROI_FIXTURE` is set or uid is 0, or only
+when `-Qq` lists the counter's four fixture names, passes it while the production path keeps the defect (wave-1
+`C1CritNsView` V1-V3, `C1CritEvasion` V1i); a grammar-complete padding filter also passes (`ConnClaims` K5Z). The
+namespace legs run as uid 0 with fixed fixture names, so they are override-free legs, not a view the code cannot
+tell from production (QUALITY 90). The production-identity check that does separate them — the same view at uid 1000
+via `setpriv` — is wave evidence (`C1CritNsView` §4), not part of the frozen predicate.
+
+Not fixed here (routed): `tools/boot-chain-audit.sh:480-487` `find … -quit | grep -q .` reads false under pipefail
+whenever `find` exits 1 on a missing start point, so `BOOTED-OBSERVED` can be awarded while an input is newer than
+boot start (wave-1 `C1SweepSites`); the single-line probe readers (`:931`, `:969`, `:1051`, `:1426`, `:1501`) keep the
+early reader on inputs that cannot reach 30 KB.
+
+## Scrub status record — round 42
+
+Appended 2026-10-26 (round-42 C2; wave seat ScribeSkill drafted, the L1 trimmed it to the integrated entry). Entry
+`corpus/knowledge/btrfs-scrub-record-r42.md` SC1-SC5 on S237 (btrfs-progs v7.1 `cmds/scrub.c`), S238 (v7.1 `CHANGES`)
+and S239 (host capture). The Arch build 7.1-1 applies no patch, so the source pins hold for the installed binary.
+Nothing here runs a scrub, writes `/var/lib/btrfs` or sets a limit (operator actions).
+
+| Observation | Reading | Action |
+|---|---|---|
+| `btrfs scrub status` prints `no stats available` | no device record carries a start time (SC4) | read "no record of a run", not "never scrubbed"; check the file and the recording state below |
+| no `/var/lib/btrfs/scrub.status.<fsid>` | only the userspace `btrfs scrub start` process writes the record (SC1, SC3) | stored-data integrity stays `UNVERIFIED` (SH4); a run with recording disabled, or driven through the ioctl, leaves no file |
+| open fails with an errno other than `ENOENT` | status warns and exits with an error; the file exists (SC4) | re-read with the owner's privileges before writing "no record" |
+| `scrub.status.<fsid>_tmp` beside the record | the staging file; every update is written there and renamed over the record (SC1) | not a second record and not damage |
+| a read fails at once instead of waiting | every open takes `flock(LOCK_EX\|LOCK_NB)` (SC1) | come back after the start process exits; do not loop |
+| first line is not `scrub status:1` | not a version-1 record of this tool (SC2) | do not parse by column: fields are `\|key:value` pairs after `<fsid>:<devid>` |
+| a start warning ends "status recording disabled" | `/var/lib/btrfs` could not be created or the first record not written; the scrub still runs (SC3) | expect no record for that run |
+| status `running` | the kernel answered `BTRFS_IOC_SCRUB_PROGRESS` for a device (SC3) | the file's mtime says nothing about running |
+| status `aborted` | any device record is canceled (SC4) | judge the devices separately |
+| status `finished` | every device that has a record is finished; devices without a record are skipped (SC4) | read `btrfs scrub status -d` before calling every device scrubbed |
+| status `interrupted` | an unfinished record and nothing running (SC4) | a process outcome; read the per-device error sums (`-d`, `-R`) |
+| a scrub looks slow | `devinfo/<devid>/scrub_speed_max` limits it; 0 = none, and a failed read also prints 0 (SC5; btrfs-progs 6.6.3) | read the sysfs file before blaming the device |
+
+Host, 2026-10-26: no `/var/lib/btrfs`, `btrfs-scrub@.timer` disabled, no kernel scrub line this boot, root device
+limit 0 (capture.txt:6-10); `btrfs scrub status /` unprivileged prints `no stats available` (wave-1
+`C2ExecHostRecheck`). Counter: `python3 tools/check-scrub-record-r42.py --revision <REV>`; its verdict conjunct binds
+the ten wave-2 seats through `w2-dispatch.json` + `w2-results.json` + the committed report. Known limit: the binding
+matches the verdict string anywhere in the output and the report, so a sentence that merely quotes the line counts
+(wave-1 `C2CritControl` D1); forged orchestrator records pass the committed-bytes predicate (control C2-K3), which the
+reported `transcripts_bound` cross-checks against omp's own seat transcripts.
+
+## Counter lineage — round 42 rows (append-only continuation)
+
+| # | Counter | Round | Freeze commit | sha256 | Closes / still admits |
+|---|---|---|---|---|---|
+| 15 | `tools/score-size-invariance-r42.py` | r42 | `a84fc9dec860f8bea516dff7ddfdc98223cdae52` | `c511104a8e69fe6a90bb849847fe9c4635642f70ff0cb01fb62c38c098553e03` | Closes the answer-key read (no expected verdict; the small twin is the oracle) and the fixture-gated fix of the packages site (K7); still admits a fix gated on uid 0 or on the fixed fixture names, and a grammar-complete padding filter |
+| 16 | `tools/check-scrub-record-r42.py` | r42 | `a84fc9dec860f8bea516dff7ddfdc98223cdae52` | `dbe933ec8c2cca491346da76bbc104aba8ff9e5486f4dcaf572e59df3680503f` | Closes planted verdict files (K1) and results without dispatch tasks (K2); still admits forged dispatch + results (K3, reported by `transcripts_bound`) and a verdict line quoted rather than asserted (`C2CritControl` D1) |
+
+## Counter-attack scoreboard — round 42 (continuation)
+
+| Counter | Round | Arms fielded (reports) | Arms that reached PASS | Beating class |
+|---|---|---|---|---|
+| `score-size-invariance-r42.py` | r42 | 6 single-site reverts (`w1/C1MutSites.md`), 3 view-gated + 1 data-gated (`w1/C1CritNsView.md`), 2 sniffer variants (`w1/C1CritEvasion.md`), 3 padding filters (`w1/ConnClaims.md` K5X-K5Z) | 5 (V1, V2, V3, V1i, K5Z) | observation-channel read (uid 0, the fixture names, the counter's padding grammar) |
+| `check-scrub-record-r42.py` | r42 | 10+ binding mutants (`w1/C2CritControl.md`), counter mutants (`w1/C2MutCounter.md`) | mention-as-assertion (D1); forged records (K3, declared) | the verdict string, not the assertion |
+
+Reading: the metamorphic oracle removed the answer key, and the hole moved to the channels through which the code can
+see it is observed. QUALITY 90 makes those channels frozen controls.

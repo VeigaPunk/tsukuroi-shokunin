@@ -1,0 +1,20 @@
+=== V1 strace: TMPDIR=/nonexistent -> /tmp/sh-thd (0600, unlinked) ===
+3634472 pipe2([3, 4], 0)                = 0
+3634498 pipe2([4, 5], 0)                = 0
+3634541 openat(AT_FDCWD, "/tmp/sh-thd.i9rvxm", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+3634541 openat(AT_FDCWD, "/tmp/sh-thd.i9rvxm", O_RDONLY) = 4
+3634541 unlink("/tmp/sh-thd.i9rvxm")    = 0
+=== V2 strace: /tmp ro -> /var/tmp/sh-thd ===
+3634717 openat(AT_FDCWD, "/var/tmp/sh-thd.ojSZUR", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+3634717 openat(AT_FDCWD, "/var/tmp/sh-thd.ojSZUR", O_RDONLY) = 4
+3634717 unlink("/var/tmp/sh-thd.ojSZUR") = 0
+=== U3s strace: /tmp+/var/tmp ro -> faccessat2 chain -> ./sh-thd (cwd) ===
+3833985 faccessat2(AT_FDCWD, "/tmp", W_OK, AT_EACCESS) = -1 EROFS (Read-only file system)
+3833985 faccessat2(AT_FDCWD, "/tmp", W_OK, AT_EACCESS) = -1 EROFS (Read-only file system)
+3833985 faccessat2(AT_FDCWD, "/var/tmp", W_OK, AT_EACCESS) = -1 EROFS (Read-only file system)
+3833985 openat(AT_FDCWD, "./sh-thd.XdQe8Y", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+3833985 openat(AT_FDCWD, "./sh-thd.XdQe8Y", O_RDONLY) = 4
+3833985 unlink("./sh-thd.XdQe8Y")       = 0
+=== V4s strace: ENOSPC — openat ok, write fails, no further fallback ===
+3834078 openat(AT_FDCWD, "/tmp/sh-thd.pEAwpF", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+3834078 unlink("/tmp/sh-thd.pEAwpF")    = 0

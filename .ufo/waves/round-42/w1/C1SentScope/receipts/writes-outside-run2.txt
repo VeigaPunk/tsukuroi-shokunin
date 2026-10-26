@@ -1,0 +1,97 @@
+C1SentScope — every write-ish syscall in trace2 whose path lies outside --scratch.
+Scratch root: /fast/scratch/hyaku/tsukuroi-r42/C1SentScope/s2/size-inv-r42.185qu6mk (run 2, rc=0 PASS).
+Traced: open/openat/creat with a write flag, mkdir(at), unlink(at), rmdir, rename(at,at2), symlink(at),
+link(at), chmod, chown, truncate, utimensat. Column "ret" lists the observed returns (all samples).
+
+  11815  openat     /dev/null
+         ret: 3 x11492; 0 x173; openat(AT_FDCWD, "/dev/null", O_WRONLY|O_CREAT|O_TRUNC, 0666 <unfinished ...> x82; openat(AT_FDCWD, "/dev/null", O_RDWR <unfinished ...> x68
+         note: shell redirect to the null device (no filesystem effect)
+   4811  openat     /dev/tty
+         ret: -1 ENXIO (No such device or address) x4811
+         note: host device node (live probe); chmod attempts fail EPERM
+   1346  mkdir      /fast
+         ret: -1 EEXIST (File exists) x1346
+         note: mkdir -p component walk (EEXIST)
+     60  openat     /etc/pacman.d/gnupg/trustdb.gpg
+         ret: -1 EACCES (Permission denied) x60
+         note: real pacman keyring open, EACCES -> no write
+     18  chmod      /dev/nvidia0
+         ret: -1 EPERM (Operation not permitted) x18
+         note: host device node (live probe); chmod attempts fail EPERM
+     18  openat     /dev/nvidia0
+         ret: 10 x6; 11 x6; 13 x6
+         note: host device node (live probe); chmod attempts fail EPERM
+     12  mkdir      /dev/nvidia-caps
+         ret: -1 EEXIST (File exists) x12
+         note: host device node (live probe); chmod attempts fail EPERM
+     12  openat     /dev/nvidia-uvm
+         ret: 11 x6; 13 x6
+         note: host device node (live probe); chmod attempts fail EPERM
+      6  openat     /proc/self/uid_map
+         ret: 3 x6
+         note: own process: userns uid_map/thread name
+      6  openat     /proc/self/setgroups
+         ret: 3 x6
+         note: own process: userns uid_map/thread name
+      6  openat     /proc/self/gid_map
+         ret: 3 x6
+         note: own process: userns uid_map/thread name
+      6  openat     /mnt/real-pacman
+         ret: 4 x6
+         note: inside private mount ns (unshare -rm), tmpfs over /mnt
+      6  openat     /mnt/pacman
+         ret: 3 x6
+         note: inside private mount ns (unshare -rm), tmpfs over /mnt
+      6  openat     /mnt/qq
+         ret: 3 x6
+         note: inside private mount ns (unshare -rm), tmpfs over /mnt
+      6  openat     /mnt/qkk
+         ret: 3 x6
+         note: inside private mount ns (unshare -rm), tmpfs over /mnt
+      6  openat     /mnt/qkk.rc
+         ret: 3 x6
+         note: inside private mount ns (unshare -rm), tmpfs over /mnt
+      6  chmod      /mnt/pacman
+         ret: 0 x6
+         note: inside private mount ns (unshare -rm), tmpfs over /mnt
+      6  chmod      /dev/nvidiactl
+         ret: -1 EPERM (Operation not permitted) x6
+         note: host device node (live probe); chmod attempts fail EPERM
+      6  openat     /dev/nvidiactl
+         ret: 9 x6
+         note: host device node (live probe); chmod attempts fail EPERM
+      6  chmod      /dev/nvidia-caps/nvidia-cap1
+         ret: -1 EPERM (Operation not permitted) x6
+         note: host device node (live probe); chmod attempts fail EPERM
+      6  chmod      /dev/nvidia-caps/nvidia-cap2
+         ret: -1 EPERM (Operation not permitted) x6
+         note: host device node (live probe); chmod attempts fail EPERM
+      6  chmod      /dev/nvidia-uvm
+         ret: -1 EPERM (Operation not permitted) x6
+         note: host device node (live probe); chmod attempts fail EPERM
+      1  mkdir      /fast/scratch/hyaku/tsukuroi-r42/C1SentScope/s2
+         ret: 0 x1
+         note: the --scratch dir named by the seat (parent created by os.makedirs)
+      1  openat     /proc/self/task/3956520/comm
+         ret: 9 x1
+         note: own process: userns uid_map/thread name
+      1  openat     /proc/self/task/4003090/comm
+         ret: 9 x1
+         note: own process: userns uid_map/thread name
+      1  openat     /proc/self/task/4046943/comm
+         ret: 9 x1
+         note: own process: userns uid_map/thread name
+      1  openat     /proc/self/task/4097373/comm
+         ret: 9 x1
+         note: own process: userns uid_map/thread name
+      1  openat     /proc/self/task/4142653/comm
+         ret: 9 x1
+         note: own process: userns uid_map/thread name
+      1  openat     /proc/self/task/4176384/comm
+         ret: 9 x1
+         note: own process: userns uid_map/thread name
+
+ZERO rows of: unlink/unlinkat/rmdir/rename/renameat/renameat2/symlink/link/linkat/chown/truncate/
+utimensat outside --scratch, and ZERO write-mode opens under /home/vgpnk (lane repo, ~/.local, ~/.omp).
+Relative-path removals (unlinkat(dirfd,"name"), e.g. 447x memory.events, 149x sync) are children of
+rm -rf -- <absolute scratch path> / mkdir -p <absolute scratch path>; the whole set is under --scratch.

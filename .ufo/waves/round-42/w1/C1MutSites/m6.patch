@@ -1,0 +1,13 @@
+diff --git i/tools/tsukuroi-census.sh w/tools/tsukuroi-census.sh
+index ed83079c..ca6a5aa2 100755
+--- i/tools/tsukuroi-census.sh
++++ w/tools/tsukuroi-census.sh
+@@ -1652,7 +1652,7 @@ probe_update_safety() {
+   suu_rc=$CAP_RC
+   if [ "$suu_rc" -eq 0 ]; then
+     suu_n=$(nlines "$CAP_OUT")
+-    [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$CAP_OUT" | awk 'NR == 1' | tr -d '\r')
++    [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+     trap_row="-Suu:${suu_n}${suu_first:+[$suu_first]}"
+   else
+     trap_row="-Suu:unreadable(rc=$suu_rc)"

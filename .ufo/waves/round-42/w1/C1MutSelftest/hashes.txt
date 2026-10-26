@@ -1,0 +1,31 @@
+# C1MutSelftest — hash ledger (SHA256; all files scratch copies, lane untouched)
+
+## Pinned sources (extracted via `git -C <lane> archive <sha> -- tools/tsukuroi-census.sh`)
+- 447662088dfd3155e31aed239179a79c1d1046c7 (green / implementation): git blob ed83079c400594ab5ed84da045a6ed020c1a2542,
+  file sha256 46d62a24709ece8efbcd231f4c269bd5b3791237e3c78ac7433fb0115494f1b1 (pre-run == post-run)
+- c8efaa3f120834541f8de1e5e0367e8d1593bae6 (base, revert-text source): git blob dda066f48fdc296db583f4b262fd7f9f027faefd,
+  file sha256 646c84fcdc166dd4f5321a467e60036d785c106f061dd4fa7849424696f9eb95
+
+## Mutants (green + one-site revert; sha256 identical before and after their selftest runs)
+- mut692  14515b5543403be3dfa64c395e3e64ae2eaeac66e02ad6446b0e26611758aaf0  (base :692 revert)
+- mut694  4dc426b3bee5bd7a82a133b23338378d0ec65bcbce6a3a5cef397dffbf4e1b8c  (base :694 revert)
+- mut1621 d2588ff059db8a06c9e71a41f183130a295865c6ee1e92893833fea71ee727f7  (base :1621 revert)
+- mut1635 e074631fca500fc2c7917804cf976aac5b0d4fad5463945a8f93d29a5483bc95  (base :1635 revert)
+- mut1641 1debcd6fb8657906947385bc0577d4eacc471abbb2747e95bf1429c2170f96b0  (base :1641 revert)
+- mut1652 43b9f49bd0eca9d1c66bf43ed15013eac90b3f3c0d2aa821a99fcb147b7fe9ff  (base :1652 revert)
+
+## Proposal/demo variants (sha256 after final edit; never re-edited after their runs)
+- props        b880d6502351ef3a4e9e9897570b87deb595e8bf711eb0d12de5075cd5ef15cb  (green + proposed caseA + caseB)
+- propsmut1635 11e0c927a588d6b42c70669c76f7eb19fa23ad3d9cf7b70bb118fcbd6dd03f13  (mut1635 + proposed caseA only)
+- propsmut1641 79806929abffde85e67cf028c8848660431596b1bdcf4fa99476826c647c88ec  (mut1641 + proposed caseB only)
+
+## Single-site proof (diff -U0 changed-line counts green -> mutant)
+mut692:2 mut694:2 mut1621:2 mut1635:4 mut1641:4 mut1652:2
+(4 = the two-line pipelines; each mutant differs from green at exactly its one site.)
+
+## Lane state at probe time
+- HEAD 87c4f7c627e377e5f6d361498e8db9b3886d7953 (lane tip moved past dispatch tip f50c28d8 by the L1's
+  control-battery commit — observed, not caused by this seat).
+- `GIT_OPTIONAL_LOCKS=0 git status --porcelain` listed only untracked wave/w1 artifacts of all seats;
+  no tracked file modified or deleted by this seat. This seat wrote only:
+  .ufo/waves/round-42/w1/C1MutSelftest.md and .ufo/waves/round-42/w1/C1MutSelftest/* plus its scratch.

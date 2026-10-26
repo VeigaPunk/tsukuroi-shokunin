@@ -1,0 +1,42 @@
+
+### corpus/knowledge/storage-health-r26.md:57 (at c8efaa3f120834541f8de1e5e0367e8d1593bae6)
+**Statement.** No scrub record exists on this host for the root filesystem: `btrfs scrub status /` reports no stats, and /var/lib/btrfs, where btrfs-progs keeps scrub.status.<UUID> files, does not exi
+st. The packaged monthly btrfs-scrub@.timer exists but its instance for `/` is disabled and inactive. Ordinary reads do verify checksums, so data that was read has been checked, but no record shows a 
+full pass over stored data.
+
+### corpus/knowledge/storage-health-r26.md:61 (at c8efaa3f120834541f8de1e5e0367e8d1593bae6)
+**Verdict.** `UNVERIFIED`
+
+### corpus/knowledge/storage-health-r26.md:63 (at c8efaa3f120834541f8de1e5e0367e8d1593bae6)
+**Action.** Operator decision: run `btrfs scrub start /` once or enable `btrfs-scrub@-.timer`; the lane never starts a scrub or enables a timer. After a scrub, read `btrfs scrub status /` for csum, ve
+rify, read and super errors and the corrected versus uncorrectable split.
+
+### corpus/knowledge/storage-health-r26.md:65 (at c8efaa3f120834541f8de1e5e0367e8d1593bae6)
+**Sources.** S139, S131, S129. Quotes: S139 (ch-scrub-intro.rst line 71): "The scrubbing status is recorded in :file:`/var/lib/btrfs/` in textual files named"; S139 (ch-scrub-intro.rst line 68): "reco
+mmended period is a month but it could be less."; S139 (ch-scrub-intro.rst line 17): "Such automatic repair is also carried out when reading metadata or data from a"; S131 (btrfs-scrub@.timer line 5):
+ "OnCalendar=monthly"; S129 (btrfs-scrub.rst line 133): "Show status of a running scrub for the filesystem identified by *path*".
+
+### corpus/knowledge/storage-health-r26.md:133 (at c8efaa3f120834541f8de1e5e0367e8d1593bae6)
+- SH4 scope and action (RevRowSH4): "no scrub record exists on this host" is narrowed to what was read: no status file and no `scrub: started` or `finished` kernel line in the six retained boots (live
+ read-only check, 2026-10-22); older scrubs, or scrubs run with recording disabled, cannot be excluded. On this host `/var/log/journal` carries the NOCOW attribute (`lsattr -d`, read-only), so the jou
+rnal is outside scrub verification. The operator action has side effects the row did not name: a scrub reads the whole filesystem (174.40 GiB to scrub), writes some data even when read-only on a read-
+write mount (S139 lines 49-54), and creates `/var/lib/btrfs` status files; enabling the timer adds an enablement link and may delay the first run by up to a week (S131). SKILL SE4's "no scrub has run"
+ means no scrub status is recorded.
+
+### SKILL.md:2368 (at c8efaa3f120834541f8de1e5e0367e8d1593bae6)
+| SH4 | `sudo -n btrfs scrub status /`; `systemctl is-enabled btrfs-scrub@-.timer` | No `scrub.status.<UUID>` under `/var/lib/btrfs` and `no stats available` mean no scrub record, not a clean scrub; i
+gnore the `no errors found` line printed beside it. | `no stats available` (capture line 121); `/var/lib/btrfs` absent (line 127); `btrfs-scrub@-.timer` disabled (line 131) and inactive (line 134). Th
+e `Error summary: no errors found` line printed beside `no stats available` is not a health reading. (`UNVERIFIED`) | Operator decision: run `btrfs scrub start /` once or enable `btrfs-scrub@-.timer`;
+ the lane never starts a scrub or enables a timer. After a scrub, read `btrfs scrub status /` for csum, verify, read and super errors and the corrected versus uncorrectable split. |
+
+### SKILL.md:2377 (at c8efaa3f120834541f8de1e5e0367e8d1593bae6)
+- **SE4 — false clean.** `Error summary: no errors found` printed with `no stats available`: no scrub has run; this is `UNVERIFIED`, not `HEALTHY` (SH4).
+
+### corpus/README.md:239 (at c8efaa3f120834541f8de1e5e0367e8d1593bae6)
+| `knowledge/storage-health-r26.md` and `.json` | New ground: six sourced rows on btrfs integrity and NVMe health. SH1 the five per-device error counters and their two views; SH2 the counters are a st
+ored lifetime total, only error-level kernel lines date an error; SH3 scrub repairs only from a replica, so `single` data errors are uncorrectable and NOCOW file data is not verified; SH4 no scrub rec
+ord exists on this host (`UNVERIFIED`); SH5 smartctl's PASSED is the Critical Warning byte alone; SH6 NVMe lifetime counters, including Unexpected Power Losses (labelled Unsafe Shutdowns), are not dat
+ed events | S128 to S135, S139; `lessons/round-26.md` Gate; capture `.ufo/waves/round-26/capture/capture.txt` |
+
+### PROVINCE.md:212 (at c8efaa3f120834541f8de1e5e0367e8d1593bae6)
+**Still Frontier:** the scrub record (`btrfs scrub status`, `/var/lib/btrfs/scrub.status.*`,

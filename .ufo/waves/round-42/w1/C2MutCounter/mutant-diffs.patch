@@ -1,0 +1,225 @@
+commit 8b54e78b68d3132a2f7792a9143c7127188a1f09 mutant M1: drop the window check
+---
+ tools/check-scrub-record-r42.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/check-scrub-record-r42.py b/tools/check-scrub-record-r42.py
+index 2903dee2..34058261 100755
+--- a/tools/check-scrub-record-r42.py
++++ b/tools/check-scrub-record-r42.py
+@@ -202,7 +202,7 @@ def main():
+             else:
+                 bad += 1
+         r['quotes'] = {'good': good, 'in_window': in_window, 'bad': bad}
+-        q_ok = good >= 1 and in_window >= 1 and bad == 0
++        q_ok = good >= 1 and bad == 0
+         n_ok = spec['token'] in text
+         hm = [HOST_RE.match(ln) for ln in lines if ln.startswith('**Host reading.**')]
+         h_ok = bool(hm) and all(m and cap and 1 <= int(m.group(1)) <= len(cap) and cap[int(m.group(1)) - 1].strip()
+commit c4fda91b5c2e8891b31c059612a788bb60d2502c mutant M2: drop the role check
+---
+ tools/check-scrub-record-r42.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tools/check-scrub-record-r42.py b/tools/check-scrub-record-r42.py
+index 2903dee2..be0777e5 100755
+--- a/tools/check-scrub-record-r42.py
++++ b/tools/check-scrub-record-r42.py
+@@ -121,9 +121,9 @@ def bound(lane, rev, wave, name, role, row):
+     disp = load_json(lane, rev, f'{WAVE}/{wave}-dispatch.json') or {}
+     res = load_json(lane, rev, f'{WAVE}/{wave}-results.json') or {}
+     tasks = ((disp.get('taskCall') or {}).get('tasks')) or []
+-    if not any(t.get('name') == name and t.get('agent') == role for t in tasks):
++    if not any(t.get('name') == name for t in tasks):
+         return None, None
+-    ent = [r for r in (res.get('results') or []) if r.get('name') == name and r.get('agent') == role]
++    ent = [r for r in (res.get('results') or []) if r.get('name') == name]
+     if len(ent) != 1 or not isinstance(ent[0].get('output'), str):
+         return None, None
+     hits = [m for m in VERDICT_RE.finditer(ent[0]['output']) if m.group(1) == row]
+commit 17664b5b271344906e590a39cda6036afc68abdb mutant M3: accept any VERDICT line
+---
+ tools/check-scrub-record-r42.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/check-scrub-record-r42.py b/tools/check-scrub-record-r42.py
+index 2903dee2..94aa1f4b 100755
+--- a/tools/check-scrub-record-r42.py
++++ b/tools/check-scrub-record-r42.py
+@@ -63,7 +63,7 @@ ROWS = {
+ OPENED = '2026-10-26'
+ QUOTE_RE = re.compile(r'^\*\*Quote\.\*\* `(S\d{3,})` (scrub\.c|CHANGES):(\d+): "(.+)"\s*$')
+ HOST_RE = re.compile(r'^\*\*Host reading\.\*\*.*?capture\.txt:(\d+)')
+-VERDICT_RE = re.compile(r'ROW (SC\d) VERDICT: (holds|partly|fails)\b')
++VERDICT_RE = re.compile(r'ROW (SC\d) VERDICT: (\S+)')
+ 
+ 
+ def show(lane, rev, path):
+commit 0553535c0aa2e43ce9ee0771b852df27f7488994 mutant M4: skip the report-file equality
+---
+ tools/check-scrub-record-r42.py | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/tools/check-scrub-record-r42.py b/tools/check-scrub-record-r42.py
+index 2903dee2..b4b2fff0 100755
+--- a/tools/check-scrub-record-r42.py
++++ b/tools/check-scrub-record-r42.py
+@@ -130,9 +130,6 @@ def bound(lane, rev, wave, name, role, row):
+     if len(hits) != 1:
+         return None, None
+     line = hits[0].group(0)
+-    rep = show(lane, rev, f'{WAVE}/{wave}/{name}.md')
+-    if rep is None or line not in rep.decode(errors='replace'):
+-        return None, None
+     return hits[0].group(2), line
+ 
+ 
+commit e5809e59b46fd3b58538dfb311a80d785b1e0da0 mutant M5: treat None output as holds
+---
+ tools/check-scrub-record-r42.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/tools/check-scrub-record-r42.py b/tools/check-scrub-record-r42.py
+index 2903dee2..086f63ae 100755
+--- a/tools/check-scrub-record-r42.py
++++ b/tools/check-scrub-record-r42.py
+@@ -124,8 +124,10 @@ def bound(lane, rev, wave, name, role, row):
+     if not any(t.get('name') == name and t.get('agent') == role for t in tasks):
+         return None, None
+     ent = [r for r in (res.get('results') or []) if r.get('name') == name and r.get('agent') == role]
+-    if len(ent) != 1 or not isinstance(ent[0].get('output'), str):
++    if len(ent) != 1:
+         return None, None
++    if not isinstance(ent[0].get('output'), str):
++        return 'holds', None
+     hits = [m for m in VERDICT_RE.finditer(ent[0]['output']) if m.group(1) == row]
+     if len(hits) != 1:
+         return None, None
+commit 357ce19f96edfa6a764b2557d800ef218bcd30fa mutant M6: skip the base-absence check of sources
+---
+ tools/check-scrub-record-r42.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/check-scrub-record-r42.py b/tools/check-scrub-record-r42.py
+index 2903dee2..f669a907 100755
+--- a/tools/check-scrub-record-r42.py
++++ b/tools/check-scrub-record-r42.py
+@@ -231,7 +231,7 @@ def main():
+     src_detail = {}
+     for sid in sorted(cited):
+         c = reg.get(sid)
+-        ok = (c is not None and sid not in reg_base and c[7] == 'mined' and c[8] == OPENED
++        ok = (c is not None and c[7] == 'mined' and c[8] == OPENED
+               and ENTRY in [p.strip() for p in re.split(r'[,;]', c[10])])
+         src_detail[sid] = ok
+     sources_ok = int(bool(cited) and all(src_detail.values()))
+commit a16590f24f95be543cd5a3f8905072800516a889 mutant M7: host_ok >= 0
+---
+ tools/check-scrub-record-r42.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/check-scrub-record-r42.py b/tools/check-scrub-record-r42.py
+index 2903dee2..35723ec8 100755
+--- a/tools/check-scrub-record-r42.py
++++ b/tools/check-scrub-record-r42.py
+@@ -237,7 +237,7 @@ def main():
+     sources_ok = int(bool(cited) and all(src_detail.values()))
+     rows = sum(1 for r in per.values() if r.get('present'))
+ 
+-    verdict = (rows == 5 and quotes_ok == 5 and novelty_ok == 5 and host_ok >= 3 and sources_ok == 1
++    verdict = (rows == 5 and quotes_ok == 5 and novelty_ok == 5 and host_ok >= 0 and sources_ok == 1
+                and verdicts_ok == 5 and base_hits == 0)
+     print(json.dumps({
+         'counter': 'check-scrub-record-r42', 'revision': rev, 'base': BASE,
+commit d1c7fd811aca7d7f97b1b26159f53226d02e84b0 mutant M8: accept partly without residual
+---
+ tools/check-scrub-record-r42.py | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/tools/check-scrub-record-r42.py b/tools/check-scrub-record-r42.py
+index 2903dee2..aee00f7d 100755
+--- a/tools/check-scrub-record-r42.py
++++ b/tools/check-scrub-record-r42.py
+@@ -214,8 +214,7 @@ def main():
+         resid, lr = None, None
+         if 'partly' in vs:
+             resid, lr = bound(a.lane, rev, 'residual', f'C2RevSC{n}c', 'reviewer', row)
+-        v_ok = (None not in vs and 'fails' not in vs and resid != 'fails'
+-                and (all(v == 'holds' for v in vs) or resid == 'holds'))
++        v_ok = (None not in vs and 'fails' not in vs and resid != 'fails')
+         for nm, ln in ((f'C2RevSC{n}', l1), (f'C2CritSC{n}', l2), (f'C2RevSC{n}c', lr)):
+             if ln:
+                 tcount += 1
+commit a052b8fed8a8c00361835ffae9d6a470f34c32a3 mutant M9: drop the snapshot digest check
+---
+ tools/check-scrub-record-r42.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/check-scrub-record-r42.py b/tools/check-scrub-record-r42.py
+index 2903dee2..fc05a7ea 100755
+--- a/tools/check-scrub-record-r42.py
++++ b/tools/check-scrub-record-r42.py
+@@ -160,7 +160,7 @@ def main():
+     snaps = {}
+     for f, digest in SNAP.items():
+         b = show(a.lane, rev, f'{WAVE}/frozen/src/{f}')
+-        snaps[f] = b.decode(errors='replace').split('\n') if b and hashlib.sha256(b).hexdigest() == digest else None
++        snaps[f] = b.decode(errors='replace').split('\n') if b else None
+     cb = show(a.lane, rev, CAPTURE[0])
+     cap = cb.decode(errors='replace').split('\n') if cb and hashlib.sha256(cb).hexdigest() == CAPTURE[1] else None
+ 
+commit 5d96a1914e608086889a6ada8c462aaa4938455f mutant M10: read the residual for every row
+---
+ tools/check-scrub-record-r42.py | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/tools/check-scrub-record-r42.py b/tools/check-scrub-record-r42.py
+index 2903dee2..ac16decd 100755
+--- a/tools/check-scrub-record-r42.py
++++ b/tools/check-scrub-record-r42.py
+@@ -212,8 +212,7 @@ def main():
+         v2, l2 = bound(a.lane, rev, 'w2', f'C2CritSC{n}', 'critic', row)
+         vs = [v1, v2]
+         resid, lr = None, None
+-        if 'partly' in vs:
+-            resid, lr = bound(a.lane, rev, 'residual', f'C2RevSC{n}c', 'reviewer', row)
++        resid, lr = bound(a.lane, rev, 'residual', f'C2RevSC{n}c', 'reviewer', row)
+         v_ok = (None not in vs and 'fails' not in vs and resid != 'fails'
+                 and (all(v == 'holds' for v in vs) or resid == 'holds'))
+         for nm, ln in ((f'C2RevSC{n}', l1), (f'C2CritSC{n}', l2), (f'C2RevSC{n}c', lr)):
+commit 83d021b92bdacf308916fb2b5ff95fae13ca624e mutant M11: drop novelty_base_hits == 0 from predicate
+---
+ tools/check-scrub-record-r42.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/check-scrub-record-r42.py b/tools/check-scrub-record-r42.py
+index 2903dee2..6280c6d1 100755
+--- a/tools/check-scrub-record-r42.py
++++ b/tools/check-scrub-record-r42.py
+@@ -238,7 +238,7 @@ def main():
+     rows = sum(1 for r in per.values() if r.get('present'))
+ 
+     verdict = (rows == 5 and quotes_ok == 5 and novelty_ok == 5 and host_ok >= 3 and sources_ok == 1
+-               and verdicts_ok == 5 and base_hits == 0)
++               and verdicts_ok == 5)
+     print(json.dumps({
+         'counter': 'check-scrub-record-r42', 'revision': rev, 'base': BASE,
+         'predicate': ('rows == 5 and quotes_ok == 5 and novelty_ok == 5 and host_ok >= 3 and sources_ok == 1 '
+commit f1617e7e4c4e0fd34b7e8becc4a0592a7f4457a7 mutant M12: drop rows == 5 from predicate
+---
+ tools/check-scrub-record-r42.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/check-scrub-record-r42.py b/tools/check-scrub-record-r42.py
+index 2903dee2..28c7f8ac 100755
+--- a/tools/check-scrub-record-r42.py
++++ b/tools/check-scrub-record-r42.py
+@@ -237,7 +237,7 @@ def main():
+     sources_ok = int(bool(cited) and all(src_detail.values()))
+     rows = sum(1 for r in per.values() if r.get('present'))
+ 
+-    verdict = (rows == 5 and quotes_ok == 5 and novelty_ok == 5 and host_ok >= 3 and sources_ok == 1
++    verdict = (quotes_ok == 5 and novelty_ok == 5 and host_ok >= 3 and sources_ok == 1
+                and verdicts_ok == 5 and base_hits == 0)
+     print(json.dumps({
+         'counter': 'check-scrub-record-r42', 'revision': rev, 'base': BASE,

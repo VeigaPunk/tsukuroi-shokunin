@@ -1,0 +1,13 @@
+residual conjunct `resid != 'fails'` (check-scrub-record-r42.py:217) removal, exhaustive over (rev,crit,resid) in 4^3
+combinations: 64  divergences: 0
+
+witness rows  (v1,v2,residual)  with-conjunct  without  resid fetched
+('fails', 'partly', 'holds')           False  False  holds
+(None, 'partly', 'holds')              False  False  holds
+('partly', 'holds', 'fails')           False  False  fails
+('partly', 'holds', 'holds')           True   True   holds
+('holds', 'holds', 'fails')            True   True   None
+('fails', 'holds', 'holds')            False  False  None
+
+why it is vacuous: `resid` is only non-None when 'partly' is in vs (line 215-216); in that case
+`resid == 'fails'` already makes `... or resid == 'holds'` false, so the conjunct can never decide.
