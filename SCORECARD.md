@@ -2540,3 +2540,19 @@ Each count is re-derived from the committed lane tree at the round-41 outcome co
   with planted verdicts) frozen as should-fail; (3) depth, the lowest axis with adjacency: the storage scrub-record
   leads (`w1/ConnFrontier.md` §5). The round-40 sweep's unrecorded candidates (`w1/MistakesSweep.md` §4) stay open.
 - **retired:** none.
+
+### Round 41 — residual addendum (appended after both WAVE-DONE messages; no table above is rewritten)
+
+Residual call: 6 reviewer seats (`residual-dispatch.json`, `residual-results.json`). Row re-reads after the appended
+corrections: PA2 `holds`, PA3 `holds`, PA5 `holds`, PA7 `holds`, **PA6 `partly`** (`residual/C2RevPA6c.md`: the correction
+names two of the three NULL paths of `_cache_mtree_open`; the allocation-failure path `be_local.c:263-265` is missing).
+C1 structural read: `residual/C1RevDiffRead.md` `supports` (four `check` cases, no self-reading construct, held-out kills
+on their own R41 cases, arm byte-identical). C1 final receipt at `d7bf279f`: PASS, survivors 0, params 4
+(`after/c1-final-d7bf279.jsonl`). Self-assessment at `64f9062e`: 27 checked, 0 mismatches (`after/self-assessment-final.jsonl`).
+
+Verdict consequence, applied as declared: the C2 kill rule "a row verdict stays `partly` without a later `holds` after an
+appended correction" **fires for PA6**, so **C2 is not verified** although its frozen predicate is met at `d7bf279f`. A
+third correction bullet naming the missing path is appended to the entry; it was written after the residual verdict and
+carries no verdict, so it does not reverse this outcome. C1: verified under the frozen predicate, with the counter's
+sufficiency falsified (`w1/C1CritDecoy.md`) and the landed bytes read structurally by a non-author seat.
+Round total: 80 seats (w1 74 + residual 6), every seat settled with a report.

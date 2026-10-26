@@ -1,0 +1,10 @@
+# load-flake probes on the census --selftest at 568c397 (not counter runs)
+probe1 (no strace, 4 capture copies + 1 baseline, concurrent): cap1..cap4 rc=0 PASS 128/128, base1 rc=0 PASS 128/128  (26 s total)
+probe2 (4 capture copies under one strace -f, trace=openat,mkdir,unlink,rename,execve): c1 PASS, c2 FAIL 127/128, c3 PASS, c4 PASS (102 s)
+  c2 failing case:
+FAIL degraded: the fold never reads off a missing baseline (R9): plane evidence missing: 'classes=unavailable\(baseline-absent\)'; got: PLANE packages: DEGRADED (pacman -Qkk rc=0 sample=4(alpha,beta,g
+probe3 (4 BASELINE copies, same strace): b1 FAIL 127/128, b2-b4 PASS (73.7 s)
+  b1 failing case:
+FAIL degraded: boot-0 coredumps route one coredumps handoff, value = the boot-0 count (R32-C1): plane evidence missing: 'err=3 \(coredump=3 kernel=0 other=0\)'; got: PLANE packages: HEALTHY (pacman -Q
+counter run1: capture variant failed twice (cap 125 args, cap2 125 args), params=0, exit 1
+standalone capture copy (env identical, no concurrency): rc=0 PASS 128/128, cap dir: args=125 mounts=123

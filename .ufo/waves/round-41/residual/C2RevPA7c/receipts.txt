@@ -1,0 +1,47 @@
+seat C2RevPA7c — command receipts (2026-10-26)
+
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse HEAD
+20c327b3f1cf96ad1828792c2ae5db71b5fd9ef7
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain=v1 -- \
+    corpus/knowledge/alpm-package-anatomy-r41.md
+(no output — corpus file clean; working tree text == revision 20c327b3)
+
+$ cd .ufo/waves/round-41/frozen/src && sha256sum -c SHA256SUMS
+PKGBUILD.5.asciidoc: OK
+add.c: OK
+alpm-package.7.raw: OK
+be_local.c: OK
+be_package.c: OK
+check.c: OK
+makepkg.sh.in: OK
+query.c: OK
+version.c: OK
+
+$ cd ../hostcap && sha256sum -c MANIFEST.sha256
+capture.sh: OK
+capture-meta.txt: OK
+localdb-anatomy.tsv: OK
+vercmp.txt: OK
+man-pkgbuild-runinside.txt: OK
+mtree-pacman-head.txt: OK
+$ grep -n 'MANWIDTH' capture.sh
+7:export LC_ALL=C MANWIDTH=80
+$ cat capture-meta.txt
+captured_utc 2026-10-26T16:14:04Z
+pacman pacman 7.1.0.r9.g54d9411-3
+kernel 7.2.11-arch1-1
+alpm_db_version 9
+
+$ diff <(LC_ALL=C MANWIDTH=80 man -P cat PKGBUILD 2>/dev/null | \
+    grep -n 'This function is run inside') man-pkgbuild-runinside.txt \
+  && echo LIVE_REPRO_IDENTICAL
+LIVE_REPRO_IDENTICAL
+$ pacman -Q pacman
+pacman 7.1.0.r9.g54d9411-3
+
+$ grep -n 'run in\b|run inside|runs in\b' PKGBUILD.5.asciidoc   # -i, via grep tool
+350,351,356,357,365,370,377 — the five working-directory sentences are
+351 ($srcdir, package), 357 ($startdir, verify), 365 ($srcdir, prepare),
+370 ($srcdir, build), 377 ($srcdir, check); 350/356 are the loose pattern's
+non-cwd matches; no hit in Package Splitting (399-430) or the pkgver passage
+(50-55).

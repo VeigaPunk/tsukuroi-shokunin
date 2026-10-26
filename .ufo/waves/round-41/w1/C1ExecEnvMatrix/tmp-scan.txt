@@ -1,0 +1,58 @@
+# /tmp outer-write scan for the two C1 counter runs
+# markers: marker.start 15:04:51.18 (before jobs=1), marker.jobs6 15:25:00 (before jobs=6)
+# command per check: find /tmp -maxdepth 1 -newer <marker> -printf '%T@ %y %p\n' | sort
+
+## after jobs=1 (checked 15:24:55, 26 lines = 25 new entries + /tmp itself)
+1793038010.77 d /tmp/tmpn2ijfj9o
+1793038010.84 d /tmp/tmpautondju
+1793038097.67 f /tmp/null
+1793038289.09 f /tmp/ecc-metrics-session_045b4aaac4530cf3d93413220b37c80a.json
+1793038292.25 f /tmp/nw_gate4.err
+1793038292.25 f /tmp/nw_gate4.out
+1793038544.68 f /tmp/ignore-arm.sh
+1793038773.14 f /tmp/fleet_ruling_err.txt
+1793038773.17 f /tmp/fleet_ruling_hits.txt
+1793038830.79 d /tmp/hsperfdata_vgpnk
+1793038854.94 f /tmp/ecc-metrics-sess_dwf-dwfrun-67f9dbe9-b6ff-405f-bbd7-093edb3b88bb-actor_7_1.json
+1793038944.29 d /tmp/org.chromium.Chromium.scoped_dir.7O2UJ5
+1793038944.33 d /tmp/org.chromium.Chromium.kfa8VL
+1793038944.71 d /tmp/org.chromium.Chromium.chromium_chrome_url_fetcher_.TaIQ3j
+1793038959.05 f /tmp/gv2.txt
+1793038971.00 f /tmp/p-ExecLiveLeg.txt
+1793038971.00 f /tmp/p-ScribeSrcSession.txt
+1793038971.00 f /tmp/p-ScribeSrcLauncher.txt
+1793038971.00 f /tmp/p-ScribeSrcSandbox.txt
+1793038971.01 f /tmp/p-NoteGateV2.txt
+1793038974.71 f /tmp/p-note.txt
+1793038989.34 d /tmp/sqfs-v2-y6dl5_fb
+1793039017.35 d /tmp/sqfs-v2-dqt3nv2y
+1793039058.87 f /tmp/g4probe.bin
+1793039074.11 f /tmp/ecc-metrics-sess_dwf-dwfrun-67f9dbe9-b6ff-405f-bbd7-093edb3b88bb-actor_10_1.json
+1793039074.33 d /tmp
+# tsukuroi-r3-2-selftest.* under /tmp: 0
+
+## after jobs=6 (checked 15:28:26, 9 lines = 8 new entries + /tmp itself)
+1793039116.92 d /tmp/sqfs-v2-qjtd1gw2
+1793039120.38 f /tmp/buildgn.txt
+1793039152.71 d /tmp/sqfs-v2-pt4r0uhp
+1793039176.87 d /tmp/zcode-bash-HDkkR0
+1793039186.06 f /tmp/ecc-metrics-session_045b4aaac4530cf3d93413220b37c80a.json
+1793039311.94 f /tmp/ecc-metrics-sess_dwf-dwfrun-67f9dbe9-b6ff-405f-bbd7-093edb3b88bb-actor_10_1.json
+1793039313.90 f /tmp/b.json
+1793039313.90 f /tmp/r.json
+1793039314.95 d /tmp
+# tsukuroi-r3-2-selftest.* under /tmp: 0
+# matches for the counter's own scratch prefix r41c1.*: 0 (those lived under --scratch and were removed)
+
+# attribution: every entry above names another process on the shared host (ecc-metrics/gateguard session
+# telemetry, chromium profiles, sqfs-v2, p-*.txt, fleet_ruling_*, nw_gate4.*, hsperfdata, tabi-selfassessment).
+# The census writes /tmp only as ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.* (tools/tsukuroi-census.sh:1930);
+# the counter sets TMPDIR=<scratch>/<variant>/tmp for every child (score-selftest-mounts-r41.py:136), so that
+# pattern never appears. /tmp/zcode-bash-HDkkR0 is the CLI shell's own temp dir (harness, not the counter).
+# limit: attribution is by name shape and by absence of the two counter write patterns; the host is shared and
+# post-hoc PID attribution was not possible.
+
+## HOME, -maxdepth 1, newer than marker.start: /home/vgpnk/.grokbot, /home/vgpnk/.gateguard
+## (/home/vgpnk/.gateguard holds fleet session-state files, newest 15:25; not the counter, whose children get
+## HOME=<variant dir> and whose own process resolves no HOME path).
+## / and /run, /dev, /tmp directory mtimes moved: system churn on a shared host.

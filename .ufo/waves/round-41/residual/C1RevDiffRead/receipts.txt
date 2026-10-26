@@ -1,0 +1,110 @@
+Seat C1RevDiffRead — receipts for C1-r (non-author structural read of 568c397d)
+All commands run 2026-10-26 in scratch /fast/scratch/hyaku/tsukuroi-r41/C1RevDiffRead/ (removed after).
+Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (read-only; only git cat-file/show/log/ls-tree).
+
+== R1 revisions exist ==
+$ for c in 0e5805a1f149bd2ed9fe0db2e0a832afb034a835 568c397da11339aed65181be598414f268835555 20c327b3f1cf96ad1828792c2ae5db71b5fd9ef7; do git cat-file -t $c; git log -1 --format='%ci %s' $c; done
+commit 2026-10-26 05:18:45 -0300 round-40: wave generator as dispatched (65 items)
+commit 2026-10-26 14:17:13 -0300 round-41: C1 census selftest gains four held-out mount tables (H5, H6, H9, H10)
+commit 2026-10-26 15:24:56 -0300 round-41: append wave corrections to PA2, PA3, PA5, PA6, PA7; ...
+$ git ls-tree 20c327b3... -- tools/tsukuroi-census.sh
+100755 blob dda066f48fdc296db583f4b262fd7f9f027faefd	tools/tsukuroi-census.sh
+
+== R2 census blob identities ==
+$ git cat-file blob <rev>:tools/tsukuroi-census.sh > census-<tag>.sh; sha256sum
+032faa8f1c914dd63a1de673aa9ed6767c4bd19cdfc2751ac34331005da45733  census-base.sh   (0e5805a1, 3149 lines)
+646c84fcdc166dd4f5321a467e60036d785c106f061dd4fa7849424696f9eb95  census-impl.sh   (568c397d, 3176 lines)
+646c84fcdc166dd4f5321a467e60036d785c106f061dd4fa7849424696f9eb95  census-read.sh   (20c327b3, 3176 lines)
+=> census at 20c327b3 is byte-identical to census at 568c397d; diff base->20c327b3 == diff base->568c397d.
+$ git show 568c397d --stat | tail -3
+ tools/tsukuroi-census.sh | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+
+== R3 diff shape ==
+$ git show 568c397da11339aed65181be598414f268835555 -- tools/tsukuroi-census.sh > impl.diff
+$ grep -n '^@@' impl.diff
+11:@@ -3034,6 +3034,33 @@ STUB
+(one hunk; function starts: probe_storage_arm at line 1865, run_selftest at line 1928 in BOTH blobs:
+$ grep -n '^run_selftest() {\|^probe_storage_arm() {' census-base.sh census-impl.sh
+/…/census-base.sh:1865:probe_storage_arm() {
+/…/census-base.sh:1928:run_selftest() {
+/…/census-impl.sh:1865:probe_storage_arm() {
+/…/census-impl.sh:1928:run_selftest() {
+base run_selftest = lines 1928..3055 (1128 lines extracted), impl = 1928..3082 (1155 lines);
+hunk 3034..3066 lies inside both spans; extraction last lines: `[ "$FAIL" -eq 0 ]` then `}`.)
+
+== R4 run_selftest body diff ==
+$ awk '/^run_selftest\(\) \{/{f=1} f{print} f&&/^\}$/{exit}' census-<tag>.sh > rs-<tag>.txt; diff -u rs-base.txt rs-impl.txt > rs.diff
+rs-base.txt sha256 2fbf814600181fc373fc331cfd53ea3664303105d59b80124d25b8387ebdf004 (1128 lines)
+rs-impl.txt sha256 f485aa04e5fcf68a75501ec3cf64f444c62f85b2d859b276baaa6489a4b9306d (1155 lines)
+$ grep -c '^-[^-]' rs.diff  -> 0   (zero deleted/changed lines)
+$ grep -c '^+[^+]' rs.diff  -> 23  (23 non-blank + 4 blank added lines = 27)
+$ grep -c '^[+]  check ' rs.diff -> 4 ; labels: R41-C1 H5, R41-C1 H6, R41-C1 H9, R41-C1 H10
+$ grep '^[+]  case_home=' rs.diff -> 4 lines:
+  storage-mounts-mp-relative / storage-mounts-src-uuid / storage-mounts-no-subvol-opt / storage-mounts-two-btrfs
+
+== R5 construct scan over run_selftest (grep -cE, base vs impl) ==
+declare +-[fF]                                   base=0    impl=0
+(^|[^[:alnum:]_])type                            base=1    impl=1   (rs-base.txt:192 `find "$1" -type f`)
+\$0                                              base=0    impl=0
+\$\{0\}                                          base=0    impl=0
+BASH_SOURCE                                      base=0    impl=0
+BASH_ARGV0                                       base=0    impl=0
+/proc                                            base=6    impl=10  (all fixture mount-table strings;
+                                                                    the 4 added are the new fixture lines)
+(^|[^[:alnum:]_])caller([^[:alnum:]_]|$)         base=0    impl=0
+<<                                               base=1    impl=1   (rs-base.txt:10
+                                                                    `cat > "$bin/.dispatch" <<'STUB'`
+                                                                    — pre-existing fixture WRITER)
+eval                                             base=0    impl=0
+source                                           base=0    impl=1   (rs-impl.txt:1121 prose in the
+                                                                    H6 check label "…source is not…")
+/dev/fd                                          base=0    impl=0
+$ grep '^+' rs.diff | grep -cE 'declare |compgen |trap |fc |history|local -n|BASH_|caller|\$\{?0\}?|<<|/dev/fd|eval |\. "\$|/\$0' -> 0
+
+== R6 probe_storage_arm byte identity (Q3) ==
+$ awk '/^probe_storage_arm\(\) \{/{f=1} f{print} f&&/^\}$/{exit}' census-<tag>.sh > arm-<tag>.txt
+arm-base.txt sha256 71e6007e566e1af32feb495e04e4f291c75fdddb2b521d9822b7363fcdf34d56 (61 lines)
+arm-impl.txt sha256 71e6007e566e1af32feb495e04e4f291c75fdddb2b521d9822b7363fcdf34d56 (61 lines)
+$ cmp arm-base.txt arm-impl.txt && echo ARM-IDENTICAL -> ARM-IDENTICAL
+(Matches C1CritDecoy.md's independently computed sed extraction: 71e6007e… at 0e5805a1, 568c397d, both variants.)
+
+== R7 after-receipt confirm labels (.ufo/waves/round-41/after/c1-after-568c397.jsonl, 350 lines) ==
+receipt 1: revision 568c397da11339aed65181be598414f268835555, tool_revision e479fdc54d0977ccd8112a42d8d139baaebcb02e,
+baseline exit 0 "TSUKUROI_CENSUS_SELFTEST: PASS (128 cases, 128 passed, 0 failed)", baseline_labels 128,
+neutral_pass 3 (N1-rename-counter, N2-double-bracket, N3-awk-field all PASS 128/128),
+decoy_pass 1 (D-all-mutant-texts PASS 128/128), mutants_applied 13, survivors 0, params 4, result PASS, exit 0.
+param_cases keys -> single distinct label each:
+ P1-mountpoint-not-absolute -> "…mountpoint is not absolute still counts, BLOCKED (R41-C1 H5)"
+ P2-source-not-dev        -> "…source is not under /dev still counts, BLOCKED (R41-C1 H6)"
+ P3-no-subvol-option      -> "…no subvol= option still counts, BLOCKED (R41-C1 H9)"
+ P4-two-btrfs-lines       -> "two btrfs lines are still btrfs without sysfs, BLOCKED (R41-C1 H10)"
+H mutants (all exit 1, confirmed true, killed true):
+ H5-mountpoint-absolute  confirm_labels = ["…mountpoint is not absolute still counts, BLOCKED (R41-C1 H5)"] (1 label)
+ H6-source-devonly       confirm_labels = ["…source is not under /dev still counts, BLOCKED (R41-C1 H6)"] (1 label)
+ H9-subvolkey-option     confirm_labels = ["…no subvol= option still counts, BLOCKED (R41-C1 H9)"] (1 label)
+ H10-count-exactly-one   confirm_labels = ["two btrfs lines are still btrfs without sysfs, BLOCKED (R41-C1 H10)"] (1 label)
+ fixture root_dir in the FAIL lines: storage-mounts-mp-relative / -src-uuid / -no-subvol-opt / -two-btrfs respectively.
+M mutants (all exit 1, confirmed true, killed true), confirm_labels -> fixture (see R8):
+ M1-VA-device-literal    6 labels: varied-home, H5, H6, H9, varied-multi, H10
+ M2-VB-root-mountpoint   5 labels: varied-home, H5, H6, H9, varied-multi
+ M3-VC-substring-btrfs   1 label:  btrfs-in-path case ("…ext4 line is no btrfs mount (R40-C1)")
+ M4-VG-subvolid-256      5 labels: varied-home, H5, H6, H9, varied-multi
+ M5-a-grep-count         1 label:  btrfs-in-path case
+ M6-b-fstype-casefold    1 label:  fstype-case case ("…fstype match is exact… (R40-C1)")
+ M7-e-guard-drops-blocked 1 label: root-unreadable case ("…unlistable root keeps its one reason… (R40-C1)")
+ M8-subvol-at-literal    5 labels: varied-home, H5, H6, H9, varied-multi
+ M9-last-line-only       2 labels: varied-home, varied-multi
+Flaky "hostname override not honoured — possible host read" FAILs (R32-C1, R12-C1, D05, Qkk sample drift)
+appear in some first_fails but in NO confirm_labels.
+
+== R8 confirm label -> fixture mapping (awk over rs-impl.txt, nearest preceding case_home) ==
+[a btrfs /home on another device and options, not last]        <= storage-mounts-varied-home
+[one read-only btrfs mount among four lines, empty root]       <= storage-mounts-varied-multi
+[btrfs in the device, mountpoint or options of an ext4 line]   <= storage-mounts-btrfs-in-path
+[the fstype match is exact, so BTRFS is not btrfs]             <= storage-mounts-fstype-case
+[an unlistable root keeps its one reason; the mount table…]    <= storage-root-unreadable-mounted
+[a btrfs line whose mountpoint is not absolute still counts]   <= storage-mounts-mp-relative
+[a btrfs line whose source is not under /dev still counts]     <= storage-mounts-src-uuid
+[a btrfs line with no subvol= option still counts]             <= storage-mounts-no-subvol-opt
+[two btrfs lines are still btrfs without sysfs]                <= storage-mounts-two-btrfs

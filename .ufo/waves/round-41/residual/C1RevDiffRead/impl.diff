@@ -1,0 +1,44 @@
+commit 568c397da11339aed65181be598414f268835555
+Author: tsukuroi-shokunin <tsukuroi@shokunin.local>
+Date:   Mon Oct 26 14:17:04 2026 -0300
+
+    round-41: C1 census selftest gains four held-out mount tables (H5, H6, H9, H10)
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 16438ee1..dda066f4 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -3034,6 +3034,33 @@ STUB
+   check 'healthy: the fstype match is exact, so BTRFS is not btrfs (R40-C1)' 0 HEALTHY \
+     '^STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0$'
+ 
++  # ---- round 41 (C1, round-40 held-out survivors H5, H6, H9 and count direction H10): a btrfs line counts
++  # by its fstype field alone; each table varies one shape the round-40 tables all shared
++  case_home='storage-mounts-mp-relative'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf '%s\n' 'proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0' \
++    '/dev/vdc1 relative/mnt btrfs rw,relatime,subvolid=5,subvol=/ 0 0' > "$FX/mounts"
++  check 'healthy rollup: a btrfs line whose mountpoint is not absolute still counts, BLOCKED (R41-C1 H5)' 0 HEALTHY \
++    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs$'
++
++  case_home='storage-mounts-src-uuid'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf '%s\n' 'proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0' \
++    'UUID=0b1c2d3e-4d5e-6f70-8192-a3b4c5d6e7f8 /data btrfs rw,relatime,subvolid=5,subvol=/ 0 0' > "$FX/mounts"
++  check 'healthy rollup: a btrfs line whose source is not under /dev still counts, BLOCKED (R41-C1 H6)' 0 HEALTHY \
++    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs$'
++
++  case_home='storage-mounts-no-subvol-opt'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf '%s\n' 'proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0' \
++    '/dev/sdc1 /mnt/plain btrfs rw,commit=60 0 0' > "$FX/mounts"
++  check 'healthy rollup: a btrfs line with no subvol= option still counts, BLOCKED (R41-C1 H9)' 0 HEALTHY \
++    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs$'
++
++  case_home='storage-mounts-two-btrfs'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf '%s\n' '/dev/nvme0n1p2 / btrfs rw,relatime,ssd,subvolid=256,subvol=/@ 0 0' \
++    'proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0' \
++    '/dev/nvme0n1p2 /home btrfs rw,relatime,ssd,subvolid=257,subvol=/@home 0 0' > "$FX/mounts"
++  check 'healthy rollup: two btrfs lines are still btrfs without sysfs, BLOCKED (R41-C1 H10)' 0 HEALTHY \
++    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs$'
++
+   case_home='storage-root-unreadable-mounted'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+   st_write "$FX/btrfs/$sfs/devinfo/1/error_stats" 0 0 0 0 0
+   printf '%s\n' 'proc /proc proc rw 0 0' '/dev/vdb /data btrfs rw,relatime,subvolid=5,subvol=/ 0 0' > "$FX/mounts"

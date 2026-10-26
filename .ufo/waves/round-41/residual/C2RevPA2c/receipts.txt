@@ -1,0 +1,44 @@
+# C2RevPA2c receipts — commands as run, outputs verbatim (2026-10-26)
+
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse HEAD
+20c327b3f1cf96ad1828792c2ae5db71b5fd9ef7
+$ diff -q <git-show extraction> corpus/knowledge/alpm-package-anatomy-r41.md && echo WORKTREE_MATCHES
+WORKTREE_MATCHES
+$ sha256sum frozen/src/be_package.c   (cwd .ufo/waves/round-41)
+24e5890647f80dd953586d8add314b396d0276a37e2f1468f685e90b809db4d7  frozen/src/be_package.c
+$ grep -n be_package frozen/src/SHA256SUMS
+5:24e5890647f80dd953586d8add314b396d0276a37e2f1468f685e90b809db4d7  be_package.c
+$ grep -n 'strcmp(entry_name, "\.PKGINFO")|could not parse package description|missing package name|missing package version|invalid package version|config = 1;|full && strcmp|missing package metadata|_alpm_pkg_check_meta|handle_simple_path|hit_mtree =' frozen/src/be_package.c
+598| if(strcmp(entry_name, ".PKGINFO") == 0) {
+600| if(parse_descfile(handle, archive, newpkg) != 0) {
+601|  _("could not parse package description file in %s\n"),
+605-608| missing package name block
+609-612| missing package version block
+613-616| strchr(newpkg->version, '-') block
+617| config = 1;
+619| } else if(full && strcmp(entry_name, ".MTREE") == 0) {
+623| hit_mtree = build_filelist_from_mtree(handle, newpkg, archive) == 0;
+625| } else if(handle_simple_path(newpkg, entry_name)) {
+652| if(!config) {
+653|  _("missing package metadata in %s\n"), pkgfile);
+678| if(_alpm_pkg_check_meta(newpkg) != 0) {
+679|  goto pkg_invalid;
+680| }
+(full log at frozen/src — read in place; above is the line map)
+$ grep -rn _alpm_pkg_check_meta frozen/src/
+be_local.c:635|  _alpm_pkg_check_meta(pkg);
+be_package.c:678| if(_alpm_pkg_check_meta(newpkg) != 0) {
+(no definition anywhere in frozen/src)
+$ grep -n 'config = \|int config' frozen/src/be_package.c
+559:	int config = 0;
+617:			config = 1;
+$ pacman -Q pacman
+pacman 7.1.0.r9.g54d9411-3
+$ read frozen/src/be_package.c:368-393  → handle_simple_path: ".INSTALL" → scriptlet=1; else *path=='.' → return 1 (handled)
+$ read frozen/src/be_package.c:720-789  → alpm_pkg_load passes full through to _alpm_pkg_load_internal
+$ read frozen/src/query.c:454-483       → :468 alpm_pkg_load(config->handle, strname, 1, 0, &pkg)  (full=1)
+$ read w1/C2RevPA2b/probe-final.log     → P3 rc=0 demo 1.0-1; P4 (./ ./.PKGINFO ./data1, bytes a1583f859a116afb both)
+                                          rc=1 "missing package metadata"; P12 "could not parse package
+                                          description file"; P13 q3/q9/r1/r2 "invalid metadata for package …
+                                          (package version contains invalid characters)", q1/q2/r3 load
+Scratch /fast/scratch/hyaku/tsukuroi-r41/C2RevPA2c removed after report written.

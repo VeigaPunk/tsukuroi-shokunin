@@ -1,0 +1,86 @@
+C2RevPA6c — verification log (2026-10-26)
+Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin @ 20c327b3f1cf96ad1828792c2ae5db71b5fd9ef7
+  (`git rev-parse HEAD` == the revision the item pins; working copy is the judged text)
+Host: Pacman v7.1.0 - libalpm v16.0.1 (`pacman --version`)
+Scratch: /fast/scratch/hyaku/tsukuroi-r41/C2RevPA6c (removed after this log was written)
+
+[1] Snapshot integrity
+$ cd .ufo/waves/round-41/frozen/src && sha256sum -c SHA256SUMS
+PKGBUILD.5.asciidoc: OK
+add.c: OK
+alpm-package.7.raw: OK
+be_local.c: OK
+be_package.c: OK
+check.c: OK
+makepkg.sh.in: OK
+query.c: OK
+version.c: OK
+
+[2] check.c NULL-mtree branch (pinned snapshot, line-numbered)
+$ grep -n "" frozen/src/check.c | sed -n '293,325p'
+314:	mtree = alpm_pkg_mtree_open(pkg);
+315:	if(mtree == NULL) {
+316:		/* TODO: check error to confirm failure due to no mtree file */
+317:		if(!config->quiet) {
+318:			printf(_("%s: no mtree file\n"), pkgname);
+319:		}
+320:		return 0;
+321:	}
+
+[3] be_local.c _cache_mtree_open — three NULL paths (pinned snapshot)
+251: static struct archive *_cache_mtree_open(alpm_pkg_t *pkg)
+256: char *mtfile = _alpm_local_db_pkgpath(db, pkg, "mtree");
+258: if(access(mtfile, F_OK) != 0) {      /* absent: silent */
+260:         goto error;
+263: if((mtree = archive_read_new()) == NULL) {   /* handle alloc failure: no "error while reading file" log */
+264:         GOTO_ERR(pkg->handle, ALPM_ERR_LIBARCHIVE, error);
+270: if(_alpm_archive_read_open_file(mtree, mtfile, ALPM_BUFFER_SIZE)) {
+271-272:         _alpm_log(pkg->handle, ALPM_LOG_ERROR, _("error while reading file %s: %s\n"), mtfile, archive_error_string(mtree));
+273:         _alpm_archive_read_free(mtree);
+274:         GOTO_ERR(pkg->handle, ALPM_ERR_LIBARCHIVE, error);
+280-282: error: free(mtfile); return NULL;
+
+[4] ops structs (pinned snapshot)
+be_local.c:334  static const struct pkg_operations local_pkg_ops = {   /* local-db ops */
+be_local.c:363  .mtree_open = _cache_mtree_open,
+be_local.c:623  pkg->ops = &local_pkg_ops;    /* local-db load path */
+be_package.c:140-152 get_file_pkg_ops(): file_pkg_ops = default_pkg_ops; only changelog_{open,read,close} replaced (:145-148)
+be_package.c:658-660 newpkg->origin = ALPM_PKG_FROM_FILE; newpkg->ops = get_file_pkg_ops();
+NOTE: default_pkg_ops itself is defined outside the pinned snapshot (package.c not pinned);
+      be_package.c:137 comment + :145 copy are the only in-snapshot references.
+
+[5] query.c dispatch (pinned snapshot)
+317-323: if(config->op_q_check) { if(config->op_q_check == 1) ret = check_pkg_fast(pkg); else ret = check_pkg_full(pkg); }
+467-468: if(config->op_q_isfile) { alpm_pkg_load(config->handle, strname, 1, 0, &pkg); }
+502-506: if(filter(pkg)) { int value = display(pkg); if(value != 0) ret = 1; }
+
+[6] Independent fixture reproduction (my own runs; scratch dbpath+root, read-only queries)
+Fixture: db/local/ALPM_DB_VERSION=9; db/local/foo-1.0-1/{desc,files} (no mtree);
+root/usr/bin/foo; archive foo-1.0-1-x86_64.pkg.tar.gz members .BUILDINFO .MTREE .PKGINFO usr/
+mtree built makepkg-style (makepkg.sh.in:615-617): NUL list ./.BUILDINFO ./.PKGINFO ./usr ./usr/bin ./usr/bin/foo
+  | LANG=C bsdtar -cnf - --format=mtree --options='!all,use-set,type,uid,gid,mode,time,size,sha256,link'
+    --null --files-from - --exclude .MTREE | gzip -c -f -n > .MTREE
+zcat .MTREE: #mtree / /set type=file uid=1000 gid=1000 mode=644 / ./.BUILDINFO ... / ./.PKGINFO ... /
+  ./usr ... type=dir / ./usr/bin ... type=dir / ./usr/bin/foo ... sha256digest=...
+
+P1  $ pacman -Qkk --dbpath $D/db --root $D/root --color never foo
+    stdout: foo: no mtree file   (plus unrelated "database file for '<repo>' does not exist" warnings)
+    rc=0
+P2  $ pacman -Qkk --dbpath $D/db --root $D/root --color never --quiet foo
+    stdout: <no "no mtree file" line>   stderr: only the same unrelated db warnings
+    rc=0
+P3  $ pacman -Qpl --dbpath $D/db --root $D/root --color never $D/foo-1.0-1-x86_64.pkg.tar.gz
+    foo <D>/root/usr/
+    foo <D>/root/usr/bin/
+    foo <D>/root/usr/bin/foo
+    rc=0        (the archive's .MTREE IS parsed for the filelist — be_package.c:447 build_filelist_from_mtree)
+P4  $ pacman -Qpkk --dbpath $D/db --root $D/root --color never $D/foo-1.0-1-x86_64.pkg.tar.gz
+    stdout: foo: no mtree file   stderr: no "error while reading file" line
+    rc=0        (notice printed although the archive carries a readable .MTREE)
+
+[7] Second reader receipts read in full: .ufo/waves/round-41/w1/C2RevPA6b/qkk-fixture-receipts.txt
+    (§1-§9 present as cited; §2 --quiet silent rc=0; §3/§4 unopenable/truncated -> stderr log + notice + rc=0;
+     §7 -Qk fast path; §9 -Qpkk notice with the local entry present+valid and with it moved away).
+    Consistent with the snapshot lines cited; not rerun by me except P1/P2/P3/P4 above.
+
+No host state touched; no counter or census run (not this item); no tool installs (none needed).

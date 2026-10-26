@@ -95,3 +95,8 @@ grounded on the pinned snapshot, and is the reading that replaces the row text w
   `$srcdir` (seat C2RevPA7b: `pkgver` at `makepkg.sh.in:192`; `run_function_safe` defaults its directory to `$srcdir`,
   `local workingdir="${2:-$srcdir}"` at `:414`), so the decision-table command finds no
   line for them.
+- **PA6 — a third NULL path (residual seat C2RevPA6c).** `_cache_mtree_open` returns NULL by three paths
+  (`be_local.c:251-283`): the file absent (`:258-261`, silent), the archive handle not allocatable (`:263-265`, no
+  "error while reading file" log), and the open failing (`:270-275`, logged). All three reach the notice (unless
+  `--quiet`) and `return 0`; the TODO at `check.c:316` conflates the three, not two. Appended after the residual
+  verdict, which therefore did not judge this bullet.

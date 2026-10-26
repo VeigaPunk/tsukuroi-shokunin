@@ -1,0 +1,39 @@
+# run 1: strace -f -e trace=openat,mkdir,unlink,rename,execve over score-selftest-mounts-r41.py
+# revision 568c397da11339aed65181be598414f268835555, --jobs 4, cwd=lane, --scratch .../C1SentScratch/scratch
+trace_lines: 13348196
+execve_calls_total: 1083416  distinct_paths: 295
+
+## write-mode openat (O_WRONLY|O_RDWR|O_CREAT|O_TRUNC), successful, OUTSIDE --scratch
+    269004  /dev/null
+     25809  /dev/tty
+  (distinct outside paths: 2; distinct inside paths: 307000)
+## write-mode openat, failed, OUTSIDE --scratch
+    104904  /dev/tty
+## mkdir/rename, successful, OUTSIDE --scratch (all are coreutils mkdir -p component walks; see report)
+      9319  ('mkdir', 'scratch')
+      5257  ('mkdir', '/fast')
+      4623  ('mkdir', 'pacmandb')
+      4600  ('mkdir', 'tmp')
+      4556  ('mkdir', 'hyaku')
+      4539  ('mkdir', 'fx')
+      4532  ('mkdir', 'C1SentScratch')
+      4512  ('mkdir', 'tsukuroi-r41')
+      4469  ('mkdir', 'r41c1.kor1_ssh')
+      4148  ('mkdir', 'etc')
+      4136  ('mkdir', 'pci')
+      4125  ('mkdir', 'dev')
+  (distinct entries: 223)
+## mkdir/rename, failed, OUTSIDE --scratch
+     66713  ('mkdir', 'scratch')
+     33547  ('mkdir', 'r41c1.kor1_ssh')
+     33504  ('mkdir', 'tsukuroi-r41')
+     33484  ('mkdir', 'C1SentScratch')
+     33460  ('mkdir', 'hyaku')
+     33444  ('mkdir', 'fx')
+     33416  ('mkdir', 'tmp')
+     32759  ('mkdir', '/fast')
+  (distinct entries: 205; all mkdir; no unlink/rmdir/rename recorded)
+## limits
+  unlinkat/rmdir-of-tree syscalls are NOT in the traced set, and glibc/coreutils/Python delete via
+  unlinkat, so deletions are not enumerated here; the end state of --scratch was checked on disk instead.
+  absolute paths created outside --scratch: 0 (verified: no /scratch, /fx, /pacmandb, /bin/.dispatch; no /tmp/tsukuroi-r3-2-selftest.*)

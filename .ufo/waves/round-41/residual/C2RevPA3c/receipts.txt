@@ -1,0 +1,69 @@
+# Seat C2RevPA3c — receipts (residual item PA3-c)
+
+## 1. Pinned snapshot integrity (lane repo, read-only)
+
+command:
+  cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src
+  grep -E 'makepkg\.sh\.in|be_package\.c' SHA256SUMS
+  sha256sum -c SHA256SUMS 2>/dev/null | grep -E 'makepkg\.sh\.in|be_package\.c'
+
+observed:
+  24e5890647f80dd953586d8add314b396d0276a37e2f1468f685e90b809db4d7  be_package.c
+  d588222586b2432b4169c82e6ebcd464acfdc20a663172fd444b8f98e1104e86  makepkg.sh.in
+  be_package.c: OK
+  makepkg.sh.in: OK
+
+## 2. Corpus row/correction read at the declared revision
+
+command:
+  git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin \
+    log -1 --format='%H %ad %s' --date=iso 20c327b3f1cf96ad1828792c2ae5db71b5fd9ef7
+  git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin \
+    diff --stat 20c327b3f1cf96ad1828792c2ae5db71b5fd9ef7 HEAD -- corpus/knowledge/alpm-package-anatomy-r41.md
+  git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain -- corpus/knowledge/alpm-package-anatomy-r41.md
+
+observed:
+  20c327b3f1cf96ad1828792c2ae5db71b5fd9ef7 2026-10-26 15:03:11 -0300 round-41: append wave corrections to PA2, PA3, PA5, PA6, PA7; S220 anchor note on the round-40 entry
+  (diff --stat: empty — worktree file is identical to the revision's blob)
+  (status --porcelain: empty — worktree clean for this file)
+
+So row PA3 (line 28) and the correction bullet (lines 78-82) were read from the worktree
+file and equal revision 20c327b3's content.
+
+## 3. Anchor lines in the frozen snapshot (grep -n)
+
+frozen/src/be_package.c:
+  373| static int handle_simple_path(alpm_pkg_t *pkg, const char *path)
+  375| if(strcmp(path, ".INSTALL") == 0) {   376| pkg->scriptlet = 1;  377| return 1;
+  378| } else if(*path == '.') {            381| return 1;           385| }
+  598| if(strcmp(entry_name, ".PKGINFO") == 0) {
+  617| config = 1;        618| continue;
+  625| } else if(handle_simple_path(newpkg, entry_name)) {   626| continue;
+  641| if((!full || hit_mtree) && config) {   642| break;   643| }   644| }
+  653| _alpm_log(handle, ALPM_LOG_ERROR, _("missing package metadata in %s\n"), pkgfile);
+
+frozen/src/makepkg.sh.in:
+  558|# build a sorted NUL-separated list of the full contents of the current
+  560|# database files are placed at the beginning of the package regardless of
+  562| list_package_files() {
+  564| export LC_COLLATE=C
+  565| shopt -s dotglob globstar
+  567| printf '%s\0' **/*
+  569| }
+  617| list_package_files | LANG=C bsdtar -cnf - --format=mtree \
+  619| --null --files-from - --exclude .MTREE | gzip -c -f -n > .MTREE
+  625| list_package_files | LANG=C bsdtar --no-fflags @BSDTAR_NO_READ_SPARSE@ -cnf - --null --files-from - |
+  737| list_package_files | LANG=C bsdtar --no-fflags @BSDTAR_NO_READ_SPARSE@ -cnLf - --null --files-from - |
+
+## 4. Second-reader receipts re-read (w1/C2RevPA3b/)
+
+01-glob-control-matrix.txt — case A (dotglob globstar, LC_COLLATE=C): members 1-6 are
+.BUILDINFO .CHANGELOG .INSTALL .MTREE .PKGINFO .config, then 0digit, 0digit/file, Zebra,
+_under, apple, usr…; case B (en_US.utf8) moves 0digit, 0digit/file, apple ahead of
+.BUILDINFO; case C (dotglob only) loses every top-level name; case D (globstar only)
+loses the dot files. Host bash 5.3.20.
+02-archive-member-order.txt — `list_package_files | LANG=C bsdtar --no-fflags -cnf - --null
+--files-from -` (bsdtar 3.8.10): 19 members, archive order identical to the glob listing.
+03-partial-load-sim.txt — mirror of be_package.c:595-644 over that member list: "stopped
+after entry 7 = 0digit/"; consumed = the 5 metadata files + .config + 0digit/.
+04-host-mtree-order.txt — not relied on for the verdict (host corroboration only).
