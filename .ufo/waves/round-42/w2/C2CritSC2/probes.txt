@@ -1,0 +1,114 @@
+=== probe record: rec_ok ===
+btrfs-progs v7.1
+-EXPERIMENTAL -INJECT -STATIC +LZO +ZSTD +UDEV +FSVERITY +ZONED CRYPTO=libgcrypt
+UUID:             1d02a454-c549-4a35-b567-89d60902af8e
+
+Scrub device /dev/mapper/root (id 1) history
+Scrub started:    Sat Sep 27 16:06:40 2025
+Status:           finished
+Duration:         0:00:30
+	data_extents_scrubbed: 100
+	tree_extents_scrubbed: 10
+	data_bytes_scrubbed: 409600
+	tree_bytes_scrubbed: 40960
+	read_errors: 0
+	csum_errors: 0
+	verify_errors: 0
+	no_csum: 0
+	csum_discards: 0
+	super_errors: 0
+	malloc_errors: 0
+	uncorrectable_errors: 0
+	unverified_errors: 0
+	corrected_errors: 0
+	last_physical: 0
+STATUS_EXIT=0
+
+=== probe record: rec_reorder ===
+btrfs-progs v7.1
+-EXPERIMENTAL -INJECT -STATIC +LZO +ZSTD +UDEV +FSVERITY +ZONED CRYPTO=libgcrypt
+UUID:             1d02a454-c549-4a35-b567-89d60902af8e
+
+Scrub device /dev/mapper/root (id 1) history
+Scrub started:    Sat Sep 27 16:06:40 2025
+Status:           finished
+Duration:         0:00:30
+	data_extents_scrubbed: 100
+	tree_extents_scrubbed: 10
+	data_bytes_scrubbed: 409600
+	tree_bytes_scrubbed: 40960
+	read_errors: 0
+	csum_errors: 0
+	verify_errors: 0
+	no_csum: 0
+	csum_discards: 0
+	super_errors: 0
+	malloc_errors: 0
+	uncorrectable_errors: 0
+	unverified_errors: 0
+	corrected_errors: 0
+	last_physical: 0
+STATUS_EXIT=0
+
+=== probe record: rec_v2 ===
+btrfs-progs v7.1
+-EXPERIMENTAL -INJECT -STATIC +LZO +ZSTD +UDEV +FSVERITY +ZONED CRYPTO=libgcrypt
+WARNING: failed to read status: Operation not supported
+UUID:             1d02a454-c549-4a35-b567-89d60902af8e
+
+Scrub device /dev/mapper/root (id 1) 
+	no stats available
+STATUS_EXIT=0
+
+=== probe record: rec_tail ===
+btrfs-progs v7.1
+-EXPERIMENTAL -INJECT -STATIC +LZO +ZSTD +UDEV +FSVERITY +ZONED CRYPTO=libgcrypt
+WARNING: invalid data on line 2 pos 61 state 5 (near "duras_scrubbed:100|t") at cmds/scrub.c:742
+UUID:             1d02a454-c549-4a35-b567-89d60902af8e
+
+Scrub device /dev/mapper/root (id 1) history
+Scrub started:    Sat Sep 27 16:06:40 2025
+Status:           finished
+Duration:         0:00:30
+	data_extents_scrubbed: 100
+	tree_extents_scrubbed: 10
+	data_bytes_scrubbed: 409600
+	tree_bytes_scrubbed: 40960
+	read_errors: 0
+	csum_errors: 0
+	verify_errors: 0
+	no_csum: 0
+	csum_discards: 0
+	super_errors: 0
+	malloc_errors: 0
+	uncorrectable_errors: 0
+	unverified_errors: 0
+	corrected_errors: 0
+	last_physical: 0
+STATUS_EXIT=0
+
+=== host, no record (read-only) ===
+UUID:             1d02a454-c549-4a35-b567-89d60902af8e
+	no stats available
+Total to scrub:   307.92GiB
+Rate:             0.00B/s
+Error summary:    no errors found
+HOST_STATUS_EXIT=0
+=== host /var/lib/btrfs presence ===
+ls: cannot access '/var/lib/btrfs': No such file or directory
+432c87a21250ac8eb4b3545eb37c821860ec44472990fee5696bdc15b0ed443d  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w2/C2CritSC2/rec_ok
+61a963b02692ae8fe86befdf1a592b48c66b54acd6506420cb8a0281287c4d9e  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w2/C2CritSC2/rec_reorder
+5b9ca58906eb030b21ba5773d584eec7d7f7bce8d3ccc2ff99433c0e8e209d46  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w2/C2CritSC2/rec_tail
+1db03e20407be25223d05c20ff834b503a1fef988b4867cdab41cf5f169518bd  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w2/C2CritSC2/rec_v2
+# probe.sh as run (driver for probes.txt); namespace-confined, read-only
+#!/usr/bin/env bash
+# read-only probe: mount a private tmpfs at /var/lib inside `unshare -rm` and let the installed
+# btrfs-progs v7.1 binary read one crafted record. No host path is written.
+set -u
+S=$1; FSID=$2; rec=$3
+unshare -rm bash -c 'mount -t tmpfs tmpfs /var/lib 2>&1 || exit 90
+mkdir -p /var/lib/btrfs || exit 91
+cp "$1" "/var/lib/btrfs/scrub.status.$2" || exit 92
+btrfs --version
+btrfs scrub status -d -R /
+echo "STATUS_EXIT=$?"' _ "$S/ns/$rec" "$FSID"

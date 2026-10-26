@@ -1,0 +1,111 @@
+diff --git a/corpus/knowledge/btrfs-scrub-record-r42.md b/corpus/knowledge/btrfs-scrub-record-r42.md
+index e0afccd4..16cd0a47 100644
+--- a/corpus/knowledge/btrfs-scrub-record-r42.md
++++ b/corpus/knowledge/btrfs-scrub-record-r42.md
+@@ -6,20 +6,23 @@ recheck: on-release — re-fetch the two URLs in `.ufo/waves/round-42/frozen/src
+ 
+ Scope: the storage-integrity frontier (`PROVINCE.md` Frontier, scrub record; `corpus/README.md` `## Frontier`).
+ The lane already holds what scrub verifies and repairs and that `btrfs scrub status` reads a file under
+-`/var/lib/btrfs` (`corpus/knowledge/storage-health-r26.md` SH3, SH4; S129, S139). It held no statement of the record
+-itself: how the file is named and replaced, its line format, which process writes it and when recording is
+-switched off, and how the status command turns per-device lines into one filesystem verdict. Those decide whether
+-"no record" may be read as "never scrubbed". Rows SC1-SC5 state upstream behaviour of btrfs-progs v7.1 (the
++`/var/lib/btrfs` (`corpus/knowledge/storage-health-r26.md` SH3, SH4; S129, S139), including the record's name
++pattern (SH4) and that a scrub run with recording disabled cannot be excluded (SH4 note). It held no statement of the
++record itself: how the file is replaced, its line format, which process writes it and when recording is switched off,
++how the status command turns per-device lines into one filesystem verdict, and the per-device throughput limit that
++same command reports (SC5). Those decide how far "no record" may be read as "never scrubbed". Rows SC1-SC5 state upstream behaviour of btrfs-progs v7.1 (the
+ version this host runs) from `cmds/scrub.c` and `CHANGES`; the host readings are this machine's, unprivileged.
+ Nothing here runs a scrub, writes `/var/lib/btrfs` or changes a scrub limit (operator actions).
+ 
+ ## SC1
+ 
+ **Statement.** The record for one filesystem is the file `/var/lib/btrfs/scrub.status.<fsid>` (the base path plus a
+-dot plus the filesystem UUID). Every update is written to a sibling file `scrub.status.<fsid>_tmp` and then moved
+-over the record with `rename`, so a reader sees either the old or the new record, never a half-written one. A file
+-the CLI creates gets mode 0600, and every open, for reading or writing, must take a non-blocking exclusive `flock`
+-(`LOCK_EX`), so a second writer or a reader that finds the lock held fails at once instead of waiting.
++dot plus the filesystem UUID; the name pattern is already held, SH4). Every update is written to a sibling file `scrub.status.<fsid>_tmp` and then moved
++over the record with `rename`, so a reader sees either the old or the new record, never a half-written one. A record or
++`_tmp` file the CLI creates gets mode 0600 (the `open` mode argument, subject to the umask), and every open of either,
++for reading or writing, must take a non-blocking exclusive `flock` (`LOCK_EX`), so a second writer or a reader that
++finds the lock held fails at once instead of waiting. (The progress socket `/var/lib/btrfs/scrub.progress.<fsid>` is a
++different file, created by `bind`, not covered here.)
+ 
+ **Quote.** `S237` scrub.c:67: "#define SCRUB_DATA_FILE "/var/lib/btrfs/scrub.status""
+ 
+@@ -61,11 +64,14 @@ finished flag, not one filesystem verdict.
+ ## SC3
+ 
+ **Statement.** The record is written by the userspace `btrfs scrub start` process, not by the kernel: it writes an
+-all-zero record when the scrub starts and progress records while it runs. Recording is switched off, with a
++all-zero record when the scrub starts (or is resumed) and progress records while it runs. Recording is switched off, with a
+ warning that ends "status recording disabled", when the directory `/var/lib/btrfs` cannot be created or the first
+ record cannot be written; the scrub itself still runs. Whether a scrub is running is asked from the kernel with the
+-`BTRFS_IOC_SCRUB_PROGRESS` ioctl per device, independent of the file. So a missing record does not prove that no
+-scrub ran: a scrub whose recording was disabled, or one driven by another tool through the ioctl, leaves none.
++`BTRFS_IOC_SCRUB_PROGRESS` ioctl per device, independent of the file. A record-write failure later in the run
++ends the progress writes without that warning; only the final write reports a failure ("failed to record the
++result"). So a missing record does not prove that no scrub ran: a scrub whose recording was disabled, or one driven
++by another tool through the ioctl [inference from the write path], leaves none. That conclusion was already held
++(SH4 note); new here are the mechanism and the disable conditions.
+ 
+ **Quote.** `S237` scrub.c:1502: "/* write all-zero progress file for a start */"
+ 
+@@ -85,14 +91,15 @@ is weaker than "no scrub ran" (this row).
+ ## SC4
+ 
+ **Statement.** `btrfs scrub status` treats a missing record as no history (an open failure of `ENOENT` is not an
+-error; any other open failure prints a warning). The filesystem summary folds the per-device lines together: the
++error; any other open failure prints a warning and the command exits with an error). The filesystem summary folds the per-device lines together: the
+ start time is the smallest device start (`_SCRUB_FS_STAT_ZMIN`, where an unset value is always replaced), the run
+ counts as canceled if any device was canceled, and it counts as
+-finished only if every device's record is finished (the flag starts at 1 and takes the minimum, `_SCRUB_FS_STAT_MIN`).
++finished only if every device that has a record in the file is finished (the flag starts at 1 and takes the minimum,
++`_SCRUB_FS_STAT_MIN`; devices without a record are skipped).
+ The status word is `running` when the kernel reports a scrub in progress, else `aborted` when canceled, else
+ `finished`, else `interrupted`; with no start time the summary prints `no stats available` instead. An
+ `interrupted` status therefore means an unfinished record with nothing running now (for example a start process
+-that ended before the scrub did), not a device error.
++that ended before the scrub did) [inference], not a device error.
+ 
+ **Quote.** `S237` scrub.c:1931: "if (fdres < 0 && fdres != -ENOENT) {"
+ 
+@@ -108,8 +115,9 @@ that ended before the scrub did), not a device error.
+ 
+ **Quote.** `S237` scrub.c:342: "(ss->canceled ? "aborted" :"
+ 
+-**Host reading.** With no record (capture.txt:6) the status summary of this root would print `no stats available`;
+-the command itself was not run (it needs the filesystem open and adds nothing to the capture).
++**Host reading.** With no record (capture.txt:6) the status summary of this root prints `no stats available`: wave-1
++seat C2ExecHostRecheck ran `btrfs scrub status /` unprivileged, read-only, exit 0, and it printed that line
++(`.ufo/waves/round-42/w1/C2ExecHostRecheck.md` §2); the frozen capture holds the absent directory only.
+ 
+ ## SC5
+ 
+@@ -133,18 +141,19 @@ silently reads as none). A scrub that looks slow should be checked against this
+ 
+ ## How this changes OS triage
+ 
+-- Read "no scrub record" as `UNRECORDED`, not `NEVER SCRUBBED` (SC3); the lane's SH4 verdict `UNVERIFIED` for stored
+-  data stands.
+-- A record is per device; a filesystem `finished` needs every device finished, and one canceled device makes the
+-  whole run `aborted` (SC2, SC4).
++- Read "no scrub record" as a gap in evidence (`UNVERIFIED`, SH4), not as "never scrubbed" (SC3); what SC3 adds is
++  the mechanism, not a new verdict.
++- A record is per device; a filesystem `finished` needs every device that has a record finished, and one canceled
++  device makes the whole run `aborted` (SC2, SC4).
+ - `interrupted` is a process outcome (an unfinished record, nothing running), not a media fault; read the error
+   sums in the per-device lines (`btrfs scrub status -d`, raw `-R`) before calling the device (SC4).
+ - Before reading a slow scrub as a device problem, read `scrub_speed_max` (SC5).
+ 
+ ## Limits
+ 
+-- Upstream behaviour is pinned at btrfs-progs v7.1 source lines; the host runs the Arch build 7.1-1, whose
+-  packaging patches were not compared with `cmds/scrub.c` in this entry (wave item; see the round-42 lesson).
++- Upstream behaviour is pinned at btrfs-progs v7.1 source lines; the host runs the Arch build 7.1-1, whose packaging
++  applies no patch (wave-1 C2ExecLiveSources: `source=()` names the v7.1 tag and no `*.patch`), so the line pins hold
++  for the installed binary.
+ - The host readings show the absence of a record and of a timer; they cannot show that no scrub ever ran (SC3).
+ - No census arm reads the record; this entry stays on Frontier ground (`PROVINCE.md` promotion condition for the
+   scrub record unchanged).

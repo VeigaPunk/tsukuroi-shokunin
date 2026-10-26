@@ -1,0 +1,16 @@
+# micro-repro: the two reader forms on the same 304126-byte error-first buffer, TMPDIR = full 1 MiB tmpfs
+# old form:  if grep -q "^error:" <<<"$s_out"      (4476620 :695)
+# new form:  if err_line=$(printf "%s\\n" "$s_out" | awk ... END { if (!p) exit 1 }); then   (78abb8b5 :698)
+
+--- old form stdout+stderr ---
+[old]
+/fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/micro-old.sh: line 3: cannot create temp file for here-document: No space left on device
+OLD: ELSE-branch (wrong)
+[new]
+NEW: BLOCKED-branch note=[error: alpha: /usr/bin/alpha (Permission denied)]
+
+--- fstat of the new form buffer writer (fd 1) ---
+1185382 fstat(1, {st_mode=S_IFIFO|0600, st_size=0, ...}) = 0
+1185382 fstat(1, {st_mode=S_IFIFO|0600, st_size=0, ...}) = 0
+1185403 fstat(1, {st_mode=S_IFIFO|0600, st_size=0, ...}) = 0
+sh-thd occurrences in the new-form trace: 0

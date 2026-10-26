@@ -1,0 +1,29 @@
+--- tip-census.sh	2026-10-26 17:30:37.750975721 -0300
++++ arm-conn-k5z.sh	2026-10-26 17:32:32.853471353 -0300
+@@ -684,6 +684,14 @@
+   cap "$PACMAN" -Qkk "${names[@]}"
+   s_rc=$CAP_RC
+   s_out=$(printf '%s\n' "$CAP_OUT" | tr '\r' '\n')
++  # (arm conn-k5z) pre-reader censorship: keep the first error line and the warning lines the
++  # parser actually reads; drop every other warning and the zero-altered summaries. The R41 early
++  # readers below then never see a probe buffer past the pipe capacity.
++  s_out=$(printf '%s\n' "$s_out" | awk '
++    /^error:/ { if (!p) print; p = 1; next }
++    /^warning: / { if ($0 ~ /\(Permission denied\)/ || $0 ~ /\(failed to calculate SHA256 checksum\)/) print; next }
++    /: [0-9]+ total files, 0 altered files$/ { next }
++    { print }')
+   if [ "$s_rc" -ne 0 ] && [ "$s_rc" -ne 1 ]; then
+     PKG_V=BLOCKED
+     PKG_NOTE="pacman -Qkk sample rc=$s_rc [probe cannot run]"
+@@ -695,9 +703,9 @@
+   # here-string either (a here-string over 64 KiB is a temporary file, which breaks the no-write contract and, on a
+   # full $TMPDIR or /tmp, silently skips the test — round-42 wave 1, C1RevFix D1).
+   local err_line=''
+-  if err_line=$(printf '%s\n' "$s_out" | awk '/^error:/ { if (!p) { print; p = 1 } } END { if (!p) exit 1 }'); then
++  if printf '%s\n' "$s_out" | grep -q '^error:'; then
+     PKG_V=BLOCKED
+-    PKG_NOTE="pacman -Qkk sample probe error: $err_line"
++    PKG_NOTE="pacman -Qkk sample probe error: $(printf '%s\n' "$s_out" | grep -m1 '^error:')"
+     return
+   fi
+ 

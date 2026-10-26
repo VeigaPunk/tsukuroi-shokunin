@@ -1,0 +1,36 @@
+# Seat C1FinalENOSPC — F-4: census packages plane vs TMPDIR/tmp fullness
+# census blobs: git show <rev>:tools/tsukuroi-census.sh (sha256 in r-fixture.txt)
+# fixture: selftest fx_default + 304126-byte qkk.out (error line first) + qkk.rc=1 + pq alpha..delta
+# mode: live census, every TSUKUROI_* override stubbed at the fixture (the C1RevFix r-e2e env, r-fixture.txt)
+# ns: private `unshare -rm` mount ns; TMPDIR-tmpfs and /tmp are 1 MiB tmpfs filled to 100% (df lines below)
+
+REV        TMPDIR           EXIT  PLANE packages line
+4476620    rw tmpfs         2     PLANE packages: BLOCKED (pacman -Qkk sample probe error: error: alpha: /usr/bin/alpha (Permission denied); root_status=ok root_mode=0755 root_uid=0 root_gid=0 root_euid=0 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/fx/root)
+4476620    full TMPDIR      0     PLANE packages: HEALTHY (pacman -Qkk rc=1 sample=4(alpha,beta,gamma,delta) drift=0 backup_diffs=0 nonroot_artifacts=1; foreign=0(known=0 new=0 drift=0 gone=0) base=file(0); pins=none; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0755 root_uid=0 root_gid=0 root_euid=0 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/fx/root)
+4476620    unset, /tmp full 0     PLANE packages: HEALTHY (pacman -Qkk rc=1 sample=4(alpha,beta,gamma,delta) drift=0 backup_diffs=0 nonroot_artifacts=1; foreign=0(known=0 new=0 drift=0 gone=0) base=file(0); pins=none; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0755 root_uid=0 root_gid=0 root_euid=0 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/fx/root)
+78abb8b5   rw tmpfs         2     PLANE packages: BLOCKED (pacman -Qkk sample probe error: error: alpha: /usr/bin/alpha (Permission denied); root_status=ok root_mode=0755 root_uid=0 root_gid=0 root_euid=0 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/fx/root)
+78abb8b5   full TMPDIR      2     PLANE packages: BLOCKED (pacman -Qkk sample probe error: error: alpha: /usr/bin/alpha (Permission denied); root_status=ok root_mode=0755 root_uid=0 root_gid=0 root_euid=0 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/fx/root)
+78abb8b5   unset, /tmp full 2     PLANE packages: BLOCKED (pacman -Qkk sample probe error: error: alpha: /usr/bin/alpha (Permission denied); root_status=ok root_mode=0755 root_uid=0 root_gid=0 root_euid=0 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/fx/root)
+
+## overall verdict lines and stderr
+4476620/rw: TSUKUROI_CENSUS: BLOCKED (packages=BLOCKED systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=DEGRADED oom=HEALTHY)
+4476620/rw stderr: 
+4476620/full: TSUKUROI_CENSUS: HEALTHY (packages=HEALTHY systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=HEALTHY oom=HEALTHY)
+4476620/full stderr: /fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/census-4476620.sh: line 695: cannot create temp file for here-document: No space left on device|
+4476620/tmpfull: TSUKUROI_CENSUS: HEALTHY (packages=HEALTHY systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=HEALTHY oom=HEALTHY)
+4476620/tmpfull stderr: /fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/census-4476620.sh: line 695: cannot create temp file for here-document: No space left on device|
+78abb8b5/rw: TSUKUROI_CENSUS: BLOCKED (packages=BLOCKED systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=DEGRADED oom=HEALTHY)
+78abb8b5/rw stderr: 
+78abb8b5/full: TSUKUROI_CENSUS: BLOCKED (packages=BLOCKED systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=DEGRADED oom=HEALTHY)
+78abb8b5/full stderr: 
+78abb8b5/tmpfull: TSUKUROI_CENSUS: BLOCKED (packages=BLOCKED systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=DEGRADED oom=HEALTHY)
+78abb8b5/tmpfull stderr: 
+
+## df -k of the tmpfs used (full modes)
+4476620 TMPDIR tmpfs: tmpfs               1024  1024         0 100% /fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/tmp-full
+78abb8b5 TMPDIR tmpfs: tmpfs               1024  1024         0 100% /fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/tmp-full
+4476620 /tmp: tmpfs               1024  1024         0 100% /tmp
+78abb8b5 /tmp: tmpfs               1024  1024         0 100% /tmp
+
+## tip rw vs full-TMPDIR equality (timestamp masked)
+IDENTICAL-TIP

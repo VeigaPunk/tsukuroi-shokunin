@@ -1,0 +1,44 @@
+=== PART 1 — the evading census (packages fix active when TSUKUROI_FIXTURE is set OR uid is 0) scored by the frozen counter ===
+$ python3 tools/score-size-invariance-r42.py --revision c07ba9b4769be6704d6cc226aabf988b6b3f5d11 --lane <fixture clone> --scratch ...
+{
+  "verdict": "PASS",
+  "cases": 10,
+  "invariant": 10,
+  "non_invariant": [],
+  "ns_invariant": 3,
+  "selftest_pass": 1,
+  "selftest_label": "PASS (128 cases, 128 passed, 0 failed)",
+  "default_equal": 1,
+  "revision": "c07ba9b4769be6704d6cc226aabf988b6b3f5d11"
+}
+user	1m46.929s
+sys	0m25.679s
+rc=0
+
+=== PART 2 — the arm: same fixture, TSUKUROI_FIXTURE unset, uid 1000 vs namespace root ===
+--- evading census (arm red: the reading depends on the identity) ---
+census                : /fast/scratch/hyaku/tsukuroi-r42/MistakesFixFail/censuses/census-evade.sh
+sample                : 1048766 B, error first, TSUKUROI_FIXTURE unset
+uid 1000 (production) : exit 2
+  PLANE packages: DEGRADED (pacman -Qkk rc=1 sample=4(alpha,beta,gamma,delta) drift=0 backup_diffs=0 nonroot_artifacts=1; foreign=21(known=3 new=5 drift=13 gone=0) base=r6(16) new=[opencode-beta openssl-1.0 postgres-language-server-bin tizen-
+namespace root (uid 0) : exit 2
+  PLANE packages: BLOCKED (pacman -Qkk sample probe error: error: alpha: /usr/bin/x-5c75bb267fed (Permission denied); root_status=ok root_mode=0555 root_uid=65534 root_gid=65534 root_euid=0 root_owner_write=absent root_owner_search=present ro
+stderr uid1000        : (empty)
+stderr uid0           : (empty)
+ARM                   : FAIL (red) — the reading depends on the process identity
+--- tip census (arm green: both legs BLOCKED) ---
+census                : /fast/scratch/hyaku/tsukuroi-r42/MistakesFixFail/censuses/census-78abb8b5.sh
+sample                : 1048766 B, error first, TSUKUROI_FIXTURE unset
+uid 1000 (production) : exit 2
+  PLANE packages: BLOCKED (pacman -Qkk sample probe error: error: alpha: /usr/bin/x-628fb4834f56 (Permission denied); root_status=ok root_mode=0555 root_uid=0 root_gid=0 root_euid=1000 root_owner_write=absent root_owner_search=present root_re
+namespace root (uid 0) : exit 2
+  PLANE packages: BLOCKED (pacman -Qkk sample probe error: error: alpha: /usr/bin/x-628fb4834f56 (Permission denied); root_status=ok root_mode=0555 root_uid=65534 root_gid=65534 root_euid=0 root_owner_write=absent root_owner_search=present ro
+stderr uid1000        : (empty)
+stderr uid0           : (empty)
+ARM                   : PASS (green) — uid 1000 and uid 0 agree on BLOCKED
+=== NUANCE — the counter run as namespace root fails 3 selftest cases (root bypasses the unreadable-fixture cases) ===
+FAIL healthy: an unreadable directory is reported, and its logged target is neither present nor gone (R35-C1): plane evidence missing: '^DRIFT pacnew-plane pacnew=1 pacsave=0 pacorig=0 unreadable=1 log_pacnew=1 log_pacsave=0 unlogged=1 gone=0 log=ok$'; got: PL
+FAIL healthy rollup: an unlistable btrfs sysfs root is BLOCKED, never a silent 0/0/0 (R38-W1 hardening): plane evidence missing: '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=root:unreadable$'; got: PLANE packages: HEALTHY
+FAIL healthy rollup: an unlistable root keeps its one reason; the mount table is never added (R40-C1): plane evidence missing: '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=root:unreadable$'; got: PLANE packages: HEALTHY (
+TSUKUROI_CENSUS_SELFTEST: FAIL (132 cases, 129 passed, 3 failed)
+(the earlier uid-0 counter run receipts/i4-uid0-gated.txt shows the same 3 selftest failures: 'FAIL (128 cases, 125 passed, 3 failed)')

@@ -1,0 +1,45 @@
+# Fixture harness additions (F-2 :743 case) and fixture payload sizes
+
+=== fx_tip.sh vs tip copy ===
+@@ -2350,6 +2350,15 @@
+   printf 1 > "$FX/qkk.rc"
+   check 'blocked: sample probe error' 2 BLOCKED 'sample probe error'
+ 
++  # F-2 spot fixture (seat C1FinalSelftest): a foreign baseline > 64 KiB whose first -Qm name sits on
++  # line 1. The base `printf | awk ... exit` lookup dies of SIGPIPE (141); the tip full read completes.
++  case_home='r42-743-baseline-large'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf 'alpha-bin 1.0-1\nbeta-bin 2.0-1\n' > "$FX/pm"
++  { printf 'alpha-bin 1.0-1\nbeta-bin 2.0-1\n'
++    awk 'BEGIN { for (i = 0; i < 900; i++) { pad = ""; for (j = 0; j < 12; j++) pad = pad "0123456789"; printf "pad%05d 1.0-1 %s\n", i, pad } }'; } > "$FX/fbase"
++  check 'f2-743: a >64KiB foreign baseline with the first -Qm name on line 1 completes' 1 DEGRADED \
++    'foreign=2\(known=2 new=0 drift=0 gone=900\) base=file\(902\)'
++
+   # Round 42 (R41-CENSUS-PIPEFAIL-692): the same error line ahead of ~300 KB of further -Qkk output. Under pipefail
+   # the old `printf | grep -q '^error:'` read false once the sample outgrew the pipe buffer (DEGRADED/HEALTHY).
+   case_home='blocked-sample-error-large'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+
+=== fx_base.sh vs base copy ===
+@@ -2344,6 +2344,15 @@
+   printf 1 > "$FX/qkk.rc"
+   check 'blocked: sample probe error' 2 BLOCKED 'sample probe error'
+ 
++  # F-2 spot fixture (seat C1FinalSelftest): a foreign baseline > 64 KiB whose first -Qm name sits on
++  # line 1. The base `printf | awk ... exit` lookup dies of SIGPIPE (141); the tip full read completes.
++  case_home='r42-743-baseline-large'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf 'alpha-bin 1.0-1\nbeta-bin 2.0-1\n' > "$FX/pm"
++  { printf 'alpha-bin 1.0-1\nbeta-bin 2.0-1\n'
++    awk 'BEGIN { for (i = 0; i < 900; i++) { pad = ""; for (j = 0; j < 12; j++) pad = pad "0123456789"; printf "pad%05d 1.0-1 %s\n", i, pad } }'; } > "$FX/fbase"
++  check 'f2-743: a >64KiB foreign baseline with the first -Qm name on line 1 completes' 1 DEGRADED \
++    'foreign=2\(known=2 new=0 drift=0 gone=900\) base=file\(902\)'
++
+   case_home='blocked-bus'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+   printf 'Failed to connect to bus: No such file or directory\n' > "$FX/sysrunning"
+   printf 1 > "$FX/sysrunning.rc"
+
+=== payload sizes ===
+ 90031 payload-fbase.txt
+122431 payload-fbase-padded.txt
+212462 total
+  6002 payload-fbase.txt
+   902 payload-fbase-padded.txt
+  6904 total

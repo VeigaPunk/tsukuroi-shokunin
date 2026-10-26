@@ -1,0 +1,85 @@
+# ConnRound43 evidence receipt — 2026-10-26T20:51:43Z
+# host: Linux 7.2.11-arch1-1, user vgpnk, read-only queries only
+
+== 1. boot-chain-audit.sh:480-487 fail-open ==
+    if find /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
+        /etc/default/limine /etc/limine-snapper-sync.conf \
+        /usr/lib/initcpio /usr/lib/modules \
+        -newermt "@$btime" -print -quit 2>/dev/null | grep -q .; then
+        printf '1\n'
+    else
+        printf '0\n'
+    fi
+}
+-- pipefail :139 --
+set -uo pipefail
+-- gate :749,:761 --
+    newer=$(boot_inputs_newer)
+            if [ "${kernels[i]}" = 1 ] && [ "${sels[i]}" = true ] && [ "$newer" = 0 ] &&
+-- routing: w1/C1SweepSites.md:67,:75,:82 --
+50:| :2190 (selftest, `ABSENT:` arm) | `if printf "$out" \| grep -qE …; then unwanted+=` | same | **fail-open direction**: a SIGPIPE'd match reads "absent" and the case passes | not neutralised; unreachable at 2.6 KB. Cheap to switch to `grep -qE … <<<"$out"` for consistency with :695 |
+67:**boot-chain-audit.sh:480-487 reads FALSE under pipefail whenever `find` exits 1, regardless of size.** `find` returns 1 when any start point is missing (stderr suppressed), and `-quit` returns that status. With `pipefail` (:139) the pipeline status is `find`'s 1 even though `grep -q .` matched, so the `if` takes the else branch and prints `0` ("no boot-chain input newer than boot start"). Reproduced in scratch:
+75:Verdict effect: `newer=$(boot_inputs_newer)` (:749) feeds the `booted=1` gate (:761, `[ "$newer" = 0 ]`), i.e. verdict rule 2 BOOTED-OBSERVED can be awarded while a boot-chain input IS newer than boot start — a fail-open on the lane's own freshness guard. Not neutralised (no `|| true`; `set +e` irrelevant). Reachability: needs one of the eight start points absent. On this host all eight exist now (`ls -ld` run 2026-10-26), but `/etc/crypttab`, `/etc/mkinitcpio.conf.d`, `/etc/default/limine`, `/etc/limine-snapper-sync.conf` are optional paths on other Arch/omarchy hosts, and the fixture mode (`$BOOTCHAIN_FIXTURE/boot_inputs_newer`) bypasses the code so no selftest case covers it. Proposed fix shape (for the integrator to decide): `out=$(find … -print -quit 2>/dev/null || true); [ -n "$out" ]`, or pre-filter the start points with `[ -e ]`; plus one selftest-style case with a missing start point and a newer present one. This is outside the frozen C1 sites and outside the frozen kill rule's three hunks (it is in boot-chain-audit.sh, not the census), so it is a routing item, not a C1 claim.
+80:2. Everything else in the census is neutralised by `|| true`, by process substitution, by a full-reader consumer, or by input size (table above). Not neutralised but unreachable: :931/:969/:1051/:1426/:1501 (single-line probes) and the selftest asserts :2178-:2195/:2226 (max census output 2642 B), with :2190 the fail-open direction.
+3891:Not fixed here (routed): `tools/boot-chain-audit.sh:480-487` `find … -quit | grep -q .` reads false under pipefail
+
+== 2. C1 counter observed-channel gap (QUALITY 90) ==
+283:        p = subprocess.run(['unshare', '-rm', 'sh', '-c', NS_INNER, 'r42', NS_BUILDER, census], env=env,
+-- QUALITY.md:177 --
+90. **A counter that holds no answer key is scored against every channel through which the scored code can see it is being watched, and a verdict binding matches an asserted line, not a mention (R42-OBSERVED-CHANNEL):** when a counter's oracle is the code's own behaviour (a metamorphic twin, a production-path leg) or a verdict bound through orchestrator records, the frozen pre-data controls includ
+-- predicate :43 --
+  PASS iff cases == 10 and invariant == 10 and ns_invariant == 3 and selftest_pass == 1 and default_equal == 1.
+-- w2 C1FinalProdIdentity verdict (channels open at frozen predicate) --
+VERDICT: supports — both declared expectations reproduce at production identity, and the ns-gated V1 arm is separated only there.
+
+== 3. C2 binding unanchored ==
+VERDICT_RE = re.compile(r'ROW (SC\d) VERDICT: (holds|partly|fails)\b')
+    if rep is None or line not in rep.decode(errors='replace'):
+-- w1/C2CritControl.md D1 verdict --
+29:### D1 — mention counted as assertion (HIGH; reachable without any forgery)
+31:`VERDICT_RE` (`tools/check-scrub-record-r42.py:66`) is unanchored: `r'ROW (SC\d) VERDICT: (holds|partly|fails)\b'`,
+
+== 4. scrub-record arm ground ==
+-- host (read-only) --
+ls: cannot access '/var/lib/btrfs': No such file or directory
+disabled
+-- capture.txt --
+var_lib_btrfs absent
+scrub_timers_listed 0
+scrub_timer_unit_file btrfs-scrub@.timer disabled disabled
+scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1 0
+journal_scrub_lines 0
+-- SC1 0600 --
+22:`_tmp` file the CLI creates gets mode 0600 (the `open` mode argument, subject to the umask), and every open of either,
+33:**Quote.** `S237` scrub.c:483: "fd = open(datafile, m, 0600);"
+-- promotion rule --
+- Storage integrity is a frontier area, not Core: it becomes Core only after a read-only census arm reads it (shape proposed in `.ufo/waves/round-26/w1/ScoutHostSurfaces.md`). Disk-space runway stays with mori; scrub runs, counter resets, profile changes and firmware updates stay operator-owned.
+**Still Frontier:** the scrub record (`btrfs scrub status`, `/var/lib/btrfs/scrub.status.*`,
+`btrfs-scrub@.timer`; SH3/SH4) and NVMe SMART/Health (`smartctl -H -A`, `nvme smart-log`; SH5/SH6) — no census
+arm reads them. The second NVMe device (xfs on `/tmp`, `/fast`) has no btrfs counters and stays unread.
+-- R38 precedent --
+| C1 | coverage | Storage integrity (btrfs per-device error counters) moves Frontier → Core: the round-26 frontier rule (`corpus/README.md` "becomes Core only after a read-only census arm reads it") is met by a verdict-neutral census arm | `python3 tools/score-storage-arm-r38.py --revision <REV>` 
+
+== 5. SC6/SC7 source facts (read-only) ==
+190:struct btrfs_ioctl_scrub_args {
+1192:			      struct btrfs_ioctl_scrub_args)
+1194:#define BTRFS_IOC_SCRUB_PROGRESS _IOWR(BTRFS_IOCTL_MAGIC, 29, \
+/usr/lib/systemd/system/btrfs-scrub@.service:ConditionPathIsMountPoint=%f
+/usr/lib/systemd/system/btrfs-scrub@.service:Nice=19
+/usr/lib/systemd/system/btrfs-scrub@.service:IOSchedulingClass=idle
+/usr/lib/systemd/system/btrfs-scrub@.service:KillSignal=SIGINT
+/usr/lib/systemd/system/btrfs-scrub@.service:ExecStart=/usr/bin/btrfs scrub start -B %f
+/usr/lib/systemd/system/btrfs-scrub@.timer:OnCalendar=monthly
+/usr/lib/systemd/system/btrfs-scrub@.timer:Persistent=true
+
+== 6. axes at base ==
+Ordinals at base: depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8. Depth and adjacency
+
+== 2a. fixed fixture names (corrected grep; \n is two chars, earlier pattern missed) ==
+175:SUMS = ['alpha: 10 total files, 0 altered files\n', 'beta: 20 total files, 0 altered files\n']
+177:ERR = f'error: alpha: /usr/bin/x-{TOKEN} (Permission denied)\n'
+178:QU3 = ['alpha 1.0-1 -> 1.1-1\n', 'beta 2.0-1 -> 2.1-1\n', 'gamma 3.0-1 -> 3.1-1\n']
+179:SUP3 = ['core/alpha 1.1-1\n', 'core/beta 2.1-1\n', 'extra/gamma 3.1-1\n']
+278:    spec = {'pacman': NS_STUB, 'qq': 'alpha\nbeta\ngamma\ndelta\n', 'qkk': files['qkk.out'],
+-- ns_leg spec line 278 --
+    spec = {'pacman': NS_STUB, 'qq': 'alpha\nbeta\ngamma\ndelta\n', 'qkk': files['qkk.out'],

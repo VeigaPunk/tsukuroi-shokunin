@@ -1,0 +1,49 @@
+== add.c (r39 note; +23 after pin 414)
+PASS add.c:466-474_to_489-497           pin:466,474 == built:489,497
+PASS add.c:468-469_to_491-492           pin:468,469 == built:491,492
+PASS add.c:470-474_to_493-497           pin:470,474 == built:493,497
+PASS add.c:616-636_to_639-659           pin:616,636 == built:639,659
+PASS add.c:616-648_to_639-671           pin:616,648 == built:639,671
+PASS add.c:630_to_653                   pin:630,630 == built:653,653
+PASS add.c:638-647_to_661-670           pin:638,647 == built:661,670
+PASS add.c:639-640_to_662-663           pin:639,640 == built:662,663
+PASS add.c:669-688_to_692-711           pin:669,688 == built:692,711
+PASS add.c:676-692_to_699-715           pin:676,692 == built:699,715
+== util.c (r39 note; +5 after pin 675)
+PASS util.c:677-687_to_682-692          pin:677,687 == built:682,692
+PASS util.c:688-698_to_693-703          pin:688,698 == built:693,703
+PASS util.c:698-700_to_703-705          pin:698,700 == built:703,705
+== makepkg.sh.in (r41 note; +118 after pin 511)
+PASS makepkg:560-569_to_678-687         pin:560,569 == built:678,687
+PASS makepkg:565_to_683                 pin:565,565 == built:683,683
+PASS makepkg:615-620_to_733-738         pin:615,620 == built:733,738
+== PKGBUILD.5.asciidoc (r41 note; +9 after pin 234)
+PASS pkgb5:345-377_to_354-386           pin:345,377 == built:354,386
+PASS pkgb5:400-404_to_409-413           pin:400,404 == built:409,413
+PASS pkgb5:439-441_to_448-450           pin:439,441 == built:448,450
+== spot: the mapped built text carries the cited statements
+			log_msg, newpkg->name, newpkg->version);
+		/* pre_install/pre_upgrade scriptlet */
+	if(alpm_pkg_has_scriptlet(newpkg) &&
+			!(trans->flags & ALPM_TRANS_FLAG_NOSCRIPTLET)) {
+		const char *scriptlet_name = is_upgrade ? "pre_upgrade" : "pre_install";
+
+		_alpm_runscriptlet(handle, pkgfile, scriptlet_name,
+				newpkg->version, oldpkg ? oldpkg->version : NULL, 1);
+	}
+--
+# database files are placed at the beginning of the package regardless of
+# sorting
+list_package_files() {
+	(
+		export LC_COLLATE=C
+		shopt -s dotglob globstar
+		# bash 5.0 only works with combo directory + file globs
+		printf '%s\0' **/*
+	)
+}
+--
+*package() Function*::
+	The `package()` function is used to install files into the directory that
+	will become the root directory of the built package and is run after all
+== summary: pass=19 fail=0

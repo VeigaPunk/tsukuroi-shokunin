@@ -1,0 +1,21 @@
+3285: static long btrfs_ioctl_scrub_progress(struct btrfs_fs_info *fs_info,
+3286: 				       void __user *arg)
+3287: {
+3288: 	struct btrfs_ioctl_scrub_args *sa;
+3289: 	int ret;
+3290: 
+3291: 	if (!capable(CAP_SYS_ADMIN))
+3292: 		return -EPERM;
+3293: 
+3294: 	sa = memdup_user(arg, sizeof(*sa));
+3295: 	if (IS_ERR(sa))
+3296: 		return PTR_ERR(sa);
+3297: 
+3298: 	ret = btrfs_scrub_progress(fs_info, sa->devid, &sa->progress);
+3299: 
+3300: 	if (ret == 0 && copy_to_user(arg, sa, sizeof(*sa)))
+3301: 		ret = -EFAULT;
+3302: 
+3303: 	kfree(sa);
+3304: 	return ret;
+3305: }

@@ -1,0 +1,37 @@
+$ python3 scripts/w1r1_selftest_conjunct.py censuses/census-c8efaa3f.sh "PASS (128 cases, 128 passed, 0 failed)"
+badge          : PASS (128 cases, 128 passed, 0 failed)
+cases parsed   : 128  (>= 130: False)
+R42-C1 labels  : 0  (== 2 as proposed: False; >= 2: False)
+CONJUNCT       : FAIL (red)
+exit=1
+
+$ python3 scripts/w1r1_selftest_conjunct.py censuses/census-K6-surrogate.sh "PASS (128 cases, 128 passed, 0 failed)"   # frozen predicate verdict: PASS
+badge          : PASS (128 cases, 128 passed, 0 failed)
+cases parsed   : 128  (>= 130: False)
+R42-C1 labels  : 0  (== 2 as proposed: False; >= 2: False)
+CONJUNCT       : FAIL (red)
+exit=1
+
+$ python3 scripts/w1r1_selftest_conjunct.py censuses/census-44766208.sh "PASS (130 cases, 130 passed, 0 failed)"
+badge          : PASS (130 cases, 130 passed, 0 failed)
+cases parsed   : 130  (>= 130: True)
+R42-C1 labels  : 2  (== 2 as proposed: True; >= 2: True)
+CONJUNCT       : PASS (green)
+exit=0
+
+$ python3 scripts/w1r1_selftest_conjunct.py censuses/census-78abb8b5.sh "PASS (132 cases, 132 passed, 0 failed)"   # tip, the shipped candidate
+badge          : PASS (132 cases, 132 passed, 0 failed)
+cases parsed   : 132  (>= 130: True)
+R42-C1 labels  : 4  (== 2 as proposed: False; >= 2: True)
+CONJUNCT       : FAIL (red)  [literal == 2 rejects the tip: use >= 2]
+exit=1
+
+badge provenance (committed receipts):
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/before/c1-before.jsonl:"selftest_label": "PASS (128 cases, 128 passed, 0 failed)"
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/C1-K6.jsonl:"selftest_label": "PASS (128 cases, 128 passed, 0 failed)"
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/after/c1-after-78abb8b.jsonl:"selftest_label": "PASS (132 cases, 132 passed, 0 failed)"
+
+(R42-C1) label counts per revision:
+c8efaa3f 0
+44766208 2
+78abb8b5 4

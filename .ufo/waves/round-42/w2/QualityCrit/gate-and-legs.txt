@@ -1,0 +1,18 @@
+# F-9 gate evidence: the stub-text channel is true in every leg family the counter builds
+## host pacman (production)
+head -c 2 /usr/bin/pacman | od -c: 0000000 177   E
+## fixture leg pacman: symlink to the BASE census .dispatch (a bash script)
+  cat > "$bin/.dispatch" <<'STUB'
+#!/usr/bin/env bash
+## counter Rig:
+            os.symlink('.dispatch', os.path.join(self.bindir, c))
+## namespace leg stub:
+NS_STUB = """#!/bin/bash
+case "${1:-}" in
+## sample-size knob (the only route to a large live probe):
+SAMPLE_N=${TSUKUROI_SAMPLE_N:-8}
+        SAMPLE_N=${2:-}
+        case "$SAMPLE_N" in
+          '' | *[!0-9]*) printf 'tsukuroi-census: --sample needs a positive integer\n' >&2; exit 2 ;;
+        esac
+        [ "$SAMPLE_N" -gt 0 ] || { printf 'tsukuroi-census: --sample needs a positive integer\n' >&2; exit 2; }

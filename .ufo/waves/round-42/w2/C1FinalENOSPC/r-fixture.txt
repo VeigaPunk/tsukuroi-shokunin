@@ -1,0 +1,29 @@
+# fixture and toolchain
+
+## census blobs (git show <rev>:tools/tsukuroi-census.sh) — sha256
+46d62a24709ece8efbcd231f4c269bd5b3791237e3c78ac7433fb0115494f1b1  /fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/census-4476620.sh
+7c9f79036782de951a69325fe6f5cc742d8acac4de389626026bc33d8f7877f9  /fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/census-78abb8b5.sh
+git hash-object (sha1) of the lane working-tree tools/tsukuroi-census.sh == 78abb8b5 blob:
+  18a1db6448358d7ecf4634570fcd2bf075eccb1b (both; `git diff --stat 78abb8b5 -- tools/tsukuroi-census.sh` empty)
+
+## fixture
+qkk.out bytes: 304126
+fd9244165d330d22e5b78b8e4c4d07c6a29ea6b8e215add749930c87ede59c34  /fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/fx/qkk.out
+qkk.rc: 1pq (sample names): alpha beta gamma delta fixture built by the census selftest fx_default() (extracted verbatim from 4476620 :2025-2114) + the
+blocked-sample-error-large qkk.out shape from :2355-2359; dispatcher = the selftest `bin/.dispatch` heredoc.
+
+## environment (every TSUKUROI_* override stubbed; identical set to the selftest check() env)
+  TSUKUROI_FIXTURE=$S/fx TSUKUROI_PACMAN=$S/bin/pacman TSUKUROI_PACMAN_CONF=$S/bin/pacman-conf
+  TSUKUROI_PACMAN_CONF_FILE=$FX/pacman.conf TSUKUROI_PACMAN_DB=$FX/pacmandb TSUKUROI_ROOT_DIR=$FX/root
+  TSUKUROI_FOREIGN_BASELINE=$FX/fbase TSUKUROI_SYSTEMCTL/DMESG/JOURNALCTL/NVIDIA_SMI/LSMOD/EXPAC=$S/bin/*
+  TSUKUROI_PCI_SYSFS/DEV_DIR/CGROUP_ROOT/... under $FX; TSUKUROI_PROC_MOUNTS=$FX/mounts
+
+## versions
+GNU bash, version 5.3.20(1)-release (x86_64-pc-linux-gnu)
+GNU Awk 5.4.1, API 4.1, PMA Avon 8-g1, (GNU MPFR 4.2.2, GNU MP 6.3.0)
+strace -- version 7.2
+unshare from util-linux 2.42.4
+
+## isolation
+mount: tmpfs size=1M inside `unshare -rm` only (private mount+user ns); host mounts untouched
+scratch: /fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC (removed at the end of the seat)

@@ -1,0 +1,51 @@
+$ run_controls_c1.py --names K5 with the committed runner (red: degenerate FAIL)
+K5 1 FAIL 9 ['P6'] ns 2 0 1
+{"battery": "C1", "control_accepted": 0, "controls": {"K5": "FAIL"}, "should_fail_accepted": 0, "should_fail_accepted_names": []}
+
+real	0m43.130s
+user	6m6.700s
+sys	3m11.616s
+rc=0
+
+$ run_controls_c1.py --names K5 with the size-gated K5 variant (green: attributable FAIL)
+K5 1 FAIL 9 ['P6'] ns 2 1 1
+{"battery": "C1", "control_accepted": 0, "controls": {"K5": "FAIL"}, "should_fail_accepted": 0, "should_fail_accepted_names": []}
+
+real	0m45.845s
+user	3m31.927s
+sys	1m21.723s
+rc=0
+
+$ counter records written by each run
+--- committed runner / red ---
+{
+  "verdict": "FAIL",
+  "invariant": 9,
+  "non_invariant": [
+    "P6"
+  ],
+  "ns_invariant": 2,
+  "selftest_pass": 0,
+  "selftest_rc": 1,
+  "selftest_label": "TSUKUROI_CENSUS_SELFTEST: FAIL (128 cases, 127 passed, 1 failed)",
+  "default_equal": 1,
+  "revision": "83b835212e684ce994f161e3ec3b02db6495cf13"
+}
+--- patched runner / green ---
+{
+  "verdict": "FAIL",
+  "invariant": 9,
+  "non_invariant": [
+    "P6"
+  ],
+  "ns_invariant": 2,
+  "selftest_pass": 1,
+  "selftest_rc": 0,
+  "selftest_label": "PASS (128 cases, 128 passed, 0 failed)",
+  "default_equal": 1,
+  "revision": "ddc6c07ad3b36eca3bea11d5679cf5278347506b"
+}
+
+$ sha256 of the two runners (committed vs patched)
+259a9a9760e4e6be6b906e66467cc70e6b862472cba6b329ef8891763d4a1091  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/run_controls_c1.py
+46b3e0882e89041fe46f58164e5b52a601b2c548adc6f8457cb123c4f638614c  fixed/run_c1_k5_big.py

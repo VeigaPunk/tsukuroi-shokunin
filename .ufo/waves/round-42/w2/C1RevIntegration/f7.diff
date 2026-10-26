@@ -1,0 +1,62 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index ed83079c..18a1db64 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -691,10 +691,13 @@ probe_packages() {
+   fi
+   # Round 42 (R41-CENSUS-PIPEFAIL-692): never `printf | grep -q` / `| grep -m1` / `| head` under pipefail on a
+   # probe buffer — the early reader exits, printf dies of SIGPIPE, and the pipeline reads false (a wrong verdict)
+-  # or, in an assignment, kills the census with exit 141. Read here-strings or let awk consume the whole input.
+-  if grep -q '^error:' <<<"$s_out"; then
++  # or, in an assignment, kills the census with exit 141. Let awk consume the whole input: no early exit, and no
++  # here-string either (a here-string over 64 KiB is a temporary file, which breaks the no-write contract and, on a
++  # full $TMPDIR or /tmp, silently skips the test — round-42 wave 1, C1RevFix D1).
++  local err_line=''
++  if err_line=$(printf '%s\n' "$s_out" | awk '/^error:/ { if (!p) { print; p = 1 } } END { if (!p) exit 1 }'); then
+     PKG_V=BLOCKED
+-    PKG_NOTE="pacman -Qkk sample probe error: $(grep -m1 '^error:' <<<"$s_out")"
++    PKG_NOTE="pacman -Qkk sample probe error: $err_line"
+     return
+   fi
+ 
+@@ -740,7 +743,7 @@ probe_packages() {
+     while read -r nm ver _; do
+       [ -n "$nm" ] || continue
+       live_names="$live_names $nm"
+-      bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n {print $2; exit}')
++      bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n && !f { print $2; f = 1 }')   # full read (round 42: an awk `exit` under pipefail killed the census on a large baseline)
+       if [ -z "$bn" ]; then
+         foreign_new_n=$((foreign_new_n + 1)); foreign_new="$foreign_new $nm"
+       elif [ "$ver" = "$bn" ]; then
+@@ -2187,7 +2190,7 @@ STUB
+       for re in "$@"; do
+         case "$re" in
+           ABSENT:*)
+-            if printf '%s\n' "$out" | grep -qE -- "${re#ABSENT:}"; then
++            if grep -qE -- "${re#ABSENT:}" <<<"$out"; then   # round 42: a SIGPIPE'd pipe here read 'absent' (fail-open)
+               unwanted="$unwanted '${re#ABSENT:}'"
+             fi
+             ;;
+@@ -2565,6 +2568,22 @@ STUB
+     '^PLANE update-safety: DEGRADED \(status=REQUIRES-PREP; pending=REQUIRES-PREP\(candidates=4002 join_behind=0 names=\[alpha,beta,pad00000\]\); qu=rc=0/4002; sup=4002;' \
+     'trap=-Suu:4002\[fixture/alpha 1\.1-1\]'
+ 
++  # Round 42 (wave-1 C1MutSelftest): the two -Sup disagreement arms with a -Sup side past the pipe buffer. The
++  # equal-count case above never enters them, and the old `printf | head -n3` assignment died there (exit 141).
++  case_home='degraded-update-sup-disagree-large'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  : > "$FX/qu"; printf 1 > "$FX/qu.rc"
++  { printf 'fixture/alpha 1.1-1\nextra/beta 2.1-1\n'
++    awk 'BEGIN { for (i = 0; i < 4000; i++) printf "extra/pad%05d 1.0-2\n", i }'; } > "$FX/sup"
++  check 'degraded: -Qu empty against a large -Sup keeps the disagree names (R42-C1)' 1 DEGRADED \
++    '^PLANE update-safety: DEGRADED \(status=REQUIRES-PREP; pending=REQUIRES-PREP\(candidates=4002 join_behind=0 names=\[alpha,beta,pad00000\]\); qu=rc=1/0; sup=4002 disagree\[qu=0 sup=4002\];'
++
++  case_home='degraded-update-qu-sup-mismatch-large'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf 'alpha 1.0-1 -> 1.1-1\nbeta 2.0-1 -> 2.1-1\n' > "$FX/qu"; printf 0 > "$FX/qu.rc"
++  { printf 'fixture/alpha 1.1-1\nextra/beta 2.1-1\n'
++    awk 'BEGIN { for (i = 0; i < 4000; i++) printf "extra/pad%05d 1.0-2\n", i }'; } > "$FX/sup"
++  check 'degraded: -Qu/-Sup count mismatch against a large -Sup keeps the disagree names (R42-C1)' 1 DEGRADED \
++    '^PLANE update-safety: DEGRADED \(status=REQUIRES-PREP; pending=REQUIRES-PREP\(candidates=4002 join_behind=0 names=\[alpha,beta,pad00000\]\); qu=rc=0/2; sup=4002 disagree\[qu=2 sup=4002\];'
++
+   case_home='blocked-update-qu'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+   printf 0 > "$FX/qu.rc"
+   check 'blocked: an empty -Qu at rc=0 is unreadable, never INERT (R9)' 2 BLOCKED \

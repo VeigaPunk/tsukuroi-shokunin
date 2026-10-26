@@ -1,0 +1,30 @@
+    """Return (verdict or None, verdict line) for one seat bound through dispatch + results + report."""
+    disp = load_json(lane, rev, f'{WAVE}/{wave}-dispatch.json') or {}
+    res = load_json(lane, rev, f'{WAVE}/{wave}-results.json') or {}
+    tasks = ((disp.get('taskCall') or {}).get('tasks')) or []
+    if not any(t.get('name') == name and t.get('agent') == role for t in tasks):
+        return None, None
+    ent = [r for r in (res.get('results') or []) if r.get('name') == name and r.get('agent') == role]
+    if len(ent) != 1 or not isinstance(ent[0].get('output'), str):
+        return None, None
+    hits = [m for m in VERDICT_RE.finditer(ent[0]['output']) if m.group(1) == row]
+    if len(hits) != 1:
+        return None, None
+    line = hits[0].group(0)
+    rep = show(lane, rev, f'{WAVE}/{wave}/{name}.md')
+    if rep is None or line not in rep.decode(errors='replace'):
+        return None, None
+    return hits[0].group(2), line
+
+
+def transcript_has(sessions, name, line):
+    pats = [os.path.join(sessions, '*', f'{name}.jsonl'), os.path.join(sessions, '*', f'{name}-*.jsonl')]
+        resid, lr = None, None
+        if 'partly' in vs:
+            resid, lr = bound(a.lane, rev, 'residual', f'C2RevSC{n}c', 'reviewer', row)
+        v_ok = (None not in vs and 'fails' not in vs and resid != 'fails'
+                and (all(v == 'holds' for v in vs) or resid == 'holds'))
+        for nm, ln in ((f'C2RevSC{n}', l1), (f'C2CritSC{n}', l2), (f'C2RevSC{n}c', lr)):
+            if ln:
+                tcount += 1
+                tbound += transcript_has(a.sessions, nm, ln)

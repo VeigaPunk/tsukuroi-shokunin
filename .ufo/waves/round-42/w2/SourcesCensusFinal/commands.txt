@@ -1,0 +1,17 @@
+# Seat SourcesCensusFinal (F-17) — commands as executed, 2026-10-26
+# cwd for fleet-script runs: /fast/scratch/hyaku/tsukuroi-r42/SourcesCensusFinal (scratch)
+# cwd for frozen manual census: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (lane root)
+1. /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi
+2. /home/vgpnk/Projects/shokunin/scripts/sources-census.sh census   --root /home/vgpnk/Projects/shokunin tsukuroi
+3. grep -cE '^\|[[:space:]]*S[0-9]{3,}[[:space:]]*\|' corpus/SOURCES.md
+4. awk -F'|' '/^\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\|/ && NF!=13 {n++} END{print n+0}' corpus/SOURCES.md
+5. awk -F'|' ... tier histogram (CORPUS.md:139)
+6. awk -F'|' ... status histogram (CORPUS.md:141)
+7. awk -F'|' ... duplicate ids | sort | uniq -d (CORPUS.md:143)
+8. awk -F'|' ... enum violations + tier inflation (CORPUS.md:145)
+9. awk -F'|' ... mined used-by existence loop (CORPUS.md:147)
+10. git -C lane archive c8efaa3f | tar -x into <scratch>/baseroot/tsukuroi-shokunin + fleet shokunin.conf; same commands 1-2 --root <scratch>/baseroot tsukuroi
+11. git -C lane archive a84fc9de | tar -x into <scratch>/freezeroot/tsukuroi-shokunin + fleet shokunin.conf; same commands 1-2 --root <scratch>/freezeroot tsukuroi
+12. diff of W04 line sets (base receipt vs tip validate; freeze receipt vs tip validate)
+13. git show c8efaa3f:corpus/SOURCES.md | grep -c ... ; git show a84fc9de:corpus/SOURCES.md | grep -c ...
+14. git log --oneline c8efaa3f..HEAD -- corpus/SOURCES.md

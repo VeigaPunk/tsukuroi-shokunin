@@ -1,0 +1,21 @@
+# F-24 duplication map at
+# pin 78abb8b5; entry lines 144-150 vs SKILL.md:3905-3916
+
+bullet 1 (entry :144-145) [148 B]: SKILL:3906 27%, SKILL:3905 18%, SKILL:3914 9%
+bullet 2 (entry :146-147) [162 B]: SKILL:3913 27%, SKILL:3914 18%, SKILL:3905 18%
+bullet 3 (entry :148-149) [209 B]: SKILL:3915 59%, SKILL:3914 24%, SKILL:3907 18%
+bullet 4 (entry :150) [80 B]: SKILL:3916 80%, SKILL:3914 20%, SKILL:3907 20%
+
+Mapping (semantic, read against the table Reading and Action columns):
+  b1 :144-145 -> SKILL:3905 (Reading "no device record carries a start time (SC4)"; Action "read \"no record of a
+                 run\", not \"never scrubbed\"") + SKILL:3906 Action "stored-data integrity stays `UNVERIFIED` (SH4)"
+  b2 :146-147 -> SKILL:3913 (aborted: "any device record is canceled (SC4)") + SKILL:3914 (finished: "every
+                 device that has a record is finished; devices without a record are skipped (SC4)")
+  b3 :148-149 -> SKILL:3915 ("an unfinished record and nothing running (SC4)" | "a process outcome; read the
+                 per-device error sums (`-d`, `-R`)")
+  b4 :150     -> SKILL:3916 ("devinfo/<devid>/scrub_speed_max limits it")
+
+Four of four bullets are covered; b3 and b4 are near-verbatim (59% / 80% stopword-filtered token overlap).
+Only proposition NOT in the table: b1's "what SC3 adds is the mechanism, not a new verdict" (meta about the
+entry, restated in the entry's own scope and SC3).
+

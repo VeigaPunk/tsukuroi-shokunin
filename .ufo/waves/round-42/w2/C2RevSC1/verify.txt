@@ -1,0 +1,45 @@
+# C2RevSC1 receipts — quote-line and caller verification (pinned v7.1 src, 2026-10-26)
+
+## sha256 -c SHA256SUMS in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src
+scrub.c: OK
+CHANGES: OK
+
+## capture digest (declared 942edc91a6b8fcda3ef29e88c3d54e7a9a48ec4cce302b8c1edcc89c8710643c)
+942edc91a6b8fcda3ef29e88c3d54e7a9a48ec4cce302b8c1edcc89c8710643c  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/hostcap/capture.txt
+
+## six quote lines, grep -n on pinned scrub.c
+67:#define SCRUB_DATA_FILE "/var/lib/btrfs/scrub.status"
+459:	datafile[ret] = '.';
+467:		datafile[ret] = '_';
+483:	fd = open(datafile, m, 0600);
+487:	ret = flock(fd, LOCK_EX|LOCK_NB);
+534:	ret = rename(datafile_old, datafile_new);
+
+## record open/write/rename call sites, grep -n
+68:#define SCRUB_PROGRESS_SOCKET_PATH "/var/lib/btrfs/scrub.progress"
+497:static int scrub_open_file_r(const char *fn_base, const char *fn_local)
+508:static int scrub_open_file_w(const char *fn_base, const char *fn_local,
+520:static int scrub_rename_file(const char *fn_base, const char *fn_local,
+897:static int scrub_write_progress(pthread_mutex_t *m, const char *fsid,
+917:	fd = scrub_open_file_w(SCRUB_DATA_FILE, fsid, "tmp");
+925:	err = scrub_rename_file(SCRUB_DATA_FILE, fsid, "tmp");
+1123:		ret = scrub_write_progress(spc->write_mutex, fsid,
+1361:	fdres = scrub_open_file_r(SCRUB_DATA_FILE, fsid);
+1461:		ret = scrub_datafile(SCRUB_PROGRESS_SOCKET_PATH, fsid, NULL,
+1466:		ret = bind(prg_fd, (struct sockaddr *)&addr, sizeof(addr));
+1492:			SCRUB_PROGRESS_SOCKET_PATH);
+1503:		ret = scrub_write_progress(&spc_write_mutex, fsid, sp,
+1702:		ret = scrub_write_progress(&spc_write_mutex, fsid, sp,
+1923:	scrub_datafile(SCRUB_PROGRESS_SOCKET_PATH, fsid,
+1930:		fdres = scrub_open_file_r(SCRUB_DATA_FILE, fsid);
+
+## chmod/umask/fchmod in scrub.c (expect none)
+0
+0 matches
+
+## capture.txt lines 5-6
+root_fsid 1d02a454-c549-4a35-b567-89d60902af8e
+var_lib_btrfs absent
+
+## capture.sh absence test
+11:  if [ -e /var/lib/btrfs ]; then echo "var_lib_btrfs present"; ls -la /var/lib/btrfs 2>&1 | sed 's/^/  /'; else echo "var_lib_btrfs absent"; fi

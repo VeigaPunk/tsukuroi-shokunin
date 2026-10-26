@@ -1,0 +1,26 @@
+# strace evidence (census under strace -f -qq -e trace=%file, TMPDIR = full 1 MiB tmpfs in unshare -rm)
+# full logs: r-strace-file-tip.log (78abb8b5), r-strace-file-4476620.log (4476620)
+
+## 4476620 (here-string form; census at 4476620 :695/:697) — a temp file is created outside the fixture
+570:943536 openat(AT_FDCWD, "/fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/tmp-full/sh-thd.dMuxQT", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+571:943536 unlink("/fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/tmp-full/sh-thd.dMuxQT") = 0
+-- write of that temp file (separate -e trace=openat,write run, same full tmpfs):
+1052077 openat(AT_FDCWD, "/fast/scratch/hyaku/tsukuroi-r42/C1FinalENOSPC/tmp-full/sh-thd.zTEHPo", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+1052077 write(3, "error: alpha: /usr/bin/alpha (Pe"..., 304126) = -1 ENOSPC (No space left on device)
+
+## 78abb8b5 (awk form, census :697-701) — no temp file, no write-open outside /dev
+sh-thd occurrences: 0
+write-flag opens outside /dev/null|/dev/tty (excl. the strace log): 0
+creat()/mkdir*/unlink*/rename*/truncate calls: 0
+total openat lines: 1888
+openat under the fixture (fx/): 186
+openat of stub dispatchers (bin/): 150
+openat under /tmp, /var/tmp or the lane: 0
+-- distinct write-flag opens that DO appear (path, count):
+      60  /dev/null
+      32  /dev/tty
+-- failed writes at tip: none (grep write(...= -1 empty):
+
+## fixture immutability across a tip full-TMPDIR run (fx_hash formula from the selftest)
+before a17acc4d6ccd7cb2aa558c7f2d2fc8341728d1800584b4378a560ba3612ee256
+after  a17acc4d6ccd7cb2aa558c7f2d2fc8341728d1800584b4378a560ba3612ee256

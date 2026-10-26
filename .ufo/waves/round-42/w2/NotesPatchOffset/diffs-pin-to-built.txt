@@ -1,0 +1,214 @@
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/frozen/src/add.c	2026-10-26 02:42:12.301308087 -0300
++++ fx.pzTLVR/lib/libalpm/add.c	2026-10-26 17:54:23.320243089 -0300
+@@ -412,6 +412,29 @@
+ 	return errors;
+ }
+ 
++static time_t get_install_time(void)
++{
++	time_t now;
++	char *source_date_epoch;
++	unsigned long long sde;
++	char *endptr;
++
++	source_date_epoch = getenv("SOURCE_DATE_EPOCH");
++	if (source_date_epoch) {
++		errno = 0;
++		sde = strtoull(source_date_epoch, &endptr, 10);
++		if (source_date_epoch == endptr || *endptr != '\0' || errno != 0) {
++			now = time(NULL);
++		} else {
++			now = sde;
++		}
++	} else {
++		now = time(NULL);
++	}
++
++	return now;
++}
++
+ static int commit_single_pkg(alpm_handle_t *handle, alpm_pkg_t *newpkg,
+ 		size_t pkg_current, size_t pkg_count)
+ {
+@@ -591,7 +614,7 @@
+ 	}
+ 
+ 	/* make an install date (in UTC) */
+-	newpkg->installdate = time(NULL);
++	newpkg->installdate = get_install_time();
+ 
+ 	_alpm_log(handle, ALPM_LOG_DEBUG, "updating database\n");
+ 	_alpm_log(handle, ALPM_LOG_DEBUG, "adding database entry '%s'\n", newpkg->name);
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src/makepkg.sh.in	2026-10-26 13:12:55.086295966 -0300
++++ fx.pzTLVR/scripts/makepkg.sh.in	2026-10-26 17:54:23.319429167 -0300
+@@ -469,6 +469,121 @@
+ 	run_function_safe "package${1:+_$1}"
+ }
+ 
++find_libdepends() {
++	local d sodepends
++
++	sodepends=0
++	for d in "${depends[@]}"; do
++		if [[ $d = *.so ]]; then
++			sodepends=1
++			break
++		fi
++	done
++
++	if (( sodepends == 0 )); then
++		(( ${#depends[@]} )) && printf '%s\n' "${depends[@]}"
++		return 0
++	fi
++
++	local libdeps filename soarch sofile soname soversion
++	declare -A libdeps
++
++	while IFS= read -rd '' filename; do
++		# get architecture of the file; if soarch is empty it's not an ELF binary
++		soarch=$(LC_ALL=C readelf -h "$filename" 2>/dev/null | sed -n 's/.*Class.*ELF\(32\|64\)/\1/p')
++		[[ -n "$soarch" ]] || continue
++
++		# process all libraries needed by the binary
++		for sofile in $(LC_ALL=C readelf -d "$filename" 2>/dev/null | sed -nr 's/.*Shared library: \[(.*)\].*/\1/p')
++		do
++			# extract the library name: libfoo.so
++			soname="${sofile%.so?(+(.+([0-9])))}".so
++			# extract the major version: 1
++			soversion="${sofile##*\.so\.}"
++
++			if [[ ${libdeps[$soname]} ]]; then
++				if [[ ${libdeps[$soname]} != *${soversion}-${soarch}* ]]; then
++					libdeps[$soname]+=" ${soversion}-${soarch}"
++				fi
++			else
++				libdeps[$soname]="${soversion}-${soarch}"
++			fi
++		done
++	done < <(find "$pkgdir" -type f -perm -u+x -print0)
++
++	local libdepends v
++	for d in "${depends[@]}"; do
++		case "$d" in
++			*.so)
++				if [[ ${libdeps[$d]} ]]; then
++					for v in ${libdeps[$d]}; do
++						libdepends+=("$d=$v")
++					done
++				else
++					warning "$(gettext "Library listed in %s is not required by any files: %s")" "'depends'" "$d"
++					libdepends+=("$d")
++				fi
++				;;
++			*)
++				libdepends+=("$d")
++				;;
++		esac
++	done
++
++	(( ${#libdepends[@]} )) && printf '%s\n' "${libdepends[@]}"
++}
++
++
++find_libprovides() {
++	local p versioned_provides libprovides missing
++	for p in "${provides[@]}"; do
++		missing=0
++		versioned_provides=()
++		case "$p" in
++			*.so)
++				mapfile -t filename < <(find "$pkgdir" -type f -name $p\* | LC_ALL=C sort)
++				if [[ $filename ]]; then
++					# packages may provide multiple versions of the same library
++					for fn in "${filename[@]}"; do
++						# check if we really have a shared object
++						if LC_ALL=C readelf -h "$fn" 2>/dev/null | grep -q '.*Type:.*DYN (Shared object file).*'; then
++							# get the string binaries link to (e.g. libfoo.so.1.2 -> libfoo.so.1)
++							local sofile=$(LC_ALL=C readelf -d "$fn" 2>/dev/null | sed -n 's/.*Library soname: \[\(.*\)\].*/\1/p')
++							if [[ -z "$sofile" ]]; then
++								warning "$(gettext "Library listed in %s is not versioned: %s")" "'provides'" "$p"
++								continue
++							fi
++
++							# get the library architecture (32 or 64 bit)
++							local soarch=$(LC_ALL=C readelf -h "$fn" | sed -n 's/.*Class.*ELF\(32\|64\)/\1/p')
++
++							# extract the library major version
++							local soversion="${sofile##*\.so\.}"
++
++							versioned_provides+=("${p}=${soversion}-${soarch}")
++						else
++							warning "$(gettext "Library listed in %s is not a shared object: %s")" "'provides'" "$p"
++						fi
++					done
++				else
++					missing=1
++				fi
++				;;
++		esac
++
++		if (( missing )); then
++			warning "$(gettext "Cannot find library listed in %s: %s")" "'provides'" "$p"
++		fi
++		if (( ${#versioned_provides[@]} > 0 )); then
++			libprovides+=("${versioned_provides[@]}")
++		else
++			libprovides+=("$p")
++		fi
++	done
++
++	(( ${#libprovides[@]} )) && printf '%s\n' "${libprovides[@]}"
++}
++
+ write_kv_pair() {
+ 	local key="$1"
+ 	shift
+@@ -510,6 +625,9 @@
+ 	write_kv_pair "size" "$size"
+ 	write_kv_pair "arch" "$pkgarch"
+ 
++	mapfile -t provides < <(find_libprovides)
++	mapfile -t depends < <(find_libdepends)
++
+ 	write_kv_pair "license"     "${license[@]}"
+ 	write_kv_pair "replaces"    "${replaces[@]}"
+ 	write_kv_pair "group"       "${groups[@]}"
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src/PKGBUILD.5.asciidoc	2026-10-26 13:12:55.086351076 -0300
++++ fx.pzTLVR/doc/PKGBUILD.5.asciidoc	2026-10-26 17:54:23.319281137 -0300
+@@ -180,6 +180,11 @@
+ 	than or equal to), `<=` (less than or equal to), `=` (equal to), `>`
+ 	(greater than), or `<` (less than).
+ +
++If the dependency name appears to be a library (ends with .so), makepkg will
++try to find a binary that depends on the library in the built package and
++append the version needed by the binary. Appending the version yourself
++disables automatic detection.
+++
+ Additional architecture-specific depends can be added by appending an
+ underscore and the architecture name e.g., 'depends_x86_64=()'.
+ 
+@@ -233,6 +238,10 @@
+ other packages. Provisions involving the `>` and `<` operators are invalid as
+ only specific versions of a package may be provided.
+ +
++If the provision name appears to be a library (ends with .so), makepkg will
++try to find the library in the built package and append the correct
++version. Appending the version yourself disables automatic detection.
+++
+ Additional architecture-specific provides can be added by appending an
+ underscore and the architecture name e.g., 'provides_x86_64=()'.
+ 
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-39/frozen/src/util.c	2026-10-26 02:42:12.301438327 -0300
++++ fx.pzTLVR/lib/libalpm/util.c	2026-10-26 17:54:23.321571651 -0300
+@@ -673,6 +673,11 @@
+ 			close(cwdfd);
+ 		}
+ 
++#ifdef HAVE_LIBCURL
++		/* invalidate the curl data - we must not touch it in child */
++		handle->curlm = NULL;
++#endif
++
+ 		/* use fprintf instead of _alpm_log to send output through the parent */
+ 		/* don't chroot() to "/": this allows running with less caps when the
+ 		 * caller puts us in the right root */

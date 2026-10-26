@@ -1,0 +1,28 @@
+$ git merge-base --is-ancestor 87c4f7c6 78abb8b5 (did the receipts land before the wave tip?)
+yes: 87c4f7c6 is an ancestor of 78abb8b5
+
+$ python3 scripts/w1r4_landing_check.py <lane> f50c28d .ufo/waves/round-42/controls   (the revision the w1 row looked at)
+revision       : f50c28d
+declared dir   : .ufo/waves/round-42/controls
+git ls-tree    : 2 files tracked
+on disk        : 19 files
+missing in tree: 17 ['C1-K0.jsonl', 'C1-K1.jsonl', 'C1-K2.jsonl', 'C1-K3.jsonl'] …
+CHECK          : FAIL (red) — artifacts on disk are not committed
+exit=1
+
+$ python3 scripts/w1r4_landing_check.py <lane> 78abb8b5 .ufo/waves/round-42/controls   (same command, the wave tip)
+revision       : 78abb8b5
+declared dir   : .ufo/waves/round-42/controls
+git ls-tree    : 19 files tracked
+on disk        : 19 files
+missing in tree: 0 []
+CHECK          : PASS (green)
+exit=0
+
+$ recompute the battery summaries from the committed per-control receipts
+C1 recomputed == committed copy: False | {"battery": "C1", "control_accepted": 0, "controls": {"C1-K0": "FAIL", "C1-K1": "FAIL", "C1-K2": "FAIL", "C1-K3": "FAIL", "C1-K4": "FAIL", "
+C2 recomputed == committed copy: False | {"battery": "C2", "control_accepted": 0, "controls": {"C2-K0": "FAIL", "C2-K1": "FAIL", "C2-K2": "FAIL", "C2-K3": "PASS", "C2-K4": "FAIL", "
+
+$ recompute the battery summaries from the committed per-control receipts (short control names)
+C1 recomputed == committed copy: True | {"battery": "C1", "control_accepted": 1, "controls": {"K0": "FAIL", "K1": "FAIL", "K2": "FAIL", "K3": "FAIL", "K4": "FAIL", "K5": "FAIL", "K6": "PASS", "K7": "FAIL", "K8"
+C2 recomputed == committed copy: True | {"battery": "C2", "control_accepted": 1, "controls": {"K0": "FAIL", "K1": "FAIL", "K2": "FAIL", "K3": "PASS", "K4": "FAIL", "K5": "FAIL"}, "should_fail_accepted": 0, "sho

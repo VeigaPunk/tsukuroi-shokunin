@@ -1,0 +1,18 @@
+# check-scrub-record-r42.py, same fixture clone, three revisions
+
+revision                                                 rows          quotes_ok         novelty_ok  novelty_base_hits            host_ok         sources_ok         capture_ok
+78abb8b5 (pin)                                             5                  5                  5                  0                  5                  1               True
+zerodrift P1+P3                                            5                  5                  5                  0                  5                  1               True
+fullset P1+P2+P3                                           5                  5                  5                  0                  5                  1               True
+
+per-row quote counts (good/in_window)  before -> zerodrift -> fullset
+  SC1: 6/5 -> 6/5 -> 6/5
+  SC2: 5/4 -> 5/4 -> 5/4
+  SC3: 5/5 -> 5/5 -> 5/5
+  SC4: 7/6 -> 7/6 -> 7/6
+  SC5: 5/5 -> 5/5 -> 5/5
+
+verdicts_ok is 0 in all three runs because the fixture clone carries no w2-results.json / residual-results.json
+or w2 report files; that field is a property of the clone, not of the edit, and this seat did not measure it
+on the real lane. rows/quotes_ok/novelty_ok/host_ok/sources_ok/novelty_base_hits are the fields an edit to
+Scope, the triage block and the tail can move, and they are identical.

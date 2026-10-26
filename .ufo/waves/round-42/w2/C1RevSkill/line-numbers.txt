@@ -1,0 +1,60 @@
+# C1RevSkill receipts — line numbers of the flagged census sites (base c8efaa3f / first fix 44766208 / tip 78abb8b5)
+
+## base census (git show c8efaa3f:tools/tsukuroi-census.sh)
+638:  head -n1 -- "$1" 2>/dev/null | tr -d '\r' || true
+692:  if printf '%s\n' "$s_out" | grep -q '^error:'; then
+694:    PKG_NOTE="pacman -Qkk sample probe error: $(printf '%s\n' "$s_out" | grep -m1 '^error:')"
+740:      bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n {print $2; exit}')
+795:      | head -n1 | sed -E 's/^[[:space:]]*HoldPkg[[:space:]]*=[[:space:]]*//' || true)
+928:  state=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+966:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+988:  restrict=$(head -n1 "$DMESG_RESTRICT_FILE" 2>/dev/null | tr -d '\r' || true)
+1048:      driver=$(printf '%s\n' "$CAP_OUT" | head -n1 | awk -F', *' '{print $NF}')
+1423:    t_word=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1498:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1621:    cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 | awk '{print $1}' | paste -sd, -)
+1635:    cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 \
+1641:      cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 \
+1652:    [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+2172:    pkgline=$(printf '%s\n' "$out" | grep '^PLANE packages:' | head -n1 || true)
+2182:      bad "$label: verdict not ${wverdict}; got: $(printf '%s\n' "$out" | grep '^TSUKUROI_CENSUS:' | head -n1)"
+3109:  host=$(head -n1 "$HOSTNAME_FILE" 2>/dev/null | tr -d '\r' || true)
+
+## first-fix census (git show 44766208:tools/tsukuroi-census.sh)
+638:  head -n1 -- "$1" 2>/dev/null | tr -d '\r' || true
+695:  if grep -q '^error:' <<<"$s_out"; then
+697:    PKG_NOTE="pacman -Qkk sample probe error: $(grep -m1 '^error:' <<<"$s_out")"
+743:      bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n {print $2; exit}')
+798:      | head -n1 | sed -E 's/^[[:space:]]*HoldPkg[[:space:]]*=[[:space:]]*//' || true)
+931:  state=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+969:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+991:  restrict=$(head -n1 "$DMESG_RESTRICT_FILE" 2>/dev/null | tr -d '\r' || true)
+1051:      driver=$(printf '%s\n' "$CAP_OUT" | head -n1 | awk -F', *' '{print $NF}')
+1426:    t_word=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1501:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+2175:    pkgline=$(printf '%s\n' "$out" | grep '^PLANE packages:' | head -n1 || true)
+2185:      bad "$label: verdict not ${wverdict}; got: $(printf '%s\n' "$out" | grep '^TSUKUROI_CENSUS:' | head -n1)"
+2351:  # the old `printf | grep -q '^error:'` read false once the sample outgrew the pipe buffer (DEGRADED/HEALTHY).
+2556:  # Round 42 (R41-CENSUS-PIPEFAIL-692): 4002 candidates (~100 KB) on -Qu, -Sup and -Suu. The old `printf | head -n3`
+2557:  # and `| head -n1` assignments killed the whole census with exit 141 once a list outgrew the pipe buffer.
+3134:  host=$(head -n1 "$HOSTNAME_FILE" 2>/dev/null | tr -d '\r' || true)
+
+## tip census (git show 78abb8b5:tools/tsukuroi-census.sh)
+638:  head -n1 -- "$1" 2>/dev/null | tr -d '\r' || true
+698:  if err_line=$(printf '%s\n' "$s_out" | awk '/^error:/ { if (!p) { print; p = 1 } } END { if (!p) exit 1 }'); then
+746:      bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n && !f { print $2; f = 1 }')   # full read (round 42: an awk `exit` under pipefail killed the census on a large baseline)
+801:      | head -n1 | sed -E 's/^[[:space:]]*HoldPkg[[:space:]]*=[[:space:]]*//' || true)
+934:  state=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+972:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+994:  restrict=$(head -n1 "$DMESG_RESTRICT_FILE" 2>/dev/null | tr -d '\r' || true)
+1054:      driver=$(printf '%s\n' "$CAP_OUT" | head -n1 | awk -F', *' '{print $NF}')
+1429:    t_word=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1504:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1627:    cand_names=$(printf '%s\n' "$CAP_OUT" | awk 'NR <= 3 {print $1}' | paste -sd, -)
+1642:      | awk 'NR <= 3 {n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+1648:        | awk 'NR <= 3 {n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+1658:    [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$CAP_OUT" | awk 'NR == 1' | tr -d '\r')
+2178:    pkgline=$(printf '%s\n' "$out" | grep '^PLANE packages:' | head -n1 || true)
+2188:      bad "$label: verdict not ${wverdict}; got: $(printf '%s\n' "$out" | grep '^TSUKUROI_CENSUS:' | head -n1)"
+2560:  # and `| head -n1` assignments killed the whole census with exit 141 once a list outgrew the pipe buffer.
+3153:  host=$(head -n1 "$HOSTNAME_FILE" 2>/dev/null | tr -d '\r' || true)

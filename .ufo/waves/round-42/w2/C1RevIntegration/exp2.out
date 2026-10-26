@@ -1,0 +1,14 @@
+D0 big_out bytes: 1140030
+D1 old form+pipefail, 20 runs, 1.1MiB out, pattern line 1: present=0 absent=20 (absent=fail-open)
+D2 new form+pipefail, same input: NEW:present
+D3 old form+pipefail, pattern truly absent, small out: OLD:absent
+D4 new form+pipefail, pattern truly absent, small out: NEW:absent
+--- D5: big here-string WITH pattern, TMPDIR unusable (nonexistent) ---
+VERDICT:present(correct)
+--- D6: deterministic — TMPDIR on a 64KiB tmpfs (private unshare -rm), 1.1MiB here-string with pattern ---
+d6-inner.sh: line 6: cannot create temp file for here-document: No space left on device
+VERDICT:absent(FAIL-OPEN)
+--- D7: control — same but small here-string on the tiny tmpfs ---
+VERDICT:present(correct)
+--- D8: control — no tmpfs, normal TMPDIR, big here-string with pattern ---
+VERDICT:present(correct)

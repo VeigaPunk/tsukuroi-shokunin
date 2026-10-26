@@ -1,0 +1,19 @@
+commit 95e80557991330f603440f5b32354cf395cef34b
+Author: fixture <fixture@invalid>
+Date:   Mon Oct 26 17:40:15 2026 -0300
+
+    M1: awk exit after print
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 18a1db64..73e3d3ed 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -695,7 +695,7 @@ probe_packages() {
+   # here-string either (a here-string over 64 KiB is a temporary file, which breaks the no-write contract and, on a
+   # full $TMPDIR or /tmp, silently skips the test — round-42 wave 1, C1RevFix D1).
+   local err_line=''
+-  if err_line=$(printf '%s\n' "$s_out" | awk '/^error:/ { if (!p) { print; p = 1 } } END { if (!p) exit 1 }'); then
++  if err_line=$(printf '%s\n' "$s_out" | awk '/^error:/ { if (!p) { print; p = 1; exit } } END { if (!p) exit 1 }'); then
+     PKG_V=BLOCKED
+     PKG_NOTE="pacman -Qkk sample probe error: $err_line"
+     return

@@ -1,0 +1,23 @@
+# C2RevSC3 receipts — digest and quote-line verification (2026-10-26)
+
+$ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src && sha256sum -c SHA256SUMS
+scrub.c: OK
+CHANGES: OK
+
+$ grep -nF '/* write all-zero progress file for a start */' scrub.c
+1502:		/* write all-zero progress file for a start */
+
+$ grep -nF 'warning("cannot create scrub data file, mkdir %s failed: %m, status recording disabled",' scrub.c
+1336:		warning("cannot create scrub data file, mkdir %s failed: %m, status recording disabled",
+
+$ grep -nF 'warning("failed to write the progress status file: %m, status recording disabled");' scrub.c
+1507:			warning("failed to write the progress status file: %m, status recording disabled");
+
+$ grep -nF 'if (!spc->do_record)' scrub.c
+1121:		if (!spc->do_record)
+
+$ grep -nF 'ret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);' scrub.c
+1200:		ret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);
+
+$ sha256sum /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/../hostcap/capture.txt
+942edc91a6b8fcda3ef29e88c3d54e7a9a48ec4cce302b8c1edcc89c8710643c  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/../hostcap/capture.txt

@@ -1,0 +1,96 @@
+# CritTrendFinal receipts — round 42, item F-19, measured revision 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (2026-10-26)
+
+## 1. revision
+78abb8b5cdc9da511b4fc523e661517a68dd33d3
+78abb8b5 round-42: integrate w1 (43 seats) — census awk test replaces here-strings (ENOSPC/no-write), :743 lookup full read, two -Sup selftest cases (132), entry corrections SC1/SC3/SC4/scope/triage, SKILL sections + registry rows + lineage/scoreboard, QUALITY 90, PROVINCE/README notes, packaging-offset notes r39/r41, IN-109 anchor, w1 reports and results
+
+## 2. lesson file absent from the revision
+fatal: path 'corpus/lessons/round-42.md' exists on disk, but not in '78abb8b5'
+exit=128
+$ git log --oneline --all -- corpus/lessons/round-42.md
+(empty output above = never committed)
+
+## 3. r38 drifted pin and no round-42 note
+136:- **HO6 host cell, corrected.** Commits are per target with no rollback (`add.c:670-687`, `sync.c:1336-1360` at
+Round-42 note count in r38: 0
+
+## 4. patch-offset receipts: 108 pins, 15 drifting, and the r38 row
+108
+15
+"cited": "lib/libalpm/add.c:670-687"
+"cited": "lib/libalpm/add.c:466-474"
+"cited": "lib/libalpm/add.c:616-648"
+"cited": "lib/libalpm/add.c:669-688"
+"cited": "lib/libalpm/add.c:470-474"
+"cited": "lib/libalpm/add.c:676-692"
+"cited": "lib/libalpm/add.c:468-469"
+"cited": "lib/libalpm/add.c:168-189"
+$ python3 -c <print out.json rows for add.c:670-687>
+
+## 5. evidence.txt: restored functions absent from the pinned r41 makepkg
+## libdepends/libprovides restored by the reverse-applied revert patch
+472:find_libdepends() {
+537:find_libprovides() {
+628:	mapfile -t provides < <(find_libprovides)
+629:	mapfile -t depends < <(find_libdepends)
+$ grep -c find_libprovides\|find_libdepends <r41 frozen makepkg>
+0
+
+
+## 6. IN-109 repin: json 2468 vs md 2277, and the census line at both revisions
+-   "found_line": 2452,
++   "found_line": 2468,
+-   "note": "Block began at 915 at landing da95290; range 915-970 now holds probe_drivers kernel-ring code. Block comment now 2173-2178, D14/D15 case 2216, all 9 cases present. Round 32: the census HANDOFF change moved the case from line 2216 to line 2277 (found_line updated; wave-2 RevGatesTip). Round 38: the storage arm and its hardening moved it from line 2346 to line 2425 (found_line updated; wave-1 GateCitations). Round 39: the storage arm's mount-table cross-check moved it from line 2425 to line 2447 (found_line updated in the same commit as the census change, L1 TsukuroiR39); the round-39 wave-1 hardening (C1SentMounts: FIFO and empty mount tables) moved it again to line 2452."
++   "note": "Block began at 915 at landing da95290; range 915-970 now holds probe_drivers kernel-ring code. Block comment now 2173-2178, D14/D15 case 2216, all 9 cases present. Round 32: the census HANDOFF change moved the case from line 2216 to line 2277 (found_line updated; wave-2 RevGatesTip). Round 38: the storage arm and its hardening moved it from line 2346 to line 2425 (found_line updated; wave-1 GateCitations). Round 39: the storage arm's mount-table cross-check moved it from line 2425 to line 2447 (found_line updated in the same commit as the census change, L1 TsukuroiR39); the round-39 wave-1 hardening (C1SentMounts: FIFO and empty mount tables) moved it again to line 2452. Round 42: the C1 census changes (447662088 and the round-42 integration commit) moved it from line 2452 to 2468 (found_line updated; wave-1 GateAllRegistry, CritSeparability)."
+$ base census 2452 / tip 2468
+  check 'degraded: kernel ring class counts are evidence (D14/D15)' 1 DEGRADED \
+  check 'degraded: kernel ring class counts are evidence (D14/D15)' 1 DEGRADED \
+204:| IN-109 | `tameshi:corpus/knowledge/service-optin-protocol.md:153` | `tools/tsukuroi-census.sh:915-970` | operative | DRIFTED | 2277 | check 'degraded: kernel ring class counts are evidence (D14/D15)' 1 DEGRADED |
+231:| HP-IN-109 | tameshi | `corpus/knowledge/service-optin-protocol.md:153` @ `01d586ddbc5f` | `tools/tsukuroi-census.sh:915-970` | line 2277 | `tools/tsukuroi-census.sh` marker `# ---- round-5 mutation hardening (lane S5-1, 2026-10-14)` |
+204:| IN-109 | `tameshi:corpus/knowledge/service-optin-protocol.md:153` | `tools/tsukuroi-census.sh:915-970` | operative | DRIFTED | 2277 | check 'degraded: kernel ring class counts are evidence (D14/D15)' 1 DEGRADED |
+231:| HP-IN-109 | tameshi | `corpus/knowledge/service-optin-protocol.md:153` @ `01d586ddbc5f` | `tools/tsukuroi-census.sh:915-970` | line 2277 | `tools/tsukuroi-census.sh` marker `# ---- round-5 mutation hardening (lane S5-1, 2026-10-14)` |
+
+## 7. SKILL.md drifted pins (not in the 108-pin sweep)
+3189:| After an upgrade the UKI/initramfs predates the installed kernel, a Post hook did not run, and the command exited 0 | HO6 | The Post phase runs only in t
+3270:| `[ALPM-SCRIPTLET]` lines sit between a package's own `installed`/`upgraded` line and the next package's line | TO3 (S213 `add.c:616-648`, `:669-688`) | P
+3273:| `[ALPM] transaction interrupted` closes a window (no `transaction completed`) | TO6 (S213 `add.c:676-692`) with HO6 above | A target failed to commit: `t
+3729:| A package built under a non-C locale starts with data files, or a partial read never saw `.MTREE` | PA3 (S229 `makepkg.sh.in:560-569`; `be_package.c:640-
+3731:| A kept `mtree` opens as binary, or an installed file is not listed in it | PA5 (S229 `makepkg.sh.in:615-620`) | `head -c2 /var/lib/pacman/local/<name>-<v
+3733:| A packaging function edits files as if in the wrong directory | PA7 (S232 `PKGBUILD.5.asciidoc:345-377`) | `man -P cat PKGBUILD \| grep -n 'This function
+
+## 8. no capability row, no w2 tree at the revision
+capability diff hits: 0
+0
+
+## 9. QUALITY 89 (r41) landed before its lesson
+at d7bf279f exit=128
+64f9062e round-41: measured outcome, axes table, lesson, C2 after receipt, sources census end
+
+## 4b. the drifted r38 row as out.json records it
+
+## 4c. rows whose cited file is not add.c/util.c/makepkg/PKGBUILD.5 (drift count check)
+{}
+drift rows: 0
+
+## 4b. the drifted r38 row as out.json records it (top-level keys: ['notes', 'rows'] )
+{"cited": "lib/libalpm/add.c:670-687", "method": "anchor", "patch": "patch-reproducible-builds.patch", "pin": "pacman 54d94116164b0b2202c6061c4a59c6f3e70820d8", "pkg": "pacman", "risk": "shift +23 -> :693", "tag": "7.1.0.r9.g54d9411-3"}
+
+## 4c. drift inventory: rows, files, drifting rows
+rows: 108
+per file: {'CHANGES': 3, 'cmds/scrub.c': 25, 'doc/PKGBUILD.5.asciidoc': 3, 'doc/alpm-hooks.5.asciidoc': 6, 'lib/libalpm/add.c': 8, 'lib/libalpm/alpm.c': 1, 'lib/libalpm/be_local.c': 1, 'lib/libalpm/be_package.c': 2, 'lib/libalpm/hook.c': 16, 'lib/libalpm/remove.c': 1, 'lib/libalpm/sync.c': 2, 'lib/libalpm/trans.c': 14, 'lib/libalpm/util.c': 7, 'lib/libalpm/version.c': 1, 'man/journalctl.xml': 1, 'meson_options.txt': 1, 'scripts/makepkg.sh.in': 4, 'src/journal/journalctl-filter.c': 1, 'src/journal/journalctl.c': 4, 'src/pacman/check.c': 3, 'src/pacman/query.c': 2, 'src/shared/options.c': 1, 'src/shared/options.h': 1}
+drift rows: 15
+lib/libalpm/add.c:670-687 | shift +23 -> :693 | anchor
+lib/libalpm/add.c:466-474 | shift +23 -> :489 | anchor
+lib/libalpm/add.c:616-648 | shift +23 -> :639 | anchor
+lib/libalpm/add.c:669-688 | shift +23 -> :692 | anchor
+lib/libalpm/add.c:470-474 | shift +23 -> :493 | anchor
+lib/libalpm/add.c:676-692 | shift +23 -> :699 | model
+lib/libalpm/add.c:468-469 | shift +23 -> :491 | anchor
+lib/libalpm/util.c:677-687 | shift +5 -> :682 | anchor
+lib/libalpm/util.c:688-698 | shift +5 -> :693 | anchor
+lib/libalpm/util.c:698-700 | shift +5 -> :703 | anchor
+scripts/makepkg.sh.in:560-569 | shift +118 -> :678 | anchor
+scripts/makepkg.sh.in:615-620 | shift +118 -> :733 | model
+doc/PKGBUILD.5.asciidoc:345-377 | shift +9 -> :354 | anchor
+scripts/makepkg.sh.in:565 | shift +118 -> :683 | anchor
+doc/PKGBUILD.5.asciidoc:400-404 | shift +9 -> :409 | anchor

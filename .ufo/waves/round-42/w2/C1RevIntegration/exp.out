@@ -1,0 +1,35 @@
+=== A. hunk-1: awk error test vs old grep form (both under set -euo pipefail) ===
+A1 no-error: SAME [PASS]
+A2 empty: SAME [PASS]
+A3 error-first: SAME [BLOCK error: package x is damaged]
+A4 error-mid: SAME [BLOCK error: second thing]
+A5 error-last-of-two: SAME [BLOCK error: one]
+A6 only-newline: SAME [PASS]
+A7 post-tr CR-prefixed: SAME [BLOCK error: after CR split]
+A8 long-then-error: SAME [BLOCK error: deep one]
+A9 noise-then-error: SAME [BLOCK error: late one]
+A9 NUL: old=[BLOCK error: nul]
+A9 NUL: new=[BLOCK error: nul]
+
+=== B. hunk-2: bn lookup — duplicate names and the big-baseline SIGPIPE kill ===
+B1 dup-first-wins: old=[1.0-1] new=[1.0-1] same=yes
+B2 nomatch: old=[] new=[] same=yes
+84012 big_base.txt
+B3 old: exit=141 out=[]
+B3 new: exit=0 out=[survived bn=[1.1-1]]
+B4 new late-match: bn=[1.0-2]
+
+=== C. hunk-3: ABSENT arm — old pipe vs new here-string ===
+C0 big_out bytes: 1140030
+C1 old form over 20 runs (1MiB, pattern line 1): present=20 absent=0 (absent = fail-open)
+C2 new form same input: NEW:present
+C3 small out, pattern truly absent: old=OLD:absent new=NEW:absent
+
+--- C4: TMPDIR failure (bash temp file for >64KiB here-strings) ---
+C4 big here-string, TMPDIR=/nonexistent-c1rev:
+NEW:absent
+grep-status=0
+C5 small here-string, same broken TMPDIR:
+SMALL:absent
+C6 old pipe form, big buffer, same broken TMPDIR (no temp file needed for a pipe):
+OLDPIPE:absent

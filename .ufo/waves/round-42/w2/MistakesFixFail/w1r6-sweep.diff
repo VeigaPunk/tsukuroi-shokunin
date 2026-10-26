@@ -1,0 +1,86 @@
+--- censuses/census-78abb8b5.sh	2026-10-26 17:51:31.286619639 -0300
++++ censuses/census-swept.sh	2026-10-26 17:54:37.720826911 -0300
+@@ -673,7 +673,7 @@
+     PKG_NOTE="pacman -Qq rc=$qq_rc [local db unreadable]"
+     return
+   fi
+-  mapfile -t names < <(printf '%s\n' "$CAP_OUT" | grep -v '^[[:space:]]*$' | head -n "$SAMPLE_N")
++  mapfile -t names < <(printf '%s\n' "$CAP_OUT" | grep -v '^[[:space:]]*$' | awk -v n="$SAMPLE_N" 'NR <= n')
+   sample_n=${#names[@]}
+   if [ "$sample_n" -eq 0 ]; then
+     PKG_V=BLOCKED
+@@ -931,7 +931,7 @@
+ 
+   cap "$SYSTEMCTL" --user is-system-running --no-pager
+   local s_rc=$CAP_RC state
+-  state=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
++  state=$(printf '%s\n' "$CAP_OUT" | awk 'NR == 1' | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+   case "$state" in
+     running | degraded | starting | stopping | maintenance | offline | unknown) : ;;
+     *)
+@@ -963,13 +963,13 @@
+     return
+   fi
+   timers_enabled=$(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | wc -l)
+-  mapfile -t timers < <(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | head -n "$TIMER_SCAN_MAX")
++  mapfile -t timers < <(printf '%s\n' "$CAP_OUT" | awk -v n="$TIMER_SCAN_MAX" 'NF && $1 ~ /\.timer$/ && ++c <= n {print $1}')
+ 
+   local t_fail=0 t_unknown=0 bad='' r
+   for t in "${timers[@]}"; do
+     t_scan=$((t_scan + 1))
+     cap "$SYSTEMCTL" --user show "$t" -p Result --value --no-pager
+-    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
++    r=$(printf '%s\n' "$CAP_OUT" | awk 'NR == 1' | tr -d '\r')
+     if [ "$CAP_RC" -ne 0 ] || [ -z "$r" ]; then
+       t_unknown=$((t_unknown + 1))
+     elif [ "$r" != success ]; then
+@@ -1051,7 +1051,7 @@
+     smi_rc=$CAP_RC
+     if [ "$smi_rc" -eq 0 ] && [ -n "$(printf '%s' "$CAP_OUT" | tr -d '[:space:]')" ]; then
+       smi=ok
+-      driver=$(printf '%s\n' "$CAP_OUT" | head -n1 | awk -F', *' '{print $NF}')
++      driver=$(printf '%s\n' "$CAP_OUT" | awk -F', *' 'NR == 1 {print $NF}')
+     else
+       smi="rc=$smi_rc"
+     fi
+@@ -1426,7 +1426,7 @@
+   if have "$SYSTEMCTL"; then
+     cap "$SYSTEMCTL" is-active "$target" --no-pager
+     t_rc=$CAP_RC
+-    t_word=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
++    t_word=$(printf '%s\n' "$CAP_OUT" | awk 'NR == 1' | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+   fi
+   case "$t_word" in
+     active) : ;;
+@@ -1483,7 +1483,7 @@
+     fh_names=$(printf '%s\n' "$CAP_OUT" \
+       | grep -E "\"MESSAGE\":\"[^\"]*(${CLASS_FAILED})" \
+       | grep -oE '[A-Za-z0-9_.@-]+\.(service|socket|timer|mount|target|device|path|scope|slice)' \
+-      | sort -u | head -n 6 | paste -sd, - || true)
++      | sort -u | awk 'NR <= 6' | paste -sd, - || true)
+   fi
+ 
+   # arm 5 — timer drift: every enabled user timer must be armed (ActiveState=active).
+@@ -1497,11 +1497,11 @@
+     return
+   fi
+   te=$(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | wc -l)
+-  mapfile -t timers < <(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | head -n "$TIMER_SCAN_MAX")
++  mapfile -t timers < <(printf '%s\n' "$CAP_OUT" | awk -v n="$TIMER_SCAN_MAX" 'NF && $1 ~ /\.timer$/ && ++c <= n {print $1}')
+   ts=${#timers[@]}
+   for t in "${timers[@]}"; do
+     cap "$SYSTEMCTL" --user show "$t" -p ActiveState --value --no-pager
+-    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
++    r=$(printf '%s\n' "$CAP_OUT" | awk 'NR == 1' | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+     if [ "$CAP_RC" -ne 0 ] || [ -z "$r" ]; then
+       t_unknown=$((t_unknown + 1))
+     elif [ "$r" = active ]; then
+@@ -1783,7 +1783,7 @@
+         <(printf '%s\n' "$R6_FOREIGN_CLASSES") <(printf '%s\n' "$PKG_FOREIGN_LIVE" | tr ' ' '\n'))
+       oe=$(printf '%s\n' "$cl_out" | grep -c '^offline-exile$' || true)
+       au=$(printf '%s\n' "$cl_out" | grep -c '^aur-local$' || true)
+-      unk_names=$(printf '%s\n' "$cl_out" | grep '^?' | sed 's/^?//' | head -n6 | paste -sd, - || true)
++      unk_names=$(printf '%s\n' "$cl_out" | grep '^?' | sed 's/^?//' | awk 'NR <= 6' | paste -sd, - || true)
+     fi
+     class_row="offline-exile:$oe,aur-local:$au"
+     [ -n "$unk_names" ] && class_row="$class_row unknown-provenance=[$unk_names]"

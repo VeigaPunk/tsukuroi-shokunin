@@ -1,0 +1,50 @@
+# hostcap/capture.txt (frozen)
+captured_utc 2026-10-26T19:13:44Z
+kernel 7.2.11-arch1-1
+btrfs-progs btrfs-progs 7.1-1
+root_fstype btrfs
+root_fsid 1d02a454-c549-4a35-b567-89d60902af8e
+var_lib_btrfs absent
+scrub_timers_listed 0
+scrub_timer_unit_file btrfs-scrub@.timer disabled disabled
+scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1 0
+journal_scrub_lines 0
+
+# hostcap/capture.sh (the generator; shows line-7/8/10 provenance: list-timers, list-unit-files, journalctl -k -b 0 --grep 'scrub: (started|finished)')
+#!/usr/bin/env bash
+# round-42 read-only host capture for the scrub-record entry (no privilege, no write outside $1)
+set -uo pipefail
+out=${1:?usage: capture.sh OUTFILE}
+{
+  echo "captured_utc $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  echo "kernel $(uname -r)"
+  echo "btrfs-progs $(pacman -Q btrfs-progs 2>&1)"
+  echo "root_fstype $(findmnt -no FSTYPE /)"
+  echo "root_fsid $(findmnt -no UUID / 2>&1)"
+  if [ -e /var/lib/btrfs ]; then echo "var_lib_btrfs present"; ls -la /var/lib/btrfs 2>&1 | sed 's/^/  /'; else echo "var_lib_btrfs absent"; fi
+  echo "scrub_timers_listed $(systemctl list-timers --all --no-legend 'btrfs-scrub@*' 2>/dev/null | wc -l)"
+  echo "scrub_timer_unit_file $(systemctl list-unit-files --no-legend 'btrfs-scrub@.timer' 2>/dev/null | tr -s ' ' | head -n1)"
+  for d in /sys/fs/btrfs/*/devinfo/*; do
+    [ -e "$d/scrub_speed_max" ] && echo "scrub_speed_max ${d#/sys/fs/btrfs/} $(cat "$d/scrub_speed_max" 2>&1)"
+  done
+  echo "journal_scrub_lines $(journalctl -k -b 0 --no-pager -q --grep 'scrub: (started|finished)' 2>/dev/null | wc -l)"
+} > "$out"
+
+# storage-health-r26.md (at 78abb8b5cdc9da511b4fc523e661517a68dd33d3) lines 55-67 and 131-134
+55:## SH4
+56:
+57:**Statement.** No scrub record exists on this host for the root filesystem: `btrfs scrub status /` reports no stats, and /var/lib/btrfs, where btrfs-progs keeps scrub.status.<UUID> files, does not exist. The packaged monthly btrfs-scrub@.timer exists but its instance for `/` is disabled and inactive. Ordinary reads do verify checksums, so data that was read has been checked, but no record shows a full pass over stored data.
+58:
+59:**Host reading.** `no stats available` (capture line 121); `/var/lib/btrfs` absent (line 127); `btrfs-scrub@-.timer` disabled (line 131) and inactive (line 134). The `Error summary: no errors found` line printed beside `no stats available` is not a health reading.
+60:
+61:**Verdict.** `UNVERIFIED`
+62:
+63:**Action.** Operator decision: run `btrfs scrub start /` once or enable `btrfs-scrub@-.timer`; the lane never starts a scrub or enables a timer. After a scrub, read `btrfs scrub status /` for csum, verify, read and super errors and the corrected versus uncorrectable split.
+64:
+65:**Sources.** S139, S131, S129. Quotes: S139 (ch-scrub-intro.rst line 71): "The scrubbing status is recorded in :file:`/var/lib/btrfs/` in textual files named"; S139 (ch-scrub-intro.rst line 68): "recommended period is a month but it could be less."; S139 (ch-scrub-intro.rst line 17): "Such automatic repair is also carried out when reading metadata or data from a"; S131 (btrfs-scrub@.timer line 5): "OnCalendar=monthly"; S129 (btrfs-scrub.rst line 133): "Show status of a running scrub for the filesystem identified by *path*".
+66:
+67:**Capture pointers.** line 121 (`no stats available`), line 127 (`/var/lib/btrfs`).
+131:- SH4 and SH3 wording (RevS139): "ordinary reads do verify checksums" is withdrawn as stated. S139 lines 17-18 describe repair on reads of replicated profiles on a read-write mount; checksum checking on read rests on S139 lines 28-29 ("damage is detected by checksum validation"), and NOCOW file data is not protected by checksums (lines 29-31). On this host data is `single`, so reads do not repair data. The S129 quote "*Uncorrectable* ..." is at S129 line 192, not 190. The `dup` repair clause rests on S129 line 80 and S130 line 665, which SH3 does not quote; S139 does not name DUP.
+132:- SH2 universals (RevRowSH2): "clears them only on an explicit reset" is withdrawn as a universal; removing a device deletes its stored counter item (S132 lines 2294-2324, called from `btrfs_rm_device`), which this one-device host cannot do to its only writable device (S132 lines 2372-2374). The error-level print is rate limited per call site, so counted errors beyond the limit print nothing; error-level lines date some errors, not every error. The capture's grep `BTRFS (error|critical|warning)` cannot match the critical-level `BTRFS: error (device ...)` text; a wave-2 read-only re-run on 2026-10-22 (`journalctl _TRANSPORT=kernel -p warning --grep BTRFS`, all retained boots) found no entries. To select error-level lines use `-p err` or match `BTRFS error (device`.
+133:- SH4 scope and action (RevRowSH4): "no scrub record exists on this host" is narrowed to what was read: no status file and no `scrub: started` or `finished` kernel line in the six retained boots (live read-only check, 2026-10-22); older scrubs, or scrubs run with recording disabled, cannot be excluded. On this host `/var/log/journal` carries the NOCOW attribute (`lsattr -d`, read-only), so the journal is outside scrub verification. The operator action has side effects the row did not name: a scrub reads the whole filesystem (174.40 GiB to scrub), writes some data even when read-only on a read-write mount (S139 lines 49-54), and creates `/var/lib/btrfs` status files; enabling the timer adds an enablement link and may delay the first run by up to a week (S131). SKILL SE4's "no scrub has run" means no scrub status is recorded.
+134:- Citations and commands (RerunC1, RevS129, RevSkillSection): the S129 "Uncorrectable" quote is at line 192 (the JSON and lesson say 190); SH4's S129 citation (line 133) does not carry its claim, which rests on S129 lines 136-138 ("The status is read from the file located in /var/lib/btrfs"); the SH3 host reading's `btrfs filesystem df` leg is not in the frozen capture (wave-1 ScoutHostSurfaces ran it read-only; the capture holds the sysfs profile directories only); the SKILL rows' command cells omit some capture commands behind their readings (SH2's second grep, SH4's `ls -la /var/lib/btrfs` and `systemctl is-active`); the SE1 to SE4 literals cite no registry row (`forced readonly` and `no stats available` are upstream strings in Linux `fs/btrfs/messages.c` and btrfs-progs `cmds/scrub.c`, not registered this round), and SE4's literal is spaced differently from the real line. None changes a counted evidence link; each is owed a fix next round.

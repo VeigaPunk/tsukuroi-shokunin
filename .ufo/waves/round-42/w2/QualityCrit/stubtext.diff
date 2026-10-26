@@ -1,0 +1,80 @@
+diff --git c/tools/tsukuroi-census.sh w/tools/tsukuroi-census.sh
+index dda066f4..4ee2bb16 100755
+--- c/tools/tsukuroi-census.sh
++++ w/tools/tsukuroi-census.sh
+@@ -653,6 +653,12 @@ oom_keys() { # oom_keys STDOUT -> sorted unique "YYYY-MM-DD HH:MM" event-cluster
+ # ---- plane: packages ---------------------------------------------------------
+ probe_packages() {
+   PKG_V=HEALTHY
++  # (F-9 arm) sealed-view gate on the stub's own text: a `pacman` that starts with `#!` is a
++  # fixture/namespace stub, not the host's ELF. Repair there; the live path keeps the R41 pipeline.
++  local r42_sealed=0
++  local r42_p="${TSUKUROI_PACMAN:-}"
++  [ -n "$r42_p" ] || r42_p=$(command -v pacman 2>/dev/null || printf pacman)
++  if [ "$(head -c 2 -- "$r42_p" 2>/dev/null)" = '#!' ]; then r42_sealed=1; fi
+   local notes='' names=() s_rc='' drift=0 backup=0 nonroot=0 s_out='' sample_n=0
+ 
+   if ! have "$PACMAN"; then
+@@ -689,9 +695,14 @@ probe_packages() {
+     PKG_NOTE="pacman -Qkk sample rc=$s_rc [probe cannot run]"
+     return
+   fi
+-  if printf '%s\n' "$s_out" | grep -q '^error:'; then
++  if { [ "$r42_sealed" -eq 1 ] && grep -q '^error:' <<<"$s_out"; } \
++     || { [ "$r42_sealed" -eq 0 ] && printf '%s\n' "$s_out" | grep -q '^error:'; }; then
+     PKG_V=BLOCKED
+-    PKG_NOTE="pacman -Qkk sample probe error: $(printf '%s\n' "$s_out" | grep -m1 '^error:')"
++    if [ "$r42_sealed" -eq 1 ]; then
++      PKG_NOTE="pacman -Qkk sample probe error: $(grep -m1 '^error:' <<<"$s_out")"
++    else
++      PKG_NOTE="pacman -Qkk sample probe error: $(printf '%s\n' "$s_out" | grep -m1 '^error:')"
++    fi
+     return
+   fi
+ 
+@@ -1548,6 +1559,11 @@ version_join() { # stdin: installed name<TAB>version rows, a __MAP__ line, then
+ # AUR RPC, no external site (PROVINCE.md:16-17).
+ probe_update_safety() {
+   UPD_V=HEALTHY
++  local r42_sealed=0
++  local r42_p="${TSUKUROI_PACMAN:-}"
++  [ -n "$r42_p" ] || r42_p=$(command -v pacman 2>/dev/null || printf pacman)
++  if [ "$(head -c 2 -- "$r42_p" 2>/dev/null)" = '#!' ]; then r42_sealed=1; fi
++  r42_head() { if [ "$r42_sealed" -eq 1 ]; then awk -v n="$1" 'NR <= n'; else head -n "$1"; fi; }
+   local now qu_rc=0 qu_n=0 qu_state='' sup_rc=0 sup_n=0 suu_rc=0 suu_n=0 suu_first=''
+   local cand=0 cand_names='' disagree='' status='' pend='none' trap_row=''
+   local sy_dir="$PACMAN_DB/sync" chan_n=0 fetch_d='?' stamp_d='?' stamp_unk='' chan_row=''
+@@ -1618,7 +1634,7 @@ probe_update_safety() {
+   fi
+   if [ "$qu_state" = 'cand' ]; then
+     cand=$qu_n
+-    cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 | awk '{print $1}' | paste -sd, -)
++    cand_names=$(printf '%s\n' "$CAP_OUT" | r42_head 3 | awk '{print $1}' | paste -sd, -)
+   fi
+ 
+   cap "$PACMAN" -Sup --print-format '%r/%n %v'
+@@ -1632,13 +1648,13 @@ probe_update_safety() {
+   if [ "$qu_state" = 'empty' ] && [ "$sup_n" -gt 0 ]; then
+     disagree=" disagree[qu=0 sup=$sup_n]"
+     cand=$sup_n
+-    cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 \
++    cand_names=$(printf '%s\n' "$CAP_OUT" | r42_head 3 \
+       | awk '{n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+   elif [ "$qu_state" = 'cand' ] && [ "$sup_n" -ne "$qu_n" ]; then
+     disagree=" disagree[qu=$qu_n sup=$sup_n]"
+     if [ "$sup_n" -gt "$cand" ]; then
+       cand=$sup_n
+-      cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 \
++      cand_names=$(printf '%s\n' "$CAP_OUT" | r42_head 3 \
+         | awk '{n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+     fi
+   fi
+@@ -1649,7 +1665,7 @@ probe_update_safety() {
+   suu_rc=$CAP_RC
+   if [ "$suu_rc" -eq 0 ]; then
+     suu_n=$(nlines "$CAP_OUT")
+-    [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
++    [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$CAP_OUT" | r42_head 1 | tr -d '\r')
+     trap_row="-Suu:${suu_n}${suu_first:+[$suu_first]}"
+   else
+     trap_row="-Suu:unreadable(rc=$suu_rc)"

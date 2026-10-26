@@ -1,0 +1,39 @@
+SAME   SKILL.md:101
+SAME   SKILL.md:404
+SAME   SKILL.md:755
+SAME   SKILL.md:842
+SAME   PROVINCE.md:8
+SAME   PROVINCE.md:14
+SAME   PROVINCE.md:30
+SAME   PROVINCE.md:33
+SAME   PROVINCE.md:19
+SAME   PROVINCE.md:51
+SAME   PROVINCE.md:3
+SAME   PROVINCE.md:18
+SAME   SKILL.md:50
+SAME   SKILL.md:95
+SAME   SKILL.md:96
+SAME   SKILL.md:219
+MOVED  SKILL.md:3452
+  base: | An install scriptlet dies with `syntax error near unexpected token`, `[[: not found` or `Syntax error: "(" unexpected` | EX4 (`trans.c:357`, `:410`; `PKGBUILD:115`; upstream default `meson_options.txt:17`) | Arch's libalpm runs a scriptlet as `/usr/bin/bash -c '. <scriptlet>; <function> <new> [<old>]'`; upstream's build default is `/bin/sh`. A hook `Exec` is not a scriptlet: libalpm execs `cmd[0]` directly (`hook.c:526`, `:528`), so a hook's shell is the one its `Exec` names | The installed libalpm's compiled-in shell string; whether the failing text lives in a local-db `install` file or in a hook `Exec` | `pacman -Q pacman; strings /usr/lib/libalpm.so.16.0.1 \| grep -Fx -e /usr/bin/bash -e /bin/sh; grep -nE -e '\[\[' -e '<<<' -e '\bfunction [a-zA-Z_]' /var/lib/pacman/local/systemd-262-1/install` | Keep bash-only syntax only where bash is the runner; a hook that needs it must name `bash -c`. `/bin/sh` is bash here, so this failure is a source-level conditional on this host |
+  tip : | A hook whose `Exec` reads stdin (`while read -r f`, `cat`) loops zero times, or a `NeedsTargets` hook gets a list shorter than its trigger matches | EX6 (`hook.c:519-526`; feed `:469-490`, newline `:476`; `alpm-hooks.5.asciidoc:91-93`) with EX2 (`util.c:667`, `:722-726`) | Without `NeedsTargets` the parent closes the child's stdin at once, so the child reads end-of-file; with it the matched targets arrive sorted (`strcmp`), de-duplicated, one per line | `NeedsTargets` present? does the `Exec` read stdin? host: 14 effective hooks carry it, e.g. `texinfo-install.hook:10-11` | `h=/usr/share/libalpm/hooks/texinfo-install.hook; grep -n '^NeedsTargets' "$h"; grep -n '^Exec' "$h"` | Add `NeedsTargets` for a stdin-reading `Exec`; otherwise remove the read — it always sees EOF |
+SAME   corpus/README.md:7
+SAME   corpus/SOURCES.md:105
+SAME   SKILL.md:2870
+SAME   SKILL.md:2940
+SAME   SKILL.md:3001
+SAME   SKILL.md:3106
+SAME   SKILL.md:558
+SAME   SKILL.md:568
+SAME   SKILL.md:599
+SAME   SKILL.md:609
+SAME   SKILL.md:611
+SAME   SKILL.md:617
+SAME   SKILL.md:1059
+SAME   SKILL.md:1063
+MOVED  tools/tsukuroi-census.sh:915
+  base: }
+  tip :   if [ -n "$report" ]; then
+MOVED  tools/tsukuroi-census.sh:970
+  base:       t_fail=$((t_fail + 1))
+  tip :     t_scan=$((t_scan + 1))

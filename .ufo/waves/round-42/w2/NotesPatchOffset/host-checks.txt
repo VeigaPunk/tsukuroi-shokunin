@@ -1,0 +1,17 @@
+# host checks (2026-10-26, seat NotesPatchOffset-3)
+$ pacman -Q pacman
+pacman 7.1.0.r9.g54d9411-3
+$ sed -n "414p;472p" /usr/bin/makepkg
+	local workingdir="${2:-$srcdir}"
+find_libdepends() {
+$ wc -l < /usr/bin/makepkg
+1545
+$ grep -n "find_libprovides\|find_libdepends" /usr/bin/makepkg
+472:find_libdepends() {
+537:find_libprovides() {
+628:	mapfile -t provides < <(find_libprovides)
+629:	mapfile -t depends < <(find_libdepends)
+$ diff <(sed -n 560,569p r41-frozen-makepkg) <(sed -n 678,687p /usr/bin/makepkg)
+HOST-MATCH pin:560-569 == /usr/bin/makepkg:678-687
+$ diff <(sed -n 192p r41-frozen-makepkg) <(sed -n 192p /usr/bin/makepkg)
+HOST-MATCH pin:192 == /usr/bin/makepkg:192

@@ -1,0 +1,18 @@
+$ python3 scripts/w1r7_scratch_guard.py <committed counter>   (TMPDIR unset, no --scratch)
+counter        : /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-size-invariance-r42.py
+TMPDIR         : unset
+exit           : 77
+mkdtemp dirs   : ['/tmp']
+GUARD          : absent (red) — the counter would build in /tmp
+exit=1
+
+$ python3 scripts/w1r7_scratch_guard.py fixed/counter-guarded.py   (same command)
+usage: counter-guarded.py [-h] --revision REVISION [--lane LANE]
+                          [--scratch SCRATCH]
+counter-guarded.py: error: --scratch or TMPDIR is required: the counter never builds under /tmp
+counter        : fixed/counter-guarded.py
+TMPDIR         : unset
+exit           : 2
+mkdtemp dirs   : []
+GUARD          : present (green) — refused before any directory was created
+exit=0

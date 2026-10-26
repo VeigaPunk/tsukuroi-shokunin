@@ -1,0 +1,31 @@
+# SIGPIPE signature repro — bash 5.3.20(1)-release, scratch only, 2026-10-26 (seat C1RevSkill)
+
+Command (run in /fast/scratch/hyaku/tsukuroi-r42/C1RevSkill, TMPDIR set there):
+
+```bash
+bash -c '
+  set -euo pipefail
+  buf=$(printf "error: alpha: x (Permission denied)\n"; awk "BEGIN { for (i = 0; i < 30000; i++) printf \"warning: beta: f%05d (Modification time mismatch)\n\", i }")
+  echo "size: ${#buf}"
+  if printf "%s\n" "$buf" | grep -q "^error:"; then echo "cond: BLOCKED-branch"; else echo "cond: CLEAN-branch (wrong verdict)"; fi || true
+  set +e
+  out=$(printf "%s\n" "$buf" | grep -m1 "^error:")
+  echo "assign rc=$?"
+  big=$(awk "BEGIN { for (i = 0; i < 40000; i++) printf \"warning: beta: f%05d (Modification time mismatch)\n\", i }")
+  r=$(printf "%s\n" "$big" | head -n1)
+  echo "head-assign rc=$?"
+'
+```
+
+Observed output:
+
+```
+size: 1530035
+cond: CLEAN-branch (wrong verdict)
+assign rc=141
+head-assign rc=141
+```
+
+Matches the SKILL.md:3863-3864 signatures: a condition (`if printf … | grep -q …`) reads false → wrong, cleaner
+verdict; a `$( … )` assignment (`grep -m1`, `head -n1`) kills under `set -e` → exit 141. Same modes as the wave-1
+receipts (`w1/C1MutSelftest` mut692/mut694; `w1/C1RevFix` T9a/T9b).

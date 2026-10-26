@@ -1,0 +1,68 @@
+C2CritSC3 probe receipt — round 42 w2, item V-3b (row SC3 adversarial read)
+Date: 2026-10-26. Host: linux 7.2.11-arch1-1, unprivileged, read-only queries only.
+Lane read at HEAD a968393c678171f8a5a2907da5015735396da4cc; row text identical to 78abb8b5
+(`git diff 78abb8b5 HEAD -- corpus/knowledge/btrfs-scrub-record-r42.md` -> empty output).
+
+1) snapshot integrity
+$ cd .ufo/waves/round-42/frozen/src && sha256sum -c SHA256SUMS
+scrub.c: OK
+CHANGES: OK
+
+2) capture integrity
+$ sha256sum .ufo/waves/round-42/frozen/hostcap/capture.txt
+942edc91a6b8fcda3ef29e88c3d54e7a9a48ec4cce302b8c1edcc89c8710643c  (matches doc header)
+
+3) every SC3 quote resolves on its named line (substring test against the frozen scrub.c)
+1502 OK  '\t\t/* write all-zero progress file for a start */'
+1336 OK  '\t\twarning("cannot create scrub data file, mkdir %s failed: %m, status recording disabled",'
+1507 OK  '\t\t\twarning("failed to write the progress status file: %m, status recording disabled");'
+1121 OK  '\t\tif (!spc->do_record)'
+1200 OK  '\t\tret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);'
+
+4) host capture re-run (the same probes capture.sh runs; read-only)
+$ journalctl -k -b 0 --no-pager -q --grep 'scrub: (started|finished)' 2>stderr | wc -l
+0
+stderr: (empty)         # journal readable as this user (groups: vgpnk docker input wheel)
+$ journalctl -k --no-pager -q --grep 'scrub' | wc -l      # all retained boots, not just -b 0
+1
+$ journalctl -k --no-pager -q --grep 'scrub'
+Oct 26 12:08:39 plazir27 kernel: SGI XFS with ACLs, security attributes, realtime, scrub, repair, quota, no debug enabled
+# the one hit is an XFS feature line, not a btrfs scrub; the all-boot count for
+# 'scrub: (started|finished)' is 0.
+$ journalctl --list-boots --no-pager | tail -5
+ -4 0a3785aa... Sat 2026-10-24 20:57:12 -03 Sun 2026-10-25 13:35:39 -03
+ -3 7ab69ee4... Sun 2026-10-25 13:36:19 -03 Mon 2026-10-26 00:38:38 -03
+ -2 548da208... Mon 2026-10-26 00:39:23 -03 Mon 2026-10-26 00:39:31 -03
+ -1 83ebf75e... Mon 2026-10-26 00:40:56 -03 Mon 2026-10-26 12:07:54 -03
+  0 bcbf8b48... Mon 2026-10-26 12:08:37 -03 Mon 2026-10-26 17:30:51 -03
+$ systemctl list-timers --all --no-legend 'btrfs-scrub@*' | wc -l
+0
+$ systemctl list-unit-files --no-legend 'btrfs-scrub@*'
+btrfs-scrub@.service static   -
+btrfs-scrub@.timer   disabled disabled
+$ systemctl is-enabled 'btrfs-scrub@-.timer' 'btrfs-scrub@1d02a454-c549-4a35-b567-89d60902af8e.timer'
+disabled
+disabled
+$ ls -ld /var/lib/btrfs
+ls: cannot access '/var/lib/btrfs': No such file or directory
+$ findmnt -rno TARGET,FSTYPE,SOURCE | awk '$2=="btrfs"'
+/ btrfs /dev/mapper/root[/@]
+/home btrfs /dev/mapper/root[/@home]
+/var/cache/pacman/pkg btrfs /dev/mapper/root[/@pkg]
+/var/log btrfs /dev/mapper/root[/@log]
+/fast xfs /dev/nvme1n1p2      (from `findmnt -no TARGET,FSTYPE,SOURCE /fast`)
+
+5) template-state semantics probe (why capture.txt:8 is weak evidence)
+$ systemctl list-unit-files --no-legend 'user@.service'; systemctl is-active user@1000.service
+user@.service static -
+active
+# a template's own list-unit-files state does not describe its instances; the instance
+# check in item 4 (is-enabled btrfs-scrub@-.timer / @<fsid>.timer -> disabled) is the direct evidence.
+
+No tools were installed or upgraded. No scrub command was run; no write outside the seat dir and
+/fast/scratch/hyaku/tsukuroi-r42/C2CritSC3 (removed at exit).
+
+6) journal persistence (supports the all-boot claim in the report, F3)
+$ ls -ld /var/log/journal
+drwxr-sr-x+ 1 root systemd-journal 76 Oct  3 17:42 /var/log/journal
+# persistent journal, so boots -4..0 are retained and the all-boot scrub scan covers them.

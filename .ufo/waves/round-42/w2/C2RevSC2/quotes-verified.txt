@@ -1,0 +1,20 @@
+# grep -n on pinned scrub.c (sha256-verified via SHA256SUMS, 2026-10-26) — C2RevSC2 quote receipts
+69:#define SCRUB_FILE_VERSION_PREFIX "scrub status"
+70:#define SCRUB_FILE_VERSION "1"
+627:				sizeof(SCRUB_FILE_VERSION_PREFIX), avail, l,
+628:				SCRUB_FILE_VERSION_PREFIX, &version);
+856:	ret = scrub_write_buf(fd, SCRUB_FILE_VERSION_PREFIX ":"
+857:				SCRUB_FILE_VERSION "\n",
+858:				(sizeof(SCRUB_FILE_VERSION_PREFIX) - 1) +
+---
+840:	return scrub_writev(fd, buf, max, "|%s:%lld", key, val);
+---
+870:		    _SCRUB_KVWRITE(fd, buf, data_extents_scrubbed, use) ||
+888:		    _SCRUB_KVWRITE_STATS(fd, buf, finished, use) ||
+---
+# corroboration: fsid identity, open flags, reader parse, KVREAD guard
+517:	return scrub_open_file(datafile, O_WRONLY|O_CREAT);
+538:#define _SCRUB_KVREAD(ret, i, name, avail, l, dest) if (ret == 0) {	  \
+692:		case 4: /* read dev id */
+697:			p[curr]->devid = atoll(&l[i]);
+1025:	uuid_unparse(spc->fi->fsid, fsid);

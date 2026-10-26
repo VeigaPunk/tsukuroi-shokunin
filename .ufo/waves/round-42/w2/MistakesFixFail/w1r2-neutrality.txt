@@ -1,0 +1,18 @@
+$ python3 scripts/w1r2_neutrality.py err_pad      # P6 padding
+generator      : err_pad (11605 lines, 1048599 bytes)
+rule matches   : error 11605, drift 0, backup 0, nonroot 11605  (strict "no rule matches" would be RED)
+signal only    : {'error_hit': True, 'drift_sum': 0, 'backup_n': 0, 'nonroot_n': 1}
+signal+padding : {'error_hit': True, 'drift_sum': 0, 'backup_n': 0, 'nonroot_n': 11606}
+NEUTRAL        : NO (red) — padding is read by the census
+exit=1
+
+$ python3 scripts/w1r2_neutrality.py qkk_pad      # the other nine pairs
+generator      : qkk_pad (13364 lines, 1048631 bytes)
+rule matches   : error 0, drift 4454, backup 0, nonroot 0  (strict "no rule matches" would be RED)
+signal only    : {'error_hit': True, 'drift_sum': 0, 'backup_n': 0, 'nonroot_n': 1}
+signal+padding : {'error_hit': True, 'drift_sum': 0, 'backup_n': 0, 'nonroot_n': 1}
+NEUTRAL        : yes (green)
+exit=0
+
+cross-check against the committed K5 receipt (controls/C1-K5.jsonl):
+      2 nonroot_artifacts=11606

@@ -1,0 +1,115 @@
+# Single-site reverts of tools/tsukuroi-census.sh: tip 78abb8b5 -> base c8efaa3f text, one site each
+# tip copy sha256: 7c9f79036782de951a69325fe6f5cc742d8acac4de389626026bc33d8f7877f9  census-tip.sh
+# base copy sha256: 646c84fcdc166dd4f5321a467e60036d785c106f061dd4fa7849424696f9eb95  census-base.sh
+
+=== m1_errorpair (diff tip -> mutant) ===
+@@ -689,15 +689,9 @@
+     PKG_NOTE="pacman -Qkk sample rc=$s_rc [probe cannot run]"
+     return
+   fi
+-  # Round 42 (R41-CENSUS-PIPEFAIL-692): never `printf | grep -q` / `| grep -m1` / `| head` under pipefail on a
+-  # probe buffer — the early reader exits, printf dies of SIGPIPE, and the pipeline reads false (a wrong verdict)
+-  # or, in an assignment, kills the census with exit 141. Let awk consume the whole input: no early exit, and no
+-  # here-string either (a here-string over 64 KiB is a temporary file, which breaks the no-write contract and, on a
+-  # full $TMPDIR or /tmp, silently skips the test — round-42 wave 1, C1RevFix D1).
+-  local err_line=''
+-  if err_line=$(printf '%s\n' "$s_out" | awk '/^error:/ { if (!p) { print; p = 1 } } END { if (!p) exit 1 }'); then
++  if printf '%s\n' "$s_out" | grep -q '^error:'; then
+     PKG_V=BLOCKED
+-    PKG_NOTE="pacman -Qkk sample probe error: $err_line"
++    PKG_NOTE="pacman -Qkk sample probe error: $(printf '%s\n' "$s_out" | grep -m1 '^error:')"
+     return
+   fi
+ 
+
+=== m1a_testonly (diff tip -> mutant) ===
+@@ -695,7 +695,7 @@
+   # here-string either (a here-string over 64 KiB is a temporary file, which breaks the no-write contract and, on a
+   # full $TMPDIR or /tmp, silently skips the test — round-42 wave 1, C1RevFix D1).
+   local err_line=''
+-  if err_line=$(printf '%s\n' "$s_out" | awk '/^error:/ { if (!p) { print; p = 1 } } END { if (!p) exit 1 }'); then
++  if printf '%s\n' "$s_out" | grep -q '^error:'; then
+     PKG_V=BLOCKED
+     PKG_NOTE="pacman -Qkk sample probe error: $err_line"
+     return
+
+=== m1b_noteonly (diff tip -> mutant) ===
+@@ -697,7 +697,7 @@
+   local err_line=''
+   if err_line=$(printf '%s\n' "$s_out" | awk '/^error:/ { if (!p) { print; p = 1 } } END { if (!p) exit 1 }'); then
+     PKG_V=BLOCKED
+-    PKG_NOTE="pacman -Qkk sample probe error: $err_line"
++    PKG_NOTE="pacman -Qkk sample probe error: $(printf '%s\n' "$s_out" | grep -m1 '^error:')"
+     return
+   fi
+ 
+
+=== m2_743 (diff tip -> mutant) ===
+@@ -743,7 +743,7 @@
+     while read -r nm ver _; do
+       [ -n "$nm" ] || continue
+       live_names="$live_names $nm"
+-      bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n && !f { print $2; f = 1 }')   # full read (round 42: an awk `exit` under pipefail killed the census on a large baseline)
++      bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n {print $2; exit}')
+       if [ -z "$bn" ]; then
+         foreign_new_n=$((foreign_new_n + 1)); foreign_new="$foreign_new $nm"
+       elif [ "$ver" = "$bn" ]; then
+
+=== m3_qu (diff tip -> mutant) ===
+@@ -1624,7 +1624,7 @@
+   fi
+   if [ "$qu_state" = 'cand' ]; then
+     cand=$qu_n
+-    cand_names=$(printf '%s\n' "$CAP_OUT" | awk 'NR <= 3 {print $1}' | paste -sd, -)
++    cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 | awk '{print $1}' | paste -sd, -)
+   fi
+ 
+   cap "$PACMAN" -Sup --print-format '%r/%n %v'
+
+=== m4_supempty (diff tip -> mutant) ===
+@@ -1638,8 +1638,8 @@
+   if [ "$qu_state" = 'empty' ] && [ "$sup_n" -gt 0 ]; then
+     disagree=" disagree[qu=0 sup=$sup_n]"
+     cand=$sup_n
+-    cand_names=$(printf '%s\n' "$CAP_OUT" \
+-      | awk 'NR <= 3 {n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
++    cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 \
++      | awk '{n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+   elif [ "$qu_state" = 'cand' ] && [ "$sup_n" -ne "$qu_n" ]; then
+     disagree=" disagree[qu=$qu_n sup=$sup_n]"
+     if [ "$sup_n" -gt "$cand" ]; then
+
+=== m5_mismatch (diff tip -> mutant) ===
+@@ -1644,8 +1644,8 @@
+     disagree=" disagree[qu=$qu_n sup=$sup_n]"
+     if [ "$sup_n" -gt "$cand" ]; then
+       cand=$sup_n
+-      cand_names=$(printf '%s\n' "$CAP_OUT" \
+-        | awk 'NR <= 3 {n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
++      cand_names=$(printf '%s\n' "$CAP_OUT" | head -n3 \
++        | awk '{n=$1; sub(/^[^/]+\//, "", n); print n}' | paste -sd, -)
+     fi
+   fi
+ 
+
+=== m6_suu (diff tip -> mutant) ===
+@@ -1655,7 +1655,7 @@
+   suu_rc=$CAP_RC
+   if [ "$suu_rc" -eq 0 ]; then
+     suu_n=$(nlines "$CAP_OUT")
+-    [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$CAP_OUT" | awk 'NR == 1' | tr -d '\r')
++    [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+     trap_row="-Suu:${suu_n}${suu_first:+[$suu_first]}"
+   else
+     trap_row="-Suu:unreadable(rc=$suu_rc)"
+
+=== m7_absent (diff tip -> mutant) ===
+@@ -2190,7 +2190,7 @@
+       for re in "$@"; do
+         case "$re" in
+           ABSENT:*)
+-            if grep -qE -- "${re#ABSENT:}" <<<"$out"; then   # round 42: a SIGPIPE'd pipe here read 'absent' (fail-open)
++            if printf '%s\n' "$out" | grep -qE -- "${re#ABSENT:}"; then
+               unwanted="$unwanted '${re#ABSENT:}'"
+             fi
+             ;;

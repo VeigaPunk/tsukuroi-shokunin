@@ -1,0 +1,110 @@
+== 1. line counts (pin -> built)
+add.c                pin=695 built=718 delta=23
+makepkg.sh.in        pin=1427 built=1545 delta=118
+PKGBUILD.5.asciidoc  pin=547 built=556 delta=9
+util.c               pin=1657 built=1662 delta=5
+== 2. diff hunk headers (pin numbering, u=0)
+-- add.c
+@@ -414,0 +415,23 @@
+@@ -594 +617 @@
+-- makepkg.sh.in
+@@ -471,0 +472,115 @@
+@@ -511,0 +627,3 @@
+-- PKGBUILD.5.asciidoc
+@@ -182,0 +183,5 @@
+@@ -234,0 +240,4 @@
+-- util.c
+@@ -675,0 +676,5 @@
+== 3. add.c cited ranges (r39 note)
+PASS add.c:168-189-still-168-189: pin :168,189 == built :168,189
+PASS add.c:466-474->489-497: pin :466,474 == built :489,497
+PASS add.c:468-469->491-492: pin :468,469 == built :491,492
+PASS add.c:470-474->493-497: pin :470,474 == built :493,497
+PASS add.c:616-636->639-659: pin :616,636 == built :639,659
+PASS add.c:616-648->639-671: pin :616,648 == built :639,671
+PASS add.c:630->653: pin :630,630 == built :653,653
+PASS add.c:638-647->661-670: pin :638,647 == built :661,670
+PASS add.c:639-640->662-663: pin :639,640 == built :662,663
+PASS add.c:669-688->692-711: pin :669,688 == built :692,711
+PASS add.c:676-692->699-715: pin :676,692 == built :699,715
+FAIL add.c:412-417-hunk-context-unmoved: pin :412,417 != built :412,417
+4,5c4
+< static int commit_single_pkg(alpm_handle_t *handle, alpm_pkg_t *newpkg,
+< 		size_t pkg_current, size_t pkg_count)
+---
+> static time_t get_install_time(void)
+6a6
+PASS add.c:415-417-shifted-to-438-440: pin :415,417 == built :438,440
+== 4. util.c cited ranges (r39 note)
+PASS util.c:521-528-unshifted: pin :521,528 == built :521,528
+PASS util.c:665-666-unshifted: pin :665,666 == built :665,666
+PASS util.c:675-unshifted: pin :675,675 == built :675,675
+PASS util.c:677-687->682-692: pin :677,687 == built :682,692
+PASS util.c:688-698->693-703: pin :688,698 == built :693,703
+PASS util.c:698-700->703-705: pin :698,700 == built :703,705
+== 5. makepkg.sh.in cited ranges (r41 note)
+PASS makepkg:192-unshifted: pin :192,192 == built :192,192
+PASS makepkg:414-unshifted: pin :414,414 == built :414,414
+PASS makepkg:560-569->678-687: pin :560,569 == built :678,687
+sed: invalid option -- '>'
+Usage: sed [OPTION]... {script-only-if-no-other-script} [input-file]...
+
+  -n, --quiet, --silent
+                 suppress automatic printing of pattern space
+      --debug
+                 annotate program execution
+  -e script, --expression=script
+                 add the script to the commands to be executed
+  -f script-file, --file=script-file
+                 add the contents of script-file to the commands to be executed
+  --follow-symlinks
+                 follow symlinks when processing in place
+  -i[SUFFIX], --in-place[=SUFFIX]
+                 edit files in place (makes backup if SUFFIX supplied)
+  -l N, --line-length=N
+                 specify the desired line-wrap length for the 'l' command
+  --posix
+                 disable all GNU extensions.
+  -E, -r, --regexp-extended
+                 use extended regular expressions in the script
+                 (for portability use POSIX -E).
+  -s, --separate
+                 consider files as separate rather than as a single,
+                 continuous long stream.
+      --sandbox
+                 operate in sandbox mode (disable e/r/w commands).
+  -u, --unbuffered
+                 load minimal amounts of data from the input files and flush
+                 the output buffers more often
+  -z, --null-data
+                 separate lines by NUL characters
+      --help     display this help and exit
+      --version  output version information and exit
+
+If no -e, --expression, -f, or --file option is given, then the first
+non-option argument is taken as the sed script to interpret.  All
+remaining arguments are names of input files; if no input files are
+specified, then the standard input is read.
+
+GNU sed home page: <https://www.gnu.org/software/sed/>.
+General help using GNU software: <https://www.gnu.org/gethelp/>.
+sed: -e expression #1, char 43: unknown option to 's'
+PASS makepkg:565: pin :/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src/makepkg.sh.in == built :/fast/scratch/hyaku/tsukuroi-r42/NotesPatchOffset/fx.pzTLVR/scripts/makepkg.sh.in
+PASS makepkg:615-620->733-738: pin :615,620 == built :733,738
+-- evidence.txt anchors in built makepkg
+find_libdepends() {
+find_libprovides() {
+	mapfile -t provides < <(find_libprovides)
+	mapfile -t depends < <(find_libdepends)
+== 6. PKGBUILD.5.asciidoc cited ranges (r41 note)
+PASS pkgb5:51-56-unshifted: pin :51,56 == built :51,56
+PASS pkgb5:67-74-unshifted: pin :67,74 == built :67,74
+PASS pkgb5:345-377->354-386: pin :345,377 == built :354,386
+PASS pkgb5:400-404->409-413: pin :400,404 == built :409,413
+PASS pkgb5:439-441->448-450: pin :439,441 == built :448,450
+== 7. first shifted pin line per file (boundary facts)
+add.c: first differing prefix line = 415
+util.c: first differing prefix line = 676
+makepkg.sh.in: first differing prefix line = 472
+PKGBUILD.5.asciidoc: first differing prefix line = 183
+== 8. summary: pass=28 fail=1

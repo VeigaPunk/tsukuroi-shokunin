@@ -1,0 +1,27 @@
+
+===== run 1: one progress update written to _tmp, then SIGKILL before rename =====
+leftover tmp exists: True size: 410
+
+===== run 2: scrub start writes the all-zero record (scrub.c:1502) over the same _tmp =====
+new record bytes: 360  stale _tmp bytes: 410  -> new is shorter: True
+
+===== result of rename(tmp -> record) =====
+record size: 410  == len(new)? False
+record == new? False | record == old? False
+head equals the all-zero record: True
+appended bytes: 50
+--- record as a reader sees it (C-escaped, lines) ---
+  line 1: b'scrub status:1'
+  line 2: b'1d02a454-c549-4a35-b567-89d60902af8e:1|data_extents_scrubbed:0|tree_extents_scrubbed:0|data_bytes_scrubbed:0|tree_bytes_scrubbed:0|read_errors:0|csum_errors:0|verify_errors:0|no_csum:0|csum_discards:0|super_errors:0|malloc_errors:0|uncorrectable_errors:0|corrected_errors:0|last_physical:0|t_start:0|t_resumed:0|duration:0|canceled:0|finished:0'
+  line 3: b'1|t_resumed:0|duration:4213|canceled:0|finished:0'
+  line 4: b''
+--- tail is a verbatim suffix of the killed run's record: True
+
+===== scrub_read_file() line acceptance (scrub.c:635-699, 745-753) =====
+  line 2: uuid_field_ok=True devid_field_ok=True -> accepted as a device entry
+  line 3: uuid_field_ok=False devid_field_ok=True -> state 3/4 _SCRUB_INVALID -> warning + skip
+all lines parseable: False
+
+===== lock/window: writer holds LOCK_EX on the renamed inode until scrub.c:931 =====
+reader flock while writer fd still open: EWOULDBLOCK (Resource temporarily unavailable) -> reader sees NEITHER old nor new
+reader flock after writer close: acquired

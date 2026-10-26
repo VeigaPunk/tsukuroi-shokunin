@@ -1,0 +1,46 @@
+$ python3 scripts/w1r4_summary_collision.py <committed c1 runner> <committed c2 runner>
+c1 runner      : /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/run_controls_c1.py
+  expression   : 'battery-summary.jsonl'   -> battery-summary.jsonl
+c2 runner      : /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/run_controls_c2.py
+  expression   : 'battery-summary.jsonl'   -> battery-summary.jsonl
+after both writes in one --out: ['battery-summary.jsonl']
+CHECKS         : FAIL (red) — one summary path survives; the first battery's summary is lost
+exit=1
+
+$ python3 scripts/w1r4_summary_collision.py fixed/run_c1_suffixed.py fixed/run_c2_suffixed.py   (same command)
+c1 runner      : fixed/run_c1_suffixed.py
+  expression   : 'battery-summary-%s.jsonl' % last['battery'].lower()   -> battery-summary-c1.jsonl
+c2 runner      : fixed/run_c2_suffixed.py
+  expression   : 'battery-summary-%s.jsonl' % last['battery'].lower()   -> battery-summary-c2.jsonl
+after both writes in one --out: ['battery-summary-c1.jsonl', 'battery-summary-c2.jsonl']
+CHECKS         : PASS (green) — one summary per battery, no overwrite
+exit=0
+
+$ grep -n "battery-summary" <committed runners>
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/run_controls_c1.py:167:        with open(os.path.join(a.out, 'battery-summary.jsonl'), 'w') as f:
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/run_controls_c2.py:152:        with open(os.path.join(a.out, 'battery-summary.jsonl'), 'w') as f:
+
+$ stat --format="%n birth=%w" controls/battery-summary-*.jsonl
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/battery-summary-c1.jsonl birth=2026-10-26 16:36:59.310600801 -0300
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/controls/battery-summary-c2.jsonl birth=2026-10-26 16:30:49.484648568 -0300
+
+$ git ls-tree -r 78abb8b5 -- .ufo/waves/round-42/controls
+100644 blob de951b4ddd1c63429dc43eb26c20c6f7648013d5	.ufo/waves/round-42/controls/C1-K0.jsonl
+100644 blob 22b7c3dae79bcbe0e8bcce65ab6ae9ef4b864086	.ufo/waves/round-42/controls/C1-K1.jsonl
+100644 blob 1d08fd604683caeafcf3568228f86d0098338311	.ufo/waves/round-42/controls/C1-K2.jsonl
+100644 blob ca0034a368d268f1a83f01f30dfb2ccd4abb03a4	.ufo/waves/round-42/controls/C1-K3.jsonl
+100644 blob 7d77e5d9299b52c597f3ca62601b57568115ab45	.ufo/waves/round-42/controls/C1-K4.jsonl
+100644 blob 0640f05fe18b45889b2d34c5050fdf04b7a77e26	.ufo/waves/round-42/controls/C1-K5.jsonl
+100644 blob a7b0faa19803db939b33fc6fd2e78edb1fcacdae	.ufo/waves/round-42/controls/C1-K6.jsonl
+100644 blob eca484f591a5a2c3f43a29bd6776a333e4238d90	.ufo/waves/round-42/controls/C1-K7.jsonl
+100644 blob d239d3681a6454ae1151dbd1d1550b553843c887	.ufo/waves/round-42/controls/C1-K8.jsonl
+100644 blob f658c55e7e4101de4313108965c1bc6512632600	.ufo/waves/round-42/controls/C2-K0.jsonl
+100644 blob d087e2c8718d27fd92002fa6131756a7bce47a30	.ufo/waves/round-42/controls/C2-K1.jsonl
+100644 blob 506f779fb840a5d8980d88a017225fce0e342e7b	.ufo/waves/round-42/controls/C2-K2.jsonl
+100644 blob 64f9fc36e0e74fdc525b8378e58c923b163ecc62	.ufo/waves/round-42/controls/C2-K3.jsonl
+100644 blob 0a42c3677f2ca5453e492b0fa36a78ebefa85a71	.ufo/waves/round-42/controls/C2-K4.jsonl
+100644 blob 267f32fec55d2045a867988cf2b2e92411e7b0eb	.ufo/waves/round-42/controls/C2-K5.jsonl
+100644 blob 7447a45ecf35d6b912310ed50746f713620fd732	.ufo/waves/round-42/controls/battery-summary-c1.jsonl
+100644 blob 8ac2ebdf314913c4f837af98b58fb9f0f0a2be19	.ufo/waves/round-42/controls/battery-summary-c2.jsonl
+100755 blob e2dfa9900a688e1189b8928c7972ca847b9d5b36	.ufo/waves/round-42/controls/run_controls_c1.py
+100755 blob 06aa317673df3a01015eec7314780e3ece59fb27	.ufo/waves/round-42/controls/run_controls_c2.py

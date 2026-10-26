@@ -1,0 +1,19 @@
+# sites carrying "a missing record is not evidence that no scrub ran" at
+# 78abb8b5
+
+$ git grep -n -i "never scrubbed" 78abb8b5 -- corpus/knowledge/btrfs-scrub-record-r42.md SKILL.md
+SKILL.md:3905:| `btrfs scrub status` prints `no stats available` | no device record carries a start time (SC4) | read "no record of a run", not "never scrubbed"; check the file and the recording state below |
+corpus/knowledge/btrfs-scrub-record-r42.md:13:same command reports (SC5). Those decide how far "no record" may be read as "never scrubbed". Rows SC1-SC5 state upstream behaviour of btrfs-progs v7.1 (the
+corpus/knowledge/btrfs-scrub-record-r42.md:144:- Read "no scrub record" as a gap in evidence (`UNVERIFIED`, SH4), not as "never scrubbed" (SC3); what SC3 adds is
+
+$ git grep -n -i "does not prove\|leaves none\|cannot show" 78abb8b5 -- <entry>
+corpus/knowledge/btrfs-scrub-record-r42.md:72:result"). So a missing record does not prove that no scrub ran: a scrub whose recording was disabled, or one driven
+corpus/knowledge/btrfs-scrub-record-r42.md:73:by another tool through the ioctl [inference from the write path], leaves none. That conclusion was already held
+corpus/knowledge/btrfs-scrub-record-r42.md:157:- The host readings show the absence of a record and of a timer; they cannot show that no scrub ever ran (SC3).
+
+=> the proposition "no record is not never-scrubbed" stands at 5 sites: entry :13 (scope framing),
+   :72-73 (SC3 statement, counted row), :144 (triage bullet 1), :157 (Limits: what the host readings prove),
+   SKILL:3905 (table row 1). A sixth site carries the verdict half only: SKILL:3906 "stored-data integrity
+   stays `UNVERIFIED` (SH4)". P2 removes the :144 copy and leaves the other four: :72-73 is the counted row,
+   :157 bounds the host evidence, SKILL:3905 and SKILL:3906 answer two different observations (command output
+   vs file absence) and merging them would shift SKILL.md:3907-3941, which three live w2 reports cite.
