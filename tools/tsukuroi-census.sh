@@ -365,6 +365,13 @@
 # operator-owned), NVMe SMART (SH5/SH6) is not read. The line is verdict-neutral: no PLANE
 # text, rollup term or exit code changes (frozen consumers pin six PLANE lines, e.g.
 # tools/score-census-handoff-r32.py). Live mode reads sysfs only and creates no files.
+# Round-38 wave-1 hardening (same commit series, before the measured revision): a devinfo entry
+# whose name is not a decimal devid is BLOCKED as `<fsid8>:?:bad-devid` and its name is never
+# echoed (a newline in a fixture name forged extra census lines, C1SentGrammar); an existing root
+# the reader cannot list is BLOCKED `root:unreadable` instead of a silent 0/0/0 (C1RevSharedState).
+# Known limit, recorded not repaired (C1CritAbsentRoot): an ABSENT root still reads HEALTHY 0/0/0,
+# so a namespace that hides /sys/fs/btrfs while btrfs is mounted gives a false all-clear; a
+# /proc/self/mounts cross-check would change the frozen F06 reading and is next-round work.
 #
 # Read-only guarantee: no probe writes; the gate creates no files at all in live mode
 # (selftest writes only under a mktemp dir named ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX).
@@ -1849,7 +1856,11 @@ probe_storage_arm() {
   local root=$BTRFS_SYSFS fsd dev f k v extra fs8 fsn=0 devn=0 nz=0 blocked=0 nd seen nk dnz ddet detail=''
   local uuid='^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
   local keys=' write_errs read_errs flush_errs corruption_errs generation_errs '
-  if [ -d "$root" ]; then
+  if [ -d "$root" ] && { [ ! -r "$root" ] || [ ! -x "$root" ]; }; then
+    # an existing but unlistable root must not read as "no btrfs filesystem" (round-38 W1
+    # C1RevSharedState): the glob would expand to nothing and print a silent HEALTHY 0/0/0
+    blocked=1; detail+='root:unreadable,'
+  elif [ -d "$root" ]; then
     for fsd in "$root"/*; do
       [ -e "$fsd" ] || continue
       [[ ${fsd##*/} =~ $uuid ]] || continue
@@ -1857,6 +1868,9 @@ probe_storage_arm() {
       for dev in "$fsd"/devinfo/*; do
         [ -e "$dev" ] || continue
         nd=$((nd + 1)); devn=$((devn + 1)); f=$dev/error_stats
+        # kernel devids are decimal integers; any other entry name is never echoed into the
+        # one-line grammar (round-38 W1 C1SentGrammar: a newline in a name forged census lines)
+        if ! [[ ${dev##*/} =~ ^[0-9]+$ ]]; then blocked=1; detail+="$fs8:?:bad-devid,"; continue; fi
         if [ ! -f "$f" ] || [ ! -r "$f" ]; then
           blocked=1; detail+="$fs8:${dev##*/}:unreadable,"; continue
         fi
@@ -2920,6 +2934,18 @@ STUB
   mkdir -p "$FX/btrfs/$sfs/features"
   check 'healthy rollup: a mounted filesystem with no readable devinfo is BLOCKED (R38-C1)' 0 HEALTHY \
     '^STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=0 nonzero=0 detail=11111111:-:no-devinfo$'
+
+  case_home='storage-bad-devid'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  st_write "$FX/btrfs/$sfs/devinfo/1 x/error_stats" 0 0 0 0 0
+  check 'healthy rollup: a non-integer devid is BLOCKED and its name is never echoed (R38-W1 hardening)' 0 HEALTHY \
+    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:\?:bad-devid$'
+
+  case_home='storage-root-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  st_write "$FX/btrfs/$sfs/devinfo/1/error_stats" 0 0 0 0 0
+  chmod 000 "$FX/btrfs"
+  check 'healthy rollup: an unlistable btrfs sysfs root is BLOCKED, never a silent 0/0/0 (R38-W1 hardening)' 0 HEALTHY \
+    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=root:unreadable$'
+  chmod 755 "$FX/btrfs"
 
   check_cli 'cli: unknown argument exits 2 with usage (S10-2)' 2 \
     '^usage: tsukuroi-census\.sh' -- --bogus
