@@ -3875,8 +3875,10 @@ error-bearing sample). The first fix used here-strings; the integration replaced
 
 Selftest: 128 → 132 cases, four `R42-C1` cases (a large error-bearing `-Qkk` sample; 4002 equal candidates on
 `-Qu`/`-Sup`/`-Suu`; a large `-Sup` against an empty `-Qu`; a large `-Sup` against a two-line `-Qu`). With the base
-plane bodies swapped in, exactly those cases fail (`impl/c1-able-to-fail.txt`; wave-1 `C1ExecAbleToFail`,
-`C1MutSelftest`: every one of the six single-site reverts is now killed).
+plane bodies swapped into the first-fix census, exactly the two `R42-C1` cases that existed there fail
+(`impl/c1-able-to-fail.txt`, recorded at `44766208`); the two `-Sup` cases are red on their own single-site reverts
+(wave-1 `C1MutSelftest` §4.1). At the tip five of seven single-site reverts are selftest-killed; the `:743` lookup
+revert survives the selftest (no case covers it; wave-2 `C1FinalSelftest` D1, corrected after wave-2 `C1RevSkill` F1).
 
 Counter: `python3 tools/score-size-invariance-r42.py --revision <REV> --scratch <DIR>` — PASS iff `cases == 10 and
 invariant == 10 and ns_invariant == 3 and selftest_pass == 1 and default_equal == 1`. It holds no expected verdict
@@ -3939,3 +3941,16 @@ reported `transcripts_bound` cross-checks against omp's own seat transcripts.
 
 Reading: the metamorphic oracle removed the answer key, and the hole moved to the channels through which the code can
 see it is observed. QUALITY 90 makes those channels frozen controls.
+
+## Round-42 notes — C2 outcome and packaging offsets (appended after wave 2)
+
+- The scrub-record section above rests on `corpus/knowledge/btrfs-scrub-record-r42.md`, whose C2 claim did **not**
+  verify: counted wave-2 reads found SC1 and SC3 false in one sentence each and SC4/SC5 overreaching (entry section
+  "Corrections — round-42 wave 2"). Read the `_tmp` and SC3/SC4 table rows through those corrections: a left-over
+  `_tmp` can corrupt a later record (`invalid data on line …`), a resume does not write an all-zero record, a
+  recording failure does not change the exit status, and `interrupted` can be read while a scrub runs by a caller the
+  progress ioctl refuses.
+- Packaging offset: the `add.c`, `makepkg.sh.in` and `PKGBUILD.5.asciidoc` line pins in this file's pacman sections are
+  upstream 54d9411; the host's Arch build shifts `add.c` after :417 by +23, `makepkg.sh.in` by +118 and
+  `PKGBUILD.5.asciidoc` by +9 (notes in `pacman-hook-order-r38.md`, `pacman-transaction-order-r39.md`,
+  `alpm-package-anatomy-r41.md`; check `.ufo/waves/round-42/w1/ConsiderPatchOffset/patch-offset.py`).

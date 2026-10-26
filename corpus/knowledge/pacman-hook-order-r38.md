@@ -155,3 +155,11 @@ reviewer verdicts: HO1–HO4 and HO7 hold; HO5 and HO6 hold as rules and are **p
 
 QUALITY 1–4, 9 and 14: every statement cites the pinned snapshot line, an executed wave receipt or a host log line;
 nothing is deleted; no new registry row, coverage surface or ordinal move is claimed.
+
+## Round-42 note — packaging offset of the host build (appended 2026-10-26; considerthese/2026-10-26.md "Downstream patch-offset check")
+
+The `add.c:670-687` pin in the HO6 host-cell correction above is upstream pacman 54d9411. The host's Arch build
+7.1.0.r9.g54d9411-3 applies `patch-reproducible-builds.patch`, which inserts 23 lines in `lib/libalpm/add.c` at :412, so
+that range reads `:693-710` in the built tree (`.ufo/waves/round-42/w1/ConsiderPatchOffset/out.json`, row
+`lib/libalpm/add.c:670-687`; wave-2 `CritTrendFinal` found this note missing). The statement is unchanged; only the
+line numbers differ in the binary's source.

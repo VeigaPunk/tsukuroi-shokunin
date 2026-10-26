@@ -2593,3 +2593,54 @@ candidate fix must PASS. C2 — K0 do-nothing; K1 scripted writer + planted verd
 without dispatch tasks; K4 forged records with one `fails`; K5 forged records with one unanswered `partly`: each must
 FAIL; K3 forged dispatch + results must PASS (reachability and the recorded limit, `transcripts_bound 0`).
 Expected battery lines: C1 `should_fail_accepted 0, control_accepted 1`; C2 `should_fail_accepted 0, control_accepted 1`.
+
+## Round 42 — measured outcome (2026-10-26, author-side; non-author closure pending)
+
+Every claim receipt is a `tools/run-receipt.py` receipt (header: revision, tool, tool_sha256, tool_revision
+`a84fc9de`). Waves: `w1` 43 seats (build + first falsifiers), `w2` 34 seats (falsify, ten counted C2 reads); no residual
+call; round total 77 seats, every seat settled with a report (`w1-results.json`, `w2-results.json`).
+
+| Claim | Axis | Before (base `c8efaa3f`) | After | Kill rules | Author verdict | Ordinal |
+|---|---|---|---|---|---|---|
+| C1 census early readers under pipefail | operability | `invariant 3` (P2, P4, P5), `ns_invariant 0`, `selftest_pass 1`, `default_equal 1`, FAIL exit 1 (`before/c1-before.jsonl`) | PASS exit 0 at `44766208` (`w1/C1ExecRerun/c1-after-4476620.jsonl`) and at the integration commit `78abb8b5`: `invariant 10, ns_invariant 3`, selftest `PASS (132 cases, 132 passed, 0 failed)`, `default_equal 1` (`after/c1-after-78abb8b.jsonl`; re-run `w2/C1FinalRerun.md`); census bytes unchanged since `78abb8b5` | none fired: every census hunk lies in `probe_packages`, `probe_update_safety` or `run_selftest` (`w1/C1ExecDiffScope.md`, `w2/C1RevIntegration.md`); the round-41 C1 counter PASSes at `78abb8b5` (`after/r41-c1-counter-78abb8b.jsonl`) | **verified under the frozen predicate; counter sufficiency falsified** — censuses fixed only under `TSUKUROI_FIXTURE`-or-uid-0, only for the fixture package names, or behind a padding-grammar filter also PASS (`w1/C1CritNsView.md`, `w1/C1CritEvasion.md`, `w1/ConnClaims.md`, rebuilt on the tip `w2/C1CritFinalEvasion.md`); a production-identity leg (uid 1000 via `setpriv`, outside the predicate) shows the tip fixed and the gated arm not (`w2/C1FinalProdIdentity.md`) | 9 → 9 |
+| C2 btrfs scrub record SC1-SC5 | depth (sourced: S237-S239) | entry absent: `rows 0`, FAIL exit 1 (`before/c2-before.jsonl`) | `rows 5, quotes_ok 5, novelty_ok 5, host_ok 5, sources_ok 1, verdicts_ok 1, novelty_base_hits 0`, FAIL exit 1 at `342d1049` (`after/c2-after-342d104.jsonl`; `transcripts_bound 8` of 8) | **fired**: bound `fails` — SC1 (C2CritSC1), SC3 (C2RevSC3, C2CritSC3); SC4, SC5 `partly` without residual | **not verified** (honest stop); the false sentences are withdrawn in the entry's "Corrections — round-42 wave 2"; two of them were adopted wave-1 notes (R42-ADOPTED-UNREAD, QUALITY 91) | 8 → 8 |
+
+Causal separability: `w1/CritSeparability.md` (the counters read disjoint inputs). No-harm: `w2/CritNoHarmFinal.md`,
+`w2/GateFinal.md` (the three wave-1 bookkeeping regressions — adjacency anchor IN-109, registry rows for the two new
+counters, self-assessment counts — repaired; the self-assessment row below is re-derived at the outcome commit). Sources:
+236 → 239 rows, census exit 0, W04 40 → 40. considerthese: "Downstream patch-offset check" landed as appended notes in the
+r38, r39 and r41 entries and a SKILL note. Assimilation: evaluated (`w1/AsmGate.md`), nothing adopted. Routed defect
+R41-PA6-UNJUDGED: PA6 `holds` as corrected (`w1/PA6Verdict.md`).
+
+## Axes — current self-assessment (round 42 final measured surface)
+
+Each count is re-derived from the committed lane tree at the round-42 outcome commit (the commit that lands this table); ordinals unchanged.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 63 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); `SKILL.md` 3956 `wc -l` / 984 table lines (`grep -c '^|' SKILL.md`); `corpus/lessons/` 60 files (`find corpus/lessons -type f | wc -l`); round-42 C2 not verified (bound `fails` on SC1 and SC3); no ordinal move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged |
+| coverage | 9 | `corpus/README.md` 414 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus the verdict-neutral STORAGE line; round 42 deepens the Frontier scrub-record line from source, no Frontier move. | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (132 cases, 132 passed, 0 failed); live run exits with the six-plane rollup; `--identity` not landed. | round 11 (terminal closeout); unchanged |
+| freshness | 9 | Each round record re-ran predecessor pins; round 42 re-fetched its two pinned btrfs-progs URLs byte-identical (`w1/C2ExecLiveSources.md`), re-opened S237-S239 (`w2/SrcReopenS237..9.md`), and marked the Arch packaging offsets of the r38/r39/r41 pacman pins. | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <REV>` checks 27 fixed checks; mismatches 0 required at the round-42 outcome commit. | round 10; unchanged |
+| adjacency | 8 | formal overlap table present (finding-to-owner ADJ-01..07) and portable OUT-001..010 anchors remain; the round-42 census edit moved mori's `PROVINCE.md:287` pin (reported, `w2/AdjMoriPin.md`); recipient acknowledgement and independent replay are unverified. | fleet round 1; unchanged |
+
+## Capabilities — current full evidence set (round 42)
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates opened tier-scoped sources with anchors, rejections, paths, search log and unopened leads | `corpus/SOURCES.md`; `.ufo/evidence/round-1-kaika/after.md` | fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT and STORAGE lines; selftest prints PASS (132 cases, 132 passed, 0 failed) | `tools/tsukuroi-census.sh`; `.ufo/evidence/round-1-kaika/scout-live.md`; `.ufo/evidence/round-1-kaika/after.md` | lane r2; demonstrated fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
+| boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt` | round 17 |
+| storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line (HEALTHY/DEGRADED/BLOCKED with nonzero pairs and reason tokens), demonstrated on fixtures, the live host and production-path namespace views; since round 39 an absent or empty root is cross-checked against the mount table, since round 40 its selftest varies the mount-table literals, since round 41 four held-out table shapes | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-38/after/c1-q82-final-b0005ae.json`; `.ufo/waves/round-39/after/c1-final-a2d7aad.jsonl`; `.ufo/waves/round-40/after/c1-final-aad0113.jsonl`; `.ufo/waves/round-41/after/c1-after-568c397.jsonl` | round 38 |
+
+- **planned (next round):** (1) operability — amend the C1 counter under QUALITY 90: production-path legs at uid 1000
+  (`setpriv`) with per-run fixture names, frozen controls for the fixture-or-uid-0, data-gated and padding-filter arms,
+  refuse to run without `--scratch`; fix `tools/boot-chain-audit.sh:480-487` (`find -quit | grep -q` under pipefail)
+  with a red-before case; a selftest case for the `:743` baseline lookup; (2) depth — re-ground SC1 and SC3 of
+  `btrfs-scrub-record-r42.md` as new rows with counted reads (or a scrub-record census arm as Frontier→Core,
+  `w2/ConnRound43.md`), with the C2 binding anchored to the first line (QUALITY 90).
+- **retired:** none.

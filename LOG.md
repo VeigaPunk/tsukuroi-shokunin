@@ -1557,3 +1557,30 @@ counters still PASS at the dispatch tip `71851d63` (`w1/C1ExecPriorCounters.md`;
 Base note: the round's counters and receipts name `0e5805a1` (round-40 tip) as base; the lane tip at round start was
 `8b7c4132` (adds only the round-40 spot-check lesson) and the operator's `1f5e74aa` (considerthese 2026-10-26) landed
 under the freeze commit; tools, census, SOURCES, knowledge and SKILL are byte-identical at the three (R41-BASE-MISREAD).
+
+## Round 42 — hyaku run 9 (stamp: the commit that lands this entry)
+
+Motivating evidence: the round-41 closure (`corpus/lessons/round-41-verifier-spotcheck.md` §6) routed
+R41-CENSUS-PIPEFAIL-692 (the census packages plane read an error-bearing `-Qkk` sample as clean once it outgrew the pipe
+buffer), R41-GUARD-BYPASS (both counters beaten by reading the guard), R41-PA6-UNJUDGED, R41-BASE-MISREAD and the
+before-receipt order; the planned depth line was the storage scrub record (Frontier since round 26).
+Claims (base `c8efaa3f` = `jj-lane.sh state` local at start; frozen and declared `a84fc9de`): C1 operability — the
+census early readers under pipefail (`:692/:694` packages; `:1621`, `:1635`, `:1641`, `:1652` update lists), scored by
+a metamorphic size-twin counter with no expected verdict plus three `unshare -rm` legs; C2 depth (sourced, S237-S239) —
+the btrfs scrub status record SC1-SC5 from btrfs-progs v7.1 `cmds/scrub.c` and `CHANGES`, verdicts bound to the
+orchestrator's dispatch and results records. Controls before any seat (`.ufo/waves/round-42/controls/`): C1 K0-K5, K7,
+K8 FAIL, K6 PASS; C2 K0-K2, K4, K5 FAIL, K3 (forged records) PASS as the declared limit; `should_fail_accepted 0` both.
+Waves: `w1` 43 seats, `w2` 34 seats, total 77, no dead seat. Measured: C1 invariant 3 → 10, ns 0 → 3, PASS at
+`44766208` and `78abb8b5` (selftest 128 → 132); C2 FAIL at `342d1049` (`verdicts_ok 1`: SC1 and SC3 bound `fails`, SC4
+and SC5 `partly`) — kill rule fires, C2 not verified. Wave findings integrated: the first C1 fix's here-strings write a
+temp file and, on a full TMPDIR, read an error sample as HEALTHY (replaced by an awk full-consumer test); the `-Sup`
+arms had no selftest case (two added); `:743`'s `awk … exit` lookup could kill the census (full read); the C1 counter's
+namespace legs run as uid 0 with fixed fixture names, so gated fixes pass it (QUALITY 90); the C2 binding matches an
+unanchored verdict string (QUALITY 90); two adopted wave-1 notes made SC3 false (QUALITY 91); SC1/SC3/SC4/SC5
+corrections appended to the entry. Re-verification of predecessor pins: both btrfs-progs URLs re-fetched byte-identical,
+the Arch build applies no patch (`w1/C2ExecLiveSources.md`); the round-41 C1 counter passes at `78abb8b5`; the pacman
+54d9411 pins of the r38, r39 and r41 entries are shifted in the Arch build (+23 add.c, +118 makepkg.sh.in, +9
+PKGBUILD.5) and now carry notes (considerthese 2026-10-26 "Downstream patch-offset check"). Adjacency: the census edit
+moved mori's `PROVINCE.md:287` pin (reported in the round report, not absorbed). Landed: `a84fc9de` freeze;
+`44766208` C1; `f50c28d8` C2 draft; `87c4f7c6` controls; `78abb8b5` w1 integration; `a968393c` w2 dispatch;
+`342d1049` w2 evidence; this entry with the outcome, corrections, lesson and QUALITY 90/91.

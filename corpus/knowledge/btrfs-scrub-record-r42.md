@@ -166,3 +166,37 @@ silently reads as none). A scrub that looks slow should be checked against this 
   (`own-work`) carries only the host readings.
 - QUALITY 87 (the counter reads what it credits): each row carries its frozen proposition token and is judged by two
   bound non-author seat verdicts (QUALITY 89 binding); the lexical checks are shape gates only.
+
+## Corrections — round-42 wave 2 (appended 2026-10-26 after the counted reads; these carry no counted verdict)
+
+The ten counted wave-2 reads (`.ufo/waves/round-42/w2/C2RevSC<n>.md`, `C2CritSC<n>.md`) found two rows false and two
+overreaching. The round's C2 claim is therefore **not verified** (declared kill rule: a bound `fails`). This entry
+must not be cited as a verified C2 outcome; the sentences below are withdrawn or narrowed, and each replacement is
+the seat's own text, not re-read by a counted seat.
+
+- **SC1, withdrawn:** "so a reader sees either the old or the new record, never a half-written one" (false;
+  `w2/C2CritSC1.md` §3, §5 R1). Read instead: every update is written in full to `scrub.status.<fsid>_tmp` and,
+  only when that write succeeds, moved over the record with `rename`, so a reader never catches an update still being
+  written. The `_tmp` is opened `O_WRONLY|O_CREAT` without `O_TRUNC` (scrub.c:517) and never deleted, so a `_tmp` left
+  by a failed write, a failed `rename` or a killed process is reused from offset 0: a later, shorter record (notably
+  the all-zero start record, :1502) then leaves the tail of the older record inside the renamed file, and
+  `btrfs scrub status` reports `invalid data on line …` (:569-576) until a longer record is written.
+- **SC3, withdrawn:** "(or is resumed)" (false; `w2/C2RevSC3.md` S1, `w2/C2CritSC3.md` F1). On a resume the same code
+  (`scrub_start(…, true)`, :1831-1834) writes a first record that already carries the interrupted record's counters,
+  original start time and accumulated duration (:795-796, :823-825); only a fresh start writes an all-zero record.
+- **SC3, withdrawn:** "only the final write reports a failure ("failed to record the result")" (false;
+  `w2/C2RevSC3.md` S4, `w2/C2CritSC3.md`). A mid-run record-write failure is reported at the end as "recording progress
+  failed" or "progress thread handling failed" (:1690-1699), the final write's failure as "failed to record the
+  result" (:1704-1706); all of them print only in foreground mode (`-B`; `do_print` false by default, :1249), and
+  none changes the exit status, so a scrub whose recording failed exits 0.
+- **SC3 host reading, narrowed:** capture.txt:8 is the template unit's own enablement state; no `btrfs-scrub@*` timer
+  instance is listed (capture.txt:7) (`w2/C2CritSC3.md`).
+- **SC4, narrowed (partly):** the fold walks the filesystem's current device list, so a line left by a device since
+  removed is never folded; and `interrupted` means an unfinished record with no run reported by the kernel — the probe
+  `BTRFS_IOC_SCRUB_PROGRESS` needs `CAP_SYS_ADMIN` (this host, uid 1000: `EPERM`), so a caller the ioctl refuses can
+  read `interrupted` while a scrub runs [inference; reachable only with a readable record] (`w2/C2CritSC4.md` F1, F2).
+  When a start process is live, status reads the progress socket first and opens the record only if `connect` fails
+  (:1927-1940; F3).
+- **SC5, narrowed (partly):** `btrfs scrub status` prints a device's limit only for a device that has a record line,
+  and numerically only when the limit is above 1; `btrfs scrub start` reports the limit it writes from `--limit`
+  (default 0), not a limit pre-set with `btrfs scrub limit` (:1275, :1319, :1413-1449, :1560-1563) (`w2/C2CritSC5.md`).
