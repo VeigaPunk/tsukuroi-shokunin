@@ -1,0 +1,46 @@
+51	## SR3
+52	
+53	**Statement.** `btrfs scrub resume` runs the same function as `start`, `scrub_start(…, true)`. For each device whose
+54	record (`last_dev_scrub`) is canceled or unfinished, resume makes that record the device's `resumed` source; every
+55	record write passes each device through `scrub_resumed_stats` (in `scrub_write_file`), which for such a device
+56	writes the record's thirteen counted progress fields added to the new run's, the record's `t_start`, and the two
+57	durations summed, while `last_physical`, `canceled` and `finished` come from the new run and `t_resumed` is taken
+58	from the new run's `t_start`. So the first record a resume writes for a resumed device carries the interrupted run's
+59	counters and start time. A device without a `resumed` source, or one that resume skips (`skip` set: its record is
+60	finished and not canceled, or it has no record), passes through unchanged, and in a run's first record its counters are zero (`sp` is
+61	zero-allocated); under a fresh `start` that is every device. Once the first record is written, a failed
+62	progress-record write ends the progress thread with its error, which is printed ("recording progress failed") only
+63	when `do_print` is set, and a failed final write prints "failed to record the result" under the same condition.
+64	`do_print` is false by default, set by `-B`, and cleared again when output is quiet. Neither branch assigns the
+65	command's `err` status.
+66	
+67	**Quote.** `S237` scrub.c:1833: "return scrub_start(cmd, argc, argv, true);"
+68	
+69	**Quote.** `S237` scrub.c:1434: "sp[i].resumed = last_scrub;"
+70	
+71	**Quote.** `S237` scrub.c:864: "use = scrub_resumed_stats(&data[i], &local);"
+72	
+73	**Quote.** `S237` scrub.c:803: "if (!data->resumed || data->skip)"
+74	
+75	**Quote.** `S237` scrub.c:819: "_SCRUB_COPY(dest, data, last_physical);"
+76	
+77	**Quote.** `S237` scrub.c:823: "dest->stats.t_start = data->resumed->stats.t_start;"
+78	
+79	**Quote.** `S237` scrub.c:1436: "sp[i].skip = 1;"
+80	
+81	**Quote.** `S237` scrub.c:1402: "sp = calloc(fi_args.num_devices, sizeof(*sp));"
+82	
+83	**Quote.** `S237` scrub.c:1502: "/* write all-zero progress file for a start */"
+84	
+85	**Quote.** `S237` scrub.c:1698: "error("recording progress failed: %m");"
+86	
+87	**Quote.** `S237` scrub.c:1706: "error("failed to record the result: %m");"
+88	
+89	**Quote.** `S237` scrub.c:1249: "bool do_print = false;"
+90	
+91	**Quote.** `S237` scrub.c:1295: "do_print = true;"
+92	
+93	**Quote.** `S237` scrub.c:1333: "do_print = false;"
+94	
+95	**Host reading.** Not observable on this host: there is no record to resume from (capture.txt:7).
+96	

@@ -1,0 +1,13 @@
+diff --git a/corpus/knowledge/btrfs-scrub-record-r43.md b/corpus/knowledge/btrfs-scrub-record-r43.md
+index 99a0aaad..24702999 100644
+--- a/corpus/knowledge/btrfs-scrub-record-r43.md
++++ b/corpus/knowledge/btrfs-scrub-record-r43.md
+@@ -57,7 +57,7 @@ writes the record's thirteen counted progress fields added to the new run's, the
+ durations summed, while `last_physical`, `canceled` and `finished` come from the new run and `t_resumed` is taken
+ from the new run's `t_start`. So the first record a resume writes for a resumed device carries the interrupted run's
+ counters and start time. A device without a `resumed` source, or one that resume skips (`skip` set: its record is
+-finished, or it has no record), passes through unchanged, and in a run's first record its counters are zero (`sp` is
++finished and not canceled, or it has no record), passes through unchanged, and in a run's first record its counters are zero (`sp` is
+ zero-allocated); under a fresh `start` that is every device. Once the first record is written, a failed
+ progress-record write ends the progress thread with its error, which is printed ("recording progress failed") only
+ when `do_print` is set, and a failed final write prints "failed to record the result" under the same condition.
