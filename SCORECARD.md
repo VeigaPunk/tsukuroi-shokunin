@@ -2129,3 +2129,34 @@ entry and `corpus/SOURCES.md`; neither counter reads the other's surface. Source
 `hook.c` and `alpm-hooks.5.asciidoc` at 54d9411, opened this round). The C1 verdict rules rest on held rows S128
 and S133 (SH1/SH2 of `corpus/knowledge/storage-health-r26.md`). Measured revision: the lane branch tip named in the
 round-38 outcome section, declared before the after-run; no self-assessment count is claimed this round.
+
+## Round 38 — pre-seat amendment (2026-10-26T04:32Z, tightening only; no wave seat had scored)
+
+Read after the freeze and after the author's own after-receipts (`.ufo/waves/round-38/after/c1-after-52ffd65.json`,
+`c2-after-1fe28e7.json`, both PASS): the lane's own `corpus/QUALITY.md` criteria 80–82 bind these claims and the
+declaration above did not meet them. This amendment only ADDS kill conditions; it cannot turn a failing claim
+into a pass, and the v1 predicates above stay frozen and unchanged. If the closure rules that a post-receipt
+addition is not the claims' rule, the v1 rules stand alone and the receipts below are evidence that the v1 C1
+counter is gameable (QUALITY 82), reported as a counter defect, not hidden.
+
+- **C1 / QUALITY 82 (R32-FIXTURE-GATEABLE).** The v1 counter drives the arm through `TSUKUROI_BTRFS_SYSFS`
+  fixtures and its live leg has one constant answer on this host. Control receipt
+  (`.ufo/waves/round-38/controls/controls-q82.jsonl`, script `run-controls-q82.sh` sha256
+  `5469e59a5474881a2575a2f122e1bf278ea0c8e46ff925843dd494a634e4f5d6`): a **fixture-gated arm** (real logic only
+  when the override is set, constant `HEALTHY 1/1/0` otherwise) scores **v1 PASS 10/10, live 1** — the v1 counter
+  cannot tell it from the real arm. Added conjunct: `python3 tools/score-storage-arm-r38-q82.py --revision <REV>`
+  (sha256 `a183ff580cb92cdd276a5720adb54336e7e247c9bd7c81058065e706d62d99e3`) runs the census with no override
+  inside `unshare -rm` with a per-run random tree bind-mounted over the production path `/sys/fs/btrfs` (3 views:
+  all-zero, forced-nonzero, random). Predicate `ns_views_matched == VIEWS and ns_available == 1`. Controls under it:
+  fixture-gated 0/3 FAIL, cached-live 1/3 FAIL, real arm (`52ffd65`) 3/3 PASS. **C1 kill rule, added:** C1 is not
+  verified unless the Q82 counter PASSes at the measured revision.
+- **C2 / QUALITY 80–81.** Novelty swept as facts at base (`.ufo/waves/round-38/before/c2-novelty-sweep.txt`:
+  0 base hits for `ignores the suffix`, `_alpm_hook_cmp`, `TRANS_HOOK_FAILED`, `failed to run transaction hooks`,
+  `triggerless`, `AbortOnFail`, `PostTransaction hooks`, `hookdirs`, `alphabetical order`; the 11 `transaction
+  completed` hits are pacman.log line quotes, not the HO6 rule). The scripted non-reader control is the full-name
+  sort table (63/69, FAIL, `controls.jsonl`); the correct-table control PASSes because the table is rule-derived,
+  so the table conjunct measures the order rule, not reading. **C2 kill rule, added (QUALITY 81 per-row
+  verdict):** each rule row HO1–HO7 needs a committed reviewer verdict file from a seat that did not write the
+  entry (wave items C2RevHookC, C2RevOtherSrc, C2CritHO5, C2CritHO6, C2RevenConf); any HO row judged false against
+  the pinned source at its cited lines kills C2. Per LEARNING.md a dispatched seat is still the lane, so these
+  verdicts are author-side; the closure's re-open is the non-author check.
