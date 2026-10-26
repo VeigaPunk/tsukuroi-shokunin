@@ -1,0 +1,12 @@
+**Statement.** Every update of the record file goes through `scrub_write_progress` (its three call sites write the
+first record, the progress thread's records and the final record): it opens `scrub.status.<fsid>_tmp` with
+`O_WRONLY|O_CREAT` and no `O_TRUNC` (open mode argument 0600, subject to the umask; then a non-blocking `flock`
+`LOCK_EX`), writes the whole record from the start of that file, and renames `_tmp` over `scrub.status.<fsid>` only
+when the write returned no error; a failed write skips the `rename`. No code in `scrub.c` removes a `_tmp` file: its
+three `unlink` calls all name the progress socket path. So a `_tmp` left behind by a failed write, a failed `rename`,
+or a writer process killed between the open and the rename (for example by SIGKILL; the progress thread itself
+disables cancellation from before the open until after the rename) is opened again by the next update; if that
+update's write and rename succeed and the new record is shorter, the old file's bytes past the new end stay in place
+and are renamed into the record with it [inference from the open flags; reproduced in a scratch harness compiled
+from the pinned write path, round-43 wave-1 seat C2ExecTailRepro; not observed on this host].
+

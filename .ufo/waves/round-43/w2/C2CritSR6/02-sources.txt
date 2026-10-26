@@ -1,0 +1,213 @@
+-- pins --
+48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c
+ioctl.c: OK
+f7ecbe7c990e68d7b0dbdbd8bfe65f3acd1cbbdabe33d47e71a6f1ae1242c556  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-43/frozen/hostcap/capture.txt
+-- scrub.c key lines --
+static int is_scrub_running_on_fs(struct btrfs_ioctl_fs_info_args *fi_args,
+				  struct btrfs_ioctl_dev_info_args *di_args,
+				  struct scrub_file_record **past_scrubs)
+{
+	int i;
+
+	if (!fi_args || !di_args || !past_scrubs)
+		return 0;
+
+	for (i = 0; i < fi_args->num_devices; i++) {
+		struct scrub_file_record *sfr =
+			last_dev_scrub(past_scrubs, di_args[i].devid);
+
+		if (!sfr)
+			continue;
+		if (!(sfr->stats.finished || sfr->stats.canceled))
+			return 1;
+	}
+	return 0;
+}
+
+static int is_scrub_running_in_kernel(int fd,
+		struct btrfs_ioctl_dev_info_args *di_args, u64 max_devices)
+{
+	struct scrub_progress sp;
+	int i;
+	int ret;
+
+	for (i = 0; i < max_devices; i++) {
+		memset(&sp, 0, sizeof(sp));
+		sp.scrub_args.devid = di_args[i].devid;
+		ret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);
+		if (!ret)
+			return 1;
+	}
+
+	return 0;
+}
+...
+	if (!ss || !ss->t_start) {
+		pr_default("\tno stats available\n");
+		return;
+	}
+	if (ss->t_resumed) {
+		localtime_r(&ss->t_resumed, &tm);
+		strftime(t, sizeof(t), "%c", &tm);
+		t[sizeof(t) - 1] = '\0';
+		pr_default("Scrub resumed:    %s\n", t);
+	} else {
+		localtime_r(&ss->t_start, &tm);
+		strftime(t, sizeof(t), "%c", &tm);
+		t[sizeof(t) - 1] = '\0';
+		pr_default("Scrub started:    %s\n", t);
+	}
+
+	seconds = ss->duration;
+	hours = ss->duration / (60 * 60);
+	gmtime_r(&seconds, &tm);
+	strftime(t, sizeof(t), "%M:%S", &tm);
+	pr_default("Status:           %s\n",
+			(ss->in_progress ? "running" :
+			 (ss->canceled ? "aborted" :
+			  (ss->finished ? "finished" : "interrupted"))));
+	pr_default("Duration:         %u:%s\n", hours, t);
+}
+...
+	 * canceled=0, finished=0 but no scrub is running.
+	 */
+	if (!is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices))
+		force = true;
+
+	/*
+	 * check whether any involved device is already busy running a
+	 * scrub. This would cause damaged status messages and the state
+	 * "aborted" without the explanation that a scrub was already
+	 * running. Therefore check it first, prevent it and give some
+	 * feedback to the user if scrub is already running.
+	 * Note that if scrub is started with a block device as the
+	 * parameter, only that particular block device is checked. It
+	 * is a normal mode of operation to start scrub on multiple
+	 * single devices, there is no reason to prevent this.
+	 */
+	if (!force && is_scrub_running_on_fs(&fi_args, di_args, past_scrubs)) {
+		error(  "Scrub is already running.\n"
+			"To cancel use 'btrfs scrub cancel %s'.\n"
+			"To see the status use 'btrfs scrub status [-d] %s'",
+			path, path);
+...
+		nothing_to_resume = true;
+		goto out;
+	}
+
+	ret = prg_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+	while (ret != -1) {
+		ret = scrub_datafile(SCRUB_PROGRESS_SOCKET_PATH, fsid, NULL,
+					sock_path, sizeof(sock_path));
+		/* ignore EOVERFLOW, try using a shorter path for the socket */
+		addr.sun_path[sizeof(addr.sun_path) - 1] = '\0';
+		strncpy_null(addr.sun_path, sock_path, sizeof(addr.sun_path));
+		ret = bind(prg_fd, (struct sockaddr *)&addr, sizeof(addr));
+		if (ret != -1 || errno != EADDRINUSE)
+			break;
+		/*
+		 * bind failed with EADDRINUSE. so let's see if anyone answers
+		 * when we make a call to the socket ...
+		 */
+		ret = connect(prg_fd, (struct sockaddr *)&addr, sizeof(addr));
+		if (!ret || errno != ECONNREFUSED) {
+			/* ... yes, so scrub must be running. error out */
+			error("scrub already running");
+			close(prg_fd);
+			prg_fd = -1;
+			goto out;
+		}
+...
+		}
+	}
+	in_progress = is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices);
+
+	pr_default("UUID:             %s\n", fsid);
+
+	if (do_stats_per_dev) {
+		for (i = 0; i < fi_args.num_devices; ++i) {
+			u64 limit;
+
+			limit = read_scrub_device_limit(fdmnt, di_args[i].devid);
+			last_scrub = last_dev_scrub(past_scrubs,
+							di_args[i].devid);
+			if (!last_scrub) {
+				print_scrub_dev(&di_args[i], NULL, print_raw,
+						NULL, NULL, limit);
+				continue;
+			}
+			last_scrub->stats.in_progress = in_progress;
+			print_scrub_dev(&di_args[i], &last_scrub->p, print_raw,
+					last_scrub->stats.finished ?
+							"history" : "status",
+					&last_scrub->stats, limit);
+		}
+	} else {
+		u64 total_bytes_used = 0;
+		struct btrfs_ioctl_space_info *sp = si_args->spaces;
+		u64 limit = 0;
+
+		init_fs_stat(&fs_stat);
+		fs_stat.s.in_progress = in_progress;
+		for (i = 0; i < fi_args.num_devices; ++i) {
+			/* On a multi-device filesystem, keep the lowest limit only. */
+-- ioctl.c key lines --
+}
+
+static long btrfs_ioctl_scrub(struct file *file, void __user *arg)
+{
+	struct btrfs_fs_info *fs_info = inode_to_fs_info(file_inode(file));
+	struct btrfs_ioctl_scrub_args AUTO_KFREE(sa);
+	int ret;
+
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+
+...
+static long btrfs_ioctl_scrub_cancel(struct btrfs_fs_info *fs_info)
+{
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+
+	return btrfs_scrub_cancel(fs_info);
+}
+
+static long btrfs_ioctl_scrub_progress(struct btrfs_fs_info *fs_info,
+				       void __user *arg)
+{
+	struct btrfs_ioctl_scrub_args AUTO_KFREE(sa);
+	int ret;
+
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+
+	sa = memdup_user(arg, sizeof(*sa));
+	if (IS_ERR(sa))
+		return PTR_ERR(sa);
+
+	ret = btrfs_scrub_progress(fs_info, sa->devid, &sa->progress);
+
+	if (ret == 0 && copy_to_user(arg, sa, sizeof(*sa)))
+		return -EFAULT;
+
+	return ret;
+}
+...
+	case BTRFS_IOC_SCRUB:
+		return btrfs_ioctl_scrub(file, argp);
+	case BTRFS_IOC_SCRUB_CANCEL:
+		return btrfs_ioctl_scrub_cancel(fs_info);
+	case BTRFS_IOC_SCRUB_PROGRESS:
+		return btrfs_ioctl_scrub_progress(fs_info, argp);
+	case BTRFS_IOC_BALANCE_V2:
+-- grep "running" in scrub.c --
+341:			(ss->in_progress ? "running" :
+1386:	 * feedback to the user if scrub is already running.
+1393:		error(  "Scrub is already running.\n"
+1476:			error("scrub already running");
+1748:	OPTLINE("-f", "force starting new scrub even if a scrub is already running this is useful when scrub stats record file is damaged"),
+1796:			errno == ENOTCONN ? "not running" : strerror(errno));
+-- grep in_progress assignments --
+1946:	in_progress = is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices);
+1962:			last_scrub->stats.in_progress = in_progress;
+1974:		fs_stat.s.in_progress = in_progress;

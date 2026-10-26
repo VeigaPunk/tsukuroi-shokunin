@@ -1,0 +1,49 @@
+C1RevIntegration receipts — round 43 wave 2 (C1-F6)
+DATE: 2026-10-26; host: Arch linux 7.2.11; lane tip under test 8acf0b022586a0f3164c77659fb96ba5f90949b6
+
+== 1. Tip script extraction (tools/boot-chain-audit.sh at 8acf0b) ==
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 8acf0b022586a0f3164c77659fb96ba5f90949b6:tools/boot-chain-audit.sh > bca-tip.sh
+$ sha256sum bca-tip.sh
+77c80be827d69df08e172c531ddf87d6585c39140f6b3389b840b5d8ad9141ad  bca-tip.sh
+$ grep -n "R43-C1-missing-start-point-silent" bca-tip.sh
+1239:    st_check 'R43-C1-missing-start-point-silent' 0 "$got"
+
+== 2. Pristine tip selftest (TMPDIR in scratch) ==
+$ TMPDIR=$S bash bca-tip.sh --selftest; echo rc=$?
+TSUKUROI_BOOTCHAIN_SELFTEST: PASS total=49 failed=0
+rc=0
+
+== 3. Mutant (c): drop ' 2>/dev/null' in inputs_newer_than (line 469) ==
+$ bash bca-mut-c.sh --selftest; echo rc=$?
+find: ‘/fast/scratch/hyaku/tsukuroi-r43/C1RevIntegration/tsukuroi-bootchain-selftest.xKOQ9n/bootinputs/missing’: No such file or directory (x2)
+FAIL R43-C1-missing-start-point-silent: expected [0] got [find: ‘…/bootinputs/missing’: No such file or directory
+0]
+TSUKUROI_BOOTCHAIN_SELFTEST: FAIL total=49 failed=1
+rc=1
+
+== 4. Mutant (b): drop '-quit' (output-equivalent, survives) ==
+$ bash bca-mut-b.sh --selftest; echo rc=$?
+TSUKUROI_BOOTCHAIN_SELFTEST: PASS total=49 failed=0
+rc=0
+
+== 5. Mutant (a): invert decision -n -> -z (kills all four R43-C1 cases) ==
+$ bash bca-mut-a.sh --selftest | tail -3; echo rc=${PIPESTATUS[0]}
+FAIL R43-C1-all-present-deep-newer: expected [1] got [0]
+FAIL R43-C1-missing-start-point-silent: expected [0] got [1]
+TSUKUROI_BOOTCHAIN_SELFTEST: FAIL total=49 failed=4
+rc=1
+
+== 6. Frozen counter at tip (fixture clone; single heavy run) ==
+D=/fast/scratch/hyaku/tsukuroi-r43/C1RevIntegration/fx.NmSeJS (git clone --shared of the lane; remote origin removed; toplevel=/fast/scratch/hyaku/tsukuroi-r43/C1RevIntegration/fx.NmSeJS)
+$ python3 tools/score-bootinputs-r43.py --lane $D --revision 8acf0b… --scratch $S/counter
+{"btime": 1793027300, "cases": 16, "channels_open": ["mount table", "uid_map", "script path /mnt/bca-lib.sh"], "correct": 16, "counter": "score-bootinputs-r43", "identity": ["1000", "1000", "1000"], "identity_ok": 1, "live": {"expect": "0", "got": "0", "rc": 0}, "live_agree": 1, "predicate": "cases == 16 and correct == 16 and identity_ok == 1 and live_agree == 1 and selftest_pass == 1 and selftest_r43 >= 2", "revision": "8acf0b022586a0f3164c77659fb96ba5f90949b6", "selftest_failures": [], "selftest_line": "TSUKUROI_BOOTCHAIN_SELFTEST: PASS total=49 failed=0", "selftest_pass": 1, "selftest_r43": 4, "verdict": "PASS", "wrong": []}
+EXIT=0
+
+== 7. Registry coverage at tip (from fixture clone; python3 tools/check-registry-coverage.py --revision 8acf0b…) ==
+{"branch":"master","branch_tip":"64646d6e5749e0b5b6e458aa0753d39c47404e6b","counts":{"findings":0,"missing":0,"registered":68,"rows_total":68,"tools_total":68},"findings":[],"revision":"8acf0b022586a0f3164c77659fb96ba5f90949b6","status":"PASS"}
+EXIT=0
+
+== 8. Before/after canonical receipts quoted (not re-run) ==
+before/c1-before.jsonl: verdict FAIL, cases 16, correct 8, selftest_line '…PASS total=45 failed=0', selftest_r43 0; wrong=[miss/etc/fstab-newer, miss/etc/crypttab-newer, miss/etc/mkinitcpio.conf-newer, miss/etc/mkinitcpio.conf.d-newer, miss/etc/default/limine-newer, miss/etc/limine-snapper-sync.conf-newer, multi-miss-deep-modules-newer, unreadable-dir-modules-newer] (each expect 1 got 0)
+after/c1-after-717b716.jsonl: verdict PASS, cases 16, correct 16, selftest_line '…PASS total=48 failed=0', selftest_r43 3, wrong []
+controls/battery-summary-c1.jsonl: K0-K6,K10 FAIL; K7 PASS (expect recorded); K8,K9 PASS; should_fail_accepted 0, control_accepted 1

@@ -1,0 +1,121 @@
+# ProvinceReadmeReview receipts — 2026-10-26 (all commands run by this seat; scratch /fast/scratch/hyaku/tsukuroi-r43/ProvinceReadmeReview)
+
+## lane state
+$ git -C <lane> rev-parse HEAD
+64646d6e5749e0b5b6e458aa0753d39c47404e6b
+($ texts read with git show <rev>:<path>; tip under test 8acf0b022586a0f3164c77659fb96ba5f90949b6)
+
+## frozen hashes
+48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c
+7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-43/frozen/src/ioctl.c
+f7ecbe7c990e68d7b0dbdbd8bfe65f3acd1cbbdabe33d47e71a6f1ae1242c556  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-43/frozen/hostcap/capture.txt
+
+## host record state
+$ ls -la /var/lib/btrfs/
+ls: cannot access '/var/lib/btrfs/': No such file or directory
+$ stat -c %A_%a_%U:%G_%n /var/lib/btrfs
+stat: cannot stat '/var/lib/btrfs': No such file or directory (os error 2)
+
+## round-43 moved ground (non-.ufo), base..tip
+M	PROVINCE.md
+M	SCORECARD.md
+M	SKILL.md
+M	corpus/README.md
+M	corpus/SOURCES.md
+M	corpus/knowledge/btrfs-scrub-record-r42.md
+A	corpus/knowledge/btrfs-scrub-record-r43.md
+A	corpus/lessons/round-43.md
+M	tools/boot-chain-audit.sh
+A	tools/check-scrub-record-r43.py
+A	tools/score-bootinputs-r43.py
+
+## append-only check
+PROVINCE.md base->tip: added 10, removed 0
+corpus/README.md base->tip: added 11, removed 0
+SKILL.md base->tip added lines matching 'frontier|coverage map|core now' (case-insensitive): 0
+$ git diff --stat base tip -- SKILL.md corpus/SOURCES.md
+ SKILL.md          | 156 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ corpus/SOURCES.md |   4 +-
+ 2 files changed, 159 insertions(+), 1 deletion(-)
+
+## note locations at 8acf0b0
+239:**Round-42 note — scrub record read from source (appended 2026-10-26).** The scrub record stays Frontier. Round 42
+246:**Round-43 note — scrub record re-grounded; correction to the round-42 note (appended 2026-10-26).** The scrub record
+416:## Round-43 coverage note (appended 2026-10-26)
+
+## S237 scrub.c: record open/flock/rename
+67:#define SCRUB_DATA_FILE "/var/lib/btrfs/scrub.status"
+483:	fd = open(datafile, m, 0600);
+487:	ret = flock(fd, LOCK_EX|LOCK_NB);
+534:	ret = rename(datafile_old, datafile_new);
+478:static int scrub_open_file(const char *datafile, int m)
+497:static int scrub_open_file_r(const char *fn_base, const char *fn_local)
+505:	return scrub_open_file(datafile, O_RDONLY);
+508:static int scrub_open_file_w(const char *fn_base, const char *fn_local,
+517:	return scrub_open_file(datafile, O_WRONLY|O_CREAT);
+917:	fd = scrub_open_file_w(SCRUB_DATA_FILE, fsid, "tmp");
+1361:	fdres = scrub_open_file_r(SCRUB_DATA_FILE, fsid);
+1930:		fdres = scrub_open_file_r(SCRUB_DATA_FILE, fsid);
+
+## S237 scrub.c: unlinks (all sock_path) and mkdir
+1160:		ret = mkdir(path, 0777);
+1485:		ret = unlink(sock_path);
+1497:				unlink(sock_path);
+1721:			unlink(sock_path);
+
+## S237 scrub.c: scrub_speed_max from sysfs
+
+	/* /sys/fs/btrfs/FSID/devinfo/1/scrub_speed_max */
+	snprintf(path, sizeof(path), "devinfo/%llu/scrub_speed_max", devid);
+	ret = sysfs_read_fsid_file_u64(fd, path, &limit);
+	if (ret < 0)
+
+## S237 scrub.c: do_print / -B
+1249:	bool do_print = false;
+1292:		case 'B':
+1295:			do_print = true;
+1333:		do_print = false;
+
+## S240 ioctl.c: scrub progress/cancel capability gates and dispatch
+static long btrfs_ioctl_scrub_cancel(struct btrfs_fs_info *fs_info)
+{
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+
+	return btrfs_scrub_cancel(fs_info);
+}
+
+static long btrfs_ioctl_scrub_progress(struct btrfs_fs_info *fs_info,
+				       void __user *arg)
+{
+	struct btrfs_ioctl_scrub_args AUTO_KFREE(sa);
+	int ret;
+
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+	case BTRFS_IOC_SCRUB_CANCEL:
+		return btrfs_ioctl_scrub_cancel(fs_info);
+	case BTRFS_IOC_SCRUB_PROGRESS:
+		return btrfs_ioctl_scrub_progress(fs_info, argp);
+
+## S241 capture.txt (whole, 13 lines)
+captured_utc 2026-10-26T21:51:26Z
+uid 1000 euid_caps 0000000000000000
+kernel 7.2.11-arch1-1
+btrfs_progs btrfs-progs 7.1-1
+root_fs btrfs 1d02a454-c549-4a35-b567-89d60902af8e
+scrub_progress_ioctl devid=1 errno=EPERM (1)
+var_lib_btrfs absent
+scrub_status_exit 0
+scrub_status| UUID:             1d02a454-c549-4a35-b567-89d60902af8e
+scrub_status| 	no stats available
+scrub_status| Total to scrub:   309.39GiB
+scrub_status| Rate:             0.00B/s
+scrub_status| Error summary:    no errors found
+
+## r42 knowledge at 8acf0b0: header line 4 and Corrections header
+superseded-in-part: round 43 — SC1 and SC3 below stand withdrawn (see "Corrections — round-42 wave 2") and are not a verified outcome; their write-discipline, resume and failure-report points are re-grounded as rows SR1 and SR3, and SC4's running-state note as SR6, in `corpus/knowledge/btrfs-scrub-record-r43.md` (counted reads: that entry's round-43 record).
+## Corrections — round-42 wave 2 (appended 2026-10-26 after the counted reads; these carry no counted verdict)
+
+## wave-1 falsifier pointer
+**F-6/d — `PROVINCE.md:243-244` is an unrepaired overreach on the SC1 0600 fact.**

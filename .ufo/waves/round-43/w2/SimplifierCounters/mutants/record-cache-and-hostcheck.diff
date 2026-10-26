@@ -1,0 +1,70 @@
+--- frozen
++++ cache-mutant
+@@ -144,14 +144,19 @@
+     return rows
+ 
+ 
+-def load_json(lane, rev, path):
++def load_json(lane, rev, path, cache=None):
++    if cache is not None and path in cache:
++        return cache[path]
+     b = show(lane, rev, path)
+-    if b is None:
+-        return None
+-    try:
+-        return json.loads(b)
+-    except ValueError:
+-        return None
++    val = None
++    if b is not None:
++        try:
++            val = json.loads(b)
++        except ValueError:
++            val = None
++    if cache is not None:
++        cache[path] = val
++    return val
+ 
+ 
+ def declared_line(output):
+@@ -175,10 +180,10 @@
+     return None
+ 
+ 
+-def bound(lane, rev, wave, name, role, row):
++def bound(lane, rev, wave, name, role, row, cache=None):
+     """(verdict or None, line) for one seat bound through dispatch + results + report first line."""
+-    disp = load_json(lane, rev, f'{WAVE}/{wave}-dispatch.json') or {}
+-    res = load_json(lane, rev, f'{WAVE}/{wave}-results.json') or {}
++    disp = load_json(lane, rev, f'{WAVE}/{wave}-dispatch.json', cache) or {}
++    res = load_json(lane, rev, f'{WAVE}/{wave}-results.json', cache) or {}
+     tasks = ((disp.get('taskCall') or {}).get('tasks')) or []
+     if sum(1 for t in tasks if t.get('name') == name and t.get('agent') == role) != 1:
+         return None, None
+@@ -250,6 +255,7 @@
+     per = {}
+     quotes_ok = props_ok = host_ok = verdicts_ok = 0
+     tbound = tcount = 0
++    cache = {}
+     for row, spec in ROWS.items():
+         lines = secs.get(row)
+         r = {'present': lines is not None}
+@@ -278,14 +284,14 @@
+         hl = [ln for ln in lines if ln.startswith('**Host reading.**')]
+         hrefs = [int(x) for ln in hl for x in HOST_RE.findall(ln)]
+         h_ok = all(cap and 1 <= k <= len(cap) and cap[k - 1].strip() for k in hrefs) and \
+-            (bool(hrefs) or not spec['host_required']) and (not hl or bool(hrefs))
++            (bool(hrefs) or (not spec['host_required'] and not hl))
+         n = row[2:]
+-        v1, l1 = bound(a.lane, rev, 'w2', f'C2RevSR{n}', 'reviewer', row)
+-        v2, l2 = bound(a.lane, rev, 'w2', f'C2CritSR{n}', 'critic', row)
++        v1, l1 = bound(a.lane, rev, 'w2', f'C2RevSR{n}', 'reviewer', row, cache)
++        v2, l2 = bound(a.lane, rev, 'w2', f'C2CritSR{n}', 'critic', row, cache)
+         vs = [v1, v2]
+         resid, lr = None, None
+         if 'partly' in vs:
+-            resid, lr = bound(a.lane, rev, 'residual', f'C2ResSR{n}', 'reviewer', row)
++            resid, lr = bound(a.lane, rev, 'residual', f'C2ResSR{n}', 'reviewer', row, cache)
+         v_ok = (None not in vs and 'fails' not in vs and resid != 'fails'
+                 and (all(v == 'holds' for v in vs) or resid == 'holds'))
+         for nm, ln in ((f'C2RevSR{n}', l1), (f'C2CritSR{n}', l2), (f'C2ResSR{n}', lr)):

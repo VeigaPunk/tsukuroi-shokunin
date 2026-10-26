@@ -58,8 +58,16 @@ Integrated into the entry before wave 2, each against the pinned line (`sed -n <
 Rejected (wave-1 claim refused by the integrator): **"the device id is never emitted, so resume never engages for
 self-written records"** (`w1/C2DraftCritSR3.md` F1). False: `scrub_writev` writes its formatted buffer itself
 (scrub.c:782-792, `return scrub_write_buf(fd, buf, ret);`), so the devid digits follow the colon; the extra
-`scrub_write_buf(fd, buf, ret)` at :868 writes 0 bytes. The harness of `w1/C2ExecTailRepro.md` parsed `devid=7` back
+`scrub_write_buf(fd, buf, ret)` at :869 writes 0 bytes. The harness of `w1/C2ExecTailRepro.md` parsed `devid=7` back
 from a record written by that code. SR3's resume sentences stand.
+
+Post-wave-2 narrowing (the counted read `w2/C2CritSR3.md` bound SR3 `partly`, item 6): SR3's "(`skip` set: its record
+is finished, or it has no record)" became "(`skip` set: its record is finished and not canceled, or it has no
+record)". Source line checked by the L1: scrub.c:1430-1431 `if (resume && last_scrub && (last_scrub->stats.canceled
+|| !last_scrub->stats.finished))` resumes a canceled record even when it is finished; :1435-1437 (`else if (resume)
+{ sp[i].skip = 1; …`) skips only the rest. The changed row is re-read by the counted residual reviewer `C2ResSR3`
+(`.ufo/waves/round-43/residual/`), as the declared kill rule requires. Out-of-row observation from the same read,
+not claimed: for a skipped device with no record the child copy-in at :1550 dereferences `sp[i].resumed->p`.
 
 ### Assimilation (`merge/tsukuroi/`) — evaluated, nothing adopted (`Assimilation: none`)
 
@@ -68,9 +76,9 @@ round-41 slice), collision check with the 0-3-space pattern in `w1/AsmGate/`. Ne
 surfaces: `initramfs-hook-api-r25.md` (boot-chain inputs) — **refused this round**: not adoptable as staged (needs id
 renumbering against S242+, a QUALITY check block, quote-anchored pointers and a reworded sentence; flip: a round that
 takes the boot-chain input surface as its claim and does that work). **Rejected:** `ext4-journal-guarantee-r32.md` —
-outside this host's province (no ext4 mount: `findmnt -rno TARGET,FSTYPE` lists btrfs, vfat, xfs only;
+outside this host's province (no ext4 mount: `findmnt -rno TARGET,FSTYPE` lists no `ext4` filesystem — its disk mounts are btrfs, vfat and xfs;
 `PROVINCE.md` names no ext4); flip: an ext4 filesystem enters this host. The round-42 reject of
-`btrfs-ioctl-surface-r27.md` P2/P3 stands (its text is unchanged).
+`btrfs-ioctl-surface-r27.md` P2/P3 stands (its lines 14 and 31-32 re-read unchanged, `w1/AsmGate.md` §6).
 
 ### considerthese — cross-note correction propagation map (`considerthese/2026-10-26.md`, proposal 5, read 2026-10-26)
 

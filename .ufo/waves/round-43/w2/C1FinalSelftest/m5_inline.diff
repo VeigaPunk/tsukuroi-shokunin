@@ -1,0 +1,40 @@
+--- boot-chain-audit.sh	2026-10-26 19:52:50.641013956 -0300
++++ m5_inline.sh	2026-10-26 19:53:55.651020841 -0300
+@@ -460,20 +460,6 @@
+     awk '/^btime /{print $2; exit}' /proc/stat 2>/dev/null
+ }
+ 
+-inputs_newer_than() { # <epoch> <start point>... -> 1 when find lists an entry newer than epoch, else 0
+-    # R43-C1: decide on find's output, never on its exit status. find exits 1 when a start
+-    # point is missing or a directory is unreadable; under `set -o pipefail` that status used
+-    # to mask a listed match (`find … | grep -q .`), so a newer input read as "none newer".
+-    local epoch=$1 hit
+-    shift
+-    hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null)
+-    if [ -n "$hit" ]; then
+-        printf '1\n'
+-    else
+-        printf '0\n'
+-    fi
+-}
+-
+ boot_inputs_newer() { # 0 = no /etc or /usr boot-chain input newer than boot start
+     if fixture_mode; then
+         local f
+@@ -491,9 +477,14 @@
+         printf '1\n'
+         return 0
+     fi
+-    inputs_newer_than "$btime" /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
++    if find /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
+         /etc/default/limine /etc/limine-snapper-sync.conf \
+-        /usr/lib/initcpio /usr/lib/modules
++        /usr/lib/initcpio /usr/lib/modules \
++        -newermt "@$btime" -print -quit 2>/dev/null | grep -q .; then
++        printf '1\n'
++    else
++        printf '0\n'
++    fi
+ }
+ 
+ loader_entries() { # firmware-selected menu path spellings, one per line

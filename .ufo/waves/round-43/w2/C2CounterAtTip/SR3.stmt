@@ -1,0 +1,14 @@
+**Statement.** `btrfs scrub resume` runs the same function as `start`, `scrub_start(…, true)`. For each device whose
+record (`last_dev_scrub`) is canceled or unfinished, resume makes that record the device's `resumed` source; every
+record write passes each device through `scrub_resumed_stats` (in `scrub_write_file`), which for such a device
+writes the record's thirteen counted progress fields added to the new run's, the record's `t_start`, and the two
+durations summed, while `last_physical`, `canceled` and `finished` come from the new run and `t_resumed` is taken
+from the new run's `t_start`. So the first record a resume writes for a resumed device carries the interrupted run's
+counters and start time. A device without a `resumed` source, or one that resume skips (`skip` set: its record is
+finished, or it has no record), passes through unchanged, and in a run's first record its counters are zero (`sp` is
+zero-allocated); under a fresh `start` that is every device. Once the first record is written, a failed
+progress-record write ends the progress thread with its error, which is printed ("recording progress failed") only
+when `do_print` is set, and a failed final write prints "failed to record the result" under the same condition.
+`do_print` is false by default, set by `-B`, and cleared again when output is quiet. Neither branch assigns the
+command's `err` status.
+

@@ -1,0 +1,46 @@
+LessonReview (L2, tsukuroi lane r43 w2, item N-6) — verification log. All lane reads via `git -C <lane> show <rev>:<path>` (read-only) or read-only file reads; no lane mutation. Lane pinned tip: 8acf0b022586a0f3164c77659fb96ba5f90949b6 (HEAD 64646d6e differs only by w2 spec files; all reviewed content identical).
+
+-- Mistakes rows: able-to-fail runs --
+R43-SIB-PIN-UNREPORTED:
+  grep -c tameshi /home/vgpnk/Projects/shokunin/.ufo/reports/round-42/tsukuroi.md -> 0 (grep rc=1)  [RED OK]
+  round-42 report line 135 names mori PROVINCE.md:287 pin (moved); no tameshi mention
+  round-42 w2/AdjMoriPin.md §3 (lines 85-101) found live tameshi pin (service-optin-protocol.md:153 -> census 915-970, now 921-976)
+  round-43 report does not exist yet (/home/vgpnk/Projects/shokunin/.ufo/reports/round-43/tsukuroi.md absent): ">= 1 on this round's" not runnable; draft handoff w1/AdjPins.md:86 carries the tameshi handoff
+R43-MORI-ARITH:
+  diff <(git show c8efaa3f:tools/tsukuroi-census.sh | sed -n '1097,1112p') <(git show 6951ead9:tools/tsukuroi-census.sh | sed -n '1103,1118p') -> empty (16-line block identical; +6 shift)
+  git show 6951ead9:... | sed -n '1100p' -> "}" (not the arm); '1103p' -> "# Round-7 addition, lane S7-2 ..." (arm)
+  -> mori pin 1100-1115 sits 3 lines above the base content; applying +3 from c8efaa3f:1097 gives 1100, misses tip/base 1103  [RED/able-to-fail OK]
+R43-VERDICT-JSON-UNBOUND (fresh battery re-run in scratch; committed receipts identical):
+  run_controls_c2.py --scratch <scratch> (copied w/ c2-candidate): should_fail_accepted 0, control_accepted 1, counter sha256 b4602c56...
+  C2-K13: verdict FAIL, verdicts_ok 2 (SR3 reviewer unbound: report first line differs), exit 1
+  C2-K6: verdict FAIL, verdicts_ok 2 (SR6 critic unbound: mention-not-assertion opens output), exit 1
+  committed controls/C2-K13.jsonl, C2-K6.jsonl line 2 identical  [RED OK]
+R43-CAP-HEADER-DUP:
+  git show 8acf0b:SCORECARD.md | awk '/^## Capabilities — current full evidence set \(round 42\)/{f=1;next} /^## /{f=0} f&&/^\| Capability \|/{n++} END{print n+0}' -> 2  [RED OK]
+  same awk for "round 43": no such heading at 8acf0b (SCORECARD ends at Round-43 declaration, line 2648; last capabilities heading is round 42 at 2628 with two header rows 2629/2632) -> prints 0; green half runnable only after the round-43 measured-outcome table lands
+R43-CENSUS-PROBE-COORDS:
+  git show 6951ead9:tools/tsukuroi-census.sh | sed -n '931p;969p;1051p;1426p;1501p' | grep -c 'head -n1' -> 0  [RED OK]
+  at 6951ead9 the five readers sit at 934/972/1054/1429/1504 (each `printf '%s\n' "$CAP_OUT" | head -n1 ...`)
+  at 44766208 the five readers sit at 931/969/1051/1426/1501 (grep -c = 5)
+  census byte-identical 6951ead9 -> 8acf0b (git diff empty): fix not yet applied at tip (consistent with disposition R42-C1-COUNTER-AMEND arm f-g open)
+R43-L1-SCRATCH-STRAY:
+  ls /fast/scratch/hyaku/tsukuroi-r43/*.sh -> no matches (glob rc=2); root holds only per-seat dirs incl. L1/
+  [GREEN now; red was at sweep time]
+-- Class vocabulary (CORPUS.md -> mistakes.md §5) --
+  CORPUS.md:172-176: classes from mistakes.md §5 vocabulary: vacuous, survivor, stale-premise, reference-drift, number-drift, scope, attribution, landing, provider (kaika-w1/mistakes.md:447-450)
+  Rows use: scope (x2), number-drift, vacuous, landing, reference-drift — all in vocabulary
+-- Captured-by --
+  R43-SIB-PIN-UNREPORTED -> QUALITY 69 (corpus/QUALITY.md:137; sibling pointer replay/recording) OK
+  R43-MORI-ARITH -> QUALITY 21 (:29; portable locators / reader line numbers need snapshot) OK
+  R43-VERDICT-JSON-UNBOUND -> QUALITY 90 (:177; asserted line, not a mention — names no serialization form) OK
+  R43-CAP-HEADER-DUP -> none (no criterion reads a rendered table) OK
+  R43-CENSUS-PROBE-COORDS -> QUALITY 21 OK
+  R43-L1-SCRATCH-STRAY -> ROUND-PROMPT §7 (templates/round-prompt.md / .ufo/prompts/tsukuroi-round-43.md:594-618: per-seat scratch root, delete on exit) OK
+-- Round-42 routed defects dispositions at 8acf0b --
+1 R42-C2-REGROUND: r42 entry line 4 `superseded-in-part: round 43 ... in corpus/knowledge/btrfs-scrub-record-r43.md` (inside first 20 lines -> pointer_ok conjunct); r43 entry has 3 `## SR` sections (SR1:17, SR3:51, SR6:97), source line names S237 S240 S241. OK
+2 R42-CAP-HEADER-DUP: round-42 table still shows 2 header rows (2629/2632), append-only; round-43 table pending. OK
+3 R42-ADJ-TAMESHI-UNREPORTED: w1/AdjPins.md §4 handoffs (tameshi + mori with named revisions); census at tip: round-5 selftest block comment at 2425-2430, 56-line block 2425-2480 byte-identical to da952909:915-970; 921-976 = probe_systemd head; c8efaa3f:915-970 == tip:921-976 byte-identical. OK
+4 R42-C1-COUNTER-AMEND: done — inputs_newer_than at 463-475 + four R43-C1-* selftest cases (1225-1239; 8acf0b adds R43-C1-missing-start-point-silent vs 717b716a, selftest 45->49); counter --scratch required (argparse) / SIGINT+SIGTERM handlers + finally rmtree / identity legs (unshare -m subuid/subgid maps + setpriv, identity_ok; env scrubbed of TSUKUROI_|BOOTCHAIN_|UFO_|TMPDIR) / frozen controls K3 uid, K4 env, K5 name all FAIL (correct 8/8/9, selftest_pass 1; battery should_fail_accepted 0, control_accepted 1) / open channels recorded (mount table, uid_map, script path). Not done (with reason): census :743 selftest case + single-line probe readers — census untouched (diff empty), 5 head -n1 readers remain. OK
+5 R42-VERDICT-FORM: counter bound() binds JSON `verdict_line` field or first non-empty line, must equal `ROW SR<n> VERDICT: <holds|partly|fails>`, and committed report first line identical; seat prompts name the form (w2-spec.json C2RevSR1 prompt: "OUTPUT FORM (binding, nothing else counts): (1) the FIRST line ... exactly `ROW SR1 VERDICT: <holds|partly|fails>` ... (2) ... JSON object whose key `verdict_line` holds exactly that same line"); recorded limits in w1/C2MutBinding.md (H stripped-whitespace line binds; I blank-line-prefixed report binds; A contradictory JSON `verdict` field beside verdict_line binds; D2 CRLF passes; E2/J1/J2 etc.); wave-2 seat prompt forbids a second different verdict line. OK
+-- Not run --
+  C1 counter score-bootinputs-r43.py (heavy), census selftest, C1 control battery re-run (receipts read only), C2 end-state count (verdicts_ok 3) — outside this item; no tool installs; no lane/fleet/host mutation; scratch removed after receipts copied.

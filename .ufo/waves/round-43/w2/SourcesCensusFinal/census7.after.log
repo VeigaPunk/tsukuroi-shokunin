@@ -1,0 +1,798 @@
++ set -u
++ ROOT=/fast/scratch/hyaku/tsukuroi-r43/SourcesCensusFinal/fx-after
++ cd /fast/scratch/hyaku/tsukuroi-r43/SourcesCensusFinal/fx-after
+++ pwd
++ echo 'cwd: /fast/scratch/hyaku/tsukuroi-r43/SourcesCensusFinal/fx-after'
+cwd: /fast/scratch/hyaku/tsukuroi-r43/SourcesCensusFinal/fx-after
+++ sha256sum corpus/SOURCES.md
++ echo 'sources sha256: b34dc1cd60ccf2eae51e4f434203216c88df2a524cf6675a2487067607691ccf  corpus/SOURCES.md'
+sources sha256: b34dc1cd60ccf2eae51e4f434203216c88df2a524cf6675a2487067607691ccf  corpus/SOURCES.md
++ set -x
++ grep -cE '^\|[[:space:]]*S[0-9]{3,}[[:space:]]*\|' corpus/SOURCES.md
+241
++ awk '-F|' '/^\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\|/ && NF!=13 {n++} END{print n+0}' corpus/SOURCES.md
+0
++ awk '-F|' '/^\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\|/ {t=$5; gsub(/[[:space:]]/,"",t); n[t]++} END{for(k in n) printf "%s=%d ", k, n[k]; print ""}' corpus/SOURCES.md
+A=226 B=5 C=10 
++ awk '-F|' '/^\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\|/ {s=$9; gsub(/[[:space:]]/,"",s); n[s]++} END{for(k in n) printf "%s=%d ", k, n[k]; print ""}' corpus/SOURCES.md
+mined=215 queued=5 rejected=21 
++ awk '-F|' '/^\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\|/ {i=$2; gsub(/[[:space:]]/,"",i); print i}' corpus/SOURCES.md
++ sort
++ uniq -d
++ awk '-F|' '/^\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\|/ && NF==13 {i=$2;k=$4;t=$5;s=$9; gsub(/[[:space:]]/,"",i); gsub(/[[:space:]]/,"",k); gsub(/[[:space:]]/,"",t); gsub(/[[:space:]]/,"",s); if (t !~ /^[ABC]$/) print "tier", i, t; if (s !~ /^(queued|mined|rejected)$/) print "status", i, s; if (k !~ /^(spec|docs|paper|code|tool|dataset|talk|book|community|own-work)$/) print "kind", i, k; if (t=="A" && k=="community") print "tier-inflation", i}' corpus/SOURCES.md
++ awk '-F|' '/^\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\|/ && NF==13 {s=$9; gsub(/[[:space:]]/,"",s); if (s=="mined") {n=split($12, a, /[,;]/); for (j=1;j<=n;j++) {p=a[j]; gsub(/^[[:space:]]+|[[:space:]]+$/,"",p); if (p!="" && p!="—") print p}}}' corpus/SOURCES.md
++ read -r p
++ '[' -e corpus/knowledge/arch-news-gate-2026.md ']'
++ read -r p
++ '[' -e corpus/knowledge/arch-news-gate-2026.md ']'
++ read -r p
++ '[' -e corpus/knowledge/initramfs-v42-sysroot-recovery.md ']'
++ read -r p
++ '[' -e corpus/knowledge/arch-news-gate-2026.md ']'
++ read -r p
++ '[' -e corpus/knowledge/arch-news-gate-2026.md ']'
++ read -r p
++ '[' -e corpus/knowledge/arch-news-gate-2026.md ']'
++ read -r p
++ '[' -e corpus/knowledge/degraded-triage-r4.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-writers-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/degraded-triage-r4.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-writers-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/update-safety-note.md ']'
++ read -r p
++ '[' -e corpus/knowledge/arch-news-gate-2026.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacnew-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/update-safety-note.md ']'
++ read -r p
++ '[' -e corpus/knowledge/closeout-r11.md ']'
++ read -r p
++ '[' -e corpus/knowledge/degraded-triage-r4.md ']'
++ read -r p
++ '[' -e corpus/knowledge/driver-firmware-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/host-health-report-r3.md ']'
++ read -r p
++ '[' -e corpus/knowledge/update-safety-v2.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacnew-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/initramfs-v42-sysroot-recovery.md ']'
++ read -r p
++ '[' -e corpus/knowledge/journal-boot-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/initramfs-v42-sysroot-recovery.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-chain-r17.md ']'
++ read -r p
++ '[' -e corpus/knowledge/initramfs-v42-sysroot-recovery.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-chain-r17.md ']'
++ read -r p
++ '[' -e corpus/knowledge/initramfs-v42-sysroot-recovery.md ']'
++ read -r p
++ '[' -e corpus/knowledge/snapper-eacces-mechanism.md ']'
++ read -r p
++ '[' -e corpus/knowledge/snapper-eacces-mechanism.md ']'
++ read -r p
++ '[' -e corpus/knowledge/initramfs-v42-sysroot-recovery.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-chain-r17.md ']'
++ read -r p
++ '[' -e corpus/knowledge/initramfs-v42-sysroot-recovery.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-chain-r17.md ']'
++ read -r p
++ '[' -e corpus/knowledge/snapper-eacces-mechanism.md ']'
++ read -r p
++ '[' -e corpus/knowledge/initramfs-v42-sysroot-recovery.md ']'
++ read -r p
++ '[' -e corpus/knowledge/initramfs-v42-sysroot-recovery.md ']'
++ read -r p
++ '[' -e corpus/knowledge/degraded-triage-r4.md ']'
++ read -r p
++ '[' -e corpus/knowledge/snapper-eacces-mechanism.md ']'
++ read -r p
++ '[' -e corpus/knowledge/root-dac-decision-r12.md ']'
++ read -r p
++ '[' -e corpus/knowledge/degraded-triage-r4.md ']'
++ read -r p
++ '[' -e corpus/knowledge/snapper-eacces-mechanism.md ']'
++ read -r p
++ '[' -e corpus/knowledge/root-dac-decision-r12.md ']'
++ read -r p
++ '[' -e corpus/knowledge/closeout-r11.md ']'
++ read -r p
++ '[' -e corpus/knowledge/aur-drift-receipt-r9.md ']'
++ read -r p
++ '[' -e corpus/knowledge/aur-risk-plane-ver-s7.md ']'
++ read -r p
++ '[' -e corpus/knowledge/calibration-synthesis.md ']'
++ read -r p
++ '[' -e corpus/knowledge/census-closeout-receipt-r10.md ']'
++ read -r p
++ '[' -e corpus/knowledge/degraded-triage-r4.md ']'
++ read -r p
++ '[' -e corpus/knowledge/executor-test-sufficiency.md ']'
++ read -r p
++ '[' -e corpus/knowledge/host-health-report-r3.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-arm-mutants-s8.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-arm-ver-s8.md ']'
++ read -r p
++ '[' -e corpus/knowledge/update-safety-v2.md ']'
++ read -r p
++ '[' -e corpus/knowledge/update-safety-v3.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacnew-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/update-safety-note.md ']'
++ read -r p
++ '[' -e corpus/knowledge/initramfs-v42-sysroot-recovery.md ']'
++ read -r p
++ '[' -e corpus/knowledge/aur-drift-receipt-r9.md ']'
++ read -r p
++ '[' -e corpus/knowledge/aur-risk-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/aur-risk-plane-ver-s6.md ']'
++ read -r p
++ '[' -e corpus/knowledge/aur-risk-plane-ver-s7.md ']'
++ read -r p
++ '[' -e corpus/knowledge/closeout-r11.md ']'
++ read -r p
++ '[' -e corpus/knowledge/degraded-triage-r4.md ']'
++ read -r p
++ '[' -e corpus/knowledge/driver-firmware-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/foreign-provenance-r6.md ']'
++ read -r p
++ '[' -e corpus/knowledge/host-health-report-r3.md ']'
++ read -r p
++ '[' -e corpus/knowledge/package-state-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/timer-drift-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/update-safety-v2.md ']'
++ read -r p
++ '[' -e corpus/knowledge/update-safety-v3.md ']'
++ read -r p
++ '[' -e corpus/knowledge/snapper-eacces-mechanism.md ']'
++ read -r p
++ '[' -e corpus/knowledge/root-dac-decision-r12.md ']'
++ read -r p
++ '[' -e corpus/knowledge/root-dac-decision-r12.md ']'
++ read -r p
++ '[' -e corpus/knowledge/root-dac-decision-r12.md ']'
++ read -r p
++ '[' -e corpus/knowledge/root-dac-decision-r12.md ']'
++ read -r p
++ '[' -e corpus/knowledge/root-dac-decision-r12.md ']'
++ read -r p
++ '[' -e corpus/knowledge/root-dac-correction-r13.md ']'
++ read -r p
++ '[' -e corpus/knowledge/source-scope-correction-r14.md ']'
++ read -r p
++ '[' -e corpus/knowledge/source-locator-clarification-r15.md ']'
++ read -r p
++ '[' -e corpus/knowledge/partial-upgrade-recheck-r15.md ']'
++ read -r p
++ '[' -e corpus/knowledge/partial-upgrade-recheck-r15.md ']'
++ read -r p
++ '[' -e corpus/knowledge/partial-upgrade-recheck-r15.md ']'
++ read -r p
++ '[' -e corpus/knowledge/section-citation-errata-r16.md ']'
++ read -r p
++ '[' -e corpus/knowledge/section-citation-errata-r16.json ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-chain-r17.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-chain-r17.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-chain-r17.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-chain-r17.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-chain-r17.md ']'
++ read -r p
++ '[' -e corpus/knowledge/initramfs-v42-sysroot-recovery.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-chain-r17.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-chain-r17.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-chain-r17.md ']'
++ read -r p
++ '[' -e corpus/knowledge/journal-boot-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-chain-r17.md ']'
++ read -r p
++ '[' -e corpus/knowledge/initramfs-v42-sysroot-recovery.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-18.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-18.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-18.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-18.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-18.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-17.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-18.md ']'
++ read -r p
++ '[' -e corpus/knowledge/aur-risk-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/foreign-provenance-r6.md ']'
++ read -r p
++ '[' -e corpus/knowledge/host-health-report-r3.md ']'
++ read -r p
++ '[' -e corpus/knowledge/package-state-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-writers-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-writers-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-writers-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/adjacency-anchors-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-writers-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-writers-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-writers-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-writers-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-writers-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-writers-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-writers-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/contract-corrections-r20.md ']'
++ read -r p
++ '[' -e corpus/knowledge/contract-corrections-r20.md ']'
++ read -r p
++ '[' -e corpus/knowledge/contract-corrections-r20.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-21.md ']'
++ read -r p
++ '[' -e corpus/knowledge/selector-contract-r21.md ']'
++ read -r p
++ '[' -e corpus/knowledge/selector-contract-r21-corrected.md ']'
++ read -r p
++ '[' -e corpus/knowledge/selector-contract-r21-corrected.json ']'
++ read -r p
++ '[' -e corpus/lessons/round-21.md ']'
++ read -r p
++ '[' -e corpus/knowledge/selector-contract-r21.md ']'
++ read -r p
++ '[' -e corpus/knowledge/selector-contract-r21-corrected.md ']'
++ read -r p
++ '[' -e corpus/knowledge/selector-contract-r21-corrected.json ']'
++ read -r p
++ '[' -e corpus/knowledge/seat-boundary-r22.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-22.md ']'
++ read -r p
++ '[' -e corpus/knowledge/seat-boundary-r22.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-22.md ']'
++ read -r p
++ '[' -e corpus/knowledge/path-reconciliation-r23.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-23.md ']'
++ read -r p
++ '[' -e corpus/knowledge/structured-edit-r23.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-23.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pause-lift-gate-r24.json ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.json ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.json ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.json ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.json ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.json ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.json ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.json ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.json ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.json ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.json ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.json ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.json ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.json ']'
++ read -r p
++ '[' -e corpus/knowledge/storage-health-r26.md ']'
++ read -r p
++ '[' -e corpus/knowledge/storage-health-r26.md ']'
++ read -r p
++ '[' -e corpus/knowledge/storage-health-r26.md ']'
++ read -r p
++ '[' -e corpus/knowledge/storage-health-r26.md ']'
++ read -r p
++ '[' -e corpus/knowledge/storage-health-r26.md ']'
++ read -r p
++ '[' -e corpus/knowledge/storage-health-r26.md ']'
++ read -r p
++ '[' -e corpus/knowledge/storage-health-r26.json ']'
++ read -r p
++ '[' -e corpus/knowledge/storage-health-r26.md ']'
++ read -r p
++ '[' -e corpus/knowledge/storage-health-r26.json ']'
++ read -r p
++ '[' -e corpus/knowledge/storage-health-r26.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/memory-pressure-r25.md ']'
++ read -r p
++ '[' -e corpus/knowledge/storage-health-r26.md ']'
++ read -r p
++ '[' -e corpus/knowledge/kernel-taint-r27.md ']'
++ read -r p
++ '[' -e corpus/knowledge/kernel-taint-r27.md ']'
++ read -r p
++ '[' -e corpus/knowledge/kernel-taint-r27.md ']'
++ read -r p
++ '[' -e corpus/knowledge/kernel-taint-r27.md ']'
++ read -r p
++ '[' -e corpus/knowledge/kernel-taint-r27.md ']'
++ read -r p
++ '[' -e corpus/knowledge/kernel-taint-r27.md ']'
++ read -r p
++ '[' -e tools/mutants-adjacency-overlap.py ']'
++ read -r p
++ '[' -e tools/mutants-kernel-taint.py ']'
++ read -r p
++ '[' -e corpus/lessons/round-28.md ']'
++ read -r p
++ '[' -e corpus/knowledge/oom-event-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/kill-event-deep-r8.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-29.md ']'
++ read -r p
++ '[' -e corpus/knowledge/oom-event-plane.md ']'
++ read -r p
++ '[' -e corpus/knowledge/kill-event-deep-r8.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-29.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-29.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.json ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-30.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.json ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-30.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.json ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-30.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.json ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-30.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.json ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-30.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.json ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-30.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.json ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-30.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.json ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-space-r30.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-30.md ']'
++ read -r p
++ '[' -e corpus/QUALITY.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-30.md ']'
++ read -r p
++ '[' -e corpus/QUALITY.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-30.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-repair-r31.json ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-repair-r31.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-31.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-repair-r31.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-repair-r31.json ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-31.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-repair-r31.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-repair-r31.json ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-31.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-repair-r31.json ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-repair-r31.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-31.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-repair-r31.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-repair-r31.json ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-31.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-repair-r31.json ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-repair-r31.md ']'
++ read -r p
++ '[' -e SKILL.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-31.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-31.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-31.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-31.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-32.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-32.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-32.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-32.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-33.md ']'
++ read -r p
++ '[' -e corpus/lessons/round-33.md ']'
++ read -r p
++ '[' -e corpus/knowledge/kill-oom-boundary-r33.md ']'
++ read -r p
++ '[' -e corpus/knowledge/coredump-count-unit-r34.md ']'
++ read -r p
++ '[' -e corpus/knowledge/coredump-count-unit-r34.md ']'
++ read -r p
++ '[' -e corpus/knowledge/coredump-count-unit-r34.md ']'
++ read -r p
++ '[' -e corpus/knowledge/coredump-count-unit-r34.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-backup-files-r35.md ']'
++ read -r p
++ '[' -e tools/score-pacnew-arm-r35b.py ']'
++ read -r p
++ '[' -e tools/tsukuroi-census.sh ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-backup-files-r35.md ']'
++ read -r p
++ '[' -e tools/score-pacnew-arm-r35b.py ']'
++ read -r p
++ '[' -e tools/tsukuroi-census.sh ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-backup-files-r35.md ']'
++ read -r p
++ '[' -e tools/score-pacnew-arm-r35b.py ']'
++ read -r p
++ '[' -e tools/tsukuroi-census.sh ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-backup-files-r35.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-backup-files-r35.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-backup-files-r35.md ']'
++ read -r p
++ '[' -e corpus/knowledge/journalctl-v262-field-filter-r36.md ']'
++ read -r p
++ '[' -e corpus/knowledge/journalctl-v262-field-filter-r36.md ']'
++ read -r p
++ '[' -e corpus/knowledge/mount-errno-contract-r37.md ']'
++ read -r p
++ '[' -e corpus/knowledge/mount-errno-contract-r37.md ']'
++ read -r p
++ '[' -e corpus/knowledge/errno-contract-variance-r37.md ']'
++ read -r p
++ '[' -e corpus/knowledge/errno-contract-variance-r37.md ']'
++ read -r p
++ '[' -e corpus/knowledge/errno-contract-variance-r37.md ']'
++ read -r p
++ '[' -e corpus/knowledge/errno-contract-variance-r37.md ']'
++ read -r p
++ '[' -e corpus/knowledge/errno-contract-variance-r37.md ']'
++ read -r p
++ '[' -e corpus/knowledge/errno-contract-variance-r37.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-hook-order-r38.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-transaction-order-r39.md ']'
++ read -r p
++ '[' -e corpus/knowledge/boot-writers-r19.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-exec-environment-r40.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-hook-order-r38.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-exec-environment-r40.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-hook-order-r38.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-hook-order-r38.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-hook-order-r38.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-transaction-order-r39.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-transaction-order-r39.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-transaction-order-r39.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-transaction-order-r39.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-transaction-order-r39.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-transaction-order-r39.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-exec-environment-r40.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-exec-environment-r40.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-exec-environment-r40.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-exec-environment-r40.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-exec-environment-r40.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-exec-environment-r40.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-exec-environment-r40.md ']'
++ read -r p
++ '[' -e corpus/knowledge/pacman-exec-environment-r40.md ']'
++ read -r p
++ '[' -e corpus/knowledge/alpm-package-anatomy-r41.md ']'
++ read -r p
++ '[' -e corpus/knowledge/alpm-package-anatomy-r41.md ']'
++ read -r p
++ '[' -e corpus/knowledge/alpm-package-anatomy-r41.md ']'
++ read -r p
++ '[' -e corpus/knowledge/alpm-package-anatomy-r41.md ']'
++ read -r p
++ '[' -e corpus/knowledge/alpm-package-anatomy-r41.md ']'
++ read -r p
++ '[' -e corpus/knowledge/alpm-package-anatomy-r41.md ']'
++ read -r p
++ '[' -e corpus/knowledge/alpm-package-anatomy-r41.md ']'
++ read -r p
++ '[' -e corpus/knowledge/alpm-package-anatomy-r41.md ']'
++ read -r p
++ '[' -e corpus/knowledge/alpm-package-anatomy-r41.md ']'
++ read -r p
++ '[' -e corpus/knowledge/alpm-package-anatomy-r41.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-scrub-record-r42.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-scrub-record-r43.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-scrub-record-r42.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-scrub-record-r42.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-scrub-record-r43.md ']'
++ read -r p
++ '[' -e corpus/knowledge/btrfs-scrub-record-r43.md ']'
++ read -r p

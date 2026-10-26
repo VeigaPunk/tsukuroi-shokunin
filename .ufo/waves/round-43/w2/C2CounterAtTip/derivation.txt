@@ -1,0 +1,69 @@
+# Independent re-derivation (grep/awk/sed, no import of the lane tool)
+# tip REV = 8acf0b022586a0f3164c77659fb96ba5f90949b6 ; base = 6951ead90566b2d74f7c45b4efca29246badad64
+# method: `git -C <lane> show <rev>:<path>` into scratch, then per-cell shell checks
+
+## snapshots (digest of the blob at the revision)
+48df2e2f...0801  .ufo/waves/round-42/frozen/src/scrub.c   -> S237   OK
+7b3488f2...ba01  .ufo/waves/round-43/frozen/src/ioctl.c   -> S240   OK
+f7ecbe7c...c556  .ufo/waves/round-43/frozen/hostcap/capture.txt -> S241 OK
+# capture.txt has 13 lines
+
+## rows
+sections `## SR*` in the entry at the tip: SR1 (line 17), SR3 (line 51), SR6 (line 97) -> rows = 3
+(remaining `## ` headings: "How this changes OS triage", "Limits" - neither is an SR row)
+
+## quotes_ok (per row: good / in_window / bad / files)   [see quote-table.tsv, quote-counts.txt]
+SR1  good=9  in_window=9  bad=0  files={scrub.c}
+SR3  good=14 in_window=13 bad=0  files={scrub.c}   (out-of-window: line 1402, windows 1425-1445 etc.)
+SR6  good=10 in_window=10 bad=0  files={scrub.c, ioctl.c}
+total 33 quote lines; all 33 occur verbatim on their named source line (quote-verification.txt)
+pairing: 27 scrub.c -> S237, 6 ioctl.c -> S240 (no crossed id)
+=> quotes_ok = 3
+
+## props_ok   [props.txt]
+SR1 O_TRUNC/_tmp/rename/unlink PRESENT; SR3 scrub_resumed_stats/t_start/do_print/-B/err PRESENT;
+SR6 is_scrub_running_in_kernel/CAP_SYS_ADMIN/EPERM/running PRESENT
+=> props_ok = 3
+
+## host_ok   [host.txt, capture-lines.txt]
+SR1 refs 7; SR3 refs 7; SR6 refs 2,6,8,10,7 - every ref <= 13 and non-blank ("var_lib_btrfs absent",
+"uid 1000 euid_caps 0...", "errno=EPERM (1)", "scrub_status_exit 0", "no stats available")
+=> host_ok = 3
+
+## sources_ok   [sources-pointer.txt]
+S240: new vs base, kind code, status mined, opened 2026-10-26, used-by names the r43 entry, anchor names v7.2.11
+S241: new vs base, kind own-work, mined, 2026-10-26, used-by names the entry
+S237: present, used-by names the entry (r42 + r43)
+entry `source:` line names S237, S240, S241
+=> sources_ok = 1
+
+## verdicts_ok
+`.ufo/waves/round-43/w2-dispatch.json` exists on disk but NOT in the revision (git show: rc 128, "exists on disk,
+but not in 8acf0b0..."); `.ufo/waves/round-43/w2-results.json` does not exist in the revision; no
+.ufo/waves/round-43/w2/C2{Rev,Crit,Res}SR*.md is tracked at the revision; no residual-* files.
+Neither dispatch nor residual dispatch can bind C2RevSR1/3/6, C2CritSR1/3/6 -> all six unbound, no `partly`
+=> verdicts_ok = 0
+
+## novelty_base_hits   [novelty.txt]
+base r42 "## Corrections - round-42 wave 2" heading at line 170
+O_TRUNC: 1 hit, corpus/knowledge/btrfs-scrub-record-r42.md:180 (>=170 -> excluded)
+scrub_resumed_stats: 0 hits; is_scrub_running_in_kernel: 0 hits
+=> novelty_base_hits = 0
+
+## pointer_ok   [sources-pointer.txt]
+r42 entry at the tip, line 4 of its first 20 lines names `corpus/knowledge/btrfs-scrub-record-r43.md`
+(at the base: 0 occurrences)
+=> pointer_ok = 1
+
+## aggregate
+rows=3 quotes_ok=3 props_ok=3 host_ok=3 sources_ok=1 verdicts_ok=0 novelty_base_hits=0 pointer_ok=1
+=> predicate FAIL, failing conjunct verdicts_ok only. Agrees with the counter field for field.
+
+## observations (no value disagreement)
+1. The counter's host check builds `hl` from lines that *start with* `**Host reading.**`, so for a multi-line host
+   cell it sees only the first line (SR6: it validates only capture.txt:2, not 6/8/8/10/7). Every ref in the full
+   cells resolves, so host_ok is 3 under both readings.
+2. SR3's quote at scrub.c:1402 (`sp = calloc(...)`) lies outside every frozen SR3 window; the row still satisfies
+   `in_window >= 1` through its 13 other quotes, so quote_ok is unaffected.
+3. Counter output is deterministic: two runs at the same revision produced byte-identical JSON (exit 1 both).
+4. The counter writes nothing; no tools/__pycache__ appeared in the lane (it was run from a scratch copy).

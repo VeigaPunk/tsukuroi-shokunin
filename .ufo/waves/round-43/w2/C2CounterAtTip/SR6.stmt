@@ -1,0 +1,11 @@
+**Statement.** In `btrfs scrub status`, whether a scrub is running comes only from the kernel: the command sets
+`in_progress` once, from `is_scrub_running_in_kernel`, which issues `BTRFS_IOC_SCRUB_PROGRESS` device by device and
+answers 1 on the first call that returns 0, and 0 only after every call failed, whatever the errno; the status word
+`running` is printed only from `in_progress`. (Elsewhere, `btrfs scrub start` also reads an unfinished record and a
+live progress socket as a running scrub; this row covers the status command.) In Linux v7.2.11 that ioctl
+(`btrfs_ioctl_scrub_progress`) returns `-EPERM` before doing anything else unless `capable(CAP_SYS_ADMIN)` holds for
+the caller, as do the scrub start and cancel ioctls (`capable()` tests the capability in the initial user namespace
+[inference: `capable()` is defined outside the pinned file]). So for an unprivileged caller every call fails and
+`in_progress` is 0: its `btrfs scrub status` never prints `running`, and a census running as the user cannot learn
+from the kernel whether a scrub is in progress.
+

@@ -1,0 +1,11 @@
+--- boot-chain-audit.sh	2026-10-26 19:52:50.641013956 -0300
++++ m6_shallow.sh	2026-10-26 19:54:37.247474024 -0300
+@@ -466,7 +466,7 @@
+     # to mask a listed match (`find … | grep -q .`), so a newer input read as "none newer".
+     local epoch=$1 hit
+     shift
+-    hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null)
++    hit=$(find "$@" -maxdepth 1 -newermt "@$epoch" -print -quit 2>/dev/null)
+     if [ -n "$hit" ]; then
+         printf '1\n'
+     else

@@ -1,0 +1,24 @@
+$ sha256sum s240-live.c .ufo/waves/round-43/frozen/src/ioctl.c
+7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  s240-live.c
+7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-43/frozen/src/ioctl.c
+$ grep -n ioctl .ufo/waves/round-43/frozen/src/SHA256SUMS
+1:7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  ioctl.c
+$ diff -q s240-live.c .ufo/waves/round-43/frozen/src/ioctl.c
+IDENTICAL
+$ sha256sum s240-gh.c  (raw.githubusercontent.com/gregkh/linux/v7.2.11)
+7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  s240-gh.c
+$ diff -q s240-gh.c s240-live.c
+GH-IDENTICAL
+$ GIT_TERMINAL_PROMPT=0 git ls-remote https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git refs/tags/v7.2.11 refs/tags/v7.2.11^{}
+8316c24ec1b77dba19ba072ca4fe251b36dc65d3	refs/tags/v7.2.11
+a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea	refs/tags/v7.2.11^{}
+$ git -C <lane> rev-parse HEAD
+64646d6e5749e0b5b6e458aa0753d39c47404e6b
+$ git show 8acf0b022586a0f3164c77659fb96ba5f90949b6:corpus/SOURCES.md | sha256sum ; sha256sum corpus/SOURCES.md
+b34dc1cd60ccf2eae51e4f434203216c88df2a524cf6675a2487067607691ccf  (both)
+$ git show 8acf0b022586a0f3164c77659fb96ba5f90949b6:corpus/lessons/round-43.md | sha256sum ; sha256sum corpus/lessons/round-43.md
+b4e6814febd3e6e18541d7b632c4e460e6371d75086a8b1053cffc35dc00fd06  (both)
+$ git show 8acf0b022586a0f3164c77659fb96ba5f90949b6:corpus/knowledge/btrfs-scrub-record-r43.md | sha256sum ; sha256sum corpus/knowledge/btrfs-scrub-record-r43.md
+a5773068444743bbd9ae7485857e1c604492ad0142748574b2b821e96c27ce7d  (both)
+$ git -C <lane> status --porcelain=v1 -- corpus/ | wc -l
+0

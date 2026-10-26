@@ -3958,7 +3958,7 @@ see it is observed. QUALITY 90 makes those channels frozen controls.
 ## Boot-input freshness under pipefail — round 43
 
 Appended 2026-10-26 (round-43 C1; drafted by wave-1 seat ScribeSkill, integrated by the L1). Routed defect
-R42-C1-COUNTER-AMEND item 5 (`corpus/lessons/round-42-verifier-spotcheck.md` §6), left open by the round-42 section
+4 (R42-C1-COUNTER-AMEND), its boot-chain bullet (`corpus/lessons/round-42-verifier-spotcheck.md` §6), left open by the round-42 section
 "Census early readers under pipefail — round 42" ("Not fixed here (routed)"): this section closes it. Base
 `6951ead90566b2d74f7c45b4efca29246badad64`; fix `717b716a8943151ace8657e0ca23d7d9b8434f26`, one selftest case added at
 the round-43 integration commit. Evidence: `.ufo/waves/round-43/` (`before/`, `after/`, `controls/`, `w1/`).
@@ -4006,7 +4006,7 @@ Entry `corpus/knowledge/btrfs-scrub-record-r43.md` rows SR1, SR3, SR6 on S237 (b
 round-42 snapshot), S240 (Linux v7.2.11 `fs/btrfs/ioctl.c`) and S241 (own-work host capture). Row status: judged by
 the counted wave-2 reads (`tools/check-scrub-record-r43.py`); the outcome is recorded in `SCORECARD.md`
 "Round 43 — measured outcome". Supersession: in "Scrub status record — round 42" above, the table rows that rest on
-SC1 (the `_tmp` row), SC3 (the recording-disabled and "no record" rows) and SC4's `running` row are superseded by the
+SC1 (the `_tmp` row) and SC3 (the recording-disabled, "no record" and `running` rows) are superseded by the
 rows below; SC1 and SC3 of the round-42 entry stay withdrawn (its header line 4 and "Corrections — round-42 wave 2"),
 and the `scrub_speed_max` row reads with that section's SC5 narrowing (a limit prints only for a device with a record
 line, numerically only when above 1).

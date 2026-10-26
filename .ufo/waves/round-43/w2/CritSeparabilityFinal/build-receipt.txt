@@ -1,0 +1,15 @@
+Fixture trees (scratch clones, git clone --shared of lane; origin removed; toplevel asserted per fixture):
+  C1-only: base 6951ead90566b2d74f7c45b4efca29246badad64 + tools/boot-chain-audit.sh @ tip 8acf0b022586a0f3164c77659fb96ba5f90949b6
+           -> commit 1c9e02d5dd8a28477ec52eb2a1f2484e1e027655 (diff vs base: M tools/boot-chain-audit.sh only;
+              blob == tip blob 6a2be016ce6f4b8811eb6150396f7609b48f5371)
+  C2-only: base + corpus/knowledge/btrfs-scrub-record-r43.md, corpus/knowledge/btrfs-scrub-record-r42.md,
+           corpus/SOURCES.md, .ufo/waves/round-43/frozen/src/ioctl.c, .ufo/waves/round-43/frozen/hostcap/capture.txt @ tip
+           -> commit d5a9bb42d77866ccbecd0d6029b50d63ca280dd8 (diff vs base: exactly those 5 files; all blobs == tip blobs;
+              ioctl.c sha256 7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01,
+              capture.txt sha256 f7ecbe7c990e68d7b0dbdbd8bfe65f3acd1cbbdabe33d47e71a6f1ae1242c556,
+              scrub.c (S237) at base == tip == 48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801)
+  Tip control: 8acf0b022586a0f3164c77659fb96ba5f90949b6 (HEAD of lane)
+Counters run as scripts copied to scratch (never imported from lane):
+  python3 score-bootinputs-r43.py --revision <rev> --lane <fixture> --scratch <scratchdir>
+  python3 check-scrub-record-r43.py --revision <rev> --lane <fixture>
+Commands per run and observed outputs are the receipts c1-on-*.json / c2-on-*.json.

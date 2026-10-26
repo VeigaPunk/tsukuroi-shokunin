@@ -1,0 +1,50 @@
+Key pinned lines used for the SR3 read (all from the frozen scrub.c, read via `read :range`):
+
+scrub_resumed_stats (800-828):
+- 803: if (!data->resumed || data->skip) return data;           (pass-through)
+- 806-818: thirteen _SCRUB_SUM fields: data_extents_scrubbed, tree_extents_scrubbed,
+  data_bytes_scrubbed, tree_bytes_scrubbed, read_errors, csum_errors, verify_errors, no_csum,
+  csum_discards, super_errors, malloc_errors, uncorrectable_errors, corrected_errors.
+- 819: _SCRUB_COPY(dest, data, last_physical);                 (last_physical from new run)
+- 820-821: dest->stats.canceled = data->stats.canceled; dest->stats.finished = data->stats.finished;
+- 822: dest->stats.t_resumed = data->stats.t_start;            (t_resumed = new run's t_start)
+- 823: dest->stats.t_start = data->resumed->stats.t_start;     (t_start from the record)
+- 824-825: dest->stats.duration = data->resumed->stats.duration + data->stats.duration;
+
+scrub_write_file (843-895): 864 `use = scrub_resumed_stats(&data[i], &local);` per device, every record write.
+Record writes all go through scrub_write_progress (897-947) -> scrub_write_file (922): 1503 (initial,
+pre-fork), 1123 (progress thread), 1702 (final); peer socket write 1112 also uses scrub_write_file.
+
+Resume/start selection (1411-1450):
+- 1427: last_scrub = last_dev_scrub(past_scrubs, devid);
+- 1430-1434: if (resume && last_scrub && (last_scrub->stats.canceled || !last_scrub->stats.finished))
+  { ++n_resume; sp[i].scrub_args.start = last_scrub->p.last_physical; sp[i].resumed = last_scrub; }
+- 1435-1438: else if (resume) { sp[i].skip = 1; sp[i].resumed = last_scrub; continue; }
+- 1439-1443: else { ++n_start; sp[i].scrub_args.start = 0ll; sp[i].resumed = NULL; }
+- 1444: sp[i].skip = 0;  (only reached by the first and third branches)
+- 1402: sp = calloc(fi_args.num_devices, sizeof(*sp));   (zero baseline)
+- 1501-1510: initial record write happens pre-fork, before device threads (1565) and progress thread (1585).
+- 1549-1554: child copies the skipped device's old record: sp[i].scrub_args.progress = sp[i].resumed->p;
+  sp[i].stats = sp[i].resumed->stats; sp[i].stats.finished = 1;  (unconditional deref of resumed at 1550)
+
+Canceled+finished record state:
+- 965-974 (scrub_one_dev): ret = ioctl(...); sp->stats.canceled = !!ret; sp->stats.finished = 1;
+  => any errored scrub (incl. ECANCELED, handled at 1626-1627) leaves the record canceled=1 AND finished=1.
+  Such a record is RESUMED (1430-1431: canceled || !finished), not skipped.
+
+Progress thread and prints:
+- 1121-1126: if (!spc->do_record) continue; ret = scrub_write_progress(...); if (ret) goto out;
+- 1133: return ERR_PTR(ret);
+- 1690-1699: if (do_print && ret) "progress thread handling failed"; if (do_print && terr &&
+  terr != PTHREAD_CANCELED) "recording progress failed" (1698).
+- 1701-1708: if (do_record) { ret = scrub_write_progress(...); if (ret && do_print)
+  "failed to record the result" (1706). }
+- Neither branch assigns `err` (1690-1708); return path: 1725-1736 (err, nothing_to_resume,
+  e_uncorrectable, e_correctable).
+- do_print: 1249 default false; 1292-1296 set by -B; 1331-1333 cleared when quiet.
+
+Wave-1 F1 rejection verified: scrub_writev (782-792) writes its own formatted buffer
+(`return scrub_write_buf(fd, buf, ret);`), so the devid digits after the fsid colon are emitted;
+the extra `scrub_write_buf(fd, buf, ret)` at 868 with ret==0 writes 0 bytes. Reader state 4
+(693-698) requires a digit after the colon and parses it. So resume selection is reachable for
+self-written records; F1's "device id is never emitted" premise is false.
