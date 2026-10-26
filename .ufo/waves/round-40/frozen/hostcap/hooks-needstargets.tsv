@@ -1,0 +1,70 @@
+name	path	needs_targets	exec
+10-glibc-locale-gen.hook	/usr/share/libalpm/hooks/10-glibc-locale-gen.hook	0	/usr/bin/locale-gen
+10-glibc-remove-locale-archive.hook	/usr/share/libalpm/hooks/10-glibc-remove-locale-archive.hook	0	/usr/bin/rm --force /usr/lib/locale/locale-archive
+10-limine-snapper-lock.hook	/usr/share/libalpm/hooks/10-limine-snapper-lock.hook	1	/usr/share/libalpm/scripts/limine-snapper-lock
+10-linux-modules-post.hook	/usr/share/libalpm/hooks/10-linux-modules-post.hook	0	/bin/sh -xc 'KVER="${KVER:-$(uname -r)}"; if test -e "/usr/lib/modules/backup/${KVER}"; then rsync -AHXal --ignore-existing "/usr/lib/modules/backup/${KVER}" /usr/lib/modules/; fi; rm -rf /usr/lib/modules/backup'
+10-linux-modules-pre.hook	/usr/share/libalpm/hooks/10-linux-modules-pre.hook	0	/bin/sh -c 'KVER="${KVER:-$(uname -r)}"; if test -e "/usr/lib/modules/${KVER}"; then rsync -AHXal --delete-after "/usr/lib/modules/${KVER}" /usr/lib/modules/backup/; fi'
+10-openssh-mark-sshd-for-restart.hook	/usr/share/libalpm/hooks/10-openssh-mark-sshd-for-restart.hook	0	/usr/bin/systemctl --runtime set-property sshd.service Markers=needs-restart
+11-glibc-ldconfig.hook	/usr/share/libalpm/hooks/11-glibc-ldconfig.hook	0	/usr/bin/ldconfig -r .
+11-glibc-remove-ldconfig-cache.hook	/usr/share/libalpm/hooks/11-glibc-remove-ldconfig-cache.hook	0	/usr/bin/rm --force /etc/ld.so.cache
+12-glibc-iconvconfig.hook	/usr/share/libalpm/hooks/12-glibc-iconvconfig.hook	0	/usr/bin/iconvconfig
+12-glibc-remove-iconvconfig-cache.hook	/usr/share/libalpm/hooks/12-glibc-remove-iconvconfig-cache.hook	0	/usr/bin/rm --force /usr/lib/gconv/gconv-modules.cache
+12-lib32-glibc-iconvconfig.hook	/usr/share/libalpm/hooks/12-lib32-glibc-iconvconfig.hook	0	/usr/bin/iconvconfig --nostdlib --output=/usr/lib32/gconv/gconv-modules.cache /usr/lib32/gconv
+12-lib32-glibc-remove-iconvconfig-cache.hook	/usr/share/libalpm/hooks/12-lib32-glibc-remove-iconvconfig-cache.hook	0	/usr/bin/rm --force /usr/lib32/gconv/gconv-modules.cache
+20-systemd-sysusers.hook	/usr/share/libalpm/hooks/20-systemd-sysusers.hook	0	/usr/share/libalpm/scripts/systemd-hook sysusers
+21-systemd-tmpfiles.hook	/usr/share/libalpm/hooks/21-systemd-tmpfiles.hook	0	/usr/share/libalpm/scripts/systemd-hook tmpfiles
+25-systemd-binfmt.hook	/usr/share/libalpm/hooks/25-systemd-binfmt.hook	0	/usr/share/libalpm/scripts/systemd-hook binfmt
+25-systemd-catalog.hook	/usr/share/libalpm/hooks/25-systemd-catalog.hook	0	/usr/share/libalpm/scripts/systemd-hook catalog
+25-systemd-hwdb.hook	/usr/share/libalpm/hooks/25-systemd-hwdb.hook	0	/usr/share/libalpm/scripts/systemd-hook hwdb
+25-systemd-sysctl.hook	/usr/share/libalpm/hooks/25-systemd-sysctl.hook	0	/usr/share/libalpm/scripts/systemd-hook sysctl
+30-systemd-daemon-reload-system.hook	/usr/share/libalpm/hooks/30-systemd-daemon-reload-system.hook	0	/usr/share/libalpm/scripts/systemd-hook daemon-reload-system
+30-systemd-daemon-reload-user.hook	/usr/share/libalpm/hooks/30-systemd-daemon-reload-user.hook	0	/usr/share/libalpm/scripts/systemd-hook daemon-reload-user
+30-update-mime-database.hook	/usr/share/libalpm/hooks/30-update-mime-database.hook	0	/usr/bin/env PKGSYSTEM_ENABLE_FSYNC=0 /usr/bin/update-mime-database /usr/share/mime
+35-systemd-enqueue-marked.hook	/usr/share/libalpm/hooks/35-systemd-enqueue-marked.hook	0	/usr/share/libalpm/scripts/systemd-hook enqueue-marked
+35-systemd-udev-reload.hook	/usr/share/libalpm/hooks/35-systemd-udev-reload.hook	0	/usr/share/libalpm/scripts/systemd-hook udev-reload
+35-systemd-update.hook	/usr/share/libalpm/hooks/35-systemd-update.hook	0	/usr/share/libalpm/scripts/systemd-hook update
+36-systemd-modules-load.hook	/usr/share/libalpm/hooks/36-systemd-modules-load.hook	0	/usr/bin/systemctl --system restart systemd-modules-load.service
+40-fontconfig-config.hook	/usr/share/libalpm/hooks/40-fontconfig-config.hook	1	/usr/share/libalpm/scripts/40-fontconfig-config /etc/fonts/conf.d
+40-update-ca-trust.hook	/usr/share/libalpm/hooks/40-update-ca-trust.hook	0	/usr/bin/update-ca-trust
+60-depmod.hook	/usr/share/libalpm/hooks/60-depmod.hook	1	/usr/share/libalpm/scripts/depmod
+60-limine-mkinitcpio-remove-pre.hook	/usr/share/libalpm/hooks/60-limine-mkinitcpio-remove-pre.hook	1	/usr/share/libalpm/scripts/limine-mkinitcpio-remove pre
+60-mkinitcpio-remove.hook	/usr/share/libalpm/hooks/60-mkinitcpio-remove.hook	1	/usr/share/libalpm/scripts/mkinitcpio remove
+70-dkms-install.hook	/usr/share/libalpm/hooks/70-dkms-install.hook	1	/usr/share/libalpm/scripts/dkms install
+70-dkms-upgrade.hook	/usr/share/libalpm/hooks/70-dkms-upgrade.hook	1	/usr/share/libalpm/scripts/dkms -D remove
+70-openssh-restart-sshd.hook	/usr/share/libalpm/hooks/70-openssh-restart-sshd.hook	0	/usr/share/libalpm/scripts/systemd-hook restart sshd.service
+71-dkms-remove.hook	/usr/share/libalpm/hooks/71-dkms-remove.hook	1	/usr/share/libalpm/scripts/dkms remove
+80-limine-efi-deploy.hook	/usr/share/libalpm/hooks/80-limine-efi-deploy.hook	0	/usr/bin/limine-install
+90-limine-mkinitcpio-remove-post.hook	/usr/share/libalpm/hooks/90-limine-mkinitcpio-remove-post.hook	0	/usr/share/libalpm/scripts/limine-mkinitcpio-remove post
+90-mkinitcpio-install.hook	/etc/pacman.d/hooks/90-mkinitcpio-install.hook	1	/usr/share/libalpm/scripts/limine-mkinitcpio-install
+90-update-appstream-cache.hook	/usr/share/libalpm/hooks/90-update-appstream-cache.hook	0	/usr/bin/appstreamcli refresh-cache --force
+99-limine.hook	/etc/pacman.d/hooks/99-limine.hook	0	/bin/sh -c "/usr/bin/cp /usr/share/limine/BOOTIA32.EFI /boot/EFI/BOOT/ && /usr/bin/cp /usr/share/limine/BOOTX64.EFI /boot/EFI/BOOT/"
+dbus-reload.hook	/usr/share/libalpm/hooks/dbus-reload.hook	0	/usr/share/libalpm/scripts/systemd-hook reload dbus
+dconf-update.hook	/usr/share/libalpm/hooks/dconf-update.hook	1	/usr/share/libalpm/scripts/dconf-update
+detect-old-perl-modules.hook	/usr/share/libalpm/hooks/detect-old-perl-modules.hook	0	/usr/share/libalpm/scripts/detect-old-perl-modules.sh
+fontconfig-32.hook	/usr/share/libalpm/hooks/fontconfig-32.hook	0	/usr/bin/fc-cache-32 -s
+fontconfig.hook	/usr/share/libalpm/hooks/fontconfig.hook	0	/usr/bin/fc-cache -s
+gdk-pixbuf-query-loaders.hook	/usr/share/libalpm/hooks/gdk-pixbuf-query-loaders.hook	0	/usr/bin/gdk-pixbuf-query-loaders --update-cache
+gdk-pixbuf-remove-loaders-cache.hook	/usr/share/libalpm/hooks/gdk-pixbuf-remove-loaders-cache.hook	0	/usr/bin/rm --force /usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
+gio-querymodules-32.hook	/usr/share/libalpm/hooks/gio-querymodules-32.hook	0	/usr/bin/gio-querymodules-32 /usr/lib32/gio/modules
+gio-querymodules.hook	/usr/share/libalpm/hooks/gio-querymodules.hook	0	/usr/bin/gio-querymodules /usr/lib/gio/modules
+gio-remove-module-cache-32.hook	/usr/share/libalpm/hooks/gio-remove-module-cache-32.hook	0	/usr/bin/rm --force /usr/lib32/gio/modules/giomodule.cache
+gio-remove-module-cache.hook	/usr/share/libalpm/hooks/gio-remove-module-cache.hook	0	/usr/bin/rm --force /usr/lib/gio/modules/giomodule.cache
+glib-compile-schemas.hook	/usr/share/libalpm/hooks/glib-compile-schemas.hook	0	/usr/bin/glib-compile-schemas /usr/share/glib-2.0/schemas
+glib-remove-compiled-schemas.hook	/usr/share/libalpm/hooks/glib-remove-compiled-schemas.hook	0	/usr/bin/rm --force /usr/share/glib-2.0/schemas/gschemas.compiled
+gtk-query-immodules-3.0.hook	/usr/share/libalpm/hooks/gtk-query-immodules-3.0.hook	0	/usr/bin/gtk-query-immodules-3.0 --update-cache
+gtk-remove-immodules-cache.hook	/usr/share/libalpm/hooks/gtk-remove-immodules-cache.hook	0	/usr/bin/rm --force /usr/lib/gtk-3.0/3.0.0/immodules.cache
+gtk-update-icon-cache.hook	/usr/share/libalpm/hooks/gtk-update-icon-cache.hook	1	/usr/share/libalpm/scripts/gtk-update-icon-cache
+gtk4-querymodules.hook	/usr/share/libalpm/hooks/gtk4-querymodules.hook	1	/usr/share/libalpm/scripts/gtk4-querymodules
+gvfsd.hook	/usr/share/libalpm/hooks/gvfsd.hook	0	/bin/sh -c 'pkill --signal USR1 --require-handler --exact gvfsd || true'
+luarocks-make-manifest-5.1.hook	/usr/share/libalpm/hooks/luarocks-make-manifest-5.1.hook	0	/usr/bin/luarocks-admin make_manifest --local-tree --lua-version=5.1 /usr/lib/luarocks/rocks-5.1/
+luarocks-make-manifest-5.2.hook	/usr/share/libalpm/hooks/luarocks-make-manifest-5.2.hook	0	/usr/bin/luarocks-admin make_manifest --local-tree --lua-version=5.2 /usr/lib/luarocks/rocks-5.2/
+luarocks-make-manifest-5.3.hook	/usr/share/libalpm/hooks/luarocks-make-manifest-5.3.hook	0	/usr/bin/luarocks-admin make_manifest --local-tree --lua-version=5.3 /usr/lib/luarocks/rocks-5.3/
+luarocks-make-manifest-5.4.hook	/usr/share/libalpm/hooks/luarocks-make-manifest-5.4.hook	0	/usr/bin/luarocks-admin make_manifest --local-tree --lua-version=5.4 /usr/lib/luarocks/rocks-5.4/
+luarocks-make-manifest-5.5.hook	/usr/share/libalpm/hooks/luarocks-make-manifest-5.5.hook	0	/usr/bin/luarocks-admin make_manifest --local-tree --lua-version=5.5 /usr/lib/luarocks/rocks-5.5/
+man-db-remove-cache.hook	/usr/share/libalpm/hooks/man-db-remove-cache.hook	0	/usr/bin/rm --force --recursive /var/cache/man
+nvimdoc.hook	/usr/share/libalpm/hooks/nvimdoc.hook	0	/usr/share/libalpm/scripts/nvimdoc
+shared-mime-info-remove-cache.hook	/usr/share/libalpm/hooks/shared-mime-info-remove-cache.hook	0	/usr/bin/sh -c '/usr/bin/rm --force --recursive /usr/share/mime/{XMLnamespaces,aliases,generic-icons,globs,globs2,icons,magic,mime.cache,subclasses,treemagic,types,version,application,audio,chemical,font,image,inode,message,model,multipart,text,video,x-{content,epoc,schema-handler}}; rmdir --ignore-fail-on-non-empty /usr/share/mime'
+texinfo-install.hook	/usr/share/libalpm/hooks/texinfo-install.hook	1	/bin/sh -c 'while read -r f; do if test -f "$f"; then install-info "$f" /usr/share/info/dir 2> /dev/null; fi; done'
+texinfo-remove.hook	/usr/share/libalpm/hooks/texinfo-remove.hook	1	/bin/sh -c 'while read -r f; do install-info --delete "$f" /usr/share/info/dir 2> /dev/null; done'
+update-desktop-database.hook	/usr/share/libalpm/hooks/update-desktop-database.hook	0	/usr/bin/update-desktop-database --quiet
+walker-restart.hook	/etc/pacman.d/hooks/walker-restart.hook	0	/home/vgpnk/.local/share/omarchy/bin/omarchy-restart-walker
