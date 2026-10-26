@@ -1,0 +1,21 @@
+# C1-9 receipt transcript (commands as run, 2026-10-26)
+
+## file identity
+$ sha256sum tools/tsukuroi-census.sh  # worktree = HEAD 5edb6c2e = master = 52ffd65
+8e0084f67ad4783a980d5c2eaba453f51f1fc5d75408a1c9021a7249ac9aba1c
+$ git -C <lane> diff --quiet master -- tools/tsukuroi-census.sh; echo $?
+0
+
+## head selftest
+$ cd <lane> && TMPDIR=/fast/scratch/hyaku/tsukuroi-r38/C1ExecSelftestTmp bash tools/tsukuroi-census.sh --selftest
+exit=0  ->  selftest-head.out:114  TSUKUROI_CENSUS_SELFTEST: PASS (111 cases, 111 passed, 0 failed)
+
+## base selftest
+$ git show 8bd001f5:tools/tsukuroi-census.sh > base.sh  # sha256 62c0e39a135bdda68cb6fd1a42936de2f33e15b7d5e4e49591d60aa5755482ac
+$ bash base.sh --selftest
+exit=0  ->  selftest-base.out:108  TSUKUROI_CENSUS_SELFTEST: PASS (105 cases, 105 passed, 0 failed)
+
+## case delta
+$ LC_ALL=C comm -23 h.txt b.txt   # 6 lines, all R38-C1 STORAGE cases
+$ LC_ALL=C comm -13 h.txt b.txt   # empty
+grep -c R38-C1: base=0 head=6

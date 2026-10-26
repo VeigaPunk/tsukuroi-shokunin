@@ -1,0 +1,8 @@
+# Re-derivation of the entry table order with no source reading (lane root, 2026-10-26)
+$ real=$(awk -F'|' '/^\| (PostTransaction|PreTransaction) /{gsub(/`| /,"",$4); print $4}' corpus/knowledge/pacman-hook-order-r38.md | sed 's/\.hook$//')
+$ cap=.ufo/waves/round-38/frozen/hooks-capture
+$ naive=$(ls "$cap"/usr-share-libalpm-hooks "$cap"/etc-pacman.d-hooks | grep '\.hook$' | sed 's/\.hook$//' | LC_ALL=C sort -u)
+$ diff <(printf '%s\n' "$real") <(printf '%s\n' "$naive") && echo ORDER_IDENTICAL
+ORDER_IDENTICAL
+$ printf '%s\n' "$real" | wc -l
+69

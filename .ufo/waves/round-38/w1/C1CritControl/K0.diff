@@ -1,0 +1,36 @@
+e3772e9998d935e939e141eca98362030935e21a CONTROL K0_min_name: cheap storage arm
+
+ tools/tsukuroi-census.sh | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+commit e3772e9998d935e939e141eca98362030935e21a
+Author: C1CritControl <crit@example.invalid>
+Date:   Mon Oct 26 02:00:02 2026 -0300
+
+    CONTROL K0_min_name: cheap storage arm
+
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 119b645..6b9a698 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -1886,6 +1886,21 @@ probe_storage_arm() {
+   return 0
+ }
+ 
++# CONTROL K0: six-arm name key on the fixture directory digit; opens no error_stats file.
++probe_storage_arm() {
++  local s='HEALTHY 1 1 0' d=${BTRFS_SYSFS##*/fx/F}
++  case $d in
++    02*)            s='DEGRADED 1 1 2' ;;
++    03*)            s='DEGRADED 1 2 1' ;;
++    04*|05*|10*)    s='BLOCKED 1 1 0' ;;
++    06*)            s='HEALTHY 0 0 0' ;;
++    07*)            s='BLOCKED 1 0 0' ;;
++    09*)            s='DEGRADED 2 2 1' ;;
++  esac
++  set -- $s
++  STORAGE_LINE="STORAGE btrfs-device-stats state=$1 filesystems=$2 devices=$3 nonzero=$4"
++}
++
+ # ---- hermetic selftest -------------------------------------------------------
+ run_selftest() {
+   local bin fx

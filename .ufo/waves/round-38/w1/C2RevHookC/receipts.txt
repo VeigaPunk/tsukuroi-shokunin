@@ -1,0 +1,55 @@
+Seat C2RevHookC — receipts for item C2-3 (S208 live re-open), 2026-10-26
+
+1) Live fetch
+   $ S=/fast/scratch/hyaku/tsukuroi-r38/C2RevHookC; mkdir -p "$S"; export TMPDIR="$S"
+   $ curl -fsSL --retry 3 'https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/hook.c' -o "$S/hook.c"
+   curl exit: 0
+   $ sha256sum "$S/hook.c"
+   99f1044badd36f83bb781d9d59409b0cdff0f26e1aa95ebd88d0f25f776b199a  /fast/scratch/hyaku/tsukuroi-r38/C2RevHookC/hook.c
+   $ wc -l "$S/hook.c"
+   683 /fast/scratch/hyaku/tsukuroi-r38/C2RevHookC/hook.c
+   $ date -u '+access date: %Y-%m-%d %H:%M UTC'
+   access date: 2026-10-26 04:56 UTC
+
+2) Cross-check against lane snapshot digest (read-only)
+   .ufo/waves/round-38/sources/SHA256SUMS:1
+     "# fetched 2026-10-26T04:20:21Z from https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/<path>"
+   .ufo/waves/round-38/sources/SHA256SUMS:2
+     "99f1044badd36f83bb781d9d59409b0cdff0f26e1aa95ebd88d0f25f776b199a  hook.c"
+   -> identical hash from two independent fetches (lane 04:20Z, this seat 04:56Z).
+
+3) Receipt copy
+   $ cp "$S/hook.c" /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-38/w1/C2RevHookC/hook.c
+   $ sha256sum .ufo/waves/round-38/w1/C2RevHookC/hook.c
+   99f1044badd36f83bb781d9d59409b0cdff0f26e1aa95ebd88d0f25f776b199a  hook.c  (18747 bytes, 683 lines)
+
+4) Anchor lines (raw reads cross-checked with grep line numbers on the fetched copy)
+   119  if(hook->triggers == NULL) {                    [HO3 block is 119-123; corpus cites 118-122]
+   120  /* special case: allow triggerless hooks as a way of creating dummy
+   121   * hooks that can be used to mask lower priority hooks */
+   122  return 0;      123 }
+   427  static int _alpm_hook_triggered(...)            [429-430: ret stays 0 on empty trigger list]
+   449  /* exclude the suffixes from comparison */
+   450  ret = strncmp(h1->name, h2->name, l1 <= l2 ? l1 : l2);
+   452  return l1 < l2 ? -1 : 1;
+   540  for(i = alpm_list_last(handle->hookdirs); i; i = alpm_list_previous(i)) {
+   589  _alpm_log(handle, ALPM_LOG_DEBUG, "skipping overridden hook %s\n", path);   [588 if, 590 continue]
+   609  if(parse_ini(path, _alpm_hook_parse_cb, &ctx) != 0                          [610 || validate, 613 ret=-1]
+   629  if(ret != 0 && when == ALPM_HOOK_PRE_TRANSACTION) {   [630 goto cleanup; 631 }]
+   633  hooks = alpm_list_msort(hooks, alpm_list_count(hooks),  [634 (alpm_list_fn_cmp)_alpm_hook_cmp)]
+   638  if(hook && hook->when == when && _alpm_hook_triggered(handle, hook)) {
+   651  for(i = hooks_triggered; i; i = i->next, hook_event.position++) {
+   653  alpm_logaction(handle, ALPM_CALLER_PREFIX, "running '%s'...\n", hook->name);
+   660  if(_alpm_hook_run_hook(handle, hook) != 0 && hook->abort_on_fail) {         [661 ret = -1]
+   667  if(ret != 0 && when == ALPM_HOOK_PRE_TRANSACTION) {   [668 break; 669 }]
+   134  _("Missing Exec option in hook: %s\n")           [131 if(hook->cmd == NULL)]
+   140  _("Missing When option in hook: %s\n")           [137 if(hook->when == 0)]
+
+5) Side facts
+   $ printf 'ascii dash=%d dot=%d\n' "'-" "'."
+   ascii dash=45 dot=46
+   $ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin check-ignore -v .ufo/waves/round-38/w1/C2RevHookC.md
+   (not ignored)  |  $ git ls-files .ufo | wc -l  ->  11310  (report path is the seat-designated location per round rules)
+
+6) Tooling: nothing installed or upgraded (curl, sha256sum, wc, git, printf already present).
+   No pacman transaction, no host mutation, no lane mutation; read-only git queries only.

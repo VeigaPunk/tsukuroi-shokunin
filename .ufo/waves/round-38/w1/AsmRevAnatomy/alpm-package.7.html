@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>alpm-package(7) — Arch manual pages</title>
+        <link rel="stylesheet" type="text/css" href="/static/archlinux_common_style/navbar.css">
+        <link rel="stylesheet" type="text/css" href="/static/archmanweb/base.css">
+        <link rel="icon" type="image/x-icon" href="/static/archlinux_common_style/favicon.ico" />
+        <link rel="shortcut icon" type="image/x-icon" href="/static/archlinux_common_style/favicon.ico" />
+        
+    <link rel="stylesheet" type="text/css" href="/static/archmanweb/man_page.css">
+    
+
+    </head>
+    <body>
+        <header>
+            <div id="archnavbar">
+	<div id="logo"><a href="https://archlinux.org" title="Return to the main page">Arch Linux</a></div>
+	<div id="archnavbarmenu">
+		<ul id="archnavbarlist">
+			<li id="anb-home"><a href="https://archlinux.org" title="Arch news, packages, projects and more">Home</a></li>
+			<li id="anb-packages"><a href="https://archlinux.org/packages/" title="Arch Package Database">Packages</a></li>
+			<li id="anb-forums"><a href="https://bbs.archlinux.org/" title="Community forums">Forums</a></li>
+			<li id="anb-wiki"><a href="https://wiki.archlinux.org/" title="Community documentation">Wiki</a></li>
+			<li id="anb-gitlab"><a href="https://gitlab.archlinux.org/archlinux" title="GitLab">GitLab</a></li>
+			<li id="anb-security"><a href="https://security.archlinux.org/" title="Arch Linux Security Tracker">Security</a></li>
+			<li id="anb-aur"><a href="https://aur.archlinux.org/" title="Arch Linux User Repository">AUR</a></li>
+			<li id="anb-download"><a href="https://archlinux.org/download/" title="Get Arch Linux">Download</a></li>
+		</ul>
+	</div>
+</div>
+
+        </header>
+        <main id="content">
+            
+            <article id="content-left">
+                
+<section class="man-page-content">
+    <table class="head">
+  <tr>
+    <td class="head-ltitle">(7)</td>
+    <td class="head-vol">Miscellaneous Information Manual</td>
+    <td class="head-rtitle">(7)</td>
+  </tr>
+</table>
+<div class="manual-text">
+<section class="Sh">
+<h1 class="Sh" id='NAME'><a class='permalink' href='#NAME'>NAME</a></h1>
+<p class="Pp">package - a package based on <b>A</b>rch <b>L</b>inux
+    <b>P</b>ackage <b>M</b>anagement (ALPM) concepts.</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='DESCRIPTION'><a class='permalink' href='#DESCRIPTION'>DESCRIPTION</a></h1>
+<p class="Pp">ALPM based packages refer to (optionally compressed) <b>tar</b>
+    archives that contain package files. Package files encompass mandatory
+    <b>metadata</b> files as well as optional <b>scripts</b> and <b>data</b>
+    files.</p>
+<p class="Pp">Package files are created from package sources (i.e.
+    <b>PKGBUILD</b>) using package build software (e.g. <b>makepkg</b>). For
+    Arch Linux specific package build software refer to <b>devtools</b> and
+    <b>pkgctl</b>.</p>
+<p class="Pp">Package management software (e.g. <b>pacman</b>) relies on
+    <b>metadata</b> files and <b>scripts</b> for the purpose of dependency
+    resolution and installation. <b>Data</b> files can be installed on
+    compatible target systems using package management software.</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='FORMAT'><a class='permalink' href='#FORMAT'>FORMAT</a></h1>
+<p class="Pp"><i>Uncompressed</i> ALPM based package files follow the following
+    naming scheme:</p>
+<p class="Pp">An <b>alpm-package-name</b> directly followed by a
+    &#x2018;-&#x2019; sign, directly followed by an <b>alpm-package-version</b>
+    (in the <i>full</i> or <i>full with epoch</i> form), directly followed by a
+    &#x2018;-&#x2019; sign, directly followed by an <b>alpm-architecture</b>,
+    directly followed by the string &#x2018;.pkg.tar&#x2019;, e.g.:</p>
+<ul class="Bl-bullet">
+  <li><span class="Li">example-1.0.0-1-any.pkg.tar</span>
+      </li>
+  <li><span class="Li">example-1.0.0-1-x86_64.pkg.tar</span></li>
+</ul>
+<section class="Ss">
+<h2 class="Ss" id='Compression'><a class='permalink' href='#Compression'>Compression</a></h2>
+<p class="Pp">ALPM based packages may optionally be compressed using a single
+    supported compression technology. If a package is compressed, a
+    technology-specific suffix is appended to the file name:</p>
+<ul class="Bl-bullet">
+  <li><span class="Li">.Z</span> for compression based on adaptive Lempel-Ziv
+      coding (e.g. <span class="Li">example-1.0.0-1-x86_64.pkg.tar.Z</span>),
+      see the <b>compress</b> command
+      </li>
+  <li><span class="Li">.bz2</span> for <b>bzip2</b> compression (e.g.
+      <span class="Li">example-1.0.0-1-x86_64.pkg.tar.bz2</span>)
+      </li>
+  <li><span class="Li">.gz</span> for <b>gzip</b> compression (e.g.
+      <span class="Li">example-1.0.0-1-x86_64.pkg.tar.gz</span>)
+      </li>
+  <li><span class="Li">.lrz</span> for <b>lrzip</b> compression (e.g.
+      <span class="Li">example-1.0.0-1-x86_64.pkg.tar.lrz</span>)
+      </li>
+  <li><span class="Li">.lz4</span> for <b>lz4</b> compression (e.g.
+      <span class="Li">example-1.0.0-1-x86_64.pkg.tar.lz4</span>)
+      </li>
+  <li><span class="Li">.lz</span> for <b>lzip</b> compression (e.g.
+      <span class="Li">example-1.0.0-1-x86_64.pkg.tar.lz</span>)
+      </li>
+  <li><span class="Li">.lzo</span> for <b>lzop</b> compression (e.g.
+      <span class="Li">example-1.0.0-1-x86_64.pkg.tar.lzo</span>)
+      </li>
+  <li><span class="Li">.xz</span> for <b>xz</b> compression (e.g.
+      <span class="Li">example-1.0.0-1-x86_64.pkg.tar.xz</span>)
+      </li>
+  <li><span class="Li">.zst</span> for <b>zstd</b> compression (e.g.
+      <span class="Li">example-1.0.0-1-x86_64.pkg.tar.zst</span>)</li>
+</ul>
+<p class="Pp">Handling of compression technologies is specific to the package
+    build tool. Refer to <b>COMPRESSBZ2</b>, <b>COMPRESSGZ</b>,
+    <b>COMPRESSLRZ</b>, <b>COMPRESSLZ</b>, <b>COMPRESSLZ4</b>,
+    <b>COMPRESSLZO</b>, <b>COMPRESSXZ</b>, <b>COMPRESSZ</b>, <b>COMPRESSZST</b>
+    and <b>PKGEXT</b> in <b>makepkg.conf</b> for compression options and package
+    extensions used in <b>makepkg</b>.</p>
+</section>
+<section class="Ss">
+<h2 class="Ss" id='Digital_signatures'><a class='permalink' href='#Digital_signatures'>Digital   signatures</a></h2>
+<p class="Pp">Digital signatures can be created for package files.</p>
+<p class="Pp">Currently, only <b>OpenPGP detached signatures</b> over the
+    package file are supported. Detached signatures carry the same name as the
+    package file for which they are created, with an additional
+    <span class="Li">.sig</span> suffix (e.g.
+    <span class="Li">example-1.0.0-1-x86_64.pkg.tar.zst.sig</span> is the
+    digital signature for a package file
+    <span class="Li">example-1.0.0-1-x86_64.pkg.tar.zst</span>).</p>
+</section>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='CONTENTS'><a class='permalink' href='#CONTENTS'>CONTENTS</a></h1>
+<p class="Pp">The contents of an ALPM based package are distinguished between
+    <b>metadata</b>, <b>scripts</b> and <b>data</b> files.</p>
+<section class="Ss">
+<h2 class="Ss" id='Metadata'><a class='permalink' href='#Metadata'>Metadata</a></h2>
+<p class="Pp">The following files must be present at the root of an ALPM based
+    package:</p>
+<ul class="Bl-bullet">
+  <li><span class="Li">.BUILDINFO</span>: a <b>BUILDINFO</b> file
+      </li>
+  <li><span class="Li">.MTREE</span>: an <b>ALPM-MTREE</b> file
+      </li>
+  <li><span class="Li">.PKGINFO</span>: a <b>PKGINFO</b> file</li>
+</ul>
+<p class="Pp">The above files provide relevant metadata for the installation,
+    upgrade and uninstallation of packages on a target system (see
+    <b>alpm-package-relation</b> for details on dependency resolution), as well
+    as reproducibly building a bit-by-bit identical package from the same
+    sources (see <b>reproducible builds</b>[2]).</p>
+</section>
+<section class="Ss">
+<h2 class="Ss" id='Scripts'><a class='permalink' href='#Scripts'>Scripts</a></h2>
+<p class="Pp">Optionally, an <b>alpm-install-scriptlet</b> named
+    <span class="Li">.INSTALL</span> may be present at the root of an ALPM based
+    package.</p>
+</section>
+<section class="Ss">
+<h2 class="Ss" id='Data'><a class='permalink' href='#Data'>Data</a></h2>
+<p class="Pp">Zero or more <b>data</b> files may be present in an ALPM based
+    package (refer to <b>alpm-meta-package</b> for details on why packages may
+    not contain any <b>data</b> files).</p>
+<p class="Pp">All existing <b>data</b> files of a package are extracted to the
+    <b>root directory</b>[3] of a target system upon installation of the
+    package.</p>
+<p class="Pp">No specific rules exist on which <b>data</b> files (and
+    directories) are allowed as contents of a package, but it is advisable to
+    adhere to common standards such as the <b>systemd File Hierarchy
+    Requirements</b>[4] and/or the <b>Filesystem Hierarchy Standard</b>[5] and
+    by default have all files and directories be owned by
+    <span class="Li">root</span>. In conclusion, it is best practice to never
+    package files in directories that contain user data (e.g. below
+    <span class="Li">/home</span>).</p>
+<p class="Pp">More specific guidelines around the validation of <b>data</b>
+    files in packages are subject to the implementer&#x2019;s discretion (e.g. a
+    distribution using ALPM).</p>
+</section>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='EXAMPLES'><a class='permalink' href='#EXAMPLES'>EXAMPLES</a></h1>
+<p class="Pp">The following example <b>PKGBUILD</b> defines the package
+    <span class="Li">example</span> which only creates a single <b>data</b> file
+    (plus the directories in which it is located):</p>
+<pre>pkgname=example
+pkgver=1.0.0
+pkgrel=1
+pkgdesc=&quot;A simple package example&quot;
+arch=(any)
+url=&quot;https://example.org&quot;
+license=(GPL-3.0-or-later)
+package() {
+  install -vdm 755 &quot;$pkgdir/usr/share/$pkgname/&quot;
+  echo &quot;data&quot; &gt; &quot;$pkgdir/usr/share/$pkgname/data.txt&quot;
+}</pre>
+<p class="Pp">Assuming <b>makepkg</b> is used to build a package from above
+    <b>PKGBUILD</b> and is configured to use <b>zstd</b> for compression, the
+    resulting package file is called
+    <span class="Li">example-1.0.0-1-any.pkg.tar.zst</span>.</p>
+<p class="Pp">The package file contents can be examined as follows:</p>
+<pre>$ tar -tf example-1.0.0-1-any.pkg.tar.zst
+.BUILDINFO
+.MTREE
+.PKGINFO
+usr/
+usr/share/
+usr/share/example/
+usr/share/example/data.txt</pre>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='SEE_ALSO'><a class='permalink' href='#SEE_ALSO'>SEE   ALSO</a></h1>
+<p class="Pp"><a href='/man/bzip2.1.en'>bzip2(1)</a>, <a href='/man/compress.1.en'>compress(1)</a>, <a href='/man/gzip.1.en'>gzip(1)</a>,
+    <a href='/man/lrzip.1.en'>lrzip(1)</a>, <a href='/man/lz4.1.en'>lz4(1)</a>, <a href='/man/lzip.1.en'>lzip(1)</a>, <a href='/man/lzop.1.en'>lzop(1)</a>,
+    <a href='/man/pkgctl.1.en'>pkgctl(1)</a>, <a href='/man/tar.1.en'>tar(1)</a>, <a href='/man/xz.1.en'>xz(1)</a>, <a href='/man/zstd.1.en'>zstd(1)</a>,
+    <a href='/man/ALPM-MTREE.5.en'>ALPM-MTREE(5)</a>, <a href='/man/BUILDINFO.5.en'>BUILDINFO(5)</a>, <a href='/man/PKGBUILD.5.en'>PKGBUILD(5)</a>,
+    <a href='/man/PKGINFO.5.en'>PKGINFO(5)</a>, <a href='/man/makepkg.conf.5.en'>makepkg.conf(5)</a>, <a href='/man/SRCINFO.5.en'>SRCINFO(5)</a>,
+    <a href='/man/alpm-install-scriptlet.5.en'>alpm-install-scriptlet(5)</a>, <a href='/man/alpm-architecture.7.en'>alpm-architecture(7)</a>,
+    <a href='/man/alpm-meta-package.7.en'>alpm-meta-package(7)</a>, <a href='/man/alpm-package-name.7.en'>alpm-package-name(7)</a>,
+    <a href='/man/alpm-package-relation.7.en'>alpm-package-relation(7)</a>, <a href='/man/alpm-package-version.7.en'>alpm-package-version(7)</a>,
+    <a href='/man/alpm-split-package.7.en'>alpm-split-package(7)</a>, <a href='/man/devtools.7.en'>devtools(7)</a>, <a href='/man/makepkg.8.en'>makepkg(8)</a>,
+    <a href='/man/pacman.8.en'>pacman(8)</a></p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id='NOTES'><a class='permalink' href='#NOTES'>NOTES</a></h1>
+<dl class="Bl-tag">
+  <dt>1.</dt>
+  <dd><b>OpenPGP detached signatures</b></dd>
+  <dt></dt>
+  <dd><a class="Lk" href="https://openpgp.dev/book/signing_data.html#detached-signatures">https://openpgp.dev/book/signing_data.html#detached-signatures</a></dd>
+  <dt>2.</dt>
+  <dd><b>reproducible builds</b></dd>
+  <dt></dt>
+  <dd><a class="Lk" href="https://reproducible-builds.org/">https://reproducible-builds.org/</a></dd>
+  <dt>3.</dt>
+  <dd><b>root directory</b></dd>
+  <dt></dt>
+  <dd><a class="Lk" href="https://en.wikipedia.org/wiki/Root_directory">https://en.wikipedia.org/wiki/Root_directory</a></dd>
+  <dt>4.</dt>
+  <dd><b>systemd File Hierarchy Requirements</b></dd>
+  <dt></dt>
+  <dd><a class="Lk" href="https://systemd.io/SYSTEMD_FILE_HIERARCHY_REQUIREMENTS/">https://systemd.io/SYSTEMD_FILE_HIERARCHY_REQUIREMENTS/</a></dd>
+  <dt>5.</dt>
+  <dd><b>Filesystem Hierarchy Standard</b></dd>
+  <dt></dt>
+  <dd><a class="Lk" href="https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard">https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard</a></dd>
+</dl>
+</section>
+</div>
+<table class="foot">
+  <tr>
+    <td class="foot-date"></td>
+    <td class="foot-os"></td>
+  </tr>
+</table>
+
+</section>
+
+            </article>
+            <aside id="sidebar">
+                
+<section class="search">
+    <form action="/search" class="search direct-search" role="search">
+    <input type="search" placeholder="Search manual page" name="q" value=""
+         />
+    <input type="submit" name="go" value="Go" />
+</form>
+
+</section>
+
+<section class="package-info">
+    <p>Package information:</p>
+    <dl>
+        <dt>Package name:</dt>
+        <dd><a href="https://www.archlinux.org/packages/extra/any/alpm-docs/">extra/alpm-docs</a></dd>
+        <dt>Version:</dt>
+        <dd>0.13.0-1</dd>
+        <dt>Upstream:</dt>
+        <dd><a href="https://alpm.archlinux.page/">https://alpm.archlinux.page/</a></dd>
+        <dt>Licenses:</dt>
+        <dd>CC-BY-SA-4.0</dd>
+        <dt>Manuals:</dt>
+        <dd><a href="/listing/extra/alpm-docs/">/listing/extra/alpm-docs/</a></dd>
+    </dl>
+</section>
+
+<details>
+    <summary>Table of contents</summary>
+    <nav class="toc">
+        <ul>
+        
+            <li><a href="#NAME">NAME</a></li>
+        
+            <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+        
+            <li><a href="#FORMAT">FORMAT</a></li>
+        
+            <li><a href="#CONTENTS">CONTENTS</a></li>
+        
+            <li><a href="#EXAMPLES">EXAMPLES</a></li>
+        
+            <li><a href="#SEE_ALSO">SEE ALSO</a></li>
+        
+            <li><a href="#NOTES">NOTES</a></li>
+        
+        </ul>
+    </nav>
+</details>
+
+
+
+
+
+
+
+<nav class="other-formats">
+    <p>Other formats:
+        
+            <a href="/man/alpm-package.7.txt">txt</a>, 
+        
+            <a href="/man/alpm-package.7.raw">raw</a>
+        
+    </p>
+</nav>
+
+            </aside>
+            
+        </main>
+        <footer>
+            <p>Powered by <a href="https://gitlab.archlinux.org/archlinux/archmanweb">archmanweb</a>,
+               using <a href="https://mandoc.bsd.lv/">mandoc</a> for the conversion of manual pages.
+            </p>
+            <p>The website is available under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GPL-3.0</a>
+               license, except for the contents of the manual pages, which have their own license
+               specified in the corresponding Arch Linux package.
+            </p>
+        </footer>
+    </body>
+</html>

@@ -1,0 +1,642 @@
+<!doctype html>
+<html class="not-ready lg:text-base overflow-y-scroll scroll-pt-14 scheme-light dark:scheme-dark" lang="en">
+
+<head prefix="og: https://ogp.me/ns# article: https://ogp.me/ns/article#">
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="generator" content="Zola v0.23.6" />
+  <title>On scripts and hooks | Arch Linux Dev Blog</title>
+  <meta property="og:site_name" content="Arch Linux Dev Blog" />
+  <meta property="og:title" content="On scripts and hooks" />
+  <meta name="description" content="The differences between alpm-install-scriptlets and alpm-hooks." />
+  <meta property="og:description" content="The differences between alpm-install-scriptlets and alpm-hooks." />
+  <meta property="og:url" content="https://devblog.archlinux.page/2026/on-scripts-and-hooks/" />
+  <link rel="canonical" href="https://devblog.archlinux.page/2026/on-scripts-and-hooks/" />
+  <meta property="og:type" content="article" />
+  <meta property="article:published_time" content="2026-08-09T11:00:00+00:00" />
+  <meta property="article:author" content="https://devblog.archlinux.page/authors/david-runge/" />
+  <meta property="article:author" content="https://devblog.archlinux.page/authors/arne-christian-beer/" />
+  <meta property="article:tag" content="alpm-hooks" />
+  <meta property="article:tag" content="alpm-install-scriptlet" />
+  <meta property="article:tag" content="packaging" />
+  <meta property="article:tag" content="Prototype Fund" />
+  <meta name="fediverse:creator" content="@archlinux@fosstodon.org" />
+  <link rel="me" href="https://fosstodon.org/@archlinux" />
+  <meta property="og:image" content="https://devblog.archlinux.page/icons/favicon-192x192.png" />
+  <meta property="og:image:alt" content="The Arch Linux logo" />
+  <link rel="alternate" type="application/atom+xml" href="https://devblog.archlinux.page/atom.xml" title="Arch Linux Dev Blog | Atom" />
+  <!-- head inject -->
+
+  <link rel="stylesheet" href="https://devblog.archlinux.page/main.min.css?h=f166037ad671ba6bfd13" />
+  <link rel="stylesheet" href="https://devblog.archlinux.page/icons.css?h=7dd5ab449fa840fc01e2" />
+  <link rel="stylesheet" href="https://devblog.archlinux.page/admonition.css?h=f7a5ead8b9017f28f0c3" />
+  <style>:root{--bg: #f4f4f5; --header: #e4e4e7;} :root.dark{--bg: #18181b; --header: #27272a;}</style>
+  <meta name="theme-color" data-light="#e4e4e7" data-dark="#27272a" content="#e4e4e7" />
+  <script src="https://devblog.archlinux.page/js/zola-theme.min.js?h=11a0f44fbe01f53dbaf9"></script>
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/icons/favicon-48x48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/favicon-192x192.png">
+<link rel="apple-touch-icon" type="image/png" sizes="167x167" href="/icons/favicon-167x167.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="/icons/favicon-180x180.png">
+<link rel="shortcut icon" href="/icons/favicon.ico">
+
+</head>
+
+<body class="text-black duration-100 ease-out dark:text-white">
+  <!-- Header -->
+<header class="header fixed top-0 z-40 mx-auto min-h-13 w-full">
+  <div class="mx-auto w-full max-w-4xl p-2.5 lg:flex lg:justify-between">
+    <div class="flex justify-between">
+      <div class="flex items-center min-h-8 overflow-hidden">
+        <a title="Go to home page [Alt + !]" accesskey="!"
+          href="https://devblog.archlinux.page/"
+          class="text-2xl font-semibold truncate">Arch Linux Dev Blog</a>
+        <button type="button" title="Switch color scheme [Alt + $]" accesskey="$"
+          onclick="window.zolaTheme.color.toggle();"
+          class="btn-dark ml-4 h-6 w-6 shrink-0 cursor-pointer text-[0px]
+            bg-center bg-no-repeat bg-cover [background-image:var(--icons-btn-dark,url(icons/btn-dark.svg))]
+            dark:[background-image:var(--icons-btn-light,url(icons/btn-light.svg))] dark:invert"
+        ></button>
+        <button type="button" title="Open search [Alt + /]" accesskey="/"
+          onclick="window.zolaTheme.search.toggle();"
+          class="btn-search ml-4 h-6 w-6 shrink-0 cursor-pointer text-[0px]
+            bg-center bg-no-repeat bg-cover [background-image:var(--icons-search,url(icons/search.svg))] dark:invert"
+        ></button>
+      </div>
+      <div title="Toggle menu [Alt + `+`]" role="button" accesskey="+" tabindex="0"
+        class="btn-menu relative z-50 flex h-8 w-8 shrink-0 cursor-pointer select-none flex-col items-center justify-center gap-2.5 lg:hidden"
+        onclick="window.zolaTheme.menu.toggleHeader();"
+        onkeydown="(event.keyCode == 13 || event.keyCode == 32) ? event.preventDefault() || window.zolaTheme.menu.toggleHeader() : true;"
+      ></div>
+    </div>
+    <nav class="flex w-full items-center lg:w-auto">
+      
+<menu
+  class="nav-wrapper flex w-full flex-col py-2 lg:w-auto lg:flex-row lg:self-center lg:py-0">
+  <li>
+    <a
+      class="primary-link block py-2 text-center text-lg font-medium lg:px-3 lg:py-0"
+      href="https://devblog.archlinux.page/about/"
+    >About</a>
+  </li>
+  <li>
+    <a
+      class="primary-link block py-2 text-center text-lg font-medium lg:px-3 lg:py-0"
+      href="https://devblog.archlinux.page/archive/"
+    >Archive</a>
+  </li>
+  <li>
+    <a
+      class="primary-link block py-2 text-center text-lg font-medium lg:px-3 lg:py-0"
+      href="https://devblog.archlinux.page/tags/"
+    >Tags</a>
+  </li>
+</menu>
+
+      <!-- header_nav inject -->
+
+    </nav>
+  </div>
+</header>
+
+  <main class="prose prose-neutral dark:prose-invert prose-pre:rounded-lg prose-img:rounded-lg
+    relative mx-auto min-h-[calc(100vh-4rem)] max-w-3xl px-4 pt-28 lg:pt-32 pb-12 wrap-break-word">
+    <!-- body_start inject -->
+
+      
+<div id="linkita-search-wrapper" class="hidden">
+  <ul id="linkita-search-results"></ul>
+</div>
+<script>window.zolaTheme.search.init({ scripts: [
+  "https://devblog.archlinux.page/search_index.en.js",
+  "https://devblog.archlinux.page/elasticlunr.min.js",
+], arg: { w: "#linkita-search-wrapper", r: "#linkita-search-results" } });</script>
+    
+<article>
+  <!-- page_start inject -->
+
+  <header class="mb-16">
+    <h1 class="my-0! pb-3">On scripts and hooks</h1>
+    <div class="text-sm antialiased opacity-80"><time
+      datetime="2026-08-09T11:00:00+00:00">2026-08-09</time><span
+        class="middot"></span><time
+    datetime="PT0H16M0S">16&nbsp;min</time><span
+      class="middot"></span><span>David Runge</span>,&nbsp;<span>Arne Christian Beer</span>
+</div>
+  </header>
+  
+  
+<nav class="block-bg prose-a:secondary-link mb-12 rounded-lg p-2 text-lg">
+  <details>
+    <summary class="select-none py-0.5 lg:py-1 pl-3.5" title="[Alt + =]" accesskey="=">
+      <span class="cursor-pointer ml-0.5">Table of Contents</span>
+    </summary>
+    <ul class="ps-8">
+      <li class="ps-0.5">
+        <a class="no-underline hover:underline" href="#handshake-integration">🤝 Integration</a>
+      </li>
+      <li class="ps-0.5">
+        <a class="no-underline hover:underline" href="#2-the-two-systems">2️⃣  The two systems</a>
+        <ul>
+          <li class="ps-0.5">
+            <a class="no-underline hover:underline" href="#scroll-scripts">📜 Scripts</a>
+          </li>
+          <li class="ps-0.5">
+            <a class="no-underline hover:underline" href="#hook-hooks">🪝 Hooks</a>
+          </li>
+        </ul>
+      </li>
+      <li class="ps-0.5">
+        <a class="no-underline hover:underline" href="#bulb-use-cases">💡 Use cases</a>
+        <ul>
+          <li class="ps-0.5">
+            <a class="no-underline hover:underline" href="#alpm-hooks">alpm-hooks</a>
+          </li>
+          <li class="ps-0.5">
+            <a class="no-underline hover:underline" href="#alpm-install-scriptlet">alpm-install-scriptlet</a>
+          </li>
+        </ul>
+      </li>
+      <li class="ps-0.5">
+        <a class="no-underline hover:underline" href="#rotating-light-problems">🚨 Problems</a>
+      </li>
+      <li class="ps-0.5">
+        <a class="no-underline hover:underline" href="#wind-blowing-face-discussion">🌬️ Discussion</a>
+      </li>
+      <li class="ps-0.5">
+        <a class="no-underline hover:underline" href="#examples">Examples</a>
+        <ul>
+          <li class="ps-0.5">
+            <a class="no-underline hover:underline" href="#keyboard-transaction-example">⌨️ Transaction example</a>
+          </li>
+          <li class="ps-0.5">
+            <a class="no-underline hover:underline" href="#notebook-notes-for-package-maintainers">📓 Notes for package maintainers</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </details>
+</nav>
+  <!-- Content -->
+  <section><p>Over the last few weeks, we have been doing research on the integration of our official distribution packages when installed on a target system.
+In this context we have been looking at the current uses of <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> files and <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> in around 120 package source repositories (<a rel="external" href="https://man.archlinux.org/man/extra/alpm-docs/alpm-source-repo.7.en">alpm-source-repo(7)</a>) to better understand the underlying functionality and use-cases these two integrations offer and target.</p>
+<p>In this article we are going to look at how these two systems work, how Arch Linux is currently using them and attempt to provide suggestions for when to use which.</p>
+<p>Learning about <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> and <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> files is helpful for package maintainers and end-users alike to better understand how system updates apply and what to do with data that is not owned by any package.</p>
+<h2 id="handshake-integration">🤝 Integration</h2>
+<p>Package installation (on Arch Linux and other distributions) does not only entail the adding and updating of files that belong to a given package, but also the integration of data that is not tracked by the system package manager.
+For example, this can be the creation of users and groups, the creation of directories and files, the modification of mode and ownership of directories and files, or the creation, updating and deletion of various cache files.
+As with everything, there are also edge-cases, such as emitting messages on specific version upgrades of a package, disabling of services, migration of data, or changing of users or groups.</p>
+<h2 id="2-the-two-systems">2️⃣  The two systems</h2>
+<p>Currently, two mechanisms exist, that are designed to be used for the manipulation of data not owned by package files:</p>
+<ul>
+<li><a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> is a script file that may be contained in an <a rel="external" href="https://man.archlinux.org/man/alpm-package.7">alpm-package(7)</a>, but that is not installed to the target system.
+Instead, pre-defined functions from the script are executed by the package management system around the time of the respective package transaction.</li>
+<li><a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> are files in a declarative file format, that reside in well-known locations on the target system and that the package management system executes before and after the entirety of specific package transactions are handled.</li>
+</ul>
+<p><img src="https://devblog.archlinux.page/2026/on-scripts-and-hooks/package-manager-transaction.svg" alt="" /></p>
+<p>The above graph illustrates a generic package manager transaction (installation, upgrade or removal of several packages).</p>
+<p>At the top and bottom of the graph, we see the pre- and post-transaction hooks (in purple), which are run before and after the block of package transactions (in red).
+These are the <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a>.</p>
+<p>Each package transaction (in orange) has a section of possible pre- and post- install/upgrade/removal functions (in purple) that are run before and after the respective file transactions (in blue) of a given package.
+These are the <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> files.</p>
+<p>Have a look at the <a href="https://devblog.archlinux.page/2026/on-scripts-and-hooks/#keyboard-transaction-example">transaction example</a> for an in-depth overview of how these files look like and how they behave in a packaging context.
+Package maintainers are also invited to have a look at the <a href="https://devblog.archlinux.page/2026/on-scripts-and-hooks/#notebook-notes-for-package-maintainers">notes for package maintainers</a> for an overview and a few thoughts on current edge-cases and potential solutions for the Arch Linux distribution.</p>
+<h3 id="scroll-scripts">📜 Scripts</h3>
+<p>Historically, system integration has been achieved using either the <a rel="external" href="https://man.archlinux.org/man/PKGBUILD.5">PKGBUILD(5)</a> script itself or with the help of an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> file.</p>
+<p>An <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> offers free-form shell scripting in dedicated functions to be run before or after the installation, upgrade or removal of a specific package.
+Each function has access to relevant version information available to the specific package transaction, such as the previous and new version of the package.</p>
+<p>However, this approach is not without caveats:</p>
+<ul>
+<li>In theory an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> can be written in many types of shell scripting languages.
+In practice, the shell in use is tied to the build-time configuration of the package manager (Bash for Arch Linux).</li>
+<li>The order in which package files are installed (and in consequence, when the actions of their <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> is run) depends on the ordering determined by the package manager for the given transaction (i.e. which package is installed first, when installing a list of packages).
+A transaction may contain one or many packages.</li>
+<li>An <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> has no way of defining what its run-time requirements are (i.e. which executables it needs to call).
+When it is run, the executables it is calling, or other data required to do its job may not be there (yet).</li>
+<li>To reliably assign directories and files to users, their <a rel="external" href="https://en.wikipedia.org/wiki/User_identifier">user ID</a>s and <a rel="external" href="https://en.wikipedia.org/wiki/Group_identifier">group ID</a>s have to be known during package build time, which effectively means, that they need to be hardcoded.</li>
+<li>The creation or updating of cache files may be done multiple times, or even at the wrong time.
+When package <em>A</em> provides the tooling for creating an application-specific cache file, and package <em>B</em> and <em>C</em> both provide files for which the cache file needs to be created, then both <em>B</em> and <em>C</em> needed to run the tooling that <em>A</em> provides.</li>
+<li>Only the <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> of the particular package in the transaction is considered (not e.g. the one of a previous version).
+As such, a package maintainer needs to plan ahead for the version that is about to be installed/updated/removed.</li>
+</ul>
+<h3 id="hook-hooks">🪝 Hooks</h3>
+<p>In the first release of <a rel="external" href="https://systemd.io">systemd</a> in 2010, initial support for <a rel="external" href="https://man.archlinux.org/man/tmpfiles.d.5">tmpfiles.d(5)</a> has been released.
+With it, it became possible to declaratively create, adjust and cleanup directories and files.
+In 2015, <a rel="external" href="https://man.archlinux.org/man/sysusers.d.5">sysusers.d(5)</a> was added in <a rel="external" href="https://systemd.io">systemd</a> 215 and added the possibility of declaratively adding users and groups.
+A year later, in 2016, the <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> feature has been released with <a rel="external" href="https://man.archlinux.org/man/pacman.8">pacman(8)</a> 5.0.
+These three changes allowed for new workflows in which more integration tasks could be run before and after a transaction.</p>
+<p>Here, <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> offer a strictly ordered and timed integration, in which actions can be executed before or after the transaction for package files.
+An action can define its run-time requirements and can be triggered by changes to packages or paths on the system.</p>
+<p>A few things should be noted about <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a>:</p>
+<ul>
+<li>They are quite generic, run in the context of the target system and are not aware of version information of specific packages.</li>
+<li>A system administrator may declare their own or disable existing ones using /etc/pacman.d/hooks/.</li>
+<li>As hooks are read from the target system's filesystem, pre-transaction tasks are only available and run once the package is installed, that provides them.</li>
+<li>A post-transaction task is only available and run as long as the package is installed, that provides it.</li>
+</ul>
+<h2 id="bulb-use-cases">💡 Use cases</h2>
+<p>By looking at the <a rel="external" href="https://man.archlinux.org/man/extra/alpm-docs/alpm-source-repo.7.en">alpm-source-repo(7)</a> of around 120 packages, we extrapolated the most common use cases.</p>
+<h3 id="alpm-hooks">alpm-hooks</h3>
+<ul>
+<li>Delete cache files in a pre-transaction, when removing a package.</li>
+<li>Create users and groups, using <a rel="external" href="https://man.archlinux.org/man/sysusers.d.5">sysusers.d(5)</a> (<a rel="external" href="https://gitlab.archlinux.org/archlinux/packaging/packages/systemd/-/blob/5f46d2afd2a28c011f67bd810e1f83c4adf48266/20-systemd-sysusers.hook">20-systemd-sysusers.hook</a> runs <a rel="external" href="https://man.archlinux.org/man/systemd-sysusers.8">systemd-sysusers(8)</a> in a post-transaction).</li>
+<li>Create directories, symlinks, files, set ownership, permissions and capabilities using <a rel="external" href="https://man.archlinux.org/man/tmpfiles.d.5">tmpfiles.d(5)</a> in a post-transaction (<a rel="external" href="https://gitlab.archlinux.org/archlinux/packaging/packages/systemd/-/blob/5f46d2afd2a28c011f67bd810e1f83c4adf48266/21-systemd-tmpfiles.hook">21-systemd-tmpfiles.hook</a> runs <a rel="external" href="https://man.archlinux.org/man/core/systemd/systemd-tmpfiles.8.en">systemd-tmpfiles(8)</a>).</li>
+<li>Create cache files in a post-transaction, when installing or upgrading a package, or when specific file paths change.</li>
+<li>Migrate variable data for a specific package in a post-transaction (e.g. <a rel="external" href="https://gitlab.archlinux.org/archlinux/packaging/packages/systemd/-/blob/5f46d2afd2a28c011f67bd810e1f83c4adf48266/25-systemd-catalog.hook">25-systemd-catalog.hook</a> to update the <a rel="external" href="https://man.archlinux.org/man/journalctl.1">journalctl(1)</a> catalog).</li>
+<li>Restart or reload systemd system units in a post-transaction.
+For this to work, the units requiring reload/restart are e.g. marked as such using <a rel="external" href="https://man.archlinux.org/man/systemctl.1">systemctl(1)</a> (i.e. <code>systemctl --runtime set-property &lt;unit&gt; Markers=needs-restart</code>, e.g. in an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> or in a pre-transaction hook) and are then enqueued using <a rel="external" href="https://gitlab.archlinux.org/archlinux/packaging/packages/systemd/-/blob/3c84384243b1a582932b31b59bc34d7549a59051/35-systemd-enqueue-marked.hook">35-systemd-enqueue-marked.hook</a> in a post-transaction task, which reloads/restarts them.
+See <a rel="external" href="https://man.archlinux.org/man/org.freedesktop.systemd1.5">org.freedesktop.systemd1(5)</a> for further details on <code>Markers</code>.</li>
+</ul>
+<h3 id="alpm-install-scriptlet">alpm-install-scriptlet</h3>
+<p>The most common task in an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> is to display a message to the user when upgrading to a specific version of a package (e.g. to inform them about breaking changes to config or data).
+However, there are further version-bound use cases.
+Some or all of the below may also be covered by <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> (also see <a href="https://devblog.archlinux.page/2026/on-scripts-and-hooks/#notebook-notes-for-package-maintainers">notes for package maintainers</a>).</p>
+<ul>
+<li>Stop a systemd system unit (if it is started) (<code>systemctl stop &lt;unit&gt;</code>).</li>
+<li>Globally enable a systemd user unit (<code>systemctl --global enable &lt;unit&gt;</code>).</li>
+<li>Globally re-enable a systemd user unit (<code>systemctl --global reenable &lt;unit&gt;</code>).</li>
+<li>Globally disable a systemd user unit (<code>systemctl --global disable &lt;unit&gt;</code>).</li>
+<li>Enable a systemd system unit (<code>systemctl enable &lt;unit&gt;</code>)</li>
+<li>Disable a systemd system unit (if it is enabled) (<code>systemctl disable &lt;unit&gt;</code>).</li>
+<li>Mark a service for restart (<code>systemctl set-property &lt;unit&gt; Markers=needs-restart</code>).</li>
+</ul>
+<h2 id="rotating-light-problems">🚨 Problems</h2>
+<p>As with all systems, there are edge cases, as well as unintended and obsolete use cases.
+Possible solutions to some of them are discussed further in the <a href="https://devblog.archlinux.page/2026/on-scripts-and-hooks/#notebook-notes-for-package-maintainers">notes for package maintainers</a>.</p>
+<p>In general, it can be noted, that <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> offer a more centralizable approach to where and how a certain functionality is implemented.
+Meanwhile, when using an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> per package, functionality has to be implemented over and over again, introducing a lot of boilerplate.</p>
+<p>The most common problems stem from package maintainers not being aware of <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> providing a specific functionality already and thus implementing handling in an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> instead.
+A few common tasks we found are the creating of files and directories, the changing of file and directory permissions or ownership, the application of custom file attributes (e.g. <a rel="external" href="https://man.archlinux.org/man/capabilities.7">capabilities(7)</a>, <a rel="external" href="https://man.archlinux.org/man/setuid.2">setuid(2)</a> or <a rel="external" href="https://man.archlinux.org/man/setgid.2">setgid(2)</a>), or the creation of users and groups.</p>
+<p>Testing changes to an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> can be rather tricky, because the execution of the functions is only triggered by the specific package transaction (i.e. installation, upgrade or removal).
+In some situations it is not possible to reliably trigger these situations (e.g. with a local upgrade using <code>pacman --upgrade</code>).</p>
+<p>Changes to <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> on the other hand are more easy to test, because the administrator location /etc/pacman.d/hooks/ can be used to deploy modifications.
+On the other hand, <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> lack the version context of the package they may target, which makes it harder to react to breaking changes in a package, based on a specific version.</p>
+<p>In addition, for some use cases (e.g. the systemd package) using <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> may mean that changes to integral system tooling could be applied too late, leading to potential issues.</p>
+<h2 id="wind-blowing-face-discussion">🌬️ Discussion</h2>
+<p>At the time of writing, Arch Linux still relies on both <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> files and <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> to cover common use-cases.</p>
+<p>In general, it can be said, that <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> offer a more modern, declarative and testable approach to actions surrounding package transactions.
+Nonetheless, they can in some cases proof more limiting than <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> files, because they offer no access to version information and may require to rethink existing workflows when using them.</p>
+<p>As is, the <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> files are not likely to disappear in the near future, because they offer a different, more package specific integration than <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a>.
+However, quite a few current use cases for the scripts can be covered using hooks and it is probably advisable to minimize the custom code in the scripts as much as possible.</p>
+<p>Going forward, Arch Linux needs to extend its distribution documentation to make it easier for package maintainers to choose between the two systems and to gain a better overview of what functionality is available already.</p>
+<h2 id="examples">Examples</h2>
+<p>This section offers examples, mentioned throughout the text.
+These are likely too long or too specific for the casual reader, but potentially very interesting for e.g. package maintainers.</p>
+<h3 id="keyboard-transaction-example">⌨️ Transaction example</h3>
+<p>To illustrate when exactly <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> and an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> are run, let's have a look at example package sources, build them as a package, install them, modify the package sources, upgrade the package and finally uninstall the package.</p>
+<h4 id="package-sources">Package sources</h4>
+<p>We will use the following, simple <a href="https://devblog.archlinux.page/2026/on-scripts-and-hooks/PKGBUILD.sh"><code>PKGBUILD</code></a> file:</p>
+<pre class="giallo" style="color-scheme: light dark; color: light-dark(#24292E, #E1E4E8); background-color: light-dark(#FFFFFF, #24292E);" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">#</span><span style="color: light-dark(#6A737D, #6A737D);"> Maintainer: Foobar McFooface &lt;foobar@mcfooface.org&gt;</span></span>
+<span class="giallo-l"><span>pkgname</span><span style="color: light-dark(#D73A49, #F97583);">=</span><span style="color: light-dark(#032F62, #9ECBFF);">t</span><span style="color: light-dark(#032F62, #9ECBFF);">e</span><span style="color: light-dark(#032F62, #9ECBFF);">s</span><span style="color: light-dark(#032F62, #9ECBFF);">t</span></span>
+<span class="giallo-l"><span>pkgver</span><span style="color: light-dark(#D73A49, #F97583);">=</span><span style="color: light-dark(#032F62, #9ECBFF);">0</span><span style="color: light-dark(#032F62, #9ECBFF);">.</span><span style="color: light-dark(#032F62, #9ECBFF);">1</span><span style="color: light-dark(#032F62, #9ECBFF);">.</span><span style="color: light-dark(#032F62, #9ECBFF);">0</span></span>
+<span class="giallo-l"><span>pkgrel</span><span style="color: light-dark(#D73A49, #F97583);">=</span><span style="color: light-dark(#032F62, #9ECBFF);">1</span></span>
+<span class="giallo-l"><span>pkgdesc</span><span style="color: light-dark(#D73A49, #F97583);">=</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span><span style="color: light-dark(#032F62, #9ECBFF);">Tests for install scriptlets and hooks</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>arch</span><span style="color: light-dark(#D73A49, #F97583);">=</span><span>(</span><span style="color: light-dark(#032F62, #9ECBFF);">a</span><span style="color: light-dark(#032F62, #9ECBFF);">n</span><span style="color: light-dark(#032F62, #9ECBFF);">y</span><span>)</span></span>
+<span class="giallo-l"><span>url</span><span style="color: light-dark(#D73A49, #F97583);">=</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span><span style="color: light-dark(#032F62, #9ECBFF);">https://archlinux.org</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>license</span><span style="color: light-dark(#D73A49, #F97583);">=</span><span>(</span><span style="color: light-dark(#032F62, #9ECBFF);">0</span><span style="color: light-dark(#032F62, #9ECBFF);">B</span><span style="color: light-dark(#032F62, #9ECBFF);">S</span><span style="color: light-dark(#032F62, #9ECBFF);">D</span><span>)</span></span>
+<span class="giallo-l"><span>install</span><span style="color: light-dark(#D73A49, #F97583);">=</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span><span>$</span><span>pkgname</span><span style="color: light-dark(#032F62, #9ECBFF);">.install</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>source</span><span style="color: light-dark(#D73A49, #F97583);">=</span><span>(</span></span>
+<span class="giallo-l"><span style="color: light-dark(#032F62, #9ECBFF);">  0</span><span style="color: light-dark(#032F62, #9ECBFF);">B</span><span style="color: light-dark(#032F62, #9ECBFF);">S</span><span style="color: light-dark(#032F62, #9ECBFF);">D</span><span style="color: light-dark(#032F62, #9ECBFF);">.</span><span style="color: light-dark(#032F62, #9ECBFF);">t</span><span style="color: light-dark(#032F62, #9ECBFF);">x</span><span style="color: light-dark(#032F62, #9ECBFF);">t</span></span>
+<span class="giallo-l"><span style="color: light-dark(#032F62, #9ECBFF);">  p</span><span style="color: light-dark(#032F62, #9ECBFF);">r</span><span style="color: light-dark(#032F62, #9ECBFF);">e</span><span style="color: light-dark(#032F62, #9ECBFF);">-</span><span style="color: light-dark(#032F62, #9ECBFF);">t</span><span style="color: light-dark(#032F62, #9ECBFF);">r</span><span style="color: light-dark(#032F62, #9ECBFF);">a</span><span style="color: light-dark(#032F62, #9ECBFF);">n</span><span style="color: light-dark(#032F62, #9ECBFF);">s</span><span style="color: light-dark(#032F62, #9ECBFF);">a</span><span style="color: light-dark(#032F62, #9ECBFF);">c</span><span style="color: light-dark(#032F62, #9ECBFF);">t</span><span style="color: light-dark(#032F62, #9ECBFF);">i</span><span style="color: light-dark(#032F62, #9ECBFF);">o</span><span style="color: light-dark(#032F62, #9ECBFF);">n</span><span style="color: light-dark(#032F62, #9ECBFF);">.</span><span style="color: light-dark(#032F62, #9ECBFF);">h</span><span style="color: light-dark(#032F62, #9ECBFF);">o</span><span style="color: light-dark(#032F62, #9ECBFF);">o</span><span style="color: light-dark(#032F62, #9ECBFF);">k</span></span>
+<span class="giallo-l"><span style="color: light-dark(#032F62, #9ECBFF);">  p</span><span style="color: light-dark(#032F62, #9ECBFF);">o</span><span style="color: light-dark(#032F62, #9ECBFF);">s</span><span style="color: light-dark(#032F62, #9ECBFF);">t</span><span style="color: light-dark(#032F62, #9ECBFF);">-</span><span style="color: light-dark(#032F62, #9ECBFF);">t</span><span style="color: light-dark(#032F62, #9ECBFF);">r</span><span style="color: light-dark(#032F62, #9ECBFF);">a</span><span style="color: light-dark(#032F62, #9ECBFF);">n</span><span style="color: light-dark(#032F62, #9ECBFF);">s</span><span style="color: light-dark(#032F62, #9ECBFF);">a</span><span style="color: light-dark(#032F62, #9ECBFF);">c</span><span style="color: light-dark(#032F62, #9ECBFF);">t</span><span style="color: light-dark(#032F62, #9ECBFF);">i</span><span style="color: light-dark(#032F62, #9ECBFF);">o</span><span style="color: light-dark(#032F62, #9ECBFF);">n</span><span style="color: light-dark(#032F62, #9ECBFF);">.</span><span style="color: light-dark(#032F62, #9ECBFF);">h</span><span style="color: light-dark(#032F62, #9ECBFF);">o</span><span style="color: light-dark(#032F62, #9ECBFF);">o</span><span style="color: light-dark(#032F62, #9ECBFF);">k</span></span>
+<span class="giallo-l"><span>)</span></span>
+<span class="giallo-l"><span>sha256sums</span><span style="color: light-dark(#D73A49, #F97583);">=</span><span>(</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">7056c04df17a4e0f0bac9f787f347c9cd892cee6323d1c89528090afd0b934a3</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span></span>
+<span class="giallo-l"><span style="color: light-dark(#032F62, #9ECBFF);">            &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">82c9f27667df9ace38b73481b5338ea45b9a9721b32cfe18ad9c06e88ffac028</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span></span>
+<span class="giallo-l"><span style="color: light-dark(#032F62, #9ECBFF);">            &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">4973596fd06b5545f2c5e0ed7ac43ee6e8312ff06cb2c76c9d8c79fca29ce43f</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span>)</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">package</span><span>(</span><span>)</span><span> {</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">  install</span><span style="color: light-dark(#005CC5, #79B8FF);"> -</span><span style="color: light-dark(#005CC5, #79B8FF);">vDm</span><span style="color: light-dark(#005CC5, #79B8FF);"> 644</span><span style="color: light-dark(#032F62, #9ECBFF);"> {pre,post}-transaction.hook</span><span style="color: light-dark(#005CC5, #79B8FF);"> -</span><span style="color: light-dark(#005CC5, #79B8FF);">t</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span>$</span><span>pkgdir</span><span style="color: light-dark(#032F62, #9ECBFF);">/usr/share/libalpm/hooks/</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">  install</span><span style="color: light-dark(#005CC5, #79B8FF);"> -</span><span style="color: light-dark(#005CC5, #79B8FF);">vDm</span><span style="color: light-dark(#005CC5, #79B8FF);"> 644</span><span style="color: light-dark(#032F62, #9ECBFF);"> LICENSE</span><span style="color: light-dark(#005CC5, #79B8FF);"> -</span><span style="color: light-dark(#005CC5, #79B8FF);">t</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span>$</span><span>pkgdir</span><span style="color: light-dark(#032F62, #9ECBFF);">/usr/share/licenses/</span><span>$</span><span>pkgname</span><span style="color: light-dark(#032F62, #9ECBFF);">/</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>}</span></span></code></pre>
+<p>The <a href="https://devblog.archlinux.page/2026/on-scripts-and-hooks/0BSD.txt"><code>0BSD.txt</code></a> license file explains how these example files can be reused and should therefore be added to have a valid package.</p>
+<p>The following is the <a href="https://devblog.archlinux.page/2026/on-scripts-and-hooks/pre-transaction.hook"><code>pre-transaction.hook</code></a> which is part of the package data and will be installed to the filesystem of a target system when using the package we are about to build.
+In the <code>Description</code> of its <code>Action</code> this <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> file hardcodes the particular <a rel="external" href="https://man.archlinux.org/man/alpm-pkgver.7">alpm-pkgver</a> and <a rel="external" href="https://man.archlinux.org/man/alpm-pkgrel.7">alpm-pkgrel</a> of the package it is made available in.</p>
+<pre class="giallo" style="color-scheme: light dark; color: light-dark(#24292E, #E1E4E8); background-color: light-dark(#FFFFFF, #24292E);" ><code data-lang="ini"><span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">[</span><span style="color: light-dark(#6F42C1, #B392F0);">Trigger</span><span style="color: light-dark(#6F42C1, #B392F0);">]</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Operation</span><span> =</span><span> Install</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Operation</span><span> =</span><span> Upgrade</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Operation</span><span> =</span><span> Remove</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Target</span><span> =</span><span> test</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Type</span><span> =</span><span> Package</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">[</span><span style="color: light-dark(#6F42C1, #B392F0);">Action</span><span style="color: light-dark(#6F42C1, #B392F0);">]</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Depends</span><span> =</span><span> bash</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Description</span><span> =</span><span> Running the pre-transaction task for the test package 0.1.0-1...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Exec</span><span> =</span><span> /usr/bin/bash -c </span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">printf &quot;This is a pre-transaction!</span><span style="color: light-dark(#005CC5, #79B8FF);">\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">When</span><span> =</span><span> PreTransaction</span></span></code></pre>
+<p>Similar to the previous file, the <a href="https://devblog.archlinux.page/2026/on-scripts-and-hooks/post-transaction.hook"><code>post-transaction.hook</code></a> file would also be installed to the filesystem of the target system and also hardcodes the particular <a rel="external" href="https://man.archlinux.org/man/alpm-pkgver.7">alpm-pkgver</a> and <a rel="external" href="https://man.archlinux.org/man/alpm-pkgrel.7">alpm-pkgrel</a> of the package it is made available in the <code>Description</code> of its <code>Action</code>.</p>
+<pre class="giallo" style="color-scheme: light dark; color: light-dark(#24292E, #E1E4E8); background-color: light-dark(#FFFFFF, #24292E);" ><code data-lang="ini"><span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">[</span><span style="color: light-dark(#6F42C1, #B392F0);">Trigger</span><span style="color: light-dark(#6F42C1, #B392F0);">]</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Operation</span><span> =</span><span> Install</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Operation</span><span> =</span><span> Upgrade</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Operation</span><span> =</span><span> Remove</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Target</span><span> =</span><span> test</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Type</span><span> =</span><span> Package</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">[</span><span style="color: light-dark(#6F42C1, #B392F0);">Action</span><span style="color: light-dark(#6F42C1, #B392F0);">]</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Depends</span><span> =</span><span> bash</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Description</span><span> =</span><span> Running the post-transaction hook for test package 0.1.0-1...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Exec</span><span> =</span><span> /usr/bin/bash -c </span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">printf &quot;This is a post-transaction!</span><span style="color: light-dark(#005CC5, #79B8FF);">\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">When</span><span> =</span><span> PostTransaction</span></span></code></pre>
+<p>Last, but not least, we have the <a href="https://devblog.archlinux.page/2026/on-scripts-and-hooks/test.install"><code>test.install</code></a>, which is the [alpm-install-scriplet] of the test package.
+Here, we also hardcode the <a rel="external" href="https://man.archlinux.org/man/alpm-pkgver.7">alpm-pkgver</a> and <a rel="external" href="https://man.archlinux.org/man/alpm-pkgrel.7">alpm-pkgrel</a> of the specific package this file will reside in and print this information as a simple message using the pre-defined functions <code>pre_install</code>, <code>pre_upgrade</code>, <code>pre_remove</code>, <code>post_install</code>, <code>post_upgrade</code> and <code>post_remove</code>.</p>
+<pre class="giallo" style="color-scheme: light dark; color: light-dark(#24292E, #E1E4E8); background-color: light-dark(#FFFFFF, #24292E);" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">#!</span><span style="color: light-dark(#6A737D, #6A737D);">/usr/bin/bash</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">pre_install</span><span>(</span><span>)</span><span> {</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 1:  the new package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">  printf</span><span style="color: light-dark(#032F62, #9ECBFF);"> &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">Running the pre_install function for test package 0.1.0-1 (new package version: %s)\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">1</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">post_install</span><span>(</span><span>)</span><span> {</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 1:  the new package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">  printf</span><span style="color: light-dark(#032F62, #9ECBFF);"> &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">Running the post_install function for test package 0.1.0-1 (new package version: %s)\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">1</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">pre_upgrade</span><span>(</span><span>)</span><span> {</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 1:  the new package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 2:  the old package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">  printf</span><span style="color: light-dark(#032F62, #9ECBFF);"> &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">Running the pre_upgrade function for test package 0.1.0-1 (new (%s) and old (%s) package version)\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">1</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">2</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">post_upgrade</span><span>(</span><span>)</span><span> {</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 1:  the new package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 2:  the old package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">  printf</span><span style="color: light-dark(#032F62, #9ECBFF);"> &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">Running the post_upgrade function for test package 0.1.0-1 (new (%s) and old (%s) package version)\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">1</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">2</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">pre_remove</span><span>(</span><span>)</span><span> {</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 1:  the old package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">  printf</span><span style="color: light-dark(#032F62, #9ECBFF);"> &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">Running the pre_remove function for test package 0.1.0-1 (old package version: %s)\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">1</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">post_remove</span><span>(</span><span>)</span><span> {</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 1:  the old package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">  printf</span><span style="color: light-dark(#032F62, #9ECBFF);"> &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">Running the post_remove function for test package 0.1.0-1 (old package version: %s)\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">1</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>}</span></span></code></pre><h4 id="building-the-package">Building the package</h4>
+<p>We assume this package is now built using <a rel="external" href="https://man.archlinux.org/man/pkgctl.1">pkgctl(1)</a>: <code>pkgctl build</code>.</p>
+<h4 id="installing-the-package">Installing the package</h4>
+<p>On first installation, we can see the following:</p>
+<pre class="giallo" style="color-scheme: light dark; color: light-dark(#24292E, #E1E4E8); background-color: light-dark(#FFFFFF, #24292E);" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">#</span><span style="color: light-dark(#6A737D, #6A737D);"> pacman --upgrade --noprogressbar --noconfirm test-0.1.0-1-any.pkg.tar.zst</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">loading</span><span style="color: light-dark(#032F62, #9ECBFF);"> packages...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">resolving</span><span style="color: light-dark(#032F62, #9ECBFF);"> dependencies...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">looking</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> conflicting</span><span style="color: light-dark(#032F62, #9ECBFF);"> packages...</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">Packages</span><span> (1</span><span>) test-0.1.0-1</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">Total</span><span style="color: light-dark(#032F62, #9ECBFF);"> Installed</span><span style="color: light-dark(#032F62, #9ECBFF);"> Size:</span><span style="color: light-dark(#005CC5, #79B8FF);">  0.00</span><span style="color: light-dark(#032F62, #9ECBFF);"> MiB</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#032F62, #9ECBFF);"> Proceed</span><span style="color: light-dark(#032F62, #9ECBFF);"> with</span><span style="color: light-dark(#032F62, #9ECBFF);"> installation?</span><span> [Y/n</span><span>]</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">checking</span><span style="color: light-dark(#032F62, #9ECBFF);"> keyring...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">checking</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> integrity...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">loading</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> files...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">checking</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> file</span><span style="color: light-dark(#032F62, #9ECBFF);"> conflicts...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">checking</span><span style="color: light-dark(#032F62, #9ECBFF);"> available</span><span style="color: light-dark(#032F62, #9ECBFF);"> disk</span><span style="color: light-dark(#032F62, #9ECBFF);"> space...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#032F62, #9ECBFF);"> Processing</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> changes...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">installing</span><span style="color: light-dark(#032F62, #9ECBFF);"> test...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> the</span><span style="color: light-dark(#032F62, #9ECBFF);"> pre_install</span><span style="color: light-dark(#032F62, #9ECBFF);"> function</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> test</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-1</span><span> (new</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> version:</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-1</span><span>)</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> the</span><span style="color: light-dark(#032F62, #9ECBFF);"> post_install</span><span style="color: light-dark(#032F62, #9ECBFF);"> function</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> test</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-1</span><span> (new</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> version:</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-1</span><span>)</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#032F62, #9ECBFF);"> Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> post-transaction</span><span style="color: light-dark(#032F62, #9ECBFF);"> hooks...</span></span>
+<span class="giallo-l"><span>(</span><span style="color: light-dark(#6F42C1, #B392F0);">1/2</span><span>)</span><span style="color: light-dark(#6F42C1, #B392F0);"> Arming</span><span style="color: light-dark(#032F62, #9ECBFF);"> ConditionNeedsUpdate...</span></span>
+<span class="giallo-l"><span>(</span><span style="color: light-dark(#6F42C1, #B392F0);">2/2</span><span>)</span><span style="color: light-dark(#6F42C1, #B392F0);"> Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> the</span><span style="color: light-dark(#032F62, #9ECBFF);"> post-transaction</span><span style="color: light-dark(#032F62, #9ECBFF);"> hook</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> test</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-1...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">This</span><span style="color: light-dark(#032F62, #9ECBFF);"> is</span><span style="color: light-dark(#032F62, #9ECBFF);"> a</span><span style="color: light-dark(#032F62, #9ECBFF);"> post-transaction!</span></span></code></pre>
+<p>The pre- and post-install functions of the <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> and the post-transaction action of the <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> are run.</p>
+<h4 id="modifying-the-package-sources">Modifying the package sources</h4>
+<p>As a follow-up, we want to upgrade the package, by increasing its <a rel="external" href="https://man.archlinux.org/man/alpm-pkgrel.7">alpm-pkgrel</a>.</p>
+<p>We modify the <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> as well as the <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> to now hardcode an updated <a rel="external" href="https://man.archlinux.org/man/alpm-pkgrel.7">alpm-pkgrel</a> (<code>1</code> -&gt; <code>2</code>) in their respective messages.
+This helps us identify which system triggers what message from which package version.</p>
+<p><a href="https://devblog.archlinux.page/2026/on-scripts-and-hooks/pre-transaction.hook"><code>pre-transaction.hook</code></a>:</p>
+<pre class="giallo" style="color-scheme: light dark; color: light-dark(#24292E, #E1E4E8); background-color: light-dark(#FFFFFF, #24292E);" ><code data-lang="ini"><span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">[</span><span style="color: light-dark(#6F42C1, #B392F0);">Trigger</span><span style="color: light-dark(#6F42C1, #B392F0);">]</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Operation</span><span> =</span><span> Install</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Operation</span><span> =</span><span> Upgrade</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Operation</span><span> =</span><span> Remove</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Target</span><span> =</span><span> test</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Type</span><span> =</span><span> Package</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">[</span><span style="color: light-dark(#6F42C1, #B392F0);">Action</span><span style="color: light-dark(#6F42C1, #B392F0);">]</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Depends</span><span> =</span><span> bash</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Description</span><span> =</span><span> Running the pre-transaction hook for test package 0.1.0-2...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Exec</span><span> =</span><span> /usr/bin/bash -c </span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">printf &quot;This is a pre-transaction!</span><span style="color: light-dark(#005CC5, #79B8FF);">\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">When</span><span> =</span><span> PreTransaction</span></span></code></pre>
+<p><a href="https://devblog.archlinux.page/2026/on-scripts-and-hooks/post-transaction.hook"><code>post-transaction.hook</code></a>:</p>
+<pre class="giallo" style="color-scheme: light dark; color: light-dark(#24292E, #E1E4E8); background-color: light-dark(#FFFFFF, #24292E);" ><code data-lang="ini"><span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">[</span><span style="color: light-dark(#6F42C1, #B392F0);">Trigger</span><span style="color: light-dark(#6F42C1, #B392F0);">]</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Operation</span><span> =</span><span> Install</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Operation</span><span> =</span><span> Upgrade</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Operation</span><span> =</span><span> Remove</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Target</span><span> =</span><span> test</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Type</span><span> =</span><span> Package</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">[</span><span style="color: light-dark(#6F42C1, #B392F0);">Action</span><span style="color: light-dark(#6F42C1, #B392F0);">]</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Depends</span><span> =</span><span> bash</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Description</span><span> =</span><span> Running the post-transaction hook for test package 0.1.0-2...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">Exec</span><span> =</span><span> /usr/bin/bash -c </span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">printf &quot;This is a post-transaction!</span><span style="color: light-dark(#005CC5, #79B8FF);">\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span></span>
+<span class="giallo-l"><span style="color: light-dark(#D73A49, #F97583);">When</span><span> =</span><span> PostTransaction</span></span></code></pre>
+<p><a href="https://devblog.archlinux.page/2026/on-scripts-and-hooks/test.install"><code>test.install</code></a>:</p>
+<pre class="giallo" style="color-scheme: light dark; color: light-dark(#24292E, #E1E4E8); background-color: light-dark(#FFFFFF, #24292E);" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">#!</span><span style="color: light-dark(#6A737D, #6A737D);">/usr/bin/bash</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">pre_install</span><span>(</span><span>)</span><span> {</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 1:  the new package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">  printf</span><span style="color: light-dark(#032F62, #9ECBFF);"> &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">Running the pre_install function for test package 0.1.0-2 (new package version: %s)\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">1</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">post_install</span><span>(</span><span>)</span><span> {</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 1:  the new package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">  printf</span><span style="color: light-dark(#032F62, #9ECBFF);"> &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">Running the post_install function for test package 0.1.0-2 (new package version: %s)\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">1</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">pre_upgrade</span><span>(</span><span>)</span><span> {</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 1:  the new package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 2:  the old package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">  printf</span><span style="color: light-dark(#032F62, #9ECBFF);"> &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">Running the pre_upgrade function for test package 0.1.0-2 (new (%s) and old (%s) package version)\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">1</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">2</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">post_upgrade</span><span>(</span><span>)</span><span> {</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 1:  the new package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 2:  the old package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">  printf</span><span style="color: light-dark(#032F62, #9ECBFF);"> &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">Running the post_upgrade function for test package 0.1.0-2 (new (%s) and old (%s) package version)\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">1</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">2</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">pre_remove</span><span>(</span><span>)</span><span> {</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 1:  the old package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">  printf</span><span style="color: light-dark(#032F62, #9ECBFF);"> &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">Running the pre_remove function for test package 0.1.0-2 (old package version: %s)\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">1</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">post_remove</span><span>(</span><span>)</span><span> {</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">  #</span><span style="color: light-dark(#6A737D, #6A737D);"> arg 1:  the old package version</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">  printf</span><span style="color: light-dark(#032F62, #9ECBFF);"> &#39;</span><span style="color: light-dark(#032F62, #9ECBFF);">Running the post_remove function for test package 0.1.0-2 (old package version: %s)\n</span><span style="color: light-dark(#032F62, #9ECBFF);">&#39;</span><span style="color: light-dark(#032F62, #9ECBFF);"> &quot;</span><span style="color: light-dark(#005CC5, #79B8FF);">$</span><span style="color: light-dark(#005CC5, #79B8FF);">1</span><span style="color: light-dark(#032F62, #9ECBFF);">&quot;</span></span>
+<span class="giallo-l"><span>}</span></span></code></pre><h4 id="rebuilding-the-package">Rebuilding the package</h4>
+<p>After changing the sources, we rebuild the package with an increased <a rel="external" href="https://man.archlinux.org/man/alpm-pkgrel.7">alpm-pkgrel</a> (<code>1</code> -&gt; <code>2</code>) using <code>pkgctl build --update-checksums --rebuild</code>.</p>
+<h4 id="upgrading-the-package">Upgrading the package</h4>
+<p>When upgrading the package, we can observe the following output:</p>
+<pre class="giallo" style="color-scheme: light dark; color: light-dark(#24292E, #E1E4E8); background-color: light-dark(#FFFFFF, #24292E);" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">#</span><span style="color: light-dark(#6A737D, #6A737D);"> pacman --upgrade --noprogressbar --noconfirm test-0.1.0-2-any.pkg.tar.zst</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">loading</span><span style="color: light-dark(#032F62, #9ECBFF);"> packages...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">resolving</span><span style="color: light-dark(#032F62, #9ECBFF);"> dependencies...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">looking</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> conflicting</span><span style="color: light-dark(#032F62, #9ECBFF);"> packages...</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">Packages</span><span> (1</span><span>) test-0.1.0-2</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">Total</span><span style="color: light-dark(#032F62, #9ECBFF);"> Installed</span><span style="color: light-dark(#032F62, #9ECBFF);"> Size:</span><span style="color: light-dark(#005CC5, #79B8FF);">  0.00</span><span style="color: light-dark(#032F62, #9ECBFF);"> MiB</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">Net</span><span style="color: light-dark(#032F62, #9ECBFF);"> Upgrade</span><span style="color: light-dark(#032F62, #9ECBFF);"> Size:</span><span style="color: light-dark(#005CC5, #79B8FF);">      0.00</span><span style="color: light-dark(#032F62, #9ECBFF);"> MiB</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#032F62, #9ECBFF);"> Proceed</span><span style="color: light-dark(#032F62, #9ECBFF);"> with</span><span style="color: light-dark(#032F62, #9ECBFF);"> installation?</span><span> [Y/n</span><span>]</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">checking</span><span style="color: light-dark(#032F62, #9ECBFF);"> keyring...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">checking</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> integrity...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">loading</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> files...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">checking</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> file</span><span style="color: light-dark(#032F62, #9ECBFF);"> conflicts...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">checking</span><span style="color: light-dark(#032F62, #9ECBFF);"> available</span><span style="color: light-dark(#032F62, #9ECBFF);"> disk</span><span style="color: light-dark(#032F62, #9ECBFF);"> space...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#032F62, #9ECBFF);"> Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> pre-transaction</span><span style="color: light-dark(#032F62, #9ECBFF);"> hooks...</span></span>
+<span class="giallo-l"><span>(</span><span style="color: light-dark(#6F42C1, #B392F0);">1/1</span><span>)</span><span style="color: light-dark(#6F42C1, #B392F0);"> Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> the</span><span style="color: light-dark(#032F62, #9ECBFF);"> pre-transaction</span><span style="color: light-dark(#032F62, #9ECBFF);"> hook</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> test</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-1...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">This</span><span style="color: light-dark(#032F62, #9ECBFF);"> is</span><span style="color: light-dark(#032F62, #9ECBFF);"> a</span><span style="color: light-dark(#032F62, #9ECBFF);"> pre-transaction!</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#032F62, #9ECBFF);"> Processing</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> changes...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">upgrading</span><span style="color: light-dark(#032F62, #9ECBFF);"> test...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> the</span><span style="color: light-dark(#032F62, #9ECBFF);"> pre_upgrade</span><span style="color: light-dark(#032F62, #9ECBFF);"> function</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> test</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-2</span><span> (new (0.1.0-2</span><span>) and old (</span><span style="color: light-dark(#6F42C1, #B392F0);">0.1.0-1</span><span>) package version)</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> the</span><span style="color: light-dark(#032F62, #9ECBFF);"> post_upgrade</span><span style="color: light-dark(#032F62, #9ECBFF);"> function</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> test</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-2</span><span> (new (0.1.0-2</span><span>) and old (</span><span style="color: light-dark(#6F42C1, #B392F0);">0.1.0-1</span><span>) package version)</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#032F62, #9ECBFF);"> Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> post-transaction</span><span style="color: light-dark(#032F62, #9ECBFF);"> hooks...</span></span>
+<span class="giallo-l"><span>(</span><span style="color: light-dark(#6F42C1, #B392F0);">1/2</span><span>)</span><span style="color: light-dark(#6F42C1, #B392F0);"> Arming</span><span style="color: light-dark(#032F62, #9ECBFF);"> ConditionNeedsUpdate...</span></span>
+<span class="giallo-l"><span>(</span><span style="color: light-dark(#6F42C1, #B392F0);">2/2</span><span>)</span><span style="color: light-dark(#6F42C1, #B392F0);"> Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> the</span><span style="color: light-dark(#032F62, #9ECBFF);"> post-transaction</span><span style="color: light-dark(#032F62, #9ECBFF);"> hook</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> test</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-2...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">This</span><span style="color: light-dark(#032F62, #9ECBFF);"> is</span><span style="color: light-dark(#032F62, #9ECBFF);"> a</span><span style="color: light-dark(#032F62, #9ECBFF);"> post-transaction!</span></span></code></pre>
+<p>First, the pre-transaction tasks of the <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> in the test package version <code>0.1.0-1</code>, then the pre- and post-upgrade functions of the <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> in the test package version <code>0.1.0-2</code> and finally the post-transaction tasks of the <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> in test package version <code>0.1.0-2</code> are run.</p>
+<h4 id="removing-the-package">Removing the package</h4>
+<p>Finally, we remove the package again and can observe the following output:</p>
+<pre class="giallo" style="color-scheme: light dark; color: light-dark(#24292E, #E1E4E8); background-color: light-dark(#FFFFFF, #24292E);" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: light-dark(#6A737D, #6A737D);">#</span><span style="color: light-dark(#6A737D, #6A737D);"> pacman --remove --nosave --recursive --noprogressbar --noconfirm test</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">checking</span><span style="color: light-dark(#032F62, #9ECBFF);"> dependencies...</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">Packages</span><span> (1</span><span>) test-0.1.0-2</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">Total</span><span style="color: light-dark(#032F62, #9ECBFF);"> Removed</span><span style="color: light-dark(#032F62, #9ECBFF);"> Size:</span><span style="color: light-dark(#005CC5, #79B8FF);">  0.00</span><span style="color: light-dark(#032F62, #9ECBFF);"> MiB</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#032F62, #9ECBFF);"> Do</span><span style="color: light-dark(#032F62, #9ECBFF);"> you</span><span style="color: light-dark(#032F62, #9ECBFF);"> want</span><span style="color: light-dark(#032F62, #9ECBFF);"> to</span><span style="color: light-dark(#032F62, #9ECBFF);"> remove</span><span style="color: light-dark(#032F62, #9ECBFF);"> these</span><span style="color: light-dark(#032F62, #9ECBFF);"> packages?</span><span> [Y/n</span><span>]</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#032F62, #9ECBFF);"> Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> pre-transaction</span><span style="color: light-dark(#032F62, #9ECBFF);"> hooks...</span></span>
+<span class="giallo-l"><span>(</span><span style="color: light-dark(#6F42C1, #B392F0);">1/1</span><span>)</span><span style="color: light-dark(#6F42C1, #B392F0);"> Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> the</span><span style="color: light-dark(#032F62, #9ECBFF);"> pre-transaction</span><span style="color: light-dark(#032F62, #9ECBFF);"> hook</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> test</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-2...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">This</span><span style="color: light-dark(#032F62, #9ECBFF);"> is</span><span style="color: light-dark(#032F62, #9ECBFF);"> a</span><span style="color: light-dark(#032F62, #9ECBFF);"> pre-transaction!</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#032F62, #9ECBFF);"> Processing</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> changes...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">removing</span><span style="color: light-dark(#032F62, #9ECBFF);"> test...</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> the</span><span style="color: light-dark(#032F62, #9ECBFF);"> pre_remove</span><span style="color: light-dark(#032F62, #9ECBFF);"> function</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> test</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-2</span><span> (old</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> version:</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-2</span><span>)</span></span>
+<span class="giallo-l"><span style="color: light-dark(#6F42C1, #B392F0);">Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> the</span><span style="color: light-dark(#032F62, #9ECBFF);"> post_remove</span><span style="color: light-dark(#032F62, #9ECBFF);"> function</span><span style="color: light-dark(#032F62, #9ECBFF);"> for</span><span style="color: light-dark(#032F62, #9ECBFF);"> test</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-2</span><span> (old</span><span style="color: light-dark(#032F62, #9ECBFF);"> package</span><span style="color: light-dark(#032F62, #9ECBFF);"> version:</span><span style="color: light-dark(#032F62, #9ECBFF);"> 0.1.0-2</span><span>)</span></span>
+<span class="giallo-l"><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#005CC5, #79B8FF);">:</span><span style="color: light-dark(#032F62, #9ECBFF);"> Running</span><span style="color: light-dark(#032F62, #9ECBFF);"> post-transaction</span><span style="color: light-dark(#032F62, #9ECBFF);"> hooks...</span></span>
+<span class="giallo-l"><span>(</span><span style="color: light-dark(#6F42C1, #B392F0);">1/1</span><span>)</span><span style="color: light-dark(#6F42C1, #B392F0);"> Arming</span><span style="color: light-dark(#032F62, #9ECBFF);"> ConditionNeedsUpdate...</span></span></code></pre>
+<p>The pre-transaction task of the <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> and the pre- and post-remove functions of the <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> are run.</p>
+<h3 id="notebook-notes-for-package-maintainers">📓 Notes for package maintainers</h3>
+<p>This section is meant as "food for thought" for package maintainers.
+As such, it is probably not that interesting for the casual reader.</p>
+<p>After looking at the <a rel="external" href="https://man.archlinux.org/man/extra/alpm-docs/alpm-source-repo.7.en">alpm-source-repo(7)</a> of packages with an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> and evaluating their use cases, it became clear that many of the current actions can be replaced with more generic <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a>.</p>
+<h4 id="documentation">Documentation</h4>
+<p>At the time of writing, we are missing a documented ordering system for <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> in the distribution to establish ranges of number prefixes for specific tasks.
+Having such documentation would allow us to work with <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> more robustly.
+In addition, providing a central place for documenting the sets of functionality offered by common hooks would be useful to package maintainers to reuse them and extend them.</p>
+<p>Adding documentation around the use cases for <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> or <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> files would be beneficial for package maintainers to reduce future boilerplate code and arrive at a more streamlined integration for the distribution.</p>
+<h4 id="testing">Testing</h4>
+<p>Currently, it is very hard to test changes.
+Also, test integration to observe changes to central hooks is currently not yet available to the package maintainers (e.g. to test changes to installation, upgrade or removal behavior).</p>
+<h4 id="edge-cases">Edge cases</h4>
+<p>Arch Linux currently still employs a number of edge cases for which different approaches can potentially be used.
+The below is a non-exhaustive list:</p>
+<ul>
+<li>Changes to <code>/etc/shells</code> (<a rel="external" href="https://man.archlinux.org/man/shells.5">shells(5)</a>) by adding an entry to it using <code>sed</code> in an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a>.
+<strong>Solution</strong>: Use a drop-in based approach instead (see <a rel="external" href="https://github.com/shadow-maint/shadow/issues/587">shadow#587</a>, <a rel="external" href="https://github.com/util-linux/util-linux/issues/1857">util-linux#1857</a> and <a rel="external" href="https://github.com/linux-pam/linux-pam/issues/498">pam#498</a>) , as the relevant packages making use of it understand this already (unfortunately glibc doesn't fully it seems).</li>
+<li>Changes to an already existing system user (e.g. switch to another <code>$HOME</code>) in an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> file for a specific version of a package.
+The integration via <a rel="external" href="https://man.archlinux.org/man/sysusers.d.5">sysusers.d(5)</a> only offers the creation of users and groups, but not their modification afterwards.
+<strong>Solution</strong>: A package specific, post-transaction task in an <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> file, only relying on circumstantial information (e.g. the current <code>$HOME</code> of the user) and not a particular version of the package.</li>
+<li>Stopping, reloading or restarting systemd user units of logged-in users in an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> for a specific version of a package.
+<strong>Solution</strong>: Logic similar to the reload/restart functionality for systemd system units, but for systemd user units (first marking them for restart, then enqueuing them in a similar fashion to <a rel="external" href="https://gitlab.archlinux.org/archlinux/packaging/packages/systemd/-/blob/3c84384243b1a582932b31b59bc34d7549a59051/35-systemd-enqueue-marked.hook">35-systemd-enqueue-marked.hook</a>).</li>
+<li>Enabling and disabling of systemd system and user units in an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> (e.g. by calling <code>systemctl enable &lt;unit&gt;</code> or <code>systemctl enable --global &lt;unit&gt;</code>).
+<strong>Solution</strong>: Vendor enabling (i.e. symlinking of the specific unit to the respective target in <code>/usr/lib/systemd/system/</code> or <code>/usr/lib/systemd/user/</code>) or using <a rel="external" href="https://man.archlinux.org/man/systemd.preset.5">systemd.preset(5)</a> files, which allow for declarative enabling and disabling of system and user units and add a new <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> file to call <code>systemctl preset</code>.</li>
+<li>Load a kernel module in an <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> after installation of a package.
+<strong>Solution</strong>: Add an <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> file which restarts <a rel="external" href="https://man.archlinux.org/man/core/systemd/systemd-modules-load.8.en">systemd-modules-load(8)</a> upon changes to the <a rel="external" href="https://man.archlinux.org/man/modules-load.d.5.en">modules-load.d(5)</a> configuration directories.</li>
+<li>Copy a systemd system unit file from vendor dir to runtime dir.
+This is a very rare edge case but unfortunately may need to be done for critical system services (e.g. when the <code>Type</code> option changes in a [systemd.service]).
+To prevent a changed interface being used with an already running process (possibly leading to a crash), the previous service file is copied to the vendor dir <code>/run/systemd/system/</code> to temporarily retain old reload behavior, before a <code>systemctl daemon-reload</code> is done.
+It is yet unclear whether there is an <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a> shaped alternative to this approach, as the override must be deployed, before the package files are upgraded and before systemd tasks are run.</li>
+</ul>
+<p>Further, there are systemd-specific edge cases, that are currently handled in the <a rel="external" href="https://man.archlinux.org/man/alpm-install-scriptlet.5">alpm-install-scriptlet(5)</a> file for the systemd package and could potentially be moved to pre- and post-transaction tasks in <a rel="external" href="https://man.archlinux.org/man/alpm-hooks.5">alpm-hooks(5)</a>.
+Doing so would require coordination with other tasks relevant to the systemd state.</p>
+<ul>
+<li>Re-executing the systemd manager.
+Upon upgrade of systemd the manager process itself must be re-executed (<code>systemctl --system daemon-reexec</code>).</li>
+<li>Reloading of the user services.
+Upon upgrade of systemd the systemd system services for each user need to be reloaded (<code>systemctl reload 'user@*.service'</code>).</li>
+<li>Marking all systemd related services for reload/restart.</li>
+<li>Update the message catalog index for <a rel="external" href="https://man.archlinux.org/man/systemd-journald.8">systemd-journald(8)</a>.
+This is necessary upon upgrade of systemd, or changes to catalog files (<code>journalctl --update-catalog</code>).</li>
+<li>Initialize the <a rel="external" href="https://man.archlinux.org/man/machine-id.5">machine-id(5)</a> in <code>/etc/machine-id</code> if it hasn't been initialized yet (<a rel="external" href="https://man.archlinux.org/man/core/systemd/systemd-machine-id-setup.1.en">systemd-machine-id-setup(1)</a>).</li>
+</ul>
+</section>
+  <hr />
+  
+<footer class="mt-12 flex flex-col" tabindex="-1" accesskey="_">
+  <div class="mb-2 flex flex-wrap">
+    <span class="block-bg mr-1.5 mb-1.5 rounded-lg px-5 py-1.5">Authors</span>
+        
+    <a
+      class="block-bg block-hover mr-1.5 mb-1.5 rounded-lg px-5 py-1.5 no-underline"
+      href="https://devblog.archlinux.page/authors/david-runge/">David Runge</a>
+        
+    <a
+      class="block-bg block-hover mr-1.5 mb-1.5 rounded-lg px-5 py-1.5 no-underline"
+      href="https://devblog.archlinux.page/authors/arne-christian-beer/">Arne Christian Beer</a>
+        
+  </div>
+  <div class="mb-2 flex flex-wrap">
+    <span class="block-bg mr-1.5 mb-1.5 rounded-lg px-5 py-1.5">Tags</span>
+        
+    <a
+      class="block-bg block-hover mr-1.5 mb-1.5 rounded-lg px-5 py-1.5 no-underline"
+      href="https://devblog.archlinux.page/tags/alpm-hooks/">alpm-hooks</a>
+        
+    <a
+      class="block-bg block-hover mr-1.5 mb-1.5 rounded-lg px-5 py-1.5 no-underline"
+      href="https://devblog.archlinux.page/tags/alpm-install-scriptlet/">alpm-install-scriptlet</a>
+        
+    <a
+      class="block-bg block-hover mr-1.5 mb-1.5 rounded-lg px-5 py-1.5 no-underline"
+      href="https://devblog.archlinux.page/tags/packaging/">packaging</a>
+        
+    <a
+      class="block-bg block-hover mr-1.5 mb-1.5 rounded-lg px-5 py-1.5 no-underline"
+      href="https://devblog.archlinux.page/tags/prototype-fund/">Prototype Fund</a>
+        
+  </div>
+</footer>
+
+  
+<nav class="block-bg mt-12 flex flex-wrap rounded-lg text-lg">
+  <a
+    class="block-hover-mask flex min-w-[50%] grow items-center rounded-l-md p-6 pr-3 font-semibold no-underline"
+    href="https://devblog.archlinux.page/2026/writing-parsers-is-hard/" accesskey=","
+    ><span class="mr-1.5">&lsaquo;</span><span>Writing parsers is hard</span></a>
+  <a
+    class="block-hover-mask ml-auto flex min-w-[50%] grow items-center justify-end rounded-r-md p-6 pl-3 font-semibold no-underline"
+    href="https://devblog.archlinux.page/2026/verify-arch-linux-artifacts-using-voa-openpgp/" accesskey="."
+    ><span>Verify Arch Linux artifacts using VOA/OpenPGP</span><span class="ml-1.5">&rsaquo;</span></a>
+</nav>
+
+  <!-- page_end inject -->
+
+</article>
+
+  </main>
+  <footer class="mx-auto flex lg:mt-5 max-w-3xl flex-wrap items-center px-4 py-3 text-sm opacity-60">
+    <div class="mr-auto basis-full lg:basis-1/2">
+      © 2026
+    </div>
+    <div class="flex basis-full lg:basis-1/2 lg:justify-end">
+      
+  <span class="mr-6 lg:ml-6">
+    <a class="link" href="https://www.getzola.org/" target="_blank">Powered by Zola</a>
+  </span>
+  <a class="link" href="https://www.getzola.org/themes/linkita/" target="_blank">&#9998; Linkita</a>
+
+    </div>
+  <!-- footer inject -->
+
+  </footer>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    window.zolaTheme.mermaid.init({ mermaid, s: ".mermaid" });
+  </script>
+  
+
+  <!-- body_end inject -->
+
+</body>
+
+</html>

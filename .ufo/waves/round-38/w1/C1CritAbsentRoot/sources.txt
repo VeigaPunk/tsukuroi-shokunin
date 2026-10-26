@@ -1,0 +1,87 @@
+### pinned sources, fetched 2026-10-26T05:02:07Z, sha256 of the fetched bytes
+ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43  /fast/scratch/hyaku/tsukuroi-r38/C1CritAbsentRoot/sysfs.c
+d1731b24b5c1e134c832b92601ccccf2a9955b1bcee9dc81f333a330a59e1ca8  /fast/scratch/hyaku/tsukuroi-r38/C1CritAbsentRoot/super.c
+a4d774ac686de74d5be9ac9469065e1571c215878fb921c6c08cb28fb5f988af  /fast/scratch/hyaku/tsukuroi-r38/C1CritAbsentRoot/sysfs.h
+dfc4add66fcde8c4cf3864df26f257def66e33f6a2db5c69b0c237f20b252236  /fast/scratch/hyaku/tsukuroi-r38/C1CritAbsentRoot/btrfs-Kconfig
+
+-- fs/btrfs/sysfs.c:2657-2661 (kset created at btrfs init, before any mount)
+     1	int __init btrfs_init_sysfs(void)
+     2	{
+     3		int ret;
+     4	
+     5		btrfs_kset = kset_create_and_add("btrfs", NULL, fs_kobj);
+
+-- fs/btrfs/sysfs.c:2666-2669 (features group on the kset, unconditional)
+     1		ret = sysfs_create_group(&btrfs_kset->kobj, &btrfs_feature_attr_group);
+     2		if (ret)
+     3			goto out2;
+     4		ret = sysfs_merge_group(&btrfs_kset->kobj,
+
+-- fs/btrfs/super.c:2635-2646 (mod_init_seq entry) and 2732-2740 (init_btrfs_fs aborts on failure)
+     1	
+     2	static const struct init_sequence mod_init_seq[] = {
+     3		{
+     4			.init_func = btrfs_props_init,
+     5			.exit_func = NULL,
+     6		}, {
+     7			.init_func = btrfs_init_sysfs,
+     8			.exit_func = btrfs_exit_sysfs,
+     9		}, {
+    10			.init_func = btrfs_init_compress,
+    11			.exit_func = btrfs_exit_compress,
+    12		}, {
+     1	static int __init init_btrfs_fs(void)
+     2	{
+     3		int ret;
+     4		int i;
+     5	
+     6		for (i = 0; i < ARRAY_SIZE(mod_init_seq); i++) {
+     7			ASSERT(!mod_init_result[i]);
+     8			ret = mod_init_seq[i].init_func();
+     9			if (ret < 0) {
+
+-- include/linux/sysfs.h:397 and 503 (sysfs_* are stubs when CONFIG_SYSFS=n)
+     1	#ifdef CONFIG_SYSFS
+     2	#else /* CONFIG_SYSFS */
+
+-- fs/btrfs/Kconfig:3-19 (depends/selects: no SYSFS dependency)
+config BTRFS_FS
+	tristate "Btrfs filesystem support"
+	select BLK_CGROUP_PUNT_BIO
+	select CRC32
+	select CRYPTO_LIB_BLAKE2B
+	select CRYPTO_LIB_SHA256
+	select ZLIB_INFLATE
+	select ZLIB_DEFLATE
+	select LZO_COMPRESS
+	select LZO_DECOMPRESS
+	select ZSTD_COMPRESS
+	select ZSTD_DECOMPRESS
+	select FS_IOMAP
+	select RAID6_PQ
+	select XOR_BLOCKS
+	select XXHASH
+	depends on PAGE_SIZE_LESS_THAN_256KB
+
+-- man pages (Linux man-pages 6.19, page date 2026-02-08), read 2026-10-26
+
+DESCRIPTION
+     /proc/filesystems
+	    A text listing of the filesystems which are supported by the kernel, namely filesystems
+	    which were compiled into the kernel or whose kernel modules are currently loaded.  (See
+
+DESCRIPTION
+     /proc/pid/mounts (since Linux 2.4.19)
+	    This  file lists all the filesystems currently mounted in the process's mount namespace
+
+DESCRIPTION
+     The  sysfs filesystem is a pseudo-filesystem which provides an interface to kernel data struc‐
+     tures.  (More precisely, the files and directories in sysfs provide  a  view  of  the  kobject
+     structures	 defined  internally within the kernel.)  The files under sysfs provide information
+     about devices, kernel modules, filesystems, and other kernel components.
+
+     The sysfs filesystem is commonly mounted at /sys.	Typically, it is mounted  automatically	 by
+     the system, but it can also be mounted manually using a command such as:
+
+	 mount -t sysfs sysfs /sys
+

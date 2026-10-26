@@ -195,3 +195,29 @@ Append-only; the ADJ-01 to ADJ-07 table above is unchanged. From round 32 the ce
 ## Adjacent — ADJ-04 per-class boundary note (round 33, exploratory)
 
 Append-only; the ADJ-01 to ADJ-07 table and the round-32 handoff section above are unchanged. The seven kill and OOM evidence classes of `SKILL.md:1097-1107` are examined one by one against ADJ-04 and against mori's own declared scope at mori `24603186b555dddb88ebd607e415e27bdea747b4` in `corpus/knowledge/kill-oom-boundary-r33.md`: per class, what this lane retains, what ADJ-04 routes, and what mori declares (or `none declared`, with the grep that found nothing). It records boundaries; it adds no route, no intake and no new trigger.
+
+## Round-38 promotion — R38-STORAGE-CORE: the btrfs error counters move Frontier → Core
+
+Append-only; the round-26 frontier section and its wave-2 correction stay as written. The condition that
+section set — "This area becomes Core only after a census arm exists" — is met for the per-device
+error-counter reading only.
+
+**Core now:** reading the five per-device counters (`write_errs`, `read_errs`, `flush_errs`,
+`corruption_errs`, `generation_errs`) from `/sys/fs/btrfs/<fsid>/devinfo/<devid>/error_stats`, reported on
+the census's verdict-neutral `STORAGE btrfs-device-stats ...` line (`probe_storage_arm` in
+`tools/tsukuroi-census.sh`; `SKILL.md` "Storage integrity arm — round 38"). Unprivileged (sysfs 0444),
+resets nothing, never enters `TSUKUROI_CENSUS`. A nonzero value is a stored lifetime total, not a dated
+event (SH2, `corpus/knowledge/storage-health-r26.md`).
+
+**Still Frontier:** the scrub record (`btrfs scrub status`, `/var/lib/btrfs/scrub.status.*`,
+`btrfs-scrub@.timer`; SH3/SH4) and NVMe SMART/Health (`smartctl -H -A`, `nvme smart-log`; SH5/SH6) — no census
+arm reads them. The second NVMe device (xfs on `/tmp`, `/fast`) has no btrfs counters and stays unread.
+**Operator-owned:** running a scrub, enabling its timer, resetting a counter (`btrfs device stats -z`),
+profile changes, firmware, LUKS and any repair. **Mori's:** disk-space runway as fleet capacity, under
+the round-26 wave-2 split. **Known limit:** an absent sysfs root reads `HEALTHY 0/0/0`, so a namespace
+hiding `/sys/fs/btrfs` gives a false all-clear (wave-1 C1CritAbsentRoot); next-round work.
+
+Counted by `python3 tools/score-storage-arm-r38.py --revision <REV>` together with
+`python3 tools/score-storage-arm-r38-q82.py --revision <REV>` at the round-38 measured revision
+(`SCORECARD.md` "Round 38 — measured outcome"). No package, service, mount, scrub, counter-reset,
+firmware or configuration action is authorized by this section.

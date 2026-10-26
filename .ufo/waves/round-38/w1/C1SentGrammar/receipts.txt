@@ -1,0 +1,152 @@
+# C1SentGrammar receipts — census blob sha256 8e0084f67ad4783a980d5c2eaba453f51f1fc5d75408a1c9021a7249ac9aba1c (git 52ffd65:tools/tsukuroi-census.sh)
+# each case: env -i ... TSUKUROI_BTRFS_SYSFS=<tree> bash census-52ffd65.sh
+
+## case=base
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=sp
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1 2:unreadable$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=tab
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1	x:unreadable$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=eq
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1=write_errs=99:unreadable$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=nlroll
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1$
+12:TSUKUROI_CENSUS: HEALTHY (packages=HEALTHY systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=HEALTHY oom=HEALTHY):unreadable$
+13:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=2 HANDOFF=2
+
+## case=nlplane
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1$
+13:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=7 ROLLUP=1 HANDOFF=2
+
+## case=nlstorage
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1$
+12:STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0:unreadable$
+13:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=2 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=nlstorage2
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1$
+12:STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0 x:unreadable$
+13:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=2 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=nlhandoff
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1$
+12:HANDOFF ADJ-04 mori class=kill-events value=1 kind=dated-event state=prepared window=2026-01-01:00:00 source=journal-window x:unreadable$
+13:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=3
+
+## case=comma
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=DEGRADED filesystems=1 devices=1 nonzero=1 detail=11111111:a,b:write_errs=1$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=colon
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=DEGRADED filesystems=1 devices=1 nonzero=1 detail=11111111:1:write_errs=99:write_errs=1$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=trailc
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=DEGRADED filesystems=1 devices=1 nonzero=1 detail=11111111:1,:write_errs=1$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=spnz
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=DEGRADED filesystems=1 devices=1 nonzero=1 detail=11111111:1 2:write_errs=1$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=glob
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=tail
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1:malformed$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=hex
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1:malformed$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=glue
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1:malformed$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=hidden
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=fsnl
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=0 nonzero=0 detail=11111111:-:no-devinfo$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+
+## case=symlink
+8:HANDOFF ADJ-04 mori class=kill-events value=138 kind=dated-event state=prepared window=boots=4:2026-10-24..2026-10-26 source=journal-window$
+9:HANDOFF ADJ-04 mori class=coredumps value=5 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER$
+11:STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1:unreadable$
+12:TSUKUROI_CENSUS: BLOCKED (packages=DEGRADED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)$
+   counts: STORAGE=1 PLANE=6 ROLLUP=1 HANDOFF=2
+## case=fsnl2  counts: STORAGE=1 PLANE=6 ROLLUP=1
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+## case=valnl  counts: STORAGE=1 PLANE=6 ROLLUP=1
+STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1:malformed
+## case=esc  counts: STORAGE=1 PLANE=6 ROLLUP=1
+STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1^[]0;PWNED^G:unreadable

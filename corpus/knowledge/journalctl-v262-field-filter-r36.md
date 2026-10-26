@@ -183,3 +183,80 @@ The broad sentence in the original `## Prior state` is superseded. The exact v26
 ### QUALITY check for this correction
 
 QUALITY 1-3, 7 and 14: pass — the finite predicate is pinned to source lines; the two `-n` output states and action replacement are separated as saved observations; prior NEWS teaching is acknowledged; S199 is reopened and its located quote resolves. No new host behavior, field-enumeration capability, coverage surface, or ordinal move is claimed.
+
+## Round 38 correction — duplicate round-37 block
+
+The round-37 correction block appears twice in this note, and both copies were introduced by one commit: `543a7ce` (`543a7cee2c5119f42023aa72597ce452d4a060d5`, "round-37: correct journalctl v262 note and add finite counter", 2026-10-25T16:20:15-03:00). Its parent `8936643` holds 127 lines and no such heading, and `git log -G'^## Round 37 correction' -- corpus/knowledge/journalctl-v262-field-filter-r36.md` returns only `543a7ce`, so no later commit repaired or re-added the duplicate (swept 2026-10-26 over this file's full history).
+
+The heading `## Round 37 correction — predicate count, output states, action precedence and prior teaching` sits at line 129 and again at line 158. The first copy occupies lines 129-157; the second occupies lines 158-185 and ends the file. `grep -c '^## Round 37 correction' corpus/knowledge/journalctl-v262-field-filter-r36.md` therefore returns 2, and it returns 2 at `543a7ce`, at the round-37 tip `c231d0b`, at the round-38 base `8bd001f` and at `5edb6c2`, the revision these line numbers were measured at. No commit after `543a7ce` edits this file, and the file is byte-identical at `543a7ce` and `5edb6c2` (sha256 `dedb5c2fa0e0efbad04cc38fd60896c7e479454d4b74f5818d9aa4625281483b`), so the line numbers are stable across that range and this appended block leaves them unchanged.
+
+**Operative block: lines 129-157, the first copy.** Lines 158-185 are a duplicate: they assert nothing the first copy does not assert, so read every citation of "the round-37 correction" against lines 129-157 and treat lines 158-185 as inert history. Nothing is deleted by this correction, which is an append-only block in the sense of QUALITY 4.
+
+The two copies differ in one phrase and one separator. In the `-n` output table the operative copy's `-N` row (line 142) prefixes the words `field-name output` with the code span `` `-N` `` and one space; the duplicate's `-N` row (line 171) begins that same cell at `field-name` directly, without the code span. That 5-byte omission is the only textual difference: `diff <(sed -n '129,157p' corpus/knowledge/journalctl-v262-field-filter-r36.md) <(sed -n '158,185p' corpus/knowledge/journalctl-v262-field-filter-r36.md)` reports one changed line (block-relative 14, note lines 142 and 171) and one deleted blank line (block-relative 29, note line 157, the separator before the duplicate heading). Block sizes are 3629 and 3623 bytes.
+
+Which copy is operative is fixed by the committed conformance gate, not by position. `tools/check-journalctl-v262-corrections.py` requires that code span in the `-N` row (`:53`, selftest case `missing-n-unchanged` at `:115`). Scored on the first copy alone its `evaluate()` returns PASS with 0 findings; scored on the second copy alone it returns FAIL with exactly one `C2-CLAIM-MISSING` finding for the missing phrase; the note as committed at `5edb6c2` returns PASS with 0 findings. The first copy is therefore the load-bearing one, and a later round that deletes the duplicate would lose no gated content.
+
+### QUALITY check for this correction
+
+QUALITY 1-3, 4, 9 and 14: pass — every statement here is about committed bytes and carries its re-runnable command and scope (`grep -n '^## Round 37 correction'`, the `diff` above, `git log -G` over this file's history, and the gate's `--selftest`, which returns 7/7 PASS). The block deletes nothing, separates observation (line numbers, byte counts, diff shape) from inference (none is needed), and claims no new host behaviour, coverage surface or ordinal move.
+
+## Round 38 addendum — precedence in both orders, and the `--list-boots --merge` guard
+
+Re-opened `https://raw.githubusercontent.com/systemd/systemd/v262/src/journal/journalctl.c` on 2026-10-26 (1139 lines, sha256 `285b3d0c1217b9a3be90dca2ed4591eb8cf0192e2d3c75f303df3c5f18d5d0ab` — the bytes this note already pins), with `src/shared/options.h` (`f56c0cc6…`), `src/shared/options.c` (`110b3029…`) and `man/journalctl.xml` (`d54bbede…`) at the same tag. Host: `systemd 262 (262-1-arch)`. This addendum extends the round-37 correction above; it supersedes nothing in it. Every command below was read-only.
+
+### (a) The losing command is silently discarded, in both orders
+
+Both arms assign `arg_action` unconditionally inside one left-to-right parse loop: `-F/--field=` sets `ACTION_LIST_FIELDS` (`journalctl.c:805-810`, assignment at `:806`), `--list-boots` sets `ACTION_LIST_BOOTS` (`:812-814`, assignment at `:813`). `FOREACH_OPTION_OR_RETURN` is a sequential `for` over `option_parse(...)` (`options.h:255-259`), `optind` advances monotonically, and `shift_arg()` only compacts consumed tokens toward the front of `argv` (`options.c:34-42`, `:375-377`) — the option sequence is preserved, so the rightmost command survives.
+
+No action-conflict diagnostic exists: the only "one of" checks in `parse_argv()` are for journal sources (`:935`) and `--since`/cursor (`:943`). The earlier command produces nothing at all; stdout is byte-identical to the same argv with that command removed.
+
+| argv (`journalctl --no-pager …`) | rc | stdout | equals |
+|---|---|---|---|
+| `--list-boots -F PRIORITY` | 0 | 11 B, sha256 `cbfedf6a…91e20d` | `-F PRIORITY` — field values; boot list never printed |
+| `-F PRIORITY --list-boots` | 0 | 447 B, sha256 `e55209f6…889d0fa2` | `-b 0 --list-boots` — boot table; field list never printed |
+| `--list-boots -N` | 0 | 2849 B, sha256 `b07760c5…c9e3329cb` | `-N` |
+| `-F PRIORITY -N` | 0 | 2849 B, sha256 `b07760c5…c9e3329cb` | `-N` |
+| `-b 0 --list-boots` | 0 | 447 B, sha256 `e55209f6…889d0fa2` | plain `--list-boots` — `-b 0` has no effect on the boot table |
+
+Absolute byte counts and sha256s are host-journal content (2026-10-26 snapshot), so they drift between rounds; the durable claim is the **equality** between an invocation and its one-command-stripped twin. Raw `-F PRIORITY` prints in journal order (`2 4 5 6 7 3`), not sorted — the sorted `2 3 4 5 6 7` in §Safe substitution is that pipeline's `sort -u`, not raw `-F` output.
+
+### (b) `--list-boots --merge` rejects, and order can bypass the rejection
+
+`if ((arg_boot || arg_action == ACTION_LIST_BOOTS) && arg_merge)` (`journalctl.c:962-964`) exits **1** with stderr `Using --boot or --list-boots with --merge is not supported.` (59 chars + newline = 60 bytes), 0 stdout bytes, raised in `parse_argv()` before any journal open (`journalctl.c:1019-1020`). `arg_boot` alone is sufficient: `-b 0 --merge -n 1` (action `SHOW`) rejects with the same line.
+
+Because the guard tests the *selected* action, mixing a field action with `--list-boots` and `--merge` gives either an error or a silent no-op:
+
+| argv (`journalctl --no-pager …`) | rc | stdout | stderr |
+|---|---|---|---|
+| `--list-boots --merge` | 1 | 0 B | 60 B merge message |
+| `-F PRIORITY --list-boots --merge` | 1 | 0 B | 60 B merge message |
+| `--list-boots -F PRIORITY --merge` | 0 | 11 B field values | — `--merge` silently ignored |
+| `--list-boots -N --merge` | 0 | 2849 B field names | — `--merge` silently ignored |
+| `--merge` | 0 | 63753114 B | — (measured once) |
+
+So the string `--list-boots --merge` is a documented rejection (`:962-964`) that any caller defeats by placing `-F` or `-N` after `--list-boots`.
+
+### Guard order decides which error is reported
+
+The field-list scope guard (`:958-960`) precedes the merge guard (`:962-964`): `-F PRIORITY -b 0 --merge` yields the 84-byte `-F/--field= and -N/--fields cannot be combined with options that limit the journal.` line, not the merge line. With (a), one option multiset has three outcomes: `--list-boots -F PRIORITY -b 0` → rc 1 field-list line; `-F PRIORITY --list-boots -b 0` → rc 0 boot table; `-F PRIORITY -b 0 --merge` → rc 1 field-list line.
+
+### The man page does not define precedence
+
+`man/journalctl.xml:886` (§Commands): "The following commands are understood. If none is specified the default is to display journal records:" — nothing on mutual exclusion, on last-wins, or on mixing commands. Last-wins is implementation behaviour, not a documented contract. A caller that needs two reports must issue two `journalctl` invocations; an arm that wants merged output must verify `--merge` took effect, because a field action drops it without a message.
+
+### Falsifier (round 38)
+
+1. `journalctl --no-pager --list-boots -F PRIORITY` exits non-0, or its stdout differs from `journalctl --no-pager -F PRIORITY`.
+2. `journalctl --no-pager -F PRIORITY --list-boots` stdout differs from `journalctl --no-pager -b 0 --list-boots`.
+3. `journalctl --no-pager --list-boots --merge` exits 0, prints stdout, or its stderr is not the 60-byte merge line.
+4. `journalctl --no-pager --list-boots -F PRIORITY --merge` exits non-0 (the bypass is order-sensitive).
+5. `parse_argv()` at v262 gains an action-conflict diagnostic (today only `:935` and `:943` exist).
+6. A later systemd documents command precedence; the "undocumented" clause here then becomes stale.
+
+### Provenance (round 38)
+
+Live matrix (17 rows: argv, rc, stdout bytes, stdout sha256, stderr bytes, stderr text): `.ufo/waves/round-38/w1/DefJournalDebt/live-matrix.jsonl`. Source excerpts: `.ufo/waves/round-38/w1/DefJournalDebt/journalctl.c-excerpt.txt`. File digests: `.ufo/waves/round-38/w1/DefJournalDebt/provenance.txt`.
+
+### QUALITY note
+
+1 (falsifiable): six conditions above. 2 (source): every claim is a `file:line` at the pinned tag plus an rc/byte/sha256 receipt. 3 (observation vs inference): the tables are executed observations; "no action-conflict diagnostic" is a source statement about the two "one of" checks at `:935` and `:943`, not an inference from silence. 7 (S-row, tier A): the v262 tag sources and `journalctl(1)`-derived `journalctl.xml`. Known limit: the merge-bypass asymmetry is shown on this host's systemd 262 build; no other build was tested.

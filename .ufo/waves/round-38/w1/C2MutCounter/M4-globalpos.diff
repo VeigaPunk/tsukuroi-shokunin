@@ -1,0 +1,20 @@
+--- /fast/scratch/hyaku/tsukuroi-r38/C2MutCounter/check-hook-order-r38.py	2026-10-26 01:57:05.590253758 -0300
++++ /fast/scratch/hyaku/tsukuroi-r38/C2MutCounter/M4-globalpos.py	2026-10-26 01:58:33.653333734 -0300
+@@ -121,14 +121,14 @@
+         raise RuntimeError('capture_tampered: file set differs from manifest')
+     import functools
+     names = sorted(seen, key=functools.cmp_to_key(alpm_cmp))
+-    rows, pos = [], {'PreTransaction': 0, 'PostTransaction': 0}
++    rows, pos = [], {'__global__': 0}
+     for n in names:
+         tag, (when, abort, needs, exec0, triggers) = seen[n]
+         if triggers == 0:
+             rows.append(('masked', '-', n, tag, 'yes' if abort else 'no', 'yes' if needs else 'no', exec0 or '-'))
+             continue
+-        pos[when] += 1
+-        rows.append((when, str(pos[when]), n, tag, 'yes' if abort else 'no', 'yes' if needs else 'no', exec0))
++        pos['__global__'] += 1
++        rows.append((when, str(pos['__global__']), n, tag, 'yes' if abort else 'no', 'yes' if needs else 'no', exec0))
+     return rows
+ 
+ 

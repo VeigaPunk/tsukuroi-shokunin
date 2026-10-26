@@ -1,0 +1,24 @@
+# RevFreezeOrder receipts 03 — predicate sentence identity (mechanical python3 check; substring count + JSON field equality)
+
+S1 = 'fixtures_matched == FIXTURES_EXPECTED and live_match == 1 and six_planes_all == 1'
+S2 = 'rows_expected == rows_matched and mismatches == 0 and extra_rows == 0 and source_ok == 1'
+
+SCORECARD: C1-sentence occurrences=1  C2-sentence occurrences=1
+counter-c1: C1-sentence occurrences=2  C2-sentence occurrences=0
+counter-c2: C1-sentence occurrences=0  C2-sentence occurrences=2
+c1-before: C1-sentence occurrences=1  C2-sentence occurrences=0
+c2-before: C1-sentence occurrences=0  C2-sentence occurrences=1
+c1-after: C1-sentence occurrences=1  C2-sentence occurrences=0
+c2-after: C1-sentence occurrences=0  C2-sentence occurrences=1
+
+c1-before: predicate-field-exact-C1=True  exact-C2=False  result=FAIL  exit=1  branch_tip=8bd001f58bfda29c92d90d2a7a413825c0ca9fcb
+c2-before: predicate-field-exact-C1=False exact-C2=True   result=FAIL  exit=1  branch_tip=8bd001f58bfda29c92d90d2a7a413825c0ca9fcb
+c1-after:  predicate-field-exact-C1=True  exact-C2=False  result=PASS  exit=0  branch_tip=52ffd65f868431f021b8615ab281efd87195eac6
+c2-after:  predicate-field-exact-C1=False exact-C2=True   result=PASS  exit=0  branch_tip=1fe28e725be47364fc6033bf81ecabc66ee5fe62
+
+Locations of the occurrences:
+SCORECARD.md:2117 (C1 Target column), SCORECARD.md:2118 (C2 Target column)
+tools/score-storage-arm-r38.py:7 (docstring, sentence + '  -> PASS, exit 0') and :232 (emitted 'predicate' constant)
+tools/check-hook-order-r38.py:8 (docstring, same suffix form) and :207 (emitted 'predicate' constant)
+.ufo/waves/round-38/before/c1-before.json:5, .ufo/waves/round-38/after/c1-after-52ffd65.json:5
+.ufo/waves/round-38/before/c2-before.json:5, .ufo/waves/round-38/after/c2-after-1fe28e7.json:5

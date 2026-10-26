@@ -1,0 +1,138 @@
+# D-3 copy receipt — rows S206/S207 own-work captures (round 38 wave 1)
+
+Seat: DefOwnWorkCopy (leaf). Date: 2026-10-26.
+Source (read-only sibling): /home/vgpnk/Projects/shokuknow/lanes/tsukuroi/round9/
+Destination (this seat dir, lane-relative): .ufo/waves/round-38/w1/DefOwnWorkCopy/
+
+## 1. Copy command and result
+
+    cp --preserve=timestamps,mode /home/vgpnk/Projects/shokuknow/lanes/tsukuroi/round9/host-errno-capture.txt .
+    cp --preserve=timestamps,mode /home/vgpnk/Projects/shokuknow/lanes/tsukuroi/round9/lane-errno13-probe.txt .
+
+Observed (mode/mtime preserved from the source):
+
+    -rw-r--r-- 1 vgpnk vgpnk 485 2026-10-24 07:21:36.375465828 -0300 host-errno-capture.txt
+    -rw-r--r-- 1 vgpnk vgpnk 372 2026-10-24 07:21:36.375465828 -0300 lane-errno13-probe.txt
+
+## 2. Byte comparison against the source working tree
+
+    cmp /home/vgpnk/Projects/shokuknow/lanes/tsukuroi/round9/host-errno-capture.txt host-errno-capture.txt
+    cmp /home/vgpnk/Projects/shokuknow/lanes/tsukuroi/round9/lane-errno13-probe.txt  lane-errno13-probe.txt
+
+Observed: both `cmp` invocations silent, exit 0. `wc -lc`:
+
+    10  485 host-errno-capture.txt
+     8  372 lane-errno13-probe.txt
+
+## 3. Digests (recorded; also in MANIFEST.sha256)
+
+    sha256sum host-errno-capture.txt lane-errno13-probe.txt
+    50149f0d093437cd9be86d65fbda13fa263c8209670ae690d5c66f2eff01fcc6  host-errno-capture.txt
+    1b2f2ac2b09bd709f535bbdbc0fa132d6dbb90a4e0474570a63cc5cdc42c968a  lane-errno13-probe.txt
+
+## 4. Provenance pin against the sibling's committed snapshot
+
+Source repo: /home/vgpnk/Projects/shokuknow (git).
+Commit pinned: a9a1ee2c19cbc396da31dd7a7368f657fed6cfe1 ("Round 9: 25 of 32 members finished; ...",
+2026-10-24 07:25:06 -0300), the last commit touching both files. Both files were introduced at
+b7c17115a672afc37d14e4df54d1464cd48bde29 (2026-10-24 07:18:21 -0300) and rewritten at a9a1ee2
+(`git diff --stat b7c1711 a9a1ee2 -- lanes/tsukuroi/round9/` → host file 15 +/-, probe file 14 +/-).
+
+    git -C /home/vgpnk/Projects/shokuknow rev-parse a9a1ee2c19cbc396da31dd7a7368f657fed6cfe1:lanes/tsukuroi/round9/host-errno-capture.txt
+    -> f11b0256f787af4a532ed090023a0318da75d9d6
+    git -C /home/vgpnk/Projects/shokuknow rev-parse a9a1ee2c19cbc396da31dd7a7368f657fed6cfe1:lanes/tsukuroi/round9/lane-errno13-probe.txt
+    -> 0de07080bb0dcc57340700a5f9608c2ce602488a
+
+    git -C /home/vgpnk/Projects/shokuknow cat-file blob a9a1ee2c...:.../host-errno-capture.txt | sha256sum
+    -> 50149f0d093437cd9be86d65fbda13fa263c8209670ae690d5c66f2eff01fcc6  -
+    git -C /home/vgpnk/Projects/shokuknow cat-file blob a9a1ee2c...:.../lane-errno13-probe.txt | sha256sum
+    -> 1b2f2ac2b09bd709f535bbdbc0fa132d6dbb90a4e0474570a63cc5cdc42c968a  -
+
+    git -C ... cat-file blob <blob> | cmp - <seat copy>   -> IDENTICAL for both files
+    git -C /home/vgpnk/Projects/shokuknow status --porcelain -- lanes/tsukuroi/round9/   -> empty (clean)
+
+    git hash-object host-errno-capture.txt lane-errno13-probe.txt
+    -> f11b0256f787af4a532ed090023a0318da75d9d6
+    -> 0de07080bb0dcc57340700a5f9608c2ce602488a
+
+So the seat copies are byte-identical to the working-tree files, to the committed blobs, and their
+git blob ids equal the sibling commit's blob ids.
+
+### 4b. What the pin does not say: the a9a1ee2 rewrite is editorial
+
+    git rev-parse b7c1711:lanes/tsukuroi/round9/host-errno-capture.txt  -> c649d0d2f9eda550baea4895c3dc794575a1fceb
+    git rev-parse b7c1711:lanes/tsukuroi/round9/lane-errno13-probe.txt -> 6c0d821df091ba9b75e632c2b835bc4109f49a27
+    git diff b7c1711 a9a1ee2 -- <both paths>
+
+The diff shows the earlier version held literal header lines and command-shaped results:
+
+- old header `# host errno number->name binding, captured 2026-10-24T07:11:32-03:00`;
+  old line `#define<TAB>EACCES<TAB><TAB>13<TAB>/* Permission denied */`
+- old probe line `journalctl -g 'create subvolume failed' | grep -c errno:13 -> 0`
+
+and a9a1ee2 rewrote them as:
+
+- `# host errno number-to-name binding, captured 2026-10-24T07:21:36-03:00`;
+  `define EACCES 13 /* Permission denied */` (no `#`, spaces); added line 10 summary
+- `probe journal matches for errno:13 -> 0` / `probe errno:13 matches anywhere since 2026-10-01 -> 0`;
+  mechanism lines reworded to `mechanism: ...`
+
+Consequence: the lane copies preserve the exact bytes the S206/S207 teaches cells quote, but those
+bytes are an editorial normalization/summary, not raw command output. The literal earlier form is
+retrievable read-only with `git -C /home/vgpnk/Projects/shokuknow cat-file blob
+b7c1711:lanes/tsukuroi/round9/<name>`. The taught mapping and the zero-probe result are the same in
+both versions; only the rendering differs.
+
+## 5. Anchor cell vs teaches cell (corpus/SOURCES.md:215-216)
+
+    sed -n '6p' host-errno-capture.txt   -> define EACCES 13 /* Permission denied */
+    sed -n '3p' lane-errno13-probe.txt   -> probe journal matches for errno:13 -> 0
+
+Shell string equality against the parsed teaches cells:
+
+    S206 teaches == line 6: EXACT
+    S207 teaches == line 3: EXACT
+
+Anchor cells and their coverage:
+
+- S206 anchor "lines 1-10, capture 2026-10-24": file has 10 lines; line 1 header carries
+  `captured 2026-10-24T07:21:36-03:00`; the quoted definition is line 6. Holds.
+- S207 anchor "lines 1-8, capture 2026-10-24": file has 8 lines; line 1 header carries
+  `re-run 2026-10-24T07:21:36-03:00`; the quoted probe result is line 3. Holds.
+- S207 line 2 points at `corpus/knowledge/snapper-eacces-mechanism.md:3`; that line is the
+  `recheck:` procedure and contains `journalctl ... | grep -c 'errno:13'`. Reference resolves.
+
+## 6. Defect reproduction: the cited path does not resolve from the lane
+
+    cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+    ls shokuknow/lanes/tsukuroi/round9/host-errno-capture.txt
+    -> ls: cannot access '...': No such file or directory
+    ls /home/vgpnk/Projects/shokunin/shokuknow/lanes/tsukuroi/round9/host-errno-capture.txt
+    -> ls: cannot access '...': No such file or directory
+    ls -l /home/vgpnk/Projects/shokuknow/lanes/tsukuroi/round9/host-errno-capture.txt
+    -> -rw-r--r-- 1 vgpnk vgpnk 485 Oct 24 07:21 <present>
+
+The row text `shokuknow/lanes/tsukuroi/round9/...` is relative to /home/vgpnk/Projects only.
+
+## 7. Re-runnable host mapping check (read-only, no pacman transaction)
+
+    grep -nE 'EACCES|EROFS|EPERM|ENOENT|EEXIST|ENOSPC' /usr/include/asm-generic/errno-base.h
+    5:#define\tEPERM\t\t 1\t/* Operation not permitted */
+    6:#define\tENOENT\t\t 2\t/* No such file or directory */
+    17:#define\tEACCES\t\t13\t/* Permission denied */
+    21:#define\tEEXIST\t\t17\t/* File exists */
+    32:#define\tENOSPC\t\t28\t/* No space left on device */
+    34:#define\tEROFS\t\t30\t/* Read-only file system */
+    pacman -Qo /usr/include/asm-generic/errno-base.h
+    -> ... is owned by linux-api-headers 7.2-1
+
+The capture is a whitespace-normalized transcription: the host header separates fields with tabs,
+the capture uses single spaces. The teaches cells are byte-identical to the capture, not to the raw
+header line. The numbers agree; only the whitespace differs.
+
+## 8. Boundary
+
+No lane file was edited; no git/jj mutation; no pacman transaction, service action, hook, sysfs,
+journal or /etc change; no shokuknow write. TMPDIR used:
+/fast/scratch/hyaku/tsukuroi-r38/DefOwnWorkCopy (only a temp dir; removed at seat end). The source
+journal probe (S207) was not re-run by this seat; the capture's claim is the 2026-10-24 observation.

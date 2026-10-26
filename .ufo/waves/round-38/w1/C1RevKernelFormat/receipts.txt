@@ -1,0 +1,29 @@
+Seat C1RevKernelFormat, round 38, item C1-13. Access date for every URL below: 2026-10-26.
+
+Fetch commands (run in /fast/scratch/hyaku/tsukuroi-r38/C1RevKernelFormat, TMPDIR set there):
+  git ls-remote https://github.com/torvalds/linux "refs/tags/v7.2" "refs/tags/v7.2^{}"
+    -> 237a1c39e8dfd3e1c6f1f023eea37a48ec04cc63 (tag object) / 8d3ae59288f1e7d58d76558a6ee96d533bc5019f (peeled commit)
+  curl -fsSL -o sysfs.c         https://raw.githubusercontent.com/torvalds/linux/v7.2/fs/btrfs/sysfs.c
+  curl -fsSL -o volumes.c       https://raw.githubusercontent.com/torvalds/linux/v7.2/fs/btrfs/volumes.c
+  curl -fsSL -o volumes.h       https://raw.githubusercontent.com/torvalds/linux/v7.2/fs/btrfs/volumes.h
+  curl -fsSL -o btrfs-uapi.h    https://raw.githubusercontent.com/torvalds/linux/v7.2/include/uapi/linux/btrfs.h
+  curl -fsSL -o btrfs-device.rst https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/btrfs-device.rst
+  curl -fsSL -o btrfs.rst       https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/filesystems/btrfs.rst
+  curl -fsSL -o abi-tree.html   https://github.com/torvalds/linux/tree/v7.2/Documentation/ABI/testing
+  404 probes (curl -sS -o /dev/null -w "%{http_code}\n"):
+    v7.2/Documentation/ABI/testing/sysfs-fs-btrfs -> 404
+    master/Documentation/ABI/testing/sysfs-fs-btrfs -> 404
+    (master/fs/btrfs/sysfs.c -> 200; v7.2/fs/btrfs/sysfs.c -> 200; one transient 404 on the first sysfs.c fetch, 200 on retry)
+
+sha256sum at fetch time:
+  ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43  sysfs.c          (2702 lines; equals S133 pin, corpus/SOURCES.md:139)
+  f3400af8e924bc7743d28f43b45f02be1bc84e25de00ac99d2bfc8bab19a4fbf  volumes.c        (8976 lines; equals S132 pin, corpus/SOURCES.md:138)
+  0d4f425a49c1483f1cc598695d9a456e6d5542e5c59df4946fd471e5d4f7a0e6  btrfs-device.rst (284 lines; equals S128 pin, corpus/SOURCES.md:134)
+
+Key lines cited in the report:
+  sysfs.c       2080-2081 (invalid early return), 2083-2086 (order comment), 2088-2093 (format string), 2094-2098 (btrfs_dev_stat_read args), 2100 (BTRFS_ATTR, read-only)
+  volumes.h     197 (int dev_stats_valid), 201 (atomic_t dev_stat_values[]), 831-835 (btrfs_dev_stat_read -> atomic_read, int)
+  volumes.c     2941 (valid=1 at add), 8204-8205 (zero+valid, no item at mount), 8219-8223 (load/zero+valid), 8422-8427 (inc_and_print), 8474-8476 (ioctl not-yet-valid), 8483-8485 (explicit reset logged), 8490 (ioctl read via btrfs_dev_stat_read)
+  btrfs-uapi.h  735-752 (enum btrfs_dev_stat_values order), 763 (__u64 values[5] in ioctl ABI), 1231-1232 (BTRFS_IOC_GET_DEV_STATS)
+
+No tools were installed or upgraded; only preexisting curl/git/sha256sum were used. No host mutation, no sudo, no pacman. Scratch dir removed after receipts copy.

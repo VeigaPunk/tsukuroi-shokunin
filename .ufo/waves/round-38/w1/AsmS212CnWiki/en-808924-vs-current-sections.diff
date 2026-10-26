@@ -1,0 +1,43 @@
+--- en-808924
++++ en-current
+@@ -2,18 +2,18 @@
+ 
+ When successful, the workflow of a transaction follows five high-level steps plus pre/post transaction hooks:
+ 
+-# Initialize the transaction if there is not a database lock
+-# Choose which packages will be added or removed in the transaction
+-# Prepare the transaction, based on flags, by performing sanity checks on the sync databases, packages, and their dependencies
++# Initialize the transaction if there is not a database lock.
++# Choose which packages will be added or removed in the transaction.
++# Prepare the transaction, based on flags, by performing sanity checks on the sync databases, packages, and their dependencies.
+ # Commit the transaction:
+-## When applicable, download packages ({{ic|_alpm_sync_load}})
++## When applicable, download packages ({{ic|_alpm_sync_load}}).
+ ## If pre-existing ''pacman'' {{ic|PreTransaction}} hooks apply, they are executed.
+-## Packages are removed that are to-be-replaced, conflicting, or explicitly targeted to be removed
+-## If there are packages to add, then each package is committed
++## Packages are removed that are to-be-replaced, conflicting, or explicitly targeted to be removed.
++## If there are packages to add, then each package is committed:
+ ### If the package has an install script, its {{ic|pre_install}} function is executed (or {{ic|pre_upgrade}} or {{ic|pre_remove}} in the case of an upgraded or removed package).
+-### Pacman deletes all the files from a pre-existing version of the package (in the case of an upgraded or removed package). However, files that were marked as configuration files in the package are kept (see [[/Pacnew and Pacsave]]).
+-### Pacman untars the package and dumps its files into the file system (in the case of an installed or upgraded package). Files that would overwrite kept, and manually modified, configuration files (see previous step), are stored with a new name (.pacnew).
++### ''pacman'' deletes all the files from a pre-existing version of the package (in the case of an upgraded or removed package). However, files that were marked as configuration files in the package are kept (see [[/Pacnew and Pacsave]]).
++### ''pacman'' untars the package and dumps its files into the file system (in the case of an installed or upgraded package). Files that would overwrite kept, and manually modified, configuration files (see previous step), are stored with a new name (''.pacnew'').
+ ### If the package has an install script, its {{ic|post_install}} function is executed (or {{ic|post_upgrade}} or {{ic|post_remove}} in the case of an upgraded or removed package).
+ ## If ''pacman'' {{ic|PostTransaction}} hooks that exist at the end of the transaction apply, they are executed.
+-# Release the transaction and transaction resource (i.e. database lock)
++# Release the transaction and transaction resource (i.e. database lock).
+ 
+--- en-808924
++++ en-current
+@@ -1,8 +1,8 @@
+ ==== Hooks ====
+ 
+-Pacman can run pre- and post-transaction hooks from the {{ic|/usr/share/libalpm/hooks/}} directory; more directories can be specified with the {{ic|HookDir}} option in {{ic|pacman.conf}}, which defaults to {{ic|/etc/pacman.d/hooks}}. Hook file names must be suffixed with ''.hook''. Pacman hooks are not interactive.
++''pacman'' can run pre- and post-transaction hooks from the {{ic|/usr/share/libalpm/hooks/}} directory; more directories can be specified with the {{ic|HookDir}} option in {{ic|pacman.conf}}, which defaults to {{ic|/etc/pacman.d/hooks}}. Hook file names must be suffixed with ''.hook''. ''pacman'' hooks are not interactive.
+ 
+-Pacman hooks are used, for example, in combination with {{ic|systemd-sysusers}} and {{ic|systemd-tmpfiles}} to automatically create system users and files during the installation of packages. For example, {{Pkg|tomcat8}} specifies that it wants a system user called {{ic|tomcat8}} and certain directories owned by this user. The ''pacman'' hooks {{ic|systemd-sysusers.hook}} and {{ic|systemd-tmpfiles.hook}} invoke {{ic|systemd-sysusers}} and {{ic|systemd-tmpfiles}} when ''pacman'' determines that {{Pkg|tomcat8}} contains files specifying users and tmp files.
++''pacman'' hooks are used, for example, in combination with {{ic|systemd-sysusers}} and {{ic|systemd-tmpfiles}} to automatically create system users and files during the installation of packages. For example, {{AUR|tomcat8}} specifies that it wants a system user called {{ic|tomcat8}} and certain directories owned by this user. The ''pacman'' hooks {{ic|systemd-sysusers.hook}} and {{ic|systemd-tmpfiles.hook}} invoke {{ic|systemd-sysusers}} and {{ic|systemd-tmpfiles}} when ''pacman'' determines that {{AUR|tomcat8}} contains files specifying users and tmp files.
+ 
+ For more information on alpm hooks, see {{man|5|alpm-hooks}}.
+ 

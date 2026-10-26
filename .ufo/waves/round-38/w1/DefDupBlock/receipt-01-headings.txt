@@ -1,0 +1,26 @@
+# receipt-01 headings, history, identity (read-only, 2026-10-26)
+$ grep -n '^## Round 37 correction' corpus/knowledge/journalctl-v262-field-filter-r36.md
+129:## Round 37 correction — predicate count, output states, action precedence and prior teaching
+158:## Round 37 correction — predicate count, output states, action precedence and prior teaching
+
+$ for c in 543a7ce c231d0b 8bd001f 5edb6c2; do git show $c:corpus/knowledge/journalctl-v262-field-filter-r36.md | grep -c '^## Round 37 correction'; done
+543a7ce 2
+c231d0b 2
+8bd001f 2
+5edb6c2 2
+
+$ git log -G'^## Round 37 correction' --oneline -- corpus/knowledge/journalctl-v262-field-filter-r36.md
+543a7ce round-37: correct journalctl v262 note and add finite counter
+
+$ git log --oneline 543a7ce..HEAD -- corpus/knowledge/journalctl-v262-field-filter-r36.md   (empty = no later edit)
+
+$ sha256sum corpus/knowledge/journalctl-v262-field-filter-r36.md ; git show 543a7ce:corpus/knowledge/journalctl-v262-field-filter-r36.md | sha256sum
+dedb5c2fa0e0efbad04cc38fd60896c7e479454d4b74f5818d9aa4625281483b  corpus/knowledge/journalctl-v262-field-filter-r36.md
+dedb5c2fa0e0efbad04cc38fd60896c7e479454d4b74f5818d9aa4625281483b  -
+
+$ git show 8936643:corpus/knowledge/journalctl-v262-field-filter-r36.md | wc -l ; git show 8936643:corpus/knowledge/journalctl-v262-field-filter-r36.md | grep -c '^## Round 37 correction'   (0 matches, grep exit 1)
+127
+0
+
+$ git rev-parse HEAD
+5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf

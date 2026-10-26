@@ -1,0 +1,83 @@
+{
+ "counter": "score-storage-arm-r38-q82",
+ "revision": "5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf",
+ "branch_tip": "5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf",
+ "seed": "b0b54ea4e081cb8c6c4e53e6e16d3095",
+ "predicate": "ns_views_matched == VIEWS and ns_available == 1",
+ "views_expected": 3,
+ "ns_views_matched": 3,
+ "ns_available": 1,
+ "result": "PASS",
+ "exit": 0,
+ "views": [
+  {
+   "view": 0,
+   "mode": "zero",
+   "expected": [
+    "HEALTHY",
+    2,
+    4,
+    0
+   ],
+   "got": [
+    "HEALTHY",
+    2,
+    4,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=2 devices=4 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 1,
+   "mode": "nonzero",
+   "expected": [
+    "DEGRADED",
+    3,
+    6,
+    11
+   ],
+   "got": [
+    "DEGRADED",
+    3,
+    6,
+    11
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=3 devices=6 nonzero=11 detail=42bc4318:5:write_errs=62674,69cd1ad4:2:flush_errs=71766,69cd1ad4:2:corruption_errs=28772,69cd1ad4:2:generation_errs=1051,69cd1ad4:8:write_errs=24552,69cd1ad4:8:corruption_errs=59567,69cd1ad4:8:generation_errs=7499,b82f33fe:1:write_errs=56869,b82f33fe:1:flush_errs=43000,b82f33fe:4:write_errs=43973,b82f33fe:4:read_errs=21066"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 2,
+   "mode": "any",
+   "expected": [
+    "DEGRADED",
+    2,
+    2,
+    9
+   ],
+   "got": [
+    "DEGRADED",
+    2,
+    2,
+    9
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=2 devices=2 nonzero=9 detail=80893bc7:2:write_errs=26026,80893bc7:2:read_errs=70822,80893bc7:2:flush_errs=92697,80893bc7:2:corruption_errs=27682,80893bc7:2:generation_errs=10247,8c1c815d:3:read_errs=65055,8c1c815d:3:flush_errs=61742,8c1c815d:3:corruption_errs=15775,8c1c815d:3:generation_errs=63065"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  }
+ ]
+}

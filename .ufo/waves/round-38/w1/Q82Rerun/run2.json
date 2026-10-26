@@ -1,0 +1,83 @@
+{
+ "counter": "score-storage-arm-r38-q82",
+ "revision": "5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf",
+ "branch_tip": "5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf",
+ "seed": "570b6920476906ab9837ef018b2ecbeb",
+ "predicate": "ns_views_matched == VIEWS and ns_available == 1",
+ "views_expected": 3,
+ "ns_views_matched": 3,
+ "ns_available": 1,
+ "result": "PASS",
+ "exit": 0,
+ "views": [
+  {
+   "view": 0,
+   "mode": "zero",
+   "expected": [
+    "HEALTHY",
+    1,
+    2,
+    0
+   ],
+   "got": [
+    "HEALTHY",
+    1,
+    2,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=2 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 1,
+   "mode": "nonzero",
+   "expected": [
+    "DEGRADED",
+    2,
+    4,
+    6
+   ],
+   "got": [
+    "DEGRADED",
+    2,
+    4,
+    6
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=2 devices=4 nonzero=6 detail=9d3c1804:3:write_errs=72381,9d3c1804:3:flush_errs=3099,9d3c1804:3:generation_errs=7215,9d3c1804:8:write_errs=97203,ab8f9be2:7:corruption_errs=12133,ab8f9be2:7:generation_errs=88214"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 2,
+   "mode": "any",
+   "expected": [
+    "DEGRADED",
+    3,
+    8,
+    12
+   ],
+   "got": [
+    "DEGRADED",
+    3,
+    8,
+    12
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=3 devices=8 nonzero=12 detail=2014f68d:3:write_errs=98045,2014f68d:5:flush_errs=57797,2014f68d:5:generation_errs=85555,2014f68d:6:write_errs=18801,70c23c81:4:write_errs=50197,70c23c81:6:flush_errs=6574,70c23c81:6:corruption_errs=22829,70c23c81:7:write_errs=57439,70c23c81:7:generation_errs=39086,e963a5bf:8:write_errs=18631,e963a5bf:8:read_errs=53852,e963a5bf:8:corruption_errs=15734"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  }
+ ]
+}

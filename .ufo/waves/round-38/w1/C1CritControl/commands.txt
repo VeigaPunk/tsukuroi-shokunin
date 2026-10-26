@@ -1,0 +1,14 @@
+# C1-7 cheap-control reproduction (scratch clone only; lane read-only)
+S=/fast/scratch/hyaku/tsukuroi-r38/C1CritControl; export TMPDIR=$S/tmp; mkdir -p "$TMPDIR"
+D=$S/clone
+git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin "$D"
+git -C "$D" remote remove origin          # binding reads the clone's own master
+# for each control: reset --hard 5edb6c2, insert cands/<name>.sh before the census's
+# '# ---- hermetic selftest' anchor (redefines probe_storage_arm; bash keeps the last definition),
+# commit with -c user.name=C1CritControl -c user.email=crit@example.invalid, then:
+python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-storage-arm-r38.py \
+        --repo "$D" --revision <commit> --scratch "$TMPDIR"          # ~34 s, 11 census runs
+python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-storage-arm-r38-q82.py \
+        --repo "$D" --revision <commit> --scratch "$TMPDIR"          # ~10 s, 3 ns views
+# census's own selftest against a candidate's census (no counter involved):
+bash "$D/tools/tsukuroi-census.sh" --selftest

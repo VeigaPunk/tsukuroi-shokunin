@@ -1,0 +1,83 @@
+{
+ "counter": "score-storage-arm-r38-q82",
+ "revision": "5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf",
+ "branch_tip": "5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf",
+ "seed": "bda00ab52b162cf6716c536ee84452ac",
+ "predicate": "ns_views_matched == VIEWS and ns_available == 1",
+ "views_expected": 3,
+ "ns_views_matched": 3,
+ "ns_available": 1,
+ "result": "PASS",
+ "exit": 0,
+ "views": [
+  {
+   "view": 0,
+   "mode": "zero",
+   "expected": [
+    "HEALTHY",
+    2,
+    3,
+    0
+   ],
+   "got": [
+    "HEALTHY",
+    2,
+    3,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=2 devices=3 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 1,
+   "mode": "nonzero",
+   "expected": [
+    "DEGRADED",
+    3,
+    5,
+    12
+   ],
+   "got": [
+    "DEGRADED",
+    3,
+    5,
+    12
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=3 devices=5 nonzero=12 detail=5ac29a9a:7:write_errs=49255,5ac29a9a:7:read_errs=76083,5ac29a9a:7:flush_errs=67021,5ac29a9a:7:corruption_errs=48708,a757245d:8:write_errs=41508,a757245d:8:flush_errs=95874,a757245d:8:corruption_errs=73879,a757245d:8:generation_errs=19896,fe898df7:6:read_errs=82872,fe898df7:6:corruption_errs=62472,fe898df7:6:generation_errs=70491,fe898df7:7:corruption_errs=79937"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 2,
+   "mode": "any",
+   "expected": [
+    "DEGRADED",
+    1,
+    3,
+    7
+   ],
+   "got": [
+    "DEGRADED",
+    1,
+    3,
+    7
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=1 devices=3 nonzero=7 detail=35c73c23:3:read_errs=26400,35c73c23:3:generation_errs=6899,35c73c23:7:write_errs=78020,35c73c23:7:read_errs=1645,35c73c23:7:corruption_errs=59750,35c73c23:8:flush_errs=70094,35c73c23:8:corruption_errs=74479"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  }
+ ]
+}

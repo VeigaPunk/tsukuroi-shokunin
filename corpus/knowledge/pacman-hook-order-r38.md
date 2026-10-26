@@ -107,3 +107,51 @@ PostTransaction, 0 masks, 0 with `AbortOnFail`, 14 with `NeedsTargets` — compu
   transaction leaves them as they were; an operator-run `limine-update` is outside this table.
 - [unk] the order of hooks within a real transaction is not executed here; the round-38 wave checks the table against
   the pacman.log `running` sequences as an outside oracle.
+
+## Round 38 correction — wave-1 findings on HO3, HO5, HO6 and the recheck line (appended 2026-10-26)
+
+Append-only; the rows and table above stay as measured at `1fe28e7`. The 69-row table is unchanged and still
+re-derives (independent re-derivation `.ufo/waves/round-38/w1/C2ExecIndepDerive.md`; pacman.log oracle: 60
+transactions, 109 non-empty phases, 0 order violations, `.ufo/waves/round-38/w1/C2ExecLogOracle.md`). Per-row
+reviewer verdicts: HO1–HO4 and HO7 hold; HO5 and HO6 hold as rules and are **partly** right in their host cells
+(`.ufo/waves/round-38/w1/C2RevHookC.md`, `C2RevOtherSrc.md`, `C2CritHO5.md`, `C2CritHO6.md`).
+
+- **HO3 citation.** The triggerless special case is `hook.c:119-123` (the comment opens at :120), not `:118-122`.
+- **HO5 rule, tightened.** The parenthetical "(no Exec, no When, bad trigger)" holds only for a file that has at
+  least one `[Trigger]` section: `_alpm_hook_validate` returns success for a triggerless file before checking
+  `Exec` or `When` (`hook.c:119-123`). Only files actually parsed count — name ends in `.hook`, not skipped as
+  overridden (HO2), not a directory. The broken file need not be a Pre hook: every candidate is parsed with no
+  reference to `When` (`hook.c:609-615`), so a PostTransaction-only file blocks the Pre phase too (executed with
+  the installed libalpm, `.ufo/waves/round-38/w1/C2CritHO5/matrix.txt`). The user sees
+  `failed to commit transaction (failed to run transaction hooks)`; the `[E]` validation line goes to stderr only.
+- **HO5 host cell, corrected.** "The one Pre-phase path to a blocked upgrade ... is a broken hook file" is false:
+  `opendir` failing for any reason other than `ENOENT` on a hook directory (`hook.c:554-562`), an unstattable
+  `.hook` entry (`:593-597`), a `PATH_MAX` overflow and a `readdir` error (`:620-624`) also block. And "the three
+  operator files in `/etc/pacman.d/hooks/`" is wrong in kind: `90-mkinitcpio-install.hook` there is
+  package-shipped (owned by `limine-mkinitcpio-hook`), while `99-limine.hook` and `walker-restart.hook` are owned
+  by no package (`.ufo/waves/round-38/w1/C2ExecLogOracle.md` §7, `C2CritHO6.md` Finding 6). All three are
+  PostTransaction, so a break in any of them blocks an upgrade at the Pre phase.
+- **NOHOOKS, resolved.** At pacman 54d9411 the one option that sets `ALPM_TRANS_FLAG_NOHOOKS` is `--dbonly`
+  (`.ufo/waves/round-38/w1/C2ScoutNohooks.md`); the [unk] in HO5 is closed.
+- **HO6 host cell, corrected.** Commits are per target with no rollback (`add.c:670-687`, `sync.c:1336-1360` at
+  54d9411; wave-fetched copies and digests in `.ufo/waves/round-38/w1/C2CritHO6/`, not registry rows), so a
+  failure after `linux` commits leaves the new modules tree beside the previous UKI and initramfs — version skew,
+  not "not regenerated". An interrupt is worse: `transaction interrupted` returns 0 from `alpm_trans_commit`
+  (`trans.c:230-232`, `:242-244`), so pacman can exit 0 with no Post hook run. On this host the UKI
+  (`/boot/EFI/Linux/omarchy_linux.efi`) survives because no Pre hook deletes it (`/etc/mkinitcpio.d` empty), and
+  `99-limine.hook` is the wrong second example: it copies limine's EFI binaries and runs only when `limine` is a
+  target. The 2026-10-20 upgrade had 83 targets committed after `linux` (`pacman.log:2855` to `:2941`), each a
+  window for this state; 0 failed or interrupted transactions exist in the retained log.
+- **S210 anchor symbol.** The S210 row's anchor names `_alpm_trans_commit`; the function at 54d9411 is
+  `alpm_trans_commit` (`trans.c:167`). Line range and teaching stand; the registry row is not rewritten
+  (`corpus/lessons/round-38.md` Gate).
+- **Recheck line, sharpened.** `sha256sum *.hook` in each directory prints bare names, so a same-name swap between
+  the two directories hashes the same (`.ufo/waves/round-38/w1/CritRecheckCadence.md`). Use the directory-prefixed
+  form: `(cd /usr/share/libalpm && sha256sum hooks/*.hook; cd /etc/pacman.d && sha256sum hooks/*.hook)`, compared
+  with the capture MANIFEST after mapping `hooks/` to the capture directory names; cadence 30 days and after every
+  pacman transaction that adds or removes a `.hook` file.
+
+### QUALITY check for this correction
+
+QUALITY 1–4, 9 and 14: every statement cites the pinned snapshot line, an executed wave receipt or a host log line;
+nothing is deleted; no new registry row, coverage surface or ordinal move is claimed.

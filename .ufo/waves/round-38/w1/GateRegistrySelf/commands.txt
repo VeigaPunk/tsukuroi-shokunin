@@ -1,0 +1,61 @@
+# GateRegistrySelf (round-38 w1, item G-2) — commands actually run, with observed exit codes
+# Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (HEAD 5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf at run time)
+# TMPDIR=/fast/scratch/hyaku/tsukuroi-r38/GateRegistrySelf
+# Tool CLI read first: `python3 tools/check-registry-coverage.py --help` (rc 0) and the
+# check-self-assessment.py module docstring (lines 1-77) — usage is
+# `--revision <REV> [--repo <PATH>]` / `--selftest`.
+
+## A. Master (5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf)
+python3 tools/check-registry-coverage.py --revision 5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf
+  -> rc 0; receipt registry-master.json
+python3 tools/check-self-assessment.py --revision 5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf
+  -> rc 1; receipt selfassess-master.json
+
+## B. Base (8bd001f58bfda29c92d90d2a7a413825c0ca9fcb)
+python3 tools/check-registry-coverage.py --revision 8bd001f58bfda29c92d90d2a7a413825c0ca9fcb
+  -> rc 0; receipt registry-base.json
+python3 tools/check-self-assessment.py --revision 8bd001f58bfda29c92d90d2a7a413825c0ca9fcb
+  -> rc 1; receipt selfassess-base.json
+
+## C. Probe in a scratch clone (never the lane; clone under $TMPDIR/clone, origin removed)
+git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin $TMPDIR/clone
+git -C $TMPDIR/clone remote remove origin
+  -> 3 SCORECARD.md cells edited (depth counts, operability cases, capabilities host-census-gate cases)
+  -> commit ba6b697cdf21918d7c927512efa4991b84f8b65e
+python3 tools/check-self-assessment.py --repo $TMPDIR/clone --revision ba6b697cdf21918d7c927512efa4991b84f8b65e
+  -> rc 0 (PASS, 27 checked, 0 mismatches); receipt selfassess-probe.json
+python3 tools/check-registry-coverage.py --revision ba6b697cdf21918d7c927512efa4991b84f8b65e
+  -> rc 0 (PASS, 58 rows / 58 tools / 0 findings); receipt registry-probe.json
+
+## D. Probe: round-38 axes heading variant
+same clone, axes heading renamed to "## Axes — current self-assessment (round 38 final measured surface)"
+  -> commit 163fe44 (scratch only)
+python3 tools/check-self-assessment.py --repo $TMPDIR/clone --revision 163fe44
+  -> rc 0 (PASS, 0 mismatches, declaring_round 38); receipt selfassess-probe-r38heading.json
+
+## E. Should-fail control: remove the three round-38 registry rows (pre-5edb6c2 shape)
+same clone, SCORECARD.md reset to ba6b697, the three rows deleted from SKILL.md
+  -> commit 94f454ac9518e97b5eb0da0ff6e74791d8991504
+python3 tools/check-registry-coverage.py --revision 94f454ac9518e97b5eb0da0ff6e74791d8991504
+  -> rc 1 (FAIL, missing 3, findings 3 x REGISTRY-ROW-MISSING); receipt registry-probe-norows.json
+
+## F. Row truth checks at master (digests + CLIs)
+git show 5edb6c2:tools/score-storage-arm-r38.py | sha256sum
+  -> e649bfb33ed99161dc3affdacd7fa86fa8d96e2c5bb60b2d22d6fc12a7f82218  (row pins e649bfb3...)
+git show 5edb6c2:tools/score-storage-arm-r38-q82.py | sha256sum
+  -> a183ff580cb92cdd276a5720adb54336e7e247c9bd7c81058065e706d62d99e3  (row pins a183ff58...)
+git show 5edb6c2:tools/check-hook-order-r38.py | sha256sum
+  -> 60e3635b37d5cd92f371800d8e5a22837b540e57c1c50a399bc973d4e21bd1a8  (row pins 60e3635b...)
+python3 tools/<each of the three> --help -> rc 0; accepted flags equal the row's entry command
+  (--revision/--repo/--branch/--scratch[/--no-live] for score-storage-arm-r38.py; no --no-live for q82;
+   --revision/--repo/--branch for check-hook-order-r38.py)
+
+## G. Count re-derivations
+knowledge md: 58 at 8bd001f, 59 at 5edb6c2      (git ls-tree -r --name-only <REV> -- corpus/knowledge | grep -c '\.md$')
+corpus/lessons files: 51 at both               (git ls-tree -r --name-only <REV> -- corpus/lessons | wc -l)
+SKILL.md newlines: 3112 at 8bd001f, 3115 at 5edb6c2
+SKILL.md pipe lines: 841 at 8bd001f, 844 at 5edb6c2
+tools/ files: 55 at 8bd001f, 58 at 5edb6c2
+census selftest cases: 105 at 8bd001f, 111 at 5edb6c2 (reported by K13/K17 at each revision)
+the six added census cases (git diff 7cbaeb6 52ffd65 -- tools/tsukuroi-census.sh):
+  case_home=storage-absent, storage-zero, storage-nonzero, storage-malformed, storage-duplicate, storage-no-devinfo

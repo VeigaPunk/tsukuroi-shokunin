@@ -1,0 +1,35 @@
+### frozen census (52ffd65 bytes) in the same three shapes
+-- L1 live, no override
+STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+-- L2 empty dir bound over /sys/fs/btrfs
+sysfs root present, entries=0
+btrfs mounts here=4
+/ ├─/home ├─/var/cache/pacman/pkg └─/var/log 
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+-- L3 empty dir bound over /sys (sysfs not visible)
+sysfs root ABSENT
+btrfs mounts here=4
+proc/filesystems has btrfs=1
+/ ├─/home ├─/var/cache/pacman/pkg └─/var/log 
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+
+### mutant with the proposed cross-check (mutant.diff, 20 added lines)
+-- M1 live, no override
+STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+-- M2 empty dir over /sys/fs/btrfs
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts-not-in-sysfs=4
+-- M3 empty dir over /sys
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=sysfs-unseen,mounts-not-in-sysfs=4
+-- M4 F06 shape, no seams (the v1 counter child env: PATH/LC_ALL + TSUKUROI_BTRFS_SYSFS)
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=sysfs-unseen,mounts-not-in-sysfs=4
+-- M5 F06 shape + both seams (v1 fixture preserved)
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+-- M6 absent root, kernel has btrfs (new fixture shape)
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=sysfs-unseen
+-- M7 filesystems seam unreadable
+STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=sysfs-unseen
+-- M9 q82-shaped forged tree (1 fs) over /sys/fs/btrfs, real mounts=4: must stay unblocked
+STORAGE btrfs-device-stats state=DEGRADED filesystems=1 devices=1 nonzero=1 detail=11111111:1:write_errs=1
+-- M10 forged empty tree + mounts fixture without btrfs (residual limit)
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0

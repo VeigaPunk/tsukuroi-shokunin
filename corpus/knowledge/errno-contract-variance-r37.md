@@ -39,3 +39,17 @@ The opened lane capture records zero `errno:13` journal matches in its 2026-10-2
 - QUALITY 8: pass — the negative log claim states the bounded query window and capture date; it is not generalized to current host state.
 - QUALITY 14: pass — each source and capture cited here was opened this round and the quoted proposition is checked against the located bytes.
 - Coverage-map check: pass for deeper treatment of existing errno ground; no new coverage is claimed.
+
+## Round 38 anchor correction — S206/S207 (appended 2026-10-26, round-37 closure routed defect 7)
+
+The `source:` lines above cite S206/S207 by a sibling-repo path (`shokuknow/lanes/tsukuroi/round9/…`) that
+resolves from neither this lane root nor the fleet root. Lane copies, byte-exact (`cmp`) with the shokuknow blobs
+at commit `a9a1ee2c19cbc396da31dd7a7368f657fed6cfe1`, are committed at
+`.ufo/waves/round-38/w1/DefOwnWorkCopy/host-errno-capture.txt` (sha256
+`50149f0d093437cd9be86d65fbda13fa263c8209670ae690d5c66f2eff01fcc6`, S206 quote at line 6) and
+`.ufo/waves/round-38/w1/DefOwnWorkCopy/lane-errno13-probe.txt` (sha256
+`1b2f2ac2b09bd709f535bbdbc0fa132d6dbb90a4e0474570a63cc5cdc42c968a`, S207 quote at line 3); those lane paths are
+the anchors of record and the sibling path is provenance only. Both files are transcriptions, not raw command
+output; the S206 mapping re-runs read-only as
+`grep -nE '^#define[[:space:]]+(EACCES|EROFS)[[:space:]]' /usr/include/asm-generic/errno-base.h` (lines 17 and 34
+on linux-api-headers 7.2-1, 2026-10-26). The registry rows are not rewritten (`corpus/lessons/round-38.md` Gate).

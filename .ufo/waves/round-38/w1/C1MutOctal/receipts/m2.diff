@@ -1,0 +1,13 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 119b645..9b725c4 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -1869,7 +1869,7 @@ probe_storage_arm() {
+             nk=-1; break
+           fi
+           seen+="$k "; nk=$((nk + 1))
+-          if ! [[ $v =~ ^0+$ ]]; then dnz=$((dnz + 1)); ddet+="$fs8:${dev##*/}:$k=$v,"; fi
++          if ! (( v > 0 )); then dnz=$((dnz + 1)); ddet+="$fs8:${dev##*/}:$k=$v,"; fi
+         done < "$f"
+         if [ "$nk" -ne 5 ]; then
+           blocked=1; detail+="$fs8:${dev##*/}:malformed,"; continue

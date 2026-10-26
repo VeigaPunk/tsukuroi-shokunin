@@ -1,0 +1,42 @@
+journalctl.c:805:                 OPTION('F', "field", "FIELD", "List all values that a specified field takes"):
+journalctl.c:806:                         arg_action = ACTION_LIST_FIELDS;
+journalctl.c:807:                         r = free_and_strdup_warn(&arg_field, opts.arg);
+journalctl.c:808:                         if (r < 0)
+journalctl.c:809:                                 return r;
+journalctl.c:810:                         break;
+journalctl.c:811: 
+journalctl.c:812:                 OPTION_LONG("list-boots", NULL, "Show terse information about recorded boots"):
+journalctl.c:813:                         arg_action = ACTION_LIST_BOOTS;
+journalctl.c:814:                         break;
+journalctl.c:958:         if (IN_SET(arg_action, ACTION_LIST_FIELDS, ACTION_LIST_FIELD_NAMES) && field_list_has_scope_options())
+journalctl.c:959:                 return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+journalctl.c:960:                                        "-F/--field= and -N/--fields cannot be combined with options that limit the journal.");
+journalctl.c:961: 
+journalctl.c:962:         if ((arg_boot || arg_action == ACTION_LIST_BOOTS) && arg_merge)
+journalctl.c:963:                 return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+journalctl.c:964:                                        "Using --boot or --list-boots with --merge is not supported.");
+options.h:253:         for (int c; (c = option_parse(__start_SYSTEMD_OPTIONS, __stop_SYSTEMD_OPTIONS, state)) != 0; )
+options.h:254: 
+options.h:255: #define FOREACH_OPTION_OR_RETURN(c, state)                              \
+options.h:256:         for (int c; (c = option_parse(__start_SYSTEMD_OPTIONS, __stop_SYSTEMD_OPTIONS, state)) != 0; ) \
+options.h:257:                 if (c < 0)                                              \
+options.h:258:                         return c;                                       \
+options.h:259:                 else
+options.c:34: static void shift_arg(char* argv[], int target, int source) {
+options.c:35:         assert(argv);
+options.c:36:         assert(target <= source);
+options.c:37: 
+options.c:38:         /* Move argv[source] before argv[target], shifting the arguments in between. */
+options.c:39:         char *saved = argv[source];
+options.c:40:         memmove(argv + target + 1, argv + target, (source - target) * sizeof(char*));
+options.c:41:         argv[target] = saved;
+options.c:42: }
+options.c:371:                         assert(state->positional_offset == state->optind);
+options.c:372:                         assert(!separate_optval);
+options.c:373:                 }
+options.c:374: 
+options.c:375:                 shift_arg(state->argv, state->positional_offset++, state->optind++);
+options.c:376:                 if (separate_optval)
+options.c:377:                         shift_arg(state->argv, state->positional_offset++, state->optind++);
+options.c:378:         }
+886:    <para>The following commands are understood. If none is specified the default is to display journal records:</para>

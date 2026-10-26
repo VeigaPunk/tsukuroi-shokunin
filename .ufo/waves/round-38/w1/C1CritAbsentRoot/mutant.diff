@@ -1,0 +1,43 @@
+--- /fast/scratch/hyaku/tsukuroi-r38/C1CritAbsentRoot/census.sh	2026-10-26 01:56:50.348108050 -0300
++++ /fast/scratch/hyaku/tsukuroi-r38/C1CritAbsentRoot/census-xcheck.sh	2026-10-26 01:59:45.026253929 -0300
+@@ -444,6 +444,8 @@
+ PACMAN_LOG=${TSUKUROI_PACMAN_LOG:-/var/log/pacman.log}
+ ETC_DIR=${TSUKUROI_ETC_DIR:-/etc}
+ BTRFS_SYSFS=${TSUKUROI_BTRFS_SYSFS:-/sys/fs/btrfs}
++BTRFS_FILESYSTEMS=${TSUKUROI_BTRFS_FILESYSTEMS:-/proc/filesystems}
++PROC_MOUNTS=${TSUKUROI_PROC_MOUNTS:-/proc/self/mounts}
+ OFFLINE_DB=${TSUKUROI_OFFLINE_DB:-$PACMAN_DB/sync/offline.db}
+ EXPAC=${TSUKUROI_EXPAC:-expac}
+ VERCMP=${TSUKUROI_VERCMP:-vercmp}
+@@ -1845,6 +1847,15 @@
+ }
+ 
+ # ---- storage-integrity arm (round 38, C1; contract in the header) -------------------
++btrfs_kernel_state() { # prints 0 has btrfs, 1 readable without btrfs, 2 unreadable
++  if [ ! -r "$BTRFS_FILESYSTEMS" ]; then printf 2
++  elif grep -qw btrfs "$BTRFS_FILESYSTEMS"; then printf 0
++  else printf 1; fi
++}
++btrfs_mounts_n() { # btrfs mounts in this process's mount namespace; -1 when unreadable
++  if [ ! -r "$PROC_MOUNTS" ]; then printf -- -1; return 0; fi
++  awk '$3 == "btrfs"' "$PROC_MOUNTS" | wc -l
++}
+ probe_storage_arm() {
+   local root=$BTRFS_SYSFS fsd dev f k v extra fs8 fsn=0 devn=0 nz=0 blocked=0 nd seen nk dnz ddet detail=''
+   local uuid='^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+@@ -1878,6 +1889,15 @@
+       done
+       if [ "$nd" -eq 0 ]; then blocked=1; detail+="$fs8:-:no-devinfo,"; fi
+     done
++  elif cases=$(btrfs_kernel_state); [ "$cases" != 1 ]; then
++    # the kernel has btrfs (or /proc/filesystems is unreadable): btrfs_init_sysfs() ran,
++    # so an unreadable root is an observability failure, never "no filesystem mounted"
++    blocked=1; detail+='sysfs-unseen,'
++  fi
++  local nmounts; nmounts=$(btrfs_mounts_n)
++  if [ "$fsn" -eq 0 ] && [ "$nmounts" -gt 0 ]; then
++    # zero fsid entries while this namespace has btrfs mounts: the sysfs view is hidden
++    blocked=1; detail+="mounts-not-in-sysfs=$nmounts,"
+   fi
+   local state=HEALTHY
+   if [ "$blocked" -eq 1 ]; then state=BLOCKED; elif [ "$nz" -gt 0 ]; then state=DEGRADED; fi

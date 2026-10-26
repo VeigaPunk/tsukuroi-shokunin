@@ -1,0 +1,46 @@
+# DraftReadme receipts — round 38 P-2 (2026-10-26)
+
+## lane identity
+5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf
+5edb6c2 round-38: registry rows for storage-arm-r38, storage-arm-r38-q82, hook-order-r38 (QUALITY 70)
+9c9bb64 round-38: pre-seat amendment — QUALITY 82 production-path counter for C1, QUALITY 80-81 sweep and per-row kill rule for C2
+1fe28e7 round-38: C2 effective ALPM hook order entry (HO1-HO7, 69 rows) on S208-S212
+52ffd65 round-38: C1 storage-integrity census arm (verdict-neutral STORAGE line, 6 selftest cases, TMPDIR-honouring selftest)
+7cbaeb6 round-38: freeze C1/C2 counters, hook capture, before receipts and controls
+
+## counter digests (working tree == HEAD)
+e649bfb33ed99161dc3affdacd7fa86fa8d96e2c5bb60b2d22d6fc12a7f82218  tools/score-storage-arm-r38.py
+a183ff580cb92cdd276a5720adb54336e7e247c9bd7c81058065e706d62d99e3  tools/score-storage-arm-r38-q82.py
+60e3635b37d5cd92f371800d8e5a22837b540e57c1c50a399bc973d4e21bd1a8  tools/check-hook-order-r38.py
+8e0084f67ad4783a980d5c2eaba453f51f1fc5d75408a1c9021a7249ac9aba1c  tools/tsukuroi-census.sh
+git show 52ffd65:tools/tsukuroi-census.sh | sha256sum:
+8e0084f67ad4783a980d5c2eaba453f51f1fc5d75408a1c9021a7249ac9aba1c  -
+
+## live sysfs read (read-only)
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/
+/sys/fs/btrfs/features/
+write_errs 0
+read_errs 0
+flush_errs 0
+corruption_errs 0
+generation_errs 0
+
+## HookDir presence in /etc/pacman.conf (no match = no directive)
+no HookDir line in /etc/pacman.conf
+
+## pacman.conf(5) HookDir text (installed man page)
+\fBHookDir =\fR /path/to/hook/dir
+.RS 4
+Add directories to search for alpm hooks in addition to the system hook directory (/usr/share/libalpm/hooks/)\&. The default is
+/etc/pacman\&.d/hooks\&. Multiple directories can be specified with hooks in later directories taking precedence over hooks in earlier directories\&.
+\fBNOTE\fR: this is an absolute path, the root path is not automatically prepended\&. For more information on the alpm hooks, see
+
+## alpm-hooks.5.asciidoc:35-39 (pinned source, round-38 sources/)
+Hooks are read from files located in the system hook directory
++{datarootdir}/libalpm/hooks+, and additional custom directories specified in
+linkman:pacman.conf[5] (the default is +{sysconfdir}/pacman.d/hooks+).  The
+file names are required to have the suffix ".hook".  Hooks are run in
+alphabetical order of their file name, where the ordering ignores the suffix.
+
+## boot-writers-r19.md:37 (the [inf] the notice cites)
+- Shadowing: [obs] same-name `/usr/share/libalpm/hooks/90-mkinitcpio-install.hook` (Exec `mkinitcpio install`, r19b:1506). ALPM prints one `running '90-mkinitcpio-install.hook'` per transaction (r19b:1691, 1693, 1698). The UKI build text is limine's (r19:576-597). [inf] The /etc copy is the operative one (S008; precedence per S007; pacman.conf HookDir not captured [unk]).

@@ -1,0 +1,49 @@
+# RevFreezeOrder receipts 01 — history and ordering (all read-only git)
+
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin log --format='%h %cI %s' 8bd001f58bfda29c92d90d2a7a413825c0ca9fcb..master
+5edb6c2 2026-10-26T01:33:02-03:00 round-38: registry rows for storage-arm-r38, storage-arm-r38-q82, hook-order-r38 (QUALITY 70)
+9c9bb64 2026-10-26T01:32:13-03:00 round-38: pre-seat amendment — QUALITY 82 production-path counter for C1, QUALITY 80-81 sweep and per-row kill rule for C2
+1fe28e7 2026-10-26T01:21:20-03:00 round-38: C2 effective ALPM hook order entry (HO1-HO7, 69 rows) on S208-S212
+52ffd65 2026-10-26T01:18:12-03:00 round-38: C1 storage-integrity census arm (verdict-neutral STORAGE line, 6 selftest cases, TMPDIR-honouring selftest)
+7cbaeb6 2026-10-26T01:16:08-03:00 round-38: freeze C1/C2 counters, hook capture, before receipts and controls
+
+$ git log -1 --format='%h cdate=%cI parent=%p %s' 7cbaeb6317cb9f7323d2619eec02db4e4da29449
+7cbaeb6 cdate=2026-10-26T01:16:08-03:00 parent=8bd001f round-38: freeze C1/C2 counters, hook capture, before receipts and controls
+
+$ git merge-base --is-ancestor 8bd001f 7cbaeb6 ; echo -> exit 0  (base->freeze: ancestor=YES)
+$ git merge-base --is-ancestor 7cbaeb6 52ffd65 ; echo -> exit 0  (freeze->C1-impl: ancestor=YES)
+$ git merge-base --is-ancestor 7cbaeb6 1fe28e7 ; echo -> exit 0  (freeze->C2-impl: ancestor=YES)
+$ git log -1 --format='HEAD=%h master=%h' master -> HEAD=5edb6c2 master=5edb6c2
+$ git status --porcelain | wc -l -> 10   (all 10 entries untracked '??'; zero modified tracked files)
+
+Files added by 7cbaeb6 (git diff-tree --no-commit-id --name-status -r, 'A' unless noted):
+A .ufo/waves/round-38/before/c1-before.json
+A .ufo/waves/round-38/before/c2-before.json
+A .ufo/waves/round-38/controls/controls.err
+A .ufo/waves/round-38/controls/controls.jsonl
+A .ufo/waves/round-38/controls/run-controls.sh
+A .ufo/waves/round-38/frozen/hooks-capture/MANIFEST.sha256
+A .ufo/waves/round-38/frozen/hooks-capture/capture-meta.txt
+A .ufo/waves/round-38/frozen/hooks-capture/etc-pacman.d-hooks/90-mkinitcpio-install.hook
+A .ufo/waves/round-38/frozen/hooks-capture/etc-pacman.d-hooks/99-limine.hook
+A .ufo/waves/round-38/frozen/hooks-capture/etc-pacman.d-hooks/walker-restart.hook
+A .ufo/waves/round-38/frozen/hooks-capture/usr-share-libalpm-hooks/  (76 .hook files)
+M SCORECARD.md
+A tools/check-hook-order-r38.py
+A tools/score-storage-arm-r38.py
+
+Files touched by the implementation and later commits (diff-tree --name-status):
+52ffd65: M tools/tsukuroi-census.sh                          (only)
+1fe28e7: A .ufo/waves/round-38/sources/{SHA256SUMS,alpm-hooks.5.asciidoc,alpm.c,hook.c,trans.c}
+         M corpus/SOURCES.md
+         A corpus/knowledge/pacman-hook-order-r38.md
+9c9bb64: A .ufo/waves/round-38/before/c2-novelty-sweep.txt
+         A .ufo/waves/round-38/controls/{controls-q82.err,controls-q82.jsonl,run-controls-q82.sh}
+         M SCORECARD.md
+         A tools/score-storage-arm-r38-q82.py
+5edb6c2: M SKILL.md                                          (only)
+
+Tracked wave files at master (git ls-tree -r --name-only master -- .ufo/waves/round-38):
+before/{c1-before.json,c2-before.json,c2-novelty-sweep.txt}, controls/{controls,controls-q82}{.jsonl,.err}
+plus run-controls{,-q82}.sh, frozen/hooks-capture/** (81 files), sources/{SHA256SUMS,alpm-hooks.5.asciidoc,alpm.c,hook.c,trans.c}.
+NO after/ path is tracked at master (after/ exists only untracked in the working tree).

@@ -1,0 +1,6 @@
+forbidden invocations under DEFAULT_FORBID ('pacman', 'checkupdates', 'yay', 'paru', 'mkinitcpio', 'limine-update') : []
+parses as a procedure line: True
+length: 707
+control (expected hits): ['pacman', 'mkinitcpio']
+
+recheck: 30d (S212) and on-release of pacman 54d9411 (S208-S211); procedure: from the lane root `python3 tools/check-hook-order-r38.py --revision "$(git rev-parse HEAD)"` re-derives the 69 rows from the frozen capture; freshness: `{ (cd /usr/share/libalpm/hooks && sha256sum *.hook | sed 's|  |  usr-share-libalpm-hooks/|'); (cd /etc/pacman.d/hooks && sha256sum *.hook | sed 's|  |  etc-pacman.d-hooks/|'); } | sort -k2 | sha256sum` must print `54225ca997acd2b4b9c8965c68f8325592d0bdc387b673a4c69270bfc7ccee43` and `pacman-conf HookDir` must stay `/etc/pacman.d/hooks/`; any other hash, a changed HookDir, or a pacman release means re-capture, update the MANIFEST and re-run the counter before citing a row.

@@ -168,3 +168,13 @@ Appended after the seats below; earlier bytes unchanged.
 ## R20-RULE4 — named supersession of Operator decision rule item 4
 
 This block supersedes **only item 4 under `## Operator decision rule`**, whose “No write” conclusion is unsupported. Use the round19 `## Falsify qualifications` absence-of-`Updated:` qualification as controlling: **no captured `Updated:` line means no captured matching log event, not proof of no write or unchanged contents**. The source is the finite capture, not a content hash or exhaustive filesystem audit. The 09:08:04 cleanup run's cause remains `[unk]`; absence does not establish a lock skip, successful sync, failure, or a byte change. No boot/package/service action is authorized. This is a documentation correction, not a new host observation.
+
+## Round 38 note — override rule and hook owners (appended 2026-10-26)
+
+The [inf] "The /etc copy is the operative one" for `90-mkinitcpio-install.hook` is now source-backed: hook
+directories are searched from the last list entry to the first, the first file seen per name wins, and the system
+directory is the list head (HO2 in `corpus/knowledge/pacman-hook-order-r38.md`; S208 `hook.c:540`, `:588-590`;
+S211 `alpm.c:56-62`). `/etc/pacman.conf` sets no `HookDir`, so the default `/etc/pacman.d/hooks/` applies. The
+[unk] "owner of `99-limine.hook`" resolves: no installed package lists it (and none lists `walker-restart.hook`)
+— both are local files — while the `/etc` `90-mkinitcpio-install.hook` is owned by `limine-mkinitcpio-hook`
+(`.ufo/waves/round-38/w1/C2CritHO6.md` Finding 6). The text above is not rewritten.

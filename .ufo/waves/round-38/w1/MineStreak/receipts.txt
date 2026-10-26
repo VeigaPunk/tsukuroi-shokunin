@@ -1,0 +1,60 @@
+# MineStreak (D-5) receipts — commands run read-only from the lane root, 2026-10-26
+# No lane file was edited; no counter, census, probe or gate was executed. No scratch dir was created.
+
+$ sha256sum tools/score-storage-arm-r38.py tools/score-storage-arm-r38-q82.py tools/check-hook-order-r38.py
+e649bfb33ed99161dc3affdacd7fa86fa8d96e2c5bb60b2d22d6fc12a7f82218  tools/score-storage-arm-r38.py
+a183ff580cb92cdd276a5720adb54336e7e247c9bd7c81058065e706d62d99e3  tools/score-storage-arm-r38-q82.py
+60e3635b37d5cd92f371800d8e5a22837b540e57c1c50a399bc973d4e21bd1a8  tools/check-hook-order-r38.py
+
+$ sha256sum .ufo/waves/round-38/controls/run-controls.sh .ufo/waves/round-38/controls/run-controls-q82.sh
+cba1bec2c3e4130707c2d42e6dfebb0581cc2e23b369e84158b6e054fbfaf3ad  .ufo/waves/round-38/controls/run-controls.sh
+5469e59a5474881a2575a2f122e1bf278ea0c8e46ff925843dd494a634e4f5d6  .ufo/waves/round-38/controls/run-controls-q82.sh
+# all five equal the digests the SCORECARD round-38 declaration states.
+
+$ git log --format='%h %cI %s' -8
+5edb6c2 2026-10-26T01:33:02-03:00 round-38: registry rows for storage-arm-r38, storage-arm-r38-q82, hook-order-r38 (QUALITY 70)
+9c9bb64 2026-10-26T01:32:13-03:00 round-38: pre-seat amendment — QUALITY 82 production-path counter for C1, QUALITY 80-81 sweep and per-row kill rule for C2
+1fe28e7 2026-10-26T01:21:20-03:00 round-38: C2 effective ALPM hook order entry (HO1-HO7, 69 rows) on S208-S212
+52ffd65 2026-10-26T01:18:12-03:00 round-38: C1 storage-integrity census arm (verdict-neutral STORAGE line, 6 selftest cases, TMPDIR-honouring selftest)
+7cbaeb6 2026-10-26T01:16:08-03:00 round-38: freeze C1/C2 counters, hook capture, before receipts and controls
+8bd001f 2026-10-25T17:06:38-03:00 round-37 verifier spot-check (integrator, hyaku): non-author admit/reject
+
+$ for f in controls/controls.jsonl controls/controls-q82.jsonl controls/run-controls.sh controls/run-controls-q82.sh; do git log --format='%h %cI' -- .ufo/waves/round-38/$f; done
+controls/controls.jsonl -> 7cbaeb6 2026-10-26T01:16:08-03:00
+controls/controls-q82.jsonl -> 9c9bb64 2026-10-26T01:32:13-03:00
+controls/run-controls.sh -> 7cbaeb6 2026-10-26T01:16:08-03:00
+controls/run-controls-q82.sh -> 9c9bb64 2026-10-26T01:32:13-03:00
+# the v1 battery lands 2 min before the C1 change commit and 5 min before the C2 one;
+# the Q82 battery lands 10-14 min after both change commits and after the after receipts were written.
+
+$ grep -n "selftest\|should_fail\|battery" tools/score-storage-arm-r38.py tools/score-storage-arm-r38-q82.py tools/check-hook-order-r38.py
+(no output)
+
+$ grep -nE "^\|[[:space:]]*\*{0,2}O[0-9]{2}" corpus/lessons/round-3[4-7]*.md | wc -l
+0
+$ grep -c "Owed\|owed" corpus/lessons/round-34.md corpus/lessons/round-35.md corpus/lessons/round-36.md corpus/lessons/round-37.md
+corpus/lessons/round-34.md:3
+corpus/lessons/round-35.md:3
+corpus/lessons/round-36.md:0
+corpus/lessons/round-37.md:0
+
+$ grep -nE "^\| R37-" corpus/lessons/round-37.md
+34:| R37-STALE-SELFASSESS-COUNTS | number-drift | ...
+35:| R37-ROLE-TAXONOMY-MISMATCH | reference-drift | ...
+36:| R37-C2-COUNTER-REFERENCE-DRIFT | reference-drift | ...
+102:| R37-MISROOT-NOTE-DRAFT | misroot | ...
+103:| R37-SEAT-REPORT-COUNT | number-drift | ...
+# no round-37 Mistakes row covers the undelivered C1 sensitivity conjunct (lesson line 58 records it in prose).
+
+$ grep -n "^## Mistakes" corpus/lessons/round-36.md
+39:## Mistakes
+106:## Mistakes (2026-10-24, L1 + wave-2 sweep)
+$ grep -c "R36-TARBALL-LEFTOVER" corpus/lessons/round-36.md
+2
+# rows at :43 and :110; the two tables differ only in the 5th column header.
+
+$ git status --porcelain -- .ufo/waves/round-38 | head -3
+?? .ufo/waves/round-38/after/
+?? .ufo/waves/round-38/assimilation/
+?? .ufo/waves/round-38/l1/
+# observed while wave 1 was still running; the declared after receipts exist on disk but are untracked at this reading.

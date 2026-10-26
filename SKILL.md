@@ -3113,3 +3113,89 @@ census row's entry command and verdict map are unchanged.
 | storage-arm-r38 | gate | `python3 tools/score-storage-arm-r38.py --revision <REV> [--repo <PATH>] [--scratch <DIR>]` | 0 ten fixtures, the live leg and six PLANE lines per run match;1 any fixture, the live leg or the plane count differs;2 revision, git or bash could-not-evaluate | none: the ten built-in fixtures F01-F10 and the live leg are the measurement; controls `.ufo/waves/round-38/controls/controls.jsonl` | R38 C1 frozen at `7cbaeb63`, sha256 `e649bfb33ed99161dc3affdacd7fa86fa8d96e2c5bb60b2d22d6fc12a7f82218`; QUALITY 82 gap: a fixture-gated arm passes it (`controls-q82.jsonl`), so it is used only with `storage-arm-r38-q82` | private mkdtemp fixtures under `--scratch`/`TMPDIR`; reads the census at REV through git; no host write | tsukuroi |
 | storage-arm-r38-q82 | gate | `python3 tools/score-storage-arm-r38-q82.py --revision <REV> [--repo <PATH>] [--scratch <DIR>]` | 0 every production-path view matches;1 a view differs;2 revision, unshare or v1-model digest could-not-evaluate | none: three per-run random views are the measurement; controls `.ufo/waves/round-38/controls/controls-q82.jsonl` (fixture-gated 0/3, cached-live 1/3, real arm 3/3) | R38 pre-seat amendment `9c9bb647`, sha256 `a183ff580cb92cdd276a5720adb54336e7e247c9bd7c81058065e706d62d99e3`; loads the v1 model from `7cbaeb63` by digest | `unshare -rm` child namespace with a bind mount over `/sys/fs/btrfs` that never leaves it; scratch under `--scratch`/`TMPDIR` | tsukuroi |
 | hook-order-r38 | gate | `python3 tools/check-hook-order-r38.py --revision <REV> [--repo <PATH>]` | 0 all 69 rows match the frozen capture and the cited rows are mined, used-by the entry and opened 2026-10-26;1 a missing, wrong, extra or duplicate row or a source problem;2 revision, git or capture_tampered could-not-evaluate | none: the frozen capture is the measurement; controls `.ufo/waves/round-38/controls/controls.jsonl` (base, full-name sort, no override, no source FAIL; correct PASS) | R38 C2 frozen at `7cbaeb63`, sha256 `60e3635b37d5cd92f371800d8e5a22837b540e57c1c50a399bc973d4e21bd1a8`; capture MANIFEST sha256 `da07f43461fe41794419eb0da8ec88bd832c242abb2972e267df90d1ddd701dd`; libalpm order model of pacman 54d9411 | reads the entry and SOURCES at REV through git and the digest-verified capture from the work tree; no write | tsukuroi |
+
+## Storage integrity arm — round 38
+
+Appended 2026-10-26 (round-38 C1). The census reads the five per-device btrfs error counters and prints
+one **verdict-neutral** line after `DRIFT pacnew-plane` and before the rollup (`probe_storage_arm` in
+`tools/tsukuroi-census.sh`; contract in the header paragraph "Round-38 addition"). It adds no `PLANE`, no
+rollup term and no exit-code change, so **read the line itself; the rollup never carries it.** Normative
+detail: `corpus/knowledge/storage-health-r26.md` SH1 and SH2; sources S128 and S133.
+
+    STORAGE btrfs-device-stats state=HEALTHY|DEGRADED|BLOCKED filesystems=N devices=N nonzero=N [detail=...]
+
+`filesystems` counts UUID-named entries under `/sys/fs/btrfs` (`features` and other names ignored),
+`devices` their `devinfo/<devid>` entries, `nonzero` the (device, counter) **pairs** above zero.
+`detail` lists `<fsid8>:<devid>:<key>=<value>` for nonzero pairs and one reason token per unreadable
+device: `unreadable`, `malformed`, `no-devinfo`, `bad-devid` (a non-integer devid, never echoed), or
+`root:unreadable`.
+
+| `STORAGE` line | Reading | Action (read-only unless marked operator) |
+|---|---|---|
+| `state=HEALTHY filesystems=0 devices=0 nonzero=0` | The sysfs root is absent. Declared as "no btrfs mounted", but a namespace or container that hides `/sys/fs/btrfs` prints the same line (wave-1 C1CritAbsentRoot) | `findmnt -t btrfs`; if btrfs is mounted, record `0/0/0` as an observability finding, never as clearance |
+| `state=HEALTHY filesystems=N devices=N nonzero=0`, N ≥ 1 | All five counters on every device read 0 now (SH1). Counters only: no scrub record (SH4), no NVMe SMART (SH5/SH6) | None for the counters; SH3–SH6 stay Frontier and operator-owned |
+| `state=DEGRADED nonzero=N detail=...` | A stored lifetime total, not a dated event (SH2); `write/read/flush_errs` = failed IO, `corruption_errs` = checksum or metadata-header mismatch, `generation_errs` = generation mismatch | Date it from error-level kernel lines (`journalctl -k -p err --grep 'BTRFS.*errs:'`, every retained boot); never reset (`btrfs device stats -z` is operator-owned) |
+| `state=BLOCKED detail=...:unreadable` / `:malformed` / `:no-devinfo` / `:bad-devid` / `root:unreadable` | The reading was impossible, not "the disk is corrupt": a file not readable, not exactly the five counters once each, a filesystem without devinfo, a non-integer devid, or an unlistable root | `ls -l` and `cat` the named file once and record the bytes; a single word `invalid` means device stats are not loaded yet (S133) — re-read after the mount settles |
+| `state=BLOCKED` with `nonzero=N`, N > 0 | One device blocked beside a sibling with counted pairs | Handle the BLOCKED reason first, then date the counted pairs as for DEGRADED |
+
+Counting: `python3 tools/score-storage-arm-r38.py --revision <REV>` (ten fixtures, the live leg, six
+`PLANE` lines per run) **and** `python3 tools/score-storage-arm-r38-q82.py --revision <REV>` (no override,
+`unshare -rm`, a per-run random tree bind-mounted over `/sys/fs/btrfs`). The second is required: a
+fixture-gated arm passes the first (QUALITY 82, `.ufo/waves/round-38/controls/controls-q82.jsonl`).
+Consumer note: the frozen round-35 probe `tools/score-pacnew-arm-r35b.py` compares every non-DRIFT line with
+its claim base `b40c01df`, so at any revision after `52ffd65` it reads `base parity` failures for this new
+line; it stays a round-35 instrument, valid at its round-35 revisions (wave-1 C1RevConsumers).
+
+## Hook order — round 38
+
+Appended 2026-10-26 (round-38 C2). One new read-only surface for the update-safety plane: which ALPM
+hooks exist here, in which order they would run, and which of them can stop a transaction. Every
+row below is read from the hook files and from pinned pacman `54d9411` source (snapshots
+`.ufo/waves/round-38/sources/`, digests in `SHA256SUMS`); no row rests on running a hook, and nothing
+here authorizes a package, hook or transaction action.
+
+Measured 2026-10-26 (`.ufo/waves/round-38/frozen/hooks-capture/`, MANIFEST sha256
+`da07f43461fe41794419eb0da8ec88bd832c242abb2972e267df90d1ddd701dd`): **70 hook files → 69 effective
+hooks** (one same-name override), 17 `PreTransaction` + 52 `PostTransaction`, 0 triggerless masks,
+0 `AbortOnFail`, 14 effective `NeedsTargets`. Re-derived live in this seat: 67 files in
+`/usr/share/libalpm/hooks` + 3 in `/etc/pacman.d/hooks`; 15 files carry `NeedsTargets`, and the
+fifteenth is the `/usr` copy of `90-mkinitcpio-install.hook` that the `/etc` copy overrides — 14 is
+the effective count, not a miscount. Rules HO1–HO7 and the full 69-row table:
+`corpus/knowledge/pacman-hook-order-r38.md`. Gate:
+`python3 tools/check-hook-order-r38.py --revision <REV> [--repo <PATH>]`.
+
+Read-only probes used below, all permitted by the boundary rule: `pacman-conf HookDir`, `pacman -Q
+linux`, `grep`/`ls`/`stat` on the two hook directories, `/boot` (gated, see limits) and
+`/var/log/pacman.log`.
+
+### Symptom → rule → read-only check → operator action
+
+| Symptom (verbatim string or observation) | Rule | Meaning | Read-only check | Suggested operator action (tsukuroi does not run it) |
+|---|---|---|---|---|
+| `error: failed to commit transaction (failed to run transaction hooks)`, preceded by `[E] Missing Exec option in hook: <path>`, `[E] Missing When option in hook: <path>`, `[E] hook <path> line N: invalid section\|invalid option` | HO5 | The Pre-phase pass failed while parsing or validating candidates: a `.hook` file **that has a `[Trigger]` section** is malformed (`hook.c:129-146`), or a hook directory could not be opened/read (`hook.c:547-560`). `_alpm_hook_run` returns at `hook.c:629-631` before the run loop, so **no Pre hook ran** and the transaction never started (`trans.c:201-204`; `transaction started` at `:208` is never logged) — no target was installed | The `[E]` line is `_alpm_log(ERROR)` and reaches **stderr only**; `pacman.log` gains `alpm_logaction` lines only, so look for the absent `transaction started` rather than for the error: `grep -n 'transaction \(started\|completed\)' /var/log/pacman.log \| tail -2`, `grep -c "running '" /var/log/pacman.log`, `pacman -Q <named targets>` unchanged. Re-read the named file for `[Trigger]`, `When`, `Exec` | Fix or remove the named file; to disarm a hook without deleting it, reduce it to a `[Trigger]`-less stub (that is HO3, valid). While the file stays broken every transaction fails at Pre — including one whose `When` is `PostTransaction`, since all candidates are validated |
+| A hook file you added is named in an `[E]` line although it declares `When = PostTransaction` | HO5 | Same failure: `hook.c:609-615` parses and validates every candidate file in either directory with no reference to `when`; the phase gate is only consulted later (`hook.c:629`, `:638`). Executed witness: `.ufo/waves/round-38/w1/C2CritHO5/matrix.txt:7-9` (T1, `50-bad-post.hook`) → `errnum=32` | as above; do not assume "Post hooks cannot block the transaction" | Same fix; a malformed Post hook file blocks every upgrade on this host |
+| Two files share a name, or the `running '<name>'...` line shows an `Exec` you did not write | HO2 | Directories are walked **last list entry → first**, and the system directory is the list head, so `/etc/pacman.d/hooks/<name>` wins and the `/usr/share/libalpm/hooks/<name>` copy is skipped (`hook.c:540`, `:588-590`; `alpm.c:59-62`) | `pacman-conf HookDir` (prints `/etc/pacman.d/hooks/`); `ls /usr/share/libalpm/hooks/<name> /etc/pacman.d/hooks/<name>`; `grep -n '^Exec'` in both | Edit the winning file, or rename; note that deleting the `/etc` copy hands the hook back to `/usr`, so a later package update silently restores stock behaviour |
+| `-32`/plain pairs (`fontconfig`, `gio-querymodules`, `gio-remove-module-cache`) run in an order that contradicts `LC_ALL=C sort` of the file names | HO1 | Order is a bytewise `strncmp` of the names **without** the `.hook` suffix over the shorter length, shorter name first on a tie (`hook.c:443-455`). `-` (0x2d) sorts before `.` (0x2e), so full-name sort reverses every such pair | Compare against the entry's `## Effective hook order` table, not `sort`: `ls /usr/share/libalpm/hooks \| LC_ALL=C sort` is a different sequence | Rename rather than renumber if a real dependency exists; report the collision — do not reorder `/usr` files |
+| A hook file exists but never appears as `running '<name>'...` | HO3 | Read the mask rule first: a hook file with no `[Trigger]` section is valid and never runs (`hook.c:119-123`); 0 such files on this host. Otherwise it is the phase/trigger filter (HO7) or the phase never ran (HO6) | `grep -c '^\[Trigger\]' <file>`; `grep -n "running '<name>'" /var/log/pacman.log \| tail -3`; confirm a `transaction completed` exists for that attempt | Nothing to do if the silence is a deliberate mask; otherwise chase HO6/HO7 |
+| A Pre hook exits non-zero and the upgrade continues | HO4 | A Pre hook's non-zero exit aborts only when the hook carries `AbortOnFail`; `AbortOnFail` on a Post hook is rejected with a warning at load (`hook.c:141-146`), and the run loop breaks only for Pre (`hook.c:660-669`). 0 of the 17 Pre hooks here carry it, so **no Pre hook's exit status can stop a transaction on this host**; the only other Pre blocker is HO5's scan error | `grep -l '^AbortOnFail' /usr/share/libalpm/hooks/*.hook /etc/pacman.d/hooks/*.hook` (expect nothing). Distinguish an HO5 abort from an HO4 abort: HO5 leaves a validation `[E]` line and **no** `running '…'` line for the phase; an aborting Pre run logs `running '<name>'...` first (`hook.c:653`) | Treat the failed hook as an ignored warning and check its product by hand; making it fatal needs a vendor file with `AbortOnFail` — not an `/etc` edit |
+| After an upgrade the UKI/initramfs predates the installed kernel, a Post hook did not run, and the command exited 0 | HO6 | The Post phase runs only in the `else` of `state == STATE_INTERRUPTED`, after `transaction completed` (`trans.c:230-241`), so a `transaction failed` or `transaction interrupted` runs none of the 52 Post hooks. Commits are per-target (`add.c:670-687`, `sync.c:1336-1357`): a mid-transaction failure leaves already-committed targets (e.g. the new `linux` modules tree) with the **previous** UKI — version skew, not "nothing happened". An interrupt returns 0 from `alpm_trans_commit` (`trans.c:242-244` with `add.c:673-675`), so a missing Post run need not come with a non-zero exit; and a Post hook's own failure is dropped (`trans.c:238`) and reaches stderr, not `pacman.log` | Log leg: `grep -n 'transaction \(started\|completed\|failed\|interrupted\)' /var/log/pacman.log \| tail -4` and check that the Post `running '...'` lines follow the last `transaction completed`. Artifact leg: `pacman -Q linux` versus `stat -c '%y %n' /boot/…` — **BLOCKED** as a non-root user (measured 2026-10-26: `ls: cannot open directory '/boot': Permission denied`), so record `BLOCKED` and hand the probe over | Re-run the boot-artifact producers by hand (`mkinitcpio -P`, `limine-update`) and verify before reboot; the lane never runs them |
+| Within one transaction the `running '...'` order disagrees with the table | HO7 | The table is the order of **candidates**; a transaction runs only the triggered subset, in that order, per phase (`hook.c:633-641`). A real sequence is therefore a subsequence of the table order for its phase, and missing hooks are normal. Witness on this host: `/var/log/pacman.log:3248-3254`, one Pre hook before `transaction started`, one Post hook after `transaction completed` | Extract the phase lines (`awk` between `transaction started` and `transaction completed`, plus the `running` lines before `started`), map each name to its `pos` in the entry table, confirm the positions increase within a phase | If positions are not increasing with an unmodified pacman, the entry or the installed pacman has moved: re-run the gate and report, never hand-edit the table |
+
+### Limits of this table
+
+- **No hook was executed for it.** The rows model candidates from files and pinned source; the
+  order of hooks inside a real transaction is not produced here (entry `[unk]`), which is why HO7's
+  check is a subsequence test on the log rather than a prediction.
+- **NOHOOKS is a separate explanation.** A transaction flagged `ALPM_TRANS_FLAG_NOHOOKS` skips both
+  phases (`trans.c:201`, `:237`); at pacman 54d9411 the one command-line option that sets it is `--dbonly`
+  (round-38 wave seat C2ScoutNohooks, `.ufo/waves/round-38/w1/C2ScoutNohooks.md`), so "no hook ran at all" after a
+  `--dbonly` run is not HO6.
+- **Permission can mimic HO5.** A root-owned hook directory that the current user cannot open sets
+  the same scan error (`hook.c:547-560`); the tell is `[E] error while reading hook …: Permission
+  denied` (`.ufo/waves/round-38/w1/C2CritHO5/matrix.txt`, T11). Hand it to the operator; never escalate.
+- **Silence in `pacman.log` is weak evidence.** Only `alpm_logaction` lines reach it
+  (`hook.c:653`; `trans.c:208`, `:231`, `:235`); validation and exec failures are stderr-only, so a
+  missing log line never proves a hook succeeded.
+- **`/boot` is unreadable non-root** (checklist item 7): HO6's artifact leg is `BLOCKED` for an
+  agent and stays an operator probe.
+

@@ -1,0 +1,111 @@
+# Seat GateRevisionBind — raw experiment ledger (round 38, wave 1)
+
+Scratch root: /fast/scratch/hyaku/tsukuroi-r38/GateRevisionBind (TMPDIR for every run).
+Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (read-only; no lane git mutation).
+Measured revision for both counters: 5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf (HEAD == origin/master).
+
+## 1. Revision binder selftest
+
+$ TMPDIR=$S python3 tools/_revision.py --selftest
+REVISION_SELFTEST: PASS (57 cases, 57 passed, 0 failed)
+rc=0
+
+## 2. The lane judge, unmodified, at HEAD
+
+$ TMPDIR=$S python3 tools/check-revision-binding.py --tools-revision 5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf
+JUDGE_RC=0
+status=PASS status_scope=original-nine consistency only
+consistent_tools=9 total=9 bound_tools=9 shared_tools=8 local_rev_regex_copies=0
+all_total=19 all_consistent_tools=16 additional_total=10 additional_consistent_tools=7
+legacy_bound=5 legacy_total=5
+discovered=['check-adjacency-anchors.py','check-appended-notices.py','check-boot-writers.py',
+ 'check-journalctl-v262-corrections.py','check-knowledge-header.py','check-registry-coverage.py',
+ 'check-report-receipts.py','check-review-snapshots.py','check-selector-contract.py',
+ 'check-self-assessment.py']
+-> neither check-hook-order-r38.py nor score-storage-arm-r38.py appears in per_tool (receipt judge-head.json).
+
+Discovery-predicate census over tools/*.py (excluding check-revision-binding.py and _*.py):
+double-quote literal "--revision": 19 files, 10 discovered extras + 9 named TOOLS
+single-quote literal '--revision' only: 34 files, 0 discovered (includes all three r38 gates:
+  check-hook-order-r38.py, score-storage-arm-r38.py, score-storage-arm-r38-q82.py)
+
+## 3. The judge's own probe_tool matrix applied to the two counters
+
+Driver: probe_two.py (scratch) imports the lane judge unmodified, clones the lane with judge.clone_lane,
+judge.prepare, judge.materialize(_revision.py + the two counters), judge.probe_commit for the unlanded
+sha, judge.blob_object, then judge.probe_tool(name, tip, unlanded, parent, branch, blob).
+(receipt probe-two.json)
+
+score-storage-arm-r38.py   bound=True consistent=False shared=True local_rev_regex=0
+check-hook-order-r38.py    bound=True consistent=False shared=True local_rev_regex=0
+
+Both: every round-17 and round-18 case ok except
+  single-id       exit=2 finding=E-REVISION-NOT-LANDED binding_ids=['E-REVISION-NOT-LANDED'] finding_count=None  ok=False
+  strict-refusals exit=2 finding=single-finding-contract                                   ok=False
+head exit=2 E-REVISION-INVALID; at-parent exit=2 E-REVISION-INVALID; branch-name(master) exit=2 E-REVISION-INVALID;
+unlanded exit=2 E-REVISION-NOT-LANDED; not-pushed exit=2 E-REVISION-NOT-PUSHED;
+branch-range/slash/space exit=2 E-BRANCH-INVALID; branch-first exit=2 E-BRANCH-INVALID;
+branch-missing exit=2 E-BRANCH-MISSING; blob-revision exit=2 E-REVISION-INVALID; git-failed exit=2 E-GIT-FAILED;
+tip/short-tip exit=0 json revision=5edb6c2e0d0e…; landed-parent(9c9bb6477951…) exit=0; origin-absent exit=0.
+
+Cause: both counters print {'counter','error','exit'} on refusal, no "findings" array and no "status"
+(score-storage-arm-r38.py:186-188, check-hook-order-r38.py:194-196). The judge reads finding_count only
+from doc["findings"] (check-revision-binding.py:365-372), so a textually single finding scores None.
+
+## 4. Direct counter runs at HEAD
+
+$ TMPDIR=$S python3 tools/score-storage-arm-r38.py --revision 5edb6c2 --scratch $S/c1
+{'counter':'score-storage-arm-r38','revision':'5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf',
+ 'branch_tip':'5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf','fixtures_matched':10,'fixtures_expected':10,
+ 'live_match':1,'six_planes_all':1,'euid_root':False,'result':'PASS','exit':0}   RC=0 wall 33.6s
+
+$ TMPDIR=$S python3 tools/check-hook-order-r38.py --revision 5edb6c2
+{'counter':'check-hook-order-r38','revision':'5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf',
+ 'entry_present':True,'rows_expected':69,'rows_matched':69,'mismatches':0,'extra_rows':0,'source_ok':1,
+ 'source_ids':['S208','S209','S210','S211','S212'],'source_problems':[],'result':'PASS','exit':0}  RC=0
+
+Declared digests reproduce on the tip worktree:
+e649bfb33ed99161dc3affdacd7fa86fa8d96e2c5bb60b2d22d6fc12a7f82218  tools/score-storage-arm-r38.py
+60e3635b37d5cd92f371800d8e5a22837b540e57c1c50a399bc973d4e21bd1a8  tools/check-hook-order-r38.py
+
+## 5. C1 input provenance — git at the bound revision (scratch clone $S/c1fx)
+
+(1) clean clone at tip:
+    {'fixtures_matched':10,'fixtures_expected':10,'live_match':1,'six_planes_all':1,'result':'PASS','exit':0}
+(2) worktree tools/tsukuroi-census.sh overwritten with a fabricated reporter
+    ("STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0" + six fake PLANE lines);
+    worktree sha256 a947454cd2e33d4f1a4f45b52039b57e82d14466a09ae11e1f0a8ca465bed9ff vs git blob
+    119b645349b5eadf182aaa473d2fac38eadea45a:
+    {'fixtures_matched':10,'fixtures_expected':10,'live_match':1,'six_planes_all':1,'result':'PASS','exit':0}
+    -> the worktree byte was ignored; the census came from `git show <REV>:tools/tsukuroi-census.sh`.
+Bare repository (git clone --bare --shared), C1 runs there (worktree-independent):
+    $ python3 tools/score-storage-arm-r38.py --repo $S/bare.git --revision 5edb6c2 --no-live
+    {'error':None,'fixtures_matched':10,'result':'FAIL','exit':1}   # --no-live makes live_match 0, FAIL is by design
+Cross-revision sensitivity (lane, freeze commit 7cbaeb6, census without the storage arm):
+    {'revision':'7cbaeb6317cb9f7323d2619eec02db4e4da29449','fixtures_matched':0,'fixtures_expected':10,
+     'live_match':0,'six_planes_all':1,'result':'FAIL','exit':1}
+
+## 6. C2 input provenance — entry/SOURCES via git, capture from the worktree
+
+Scratch clone $S/c2fx (git clone --shared of the lane, HEAD 5edb6c2), clean worktree:
+    {'rows_expected':69,'rows_matched':69,'extra_rows':0,'source_ok':1,'result':'PASS','exit':0}
+(a) one byte appended to worktree .ufo/waves/round-38/frozen/hooks-capture/etc-pacman.d-hooks/90-mkinitcpio-install.hook:
+    {'error':'capture_tampered: etc-pacman.d-hooks/90-mkinitcpio-install.hook','exit':2}
+(b) capture directory removed from the worktree:
+    {'error':'capture_tampered: MANIFEST.sha256 missing or digest differs','exit':2}
+(c) entry markdown row appended in the worktree (git blob at REV unchanged):
+    {'entry_present':True,'rows_expected':69,'rows_matched':69,'result':'PASS','exit':0}
+    -> entry is read with git show at the bound sha; the worktree copy is ignored.
+(d) bare repository (git clone --bare --shared):
+    {'counter':'check-hook-order-r38','error':'capture_tampered: MANIFEST.sha256 missing or digest differs','exit':2}
+    -> the capture read requires a checkout; a bare mirror cannot be evaluated at all.
+Cross-revision sensitivity (lane, freeze commit 7cbaeb6, capture present, entry absent):
+    {'entry_present':False,'rows_expected':69,'rows_matched':0,'mismatches':69,'result':'FAIL','exit':1}
+Capture at REV is tracked and the worktree is clean:
+    git ls-tree -r --name-only 5edb6c2 .ufo/waves/round-38/frozen/hooks-capture | wc -l   -> 72
+    git status --porcelain .ufo/waves/round-38/frozen/hooks-capture | wc -l              -> 0
+
+## 7. Lane hygiene
+
+No lane file was created or modified outside .ufo/waves/round-38/w1/GateRevisionBind{,.md}.
+No git/jj mutation in the lane; no sudo, no pacman, no host change. Scratch removed at seat end.

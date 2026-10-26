@@ -1,0 +1,11 @@
+# receipt-03 counter runs, 2026-10-26
+$ python3 tools/check-journalctl-v262-corrections.py --selftest
+{"cases": 7, "failures": [], "passed": 7, "results": [{"actual_exit": 1, "case": "uncorrected-base", "expected_exit": 1, "mismatches": 15}, {"actual_exit": 0, "case": "corrected", "expected_exit": 0, "mismatches": 0}, {"actual_exit": 1, "case": "wrong-term-count", "expected_exit": 1, "mismatches": 1}, {"actual_exit": 1, "case": "missing-f-truncation", "expected_exit": 1, "mismatches": 1}, {"actual_exit": 1, "case": "missing-n-unchanged", "expected_exit": 1, "mismatches": 1}, {"actual_exit": 1, "case": "action-overwrite-called-work", "expected_exit": 1, "mismatches": 1}, {"actual_exit": 1, "case": "prior-teaching-omitted", "expected_exit": 1, "mismatches": 1}], "status": "PASS"}
+
+$ python3 tools/check-journalctl-v262-corrections.py --revision 5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf
+{"branch": "master", "branch_tip": "5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf", "checked": 3, "findings": [], "mismatches": 0, "predicate": "15 exact limiting-option terms; distinct -n/-F and -n/-N outcomes; action replacement; prior teaching acknowledged", "revision": "5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf", "status": "PASS"}
+
+$ grep -n 'field-name output is unchanged' tools/check-journalctl-v262-corrections.py
+53:        "`-N` field-name output is unchanged from plain `-N`",
+103:`journalctl --no-pager -n 1 -F PRIORITY` is accepted (exit 0); `-F` value list is truncated to one value (`5`). `journalctl --no-pager -n 1 -N` is accepted (exit 0); `-N` field-name output is unchanged from plain `-N`; both 2882 bytes and identical stdout SHA-256 `3480f2aac48ee794f741dfd7dbffa31c86d933df70482db14adf5e57dfc2f20a`.
+115:        ("missing-n-unchanged", good.replace("`-N` field-name output is unchanged from plain `-N`", "`-N` fields are narrowed"), FAIL),

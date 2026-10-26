@@ -1,0 +1,75 @@
+# C2RevenConf receipts — replayed 2026-10-26T04:59:42Z
+# pacman: / _.-' .-. .-. .-. Copyright (C) 2006-2025 Pacman Development Team
+
+$ pacman-conf HookDir
+/etc/pacman.d/hooks/
+
+$ grep -n -i hookdir /etc/pacman.conf
+(grep exit=1)
+
+$ pacman -Q --verbose | grep "Hook Dirs"
+Hook Dirs : /usr/share/libalpm/hooks/  /etc/pacman.d/hooks/  
+
+$ pacman-conf --config t1.conf HookDir    # two explicit HookDir lines
+/custom/a/
+/custom/b/
+
+$ pacman-conf --config t2.conf HookDir    # [options] only
+/etc/pacman.d/hooks/
+
+$ pacman-conf --config t3.conf HookDir    # system dir listed explicitly
+/usr/share/libalpm/hooks/
+/x/y
+
+$ pacman -Q --verbose --config t1.conf | grep "Hook Dirs"
+Hook Dirs : /usr/share/libalpm/hooks/  /custom/a/  /custom/b/  
+
+$ pacman -Q --verbose --config t3.conf | grep "Hook Dirs"    # duplicate system dir
+Hook Dirs : /usr/share/libalpm/hooks/  /usr/share/libalpm/hooks/  /x/y/  
+
+$ pacman -Q --verbose --config t4.conf | grep "Hook Dirs"    # relative HookDir
+Hook Dirs : /usr/share/libalpm/hooks/  relhooks/  
+
+$ pacman -Q --verbose --hookdir /var/lib/pacman | grep "Hook Dirs"
+Hook Dirs : /usr/share/libalpm/hooks/  /var/lib/pacman/  
+
+$ pacman -Q --verbose --hookdir /custom/z     # nonexistent CLI path
+error: 'failed to resolve path '/custom/z' passed to '--hookdir': No such file or directory
+exit=1
+
+$ pacman -Q --debug 2>&1 | grep -i hookdir   # the only logged hookdir add
+debug: option 'hookdir' = /etc/pacman.d/hooks/
+
+$ ./probe
+1: [/usr/share/libalpm/hooks/]
+
+$ ./probe add /etc/pacman.d/hooks
+1: [/usr/share/libalpm/hooks/]
+-- after add_hookdir /etc/pacman.d/hooks
+2: [/usr/share/libalpm/hooks/]
+3: [/etc/pacman.d/hooks/]
+
+$ ./probe add hooks
+1: [/usr/share/libalpm/hooks/]
+-- after add_hookdir hooks
+2: [/usr/share/libalpm/hooks/]
+3: [hooks/]
+
+$ pacman-conf --sysroot <scratch>/sys --config /etc/pacman.conf HookDir
+/fast/scratch/hyaku/tsukuroi-r38/C2RevenConf/sys/custom/a/
+
+# live hook dirs
+90-mkinitcpio-install.hook
+99-limine.hook
+walker-restart.hook
+usr .hook count: 67
+etc .hook count: 3
+
+# same-name collision across the two dirs
+COLLIDE 90-mkinitcpio-install.hook
+
+# Exec of the overridden pair
+/etc/pacman.d/hooks/90-mkinitcpio-install.hook:Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-install
+/usr/share/libalpm/hooks/90-mkinitcpio-install.hook:Exec = /usr/share/libalpm/scripts/mkinitcpio install
+
+# LEGEND (added after replay): pacman --version line 2 is:  .--. Pacman v7.1.0 - libalpm v16.0.1

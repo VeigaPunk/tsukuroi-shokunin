@@ -1,0 +1,25 @@
+rc live=1 empty=1 absent=1
+--- live STORAGE ---
+STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+--- empty-dir STORAGE ---
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+--- absent-dir STORAGE ---
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+--- diff live vs absent, STORAGE removed ---
+1c1
+< tsukuroi-census census-v2 — host=plazir27 — 2026-10-26T04:55:29Z — read-only
+---
+> tsukuroi-census census-v2 — host=plazir27 — 2026-10-26T04:55:35Z — read-only
+4c4
+< PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=47 (oom=0 io=45 gpu=0 other=2) [unknown: accepted noise floor]; nvidia=present smi=615.78.08 modules=4 nodes=6 pci_10de=2; mem=[DEGRADED] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=200 C4_present=0 C4_local=0; C5_swap_fail=87 C5_swap_peak_pct=4% C5_pswp=0/0 C5_sock_throttled=5076; C6_psi_some_avg300=0.12 C6_psi_full_avg300=0.12 C6_psi_full_total_us=2583312 C6_avail_kb=24537880 C6_shmem_kb=5508; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)
+---
+> PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=47 (oom=0 io=45 gpu=0 other=2) [unknown: accepted noise floor]; nvidia=present smi=615.78.08 modules=4 nodes=6 pci_10de=2; mem=[DEGRADED] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=202 C4_present=0 C4_local=0; C5_swap_fail=87 C5_swap_peak_pct=4% C5_pswp=0/0 C5_sock_throttled=5076; C6_psi_some_avg300=0.12 C6_psi_full_avg300=0.12 C6_psi_full_total_us=2588512 C6_avail_kb=24913644 C6_shmem_kb=3404; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)
+--- diff live vs empty, STORAGE removed ---
+1c1
+< tsukuroi-census census-v2 — host=plazir27 — 2026-10-26T04:55:29Z — read-only
+---
+> tsukuroi-census census-v2 — host=plazir27 — 2026-10-26T04:55:32Z — read-only
+4c4
+< PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=47 (oom=0 io=45 gpu=0 other=2) [unknown: accepted noise floor]; nvidia=present smi=615.78.08 modules=4 nodes=6 pci_10de=2; mem=[DEGRADED] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=200 C4_present=0 C4_local=0; C5_swap_fail=87 C5_swap_peak_pct=4% C5_pswp=0/0 C5_sock_throttled=5076; C6_psi_some_avg300=0.12 C6_psi_full_avg300=0.12 C6_psi_full_total_us=2583312 C6_avail_kb=24537880 C6_shmem_kb=5508; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)
+---
+> PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=47 (oom=0 io=45 gpu=0 other=2) [unknown: accepted noise floor]; nvidia=present smi=615.78.08 modules=4 nodes=6 pci_10de=2; mem=[DEGRADED] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=198 C4_present=0 C4_local=0; C5_swap_fail=87 C5_swap_peak_pct=4% C5_pswp=0/0 C5_sock_throttled=5076; C6_psi_some_avg300=0.12 C6_psi_full_avg300=0.12 C6_psi_full_total_us=2584145 C6_avail_kb=24871836 C6_shmem_kb=3392; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)

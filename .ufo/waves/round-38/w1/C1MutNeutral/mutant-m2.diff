@@ -1,0 +1,21 @@
+diff --git i/tools/tsukuroi-census.sh w/tools/tsukuroi-census.sh
+index b4de8c0..869745e 100755
+--- i/tools/tsukuroi-census.sh
++++ w/tools/tsukuroi-census.sh
+@@ -3006,7 +3006,7 @@ main() {
+   # ---- storage-integrity arm (round 38, C1): one verdict-neutral line ---------------
+   probe_storage_arm
+   printf '%s\n' "$STORAGE_LINE"
+-  local st=${STORAGE_LINE#*state=}; st=${st%% *}
++  printf 'PLANE storage: %s\n' "${STORAGE_LINE#STORAGE }"
+ 
+   local roll=HEALTHY
+   roll=$(worse "$roll" "$PKG_V")
+@@ -3015,7 +3015,6 @@ main() {
+   roll=$(worse "$roll" "$JRN_V")
+   roll=$(worse "$roll" "$UPD_V")
+   roll=$(worse "$roll" "$OOM_V")
+-  roll=$(worse "$roll" "$st")
+ 
+   printf 'TSUKUROI_CENSUS: %s (packages=%s systemd=%s drivers=%s journal=%s update-safety=%s oom=%s)\n' \
+     "$roll" "$PKG_V" "$SYS_V" "$DRV_V" "$JRN_V" "$UPD_V" "$OOM_V"

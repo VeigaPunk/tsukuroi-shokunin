@@ -1,0 +1,83 @@
+{
+ "counter": "score-storage-arm-r38-q82",
+ "revision": "b5bb3e8db69c4c339059463b2e394e10b09c1dbf",
+ "branch_tip": "b5bb3e8db69c4c339059463b2e394e10b09c1dbf",
+ "seed": "5ed89ae90e7e8096956deb7582daf3de",
+ "predicate": "ns_views_matched == VIEWS and ns_available == 1",
+ "views_expected": 3,
+ "ns_views_matched": 3,
+ "ns_available": 1,
+ "result": "PASS",
+ "exit": 0,
+ "views": [
+  {
+   "view": 0,
+   "mode": "zero",
+   "expected": [
+    "HEALTHY",
+    3,
+    6,
+    0
+   ],
+   "got": [
+    "HEALTHY",
+    3,
+    6,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=3 devices=6 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 1,
+   "mode": "nonzero",
+   "expected": [
+    "DEGRADED",
+    1,
+    3,
+    8
+   ],
+   "got": [
+    "DEGRADED",
+    1,
+    3,
+    8
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=1 devices=3 nonzero=8 detail=3fc3a31b:2:read_errs=5936,3fc3a31b:2:corruption_errs=87848,3fc3a31b:4:flush_errs=20390,3fc3a31b:4:corruption_errs=86552,3fc3a31b:7:write_errs=27092,3fc3a31b:7:read_errs=39860,3fc3a31b:7:corruption_errs=48083,3fc3a31b:7:generation_errs=39109"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 2,
+   "mode": "any",
+   "expected": [
+    "DEGRADED",
+    3,
+    5,
+    10
+   ],
+   "got": [
+    "DEGRADED",
+    3,
+    5,
+    10
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=3 devices=5 nonzero=10 detail=2649b614:1:flush_errs=83630,2649b614:1:generation_errs=25361,34a57bf3:1:read_errs=95567,34a57bf3:1:flush_errs=29978,34a57bf3:1:generation_errs=34565,34a57bf3:8:read_errs=83046,34a57bf3:8:corruption_errs=31925,9f80c90f:1:write_errs=62828,9f80c90f:7:write_errs=33945,9f80c90f:7:corruption_errs=20983"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  }
+ ]
+}

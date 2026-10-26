@@ -1,0 +1,33 @@
+# receipt-02 block diff (lines 129-157 vs 158-185), 2026-10-26
+$ diff <(sed -n '129,157p' corpus/knowledge/journalctl-v262-field-filter-r36.md) <(sed -n '158,185p' corpus/knowledge/journalctl-v262-field-filter-r36.md)
+14c14
+< | `journalctl --no-pager -n 1 -N` | accepted (exit 0); `-N` field-name output is unchanged from plain `-N` | same matrix, `ext_lines1_N` and `ext_plain_N`: both 2882 bytes and identical stdout SHA-256 `3480f2aac48ee794f741dfd7dbffa31c86d933df70482db14adf5e57dfc2f20a` |
+---
+> | `journalctl --no-pager -n 1 -N` | accepted (exit 0); field-name output is unchanged from plain `-N` | same matrix, `ext_lines1_N` and `ext_plain_N`: both 2882 bytes and identical stdout SHA-256 `3480f2aac48ee794f741dfd7dbffa31c86d933df70482db14adf5e57dfc2f20a` |
+29d28
+< 
+
+$ diff ... | cat -A | cut -c1-160   (whitespace visible; $ = line end)
+14c14$
+< | `journalctl --no-pager -n 1 -N` | accepted (exit 0); `-N` field-name output is unchanged from plain `-N` | same matrix, `ext_lines1_N` and `ext_plain_N`: bo
+---$
+> | `journalctl --no-pager -n 1 -N` | accepted (exit 0); field-name output is unchanged from plain `-N` | same matrix, `ext_lines1_N` and `ext_plain_N`: both 28
+29d28$
+< $
+
+$ sed -n '129,157p' corpus/knowledge/journalctl-v262-field-filter-r36.md | wc -c ; sed -n '158,185p' corpus/knowledge/journalctl-v262-field-filter-r36.md | wc -c
+3629
+3623
+
+$ sed -n '129,157p' corpus/knowledge/journalctl-v262-field-filter-r36.md | sha256sum ; sed -n '158,185p' corpus/knowledge/journalctl-v262-field-filter-r36.md | sha256sum
+e17aa221bf028203cd1ad972a2abff54a203ee62c40fe1da8165012f4671c5ae  -
+fd04c078533bcded434156e22109ce360d81cb1a4791a2afd404d0c62160812b  -
+
+$ sed -n '142p;171p' corpus/knowledge/journalctl-v262-field-filter-r36.md | cat -A | cut -c1-210
+| `journalctl --no-pager -n 1 -N` | accepted (exit 0); `-N` field-name output is unchanged from plain `-N` | same matrix, `ext_lines1_N` and `ext_plain_N`: both 2882 bytes and identical stdout SHA-256 `3480f2aa
+| `journalctl --no-pager -n 1 -N` | accepted (exit 0); field-name output is unchanged from plain `-N` | same matrix, `ext_lines1_N` and `ext_plain_N`: both 2882 bytes and identical stdout SHA-256 `3480f2aac48ee
+
+$ awk 'NR==157||NR==158||NR==185{printf "%d:[%s]\n", NR, $0}' corpus/knowledge/journalctl-v262-field-filter-r36.md
+157:[]
+158:[## Round 37 correction — predicate count, output states, action precedence and prior teaching]
+185:[QUALITY 1-3, 7 and 14: pass — the finite predicate is pinned to source lines; the two `-n` output states and action replacement are separated as saved observations; prior NEWS teaching is acknowledged; S199 is reopened and its located quote resolves. No new host behavior, field-enumeration capability, coverage surface, or ordinal move is claimed.]

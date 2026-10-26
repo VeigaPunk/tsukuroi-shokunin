@@ -1,0 +1,155 @@
+DraftSkillHooks — P-4 receipts (all read-only; no lane host/service/package change)
+Scratch: /fast/scratch/hyaku/tsukuroi-r38/DraftSkillHooks (TMPDIR exported there; removed at end)
+
+== 1. lane history of the round-38 registry rows (scratch shared clone, no lane Git write)
+$ git -C lane log --oneline -6
+5edb6c2 round-38: registry rows for storage-arm-r38, storage-arm-r38-q82, hook-order-r38 (QUALITY 70)
+9c9bb64 round-38: pre-seat amendment — QUALITY 82 production-path counter for C1, QUALITY 80-81 sweep and per-row kill rule for C2
+1fe28e7 round-38: C2 effective ALPM hook order entry (HO1-HO7, 69 rows) on S208-S212
+52ffd65 round-38: C1 storage-integrity census arm (verdict-neutral STORAGE line, 6 selftest cases, TMPDIR-honouring selftest)
+7cbaeb6 round-38: freeze C1/C2 counters, hook capture, before receipts and controls
+8bd001f round-37 verifier spot-check (integrator, hyaku): non-author admit/reject
+
+$ git -C lane blame -L 3100,3115 --porcelain SKILL.md | <commit> | sort -u
+5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf -> SKILL.md lines 3113,3114,3115 (the three round-38 rows)
+
+$ git -C lane diff --stat 7cbaeb6..HEAD -- tools/check-hook-order-r38.py SKILL.md corpus/knowledge/pacman-hook-order-r38.md
+ SKILL.md                                  |   3 +
+ corpus/knowledge/pacman-hook-order-r38.md | 109 ++++++++++++++++++++++++++++++
+ 2 files changed, 112 insertions(+)
+(the counter is byte-identical from the freeze to HEAD; the entry and the three rows are later additions)
+
+== 2. pinned counter digest
+$ git -C lane show 7cbaeb6317cb9f7323d2619eec02db4e4da29449:tools/check-hook-order-r38.py | sha256sum
+60e3635b37d5cd92f371800d8e5a22837b540e57c1c50a399bc973d4e21bd1a8  -
+$ git -C lane show HEAD:tools/check-hook-order-r38.py | sha256sum
+60e3635b37d5cd92f371800d8e5a22837b540e57c1c50a399bc973d4e21bd1a8  -
+(matches the declared sha256 60e3635b… and the registry pinned-values cell)
+
+== 3. capture manifest digest
+$ sha256sum .ufo/waves/round-38/frozen/hooks-capture/MANIFEST.sha256
+da07f43461fe41794419eb0da8ec88bd832c242abb2972e267df90d1ddd701dd  .ufo/waves/round-38/frozen/hooks-capture/MANIFEST.sha256
+(matches the entry, the registry row and the declaration)
+
+== 4. counter run at the C2 implementation commit (scratch clone, TMPDIR=scratch)
+$ python3 tools/check-hook-order-r38.py --revision 1fe28e725be47364fc6033bf81ecabc66ee5fe62
+{
+ "counter": "check-hook-order-r38",
+ "revision": "1fe28e725be47364fc6033bf81ecabc66ee5fe62",
+ "branch_tip": "5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf",
+ "predicate": "rows_expected == rows_matched and mismatches == 0 and extra_rows == 0 and source_ok == 1",
+ "entry_present": true,
+ "rows_expected": 69,
+ "rows_matched": 69,
+ "mismatches": 0,
+ "extra_rows": 0,
+ "source_ok": 1,
+ "source_ids": ["S208","S209","S210","S211","S212"],
+ "source_problems": [],
+ "result": "PASS",
+ "exit": 0,
+ "missing_rows_first5": [],
+ "extra_rows_first5": []
+}
+[rc=0]
+
+== 5. counter CLI (registry-row check): only --repo / --revision / --branch, no self-test
+$ grep -n 'add_argument' tools/check-hook-order-r38.py
+186:    ap.add_argument('--repo', default=str(Path(__file__).resolve().parent.parent))
+187:    ap.add_argument('--revision', required=True)
+188:    ap.add_argument('--branch', default='master')
+
+== 6. controls already scored (read, not rerun)
+$ read .ufo/waves/round-38/controls/controls.jsonl
+C2-do-nothing (base)  rows_matched 0/69  mismatches 69 source_ok 0 FAIL 1
+C2-plain-sort         rows_matched 63/69 mismatches 6  extra 6  source_ok 1 FAIL 1
+C2-no-override        rows_matched 66/69 mismatches 3  extra 3  source_ok 1 FAIL 1
+C2-no-source          rows_matched 69/69 mismatches 0  source_ok 0 FAIL 1
+C2-correct            rows_matched 69/69 mismatches 0  source_ok 1 PASS 0
+(C1 rows in the same file: base FAIL, constant-emitter FAIL, naive-emitter FAIL)
+
+== 7. live re-derivation of the header counts (read-only host reads)
+$ ls /usr/share/libalpm/hooks/*.hook | wc -l        -> 67
+$ ls /etc/pacman.d/hooks/*.hook  | wc -l            -> 3
+$ ls /etc/pacman.d/hooks/                            -> 90-mkinitcpio-install.hook, 99-limine.hook, walker-restart.hook
+$ grep -c '^| PreTransaction'  corpus/knowledge/pacman-hook-order-r38.md  -> 17
+$ grep -c '^| PostTransaction' corpus/knowledge/pacman-hook-order-r38.md  -> 52
+$ grep -l '^AbortOnFail' /usr/share/libalpm/hooks/*.hook /etc/pacman.d/hooks/*.hook | wc -l -> 0
+$ grep -l '^NeedsTargets' /usr/share/libalpm/hooks/*.hook /etc/pacman.d/hooks/*.hook | wc -l -> 15
+$ triggerless files (no '^[Trigger]') -> 0
+$ diff live-needs.txt entry-needs.txt
+10d9
+< 90-mkinitcpio-install.hook
+(the /usr copy also carries NeedsTargets but is the overridden one; effective count 14 = the table)
+
+== 8. HO1 byte-order demonstration on the live files
+$ LC_ALL=C ls -1 fontconfig.hook fontconfig-32.hook gio-querymodules.hook gio-querymodules-32.hook gio-remove-module-cache.hook gio-remove-module-cache-32.hook | LC_ALL=C sort
+fontconfig-32.hook fontconfig.hook gio-querymodules-32.hook gio-querymodules.hook gio-remove-module-cache-32.hook gio-remove-module-cache.hook
+(full-name byte sort puts every -32 file first; the table order is fontconfig.hook (Post 32) before fontconfig-32.hook (Post 33), etc.)
+
+== 9. HO2 same-name override on the live files
+$ grep -n 'Exec\|When\|Trigger' /etc/pacman.d/hooks/90-mkinitcpio-install.hook | tail -4
+29:When = PostTransaction
+30:Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-install
+(three [Trigger] sections at 1,14,20; NeedsTargets at 31)
+$ grep -n 'When\|Exec' /usr/share/libalpm/hooks/90-mkinitcpio-install.hook
+36:When = PostTransaction
+37:Exec = /usr/share/libalpm/scripts/mkinitcpio install
+$ pacman-conf HookDir
+/etc/pacman.d/hooks/
+[rc=0]
+
+== 10. phase evidence from the host log (read-only)
+$ grep -c "running '" /var/log/pacman.log
+295
+$ awk 'NR>=3247&&NR<=3255' /var/log/pacman.log
+3247: [2026-10-25T13:12:06-0300] [PACMAN] Running 'pacman -Rns --noconfirm openssl-1.0-debug postgres-language-server-bin-debug tizen-sdb-debug'
+3248: [2026-10-25T13:12:06-0300] [ALPM] running '10-limine-snapper-lock.hook'...
+3249: [2026-10-25T13:12:06-0300] [ALPM] transaction started
+3250: removed tizen-sdb-debug (2.3.2-3)
+3251: removed postgres-language-server-bin-debug (0.25.0-1)
+3252: removed openssl-1.0-debug (1.0.2.u-7)
+3253: [2026-10-25T13:12:06-0300] [ALPM] transaction completed
+3254: [2026-10-25T13:12:06-0300] [ALPM] running '35-systemd-update.hook'...
+$ grep -n 'transaction \(started\|completed\|failed\|interrupted\)' /var/log/pacman.log | tail -6
+3227:started 3230:completed 3236:started 3240:completed 3249:started 3253:completed  (all 2026-10-25)
+
+== 11. HO5 symptom string, primary fetch (no host change)
+$ curl -sS -o error.c https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/error.c
+$ curl -sS -o sync.c  https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/src/pacman/sync.c
+$ grep -n 'failed to run transaction hooks' error.c sync.c
+error.c:106:			return _("failed to run transaction hooks");
+$ sed -n '845,855p' sync.c
+850:		pm_printf(ALPM_LOG_ERROR, _("failed to commit transaction (%s)\n"),
+$ sha256sum error.c sync.c
+03f2dd96ae525bfa2bce39de58136cac2dc00b8fe30b25cdcb1ddb967669dabe  error.c
+af6f1104093c033ae90986d1861649506c8cdcf6031ef1c2138b4d9e0fae78c8  sync.c
+fetched 2026-10-26T05:07:45Z
+(my src/pacman/sync.c digest af6f1104… equals the `frontend-sync.c` line of seat C2CritHO6's
+ .ufo/waves/round-38/w1/C2CritHO6/SHA256SUMS.fetched:3 — same bytes from an independent fetch;
+ their `sync.c` line is lib/libalpm/sync.c, a different file, digest 6b297364…)
+
+== 12. per-target commit and the interrupt exit code (primary fetch)
+$ curl -sS -o add.c      https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/add.c
+$ curl -sS -o libsync.c  https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/sync.c
+$ sha256sum add.c libsync.c
+fd3136291885cae73ad00abab3d83de49ea0276f040e53cca3902cfb93cf58f1  add.c
+6b297364eaba94e82a1e30b50dde9b3b96f88075855b66ff455aca1e24995d46  libsync.c
+(both equal seat C2CritHO6's SHA256SUMS.fetched lines 4 and 5: independent fetch, same bytes)
+$ awk 'NR>=670&&NR<=687' add.c
+670: for(targ = trans->add; targ; targ = targ->next) {
+673:   if(handle->trans->state == STATE_INTERRUPTED) { return ret; }   (ret is 0 when no target failed)
+677:   if(commit_single_pkg(handle, newpkg, pkg_current, pkg_count)) {
+679:     trans->state = STATE_INTERRUPTED;
+683:     ret = -1;
+$ awk 'NR>=1352&&NR<=1357' libsync.c
+1354: if(_alpm_upgrade_packages(handle) == -1) {
+1355:   _alpm_log(handle, ALPM_LOG_ERROR, _("could not commit transaction\n"));
+1356:   return -1;
+
+== 13. /boot privilege gate observed this seat (the HO6 artifact check is BLOCKED non-root)
+$ ls -l --time-style=full-iso /boot
+ls: cannot open directory '/boot': Permission denied
+$ pacman -Q linux ; uname -r
+linux 7.2.11.arch1-1
+7.2.11-arch1-1

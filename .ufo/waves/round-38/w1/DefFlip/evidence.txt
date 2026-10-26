@@ -1,0 +1,85 @@
+Seat DefFlip (round 38, item D-2 / routed defect 6) — evidence receipts
+Lane tip read-only at time of work: 5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf
+Scratch: /fast/scratch/hyaku/tsukuroi-r38/DefFlip (removed at seat exit; hashes below)
+
+[1] Rejection text (no flip condition), lane file
+cmd: sed -n '74p' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-37.md
+out: "The staged `mount-errno-contract-r26.md` is also rejected as written: Frontier1Errno125/Frontier2Errno226
+compared its broad `CAP_SYS_ADMIN` -> `EPERM` subvolume-creation claim with the lane's round-12/13 CX2
+correction; that claim would revive a known contradiction." — reason only, no flip clause.
+
+[2] Defect statement, lane file
+cmd: awk 'NR==28 || NR==95 || NR==130' corpus/lessons/round-37-verifier-spotcheck.md
+out 28: "Only `errno-name-discrimination-r25.md` carries a flip condition (`corpus/lessons/round-37.md:22`).
+         The `mount-errno-contract-r26.md` rejection (`:74`) states a reason and no flip."
+out 95: row for mount-errno-contract-r26.md: "reject ... At v7.2, `btrfs_mksubvol` gates on `may_create_dentry`
+         (DAC -> EACCES) ... The rejection lacks a flip condition (6)"
+out 130: routed defect 6: "6. The Gate rejection of `mount-errno-contract-r26.md` (`corpus/lessons/round-37.md:74`)
+         lacks a flip condition ... Append a flip condition."
+
+[3] Staged candidate (shokuknow, read-only)
+cmd: cat -n /home/vgpnk/Projects/shokuknow/merge/tsukuroi/knowledge/corpus/knowledge/mount-errno-contract-r26.md
+out 39-40: "The ioctls that change the filesystem require `CAP_SYS_ADMIN` and return `EPERM` without it."
+out 46:    "| `EPERM` | missing `CAP_SYS_ADMIN` for mount, or snapshotting a subvolume you do not own | S214, S220 |"
+out: grep -c 'QUALITY' -> 0 (no `## QUALITY check`; QUALITY 14 unmet)
+out: sources declared S214, S220 (foreign ids)
+
+[4] Foreign source ids do not resolve in the lane registry
+cmd: grep -n '^| S214 \|^| S220 ' corpus/SOURCES.md ; echo rc=$?
+out: rc=1 (no match)
+
+[5] Pinned upstream source, kernel tag v7.2 (fetched 2026-10-26, raw.githubusercontent.com/torvalds/linux/v7.2)
+sha256 fs/btrfs/ioctl.c  08992385b45a89dbb2d0aba3fa25d316b46acc05f0dd368659858ec0d9d40c13  (5670 lines)
+sha256 fs/namei.c        d5498d87be97efd71286e27a30c34ce92a5e059e37540de11e93d1b8aad36c4a
+sha256 fs/inode.c        ddae1882abd97cab4a64e303db0e113fde52d73c54e6bd4305f6e6d296c9c683
+
+5a. creation path has no capability test
+cmd: sed -n '859,904p' ioctl.c | grep -n 'capable'
+out: rc=1 (no match)  [btrfs_mksubvol, ioctl.c:859-904]
+cmd: sed -n '/^static int create_subvol/,/^}/p' ioctl.c | grep -n 'capable\|EPERM'
+out: rc=1 (no match)  [create_subvol]
+5b. 859: static noinline int btrfs_mksubvol(struct dentry *parent,
+    875: 	ret = may_create_dentry(idmap, dir, dentry);
+5c. may_create_dentry errno
+cmd: awk 'NR>=3731 && NR<=3743' namei.c
+out 3731-3743: may_create_dentry -> -EEXIST (child exists), -ENOENT (deaddir), -EOVERFLOW (no fsuidgid mapping),
+     3742: return inode_permission(idmap, dir, MAY_WRITE | MAY_EXEC);  (DAC => -EACCES)
+5d. the only -EPERM on the snapshot path
+cmd: awk 'NR>=1176 && NR<=1186' ioctl.c
+out 1181: } else if (!inode_owner_or_capable(idmap, src_inode)) {
+out 1182-1185: /* Subvolume creation is not restricted, but snapshots are limited to own subvolumes only */
+out 1186: ret = -EPERM;
+5e. that check's capability
+cmd: grep -n 'inode_owner_or_capable' -A 18 inode.c
+out 2744-2745: "Return true if current either has CAP_FOWNER in a namespace with the inode owner uid mapped, or owns the file."
+out 2764: if (vfsuid_has_mapping(ns, vfsuid) && ns_capable(ns, CAP_FOWNER))
+5f. a real CAP_SYS_ADMIN -> -EPERM gate on a filesystem-changing ioctl
+cmd: awk 'NR>=2514 && NR<=2521' ioctl.c
+out 2514: static long btrfs_ioctl_add_dev(struct btrfs_fs_info *fs_info, void __user *arg)
+out 2520: 	if (!capable(CAP_SYS_ADMIN))
+out 2521: 		return -EPERM;
+cmd: awk 'NR>=5528 && NR<=5529' ioctl.c
+out 5528: 	case BTRFS_IOC_ADD_DEV:
+out 5529: 		return btrfs_ioctl_add_dev(fs_info, argp);
+cmd: grep -c 'capable(CAP_SYS_ADMIN)' ioctl.c
+out: 35
+
+[6] Shared-URL row precedent (new row for the same ioctl.c URL is admissible as an advisory)
+cmd: awk 'NR==211 || NR==212' corpus/SOURCES.md
+out 211: | S202 | errno(3) — https://man7.org/linux/man-pages/man3/errno.3.html | ...
+out 212: | S203 | errno(3) — https://man7.org/linux/man-pages/man3/errno.3.html | ...   (same URL, different anchor/scope)
+cmd: grep -n 'W04' corpus/lessons/round-37.md
+out 92: "... -> 207 rows, 33 W04 advisories, `tsukuroi ok`, exit 0"
+
+[7] QUALITY criteria (corpus/QUALITY.md)
+3:  1. Every claim falsifiable or marked opinion.
+5:  3. Observation, inference, and unknown stay separate.
+11: 7. External claims cite an exact `corpus/SOURCES.md` S### row, its tier and applicable section anchor ...
+19: 14. ... require its explicit `## QUALITY check` ... a promised check is not a performed check
+20: 15. ... Permission-denial explanations distinguish inode DAC/ACL, mount namespace and runtime credentials;
+       ordinary `mkdir` controls never certify a historical Btrfs ioctl cause.
+
+[8] The admitted replacement note does not carry a Btrfs-ioctl capability row
+cmd: read corpus/knowledge/mount-errno-contract-r37.md
+out: table rows = mount(2) EPERM/EACCES-or-EROFS/EBUSY + create_snapshot EXDEV/EPERM(ownership). No per-ioctl
+     CAP_SYS_ADMIN gate row.

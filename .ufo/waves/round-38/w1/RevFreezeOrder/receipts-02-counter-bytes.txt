@@ -1,0 +1,31 @@
+# RevFreezeOrder receipts 02 — counter bytes freeze vs master, SCORECARD diffs, MANIFEST pin (all read-only git)
+
+$ git diff 7cbaeb6317cb9f7323d2619eec02db4e4da29449 master -- tools/score-storage-arm-r38.py tools/check-hook-order-r38.py
+(no output; exit status 0 -> byte-identical)
+
+$ git rev-parse 7cbaeb6:tools/score-storage-arm-r38.py master:tools/score-storage-arm-r38.py \
+               7cbaeb6:tools/check-hook-order-r38.py master:tools/check-hook-order-r38.py
+df214578de1316820e3ccefbada56246c033b790   (C1 @ freeze)
+df214578de1316820e3ccefbada56246c033b790   (C1 @ master)
+505d3d89c7a5d91e550f4ab8e5838f4834a94567   (C2 @ freeze)
+505d3d89c7a5d91e550f4ab8e5838f4834a94567   (C2 @ master)
+
+$ git show <rev>:<counter> | sha256sum   (freeze / master)
+C1: e649bfb33ed99161dc3affdacd7fa86fa8d96e2c5bb60b2d22d6fc12a7f82218 / e649bfb33ed99161dc3affdacd7fa86fa8d96e2c5bb60b2d22d6fc12a7f82218
+C2: 60e3635b37d5cd92f371800d8e5a22837b540e57c1c50a399bc973d4e21bd1a8 / 60e3635b37d5cd92f371800d8e5a22837b540e57c1c50a399bc973d4e21bd1a8
+Both equal the sha256 pins in SCORECARD.md declaration rows (lines 2117 and 2118).
+
+$ git diff --stat 8bd001f 7cbaeb6 -- SCORECARD.md
+ SCORECARD.md | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+), 0 deletions(-)
+
+$ git diff 7cbaeb6 master -- SCORECARD.md
+ SCORECARD.md | 31 ++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+), 0 deletions(-)
+(declaration section byte-unchanged; amendment only appended at line 2133)
+
+$ git show 7cbaeb6:.ufo/waves/round-38/frozen/hooks-capture/MANIFEST.sha256 | sha256sum
+da07f43461fe41794419eb0da8ec88bd832c242abb2972e267df90d1ddd701dd
+$ git show master:.ufo/waves/round-38/frozen/hooks-capture/MANIFEST.sha256 | sha256sum
+da07f43461fe41794419eb0da8ec88bd832c242abb2972e267df90d1ddd701dd
+(both equal the C2 declaration pin "MANIFEST sha256 da07f43461fe4179..." at SCORECARD.md:2118)

@@ -1,0 +1,191 @@
+$ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-10-26T05:01:50Z
+[rc=0]
+
+$ uname -r
+7.2.11-arch1-1
+[rc=0]
+
+$ grep -c "transaction started" /var/log/pacman.log
+60
+[rc=0]
+
+$ grep -c "transaction completed" /var/log/pacman.log
+60
+[rc=0]
+
+$ grep -n "transaction failed\|transaction interrupted" /var/log/pacman.log
+[rc=1]
+
+$ grep -c "command failed to execute correctly" /var/log/pacman.log
+0
+[rc=1]
+
+$ grep -c "ALPM-SCRIPTLET" /var/log/pacman.log
+441
+[rc=0]
+
+$ head -1 /var/log/pacman.log | cut -c1-120
+[2026-10-03T20:41:33+0000] [PACMAN] Running 'pacman -b /mnt//var/lib/pacman/ -r /mnt -Sy --noconfirm --needed --config=/
+[rc=0]
+
+$ tail -1 /var/log/pacman.log
+[2026-10-25T13:12:06-0300] [ALPM] running '35-systemd-update.hook'...
+[rc=0]
+
+$ awk "NR>2855 \&\& NR<2941 \&\& /\\[ALPM\\] (upgraded|installed|reinstalled|downgraded) /{n++} END{print \"commits_after_linux=\"n}" /var/log/pacman.log
+awk: cmd. line:1: NR>2855 \&\& NR<2941 \&\& /\[ALPM\] (upgraded|installed|reinstalled|downgraded) /{n++} END{print "commits_after_linux="n}
+awk: cmd. line:1:         ^ backslash not last character on line
+[rc=1]
+
+$ awk "NR>2479 \&\& NR<2941 \&\& /\\[ALPM\\] (upgraded|installed|reinstalled|downgraded) /{n++} END{print \"commits_in_txn=\"n}" /var/log/pacman.log
+awk: cmd. line:1: NR>2479 \&\& NR<2941 \&\& /\[ALPM\] (upgraded|installed|reinstalled|downgraded) /{n++} END{print "commits_in_txn="n}
+awk: cmd. line:1:         ^ backslash not last character on line
+[rc=1]
+
+$ awk "NR>=1417 \&\& NR<=1424 || NR==1887 {printf \"%d\t%s\n\", NR, \$0}" /var/log/pacman.log
+awk: cmd. line:1: NR>=1417 \&\& NR<=1424 || NR==1887 {printf "%d\t%s\n", NR, $0}
+awk: cmd. line:1:          ^ backslash not last character on line
+[rc=1]
+
+$ awk "NR>=2855 \&\& NR<=2857 || NR==2892 || NR==2941 {printf \"%d\t%s\n\", NR, \$0}" /var/log/pacman.log
+awk: cmd. line:1: NR>=2855 \&\& NR<=2857 || NR==2892 || NR==2941 {printf "%d\t%s\n", NR, $0}
+awk: cmd. line:1:          ^ backslash not last character on line
+[rc=1]
+
+$ sha256sum /etc/pacman.d/hooks/90-mkinitcpio-install.hook /etc/pacman.d/hooks/99-limine.hook /usr/share/libalpm/hooks/60-mkinitcpio-remove.hook /usr/share/libalpm/hooks/60-limine-mkinitcpio-remove-pre.hook /usr/share/libalpm/hooks/90-limine-mkinitcpio-remove-post.hook
+a0689d022b3b505d42098b528f59df43d5a7f51e32efcf91f98081e3bbbff00c  /etc/pacman.d/hooks/90-mkinitcpio-install.hook
+a9998b759f58d4faafe66010d438179888e0d499ca4cac3212f6f9dd9cc270fe  /etc/pacman.d/hooks/99-limine.hook
+1d9e54fa4cd58a3485e621c2ec45db86b4f96bf0b029184ecc1f69dc778165ae  /usr/share/libalpm/hooks/60-mkinitcpio-remove.hook
+894555632580a32edbc8597e8dffe046497c6c0eb6030e313f6eb74d2fcb459d  /usr/share/libalpm/hooks/60-limine-mkinitcpio-remove-pre.hook
+aab1e427234a20f50218c36c9d1ee3349f9cd20952dbd754ff175ccedd22490f  /usr/share/libalpm/hooks/90-limine-mkinitcpio-remove-post.hook
+[rc=0]
+
+$ grep -h "90-mkinitcpio-install\|99-limine\|60-mkinitcpio-remove\|60-limine-mkinitcpio-remove" /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-38/frozen/hooks-capture/MANIFEST.sha256
+a0689d022b3b505d42098b528f59df43d5a7f51e32efcf91f98081e3bbbff00c  etc-pacman.d-hooks/90-mkinitcpio-install.hook
+a9998b759f58d4faafe66010d438179888e0d499ca4cac3212f6f9dd9cc270fe  etc-pacman.d-hooks/99-limine.hook
+894555632580a32edbc8597e8dffe046497c6c0eb6030e313f6eb74d2fcb459d  usr-share-libalpm-hooks/60-limine-mkinitcpio-remove-pre.hook
+1d9e54fa4cd58a3485e621c2ec45db86b4f96bf0b029184ecc1f69dc778165ae  usr-share-libalpm-hooks/60-mkinitcpio-remove.hook
+9fc607e81d2f09aa0dfd313805277af92977535bd222f1e86caf5fbb28138cb4  usr-share-libalpm-hooks/90-mkinitcpio-install.hook
+[rc=0]
+
+$ ls -A /etc/mkinitcpio.d/ | wc -l
+0
+[rc=0]
+
+$ grep -n "vmlinuz" /var/lib/pacman/local/linux-7.2.11.arch1-1/files
+7750:usr/lib/modules/7.2.11-arch1-1/vmlinuz
+[rc=0]
+
+$ grep -rl "99-limine.hook" /var/lib/pacman/local/*/files
+grep: /var/lib/pacman/local/ALPM_DB_VERSION/files: Not a directory (os error 20)
+[rc=2]
+
+$ grep -n "etc/pacman.d/hooks/" /var/lib/pacman/local/limine-mkinitcpio-hook-1.40.0-2/files
+14:etc/pacman.d/hooks/
+15:etc/pacman.d/hooks/90-mkinitcpio-install.hook
+[rc=0]
+
+$ ls -A /var/lib/limine/
+[rc=0]
+
+$ ls -la /boot
+ls: cannot open directory '/boot': Permission denied
+[rc=2]
+
+$ grep -n "ESP_PATH\|ENABLE_UKI\|CUSTOM_UKI_NAME" /etc/default/limine
+3:ESP_PATH="/boot"
+8:ENABLE_UKI=yes
+9:CUSTOM_UKI_NAME="omarchy"
+[rc=0]
+
+$ awk "NR>=118 \&\& NR<=124 {printf \"%d\t%s\n\", NR, \$0}" /usr/share/libalpm/scripts/mkinitcpio
+awk: cmd. line:1: NR>=118 \&\& NR<=124 {printf "%d\t%s\n", NR, $0}
+awk: cmd. line:1:         ^ backslash not last character on line
+[rc=1]
+
+$ awk "NR>=159 \&\& NR<=178 {printf \"%d\t%s\n\", NR, \$0}" /usr/share/libalpm/scripts/mkinitcpio
+awk: cmd. line:1: NR>=159 \&\& NR<=178 {printf "%d\t%s\n", NR, $0}
+awk: cmd. line:1:         ^ backslash not last character on line
+[rc=1]
+
+$ awk "NR>=5 \&\& NR<=12 || NR>=25 \&\& NR<=40 {printf \"%d\t%s\n\", NR, \$0}" /usr/share/libalpm/scripts/limine-mkinitcpio-remove
+awk: cmd. line:1: NR>=5 \&\& NR<=12 || NR>=25 \&\& NR<=40 {printf "%d\t%s\n", NR, $0}
+awk: cmd. line:1:       ^ backslash not last character on line
+[rc=1]
+
+$ awk "NR>=294 \&\& NR<=316 {printf \"%d\t%s\n\", NR, \$0}" /usr/share/libalpm/scripts/limine-mkinitcpio-install
+awk: cmd. line:1: NR>=294 \&\& NR<=316 {printf "%d\t%s\n", NR, $0}
+awk: cmd. line:1:         ^ backslash not last character on line
+[rc=1]
+
+$ ls /var/lib/pacman/local/mkinitcpio-42.2-1/
+desc
+files
+mtree
+[rc=0]
+
+--- corrected awk-dependent receipts (single-quoted, re-run) ---
+$ sed -n "2856,2940p" /var/log/pacman.log | grep -c "\[ALPM\] \(upgraded\|installed\|reinstalled\|downgraded\) "
+83
+$ sed -n "2480,2940p" /var/log/pacman.log | grep -c "\[ALPM\] \(upgraded\|installed\|reinstalled\|downgraded\) "
+448
+$ grep -n "transaction started\|transaction completed" /var/log/pacman.log | sed -n "/24[0-9][0-9]:/p"  # boundaries of the 10-20 txn
+2400:[2026-10-19T20:48:34-0300] [ALPM] transaction started
+2402:[2026-10-19T20:48:34-0300] [ALPM] transaction completed
+2406:[2026-10-19T21:02:22-0300] [ALPM] transaction started
+2408:[2026-10-19T21:02:22-0300] [ALPM] transaction completed
+2412:[2026-10-20T01:06:49-0300] [ALPM] transaction started
+2414:[2026-10-20T01:06:50-0300] [ALPM] transaction completed
+2418:[2026-10-20T01:07:12-0300] [ALPM] transaction started
+2420:[2026-10-20T01:07:12-0300] [ALPM] transaction completed
+2425:[2026-10-20T02:41:32-0300] [ALPM] transaction started
+2427:[2026-10-20T02:41:32-0300] [ALPM] transaction completed
+2431:[2026-10-20T04:25:17-0300] [ALPM] transaction started
+2437:[2026-10-20T04:25:17-0300] [ALPM] transaction completed
+2442:[2026-10-20T07:45:37-0300] [ALPM] transaction started
+2445:[2026-10-20T07:45:37-0300] [ALPM] transaction completed
+2450:[2026-10-20T07:50:25-0300] [ALPM] transaction started
+2452:[2026-10-20T07:50:25-0300] [ALPM] transaction completed
+2456:[2026-10-20T08:14:13-0300] [ALPM] transaction started
+2459:[2026-10-20T08:14:13-0300] [ALPM] transaction completed
+2479:[2026-10-20T09:16:27-0300] [ALPM] transaction started
+2941:[2026-10-20T09:16:47-0300] [ALPM] transaction completed
+3066:[2026-10-20T09:27:39-0300] [ALPM] transaction started
+3074:[2026-10-20T09:27:39-0300] [ALPM] transaction completed
+3087:[2026-10-20T09:29:39-0300] [ALPM] transaction started
+3089:[2026-10-20T09:29:40-0300] [ALPM] transaction completed
+3094:[2026-10-20T09:31:03-0300] [ALPM] transaction started
+$ grep -n "upgraded linux (" /var/log/pacman.log
+1887:[2026-10-11T16:14:35-0300] [ALPM] upgraded linux (7.1.4.arch1-1 -> 7.2.3.arch1-3)
+2855:[2026-10-20T09:16:42-0300] [ALPM] upgraded linux (7.2.3.arch1-3 -> 7.2.11.arch1-1)
+$ grep -n "running .60-limine-mkinitcpio-remove-pre.hook\|running .60-mkinitcpio-remove.hook\|running .90-mkinitcpio-install.hook" /var/log/pacman.log
+269:[2026-10-03T20:42:02+0000] [ALPM] running '90-mkinitcpio-install.hook'...
+1362:[2026-10-03T17:45:33-0300] [ALPM] running '90-mkinitcpio-install.hook'...
+1419:[2026-10-11T16:14:14-0300] [ALPM] running '60-limine-mkinitcpio-remove-pre.hook'...
+1420:[2026-10-11T16:14:14-0300] [ALPM] running '60-mkinitcpio-remove.hook'...
+1989:[2026-10-11T16:15:38-0300] [ALPM] running '90-mkinitcpio-install.hook'...
+2468:[2026-10-20T09:16:24-0300] [ALPM] running '60-limine-mkinitcpio-remove-pre.hook'...
+2469:[2026-10-20T09:16:24-0300] [ALPM] running '60-mkinitcpio-remove.hook'...
+2983:[2026-10-20T09:18:13-0300] [ALPM] running '90-mkinitcpio-install.hook'...
+--- rollback / scriptlet-return sweeps in add.c (54d9411) ---
+$ grep -n "rollback\|revert\|undo\|_alpm_handle_commit_error" add.c; echo rc=$?
+rc=1
+$ awk "NR>=636 \&\& NR<=652 {printf ...}" add.c   # scriptlet return value not checked
+	}
+
+	/* run the post-install script if it exists */
+	if(alpm_pkg_has_scriptlet(newpkg)
+			&& !(trans->flags & ALPM_TRANS_FLAG_NOSCRIPTLET)) {
+		char *scriptlet = _alpm_local_db_pkgpath(db, newpkg, "install");
+		const char *scriptlet_name = is_upgrade ? "post_upgrade" : "post_install";
+
+		_alpm_runscriptlet(handle, scriptlet, scriptlet_name,
+				newpkg->version, oldpkg ? oldpkg->version : NULL, 0);
+		free(scriptlet);
+	}
+
+	event.type = ALPM_EVENT_PACKAGE_OPERATION_DONE;
+	EVENT(handle, &event);
+
+	return ret;

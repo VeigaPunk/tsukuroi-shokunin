@@ -1,0 +1,40 @@
+Item G-1 — lane gates at master 5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf and base 8bd001f58bfda29c92d90d2a7a413825c0ca9fcb
+Seat: GateHeaderRecheck. Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (read-only).
+TMPDIR=/fast/scratch/hyaku/tsukuroi-r38/GateHeaderRecheck for every run.
+Gate tool digests are identical at base and master:
+  592b6c2e765e2a0aec94cc745271878ef748ef3a2e2303ec722828d7cc13f919  tools/check-knowledge-header.py
+  1c6f349d4c298a3867c7163c7c3fb32f1c768adb0df7110fc7b216a4656b8cd1  tools/check-recheck-commands.py
+  (`git show <rev>:tools/<gate>.py | sha256sum` at both revisions; `git diff --stat` base..master on both files is empty)
+
+COMMANDS AND EXIT CODES
+cd $LANE && TMPDIR=$T python3 tools/check-knowledge-header.py --revision <REV>          exit 0 (PASS) at every revision below
+cd $LANE && TMPDIR=$T python3 tools/check-recheck-commands.py --revision <REV>          exit 0 (PASS) at every revision below
+cd $LANE && TMPDIR=$T python3 tools/check-knowledge-header.py --selftest               exit 0 (25/25 PASS)
+cd $LANE && TMPDIR=$T python3 tools/check-recheck-commands.py --selftest               exit 0 (95/95 PASS)
+
+SUMMARY LINES (verbatim fields)
+master 5edb6c2 check-knowledge-header : status=PASS note_count=59 complete_count=59 clean_count=59 finding_count=0
+base   8bd001f check-knowledge-header : status=PASS note_count=58 complete_count=58 clean_count=58 finding_count=0
+master 5edb6c2 check-recheck-commands  : status=PASS file_count=59 clean_count=43 finding_count=0 invocation_count=81
+                                         pointer_section_count=42 resolved_count=16 flagged_count=0
+base   8bd001f check-recheck-commands  : status=PASS file_count=58 clean_count=42 finding_count=0 invocation_count=81
+                                         pointer_section_count=42 resolved_count=16 flagged_count=0
+scoped  master 5edb6c2 rc --paths corpus/knowledge/pacman-hook-order-r38.md :
+                                         status=PASS file_count=1 clean_count=1 flagged_count=0
+
+INTERMEDIATE ROUND COMMITS (same two gates, same TMPDIR)
+7cbaeb6 (freeze)        kh PASS 58/58/58 f0   | rc PASS files 58 clean 42 flagged 0
+52ffd65 (C1 impl)       kh PASS 58/58/58 f0   | rc PASS files 58 clean 42 flagged 0
+1fe28e7 (C2 note added) kh PASS 59/59/59 f0   | rc PASS files 59 clean 43 flagged 0
+9c9bb64 (amendment)     kh PASS 59/59/59 f0   | rc PASS files 59 clean 43 flagged 0
+
+DELTA master - base (both gates)
+kh: +1 note (corpus/knowledge/pacman-hook-order-r38.md), +1 complete, +1 clean, findings 0 -> 0
+rc: +1 file, +1 clean, findings 0 -> 0, flagged 0 -> 0, invocation/pointer/resolved counts unchanged
+
+MUTANT CONTROLS (scratch clone of the lane, commit c005eec/4f7b7b7/c04b415; lane untouched)
+zz-m1-noverified.md (verified-at: removed)  -> KNOWLEDGE-HEADER-MISSING, exit 1
+zz-m2-baddate.md    (verified-at: 2026-02-30) -> KNOWLEDGE-HEADER-VALUE "ISO date is not a calendar date at line 2", exit 1
+zz-m4-emptyrecheck.md (recheck: empty)       -> KNOWLEDGE-HEADER-VALUE at kh; E-RECHECK-EMPTY (CANNOT_EVALUATE, exit 2) at rc
+zz-m3-forbidden.md  (recheck: names `sudo pacman -Syu`) -> RECHECK-FORBIDDEN-INVOCATION at zz-m3-forbidden.md:3, exit 1, flagged_count 1
+$ pacman -Syu in --exec-log .ufo/exec-log-fixture.txt   -> EXEC-STEER-VIOLATION at .ufo/exec-log-fixture.txt:1, exit 1

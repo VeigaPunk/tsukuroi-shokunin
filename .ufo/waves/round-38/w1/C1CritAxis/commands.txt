@@ -1,0 +1,37 @@
+# seat C1CritAxis command receipt, 2026-10-26T04:56:49Z, lane HEAD 5edb6c2e0d0e47b731fb0cb50e5d2df5abb7aacf
+
+$ git diff --stat 8bd001f5 5edb6c2 -- PROVINCE.md corpus/README.md
+[no output = map files byte-identical to base]
+
+$ git show 5edb6c2:PROVINCE.md | sed -n 169,170p
+This area becomes Core only after a census arm exists; until then it is
+Frontier and the knowledge entry is the record of the reading
+
+$ git show 5edb6c2:tools/tsukuroi-census.sh | grep -cE "^[[:space:]]*[^#[:space:]].*(scrub|smartctl|smart-log|nvme|device stats|findmnt)"
+0
+
+$ git show 5edb6c2:tools/tsukuroi-census.sh | grep -n STORAGE_LINE
+1884:  STORAGE_LINE="STORAGE btrfs-device-stats state=$state filesystems=$fsn devices=$devn nonzero=$nz"
+1885:  if [ -n "$detail" ]; then STORAGE_LINE+=" detail=${detail%,}"; fi
+3008:  printf '%s\n' "$STORAGE_LINE"
+
+$ git show 5edb6c2:tools/tsukuroi-census.sh | sed -n 3009,3019p
+
+  local roll=HEALTHY
+  roll=$(worse "$roll" "$PKG_V")
+  roll=$(worse "$roll" "$SYS_V")
+  roll=$(worse "$roll" "$DRV_V")
+  roll=$(worse "$roll" "$JRN_V")
+  roll=$(worse "$roll" "$UPD_V")
+  roll=$(worse "$roll" "$OOM_V")
+
+  printf 'TSUKUROI_CENSUS: %s (packages=%s systemd=%s drivers=%s journal=%s update-safety=%s oom=%s)\n' \
+    "$roll" "$PKG_V" "$SYS_V" "$DRV_V" "$JRN_V" "$UPD_V" "$OOM_V"
+
+$ grep -n "STORAGE" SKILL.md
+[no output: the skill text never teaches the new line]
+
+$ grep -n "DRIFT pacnew-plane" SKILL.md | head -3
+2950:verdict-neutral `DRIFT pacnew-plane` line.
+3007:## Round 35 — reading the census `DRIFT pacnew-plane` line (C1)
+3009:The census prints one `DRIFT pacnew-plane pacnew=N pacsave=N pacorig=N unreadable=N log_pacnew=N log_pacsave=N unlogged=N gone=N log=ok|unreadable` line after the HANDOFF lines (`tools/tsukuroi-census.sh` header, round-35 paragraph). Read it as names and counts, never as a verdict: it changes no PLANE text, rollup term or exit code. `unreadable` depends on the uid that ran the census (a user sees directories root can read); `unlogged` counts current files pacman's log never named, which includes every `.pacsave.N` (pacman renames older saves without a log line) and any file left from before the log's start; `gone` counts logged targets no longer present, which is the normal state after an operator merged and removed a `.pacnew`. `log=unreadable` means the pairing fields are not evidence. A nonzero `pacnew` is an operator action item under S010/S011 (compare and merge), never a census-performed action. Counter: `tools/score-pacnew-arm-r35b.py` (registry row above).

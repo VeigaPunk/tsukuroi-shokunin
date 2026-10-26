@@ -1,0 +1,184 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 10b6d47..119b645 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -347,8 +347,27 @@
+ # read (ADJ-02). The line is verdict-neutral: no PLANE text, rollup term or exit code changes.
+ # Live mode creates no files (two find sweeps into shell variables, no mktemp).
+ #
++# Round-38 addition (C1): the storage-integrity arm. corpus/README.md (round 26) kept storage
++# integrity as Frontier "until a read-only census arm reads it"; this arm reads it. It prints ONE
++# line after the DRIFT line and before the rollup:
++#   STORAGE btrfs-device-stats state=HEALTHY|DEGRADED|BLOCKED filesystems=N devices=N nonzero=N
++#     [detail=<fsid8>:<devid>:<key>=<value>|<fsid8>:<devid>:<reason>,...]
++# filesystems: entries under TSUKUROI_BTRFS_SYSFS (default /sys/fs/btrfs) named as a btrfs fsid
++# (lowercase UUID); `features` and other names are ignored. devices: entries under each
++# filesystem's devinfo/. Each device's error_stats must carry exactly the five counters
++# write_errs, read_errs, flush_errs, corruption_errs, generation_errs (Linux fs/btrfs/sysfs.c,
++# S133; storage-health-r26.md SH1) as non-negative integers, each once; nonzero counts the
++# (device, counter) pairs above zero. state: BLOCKED when a filesystem has no devinfo entry or
++# an error_stats file is unreadable or malformed; else DEGRADED when nonzero > 0 (a stored
++# lifetime total, never a dated event — SH2; date it from error-level kernel lines); else
++# HEALTHY. An absent TSUKUROI_BTRFS_SYSFS means no btrfs filesystem is mounted: HEALTHY 0/0/0.
++# No privilege is needed (sysfs 0444), counters are never reset (`btrfs device stats -z` is
++# operator-owned), NVMe SMART (SH5/SH6) is not read. The line is verdict-neutral: no PLANE
++# text, rollup term or exit code changes (frozen consumers pin six PLANE lines, e.g.
++# tools/score-census-handoff-r32.py). Live mode reads sysfs only and creates no files.
++#
+ # Read-only guarantee: no probe writes; the gate creates no files at all in live mode
+-# (selftest writes only under a mktemp dir named /tmp/tsukuroi-r3-2-selftest.XXXXXX).
++# (selftest writes only under a mktemp dir named ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX).
+ # Secrets are never read: only public package/system unit/driver/journal state is queried.
+ #
+ # Hermetic selftest: `--selftest` builds a /tmp fixture tree with a dispatcher stub for
+@@ -370,6 +389,7 @@
+ #   external declared-wave baseline; empty/unset = the embedded r8 snapshot)
+ #   TSUKUROI_PACMAN_LOG TSUKUROI_OFFLINE_DB TSUKUROI_EXPAC TSUKUROI_VERCMP
+ #   TSUKUROI_ETC_DIR (round 35: the pacnew/pacsave drift arm's tree; default /etc)
++#   TSUKUROI_BTRFS_SYSFS (round 38: the storage-integrity arm's sysfs root; default /sys/fs/btrfs)
+ #   TSUKUROI_CHANNEL_MAX_AGE_D TSUKUROI_LOG_TAIL_N (the update-safety plane's seams). The
+ #   channel stamp is the fixture db file's own mtime — settable with `touch -d` — so the
+ #   stale-channel case is executed against a real probe, not asserted vacuous.
+@@ -423,6 +443,7 @@ OOM_BASELINE=${TSUKUROI_OOM_BASELINE:-}
+ FOREIGN_BASELINE=${TSUKUROI_FOREIGN_BASELINE:-}
+ PACMAN_LOG=${TSUKUROI_PACMAN_LOG:-/var/log/pacman.log}
+ ETC_DIR=${TSUKUROI_ETC_DIR:-/etc}
++BTRFS_SYSFS=${TSUKUROI_BTRFS_SYSFS:-/sys/fs/btrfs}
+ OFFLINE_DB=${TSUKUROI_OFFLINE_DB:-$PACMAN_DB/sync/offline.db}
+ EXPAC=${TSUKUROI_EXPAC:-expac}
+ VERCMP=${TSUKUROI_VERCMP:-vercmp}
+@@ -526,9 +547,10 @@ usage() {
+ usage: tsukuroi-census.sh [--selftest] [--sample N] [--help]
+ 
+   (no flags)   run the live read-only census over packages / systemd-user / drivers
+-               (incl. the memory-pressure arm) / journal-boot / update-safety / oom (kill-event watch)
++               (incl. the memory-pressure arm) / journal-boot / update-safety / oom (kill-event watch),
++               plus the verdict-neutral DRIFT (pacnew) and STORAGE (btrfs error counters) lines
+   --selftest   hermetic fixture-tree test of every verdict arm (writes only under
+-               /tmp/tsukuroi-r3-2-selftest.*); exit 0 pass, 1 fail
++               ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*); exit 0 pass, 1 fail
+   --sample N   packages plane: size of the pacman -Qkk sample (default 8)
+ 
+ Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
+@@ -1822,10 +1844,52 @@ probe_pacnew_arm() {
+   DRIFT_LINE="DRIFT pacnew-plane pacnew=$pn pacsave=$ps pacorig=$po unreadable=$unr log_pacnew=$lpn log_pacsave=$lps unlogged=$unl gone=$gone log=$lstate"
+ }
+ 
++# ---- storage-integrity arm (round 38, C1; contract in the header) -------------------
++probe_storage_arm() {
++  local root=$BTRFS_SYSFS fsd dev f k v extra fs8 fsn=0 devn=0 nz=0 blocked=0 nd seen nk dnz ddet detail=''
++  local uuid='^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
++  local keys=' write_errs read_errs flush_errs corruption_errs generation_errs '
++  if [ -d "$root" ]; then
++    for fsd in "$root"/*; do
++      [ -e "$fsd" ] || continue
++      [[ ${fsd##*/} =~ $uuid ]] || continue
++      fsn=$((fsn + 1)); nd=0; fs8=${fsd##*/}; fs8=${fs8:0:8}
++      for dev in "$fsd"/devinfo/*; do
++        [ -e "$dev" ] || continue
++        nd=$((nd + 1)); devn=$((devn + 1)); f=$dev/error_stats
++        if [ ! -f "$f" ] || [ ! -r "$f" ]; then
++          blocked=1; detail+="$fs8:${dev##*/}:unreadable,"; continue
++        fi
++        # a device counts only when its file carries each of the five counters exactly once,
++        # as a non-negative integer, and nothing else; its nonzero pairs count only then
++        seen=' ' nk=0 dnz=0 ddet=''
++        while IFS=' ' read -r k v extra || [ -n "${k:-}" ]; do
++          if [[ $keys != *" ${k:-} "* ]] || [ -n "${extra:-}" ] || ! [[ ${v:-} =~ ^[0-9]+$ ]] \
++            || [[ $seen == *" $k "* ]]; then
++            nk=-1; break
++          fi
++          seen+="$k "; nk=$((nk + 1))
++          if ! [[ $v =~ ^0+$ ]]; then dnz=$((dnz + 1)); ddet+="$fs8:${dev##*/}:$k=$v,"; fi
++        done < "$f"
++        if [ "$nk" -ne 5 ]; then
++          blocked=1; detail+="$fs8:${dev##*/}:malformed,"; continue
++        fi
++        nz=$((nz + dnz)); detail+=$ddet
++      done
++      if [ "$nd" -eq 0 ]; then blocked=1; detail+="$fs8:-:no-devinfo,"; fi
++    done
++  fi
++  local state=HEALTHY
++  if [ "$blocked" -eq 1 ]; then state=BLOCKED; elif [ "$nz" -gt 0 ]; then state=DEGRADED; fi
++  STORAGE_LINE="STORAGE btrfs-device-stats state=$state filesystems=$fsn devices=$devn nonzero=$nz"
++  if [ -n "$detail" ]; then STORAGE_LINE+=" detail=${detail%,}"; fi
++  return 0
++}
++
+ # ---- hermetic selftest -------------------------------------------------------
+ run_selftest() {
+   local bin fx
+-  work=$(mktemp -d /tmp/tsukuroi-r3-2-selftest.XXXXXX)
++  work=$(mktemp -d "${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX")
+   # A 000 fixture directory would block `rm -rf` (unlink needs write+search on the parent);
+   # restore permissions on the temp tree only, never on a live path.
+   trap 'chmod -R u+rwx -- "${work:-}" 2>/dev/null || true; rm -rf -- "${work:-}" 2>/dev/null || true' EXIT INT TERM
+@@ -2058,6 +2122,7 @@ STUB
+       TSUKUROI_OOM_BASELINE="$FX/obase" \
+       TSUKUROI_PACMAN_LOG="$FX/pacman.log" \
+       TSUKUROI_ETC_DIR="$FX/etc" \
++      TSUKUROI_BTRFS_SYSFS="$FX/btrfs" \
+       TSUKUROI_EXPAC="$bin/expac" \
+       "${EXTRA_ENV[@]}" \
+       "$BASH" "$SELF" 2>&1)
+@@ -2814,6 +2879,48 @@ STUB
+   check 'healthy: an absent log prints log=unreadable and zero log counts, never a pass on pairing (R35-C1)' 0 HEALTHY \
+     '^DRIFT pacnew-plane pacnew=1 pacsave=0 pacorig=0 unreadable=0 log_pacnew=0 log_pacsave=0 unlogged=1 gone=0 log=unreadable$'
+ 
++  # ---- round 38 (C1): the storage-integrity arm (verdict-neutral) -------------------
++  EXTRA_ENV=()
++  local sfs=11111111-2222-3333-4444-555555555555 sfs2=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
++  st_write() { # st_write FILE w r f c g -> one error_stats file in sysfs order
++    mkdir -p "${1%/*}"
++    printf 'write_errs %s\nread_errs %s\nflush_errs %s\ncorruption_errs %s\ngeneration_errs %s\n' "$2" "$3" "$4" "$5" "$6" > "$1"
++  }
++  case_home='storage-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  check 'healthy: no btrfs sysfs root reads as no btrfs filesystem, 0/0/0 (R38-C1)' 0 HEALTHY \
++    '^STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0$'
++
++  case_home='storage-zero'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  st_write "$FX/btrfs/$sfs/devinfo/1/error_stats" 0 0 0 0 0
++  mkdir -p "$FX/btrfs/features" "$FX/btrfs/$sfs/features"; : > "$FX/btrfs/not-a-uuid"
++  check 'healthy: five zero counters on one device; features and non-fsid names ignored (R38-C1)' 0 HEALTHY \
++    '^STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0$'
++
++  case_home='storage-nonzero'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  st_write "$FX/btrfs/$sfs/devinfo/1/error_stats" 1 0 0 3 0
++  st_write "$FX/btrfs/$sfs2/devinfo/2/error_stats" 0 0 0 0 010
++  check 'healthy rollup: nonzero lifetime counters read DEGRADED on the STORAGE line only; 010 is ten, not octal (R38-C1)' 0 HEALTHY \
++    '^STORAGE btrfs-device-stats state=DEGRADED filesystems=2 devices=2 nonzero=3 detail=11111111:1:write_errs=1,11111111:1:corruption_errs=3,aaaaaaaa:2:generation_errs=010$' \
++    '^TSUKUROI_CENSUS: HEALTHY '
++
++  case_home='storage-malformed'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  mkdir -p "$FX/btrfs/$sfs/devinfo/1"
++  printf 'write_errs 0\nread_errs 0\nflush_errs 0\ncorruption_errs 0\n' > "$FX/btrfs/$sfs/devinfo/1/error_stats"
++  st_write "$FX/btrfs/$sfs/devinfo/2/error_stats" 0 2 0 0 0
++  check 'healthy rollup: a missing counter is BLOCKED; the healthy sibling device still counts (R38-C1)' 0 HEALTHY \
++    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=2 nonzero=1 detail=11111111:1:malformed,11111111:2:read_errs=2$'
++
++  case_home='storage-duplicate'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  st_write "$FX/btrfs/$sfs/devinfo/1/error_stats" 0 0 0 0 0
++  printf 'read_errs 0\n' >> "$FX/btrfs/$sfs/devinfo/1/error_stats"
++  check 'healthy rollup: a repeated counter or extra line is malformed, never a pass (R38-C1)' 0 HEALTHY \
++    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1:malformed$'
++
++  case_home='storage-no-devinfo'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  mkdir -p "$FX/btrfs/$sfs/features"
++  check 'healthy rollup: a mounted filesystem with no readable devinfo is BLOCKED (R38-C1)' 0 HEALTHY \
++    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=0 nonzero=0 detail=11111111:-:no-devinfo$'
++
+   check_cli 'cli: unknown argument exits 2 with usage (S10-2)' 2 \
+     '^usage: tsukuroi-census\.sh' -- --bogus
+   check_cli 'cli: --sample 0 refuses before the parse continues (S10-2)' 2 \
+@@ -2896,6 +3003,10 @@ main() {
+   probe_pacnew_arm
+   printf '%s\n' "$DRIFT_LINE"
+ 
++  # ---- storage-integrity arm (round 38, C1): one verdict-neutral line ---------------
++  probe_storage_arm
++  printf '%s\n' "$STORAGE_LINE"
++
+   local roll=HEALTHY
+   roll=$(worse "$roll" "$PKG_V")
+   roll=$(worse "$roll" "$SYS_V")

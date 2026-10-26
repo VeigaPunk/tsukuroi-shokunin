@@ -1,0 +1,47 @@
+# fetched 2026-10-26 from https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/<path>
+## lib/libalpm/error.c:101-107
+		case ALPM_ERR_TRANS_TYPE:
+			return _("operation not compatible with the transaction type");
+		case ALPM_ERR_TRANS_NOT_LOCKED:
+			return _("transaction commit attempt when database is not locked");
+		case ALPM_ERR_TRANS_HOOK_FAILED:
+			return _("failed to run transaction hooks");
+		/* Packages */
+
+## src/common/ini.c:50-60 (fopen failure -> cb(NULL,NULL,NULL))
+int parse_ini(const char *file, ini_parser_fn cb, void *data)
+{
+	char line[PATH_MAX], *section_name = NULL;
+	FILE *fp = NULL;
+	int linenum = 0;
+	int ret = 0;
+
+	fp = fopen(file, "r");
+	if(fp == NULL) {
+		return cb(file, 0, NULL, NULL, NULL, data);
+	}
+
+## src/pacman/sync.c:848-852
+	if(alpm_trans_commit(config->handle, &data) == -1) {
+		alpm_errno_t err = alpm_errno(config->handle);
+		pm_printf(ALPM_LOG_ERROR, _("failed to commit transaction (%s)\n"),
+		        alpm_strerror(err));
+		switch(err) {
+
+## src/pacman/conf.c:1409 (default hookdir)
+
+	SETDEFAULT(c->logfile, strdup(LOGFILE));
+	SETDEFAULT(c->gpgdir, strdup(GPGDIR));
+	SETDEFAULT(c->cachedirs, alpm_list_add(NULL, strdup(CACHEDIR)));
+	SETDEFAULT(c->hookdirs, alpm_list_add(NULL, strdup(HOOKDIR)));
+	SETDEFAULT(c->cleanmethod, PM_CLEAN_KEEPINST);
+
+## src/pacman/pacman.c:720-724 (--dbonly sets NOHOOKS)
+		case OP_DBONLY:
+			config->flags |= ALPM_TRANS_FLAG_DBONLY;
+			config->flags |= ALPM_TRANS_FLAG_NOSCRIPTLET;
+			config->flags |= ALPM_TRANS_FLAG_NOHOOKS;
+			break;
+
+## host: /etc/pacman.conf HookDir lines (none)
+(no HookDir directive: default /etc/pacman.d/hooks applies)

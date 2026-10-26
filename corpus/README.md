@@ -280,3 +280,22 @@ These entries deepen the existing errno/snapshot frontier (`corpus/README.md:38-
 ## Round 37 correction to the round-36 journalctl note
 
 The round-36 row above is historical for the initial note. `knowledge/journalctl-v262-field-filter-r36.md` now carries an append-only round-37 correction: the source predicate has 15 terms (not 16), `-n` truncates saved `-F` output but left saved `-N` output unchanged, and `--list-boots` replaces field-list action rather than yielding field values. The prior S024/round-1 teaching is acknowledged; S199 remains the pinned source row. Counter: `tools/check-journalctl-v262-corrections.py --revision <REV>`; it checks the correction block only, not live journalctl behavior.
+
+## Round 38 — storage arm in the census; effective ALPM hook order (2026-10-26)
+
+Append-only; the coverage map and Frontier bullets above stay as written.
+
+| Note | Holds | Sources |
+|---|---|---|
+| `../tools/tsukuroi-census.sh` (`probe_storage_arm`, round-38 C1) | The verdict-neutral storage-integrity arm: one `STORAGE btrfs-device-stats state=… filesystems=N devices=N nonzero=N [detail=…]` line from the five counters of every `<fsid>/devinfo/<devid>/error_stats` under `/sys/fs/btrfs`; BLOCKED when a reading is impossible, DEGRADED on a nonzero stored total, HEALTHY otherwise; never in the rollup | S128, S133; `knowledge/storage-health-r26.md` SH1/SH2; `../SKILL.md` "Storage integrity arm — round 38" |
+| `knowledge/pacman-hook-order-r38.md` | The host's effective ALPM hook order at pacman 54d9411 (69 effective hooks from 70 files; 17 Pre, 52 Post; one override; 0 masks; 0 `AbortOnFail`) and rules HO1–HO7 (suffix-ignoring order, last-directory-first override, triggerless masks, `AbortOnFail`, Pre-scan failure blocks the transaction, Post only after a completed commit, candidates vs triggered subset), with the round-38 correction block | S208–S212; `lessons/round-38.md` Gate |
+
+### Frontier notice — round 38
+
+The round-26 condition ("becomes Core only after a read-only census arm reads it") is met for the btrfs
+per-device error counters only; the scrub record and NVMe SMART stay Frontier (`../PROVINCE.md`
+"Round-38 promotion — R38-STORAGE-CORE"). Measured with `../tools/score-storage-arm-r38.py` and the
+production-path conjunct `../tools/score-storage-arm-r38-q82.py` at the revision named in `../SCORECARD.md`
+"Round 38 — measured outcome". The round-19 override reading (`knowledge/boot-writers-r19.md:37`, [inf]) is now
+source-backed by HO2. Known limit carried to the frontier: an absent `/sys/fs/btrfs` reads `HEALTHY 0/0/0`, so a
+namespace that hides it gives a false all-clear.
