@@ -2160,3 +2160,48 @@ counter is gameable (QUALITY 82), reported as a counter defect, not hidden.
   entry (wave items C2RevHookC, C2RevOtherSrc, C2CritHO5, C2CritHO6, C2RevenConf); any HO row judged false against
   the pinned source at its cited lines kills C2. Per LEARNING.md a dispatched seat is still the lane, so these
   verdicts are author-side; the closure's re-open is the non-author check.
+
+## Round 38 — measured outcome (2026-10-26, author-side; non-author closure pending)
+
+Measured revision: `b0005ae9f56fd5a006fc5ec026578c88e2b64b26` (lane tip before this section; this append and the LOG
+entry change no file either counter or the self-assessment counts read). Receipts under `.ufo/waves/round-38/after/`.
+
+| Claim | Axis | Before (base `8bd001f5`) | After (`b0005ae9`) | Kill rules | Author verdict | Ordinal |
+|---|---|---|---|---|---|---|
+| C1 storage counters Frontier → Core | coverage | v1 `fixtures_matched 0/10, live_match 0`, FAIL exit 1 (`before/c1-before.json`) | v1 10/10, live 1, six 1, PASS exit 0 (`after/c1-final-b0005ae.json`); amendment conjunct Q82 `ns_views_matched 3/3`, PASS exit 0 (`after/c1-q82-final-b0005ae.json`); census `--selftest` PASS 113/113 (`after/selftest-final-b0005ae.txt`) | none fired: fixtures, live leg, plane count, selftest and Q82 all hold | **verified under the frozen predicate and the pre-seat conjunct**, with two recorded counter defects: the v1 counter alone admits a fixture-gated arm (closed by Q82) and the Q82 counter admits four adversarial arms that read the view tree through leaked paths (`w1/Q82Attack.md`; lesson R38-Q82-LEAK, next-round fix). Known semantic limit: an absent sysfs root reads HEALTHY 0/0/0 (R38-ABSENT-ROOT) | coverage 9 → 9 (no ordinal uplift) |
+| C2 effective ALPM hook order | depth (sourced: S208–S212) | entry absent, `rows_matched 0/69`, `source_ok 0`, FAIL exit 1 (`before/c2-before.json`) | 69/69, mismatches 0, extra 0, `source_ok 1`, PASS exit 0 (`after/c2-final-b0005ae.json`) | none fired: pacman.log oracle 60 transactions, 109 phases, 0 violations (`w1/C2ExecLogOracle.md`); no HO row judged false (HO5, HO6 partly hold in host cells, corrected append-only in the entry) | **verified**; counter gaps recorded: a stripped entry citing only S212 also passes (`w1/CritControlsC2.md`), and dropping an S-id from `source:` survives (`w1/C2MutEntry.md`) — the HO rows are judged by the per-row rule, not by the counter | depth 8 → 8 (no ordinal uplift) |
+
+Causal separability re-checked by `w1/CritSeparability.md` (each predicate passes with the other claim absent). No
+axis harmed: `w1/RevNoHarmAxes.md`; the adjacency-anchors gate red caused by the census line shift was repaired in
+`02eeed07` (lesson R38-ANCHOR-SHIFT); the frozen round-35 probe `score-pacnew-arm-r35b.py` now reads base-parity
+failures at post-`52ffd65` revisions by construction (recorded in `SKILL.md` "Storage integrity arm — round 38").
+Sources: 207 → 212 rows, `sources-census.sh validate` exit 0 (`after/sources-census-final.txt`). Assimilation:
+none admitted (two staged candidates refused, `corpus/lessons/round-38.md` Gate).
+
+## Axes — current self-assessment (round 38 final measured surface)
+
+Each count is re-derived from the committed lane tree at `b0005ae9`; ordinals unchanged.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 59 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); `SKILL.md` 3201 `wc -l` / 861 table lines (`grep -c '^|' SKILL.md`); `corpus/lessons/` 52 files (`find corpus/lessons -type f | wc -l`); round-38 C2 verified, no ordinal move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged |
+| coverage | 9 | `corpus/README.md` 301 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus the verdict-neutral STORAGE line (btrfs error counters moved to Core, round 38 C1). | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (113 cases, 113 passed, 0 failed); live run exits 1 with six-plane rollup; `--identity` not landed. | round 11 (terminal closeout); unchanged |
+| freshness | 9 | Each round record re-ran predecessor pins; dated round-1 D1-D5 rechecks and current procedures remain recorded; captures are not durable host state. | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <REV>` checks 27 fixed checks; mismatches 0 required at the round-38 tip. | round 10; unchanged |
+| adjacency | 8 | formal overlap table present (finding-to-owner ADJ-01..07) and portable OUT-001..010 anchors remain; recipient acknowledgement and independent replay are unverified. | fleet round 1; unchanged |
+
+## Capabilities — current full evidence set (round 38)
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates opened tier-scoped sources with anchors, rejections, paths, search log and unopened leads | `corpus/SOURCES.md`; `.ufo/evidence/round-1-kaika/after.md` | fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT and STORAGE lines; selftest prints PASS (113 cases, 113 passed, 0 failed) | `tools/tsukuroi-census.sh`; `.ufo/evidence/round-1-kaika/scout-live.md`; `.ufo/evidence/round-1-kaika/after.md` | lane r2; demonstrated fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
+| boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt` | round 17 |
+| storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line (HEALTHY/DEGRADED/BLOCKED with nonzero pairs and reason tokens), demonstrated on fixtures, the live host and production-path namespace views | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-38/after/c1-q82-final-b0005ae.json` | round 38 |
+
+- **planned (next round):** fix the Q82 view leak (tmpfs-built views inside the namespace, the four `Q82Attack` arms as
+  committed should-fail controls) and the absent-root rule (a `/proc/self/mounts` cross-check under a new frozen counter);
+  adjacency (lowest with depth at 8) via a sibling acknowledgement of the storage/hook boundary.
+- **retired:** none.

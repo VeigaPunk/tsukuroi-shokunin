@@ -1437,3 +1437,19 @@ Integrated falsifiers: C17S407's V-B2 `shutil.which`/absolute-path PATH variant 
 ### Round-37 attempt 2 — re-verification, misroot repair and landing (2026-10-25)
 
 Attempt 2 (`TsukuroiR37a2`) found every attempt-1 commit landed at `a3cf2efdc09939534fe3b51b1bff6779554b0a39`, with no report filed and no new wave needed: the frozen claims are adjudicated, and an extra wave would only pad them. At that tip it re-ran C2 (3 checked, 0 mismatches, exit 0; selftest 7/7), C3 (27 checked, 0 mismatches, exit 0) and the census (207 rows, 33 W04, exit 0). Receipts are in `.ufo/waves/round-37/attempt2/`. Erratum to the entry above: 62 seat reports are present, not 63; `C27N15` is missing in addition to `Review3Causal355` (`attempt2/seat-report-count.txt`). Misroot repaired: a seat draft of the C2 note written at the fleet root is preserved under `.ufo/waves/round-37/misroot/` and deleted from the fleet root. A duplicate untracked fixture tarball, byte-identical to its committed round-35 original, was discarded. Both are mined in `corpus/lessons/round-37.md` (attempt-2 Mistakes). No claim verdict, counter or ordinal changes.
+
+## Round 38 — fresh-start round (hyaku run 8), 2026-10-26T05:24:56Z
+
+Claims (frozen `7cbaeb63`, pre-seat amendment `9c9bb647`): C1 coverage — btrfs per-device error counters move
+Frontier → Core through a verdict-neutral census arm (`52ffd65f`, hardened `02eeed07`); C2 depth (sourced, S208–S212)
+— the host's effective ALPM hook order, `corpus/knowledge/pacman-hook-order-r38.md` (`1fe28e72`, corrections in
+`b0005ae9`). Controls before any seat: `.ufo/waves/round-38/controls/controls.jsonl`, `controls-q82.jsonl`.
+Wave: one v2 wave of 71 seats (`.ufo/waves/round-38/w1-spec.json`, `w1-results.json`; reports in `w1/`).
+Measured at `b0005ae9`: C1 v1 10/10, live 1, six 1, PASS; Q82 3/3 PASS; C2 69/69, source_ok 1, PASS; selftest 113/113;
+pacman.log oracle 0 violations over 60 transactions; SOURCES 207 → 212, census exit 0. Re-verification of predecessor
+pins: storage-health SH1 live counters re-read (all 0, `w1/C1ExecLiveSurface.md`); round-37 routed defects 1, 3, 5,
+6, 7 fixed, 2 and 4 carried, 8 answered (`corpus/lessons/round-38.md`). Landed changes: `7cbaeb63` freeze;
+`52ffd65f` storage arm; `1fe28e72` C2 entry and rows; `9c9bb647` amendment; `5edb6c2e` registry rows;
+`02eeed07` hardening and IN-109 re-pin; `b0005ae9` integration (SKILL, PROVINCE, README, QUALITY 83–84,
+knowledge corrections, lesson, wave evidence); this entry with the SCORECARD outcome. Counter defects found by the
+wave and not repaired in-round: v1 fixture-gateable (closed by Q82), Q82 leak-beatable (`w1/Q82Attack.md`).
