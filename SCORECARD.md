@@ -2491,3 +2491,52 @@ its no-`subvol=` case (violates exactly one declared parameter) FAIL (`survivors
 `controls/C1-K3-declare-f-prologue-on-candidate.jsonl`); K4 the candidate is the after receipt at the C1 implementation
 commit `568c397d` (`after/c1-after-568c397.jsonl`: survivors 0, params 4, PASS). Recorded limit: a self-reader that
 strips here-documents before grepping is not refused by the decoy (wave item C1CritDecoy attacks it).
+
+## Round 41 — measured outcome (2026-10-26, author-side; non-author closure pending)
+
+Every claim receipt is a `tools/run-receipt.py` receipt (header: revision, tool, tool_sha256, tool_revision `e479fdc5`).
+
+| Claim | Axis | Before (base `0e5805a1`) | After | Kill rules | Author verdict | Ordinal |
+|---|---|---|---|---|---|---|
+| C1 census selftest kills H5, H6, H9, H10 | operability | `baseline_pass 1, neutral_pass 3, decoy_pass 1, mutants_applied 13, survivors 4` (H5, H6, H9, H10), `params 0`, FAIL exit 1 (`before/c1-before.jsonl`) | `survivors 0, params 4`, baseline `PASS (128 cases, 128 passed, 0 failed)`, PASS exit 0 at `568c397d` (`after/c1-after-568c397.jsonl`), re-run by seat C1ExecRerun (`w1/C1ExecRerun.md`, every field equal); final receipt at the integration commit `d7bf279f`: `after/c1-final-d7bf279.jsonl` | none fired: `probe_storage_arm` byte-identical to the base (`w1/C1ExecPriorCounters.md`), the round-40 C1 counter PASSes at the dispatch tip (same census bytes) | **verified under the frozen predicate; counter sufficiency falsified** — a here-document-stripping text gate plus one shared fixture line passes the predicate with no new case (`w1/C1CritDecoy.md`); forged FAIL labels are credited (`w1/C1CritLabels.md`). The landed bytes are four fixture cases and no self-reading construct (`w1/C1RevFixtures.md`, `w1/C1CritAxis.md` §1; residual C1RevDiffRead) | 9 → 9 |
+| C2 ALPM package anatomy PA1-PA8 | depth (sourced: S227-S236) | entry absent, `rules_verified 0, verdicts_ok 0, host_ok 0, source_ok 0`, FAIL (`before/c2-before.jsonl`) | `rules_verified 8, verdicts_ok 8, host_ok 6, source_ok 1`, no duplicates, novelty 0, PASS exit 0 at `d7bf279f` (`after/c2-after-d7bf279.jsonl`); at the implementation commit `9cc9aa77` all terms but verdicts (`after/c2-impl-9cc9aa7.jsonl`) | no `fails` verdict (16 wave verdict files: 11 `holds`, 5 `partly`); the five `partly` rows (PA2, PA3, PA5, PA6, PA7) carry appended corrections (`20c327b3`) and residual re-reads `residual/C2RevPA{2,3,5,6,7}c.md` — their outcome is recorded in the addendum below | **predicate met; verdict gate shown not to be an authorship check** (planted verdict files pass it, `w1/C2CritControl.md`); content read by 16 seats, novelty: 3 rows new, 4 partly held, 0 held (`w1/C2ScoutNovelty.md`); empirical probes support PA2, PA3, PA6, PA8 (`w1/C2LabratArchive.md`, `C2LabratOrder.md`, `C2LabratQkk.md`, `C2LabratVercmp.md`) | 8 → 8 |
+
+Causal separability: `w1/CritSeparability.md`. No-harm: `w1/RevNoHarmAxes.md`; seven lane gates exit 0 at the dispatch tip
+(`w1/GateAllRegistry.md`); self-assessment see the table below. Sources: 226 → 236 rows, census exit 0, W04 39 → 40 (S230,
+declared distinct scope from S213; `w1/RoutedW04.md`). Assimilation: staged `alpm-package-anatomy-r26.md` re-grounded
+(PA1, PA7, PA8 admitted as lane text; the `$pkgdir` sentence and the ground pointer rejected; `w1/AsmGate.md`).
+considerthese: `considerthese/2026-10-26.md` proposal "Counter-attack scoreboard" landed as `SKILL.md`
+"Counter-attack scoreboard — rounds 40-41". Routed fix R40-TMP-MISROOT shown able to fail
+(`w1/RoutedSelfAssessScratch.md`: old tool 1153 `/tmp` mkdirs by the census child, new tool 0 with scratch TMPDIR).
+
+## Axes — current self-assessment (round 41 final measured surface)
+
+Each count is re-derived from the committed lane tree at the round-41 outcome commit (the commit that lands this table); ordinals unchanged.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 62 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); `SKILL.md` 3847 `wc -l` / 956 table lines (`grep -c '^|' SKILL.md`); `corpus/lessons/` 58 files (`find corpus/lessons -type f | wc -l`); round-41 C2 predicate met at `d7bf279f` with five second-read `partly` verdicts answered by appended corrections; no ordinal move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged |
+| coverage | 9 | `corpus/README.md` 404 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus the verdict-neutral STORAGE line; round 41 deepens held pacman-state ground (package-file side), no Frontier move. | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (128 cases, 128 passed, 0 failed); live run exits with the six-plane rollup; `--identity` not landed. | round 11 (terminal closeout); unchanged |
+| freshness | 9 | Each round record re-ran predecessor pins; round 41 re-fetched its nine pinned pacman/alpm-docs URLs byte-identical (`w1/C2ExecLiveSources.md`) and the round-39 and round-40 C1 counters still PASS (`w1/C1ExecPriorCounters.md`). | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <REV>` checks 27 fixed checks; mismatches 0 required at the round-41 outcome commit (the round-40 table's seven stale cells at `d7bf279f`, K07-K11, K13, K17, are repaired by this table). | round 10; unchanged |
+| adjacency | 8 | formal overlap table present (finding-to-owner ADJ-01..07) and portable OUT-001..010 anchors remain; recipient acknowledgement and independent replay are unverified; round-41 sibling sweep (`.ufo/waves/round-41/w1/ConnSiblings.md`). | fleet round 1; unchanged |
+
+## Capabilities — current full evidence set (round 41)
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates opened tier-scoped sources with anchors, rejections, paths, search log and unopened leads | `corpus/SOURCES.md`; `.ufo/evidence/round-1-kaika/after.md` | fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT and STORAGE lines; selftest prints PASS (128 cases, 128 passed, 0 failed) | `tools/tsukuroi-census.sh`; `.ufo/evidence/round-1-kaika/scout-live.md`; `.ufo/evidence/round-1-kaika/after.md` | lane r2; demonstrated fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
+| boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt` | round 17 |
+| storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line (HEALTHY/DEGRADED/BLOCKED with nonzero pairs and reason tokens), demonstrated on fixtures, the live host and production-path namespace views; since round 39 an absent or empty root is cross-checked against the mount table, since round 40 its selftest varies the mount-table literals, and since round 41 four held-out table shapes | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-38/after/c1-q82-final-b0005ae.json`; `.ufo/waves/round-39/after/c1-final-a2d7aad.jsonl`; `.ufo/waves/round-40/after/c1-final-aad0113.jsonl`; `.ufo/waves/round-41/after/c1-after-568c397.jsonl` | round 38 |
+
+- **planned (next round):** (1) operability — fix the census packages-plane pipefail wrong verdict at
+  `tools/tsukuroi-census.sh:692` (R41-CENSUS-PIPEFAIL-692) with a selftest case carrying a large error-bearing `-Qkk`
+  sample, red before the fix; (2) a counter amendment under QUALITY 89 — C2 verdict files bound to the orchestrator's
+  results record (seat name, agent id, final output equal to the committed file), C1 kills attributed only to cases that
+  own the fixture table, and the mirror-evasion controls (here-document-stripping self-reader; relation-literal writer
+  with planted verdicts) frozen as should-fail; (3) depth, the lowest axis with adjacency: the storage scrub-record
+  leads (`w1/ConnFrontier.md` §5). The round-40 sweep's unrecorded candidates (`w1/MistakesSweep.md` §4) stay open.
+- **retired:** none.
