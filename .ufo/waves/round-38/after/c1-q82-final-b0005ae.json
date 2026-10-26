@@ -1,0 +1,83 @@
+{
+ "counter": "score-storage-arm-r38-q82",
+ "revision": "b0005ae9f56fd5a006fc5ec026578c88e2b64b26",
+ "branch_tip": "b0005ae9f56fd5a006fc5ec026578c88e2b64b26",
+ "seed": "b9acf523d33a7599b6a5a4fa7348d58d",
+ "predicate": "ns_views_matched == VIEWS and ns_available == 1",
+ "views_expected": 3,
+ "ns_views_matched": 3,
+ "ns_available": 1,
+ "result": "PASS",
+ "exit": 0,
+ "views": [
+  {
+   "view": 0,
+   "mode": "zero",
+   "expected": [
+    "HEALTHY",
+    3,
+    4,
+    0
+   ],
+   "got": [
+    "HEALTHY",
+    3,
+    4,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=3 devices=4 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 1,
+   "mode": "nonzero",
+   "expected": [
+    "DEGRADED",
+    3,
+    4,
+    9
+   ],
+   "got": [
+    "DEGRADED",
+    3,
+    4,
+    9
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=3 devices=4 nonzero=9 detail=56fac137:4:corruption_errs=65305,56fac137:7:read_errs=15697,56fac137:7:corruption_errs=63899,56fac137:7:generation_errs=46163,94749e89:4:write_errs=3426,94749e89:4:flush_errs=33721,94749e89:4:generation_errs=78682,cd543ddc:8:read_errs=98010,cd543ddc:8:corruption_errs=26216"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 2,
+   "mode": "any",
+   "expected": [
+    "DEGRADED",
+    2,
+    5,
+    11
+   ],
+   "got": [
+    "DEGRADED",
+    2,
+    5,
+    11
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=2 devices=5 nonzero=11 detail=1cc68b81:4:flush_errs=18945,1cc68b81:4:corruption_errs=91231,1cc68b81:5:read_errs=22831,1cc68b81:5:generation_errs=95092,1cc68b81:8:read_errs=87698,1cc68b81:8:corruption_errs=25701,1cc68b81:8:generation_errs=99552,4ee825e8:1:read_errs=48097,4ee825e8:1:flush_errs=49045,4ee825e8:1:generation_errs=88796,4ee825e8:2:corruption_errs=18215"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  }
+ ]
+}
