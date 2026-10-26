@@ -1,0 +1,13 @@
+access date 2026-10-26 (UTC)
+register: /home/vgpnk/Projects/shokuknow/.ufo/waves/corpus-expansion-1/absent-defect-register.md sha256 5afe1810a6c3d62f37987b575a954f5b1197daa23005d4bb2f1d982f64bad833
+slice cmd: awk -F'|' -v l='tsukuroi' '$2 ~ ("`" l "`") && $3 ~ /round[0-9]+/ && $4 ~ /S[0-9]+/ {print $4, $5}' <register> > quarantine-slice (12 lines; cmp == round-41/assimilation/quarantine-slice)
+lane HEAD 7d0ed1c2d62961cbde8a4d6be120b2573ebbd8f9; reg-ids: git show HEAD:corpus/SOURCES.md | grep -oE '^ {0,3}\|[[:space:]]*S[0-9]{3,}' | grep -oE 'S[0-9]+' | sort  (241 ids, S001-S241)
+staged-ids: same extractor on merge/tsukuroi/SOURCES.append.md sha256 7914d3b93cea2015c00091d7db28ca2acd289d5097cb513ad1176dc0d7148406 (147 ids, S200-S346)
+collisions = comm -12 reg-ids staged-ids -> 42 ids S200..S241
+fetched sha256: mkinitcpio.8.raw 3f274415b71f3c92f70bc14e027a1d583d2179efe14cbe4741b7f8c0494fd90f (https://man.archlinux.org/man/mkinitcpio.8.raw; header "mkinitcpio 42.2", date 2026-10-01)
+ journal.html 2e6693a2725422a22bc1d986a2ee691ca9e7fc2c0e4be26f29808241de2e5649 (kernel.org .../ext4/journal.html, banner "The Linux Kernel 7.3.0")
+ scrub-intro.rst c3b9d344e11d842e2aed43d191b120572753bb75e8bbedd5b3e10978d24c3485 (btrfs-progs v7.1; equals the digest in lane SOURCES.md S139 row)
+ news.html b99331b4926ce54d538ee52553f52c24f179c1daa198d9fb7cdc90560839dfff (not kept)
+host reads: findmnt -rno TARGET,FSTYPE -> / btrfs, /home btrfs, /var/log btrfs, /var/cache/pacman/pkg btrfs, /boot vfat, /fast xfs, /tmp xfs (no ext4); ls /etc/initcpio/{hooks,install,post} -> empty dirs; pacman -Q mkinitcpio -> mkinitcpio 42.2-1
+grep -ciE "scrub|pipefail|newermt|boot-chain" MERGE-REPORT.json MERGE-REPORT.md -> 0 / 0; over knowledge/ + SOURCES.append.md: scrub only in ext4-journal-guarantee-r32.md:6,37,48 and SOURCES.append.md:76 (S269); pipefail/boot_inputs/newermt/boot-chain: 0 hits
+grep -rl "## QUALITY check" knowledge -> 0 of 70 staged files

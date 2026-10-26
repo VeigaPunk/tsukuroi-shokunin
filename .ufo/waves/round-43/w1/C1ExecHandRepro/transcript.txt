@@ -1,0 +1,146 @@
+########## LEG scenario=failopen drop_uid=none
+PROBE btime=1793027300 scenario=failopen drop_uid=none ns_uid=0 propagation=private
+PROBE find=/usr/bin/find version=find (GNU findutils) 4.11.0-modified
+PROBE grep=/usr/bin/grep version=grep (GNU grep) 3.12-modified
+/etc/repro/base-lib.sh:0
+/etc/repro/fix-lib.sh:0
+--- find, exactly as both versions invoke it (start points in the script's order)
+/usr/lib/modules/7.2.11-arch1-1/modules.dep
+FIND_RC=1
+--- same find with stderr kept
+find: ‘/etc/crypttab’: No such file or directory
+/usr/lib/modules/7.2.11-arch1-1/modules.dep
+FIND_RC_STDERR=1
+--- pipefail demonstration, base form vs fix form
+BASE_PIPELINE_RC=1
+MEASURE scenario=failopen uid=0 base got=0 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+MEASURE scenario=failopen uid=0 fix  got=1 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+DONE scenario=failopen
+
+########## LEG scenario=crypttab-known drop_uid=none
+PROBE btime=1793027300 scenario=crypttab-known drop_uid=none ns_uid=0 propagation=private
+PROBE find=/usr/bin/find version=find (GNU findutils) 4.11.0-modified
+PROBE grep=/usr/bin/grep version=grep (GNU grep) 3.12-modified
+/etc/repro/base-lib.sh:0
+/etc/repro/fix-lib.sh:0
+--- find, exactly as both versions invoke it (start points in the script's order)
+/usr/lib/modules/7.2.11-arch1-1/modules.dep
+FIND_RC=0
+--- same find with stderr kept
+/usr/lib/modules/7.2.11-arch1-1/modules.dep
+FIND_RC_STDERR=0
+--- pipefail demonstration, base form vs fix form
+BASE_PIPELINE_RC=0
+MEASURE scenario=crypttab-known uid=0 base got=1 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+MEASURE scenario=crypttab-known uid=0 fix  got=1 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+DONE scenario=crypttab-known
+
+########## LEG scenario=nothing-newer drop_uid=none
+PROBE btime=1793027300 scenario=nothing-newer drop_uid=none ns_uid=0 propagation=private
+PROBE find=/usr/bin/find version=find (GNU findutils) 4.11.0-modified
+PROBE grep=/usr/bin/grep version=grep (GNU grep) 3.12-modified
+/etc/repro/base-lib.sh:0
+/etc/repro/fix-lib.sh:0
+--- find, exactly as both versions invoke it (start points in the script's order)
+FIND_RC=0
+--- same find with stderr kept
+FIND_RC_STDERR=0
+--- pipefail demonstration, base form vs fix form
+BASE_PIPELINE_RC=1
+MEASURE scenario=nothing-newer uid=0 base got=0 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+MEASURE scenario=nothing-newer uid=0 fix  got=0 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+DONE scenario=nothing-newer
+
+########## LEG scenario=failopen drop_uid=65534
+PROBE btime=1793027300 scenario=failopen drop_uid=65534 ns_uid=0 propagation=private
+PROBE find=/usr/bin/find version=find (GNU findutils) 4.11.0-modified
+PROBE grep=/usr/bin/grep version=grep (GNU grep) 3.12-modified
+/etc/repro/base-lib.sh:0
+/etc/repro/fix-lib.sh:0
+--- find, exactly as both versions invoke it (start points in the script's order)
+/usr/lib/modules/7.2.11-arch1-1/modules.dep
+FIND_RC=1
+--- same find with stderr kept
+find: ‘/etc/crypttab’: No such file or directory
+/usr/lib/modules/7.2.11-arch1-1/modules.dep
+FIND_RC_STDERR=1
+--- pipefail demonstration, base form vs fix form
+BASE_PIPELINE_RC=1
+--- the same find invoked as the unprivileged uid (this is what boot_inputs_newer runs)
+diag_uid=65534
+find: ‘/etc/crypttab’: No such file or directory
+/usr/lib/modules/7.2.11-arch1-1/modules.dep
+DIAG_FIND_RC=1
+DIAG_PIPELINE_RC=1
+MEASURE scenario=failopen base setpriv:uid=65534 got=0 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+MEASURE scenario=failopen fix setpriv:uid=65534 got=1 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+DONE scenario=failopen
+
+########## LEG scenario=unreadable-dir drop_uid=65534
+PROBE btime=1793027300 scenario=unreadable-dir drop_uid=65534 ns_uid=0 propagation=private
+PROBE find=/usr/bin/find version=find (GNU findutils) 4.11.0-modified
+PROBE grep=/usr/bin/grep version=grep (GNU grep) 3.12-modified
+/etc/repro/base-lib.sh:0
+/etc/repro/fix-lib.sh:0
+--- find, exactly as both versions invoke it (start points in the script's order)
+/usr/lib/modules/7.2.11-arch1-1/modules.dep
+FIND_RC=0
+--- same find with stderr kept
+/usr/lib/modules/7.2.11-arch1-1/modules.dep
+FIND_RC_STDERR=0
+--- pipefail demonstration, base form vs fix form
+BASE_PIPELINE_RC=0
+NOTE mkinitcpio.conf.d mode 700 owner 0
+--- the same find invoked as the unprivileged uid (this is what boot_inputs_newer runs)
+diag_uid=65534
+find: ‘/etc/mkinitcpio.conf.d’: Permission denied
+/usr/lib/modules/7.2.11-arch1-1/modules.dep
+DIAG_FIND_RC=1
+DIAG_PIPELINE_RC=1
+MEASURE scenario=unreadable-dir base setpriv:uid=65534 got=0 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+MEASURE scenario=unreadable-dir fix setpriv:uid=65534 got=1 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+DONE scenario=unreadable-dir
+
+########## LEG scenario=crypttab-known drop_uid=65534
+PROBE btime=1793027300 scenario=crypttab-known drop_uid=65534 ns_uid=0 propagation=private
+PROBE find=/usr/bin/find version=find (GNU findutils) 4.11.0-modified
+PROBE grep=/usr/bin/grep version=grep (GNU grep) 3.12-modified
+/etc/repro/base-lib.sh:0
+/etc/repro/fix-lib.sh:0
+--- find, exactly as both versions invoke it (start points in the script's order)
+/usr/lib/modules/7.2.11-arch1-1/modules.dep
+FIND_RC=0
+--- same find with stderr kept
+/usr/lib/modules/7.2.11-arch1-1/modules.dep
+FIND_RC_STDERR=0
+--- pipefail demonstration, base form vs fix form
+BASE_PIPELINE_RC=0
+--- the same find invoked as the unprivileged uid (this is what boot_inputs_newer runs)
+diag_uid=65534
+/usr/lib/modules/7.2.11-arch1-1/modules.dep
+DIAG_FIND_RC=0
+DIAG_PIPELINE_RC=0
+MEASURE scenario=crypttab-known base setpriv:uid=65534 got=1 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+MEASURE scenario=crypttab-known fix setpriv:uid=65534 got=1 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+DONE scenario=crypttab-known
+
+########## LEG scenario=nothing-newer drop_uid=65534
+PROBE btime=1793027300 scenario=nothing-newer drop_uid=65534 ns_uid=0 propagation=private
+PROBE find=/usr/bin/find version=find (GNU findutils) 4.11.0-modified
+PROBE grep=/usr/bin/grep version=grep (GNU grep) 3.12-modified
+/etc/repro/base-lib.sh:0
+/etc/repro/fix-lib.sh:0
+--- find, exactly as both versions invoke it (start points in the script's order)
+FIND_RC=0
+--- same find with stderr kept
+FIND_RC_STDERR=0
+--- pipefail demonstration, base form vs fix form
+BASE_PIPELINE_RC=1
+--- the same find invoked as the unprivileged uid (this is what boot_inputs_newer runs)
+diag_uid=65534
+DIAG_FIND_RC=0
+DIAG_PIPELINE_RC=1
+MEASURE scenario=nothing-newer base setpriv:uid=65534 got=0 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+MEASURE scenario=nothing-newer fix setpriv:uid=65534 got=0 fixture_mode=false BOOTCHAIN_FIXTURE=<unset>
+DONE scenario=nothing-newer
+

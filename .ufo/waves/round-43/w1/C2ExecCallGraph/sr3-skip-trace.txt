@@ -1,0 +1,98 @@
+SR3 zero-counter exception — mechanical trace (read-only excerpt of S237 scrub.c)
+
+STEP 1: resume branch leaves skip=1 and resumed=<record> for a finished/non-canceled device (no stat copy yet)
+1428			sp[i].scrub_args.devid = devid;
+1429			sp[i].fd = fdmnt;
+1430			if (resume && last_scrub && (last_scrub->stats.canceled ||
+1431						     !last_scrub->stats.finished)) {
+1432				++n_resume;
+1433				sp[i].scrub_args.start = last_scrub->p.last_physical;
+1434				sp[i].resumed = last_scrub;
+1435			} else if (resume) {
+1436				sp[i].skip = 1;
+1437				sp[i].resumed = last_scrub;
+1438				continue;
+1439			} else {
+1440				++n_start;
+1441				sp[i].scrub_args.start = 0ll;
+1442				sp[i].resumed = NULL;
+1443			}
+1444			sp[i].skip = 0;
+1445			sp[i].scrub_args.end = (u64)-1ll;
+
+STEP 2: initial record write uses the whole sp[] array for fi_args.num_devices (so skip devices are written)
+1501		if (do_record) {
+1502			/* write all-zero progress file for a start */
+1503			ret = scrub_write_progress(&spc_write_mutex, fsid, sp,
+1504						   fi_args.num_devices);
+1505			if (ret) {
+1506				errno = -ret;
+1507				warning("failed to write the progress status file: %m, status recording disabled");
+1508				do_record = false;
+1509			}
+1510		}
+
+STEP 3: scrub_resumed_stats returns the entry unchanged when skip is set (early return)
+800	static struct scrub_progress *scrub_resumed_stats(struct scrub_progress *data,
+801							  struct scrub_progress *dest)
+802	{
+803		if (!data->resumed || data->skip)
+804			return data;
+805	
+806		_SCRUB_SUM(dest, data, data_extents_scrubbed);
+
+STEP 4: scrub_write_file writes the entry as returned, so the skipped device gets zero counters
+860		if (ret)
+861			return -EOVERFLOW;
+862	
+863		for (i = 0; i < n; ++i) {
+864			use = scrub_resumed_stats(&data[i], &local);
+865			if (scrub_write_buf(fd, fsid, strlen(fsid)) ||
+866			    scrub_write_buf(fd, ":", 1) ||
+885			    _SCRUB_KVWRITE_STATS(fd, buf, t_resumed, use) ||
+886			    _SCRUB_KVWRITE_STATS(fd, buf, duration, use) ||
+887			    _SCRUB_KVWRITE_STATS(fd, buf, canceled, use) ||
+888			    _SCRUB_KVWRITE_STATS(fd, buf, finished, use) ||
+889			    scrub_write_buf(fd, "\n", 1)) {
+890				return -EOVERFLOW;
+891			}
+892		}
+893	
+894		return 0;
+895	}
+896	
+
+STEP 5: the resumed stats are copied into sp[i] only AFTER the initial write (skip loop runs post-fork)
+1546		scrub_handle_sigint_child(fdmnt);
+1547	
+1548		for (i = 0; i < fi_args.num_devices; ++i) {
+1549			if (sp[i].skip) {
+1550				sp[i].scrub_args.progress = sp[i].resumed->p;
+1551				sp[i].stats = sp[i].resumed->stats;
+1552				sp[i].ret = 0;
+1553				sp[i].stats.finished = 1;
+1554				continue;
+
+STEP 6: progress-thread record copies only t_start/finished from shared; counters stay zero for skip
+1027		for (i = 0; i < ndev; ++i) {
+1028			sp = &spc->progress[i];
+1029			sp_last = &spc->progress[i + ndev];
+1030			sp_shared = &spc->shared_progress[i];
+1031			sp->scrub_args.devid = sp_last->scrub_args.devid =
+1032							sp_shared->scrub_args.devid;
+1033			sp->fd = sp_last->fd = spc->fdmnt;
+1034			sp->stats.t_start = sp_last->stats.t_start =
+1035							sp_shared->stats.t_start;
+1036			sp->resumed = sp_last->resumed = sp_shared->resumed;
+1037			sp->skip = sp_last->skip = sp_shared->skip;
+1038			sp->stats.finished = sp_last->stats.finished =
+1039							sp_shared->stats.finished;
+1040		}
+
+STEP 7: record write in the progress thread is gated only on do_record, not on skip
+1121			if (!spc->do_record)
+1122				continue;
+1123			ret = scrub_write_progress(spc->write_mutex, fsid,
+1124						   &spc->progress[this * ndev], ndev);
+1125			if (ret)
+1126				goto out;

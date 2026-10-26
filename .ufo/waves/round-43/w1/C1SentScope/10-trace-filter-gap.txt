@@ -1,0 +1,15 @@
+the syscall set named in the assignment (mount,umount2,unlink,rename,openat) does not see the tmpfs mounts: util-linux 2.42.4 mount(8) uses the new mount API.
+strace -f -e trace=mount -o t2 unshare -m --map-root-user bash -c 'mount -t tmpfs tmp /mnt'
+  -> only unshare's own mount("none","/",MS_REC|MS_PRIVATE)
+strace -f -e trace=mount,umount2,fsopen,fsconfig,fsmount,move_mount -o t3 ...
+2355323 mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) = 0
+2355488 fsopen("tmpfs", FSOPEN_CLOEXEC) = 3
+2355488 fsconfig(3, FSCONFIG_SET_STRING, "source", "tmp", 0) = 0
+2355488 fsconfig(3, FSCONFIG_CMD_CREATE, NULL, NULL, 0) = 0
+2355488 fsmount(3, FSMOUNT_CLOEXEC, 0)  = 4
+2355488 move_mount(4, "", AT_FDCWD, "/mnt", MOVE_MOUNT_F_EMPTY_PATH) = 0
+2355488 +++ exited with 0 +++
+2355323 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2355488, si_uid=0, si_status=0, si_utime=0, si_stime=0} ---
+2355323 +++ exited with 0 +++
+
+(hunters: add fsopen,fsconfig,fsmount,move_mount to any future mount audit.)

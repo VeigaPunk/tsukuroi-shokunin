@@ -1,0 +1,34 @@
+# ten SR3 quotes, grep -n -F, frozen scrub.c 48df2e2f
+823:	dest->stats.t_start = data->resumed->stats.t_start;
+864:		use = scrub_resumed_stats(&data[i], &local);
+1249:	bool do_print = false;
+1295:			do_print = true;
+1333:		do_print = false;
+1434:			sp[i].resumed = last_scrub;
+1437:			sp[i].resumed = last_scrub;
+1502:		/* write all-zero progress file for a start */
+1698:		error("recording progress failed: %m");
+1706:			error("failed to record the result: %m");
+1833:	return scrub_start(cmd, argc, argv, true);
+
+# guard/context lines
+803:	if (!data->resumed || data->skip)
+1123:		ret = scrub_write_progress(spc->write_mutex, fsid,
+1133:	return ERR_PTR(ret);
+1274:	void *terr;
+1332:	if (bconf.verbose == BTRFS_BCONF_QUIET && do_print)
+1338:		do_record = false;
+1402:	sp = calloc(fi_args.num_devices, sizeof(*sp));
+1436:			sp[i].skip = 1;
+1442:			sp[i].resumed = NULL;
+1444:		sp[i].skip = 0;
+1501:	if (do_record) {
+1508:			do_record = false;
+1550:			sp[i].scrub_args.progress = sp[i].resumed->p;
+1553:			sp[i].stats.finished = 1;
+1696:	if (do_print && terr && terr != PTHREAD_CANCELED) {
+1701:	if (do_record) {
+1704:		if (ret && do_print) {
+1759:static int cmd_scrub_start(const struct cmd_struct *cmd, int argc, char **argv)
+1761:	return scrub_start(cmd, argc, argv, false);
+1831:static int cmd_scrub_resume(const struct cmd_struct *cmd, int argc, char **argv)

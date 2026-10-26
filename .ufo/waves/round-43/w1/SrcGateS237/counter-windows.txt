@@ -1,0 +1,49 @@
+== tools/check-scrub-record-r43.py:73-86 (ROWS windows) ==
+ROWS = {
+    'SR1': {'novelty': 'O_TRUNC', 'props': ['O_TRUNC', '_tmp', 'rename', 'unlink'], 'host_required': False,
+            'windows': [('scrub.c', 476, 540), ('scrub.c', 897, 935), ('scrub.c', 1480, 1500),
+                        ('scrub.c', 1715, 1725)]},
+    'SR3': {'novelty': 'scrub_resumed_stats', 'props': ['scrub_resumed_stats', 't_start', 'do_print', '-B', 'err'],
+            'host_required': False,
+            'windows': [('scrub.c', 795, 830), ('scrub.c', 860, 870), ('scrub.c', 1245, 1300),
+                        ('scrub.c', 1328, 1336), ('scrub.c', 1425, 1445), ('scrub.c', 1498, 1510),
+                        ('scrub.c', 1686, 1710), ('scrub.c', 1828, 1836)]},
+    'SR6': {'novelty': 'is_scrub_running_in_kernel',
+            'props': ['is_scrub_running_in_kernel', 'CAP_SYS_ADMIN', 'EPERM', 'running'], 'host_required': True,
+            'windows': [('scrub.c', 1189, 1206), ('scrub.c', 1940, 1950), ('scrub.c', 336, 344),
+                        ('ioctl.c', 3066, 3075), ('ioctl.c', 3118, 3140), ('ioctl.c', 5578, 5584)]},
+}
+
+== tools/check-scrub-record-r43.py:304-316 (used_by and S237 clause) ==
+    def used_by(c):
+        return [p.strip() for p in re.split(r'[,;]', c[10])]
+
+    src = {}
+    for sid, kind in (('S240', 'code'), ('S241', 'own-work')):
+        c = reg.get(sid)
+        src[sid] = bool(c is not None and sid not in reg_base and c[2] == kind and c[7] == 'mined'
+                        and c[8] == OPENED and ENTRY in used_by(c)
+                        and (sid != 'S240' or 'v7.2.11' in c[5]))
+    c = reg.get('S237')
+    src['S237'] = bool(c is not None and ENTRY in used_by(c))
+    srcline = next((ln for ln in entry.splitlines() if ln.startswith('source:')), '')
+    src['source_line'] = all(re.search(rf'\b{s}\b', srcline) for s in ('S237', 'S240', 'S241'))
+
+== tools/check-kernel-taint.py:84,106 and tools/check-memory-pressure.py:98 ==
+CELL_SPLIT = re.compile(r'(?<!\\)\|')
+def norm(text):
+    """Whitespace-normalised text, for comparing a quote with its source."""
+    return ' '.join(str(text).split())
+def norm(text):
+    """Whitespace-normalised text, for comparing a quote with its source."""
+    return ' '.join(str(text).split())
+
+== round-42 lesson Gate S237 line ==
+| S238 | https://github.com/kdave/btrfs-progs/blob/v7.1/CHANGES (raw: https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/CHANGES) | "* scrub limit: new command to show or set the per-device scrub limits" | `.ufo/waves/round-42/frozen/src/CHANGES:468` |
+
+== corpus/knowledge/btrfs-scrub-record-r43.md:1 ==
+source: S237 S240 S241 (rows in `corpus/SOURCES.md`; S237 is the round-42 snapshot `.ufo/waves/round-42/frozen/src/scrub.c`, sha256 48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801; S240 is `.ufo/waves/round-43/frozen/src/ioctl.c`, digest in its `SHA256SUMS`, fetch log `FETCH.txt`; S241 is the host capture `.ufo/waves/round-43/frozen/hostcap/capture.txt`, sha256 f7ecbe7c990e68d7b0dbdbd8bfe65f3acd1cbbdabe33d47e71a6f1ae1242c556)
+
+== round-43 lesson presence ==
+fatal: path 'corpus/lessons/round-43.md' does not exist in '717b716a8943151ace8657e0ca23d7d9b8434f26'
+rc=128

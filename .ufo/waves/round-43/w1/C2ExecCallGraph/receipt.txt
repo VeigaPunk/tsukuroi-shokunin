@@ -1,0 +1,80 @@
+COMMANDS AND OUTPUTS (all run read-only against the frozen source)
+
+$ sha256sum scrub.c -> 48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c
+
+$ python3 scan.py
+SPAN scrub_start: 1233-1737
+SPAN scrub_write_file: 843-895
+SPAN scrub_write_progress: 897-947
+SPAN is_scrub_running_in_kernel: 1190-1206
+SPAN cmd_scrub_resume: 1831-1834
+SPAN scrub_open_file_w: 508-518
+SPAN scrub_rename_file: 520-536
+SPAN scrub_datafile: 446-476
+CALLS scrub_write_file:
+  922: err = scrub_write_file(fd, fsid, data, n);
+  1112: ret = scrub_write_file(
+CALLS scrub_write_progress:
+  1123: ret = scrub_write_progress(spc->write_mutex, fsid,
+  1503: ret = scrub_write_progress(&spc_write_mutex, fsid, sp,
+  1702: ret = scrub_write_progress(&spc_write_mutex, fsid, sp,
+RESUMED_STATS sites:
+  800: static struct scrub_progress *scrub_resumed_stats(struct scrub_progress *data,
+  864: use = scrub_resumed_stats(&data[i], &local);
+UNLINK FAMILY:
+  1485: unlink(sock_path)
+  1497: unlink(sock_path)
+  1721: unlink(sock_path)
+RENAME sites:
+  534: ret = rename(datafile_old, datafile_new);
+DO_PRINT (line: kind: text):
+  1249: ASSIGN [in scrub_start]: bool do_print = false;
+  1295: ASSIGN [in scrub_start]: do_print = true;
+  1332: READ [in scrub_start]: if (bconf.verbose == BTRFS_BCONF_QUIET && do_print)
+  1333: ASSIGN [in scrub_start]: do_print = false;
+  1568: READ [in scrub_start]: if (do_print) {
+  1587: READ [in scrub_start]: if (do_print) {
+  1610: READ [in scrub_start]: if (do_print) {
+  1622: READ [in scrub_start]: if (do_print)
+  1630: READ [in scrub_start]: if (do_print) {
+  1648: READ [in scrub_start]: if (do_print) {
+  1690: READ [in scrub_start]: if (do_print && ret) {
+  1696: READ [in scrub_start]: if (do_print && terr && terr != PTHREAD_CANCELED) {
+  1704: READ [in scrub_start]: if (ret && do_print) {
+ERR_ASSIGN in scrub_start after line 1503:
+  1516: err = 1;
+  1527: err = 0;
+  1533: err = 1;
+  1537: err = WIFEXITED(stat) ? WEXITSTATUS(stat) : -1;
+  1541: err = 0;
+  1574: err = 1;
+  1591: err = 1;
+  1595: err = 0;
+  1616: ++err;
+  1627: ++err;
+  1637: ++err;
+ERR_ASSIGN in scrub_start before/at line 1503:
+  1242: int err = 0;
+  1351: err = 1;
+  1356: err = 1;
+  1397: err = 1;
+  1407: err = 1;
+  1424: err = 1;
+IS_SCRUB_RUNNING_IN_KERNEL:
+  1190: DEF: static int is_scrub_running_in_kernel(int fd,
+  1378: USE: if (!is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices))
+  1946: USE: in_progress = is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices);
+IN_PROGRESS set/read:
+  78: READ: int in_progress;
+  186: READ: if (s->in_progress) {
+  341: READ: (ss->in_progress ? "running" :
+  1859: READ: int in_progress;
+  1946: SET: in_progress = is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices);
+  1962: SET: last_scrub->stats.in_progress = in_progress;
+  1974: SET: fs_stat.s.in_progress = in_progress;
+SCRUB IOCTL sites:
+  421: ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);
+  965: ret = ioctl(sp->fd, BTRFS_IOC_SCRUB, &sp->scrub_args);
+  986: sp->ret = ioctl(sp->fd, BTRFS_IOC_SCRUB_PROGRESS, &sp->scrub_args);
+  1200: ret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);
+  1792: ret = ioctl(fdmnt, BTRFS_IOC_SCRUB_CANCEL, NULL);

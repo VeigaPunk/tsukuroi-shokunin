@@ -1,0 +1,44 @@
+## A capabilities header rows (heading-bounded)
+round 41: 1
+round 42: 2
+round 43 section present: 0
+
+## B tameshi pin in the round-42 report
+grep -c tameshi .ufo/reports/round-42/tsukuroi.md -> 0
+grep -c service-optin-protocol.md:153 -> 0
+
+## C mori arithmetic
+base : 1097:# Round-7 addition, lane S7-2. Detection-only, read-only, non-root. Vocabulary:
+tip  : 1103:# Round-7 addition, lane S7-2. Detection-only, read-only, non-root. Vocabulary:
+test $((1097+3)) -eq 1103 -> exit 1 (red: +3 does not reach 1103)
+test $((1097+6)) -eq 1103 -> pass
+
+## E census CAP_OUT head -n1 sites at 6951ead9
+named lines hold a probe: 0 0 0 0 0 
+content locator: 934 972 1054 1429 1504 
+at 44766208 named lines: 1 1 1 1 1 
+selftest check lines: 129
+census diff 6951ead9..717b716 numstat: [
+
+## Exact commands behind the blocks above
+A: awk -v h="## Capabilities — current full evidence set (round $r)" '$0==h {insec=1; next} insec && /^## / {exit} insec && /^\| Capability \|/ {c++} END {print c+0}' SCORECARD.md
+   (run for r=41 and r=42); grep -c 'Capabilities — current full evidence set (round 43)' SCORECARD.md
+B: grep -c 'tameshi' /home/vgpnk/Projects/shokunin/.ufo/reports/round-42/tsukuroi.md
+   grep -c 'service-optin-protocol.md:153' /home/vgpnk/Projects/shokunin/.ufo/reports/round-42/tsukuroi.md
+C: git show c8efaa3f120834541f8de1e5e0367e8d1593bae6:tools/tsukuroi-census.sh | grep -n 'Round-7 addition, lane S7-2'
+   git show 6951ead90566b2d74f7c45b4efca29246badad64:tools/tsukuroi-census.sh | grep -n 'Round-7 addition, lane S7-2'
+   test $((1097+3)) -eq 1103 ; test $((1097+6)) -eq 1103
+D (separate file receipt-verdict-form.txt): importlib of tools/check-scrub-record-r43.py, declared_line over four forms + re.fullmatch
+E: for n in 931 969 1051 1426 1501; do git show 6951ead9:tools/tsukuroi-census.sh | sed -n "${n}p" | grep -c 'head -n1'; done
+   git show 6951ead9:tools/tsukuroi-census.sh | grep -n 'head -n1' | awk -F: '$0 ~ /CAP_OUT/ {print $1}'
+   for n in 931 969 1051 1426 1501; do git show 44766208:tools/tsukuroi-census.sh | sed -n "${n}p" | grep -c 'head -n1'; done
+   grep -cE '^[[:space:]]*check ' tools/tsukuroi-census.sh
+   git diff --numstat 6951ead9 717b716a -- tools/tsukuroi-census.sh
+
+## C2 follow-up: the two referents under the mori handoff (see R43-MORI-ARITH)
+mori's live pin: mori-shokunin/PROVINCE.md:287 -> "tools/tsukuroi-census.sh:376,1100-1115"
+content at c8efaa3f: 1097-1112 ; content at 6951ead9: 1103-1118
+test $((1097+3)) -eq 1103 -> 1 (a +3 against the measured base misses)
+test $((1100+6)) -eq 1103 -> 1 (a +6 against the printed pin misses)
+test $((1100+3)) -eq 1103 -> 0 (a +3 against the printed pin lands)
+test $((1097+6)) -eq 1103 -> 0 (a +6 against the measured base lands)

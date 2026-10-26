@@ -1,0 +1,160 @@
+ Makefile                                          |  2 +-
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 15 +++------
+ drivers/gpu/drm/i915/display/intel_dp.c           | 38 +++++++++++++++++++++++
+ kernel/fork.c                                     | 24 ++++++++++++++
+ 4 files changed, 68 insertions(+), 11 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 4b60c83ab75c17ba49246862308ce1e2665d6aaa..5c80d61d8278c3c0ff15ca00d3ec55408be197b3 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2,7 +2,7 @@
+ VERSION = 7
+ PATCHLEVEL = 2
+ SUBLEVEL = 11
+-EXTRAVERSION =
++EXTRAVERSION = -arch1
+ NAME = Baby Opossum Posse
+ 
+ # *DOCUMENTATION*
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index b92d129962b2a85c2ce2d46818e358feed22b359..c1ff4b7a11494070f94ce9c58706e1df13994fba 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -7088,16 +7088,11 @@ static void fill_stream_properties_from_drm_display_mode(
+ 	timing_out->v_border_top = 0;
+ 	timing_out->v_border_bottom = 0;
+ 	/* TODO: un-hardcode */
+-	if (drm_mode_is_420_only(info, mode_in)
+-			&& (stream->signal == SIGNAL_TYPE_HDMI_TYPE_A ||
+-			    stream->signal == SIGNAL_TYPE_HDMI_FRL)
+-			&& aconnector
+-			&& aconnector->force_yuv_pixel_format == PIXEL_ENCODING_YCBCR420)
+-		timing_out->pixel_encoding = PIXEL_ENCODING_YCBCR420;
+-	else if (drm_mode_is_420_also(info, mode_in)
+-			&& aconnector
+-			&& (aconnector->force_yuv_pixel_format == PIXEL_ENCODING_YCBCR420
+-			|| aconnector->force_yuv420_output))
++	if (drm_mode_is_420_only(info, mode_in) ||
++	    (aconnector &&
++	     (aconnector->force_yuv_pixel_format == PIXEL_ENCODING_YCBCR420 ||
++	      aconnector->force_yuv420_output) &&
++	     drm_mode_is_420_also(info, mode_in)))
+ 		timing_out->pixel_encoding = PIXEL_ENCODING_YCBCR420;
+ 	else if ((connector->display_info.color_formats & BIT(DRM_OUTPUT_COLOR_FORMAT_YCBCR422))
+ 			&& aconnector
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+index ba0b19d1163cf959937d6b2348123b96bd4a0bdc..291f26caddae137f8aaf2b6b97c97777843298d0 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -4889,16 +4889,54 @@ intel_edp_set_sink_rates(struct intel_dp *intel_dp)
+ 	intel_edp_set_data_override_rates(intel_dp);
+ }
+ 
++static void intel_edp_wake_sink(struct intel_dp *intel_dp)
++{
++	u8 value = 0;
++	int ret;
++
++	/*
++	 * Read the current sink power state. drm_dp_dpcd_read_byte() already
++	 * retries the AUX transaction internally, so a single read suffices.
++	 * First commercial eDP panels are Ver1.0 or 1.1, on which DPCD
++	 * DP_SET_POWER is supported.
++	 */
++	ret = drm_dp_dpcd_read_byte(&intel_dp->aux, DP_SET_POWER, &value);
++
++	/*
++	 * If the AUX read failed the sink may be asleep and not responding,
++	 * or it read back D3; in either case wake it up to D0.
++	 * In case of AUX read failure which is usually a POR case, the
++	 * remaining bits of register 0x600 is set to '0' on POR. So a bare
++	 * write should be fine.
++	 */
++	if (ret < 0 || value == DP_SET_POWER_D3) {
++		value &= ~DP_SET_POWER_MASK;
++		value |= DP_SET_POWER_D0;
++		drm_dp_dpcd_write_byte(&intel_dp->aux, DP_SET_POWER,
++				       value);
++		/* After setting to D0 need a min of 1ms to wake (Spec DP2.1 sec 2.3.1.2) */
++		fsleep(1000);
++		drm_dp_dpcd_write_byte(&intel_dp->aux, DP_SET_POWER,
++				       value);
++	}
++}
++
+ static bool
+ intel_edp_init_dpcd(struct intel_dp *intel_dp, struct intel_connector *connector)
+ {
+ 	struct intel_display *display = to_intel_display(intel_dp);
+ 	int ret;
+ 	u8 dprx;
+ 
+ 	/* this function is meant to be called only once */
+ 	drm_WARN_ON(display->drm, intel_dp->dpcd[DP_DPCD_REV] != 0);
+ 
++	/*
++	 * Spec DP2.1 Section 3.5.2.16 page 966.
++	 * Also if sink is asleep, this will wake the sink.
++	 */
++	intel_edp_wake_sink(intel_dp);
++
+ 	if (drm_dp_read_dpcd_caps(&intel_dp->aux, intel_dp->dpcd) != 0)
+ 		return false;
+ 
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 854448152696b2cf87df45b11aa28559eebc209c..bb99bf764fd687f5ddce8c20c0bfa5685ed01003 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -127,6 +127,12 @@
+ 
+ #include <kunit/visibility.h>
+ 
++#ifdef CONFIG_USER_NS
++static int unprivileged_userns_clone = 1;
++#else
++#define unprivileged_userns_clone 1
++#endif
++
+ /*
+  * Minimum number of threads to boot the kernel
+  */
+@@ -2093,6 +2099,11 @@ __latent_entropy struct task_struct *copy_process(
+ 			return ERR_PTR(-EPERM);
+ 	}
+ 
++	if ((clone_flags & CLONE_NEWUSER) && !unprivileged_userns_clone) {
++		if (!capable(CAP_SYS_ADMIN))
++			return ERR_PTR(-EPERM);
++	}
++
+ 	/*
+ 	 * Force any signals received before this point to be delivered
+ 	 * before the fork happens.  Collect up signals sent to multiple
+@@ -3167,6 +3178,10 @@ static int check_unshare_flags(unsigned long unshare_flags)
+ 		if (!current_is_single_threaded())
+ 			return -EINVAL;
+ 	}
++	if ((unshare_flags & CLONE_NEWUSER) && !unprivileged_userns_clone) {
++		if (!capable(CAP_SYS_ADMIN))
++			return -EPERM;
++	}
+ 
+ 	return 0;
+ }
+@@ -3403,6 +3418,15 @@ static const struct ctl_table fork_sysctl_table[] = {
+ 		.mode		= 0644,
+ 		.proc_handler	= sysctl_max_threads,
+ 	},
++#ifdef CONFIG_USER_NS
++	{
++		.procname	= "unprivileged_userns_clone",
++		.data		= &unprivileged_userns_clone,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec,
++	},
++#endif
+ };
+ 
+ static int __init init_fork_sysctl(void)

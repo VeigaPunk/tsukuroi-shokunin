@@ -1,0 +1,114 @@
+revisions: base=6951ead90566b2d74f7c45b4efca29246badad64 head=717b716a8943151ace8657e0ca23d7d9b8434f26 path=tools/boot-chain-audit.sh
+functions: base=33 head=34
+sha256(base)=0464b6dcbc1828c79e5e361d1acdd3573e52e3c641caf6467a8657455bde37a8
+sha256(head)=2c1d1c9b8afb00a559dedb85da2b56191db6e5f50cfbd83270ccc5888c5e7ee8
+
+=== hunks (git diff -U0) and enclosing top-level function per changed line
+
+@@ -462,0 +463,14 @@ btime_epoch() {
+  old span: (none)
+  new span: 463-476
+  enclosing @base : (none)
+  enclosing @head : <top-level>, inputs_newer_than
+    +head:  463  [inputs_newer_than]  inputs_newer_than() { # <epoch> <start point>... -> 1 when find lists an entry newer than epoch, else 0
+    +head:  464  [inputs_newer_than]      # R43-C1: decide on find's output, never on its exit status. find exits 1 when a start
+    +head:  465  [inputs_newer_than]      # point is missing or a directory is unreadable; under `set -o pipefail` that status used
+    +head:  466  [inputs_newer_than]      # to mask a listed match (`find … | grep -q .`), so a newer input read as "none newer".
+    +head:  467  [inputs_newer_than]      local epoch=$1 hit
+    +head:  468  [inputs_newer_than]      shift
+    +head:  469  [inputs_newer_than]      hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null)
+    +head:  470  [inputs_newer_than]      if [ -n "$hit" ]; then
+    +head:  471  [inputs_newer_than]          printf '1\n'
+    +head:  472  [inputs_newer_than]      else
+    +head:  473  [inputs_newer_than]          printf '0\n'
+    +head:  474  [inputs_newer_than]      fi
+    +head:  475  [inputs_newer_than]  }
+    +head:  476  [<top-level>]  
+
+@@ -480 +494 @@ boot_inputs_newer() { # 0 = no /etc or /usr boot-chain input newer than boot sta
+  old span: 480-480
+  new span: 494-494
+  enclosing @base : boot_inputs_newer
+  enclosing @head : boot_inputs_newer
+    -base:  480  [boot_inputs_newer]      if find /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
+    +head:  494  [boot_inputs_newer]      inputs_newer_than "$btime" /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
+
+@@ -482,6 +496 @@ boot_inputs_newer() { # 0 = no /etc or /usr boot-chain input newer than boot sta
+  old span: 482-487
+  new span: 496-496
+  enclosing @base : boot_inputs_newer
+  enclosing @head : boot_inputs_newer
+    -base:  482  [boot_inputs_newer]          /usr/lib/initcpio /usr/lib/modules \
+    -base:  483  [boot_inputs_newer]          -newermt "@$btime" -print -quit 2>/dev/null | grep -q .; then
+    -base:  484  [boot_inputs_newer]          printf '1\n'
+    -base:  485  [boot_inputs_newer]      else
+    -base:  486  [boot_inputs_newer]          printf '0\n'
+    -base:  487  [boot_inputs_newer]      fi
+    +head:  496  [boot_inputs_newer]          /usr/lib/initcpio /usr/lib/modules
+
+@@ -1215,0 +1225,14 @@ EOF
+  old span: (none)
+  new span: 1225-1238
+  enclosing @base : (none)
+  enclosing @head : run_selftest
+    +head: 1225  [run_selftest]      # ---- R43-C1: a missing start point must not mask a newer input ---------
+    +head: 1226  [run_selftest]      local bi="$T/bootinputs"
+    +head: 1227  [run_selftest]      mkdir -p -- "$bi/d/sub"
+    +head: 1228  [run_selftest]      : >"$bi/old"
+    +head: 1229  [run_selftest]      : >"$bi/d/sub/f"
+    +head: 1230  [run_selftest]      touch -d @1000 -- "$bi/old" "$bi/d/sub/f" "$bi/d/sub" "$bi/d"
+    +head: 1231  [run_selftest]      got=$(inputs_newer_than 2000 "$bi/missing" "$bi/old" "$bi/d")
+    +head: 1232  [run_selftest]      st_check 'R43-C1-missing-start-point-none-newer' 0 "$got"
+    +head: 1233  [run_selftest]      touch -d @3000 -- "$bi/d/sub/f"
+    +head: 1234  [run_selftest]      got=$(inputs_newer_than 2000 "$bi/missing" "$bi/old" "$bi/d")
+    +head: 1235  [run_selftest]      st_check 'R43-C1-missing-start-point-deep-newer' 1 "$got"
+    +head: 1236  [run_selftest]      got=$(inputs_newer_than 2000 "$bi/old" "$bi/d")
+    +head: 1237  [run_selftest]      st_check 'R43-C1-all-present-deep-newer' 1 "$got"
+    +head: 1238  [run_selftest]  
+
+=== per-function span sha256 (whole span, signature..`}`)
+function                        base span    head span  status
+usage                             152-154      152-154  same  base=e2a7762688ff head=e2a7762688ff
+guarded_rm                        156-171      156-171  same  base=8fb3b7c23cf7 head=8fb3b7c23cf7
+cleanup                           173-175      173-175  same  base=0a2057a1ea3c head=0a2057a1ea3c
+init_work                         177-190      177-190  same  base=76d1e397bb52 head=76d1e397bb52
+work_path                         194-203      194-203  same  base=145235dc4b1d head=145235dc4b1d
+fixture_mode                      205-205      205-205  same  base=7e69fe9e1622 head=7e69fe9e1622
+fx_dir                            207-207      207-207  same  base=28b4297969fd head=28b4297969fd
+cmdline_token                     209-221      209-221  same  base=a3d37c8474c7 head=a3d37c8474c7
+snapshot_number                   223-229      223-229  same  base=9cf0069889a5 head=9cf0069889a5
+host_efi                          231-233      231-233  same  base=8376c77f3db5 head=8376c77f3db5
+snapshot_host_path                235-243      235-243  same  base=19dbd70841d5 head=19dbd70841d5
+stage_image                       249-271      249-271  same  base=34b0e93e318f head=34b0e93e318f
+entry_sha256                      273-282      273-282  same  base=0165c76ec2be head=0165c76ec2be
+entry_b2sum                       284-293      284-293  same  base=5d03f7224391 head=5d03f7224391
+image_identity                    295-328      295-328  same  base=bf83ef9dcec6 head=bf83ef9dcec6
+entry_uname                       330-336      330-336  same  base=de989ba8e9b0 head=de989ba8e9b0
+extract_entry                     338-362      338-362  same  base=a8600830d9ef head=a8600830d9ef
+analyze_tree                      364-402      364-402  same  base=713d1b44d4f4 head=713d1b44d4f4
+snapshot_ro                       404-426      404-426  same  base=9a6f8cd5b25c head=9a6f8cd5b25c
+mtime_for                         428-447      428-447  same  base=dcd1ef7ccd68 head=dcd1ef7ccd68
+btime_epoch                       449-461      449-461  same  base=246cfb5758d6 head=246cfb5758d6
+boot_inputs_newer                 463-488      477-497  CHANGED  base=4837c8e7d049 head=4a426b918ca2
+loader_entries                    490-507      499-516  same  base=39ce74a5f02d head=39ce74a5f02d
+entry_selected                    509-520      518-529  same  base=d25140114a74 head=d25140114a74
+parse_limine_conf                 532-611      541-620  same  base=a4535816afc7 head=a4535816afc7
+verdict_for                       615-641      624-650  same  base=2fa2a7bdb4fd head=2fa2a7bdb4fd
+audit                             647-807      656-816  same  base=f404ff5722f9 head=f404ff5722f9
+st_check                          815-823      824-832  same  base=23af0bb03616 head=23af0bb03616
+mk_init                           825-835      834-844  same  base=c913a56f0c1a head=c913a56f0c1a
+mk_uki_fx                         837-866      846-875  same  base=9feb502ab61f head=9feb502ab61f
+st_mk_fallback_fx                 868-874      877-883  same  base=c891c9388ade head=c891c9388ade
+run_selftest                     876-1222     885-1245  CHANGED  base=ce8ed80ede64 head=d66f9e5ac09e
+main                            1226-1295    1249-1318  same  base=3506705c8d34 head=3506705c8d34
+inputs_newer_than                       -      463-475  NEW at head  base=- head=04145e4f4f49
+
+differing/added/removed function names: ['boot_inputs_newer', 'run_selftest', 'inputs_newer_than']
+unexpected (outside {boot_inputs_newer, inputs_newer_than, run_selftest}): []
+out-of-scope lines outside all function spans: 1
+  blank separators (not function bodies): [('head', 476, '<top-level>')]
+  non-blank top-level edits (real breaches): none
+non-blank top-level code lines: base=171 head=171
+non-blank top-level sha256: base=3374c62cc8ba09f880c05d2e075f399f12a7c6ed79fcad04b98af0704c23be95 head=3374c62cc8ba09f880c05d2e075f399f12a7c6ed79fcad04b98af0704c23be95 same
+
+VERDICT: KILL-RULE DOES NOT FIRE

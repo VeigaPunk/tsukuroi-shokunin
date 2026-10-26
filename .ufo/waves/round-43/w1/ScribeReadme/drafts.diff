@@ -1,0 +1,70 @@
+diff --git a/PROVINCE.md b/PROVINCE.md
+index 34c2495b..2be2deed 100644
+--- a/PROVINCE.md
++++ b/PROVINCE.md
+@@ -242,3 +242,21 @@ its `_tmp`-then-rename write under `flock`, the `scrub status:1` line format, th
+ writes it and when recording is switched off, how status folds device lines, the per-device `scrub_speed_max` limit).
+ The promotion condition (a read-only census arm) is unchanged; `btrfs scrub status /` reads the record unprivileged on
+ this host (wave-1 `C2ExecHostRecheck`), so an arm needs no privilege for the record itself.
++
++**Round-43 note — the record read is unprivileged, the running state is not (appended 2026-10-26).** The scrub record
++stays Frontier and the promotion condition is unchanged: this area becomes Core only after a read-only census arm reads
++it (the round-26 section above, "This area becomes Core only after a census arm exists"). Round 43 grounds what such an
++arm must not claim. `btrfs scrub status` decides whether a scrub is running only from `BTRFS_IOC_SCRUB_PROGRESS` through
++`is_scrub_running_in_kernel`, which reads any failed call as not running, and Linux v7.2.11's
++`btrfs_ioctl_scrub_progress` returns `-EPERM` before doing anything unless the caller has `CAP_SYS_ADMIN` — as do the
++scrub start and cancel ioctls (`corpus/knowledge/btrfs-scrub-record-r43.md` § SR6, S240). On this host, uid 1000 with
++no effective capabilities got `EPERM` from that ioctl (`.ufo/waves/round-43/frozen/hostcap/capture.txt:6`) while
++`btrfs scrub status /` exited 0 (capture.txt:8), so the record read is unprivileged and the running state is
++elevation-gated: an unprivileged arm can report a record's absence, its contents and its permissions, never "running",
++and `no stats available` is the absence of a record, not evidence that no scrub runs. Round 43 also re-grounds, as SR1
++and SR3, the write-discipline and resume text round 42 withdrew; no record exists on this host (capture.txt:7), so
++neither row has a host instance. **Still Frontier, unchanged:** the record, `btrfs scrub status` and
++`btrfs-scrub@.timer`; NVMe SMART is untouched by this note. **Operator-owned, unchanged:** running a scrub, enabling
++its timer, resetting a counter. Counted by `python3 tools/check-scrub-record-r43.py --revision <REV>`
++(`SCORECARD.md` "Round 43 — declaration"). No package, service, mount, scrub, counter-reset, firmware or configuration
++action is authorized by this paragraph.
+diff --git a/corpus/README.md b/corpus/README.md
+index 95b83b2b..ca6b8026 100644
+--- a/corpus/README.md
++++ b/corpus/README.md
+@@ -412,3 +412,9 @@ re-grounding of the staged `alpm-package-anatomy-r26.md` theme, which admits PA1
+ Frontier: the scrub record stays Frontier (no census arm reads it); round 42 deepens it from source, it does not
+ enter new coverage-map ground (the scrub record has been a Frontier line since round 26). The btrfs-progs release-notes
+ half of the round-26 lead is now opened for the 6.6.3 scrub entries (S238); the ArchWiki Fwupd page stays unopened.
++
++## Round-43 coverage note (appended 2026-10-26)
++
++| Entry | What it adds | Sources / evidence |
++|---|---|---|
++| `knowledge/btrfs-scrub-record-r43.md` | Storage-integrity frontier, scrub record, re-grounding the two rows round 42 withdrew and the running-state limit it stated from a host errno alone: SR1 the record update path — `scrub_write_progress` opens `scrub.status.<fsid>_tmp` with `O_WRONLY\|O_CREAT` and no `O_TRUNC`, writes the record from the start of that file, renames `_tmp` over the record only after a write that returned no error, and unlinks no `_tmp` (all three `unlink` calls name the progress socket), so an old file's trailing bytes can ride into a shorter record [inference, not reproduced]; SR3 `btrfs scrub resume` runs `scrub_start(…, true)`, and the first record it writes for a resumed device carries the interrupted run's counters, its `t_start` and the two durations summed, while a failed progress or final record write prints only under `do_print` (set by `-B`, cleared when output is quiet) and assigns no `err`; SR6 the running state comes only from `BTRFS_IOC_SCRUB_PROGRESS` through `is_scrub_running_in_kernel`, which reads any failed call as not running, and Linux v7.2.11 returns `-EPERM` there without `CAP_SYS_ADMIN`, so an unprivileged status never prints `running` | S237, S240 (opened this round), S241; `../tools/check-scrub-record-r43.py` (frozen, sha256 `b4602c56…`); capture `.ufo/waves/round-43/frozen/hostcap/capture.txt` (sha256 `f7ecbe7c…`); `../SCORECARD.md` "Round 43 — declaration"; `lessons/round-43.md` Gate (not yet written at draft time) |
+diff --git a/corpus/knowledge/btrfs-scrub-record-r43.md b/corpus/knowledge/btrfs-scrub-record-r43.md
+index 98258c5a..47582892 100644
+--- a/corpus/knowledge/btrfs-scrub-record-r43.md
++++ b/corpus/knowledge/btrfs-scrub-record-r43.md
+@@ -129,3 +129,25 @@ capture.txt:10); with no record (capture.txt:7) the summary prints no status wor
+ - SR1's trailing-bytes consequence is read from the open flags and was not reproduced (no record exists on this
+   host and no scrub is run).
+ - No census arm reads the record; this entry stays on Frontier ground.
++
++## Frontier
++
++This entry stays on Frontier ground: it states the record's write discipline, its resume arithmetic and the gate on
++the running state, and no read-only census arm reads the record yet, which is the round-26 condition for this area to
++become Core (`PROVINCE.md` "Round-26 frontier — storage integrity"). SR6 bounds what such an arm can decide. The
++record itself needs no privilege: as uid 1000 with no effective capabilities (capture.txt:2) `btrfs scrub status /`
++exited 0 and printed `no stats available` (capture.txt:8, capture.txt:10), with no record present (capture.txt:7). The
++kernel's running state does need privilege: the progress ioctl on `/` for devid 1 failed with `EPERM` (capture.txt:6),
++so an unprivileged arm can report the record's absence, its contents and its permissions, and never "a scrub is
++running". A status that prints `no stats available` reports a missing record, not the absence of a scrub (SR6).
++
++What this page does not settle. SR1's trailing-bytes consequence is an inference from the open flags and was not
++reproduced (no record exists here, capture.txt:7). The kernel side is upstream v7.2.11 source only; whether the Arch
++kernel patches `fs/btrfs/ioctl.c` is unchecked (`## Limits` above). Rows SC2, SC4 (as narrowed) and SC5 of the
++round-42 entry are neither restated nor re-verified here. A counted verdict exists only as the wave-2 seat verdicts
++bound through `.ufo/waves/round-43/w2-dispatch.json` and `w2-results.json`
++(`python3 tools/check-scrub-record-r43.py --revision <REV>`); the wave-1 reviews of this text are its first
++falsifiers, not verdicts.
++
++Nothing on this page runs a scrub, writes `/var/lib/btrfs` or calls a privileged ioctl. Running a scrub, enabling
++`btrfs-scrub@.timer`, resetting a device counter and any repair remain operator-owned.

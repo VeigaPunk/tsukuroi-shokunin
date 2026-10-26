@@ -1,0 +1,90 @@
+# C1MutFix probes and hashes (round 43 w1, seat C1MutFix)
+
+## Pristine / restoration hashes
+- Lane worktree /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/boot-chain-audit.sh BEFORE all runs:
+  3e5c876389985aa5168c7116db5ea808fa0d7d697a1d66b7fcf850efd60dfd74  (sha256sum)
+- git -C <lane> rev-parse HEAD -> 7d0ed1c2d62961cbde8a4d6be120b2573ebbd8f9 (lane tip has moved past the fix;
+  the counter extracts tools/boot-chain-audit.sh at the named revision, so this does not affect scoring)
+- git -C <lane> status --porcelain -- tools/ | wc -l -> 0 (before)
+- Blob at 717b716a8943151ace8657e0ca23d7d9b8434f26 == blob at HEAD == lane worktree:
+  git -C clone diff --stat 717b716 HEAD -- tools/boot-chain-audit.sh -> (empty)
+  git show 717b716:tools/boot-chain-audit.sh | sha256sum -> 3e5c876389985aa5168c7116db5ea808fa0d7d697a1d66b7fcf850efd60dfd74
+  git show HEAD:tools/boot-chain-audit.sh  | sha256sum -> 3e5c876389985aa5168c7116db5ea808fa0d7d697a1d66b7fcf850efd60dfd74
+- Fixture clone worktree reset before every mutant:
+  git -C clone checkout 717b716a8943151ace8657e0ca23d7d9b8434f26 -- tools/boot-chain-audit.sh
+  sha256sum -> 3e5c876389985aa5168c7116db5ea808fa0d7d697a1d66b7fcf850efd60dfd74  (observed before mutants a,b,c,d,e,f,g,h,i,j)
+- Lane worktree AFTER all runs: 3e5c876389985aa5168c7116db5ea808fa0d7d697a1d66b7fcf850efd60dfd74 (unchanged)
+
+## Mutant blob hashes (git show <sha>:tools/boot-chain-audit.sh | sha256sum)
+- a 1760af7a7997bb30432d6b1df3b6514841f17ad3  91dc51be91cec0616a53bc17c672f3878666385cff7b0de3382de39fe63f3516
+- b a1fbfb86be7d1d0ce05fc227307e217e991e0b22  d54153a2ccac901279b6064c6de517aaca8d921051de346db2eb5a0de06d2959
+- c 9618a4678bce56a955ed51a7e812b5c5e7892c81  84ae16250186ff31483f87e07deefe89f4c9bc0d97bc04339cf49f1052d8bef2
+- d e9e37e3c6d4dbc5caabf2e23c382bc545c3a4591  b5b205eeabc17e94e360c8840eedde3e2502af144edc0aca96503697b0ce4458
+- e 0ed22e3867a8ba006cbb24da530ad910bd4f568b  5890e7176b8aad7cc7b7a602d970f06d1435fcfb564720121794dd6c13ce75ce
+- f 6bddc859d6b43af8f53f0bfbee51aa1ece7c3371  e7215c7792ee82fdb50c35183b8b565e63681f3068e63faad426149ae330715e
+- g 4afa7876f1721f587b31dbfb8e581a9a52b0f92b  857e605c809e6538156312c9389a28492514890a8d5845ae3cddaaa91f569ba9
+- h ab36010123c10b6d9e334c111538207c7a1d0bdd  7c479d5ecf65cd0ea086aafc231a0c0dc774514c391de37d36b5057203858d35
+- i 95697bf2fcbea714e52f7fe46254083617d07f1a  6390852ee65106016c74b5471050aacf3e7e06348c577aa0906398009255b901
+- j 43ec711a3289477534b96ff40d1baa5e81f6507d  d4bdbbde23e5012cf17070f125c4889a71fdbced1c0282ec68554d75bdf9058c
+
+## Probe 1: find -print -quit exit status with a missing start point BEFORE the match
+Command (scratch probe tree: old/d/sub/f at @1000, d/sub/f touched to @3000, "$S/probe/missing" absent):
+  find "$S/probe/missing" "$S/probe/old" "$S/probe/d" -newermt @2000 -print -quit; echo FIND_RC=$?
+Observed output:
+  Error: /fast/scratch/hyaku/tsukuroi-r43/C1MutFix/probe/missing: No such file or directory (os error 2)
+  /fast/scratch/hyaku/tsukuroi-r43/C1MutFix/probe/d/sub
+  FIND_RC=1
+=> -quit preserves find's pending error status (rc=1). Explains mutant h: missing-point cases take the
+   else branch and still decide on output; only the clean-exit all-present-older case kills h.
+
+## Probe 2: live start points vs btime (host, read-only)
+Command: grep '^btime ' /proc/stat; stat -c '%Y %n' <8 production points>
+Observed:
+  btime 1793027300
+  1792500527 /etc/fstab
+  1760286101 /etc/crypttab
+  1791060132 /etc/mkinitcpio.conf
+  1791060333 /etc/mkinitcpio.conf.d
+  1792498780 /etc/default/limine
+  1792498780 /etc/limine-snapper-sync.conf
+  1792498589 /usr/lib/initcpio
+  1792501032 /usr/lib/modules
+=> newest start point (/usr/lib/modules) is 526268 s older than btime; live oracle = 0; no start point
+   or any mtime in the (btime-1, btime] window (relevant to mutants i and j surviving the live leg).
+   /etc/crypttab EXISTS on this host today, so mutant e/c stderr-noise scenarios are not exercised live
+   here; the namespace legs exercise them instead.
+
+## Probe 3: counter stderr handling (from tools/score-bootinputs-r43.py, INNER leg)
+  p = subprocess.run(pre + ['bash', '-c', '. /mnt/bca-lib.sh; boot_inputs_newer'], env=env,
+                     capture_output=True, text=True, timeout=60, cwd='/mnt/home')
+  got, rc = p.stdout.strip(), p.returncode
+=> only p.stdout is read; p.stderr is discarded -> the counter cannot see find's stderr (mutant c gap).
+   Same for the live leg: subprocess.run(['bash','-c', f'. "{libp}"; boot_inputs_newer'], capture_output=True,...)
+   and only q.stdout is compared.
+
+## Case-draw facts (from tools/score-bootinputs-r43.py make_cases)
+  older() = bt - rng.randint(3600, 30*86400);  newer() = bt + rng.randint(60, 86400)
+  miss{path}-newer carrier = rng.choice(POINTS after path); all-present-newer carrier = rng.choice(all 8)
+=> no mtime ever in (bt-1, bt] (mutant i gap); /etc/crypttab is the drawn carrier only with
+   p = 1 - (6/7)*(7/8) = 0.25 per run (mutant e probabilistic kill).
+
+## Selftest facts (tools/boot-chain-audit.sh)
+- R43-C1 selftest cases at :1232/:1235/:1237 call inputs_newer_than directly with tmp paths
+  ($bi/missing, $bi/old, $bi/d; epochs 2000/3000): they never exercise boot_inputs_newer's
+  btime guard or the production 8-point list -> selftest is blind to mutants e, f, i, j by construction.
+- Counter text check only requires >= 2 occurrences of st_check 'R43-C1- (selftest_r43 = 3, unchanged by all mutants).
+
+## Run manifest (32 counter invocations, all with --lane <fixture clone> --scratch <seat>/s)
+baseline 717b716: 1 run, exit 0 (PASS)            [runs.jsonl line 2]
+mutant a: 1 run,  exit 1 (FAIL correct 0/16)      [line 4]
+mutant b: 3 runs, exit 0,0,0 (PASS 16/16)         [line 6]
+mutant c: 3 runs, exit 0,0,0 (PASS 16/16)         [line 8]
+mutant d: 3 runs, exit 0,0,0 (PASS 16/16)         [line 10]
+mutant e: 8 runs, exit 0,1,0,0,1,0,1,1            [lines 12/14/16]
+mutant f: 2 runs, exit 1,1 (FAIL correct 12, 11)  [lines 18/20]
+mutant g: 2 runs, exit 1,1 (FAIL correct 13, 11)  [lines 22/24]
+mutant h: 2 runs, exit 1,1 (FAIL correct 15)      [line 26]
+mutant i: 3 runs, exit 0,0,0 (PASS 16/16)         [line 28]
+mutant j: 3 runs, exit 0,0,0 (PASS 16/16)         [line 30]
+restored 717b716: 1 run, exit 0 (PASS)            [line 2, second event]
+Identical-outcome repeat runs produced byte-identical JSON lines (only possible difference: none observed).

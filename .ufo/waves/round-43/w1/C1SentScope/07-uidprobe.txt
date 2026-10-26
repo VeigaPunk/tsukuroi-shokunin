@@ -1,0 +1,4 @@
+unshare -m --map-users=1000,0,1 --map-users=100000,1,65535 --map-groups=1000,0,1 --map-groups=100000,1,65535 setpriv --reuid=1000 --regid=1000 --clear-groups sh -c "id -u; touch <1777 dir>/probe"
+inside ns: id -u = 1000
+host view: 100999:100999  (owner of the file the ns-uid-1000 process created)
+/etc/subuid: vgpnk:100000:65536

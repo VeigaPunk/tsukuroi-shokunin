@@ -1235,6 +1235,8 @@ EOF
     st_check 'R43-C1-missing-start-point-deep-newer' 1 "$got"
     got=$(inputs_newer_than 2000 "$bi/old" "$bi/d")
     st_check 'R43-C1-all-present-deep-newer' 1 "$got"
+    got=$(inputs_newer_than 2000 "$bi/missing" "$bi/old" 2>&1)
+    st_check 'R43-C1-missing-start-point-silent' 0 "$got"
 
     if [ "$st_fail" -eq 0 ]; then
         printf 'TSUKUROI_BOOTCHAIN_SELFTEST: PASS total=%d failed=0\n' "$st_total"

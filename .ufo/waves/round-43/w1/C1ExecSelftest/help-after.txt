@@ -1,0 +1,136 @@
+boot-chain-audit.sh — per-limine-entry next-boot verdict audit
+(tsukuroi-shokunin, round 17, seat BootAuditTool; lane TsukuroiR17).
+
+Answers exactly one question, read-only: "for every kernel entry limine will offer at
+the next boot, is the initramfs root path consistent with the late hooks' root path,
+and which entries carry an unproven or unclassified combination?"
+
+The axis: after the operator's 2026-10-20 09:15 `pacman -Syu` (mkinitcpio 41.1 -> 42.2,
+linux 7.2.3 -> 7.2.11), freshly built UKIs mount the real root at /sysroot while the
+configured late hooks (btrfs-overlayfs:4, plymouth:11) still address /new_root. In the
+42.2 images the extracted /new_root is a symlink to sysroot (mkinitcpio's
+init_functions:1212-1213 creates it), which keeps the hooks working — the v1 reading of
+/new_root as an empty directory was superseded by the namespace emulation evidence in
+.ufo/waves/round-17/l1-capture/overlay-emulation.txt. This tool derives that per limine
+entry from image bytes only; it predicts nothing it cannot read.
+
+Verdict rules (corpus/knowledge/boot-chain-r17.json, schema tsukuroi-boot-chain-v2,
+first match wins):
+  1. efi_path is not a kernel UKI                 -> NOT-A-KERNEL-ENTRY
+  2. selected_this_boot (firmware LoaderEntrySelected or LimineLastBootedEntry names the
+     entry's menu path), the image's file mtime is before boot start (the file that
+     booted), and no /etc or /usr boot-chain input is newer than boot start
+                                                -> BOOTED-OBSERVED
+  3. snapshot is null and selected_this_boot is false
+                                                -> UNTESTED
+  4. init_sysroot_refs > 0, init_new_root_refs == 0, image_new_root == symlink->sysroot,
+     both hook roots == /new_root               -> PATH-ALIASED-EMULATED
+  5. init_new_root_refs > 0, init_sysroot_refs == 0, image_new_root == directory,
+     both hook roots == /new_root               -> CONSISTENT-PRE42
+  6. otherwise                                  -> UNTESTED
+
+"Kernel UKI" is decided from the image bytes: every mkinitcpio 42 UKI carries a `.uname`
+PE section (mkinitcpio:541); a PE that lacks it (the /EFI/BOOT/BOOTX64.EFI limine loader
+fallback) is NOT-A-KERNEL-ENTRY. Any entry the tool cannot evaluate (unreadable file,
+unextractable image, missing init or VERSION in the extracted tree, unreadable
+limine.conf, unvalidated path) reports EVALUATION-ERROR, counts as `unknown`, and forces
+the summary UNKNOWN — never a fake pass. A kernel entry that lands on rule 6 while it
+is a snapshot entry or is firmware-selected is an unclassified combination: the verdict
+stays UNTESTED but it also counts as `unknown`, so the summary can never read
+CONSISTENT over a combination the rules do not name.
+
+Selected-entry resolution: limine names booted menu entries by their menu path; this
+host shows LoaderEntrySelected "Omarchy.linux" and LimineLastBootedEntry
+"Omarchy/linux" (supplement-capture.txt). The tool builds each entry's menu path from
+the `/`-stack it was parsed under (components without their leading slashes, `+`
+stripped) and accepts either a `/` or a `.` join as the firmware spelling.
+
+Booted-file stability: rule 2 requires the image file's mtime to be before boot start.
+The booted file's sha256 is not separately observable (the ESP namespace is unreadable
+from an unprivileged shell), so rule 2's sha-equality clause is carried by identifying
+the firmware-selected path and proving that file unchanged: mtime before boot start and
+no newer /etc or /usr boot-chain input. The ESP is mounted fmask/dmask=0077 under a 0700
+/boot on this host, so the mtime is read with `sudo -n stat -c %Y` (L1 integration fix,
+round 17: the unprivileged stat always failed and BOOTED-OBSERVED was unreachable); if
+that read fails the proven-booted flag stays false and the selected entry falls through
+to the rules below (typically PATH-ALIASED-EMULATED for a 42.2 image). The `selected`
+TSV column still reports the firmware fact. The /etc+/usr input set is: /etc/fstab /etc/crypttab /etc/mkinitcpio.conf
+/etc/mkinitcpio.conf.d /etc/default/limine /etc/limine-snapper-sync.conf /usr/lib/initcpio
+/usr/lib/modules (every kernel tree, not only the running one: round-19 falsify
+FxRevAuditRules showed a newer linux-lts module tree was invisible to the old
+<uname -r> path). An image under EFI/Linux whose .uname cannot be extracted is an
+EVALUATION-ERROR (UNKNOWN), never a non-kernel app.
+limine.conf itself is deliberately excluded: a post-boot rewrite changes the menu, not
+the booted image, and this audit is exactly about the menu change.
+
+Output (stdout): a TSV header, one TSV row per limine `path:` record, a `# counts ...`
+line, then exactly one `TSUKUROI_BOOTCHAIN: CONSISTENT|DEGRADED|UNKNOWN`.
+Columns, in order:
+  label efi sha256 b2_ok uname VERSION init_sysroot_refs init_new_root_refs
+  image_new_root latehooks overlay_root plymouth_root rootflags snapshot snapshot_ro
+  selected verdict
+`b2_ok` is `ok` when the computed b2sum equals the 128-hex hash limine.conf pins,
+`MISMATCH` when it does not, `-` when the entry carries no hash; it is reported, never
+a verdict input. `image_new_root` is `symlink->sysroot`, `symlink-><other target>`,
+`directory`, `other`, `absent`, or `-` for non-kernel/unextracted entries. `snapshot` is
+the snapper number parsed from rootflags; `snapshot_ro` the btrfs `ro` property when
+readable, `-` otherwise (report-only; v2 rules do not consume it). `selected` is the
+firmware efivar fact.
+
+Exit map: 0 CONSISTENT | 1 DEGRADED | 2 UNKNOWN.
+  UNKNOWN wins over CONSISTENT: any EVALUATION-ERROR, any unclassified combination
+  (rule-6 UNTESTED on a snapshot or selected entry), zero kernel entries, or an
+  unreadable limine.conf. DEGRADED is kept in the vocabulary for forward compatibility;
+  no v2 verdict maps to it, so exit 1 is never emitted under this schema.
+  Usage errors also exit 2.
+
+Modes:
+  --live      audit the running host under the sentinel contract:
+              * refuses to run as root (EUID 0) — an unprivileged audit cannot write
+                outside its mktemp tree by accident of privilege;
+              * the ONLY privileged steps are `sudo -n cat -- <efi> > <work>/copy` per
+                image, `sudo -n cat -- /boot/limine.conf` and `sudo -n stat -c %Y` of each
+                image (stdout only); every hash, objcopy and lsinitcpio runs unprivileged
+                on the copy;
+              * `path:` values are validated against
+                ^boot\(\):/[A-Za-z0-9._/-]+(#[0-9a-f]{128})?$ and `..` components are
+                rejected; nothing else is interpreted or sourced;
+              * each image is extracted one at a time inside a subshell cd'd into its
+                own private mktemp directory, never with `lsinitcpio -a`, and no
+                extracted file is ever sourced;
+              * every removal runs a guarded rm that refuses paths outside the private
+                work tree, after `chmod -R u+w` on exactly the mktemp path.
+  --selftest  hermetic: fake limine.conf files and fake extracted-initramfs trees under
+              a mktemp directory; asserts parser, verdict function, analyzer and the
+              whole audit pipeline against >= 12 independently fixed expectations,
+              including a config containing `$(touch canary)` that must leave no canary.
+              No sudo, no /boot, no host read. Exit 0 pass, 1 fail, 2 harness error.
+  --help      this text.
+
+Fixture overrides (selftest only; a non-empty BOOTCHAIN_FIXTURE makes every host read
+take its fixture branch, and --live refuses while it is set). <fx> below is
+$BOOTCHAIN_FIXTURE/$(basename <efi path>):
+  <fx>/sha256           image sha256 column value
+  <fx>/b2sum            image b2sum value
+  <fx>/uname            .uname content -> kernel entry (absence is an error unless a
+                        marker file decides otherwise)
+  <fx>/not-a-uki        marker: this path is not a kernel UKI
+  <fx>/unreadable       marker: the image cannot be read (EVALUATION-ERROR)
+  <fx>/snapshot_ro      btrfs ro value for a snapshot entry
+  <fx>/mtime            file mtime epoch, anything else means unverifiable
+  <fx>/extract/         an extracted initramfs tree (init, VERSION, config, hooks/,
+                        new_root)
+  <fxdir>/loader_entries        firmware-selected menu path strings, one per line
+  <fxdir>/btime                 boot epoch
+  <fxdir>/boot_inputs_newer     0|1
+
+Read-only guarantee: live mode writes only under $WORK (mktemp -d, mode 700, umask 077);
+every privileged command is a `sudo -n cat`/`sudo -n stat` read or a `>` redirect into $WORK. No
+package, service, bootloader, initramfs or kernel state is touched.
+
+Label convention: limine labels are lines of one or more `/` plus a name; nesting depth
+is the slash count. A path-bearing entry nested three or more levels deep is labelled
+`<parent> <leaf>` (limine snapshot layout: `///<date> ////linux`); shallower entries use
+their own label (`//linux`, `/EFI fallback`). This reproduces the limine_label values in
+corpus/knowledge/boot-chain-r17.json. The menu path chain for efivar matching is the
+full ancestor stack regardless of depth.

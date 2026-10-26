@@ -1,0 +1,6 @@
+host / (init mount ns): 33 2 0:30 /@ / rw,noatime shared:1 - btrfs /dev/mapper/root rw,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@
+inside unshare -m (same option family as the counter): 362 361 0:30 /@ / rw,noatime - btrfs /dev/mapper/root rw,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@; /etc/R43-LEAK-PROBE
+after ns exit, host sees /etc/R43-LEAK-PROBE: ABSENT
+host /etc fingerprint after ns exit: 060e9d5490a3002c383fbfdc5e7698d69e909d2cf9c10b299f4129239d124ba1  -
+strace of unshare: 2197156 mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) = 0; 2197156 +++ exited with 0 +++
+ipc: root mount is shared:1 on the host; plain `unshare -m` recorded by strace as mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL) = 0, so the new ns is private and mounts cannot propagate back.

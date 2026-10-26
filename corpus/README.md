@@ -412,3 +412,14 @@ re-grounding of the staged `alpm-package-anatomy-r26.md` theme, which admits PA1
 Frontier: the scrub record stays Frontier (no census arm reads it); round 42 deepens it from source, it does not
 enter new coverage-map ground (the scrub record has been a Frontier line since round 26). The btrfs-progs release-notes
 half of the round-26 lead is now opened for the 6.6.3 scrub entries (S238); the ArchWiki Fwupd page stays unopened.
+
+## Round-43 coverage note (appended 2026-10-26)
+
+| Entry | What it adds | Sources / evidence |
+|---|---|---|
+| `knowledge/btrfs-scrub-record-r43.md` | Storage-integrity frontier, scrub record, re-grounded: SR1 the record write discipline (`_tmp` opened without `O_TRUNC`, renamed only after a successful write, never unlinked; the trailing-bytes consequence marked [inference]); SR3 what `btrfs scrub resume` writes (`scrub_resumed_stats`) and when recording failures are printed (`do_print`, `-B`); SR6 why an unprivileged `btrfs scrub status` never reads `running` (`BTRFS_IOC_SCRUB_PROGRESS` needs `CAP_SYS_ADMIN`) | S237 (btrfs-progs v7.1 `cmds/scrub.c`), S240 (Linux v7.2.11 `fs/btrfs/ioctl.c`), S241 (own-work capture); counter `tools/check-scrub-record-r43.py` |
+
+The round-42 row above lists SC1-SC5 as that entry's holdings; SC1 and SC3 stand withdrawn and SC4/SC5 are narrowed
+(its header line 4 and "Corrections — round-42 wave 2"); read the write-discipline, resume and running-state points
+from the round-43 entry. Frontier: the scrub record stays Frontier (no census arm reads it); round 43 re-grounds it
+from source and adds the kernel-side privilege fact (S240), it enters no new coverage-map ground.

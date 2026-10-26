@@ -1,0 +1,52 @@
+--- scrub-v71-gh.c	2026-10-26 19:16:45.645556450 -0300
++++ scrub-v73-gh.c	2026-10-26 19:19:03.635446613 -0300
+@@ -568,7 +568,7 @@
+ 
+ #define _SCRUB_INVALID do {						\
+ 	if (report_errors)						\
+-		warning("invalid data on line %d pos "			\
++		warning("invalid data on line %d position "		\
+ 			"%d state %d (near \"%.*s\") at %s:%d",		\
+ 			lineno, i, state, 20 > avail ? avail : 20,	\
+ 			l + i,	__FILE__, __LINE__);			\
+@@ -1372,7 +1372,7 @@
+ 	}
+ 
+ 	/*
+-	 * Check for stale information in the status file, ie. if it's
++	 * Check for stale information in the status file, i.e. if it's
+ 	 * canceled=0, finished=0 but no scrub is running.
+ 	 */
+ 	if (!is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices))
+@@ -1594,14 +1594,6 @@
+ 
+ 	err = 0;
+ 	for (i = 0; i < fi_args.num_devices; ++i) {
+-		/* Revert to the older scrub limit. */
+-		ret = write_scrub_device_limit(fdmnt, di_args[i].devid, sp[i].old_limit);
+-		if (ret < 0) {
+-			errno = -ret;
+-			warning("failed to reset scrub throughput limit on devid %llu: %m",
+-				di_args[i].devid);
+-		}
+-
+ 		if (sp[i].skip)
+ 			continue;
+ 		devid = di_args[i].devid;
+@@ -1645,6 +1637,16 @@
+ 			e_correctable++;
+ 	}
+ 
++	/* Revert to the older scrub limits. */
++	for (i = 0; i < fi_args.num_devices; ++i) {
++		ret = write_scrub_device_limit(fdmnt, di_args[i].devid, sp[i].old_limit);
++		if (ret < 0) {
++			errno = -ret;
++			warning("failed to reset scrub throughput limit on devid %llu: %m",
++				di_args[i].devid);
++		}
++	}
++
+ 	if (do_print) {
+ 		const char *append = "done";
+ 		u64 total_bytes_scrubbed = 0;

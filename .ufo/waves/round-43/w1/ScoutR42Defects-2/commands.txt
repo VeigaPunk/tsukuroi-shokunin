@@ -1,0 +1,18 @@
+# ScoutR42Defects-2 receipts (all read-only; R=717b716a8943151ace8657e0ca23d7d9b8434f26; lane HEAD at run time 7d0ed1c2, 717b716a is an ancestor, bytes read via `git show $R:<path>`)
+git show $R:SCORECARD.md | grep -n '^| Capability |'      -> 15 headers; adjacent pair at 2630 and 2632 (round-42 table, `## Capabilities ... (round 42)` at 2628)
+awk dup-header scan over that blob                         -> "dup header at 2632 (after header at 2630)"   (only one such pair)
+git diff 6951ead9 $R -- SCORECARD.md | grep -c '^[-+].*Capability |' -> 0   (round 43 touched no capabilities table)
+git show $R:corpus/knowledge/btrfs-scrub-record-r42.md | sed -n 4p -> "superseded-in-part: round 43 — SC1 and SC3 below stand withdrawn ... not a verified outcome; ... re-grounded as rows SR1 and SR3, and SC4's running-state note as SR6, in `corpus/knowledge/btrfs-scrub-record-r43.md`"
+python3 re.search(r'\bsuperseded\b', first 20 lines of that blob) -> hit at line 4 (same regex as tools/check-self-assessment.py:364, window :423)
+git grep -n 'btrfs-scrub-record-r42' $R -- . ':!.ufo'      -> PROVINCE.md:240, SKILL.md:3901, SKILL.md:3947, corpus/README.md:410, corpus/SOURCES.md:246-248, SCORECARD.md:2574,2644, tools/*, lessons
+git grep -n 'scrub-record-r43' $R -- PROVINCE.md SKILL.md corpus/README.md -> no output
+git diff --name-only 6951ead9 $R | grep -v '^.ufo/'          -> SCORECARD.md corpus/SOURCES.md corpus/knowledge/btrfs-scrub-record-r42.md corpus/knowledge/btrfs-scrub-record-r43.md tools/boot-chain-audit.sh tools/check-scrub-record-r43.py tools/score-bootinputs-r43.py
+git diff --quiet 12421a73 $R -- tools/tsukuroi-census.sh && echo unchanged -> census-unchanged-since-r42-tip
+git diff --stat 12421a73 $R -- tools/score-size-invariance-r42.py -> empty (r42 counter unchanged)
+census at $R: lines 934, 972, 1054, 1429, 1504 = `printf '%s\n' "$CAP_OUT" | head -n1 | ...` still present; 2178 `| grep '^PLANE packages:' | head -n1 || true`
+census at $R: selftest 'large' cases = 2360, 2577, 2584 only (R42-C1 -Qkk/-Qu/-Sup); `grep -nE "check .*(large|outgrew|pipe buffer|oversize|big)"` finds none for the :743 baseline lookup; TSUKUROI_FOREIGN_BASELINE appears in selftest only at 2153, 2296, 2320, 2616 (small fixtures)
+census at $R:743 -> `bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n && !f { print $2; f = 1 }')` (full-read, fixed in r42)
+git diff 6951ead9 $R -- tools/boot-chain-audit.sh -> inputs_newer_than (+14 lines), boot_inputs_newer call, 3 `R43-C1-*` st_check cases
+ls corpus/lessons/operator-*.md -> No such file; find fleet (maxdepth 5) -iname 'operator-*' and `*lessons*` paths -> none in any lane; git log --all --diff-filter=A for lessons/operator -> none
+mori-shokunin/PROVINCE.md:287 still names `tsukuroi-census.sh:376,1100-1115` (last touched af42101d 2026-10-22); census $R:1103 = "# Round-7 addition, lane S7-2" (base c8efaa3f: 1097), 1100 = `}`
+tameshi-shokunin/corpus/knowledge/service-optin-protocol.md:153 still reads `tsukuroi-shokunin/tools/tsukuroi-census.sh:915-970` (file last committed 2026-10-14, 9f1d3c33); census $R:915 `if [ -n "$report" ]; then`, :921 `}`, :976 `t_fail=$((t_fail + 1))` ; base c8efaa3f:915 `}`, :970 `t_fail=$((t_fail + 1))` => block now at 921-976 (+6)

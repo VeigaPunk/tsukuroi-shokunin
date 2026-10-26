@@ -1,0 +1,20 @@
+### strace ioctl of `btrfs scrub status /`
+/usr/bin/strace
+strace_rc=0
+--- strace.out (ioctl lines) ---
+1:2691203 ioctl(4, BTRFS_IOC_FS_INFO, {max_id=1, num_devices=1, fsid=1d02a454-c549-4a35-b567-89d60902af8e, nodesize=16384, sectorsize=4096, clone_alignment=4096, flags=0}) = 0
+2:2691203 ioctl(4, BTRFS_IOC_DEV_INFO, {devid=makedev(0, 0x1)} => {uuid=0b76cfd1-fb3e-43f4-9c51-e4711701e8ba, bytes_used=399507456000, total_bytes=998037782528, path="/dev/mapper/root"}) = 0
+3:2691203 ioctl(4, BTRFS_IOC_DEV_INFO, {devid=makedev(0, 0)}) = -1 ENODEV (No such device)
+4:2691203 ioctl(4, BTRFS_IOC_DEV_INFO, {devid=makedev(0, 0)}) = -1 ENODEV (No such device)
+5:2691203 ioctl(4, BTRFS_IOC_DEV_INFO, {devid=makedev(0, 0x1)} => {uuid=0b76cfd1-fb3e-43f4-9c51-e4711701e8ba, bytes_used=399507456000, total_bytes=998037782528, path="/dev/mapper/root"}) = 0
+6:2691203 ioctl(3, BTRFS_IOC_SPACE_INFO, {space_slots=0} => {total_spaces=4}) = 0
+7:2691203 ioctl(3, BTRFS_IOC_SPACE_INFO, {space_slots=4} => {total_spaces=4, ...}) = 0
+8:2691203 ioctl(3, BTRFS_IOC_SCRUB_PROGRESS, {devid=makedev(0, 0x1)}) = -1 EPERM (Operation not permitted)
+9:2691203 ioctl(3, BTRFS_IOC_FS_INFO, {max_id=1, num_devices=1, fsid=1d02a454-c549-4a35-b567-89d60902af8e, nodesize=16384, sectorsize=4096, clone_alignment=4096, flags=0}) = 0
+--- stdout ---
+UUID:             1d02a454-c549-4a35-b567-89d60902af8e$
+^Ino stats available$
+Total to scrub:   309.54GiB$
+Rate:             0.00B/s$
+Error summary:    no errors found$
+--- stderr ---

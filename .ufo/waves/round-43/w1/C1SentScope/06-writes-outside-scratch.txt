@@ -1,0 +1,111 @@
+classification of every openat carrying O_WRONLY/O_RDWR/O_CREAT/O_TRUNC in trace-full (counter copy run at 717b716..., --map-root-user so newuidmap/ptrace does not block):
+
+  dev          43
+  scratch-abs  206
+  uidmap       3
+  other        1
+  ns-abs       152
+  scratch-rel  45
+
+(a) ns-abs = absolute paths under /etc and /usr/lib, written by the INNER process inside the private mount namespace AFTER the covering tmpfs mounts (move_mount /etc at trace-full:427; first unlink under /etc at :498). Host /etc, /usr/lib/initcpio, /usr/lib/modules verified unchanged after the run (receipt 12). unique destinations:
+  /etc/crypttab
+  /etc/default/limine
+  /etc/fstab
+  /etc/limine-snapper-sync.conf
+  /etc/mkinitcpio.conf
+  /etc/mkinitcpio.conf.d/65id/bu3zu/b5xeqzaup.img
+  /etc/mkinitcpio.conf.d/89vk.conf
+  /etc/mkinitcpio.conf.d/9zzx3b4j7.img
+  /etc/mkinitcpio.conf.d/cu9d6.ko
+  /etc/mkinitcpio.conf.d/ej1rsaz/3ty6.conf
+  /etc/mkinitcpio.conf.d/ej1rsaz/rdg1ve.conf
+  /etc/mkinitcpio.conf.d/gcp0v.conf
+  /etc/mkinitcpio.conf.d/hsyf/2ixilhn8.conf
+  /etc/mkinitcpio.conf.d/hsyf/6lvx.ko
+  /etc/mkinitcpio.conf.d/l7zl.conf
+  /etc/mkinitcpio.conf.d/lipiskv2/c6blo7m/1elt.ko
+  /etc/mkinitcpio.conf.d/lipiskv2/c6blo7m/xeoog0uz5q.conf
+  /etc/mkinitcpio.conf.d/skb80g120.img
+  /etc/mkinitcpio.conf.d/tghc5/2yxe.conf
+  /etc/mkinitcpio.conf.d/tghc5/kesict.hook
+  /etc/mkinitcpio.conf.d/tghc5/o6fxeh.conf
+  /etc/mkinitcpio.conf.d/uw9w1.conf
+  /etc/mkinitcpio.conf.d/ve77xktdw9/jb0z/drcyu.conf
+  /etc/mkinitcpio.conf.d/ve77xktdw9/jb0z/hd1zw6d.conf
+  /etc/mkinitcpio.conf.d/wjw56ea/lncqcu7mt9/0j12s32y1.hook
+  /etc/mkinitcpio.conf.d/wjw56ea/lncqcu7mt9/kiipzz2.ko
+  /etc/mkinitcpio.conf.d/wjw56ea/lncqcu7mt9/mrj2tabc.ko
+  /etc/mkinitcpio.conf.d/xffg.hook
+  /etc/mkinitcpio.conf.d/ycgymtvj8b/7m595q/nd1jhwuh.conf
+  /etc/mkinitcpio.conf.d/ycgymtvj8b/7m595q/x6peco7y.img
+  /etc/mkinitcpio.conf.d/yt43xl.hook
+  /etc/mkinitcpio.conf.d/ze6xu82dq.img
+  /usr/lib/initcpio/0dfnmx7b/3qopuhsw9.hook
+  /usr/lib/initcpio/0tbp6gd1px.hook
+  /usr/lib/initcpio/0wjh.hook
+  /usr/lib/initcpio/1v8l.conf
+  /usr/lib/initcpio/2ima4/evc0w/9bjtrpgbp.hook
+  /usr/lib/initcpio/2ima4/evc0w/b4i1ex.hook
+  /usr/lib/initcpio/43efoh/oi8tx26/g9jrktfp.img
+  /usr/lib/initcpio/43efoh/oi8tx26/m9h6xc.conf
+  /usr/lib/initcpio/57jq0d/8wg4gxn4b.hook
+  /usr/lib/initcpio/57jq0d/awj9o.img
+  /usr/lib/initcpio/at07p82up7.ko
+  /usr/lib/initcpio/cs2x2reab0.img
+  /usr/lib/initcpio/g5l3jthtg/b0s5.ko
+  /usr/lib/initcpio/gplfw3/cph7m6n/7kc2su5c.ko
+  /usr/lib/initcpio/gplfw3/cph7m6n/v7zx3al2.img
+  /usr/lib/initcpio/k1d8c89/3lfkskcwsb/a9cvt.hook
+  /usr/lib/initcpio/k1d8c89/3lfkskcwsb/hekekxw.conf
+  /usr/lib/initcpio/kcvbce4nq.ko
+  /usr/lib/initcpio/mw5oxvd9.img
+  /usr/lib/initcpio/rumwmvb7/zrpl/53gm.hook
+  /usr/lib/initcpio/rumwmvb7/zrpl/fnuku.conf
+  /usr/lib/initcpio/rumwmvb7/zrpl/sdi8z6dn.hook
+  /usr/lib/initcpio/rxn7qwct/ll2hfv5.hook
+  /usr/lib/initcpio/s1p1ye/2etdo/0pnhwbjf.conf
+  /usr/lib/initcpio/s1p1ye/2etdo/6kg0b0.img
+  /usr/lib/initcpio/s32o89.conf
+  /usr/lib/initcpio/uuuofm.hook
+  /usr/lib/initcpio/xbrk5a6da.img
+  /usr/lib/initcpio/xt8jg/e4baw64p/htym.hook
+  /usr/lib/modules/3wry.img
+  /usr/lib/modules/5oi60m3ju.ko
+  /usr/lib/modules/6j3an.img
+  /usr/lib/modules/88gzn1q.hook
+  /usr/lib/modules/8yzcj0o92.hook
+  /usr/lib/modules/8z87.ko
+  /usr/lib/modules/908l9n1/0vlnx7og/zwt581.img
+  /usr/lib/modules/986wzr.ko
+  /usr/lib/modules/9i7b8aa.conf
+  /usr/lib/modules/9l5tekk/p3b2.img
+  /usr/lib/modules/9l5tekk/sopxcs1on.img
+  /usr/lib/modules/9xgg96l/id8jbe2d.hook
+  /usr/lib/modules/b0y0rk.img
+  /usr/lib/modules/e4kja9x.hook
+  /usr/lib/modules/e83sbkwfec/ouj6y/6kqbo.conf
+  /usr/lib/modules/e83sbkwfec/ouj6y/s69n1w.ko
+  /usr/lib/modules/e83sbkwfec/ouj6y/s8liooegq.conf
+  /usr/lib/modules/exr8i1.ko
+  /usr/lib/modules/mexjq2.conf
+  /usr/lib/modules/p7q7iu.ko
+  /usr/lib/modules/r93rnc7jit.ko
+  /usr/lib/modules/svhi6fd/2q4z7kyemi/gooa1q78hl.ko
+  /usr/lib/modules/t1q6io.conf
+  /usr/lib/modules/t79c28ugu.conf
+  /usr/lib/modules/uyybn7brfl.conf
+  /usr/lib/modules/w4a1j0h39.ko
+  /usr/lib/modules/wfs2/iop7mwibi/3tq4yltua5.ko
+  /usr/lib/modules/zgz7wv4.img
+
+
+(b) scratch-rel = dirfd-relative writes; the fd is a directory under --scratch, e.g. trace-full:22277 openat(AT_FDCWD, "/fast/scratch/hyaku/tsukuroi-r43/C1SentScope/S3/bootinputs-r43._d8vm9uz/st/tsukuroi-bootchain-selftest.WuzguW/work/tree.RvvsxM/", O_RDONLY|O_PATH|O_DIRECTORY) = 3  followed by :22280 openat(3, "./VERSION", O_WRONLY|O_CREAT|O_EXCL, 0600) - the script selftest fixtures inside TMPDIR=<scratch>/work/st.
+
+
+(c) dev/uidmap: /dev/null; /dev/tty; /proc/self/gid_map; /proc/self/setgroups; /proc/self/uid_map
+
+
+(d) other bucket entries: ['/mnt/bca-lib.sh']
+
+
+conclusion: the counter opens nothing for write outside --scratch except paths that resolve inside its own mount namespace and the three /proc/self map files unshare writes.

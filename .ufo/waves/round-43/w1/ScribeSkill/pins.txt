@@ -1,0 +1,94 @@
+== pins (ScribeSkill, 2026-10-26T22:20:52Z) ==
+$ sha256sum tools/score-bootinputs-r43.py tools/check-scrub-record-r43.py
+886f92c8cd58e52e4e74f4df81708f243b77e9d33de567b47371f21419b3e10f  tools/score-bootinputs-r43.py
+b4602c566b4f39277e068d27ad10ad0ec361ed7e81a938831cec72631e319854  tools/check-scrub-record-r43.py
+$ git diff --stat 717b716 -- corpus/knowledge/btrfs-scrub-record-r43.md SKILL.md tools/boot-chain-audit.sh
+(rc=0)
+$ git show 6951ead:tools/boot-chain-audit.sh | sed -n "139p;463,488p;749p;761p"
+set -uo pipefail
+boot_inputs_newer() { # 0 = no /etc or /usr boot-chain input newer than boot start
+    if fixture_mode; then
+        local f
+        f="$BOOTCHAIN_FIXTURE/boot_inputs_newer"
+        if [ -f "$f" ]; then
+            tr -d '[:space:]' <"$f"
+        else
+            printf '0\n'
+        fi
+        return 0
+    fi
+    local btime
+    btime=$(btime_epoch)
+    if [ -z "$btime" ]; then
+        printf '1\n'
+        return 0
+    fi
+    if find /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
+        /etc/default/limine /etc/limine-snapper-sync.conf \
+        /usr/lib/initcpio /usr/lib/modules \
+        -newermt "@$btime" -print -quit 2>/dev/null | grep -q .; then
+        printf '1\n'
+    else
+        printf '0\n'
+    fi
+}
+    newer=$(boot_inputs_newer)
+            if [ "${kernels[i]}" = 1 ] && [ "${sels[i]}" = true ] && [ "$newer" = 0 ] &&
+$ git show 717b716:tools/boot-chain-audit.sh | sed -n "463,497p;758p;769,772p;1232,1237p"
+inputs_newer_than() { # <epoch> <start point>... -> 1 when find lists an entry newer than epoch, else 0
+    # R43-C1: decide on find's output, never on its exit status. find exits 1 when a start
+    # point is missing or a directory is unreadable; under `set -o pipefail` that status used
+    # to mask a listed match (`find … | grep -q .`), so a newer input read as "none newer".
+    local epoch=$1 hit
+    shift
+    hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null)
+    if [ -n "$hit" ]; then
+        printf '1\n'
+    else
+        printf '0\n'
+    fi
+}
+
+boot_inputs_newer() { # 0 = no /etc or /usr boot-chain input newer than boot start
+    if fixture_mode; then
+        local f
+        f="$BOOTCHAIN_FIXTURE/boot_inputs_newer"
+        if [ -f "$f" ]; then
+            tr -d '[:space:]' <"$f"
+        else
+            printf '0\n'
+        fi
+        return 0
+    fi
+    local btime
+    btime=$(btime_epoch)
+    if [ -z "$btime" ]; then
+        printf '1\n'
+        return 0
+    fi
+    inputs_newer_than "$btime" /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
+        /etc/default/limine /etc/limine-snapper-sync.conf \
+        /usr/lib/initcpio /usr/lib/modules
+}
+    newer=$(boot_inputs_newer)
+            [ "${snaps[i]}" != '-' ] && hassnap=1
+            if [ "${kernels[i]}" = 1 ] && [ "${sels[i]}" = true ] && [ "$newer" = 0 ] &&
+                [[ ${mtimes[i]} =~ ^[0-9]+$ ]] && [[ $btime =~ ^[0-9]+$ ]] &&
+                [ "${mtimes[i]}" -lt "$btime" ]; then
+    st_check 'R43-C1-missing-start-point-none-newer' 0 "$got"
+    touch -d @3000 -- "$bi/d/sub/f"
+    got=$(inputs_newer_than 2000 "$bi/missing" "$bi/old" "$bi/d")
+    st_check 'R43-C1-missing-start-point-deep-newer' 1 "$got"
+    got=$(inputs_newer_than 2000 "$bi/old" "$bi/d")
+    st_check 'R43-C1-all-present-deep-newer' 1 "$got"
+$ sed -n "3893,3896p" SKILL.md
+Not fixed here (routed): `tools/boot-chain-audit.sh:480-487` `find … -quit | grep -q .` reads false under pipefail
+whenever `find` exits 1 on a missing start point, so `BOOTED-OBSERVED` can be awarded while an input is newer than
+boot start (wave-1 `C1SweepSites`); the single-line probe readers (`:931`, `:969`, `:1051`, `:1426`, `:1501`) keep the
+early reader on inputs that cannot reach 30 KB.
+$ sed -n "4p" corpus/knowledge/btrfs-scrub-record-r42.md
+superseded-in-part: round 43 — SC1 and SC3 below stand withdrawn (see "Corrections — round-42 wave 2") and are not a verified outcome; their write-discipline, resume and failure-report points are re-grounded as rows SR1 and SR3, and SC4's running-state note as SR6, in `corpus/knowledge/btrfs-scrub-record-r43.md` (counted reads: that entry's round-43 record).
+$ grep -n "^## SR" corpus/knowledge/btrfs-scrub-record-r43.md
+17:## SR1
+45:## SR3
+80:## SR6

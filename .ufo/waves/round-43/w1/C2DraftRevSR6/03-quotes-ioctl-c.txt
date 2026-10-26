@@ -1,0 +1,58 @@
+# C2DraftRevSR6 receipt 03 — S240 quote lines, frozen ioctl.c
+# file: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-43/frozen/src/ioctl.c (5678 lines)
+
+Row quotes (btrfs-scrub-record-r43.md @717b716, lines 98-108) vs frozen file:
+
+ioctl.c:5582  case BTRFS_IOC_SCRUB_PROGRESS:
+ioctl.c:3126  static long btrfs_ioctl_scrub_progress(struct btrfs_fs_info *fs_info,
+ioctl.c:3132  if (!capable(CAP_SYS_ADMIN))
+ioctl.c:3133  return -EPERM;
+ioctl.c:3072  if (!capable(CAP_SYS_ADMIN))
+ioctl.c:3120  if (!capable(CAP_SYS_ADMIN))
+
+All six VERBATIM on the named lines.
+
+--- dispatch block (read 5580-5583) ---
+	case BTRFS_IOC_SCRUB:
+		return btrfs_ioctl_scrub(file, argp);
+	case BTRFS_IOC_SCRUB_CANCEL:
+		return btrfs_ioctl_scrub_cancel(fs_info);
+	case BTRFS_IOC_SCRUB_PROGRESS:
+		return btrfs_ioctl_scrub_progress(fs_info, argp);
+
+--- btrfs_ioctl_scrub entry (read 3069-3076) ---
+static long btrfs_ioctl_scrub(struct file *file, void __user *arg)
+{
+	struct btrfs_fs_info *fs_info = inode_to_fs_info(file_inode(file));
+	struct btrfs_ioctl_scrub_args AUTO_KFREE(sa);
+	int ret;
+
+	if (!capable(CAP_SYS_ADMIN))        <- :3072, FIRST executable statement
+		return -EPERM;                  <- :3073
+
+	if (btrfs_fs_incompat(fs_info, EXTENT_TREE_V2)) {   <- :3075 (after the gate)
+...
+	sa = memdup_user(arg, sizeof(*sa));                 <- after the gate
+
+--- btrfs_ioctl_scrub_cancel (read 3117-3123) ---
+static long btrfs_ioctl_scrub_cancel(struct btrfs_fs_info *fs_info)
+{
+	if (!capable(CAP_SYS_ADMIN))        <- :3120, first and only gate
+		return -EPERM;                  <- :3121
+
+	return btrfs_scrub_cancel(fs_info);
+
+--- btrfs_ioctl_scrub_progress (read 3126-3135) ---
+static long btrfs_ioctl_scrub_progress(struct btrfs_fs_info *fs_info,   <- :3126
+				       void __user *arg)                 <- :3127
+{
+	struct btrfs_ioctl_scrub_args AUTO_KFREE(sa);
+	int ret;
+
+	if (!capable(CAP_SYS_ADMIN))        <- :3132, first executable statement
+		return -EPERM;                  <- :3133
+
+	sa = memdup_user(arg, sizeof(*sa)); <- :3135 (after the gate)
+
+--- capable(CAP_SYS_ADMIN) occurrences relevant to scrub: 3072 (scrub), 3120 (cancel), 3132 (progress)
+    (other sites 456..5126 are other ioctls; scrub trio is exactly these)

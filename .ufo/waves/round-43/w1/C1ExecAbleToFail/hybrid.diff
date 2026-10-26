@@ -1,0 +1,20 @@
+diff --git i/tools/boot-chain-audit.sh w/tools/boot-chain-audit.sh
+index 459fb176..f686bf4b 100755
+--- i/tools/boot-chain-audit.sh
++++ w/tools/boot-chain-audit.sh
+@@ -461,13 +461,9 @@ btime_epoch() {
+ }
+ 
+ inputs_newer_than() { # <epoch> <start point>... -> 1 when find lists an entry newer than epoch, else 0
+-    # R43-C1: decide on find's output, never on its exit status. find exits 1 when a start
+-    # point is missing or a directory is unreadable; under `set -o pipefail` that status used
+-    # to mask a listed match (`find … | grep -q .`), so a newer input read as "none newer".
+-    local epoch=$1 hit
++    local epoch=$1
+     shift
+-    hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null)
+-    if [ -n "$hit" ]; then
++    if find "$@" -newermt "@$epoch" -print -quit 2>/dev/null | grep -q .; then
+         printf '1\n'
+     else
+         printf '0\n'

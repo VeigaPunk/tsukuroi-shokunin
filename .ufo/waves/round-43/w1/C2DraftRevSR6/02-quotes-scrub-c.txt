@@ -1,0 +1,51 @@
+# C2DraftRevSR6 receipt 02 — S237 quote lines, frozen scrub.c
+# file: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c (2231 lines)
+
+Row quotes (btrfs-scrub-record-r43.md @717b716, lines 90-96) vs frozen file, exact content at named lines:
+
+scrub.c:1200  ret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);
+scrub.c:1201  if (!ret)
+scrub.c:1946  in_progress = is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices);
+scrub.c:341   (ss->in_progress ? "running" :
+
+All four VERBATIM on the named lines (grep -n output below; read tool :raw confirmed same text).
+
+--- grep -n 'BTRFS_IOC_SCRUB_PROGRESS' scrub.c ---
+986|	sp->ret = ioctl(sp->fd, BTRFS_IOC_SCRUB_PROGRESS, &sp->scrub_args);
+1200|		ret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);
+(986 = scrub worker polling its own run; 1200 = status probe — only these two sites)
+
+--- grep -n 'in_progress' scrub.c ---
+78|	int in_progress;                 (field in struct scrub_stats)
+186|	if (s->in_progress) {            (print_scrub_progress ETA block, during own run)
+341|			(ss->in_progress ? "running" :   (the ONLY "running" literal)
+1859|	int in_progress;                 (local in cmd_scrub_status)
+1946|	in_progress = is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices);   (SOLE assignment)
+1962|			last_scrub->stats.in_progress = in_progress;
+1974|		fs_stat.s.in_progress = in_progress;
+
+--- grep -n '"running"' scrub.c --- single hit:
+341|			(ss->in_progress ? "running" :
+
+--- function map (grep) ---
+347: static void print_scrub_dev(...)
+1189/1190: static int is_scrub_running_in_kernel(int fd, ...)   [def at 1190, body 1192-1205]
+1759: static int cmd_scrub_start(...)
+1773: static int cmd_scrub_cancel(...)
+1831: static int cmd_scrub_resume(...)
+1847: static int cmd_scrub_status(...)    <- encloses 1946
+2022: static int cmd_scrub_limit(...)
+
+--- is_scrub_running_in_kernel body (read 1185-1209) ---
+	for (i = 0; i < max_devices; i++) {
+		memset(&sp, 0, sizeof(sp));
+		sp.scrub_args.devid = di_args[i].devid;
+		ret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);
+		if (!ret)
+			return 1;
+	}
+
+	return 0;
+
+Early return on first success => "at most once per device"; every failed ret (any errno) falls to return 0.
+errno is never inspected in this function.

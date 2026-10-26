@@ -1,0 +1,55 @@
+# C2-4 receipt — Arch linux 7.2.11.arch1-1 kernel patch check (fetched 2026-10-26T22:20:09Z)
+## identity of fetched artifacts
+afed8ab664a603feece3d1bef3380cf96f66dfbada8a9fd0d5548318abfec73e  PKGBUILD
+741d473c4db335d97d9e1d9b8be9337090522550804fe6454ba336d21e580fd6  patch.zst
+2c167a9335b3270a0d59d0b954669b67d9624e447e61c4c5fbe0cc1f7be73dc7  patch.diff
+1d3f9fd53eec7e5e35e3da30f561e3fcfdcc3390210ad1ad15c4a60f9b79778f  fork-arch.c
+4548f28fd8ee2b7f3a974260b871f3d49159a4e8b9d121be19f26e7671b65200  fork-up.c
+7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  ioctl-arch.c
+7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  ioctl-up.c
+f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8  scrub-arch.c
+f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8  scrub-up.c
+f35e50c94e227cabbcade32e27cb243b9ab42e70594bc46fb26447cd29089e4f  sha256sums.asc
+
+## fs/btrfs/ioctl.c: upstream v7.2.11 vs archlinux/linux v7.2.11-arch1 vs frozen S240
+7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  ioctl-up.c
+7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  ioctl-arch.c
+7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-43/frozen/src/ioctl.c
+cmp(up,arch): identical
+cmp(arch,frozen): identical
+
+## fs/btrfs/scrub.c: upstream v7.2.11 vs archlinux/linux v7.2.11-arch1
+f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8  scrub-up.c
+f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8  scrub-arch.c
+cmp(up,arch): identical
+
+## patch file content (full delta listed by its own diffstat)
+ Makefile                                          |  2 +-
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 15 +++------
+ drivers/gpu/drm/i915/display/intel_dp.c           | 38 +++++++++++++++++++++++
+ kernel/fork.c                                     | 24 ++++++++++++++
+files touched by patch: 4; any fs/ path: 0
+
+## kernel/fork.c: arch tag tree carries the patch's unprivileged_userns_clone hunk, upstream does not
+arch tag (64a90897d3c539033f24105968e3513957e70819) occurrences: 6
+upstream v7.2.11 occurrences: 0
+
+## PKGBUILD source mapping
+7:url='https://github.com/archlinux/linux'
+45:_srctag=v${pkgver%.*}-${pkgver##*.}
+47:  https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/${_srcname}.tar.{xz,sign}
+48:  $url/releases/download/$_srctag/linux-$_srctag.patch.zst{,.sig}
+kernel.org sha256sums.asc line for linux-7.2.11.tar.xz:
+fd0fc479f983a8c05313f13e9c36330fe6651cf725396748c40d5cd93fa1e6a4  linux-7.2.11.tar.xz
+
+## live host: running kernel is the arch1 build of this tag
+Linux version 7.2.11-arch1-1 (linux@archlinux) (gcc (GCC) 16.2.1 20260810, GNU ld (GNU Binutils) 2.47) #1 SMP PREEMPT_DYNAMIC Fri, 16 Oct 2026 00:28:58 +0000
+Version         : 7.2.11.arch1-1
+Build Date      : Thu 15 Oct 2026 09:28:58 PM -03
+-rw-r--r-- 1 root root 0 Oct 26 19:19 /proc/sys/kernel/unprivileged_userns_clone
+1
+
+## tags resolved (git ls-remote)
+archlinux/linux refs/tags/v7.2.11-arch1     = ca35c8c6d827d1d8b75211b41e4ce4062509760a
+archlinux/linux refs/tags/v7.2.11-arch1^{}  = 64a90897d3c539033f24105968e3513957e70819
+arch packaging tag 7.2.11.arch1-1 target    = a66ce8bcdbf375dd221655524cba034944a3beb1 (gitlab API, HTTP 200)

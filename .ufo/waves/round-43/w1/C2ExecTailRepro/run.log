@@ -1,0 +1,136 @@
+### case 0 (baseline): long record, rename performed
+record() -> 0, write offset at end = 564, file size = 564
+--- A = final file, long record only (564 bytes) ---
+00000000  73 63 72 75 62 20 73 74 61 74 75 73 3a 31 0a 31 31 31 31 31 31 31 31 2d 32 32 32 32 2d 33 33 33  |scrub status:1.11111111-2222-333|
+00000020  33 2d 34 34 34 34 2d 35 35 35 35 35 35 35 35 35 35 35 35 3a 37 7c 64 61 74 61 5f 65 78 74 65 6e  |3-4444-555555555555:7|data_exten|
+00000040  74 73 5f 73 63 72 75 62 62 65 64 3a 31 32 33 34 35 36 37 38 39 30 31 32 34 7c 74 72 65 65 5f 65  |ts_scrubbed:1234567890124|tree_e|
+00000060  78 74 65 6e 74 73 5f 73 63 72 75 62 62 65 64 3a 31 32 33 34 35 36 37 38 39 30 31 32 35 7c 64 61  |xtents_scrubbed:1234567890125|da|
+00000080  74 61 5f 62 79 74 65 73 5f 73 63 72 75 62 62 65 64 3a 31 32 33 34 35 36 37 38 39 30 31 32 36 7c  |ta_bytes_scrubbed:1234567890126||
+000000a0  74 72 65 65 5f 62 79 74 65 73 5f 73 63 72 75 62 62 65 64 3a 31 32 33 34 35 36 37 38 39 30 31 32  |tree_bytes_scrubbed:123456789012|
+000000c0  37 7c 72 65 61 64 5f 65 72 72 6f 72 73 3a 31 32 33 34 35 36 37 38 39 30 31 32 38 7c 63 73 75 6d  |7|read_errors:1234567890128|csum|
+000000e0  5f 65 72 72 6f 72 73 3a 31 32 33 34 35 36 37 38 39 30 31 32 39 7c 76 65 72 69 66 79 5f 65 72 72  |_errors:1234567890129|verify_err|
+00000100  6f 72 73 3a 31 32 33 34 35 36 37 38 39 30 31 33 30 7c 6e 6f 5f 63 73 75 6d 3a 31 32 33 34 35 36  |ors:1234567890130|no_csum:123456|
+00000120  37 38 39 30 31 33 31 7c 63 73 75 6d 5f 64 69 73 63 61 72 64 73 3a 31 32 33 34 35 36 37 38 39 30  |7890131|csum_discards:1234567890|
+00000140  31 33 32 7c 73 75 70 65 72 5f 65 72 72 6f 72 73 3a 31 32 33 34 35 36 37 38 39 30 31 33 33 7c 6d  |132|super_errors:1234567890133|m|
+00000160  61 6c 6c 6f 63 5f 65 72 72 6f 72 73 3a 31 32 33 34 35 36 37 38 39 30 31 33 34 7c 75 6e 63 6f 72  |alloc_errors:1234567890134|uncor|
+00000180  72 65 63 74 61 62 6c 65 5f 65 72 72 6f 72 73 3a 31 32 33 34 35 36 37 38 39 30 31 33 35 7c 63 6f  |rectable_errors:1234567890135|co|
+000001a0  72 72 65 63 74 65 64 5f 65 72 72 6f 72 73 3a 31 32 33 34 35 36 37 38 39 30 31 33 36 7c 6c 61 73  |rrected_errors:1234567890136|las|
+000001c0  74 5f 70 68 79 73 69 63 61 6c 3a 31 32 33 34 35 36 37 38 39 30 31 33 37 7c 74 5f 73 74 61 72 74  |t_physical:1234567890137|t_start|
+000001e0  3a 31 32 33 34 35 36 37 38 39 30 31 33 38 7c 74 5f 72 65 73 75 6d 65 64 3a 31 32 33 34 35 36 37  |:1234567890138|t_resumed:1234567|
+00000200  38 39 30 31 33 39 7c 64 75 72 61 74 69 6f 6e 3a 31 32 33 34 35 36 37 38 39 30 31 34 30 7c 63 61  |890139|duration:1234567890140|ca|
+00000220  6e 63 65 6c 65 64 3a 30 7c 66 69 6e 69 73 68 65 64 3a 31 0a                                      |nceled:0|finished:1.|
+
+### case 1 (baseline): short record, fresh dir, rename performed
+record() -> 0, write offset at end = 369, file size = 369
+--- B = final file, short record only (369 bytes) ---
+00000000  73 63 72 75 62 20 73 74 61 74 75 73 3a 31 0a 31 31 31 31 31 31 31 31 2d 32 32 32 32 2d 33 33 33  |scrub status:1.11111111-2222-333|
+00000020  33 2d 34 34 34 34 2d 35 35 35 35 35 35 35 35 35 35 35 35 3a 37 7c 64 61 74 61 5f 65 78 74 65 6e  |3-4444-555555555555:7|data_exten|
+00000040  74 73 5f 73 63 72 75 62 62 65 64 3a 31 7c 74 72 65 65 5f 65 78 74 65 6e 74 73 5f 73 63 72 75 62  |ts_scrubbed:1|tree_extents_scrub|
+00000060  62 65 64 3a 32 7c 64 61 74 61 5f 62 79 74 65 73 5f 73 63 72 75 62 62 65 64 3a 33 7c 74 72 65 65  |bed:2|data_bytes_scrubbed:3|tree|
+00000080  5f 62 79 74 65 73 5f 73 63 72 75 62 62 65 64 3a 34 7c 72 65 61 64 5f 65 72 72 6f 72 73 3a 35 7c  |_bytes_scrubbed:4|read_errors:5||
+000000a0  63 73 75 6d 5f 65 72 72 6f 72 73 3a 36 7c 76 65 72 69 66 79 5f 65 72 72 6f 72 73 3a 37 7c 6e 6f  |csum_errors:6|verify_errors:7|no|
+000000c0  5f 63 73 75 6d 3a 38 7c 63 73 75 6d 5f 64 69 73 63 61 72 64 73 3a 39 7c 73 75 70 65 72 5f 65 72  |_csum:8|csum_discards:9|super_er|
+000000e0  72 6f 72 73 3a 31 30 7c 6d 61 6c 6c 6f 63 5f 65 72 72 6f 72 73 3a 31 31 7c 75 6e 63 6f 72 72 65  |rors:10|malloc_errors:11|uncorre|
+00000100  63 74 61 62 6c 65 5f 65 72 72 6f 72 73 3a 31 32 7c 63 6f 72 72 65 63 74 65 64 5f 65 72 72 6f 72  |ctable_errors:12|corrected_error|
+00000120  73 3a 31 33 7c 6c 61 73 74 5f 70 68 79 73 69 63 61 6c 3a 31 34 7c 74 5f 73 74 61 72 74 3a 31 30  |s:13|last_physical:14|t_start:10|
+00000140  31 7c 74 5f 72 65 73 75 6d 65 64 3a 31 30 32 7c 64 75 72 61 74 69 6f 6e 3a 35 7c 63 61 6e 63 65  |1|t_resumed:102|duration:5|cance|
+00000160  6c 65 64 3a 30 7c 66 69 6e 69 73 68 65 64 3a 31 0a                                               |led:0|finished:1.|
+
+### case 2 (reproduction): long record, rename SKIPPED (_tmp left behind)
+record(long, do_rename=0) -> 0; _tmp size = 564; final exists = 0
+now writing the SHORTER record through the normal path:
+record(short, do_rename=1) -> 0, write offset at end = 369, final file size = 564
+--- F = final file after short-over-long (564 bytes) ---
+00000000  73 63 72 75 62 20 73 74 61 74 75 73 3a 31 0a 31 31 31 31 31 31 31 31 2d 32 32 32 32 2d 33 33 33  |scrub status:1.11111111-2222-333|
+00000020  33 2d 34 34 34 34 2d 35 35 35 35 35 35 35 35 35 35 35 35 3a 37 7c 64 61 74 61 5f 65 78 74 65 6e  |3-4444-555555555555:7|data_exten|
+00000040  74 73 5f 73 63 72 75 62 62 65 64 3a 31 7c 74 72 65 65 5f 65 78 74 65 6e 74 73 5f 73 63 72 75 62  |ts_scrubbed:1|tree_extents_scrub|
+00000060  62 65 64 3a 32 7c 64 61 74 61 5f 62 79 74 65 73 5f 73 63 72 75 62 62 65 64 3a 33 7c 74 72 65 65  |bed:2|data_bytes_scrubbed:3|tree|
+00000080  5f 62 79 74 65 73 5f 73 63 72 75 62 62 65 64 3a 34 7c 72 65 61 64 5f 65 72 72 6f 72 73 3a 35 7c  |_bytes_scrubbed:4|read_errors:5||
+000000a0  63 73 75 6d 5f 65 72 72 6f 72 73 3a 36 7c 76 65 72 69 66 79 5f 65 72 72 6f 72 73 3a 37 7c 6e 6f  |csum_errors:6|verify_errors:7|no|
+000000c0  5f 63 73 75 6d 3a 38 7c 63 73 75 6d 5f 64 69 73 63 61 72 64 73 3a 39 7c 73 75 70 65 72 5f 65 72  |_csum:8|csum_discards:9|super_er|
+000000e0  72 6f 72 73 3a 31 30 7c 6d 61 6c 6c 6f 63 5f 65 72 72 6f 72 73 3a 31 31 7c 75 6e 63 6f 72 72 65  |rors:10|malloc_errors:11|uncorre|
+00000100  63 74 61 62 6c 65 5f 65 72 72 6f 72 73 3a 31 32 7c 63 6f 72 72 65 63 74 65 64 5f 65 72 72 6f 72  |ctable_errors:12|corrected_error|
+00000120  73 3a 31 33 7c 6c 61 73 74 5f 70 68 79 73 69 63 61 6c 3a 31 34 7c 74 5f 73 74 61 72 74 3a 31 30  |s:13|last_physical:14|t_start:10|
+00000140  31 7c 74 5f 72 65 73 75 6d 65 64 3a 31 30 32 7c 64 75 72 61 74 69 6f 6e 3a 35 7c 63 61 6e 63 65  |1|t_resumed:102|duration:5|cance|
+00000160  6c 65 64 3a 30 7c 66 69 6e 69 73 68 65 64 3a 31 0a 35 36 37 38 39 30 31 33 34 7c 75 6e 63 6f 72  |led:0|finished:1.567890134|uncor|
+00000180  72 65 63 74 61 62 6c 65 5f 65 72 72 6f 72 73 3a 31 32 33 34 35 36 37 38 39 30 31 33 35 7c 63 6f  |rectable_errors:1234567890135|co|
+000001a0  72 72 65 63 74 65 64 5f 65 72 72 6f 72 73 3a 31 32 33 34 35 36 37 38 39 30 31 33 36 7c 6c 61 73  |rrected_errors:1234567890136|las|
+000001c0  74 5f 70 68 79 73 69 63 61 6c 3a 31 32 33 34 35 36 37 38 39 30 31 33 37 7c 74 5f 73 74 61 72 74  |t_physical:1234567890137|t_start|
+000001e0  3a 31 32 33 34 35 36 37 38 39 30 31 33 38 7c 74 5f 72 65 73 75 6d 65 64 3a 31 32 33 34 35 36 37  |:1234567890138|t_resumed:1234567|
+00000200  38 39 30 31 33 39 7c 64 75 72 61 74 69 6f 6e 3a 31 32 33 34 35 36 37 38 39 30 31 34 30 7c 63 61  |890139|duration:1234567890140|ca|
+00000220  6e 63 65 6c 65 64 3a 30 7c 66 69 6e 69 73 68 65 64 3a 31 0a                                      |nceled:0|finished:1.|
+
+### case 2 invariants
+size(F)=564  size(A)=564  writtenShort=369  size(B)=369
+CHECK size(F) == size(A)            : yes
+CHECK F[0:writtenShort] == B        : yes
+CHECK F[writtenShort:] == A[writtenShort:] : yes
+trailing bytes = 195
+trailing bytes as text: "567890134|uncorrectable_errors:1234567890135|corrected_errors:1234567890136|last_physical:1234567890137|t_start:1234567890138|t_resumed:1234567890139|duration:1234567890140|canceled:0|finished:1
+"
+
+### case 3 (control): short record, rename skipped, then LONGER record
+record(short, do_rename=0) -> 0
+record(long, do_rename=1) -> 0, final size = 564 (A size 564)
+CHECK final == A (no residue)       : yes
+
+### readback REPRODUCED short-over-long file (report_errors=1)
+WARNING: invalid data on line 2 pos 369 state 3 (near "567890134|uncorrecta") at harness.c:394
+record[0]: fsid=11111111-2222-3333-4444-555555555555 devid=7 data_extents=1 last_physical=14 t_start=101 t_resumed=102 duration=5 finished=1 canceled=0
+scrub_read_file -> 1 record(s)
+warnings emitted: 1, errors emitted: 0
+
+### readback REPRODUCED short-over-long file, report_errors=0 (report_errors=0)
+record[0]: fsid=11111111-2222-3333-4444-555555555555 devid=7 data_extents=1 last_physical=14 t_start=101 t_resumed=102 duration=5 finished=1 canceled=0
+scrub_read_file -> 1 record(s)
+warnings emitted: 0, errors emitted: 0
+
+### readback control: clean long record (report_errors=1)
+record[0]: fsid=11111111-2222-3333-4444-555555555555 devid=7 data_extents=1234567890124 last_physical=1234567890137 t_start=1234567890138 t_resumed=1234567890139 duration=1234567890140 finished=1 canceled=0
+scrub_read_file -> 1 record(s)
+warnings emitted: 0, errors emitted: 0
+
+### readback control: clean short record (report_errors=1)
+record[0]: fsid=11111111-2222-3333-4444-555555555555 devid=7 data_extents=1 last_physical=14 t_start=101 t_resumed=102 duration=5 finished=1 canceled=0
+scrub_read_file -> 1 record(s)
+warnings emitted: 0, errors emitted: 0
+
+### case 5 (reuse): long record abandoned in _tmp, then three shorter attempts
+_tmp after abandoned long record: size = 564, final exists = 0
+attempt 0: wrote 360 bytes into _tmp, _tmp size = 564
+attempt 1: wrote 360 bytes into _tmp, _tmp size = 564
+attempt 2: wrote 360 bytes into _tmp, _tmp size = 564
+final attempt renames: wrote 360 bytes, final size = 564, residue = 204
+trailing bytes as text: "rors:1234567890134|uncorrectable_errors:1234567890135|corrected_errors:1234567890136|last_physical:1234567890137|t_start:1234567890138|t_resumed:1234567890139|duration:1234567890140|canceled:0|finished:1
+"
+
+### readback REUSED ABANDONED _tmp (3 failed attempts, then rename) (report_errors=1)
+WARNING: invalid data on line 2 pos 360 state 3 (near "rors:1234567890134|u") at harness.c:394
+record[0]: fsid=11111111-2222-3333-4444-555555555555 devid=9 data_extents=9 last_physical=9 t_start=9 t_resumed=0 duration=0 finished=1 canceled=0
+scrub_read_file -> 1 record(s)
+warnings emitted: 1, errors emitted: 0
+
+### case 6 (failure path): abandoned long _tmp, rename returns EACCES
+abandoned long _tmp: record err = 0, _tmp size = 564
+record(short) with dir mode 0500 -> err = -13 (Permission denied)
+_tmp size after failed rename = 564 ; final exists = 0
+record(short) retry after chmod 0700 -> err = 0, wrote 369, final size = 564 (long was 564)
+CHECK final size > writtenShort (residue) : yes
+trailing bytes as text: "567890134|uncorrectable_errors:1234567890135|corrected_errors:1234567890136|last_physical:1234567890137|t_start:1234567890138|t_resumed:1234567890139|duration:1234567890140|canceled:0|finished:1
+"
+
+### readback REPRODUCED VIA EACCES RENAME FAILURE (report_errors=1)
+WARNING: invalid data on line 2 pos 369 state 3 (near "567890134|uncorrecta") at harness.c:394
+record[0]: fsid=11111111-2222-3333-4444-555555555555 devid=7 data_extents=1 last_physical=14 t_start=101 t_resumed=102 duration=5 finished=1 canceled=0
+scrub_read_file -> 1 record(s)
+warnings emitted: 1, errors emitted: 0
+
+### case 7 (parity): real scrub_write_progress() vs driver record()
+real scrub_write_progress(long) -> 0, file size 564
+CHECK real == case-0 driver bytes    : yes
+real scrub_write_progress(short) -> 0, file size 369
+CHECK real == case-1 driver bytes    : yes
+real scrub_write_progress(long) -> -75 (Value too large for defined data type)
+_tmp size = 200, final exists = 0
+then real short record -> 0, final size = 369 (short is 369)
+CHECK no residue (abandoned content was shorter) : yes

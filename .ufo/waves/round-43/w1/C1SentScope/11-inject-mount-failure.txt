@@ -1,0 +1,5 @@
+injected failure (scratch copy of the counter, INNER mount target changed to /etc/.__r43_missing__ so the /etc tmpfs mount fails):
+{"counter": "score-bootinputs-r43", "error": "namespace leg failed: ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.14/subprocess.py\", line 578, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['mount', '-t', 'tmpfs', '-o', 'mode=755', 'r43view', '/etc/.__r43_missing__']' returned non-zero exit status 32.\n", "verdict": "ERROR"}
+
+verdict: rc=2 ERROR; unlink/rmdir on real /etc or /usr/lib: 0 occurrences in trace-inject; scratch cleaned; host /etc fingerprint unchanged (060e9d54...124ba1, 184 entries); /usr/lib/initcpio 9 entries, /usr/lib/modules 2 entries.
+source order that makes this fail closed: score-bootinputs-r43.py:75,80-81 mount first, :82 roots=[...], :84+ wipe loop; INNER sh() uses check=True, so a failed mount aborts before the wipe.

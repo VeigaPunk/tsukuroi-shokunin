@@ -242,3 +242,13 @@ its `_tmp`-then-rename write under `flock`, the `scrub status:1` line format, th
 writes it and when recording is switched off, how status folds device lines, the per-device `scrub_speed_max` limit).
 The promotion condition (a read-only census arm) is unchanged; `btrfs scrub status /` reads the record unprivileged on
 this host (wave-1 `C2ExecHostRecheck`), so an arm needs no privilege for the record itself.
+
+**Round-43 note — scrub record re-grounded; correction to the round-42 note (appended 2026-10-26).** The scrub record
+stays Frontier. Round 43 re-grounds the withdrawn SC1/SC3 of `corpus/knowledge/btrfs-scrub-record-r42.md` as SR1/SR3
+and the running-state limit as SR6 in `corpus/knowledge/btrfs-scrub-record-r43.md`. The round-42 note's last
+sentence overreaches (wave-1 `ConsiderMap` F-6/d): this host has no record, so `btrfs scrub status /` showed only the
+no-record path (`no stats available`, S241 capture line 10); a present record is created with open mode argument
+0600 and every open takes `flock(LOCK_EX|LOCK_NB)` (SR1), so a user-level arm can see the directory, stat the file
+and read `scrub_speed_max`, but cannot be assumed to parse the record [inference: a record written by a root scrub
+under the usual umask is root-only], and it cannot read the running state at all (SR6: `BTRFS_IOC_SCRUB_PROGRESS`
+returns `EPERM` without `CAP_SYS_ADMIN`). The promotion condition (a read-only census arm) is unchanged.

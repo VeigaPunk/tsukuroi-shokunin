@@ -1,0 +1,53 @@
+# C2DraftRevSR6 receipt 04 — statement context in frozen scrub.c
+
+--- Status word printer _print_scrub_ss (read 312-346) ---
+static void _print_scrub_ss(struct scrub_stats *ss)
+{
+	char t[4096];
+	struct tm tm;
+	time_t seconds;
+	unsigned hours;
+
+	if (!ss || !ss->t_start) {
+		pr_default("\tno stats available\n");
+		return;                       <- early return: NO Status line at all
+	}
+	...
+	pr_default("Status:           %s\n",
+			(ss->in_progress ? "running" :        <- :341
+			 (ss->canceled ? "aborted" :
+			  (ss->finished ? "finished" : "interrupted"))));   <- :342-343
+	pr_default("Duration:         %u:%s\n", hours, t);
+}
+
+=> in_progress==0 can never select "running"; with no record (t_start==0) no Status word prints at all.
+
+--- fs summary call site (read 1984-1996) ---
+		print_fs_stat(&fs_stat, print_raw, total_bytes_used,
+			      fi_args.num_devices, limit);
+	}
+
+out:
+	free_history(past_scrubs);
+	...
+	return !!err;
+
+--- record / socket paths (grep) ---
+67| #define SCRUB_DATA_FILE "/var/lib/btrfs/scrub.status"
+68| #define SCRUB_PROGRESS_SOCKET_PATH "/var/lib/btrfs/scrub.progress"
+
+--- status socket read (read 1922-1935): data source, NOT the running determination ---
+	scrub_datafile(SCRUB_PROGRESS_SOCKET_PATH, fsid, NULL, addr.sun_path, sizeof(addr.sun_path));
+	ret = connect(fdres, (struct sockaddr *)&addr, sizeof(addr));
+	if (ret == -1) {
+		close(fdres);
+		fdres = scrub_open_file_r(SCRUB_DATA_FILE, fsid);
+		...
+	}
+	if (fdres >= 0) {
+		past_scrubs = scrub_read_file(fdres, 1);
+	...
+	in_progress = is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices);   <- :1946
+
+=> past_scrubs may come from socket or record; in_progress is overwritten from the kernel probe
+   at :1962 (per-dev) and :1974 (fs) before any print. The running DETERMINATION is kernel-only.

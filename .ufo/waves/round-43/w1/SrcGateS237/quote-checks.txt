@@ -1,0 +1,23 @@
+== sha256 frozen scrub.c ==
+48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c
+== grep -n -F candidates ==
+67:#define SCRUB_DATA_FILE "/var/lib/btrfs/scrub.status"
+534:	ret = rename(datafile_old, datafile_new);
+1502:		/* write all-zero progress file for a start */
+517:	return scrub_open_file(datafile, O_WRONLY|O_CREAT);
+487:	ret = flock(fd, LOCK_EX|LOCK_NB);
+483:	fd = open(datafile, m, 0600);
+925:	err = scrub_rename_file(SCRUB_DATA_FILE, fsid, "tmp");
+== function heads 440-540 ==
+436:static int scrub_handle_sigint_child(int fd)
+446:static int scrub_datafile(const char *fn_base, const char *fn_local,
+478:static int scrub_open_file(const char *datafile, int m)
+497:static int scrub_open_file_r(const char *fn_base, const char *fn_local)
+508:static int scrub_open_file_w(const char *fn_base, const char *fn_local,
+520:static int scrub_rename_file(const char *fn_base, const char *fn_local,
+547:static int scrub_kvread(int *i, int len, int avail, const char *buf,
+== function heads 820-940 ==
+838:static int scrub_kvwrite(int fd, char *buf, int max, const char *key, u64 val)
+843:static int scrub_write_file(int fd, const char *fsid,
+897:static int scrub_write_progress(pthread_mutex_t *m, const char *fsid,
+949:static void *scrub_one_dev(void *ctx)

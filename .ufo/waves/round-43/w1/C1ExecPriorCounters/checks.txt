@@ -1,0 +1,37 @@
+C1ExecPriorCounters — item C1-6 kill-rule check: commands and observed results
+implementation commit: 717b716a8943151ace8657e0ca23d7d9b8434f26
+base (lane tip at round start): 6951ead90566b2d74f7c45b4efca29246badad64
+round-42 tip (comparison receipt): 447662088dfd3155e31aed239179a79c1d1046c7
+host: 32 CPUs, /fast 614G free at start; TMPDIR=/fast/scratch/hyaku/tsukuroi-r43/C1ExecPriorCounters
+
+A. round-42 C1 counter (frozen) at 717b716
+  python3 tools/run-receipt.py --revision 717b716a... --tool-revision 717b716a... \
+    --out .ufo/waves/round-43/w1/C1ExecPriorCounters/r42-c1-717b716.jsonl -- \
+    tools/score-size-invariance-r42.py --revision '{rev}' --scratch /fast/scratch/hyaku/tsukuroi-r43/C1ExecPriorCounters/s
+  exit=0 wall_ms=57991
+  receipt: started 2026-10-26T22:08:05Z finished 2026-10-26T22:09:01Z timed_out false stderr_tail ""
+  body: verdict PASS cases 10 invariant 10 ns N1/N3/N6 true selftest_pass 1 default_equal 1
+        selftest_label "PASS (132 cases, 132 passed, 0 failed)" selftest_rc 0
+  tool_sha256 c511104a8e69fe6a90bb849847fe9c4635642f70ff0cb01fb62c38c098553e03
+        = worktree sha256 tools/score-size-invariance-r42.py
+
+B. census --selftest at 717b716 (extracted from the revision, not the worktree)
+  git show 717b716a...:tools/tsukuroi-census.sh > $S/census-717b716.sh
+  git hash-object $S/census-717b716.sh  -> 18a1db6448358d7ecf4634570fcd2bf075eccb1b (= rev blob)
+  sha256 7c9f79036782de951a69325fe6f5cc742d8acac4de389626026bc33d8f7877f9
+         = worktree sha256 tools/tsukuroi-census.sh
+  bash $S/census-717b716.sh --selftest   (TMPDIR=$S)
+  exit=0 wall_ms=36486
+  last line (census-selftest-717b716.out:135):
+    TSUKUROI_CENSUS_SELFTEST: PASS (132 cases, 132 passed, 0 failed)
+  132 lines starting "PASS "; grep -n FAIL -> no match
+
+C. identity of the two prior instruments, base -> implementation
+  git diff --quiet 6951ead9... 717b716a... -- tools/tsukuroi-census.sh   -> exit 0
+  blob tools/tsukuroi-census.sh           base 18a1db64... = impl 18a1db64...
+  blob tools/score-size-invariance-r42.py base bf7c16bd... = impl bf7c16bd...
+  changed set base->impl: 46 A, 4 M; neither prior instrument present (grep -> no match)
+
+D. ancestry
+  git merge-base --is-ancestor 6951ead9 717b716a -> 0
+  git merge-base --is-ancestor 4476620 6951ead9 -> 0

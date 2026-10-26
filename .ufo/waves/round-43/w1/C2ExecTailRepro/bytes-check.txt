@@ -1,0 +1,28 @@
+$ wc -c final.bin longA.bin freshshort.bin
+ 564 final.bin
+ 564 longA.bin
+ 369 freshshort.bin
+1497 total
+
+$ cat final.bin
+scrub status:1
+11111111-2222-3333-4444-555555555555:7|data_extents_scrubbed:1|tree_extents_scrubbed:2|data_bytes_scrubbed:3|tree_bytes_scrubbed:4|read_errors:5|csum_errors:6|verify_errors:7|no_csum:8|csum_discards:9|super_errors:10|malloc_errors:11|uncorrectable_errors:12|corrected_errors:13|last_physical:14|t_start:101|t_resumed:102|duration:5|canceled:0|finished:1
+567890134|uncorrectable_errors:1234567890135|corrected_errors:1234567890136|last_physical:1234567890137|t_start:1234567890138|t_resumed:1234567890139|duration:1234567890140|canceled:0|finished:1
+
+$ xxd -s 336 -l 80 final.bin
+00000150: 6475 7261 7469 6f6e 3a35 7c63 616e 6365  duration:5|cance
+00000160: 6c65 643a 307c 6669 6e69 7368 6564 3a31  led:0|finished:1
+00000170: 0a35 3637 3839 3031 3334 7c75 6e63 6f72  .567890134|uncor
+00000180: 7265 6374 6162 6c65 5f65 7272 6f72 733a  rectable_errors:
+00000190: 3132 3334 3536 3738 3930 3133 357c 636f  1234567890135|co
+
+$ head -c 369 final.bin | cmp - freshshort.bin
+prefix identical to fresh short record (369 B)
+
+$ tail -c 195 final.bin | cmp - <(tail -c 195 longA.bin)
+tail (195 B) identical to long record suffix
+
+$ od -c -j 360 -N 24 final.bin
+0000550   n   i   s   h   e   d   :   1  \n   5   6   7   8   9   0   1
+0000570   3   4   |   u   n   c   o   r
+0000600

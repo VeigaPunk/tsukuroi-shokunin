@@ -1,0 +1,39 @@
+claim under review: run_controls_c1.py writes only where told.
+run_controls_c1.py:24  "Usage: python3 run_controls_c1.py --scratch <DIR>   Writes C1-K*.jsonl and battery-summary-c1.jsonl here."
+run_controls_c1.py:118 with open(os.path.join(HERE, f'C1-{k}.jsonl'), 'w') as f:
+run_controls_c1.py:132 with open(os.path.join(HERE, 'battery-summary-c1.jsonl'), 'w') as f:
+run_controls_c1.py:35  HERE = os.path.dirname(os.path.abspath(__file__))
+
+those receipt names are git-tracked lane files:
+.ufo/waves/round-43/controls/C1-K0.jsonl
+.ufo/waves/round-43/controls/C1-K1.jsonl
+.ufo/waves/round-43/controls/C1-K10.jsonl
+.ufo/waves/round-43/controls/C1-K2.jsonl
+.ufo/waves/round-43/controls/C1-K3.jsonl
+.ufo/waves/round-43/controls/C1-K4.jsonl
+.ufo/waves/round-43/controls/C1-K5.jsonl
+.ufo/waves/round-43/controls/C1-K6.jsonl
+.ufo/waves/round-43/controls/C1-K7.jsonl
+.ufo/waves/round-43/controls/C1-K8.jsonl
+.ufo/waves/round-43/controls/C1-K9.jsonl
+.ufo/waves/round-43/controls/C2-K0.jsonl
+.ufo/waves/round-43/controls/C2-K1.jsonl
+.ufo/waves/round-43/controls/C2-K10.jsonl
+.ufo/waves/round-43/controls/C2-K11.jsonl
+.ufo/waves/round-43/controls/C2-K12.jsonl
+.ufo/waves/round-43/controls/C2-K13.jsonl
+.ufo/waves/round-43/controls/C2-K2.jsonl
+.ufo/waves/round-43/controls/C2-K3.jsonl
+.ufo/waves/round-43/controls/C2-K4.jsonl
+.ufo/waves/round-43/controls/C2-K5.jsonl
+.ufo/waves/round-43/controls/C2-K6
+
+reproduction: the unmodified script copied to scratch (HERE moved with it) wrote 12 receipts beside itself, none in --scratch:
+battery-summary-c1.jsonl C1-K0.jsonl C1-K10.jsonl C1-K1.jsonl C1-K2.jsonl C1-K3.jsonl C1-K4.jsonl C1-K5.jsonl C1-K6.jsonl C1-K7.jsonl C1-K8.jsonl C1-K9.jsonl 
+0
+
+summary line of that run:
+{"base": "6951ead90566b2d74f7c45b4efca29246badad64", "candidate_sha256": "3e5c876389985aa5168c7116db5ea808fa0d7d697a1d66b7fcf850efd60dfd74", "control_accepted": 1, "counter_sha256": "886f92c8cd58e52e4e74f4df81708f243b77e9d33de567b47371f21419b3e10f", "results": {"K0": {"correct": 8, "exit": 1, "expect": "FAIL", "selftest_pass": 1, "verdict": "FAIL"}, "K1": {"correct": 9, "exit": 1, "expect": "FAIL", "selftest_pass": 1, "verdict": "FAIL"}, "K10": {"correct": 15, "exit": 1, "expect": "FAIL", "selftest_pass": 1, "verdict": "FAIL"}, "K2": {"correct": 13, "exit": 1, "expect": "FAIL", "selftest_pass"
+
+SIGTERM leaves the clone under --scratch (no signal handler, finally does not run for SIGTERM):
+[controls TERM] exit=143 scratch_left=17435 bytes=296670369 receipts=0

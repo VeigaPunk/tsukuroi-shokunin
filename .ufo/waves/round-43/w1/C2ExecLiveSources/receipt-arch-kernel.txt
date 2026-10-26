@@ -1,0 +1,33 @@
+## Arch kernel packaging, tag 7.2.11.arch1-1 (fetched 2026-10-26T22:16:45Z)
+ tag 7.2.11.arch1-1 commit 0c178d550ec6392265d3a443333229823634bd08 2026-10-16T02:27:34.000+02:00
+tree at ref 7.2.11.arch1-1:
+  tree LICENSES
+  tree keys
+  blob .SRCINFO
+  blob .gitignore
+  blob .nvchecker.toml
+  blob LICENSE
+  blob PKGBUILD
+  blob REUSE.toml
+  blob config.x86_64
+
+PKGBUILD source[] (lines 44-50):
+44: _srcname=linux-${pkgver%.*}
+45: _srctag=v${pkgver%.*}-${pkgver##*.}
+46: source=(
+47:   https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/${_srcname}.tar.{xz,sign}
+48:   $url/releases/download/$_srctag/linux-$_srctag.patch.zst{,.sig}
+49: )
+50: source_x86_64=(config.x86_64)
+
+sha256 of arch patch.zst (matches PKGBUILD sha256sums[2]=741d473c4db335d97d9e1d9b8be9337090522550804fe6454ba336d21e580fd6):
+741d473c4db335d97d9e1d9b8be9337090522550804fe6454ba336d21e580fd6  linux-v7.2.11-arch1.patch.zst
+
+files touched by the arch patch:
+diff --git a/Makefile b/Makefile
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+diff --git a/kernel/fork.c b/kernel/fork.c
+
+btrfs mentions in arch patch: 0
+patch size: 160 lines

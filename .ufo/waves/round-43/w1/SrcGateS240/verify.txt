@@ -1,0 +1,92 @@
+# Receipt — SrcGateS240 (F-1: S240/S241 Gate rows). Generated 2026-10-26.
+
+## A. Frozen snapshot identity
+$ sha256sum .ufo/waves/round-43/frozen/src/ioctl.c .ufo/waves/round-43/frozen/hostcap/capture.txt .ufo/waves/round-43/frozen/hostcap/capture.sh
+7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-43/frozen/src/ioctl.c
+f7ecbe7c990e68d7b0dbdbd8bfe65f3acd1cbbdabe33d47e71a6f1ae1242c556  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-43/frozen/hostcap/capture.txt
+77ffeecb4955a36324efa45d8c07b03d7879ed232cf3cd4d20aea9cb36d2a1a9  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-43/frozen/hostcap/capture.sh
+
+$ cat .ufo/waves/round-43/frozen/src/SHA256SUMS
+7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  ioctl.c
+
+## B. Live re-fetch of the S240 URL (read-only GET, 2026-10-26)
+$ curl -sS -o /dev/null -w "%{http_code} %{size_download}" -L "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/fs/btrfs/ioctl.c?h=v7.2.11"
+200 367878
+$ curl -sS -L ".../plain/fs/btrfs/ioctl.c?h=v7.2.11" -o ioctl.live.c && sha256sum ioctl.live.c
+7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  ioctl.live.c
+$ git ls-remote --tags https://github.com/gregkh/linux refs/tags/v7.2.11 "refs/tags/v7.2.11^{}"
+8316c24ec1b77dba19ba072ca4fe251b36dc65d3	refs/tags/v7.2.11
+a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea	refs/tags/v7.2.11^{}
+
+## C. S240 quote verification (grep -n in the frozen ioctl.c)
+$ grep -n -A1 "if (!capable(CAP_SYS_ADMIN))" ioctl.c | grep -E "3072|3073|3120|3121|3132|3133"
+3072:	if (!capable(CAP_SYS_ADMIN))
+3073-		return -EPERM;
+3120:	if (!capable(CAP_SYS_ADMIN))
+3121-		return -EPERM;
+3132:	if (!capable(CAP_SYS_ADMIN))
+3133-		return -EPERM;
+
+$ sed -n "3066,3074p;3118,3122p;3126,3134p" ioctl.c   # guard is the first statement after the locals in each handler
+static long btrfs_ioctl_scrub(struct file *file, void __user *arg)
+{
+	struct btrfs_fs_info *fs_info = inode_to_fs_info(file_inode(file));
+	struct btrfs_ioctl_scrub_args AUTO_KFREE(sa);
+	int ret;
+
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+
+static long btrfs_ioctl_scrub_cancel(struct btrfs_fs_info *fs_info)
+{
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+
+static long btrfs_ioctl_scrub_progress(struct btrfs_fs_info *fs_info,
+				       void __user *arg)
+{
+	struct btrfs_ioctl_scrub_args AUTO_KFREE(sa);
+	int ret;
+
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+
+
+$ sed -n "5578,5584p" ioctl.c   # dispatch cases
+	case BTRFS_IOC_SCRUB:
+		return btrfs_ioctl_scrub(file, argp);
+	case BTRFS_IOC_SCRUB_CANCEL:
+		return btrfs_ioctl_scrub_cancel(fs_info);
+	case BTRFS_IOC_SCRUB_PROGRESS:
+		return btrfs_ioctl_scrub_progress(fs_info, argp);
+	case BTRFS_IOC_BALANCE_V2:
+
+## D. S241 quote verification (grep -n in the frozen capture.txt)
+$ grep -n "uid 1000\|root_fs\|scrub_progress_ioctl\|scrub_status_exit\|no stats available" capture.txt
+2:uid 1000 euid_caps 0000000000000000
+5:root_fs btrfs 1d02a454-c549-4a35-b567-89d60902af8e
+6:scrub_progress_ioctl devid=1 errno=EPERM (1)
+8:scrub_status_exit 0
+10:scrub_status| 	no stats available
+
+$ sed -n "2p;5p;6p;8p;10p" capture.txt
+uid 1000 euid_caps 0000000000000000
+root_fs btrfs 1d02a454-c549-4a35-b567-89d60902af8e
+scrub_progress_ioctl devid=1 errno=EPERM (1)
+scrub_status_exit 0
+scrub_status| 	no stats available
+
+$ grep -n "os.open\|btrfs scrub status" hostcap/capture.sh
+4:# `btrfs scrub status` does (scrub.c is_scrub_running_in_kernel, :1189-1205), and records the errno;
+5:# then records what `btrfs scrub status /` prints for that user. Nothing is written outside <out-file>.
+18:fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY)
+34:    status=$(btrfs scrub status / 2>&1)
+
+## E. Rows are new this round (base 6951ead9 -> tip)
+$ git show 6951ead90566b2d74f7c45b4efca29246badad64:corpus/SOURCES.md | grep -c "| S240 |\|| S241 |"
+0
+$ git show 717b716a8943151ace8657e0ca23d7d9b8434f26:corpus/SOURCES.md | grep -n "| S240 |\|| S241 |" | cut -c1-120
+249:| S240 | Linux v7.2.11 fs/btrfs/ioctl.c — https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/fs
+250:| S241 | Round-43 host scrub-ioctl capture — .ufo/waves/round-43/frozen/hostcap/ (own-work) | own-work | A | What 
+$ git diff 717b716a..HEAD -- corpus/SOURCES.md | wc -l   # rows unchanged after the implementation commit
+0

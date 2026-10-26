@@ -1,0 +1,5 @@
+command: strace -f -e trace=mount,umount2,unlink,unlinkat,rename,renameat,renameat2,openat -o trace python3 <lane>/tools/score-bootinputs-r43.py --revision 717b716... --scratch S1
+observed output:
+{"counter": "score-bootinputs-r43", "error": "namespace leg failed: newuidmap: Could not set caps\n", "verdict": "ERROR"}
+
+strace: 258 lines, zero mount/umount/unlink/rename syscalls; the mmpt is blocked because unshare(1) invokes the setuid helper newuidmap, which ptrace cannot trace.

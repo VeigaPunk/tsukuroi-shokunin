@@ -1,0 +1,39 @@
+# C2DraftRevSR6 receipt 06 — capture.sh REQ constant == host UAPI BTRFS_IOC_SCRUB_PROGRESS
+
+Question: does capture.sh REQ 0xC400941D name BTRFS_IOC_SCRUB_PROGRESS on this host?
+
+--- /usr/include/linux/btrfs.h (grep) ---
+31:  #define BTRFS_IOCTL_MAGIC 0x94
+1191: #define BTRFS_IOC_SCRUB _IOWR(BTRFS_IOCTL_MAGIC, 27, struct btrfs_ioctl_scrub_args)
+1193: #define BTRFS_IOC_SCRUB_CANCEL _IO(BTRFS_IOCTL_MAGIC, 28)
+1194: #define BTRFS_IOC_SCRUB_PROGRESS _IOWR(BTRFS_IOCTL_MAGIC, 29, struct btrfs_ioctl_scrub_args)
+
+--- /usr/include/linux/btrfs.h:191-196 (raw read) ---
+	__u64 devid;				/* in */
+	__u64 start;				/* in */
+	__u64 end;				/* in */
+	__u64 flags;				/* in */
+	struct btrfs_scrub_progress progress;	/* out */
+	/* pad to 1k */
+	__u64 unused[(1024-32-sizeof(struct btrfs_scrub_progress))/8];
+
+=> struct is padded to 1k ("sizeof == 1024" comment in capture.sh is correct).
+
+--- compiled probe (gcc over the same header) ---
+$ printf ... | gcc -x c - -o $S/szprog && $S/szprog
+sizeof=1024 progress=0xc400941d scrub=0xc400941b cancel=0x0000941c
+
+=> BTRFS_IOC_SCRUB_PROGRESS == 0xc400941d == capture.sh REQ. EXACT MATCH.
+
+--- installed /usr/bin/btrfs (btrfs-progs 7.1-1) imm32 byte scan ---
+PROGRESS(144=0xC090941D) count= 0
+PROGRESS(1024=0xC400941D) count= 3
+SCRUB(144=0xC090941B) count= 0
+SCRUB(1024=0xC400941B) count= 1
+
+=> the status binary issues the same 1024-size numbers; its probe reaches the kernel's real
+   BTRFS_IOC_SCRUB_PROGRESS case, where frozen ioctl.c:3132-3133 gates with capable() -> -EPERM.
+
+Conclusion: the observed errno=EPERM (capture.txt:6) is the capable() gate of btrfs_ioctl_scrub_progress
+on the running 7.2.11-arch1-1 kernel, not an unrelated failure. (A number the kernel switch did not know
+would fall to -ENOTTY in btrfs_ioctl's default case, not EPERM.)

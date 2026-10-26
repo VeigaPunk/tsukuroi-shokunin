@@ -1,0 +1,21 @@
+== host untouched after all namespace legs
+$ findmnt -no TARGET,FSTYPE,OPTIONS /etc /usr/lib/modules /usr/lib/initcpio
+
+$ stat -c '%n %a %U' /etc/crypttab /etc/mkinitcpio.conf.d /usr/lib/modules 2>&1
+/etc/crypttab 600 root
+/etc/mkinitcpio.conf.d 755 root
+/usr/lib/modules 755 root
+
+$ sha256sum lane tools/boot-chain-audit.sh (unchanged by this seat)
+3e5c876389985aa5168c7116db5ea808fa0d7d697a1d66b7fcf850efd60dfd74  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/boot-chain-audit.sh
+
+$ git -C lane status --porcelain -- tools corpus SCORECARD.md | head
+
+== tool provenance
+GNU bash, version 5.3.20(1)-release (x86_64-pc-linux-gnu)
+unshare from util-linux 2.42.4
+setpriv from util-linux 2.42.4
+find (GNU findutils) 4.11.0-modified
+grep (GNU grep) 3.12-modified
+
+== no tool installs or upgrades were needed/performed by this seat

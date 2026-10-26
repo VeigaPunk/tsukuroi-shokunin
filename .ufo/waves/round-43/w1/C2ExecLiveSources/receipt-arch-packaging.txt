@@ -1,0 +1,57 @@
+## Arch btrfs-progs packaging, tag 7.1-1 (fetched 2026-10-26T22:16:45Z)
+tag target/commit:
+ tag_object_target 4fd401153bd8eac8ab9e37e6511e1bf2350fdd07
+ commit 0c0a4d77b318084ecd35aeeb6888d8a5b4d6e3e0 2026-07-15T09:15:06.000+02:00 | upgpkg: 7.1-1: update to latest version
+ author Tobias Powalowski tpowa@archlinux.org
+
+tree at ref 7.1-1 (top level):
+  tree LICENSES
+  tree keys
+  blob .SRCINFO
+  blob .nvchecker.toml
+  blob LICENSE
+  blob PKGBUILD
+  blob REUSE.toml
+  blob btrfs-progs.install
+  blob btrfs-scrub@.service
+  blob btrfs-scrub@.timer
+  blob initcpio-hook-btrfs
+  blob initcpio-install-btrfs
+
+recursive blob list:
+  .SRCINFO
+  .nvchecker.toml
+  LICENSE
+  LICENSES/0BSD.txt
+  PKGBUILD
+  REUSE.toml
+  btrfs-progs.install
+  btrfs-scrub@.service
+  btrfs-scrub@.timer
+  initcpio-hook-btrfs
+  initcpio-install-btrfs
+  keys/pgp/F2B41200C54EFB30380C1756C565D5F9D76D583B.asc
+
+patch files in tree: 0
+source[] lines from PKGBUILD:
+45:source=(
+46-  git+https://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git?signed#tag=v${pkgver}
+47-  initcpio-install-btrfs
+48-  initcpio-hook-btrfs
+49-  btrfs-scrub@.service
+50-  btrfs-scrub@.timer
+51-)
+52-install=btrfs-progs.install
+53-b2sums=('52e892f32a2d1895ea36b6c58f2107ad891e8fdc83898c4519c58daac3824e5ff4973551d8b082b47d461921dfa0d99dc866e8d1ea04b8bc108a039786f21292'
+prepare() (patch loop is inert: no *.patch in source[]):
+59:prepare() {
+60-  cd "${pkgname}"
+61-  # apply patch from the source array (should be a pacman feature)
+62-  local src
+63-  for src in "${source[@]}"; do
+64-    src="${src%%::*}"
+65-    src="${src##*/}"
+66-    [[ $src = *.patch ]] || continue
+67-    echo "Applying patch ${src}..."
+68-    patch -Np1 < "../${src}"
+69-  done

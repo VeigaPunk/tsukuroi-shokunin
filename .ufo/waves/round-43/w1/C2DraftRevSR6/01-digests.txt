@@ -1,0 +1,27 @@
+# C2DraftRevSR6 receipt 01 — frozen-input digests (run 2026-10-26)
+
+$ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-43/frozen/src && sha256sum -c SHA256SUMS
+ioctl.c: OK
+
+$ ls -la /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-43/frozen/src
+-rw-r--r-- 1 vgpnk vgpnk    751 Oct 26 18:54 FETCH.txt
+-rw-r--r-- 1 vgpnk vgpnk     74 Oct 26 18:51 SHA256SUMS
+-rw-r--r-- 1 vgpnk vgpnk 145999 Oct 26 18:42 ioctl.c
+
+$ sha256sum /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-43/frozen/hostcap/capture.txt
+48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c
+f7ecbe7c990e68d7b0dbdbd8bfe65f3acd1cbbdabe33d47e71a6f1ae1242c556  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-43/frozen/hostcap/capture.txt
+
+Declared values (assignment / knowledge-file header):
+- scrub.c: 48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801  -> MATCH
+- capture.txt: f7ecbe7c990e68d7b0dbdbd8bfe65f3acd1cbbdabe33d47e71a6f1ae1242c556 (row header line 1: "f7ecbe7c…") -> MATCH
+- ioctl.c: covered by SHA256SUMS in its own dir -> OK
+
+FETCH.txt (round-43/frozen/src), provenance as frozen:
+  fetched 2026-10-26 by TsukuroiR43 (round-43 L1), curl -sSfL; tag v7.2.11 = 8316c24ec1b77dba19ba072ca4fe251b36dc65d3
+  (peeled commit a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea, git ls-remote https://github.com/gregkh/linux refs/tags/v7.2.11)
+  ioctl.c  <- https://raw.githubusercontent.com/gregkh/linux/v7.2.11/fs/btrfs/ioctl.c
+  scrub.c (S237) is the round-42 frozen snapshot ... sha256 48df2e2f..., not re-fetched here; a wave seat re-fetches it live.
+  ioctl.c  == https://git.kernel.org/.../ioctl.c?h=v7.2.11 (fetched 2026-10-26, same sha256)
+
+NOTE: live re-fetch of upstream (recheck step) was NOT performed by this seat; frozen-copy digests only.

@@ -1,0 +1,233 @@
+# Mutant patches, committed in fixture clone /fast/scratch/hyaku/tsukuroi-r43/C1MutFix/clone
+# (git clone -q --shared of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin, origin removed,
+# toplevel asserted = clone dir; commits made with -c user.name=fixture -c user.email=fixture@invalid).
+# Each commit is a sequential delta; the NET content of every mutant vs pristine 717b716
+# (blob 3e5c876389985aa5168c7116db5ea808fa0d7d697a1d66b7fcf850efd60dfd74) is exactly its one
+# named change inside inputs_newer_than or boot_inputs_newer. Intermediate hunks below are
+# reverts of the PREVIOUS mutant's line, restoring the pristine text.
+# All tooling was already installed; no tool was installed or upgraded for this seat (rule record).
+
+===== 1760af7a7997bb30432d6b1df3b6514841f17ad3
+1760af7a7997bb30432d6b1df3b6514841f17ad3 R43-C1 mutant a: -n -> -z (invert output test)
+
+diff --git tools/boot-chain-audit.sh tools/boot-chain-audit.sh
+index 459fb176..4583d1ab 100755
+--- tools/boot-chain-audit.sh
++++ tools/boot-chain-audit.sh
+@@ -467,7 +467,7 @@ inputs_newer_than() { # <epoch> <start point>... -> 1 when find lists an entry n
+     local epoch=$1 hit
+     shift
+     hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null)
+-    if [ -n "$hit" ]; then
++    if [ -z "$hit" ]; then
+         printf '1\n'
+     else
+         printf '0\n'
+
+===== a1fbfb86be7d1d0ce05fc227307e217e991e0b22
+a1fbfb86be7d1d0ce05fc227307e217e991e0b22 R43-C1 mutant b: drop -quit
+(net vs pristine: -print -quit -> -print)
+
+diff --git tools/boot-chain-audit.sh tools/boot-chain-audit.sh
+index 4583d1ab..c013d8ab 100755
+--- tools/boot-chain-audit.sh
++++ tools/boot-chain-audit.sh
+@@ -466,8 +466,8 @@ inputs_newer_than() { # <epoch> <start point>... -> 1 when find lists an entry n
+     # to mask a listed match (`find … | grep -q .`), so a newer input read as "none newer".
+     local epoch=$1 hit
+     shift
+-    hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null)
+-    if [ -z "$hit" ]; then
++    hit=$(find "$@" -newermt "@$epoch" -print 2>/dev/null)
++    if [ -n "$hit" ]; then
+         printf '1\n'
+     else
+         printf '0\n'
+
+===== 9618a4678bce56a955ed51a7e812b5c5e7892c81
+9618a4678bce56a955ed51a7e812b5c5e7892c81 R43-C1 mutant c: drop 2>/dev/null
+(net vs pristine: 2>/dev/null removed from find)
+
+diff --git tools/boot-chain-audit.sh tools/boot-chain-audit.sh
+index c013d8ab..af043024 100755
+--- tools/boot-chain-audit.sh
++++ tools/boot-chain-audit.sh
+@@ -466,7 +466,7 @@ inputs_newer_than() { # <epoch> <start point>... -> 1 when find lists an entry n
+     # to mask a listed match (`find … | grep -q .`), so a newer input read as "none newer".
+     local epoch=$1 hit
+     shift
+-    hit=$(find "$@" -newermt "@$epoch" -print 2>/dev/null)
++    hit=$(find "$@" -newermt "@$epoch" -print -quit)
+     if [ -n "$hit" ]; then
+         printf '1\n'
+     else
+
+===== e9e37e3c6d4dbc5caabf2e23c382bc545c3a4591
+e9e37e3c6d4dbc5caabf2e23c382bc545c3a4591 R43-C1 mutant d: hit=$(find ...) -> hit=$(find ... | head -n1)
+(net vs pristine: | head -n1 appended)
+
+diff --git tools/boot-chain-audit.sh tools/boot-chain-audit.sh
+index af043024..d897eec2 100755
+--- tools/boot-chain-audit.sh
++++ tools/boot-chain-audit.sh
+@@ -466,7 +466,7 @@ inputs_newer_than() { # <epoch> <start point>... -> 1 when find lists an entry n
+     # to mask a listed match (`find … | grep -q .`), so a newer input read as "none newer".
+     local epoch=$1 hit
+     shift
+-    hit=$(find "$@" -newermt "@$epoch" -print -quit)
++    hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null | head -n1)
+     if [ -n "$hit" ]; then
+         printf '1\n'
+     else
+
+===== 0ed22e3867a8ba006cbb24da530ad910bd4f568b
+0ed22e3867a8ba006cbb24da530ad910bd4f568b R43-C1 mutant e: drop /etc/crypttab from production list
+(net vs pristine: /etc/crypttab removed from boot_inputs_newer call; head -n1 reverted)
+
+diff --git tools/boot-chain-audit.sh tools/boot-chain-audit.sh
+index d897eec2..dca2664e 100755
+--- tools/boot-chain-audit.sh
++++ tools/boot-chain-audit.sh
+@@ -466,7 +466,7 @@ inputs_newer_than() { # <epoch> <start point>... -> 1 when find lists an entry n
+     # to mask a listed match (`find … | grep -q .`), so a newer input read as "none newer".
+     local epoch=$1 hit
+     shift
+-    hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null | head -n1)
++    hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null)
+     if [ -n "$hit" ]; then
+         printf '1\n'
+     else
+@@ -491,7 +491,7 @@ boot_inputs_newer() { # 0 = no /etc or /usr boot-chain input newer than boot sta
+         printf '1\n'
+         return 0
+     fi
+-    inputs_newer_than "$btime" /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
++    inputs_newer_than "$btime" /etc/fstab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
+         /etc/default/limine /etc/limine-snapper-sync.conf \
+         /usr/lib/initcpio /usr/lib/modules
+ }
+
+===== 6bddc859d6b43af8f53f0bfbee51aa1ece7c3371
+6bddc859d6b43af8f53f0bfbee51aa1ece7c3371 R43-C1 mutant f: drop /usr/lib/modules from production list
+(net vs pristine: /usr/lib/modules removed from boot_inputs_newer call; crypttab restored)
+
+diff --git tools/boot-chain-audit.sh tools/boot-chain-audit.sh
+index dca2664e..1f9f53c0 100755
+--- tools/boot-chain-audit.sh
++++ tools/boot-chain-audit.sh
+@@ -491,9 +491,9 @@ boot_inputs_newer() { # 0 = no /etc or /usr boot-chain input newer than boot sta
+         printf '1\n'
+         return 0
+     fi
+-    inputs_newer_than "$btime" /etc/fstab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
++    inputs_newer_than "$btime" /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
+         /etc/default/limine /etc/limine-snapper-sync.conf \
+-        /usr/lib/initcpio /usr/lib/modules
++        /usr/lib/initcpio
+ }
+ 
+ loader_entries() { # firmware-selected menu path spellings, one per line
+
+===== 4afa7876f1721f587b31dbfb8e581a9a52b0f92b
+4afa7876f1721f587b31dbfb8e581a9a52b0f92b R43-C1 mutant g: -newermt @epoch -> -newer /proc/stat
+(net vs pristine: -newermt "@$epoch" -> -newer /proc/stat; modules restored)
+
+diff --git tools/boot-chain-audit.sh tools/boot-chain-audit.sh
+index 1f9f53c0..e79acd51 100755
+--- tools/boot-chain-audit.sh
++++ tools/boot-chain-audit.sh
+@@ -466,7 +466,7 @@ inputs_newer_than() { # <epoch> <start point>... -> 1 when find lists an entry n
+     # to mask a listed match (`find … | grep -q .`), so a newer input read as "none newer".
+     local epoch=$1 hit
+     shift
+-    hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null)
++    hit=$(find "$@" -newer /proc/stat -print -quit 2>/dev/null)
+     if [ -n "$hit" ]; then
+         printf '1\n'
+     else
+@@ -493,7 +493,7 @@ boot_inputs_newer() { # 0 = no /etc or /usr boot-chain input newer than boot sta
+     fi
+     inputs_newer_than "$btime" /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
+         /etc/default/limine /etc/limine-snapper-sync.conf \
+-        /usr/lib/initcpio
++        /usr/lib/initcpio /usr/lib/modules
+ }
+ 
+ loader_entries() { # firmware-selected menu path spellings, one per line
+
+===== ab36010123c10b6d9e334c111538207c7a1d0bdd
+ab36010123c10b6d9e334c111538207c7a1d0bdd R43-C1 mutant h: print 1 when find exit 0 else output test
+(net vs pristine: decision made on find exit status first, output only as elif; -newer /proc/stat reverted)
+
+diff --git tools/boot-chain-audit.sh tools/boot-chain-audit.sh
+index e79acd51..38c57e9b 100755
+--- tools/boot-chain-audit.sh
++++ tools/boot-chain-audit.sh
+@@ -466,8 +466,11 @@ inputs_newer_than() { # <epoch> <start point>... -> 1 when find lists an entry n
+     # to mask a listed match (`find … | grep -q .`), so a newer input read as "none newer".
+     local epoch=$1 hit
+     shift
+-    hit=$(find "$@" -newer /proc/stat -print -quit 2>/dev/null)
+-    if [ -n "$hit" ]; then
++    local st=0
++    hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null) || st=$?
++    if [ "$st" -eq 0 ]; then
++        printf '1\n'
++    elif [ -n "$hit" ]; then
+         printf '1\n'
+     else
+         printf '0\n'
+
+===== 95697bf2fcbea714e52f7fe46254083617d07f1a
+95697bf2fcbea714e52f7fe46254083617d07f1a R43-C1 mutant i: epoch btime -> btime-1 (window widened by 1s)
+(net vs pristine: "$btime" -> "$((btime - 1))" in boot_inputs_newer; status-first reverted)
+
+diff --git tools/boot-chain-audit.sh tools/boot-chain-audit.sh
+index 38c57e9b..22cf85a5 100755
+--- tools/boot-chain-audit.sh
++++ tools/boot-chain-audit.sh
+@@ -466,11 +466,8 @@ inputs_newer_than() { # <epoch> <start point>... -> 1 when find lists an entry n
+     # to mask a listed match (`find … | grep -q .`), so a newer input read as "none newer".
+     local epoch=$1 hit
+     shift
+-    local st=0
+-    hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null) || st=$?
+-    if [ "$st" -eq 0 ]; then
+-        printf '1\n'
+-    elif [ -n "$hit" ]; then
++    hit=$(find "$@" -newermt "@$epoch" -print -quit 2>/dev/null)
++    if [ -n "$hit" ]; then
+         printf '1\n'
+     else
+         printf '0\n'
+@@ -494,7 +491,7 @@ boot_inputs_newer() { # 0 = no /etc or /usr boot-chain input newer than boot sta
+         printf '1\n'
+         return 0
+     fi
+-    inputs_newer_than "$btime" /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
++    inputs_newer_than "$((btime - 1))" /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
+         /etc/default/limine /etc/limine-snapper-sync.conf \
+         /usr/lib/initcpio /usr/lib/modules
+ }
+
+===== 43ec711a3289477534b96ff40d1baa5e81f6507d
+43ec711a3289477534b96ff40d1baa5e81f6507d R43-C1 mutant j: unreadable-btime guard prints 0 (fail-open)
+(net vs pristine: guard printf '1' -> printf '0'; btime-1 reverted)
+
+diff --git tools/boot-chain-audit.sh tools/boot-chain-audit.sh
+index 22cf85a5..eea0eae5 100755
+--- tools/boot-chain-audit.sh
++++ tools/boot-chain-audit.sh
+@@ -488,10 +488,10 @@ boot_inputs_newer() { # 0 = no /etc or /usr boot-chain input newer than boot sta
+     local btime
+     btime=$(btime_epoch)
+     if [ -z "$btime" ]; then
+-        printf '1\n'
++        printf '0\n'
+         return 0
+     fi
+-    inputs_newer_than "$((btime - 1))" /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
++    inputs_newer_than "$btime" /etc/fstab /etc/crypttab /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d \
+         /etc/default/limine /etc/limine-snapper-sync.conf \
+         /usr/lib/initcpio /usr/lib/modules
+ }

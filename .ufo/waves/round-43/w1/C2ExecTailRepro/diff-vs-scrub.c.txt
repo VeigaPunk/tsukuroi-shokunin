@@ -1,0 +1,2334 @@
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c	2026-10-26 16:13:44.177310058 -0300
++++ harness.c	2026-10-26 19:20:50.095192114 -0300
+@@ -1,74 +1,100 @@
+-/*
+- * Copyright (C) 2011 STRATO.  All rights reserved.
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public
+- * License v2 as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+- * General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public
+- * License along with this program; if not, write to the
+- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+- * Boston, MA 021110-1307, USA.
++/* Harness preamble: stubs only.  Everything after the "COPY BEGIN" markers is
++ * extracted byte-for-byte from
++ *   /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c
++ * (btrfs-progs v7.1, sha256 48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801)
++ * by gen.sh's sed line-range extraction.  The only textual change is SCRUB_DATA_FILE's
++ * base path, rewritten to this scratch dir; SCRUB_PROGRESS_SOCKET_PATH keeps its
++ * original value because no copied function uses it.
+  */
+-
+-#include "kerncompat.h"
+-#include <sys/ioctl.h>
+-#include <sys/wait.h>
++#define _GNU_SOURCE
++#include <sys/types.h>
+ #include <sys/stat.h>
+-#include <sys/socket.h>
+-#include <sys/un.h>
++#include <sys/ioctl.h>
+ #include <sys/file.h>
+-#include <sys/time.h>
+-#include <poll.h>
++#include <sys/resource.h>
++#include <signal.h>
+ #include <fcntl.h>
+ #include <unistd.h>
+ #include <pthread.h>
+ #include <ctype.h>
+-#include <signal.h>
+ #include <stdarg.h>
+ #include <limits.h>
+-#include <dirent.h>
+-#include <getopt.h>
+ #include <errno.h>
+ #include <stdbool.h>
++#include <stdint.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+-#include <syscall.h>
+ #include <time.h>
+ #include <uuid/uuid.h>
+-#include "kernel-lib/sizes.h"
+-#include "kernel-shared/volumes.h"
+-#include "common/defs.h"
+-#include "common/compat.h"
+-#include "common/messages.h"
+-#include "common/utils.h"
+-#include "common/open-utils.h"
+-#include "common/units.h"
+-#include "common/device-utils.h"
+-#include "common/sysfs-utils.h"
+-#include "common/string-table.h"
+-#include "common/string-utils.h"
+-#include "common/help.h"
+-#include "cmds/commands.h"
+-
+-static unsigned unit_mode = UNITS_DEFAULT;
+-
+-static const char * const scrub_cmd_group_usage[] = {
+-	"btrfs scrub <command> [options] <path>|<device>",
+-	NULL
+-};
++#include <linux/btrfs.h>
++
++/* --- btrfs-progs kerncompat.h/top-level typedefs (stub) --- */
++typedef uint8_t u8;
++typedef uint16_t u16;
++typedef uint32_t u32;
++/* btrfs-progs kerncompat.h spells u64 as unsigned long long so that it matches the
++ * kernel UAPI __u64 type on this target; %lld in scrub_kvwrite confirms that. */
++typedef unsigned long long u64;
++typedef long long s64;
++#ifndef SZ_16K
++#define SZ_16K (16 * 1024)
++#endif
++#ifndef PATH_MAX
++#define PATH_MAX 4096
++#endif
++/* kerncompat.h's fallthrough */
++#define fallthrough __attribute__ ((__fallthrough__))
++
++/* --- common/messages.h (stub): warning()/error() print to stderr --- */
++static int stub_warn_count;
++static int stub_err_count;
++static void warning(const char *fmt, ...)
++	__attribute__ ((format (printf, 1, 2)));
++static void error(const char *fmt, ...)
++	__attribute__ ((format (printf, 1, 2)));
++static void warning(const char *fmt, ...)
++{
++	va_list args;
++
++	printf("WARNING: ");
++	va_start(args, fmt);
++	vprintf(fmt, args);
++	va_end(args);
++	printf("\n");
++	fflush(stdout);
++	stub_warn_count++;
++}
++
++static void error(const char *fmt, ...)
++{
++	va_list args;
++
++	printf("ERROR: ");
++	va_start(args, fmt);
++	vprintf(fmt, args);
++	va_end(args);
++	printf("\n");
++	fflush(stdout);
++	stub_err_count++;
++}
++
++/* --- kerncompat.h error-pointer helpers (stub, same semantics) --- */
++#define MAX_ERRNO 4095
++#define IS_ERR_VALUE(x) ((x) >= (unsigned long)-MAX_ERRNO)
++static inline void *ERR_PTR(long error) { return (void *)error; }
++static inline long PTR_ERR(const void *ptr) { return (long)ptr; }
++#ifndef IS_ERR
++#define IS_ERR(ptr) IS_ERR_VALUE((unsigned long)ptr)
++#endif
+ 
+-#define SCRUB_DATA_FILE "/var/lib/btrfs/scrub.status"
++/* --- scrub.c:67-70 with SCRUB_DATA_FILE rebased into scratch --- */
++#define SCRUB_DATA_FILE "/fast/scratch/hyaku/tsukuroi-r43/C2ExecTailRepro/var/lib/btrfs/scrub.status"
+ #define SCRUB_PROGRESS_SOCKET_PATH "/var/lib/btrfs/scrub.progress"
+ #define SCRUB_FILE_VERSION_PREFIX "scrub status"
+ #define SCRUB_FILE_VERSION "1"
+ 
++/* ==== COPY BEGIN scrub.c:72-79 (scrub_stats) ==== */
+ struct scrub_stats {
+ 	time_t t_start;
+ 	time_t t_resumed;
+@@ -77,16 +103,9 @@
+ 	u64 canceled;
+ 	int in_progress;
+ };
++/* ==== COPY END scrub.c:72-79 ==== */
+ 
+-/* TBD: replace with #include "linux/ioprio.h" in some years */
+-#if !defined (IOPRIO_H)
+-#define IOPRIO_WHO_PROCESS 1
+-#define IOPRIO_CLASS_SHIFT 13
+-#define IOPRIO_PRIO_VALUE(class, data) \
+-		(((class) << IOPRIO_CLASS_SHIFT) | (data))
+-#define IOPRIO_CLASS_IDLE 3
+-#endif
+-
++/* ==== COPY BEGIN scrub.c:90-110 (scrub_progress_structs) ==== */
+ struct scrub_progress {
+ 	struct btrfs_ioctl_scrub_args scrub_args;
+ 	int fd;
+@@ -108,297 +127,9 @@
+ 	struct scrub_stats stats;
+ 	struct btrfs_scrub_progress p;
+ };
+-
+-struct scrub_progress_cycle {
+-	int fdmnt;
+-	int prg_fd;
+-	int do_record;
+-	struct btrfs_ioctl_fs_info_args *fi;
+-	struct scrub_progress *progress;
+-	struct scrub_progress *shared_progress;
+-	pthread_mutex_t *write_mutex;
+-};
+-
+-struct scrub_fs_stat {
+-	struct btrfs_scrub_progress p;
+-	struct scrub_stats s;
+-	int i;
+-};
+-
+-static void print_scrub_full(struct btrfs_scrub_progress *sp)
+-{
+-	pr_default("\tdata_extents_scrubbed: %lld\n", sp->data_extents_scrubbed);
+-	pr_default("\ttree_extents_scrubbed: %lld\n", sp->tree_extents_scrubbed);
+-	pr_default("\tdata_bytes_scrubbed: %lld\n", sp->data_bytes_scrubbed);
+-	pr_default("\ttree_bytes_scrubbed: %lld\n", sp->tree_bytes_scrubbed);
+-	pr_default("\tread_errors: %lld\n", sp->read_errors);
+-	pr_default("\tcsum_errors: %lld\n", sp->csum_errors);
+-	pr_default("\tverify_errors: %lld\n", sp->verify_errors);
+-	pr_default("\tno_csum: %lld\n", sp->no_csum);
+-	pr_default("\tcsum_discards: %lld\n", sp->csum_discards);
+-	pr_default("\tsuper_errors: %lld\n", sp->super_errors);
+-	pr_default("\tmalloc_errors: %lld\n", sp->malloc_errors);
+-	pr_default("\tuncorrectable_errors: %lld\n", sp->uncorrectable_errors);
+-	pr_default("\tunverified_errors: %lld\n", sp->unverified_errors);
+-	pr_default("\tcorrected_errors: %lld\n", sp->corrected_errors);
+-	pr_default("\tlast_physical: %lld\n", sp->last_physical);
+-}
+-
+-#define PRINT_SCRUB_ERROR(test, desc) do {	\
+-	if (test)				\
+-		pr_default(" %s=%llu", desc, test);	\
+-} while (0)
+-
+-static void print_scrub_summary(struct btrfs_scrub_progress *p, struct scrub_stats *s,
+-				u64 bytes_total, u64 limit)
+-{
+-	u64 err_cnt;
+-	u64 err_cnt2;
+-	u64 bytes_scrubbed;
+-	u64 bytes_per_sec = 0;
+-	u64 sec_left = 0;
+-	time_t sec_eta;
+-
+-	bytes_scrubbed = p->data_bytes_scrubbed + p->tree_bytes_scrubbed;
+-	/*
+-	 * If duration is zero seconds (rounded down), then the Rate metric
+-	 * should still reflect the amount of bytes that have been processed
+-	 * in under a second.
+-	 */
+-	if (s->duration == 0)
+-		bytes_per_sec = bytes_scrubbed;
+-	else
+-		bytes_per_sec = bytes_scrubbed / s->duration;
+-	if (bytes_per_sec > 0 && bytes_total >= bytes_scrubbed)
+-		sec_left = (bytes_total - bytes_scrubbed) / bytes_per_sec;
+-
+-	err_cnt = p->read_errors +
+-			p->csum_errors +
+-			p->verify_errors +
+-			p->super_errors;
+-
+-	err_cnt2 = p->corrected_errors + p->uncorrectable_errors;
+-
+-	if (p->malloc_errors)
+-		pr_default("*** WARNING: memory allocation failed while scrubbing. "
+-		       "results may be inaccurate\n");
+-
+-	if (s->in_progress) {
+-		char t[4096];
+-		struct tm tm;
+-
+-		sec_eta = time(NULL);
+-		sec_eta += sec_left;
+-		localtime_r(&sec_eta, &tm);
+-		t[sizeof(t) - 1] = '\0';
+-		strftime(t, sizeof(t), "%c", &tm);
+-
+-		pr_default("Time left:        %llu:%02llu:%02llu\n",
+-			sec_left / 3600, (sec_left / 60) % 60, sec_left % 60);
+-		pr_default("ETA:              %s\n", t);
+-		pr_default("Total to scrub:   %s\n",
+-			pretty_size_mode(bytes_total, unit_mode));
+-		pr_default("Bytes scrubbed:   %s  (%.2f%%)\n",
+-			pretty_size_mode(bytes_scrubbed, unit_mode),
+-			100.0 * bytes_scrubbed / bytes_total);
+-	} else {
+-		pr_default("Total to scrub:   %s\n",
+-			pretty_size_mode(bytes_total, unit_mode));
+-	}
+-
+-	/*
+-	 * Rate and size units are disproportionate so they are affected only
+-	 * by --raw, otherwise it's human readable (respecting the SI or IEC mode).
+-	 */
+-	if (unit_mode == UNITS_RAW) {
+-		pr_default("Rate:             %s/s",
+-			pretty_size_mode(bytes_per_sec, UNITS_RAW));
+-		if (limit > 1)
+-			pr_default(" (limit %s/s)",
+-				   pretty_size_mode(limit, UNITS_RAW));
+-		else if (limit == 1)
+-			pr_default(" (some device limits set)");
+-		pr_default("\n");
+-	} else {
+-		unsigned int mode = UNITS_HUMAN_DECIMAL;
+-
+-		if (unit_mode & UNITS_BINARY)
+-			mode = UNITS_HUMAN_BINARY;
+-
+-		pr_default("Rate:             %s/s",
+-			pretty_size_mode(bytes_per_sec, mode));
+-		if (limit > 1)
+-			pr_default(" (limit %s/s)",
+-				   pretty_size_mode(limit, mode));
+-		else if (limit == 1)
+-			pr_default(" (some device limits set)");
+-		pr_default("\n");
+-	}
+-
+-	pr_default("Error summary:   ");
+-	if (err_cnt || err_cnt2) {
+-		PRINT_SCRUB_ERROR(p->read_errors, "read");
+-		PRINT_SCRUB_ERROR(p->super_errors, "super");
+-		PRINT_SCRUB_ERROR(p->verify_errors, "verify");
+-		PRINT_SCRUB_ERROR(p->csum_errors, "csum");
+-		pr_default("\n");
+-		pr_default("  Corrected:      %llu\n", p->corrected_errors);
+-		pr_default("  Uncorrectable:  %llu\n", p->uncorrectable_errors);
+-		pr_default("  Unverified:     %llu\n", p->unverified_errors);
+-	} else {
+-		pr_default(" no errors found\n");
+-	}
+-}
+-
+-#define _SCRUB_FS_STAT(p, name, fs_stat) do {	\
+-	fs_stat->p.name += p->name;		\
+-} while (0)
+-
+-#define _SCRUB_FS_STAT_COPY(p, name, fs_stat) do {	\
+-	fs_stat->p.name = p->name;		\
+-} while (0)
+-
+-#define _SCRUB_FS_STAT_MIN(ss, name, fs_stat)	\
+-do {						\
+-	if (fs_stat->s.name > ss->name) {	\
+-		fs_stat->s.name = ss->name;	\
+-	}					\
+-} while (0)
+-
+-#define _SCRUB_FS_STAT_ZMIN(ss, name, fs_stat)			\
+-do {								\
+-	if (!fs_stat->s.name || fs_stat->s.name > ss->name) {	\
+-		fs_stat->s.name = ss->name;			\
+-	}							\
+-} while (0)
+-
+-#define _SCRUB_FS_STAT_ZMAX(ss, name, fs_stat)				\
+-do {									\
+-	if (!(fs_stat)->s.name || (fs_stat)->s.name < (ss)->name) {	\
+-		(fs_stat)->s.name = (ss)->name;				\
+-	}								\
+-} while (0)
+-
+-static void add_to_fs_stat(struct btrfs_scrub_progress *p,
+-				struct scrub_stats *ss,
+-				struct scrub_fs_stat *fs_stat)
+-{
+-	_SCRUB_FS_STAT(p, data_extents_scrubbed, fs_stat);
+-	_SCRUB_FS_STAT(p, tree_extents_scrubbed, fs_stat);
+-	_SCRUB_FS_STAT(p, data_bytes_scrubbed, fs_stat);
+-	_SCRUB_FS_STAT(p, tree_bytes_scrubbed, fs_stat);
+-	_SCRUB_FS_STAT(p, read_errors, fs_stat);
+-	_SCRUB_FS_STAT(p, csum_errors, fs_stat);
+-	_SCRUB_FS_STAT(p, verify_errors, fs_stat);
+-	_SCRUB_FS_STAT(p, no_csum, fs_stat);
+-	_SCRUB_FS_STAT(p, csum_discards, fs_stat);
+-	_SCRUB_FS_STAT(p, super_errors, fs_stat);
+-	_SCRUB_FS_STAT(p, malloc_errors, fs_stat);
+-	_SCRUB_FS_STAT(p, uncorrectable_errors, fs_stat);
+-	_SCRUB_FS_STAT(p, corrected_errors, fs_stat);
+-	_SCRUB_FS_STAT_COPY(p, last_physical, fs_stat);
+-	_SCRUB_FS_STAT_ZMIN(ss, t_start, fs_stat);
+-	_SCRUB_FS_STAT_ZMIN(ss, t_resumed, fs_stat);
+-	_SCRUB_FS_STAT_ZMAX(ss, duration, fs_stat);
+-	_SCRUB_FS_STAT_ZMAX(ss, canceled, fs_stat);
+-	_SCRUB_FS_STAT_MIN(ss, finished, fs_stat);
+-}
+-
+-static void init_fs_stat(struct scrub_fs_stat *fs_stat)
+-{
+-	memset(fs_stat, 0, sizeof(*fs_stat));
+-	fs_stat->s.finished = 1;
+-}
+-
+-static void _print_scrub_ss(struct scrub_stats *ss)
+-{
+-	char t[4096];
+-	struct tm tm;
+-	time_t seconds;
+-	unsigned hours;
+-
+-	if (!ss || !ss->t_start) {
+-		pr_default("\tno stats available\n");
+-		return;
+-	}
+-	if (ss->t_resumed) {
+-		localtime_r(&ss->t_resumed, &tm);
+-		strftime(t, sizeof(t), "%c", &tm);
+-		t[sizeof(t) - 1] = '\0';
+-		pr_default("Scrub resumed:    %s\n", t);
+-	} else {
+-		localtime_r(&ss->t_start, &tm);
+-		strftime(t, sizeof(t), "%c", &tm);
+-		t[sizeof(t) - 1] = '\0';
+-		pr_default("Scrub started:    %s\n", t);
+-	}
+-
+-	seconds = ss->duration;
+-	hours = ss->duration / (60 * 60);
+-	gmtime_r(&seconds, &tm);
+-	strftime(t, sizeof(t), "%M:%S", &tm);
+-	pr_default("Status:           %s\n",
+-			(ss->in_progress ? "running" :
+-			 (ss->canceled ? "aborted" :
+-			  (ss->finished ? "finished" : "interrupted"))));
+-	pr_default("Duration:         %u:%s\n", hours, t);
+-}
+-
+-static void print_scrub_dev(struct btrfs_ioctl_dev_info_args *di,
+-				struct btrfs_scrub_progress *p, int raw,
+-				const char *append, struct scrub_stats *ss,
+-				u64 limit)
+-{
+-	pr_default("\nScrub device %s (id %llu) %s\n", di->path, di->devid,
+-	       append ? append : "");
+-
+-	_print_scrub_ss(ss);
+-
+-	if (p) {
+-		if (raw) {
+-			print_scrub_full(p);
+-		} else if (ss->finished) {
+-			/*
+-			 * For finished scrub, we can use the total scrubbed
+-			 * bytes to report "Total to scrub", which is more
+-			 * accurate (e.g. mostly empty block groups).
+-			 */
+-			print_scrub_summary(p, ss, p->data_bytes_scrubbed +
+-					    p->tree_bytes_scrubbed, limit);
+-		} else {
+-			/*
+-			 * For any canceled/interrupted/running scrub, we're
+-			 * not sure how many bytes we're really going to scrub,
+-			 * thus we use device's used bytes instead.
+-			 */
+-			print_scrub_summary(p, ss, di->bytes_used, limit);
+-		}
+-	}
+-}
+-
+-/*
+- * Print summary stats for the whole filesystem. If there's only one device
+- * print the limit if set, otherwise a special value to print a note that
+- * limits are set.
+- */
+-static void print_fs_stat(struct scrub_fs_stat *fs_stat, int raw, u64 bytes_total,
+-			  u64 nr_devices, u64 limit)
+-{
+-	_print_scrub_ss(&fs_stat->s);
+-
+-	if (raw) {
+-		print_scrub_full(&fs_stat->p);
+-	} else {
+-		/*
+-		 * Limit for the whole filesystem stats does not make sense,
+-		 * but if there's any device with a limit then print it.
+-		 */
+-		if (nr_devices != 1 && limit)
+-			limit = 1;
+-		print_scrub_summary(&fs_stat->p, &fs_stat->s, bytes_total, limit);
+-	}
+-}
++/* ==== COPY END scrub.c:90-110 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:402-410 (free_history) ==== */
+ static void free_history(struct scrub_file_record **last_scrubs)
+ {
+ 	struct scrub_file_record **l = last_scrubs;
+@@ -407,42 +138,10 @@
+ 	while (*l)
+ 		free(*l++);
+ 	free(last_scrubs);
+-}
+-
+-/*
+- * cancels a running scrub and makes the master process record the current
+- * progress status before exiting.
+- */
+-static int cancel_fd = -1;
+-static void scrub_sigint_record_progress(int signal)
+-{
+-	int ret;
+-
+-	ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);
+-	if (ret < 0)
+-		perror("Scrub cancel failed");
+-}
+-
+-static int scrub_handle_sigint_parent(void)
+-{
+-	struct sigaction sa = {
+-		.sa_handler = SIG_IGN,
+-		.sa_flags = SA_RESTART,
+-	};
+-
+-	return sigaction(SIGINT, &sa, NULL);
+-}
+-
+-static int scrub_handle_sigint_child(int fd)
+-{
+-	struct sigaction sa = {
+-		.sa_handler = fd == -1 ? SIG_DFL : scrub_sigint_record_progress,
+-	};
+-
+-	cancel_fd = fd;
+-	return sigaction(SIGINT, &sa, NULL);
+ }
++/* ==== COPY END scrub.c:402-410 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:446-476 (scrub_datafile) ==== */
+ static int scrub_datafile(const char *fn_base, const char *fn_local,
+ 				const char *fn_tmp, char *datafile, int size)
+ {
+@@ -474,7 +173,9 @@
+ 
+ 	return 0;
+ }
++/* ==== COPY END scrub.c:446-476 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:478-495 (scrub_open_file) ==== */
+ static int scrub_open_file(const char *datafile, int m)
+ {
+ 	int fd;
+@@ -493,7 +194,9 @@
+ 
+ 	return fd;
+ }
++/* ==== COPY END scrub.c:478-495 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:497-506 (scrub_open_file_r) ==== */
+ static int scrub_open_file_r(const char *fn_base, const char *fn_local)
+ {
+ 	int ret;
+@@ -504,7 +207,9 @@
+ 		return ret;
+ 	return scrub_open_file(datafile, O_RDONLY);
+ }
++/* ==== COPY END scrub.c:497-506 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:508-518 (scrub_open_file_w) ==== */
+ static int scrub_open_file_w(const char *fn_base, const char *fn_local,
+ 				const char *tmp)
+ {
+@@ -516,7 +221,9 @@
+ 		return ret;
+ 	return scrub_open_file(datafile, O_WRONLY|O_CREAT);
+ }
++/* ==== COPY END scrub.c:508-518 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:520-536 (scrub_rename_file) ==== */
+ static int scrub_rename_file(const char *fn_base, const char *fn_local,
+ 				const char *tmp)
+ {
+@@ -534,16 +241,15 @@
+ 	ret = rename(datafile_old, datafile_new);
+ 	return ret ? -errno : 0;
+ }
++/* ==== COPY END scrub.c:520-536 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:538-540 (_SCRUB_KVREAD_macro) ==== */
+ #define _SCRUB_KVREAD(ret, i, name, avail, l, dest) if (ret == 0) {	  \
+ 	ret = scrub_kvread(i, sizeof(#name), avail, l, #name, dest.name); \
+ }
++/* ==== COPY END scrub.c:538-540 ==== */
+ 
+-/*
+- * returns 0 if the key did not match (nothing was read)
+- *         1 if the key did match (success)
+- *        -1 if the key did match and an error occurred
+- */
++/* ==== COPY BEGIN scrub.c:547-567 (scrub_kvread) ==== */
+ static int scrub_kvread(int *i, int len, int avail, const char *buf,
+ 			const char *key, u64 *dest)
+ {
+@@ -565,7 +271,9 @@
+ 
+ 	return 0;
+ }
++/* ==== COPY END scrub.c:547-567 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:569-576 (_SCRUB_INVALID_macro) ==== */
+ #define _SCRUB_INVALID do {						\
+ 	if (report_errors)						\
+ 		warning("invalid data on line %d pos "			\
+@@ -574,7 +282,9 @@
+ 			l + i,	__FILE__, __LINE__);			\
+ 	goto skip;							\
+ } while (0)
++/* ==== COPY END scrub.c:569-576 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:578-771 (scrub_read_file) ==== */
+ static struct scrub_file_record **scrub_read_file(int fd, int report_errors)
+ {
+ 	int avail = 0;
+@@ -769,14 +479,18 @@
+ 	}
+ 	goto again;
+ }
++/* ==== COPY END scrub.c:578-771 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:773-778 (scrub_write_buf) ==== */
+ static int scrub_write_buf(int fd, const void *data, int len)
+ {
+ 	int ret;
+ 	ret = write(fd, data, len);
+ 	return ret - len;
+ }
++/* ==== COPY END scrub.c:773-778 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:780-793 (scrub_writev) ==== */
+ static int scrub_writev(int fd, char *buf, int max, const char *fmt, ...)
+ 				__attribute__ ((format (printf, 4, 5)));
+ static int scrub_writev(int fd, char *buf, int max, const char *fmt, ...)
+@@ -791,12 +505,16 @@
+ 		return ret - max;
+ 	return scrub_write_buf(fd, buf, ret);
+ }
++/* ==== COPY END scrub.c:780-793 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:795-798 (_SCRUB_SUM_macros) ==== */
+ #define _SCRUB_SUM(dest, data, name) dest->scrub_args.progress.name =	\
+ 			data->resumed->p.name + data->scrub_args.progress.name
+ #define _SCRUB_COPY(dest, data, name) dest->scrub_args.progress.name =	\
+ 			data->scrub_args.progress.name
++/* ==== COPY END scrub.c:795-798 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:800-828 (scrub_resumed_stats) ==== */
+ static struct scrub_progress *scrub_resumed_stats(struct scrub_progress *data,
+ 						  struct scrub_progress *dest)
+ {
+@@ -826,7 +544,9 @@
+ 	dest->scrub_args.devid = data->scrub_args.devid;
+ 	return dest;
+ }
++/* ==== COPY END scrub.c:800-828 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:830-836 (_SCRUB_KVWRITE_macros) ==== */
+ #define _SCRUB_KVWRITE(fd, buf, name, use)		\
+ 	scrub_kvwrite(fd, buf, sizeof(buf), #name,	\
+ 			use->scrub_args.progress.name)
+@@ -834,12 +554,16 @@
+ #define _SCRUB_KVWRITE_STATS(fd, buf, name, use)	\
+ 	scrub_kvwrite(fd, buf, sizeof(buf), #name,	\
+ 			use->stats.name)
++/* ==== COPY END scrub.c:830-836 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:838-841 (scrub_kvwrite) ==== */
+ static int scrub_kvwrite(int fd, char *buf, int max, const char *key, u64 val)
+ {
+ 	return scrub_writev(fd, buf, max, "|%s:%lld", key, val);
+ }
++/* ==== COPY END scrub.c:838-841 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:843-895 (scrub_write_file) ==== */
+ static int scrub_write_file(int fd, const char *fsid,
+ 				struct scrub_progress *data, int n)
+ {
+@@ -893,7 +617,9 @@
+ 
+ 	return 0;
+ }
++/* ==== COPY END scrub.c:843-895 ==== */
+ 
++/* ==== COPY BEGIN scrub.c:897-947 (scrub_write_progress) ==== */
+ static int scrub_write_progress(pthread_mutex_t *m, const char *fsid,
+ 				struct scrub_progress *data, int n)
+ {
+@@ -945,1287 +671,413 @@
+ out3:
+ 	return err;
+ }
++/* ==== COPY END scrub.c:897-947 ==== */
+ 
+-static void *scrub_one_dev(void *ctx)
+-{
+-	struct scrub_progress *sp = ctx;
+-	int ret;
+-	struct timeval tv;
+-
+-	sp->stats.canceled = 0;
+-	sp->stats.duration = 0;
+-	sp->stats.finished = 0;
+-
+-	ret = syscall(SYS_ioprio_set, IOPRIO_WHO_PROCESS, 0,
+-		      IOPRIO_PRIO_VALUE(sp->ioprio_class,
+-					sp->ioprio_classdata));
+-	if (ret)
+-		warning("setting ioprio failed: %m (ignored)");
+-
+-	ret = ioctl(sp->fd, BTRFS_IOC_SCRUB, &sp->scrub_args);
+-	gettimeofday(&tv, NULL);
+-	sp->ret = ret;
+-	sp->stats.duration = tv.tv_sec - sp->stats.t_start;
+-	sp->stats.canceled = !!ret;
+-	sp->ioctl_errno = errno;
+-	ret = pthread_mutex_lock(&sp->progress_mutex);
+-	if (ret)
+-		return ERR_PTR(-ret);
+-	sp->stats.finished = 1;
+-	ret = pthread_mutex_unlock(&sp->progress_mutex);
+-	if (ret)
+-		return ERR_PTR(-ret);
+-
+-	return NULL;
+-}
++/* ==== driver.c: harness main (NOT from scrub.c) ==== */
++static const char *FSID = "11111111-2222-3333-4444-555555555555";
++static const char *DIR  = "/fast/scratch/hyaku/tsukuroi-r43/C2ExecTailRepro/var/lib/btrfs";
++static const char *FINAL = "/fast/scratch/hyaku/tsukuroi-r43/C2ExecTailRepro/var/lib/btrfs/scrub.status.11111111-2222-3333-4444-555555555555";
++static const char *TMPF  = "/fast/scratch/hyaku/tsukuroi-r43/C2ExecTailRepro/var/lib/btrfs/scrub.status.11111111-2222-3333-4444-555555555555_tmp";
+ 
+-static void *progress_one_dev(void *ctx)
++static void mkdirtree(void)
+ {
+-	struct scrub_progress *sp = ctx;
+-
+-	sp->ret = ioctl(sp->fd, BTRFS_IOC_SCRUB_PROGRESS, &sp->scrub_args);
+-	sp->ioctl_errno = errno;
+-
+-	return NULL;
++	mkdir("/fast/scratch/hyaku/tsukuroi-r43/C2ExecTailRepro/var", 0700);
++	mkdir("/fast/scratch/hyaku/tsukuroi-r43/C2ExecTailRepro/var/lib", 0700);
++	mkdir(DIR, 0700);
+ }
+ 
+-/* nb: returns a negative errno via ERR_PTR */
+-static void *scrub_progress_cycle(void *ctx)
++static void clean_state(void)
+ {
+-	int ret = 0;
+-	int  perr = 0;	/* positive / pthread error returns */
+-	int old;
+-	int i;
+-	char fsid[BTRFS_UUID_UNPARSED_SIZE];
+-	struct scrub_progress *sp;
+-	struct scrub_progress *sp_last;
+-	struct scrub_progress *sp_shared;
+-	struct timeval tv;
+-	struct scrub_progress_cycle *spc = ctx;
+-	int ndev = spc->fi->num_devices;
+-	int this = 1;
+-	int last = 0;
+-	int peer_fd = -1;
+-	struct pollfd accept_poll_fd = {
+-		.fd = spc->prg_fd,
+-		.events = POLLIN,
+-		.revents = 0,
+-	};
+-	struct pollfd write_poll_fd = {
+-		.events = POLLOUT,
+-		.revents = 0,
+-	};
+-	struct sockaddr_un peer;
+-	socklen_t peer_size = sizeof(peer);
+-
+-	perr = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &old);
+-	if (perr)
+-		goto out;
+-
+-	uuid_unparse(spc->fi->fsid, fsid);
+-
+-	for (i = 0; i < ndev; ++i) {
+-		sp = &spc->progress[i];
+-		sp_last = &spc->progress[i + ndev];
+-		sp_shared = &spc->shared_progress[i];
+-		sp->scrub_args.devid = sp_last->scrub_args.devid =
+-						sp_shared->scrub_args.devid;
+-		sp->fd = sp_last->fd = spc->fdmnt;
+-		sp->stats.t_start = sp_last->stats.t_start =
+-						sp_shared->stats.t_start;
+-		sp->resumed = sp_last->resumed = sp_shared->resumed;
+-		sp->skip = sp_last->skip = sp_shared->skip;
+-		sp->stats.finished = sp_last->stats.finished =
+-						sp_shared->stats.finished;
+-	}
+-
+-	while (1) {
+-		ret = poll(&accept_poll_fd, 1, 5 * 1000);
+-		if (ret == -1) {
+-			ret = -errno;
+-			goto out;
+-		}
+-		if (ret)
+-			peer_fd = accept(spc->prg_fd, (struct sockaddr *)&peer,
+-					 &peer_size);
+-		gettimeofday(&tv, NULL);
+-		this = (this + 1)%2;
+-		last = (last + 1)%2;
+-		for (i = 0; i < ndev; ++i) {
+-			sp = &spc->progress[this * ndev + i];
+-			sp_last = &spc->progress[last * ndev + i];
+-			sp_shared = &spc->shared_progress[i];
+-			if (sp->stats.finished)
+-				continue;
+-			progress_one_dev(sp);
+-			sp->stats.duration = tv.tv_sec - sp->stats.t_start;
+-			if (!sp->ret)
+-				continue;
+-			if (sp->ioctl_errno != ENOTCONN &&
+-			    sp->ioctl_errno != ENODEV) {
+-				ret = -sp->ioctl_errno;
+-				goto out;
+-			}
+-			/*
+-			 * scrub finished or device removed, check the
+-			 * finished flag. if unset, just use the last
+-			 * result we got for the current write and go
+-			 * on. flag should be set on next cycle, then.
+-			 */
+-			perr = pthread_setcancelstate(
+-					PTHREAD_CANCEL_DISABLE, &old);
+-			if (perr)
+-				goto out;
+-			perr = pthread_mutex_lock(&sp_shared->progress_mutex);
+-			if (perr)
+-				goto out;
+-			if (!sp_shared->stats.finished) {
+-				perr = pthread_mutex_unlock(
+-						&sp_shared->progress_mutex);
+-				if (perr)
+-					goto out;
+-				perr = pthread_setcancelstate(
+-						PTHREAD_CANCEL_ENABLE, &old);
+-				if (perr)
+-					goto out;
+-				memcpy(sp, sp_last, sizeof(*sp));
+-				continue;
+-			}
+-			perr = pthread_mutex_unlock(&sp_shared->progress_mutex);
+-			if (perr)
+-				goto out;
+-			perr = pthread_setcancelstate(
+-					PTHREAD_CANCEL_ENABLE, &old);
+-			if (perr)
+-				goto out;
+-			memcpy(sp, sp_shared, sizeof(*sp));
+-			memcpy(sp_last, sp_shared, sizeof(*sp));
+-		}
+-		if (peer_fd != -1) {
+-			write_poll_fd.fd = peer_fd;
+-			ret = poll(&write_poll_fd, 1, 0);
+-			if (ret == -1) {
+-				ret = -errno;
+-				goto out;
+-			}
+-			if (ret) {
+-				ret = scrub_write_file(
+-					peer_fd, fsid,
+-					&spc->progress[this * ndev], ndev);
+-				if (ret)
+-					goto out;
+-			}
+-			close(peer_fd);
+-			peer_fd = -1;
+-		}
+-		if (!spc->do_record)
+-			continue;
+-		ret = scrub_write_progress(spc->write_mutex, fsid,
+-					   &spc->progress[this * ndev], ndev);
+-		if (ret)
+-			goto out;
+-	}
+-out:
+-	if (peer_fd != -1)
+-		close(peer_fd);
+-	if (perr)
+-		ret = -perr;
+-	return ERR_PTR(ret);
++	unlink(FINAL);
++	unlink(TMPF);
+ }
+ 
+-static struct scrub_file_record *last_dev_scrub(
+-		struct scrub_file_record *const *const past_scrubs, u64 devid)
++/* mirrors scrub_write_progress() minus mutex/cancelstate (see report diff) */
++static int record(struct scrub_progress *d, int n, int do_rename, long *written)
+ {
+-	int i;
++	int fd, err, ret;
+ 
+-	if (!past_scrubs || IS_ERR(past_scrubs))
+-		return NULL;
+-
+-	for (i = 0; past_scrubs[i]; ++i)
+-		if (past_scrubs[i]->devid == devid)
+-			return past_scrubs[i];
+-
+-	return NULL;
++	fd = scrub_open_file_w(SCRUB_DATA_FILE, FSID, "tmp");
++	if (fd < 0)
++		return fd;
++	err = scrub_write_file(fd, FSID, d, n);
++	if (!err && written)
++		*written = lseek(fd, 0, SEEK_CUR);
++	if (!err && do_rename)
++		err = scrub_rename_file(SCRUB_DATA_FILE, FSID, "tmp");
++	ret = close(fd);
++	if (ret)
++		err = -errno;
++	return err;
+ }
+ 
+-static int mkdir_p(char *path)
+-{
+-	int i;
+-	int ret;
++static void fill_long(struct scrub_progress *d)
++{
++	u64 base = 1234567890123ULL;
++	memset(d, 0, sizeof(*d));
++	d->scrub_args.devid = 7;
++	d->scrub_args.progress.data_extents_scrubbed = base + 1;
++	d->scrub_args.progress.tree_extents_scrubbed = base + 2;
++	d->scrub_args.progress.data_bytes_scrubbed   = base + 3;
++	d->scrub_args.progress.tree_bytes_scrubbed   = base + 4;
++	d->scrub_args.progress.read_errors           = base + 5;
++	d->scrub_args.progress.csum_errors           = base + 6;
++	d->scrub_args.progress.verify_errors         = base + 7;
++	d->scrub_args.progress.no_csum               = base + 8;
++	d->scrub_args.progress.csum_discards         = base + 9;
++	d->scrub_args.progress.super_errors          = base + 10;
++	d->scrub_args.progress.malloc_errors         = base + 11;
++	d->scrub_args.progress.uncorrectable_errors  = base + 12;
++	d->scrub_args.progress.corrected_errors      = base + 13;
++	d->scrub_args.progress.last_physical         = base + 14;
++	d->stats.t_start   = (time_t)(base + 15);
++	d->stats.t_resumed = (time_t)(base + 16);
++	d->stats.duration  = base + 17;
++	d->stats.canceled  = 0;
++	d->stats.finished  = 1;
++	d->resumed = NULL;
++	d->skip = 0;
++}
++
++static void fill_short(struct scrub_progress *d)
++{
++	memset(d, 0, sizeof(*d));
++	d->scrub_args.devid = 7;
++	d->scrub_args.progress.data_extents_scrubbed = 1;
++	d->scrub_args.progress.tree_extents_scrubbed = 2;
++	d->scrub_args.progress.data_bytes_scrubbed   = 3;
++	d->scrub_args.progress.tree_bytes_scrubbed   = 4;
++	d->scrub_args.progress.read_errors           = 5;
++	d->scrub_args.progress.csum_errors           = 6;
++	d->scrub_args.progress.verify_errors         = 7;
++	d->scrub_args.progress.no_csum               = 8;
++	d->scrub_args.progress.csum_discards         = 9;
++	d->scrub_args.progress.super_errors          = 10;
++	d->scrub_args.progress.malloc_errors         = 11;
++	d->scrub_args.progress.uncorrectable_errors  = 12;
++	d->scrub_args.progress.corrected_errors      = 13;
++	d->scrub_args.progress.last_physical         = 14;
++	d->stats.t_start   = 101;
++	d->stats.t_resumed = 102;
++	d->stats.duration  = 5;
++	d->stats.canceled  = 0;
++	d->stats.finished  = 1;
++	d->resumed = NULL;
++	d->skip = 0;
++}
++
++static long slurp(const char *path, char **out)
++{
++	int fd = open(path, O_RDONLY);
++	struct stat st;
++	char *buf;
++	ssize_t n, off = 0;
+ 
+-	for (i = 1; i < strlen(path); ++i) {
+-		if (path[i] != '/')
+-			continue;
+-		path[i] = '\0';
+-		ret = mkdir(path, 0777);
+-		if (ret && errno != EEXIST)
+-			return -errno;
+-		path[i] = '/';
++	if (fd < 0)
++		return -errno;
++	if (fstat(fd, &st) < 0) { close(fd); return -errno; }
++	buf = malloc(st.st_size + 1);
++	if (!buf) { close(fd); return -ENOMEM; }
++	while (off < st.st_size) {
++		n = read(fd, buf + off, st.st_size - off);
++		if (n <= 0)
++			break;
++		off += n;
+ 	}
+-
+-	return 0;
++	close(fd);
++	buf[off] = '\0';
++	*out = buf;
++	return off;
+ }
+ 
+-static int is_scrub_running_on_fs(struct btrfs_ioctl_fs_info_args *fi_args,
+-				  struct btrfs_ioctl_dev_info_args *di_args,
+-				  struct scrub_file_record **past_scrubs)
++static void dump(const char *tag, const char *buf, long len)
+ {
+-	int i;
++	long i, j;
+ 
+-	if (!fi_args || !di_args || !past_scrubs)
+-		return 0;
+-
+-	for (i = 0; i < fi_args->num_devices; i++) {
+-		struct scrub_file_record *sfr =
+-			last_dev_scrub(past_scrubs, di_args[i].devid);
+-
+-		if (!sfr)
+-			continue;
+-		if (!(sfr->stats.finished || sfr->stats.canceled))
+-			return 1;
+-	}
+-	return 0;
+-}
+-
+-static int is_scrub_running_in_kernel(int fd,
+-		struct btrfs_ioctl_dev_info_args *di_args, u64 max_devices)
+-{
+-	struct scrub_progress sp;
+-	int i;
+-	int ret;
+-
+-	for (i = 0; i < max_devices; i++) {
+-		memset(&sp, 0, sizeof(sp));
+-		sp.scrub_args.devid = di_args[i].devid;
+-		ret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);
+-		if (!ret)
+-			return 1;
+-	}
+-
+-	return 0;
+-}
+-
+-static u64 read_scrub_device_limit(int fd, u64 devid)
+-{
+-	char path[PATH_MAX] = { 0 };
+-	u64 limit;
+-	int ret;
+-
+-	/* /sys/fs/btrfs/FSID/devinfo/1/scrub_speed_max */
+-	snprintf(path, sizeof(path), "devinfo/%llu/scrub_speed_max", devid);
+-	ret = sysfs_read_fsid_file_u64(fd, path, &limit);
+-	if (ret < 0)
+-		limit = 0;
+-	return limit;
+-}
+-
+-static u64 write_scrub_device_limit(int fd, u64 devid, u64 limit)
+-{
+-	char path[PATH_MAX] = { 0 };
+-	int ret;
+-
+-	/* /sys/fs/btrfs/FSID/devinfo/1/scrub_speed_max */
+-	snprintf(path, sizeof(path), "devinfo/%llu/scrub_speed_max", devid);
+-	ret = sysfs_write_fsid_file_u64(fd, path, limit);
+-	return ret;
+-}
+-
+-static int scrub_start(const struct cmd_struct *cmd, int argc, char **argv,
+-		       bool resume)
+-{
+-	int fdmnt;
+-	int prg_fd = -1;
+-	int fdres = -1;
+-	int ret;
+-	pid_t pid;
+-	int i;
+-	int err = 0;
+-	int e_uncorrectable = 0;
+-	int e_correctable = 0;
+-	bool print_raw = false;
+-	char *path;
+-	bool do_background = true;
+-	bool do_wait = false;
+-	bool do_print = false;
+-	bool do_record = true;
+-	bool readonly = false;
+-	bool do_stats_per_dev = false;
+-	int ioprio_class = IOPRIO_CLASS_IDLE;
+-	int ioprio_classdata = 0;
+-	int n_start = 0;
+-	int n_resume = 0;
+-	struct btrfs_ioctl_fs_info_args fi_args;
+-	struct btrfs_ioctl_dev_info_args *di_args = NULL;
+-	struct scrub_progress *sp = NULL;
+-	struct scrub_fs_stat fs_stat;
+-	struct timeval tv;
+-	struct sockaddr_un addr = {
+-		.sun_family = AF_UNIX,
+-	};
+-	pthread_t *t_devs = NULL;
+-	pthread_t t_prog;
+-	struct scrub_file_record **past_scrubs = NULL;
+-	struct scrub_file_record *last_scrub = NULL;
+-	char datafile[] = SCRUB_DATA_FILE;
+-	char fsid[BTRFS_UUID_UNPARSED_SIZE];
+-	char sock_path[PATH_MAX] = "";
+-	struct scrub_progress_cycle spc;
+-	pthread_mutex_t spc_write_mutex = PTHREAD_MUTEX_INITIALIZER;
+-	void *terr;
+-	u64 throughput_limit = 0;
+-	u64 devid;
+-	bool force = false;
+-	bool nothing_to_resume = false;
+-
+-	while (1) {
+-		int c;
+-		enum { GETOPT_VAL_LIMIT = GETOPT_VAL_FIRST };
+-		static const struct option long_options[] = {
+-			{"limit", required_argument, NULL, GETOPT_VAL_LIMIT},
+-			{ NULL, 0, NULL, 0 }
+-		};
+-
+-		c = getopt_long(argc, argv, "BdqrRc:n:f", long_options, NULL);
+-		if (c < 0)
+-			break;
+-		switch (c) {
+-		case 'B':
+-			do_background = false;
+-			do_wait = true;
+-			do_print = true;
+-			break;
+-		case 'd':
+-			do_stats_per_dev = true;
+-			break;
+-		case 'q':
+-			bconf_be_quiet();
+-			break;
+-		case 'r':
+-			readonly = true;
+-			break;
+-		case 'R':
+-			print_raw = true;
+-			break;
+-		case 'c':
+-			ioprio_class = (int)strtol(optarg, NULL, 10);
+-			break;
+-		case 'n':
+-			ioprio_classdata = (int)strtol(optarg, NULL, 10);
+-			break;
+-		case 'f':
+-			force = true;
+-			break;
+-		case GETOPT_VAL_LIMIT:
+-			throughput_limit = arg_strtou64_with_suffix(optarg);
+-			break;
+-		default:
+-			usage_unknown_option(cmd, argv);
+-		}
+-	}
+-
+-	/* try to catch most error cases before forking */
+-
+-	if (check_argc_exact(argc - optind, 1))
+-		return 1;
+-
+-	spc.progress = NULL;
+-	if (bconf.verbose == BTRFS_BCONF_QUIET && do_print)
+-		do_print = false;
+-
+-	if (mkdir_p(datafile)) {
+-		warning("cannot create scrub data file, mkdir %s failed: %m, status recording disabled",
+-			datafile);
+-		do_record = false;
+-	}
+-
+-	path = argv[optind];
+-
+-	fdmnt = btrfs_open_mnt(path);
+-	if (fdmnt < 0)
+-		return 1;
+-
+-	ret = get_fs_info(path, &fi_args, &di_args);
+-	if (ret) {
+-		errno = -ret;
+-		error("getting dev info for scrub failed: %m");
+-		err = 1;
+-		goto out;
+-	}
+-	if (!fi_args.num_devices) {
+-		error("no devices found");
+-		err = 1;
+-		goto out;
+-	}
+-
+-	uuid_unparse(fi_args.fsid, fsid);
+-	fdres = scrub_open_file_r(SCRUB_DATA_FILE, fsid);
+-	if (fdres < 0 && fdres != -ENOENT) {
+-		errno = -fdres;
+-		warning("failed to open status file: %m");
+-	} else if (fdres >= 0) {
+-		past_scrubs = scrub_read_file(fdres, 1);
+-		if (IS_ERR(past_scrubs)) {
+-			errno = -PTR_ERR(past_scrubs);
+-			warning("failed to read status file: %m");
+-		}
+-		close(fdres);
+-	}
+-
+-	/*
+-	 * Check for stale information in the status file, ie. if it's
+-	 * canceled=0, finished=0 but no scrub is running.
+-	 */
+-	if (!is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices))
+-		force = true;
+-
+-	/*
+-	 * check whether any involved device is already busy running a
+-	 * scrub. This would cause damaged status messages and the state
+-	 * "aborted" without the explanation that a scrub was already
+-	 * running. Therefore check it first, prevent it and give some
+-	 * feedback to the user if scrub is already running.
+-	 * Note that if scrub is started with a block device as the
+-	 * parameter, only that particular block device is checked. It
+-	 * is a normal mode of operation to start scrub on multiple
+-	 * single devices, there is no reason to prevent this.
+-	 */
+-	if (!force && is_scrub_running_on_fs(&fi_args, di_args, past_scrubs)) {
+-		error(  "Scrub is already running.\n"
+-			"To cancel use 'btrfs scrub cancel %s'.\n"
+-			"To see the status use 'btrfs scrub status [-d] %s'",
+-			path, path);
+-		err = 1;
+-		goto out;
+-	}
+-
+-	t_devs = malloc(fi_args.num_devices * sizeof(*t_devs));
+-	sp = calloc(fi_args.num_devices, sizeof(*sp));
+-	spc.progress = calloc(fi_args.num_devices * 2, sizeof(*spc.progress));
+-
+-	if (!t_devs || !sp || !spc.progress) {
+-		error("scrub failed: %m");
+-		err = 1;
+-		goto out;
+-	}
+-
+-	for (i = 0; i < fi_args.num_devices; ++i) {
+-		devid = di_args[i].devid;
+-		sp[i].old_limit = read_scrub_device_limit(fdmnt, devid);
+-		ret = write_scrub_device_limit(fdmnt, devid, throughput_limit);
+-		if (ret < 0) {
+-			errno = -ret;
+-			warning("failed to set scrub throughput limit on devid %llu: %m",
+-				devid);
+-		}
+-		ret = pthread_mutex_init(&sp[i].progress_mutex, NULL);
+-		if (ret) {
+-			errno = ret;
+-			error("pthread_mutex_init failed: %m");
+-			err = 1;
+-			goto out;
+-		}
+-		last_scrub = last_dev_scrub(past_scrubs, devid);
+-		sp[i].scrub_args.devid = devid;
+-		sp[i].fd = fdmnt;
+-		if (resume && last_scrub && (last_scrub->stats.canceled ||
+-					     !last_scrub->stats.finished)) {
+-			++n_resume;
+-			sp[i].scrub_args.start = last_scrub->p.last_physical;
+-			sp[i].resumed = last_scrub;
+-		} else if (resume) {
+-			sp[i].skip = 1;
+-			sp[i].resumed = last_scrub;
+-			continue;
+-		} else {
+-			++n_start;
+-			sp[i].scrub_args.start = 0ll;
+-			sp[i].resumed = NULL;
+-		}
+-		sp[i].skip = 0;
+-		sp[i].scrub_args.end = (u64)-1ll;
+-		sp[i].scrub_args.flags = readonly ? BTRFS_SCRUB_READONLY : 0;
+-		sp[i].ioprio_class = ioprio_class;
+-		sp[i].ioprio_classdata = ioprio_classdata;
+-		sp[i].limit = read_scrub_device_limit(fdmnt, devid);
+-	}
+-
+-	if (!n_start && !n_resume) {
+-		pr_default("scrub: nothing to resume for %s, fsid %s\n",
+-			   path, fsid);
+-		nothing_to_resume = true;
+-		goto out;
+-	}
+-
+-	ret = prg_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+-	while (ret != -1) {
+-		ret = scrub_datafile(SCRUB_PROGRESS_SOCKET_PATH, fsid, NULL,
+-					sock_path, sizeof(sock_path));
+-		/* ignore EOVERFLOW, try using a shorter path for the socket */
+-		addr.sun_path[sizeof(addr.sun_path) - 1] = '\0';
+-		strncpy_null(addr.sun_path, sock_path, sizeof(addr.sun_path));
+-		ret = bind(prg_fd, (struct sockaddr *)&addr, sizeof(addr));
+-		if (ret != -1 || errno != EADDRINUSE)
+-			break;
+-		/*
+-		 * bind failed with EADDRINUSE. so let's see if anyone answers
+-		 * when we make a call to the socket ...
+-		 */
+-		ret = connect(prg_fd, (struct sockaddr *)&addr, sizeof(addr));
+-		if (!ret || errno != ECONNREFUSED) {
+-			/* ... yes, so scrub must be running. error out */
+-			error("scrub already running");
+-			close(prg_fd);
+-			prg_fd = -1;
+-			goto out;
+-		}
+-		/*
+-		 * ... no, this means someone left us alone with an unused
+-		 * socket in the file system. remove it and try again.
+-		 */
+-		ret = unlink(sock_path);
+-	}
+-	if (ret != -1)
+-		ret = listen(prg_fd, 100);
+-	if (ret == -1) {
+-		warning("failed to open the progress status socket at %s: %m, progress cannot be queried",
+-			sock_path[0] ? sock_path :
+-			SCRUB_PROGRESS_SOCKET_PATH);
+-		if (prg_fd != -1) {
+-			close(prg_fd);
+-			prg_fd = -1;
+-			if (sock_path[0])
+-				unlink(sock_path);
+-		}
+-	}
+-
+-	if (do_record) {
+-		/* write all-zero progress file for a start */
+-		ret = scrub_write_progress(&spc_write_mutex, fsid, sp,
+-					   fi_args.num_devices);
+-		if (ret) {
+-			errno = -ret;
+-			warning("failed to write the progress status file: %m, status recording disabled");
+-			do_record = false;
+-		}
+-	}
+-
+-	if (do_background) {
+-		pid = fork();
+-		if (pid == -1) {
+-			error("cannot scrub, fork failed: %m");
+-			err = 1;
+-			goto out;
+-		}
+-
+-		if (pid) {
+-			int stat;
+-			scrub_handle_sigint_parent();
+-			pr_default("scrub %s on %s, fsid %s (pid=%d)\n",
+-				   n_start ? "started" : "resumed",
+-				   path, fsid, pid);
+-			if (!do_wait) {
+-				err = 0;
+-				goto out;
+-			}
+-			ret = wait(&stat);
+-			if (ret != pid) {
+-				error("wait failed (ret=%d): %m", ret);
+-				err = 1;
+-				goto out;
+-			}
+-			if (!WIFEXITED(stat) || WEXITSTATUS(stat)) {
+-				err = WIFEXITED(stat) ? WEXITSTATUS(stat) : -1;
+-				error("scrub process failed with error %d", err);
+-				goto out;
+-			}
+-			err = 0;
+-			goto out;
+-		}
+-	}
+-
+-	scrub_handle_sigint_child(fdmnt);
+-
+-	for (i = 0; i < fi_args.num_devices; ++i) {
+-		if (sp[i].skip) {
+-			sp[i].scrub_args.progress = sp[i].resumed->p;
+-			sp[i].stats = sp[i].resumed->stats;
+-			sp[i].ret = 0;
+-			sp[i].stats.finished = 1;
+-			continue;
+-		}
+-		devid = di_args[i].devid;
+-		gettimeofday(&tv, NULL);
+-		sp[i].stats.t_start = tv.tv_sec;
+-		pr_default("Starting scrub on devid %llu", devid);
+-		if (sp[i].limit > 0)
+-			pr_default(" (limit %s/s)\n", pretty_size(sp[i].limit));
+-		else
+-			pr_default("\n");
+-
+-		ret = pthread_create(&t_devs[i], NULL,
+-					scrub_one_dev, &sp[i]);
+-		if (ret) {
+-			if (do_print) {
+-				errno = ret;
+-				error(
+-				"creating scrub_one_dev[%llu] thread failed: %m",
+-					devid);
+-			}
+-			err = 1;
+-			goto out;
+-		}
+-	}
+-
+-	spc.fdmnt = fdmnt;
+-	spc.prg_fd = prg_fd;
+-	spc.do_record = do_record;
+-	spc.write_mutex = &spc_write_mutex;
+-	spc.shared_progress = sp;
+-	spc.fi = &fi_args;
+-	ret = pthread_create(&t_prog, NULL, scrub_progress_cycle, &spc);
+-	if (ret) {
+-		if (do_print) {
+-			errno = ret;
+-			error("creating progress thread failed: %m");
+-		}
+-		err = 1;
+-		goto out;
+-	}
+-
+-	err = 0;
+-	for (i = 0; i < fi_args.num_devices; ++i) {
+-		/* Revert to the older scrub limit. */
+-		ret = write_scrub_device_limit(fdmnt, di_args[i].devid, sp[i].old_limit);
+-		if (ret < 0) {
+-			errno = -ret;
+-			warning("failed to reset scrub throughput limit on devid %llu: %m",
+-				di_args[i].devid);
+-		}
+-
+-		if (sp[i].skip)
+-			continue;
+-		devid = di_args[i].devid;
+-		ret = pthread_join(t_devs[i], NULL);
+-		if (ret) {
+-			if (do_print) {
+-				errno = ret;
+-				error(
+-				"pthread_join failed for scrub_one_dev[%llu]: %m",
+-					devid);
+-			}
+-			++err;
+-			continue;
+-		}
+-		if (sp[i].ret) {
+-			switch (sp[i].ioctl_errno) {
+-			case ENODEV:
+-				if (do_print)
+-					warning("device %lld not present",
+-						devid);
+-				continue;
+-			case ECANCELED:
+-				++err;
+-				break;
+-			default:
+-				if (do_print) {
+-					errno = sp[i].ioctl_errno;
+-					error(
+-		"scrubbing %s failed for device id %lld: ret=%d, errno=%d (%m)",
+-						path, devid, sp[i].ret,
+-						sp[i].ioctl_errno);
+-				}
+-				++err;
+-				continue;
+-			}
+-		}
+-		if (sp[i].scrub_args.progress.uncorrectable_errors > 0)
+-			e_uncorrectable++;
+-		if (sp[i].scrub_args.progress.corrected_errors > 0
+-		    || sp[i].scrub_args.progress.unverified_errors > 0)
+-			e_correctable++;
+-	}
+-
+-	if (do_print) {
+-		const char *append = "done";
+-		u64 total_bytes_scrubbed = 0;
+-		u64 limit = 0;
+-
+-		if (!do_stats_per_dev)
+-			init_fs_stat(&fs_stat);
+-		for (i = 0; i < fi_args.num_devices; ++i) {
+-			struct btrfs_scrub_progress *cur_progress =
+-						&sp[i].scrub_args.progress;
+-
+-			/* On a multi-device filesystem, keep the lowest limit only. */
+-			if (!limit || (sp[i].limit && sp[i].limit < limit))
+-				limit = sp[i].limit;
+-
+-			if (do_stats_per_dev) {
+-				print_scrub_dev(&di_args[i],
+-						cur_progress,
+-						print_raw,
+-						sp[i].ret ? "canceled" : "done",
+-						&sp[i].stats,
+-						sp[i].limit);
+-			} else {
+-				if (sp[i].ret)
+-					append = "canceled";
+-				add_to_fs_stat(cur_progress, &sp[i].stats, &fs_stat);
+-			}
+-			total_bytes_scrubbed += cur_progress->data_bytes_scrubbed +
+-						cur_progress->tree_bytes_scrubbed;
+-		}
+-		if (!do_stats_per_dev) {
+-			pr_default("scrub %s for %s\n", append, fsid);
+-			print_fs_stat(&fs_stat, print_raw, total_bytes_scrubbed,
+-				      fi_args.num_devices, limit);
++	printf("--- %s (%ld bytes) ---\n", tag, len);
++	for (i = 0; i < len; i += 32) {
++		printf("%08lx  ", i);
++		for (j = 0; j < 32; ++j) {
++			if (i + j < len)
++				printf("%02x ", (unsigned char)buf[i + j]);
++			else
++				printf("   ");
+ 		}
+-	}
+-
+-	ret = pthread_cancel(t_prog);
+-	if (!ret)
+-		ret = pthread_join(t_prog, &terr);
+-
+-	/* check for errors from the handling of the progress thread */
+-	if (do_print && ret) {
+-		errno = ret;
+-		error("progress thread handling failed: %m");
+-	}
+-
+-	/* check for errors returned from the progress thread itself */
+-	if (do_print && terr && terr != PTHREAD_CANCELED) {
+-		errno = -PTR_ERR(terr);
+-		error("recording progress failed: %m");
+-	}
+-
+-	if (do_record) {
+-		ret = scrub_write_progress(&spc_write_mutex, fsid, sp,
+-					   fi_args.num_devices);
+-		if (ret && do_print) {
+-			errno = -ret;
+-			error("failed to record the result: %m");
++		printf(" |");
++		for (j = 0; j < 32 && i + j < len; ++j) {
++			unsigned char c = buf[i + j];
++			putchar(c >= 32 && c < 127 ? c : '.');
+ 		}
++		printf("|\n");
+ 	}
+-
+-	scrub_handle_sigint_child(-1);
+-
+-out:
+-	free_history(past_scrubs);
+-	free(di_args);
+-	free(t_devs);
+-	free(sp);
+-	free(spc.progress);
+-	if (prg_fd > -1) {
+-		close(prg_fd);
+-		if (sock_path[0])
+-			unlink(sock_path);
+-	}
+-	close(fdmnt);
+-
+-	if (err)
+-		return 1;
+-	if (nothing_to_resume)
+-		return 2;
+-	if (e_uncorrectable) {
+-		error("there are %d device(s) with uncorrectable errors", e_uncorrectable);
+-		return 3;
+-	}
+-	if (e_correctable)
+-		warning("errors detected during scrubbing, %d corrected", e_correctable);
+-
+-	return 0;
+-}
+-
+-static const char * const cmd_scrub_start_usage[] = {
+-	"btrfs scrub start [options] <path>|<device>",
+-	"Start a new scrub on the filesystem or a device (can be started only once)",
+-	"",
+-	OPTLINE("-B", "do not background"),
+-	OPTLINE("-d", "stats per device (-B only)"),
+-	OPTLINE("-r", "read only mode (no repairs done)"),
+-	OPTLINE("-R", "raw print mode, print full data instead of summary"),
+-	OPTLINE("--limit SIZE", "set the throughput limit for each device (0 for unlimited), restored afterwards"),
+-	OPTLINE("-f", "force starting new scrub even if a scrub is already running this is useful when scrub stats record file is damaged"),
+-	OPTLINE("-q", "deprecated, alias for global -q option"),
+-	"",
+-	"Priority (requires IO scheduler support, not supported by mq-deadline):",
+-	OPTLINE("-c CLASS ", "set ioprio class (see ionice(1) manpage), "),
+-	OPTLINE("-n CDATA", "set ioprio classdata (see ionice(1) manpage)"),
+-	HELPINFO_INSERT_GLOBALS,
+-	HELPINFO_INSERT_QUIET,
+-	NULL
+-};
+-
+-static int cmd_scrub_start(const struct cmd_struct *cmd, int argc, char **argv)
+-{
+-	return scrub_start(cmd, argc, argv, false);
+ }
+-static DEFINE_SIMPLE_COMMAND(scrub_start, "start");
+-
+-static const char * const cmd_scrub_cancel_usage[] = {
+-	"btrfs scrub cancel <path>|<device>",
+-	"Cancel a running scrub",
+-	HELPINFO_INSERT_GLOBALS,
+-	HELPINFO_INSERT_QUIET,
+-	NULL
+-};
+ 
+-static int cmd_scrub_cancel(const struct cmd_struct *cmd, int argc, char **argv)
++static void readback(const char *tag, int report_errors)
+ {
+-	char *path;
+-	int ret;
+-	int fdmnt = -1;
+-
+-	clean_args_no_options(cmd, argc, argv);
+-
+-	if (check_argc_exact(argc - optind, 1))
+-		return 1;
+-
+-	path = argv[optind];
+-
+-	fdmnt = btrfs_open_mnt(path);
+-	if (fdmnt < 0) {
+-		ret = 1;
+-		goto out;
+-	}
+-
+-	ret = ioctl(fdmnt, BTRFS_IOC_SCRUB_CANCEL, NULL);
+-
+-	if (ret < 0) {
+-		error("scrub cancel failed on %s: %s", path,
+-			errno == ENOTCONN ? "not running" : strerror(errno));
+-		if (errno == ENOTCONN)
+-			ret = 2;
+-		else
+-			ret = 1;
+-		goto out;
+-	}
+-
+-	ret = 0;
+-	pr_default("scrub cancelled\n");
+-
+-out:
+-	close(fdmnt);
+-	return ret;
+-}
+-static DEFINE_SIMPLE_COMMAND(scrub_cancel, "cancel");
+-
+-static const char * const cmd_scrub_resume_usage[] = {
+-	"btrfs scrub resume [-BdqrR] [-c ioprio_class -n ioprio_classdata] <path>|<device>",
+-	"Resume previously canceled or interrupted scrub",
+-	"",
+-	OPTLINE("-B", "do not background"),
+-	OPTLINE("-d", "stats per device (-B only)"),
+-	OPTLINE("-r", "read only mode"),
+-	OPTLINE("-R", "raw print mode, print full data instead of summary"),
+-	OPTLINE("-q", "deprecated, alias for global -q option"),
+-	"",
+-	"Priority (requires IO scheduler support, not supported by mq-deadline):",
+-	OPTLINE("-c CLASS", "set ioprio class (see ionice(1) manpage)"),
+-	OPTLINE("-n CDATA", "set ioprio classdata (see ionice(1) manpage)"),
+-	HELPINFO_INSERT_GLOBALS,
+-	HELPINFO_INSERT_QUIET,
+-	NULL
+-};
+-
+-static int cmd_scrub_resume(const struct cmd_struct *cmd, int argc, char **argv)
+-{
+-	return scrub_start(cmd, argc, argv, true);
+-}
+-static DEFINE_SIMPLE_COMMAND(scrub_resume, "resume");
+-
+-static const char * const cmd_scrub_status_usage[] = {
+-	"btrfs scrub status [-dR] <path>|<device>",
+-	"Show status of running or finished scrub",
+-	"",
+-	OPTLINE("-d", "stats per device"),
+-	OPTLINE("-R", "print raw stats"),
+-	HELPINFO_UNITS_LONG,
+-	NULL
+-};
+-
+-static int cmd_scrub_status(const struct cmd_struct *cmd, int argc, char **argv)
+-{
+-	char *path;
+-	struct btrfs_ioctl_fs_info_args fi_args;
+-	struct btrfs_ioctl_dev_info_args *di_args = NULL;
+-	struct btrfs_ioctl_space_args *si_args = NULL;
+-	struct scrub_file_record **past_scrubs = NULL;
+-	struct scrub_file_record *last_scrub;
+-	struct scrub_fs_stat fs_stat;
+-	struct sockaddr_un addr = {
+-		.sun_family = AF_UNIX,
+-	};
+-	int in_progress;
+-	int ret;
++	int fd;
++	struct scrub_file_record **p;
+ 	int i;
+-	int fdmnt;
+-	bool print_raw = false;
+-	bool do_stats_per_dev = false;
+-	int c;
+-	char fsid[BTRFS_UUID_UNPARSED_SIZE];
+-	int fdres = -1;
+-	int err = 0;
+-
+-	unit_mode = get_unit_mode_from_arg(&argc, argv, 0);
+-
+-	optind = 0;
+-	while ((c = getopt(argc, argv, "dR")) != -1) {
+-		switch (c) {
+-		case 'd':
+-			do_stats_per_dev = true;
+-			break;
+-		case 'R':
+-			print_raw = true;
+-			break;
+-		default:
+-			usage_unknown_option(cmd, argv);
+-		}
+-	}
+ 
+-	if (check_argc_exact(argc - optind, 1))
+-		return 1;
+-
+-	path = argv[optind];
+-
+-	fdmnt = btrfs_open_mnt(path);
+-	if (fdmnt < 0)
+-		return 1;
+-
+-	ret = get_fs_info(path, &fi_args, &di_args);
+-	if (ret) {
+-		errno = -ret;
+-		error("getting dev info for scrub failed: %m");
+-		err = 1;
+-		goto out;
++	printf("\n### readback %s (report_errors=%d)\n", tag, report_errors);
++	stub_warn_count = 0;
++	fd = scrub_open_file_r(SCRUB_DATA_FILE, FSID);
++	if (fd < 0) {
++		printf("open failed: %d (%s)\n", fd, strerror(-fd));
++		return;
+ 	}
+-	if (!fi_args.num_devices) {
+-		error("no devices found");
+-		err = 1;
+-		goto out;
+-	}
+-	ret = get_df(fdmnt, &si_args);
+-	if (ret) {
+-		errno = -ret;
+-		error("cannot get space info: %m");
+-		err = 1;
+-		goto out;
+-	}
+-
+-	uuid_unparse(fi_args.fsid, fsid);
+-
+-	fdres = socket(AF_UNIX, SOCK_STREAM, 0);
+-	if (fdres == -1) {
+-		error("failed to create socket to receive progress information: %m");
+-		err = 1;
+-		goto out;
+-	}
+-	scrub_datafile(SCRUB_PROGRESS_SOCKET_PATH, fsid,
+-			NULL, addr.sun_path, sizeof(addr.sun_path));
+-	/* ignore EOVERFLOW, just use shorter name and hope for the best */
+-	addr.sun_path[sizeof(addr.sun_path) - 1] = '\0';
+-	ret = connect(fdres, (struct sockaddr *)&addr, sizeof(addr));
+-	if (ret == -1) {
+-		close(fdres);
+-		fdres = scrub_open_file_r(SCRUB_DATA_FILE, fsid);
+-		if (fdres < 0 && fdres != -ENOENT) {
+-			errno = -fdres;
+-			warning("failed to open status file: %m");
+-			err = 1;
+-			goto out;
+-		}
+-	}
+-
+-	if (fdres >= 0) {
+-		past_scrubs = scrub_read_file(fdres, 1);
+-		if (IS_ERR(past_scrubs)) {
+-			errno = -PTR_ERR(past_scrubs);
+-			warning("failed to read status: %m");
+-		}
+-	}
+-	in_progress = is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices);
+-
+-	pr_default("UUID:             %s\n", fsid);
+-
+-	if (do_stats_per_dev) {
+-		for (i = 0; i < fi_args.num_devices; ++i) {
+-			u64 limit;
+-
+-			limit = read_scrub_device_limit(fdmnt, di_args[i].devid);
+-			last_scrub = last_dev_scrub(past_scrubs,
+-							di_args[i].devid);
+-			if (!last_scrub) {
+-				print_scrub_dev(&di_args[i], NULL, print_raw,
+-						NULL, NULL, limit);
+-				continue;
+-			}
+-			last_scrub->stats.in_progress = in_progress;
+-			print_scrub_dev(&di_args[i], &last_scrub->p, print_raw,
+-					last_scrub->stats.finished ?
+-							"history" : "status",
+-					&last_scrub->stats, limit);
+-		}
++	p = scrub_read_file(fd, report_errors);
++	close(fd);
++	if (IS_ERR(p)) {
++		printf("scrub_read_file -> ERR_PTR(%ld)\n", -PTR_ERR(p));
++	} else if (!p) {
++		printf("scrub_read_file -> NULL\n");
+ 	} else {
+-		u64 total_bytes_used = 0;
+-		struct btrfs_ioctl_space_info *sp = si_args->spaces;
+-		u64 limit = 0;
+-
+-		init_fs_stat(&fs_stat);
+-		fs_stat.s.in_progress = in_progress;
+-		for (i = 0; i < fi_args.num_devices; ++i) {
+-			/* On a multi-device filesystem, keep the lowest limit only. */
+-			u64 this_limit = read_scrub_device_limit(fdmnt, di_args[i].devid);
+-			if (!limit || (this_limit && this_limit < limit))
+-				limit = this_limit;
+-
+-			last_scrub = last_dev_scrub(past_scrubs,
+-							di_args[i].devid);
+-			if (!last_scrub)
+-				continue;
+-			add_to_fs_stat(&last_scrub->p, &last_scrub->stats,
+-					&fs_stat);
+-		}
+-		for (i = 0; i < si_args->total_spaces; i++, sp++) {
+-			const int index = btrfs_bg_flags_to_raid_index(sp->flags);
+-			const int factor = btrfs_raid_array[index].ncopies;
+-
+-			/* This is still slightly off for RAID56 */
+-			total_bytes_used += sp->used_bytes * factor;
+-		}
+-		print_fs_stat(&fs_stat, print_raw, total_bytes_used,
+-			      fi_args.num_devices, limit);
++		for (i = 0; p[i]; ++i) {
++			char u[64];
++			uuid_unparse(p[i]->fsid, u);
++			printf("record[%d]: fsid=%s devid=%llu data_extents=%llu "
++			       "last_physical=%llu t_start=%lld t_resumed=%lld "
++			       "duration=%llu finished=%llu canceled=%llu\n",
++			       i, u, (unsigned long long)p[i]->devid,
++			       (unsigned long long)p[i]->p.data_extents_scrubbed,
++			       (unsigned long long)p[i]->p.last_physical,
++			       (long long)p[i]->stats.t_start,
++			       (long long)p[i]->stats.t_resumed,
++			       (unsigned long long)p[i]->stats.duration,
++			       (unsigned long long)p[i]->stats.finished,
++			       (unsigned long long)p[i]->stats.canceled);
++		}
++		printf("scrub_read_file -> %d record(s)\n", i);
++		free_history(p);
+ 	}
+-
+-out:
+-	free_history(past_scrubs);
+-	free(di_args);
+-	free(si_args);
+-	if (fdres > -1)
+-		close(fdres);
+-	close(fdmnt);
+-
+-	return !!err;
++	printf("warnings emitted: %d, errors emitted: %d\n",
++	       stub_warn_count, stub_err_count);
+ }
+-static DEFINE_SIMPLE_COMMAND(scrub_status, "status");
+-
+-static const char * const cmd_scrub_limit_usage[] = {
+-	"btrfs scrub limit [options] <path>",
+-	"Show or set scrub limits on devices of the given filesystem.",
+-	"",
+-	OPTLINE("-a, --all", "apply the limit to all devices"),
+-	OPTLINE("-d, --devid DEVID", "select the device by DEVID to apply the limit"),
+-	OPTLINE("-l, --limit SIZE", "set the limit of the device to SIZE (size units with suffix), or 0 to reset to unlimited"),
+-	HELPINFO_UNITS_LONG,
+-	NULL
+-};
+ 
+-static int cmd_scrub_limit(const struct cmd_struct *cmd, int argc, char **argv)
++int main(void)
+ {
+-	struct btrfs_ioctl_fs_info_args fi_args = { 0 };
+-	char fsid[BTRFS_UUID_UNPARSED_SIZE];
+-	struct string_table *table = NULL;
+-	int ret;
+-	int fd = -1;
+-	int cols, idx;
+-	u64 opt_devid = 0;
+-	bool devid_set = false;
+-	u64 opt_limit = 0;
+-	bool limit_set = false;
+-	bool all_set = false;
+-
+-	unit_mode = get_unit_mode_from_arg(&argc, argv, 0);
+-
+-	optind = 0;
+-	while (1) {
+-		int c;
+-		static const struct option long_options[] = {
+-			{ "all", no_argument, NULL, 'a' },
+-			{ "devid", required_argument, NULL, 'd' },
+-			{ "limit", required_argument, NULL, 'l' },
+-			{ NULL, 0, NULL, 0 }
+-		};
+-
+-		c = getopt_long(argc, argv, "ad:l:", long_options, NULL);
+-		if (c < 0)
+-			break;
++	struct scrub_progress longrec, shortrec;
+ 
+-		switch (c) {
+-		case 'a':
+-			all_set = true;
+-			break;
+-		case 'd':
+-			opt_devid = arg_strtou64(optarg);
+-			devid_set = true;
+-			break;
+-		case 'l':
+-			opt_limit = arg_strtou64_with_suffix(optarg);
+-			limit_set = true;
+-			break;
+-		default:
+-			usage_unknown_option(cmd, argv);
+-		}
+-	}
+-	if (check_argc_exact(argc - optind, 1))
+-		return 1;
++	setvbuf(stdout, NULL, _IOLBF, 0);
++	char *A = NULL, *B = NULL, *F = NULL;
++	long lenA = 0, lenB = 0, lenF = 0, writtenLong = 0, writtenShort = 0;
++	int err;
+ 
+-	if (devid_set && all_set) {
+-		error("--all and --devid cannot be used at the same time");
+-		return 1;
+-	}
+-
+-	if (devid_set && !limit_set) {
+-		error("--devid and --limit must be set together");
+-		return 1;
+-	}
+-	if (all_set && !limit_set) {
+-		error("--all and --limit must be set together");
+-		return 1;
+-	}
+-	if (!all_set && !devid_set && limit_set) {
+-		error("--limit must be used with either --all or --devid");
+-		return 1;
+-	}
+-
+-	fd = btrfs_open_file_or_dir(argv[optind]);
+-	if (fd < 0)
+-		return 1;
+-
+-	ret = ioctl(fd, BTRFS_IOC_FS_INFO, &fi_args);
+-	if (ret < 0) {
+-		error("failed to read filesystem info: %m");
+-		ret = 1;
+-		goto out;
+-	}
+-	if (fi_args.num_devices == 0) {
+-		error("no devices found");
+-		ret = 1;
+-		goto out;
+-	}
+-	uuid_unparse(fi_args.fsid, fsid);
+-	pr_default("UUID: %s\n", fsid);
+-
+-	if (devid_set) {
+-		/* Set one device only. */
+-		struct btrfs_ioctl_dev_info_args di_args = { 0 };
+-		u64 limit;
+-
+-		ret = device_get_info(fd, opt_devid, &di_args);
+-		if (ret == -ENODEV) {
+-			error("device with devid %llu not found", opt_devid);
+-			ret = 1;
+-			goto out;
+-		}
+-		limit = read_scrub_device_limit(fd, opt_devid);
+-		pr_default("Set scrub limit of devid %llu from %s%s to %s%s\n",
+-			   opt_devid,
+-			   limit > 0 ? pretty_size_mode(limit, unit_mode) : "unlimited",
+-			   limit > 0 ? "/s" : "",
+-			   opt_limit > 0 ? pretty_size_mode(opt_limit, unit_mode) : "unlimited",
+-			   opt_limit > 0 ? "/s" : "");
+-		ret = write_scrub_device_limit(fd, opt_devid, opt_limit);
+-		if (ret < 0) {
+-			errno = -ret;
+-			error("cannot write to the sysfs file: %m");
+-			ret = 1;
+-		}
+-		ret = 0;
+-		goto out;
+-	}
+-
+-	if (all_set && limit_set) {
+-		/* Set on all devices. */
+-		for (u64 devid = 1; devid <= fi_args.max_id; devid++) {
+-			u64 limit;
+-			struct btrfs_ioctl_dev_info_args di_args = { 0 };
+-
+-			ret = device_get_info(fd, devid, &di_args);
+-			if (ret == -ENODEV) {
+-				continue;
+-			} else if (ret < 0) {
+-				errno = -ret;
+-				error("cannot read devid %llu info: %m", devid);
+-				goto out;
+-			}
+-			limit = read_scrub_device_limit(fd, di_args.devid);
+-			pr_default("Set scrub limit of devid %llu from %s%s to %s%s\n",
+-				   devid,
+-				   limit > 0 ? pretty_size_mode(limit, unit_mode) : "unlimited",
+-				   limit > 0 ? "/s" : "",
+-				   opt_limit > 0 ? pretty_size_mode(opt_limit, unit_mode) : "unlimited",
+-				   opt_limit > 0 ? "/s" : "");
+-			ret = write_scrub_device_limit(fd, devid, opt_limit);
+-			if (ret < 0) {
+-				error("cannot write to the sysfs file of devid %llu: %m", devid);
+-				goto out;
+-			}
+-		}
+-		ret = 0;
+-		goto out;
+-	}
+-
+-	cols = 3;
+-	table = table_create(cols, 2 + fi_args.num_devices);
+-	if (!table) {
+-		error_mem(NULL);
+-		ret = 1;
+-		goto out;
+-	}
+-	table->spacing = STRING_TABLE_SPACING_2;
+-	idx = 0;
+-	table_printf(table, idx++, 0, ">Id");
+-	table_printf(table, idx++, 0, ">Limit");
+-	table_printf(table, idx++, 0, ">Path");
+-	for (int i = 0; i < cols; i++)
+-	     table_printf(table, i, 1, "*-");
+-
+-	for (u64 devid = 1, i = 0; devid <= fi_args.max_id; devid++) {
+-		u64 limit;
+-		struct btrfs_ioctl_dev_info_args di_args = { 0 };
+-
+-		ret = device_get_info(fd, devid, &di_args);
+-		if (ret == -ENODEV) {
+-			continue;
+-		} else if (ret < 0) {
+-			errno = -ret;
+-			error("cannot read devid %llu info: %m", devid);
+-			goto out;
+-		}
+-
+-		limit = read_scrub_device_limit(fd, di_args.devid);
+-		idx = 0;
+-		table_printf(table, idx++, 2 + i, ">%llu", di_args.devid);
+-		if (limit > 0) {
+-			table_printf(table, idx++, 2 + i, ">%s",
+-				     pretty_size_mode(limit, unit_mode));
+-		} else {
+-			table_printf(table, idx++, 2 + i, ">%s", "-");
+-		}
+-		table_printf(table, idx++, 2 + i, "<%s", di_args.path);
+-		i++;
+-	}
+-	table_dump(table);
+-
+-out:
+-	if (table)
+-		table_free(table);
+-	close(fd);
+-
+-	return !!ret;
++	mkdirtree();
++	fill_long(&longrec);
++	fill_short(&shortrec);
++
++	/* --- baseline 0: long record alone, normal path (rename performed) --- */
++	clean_state();
++	err = record(&longrec, 1, 1, &writtenLong);
++	lenA = slurp(FINAL, &A);
++	printf("### case 0 (baseline): long record, rename performed\n");
++	printf("record() -> %d, write offset at end = %ld, file size = %ld\n",
++	       err, writtenLong, lenA);
++	dump("A = final file, long record only", A, lenA);
++
++	/* --- baseline 1: short record alone, fresh dir (no _tmp) --- */
++	clean_state();
++	err = record(&shortrec, 1, 1, &writtenShort);
++	lenB = slurp(FINAL, &B);
++	printf("\n### case 1 (baseline): short record, fresh dir, rename performed\n");
++	printf("record() -> %d, write offset at end = %ld, file size = %ld\n",
++	       err, writtenShort, lenB);
++	dump("B = final file, short record only", B, lenB);
++
++	/* --- case 2: REPRODUCTION --- */
++	clean_state();
++	printf("\n### case 2 (reproduction): long record, rename SKIPPED (_tmp left behind)\n");
++	err = record(&longrec, 1, 0, &writtenLong);
++	{
++		char *T = NULL;
++		long lenT = slurp(TMPF, &T);
++		printf("record(long, do_rename=0) -> %d; _tmp size = %ld; final exists = %d\n",
++		       err, lenT, access(FINAL, F_OK) == 0);
++		free(T);
++	}
++	printf("now writing the SHORTER record through the normal path:\n");
++	err = record(&shortrec, 1, 1, &writtenShort);
++	lenF = slurp(FINAL, &F);
++	printf("record(short, do_rename=1) -> %d, write offset at end = %ld, final file size = %ld\n",
++	       err, writtenShort, lenF);
++	dump("F = final file after short-over-long", F, lenF);
++
++	printf("\n### case 2 invariants\n");
++	printf("size(F)=%ld  size(A)=%ld  writtenShort=%ld  size(B)=%ld\n",
++	       lenF, lenA, writtenShort, lenB);
++	printf("CHECK size(F) == size(A)            : %s\n",
++	       lenF == lenA ? "yes" : "NO");
++	printf("CHECK F[0:writtenShort] == B        : %s\n",
++	       (writtenShort == lenB && memcmp(F, B, lenB) == 0) ? "yes" : "NO");
++	printf("CHECK F[writtenShort:] == A[writtenShort:] : %s\n",
++	       (lenF >= writtenShort &&
++		memcmp(F + writtenShort, A + writtenShort, lenF - writtenShort) == 0) ?
++	       "yes" : "NO");
++	printf("trailing bytes = %ld\n", lenF - writtenShort);
++	printf("trailing bytes as text: \"");
++	fwrite(F + writtenShort, 1, lenF - writtenShort, stdout);
++	printf("\"\n");
++
++	/* write the bytes out for external xxd/od receipts */
++	{
++		FILE *o;
++		o = fopen("final.bin", "wb"); fwrite(F, 1, lenF, o); fclose(o);
++		o = fopen("longA.bin", "wb"); fwrite(A, 1, lenA, o); fclose(o);
++		o = fopen("freshshort.bin", "wb"); fwrite(B, 1, lenB, o); fclose(o);
++	}
++
++	/* --- case 3: control, short then long (longer next record) --- */
++	clean_state();
++	printf("\n### case 3 (control): short record, rename skipped, then LONGER record\n");
++	err = record(&shortrec, 1, 0, NULL);
++	printf("record(short, do_rename=0) -> %d\n", err);
++	err = record(&longrec, 1, 1, &writtenShort);
++	lenF = slurp(FINAL, &F);
++	printf("record(long, do_rename=1) -> %d, final size = %ld (A size %ld)\n",
++	       err, lenF, lenA);
++	printf("CHECK final == A (no residue)       : %s\n",
++	       (lenF == lenA && memcmp(F, A, lenA) == 0) ? "yes" : "NO");
++
++	/* --- case 4: readback of the reproduced file, and controls --- */
++	clean_state();
++	record(&longrec, 1, 0, NULL);	/* leave _tmp */
++	record(&shortrec, 1, 1, NULL);	/* shorter record renames over the tail */
++	readback("REPRODUCED short-over-long file", 1);
++	readback("REPRODUCED short-over-long file, report_errors=0", 0);
++
++	clean_state();
++	record(&longrec, 1, 1, NULL);
++	readback("control: clean long record", 1);
++
++	clean_state();
++	record(&shortrec, 1, 1, NULL);
++	readback("control: clean short record", 1);
++
++	/* --- case 5: every later attempt reuses the same stale _tmp (still no O_TRUNC) --- */
++	clean_state();
++	printf("\n### case 5 (reuse): long record abandoned in _tmp, then three shorter attempts\n");
++	record(&longrec, 1, 0, NULL);
++	printf("_tmp after abandoned long record: size = %ld, final exists = %d\n",
++	       slurp(TMPF, &F), access(FINAL, F_OK) == 0);
++	free(F); F = NULL;
++	{
++		int k;
++		for (k = 0; k < 3; ++k) {
++			struct scrub_progress d;
++			long w = 0;
++			memset(&d, 0, sizeof(d));
++			d.scrub_args.devid = 1 + k;
++			d.scrub_args.progress.data_extents_scrubbed = k;
++			d.scrub_args.progress.last_physical = k;
++			d.stats.t_start = k;
++			d.stats.finished = 1;
++			record(&d, 1, 0, &w);            /* attempt fails/aborts before rename */
++			printf("attempt %d: wrote %ld bytes into _tmp, _tmp size = %ld\n",
++			       k, w, slurp(TMPF, &F));
++			free(F); F = NULL;
++		}
++	}
++	{
++		struct scrub_progress d;
++		long w = 0;
++		memset(&d, 0, sizeof(d));
++		d.scrub_args.devid = 9;
++		d.scrub_args.progress.data_extents_scrubbed = 9;
++		d.scrub_args.progress.last_physical = 9;
++		d.stats.t_start = 9;
++		d.stats.finished = 1;
++		record(&d, 1, 1, &w);                    /* this one renames */
++		lenF = slurp(FINAL, &F);
++		printf("final attempt renames: wrote %ld bytes, final size = %ld, residue = %ld\n",
++		       w, lenF, lenF - w);
++		printf("trailing bytes as text: \"");
++		fwrite(F + w, 1, lenF - w, stdout);
++		printf("\"\n");
++		readback("REUSED ABANDONED _tmp (3 failed attempts, then rename)", 1);
++		free(F); F = NULL;
++	}
++
++	/* --- case 6: rename fails EACCES inside the copied error branch of scrub_write_progress --- */
++	clean_state();
++	printf("\n### case 6 (failure path): abandoned long _tmp, rename returns EACCES\n");
++	err = record(&longrec, 1, 0, NULL);          /* _tmp = long record, final absent */
++	printf("abandoned long _tmp: record err = %d, _tmp size = %ld\n",
++	       err, slurp(TMPF, &F));
++	free(F); F = NULL;
++	if (chmod(DIR, 0500) != 0) {
++		printf("chmod 0500 failed: %s\n", strerror(errno));
++	} else {
++		err = record(&shortrec, 1, 1, NULL);  /* open(existing _tmp) ok, rename EACCES */
++		printf("record(short) with dir mode 0500 -> err = %d (%s)\n",
++		       err, err ? strerror(-err) : "ok");
++		printf("_tmp size after failed rename = %ld ; final exists = %d\n",
++		       slurp(TMPF, &F), access(FINAL, F_OK) == 0);
++		free(F); F = NULL;
++		chmod(DIR, 0700);
++		err = record(&shortrec, 1, 1, &writtenShort); /* same _tmp reused, rename ok */
++		lenF = slurp(FINAL, &F);
++		printf("record(short) retry after chmod 0700 -> err = %d, wrote %ld, final size = %ld (long was %ld)\n",
++		       err, writtenShort, lenF, lenA);
++		printf("CHECK final size > writtenShort (residue) : %s\n",
++		       lenF > writtenShort ? "yes" : "NO");
++		printf("trailing bytes as text: \"");
++		fwrite(F + writtenShort, 1, lenF - writtenShort, stdout);
++		printf("\"\n");
++		readback("REPRODUCED VIA EACCES RENAME FAILURE", 1);
++	}
++
++	/* --- case 7: parity, my record() vs the real scrub_write_progress() --- */
++	{
++		pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
++		char *R = NULL;
++		long lenR;
++		clean_state();
++		printf("\n### case 7 (parity): real scrub_write_progress() vs driver record()\n");
++		err = scrub_write_progress(&mtx, FSID, &longrec, 1);
++		lenR = slurp(FINAL, &R);
++		printf("real scrub_write_progress(long) -> %d, file size %ld\n", err, lenR);
++		printf("CHECK real == case-0 driver bytes    : %s\n",
++		       (lenR == lenA && memcmp(R, A, lenA) == 0) ? "yes" : "NO");
++		clean_state();
++		err = scrub_write_progress(&mtx, FSID, &shortrec, 1);
++		free(R); R = NULL;
++		lenR = slurp(FINAL, &R);
++		printf("real scrub_write_progress(short) -> %d, file size %ld\n", err, lenR);
++		printf("CHECK real == case-1 driver bytes    : %s\n",
++		       (lenR == lenB && memcmp(R, B, lenB) == 0) ? "yes" : "NO");
++		free(R);
++	}
++
++	/* --- case 8 (control): abandonment by a FAILED write leaves only a shorter prefix --- */
++	{
++		pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
++		struct rlimit rl, saved;
++		char *R = NULL;
++		long lenR;
++		clean_state();
++		signal(SIGXFSZ, SIG_IGN);
++		getrlimit(RLIMIT_FSIZE, &saved);
++		rl.rlim_cur = 200;
++		rl.rlim_max = saved.rlim_max;
++		setrlimit(RLIMIT_FSIZE, &rl);
++		printf("\n### case 8 (control): long record with RLIMIT_FSIZE=200 makes the write fail\n");
++		err = scrub_write_progress(&mtx, FSID, &longrec, 1);
++		setrlimit(RLIMIT_FSIZE, &saved);
++		printf("real scrub_write_progress(long) -> %d (%s)\n",
++		       err, err ? strerror(-err) : "ok");
++		printf("_tmp size = %ld, final exists = %d\n",
++		       slurp(TMPF, &R), access(FINAL, F_OK) == 0);
++		free(R); R = NULL;
++		err = scrub_write_progress(&mtx, FSID, &shortrec, 1);
++		lenR = slurp(FINAL, &R);
++		printf("then real short record -> %d, final size = %ld (short is %ld)\n",
++		       err, lenR, lenB);
++		printf("CHECK no residue (abandoned content was shorter) : %s\n",
++		       (lenR == lenB && memcmp(R, B, lenB) == 0) ? "yes" : "NO");
++		free(R);
++	}
++
++	free(A); free(B); free(F);
++	return 0;
+ }
+-static DEFINE_SIMPLE_COMMAND(scrub_limit, "limit");
+-
+-static const char scrub_cmd_group_info[] =
+-"verify checksums of data and metadata";
+-
+-static const struct cmd_group scrub_cmd_group = {
+-	scrub_cmd_group_usage, scrub_cmd_group_info, {
+-		&cmd_struct_scrub_start,
+-		&cmd_struct_scrub_cancel,
+-		&cmd_struct_scrub_resume,
+-		&cmd_struct_scrub_status,
+-		&cmd_struct_scrub_limit,
+-		NULL
+-	}
+-};
+-
+-DEFINE_GROUP_COMMAND_TOKEN(scrub);

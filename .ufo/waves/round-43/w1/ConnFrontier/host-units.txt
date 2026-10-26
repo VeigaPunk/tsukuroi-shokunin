@@ -1,0 +1,26 @@
+Host re-read 2026-10-26 (ConnFrontier-4, read-only):
+systemctl is-enabled btrfs-scrub@.timer -> disabled
+systemctl is-active btrfs-scrub@.timer -> error: neither a valid invocation ID nor unit name (template needs %f)
+--- /usr/lib/systemd/system/btrfs-scrub@.service ---
+[Unit]
+Description=Btrfs scrub on %f
+ConditionPathIsMountPoint=%f
+RequiresMountsFor=%f
+
+[Service]
+Nice=19
+IOSchedulingClass=idle
+KillSignal=SIGINT
+ExecStart=/usr/bin/btrfs scrub start -B %f
+--- /usr/lib/systemd/system/btrfs-scrub@.timer ---
+[Unit]
+Description=Monthly Btrfs scrub on %f
+
+[Timer]
+OnCalendar=monthly
+AccuracySec=1d
+RandomizedDelaySec=1w
+Persistent=true
+
+[Install]
+WantedBy=timers.target

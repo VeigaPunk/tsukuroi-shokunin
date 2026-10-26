@@ -1,0 +1,19 @@
+== ordering nuance with the real GNU find (/usr/bin/find)
+$ /usr/bin/find /nonexistent-abc fxtest/d -newermt @1000 -print -quit
+/usr/bin/find: ‘/nonexistent-abc’: No such file or directory
+fxtest/d/new
+rc=1
+$ /usr/bin/find fxtest/d /nonexistent-abc -newermt @1000 -print -quit
+fxtest/d/new
+rc=0
+$ ( set -o pipefail; /usr/bin/find /nonexistent-abc fxtest/d -newermt @1000 -print -quit 2>/dev/null | /usr/bin/grep -q . )
+rc=1
+$ ( set -o pipefail; /usr/bin/find fxtest/d /nonexistent-abc -newermt @1000 -print -quit 2>/dev/null | /usr/bin/grep -q . )
+rc=0
+
+== implementation note
+the persistent agent shell used by this seat resolves `find` to a HARNESS BUILTIN (reports "find 0.8.0", messages "Error: <path>: ... (os error 2)");
+that builtin is NOT what the script runs. Inside the namespace, /usr/bin/bash (non-interactive) resolves:
+find
+find (GNU findutils) 4.11.0-modified
+grep (GNU grep) 3.12-modified
