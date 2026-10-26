@@ -1,6 +1,7 @@
 source: S237 S240 S241 (rows in `corpus/SOURCES.md`; S237 is the round-42 snapshot `.ufo/waves/round-42/frozen/src/scrub.c`, sha256 48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801; S240 is `.ufo/waves/round-43/frozen/src/ioctl.c`, digest in its `SHA256SUMS`, fetch log `FETCH.txt`; S241 is the host capture `.ufo/waves/round-43/frozen/hostcap/capture.txt`, sha256 f7ecbe7c990e68d7b0dbdbd8bfe65f3acd1cbbdabe33d47e71a6f1ae1242c556)
 verified-at: 2026-10-26 (btrfs-progs tag v7.1, peeled commit 4ab0e80be9e3bb1db2e6038e6d4316d35fb7ba8b; Linux tag v7.2.11, peeled commit a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea; host btrfs-progs 7.1-1, kernel 7.2.11-arch1-1; capture 2026-10-26T21:51:26Z)
 recheck: on-release — re-fetch the URLs in `.ufo/waves/round-42/frozen/src/FETCH.txt` and `.ufo/waves/round-43/frozen/src/FETCH.txt` and compare `sha256sum` with each `SHA256SUMS`; re-run `bash .ufo/waves/round-43/frozen/hostcap/capture.sh <file>` (unprivileged, read-only); `python3 tools/check-scrub-record-r43.py --revision <REV>`
+extended-by: round 44 — rows SR7 (the success direction of the scrub-progress ioctl SR6 cites), SR8 (the per-device `scrub_speed_max` attribute) and SR9 (the packaged scrub timer and service) are in `corpus/knowledge/btrfs-scrub-record-r44.md`; the "Limits" sentence on SR1 is corrected in "Corrections — round 44" at the end of this file.
 
 # The btrfs scrub record, re-grounded: write discipline, resume, and who can see a running scrub (round 43)
 
@@ -152,3 +153,7 @@ capture.txt:10); with no record (capture.txt:7) the summary prints no status wor
 - SR1's trailing-bytes consequence is read from the open flags and was not reproduced (no record exists on this
   host and no scrub is run).
 - No census arm reads the record; this entry stays on Frontier ground.
+
+## Corrections — round 44
+
+Appended 2026-10-26 (round-43 closure routed defect R43-SR1-LIMITS-CONTRADICTION, `corpus/lessons/round-43-verifier-spotcheck.md` §5 item 1); the text above stays as filed. The second "Limits" bullet ("SR1's trailing-bytes consequence is read from the open flags and was not reproduced") contradicts SR1's own statement and its evidence: the consequence was not observed on this host (no record exists and no scrub is run), but it was reproduced in a scratch harness compiled from the pinned write path, round-43 wave-1 seat C2ExecTailRepro (`.ufo/waves/round-43/w1/C2ExecTailRepro.md`, the relation `final = new_record || old_record[len(new_record):]` checked byte-wise there). Read that bullet as: "SR1's trailing-bytes consequence is inferred from the open flags and reproduced in a harness compiled from the pinned write path; it is not observed on this host (no record exists and no scrub is run)." `SKILL.md` "Scrub record re-grounded — round 43" already says "[inference, reproduced in a harness]" and `PROVINCE.md` carries no reproduction claim, so neither needs a correction.
