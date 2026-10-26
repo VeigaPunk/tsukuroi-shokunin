@@ -3006,6 +3006,42 @@ STUB
   check 'healthy rollup: an empty mount table is no table, BLOCKED not 0/0/0 (R39-W1 hardening)' 0 HEALTHY \
     '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:unreadable$'
 
+  # ---- round 40 (C1, R39-FIXTURE-MONOCULTURE): the btrfs mount line varies in device, mountpoint,
+  # options, subvolume and position, and btrfs-looking text outside the fstype field is not a btrfs mount
+  case_home='storage-mounts-varied-home'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' 'proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0' \
+    '/dev/nvme0n1p3 /home btrfs rw,relatime,ssd,discard=async,space_cache=v2,subvolid=5,subvol=/ 0 0' \
+    'tmpfs /tmp tmpfs rw,nosuid,nodev 0 0' > "$FX/mounts"
+  check 'healthy rollup: a btrfs /home on another device and options, not last, is BLOCKED (R40-C1)' 0 HEALTHY \
+    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs$'
+
+  case_home='storage-mounts-varied-multi'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  mkdir -p "$FX/btrfs/features"
+  printf '%s\n' 'sysfs /sys sysfs rw,nosuid,nodev,noexec,relatime 0 0' 'UUID=0b1c /boot vfat rw,relatime 0 0' \
+    '/dev/sda2 /var/lib/machines btrfs ro,noatime,compress=zstd:3,subvolid=263,subvol=/machines 0 0' \
+    '/dev/sdb1 /srv ext4 rw,relatime 0 0' > "$FX/mounts"
+  check 'healthy rollup: one read-only btrfs mount among four lines, empty root, is BLOCKED (R40-C1)' 0 HEALTHY \
+    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs$'
+
+  case_home='storage-mounts-btrfs-in-path'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' 'proc /proc proc rw 0 0' \
+    '/dev/disk/by-label/btrfs-old /mnt/btrfs-backup ext4 rw,relatime,comment=btrfs 0 0' > "$FX/mounts"
+  check 'healthy: btrfs in the device, mountpoint or options of an ext4 line is no btrfs mount (R40-C1)' 0 HEALTHY \
+    '^STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0$'
+
+  case_home='storage-mounts-fstype-case'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' 'proc /proc proc rw 0 0' '/dev/fx0 / BTRFS rw,relatime 0 0' > "$FX/mounts"
+  check 'healthy: the fstype match is exact, so BTRFS is not btrfs (R40-C1)' 0 HEALTHY \
+    '^STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0$'
+
+  case_home='storage-root-unreadable-mounted'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  st_write "$FX/btrfs/$sfs/devinfo/1/error_stats" 0 0 0 0 0
+  printf '%s\n' 'proc /proc proc rw 0 0' '/dev/vdb /data btrfs rw,relatime,subvolid=5,subvol=/ 0 0' > "$FX/mounts"
+  chmod 000 "$FX/btrfs"
+  check 'healthy rollup: an unlistable root keeps its one reason; the mount table is never added (R40-C1)' 0 HEALTHY \
+    '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=root:unreadable$'
+  chmod 755 "$FX/btrfs"
+
   check_cli 'cli: unknown argument exits 2 with usage (S10-2)' 2 \
     '^usage: tsukuroi-census\.sh' -- --bogus
   check_cli 'cli: --sample 0 refuses before the parse continues (S10-2)' 2 \
