@@ -2450,3 +2450,32 @@ Each count is re-derived from the committed lane tree at the round-40 integratio
   Lowest axes: depth 8 and adjacency 8 (tied); candidate depth theme `alpm-package-anatomy-r26.md` from
   `merge/tsukuroi/` (`w1/AsmPackageScan.md`).
 - **retired:** none.
+
+## Round 41 — declaration (2026-10-26, base `0e5805a1f149bd2ed9fe0db2e0a832afb034a835`, before any seat)
+
+Round 40 was admitted (`corpus/lessons/round-40-verifier-spotcheck.md` §3). This round takes the planned row: the
+round-40 closure's routed defect R40-ANSWER-KEY for both counters (§6.1) plus §6.2 (stderr FAIL lines, scratch on
+Ctrl-C), with the candidate depth theme `alpm-package-anatomy-r26.md` from `merge/tsukuroi/`. Lowest non-retired axes:
+depth 8 and adjacency 8 (tied); C2 works depth; adjacency stays unclaimed and is not harmed. Saturation 9 / window 3
+unchanged. Counters, pinned sources, the host capture and the two registry rows landed first in freeze commit
+`e479fdc54d0977ccd8112a42d8d139baaebcb02e`. The commit time of this section is its authority (R40-HEADING-TIMES).
+
+| Claim | Axis | Surface moved | Counter (frozen; sha256) | Before at base | Target (predicate) | Kill rule |
+|---|---|---|---|---|---|---|
+| C1 | operability | The census `--selftest` (`tools/tsukuroi-census.sh` `run_selftest`; `probe_storage_arm` unchanged) gains four mount-table cases — a btrfs line whose mountpoint is not absolute, one whose source is not under `/dev`, one with no `subvol=` option, a table with two btrfs lines — so the round-40 held-out survivors H5, H6, H9 and the count-direction mutant H10 fail it | `python3 tools/score-selftest-mounts-r41.py --revision <REV> --scratch <DIR>` (sha256 `8306d9990b156ceb625eabbe942910fc0d09b20f350a7e8af1ff2237fd07355c`): 13 frozen mutants (round-40 M1-M9, H5, H6, H9, H10), three neutral rewrites, one decoy carrying every mutant text in a dead here-document, kill attribution on baseline labels confirmed by a second run, one retry for failed non-mutant runs, fixture capture for the four declared table shapes | see `before/c1-before.jsonl` (expected `survivors 4` H5/H6/H9/H10, `params 0`, FAIL) | `baseline_pass == 1 and neutral_pass == 3 and decoy_pass == 1 and mutants_applied == 13 and survivors == 0 and params == 4` -> PASS, exit 0, at the C1 implementation commit and at the round tip | the predicate is false at either revision; or `probe_storage_arm` differs from the base; or the round-40 C1 counter (`score-selftest-literals-r40.py`) stops passing at the tip |
+| C2 | depth (sourced) | Pacman-state plane, package-file side: `corpus/knowledge/alpm-package-anatomy-r41.md` PA1-PA8 — the format's required root members (alpm-package(7)), what libalpm requires on load (only `.PKGINFO`), makepkg's dot-files-first order and the partial-load stop, the three members install keeps in the local database, `.MTREE` as a self-excluding gzip mtree, `pacman -Qkk`'s zero-error branch for a missing mtree, PKGBUILD(5) function working directories, and vercmp order — on rows S227-S236 opened this round | `python3 tools/check-package-anatomy-r41.py --revision <REV>` (sha256 `c83e29a4f570422d5a975873460c4c5b061e33ac497b97d13c1383569ac1819f`): source-derived value, frozen proposition relations, negation words, a frozen source window per row, new mined upstream rows, six host values from the frozen capture, and per-row committed reviewer verdict files (`.ufo/waves/round-41/w1/C2RevPA<n>*.md`, `residual/`) | entry absent, `rules_verified 0, verdicts_ok 0, host_ok 0, source_ok 0`, FAIL exit 1 (`before/c2-before.jsonl`) | `rules_verified == 8 and verdicts_ok == 8 and host_ok == 6 and source_ok == 1 and duplicate_rows == 0 and duplicate_headings == 0 and novelty_base_hits == 0` -> PASS, exit 0, at the commit that lands the wave's verdict files and at the round tip | the predicate is false; or any committed verdict file for a row reads `VERDICT: fails` (the counter refuses the row); or a row verdict stays `partly` without a later `holds` after an appended correction |
+
+The C2 lexical checks are shape gates, declared as such: a writer that concatenates the frozen RELATIONS literals and
+the derived values passes them (control C2-K2 below, `rules_verified 8`), so the read is the per-row reviewer verdict
+(QUALITY 81), which the predicate requires. Verdict files are written by wave seats (non-author for the rows; still the
+lane for discernment, LEARNING.md) and committed unedited as wave evidence.
+
+Pre-data controls, scored with the frozen counters at the freeze commit before any seat (script
+`.ufo/waves/round-41/controls/run_controls.py`, fixture clones with origin removed; candidate digests in
+`controls/candidate-sha256.txt`; outputs `controls/controls-c1.jsonl`, `controls/controls-c2.jsonl`):
+C2 — K0 do-nothing FAIL (0/0/0/0); K1 the round-40 token writer (value + NATO filler, first 4-25 word line of each file
+as the quote, all-holds fixture verdicts) FAIL `rules_verified 0` (windows and relations); K2 relation-literal writer, no
+verdicts, FAIL `rules_verified 8, verdicts_ok 0` (the recorded lexical bypass); K3 X-false by swapped pairings FAIL
+`rules_verified 6`; K4 X-false by negation FAIL `rules_verified 6`; K5 candidate with one `fails` verdict FAIL
+`verdicts_ok 7`; K6 candidate without verdicts FAIL `verdicts_ok 0`; K7 candidate with one `partly`-only row FAIL
+`verdicts_ok 7`; K8 candidate with all-holds fixture verdicts PASS. C1 — see the C1 control lines appended below.
