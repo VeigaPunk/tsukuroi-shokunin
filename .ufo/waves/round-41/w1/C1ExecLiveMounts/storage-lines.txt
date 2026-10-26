@@ -1,0 +1,19 @@
+# STORAGE lines, census at 71851d63 (sha256 646c84fcdc166dd4f5321a467e60036d785c106f061dd4fa7849424696f9eb95), host=plazir27, 2026-10-26
+# condition A (prescribed env var, root = an EMPTY directory with no fsid entry): TSUKUROI_BTRFS_SYSFS=<scratch>/absent TSUKUROI_PROC_MOUNTS=<copy of /proc/self/mounts>
+A base STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+A H5   STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+A H6   STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+A H9   STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+A H10  STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+# condition B (control, same mount table, real /sys/fs/btrfs = 1 fsid 1d02a454-c549-4a35-b567-89d60902af8e)
+B base STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+B H5   STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+B H6   STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+B H9   STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+B H10  STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+# condition A2: TSUKUROI_BTRFS_SYSFS=<path that does not exist> TSUKUROI_PROC_MOUNTS=<copy of /proc/self/mounts>
+A2 base STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+A2 H5   STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+A2 H6   STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+A2 H9   STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+A2 H10  STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0

@@ -1,0 +1,61 @@
+C2MutEntry mutation receipts — exact cell edits and fixture verdicts
+=====================================================================
+
+Base: corpus/knowledge/alpm-package-anatomy-r41.md at 9cc9aa77e30e0e23de2d4d2697b3b218ada02969
+(62 lines). Clone: git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+/fast/scratch/hyaku/tsukuroi-r41/C2MutEntry/clone ; git remote remove origin ;
+rev-parse --show-toplevel == clone path (observed); identity: C2MutEntry fixture
+<fixture@shokunin.local>; git checkout -q -B master 9cc9aa77... (HEAD verified 9cc9aa77).
+
+Fixture verdicts (commit V = c6d4e5ea094f4b36e39b479d3720d33c57d30656)
+Eight files .ufo/waves/round-41/w1/C2RevPA{1..8}Fx.md, each:
+  line 1: "VERDICT: holds"
+  line 2: "Fixture verdict for the C2MutEntry mutation probe: row PA<n> reads as stated against the pinned snapshot window. Written in the scratch clone only, so the verdict gate does not mask the mutation signal; not a reviewer seat's read."
+Names match counter regex ^C2Rev(PA\d+)[A-Za-z0-9-]*\.md$ (tools/check-package-anatomy-r41.py:276).
+Rationale: `git ls-tree --name-only 9cc9aa77:.ufo/waves/round-41/w1` -> "fatal: Not a valid object
+name" (no verdict dir exists at the pin), so verdicts_ok would be 0 without fixtures; verdicts() reads
+the commit tree via git ls-tree/show at the scored revision (counter lines 271-289).
+
+Mutants (each committed on master; diff vs V shown by git diff --stat; all edits applied with exact
+string replacement on the single table row)
+
+M1  PA5 value cell (entry line 30)
+    old: `gzip mtree without .MTREE`
+    new: `gzip mtree`
+    commit 91496028ebdcc71b0e0b25cea135da1742168f2f
+
+M2  PA7 rule cell (entry line 32)
+    old: `package()`, `prepare()`, `build()` and `check()` each run inside `$srcdir` and `verify()` runs inside `$startdir`
+    new: `verify()`, `prepare()`, `build()` and `check()` each run inside `$srcdir` and `package()` runs inside `$startdir`
+    commit 6b653e05f2695e96ad3dda0fa02457dd4c3c2727
+
+M3  PA1 source cell (entry line 26) + appendix
+    cell old: S227 alpm-package.7.raw:100-120 “The following files must be present at the root of an ALPM based package:”
+    cell new: S227 alpm-package.7.raw:100-120
+    plus a 28-line inert appendix appended after entry line 62 so that line 90 of the mutated file is
+    exactly: “The following files must be present at the root of an ALPM based package:”
+    (wc -l after mutation = 90; appendix contains no row, heading, or id lines)
+    commit da54274bf23530e195188e943ff06a6191595bb9
+
+M4  PA4 host cell (entry line 29)
+    old: install 51 of 1409
+    new: install 50 of 1409
+    commit fb1c4fe0f84b66bad5c4ed5394570a073334dffe
+
+M5  PA8 rule cell (entry line 33)
+    old: in three steps: the epoch first, an absent epoch counting as 0, then the version, and the release only when both strings carry one
+    new: in three steps: an absent epoch counting as 0, the epoch first, then the version, and the release only when both strings carry one
+    commit 45f481dba605dfeca2b78a25d73cd6cb1967e13b
+
+M6  PA3 source cell (entry line 28)
+    old: S229 makepkg.sh.in:560-569
+    new: S213 makepkg.sh.in:560-569
+    commit 17496e0bcd9a26030df11022727b0383221bccaa
+
+Restoration: after M6, `git -C <clone> checkout c6d4e5ea... -- corpus/knowledge/alpm-package-anatomy-r41.md`;
+`git diff c6d4e5ea... -- <entry> | wc -l` -> 0; counter re-run at V: PASS exit 0.
+Lane untouched: sha256 corpus/knowledge/alpm-package-anatomy-r41.md = 3974e8a7cf0f6ef2d8e120dc6f336971eeecc3d4d18511775da4485e10508702
+(before and after, identical), sha256 tools/check-package-anatomy-r41.py =
+c83e29a4f570422d5a975873460c4c5b061e33ac497b97d13c1383569ac1819f (declared hash), lane HEAD
+71851d636ab1bffaf8fee5016617c88878a666f1, `git status --porcelain` on both paths -> 0 lines.
+Scratch /fast/scratch/hyaku/tsukuroi-r41/C2MutEntry removed after receipts were written.

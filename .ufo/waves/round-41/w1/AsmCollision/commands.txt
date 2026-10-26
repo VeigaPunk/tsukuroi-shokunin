@@ -1,0 +1,37 @@
+# Round-41 item A-2 — id collision check and guard proof (re-run)
+# Runner: AsmCollision seat. Scratch: /fast/scratch/hyaku/tsukuroi-r41/AsmCollision (removed after copy).
+# No lane write, no git mutation; reads via `git -C <lane> show <rev>:corpus/SOURCES.md`.
+
+R=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+STG=/home/vgpnk/Projects/shokuknow/merge/tsukuroi/SOURCES.append.md
+
+# 0-3-space row pattern (bound: indent 0..3, opening and closing table pipe)
+P03='^ {0,3}\|[[:space:]]*(S[0-9]{3})[[:space:]]*\|'
+# column-zero pattern (guard control)
+P0='^\|[[:space:]]*(S[0-9]{3})[[:space:]]*\|'
+
+git -C "$R" show 0e5805a1f149bd2ed9fe0db2e0a832afb034a835:corpus/SOURCES.md > S/SOURCES-base.md
+git -C "$R" show 9cc9aa77e30e0e23de2d4d2697b3b218ada02969:corpus/SOURCES.md > S/SOURCES-c2.md
+git -C "$R" show 71851d636ab1bffaf8fee5016617c88878a666f1:corpus/SOURCES.md > S/SOURCES-tip.md
+
+grep -oE "$P03" S/SOURCES-base.md | grep -oE 'S[0-9]{3}' > reg-ids-base
+grep -oE "$P03" S/SOURCES-c2.md   | grep -oE 'S[0-9]{3}' > reg-ids-c2
+grep -oE "$P03" S/SOURCES-tip.md  | grep -oE 'S[0-9]{3}' > reg-ids-tip
+grep -oE "$P03" "$STG"            | grep -oE 'S[0-9]{3}' > staged-ids
+
+awk 'NR==FNR{a[$0]=1;next} a[$0]' reg-ids-base staged-ids > collisions-base
+awk 'NR==FNR{a[$0]=1;next} a[$0]' reg-ids-c2   staged-ids > collisions-c2
+
+# Guard proof: indented scratch registry row
+printf '| id | source |\n|---|---|\n  | S227 | indented scratch registry row |\n' > guard/registry.md
+printf '| S227 | staged scratch row |\n' > guard/staged.md
+grep -oE "$P03" guard/registry.md | grep -oE 'S[0-9]{3}' > guard/reg-0to3      # 1 -> S227
+grep -oE "$P0"  guard/registry.md | grep -oE 'S[0-9]{3}' > guard/reg-col0      # 0
+awk 'NR==FNR{a[$0]=1;next} a[$0]' guard/reg-0to3 guard/stg > guard/collisions-0to3   # S227
+awk 'NR==FNR{a[$0]=1;next} a[$0]' guard/reg-col0 guard/stg > guard/collisions-col0   # empty
+# bound control: a 4-space row is outside the 0-3 pattern
+printf '| id | source |\n|---|---|\n    | S227 | four-space row |\n' > guard/registry-4sp.md
+grep -oE "$P03" guard/registry-4sp.md | grep -oE 'S[0-9]{3}' > guard/reg-4sp-0to3     # 0
+
+# Live document identity (read-only GET; curl failed TLS rc 35, urllib succeeded 200)
+python3 -c "import urllib.request; ..." # pages saved, quotes + page sha256 in live-man-pages.txt

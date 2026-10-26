@@ -1,0 +1,56 @@
+Seat RoutedSelfAssessScratch — item R-1 (round-40 closure §6.3)
+Date: 2026-10-26. Host: shared/loaded. strace 6.x (/usr/bin/strace), Python 3.14.8.
+Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin at 71851d636ab1bffaf8fee5016617c88878a666f1
+(working tree differs from that revision only in tools/check-self-assessment.py as far as this seat read).
+
+Script under test (sha256):
+  1e1ab6113d665684e15d147c0f3dae519cf2d313877e1603b841ad4db85d4257  old.py  = git show 71851d63:tools/check-self-assessment.py
+  44b474fb5401559d9a4052f04f03145cd165a688a78455694d7dd25dba5838e6  new.py  = working tree tools/check-self-assessment.py
+
+Invocation (all four):
+  python3 <script> --revision 71851d636ab1bffaf8fee5016617c88878a666f1 \
+      --repo /home/vgpnk/Projects/shokunin/tsukuroi-shokunin [--scratch <S>/s]
+  under: strace -f -e trace=mkdir -o <trace>
+  run tags:
+    old          env TMPDIR=<S>/t    old.py
+    old2         env TMPDIR=<S>/t    old.py        (reproducibility rerun of the census failure)
+    new          env -u TMPDIR       new.py --scratch <S>/s
+    new-tmpdir   env TMPDIR=<S>/t    new.py --scratch <S>/s
+
+Observed runs:
+  old          elapsed 303s  JSON checked=27 mismatches=6 status=FAIL
+               K13 census output: 128 cases, last line FAIL healthy: C1 root arm - 0755 owner bits
+               present (R12-C1): hostname override not honoured - possible host read
+               (one FAIL line observed; full passed/failed tally not captured, last line only)
+  old2         elapsed  97s  JSON checked=27 mismatches=6 status=FAIL
+               K13 census output: TSUKUROI_CENSUS_SELFTEST: PASS (128 cases, 128 passed, 0 failed)
+  new          elapsed 119s  JSON checked=27 mismatches=6 status=FAIL, census PASS 128/128
+  new-tmpdir   elapsed 148s  JSON checked=27 mismatches=6 status=FAIL, census PASS 128/128
+  old2.json and new.json and new-tmpdir.json are identical after json.dumps(sort_keys=True);
+  old.json differs only in the K13 reason text (the one-off census FAIL line).
+
+mkdir syscall counts (trace -e trace=mkdir; grep 'mkdir("/tmp'):
+  old          total mkdir lines 7701   absolute /tmp 1153 (success 1, EEXIST 1152)
+  old2         total mkdir lines 7701   absolute /tmp 1153 (success 1, EEXIST 1152)
+  new          total mkdir lines 15767  absolute /tmp 2   (success 2, EEXIST 0)
+  new-tmpdir   total mkdir lines 15767  absolute /tmp 0
+
+  old /tmp creations: 1 top-level mktemp dir (0700) + 1152 EEXIST component/`mkdir -p` calls whose
+  resolved paths are under it (coreutils mkdir -p chdirs, so nested component mkdir calls appear
+  relative; all 1153 selftest-name references are the census child's tree in old).
+  new absolute census mkdirs: 1154 under <S>/s/self-assessment-census-*/.census-tmp/ ; 0 under /tmp.
+  new's 2 /tmp lines are /tmp/self-assessment-git-* and /tmp/self-assessment-git-*/home from the
+  module-level _GIT_SANDBOX (new.py:69-71), not from the census child.
+  new-tmpdir: 0 /tmp mkdir, same census tree under <S>/s.
+
+Representative trace lines:
+  old: 3941778 mkdir("/tmp/tsukuroi-r3-2-selftest.rR8CO1", 0700) = 0
+  new: 1768298 mkdir("/tmp/self-assessment-git-yhgoajv0", 0700) = 0
+       1768298 mkdir("/tmp/self-assessment-git-yhgoajv0/home", 0777) = 0
+       2077559 mkdir("<S>/s/self-assessment-census-vp_zd0ev/.census-tmp/tsukuroi-r3-2-selftest.kR4VIW", 0700) = 0
+  new-tmpdir: (no /tmp lines)
+
+Full /tmp line extracts: trace-old.tmp-lines.txt, trace-old2.tmp-lines.txt, trace-new.tmp-lines.txt,
+trace-new-tmpdir.tmp-lines.txt. JSON stdout copies: old.json, old2.json, new.json, new-tmpdir.json.
+Script diff: script.diff. Trace files (8-9 MB each) were NOT copied; they lived under
+/fast/scratch/hyaku/tsukuroi-r41/RoutedSelfAssessScratch/ and were removed with that directory.

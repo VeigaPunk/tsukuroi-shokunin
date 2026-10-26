@@ -1,0 +1,105 @@
+## bash 5.3.20(1)-release  (/usr/bin/bash); GNU bash, version 5.3.20(1)-release (x86_64-pc-linux-gnu); bsdtar 3.8.10 - libarchive 3.8.10 zlib/1.3.2 liblzma/5.8.4 bz2lib/1.0.8 liblz4/1.10.0 libzstd/1.5.7 openssl/3.6.5 libb2/bundled libacl/2.4.0 
+## host LANG=en_US.UTF-8 LC_ALL=unset LC_COLLATE=unset; ldd (GNU libc) 2.44
+
+### 1. treeA (requested fixture): .BUILDINFO .INSTALL .MTREE .PKGINFO + usr/bin/hello A/data _x/f Zeta/g
+     1	.BUILDINFO
+     2	.INSTALL
+     3	.MTREE
+     4	.PKGINFO
+     5	A
+     6	A/data
+     7	Zeta
+     8	Zeta/g
+     9	_x
+    10	_x/f
+    11	usr
+    12	usr/bin
+    13	usr/bin/hello
+### 2. treeB: legal top-level names whose first byte is below '.' (0x2E)
+-- body order (%q, NUL-safe read, middle elided):
+ 1 $'\ttabname'
+ 2 $'\nnewname'
+ 3 \ spaces
+ 4 \!bang
+ 5 \"dq
+ 6 \#hash
+ 7 \$dollar
+ 8 %pct
+ 9 \&amp
+10 \'quote
+11 \(open
+12 \)close
+13 \*star
+14 +plus
+15 \,comma
+16 -dash
+17 .BUILDINFO
+18 .INSTALL
+19 .MTREE
+20 .PKGINFO
+21 0digit
+22 9nine
+-- whole list entry count: 37
+-- body order == LC_ALL=C byte sort of the same names (NUL-safe)?
+IDENTICAL
+-- top-level entries with first byte < 46, with the byte value:
+byte=9	$'\ttabname'
+byte=10	$'\nnewname'
+byte=32	\ spaces
+byte=33	\!bang
+byte=34	\"dq
+byte=35	\#hash
+byte=36	\$dollar
+byte=37	%pct
+byte=38	\&amp
+byte=39	\'quote
+byte=40	\(open
+byte=41	\)close
+byte=42	\*star
+byte=43	+plus
+byte=44	\,comma
+byte=45	-dash
+-- metadata first bytes:
+byte=46	.BUILDINFO
+byte=46	.INSTALL
+byte=46	.MTREE
+byte=46	.PKGINFO
+
+### 3. treeD: byte sort of full paths vs per-directory grouped walk
+-- body order:
+     1	.PKGINFO
+     2	A
+     3	A-b
+     4	A.b
+     5	A/b
+     6	A/b.c
+-- per-directory-grouped walk would be: .PKGINFO A A/b A-b A.b
+
+### 4. locale sensitivity on treeA (LC_COLLATE=C vs host LANG en_US.UTF-8)
+-- LC_COLLATE=en_US.UTF-8, no C export (first 8):
+     1	A
+     2	A/data
+     3	.BUILDINFO
+     4	.INSTALL
+     5	.MTREE
+     6	.PKGINFO
+     7	usr
+     8	usr/bin
+
+### 5. treeE end-to-end package (archive built by create_package:617-626 commands)
+-- archive member order:
+     1	-dash
+     2	-lib/
+     3	-lib/child
+     4	.BUILDINFO
+     5	.INSTALL
+     6	.MTREE
+     7	.PKGINFO
+     8	A/
+     9	A/data
+    10	_x/
+    11	_x/f
+    12	usr/
+    13	usr/bin/
+    14	usr/bin/hello
+-- .MTREE self-exclusion: grep -c MTREE in zcat .MTREE = 0

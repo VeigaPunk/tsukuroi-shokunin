@@ -1,0 +1,76 @@
+# anchor verification against .ufo/waves/round-41/frozen/src (grep -n), run 2026-10-26
+== S227 alpm-package.7.raw: required/optional root members ==
+100:The following files must be present at the root of an ALPM based package:
+120:Optionally, an \fBalpm-install-scriptlet\fR named \f(CR.INSTALL\fR may be present at the root of an ALPM based package.
+124:Zero or more \fBdata\fR files may be present in an ALPM based package (refer to \fBalpm-meta-package\fR for details on why packages may not contain any \fBdata\fR files).
+== S228 be_package.c: function + sub-ranges ==
+373:static int handle_simple_path(alpm_pkg_t *pkg, const char *path)
+508:		if(handle_simple_path(pkg, path)) {
+555:alpm_pkg_t *_alpm_pkg_load_internal(alpm_handle_t *handle,
+619:		} else if(full && strcmp(entry_name, ".MTREE") == 0) {
+641:		if((!full || hit_mtree) && config) {
+653:		_alpm_log(handle, ALPM_LOG_ERROR, _("missing package metadata in %s\n"), pkgfile);
+== S229 makepkg.sh.in ==
+560:# database files are placed at the beginning of the package regardless of
+562:list_package_files() {
+564:		export LC_COLLATE=C
+565:		shopt -s dotglob globstar
+616:	msg2 "$(gettext "Generating .MTREE file...")"
+619:		--null --files-from - --exclude .MTREE | gzip -c -f -n > .MTREE
+== S230 add.c ==
+111:}
+154:}
+166:}
+168:static int extract_db_file(alpm_handle_t *handle, struct archive *archive,
+172:	const char *dbfile = NULL;
+174:		dbfile = "install";
+176:		dbfile = "changelog";
+178:		dbfile = "mtree";
+180:		/* reserve all files starting with '.' for future possibilities */
+189:}
+205:		return extract_db_file(handle, archive, entry, newpkg, entryname);
+413:}
+530:				errors += extract_db_file(handle, archive, entry, newpkg, entryname);
+653:}
+== S231 check.c ==
+295:int check_pkg_full(alpm_pkg_t *pkg)
+314:	mtree = alpm_pkg_mtree_open(pkg);
+316:		/* TODO: check error to confirm failure due to no mtree file */
+318:			printf(_("%s: no mtree file\n"), pkgname);
+== S232 PKGBUILD.5.asciidoc ==
+67:*epoch*::
+69:	with a lower epoch, even if the version number would normally not trigger
+258:	*NOTE:* 'force' is a now-removed option in favor of the top level 'epoch'
+351:	This function is run inside `$srcdir`.
+357:	This function is run inside `$startdir`.
+365:	This function is run inside `$srcdir`.
+370:	This function is run inside `$srcdir`.
+377:	This function is run inside `$srcdir`.
+439:Scripts are passed either one or two ``full version strings'', where a full
+440:version string is either 'pkgver-pkgrel' or 'epoch:pkgver-pkgrel', if epoch is
+445:	new package full version string.
+449:	new package full version string.
+453:	order: new package full version string, old package full version string.
+457:	new package full version string, old package full version string.
+== S233 version.c ==
+26: * 'rpmvercmp' located at lib/rpmvercmp.c and 'parseEVR' located at
+39:static void parseEVR(char *evr, const char **ep, const char **vp,
+61:		/* different from RPM- always assume 0 epoch */
+219:int SYMEXPORT alpm_pkg_vercmp(const char *a, const char *b)
+245:	/* parseEVR modifies passed in version, so have to dupe it first */
+246:	parseEVR(full1, &epoch1, &ver1, &rel1);
+247:	parseEVR(full2, &epoch2, &ver2, &rel2);
+249:	ret = rpmvercmp(epoch1, epoch2);
+251:		ret = rpmvercmp(ver1, ver2);
+252:		if(ret == 0 && rel1 && rel2) {
+== S234 be_local.c ==
+251:static struct archive *_cache_mtree_open(alpm_pkg_t *pkg)
+267:	_alpm_archive_read_support_filter_all(mtree);
+268:	archive_read_support_format_mtree(mtree);
+363:	.mtree_open = _cache_mtree_open,
+== S235 query.c ==
+317:	if(config->op_q_check) {
+318:		if(config->op_q_check == 1) {
+319:			ret = check_pkg_fast(pkg);
+321:			ret = check_pkg_full(pkg);
+325:			&& !config->op_q_changelog && !config->op_q_check) {

@@ -1,0 +1,81 @@
+Receipt for seat AsmGate, round 41 item A-1 (staged-entry admit/reject adjudication).
+All commands run 2026-10-26 from /home/vgpnk/Projects/shokunin/tsukuroi-shokunin. No scratch
+created (no clone, copy, mutant or fixture); no tools installed; no counter run.
+
+1. Staged entry identity
+$ sha256sum /home/vgpnk/Projects/shokuknow/merge/tsukuroi/knowledge/corpus/knowledge/alpm-package-anatomy-r26.md
+3fa1b8098ee3398c4587f012bd84455f893a66d2a7ee00647c31279a0172d1a7  (item declares 3fa1b809…)
+
+2. Staged proposition lines (grep -n '', lines 1-60): r26:10-18 package-file side; :20-24 PKGBUILD(5)
+   side + upgrade quote; :26-28 meta; :30-37 scriptlet table; :39-40 upgrade consequence; :44
+   mandatory fields; :45-47 epoch; :48-49 backup; :50-51 install directive; :52-54 working dirs;
+   :56-60 boundaries (outside the 13-57 range).
+
+3. Pinned snapshot digests (SHA256SUMS verified for the cited files):
+$ cd .ufo/waves/round-41/frozen/src && grep -E 'PKGBUILD\.5|alpm-package\.7|version\.c' SHA256SUMS | sha256sum -c -
+PKGBUILD.5.asciidoc: OK
+alpm-package.7.raw: OK
+version.c: OK
+FETCH.txt head: "Fetched 2026-10-26 by TsukuroiR41 (round 41), read-only HTTPS GETs"; alpm-package.7.raw
+from https://man.archlinux.org/man/alpm-package.7.raw; pacman files at 54d9411.
+
+4. Pinned S227 alpm-package.7.raw (observed lines):
+:8  "ALPM based packages refer to (optionally compressed) tar archives that contain package files."
+:96 "The contents of an ALPM based package are distinguished between metadata, scripts and data files."
+:100  "The following files must be present at the root of an ALPM based package:" (bullets .BUILDINFO :102, .MTREE :108, .PKGINFO :114)
+:120  "Optionally, an alpm-install-scriptlet named .INSTALL may be present at the root of an ALPM based package."
+:126  "All existing data files of a package are extracted to the root directory of a target system upon installation of the package."
+:128  full line: "No specific rules exist on which data files (and directories) are allowed as contents of a package, but it is advisable to adhere to common standards such as the systemd File Hierarchy Requirements and/or the Filesystem Hierarchy Standard and by default have all files and directories be owned by root."
+:129  "In conclusion, it is best practice to never package files in directories that contain user data (e.g. below /home)."
+Live page check 2026-10-26: curl -s https://man.archlinux.org/man/alpm-package.7.raw | grep -n 'owned by|user data'
+-> only :128 (user-data advice line) and :129; no 'owned by' outside :128 context; matches pinned.
+
+5. Pinned S232 PKGBUILD.5.asciidoc (observed lines):
+:30-32 "The mandatory fields for a minimally functional PKGBUILD are *pkgname*, *pkgver*, *pkgrel* and *arch*."
+:90-94 "*install*:: Specifies a special install script that is to be included in the package. ... It does not need to be included in the source array (e.g., `install=$pkgname.install`)."
+:345-351 package(): "used to install files into the directory that will become the root directory of the built package" (:346-347); "The packaging stage is run using fakeroot" (:348-349); "This function is run inside `$srcdir`." (:351)
+:357 verify(): "This function is run inside `$startdir`."
+:365 prepare(): "This function is run inside `$srcdir`."
+:370 build(): "This function is run inside `$srcdir`."
+:377 check(): "This function is run inside `$srcdir`."
+:67-69 epoch field: "with a lower epoch, even if the version number would normally not trigger [such an upgrade]"
+:435-437 "Note that during an upgrade operation, none of the install or remove functions will be called."
+:439-441 full version string: "'pkgver-pkgrel' or 'epoch:pkgver-pkgrel'"
+
+6. Pinned S233 version.c (observed):
+:48 "/* s points to epoch terminator */"; :57-58 empty epoch -> epoch = "0"; :61 "/* different from RPM- always assume 0 epoch */"
+
+7. Held entries covering staged props:
+- pacman-transaction-order-r39.md:20 "## Rules (source-level, pacman 54d9411)"; TO3 :26 (pre_install/pre_upgrade scriptlet before any file is extracted); TO4 :27 ("Install scriptlets receive the **new** version first and the old version second (pre_upgrade/post_upgrade); install functions receive only the new version"); TO7 :30 ("...the old version of an upgraded package is removed with neither scriptlet nor `removed` line").
+- pacman-exec-environment-r40.md:55 ("pre_upgrade/post_upgrade new then old (TO4)").
+- pacman-backup-files-r35.md:24 (backup decision table row), :36 (".pacsave ... strcmp(filehash, backup->hash)"), :38 (shift_pacsave).
+- corpus/knowledge grep 'will be called|install or remove' across corpus/: zero hits (the PKGBUILD(5) sentence itself is unheld).
+
+8. Round-38 flip condition — corpus/lessons/round-38.md:49:
+"alpm-package-anatomy-r26.md | reject | Its sentence \"`package()` runs inside `$pkgdir` under `fakeroot`\" contradicts its own pinned source PKGBUILD(5) (Pacman 7.1.0: package() \"is run inside `$srcdir`\") — AsmRevAnatomy.md §6. Flip: a revision that quotes PKGBUILD(5) for each function's working directory and passes a QUALITY check"
+
+9. Ground pointer staleness:
+$ git -C lane log --format='%h %ad %s' --date=short -2 -- corpus/lessons/round-38.md  ->  b0005ae9 2026-10-26 round-38: integrate wave 1 ...
+$ git show b0005ae9:corpus/README.md | sed -n '36,44p'
+-> lines 38-42 are: pending mkinitcpio 42 /new_root hooks debt; errno:13 [inf] debt + census arm; "Where to learn more: SOURCES.md". No package-file/PKGBUILD statement at rejection time or now (current README.md:38-42 identical).
+
+10. r41 entry (corpus/knowledge/alpm-package-anatomy-r41.md) observed line numbers:
+:1-3 sources S227-S236 + pinned snapshots; :9-11 cites r39/r40/r35 as held; :17-22 Assimilation paragraph
+(names r26, the flip, refuses the $pkgdir/$srcdir sentence, "No staged row, id or sentence is adopted");
+rows PA1 :26, PA2 :27, PA3 :28, PA4 :29, PA5 :30, PA6 :31, PA7 :32, PA8 :33; "## QUALITY check" :51,
+QUALITY 14 :53, QUALITY 86 :57, QUALITY 81 :59, spec-vs-implementation note :61-62.
+
+11. Frozen counter tools/check-package-anatomy-r41.py
+$ sha256sum -> c83c29... observed: c83e29a4f570422d5a975873460c4c5b061e33ac497b97d13c1383569ac1819f (matches declaration)
+:18-19 verdict rule (>=1 holds, none fails, first line VERDICT, names row id); :60 verdict dirs
+(.ufo/waves/round-41/w1, .../residual); :122 VERDICT regex; :34-35 and :314-315 predicate
+(rules_verified == 8 and verdicts_ok == 8 and host_ok == 6 and source_ok == 1 and duplicate_rows == 0
+and duplicate_headings == 0 and novelty_base_hits == 0); :321 verdicts_ok computation; :394 final ok.
+
+12. Verdict files present in .ufo/waves/round-41/w1/ at check time 2026-10-26 (ls):
+C2RevPA1.md C2RevPA1b.md C2RevPA2.md C2RevPA2b.md C2RevPA4.md C2RevPA4b.md C2RevPA5.md C2RevPA6b.md
+C2RevPA7.md C2RevPA7b.md C2RevPA8b.md — present; C2RevPA3 (dir, no .md yet), C2RevPA6 (dir, only 6b .md),
+C2RevPA5b (peer still running) — absent. Content of present files NOT judged by this seat.
+
+13. SOURCES rows observed: S227 :236, S228 :237, S229 :238, S230 :239, S231 :240, S232 :241, S233 :242,
+S234 :243, S235 :244, S236 :245 in corpus/SOURCES.md (cited, not copied).

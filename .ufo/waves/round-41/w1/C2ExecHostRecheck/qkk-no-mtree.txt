@@ -1,0 +1,17 @@
+# PA6 mechanism probed on the live host pacman binaries, scratch dbcopy only (2026-10-26T18:09:37Z)
+setup: rm -rf $S/dbtest; mkdir -p $S/dbtest/local; cp -a /var/lib/pacman/local/pacman-mirrorlist-20260610-1 $S/dbtest/local/; cp /var/lib/pacman/local/ALPM_DB_VERSION $S/dbtest/local/
+command: pacman -Qkk --dbpath $S/dbtest pacman-mirrorlist   (sync-db warnings filtered)
+
+## A: mtree present
+backup file: pacman-mirrorlist: /etc/pacman.d/mirrorlist (Modification time mismatch)
+backup file: pacman-mirrorlist: /etc/pacman.d/mirrorlist (Size mismatch)
+backup file: pacman-mirrorlist: /etc/pacman.d/mirrorlist (SHA256 checksum mismatch)
+pacman-mirrorlist: 3 total files, 0 altered files
+rc=0
+
+## B: mtree removed from the scratch copy
+pacman-mirrorlist: no mtree file
+rc=0
+
+## host entry untouched:
+-rw-r--r-- 1 root root 296 Jun 10 01:33 /var/lib/pacman/local/pacman-mirrorlist-20260610-1/mtree

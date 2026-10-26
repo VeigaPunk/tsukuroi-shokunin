@@ -1,0 +1,13 @@
+--- base.sh	2026-10-26 15:11:05.104256059 -0300
++++ x2.sh	2026-10-26 15:11:46.675000572 -0300
+@@ -1909,8 +1909,8 @@
+     # round-39 W1 hardening (C1SentMounts): only a regular, non-empty file is a mount table — a FIFO
+     # would block the census forever, and an empty file or /dev/null is never a real table (/ is mounted)
+     if [ -f "$PROC_MOUNTS" ] && mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null) && [ -n "$mtab" ]; then
+-      while read -r _src _mp fst _rest; do
+-        if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
++      while read -r _src _mp fst _d1 _d2 _extra; do
++        if [ "${fst:-}" = btrfs ] && [ -n "${_d1:-}" ] && [ -n "${_d2:-}" ] && [ -z "${_extra:-}" ]; then mt=$((mt + 1)); fi
+       done <<< "$mtab"
+       if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi
+     else

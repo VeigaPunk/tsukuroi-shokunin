@@ -1,0 +1,140 @@
+host: pacman 7.1.0.r9.g54d9411-3 / libarchive 3.8.10-1 / kernel 7.2.11-arch1-1 / user vgpnk / 2026-10-26T18:08:22Z
+dbpath copy: /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db (entry 7zip-26.04-1 + entry aalib-1.4rc5-19 + ALPM_DB_VERSION=9)
+
+=== A: mtree present ===
+
+### A mtree-present
+$ pacman --dbpath /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db -Qkk 7zip
+--stdout--
+7zip: 17 total files, 0 altered files
+--stderr--
+rc=0
+
+=== B: mtree absent (renamed away) ===
+
+### B mtree-absent
+$ pacman --dbpath /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db -Qkk 7zip
+--stdout--
+7zip: no mtree file
+--stderr--
+rc=0
+
+=== C: mtree absent + --quiet ===
+
+### C mtree-absent-quiet
+$ pacman --dbpath /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db -Qkkq 7zip
+--stdout--
+--stderr--
+rc=0
+
+=== D: mtree absent, level 1 (-Qk) ===
+
+### D level1-mtree-absent
+$ pacman --dbpath /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db -Qk 7zip
+--stdout--
+7zip: 17 total files, 0 missing files
+--stderr--
+rc=0
+
+=== E: positive control — mtree present but lists one nonexistent path ===
+
+### E doctored-mtree
+$ pacman --dbpath /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db -Qkk 7zip
+--stdout--
+7zip: 18 total files, 1 altered file
+--stderr--
+warning: 7zip: /usr/bin/r41-nonexistent (No such file or directory)
+rc=1
+
+=== F: mtree present but corrupt (not gzip) ===
+
+### F corrupt-mtree
+$ pacman --dbpath /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db -Qkk 7zip
+--stdout--
+7zip: no mtree file
+--stderr--
+error: error while reading file /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db/local/7zip-26.04-1/mtree: Unrecognized archive format
+rc=0
+
+=== G: mtree present but unreadable (mode 000) ===
+
+### G unreadable-mtree
+$ pacman --dbpath /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db -Qkk 7zip
+--stdout--
+7zip: no mtree file
+--stderr--
+error: error while reading file /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db/local/7zip-26.04-1/mtree: Failed to open '/fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db/local/7zip-26.04-1/mtree'
+rc=0
+
+=== H: corrupt mtree + --quiet (-Qkkq) ===
+
+### H corrupt-mtree-quiet
+$ pacman --dbpath /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db -Qkkq 7zip
+--stdout--
+--stderr--
+error: error while reading file /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db/local/7zip-26.04-1/mtree: Unrecognized archive format
+rc=0
+
+=== I: mixed db — 7zip without mtree, aalib with one injected error ===
+
+### I mixed-attribution
+$ pacman --dbpath /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db -Qkk
+--stdout--
+7zip: no mtree file
+aalib: 89 total files, 1 altered file
+--stderr--
+warning: aalib: /usr/lib/r41-nonexistent.so (No such file or directory)
+rc=1
+
+=== K: mtree present, valid gzip, empty stream (20 bytes) ===
+
+### K empty-gzip-mtree
+$ pacman --dbpath /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db -Qkk 7zip
+--stdout--
+7zip: no mtree file
+--stderr--
+error: error while reading file /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db/local/7zip-26.04-1/mtree: Unrecognized archive format
+rc=0
+
+=== L: mtree present, valid mtree header only, zero entries ===
+
+### L header-only-mtree
+$ pacman --dbpath /fast/scratch/hyaku/tsukuroi-r41/C2LabratQkk/db -Qkk 7zip
+--stdout--
+7zip: 0 total files, 0 altered files
+--stderr--
+rc=0
+
+=== J: host database, read-only contrast (mtree untouched) ===
+
+### J host-Qkk-7zip
+$ pacman -Qkk 7zip
+--stdout--
+7zip: 17 total files, 0 altered files
+--stderr--
+rc=0
+
+### J host-Qkk-aalib
+$ pacman -Qkk aalib
+--stdout--
+aalib: 88 total files, 0 altered files
+--stderr--
+rc=0
+
+### J host-Qk-7zip
+$ pacman -Qk 7zip
+--stdout--
+7zip: 17 total files, 0 missing files
+--stderr--
+rc=0
+
+### J host-Qkk-pacman
+$ pacman -Qkk pacman
+--stdout--
+backup file: pacman: /etc/pacman.conf (Modification time mismatch)
+backup file: pacman: /etc/pacman.conf (Size mismatch)
+backup file: pacman: /etc/pacman.conf (SHA256 checksum mismatch)
+pacman: 426 total files, 0 altered files
+--stderr--
+rc=0
+host mtree sha256 (7zip): 19aebc52bb70395955a98d124dc8d69fef217e03fd7c98eb3ad8a9ddbcdcd5e6

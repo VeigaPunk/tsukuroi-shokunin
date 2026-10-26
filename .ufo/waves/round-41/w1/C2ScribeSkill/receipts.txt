@@ -1,0 +1,118 @@
+# C2ScribeSkill — receipts for item C2-32 (round 41, wave 1)
+# host state 2026-10-26; read-only probes; scratch under
+# /fast/scratch/hyaku/tsukuroi-r41/C2ScribeSkill/ (removed at end of seat).
+# Lane tip at dispatch: 71851d636ab1bffaf8fee5016617c88878a666f1
+
+== A. frozen capture totals (re-derived from .ufo/waves/round-41/frozen/hostcap/localdb-anatomy.tsv)
+$ awk -F'\t' 'NR>1{n++;mt+=$4;ins+=$5;cl+=$6;df+=$7;gz+=$8;self+=$9} END{printf "entries=%d mtree=%d install=%d changelog=%d dotfiles=%d gzip=%d selflist=%d\n",n,mt,ins,cl,df,gz,self}' localdb-anatomy.tsv
+entries=1409 mtree=1409 install=51 changelog=0 dotfiles=0 gzip=1409 selflist=0
+$ wc -l localdb-anatomy.tsv
+1410 localdb-anatomy.tsv
+$ cat MANIFEST.sha256    (sha256 of MANIFEST itself = 632ed0443cfb26ef002ebfd2a3a99971221f9129836b63135e0ca6ea41874f89, per tools/check-package-anatomy-r41.py CAP_MANIFEST_SHA)
+24da362d94a56387b0a1d6248c22a56aa6adaa400fa5ff8cb5fa71bdfd90b686  capture.sh
+a2794911f1ecd0de7c83d2dc104c2f05c9dc9dc71c0fe6cc58997d447b4dbe78  capture-meta.txt
+d10ae8445ba37ef5e85a1e0e1127ef6f7e450fd276729b6cbd0f982e06d1734e  localdb-anatomy.tsv
+5467f0dbd12b604515c32917589a9ae9ebd04c92e6d08bbb5cf21c4aa41ea7db  vercmp.txt
+c905f360313e5c3254534a0993ee258f5ef65b0378bfdf9f8bd9cfa1e59a3bc4  man-pkgbuild-runinside.txt
+51cc1dbe4e9d26d26d2a6b25f26709edf4db9c997caf011a42b5cd295a3ca95f  mtree-pacman-head.txt
+
+== B. live re-derivation (2026-10-26), GNU bash 5.3.20
+$ /usr/bin/bash -c 'for d in /var/lib/pacman/local/*/; do [ -f "$d/mtree" ] || echo "$d"; done | wc -l'
+0
+$ /usr/bin/bash -c 'set -- /var/lib/pacman/local/*/; echo $#'
+1409
+$ pacman -Q | wc -l
+1409
+$ /usr/bin/bash -c 'c=0; for d in /var/lib/pacman/local/*/; do [ -f "$d/install" ] && c=$((c+1)); done; echo install=$c'
+install=51
+$ /usr/bin/bash -c 'c=0; for d in /var/lib/pacman/local/*/; do [ -f "$d/changelog" ] && c=$((c+1)); done; echo changelog=$c'
+changelog=0
+$ find /var/lib/pacman/local -mindepth 2 -maxdepth 2 -name '.*' | wc -l
+0
+$ stat -c '%a %U:%G %n' /var/lib/pacman/local/7zip-26.04-1/mtree /var/lib/pacman/local/systemd-262-1/install
+644 root:root /var/lib/pacman/local/7zip-26.04-1/mtree
+644 root:root /var/lib/pacman/local/systemd-262-1/install
+$ zcat /var/lib/pacman/local/pacman-7.1.0.r9.g54d9411-3/mtree | grep -E '^\./\.'
+./.BUILDINFO time=1792052823.0 mode=644 size=7080 sha256digest=2111f027f199a9bd1b3e2fa4fac4b8673bb6c587b13fbc4a7864e0ca4e73050e
+./.PKGINFO time=1792052823.0 mode=644 size=1136 sha256digest=340af35e8f31b71f40059851494faae62d275a139b0e1a6b474d71fb4b4e3c26
+$ zcat .../mtree | grep -c '^\./'      -> 428
+$ zcat /var/lib/pacman/local/7zip-26.04-1/mtree | grep -c '^\./\.MTREE '   -> 0
+$ head -c 2 /var/lib/pacman/local/7zip-26.04-1/mtree | od -An -tx1   ->  1f 8b
+$ man -P cat PKGBUILD | grep -n 'This function is run inside'        -> 5 lines: 360,366,373,378,384 (4 $srcdir, 1 $startdir)
+$ cat /var/lib/pacman/local/ALPM_DB_VERSION   -> 9
+$ pacman -Qi systemd | grep '^Install Script'  -> Install Script  : Yes
+$ pacman -Qi 7zip    | grep '^Install Script'  -> Install Script  : No
+
+== C. PA6 blind spot, reproduced on a copy (no host mutation)
+$ S=$(mktemp -d /fast/scratch/hyaku/tsukuroi-r41/C2ScribeSkill/pa6.XXXXXX); mkdir -p "$S/db/local"
+$ cp /var/lib/pacman/local/ALPM_DB_VERSION "$S/db/local/"
+$ cp -r /var/lib/pacman/local/7zip-26.04-1 "$S/db/local/"
+$ pacman -Qkk --dbpath "$S/db" 7zip
+warning: database file for 'openai-chatgpt' does not exist (use '-Sy' to download)
+7zip: 17 total files, 0 altered files                     rc=0
+$ rm "$S/db/local/7zip-26.04-1/mtree"
+$ pacman -Qkk --dbpath "$S/db" 7zip
+warning: database file for 'openai-chatgpt' does not exist (use '-Sy' to download)
+7zip: no mtree file                                       rc=0
+$ pacman -Qk --dbpath "$S/db" 7zip
+7zip: 17 total files, 0 missing files                     rc=0
+# first attempt placed ALPM_DB_VERSION beside local/:
+#   pacman -Qkk --dbpath "$S/db" 7zip -> "database is incorrect version / try running pacman-db-upgrade"
+# so the version file belongs inside local/.
+
+== D. glob-engine difference on the checklist command
+$ /usr/bin/bash -c 'for d in /var/lib/pacman/local/*/; do [ -f "$d/mtree" ] || echo "$d"; done | wc -l'  -> 0
+$ /bin/sh      -c '... same ...'                                                                       -> 0
+# the omp tool shell (its own glob engine, not bash) on the same loop:
+1
+/var/lib/pacman/local/ALPM_DB_VERSION/
+# python os.scandir confirms: total 1410 dirents, dirs 1409, ALPM_DB_VERSION is S_IFREG 0o100644
+
+== E. counter / registry / commit anchors
+$ sha256sum tools/check-package-anatomy-r41.py
+c83e29a4f570422d5a975873460c4c5b061e33ac497b97d13c1383569ac1819f  tools/check-package-anatomy-r41.py
+$ sha256sum tools/score-selftest-mounts-r41.py
+8306d9990b156ceb625eabbe942910fc0d09b20f350a7e8af1ff2237fd07355c  tools/score-selftest-mounts-r41.py
+$ git log --oneline -1 9cc9aa77e30e0e23de2d4d2697b3b218ada02969
+9cc9aa77 round-41: C2 pre-dispatch refinement (PA1 data files, PA3 sort condition and stop point, PA6 unreadable mtree path)
+$ git merge-base --is-ancestor 9cc9aa77e30e0e23de2d4d2697b3b218ada02969 HEAD ; echo $?   -> 0 (ancestor)
+$ grep -n 'package-anatomy-r41' SKILL.md  -> 3121 (gate registry row, frozen in e479fdc5)
+$ grep -n 'cap "$PACMAN" -Qkk' tools/tsukuroi-census.sh -> 684
+$ sed -n '698,700p' tools/tsukuroi-census.sh -> drift=$(...) sed -nE 's/^[^:]+: [0-9]+ total files, ([0-9]+) altered files?.*/\1/p' | awk ...
+
+== F. package cache on 2026-10-26
+$ pacman-conf CacheDir -> /var/cache/pacman/pkg/
+$ find /var/cache/pacman/pkg -maxdepth 1 -mindepth 1 -printf '%f\n' | wc -l -> 0
+$ du -sh /var/cache/pacman/pkg -> 0
+$ stat -c '%a %U:%G %s %y' /var/cache/pacman/pkg -> 755 root:root 0 2026-10-25 13:10:52.739114211 -0300
+
+== G. vercmp exit status (the printed value is the verdict; $? is not)
+$ /usr/bin/vercmp 1.0-1 1:0.1-1 ; echo $?     -> prints -1, rc 0
+$ /usr/bin/vercmp 2:0.1 1:9.9  ; echo $?       -> prints 1,  rc 0
+$ /usr/bin/vercmp 1.0 1.0-5    ; echo $?       -> prints 0,  rc 0
+$ /usr/bin/vercmp 1:1.0-1 2.0-1; echo $?       -> prints 1,  rc 0
+# so a table keyed on "$?" would read every pair as equal (row PA8 in the draft was corrected for this).
+
+== H. archive commands on a synthetic four-member package (scratch only; never fed to libalpm)
+$ mkdir -p $S/pkg/usr/bin; printf 'pkgname = demo\npkgbase = demo\npkgver = 1.0-1\narch = x86_64\n' > $S/pkg/.PKGINFO
+$ printf 'format = 2\n' > $S/pkg/.BUILDINFO; printf 'demo body\n' > $S/pkg/usr/bin/demo
+$ printf '#mtree\n/set type=file uid=0 gid=0 mode=755\n...\n' | gzip -c -n > $S/pkg/.MTREE
+$ (cd $S/pkg && bsdtar -cf $S/demo.pkg.tar .PKGINFO .BUILDINFO .MTREE usr/bin/demo)
+$ bsdtar -tf $S/demo.pkg.tar
+.PKGINFO
+.BUILDINFO
+.MTREE
+usr/bin/demo
+$ bsdtar -tf $S/demo.pkg.tar | sed -n '1,4p'   -> same four lines, archive order
+$ bsdtar -tf $S/demo.pkg.tar | head -n 3       -> .PKGINFO .BUILDINFO .MTREE
+$ bsdtar -xOf $S/demo.pkg.tar .PKGINFO | grep -e '^pkgname' -e '^pkgver'
+pkgname = demo
+pkgver = 1.0-1
+$ bsdtar -xOf $S/demo.pkg.tar .MTREE | head -c2 | od -An -tx1  ->  1f 8b
+$ bsdtar --version | head -1   -> bsdtar 3.8.10 - libarchive 3.8.10 ...
+
+== I. no real package file on this host (bounded search, 25 s cap, completed)
+$ timeout 25 find /var/cache /var/lib /home/vgpnk/Downloads /home/vgpnk/Projects -maxdepth 3 -name '*.pkg.tar.*' | head -5
+(no output)
+
+

@@ -1,0 +1,33 @@
+# C2RevPA6 receipt — measured A/B of the check_pkg_full no-mtree branch
+date: 2026-10-26
+host binary: pacman -Q pacman -> pacman 7.1.0.r9.g54d9411-3 ; pacman -Q iana-etc -> iana-etc 20260617-1
+(matching capture-meta.txt: captured_utc 2026-10-26T16:14:04Z, pacman 7.1.0.r9.g54d9411-3)
+
+Setup (no host mutation; host local db only read via cp -a; pacman query with
+--dbpath pointing into the private scratch):
+  S=/fast/scratch/hyaku/tsukuroi-r41/C2RevPA6
+  cp -a /var/lib/pacman/local "$S/local"
+  cp -a /var/lib/pacman/sync  "$S/sync"   # silences sync-db warnings for the query
+
+Baseline (mtree present):
+  $ pacman -Qkk --dbpath "$S" iana-etc
+  iana-etc: 11 total files, 0 altered files
+  rc=0
+  (that summary line is check_pkg_full's own tail output, frozen/src/check.c:427-433,
+   final return check.c:434 `return (errors != 0 ? 1 : 0);`)
+
+Treatment:
+  $ rm -- "$S/local/iana-etc-20260617-1/mtree"
+  $ pacman -Qkk --dbpath "$S" iana-etc
+  iana-etc: no mtree file
+  rc=0
+  (no other output: no error, no warning, no summary -> check_pkg_full returned 0
+   via the mtree == NULL early return, frozen/src/check.c:314-320)
+
+Discarded first attempt: --dbpath was pointed at the local/ directory itself;
+pacman then created a stray empty local/ subdir inside the copy and later runs
+printed `error: invalid name for database entry 'local'` (artifact of the scratch
+copy, identical in both arms, unrelated to mtree). Removed (rm -rf of my own
+scratch subdirs) before the clean rerun above. The host db was never written.
+
+Cleanup: scratch dir removed at end of session after receipts were copied out.

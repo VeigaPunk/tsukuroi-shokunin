@@ -1,0 +1,43 @@
+G-7 predicate identity — extraction receipts (commands run 2026-10-26, read-only)
+
+Byte identity of the frozen counters
+$ git -C <lane> rev-parse 71851d6:tools/score-selftest-mounts-r41.py 71851d6:tools/check-package-anatomy-r41.py
+6351197f8d8ebd3311a06d93eb47d720b350cb82
+325da18f027989c12ee0aaf4555e38d420d7bb2a
+$ git -C <lane> rev-parse e479fdc:tools/score-selftest-mounts-r41.py e479fdc:tools/check-package-anatomy-r41.py
+6351197f8d8ebd3311a06d93eb47d720b350cb82
+325da18f027989c12ee0aaf4555e38d420d7bb2a
+$ sha256sum tools/score-selftest-mounts-r41.py tools/check-package-anatomy-r41.py   # worktree == tip blob
+8306d9990b156ceb625eabbe942910fc0d09b20f350a7e8af1ff2237fd07355c  tools/score-selftest-mounts-r41.py
+c83e29a4f570422d5a975873460c4c5b061e33ac497b97d13c1383569ac1819f  tools/check-package-anatomy-r41.py
+$ git -C <lane> status --porcelain -- tools/score-selftest-mounts-r41.py tools/check-package-anatomy-r41.py
+(empty)
+
+C1 exact strings (Python ast + regex extraction)
+SCORECARD d8b4d52 line 2465, Target column code span:
+  baseline_pass == 1 and neutral_pass == 3 and decoy_pass == 1 and mutants_applied == 13 and survivors == 0 and params == 4
+  exact span == counter literal: True ; non-ascii in span: none
+counter docstring (tools/score-selftest-mounts-r41.py:41-42), normalized whitespace:
+  baseline_pass == 1 and neutral_pass == 3 and decoy_pass == 1 and mutants_applied == 13 and survivors == 0 and params == 4
+  == literal: True
+counter `predicate` literal (ast, tools/score-selftest-mounts-r41.py:298-299):
+  baseline_pass == 1 and neutral_pass == 3 and decoy_pass == 1 and mutants_applied == 13 and survivors == 0 and params == 4
+before/c1-before.jsonl:6 json.loads value == literal: True
+code condition (tools/score-selftest-mounts-r41.py:295-296, ast.unparse):
+  baseline_pass == 1 and neutral_pass == len(NEUTRAL) and (decoy_pass == 1) and (m_applied == len(MUTANTS)) and (not survivors) and (n_params == 4)
+  len(NEUTRAL)==3, len(MUTANTS)==13 (imported module: M1-M9, H5, H6, H9, H10)
+
+C2 exact strings
+SCORECARD d8b4d52 line 2466, Target column code span:
+  rules_verified == 8 and verdicts_ok == 8 and host_ok == 6 and source_ok == 1 and duplicate_rows == 0 and duplicate_headings == 0 and novelty_base_hits == 0
+  exact span == counter literal: True ; non-ascii in span: none
+counter docstring (tools/check-package-anatomy-r41.py:34-35), normalized whitespace: same ; == literal: True
+counter `predicate` literal (ast, tools/check-package-anatomy-r41.py:314-315): same
+before/c2-before.jsonl:61 json.loads value == literal: True
+code condition (tools/check-package-anatomy-r41.py:394-395, ast.unparse):
+  verified == 8 and verdicts_ok == 8 and (host_ok == 6) and (source_ok == 1) and (dup_rows == 0) and (dup_heads == 0) and (nov_total == 0)
+  receipt re-emits these under the sentence's names at lines 396-398.
+  REQUIRED rows 8 (PA1-PA8); host_expect() keys 6 (PA1, PA4-PA8).
+
+Declaration section at tip 71851d6 == declaration at d8b4d52 except 12 appended C1 control lines after the table
+(`diff` of the section shows only additions 28a29,40; both claim rows byte-identical).

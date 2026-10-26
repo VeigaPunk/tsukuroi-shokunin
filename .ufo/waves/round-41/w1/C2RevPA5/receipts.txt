@@ -1,0 +1,46 @@
+Seat C2RevPA5 receipts — item C2-5a, row PA5 of corpus/knowledge/alpm-package-anatomy-r41.md at 9cc9aa77e30e0e23de2d4d2697b3b218ada02969. All commands run 2026-10-26.
+
+makepkg.sh.in.upstream — the file fetched from https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/scripts/makepkg.sh.in (curl -fsSL, access 2026-10-26).
+
+Observed outputs:
+
+1. Live fetch hash vs frozen SHA256SUMS:
+   $ sha256sum makepkg.sh.in.upstream
+   d588222586b2432b4169c82e6ebcd464acfdc20a663172fd444b8f98e1104e86  /fast/scratch/hyaku/tsukuroi-r41/C2RevPA5/makepkg.sh.in.upstream
+   frozen/src/SHA256SUMS line: d588222586b2432b4169c82e6ebcd464acfdc20a663172fd444b8f98e1104e86  makepkg.sh.in  → match.
+
+2. Fetched vs pinned snapshot:
+   $ cmp /fast/scratch/hyaku/tsukuroi-r41/C2RevPA5/makepkg.sh.in.upstream /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src/makepkg.sh.in && echo IDENTICAL
+   IDENTICAL  (so cited line numbers 615-620 hold on the live file; quote "list_package_files | LANG=C bsdtar -cnf - --format=mtree" is at line 617 of both)
+
+3. Row text (git show 9cc9aa77e30e0e23de2d4d2697b3b218ada02969:corpus/knowledge/alpm-package-anatomy-r41.md | grep -n PA5):
+   30:| PA5 | makepkg writes `.MTREE` as an mtree-format listing of the package files, compressed with gzip, and excludes `.MTREE` itself from that listing, so the kept database `mtree` describes `.BUILDINFO`, `.PKGINFO` and the data files but omits its own entry | `gzip mtree without .MTREE` | S229 makepkg.sh.in:615-620 “LANG=C bsdtar -cnf - --format=mtree” | local database mtree files: gzip 1409 of 1409, self-listed 0 of 1409 (`localdb-anatomy.tsv`) |
+
+4. Source row S229 (git show 9cc9aa77...:corpus/SOURCES.md | grep -n 'S229'):
+   238:| S229 | makepkg.sh.in at pacman 54d9411 — https://gitlab.archlinux.org/pacman/pacman/-/blob/54d9411/scripts/makepkg.sh.in | code | A | How makepkg orders archive members and writes .MTREE | `list_package_files` lines 560-569; .MTREE generation lines 615-620; commit 54d9411, snapshot sha256 d588222586b2432b4169c82e6ebcd464acfdc20a663172fd444b8f98e1104e86 | makepkg puts the dot files first and writes .MTREE as a gzip mtree listing that excludes itself | mined | 2026-10-26 | on-release | corpus/knowledge/alpm-package-anatomy-r41.md |
+
+5. Host capture counts:
+   $ awk -F'\t' 'NR>1{r++; if($4==1)m++; if($8==1)g++; if($9==1)s++; if($4==1&&$8==0)gz0++; if($4==1&&$9==1)self1++} END{print "rows="r, "mtree="m, "gzip="g, "self="s, "mtree_but_not_gzip="gz0+0, "self_listed="self1+0}' frozen/hostcap/localdb-anatomy.tsv
+   rows=1409 mtree=1409 gzip=1409 self= mtree_but_not_gzip=0 self_listed=0
+   (self= empty because the column is never 1; self_listed=0 is the count of mtree rows with mtree_lists_self=1)
+
+6. Capture integrity:
+   $ grep 'localdb-anatomy.tsv' frozen/hostcap/MANIFEST.sha256
+   d10ae8445ba37ef5e85a1e0e1127ef6f7e450fd276729b6cbd0f982e06d1734e  localdb-anatomy.tsv
+   $ sha256sum frozen/hostcap/localdb-anatomy.tsv
+   d10ae8445ba37ef5e85a1e0e1127ef6f7e450fd276729b6cbd0f982e06d1734e  .../localdb-anatomy.tsv  → match.
+
+7. Key frozen-source lines (read tool):
+   frozen/src/makepkg.sh.in:616-620:
+       msg2 "$(gettext "Generating .MTREE file...")"
+       list_package_files | LANG=C bsdtar -cnf - --format=mtree \
+               --options='!all,use-set,type,uid,gid,mode,time,size,sha256,link' \
+               --null --files-from - --exclude .MTREE | gzip -c -f -n > .MTREE
+       touch -d @$SOURCE_DATE_EPOCH .MTREE
+   frozen/src/makepkg.sh.in:560-569 list_package_files: `export LC_COLLATE=C; shopt -s dotglob globstar; printf '%s\0' **/*`
+   frozen/src/be_local.c:246-283 _cache_mtree_open: access check, `archive_read_support_format_mtree(mtree)`, `_alpm_archive_read_support_filter_all(mtree)`, `_alpm_archive_read_open_file(mtree, mtfile, ...)`.
+   frozen/hostcap/mtree-pacman-head.txt: `#mtree`, `/set type=file uid=0 gid=0 mode=755`, `./.BUILDINFO time=... sha256digest=2111f027...`, `./.PKGINFO time=... sha256digest=340af35e...` — no ./.MTREE entry.
+   frozen/hostcap/capture-meta.txt: captured_utc 2026-10-26T16:14:04Z; pacman pacman 7.1.0.r9.g54d9411-3; kernel 7.2.11-arch1-1; alpm_db_version 9.
+   frozen/hostcap/capture.sh:15-19: gz decided by `head -c 2 ... = 1f8b`; self by `zcat -- "$d/mtree" 2>/dev/null | grep -c '^\./\.MTREE '`.
+
+Scratch /fast/scratch/hyaku/tsukuroi-r41/C2RevPA5 removed after moving the fetched file here.

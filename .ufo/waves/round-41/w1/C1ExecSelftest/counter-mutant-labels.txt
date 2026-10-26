@@ -1,0 +1,7 @@
+    ('H5-mountpoint-absolute', COUNT_LINE,
+     '        if [ "${fst:-}" = btrfs ] && [[ ${_mp:-} == /* ]]; then mt=$((mt + 1)); fi\n'),
+    ('H6-source-devonly', COUNT_LINE,
+     '        if [ "${fst:-}" = btrfs ] && [[ ${_src:-} == /dev/* ]]; then mt=$((mt + 1)); fi\n'),
+    ('H9-subvolkey-option', LOOP, keyed("*'subvol='*")),
+    ('H10-count-exactly-one', '      if [ "$mt" -gt 0 ]; then blocked=1;', '      if [ "$mt" -eq 1 ]; then blocked=1;'),
+]

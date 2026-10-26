@@ -1,0 +1,70 @@
+M-2 receipt — the class, and a fix shown able to fail
+====================================================================
+Scratch: /fast/scratch/hyaku/tsukuroi-r41/MistakeFixAbleToFail (removed at exit)
+Lane tip at dispatch: 71851d636ab1bffaf8fee5016617c88878a666f1
+
+--- 1. The class, in isolation (§ assignment red) -------------------------
+fixture: big.gz 10,553,466 B from big.txt 82,888,917 B; needle X_NEEDLE_MARKER on line 1.
+
+$ set -o pipefail; zcat big.gz | grep -q X_NEEDLE_MARKER && echo hit
+  run 1: pipeline status=141
+  run 2: pipeline status=141
+  run 3: pipeline status=141
+  run 4: pipeline status=141
+  run 5: pipeline status=141
+  -> no 'hit' printed, 5/5. 141 = 128+SIGPIPE(13).
+
+--- 2. The capture.sh form (green) ----------------------------------------
+$ set -o pipefail; c=$(zcat big.gz | grep -c X_NEEDLE_MARKER || true)
+  run 1: c='1'   run 2: c='1'   run 3: c='1'   run 4: c='1'   run 5: c='1'
+absent-needle control: c='0'
+$ zcat big.gz | grep -q Y_NOT_PRESENT   (needle absent -> grep reads to EOF, no SIGPIPE)
+  status=1
+
+--- 3. grep -m1 is the same trap as grep -q ------------------------------
+$ set -o pipefail; zcat big.gz | grep -m1 X_NEEDLE_MARKER >/dev/null && echo hit
+  out='' status=141   (x2)
+PIPESTATUS check: statuses=141 0   -> grep DID match; only pipefail's report is wrong.
+
+--- 4. A SMALL fixture cannot fail (why the fixture size is the test) -----
+  lines=1000   gz=1,892 B     out='hit'  status=0
+  lines=10000  gz=22,664 B   out='hit'  status=0
+  lines=50000  gz=109,186 B  out=''     status=141
+  lines=200000 gz=428,527 B  out=''     status=141
+-> with a fixture under the pipe buffer the red case prints 'hit' and the test passes
+   while the bug is fully present.
+
+--- 5. The good form still cannot see a truncated stream ------------------
+tail.gz (needle at END, 1,047,813 B) vs tail_trunc.gz (first 200,000 B):
+  intact:                                  1
+  truncated + || true  (capture.sh:19 form): 0   <-- indistinguishable from 'absent'
+  truncated without || true:                status=1 (detectable)
+
+--- 6. Pipe capacity -----------------------------------------------------
+/proc/sys/fs/pipe-max-size = 1,048,576 ; F_GETPIPE_SZ on a plain pipe = 65,536
+
+--- 7. check()-shape (tsukuroi-census.sh:2175), 6 reps per size -----------
+  payload=  32 KiB  false-failure=0/6
+  payload=  64 KiB  false-failure=0/6
+  payload=  96 KiB  false-failure=0/6
+  payload= 128 KiB  false-failure=1/6
+  payload= 256 KiB  false-failure=6/6
+  payload= 512 KiB  false-failure=6/6
+  payload=1024 KiB  false-failure=6/6
+shape: ( set -euo pipefail; ! printf '%s\n' "$out" | grep -q 'host=fixture-host' )
+
+--- 8. head-class in a plain assignment under set -e ABORTS --------------
+$ ( set -euo pipefail; state=$(printf '%s\n' "$out" | head -n1 | tr -d '\r'); echo "state=..." )
+  subshell status=141  (x3)  -> the following statement NEVER RAN
+same shape with a 50-line payload: state='running' (fine)
+
+$ ( set -euo pipefail; suu_n=3; suu_first=''
+    [ "$suu_n" -gt 0 ] && suu_first=$(printf '%s\n' "$out" | head -n1 | tr -d '\r')
+    echo reached )                                   # census:1652 shape
+  subshell status=141 (x2) -> never reached
+
+--- 9. in-loop `grep -q ... || miss=` gives a FALSE MISS -----------------
+$ ( set -euo pipefail; miss=''
+    printf '%s\n' "$out" | grep -qE -- '^running' || miss="$miss '^running'"
+    echo "miss='$miss'" )                            # census:2192 shape, pattern IS present
+  miss=' '^running''   (x2)

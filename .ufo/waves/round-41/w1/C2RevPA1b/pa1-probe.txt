@@ -1,0 +1,165 @@
+# PA1 adversarial probe — C2RevPA1b — generated 2026-10-26T18:08:58.242496Z
+# entry commit 9cc9aa77e30e0e23de2d4d2697b3b218ada02969; lane tip 71851d636ab1bffaf8fee5016617c88878a666f1
+# snapshot integrity vs frozen SHA256SUMS
+$ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src && sha256sum -c SHA256SUMS
+(exit 0)
+PKGBUILD.5.asciidoc: OK
+add.c: OK
+alpm-package.7.raw: OK
+be_local.c: OK
+be_package.c: OK
+check.c: OK
+makepkg.sh.in: OK
+query.c: OK
+version.c: OK
+
+# current man.archlinux.org rendering of alpm-package(7) vs frozen snapshot
+$ curl -sS -L --max-time 60 https://man.archlinux.org/man/alpm-package.7.raw | sha256sum; sha256sum /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src/alpm-package.7.raw
+(exit 0)
+b551bb392f6899c89c4c0d5778c89ad482f0c1251260ccf336bd5b5ed2693c45  -
+b551bb392f6899c89c4c0d5778c89ad482f0c1251260ccf336bd5b5ed2693c45  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src/alpm-package.7.raw
+
+# page footer (package/version) on the HTML rendering
+$ grep -n -A1 "<dt>Package</dt>\|<dd>0\.13\.0-1" /fast/scratch/hyaku/tsukuroi-r41/C2RevPA1b/alpm-package.7.html | head -6
+(exit 0)
+281:        <dd>0.13.0-1</dd>
+282-        <dt>Upstream:</dt>
+
+# pinned source, the four claims of the PA1 rule cell
+$ nl -ba /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src/alpm-package.7.raw | sed -n '95,124p'
+(exit 0)
+    95	.LP
+    96	The contents of an ALPM based package are distinguished between \fBmetadata\fR, \fBscripts\fR and \fBdata\fR files.
+    97	.SS
+    98	Metadata
+    99	.LP
+   100	The following files must be present at the root of an ALPM based package:
+   101	.IP "\(bu" 3
+   102	\f(CR.BUILDINFO\fR: a \fBBUILDINFO\fR file
+   103	.if n \
+   104	.sp -1
+   105	.if t \
+   106	.sp -0.25v
+   107	.IP "\(bu" 3
+   108	\f(CR.MTREE\fR: an \fBALPM-MTREE\fR file
+   109	.if n \
+   110	.sp -1
+   111	.if t \
+   112	.sp -0.25v
+   113	.IP "\(bu" 3
+   114	\f(CR.PKGINFO\fR: a \fBPKGINFO\fR file
+   115	.LP
+   116	The above files provide relevant metadata for the installation, upgrade and uninstallation of packages on a target system (see \fBalpm-package-relation\fR for details on dependency resolution), as well as reproducibly building a bit-by-bit identical package from the same sources (see \fBreproducible builds\fR[2]).
+   117	.SS
+   118	Scripts
+   119	.LP
+   120	Optionally, an \fBalpm-install-scriptlet\fR named \f(CR.INSTALL\fR may be present at the root of an ALPM based package.
+   121	.SS
+   122	Data
+   123	.LP
+   124	Zero or more \fBdata\fR files may be present in an ALPM based package (refer to \fBalpm-meta-package\fR for details on why packages may not contain any \fBdata\fR files).
+
+# .CHANGELOG named anywhere in the format document?
+$ grep -n 'CHANGELOG' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src/alpm-package.7.raw; echo grep_rc=$?
+(exit 0)
+grep_rc=1
+
+# sibling pages of the same alpm-docs 0.13.0-1 set
+$ sed -n '5,13p' /fast/scratch/hyaku/tsukuroi-r41/C2RevPA1b/alpm-install-scriptlet.5.raw
+(exit 0)
+alpm-install-scriptlet – a custom install script for ALPM based packages.
+.SH DESCRIPTION
+.LP
+An optional shell script that defines custom actions to be performed during the installation, upgrade, or removal of a package.
+.PP
+The shell functions are executed in the root (\f(CR/\fR) of the system, so all paths inside of it must be absolute.
+.PP
+Such files are located at the root of ALPM packages and are named \fB.INSTALL\fR.
+.SS
+
+$ sed -n '200,203p' /fast/scratch/hyaku/tsukuroi-r41/C2RevPA1b/ALPM-MTREE.5.raw
+(exit 0)
+In Pacman \fBALPM-MTREE\fR files are solely used to verify that installed files are identical to the original files without having to keep the original package around.
+\fB.MTREE\fR files are implicitly generated and included when creating packages via \f(CRmakepkg\fR.
+The gzip-compressed \fB.MTREE\fR file is located in the root of ALPM based packages
+.SS
+
+$ sed -n '5,10p' /fast/scratch/hyaku/tsukuroi-r41/C2RevPA1b/PKGINFO.5.raw
+(exit 0)
+PKGINFO - Information on ALPM based packages (version 2).
+.SH DESCRIPTION
+.LP
+The \fBPKGINFO\fR format is a textual format that describes package metadata.
+Such files are located at the root of ALPM packages and are named \fB.PKGINFO\fR.
+They are used e.g. by package managers to evaluate and present the context for a package within its ecosystem.
+
+# implementation: makepkg always writes the three, adds .CHANGELOG/.INSTALL only when set
+$ nl -ba /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src/makepkg.sh.in | sed -n '585,602p;613,621p'
+(exit 0)
+   585		pkgarch=$(get_pkg_arch)
+   586		msg2 "$(gettext "Generating %s file...")" ".PKGINFO"
+   587		write_pkginfo > .PKGINFO
+   588		msg2 "$(gettext "Generating %s file...")" ".BUILDINFO"
+   589		write_buildinfo > .BUILDINFO
+   590	
+   591		# check for changelog/install files
+   592		for i in 'changelog/.CHANGELOG' 'install/.INSTALL'; do
+   593			IFS='/' read -r orig dest < <(printf '%s\n' "$i")
+   594	
+   595			if [[ -n ${!orig} ]]; then
+   596				msg2 "$(gettext "Adding %s file...")" "$orig"
+   597				if ! cp "$startdir/${!orig}" "$dest"; then
+   598					error "$(gettext "Failed to add %s file to package.")" "$orig"
+   599					exit $E_MISSING_FILE
+   600				fi
+   601				chmod 644 "$dest"
+   602			fi
+   613		# ensure all elements of the package have the same mtime
+   614		find . -exec touch -h -d @$SOURCE_DATE_EPOCH {} +
+   615	
+   616		msg2 "$(gettext "Generating .MTREE file...")"
+   617		list_package_files | LANG=C bsdtar -cnf - --format=mtree \
+   618			--options='!all,use-set,type,uid,gid,mode,time,size,sha256,link' \
+   619			--null --files-from - --exclude .MTREE | gzip -c -f -n > .MTREE
+   620		touch -d @$SOURCE_DATE_EPOCH .MTREE
+   621	
+
+# host cell: the live local-db mtree of the pacman package (first 4 lines) vs the receipt
+$ zcat -- /var/lib/pacman/local/pacman-7.1.0.r9.g54d9411-3/mtree | sed -n 1,4p; echo ---receipt---; cat /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/hostcap/mtree-pacman-head.txt
+(exit 0)
+#mtree
+/set type=file uid=0 gid=0 mode=755
+./.BUILDINFO time=1792052823.0 mode=644 size=7080 sha256digest=2111f027f199a9bd1b3e2fa4fac4b8673bb6c587b13fbc4a7864e0ca4e73050e
+./.PKGINFO time=1792052823.0 mode=644 size=1136 sha256digest=340af35e8f31b71f40059851494faae62d275a139b0e1a6b474d71fb4b4e3c26
+---receipt---
+#mtree
+/set type=file uid=0 gid=0 mode=755
+./.BUILDINFO time=1792052823.0 mode=644 size=7080 sha256digest=2111f027f199a9bd1b3e2fa4fac4b8673bb6c587b13fbc4a7864e0ca4e73050e
+./.PKGINFO time=1792052823.0 mode=644 size=1136 sha256digest=340af35e8f31b71f40059851494faae62d275a139b0e1a6b474d71fb4b4e3c26
+
+$ grep -n '^pacman-\|^entry' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/hostcap/localdb-anatomy.tsv | head -2
+(exit 0)
+1:entry	desc	files	mtree	install	changelog	dotfiles	mtree_gzip	mtree_lists_self
+1028:pacman-7.1.0.r9.g54d9411-3	1	1	1	0	0	0	1	0
+
+# counter shapes this row must satisfy (lexical gates only, control C2-K2)
+$ sed -n '76,80p;96,99p' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-package-anatomy-r41.py
+(exit 0)
+# row -> (required file, window lo, window hi)
+REQUIRED = {
+    'PA1': ('alpm-package.7.raw', 95, 124),
+    'PA2': ('be_package.c', 595, 656),
+    'PA3': ('makepkg.sh.in', 558, 570),
+# ordered proposition relations over the collapsed rule cell (backticks removed)
+RELATIONS = {
+    'PA1': [r'\.BUILDINFO\b.*\.MTREE\b.*\.PKGINFO\b', r'\bmust\b.*\broot\b', r'\boptional\b.*\.INSTALL\b'],
+    'PA2': [r'\bonly \.PKGINFO\b', r'\.PKGINFO\b.*\bmissing package metadata\b',
+
+
+# digests of the fetched alpm-docs 0.13.0-1 pages used above (man.archlinux.org, read-only GET, 2026-10-26)
+b551bb392f6899c89c4c0d5778c89ad482f0c1251260ccf336bd5b5ed2693c45  alpm-package.7.raw
+feb7df60d252ab4ac089974170981ab44ea99549a4b77658ae26757c3f5cbf05  alpm-install-scriptlet.5.raw
+43fe6b36f854606618361f711a10f79e5b9a627fd81a5991b7679cfdb58cf88c  alpm-meta-package.7.raw
+537f38b056b3a6ab7dc1f414fa7eb8982fa94445f44f91f8170a833a4f7d5ae7  PKGINFO.5.raw
+4e57163b9a28f8d9c5b1e74880d27a075529ce1cc5d8d5df3fb2b9e1d5fa9f0b  BUILDINFO.5.raw
+23ce3e69314a4ed0218f3cbd9bca167f98c6f5afd4e9ee203acb673339ac0361  ALPM-MTREE.5.raw

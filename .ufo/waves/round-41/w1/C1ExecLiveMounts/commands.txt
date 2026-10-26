@@ -1,0 +1,10 @@
+# commands, seat C1ExecLiveMounts, scratch /fast/scratch/hyaku/tsukuroi-r41/C1ExecLiveMounts
+git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 71851d636ab1bffaf8fee5016617c88878a666f1:tools/tsukuroi-census.sh > base.sh   # sha256 646c84fc...9eb95
+cp /proc/self/mounts mounts
+# H5/H6/H9/H10 texts taken from tools/score-selftest-mounts-r41.py MUTANTS (each applied with str.replace, occurrence count == 1)
+# per-run:
+TSUKUROI_BTRFS_SYSFS=/fast/scratch/hyaku/tsukuroi-r41/C1ExecLiveMounts/absent TSUKUROI_PROC_MOUNTS=/fast/scratch/hyaku/tsukuroi-r41/C1ExecLiveMounts/mounts bash {base,H5,H6,H9,H10}.sh
+# control B, same table, real sysfs:
+env -u TSUKUROI_BTRFS_SYSFS TSUKUROI_PROC_MOUNTS=/fast/scratch/hyaku/tsukuroi-r41/C1ExecLiveMounts/mounts bash {base,H5,H6,H9,H10}.sh
+# selftest of the unmutated census copy:
+TMPDIR=<scratch>/tmp bash base.sh --selftest

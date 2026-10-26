@@ -1,0 +1,28 @@
+# citation sweep for S220 anchor, lane tip 71851d636ab1bffaf8fee5016617c88878a666f1, 2026-10-26T18:09:53Z
+
+## corpus/SOURCES.md:229 (anchor cell)
+| S220 | Arch pacman PKGBUILD at 7.1.0.r9.g54d9411-3 — https://gitlab.archlinux.org/archlinux/packaging/packages/pacman/-/blob/7.1.0.r9.g54d9411-3/PKGBUILD | code | A | The scriptlet shell and libalpm patches of the installed Arch pacman package | `build()` meson call lines 110-117, `-Dscriptlet-shell` line 115; patch sources lines 52-55; tag 7.1.0.r9.g54d9411-3, snapshot sha256 32d40dfd36919597b3d5b57c74d7f87ca8c463a7d10c00a87ff2149aa9ba67f4 | Arch's pacman runs install scriptlets with /usr/bin/bash, set at build time | mined | 2026-10-26 | on-release | corpus/knowledge/pacman-exec-environment-r40.md |
+
+## corpus/lessons/round-40.md:21 (Gate row)
+| S220 | https://gitlab.archlinux.org/archlinux/packaging/packages/pacman/-/blob/7.1.0.r9.g54d9411-3/PKGBUILD — opened 2026-10-26 (sha256 `32d40dfd…`) | “-Dscriptlet-shell=/usr/bin/bash \” | PKGBUILD:115 inside `build()` (meson call :110-117; `_git_patch_level_commit=54d9411…` :9; patch sources :52-55) | admit, mined, tier A |
+
+## corpus/lessons/round-40-verifier-spotcheck.md:149-151 (routed defect 4)
+4. **S220 anchor drift:** row and Gate say "meson call lines 110-117"; the live and snapshot PKGBUILD put it at
+   :111-117 (:110 blank). Correct by an appended note (registry rows are append-only except status/recheck/used-by).
+5. **Census W04 34 → 39:** the five new same-URL rows are declared distinct scopes; record that W04 delta in the next
+
+## grep -n S220 corpus/lessons/round-41.md
+86:4. S220 anchor drift: see the appended note in this lesson's Gate (wave item RoutedS220Anchor).
+
+## grep -n 'supersedes S220' corpus/SOURCES.md
+exit=1
+
+## git status --porcelain -- corpus/
+ M corpus/knowledge/pacman-exec-environment-r40.md
+?? corpus/lessons/round-41.md
+
+## stat knowledge file
+2026-10-26 15:06:45.022836065 -0300 corpus/knowledge/pacman-exec-environment-r40.md
+
+## highest registry id
+S236

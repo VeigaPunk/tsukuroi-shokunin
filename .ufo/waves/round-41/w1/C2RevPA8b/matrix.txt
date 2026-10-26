@@ -1,0 +1,35 @@
+# frozen version.c compiled as libalpm comparator; sha256:
+fa769e3081d25d74132109ca35a1e272a44b1c5674c397f3f2a1acaf3b6ab833  version.c
+# gcc -O1 -o vc drv.c version.c (stub util.h: SYMEXPORT + stdlib.h)
+
+a    b                          note                       lib      cli      
+     1:1.0-1                    2.0-1                      1        1        row: epoch 1 outranks epoch 0
+     0:2.0-1                    2.0-1                      0        0        row: absent epoch = 0
+     1.0                        1.0-5                      0        0        row: one release only -> equal
+     1.0-1                      1:0.1-1                    -1       -1       host capture line 3
+     1.0-1                      1.0-2                      -1       -1       host capture line 5
+     2:0.1                      1:9.9                      1        1        host capture line 6
+     1:0                        0:999999999999999999999999 1        1        epoch wins regardless of version length
+     1:1.0                      0                          1        1        epoch 1 vs 0
+     10:1                       9:9                        1        1        multi-digit epoch
+     01:1.0                     1:1.0                      0        0        leading-zero epoch normalised
+     1.0                        1.0-                       0        0        empty release on one side
+     1.0-                       1.0-5                      -1       -1       empty release vs 5
+     1.0-0                      1.0                        0        0        release 0 vs absent
+     1.0-1                      1.1-0                      -1       -1       both carry release, versions differ
+     1.0-9                      1.0-10                     -1       -1       numeric release
+     1.0-10                     1.0-9                      1        1        numeric release reverse
+     1:a                        1:1                        -1       -1       alpha vs numeric version
+     1.0                        1.0.0                      -1       -1       extra zero segment
+     1.0.0                      1.0                        1        1        extra zero segment reverse
+     a:1.0                      1.0                        -1       -1       non-numeric 'epoch' is version text
+     :1.0                       1.0                        0        0        empty epoch = 0
+     1:1.0                      1:1.0-5                    0        0        epoch+version equal, one release
+     1:1.0-1                    0:1.0-1                    1        1        epoch 1 vs 0, same body
+     1.0-1                      1.0-1.0                    -1       -1       release with subrelease
+     1.0-01                     1.0-1                      0        0        leading-zero release
+     000:5                      0:9                        -1       -1       all-zero epoch normalised
+     1:1.0-1                    1:1.0-2                    -1       -1       release decides within same epoch+version
+     1.0-5                      1.0                        0        0        reverse of the row's equality
+     1:2.0                      1:2.0-9                    0        0        same epoch, one release only
+     1.0.1                      1.0-1                      1        1        dot segment vs release

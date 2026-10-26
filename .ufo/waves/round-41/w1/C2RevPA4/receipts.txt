@@ -1,0 +1,48 @@
+C2RevPA4 receipts — item C2-4a, row PA4 — 2026-10-26
+=====================================================
+
+[1] Live fetch (access date 2026-10-26, `date -u +%Y-%m-%d` printed 2026-10-26)
+$ curl -fsSL --max-time 120 'https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/add.c' -o live-add.c
+$ wc -c live-add.c
+22431 live-add.c
+$ sha256sum live-add.c
+fd3136291885cae73ad00abab3d83de49ea0276f040e53cca3902cfb93cf58f1  live-add.c
+
+[2] Snapshot vs live vs SHA256SUMS
+$ sha256sum /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src/add.c live-add.c
+fd3136291885cae73ad00abab3d83de49ea0276f040e53cca3902cfb93cf58f1  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src/add.c
+fd3136291885cae73ad00abab3d83de49ea0276f040e53cca3902cfb93cf58f1  live-add.c
+SHA256SUMS line (frozen/src/SHA256SUMS):
+fd3136291885cae73ad00abab3d83de49ea0276f040e53cca3902cfb93cf58f1  add.c
+
+[3] Occurrence counts in pinned add.c (grep -c)
+PKGINFO   -> 0
+BUILDINFO -> 0
+MTREE     -> 1   (the strcmp at add.c:177)
+
+[4] Capture aggregate
+$ awk -F'\t' 'NR>1{n++; mt+=$4; ins+=$5; cl+=$6; dot+=$7; gz+=$8; self+=$9} END{printf "rows=%d mtree=%d install=%d changelog=%d dotfiles=%d mtree_gzip=%d mtree_lists_self=%d\n", n, mt, ins, cl, dot, gz, self}' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/hostcap/localdb-anatomy.tsv
+rows=1409 mtree=1409 install=51 changelog=0 dotfiles=0 mtree_gzip=1409 mtree_lists_self=0
+(localdb-anatomy.tsv: 1410 lines = header + 1409 entry rows)
+
+[5] Capture manifest check
+$ (cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/hostcap && sha256sum -c MANIFEST.sha256)
+capture.sh: OK
+capture-meta.txt: OK
+localdb-anatomy.tsv: OK
+vercmp.txt: OK
+man-pkgbuild-runinside.txt: OK
+mtree-pacman-head.txt: OK
+
+[6] Row source (pinned commit)
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 9cc9aa77e30e0e23de2d4d2697b3b218ada02969:corpus/knowledge/alpm-package-anatomy-r41.md
+PA4 row as judged is quoted in ../C2RevPA4.md; not copied here (cite revision + command).
+
+[7] Pinned-line verification method
+Raw read of frozen/src/add.c:168-206 (verbatim, 39 lines) + grep with explicit line numbers:
+168 extract_db_file signature; 173/175/177 strcmp chain; 180 reserve comment; 185 set_perm 0644;
+186-188 snprintf to <db>/<name>-<version>/<dbfile>; 189 closing brace; 191 extract_single_file
+signature; 204-206 dot dispatch. Callers: 493 _alpm_local_db_prepare; 525-534 DBONLY branch
+(extract_db_file at 529-530); 535-561 normal branch (extract_single_file at 560); perform_extraction
+113-166 with ARCHIVE_EXTRACT_PERM at 119, archive_write_disk_set_options at 135,
+archive_read_extract2 at 137.

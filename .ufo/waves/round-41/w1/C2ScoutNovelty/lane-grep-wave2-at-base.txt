@@ -1,0 +1,258 @@
+=== check_pkg|mtree file|check level|-Qk\b|Qk 
+=== pkgrel|pkgver|[0-9]:[0-9.]+-[0-9]
+SKILL.md:1926:- Line 135 (transaction state): db.lck absent (.ufo/waves/round-18/l1-capture/host-capture-r18.txt:57). The last pacman.log entry 2026-10-20T13:23:09-0300 is a "Running 'pacman -D -q --asexplicit" line for zcode (.uf
+SKILL.md:2012:- Window total: 10 journal `Updated: /boot/limine.conf` events since 2026-10-19 (`r19c:11-20`; count `r19:562-563`, `r19b:1685-1686`) plus 3 ALPM-SCRIPTLET events in the whole pacman.log (`r19b:1695`, `1700`, `1702`;
+SKILL.md:2018:| `Updated: /boot/limine.conf` with `_SYSTEMD_UNIT=snapper-cleanup.service` | W-SNAPPER-CLEANUP (W1) cleanup stop. Drop-in `ExecStopPost=limine-snapper-sync` (`r19:256-260`), timer `OnBootSec=10m` / `OnUnitActiveSec=
+SKILL.md:2021:| `[EVENT] <CREATE|DELETE> -> <id>` from `limine-snapper-watcher` | W-WATCHER (W4) watcher service, `ExecStart=limine-snapper-watcher` (`r19:153-161`) | Only when `inotifywait` is installed. Not installed on this hos
+SKILL.md:2022:| `ALPM-SCRIPTLET] Copied: /tmp/limine-mkinitcpio.*.efi -> /boot/EFI/Linux/…` then `ALPM-SCRIPTLET] Updated: /boot/limine.conf` | W-MKINITCPIO-HOOK (W5) pacman hook `90-mkinitcpio-install.hook` → `limine-mkinitcp
+SKILL.md:2023:| `running '80-limine-efi-deploy.hook'` or `running '99-limine.hook'` span | W-LIMINE-EFI-DEPLOY / W-LIMINE-EFI-COPY (W6) deploy hooks. `80` runs `/usr/bin/limine-install` (`r19b:1399-1430`); `99` copies `BOOT*.EFI` 
+SKILL.md:2026:Not a writer: `10-limine-snapper-lock.hook` (PreTransaction, `r19:347-353`; `limine-snapper-lock` takes `mutex_lock "limine-snapper-lock"`, `r19b:1389-1397`).
+SKILL.md:2033:- **E4 stale lock.** `/run/limine-snapper-cleanup.lock` exists while `snapper-cleanup.service` is inactive. The drop-in creates it in `ExecStartPre` and removes it in `ExecStopPost` (`r19:258-259`). Action: report. N
+SKILL.md:2050:4. Unit, timer and watcher wiring (`r19:153-161`, `r19:220-231`, `r19:262-265`):
+SKILL.md:2052:5. Lock and hook wiring (`r19:258-259`, `r19:346-409`):
+corpus/SOURCES.md:57:| S051 | L1 read-only boot-chain capture — .ufo/waves/round-17/l1-capture/boot-chain-capture.txt | own-work | A | Which limine entries exist on this host on 2026-10-20 and what each entry's UKI initramfs con
+corpus/SOURCES.md:58:| S052 | L1 read-only freshness capture — .ufo/waves/round-17/l1-capture/fresh-capture.txt | own-work | A | Current installed package directory names, DKMS registrations, snapper configs, enabled units and l
+corpus/SOURCES.md:66:| S060 | L1 read-only round18 host capture — .ufo/waves/round-18/l1-capture/host-capture-r18.txt | own-work | A | Dated package-directory inventory, zswap runtime parameters, earlyoom state, snapper config-f
+corpus/SOURCES.md:72:| S066 | L1 read-only round19 host capture A — .ufo/waves/round-19/l1-capture/host-capture-r19.txt | own-work | A | Installed limine-snapper-sync and limine-mkinitcpio-hook file lists, the limine-snapper-syn
+corpus/SOURCES.md:73:| S067 | L1 read-only round19 host capture B — .ufo/waves/round-19/l1-capture/host-capture-r19b.txt | own-work | A | Packaged limine-snapper-sync 1.32.1-2 README, CHANGELOG grep, snapper plugin, watcher and 
+corpus/SOURCES.md:74:| S068 | L1 read-only round19 host capture C — .ufo/waves/round-19/l1-capture/host-capture-r19c.txt | own-work | A | Per-event _SYSTEMD_UNIT and cgroup of the ten journal limine.conf updates since 2026-10-19
+corpus/SOURCES.md:103:| S097 | Arch plymouth packaging hook at 26.134.222-3 — https://gitlab.archlinux.org/archlinux/packaging/packages/plymouth/-/raw/26.134.222-3/plymouth.initcpio_hook | code | A | The packaged Plymouth late h
+corpus/SOURCES.md:167:| S161 | ArchWiki Btrfs — https://wiki.archlinux.org/title/Btrfs | docs | B | The page's space-operability text only: Usage > Displaying used/free space (df and du inaccuracy, the `btrfs filesystem usage` r
+corpus/SOURCES.md:258:Provenance note (2026-10-20, Sources seat): the re-open and root-policy paragraphs above dated 2026-10-20 describe this resumed session's accesses; the registry `opened` fields of inherited rows S027–S037 k
+corpus/knowledge/arch-news-gate-2026.md:26:| 2026-04-07 | [kea >= 1:3.0.3-6](https://archlinux.org/news/kea-1303-6-update-requires-manual-intervention/) | `kea`: not installed | [obs] No named-package trigger. |
+corpus/knowledge/arch-news-gate-2026.md:27:| 2026-04-05 | [iptables now defaults to nft](https://archlinux.org/news/iptables-now-defaults-to-the-nft-backend/) | `iptables 1:1.8.13-1` is installed | [obs] The current package is nam
+corpus/knowledge/aur-drift-receipt-r9.md:117:  the r6 measurement. 0 lines dated `2026-10-14`; last entry `2026-10-13T16:37:59-0300
+corpus/knowledge/aur-drift-receipt-r9.md:122:  2026-10-13T16:37:59-0300; nothing the host's own package manager saw could have drifted a row.
+corpus/knowledge/aur-drift-receipt-r9.md:133:# pacman.log md5=e452d910de724ac016c2d019f9e1ec45 lines=2109 bytes=157286 last=2026-10-13T16:37:59-0300
+corpus/knowledge/aur-risk-plane-ver-s6.md:23:| channel "B AUR-local" | `grep -n "android-apktool-bin" /var/log/pacman.log` | `:2090` = `[PACMAN] Running 'pacman -U --needed --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cac
+corpus/knowledge/aur-risk-plane-ver-s6.md:34:| §3 clone clean, `.SRCINFO` 3.0.3-1 = installed | `git status --porcelain`; `grep pkgver .SRCINFO` | porcelain = 0 lines; `pkgver = 3.0.3`, `pkgrel = 1` | CONFIRMED |
+corpus/knowledge/aur-risk-plane-ver-s6.md:46:| installed 2026-10-03 17:44:26 | log `:1110`; `%INSTALLDATE%` | `[2026-10-03T17:44:26-0300] [ALPM] installed omarchy-walker (1.0.0-2)`; epoch → `2026-10-03T20:44:26Z` (receipt line 1
+corpus/knowledge/aur-risk-plane-ver-s6.md:47:| no `pacman -U` anywhere for channel A | `grep -cE "Running 'pacman -U.*(elephant\|omarchy-walker)"` | `0`; the install is the tail of the `-S` at log `:484` (`[2026-10-03T17:42:38-030
+corpus/knowledge/aur-risk-plane-ver-s6.md:55:| R10 crossing: `walker 2.16.2-1 → 2.17.0-1` @ 2026-10-11 16:14:39; snapshot carries 2.16.2-1 | log grep; `tar -tzf offline.db \| grep '^walker-'` | `:1943 [2026-10-11T16:14:39-0300] 
+corpus/knowledge/aur-risk-plane-ver-s7.md:32:2026-10-14T15:26:24-03): rc=1 [observed]
+corpus/knowledge/aur-risk-plane.md:154:| package | AUR clone HEAD | commit date | subject | `.SRCINFO` pkgver vs installed | clone state |
+corpus/knowledge/aur-risk-plane.md:215:| **B AUR-local** | 2 | R1, R2, R5 | no signature ever existed; update path is yay 13.0.1-1 (itself from the omarchy repo, `Validated By: SHA-256 Sum Signature`). Residual risk is review-on-u
+corpus/knowledge/boot-chain-r17.json:3: "captured_at": "boot-chain 2026-10-20T12:35:07-03:00; fresh 12:38:12; overlay-emulation 13:02:39 (typed listing appended 13:28:44); supplement 13:03:06",
+corpus/knowledge/boot-writers-r19.json:273:   "quote": "[2026-10-11T16:16:36-0300] [ALPM-SCRIPTLET] Updated: /boot/limine.conf",
+corpus/knowledge/boot-writers-r19.json:287:   "quote": "[2026-10-20T09:18:18-0300] [ALPM-SCRIPTLET] Updated: /boot/limine.conf",
+corpus/knowledge/boot-writers-r19.json:294:   "quote": "[2026-10-20T09:18:24-0300] [ALPM-SCRIPTLET] Updated: /boot/limine.conf",
+corpus/knowledge/boot-writers-r19.md:2:verified-at: 2026-10-20T17:58-03:00 capture
+corpus/knowledge/boot-writers-r19.md:14:- Trigger: [obs] `snapper-cleanup.timer` with `OnBootSec=10m` and `OnUnitActiveSec=1h` (r19:227-228), enabled (r19:203); next run 18:07:16 (r19:265).
+corpus/knowledge/boot-writers-r19.md:16:- Signature: [obs] journal `_SYSTEMD_UNIT=snapper-cleanup.service`, MESSAGE `Updated: /boot/limine.conf`; eight rows, 10:07:03 to 17:07:16 (r19c:13-20). These lines carry no `Copied:` or `Sa
+corpus/knowledge/boot-writers-r19.md:29:- Unit: [obs] `limine-snapper-sync.service` enabled (r19:193, :213), `ExecStart=limine-snapper-watcher`, `Restart=on-failure` (r19:161-162), WantedBy multi-user (r19:210). [unk] ActiveState 
+corpus/knowledge/boot-writers-r19.md:37:- Shadowing: [obs] same-name `/usr/share/libalpm/hooks/90-mkinitcpio-install.hook` (Exec `mkinitcpio install`, r19b:1506). ALPM prints one `running '90-mkinitcpio-install.hook'` per transact
+corpus/knowledge/boot-writers-r19.md:40:- Signature: [obs] ALPM-SCRIPTLET `==> Creating unified kernel image`, `Copied: /tmp/limine-mkinitcpio.*/linux.efi -> /boot/EFI/Linux/omarchy_linux.efi`, `Updated: /boot/limine.conf` (pacman
+corpus/knowledge/boot-writers-r19.md:45:- Hook: [obs] `/etc/pacman.d/hooks/99-limine.hook`; Install/Upgrade of package `limine`; PostTransaction; Exec `/bin/sh -c "/usr/bin/cp …BOOTIA32.EFI /boot/EFI/BOOT/ && …BOOTX64.EFI /boo
+corpus/knowledge/boot-writers-r19.md:51:- Hook: [obs] `/usr/share/libalpm/hooks/80-limine-efi-deploy.hook`, owned by limine-mkinitcpio-hook (r19:125); Install/Upgrade of limine, limine-git, limine-dev, limine-mkinitcpio-hook(-git)
+corpus/knowledge/boot-writers-r19.md:58:- Hooks: [obs] `/usr/share/libalpm/hooks/60-limine-mkinitcpio-remove-pre.hook` (PreTransaction, Remove, Target `usr/lib/modules/*/modules.builtin`, Exec `limine-mkinitcpio-remove pre`; r19:3
+=== makepkg|PKGBUILD
+SKILL.md:745:  is the PKGBUILD text itself (both pin upstream sha256); update path = yay 13.0.1-1 ⇒
+SKILL.md:3424:`alpm-hooks.5.asciidoc`, the Arch `PKGBUILD` at `7.1.0.r9.g54d9411-3`, and an own-work host capture;
+SKILL.md:3450:| An install scriptlet dies with `syntax error near unexpected token`, `[[: not found` or `Syntax error: "(" unexpected` | EX4 (`trans.c:357`, `:410`; `PKGBUILD:115`; upstream default `meson_options.txt:17`) | Arch's
+corpus/README.md:342:four rows rest on the pinned source alone. Third, the two Arch packaging patches that touch libalpm (`PKGBUILD:54-55`) are
+corpus/SOURCES.md:9:| S003 | News: Active AUR malicious packages incident — https://archlinux.org/news/active-aur-malicious-packages-incident/ | docs | A | The time-bounded official 2026-06-12 AUR incident advisory and its recom
+corpus/SOURCES.md:99:| S093 | ArchWiki Downgrading packages — https://wiki.archlinux.org/title/Downgrading_packages?oldid=887421 | docs | A | Cache-based downgrade and its fallbacks when the cache is empty | § Using the pacman 
+corpus/SOURCES.md:114:| S108 | Downgrading packages recheck — https://wiki.archlinux.org/title/Downgrading_packages?oldid=887421 | docs | A | Cache downgrade prerequisites and documented alternatives | Using the pacman cache: "I
+corpus/SOURCES.md:229:| S220 | Arch pacman PKGBUILD at 7.1.0.r9.g54d9411-3 — https://gitlab.archlinux.org/archlinux/packaging/packages/pacman/-/blob/7.1.0.r9.g54d9411-3/PKGBUILD | code | A | The scriptlet shell and libalpm patch
+corpus/knowledge/arch-news-gate-2026.md:23:| 2026-06-12 | [Active AUR malicious packages incident](https://archlinux.org/news/active-aur-malicious-packages-incident/) (S003) | `yay` is installed; `pacman -Qm` lists **16 — `pacma
+corpus/knowledge/arch-news-gate-2026.md:50:- Resolve any applicable notice condition before proceeding. For AUR packages, review the PKGBUILD and install-script diffs before updating them (S003). In a service outage, use the fallb
+corpus/knowledge/arch-news-gate-2026.md:78:- S003 (tier A) — https://archlinux.org/news/active-aur-malicious-packages-incident/ § article body; quote: “review all PKGBUILD and install script changes when updating”.
+corpus/knowledge/aur-risk-plane-ver-s6.md:36:| §3 sha256 pins `dbf930b0…f9423`, `48a5c9d6…b63bae` | `grep sha256sums PKGBUILD` | `dbf930b076c6b9be08d57c449cacefc3bdd6b71ebd59b3066fc0e1f5b14f9423`, `48a5c9d664c88c8beac4a85461e
+corpus/knowledge/aur-risk-plane-ver-s6.md:37:| §3 two `# Maintainer:` lines | `grep -i maintainer PKGBUILD` | lines 1–2 name two humans | CONFIRMED |
+corpus/knowledge/aur-risk-plane-ver-s6.md:104:   `dbf930b076c6b9be08d57c449cacefc3bdd6b71ebd59b3066fc0e1f5b14f9423` = PKGBUILD `sha256sums[0]`
+corpus/knowledge/aur-risk-plane.md:10:`cat ~/.cache/yay/<pkg>/{PKGBUILD,.SRCINFO}`, `systemctl --user show|status|list-units`,
+corpus/knowledge/aur-risk-plane.md:157:| obsidian-cli-inspector | `ce7b42588bd4f64af509e8b4a336a149ca93f3ca` | 2026-03-08T07:56:23Z | `Update to obsidian-cli-inspector-v1.0.3` | 1.0.3-1 = 1.0.3-1 | 2 untracked build artifacts only
+corpus/knowledge/aur-risk-plane.md:161:installed and their working trees carry no local PKGBUILD edits ⇒ the installed binaries were
+corpus/knowledge/aur-risk-plane.md:162:built from the committed PKGBUILD [observed]. Whether that commit is still the AUR tip, and
+corpus/knowledge/aur-risk-plane.md:174:- What partially compensates: both PKGBUILDs pin their upstream payload by sha256:
+corpus/knowledge/aur-risk-plane.md:182:  ⇒ the fetched bytes cannot silently change; the residual trust is **the PKGBUILD text itself**
+corpus/knowledge/aur-risk-plane.md:184:- Maintainer surface, as visible in the clone: `android-apktool-bin/PKGBUILD` opens with two
+corpus/knowledge/aur-risk-plane.md:185:  `# Maintainer:` lines naming humans; `obsidian-cli-inspector/PKGBUILD` has **no** maintainer
+corpus/knowledge/aur-risk-plane.md:215:| **B AUR-local** | 2 | R1, R2, R5 | no signature ever existed; update path is yay 13.0.1-1 (itself from the omarchy repo, `Validated By: SHA-256 Sum Signature`). Residual risk is review-on-u
+corpus/knowledge/foreign-provenance-r6.md:137:  empty; tracked files `.SRCINFO .gitignore LICENSE PKGBUILD apktool` (the
+corpus/knowledge/foreign-provenance-r6.md:138:  downloaded jar is gitignored). The on-disk PKGBUILD read is therefore the
+corpus/knowledge/foreign-provenance-r6.md:140:- **[obs]** Source cross-check against that PKGBUILD: `apktool_3.0.3.jar`
+corpus/knowledge/foreign-provenance-r6.md:157:  tracked files `.SRCINFO PKGBUILD`; `git status --porcelain` →
+corpus/knowledge/foreign-provenance-r6.md:163:  == the PKGBUILD's single `sha256sums` entry. `match`.
+corpus/knowledge/foreign-provenance-r6.md:172:- **[unk]** Whether the PKGBUILD was inspected before building — no record on
+corpus/knowledge/foreign-provenance-r6.md:275:sha256sum ~/.cache/yay/apktool… ; # compare with PKGBUILD sha256sums
+corpus/knowledge/foreign-provenance-r6.md:283:- **U2** whether the operator reviewed the two AUR PKGBUILDs before building —
+corpus/knowledge/pacman-exec-environment-r40.md:1:source: S219, S220, S221, S222, S223, S224, S225 in `corpus/SOURCES.md` — libalpm `lib/libalpm/{util.c,trans.c,hook.c}`, `doc/alpm-hooks.5.asciidoc` and `meson_options.txt` at pa
+corpus/knowledge/pacman-exec-environment-r40.md:24:| EX4 | Arch builds pacman with `-Dscriptlet-shell=/usr/bin/bash`, so every install scriptlet runs as `/usr/bin/bash -c '. <scriptlet>; <function> <new version> [<old version>]'` 
+corpus/knowledge/pacman-exec-environment-r40.md:41:  (`0001-libalpm-invalidate-curl-data-in-child.patch`, `0002-libalpm-use-curl-s-effective-url-…`, PKGBUILD:54-55)
+corpus/knowledge/pacman-exec-environment-r40.md:111:  package applies (PKGBUILD:51-55), `0001-libalpm-invalidate-curl-data-in-child.patch` inserts 5 lines into
+corpus/knowledge/update-safety-v2.md:161:| `aur-local` | 2 | `android-apktool-bin` 3.0.3-1, `obsidian-cli-inspector` 1.0.3-1 | **none** (`pacman -Si` rc=1 both) | yes — `yay -Syu`/rebuild; review-on-update; upstream state [unkno
+corpus/knowledge/update-safety-v2.md:175:  and the fetched sources still match their PKGBUILD pins — `apktool_3.0.3.jar`
+corpus/knowledge/update-safety-v2.md:256:| 4 | AUR-local updates/rebuilds (2) | `aur-local` | yay only; external; never `-Qu` | no signature ever (`Validated By: None`); `LocalFileSigLevel = Optional`; `obsidian-cli-inspector`'s P
+corpus/knowledge/update-safety-v3.md:131:  (2026-09-28T17:22:27+03:00, "update to v3.0.3"), `PKGBUILD` `pkgver=3.0.3` `pkgrel=1`;
+corpus/knowledge/update-safety-v3.md:159:pair is **review-on-update** (diff the PKGBUILD against the retained clone, confirm the sha256
+corpus/knowledge/update-safety-v3.md:219:| 4 | AUR-local updates/rebuilds (2 rows, §3 rows 1–2) | `aur-local` | yay only; external; never `-Qu` | no signature ever (`Validated By: None`); `LocalFileSigLevel = PackageOptional Pa
+corpus/knowledge/update-safety-v3.md:304:   origin/master; `pkgver`/`pkgrel` in PKGBUILD) **equal the installed versions**, and no
+corpus/lessons/round-1.md:90:| S003 | https://archlinux.org/news/active-aur-malicious-packages-incident/ | 2026-10-19 | Article, final advisory paragraph | “We continue to encourage all users of AUR packages to review all PKGBUI
+corpus/lessons/round-24.md:67:| S108 supersedes S093 | https://wiki.archlinux.org/title/Downgrading_packages?oldid=887421 | “If the package is unavailable, find the correct PKGBUILD and rebuild it with makepkg.” | RevSourcesB 
+corpus/lessons/round-27-verifier-spotcheck.md:84:| dkms 3.4.4 signing docs, Arch `nvidia-open` PKGBUILD | "Not registered" (not opened; seats dead) | capture `.ufo/waves/round-27/capture/capture.txt` lines 60-125 (`pacman -Qo`, `p
+=== bsdtar|\.pkg\.tar
+PROVINCE.md:9:verify loops, foreign/AUR census, `.pkg.tar.zst` receipt discipline),
+SKILL.md:743:  `pacman -U` of `~/.cache/yay/<pkg>/*.pkg.tar.zst` (`:140-150`), `%VALIDATION% = none`,
+SKILL.md:2249:| P5: a cache rollback exists | `find /var/cache/pacman/pkg -maxdepth 1 -name '*.pkg.tar*' \| wc -l`; sudo journal for `paccache -r` and `pacman -Scc` | changed: 0 package files; rollback only through the Arch Linux 
+corpus/knowledge/aur-risk-plane-ver-s6.md:23:| channel "B AUR-local" | `grep -n "android-apktool-bin" /var/log/pacman.log` | `:2090` = `[PACMAN] Running 'pacman -U --needed --noconfirm --config /etc/pacman.conf -- /home/vgpnk/.cac
+corpus/knowledge/aur-risk-plane-ver-s6.md:39:| receipt artifact `e83409b290bae6be` | `sha256sum ~/.cache/yay/android-apktool-bin/android-apktool-bin-3.0.3-1-any.pkg.tar.zst` | prefix `e83409b290bae6be` | CONFIRMED |
+corpus/knowledge/aur-risk-plane-ver-s6.md:51:| trust surface: `Good signature from "Omarchy <pkgs@omarchy.org>"`, keyid `F0134EE680CAC571`, sig 2025-11-21 | `gpg --homedir /etc/pacman.d/gnupg --verify /var/cache/pacman/pkg/omarchy
+corpus/knowledge/aur-risk-plane-ver-s6.md:106:2. `gpg --homedir /etc/pacman.d/gnupg --verify omarchy-walker-1.0.0-2-x86_64.pkg.tar.zst.sig …`
+corpus/knowledge/aur-risk-plane.md:18:`gpg --homedir /etc/pacman.d/gnupg --verify /var/cache/pacman/pkg/<pkg>.pkg.tar.zst.sig
+corpus/knowledge/aur-risk-plane.md:19:/var/cache/pacman/pkg/<pkg>.pkg.tar.zst` · per-row operator probes in §6.
+corpus/knowledge/aur-risk-plane.md:119:- `gpg --homedir /etc/pacman.d/gnupg --verify /var/cache/pacman/pkg/elephant-2.21.0-1-x86_64.pkg.tar.zst.sig …`
+corpus/knowledge/aur-risk-plane.md:144:  /home/vgpnk/.cache/yay/android-apktool-bin/android-apktool-bin-3.0.3-1-any.pkg.tar.zst'`
+corpus/knowledge/aur-risk-plane.md:148:  `…/obsidian-cli-inspector-1.0.3-1-x86_64.pkg.tar.zst`, then `pacman -D -q --asexplicit`.
+corpus/knowledge/aur-risk-plane.md:278:gpg --homedir /etc/pacman.d/gnupg --verify /var/cache/pacman/pkg/elephant-2.21.0-1-x86_64.pkg.tar.zst.sig \
+corpus/knowledge/aur-risk-plane.md:279:    /var/cache/pacman/pkg/elephant-2.21.0-1-x86_64.pkg.tar.zst
+corpus/knowledge/degraded-triage-r4.md:147:Cached package present: `/var/cache/pacman/pkg/power-profiles-daemon-0.30-1-x86_64.pkg.tar.zst`;
+corpus/knowledge/degraded-triage-r4.md:148:`bsdtar -xOf … usr/bin/powerprofilesctl | sha256sum` = `38532d5f…` = exactly
+corpus/knowledge/degraded-triage-r4.md:163:omarchy-walker, android-apktool-bin, obsidian-cli-inspector). `bsdtar -tf
+corpus/knowledge/degraded-triage-r4.md:597:bsdtar -tf /var/lib/pacman/sync/offline.db | grep -c '^elephant'   # [offline] has no pacman.conf section — query the db file directly, `pacman -Sl offline` returns 0
+corpus/knowledge/degraded-triage-r4.md:600:bsdtar -xOf /var/cache/pacman/pkg/power-profiles-daemon-0.30-1-x86_64.pkg.tar.zst usr/bin/powerprofilesctl | sha256sum; diff <(bsdtar -xOf … usr/bin/powerprofilesctl) /usr/bin/powerprof
+corpus/knowledge/foreign-provenance-r6.md:6:`bsdtar` reads of the sync dbs, `stat`, `sha256sum`, `gpg --verify` in a
+corpus/knowledge/foreign-provenance-r6.md:59:  (`bsdtar -tf … | grep -c '/$'`).
+corpus/knowledge/foreign-provenance-r6.md:81:1. `bsdtar -xOf /var/lib/pacman/sync/offline.db "$p-$v/desc"` — entry exists
+corpus/knowledge/foreign-provenance-r6.md:86:2. `gpg --verify <pkg>.pkg.tar.zst.sig <pkg>.pkg.tar.zst` in a scratch
+corpus/knowledge/foreign-provenance-r6.md:94:3. Artifact retention: all 14 `.pkg.tar.zst` + `.sig` are still in
+corpus/knowledge/foreign-provenance-r6.md:129:  -- /home/vgpnk/.cache/yay/android-apktool-bin/android-apktool-bin-3.0.3-1-any.pkg.tar.zst`
+corpus/knowledge/foreign-provenance-r6.md:149:  /home/vgpnk/.cache/yay/obsidian-cli-inspector/obsidian-cli-inspector-1.0.3-1-x86_64.pkg.tar.zst`
+corpus/knowledge/foreign-provenance-r6.md:158:  `?? obsidian-cli-inspector-1.0.3-1-x86_64.pkg.tar.zst`,
+corpus/knowledge/foreign-provenance-r6.md:233:# artifact paths: /var/cache/pacman/pkg/<pkg>-<ver>-x86_64.pkg.tar.zst (14 offline)
+corpus/knowledge/foreign-provenance-r6.md:234:#                 ~/.cache/yay/<pkg>/<pkg>-<ver>-(any|x86_64).pkg.tar.zst (2 yay-local)
+corpus/knowledge/foreign-provenance-r6.md:235:# full sha256: sha256sum <artifact>; offline declarations: bsdtar -xOf …/offline.db <pkg>-<ver>/desc
+corpus/knowledge/foreign-provenance-r6.md:271:bsdtar -xOf /var/lib/pacman/sync/offline.db elephant-2.21.0-1/desc | grep -A1 -E '%(CSIZE|SHA256SUM)%'
+corpus/knowledge/foreign-provenance-r6.md:272:sha256sum /var/cache/pacman/pkg/elephant-2.21.0-1-x86_64.pkg.tar.zst
+corpus/knowledge/foreign-provenance-r6.md:273:GNUPGHOME=<scratch> gpg --batch --verify /var/cache/pacman/pkg/elephant-2.21.0-1-x86_64.pkg.tar.zst.sig /var/cache/pacman/pkg/elephant-2.21.0-1-x86_64.pkg.tar.zst
+corpus/knowledge/foreign-provenance-r6.md:340:- capture_ref: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:72 [obs] log 3092 `pacman -U --noconfirm ... elephant-2.22.1-1-x86_64.pkg.tar.zst`; also :73 [obs] log 3161 `pacman -
+corpus/knowledge/freshness-recheck-r17.json:221:   "capture_quote": "elephant-2.22.1-1-x86_64.pkg.tar.zst",
+corpus/knowledge/freshness-recheck-r17.json:231:   "capture_quote": "elephant-2.22.1-1-x86_64.pkg.tar.zst",
+corpus/knowledge/package-state-plane.md:119:- Composition: 1568 `*.pkg.tar.zst` + 1568 `*.sig` (1:1, every archive
+corpus/knowledge/update-safety-note.md:314:  exactly 1568 `*.pkg.tar.zst` + 1568 `*.sig` + **3** alpm temp dirs
+corpus/knowledge/update-safety-v2.md:9:`md5sum` over `/var/log/pacman.log`, `bsdtar -tf` over the sync dbs, `git -C` reads of
+corpus/knowledge/update-safety-v2.md:138:| offline snapshot | `stat` + `bsdtar -tf` + `pacman-conf --repo-list` | present (304 318 B, birth 2026-10-03 17:41:33.994), **unconfigured** → inert, 28 listing lines match `^(elephant\|
+corpus/knowledge/update-safety-v2.md:162:| `offline-exile` | 14 | 13 × `elephant*` 2.21.0-1 + `omarchy-walker` 1.0.0-2 | **none** (`pacman -Si` rc=1 ×14) | none configured; a helper *adopting* one of these names would be a prove
+corpus/knowledge/update-safety-v2.md:315:  `bsdtar -tf /var/lib/pacman/sync/offline.db | grep -cE '^(elephant|omarchy-walker)'` ·
+corpus/knowledge/update-safety-v3.md:8:`pacman-conf`, `stat`, `md5sum`, `sha256sum`, `bsdtar -tf` over `offline.db`, `diff`/`sort`,
+corpus/knowledge/update-safety-v3.md:90:| class split at version level | `bsdtar -tf offline.db \| grep '^(elephant\|omarchy-walker)'` = 28 lines (14 `<pkg>-<ver>/` + 14 `desc`); the 2 AUR-local names | **14 in `offline.db` / 2 no
+corpus/lessons/round-24.md:49:| R24-CAPTURE-COUNT | measurement unit | `ls /var/cache/pacman/pkg \| wc -l` printed 4 and the first draft called them "4 files"; all four are empty `download-*` directories (CritPauseEvents, ExecRoll
+=== be_package|be_local|add\.c|libalpm
+SKILL.md:1250:  (`PKG_FOREIGN_LIVE`, published by `probe_packages` at `:581-593`; never a second `-Qm` probe)
+SKILL.md:2053:   `ls -l /run/limine-snapper-cleanup.lock 2>&1`; `systemctl is-active snapper-cleanup.service`; `grep -H -E "^(Target|Exec|When|Operation)" /usr/share/libalpm/hooks/*limine* /etc/pacman.d/hooks/*limine* /etc/pacman.
+SKILL.md:3024:`lib/libalpm/add.c` at 54d94116164b and S195 pacman `doc/pacman.conf.5.asciidoc` at
+SKILL.md:3115:| hook-order-r38 | gate | `python3 tools/check-hook-order-r38.py --revision <REV> [--repo <PATH>]` | 0 all 69 rows match the frozen capture and the cited rows are mined, used-by the entry and opened 2026-10-26;1 a mi
+SKILL.md:3117:| transaction-order-r39 | gate | `python3 tools/check-transaction-order-r39.py --revision <REV> [--repo <PATH>]` | 0 TO1-TO8 each quoted from the pinned libalpm snapshot at the cited lines on a mined upstream row nam
+SKILL.md:3165:`/usr/share/libalpm/hooks` + 3 in `/etc/pacman.d/hooks`; 15 files carry `NeedsTargets`, and the
+SKILL.md:3181:| Two files share a name, or the `running '<name>'...` line shows an `Exec` you did not write | HO2 | Directories are walked **last list entry → first**, and the system directory is the list head, so `/etc/pacman.d
+SKILL.md:3182:| `-32`/plain pairs (`fontconfig`, `gio-querymodules`, `gio-remove-module-cache`) run in an order that contradicts `LC_ALL=C sort` of the file names | HO1 | Order is a bytewise `strncmp` of the names **without** the 
+SKILL.md:3184:| A Pre hook exits non-zero and the upgrade continues | HO4 | A Pre hook's non-zero exit aborts only when the hook carries `AbortOnFail`; `AbortOnFail` on a Post hook is rejected with a warning at load (`hook.c:141-1
+SKILL.md:3185:| After an upgrade the UKI/initramfs predates the installed kernel, a Post hook did not run, and the command exited 0 | HO6 | The Post phase runs only in the `else` of `state == STATE_INTERRUPTED`, after `transaction
+SKILL.md:3234:(sources S208 `hook.c`, S213 `add.c`, S214 `sync.c`, S215 `remove.c`, S216 `util.c`, S217 `trans.c` — S217
+SKILL.md:3236:sha256 `cb5cb4f436b93f22886ceac79b5a84c1b3b34256f671fb51d05c1b3af02c1bb4`; libalpm snapshots
+SKILL.md:3266:| `[ALPM-SCRIPTLET]` lines sit between a package's own `installed`/`upgraded` line and the next package's line | TO3 (S213 `add.c:616-648`, `:669-688`) | Per target: `pre_install`/`pre_upgrade` from the package file 
+SKILL.md:3267:| An upgrade scriptlet takes the wrong branch on a version comparison | TO4 (S213 `add.c:470-474`) | Upgrade scriptlets get `newpkg->version` first and `oldpkg ? oldpkg->version : NULL` second (`:472-473`); install s
+SKILL.md:3268:| A hook shipped by a package installed **in the same transaction** never shows `running '<name>'...` in that transaction's Pre phase | TO5 (S208 `hook.c:540,554`) | `_alpm_hook_run` re-opens each directory on every 
+SKILL.md:3269:| `[ALPM] transaction interrupted` closes a window (no `transaction completed`) | TO6 (S213 `add.c:676-692`) with HO6 above | A target failed to commit: `trans->state = STATE_INTERRUPTED` and `skip_ldconfig = 1` (`:6
+SKILL.md:3289:- **A missing log line is weak evidence** — libalpm's parent-side validation and exec errors stay on stderr;
+SKILL.md:3321:- To the round-38 hook-order limits bullet "Silence in `pacman.log` is weak evidence" (section "Hook order — round 38"): Round-39 correction (TO8): the line list above is incomplete — every line a hook prints, st
+SKILL.md:3322:- To the round-38 HO6 row ("Meaning" cell): Round-39 correction (TO8): a failed Post hook's exit status is dropped and libalpm's failure message is stderr-only, but any text the hook printed is in `pacman.log` as `[A
+SKILL.md:3324:  `r19b:1695` window total and the writer-table `ALPM-SCRIPTLET] Copied: …` row): Round-39 clarification (TO8, TO1): `[ALPM-SCRIPTLET]` is the log tag for every line libalpm's chroot children print — hooks, insta
+SKILL.md:3432:`pacman-conf HookDir` → `/etc/pacman.d/hooks/`; 67 hook files in `/usr/share/libalpm/hooks` plus 3 in
+SKILL.md:3434:`strings /usr/lib/libalpm.so.16.0.1` lists `/usr/bin/bash` and not `/bin/sh`; `pacman.log` holds 295
+SKILL.md:3446:| `Exec = /usr/bin/ldconfig -r .` (`11-glibc-ldconfig.hook:36`), or a hook/scriptlet writes a file the operator finds at `/`, or misses one it expected beside itself | EX1 (`util.c:628`, `:683`) | Every `_alpm_run_ch
+SKILL.md:3448:| A hook whose `Exec` reads stdin (`while read -r f`, `cat`) loops zero times, or a `NeedsTargets` hook gets a list shorter than its trigger matches | EX6 (`hook.c:519-526`; feed `:469-490`, newline `:476`; `alpm-hoo
+SKILL.md:3449:| `running '<hook>'...` in the log, the hook's effect absent, and no `unable to run hook …` line anywhere | EX7 (`hook.c:507-517`; `running` at `:653`, call at `:660`; abort `:660-668`) | The `running` line is writ
+SKILL.md:3450:| An install scriptlet dies with `syntax error near unexpected token`, `[[: not found` or `Syntax error: "(" unexpected` | EX4 (`trans.c:357`, `:410`; `PKGBUILD:115`; upstream default `meson_options.txt:17`) | Arch's
+SKILL.md:3452:| A `Path` hook's command ran while the file pacman left is `<file>.pacnew` beside an unchanged `<file>` | EX8 (`hook.c:258-279`; `NoExtract` skip `:271`; upgrade and removal sides `:281-306`) | Matching is against t
+SKILL.md:3478:- **A missing log line is weak evidence**: libalpm's parent-side validation and exec errors stay on
+SKILL.md:3528:| 10 | `tools/check-transaction-order-r39.py` | r39 | `6a08925daa30767809eb13bb4b01448ff954d46a` | `f1c97836abb50887231b82d27cd026d05b8083cefcdd713217071648b07c991e` | TO1-TO8: each quote at its cited line of the pin
+corpus/QUALITY.md:169:86. **A rule row verifies on an upstream source row, never on an own-work capture alone (round-38 C2 counter gaps):** a knowledge row that states how upstream code behaves is verified only when its `source:` 
+corpus/README.md:311:| `knowledge/pacman-transaction-order-r39.md` | The libalpm transaction order TO1–TO8 at pacman `54d9411` (installed `7.1.0.r9.g54d9411-3`), deepening the update-safety plane whose within-phase hook order is
+corpus/README.md:319:## Round 40 — the libalpm execution environment for hooks and scriptlets (2026-10-26)
+corpus/README.md:329:| `knowledge/pacman-exec-environment-r40.md` | The environment a hook command or an install scriptlet finds when it starts, at pacman `54d9411` as built by Arch `7.1.0.r9.g54d9411-3`, deepening the update-safe
+corpus/README.md:342:four rows rest on the pinned source alone. Third, the two Arch packaging patches that touch libalpm (`PKGBUILD:54-55`) are
+corpus/SOURCES.md:72:| S066 | L1 read-only round19 host capture A — .ufo/waves/round-19/l1-capture/host-capture-r19.txt | own-work | A | Installed limine-snapper-sync and limine-mkinitcpio-hook file lists, the limine-snapper-syn
+corpus/SOURCES.md:105:| S099 | pacman libalpm dload.c at 54d9411 — https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/dload.c | code | A | How pacman sets sync database mtimes during a refresh | lines 387, 419-
+corpus/SOURCES.md:197:| S191 | pacman 7.1.0 libalpm add.c — https://gitlab.archlinux.org/pacman/pacman/-/raw/54d94116164b0b2202c6061c4a59c6f3e70820d8/lib/libalpm/add.c | code | A | Pacman 7.1 package-extraction behavior for NoUp
+corpus/SOURCES.md:198:| S192 | pacman libalpm remove.c at 54d9411 — https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/remove.c | code | A | Pacman 7.1.0 package-removal handling for backup-tracked files, MD5 c
+corpus/SOURCES.md:203:| S197 | pacman libalpm add.c on the master branch — https://gitlab.archlinux.org/pacman/pacman/-/raw/master/lib/libalpm/add.c | code | A | Pacman development-branch extraction code; not the installed 7.1.0
+corpus/SOURCES.md:217:| S208 | libalpm hook.c at pacman 54d9411 — https://gitlab.archlinux.org/pacman/pacman/-/blob/54d9411/lib/libalpm/hook.c | code | A | ALPM hook run order, directory override, triggerless masks and PreTransa
+corpus/SOURCES.md:219:| S210 | libalpm trans.c at pacman 54d9411 — https://gitlab.archlinux.org/pacman/pacman/-/blob/54d9411/lib/libalpm/trans.c | code | A | What a failed PreTransaction hook phase and a failed commit do to the 
+corpus/SOURCES.md:220:| S211 | libalpm alpm.c at pacman 54d9411 — https://gitlab.archlinux.org/pacman/pacman/-/blob/54d9411/lib/libalpm/alpm.c | code | A | The position of the system hook directory in the libalpm hook-directory 
+corpus/SOURCES.md:222:| S213 | libalpm add.c at pacman 54d9411 — https://gitlab.archlinux.org/pacman/pacman/-/blob/54d9411/lib/libalpm/add.c | code | A | Per-package add/upgrade order inside the commit: scriptlets, extraction, l
+corpus/SOURCES.md:223:| S214 | libalpm sync.c at pacman 54d9411 — https://gitlab.archlinux.org/pacman/pacman/-/blob/54d9411/lib/libalpm/sync.c | code | A | The order of removals and adds in a sync commit | `_alpm_sync_commit` li
+corpus/SOURCES.md:224:| S215 | libalpm remove.c at pacman 54d9411 — https://gitlab.archlinux.org/pacman/pacman/-/blob/54d9411/lib/libalpm/remove.c | code | A | Per-package removal order and which removals log a line or run scrip
+=== dot file|dotfile|root dot|starting with
+corpus/QUALITY.md:151:79. **A depth row is a quote bound to a digest-checked snapshot at a cited line, with one decision-table marker at a line start outside every fence and comment (R30-SOURCED-ROWS):** a row counted by a depth c
+corpus/SOURCES.md:8:| S002 | News: Mkinitcpio >=42 requires manual intervention for TPM2-based unlocking of LUKS devices — https://archlinux.org/news/mkinitcpio-42-requires-manual-intervention-for-tpm2-based-unlocking-of-luks-de
+corpus/knowledge/btrfs-space-r30.md:27:| `Device unallocated` near 0 and metadata `bytes_used / total_bytes` near 100 percent | Metadata reservations are confined to the existing metadata chunks (S159 177) | Operator: free data ch
+corpus/knowledge/journalctl-v262-field-filter-r36.md:17:**Exit code 1** (`EINVAL`, via `log_error_errno(SYNTHETIC_ERRNO(EINVAL), …)` at `src/journal/journalctl.c:958-960`), guarded by `IN_SET(arg_action, ACTION_LIST_FIELDS, ACTI
+corpus/knowledge/journalctl-v262-field-filter-r36.md:46:| — (misuse, not scope rejection) | `-N PRIORITY,MESSAGE` | **REJECT**, but with `Extraneous arguments starting with 'PRIORITY,MESSAGE'` | `merged_fields_default` (54 stder
+corpus/lessons/round-36-verifier-spotcheck.md:63:- Closure live read-only spot-cells: `journalctl -F PRIORITY -b 0` → the rejection line verbatim; `journalctl -F PRIORITY -n 1` → WORK (prints `5`, `-n` not a limiter); `journal
+=== local/[^ ]*/(install|mtree|desc|files)|local db|local database|"install"|`install`
+SKILL.md:46:| Package state (pacman) | `pacman -Dk; echo $?` and `pacman -Qkk <pkg> …` (targeted) and `pacman -Qdt` and `pacman -Qm \| wc -l` | `No database errors have been found!` and `0 altered` on the queried set | nonzero a
+SKILL.md:326:- `BLOCKED` — pacman missing; `-Qq` rc ≠ 0 (local db unreadable); `db.lck`
+SKILL.md:591:- **fail-closed arms with no fixture** — D02 empty local db (`-Qq` lists nothing), D19
+SKILL.md:1927:- Line 1833 (mkinitcpio): mkinitcpio 42.2-1 installed (local database entry) [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:27-39]: .ufo/waves/round-18/l1-capture/host-capture-r18.tx
+SKILL.md:2245:| P1: how far the host is from its upgrade target | `CHECKUPDATES_DB=/fast/scratch/<dir> checkupdates` (temporary database; host databases untouched), plus `pacman -Qu` for the local view | changed: 134 rows against 
+SKILL.md:2248:| P4: the local databases are older than the mirror | `stat -c '%y %z %w %n' /var/lib/pacman/sync/*.db`; `curl -sI https://stable-mirror.omarchy.org/core/os/x86_64/core.db` | changed: mirror Last-Modified 2026-10-22 
+SKILL.md:3266:| `[ALPM-SCRIPTLET]` lines sit between a package's own `installed`/`upgraded` line and the next package's line | TO3 (S213 `add.c:616-648`, `:669-688`) | Per target: `pre_install`/`pre_upgrade` from the package file 
+SKILL.md:3267:| An upgrade scriptlet takes the wrong branch on a version comparison | TO4 (S213 `add.c:470-474`) | Upgrade scriptlets get `newpkg->version` first and `oldpkg ? oldpkg->version : NULL` second (`:472-473`); install s
+SKILL.md:3449:| `running '<hook>'...` in the log, the hook's effect absent, and no `unable to run hook …` line anywhere | EX7 (`hook.c:507-517`; `running` at `:653`, call at `:660`; abort `:660-668`) | The `running` line is writ
+SKILL.md:3450:| An install scriptlet dies with `syntax error near unexpected token`, `[[: not found` or `Syntax error: "(" unexpected` | EX4 (`trans.c:357`, `:410`; `PKGBUILD:115`; upstream default `meson_options.txt:17`) | Arch's
+SKILL.md:3468:  visible in the stored scriptlets: 8 of 51 `install` files under `/var/lib/pacman/local/` carry
+corpus/SOURCES.md:15:| S009 | checkupdates.sh.in — https://gitlab.archlinux.org/pacman/pacman-contrib/-/raw/master/src/checkupdates.sh.in | code | A | The pacman-contrib checkupdates default update-query mechanism and its tempor
+corpus/SOURCES.md:112:| S106 | pacman upgrade-query manual recheck — https://man.archlinux.org/man/pacman.8 | docs | A | Reopening the same query limitation as S049 for this dated capture | QUERY OPTIONS -u: "Only package versio
+corpus/knowledge/aur-drift-receipt-r9.md:171:  untampered — a hand-edited local db could make a changed package read `known`. Named, not
+corpus/knowledge/aur-drift-receipt-r9.md:172:  absorbed; the probe that would settle it (a digest of the local db) does not exist in the gate.
+corpus/knowledge/aur-drift-receipt-r9.md:262:- Read the installed-name/version metadata with `ls -1 /var/lib/pacman/local`; for each package whose recorded field is being rechecked, read its exact `/var/lib/pacman/local/<pkg>-<ver
+corpus/knowledge/aur-risk-plane-ver-s6.md:24:| installed 2026-10-13 13:52:59 | `pacman -Qi` Install Date + `%INSTALLDATE%` epoch in `/var/lib/pacman/local/android-apktool-bin-3.0.3-1/desc` | `Tue 13 Oct 2026 01:52:59 PM -03`; epoc
+corpus/knowledge/aur-risk-plane-ver-s6.md:66:  downgrade/reinstall/removed counts `0` for all 16; no `install` scriptlet file and 16/16
+corpus/knowledge/aur-risk-plane-ver-s6.md:146:- Read the installed-name/version metadata with `ls -1 /var/lib/pacman/local`; for each package whose recorded field is being rechecked, read its exact `/var/lib/pacman/local/<pkg>-<ve
+corpus/knowledge/aur-risk-plane-ver-s7.md:197:- Read the installed-name/version metadata with `ls -1 /var/lib/pacman/local`; for each package whose recorded field is being rechecked, read its exact `/var/lib/pacman/local/<pkg>-<ve
+corpus/knowledge/aur-risk-plane.md:8:in `/var/lib/pacman/local/<pkg>/desc`, `gpg --homedir /etc/pacman.d/gnupg --verify` on
+corpus/knowledge/aur-risk-plane.md:30:`pacman -Qm` — 16 rows, 2026-10-14. Foreign = installed in the local db, absent from every
+corpus/knowledge/aur-risk-plane.md:85:`/var/lib/pacman/local/<pkg>-*/install` file exists for any of them [observed].
+corpus/knowledge/aur-risk-plane.md:202:| R6 | **install-time code execution** — `install` scriptlet in the package | `%INSTALL%` / `/var/lib/pacman/local/<pkg>-*/install` | fires **0/16** (all `Install Script: No`, no `install` 
+corpus/knowledge/aur-risk-plane.md:444:- `cat /var/lib/pacman/local/<pkg>-<ver>/desc` — per package: %VALIDATION%, %PACKAGER%, %INSTALLDATE%, %REASON%. Replaces the install-date and validation probes in §0 and §4 R2-R3.
+corpus/knowledge/aur-risk-plane.md:449:- `grep -A1 "^%REASON%" /var/lib/pacman/local/*/desc` — dependency-installed candidates for the orphan sweep. Reverse-dependency confirmation is [unk] until checked against the depends file
+corpus/knowledge/census-closeout-receipt-r10.md:197:- Read the installed-name/version metadata with `ls -1 /var/lib/pacman/local`; for each package whose recorded field is being rechecked, read its exact `/var/lib/pacman/local/<pk
+corpus/knowledge/degraded-triage-r4.md:113:package's `.INSTALL` (`/var/lib/pacman/local/1password-cli-2.40.0-2/install`)
+corpus/knowledge/degraded-triage-r4.md:559:   `/var/lib/pacman/local/1password-*/mtree` (`8d029d2c…`, `000782e7…`) —
+corpus/knowledge/degraded-triage-r4.md:599:zcat /var/lib/pacman/local/1password-cli-*/mtree | grep 'usr/bin/op'
+corpus/knowledge/driver-firmware-plane.md:293:- owner of the DKMS module without a package query: `grep -l "^usr/lib/modules/$(uname -r)/updates/dkms/" /var/lib/pacman/local/*/files` (an empty result means no package owns it, as D
+corpus/knowledge/foreign-provenance-r6.md:324:- unneeded-dependency (`-Qdt`) status has no read-only file equivalent short of a dependency walk over `/var/lib/pacman/local/*/desc`; record it as [unk] under such a steer
+corpus/knowledge/foreign-provenance-r6.md:341:- Basis: :30 [obs] local db lists `elephant-2.22.1-1` for the base package and the 2.21.0-1 directory is absent in the same listing. The per-package ALPM event class (upgraded or reins
+corpus/knowledge/freshness-recheck-r17.json:428:   "stale_reason": "Cross-check pinned linux to 7.2.3.arch1-3 as running/installed; the local DB now holds linux-7.2.11.arch1-1. pacman -Si was not re-run this round.",
+corpus/knowledge/freshness-recheck-r18.json:59:      "reason": "Line 1833 says mkinitcpio 41.1-1 is installed with 42.2-1 pending; the R18 local database lists mkinitcpio-42.2-1 and no 41.1 entry.",
+corpus/knowledge/freshness-recheck-r18.json:60:      "now": "mkinitcpio 42.2-1 installed (local database entry) [Supporting capture context: .ufo/waves/round-18/l1-capture/host-capture-r18.txt:27-39]",
+corpus/knowledge/freshness-recheck-r18.json:99:      "reason": "The banner's 41.1-1 installed state is superseded: the R18 local database lists only mkinitcpio 42.2-1.",
+corpus/knowledge/freshness-recheck-r18.json:170:      "now": "The local database holds 1395 non-ALPM_DB_VERSION entries at R18; the 1188 figure is historical.",
+corpus/knowledge/freshness-recheck-r18.json:173:      "notice_heading": "## R18-FRESHNESS \u2014 local DB entry count 1188 to 1395"
+corpus/knowledge/freshness-recheck-r18.json:200:      "now": "the local database directory inode mtime is2026-10-20 13:23:08.487645035 -0300; this is not an audit of the latest write to an existing desc file. Exact last local-data
+corpus/knowledge/freshness-recheck-r18.json:219:      "reason": "The installed keyring package at R18 is 20260909-1 in the local DB; the 20260902-1 version and its install time are historical.",
+corpus/knowledge/freshness-recheck-r18.json:220:      "now": "The installed keyring package at R18 is archlinux-keyring-20260909-1 in the local database, not 20260902-1. Its install time was not measured.",
+corpus/knowledge/freshness-recheck-r18.json:229:      "reason": "R18 shows /usr/bin/paccache present and pacman-contrib in the local DB; the no-pruning-tooling statement is stale.",
+corpus/knowledge/freshness-recheck-r18.json:230:      "now": "/usr/bin/paccache is present at R18 and pacman-contrib-1.13.1-1 is in the local database (capture line 36). The no-pruning-tooling statement is historical; pruning beha
+corpus/knowledge/freshness-recheck-r18.json:259:      "reason": "R18 local DB shows elephant-2.22.1-1; a 2026-10-20 pacman -U log entry lists elephant-2.22.1-1 among its inputs. Other elephant-* sub-package versions are not re-mea
+=== changelog
+corpus/SOURCES.md:73:| S067 | L1 read-only round19 host capture B — .ufo/waves/round-19/l1-capture/host-capture-r19b.txt | own-work | A | Packaged limine-snapper-sync 1.32.1-2 README, CHANGELOG grep, snapper plugin, watcher and 
+corpus/SOURCES.md:82:| S076 | limine-snapper-sync commit 754090077de4b5e9de8f09a870ae7301d56dec13 closing issue 4 — https://gitlab.com/Zesko/limine-snapper-sync/-/commit/754090077de4b5e9de8f09a870ae7301d56dec13 | code | A | Upst
+corpus/SOURCES.md:286:Round-19 C2 frontier search (2026-10-20, ConnFrontierLeads): question — do the unopened limine-snapper-sync issues (https://gitlab.com/Zesko/limine-snapper-sync/-/issues) or the S033-surfaced omarchy issues
+corpus/lessons/round-19.md:42:| S076 | https://gitlab.com/Zesko/limine-snapper-sync/-/commit/754090077de4b5e9de8f09a870ae7301d56dec13 | 2026-10-20 | commit message: “Skip sync when cleanup is active”; CHANGELOG 1.12.0: “Sync
+=== gzip|zcat
+corpus/knowledge/aur-risk-plane.md:101:2. **That repository was `offline.db`.** `/var/lib/pacman/sync/offline.db` (304318 B, gzip tar,
+corpus/knowledge/degraded-triage-r4.md:599:zcat /var/lib/pacman/local/1password-cli-*/mtree | grep 'usr/bin/op'
+corpus/knowledge/snapper-eacces-mechanism.md:3:recheck: on-release; procedure: `stat -c '%a %U:%G' /; getfacl -p /; systemctl cat limine-snapper-sync.service | grep -n -E 'User|CapabilityBoundingSet|ProtectSystem|ReadOnlyPaths|Pro
+corpus/knowledge/snapper-eacces-mechanism.md:13:- [obs] `pacman -Qo /` reports `No package owns /` — `pacman -Qo /` 2026-10-19. The installed filesystem mtree sweep prints **0** root-directory entries — `zcat /var/lib/pacman/l
+corpus/knowledge/snapper-eacces-mechanism.md:58:- **Host evidence (own-work, all read-only, non-root, 2026-10-19)** — `stat -c '%a %U:%G' /`; `getfacl -p /`; `systemctl cat limine-snapper-sync.service | grep -n -E 'CapabilityBou
+corpus/knowledge/snapper-eacces-mechanism.md:144:- packaged metadata for `/` without a package query (replaces the package-ownership query for `/`): `zcat /var/lib/pacman/local/filesystem-*/mtree | grep -cE "^\./?[[:space:]]"`
+corpus/lessons/round-39.md:99:traces gzipped. Lesson: price evidence by checkout weight, not by commit size — no committed evidence file above
+corpus/lessons/round-39.md:100:2 MB (a larger capture lands gzipped or reduced to the lines that carry the claim, with its sha256), and each
+=== prepare\(\)|build\(\)|package\(\)|check\(\)|verify\(\)|pkgdir
+SKILL.md:3339:fixture writes its own `$FX/mounts`; `check()` exports it as `TSUKUROI_PROC_MOUNTS="$FX/mounts"`
+corpus/SOURCES.md:229:| S220 | Arch pacman PKGBUILD at 7.1.0.r9.g54d9411-3 — https://gitlab.archlinux.org/archlinux/packaging/packages/pacman/-/blob/7.1.0.r9.g54d9411-3/PKGBUILD | code | A | The scriptlet shell and libalpm patch
+corpus/lessons/round-38-verifier-spotcheck.md:120:| `alpm-package-anatomy-r26.md` (staged) | reject | the staged file `shokuknow/merge/tsukuroi/knowledge/corpus/knowledge/alpm-package-anatomy-r26.md:52-53`; https://gitlab.archlinu
+corpus/lessons/round-38.md:49:| `alpm-package-anatomy-r26.md` | reject | Its sentence "`package()` runs inside `$pkgdir` under `fakeroot`" contradicts its own pinned source PKGBUILD(5) (Pacman 7.1.0: package() "is run inside `$src
+corpus/lessons/round-40.md:21:| S220 | https://gitlab.archlinux.org/archlinux/packaging/packages/pacman/-/blob/7.1.0.r9.g54d9411-3/PKGBUILD — opened 2026-10-26 (sha256 `32d40dfd…`) | “-Dscriptlet-shell=/usr/bin/bash \” | P

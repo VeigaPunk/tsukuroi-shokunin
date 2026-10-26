@@ -1,0 +1,75 @@
+diff --git c/tools/check-self-assessment.py w/tools/check-self-assessment.py
+index ac28365f..7a5846e6 100755
+--- c/tools/check-self-assessment.py
++++ w/tools/check-self-assessment.py
+@@ -173,20 +173,27 @@ def list_dir_entries(repo, rev, directory):
+     return names
+ 
+ 
+-def census_case_count(repo, rev):
+-    """Run `bash tools/tsukuroi-census.sh --selftest` on `git archive REV`."""
++def census_case_count(repo, rev, scratch=None):
++    """Run `bash tools/tsukuroi-census.sh --selftest` on `git archive REV`.
++
++    Round 41 (R40-TMP-MISROOT): the archive is extracted under SCRATCH when given (else the caller's
++    TMPDIR), and the census child gets TMPDIR inside that private directory, so its own selftest tree
++    never lands under /tmp."""
+     archive = git(repo, "archive", "--format=tar", rev, binary=True)
+     if archive.returncode != 0:
+         raise CannotEvaluate("git archive failed", rev)
+-    work = tempfile.mkdtemp(prefix="self-assessment-census-")
++    work = tempfile.mkdtemp(prefix="self-assessment-census-", dir=scratch)
+     try:
+         with tarfile.open(fileobj=io.BytesIO(archive.stdout)) as tar:
+             tar.extractall(work, filter="data")
+         script = os.path.join(work, "tools", "tsukuroi-census.sh")
+         if not os.path.isfile(script):
+             raise CannotEvaluate("missing file", "tools/tsukuroi-census.sh")
++        child_tmp = os.path.join(work, ".census-tmp")
++        os.mkdir(child_tmp)
++        child_env = dict(git_env(), TMPDIR=child_tmp)
+         proc = subprocess.run(["bash", "tools/tsukuroi-census.sh", "--selftest"],
+-                              cwd=work, capture_output=True, text=True, env=git_env(), timeout=900)
++                              cwd=work, capture_output=True, text=True, env=child_env, timeout=900)
+         output = (proc.stdout or "") + (proc.stderr or "")
+         match = re.search(r"\((\d+) cases", output)
+         if not match:
+@@ -431,7 +438,7 @@ def check(checks, cid, subject, stated, observed, status, reason, **extra):
+     return record
+ 
+ 
+-def evaluate(repo, rev):
++def evaluate(repo, rev, scratch=None):
+     """Run K01 to K27 at rev. Returns (result dict, exit code)."""
+     checks = []
+     rev = resolve_rev(repo, rev)
+@@ -647,7 +654,7 @@ def evaluate(repo, rev):
+           % (stated, has_core, has_frontier, has_adjacent), stated_line=coverage_line)
+ 
+     # ---- K13: operability row case count vs census selftest --------------
+-    observed, census_last = census_case_count(repo, rev)
++    observed, census_last = census_case_count(repo, rev, scratch)
+     census_count = observed
+     stated = stated_case_count(operability_cell, operability_row_text)
+     check(checks, "K13", "operability row case count equals the census selftest case count at the revision",
+@@ -1087,7 +1094,11 @@ def main(argv=None):
+     parser.add_argument("--repo", default=None,
+                         help="repository to read (default: the repository holding this script)")
+     parser.add_argument("--selftest", action="store_true", help="run the hermetic fixture selftest")
++    parser.add_argument("--scratch", default=None,
++                        help="directory for the extracted archive and the census child's TMPDIR (round 41)")
+     args = parser.parse_args(argv)
++    if args.scratch:
++        os.makedirs(args.scratch, exist_ok=True)
+ 
+     if args.selftest:
+         payload = run_selftest()
+@@ -1106,7 +1117,7 @@ def main(argv=None):
+         return EXIT_CANNOT_EVALUATE
+ 
+     try:
+-        result, code = evaluate(repo, args.revision)
++        result, code = evaluate(repo, args.revision, args.scratch)
+     except CannotEvaluate as exc:
+         print(json.dumps({"status": "CANNOT_EVALUATE", "error": exc.reason, "detail": exc.detail,
+                           "requested_revision": args.revision, "repo": repo, "checked": 0,

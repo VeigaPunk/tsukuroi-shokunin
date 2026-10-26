@@ -1,0 +1,25 @@
+Pattern used (row-anchored, 0-3 leading spaces, opening and closing table pipe):
+  P03='^ {0,3}\|[[:space:]]*(S[0-9]{3})[[:space:]]*\|'
+Guard control (column zero only):
+  P0='^\|[[:space:]]*(S[0-9]{3})[[:space:]]*\|'
+
+Pattern equivalence on the real files (rows counted with grep -cE):
+  SOURCES.md@base 0e5805a1  0to3=226  col0=226
+  SOURCES.md@c2   9cc9aa77  0to3=236  col0=236
+  SOURCES.append.md         0to3=147  col0=147
+=> the 0-3-space allowance is a guard for indented rows, not a behaviour change on today's files.
+
+Bound control: an indented row at 4 spaces is NOT captured by P03 (0 matches), so the allowance is bounded.
+
+Loose alternative is wrong in both directions:
+  - bare `grep -oE 'S[0-9]{3}'` over the staged file yields 152 unique ids, 5 of which are prose
+    mentions of LANE ids inside staged row bodies, not staged row ids:
+      S008  (staged row S201, SOURCES.append.md:8, "a non-overlapping complement to S008")
+      S096 S097 S110 S111 (staged row S211, SOURCES.append.md:18, "the lane's existing plymouth rows ...")
+  - those 5 inflate collisions from 27 to 32 at base and from 37 to 42 at c2 (5 spurious collisions;
+    all five ids exist in the lane registry).
+  - the lane SOURCES.md prose also names ids (e.g. corpus/SOURCES.md@base:206 "S198 is not a second fleet
+    journalctl(1)... S198/S199 add ..."; :239-242 dependency chains) but every id it names is also a row id,
+    so a loose scan there happens not to over-count: the staged file is where the loose pattern breaks.
+
+Row anchors: no registry or staged row is indented today (grep -cE '^ {1,3}\|[[:space:]]*S[0-9]{3}' = 0 in base, c2, tip and staged), and every id row has its closing pipe (counts with and without the closing pipe are equal: 226/226, 236/236, 147/147).

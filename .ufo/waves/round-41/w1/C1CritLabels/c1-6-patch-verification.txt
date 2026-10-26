@@ -1,0 +1,35 @@
+C1-6 proposed correction — measured on the frozen counter's own functions
+=======================================================================
+Patch applied to a scratch copy of tools/score-selftest-mounts-r41.py (sha256 8306d999…07355c) only; the lane
+was not edited. Three changes:
+
+ 1. run_selftest also returns the FAIL summary's own counts:
+       'sum_passed': int(sm.group(3)) if sm else None,
+       'sum_failed': int(sm.group(4)) if sm else None,
+ 2. an inventory gate plus a storage-plane label gate:
+       MOUNT_LABEL_RE = re.compile(r'\(R4[01]-C1 H(5|6|9|10)\)|mounts:btrfs-without-sysfs|btrfs')
+       def mount_fail_labels(res, base): ...        # failed_base_labels() filtered by MOUNT_LABEL_RE
+       def inventory_ok(res, base):
+           if len(res['labels']) + len(res['fail_labels']) != res['cases']: return False
+           return res.get('sum_passed') == len(res['labels']) and res.get('sum_failed') == len(res['fail_labels'])
+ 3. killed():
+       if res['pass'] or res['exit'] == 0 or res['cases'] != base['cases']: return False
+       if not inventory_ok(res, base): return False
+       return bool(mount_fail_labels(res, base))
+
+Measured (scratch, TMPDIR inside the seat scratch):
+  honest baseline, patched parser        exit 0  128 cases  128 PASS lines  sum 128/0  -> baseline_pass 1
+  forged prologue at a mutant dir        exit 1  128 cases    0 PASS lines  sum 127/1  -> killed False   (was True)
+  forged prologue at <mutant>.confirm     exit 1  128 cases    0 PASS lines  sum 127/1  -> killed False   (was True)
+  genuine M2-VB-root-mountpoint          exit 1  128 cases  123 PASS   5 FAIL  sum 123/5 -> killed True (unchanged)
+  genuine H5-mountpoint-absolute         exit 1  128 cases  127 PASS   1 FAIL  sum 127/1 -> killed True (unchanged)
+  genuine H10-count-exactly-one          exit 1  128 cases  127 PASS   1 FAIL  sum 127/1 -> killed True (unchanged)
+    e.g. FAIL healthy rollup: a btrfs line whose mountpoint is not absolute still counts, BLOCKED (R41-C1 H5):
+         plane evidence missing: '^STORAGE btrfs-device-stats state=BLOCKED … detail=mounts:btrfs-without-sysfs$'
+
+So the honest kill and the forged run differ in exactly one observable: the honest run's inventory adds up
+(127 PASS + 1 FAIL = 128 cases, summary 127/1). The forged run's does not.
+
+Not yet measured under the patch: the other ten mutants (needs one counter run). The label filter above is
+deliberately loose ('btrfs' included) because four of the eighteen mount-plane cases do not use the word
+'rollup'; a tighter filter must be confirmed against all 13 mutants before it is adopted.

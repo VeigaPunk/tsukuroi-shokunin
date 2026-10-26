@@ -1,0 +1,34 @@
+# receipts C2RevPA7b (PA7 adversarial), 2026-10-26
+
+## 1. host man reproduction (MANWIDTH=80, capture.sh:8)
+$ LC_ALL=C MANWIDTH=80 man -P cat PKGBUILD | grep -n 'This function is run inside'
+360:         This function is run inside $srcdir.
+366:         tracted. This function is run inside $startdir.
+373:         traction is skipped. This function is run inside $srcdir.
+378:         This function is run inside $srcdir.
+384:         the checkdepends array. This function is run inside $srcdir.
+count=5 srcdir=4 startdir=1
+
+$ diff -u frozen/hostcap/man-pkgbuild-runinside.txt <above>  -> identical (no output)
+
+## 2. all cwd statements in the pinned doc
+$ grep -n "run in\b\|run inside\|runs in\b" frozen/src/PKGBUILD.5.asciidoc
+351:	This function is run inside `$srcdir`.
+357:	This function is run inside `$startdir`.
+365:	This function is run inside `$srcdir`.
+370:	This function is run inside `$srcdir`.
+377:	This function is run inside `$srcdir`.
+
+## 3. snapshot digests
+PKGBUILD.5.asciidoc: OK add.c: OK alpm-package.7.raw: OK be_local.c: OK be_package.c: OK check.c: OK makepkg.sh.in: OK query.c: OK version.c: OK 
+
+## 4. makepkg cwd pins
+192:	newpkgver=$(run_function_safe pkgver)
+414:	local workingdir="${2:-$srcdir}"
+419:	cd_safe "$workingdir"
+452:run_verify() {
+453:	run_function_safe "verify" "$startdir"
+468:run_package() {
+469:	run_function_safe "package${1:+_$1}"
+860:		run_package $1
+878:		run_single_packaging $pkgname

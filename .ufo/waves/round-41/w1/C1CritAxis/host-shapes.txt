@@ -1,0 +1,12 @@
+# host mount-table shapes, captured 2026-10-26T18:10:53Z (lane tip 71851d63)
+$ awk '$3=="btrfs"' /proc/self/mounts | wc -l
+4
+$ awk '$3=="btrfs"' /proc/self/mounts
+/dev/mapper/root / btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@ 0 0
+/dev/mapper/root /home btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home 0 0
+/dev/mapper/root /var/cache/pacman/pkg btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=259,subvol=/@pkg 0 0
+/dev/mapper/root /var/log btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=258,subvol=/@log 0 0
+$ awk '{print $2}' /proc/self/mounts | grep -vc "^/"   # non-absolute mountpoints
+0
+$ awk '{print $2}' /proc/self/mounts | grep -c "^/"    # absolute mountpoints
+33

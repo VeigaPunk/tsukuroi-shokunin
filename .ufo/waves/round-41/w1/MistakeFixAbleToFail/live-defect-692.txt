@@ -1,0 +1,71 @@
+M-2 receipt — live defect at tools/tsukuroi-census.sh:692, and the two-site fix
+====================================================================
+Method: the census exposes every probe as an override, so no lane edit is needed.
+  PACMAN=${TSUKUROI_PACMAN:-pacman}            (tsukuroi-census.sh:430)
+  cap() { CAP_OUT=$("$@" 2>&1); CAP_RC=$?; }   (tsukuroi-census.sh:580-583)
+Stub (receipt pacman-stub.sh) answers -Qkk from $QKK_OUT and delegates every other
+subcommand to /usr/bin/pacman, so only the packages probe is controlled and the rest
+of the census reads the real host read-only.
+
+$ env TSUKUROI_PACMAN=stub/pacman QKK_OUT=qkk-small.txt QKK_RC=1 bash tools/tsukuroi-census.sh
+  -> PLANE packages: BLOCKED (pacman -Qkk sample probe error: error: pkgA: /usr/bin/x (Permission denied); ...)   rc=2
+$ env TSUKUROI_PACMAN=stub/pacman QKK_OUT=qkk-large.txt QKK_RC=1 bash tools/tsukuroi-census.sh
+  -> PLANE packages: DEGRADED (pacman -Qkk rc=1 sample=8(...) drift=0 backup_diffs=0 nonroot_artifacts=1; ...)     rc=1
+
+qkk-small.txt (163 B) and qkk-large.txt (272,053 B) carry the SAME line 1:
+  error: pkgA: /usr/bin/x (Permission denied)
+The field that proved s_out reached the drift parser:
+  nonroot_artifacts=1   <- from the "(Permission denied)" text of that same error line
+So the error line was present AND consumed, yet the BLOCKED branch was skipped.
+
+Reproduced: 2/2 at 272,053 B.  Control re-run 2/2 BLOCKED at 163 B.
+
+--- size sweep against the real census (probe_packages, unchanged) --------
+   84 B  rc=2  PLANE packages: BLOCKED
+ 2,442 B rc=2  PLANE packages: BLOCKED
+19,430 B rc=2  PLANE packages: BLOCKED
+78,846 B rc=1  PLANE packages: DEGRADED     <- first size that flips
+158,718 B rc=1  DEGRADED
+238,590 B rc=1  DEGRADED
+318,462 B rc=1  DEGRADED
+398,574 B rc=1  DEGRADED
+480,494 B rc=1  DEGRADED
+644,334 B rc=1  DEGRADED
+=> the real-script boundary is between 19,430 B and 78,846 B, deterministic above it.
+
+--- site 694 is the same class: a one-site fix still dies ---------------
+fixed-census.sh changed only 692 (grep -q -> grep -c):
+  large 272 KiB -> rc=141, NO PLANE packages line at all
+because 694 is  $(printf '%s\n' "$s_out" | grep -m1 '^error:')  and grep -m1
+short-circuits exactly like grep -q.
+
+--- two-site fix (fixed2-census.sh) and the panel ------------------------
+diff of tools/tsukuroi-census.sh:692-696 ->
+   s_err_n=$(printf '%s\n' "$s_out" | grep -c '^error:' || true)
+   if [ "${s_err_n:-0}" -gt 0 ]; then
+     PKG_V=BLOCKED
+     s_err_first=$(printf '%s\n' "$s_out" \
+       | awk 'f == 0 && /^error:/ { f = 1; e = $0 } END { print e }')
+     PKG_NOTE="pacman -Qkk sample probe error: $s_err_first"
+     return
+   fi
+(grep -c and the awk read to EOF, so the writer is never stared down by an early close;
+ awk has no exit, so it prints the first match after reading the whole buffer.)
+
+  script              fixture      rc    verdict                      note
+  tsukuroi-census.sh  163 B        2     PLANE packages: BLOCKED      probe error: error: pkgA: ...
+  fixed2-census.sh    163 B        2     PLANE packages: BLOCKED      probe error: error: pkgA: ...
+  tsukuroi-census.sh  272 KiB      1     PLANE packages: DEGRADED     (none)
+  fixed2-census.sh    272 KiB      2     PLANE packages: BLOCKED      probe error: error: pkgA: ...
+  tsukuroi-census.sh  78,846 B     1     PLANE packages: DEGRADED     (none)
+  fixed2-census.sh    78,846 B     2     PLANE packages: BLOCKED      probe error: error: pkgA: ...
+
+The fix is shown able to fail: the same fixture pair fails the unfixed census (RED),
+fails a plausible single-site fix (rc=141), and passes the two-site fix (GREEN); the
+163 B fixture is unable to distinguish any of the three.
+
+--- why the guard exists and why rc does not cover it -------------------
+tsukuroi-census.sh:686  if [ "$s_rc" -ne 0 ] && [ "$s_rc" -ne 1 ]; then ... BLOCKED
+pacman -Qkk returns 1 for "files altered", so the rc gate is deliberately blind to
+rc=1; line 692 is the only thing that notices an error line arriving with rc=1.
+Under SIGPIPE that second gate is what disappears.

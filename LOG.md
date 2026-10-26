@@ -1530,3 +1530,30 @@ counter (`after/r39-c2-aad0113.jsonl`) still PASS. Incident: seats ran `check-se
 294 MB lane archives were built under `/tmp` (R40-TMP-MISROOT, routed). Landed: `a447b67b` freeze; `758a4b08`
 declaration and controls; `c707e356` C1; `bf238050` C2; `f951f288` author receipts; `aad01138` integration; this entry
 with the SCORECARD outcome.
+
+## Round 41 — hyaku run 9 (stamp: the commit that lands this entry)
+
+Motivating evidence: the round-40 closure (`corpus/lessons/round-40-verifier-spotcheck.md` §6) routed R40-ANSWER-KEY for
+both counters (a `declare -f` prologue passed the C1 counter; a token-list writer and non-negated false rules passed the
+C2 counter), the empty `first_fails`, R40-TMP-MISROOT, the S220 anchor drift and the W04 delta; the round-40 wave left
+three held-out mutants (H5, H6, H9) surviving the 124-case selftest (`.ufo/waves/round-40/w1/C1HeldOutMutants.md`); the
+planned depth theme was the staged `alpm-package-anatomy-r26.md` with its round-38 flip condition.
+Claims (frozen `e479fdc5`, declared `d8b4d521`): C1 operability — the census `--selftest` gains four mount-table cases
+(relative mountpoint, non-`/dev` source, no `subvol=`, two btrfs lines) so H5, H6, H9 and H10 fail it (`568c397d`); C2
+depth (sourced, S227–S236) — ALPM package anatomy PA1–PA8, `corpus/knowledge/alpm-package-anatomy-r41.md` (`c7c40c0f`,
+pre-dispatch refinement `9cc9aa77`). Controls before any seat: `.ufo/waves/round-41/controls/` (C1: `declare -f`
+prologue on base and on candidate FAIL by the decoy, candidate without the H9 case FAIL; C2: do-nothing, round-40 token
+writer, swapped and negated rules, a `fails` verdict, no verdicts, a `partly`-only row all FAIL; relation-literal writer
+FAIL only on verdicts; candidate with fixture verdicts PASS). Wave: one v2 wave of 74 seats plus a residual call of 6
+reviewer seats. Measured: C1 survivors 4 → 0 and params 0 → 4, PASS at `568c397d`; C2 rules 0 → 8 and verdicts 0 → 8,
+PASS at the integration commit. Wave findings integrated: five `partly` second reads became appended corrections
+(PA2 exact `.PKGINFO` name and two more error paths, PA3 `globstar` and the stop point, PA5 kept-mtree contents and the
+bare exclude pattern, PA6 `--quiet` and the `-Qpkk` false notice, PA7 split-package and `pkgver()` directories); both
+counters' guards were beaten by reading the guard (C1 here-document-stripping gate, C2 planted verdict files) — QUALITY
+89; a live pipefail wrong-verdict in the census packages plane (`tools/tsukuroi-census.sh:692`, `w1/MistakeFixAbleToFail.md`
+§2) is routed to round 42. Re-verification of predecessor pins: the nine round-41 snapshot URLs re-fetched byte-identical to the
+snapshots and the cited functions unchanged at pacman master (`w1/C2ExecLiveSources.md`); the round-39 and round-40 C1
+counters still PASS at the dispatch tip `71851d63` (`w1/C1ExecPriorCounters.md`; census bytes unchanged since); S220's range corrected append-only (111-117).
+Base note: the round's counters and receipts name `0e5805a1` (round-40 tip) as base; the lane tip at round start was
+`8b7c4132` (adds only the round-40 spot-check lesson) and the operator's `1f5e74aa` (considerthese 2026-10-26) landed
+under the freeze commit; tools, census, SOURCES, knowledge and SKILL are byte-identical at the three (R41-BASE-MISREAD).

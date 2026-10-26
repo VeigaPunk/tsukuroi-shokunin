@@ -1,0 +1,102 @@
+C2ScribeReadme — read-only probes, 2026-10-26, cwd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+(no writes outside this seat dir and the report; no scratch dir was needed, none created)
+
+$ git rev-parse HEAD
+71851d636ab1bffaf8fee5016617c88878a666f1
+
+$ grep -n '^## Round 4[01]\|^### Frontier notice' corpus/README.md
+293:### Frontier notice — round 38
+313:### Frontier notice — round 39
+319:## Round 40 — the libalpm execution environment for hooks and scriptlets (2026-10-26)
+331:### Frontier notice — round 40
+
+$ wc -l corpus/README.md
+353 corpus/README.md
+
+$ sed -n '7p' corpus/README.md | grep -o 'cache shape[^)]*)'
+cache shape (8.6 G, never pruned)
+
+$ sed -n '243p' corpus/README.md
+- Storage integrity is a frontier area, not Core: it becomes Core only after a read-only census arm reads it (shape proposed in `.ufo/waves/round-26/w1/ScoutHostSurfaces.md`). Disk-space runway stays with mori; scrub runs, counter resets, profile changes and firmware updates stay operator-owned.
+
+$ sed -n '8,9p' PROVINCE.md
+**Owns (surfaces, all read-only probes):** pacman state (`pacman -Qkk`
+verify loops, foreign/AUR census, `.pkg.tar.zst` receipt discipline),
+
+$ grep -n 'Still Frontier, unchanged' PROVINCE.md
+234:new owned surface. **Still Frontier, unchanged:** the scrub record and NVMe SMART. **Remaining limit:** a census
+
+$ sed -n '11,12p' corpus/knowledge/pause-lift-gate-r24.md
+operator's decision. It is not permission to lift the pause, and it authorizes no
+lane to run a transaction.
+
+$ sed -n '15p' corpus/README.md >/dev/null  # (line 315 checked as the round-39 notice carrying the STORAGE limit)
+$ sed -n '315p' corpus/README.md | cut -c1-120
+The round-38 notice above (`corpus/README.md:300-301`) carried one known limit — "an absent `/sys/fs/btrfs` reads `HEALTHY 0/0/0`, so a namespace that hides it gives a false all-clear" — and C1 closes it for a btrfs mount that the process's mount table lists: since ...
+
+$ grep -n 'unmeasured\|cache is empty' corpus/knowledge/alpm-package-anatomy-r41.md
+27:| PA2 | ... | unmeasured: the package cache is empty and pacman transactions are paused, so the load path was read in source only |
+28:| PA3 | ... | unmeasured: the archive order needs a package file, and the cache is empty |
+
+$ sed -n '31p' corpus/knowledge/alpm-package-anatomy-r41.md | rev | cut -c1-90 | rev
+| branch unreached on this host: mtree 1409 of 1409 entries (`localdb-anatomy.tsv`) |
+
+$ sed -n '59p' corpus/knowledge/alpm-package-anatomy-r41.md
+- QUALITY 81 (non-author verdict per row): each row is credited only with a committed reviewer verdict file
+
+$ sed -n '64p' corpus/lessons/round-41.md
+Non-author closure pending. Candidates for it: one admit (S232 / PA7, or S230 / PA4 with the host column) and the
+
+$ sha256sum tools/check-package-anatomy-r41.py
+c83e29a4f570422d5a975873460c4c5b061e33ac497b97d13c1383569ac1819f  tools/check-package-anatomy-r41.py
+  (equals the frozen sha256 in SCORECARD.md "Round 41 — declaration")
+
+$ git log --oneline -1 -- tools/check-package-anatomy-r41.py
+e479fdc5 round-41: freeze C1/C2 counters, pinned sources, host capture, registry rows
+
+$ cat .ufo/waves/round-41/after/c2-impl-9cc9aa7.jsonl   (tail fields)
+"verdicts_ok": 0, "rules_verified": 8, "host_ok": 6, "source_ok": 1, "result": "FAIL", "exit": 1
+{"receipt_end": 1, "exit_code": 1, "timed_out": false, "stderr_tail": "", "finished_utc": "2026-10-26T17:19:56Z"}
+
+$ ls .ufo/waves/round-41/after/
+c1-after-568c397.jsonl  c2-impl-9cc9aa7.jsonl  c2-impl-c7c40c0.jsonl
+  (no verdict-gated C2 after receipt exists at draft time)
+
+$ git show --stat --oneline 568c397d
+568c397d round-41: C1 census selftest gains four held-out mount tables (H5, H6, H9, H10)
+ tools/tsukuroi-census.sh | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+
+$ git diff 0e5805a1 568c397d -- tools/tsukuroi-census.sh | grep -n '^@@'
+5:@@ -3034,6 +3034,33 @@ STUB      (one hunk; +27 lines, no deletions)
+
+$ git diff 0e5805a1 568c397d -- tools/tsukuroi-census.sh | grep -c 'probe_storage_arm'
+0
+
+$ grep -n 'run_selftest\s*()\|probe_storage_arm\s*()' tools/tsukuroi-census.sh
+1865:probe_storage_arm() {
+1928:run_selftest() {
+
+$ git log --oneline 568c397d..HEAD -- tools/tsukuroi-census.sh
+(no output: census unchanged after 568c397d)
+
+$ grep -n 'CacheDir\|DBPath' /etc/pacman.conf
+(no output: neither directive set; default CacheDir /var/cache/pacman/pkg)
+
+$ ls -la /var/cache/pacman/pkg | head -4
+total 0
+drwxr-xr-x 1 root root 0 Oct 25 13:10 .
+drwxr-xr-x 1 root root 6 Oct  3 17:41 ..
+
+$ ls /var/cache/pacman/pkg/*.pkg.tar.* 2>/dev/null | wc -l
+0
+
+$ du -sh /var/cache/pacman/pkg
+0	/var/cache/pacman/pkg
+
+$ ls /var/lib/pacman/local | wc -l
+1410   (1409 package entries + ALPM_DB_VERSION, matching the capture's 1409)
+
+$ ls corpus/knowledge/pacman-backup-files-r35.md corpus/knowledge/package-state-plane.md
+corpus/knowledge/pacman-backup-files-r35.md
+corpus/knowledge/package-state-plane.md

@@ -1,0 +1,11 @@
+--- base.sh	2026-10-26 15:11:05.104256059 -0300
++++ x8.sh	2026-10-26 15:11:46.797000637 -0300
+@@ -1910,7 +1910,7 @@
+     # would block the census forever, and an empty file or /dev/null is never a real table (/ is mounted)
+     if [ -f "$PROC_MOUNTS" ] && mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null) && [ -n "$mtab" ]; then
+       while read -r _src _mp fst _rest; do
+-        if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
++        if [ "${fst:-}" = btrfs ] && [[ ${_rest:-} == *relatime* ]]; then mt=$((mt + 1)); fi
+       done <<< "$mtab"
+       if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi
+     else

@@ -1,0 +1,56 @@
+C1-6 flake probe — one nondeterministic single-case failure in an unmutated census `--selftest` run
+====================================================================================================
+Environment for every run (the frozen counter's own env, score-selftest-mounts-r41.py:141,146):
+  cwd=/  PATH=/usr/bin:/bin  LC_ALL=C  HOME=<run dir>  TMPDIR=<run dir>/tmp  argv: bash <run dir>/tsukuroi-census.sh --selftest
+Text: tools/tsukuroi-census.sh at 568c397da11339aed65181be598414f268835555 (sha256 646c84fc…6f9eb95),
+copied out of the lane with `git show <rev>:tools/tsukuroi-census.sh` (lane untouched, no writes in it).
+
+THE OBSERVATION (demo run, 2026-10-26 15:06-15:09, host loaded: several seats running counters)
+  run dir  .../C1CritLabels/work/N1-rename-counter  ->  exit 1
+  stdout last line: TSUKUROI_CENSUS_SELFTEST: FAIL (128 cases, 127 passed, 1 failed)
+  (this run's stderr was not kept by the demo driver — the failing case label is NOT known)
+
+SAME BYTES, SAME DIRECTORY, LATER ATTEMPTS
+  .../C1CritLabels/work/N1-rename-counter   -> exit 0  PASS (128 cases, 128 passed, 0 failed)
+  .../C1CritLabels/work/N1-rename-counter2  -> exit 0  PASS (128 cases, 128 passed, 0 failed)
+  .../C1CritLabels/work/N1probe             -> exit 0  PASS (128 cases, 128 passed, 0 failed)
+  The drive-by cheat prologue in that text is `case ${0%/*} in */baseline|*/capture|*/N[0-9]*|*/D-all-mutant-texts) : ;; …`
+  and it matches the N1 directory name (verified directly with bash `case` on all six directory shapes), so the
+  prologue was a no-op for that run: the FAIL came from the selftest body, not from the prologue.
+
+PROBE 1 — 8 consecutive runs, fresh dirs, real text, stderr captured
+  run01 start=15:14:07 rc=0 wall=30.5s last=… PASS (128 cases, 128 passed, 0 failed)
+  run02 start=15:14:38 rc=0 wall=30.4s PASS
+  run03 start=15:15:10 rc=0 wall=32.3s PASS
+  run04 start=15:15:41 rc=0 wall=30.7s PASS
+  run05 start=15:16:12 rc=0 wall=31.0s PASS
+  run06 start=15:16:45 rc=0 wall=33.0s PASS
+  run07 start=15:17:16 rc=0 wall=31.8s PASS
+  run08 start=15:17:49 rc=0 wall=32.9s PASS
+  failing_runs=0
+
+PROBE 2 — 6 runs in the counter's own run-directory names, stderr captured
+  M1-VA-device-literal      rc=0 wall=27.3s PASS
+  N1-rename-counter         rc=0 wall=27.4s PASS
+  M5-a-grep-count           rc=0 wall=30.0s PASS
+  capture                   rc=0 wall=28.5s PASS
+  M7-e-guard-drops-blocked  rc=0 wall=29.1s PASS
+  H9-subvolkey-option       rc=0 wall=48.9s PASS
+  failing_runs=0
+
+Plus earlier single runs: one baseline run at 15:06 (47s, PASS), demo baseline and decoy arms (PASS).
+Total: 21 runs of the same bytes; 1 FAIL (unknown case), 20 PASS. Observed rate 1/21, no case name.
+Not reproduced; the 6% is an upper-bound estimate from one event, not a rate.
+
+Why this matters for the counter (score-selftest-mounts-r41.py):
+  :149-150  a timed-out run returns cases None and no FAIL lines            -> killed() False -> survivor
+  :196      a run whose summary case count differs                          -> killed() False -> survivor
+  :255      the one retry is applied to non-mutants only                   -> a genuine kill lost to a flake in
+            the mutant run or in its confirm run is scored as a survivor (:272, :291) with no second chance
+  :269-272  a flake needs to fail the SAME baseline label in both runs to become a false kill (p^2); a genuine
+            kill needs no flake in either run (2 runs, so ~2p chance of being lost to an unrelated FAIL that
+            aborts the run: exit 124, or a summary whose case count moved)
+  In the run just observed, the failing case was one the baseline PASSes; if that same case had failed inside
+  a mutant run and its confirm run, the counter would have recorded a kill for a mutant this case does not
+  catch. If it had failed inside the baseline or the decoy, the counter would have reported FAIL for a
+  selftest that passes.

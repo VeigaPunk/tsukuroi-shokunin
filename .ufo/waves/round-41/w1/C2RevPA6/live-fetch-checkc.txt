@@ -1,0 +1,30 @@
+# C2RevPA6 receipt — live fetch of src/pacman/check.c at pacman 54d9411
+date: 2026-10-26 (access date)
+url: https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/src/pacman/check.c
+
+$ curl -fsSL -o /fast/scratch/hyaku/tsukuroi-r41/C2RevPA6/check.c.live '<url>'
+$ sha256sum /fast/scratch/hyaku/tsukuroi-r41/C2RevPA6/check.c.live \
+      /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src/check.c
+3f86aa0417963c34f524e6261b6e8150562cf678a8cedaa709ed210236c4d217  .../check.c.live
+3f86aa0417963c34f524e6261b6e8150562cf678a8cedaa709ed210236c4d217  .../frozen/src/check.c
+$ cmp .../check.c.live .../frozen/src/check.c && echo LIVE_MATCHES_FROZEN
+LIVE_MATCHES_FROZEN
+
+Frozen set integrity: $ sha256sum -c SHA256SUMS   (cwd frozen/src)
+PKGBUILD.5.asciidoc: OK
+add.c: OK
+alpm-package.7.raw: OK
+be_local.c: OK
+be_package.c: OK
+check.c: OK
+makepkg.sh.in: OK
+query.c: OK
+version.c: OK
+
+Located quote from the live file (line 318, 6 words):
+    printf(_("%s: no mtree file\n"), pkgname);
+
+Supporting live fetch (not in the frozen 9-file set): same ref, src/pacman/pacman.c,
+grep op_q_check -> lines 622-624: `case 'k': (config->op_q_check)++;` (query arg
+parsing; a second identical increment exists in the global parser, lines 571-573).
+So -Qk -> op_q_check == 1, -Qkk -> op_q_check == 2.

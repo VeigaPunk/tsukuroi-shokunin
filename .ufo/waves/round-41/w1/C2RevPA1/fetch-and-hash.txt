@@ -1,0 +1,35 @@
+C2RevPA1 receipts — 2026-10-26 (round 41, lane tsukuroi-shokunin)
+
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse 9cc9aa77e30e0e23de2d4d2697b3b218ada02969:corpus/knowledge/alpm-package-anatomy-r41.md
+467fc0df1579376ad15cc7ca6224acfd500470d0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin hash-object /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/alpm-package-anatomy-r41.md
+467fc0df1579376ad15cc7ca6224acfd500470d0   (worktree blob == pinned-commit blob)
+
+$ sha256sum /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/src/alpm-package.7.raw
+b551bb392f6899c89c4c0d5778c89ad482f0c1251260ccf336bd5b5ed2693c45  alpm-package.7.raw
+(matches the alpm-package.7.raw line of frozen/src/SHA256SUMS)
+
+$ sha256sum -c MANIFEST.sha256   (cwd .ufo/waves/round-41/frozen/hostcap/)
+capture.sh: OK
+capture-meta.txt: OK
+localdb-anatomy.tsv: OK
+vercmp.txt: OK
+man-pkgbuild-runinside.txt: OK
+mtree-pacman-head.txt: OK
+
+$ curl -fsSL --http1.1 --retry 4 --retry-all-errors --retry-delay 3 --max-time 150 -o live-alpm-package.7.raw https://man.archlinux.org/man/alpm-package.7.raw
+raw-rc=0
+$ curl -fsSL --http1.1 --retry 4 --retry-all-errors --retry-delay 3 --max-time 150 -o live-rendered.html https://man.archlinux.org/man/alpm-package.7
+rendered-rc=0
+$ sha256sum live-alpm-package.7.raw
+b551bb392f6899c89c4c0d5778c89ad482f0c1251260ccf336bd5b5ed2693c45  live-alpm-package.7.raw
+$ cmp live-alpm-package.7.raw <frozen>/alpm-package.7.raw && echo LIVE-IDENTICAL-TO-FROZEN
+LIVE-IDENTICAL-TO-FROZEN
+access date: 2026-10-26T18:07:19Z; first attempt minutes earlier failed with
+"curl: (35) TLS connect error: error:0A000126:SSL routines::unexpected eof while reading" (transient; retried, no evidence taken from the failed attempt)
+live-rendered.html: 15643 bytes
+
+SOURCES.md S227 at 9cc9aa77e30e0e23de2d4d2697b3b218ada02969 (SOURCES-pinned.md:236 in scratch, not copied to seat dir):
+"alpm-package(7), extra/alpm-docs 0.13.0-1 — https://man.archlinux.org/man/alpm-package.7 | docs | A | ... | CONTENTS, Metadata and Scripts, lines 95-124 of the alpm-package.7.raw rendering; alpm-docs 0.13.0-1, snapshot sha256 b551bb392f6899c89c4c0d5778c89ad482f0c1251260ccf336bd5b5ed2693c45 | The format names .BUILDINFO, .MTREE and .PKGINFO as required root members and .INSTALL as optional | mined | 2026-10-26"
+
+No tool installs or upgrades were performed for this seat.

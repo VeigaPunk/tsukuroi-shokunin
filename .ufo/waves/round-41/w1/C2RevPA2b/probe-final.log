@@ -1,0 +1,93 @@
+# host: pacman 7.1.0.r9.g54d9411-3 ; libalpm: 
+# archive tool: bsdtar 3.8.10 - libarchive 3.8.10 zlib/1.3.2 liblzma/5.8.4 bz2lib/1.0.8 liblz4/1.10.0 libzstd/1.5.7 openssl/3.6.5 libb2/bundled libacl/2.4.0  ; gnu-tar: tar (GNU tar) 1.35
+
+# P1 members: .PKGINFO data1 
+## P1 root .PKGINFO only (no .BUILDINFO/.MTREE)
+$ pacman -Qp p1.pkg.tar.zst
+demo 1.0-1
+rc=0
+
+# P2 members: .BUILDINFO data1 .MTREE 
+## P2 no .PKGINFO (valid .BUILDINFO + .MTREE)
+$ pacman -Qp p2.pkg.tar.zst
+error: missing package metadata in /fast/scratch/hyaku/tsukuroi-r41/C2RevPA2b/final/p2.pkg.tar.zst
+error: could not load package '/fast/scratch/hyaku/tsukuroi-r41/C2RevPA2b/final/p2.pkg.tar.zst': invalid or corrupted package
+rc=1
+
+# P3 members: .PKGINFO data1 
+# P4 members: ./ ./.PKGINFO ./data1 
+# P3 vs P4 .PKGINFO bytes: a1583f859a116afb vs a1583f859a116afb
+## P3 gnu-tar exact .PKGINFO at root
+$ pacman -Qp p3.pkg.tar.zst
+demo 1.0-1
+rc=0
+
+## P4 same bytes, members prefixed ./ (./.PKGINFO)
+$ pacman -Qp p4.pkg.tar.zst
+error: missing package metadata in /fast/scratch/hyaku/tsukuroi-r41/C2RevPA2b/final/p4.pkg.tar.zst
+error: could not load package '/fast/scratch/hyaku/tsukuroi-r41/C2RevPA2b/final/p4.pkg.tar.zst': invalid or corrupted package
+rc=1
+
+## P5 empty pkgname
+$ pacman -Qp p5.pkg.tar.zst
+error: missing package name in /fast/scratch/hyaku/tsukuroi-r41/C2RevPA2b/final/p5.pkg.tar.zst
+error: could not load package '/fast/scratch/hyaku/tsukuroi-r41/C2RevPA2b/final/p5.pkg.tar.zst': invalid or corrupted package
+rc=1
+
+## P6 empty pkgver
+$ pacman -Qp p6.pkg.tar.zst
+error: missing package version in /fast/scratch/hyaku/tsukuroi-r41/C2RevPA2b/final/p6.pkg.tar.zst
+error: could not load package '/fast/scratch/hyaku/tsukuroi-r41/C2RevPA2b/final/p6.pkg.tar.zst': invalid or corrupted package
+rc=1
+
+## P7 pkgver without a dash
+$ pacman -Qp p7.pkg.tar.zst
+error: invalid package version in /fast/scratch/hyaku/tsukuroi-r41/C2RevPA2b/final/p7.pkg.tar.zst
+error: could not load package '/fast/scratch/hyaku/tsukuroi-r41/C2RevPA2b/final/p7.pkg.tar.zst': invalid or corrupted package
+rc=1
+
+## P8 pkgver 1:1.0-1 (epoch, has a dash)
+$ pacman -Qp p8.pkg.tar.zst
+demo 1:1.0-1
+rc=0
+
+## P9 garbage .BUILDINFO (passed over?)
+$ pacman -Qp p9.pkg.tar.zst
+demo 1.0-1
+rc=0
+
+## P10 .MTREE drives the full-load file list?
+# P10 members: .PKGINFO .INSTALL data1 .MTREE 
+$ pacman -Qlp p10.pkg.tar.zst
+demo /bogus/frommtree
+rc=0
+$ pacman -Qip p10.pkg.tar.zst | grep -i 'install script'
+Install Script  : Yes
+
+## P11 unreadable .MTREE on a full load
+$ pacman -Qp p11.pkg.tar.zst
+demo 1.0-1
+rc=0
+$ pacman -Qlp p11.pkg.tar.zst
+demo /data1
+rc=0
+
+## P12 .PKGINFO with a 600000-byte line
+$ pacman -Qp p12.pkg.tar.zst
+error: could not parse package description file in p12.pkg.tar.zst
+error: could not load package 'p12.pkg.tar.zst': invalid or corrupted package
+## P13 version strings that pass the :614 dash test; later outcome (:678 _alpm_pkg_check_meta)
+q1  pkgname=demo     pkgver=1.0-        -> demo 1.0-
+q2  pkgname=demo     pkgver=-           -> demo -
+q3  pkgname=demo     pkgver=1.0-1-2     -> error: invalid metadata for package demo-1.0-1-2 (package version contains invalid characters)
+q4  pkgname=demo     pkgver=1.0-a_b     -> demo 1.0-a_b
+q5  pkgname=demo     pkgver=1.0.1-1     -> demo 1.0.1-1
+q6  pkgname=demo-x   pkgver=1.0-1       -> demo-x 1.0-1
+q7  pkgname=demo/x   pkgver=1.0-1       -> demo/x 1.0-1
+q8  pkgname=Demo     pkgver=1.0-1       -> Demo 1.0-1
+q9  pkgname=demo     pkgver=1.0-1-2     -> error: invalid metadata for package demo-1.0-1-2 (package version contains invalid characters)
+r1  pkgname=demo     pkgver=1.0-x-1     -> error: invalid metadata for package demo-1.0-x-1 (package version contains invalid characters)
+r2  pkgname=demo     pkgver=1:1.0-1-2   -> error: invalid metadata for package demo-1:1.0-1-2 (package version contains invalid characters)
+r3  pkgname=demo     pkgver=1.0-1:2     -> demo 1.0-1:2
+r4  pkgname=demo     pkgver=1.0-1~      -> demo 1.0-1~
+r5  pkgname=demo     pkgver=1.0-1.2.3   -> demo 1.0-1.2.3

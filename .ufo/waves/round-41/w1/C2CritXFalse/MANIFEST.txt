@@ -1,0 +1,39 @@
+C2-18 probe manifest (seat C2CritXFalse)
+counter: tools/check-package-anatomy-r41.py sha256 c83e29a4f570422d5a975873460c4c5b061e33ac497b97d13c1383569ac1819f
+lane at dispatch: 71851d636ab1bffaf8fee5016617c88878a666f1
+scratch clone (removed after receipts copied): /fast/scratch/hyaku/tsukuroi-r41/C2CritXFalse/fx.Y9AV4E
+clone of 71851d6, origin removed, identity fixture <fixture@shokunin.local>, all probe commits on master.
+command shape: python3 tools/check-package-anatomy-r41.py --repo "$D" --revision <sha>
+
+control commit C0 (entry unchanged + 8 fixture verdict files): 22115f6656b5a4fdc2979b314ab6fc0bd39f125d
+  receipt 01, PASS exit 0, rules_verified 8 verdicts_ok 8 host_ok 6
+  fixture files: .ufo/waves/round-41/w1/C2RevPA<n>GuardFixt.md, first line `VERDICT: holds`,
+  body states in words that it is a synthetic fixture and not a review.
+
+01 control.json                       22115f66  true entry + fixtures        PASS exit 0
+02 pa2.json                           b6b6f7f9  PA2 false-but-affirmative   PASS exit 0 rules_verified 8
+03 pa4.json                           7c6a450d  PA4 false-but-affirmative   PASS exit 0 rules_verified 8
+04 pa6.json                           32de3744  PA6 false-but-affirmative   PASS exit 0 rules_verified 8
+05 pa8.json                           663dcf43  PA8 false-but-affirmative   PASS exit 0 rules_verified 8
+06 combined.json                      20cfe55d  all four false at once      PASS exit 0 rules_verified 8
+07 ctl-pa8-relation-dropped.json      d7af80b0  PA8 inversion, relation 1 dropped
+                                                FAIL exit 1 rules_verified 7
+                                                reason: relation unmet \bthe epoch first\b.*\bthen the version\b.*\bthe release only when both\b
+08 ctl-pa4-mapping-swap.json           8df9af32  .INSTALL becomes changelog  FAIL exit 1 rules_verified 7
+                                                reason: relation unmet \.INSTALL becomes install\b
+09 ctl-pa2-true-negated.json           f1925826  TRUE PA2 rule, "without"     FAIL exit 1 rules_verified 7
+                                                reason: rule carries negation word 'without'
+10 ctl-pa8-value-changed.json          3f2a3ca0  PA8 value cell changed      FAIL exit 1 rules_verified 7
+                                                reason: value != derived
+11 probe-pa6-false-host-cell.json      b119696f  PA6 false rule + false host addendum
+                                                PASS exit 0, host_ok 6
+12 ctl-lanetip-no-verdicts.json        71851d63  TRUE entry, no verdict files FAIL exit 1
+                                                rules_verified 8, verdicts_ok 0
+13 ctl-combined-false-no-verdicts.json 7f1d1382  four false rows, fixtures removed
+                                                FAIL exit 1 rules_verified 8, verdicts_ok 0, all four rows verified=True
+14 variants.patch                                diff 22115f66..20cfe55d over the entry (four false rows, verbatim)
+15 verdict-fixture-template.md                    the fixture body committed in 22115f66 (PA2 copy)
+run cost: 148 ms wall per invocation (git reads only, no selftest); 13 scoring runs + 1 timing repeat.
+
+No host mutation, no lane write outside this seat dir, no git/jj write in the lane, no package transaction.
+No tool installed. Scratch dir removed.

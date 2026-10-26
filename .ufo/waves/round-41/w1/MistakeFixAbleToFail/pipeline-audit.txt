@@ -1,0 +1,130 @@
+M-2 audit — every `| grep -q` and `| head` pipeline under pipefail in the lane
+====================================================================
+Scope searched (read-only):
+  grep -n 'grep -[A-Za-z]*q' tools/tsukuroi-census.sh tools/boot-chain-audit.sh \
+       .ufo/waves/round-41/frozen/hostcap/capture.sh
+  grep -n '|' .ufo/waves/round-41/frozen/hostcap/capture.sh
+  grep -n pipefail (whole tools/)  -> only 3 files carry it:
+    tools/boot-chain-audit.sh:139        set -uo pipefail      (NO -e)
+    tools/tsukuroi-census.sh:423         set -euo pipefail
+    tools/score-census-handoff-r32.py:725 (a generator string, see below)
+    .ufo/waves/round-41/frozen/hostcap/capture.sh:6  set -euo pipefail
+  No other tools/ script sets pipefail, so no pipeline there is in the class.
+
+Buffer scale measured for the two `$out`/`$s_out` buffers that matter:
+  real host census stdout ......... 8,417 B total, longest single line 5,121 B
+                                     (tools/tsukuroi-census.sh > host-census.out, rc=1)
+  fixture `$out` in check() ........ bounded < ~79 KB: the base receipt
+                                     .ufo/waves/round-41/before/c1-before.jsonl records
+                                     "TSUKUROI_CENSUS_SELFTEST: PASS (124 cases, 124
+                                     passed, 0 failed)" at base, and a `$out` at or above
+                                     the flip threshold makes ALL 124 cases fail on the
+                                     2175 branch.
+
+====================================================================
+A. tools/tsukuroi-census.sh  (set -euo pipefail:423)  — 42 sites
+====================================================================
+LIVE — result can be wrong TODAY. Reproduced against the unmodified script.
+  692  if printf '%s\n' "$s_out" | grep -q '^error:'; then
+       buffer: pacman -Qkk merged output over SAMPLE_N=8 packages (unbounded in drift)
+       wrong: BLOCKED branch skipped -> plane reports DEGRADED/HEALTHY for a probe error
+       proven: 163 B -> BLOCKED rc=2 ; 272,053 B -> DEGRADED rc=1 ; 2/2 ; see
+               live-defect-692.txt
+  694  PKG_NOTE="... $(printf '%s\n' "$s_out" | grep -m1 '^error:')"
+       same class (grep -m1 short-circuits like grep -q); under set -e the failing
+       assignment aborts the census. Proven: a one-site fix at 692 alone returns rc=141
+       with no PLANE line at all.
+
+LATENT, set -e ABORT class (`x=$(printf ... | head ...)` is a plain assignment, so a
+141 terminates the census and truncates its output). Shape proven; reachability noted.
+  928  state=$(printf|head -n1|tr|sed)     buffer: `systemctl is-system-running` one word
+                                           -> not reachable
+  966  r=$(printf|head -n1|tr)             `systemctl show -p Result --value`   -> no
+ 1048  driver=$(printf|head -n1|awk)       `nvidia-smi ...` single line           -> no
+ 1423  t_word=$(printf|head -n1|tr|sed)    `systemctl show -p ActiveState`       -> no
+ 1498  r=$(printf|head -n1|tr|sed)         same                                 -> no
+ 1652  [ "$suu_n" -gt 0 ] && suu_first=$(printf|head -n1|tr)
+                                           buffer: full `pacman -Suu --print-format`
+                                           list. REACHABLE on a host with a large
+                                           pending upgrade set (>~1,000 rows). Consequence
+                                           proven: rc=141, following statement never runs.
+ 1621  cand_names=$(printf|head -n3|awk|paste)
+ 1635  cand_names=$(printf|head -n3|awk|paste)   buffer: `pacman -Qu` / `pacman -Sup`
+ 1641  cand_names=$(printf|head -n3|awk|paste)   name lists. REACHABLE only on a stale
+                                                 host; consequence = census abort, not a
+                                                 wrong value.
+
+LATENT, FALSE-FAILURE class (the pipeline is an if/elif CONDITION, so set -e does not
+abort: the branch silently inverts and `bad` fires). Shape proven (256 KiB -> 6/6).
+ 2175  elif ! printf '%s\n' "$out" | grep -q 'host=fixture-host'
+ 2181  elif ! printf '%s\n' "$out" | grep -qE "^TSUKUROI_CENSUS: ${wverdict} \("
+ 2177  elif ! printf '%s\n' "$pkgline" | grep -qE '^PLANE packages: ...'
+           pkgline is one line; 5,121 B measured on the host -> needs ~15x growth
+ 2187  if printf '%s\n' "$out" | grep -qE -- "${re#ABSENT:}"    -> false 'unwanted'
+ 2192  printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss '$re'"
+           shape proven verbatim: miss populated for a pattern that IS present
+ 2223  check_cli: printf '%s\n' "$out" | grep -qE -- "$re" || miss=...
+           $out is --help/usage output -> not reachable
+
+SAFE — kept for the record.
+  676  mapfile -t names < <(printf|grep -v|head -n "$SAMPLE_N")   process subst., status
+                                                                 discarded, `names` correct
+  699  drift=$(printf|sed -nE|awk)      sed and awk read to EOF
+  703  backup=$(printf|grep -c ... || true)          grep -c reads to EOF
+  705  nonroot=$(printf|grep -cE ... || true)        grep -c reads to EOF
+  707  drift_pkgs=$(printf|sed -nE|paste -sd, - || true)   paste reads to EOF
+  794  holds=$(grep -hE|head -n1|sed || true)        line 1 is what is wanted
+  960  mapfile -t timers < <(...|head -n "$TIMER_SCAN_MAX")   process substitution
+ 1159  done < <(find|sort|head -n 4000)              process substitution
+ 1494  mapfile -t timers < <(...|head -n "$TIMER_SCAN_MAX")   process substitution
+ 1480  ...|sort -u|head -n 6|paste -sd, - || true     guarded
+ 1779  au=$(...|grep -c ... || true)                   reads to EOF
+ 1780  unk_names=$(...|grep|sed|head -n6|paste|| true) guarded
+ 1852  grep -qxF -- "$t" <<< "$host"                  herestring: no pipe at all
+ 2172  pkgline=$(...|grep|head -n1 || true)           guarded
+
+====================================================================
+B. tools/boot-chain-audit.sh  (set -uo pipefail:139 — no -e)  — 4 sites
+====================================================================
+  374  late=$(sed -n '...' "$tree/config" | head -n 1)
+  379  overlay=$(sed -n '...' hooks/btrfs-overlayfs | head -n 1)
+  384  ply=$(sed -n '...' hooks/plymouth | head -n 1)
+       VALUE IS CORRECT: head -n1 wants the first matching line; a 141 lands on the
+       assignment, and with -e off nothing aborts, so the only damage is a polluted
+       exit status nobody reads.
+  483  find ... -newermt "@$btime" -print -quit 2>/dev/null | grep -q .
+       SIGPIPE-safe by construction: -print -quit emits exactly one path and exits, so
+       find's single write completes into the buffer before grep can close the read end.
+       BUT the same status collapse exists by a different route: if find fails (a missing
+       /usr/lib/initcpio, an unreadable /etc/fstab), stderr is discarded, grep -q . is
+       false, and boot_inputs_newer prints '0' — "nothing newer than boot start" — which
+       reads as CLEAN. A refused measurement is reported as a healthy one, and the missing
+       -e means nothing flags it.
+
+====================================================================
+C. .ufo/waves/round-41/frozen/hostcap/capture.sh  (set -euo pipefail:6)
+====================================================================
+  No `| grep -q` at all. Full pipeline inventory:
+   15  dots=$(find ... | wc -l)                              wc reads to EOF      SAFE
+   18  $(head -c 2 "$d/mtree" | od -An -tx1 | tr -d ' \n')    head -c 2 reads 2 B  SAFE
+   19  c=$(zcat -- "$d/mtree" 2>/dev/null | grep -c '^\./\.MTREE ' || true)
+       The SIGPIPE-correct form, and it DOES report the match (green, 5/5 with c=1).
+       Its weakness is truncation, not SIGPIPE: a truncated/garbled mtree yields c=0,
+       indistinguishable from "no ./.MTREE entry", and the `|| true` erases the very
+       status that would have said the stream was cut. Demonstrated: intact -> 1,
+       truncated -> 0, status suppressed. `self` is the mtree_lists_self column of
+       localdb-anatomy.tsv, i.e. one of the six host values the C2 counter gates on
+       (host_ok == 6), so a silently-truncated capture would enter as a host FACT.
+   32  man -P cat PKGBUILD | grep -n '...' > f || true         grep -n reads to EOF  SAFE
+   33  p=$(ls -d "$db"/pacman-[0-9]*/ | head -n1)   set -e abort class; the dir list is
+                                                    2-3 entries and fits the pipe buffer,
+                                                    so unreachable in practice
+   34  zcat -- "$p/mtree" | sed -n 1,4p > f         sed -n 1,4p has no `q`: reads to EOF
+                                                    SAFE
+
+====================================================================
+D. tools/score-census-handoff-r32.py:725-727
+====================================================================
+  Emits a generated helper containing `set -o pipefail` and
+  `journalctl "$@" | awk -v K=... '... i++ ... next ...'`. awk never exits early
+  (`next` skips a record), so it reads the whole stream: SAFE.

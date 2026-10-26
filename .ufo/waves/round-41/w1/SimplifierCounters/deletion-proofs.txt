@@ -1,0 +1,146 @@
+Seat SimplifierCounters, round-41 item S-1 — proofs for the advisory deletion candidates.
+
+Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (read-only; no tracked file edited).
+Tools under review (sha256 observed with `sha256sum`, equal to the declaration and to the
+`tool_sha256` header of the before/after receipts):
+  8306d9990b156ceb625eabbe942910fc0d09b20f350a7e8af1ff2237fd07355c  tools/score-selftest-mounts-r41.py
+  c83e29a4f570422d5a975873460c4c5b061e33ac497b97d13c1383569ac1819f  tools/check-package-anatomy-r41.py
+Census surface for P3: `git show 568c397d:tools/tsukuroi-census.sh` (byte-identical to the worktree
+census, sha256 646c84fc…eb95, 178980 bytes).
+
+All Python below imported the two lane tools read-only (`importlib`), with `sys.path` pointing at
+`tools/`, and read the frozen capture/sources through the tools' own `load_frozen()`.
+
+== P1 — every frozen mutant/neutral applies exactly once at the declared implementation commit
+For each (name, old, new) in MUTANTS + NEUTRAL: `census.count(old)` == 1 for all 13 mutants and all 3
+neutrals; `census.count(LOOP)` == 1 (decoy anchor); `census.count(CAPTURE_ANCHOR)` == 1 (capture line).
+No row was unappliable, so the 13/3/1 applicability gate is not what fails a variant today.
+
+== P2 — D2 regex equivalence (C1 PASS_RE / SUMMARY_RE unread capture groups)
+PASS_RE is read only as `bool(PASS_RE.match(last))` (counter:157); SUMMARY_RE only as
+`sm.group(2)` = the case count (counter:154-155). Differential over 10 summary lines: the 4 distinct
+`last` strings recorded in `.ufo/waves/round-41/before/c1-before.jsonl` (baseline/mutants/neutrals/
+decoy) plus 6 synthetic shapes (FAIL summary, 1-case summary, trailing/leading space, exact PASS):
+  old PASS_RE vs `PASS \(\d+ cases, \d+ passed, 0 failed\)$`     -> match language identical: True (10/10)
+  old SUMMARY_RE vs `(?:PASS|FAIL) \((\d+) cases, \d+ passed, \d+ failed\)$`
+                                                                 -> truthiness identical: True (10/10)
+                                                                 -> cases group identical: True (10/10)
+Required companion edit: `sm.group(2)` -> `sm.group(1)` (cases becomes the only group).
+
+== P3 — D1 the `fl == lb` disjunct is dead on the frozen census
+`bad()` writes `FAIL %s` to stderr with `$*` (census:2019: `bad() { FAIL=$((FAIL + 1)); printf 'FAIL %s\n' "$*" >&2; }`).
+`git show 568c397d:tools/tsukuroi-census.sh | sed -n '2174,2226p' | grep -c 'bad "\$label:'` -> 9
+(the two harnesses' per-case failures); the only other `bad "` call is census:2126
+(`bad "fixture mutated by census run ($d)"`), which does not carry a case label and cannot equal a
+baseline PASS label. Therefore every stderr line that can name a baseline label has the form
+`<label>: <reason>`, and `fl == lb` (counter:192) can never be true. Differential on a synthetic
+baseline label set:
+  fail line `healthy: all planes pass: exit 1 wanted 0` -> {'healthy: all planes pass'} (startswith path)
+  fail line `healthy: all planes pass`                 -> {'healthy: all planes pass'} (== path, unreachable)
+After deleting `fl == lb`, every reachable FAIL line still matches by `startswith(lb + ':')`; a foreign
+census that printed a bare label would lose attribution (more survivors -> FAIL, fail-closed).
+
+== P4 — `killed()` internal guards are decisive only on synthetic input (not dead logic)
+base = {'labels': ['L'], 'cases': 117}
+  pass True, exit 0, cases 117, fail 'L: x'    -> False   (pass branch)
+  pass False, exit 0, cases 117, fail 'L: x'   -> False   (exit==0 branch)
+  pass False, exit 1, cases 1, fail 'L: x'     -> False   (cases branch)
+  pass False, exit 1, cases 117, fail 'L: x'   -> True    (kill)
+  pass False, exit 1, cases 117, fail 'M: x'   -> False   (attribution)
+No frozen control isolates the exit==0 or cases-mismatch guards; they implement the documented kill
+rule (counter:25-27) and are retained.
+
+== P5 — D7 params_from_capture key duplication
+tuple('P1-mountpoint-not-absolute','P2-source-not-dev','P3-no-subvol-option','P4-two-btrfs-lines')
+== tuple(mount_props('').keys()) -> True. On a fixture capture dir (one `.args` naming the case and
+containing `detail=mounts:btrfs-without-sysfs`, one `.mounts` with two btrfs lines) the literal-key and
+`{k: [] for k in mount_props('')}` forms returned the same dict:
+{'P1-mountpoint-not-absolute': [], 'P2-source-not-dev': [], 'P3-no-subvol-option': [],
+ 'P4-two-btrfs-lines': ['case label']} both ways.
+
+== P6 — D4 ENTRY_NAME duplicate
+Path(c2.ENTRY).name == c2.ENTRY_NAME -> True ('alpm-package-anatomy-r41.md').
+Uses: counter:56 (definition), :329 and :366 (both `ENTRY_NAME in srows[i]['used_by']`), so the
+derived value preserves every use.
+
+== P7 — D5 srcl materialises two files no code indexes
+`src` keys = 9 (PKGBUILD.5.asciidoc, add.c, alpm-package.7.raw, be_local.c, be_package.c, check.c,
+makepkg.sh.in, query.c, version.c). The only read is `srcl[want]` (counter:376); `want` ranges over
+REQUIRED files = 7 (no be_local.c, no query.c). Restricted mapping equals the full mapping on every
+read key: True. be_local.c (1237 lines) and query.c (521 lines) are thus split into lists and never
+indexed; query.c is still decoded/read by derive_values (PA6), be_local.c is read by nothing (see R4).
+
+== P8 — cap decode cost (considered, not proposed)
+`cap` keys decoded: 6. Keys actually read: localdb-anatomy.tsv, man-pkgbuild-runinside.txt,
+mtree-pacman-head.txt, vercmp.txt. Unread after decode: capture-meta.txt, capture.sh. The bytes are
+read and hashed for the MANIFEST pin regardless; only the decode of 46 text lines is wasted, and
+removing it needs a new read-set constant (net ~zero). Keep.
+
+== P9 — D6 per-row `verdicts` duplicates the top-level dict
+Recorded PASS fixture `.ufo/waves/round-41/w1/C2ExecRerun/fixture-holds-pass.json`:
+  8 `rules.PA*.verdicts` copies = 816 bytes; top-level `rec['verdicts']` = 816 bytes;
+  whole receipt = 4658 bytes (17.5% duplicated).
+`grep -rn "\['verdicts'\]\|\.verdicts\b" tools .ufo/waves/round-41 --include='*.py' --include='*.sh'`
+outside the counter -> no consumer. The counter's own predicate never reads `rules[*]['verdicts']`
+(it reads `vd[pa]`/`verdicts_ok` and the top-level `rec['verdicts']`).
+
+== P10 — C1 predicate sentence vs len() (duplicate authority, no deletion)
+len(MUTANTS)=13, len(NEUTRAL)=3; the printed sentence (counter:41-42 and :298-299) says literal 13 and
+3; the code compares `m_applied == len(MUTANTS)` and `neutral_pass == len(NEUTRAL)` (counter:295-296);
+there is no assertion. If a 14th mutant tuple is appended, the code requires m_applied == 14 while the
+printed predicate and any receipt still say 13 (simulated: 14 == len(MUTANTS) is True after appending,
+sentence unchanged). Round-40 SimplifierCounters §5/E6 recommended one assertion; round 41 has none
+(`grep -n 'assert '` -> empty in both counters). C2's code and sentence both use literals 8/6, so its
+table cannot drift silently in the passing direction (it fails closed).
+
+== P11 — full-tool C2 differential (D3, D4, D5, D6, D8)
+Fixture: a scratch copy of the tool at /fast/scratch/.../SimplifierCounters/eq/tools/ with seven
+single-occurrence replacements (asserted count == 1 each): drop KeyError; derive ENTRY_NAME; restrict
+srcl; delete `r['verdicts'] = vd[pa]`; hoist one `mtree` string used by PA4 and PA6. `.ufo` and
+`_revision.py` were symlinks to the lane (read-only). Invocation:
+  python3 <tool> --repo /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --revision <REV>
+for REV = 0e5805a1… (base, entry absent), 9cc9aa77… (entry present), 71851d63… (tip, entry present);
+all six runs exited 1, stderr 0 bytes.
+  base      : exit 1/1, result FAIL/FAIL, rules 0, equal-after-dropping-per-row-verdicts=True
+  9cc9aa77  : exit 1/1, result FAIL/FAIL, rules 8, equal-after-dropping-per-row-verdicts=True
+  71851d63  : exit 1/1, result FAIL/FAIL, rules 8, equal-after-dropping-per-row-verdicts=True
+  top-level verdicts equal in all three: True
+Only difference before the drop: the 8 `rules.PA*.verdicts` blocks (D6). D3/D4/D5/D8 are output-identical.
+
+== P12 — duplicated helper bodies (AST source segments)
+r41 C1 vs r40 C1:
+  keyed        r40:64  -> r41:81   identical=True
+  run_selftest r40:92  -> r41:135  identical=False (new fields/retry/decoy)
+  main         r40:111 -> r41:201  identical=False
+  module constants: LOOP identical=True, NEUTRAL identical=True, MUTANTS[:9] identical=True
+r41 C2 vs r40 C2:
+  sha          r40:108 -> r41:129  identical=True
+  collapse     r40:112 -> r41:133  identical=True
+  load_frozen  r40:116 -> r41:137  identical=True
+  parse_sources r40:190 -> r41:237 identical=True
+  git          r40:203 -> r41:250  identical=True
+  git_show     r40:207 -> r41:254  identical=True
+  func_body    r40:136 -> r41:157  identical=True after stripping the docstring
+  novelty_hits r40:212 -> r41:259  differs only in BASE and the RevisionError args
+  SRC_SHA overlap identical=True; ARTIFACT overlap identical=True
+tools/_revision.py: no byte-identical copy; it exposes clean_env (imported by both), bind (both), and a
+private typed `_git` (r41 C2's `git`/`git_show` are partial reimplementations, timeout 120 vs 60).
+Recommendation: keep the copies this round; both counters' bytes are pinned by receipts.
+
+== P13 — hashes and recorded predicate values (context)
+C1 after 568c397: PASS, baseline_pass 1, neutral_pass 3, decoy_pass 1, mutants_applied 13, survivors 0,
+params 4 (`.ufo/waves/round-41/after/c1-after-568c397.jsonl`); before 0e5805: FAIL, survivors 4
+[H10, H5, H6, H9], params 0 (`.ufo/waves/round-41/before/c1-before.jsonl`).
+C2 after 9cc9aa7: FAIL, rules_verified 8, verdicts_ok 0, host_ok 6, source_ok 1, duplicates 0,
+novelty 0 (`.ufo/waves/round-41/after/c2-impl-9cc9aa7.jsonl`); PASS is demonstrated by the committed
+fixture at 40600b2 in `.ufo/waves/round-41/w1/C2ExecRerun.md:96` (8/8/6/1/0/0/0).
+
+== P14 — name-level reachability (AST; the scan block cited by report §1)
+tools/score-selftest-mounts-r41.py: module names never loaded {'annotations': 48}; functions never
+referenced {}.
+tools/check-package-anatomy-r41.py: module names never loaded {'annotations': 41}; functions never
+referenced {}.
+(`annotations` is the `from __future__ import annotations` flag, not a missing consumer.)
+ruff check --isolated --select F,ARG,B018,PLR0124,PLR0133,PLR1714 <both files> -> All checks passed!
+python3 -m py_compile <both files> -> exit 0 (no output).
+

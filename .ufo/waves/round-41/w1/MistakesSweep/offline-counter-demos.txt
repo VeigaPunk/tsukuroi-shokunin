@@ -1,0 +1,8 @@
+# Offline, no census run: importlib of the e479fdc5 bytes of tools/score-selftest-mounts-r41.py from scratch; python subprocess with timeout; 2026-10-26
+cp on a FIFO with no writer: still blocked after 3 s (TimeoutExpired)            # R41-CAPTURE-FIFO mechanism (injected line, counter :116-117, now guarded by [ -f ])
+pipefail: pipefail false negative rc=141                                          # set -o pipefail; seq 1 400000 | grep -q 1 && echo hit || echo ...   (R41-PIPEFAIL-SIGPIPE mechanism)
+FAIL label matches raw PASS label? False | after LABEL_TAIL: True                 # R41-LABEL-SUFFIX: 'PASS <label> (exit 0, HEALTHY)' vs 'FAIL <label>: ...'
+params credited to a case whose only wanted pattern is ABSENT: {'P1-mountpoint-not-absolute': ['spoof label'], 'P2-source-not-dev': [], 'P3-no-subvol-option': ['spoof label'], 'P4-two-btrfs-lines': ['spoof label']}
+   # .args = 'spoof label' + 'ABSENT:detail=mounts:btrfs-without-sysfs'; .mounts = two btrfs lines, one with a relative mountpoint. Counter :182 tests `WANT_BLOCK in x`, not polarity.
+# receipt-derived (python over .ufo/waves/round-41/{before/c1-before.jsonl,after/c1-after-568c397.jsonl}): first-run FAIL lines carrying "hostname override not honoured" —
+#   after: M2 M4 M5 M9 H9 ; before: M8 ; every one dropped out of confirm_labels (fail_count > len(confirm_labels)).

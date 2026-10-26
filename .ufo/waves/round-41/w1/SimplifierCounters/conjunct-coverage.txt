@@ -1,0 +1,23 @@
+Round-41 predicate conjunct coverage (recorded pre-data controls only)
+C1 source: .ufo/waves/round-41/controls/C1-K{1,2,3}-*.jsonl (one JSON object per file)
+  control                              base neut decoy applied survivors params
+  C1-K1-declare-f-prologue-on-base        1    3     0      13        13      0
+  C1-K2-candidate-without-H9-case         1    3     1      13         1      3
+  C1-K3-declare-f-prologue-on-candidate    1    3     0      13        13      4
+  -> never off wanted: baseline_pass (all 1), neutral_pass (all 3), mutants_applied (all 13)
+  -> exercised: decoy_pass 0 (K1,K3); survivors 13/13/1; params 3 (K2)
+
+C2 source: .ufo/waves/round-41/controls/controls-c2.jsonl (lines 1-9)
+  line control                                     rules verdicts host source dupR dupH nov
+     1 C2-K0-do-nothing                                0        0    0      0    0    0   0
+     2 C2-K1-r40-token-writer                          0        8    6      1    0    0   0
+     3 C2-K2-relation-literal-writer-no-verdicts       8        0    6      1    0    0   0
+     4 C2-K3-x-false-swap                              6        8    6      1    0    0   0
+     5 C2-K4-x-false-negation                          6        8    6      1    0    0   0
+     6 C2-K5-candidate-one-fails-verdict               8        7    6      1    0    0   0
+     7 C2-K6-candidate-no-verdicts                     8        0    6      1    0    0   0
+     8 C2-K7-candidate-one-partly-only                 8        7    6      1    0    0   0
+     9 C2-K8-candidate                                 8        8    6      1    0    0   0
+  -> never off wanted: duplicate_rows, duplicate_headings, novelty_base_hits (all 0 in every control)
+  -> host_ok/source_ok move to 0 only at K0 where the entry is absent and every term is 0 (no isolating control)
+  -> round-40 SS2 proposed C2-K8-x-host-cells and C2-K9-x-novelty; round-41 controls stop at K8 (the candidate PASS)

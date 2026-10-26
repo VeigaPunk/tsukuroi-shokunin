@@ -1,0 +1,34 @@
+##### audio-shokunin
+##### chousa-shokunin
+##### game-dev-2d-shokunin
+##### game-dev-3d-shokunin
+##### kaidoku-shokunin
+kaidoku-shokunin/corpus/knowledge/2026-10-13-pacman-packages.md:15:- claim: A pacman package archive (`acl-2.4.0-1-x86_64.pkg.tar.zst`, 106 members) is a Zstandard tar (`file` → "Zstandard compressed data (v0.8+)") carrying three dot-prefixed metadata members — `.BUILDINFO` (buildtool `devtools 
+kaidoku-shokunin/corpus/knowledge/2026-10-13-pacman-packages.md:16:- source: `file`, `tar -tf` (head + `wc -l` = 106), `tar -xOf … .PKGINFO`/`.BUILDINFO`/`.MTREE | zcat`
+kaidoku-shokunin/corpus/knowledge/2026-10-13-pacman-packages.md:17:- verify: `tar -tf /var/cache/pacman/pkg/acl-2.4.0-1-x86_64.pkg.tar.zst | grep '^\.' ; tar -xOf /var/cache/pacman/pkg/acl-2.4.0-1-x86_64.pkg.tar.zst .BUILDINFO`
+kaidoku-shokunin/corpus/knowledge/2026-10-13-pacman-packages.md:29:- claim: `sha256sum /usr/bin/jq` equals `tar -xOf jq-1.8.2-1-x86_64.pkg.tar.zst usr/bin/jq | sha256sum` (both `e8156675…7806`), and `pacman -Qkk jq` reports `25 total files, 0 altered files`; `.MTREE` in-archive and `/var/lib/pacma
+kaidoku-shokunin/corpus/knowledge/2026-10-13-pacman-packages.md:30:- source: byte-compare of archive member vs installed file; `pacman -Qkk jq`; `ls /var/lib/pacman/local/jq-1.8.2-1/` → `desc files mtree`
+kaidoku-shokunin/corpus/knowledge/2026-10-13-pacman-packages.md:57:- claim: The cache holds superseded alongside current builds (`1password-cli` 2.34.1-1 + 2.40.0-2, `abseil-cpp` 20260526.0-2 + 20260817.0-2, `adwaita-fonts` 50.0-1 + 51.0-2), enabling pair-wise shipped-artifact diffing (mtree digests
+kaidoku-shokunin/corpus/knowledge/2026-10-13-pacman-packages.md:64:- claim: Full coverage of this surface uses only installed tools: `pacman -Qo/-Ql/-Qi/-Qkk/-Qm` (attribution, listing, metadata, mtree verification, foreign list), `tar -tf/-xOf` + `file` + `zstd -t` (archive listing, stdout member e
+kaidoku-shokunin/corpus/knowledge/2026-10-13-pacman-packages.md:65:- source: `which paccheck expac bsdtar zstd vercmp pactree pacfiles` (expac/bsdtar/zstd/vercmp present; paccheck/pactree/pacfiles absent)
+kaidoku-shokunin/corpus/knowledge/2026-10-13-pacman-packages.md:66:- verify: `command -v pacman tar file zstd gpg sha256sum vercmp expac bsdtar; command -v paccheck pactree pacfiles || echo "pacman-contrib absent"`
+kaidoku-shokunin/corpus/knowledge/2026-10-13-pacman-packages.md:71:Archives/packages are a rich shipped-artifact surface: every installed file attributes to a signed, mtree-verified archive readable with stock tar/file/zstd/gpg, and the survey already surfaced one concrete REA target — the unowned
+kaidoku-shokunin/corpus/knowledge/2026-10-13-pacman-packages.md:81:  capability claim (signed, integrity-checkable, `.MTREE` per-file sha256,
+kaidoku-shokunin/corpus/knowledge/2026-10-13-r4u-03-unblob-extract.md:67:  0–2100` → `tar 0–10240` → `gzip 0–212` (the `.MTREE`). Carved tree in
+kaidoku-shokunin/corpus/knowledge/2026-10-13-r4u-03-unblob-extract.md:69:  `zstd.uncompressed_extract/{.BUILDINFO (4827 B), .MTREE (212 B),
+kaidoku-shokunin/corpus/knowledge/2026-10-13-r4u-03-unblob-extract.md:70:  .MTREE_extract/gzip.uncompressed, .PKGINFO (739 B)}` — 5 files / 3
+kaidoku-shokunin/corpus/knowledge/2026-10-13-r4u-03-unblob-extract.md:71:  dirs / 17.69 KB. `.PKGINFO` content verified genuine:
+kaidoku-shokunin/corpus/knowledge/2026-10-13-r4u-03-unblob-extract.md:73:  `pkgver = 1-2`. `.MTREE`'s gzip payload reached `gzip.uncompressed` at
+kaidoku-shokunin/corpus/knowledge/2026-10-13-r4u-03-unblob-extract.md:149:  100% identified, 0 errors, 5 files carved incl. verified `.PKGINFO`.
+kaidoku-shokunin/corpus/knowledge/2026-10-14-r12-01-queue-b-ready.md:40:- claim: r4u-03 exercised the row end-to-end (`ev_5c8a405e…` run 1, `ev_82507d8e…` run 2 on the same pkg; ids per-run by their own record). Today's re-run on `/var/cache/pacman/pkg/base-devel-1-2-any.pkg.tar.zst` (digest `41
+##### kama-shokunin
+##### kasegi-shokunin
+##### kengaku-shokunin
+##### kotodama-shokunin
+##### kumitate-shokunin
+##### mado-shokunin
+##### mori-shokunin
+##### revenger-shokunin
+##### souji-shokunin
+##### tabi-shokunin
+##### tameshi-shokunin

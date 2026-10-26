@@ -1,0 +1,20 @@
+# MistakesSweep (round 41, item M-1) — every command run, lane tip 71851d636ab1bffaf8fee5016617c88878a666f1 (HEAD at start)
+cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+grep -n '^## Mistakes' corpus/lessons/round-3{8,9}.md corpus/lessons/round-4{0,1}.md
+(cd .ufo/waves/round-40/w1 && for f in *.md; do echo "$(head -1 $f | cut -c1-40) $f"; done | grep -iE 'falsifies|defect-found')   # 26 reports
+grep -rnE 'NUL-JOIN|EMPTY-OVERRIDE|REVBIND-DISCOVERY|K10-CLOSURE|NO-EXEC-MARKER|DETECT-HONEST|COUNTER-SECONDARY|REOPEN-AS-NEW|ASSIM-EVIDENCE|SIDE-EFFECT-UNSWEPT|CITATION-CLOSURE|CONTROLS-NO-RED|GATE-ADMIT' --include=*.md --include=*.py --include=*.json . | grep -v 'round-40/w1/MistakesSweep'   # 0 hits: none of last sweep's 18 candidates was ever tabled
+git show e479fdc5:tools/score-selftest-mounts-r41.py | sha256sum       # 8306d999... = declared
+git show e479fdc5:tools/check-package-anatomy-r41.py | grep -n 'cited S-id not on source\|except ('
+git log --format='%h author=%aI committer=%cI' -7
+git merge-base --is-ancestor 8b7c4132 0e5805a1 || echo 'closure NOT ancestor of declared base'
+git diff --numstat 0e5805a1 e479fdc5^        # foreign commits between declared base and freeze parent
+for r in e3bc9340 0e5805a1 HEAD; do echo "$r $(git ls-tree -r --name-only $r -- corpus/lessons | wc -l)"; done    # 56 56 57 (K10 stated 56, SCORECARD.md:2429)
+ls .ufo/waves/round-41/controls | grep -c controls-c1 ; git log --all --oneline -- .ufo/waves/round-41/controls/controls-c1.jsonl ; grep -n controls-c1 SCORECARD.md   # 0 ; (none) ; 2475
+grep -rln 'Terminated cp\|survivors 13 of 13\|rc 124' .ufo/waves/round-41 corpus/lessons/round-41.md SCORECARD.md LOG.md   # only corpus/lessons/round-41.md
+grep -c 'Scope: executed' .ufo/waves/round-41/w1-spec.json; grep -c EXEC-AUTHORIZED .ufo/waves/round-41/w1-spec.json   # 0 0
+grep -n 'PROC_MOUNTS=\|BTRFS_SYSFS=' tools/tsukuroi-census.sh | head -2     # 462-463 still ${VAR:-default}
+grep -n "b'\"--revision\"'" tools/check-revision-binding.py                 # 261 still
+for f in .ufo/waves/round-41/{before,after,controls}/*; do head -1 $f | grep -o tool_sha256 || echo NO-HEADER; done
+grep -n -i '0\.13\|^\.TH' .ufo/waves/round-41/frozen/src/alpm-package.7.raw; grep -rn '0\.13\.0' .ufo/waves/round-41/frozen/ | cut -c1-120
+# census repros (scratch, TSUKUROI_BTRFS_SYSFS=<absent>), see repro-mounts-at-tip.txt
+# offline counter demonstrations on e479fdc5 bytes (no census run), see offline-counter-demos.txt

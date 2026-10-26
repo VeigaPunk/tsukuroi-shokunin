@@ -1,0 +1,44 @@
+Read-only probes (2026-10-26, seat ConnFrontier, round 41). All commands run directly on the host; no sudo.
+
+-- 1. scrub timer unit state (unprivileged) --
+$ systemctl show btrfs-scrub@-.timer -p ActiveState,UnitFileState --value
+inactive
+disabled
+$ systemctl list-unit-files 'btrfs-scrub*' --no-pager
+UNIT FILE            STATE    PRESET
+btrfs-scrub@.service static   -
+btrfs-scrub@.timer   disabled disabled
+
+-- 2. scrub status directory --
+$ ls -la /var/lib/btrfs/
+ls: cannot access '/var/lib/btrfs/': No such file or directory
+
+-- 3. filesystem plane (btrfs + second NVMe xfs) --
+$ findmnt -t btrfs,xfs -o TARGET,SOURCE,FSTYPE,OPTIONS
+/                       /dev/mapper/root[/@]     btrfs  rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@
+├─/home                 /dev/mapper/root[/@home] btrfs  rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home
+├─/var/cache/pacman/pkg /dev/mapper/root[/@pkg]  btrfs  rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=259,subvol=/@pkg
+├─/var/log              /dev/mapper/root[/@log]  btrfs  rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=258,subvol=/@log
+├─/fast                 /dev/nvme1n1p2           xfs    rw,nosuid,nodev,noatime,inode64,logbufs=8,logbsize=256k,noquota
+└─/tmp                  /dev/nvme1n1p1           xfs    rw,nosuid,nodev,noatime,inode64,logbufs=8,logbsize=256k,noquota
+
+-- 4. census surface scan (lane tip HEAD = 71851d63, round-41 wave) --
+$ grep -n 'scrub\|unshare' tools/tsukuroi-census.sh   -> no hits
+$ grep -n '\-\-identity' tools/tsukuroi-census.sh     -> no hits
+$ grep -cE '^\s*check(_cli)? ' tools/tsukuroi-census.sh -> 128 (124 round-40 + 4 round-41 R41-C1 cases)
+
+-- 5. implementation commits (read-only git) --
+$ git show --stat --format='%H %s' 568c397da11339aed65181be598414f268835555
+tools/tsukuroi-census.sh | 27 +++++++++++++++++++++++++++ (1 file changed, 27 insertions(+)) — "round-41: C1 census selftest gains four held-out mount tables (H5, H6, H9, H10)"
+$ git diff 0e5805a1 568c397d -- tools/tsukuroi-census.sh
+only 4 new `check` blocks in run_selftest (storage-mounts-mp-relative, -src-uuid, -no-subvol-opt, -two-btrfs); probe_storage_arm not in the diff.
+$ git show --stat --format='%H %s' 9cc9aa77e30e0e23de2d4d2697b3b218ada02969
+corpus/knowledge/alpm-package-anatomy-r41.md | 6 +++--- (3 insertions(+), 3 deletions(-)) — pre-dispatch refinement (PA1/PA3/PA6)
+
+-- 6. private-namespace feasibility (F5 proposal; no host mutation; unshare -rm) --
+$ S=/fast/scratch/hyaku/tsukuroi-r41/ConnFrontier; mkdir -p "$S/nsbind"
+$ unshare -rm sh -c 'mount --bind /home "$1/nsbind"; echo "btrfs lines: $(grep -c " btrfs " /proc/self/mounts)"; mkdir -p /sys/fs/btrfs; mount -t tmpfs none /sys/fs/btrfs; echo "sysfs btrfs entries: $(ls /sys/fs/btrfs | wc -l)"; echo "still listed: $(grep -c " btrfs " /proc/self/mounts)"' sh "$S"
+btrfs lines: 5
+sysfs btrfs entries: 0
+still listed: 5
+unshare_exit=0

@@ -1,0 +1,13 @@
+# reproduction of makepkg's listing pipeline (scratch, not host evidence for lane claims)
+# pipeline: (LC_COLLATE=C; shopt -s dotglob globstar; printf '%s\0' **/*) | LANG=C bsdtar -cnf - --null --files-from -
+## bsdtar -tf pkg.tar
+.BUILDINFO
+.PKGINFO
+_under
+usr/
+usr/bin/
+usr/bin/demo
+## bsdtar -tf pkg.tar | grep -qxF '.PKGINFO'
+rc=0
+## bsdtar -tf pkg.tar | grep -qxF '.CHANGELOG'
+rc=1

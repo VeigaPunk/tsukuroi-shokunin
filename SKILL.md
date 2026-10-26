@@ -3559,3 +3559,289 @@ is passed by a self-reading prologue (`declare -f`, `${0}`, `${BASH_ARGV0}`; `.u
 row 12 by a token-list writer that reads the counter's answer key and by affirmatively false rules
 (`C2CritControl.md`, `C2CritXFalse.md`). Both are qualified the same way as rows 9 and 10: the readings stand for the
 key that produced them.
+
+## Storage arm selftest held-out tables — round 41
+
+Appended 2026-10-26 (round-41 C1, commit `568c397da11339aed65181be598414f268835555`). Append-only: the round-38,
+round-39 and round-40 storage-arm sections above stay as written, and the arm itself — `probe_storage_arm`,
+`tools/tsukuroi-census.sh:1865-1925` — is unchanged: its text at `568c397` is byte-identical to the base `0e5805a1`
+(empty `diff` of the two `sed -n '/^probe_storage_arm()/,/^}/p'` slices), the census file at `568c397` and at the
+round tip `71851d63` is the same blob (`dda066f4`), and the commit is `1 file changed, 27 insertions(+)` in
+`run_selftest` only, with zero removed lines (`git diff --stat 0e5805a1 568c397 -- tools/tsukuroi-census.sh`). No
+earlier label or expected line moved, and the selftest count goes 124 → 128 (`PASS (128 cases, 128 passed,
+0 failed)`).
+
+Round 40 varied the btrfs line but left four shapes shared by every must-block table: mountpoints absolute, sources
+`/dev/*`, a `subvol=` key on every btrfs line, exactly one btrfs line per table — the residual monoculture it named
+(`.ufo/waves/round-40/w1/C1HeldOutMutants.md:194-196`). Three held-out mutants of that class survived its 124 cases
+(H5, H6, H9), and a fourth, count direction, was frozen this round (H10). Each table below varies exactly **one** of
+those four shapes and keeps the other three, so the case that kills H5 is not the case that kills H6. Each fixture
+writes its own `$FX/mounts`; `check()` exports it as `TSUKUROI_PROC_MOUNTS="$FX/mounts"`
+(`tools/tsukuroi-census.sh:2166`), so the arm reads the fixture and never the host's table.
+
+| Case (`tools/tsukuroi-census.sh` at `568c397`) | Mount table (`$FX/mounts`, one line each) | Expected `STORAGE` line | Frozen mutants it kills |
+|---|---|---|---|
+| `storage-mounts-mp-relative` (`:3039-3043`)<br>"healthy rollup: a btrfs line whose mountpoint is not absolute still counts, BLOCKED (R41-C1 H5)"<br>*pins: the mountpoint field decides nothing; `/dev` source, `subvolid=5`/`subvol=/` kept* | `proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0`<br>`/dev/vdc1 relative/mnt btrfs rw,relatime,subvolid=5,subvol=/ 0 0` | `STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs` | `H5-mountpoint-absolute`, `M1-VA-device-literal`, `M2-VB-root-mountpoint`, `M4-VG-subvolid-256`, `M8-subvol-at-literal` |
+| `storage-mounts-src-uuid` (`:3045-3049`)<br>"healthy rollup: a btrfs line whose source is not under /dev still counts, BLOCKED (R41-C1 H6)"<br>*pins: the source field decides nothing; absolute mountpoint, `subvol=` kept* | `proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0`<br>`UUID=0b1c2d3e-4d5e-6f70-8192-a3b4c5d6e7f8 /data btrfs rw,relatime,subvolid=5,subvol=/ 0 0` | `STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs` | `H6-source-devonly`, `M1-VA-device-literal`, `M2-VB-root-mountpoint`, `M4-VG-subvolid-256`, `M8-subvol-at-literal` |
+| `storage-mounts-no-subvol-opt` (`:3051-3055`)<br>"healthy rollup: a btrfs line with no subvol= option still counts, BLOCKED (R41-C1 H9)"<br>*pins: options decide nothing, not even the `subvol=` key* | `proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0`<br>`/dev/sdc1 /mnt/plain btrfs rw,commit=60 0 0` | `STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs` | `H9-subvolkey-option`, `M1-VA-device-literal`, `M2-VB-root-mountpoint`, `M4-VG-subvolid-256`, `M8-subvol-at-literal` |
+| `storage-mounts-two-btrfs` (`:3057-3062`)<br>"healthy rollup: two btrfs lines are still btrfs without sysfs, BLOCKED (R41-C1 H10)"<br>*pins: any count ≥ 1, not exactly 1; both lines carry `/dev` source, absolute mountpoints and `subvol=`* | `/dev/nvme0n1p2 / btrfs rw,relatime,ssd,subvolid=256,subvol=/@ 0 0`<br>`proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0`<br>`/dev/nvme0n1p2 /home btrfs rw,relatime,ssd,subvolid=257,subvol=/@home 0 0` | `STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs` | `H10-count-exactly-one`, `M1-VA-device-literal` |
+
+Mutant ids are the counter's own frozen names (`tools/score-selftest-mounts-r41.py:85-104`): H5
+`H5-mountpoint-absolute` (counts only when `[[ ${_mp:-} == /* ]]`), H6 `H6-source-devonly` (only when
+`[[ ${_src:-} == /dev/* ]]`), H9 `H9-subvolkey-option` (whole-table `*'subvol='*`), H10 `H10-count-exactly-one`
+(`if [ "$mt" -eq 1 ]`), beside the round-40 M1-M9. Kills are the receipt's confirmed labels — a stderr `FAIL
+<label>` that names a baseline `PASS <label>` and is reproduced in a second run —
+`.ufo/waves/round-41/after/c1-after-568c397.jsonl` `mutants.<id>.confirm_labels`. The union of the four Kills cells
+is eight of the 13 mutants (M1, M2, M4, M8, H5, H6, H9, H10); the other five are killed by round-40 cases only. No
+new case is the only killer of a round-40 M1-M9 mutant: M3 and M5 still die only on
+`storage-mounts-btrfs-in-path`, M6 on `storage-mounts-fstype-case`, M7 on `storage-root-unreadable-mounted`, and M9
+only on the two round-40 varied tables, so those cases stay load-bearing. What the four add is separation — each
+held-out mutant's confirmed FAIL set is exactly one label, its own case — so H5, H6, H9 and H10 are killed by the
+table that varies their shape and not by the others.
+
+Counting: `python3 tools/score-selftest-mounts-r41.py --revision <REV> --scratch <DIR> --jobs 4` — 0 when
+`baseline_pass == 1 and neutral_pass == 3 and decoy_pass == 1 and mutants_applied == 13 and survivors == 0 and
+params == 4` (`tools/score-selftest-mounts-r41.py:295-296`, the same sentence in the round-41 declaration, in the
+counter's docstring and in the receipt); 1 otherwise; 2 on revision, git or scratch failure. The counter is frozen at
+sha256 `8306d9990b156ceb625eabbe942910fc0d09b20f350a7e8af1ff2237fd07355c` (`sha256sum`; identical at the freeze commit
+`e479fdc5`). Measured at `568c397`: baseline `PASS (128 cases, 128 passed, 0 failed)`, `capture_pass 1`, neutral 3/3,
+decoy 1, mutants applied 13, survivors 0, params 4, exit 0 — 6 min 21 s at `--jobs 6` on a loaded host
+(17:17:35Z–17:23:56Z). An independent rerun at the same revision (`.ufo/waves/round-41/w1/C1ExecRerun/`,
+`field-compare.json`) reproduces every predicate field and every per-mutant confirmed label. At the base `0e5805a1`:
+baseline `PASS (124 cases, 124 passed, 0 failed)`, survivors 4 (H5, H6, H9, H10), params 0, exit 1. One run is 19
+selftests (baseline, capture, 13 mutants, 3 neutrals, decoy) plus one
+confirmation run per attributed kill and one serial retry for any failed non-mutant run, so run it at most once per
+item.
+
+The `params` conjunct is a table-shape gate, not a behaviour test: the counter injects one `cp` into `check()` in its
+private copy, captures each case's `$FX/mounts` beside its label and wanted patterns
+(`tools/score-selftest-mounts-r41.py:115-117`), and requires a PASSing baseline case for each of the four declared
+properties whose wanted patterns include `detail=mounts:btrfs-without-sysfs` (`:162-188`). The receipt records the
+mapping (`param_cases`: P1→H5, P2→H6, P3→H9, P4→H10 labels). Dropping the H9 case from the candidate drops it to
+`params 3` with `survivors 1` H9 (`.ufo/waves/round-41/controls/C1-K2-candidate-without-H9-case.jsonl`).
+
+### What the decoy refuses, and what it does not
+
+The one DECOY variant is the unmutated selftest with a dead here-document, `: <<'R41DECOY' … R41DECOY`, inserted in
+front of the count loop **inside `probe_storage_arm`** in the counter's copy; the body carries every mutant's
+replacement text verbatim (`tools/score-selftest-mounts-r41.py:114-127`). Its behaviour is the base arm's, so the
+decoy must PASS (measured: 128/128). A selftest that reads its own text for any of those 13 strings — through
+`declare -f probe_storage_arm`, `${0}`, `${BASH_ARGV0}` or `/proc/self/…` — fails it; that is the round-40
+R40-ANSWER-KEY prologue, refused by construction (pre-data controls K1 and K3: `decoy_pass 0` on the base and on the
+candidate). It does **not** refuse a self-reader that strips here-documents before matching (recorded limit; wave item
+C1CritDecoy attacks it), nor one keyed on anything outside those 13 strings — the fixture tables, the four new case
+labels and the expected regexes are not in the decoy body — nor a reader that keys on the census file's other text.
+
+### What kill attribution refuses, and what it does not
+
+A mutant counts as killed only when its run exits nonzero, prints the FAIL summary with the baseline's case count
+(128), has at least one stderr `FAIL <label>` naming a label the baseline printed as `PASS <label>`, and a second run
+fails at least one of the same labels (`tools/score-selftest-mounts-r41.py:190-202`, `:264-271`). Refused: a bare
+nonzero exit, an early abort (no case count, or a different one — adding or losing a case invalidates every kill), a
+summary-only failure, a FAIL label the baseline never passed, and a failure that does not reproduce. The receipt now
+carries stderr labels, not counts (`first_fails`, the raw `FAIL …` lines, first three per run, `:159`), which closes the
+round-40 "receipt carries counts, not labels" gap. It does **not** refuse an unrelated baseline label that fails
+reproducibly twice: the receipt's first runs carry host-flake labels — `hostname override not honoured — possible host
+read` on M2, M4, M5, M9 and H9 — which dropped out of the confirmed intersection here, but a flake confirmed twice
+would be counted as a kill. Nor does it show causation: the rule proves the variant's run differs reproducibly at a
+baseline case, not that the new table produced the difference.
+
+### Limits of these four cases
+
+- **H5's table is a shape the kernel does not print.** Measured in a private user namespace: `mount(2)` with a
+  relative target stores the mountpoint absolute — `/proc/self/mounts` then reads
+  `relative-source /fast/scratch/hyaku/tsukuroi-r41/C1ScribeSkill/tgt1 tmpfs rw,relatime,uid=1000,gid=1000,inode64,huge=advise 0 0`.
+  So a relative mountpoint is forged input for any fstype, and H5 pins the arm's contract over an overridable file
+  (`TSUKUROI_PROC_MOUNTS`, `tools/tsukuroi-census.sh:463`), not a live-host exposure.
+- **H6's shape is representable but unobserved.** The same measurement shows the source field is stored verbatim
+  (`UUID=0b1c2d3e-4d5e-6f70-8192-a3b4c5d6e7f8` prints as given), so a non-`/dev` source is not a field the format
+  forbids; whether a real btrfs line ever carries one was not observed here — no btrfs mount was made (the host is
+  read-only to this lane, and the measurement namespace held no block device). This host's table reads four btrfs lines, all
+  `/dev/mapper/root`, all absolute mountpoints, all with `subvol=` (`awk '$3=="btrfs"' /proc/self/mounts`, 2026-10-26).
+- **Live coverage is uneven.** H10's property is on this host today (four btrfs
+  lines), so `mt -eq 1` answers false on this table — a live bug class whenever the sysfs root is absent or
+  hidden, the only branch that reads the table; H9's — a btrfs mounted on its default subvolume, with no `subvol=`
+  option — is a normal kernel shape this host does not show [inference: not mounted here].
+- **Mutant sample, not proof of immunity.** The 13 mutants all rewrite the mount-table cross-check of the round-39
+  rule. The sysfs walk, the five-counter parser, `bad-devid`, `no-devinfo` and the `root:unreadable` path carry no
+  mutant here, and `survivors == 0` means 0 of these 13, never "no literal-keyed arm can pass".
+- **`params` is a shape gate.** It checks that a passing case handed `check()` a table with the property and wanted a
+  `detail=mounts:btrfs-without-sysfs` line; a selftest that hands those tables and hardcodes the answers elsewhere
+  still scores 4. Removing a case is caught; faking a table is not.
+- **One line shape per case.** No fixture holds a non-`/dev` source *and* two btrfs lines, a mountpoint with an
+  escaped space (`\040`), a field count other than the six `mount` prints, or a btrfs line in a table whose sysfs root
+  already has fsid entries (that guard is `storage-root-unreadable-mounted`).
+- **Fixtures only.** All four tables are override files; no run reads the host's table, so this section says nothing
+  new about the live host.
+- **bash only.** `[[ ]]`, `${fst,,}` and `case` globbing are bash semantics (GNU bash `5.3.20` here).
+
+### Counter sufficiency — what the round-41 wave found (appended by the L1)
+
+- **The decoy limit is total, not partial** (`.ufo/waves/round-41/w1/C1CritDecoy.md`, variant `v1-shapegate`): a base
+  census with no new `check` case, an inline text gate over `declare -f probe_storage_arm` with the here-document lines
+  removed, and one btrfs line appended to the round-40 `storage-mounts-varied-multi` table passes the frozen predicate
+  (`survivors 0, params 4`, exit 0). `params` counts a shape per key, so one table can supply all four. The counter
+  therefore cannot certify "the selftest gains four cases" by itself; the landed implementation's PASS rests on its
+  bytes as well — `568c397d` adds exactly four `check` cases and no self-reading construct (residual seat
+  C1RevDiffRead, `.ufo/waves/round-41/residual/C1RevDiffRead.md`), and each held-out kill's confirmed label is the R41
+  case that varies that shape (`after/c1-after-568c397.jsonl`).
+- **Kill attribution reads labels, not causes** (`w1/C1CritLabels.md`): a selftest that prints a forged `FAIL <baseline
+  label>` and a correctly-counted FAIL summary is credited; the one serial retry lets a coin-flip self-detector survive
+  three times in four. **The `params` term carries no evidence of its own** (`w1/C1CritParams.md`): a suite with the four
+  tables and no discriminating expectation scores `params 4` and fails only through `survivors`.
+- **New held-out mutants** (`w1/C1HeldOutMutants.md`): of nine more, fstype-prefix (`btrfs*`) and exactly-six-fields
+  survive the 128 cases; both key on shapes the kernel always prints, so they are coverage notes for a later round,
+  not live defects.
+- Read the round-41 readings for the key that produced them, as rows 9-12 of the lineage table say for rounds 35-40.
+
+## Package anatomy and the local database — round 41
+
+Appended 2026-10-26 (round-41 C2; drafted by wave seat C2ScribeSkill, integrated by the L1). The `-Qkk`
+subsection above classifies what a sweep prints; this section answers the question underneath it: what a package
+file carries, what libalpm requires of one on load, what install keeps in `/var/lib/pacman/local/`, and what the
+kept copy is worth to `-Qkk` and to version comparison. Rules PA1-PA8 with their quotes:
+`corpus/knowledge/alpm-package-anatomy-r41.md` (source rows S227-S236 — alpm-package(7) from alpm-docs 0.13.0-1,
+pacman `54d9411` as built by `7.1.0.r9.g54d9411-3`, an own-work host capture; snapshots
+`.ufo/waves/round-41/frozen/src/`, digests in its `SHA256SUMS`; capture `.ufo/waves/round-41/frozen/hostcap/`,
+MANIFEST sha256 `632ed0443cfb26ef002ebfd2a3a99971221f9129836b63135e0ca6ea41874f89`, captured
+2026-10-26T16:14:04Z). Entry carried by commit `9cc9aa77e30e0e23de2d4d2697b3b218ada02969`. Detection and report
+only: nothing below installs, builds, removes or re-packs a package.
+
+Measured on this host, 2026-10-26, read-only, `pacman 7.1.0.r9.g54d9411-3`, `ALPM_DB_VERSION` 9: 1409 local
+entries (`pacman -Q | wc -l`) and 1409 kept `mtree` files, 51 kept `install` files, 0 `changelog`, 0 other root
+dot files; all 1409 `mtree` files gzip (`1f 8b`), none listing `./.MTREE`; the kept `mtree` of `pacman` opens
+with `./.BUILDINFO` and `./.PKGINFO` and holds 428 entries; kept `mtree` and `install` are mode `0644 root:root`;
+`man -P cat PKGBUILD` prints 5 `This function is run inside` lines (4 `$srcdir`, 1 `$startdir`); `vercmp
+1:1.0-1 2.0-1` = 1, `vercmp 0:2.0-1 2.0-1` = 0, `vercmp 1.0 1.0-5` = 0, `vercmp 1.0-1 1:0.1-1` = -1.
+`/var/cache/pacman/pkg` holds 0 files (`pacman-conf CacheDir` = that directory) and a bounded `find` over
+`/var/cache`, `/var/lib`, `~/Downloads` and `~/Projects` (`-maxdepth 3 -name '*.pkg.tar.*'`) found no package
+file, so the `bsdtar` commands below ran only on a synthetic four-member archive built in scratch: they read
+member order and `.PKGINFO` fields there, but their rule content is the pinned source, not that fixture.
+
+### Symptom → PA row → read-only command → what the output means
+
+| Symptom (verbatim string or observation) | Row | Command (read-only, paste-ready) | What the output means |
+|---|---|---|---|
+| An archive is called invalid because `.BUILDINFO` or `.MTREE` is missing | PA1 (S227 `alpm-package.7.raw:100-120`) | `bsdtar -tf <pkg-file> \| sed -n '1,4p'` | The document requires `.BUILDINFO .MTREE .PKGINFO` at the root and allows an optional `.INSTALL`; a missing `.BUILDINFO` or `.MTREE` is a format defect, **not** a load failure, because libalpm needs only `.PKGINFO` (PA2). The dot members survive where the kept `mtree` shows them: `./.BUILDINFO` and `./.PKGINFO` |
+| `missing package metadata in <file>`, or `invalid package version`, on `pacman -U` or a sync install | PA2 (S228 `be_package.c:598-654`) | `bsdtar -xOf <pkg-file> .PKGINFO \| grep -e '^pkgname' -e '^pkgver'` | `.PKGINFO` present means the archive loads at all; its `pkgver` must carry the release after a dash with an optional `epoch:` prefix, and an empty name or version is refused at the same point. `.MTREE` is read only on a full load to build the file list; `.BUILDINFO` is passed over like every other unhandled dot file |
+| A package built under a non-C locale starts with data files, or a partial read never saw `.MTREE` | PA3 (S229 `makepkg.sh.in:560-569`; `be_package.c:640-643`) | `bsdtar -tf <pkg-file> \| head -n 3` | makepkg lists members under `LC_COLLATE=C` with bash `dotglob`, so the dot files sort ahead of the data files and sit at the archive's start; a load that is not full stops at the end of the first entry after `.PKGINFO`, so order decides whether `.MTREE` is ever read. Data files first means the archive was not built by the pinned makepkg, or was re-packed |
+| A scriptlet cannot be found after install, or `pacman -Qi` prints `Install Script : No` although the PKGBUILD has one | PA4 (S230 `add.c:168-189`) | `pacman -Qi <pkg> \| grep -E '^(Name\|Version\|Install Script)'; ls /var/lib/pacman/local/<name>-<version>/` | Install keeps `.INSTALL` as `install`, `.CHANGELOG` as `changelog` and `.MTREE` as `mtree`, each mode 0644, and skips every other root dot file — `.PKGINFO` and `.BUILDINFO` are never in the entry. `Install Script : No` is the absence of a kept `.INSTALL`, not of a scriptlet in the PKGBUILD. Measured: 51 of 1409 entries carry `install`, 0 `changelog`, 0 any other dot file |
+| A kept `mtree` opens as binary, or an installed file is not listed in it | PA5 (S229 `makepkg.sh.in:615-620`) | `head -c2 /var/lib/pacman/local/<name>-<version>/mtree \| od -An -tx1; zcat /var/lib/pacman/local/<name>-<version>/mtree \| sed -n '1,3p'` | The first two bytes are `1f 8b` (gzip) on all 1409 here, and the listing opens with `#mtree` and a `/set` line; every file line carries a `sha256digest`, and `.MTREE` is excluded from its own listing (0 of 1409 list it) |
+| `pacman -Qkk <pkg>` prints `<pkg>: no mtree file` and nothing else | PA6 (S231 `check.c:295-321`) with PA4 | `pacman -Qkk <pkg>; echo rc=$?` | The full check opens the kept `mtree`; with the file absent it prints the notice and returns 0, so the package adds zero errors and its clean result verified nothing. The same return covers a file that fails to open (a TODO leaves the two cases unseparated). `-Qk` (level 1) still checks file existence |
+| A packaging function edits files as if in the wrong directory | PA7 (S232 `PKGBUILD.5.asciidoc:345-377`) | `man -P cat PKGBUILD \| grep -n 'This function is run inside'` | `package()`, `prepare()`, `build()` and `check()` run inside `$srcdir`, `verify()` inside `$startdir`, and `package()` also under fakeroot while the others run as the calling user. Host: 5 lines, 4 `$srcdir` and 1 `$startdir` — a `verify()` that assumes `$srcdir` is the documented exception, not a bug |
+| An upgrade offers a version that looks lower than the installed one | PA8 (S233 `version.c:39-255`) | `pacman -Qi <pkg> \| grep '^Version'; vercmp <installed> <offered>` | Epoch first (an absent epoch counts as 0), then the version, then the release only when both strings carry one — any `1:` build outranks every epoch-0 build, `1.0` equals `1.0-5`, and `1.0-1` sorts below `1:0.1-1`. `vercmp` prints `1` / `0` / `-1` for greater / equal / lower and its exit status was `0` for all three on this host (measured 2026-10-26) — read the printed value, never `$?` |
+
+### Checklist step — count local entries without mtree before trusting a clean `-Qkk`
+
+Run this as step 4a of the update-safety checklist, before its integrity sample and full sweep, and whenever a
+sweep or the census returns `0 altered` or `drift=0`:
+
+```bash
+for d in /var/lib/pacman/local/*/; do [ -f "$d/mtree" ] || echo "$d"; done | wc -l
+```
+
+- `0` (this host, 2026-10-26: 1409 entries, 1409 `mtree` files) — every local entry carries the kept `mtree`, so
+  a clean `-Qkk` on it verified file contents instead of reporting a vacuous pass.
+- `N > 0` — each printed entry's full check verified nothing: `-Qkk` prints `<pkg>: no mtree file` and returns 0
+  (PA6), so that entry contributes zero errors to the sweep and cannot be cited as clean. `-Qk` still checks it.
+- Run the loop under bash: GNU bash 5.3.20 (`/usr/bin/bash`) and `/bin/sh` print `0` here; a shell whose
+  trailing-slash pattern also expands regular files printed `1`, and its one word was
+  `/var/lib/pacman/local/ALPM_DB_VERSION/` — the database-version file, not a package entry. A word that is not a
+  `<name>-<version>` directory is not a finding.
+
+Reproduce the branch on a copy, never on the live database (measured 2026-10-26):
+
+```bash
+S=$(mktemp -d); mkdir -p "$S/db/local"
+cp /var/lib/pacman/local/ALPM_DB_VERSION "$S/db/local/"
+cp -r /var/lib/pacman/local/7zip-26.04-1 "$S/db/local/"
+rm "$S/db/local/7zip-26.04-1/mtree"
+pacman -Qkk --dbpath "$S/db" 7zip; echo "rc=$?"
+```
+
+Without the `mtree`: `7zip: no mtree file`, `rc=0`. With it: `7zip: 17 total files, 0 altered files`, `rc=0`.
+`pacman -Qk --dbpath "$S/db" 7zip` prints `7zip: 17 total files, 0 missing files` in both states. The version
+file must sit inside `local/`; beside it, `--dbpath` answers `database is incorrect version`.
+
+The census sample inherits the blind spot: `tools/tsukuroi-census.sh:684` runs `pacman -Qkk` over a bounded
+sample (8 by default, `--sample N`), and `:698-700` sums only `N total files, M altered files` summaries, so a
+sampled entry without `mtree` adds 0 to `drift=` and its `no mtree file` line is counted nowhere. Read the
+sample's `drift=` next to this count, never alone.
+
+### Limits of this section
+
+- **PA2 and PA3 are unmeasured on this host**, as the entry states: `/var/cache/pacman/pkg` holds 0 files
+  (`pacman-conf CacheDir` = that directory, measured 2026-10-26) and pacman transactions are paused, so no package
+  file could be opened. Those rows rest on the pinned snapshot, and their `bsdtar` commands ran only on a
+  synthetic archive (member order and two `.PKGINFO` fields, not a makepkg-built package). PA1's host cell is the
+  kept `mtree` of `pacman` — the members that survive install, not the archive.
+- **The PA6 reproduction is a copy of one entry** (`7zip-26.04-1`) in a scratch `--dbpath`, not a live sweep. It
+  shows the branch and its return code; it does not say what a mixed sweep prints, and it does not explain why an
+  `mtree` would be missing on a real host — no local entry here lacks one.
+- **Counts are a snapshot.** 1409 entries / 1409 `mtree` / 51 `install` / 0 `changelog` / 0 other dot files were
+  true on 2026-10-26 and move with every install; the pinned form is capture S236
+  (`.ufo/waves/round-41/frozen/hostcap/`, MANIFEST sha256 `632ed044…`). `ALPM_DB_VERSION` is 9.
+- **Entry directories carry the epoch colon** (`blender-17:5.2.2-3`, `alsa-card-profiles-1:1.6.9-1`), so quote a
+  `/var/lib/pacman/local/<name>-<version>/` path wherever it is used in a loop or a shell word.
+- **A `desc`/`files`/`mtree` entry is not an incomplete install.** All 1409 entries carry `desc` and `files`
+  beside `mtree`; `.PKGINFO` and `.BUILDINFO` are skipped by design (PA4), so their absence from the local entry,
+  and a missing `install` or `changelog`, are the normal shape.
+- **`-Qkk` is only as good as the kept `mtree`.** The kept file is opened with every decompression filter and the
+  mtree format (S234), so a gzip header is not itself a failure mode; and the full check reports `N total files,
+  M altered files` over the files that listing names.
+- **The counter scores the entry, not this section.** `package-anatomy-r41` (gate registry, `SKILL.md:3121`)
+  verifies PA1-PA8's rule cells, quotes inside frozen source windows and six host values from the frozen capture;
+  it does not read this table, and its lexical half is a shape gate — a relation-literal writer passes it (control
+  C2-K2), so the per-row reviewer verdicts are the read (QUALITY 81).
+
+Counting: `python3 tools/check-package-anatomy-r41.py --revision <REV> [--repo <PATH>]` — 0 when PA1-PA8 each
+carry the source-derived value, the frozen proposition relations and no negation word, a 4-25 word quote inside
+the row's frozen source window on a new mined upstream row opened 2026-10-26, no duplicate row or heading, the six
+capture-derived host values, 0 base hits of the novelty tokens and a committed non-author verdict per row; 1
+otherwise; 2 on revision, git or frozen-input failure. Frozen sha256
+`c83e29a4f570422d5a975873460c4c5b061e33ac497b97d13c1383569ac1819f`.
+
+### After the wave (appended by the L1)
+
+- Every first-read seat returned `holds` for PA1-PA8; five second-read seats returned `partly` (PA2, PA3, PA5, PA6, PA7)
+  and their conditions are appended to the entry as `## Corrections from the round-41 wave`: the exact `.PKGINFO` name
+  (a `./.PKGINFO` repack is refused), the parse and post-loop metadata errors, `globstar` and the partial-load stop
+  point, the `.INSTALL`/`.CHANGELOG`/directory entries in the kept `mtree` and the bare `--exclude .MTREE` pattern,
+  `--quiet` and the `-Qpkk` false notice, and the split-package and `pkgver()` functions. Residual verdicts on the
+  corrected rows: `.ufo/waves/round-41/residual/C2RevPA{2,3,5,6,7}c.md`.
+- Read the decision table's PA2 row with the correction: `bsdtar -tf <pkg>` must list a line that is exactly
+  `.PKGINFO`; and the `-Qkk` checklist step above with PA6's correction: `-Qpkk <file>` prints "no mtree file" for
+  every package file, so it is no evidence about the file.
+- **The verdict gate is not an authorship check** (`w1/C2CritControl.md`, `w1/C2CritXFalse.md`): eight two-line files
+  committed with a writer's entry pass it, so the counter's PASS means "eight committed files say holds", and their
+  provenance is the dispatch record (`.ufo/waves/round-41/w1-results.json` and the residual results: seat name, agent
+  id, final output), which the counter does not read. Mutation results (`w1/C2MutCounter.md`): dropping window
+  containment, ignoring `fails` and relaxing `host_ok` to 5 with the PA4 host check removed survive every frozen control.
+
+## Counter lineage — round 41 rows (append-only continuation of "Counter lineage — rounds 35-40")
+
+Drafted by wave seat ConnLineage (`.ufo/waves/round-41/w1/ConnLineage.md`); the round-41 bypasses are those the wave
+demonstrated, not only those the docstrings name.
+
+| # | Counter | Round | Freeze commit | sha256 | Closes / still admits |
+|---|---|---|---|---|---|
+| 13 | `tools/score-selftest-mounts-r41.py` | r41 | `e479fdc54d0977ccd8112a42d8d139baaebcb02e` | `8306d9990b156ceb625eabbe942910fc0d09b20f350a7e8af1ff2237fd07355c` | Closes the round-40 `declare -f` prologue keyed on mutant text (controls K1, K3: `decoy_pass 0`) and the held-out survivors H5, H6, H9 and H10; still admits a here-document-stripping self-reader with one shared fixture line (`w1/C1CritDecoy.md`, PASS) and forged FAIL labels (`w1/C1CritLabels.md`) |
+| 14 | `tools/check-package-anatomy-r41.py` | r41 | `e479fdc54d0977ccd8112a42d8d139baaebcb02e` | `c83e29a4f570422d5a975873460c4c5b061e33ac497b97d13c1383569ac1819f` | Closes the round-40 token-list writer (control K1: `rules_verified 0`) and swapped or negated rules (K3, K4); still admits a relation-literal writer with planted verdict files (`w1/C2CritControl.md`, `w1/C2CritXFalse.md`, PASS) |
+
+## Counter-attack scoreboard — rounds 40-41
+
+Appended 2026-10-26 (round 41; `considerthese/2026-10-26.md` proposal "Counter-attack scoreboard": "For each frozen
+counter, track how many attack arms the wave fielded, how many survived, and which class beat it"). An arm is one
+scored variant a wave seat built to pass a counter without the claimed work (or a counter mutant no control catches);
+"beat" means it reached the counter's PASS. Counted from the named reports, by hand, not by a script.
+
+| Counter | Round | Arms fielded (reports) | Arms that reached PASS | Beating class |
+|---|---|---|---|---|
+| `score-selftest-literals-r40.py` | r40 | 4 self-reading variants (`.ufo/waves/round-40/w1/C1CritControl.md`) | 3 (`declare -f`, `${0}`, `${BASH_ARGV0}`) | answer-key read (the selftest reads the mutant texts) |
+| `check-exec-environment-r40.py` | r40 | 2 writers + non-negated false rules (`.ufo/waves/round-40/w1/C2CritControl.md`, `C2CritXFalse.md`) | all three | answer-key read (frozen tokens, derived values) |
+| `score-selftest-mounts-r41.py` | r41 | 2 decoy variants (`w1/C1CritDecoy.md`), 1 forged-label arm (`w1/C1CritLabels.md`), 1 shape-only suite (`w1/C1CritParams.md`) | 2 (here-document-stripping gate; forged labels) | answer-key read moved one level: the decoy's own mechanism is read and skipped |
+| `check-package-anatomy-r41.py` | r41 | 1 cheapest writer (`w1/C2CritControl.md`), 4 affirmative false rules (`w1/C2CritXFalse.md`), 6 entry mutants (`w1/C2MutEntry.md`), 8 counter mutants (`w1/C2MutCounter.md`) | writer and false rules (with planted verdict files); 1 of 6 entry mutants (PA8 phrase order); 3 of 8 counter mutants | planted verdicts (provenance unread); relation order unchecked |
+
+Reading: the hole moves rather than closes — each round's guard is beaten by reading that guard. What refused the
+round-41 arms that failed was behaviour (C1 neutrals, kill attribution) and non-lexical inputs (C2 verdict files); the
+next amendment should bind verdicts to the dispatch record and C1 kills to case-owned fixtures (planned row).

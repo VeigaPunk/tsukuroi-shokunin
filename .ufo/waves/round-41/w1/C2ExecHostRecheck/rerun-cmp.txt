@@ -1,0 +1,33 @@
+# C2-23 re-run comparison (2026-10-26T18:09:11Z)
+frozen=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/hostcap
+rerun1=/fast/scratch/hyaku/tsukuroi-r41/C2ExecHostRecheck/cap  rerun2=/fast/scratch/hyaku/tsukuroi-r41/C2ExecHostRecheck/cap2  norepo-copy=/fast/scratch/hyaku/tsukuroi-r41/C2ExecHostRecheck/cap3
+
+## byte compare (cmp) frozen vs rerun1 and rerun2
+capture.sh                   run1=SAME run2=SAME
+localdb-anatomy.tsv          run1=SAME run2=SAME
+vercmp.txt                   run1=SAME run2=SAME
+man-pkgbuild-runinside.txt   run1=SAME run2=SAME
+mtree-pacman-head.txt        run1=SAME run2=SAME
+capture-meta.txt             DIFF
+
+## capture-meta diff (frozen vs rerun2)
+1c1
+< captured_utc 2026-10-26T16:14:04Z
+---
+> captured_utc 2026-10-26T18:07:47Z
+
+## MANIFEST diff (frozen vs rerun2)
+2c2
+< a2794911f1ecd0de7c83d2dc104c2f05c9dc9dc71c0fe6cc58997d447b4dbe78  capture-meta.txt
+---
+> 9a4bd9c73262bbd251da0211f76350834ebeced7ae8913200778001f37aa665a  capture-meta.txt
+
+## frozen MANIFEST vs per-file sha256 of rerun2
+d10ae8445ba37ef5e85a1e0e1127ef6f7e450fd276729b6cbd0f982e06d1734e  localdb-anatomy.tsv
+5467f0dbd12b604515c32917589a9ae9ebd04c92e6d08bbb5cf21c4aa41ea7db  vercmp.txt
+c905f360313e5c3254534a0993ee258f5ef65b0378bfdf9f8bd9cfa1e59a3bc4  man-pkgbuild-runinside.txt
+51cc1dbe4e9d26d26d2a6b25f26709edf4db9c997caf011a42b5cd295a3ca95f  mtree-pacman-head.txt
+
+## counter pin
+CAP_MANIFEST_SHA in tools/check-package-anatomy-r41.py:75 = 632ed0443cfb26ef002ebfd2a3a99971221f9129836b63135e0ca6ea41874f89
+632ed0443cfb26ef002ebfd2a3a99971221f9129836b63135e0ca6ea41874f89  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-41/frozen/hostcap/MANIFEST.sha256

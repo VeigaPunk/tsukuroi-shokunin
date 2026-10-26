@@ -1,0 +1,47 @@
+C1-6 counterexample payload — a one-line prologue that turns any run into a kill
+===============================================================================
+Inserted immediately after `run_selftest() {` in tools/tsukuroi-census.sh at
+568c397da11339aed65181be598414f268835555 (sha256 646c84fc…6f9eb95). Nothing else in the census is touched;
+probe_storage_arm is untouched. The four mount cases of the claim are NOT added.
+
+  case ${0%/*} in */baseline|*/capture|*/N[0-9]*|*/D-all-mutant-texts) : ;; *) \
+    printf 'FAIL %s: forged on path, no case ran\n' \
+      'healthy rollup: two btrfs lines are still btrfs without sysfs, BLOCKED (R41-C1 H10)' >&2; \
+    printf 'TSUKUROI_CENSUS_SELFTEST: FAIL (128 cases, 127 passed, 1 failed)\n'; return 1 ;; esac
+
+Why each piece exists:
+  ${0%/*}                     the counter writes the candidate to <work>/<run name>/tsukuroi-census.sh
+                              (score-selftest-mounts-r41.py:137,241,245,257,266), so the directory basename
+                              is the mutant's own name, 'baseline', 'capture', 'D-all-mutant-texts',
+                              '<mutant>.confirm' or '<name>.retry'. HOME and TMPDIR carry the same dir
+                              (:141), so renaming only the file would not close the channel.
+  the honest arm list         baseline/capture/neutral('N[0-9]*')/decoy run the real body, so
+                              baseline_pass, neutral_pass and decoy_pass all stay 1 — the decoy is bypassed
+                              without reading one byte of the file's text, which is exactly what the decoy
+                              (DECOY_DELIM ': <<\'R41DECOY\'', :113-120) is declared to refuse.
+  'FAIL <real label>: …' >&2  the only kill input is stderr lines matching a baseline label
+                              (:156,:190-192), so any label from the candidate's own case list will do;
+                              this one is the H10 case label, so the forgery also looks attributed.
+  'FAIL (128 cases, …)'       killed() only compares the case COUNT (:196) — never the summary's
+                              passed/failed fields — so a summary that contradicts the observed line
+                              counts (0 PASS lines, 1 FAIL line) is accepted.
+
+Observed through the frozen counter's own functions (tools/score-selftest-mounts-r41.py at
+e479fdc54d0977ccd8112a42d8d139baaebcb02e, sha256 8306d999…07355c), receipts in
+c1-6-forged-kill.json:
+  baseline (real text)                        exit 0, PASS (128 cases, 128 passed, 0 failed), 128 labels
+  prologue text at <work>/H10-count-exactly-one
+                                              exit 1, cases 128, PASS lines 0, fail_labels = [the H10 label]
+                                              killed() = True
+  prologue text at <work>/H10-count-exactly-one.confirm
+                                              killed() = True, common label = the H10 label
+                                              confirmed = True  -> the mutant is scored killed
+  prologue text at <work>/D-all-mutant-texts   exit 0, PASS (128 cases, 128 passed, 0 failed) -> decoy_pass 1
+  prologue text at <work>/N1-rename-counter    exit 0, PASS -> neutral_pass unaffected
+  unit: {'pass':False,'exit':1,'cases':128,'labels':[],'fail_labels':['<label>: forged']}
+                                              killed() = True (zero cases executed, no PASS lines at all)
+  unit: exit 124 (timeout)                    killed() = False -> survivor, and no retry for mutants
+  unit: cases 3 (early abort)                 killed() = False -> survivor
+
+So `survivors == 0` does not establish that the four declared cases killed H5/H6/H9/H10: it establishes that
+something in that run wrote FAIL lines naming baseline labels, twice.

@@ -1,0 +1,109 @@
+SentScope G-6 scope sweep — raw captures
+Seat SentScope-3, tsukuroi lane round 41 (hyaku run 9), all times -03, 2026-10-26.
+Read-only throughout; nothing deleted, nothing signalled, no tool installed.
+Reference instant REF = .ufo/waves/round-41/controls/run_controls.py mtime
+  2026-10-26 14:17:56.006102739 -0300 (10473 bytes)
+
+== 1. fleet root /home/vgpnk/Projects/shokunin ==
+15:04:07 git status --porcelain
+ M .scratch/goal-20261026-hyaku-run9.md
+?? .ufo/reports/round-44/mado.md
+?? .ufo/reports/round-48/tameshi.md
+15:09:32 git status --porcelain
+?? .ufo/reports/round-44/mado.md
+?? .ufo/reports/round-48/tameshi.md
+(goal-file modification is orchestrator-owned: header line 1 "ORCHESTRATOR-OWNED run state (hyaku run 9)";
+ diff +18 lines, orchestrator notes on kengaku r40 / kasegi r37 / souji r33; no tsukuroi round-41 content)
+find -maxdepth 4 -name '*round-41*' outside the lane: only fleet-root prompts (.ufo/prompts/tsukuroi-round-41.md,
+ 2026-10-26 13:00) and .ufo/waves/round-41/ (2026-10-25 21:03, pre-run-9, holds w1/swarm-registry.legacy-wave-v1.json,
+ tracked) plus other lanes' own round-41 dirs. No tsukuroi-r41 artifact written at the fleet root.
+grep round-41 inside .ufo/reports/round-44|round-48: hits are cross-references in mado/tameshi reports, not
+ round-41 reports; mado.md line 5 has unfilled `<<TIP>>`/`<<W2N>>`, tameshi.md line 3 `@@LANE@@` (their lanes' stubs).
+
+== 2. lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (tip 71851d636ab1bffaf8fee5016617c88878a666f1) ==
+15:04 porcelain (10 lines) / 15:09:32 porcelain (11 lines)
+ M corpus/knowledge/pacman-exec-environment-r40.md   (appeared 15:06:45, absent at 15:04)
+ M tools/check-self-assessment.py                     (mtime 13:57:57)
+?? .ufo/waves/round-41/make-w1-spec.py     47097  14:58:08
+?? .ufo/waves/round-41/revs.json             310  15:03:24
+?? .ufo/waves/round-41/w1-dispatch.err         0  15:03:24
+?? .ufo/waves/round-41/w1-dispatch.json   109887  15:03:24
+?? .ufo/waves/round-41/w1-spec.json        80451  15:03:24
+?? .ufo/waves/round-41/w1.ready              160  15:03:31
+?? .ufo/waves/round-41/w1.ready.dispatched        15:09 (renamed from w1.ready.partial during the sweep)
+?? .ufo/waves/round-41/w1/                    (seat reports + seat receipt dirs + swarm-registry.json)
+?? corpus/lessons/round-41.md                9045  14:21:12, header "author: tsukuroi L1 (`TsukuroiR41`)"
+No D (deleted) entries; git index mtime 2026-10-26 15:03:45; .jj/repo and .jj/working_copy mtime 15:03.
+git status --porcelain -- corpus/SOURCES.md -> empty (S220 row untouched; append-only rule held).
+diff of corpus/knowledge/pacman-exec-environment-r40.md: +8 lines appended under
+  "## Anchor correction (appended round 41; round-40 closure §6.4)"; no other hunk.
+w1/ layout: report files at w1/<Seat>.md and receipt dirs at w1/<Seat>/ (both the declared forms).
+
+== 3. /tmp and /var/tmp newer than REF ==
+find /tmp -newer REF, names *tsukuroi-r41*/*round-41*/*hyaku*: 0.
+Broadened to *tsukuroi*|*r41*: 1 hit at 15:07:
+  /tmp/tsukuroi-r3-2-selftest.dDInZ2  (dir, bin/ + fx/, 15:07)  [removed by its owner before 15:09]
+  /tmp/self-assessment-census-5ypff308 (dir, 300M, 15:03)        [removed by its owner before 15:09]
+At 15:09:32 the live one is /tmp/tsukuroi-r3-2-selftest.rR8CO1 (bin/, fx/, 7.9M, mtime 15:07:39.394930620).
+/var/tmp newer than REF, names *tsukuroi*|*round-41*: 0. Non-r41 context: /var/tmp/r17-census-hygiene.eek7l75z
+ (tabi-r33 lane), /var/tmp/souji-r29-c1-fixture, /var/tmp/souji-r29-wave-capture-fixture (souji lane).
+
+== 4. process attribution for the /tmp dirs ==
+15:07:46 process tree (cmdline from /proc/<pid>/cmdline):
+  3438   /home/vgpnk/.local/bin/omp.real
+  3770616 python3 tools/run-receipt.py --revision 71851d6... --out .ufo/waves/round-41/w1/GateSelfAssessment/
+          receipt-self-assessment.jsonl -- tools/check-self-assessment.py --revision 71851d6...
+  3830006 /usr/bin/python3 /fast/scratch/hyaku/run-receipt-dbh7wyp3/tools/check-self-assessment.py
+          --revision 71851d636ab1bffaf8fee5016617c88878a666f1        (no --scratch)
+  3903845 bash tools/tsukuroi-census.sh --selftest  cwd=/tmp/self-assessment-census-5ypff308  TMPDIR=<unset>
+15:09:32 census procs with TMPDIR unset and no /tmp work dir:
+  3941241, 3964898  bash tools/tsukuroi-census.sh --selftest
+    cwd=/fast/scratch/hyaku/tsukuroi-r41/RoutedSelfAssessScratch/t/self-assessment-census-xsc1flim
+  (pid 3223837 python3 .../RoutedSelfAssessScratch/old.py --revision 71851d6... --repo <lane>)
+Elimination: dDInZ2 vanished together with the gate chain, rR8CO1 appeared while only the RoutedSelfAssessScratch
+ chain kept running with TMPDIR unset.
+
+== 5. code lines that decide the /tmp fallback ==
+tools/tsukuroi-census.sh:1930  work=$(mktemp -d "${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX")
+tools/tsukuroi-census.sh:385   (comment) selftest writes only under ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*
+tools/tsukuroi-census.sh:570   (comment) same path family
+lane TIP tools/check-self-assessment.py:181  work = tempfile.mkdtemp(prefix="self-assessment-census-")   [git show]
+lane WORKING COPY tools/check-self-assessment.py:185  ... dir=scratch  + :193-194 child_env TMPDIR=.census-tmp
+ (this is exactly the uncommitted L1 diff; message "Round 41 (R40-TMP-MISROOT)")
+tools/run-receipt.py:80-82  root = tempfile.mkdtemp(prefix='run-receipt-', dir='/fast/scratch/hyaku')
+
+== 6. PATH / host-surface checks ==
+find /home/vgpnk/.local/bin -newer REF: 0 entries (the r40 kengaku git-shim class of write did not recur).
+find /home/vgpnk/Projects/shokuknow -newer REF, excluding .git contents: 1 = the .git entry itself (mtime 14:18).
+ git -C /home/vgpnk/Projects/shokuknow --no-optional-locks status --porcelain: its own campaign modifications
+ (pre-existing .ufo/waves/corpus-expansion-1/*, MANIFEST.json, lanes/*), none with mtime > REF.
+sibling lanes newer than REF: kaidoku r39, kasegi r37, kengaku r40, mado r44, souji r33, tabi r32 — all their own
+ rounds' corpus/lessons files; none names tsukuroi-r41 or tsukuroi-r41 seat.
+
+== 7. scratch base /fast/scratch/hyaku/tsukuroi-r41 ==
+3.0G, 43 seat-named dirs at 15:10 (list shrinks as seats finish: C1ExecSelftest, C1ExecPriorCounters,
+C2ExecRerun, C2RevPA1 were present at 15:06 and gone at 15:10). No unnamed/foreign dirs inside it.
+Hyaku-root item outside it (tool-created, transient): /fast/scratch/hyaku/run-receipt-dbh7wyp3 (339M at 15:07)
+ and run-receipt-home-77tywiji — both removed by 15:09 by run-receipt.py's own cleanup.
+Hung leftover process at 15:10: PID 2970499 `cp -- .../L1/c1/r41c1.xzp_mzmq/capture/tmp/
+ tsukuroi-r3-2-selftest.XMP9dE/fx/storage-mounts-fifo/mounts ...` ELAPSED 01:52:29 (blocked reading a FIFO).
+
+== 8. addendum at 15:12 (receipt contents, refined attribution) ==
+w1/GateSelfAssessment/receipt-self-assessment.jsonl        13853 B, 15:08, 364 lines
+  header: tool_sha256 1e1ab6113d665684e15d147c0f3dae519cf2d313877e1603b841ad4db85d4257 (= tip tool)
+          argv ["tools/check-self-assessment.py","--revision","71851d636ab1bffaf8fee5016617c88878a666f1"]
+          "repo": "/fast/scratch/hyaku/run-receipt-dbh7wyp3"  (deleted by run-receipt.py finally)
+  footer: {"receipt_end": 1, "exit_code": 1, "timed_out": false, "stderr_tail": "", "finished_utc": "2026-10-26T18:08:32Z"}
+w1/GateSelfAssessment/receipt-self-assessment-with-scratch.jsonl  1637 B, 15:06, 2 lines
+  same tool_sha256 (tip), argv adds "--scratch /fast/scratch/hyaku/tsukuroi-r41/GateSelfAssessment/tmp"
+  footer: {"exit_code": 2, "stderr_tail": "usage: check-self-assessment.py [-h] [--revision REVISION] [--repo REPO]
+           [--selftest]\n   check-self-assessment.py: error: unrecognized arguments: --scratch ..."}
+tools/run-receipt.py:75,97-107  trev = resolve(lane, a.tool_revision or a.revision); clone lane -> checkout trev;
+  run the clone's tool. So --scratch is only valid when --tool-revision carries the flag; at tip it does not.
+sha256: lane workcopy tools/check-self-assessment.py 44b474fb5401559d9a4052f04f03145cd165a688a78455694d7dd25dba5838e6
+        tip 71851d6:tools/check-self-assessment.py  1e1ab6113d665684e15d147c0f3dae519cf2d313877e1603b841ad4db85d4257
+        scratch RoutedSelfAssessScratch/old.py      1e1ab6113d665684  (= tip, no --scratch, no TMPDIR to child)
+        scratch RoutedSelfAssessScratch/new.py      53556 B (patched working copy)
+live /tmp fixtures at 15:11: rR8CO1 (fx 71 entries), Wm0riT (fx 89 entries), both owned by the old.py control chain
+  (only census procs with TMPDIR unset: 3941241, 3964898 cwd .../RoutedSelfAssessScratch/t/self-assessment-census-xsc1flim)
+fast-sweep at 15:11: /fast/scratch/hyaku/tsukuroi-r41 -> 39 dirs, 3.0 GB; /fast/scratch/hyaku/run-receipt-* gone.

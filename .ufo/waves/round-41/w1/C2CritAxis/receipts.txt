@@ -1,0 +1,53 @@
+# C2CritAxis receipts — 2026-10-26, read-only, no scratch clone used
+
+## 1. host capture aggregate (localdb-anatomy.tsv, header col4..col9)
+entries=1409 mtree=1409 install=51 changelog=0 dotfiles=0 gzip=1409 self=0
+
+## 2. vercmp re-run on host (read-only)
+1
+0
+0
+
+## 3. man PKGBUILD line count re-run
+5
+
+## 4. base 0e5805a1 rule-level mtree statements (git grep, read-only)
+0e5805a1:corpus/knowledge/degraded-triage-r4.md:61:| P1 | package | vendor `.INSTALL` script sets setgid+dynamic group; package mtree records 644 root:root → drift is by design, content sha256 intac
+0e5805a1:corpus/knowledge/degraded-triage-r4.md:116:does the same for its helper. The package mtree records
+0e5805a1:corpus/knowledge/degraded-triage-r4.md:123:`pacman -Qkk` would *not* clear it (the comparison is mtree-vs-actual, not
+0e5805a1:corpus/knowledge/degraded-triage-r4.md:149:the mtree digest; the live file = `cf0b3fa7…`, size 10733 vs recorded 10741,
+0e5805a1:corpus/knowledge/degraded-triage-r4.md:559:   `/var/lib/pacman/local/1password-*/mtree` (`8d029d2c…`, `000782e7…`) —
+0e5805a1:corpus/knowledge/degraded-triage-r4.md:562:   (`38532d5f…`) equals power-profiles-daemon's mtree digest while the live file
+0e5805a1:corpus/knowledge/degraded-triage-r4.md:599:zcat /var/lib/pacman/local/1password-cli-*/mtree | grep 'usr/bin/op'
+0e5805a1:corpus/knowledge/package-state-plane.md:159:| android-apktool-bin | 7 | 0 | 12 ms | clean (AUR bin, mtree present) |
+0e5805a1:corpus/knowledge/package-state-plane.md:293:2. Expected GID/mode values behind the mismatches — local `mtree` files
+0e5805a1:corpus/knowledge/snapper-eacces-mechanism.md:3:recheck: on-release; procedure: `stat -c '%a %U:%G' /; getfacl -p /; systemctl cat limine-snapper-sync.service | grep -n -E 'User|CapabilityBoun
+0e5805a1:corpus/knowledge/snapper-eacces-mechanism.md:13:- [obs] `pacman -Qo /` reports `No package owns /` — `pacman -Qo /` 2026-10-19. The installed filesystem mtree sweep prints **0** root-direct
+0e5805a1:corpus/knowledge/snapper-eacces-mechanism.md:48:9. The negative ownership, mtree, config and path claims each carry the explicit sweep that produced them.
+0e5805a1:corpus/knowledge/snapper-eacces-mechanism.md:58:- **Host evidence (own-work, all read-only, non-root, 2026-10-19)** — `stat -c '%a %U:%G' /`; `getfacl -p /`; `systemctl cat limine-snapper-s
+0e5805a1:corpus/knowledge/snapper-eacces-mechanism.md:144:- packaged metadata for `/` without a package query (replaces the package-ownership query for `/`): `zcat /var/lib/pacman/local/filesystem-*/m
+
+## 5. base vercmp ground
+0e5805a1:SKILL.md:1245:  `vercmp` for direction; `expac -S` cross-checks it when present. The line prints
+0e5805a1:SKILL.md:2246:| P2: an installed package is newer than its sync entry | `pacman -Sl` joined with `vercmp` on every `[installed: ...]` row | cleared: no
+
+## 6. base epoch-order statements
+0e5805a1:corpus/knowledge/memory-pressure-r25.json:485:   "notes": "The capture ran no uptime or boot-id read, so the kernel counter's epoch is not dated by it 
+0e5805a1:corpus/knowledge/memory-pressure-r25.md:341:read, so the kernel counter's epoch is not dated by it.
+0e5805a1:corpus/knowledge/systemd-user-plane.md:119:epoch µs 1791981730606818; `date -d @1791981730`).
+
+## 7. partial-load stop lives in be_package.c, not makepkg.sh.in
+641:		if((!full || hit_mtree) && config) {
+0
+
+## 8. check.c quiet gate on the no-mtree notice
+	if(mtree == NULL) {
+		/* TODO: check error to confirm failure due to no mtree file */
+		if(!config->quiet) {
+			printf(_("%s: no mtree file\n"), pkgname);
+		}
+		return 0;
+	}
+
+## 9. base quoted three-name listing (historical, no operative claim)
+   "note": "Mtree output at cited PackageBlind.md:110 unchanged; the sibling's second ref :140 (tarball listing '.BUILDINFO, .MTREE, .PKGINFO') is also intact at line 140. Historical round-12 wave artifact; no operative claim."

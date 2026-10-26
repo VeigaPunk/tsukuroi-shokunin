@@ -1,0 +1,13 @@
+# live census base vs after (same host, same minute)
+$ bash base.sh  -> rc=1
+$ bash after.sh -> rc=1
+identical STORAGE line: STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+diff of PLANE/STORAGE/TSUKUROI lines:
+3c3
+< PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=37 (oom=0 io=35 gpu=0 other=2) [unknown: accepted noise floor]; nvidia=present smi=615.78.08 modules=4 nodes=6 pci_10de=2; mem=[DEGRA
+---
+> PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=37 (oom=0 io=35 gpu=0 other=2) [unknown: accepted noise floor]; nvidia=present smi=615.78.08 modules=4 nodes=6 pci_10de=2; mem=[DEGRA
+
+# differing tokens only (same host, back-to-back runs):
+PLANE drivers: [('C5_pswp=12062/140739', 'C5_pswp=12063/140739'), ('C6_psi_full_total_us=14182442', 'C6_psi_full_total_us=14198413'), ('C6_avail_kb=18654340', 'C6_avail_kb=18538428')]
+# every differing token is a live counter (pressure total us, available kB, swap pages); no STORAGE token differs

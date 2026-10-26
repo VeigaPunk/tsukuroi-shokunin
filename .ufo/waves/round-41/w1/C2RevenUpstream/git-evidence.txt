@@ -1,0 +1,642 @@
+# C2RevenUpstream git evidence — pacman clone /fast/scratch/hyaku/tsukuroi-r41/C2RevenUpstream/p
+# generated 2026-10-26T18:09:59Z
+
+## $ git rev-parse HEAD
+a6f7467d8c7c4d7e9cc846884e74c0ab7215c48d
+## $ git describe --tags 54d9411
+v7.1.0-9-g54d94116
+
+## $ git log -1 --format=%H %ad %s --date=iso 54d9411
+54d94116164b0b2202c6061c4a59c6f3e70820d8 2026-01-07 21:30:47 +1000 libmakepkg: fix linting of xdata
+
+## $ git log --format=%h %ad %s --date=short -- src/pacman/check.c
+f13d7d48 2025-04-02 Update copyright years
+50bdd3d9 2024-06-30 Fix typos
+d55b47e5 2024-02-24 Update copyright years
+298755c9 2023-05-19 pacman: do not check file md5sums
+90df85e9 2022-01-02 Update copyright years
+b0a2fd75 2021-09-22 Update mailing list url
+17f9911f 2021-03-01 Update copyright year
+8f7415c4 2021-01-05 pacman: add file checksum validation against mtree
+e76ec940 2020-02-10 build-aux/update-copyright 2019 2020
+1e23b458 2019-11-26 Fix documentation of alpm_mtree_next and remove libarchive exposure
+f37a3752 2019-10-23 Update copyright years
+860e4c49 2018-05-03 Remove all modelines from the project
+b6bb8cb7 2018-03-14 Update coyrights for 2018
+1a2d5bee 2017-01-01 Update copyright years
+0f0b192d 2016-06-04 Remove obsolete TODO
+2ee1706a 2016-03-20 Do not add root prefix twice when checking database files
+4742f592 2016-01-03 Update copyright years for 2016
+2e481019 2015-01-21 Update copyright notices for 2015
+eda65967 2014-11-18 Do not warn about missing files in NoExtract
+71da296d 2014-06-26 check_pkg_fast: check file type
+c3835c15 2014-06-26 check_file_exists: replace lstat with llstat
+cd237075 2014-01-23 Remove ts and sw from vim modeline when noet is set
+3bb3b155 2014-01-01 Update copyright years for 2014
+9085aa43 2013-08-04 check.c: break backup file search loop after match
+e81faa9d 2013-07-21 Warn when directory ownership differs between filesystem and package
+640324f1 2013-07-21 Only note backup file changes with -Qkk
+3aece8f0 2013-01-29 Restore libarchive 2.8.x compatibility
+46e9afdd 2013-01-03 fix comment style // -> /* */
+1dd34058 2013-01-02 Update copyright year for 2013
+5186f702 2012-09-09 Remove leading "./" from filenames in mtree file
+7d27b2b0 2012-05-07 Check file types match before comparing properties
+ddd2b9e6 2012-05-07 Check "install" and "changelog" files for changes
+01e093d0 2012-05-04 Perform full checking of files with -Qkk
+327c272b 2012-05-04 Basic running of pacman -Qkk to check mtree files
+cfd9f1cc 2012-05-04 Separate checking a files existence into a function
+18ddf90f 2012-05-04 Move check function into its own file
+
+## $ git diff --stat 54d9411 HEAD -- src/pacman/check.c   (empty = identical)
+
+## $ git log -L 315,322:src/pacman/check.c 54d9411
+
+--- 327c272bb4540cee396f7e83ff98899876363a79
+DATE 2012-05-04 13:56:55 +1000
+AUTHOR Allan McRae <allan@archlinux.org>
+SUBJ Basic running of pacman -Qkk to check mtree files
+BODY
+If a package has an mtree file, using pacman -Qkk will read that
+file and use it to perform more in depth package checking.
+
+Currently this only checks for file presence.
+
+Signed-off-by: Allan McRae <allan@archlinux.org>
+
+
+diff --git a/src/pacman/check.c b/src/pacman/check.c
+index eec12c33..d35d93b0 100644
+--- a/src/pacman/check.c
++++ b/src/pacman/check.c
+@@ -91,0 +113,8 @@ int check(alpm_pkg_t *pkg)
++	if(mtree == NULL) {
++		/* TODO: check error to confirm failure due to no mtree file */
++		if(!config->quiet) {
++			printf(_("%s: no mtree file\n"), pkgname);
++		}
++		return 0;
++	}
++
+
+## $ git show HEAD:test/pacman/tests/querycheck002.py
+self.description = "Query--check mtree, no mtree"
+
+pkg = pmpkg("dummy")
+pkg.files = [
+    "usr/lib/libdummy.so.0",
+    "usr/lib/libdummy.so -> libdummy.so.0",
+    "usr/share/dummy/C/",
+    "usr/share/dummy/C/msgs",
+    "usr/share/dummy/en -> C"]
+self.addpkg2db("local",pkg)
+
+self.args = "-Qkk"
+
+self.addrule("PACMAN_RETCODE=0")
+self.addrule("PACMAN_OUTPUT=dummy: no mtree file")
+
+## $ git show 54d9411:src/pacman/check.c | sed -n 300,322p
+	struct archive *mtree;
+	struct archive_entry *entry = NULL;
+	size_t file_count = 0;
+	const alpm_list_t *lp;
+
+	root = alpm_option_get_root(config->handle);
+	rootlen = strlen(root);
+	if(rootlen + 1 > PATH_MAX) {
+		/* we are in trouble here */
+		pm_printf(ALPM_LOG_ERROR, _("path too long: %s%s\n"), root, "");
+		return 1;
+	}
+
+	pkgname = alpm_pkg_get_name(pkg);
+	mtree = alpm_pkg_mtree_open(pkg);
+	if(mtree == NULL) {
+		/* TODO: check error to confirm failure due to no mtree file */
+		if(!config->quiet) {
+			printf(_("%s: no mtree file\n"), pkgname);
+		}
+		return 0;
+	}
+
+
+## $ git show 54d9411:lib/libalpm/be_local.c | sed -n 251,283p
+static struct archive *_cache_mtree_open(alpm_pkg_t *pkg)
+{
+	struct archive *mtree;
+
+	alpm_db_t *db = alpm_pkg_get_db(pkg);
+	char *mtfile = _alpm_local_db_pkgpath(db, pkg, "mtree");
+
+	if(access(mtfile, F_OK) != 0) {
+		/* there is no mtree file for this package */
+		goto error;
+	}
+
+	if((mtree = archive_read_new()) == NULL) {
+		GOTO_ERR(pkg->handle, ALPM_ERR_LIBARCHIVE, error);
+	}
+
+	_alpm_archive_read_support_filter_all(mtree);
+	archive_read_support_format_mtree(mtree);
+
+	if(_alpm_archive_read_open_file(mtree, mtfile, ALPM_BUFFER_SIZE)) {
+		_alpm_log(pkg->handle, ALPM_LOG_ERROR, _("error while reading file %s: %s\n"),
+					mtfile, archive_error_string(mtree));
+		_alpm_archive_read_free(mtree);
+		GOTO_ERR(pkg->handle, ALPM_ERR_LIBARCHIVE, error);
+	}
+
+	free(mtfile);
+	return mtree;
+
+error:
+	free(mtfile);
+	return NULL;
+}
+
+## $ git show 54d9411:doc/pacman.8.asciidoc | sed -n 333,340p
+
+*-k, \--check*::
+	Check that all files owned by the given package(s) are present on the
+	system. If packages are not specified or filter flags are not provided,
+	check all installed packages. Specifying this option twice will perform
+	more detailed file checking (including permissions, file sizes, and
+	modification times) for packages that contain the needed mtree file.
+
+
+## one-line commit records
+
+--- 0445c68d9b7738553dd1a5088110b8b0a1e1f7f9
+DATE 2012-05-01 18:12:13 +1000
+AUTHOR Allan McRae <allan@archlinux.org>
+SUBJ Add internal functions for reading mtree file from local db
+BODY
+Signed-off-by: Allan McRae <allan@archlinux.org>
+
+
+--- 01e093d0aee1cf5dad70a6c5fbabb024d960b121
+DATE 2012-05-04 15:50:59 +1000
+AUTHOR Allan McRae <allan@archlinux.org>
+SUBJ Perform full checking of files with -Qkk
+BODY
+The follow fields are checked:
+  Directory: uid, gid, mode
+  File: uid, gid, mode, size, time
+  Symbolic Link: uid, gid, mode, link, time
+
+A skeleton is added for checking a files md5sum and sha256sum when
+reading this information is supported by libarchive.
+
+Signed-off-by: Allan McRae <allan@archlinux.org>
+
+
+--- 19445e42e6ec2eb631c3d18f0cb161548996d787
+DATE 2013-11-11 06:47:43 -0500
+AUTHOR Jeremy Heiner <scalaprotractor@gmail.com>
+SUBJ Add the unit tests for -Qk and -Qkk that are possible now.
+BODY
+The -Qk test (001) validates the existence of the package files (which
+were installed to the filesystem by the framework because the package
+was added to the "local" db).
+
+The -Qkk test (002) does not validate any file's properties - it can
+only check that the pacman run produces the expected warning message
+saying that the package lacks an mtree.
+
+Further tests will require modifications to the testing framework to
+allow intentional damage to the filesystem and generating an mtree.
+
+Signed-off-by: Jeremy Heiner <ScalaProtractor at gmail.com>
+
+[Allan] Make warning message detection more specific
+Signed-off-by: Allan McRae <allan@archlinux.org>
+
+
+--- 0f0b192d8a59134e9a58781c58aa3202df2eda2c
+DATE 2016-06-04 17:28:29 +1000
+AUTHOR Allan McRae <allan@archlinux.org>
+SUBJ Remove obsolete TODO
+BODY
+Signed-off-by: Allan McRae <allan@archlinux.org>
+
+
+--- 5acfa65ffb4aab31e05b70cea164dcb3e011d91f
+DATE 2014-01-27 23:49:34 +0100
+AUTHOR Florian Pritz <bluewind@xinu.at>
+SUBJ be_package: Build the file list from MTREE if possible
+BODY
+This greatly speeds up file list generation times by avoiding
+uncompressing the whole package.
+
+pacman -S base with a deliberate file conflict:
+before: 9.1 seconds
+after:  2.2 seconds
+
+Signed-off-by: Florian Pritz <bluewind@xinu.at>
+
+
+--- 99a5017f5591d17784ac2456b1401628f2749eea
+DATE 2014-08-09 00:41:35 +0200
+AUTHOR Olivier Brunel <jjk@jjacky.com>
+SUBJ Fix loading invalid package
+BODY
+In 5acfa65f when adding a new variable (hit_mtree), the initialization of a
+variable (config) was dropped, which could lead to loading invalid package
+files, i.e. files that aren't archive (no metadata loaded) would return a new
+alpm_pkg_t with everything set to 0/NULL.
+
+Depending on the operation/use of the package, this could lead to segfault.
+
+Signed-off-by: Olivier Brunel <jjk@jjacky.com>
+Signed-off-by: Allan McRae <allan@archlinux.org>
+
+
+--- 721b785e73333bdbd1b4ba3b0505cc14918064ad
+DATE 2015-03-25 05:53:07 -0400
+AUTHOR Andrew Gregory <andrew.gregory.8@gmail.com>
+SUBJ be_package: fallback to standard filelist loading
+BODY
+In order to work properly, loading the filelist from an mtree file
+requires a libarchive patch that has not yet been included in an
+official release.[1]  Under certain circumstances, an unpatched
+libarchive may refuse to read the mtree file due to inconsistencies
+between it and the user's file system.  In order to allow alpm to
+recover in this situation, read the mtree data into a temporary filelist
+that is only copied over to the package if the entire read is
+successful.
+
+[1] https://github.com/libarchive/libarchive/commit/661684170b970ef7d6eff135b57e58a537e8bc53
+
+Signed-off-by: Andrew Gregory <andrew.gregory.8@gmail.com>
+Signed-off-by: Allan McRae <allan@archlinux.org>
+
+
+--- 2ae043866045bbeef129a4b503ee1f5486545821
+DATE 2007-06-17 23:40:21 -0400
+AUTHOR Dan McGee <dan@archlinux.org>
+SUBJ Don't extract any top-level files in a package that start with '.'
+BODY
+For future possibilities, don't extract any files that start with '.'.
+This will allow us to add features such as the ChangeLog viewing without
+having to wait to include these files in packages, because older versions
+of pacman will be forward compatable with 'hidden' files at the root level
+of the package.
+
+Signed-off-by: Dan McGee <dan@archlinux.org>
+
+
+--- da3a0333de34b37d073e1d27e9a07a7fa80025ee
+DATE 2012-04-30 16:26:54 +1000
+AUTHOR Allan McRae <allan@archlinux.org>
+SUBJ Extract .MTREE file into local package database
+BODY
+Signed-off-by: Allan McRae <allan@archlinux.org>
+
+
+--- 4ba0561fe722aa5e68b8e4d68eb368cba5a9a0cb
+DATE 2014-10-01 01:35:31 -0400
+AUTHOR Andrew Gregory <andrew.gregory.8@gmail.com>
+SUBJ extract_single_file: factor out db file extraction
+BODY
+alpm's database files (.INSTALL, .MTREE, etc.) should be extracted no
+matter what; skip mtree/needbackup/noextract/noupgrade checks for them.
+
+Signed-off-by: Andrew Gregory <andrew.gregory.8@gmail.com>
+
+
+--- 472e51b975b9cb8fe1f67c03ff72bbc067fa7f01
+DATE 2009-01-18 20:03:56 +0100
+AUTHOR Nagy Gabor <ngaba@bibl.u-szeged.hu>
+SUBJ Use archive_entry_set_perm instead of archive_entry_set_mode
+BODY
+This patch fixes FS#12148 ('unstable' regular file).
+I also changed the other archive_entry_set_mode usage in add.c to
+archive_entry_set_perm.
+
+Since I cannot find any relevant info in libarchive manual, I quote
+Tim Kientzle (the author of libarchive) here, and I say thank you for
+his help.
+
+*** Tim Kientzle wrote *************************************
+
+This is the problem in libalpm/util.c:
+
+323    if(S_ISREG(st->st_mode)) {
+324            archive_entry_set_mode(entry, 0644);
+325    } else if(S_ISDIR(st->st_mode)) {
+326            archive_entry_set_mode(entry, 0755);
+327    }
+
+Your example unstable.db.tar.gz is not empty.  It has
+one entry in it, called "./".  That entry is marked
+as a directory.  But, when you call archive_entry_set_mode(),
+you are changing the file type!  archive_read_extract()
+then creates the file /var/unstable as you requested.
+(archive_read_extract() will replace an empty directory
+with a file.)
+
+You should either set the mode value correctly:
+
+323    if(S_ISREG(st->st_mode)) {
+324            archive_entry_set_mode(entry, IFREG | 0644);
+325    } else if(S_ISDIR(st->st_mode)) {
+326            archive_entry_set_mode(entry, IFDIR | 0755);
+327    }
+
+Or use archive_entry_set_perm(), which does not change
+the file type:
+
+323    if(S_ISREG(st->st_mode)) {
+324            archive_entry_set_perm(entry, 0644);
+325    } else if(S_ISDIR(st->st_mode)) {
+326            archive_entry_set_perm(entry, 0755);
+327    }
+
+************************************************************
+
+Signed-off-by: Nagy Gabor <ngaba@bibl.u-szeged.hu>
+Signed-off-by: Dan McGee <dan@archlinux.org>
+
+
+--- 831cc8d9cd51921370e20befa4672f232ea2fbdf
+DATE 2016-12-06 01:30:42 -0500
+AUTHOR Andrew Gregory <andrew.gregory.8@gmail.com>
+SUBJ extract db files with dbonly
+BODY
+Some database files (install, mtree, and changelog) are extracted
+directly from the package, but DBONLY was skipping extraction
+altogether, causing those files to be missing after the transaction.
+
+Fixes #52052
+
+Signed-off-by: Andrew Gregory <andrew.gregory.8@gmail.com>
+Signed-off-by: Allan McRae <allan@archlinux.org>
+(cherry picked from commit 2c4511bdbe3599713811e54edbbd60e51d66ce3e)
+
+
+--- d04baabafa2ebbad92741d1f87e6ff32999f894a
+DATE 2005-03-15 01:51:43 +0000
+AUTHOR Judd Vinet <judd@archlinux.org>
+SUBJ Initial revision
+BODY
+
+
+--- b2da4b42344444dc22f1e5b01fb4cd09033adc1d
+DATE 2007-02-04 03:24:32 +0000
+AUTHOR Aaron Griffin <aaron@archlinux.org>
+SUBJ * Added archive verification when loading package metadata for -u and -A   operations (now aborts on a corrupt archive) * Fixed the pm_fprintf newline error that was plaguing us.  It seems a line   resetting 'neednl' was removed a while back (by me).  This causes all the   output errors we've been seeing
+BODY
+
+
+--- 087b8df781fb229033e9c01f58cdf80f0ddd29e6
+DATE 2007-10-08 21:21:04 -0500
+AUTHOR Dan McGee <dan@archlinux.org>
+SUBJ libalpm/package.c: ensure we use package name when loading packages
+BODY
+Some of the error messages in _alpm_pkg_load failed to use the pkgname
+value when printing, which made error messages rather hard to decode.
+
+Signed-off-by: Dan McGee <dan@archlinux.org>
+
+
+--- e049bb8bd6bb3b8aacf371abde937d2270cfa451
+DATE 2013-10-14 21:04:22 +1000
+AUTHOR Allan McRae <allan@archlinux.org>
+SUBJ Ensure packages have a valid version
+BODY
+Currently you can manually create and then install a package with a
+version not containing a pkgrel.  The created local database entry is
+invalid as the directory name can not be split by _alpm_splitname due
+to the assumtion of hyphens separating name-pkgver-pkgrel.
+
+Ensure the package has a valid version when it is loaded. Fixes FS#35514.
+
+Signed-off-by: Allan McRae <allan@archlinux.org>
+
+
+--- 0a394144b22f02b5956e89833ff91e9e232a3e17
+DATE 2024-02-04 11:47:18 -0800
+AUTHOR Andrew Gregory <andrew.gregory.8@gmail.com>
+SUBJ validate package metadata after loading
+BODY
+alpm has certain requirements for package metadata necessary for proper
+functioning, name and version in particular.  These requirements are
+already enforced in makepkg, but nowhere in alpm.
+
+Exceptions are treated as errors for non-local packages because they
+cannot be installed without potentially resulting in undefined behavior.
+Exceptions for local packages are treated as warnings because they are
+already installed, so any damage has already been done, and the user
+would otherwise have no way to uninstall them.
+
+Signed-off-by: Andrew Gregory <andrew.gregory.8@gmail.com>
+
+
+--- 01a6502169f3e51ea52d60877528c5979898bbb3
+DATE 2017-01-03 02:11:54 -0500
+AUTHOR Andrew Gregory <andrew.gregory.8@gmail.com>
+SUBJ makepkg: sort package contents
+BODY
+By passing a NUL-separated filelist, this also fixes a bug where files
+that look like bsdtar options in the package root could break the
+package ("-C" was particularly troublesome because bsdtar interprets it
+as an option anywhere in the file list, even following "--").
+
+Signed-off-by: Andrew Gregory <andrew.gregory.8@gmail.com>
+Signed-off-by: Allan McRae <allan@archlinux.org>
+
+
+--- b5191ea140386dd9b73e4509ffa9a6d347c1b5fa
+DATE 2018-08-21 10:15:12 -0400
+AUTHOR Eli Schwartz <eschwartz@archlinux.org>
+SUBJ makepkg: use builtin globbing to print files in package
+BODY
+- it comes with free collation when moving the LC_ALL declaration up a bit;
+  this fixes a bug where the .FILES were not being properly sorted and
+  their order depended on directory creation order, which broke
+  reproducible builds in the wild.
+- it handles sorting null-delimited output everywhere, without sort -z;
+  this lets us get rid of sed hacks
+- it is faster than invoking multiple find subprocesses
+- dotfiles can be automatically printed *and the C locale sorts them first*
+  with a single ** glob
+
+Signed-off-by: Eli Schwartz <eschwartz@archlinux.org>
+Signed-off-by: Allan McRae <allan@archlinux.org>
+
+
+--- ad3a26c615dbc931275f0ee2f04879d867b06974
+DATE 2012-04-30 16:15:47 +1000
+AUTHOR Allan McRae <allan@archlinux.org>
+SUBJ makepkg: add mtree file into package
+BODY
+Add an mtree file to the package with all file information. This
+can be added to the local pacman database on install allowing full
+package verification.
+
+Signed-off-by: Allan McRae <allan@archlinux.org>
+
+
+--- 54067c390f622807b78bc1a7950db113c3a8747c
+DATE 2015-04-23 16:01:16 +1000
+AUTHOR Allan McRae <allan@archlinux.org>
+SUBJ Silence warning from clang
+BODY
+clang is wrong - dbfile is always used initialized in that function.
+
+Signed-off-by: Allan McRae <allan@archlinux.org>
+Signed-off-by: Dan McGee <dan@archlinux.org>
+Signed-off-by: Allan McRae <allan@archlinux.org>
+
+
+--- a82a5cf3f71e38c54a5ac1b5eaf3c83374d0e515
+DATE 2014-10-01 01:45:40 -0400
+AUTHOR Andrew Gregory <andrew.gregory.8@gmail.com>
+SUBJ extract_single_file: use full path in messages
+BODY
+If an error occurs the actual path being extracted is more useful than
+the original path from the package file list.  The original path is
+still used for checks that use it directly.
+
+Signed-off-by: Andrew Gregory <andrew.gregory.8@gmail.com>
+
+
+## $ git log -L :extract_db_file:lib/libalpm/add.c 54d9411  (commit headers)
+--- 54067c390f622807b78bc1a7950db113c3a8747c
+DATE 2015-04-23 16:01:16 +1000
+SUBJ Silence warning from clang
+--- a/lib/libalpm/add.c
+--- a82a5cf3f71e38c54a5ac1b5eaf3c83374d0e515
+DATE 2014-10-01 01:45:40 -0400
+SUBJ extract_single_file: use full path in messages
+--- a/lib/libalpm/add.c
+--- 4ba0561fe722aa5e68b8e4d68eb368cba5a9a0cb
+DATE 2014-10-01 01:35:31 -0400
+SUBJ extract_single_file: factor out db file extraction
+--- a/lib/libalpm/add.c
+
+## $ git log -L 652,656:lib/libalpm/be_package.c 54d9411  (commit headers)
+--- ca43fdd92f06a6997c53e45bfed6fb27f3044de5
+DATE 2011-07-02 02:01:38 +1000
+SUBJ Prefix alpm_loglevel_t members with ALPM
+--- a/lib/libalpm/be_package.c
+--- 52bffd2457b7ba3b6fb08d3aa959ea0b53a45dc8
+DATE 2011-06-07 16:13:58 -0500
+SUBJ Switch all logging to use handle directly
+--- a/lib/libalpm/be_package.c
+--- 13f24a5bdabf9c2c7bfa07aff7176495bb775a0d
+DATE 2008-01-21 21:23:54 -0600
+SUBJ Refactor pkg_load/parse_descfile into a new backend file
+--- /dev/null
+
+## $ git show 54d9411:lib/libalpm/be_package.c | sed -n 588,656p
+	newpkg->size = st.st_size;
+
+	_alpm_log(handle, ALPM_LOG_DEBUG, "starting package load for %s\n", pkgfile);
+
+	/* If full is false, only read through the archive until we find our needed
+	 * metadata. If it is true, read through the entire archive, which serves
+	 * as a verification of integrity and allows us to create the filelist. */
+	while((ret = archive_read_next_header(archive, &entry)) == ARCHIVE_OK) {
+		const char *entry_name = archive_entry_pathname(entry);
+
+		if(strcmp(entry_name, ".PKGINFO") == 0) {
+			/* parse the info file */
+			if(parse_descfile(handle, archive, newpkg) != 0) {
+				_alpm_log(handle, ALPM_LOG_ERROR, _("could not parse package description file in %s\n"),
+						pkgfile);
+				goto pkg_invalid;
+			}
+			if(newpkg->name == NULL || strlen(newpkg->name) == 0) {
+				_alpm_log(handle, ALPM_LOG_ERROR, _("missing package name in %s\n"), pkgfile);
+				goto pkg_invalid;
+			}
+			if(newpkg->version == NULL || strlen(newpkg->version) == 0) {
+				_alpm_log(handle, ALPM_LOG_ERROR, _("missing package version in %s\n"), pkgfile);
+				goto pkg_invalid;
+			}
+			if(strchr(newpkg->version, '-') == NULL) {
+				_alpm_log(handle, ALPM_LOG_ERROR, _("invalid package version in %s\n"), pkgfile);
+				goto pkg_invalid;
+			}
+			config = 1;
+			continue;
+		} else if(full && strcmp(entry_name, ".MTREE") == 0) {
+			/* building the file list: cheap way
+			 * get the filelist from the mtree file rather than scanning
+			 * the whole archive  */
+			hit_mtree = build_filelist_from_mtree(handle, newpkg, archive) == 0;
+			continue;
+		} else if(handle_simple_path(newpkg, entry_name)) {
+			continue;
+		} else if(full && !hit_mtree) {
+			/* building the file list: expensive way */
+			if(add_entry_to_files_list(&newpkg->files, &files_size, entry, entry_name) < 0) {
+				goto error;
+			}
+		}
+
+		if(archive_read_data_skip(archive)) {
+			_alpm_log(handle, ALPM_LOG_ERROR, _("error while reading package %s: %s\n"),
+					pkgfile, archive_error_string(archive));
+			GOTO_ERR(handle, ALPM_ERR_LIBARCHIVE, error);
+		}
+
+		/* if we are not doing a full read, see if we have all we need */
+		if((!full || hit_mtree) && config) {
+			break;
+		}
+	}
+
+	if(ret != ARCHIVE_EOF && ret != ARCHIVE_OK) { /* An error occurred */
+		_alpm_log(handle, ALPM_LOG_ERROR, _("error while reading package %s: %s\n"),
+				pkgfile, archive_error_string(archive));
+		GOTO_ERR(handle, ALPM_ERR_LIBARCHIVE, error);
+	}
+
+	if(!config) {
+		_alpm_log(handle, ALPM_LOG_ERROR, _("missing package metadata in %s\n"), pkgfile);
+		goto pkg_invalid;
+	}
+
+
+## $ git show 54d9411:lib/libalpm/add.c | sed -n 168,190p
+static int extract_db_file(alpm_handle_t *handle, struct archive *archive,
+		struct archive_entry *entry, alpm_pkg_t *newpkg, const char *entryname)
+{
+	char filename[PATH_MAX]; /* the actual file we're extracting */
+	const char *dbfile = NULL;
+	if(strcmp(entryname, ".INSTALL") == 0) {
+		dbfile = "install";
+	} else if(strcmp(entryname, ".CHANGELOG") == 0) {
+		dbfile = "changelog";
+	} else if(strcmp(entryname, ".MTREE") == 0) {
+		dbfile = "mtree";
+	} else if(*entryname == '.') {
+		/* reserve all files starting with '.' for future possibilities */
+		_alpm_log(handle, ALPM_LOG_DEBUG, "skipping extraction of '%s'\n", entryname);
+		archive_read_data_skip(archive);
+		return 0;
+	}
+	archive_entry_set_perm(entry, 0644);
+	snprintf(filename, PATH_MAX, "%s%s-%s/%s",
+			_alpm_db_path(handle->db_local), newpkg->name, newpkg->version, dbfile);
+	return perform_extraction(handle, archive, entry, filename);
+}
+
+
+## $ git show d04baaba:lib/libalpm/package.c | sed -n 278,290p
+		}
+		expath = NULL;
+	}
+	tar_close(tar);
+
+	if(!config) {
+		_alpm_log(PM_LOG_ERROR, "missing package info file in %s", pkgfile);
+		goto error;
+	}
+
+	/* internal */
+	info->origin = PKG_FROM_FILE;
+	info->data = strdup(pkgfile);

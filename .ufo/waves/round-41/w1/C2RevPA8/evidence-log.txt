@@ -1,0 +1,42 @@
+# C2RevPA8 evidence log — row PA8 of corpus/knowledge/alpm-package-anatomy-r41.md
+# All commands run 2026-10-26 by C2RevPA8. Lane read-only; scratch /fast/scratch/hyaku/tsukuroi-r41/C2RevPA8 (removed after receipts copied).
+
+## 1. Row extraction (pinned commit)
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 9cc9aa77e30e0e23de2d4d2697b3b218ada02969:corpus/knowledge/alpm-package-anatomy-r41.md
+-> PA8 row (rule/value/source/host cells quoted in C2RevPA8.md). 62-line file.
+
+## 2. Frozen snapshot integrity
+$ (cd .ufo/waves/round-41/frozen/src && sha256sum -c SHA256SUMS)
+PKGBUILD.5.asciidoc: OK ... version.c: OK  (all 9 entries OK)
+version.c -> fa769e3081d25d74132109ca35a1e272a44b1c5674c397f3f2a1acaf3b6ab833
+FETCH.txt:1,5 records https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/version.c fetched 2026-10-26.
+
+## 3. Live source fetch (access date 2026-10-26)
+$ curl -fsSL "https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/version.c" -o live-version.c
+$ sha256sum live-version.c <frozen>/version.c
+fa769e3081d25d74132109ca35a1e272a44b1c5674c397f3f2a1acaf3b6ab833  live-version.c
+fa769e3081d25d74132109ca35a1e272a44b1c5674c397f3f2a1acaf3b6ab833  version.c
+$ diff -q live-version.c version.c && echo LIVE-EQUALS-FROZEN
+LIVE-EQUALS-FROZEN
+(live-version.c kept beside this log)
+
+## 4. Exact line ranges (raw reads of the frozen snapshot)
+- version.c:39-75 = parseEVR in full; the quote "/* different from RPM- always assume 0 epoch */" is at version.c:61; `epoch = "0"` at :62 (no-colon branch) and :58 (empty-epoch branch); `release = NULL` at :69.
+- version.c:219-260 = alpm_pkg_vercmp in full; compare chain: :249 rpmvercmp(epoch1, epoch2); :250 if(ret == 0) { :251 rpmvercmp(ver1, ver2); :252 if(ret == 0 && rel1 && rel2) { :253 rpmvercmp(rel1, rel2).
+- PKGBUILD.5.asciidoc:67-74 = *epoch* block; :71 "default value if left unspecified is '0'".
+- PKGBUILD.5.asciidoc:439-441 = "Scripts are passed either one or two ``full version strings'', where a full / version string is either 'pkgver-pkgrel' or 'epoch:pkgver-pkgrel', if epoch is / non-zero."
+
+## 5. Host capture checks (read-only)
+$ (cd .ufo/waves/round-41/frozen/hostcap && sha256sum -c MANIFEST.sha256)
+capture.sh: OK / capture-meta.txt: OK / localdb-anatomy.tsv: OK / vercmp.txt: OK / man-pkgbuild-runinside.txt: OK / mtree-pacman-head.txt: OK
+vercmp.txt (6 lines): 1 `vercmp 1:1.0-1 2.0-1 = 1` / 2 `vercmp 0:2.0-1 2.0-1 = 0` / 3 `vercmp 1.0-1 1:0.1-1 = -1` / 4 `vercmp 1.0 1.0-5 = 0` / 5 `vercmp 1.0-1 1.0-2 = -1` / 6 `vercmp 2:0.1 1:9.9 = 1`
+capture-meta.txt:1-2: captured_utc 2026-10-26T16:14:04Z; pacman 7.1.0.r9.g54d9411-3
+capture.sh:26-31 generates vercmp.txt by calling `vercmp` directly.
+
+## 6. Live reproduction of the capture (host binary, read-only)
+$ for p in '1:1.0-1 2.0-1' '0:2.0-1 2.0-1' '1.0-1 1:0.1-1' '1.0 1.0-5' '1.0-1 1.0-2' '2:0.1 1:9.9'; do set -- $p; printf 'vercmp %s %s = %s\n' "$1" "$2" "$(vercmp "$1" "$2")"; done
+-> identical to vercmp.txt lines 1-6.
+$ pacman -Qo /usr/bin/vercmp -> /usr/bin/vercmp is owned by pacman 7.1.0.r9.g54d9411-3
+
+## 7. S233 cross-check
+$ git show 9cc9aa77...:corpus/SOURCES.md | S233 at line 242: "libalpm version.c at pacman 54d9411", ranges parseEVR 39-75 / alpm_pkg_vercmp 219-260, snapshot sha256 fa769e30... (matches frozen+live). S232 at :241 carries PKGBUILD epoch lines 67-74 and full-version-string 439-441.

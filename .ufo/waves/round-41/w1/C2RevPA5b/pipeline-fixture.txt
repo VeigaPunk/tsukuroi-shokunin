@@ -1,0 +1,62 @@
+# fixture: pkgdir with .PKGINFO .BUILDINFO .INSTALL .MTREE(present) usr/bin/foo usr/share/doc/demo/.MTREE usr/share/doc/demo/readme
+# cmd: pl(){ ( export LC_COLLATE=C; shopt -s dotglob globstar; printf '%s\0' **/* ); }
+# cmd: pl | LANG=C bsdtar -cnf - --format=mtree --options='!all,use-set,type,uid,gid,mode,time,size,sha256,link' --null --files-from - --exclude .MTREE | gzip -c -f -n
+# bsdtar: 3.8.10 - libarchive 3.8.10 ; bash 5.3.20
+=== with --exclude .MTREE (the source command at makepkg.sh.in:617-619) ===
+#mtree
+/set type=file uid=1000 gid=1000 mode=644
+./.BUILDINFO time=1793038048.228860314 size=1 sha256digest=3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d
+./.INSTALL time=1793038048.228860314 size=1 sha256digest=2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6
+./.PKGINFO time=1793038048.228860314 size=1 sha256digest=ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb
+/set mode=755
+./usr time=1793038048.228860314 type=dir
+./usr/bin time=1793038048.228860314 type=dir
+./usr/bin/foo time=1793038048.228860314 mode=644 size=1 sha256digest=2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881
+./usr/share time=1793038048.228860314 type=dir
+./usr/share/doc time=1793038048.228860314 type=dir
+./usr/share/doc/demo time=1793038048.228860314 type=dir
+./usr/share/doc/demo/readme time=1793038048.228860314 mode=644 size=1 sha256digest=18ac3e7343f016890c510e93f935261169d9e3f565436429830faf0934f4f8e4
+
+=== the same command with --exclude removed (control) ===
+#mtree
+/set type=file uid=1000 gid=1000 mode=644
+./.BUILDINFO time=1793038048.228860314 size=1 sha256digest=3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d
+./.INSTALL time=1793038048.228860314 size=1 sha256digest=2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6
+./.MTREE time=1793038048.228860314 size=5 sha256digest=a03f2386ae06b21109577020844df367857b72c2fcce384c1896fed98a89c82b
+./.PKGINFO time=1793038048.228860314 size=1 sha256digest=ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb
+/set mode=755
+./usr time=1793038048.228860314 type=dir
+./usr/bin time=1793038048.228860314 type=dir
+./usr/bin/foo time=1793038048.228860314 mode=644 size=1 sha256digest=2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881
+./usr/share time=1793038048.228860314 type=dir
+./usr/share/doc time=1793038048.228860314 type=dir
+/set mode=644
+./usr/share/doc/demo time=1793038048.228860314 mode=755 type=dir
+./usr/share/doc/demo/.MTREE time=1793038048.228860314 size=1 sha256digest=1b16b1df538ba12dc3f97edbb85caa7050d46c148134290feba80f8236c83db9
+./usr/share/doc/demo/readme time=1793038048.228860314 size=1 sha256digest=18ac3e7343f016890c510e93f935261169d9e3f565436429830faf0934f4f8e4
+
+=== package-archive command makepkg.sh.in:625 (no --exclude) ===
+.BUILDINFO
+.INSTALL
+.MTREE
+.PKGINFO
+usr/
+usr/bin/
+usr/bin/foo
+usr/share/
+usr/share/doc/
+usr/share/doc/demo/
+usr/share/doc/demo/.MTREE
+usr/share/doc/demo/readme
+
+=== package-archive command with --exclude .MTREE added (control) ===
+.BUILDINFO
+.INSTALL
+.PKGINFO
+usr/
+usr/bin/
+usr/bin/foo
+usr/share/
+usr/share/doc/
+usr/share/doc/demo/
+usr/share/doc/demo/readme

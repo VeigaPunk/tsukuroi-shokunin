@@ -1,0 +1,16 @@
+# counter digest and receipts (lane tip 71851d63)
+sha256 tools/score-selftest-mounts-r41.py: 8306d9990b156ceb625eabbe942910fc0d09b20f350a7e8af1ff2237fd07355c
+before/c1-before.jsonl  started_utc 2026-10-26T17:56:30Z finished_utc 2026-10-26T18:02:14Z revision 0e5805a1... survivors 4 params 0 baseline PASS (124 cases)
+after/c1-after-568c397.jsonl started_utc 2026-10-26T17:17:35Z finished_utc 2026-10-26T17:23:56Z revision 568c397d... survivors 0 params 4 baseline PASS (128 cases) exit 0
+
+# kill labels per new mutant (after receipt) -- one purpose-built label each
+H5-mountpoint-absolute -> ['healthy rollup: a btrfs line whose mountpoint is not absolute still counts, BLOCKED (R41-C1 H5)']
+H6-source-devonly -> ['healthy rollup: a btrfs line whose source is not under /dev still counts, BLOCKED (R41-C1 H6)']
+H9-subvolkey-option -> ['healthy rollup: a btrfs line with no subvol= option still counts, BLOCKED (R41-C1 H9)']
+H10-count-exactly-one -> ['healthy rollup: two btrfs lines are still btrfs without sysfs, BLOCKED (R41-C1 H10)']
+
+# K2 control (.ufo/waves/round-41/controls/C1-K2-candidate-without-H9-case.jsonl)
+{"control": "C1-K2-candidate-without-H9-case", "revision": "c3265b0d7f6bbfe46324bbbd4e3f1dc686aa9a9f", "baseline_pass": 1, "capture_pass": 1, "neutral_pass": 3, "decoy_pass": 1, "mutants_applied": 13, "survivors": 1, "survivor_names": ["H9-subvolkey-option"], "params": 3, "result": "FAIL", "exit": 1, "error": null, "decoys_failed": []}
+
+# current operability axes row (SCORECARD.md:2431) vs the after count
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (124 cases, 124 passed, 0 failed); live run exits with the six-plane rollup; `--identity` not landed. | round 11 (terminal closeout); unchanged |

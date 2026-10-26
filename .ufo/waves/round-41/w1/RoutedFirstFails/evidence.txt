@@ -1,0 +1,45 @@
+== ps snapshot (sibling counters active, no probe started):
+1345211 01:04    timeout                                   timeout 900 bash /fast/scratch/hyaku/tsukuroi-r41/C1HeldOutGuards/clone/tools/tsukuroi-census.sh --selftest
+1345232 01:04    bash                                      bash /fast/scratch/hyaku/tsukuroi-r41/C1HeldOutGuards/clone/tools/tsukuroi-census.sh --selftest
+2068439 00:46    bash                                      bash /fast/scratch/hyaku/tsukuroi-r41/C1ExecEnvMatrix/s/r41c1.ujrchh6k/M3-VC-substring-btrfs/tsukuroi-census.sh --selftest
+2132735 04:03    python3                                   /usr/bin/python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-selftest-mounts-r41.py --revision 568c397da11339aed65181be598414f268835555 --scratch /fast/scratch/hyaku/tsukuroi-r41/C1ExecEnvMatrix/s --jobs 1
+2174352 00:44    python3                                   python3 /fast/scratch/hyaku/tsukuroi-r41/CritSeparability/A/tools/score-selftest-mounts-r41.py --repo /fast/scratch/hyaku/tsukuroi-r41/CritSeparability/A --revision 566adebcc4c2400d3f3d33f272399e7aa4a93710 --branch master --scratch /fast/scratch/hyaku/tsukuroi-r41/CritSeparability/c1A --jobs 4
+2177260 00:44    bash                                      bash /fast/scratch/hyaku/tsukuroi-r41/CritSeparability/c1A/r41c1.3k5jb_ii/baseline/tsukuroi-census.sh --selftest
+2177280 00:44    bash                                      bash /fast/scratch/hyaku/tsukuroi-r41/CritSeparability/c1A/r41c1.3k5jb_ii/M1-VA-device-literal/tsukuroi-census.sh --selftest
+2177288 00:44    bash                                      bash /fast/scratch/hyaku/tsukuroi-r41/CritSeparability/c1A/r41c1.3k5jb_ii/capture/tsukuroi-census.sh --selftest
+
+== census bad() at 0e5805a1 and 568c397:
+  bad() { FAIL=$((FAIL + 1)); printf 'FAIL %s\n' "$*" >&2; }
+  bad() { FAIL=$((FAIL + 1)); printf 'FAIL %s\n' "$*" >&2; }
+
+== r40 counter stdout-only scan (a447b67b):
+    lines = p.stdout.decode('utf-8', 'replace').strip().splitlines()
+    last = lines[-1] if lines else ''
+    fails = [l for l in lines if l.startswith('FAIL')][:3]
+    return {'exit': p.returncode, 'last': last, 'pass': p.returncode == 0 and bool(PASS_RE.match(last)),
+            'first_fails': fails}
+
+== r41 counter stderr scan:
+    err = p.stderr.decode('utf-8', 'replace').splitlines()
+    last = out[-1] if out else ''
+    sm = SUMMARY_RE.match(last)
+    labels = [LABEL_TAIL.sub('', l[5:]) for l in out if l.startswith('PASS ')]
+    fails = [l for l in err if l.startswith('FAIL ')]
+    return {'exit': p.returncode, 'last': last, 'pass': p.returncode == 0 and bool(PASS_RE.match(last)),
+            'cases': int(sm.group(2)) if sm else None, 'labels': labels,
+            'fail_labels': [l[5:] for l in fails], 'first_fails': fails[:3]}
+
+== r41 SIGINT handler:
+_WORK: list[Path] = []
+
+
+def _cleanup(*_a):
+    for w in _WORK:
+        shutil.rmtree(w, ignore_errors=True)
+    if _a:
+        sys.exit(130)
+    _WORK.append(work)
+    signal.signal(signal.SIGINT, _cleanup)
+    signal.signal(signal.SIGTERM, _cleanup)
+    finally:
+        _cleanup()

@@ -1,0 +1,27 @@
+Receipts for seat C2RevPA3 (round 41, item C2-3a, row PA3) — captured 2026-10-26.
+
+Live fetch (curl -fsSL, upstream pacman at 54d9411):
+  https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/scripts/makepkg.sh.in   -> makepkg.sh.in.live
+  https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/be_package.c -> be_package.c.live
+
+sha256sum (observed 2026-10-26):
+d588222586b2432b4169c82e6ebcd464acfdc20a663172fd444b8f98e1104e86  makepkg.sh.in.live
+24e5890647f80dd953586d8add314b396d0276a37e2f146f685e90b809db4d7  be_package.c.live
+d588222586b2432b4169c82e6ebcd464acfdc20a663172fd444b8f98e1104e86  <lane>/.ufo/waves/round-41/frozen/src/makepkg.sh.in
+24e5890647f80dd953586d8add314b396d0276a37e2f146f685e90b809db4d7  <lane>/.ufo/waves/round-41/frozen/src/be_package.c
+
+frozen/src/SHA256SUMS entries (match):
+d588222586b2432b4169c82e6ebcd464acfdc20a663172fd444b8f98e1104e86  makepkg.sh.in
+24e5890647f80dd953586d8add314b396d0276a37e2f146f685e90b809db4d7  be_package.c
+
+Other observed checks (2026-10-26):
+- cd .ufo/waves/round-41/frozen/hostcap && sha256sum -c MANIFEST.sha256 -> capture.sh: OK, capture-meta.txt: OK,
+  localdb-anatomy.tsv: OK, vercmp.txt: OK, man-pkgbuild-runinside.txt: OK, mtree-pacman-head.txt: OK
+- ls -A /var/cache/pacman/pkg | wc -l -> 0; pacman -Q pacman -> pacman 7.1.0.r9.g54d9411-3
+- git -C <lane> show 9cc9aa77e30e0e23de2d4d2697b3b218ada02969:corpus/knowledge/alpm-package-anatomy-r41.md | wc -l -> 62
+  (PA3 row at line 28 of the blob)
+- git -C <lane> show 9cc9aa77e30e0e23de2d4d2697b3b218ada02969:corpus/SOURCES.md | grep -n S229 -> line 238 (makepkg.sh.in
+  at 54d9411, list_package_files lines 560-569, snapshot sha256 d5882225…)
+
+<lane> = /home/vgpnk/Projects/shokunin/tsukuroi-shokunin. No tools installed; no lane file modified; scratch
+/fast/scratch/hyaku/tsukuroi-r41/C2RevPA3 removed after these copies.

@@ -1,0 +1,82 @@
+C2RevPA6b — pacman -Qkk / -Qpkk fixture receipts (read-only queries, scratch dbpath+root)
+Host: pacman v7.1.0 / libalpm v16.0.1 (/usr/bin/pacman --version, 2026-10-26)
+Scratch: /fast/scratch/hyaku/tsukuroi-r41/C2RevPA6b/  (removed after these receipts were copied here)
+
+Fixture: db/local/foo-1.0-1/{desc,files,mtree?} + db/local/ALPM_DB_VERSION (9)
+root/usr/bin/foo; mtree = gzip of
+  #mtree
+  /set type=file uid=1000 gid=1000 mode=755
+  ./usr time=... type=dir
+  ./usr/bin time=... type=dir
+  ./usr/bin/foo time=... size=6 md5digest=... sha256digest=...
+
+[1] mtree ABSENT, file content matching
+$ pacman -Qkk --dbpath <S>/db --root <S>/root --color never foo
+foo: no mtree file
+rc=0
+
+[2] same state, --quiet
+$ pacman -Qkk --dbpath <S>/db --root <S>/root --color never --quiet foo
+(no stdout, no stderr; only the "database file for '<repo>' does not exist" warnings from the scratch dbpath)
+rc=0
+
+[3] mtree PRESENT but unopenable (printf 'not an mtree at all\n' > mtree)
+$ pacman -Qkk --dbpath <S>/db --root <S>/root --color never foo
+stderr: error: error while reading file <S>/db/local/foo-1.0-1/mtree: Unrecognized archive format
+stdout: foo: no mtree file
+rc=0
+
+[4] mtree PRESENT, truncated gzip stream
+$ pacman -Qkk ... foo
+stderr: error: error while reading file <S>/db/local/foo-1.0-1/mtree: truncated gzip input
+stdout: foo: no mtree file
+rc=0
+
+[5] mtree PRESENT and valid (positive control, file left matching): 
+$ pacman -Qkk ... foo
+foo: 3 total files, 0 altered files
+rc=0
+
+[6] mtree PRESENT and valid, file content tampered:
+$ pacman -Qkk ... foo
+warning: foo: <S>/root/usr/bin/foo (Modification time mismatch)
+warning: foo: <S>/root/usr/bin/foo (Size mismatch)
+warning: foo: <S>/root/usr/bin/foo (SHA256 checksum mismatch)
+foo: 3 total files, 1 altered file
+rc=1
+
+[7] level 1 with the SAME absent mtree (fast path ignores the mtree):
+$ pacman -Qk ... foo
+foo: 3 total files, 0 missing files
+rc=0
+
+[8] -Qkk with no target over a db holding only the mtree-less package:
+$ pacman -Qkk --dbpath <S>/db --root <S>/root --color never
+foo: no mtree file
+rc=0
+
+[9] FILE package (op_q_isfile) whose archive DOES carry a readable .MTREE
+archive: foo-1.0-1-x86_64.pkg.tar.gz, members .BUILDINFO .MTREE .PKGINFO usr/
+$ pacman -Qpl ... <S>/foo-1.0-1-x86_64.pkg.tar.gz
+foo <S>/root/usr/
+foo <S>/root/usr/bin/
+foo <S>/root/usr/bin/foo
+rc=0
+$ pacman -Qpkk ... <S>/foo-1.0-1-x86_64.pkg.tar.gz     (local entry foo-1.0-1 present, mtree valid)
+foo: no mtree file
+rc=0
+$ pacman -Qpkk ... <S>/foo-1.0-1-x86_64.pkg.tar.gz     (local entry foo-1.0-1 moved away entirely)
+foo: no mtree file
+rc=0
+$ pacman -Qpkk ... <S>/foo-nomtree.pkg.tar.gz         (archive without .MTREE)
+foo: no mtree file
+rc=0
+
+Source lines (pinned snapshot, 54d9411):
+check.c:314 mtree = alpm_pkg_mtree_open(pkg);
+check.c:315-322 if(mtree == NULL){ /* TODO: ... */ if(!config->quiet){ printf(_("%s: no mtree file\n"), pkgname); } return 0; }
+query.c:317-323 if(config->op_q_check){ if(config->op_q_check == 1) ret = check_pkg_fast(pkg); else ret = check_pkg_full(pkg); }
+query.c:441,503 int value = display(pkg); if(value != 0) ret = 1;   (op_q_isfile path loads the file at query.c:487)
+be_local.c:251-278 _cache_mtree_open: access(F_OK) fail -> goto error (no log); archive_read_new()==NULL -> GOTO_ERR;
+             _alpm_archive_read_open_file fail -> _alpm_log("error while reading file %s: %s\n") then NULL
+be_package.c:140-151 get_file_pkg_ops(): file_pkg_ops = default_pkg_ops; only changelog_{open,read,close} replaced
