@@ -1,0 +1,9 @@
+--- tools/tsukuroi-census.sh@f951f2884
++++ tools/tsukuroi-census.sh@H6-source-devonly
+@@ -1911,5 +1911,5 @@
+     if [ -f "$PROC_MOUNTS" ] && mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null) && [ -n "$mtab" ]; then
+       while read -r _src _mp fst _rest; do
+-        if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
++        if [ "${fst:-}" = btrfs ] && [[ ${_src:-} == /dev/* ]]; then mt=$((mt + 1)); fi
+       done <<< "$mtab"
+       if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi

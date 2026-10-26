@@ -1,0 +1,27 @@
+### A. exact -c command shape, all six phases (# /fast/scratch .../fx2/.INSTALL, shebang #!/bin/false, mode 644)
+top-level positional: 1=[] count=0
+pre_install 1=[2.0-1] 2=[]
+top-level positional: 1=[] count=0
+post_install 1=[2.0-1] 2=[]
+top-level positional: 1=[] count=0
+pre_upgrade 1=[2.0-1] 2=[1.0-1]
+top-level positional: 1=[] count=0
+post_upgrade 1=[2.0-1] 2=[1.0-1]
+top-level positional: 1=[] count=0
+pre_remove 1=[1.0-1] 2=[]
+top-level positional: 1=[] count=0
+post_remove 1=[1.0-1] 2=[]
+
+### B. interpreter mode and BASH_ENV (scratch only)
+ls -l /bin/sh: 4 Sep 15 16:47 /bin/sh -> bash
+bash non-interactive with BASH_ENV: BASHENV-RAN body 
+bash --posix with BASH_ENV:          body 
+/bin/sh (posix on) with BASH_ENV:    body 
+/bin/sh set -o posix: posix          	on
+bashisms under /bin/sh: array+[[ ok] 2
+local outside function under /bin/sh: /bin/sh: line 1: local: can only be used in a function continued 
+
+### C. libalpm strings on the installed build
+strings libalpm | grep -n /usr/bin/bash: 1277:/usr/bin/bash
+count of '/bin/sh' substrings: 0
+sha256 libalpm.so.16.0.1: 1bc59ef4cee493246db69c9466970de01d24fdc32a4a4c18c77063af66705e90

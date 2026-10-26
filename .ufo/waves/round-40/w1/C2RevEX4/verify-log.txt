@@ -1,0 +1,79 @@
+# C2RevEX4 verification log — 2026-10-26
+# Seat: C2RevEX4 (leaf reviewer). All commands read-only; no host mutation; scratch removed after receipts copied.
+
+## 1. Lane revision
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse HEAD
+f951f288483c1af0cef4afd458488b84cf7a2165
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain=v1 -- corpus/knowledge/pacman-exec-environment-r40.md
+(empty — file clean at f951f28)
+
+## 2. Upstream re-open (all six files of the frozen set), 2026-10-26T07:16:30Z
+$ curl -fsS -o <name> "https://gitlab.archlinux.org/archlinux/packaging/packages/pacman/-/raw/7.1.0.r9.g54d9411-3/PKGBUILD"
+$ curl -fsS -o <name> "https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/trans.c"   (also hook.c, util.c)
+$ curl -fsS -o <name> "https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/meson_options.txt"     (also doc/alpm-hooks.5.asciidoc)
+$ date -u +"access-time %Y-%m-%dT%H:%M:%SZ"
+access-time 2026-10-26T07:16:30Z
+$ sha256sum -c <(grep -v '^#' .ufo/waves/round-40/frozen/src/SHA256SUMS)
+PKGBUILD: OK
+alpm-hooks.5.asciidoc: OK
+hook.c: OK
+meson_options.txt: OK
+trans.c: OK
+util.c: OK
+
+## 3. Exact line pins (grep -n on the fetched, digest-verified copies)
+PKGBUILD: 108 `build() {`; 111 `  meson --prefix=/usr \`; 113 `        -Ddoc=enabled \`;
+          114 `        -Ddoxygen=enabled \`; 115 `        -Dscriptlet-shell=/usr/bin/bash \`;
+          116 `        -Dldconfig=/usr/bin/ldconfig \`; 117 `        build`  (110 is blank)
+meson_options.txt: 17 `option('scriptlet-shell', type : 'string', value : '/bin/sh',`
+trans.c: 337-338 `int _alpm_runscriptlet(...)`; 340 argv array; 357 `strcpy(arg0, SCRIPTLET_SHELL);`;
+         358 `strcpy(arg1, "-c");`; 401-402 `snprintf(cmdline, PATH_MAX, ". %s; %s %s %s", scriptpath, script, ver, oldver)`;
+         404-405 `snprintf(cmdline, PATH_MAX, ". %s; %s %s", scriptpath, script, ver)`;
+         410 `retval = _alpm_run_chroot(handle, SCRIPTLET_SHELL, argv, NULL, NULL);`
+util.c: 610 `int _alpm_run_chroot(alpm_handle_t *handle, const char *cmd, char *const argv[], ...`;
+        698 `execv(cmd, argv);` (argv passed unchanged)
+
+## 4. Host cell, reproduced live 2026-10-26T07:16Z
+$ pacman -Q pacman
+pacman 7.1.0.r9.g54d9411-3
+$ pacman -Qo /usr/lib/libalpm.so.16.0.1
+/usr/lib/libalpm.so.16.0.1 is owned by pacman 7.1.0.r9.g54d9411-3
+$ strings -a /usr/lib/libalpm.so.16.0.1 | grep -n '/usr/bin/bash'
+1277:/usr/bin/bash
+$ strings -a /usr/lib/libalpm.so.16.0.1 | grep -c '/bin/sh'
+0
+$ sha256sum /usr/lib/libalpm.so.16.0.1
+1bc59ef4cee493246db69c9466970de01d24fdc32a4a4c18c77063af66705e90  /usr/lib/libalpm.so.16.0.1
+  == capture-meta.txt `libalpm: /usr/lib/libalpm.so.16.0.1 sha256 1bc59ef4...` (inspected binary is the captured one)
+$ ls -l /bin/sh /usr/bin/sh; readlink -f /bin/sh
+lrwxrwxrwx 1 root root 4 Sep 15 16:47 /bin/sh -> bash
+lrwxrwxrwx 1 root root 4 Sep 15 16:47 /usr/bin/sh -> bash
+/usr/bin/bash
+
+## 5. Frozen host capture (S225) integrity and content
+$ cd .ufo/waves/round-40/frozen/hostcap && sha256sum -c MANIFEST.sha256
+capture-meta.txt: OK
+libalpm-shell-strings.txt: OK
+hooks-needstargets.tsv: OK
+$ grep -n '/usr/bin/bash' libalpm-shell-strings.txt
+2:1277:/usr/bin/bash
+$ grep -c '/bin/sh' libalpm-shell-strings.txt
+0
+(capture line `1277:/usr/bin/bash` identical to my live `strings -a | grep -n` output)
+
+## 6. Whole-tree caller census at 54d9411 (supplementary, not part of frozen SHA256SUMS)
+$ curl -fsS -o pacman-54d9411.tar.gz "https://gitlab.archlinux.org/pacman/pacman/-/archive/54d9411/pacman-54d9411.tar.gz" && tar xzf pacman-54d9411.tar.gz
+$ grep -rn "_alpm_runscriptlet" pacman-54d9411 --include=*.c --include=*.h
+pacman-54d9411/lib/libalpm/add.c:472:		_alpm_runscriptlet(handle, pkgfile, scriptlet_name,
+pacman-54d9411/lib/libalpm/add.c:644:		_alpm_runscriptlet(handle, scriptlet, scriptlet_name,
+pacman-54d9411/lib/libalpm/remove.c:711:			_alpm_runscriptlet(handle, scriptlet, "pre_remove", pkgver, NULL, 0);
+pacman-54d9411/lib/libalpm/remove.c:731:			_alpm_runscriptlet(handle, scriptlet, "post_remove", pkgver, NULL, 0);
+pacman-54d9411/lib/libalpm/trans.h:52:int _alpm_runscriptlet(alpm_handle_t *handle, const char *filepath,
+$ grep -rn "SCRIPTLET_SHELL" pacman-54d9411 --include=*.c --include=*.h --include=*.build
+pacman-54d9411/lib/libalpm/trans.c:357:	strcpy(arg0, SCRIPTLET_SHELL);
+pacman-54d9411/lib/libalpm/trans.c:410:	retval = _alpm_run_chroot(handle, SCRIPTLET_SHELL, argv, NULL, NULL);
+pacman-54d9411/meson.build:68:conf.set_quoted('SCRIPTLET_SHELL', get_option('scriptlet-shell'))
+Supplementary digests (URLs: https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/<path>; fetched 2026-10-26T07:16Z):
+90e296d9a889b7db9819c51093ff0ff9e7152d659699d7fb8c01fd9d0136a397  meson.build
+fd3136291885cae73ad00abab3d83de49ea0276f040e53cca3902cfb93cf58f1  add.c
+a052d455f088f34bf1d713a434957de7e1b9322862a07b69160c65ee15dca314  remove.c

@@ -1,0 +1,28 @@
+# C1-14 receipts — real mount table vs frozen mutants M1-M9
+# census at f951f288483c1af0cef4afd458488b84cf7a2165 (git show, sha256 032faa8f1c914dd63a1de673aa9ed6767c4bd19cdfc2751ac34331005da45733)
+# mounts: /proc/self/mounts copy, sha256 0fe57247486e7c0002e09729f65564b83a3b748f01b299e7002129fe06fc49fe, 33 lines, 3258 bytes
+# env per run: PATH=/usr/bin:/bin:/usr/sbin:/sbin LC_ALL=C HOME=<scratch> TMPDIR=<scratch>/tmp
+#              TSUKUROI_BTRFS_SYSFS=<scratch>/absent TSUKUROI_PROC_MOUNTS=<scratch>/mounts
+# command per variant: bash <scratch>/<variant>/tsukuroi-census.sh   (cwd=/)
+# mutants applied as exact substring replacement only when old occurs exactly once in the census (9/9)
+
+## real table
+original	exit=2	STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+M1-VA-device-literal	exit=2	STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+M2-VB-root-mountpoint	exit=2	STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+M3-VC-substring-btrfs	exit=2	STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+M4-VG-subvolid-256	exit=2	STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+M5-a-grep-count	exit=2	STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+M6-b-fstype-casefold	exit=2	STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+M7-e-guard-drops-blocked	exit=2	STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+M8-subvol-at-literal	exit=2	STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+M9-last-line-only	exit=2	STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+
+## derived tables (labelled derived; supplementary, not the assigned run)
+# nb-free = real table minus its four btrfs lines; nb-last = real table with the root btrfs line moved to the end
+nb-free	original	STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+nb-free	M7-e-guard-drops-blocked	STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+nb-free	M9-last-line-only	STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+nb-last	original	STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+nb-last	M7-e-guard-drops-blocked	STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+nb-last	M9-last-line-only	STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs

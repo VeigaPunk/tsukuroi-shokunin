@@ -1,0 +1,69 @@
+== §10 block (source file substituted by the pinned blob f951f288:corpus/SOURCES.md) ==
+$ grep -oE '^ {0,3}\|[[:space:]]*S[0-9]{3,}' SOURCES-f951f288.md | grep -oE 'S[0-9]+' | sort > out/reg-ids
+$ grep -oE ... "$ST" | grep -oE S[0-9]+ | sort > out/staged-ids
+$ comm -12 out/reg-ids out/staged-ids > out/collisions
+reg-ids   lines=225 sha256=f6da39ad2a3e57272ca9312eb22e4672d4397d1e606f22070cbecccdd82a99da
+staged-ids lines=147 sha256=d3918d7c61a351d9f57f3ee317d8684503403e594c7d5bac0980ee5371542f3c
+collisions lines=26 sha256=6600bebffae53addf4ee668f8deb6cbc57a99746c7f405acad6ec99ea77b5578
+collisions:
+S200 S201 S202 S203 S204 S205 S206 S207 S208 S209 S210 S211 S212 S213 S214 S215 S216 S217 S218 S219 S220 S221 S222 S223 S224 S225 
+
+== byte compare with the L1's assimilation/ ==
+reg-ids: IDENTICAL (required)
+staged-ids: IDENTICAL (required)
+collisions: IDENTICAL (required)
+
+== indentation census of both real inputs (the guard's premise) ==
+tip registry  rows col0=225 indented1-3=0 indented4+=0
+staged       rows col0=147 indented1-3=0 indented4+=0
+
+== guard proof (census-valid scratch registry, 2-space S219 row) ==
+$ scripts/sources-census.sh census --file guard/fx/corpus/SOURCES.md
+file	rows	2
+file	tier.A	2
+file	status.mined	2
+$ scripts/sources-census.sh validate --file guard/fx/corpus/SOURCES.md
+file	W03	S001 mined but unused
+file	W03	S219 mined but unused
+file	ok	/fast/scratch/hyaku/tsukuroi-r40/AsmCollision/guard/fx/corpus/SOURCES.md
+$ grep -oE '^ {0,3}\|[[:space:]]*S[0-9]{3,}' guard/fx/corpus/SOURCES.md | grep -oE S[0-9]+ | sort > guard/ids-03
+ids-03        = S001 S219 
+$ grep -oE '^\|[[:space:]]*S[0-9]{3,}' guard/fx/corpus/SOURCES.md | grep -oE S[0-9]+ | sort > guard/ids-col0
+ids-col0      = S001 
+$ comm -12 guard/ids-03 out/staged-ids > guard/collisions-03
+collisions-03 = S219 
+$ comm -12 guard/ids-col0 out/staged-ids > guard/collisions-col0
+collisions-col0 bytes=0 content=
+
+== 4-space boundary control (same fixture, indented 4 spaces) ==
+$ scripts/sources-census.sh census --file guard/fx4/corpus/SOURCES.md
+file	rows	1
+file	tier.A	1
+fx4 0-3 pattern ids = S001  (4-space row invisible; census also ignores it)
+
+== L1 guard-proof fixture under the same census (census-validity check) ==
+$ scripts/sources-census.sh census --file l1/reg.md   # as shipped
+file	rows	0
+FLEET	rows	0
+$ scripts/sources-census.sh validate --file l1/reg.md
+file	E12	S219 row outside Registry section
+$ cat -A l1/reg.md
+| id |$
+|---|$
+  | S219 | x |$
+
+== collision split ==
+collisions vs registry at base 53b294a: 19 (S200..S218)
+collisions contributed by round-40 rows S219-S225: 7
+
+== staged file provenance (shokuknow worktree vs its HEAD blob) ==
+shokuknow HEAD 8b94c5c12c0521e4cd9ed8e5b6939afd8518c715
+worktree ids=147  HEAD-blob ids=107  (HEAD blob is 40 rows shorter: S307-S346 uncommitted in the campaign tree)
+
+== census exit codes ==
+fx census exit=0
+fx validate exit=0
+l1 fixture census exit=0 rows=0
+l1 fixture validate exit=1 (E12)
+real registry census exit=0 rows=225 (census-tip.txt)
+staged census exit=0 rows=0 (no heading; census-staged.txt)

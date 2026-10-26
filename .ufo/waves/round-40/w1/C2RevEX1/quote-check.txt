@@ -1,0 +1,11 @@
+# seat C2RevEX1 — verbatim quote check for EX1 source cell
+doc: corpus/knowledge/pacman-exec-environment-r40.md at f951f288483c1af0cef4afd458488b84cf7a2165, line 21 (git show)
+quote: if(strcmp(handle->root, "/") != 0 && chroot(handle->root) != 0) {
+
+command:
+  sed -n '679p' upstream/util.c | sed 's/^[[:space:]]*//' > q679.txt
+  printf '%s\n' 'if(strcmp(handle->root, "/") != 0 && chroot(handle->root) != 0) {' > qdoc.txt
+  cmp q679.txt qdoc.txt
+observed: cmp silent (byte-identical); echo QUOTE-VERBATIM-BYTE-EXACT printed; reverse cmp also clean.
+note: first attempt compared without stripping the line's leading tabs and correctly reported a
+difference at char 1; stripped comparison is the meaningful one (quoting convention drops indent).

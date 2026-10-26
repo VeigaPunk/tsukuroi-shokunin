@@ -1,0 +1,25 @@
+# host kernel evidence, 2026-10-26, host 7.2.11-arch1-1
+## registered fs names that casefold to btrfs (/proc/filesystems)
+btrfs
+## /proc/self/mounts fstype values that casefold to btrfs
+      4 btrfs
+## /proc/self/mounts fstype values not starting with a lowercase letter
+(none)
+## btrfs lines in /proc/self/mounts
+/dev/mapper/root / btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@ 0 0
+/dev/mapper/root /home btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home 0 0
+/dev/mapper/root /var/cache/pacman/pkg btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=259,subvol=/@pkg 0 0
+/dev/mapper/root /var/log btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=258,subvol=/@log 0 0
+## fsopen(2) named btrfs.BTRFS.BtrFs.ext4 outside a user namespace (uid 1000)
+fsopen(btrfs) -> errno 1 (Operation not permitted)
+fsopen(BTRFS) -> errno 1 (Operation not permitted)
+fsopen(BtrFs) -> errno 1 (Operation not permitted)
+fsopen(ext4) -> errno 1 (Operation not permitted)
+## fsopen(2) the same names inside unshare -rm
+fsopen(btrfs) -> fd 3
+fsopen(BTRFS) -> errno 19 (No such device)
+fsopen(BtrFs) -> errno 19 (No such device)
+fsopen(ext4) -> fd 3
+## mount(8) -t contrast inside unshare -rm (existing mountpoint)
+mount: /fast/scratch/hyaku/tsukuroi-r40/C1CritEquivalence/fx/mnt: unknown filesystem type 'BTRFS'.
+mount: /fast/scratch/hyaku/tsukuroi-r40/C1CritEquivalence/fx/mnt: permission denied.

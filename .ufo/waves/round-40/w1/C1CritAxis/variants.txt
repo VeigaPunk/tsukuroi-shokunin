@@ -1,0 +1,38 @@
+C1CritAxis receipt: census `--selftest` variants built from c707e356c2911646f7304d706eb77d118e510610
+(git show c707e356:tools/tsukuroi-census.sh, sha256 032faa8f1c914dd63a1de673aa9ed6767c4bd19cdfc2751ac34331005da45733).
+Every variant written under /fast/scratch/hyaku/tsukuroi-r40/C1CritAxis/v/ and run as
+`bash <variant>.sh --selftest` with cwd=/ and PATH=/usr/bin:/bin, LC_ALL=C, HOME and TMPDIR inside the
+variant dir. Mutant texts are the frozen counter's own MUTANTS/NEUTRAL strings (imported from
+tools/score-selftest-literals-r40.py, sha256 8b06de18ca7eec1d928a0dfac8ca6930bf808bfd1f4250374ec300640f2f0159)
+or, for the added arms, `case $mtab in <pattern>) blocked=1; detail+='mounts:btrfs-without-sysfs,' ;; esac`
+built with the counter's own keyed() helper.
+
+  variant            edit                                                    observed
+  ----------------   -----------------------------------------------------   -----------------------------------------------
+  base               none                                                    exit 0, PASS (124 cases, 124 passed, 0 failed)
+  m6                 frozen M6: [ "${fst:-}" = btrfs ] -> "${fst,,}"        exit 1, FAIL 123/124; the ONE failing case:
+                                                                             "healthy: the fstype match is exact, so BTRFS is not btrfs (R40-C1)"
+  m6-nocase          M6 plus the storage-mounts-fstype-case block removed     exit 0, PASS (123 cases, 123 passed, 0 failed)
+  nocase-base        fstype-case block removed, no mutant                     exit 0, PASS (123 cases, 123 passed, 0 failed)
+  subvol-comma-key   loop -> keyed("*',subvol='*")                           exit 0, PASS (124 cases, 124 passed, 0 failed)  SURVIVES
+  subvol-eq-key      loop -> keyed("*'subvol='*")                            exit 0, PASS (124 cases, 124 passed, 0 failed)  SURVIVES
+  fieldswap-mp       [ "${fst:-}" = btrfs ] -> [ "${_mp:-}" = btrfs ]        exit 1, FAIL 120/124; 4 cases (storage-hidden-absent,
+                                                                             storage-hidden-empty, storage-mounts-varied-home,
+                                                                             storage-mounts-varied-multi)
+  head-1             mtab=$(cat ...) -> mtab=$(head -n 1 ...)                exit 1, FAIL 121/124; 3 cases (hidden-absent, varied-home,
+                                                                             varied-multi)
+  block-always       fstype test dropped; blocked=1 unconditionally          exit 1, FAIL 121/124; 3 cases (no-sysfs-root HEALTHY,
+                                                                             btrfs-in-path HEALTHY, fstype-case HEALTHY)
+
+Failing-case names are the census `check '...'` labels, taken from the FAIL lines the selftest writes to
+stderr (the frozen counter reads stdout only, so its receipt records first_fails: [] for every mutant).
+
+Correction test (same harness):
+  fix-base           c707 + one blocking case: fx_default + mkdir "$FX/btrfs/features" + table
+                     "proc /proc proc rw 0 0" / "/dev/sdc1 /mnt/plain btrfs rw,relatime 0 0"
+                     expecting state=BLOCKED detail=mounts:btrfs-without-sysfs
+                                                                             exit 0, PASS (125 cases, 125 passed, 0 failed)
+  fix-subvolkey      fix-base + loop -> keyed("*',subvol='*")                exit 1, FAIL 124/125; failing case:
+                                                                             "a plain btrfs mount with no subvolume option is BLOCKED (proposed fix)"
+
+Scratch removed after these receipts were copied; only the receipts remain.

@@ -1475,3 +1475,33 @@ counter F06 flips by construction (declared, pinned historical). Incident: seat 
 seats' census runs at ~03:05 (lesson R39-SEAT-PKILL). Landed: `6a08925d` freeze; `93fddb2c` declaration and controls;
 `49cc53c7` C1; `4078eb23` C2; `2e1c2a40` author receipts; `394e1ba4` wave spec; `a2d7aad7` integration; this entry
 with the SCORECARD outcome.
+
+## Round 40 — erratum: heading stamps later than their commits (R40-HEADING-TIMES; no stated time in this heading, by design — its commit time is its stamp)
+
+Swept at `f951f288483c1af0cef4afd458488b84cf7a2165` over every SCORECARD.md and LOG.md heading of rounds 35–39 that carries a
+clock token (26 headings: 25 parseable stamps, one malformed; per-heading method `git -C <lane> log --format='%h %cI' -S'<heading
+text>' -- SCORECARD.md LOG.md`, introducing commit taken as the oldest hit whose blob contains the line and whose parent does
+not, committer times converted to UTC; table in `.ufo/waves/round-40/w1/RoutedTimestamps/sweep.txt`), seven headings state a
+time later than the committer time of the commit that introduced them — two of them introduced in round 39, and five round-35
+LOG headings already corrected at LOG.md:1355 which are restated here so this paragraph names every one. The round-39 pair, both
+in that round's record:
+SCORECARD.md:2209 `## Round 39 — declaration (2026-10-26T06:20Z, base `0eff65b21bb81195ee06c96a83afbd7a07e52eef`, before any seat)` states 2026-10-26T06:20Z and
+is introduced by `93fddb2c37aed8227b4a0ff2417b104e01446a9d`, committed 2026-10-26T05:59:31Z (+20 min 29 s); LOG.md:1457
+`## Round 39 — hyaku run 8, 2026-10-26T07:45Z` states 2026-10-26T07:45Z and is introduced by
+`eeba342ea06ad0069899b3b8b4bbea6af98df610`, committed 2026-10-26T06:35:44Z (+1 h 09 min 16 s) — a time that had not yet elapsed
+anywhere in the lane when this erratum was swept (tip committer 2026-10-26T07:12:34Z, sweep clock 2026-10-26T07:16:39Z); and the
+five round-35 headings, already corrected at LOG.md:1355, remain future-dated: LOG.md:1333 "~11:40Z" in `7186722b8eba243439c6724766bdae2ef13c595c` committed 11:37:49Z (+2 min 11 s); LOG.md:1337
+"~12:00Z" in `e2f97e6e4beaadda8e1d5ae7bd08baa0e82d61e0` committed 11:52:40Z (+7 min 20 s); LOG.md:1343 "~12:00Z" in
+`95684c65a9f90a5c3d2a47d764657e72000f3fc6` committed 11:57:41Z (+2 min 19 s); LOG.md:1347 "~12:05Z" in
+`199beb97d0c30507d732a0ebb4dba69adb973596` committed 12:00:35Z (+4 min 25 s); LOG.md:1351 "12:26Z" in
+`6f92080dd2e85400bc86f3f94654b731ce69f046` committed 12:25:23Z (+37 s). The rule, and the reason no heading above is rewritten:
+the commit time is the authority — the committer time of the introducing commit is when the text became reachable in history,
+the heading stamp is only a recollection of when the seat believed it was writing, so where the two disagree the committer time
+is the record and the stated time may not be cited as evidence of ordering, of being "before any seat", or of being "stamped at
+write"; this is the same rule the round-35 erratum (LOG.md:1355–1357) already applied, and the recurrence in round 39 shows the
+rule needs restating rather than re-deriving.
+
+Adjacent class, same family, not a future-dating: LOG.md:1379 `## Round 36 — wave 2, measured outcome, budget-forced landing
+(2026-10-24T04:4043Z stamped via date -u)` carries `04:4043Z`, which is not a time (five digits in the minute field); its
+introducing commit `d39da87a1647cca7bf36a1d171ee905e73ee97b0` is committed 2026-10-24T04:41:33Z, so the intended 04:40:43Z lies
+50 s earlier and the stamp is unparseable rather than future-dated; the committer time is the record there too.

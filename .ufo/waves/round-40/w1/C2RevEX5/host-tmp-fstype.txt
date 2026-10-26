@@ -1,0 +1,25 @@
+# C2RevEX5 — host /tmp fstype evidence (read-only; host plazir27)
+# evidence-time 2026-10-26T07:18:06Z (date -u)
+$ findmnt /tmp
+TARGET SOURCE         FSTYPE OPTIONS
+/tmp   /dev/nvme1n1p1 xfs    rw,nosuid,nodev,noatime,inode64,logbufs=8,logbsize=256k,noquota
+$ stat -f -c "%T" /tmp
+xfs
+$ grep -E "[[:space:]]/tmp[[:space:]]" /proc/self/mountinfo
+250 33 259:4 / /tmp rw,nosuid,nodev,noatime shared:213 - xfs /dev/nvme1n1p1 rw,inode64,logbufs=8,logbsize=256k,noquota
+$ grep -n -E "[[:space:]]/tmp[[:space:]]" /etc/fstab
+25:# /tmp is emptied at every boot by /etc/tmpfiles.d/tmp.conf; nofail keeps boot working if the drive is missing.
+26:UUID=1f8a5361-4f35-449a-bb30-63669df878d1	/tmp      	xfs       	rw,noatime,nosuid,nodev,logbsize=256k,nofail,x-systemd.before=local-fs.target,x-systemd.device-timeout=10s	0 0
+$ df -T /tmp | tail -1
+/dev/nvme1n1p1 xfs  134117380 3160172 130957208   3% /tmp
+$ ls -ld /tmp   (run 2026-10-26T07:16Z)
+drwxrwxrwt 42 root root 8192 Oct 26 04:16 /tmp
+#
+# Conclusion: /tmp on this host is xfs on /dev/nvme1n1p1 (a dedicated fstab-mounted partition emptied at
+# boot by /etc/tmpfiles.d/tmp.conf), NOT a tmpfs. The EX5 host cell sentence "on this host `/tmp` is a
+# tmpfs" is false.
+#
+# Frozen hostcap capture .ufo/waves/round-40/frozen/hostcap/ contains no /tmp fstype record:
+# MANIFEST.sha256 (sha256 57888c10574736065bc74e48258ebff325322e95f659306642822a94e84411b5, equals
+# SOURCES S225) lists exactly capture-meta.txt, libalpm-shell-strings.txt, hooks-needstargets.tsv;
+# capture-meta.txt records pacman_q, libalpm sha256 and owner only.

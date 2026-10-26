@@ -1,0 +1,65 @@
+== C2ScribeReadme evidence transcript (read-only) ==
+captured: 2026-10-26T07:17:58Z  cwd: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+
+$ sha256sum tools/check-exec-environment-r40.py corpus/knowledge/pacman-exec-environment-r40.md
+d4a2bb94f95184a87c582ddd7c8e55905390642cd4496aaebefa82b10ebb7d9d  tools/check-exec-environment-r40.py
+2230ccaf4037ccfcb8628b97f15fcff9eca86f9e5e37bee1c5392712ce21c9ef  corpus/knowledge/pacman-exec-environment-r40.md
+
+$ wc -l corpus/README.md corpus/knowledge/pacman-exec-environment-r40.md
+  317 corpus/README.md
+   45 corpus/knowledge/pacman-exec-environment-r40.md
+  362 total
+
+$ git log --oneline -1 bf2380503b8e4a5d33162026854b0b7b66d18b86
+bf23805 round-40: C2 libalpm exec environment EX1-EX8 on S219-S225
+$ git show --stat --oneline bf2380503b8e4a5d33162026854b0b7b66d18b86
+bf23805 round-40: C2 libalpm exec environment EX1-EX8 on S219-S225
+ corpus/SOURCES.md                               |  7 ++++
+ corpus/knowledge/pacman-exec-environment-r40.md | 45 +++++++++++++++++++++++++
+ 2 files changed, 52 insertions(+)
+$ git log --oneline -1 f951f288483c1af0cef4afd458488b84cf7a2165  # dispatch tip
+f951f28 round-40: before/after receipts (run-receipt.py), assimilation checks, wave generator
+$ git status --porcelain | wc -l   # lane tracked content untouched by this seat
+9
+
+$ python3 - (predicate fields of .ufo/waves/round-40/after/c2-after-bf23805.jsonl)
+objects: 3
+{'receipt': 1, 'receipt_end': None, 'exit_code': None, 'timed_out': None, 'finished_utc': None}
+{'counter': 'check-exec-environment-r40', 'revision': 'bf2380503b8e4a5d33162026854b0b7b66d18b86', 'tool_revision': None, 'result': 'PASS', 'exit': 0, 'rules_verified': 8, 'duplicate_rows': 0, 'duplicate_headings': 0, 'source_ok': 1, 'counts_ok': 2, 'novelty_base_hits': 0}
+predicate: rules_verified == 8 and duplicate_rows == 0 and duplicate_headings == 0 and source_ok == 1 and counts_ok == 2 and novelty_base_hits == 0
+derived: {"EX1": "/", "EX2": "stdout+stderr: one socket; stdin: second socket", "EX3": "SHLVL=1 BASH_ENV=unset umask=0022", "EX4": "/usr/bin/bash", "EX4_default": "/bin/sh", "EX5": "tmp/alpm_XXXXXX/.INSTALL", "EX6": "sorted, deduplicated, one per line", "EX7": "could not satisfy dependencies", "EX8": "NoExtract"}
+host: {"hooks_total": 69, "hooks_needstargets": 14, "libalpm_usr_bin_bash": 1}
+{'receipt': None, 'receipt_end': 1, 'exit_code': 0, 'timed_out': False, 'finished_utc': '2026-10-26T07:08:36Z'}
+
+$ awk -F'\t' 'NR>1' .ufo/waves/round-40/frozen/hostcap/hooks-needstargets.tsv | wc -l
+69
+$ awk -F'\t' 'NR>1 && $3==1' .ufo/waves/round-40/frozen/hostcap/hooks-needstargets.tsv | wc -l
+14
+$ cat .ufo/waves/round-40/frozen/hostcap/libalpm-shell-strings.txt
+1263:/usr/bin/ldconfig
+1277:/usr/bin/bash
+$ grep -c '/bin/sh' .ufo/waves/round-40/frozen/hostcap/libalpm-shell-strings.txt
+0
+$ sha256sum .ufo/waves/round-40/frozen/hostcap/MANIFEST.sha256
+57888c10574736065bc74e48258ebff325322e95f659306642822a94e84411b5  .ufo/waves/round-40/frozen/hostcap/MANIFEST.sha256
+
+$ grep -n 'S219\|S220\|S221\|S222\|S223\|S224\|S225' corpus/SOURCES.md | cut -c1-60
+228:| S219 | pacman meson_options.txt at 54d9411 — https:/
+229:| S220 | Arch pacman PKGBUILD at 7.1.0.r9.g54d9411-3 —
+230:| S221 | libalpm util.c at pacman 54d9411 — https://gi
+231:| S222 | libalpm trans.c at pacman 54d9411 — https://g
+232:| S223 | libalpm hook.c at pacman 54d9411 — https://gi
+233:| S224 | alpm-hooks(5) source at pacman 54d9411 — http
+234:| S225 | Round-40 host exec capture — .ufo/waves/round
+
+$ grep -rn 'pause was lifted\|lifted the pause\|pause remains\|pause still' corpus/*.md corpus/knowledge/*.md SKILL.md PROVINCE.md ; echo exit=$?
+exit=1
+
+$ awk 'NR>=311 && NR<=317 {printf "%d: %.100s\n", NR, $0}' corpus/README.md
+311: | `knowledge/pacman-transaction-order-r39.md` | The libalpm transaction order TO1–TO8 at pacman `54d
+312: 
+313: ### Frontier notice — round 39
+314: 
+315: The round-38 notice above (`corpus/README.md:300-301`) carried one known limit — "an absent `/sys/fs
+316: 
+317: The Sources pointer for the new row also includes `lessons/round-39.md` Gate (rows S213–S218) and th

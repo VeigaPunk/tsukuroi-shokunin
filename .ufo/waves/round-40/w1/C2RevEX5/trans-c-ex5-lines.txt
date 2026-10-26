@@ -1,0 +1,73 @@
+# C2RevEX5 — cited lines of the pinned snapshot trans.c (S222, sha256 637c1165790ddd1c9d80bb0bfed9d85b1f5baa9b8e5a2e323243c5764ac4ed07)
+# File: .ufo/waves/round-40/frozen/src/trans.c (digest verified against SHA256SUMS and against the
+# upstream raw re-opened 2026-10-26T07:15:30Z). Lines cited by row EX5 and by this seat's clause checks.
+# `grep -cF '/* create a directory in $root/tmp/ for copying/extracting the scriptlet */'` on this file → 1.
+360	/* create a directory in $root/tmp/ for copying/extracting the scriptlet */
+361	len = strlen(handle->root) + strlen("tmp/alpm_XXXXXX") + 1;
+362	MALLOC(tmpdir, len, RET_ERR(handle, ALPM_ERR_MEMORY, -1));
+363	snprintf(tmpdir, len, "%stmp/", handle->root);
+364	if(access(tmpdir, F_OK) != 0) {
+365		_alpm_makepath_mode(tmpdir, 01777);
+366	}
+367	snprintf(tmpdir, len, "%stmp/alpm_XXXXXX", handle->root);
+368	if(mkdtemp(tmpdir) == NULL) {
+369		_alpm_log(handle, ALPM_LOG_ERROR, _("could not create temp directory\n"));
+370		free(tmpdir);
+371		return 1;
+372	}
+373
+374	/* either extract or copy the scriptlet */
+375	len += strlen("/.INSTALL");
+376	MALLOC(scriptfn, len, free(tmpdir); RET_ERR(handle, ALPM_ERR_MEMORY, -1));
+377	snprintf(scriptfn, len, "%s/.INSTALL", tmpdir);
+378	if(is_archive) {
+379		if(_alpm_unpack_single(handle, filepath, tmpdir, ".INSTALL")) {
+380			retval = 1;
+381		}
+382	} else {
+383		if(_alpm_copyfile(filepath, scriptfn)) {
+384			_alpm_log(handle, ALPM_LOG_ERROR, _("could not copy tempfile to %s (%s)\n"), scriptfn, strerror(errno));
+385			retval = 1;
+386		}
+387	}
+388	if(retval == 1) {
+389		goto cleanup;
+390	}
+391
+392	if(is_archive && !grep(scriptfn, script)) {
+393		/* script not found in extracted scriptlet file */
+394		goto cleanup;
+395	}
+396
+397	/* chop off the root so we can find the tmpdir in the chroot */
+398	scriptpath = scriptfn + strlen(handle->root) - 1;
+399
+400	if(oldver) {
+401		snprintf(cmdline, PATH_MAX, ". %s; %s %s %s",
+402				scriptpath, script, ver, oldver);
+403	} else {
+404		snprintf(cmdline, PATH_MAX, ". %s; %s %s",
+405				scriptpath, script, ver);
+406	}
+407
+408	_alpm_log(handle, ALPM_LOG_DEBUG, "executing \"%s\"\n", cmdline);
+409
+410	retval = _alpm_run_chroot(handle, SCRIPTLET_SHELL, argv, NULL, NULL);
+411
+412cleanup:
+413	if(scriptfn && unlink(scriptfn)) {
+414		_alpm_log(handle, ALPM_LOG_WARNING,
+415				_("could not remove %s\n"), scriptfn);
+416	}
+417	if(rmdir(tmpdir)) {
+418		_alpm_log(handle, ALPM_LOG_WARNING,
+419				_("could not remove tmpdir %s\n"), tmpdir);
+420	}
+421
+422	free(scriptfn);
+# (leading tabs of the original are shown as indentation; line numbers verified by grep -n on the file)
+# Related pinned util.c lines (_alpm_makepath_mode, sha256 381618b6054859ec76807956328b78b330237273bebe10022a559b243cb5bdd2):
+118	oldmask = umask(0000);
+129		if(mkdir(str, mode) < 0 && errno != EEXIST) {
+140	if(mkdir(str, mode) < 0 && errno != EEXIST) {
+145	umask(oldmask);

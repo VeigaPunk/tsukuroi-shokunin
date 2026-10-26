@@ -1,0 +1,15 @@
+C1CritAxis receipt: fstype field case on this host (2026-10-26).
+
+$ grep -c "[A-Z]" /proc/filesystems
+0
+$ grep btrfs /proc/filesystems
+btrfs
+$ awk '$3 ~ /[A-Z]/ {print $1, $2, $3}' /proc/self/mounts
+Grok_Bot_0.70.2.AppImage /tmp/.mount_appimazO1icm fuse.Grok_Bot_0.70.2.AppImage
+$ awk '$3 == "btrfs" {print $2, $3}' /proc/self/mounts
+/ btrfs
+/home btrfs
+/var/cache/pacman/pkg btrfs
+/var/log btrfs
+$ awk '{print $3}' /proc/self/mounts | grep -c "[A-Z]"
+1

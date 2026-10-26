@@ -315,3 +315,39 @@ inside the round-38 storage arm above, not a new coverage surface.
 The round-38 notice above (`corpus/README.md:300-301`) carried one known limit — "an absent `/sys/fs/btrfs` reads `HEALTHY 0/0/0`, so a namespace that hides it gives a false all-clear" — and C1 closes it for a btrfs mount that the process's mount table lists: since `../tools/tsukuroi-census.sh` `probe_storage_arm` at commit `49cc53c7`, a sysfs root that is absent or holds no fsid entry reads `HEALTHY 0/0/0` only when the mount table (`/proc/self/mounts`, override `TSUKUROI_PROC_MOUNTS`) lists no btrfs mount; with one listed the STORAGE line is `state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs`, and an unreadable table is `state=BLOCKED … detail=mounts:unreadable` (`../PROVINCE.md` "Round-39 limit closure — R38-ABSENT-ROOT"). Core now additionally holds that one read of the mount table, read for this guard only and not a new owned surface, and the line stays verdict-neutral; `../tools/score-storage-hidden-r39.py` counts it under the frozen predicate — hidden 2/2, three views built on tmpfs inside `unshare -rm` from stdin (closing R38-Q82-LEAK), fixtures 5/5, live 1, six planes 1 — with the author receipt `.ufo/waves/round-39/after/c1-after-49cc53c.jsonl` PASS. **Still Frontier, unchanged:** the scrub record and NVMe SMART (`../PROVINCE.md:234-235`). **Remaining limit:** the namespace-sensitive behaviour cannot be told apart on this host, whose live answer is constant `HEALTHY 1/1/0`, and no host-side injection is authorized; the round-38 v1 counter's fixture F06 encodes the superseded rule and fails 9/10 at post-C1 revisions by construction (`../SCORECARD.md:2232-2234`).
 
 The Sources pointer for the new row also includes `lessons/round-39.md` Gate (rows S213–S218) and the round-39 wave-1 correction block appended to the entry (TO5 discriminating instance, TO3 verbs, TO8 stderr).
+
+## Round 40 — the libalpm execution environment for hooks and scriptlets (2026-10-26)
+
+Append-only (drafted by wave seat C2ScribeReadme, integrated by the L1); the coverage map and Frontier bullets above
+stay as written. The C2 entry deepens the held update-safety plane (`../PROVINCE.md` Core) and is not new coverage: it
+states what a hook command or an install scriptlet finds when it starts, where `knowledge/pacman-hook-order-r38.md`
+states which hooks run in what order within a phase and `knowledge/pacman-transaction-order-r39.md` states where the
+phases and scriptlets sit in a transaction and how their output is logged.
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/pacman-exec-environment-r40.md` | The environment a hook command or an install scriptlet finds when it starts, at pacman `54d9411` as built by Arch `7.1.0.r9.g54d9411-3`, deepening the update-safety plane whose within-phase hook order is `knowledge/pacman-hook-order-r38.md` (HO1–HO7) and whose transaction position is `knowledge/pacman-transaction-order-r39.md` (TO1–TO8): working directory `/` (EX1); stdout and stderr merged on one socket with stdin a second socket the parent closes at once, so a command without a `NeedsTargets` input callback reads end-of-file (EX2); `SHLVL` set to 1 only when unset, `BASH_ENV` removed, umask 0022, every other inherited variable passed through (EX3); scriptlets run as `/usr/bin/bash -c '. <scriptlet>; <function> <new version> [<old version>]'`, the upstream build default being `/bin/sh` (EX4); the scriptlet staged at `<root>/tmp/alpm_XXXXXX/.INSTALL` and removed afterwards (EX5); `NeedsTargets` stdin sorted, de-duplicated across triggers, one target per line (EX6); the `running` line logged before `Depends` is checked, an unmet `Depends` skipping the command and aborting only a PreTransaction hook carrying `AbortOnFail` (EX7); `Path` triggers matching file-list names, skipping `NoExtract` and ignoring `NoUpgrade`, so a `.pacnew` outcome still matches (EX8). Host values: 14 of 69 effective hook files carry `NeedsTargets`, the same count round 38 measured (a cross-capture agreement, not proof), and the installed `libalpm.so.16.0.1` holds `/usr/bin/bash` at strings index 1277 and no `/bin/sh` (consistency with EX4, not execution evidence). The four residual mechanism propositions round 39 deferred (`corpus/lessons/round-39.md:56`) are answered here — four re-grounded, plus one derived inference rejected (`corpus/lessons/round-40.md` Gate) | S219–S225; `.ufo/waves/round-40/frozen/src/` (SHA256SUMS, FETCH.txt) and `.ufo/waves/round-40/frozen/hostcap/` (MANIFEST sha256 `57888c10…`); `../SCORECARD.md` "Round 40 — declaration"; counter `../tools/check-exec-environment-r40.py` (sha256 `d4a2bb94…`), author receipt `.ufo/waves/round-40/after/c2-after-bf23805.jsonl` PASS (`rules_verified 8`, `counts_ok 2`, `novelty_base_hits 0`) at `bf23805` |
+
+### Frontier notice — round 40
+
+Round 40 promotes nothing. The entry is held update-safety Core depth, and no Frontier area moves: the round-26
+condition for a Frontier area to become Core needs a read-only census arm (`corpus/README.md:243`), which this round
+does not add, and the storage items are unchanged — the scrub record and NVMe SMART stay Frontier
+(`../PROVINCE.md:234-236`) and the namespace-sensitive STORAGE reading keeps its limit (`corpus/README.md:315`).
+
+Three limits the entry names itself stay open (`knowledge/pacman-exec-environment-r40.md:38-45`). First, the environment
+that reaches pacman itself — sudo's `env_reset`, a systemd unit — is unread, so EX3 bounds the pass-through at pacman's
+own process. Second, EX1–EX3 and EX5 have no host instance: observing them needs a running transaction, and the fleet's
+pacman pause stands (`knowledge/pause-lift-gate-r24.md:7-12`, which authorizes no lane to run a transaction), so those
+four rows rest on the pinned source alone. Third, the two Arch packaging patches that touch libalpm (`PKGBUILD:54-55`) are
+named for review with their file scope not established. One further unobservable branch is not stated in the entry: EX7's
+abort path has no instance here, because 0 of the 17 Pre hooks carry `AbortOnFail` as round 38 measured
+(`knowledge/pacman-hook-order-r38.md:24`) and the round-40 capture re-measures only the `NeedsTargets` column
+(`.ufo/waves/round-40/frozen/hostcap/hooks-needstargets.tsv:1`). A transaction-time observation of EX1–EX3, EX5 or that
+branch is therefore operator-owned, not a lane action. The boundary with the lane's own tooling is the round-36
+child-environment probe, which covers five lane tools and not ALPM's chroot children (`corpus/README.md:258-266`).
+
+The Sources pointer for the new row also includes `lessons/round-40.md` Gate (rows S219–S225 and the assimilation
+re-grounding of the four deferred propositions).
+
+The Sources pointer also covers S226 (alpm-hooks.5 CAVEATS, added by the wave corrections appended to the entry) and the S208/S209 used-by additions logged in `lessons/round-40.md` Gate.

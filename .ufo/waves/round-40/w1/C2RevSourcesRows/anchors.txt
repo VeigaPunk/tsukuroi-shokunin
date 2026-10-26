@@ -1,0 +1,113 @@
+# S219 meson_options.txt 16-19
+     1	
+     2	option('scriptlet-shell', type : 'string', value : '/bin/sh',
+     3	       description : 'The full path of the shell used to run install scriptlets')
+     4	
+# S220 PKGBUILD 108-118
+     1	build() {
+     2	  cd "$pkgname"
+     3	
+     4	  meson --prefix=/usr \
+     5	        --buildtype=plain \
+     6	        -Ddoc=enabled \
+     7	        -Ddoxygen=enabled \
+     8	        -Dscriptlet-shell=/usr/bin/bash \
+     9	        -Dldconfig=/usr/bin/ldconfig \
+    10	        build
+    11	
+# S220 PKGBUILD 51-55
+     1	source=("git+https://gitlab.archlinux.org/pacman/pacman.git?signed#tag=v${_git_tag}"
+     2	        "revertme-makepkg-remove-libdepends-and-libprovides.patch::https://gitlab.archlinux.org/pacman/pacman/-/commit/354a300cd26bb1c7e6551473596be5ecced921de.patch"
+     3	        "patch-reproducible-builds.patch::https://gitlab.archlinux.org/pacman/pacman/-/commit/f4bdb77470528019aaba4d8b8f947e918c6db17d.patch"
+     4	        '0001-libalpm-invalidate-curl-data-in-child.patch'
+     5	        '0002-libalpm-use-curl-s-effective-url-without-authenticat.patch'
+# S221 util.c anchors
+351:	oldmask = umask(0022);
+628:	if(chdir(handle->root) != 0) {
+665:		while(dup2(child2parent_pipefd[HEAD], 1) == -1 && errno == EINTR);
+666:		while(dup2(child2parent_pipefd[HEAD], 2) == -1 && errno == EINTR);
+667:		while(dup2(parent2child_pipefd[TAIL], 0) == -1 && errno == EINTR);
+679:		if(strcmp(handle->root, "/") != 0 && chroot(handle->root) != 0) {
+683:		if(chdir("/") != 0) {
+690:		 * set SHLVL before running to indicate that it's a child shell and
+692:		setenv("SHLVL", "1", 0);
+693:		/* bash sources $BASH_ENV when run non-interactively */
+694:		unsetenv("BASH_ENV");
+695:		umask(0022);
+# S221 util.c 715-727 stdin close
+     1			close(child2parent_pipefd[HEAD]);
+     2			close(parent2child_pipefd[TAIL]);
+     3	
+     4			if(stdin_cb) {
+     5				parent2child->fd = parent2child_pipefd[HEAD];
+     6				parent2child->events = POLLOUT;
+     7				fcntl(parent2child->fd, F_SETFL, O_NONBLOCK);
+     8			} else {
+     9				parent2child->fd = -1;
+    10				parent2child->events = 0;
+    11				close(parent2child_pipefd[HEAD]);
+    12			}
+    13	
+# S222 trans.c anchors
+340:	char arg0[PATH_MAX], arg1[3], cmdline[PATH_MAX];
+341:	char *argv[] = { arg0, arg1, cmdline, NULL };
+357:	strcpy(arg0, SCRIPTLET_SHELL);
+358:	strcpy(arg1, "-c");
+368:	if(mkdtemp(tmpdir) == NULL) {
+375:	len += strlen("/.INSTALL");
+377:	snprintf(scriptfn, len, "%s/.INSTALL", tmpdir);
+379:		if(_alpm_unpack_single(handle, filepath, tmpdir, ".INSTALL")) {
+401:		snprintf(cmdline, PATH_MAX, ". %s; %s %s %s",
+404:		snprintf(cmdline, PATH_MAX, ". %s; %s %s",
+408:	_alpm_log(handle, ALPM_LOG_DEBUG, "executing \"%s\"\n", cmdline);
+410:	retval = _alpm_run_chroot(handle, SCRIPTLET_SHELL, argv, NULL, NULL);
+413:	if(scriptfn && unlink(scriptfn)) {
+417:	if(rmdir(tmpdir)) {
+# S223 hook.c anchors
+258:static int _alpm_hook_trigger_match_file(alpm_handle_t *handle,
+271:			if(alpm_option_match_noextract(handle, filelist.files[f].name) == 0) {
+424:		: _alpm_hook_trigger_match_file(handle, hook, t);
+469:static ssize_t _alpm_hook_feed_targets(char *buf, ssize_t needed, alpm_list_t **pos)
+507:static int _alpm_hook_run_hook(alpm_handle_t *handle, struct _alpm_hook_t *hook)
+526:				(_alpm_cb_io) _alpm_hook_feed_targets, &ctx);
+653:			alpm_logaction(handle, ALPM_CALLER_PREFIX, "running '%s'...\n", hook->name);
+660:			if(_alpm_hook_run_hook(handle, hook) != 0 && hook->abort_on_fail) {
+# S224 asciidoc 58-95
+     1		See CAVEATS for special notes regarding Path triggers. 'File' is a deprecated
+     2		alias for 'Path' and will be removed in a future release.  Required.
+     3	
+     4	*Target =* <path|package>::
+     5		The path or package name to match against the active transaction.
+     6		Paths refer to the files in the package archive; the installation root
+     7		should *not* be included in the path.  Shell-style glob patterns are
+     8		allowed. It is possible to invert matches by prepending a target with an
+     9		exclamation mark. May be specified multiple times, with subsequent
+    10		matches overriding previous ones. Required.
+    11	
+    12	ACTIONS
+    13	-------
+    14	
+    15	*Description =* ...::
+    16		An optional description that describes the action being taken by the
+    17		hook for use in front-end output.
+    18	
+    19	*Exec =* <command>::
+    20		Command to run.  Command arguments are split on whitespace.  Values
+    21		containing whitespace should be enclosed in quotes.  Required.
+    22	
+    23	*When =* PreTransaction|PostTransaction::
+    24		When to run the hook.  Required.
+    25	
+    26	*Depends =* <package>::
+    27		Packages that must be installed for the hook to run. May be specified
+    28		multiple times.
+    29	
+    30	*AbortOnFail*::
+    31		Causes the transaction to be aborted if the hook exits non-zero.  Only
+    32		applies to PreTransaction hooks.
+    33	
+    34	*NeedsTargets*::
+    35		Causes the list of matched trigger targets to be passed to the running hook
+    36		on 'stdin'.
+    37	
+    38	OVERRIDING HOOKS

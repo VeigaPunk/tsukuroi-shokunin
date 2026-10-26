@@ -1,0 +1,54 @@
+$ scripts/sources-census.sh census --file <l1 fixture as shipped>
+file	rows	0
+FLEET	rows	0
+FLEET	tier.A	0
+FLEET	tier.B	0
+FLEET	tier.C	0
+FLEET	tier.invalid	0
+FLEET	status.queued	0
+FLEET	status.mined	0
+FLEET	status.rejected	0
+FLEET	status.invalid	0
+FLEET	missing	0
+[exit 0]
+$ scripts/sources-census.sh validate --file <l1 fixture as shipped>
+file	E12	S219 row outside Registry section
+[exit 1]
+$ scripts/sources-census.sh validate --file <l1 fixture + ## Registry heading>
+file	E01	S219 fields=2
+[exit 1]
+$ scripts/sources-census.sh census --file <census-valid fixture>
+file	rows	2
+file	tier.A	2
+file	status.mined	2
+FLEET	rows	2
+FLEET	tier.A	2
+FLEET	tier.B	0
+FLEET	tier.C	0
+FLEET	tier.invalid	0
+FLEET	status.queued	0
+FLEET	status.mined	2
+FLEET	status.rejected	0
+FLEET	status.invalid	0
+FLEET	missing	0
+[exit 0]
+$ scripts/sources-census.sh validate --file <census-valid fixture>
+file	W03	S001 mined but unused
+file	W03	S219 mined but unused
+file	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-40/w1/AsmCollision/fixture-census-valid-SOURCES.md
+[exit 0]
+$ scripts/sources-census.sh census --file <4-space fixture>
+file	rows	1
+file	tier.A	1
+file	status.mined	1
+FLEET	rows	1
+FLEET	tier.A	1
+FLEET	tier.B	0
+FLEET	tier.C	0
+FLEET	tier.invalid	0
+FLEET	status.queued	0
+FLEET	status.mined	1
+FLEET	status.rejected	0
+FLEET	status.invalid	0
+FLEET	missing	0
+[exit 0]

@@ -2319,3 +2319,81 @@ implies `fsn > 0`, and `fsn > 0` with `devn == 0` sets `blocked=1` (no-devinfo) 
 Causal separability: C1 touches only `run_selftest` in `tools/tsukuroi-census.sh`; C2 touches a new knowledge entry
 and `corpus/SOURCES.md`; neither counter reads the other's surface. Sourced claim: C2 (S219–S225 opened this round).
 Measured revision: the lane branch tip named in the round-40 outcome section.
+
+### Round 39 — gates-receipt disclosure correction (append-only; round-39 closure §6 item 4, `corpus/lessons/round-39-verifier-spotcheck.md:189`)
+
+Appended by round-40 seat RoutedGatesRow. This adds a disclosure; no earlier line is rewritten.
+
+The round-39 measured-outcome paragraph names seven gates "all PASS exit 0" and cites `after/gates-final-a2d7aad.txt`
+(`SCORECARD.md:2253-2255`). The cited receipt holds eight gate rows. Its eighth, `:2`, is `check-self-assessment rc=1`,
+and that 427-byte line ends inside the first `checks` entry, so the row carries the header fields but not the seven
+check ids:
+
+> `check-self-assessment rc=1 {  "revision": "a2d7aad740977088ff9fc70ed36d3ef978b27e81",  "checked": 27,  "mismatches": 7,  "status": "FAIL",  "declaring_round": 38,  "axes_heading": "## Axes \u2014 current self-assessment (round 38 final measured surface)",  "reference_lines": 444,  "checks": [   {    "id": "K01",    "subject": "depth score equals the after-value of the last recorded depth ordinal transition",    "stated": 8,`
+
+(`.ufo/waves/round-39/after/gates-final-a2d7aad.txt:2`, quoted to end of line.) The other seven rows are `rc=0`
+(`:1`, `:3`-`:8`). One row of the eight was therefore red in the file the sentence cited.
+
+Why it was red: `a2d7aad7` precedes `eeba342e`, the commit that appended the round-39 axes table (heading
+`## Axes — current self-assessment (round 39 final measured surface)`, `:2262`). At `a2d7aad7` the last axes table on
+file was still the round-38 one at `:2181`, with count cells 59 notes, 3201 `SKILL.md` lines, 861 table lines, 52
+lesson files, 301 `corpus/README.md` lines and 113 census cases (`:2187-2189`, `:2199`); the checker compared those
+stale cells with the round-39 tree and reported seven mismatches — K07 59 against 60, K08 3201 against 3322, K09 861
+against 885, K10 52 against 54, K11 301 against 317, K13 and K17 113 against 119. Re-running the same tool at
+`a2d7aad7` in round 40 reproduces `checked 27, mismatches 7, FAIL`, exit 1, with exactly those seven ids
+(`python3 tools/check-self-assessment.py --revision a2d7aad740977088ff9fc70ed36d3ef978b27e81`; receipt
+`.ufo/waves/round-40/w1/RoutedGatesRow/check-a2d7aad.json`).
+
+The final self-assessment run is green: `after/self-assessment-final.json:2-6` reads
+`"revision": "eeba342ea06ad0069899b3b8b4bbea6af98df610"`, `"checked": 27`, `"mismatches": 0`, `"status": "PASS"`,
+`"declaring_round": 39`, and a round-40 re-run at `eeba342e` reproduced those fields equal dict-for-dict
+(`check-eeba342.json`). The red row is a pre-`eeba342e` artefact of the stale round-38 table, not an overclaim in the
+round-39 records.
+
+Two limits, stated rather than implied. First, the calibration row's parenthetical at `:2272` names only K10 and states
+lessons 52 → 53, while the receipt's red is seven checks (listed above) and the observed lesson count at `a2d7aad7` is
+54. Second, this section records round 39 only: the round-39 table is stale at the round-40 tip by construction, because round 40 has not yet appended its own table, and no green-at-tip claim is made here. Line numbers in this section are those of the tree before the section was inserted; `:2262` and `:2272` shift by its length.
+
+### Round-39 receipt-provenance scoping correction (append-only; routed defect §6.5)
+
+The measured-outcome paragraph at `SCORECARD.md:2245` says "Receipts under `.ufo/waves/round-39/after/`, each written
+by `tools/run-receipt.py` (revision, tool, tool_sha256, tool_revision `6a08925d`)". The universal quantifier is wrong
+and that reading is superseded; no file and no measurement changes. The check is
+`for f in .ufo/waves/round-39/after/*; do head -1 "$f" | grep -o tool_sha256 || echo NO-HEADER; done`: 4 hits, 5
+`NO-HEADER`, over 9 files. The sentence was already false when written, not merely overtaken: `git ls-tree` at
+`eeba342e`, the commit that introduced it, lists 7 files, of which `gates-final-a2d7aad.txt`,
+`selftest-49cc53c.txt` and `selftest-final-a2d7aad.txt` had no header.
+
+Scoped correctly, the evidence classes are:
+
+- **Four `tools/run-receipt.py` receipts**, fully bound: `after/c1-after-49cc53c.jsonl`,
+  `after/c1-final-a2d7aad.jsonl` (tool `tools/score-storage-hidden-r39.py`, `tool_sha256`
+  `75a9e8abd3f1262e425ce1fde9e3ba4763d08cf21d0b61761719c0ebbae8f973`), `after/c2-after-4078eb2.jsonl`,
+  `after/c2-final-a2d7aad.jsonl` (tool `tools/check-transaction-order-r39.py`, `tool_sha256`
+  `f1c97836abb50887231b82d27cd026d05b8083cefcdd713217071648b07c991e`). Each header names the measured `revision`,
+  `tool_revision` `6a08925daa30767809eb13bb4b01448ff954d46a`, the tool and its digest, and each footer carries
+  `exit_code`; both digests equal the tool bytes at `6a08925d`.
+- **Four direct tool-output captures with no tool digest**, each naming the revision it measured in content:
+  `after/gates-final-a2d7aad.txt` (8 gate rows, every row naming `a2d7aad740977088ff9fc70ed36d3ef978b27e81`, five as
+  `revision` and three as `branch_tip`), `after/self-assessment-final.json` (`"revision"` and `"requested_revision"`
+  `eeba342ea06ad0069899b3b8b4bbea6af98df610`, 27 checked, 0 mismatches), `after/selftest-final-a2d7aad.txt` (line 1
+  names `a2d7aad7` and `PASS (119 cases, 119 passed, 0 failed)`), and `after/sources-census-final.txt` (line 1 names
+  the command and lane tip `eeba342e`).
+- **One capture that names no revision in content**: `after/selftest-49cc53c.txt`, a single line
+  (`PASS (117 cases, 117 passed, 0 failed)`) whose only revision hint is the 7-hex filename. It is not cited by the
+  round-39 outcome section, so no claimed number rests on it.
+
+Two of the file names disagree with the revision their content measures: `self-assessment-final.json` and
+`sources-census-final.txt` are named `-a2d7aad` and measure `eeba342e`. The `a2d7aad7` self-assessment reading is the
+second row of `gates-final-a2d7aad.txt` (`check-self-assessment rc=1`, 7 mismatches), superseded at `eeba342e` as
+§6.4 records.
+
+Read for scope, the sentence at `SCORECARD.md:2215-2216` ("the before receipts were written by
+`tools/run-receipt.py` … so each names the revision, the tool and its sha256") is bounded the same way: of the three
+files in `before/`, `c1-before.jsonl` and `c2-before.jsonl` are headered bindings to the frozen counters, and
+`before/sources-census-start.txt` is a fleet-script capture with no header and no tool digest.
+
+No claim measurement, counter, frozen predicate, kill rule, axis ordinal or capability row changes; the four receipts
+the outcome table cites for C1 and C2 are unchanged and remain bound to the frozen tool bytes.
+
+Erratum: the round-39 declaration heading above states 2026-10-26T06:20Z but its commit `93fddb2c` is committed 2026-10-26T05:59:31Z, and the round-40 declaration heading states no clock time; the commit time is the authority (R40-HEADING-TIMES, LOG entry; drafted by wave seat RoutedTimestamps).

@@ -1,0 +1,11 @@
+--- check-exec-environment-r40.py
++++ M3-accept-base-rows
+@@ -296,7 +296,7 @@
+             if missing:
+                 r['reasons'].append('cited S-id not on source: line: ' + ','.join(missing))
+             rev_tag, path_tail = ARTIFACT[want]
+-            upstream = [i for i in ids if i in srows and i not in base_ids and srows[i]['status'] == 'mined'
++            upstream = [i for i in ids if i in srows and srows[i]['status'] == 'mined'
+                         and srows[i]['opened'] == OPENED and srows[i]['kind'] != 'own-work'
+                         and ENTRY_NAME in srows[i]['used_by'] and rev_tag in srows[i]['title']
+                         and path_tail in srows[i]['title']]

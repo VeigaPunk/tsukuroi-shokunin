@@ -1,0 +1,76 @@
+T0 sort+dedup: input n=8
+  after msort_repl: ["etc/pacman.conf", "etc/pacman.conf", "etc/pacman.conf", "usr/bin/pacman", "usr/bin/pacman-db-upgrade", "usr/lib/firmware/b", "usr/lib/firmware/b", "usr/share/doc/x"]
+  after _alpm_strlist_dedup: ["etc/pacman.conf", "usr/bin/pacman", "usr/bin/pacman-db-upgrade", "usr/lib/firmware/b", "usr/share/doc/x"]
+  head->prev==tail=yes
+T1 feed 4096-byte buffer (buf=4096)
+  call 0: n=92 chunk="etc/pacman.conf\nusr/bin/pacman\nusr/bin/pacman-db-upgrade\nusr/lib/firmware/b\nusr/share/doc/x\n" ends_with_newline=yes
+  call 1: n=0 -> loop ends, pipe closed
+  STREAM(92 bytes)="etc/pacman.conf\nusr/bin/pacman\nusr/bin/pacman-db-upgrade\nusr/lib/firmware/b\nusr/share/doc/x\n"
+  checks: bytes=92 lines=5 sorted=yes dedup=yes last_byte_newline=yes trailing_garbage=0
+T2 feed 16-byte buffer (buf=16)
+  call 0: n=16 chunk="etc/pacman.conf\n" ends_with_newline=yes
+  call 1: n=16 chunk="usr/bin/pacman\nu" ends_with_newline=NO
+  call 2: n=16 chunk="sr/bin/pacman-db" ends_with_newline=NO
+  call 3: n=16 chunk="-upgrade\nusr/lib" ends_with_newline=NO
+  call 4: n=16 chunk="/firmware/b\nusr/" ends_with_newline=NO
+  call 5: n=12 chunk="share/doc/x\n" ends_with_newline=yes
+  call 6: n=0 -> loop ends, pipe closed
+  STREAM(92 bytes)="etc/pacman.conf\nusr/bin/pacman\nusr/bin/pacman-db-upgrade\nusr/lib/firmware/b\nusr/share/doc/x\n"
+  checks: bytes=92 lines=5 sorted=yes dedup=yes last_byte_newline=yes trailing_garbage=0
+T3 16-byte buffer, long tail target (buf=16)
+  call 0: n=16 chunk="etc/pacman.conf\n" ends_with_newline=yes
+  call 1: n=16 chunk="usr/bin/pacman\nu" ends_with_newline=NO
+  call 2: n=16 chunk="sr/share/doc/pac" ends_with_newline=NO
+  call 3: n=16 chunk="man/hooks/verylo" ends_with_newline=NO
+  call 4: n=16 chunk="ngtargetname.txt" ends_with_newline=NO
+  call 5: n=1 chunk="\n" ends_with_newline=yes
+  call 6: n=0 -> loop ends, pipe closed
+  STREAM(81 bytes)="etc/pacman.conf\nusr/bin/pacman\nusr/share/doc/pacman/hooks/verylongtargetname.txt\n"
+  checks: bytes=81 lines=3 sorted=yes dedup=yes last_byte_newline=yes trailing_garbage=0
+T4 single 16-char target, 16-byte buffer (buf=16)
+  call 0: n=16 chunk="0123456789abcdef" ends_with_newline=NO
+  call 1: n=1 chunk="\n" ends_with_newline=yes
+  call 2: n=0 -> loop ends, pipe closed
+  STREAM(17 bytes)="0123456789abcdef\n"
+  checks: bytes=17 lines=1 sorted=yes dedup=yes last_byte_newline=yes trailing_garbage=0
+T5 empty list (buf=16)
+  call 0: n=0 -> loop ends, pipe closed
+  STREAM(0 bytes)=""
+  checks: bytes=0 lines=0 sorted=yes dedup=yes last_byte_newline=NO trailing_garbage=0
+T7 partial branch mutates node data pointer (buf=16)
+  call 0: n=16 chunk="0123456789abcdef" ends_with_newline=NO
+  call 1: n=5 chunk="ghij\n" ends_with_newline=yes
+  call 2: n=0 -> loop ends, pipe closed
+  STREAM(21 bytes)="0123456789abcdefghij\n"
+  checks: bytes=21 lines=1 sorted=yes dedup=yes last_byte_newline=yes trailing_garbage=0
+T7 node->data after partial: "ghij" (orig "0123456789abcdefghij", advanced 16 bytes)
+T7 re-feed same list from head: "ghij\n" (5 bytes, first run was 21)
+T8 input n=80
+T8 input n=60 total_target_bytes=3060 (LINE_MAX buffer=2048)
+T8 production LINE_MAX=2048 buffer (buf=2048)
+  call 0: n=2048 chunk="usr/lib/python3.13/site-packages/pkg00/module00.py\nusr/lib/python3.13/site-packages/pkg00/module07.py\nusr/lib/python3.13/site-packages/pkg00/module14.py\nusr/lib/python3.13/site-packages/pkg00/module21.py\nusr/lib/python3.13/site-packages/pkg00/module28.py\nusr/lib/python3.13/site-packages/pkg00/module35.py\nusr/lib/python3.13/site-packages/pkg00/module42.py\nusr/lib/python3.13/site-packages/pkg00/module49.py\nusr/lib/python3.13/site-packages/pkg00/module56.py\nusr/lib/python3.13/site-packages/pkg01/module01.py\nusr/lib/python3.13/site-packages/pkg01/module08.py\nusr/lib/python3.13/site-packages/pkg01/module15.py\nusr/lib/python3.13/site-packages/pkg01/module22.py\nusr/lib/python3.13/site-packages/pkg01/module29.py\nusr/lib/python3.13/site-packages/pkg01/module36.py\nusr/lib/python3.13/site-packages/pkg01/module43.py\nusr/lib/python3.13/site-packages/pkg01/module50.py\nusr/lib/python3.13/site-packages/pkg01/module57.py\nusr/lib/python3.13/site-packages/pkg02/module02.py\nusr/lib/python3.13/site-packages/pkg02/module09.py\nusr/lib/python3.13/site-packages/pkg02/module16.py\nusr/lib/python3.13/site-packages/pkg02/module23.py\nusr/lib/python3.13/site-packages/pkg02/module30.py\nusr/lib/python3.13/site-packages/pkg02/module37.py\nusr/lib/python3.13/site-packages/pkg02/module44.py\nusr/lib/python3.13/site-packages/pkg02/module51.py\nusr/lib/python3.13/site-packages/pkg02/module58.py\nusr/lib/python3.13/site-packages/pkg03/module03.py\nusr/lib/python3.13/site-packages/pkg03/module10.py\nusr/lib/python3.13/site-packages/pkg03/module17.py\nusr/lib/python3.13/site-packages/pkg03/module24.py\nusr/lib/python3.13/site-packages/pkg03/module31.py\nusr/lib/python3.13/site-packages/pkg03/module38.py\nusr/lib/python3.13/site-packages/pkg03/module45.py\nusr/lib/python3.13/site-packages/pkg03/module52.py\nusr/lib/python3.13/site-packages/pkg03/module59.py\nusr/lib/python3.13/site-packages/pkg04/module04.py\nusr/lib/python3.13/site-packages/pkg04/module11.py\nusr/lib/python3.13/site-packages/pkg04/module18.py\nusr/lib/python3.13/site-packages/pkg04/module25.py\nusr/lib/" ends_with_newline=NO
+  call 1: n=1012 chunk="python3.13/site-packages/pkg04/module32.py\nusr/lib/python3.13/site-packages/pkg04/module39.py\nusr/lib/python3.13/site-packages/pkg04/module46.py\nusr/lib/python3.13/site-packages/pkg04/module53.py\nusr/lib/python3.13/site-packages/pkg05/module05.py\nusr/lib/python3.13/site-packages/pkg05/module12.py\nusr/lib/python3.13/site-packages/pkg05/module19.py\nusr/lib/python3.13/site-packages/pkg05/module26.py\nusr/lib/python3.13/site-packages/pkg05/module33.py\nusr/lib/python3.13/site-packages/pkg05/module40.py\nusr/lib/python3.13/site-packages/pkg05/module47.py\nusr/lib/python3.13/site-packages/pkg05/module54.py\nusr/lib/python3.13/site-packages/pkg06/module06.py\nusr/lib/python3.13/site-packages/pkg06/module13.py\nusr/lib/python3.13/site-packages/pkg06/module20.py\nusr/lib/python3.13/site-packages/pkg06/module27.py\nusr/lib/python3.13/site-packages/pkg06/module34.py\nusr/lib/python3.13/site-packages/pkg06/module41.py\nusr/lib/python3.13/site-packages/pkg06/module48.py\nusr/lib/python3.13/site-packages/pkg06/module55.py\n" ends_with_newline=yes
+  call 2: n=0 -> loop ends, pipe closed
+  STREAM(3060 bytes)="usr/lib/python3.13/site-packages/pkg00/module00.py\nusr/lib/python3.13/site-packages/pkg00/module07.py\nusr/lib/python3.13/site-packages/pkg00/module14.py\nusr/lib/python3.13/site-packages/pkg00/module21.py\nusr/lib/python3.13/site-packages/pkg00/module28.py\nusr/lib/python3.13/site-packages/pkg00/module35.py\nusr/lib/python3.13/site-packages/pkg00/module42.py\nusr/lib/python3.13/site-packages/pkg00/module49.py\nusr/lib/python3.13/site-packages/pkg00/module56.py\nusr/lib/python3.13/site-packages/pkg01/module01.py\nusr/lib/python3.13/site-packages/pkg01/module08.py\nusr/lib/python3.13/site-packages/pkg01/module15.py\nusr/lib/python3.13/site-packages/pkg01/module22.py\nusr/lib/python3.13/site-packages/pkg01/module29.py\nusr/lib/python3.13/site-packages/pkg01/module36.py\nusr/lib/python3.13/site-packages/pkg01/module43.py\nusr/lib/python3.13/site-packages/pkg01/module50.py\nusr/lib/python3.13/site-packages/pkg01/module57.py\nusr/lib/python3.13/site-packages/pkg02/module02.py\nusr/lib/python3.13/site-packages/pkg02/module09.py\nusr/lib/python3.13/site-packages/pkg02/module16.py\nusr/lib/python3.13/site-packages/pkg02/module23.py\nusr/lib/python3.13/site-packages/pkg02/module30.py\nusr/lib/python3.13/site-packages/pkg02/module37.py\nusr/lib/python3.13/site-packages/pkg02/module44.py\nusr/lib/python3.13/site-packages/pkg02/module51.py\nusr/lib/python3.13/site-packages/pkg02/module58.py\nusr/lib/python3.13/site-packages/pkg03/module03.py\nusr/lib/python3.13/site-packages/pkg03/module10.py\nusr/lib/python3.13/site-packages/pkg03/module17.py\nusr/lib/python3.13/site-packages/pkg03/module24.py\nusr/lib/python3.13/site-packages/pkg03/module31.py\nusr/lib/python3.13/site-packages/pkg03/module38.py\nusr/lib/python3.13/site-packages/pkg03/module45.py\nusr/lib/python3.13/site-packages/pkg03/module52.py\nusr/lib/python3.13/site-packages/pkg03/module59.py\nusr/lib/python3.13/site-packages/pkg04/module04.py\nusr/lib/python3.13/site-packages/pkg04/module11.py\nusr/lib/python3.13/site-packages/pkg04/module18.py\nusr/lib/python3.13/site-packages/pkg04/module25.py\nusr/lib/python3.13/site-packages/pkg04/module32.py\nusr/lib/python3.13/site-packages/pkg04/module39.py\nusr/lib/python3.13/site-packages/pkg04/module46.py\nusr/lib/python3.13/site-packages/pkg04/module53.py\nusr/lib/python3.13/site-packages/pkg05/module05.py\nusr/lib/python3.13/site-packages/pkg05/module12.py\nusr/lib/python3.13/site-packages/pkg05/module19.py\nusr/lib/python3.13/site-packages/pkg05/module26.py\nusr/lib/python3.13/site-packages/pkg05/module33.py\nusr/lib/python3.13/site-packages/pkg05/module40.py\nusr/lib/python3.13/site-packages/pkg05/module47.py\nusr/lib/python3.13/site-packages/pkg05/module54.py\nusr/lib/python3.13/site-packages/pkg06/module06.py\nusr/lib/python3.13/site-packages/pkg06/module13.py\nusr/lib/python3.13/site-packages/pkg06/module20.py\nusr/lib/python3.13/site-packages/pkg06/module27.py\nusr/lib/python3.13/site-packages/pkg06/module34.py\nusr/lib/python3.13/site-packages/pkg06/module41.py\nusr/lib/python3.13/site-packages/pkg06/module48.py\nusr/lib/python3.13/site-packages/pkg06/module55.py\n"
+  checks: bytes=3060 lines=60 sorted=yes dedup=yes last_byte_newline=yes trailing_garbage=0
+T9 bytewise strcmp order, prefix vs exact (buf=4096)
+  call 0: n=52 chunk="etc/Z\netc/a\nusr/bin/Foo\nusr/bin/foo\nusr/bin/foo-bar\n" ends_with_newline=yes
+  call 1: n=0 -> loop ends, pipe closed
+  STREAM(52 bytes)="etc/Z\netc/a\nusr/bin/Foo\nusr/bin/foo\nusr/bin/foo-bar\n"
+  checks: bytes=52 lines=5 sorted=yes dedup=yes last_byte_newline=yes trailing_garbage=0
+T6a 4096 (buf=4096)
+  call 0: n=92 chunk="etc/pacman.conf\nusr/bin/pacman\nusr/bin/pacman-db-upgrade\nusr/lib/firmware/b\nusr/share/doc/x\n" ends_with_newline=yes
+  call 1: n=0 -> loop ends, pipe closed
+  STREAM(92 bytes)="etc/pacman.conf\nusr/bin/pacman\nusr/bin/pacman-db-upgrade\nusr/lib/firmware/b\nusr/share/doc/x\n"
+  checks: bytes=92 lines=5 sorted=yes dedup=yes last_byte_newline=yes trailing_garbage=0
+T6b 16 (buf=16)
+  call 0: n=16 chunk="etc/pacman.conf\n" ends_with_newline=yes
+  call 1: n=16 chunk="usr/bin/pacman\nu" ends_with_newline=NO
+  call 2: n=16 chunk="sr/bin/pacman-db" ends_with_newline=NO
+  call 3: n=16 chunk="-upgrade\nusr/lib" ends_with_newline=NO
+  call 4: n=16 chunk="/firmware/b\nusr/" ends_with_newline=NO
+  call 5: n=12 chunk="share/doc/x\n" ends_with_newline=yes
+  call 6: n=0 -> loop ends, pipe closed
+  STREAM(92 bytes)="etc/pacman.conf\nusr/bin/pacman\nusr/bin/pacman-db-upgrade\nusr/lib/firmware/b\nusr/share/doc/x\n"
+  checks: bytes=92 lines=5 sorted=yes dedup=yes last_byte_newline=yes trailing_garbage=0
+T6 stream equality across buffers: IDENTICAL (4096 n=92 calls=1, 16 n=92 calls=6)

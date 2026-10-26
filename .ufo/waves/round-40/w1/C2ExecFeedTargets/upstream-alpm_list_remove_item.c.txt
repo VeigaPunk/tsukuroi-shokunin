@@ -1,0 +1,36 @@
+alpm_list_t SYMEXPORT *alpm_list_remove_item(alpm_list_t *haystack,
+		alpm_list_t *item)
+{
+	if(haystack == NULL || item == NULL) {
+		return haystack;
+	}
+
+	if(item == haystack) {
+		/* Special case: removing the head node which has a back reference to
+		 * the tail node */
+		haystack = item->next;
+		if(haystack) {
+			haystack->prev = item->prev;
+		}
+		item->prev = NULL;
+	} else if(item == haystack->prev) {
+		/* Special case: removing the tail node, so we need to fix the back
+		 * reference on the head node. We also know tail != head. */
+		if(item->prev) {
+			/* i->next should always be null */
+			item->prev->next = item->next;
+			haystack->prev = item->prev;
+			item->prev = NULL;
+		}
+	} else {
+		/* Normal case, non-head and non-tail node */
+		if(item->next) {
+			item->next->prev = item->prev;
+		}
+		if(item->prev) {
+			item->prev->next = item->next;
+		}
+	}
+
+	return haystack;
+}

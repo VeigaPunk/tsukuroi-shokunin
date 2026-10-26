@@ -1,0 +1,15 @@
+# host checks, 2026-10-26, read-only
+$ pacman-conf RootDir
+/
+$ findmnt -no TARGET,SOURCE,FSTYPE /tmp
+/tmp /dev/nvme1n1p1 xfs
+$ strings /usr/lib/libalpm.so.16.0.1 | grep -x /bin/sh | wc -l
+0
+$ strings /usr/lib/libalpm.so.16.0.1 | grep -n -x /usr/bin/bash
+1277:/usr/bin/bash
+$ grep -c "could not satisfy dependencies" /var/log/pacman.log
+0
+rc=1
+
+# PROVINCE.md:176 (held lane text about /tmp)
+second NVMe device (`/tmp`, `/fast`) is unread

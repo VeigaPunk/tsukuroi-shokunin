@@ -1,0 +1,26 @@
+# C2CritEX8 fixture clone (read-only clone of the lane, scratch only)
+clone: /fast/scratch/hyaku/tsukuroi-r40/C2CritEX8/fx.IByUh8
+toplevel: /fast/scratch/hyaku/tsukuroi-r40/C2CritEX8/fx.IByUh8
+identity: fixture <fixture@shokunin.local>
+
+## commits
+5933b64c8afc05afba8d92414d74f39fbfeec01b fixture V3: EX8 claims the pacnew name is the matched name
+8a596d86ed9d2a2e02e8d5a759736eb5193445f4 fixture V2: EX8 misattributes the pacnew match to the install operation
+050f808dde5006f52e86668f9e4daa9f566306c4 fixture V1: EX8 operation split + CAVEATS anchor
+f951f288483c1af0cef4afd458488b84cf7a2165 round-40: before/after receipts (run-receipt.py), assimilation checks, wave generator
+
+## counter invocations (lane script, --repo $D)
+python3 tools/check-exec-environment-r40.py --repo $D --revision f951f288483c1af0cef4afd458488b84cf7a2165   # PASS (declared text)
+python3 tools/check-exec-environment-r40.py --repo $D --revision 050f808dde5006f52e86668f9e4daa9f566306c4   # PASS (corrected text)
+python3 tools/check-exec-environment-r40.py --repo $D --revision 8a596d86ed9d2a2e02e8d5a759736eb5193445f4   # PASS (wrong: install-only attribution)
+python3 tools/check-exec-environment-r40.py --repo $D --revision 5933b64c8afc05afba8d92414d74f39fbfeec01b   # PASS (wrong: .pacnew name matched)
+python3 $D/tools/check-exec-environment-r40.py --repo $D --revision <same>   # counter copy with TOKENS['EX8'] += 'upgrade': f951f28 FAIL, V1 PASS
+
+## add.c fetch
+curl -sS https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/add.c
+fd3136291885cae73ad00abab3d83de49ea0276f040e53cca3902cfb93cf58f1  /fast/scratch/hyaku/tsukuroi-r40/C2CritEX8/add.c
+ced996ecf348efa8b7efdf0f3f82e22cde7efe79 fixture V4: EX8 rule + full source/host cells (proposed correction set 1-3)
+5933b64c8afc05afba8d92414d74f39fbfeec01b fixture V3: EX8 claims the pacnew name is the matched name
+8a596d86ed9d2a2e02e8d5a759736eb5193445f4 fixture V2: EX8 misattributes the pacnew match to the install operation
+050f808dde5006f52e86668f9e4daa9f566306c4 fixture V1: EX8 operation split + CAVEATS anchor
+f951f288483c1af0cef4afd458488b84cf7a2165 round-40: before/after receipts (run-receipt.py), assimilation checks, wave generator

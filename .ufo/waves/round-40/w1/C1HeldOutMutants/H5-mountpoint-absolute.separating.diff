@@ -1,0 +1,10 @@
+--- tools/tsukuroi-census.sh@f951f2884
++++ tools/tsukuroi-census.sh@varied-home-separating-H5-mountpoint-absolute
+@@ -3011,6 +3011,5 @@
+   case_home='storage-mounts-varied-home'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+   printf '%s\n' 'proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0' \
+-    '/dev/nvme0n1p3 /home btrfs rw,relatime,ssd,discard=async,space_cache=v2,subvolid=5,subvol=/ 0 0' \
+-    'tmpfs /tmp tmpfs rw,nosuid,nodev 0 0' > "$FX/mounts"
++    'devtmpfs btrfs btrfs rw 0 0' > "$FX/mounts"
+   check 'healthy rollup: a btrfs /home on another device and options, not last, is BLOCKED (R40-C1)' 0 HEALTHY \
+     '^STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs$'

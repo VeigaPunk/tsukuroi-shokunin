@@ -1,0 +1,64 @@
+# G-3 diff evidence — commands and observed output (2026-10-26, lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin)
+
+$ git rev-parse 53b294a274656be6479aadf2ec2fee890ded77ce f951f288483c1af0cef4afd458488b84cf7a2165 HEAD
+53b294a274656be6479aadf2ec2fee890ded77ce
+f951f288483c1af0cef4afd458488b84cf7a2165
+f951f288483c1af0cef4afd458488b84cf7a2165          <- lane HEAD == reviewed tip
+
+$ git diff --numstat 53b294a f951f28 | awk '$2>0'
+(empty — no file in the range loses a single line; 38 files, all additions only)
+
+$ git log --name-only --format='== %h %s' 53b294a..f951f28
+== f951f28 round-40: before/after receipts (run-receipt.py), assimilation checks, wave generator
+  .ufo/waves/round-40/after/{c1-after-c707e35,c2-after-bf23805}.jsonl
+  .ufo/waves/round-40/assimilation/{collisions,guard-proof/*,quarantine-slice,reg-ids,staged-ids}
+  .ufo/waves/round-40/before/{c1-before,c2-before}.jsonl
+  .ufo/waves/round-40/make-w1-spec.py
+== bf23805 round-40: C2 libalpm exec environment EX1-EX8 on S219-S225
+  corpus/SOURCES.md
+  corpus/knowledge/pacman-exec-environment-r40.md
+== c707e35 round-40: C1 census selftest varies mount-table literals (R39-FIXTURE-MONOCULTURE)
+  tools/tsukuroi-census.sh
+== 758a4b0 round-40: declaration and pre-data controls
+  .ufo/waves/round-40/controls/{candidate-sha256.txt,controls.jsonl,run.err,run_controls.py}
+  SCORECARD.md
+== a447b67 round-40: freeze C1/C2 counters, pinned sources, host capture, registry rows
+  .ufo/waves/round-40/before/sources-census-start.txt
+  .ufo/waves/round-40/frozen/hostcap/{MANIFEST.sha256,capture-meta.txt,hooks-needstargets.tsv,libalpm-shell-strings.txt}
+  .ufo/waves/round-40/frozen/src/{FETCH.txt,PKGBUILD,SHA256SUMS,alpm-hooks.5.asciidoc,hook.c,meson_options.txt,trans.c,util.c}
+  SKILL.md
+  tools/{check-exec-environment-r40.py,score-selftest-literals-r40.py}
+
+Append-only hunks (git diff per file):
+  SCORECARD.md            @@ -2287,3 +2287,35 @@  32 added lines at EOF, no '-' lines
+  SKILL.md                @@ -3115,6 +3115,8 @@   2 gate rows appended after transaction-order-r39
+  corpus/SOURCES.md       @@ -225,6 +225,13 @@    7 rows S219-S225 appended after S218
+  tools/tsukuroi-census.sh @@ -3006,6 +3006,42 @@ single hunk, 36 added lines in run_selftest;
+                          grep -E '^@@|probe_storage_arm' over this diff -> only the @@ line (probe_storage_arm untouched)
+  LOG.md, corpus/lessons/*: absent from every commit in the range
+
+Digests:
+$ sha256sum tools/score-selftest-literals-r40.py tools/check-exec-environment-r40.py
+8b06de18ca7eec1d928a0dfac8ca6930bf808bfd1f4250374ec300640f2f0159  tools/score-selftest-literals-r40.py
+d4a2bb94f95184a87c582ddd7c8e55905390642cd4496aaebefa82b10ebb7d9d  tools/check-exec-environment-r40.py
+(= declared frozen digests in SCORECARD.md "Round 40 — declaration")
+
+$ (cd .ufo/waves/round-40/frozen/src && sha256sum -c SHA256SUMS)
+PKGBUILD: OK / alpm-hooks.5.asciidoc: OK / hook.c: OK / meson_options.txt: OK / trans.c: OK / util.c: OK
+$ (cd .ufo/waves/round-40/frozen/hostcap && sha256sum -c MANIFEST.sha256)
+capture-meta.txt: OK / libalpm-shell-strings.txt: OK / hooks-needstargets.tsv: OK
+
+Before/after receipts (committed):
+  c1-before.jsonl: revision 53b294a, tool_revision a447b67, baseline "PASS (119 cases, 119 passed, 0 failed)",
+    survivors 9 (M1-M9 all killed:false), result FAIL, exit 1
+  c1-after-c707e35.jsonl: result PASS, exit 0
+  c2-before.jsonl: result FAIL, exit 1;  c2-after-bf23805.jsonl: result PASS, exit 0
+  controls/run.err: C2-K0..K6 FAIL + C2-K7-candidate PASS; C1-K0..K3 FAIL + C1-K4-candidate PASS
+    (= SCORECARD controls paragraph, verbatim outcomes)
+
+Worktree observation (outside the reviewed range):
+$ git status --porcelain
+ M .ufo/waves/round-40/make-w1-spec.py        <- tracked file modified, uncommitted (post-tip: 3 added wave items
+                                                 C1ExecLiveMounts, C2ExecFeedTargets, CritPredicateIdentity)
+?? .ufo/waves/round-40/{revs.json,w1-dispatch.err,w1-dispatch.json,w1-spec.json,w1.ready,w1.ready.dispatched,w1/,corpus-lessons...}
+?? corpus/lessons/round-40.md                  <- untracked, not committed

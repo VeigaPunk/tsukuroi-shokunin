@@ -1,0 +1,130 @@
+   610	int _alpm_run_chroot(alpm_handle_t *handle, const char *cmd, char *const argv[],
+   611			_alpm_cb_io stdin_cb, void *stdin_ctx)
+   612	{
+   613		pid_t pid;
+   614		int child2parent_pipefd[2], parent2child_pipefd[2];
+   615		int cwdfd;
+   616		int retval = 0;
+   617	
+   618	#define HEAD 1
+   619	#define TAIL 0
+   620	
+   621		/* save the cwd so we can restore it later */
+   622		OPEN(cwdfd, ".", O_RDONLY | O_CLOEXEC);
+   623		if(cwdfd < 0) {
+   624			_alpm_log(handle, ALPM_LOG_ERROR, _("could not get current working directory\n"));
+   625		}
+   626	
+   627		/* just in case our cwd was removed in the upgrade operation */
+   628		if(chdir(handle->root) != 0) {
+   629			_alpm_log(handle, ALPM_LOG_ERROR, _("could not change directory to %s (%s)\n"),
+   630					handle->root, strerror(errno));
+   631			goto cleanup;
+   632		}
+   633	
+   634		_alpm_log(handle, ALPM_LOG_DEBUG, "executing \"%s\" under chroot \"%s\"\n",
+   635				cmd, handle->root);
+   636	
+   637		/* Flush open fds before fork() to avoid cloning buffers */
+   638		fflush(NULL);
+   639	
+   640		if(socketpair(AF_UNIX, SOCK_STREAM, 0, child2parent_pipefd) == -1) {
+   641			_alpm_log(handle, ALPM_LOG_ERROR, _("could not create pipe (%s)\n"), strerror(errno));
+   642			retval = 1;
+   643			goto cleanup;
+   644		}
+   645	
+   646		if(socketpair(AF_UNIX, SOCK_STREAM, 0, parent2child_pipefd) == -1) {
+   647			_alpm_log(handle, ALPM_LOG_ERROR, _("could not create pipe (%s)\n"), strerror(errno));
+   648			retval = 1;
+   649			goto cleanup;
+   650		}
+   651	
+   652		/* fork- parent and child each have separate code blocks below */
+   653		pid = fork();
+   654		if(pid == -1) {
+   655			_alpm_log(handle, ALPM_LOG_ERROR, _("could not fork a new process (%s)\n"), strerror(errno));
+   656			retval = 1;
+   657			goto cleanup;
+   658		}
+   659	
+   660		if(pid == 0) {
+   661			/* this code runs for the child only (the actual chroot/exec) */
+   662			close(0);
+   663			close(1);
+   664			close(2);
+   665			while(dup2(child2parent_pipefd[HEAD], 1) == -1 && errno == EINTR);
+   666			while(dup2(child2parent_pipefd[HEAD], 2) == -1 && errno == EINTR);
+   667			while(dup2(parent2child_pipefd[TAIL], 0) == -1 && errno == EINTR);
+   668			close(parent2child_pipefd[TAIL]);
+   669			close(parent2child_pipefd[HEAD]);
+   670			close(child2parent_pipefd[TAIL]);
+   671			close(child2parent_pipefd[HEAD]);
+   672			if(cwdfd >= 0) {
+   673				close(cwdfd);
+   674			}
+   675	
+   676			/* use fprintf instead of _alpm_log to send output through the parent */
+   677			/* don't chroot() to "/": this allows running with less caps when the
+   678			 * caller puts us in the right root */
+   679			if(strcmp(handle->root, "/") != 0 && chroot(handle->root) != 0) {
+   680				fprintf(stderr, _("could not change the root directory (%s)\n"), strerror(errno));
+   681				exit(1);
+   682			}
+   683			if(chdir("/") != 0) {
+   684				fprintf(stderr, _("could not change directory to %s (%s)\n"),
+   685						"/", strerror(errno));
+   686				exit(1);
+   687			}
+   688			/* bash assumes it's being run under rsh/ssh if stdin is a socket and
+   689			 * sources ~/.bashrc if it thinks it's the top-level shell.
+   690			 * set SHLVL before running to indicate that it's a child shell and
+   691			 * disable this behavior */
+   692			setenv("SHLVL", "1", 0);
+   693			/* bash sources $BASH_ENV when run non-interactively */
+   694			unsetenv("BASH_ENV");
+   695			umask(0022);
+   696			_alpm_reset_signals();
+   697			_alpm_handle_free(handle);
+   698			execv(cmd, argv);
+   699			/* execv only returns if there was an error */
+   700			fprintf(stderr, _("call to execv failed (%s)\n"), strerror(errno));
+   795				if(signal_description == NULL) {
+   796					signal_description = _("Unknown signal");
+   797				}
+   798				_alpm_log(handle, ALPM_LOG_ERROR, _("command terminated by signal %d: %s\n"),
+   799							WTERMSIG(status), signal_description);
+   800				retval = 1;
+   801			}
+   802		}
+   803	
+   804	cleanup:
+   805		if(cwdfd >= 0) {
+   806			if(fchdir(cwdfd) != 0) {
+   807				_alpm_log(handle, ALPM_LOG_ERROR,
+   808						_("could not restore working directory (%s)\n"), strerror(errno));
+   809			}
+   810			close(cwdfd);
+   811		}
+   812	
+   813		return retval;
+   814	}
+   815	
+   816	/** Run ldconfig in a chroot.
+   817	 * @param handle the context handle
+   818	 * @return 0 on success, 1 on error
+   819	 */
+   820	int _alpm_ldconfig(alpm_handle_t *handle)
+   821	{
+   822		char line[PATH_MAX];
+   823	
+   824		_alpm_log(handle, ALPM_LOG_DEBUG, "running ldconfig\n");
+   825	
+   826		snprintf(line, PATH_MAX, "%setc/ld.so.conf", handle->root);
+   827		if(access(line, F_OK) == 0) {
+   828			snprintf(line, PATH_MAX, "%s%s", handle->root, LDCONFIG);
+   829			if(access(line, X_OK) == 0) {
+   830				char arg0[32];
+   831				char *argv[] = { arg0, NULL };
+   832				strcpy(arg0, "ldconfig");
+   833				return _alpm_run_chroot(handle, LDCONFIG, argv, NULL, NULL);

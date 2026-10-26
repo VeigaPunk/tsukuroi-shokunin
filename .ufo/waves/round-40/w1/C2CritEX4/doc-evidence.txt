@@ -1,0 +1,60 @@
+### D. PKGBUILD(5) INSTALL/UPGRADE/REMOVE SCRIPTING  (zcat /usr/share/man/man5/PKGBUILD.5.gz | nl -ba)
+   514	.SH "INSTALL/UPGRADE/REMOVE SCRIPTING"
+   515	.sp
+   516	Pacman has the ability to store and execute a package\-specific script when it installs, removes, or upgrades a package\&. This allows a package to configure itself after installation and perform an opposite action upon removal\&.
+   517	.sp
+   518	The exact time the script is run varies with each operation, and should be self\-explanatory\&. Note that during an upgrade operation, none of the install or remove functions will be called\&.
+   519	.sp
+   520	Scripts are passed either one or two \(lqfull version strings\(rq, where a full version string is either \fIpkgver\-pkgrel\fR or \fIepoch:pkgver\-pkgrel\fR, if epoch is non\-zero\&.
+   521	.PP
+   522	\fBpre_install\fR
+   523	.RS 4
+   524	Run right before files are extracted\&. One argument is passed: new package full version string\&.
+   532	\fBpre_upgrade\fR
+   533	.RS 4
+   534	Run right before files are extracted\&. Two arguments are passed in this order: new package full version string, old package full version string\&.
+   542	\fBpre_remove\fR
+   543	.RS 4
+   544	Run right before files are removed\&. One argument is passed: old package full version string\&.
+   545	.RE
+   546	.PP
+   547	\fBpost_remove\fR
+   548	.RS 4
+   549	Run right after files are removed\&. One argument is passed: old package full version string\&.
+   550	.RE
+
+occurrences of 'shell' anywhere in PKGBUILD(5) decompressed: 0
+occurrences of 'scriptlet' in pacman.conf(5): 0
+pacman(8) scriptlet lines: 2
+### E. proto.install (host template named by PKGBUILD(5):564)
+5:## arg 1:  the new package version
+6:#pre_install() {
+10:## arg 1:  the new package version
+11:#post_install() {
+15:## arg 1:  the new package version
+16:## arg 2:  the old package version
+17:#pre_upgrade() {
+21:## arg 1:  the new package version
+22:## arg 2:  the old package version
+23:#post_upgrade() {
+27:## arg 1:  the old package version
+28:#pre_remove() {
+32:## arg 1:  the old package version
+33:#post_remove() {
+
+### F. makepkg packaging of the install file
+	# check for changelog/install files
+	for i in 'changelog/.CHANGELOG' 'install/.INSTALL'; do
+		IFS='/' read -r orig dest < <(printf '%s\n' "$i")
+
+scriptlet/shell mentions in /usr/share/makepkg: 0
+install.sh lint purpose: 
+#
+#   install.sh - Check the files in the 'install' array exist.
+#
+
+pkgver lint: 		error "$(gettext "%s is not allowed to contain colons, forward slashes, hyphens or whitespace.")" "pkgver${type:+ in $type}"
+
+### G. runtime-option absence
+alpm.h 'shell' hits: 0
+pacman binary 'ScriptletShell' hits: 0

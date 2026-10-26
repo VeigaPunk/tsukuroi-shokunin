@@ -1,0 +1,57 @@
+# V2: EX3 rule cell rewritten to the opposite of the source in affirmative words
+EX3:
+  - Before `execv` the child sets `SHLVL` to 1 when the variable is unset (an inherited value is kept), removes `BASH_ENV` from its environment, sets umask 0022 and resets signal handlers; every other variable of the calling pacman process passes through to the command unchanged
+  + Before `execv` the child keeps every inherited `SHLVL` value unchanged and leaves `BASH_ENV` set in the environment, and it drops every other variable of the calling pacman process, while umask 0022 is applied after execv returns to the parent
+
+# V3: all eight rule cells replaced by unordered token lists (no proposition)
+EX1:
+  - Every command libalpm runs through `_alpm_run_chroot` (hook `Exec` commands, install scriptlets and `ldconfig`) starts in working directory `/`: the parent first changes into the installation root, the child calls chroot only when that root differs from `/`, and the child then changes its directory to `/`
+  + working directory `/` chroot hook Exec command install scriptlet ldconfig parent changes installation root child differs directory one
+EX2:
+  - The child's stdout and stderr are both duplicated onto one socket that the parent reads, so the two streams arrive merged; its stdin is a second socket, which the parent closes at once when the caller passes a null input callback, so such a child reads end-of-file on stdin
+  + stdout stderr socket stdin second socket parent reads merged end-of-file null input callback child duplicate streams arrive
+EX3:
+  - Before `execv` the child sets `SHLVL` to 1 when the variable is unset (an inherited value is kept), removes `BASH_ENV` from its environment, sets umask 0022 and resets signal handlers; every other variable of the calling pacman process passes through to the command unchanged
+  + SHLVL BASH_ENV umask 0022 execv child environment variable inherited signal handlers set remove
+EX4:
+  - Arch builds pacman with `-Dscriptlet-shell=/usr/bin/bash`, so every install scriptlet runs as `/usr/bin/bash -c '. <scriptlet>; <function> <new version> [<old version>]'` through `_alpm_run_chroot`; the upstream build default is `/bin/sh` (S219 meson_options.txt:17), so bash-only syntax in a scriptlet depends on this packaging choice
+  + scriptlet-shell /usr/bin/bash install scriptlet /usr/bin/bash -c upstream build default /bin/sh packaging Arch choice
+EX5:
+  - Before a scriptlet runs, libalpm requests `<root>/tmp` with mode 01777 when that directory is missing, makes a private directory `tmp/alpm_XXXXXX` under the root, copies (from the local database) or extracts (from a package file) the scriptlet into it as `.INSTALL`, sources it from there, and afterwards removes the file and the directory, logging a warning when either removal fails
+  + libalpm root tmp/alpm_XXXXXX .INSTALL 01777 private directory scriptlet sources removes warning removal fails copies extracts database package file
+EX6:
+  - A hook marked `NeedsTargets` receives its matched trigger targets on stdin, sorted with `strcmp`, with duplicate matches from several triggers removed, one target per line; a hook lacking `NeedsTargets` gets the closed stdin of EX2
+  + NeedsTargets stdin sorted duplicate matches triggers removed one target per line hook matched trigger targets
+EX7:
+  - The `running '<name>'...` log line is written before the hook's `Depends` are checked; when an installed package satisfying a listed `Depends` is missing, libalpm logs `unable to run hook <name>: … satisfy dependencies` and skips the command, and that failure stops the PreTransaction phase, and with it the transaction, only for a hook carrying `AbortOnFail`
+  + running hook Depends installed package satisfy dependencies missing hook command AbortOnFail PreTransaction transaction skip logged line
+EX8:
+  - A `Path` trigger matches file paths as the package's file list names them, relative to the installation root; on the install side a path that NoExtract excludes is skipped, and matching ignores NoUpgrade, so a protected file that pacman writes as `.pacnew` still matches under its listed name
+  + Path trigger file list names package NoExtract skipped matching ignores NoUpgrade .pacnew protected file listed name installation root
+
+# V4: all eight rule cells replaced by the nearest held knowledge sentence (TO8, r38 counts, HO4, TO3, TO4, r35)
+EX1:
+  - Every command libalpm runs through `_alpm_run_chroot` (hook `Exec` commands, install scriptlets and `ldconfig`) starts in working directory `/`: the parent first changes into the installation root, the child calls chroot only when that root differs from `/`, and the child then changes its directory to `/`
+  + Every command libalpm runs in the chroot goes through `_alpm_run_chroot`; hooks reach `_alpm_chroot_process_output` through it, so their output lines are logged under the same tag
+EX2:
+  - The child's stdout and stderr are both duplicated onto one socket that the parent reads, so the two streams arrive merged; its stdin is a second socket, which the parent closes at once when the caller passes a null input callback, so such a child reads end-of-file on stdin
+  + The child's stdout and stderr are both joined to the pipe whose lines become `[ALPM-SCRIPTLET]`, so a hook's own error text also reaches pacman.log under that tag
+EX3:
+  - Before `execv` the child sets `SHLVL` to 1 when the variable is unset (an inherited value is kept), removes `BASH_ENV` from its environment, sets umask 0022 and resets signal handlers; every other variable of the calling pacman process passes through to the command unchanged
+  + Eleven frozen lane tools receive `BASH_ENV`, `ENV`, `GCONV_PATH` and `PERL5OPT` injected, and parity is exit code, normalized stdout digest and git-exec count
+EX4:
+  - Arch builds pacman with `-Dscriptlet-shell=/usr/bin/bash`, so every install scriptlet runs as `/usr/bin/bash -c '. <scriptlet>; <function> <new version> [<old version>]'` through `_alpm_run_chroot`; the upstream build default is `/bin/sh` (S219 meson_options.txt:17), so bash-only syntax in a scriptlet depends on this packaging choice
+  + Install scriptlets receive the new version first and the old version second, and install functions receive only the new version
+EX5:
+  - Before a scriptlet runs, libalpm requests `<root>/tmp` with mode 01777 when that directory is missing, makes a private directory `tmp/alpm_XXXXXX` under the root, copies (from the local database) or extracts (from a package file) the scriptlet into it as `.INSTALL`, sources it from there, and afterwards removes the file and the directory, logging a warning when either removal fails
+  + The `post_install` and `post_upgrade` scriptlet runs from the local database's `install` file, and the `pre_install` and `pre_upgrade` scriptlet runs from the package file before any file is extracted
+EX6:
+  - A hook marked `NeedsTargets` receives its matched trigger targets on stdin, sorted with `strcmp`, with duplicate matches from several triggers removed, one target per line; a hook lacking `NeedsTargets` gets the closed stdin of EX2
+  + 69 effective hook files come from 70 files with one same-name override, and 14 of them carry `NeedsTargets`; a file in `/etc/pacman.d/hooks` replaces the same-named file in `/usr/share/libalpm/hooks`
+EX7:
+  - The `running '<name>'...` log line is written before the hook's `Depends` are checked; when an installed package satisfying a listed `Depends` is missing, libalpm logs `unable to run hook <name>: … satisfy dependencies` and skips the command, and that failure stops the PreTransaction phase, and with it the transaction, only for a hook carrying `AbortOnFail`
+  + A PreTransaction hook's non-zero exit stops the transaction only when the hook carries `AbortOnFail`, and the remaining Pre hooks are then skipped
+EX8:
+  - A `Path` trigger matches file paths as the package's file list names them, relative to the installation root; on the install side a path that NoExtract excludes is skipped, and matching ignores NoUpgrade, so a protected file that pacman writes as `.pacnew` still matches under its listed name
+  + Files listed with a `NoUpgrade` directive stay in place through a package install or upgrade, and the incoming bytes land as a `.pacnew` extension, while `NoExtract` skips the member entirely
+

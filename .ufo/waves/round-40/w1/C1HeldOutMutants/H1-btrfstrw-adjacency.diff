@@ -1,0 +1,12 @@
+--- tools/tsukuroi-census.sh@f951f2884
++++ tools/tsukuroi-census.sh@H1-btrfstrw-adjacency
+@@ -1910,8 +1910,5 @@
+     # would block the census forever, and an empty file or /dev/null is never a real table (/ is mounted)
+     if [ -f "$PROC_MOUNTS" ] && mtab=$(cat -- "$PROC_MOUNTS" 2>/dev/null) && [ -n "$mtab" ]; then
+-      while read -r _src _mp fst _rest; do
+-        if [ "${fst:-}" = btrfs ]; then mt=$((mt + 1)); fi
+-      done <<< "$mtab"
+-      if [ "$mt" -gt 0 ]; then blocked=1; detail+='mounts:btrfs-without-sysfs,'; fi
++      case $mtab in *' btrfs rw'*) blocked=1; detail+='mounts:btrfs-without-sysfs,' ;; esac
+     else
+       blocked=1; detail+='mounts:unreadable,'

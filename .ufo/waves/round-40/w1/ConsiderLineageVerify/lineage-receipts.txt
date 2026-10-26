@@ -1,0 +1,106 @@
+Seat ConsiderLineageVerify — F-6 lineage receipts (2026-10-26)
+Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin at HEAD f951f288483c1af0cef4afd458488b84cf7a2165
+(= master = origin/master; verified with git rev-parse master HEAD / origin/master).
+All commands read-only, run from the lane root. No lane file was modified.
+
+== Lane state ==
+$ git rev-parse HEAD && git status --porcelain -- tools/ corpus/
+f951f288483c1af0cef4afd458488b84cf7a2165
+?? corpus/lessons/round-40.md
+
+== Exact item command, per tool ==
+$ git log --format=%h -- tools/score-storage-hidden-r39.py
+6a08925
+$ git log --format=%h -- tools/check-transaction-order-r39.py
+6a08925
+$ git log --format=%h -- tools/score-storage-arm-r38.py
+7cbaeb6
+$ git log --format=%h -- tools/check-hook-order-r38.py
+7cbaeb6
+$ git log --format=%h -- tools/score-selftest-literals-r40.py
+a447b67
+$ git log --format=%h -- tools/check-exec-environment-r40.py
+a447b67
+
+== Detailed log (same single commit each) ==
+$ git log --format='%h %ad %an %s' --date=short -- tools/score-storage-hidden-r39.py
+6a08925 2026-10-26 tsukuroi-shokunin round-39: freeze C1/C2 counters, libalpm 54d9411 snapshots and pacman.log capture; registry rows
+$ ... -- tools/check-transaction-order-r39.py         (identical output)
+$ ... -- tools/score-storage-arm-r38.py
+7cbaeb6 2026-10-25 tsukuroi-shokunin round-38: freeze C1/C2 counters, hook capture, before receipts and controls
+$ ... -- tools/check-hook-order-r38.py                (identical output)
+$ ... -- tools/score-selftest-literals-r40.py
+a447b67 2026-10-26 tsukuroi-shokunin round-40: freeze C1/C2 counters, pinned sources, host capture, registry rows
+$ ... -- tools/check-exec-environment-r40.py          (identical output)
+
+Cross-checks --follow and --full-history: identical single hash for each of the six.
+
+== Full hashes of the freeze commits ==
+$ git rev-parse 6a08925 7cbaeb6
+6a08925daa30767809eb13bb4b01448ff954d46a
+7cbaeb6317cb9f7323d2619eec02db4e4da29449
+
+== sha256 at the adding commit ==
+$ git show 6a08925:tools/score-storage-hidden-r39.py | sha256sum
+75a9e8abd3f1262e425ce1fde9e3ba4763d08cf21d0b61761719c0ebbae8f973  -
+$ git show 6a08925:tools/check-transaction-order-r39.py | sha256sum
+f1c97836abb50887231b82d27cd026d05b8083cefcdd713217071648b07c991e  -
+$ git show 7cbaeb6:tools/score-storage-arm-r38.py | sha256sum
+e649bfb33ed99161dc3affdacd7fa86fa8d96e2c5bb60b2d22d6fc12a7f82218  -
+$ git show 7cbaeb6:tools/check-hook-order-r38.py | sha256sum
+60e3635b37d5cd92f371800d8e5a22837b540e57c1c50a399bc973d4e21bd1a8  -
+$ git show a447b67:tools/score-selftest-literals-r40.py | sha256sum
+8b06de18ca7eec1d928a0dfac8ca6930bf808bfd1f4250374ec300640f2f0159  -
+$ git show a447b67:tools/check-exec-environment-r40.py | sha256sum
+d4a2bb94f95184a87c582ddd7c8e55905390642cd4496aaebefa82b10ebb7d9d  -
+
+== sha256 at tip (working tree, HEAD f951f288) ==
+$ sha256sum tools/score-storage-hidden-r39.py tools/check-transaction-order-r39.py tools/score-storage-arm-r38.py tools/check-hook-order-r38.py tools/score-selftest-literals-r40.py tools/check-exec-environment-r40.py
+75a9e8abd3f1262e425ce1fde9e3ba4763d08cf21d0b61761719c0ebbae8f973  tools/score-storage-hidden-r39.py
+f1c97836abb50887231b82d27cd026d05b8083cefcdd713217071648b07c991e  tools/check-transaction-order-r39.py
+e649bfb33ed99161dc3affdacd7fa86fa8d96e2c5bb60b2d22d6fc12a7f82218  tools/score-storage-arm-r38.py
+60e3635b37d5cd92f371800d8e5a22837b540e57c1c50a399bc973d4e21bd1a8  tools/check-hook-order-r38.py
+8b06de18ca7eec1d928a0dfac8ca6930bf808bfd1f4250374ec300640f2f0159  tools/score-selftest-literals-r40.py
+d4a2bb94f95184a87c582ddd7c8e55905390642cd4496aaebefa82b10ebb7d9d  tools/check-exec-environment-r40.py
+
+== At round-40 base 53b294a ==
+r38/r39 counters byte-identical to the hashes above (git show 53b294a:<tool> | sha256sum, same four values).
+r40 counters absent at base:
+$ git cat-file -e 53b294a:tools/score-selftest-literals-r40.py; echo rc=$?
+fatal: path 'tools/score-selftest-literals-r40.py' exists on disk, but not in '53b294a'
+rc=128
+$ git cat-file -e 53b294a:tools/check-exec-environment-r40.py; echo rc=$?
+fatal: path 'tools/check-exec-environment-r40.py' exists on disk, but not in '53b294a'
+rc=128
+
+== git log --all (per tool: 4 commits, not 1) ==
+r39 pair: 374003de1f140fb9873ed73d12451b284e1e507e, 5569c9ccc333215a56a46e69c16a9fc249d80889 (protocol-shokunin),
+          b5593f8b7a7da07d6732ebebd85a5785317938e1 (tsukuroi-shokunin) + 6a08925daa30767809eb13bb4b01448ff954d46a
+r38 pair: 4d71297870a0154198ebbd554702c32408cd8c53 (tsukuroi-shokunin),
+          77d7b8a8fdd289e042481898ceb12f2ce3b494d2, c50cc3ba2c434ece27ba6cf4b7e8c433330c8774 (protocol-shokunin)
+          + 7cbaeb6317cb9f7323d2619eec02db4e4da29449
+r40 pair: 689eeabb2ceedf820751db6a8efab82af5008049, a8f8df218c5ee6626158a29d587f79ee71821642 (protocol-shokunin),
+          c0cb750b2f5a5a115741dc108159555583124164 (tsukuroi-shokunin) + a447b67b2502bae1e96fda341ae5ad32243ae524
+
+Character of the 9 extra commits (git show -s '%h|%p|%an|%ci|%s'; git show --numstat -- <paths>):
+- empty description (subject empty), parent = the round base (0eff65b2 / 8bd001f5 / 53b294a),
+  same-second timestamps per group (02:47:11 / 01:16:08 / 04:02:00 -0300),
+  numstat all-added: r39 +286 score-storage-hidden-r39.py +238 check-transaction-order-r39.py;
+  r38 +252 score-storage-arm-r38.py +218 check-hook-order-r38.py;
+  r40 +176 score-selftest-literals-r40.py +339 check-exec-environment-r40.py;
+  content sha256 in each == the frozen bytes above (verified per commit per file).
+Reachability:
+$ git merge-base --is-ancestor <each of the 9> master  -> rc=1 for all nine (none is an ancestor of master)
+$ git branch -a --contains 374003d / b5593f8           -> empty (no branch reaches them; only refs/jj/keep/*)
+$ git branch -a --contains 6a08925 / a447b67           -> master, remotes/origin/master (+ HEAD detached from a330fb0)
+
+== Declared-commit topology (merge-base --is-ancestor; rc 0 = ancestor) ==
+53b294a in a447b67 rc=0; a447b67 in c707e356 rc=0; a447b67 in bf238050 rc=0;
+c707e356 in f951f288 rc=0; bf238050 in f951f288 rc=0; 6a08925 in 53b294a rc=0; 7cbaeb6 in 6a08925 rc=0.
+
+== Declared reference commits (git show -s) ==
+a447b67 2026-10-26 tsukuroi-shokunin round-40: freeze C1/C2 counters, pinned sources, host capture, registry rows
+53b294a 2026-10-26 protocol-shokunin round-39 verifier spot-check (integrator, hyaku): non-author admit/reject
+c707e35 2026-10-26 tsukuroi-shokunin round-40: C1 census selftest varies mount-table literals (R39-FIXTURE-MONOCULTURE)
+bf23805 2026-10-26 tsukuroi-shokunin round-40: C2 libalpm exec environment EX1-EX8 on S219-S225
+f951f28 2026-10-26 tsukuroi-shokunin round-40: before/after receipts (run-receipt.py), assimilation checks, wave generator

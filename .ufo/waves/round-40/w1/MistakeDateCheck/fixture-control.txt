@@ -1,0 +1,19 @@
+[A-consistent] exit=0 summary: matched=2 timed=2 malformed=0 ok=0 backdated=2 flag=0 exit=0
+    SCORECARD.md:1 BACKDATED stated=2026-01-01T00:00Z commit=2026-01-01T00:00:30+00:00 (85abea4230be) delta=-30s
+        ## Round 1 — declaration (2026-01-01T00:00Z, same minute as commit)
+    LOG.md:1 BACKDATED stated=2025-12-31T23:00Z commit=2026-01-01T00:00:30+00:00 (85abea4230be) delta=-3630s
+        ## Round 1 — log (2025-12-31T23:00Z, stamped early)
+[A-consistent-require2] exit=0 summary: matched=2 timed=2 malformed=0 ok=0 backdated=2 flag=0 exit=0
+    SCORECARD.md:1 BACKDATED stated=2026-01-01T00:00Z commit=2026-01-01T00:00:30+00:00 (85abea4230be) delta=-30s
+        ## Round 1 — declaration (2026-01-01T00:00Z, same minute as commit)
+    LOG.md:1 BACKDATED stated=2025-12-31T23:00Z commit=2026-01-01T00:00:30+00:00 (85abea4230be) delta=-3630s
+        ## Round 1 — log (2025-12-31T23:00Z, stamped early)
+[B-stamped-ahead] exit=1 summary: matched=3 timed=3 malformed=0 ok=2 backdated=0 flag=1 exit=1
+    LOG.md:4 FLAG stated=2026-01-02T00:05Z commit=2026-01-02T00:00:00+00:00 (9f1545f43061) delta=+300s
+        ## Round 2 — log (2026-01-02T00:05Z, stamped ahead of its commit)
+[B-match-round1] exit=0 summary: matched=2 timed=2 malformed=0 ok=2 backdated=0 flag=0 exit=0
+[B-match-round9-vacuous] exit=3 summary: matched=0 timed=0 malformed=0 ok=0 backdated=0 flag=0 exit=3
+    stderr: ERROR: vacuous selection: 0 timed heading(s) checked, --require-timed 1
+[C-exact-second] exit=0 summary: matched=2 timed=2 malformed=0 ok=2 backdated=0 flag=0 exit=0
+[D-missing-log] exit=2 (no stdout)
+    stderr: ERROR: cannot read LOG.md at 98da7c98f5afe03e6d3e72ad00ca2e4313ce5821

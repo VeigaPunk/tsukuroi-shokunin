@@ -1,0 +1,85 @@
+# AsmStagedResidual — receipts (round 40, item F-2)
+date 2026-10-26; seat leaf; lane tip f951f288483c1af0cef4afd458488b84cf7a2165
+C2 entry commit bf2380503b8e4a5d33162026854b0b7b66d18b86
+candidate /home/vgpnk/Projects/shokuknow/merge/tsukuroi/knowledge/corpus/knowledge/pacman-hook-timing-r25.md
+
+## 1. candidate identity and the four deferred proposition lines
+$ sha256sum pacman-hook-timing-r25.md
+e18c146e733d3cab4bcc82c2ba30b9a571791ec132f7988cd93481b079f09324  pacman-hook-timing-r25.md
+$ grep -n 'NeedsTargets\|pacnew\|must be absolute\|chosen globally\|execute in the system root' pacman-hook-timing-r25.md
+42:exit and is **PreTransaction only**. `NeedsTargets` passes the matched trigger
+45:`.pacnew` extension triggers the hook on the **original** file name.
+47:**The scriptlet contract.** `.INSTALL` functions execute in the system root
+48:(`/`), so every path inside them must be absolute; `pre_upgrade` and
+50:shell interpreter is chosen globally by the distribution and cannot be
+(staged :44-45 pacnew; :50-51 interpreter; :42-43 NeedsTargets; :47-48 cwd/absolute)
+round-39 deferral row: corpus/lessons/round-39.md:56
+
+## 2. pinned snapshot digests
+$ cd .ufo/waves/round-40/frozen/src && sha256sum -c SHA256SUMS
+PKGBUILD: OK
+alpm-hooks.5.asciidoc: OK
+hook.c: OK
+meson_options.txt: OK
+trans.c: OK
+util.c: OK
+$ sha256sum .ufo/waves/round-39/frozen/src/add.c
+fd3136291885cae73ad00abab3d83de49ea0276f040e53cca3902cfb93cf58f1  add.c   (= S213 declared snapshot hash)
+
+## 3. host capture integrity and counts
+$ cd .ufo/waves/round-40/frozen/hostcap && sha256sum -c MANIFEST.sha256
+capture-meta.txt: OK
+libalpm-shell-strings.txt: OK
+hooks-needstargets.tsv: OK
+$ awk -F'\t' 'NR>1{n++; if($3==1)k++} END{print n, k}' hooks-needstargets.tsv
+69 14
+$ cat libalpm-shell-strings.txt
+1263:/usr/bin/ldconfig
+1277:/usr/bin/bash
+$ cat capture-meta.txt
+# captured 2026-10-26T06:54:46Z host=plazir27 read-only by TsukuroiR40
+pacman_q: pacman 7.1.0.r9.g54d9411-3
+libalpm: /usr/lib/libalpm.so.16.0.1 sha256 1bc59ef4cee493246db69c9466970de01d24fdc32a4a4c18c77063af66705e90
+owner: /usr/lib/libalpm.so.16.0.1 is owned by pacman 7.1.0.r9.g54d9411-3
+
+## 4. independent read-only re-check of the host values (no mutation)
+$ sha256sum /usr/lib/libalpm.so.16.0.1
+1bc59ef4cee493246db69c9466970de01d24fdc32a4a4c18c77063af66705e90  /usr/lib/libalpm.so.16.0.1
+$ pacman -Q pacman alpm-docs
+pacman 7.1.0.r9.g54d9411-3
+error: package 'alpm-docs' was not found
+$ strings -a /usr/lib/libalpm.so.16.0.1 | wc -l
+1713
+$ strings -a /usr/lib/libalpm.so.16.0.1 | grep -c '^/bin/sh$'
+0
+$ strings -a /usr/lib/libalpm.so.16.0.1 | grep -n -E '/usr/bin/(bash|ldconfig)'
+1263:/usr/bin/ldconfig
+1277:/usr/bin/bash
+(the capture's two indices are reproduced by exactly this filter; /bin/sh is absent from the full 1713-string dump)
+
+## 5. source lines read (r40 snapshot unless marked)
+util.c (S221): 628 chdir(handle->root); 679 chroot(handle->root) only when root != "/"; 683 chdir("/");
+  692 setenv("SHLVL","1",0); 694 unsetenv("BASH_ENV"); 695 umask(0022); 698 execv(cmd, argv)
+trans.c (S222): 341 argv[]={arg0,arg1,cmdline,NULL}; 357 strcpy(arg0,SCRIPTLET_SHELL); 358 "-c";
+  361-371 tmpdir "<root>tmp/alpm_XXXXXX" + mkdtemp; 375-377 scriptfn "<tmpdir>/.INSTALL";
+  397-398 "chop off the root" / scriptpath = scriptfn + strlen(root) - 1;
+  400-406 cmdline ". %s; %s %s [%s]"; 410 _alpm_run_chroot(SCRIPTLET_SHELL, argv)
+hook.c (S223): 265-278 file-list match loop, single NoExtract check at 271 (grep -ic noupgrade hook.c -> 0);
+  305-339 install/remove subtraction, common names -> upgrade list; 341-349 _save_matches join;
+  371-410 package-name match; 412-414 joins; 427-442 trigger loop (early return only if !needs_targets);
+  469-490 feed loop, 476 buf[len++]='\n'; 492-506 dedup; 519-526 msort strcmp + dedup + run_chroot
+alpm-hooks.5.asciidoc (S224): 63 "installation root should *not* be included in the path";
+  91-93 NeedsTargets "on 'stdin'"; 126-128 CAVEATS ".pacnew" -> "original file name is used in triggering"
+meson_options.txt (S219): 17 option('scriptlet-shell' ... value : '/bin/sh'
+PKGBUILD (S220): 115 -Dscriptlet-shell=/usr/bin/bash
+r39 add.c (S213 file): 318-323 ".pacnew" suffix formed on the listed filename; 339-350 pacnew event
+
+## 6. failed fetches (recorded, not retried further)
+https://man.archlinux.org/man/alpm-install-scriptlet.5      -> ECONNRESET
+https://man.archlinux.org/man/alpm-install-scriptlet.5.en   -> ECONNRESET
+https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/doc/alpm-install-scriptlet.5.asciidoc -> HTTP 404
+(no man-page text was used in any verdict)
+
+## 7. not run
+census selftest, C1/C2 counters (item is a judgment item; every cited line was read in the frozen snapshots
+whose digests verified above). No host mutation, no installs, no scratch left.

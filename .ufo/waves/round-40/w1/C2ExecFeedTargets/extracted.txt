@@ -1,0 +1,37 @@
+static ssize_t _alpm_hook_feed_targets(char *buf, ssize_t needed, alpm_list_t **pos)
+{
+	size_t remaining = needed, written = 0;;
+	size_t len;
+
+	while(*pos && (len = strlen((*pos)->data)) + 1 <= remaining) {
+		memcpy(buf, (*pos)->data, len);
+		buf[len++] = '\n';
+		*pos = (*pos)->next;
+		buf += len;
+		remaining -= len;
+		written += len;
+	}
+
+	if(*pos && remaining) {
+		memcpy(buf, (*pos)->data, remaining);
+		(*pos)->data = (char*) (*pos)->data + remaining;
+		written += remaining;
+	}
+
+	return written;
+}
+
+static alpm_list_t *_alpm_strlist_dedup(alpm_list_t *list)
+{
+	alpm_list_t *i = list;
+	while(i) {
+		alpm_list_t *next = i->next;
+		while(next && strcmp(i->data, next->data) == 0) {
+			list = alpm_list_remove_item(list, next);
+			free(next);
+			next = i->next;
+		}
+		i = next;
+	}
+	return list;
+}

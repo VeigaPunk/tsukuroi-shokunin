@@ -1,0 +1,154 @@
+{
+ "counter": "score-storage-hidden-r39",
+ "revision": "f951f288483c1af0cef4afd458488b84cf7a2165",
+ "branch_tip": "f951f288483c1af0cef4afd458488b84cf7a2165",
+ "seed": "44aec4e82be22b5a853faf92d2155eb7",
+ "predicate": "hidden_matched == 2 and views_matched == 3 and fixtures_matched == 5 and live_match == 1 and six_planes_all == 1",
+ "hidden_matched": 2,
+ "views_matched": 3,
+ "fixtures_matched": 5,
+ "live_match": 1,
+ "six_planes_all": 1,
+ "result": "PASS",
+ "exit": 0,
+ "hidden": [
+  {
+   "leg": "H1-hidden-empty",
+   "expected": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs",
+   "got": [
+    "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "leg": "H2-hidden-absent",
+   "expected": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs",
+   "got": [
+    "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  }
+ ],
+ "views": [
+  {
+   "view": 0,
+   "mode": "zero",
+   "expected": [
+    "HEALTHY",
+    1,
+    3,
+    0
+   ],
+   "got": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=3 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "view": 1,
+   "mode": "nonzero",
+   "expected": [
+    "DEGRADED",
+    3,
+    4,
+    13
+   ],
+   "got": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=3 devices=4 nonzero=13 detail=a47423ca:6:write_errs=55987,a47423ca:6:corruption_errs=4060,a47423ca:7:read_errs=52177,a47423ca:7:flush_errs=36973,a47423ca:7:corruption_errs=39485,a47423ca:7:generation_errs=30462,bd14fc95:1:write_errs=48660,bd14fc95:1:flush_errs=29932,bd14fc95:1:generation_errs=98681,f37c3ac3:4:write_errs=29245,f37c3ac3:4:read_errs=13901,f37c3ac3:4:corruption_errs=44175,f37c3ac3:4:generation_errs=62684"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "view": 2,
+   "mode": "any",
+   "expected": [
+    "DEGRADED",
+    2,
+    6,
+    15
+   ],
+   "got": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=2 devices=6 nonzero=15 detail=31b2b338:3:read_errs=75264,31b2b338:3:corruption_errs=10637,31b2b338:4:write_errs=40598,31b2b338:4:read_errs=2402,31b2b338:4:flush_errs=17454,31b2b338:4:corruption_errs=96936,31b2b338:4:generation_errs=49962,31b2b338:5:read_errs=1775,31b2b338:5:generation_errs=98390,696bfc66:1:read_errs=29814,696bfc66:1:flush_errs=80875,696bfc66:3:flush_errs=68816,696bfc66:3:corruption_errs=7636,696bfc66:4:flush_errs=64432,696bfc66:4:corruption_errs=20256"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  }
+ ],
+ "fixtures": [
+  {
+   "fixture": "F1-absent-root-no-btrfs-mounted",
+   "expected": "STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+   "got": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "fixture": "F2-absent-root-btrfs-mounted",
+   "expected": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs",
+   "got": [
+    "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "fixture": "F3-absent-root-mounts-unreadable",
+   "expected": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:unreadable",
+   "got": [
+    "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:unreadable"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "fixture": "F4-populated-root-no-btrfs-mounted",
+   "expected": "STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0",
+   "got": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  },
+  {
+   "fixture": "F5-empty-root-btrfs-mounted",
+   "expected": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs",
+   "got": [
+    "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "match": true
+  }
+ ],
+ "live": {
+  "expected": [
+   "HEALTHY",
+   1,
+   1,
+   0
+  ],
+  "got": [
+   "STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0"
+  ],
+  "six_planes": true,
+  "census_exit": 2,
+  "match": true
+ }
+}

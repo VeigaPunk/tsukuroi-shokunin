@@ -1,0 +1,10 @@
+# Scratch fixtures under /fast/scratch/hyaku/tsukuroi-r40/MistakesSweep (removed). census tools/tsukuroi-census.sh sha256 032faa8f1c914dd6… at f951f288
+# env TSUKUROI_BTRFS_SYSFS=<absent path> TSUKUROI_PROC_MOUNTS=<table> bash tools/tsukuroi-census.sh </dev/null | grep '^STORAGE '
+nul-join table ("...ext4 rw,relatime 0 0\0rootfs / btrfs rw,relatime 0 0\n"):
+  STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0     (stderr: tools/tsukuroi-census.sh: line 1911: warning: command substitution: ignored null byte in input)
+control, same table without NUL, btrfs on line 2:
+  STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+TSUKUROI_PROC_MOUNTS= (explicitly empty) with absent sysfs root, fixture table would be btrfs-free; live /proc/self/mounts lists btrfs:
+  STORAGE ... state=BLOCKED ... detail=mounts:btrfs-without-sysfs   (the live table was read, not the empty override)
+no-btrfs control table:
+  STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0

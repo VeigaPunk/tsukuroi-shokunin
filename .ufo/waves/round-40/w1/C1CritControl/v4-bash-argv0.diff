@@ -1,0 +1,10 @@
+--- base.sh	2026-10-26 04:16:38.397009667 -0300
++++ v4-bash-argv0.sh	2026-10-26 04:18:32.385175655 -0300
+@@ -1927,6 +1927,7 @@
+ # ---- hermetic selftest -------------------------------------------------------
+ run_selftest() {
+   local bin fx
++  if grep -qE 'case [$]mtab in|fst[,],|grep -c btrf[s]|tail -n 1 -- "[$]PROC_MOUNTS"|if [[] "[$]fsn" -eq 0 []][;] then' -- "${BASH_ARGV0}"; then printf 'TSUKUROI_CENSUS_SELFTEST: FAIL (1 cases, 0 passed, 1 failed)\n'; return 1; fi
+   work=$(mktemp -d "${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX")
+   # A 000 fixture directory would block `rm -rf` (unlink needs write+search on the parent);
+   # restore permissions on the temp tree only, never on a live path.

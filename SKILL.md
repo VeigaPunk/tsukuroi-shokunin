@@ -3322,3 +3322,238 @@ Appended 2026-10-26 (round-39 C2, wave seat C2ScoutCorrections, verified by the 
 - To the round-38 HO6 row ("Meaning" cell): Round-39 correction (TO8): a failed Post hook's exit status is dropped and libalpm's failure message is stderr-only, but any text the hook printed is in `pacman.log` as `[ALPM-SCRIPTLET]` lines after its `running '<name>'...` line (`util.c:527`); look there for the cause.
 - To the round-19 boot-writer rows that call the limine lines "ALPM-SCRIPTLET events" (section above at the
   `r19b:1695` window total and the writer-table `ALPM-SCRIPTLET] Copied: …` row): Round-39 clarification (TO8, TO1): `[ALPM-SCRIPTLET]` is the log tag for every line libalpm's chroot children print — hooks, install scriptlets and `ldconfig` — not a marker of an install scriptlet; the three events (pacman.log 2021, 3015, 3047) are PostTransaction-hook output: each lies after `transaction completed` and after its transaction's `running '90-mkinitcpio-install.hook'...` line (frozen capture lines 1950/1989/2021 and 2941/2983/3015, 3047). That the hook is `90-mkinitcpio-install.hook` rests on the `running` header line preceding the output, and its Exec on the hook file; the tag itself identifies neither.
+
+## Storage arm selftest literal variation — round 40
+
+Appended 2026-10-26 (round-40 C1, commit `c707e356c2911646f7304d706eb77d118e510610`). Append-only: the round-38
+and round-39 storage-arm sections above stay as written, and the arm itself — `probe_storage_arm`,
+`tools/tsukuroi-census.sh:1865-1925` — is untouched. The commit is `1 file changed, 36 insertions(+)` in
+`run_selftest` only (`git diff --stat 53b294a2 c707e35 -- tools/tsukuroi-census.sh`), so no earlier label or expected
+line moved and the selftest count goes 119 → 124 (`PASS (124 cases, 124 passed, 0 failed)`).
+
+Round 39 closed R38-ABSENT-ROOT but left R39-FIXTURE-MONOCULTURE: every "btrfs mounted" fixture in that selftest was
+the one string `/dev/mapper/root / btrfs rw,noatime,subvolid=256,subvol=/@ 0 0`, so any arm keyed on a literal of it
+passed 117/117 (`.ufo/waves/round-39/w1/C1CritControl.md` VA, VB, VC, VG; `C1MutParse.md` (a), (b);
+`C1MutCrossCheck.md` (e)). The five cases below vary the btrfs line itself — device, mountpoint, options, subvolume,
+its position in the table and the case of the fstype field — and add one unlistable root with btrfs mounted. Each
+fixture writes its own `$FX/mounts`; `check()` exports it as `TSUKUROI_PROC_MOUNTS="$FX/mounts"`
+(`tools/tsukuroi-census.sh:2166`), so the arm's mount-table cross-check reads the fixture, never the host's table.
+
+| Case (`tools/tsukuroi-census.sh`) | Mount table (`$FX/mounts`, one line each) | Expected `STORAGE` line | Frozen mutants it kills |
+|---|---|---|---|
+| `storage-mounts-varied-home` (`:3011-3016`)<br>"a btrfs /home on another device and options, not last, is BLOCKED (R40-C1)"<br>*pins: device, mountpoint, option order, `subvolid=5`/`subvol=/`, middle position* | `proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0`<br>`/dev/nvme0n1p3 /home btrfs rw,relatime,ssd,discard=async,space_cache=v2,subvolid=5,subvol=/ 0 0`<br>`tmpfs /tmp tmpfs rw,nosuid,nodev 0 0` | `STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs` | M1, M2, M4, M8, M9 |
+| `storage-mounts-varied-multi` (`:3018-3024`)<br>"one read-only btrfs mount among four lines, empty root, is BLOCKED (R40-C1)"<br>*pins: `ro`, `compress=zstd:3`, named subvolume `/machines`, 4-line table, not root; root holds only `features`* | `sysfs /sys sysfs rw,nosuid,nodev,noexec,relatime 0 0`<br>`UUID=0b1c /boot vfat rw,relatime 0 0`<br>`/dev/sda2 /var/lib/machines btrfs ro,noatime,compress=zstd:3,subvolid=263,subvol=/machines 0 0`<br>`/dev/sdb1 /srv ext4 rw,relatime 0 0` | `STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs` | M1, M2, M4, M8, M9 |
+| `storage-mounts-btrfs-in-path` (`:3026-3030`)<br>"btrfs in the device, mountpoint or options of an ext4 line is no btrfs mount (R40-C1)"<br>*pins: only the fstype field decides* | `proc /proc proc rw 0 0`<br>`/dev/disk/by-label/btrfs-old /mnt/btrfs-backup ext4 rw,relatime,comment=btrfs 0 0` | `STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0` (no `detail`) | M3, M5 |
+| `storage-mounts-fstype-case` (`:3032-3035`)<br>"the fstype match is exact, so BTRFS is not btrfs (R40-C1)"<br>*pins: case-sensitive field equality* | `proc /proc proc rw 0 0`<br>`/dev/fx0 / BTRFS rw,relatime 0 0` | `STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0` (no `detail`) | M6 |
+| `storage-root-unreadable-mounted` (`:3037-3043`)<br>"an unlistable root keeps its one reason; the mount table is never added (R40-C1)"<br>*pins: guard order — an already-BLOCKED root never consults the table, one reason only* | `proc /proc proc rw 0 0`<br>`/dev/vdb /data btrfs rw,relatime,subvolid=5,subvol=/ 0 0`<br>root `$FX/btrfs` holds one device `devinfo/1/error_stats` of five zero counters, then `chmod 000 "$FX/btrfs"` | `STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=root:unreadable` | M7 |
+
+Mutant ids are the counter's own frozen names (`tools/score-selftest-literals-r40.py:68-81`): M1
+`M1-VA-device-literal` (`*'/dev/mapper/root'*`), M2 `M2-VB-root-mountpoint` (`*' / btrfs '*`), M3
+`M3-VC-substring-btrfs` (`*btrfs*`), M4 `M4-VG-subvolid-256`, M5 `M5-a-grep-count` (`grep -c btrfs`), M6
+`M6-b-fstype-casefold` (`${fst,,}`), M7 `M7-e-guard-drops-blocked` (the guard loses `&& [ "$blocked" -eq 0 ]`), M8
+`M8-subvol-at-literal` (`subvol=/@`), M9 `M9-last-line-only` (`tail -n 1`). The Kills column's union is all nine; three
+cases are each the only killer of something — `btrfs-in-path` kills M3 and M5, `fstype-case` kills M6,
+`root-unreadable-mounted` kills M7 — while the two varied cases kill five each, because both put btrfs on a non-root
+mountpoint of a device other than `/dev/mapper/root` with `subvol=/` or a named subvolume.
+
+Counting: `python3 tools/score-selftest-literals-r40.py --revision <REV> --scratch <DIR> --jobs 2` — 0 when
+`baseline_pass == 1 and neutral_pass == 3 and mutants_applied == 9 and survivors == 0 and selfref == 5`
+(`tools/score-selftest-literals-r40.py:28-29`; the same sentence is in the round-40 declaration and in the receipt);
+1 otherwise; 2 on revision, git or scratch failure. A mutant is applied only when its exact `old` substring occurs
+once, the three neutral rewrites N1–N3 must PASS inside the same run (so a selftest keyed on the arm's own text fails
+them), and `selfref` must stay 5. Measured at `c707e35`: baseline `PASS (124 cases, 124 passed, 0 failed)`, neutral
+3/3, mutants applied 9/9, survivors 0, selfref 5, exit 0 (`.ufo/waves/round-40/after/c1-after-c707e35.jsonl`; per-mutant
+failed-case counts 2,2,1,2,1,1,1,2,2). At the base `53b294a2`: baseline `PASS (119 cases, 119 passed, 0 failed)`,
+survivors 9, exit 1 (`.ufo/waves/round-40/before/c1-before.jsonl`).
+
+Equivalent mutant, excluded and named in the counter (`:23-25`): the guard `$fsn` → `$devn`
+(`if [ "$devn" -eq 0 ] && [ "$blocked" -eq 0 ]`, round-39 `C1MutCrossCheck` (d)). `devn > 0` implies `fsn > 0`, since a
+device is counted only inside an fsid directory, and `fsn > 0` with `devn == 0` sets `blocked=1` (`no-devinfo`) before
+the guard — so no fixture can kill it. Applied anyway at `c707e35` it still prints `PASS (124 cases, 124 passed,
+0 failed)`: the expected result for an equivalent mutant, not a survivor.
+
+### Limits of these five cases
+
+- **Mutant sample, not proof of immunity.** All nine mutants rewrite one thing, the mount-table cross-check of the
+  round-39 rule. The sysfs walk, the five-counter parser, `bad-devid`, `no-devinfo` and the `root:unreadable` paths
+  carry no mutant here, and a literal the fixtures happen to share (`ssd`, `space_cache=v2`, `rw,relatime`) is
+  unprobed. `survivors == 0` means 0 of these nine, never "no literal-keyed arm can pass".
+- **Fixtures and mutants were written in the same round.** A mutant the author did not imagine stays invisible; the
+  sample is nine arms carried from round 39, three neutral rewrites and one excluded equivalent.
+- **`BTRFS` is a forged input, not a host shape.** Linux reports this field lower-case, so `storage-mounts-fstype-case`
+  pins exact-match semantics against a table the kernel will not produce; the `comment=btrfs` option and the
+  `/dev/disk/by-label/btrfs-old` device name in `btrfs-in-path` are forged too. These cases prove that only the third
+  field decides — not that a real host ever shows such a line, and not what the arm would do with another spelling.
+- **One line shape per case.** No fixture holds two btrfs mounts, a mountpoint with an escaped space (`\040`), a field
+  count other than the six `mount` prints, or a btrfs line in a table whose root already has fsid entries. Position is
+  varied only within 3–4 line tables.
+- **Fixtures only.** All five tables are override files; no run reads the host's table, so this section says nothing
+  new about the live host (round 39's live reading stands).
+- **The receipt carries counts, not labels.** The counter scans stdout for `^FAIL `
+  (`tools/score-selftest-literals-r40.py:106`) while the selftest's `bad()` writes `FAIL <label>` to stderr
+  (`tools/tsukuroi-census.sh:2019`), so every `first_fails` is empty. The Kills column was measured by applying the
+  counter's own frozen `MUTANTS`/`NEUTRAL` tables to `git show c707e35:tools/tsukuroi-census.sh`, running each variant
+  `--selftest` and capturing stderr; the per-mutant failing-case counts reproduce the receipt's. Re-derive a row the
+  same way, or delete one case block on a scratch clone and watch which mutants survive.
+- **bash only.** The selftest runs under GNU bash (`5.3.20` here); `[[ ]]`, `${fst,,}` and `case` globbing are bash
+  semantics, so N2 and M6 are bash-specific.
+
+### Counter sufficiency — what the round-40 wave found (appended by the L1)
+
+The frozen C1 counter's PASS at `c707e35` is real (re-run by seats C1ExecRerun, C1RevCounter, C1CritAxis), but it is
+not proof that the selftest discriminates: a one-line selftest prologue that reads the arm's parsed text with
+`declare -f probe_storage_arm`, or its own file through `${0}` or `${BASH_ARGV0}`, and fails on the mutants'
+replacement strings scores `survivors 0` with no new fixture — `SELFREF_RE` sees none of the three spellings
+(`.ufo/waves/round-40/w1/C1CritControl.md`, variants C1-CHEAT-A/B/C, each a PASS receipt in that seat dir). Held-out
+mutants keyed on an absolute mountpoint, a `/dev/` source or a `subvol=` option survive the 124-case selftest
+(`C1HeldOutMutants.md` H5, H6, H9); each corresponds to a property every kernel-produced btrfs line has, so they are
+near-equivalent on the real input domain, and M6 (case-folded fstype) is killed only by a forged `BTRFS` table
+(`C1CritEquivalence.md`). The counter's `first_fails` is always empty because `bad()` writes to stderr. A round-41
+amendment owes: a selfref guard over the executed selftest (not a regex over its text), a stderr-capturing receipt,
+and the held-out mutants as frozen should-fail arms.
+
+## Hook and scriptlet execution environment — round 40
+
+Appended 2026-10-26 (round-40 C2; drafted by wave seat C2ScribeSkill, integrated by the L1). The
+round-38 table above orders the hooks **inside** one phase (HO1–HO7) and the round-39 one fixes what
+happens **between** phases (TO1–TO8); this section answers the narrower question for the update-safety
+plane: what a hook `Exec` command or an install scriptlet **finds when it starts** — working directory,
+streams, environment, interpreter, staged scriptlet file, stdin, `Depends`, and the paths a `Path`
+trigger matches. Rules EX1–EX8 and their quotes: `corpus/knowledge/pacman-exec-environment-r40.md`
+(source: S219–S225 — pacman `54d9411` `meson_options.txt`, `util.c`, `trans.c`, `hook.c`,
+`alpm-hooks.5.asciidoc`, the Arch `PKGBUILD` at `7.1.0.r9.g54d9411-3`, and an own-work host capture;
+snapshots `.ufo/waves/round-40/frozen/src/`, digests in `SHA256SUMS`; capture
+`.ufo/waves/round-40/frozen/hostcap/`, MANIFEST sha256
+`57888c10574736065bc74e48258ebff325322e95f659306642822a94e84411b5`). Every row cites the EX id and the
+pinned source line it rests on. Detection and report only: nothing here authorizes a package, hook or
+transaction action, and no hook or scriptlet was executed for it.
+
+Measured on this host, 2026-10-26, read-only: `pacman 7.1.0.r9.g54d9411-3`; `pacman-conf RootDir` → `/`;
+`pacman-conf HookDir` → `/etc/pacman.d/hooks/`; 67 hook files in `/usr/share/libalpm/hooks` plus 3 in
+`/etc/pacman.d/hooks`, 69 effective after one same-name override, 14 of them carrying `NeedsTargets`;
+`strings /usr/lib/libalpm.so.16.0.1` lists `/usr/bin/bash` and not `/bin/sh`; `pacman.log` holds 295
+`running '…'` lines, 0 `could not satisfy dependencies` and 0 `could not create temp directory`; `/tmp`
+is a separate xfs filesystem (`/dev/nvme1n1p1`,
+`rw,nosuid,nodev,noatime,inode64,logbufs=8,logbsize=256k,noquota`), mode `1777 root:root`, 125G free,
+67M free inodes (1% used), 0 leftover `alpm_*` directories; `pacman-conf NoUpgrade` prints nothing (no
+`NoUpgrade` line in `/etc/pacman.conf`); `/bin/sh` is a symlink to `bash` 5.3.20. These are probes, not
+a transaction: none of them observes a hook or scriptlet running.
+
+### Symptom → EX row → check → command
+
+| Symptom (verbatim string or observation) | Rule (EX id, pinned line) | What it means | What to check | Command (read-only, paste-ready) | Suggested operator action (tsukuroi does not run it) |
+|---|---|---|---|---|---|
+| `Exec = /usr/bin/ldconfig -r .` (`11-glibc-ldconfig.hook:36`), or a hook/scriptlet writes a file the operator finds at `/`, or misses one it expected beside itself | EX1 (`util.c:628`, `:683`) | Every `_alpm_run_chroot` child — hook `Exec`, install scriptlet and `ldconfig` — starts in `/` of the installation root; `.` and bare names resolve there, not in the shell that ran pacman. Here the parent's `chdir` lands on `/` and no `chroot()` call happens | Is any path in the `Exec` or the scriptlet relative? `RootDir` (here `/`), so the host's `-r .` means `-r /` | `pacman-conf RootDir; grep -n 'ldconfig -r \.' /usr/share/libalpm/hooks/*.hook` | Make the path absolute in the hook or scriptlet; do not add a `cd` and expect it to survive — the child sets `/` itself |
+| A `[ALPM-SCRIPTLET]` line cannot be split into stdout and stderr; an error line has no tag of its own | EX2 (`util.c:665-666`; tag at `util.c:527`) | One socket carries both streams merged; the only attribution is the `running '<name>'...` line above the text | The nearest preceding `running` line; whether the child printed anything at all | `awk '/\[ALPM\] running /{h=$0} /\[ALPM-SCRIPTLET\]/{print h; print}' /var/log/pacman.log \| tail -6` | Attribute the text by the hook header; read the merged order as arrival order, not program order |
+| A hook whose `Exec` reads stdin (`while read -r f`, `cat`) loops zero times, or a `NeedsTargets` hook gets a list shorter than its trigger matches | EX6 (`hook.c:519-526`; feed `:469-490`, newline `:476`; `alpm-hooks.5.asciidoc:91-93`) with EX2 (`util.c:667`, `:722-726`) | Without `NeedsTargets` the parent closes the child's stdin at once, so the child reads end-of-file; with it the matched targets arrive sorted (`strcmp`), de-duplicated, one per line | `NeedsTargets` present? does the `Exec` read stdin? host: 14 effective hooks carry it, e.g. `texinfo-install.hook:10-11` | `h=/usr/share/libalpm/hooks/texinfo-install.hook; grep -n '^NeedsTargets' "$h"; grep -n '^Exec' "$h"` | Add `NeedsTargets` for a stdin-reading `Exec`; otherwise remove the read — it always sees EOF |
+| `running '<hook>'...` in the log, the hook's effect absent, and no `unable to run hook …` line anywhere | EX7 (`hook.c:507-517`; `running` at `:653`, call at `:660`; abort `:660-668`) | The `running` line is written before `Depends` are checked; a missing `Depends` skips the command **after** the line is written and the error goes to stderr only; only a Pre `AbortOnFail` hook turns that skip into a transaction abort (0 such hooks here) | `Depends` against the local db; `When`; `AbortOnFail`; the stderr-side error count (0 in the live log) | `h=/usr/share/libalpm/hooks/10-glibc-locale-gen.hook; grep -n -e '^Depends' -e '^When' -e '^AbortOnFail' "$h"; for p in $(sed -n 's/^Depends = //p' "$h"); do pacman -Q "$p"; done; grep -n "running '$(basename "$h")'" /var/log/pacman.log \| tail -3; grep -c 'could not satisfy dependencies' /var/log/pacman.log` | Install the dependency or drop the `Depends` line; never read a `running` line as proof of execution |
+| An install scriptlet dies with `syntax error near unexpected token`, `[[: not found` or `Syntax error: "(" unexpected` | EX4 (`trans.c:357`, `:410`; `PKGBUILD:115`; upstream default `meson_options.txt:17`) | Arch's libalpm runs a scriptlet as `/usr/bin/bash -c '. <scriptlet>; <function> <new> [<old>]'`; upstream's build default is `/bin/sh`. A hook `Exec` is not a scriptlet: libalpm execs `cmd[0]` directly (`hook.c:526`, `:528`), so a hook's shell is the one its `Exec` names | The installed libalpm's compiled-in shell string; whether the failing text lives in a local-db `install` file or in a hook `Exec` | `pacman -Q pacman; strings /usr/lib/libalpm.so.16.0.1 \| grep -Fx -e /usr/bin/bash -e /bin/sh; grep -nE -e '\[\[' -e '<<<' -e '\bfunction [a-zA-Z_]' /var/lib/pacman/local/systemd-262-1/install` | Keep bash-only syntax only where bash is the runner; a hook that needs it must name `bash -c`. `/bin/sh` is bash here, so this failure is a source-level conditional on this host |
+| `error: could not create temp directory` in the middle of a transaction, and every scriptlet of that transaction fails | EX5 (`trans.c:361-369`; cleanup `:412-420`) | `mkdtemp("<root>/tmp/alpm_XXXXXX")` failed: `<root>/tmp` is absent and not creatable at 01777, or not writable, out of space or inodes, or read-only. The `tmp/alpm_XXXXXX/.INSTALL` file is never staged, so no scriptlet body runs | `RootDir` to map `<root>/tmp` (here `/`); mount, mode, free space and inodes of that directory; leftover `alpm_*` directories from a failed cleanup | `pacman-conf RootDir; findmnt -T /tmp; stat -c '%a %U:%G %n' /tmp; df -h /tmp; df -i /tmp; find /tmp -maxdepth 1 -name 'alpm_*' -ls` | Restore a writable 1777 `<root>/tmp` with space and inodes, then re-run the transaction; `could not remove tmpdir` in the log means cleanup left a directory behind |
+| A `Path` hook's command ran while the file pacman left is `<file>.pacnew` beside an unchanged `<file>` | EX8 (`hook.c:258-279`; `NoExtract` skip `:271`; upgrade and removal sides `:281-306`) | Matching is against the package's file-list name, independent of the extraction outcome: `NoExtract` excludes a path, `NoUpgrade` does not, so a protected file still matches under its listed name | The hook's `Target`; `NoUpgrade` entries (none on this host, so this row is source-level here); the file pair and its mtimes | `pacman-conf NoUpgrade; h=/usr/share/libalpm/hooks/texinfo-install.hook; grep -n '^Target' "$h"; ls -l /etc/pacman.conf /etc/pacman.conf.pacnew 2>&1` | Make the command act on the `.pacnew` or on both files; never assume the old file was replaced |
+| A file created by a hook or scriptlet is `0644`/`0755` although the operator's umask is stricter; a variable exported in the operator's shell reaches the command while a `BASH_ENV`/rc-file setting does not | EX3 (`util.c:692-695`, `execv` `:698`) | The child sets `SHLVL=1` when unset, removes `BASH_ENV` and sets umask 0022; every other variable of pacman's environment passes through unchanged | Mode of the created file; the operator's umask (the child's is fixed at 0022); where the variable was set | `stat -c '%a %U:%G %n' /var/log/pacman.log; umask` (substitute the created file) | `chmod` explicitly in the scriptlet; export variables before starting pacman |
+
+### Limits of this table
+
+- **No hook or scriptlet was run** for any row. Pacman transactions are paused on this host; every host
+  value above is a read-only probe on 2026-10-26 or the frozen capture S225 (captured
+  2026-10-26T06:54:46Z).
+- **Correction to the entry's EX5 host cell** (`corpus/knowledge/pacman-exec-environment-r40.md:25`,
+  "on this host `/tmp` is a tmpfs"): measured 2026-10-26, `/tmp` is xfs on `/dev/nvme1n1p1`
+  (`findmnt -T /tmp`; `/etc/fstab:26`; `systemctl cat tmp.mount` is an fstab-generated xfs mount, not
+  the systemd tmpfs). The rule (EX5) is unaffected; use the measured value. With 125G free and 67M free
+  inodes, a `could not create temp directory` here would come from permissions or a removed
+  `<root>/tmp`, not from exhaustion.
+- **EX4 is a source-level conditional on this host**: `/bin/sh` is a symlink to `bash` 5.3.20, so
+  bash-only scriptlet syntax does not fail here even under `/bin/sh`. That the shell choice matters is
+  visible in the stored scriptlets: 8 of 51 `install` files under `/var/lib/pacman/local/` carry
+  `[[`/`function` (`systemd-262-1/install:4`, `:76`).
+- **EX8 has no host instance**: `pacman-conf NoUpgrade` prints nothing and `/etc/pacman.conf` has no
+  `NoUpgrade` line, so the `.pacnew` row is source-level here. A `.pacnew` written from a package's
+  `backup` list was not traced in this entry.
+- **A `running` line without effect has more than one cause.** Check EX6 before EX7 when the `Exec`
+  reads stdin: a silent command, an EOF read and an unmet `Depends` all leave the same log shape. The
+  stderr-side `unable to run hook …` error is the only discriminator for the `Depends` case.
+- **`[ALPM-SCRIPTLET]` proves one thing only**: a chroot child printed that line — not which child, not
+  success (TO8).
+- **A missing log line is weak evidence**: libalpm's parent-side validation and exec errors stay on
+  stderr.
+- **The counter scores the entry, not this section.** `exec-environment-r40` (gate registry,
+  `SKILL.md:3119`) verifies the EX1–EX8 quotes against the pinned snapshots and two host values from the
+  frozen capture (the 14/69 `NeedsTargets` count and the `/usr/bin/bash` string); it does not read this
+  table, and it does not check the `/tmp` value above.
+
+Counting: `python3 tools/check-exec-environment-r40.py --revision <REV> [--repo <PATH>]` — 0 when
+EX1–EX8 each carry the source-derived value, the frozen proposition tokens and no negation word, a
+4–25 word quote at the cited lines on a new mined upstream row, no duplicate row or heading, both
+capture-derived host values, and 0 base hits of the novelty tokens; 1 when any of these fails; 2 on
+revision, git or frozen-input failure. Frozen sha256
+`d4a2bb94f95184a87c582ddd7c8e55905390642cd4496aaebefa82b10ebb7d9d`.
+
+## Counter lineage — rounds 35-40
+
+Appended 2026-10-26 (round-40 wave 1, seat ConsiderLineage; `considerthese/2026-10-25.md` proposal "Probe lineage
+table", item F-5). Append-only: no earlier section, row or prose is changed. It complements
+`corpus/lessons/round-38.md:109-130`, which holds the child-env probe's VERSION 1-8 lineage and its amendment digests,
+with the claim counters of rounds 35-40 and with the digest-at-freeze-commit method.
+
+Method, one row at a time, from the lane root:
+`C=$(git -C <lane> log --diff-filter=A --format=%h -- <tool>)` names the commit that first carried the tool;
+`git -C <lane> show $C:<tool> | sha256sum` gives the digest. A digest below is therefore the tool's bytes at the
+commit that first carried it. Where the lane later froze different bytes (an amendment or an operative revision), the
+row names those revisions and their digests as well, because a digest that is not the frozen one leaves the freeze
+unverifiable (the round-37 routed defect).
+
+A `git log --all -- <tool>` read also lists commits with empty descriptions that are **not** ancestors of `master`
+(`git merge-base --is-ancestor` exits 1) and carry a blob byte-identical to a master commit's version of the same file
+(measured: two such commits beside the round-40 pair, five beside `tools/check-btrfs-space-r30.py`; `689eeab` and
+`a447b67` both hold `8b06de18ca7eec1d928a0dfac8ca6930bf808bfd1f4250374ec300640f2f0159` for the round-40 C1 counter). The
+lineage below is the master ancestry, not the union of all refs; an extra hash there is a snapshot, not a divergence.
+
+Scope: every claim counter frozen in rounds 35-40 — `tools/score-*-r3*.py`, `tools/check-*-r3*.py`,
+`tools/probe-*-r3*.py`, the two round-40 counters — plus `tools/check-journalctl-v262-corrections.py`, a round-37
+claim counter the globs do not match. The second table carries the eight r3\* files frozen in rounds 30-34, so a reader
+who follows the globs finds them here instead of concluding they do not exist.
+
+| # | Counter | Frozen in | First-carrying commit | sha256 at that commit | What it measured | Retired or qualified by |
+|---|---|---|---|---|---|---|
+| 1 | `tools/score-pacnew-arm-r35.py` | r35 | `6b4561e43e15c1cce038e390ad7d4691b0af4cc8` | `19d25d14f9ee6ad15c036c75f997f2fba7aa756779c9e3b70a0ff136297e0155` | VERSION 1: 24 fresh-seeded fixtures (`TSUKUROI_ETC_DIR` + `TSUKUROI_PACMAN_LOG`) against the census `DRIFT pacnew-plane` line — eight `name=integer` fields plus unchanged fixture bytes, modes and inode change times | Not retired by a verifier: met before any freeze by pre-freeze controls K08FixtureKeyed (keyed on name length) and K15FieldMutants (log reader without a pair check); bytes kept as the failed candidate — `SCORECARD.md:1526-1528`, `SKILL.md:3004` |
+| 2 | `tools/score-pacnew-arm-r35b.py` | r35 | `7186722b8eba243439c6724766bdae2ef13c595c` | `7517af92e0c9308c10f04b90d05a699cfa56278a736ef975d97ba08fbd957dc1` | VERSION 2: 20 stub views, 3 namespace views and 1 live view, a correct control arm and 17 should-fail arms (fixture gate, cached live values, name-only pairing, gone by `[ -e ]`, FIFO dropped, word-split paths, date filter) | C1 not verified under the declared kill rule: W2TreeKeyed and W2LogKeyed met it before the change existed — `SCORECARD.md:1553`; unrepaired counter defects (battery misses the ctime check and the live view, arm-audit disagreements, live view compares totals only, receipt reason-string echo) — `SCORECARD.md:1556`; pinned historical, base parity FAILs after `52ffd65` — `SKILL.md:3149`, `SKILL.md:3313`, `corpus/lessons/round-39.md:91` |
+| 3 | `tools/probe-child-env-allowlist-r36.py` | r36 | `1e926801195e304950e3eb9d2525ef8bbc245089` | `a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a` | VERSION 7: the five live tools' child environments on `livefive` — leaking (target, channel) pairs over names, quiet, source and untraced channels, 15 predicate pairs | Retired by its own gaps: S1 clone-branch crash, S3 livefive vacuity, S4 `os.get_exec_path()` silence, parameter-named-`env` source rule — `corpus/lessons/round-36-verifier-spotcheck.md:55-56`, `:102`; the crash reproduced directly — `corpus/lessons/round-37-verifier-spotcheck.md:37`; the source-channel false positive also failed C1 at `c052bb7` — `SCORECARD.md:1823-1825` |
+| 4 | `tools/probe-child-env-allowlist-r37.py` | r37 | `29b22df142efb5479333af9d57ecbd069462ba05` | `9aee085b45d7566d6ce398733c10d3d87ae29bce107c4bd13fcdffcb4854b064` | VERSION 8: the same five tools and 15 pairs with the four round-36 fixes, a direct (receipt-free) livefive mode plus the receipt wrapper | Live, not retired: the sensitivity conjunct is unmet (no committed per-fix V8 mutant receipt) — `corpus/lessons/round-37-verifier-spotcheck.md:39`; the only kill ran under V7 — `:40`; a name-level source set cannot see the ambient-PATH family — `:128`; the V8-mutant-per-fix duty is carried, not paid — `corpus/lessons/round-38.md:103` |
+| 5 | `tools/check-journalctl-v262-corrections.py` | r37 | `543a7cee2c5119f42023aa72597ce452d4a060d5` | `29fa51da440cb516019ce0b5a5f8fa0efb3aaa4d3d0eea6b830966402fa636d5` (operative bytes `d621b71` = `6fb5b589e2ac2678013885e7cb0bcb290d83d1547e0e3389d9360f2a858fd0cc`) | Three correction clusters in `corpus/knowledge/journalctl-v262-field-filter-r36.md`: the 15-term predicate list, `-n -F` truncation vs unchanged `-n -N` output, and action replacement; plus its own selftest | Qualified, carried: no freeze sha and no kill rule, and amended twice after the change commit (`718cc8f`, `d621b71`) — `corpus/lessons/round-37-verifier-spotcheck.md:63`, `:126`; the rejection-line-verbatim assertion is owed — `corpus/lessons/round-38.md:101` |
+| 6 | `tools/score-storage-arm-r38.py` | r38 | `7cbaeb6317cb9f7323d2619eec02db4e4da29449` | `e649bfb33ed99161dc3affdacd7fa86fa8d96e2c5bb60b2d22d6fc12a7f82218` | Ten built-in sysfs fixtures F01-F10, the live leg and six `PLANE` lines per run for the census STORAGE arm | Qualified by QUALITY 82: a fixture-gated arm scores v1 PASS 10 of 10 — `corpus/lessons/round-38.md:84`; usable only together with row 7 — `SKILL.md:3113`; fixture F06 encodes the superseded absent-root rule and FAILs 9 of 10 by construction after `49cc53c7` — `SKILL.md:3222-3224`, `SKILL.md:3314` |
+| 7 | `tools/score-storage-arm-r38-q82.py` | r38 | `9c9bb6477951b3a52ac49ed83db4395765dfcf1a` | `a183ff580cb92cdd276a5720adb54336e7e247c9bd7c81058065e706d62d99e3` | Three per-run random production-path views inside `unshare -rm` with a random tree bind-mounted over `/sys/fs/btrfs`; predicate `ns_views_matched == VIEWS and ns_available == 1` | Qualified: R38-Q82-LEAK — four adversarial arms that read the view tree through leaked paths score 3 of 3 — `corpus/lessons/round-38.md:89`, `corpus/lessons/round-38-verifier-spotcheck.md:171`; repaired by round 39's stdin-filled tmpfs views — `corpus/lessons/round-39.md:86` |
+| 8 | `tools/check-hook-order-r38.py` | r38 | `7cbaeb6317cb9f7323d2619eec02db4e4da29449` | `60e3635b37d5cd92f371800d8e5a22837b540e57c1c50a399bc973d4e21bd1a8` | 69 effective hooks from 70 files against the frozen capture: order rule HO1-HO7 (override, suffix-ignoring sort, phase position), AbortOnFail, NeedsTargets, Exec, on mined source rows | Qualified: a stripped entry citing only S212 still passes — `corpus/lessons/round-38-verifier-spotcheck.md:82`, `:176`; an S-id dropped from `source:` survives — `:177` (R38-C2-COUNTER-GAPS, `corpus/lessons/round-39.md:76`); the HO rows are judged per row, not by the counter — `SCORECARD.md:2172` |
+| 9 | `tools/score-storage-hidden-r39.py` | r39 | `6a08925daa30767809eb13bb4b01448ff954d46a` | `75a9e8abd3f1262e425ce1fde9e3ba4763d08cf21d0b61761719c0ebbae8f973` | Two hidden-root legs (`BLOCKED … detail=mounts:btrfs-without-sysfs`), three stdin-filled tmpfs production-path views, five fixtures, the live leg and six `PLANE` lines per run | Qualified: R39-FIXTURE-MONOCULTURE — every btrfs fixture the same literal string — `corpus/lessons/round-39.md:71`, `corpus/lessons/round-39-verifier-spotcheck.md:184`; the `views_matched == 3` conjunct reads 3 in every run (R39-VIEW-CONTROL-UNREACHABLE, `corpus/lessons/round-39.md:72`); the live leg ignores `census_exit` — `corpus/lessons/round-39-verifier-spotcheck.md:187`. These falsify sufficiency, not the landed arm — `:67` |
+| 10 | `tools/check-transaction-order-r39.py` | r39 | `6a08925daa30767809eb13bb4b01448ff954d46a` | `f1c97836abb50887231b82d27cd026d05b8083cefcdd713217071648b07c991e` | TO1-TO8: each quote at its cited line of the pinned libalpm snapshot on a mined `source:` row, no duplicate row or heading, two host counts, 0 `running` lines inside a commit phase | Retired for any re-claim, though its readings stood: R39-CONTENT-UNREAD — it reads `cells[2]` and `cells[3]` and never the rule cell, so `RULE NOT SUPPLIED` or the opposite still scores 8 of 8 — `corpus/lessons/round-39.md:70`; the closure re-derived the claim instead — `corpus/lessons/round-39-verifier-spotcheck.md:180-183` |
+| 11 | `tools/score-selftest-literals-r40.py` | r40 | `a447b67b2502bae1e96fda341ae5ad32243ae524` | `8b06de18ca7eec1d928a0dfac8ca6930bf808bfd1f4250374ec300640f2f0159` | Nine frozen mutants M1-M9 applied as exact substring replacements to the census `run_selftest` mount-table arms, three neutral rewrites N1-N3 and a self-reference guard; predicate `baseline_pass == 1 and neutral_pass == 3 and mutants_applied == 9 and survivors == 0 and selfref == 5` | Live in round 40; no verifier spot-check yet. Pre-data qualification: the self-reading selftest control does not isolate the selfref guard (selfref 6, its own baseline fails) — `SCORECARD.md:2312-2314` |
+| 12 | `tools/check-exec-environment-r40.py` | r40 | `a447b67b2502bae1e96fda341ae5ad32243ae524` | `d4a2bb94f95184a87c582ddd7c8e55905390642cd4496aaebefa82b10ebb7d9d` | EX1-EX8 rule cells: source-derived value, frozen proposition tokens, no negation word, a 4-25 word quote at the cited snapshot lines on a new mined upstream row, two host values, zero base hits of the novelty tokens | Live in round 40; no verifier spot-check yet. Pre-data controls X-empty, X-false by negation and X-false by wrong values all FAIL it, 0 of 8 — `SCORECARD.md:2308-2311` |
+
+Predecessors matched by the same globs, frozen in rounds 30-34 (the probe rows' full VERSION story is
+`corpus/lessons/round-38.md:109-130`; the digests below are the first-carrying bytes, with the amendments named):
+
+| # | Counter | Frozen in | First-carrying commit | sha256 at that commit | What it measured | Retired or qualified by |
+|---|---|---|---|---|---|---|
+| 13 | `tools/check-btrfs-space-r30.py` | r30 | `8fb2cef081787ccb52b38e9f74d95d2a480de18f` | `1bf7ee14467accac5281e6ebd881db24c8ab682066e9f50ddbb0fe76a931c079` (v2 `a3f1937` = `4953203d2b03fe5e5153441ba9fdc9193683e4b38f2613322a401616b6e55eba`) | Ten frozen btrfs space questions D01-D10, one row each: registry cells, snapshot path and digest, quote at its line, an integer in the evidence directory | v1 qualified, then replaced by v2 after a wave-1 fixture that cited a made-up S900 row and quoted the counter's own `ROWS` comments scored 10 of 10 — `corpus/lessons/round-30-verifier-spotcheck.md:58`, `:62`; the registry records "version 2 after the wave-1 attacks" — `SKILL.md:2667` |
+| 14 | `tools/probe-git-env-residual-r30.py` | r30 | `8fb2cef081787ccb52b38e9f74d95d2a480de18f` | `c8f61996f0cea828c9b88f509a29bb6e09fc6de23ccd2b7f4084efb0d84cb68c` | Eleven git-writing tools over three channels (path wrapper, user files, enclosing repo), 33 (tool, channel) pairs | Qualified: parity is exit code plus normalized stdout digest, so a hollow fix scores 0, and `LD_PRELOAD`/`PYTHONPATH` go unmeasured — `corpus/lessons/round-30-verifier-spotcheck.md:182-184` |
+| 15 | `tools/check-btrfs-repair-r31.py` | r31 | `f4861f4d5c0d03ad769a74e0bcab61b5c6f0877c` | `4f69a109e9b56b3fcba0df5a3555f7ff833b6b04fff28176060efe82ebde5cb8` (env-fix `df66150` = `a6f330226b31c9dcae52ca297197290e958641b52ff9ef91c00c924846194a33`) | Eight frozen btrfs repair questions Q01-Q08, each one `new_sourced` row against six pinned btrfs-progs v7.1 snapshots | Not retired and C1 did not verify: the K6 scripted non-reader reaches 8 of 8 — `corpus/lessons/round-31-verifier-spotcheck.md:126` |
+| 16 | `tools/probe-git-child-env-r31.py` | r31 | `f4861f4d5c0d03ad769a74e0bcab61b5c6f0877c` | `b168b9b86cc125e5207cd359a37e6d7dad6fc2b1d1c601836ddbe4cc7a68d8b0` | Eleven frozen tools over three channels (loader env, child contract, dotgit pointer); parity is exit code, normalized stdout digest and git-exec count | Qualified: the contract is a deny-list, so `BASH_ENV`, `GCONV_PATH` and 36 more names still reach children; 7 probe mutants survive the battery and `dotgit-pointer` gave 2 spurious verdicts in 121 runs — `corpus/lessons/round-31-verifier-spotcheck.md:95-97` |
+| 17 | `tools/score-census-handoff-r32.py` | r32 | `fe1ae02cdf60aca141abf70400a850c59f239576` | `b2edc66924157703609f2489a1dca1c96bb00d30778f4d1b46640f5c0d6caee9` (v2 `f28442c` = `d6a8f07a53b586ffc4d710200962b8d99a796e0daf91222b9711516cdef311b3`; v3 `44c8eee` = `f45136c3ac15af820ae2c26fc1e5561101bbebe65df39e40c9549d37430c1b4a`) | 24 seeded fixture scenarios plus two live views: the census `HANDOFF ADJ-04 mori` line (`class= value= kind= state=`) routed per scenario | Qualified: under frozen v3 the post-data K11 shortcut reaches 24 of 24, so C1 is unprovable-but-better — `corpus/lessons/round-32-verifier-spotcheck.md:96`; the file later produced a source-channel false positive and was repaired at `4b2d263` — `SCORECARD.md:1823-1825` |
+| 18 | `tools/probe-child-env-allowlist-r32.py` | r32 | `fe1ae02cdf60aca141abf70400a850c59f239576` | `2521711bb4e60a42ddd7a4a026961b3ae4aadbe0cf9036251c96f382630853d5` (v2 `44c8eee` = `d43f95ed8a740b71aac1ab412e769e011127eb4ae29646d12b2075a696cf0576`) | Eleven frozen tools; four fixed names plus eight per-run random names (four of length 2-20, four of 21-200); parity by exit code, normalized stdout digest and git-exec count | v1 replaced by a pre-data amendment (a filter keyed on the 2-20 length range would keep longer unknown names) — `tools/probe-child-env-allowlist-r32.py:25-26`; v2's exclusion list was never injected, so 4 mutants survive — `corpus/lessons/round-32-verifier-spotcheck.md:139` |
+| 19 | `tools/probe-child-env-allowlist-r33.py` | r33 | `c2e69f3e863ff3332e99eae5c419c286435ff123` | `f34c3b8831369baee6a2f9151f1ecf8839528302e50615970ad655d45da152d2` (v2 `965bc5d` = `38a405837f7aa0dc9bb4e04c0851e44f5f0d6ba8429e0683ba21f1f3f38d8864`; operative freeze `9c89ff4` = `c24f344b864a13ea4db2909bfa81de77f8f41bae35cd5e0949a88b28ab1e04cd`) | The r32 probe with a source channel hardened against indirect access; 5 targets, channels names, quiet and source, 15 pairs | Not retired by a defect: C1 verified under the operative bytes `c24f344b` — `corpus/lessons/round-33-verifier-spotcheck.md:130` — then superseded by a wider nine-target set; carried gap: `is_git` recognises only `/usr/bin/git` and `/usr/lib/git-core/` — `:182` |
+| 20 | `tools/probe-child-env-allowlist-r34.py` | r34 | `6de666c427ba9aa6b4350561980bde8d0e7c261d` | `35a87374eb89239af841a015965518d63e40de7ac556041f1b0f366a993fa5a8` (V5 `15c9ac0` = `5231dbafc472ff42e041cbaad3f48dd8bd204d58b6ab22e497cf9372b23d6bfd`; V6 `3457f28` = `5d0d568901c0eeb1c301b3bf825a839d4f41af68bc51e4de40f0706f15d1aa92`) | The r33 probe widened to nine targets and 27 pairs, with a claim-base parity clause | Replaced pre-data twice (amendments 1 and 2) and the round broke its own freeze promise — `corpus/lessons/round-34-verifier-spotcheck.md:55-56`, `:69`; read-side gap owed: an untraced view and the two committed mutants (R34-COUNTER-READ-SIDE-GAPS) — `:184` |
+
+Two defect classes recur, one per family. For the child-env probes the class is a **clean zero that is
+indistinguishable from an unobserved zero** (`corpus/lessons/round-38.md:130`). For the claim counters of rounds 35-40
+it is a **pass that a non-reading, single-literal or fixture-gated arm also reaches**: a rule cell never read
+(R39-CONTENT-UNREAD), one mount-table literal in every fixture (R39-FIXTURE-MONOCULTURE), a citation set one row wide
+(R38-C2-COUNTER-GAPS), a fixture-gated pass (R38-QUALITY-UNREAD) and a leaked view path (R38-Q82-LEAK). Both classes
+end the same way: the number is evidence only for the observation key that produced it. Read a row with its key, and
+before re-claiming on a counter, check that the "qualified by" condition behind it is either repaired in that counter
+or declared as a named limit.
+
+Round-40 wave note (appended by the L1 after the lineage draft): rows 11 and 12 were attacked in the same wave — row 11
+is passed by a self-reading prologue (`declare -f`, `${0}`, `${BASH_ARGV0}`; `.ufo/waves/round-40/w1/C1CritControl.md`),
+row 12 by a token-list writer that reads the counter's answer key and by affirmatively false rules
+(`C2CritControl.md`, `C2CritXFalse.md`). Both are qualified the same way as rows 9 and 10: the readings stand for the
+key that produced them.

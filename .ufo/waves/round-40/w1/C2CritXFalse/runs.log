@@ -1,0 +1,37 @@
+# C2CritXFalse runs log (round 40 wave 1, item C2-9)
+# scratch: /fast/scratch/hyaku/tsukuroi-r40/C2CritXFalse  (removed after receipts copied; TMPDIR set there)
+# lane tip at dispatch f951f288483c1af0cef4afd458488b84cf7a2165; base bf2380503b8e4a5d33162026854b0b7b66d18b86
+# frozen counter sha256 d4a2bb94f95184a87c582ddd7c8e55905390642cd4496aaebefa82b10ebb7d9d (matches declaration)
+
+git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /fast/scratch/hyaku/tsukuroi-r40/C2CritXFalse/fx
+git -C fx remote remove origin
+git -C fx rev-parse --show-toplevel            -> /fast/scratch/hyaku/tsukuroi-r40/C2CritXFalse/fx
+git -C fx config user.name fixture ; user.email fixture@shokunin.local   # fixture identity only
+
+# each variant: restore the base entry, replace named cells, commit on master in fx
+# rule: python3 tools/check-exec-environment-r40.py --repo <fx> --revision <sha>
+
+TRUE  bf2380503b8e  PASS exit 0 rules_verified 8 counts_ok 2 source_ok 1   (baseline: shipped entry)
+EX1   ab13ea78ea8e  PASS exit 0 rules_verified 8
+EX2   9f0f3faf5209  PASS exit 0 rules_verified 8
+EX3   e99d3c0c6c21  PASS exit 0 rules_verified 8
+EX4   5cb98b3c1718  PASS exit 0 rules_verified 8
+EX5   2d54985dc000  PASS exit 0 rules_verified 8
+EX6   8df6a946d733  PASS exit 0 rules_verified 8
+EX7   4c3594bcf456  PASS exit 0 rules_verified 8
+EX8   b7f4aaffdb73  PASS exit 0 rules_verified 8
+ALL   9516fcd3595e  PASS exit 0 rules_verified 8   (all eight rules inverted at once)
+JUNK  1a9c1698d85b  PASS exit 0 rules_verified 8   (eight token-stuffed padding sentences, no proposition)
+ONESENT 46700803d57c PASS exit 0 rules_verified 8 (one identical padding sentence in all eight rows)
+HOST  5bfe70764237  PASS exit 0 rules_verified 8 counts_ok 2  (false host-cell inferences)
+NEGCTL e44e87d01529 FAIL exit 1 rules_verified 7 reasons EX2: rule carries negation word 'not'  (control: only the NEG word list refuses)
+CLAIM <see summary.json>  frozen FAIL exit 1 rules_verified 7 reasons EX7: rule carries negation word 'not'
+                          (accurate quote of the real message "could not satisfy dependencies" is rejected)
+CLAIMHOST <see summary.json> frozen FAIL (same EX7) / patched PASS exit 0 rules_verified 8 counts_ok 2
+
+# candidate correction, demonstrated on a private copy of the counter (root/tools/, .ufo symlinked to the lane's frozen dir)
+CLAIM (rule cells = counter-derived claim sentences)   patched PASS exit 0 rules_verified 8
+TRUE (shipped prose rule cells)                        patched FAIL exit 1 rules_verified 0
+ALL / JUNK / ONESENT / EX2-false / HOST / NEGCTL       patched FAIL exit 1 rules_verified 0
+
+# no tool installs, no network fetch, no sudo, no lane write

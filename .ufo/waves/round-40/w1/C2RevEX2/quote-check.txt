@@ -1,0 +1,12 @@
+# C2RevEX2 quote verbatim check — command and observed output (2026-10-26)
+# File: byte-identical re-fetch of https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/util.c
+# (sha256 381618b6054859ec76807956328b78b330237273bebe10022a559b243cb5bdd2)
+
+$ grep -Fn 'while(dup2(child2parent_pipefd[HEAD], 2) == -1 && errno == EINTR);' util.c
+666:		while(dup2(child2parent_pipefd[HEAD], 2) == -1 && errno == EINTR);
+
+# Exactly one hit, line 666; the EX2 quote cell cites util.c:659-668, so the quote is verbatim inside the cited range.
+# Adjacent pinned lines (same file):
+#   665: while(dup2(child2parent_pipefd[HEAD], 1) == -1 && errno == EINTR);
+#   667: while(dup2(parent2child_pipefd[TAIL], 0) == -1 && errno == EINTR);
+#   725: close(parent2child_pipefd[HEAD]);   (else branch 722-726: stdin end closed when stdin_cb == NULL)

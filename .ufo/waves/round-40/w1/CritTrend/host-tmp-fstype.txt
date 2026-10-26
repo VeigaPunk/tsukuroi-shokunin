@@ -1,0 +1,35 @@
+# CritTrend receipt — host /tmp filesystem on plazir27, read-only, 2026-10-26T07:20:40Z
+
+$ findmnt -no FSTYPE,SOURCE,TARGET /tmp
+xfs /dev/nvme1n1p1 /tmp
+
+$ stat -f -c "%n fstype=%T" /tmp /
+/tmp fstype=xfs
+/ fstype=btrfs
+
+$ grep -E " /tmp " /proc/self/mounts
+/dev/nvme1n1p1 /tmp xfs rw,nosuid,nodev,noatime,inode64,logbufs=8,logbsize=256k,noquota 0 0
+
+$ grep -n tmp /etc/fstab
+25:# /tmp is emptied at every boot by /etc/tmpfiles.d/tmp.conf; nofail keeps boot working if the drive is missing.
+26:UUID=1f8a5361-4f35-449a-bb30-63669df878d1	/tmp      	xfs       	rw,noatime,nosuid,nodev,logbsize=256k,nofail,x-systemd.before=local-fs.target,x-systemd.device-timeout=10s	0 0
+30:tmpfs	/dev/shm	tmpfs	rw,nosuid,nodev,size=8G	0 0
+
+$ stat -c "%y %n" /etc/fstab
+2026-10-20 09:48:47.027882542 -0300 /etc/fstab
+
+$ readlink /proc/self/ns/mnt /proc/1/ns/mnt
+mnt:[4026531832]
+
+$ df -h /tmp
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme1n1p1  128G  2.7G  126G   3% /tmp
+
+$ journalctl -b -o short -g tmp | head -5
+Oct 26 00:40:56 plazir27 kernel: devtmpfs: initialized
+Oct 26 00:40:56 plazir27 systemd[1]: systemd 262-1-arch running in system mode (+PAM +AUDIT -SELINUX +APPARMOR -IMA +IPE +SMACK +SECCOMP +GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF +XKBCOMMON +UTMP +LIBARCHIVE)
+Oct 26 00:40:56 plazir27 systemd[1]: Found device WD_BLACK SN8100 1000GB fasttmp.
+Oct 26 00:40:57 plazir27 systemd[1]: Mounting /tmp...
+Oct 26 00:40:57 plazir27 systemd[1]: Mounted /tmp.
+
+conclusion: /tmp = xfs on /dev/nvme1n1p1, mounted at boot from /etc/fstab:26; namespace inode equals PID 1 (no private mount namespace).

@@ -1,0 +1,24 @@
+--- check-exec-environment-r40.py
++++ M2-drop-paraphrase
+@@ -287,9 +287,6 @@
+             neg = NEG.search(rule.replace('`', ''))
+             if neg:
+                 r['reasons'].append(f'rule carries negation word {neg.group(0)!r}')
+-            rc = collapse(rule)
+-            if len(rc.split()) < 12:
+-                r['reasons'].append('rule shorter than 12 words')
+             # --- source ---
+             ids = ['S' + x for x in SID_RE.findall(src_cell)]
+             missing = [i for i in ids if i not in header_ids]
+@@ -312,11 +309,8 @@
+                     qc = collapse(q)
+                     if 4 <= len(qc.split()) <= 25 and qc in body:
+                         quote_ok = True
+-                        copied = copied or qc in rc
+             if not quote_ok:
+                 r['reasons'].append(f'no 4-25 word quote found in {want} at the cited lines')
+-            if copied:
+-                r['reasons'].append('rule cell contains its own quote')
+             r['verified'] = not r['reasons']
+             verified += int(r['verified'])
+             if ex == 'EX6' and f"{hv['hooks_needstargets']} of {hv['hooks_total']} effective hook files" in host_cell:

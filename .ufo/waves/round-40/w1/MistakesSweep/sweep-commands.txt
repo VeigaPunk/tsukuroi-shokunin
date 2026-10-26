@@ -1,0 +1,18 @@
+# MistakesSweep (round 40, M-1) — commands run, lane tip f951f288483c1af0cef4afd458488b84cf7a2165, 2026-10-26
+cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+ls corpus/lessons | grep -E 'round-3[789]'
+grep -rn '^## Mistakes' corpus/lessons/*.md
+grep -rhoE '^\| (R3[6-9]|R40)-[A-Z0-9-]+' corpus/lessons/ | sort | uniq -c        # recorded IDs (R37:4 R38:12 R39:7 rows)
+git grep -ohE 'R(39|40)-[A-Z0-9][A-Z0-9-]+' -- . ':!.ufo/waves/round-39/w1' ':!.ufo/waves/round-40/w1' | sort | uniq -c | sort -rn
+(cd .ufo/waves/round-39/w1 && grep -H -m1 '^VERDICT' *.md | grep -E 'falsifies|defect-found')   # 25 reports
+# state-at-tip checks
+git grep -n 'R39-CONTROL-NO-RED-CHANNEL' -- .                                    # only in w1/MistakeMiner.md:171 and w1-results.json
+grep -n 'PROC_MOUNTS=' tools/tsukuroi-census.sh                                  # :463 ${VAR:-} still
+sed -n '/mtab=\$(cat/,+8p' tools/tsukuroi-census.sh                              # [ -f ] && cat && [ -n ] (FIFO + empty hardened; NUL not)
+grep -n 'b.\"--revision\"' tools/check-revision-binding.py                       # :261 still double-quote only
+git log --format='%h %cI' -S'Round 39 — declaration (2026-10-26T06:20Z' -- SCORECARD.md    # 93fddb2 02:59:31-03 (= 05:59:31Z)
+git log --format='%h %cI' -S'Round 39 — hyaku run 8, 2026-10-26T07:45Z' -- LOG.md          # eeba342 03:35:44-03 (= 06:35:44Z)
+for r in a2d7aad7 a6ca8171 53b294a2 f951f288; do git ls-tree -r --name-only $r -- corpus/lessons | wc -l; done   # 54 54 55 55
+python3 tools/check-self-assessment.py --revision f951f288483c1af0cef4afd458488b84cf7a2165   # 27 checked, 6 mismatches K07 K08 K09 K10 K13 K17
+grep -c 'Scope: executed' .ufo/waves/round-40/w1-spec.json                       # 0 ; grep -c EXEC-AUTHORIZED ... = 0
+grep -c S217 corpus/knowledge/pacman-hook-order-r38.md                           # 0

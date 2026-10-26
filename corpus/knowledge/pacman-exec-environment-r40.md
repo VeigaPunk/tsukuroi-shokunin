@@ -43,3 +43,64 @@ scriptlet working directory, interpreter, `.pacnew` trigger target; `corpus/less
 - EX1–EX3 and EX5 have no host instance in the capture: observing them needs a running transaction, and pacman
   transactions are paused on this host.
 - The environment that reaches pacman itself (sudo's `env_reset`, a systemd unit) is outside this entry.
+
+## Wave-1 corrections (appended 2026-10-26; the rule, value and source cells above stay as written)
+
+Integrated by the L1 from the round-40 wave (`.ufo/waves/round-40/w1/`); every line re-read against the pinned
+snapshots `.ufo/waves/round-40/frozen/src/`. Extra sources cited only here: S208 (hook.c validation), S209
+(alpm-hooks.5 `AbortOnFail`), S217 (trans.c Post phase) and S226 (alpm-hooks.5 CAVEATS), rows in `corpus/SOURCES.md`.
+
+- **EX4 — arguments and scope** (seat C2CritEX4). `<new version> [<old version>]` is the install/upgrade form only:
+  the call passes libalpm's `ver` then `oldver` (trans.c:400-406), so `pre_install`/`post_install` get the new
+  version, `pre_upgrade`/`post_upgrade` new then old (TO4), and `pre_remove`/`post_remove` the removed package's
+  version (TO7). The interpreter applies to every scriptlet that runs; `pacman --noscriptlet` skips the run, and a
+  scriptlet file lacking the phase function returns before staging or after extraction (trans.c:351, :392). The
+  interpreter path is resolved inside the installation root after the optional chroot (util.c:677-687), so a
+  `--root` target lacking `/usr/bin/bash` fails the scriptlet with `call to execv failed` (util.c:698-700). The
+  `.INSTALL` file is sourced with `.`, so a shebang inside it is inert. Scope of the consequence sentence: on this
+  host `/bin/sh` is a symlink to bash (seat measurement, `C2ScribeSkill.md`), so bash syntax would also run under
+  the upstream default here; "bash-only syntax depends on this packaging choice" holds for a root whose `/bin/sh`
+  is another shell [inference].
+- **EX5 — host cell sentence 2 withdrawn as false** (seat C2RevEX5). "on this host `/tmp` is a tmpfs" is wrong:
+  `/tmp` is an xfs filesystem on `/dev/nvme1n1p1` (`findmnt /tmp`, `stat -f -c %T /tmp` → `xfs`, observed
+  2026-10-26T07:18:06Z, receipt `.ufo/waves/round-40/w1/C2RevEX5/host-tmp-fstype.txt`), and the frozen capture S225
+  never recorded a `/tmp` fstype, so the sentence had no anchor (QUALITY 2). Sentence 1 stands. Two rule-cell glosses
+  are qualified (QUALITY 66): "private" is `mkdtemp(3)` semantics (mode 0700), which trans.c does not state; "copies
+  (from the local database)" is the non-archive branch (trans.c:382-386) — which file the caller passes is TO3/TO7's
+  call-site fact, not trans.c's.
+- **EX7 — the lookup time and the PostTransaction case** (seat C2CritEX7). `Depends` is looked up in the local
+  package cache when the phase runs (hook.c:509); for a PreTransaction hook that is before `transaction started`
+  (TO1, trans.c:201-208), so a Pre hook whose `Depends` names a package the same transaction installs skips its
+  command during that transaction. A PostTransaction hook carrying `AbortOnFail` loads with the warning
+  `AbortOnFail set for PostTransaction hook` (S208 hook.c:141-144), runs, and its failure return is dropped: the Post
+  call `_alpm_hook_run(handle, ALPM_HOOK_POST_TRANSACTION)` ignores the result and `alpm_trans_commit` returns 0
+  (S217 trans.c:237-244). The manual says the same: “Only applies to PreTransaction hooks” (S209
+  alpm-hooks.5.asciidoc:87-89).
+- **EX8 — which operation matches** (seat C2CritEX8). After collecting matches, `_alpm_hook_trigger_match_file`
+  moves every path present in both the old and the new package's file list from `install` to `upgrade`
+  (hook.c:310-337, `upgrade = alpm_list_add(upgrade, path)` :321, `install = alpm_list_remove_item(install, i)` :324;
+  operation test :339-341). So an upgraded protected file that leaves `.pacnew` is an `Upgrade` match, and an
+  `Operation = Install` trigger fires for it only when the old package lacks that path. The `.pacnew` rule is
+  documented upstream: “When installing or upgrading a file that is extracted with a '.pacnew' extension, the
+  original file name is used in triggering the hook.” (S226 alpm-hooks.5.asciidoc:125-127). On this host
+  `pacman-conf NoUpgrade` prints nothing (seat C2ScribeSkill, 2026-10-26), so the NoUpgrade case is source-level
+  here.
+- **Observation and inference** (QUALITY 3; seat CritTrend). Host cells that are observations: EX4 (strings of the
+  installed libalpm), EX6 (14 of 69 from S225), EX7's "0 such errors" (live `pacman.log` count). Host cells that are
+  source-derived inference with no host instance: EX1, EX2, EX3, EX5 sentence 1, EX7's first sentence, EX8.
+
+## QUALITY check (appended 2026-10-26; QUALITY 14)
+
+| Criterion | Result | Pointer |
+|---|---|---|
+| 1 falsifiable | each rule names its file and lines; the counter re-checks the quote and the derived value | `tools/check-exec-environment-r40.py`, `.ufo/waves/round-40/after/c2-after-bf23805.jsonl` |
+| 2 measured anchor | failed once, repaired: the EX5 `/tmp` sentence had no anchor and is withdrawn above | `C2RevEX5.md` |
+| 3 observation vs inference | labelled in the corrections above | this section |
+| 4 errata append-only | the corrections section; the rows are unchanged | `git diff` of this file shows additions only |
+| 7 exact S-row, tier, anchor | S219–S226 tier A; scopes distinct from S208, S209, S216, S217 | `corpus/SOURCES.md`; `C2RevSourcesRows.md` |
+| 8 provenance trio | `source:`, `verified-at:`, `recheck:` at the top | lines 1-3 |
+| 9 negative claims carry a sweep | "matching ignores NoUpgrade": `grep -ci noupgrade` over the pinned hook.c → 0 | counter `derive_values`; `C2CritEX8.md` Q3 |
+| 66 every branch kept | three omitted branches found by the wave (EX4 removal arguments, EX7 Post `AbortOnFail`, EX8 operation split) appended above | seats C2CritEX4, C2CritEX7, C2CritEX8 |
+| 68 novelty swept | 0 base hits for the eight novelty tokens; EX2's merged streams and EX7's `AbortOnFail` half were already held at base (TO8, HO rows), so they are deeper restatement, not new ground | receipt `before/c2-before.jsonl`; `C2ScoutNovelty.md` |
+| 86 upstream row per rule | every EX row cites a code or docs row; S225 carries host values only | counter `upstream` conjunct |
+| 87 content read | the counter reads value, tokens and polarity, but a token-list writer and affirmatively false rules still pass it (`C2CritControl.md`, `C2CritXFalse.md`), so content rests on the per-row verdicts: EX1, EX2, EX3, EX6 hold; EX4, EX5, EX7, EX8 partly, corrected above | `C2RevEX1.md`–`C2RevEX8.md` |

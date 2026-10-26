@@ -1,0 +1,33 @@
+### Round 39 — gates-receipt disclosure correction (append-only; round-39 closure §6 item 4, `corpus/lessons/round-39-verifier-spotcheck.md:189`)
+
+Appended by round-40 seat RoutedGatesRow. This adds a disclosure; no earlier line is rewritten.
+
+The round-39 measured-outcome paragraph names seven gates "all PASS exit 0" and cites `after/gates-final-a2d7aad.txt`
+(`SCORECARD.md:2253-2255`). The cited receipt holds eight gate rows. Its eighth, `:2`, is `check-self-assessment rc=1`,
+and that 427-byte line ends inside the first `checks` entry, so the row carries the header fields but not the seven
+check ids:
+
+> `check-self-assessment rc=1 {  "revision": "a2d7aad740977088ff9fc70ed36d3ef978b27e81",  "checked": 27,  "mismatches": 7,  "status": "FAIL",  "declaring_round": 38,  "axes_heading": "## Axes \u2014 current self-assessment (round 38 final measured surface)",  "reference_lines": 444,  "checks": [   {    "id": "K01",    "subject": "depth score equals the after-value of the last recorded depth ordinal transition",    "stated": 8,`
+
+(`.ufo/waves/round-39/after/gates-final-a2d7aad.txt:2`, quoted to end of line.) The other seven rows are `rc=0`
+(`:1`, `:3`-`:8`). One row of the eight was therefore red in the file the sentence cited.
+
+Why it was red: `a2d7aad7` precedes `eeba342e`, the commit that appended the round-39 axes table (heading
+`## Axes — current self-assessment (round 39 final measured surface)`, `:2262`). At `a2d7aad7` the last axes table on
+file was still the round-38 one at `:2181`, with count cells 59 notes, 3201 `SKILL.md` lines, 861 table lines, 52
+lesson files, 301 `corpus/README.md` lines and 113 census cases (`:2187-2189`, `:2199`); the checker compared those
+stale cells with the round-39 tree and reported seven mismatches — K07 59 against 60, K08 3201 against 3322, K09 861
+against 885, K10 52 against 54, K11 301 against 317, K13 and K17 113 against 119. Re-running the same tool at
+`a2d7aad7` in round 40 reproduces `checked 27, mismatches 7, FAIL`, exit 1, with exactly those seven ids
+(`python3 tools/check-self-assessment.py --revision a2d7aad740977088ff9fc70ed36d3ef978b27e81`; receipt
+`.ufo/waves/round-40/w1/RoutedGatesRow/check-a2d7aad.json`).
+
+The final self-assessment run is green: `after/self-assessment-final.json:2-6` reads
+`"revision": "eeba342ea06ad0069899b3b8b4bbea6af98df610"`, `"checked": 27`, `"mismatches": 0`, `"status": "PASS"`,
+`"declaring_round": 39`, and a round-40 re-run at `eeba342e` reproduced those fields equal dict-for-dict
+(`check-eeba342.json`). The red row is a pre-`eeba342e` artefact of the stale round-38 table, not an overclaim in the
+round-39 records.
+
+Two limits, stated rather than implied. First, the calibration row's parenthetical at `:2272` names only K10 and states
+lessons 52 → 53, while the receipt's red is seven checks (listed above) and the observed lesson count at `a2d7aad7` is
+54. Second, this section records round 39 only: the round-39 table is stale at the round-40 tip by construction, because round 40 has not yet appended its own table, and no green-at-tip claim is made here. Line numbers in this section are those of the tree before the section was inserted; `:2262` and `:2272` shift by its length.

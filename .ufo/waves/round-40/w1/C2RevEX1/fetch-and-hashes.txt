@@ -1,0 +1,22 @@
+# seat C2RevEX1 — upstream re-fetch and hash check
+access time: 2026-10-26T07:18:30Z (date -u +%FT%TZ observed in the same command as the curls)
+
+commands (curl -fsSL, run in /fast/scratch/hyaku/tsukuroi-r40/C2RevEX1/upstream):
+  https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/util.c     -> util.c
+  https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/hook.c    -> hook.c
+  https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/lib/libalpm/trans.c   -> trans.c
+  https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/doc/alpm-hooks.5.asciidoc -> alpm-hooks.5.asciidoc
+  https://gitlab.archlinux.org/pacman/pacman/-/raw/54d9411/meson_options.txt     -> meson_options.txt
+  https://gitlab.archlinux.org/archlinux/packaging/packages/pacman/-/raw/7.1.0.r9.g54d9411-3/PKGBUILD -> PKGBUILD
+
+frozen snapshot integrity (lane .ufo/waves/round-40/frozen/src/):
+  sha256sum -c SHA256SUMS  ->  PKGBUILD: OK / alpm-hooks.5.asciidoc: OK / hook.c: OK
+                                meson_options.txt: OK / trans.c: OK / util.c: OK
+re-fetched copies vs the same SHA256SUMS (copied next to the fetched files):
+  sha256sum -c SHA256SUMS  ->  all six OK (byte-identical to the freeze)
+
+host reads (read-only, 2026-10-26):
+  pacman -Q pacman   -> pacman 7.1.0.r9.g54d9411-3
+  pacman-conf RootDir -> /
+  /etc/pacman.conf read: no RootDir line present
+  grep RootDir /etc/pacman.d -> no matches

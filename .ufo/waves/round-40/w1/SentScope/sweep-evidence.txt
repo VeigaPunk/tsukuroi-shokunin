@@ -1,0 +1,118 @@
+SentScope (item G-6) — raw sweep evidence, round 40 hyaku run 8
+All timestamps local (-0300), 2026-10-26. Reference file for the "newer than" test:
+  .ufo/waves/round-40/controls/controls.jsonl  mtime 2026-10-26 04:07:28.395414259, 12004 bytes
+Wave dispatch marker: .ufo/waves/round-40/w1.ready  mtime 2026-10-26 04:13:24.696162856
+
+=====================================================================
+S1. fleet root  git -C /home/vgpnk/Projects/shokunin status --porcelain
+  04:14: 178 lines (176 " A" intent-to-add, 2 "??")
+  04:20: 177 lines (176 " A", 1 "??")
+  04:23: 177 lines; only line naming tsukuroi/r40: " M .ufo/state/tsukuroi.report-baseline"
+  untracked: "?? .ufo/state/disk-guard.log" 1,126,162 B (growing, live disk-guard service log)
+  git diff .ufo/state/tsukuroi.report-baseline
+    -36 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    +40 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  stat .ufo/state/tsukuroi.report-baseline -> 2026-10-26 03:48:26.008873967 (pre-dispatch)
+  git ls-files --stage .scratch/goal-20261026-hyaku-run8.md
+    100644 e69de29bb2d1d6434b8b29ae775ad8c2e48c5391 0	.scratch/goal-20261026-hyaku-run8.md
+  git diff --cached --name-only | wc -l -> 0          (intent-to-add, not staged content)
+  git diff --name-only | wc -l -> 176
+  disk-guard.log tsukuroi lines: 11891 (tsukuroi-r38 absent), 12380 (tsukuroi-r39 absent)
+  fleet HEAD moved during sweep by other lanes:
+    dfc3f3f9 2026-10-26 04:09:13 round-43: mado dispatch evidence
+    375f9514 2026-10-26 04:20:03 round-35: kasegi report erratum 3
+    e6fbc278 2026-10-26 04:20:15 round-38: kaidoku report
+  stat .git/index -> 2026-10-26 04:15:02.027078020 (coincides with my own read-only git status/diff)
+
+=====================================================================
+S2. lane  git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain
+  M  .ufo/waves/round-40/make-w1-spec.py            (7 insertions; L1 dispatch generator)
+  ?? .ufo/waves/round-40/revs.json                  310 B   04:12
+  ?? .ufo/waves/round-40/w1-dispatch.err            0 B     04:13
+  ?? .ufo/waves/round-40/w1-dispatch.json           92,529 B 04:13
+  ?? .ufo/waves/round-40/w1-spec.json               66,583 B 04:13
+  ?? .ufo/waves/round-40/w1.ready                   160 B   04:13
+  ?? .ufo/waves/round-40/w1.ready.dispatched        (appeared between 04:20 and 04:23)
+  ?? .ufo/waves/round-40/w1/                        (102 entries / 46 *.md at 04:23)
+  ?? corpus/lessons/round-40.md                     7,025 B 04:14:37
+     corpus/lessons/round-40.md:3 "author: tsukuroi L1 (`TsukuroiR40`), 2026-10-26."
+  git status --porcelain --ignored tools -> "!! tools/__pycache__/"
+     tools/__pycache__/score-selftest-literals-r40.cpython-314.pyc      14,410 B 04:15
+     tools/__pycache__/check-exec-environment-r40.cpython-314.pyc       29,521 B 04:15
+  No tracked file other than make-w1-spec.py modified; SCORECARD.md, corpus/SOURCES.md,
+  corpus/knowledge/, tools/*.sh, tools/*.py all clean in status.
+  Lane .git/index mtime 04:14:07.417117114 (coincides with my read-only git status).
+
+=====================================================================
+S3. /tmp and /var/tmp, newer than controls.jsonl
+  Literal name/content "tsukuroi-r40": zero hits at 04:20:29 and 04:23:58
+    find /tmp /var/tmp -type f -newer <ref> -print0 | xargs -0 grep -Il 'tsukuroi-r40' -> (none)
+  Hits naming "tsukuroi" (observed instances, all self-deleted except the last):
+   /tmp/tsukuroi-r3-2-selftest.i5J5qn            04:15 (seen in find -newer listing, gone 04:16)
+   /tmp/tsukuroi-r3-2-selftest.jAKULj            04:17 (with clone jutmj_9s, gone 04:18)
+   /tmp/tsukuroi-r3-2-selftest.6DZkmM  16 MB  5,261 files 04:18
+   /tmp/tsukuroi-r3-2-selftest.IZG4AX  26 MB  8,984 files 04:18
+   /tmp/tsukuroi-r3-2-selftest.WLwRZC  21 MB  7,262 files 04:20
+   /tmp/tsukuroi-r3-2-selftest.0ZAXVg  22 MB  7,342 files 04:20
+   /tmp/tsukuroi-r3-2-selftest.F6X2PG           04:21:37
+   /tmp/tsukuroi-r3-2-selftest.428RVn           04:23:58
+   content: /tmp/.../bin/.dispatch is the census selftest dispatcher stub (contains "tsukuroi").
+  Lane-archive clones under /tmp carrying round-40 wave artifacts:
+   /tmp/self-assessment-census-yh9n26x4   (04:16 grep hit; gone 04:17; size not measured)
+      hit files: .ufo/waves/round-40/after/c1-after-c707e35.jsonl,
+                 .ufo/waves/round-40/before/c1-before.jsonl,
+                 .ufo/waves/round-40/make-w1-spec.py
+   /tmp/self-assessment-census-jutmj_9s   294 MB, 13,286 files, dir mtime 04:17, files 04:12
+      ls: .ufo/waves/round-40/{after,assimilation,before,controls,frozen,make-w1-spec.py}
+      gone by 04:18
+   /tmp/self-assessment-census-p6m_wan1   294 MB, 13,286 files, live 04:18, gone by 04:20
+   /tmp/self-assessment-git-us9lk68f      empty, 04:17; /tmp/self-assessment-git-pv8g23l0 empty, 04:18
+  Process attribution (read-only /proc):
+   pid 673957  python3 tools/check-self-assessment.py --revision f951f288483c1af0cef4afd458488b84cf7a2165
+               /proc/673957/environ -> no TMPDIR          (04:18)
+   pid 964626  same tool, TMPDIR=/fast/scratch/hyaku/tsukuroi-r40/RoutedGatesRow   (04:18)
+   pid 1691436 bash tools/tsukuroi-census.sh --selftest, TMPDIR unset,
+               cwd /fast/scratch/hyaku/tsukuroi-r40/GateSelfAssessment/self-assessment-census-1cfbaamw
+   pid 3072257, 3082011  bash tools/tsukuroi-census.sh --selftest, TMPDIR unset,
+               cwd /fast/scratch/hyaku/tsukuroi-r40/RoutedGatesRow/self-assessment-census-ddgp7zps
+               /tmp/tsukuroi-r3-2-selftest.F6X2PG appeared in the same sample (04:21:37)
+  Other-lane /tmp entries newer than ref (not tsukuroi-r40, listed for coverage):
+   /tmp/landed-block.txt 1,107 B 04:11; /tmp/manifest_rows.json 3,675 B 04:13;
+   /tmp/.keep 29,030 B 04:13 (node check-release-pins.mjs, tabi lane); /tmp/dummy 0 B 04:14;
+   /tmp/base170.err 0 B, /tmp/base170.json 133 B 04:16-04:17; /tmp/manifest_table.md 4,985 B 04:19;
+   /tmp/mado-geometry-selftest 04:20; /tmp/tabi-selfassessment-jnD3fQ 04:16 (gone).
+  /tmp mount: findmnt /tmp -> /dev/nvme1n1p1 xfs 127.9G, 124.9G avail (root fs, not tmpfs)
+  /tmp total observed: 556 MB (04:15) -> 868 MB (04:18) -> 534 MB (04:20) -> 545 MB (04:24)
+  disk-guard during wave (>=2026-10-26T07:13Z): peak /tmp use=3%, pressure lines=0
+  /var/tmp: nothing newer than ref except /var/tmp itself.
+   /var/tmp/tameshi-r47-T47ExecObsD 4.6G, mtime 2026-10-25 21:52:47 — older than ref; contains a
+   copy of the fleet including tsukuroi-shokunin/.ufo/waves/round-40; owner = tameshi r47 seat
+   T47ExecObsD, not this wave.
+
+=====================================================================
+S4. /fast/scratch/hyaku/tsukuroi-r40
+  04:15: 22 entries, ~390 MB
+  04:18: 43 entries, 2.4 GB
+  04:22: 26 entries, 4,381 MB (du -sm sum)
+  04:24: 20 entries, 3.7 GB
+  Entries at 04:22 with size (MB) / mtime / report present in w1:
+   AsmStagedResidual 0 04:18 yes | C1CritAxis 20 04:20 no | C1CritControl 330 04:20 yes
+   C1CritEquivalence 3 04:21 no | C1ExecEnvMatrix 39 04:15 no | C1ExecRerun 1 04:21 no
+   C1HeldOutGuards 296 04:21 no | C1HeldOutMutants 27 04:18 yes | C1RevCounter 7 04:18 no
+   C1ScribeSkill 48 04:18 no | C1SentScratch 314 04:20 no | C2CritAxis 296 04:20 yes
+   C2MutCounter 297 04:20 no | C2MutEntry 297 04:21 yes | C2RevEX1 1 04:18 yes
+   C2RevEX2 1 04:17 no | C2RevEX8 1 04:16 yes | CritSeparability 299 04:20 yes
+   CritTrend 296 04:19 yes | MistakesSweep 1 04:21 yes | RevNoHarmAxes 331 04:20 yes
+   RoutedGatesRow 1178 04:21 no | SentScope 0 04:20 (mine) | SimplifierEntry 296 04:21 yes
+   _r39helpers.txt FILE 2,378 B 04:16:39 | l1 1 MB 04:08 (planner)
+  `_r39helpers.txt` starts "    man = (CAP_DIR / 'MANIFEST.sha256').read_bytes()" — a
+  counter-verification helper fragment written at the scratch root, not under a seat dir.
+  find -maxdepth 2 -type d ! -perm -u+w -> none (no 000 dirs that would block rm -rf)
+  Names in scratch but not in w1-spec.json: ConnClaims-5 (dedupe suffix of spec seat ConnClaims),
+  _r39helpers.txt, l1.  30 of 65 spec seats had no scratch dir at 04:20 (mid-wave).
+
+=====================================================================
+S5. w1 receipt sizes (2 MB rule)
+  largest: MistakeDateCheck/f951f28-full.json 46,997 B; a6ca817-full.json 46,701 B;
+           C2ExecHostRecheck/strings-a-libalpm-16.0.1.txt 32,932 B; swarm-registry.json 14,934 B
+  grep -c '/tmp' on GateSelfAssessment receipts -> 0 and 0 (no /tmp path cited as evidence)

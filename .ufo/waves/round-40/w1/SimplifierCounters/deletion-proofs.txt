@@ -1,0 +1,56 @@
+# Round-40 counter YAGNI review — deletion proofs (seat SimplifierCounters, read-only)
+# All output below was produced by the commands/expressions named at each block, against the lane tree
+# at f951f288483c1af0cef4afd458488b84cf7a2165 (tools unchanged since the freeze a447b67b).
+
+## 1. C2 `benv` (check-exec-environment-r40.py:157-159) is implied by `um` (line 158)
+  frozen util.c                          without='SHLVL=1 BASH_ENV=unset umask=0022'        with='SHLVL=1 BASH_ENV=unset umask=0022'        equal=True
+  BASH_ENV line deleted                  without=None                                       with=None                                       equal=True
+  umask changed to 0077                  without='SHLVL=1 BASH_ENV=unset umask=0077'        with='SHLVL=1 BASH_ENV=unset umask=0077'        equal=True
+  SHLVL setenv deleted                   without=None                                       with=None                                       equal=True
+  comment between BASH_ENV and umask     without=None                                       with=None                                       equal=True
+  implication: line 158 matches only text containing the literal `unsetenv("BASH_ENV");` immediately
+  before `umask(0NNN);`, so `um` truthy => `benv` true for every possible snapshot; `benv` can never
+  change the derived EX3 value. Frozen adjacency: `grep -n` -> util.c:694 unsetenv, util.c:695 umask.
+
+## 2. C1 regex capture groups are never read (score-selftest-literals-r40.py:53,55)
+  PASS_RE old=True  new=True  'TSUKUROI_CENSUS_SELFTEST: PASS (117 cases, 117 passed, 0 failed)'
+  PASS_RE old=True  new=True  'TSUKUROI_CENSUS_SELFTEST: PASS (122 cases, 122 passed, 0 failed)'
+  PASS_RE old=False new=False 'TSUKUROI_CENSUS_SELFTEST: PASS (117 cases, 116 passed, 1 failed)'
+  PASS_RE old=False new=False 'TSUKUROI_CENSUS_SELFTEST: FAIL (117 cases, 110 passed, 7 failed)'
+  PASS_RE old=False new=False 'TSUKUROI_CENSUS_SELFTEST: PASS (117 cases, 117 passed, 0 failed) '
+  SELFREF_RE (search) probes: [["echo $SELF", true, true], ["echo ${SELF}", true, true], ["echo $BASH_SOURCE", true, true], ["echo $0", true, true], ["cat /proc/self/exe", true, true], ["cat /proc/self/fd/2", true, true], ["echo /proc/$$", true, true], ["echo /proc/self/maps", false, false], ["echo $SELFX", true, true], ["echo $01", false, false]]
+  SELFREF_RE old/new agree on every probe: True
+
+## 3. Do NOT narrow C2 REF_RE (line 100) to r39's `[a-z_]+\.c`: EX4 cites PKGBUILD
+  REF_RE      refs: [('PKGBUILD', '113', '115'), ('trans.c', '357', '358')]
+  narrow refs     : [('trans.c', '357', '358')]
+  narrow-class quote_ok for EX4: False  => EX4 would report "no 4-25 word quote found in PKGBUILD at the cited lines", rules_verified 7/8, FAIL.
+
+## 4. Every frozen mutant/neutral anchor occurs exactly once at the implementation commit
+  source: git show c707e356c2911646f7304d706eb77d118e510610:tools/tsukuroi-census.sh  (3150 lines)
+  M1-VA-device-literal         count=1
+  M2-VB-root-mountpoint        count=1
+  M3-VC-substring-btrfs        count=1
+  M4-VG-subvolid-256           count=1
+  M5-a-grep-count              count=1
+  M6-b-fstype-casefold         count=1
+  M7-e-guard-drops-blocked     count=1
+  M8-subvol-at-literal         count=1
+  M9-last-line-only            count=1
+  N1-rename-counter            count=1
+  N2-double-bracket            count=1
+  N3-awk-field                 count=1
+  => no inert mutant/neutral entry in the table.
+
+## 5. Helper duplication measured (ast.get_source_segment, bodies compared)
+  sha            r39 lines=2 r40 lines=2 byte-identical=True
+  collapse       r39 lines=2 r40 lines=2 byte-identical=True
+  parse_sources  r39 lines=10 r40 lines=11 byte-identical=False
+    diff: -        rows[cells[0]] = {'title': cells[1], 'status': cells[7], 'opened': cells[8], 'used_by': cells[10]} | +        rows[cells[0]] = {'title': cells[1], 'kind': cells[2], 'status': cells[7], 'opened': cells[8], | +                          'used_by': cells[10]}
+  git_show       r39 lines=4 r40 lines=3 byte-identical=False
+    diff: -    p = subprocess.run(['git', '-C', repo, 'show', f'{rev}:{path}'], env=_revision.clean_env(), | -                       capture_output=True, timeout=60) | +    p = git(repo, 'show', f'{rev}:{path}')
+  git_show also exists in check-hook-order-r38.py:135 (third copy, lines=4)
+
+## 6. Dead-name scan (ast): module-level assignments/imports never loaded, functions never referenced
+  tools/score-selftest-literals-r40.py: unreferenced module names={}  uncalled functions={}
+  tools/check-exec-environment-r40.py: unreferenced module names={}  uncalled functions={}

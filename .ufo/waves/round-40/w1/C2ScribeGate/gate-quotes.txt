@@ -1,0 +1,143 @@
+# C2ScribeGate — Gate quote verification receipt (round 40, item C2-25)
+# seat: C2ScribeGate-2, 2026-10-26. Read-only on lane content; no scratch dir created
+# (no clone, mutant or fixture was needed), no tool installed.
+# cwd for all greps: tsukuroi-shokunin/.ufo/waves/round-40/frozen/src ($S = ../hostcap)
+
+## 1. Snapshot integrity (pins the bytes the quotes come from)
+$ sha256sum -c SHA256SUMS
+PKGBUILD: OK
+alpm-hooks.5.asciidoc: OK
+hook.c: OK
+meson_options.txt: OK
+trans.c: OK
+util.c: OK
+
+$ sha256sum hostcap/MANIFEST.sha256
+57888c10574736065bc74e48258ebff325322e95f659306642822a94e84411b5  hostcap/MANIFEST.sha256
+
+## 2. Quote location: grep -nF -- "<quote>" <file>  (exit code under each)
+### S219 "option('scriptlet-shell', type : 'string', value : '/bin/sh'," meson_options.txt
+17:option('scriptlet-shell', type : 'string', value : '/bin/sh',
+exit=0
+### S220 "-Dscriptlet-shell=/usr/bin/bash \" PKGBUILD
+115:        -Dscriptlet-shell=/usr/bin/bash \
+exit=0
+### S221 '/* bash sources $BASH_ENV when run non-interactively */' util.c
+693:		/* bash sources $BASH_ENV when run non-interactively */
+exit=0
+### S222 '/* create a directory in $root/tmp/ for copying/extracting the scriptlet */' trans.c
+360:	/* create a directory in $root/tmp/ for copying/extracting the scriptlet */
+exit=0
+### S223 '/* hooks with multiple triggers could have duplicate matches */' hook.c
+523:		/* hooks with multiple triggers could have duplicate matches */
+exit=0
+### S224 joined sentence as drafted in the current lesson (two source lines, :92-:93)
+"Causes the list of matched trigger targets to be passed to the running hook on 'stdin'."
+exit=1   <- no match: NOT a verbatim substring
+### S224 line 92 fragment
+"Causes the list of matched trigger targets to be passed to the running hook"
+92:	Causes the list of matched trigger targets to be passed to the running hook
+exit=0
+### S224 line 93
+"on 'stdin'."
+93:	on 'stdin'.
+exit=0
+### S225 '# captured 2026-10-26T06:54:46Z host=plazir27 read-only by TsukuroiR40' hostcap/capture-meta.txt
+1:# captured 2026-10-26T06:54:46Z host=plazir27 read-only by TsukuroiR40
+exit=0
+### S225 supporting string index (EX4 host cell)
+"1277:/usr/bin/bash" hostcap/libalpm-shell-strings.txt
+2:1277:/usr/bin/bash
+exit=0
+
+Plain (non -F) grep also locates the six one-line quotes and the S224 fragment, provided `--`
+ends option parsing (the S220 quote begins with `-`).
+
+## 3. Word counts of the quotes (limit 25)
+S219 7 | S220 2 | S221 8 | S222 11 | S223 10 | S224-joined 16 | S224-line92 14 | S225 7
+
+## 4. Line anchors claimed by the Gate cells
+$ grep -n "" PKGBUILD | sed -n '108,118p'
+108:build() {
+109:  cd "$pkgname"
+110:
+111:  meson --prefix=/usr \
+112:        --buildtype=plain \
+113:        -Ddoc=enabled \
+114:        -Ddoxygen=enabled \
+115:        -Dscriptlet-shell=/usr/bin/bash \
+116:        -Dldconfig=/usr/bin/ldconfig \
+117:        build
+118:
+-> meson call is :111-117 (blank line at :110); `_git_patch_level_commit` at :9; patch sources :52-55.
+
+$ grep -n "chdir(handle->root)\|chroot(handle->root)\|dup2(child2parent" util.c
+628:	if(chdir(handle->root) != 0) {
+665:		while(dup2(child2parent_pipefd[HEAD], 1) == -1 && errno == EINTR);
+666:		while(dup2(child2parent_pipefd[HEAD], 2) == -1 && errno == EINTR);
+679:		if(strcmp(handle->root, "/") != 0 && chroot(handle->root) != 0) {
+(plus :683 chdir("/"), :692 setenv SHLVL, :694 unsetenv BASH_ENV, :695 umask(0022), :698 execv,
+ :718-726 stdin pipe closed in the parent when no input callback)
+
+$ grep -n "static int _alpm_hook_trigger_match_file\|_alpm_hook_feed_targets\|running '%s'" hook.c
+258:static int _alpm_hook_trigger_match_file(alpm_handle_t *handle,
+469:static ssize_t _alpm_hook_feed_targets(char *buf, ssize_t needed, alpm_list_t **pos)
+653:			alpm_logaction(handle, ALPM_CALLER_PREFIX, "running '%s'...\n", hook->name);
+function extent: :258-361 (closing brace at :361); install loop :265-279, upgrade loop :281-295,
+remove loop :297-308; the Gate's ":258-306" stops inside the remove loop's inner if (:306).
+
+$ grep -n "" hook.c | sed -n '505,517p'
+507:static int _alpm_hook_run_hook(alpm_handle_t *handle, struct _alpm_hook_t *hook)
+513:			_alpm_log(handle, ALPM_LOG_ERROR, _("unable to run hook %s: %s\n"),
+514:					hook->name, _("could not satisfy dependencies"));
+-> Depends error :513-514 confirmed.
+
+$ grep -n "" alpm-hooks.5.asciidoc | sed -n '61,93p' (excerpt)
+61:*Target =* <path|package>::
+67:	matches overriding previous ones. Required.
+83:*Depends =* <package>::
+85:	multiple times.
+91:*NeedsTargets*::
+92:	Causes the list of matched trigger targets to be passed to the running hook
+93:	on 'stdin'.
+-> the documented sentence spans :92-:93 with a tab indent at :93; joining it with a space is not
+   a substring of the file.
+
+## 5. SOURCES cells the decisions echo
+$ awk -F'|' '/^\| S2(19|20|21|22|23|24|25) /{...}' corpus/SOURCES.md
+S219 kind=code tier=A status=mined opened=2026-10-26 recheck=on-release
+S220 kind=code tier=A status=mined opened=2026-10-26 recheck=on-release
+S221 kind=code tier=A status=mined opened=2026-10-26 recheck=on-release
+S222 kind=code tier=A status=mined opened=2026-10-26 recheck=on-release
+S223 kind=code tier=A status=mined opened=2026-10-26 recheck=on-release
+S224 kind=docs tier=A status=mined opened=2026-10-26 recheck=on-release
+S225 kind=own-work tier=A status=mined opened=2026-10-26 recheck=30d
+
+Snapshot digests (SHA256SUMS / MANIFEST prefixes used in the Gate draft):
+89e5b350 meson_options.txt | 32d40dfd PKGBUILD | 381618b6 util.c | 637c1165 trans.c |
+99f1044b hook.c | 2970cb35 alpm-hooks.5.asciidoc | 57888c10 MANIFEST.sha256
+Equality with existing rows: 381618b6 = S216 (util.c); 637c1165 = S210 and S217 (trans.c);
+99f1044b = S208 (hook.c); 2970cb35 = S209 (alpm-hooks.5.asciidoc).
+
+## 6. Host capture claims behind S225 (re-derived, read-only, no mutation)
+$ sha256sum /usr/lib/libalpm.so.16.0.1
+1bc59ef4cee493246db69c9466970de01d24fdc32a4a4c18c77063af66705e90  (same digest as capture-meta.txt:3)
+$ grep -c -a -F '/usr/bin/bash' /usr/lib/libalpm.so.16.0.1   -> 1
+$ grep -c -a -F '/bin/sh'     /usr/lib/libalpm.so.16.0.1     -> 0   (exit 1)
+$ awk -F'\t' 'NR>1{n++; if($3==1)t++} END{print n, t}' hostcap/hooks-needstargets.tsv
+69 14
+$ awk -F'\t' 'NR>1{print $1}' hostcap/hooks-needstargets.tsv | sort | uniq -d | wc -l
+0
+-> 14 of 69 effective hook files carry NeedsTargets confirmed; no duplicate names, so the tsv is the
+   effective set (3 files under /etc/pacman.d/hooks: 90-mkinitcpio-install.hook, 99-limine.hook,
+   walker-restart.hook).
+NOTE: hostcap/libalpm-shell-strings.txt holds 2 lines only; it cannot itself demonstrate the ABSENCE
+of /bin/sh. The absence was re-derived above against the same-digest binary.
+
+## 7. State of the lesson file carrying the Gate table
+$ git rev-parse HEAD
+f951f288483c1af0cef4afd458488b84cf7a2165
+$ git log --oneline -- corpus/lessons/round-40.md
+(no output: never committed)
+$ git status --porcelain corpus/lessons/round-40.md
+?? corpus/lessons/round-40.md

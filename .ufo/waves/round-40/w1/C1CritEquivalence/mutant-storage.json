@@ -1,0 +1,75 @@
+{
+ "revision": "f951f288483c1af0cef4afd458488b84cf7a2165",
+ "fixtures": {
+  "mtab_A": "proc /proc proc rw,nosuid 0 0\n/dev/nvme0n1p3 /home btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home 0 0\ntmpfs /tmp tmpfs rw,nosuid,nodev 0 0\n",
+  "mtab_A8": "proc /proc proc rw,nosuid 0 0\n/dev/disk/by-label/btrfs-old /var/lib/machines btrfs ro,noatime,compress=zstd:3,subvolid=263,subvol=/machines 0 0\n",
+  "mtab_B": "proc /proc proc rw 0 0\n/dev/disk/by-label/btrfs-old /mnt/btrfs-backup ext4 rw,relatime 0 0\n",
+  "mtab_C": "proc /proc proc rw 0 0\n/dev/fx0 / BTRFS rw,relatime 0 0\n",
+  "mtab_D": "proc /proc proc rw,nosuid 0 0\n/dev/mapper/root / btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@ 0 0\n"
+ },
+ "mutants": {
+  "M1-VA-device-literal": {
+   "mounts": "mtab_A",
+   "sysfs": "absent-sysfs",
+   "base": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs",
+   "mutant": "STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+   "differs": true
+  },
+  "M2-VB-root-mountpoint": {
+   "mounts": "mtab_A",
+   "sysfs": "absent-sysfs",
+   "base": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs",
+   "mutant": "STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+   "differs": true
+  },
+  "M3-VC-substring-btrfs": {
+   "mounts": "mtab_B",
+   "sysfs": "absent-sysfs",
+   "base": "STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+   "mutant": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs",
+   "differs": true
+  },
+  "M4-VG-subvolid-256": {
+   "mounts": "mtab_A",
+   "sysfs": "absent-sysfs",
+   "base": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs",
+   "mutant": "STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+   "differs": true
+  },
+  "M5-a-grep-count": {
+   "mounts": "mtab_B",
+   "sysfs": "absent-sysfs",
+   "base": "STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+   "mutant": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs",
+   "differs": true
+  },
+  "M6-b-fstype-casefold": {
+   "mounts": "mtab_C",
+   "sysfs": "absent-sysfs",
+   "base": "STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+   "mutant": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs",
+   "differs": true
+  },
+  "M7-e-guard-drops-blocked": {
+   "mounts": "mtab_D",
+   "sysfs": "sysfs_unreadable",
+   "base": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=root:unreadable",
+   "mutant": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=root:unreadable,mounts:btrfs-without-sysfs",
+   "differs": true
+  },
+  "M8-subvol-at-literal": {
+   "mounts": "mtab_A8",
+   "sysfs": "absent-sysfs",
+   "base": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs",
+   "mutant": "STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+   "differs": true
+  },
+  "M9-last-line-only": {
+   "mounts": "mtab_A",
+   "sysfs": "absent-sysfs",
+   "base": "STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs",
+   "mutant": "STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0",
+   "differs": true
+  }
+ }
+}

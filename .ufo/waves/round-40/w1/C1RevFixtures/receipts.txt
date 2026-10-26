@@ -1,0 +1,46 @@
+# C1RevFixtures receipts — round 40 w1, 2026-10-26
+# lane tip: f951f288483c1af0cef4afd458488b84cf7a2165 (git rev-parse HEAD)
+
+$ grep -n "R40-C1" tools/tsukuroi-census.sh
+3015:  check 'healthy rollup: a btrfs /home on another device and options, not last, is BLOCKED (R40-C1)' 0 HEALTHY \
+3023:  check 'healthy rollup: one read-only btrfs mount among four lines, empty root, is BLOCKED (R40-C1)' 0 HEALTHY \
+3029:  check 'healthy: btrfs in the device, mountpoint or options of an ext4 line is no btrfs mount (R40-C1)' 0 HEALTHY \
+3034:  check 'healthy: the fstype match is exact, so BTRFS is not btrfs (R40-C1)' 0 HEALTHY \
+3041:  check 'healthy rollup: an unlistable root keeps its one reason; the mount table is never added (R40-C1)' 0 HEALTHY \
+
+$ TMPDIR=/fast/scratch/hyaku/tsukuroi-r40/C1RevFixtures bash tools/tsukuroi-census.sh --selftest
+TSUKUROI_CENSUS_SELFTEST: PASS (124 cases, 124 passed, 0 failed)   [34.75 s wall]
+
+$ bash /fast/scratch/hyaku/tsukuroi-r40/C1RevFixtures/probe.sh  (probe_storage_arm inputs only:
+   TSUKUROI_BTRFS_SYSFS + TSUKUROI_PROC_MOUNTS pointed at copies of the fixture tables)
+varied-home => STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+varied-multi => STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+btrfs-in-path => STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+fstype-case => STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+root-unreadable-mounted => STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=root:unreadable
+escaped-mountpoint => STORAGE btrfs-device-stats state=BLOCKED filesystems=0 devices=0 nonzero=0 detail=mounts:btrfs-without-sysfs
+  (escaped-mountpoint is an extra probe, not a census case: /dev/sda1 /mnt/my\040dir btrfs rw,relatime 0 0)
+
+# kernel-emission reference: /proc/self/mounts on this host (accessed 2026-10-26)
+/dev/mapper/root / btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@ 0 0
+/dev/mapper/root /home btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home 0 0
+/dev/nvme0n1p1 /boot vfat rw,relatime,fmask=0077,dmask=0077,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro 0 0
+field counts: awk "{print NF}" /proc/self/mounts | sort | uniq -c  ->  "33 6";  grep -c "^UUID=" -> 0
+
+# mount(8) (/usr/share/man/man8/mount.8.gz, util-linux):
+:2675 "The command mount does not pass the mount options unbindable, runbindable, private, rprivate,
+       slave, rslave, shared, rshared, auto, noauto, comment, x-*, loop, offset and sizelimit to the
+       mount.<suffix> helpers."
+:1053 "All options prefixed with X- are interpreted as comments or as userspace application-specific
+       options. These options are not stored in user space (e.g., mtab file), nor sent to the
+       mount.<type> helpers nor to the mount(2) system call."
+# web (accessed 2026-10-26): man7.org/linux/man-pages/man8/mount.8.html + kernel ext4 admin guide
+# (docs.kernel.org admin-guide/ext4): comment= is a userspace fstab annotation; mount does not
+# pass it to the kernel; ext4 rejects unrecognized options at mount time.
+
+# counter mutant table read statically (tools/score-selftest-literals-r40.py:68-88):
+# M1 keyed /dev/mapper/root, M2 keyed " / btrfs ", M3 keyed *btrfs*, M4 keyed subvolid=256,
+# M5 grep -c btrfs, M6-b fstype casefold (:77), M7 guard drops && [ "$blocked" -eq 0],
+# M8 keyed subvol=/@, M9 tail -n 1. No mutant targets fixture strings (grep for
+# comment=btrfs|UUID=0b1c|nvme0n1p3|varied-|btrfs-in-path|fstype-case|root-unreadable in the
+# counter hits only :77 M6-b, which targets the compare line of code).

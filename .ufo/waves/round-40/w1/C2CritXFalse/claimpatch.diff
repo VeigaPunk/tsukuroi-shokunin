@@ -1,0 +1,25 @@
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-exec-environment-r40.py	2026-10-26 03:59:51.342089513 -0300
++++ /fast/scratch/hyaku/tsukuroi-r40/C2CritXFalse/root/tools/check-exec-environment-r40.py	2026-10-26 04:17:23.954975380 -0300
+@@ -95,6 +95,7 @@
+ NOVELTY = ['chdir("/")', 'socketpair', 'SHLVL', 'scriptlet-shell', 'alpm_XXXXXX', '_alpm_strlist_dedup',
+            'could not satisfy dependencies', 'match_noextract']
+ NEG = re.compile(r"\b(not|never|no|none|nothing|without|instead|unless|cannot|neither|nor)\b|n't\b", re.I)
++CLAIMS = {'EX1': 'libalpm changes into the installation root in the parent, chroots the child when that root differs from `/`, and the child then sets its working directory to `/` before execv', 'EX2': 'the child duplicates fd 1 and fd 2 from the same child-to-parent socket so stdout and stderr arrive merged, and fd 0 from a second socket the parent closes at once, so stdin reads end-of-file', 'EX3': 'before execv the child sets SHLVL to 1 only when it is unset, unsets BASH_ENV, sets umask 0022 and passes the rest of the environment through', 'EX4': 'this Arch build passes -Dscriptlet-shell=/usr/bin/bash so scriptlets run under /usr/bin/bash -c while the upstream meson_options default is /bin/sh', 'EX5': 'libalpm requests tmp with mode 01777, makes a unique tmp/alpm_XXXXXX directory under the root, places the scriptlet there as .INSTALL, sources it, then unlinks the file and rmdirs the directory', 'EX6': 'a NeedsTargets hook reads its stdin sorted by strcmp and de-duplicated by _alpm_strlist_dedup, one newline-terminated target per line with duplicate matches removed', 'EX7': 'the running log line is written before _alpm_hook_run_hook checks Depends, a missing satisfier logs could not satisfy dependencies and returns failure, and only a hook with AbortOnFail aborts the PreTransaction phase', 'EX8': 'a Path trigger matches the file list names relative to the installation root, alpm_option_match_noextract skips NoExtract paths on the install side, and hook.c ignores NoUpgrade so a .pacnew outcome still matches'}
+ ROW_RE = re.compile(r'^\|\s*(EX\d+)\s*\|')
+ SID_RE = re.compile(r'\bS(\d{3,})\b')
+ REF_RE = re.compile(r'\b([A-Za-z_.0-9-]+):(\d+)(?:-(\d+))?')
+@@ -284,12 +285,9 @@
+                 missing_tok.append(vals['EX4_default'])
+             if missing_tok:
+                 r['reasons'].append('rule lacks tokens: ' + ', '.join(missing_tok))
+-            neg = NEG.search(rule.replace('`', ''))
+-            if neg:
+-                r['reasons'].append(f'rule carries negation word {neg.group(0)!r}')
+             rc = collapse(rule)
+-            if len(rc.split()) < 12:
+-                r['reasons'].append('rule shorter than 12 words')
++            if rc != collapse(CLAIMS[ex]):
++                r['reasons'].append('rule cell differs from the counter-derived claim for ' + ex)
+             # --- source ---
+             ids = ['S' + x for x in SID_RE.findall(src_cell)]
+             missing = [i for i in ids if i not in header_ids]
