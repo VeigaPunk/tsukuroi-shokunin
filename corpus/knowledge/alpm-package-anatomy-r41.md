@@ -60,3 +60,38 @@ format, so the kept gzip file reads back) supports PA4-PA6; S235 (`query.c:317-3
   under `.ufo/waves/round-41/`; the counter reads them.
 - Spec and implementation differ on purpose and the entry keeps both: PA1 is the format document's "must be
   present", PA2 is what libalpm enforces. A package missing `.BUILDINFO` or `.MTREE` still loads.
+
+## Corrections from the round-41 wave (append-only; the rows above stay as measured)
+
+Five second-read seats returned `partly` (`.ufo/waves/round-41/w1/C2RevPA{2,3,5,6,7}b.md`); every first-read seat
+returned `holds`. No row was judged wrong. Each correction below adds the condition the second reader found missing,
+grounded on the pinned snapshot, and is the reading that replaces the row text where they differ.
+
+- **PA2 — exact name, a fourth error, a later check.** The root entry must be named exactly `.PKGINFO`: the loader
+  compares member names with `strcmp` (`be_package.c:598`), so a repack whose members carry a `./` prefix is refused
+  with the same "missing package metadata" (seat C2RevPA2b, probe p4, `.PKGINFO` bytes identical to a loading
+  package). A `.PKGINFO` that fails to parse is refused with "could not parse package description file"
+  (`:600-604`). After the archive loop, `_alpm_pkg_check_meta` (`:678-680`; body outside the snapshot) can still
+  refuse a package whose version passed the dash test (seat probe P13: a version with a second dash fails with
+  "invalid metadata for package"). Decision-table row 1 reads accordingly: the listing must show a line that is
+  exactly `.PKGINFO`; `./.PKGINFO` alone means the file will not load.
+- **PA3 — `globstar`, and where the partial load stops.** `list_package_files` sets `globstar` as well as `dotglob`
+  (`makepkg.sh.in:565`); the metadata sits first so long as no root name sorts before `.` in byte order. A partial load
+  skips every `.`-prefixed entry before its stop test (`handle_simple_path`, `be_package.c:373-385`, then `continue`)
+  and stops at the end of the first entry after `.PKGINFO` that is not `.`-prefixed, or at the end of the archive when
+  no such entry follows (seat C2RevPA3b).
+- **PA5 — what the kept `mtree` lists, and the bare pattern.** Besides `.BUILDINFO`, `.PKGINFO` and the data files the
+  kept `mtree` also lists an `.INSTALL` or `.CHANGELOG` the package carries and the directory entries (host: 51 of
+  1409 kept mtree files list `./.INSTALL`, seat C2RevPA5b receipts). `--exclude .MTREE` is a bare pattern that bsdtar
+  matches at any depth, so a data file named `.MTREE` anywhere in the tree is also left out of the listing while the
+  archive keeps it (seat reproduction; no host instance: 0 such files in `/var/lib/pacman/local/*/files`).
+- **PA6 — `--quiet`, and `-Qp`.** The notice is printed only without `--quiet` (`check.c:317`); the return value is 0
+  either way. The same `check_pkg_full` runs for `pacman -Qpkk <file>`: a loaded package file keeps libalpm's default
+  mtree opener, so the archive's own `.MTREE` is never opened there and the "no mtree file" notice is printed although
+  the file carries one (seat C2RevPA6b, `query.c:467-470`, receipts `C2RevPA6b/qkk-fixture-receipts.txt`).
+- **PA7 — five named functions; two more run in `$srcdir` by makepkg.** The working-directory sentences cover the five
+  functions PKGBUILD(5)'s Packaging Functions section names. It states no directory for the split-package
+  `package_<name>()` functions (`PKGBUILD.5.asciidoc:400-404`) or for `pkgver()` (`:51-56`); makepkg runs both inside
+  `$srcdir` (seat C2RevPA7b: `pkgver` at `makepkg.sh.in:192`; `run_function_safe` defaults its directory to `$srcdir`,
+  `local workingdir="${2:-$srcdir}"` at `:414`), so the decision-table command finds no
+  line for them.

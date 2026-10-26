@@ -113,3 +113,11 @@ snapshots `.ufo/waves/round-40/frozen/src/`. Extra sources cited only here: S208
   EX2 :722-726, EX3 :688-698) sits 5 lines later; the inserted lines change no EX value, and no patch touches trans.c,
   hook.c or meson_options.txt (`.ufo/waves/round-40/w1/C2RevenPatches.md` §1-§3). The Boundaries bullet "their file
   scope is a wave item, not assumed here" is answered by that report.
+
+## Anchor correction (appended round 41; round-40 closure §6.4)
+
+S220's anchor cell and the round-40 Gate give the `build()` meson call as PKGBUILD lines 110-117. In the pinned
+snapshot (`.ufo/waves/round-40/frozen/src/PKGBUILD`, sha256 `32d40dfd…`) `build() {` opens at line 108, line 110 is
+blank and the meson call spans lines 111-117; `-Dscriptlet-shell=/usr/bin/bash \` stays at line 115, so EX4's value
+and quote are unchanged (`sed -n 108,118p .ufo/waves/round-40/frozen/src/PKGBUILD`). The registry row is left as
+written (CORPUS.md rule 2: only status, recheck and used-by change in place); read its range as 111-117.
