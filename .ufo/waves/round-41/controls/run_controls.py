@@ -174,6 +174,8 @@ def main():
     ap.add_argument('--scratch', required=True)
     ap.add_argument('--only', choices=['c1', 'c2'])
     ap.add_argument('--jobs', default='8')
+    ap.add_argument('--names', nargs='*', help='run only these control names (added after the first C1 launch: K0 and '
+                    'K4 duplicate the before and after receipts, so C1 runs K1-K3 as parallel processes)')
     a = ap.parse_args()
     lane = Path(a.lane)
     Path(a.scratch).mkdir(parents=True, exist_ok=True)
@@ -197,6 +199,8 @@ def main():
                 'C1-K4-candidate': {CENSUS: cand_census},
             }
             for name, files in c1.items():
+                if a.names and name not in a.names:
+                    continue
                 d, rev = fixture(lane, a.freeze, scratch, name, files)
                 r = score(lane, 'score-selftest-mounts-r41.py', d, rev,
                           ['--scratch', str(scratch / (name + '.work')), '--jobs', a.jobs], scratch)

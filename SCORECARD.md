@@ -2479,3 +2479,15 @@ verdicts, FAIL `rules_verified 8, verdicts_ok 0` (the recorded lexical bypass); 
 `rules_verified 6`; K4 X-false by negation FAIL `rules_verified 6`; K5 candidate with one `fails` verdict FAIL
 `verdicts_ok 7`; K6 candidate without verdicts FAIL `verdicts_ok 0`; K7 candidate with one `partly`-only row FAIL
 `verdicts_ok 7`; K8 candidate with all-holds fixture verdicts PASS. C1 — see the C1 control lines appended below.
+
+C1 pre-data controls (appended before any seat; frozen counter at `e479fdc5`; the serial runner was stopped during its
+first control and re-launched per control with `--names`, a filter added to `run_controls.py` for that purpose):
+K0 do-nothing is the before receipt itself (`before/c1-before.jsonl`: `baseline_pass 1, neutral_pass 3, decoy_pass 1,
+mutants_applied 13, survivors 4` — H5, H6, H9, H10 — `params 0`, FAIL); K1 the round-40 `declare -f` prologue keyed on
+every mutant's text, on the base census, FAIL (`decoy_pass 0`, survivors 13 — its one-case FAIL summary carries no
+baseline label, so no kill is attributed; `controls/C1-K1-declare-f-prologue-on-base.jsonl`); K2 the candidate without
+its no-`subvol=` case (violates exactly one declared parameter) FAIL (`survivors 1` H9, `params 3`;
+`controls/C1-K2-candidate-without-H9-case.jsonl`); K3 the same prologue on the candidate FAIL (`decoy_pass 0`,
+`controls/C1-K3-declare-f-prologue-on-candidate.jsonl`); K4 the candidate is the after receipt at the C1 implementation
+commit `568c397d` (`after/c1-after-568c397.jsonl`: survivors 0, params 4, PASS). Recorded limit: a self-reader that
+strips here-documents before grepping is not refused by the decoy (wave item C1CritDecoy attacks it).
