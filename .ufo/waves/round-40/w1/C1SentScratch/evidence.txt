@@ -1,0 +1,100 @@
+C1SentScratch — C1-11 evidence (security/scope review of tools/score-selftest-literals-r40.py)
+Collected 2026-10-26 04:14–04:41 -0300. Scratch (removed after this receipt):
+/fast/scratch/hyaku/tsukuroi-r40/C1SentScratch/. Host never mutated; no package/service change; strace 7.2 already
+present at /usr/bin/strace (nothing installed). Reports used only paths under this seat's scratch.
+
+== 1. provenance
+$ sha256sum tsukuroi-shokunin/tools/score-selftest-literals-r40.py
+8b06de18ca7eec1d928a0dfac8ca6930bf808bfd1f4250374ec300640f2f0159  tools/score-selftest-literals-r40.py
+  == declared counter sha256 (SCORECARD round-40 declaration): match.
+$ git -C <lane> show c707e356:tools/tsukuroi-census.sh | sha256sum  -> 032faa8f1c914dd63a1de673aa9ed6767c4bd19cdfc2751ac34331005da45733 (3149 lines)
+$ git -C <lane> log -1 --format='%H %ci' c707e356c2911646f7304d706eb77d118e510610
+c707e356c2911646f7304d706eb77d118e510610 2026-10-26 04:08:11 -0300
+
+== 2. counter run under strace (as assigned)
+$ strace -f -e trace=openat,mkdir,unlink,rename,execve,unlinkat,renameat,renameat2 -o <S>/trace \
+    -- python3 tools/score-selftest-literals-r40.py --revision c707e35 --scratch <S>/work --jobs 2
+exit=0 ; trace 454,087,630 bytes / 4,924,626 lines ; 412,781 execve ; wall 783.65 s
+counter-out.json (receipt, sha256 4e92d0e685250092ad783ebdb8362b633fa2dbb8ae667ec141d42e7fe4b78989):
+  baseline_pass 1 ("TSUKUROI_CENSUS_SELFTEST: PASS (124 cases, 124 passed, 0 failed)"),
+  neutral_pass 3, mutants_applied 9, survivors 0, selfref 5, result PASS.
+  every mutant record: "first_fails": []  (all 9; see §5)
+
+== 3. writes outside --scratch (13-variant run)
+openat with O_WRONLY/O_RDWR/O_CREAT/O_TRUNC/O_APPEND whose path does not start with <S>:
+  {}   (O_CREAT/O_TRUNC outside scratch: none)
+successful write-opens outside scratch: {'/dev/null', 'O_RDWR|O_CLOEXEC': 8; '/dev/null','O_RDWR': 20770}
+absolute mkdir outside scratch: only mkdir("/fast", 0777) = -1 EEXIST (component walk of `mkdir -p`
+  inside scratch; every other component call is dirfd/cwd-relative after chdir)
+absolute unlink / unlinkat(AT_FDCWD,...) outside scratch: 0
+rename / renameat / renameat2 outside scratch: 0 (total 0)
+
+== 4. single-selftest run with chdir + fd-aware resolution
+$ TMPDIR=<S>/st4/tmp LC_ALL=C strace -f -s 300 -e trace=openat,creat,mkdir,mkdirat,rmdir,unlink,unlinkat,
+    rename,renameat,renameat2,link,linkat,symlink,symlinkat,chdir,execve,truncate -o <S>/trace3 \
+    /usr/bin/bash <S>/census-c707e35.sh --selftest
+rc=0 ; TSUKUROI_CENSUS_SELFTEST: PASS (124 cases, 124 passed, 0 failed) ; 406,909 trace lines
+Symlink creations outside scratch: none (12 symlinkat, all <S>/st4/tmp/tsukuroi-r3-2-selftest.*/bin/<cmd>).
+Only out-of-scratch string in any create op: the dangling symlink TARGET /nonexistent-r35
+  (census:2887 `ln -s /nonexistent-r35 "$FX/etc/a/l.pacnew"`); created inside the fixture, never followed.
+Every host-tool argv path (mkdir -p, ln -s, chmod, touch, mv, mkfifo, find, sha256sum) is under <S>
+  e.g. mkdir -p <S>/st4/tmp/tsukuroi-r3-2-selftest.Psg84r/{bin,fx}
+  e.g. ln -s .dispatch <S>/st4/tmp/tsukuroi-r3-2-selftest.Psg84r/bin/pacman
+
+== 5. execve inventory, 13-variant run (all outside-scratch executables are /usr/bin)
+45856 awk | 49777 bash | 84145 cat | 1768 chmod | 52 comm | 4628 cut | 3107 date | 3159 env | 11011 find |
+9 git | 52637 grep | 24713 head | 104 id | 156 ln | 6578 mkdir | 13 mkfifo | 13 mktemp | 26 mv |
+3250 paste | 1 python3 | 52 rm | 19630 sed | 6292 sha256sum | 7865 sort | 10530 stat | 5986 tail |
+26 touch | 18500 tr | 26 vercmp | 4719 wc
+Fixture stubs executed from scratch: 104 distinct paths (pacman, pacman-conf, systemctl, dmesg,
+  journalctl, nvidia-smi, lsmod, expac) — no host pacman/systemctl/journalctl/dmesg/nvidia-smi/lsmod.
+/usr/bin/git ops (read-only): rev-parse, cat-file, merge-base, show, check-ref-format.
+/usr/bin/vercmp argv: ("1.0-1","1.1-1") only — pure computation, no file argument.
+
+== 6. host-path reach inside a censused child
+$ grep -cE 'openat\([^,]*, "/(proc/self/mounts|proc/mounts|sys/fs/btrfs|var/lib/pacman|etc/pacman|var/log)'
+  <S>/trace3 -> 0 ;  <S>/trace -> 0
+Reads that do happen (stock runtime only, from <S>/trace):
+  52638 /proc/self/maps | 7865 each /sys/fs/cgroup/.../cpu.max (7 levels) | 7865 /proc/self/cgroup
+  (all from /usr/bin/sort, verified by pid attribution) | 1 /proc/sys/vm/overcommit_memory
+  209775 /etc/ld.so.cache | 25262 /etc/passwd + /etc/nsswitch.conf | 1592 /etc/localtime
+
+== 7. TSUKUROI_* scrubbing
+counter:98  env = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'HOME': str(d), 'TMPDIR': str(tmp)}
+Direct probe (import module, call run_selftest with a census text that writes `env` to $0.env):
+  child env size: 7
+  TSUKUROI_* in child: []
+  poisoned vars absent: True   (ambient TSUKUROI_PROC_MOUNTS=/etc/passwd, TSUKUROI_BTRFS_SYSFS=/sys/fs/btrfs,
+                                TSUKUROI_ROOT_DIR=/ set in the parent process)
+  PATH=/usr/bin:/bin, LC_ALL=C, HOME=<scratch>, TMPDIR=<scratch>/tmp
+In-selftest, check() sets 27 TSUKUROI_* to fixture paths (census:2141-2167); the only arms run without them
+  are check_cli's three cases (usage/--sample 0/--help), which exit before any probe (§6: zero host-path opens).
+
+== 8. cleanup
+success (13-variant run, exit 0): `find <S>/work` -> empty (only the parent dir); census selftest tmp dirs gone.
+KeyboardInterrupt:
+  $ timeout -s INT -k 240 8 python3 tools/score-selftest-literals-r40.py --revision c707e35 \
+      --scratch <S>/kt2/work --jobs 2
+  timeout_rc=124 ; harness wall 238.50 s (8 s before the signal, ~230 s drain)
+  stderr tail: KeyboardInterrupt at
+    File ".../score-selftest-literals-r40.py", line 145, in main
+      for f in concurrent.futures.as_completed(futs):
+  afterwards: <S>/kt2/work contains no r40c1.* dir, <S>/kt2/tmp empty, no process matching <S>/kt2.
+  Same test with --jobs 1 did not finish within 240 s (killed by the harness deadline).
+cause (counter:143-148): try/finally around `with ThreadPoolExecutor(...)`; __exit__ -> shutdown(wait=True)
+  drains every queued future before the `finally: shutil.rmtree(work, ignore_errors=True)`.
+
+== 9. lane state (read-only commands only)
+$ git -C <lane> status --porcelain --untracked-files=no
+ M .ufo/waves/round-40/make-w1-spec.py     (mtime 2026-10-26 04:13:13, before this seat started; not mine)
+No openat with O_CREAT/O_TRUNC under <lane> in any trace.
+
+== 10. observed control noise (unreproduced)
+One direct selftest run (ambient LANG=en_US.UTF-8, no LC_ALL, under strace -s 512) ended
+  "TSUKUROI_CENSUS_SELFTEST: FAIL (124 cases, 123 passed, 1 failed)" on
+  'healthy: memory-pressure arm quiet (S7-2)': plane evidence missing:
+  'guards=max/max oom\.group=0; r6 vocab: oom-event-plane\.md §8'
+  while the captured got: line contains `...; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)`
+  (full FAIL line: st2 err.txt, quoted in the report).
+Not reproduced: 8 further direct runs of the same census copy passed 124/124 (3 ambient UTF-8 + 1 strace with
+  LC_ALL=C + 3 ambient UTF-8 + 1 clean env); the counter's own 13 runs showed no such noise.

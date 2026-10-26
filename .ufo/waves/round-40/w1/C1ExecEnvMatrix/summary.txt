@@ -1,0 +1,94 @@
+# C1ExecEnvMatrix receipts — commands and observed output (2026-10-26)
+
+## preconditions
+$ git -C tsukuroi-shokunin cat-file -t c707e35... ; git merge-base --is-ancestor ...; sha256sum tools/score-selftest-literals-r40.py
+c707e356c2911646f7304d706eb77d118e510610 -> commit, LANDED on master
+8b06de18ca7eec1d928a0dfac8ca6930bf808bfd1f4250374ec300640f2f0159  tools/score-selftest-literals-r40.py
+032faa8f1c914dd63a1de673aa9ed6767c4bd19cdfc2751ac34331005da45733  census at c707e35 (git show c707e35:tools/tsukuroi-census.sh | sha256sum)
+lane HEAD at start of work: f951f288483c1af0cef4afd458488b84cf7a2165 ; branch_tip during matrix moved to d84e2aab555557606b2cf5a999929be45f1d4f44 (peer landing; informational field only)
+
+## matrix cell outputs (identical judged fields; full JSON in this dir)
+signature = (result, survivors, neutral_pass, mutants_applied, selfref, baseline.last, per-mutant occurrences/exit/last, per-neutral ...)
+author receipt  .ufo/waves/round-40/after/c1-after-c707e35.jsonl -> PASS surv=0 neu=3 app=9 selfref=5 sig=0ad7e8feeab6a5ba
+caller_tmpdir_tmp_j2.json PASS sig=0ad7e8feeab6a5ba branch_tip=d84e2aab555557606b2cf5a999929be45f1d4f44
+cwd_root_C_j1.json       PASS sig=0ad7e8feeab6a5ba branch_tip=f951f288483c1af0cef4afd458488b84cf7a2165
+cwd_root_C_j6.json       PASS sig=0ad7e8feeab6a5ba branch_tip=f951f288483c1af0cef4afd458488b84cf7a2165
+cwd_root_enUS_j1.json    PASS sig=0ad7e8feeab6a5ba branch_tip=f951f288483c1af0cef4afd458488b84cf7a2165
+cwd_root_enUS_j6.json    PASS sig=0ad7e8feeab6a5ba branch_tip=f951f288483c1af0cef4afd458488b84cf7a2165
+cwd_scratch_C_j1.json    PASS sig=0ad7e8feeab6a5ba branch_tip=f951f288483c1af0cef4afd458488b84cf7a2165
+cwd_scratch_C_j6.json    PASS sig=0ad7e8feeab6a5ba branch_tip=f951f288483c1af0cef4afd458488b84cf7a2165
+cwd_scratch_enUS_j1.json PASS sig=0ad7e8feeab6a5ba branch_tip=f951f288483c1af0cef4afd458488b84cf7a2165
+cwd_scratch_enUS_j6.json PASS sig=0ad7e8feeab6a5ba branch_tip=d84e2aab555557606b2cf5a999929be45f1d4f44
+repeat_cwd_root_C_j6.json PASS sig=0ad7e8feeab6a5ba branch_tip=d84e2aab555557606b2cf5a999929be45f1d4f44
+
+## flake observations (census selftest under heavy ptrace/load; NOT the counter's configuration)
+  strace_baseline: FAIL blocked: journal err stream unreadable: hostname override not honoured — possible host read
+  strace_baseline: FAIL healthy: the -Suu trap row is printed and verdict-neutral (R9): hostname override not honoured — possible host read
+  strace_baseline: FAIL healthy: oom watch — external baseline file, both waves known (S9-2): hostname override not honoured — possible host read
+  diag2: FAIL blocked: pacman db.lck: hostname override not honoured — possible host read
+  diag3: FAIL healthy: privilege artifacts counted, not drift (D05): hostname override not honoured — possible host read
+  tail strace_baseline: TSUKUROI_CENSUS_SELFTEST: FAIL (124 cases, 121 passed, 3 failed)
+  tail diag2: TSUKUROI_CENSUS_SELFTEST: FAIL (124 cases, 123 passed, 1 failed)
+  tail diag3: TSUKUROI_CENSUS_SELFTEST: FAIL (124 cases, 123 passed, 1 failed)
+  untraced, identical env (env -i PATH LC_ALL=C HOME TMPDIR): TSUKUROI_CENSUS_SELFTEST: PASS (124 cases, 124 passed, 0 failed); repeats:
+    plain_env_i_1: TSUKUROI_CENSUS_SELFTEST: PASS (124 cases, 124 passed, 0 failed)
+    plain_env_i_2: TSUKUROI_CENSUS_SELFTEST: PASS (124 cases, 124 passed, 0 failed)
+    plain_env_i_3: TSUKUROI_CENSUS_SELFTEST: PASS (124 cases, 124 passed, 0 failed)
+
+## mechanism evidence
+  diag3 HOSTCOND with nonzero pipeline status:
+    HOSTCOND label=healthy: privilege artifacts counted, not drift (D05) pipeline_rc=141 bytes=2471
+  HOSTCOND pipeline_rc census:
+        120 pipeline_rc=0
+          1 pipeline_rc=141
+  printf write split for a multi-line 2453-byte argument (strace write_test.txt):
+    3923401 write(1, "PLANE packages: HEALTHY (fixture"..., 2454) = 2454
+    3923416 write(1, "PLANE packages: HEALTHY (fixture"..., 34) = 34
+    3923416 write(1, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"..., 2401) = 2401
+    3923416 write(1, "host=fixture-host\n", 18) = 18
+    3923379 write(1, "pipeline_rc=0\n", 14) = 14
+    3923379 write(1, "bytes=2452\n", 11)    = 11
+  deterministic trigger, >PIPE_BUF output (100018 bytes), pipefail ON/OFF:
+    with_pipefail: false_failures=3/3 / without_pipefail: false_failures=0/3
+  2009-byte real census output, 3000 iterations idle and under 8-CPU load: false_failures=0/3000 both
+
+## write locality
+  matrix.log (from run_matrix.sh):
+    before tmp_entries=185 scratch_paths=3 leftover_workdirs=0
+    counter_sha=8b06de18ca7eec1d928a0dfac8ca6930bf808bfd1f4250374ec300640f2f0159 caller_tmpdir=<unset>
+    CELL cwd_root_C_j1 cwd=/ LC_ALL=C jobs=1 exit=0 secs=380 after tmp_entries=186 scratch_paths=4 leftover_workdirs=0
+    CELL cwd_root_C_j6 cwd=/ LC_ALL=C jobs=6 exit=0 secs=121 after tmp_entries=185 scratch_paths=4 leftover_workdirs=0
+    CELL cwd_root_enUS_j1 cwd=/ LC_ALL=en_US.UTF-8 jobs=1 exit=0 secs=298 after tmp_entries=185 scratch_paths=4 leftover_workdirs=0
+    CELL cwd_root_enUS_j6 cwd=/ LC_ALL=en_US.UTF-8 jobs=6 exit=0 secs=64 after tmp_entries=186 scratch_paths=4 leftover_workdirs=0
+    CELL cwd_scratch_C_j1 cwd=/fast/scratch/hyaku/tsukuroi-r40/C1ExecEnvMatrix LC_ALL=C jobs=1 exit=0 secs=258 after tmp_entries=186 scratch_paths=4 leftover_workdirs=0
+    CELL cwd_scratch_C_j6 cwd=/fast/scratch/hyaku/tsukuroi-r40/C1ExecEnvMatrix LC_ALL=C jobs=6 exit=0 secs=74 after tmp_entries=186 scratch_paths=4 leftover_workdirs=0
+    CELL cwd_scratch_enUS_j1 cwd=/fast/scratch/hyaku/tsukuroi-r40/C1ExecEnvMatrix LC_ALL=en_US.UTF-8 jobs=1 exit=0 secs=267 after tmp_entries=187 scratch_paths=4 leftover_workdirs=0
+    CELL cwd_scratch_enUS_j6 cwd=/fast/scratch/hyaku/tsukuroi-r40/C1ExecEnvMatrix LC_ALL=en_US.UTF-8 jobs=6 exit=0 secs=81 after tmp_entries=187 scratch_paths=4 leftover_workdirs=0
+    CELL repeat_cwd_root_C_j6 cwd=/ LC_ALL=C jobs=6 exit=0 secs=112 after tmp_entries=187 scratch_paths=4 leftover_workdirs=0
+    after tmp_entries=187 scratch_paths=4 leftover_workdirs=0
+    tmp_diff_lines=19
+    MATRIX-DONE
+  /tmp name diff over the matrix window (all peers' files; no r40c1.* or tsukuroi-r3-2-selftest.*):
+    4a5,6
+    > base170.err
+    > base170.json
+    9a12
+    > c3added.txt
+    54a58
+    > manifest_table.md
+    65a70
+    > p
+    84d88
+    < r38w2score_seat.txt
+    89a94,95
+    > revaddenda_r29.diff
+    > revaddenda_sources.md
+    135,136d140
+    < self-assessment-census-yh9n26x4
+    < self-assessment-git-6d1xadg0
+    161d164
+    < tsukuroi-r3-2-selftest.sjpAGd
+  find /tmp -maxdepth 2 -name "r40c1.*" before and after: (empty) (empty)
+  /tmp name diff over the supplemental cell:
+    20d19
+    < clos-tabi30.6Z7H
