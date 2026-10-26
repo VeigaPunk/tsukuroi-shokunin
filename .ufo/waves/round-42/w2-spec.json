@@ -1,0 +1,357 @@
+{
+ "wave": "tsukuroi-r42-w2",
+ "reportDir": ".ufo/waves/round-42/w2",
+ "maxLanes": 64,
+ "context": "/skill:godspeed\nYou are an L2 seat of tsukuroi lane round 42 (hyaku run 9), wave w2 of two v1 waves (falsify). The L1 (agent TsukuroiR42) holds the planner seat and is the only integrator and committer. Lane repo: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (host operability and repair on this Arch/omarchy host; storage error counters in Core; the btrfs scrub record is Frontier).\nDeclared, frozen claims (SCORECARD.md section \"Round 42 — declaration\", freeze commit a84fc9dec860f8bea516dff7ddfdc98223cdae52; base c8efaa3f120834541f8de1e5e0367e8d1593bae6):\n- C1 operability: census (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh) early-reader pipelines under `set -euo pipefail` (packages :692/:694 on the merged `pacman -Qkk` sample; update-safety `-Qu`/`-Sup`/`-Suu` name extraction) gave a wrong verdict or exit 141 once a probe printed more than the pipe buffer; fixed at 447662088dfd3155e31aed239179a79c1d1046c7 (here-strings; awk NR) with two R42-C1 selftest cases. Frozen counter /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-size-invariance-r42.py (sha256 c511104a8e69fe6a90bb849847fe9c4635642f70ff0cb01fb62c38c098553e03): ten small/large fixture twins + three `unshare -rm` production-path legs; predicate `cases == 10 and invariant == 10 and ns_invariant == 3 and selftest_pass == 1 and default_equal == 1`; before at base invariant 3, FAIL.\n- C2 depth (sourced): /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/btrfs-scrub-record-r42.md SC1-SC5, the btrfs scrub status record (btrfs-progs v7.1 cmds/scrub.c = S237, CHANGES = S238, host capture = S239). Frozen counter /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-scrub-record-r42.py (sha256 dbe933ec8c2cca491346da76bbc104aba8ff9e5486f4dcaf572e59df3680503f); the ten row-verdict seats of this wave (C2RevSC<n> reviewer, C2CritSC<n> critic) are the counted verdicts, bound through this wave's dispatch and results records and the committed report.\nWave-1 reports: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w1/ (read the ones your item names). Pinned sources /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/; host capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/hostcap/. Lane tip at dispatch: 78abb8b5cdc9da511b4fc523e661517a68dd33d3.\nRules for every seat (host guard):\n- Your tools start at the fleet root /home/vgpnk/Projects/shokunin: cd into your scratch dir first and use absolute paths everywhere. Never write a tracked file of the fleet repo or of any lane; never write under /home/vgpnk/.local/bin or any PATH directory; never plant shims.\n- Read-only on lane content: never edit, create or delete any tracked lane file; never run git add/commit/stash/checkout/reset/push or any mutating jj command in the lane; never touch the lane's Git index or jj state, the fleet repo (outside this lane), any sibling lane, or /home/vgpnk/Projects/shokuknow. Never mutate the host: no package, service, hook, sysfs, mount outside a private `unshare -rm` namespace, boot, /etc or /var/lib change; no sudo; never run `btrfs scrub start/cancel/resume`, `btrfs scrub limit -l` or `btrfs device stats -z`. Read-only queries are allowed. Signal only processes you started (by PID); never pkill/killall by pattern.\n- Write ONLY your report and your receipts. Every `Report:` trailer path is relative to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin — write it at /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/<that path> (absolute), i.e. /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w2/<your seat name>.md. Small receipts (under 2 MB each) go in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w2/<your seat name>/ (create it). Never write anywhere else in the lane or under the fleet root.\n- Scratch: every clone, copy, mutant or fixture lives under /fast/scratch/hyaku/tsukuroi-r42/<your seat name>/ (mkdir -p; export TMPDIR there; pass --scratch to counters). Never build under /tmp. Remove your scratch dir before you finish (trap 'rm -rf -- \"$S\"' EXIT), after copying receipts into your seat dir. A /tmp path is never evidence.\n- Fixture git repos: D=$(mktemp -d /fast/scratch/hyaku/tsukuroi-r42/<seat>/fx.XXXXXX) && git -C \"$D\" init -q (or git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin \"$D\" and remove origin); every later git call names -C \"$D\"; verify `git -C \"$D\" rev-parse --show-toplevel` equals $D before the first commit; commit only there with `-c user.name=fixture -c user.email=fixture@invalid`.\n- Tooling authorization (operator, 2026-10-19): you may install or upgrade tools that help the task — read /home/vgpnk/.omp/agent/RULES.md first (official channels, update-safety gate; record tool/version/channel/reason in your report). pacman guard: ALL pacman transactions are PAUSED host-wide — never pacman -S/-Sy/-Syu/-U/-R; install only via uv tool / npx / an official binary in ~/.local/bin; never restart a host service.\n- You are a leaf: do not spawn agents (executors may spawn at most one read-only labrat), do not run a swarm, never message agent://all.\n- The host is shared and loaded: the C1 counter takes ~1-3 min and several CPUs; never run more than one counter at a time.\n- Evidence: every claim in your report carries a path:line, a command with its observed output, or a URL with access date and a <=25-word located quote. An unrun check has not passed; say what you did not do. Report findings even when they falsify the claims.\n- Report format: first line `VERDICT: <supports|falsifies|defect-found|no-finding>` for your item, except the ten row-verdict seats, whose first line is the row-verdict line their item specifies.\n",
+ "items": [
+  {
+   "name": "C2RevSC1",
+   "role": "reviewer",
+   "axes": [
+    "depth",
+    "C2",
+    "SC1"
+   ],
+   "milestone": "SC1 counted read",
+   "prompt": "/skill:godspeed\nItem V-1a (counted verdict). Row SC1 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/btrfs-scrub-record-r42.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (the integrated text, including any appended corrections in the row's section and in a 'Corrections' section if present). Read every sentence of its Statement and Host reading against the pinned snapshot /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/CHANGES (first verify `sha256sum -c SHA256SUMS` in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src), specifically scrub.c:446-535 (scrub_datafile, scrub_open_file, scrub_open_file_r/_w, scrub_rename_file) and :67, and the host capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/hostcap/capture.txt. Check each Quote line: the text occurs on that line. You did not write this row. The FIRST line of your report file AND one line of your final answer must be exactly `ROW SC1 VERDICT: ` followed by one word — holds (every sentence of the Statement and the Host reading is true of the pinned source and the capture, and no sentence overreaches), partly (something is incomplete or overreaches but nothing is false), or fails (a sentence is false). Write that line once in the report and once in the final answer, nowhere else. Then give, per sentence, the source line that supports or contradicts it, and exact replacement text for anything partly or false."
+  },
+  {
+   "name": "C2CritSC1",
+   "role": "critic",
+   "axes": [
+    "depth",
+    "C2",
+    "SC1"
+   ],
+   "milestone": "SC1 adversarial read",
+   "prompt": "/skill:godspeed\nItem V-1b (counted verdict, adversarial). Try hardest to find a false or overreaching sentence: a universal the code does not support, a branch the row omits that changes the reading, an inference stated as fact, a wrong line. Row SC1 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/btrfs-scrub-record-r42.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (the integrated text, including any appended corrections in the row's section and in a 'Corrections' section if present). Read every sentence of its Statement and Host reading against the pinned snapshot /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/CHANGES (first verify `sha256sum -c SHA256SUMS` in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src), specifically scrub.c:446-535 (scrub_datafile, scrub_open_file, scrub_open_file_r/_w, scrub_rename_file) and :67, and the host capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/hostcap/capture.txt. Check each Quote line: the text occurs on that line. You did not write this row. The FIRST line of your report file AND one line of your final answer must be exactly `ROW SC1 VERDICT: ` followed by one word — holds (every sentence of the Statement and the Host reading is true of the pinned source and the capture, and no sentence overreaches), partly (something is incomplete or overreaches but nothing is false), or fails (a sentence is false). Write that line once in the report and once in the final answer, nowhere else. Then give, per sentence, the source line that supports or contradicts it, and exact replacement text for anything partly or false."
+  },
+  {
+   "name": "C2RevSC2",
+   "role": "reviewer",
+   "axes": [
+    "depth",
+    "C2",
+    "SC2"
+   ],
+   "milestone": "SC2 counted read",
+   "prompt": "/skill:godspeed\nItem V-2a (counted verdict). Row SC2 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/btrfs-scrub-record-r42.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (the integrated text, including any appended corrections in the row's section and in a 'Corrections' section if present). Read every sentence of its Statement and Host reading against the pinned snapshot /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/CHANGES (first verify `sha256sum -c SHA256SUMS` in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src), specifically scrub.c:826-895 (_SCRUB_KVWRITE, scrub_kvwrite, scrub_write_file) and :67-70, and the host capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/hostcap/capture.txt. Check each Quote line: the text occurs on that line. You did not write this row. The FIRST line of your report file AND one line of your final answer must be exactly `ROW SC2 VERDICT: ` followed by one word — holds (every sentence of the Statement and the Host reading is true of the pinned source and the capture, and no sentence overreaches), partly (something is incomplete or overreaches but nothing is false), or fails (a sentence is false). Write that line once in the report and once in the final answer, nowhere else. Then give, per sentence, the source line that supports or contradicts it, and exact replacement text for anything partly or false."
+  },
+  {
+   "name": "C2CritSC2",
+   "role": "critic",
+   "axes": [
+    "depth",
+    "C2",
+    "SC2"
+   ],
+   "milestone": "SC2 adversarial read",
+   "prompt": "/skill:godspeed\nItem V-2b (counted verdict, adversarial). Try hardest to find a false or overreaching sentence: a universal the code does not support, a branch the row omits that changes the reading, an inference stated as fact, a wrong line. Row SC2 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/btrfs-scrub-record-r42.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (the integrated text, including any appended corrections in the row's section and in a 'Corrections' section if present). Read every sentence of its Statement and Host reading against the pinned snapshot /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/CHANGES (first verify `sha256sum -c SHA256SUMS` in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src), specifically scrub.c:826-895 (_SCRUB_KVWRITE, scrub_kvwrite, scrub_write_file) and :67-70, and the host capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/hostcap/capture.txt. Check each Quote line: the text occurs on that line. You did not write this row. The FIRST line of your report file AND one line of your final answer must be exactly `ROW SC2 VERDICT: ` followed by one word — holds (every sentence of the Statement and the Host reading is true of the pinned source and the capture, and no sentence overreaches), partly (something is incomplete or overreaches but nothing is false), or fails (a sentence is false). Write that line once in the report and once in the final answer, nowhere else. Then give, per sentence, the source line that supports or contradicts it, and exact replacement text for anything partly or false."
+  },
+  {
+   "name": "C2RevSC3",
+   "role": "reviewer",
+   "axes": [
+    "depth",
+    "C2",
+    "SC3"
+   ],
+   "milestone": "SC3 counted read",
+   "prompt": "/skill:godspeed\nItem V-3a (counted verdict). Row SC3 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/btrfs-scrub-record-r42.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (the integrated text, including any appended corrections in the row's section and in a 'Corrections' section if present). Read every sentence of its Statement and Host reading against the pinned snapshot /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/CHANGES (first verify `sha256sum -c SHA256SUMS` in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src), specifically scrub.c:897-935 (scrub_write_progress), :1085-1125 (progress thread, do_record), :1186-1206 (is_scrub_running_in_kernel), :1245-1345 and :1495-1515 (cmd_scrub_start: mkdir, first write), and the host capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/hostcap/capture.txt. Check each Quote line: the text occurs on that line. You did not write this row. The FIRST line of your report file AND one line of your final answer must be exactly `ROW SC3 VERDICT: ` followed by one word — holds (every sentence of the Statement and the Host reading is true of the pinned source and the capture, and no sentence overreaches), partly (something is incomplete or overreaches but nothing is false), or fails (a sentence is false). Write that line once in the report and once in the final answer, nowhere else. Then give, per sentence, the source line that supports or contradicts it, and exact replacement text for anything partly or false."
+  },
+  {
+   "name": "C2CritSC3",
+   "role": "critic",
+   "axes": [
+    "depth",
+    "C2",
+    "SC3"
+   ],
+   "milestone": "SC3 adversarial read",
+   "prompt": "/skill:godspeed\nItem V-3b (counted verdict, adversarial). Try hardest to find a false or overreaching sentence: a universal the code does not support, a branch the row omits that changes the reading, an inference stated as fact, a wrong line. Row SC3 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/btrfs-scrub-record-r42.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (the integrated text, including any appended corrections in the row's section and in a 'Corrections' section if present). Read every sentence of its Statement and Host reading against the pinned snapshot /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/CHANGES (first verify `sha256sum -c SHA256SUMS` in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src), specifically scrub.c:897-935 (scrub_write_progress), :1085-1125 (progress thread, do_record), :1186-1206 (is_scrub_running_in_kernel), :1245-1345 and :1495-1515 (cmd_scrub_start: mkdir, first write), and the host capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/hostcap/capture.txt. Check each Quote line: the text occurs on that line. You did not write this row. The FIRST line of your report file AND one line of your final answer must be exactly `ROW SC3 VERDICT: ` followed by one word — holds (every sentence of the Statement and the Host reading is true of the pinned source and the capture, and no sentence overreaches), partly (something is incomplete or overreaches but nothing is false), or fails (a sentence is false). Write that line once in the report and once in the final answer, nowhere else. Then give, per sentence, the source line that supports or contradicts it, and exact replacement text for anything partly or false."
+  },
+  {
+   "name": "C2RevSC4",
+   "role": "reviewer",
+   "axes": [
+    "depth",
+    "C2",
+    "SC4"
+   ],
+   "milestone": "SC4 counted read",
+   "prompt": "/skill:godspeed\nItem V-4a (counted verdict). Row SC4 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/btrfs-scrub-record-r42.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (the integrated text, including any appended corrections in the row's section and in a 'Corrections' section if present). Read every sentence of its Statement and Host reading against the pinned snapshot /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/CHANGES (first verify `sha256sum -c SHA256SUMS` in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src), specifically scrub.c:255-345 (fold macros, init_fs_stat, _print_scrub_ss), :1847-2008 (cmd_scrub_status) and :578-830 (scrub_read_file), and the host capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/hostcap/capture.txt. Check each Quote line: the text occurs on that line. You did not write this row. The FIRST line of your report file AND one line of your final answer must be exactly `ROW SC4 VERDICT: ` followed by one word — holds (every sentence of the Statement and the Host reading is true of the pinned source and the capture, and no sentence overreaches), partly (something is incomplete or overreaches but nothing is false), or fails (a sentence is false). Write that line once in the report and once in the final answer, nowhere else. Then give, per sentence, the source line that supports or contradicts it, and exact replacement text for anything partly or false."
+  },
+  {
+   "name": "C2CritSC4",
+   "role": "critic",
+   "axes": [
+    "depth",
+    "C2",
+    "SC4"
+   ],
+   "milestone": "SC4 adversarial read",
+   "prompt": "/skill:godspeed\nItem V-4b (counted verdict, adversarial). Try hardest to find a false or overreaching sentence: a universal the code does not support, a branch the row omits that changes the reading, an inference stated as fact, a wrong line. Row SC4 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/btrfs-scrub-record-r42.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (the integrated text, including any appended corrections in the row's section and in a 'Corrections' section if present). Read every sentence of its Statement and Host reading against the pinned snapshot /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/CHANGES (first verify `sha256sum -c SHA256SUMS` in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src), specifically scrub.c:255-345 (fold macros, init_fs_stat, _print_scrub_ss), :1847-2008 (cmd_scrub_status) and :578-830 (scrub_read_file), and the host capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/hostcap/capture.txt. Check each Quote line: the text occurs on that line. You did not write this row. The FIRST line of your report file AND one line of your final answer must be exactly `ROW SC4 VERDICT: ` followed by one word — holds (every sentence of the Statement and the Host reading is true of the pinned source and the capture, and no sentence overreaches), partly (something is incomplete or overreaches but nothing is false), or fails (a sentence is false). Write that line once in the report and once in the final answer, nowhere else. Then give, per sentence, the source line that supports or contradicts it, and exact replacement text for anything partly or false."
+  },
+  {
+   "name": "C2RevSC5",
+   "role": "reviewer",
+   "axes": [
+    "depth",
+    "C2",
+    "SC5"
+   ],
+   "milestone": "SC5 counted read",
+   "prompt": "/skill:godspeed\nItem V-5a (counted verdict). Row SC5 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/btrfs-scrub-record-r42.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (the integrated text, including any appended corrections in the row's section and in a 'Corrections' section if present). Read every sentence of its Statement and Host reading against the pinned snapshot /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/CHANGES (first verify `sha256sum -c SHA256SUMS` in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src), specifically scrub.c:1208-1230 (read/write_scrub_device_limit), :1920-1990 (status limit), CHANGES:455-475; for the kernel side Linux v7.2 fs/btrfs/sysfs.c (search scrub_speed_max; https://raw.githubusercontent.com/torvalds/linux/v7.2/fs/btrfs/sysfs.c, access it), and the host capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/hostcap/capture.txt. Check each Quote line: the text occurs on that line. You did not write this row. The FIRST line of your report file AND one line of your final answer must be exactly `ROW SC5 VERDICT: ` followed by one word — holds (every sentence of the Statement and the Host reading is true of the pinned source and the capture, and no sentence overreaches), partly (something is incomplete or overreaches but nothing is false), or fails (a sentence is false). Write that line once in the report and once in the final answer, nowhere else. Then give, per sentence, the source line that supports or contradicts it, and exact replacement text for anything partly or false."
+  },
+  {
+   "name": "C2CritSC5",
+   "role": "critic",
+   "axes": [
+    "depth",
+    "C2",
+    "SC5"
+   ],
+   "milestone": "SC5 adversarial read",
+   "prompt": "/skill:godspeed\nItem V-5b (counted verdict, adversarial). Try hardest to find a false or overreaching sentence: a universal the code does not support, a branch the row omits that changes the reading, an inference stated as fact, a wrong line. Row SC5 of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/btrfs-scrub-record-r42.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (the integrated text, including any appended corrections in the row's section and in a 'Corrections' section if present). Read every sentence of its Statement and Host reading against the pinned snapshot /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/CHANGES (first verify `sha256sum -c SHA256SUMS` in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src), specifically scrub.c:1208-1230 (read/write_scrub_device_limit), :1920-1990 (status limit), CHANGES:455-475; for the kernel side Linux v7.2 fs/btrfs/sysfs.c (search scrub_speed_max; https://raw.githubusercontent.com/torvalds/linux/v7.2/fs/btrfs/sysfs.c, access it), and the host capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/hostcap/capture.txt. Check each Quote line: the text occurs on that line. You did not write this row. The FIRST line of your report file AND one line of your final answer must be exactly `ROW SC5 VERDICT: ` followed by one word — holds (every sentence of the Statement and the Host reading is true of the pinned source and the capture, and no sentence overreaches), partly (something is incomplete or overreaches but nothing is false), or fails (a sentence is false). Write that line once in the report and once in the final answer, nowhere else. Then give, per sentence, the source line that supports or contradicts it, and exact replacement text for anything partly or false."
+  },
+  {
+   "name": "C1FinalRerun",
+   "role": "executor",
+   "axes": [
+    "operability",
+    "C1"
+   ],
+   "milestone": "C1 at the integration commit",
+   "prompt": "/skill:godspeed\nItem F-1. Verify the frozen counter digest (c511104a8e69fe6a90bb849847fe9c4635642f70ff0cb01fb62c38c098553e03) at a84fc9dec860f8bea516dff7ddfdc98223cdae52, then run `python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/run-receipt.py --revision 78abb8b5cdc9da511b4fc523e661517a68dd33d3 --tool-revision a84fc9dec860f8bea516dff7ddfdc98223cdae52 --out /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w2/C1FinalRerun/c1-final.jsonl -- tools/score-size-invariance-r42.py --revision '{rev}' --scratch /fast/scratch/hyaku/tsukuroi-r42/C1FinalRerun/s` once. Report every predicate field and compare with /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/after/c1-after-78abb8b.jsonl if present and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/before/c1-before.jsonl."
+  },
+  {
+   "name": "C1FinalSelftest",
+   "role": "executor",
+   "axes": [
+    "operability",
+    "C1"
+   ],
+   "milestone": "selftest and single-site reverts at tip",
+   "prompt": "/skill:godspeed\nItem F-2. At 78abb8b5cdc9da511b4fc523e661517a68dd33d3: run the census `--selftest` (expect PASS 132/132, four R42-C1 labels). Then revert each of the seven round-42 sites ONE at a time to the base c8efaa3f120834541f8de1e5e0367e8d1593bae6 text (the :692 test and :694 note — now one awk test — the four update-list sites, the :743 baseline lookup) in scratch copies, run each copy's selftest, and report which revert survives. For :743 build a fixture case yourself (foreign baseline > 64 KiB, first -Qm name on line 1) and show base exit 141 vs tip completion."
+  },
+  {
+   "name": "C1FinalProdIdentity",
+   "role": "executor",
+   "axes": [
+    "operability",
+    "C1",
+    "QUALITY 90"
+   ],
+   "milestone": "production identity leg",
+   "prompt": "/skill:godspeed\nItem F-3. Re-run the production-identity measurement of /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w1/C1CritNsView.md §4 (driver /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w1/C1CritNsView/uid1000.py; read it first) against the census at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 and at c8efaa3f120834541f8de1e5e0367e8d1593bae6: the fabricated view at uid 1000 via setpriv, no TSUKUROI_* override, a large and a small error-bearing -Qkk twin. Expect tip BLOCKED/BLOCKED, base DEGRADED-or-HEALTHY/BLOCKED. Also run the V1 ns-gated variant (w1/C1CritNsView/mkvariant.py) at uid 1000 to show the leg separates it. Never write outside scratch; no sudo."
+  },
+  {
+   "name": "C1FinalENOSPC",
+   "role": "executor",
+   "axes": [
+    "operability",
+    "C1"
+   ],
+   "milestone": "full TMPDIR after the awk change",
+   "prompt": "/skill:godspeed\nItem F-4. Reproduce /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w1/C1RevFix.md defect D1 (full TMPDIR -> HEALTHY on an error-bearing large -Qkk sample) on the census at 447662088dfd3155e31aed239179a79c1d1046c7 and show it is gone at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (the here-strings were replaced by an awk test): use a 1 MiB tmpfs inside `unshare -rm` as TMPDIR, the fixture approach of C1RevFix (r-e2e.txt), and report both PLANE packages lines and exit codes. Also strace the tip run for any openat(O_CREAT) outside the fixture (the no-write contract)."
+  },
+  {
+   "name": "C1MutFinal",
+   "role": "mutation-tester",
+   "axes": [
+    "operability",
+    "C1"
+   ],
+   "milestone": "mutants of the awk fix",
+   "prompt": "/skill:godspeed\nItem F-5. Mutation-test the integrated packages test at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (grep -n 'err_line' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh): at least six mutants (awk `exit` after print; `/error:/` unanchored; `END` exit 0; print every error line; drop `local err_line`; test `[ -n \"$err_line\" ]` instead of the awk status). For each, run the tip selftest in a scratch copy and the frozen C1 counter (score variants in a scratch clone: git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin \"$D\" under /fast/scratch/hyaku/tsukuroi-r42/<seat>/, remove origin, toplevel check, commit the variant with the fixture identity, run the counter with --lane \"$D\" --revision <sha> --scratch /fast/scratch/hyaku/tsukuroi-r42/<seat>/s); report killed/survived per detector. Survivors are coverage gaps."
+  },
+  {
+   "name": "C1CritFinalEvasion",
+   "role": "critic",
+   "axes": [
+    "operability",
+    "C1"
+   ],
+   "milestone": "evasions against the final census",
+   "prompt": "/skill:godspeed\nItem F-6. Using the arms in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w1/C1CritNsView/ and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w1/C1CritEvasion/ and /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w1/ConnClaims.md (K5Z), confirm each still PASSes the frozen counter when rebuilt on 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (gate the tip's awk test behind the same conditions). This records whether the counter's sufficiency gap is unchanged by the integration. Report per arm: verdict and invariant/ns numbers (score variants in a scratch clone: git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin \"$D\" under /fast/scratch/hyaku/tsukuroi-r42/<seat>/, remove origin, toplevel check, commit the variant with the fixture identity, run the counter with --lane \"$D\" --revision <sha> --scratch /fast/scratch/hyaku/tsukuroi-r42/<seat>/s)."
+  },
+  {
+   "name": "C1RevIntegration",
+   "role": "reviewer",
+   "axes": [
+    "operability",
+    "C1"
+   ],
+   "milestone": "integration diff review",
+   "prompt": "/skill:godspeed\nItem F-7. Review `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff 447662088dfd3155e31aed239179a79c1d1046c7 78abb8b5cdc9da511b4fc523e661517a68dd33d3 -- tools/tsukuroi-census.sh`: the awk error test (status as condition under set -euo pipefail, first-line note equivalence with grep -m1, empty and CR input), the :743 lookup without exit (duplicate names: first wins as before?), the selftest ABSENT arm here-string, the two new -Sup cases' regexes. Confirm every hunk lies in probe_packages, probe_update_safety or run_selftest (kill rule). Report defects with evidence."
+  },
+  {
+   "name": "C1RevSkill",
+   "role": "reviewer",
+   "axes": [
+    "operability",
+    "C1",
+    "depth"
+   ],
+   "milestone": "SKILL sections review",
+   "prompt": "/skill:godspeed\nItem F-8. Review the round-42 SKILL.md sections appended at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 ('Census early readers under pipefail — round 42', 'Scrub status record — round 42', 'Counter lineage — round 42 rows', 'Counter-attack scoreboard — round 42' and the two registry rows after `| package-anatomy-r41 |`): every claim against the census at 78abb8b5cdc9da511b4fc523e661517a68dd33d3, the entry, and the wave-1 reports it cites. Report each false or unsupported sentence with exact replacement text."
+  },
+  {
+   "name": "QualityCrit",
+   "role": "critic",
+   "axes": [
+    "discernment",
+    "QUALITY 90"
+   ],
+   "milestone": "QUALITY 90 attack",
+   "prompt": "/skill:godspeed\nItem F-9. Attack QUALITY criterion 90 appended to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/QUALITY.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3: does it cite a lesson that exists (corpus/lessons/round-42.md Mistakes R42-OBSERVED-CHANNEL — the lesson may land after this wave; say so), are its failing examples accurate against the cited wave-1 reports, does it duplicate QUALITY 82/85/89, and is it checkable (could a future counter be shown to meet or miss it)? Verdict with exact replacement text if needed."
+  },
+  {
+   "name": "C2PostCritBinding",
+   "role": "critic",
+   "axes": [
+    "depth",
+    "C2",
+    "QUALITY 89/90"
+   ],
+   "milestone": "binding manual audit",
+   "prompt": "/skill:godspeed\nItem F-10. After the ten row-verdict seats of this wave finish (check for /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w2/C2RevSC1.md … C2CritSC5.md; start ~25 min into your run), read each one: is its first line the declared `ROW SC<n> VERDICT:` line, does the body agree with that word, and does any report quote another verdict word in a way the counter's unanchored match (w1/C2CritControl.md D1) would bind instead? Report a table: seat, first-line verdict, body consistent yes/no, risk of mis-binding. Read-only."
+  },
+  {
+   "name": "SrcReopenS237",
+   "role": "reviewer",
+   "axes": [
+    "sources",
+    "C2"
+   ],
+   "milestone": "re-open S237",
+   "prompt": "/skill:godspeed\nItem F-11. Re-open S237 (row in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3): fetch https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/cmds/scrub.c, sha256 vs the row anchor, check every cited line range exists and the `teaches` cell is grounded (quote <=25 words with line). Tier A / kind code honest? Report."
+  },
+  {
+   "name": "SrcReopenS238",
+   "role": "reviewer",
+   "axes": [
+    "sources",
+    "C2"
+   ],
+   "milestone": "re-open S238",
+   "prompt": "/skill:godspeed\nItem F-12. Re-open S238: fetch https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/CHANGES, sha256 vs the row anchor, check lines 460-470 and the `teaches` cell (6.6.3 scrub limit entries). Is `docs` the right kind and A the right tier for release notes? Report."
+  },
+  {
+   "name": "SrcReopenS239",
+   "role": "reviewer",
+   "axes": [
+    "sources",
+    "C2"
+   ],
+   "milestone": "re-open S239",
+   "prompt": "/skill:godspeed\nItem F-13. Re-open S239 (own-work capture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/hostcap): sha256 of capture.txt vs the row, re-run capture.sh into scratch and diff, and check the `teaches` cell against the capture lines. Does any C2 rule row rest on S239 alone (QUALITY 86)? Report."
+  },
+  {
+   "name": "C2EntryDiff",
+   "role": "reviewer",
+   "axes": [
+    "depth",
+    "C2",
+    "calibration"
+   ],
+   "milestone": "pre-admission revision disclosure",
+   "prompt": "/skill:godspeed\nItem F-14. `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff f50c28d83e1832ecd7eba765caace531f45d6b27 78abb8b5cdc9da511b4fc523e661517a68dd33d3 -- corpus/knowledge/btrfs-scrub-record-r42.md`: list every changed sentence and map it to the wave-1 report that asked for it (C2CritNovelty, C2DraftRevSC1/SC3/SC4, C2ExecLiveSources, C2ExecHostRecheck). Flag any change no report asked for, and any wave-1 correction that was not taken. Report a table."
+  },
+  {
+   "name": "NotesPatchOffset",
+   "role": "reviewer",
+   "axes": [
+    "freshness",
+    "considerthese"
+   ],
+   "milestone": "packaging-offset notes",
+   "prompt": "/skill:godspeed\nItem F-15. Verify the 'Round-42 note — packaging offset' appended to /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/pacman-transaction-order-r39.md and alpm-package-anatomy-r41.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 against /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w1/ConsiderPatchOffset/ (run.txt, evidence.txt, patches/): each offset (+23 add.c after :417, +118 makepkg.sh.in, +9 PKGBUILD.5.asciidoc) and the claim that the patched hunks do not touch the cited logic. Report any wrong number or overclaim."
+  },
+  {
+   "name": "GateFinal",
+   "role": "executor",
+   "axes": [
+    "calibration",
+    "no-harm"
+   ],
+   "milestone": "lane gates at tip",
+   "prompt": "/skill:godspeed\nItem F-16. Re-run every `tools/check-*.py` that takes --revision at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 in a scratch clone, as /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w1/GateAllRegistry.md did, and diff exit codes against its tip table: the three round-42 regressions (adjacency-anchors, registry-coverage, self-assessment) — which are now green, which still red (self-assessment needs the round-42 axes table, which the L1 appends after this wave; say so). `--scratch` for check-self-assessment. Report."
+  },
+  {
+   "name": "SourcesCensusFinal",
+   "role": "executor",
+   "axes": [
+    "sources"
+   ],
+   "milestone": "sources census at tip",
+   "prompt": "/skill:godspeed\nItem F-17. Run `/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi` and the frozen manual census commands of /home/vgpnk/Projects/shokunin/CORPUS.md (rows, malformed, tier/status histograms, duplicate ids, enum violations, mined used-by existence) from /home/vgpnk/Projects/shokunin/tsukuroi-shokunin; compare with /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/before/sources-census-start.txt (236 rows, 40 W04). Report outputs and exit codes."
+  },
+  {
+   "name": "AdjMoriPin",
+   "role": "connector",
+   "axes": [
+    "adjacency"
+   ],
+   "milestone": "moved sibling pin handoff",
+   "prompt": "/skill:godspeed\nItem F-18. /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w1/ConnSiblings.md found mori-shokunin/PROVINCE.md:287 pins tsukuroi-census.sh lines that round 42 moved. Compute the pinned content's line range at 78abb8b5cdc9da511b4fc523e661517a68dd33d3, and draft the handoff text the tsukuroi report should carry for mori (report, never edit a sibling). Check whether any other sibling pin into lane files moved between c8efaa3f120834541f8de1e5e0367e8d1593bae6 and 78abb8b5cdc9da511b4fc523e661517a68dd33d3 (grep sibling repos read-only for `tsukuroi-shokunin/` line pins). Report."
+  },
+  {
+   "name": "CritTrendFinal",
+   "role": "critic",
+   "axes": [
+    "discernment"
+   ],
+   "milestone": "trend verdicts at tip",
+   "prompt": "/skill:godspeed\nItem F-19. With w1's CritTrend (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w1/CritTrend.md) as the prior, argue each trend verdict for round 42 at 78abb8b5cdc9da511b4fc523e661517a68dd33d3: expansion (is the scrub record new coverage-map ground? corpus/README.md Round-42 note says it is Frontier deepening), quality (the packaging-offset notes mark stale line pins in r39/r41 entries; the entry corrections; does any prior entry get superseded or re-verified?), discernment (QUALITY 90 from a lesson; the outside spot-check is pending). Give the supportable verdict and what would change it."
+  },
+  {
+   "name": "CritNoHarmFinal",
+   "role": "critic",
+   "axes": [
+    "no-harm"
+   ],
+   "milestone": "six-axis no-harm at tip",
+   "prompt": "/skill:godspeed\nItem F-20. For each of the six axes, can round 42 at 78abb8b5cdc9da511b4fc523e661517a68dd33d3 harm it? Use w1's CritSeparability and GateAllRegistry as priors; check the in-place edits round 42 made (`git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff -U0 c8efaa3f120834541f8de1e5e0367e8d1593bae6 78abb8b5cdc9da511b4fc523e661517a68dd33d3 -- SCORECARD.md LOG.md corpus/QUALITY.md corpus/SOURCES.md SHONEN.md | grep -E '^-[^-]'` must list only the S237-S239 status/used-by flips; knowledge files changed in place: adjacency-anchors-r19.json IN-109). Verdict per axis."
+  },
+  {
+   "name": "MistakesFixFail",
+   "role": "executor",
+   "axes": [
+    "discernment",
+    "mistakes"
+   ],
+   "milestone": "mistake fixes able to fail",
+   "prompt": "/skill:godspeed\nItem F-21. For the mistakes in /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w1/MistakesSweep.md and this round's integration (R42-OBSERVED-CHANNEL: namespace legs gated by uid/fixture names; R42-HERESTRING-TEMPFILE: here-string temp file on full TMPDIR; R42-SUP-UNCOVERED: selftest missed the -Sup arms; R42-BATTERY-SUMMARY-COLLISION), show each fix able to fail where it is a code fix: the red-before state and the green-after state with the same command, receipts in your seat dir. For non-code fixes say what would show them able to fail."
+  },
+  {
+   "name": "SentScope2",
+   "role": "sentinel",
+   "axes": [
+    "no-harm",
+    "scope"
+   ],
+   "milestone": "misroot and scope sweep",
+   "prompt": "/skill:godspeed\nItem F-22. Near the end of your run (after ~25 min), sweep for scope violations by this wave: `git -C /home/vgpnk/Projects/shokunin status --porcelain` (untracked files naming tsukuroi round 42), `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain` (anything outside .ufo/waves/round-42/w2/ besides the L1's own files), files under /tmp and /var/tmp newer than /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w2-context.txt naming tsukuroi-r42, new entries in /home/vgpnk/.local/bin, leftover dirs under /fast/scratch/hyaku/tsukuroi-r42. Read-only: report path, size, owner seat."
+  },
+  {
+   "name": "ConnRound43",
+   "role": "connector",
+   "axes": [
+    "coverage",
+    "frontier"
+   ],
+   "milestone": "round-43 planned row",
+   "prompt": "/skill:godspeed\nItem F-23. Using /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/w1/ConnFrontier.md and the open routed items (boot-chain-audit.sh:480-487 pipefail fail-open; the C1 counter's observed-channel gaps per QUALITY 90; the C2 binding's unanchored match; a scrub-record census arm as Frontier->Core), draft the round-43 planned row: 1-3 claims on distinct axes, one on the lowest axis (depth 8 / adjacency 8), each with a do-nothing control that fails. Exact text."
+  },
+  {
+   "name": "SimplifierLesson",
+   "role": "simplifier",
+   "axes": [
+    "quality"
+   ],
+   "milestone": "lesson/SKILL concision",
+   "prompt": "/skill:godspeed\nItem F-24. Read the round-42 SKILL.md sections and corpus/knowledge/btrfs-scrub-record-r42.md at 78abb8b5cdc9da511b4fc523e661517a68dd33d3; propose append-only clarifications that remove duplication between the entry's triage bullets and the SKILL decision table, or that drop sentences restating SH3/SH4. Exact text; nothing that changes a counted row's meaning."
+  }
+ ]
+}

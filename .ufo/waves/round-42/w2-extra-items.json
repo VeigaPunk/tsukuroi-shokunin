@@ -1,0 +1,241 @@
+[
+ {
+  "name": "C1FinalRerun",
+  "role": "executor",
+  "axes": [
+   "operability",
+   "C1"
+  ],
+  "milestone": "C1 at the integration commit",
+  "body": "Item F-1. Verify the frozen counter digest ({C1SHA}) at {FREEZE}, then run `python3 {L}/tools/run-receipt.py --revision {TIP} --tool-revision {FREEZE} --out {W}/w2/C1FinalRerun/c1-final.jsonl -- tools/score-size-invariance-r42.py --revision '{{rev}}' --scratch {SC}/C1FinalRerun/s` once. Report every predicate field and compare with {W}/after/c1-after-78abb8b.jsonl if present and {W}/before/c1-before.jsonl."
+ },
+ {
+  "name": "C1FinalSelftest",
+  "role": "executor",
+  "axes": [
+   "operability",
+   "C1"
+  ],
+  "milestone": "selftest and single-site reverts at tip",
+  "body": "Item F-2. At {TIP}: run the census `--selftest` (expect PASS 132/132, four R42-C1 labels). Then revert each of the seven round-42 sites ONE at a time to the base {BASE} text (the :692 test and :694 note \u2014 now one awk test \u2014 the four update-list sites, the :743 baseline lookup) in scratch copies, run each copy's selftest, and report which revert survives. For :743 build a fixture case yourself (foreign baseline > 64 KiB, first -Qm name on line 1) and show base exit 141 vs tip completion."
+ },
+ {
+  "name": "C1FinalProdIdentity",
+  "role": "executor",
+  "axes": [
+   "operability",
+   "C1",
+   "QUALITY 90"
+  ],
+  "milestone": "production identity leg",
+  "body": "Item F-3. Re-run the production-identity measurement of {W}/w1/C1CritNsView.md \u00a74 (driver {W}/w1/C1CritNsView/uid1000.py; read it first) against the census at {TIP} and at {BASE}: the fabricated view at uid 1000 via setpriv, no TSUKUROI_* override, a large and a small error-bearing -Qkk twin. Expect tip BLOCKED/BLOCKED, base DEGRADED-or-HEALTHY/BLOCKED. Also run the V1 ns-gated variant (w1/C1CritNsView/mkvariant.py) at uid 1000 to show the leg separates it. Never write outside scratch; no sudo."
+ },
+ {
+  "name": "C1FinalENOSPC",
+  "role": "executor",
+  "axes": [
+   "operability",
+   "C1"
+  ],
+  "milestone": "full TMPDIR after the awk change",
+  "body": "Item F-4. Reproduce {W}/w1/C1RevFix.md defect D1 (full TMPDIR -> HEALTHY on an error-bearing large -Qkk sample) on the census at 447662088dfd3155e31aed239179a79c1d1046c7 and show it is gone at {TIP} (the here-strings were replaced by an awk test): use a 1 MiB tmpfs inside `unshare -rm` as TMPDIR, the fixture approach of C1RevFix (r-e2e.txt), and report both PLANE packages lines and exit codes. Also strace the tip run for any openat(O_CREAT) outside the fixture (the no-write contract)."
+ },
+ {
+  "name": "C1MutFinal",
+  "role": "mutation-tester",
+  "axes": [
+   "operability",
+   "C1"
+  ],
+  "milestone": "mutants of the awk fix",
+  "body": "Item F-5. Mutation-test the integrated packages test at {TIP} (grep -n 'err_line' {CENSUS}): at least six mutants (awk `exit` after print; `/error:/` unanchored; `END` exit 0; print every error line; drop `local err_line`; test `[ -n \"$err_line\" ]` instead of the awk status). For each, run the tip selftest in a scratch copy and the frozen C1 counter {CLONE}; report killed/survived per detector. Survivors are coverage gaps."
+ },
+ {
+  "name": "C1CritFinalEvasion",
+  "role": "critic",
+  "axes": [
+   "operability",
+   "C1"
+  ],
+  "milestone": "evasions against the final census",
+  "body": "Item F-6. Using the arms in {W}/w1/C1CritNsView/ and {W}/w1/C1CritEvasion/ and {W}/w1/ConnClaims.md (K5Z), confirm each still PASSes the frozen counter when rebuilt on {TIP} (gate the tip's awk test behind the same conditions). This records whether the counter's sufficiency gap is unchanged by the integration. Report per arm: verdict and invariant/ns numbers {CLONE}."
+ },
+ {
+  "name": "C1RevIntegration",
+  "role": "reviewer",
+  "axes": [
+   "operability",
+   "C1"
+  ],
+  "milestone": "integration diff review",
+  "body": "Item F-7. Review `git -C {L} diff 447662088dfd3155e31aed239179a79c1d1046c7 {TIP} -- tools/tsukuroi-census.sh`: the awk error test (status as condition under set -euo pipefail, first-line note equivalence with grep -m1, empty and CR input), the :743 lookup without exit (duplicate names: first wins as before?), the selftest ABSENT arm here-string, the two new -Sup cases' regexes. Confirm every hunk lies in probe_packages, probe_update_safety or run_selftest (kill rule). Report defects with evidence."
+ },
+ {
+  "name": "C1RevSkill",
+  "role": "reviewer",
+  "axes": [
+   "operability",
+   "C1",
+   "depth"
+  ],
+  "milestone": "SKILL sections review",
+  "body": "Item F-8. Review the round-42 SKILL.md sections appended at {TIP} ('Census early readers under pipefail \u2014 round 42', 'Scrub status record \u2014 round 42', 'Counter lineage \u2014 round 42 rows', 'Counter-attack scoreboard \u2014 round 42' and the two registry rows after `| package-anatomy-r41 |`): every claim against the census at {TIP}, the entry, and the wave-1 reports it cites. Report each false or unsupported sentence with exact replacement text."
+ },
+ {
+  "name": "QualityCrit",
+  "role": "critic",
+  "axes": [
+   "discernment",
+   "QUALITY 90"
+  ],
+  "milestone": "QUALITY 90 attack",
+  "body": "Item F-9. Attack QUALITY criterion 90 appended to {L}/corpus/QUALITY.md at {TIP}: does it cite a lesson that exists (corpus/lessons/round-42.md Mistakes R42-OBSERVED-CHANNEL \u2014 the lesson may land after this wave; say so), are its failing examples accurate against the cited wave-1 reports, does it duplicate QUALITY 82/85/89, and is it checkable (could a future counter be shown to meet or miss it)? Verdict with exact replacement text if needed."
+ },
+ {
+  "name": "C2PostCritBinding",
+  "role": "critic",
+  "axes": [
+   "depth",
+   "C2",
+   "QUALITY 89/90"
+  ],
+  "milestone": "binding manual audit",
+  "body": "Item F-10. After the ten row-verdict seats of this wave finish (check for {W}/w2/C2RevSC1.md \u2026 C2CritSC5.md; start ~25 min into your run), read each one: is its first line the declared `ROW SC<n> VERDICT:` line, does the body agree with that word, and does any report quote another verdict word in a way the counter's unanchored match (w1/C2CritControl.md D1) would bind instead? Report a table: seat, first-line verdict, body consistent yes/no, risk of mis-binding. Read-only."
+ },
+ {
+  "name": "SrcReopenS237",
+  "role": "reviewer",
+  "axes": [
+   "sources",
+   "C2"
+  ],
+  "milestone": "re-open S237",
+  "body": "Item F-11. Re-open S237 (row in {L}/corpus/SOURCES.md at {TIP}): fetch https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/cmds/scrub.c, sha256 vs the row anchor, check every cited line range exists and the `teaches` cell is grounded (quote <=25 words with line). Tier A / kind code honest? Report."
+ },
+ {
+  "name": "SrcReopenS238",
+  "role": "reviewer",
+  "axes": [
+   "sources",
+   "C2"
+  ],
+  "milestone": "re-open S238",
+  "body": "Item F-12. Re-open S238: fetch https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/CHANGES, sha256 vs the row anchor, check lines 460-470 and the `teaches` cell (6.6.3 scrub limit entries). Is `docs` the right kind and A the right tier for release notes? Report."
+ },
+ {
+  "name": "SrcReopenS239",
+  "role": "reviewer",
+  "axes": [
+   "sources",
+   "C2"
+  ],
+  "milestone": "re-open S239",
+  "body": "Item F-13. Re-open S239 (own-work capture {CAP}): sha256 of capture.txt vs the row, re-run capture.sh into scratch and diff, and check the `teaches` cell against the capture lines. Does any C2 rule row rest on S239 alone (QUALITY 86)? Report."
+ },
+ {
+  "name": "C2EntryDiff",
+  "role": "reviewer",
+  "axes": [
+   "depth",
+   "C2",
+   "calibration"
+  ],
+  "milestone": "pre-admission revision disclosure",
+  "body": "Item F-14. `git -C {L} diff f50c28d83e1832ecd7eba765caace531f45d6b27 {TIP} -- corpus/knowledge/btrfs-scrub-record-r42.md`: list every changed sentence and map it to the wave-1 report that asked for it (C2CritNovelty, C2DraftRevSC1/SC3/SC4, C2ExecLiveSources, C2ExecHostRecheck). Flag any change no report asked for, and any wave-1 correction that was not taken. Report a table."
+ },
+ {
+  "name": "NotesPatchOffset",
+  "role": "reviewer",
+  "axes": [
+   "freshness",
+   "considerthese"
+  ],
+  "milestone": "packaging-offset notes",
+  "body": "Item F-15. Verify the 'Round-42 note \u2014 packaging offset' appended to {L}/corpus/knowledge/pacman-transaction-order-r39.md and alpm-package-anatomy-r41.md at {TIP} against {W}/w1/ConsiderPatchOffset/ (run.txt, evidence.txt, patches/): each offset (+23 add.c after :417, +118 makepkg.sh.in, +9 PKGBUILD.5.asciidoc) and the claim that the patched hunks do not touch the cited logic. Report any wrong number or overclaim."
+ },
+ {
+  "name": "GateFinal",
+  "role": "executor",
+  "axes": [
+   "calibration",
+   "no-harm"
+  ],
+  "milestone": "lane gates at tip",
+  "body": "Item F-16. Re-run every `tools/check-*.py` that takes --revision at {TIP} in a scratch clone, as {W}/w1/GateAllRegistry.md did, and diff exit codes against its tip table: the three round-42 regressions (adjacency-anchors, registry-coverage, self-assessment) \u2014 which are now green, which still red (self-assessment needs the round-42 axes table, which the L1 appends after this wave; say so). `--scratch` for check-self-assessment. Report."
+ },
+ {
+  "name": "SourcesCensusFinal",
+  "role": "executor",
+  "axes": [
+   "sources"
+  ],
+  "milestone": "sources census at tip",
+  "body": "Item F-17. Run `/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi` and the frozen manual census commands of /home/vgpnk/Projects/shokunin/CORPUS.md (rows, malformed, tier/status histograms, duplicate ids, enum violations, mined used-by existence) from {L}; compare with {W}/before/sources-census-start.txt (236 rows, 40 W04). Report outputs and exit codes."
+ },
+ {
+  "name": "AdjMoriPin",
+  "role": "connector",
+  "axes": [
+   "adjacency"
+  ],
+  "milestone": "moved sibling pin handoff",
+  "body": "Item F-18. {W}/w1/ConnSiblings.md found mori-shokunin/PROVINCE.md:287 pins tsukuroi-census.sh lines that round 42 moved. Compute the pinned content's line range at {TIP}, and draft the handoff text the tsukuroi report should carry for mori (report, never edit a sibling). Check whether any other sibling pin into lane files moved between {BASE} and {TIP} (grep sibling repos read-only for `tsukuroi-shokunin/` line pins). Report."
+ },
+ {
+  "name": "CritTrendFinal",
+  "role": "critic",
+  "axes": [
+   "discernment"
+  ],
+  "milestone": "trend verdicts at tip",
+  "body": "Item F-19. With w1's CritTrend ({W}/w1/CritTrend.md) as the prior, argue each trend verdict for round 42 at {TIP}: expansion (is the scrub record new coverage-map ground? corpus/README.md Round-42 note says it is Frontier deepening), quality (the packaging-offset notes mark stale line pins in r39/r41 entries; the entry corrections; does any prior entry get superseded or re-verified?), discernment (QUALITY 90 from a lesson; the outside spot-check is pending). Give the supportable verdict and what would change it."
+ },
+ {
+  "name": "CritNoHarmFinal",
+  "role": "critic",
+  "axes": [
+   "no-harm"
+  ],
+  "milestone": "six-axis no-harm at tip",
+  "body": "Item F-20. For each of the six axes, can round 42 at {TIP} harm it? Use w1's CritSeparability and GateAllRegistry as priors; check the in-place edits round 42 made (`git -C {L} diff -U0 {BASE} {TIP} -- SCORECARD.md LOG.md corpus/QUALITY.md corpus/SOURCES.md SHONEN.md | grep -E '^-[^-]'` must list only the S237-S239 status/used-by flips; knowledge files changed in place: adjacency-anchors-r19.json IN-109). Verdict per axis."
+ },
+ {
+  "name": "MistakesFixFail",
+  "role": "executor",
+  "axes": [
+   "discernment",
+   "mistakes"
+  ],
+  "milestone": "mistake fixes able to fail",
+  "body": "Item F-21. For the mistakes in {W}/w1/MistakesSweep.md and this round's integration (R42-OBSERVED-CHANNEL: namespace legs gated by uid/fixture names; R42-HERESTRING-TEMPFILE: here-string temp file on full TMPDIR; R42-SUP-UNCOVERED: selftest missed the -Sup arms; R42-BATTERY-SUMMARY-COLLISION), show each fix able to fail where it is a code fix: the red-before state and the green-after state with the same command, receipts in your seat dir. For non-code fixes say what would show them able to fail."
+ },
+ {
+  "name": "SentScope2",
+  "role": "sentinel",
+  "axes": [
+   "no-harm",
+   "scope"
+  ],
+  "milestone": "misroot and scope sweep",
+  "body": "Item F-22. Near the end of your run (after ~25 min), sweep for scope violations by this wave: `git -C /home/vgpnk/Projects/shokunin status --porcelain` (untracked files naming tsukuroi round 42), `git -C {L} status --porcelain` (anything outside .ufo/waves/round-42/w2/ besides the L1's own files), files under /tmp and /var/tmp newer than {W}/w2-context.txt naming tsukuroi-r42, new entries in /home/vgpnk/.local/bin, leftover dirs under {SC}. Read-only: report path, size, owner seat."
+ },
+ {
+  "name": "ConnRound43",
+  "role": "connector",
+  "axes": [
+   "coverage",
+   "frontier"
+  ],
+  "milestone": "round-43 planned row",
+  "body": "Item F-23. Using {W}/w1/ConnFrontier.md and the open routed items (boot-chain-audit.sh:480-487 pipefail fail-open; the C1 counter's observed-channel gaps per QUALITY 90; the C2 binding's unanchored match; a scrub-record census arm as Frontier->Core), draft the round-43 planned row: 1-3 claims on distinct axes, one on the lowest axis (depth 8 / adjacency 8), each with a do-nothing control that fails. Exact text."
+ },
+ {
+  "name": "SimplifierLesson",
+  "role": "simplifier",
+  "axes": [
+   "quality"
+  ],
+  "milestone": "lesson/SKILL concision",
+  "body": "Item F-24. Read the round-42 SKILL.md sections and corpus/knowledge/btrfs-scrub-record-r42.md at {TIP}; propose append-only clarifications that remove duplication between the entry's triage bullets and the SKILL decision table, or that drop sentences restating SH3/SH4. Exact text; nothing that changes a counted row's meaning."
+ }
+]
