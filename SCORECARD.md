@@ -2556,3 +2556,40 @@ third correction bullet naming the missing path is appended to the entry; it was
 carries no verdict, so it does not reverse this outcome. C1: verified under the frozen predicate, with the counter's
 sufficiency falsified (`w1/C1CritDecoy.md`) and the landed bytes read structurally by a non-author seat.
 Round total: 80 seats (w1 74 + residual 6), every seat settled with a report.
+
+## Round 42 — declaration (2026-10-26, base `c8efaa3f120834541f8de1e5e0367e8d1593bae6`, before any seat)
+
+Round 41 was closed `rejected-honest-stop` (`corpus/lessons/round-41-verifier-spotcheck.md` §3: C1 verified, C2's
+declared kill rule fired on PA6). The base is the lane tip at round start as `jj-lane.sh state` printed it
+(`local=c8efaa3f…`, routed defect R41-BASE-MISREAD). This round takes the planned row items (1) and (3) and folds
+item (2) into both counters (routed defect R41-GUARD-BYPASS, QUALITY 89): C1 is scored by a metamorphic oracle that
+holds no expected verdict, C2's verdicts count only through the orchestrator's dispatch and results records.
+Ordinals at base: depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8. Depth and adjacency
+are tied lowest; C2 works depth; adjacency stays unclaimed and must not be harmed. Saturation 9 / window 3 unchanged.
+The commit time of this section is its authority (R40-HEADING-TIMES).
+
+| Claim | Axis | Surface moved | Counter (frozen; sha256) | Before at base (expected) | Target (predicate) | Kill rule |
+|---|---|---|---|---|---|---|
+| C1 | operability | The census packages and update-safety planes under `set -o pipefail` (`tools/tsukuroi-census.sh`): the early-reader pipelines at :692/:694 (`printf … \| grep -q`/`grep -m1` on the merged `-Qkk` sample, R41-CENSUS-PIPEFAIL-692) and :1621, :1635, :1641, :1652 (`printf … \| head` on the `-Qu`/`-Sup`/`-Suu` lists) give a wrong verdict or kill the census (exit 141) once a probe prints more than the pipe buffer; the round fixes them and adds a selftest case carrying a large error-bearing `-Qkk` sample | `python3 tools/score-size-invariance-r42.py --revision <REV> --scratch <DIR>` (sha256 `c511104a8e69fe6a90bb849847fe9c4635642f70ff0cb01fb62c38c098553e03`): ten small/large fixture twins (P1-P6 `-Qkk`, U1-U4 update lists; 1 MiB of verdict-neutral, marker-free padding; signal before, inside and after it; large twin first; per-run error token) built from the BASE census's own dispatcher and `fx_default`, compared byte for byte (U pairs with integers normalised); three production-path legs N1/N3/N6 inside `unshare -rm` with a stub bind-mounted over `/usr/bin/pacman` and no `TSUKUROI_*` override (QUALITY 82/85); selftest; default-fixture equality with the base | `invariant 3` (P2, P4, P5; P1/P3/P6 read HEALTHY where BLOCKED is due, U1-U4 exit 141), `ns_invariant 0`, `selftest_pass 1`, `default_equal 1`, FAIL | **PASS iff cases == 10 and invariant == 10 and ns_invariant == 3 and selftest_pass == 1 and default_equal == 1**, at the implementation commit and at the tip | predicate false at the tip; or `git diff <base> <tip> -- tools/tsukuroi-census.sh` has a hunk outside `probe_packages`, `probe_update_safety` and `run_selftest`; or the round-41 C1 counter `tools/score-selftest-mounts-r41.py` stops passing at the tip |
+| C2 | depth (sourced) | Storage-integrity frontier, scrub record: `corpus/knowledge/btrfs-scrub-record-r42.md` SC1-SC5 — the record file's name and tmp-then-rename/flock write discipline, its `scrub status:1` line format, who writes it and when recording is disabled (and that running state comes from the kernel ioctl), how status folds device lines (finished = all, canceled = any, `interrupted`, `no stats available`), and the per-device `scrub_speed_max` limit — on rows S237 (btrfs-progs v7.1 `cmds/scrub.c`), S238 (v7.1 `CHANGES`) and S239 (own-work host capture), opened this round | `python3 tools/check-scrub-record-r42.py --revision <REV>` (sha256 `dbe933ec8c2cca491346da76bbc104aba8ff9e5486f4dcaf572e59df3680503f`): per row a quote on its named line of a digest-pinned snapshot with at least one quote inside the row's frozen source window, the row's frozen token (absent at the base), a host line naming an existing line of the pinned capture, the registry rows new, `mined`, opened 2026-10-26 and used-by the entry; verdicts bound through `w2-dispatch.json` + `w2-results.json` + the committed report (seats `C2RevSC<n>` reviewer and `C2CritSC<n>` critic; a `partly` needs a bound residual `C2RevSC<n>c` `holds`) | entry absent: `rows 0`, FAIL | **PASS iff rows == 5 and quotes_ok == 5 and novelty_ok == 5 and host_ok >= 3 and sources_ok == 1 and verdicts_ok == 5 and novelty_base_hits == 0**, at the tip | predicate false; or any bound verdict reads `fails`; or a `partly` row without a bound residual `holds` (inside the predicate); or the non-author closure finds a row false against its pinned snapshot |
+
+Both counters write nothing outside `--scratch`/`$TMPDIR` (C1) or nothing at all (C2), and remove their scratch on exit
+and on SIGINT/SIGTERM. C2's lexical checks are shape gates, declared as such: control C2-K1 below (a scripted writer
+whose quotes are copied from the windows) passes every lexical conjunct; only the bound verdicts read the rows. The
+committed-bytes predicate cannot tell forged orchestrator records from real ones (control C2-K3 passes it); the
+counter therefore also reports, outside the predicate, `transcripts_bound`: how many bound verdict lines occur in the
+seat's own transcript under `~/.omp/agent/sessions` (host-local, written by omp, not by the lane).
+
+Pre-data controls (the battery; scored with the frozen counters at the freeze commit before any seat; scripts
+`.ufo/waves/round-42/controls/run_controls_c1.py` sha256 `259a9a9760e4e6be6b906e66467cc70e6b862472cba6b329ef8891763d4a1091`
+and `run_controls_c2.py` sha256 `b85bbaa566c862a36be6a78425cec81ca2be5d3b06b68206a2b575664041cb2f`; fixture clones with origin
+removed; outputs and the battery's last-line `should_fail_accepted` / `control_accepted` fields in
+`.ufo/waves/round-42/controls/`):
+C1 — K0 do-nothing (base census); K1 size-gate (BLOCKED whenever the sample exceeds 64 KiB); K2 head-truncation; K3
+head+tail truncation; K4 packages-only fix (update plane untouched: exactly one declared surface missing); K5
+padding-filter mirror evasion (drops warning and zero-altered lines, keeps the early readers); K7 fixture-gated fix
+(only when `TSUKUROI_FIXTURE` is set); K8 cached-live (K7 plus a replay cache under `$HOME`): each must FAIL; K6 the
+candidate fix must PASS. C2 — K0 do-nothing; K1 scripted writer + planted verdict files; K2 K1 + forged results
+without dispatch tasks; K4 forged records with one `fails`; K5 forged records with one unanswered `partly`: each must
+FAIL; K3 forged dispatch + results must PASS (reachability and the recorded limit, `transcripts_bound 0`).
+Expected battery lines: C1 `should_fail_accepted 0, control_accepted 1`; C2 `should_fail_accepted 0, control_accepted 1`.
