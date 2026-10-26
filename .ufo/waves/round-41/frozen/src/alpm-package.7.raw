@@ -1,0 +1,193 @@
+.\" -*- mode: troff; coding: utf-8 -*-
+.TH "" "7" ""
+.SH NAME
+.LP
+package - a package based on \fBA\fRrch \fBL\fRinux \fBP\fRackage \fBM\fRanagement (ALPM) concepts.
+.SH DESCRIPTION
+.LP
+ALPM based packages refer to (optionally compressed) \fBtar\fR archives that contain package files.
+Package files encompass mandatory \fBmetadata\fR files as well as optional \fBscripts\fR and \fBdata\fR files.
+.PP
+Package files are created from package sources (i.e. \fBPKGBUILD\fR) using package build software (e.g. \fBmakepkg\fR).
+For Arch Linux specific package build software refer to \fBdevtools\fR and \fBpkgctl\fR.
+.PP
+Package management software (e.g. \fBpacman\fR) relies on \fBmetadata\fR files and \fBscripts\fR for the purpose of dependency resolution and installation.
+\fBData\fR files can be installed on compatible target systems using package management software.
+.SH FORMAT
+.LP
+\fIUncompressed\fR ALPM based package files follow the following naming scheme:
+.PP
+An \fBalpm-package-name\fR directly followed by a \(oq-\(cq sign, directly followed by an \fBalpm-package-version\fR (in the \fIfull\fR or \fIfull with epoch\fR form), directly followed by a \(oq-\(cq sign, directly followed by an \fBalpm-architecture\fR, directly followed by the string \(oq.pkg.tar\(cq, e.g.:
+.IP "\(bu" 3
+\f(CRexample-1.0.0-1-any.pkg.tar\fR
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+\f(CRexample-1.0.0-1-x86_64.pkg.tar\fR
+.SS
+Compression
+.LP
+ALPM based packages may optionally be compressed using a single supported compression technology.
+If a package is compressed, a technology-specific suffix is appended to the file name:
+.IP "\(bu" 3
+\f(CR.Z\fR for compression based on adaptive Lempel-Ziv coding (e.g. \f(CRexample-1.0.0-1-x86_64.pkg.tar.Z\fR), see the \fBcompress\fR command
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+\f(CR.bz2\fR for \fBbzip2\fR compression (e.g. \f(CRexample-1.0.0-1-x86_64.pkg.tar.bz2\fR)
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+\f(CR.gz\fR for \fBgzip\fR compression (e.g. \f(CRexample-1.0.0-1-x86_64.pkg.tar.gz\fR)
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+\f(CR.lrz\fR for \fBlrzip\fR compression (e.g. \f(CRexample-1.0.0-1-x86_64.pkg.tar.lrz\fR)
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+\f(CR.lz4\fR for \fBlz4\fR compression (e.g. \f(CRexample-1.0.0-1-x86_64.pkg.tar.lz4\fR)
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+\f(CR.lz\fR for \fBlzip\fR compression (e.g. \f(CRexample-1.0.0-1-x86_64.pkg.tar.lz\fR)
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+\f(CR.lzo\fR for \fBlzop\fR compression (e.g. \f(CRexample-1.0.0-1-x86_64.pkg.tar.lzo\fR)
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+\f(CR.xz\fR for \fBxz\fR compression (e.g. \f(CRexample-1.0.0-1-x86_64.pkg.tar.xz\fR)
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+\f(CR.zst\fR for \fBzstd\fR compression (e.g. \f(CRexample-1.0.0-1-x86_64.pkg.tar.zst\fR)
+.LP
+Handling of compression technologies is specific to the package build tool.
+Refer to \fBCOMPRESSBZ2\fR, \fBCOMPRESSGZ\fR, \fBCOMPRESSLRZ\fR, \fBCOMPRESSLZ\fR, \fBCOMPRESSLZ4\fR, \fBCOMPRESSLZO\fR, \fBCOMPRESSXZ\fR, \fBCOMPRESSZ\fR, \fBCOMPRESSZST\fR and \fBPKGEXT\fR in \fBmakepkg.conf\fR for compression options and package extensions used in \fBmakepkg\fR.
+.SS
+Digital signatures
+.LP
+Digital signatures can be created for package files.
+.PP
+Currently, only \fBOpenPGP detached signatures\fR over the package file are supported.
+Detached signatures carry the same name as the package file for which they are created, with an additional \f(CR.sig\fR suffix (e.g. \f(CRexample-1.0.0-1-x86_64.pkg.tar.zst.sig\fR is the digital signature for a package file \f(CRexample-1.0.0-1-x86_64.pkg.tar.zst\fR).
+.SH CONTENTS
+.LP
+The contents of an ALPM based package are distinguished between \fBmetadata\fR, \fBscripts\fR and \fBdata\fR files.
+.SS
+Metadata
+.LP
+The following files must be present at the root of an ALPM based package:
+.IP "\(bu" 3
+\f(CR.BUILDINFO\fR: a \fBBUILDINFO\fR file
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+\f(CR.MTREE\fR: an \fBALPM-MTREE\fR file
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+\f(CR.PKGINFO\fR: a \fBPKGINFO\fR file
+.LP
+The above files provide relevant metadata for the installation, upgrade and uninstallation of packages on a target system (see \fBalpm-package-relation\fR for details on dependency resolution), as well as reproducibly building a bit-by-bit identical package from the same sources (see \fBreproducible builds\fR[2]).
+.SS
+Scripts
+.LP
+Optionally, an \fBalpm-install-scriptlet\fR named \f(CR.INSTALL\fR may be present at the root of an ALPM based package.
+.SS
+Data
+.LP
+Zero or more \fBdata\fR files may be present in an ALPM based package (refer to \fBalpm-meta-package\fR for details on why packages may not contain any \fBdata\fR files).
+.PP
+All existing \fBdata\fR files of a package are extracted to the \fBroot directory\fR[3] of a target system upon installation of the package.
+.PP
+No specific rules exist on which \fBdata\fR files (and directories) are allowed as contents of a package, but it is advisable to adhere to common standards such as the \fBsystemd File Hierarchy Requirements\fR[4] and/or the \fBFilesystem Hierarchy Standard\fR[5] and by default have all files and directories be owned by \f(CRroot\fR.
+In conclusion, it is best practice to never package files in directories that contain user data (e.g. below \f(CR/home\fR).
+.PP
+More specific guidelines around the validation of \fBdata\fR files in packages are subject to the implementer\(cqs discretion (e.g. a distribution using ALPM).
+.SH EXAMPLES
+.LP
+The following example \fBPKGBUILD\fR defines the package \f(CRexample\fR which only creates a single \fBdata\fR file (plus the directories in which it is located):
+.LP
+.EX
+pkgname=example
+pkgver=1.0.0
+pkgrel=1
+pkgdesc=\(dqA simple package example\(dq
+arch=(any)
+url=\(dqhttps://example.org\(dq
+license=(GPL-3.0-or-later)
+
+package() {
+  install -vdm 755 \(dq$pkgdir/usr/share/$pkgname/\(dq
+  echo \(dqdata\(dq > \(dq$pkgdir/usr/share/$pkgname/data.txt\(dq
+}
+.EE
+.PP
+Assuming \fBmakepkg\fR is used to build a package from above \fBPKGBUILD\fR and is configured to use \fBzstd\fR for compression, the resulting package file is called \f(CRexample-1.0.0-1-any.pkg.tar.zst\fR.
+.PP
+The package file contents can be examined as follows:
+.LP
+.EX
+$ tar -tf example-1.0.0-1-any.pkg.tar.zst
+\&.BUILDINFO
+\&.MTREE
+\&.PKGINFO
+usr/
+usr/share/
+usr/share/example/
+usr/share/example/data.txt
+.EE
+.SH SEE ALSO
+.LP
+\fBbzip2\fR(1), \fBcompress\fR(1), \fBgzip\fR(1), \fBlrzip\fR(1), \fBlz4\fR(1), \fBlzip\fR(1), \fBlzop\fR(1), \fBpkgctl\fR(1), \fBtar\fR(1), \fBxz\fR(1), \fBzstd\fR(1), \fBALPM-MTREE\fR(5), \fBBUILDINFO\fR(5), \fBPKGBUILD\fR(5), \fBPKGINFO\fR(5), \fBmakepkg.conf\fR(5), \fBSRCINFO\fR(5), \fBalpm-install-scriptlet\fR(5), \fBalpm-architecture\fR(7), \fBalpm-meta-package\fR(7), \fBalpm-package-name\fR(7), \fBalpm-package-relation\fR(7), \fBalpm-package-version\fR(7), \fBalpm-split-package\fR(7), \fBdevtools\fR(7), \fBmakepkg\fR(8), \fBpacman\fR(8)
+.SH NOTES
+.IP "1." 3
+\fBOpenPGP detached signatures\fR
+.IP
+.UR https://openpgp.dev/book/signing_data.html#detached-signatures
+.UE
+.IP "2." 3
+\fBreproducible builds\fR
+.IP
+.UR https://reproducible-builds.org/
+.UE
+.IP "3." 3
+\fBroot directory\fR
+.IP
+.UR https://en.wikipedia.org/wiki/Root_directory
+.UE
+.IP "4." 3
+\fBsystemd File Hierarchy Requirements\fR
+.IP
+.UR https://systemd.io/SYSTEMD_FILE_HIERARCHY_REQUIREMENTS/
+.UE
+.IP "5." 3
+\fBFilesystem Hierarchy Standard\fR
+.IP
+.UR https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
+.UE
