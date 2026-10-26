@@ -2205,3 +2205,35 @@ Each count is re-derived from the committed lane tree at `b0005ae9`; ordinals un
   committed should-fail controls) and the absent-root rule (a `/proc/self/mounts` cross-check under a new frozen counter);
   adjacency (lowest with depth at 8) via a sibling acknowledgement of the storage/hook boundary.
 - **retired:** none.
+
+## Round 39 — declaration (2026-10-26T06:20Z, base `0eff65b21bb81195ee06c96a83afbd7a07e52eef`, before any seat)
+
+Round 38 was admitted (`corpus/lessons/round-38-verifier-spotcheck.md`). This round takes the planned row: the two
+storage-arm defects that closure routed (§6.1 R38-Q82-LEAK, §6.2 R38-ABSENT-ROOT) and one depth claim. Lowest
+non-retired axes: depth 8 and adjacency 8 (tied); C2 works depth. Saturation 9 / window 3 unchanged. Counters,
+frozen inputs and registry rows landed first in freeze commit `6a08925daa30767809eb13bb4b01448ff954d46a`; the before
+receipts were written by `tools/run-receipt.py` at the base with `--tool-revision 6a08925d`, so each names the
+revision, the tool and its sha256 (routed defect §6.5).
+
+| Claim | Axis | Surface moved | Counter (frozen; sha256) | Before at base | Target (predicate) | Kill rule |
+|---|---|---|---|---|---|---|
+| C1 | operability | The census STORAGE arm stops reading a hidden or absent btrfs sysfs root as a clean disk: with no fsid under the root and a btrfs mount in the mount table (`TSUKUROI_PROC_MOUNTS`, default `/proc/self/mounts`) it prints `state=BLOCKED … detail=mounts:btrfs-without-sysfs`; an unreadable table prints `detail=mounts:unreadable`. Its production-path views are tmpfs mounts built inside the child namespace from stdin (no host path) | `python3 tools/score-storage-hidden-r39.py --revision <REV>` (sha256 `75a9e8abd3f1262e425ce1fde9e3ba4763d08cf21d0b61761719c0ebbae8f973`) | `hidden_matched 0, views_matched 3, fixtures_matched 2, live_match 1, six_planes_all 1`, FAIL exit 1 — both hidden legs read `HEALTHY 0/0/0` (`.ufo/waves/round-39/before/c1-before.jsonl`) | `hidden_matched == 2 and views_matched == 3 and fixtures_matched == 5 and live_match == 1 and six_planes_all == 1`, exit 0 | Any of: a hidden leg, view, fixture or the live leg mismatches; a run prints other than six PLANE lines; the census `--selftest` fails any case; any of the four round-38 Q82 leak arms ported onto the C1 commit PASSES the counter (they must fail the views conjunct) |
+| C2 | depth (sourced) | Update-safety plane: the libalpm transaction order TO1–TO8 at pacman 54d9411 — Pre hooks before `transaction started`, removals before adds, per-package scriptlet/file/log order, scriptlet arguments, hook directories re-read per phase, `ldconfig` once, removal order, and `ALPM-SCRIPTLET` as the tag of every chroot child's output — in `corpus/knowledge/pacman-transaction-order-r39.md` on rows opened this round | `python3 tools/check-transaction-order-r39.py --revision <REV>` (sha256 `f1c97836abb50887231b82d27cd026d05b8083cefcdd713217071648b07c991e`), snapshots `.ufo/waves/round-39/frozen/src/` and capture `.ufo/waves/round-39/frozen/txcapture/` (MANIFEST sha256 `cb5cb4f436b93f22886ceac79b5a84c1b3b34256f671fb51d05c1b3af02c1bb4`) | entry absent: `rules_verified 0, source_ok 0, counts_ok 0`, FAIL exit 1 (`.ufo/waves/round-39/before/c2-before.jsonl`) | `rules_verified == 8 and duplicate_rows == 0 and duplicate_headings == 0 and source_ok == 1 and counts_ok == 2 and oracle_violations == 0`, exit 0 | Any of: the counter fails; a `running` line inside a commit phase (oracle); **any TO row judged false against the pinned source at its cited lines by a wave reviewer seat (QUALITY 81 per-row verdict; the counter checks that the quote is at the lines, not that the rule is true)** |
+
+Controls, scored with the frozen counters before any seat (`.ufo/waves/round-39/controls/controls.jsonl`; script
+`run-controls.sh` + `c1_variant.py`, scratch clone with origin removed; entry variants under `controls/c2-entries/`):
+C1 do-nothing (base) hidden 0/2, fixtures 2/5 FAIL; fixture-gated cross-check (only when the override is set) hidden
+0/2 FAIL; over-block (BLOCKED on every empty root) fixtures 4/5 FAIL; mountinfo-keyed (detects the counter's tmpfs
+instead of reading btrfs mounts) fixtures 2/5 FAIL; candidate PASS. C2 do-nothing 0/8 FAIL; rows citing only the
+own-work row 0/8 FAIL; line references shifted by 40 0/8 FAIL; S213 dropped from `source:` 5/8 FAIL; rules block
+duplicated (8 rows, 1 heading) FAIL; host counts wrong (counts_ok 0) FAIL; candidate PASS. The three round-38 C2
+counter gaps (§6.3) are the E1, E3 and E4 controls. No control meets either target.
+
+Predicted side effect, declared now: the round-38 v1 counter's fixture F06 (absent root under the override, real
+`/proc/self/mounts` listing btrfs) encodes the superseded R38-ABSENT-ROOT rule, so at post-C1 revisions it reads
+BLOCKED and `score-storage-arm-r38.py` FAILs 9/10 by construction; the round-38 claim stays measured at `b0005ae9`.
+
+Causal separability: C1 touches `tools/tsukuroi-census.sh` (and the IN-109 anchor its line shift moves); C2 touches a
+new knowledge entry and `corpus/SOURCES.md`; neither counter reads the other's surface. Sourced claim: C2 (S213–S218
+opened this round; S217 is the `supersedes S210 —` row the round-38 closure routed, §6.4). Measured revision: the
+lane branch tip named in the round-39 outcome section, declared before the after-run.
