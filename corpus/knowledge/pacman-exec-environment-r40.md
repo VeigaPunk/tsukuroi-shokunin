@@ -104,3 +104,12 @@ snapshots `.ufo/waves/round-40/frozen/src/`. Extra sources cited only here: S208
 | 68 novelty swept | 0 base hits for the eight novelty tokens; EX2's merged streams and EX7's `AbortOnFail` half were already held at base (TO8, HO rows), so they are deeper restatement, not new ground | receipt `before/c2-before.jsonl`; `C2ScoutNovelty.md` |
 | 86 upstream row per rule | every EX row cites a code or docs row; S225 carries host values only | counter `upstream` conjunct |
 | 87 content read | the counter reads value, tokens and polarity, but a token-list writer and affirmatively false rules still pass it (`C2CritControl.md`, `C2CritXFalse.md`), so content rests on the per-row verdicts: EX1, EX2, EX3, EX6 hold; EX4, EX5, EX7, EX8 partly, corrected above | `C2RevEX1.md`–`C2RevEX8.md` |
+
+## Wave-1 corrections — packaging patch (appended 2026-10-26)
+
+- **Line numbers are upstream 54d9411, not the installed build** (seat C2RevenPatches). Of the four patches the Arch
+  package applies (PKGBUILD:51-55), `0001-libalpm-invalidate-curl-data-in-child.patch` inserts 5 lines into
+  `_alpm_run_chroot` after util.c:675, so in the installed source every cited util.c line after :675 (EX1 :677-687,
+  EX2 :722-726, EX3 :688-698) sits 5 lines later; the inserted lines change no EX value, and no patch touches trans.c,
+  hook.c or meson_options.txt (`.ufo/waves/round-40/w1/C2RevenPatches.md` §1-§3). The Boundaries bullet "their file
+  scope is a wave item, not assumed here" is answered by that report.

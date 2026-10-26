@@ -2397,3 +2397,56 @@ No claim measurement, counter, frozen predicate, kill rule, axis ordinal or capa
 the outcome table cites for C1 and C2 are unchanged and remain bound to the frozen tool bytes.
 
 Erratum: the round-39 declaration heading above states 2026-10-26T06:20Z but its commit `93fddb2c` is committed 2026-10-26T05:59:31Z, and the round-40 declaration heading states no clock time; the commit time is the authority (R40-HEADING-TIMES, LOG entry; drafted by wave seat RoutedTimestamps).
+
+## Round 40 — measured outcome (2026-10-26, author-side; non-author closure pending)
+
+Measured revisions: C1 at `c707e356c2911646f7304d706eb77d118e510610` (implementation) and C2 at
+`bf2380503b8e4a5d33162026854b0b7b66d18b86` (implementation), both re-measured at the integration commit
+`aad01138d544878a64ff97927708c94a79432a3a`. Every claim receipt is a `tools/run-receipt.py` receipt (header: revision,
+tool, tool_sha256, tool_revision `a447b67b`); gate receipts carry the header with the gate's own revision.
+
+| Claim | Axis | Before (base `53b294a2`) | After | Kill rules | Author verdict | Ordinal |
+|---|---|---|---|---|---|---|
+| C1 selftest kills the literal-keyed and guard mutants | operability | `baseline_pass 1, neutral_pass 3, mutants_applied 9, survivors 9, selfref 5`, FAIL exit 1 (`before/c1-before.jsonl`) | `survivors 0`, baseline `PASS (124 cases, 124 passed, 0 failed)`, neutral 3/3, applied 9/9, selfref 5, PASS exit 0 at `c707e35` (`after/c1-after-c707e35.jsonl`) and at `aad01138` (`after/c1-final-aad0113.jsonl`); re-run by seats C1ExecRerun, C1RevCounter, C1CritAxis | none fired: no frozen mutant survives, baseline and neutrals pass, selfref 5; the arm is byte-identical to the base (`w1/C1ExecR39Counters.md`) and the round-39 C1 counter still PASSes | **verified under the frozen predicate**, with counter-sufficiency defects recorded (R40-ANSWER-KEY): a one-line prologue reading the arm (`declare -f`, `${0}`, `${BASH_ARGV0}`) passes with no fixture (`w1/C1CritControl.md`); held-out mutants H5, H6, H9 survive but key on properties every kernel-produced btrfs line has (`w1/C1HeldOutMutants.md`); M6 is killed only by a forged `BTRFS` table (`w1/C1CritEquivalence.md`) | 9 → 9 |
+| C2 libalpm exec environment EX1–EX8 | depth (sourced: S219–S225; S226 added by the corrections) | entry absent, `rules_verified 0, source_ok 0, counts_ok 0, novelty_base_hits 0`, FAIL exit 1 (`before/c2-before.jsonl`) | `rules_verified 8, source_ok 1, counts_ok 2, novelty_base_hits 0`, no duplicates, PASS exit 0 at `bf23805` (`after/c2-after-bf23805.jsonl`) and at `aad01138` (`after/c2-final-aad0113.jsonl`) | none fired: no row judged `fails` (per-row reviewers C2RevEX1–EX8: EX1–EX4 and EX6–EX8 `supports`, EX5 `partly`); no packaging patch changes a cited statement (`w1/C2RevenPatches.md`; one patch shifts util.c lines after :675 by +5, appended to the entry) | **predicate met; the counter's content check is falsified** (R40-ANSWER-KEY): a token-list writer and affirmatively false rules pass it (`w1/C2CritControl.md`, `w1/C2CritXFalse.md`), so depth rests on the per-row verdicts — EX1, EX2, EX3, EX6 hold; EX4, EX5, EX7, EX8 partly, corrected append-only (EX5's `/tmp is a tmpfs` host sentence withdrawn as false; EX4 removal arguments; EX7 lookup time and Post `AbortOnFail`; EX8 install-versus-upgrade match) | 8 → 8 |
+
+Causal separability: `w1/CritSeparability.md` (each counter PASSes with only its own commit cherry-picked onto the
+declaration and FAILs without it). No-harm: `w1/RevNoHarmAxes.md` (additions only across the five round commits);
+lane gates at `aad01138` — section-citations, appended-notices, recheck-commands, adjacency-anchors, boot-writers,
+registry-coverage, knowledge-header all exit 0 (`after/gate-*-aad0113.jsonl`), round-39 C2 counter exit 0
+(`after/r39-c2-aad0113.jsonl`); self-assessment: see the table below and `after/self-assessment-final.jsonl`.
+Sources: 218 → 226 rows, census exit 0 (`after/sources-census-final.txt`). Assimilation: four staged residual
+propositions of `pacman-hook-timing-r25.md` admitted by re-grounding (one with correction), one inference rejected; no
+staged row, id or text adopted (`corpus/lessons/round-40.md` Gate). Evidence weight: `.ufo/waves/round-40/` about 4 MB,
+no file above 2 MB.
+
+## Axes — current self-assessment (round 40 final measured surface)
+
+Each count is re-derived from the committed lane tree at the round-40 integration commit `aad01138`; ordinals unchanged.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 61 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); `SKILL.md` 3559 `wc -l` / 928 table lines (`grep -c '^|' SKILL.md`); `corpus/lessons/` 56 files (`find corpus/lessons -type f | wc -l`); round-40 C2 predicate met with a falsified content check, no ordinal move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged |
+| coverage | 9 | `corpus/README.md` 353 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus the verdict-neutral STORAGE line; round 40 deepens held update-safety ground, no Frontier move. | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (124 cases, 124 passed, 0 failed); live run exits with the six-plane rollup; `--identity` not landed. | round 11 (terminal closeout); unchanged |
+| freshness | 9 | Each round record re-ran predecessor pins; round 40 re-opened pacman 54d9411 (`util.c`, `trans.c`, `hook.c` byte-identical to round 39's snapshots) and the round-39 counters still PASS at `aad01138`. | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <REV>` checks 27 fixed checks; mismatches 0 required at the round-40 tip (the round-39 K10 red, lessons 54 → 55 from the round-39 spot-check, is repaired by this table). | round 10; unchanged |
+| adjacency | 8 | formal overlap table present (finding-to-owner ADJ-01..07) and portable OUT-001..010 anchors remain; recipient acknowledgement and independent replay are unverified; round-40 sibling sweep found no crossing (`.ufo/waves/round-40/w1/ConnSiblings.md`). | fleet round 1; unchanged |
+
+## Capabilities — current full evidence set (round 40)
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates opened tier-scoped sources with anchors, rejections, paths, search log and unopened leads | `corpus/SOURCES.md`; `.ufo/evidence/round-1-kaika/after.md` | fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT and STORAGE lines; selftest prints PASS (124 cases, 124 passed, 0 failed) | `tools/tsukuroi-census.sh`; `.ufo/evidence/round-1-kaika/scout-live.md`; `.ufo/evidence/round-1-kaika/after.md` | lane r2; demonstrated fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
+| boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt` | round 17 |
+| storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line (HEALTHY/DEGRADED/BLOCKED with nonzero pairs and reason tokens), demonstrated on fixtures, the live host and production-path namespace views; since round 39 an absent or empty root is cross-checked against the mount table, and since round 40 its selftest varies the mount-table literals | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-38/after/c1-q82-final-b0005ae.json`; `.ufo/waves/round-39/after/c1-final-a2d7aad.jsonl`; `.ufo/waves/round-40/after/c1-final-aad0113.jsonl` | round 38 |
+
+- **planned (next round):** amend both round-40 counters under QUALITY 88 — C1: a selfref guard over the executed
+  selftest (not a regex over its text), a stderr-capturing receipt, and the held-out mutants H5/H6/H9 plus the
+  `declare -f` prologue as frozen should-fail arms; C2: a per-row proposition check that refuses the token-list writer
+  and the `w1/C2CritXFalse` entries as frozen controls. Plus `tools/check-self-assessment.py --scratch` (R40-TMP-MISROOT).
+  Lowest axes: depth 8 and adjacency 8 (tied); candidate depth theme `alpm-package-anatomy-r26.md` from
+  `merge/tsukuroi/` (`w1/AsmPackageScan.md`).
+- **retired:** none.

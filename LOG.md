@@ -1505,3 +1505,28 @@ Adjacent class, same family, not a future-dating: LOG.md:1379 `## Round 36 — w
 (2026-10-24T04:4043Z stamped via date -u)` carries `04:4043Z`, which is not a time (five digits in the minute field); its
 introducing commit `d39da87a1647cca7bf36a1d171ee905e73ee97b0` is committed 2026-10-24T04:41:33Z, so the intended 04:40:43Z lies
 50 s earlier and the stamp is unparseable rather than future-dated; the committer time is the record there too.
+
+## Round 40 — hyaku run 8 (stamp: the commit that lands this entry)
+
+Motivating evidence: the round-39 closure (`corpus/lessons/round-39-verifier-spotcheck.md` §6) routed
+R39-CONTENT-UNREAD (the C2 counter never read the rule cell), R39-FIXTURE-MONOCULTURE (one mount-table literal in every
+btrfs fixture, so literal-keyed arms passed the selftest 117/117), the future-dated headings, the gates receipt's red
+row, the receipt-provenance wording and the residual staged propositions of `pacman-hook-timing-r25.md`.
+Claims (frozen `a447b67b`, declared `758a4b08`): C1 operability — the census `--selftest` gains five varied mount-table
+cases so nine literal-keyed and guard mutants fail it (`c707e356`); C2 depth (sourced, S219–S225) — what a libalpm hook
+command or install scriptlet finds when it starts, EX1–EX8, `corpus/knowledge/pacman-exec-environment-r40.md`
+(`bf238050`). Controls before any seat: `.ufo/waves/round-40/controls/controls.jsonl` (C2: do-nothing, X-empty, X-false
+by negation and by values, own-work only, held rows, quote-as-rule writer, duplicated block all FAIL; C1: do-nothing,
+one-literal fixtures, self-reading selftest, arm rewritten all FAIL; both candidates PASS). Wave: one v2 wave of 65
+seats (`.ufo/waves/round-40/w1-spec.json`, `w1-dispatch.json`; reports in `w1/`). Measured: C1 survivors 9 → 0, PASS
+at `c707e35` and `aad01138`; C2 0 → 8 rules, PASS at `bf23805` and `aad01138`; selftest 119 → 124; seven lane gates and
+the round-39 C2 counter exit 0 at `aad01138`; SOURCES 218 → 226. Wave findings integrated: both counters are passed by
+writers that read the counter's own answer key (C1 `declare -f` prologue; C2 token-list writer and non-negated false
+rules) — QUALITY 88; EX5's host sentence "/tmp is a tmpfs" was false (xfs) and is withdrawn; EX4, EX7, EX8 gained the
+branches the wave found (removal arguments, Pre lookup time and Post `AbortOnFail`, install-versus-upgrade match); an
+Arch patch shifts util.c lines after :675 by +5. Re-verification of predecessor pins: util.c, trans.c and hook.c at
+54d9411 re-fetched byte-identical to round 39's snapshots; the round-39 C1 counter (`w1/C1ExecR39Counters.md`) and C2
+counter (`after/r39-c2-aad0113.jsonl`) still PASS. Incident: seats ran `check-self-assessment.py` without `TMPDIR`, so
+294 MB lane archives were built under `/tmp` (R40-TMP-MISROOT, routed). Landed: `a447b67b` freeze; `758a4b08`
+declaration and controls; `c707e356` C1; `bf238050` C2; `f951f288` author receipts; `aad01138` integration; this entry
+with the SCORECARD outcome.
