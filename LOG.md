@@ -1668,3 +1668,15 @@ their `SHA256SUMS` (`w1/C2ExecLiveSources.md`); S249 capture re-run, cited value
 S250/S251 re-opened byte-identical (`w1/SrcGateNew.md`). considerthese: "Burst-aware reading" mined
 (`considerthese/2026-10-26.md`). Assimilation: none (52 collisions). Lesson `corpus/lessons/round-46.md`; report
 `.ufo/reports/round-46/tsukuroi.md` (fleet repo).
+
+## Round 47 (2026-10-27, base `916019057147d7e9ba6b137647b2cee26decf4b8`)
+
+Fresh-start round (rounds 44-46 closed rejected-harmed / rejected-honest-stop / rejected-harmed;
+the three spot-checks were read before any claim: `corpus/lessons/round-4{4,5,6}-verifier-spotcheck.md`).
+Ordinals at base: depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8;
+depth and adjacency tied lowest; C1 works depth, C2 works operability. Saturation 9 / window 3.
+Round-start receipts (`.ufo/waves/round-47/before/`): sources census exit 0
+(`sources-census-start.txt`, this attempt's own start — round-45 routed D4); C2 before-state at
+base: selftest under a `TMPDIR` containing a space FAILs 13/162 passed, 149 failed, rc 1
+(`l1-before/selftest-space-before.log`), space-free PASS 162/162; C1 before-state at base:
+`check-scrub-admission-r47.py --revision 91601905…` FAILs `verdicts_ok 0, marks_ok 0`.

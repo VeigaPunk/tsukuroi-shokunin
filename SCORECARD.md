@@ -3049,3 +3049,31 @@ Each count is re-derived from the committed lane tree at the round-46 outcome co
   `w1/C2CritControls.md` K22/K23; (2) operability — the census selftest under a TMPDIR with a space (149/160 FAIL,
   `w1/C1ExecRerunB.md`); (3) adjacency stays lowest-tied at 8: a recipient-acknowledged handoff.
 - **retired:** none.
+
+## Round 47 — declaration (2026-10-27, base `916019057147d7e9ba6b137647b2cee26decf4b8`, before any seat)
+
+Fresh-start round: rounds 44, 45 and 46 were closed `rejected-harmed`, `rejected-honest-stop`,
+`rejected-harmed` (their spot-checks read before any claim was declared). Ordinals at base: depth 8,
+coverage 9, operability 9, freshness 9, calibration 9, adjacency 8; depth and adjacency tied lowest;
+C1 works depth (the round-46 planned row item 1), C2 works operability (item 2). Saturation 9 / window 3.
+Round-start receipts (`.ufo/waves/round-47/before/`): sources census exit 0 at this attempt's own start
+(routed D4); C1 before at base: `verdicts_ok 0, marks_ok 0`; C2 before at base: selftest under a
+space `TMPDIR` FAILs 13/162 (149 failed, rc 1), space-free PASS 162/162.
+
+| Claim | Axis | Surface moved | Counter (frozen) | Before at base (expected) | Target (predicate) | Kill rule |
+|---|---|---|---|---|---|---|
+| C1 | depth | `corpus/knowledge/btrfs-scrub-grounding-r45.md` GR1-GR3 admitted: GR2 amended pre-wave per `r1/V46ResCritGR2.md` (the filesystem-closing `-EAGAIN` return scrub.c:3094-3095 leads the ordering; the suspend sentence narrowed to the unmount path dev-replace.c:1143-1144), then counted seats re-read each row and bind verdicts as the first two lines of their own reports; the rule is sized for two amendment rounds (per-row admission; residual generations `R47Res{,2}{Rev,Crit}GR<n>`) and the counter closes `w1/C2RevCounter.md` F1-F3 and `w1/C2CritControls.md` K22/K23 | `python3 tools/check-scrub-admission-r47.py --revision <REV>`; predicate `structural_ok == 1 and quotes_ok == 3 and verdicts_ok == 3 and marks_ok == 3` (F1: fail closed on an inner `## ` line or a duplicated row header; F2: marks pinned exact / negation-rejecting; F3: parse failures degrade to leg results, never empty stdout; K22: every entry Quote verified on its digest-pinned snapshot and every counted report citation must resolve; K23: bound report bodies pairwise distinct) | FAIL: `verdicts_ok 0, marks_ok 0` | PASS: all four legs 1/3/3/3 with the entry, SKILL.md and README marks written only after the counted seats bind | Live census output digits-stripped byte-identical base vs final; GR1/GR3 section hashes equal to base; adjacency anchors gate PASS; predecessor scrub counters (r42-r45) PASS→PASS where measured; sources census exit 0 at round end |
+| C2 | operability (sourced: S252 opened this round) | `tools/tsukuroi-census.sh` selftest path contract (round-46 wave finding `w1/C1ExecRerunB.md`, planned row item 2): the harness builds its fixture tree under a `TMPDIR` that `root_locator_class` deliberately refuses (whitespace), so a space in TMPDIR failed 149 selftest cases at base; the harness now derives a classifiable fixture base (falling back to /tmp) and gains two `(R47-C2)` cases pinning the contract | `S=/fast/scratch/hyaku/tsukuroi-r47/c2-verify; mkdir -p "$S/t 2"; env -i PATH=/usr/bin:/bin LC_ALL=C TMPDIR="$S/t 2" bash tools/tsukuroi-census.sh --selftest` → `TSUKUROI_CENSUS_SELFTEST: PASS` rc 0 (case count 164 = 162 + 2 new) | FAIL: `PASS (13 cases, 13 passed…)` form reads `FAIL (162 cases, 13 passed, 149 failed)` rc 1 | PASS 164/164 rc 0 under a space TMPDIR, and PASS 164/164 space-free | Live census output digits-stripped byte-identical base vs final; `--identity` line shape unchanged (one `TSUKUROI_CENSUS_IDENTITY` line, `verified=yes`); all six `(R46-C1)` cases still pass; census exit map 0/1/2 unchanged; no committed tool writes under a hardcoded /tmp |
+
+Pre-data controls (scored with the frozen counters before any seat; fixtures and scripts under
+`.ufo/waves/round-47/controls/`): C1 — K0 do-nothing (base bytes → FAIL), K1 marks-only (marks
+written with no counted seats → FAIL), K22a a counted report citing `cmdline.c:999999` (nonexistent
+line → row not bound), K23a two byte-identical bound reports (→ `distinct_bodies false`), F1a an
+inner `## ` line inside GR1 (→ `structural_ok 0`), F1b a duplicated `## GR2` header (→
+`structural_ok 0`), F2a negating SKILL/README marks (`## Scrub grounding — round 47 admission
+(WITHHELD…)` / `remains unadmitted round 47` → no credit), F3a a 200 000-deep nested dispatch JSON
+(counter still prints one JSON line, exit ≠ 0 with in-band error): each must FAIL as declared;
+K-pass the full candidate with forged valid holds is proven by the live integration itself, not by a
+fixture. C2 — K0 do-nothing (base census under space TMPDIR → FAIL), K1 live output only (no
+selftest change → still FAIL), K2 the guard removed but the pinning cases kept (cases must fail
+under a space TMPDIR → FAIL), K-pass candidate → PASS. Receipts: `controls/battery-summary-r47.jsonl`.
