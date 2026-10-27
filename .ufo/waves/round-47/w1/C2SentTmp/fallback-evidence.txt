@@ -1,0 +1,23 @@
+# receipts for C2SentTmp (security review of the /tmp fallback in run_selftest)
+
+## fallback run: outcome
+PASS cli: --identity with --help exits 2, never usage and 0 (R46-C1) (exit 2)
+PASS selftest: the fixture base classifies absolute even when TMPDIR contains a space (R47-C2)
+PASS selftest: a space in a root override stays unsafe by design (R47-C2)
+TSUKUROI_CENSUS_SELFTEST: PASS (164 cases, 164 passed, 0 failed)
+
+## mutating syscalls outside the work dir (successful, absolute paths)
+mkdir("/tmp", 0777)               = -1 EEXIST (File exists)
+mkdir("/tmp", 0777)              = -1 EEXIST (File exists)
+mkdir("/tmp", 0777)             = -1 EEXIST (File exists)
+unlink("/fast/scratch/hyaku/tsukuroi-r47/C2SentTmp/t 2/sh-thd.D8aIpJ") = 0
+unlink("/fast/scratch/hyaku/tsukuroi-r47/C2SentTmp/t 2/sh-thd.lhGS4x") = 0
+
+## chmod calls outside the work dir: count
+successes_outside_work=0
+
+## work dir creation line
+mkdir("/tmp/tsukuroi-r3-2-selftest.TF9kQK", 0700) = 0
+
+## after-run: own work dir removed, sibling seats dirs present
+TF9kQK: absent (verified by ls)

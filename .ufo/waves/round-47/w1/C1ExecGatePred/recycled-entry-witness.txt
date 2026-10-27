@@ -1,0 +1,9 @@
+# recycled-entry witness (fixture, scratch-only; fixture repo removed after this copy)
+fixture_revision_when_measured: be167a16c0ed33122b70754aaced0e87b150271c
+fixture_entry_sha256: 18195825118f30b728c1c3d34da268e1bb43704b51be230db7e4c34f5947157e
+lane_base_entry_sha256: 58f1bf3a85e49cbc6fc92e065a1bf089eeb5c441838211e6ad632d9637de2f4c
+fixture_entry = lane base entry bytes + one appended line: '## Gate status — round 47 (GR1-GR3 admitted)'  (hence fixture sha != base sha)
+GR2 section hash in fixture: 4bf28bcf3682fc5bed1d020601f35d19f696301579d2fe66f8667e7f7602f6da  = the PRE-amendment GR2 the round-46 residual critic read partly (lane impl GR2 = 909830c8...)
+command: python3 tools/check-scrub-admission-r47.py --revision be167a16c0ed33122b70754aaced0e87b150271c --lane <fixture>   -> rc 0
+observed: verdict PASS, structural_ok 1, quotes_ok 3, verdicts_ok 3, marks_ok 3, per_row GR1/GR2/GR3 row_ok true, bound_on_current 2 each, distinct_bodies true, citations_ok true
+note: every predecessor counter r42-r46 carries a novelty leg (novelty_base_hits == 0); grep -c novelty tools/check-scrub-admission-r47.py = 0

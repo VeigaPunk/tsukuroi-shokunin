@@ -1,0 +1,67 @@
+== digests ==
+cmdline.c: OK
+dev-replace.c: OK
+systemd.kill.xml: OK
+kstrtox.c: OK
+vsprintf.c: OK
+scrub.c: OK
+sysfs.c: OK
+btrfs-scrub@.timer: OK
+btrfs-scrub@.service: OK
+PKGBUILD: OK
+ioctl.c: OK
+== counter section-hash (GR2) ==
+{"entry": "corpus/knowledge/btrfs-scrub-grounding-r45.md", "problems": [], "revision": "77e9e2b2e96b85d8f048ae2087e246a542b71611", "section_sha256": {"GR1": "fe77ac765c7dd9f568e0b296ce8c7f8f53de3d8966d6a2029bada662badf9ca8", "GR2": "909830c83cbcf0a02264153fa6f179415fb8388d3e08c43d79fbf33c8cfa11a2", "GR3": "43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c"}, "structural_ok": 1}
+== capture.txt digest ==
+f5958a83b7cf1e2e438ac1b543f1c521f3f9370287fc4c4bcea38947c3991e70  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-45/frozen/hostcap/capture.txt
+== suspend_for_unmount body 1171-1195 (no btrfs_scrub_cancel) ==
+void btrfs_dev_replace_suspend_for_unmount(struct btrfs_fs_info *fs_info)
+{
+	struct btrfs_dev_replace *dev_replace = &fs_info->dev_replace;
+
+	mutex_lock(&dev_replace->lock_finishing_cancel_unmount);
+	down_write(&dev_replace->rwsem);
+
+	switch (dev_replace->replace_state) {
+	case BTRFS_IOCTL_DEV_REPLACE_STATE_NEVER_STARTED:
+	case BTRFS_IOCTL_DEV_REPLACE_STATE_FINISHED:
+	case BTRFS_IOCTL_DEV_REPLACE_STATE_CANCELED:
+	case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
+		break;
+	case BTRFS_IOCTL_DEV_REPLACE_STATE_STARTED:
+		dev_replace->replace_state =
+			BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED;
+		dev_replace->time_stopped = ktime_get_real_seconds();
+		dev_replace->item_needs_writeback = 1;
+		btrfs_info(fs_info, "suspending dev_replace for unmount");
+		break;
+	}
+
+	up_write(&dev_replace->rwsem);
+	mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
+}
+== all btrfs_scrub_cancel/exclop sites in dev-replace.c ==
+1111:		ret = btrfs_scrub_cancel(fs_info);
+1144:		btrfs_scrub_cancel(fs_info);
+1235:	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {
+1272:	btrfs_exclop_finish(fs_info);
+== cancel SUSPENDED case 1126-1144 ==
+	case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
+		/*
+		 * Scrub doing the replace isn't running so we need to do the
+		 * cleanup step of btrfs_dev_replace_finishing() here
+		 */
+		result = BTRFS_IOCTL_DEV_REPLACE_RESULT_NO_ERROR;
+		tgt_device = dev_replace->tgtdev;
+		src_device = dev_replace->srcdev;
+		dev_replace->tgtdev = NULL;
+		dev_replace->srcdev = NULL;
+		dev_replace->replace_state =
+				BTRFS_IOCTL_DEV_REPLACE_STATE_CANCELED;
+		dev_replace->time_stopped = ktime_get_real_seconds();
+		dev_replace->item_needs_writeback = 1;
+
+		up_write(&dev_replace->rwsem);
+
+		/* Scrub for replace must not be running in suspended state */
+		btrfs_scrub_cancel(fs_info);

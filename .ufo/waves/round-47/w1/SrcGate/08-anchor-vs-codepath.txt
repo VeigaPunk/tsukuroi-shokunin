@@ -1,0 +1,63 @@
+# Why the -t anchor does not reach the census fixture-base code path
+
+## code under citation: tools/tsukuroi-census.sh (fixture base, R47-C2 change)
+  local bin fx
+  # (R47-C2) The fixture roots below are handed to the census as caller root overrides,
+  # which root_locator_class deliberately restricts to a whitespace-free character set
+  # (a path like "/x root_mode=0755" must not forge a token or reach stat). If TMPDIR
+  # cannot yield classifiable override paths, build the fixture tree under /tmp instead;
+  # a caller's dirty TMPDIR must not turn 149 cases red (round-46 w1/C1ExecRerunB).
+  local st_base=${TMPDIR:-/tmp}
+  case "$st_base" in
+    *[!A-Za-z0-9._/+-]*) st_base=/tmp ;;
+  esac
+  work=$(mktemp -d "$st_base/tsukuroi-r3-2-selftest.XXXXXX")
+  # A 000 fixture directory would block `rm -rf` (unlink needs write+search on the parent);
+
+## page, -p/--tmpdir (the only other option that consults $TMPDIR)
+       <b>-p DIR, --tmpdir[=DIR]</b>
+              interpret TEMPLATE relative to DIR; if DIR is not
+              specified, use $TMPDIR if set, else <i>/tmp</i>.  With this
+              option, TEMPLATE must not be an absolute name; unlike with
+              <b>-t</b>, TEMPLATE may contain slashes, but mktemp creates only
+              the final component
+
+## page, -t (the quoted line)
+       <b>-t</b>     interpret TEMPLATE as a single file name component,
+              relative to a directory: $TMPDIR, if set; else the
+              directory specified via <b>-p</b>; else <i>/tmp</i> [deprecated]
+
+## page, DESCRIPTION (TMPDIR only enters when no TEMPLATE is given)
+<h2><a id="DESCRIPTION" href="#DESCRIPTION"></a>DESCRIPTION  &nbsp; &nbsp; &nbsp; &nbsp; <a href="#top_of_page"><span class="top-link">top</span></a></h2><pre>
+       Create a temporary file or directory, safely, and print its name.
+       TEMPLATE must contain at least 3 consecutive 'X's in last
+       component.  If TEMPLATE is not specified, use tmp.XXXXXXXXXX, and
+       <b>--tmpdir </b>is implied.  Files are created u+rw, and directories
+       u+rwx, minus umask restrictions.
+
+
+## live probe, coreutils mktemp 9.12, env -i PATH=/usr/bin:/bin, scratch only
+-- TMPDIR set + -t:
+/fast/scratch/hyaku/tsukuroi-r47/SrcGate-2/probe/t2/probe.pk5AIR
+-- TMPDIR set + plain relative template (no -t/-p): lands in cwd, TMPDIR ignored:
+probe.RwUcVW
+-- -d with absolute template (the census shape): template used verbatim:
+/fast/scratch/hyaku/tsukuroi-r47/SrcGate-2/probe/t2/census.xItfjT
+-- landing zones:
+[/fast/scratch/hyaku/tsukuroi-r47/SrcGate-2/probe/cwd]
+probe.RwUcVW
+[/fast/scratch/hyaku/tsukuroi-r47/SrcGate-2/probe/t2]
+census.xItfjT
+probe.pk5AIR
+mktemp (GNU coreutils) 9.12
+
+## host binary identity (read-only)
+-rwxr-xr-x 1 root root 47416 Sep 17 07:16 /usr/bin/mktemp
+mktemp (GNU coreutils) 9.12
+/bin/mktemp inode=13516849 size=47416
+/usr/bin/mktemp inode=13516849 size=47416
+
+## tool-environment caveat (NOT host evidence)
+This seat's bash wrapper claims 'mktemp is a shell builtin' at top level and answers --version with 'mktemp 0.8.0'.
+Under sh -c / bash -c / bash --noprofile --norc the same token resolves to /usr/bin/mktemp (GNU coreutils 9.12).
+All mktemp behaviour above was therefore re-run through 'env -i PATH=/usr/bin:/bin sh -c ...'.

@@ -1,0 +1,21 @@
+# live-mode trace evidence (TMPDIR=/, read-only census)
+STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0
+TSUKUROI_CENSUS: BLOCKED (packages=BLOCKED systemd=BLOCKED drivers=DEGRADED journal=DEGRADED update-safety=BLOCKED oom=DEGRADED)
+
+## successful mutating syscalls: count
+successes=0
+
+## /dev and /etc attempts (all fail closed)
+mkdir("/dev/nvidia-caps", 0755) = -1 EEXIST (File exists)
+openat(AT_FDCWD, "/dev/kmsg", O_RDONLY|O_NONBLOCK) = -1 EPERM (Operation not permitted)
+openat(AT_FDCWD, "/dev/tty", O_RDWR|O_NONBLOCK) = -1 ENXIO (No such device or address)
+openat(AT_FDCWD, "/etc/pacman.d/gnupg/common.conf", O_RDONLY) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/etc/pacman.d/gnupg/.#lk0x000055b15c1cfd50.plazir27.1263763", O_WRONLY|O_CREAT|O_EXCL, 0644) = -1 EACCES (Permission denied)
+openat(AT_FDCWD, "/etc/pacman.d/gnupg/.#lk0x000056174a348d50.plazir27.1227872", O_WRONLY|O_CREAT|O_EXCL, 0644) = -1 EACCES (Permission denied)
+openat(AT_FDCWD, "/etc/pacman.d/gnupg/.#lk0x0000562632899d50.plazir27.1227173", O_WRONLY|O_CREAT|O_EXCL, 0644) = -1 EACCES (Permission denied)
+openat(AT_FDCWD, "/etc/pacman.d/gnupg/pubring.kbx", O_RDONLY) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/etc/pacman.d/gnupg/trustdb.gpg", O_RDWR) = -1 EACCES (Permission denied)
+
+## which binary makes the /dev attempts
+1551219 execve("/usr/bin/nvidia-smi", ["nvidia-smi", "--query-gpu=name,driver_version", "--format=csv,noheader"], 0x56102993d0a0 /* 6 vars */) = 0

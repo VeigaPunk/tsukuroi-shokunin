@@ -1,0 +1,11 @@
+== recheck 2026-10-27T08:59:36Z (uid=1000, CapEff=0000000000000000) ==
+kernel: 7.2.11-arch1-1
+systemd: systemd 262 (262-1-arch)
+unit_show: FragmentPath=/usr/lib/systemd/system/btrfs-scrub@.service TimeoutStopUSec=5s KillMode=control-group KillSignal=2 FinalKillSignal=9 SendSIGKILL=yes
+stop_default: /etc/systemd/system.conf.d/10-faster-shutdown.conf line2 = DefaultTimeoutStopSec=5s
+dropin_owner(10-faster-shutdown.conf): pacman -Qo -> "No package owns", rc=1 (plus unrelated reproducible error: openai-chatgpt: missing required signature)
+scrub_speed_max: /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root value=0
+devinfo: devids=1
+exclusive_operation: none
+replace_target (devid 1): 0
+adjacent: dropin_owner(99-omarchy-nofile.conf)=none rc=1; unit DropIns empty; both dropin files present in /etc/systemd/system.conf.d/ dated Oct 3

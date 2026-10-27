@@ -1,0 +1,47 @@
+=== mutants/M01-drop-dispatch-count.py ===
+-    if len(hits) != 1:
+-        return None, None, None, f'dispatched {len(hits)} times'
++    if not hits:
++        return None, None, None, 'dispatched 0 times'
+=== mutants/M02-drop-agent-check.py ===
+-    if agent != role:
+-        return None, None, None, f'agent {agent} != {role}'
+=== mutants/M03-drop-results-check.py ===
+-    res = load_obj(lane, rev, f'{WAVES}/{wave}-results.json')
+-    results = res.get('results') if isinstance(res, dict) else None
+-    if not isinstance(results, list):
+-        return None, None, None, f'{wave}-results.json unreadable'
+-    if sum(1 for r in results if isinstance(r, dict) and r.get('name') == seat and r.get('agent') == role) != 1:
+-        return None, None, None, 'not exactly one results entry'
+=== mutants/M04-accept-cr.py ===
+-    m = VERDICT_RE.fullmatch(lines[0])
+-    h = HASH_RE.fullmatch(lines[1])
++    m = VERDICT_RE.fullmatch(lines[0].rstrip('\r'))
++    h = HASH_RE.fullmatch(lines[1].rstrip('\r'))
+=== mutants/M05-skip-contradiction.py ===
+-    for r, w in ANY_VERDICT_RE.findall('\n'.join(lines[1:])):
+-        if r != row or w != m.group(2):
+-            return None, None, None, f'contradicting line ROW {r} VERDICT: {w}'
+=== mutants/M06-quorum-1.py ===
+-        ok = (cur is not None and not any_fails and len(on_cur) >= 2 and distinct
++        ok = (cur is not None and not any_fails and len(on_cur) >= 1 and distinct
+=== mutants/M07-ignore-fails.py ===
+-        any_fails = any(s['verdict'] == 'fails' for s in seats.values())
++        any_fails = False
+=== mutants/M08a-drop-300B.py ===
+-    if len(rest.encode('utf-8')) < 300:
+-        return None, None, None, 'report body under 300 bytes'
+=== mutants/M08b-drop-cite-rule.py ===
+-    if not any(re.search(re.escape(f) + r':\d+', rest) for f in CITE[row]):
+-        return None, None, None, 'no file:line citation of the row sources'
+=== mutants/M09-wrong-snapshot-quote.py ===
+-            got = cache.get((sid, fname))
++            cands = [v for (s2, f2), v in cache.items() if f2 == fname]
++            got = cands[0] if cands else None
+=== mutants/M10-skip-distinct.py ===
+-        distinct = len(set(bodies)) == len(bodies) == len(on_cur)  # K23
++        distinct = True  # K23
+=== mutants/M11-drop-readme-mark.py ===
+-             'readme': any(all(x in ln for x in MARK_README) and not NEGATE_RE.search(ln)
+-                           for ln in readme_lines)}  # F2: negation earns nothing
++             'readme': True}  # MUTANT: readme mark not required

@@ -1,0 +1,53 @@
+# Receipts for ConnWave (Round 47 w1, Item F-10)
+Timestamp: 2026-10-27T06:15:00Z
+Seat: ConnWave (L2 leaf, tsukuroi-shokunin lane)
+Item: F-10 Cross-lane pattern scan (read-only)
+
+## Inspected Paths and Structural Evidence
+
+1. Tsukuroi lane counters:
+- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-scrub-admission-r47.py
+  * Lines 79-84: VERDICT_RE (`ROW (GR\d) VERDICT: (holds|partly|fails)`), ANY_VERDICT_RE, HASH_RE (`SECTION SHA256: ([0-9a-f]{64})`), QUOTE_RE, CITE_RE.
+  * Lines 150-165: `section_hashes(entry)` - F1 extent bounding from `## GR<n>` to next header, fails closed on inner `## ` headers.
+  * Lines 178-226: `bind(lane, rev, disp, seat, role, row)` - requires dispatch in wave, single entry in results.json, report line 0 matching verdict regex, line 1 matching section sha256 regex, no contradictory verdict lines, body >= 300 bytes, file:line citation present.
+  * Lines 241-248, 286-295: K22 verification that citations resolve against pinned snapshot files.
+  * Lines 348-356: K23 pairwise distinct body hashing (`len(set(bodies)) == len(bodies)`).
+- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-scrub-record-r42.py
+  * Lines 119-136: bound() checked `w2-results.json` output string containing verdict, and report containing verdict.
+  * Lines 139-149: `transcript_has(sessions, name, line)` searched `~/.omp/agent/sessions/-Projects-shokunin/*/<name>*.jsonl`.
+- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-scrub-record-r43.py, r44.py, r45.py
+  * Note in docstrings: `Reported outside the predicate: transcripts_bound (... host-local, uncommitted, cannot tell forged committed records from real ones)`.
+
+2. Kumitate lane counter & evidence gate:
+- /home/vgpnk/Projects/shokunin/kumitate-shokunin/scripts/inline-dispatch-evidence.mjs
+  * Lines 1-60: Tri-partite binding across repository commit, orchestrator dispatcher log, and host session transcripts.
+  * Lines 260-290: Reads `.ufo/waves/round-N/<wave>.ready`, `<wave>.ready.dispatched`, `<wave>-dispatch.json`, and `<wave>-results.json`.
+  * Lines 305-330: Orchestrator dispatcher log verification (`spawned` and `done` log lines).
+  * Lines 330-380: Host transcripts index and verification (`SESSION_HEADER`, `SESSION_TOOL_JOIN`, `SESSION_ROWGRAPH`, `SESSION_TIMELINE`, `SESSION_TEMPLATE`).
+  * Lines 370-377: Dead seat accounting (`DEAD_UNNAMED`).
+
+3. Kaidoku lane counters:
+- /home/vgpnk/Projects/shokunin/kaidoku-shokunin/tools/round-42/prefile-gate.py
+  * Lines 154-185: `_ledger_advisory` warns if results count < dispatch count.
+  * Lines 202-230: checks `.ready`, `.ready.dispatched`, and `<wave>-results.json`.
+- /home/vgpnk/Projects/shokunin/kaidoku-shokunin/tools/round-40/ledger-status.py
+  * Lines 1-41: Fills status ("ok", "no-report", "empty-report") from report presence and non-whitespace check. Explains orchestrator defect R39-CL6 (`status: null`).
+- /home/vgpnk/Projects/shokunin/kaidoku-shokunin/tools/round-42/c1-counter.py
+  * Lines 1-50: Pure machine-oracle rerun and superblock extraction; does not rely on peer reviewer verdicts.
+
+4. Kotodama lane counter:
+- /home/vgpnk/Projects/shokunin/kotodama-shokunin/tools/check-judged-object.py
+  * Lines 1-45: Detects post-verdict narrowing/widening via external packet key (`planted-key.json`) storing `entry_sha256`.
+
+5. Mori lane tools:
+- /home/vgpnk/Projects/shokunin/mori-shokunin/tools/mori-dispatch-ledger.py
+  * Lines 120-165: Canonical JSON serialization of `{"context": context, "tasks": tasks}` into `payload_sha256`.
+  * Lines 200-265: Validates ledger entries against committed dispatch paths and payload hashes.
+- /home/vgpnk/Projects/shokunin/mori-shokunin/tools/mori-unlanded-check.py
+  * Lines 1-40: Refuses round filing if untracked seat reports or results JSON sit dirty in the working tree.
+
+6. Souji & Kama lane tools:
+- /home/vgpnk/Projects/shokunin/souji-shokunin/tools/souji-seat-audit.py
+  * Lines 1-45: Host guard and safety contract auditing from exported transcripts.
+- /home/vgpnk/Projects/shokunin/kama-shokunin/tools/seat-yield.py
+  * Lines 1-70: Wave yield aggregation across results JSON and `out/<seat>.md`.

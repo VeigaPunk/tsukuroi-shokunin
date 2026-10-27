@@ -1,0 +1,80 @@
+# ConsGate receipts — considerthese mine, round 47 w1
+
+Seat ConsGate. Read-only on the lane; scratch /fast/scratch/hyaku/tsukuroi-r47/ConsGate (removed at exit).
+Every command below was run from /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (absolute paths in outputs).
+
+## 1. Directory listing (operator-authored; never edited)
+
+$ ls -la /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/considerthese/
+total 36
+drwxr-xr-x 1 vgpnk vgpnk  182 Oct 26 14:08 .
+drwxr-xr-x 1 vgpnk vgpnk  260 Oct 26 15:08 ..
+-rw-r--r-- 1 vgpnk vgpnk 3872 Oct 19 22:08 2026-10-19.md
+-rw-r--r-- 1 vgpnk vgpnk 5294 Oct 20 10:18 2026-10-20.md
+-rw-r--r-- 1 vgpnk vgpnk 4030 Oct 22 10:41 2026-10-22.md
+-rw-r--r-- 1 vgpnk vgpnk 3495 Oct 23 15:13 2026-10-23.md
+-rw-r--r-- 1 vgpnk vgpnk 3951 Oct 25 15:59 2026-10-24.md
+-rw-r--r-- 1 vgpnk vgpnk 2647 Oct 25 15:59 2026-10-25.md
+-rw-r--r-- 1 vgpnk vgpnk 4551 Oct 26 14:08 2026-10-26.md
+
+Newest three read in full: 2026-10-24.md, 2026-10-25.md, 2026-10-26.md.
+
+## 2. Implementation-status greps over committed lane content
+
+Command form (run once per term):
+  grep -rin -- "<term>" SKILL.md corpus/lessons/ corpus/QUALITY.md corpus/SOURCES.md
+
+- burst            -> corpus/lessons/round-46.md:97 (section header), :100, :106 ("Rule taken")
+- scoreboard       -> SKILL.md:3833 "## Counter-attack scoreboard — rounds 40-41"; SKILL.md:3935-3943 round-42 continuation; SKILL.md:3122-3123 registry rows; corpus/lessons/round-41.md:99
+- seat-harm        -> corpus/lessons/round-45.md:124 (section header), :132-135, :163
+- patch-offset     -> corpus/lessons/round-42.md:53 (section header), :56
+- propagation      -> corpus/lessons/round-43.md:83 (section header)
+- quiet-day        -> (no output)
+- pickup           -> (no output)
+- evidence-weight  -> corpus/lessons/round-39.md:94; corpus/lessons/round-41.md:105
+- release watch    -> (no output)
+- upstream watch   -> (no output)
+- carry-over       -> only corpus/lessons/round-29-verifier-spotcheck.md:114 (unrelated O05-O12 usage)
+- seat-loss        -> (no output)
+- live-harm        -> only corpus/lessons/round-46-verifier-spotcheck... i.e. corpus/lessons/round-36-verifier-spotcheck.md:97 (round-36 XDG_RUNTIME_DIR narrative, not a standing flag)
+- claim-arc / claim arc -> (no output)
+
+Prior mining seats corroborating the landed ones (wave evidence):
+- round-44 w1/ConsiderMine.md:15-18 (scoreboard=implemented, patch-offset=implemented, seat-harm/burst=not)
+- round-45 a2w1/ConsiderMine.md:17-20 (seat-harm landed r45; burst unimplemented then)
+- round-46 w1/ConsiderMine.md:17 (burst not mined before round 46)
+- round-46 w1/ConsiderMine.md:115-201 + w1-results.json:316 (burst mined, grounded on rounds 43-45: 28 comparable statements, 3 disagreements)
+- round-38 w1/ProbeLineage.md:41-44 (probe lineage table built from committed bytes)
+- round-40 w1 ConsiderLineage/ConsiderLineageVerify (counter lineage; SKILL.md:3926-3931 "Counter lineage — round 42 rows")
+
+## 3. Round-47 work surface (what could already cover a proposal)
+
+$ grep -n "add(" .ufo/waves/round-47/make-w1-spec.py
+64 seats; relevant to coverage:
+- LessonScribe (item F-4): drafts the "## Round-46 routed defects — round-47 disposition" table for corpus/lessons/round-47.md (r46 spotcheck defects D1-D10 + carried items, each with state at 77e9e2b and evidence command)
+- ScoutQuality: quality criteria sweep; C2ScoutMktemp: S252 re-open; SrcGate: SOURCES curation; ScoutSkill: SKILL staleness
+- No seat is an upstream-release watch, a claim-arc tracker, or a live-harm oracle for env changes.
+
+## 4. Round-47 git log (context)
+
+f6bc6d05 round-47: adjacency anchor IN-109 found_line 2582->2593 (R47-C2 census edit moved the D14/D15 case)
+e31070a9 round-47: freeze commit — w1 spec (64 seats), controls battery 12/12, before receipts
+77e9e2b2 round-47: r47 counter F1 closure — row extent bound to the expected next header (battery F1a)
+3629c46a round-47: C2 TMPDIR-space selftest fix + R47-C2 cases; GR2 amended per r46 residual critic; r47 admission counter; S252; declaration
+
+## 5. SOURCES registry rows for this round's pins (for the SOURCES-row landing suggestions)
+
+$ grep -n "S246\|S247\|S248\|S249\|S252" corpus/SOURCES.md
+255: S246 — Linux v7.2.11 lib/cmdline.c, lib/vsprintf.c, lib/kstrtox.c (tag v7.2.11, peeled a2de78ee)
+256: S247 — Linux v7.2.11 fs/btrfs/dev-replace.c (tag v7.2.11, peeled a2de78ee)
+257: S248 — systemd v262 man/systemd.kill.xml (tag v262, peeled 8cc40e0c)
+258: S249 — round-45 host scrub-service stop capture (own-work, captured 2026-10-27T02:09:52Z, recheck 30d)
+261: S252 — mktemp(1) man7 page (fetched 2026-10-27, recheck 180d)
+Registry recheck column values seen: "on-release" (S246-S248), "30d" (S249), "180d" (S252).
+.ufo/waves/round-47/frozen/src/FETCH.txt: single entry, the S252 mktemp.html fetch (2026-10-27, 9832 bytes, sha256 74186433...).
+
+## 6. QUALITY.md criteria adjacent to the landing suggestions
+
+QUALITY.md:8 (criterion 8): every knowledge entry has source:, verified-at:, and recheck: with ISO date or cadence.
+QUALITY.md:108 (criterion 55): host-state premise carries capture time + recheck command, goes stale after a package transaction or mirror advance (R24-PREMISE-STALE).
+No criterion covers an upstream-release comparison sweep, a routed-debt disposition table, a live-harm oracle for env changes, or a claim-arc counter (grep terms in §2 all empty in corpus/QUALITY.md).

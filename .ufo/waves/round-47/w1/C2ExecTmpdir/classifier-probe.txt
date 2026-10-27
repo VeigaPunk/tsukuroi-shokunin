@@ -1,0 +1,53 @@
+# root_locator_class + st_base fallback probe (copy of tsukuroi-census.sh:850-865 and 2055-2058)
+# census sha256: adb1b4ce2325c38da2acbb815d820d3d8d6a0dd45b34796d808590c8ab32ce41
+## per-character class (abs=/a<c>b, rel=a<c>b)
+hex=20  abs=unsafe rel=relative
+hex=09  abs=unsafe rel=relative
+hex=0a  abs=unsafe rel=relative
+hex=0d  abs=unsafe rel=relative
+hex=3d  abs=unsafe rel=relative
+hex=3a  abs=unsafe rel=relative
+hex=2c  abs=unsafe rel=relative
+hex=40  abs=unsafe rel=relative
+hex=25  abs=unsafe rel=relative
+hex=24  abs=unsafe rel=relative
+hex=23  abs=unsafe rel=relative
+hex=3f  abs=unsafe rel=relative
+hex=2a  abs=unsafe rel=relative
+hex=7c  abs=unsafe rel=relative
+hex=26  abs=unsafe rel=relative
+hex=3b  abs=unsafe rel=relative
+hex=28  abs=unsafe rel=relative
+hex=29  abs=unsafe rel=relative
+hex=5b  abs=unsafe rel=relative
+hex=5d  abs=unsafe rel=relative
+hex=7b  abs=unsafe rel=relative
+hex=7d  abs=unsafe rel=relative
+hex=3c  abs=unsafe rel=relative
+hex=3e  abs=unsafe rel=relative
+hex=21  abs=unsafe rel=relative
+hex=7e  abs=unsafe rel=relative
+hex=5e  abs=unsafe rel=relative
+hex=60  abs=unsafe rel=relative
+hex=22  abs=unsafe rel=relative
+hex=27  abs=unsafe rel=relative
+hex=5c  abs=unsafe rel=relative
+hex=2b  abs=absolute rel=relative
+hex=2e  abs=absolute rel=relative
+hex=5f  abs=absolute rel=relative
+hex=2f  abs=absolute rel=relative
+hex=2d  abs=absolute rel=relative
+hex=41  abs=absolute rel=relative
+hex=7a  abs=absolute rel=relative
+hex=30  abs=absolute rel=relative
+## TMPDIR -> st_base (fallback) vs classifier
+TMPDIR=[] st_base=[/tmp] classifier=empty
+TMPDIR=[/ok/path] st_base=[/ok/path] classifier=absolute
+TMPDIR=[/a b] st_base=[/tmp] classifier=unsafe
+TMPDIR=[reldir] st_base=[reldir] classifier=relative
+TMPDIR=[./reldir] st_base=[./reldir] classifier=relative
+TMPDIR=[/a=b] st_base=[/tmp] classifier=unsafe
+TMPDIR=[/a:b] st_base=[/tmp] classifier=unsafe
+TMPDIR=[re ld] st_base=[/tmp] classifier=relative
+## mktemp form under a relative base
+mktemp -d reldir/... rc=0 work=[reldir/tsukuroi-r3-2-selftest.RyJGaB] class=relative

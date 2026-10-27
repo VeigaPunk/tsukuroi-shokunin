@@ -1,0 +1,44 @@
+# C2ScoutMktemp evidence log — 2026-10-27T08:55-08:58Z
+
+## fetch
+$ curl -fsSL --max-time 30 https://man7.org/linux/man-pages/man1/mktemp.1.html -o mktemp-live.html
+rc=0 bytes=9832 sha256=74186433c4e851311ded2cc0f8b14acab913d1c9ba1a2ef9a436548a9c073266
+
+## frozen
+$ sha256sum /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-47/frozen/src/mktemp.html
+74186433c4e851311ded2cc0f8b14acab913d1c9ba1a2ef9a436548a9c073266  .../frozen/src/mktemp.html  (9832 bytes)
+$ cmp mktemp-live.html .../frozen/src/mktemp.html -> rc=0 (identical)
+
+## quote
+$ sed -e 's/<[^>]*>//g' mktemp-live.html | tr -s ' \t\n' ' ' | grep -o 'interpret TEMPLATE as a single file name component, relative to a directory: $TMPDIR, if set'
+interpret TEMPLATE as a single file name component, relative to a directory: $TMPDIR, if set
+context: -t interpret TEMPLATE as a single file name component, relative to a directory: $TMPDIR, if set; else the directory specified via -p; else /tmp [deprecated]
+
+## implementation identity
+$ type -a mktemp -> 'mktemp is a shell builtin' + /usr/bin/mktemp
+$ mktemp --version -> mktemp 0.8.0 (harness builtin)
+$ pacman -Qo /usr/bin/mktemp -> /usr/bin/mktemp is owned by coreutils 9.12-2
+
+## E1 coreutils -t, TMPDIR=existing space dir
+$ env TMPDIR='/fast/scratch/hyaku/tsukuroi-r47/C2ScoutMktemp/sp dir' /usr/bin/mktemp -d -t 't.XXXXXX'
+/fast/scratch/hyaku/tsukuroi-r47/C2ScoutMktemp/sp dir/t.2MUZTH  rc=0; ls -ld confirms dir 700 inside space TMPDIR
+
+## E2 coreutils -t, TMPDIR=nonexistent space dir
+$ env TMPDIR='/fast/scratch/hyaku/tsukuroi-r47/C2ScoutMktemp/no such dir' /usr/bin/mktemp -d -t 'x.XXXX'
+mktemp: failed to create directory via template '/fast/scratch/hyaku/tsukuroi-r47/C2ScoutMktemp/no such dir/x.XXXX': No such file or directory  rc=1
+
+## E3 coreutils -t, TMPDIR unset
+$ env -u TMPDIR /usr/bin/mktemp -d -t 'u.XXXX'
+/tmp/u.sH2e rc=0
+
+## F1 builtin -t, TMPDIR=existing space dir
+$ env TMPDIR='.../sp dir' mktemp -d -t 'b.XXXXXX'
+/fast/scratch/hyaku/tsukuroi-r47/C2ScoutMktemp/sp dir/b.L6JB9p rc=0
+
+## F2 absolute template (item literal form), TMPDIR=space dir set
+$ env TMPDIR='.../sp dir' mktemp -d '/fast/scratch/hyaku/tsukuroi-r47/C2ScoutMktemp/abs.XXXXXX'
+/fast/scratch/hyaku/tsukuroi-r47/C2ScoutMktemp/abs.b2ZEtF rc=0 (TMPDIR not consulted)
+
+## A1 no -t, relative template, TMPDIR=nonexistent space dir (control)
+$ env TMPDIR='.../no such dir' /usr/bin/mktemp -d 'x.XXXX'
+x.9QgJ rc=0 created in CWD (without -t TMPDIR is not consulted; spec-correct)

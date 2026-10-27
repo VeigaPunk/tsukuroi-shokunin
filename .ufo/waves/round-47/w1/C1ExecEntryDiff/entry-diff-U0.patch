@@ -1,0 +1,37 @@
+diff --git a/corpus/knowledge/btrfs-scrub-grounding-r45.md b/corpus/knowledge/btrfs-scrub-grounding-r45.md
+index ef40ee5c..7888ca51 100644
+--- a/corpus/knowledge/btrfs-scrub-grounding-r45.md
++++ b/corpus/knowledge/btrfs-scrub-grounding-r45.md
+@@ -60,8 +60,10 @@ replace call `btrfs_scrub_dev` on the source device's devid with `readonly` fals
+-two parameters of `btrfs_scrub_dev`. Inside `btrfs_scrub_dev`, a call with `is_dev_replace` false is refused with
+-`-EINPROGRESS` while `btrfs_dev_replace_is_ongoing` is true for the filesystem, which it is for a replace in state
+-started or suspended (a replace suspended by an unmount still counts), and any call is refused with `-EINPROGRESS`
+-while the device already carries a scrub context. Both refusals come after the function has allocated its scrub
+-context and taken the scrub workers (`scrub_setup_ctx`, `scrub_workers_get`, whose errors return first) and after
+-three device checks that also answer first: an unknown devid, or a missing device on a non-replace call, gives
+-`-ENODEV`; a non-writeable device on a non-replace, non-readonly call gives `-EROFS`; a device outside the filesystem
+-metadata, or the replace's own target device, gives `-EIO`. So while a replace is ongoing, a scrub start that reaches
++two parameters of `btrfs_scrub_dev`. Inside `btrfs_scrub_dev`, after a filesystem-closing check that returns `-EAGAIN` first
++(`btrfs_fs_closing`), the function allocates its scrub context and takes the scrub workers
++(`scrub_setup_ctx`, `scrub_workers_get`), whose errors return first; then three device checks
++answer: an unknown devid, or a missing device on a non-replace call, gives `-ENODEV`; a
++non-writeable device on a non-replace, non-readonly call gives `-EROFS`; a device outside the
++filesystem metadata, or the replace's own target device, gives `-EIO`. Only after those checks
++is a call with `is_dev_replace` false refused with `-EINPROGRESS` while
++`btrfs_dev_replace_is_ongoing` is true for the filesystem, which it is for a replace in state
++started or suspended (a replace suspended by an unmount still counts), and any call is refused
++with `-EINPROGRESS` while the device already carries a scrub context. So while a replace is ongoing, a scrub start that reaches
+@@ -71,3 +73,2 @@ started. While the copy runs, the replace's source device carries the scrub cont
+-makes a privileged progress query for that devid answer 0. A suspended replace requests the cancellation of its scrub
+-(the suspend path calls `btrfs_scrub_cancel`); once that scrub has returned and cleared the device's scrub context,
+-the query answers `-ENOTCONN`
++makes a privileged progress query for that devid answer 0. When the unmount suspend path runs, it calls
++`btrfs_scrub_cancel`; once the scrub returns and clears its context, the progress query returns `-ENOTCONN`
+@@ -89,0 +91,2 @@ unchanged, and how `btrfs scrub start` and `btrfs scrub status` print them, are
++**Quote.** `S242` scrub.c:3094: "if (btrfs_fs_closing(fs_info))"
++**Quote.** `S242` scrub.c:3095: "return -EAGAIN;"
+@@ -213,0 +217,4 @@ SendSIGKILL=yes TimeoutStopUSec=5s FinalKillSignal=9` (capture.txt:3); the stop
++- GR2's filesystem-closing `-EAGAIN` check (scrub.c:3094-3095) and the unmount-only wording of the suspend-path
++  cancellation were added at the round-47 integration after the counted round-46 residual critic read `partly`
++  (`.ufo/waves/round-46/r1/V46ResCritGR2.md`); the amended row was re-read by the counted round-47 seats
++  (`tools/check-scrub-admission-r47.py`, wave `w1` of `.ufo/waves/round-47/`).

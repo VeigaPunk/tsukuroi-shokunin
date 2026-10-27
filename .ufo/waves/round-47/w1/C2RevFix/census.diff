@@ -1,0 +1,58 @@
+--- base-census.sh	2026-10-27 05:54:43.367999190 -0300
++++ freeze-census.sh	2026-10-27 05:54:43.369999189 -0300
+@@ -408,7 +408,8 @@
+ # text, rollup term or exit code changes) and live mode creates no files.
+ #
+ # Read-only guarantee: no probe writes; the gate creates no files at all in live mode
+-# (selftest writes only under a mktemp dir named ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX).
++# (selftest writes only under a mktemp dir named ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX,
++# or /tmp itself when TMPDIR holds characters the root-override locator refuses — R47-C2).
+ # Secrets are never read: only public package/system unit/driver/journal state is queried.
+ #
+ # Hermetic selftest: `--selftest` builds a /tmp fixture tree with a dispatcher stub for
+@@ -598,7 +599,8 @@
+                plus the verdict-neutral DRIFT (pacnew), STORAGE (btrfs error counters) and SCRUB
+                (btrfs scrub record, unprivileged view) lines
+   --selftest   hermetic fixture-tree test of every verdict arm (writes only under
+-               ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*); exit 0 pass, 1 fail
++               ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*, or /tmp itself when TMPDIR
++               holds characters the root-override locator refuses); exit 0 pass, 1 fail
+   --sample N   packages plane: size of the pacman -Qkk sample (default 8)
+ 
+ Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
+@@ -2045,7 +2047,16 @@
+ # ---- hermetic selftest -------------------------------------------------------
+ run_selftest() {
+   local bin fx
+-  work=$(mktemp -d "${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX")
++  # (R47-C2) The fixture roots below are handed to the census as caller root overrides,
++  # which root_locator_class deliberately restricts to a whitespace-free character set
++  # (a path like "/x root_mode=0755" must not forge a token or reach stat). If TMPDIR
++  # cannot yield classifiable override paths, build the fixture tree under /tmp instead;
++  # a caller's dirty TMPDIR must not turn 149 cases red (round-46 w1/C1ExecRerunB).
++  local st_base=${TMPDIR:-/tmp}
++  case "$st_base" in
++    *[!A-Za-z0-9._/+-]*) st_base=/tmp ;;
++  esac
++  work=$(mktemp -d "$st_base/tsukuroi-r3-2-selftest.XXXXXX")
+   # A 000 fixture directory would block `rm -rf` (unlink needs write+search on the parent);
+   # restore permissions on the temp tree only, never on a live path.
+   trap 'chmod -R u+rwx -- "${work:-}" 2>/dev/null || true; rm -rf -- "${work:-}" 2>/dev/null || true' EXIT INT TERM
+@@ -3459,6 +3470,17 @@
+   check_cli 'cli: --identity with --help exits 2, never usage and 0 (R46-C1)' 2 \
+     '--identity takes no other argument' -- --identity --help
+ 
++  # (R47-C2) pin the fixture-base contract: the work dir the harness runs under must
++  # always classify 'absolute' for root_locator_class, however dirty TMPDIR is, and a
++  # fixture root path that does contain a space must be refused as 'unsafe' by design.
++  [ "$(root_locator_class "$work")" = 'absolute' ] \
++    && ok 'selftest: the fixture base classifies absolute even when TMPDIR contains a space (R47-C2)' \
++    || bad 'selftest: the fixture base must classify absolute under a dirty TMPDIR (R47-C2)'
++  mkdir -p "$work/fx/sp dir/root"
++  [ "$(root_locator_class "$work/fx/sp dir/root")" = 'unsafe' ] \
++    && ok 'selftest: a space in a root override stays unsafe by design (R47-C2)' \
++    || bad 'selftest: root_locator_class must refuse whitespace overrides (R47-C2)'
++
+   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
+     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
+   [ "$FAIL" -eq 0 ]

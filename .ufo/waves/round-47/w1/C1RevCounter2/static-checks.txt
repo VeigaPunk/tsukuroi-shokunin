@@ -1,0 +1,62 @@
+C1RevCounter2 static check transcripts (2026-10-27). All commands read-only on the lane.
+
+== frozen counter hash ==
+$ sha256sum tools/check-scrub-admission-r47.py
+e20c322171db76f1d08b51066e602707516f62eccdf3f64ca8356c69767f023b  tools/check-scrub-admission-r47.py
+$ git show 77e9e2b2e96b85d8f048ae2087e246a542b71611:tools/check-scrub-admission-r47.py | sha256sum
+e20c322171db76f1d08b51066e602707516f62eccdf3f64ca8356c69767f023b  -
+-> on-disk counter is byte-identical to the freeze revision.
+
+== counter at base (expected FAIL) ==
+$ python3 tools/check-scrub-admission-r47.py --revision 916019057147d7e9ba6b137647b2cee26decf4b8
+{'verdict': 'FAIL', 'structural_ok': 1, 'quotes_ok': 3, 'verdicts_ok': 0, 'marks_ok': 0, 'base_ok': 1}
+-> matches the SCORECARD "before" row (verdicts_ok 0, marks_ok 0). Entry quotes verify on pinned snapshots already at base.
+
+== counter at current lane tip f6bc6d05 (pre-results; w1 seats running) ==
+{'verdict': 'FAIL', 'structural_ok': 1, 'quotes_ok': 3, 'verdicts_ok': 0, 'marks_ok': 0, 'waves_seen': ['w1']}
+GR1 seat detail: every counted seat 'w1-results.json unreadable' (file not yet committed); Res2 generation 'dispatched 0 times'.
+-> fail-closed while wave receipts are pending; no seat can bind without its results file.
+
+== path traversal probe (git object-path syntax) ==
+$ git show 'HEAD:.ufo/waves/round-47/../round-47/w1-dispatch.json' ; echo rc=$?
+rc=1 (rejected: path does not exist in the tree)
+$ git show 'HEAD:././SCORECARD.md' >/dev/null ; echo rc=$?
+rc=0
+-> '..' is treated literally in rev:path lookups and does not escape the tree; wave stems are flat
+   tree-entry names (cannot contain '/'), so f'{WAVES}/{wave}/{seat}.md' in bind() cannot traverse.
+
+== same-filename snapshot generations (seat-side K22 scope note) ==
+$ wc -l .ufo/waves/round-42/frozen/src/scrub.c .ufo/waves/round-44/frozen/src/scrub.c
+2231 .ufo/waves/round-42/frozen/src/scrub.c   (S237)
+3337 .ufo/waves/round-44/frozen/src/scrub.c   (S242)
+-> verify_citation() resolves fname against ANY pinned generation holding that filename and checks
+   only 1 <= lineno <= len(lines); no sid and no content check on the seat side.
+
+== exit codes ==
+$ python3 tools/check-scrub-admission-r47.py            ; echo rc=$?   -> rc=2 (usage)
+$ python3 tools/check-scrub-admission-r47.py --revision deadbeef ; echo rc=$? -> rc=2 (unresolvable)
+
+== frozen universe vs committed w1 dispatch ==
+w1 tasks: 64; duplicate task names: none.
+All 18 round-47 counted seats (R47{Rev,Crit}GR<n>a/b, R47Res{Rev,Crit}GR<n>) present; role mismatches: none.
+R47Res2* generation not dispatched (held for a possible second amendment), as declared.
+
+== battery state (pre-data controls, not re-run by this seat) ==
+.ufo/waves/round-47/controls/battery-summary-r47.jsonl: 12 controls, all as_expected=true (C1 x9, C2 x3).
+
+== fixture-scenario outcomes (frozen counter scored each variant commit; clones under
+   /fast/scratch/hyaku/tsukuroi-r47/C1RevCounter2/fx-*, removed after scoring; full JSON in
+   fixture-outcomes.json):
+s1-k23-whitespace-identical   rc=0 PASS  (distinct_bodies=True with whitespace-normalized-identical bodies -> HOLE)
+s2-f2-readme-withheld         rc=0 PASS  (README mark line 'admitted round 47 (admission withheld ...)' -> marks_ok=3 -> HOLE)
+s3-f2-skill-suffix-control    rc=1 FAIL  (marks.skill=False; SKILL exact-line leg sound)
+s4-one-seat-quorum-control    rc=1 FAIL  (verdicts_ok=0; quorum >=2 enforced)
+s5-no-spawn-control           rc=1 FAIL  ('dispatched 0 times' for all seats; no binding without dispatch)
+s6-stale-fails-sinks-row      rc=1 FAIL  (GR2 any_fails=True; a stale-bytes 'fails' sinks the row)
+s7-dup-json-key-control       rc=1 FAIL  (dispatch duplicate key -> load_obj None -> seats unbound)
+s8-unpinned-cite-control      rc=1 FAIL  (seat citing tsukuroi-census.sh:2377 unbound -> row short)
+s9-contradicting-verdict-control rc=1 FAIL (in-body 'ROW GR1 VERDICT: fails' contradicts line 1 -> unbound)
+s10-results-agent-mismatch-control rc=1 FAIL ('not exactly one results entry')
+s11-wrong-sid-quote-control   rc=1 FAIL  (quotes_ok=2; entry quote citing S246 sysfs.c fails closed)
+s12-wave-name-control         rc=1 FAIL  (dispatch renamed .bak -> waves_seen=[] -> verdicts_ok=0)
+s13-mark-inside-row-control   rc=1 FAIL  (structural_ok=0; F1 dominates the entry mark)

@@ -1,0 +1,21 @@
+# repro: chmod -R follows a symlink substituted at $work (coreutils 9.12, uid 1000)
+# setup: attacker-writable TMPDIR base, victim-owned tree with 0400/0600 files
+$ work=$(mktemp -d "$base/tsukuroi-r3-2-selftest.XXXXXX")   # mode 700, victim-owned
+$ mv -- "$work" "$work.real"; ln -s "$victimtree" "$work"
+$ bash -c 'work=$1; trap "chmod -R u+rwx -- \"\${work:-}\" 2>/dev/null || true; rm -rf -- \"\${work:-}\" 2>/dev/null || true" EXIT' _ "$work"
+
+## observed (exact trap body, run 2026-10-27)
+before: 755 victimtree | 400 victimtree/readonly0400 | 755 victimtree/sub | 600 victimtree/sub/tool0600
+after : 755 victimtree | 700 victimtree/readonly0400 | 755 victimtree/sub | 700 victimtree/sub/tool0600
+link still present? no   (rm -rf unlinks the symlink, never its target)
+victim content intact: k
+
+## control: default -R traversal policy vs -P
+$ chmod -R  u+rwx -- ct/lnk   -> ct/d/f644 644 -> 744   (follows: -H is the default)
+$ chmod -RP u+rwx -- ct2/lnk  -> ct2/d/f 644 unchanged   (no traversal)
+
+## empty-$work behaviour, GNU coreutils 9.12
+$ chmod -R 0600 -- ""  -> rc 1, "chmod: cannot access '': No such file or directory", cwd untouched
+$ rm -rf -- ""          -> rc 0, silent no-op, cwd contents intact
+
+## proposed cleanup (verified: removes a tree with a 000 dir, a 0400 file, a dangling link, a link loop, a dir symlink)

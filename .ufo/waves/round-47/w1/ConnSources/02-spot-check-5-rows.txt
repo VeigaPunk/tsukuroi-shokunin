@@ -1,0 +1,68 @@
+=== SPOT CHECK OF 5 REGISTRY ROWS (S237, S242, S243, S244, S250) ===
+
+--- Row S237 (Line 246) ---
+Raw: | S237 | btrfs-progs v7.1 cmds/scrub.c — https://github.com/kdave/btrfs-progs/blob/v7.1/cmds/scrub.c | code | A | How the btrfs CLI writes, names, locks and reads the scrub status record, and when it disables recording | tag v7.1 (peeled commit 4ab0e80be9e3bb1db2e6038e6d4316d35fb7ba8b), cmds/scrub.c lines 67-70, 280-330, 446-535, 826-895, 1110-1125, 1186-1220, 1330-1340, 1498-1512, 1925-1945; raw bytes sha256 48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801 | The status record is a userspace file the scrub start process writes and the status command reads; its format, its write discipline and the cases that leave no record | mined | 2026-10-26 | on-release | corpus/knowledge/btrfs-scrub-record-r42.md, corpus/knowledge/btrfs-scrub-record-r43.md, corpus/knowledge/btrfs-scrub-record-r44.md, corpus/knowledge/btrfs-scrub-grounding-r45.md |
+Columns: 11 (NF=13)
+  kind    : code
+  tier    : A
+  status  : mined
+  recheck : on-release
+  used-by : corpus/knowledge/btrfs-scrub-record-r42.md, corpus/knowledge/btrfs-scrub-record-r43.md, corpus/knowledge/btrfs-scrub-record-r44.md, corpus/knowledge/btrfs-scrub-grounding-r45.md
+    - checking 'corpus/knowledge/btrfs-scrub-record-r42.md': exists=True
+    - checking 'corpus/knowledge/btrfs-scrub-record-r43.md': exists=True
+    - checking 'corpus/knowledge/btrfs-scrub-record-r44.md': exists=True
+    - checking 'corpus/knowledge/btrfs-scrub-grounding-r45.md': exists=True
+  Pipes in cells: 0
+  Row S237 Result: PASS
+
+--- Row S242 (Line 251) ---
+Raw: | S242 | Linux v7.2.11 fs/btrfs/scrub.c — https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/fs/btrfs/scrub.c?h=v7.2.11 | code | A | When the kernel reports a scrub in progress on a device, and how the per-device scrub limit throttles a scrub | tag v7.2.11 (peeled commit a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea), fs/btrfs/scrub.c lines 1365-1385, 3140-3162, 3215-3226, 3321-3337; raw bytes sha256 f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8 | The progress call answers 0 only while a scrub context is attached to the device, ENOTCONN for an idle device and ENODEV for an unknown devid; a limit of 0 disables throttling | mined | 2026-10-26 | on-release | corpus/knowledge/btrfs-scrub-record-r44.md, corpus/knowledge/btrfs-scrub-grounding-r45.md |
+Columns: 11 (NF=13)
+  kind    : code
+  tier    : A
+  status  : mined
+  recheck : on-release
+  used-by : corpus/knowledge/btrfs-scrub-record-r44.md, corpus/knowledge/btrfs-scrub-grounding-r45.md
+    - checking 'corpus/knowledge/btrfs-scrub-record-r44.md': exists=True
+    - checking 'corpus/knowledge/btrfs-scrub-grounding-r45.md': exists=True
+  Pipes in cells: 0
+  Row S242 Result: PASS
+
+--- Row S243 (Line 252) ---
+Raw: | S243 | Linux v7.2.11 fs/btrfs/sysfs.c — https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/fs/btrfs/sysfs.c?h=v7.2.11 | code | A | The mode, read format and write parsing of the per-device scrub_speed_max sysfs attribute | tag v7.2.11 (peeled commit a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea), fs/btrfs/sysfs.c lines 72-74, 2021-2049, 2113; raw bytes sha256 ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43 | The attribute is mode 0644, reads as one decimal and a newline, and a write is parsed by memparse with anything trailing rejected as EINVAL | mined | 2026-10-26 | on-release | corpus/knowledge/btrfs-scrub-record-r44.md, corpus/knowledge/btrfs-scrub-grounding-r45.md |
+Columns: 11 (NF=13)
+  kind    : code
+  tier    : A
+  status  : mined
+  recheck : on-release
+  used-by : corpus/knowledge/btrfs-scrub-record-r44.md, corpus/knowledge/btrfs-scrub-grounding-r45.md
+    - checking 'corpus/knowledge/btrfs-scrub-record-r44.md': exists=True
+    - checking 'corpus/knowledge/btrfs-scrub-grounding-r45.md': exists=True
+  Pipes in cells: 0
+  Row S243 Result: PASS
+
+--- Row S244 (Line 253) ---
+Raw: | S244 | Arch btrfs-progs packaging 7.1-1 — https://gitlab.archlinux.org/archlinux/packaging/packages/btrfs-progs/-/tree/7.1-1 | code | A | The scrub timer and service the Arch package installs and what they run | tag 7.1-1 (commit 0c0a4d77b318084ecd35aeeb6888d8a5b4d6e3e0), btrfs-scrub@.timer lines 1-11 (sha256 9a0b6cc23f7bd97b83b6c38dd2b4e4373fead8bd3ccfb82a47c72971e9d6f8ad), btrfs-scrub@.service lines 1-10 (sha256 eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252), PKGBUILD lines 99-101 | The monthly timer and its service are packaging files; the service runs scrub start -B and stops it with SIGINT | mined | 2026-10-26 | on-release | corpus/knowledge/btrfs-scrub-record-r44.md, corpus/knowledge/btrfs-scrub-grounding-r45.md |
+Columns: 11 (NF=13)
+  kind    : code
+  tier    : A
+  status  : mined
+  recheck : on-release
+  used-by : corpus/knowledge/btrfs-scrub-record-r44.md, corpus/knowledge/btrfs-scrub-grounding-r45.md
+    - checking 'corpus/knowledge/btrfs-scrub-record-r44.md': exists=True
+    - checking 'corpus/knowledge/btrfs-scrub-grounding-r45.md': exists=True
+  Pipes in cells: 0
+  Row S244 Result: PASS
+
+--- Row S250 (Line 259) ---
+Raw: | S250 | GNU bash 5.3 shell.c, general.c, general.h — https://git.savannah.gnu.org/cgit/bash.git/plain/shell.c?h=bash-5.3 | code | A | How bash opens a script file and which descriptor it reads the script from | tag bash-5.3 (peeled commit b8c60bc9ca365f8261fa97900b6fa939f6ebc303), shell.c lines 776-784, 1586, 1700-1703 (sha256 5f3d539f15e19c032a09ece500efecc9c63d050d408e985b6f385c64329bf73d), general.c lines 681-703 (sha256 669ef408f4bcc6b4ce424677d29532f28e903430c93b335fa1a292dd360bd165), general.h line 252 (sha256 bf9251e3270c933d3387828a263a3d30e4f0de7ec02b802b1f0f99a60ad3f2f2) | bash opens the script and moves it to the highest free descriptor below 256 (close-on-exec); a script read from stdin is read from descriptor 0 | mined | 2026-10-27 | on-release | corpus/knowledge/census-identity-r46.md |
+Columns: 11 (NF=13)
+  kind    : code
+  tier    : A
+  status  : mined
+  recheck : on-release
+  used-by : corpus/knowledge/census-identity-r46.md
+    - checking 'corpus/knowledge/census-identity-r46.md': exists=True
+  Pipes in cells: 0
+  Row S250 Result: PASS
+

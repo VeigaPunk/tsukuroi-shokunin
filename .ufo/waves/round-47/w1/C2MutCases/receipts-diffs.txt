@@ -1,0 +1,36 @@
+=== diff pristine -> mut-a ===
+859c859
+<         *[!A-Za-z0-9._/+-]*) printf 'unsafe' ;;
+---
+>         *[![:space:]A-Za-z0-9._/+-]*) printf 'unsafe' ;;
+=== diff pristine -> mut-a2 ===
+859c859
+<         *[!A-Za-z0-9._/+-]*) printf 'unsafe' ;;
+---
+>         *[![:space:]A-Za-z0-9._/+-]*) printf 'unsafe' ;;
+2057c2057
+<     *[!A-Za-z0-9._/+-]*) st_base=/tmp ;;
+---
+>     *[![:space:]A-Za-z0-9._/+-]*) st_base=/tmp ;;
+=== diff pristine -> mut-a3 ===
+2056,2058c2056
+<   case "$st_base" in
+<     *[!A-Za-z0-9._/+-]*) st_base=/tmp ;;
+<   esac
+---
+>   : # MUTATION(a3): fallback to /tmp removed; caller TMPDIR used verbatim
+=== diff pristine -> mut-b ===
+3475a3476
+>   work='' # MUTATION(b): empty fixture work dir
+=== diff pristine -> mut-c1 ===
+3479c3479
+<   mkdir -p "$work/fx/sp dir/root"
+---
+>   mkdir -p "$work/fx/spdir/root" # MUTATION(c1): fixture created without the space
+=== diff pristine -> mut-c2 ===
+3479,3480c3479,3480
+<   mkdir -p "$work/fx/sp dir/root"
+<   [ "$(root_locator_class "$work/fx/sp dir/root")" = 'unsafe' ] \
+---
+>   mkdir -p "$work/fx/spdir/root" # MUTATION(c2): no-space fixture and assertion
+>   [ "$(root_locator_class "$work/fx/spdir/root")" = 'unsafe' ] \
