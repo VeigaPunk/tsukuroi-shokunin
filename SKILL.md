@@ -4048,6 +4048,8 @@ stood at the round-43 base, rows through `size-invariance-r42`) is retained verb
 rows, the frozen round-43 counters (wave-1 `C1ExecBootTools` F1: without them `check-registry-coverage.py` reads 66 of
 68 tools registered).
 
+
+## Gate and probe registry — round43 superseding current rows
 | Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |
 |---|---|---|---|---|---|---|---|
 | child-env-allowlist-r36 | probe | `python3 tools/probe-child-env-allowlist-r36.py --revision <REV> --set livefive` | last-line `leaking` 0 clean / > 0 leaking; exit 0 clean, 1 leaking, 2 harness | none hermetic; sensitivity battery per `.ufo/waves/round-36/l1/` (claim/r33claim 0 at base) and the w2 live-mode detector receipts | VERSION 7; predicate label `leaking`; frozen bytes sha256 `a2a5acacaf5660754b39238a74d503c22c2241498012f6ee24c6aa27b4af443a` at `1e926801195e304950e3eb9d2525ef8bbc245089` | committed reads; sandbox clones; no lane or host write | tsukuroi |
