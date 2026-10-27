@@ -26,8 +26,9 @@ Per row:
   prop_ok    - the statement carries every frozen proposition token of the row (QUALITY 87).
   host_ok    - the row's host block names existing, non-empty capture.txt lines (QUALITY 86).
   verdict_ok - binding (QUALITY 81/89/90). Seats per row: `C2RevGR<n>` (reviewer) and `C2CritGR<n>` (critic) of
-               wave `w1`: a task of `.ufo/waves/round-45/w1-dispatch.json` (taskCall.tasks, same name and agent,
-               exactly once) with exactly one result of the same name and agent in `w1-results.json`. Both JSON
+               wave VERDICT_WAVE (`a2w1`): a task of `.ufo/waves/round-45/a2w1-dispatch.json` (taskCall.tasks, same
+               name and agent, exactly once) with exactly one result of the same name and agent in
+               `a2w1-results.json`. Both JSON
                files must be objects that parse with no duplicate key anywhere (else nothing binds; closes
                C2MutBinding F1/F4). The result `output` must be a string. Its declared text: if the string parses as
                JSON (no duplicate keys) and the value is an object, it must hold a string `verdict_line`, and a
@@ -35,11 +36,15 @@ Per row:
                string is the text; any other JSON value binds nothing; otherwise the raw string is the text. The
                declared line is the text's FIRST line exactly (no leading blank, no padding, no CR), and must
                fullmatch `ROW GR<n> VERDICT: <holds|partly|fails>`; the text must hold no other `ROW GR<n> VERDICT:`
-               line with a different verdict word. The committed report `.ufo/waves/round-45/w1/<name>.md` must have
-               the identical first line and no contradicting `ROW GR<n> VERDICT:` line. Row ok iff both bound and
-               both `holds`, or no bound `fails` and every `partly` is answered by a bound residual reviewer
-               `C2ResGR<n>` of wave `r1` (`r1-dispatch.json`, `r1-results.json`, `.ufo/waves/round-45/r1/<name>.md`,
-               same binding) reading `holds`. An unbound counted seat makes its row not ok.
+               line with a different verdict word. The committed report `.ufo/waves/round-45/a2w1/<name>.md` must
+               have the identical first line and no contradicting `ROW GR<n> VERDICT:` line. Row ok iff both bound
+               and both `holds`, or no bound `fails` and every `partly` is answered by a bound residual reviewer
+               `C2ResGR<n>` of wave RESIDUAL_WAVE (`a2r1`: `a2r1-dispatch.json`, `a2r1-results.json`,
+               `.ufo/waves/round-45/a2r1/<name>.md`, same binding) reading `holds`. An unbound counted seat makes
+               its row not ok.
+               Attempt-2 rebinding (2026-10-27, before any seat scored): the frozen wave names `w1`/`r1` became
+               `a2w1`/`a2r1` because the orchestrator's dispatcher never takes a spent `.ready` twice and the
+               attempt-1 `w1` wave died unfilled (14/66 spawned, 0 outputs). Only these two names changed.
 Global:
   base_ok    - BASE resolves and is an ancestor of REV (closes the round-44 orphan-repo vacuity, F3); otherwise the
                counter exits 2.
@@ -76,6 +81,8 @@ BASE = '5bbd5ff588120fd8e7c744695351a6978b4241c1'
 ENTRY = 'corpus/knowledge/btrfs-scrub-grounding-r45.md'
 OLD = 'corpus/knowledge/btrfs-scrub-record-r44.md'
 WAVE = '.ufo/waves/round-45'
+VERDICT_WAVE = 'a2w1'
+RESIDUAL_WAVE = 'a2r1'
 F45 = f'{WAVE}/frozen/src'
 F44 = '.ufo/waves/round-44/frozen/src'
 SNAP = {
@@ -354,12 +361,12 @@ def main():
         hrefs = [int(x) for x in HOST_RE.findall(hb)]
         h_ok = bool(cap) and bool(hrefs) and all(1 <= k <= len(cap) and cap[k - 1].strip() for k in hrefs)
         n = row[2:]
-        v1, l1 = bound(a.lane, rev, 'w1', f'C2RevGR{n}', 'reviewer', row)
-        v2, l2 = bound(a.lane, rev, 'w1', f'C2CritGR{n}', 'critic', row)
+        v1, l1 = bound(a.lane, rev, VERDICT_WAVE, f'C2RevGR{n}', 'reviewer', row)
+        v2, l2 = bound(a.lane, rev, VERDICT_WAVE, f'C2CritGR{n}', 'critic', row)
         vs = [v1, v2]
         resid, lr = None, None
         if 'partly' in vs:
-            resid, lr = bound(a.lane, rev, 'r1', f'C2ResGR{n}', 'reviewer', row)
+            resid, lr = bound(a.lane, rev, RESIDUAL_WAVE, f'C2ResGR{n}', 'reviewer', row)
         v_ok = (None not in vs and 'fails' not in vs and resid != 'fails'
                 and (all(v == 'holds' for v in vs) or resid == 'holds'))
         for nm, ln in ((f'C2RevGR{n}', l1), (f'C2CritGR{n}', l2), (f'C2ResGR{n}', lr)):

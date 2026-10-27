@@ -2888,3 +2888,17 @@ Causal separability: C1 touches `tools/tsukuroi-census.sh` (and depends on the D
 declaration); C2 touches the r45 entry, the r44 entry's appended section, `corpus/SOURCES.md` and frozen snapshots.
 Neither counter reads the other's surface: the C1 counter scores the census and the anchor gate at REV; the C2 counter
 reads the entry, the registry, the snapshots and the wave records at REV.
+
+### Round 45 — attempt-2 rebinding (2026-10-27, before any seat scored)
+
+Attempt 1 (L1 `TsukuroiR45`) died with the orchestrator session at 2026-10-26 23:57:36 -03 while its one v2 wave `w1`
+was filling (14/66 seats spawned and killed, 52 never spawned, 0 outputs, 0 reports: `.ufo/waves/round-45/w1-results.json`,
+`w1.ready.dispatched` ABANDONED); the orchestrator salvage commit `5b3029bf` holds those records. No seat scored. The
+dispatcher never takes a spent `.ready` twice, so attempt 2 (L1 `TsukuroiR45a2`) dispatches the same items as wave
+`a2w1` (residual, if any, `a2r1`). The C2 counter's two wave-name literals follow: `tools/check-scrub-grounding-r45.py`
+now binds the counted seats to `a2w1` and residuals to `a2r1` (constants `VERDICT_WAVE`, `RESIDUAL_WAVE`; sha256
+`7e373196…f70d` at the freeze → `a1eb402d…1331`); predicate, kill rule, target, seat names, roles and every other byte
+of the rule are unchanged. The C1 counter is unchanged (sha256 `fe0e31e2…bd50`). Receipts in
+`.ufo/waves/round-45/controls-a2/`: the C2 battery re-run with the rebound names gives field-identical results on all 30
+controls (`should_fail_accepted` 0, K3/K19/K26 PASS as before), and the salvage tip `5b3029bf` scores FAIL
+`verdicts_ok` 0 under both the frozen and the rebound counter (attempt-1 `w1` records bind nothing).
