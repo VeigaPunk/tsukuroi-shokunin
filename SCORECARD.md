@@ -2960,3 +2960,48 @@ One header row (R43-CAP-HEADER-DUP; QUALITY 92): `awk '/^## Capabilities — cur
   (3) calibration — the counter-review survivors of `a2w1/C2MutBinding.md` (look-alike contradiction, cross-role
   duplicate, sibling JSON key). Routed: R45-D7-CITATION-HALF-CLOSED.
 - **retired:** none.
+
+## Round 46 — declaration (2026-10-27, base `2042117cfb724170772f4c128cc2ddba0b61d817`, before any seat)
+
+Round 45 was closed `rejected-honest-stop` (`corpus/lessons/round-45-verifier-spotcheck.md` §2: C1 operability
+improved; C2 depth FAIL, `verdicts_ok` 0, because no counted yield bound; nothing harmed). The base is the lane tip at
+round start (`jj-lane.sh state`: `local=2042117c…`, it carries that spot-check). Ordinals at base: depth 8, coverage 9,
+operability 9, freshness 9, calibration 9, adjacency 8; depth and adjacency tied lowest; C2 works depth. Saturation 9 /
+window 3 unchanged. Round-start receipts (`.ufo/waves/round-46/before/`): sources census exit 0, 249 rows, 40 W04, run by
+this attempt at its own start (routed D4); the round-45 C2 counter's non-verdict legs at base: rows 3, quotes_ok 3,
+props_ok 3, host_ok 3, sources_ok 1, novelty 0, pointer_ok 1, verdicts_ok 0 (`c2r45-legs-base.json`). The round-45
+planned row's item (1) is C2; item (2) (case-level CR pinning at the converted readers) and item (3) (counter-review
+survivors) are not taken: C1 takes instead the operability ceiling every axes table since round 11 names, D12
+`--identity` not landed.
+
+| Claim | Axis | Surface moved | Counter (frozen) | Before at base (expected) | Target (predicate) | Kill rule |
+|---|---|---|---|---|---|---|
+| C1 | operability (capability `census-identity`; sourced: S250, S251 opened this round) | `tools/tsukuroi-census.sh` gains `--identity` (routed debt D12, open since round 10: `closeout-r11.md:42-44`, `:261-262`): one stdout line `TSUKUROI_CENSUS_IDENTITY: version=… sha256=… md5=… bytes=… lines=… planes=… exit_map=… verified=…` naming the bytes the running bash process executes, read through the script descriptor bash holds (S250 `shell.c:1700`, `general.c:696-700`) re-opened as `/proc/$$/fd/<n>` (S251) and only when it resolves to the invoked file; a script read from stdin or a pipe prints `unverifiable` for the four byte fields and `verified=no`; `--identity` takes no other argument; selftest cases labelled `(R46-C1)`; new entry `corpus/knowledge/census-identity-r46.md` | `python3 tools/score-census-identity-r46.py --revision <REV> --scratch <DIR>` (legs: identity line vs the counter's own digests of REV's census bytes, an appended-line copy, a symlink, stdin and process-substitution with a decoy `bash` file in cwd, a file replaced after bash opened it, CLI refusals, no write in cwd/TMPDIR, selftest PASS and `(R46-C1)` PASS lines) | FAIL: identity_ok 0 (`--identity` is an unknown argument, exit 2) | `identity_ok == 1 and tracks_ok == 1 and symlink_ok == 1 and unverifiable_ok == 1 and cli_ok == 1 and nowrite_ok == 1 and selftest_pass == 1 and selftest_r46 >= 4` | any PLANE, HANDOFF, DRIFT, STORAGE, SCRUB or TSUKUROI_CENSUS line changes shape or the live exit code changes between base and the measured revision (other than live drift that recurs between two runs of one revision); any of these census counters goes PASS → FAIL base → measured revision: `score-census-readers-r45.py`, `score-scrub-arm-r44.py`, `score-bootinputs-r43.py`, `score-size-invariance-r42.py`, `score-selftest-mounts-r41.py`, `score-selftest-literals-r40.py`, `score-storage-hidden-r39.py`, `score-storage-arm-r38-q82.py`, `score-pacnew-arm-r35b.py`, `score-census-handoff-r32.py` (this list is the whole kill universe; `score-storage-arm-r38.py` is FAIL at base and stays outside it); the census writes a file in live or identity mode; `check-adjacency-anchors.py` goes PASS → FAIL; a census line at or before `:3383` moves |
+| C2 | depth (sourced: S246-S249) | `corpus/knowledge/btrfs-scrub-grounding-r45.md` rows GR1-GR3 (pending since round 45) are admitted: counted seats re-read each row against its digest-checked snapshots and write their verdict as the first two lines of their own report file, bound to the exact row bytes; on PASS the entry gains `## Gate status — round 46 (GR1-GR3 admitted)`, `SKILL.md` a `## Scrub grounding — round 46 admission` section and `corpus/README.md` an `admitted round 46` line | `python3 tools/check-scrub-admission-r46.py --revision <REV>` (legs: the frozen round-45 counter run from REV (sha256 `a1eb402d…1331`) for every non-verdict leg; per row the counted seat universe `V46RevGR<n>a/b` (reviewer), `V46CritGR<n>a/b` (critic) and residual `V46ResRevGR<n>` (reviewer), `V46ResCritGR<n>` (critic), bound by seat name across every round-46 `<wave>-dispatch.json` (no wave name is bound, routed D5) plus its `<wave>-results.json` entry and its report `.ufo/waves/round-46/<wave>/<seat>.md` whose first line is exactly `ROW GR<n> VERDICT: <holds|partly|fails>` and second line exactly `SECTION SHA256: <hex>`; admission marks) | FAIL: r45_legs_ok 1, verdicts_ok 0, marks_ok 0 | `r45_legs_ok == 1 and verdicts_ok == 3 and marks_ok == 3` (a row is ok when no bound seat reads `fails` on any bytes and at least two bound seats on the row's current bytes all read `holds`) | any bound counted `fails`; a GR row changed without every bound verdict on its current bytes re-read; `check-scrub-record-r43.py` goes PASS → FAIL; S246-S248 no longer re-fetch byte-identical to `.ufo/waves/round-45/frozen/src/SHA256SUMS` |
+
+Pre-data controls (scored with the frozen counters before any seat; scripts and candidate bytes under
+`.ufo/waves/round-46/controls/`): C1 — K0 do-nothing (base bytes), K1 constant writer (the base file's true digests
+hardcoded), K2 path hasher (hashes `$SELF` without the descriptor check), K3 identity without `(R46-C1)` cases, K5 line on
+stderr, K6 `grep -c .` line count, K7 a banner line, K9 `--identity` silently beating other flags: each must FAIL; K8 the
+candidate must PASS (`battery-summary-c1.jsonl`). C2 — K0 do-nothing, K1 marks only, K2 reports without dispatch, K4 a
+`partly` on current bytes, K5 stale hashes, K6 JSON first line, K7 preamble line, K8 a `fails` on old bytes, K9 a name
+outside the universe, K10 a seat dispatched in two waves, K11 wrong agent, K12 a contradicting verdict line, K13
+content-free body, K14 no `file:line` citation, K16 a broken quote (round-45 legs), K17 no results file, K19 a duplicate
+JSON key, K20 CR on the first line, K21 verdicts without marks: each must FAIL; K3 forged records (the standing limit:
+committed bytes cannot tell forged orchestrator records from real ones), K15 the same under an arbitrary wave name (D5)
+and K18 `partly` on old bytes answered by both residual seats on amended bytes must PASS (`battery-summary-c2.jsonl`).
+
+Pre-freeze counter fix (before any seat): the first C1 counter draft let control K2 (a path hasher) PASS, because
+with `${BASH_SOURCE[0]:-}` the stdin and pipe cases never name a regular file, so hashing the path and hashing the
+descriptor agree there (`controls/battery-summary-c1-draft1.jsonl`, K2 `as_expected` false). The frozen counter adds
+the case that separates them — the script renames a decoy over its own path on its first line, so the path names new
+bytes while bash still reads the old inode — and K2 now FAILs (`battery-summary-c1.jsonl`, 9/9 as expected). The
+candidate gained the matching selftest case. C2 battery: 22/22 as expected (`battery-summary-c2.jsonl`).
+
+Seat verdict channel (routed: R45-C2-BINDING-CHANNEL, orchestrator note of the round-46 dispatch): the counter reads
+only the seat's own report file. The wave spec states the two exact first lines and nothing a seat yields is read.
+
+Causal separability: C1 touches `tools/tsukuroi-census.sh`, the new identity entry and S250/S251; C2 touches the r45
+entry's appended gate section, a SKILL section and a README line. The C1 counter reads only the census at REV; the C2
+counter reads the entry, the registry, snapshots, SKILL.md, README and the round-46 wave records. Neither reads the
+other's surface.
