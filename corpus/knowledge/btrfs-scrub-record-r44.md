@@ -149,3 +149,13 @@ capture does not query the service file's package owner.
 - SR7 is read from source only: no privileged ioctl is run on this host.
 - SR9's systemd side (that `KillSignal=` is the signal `systemctl stop` sends) is systemd.kill(5) behaviour and is not
   pinned here [inference]; the pinned part is the unit text and the btrfs-progs handler.
+
+## Round-45 grounding and gate status (appended 2026-10-27, L1 TsukuroiR45)
+
+Appended; the rows above are unchanged. **Gate status:** the round-44 depth gate for SR7-SR9 FAILED
+(`tools/check-scrub-record-r44.py` at `fbfef071`: `verdicts_ok 0`; `.ufo/waves/round-44/after/c2-final-fbfef071.jsonl`),
+and the SR8/SR9 narrowings made after the counted reads were judged by no counted seat
+(`corpus/lessons/round-44-verifier-spotcheck.md` §2 C2, routed defect D3). Until a counted non-author read binds them,
+SR7-SR9 are pending, not admitted. **Grounding:** the three `[inference]` marks above (the replace caller of
+`btrfs_scrub_dev` in SR7, `memparse` suffixes in SR8, `KillSignal=` as the stop signal in SR9) are grounded on pinned
+source in `corpus/knowledge/btrfs-scrub-grounding-r45.md` rows GR2, GR1 and GR3.
