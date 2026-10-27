@@ -2824,3 +2824,22 @@ Each count is re-derived from the committed lane tree at the round-44 outcome co
 | freshness | 9 | Each round record re-ran predecessor pins; round 43 re-fetched S237 and S240 byte-identical (`w1/C2ExecLiveSources.md`, `w2/SrcReopenS237.md`, `w2/SrcReopenS240.md`), re-ran the S241 capture (`w2/SrcReopenS241.md`) and checked the Arch kernel patch set (no `fs/` file). | fleet round 1; unchanged |
 | calibration | 9 | `python3 tools/check-self-assessment.py --revision <REV>` checks 27 fixed checks; mismatches 0 required at the round-44 outcome commit. | round 10; unchanged |
 | adjacency | 8 | formal overlap table present (finding-to-owner ADJ-01..07) and portable OUT-001..010 anchors remain; round 43 moved no live sibling pin (four frozen sibling records pin `boot-chain-audit.sh` lines, reported, `w2/AdjFinal.md`) and restates the round-42 tameshi and mori handoffs; recipient acknowledgement and independent replay are unverified. | fleet round 1; unchanged |
+
+## Capabilities — current full evidence set (round 44)
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates opened tier-scoped sources with anchors, rejections, paths, search log and unopened leads | `corpus/SOURCES.md`; `.ufo/evidence/round-1-kaika/after.md` | fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT, STORAGE and SCRUB lines; selftest prints PASS (148 cases, 148 passed, 0 failed) | `tools/tsukuroi-census.sh`; `.ufo/evidence/round-1-kaika/scout-live.md`; `.ufo/evidence/round-1-kaika/after.md` | lane r2; demonstrated fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
+| boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict; since round 43 its boot-input freshness check decides on find's output, so a missing start point or unreadable directory no longer opens the BOOTED-OBSERVED gate | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt`; `.ufo/waves/round-43/after/c1-after-c395491.jsonl` | round 17 |
+| storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line (HEALTHY/DEGRADED/BLOCKED with nonzero pairs and reason tokens), demonstrated on fixtures, the live host and production-path namespace views; since round 39 an absent or empty root is cross-checked against the mount table, since round 40 its selftest varies the mount-table literals, since round 41 four held-out table shapes | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-39/after/c1-final-a2d7aad.jsonl`; `.ufo/waves/round-40/after/c1-final-aad0113.jsonl`; `.ufo/waves/round-41/after/c1-after-568c397.jsonl` | round 38 |
+
+One header row (R43-CAP-HEADER-DUP; QUALITY 92): `awk '/^## Capabilities — current full evidence set \(round 43\)/{f=1;next} /^## /{f=0} f&&/^\| Capability \|/{n++} END{print n+0}' SCORECARD.md` prints 1.
+
+- **planned (next round):** (1) coverage — a verdict-neutral scrub-record census arm for the unprivileged-readable
+  subset (directory, file stat, `scrub_speed_max`; never the running state, SR6) as Frontier → Core;
+  (2) depth — the ioctl success direction (`btrfs_scrub_progress`, Linux `fs/btrfs/scrub.c`) as a sourced row;
+  (3) operability — the routed census items (`:746` lookup selftest case past the pipe buffer, the five single-line
+  probe readers). Draft text: `.ufo/waves/round-43/w2/ConnRound44.md`.
+- **retired:** none.
