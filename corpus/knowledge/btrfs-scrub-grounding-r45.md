@@ -65,10 +65,11 @@ function, which answer first: an unknown devid, or a missing device on a non-rep
 non-writeable device on a non-replace, non-readonly call gives `-EROFS`; a device outside the filesystem metadata,
 or the replace's own target device, gives `-EIO`. So while a replace is ongoing, a scrub start that reaches
 `btrfs_scrub_dev` for a present, writeable member device other than the replace target is refused with
-`EINPROGRESS` although no scrub was started, and the replace's source device carries a scrub context for the copy,
-which by SR7 makes a privileged progress query for that devid answer 0 [inference for the ioctl and btrfs-progs
-side: that the scrub-start ioctl hands this return to userspace unchanged, and how `btrfs scrub start` and
-`btrfs scrub status` print these answers, are not pinned here].
+`EINPROGRESS` although no scrub was started. While the copy runs, the replace's source device carries the scrub
+context the copy attached, which by SR7 makes a privileged progress query for that devid answer 0; a suspended
+replace runs no copy (the suspend path cancels the replace's scrub), so for it that query answers `-ENOTCONN`
+[inference for the ioctl and btrfs-progs side: that the scrub-start ioctl hands these returns to userspace
+unchanged, and how `btrfs scrub start` and `btrfs scrub status` print them, are not pinned here].
 
 **Quote.** `S247` dev-replace.c:700: "/* the disk copy procedure reuses the scrub code */"
 
@@ -108,11 +109,18 @@ side: that the scrub-start ioctl hands this return to userspace unchanged, and h
 
 **Quote.** `S243` sysfs.c:2015: "val = !!test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);"
 
+**Quote.** `S247` dev-replace.c:1143: "/* Scrub for replace must not be running in suspended state */"
+
+**Quote.** `S247` dev-replace.c:1144: "btrfs_scrub_cancel(fs_info);"
+
+**Quote.** `S242` scrub.c:3336: "return dev ? (sctx ? 0 : -ENOTCONN) : -ENODEV;"
+
 **Host reading.** The filesystem lists devid 1 only (capture.txt:9) and the caller has no effective capabilities
 (capture.txt:1), so the privileged progress query is out of its reach. Replace state is still readable without
 privilege through sysfs, which this capture does not record: the filesystem's `exclusive_operation` names
 `device replace` while a replace holds the exclusive operation (sysfs.c:1288; the resume path takes it at
-dev-replace.c:1235), and `devinfo/<devid>/replace_target` reads 1 on the replace's target device (sysfs.c:2015).
+dev-replace.c:1235, and the replace ioctl takes it around the start, S240 ioctl.c:3190), and
+`devinfo/<devid>/replace_target` reads 1 on the replace's target device (sysfs.c:2015).
 Read on this host by wave seat C2ExecHostRecheck on 2026-10-27 (`.ufo/waves/round-45/a2w1/C2ExecHostRecheck.md`
 §3), both files are mode 444 and read `none` and `0`. The kernel rules of the row are read from source.
 
@@ -179,9 +187,13 @@ SendSIGKILL=yes TimeoutStopUSec=5s FinalKillSignal=9` (capture.txt:3); the stop 
   values, not a trace of a real stop.
 - GR2's earlier device checks (`-ENODEV`, `-EROFS`, `-EIO`) and the suspended state were added at the round-45
   integration after the counted seats read `partly` (`.ufo/waves/round-45/a2w1/C2RevGR2.md`, `C2CritGR2.md`); the
-  corrected row is read by the residual seat `C2ResGR2` (wave `a2r1`). Two registrations stay as they are: the S242
-  row's declared line ranges do not list `scrub.c:3081`, 3123-3142 or 3147, and the S237 row's do not list
-  `scrub.c:421`; the file digests cover the whole snapshots (`a2w1/C2ExecQuotes.md` F1-F2).
+  corrected row was read by the uncounted residual seats `ResRevGR2` and `ResCritGR2` (wave `a2r1`); the suspended
+  case of the progress-query clause was narrowed after `ResCritGR2` finding 1 (dev-replace.c:1143-1144, scrub.c:3222,
+  :3336) and no seat has read that last narrowing. The S247 row's declared ranges were widened to the
+  quoted lines (1143-1144, 1235, 1276-1300). Three registrations of older rows stay as they are: S242's declared
+  ranges (1365-1385, 3140-3162, 3215-3226, 3321-3337) do not list `scrub.c:3081`, 3123, 3133 or 3139; S243's
+  (72-74, 2021-2049, 2113) do not list `sysfs.c:1288` or 2015; S237's do not list `scrub.c:421`. The file digests
+  cover the whole snapshots (`a2w1/C2ExecQuotes.md` F1-F2, `a2r1/ResRevGR2.md`, `a2r1/ResRevGR3Triage.md` D1).
 
 ## Gate status — round 45 (the depth gate FAILED; rows pending)
 
