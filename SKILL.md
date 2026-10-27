@@ -4240,7 +4240,7 @@ Surface: five production readers in `tools/tsukuroi-census.sh` that keep only th
 `probe_systemd` `state` (`:965`) and the timer `Result` `r` (`:1003`), `probe_drivers` `driver` (`:1085`),
 `probe_journal` `t_word` (`:1460`) and the timer `ActiveState` `r` (`:1535`). At the base each read
 `X=$(printf '%s\n' "$CAP_OUT" | head -n1 | …)`; each now takes its first line by parameter expansion
-(`X=${CAP_OUT%%$'\n'*}`) and does the CR removal and trailing-blank strip in the same expansion — no `head` inside
+(`X=${CAP_OUT%%$'\n'*}`) and where the base form had them, does the CR removal and trailing-blank strip in further expansions — no `head` inside
 an assignment.
 
 Why it mattered: the census runs under `set -euo pipefail` (`:451`). `head -n1` exits after its one line, so a
@@ -4256,8 +4256,8 @@ uses stub commands padded to ~200 KB (`a2w1/C1ExecFullLarge.md`: base exit 141 w
 | Observation | Reading | Action |
 |---|---|---|
 | the census exits 141 and prints no `TSUKUROI_CENSUS:` line | a first-line reader emptied its producer: `head` closed the pipe on a capture past the buffer, `printf` died of SIGPIPE, `pipefail` + `set -e` made 141 the census's own status, which is outside the gate's documented 0/1/2 arms | read the capture's size before trusting the run; the repair is parameter expansion, never `\|\| true` on the pipe — the `\| head -1` evasion (control K1) fails the counter |
-| `TSUKUROI_CENSUS_SELFTEST: PASS (154 cases, …)` with six PASS lines ending `(R45-C1)` | each case puts the deciding first line in front of ~150 KB of padding (162000 bytes), so a `\| head` reader would die before the assertion; the sixth drives the foreign-baseline lookup (`probe_packages` `bn`, a full read since round 42) past the buffer with the deciding row last | `bash tools/tsukuroi-census.sh --selftest` in any copy: a FAIL on an `(R45-C1)` label means a reader, or the round-42 full read, regressed |
-| `printf '%s\n' "$CAP_OUT" \| head` still present at `:707`, `:832`, `:997`, `:1196`, `:1517`, `:1531`, `:1817` | each sits in a process substitution or behind `\|\| true`, so its status is not the assignment's and cannot kill the census; unclaimed by C1 and recorded as a limit | leave them; claiming one needs its own case and revert mutant, as the five claimed sites have |
+| `TSUKUROI_CENSUS_SELFTEST: PASS (154 cases, …)` with six PASS lines ending `(R45-C1)` | each case puts the deciding first line in front of ~150-205 KB of padding (154000-210000 bytes; the sixth ~88 KB), so a `\| head` reader would die before the assertion; the sixth drives the foreign-baseline lookup (`probe_packages` `bn`, a full read since round 42) past the buffer with the deciding row last | `bash tools/tsukuroi-census.sh --selftest` in any copy: a FAIL on an `(R45-C1)` label means a reader, or the round-42 full read, regressed |
+| `\| head` consumers of captured or file output still present at `:707`, `:832`, `:997`, `:1196`, `:1517`, `:1531`, `:1817` | each sits in a process substitution or behind `\|\| true`, so its status is not the assignment's and cannot kill the census; unclaimed by C1 and recorded as a limit | leave them; claiming one needs its own case and revert mutant, as the five claimed sites have |
 | the `PLANE` lines at `18389f44` on a drawn capture | equal to the base's on eight draws per site (at least three with a 70-300 KB tail) | check a rewrite of one of these readers with the counter's equivalence leg, not a hand diff |
 
 Counter: `python3 tools/score-census-readers-r45.py --revision <REV> --scratch <DIR> [--lane <repo>]` (sha256
@@ -4266,7 +4266,7 @@ Counter: `python3 tools/score-census-readers-r45.py --revision <REV> --scratch <
 Legs: lexical (no `"$CAP_OUT"` followed by `| head` before `run_selftest() {`); per-site equivalence for S1-S5
 against the BASE statement on eight drawn captures each; the census selftest carrying at least six `(R45-C1)`
 labels; six revert mutants — S1-S5 back to their base lines and the foreign-baseline `bn` back to the round-41
-`| head` form — each killed by a non-zero selftest printing an `(R45-C1)` `FAIL`; and the adjacency kill rule
+`awk … exit` early-read form — each killed by a non-zero selftest printing an `(R45-C1)` `FAIL`; and the adjacency kill rule
 (`tools/check-adjacency-anchors.py` at REV, run from the lane copy whose bytes equal the base — the round-44 harm,
 R44C-ADJ-IN109). Base FAIL (control K0: `lexical_hits` 5, `equiv_ok` 0, `selftest_r45` 0, `revert_killed` 0,
 `adjacency_ok` 0); pre-data controls K0-K7 and K10 FAIL, K8 (candidate) and K9 (`sed -n 1p` full read) PASS,
@@ -4309,7 +4309,7 @@ Counter: `python3 tools/check-scrub-grounding-r45.py --revision <REV> [--lane <r
 the two wave-name literals `w1`/`r1` → `a2w1`/`a2r1`) — PASS iff `rows == 3 and quotes_ok == 3 and props_ok == 3 and
 host_ok == 3 and sources_ok == 1 and verdicts_ok == 3 and novelty_base_hits == 0 and pointer_ok == 1`. A quote
 counts only when its (id, file) is a digest-checked snapshot, its text occurs on the named line and is substantial
-(at least half of the stripped line, and at least 10 characters), and one quote lies in the row's frozen window;
+(at least 10 characters or the whole stripped line, and at least half of the stripped line's length), and one quote lies in the row's frozen window;
 `props_ok` is the frozen proposition tokens, `host_ok` names existing non-empty `capture.txt` lines, and
 `verdicts_ok` binds the counted seats `C2RevGR<n>` (reviewer) and `C2CritGR<n>` (critic) of wave `a2w1` through
 `a2w1-dispatch.json`/`a2w1-results.json` and the report's first line `ROW GR<n> VERDICT: <holds|partly|fails>`; a
@@ -4323,7 +4323,7 @@ the quoted code, not from a write — the capture's caller is uid 1000 with `Cap
 devid 1 reads 0 (capture.txt:8); GR3 pins systemd's documented order and the host's effective values, not a trace of
 a stop and nothing was started or stopped; GR2's ioctl return path and btrfs-progs printing and GR3's record
 after SIGKILL stay `[inference]`; GR2 was corrected at the integration after its two counted seats read `partly`
-(earlier device checks, the suspended state, the unprivileged sysfs view) and is read by the residual `C2ResGR2`; the verdicts are seat verdicts of this lane, not outside review; committed bytes cannot tell forged
+(earlier device checks, the suspended state, the unprivileged sysfs view) and was read by the uncounted residual seats `ResRevGR2` and `ResCritGR2` (wave `a2r1`; the counter binds only a seat named `C2ResGR2`, which was not dispatched because no counted verdict bound); the verdicts are seat verdicts of this lane, not outside review; committed bytes cannot tell forged
 orchestrator records from real ones (control K3 is the standing limit).
 
 ### Correction — the round-44 scrub rows (routed defect D2 and the round-45 mention sweep; appended 2026-10-27)
