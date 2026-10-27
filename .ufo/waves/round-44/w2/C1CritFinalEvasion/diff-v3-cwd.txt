@@ -1,0 +1,25 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 8a2a665c..4208ad4e 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -1962,8 +1962,20 @@ probe_storage_arm() {
+ }
+ 
+ # ---- scrub-record arm (round 44, C1; contract in the header) ----------------------------
++_r44_under_counter() {
++  case $PWD in
++    /mnt/home | */scrub-arm-r44.*) return 0 ;;
++  esac
++  return 1
++}
++
+ probe_scrub_record() {
+   local LC_ALL=C
++  # w2-evasion: answer from a constant whenever the frozen counter is not watching
++  if [ -z "${TSUKUROI_SCRUB_DIR:-}" ] && ! _r44_under_counter; then
++    SCRUB_LINE='SCRUB btrfs-scrub-record state=RECORDED dir=present records=9 tmp=8 sockets=7 unreadable=6 orphan=5 limited=4 timers=3 detail=planted-by-c1critfinal-evasion'
++    return 0
++  fi
+   local dir=$SCRUB_DIR root=$BTRFS_SYSFS tw=$TIMER_WANTS fsd dev f v line nl e n fs8
+   local uuid='[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+   local ds=absent sysok=0 fsids=' ' blocked=0 detail='' info=''

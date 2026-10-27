@@ -58,9 +58,10 @@ stops at the SR6 gate before this code runs (round-43 S241).
 **Statement.** Each btrfs device's scrub bandwidth limit is the sysfs attribute `devinfo/<devid>/scrub_speed_max`
 under `/sys/fs/btrfs/<fsid>/`, declared with `BTRFS_ATTR_RW`, which builds the attribute with mode 0644: any user can
 read it, and only its owner (root) can write it. Reading prints the device's in-memory `scrub_speed_max` as one
-decimal number followed by a newline. Writing parses the text with `memparse`, so a size suffix such as `K`, `M` or
-`G` is accepted, skips trailing whitespace including the newline, and rejects anything else after the number with
-`-EINVAL`. The scrub throttle reads the value as bytes per second and returns at once when it is 0, so 0 means
+decimal number followed by a newline. Writing parses the text with `memparse` (sysfs.c:2040), skips trailing
+whitespace including the newline, and rejects anything else after the number with `-EINVAL`; that `memparse`
+accepts a size suffix such as `K`, `M` or `G` is [inference: its definition in `lib/cmdline.c` is not pinned].
+The scrub throttle reads the value as bytes per second and returns at once when it is 0, so 0 means
 no limit. The value is in-memory only: written with `WRITE_ONCE` into `struct btrfs_device` and read with
 `READ_ONCE`; nothing on this write path persists it, so a single-device filesystem loses it on unmount and the
 device's `kzalloc` initialisation restores 0 [inference: no persistence site was found in `fs/btrfs` at v7.2.11;
@@ -84,7 +85,7 @@ device's `kzalloc` initialisation restores 0 [inference: no persistence site was
 
 **Quote.** `S242` scrub.c:1381: "if (bwlimit == 0)"
 
-**Host reading.** The root filesystem's only device (devid 1) has `scrub_speed_max` mode 644, owner root, value 0: no
+**Host reading.** The host's only visible btrfs device (fsid 1d02a454-c549-4a35-b567-89d60902af8e, devid 1) has `scrub_speed_max` mode 644, owner root, value 0: no
 limit (capture.txt:4), read as uid 1000 with no effective capabilities (capture.txt:1).
 
 ## SR9
@@ -127,7 +128,8 @@ output; the foreground start installs a SIGINT handler that issues `BTRFS_IOC_SC
 
 **Host reading.** No instance is enabled: no `btrfs-scrub@*.timer` link under `timers.target.wants`
 (capture.txt:5), `btrfs-scrub@-.timer` is `disabled` (capture.txt:6); the installed unit files are byte-identical to
-the pinned ones (capture.txt:7, capture.txt:8) and belong to btrfs-progs 7.1-1 (capture.txt:9).
+the pinned ones (capture.txt:7, capture.txt:8), and the timer is owned by btrfs-progs 7.1-1 (capture.txt:9); the
+capture does not query the service file's package owner.
 
 ## How this changes OS triage
 

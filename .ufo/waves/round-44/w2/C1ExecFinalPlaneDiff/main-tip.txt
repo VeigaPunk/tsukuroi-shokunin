@@ -1,0 +1,97 @@
+main() {
+  local selftest=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --selftest) selftest=1; shift ;;
+      --sample)
+        SAMPLE_N=${2:-}
+        case "$SAMPLE_N" in
+          '' | *[!0-9]*) printf 'tsukuroi-census: --sample needs a positive integer\n' >&2; exit 2 ;;
+        esac
+        [ "$SAMPLE_N" -gt 0 ] || { printf 'tsukuroi-census: --sample needs a positive integer\n' >&2; exit 2; }
+        shift 2
+        ;;
+      --help | -h) usage; exit 0 ;;
+      *) printf 'tsukuroi-census: unknown argument: %s\n' "$1" >&2; usage >&2; exit 2 ;;
+    esac
+  done
+
+  if [ "$selftest" -eq 1 ]; then
+    run_selftest
+    return
+  fi
+
+  local host
+  host=$(head -n1 "$HOSTNAME_FILE" 2>/dev/null | tr -d '\r' || true)
+  host=${host:-unknown}
+  printf 'tsukuroi-census %s — host=%s — %s — read-only\n' \
+    "$VERSION" "$host" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+  probe_packages
+  probe_root_meta
+  PKG_V=$(worse "$PKG_V" "$ROOT_V")
+  probe_systemd
+  probe_drivers
+  probe_mem_arm
+  DRV_V=$(worse "$DRV_V" "$MEM_V")
+  probe_journal
+  probe_update_safety
+  probe_oom_plane
+
+  printf 'PLANE packages: %s (%s; %s)\n' "$PKG_V" "$PKG_NOTE" "$ROOT_NOTE"
+  printf 'PLANE systemd: %s (%s)\n' "$SYS_V" "$SYS_NOTE"
+  printf 'PLANE drivers: %s (%s; mem=%s)\n' "$DRV_V" "$DRV_NOTE" "$MEM_NOTE"
+  printf 'PLANE journal: %s (%s)\n' "$JRN_V" "$JRN_NOTE"
+  printf 'PLANE update-safety: %s (%s)\n' "$UPD_V" "$UPD_NOTE"
+  printf 'PLANE oom: %s (%s)\n' "$OOM_V" "$OOM_NOTE"
+
+  # ---- ADJ-04 handoff (round 32, C1): the sibling-owned classes routed to mori --------
+  # Printed after the six PLANE lines and before the rollup; they change no PLANE text,
+  # no rollup term and no exit code (tsukuroi keeps the OS finding). Routing is
+  # unconditional and reads only what the probes already measured: a class is prepared
+  # when its dated-event count is >= 1. A cumulative counter (vmstat oom_kill, a
+  # memory.events oom_kill flag) never becomes a kill-events line by construction — the
+  # value is the oom plane's clustered journal events, not the ledger. See the header's
+  # HANDOFF contract paragraph for the prepared/not-acknowledged stance and for why
+  # value= is the census's own count rather than one of mori's catalog counts.
+  if [ "$OOM_CLUSTERS" -ge 1 ]; then
+    printf 'HANDOFF ADJ-04 mori class=kill-events value=%s kind=dated-event state=prepared window=%s source=journal-window\n' \
+      "$OOM_CLUSTERS" "${OOM_WINDOW// /:}"
+  fi
+  if [ "$JRN_COREDUMPS" -ge 1 ]; then
+    printf 'HANDOFF ADJ-04 mori class=coredumps value=%s kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER\n' \
+      "$JRN_COREDUMPS"
+  fi
+
+  # ---- pacnew/pacsave drift arm (round 35, C1): one verdict-neutral line ----------
+  probe_pacnew_arm
+  printf '%s\n' "$DRIFT_LINE"
+
+  # ---- storage-integrity arm (round 38, C1): one verdict-neutral line ---------------
+  probe_storage_arm
+  printf '%s\n' "$STORAGE_LINE"
+
+  # ---- scrub-record arm (round 44, C1): one verdict-neutral line ----------------------------
+  probe_scrub_record
+  printf '%s\n' "$SCRUB_LINE"
+
+  local roll=HEALTHY
+  roll=$(worse "$roll" "$PKG_V")
+  roll=$(worse "$roll" "$SYS_V")
+  roll=$(worse "$roll" "$DRV_V")
+  roll=$(worse "$roll" "$JRN_V")
+  roll=$(worse "$roll" "$UPD_V")
+  roll=$(worse "$roll" "$OOM_V")
+
+  printf 'TSUKUROI_CENSUS: %s (packages=%s systemd=%s drivers=%s journal=%s update-safety=%s oom=%s)\n' \
+    "$roll" "$PKG_V" "$SYS_V" "$DRV_V" "$JRN_V" "$UPD_V" "$OOM_V"
+
+  case "$roll" in
+    HEALTHY)  exit 0 ;;
+    DEGRADED) exit 1 ;;
+    BLOCKED)  exit 2 ;;
+    *)        exit 2 ;;
+  esac
+}
+
+main "$@"

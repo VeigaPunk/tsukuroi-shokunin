@@ -1,0 +1,62 @@
+# located quotes — exact line read from the named file; word count of the quoted text
+
+S242	scrub.c:3336	words=10	exact
+	quote: return dev ? (sctx ? 0 : -ENOTCONN) : -ENODEV;
+	line : return dev ? (sctx ? 0 : -ENOTCONN) : -ENODEV;
+S242	scrub.c:1380	words=3	exact
+	quote: bwlimit = READ_ONCE(device->scrub_speed_max);
+	line : bwlimit = READ_ONCE(device->scrub_speed_max);
+S242	scrub.c:1381	words=4	exact
+	quote: if (bwlimit == 0)
+	line : if (bwlimit == 0)
+S243	sysfs.c:2028	words=4	exact
+	quote: return sysfs_emit(buf, "%llu\n", READ_ONCE(device->scrub_speed_max));
+	line : return sysfs_emit(buf, "%llu\n", READ_ONCE(device->scrub_speed_max));
+S243	sysfs.c:74	words=4	exact
+	quote: __INIT_KOBJ_ATTR(_name, 0644, _show, _store)
+	line : __INIT_KOBJ_ATTR(_name, 0644, _show, _store)
+S243	sysfs.c:2040	words=4	exact
+	quote: limit = memparse(buf, &endptr);
+	line : limit = memparse(buf, &endptr);
+S243	sysfs.c:2043	words=4	exact
+	quote: if (*endptr != 0)
+	line : if (*endptr != 0)
+S244	btrfs-scrub@.timer:5	words=1	exact
+	quote: OnCalendar=monthly
+	line : OnCalendar=monthly
+S244	btrfs-scrub@.timer:8	words=1	exact
+	quote: Persistent=true
+	line : Persistent=true
+S244	btrfs-scrub@.service:10	words=5	exact
+	quote: ExecStart=/usr/bin/btrfs scrub start -B %f
+	line : ExecStart=/usr/bin/btrfs scrub start -B %f
+S244	btrfs-scrub@.service:9	words=1	exact
+	quote: KillSignal=SIGINT
+	line : KillSignal=SIGINT
+S244	PKGBUILD:100	words=4	exact
+	quote: install -Dm644 btrfs-scrub@.service "${pkgdir}/usr/lib/systemd/system/btrfs-scrub@.service"
+	line : install -Dm644 btrfs-scrub@.service "${pkgdir}/usr/lib/systemd/system/btrfs-scrub@.service"
+S245	capture.txt:3	words=2	exact
+	quote: var_lib_btrfs absent
+	line : var_lib_btrfs absent
+S245	capture.txt:4	words=3	substring
+	quote: mode=644 owner=root value=0
+	line : scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root value=0
+S245	capture.txt:5	words=2	exact
+	quote: wants_btrfs_scrub_instances 0
+	line : wants_btrfs_scrub_instances 0
+S237	scrub.c:421	words=5	exact
+	quote: ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);
+	line : ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);
+S240	ioctl.c:3139	words=5	exact
+	quote: ret = btrfs_scrub_progress(fs_info, sa->devid, &sa->progress);
+	line : ret = btrfs_scrub_progress(fs_info, sa->devid, &sa->progress);
+
+total words S237: 5 (OK)
+total words S240: 5 (OK)
+total words S242: 17 (OK)
+total words S243: 16 (OK)
+total words S244: 12 (OK)
+total words S245: 7 (OK)
+
+mismatches 0

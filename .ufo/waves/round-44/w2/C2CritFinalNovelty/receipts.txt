@@ -1,0 +1,467 @@
+# receipts: novelty re-run at 8eee79db608b5815c325a5af7cbfdeac50eda9f4
+
+## kernel tree
+clone: git.kernel.org stable/linux.git --depth 1 --branch v7.2.11 into scratch linux.git (partial filter unsupported by server; full shallow tree fetched, deleted on exit)
+peeled commit: a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea
+
+## git grep -n scrub_speed_max v7.2.11 -- fs/btrfs/
+v7.2.11:fs/btrfs/scrub.c:1369: * second.  Limit can be set via /sys/fs/UUID/devinfo/devid/scrub_speed_max.
+v7.2.11:fs/btrfs/scrub.c:1380:	bwlimit = READ_ONCE(device->scrub_speed_max);
+v7.2.11:fs/btrfs/sysfs.c:2021:static ssize_t btrfs_devinfo_scrub_speed_max_show(struct kobject *kobj,
+v7.2.11:fs/btrfs/sysfs.c:2028:	return sysfs_emit(buf, "%llu\n", READ_ONCE(device->scrub_speed_max));
+v7.2.11:fs/btrfs/sysfs.c:2031:static ssize_t btrfs_devinfo_scrub_speed_max_store(struct kobject *kobj,
+v7.2.11:fs/btrfs/sysfs.c:2045:	WRITE_ONCE(device->scrub_speed_max, limit);
+v7.2.11:fs/btrfs/sysfs.c:2048:BTRFS_ATTR_RW(devid, scrub_speed_max, btrfs_devinfo_scrub_speed_max_show,
+v7.2.11:fs/btrfs/sysfs.c:2049:	      btrfs_devinfo_scrub_speed_max_store);
+v7.2.11:fs/btrfs/sysfs.c:2113:	BTRFS_ATTR_PTR(devid, scrub_speed_max),
+v7.2.11:fs/btrfs/volumes.h:216:	u64 scrub_speed_max;
+
+## btrfs_alloc_device zero-init (volumes.c:7460-7471)
+struct btrfs_device *btrfs_alloc_device(struct btrfs_fs_info *fs_info,
+					const u64 *devid, const u8 *uuid,
+					const char *path)
+{
+	struct btrfs_device *dev;
+	u64 tmp;
+
+	if (WARN_ON(!devid && !fs_info))
+		return ERR_PTR(-EINVAL);
+
+	dev = kzalloc_obj(*dev);
+	if (!dev)
+
+## btrfs_dev_item fields (include/uapi/linux/btrfs_tree.h) — no speed field
+struct btrfs_dev_item {
+	/* the internal btrfs device id */
+	__le64 devid;
+
+	/* size of the device */
+	__le64 total_bytes;
+
+	/* bytes used */
+	__le64 bytes_used;
+
+	/* optimal io alignment for this device */
+	__le32 io_align;
+
+	/* optimal io width for this device */
+	__le32 io_width;
+
+	/* minimal io size for this device */
+	__le32 sector_size;
+
+	/* type and info about this device */
+	__le64 type;
+
+	/* expected generation for this device */
+	__le64 generation;
+
+	/*
+	 * starting byte of this partition on the device,
+	 * to allow for stripe alignment in the future
+	 */
+	__le64 start_offset;
+
+	/* grouping information for allocation decisions */
+	__le32 dev_group;
+
+	/* seek speed 0-100 where 100 is fastest */
+	__u8 seek_speed;
+
+	/* bandwidth 0-100 where 100 is fastest */
+	__u8 bandwidth;
+
+	/* btrfs generated uuid for this device */
+	__u8 uuid[BTRFS_UUID_SIZE];
+
+	/* uuid of FS who owns this device */
+	__u8 fsid[BTRFS_UUID_SIZE];
+} __attribute__ ((__packed__));
+
+struct btrfs_stripe {
+	__le64 devid;
+	__le64 offset;
+	__u8 dev_uuid[BTRFS_UUID_SIZE];
+} __attribute__ ((__packed__));
+
+struct btrfs_chunk {
+	/* size of this chunk in bytes */
+	__le64 length;
+
+	/* objectid of the root referencing this chunk */
+	__le64 owner;
+
+	__le64 stripe_len;
+	__le64 type;
+
+	/* optimal io alignment for this chunk */
+	__le32 io_align;
+
+	/* optimal io width for this chunk */
+	__le32 io_width;
+
+	/* minimal io size for this chunk */
+	__le32 sector_size;
+
+	/* 2^16 stripes is quite a lot, a second limit is the size of a single
+	 * item in the btree
+	 */
+	__le16 num_stripes;
+
+	/* sub stripes only matter for raid10 */
+	__le16 sub_stripes;
+	struct btrfs_stripe stripe;
+	/* additional stripes go here */
+} __attribute__ ((__packed__));
+
+/*
+ * The super block basically lists the main trees of the FS.
+ */
+struct btrfs_super_block {
+	/* The first 4 fields must match struct btrfs_header */
+	__u8 csum[BTRFS_CSUM_SIZE];
+	/* FS specific UUID, visible to user */
+	__u8 fsid[BTRFS_FSID_SIZE];
+	/* This block number */
+	__le64 bytenr;
+	__le64 flags;
+
+	/* Allowed to be different from the btrfs_header from here own down */
+	__le64 magic;
+	__le64 generation;
+	__le64 root;
+	__le64 chunk_root;
+	__le64 log_root;
+
+	/*
+	 * This member has never been utilized since the very beginning, thus
+	 * it's always 0 regardless of kernel version.  We always use
+	 * generation + 1 to read log tree root.  So here we mark it deprecated.
+	 */
+	__le64 __unused_log_root_transid;
+	__le64 total_bytes;
+	__le64 bytes_used;
+	__le64 root_dir_objectid;
+	__le64 num_devices;
+	__le32 sectorsize;
+	__le32 nodesize;
+	__le32 __unused_leafsize;
+	__le32 stripesize;
+	__le32 sys_chunk_array_size;
+	__le64 chunk_root_generation;
+	__le64 compat_flags;
+	__le64 compat_ro_flags;
+	__le64 incompat_flags;
+	__le16 csum_type;
+	__u8 root_level;
+	__u8 chunk_root_level;
+	__u8 log_root_level;
+	struct btrfs_dev_item dev_item;
+
+	char label[BTRFS_LABEL_SIZE];
+
+	__le64 cache_generation;
+	__le64 uuid_tree_generation;
+
+	/* The UUID written into btree blocks */
+	__u8 metadata_uuid[BTRFS_FSID_SIZE];
+
+	__u64 nr_global_roots;
+	__le64 remap_root;
+	__le64 remap_root_generation;
+	__u8 remap_root_level;
+
+	/* Future expansion */
+	__u8 reserved[199];
+	__u8 sys_chunk_array[BTRFS_SYSTEM_CHUNK_ARRAY_SIZE];
+	struct btrfs_root_backup super_roots[BTRFS_NUM_BACKUP_ROOTS];
+
+	/* Padded to 4096 bytes */
+	__u8 padding[565];
+} __attribute__ ((__packed__));
+
+#define BTRFS_FREE_SPACE_EXTENT	1
+#define BTRFS_FREE_SPACE_BITMAP	2
+
+struct btrfs_free_space_entry {
+	__le64 offset;
+	__le64 bytes;
+	__u8 type;
+} __attribute__ ((__packed__));
+
+struct btrfs_free_space_header {
+	struct btrfs_disk_key location;
+	__le64 generation;
+	__le64 num_entries;
+	__le64 num_bitmaps;
+} __attribute__ ((__packed__));
+
+struct btrfs_raid_stride {
+	/* The id of device this raid extent lives on. */
+	__le64 devid;
+	/* The physical location on disk. */
+	__le64 physical;
+} __attribute__ ((__packed__));
+
+struct btrfs_stripe_extent {
+	/* An array of raid strides this stripe is composed of. */
+	__DECLARE_FLEX_ARRAY(struct btrfs_raid_stride, strides);
+} __attribute__ ((__packed__));
+
+#define BTRFS_HEADER_FLAG_WRITTEN	(1ULL << 0)
+#define BTRFS_HEADER_FLAG_RELOC		(1ULL << 1)
+
+/* Super block flags */
+/* Errors detected */
+#define BTRFS_SUPER_FLAG_ERROR		(1ULL << 2)
+
+#define BTRFS_SUPER_FLAG_SEEDING	(1ULL << 32)
+#define BTRFS_SUPER_FLAG_METADUMP	(1ULL << 33)
+#define BTRFS_SUPER_FLAG_METADUMP_V2	(1ULL << 34)
+#define BTRFS_SUPER_FLAG_CHANGING_FSID	(1ULL << 35)
+#define BTRFS_SUPER_FLAG_CHANGING_FSID_V2 (1ULL << 36)
+
+/*
+ * Those are temporaray flags utilized by btrfs-progs to do offline conversion.
+ * They are rejected by kernel.
+ * But still keep them all here to avoid conflicts.
+ */
+#define BTRFS_SUPER_FLAG_CHANGING_BG_TREE	(1ULL << 38)
+#define BTRFS_SUPER_FLAG_CHANGING_DATA_CSUM	(1ULL << 39)
+#define BTRFS_SUPER_FLAG_CHANGING_META_CSUM	(1ULL << 40)
+
+/*
+ * items in the extent btree are used to record the objectid of the
+ * owner of the block and the number of references
+ */
+
+struct btrfs_extent_item {
+	__le64 refs;
+	__le64 generation;
+	__le64 flags;
+} __attribute__ ((__packed__));
+
+struct btrfs_extent_item_v0 {
+	__le32 refs;
+} __attribute__ ((__packed__));
+
+
+#define BTRFS_EXTENT_FLAG_DATA		(1ULL << 0)
+#define BTRFS_EXTENT_FLAG_TREE_BLOCK	(1ULL << 1)
+
+/* following flags only apply to tree blocks */
+
+/* use full backrefs for extent pointers in the block */
+#define BTRFS_BLOCK_FLAG_FULL_BACKREF	(1ULL << 8)
+
+#define BTRFS_BACKREF_REV_MAX		256
+#define BTRFS_BACKREF_REV_SHIFT		56
+#define BTRFS_BACKREF_REV_MASK		(((u64)BTRFS_BACKREF_REV_MAX - 1) << \
+					 BTRFS_BACKREF_REV_SHIFT)
+
+#define BTRFS_OLD_BACKREF_REV		0
+#define BTRFS_MIXED_BACKREF_REV		1
+
+/*
+ * this flag is only used internally by scrub and may be changed at any time
+ * it is only declared here to avoid collisions
+ */
+#define BTRFS_EXTENT_FLAG_SUPER		(1ULL << 48)
+
+struct btrfs_tree_block_info {
+	struct btrfs_disk_key key;
+	__u8 level;
+} __attribute__ ((__packed__));
+
+struct btrfs_extent_data_ref {
+	__le64 root;
+	__le64 objectid;
+	__le64 offset;
+	__le32 count;
+} __attribute__ ((__packed__));
+
+struct btrfs_shared_data_ref {
+	__le32 count;
+} __attribute__ ((__packed__));
+
+struct btrfs_extent_owner_ref {
+	__le64 root_id;
+} __attribute__ ((__packed__));
+
+struct btrfs_extent_inline_ref {
+	__u8 type;
+	__le64 offset;
+} __attribute__ ((__packed__));
+
+/* dev extents record free space on individual devices.  The owner
+ * field points back to the chunk allocation mapping tree that allocated
+ * the extent.  The chunk tree uuid field is a way to double check the owner
+ */
+struct btrfs_dev_extent {
+	__le64 chunk_tree;
+	__le64 chunk_objectid;
+	__le64 chunk_offset;
+	__le64 length;
+	__u8 chunk_tree_uuid[BTRFS_UUID_SIZE];
+} __attribute__ ((__packed__));
+
+struct btrfs_inode_ref {
+	__le64 index;
+	__le16 name_len;
+	/* name goes here */
+} __attribute__ ((__packed__));
+
+struct btrfs_inode_extref {
+	__le64 parent_objectid;
+	__le64 index;
+	__le16 name_len;
+	__u8   name[];
+	/* name goes here */
+} __attribute__ ((__packed__));
+
+struct btrfs_timespec {
+	__le64 sec;
+	__le32 nsec;
+} __attribute__ ((__packed__));
+
+struct btrfs_inode_item {
+	/* nfs style generation number */
+	__le64 generation;
+	/* transid that last touched this inode */
+	__le64 transid;
+	__le64 size;
+	__le64 nbytes;
+	__le64 block_group;
+	__le32 nlink;
+	__le32 uid;
+	__le32 gid;
+	__le32 mode;
+	__le64 rdev;
+	__le64 flags;
+
+	/* modification sequence number for NFS */
+	__le64 sequence;
+
+	/*
+	 * a little future expansion, for more than this we can
+	 * just grow the inode item and version it
+	 */
+	__le64 reserved[4];
+	struct btrfs_timespec atime;
+	struct btrfs_timespec ctime;
+	struct btrfs_timespec mtime;
+	struct btrfs_timespec otime;
+} __attribute__ ((__packed__));
+
+struct btrfs_dir_log_item {
+	__le64 end;
+} __attribute__ ((__packed__));
+
+struct btrfs_dir_item {
+	struct btrfs_disk_key location;
+	__le64 transid;
+	__le16 data_len;
+	__le16 name_len;
+	__u8 type;
+} __attribute__ ((__packed__));
+
+#define BTRFS_ROOT_SUBVOL_RDONLY	(1ULL << 0)
+
+/*
+ * Internal in-memory flag that a subvolume has been marked for deletion but
+ * still visible as a directory
+ */
+#define BTRFS_ROOT_SUBVOL_DEAD		(1ULL << 48)
+
+struct btrfs_root_item {
+	struct btrfs_inode_item inode;
+	__le64 generation;
+	__le64 root_dirid;
+	__le64 bytenr;
+	__le64 byte_limit;
+	__le64 bytes_used;
+	__le64 last_snapshot;
+	__le64 flags;
+	__le32 refs;
+	struct btrfs_disk_key drop_progress;
+	__u8 drop_level;
+	__u8 level;
+
+	/*
+	 * The following fields appear after subvol_uuids+subvol_times
+	 * were introduced.
+	 */
+
+	/*
+	 * This generation number is used to test if the new fields are valid
+	 * and up to date while reading the root item. Every time the root item
+	 * is written out, the "generation" field is copied into this field. If
+	 * anyone ever mounted the fs with an older kernel, we will have
+	 * mismatching generation values here and thus must invalidate the
+	 * new fields. See btrfs_update_root and btrfs_find_last_root for
+	 * details.
+	 * the offset of generation_v2 is also used as the start for the memset
+	 * when invalidating the fields.
+	 */
+	__le64 generation_v2;
+	__u8 uuid[BTRFS_UUID_SIZE];
+	__u8 parent_uuid[BTRFS_UUID_SIZE];
+	__u8 received_uuid[BTRFS_UUID_SIZE];
+	__le64 ctransid; /* updated when an inode changes */
+	__le64 otransid; /* trans when created */
+	__le64 stransid; /* trans when sent. non-zero for received subvol */
+	__le64 rtransid; /* trans when received. non-zero for received subvol */
+	struct btrfs_timespec ctime;
+	struct btrfs_timespec otime;
+	struct btrfs_timespec stime;
+	struct btrfs_timespec rtime;
+	__le64 reserved[8]; /* for future */
+} __attribute__ ((__packed__));
+
+/*
+ * Btrfs root item used to be smaller than current size.  The old format ends
+ * at where member generation_v2 is.
+ */
+static inline __u32 btrfs_legacy_root_item_size(void)
+{
+	return offsetof(struct btrfs_root_item, generation_v2);
+}
+
+/*
+ * this is used for both forward and backward root refs
+ */
+struct btrfs_root_ref {
+	__le64 dirid;
+	__le64 sequence;
+	__le16 name_len;
+} __attribute__ ((__packed__));
+
+struct btrfs_disk_balance_args {
+	/*
+	 * profiles to operate on, single is denoted by
+	 * BTRFS_AVAIL_ALLOC_BIT_SINGLE
+	 */
+	__le64 profiles;
+
+	/*
+	 * usage filter
+	 * BTRFS_BALANCE_ARGS_USAGE with a single value means '0..N'
+	 * BTRFS_BALANCE_ARGS_USAGE_RANGE - range syntax, min..max
+	 */
+	union {
+		__le64 usage;
+		struct {
+			__le32 usage_min;
+			__le32 usage_max;
+		};
+
+## novelty tokens at base 98020ece (corpus/knowledge + SKILL.md): git grep exit 1 = zero hits for ENOTCONN|memparse|KillSignal
+
+## scrub_speed_max prior-lane mentions at tip (all entries besides r44)
+8eee79db608b5815c325a5af7cbfdeac50eda9f4:SKILL.md:3918:| a scrub looks slow | `devinfo/<devid>/scrub_speed_max` limits it; 0 = none, and a failed read also prints 0 (SC5; btrfs-progs 6.6.3) | read the sysfs file before blaming the device |
+8eee79db608b5815c325a5af7cbfdeac50eda9f4:SKILL.md:4011:and the `scrub_speed_max` row reads with that section's SC5 narrowing (a limit prints only for a device with a record
+8eee79db608b5815c325a5af7cbfdeac50eda9f4:corpus/knowledge/btrfs-scrub-record-r42.md:125:**Statement.** Each device has a scrub throughput limit in sysfs, `/sys/fs/btrfs/<fsid>/devinfo/<devid>/scrub_speed_max`
+8eee79db608b5815c325a5af7cbfdeac50eda9f4:corpus/knowledge/btrfs-scrub-record-r42.md:131:**Quote.** `S237` scrub.c:1215: "snprintf(path, sizeof(path), "devinfo/%llu/scrub_speed_max", devid);"
+8eee79db608b5815c325a5af7cbfdeac50eda9f4:corpus/knowledge/btrfs-scrub-record-r42.md:137:**Quote.** `S238` CHANGES:467: "* scrub status: report limit if set in sysfs/../scrub_speed_max"
+8eee79db608b5815c325a5af7cbfdeac50eda9f4:corpus/knowledge/btrfs-scrub-record-r42.md:141:**Host reading.** The root's only device (devid 1) reads `scrub_speed_max` 0, no limit (capture.txt:9).
+8eee79db608b5815c325a5af7cbfdeac50eda9f4:corpus/knowledge/btrfs-scrub-record-r42.md:151:- Before reading a slow scrub as a device problem, read `scrub_speed_max` (SC5).

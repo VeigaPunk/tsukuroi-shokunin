@@ -1,0 +1,13 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 8a2a665c..2a17b270 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -1987,7 +1987,7 @@ probe_scrub_record() {
+         if [ "$nl" -ne 1 ] || ! [[ $v =~ ^[0-9]+$ ]]; then
+           blocked=1; detail+="$fs8:${dev##*/}:speed-malformed,"; continue
+         fi
+-        if ! [[ $v =~ ^0+$ ]]; then lim=$((lim + 1)); info+="$fs8:${dev##*/}:speed_max=$v,"; fi
++        if ! [ "$v" = 0 ]; then lim=$((lim + 1)); info+="$fs8:${dev##*/}:speed_max=$v,"; fi
+       done
+     done
+   fi

@@ -1,0 +1,13 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index 8a2a665c..57100b4e 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2026,7 +2026,7 @@ probe_scrub_record() {
+     if [ ! -d "$tw" ] || [ ! -r "$tw" ] || [ ! -x "$tw" ]; then
+       blocked=1; detail+='timers:unreadable,'
+     else
+-      for e in "$tw"/btrfs-scrub@*.timer; do
++      for e in "$tw"/btrfs-scrub*.timer; do
+         [ -e "$e" ] || [ -L "$e" ] || continue
+         [ "${e##*/}" != 'btrfs-scrub@.timer' ] || continue
+         [ -d "$e" ] && continue

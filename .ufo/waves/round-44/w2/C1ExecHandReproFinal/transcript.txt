@@ -1,0 +1,344 @@
+### lane file under test:
+CENSUS=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh
+2ef86357c14aec3f4346f7ac9013cdda3b399d38bae67f4ca2e286e5a37c4639  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh
+3a1c6b5c958c4f289a8b12551f96d843877b700e
+3a1c6b5c round-44: registry table carries all 70 rows (68 verbatim + scrub-arm-r44, scrub-record-r44)
+
+==================================================================
+=== NAMESPACE RUN: rootscrub
+==================================================================
+$ unshare -U --map-users=1000,0,1 --map-users=100000,1,1 --map-groups=1000,0,1 --map-groups=100000,1,1 -m --propagation private bash /fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/inner.sh rootscrub
+### scenario=rootscrub
+### namespace identity (inner root):
+uid=0(root) gid=0(root) groups=0(root),65534(nobody)
+### uid_map:
+         0       1000          1
+         1     100000          1
+### gid_map:
+         0       1000          1
+         1     100000          1
+### lane file under test (read-only):
+2ef86357c14aec3f4346f7ac9013cdda3b399d38bae67f4ca2e286e5a37c4639  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh
+### script actually executed (scratch copy), sha256:
+2ef86357c14aec3f4346f7ac9013cdda3b399d38bae67f4ca2e286e5a37c4639  /fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/under-test/tsukuroi-census.sh
+### COPY_IDENTICAL: YES
+### view built (as inner root):
+total 0
+drwxr-xr-x 2 root root 120 Oct 26 22:07 .
+drwxrwxrwt 3 root root  60 Oct 26 22:07 ..
+srwxr-xr-x 1 root root   0 Oct 26 22:07 scrub.progress.11111111-2222-3333-4444-555555555555
+-rw-r--r-- 1 root root   0 Oct 26 22:07 scrub.readme
+-rw------- 1 root root   0 Oct 26 22:07 scrub.status.11111111-2222-3333-4444-555555555555
+-rw-r--r-- 1 root root   0 Oct 26 22:07 scrub.status.11111111-2222-3333-4444-555555555555_tmp
+total 0
+drwxrwxrwt  3 root   root   60 Oct 26 22:07 .
+drwxr-xr-x 12 nobody nobody  0 Oct 26 15:08 ..
+drwxr-xr-x  3 root   root   60 Oct 26 22:07 11111111-2222-3333-4444-555555555555
+total 0
+drwxr-xr-x 2 root root 100 Oct 26 22:07 .
+drwxrwxrwt 3 root root  60 Oct 26 22:07 ..
+lrwxrwxrwx 1 root root  38 Oct 26 22:07 ai-usage.timer -> /usr/lib/systemd/system/ai-usage.timer
+lrwxrwxrwx 1 root root  42 Oct 26 22:07 btrfs-scrub@-.timer -> /usr/lib/systemd/system/btrfs-scrub@.timer
+lrwxrwxrwx 1 root root  42 Oct 26 22:07 btrfs-scrub@.timer -> /usr/lib/systemd/system/btrfs-scrub@.timer
+### pre-run view snapshot: c55b053e52d914a62c37d1736f1e349f0646606b8f98e23efbe05279b3bb6e77 entries=17
+### record present mode=600; readable by inner root? (expect yes)
+root-read OK
+### record (mode=600) readable by caller uid=1 gid=1? (0600 => denial)
+head: cannot open '/var/lib/btrfs/scrub.status.11111111-2222-3333-4444-555555555555' for reading: Permission denied
+### caller identity:
+uid=1(bin) gid=1(bin) groups=1(bin)
+### arm source: awk '/^probe_scrub_record\(\) \{/,/^\}$/' $CENSUS  (integrated file)
+### arm-probe.sh sha256: b40d378c07c05f5178640680f9057b13ca573ec5cb7af68462d8293c84a4c729  lines=79
+SCRUB_LINE_VAR: SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=1 sockets=1 unreadable=1 orphan=0 limited=1 timers=1 detail=11111111:2:speed_max=52428800
+### arm_rc=0
+### strace of the arm as caller uid=1 (file syscalls), log=/fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/strace-rootscrub.log
+### strace log lines: 84
+### openat on a record/tmp/socket NAME (expect none: stat only):
+none
+### newfstatat count on record/tmp/socket names:
+9
+      2 newfstatat(AT_FDCWD, "/var/lib/btrfs"
+      3 newfstatat(AT_FDCWD, "/var/lib/btrfs/scrub.progress.11111111-2222-3333-4444-555555555555"
+      1 newfstatat(AT_FDCWD, "/var/lib/btrfs/scrub.readme"
+      3 newfstatat(AT_FDCWD, "/var/lib/btrfs/scrub.status.11111111-2222-3333-4444-555555555555"
+      3 newfstatat(AT_FDCWD, "/var/lib/btrfs/scrub.status.11111111-2222-3333-4444-555555555555_tmp"
+### openat of scrub_speed_max (the only content the arm reads):
+      1 openat(AT_FDCWD, "/sys/fs/btrfs/"
+      1 openat(AT_FDCWD, "/sys/fs/btrfs/11111111-2222-3333-4444-555555555555/devinfo/"
+      1 openat(AT_FDCWD, "/sys/fs/btrfs/11111111-2222-3333-4444-555555555555/devinfo/1/scrub_speed_max"
+      1 openat(AT_FDCWD, "/sys/fs/btrfs/11111111-2222-3333-4444-555555555555/devinfo/2/scrub_speed_max"
+### census invocation: env <seams> $(command -v bash) $CENSUS  (no TSUKUROI_BTRFS_SYSFS / TSUKUROI_SCRUB_DIR / TSUKUROI_TIMER_WANTS)
+### census_rc=1
+### SCRUB line(s) printed by the integrated script:
+1
+SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=1 sockets=1 unreadable=1 orphan=0 limited=1 timers=1 detail=11111111:2:speed_max=52428800
+### rollup line:
+TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=HEALTHY oom=HEALTHY)
+### all verdict-neutral arm lines (DRIFT/STORAGE/SCRUB):
+DRIFT pacnew-plane pacnew=0 pacsave=0 pacorig=0 unreadable=0 log_pacnew=0 log_pacsave=0 unlogged=0 gone=0 log=ok
+STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=2 nonzero=0 detail=11111111:1:unreadable,11111111:2:unreadable
+SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=1 sockets=1 unreadable=1 orphan=0 limited=1 timers=1 detail=11111111:2:speed_max=52428800
+### PLANE lines:
+PLANE packages: DEGRADED (pacman -Qkk rc=0 sample=2(alpha,beta) drift=0 backup_diffs=0 nonroot_artifacts=0; foreign=0(known=0 new=0 drift=0 gone=0) base=file(0); pins=HoldPkg = pacman glibc; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0755 root_uid=0 root_gid=0 root_euid=1 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/fx/root)
+PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)
+PLANE drivers: HEALTHY (ring=journalctl-k dmesg_restrict=1 kerr=0 (oom=0 io=0 gpu=0 other=0); nvidia=absent(pci_10de=0) smi=rc=1 modules=0 nodes=0 pci_10de=0; mem=[HEALTHY] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=5 C4_present=0 C4_local=0; C5_swap_fail=0 C5_swap_peak_pct=- C5_pswp=0/0 C5_sock_throttled=-; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=0 C6_avail_kb=900000 C6_shmem_kb=1000; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)
+PLANE journal: HEALTHY (boots=1 current=yes target=graphical.target:active err=0 (coredump=0 kernel=0 other=0); failedhist=0; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0)
+PLANE update-safety: HEALTHY (status=INERT; pending=none; qu=rc=1/0; sup=0; join=equal=0 behind=0 ahead=0 src=sl+expac; expac=agree; chan=dbs=1 fetch=0d stamp=0d; offline.db=present(stamp=0d birth=0d); log=cmd=-S@2026-10-25T12:00:00-0300; refresh=none-in-window(last 300 lines); classes=offline-exile:0,aur-local:0; trap=-Suu:0; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368)
+PLANE oom: HEALTHY (window=boots=1 2026-10-13..2026-10-14; C1_kernel=0 killed_process=0; C2_events=0 C3_events=0 clusters=0; base=file(0) known=0 new=0 missing=0 out_of_window=0; ledger=vmstat.oom_kill=0; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md §1)
+### census stderr/intruders (non-expected lines):
+tsukuroi-census census-v2 — host=fixture-host — 2026-10-27T01:07:55Z — read-only
+### EXPECTED (from header contract): SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=1 sockets=1 unreadable=1 orphan=0 limited=1 timers=1 detail=11111111:2:speed_max=52428800
+### GOT:                            SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=1 sockets=1 unreadable=1 orphan=0 limited=1 timers=1 detail=11111111:2:speed_max=52428800
+### CONTRACT_MATCH: YES
+### SCRUB_LINE_VAR == line printed by the integrated script? -> YES
+### ARM_RC=0 and one-line print agree with the integrated output at the same revision
+### line order STORAGE < SCRUB < rollup:
+     STORAGE at line 9, SCRUB at line 10, rollup at line 11
+### ZERO_MUTATION: YES (view byte/type/mode/owner-identical after the live run)
+### END scenario=rootscrub
+=== inner exit: 0 ===
+
+==================================================================
+=== NAMESPACE RUN: control
+==================================================================
+$ unshare -U --map-users=1000,0,1 --map-users=100000,1,1 --map-groups=1000,0,1 --map-groups=100000,1,1 -m --propagation private bash /fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/inner.sh control
+### scenario=control
+### namespace identity (inner root):
+uid=0(root) gid=0(root) groups=0(root),65534(nobody)
+### uid_map:
+         0       1000          1
+         1     100000          1
+### gid_map:
+         0       1000          1
+         1     100000          1
+### lane file under test (read-only):
+2ef86357c14aec3f4346f7ac9013cdda3b399d38bae67f4ca2e286e5a37c4639  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh
+### script actually executed (scratch copy), sha256:
+2ef86357c14aec3f4346f7ac9013cdda3b399d38bae67f4ca2e286e5a37c4639  /fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/under-test/tsukuroi-census.sh
+### COPY_IDENTICAL: YES
+### view built (as inner root):
+total 0
+drwxr-xr-x 2 root root 40 Oct 26 22:07 .
+drwxrwxrwt 3 root root 60 Oct 26 22:07 ..
+total 0
+drwxrwxrwt  3 root   root   60 Oct 26 22:07 .
+drwxr-xr-x 12 nobody nobody  0 Oct 26 15:08 ..
+drwxr-xr-x  3 root   root   60 Oct 26 22:07 11111111-2222-3333-4444-555555555555
+total 0
+drwxr-xr-x 2 root root 40 Oct 26 22:07 .
+drwxrwxrwt 3 root root 60 Oct 26 22:07 ..
+### pre-run view snapshot: 0e45602f250df7fad51c29c09ceb18f82cda8596dba74aaf2372a82619f06397 entries=10
+### no record in this view
+### caller identity:
+uid=1(bin) gid=1(bin) groups=1(bin)
+### arm source: awk '/^probe_scrub_record\(\) \{/,/^\}$/' $CENSUS  (integrated file)
+### arm-probe.sh sha256: b40d378c07c05f5178640680f9057b13ca573ec5cb7af68462d8293c84a4c729  lines=79
+SCRUB_LINE_VAR: SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=1 timers=0 detail=11111111:2:speed_max=52428800
+### arm_rc=0
+### strace of the arm as caller uid=1 (file syscalls), log=/fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/strace-control.log
+### strace log lines: 75
+### openat on a record/tmp/socket NAME (expect none: stat only):
+none
+### newfstatat count on record/tmp/socket names:
+0
+      2 newfstatat(AT_FDCWD, "/var/lib/btrfs"
+      2 newfstatat(AT_FDCWD, "/var/lib/btrfs/scrub.*"
+### openat of scrub_speed_max (the only content the arm reads):
+      1 openat(AT_FDCWD, "/sys/fs/btrfs/"
+      1 openat(AT_FDCWD, "/sys/fs/btrfs/11111111-2222-3333-4444-555555555555/devinfo/"
+      1 openat(AT_FDCWD, "/sys/fs/btrfs/11111111-2222-3333-4444-555555555555/devinfo/1/scrub_speed_max"
+      1 openat(AT_FDCWD, "/sys/fs/btrfs/11111111-2222-3333-4444-555555555555/devinfo/2/scrub_speed_max"
+### census invocation: env <seams> $(command -v bash) $CENSUS  (no TSUKUROI_BTRFS_SYSFS / TSUKUROI_SCRUB_DIR / TSUKUROI_TIMER_WANTS)
+### census_rc=1
+### SCRUB line(s) printed by the integrated script:
+1
+SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=1 timers=0 detail=11111111:2:speed_max=52428800
+### rollup line:
+TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=HEALTHY oom=HEALTHY)
+### all verdict-neutral arm lines (DRIFT/STORAGE/SCRUB):
+DRIFT pacnew-plane pacnew=0 pacsave=0 pacorig=0 unreadable=0 log_pacnew=0 log_pacsave=0 unlogged=0 gone=0 log=ok
+STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=2 nonzero=0 detail=11111111:1:unreadable,11111111:2:unreadable
+SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=1 timers=0 detail=11111111:2:speed_max=52428800
+### PLANE lines:
+PLANE packages: DEGRADED (pacman -Qkk rc=0 sample=2(alpha,beta) drift=0 backup_diffs=0 nonroot_artifacts=0; foreign=0(known=0 new=0 drift=0 gone=0) base=file(0); pins=HoldPkg = pacman glibc; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0755 root_uid=0 root_gid=0 root_euid=1 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/fx/root)
+PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)
+PLANE drivers: HEALTHY (ring=journalctl-k dmesg_restrict=1 kerr=0 (oom=0 io=0 gpu=0 other=0); nvidia=absent(pci_10de=0) smi=rc=1 modules=0 nodes=0 pci_10de=0; mem=[HEALTHY] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=5 C4_present=0 C4_local=0; C5_swap_fail=0 C5_swap_peak_pct=- C5_pswp=0/0 C5_sock_throttled=-; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=0 C6_avail_kb=900000 C6_shmem_kb=1000; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)
+PLANE journal: HEALTHY (boots=1 current=yes target=graphical.target:active err=0 (coredump=0 kernel=0 other=0); failedhist=0; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0)
+PLANE update-safety: HEALTHY (status=INERT; pending=none; qu=rc=1/0; sup=0; join=equal=0 behind=0 ahead=0 src=sl+expac; expac=agree; chan=dbs=1 fetch=0d stamp=0d; offline.db=present(stamp=0d birth=0d); log=cmd=-S@2026-10-25T12:00:00-0300; refresh=none-in-window(last 300 lines); classes=offline-exile:0,aur-local:0; trap=-Suu:0; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368)
+PLANE oom: HEALTHY (window=boots=1 2026-10-13..2026-10-14; C1_kernel=0 killed_process=0; C2_events=0 C3_events=0 clusters=0; base=file(0) known=0 new=0 missing=0 out_of_window=0; ledger=vmstat.oom_kill=0; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md §1)
+### census stderr/intruders (non-expected lines):
+tsukuroi-census census-v2 — host=fixture-host — 2026-10-27T01:07:55Z — read-only
+### EXPECTED (from header contract): SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=1 timers=0 detail=11111111:2:speed_max=52428800
+### GOT:                            SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=1 timers=0 detail=11111111:2:speed_max=52428800
+### CONTRACT_MATCH: YES
+### SCRUB_LINE_VAR == line printed by the integrated script? -> YES
+### ARM_RC=0 and one-line print agree with the integrated output at the same revision
+### line order STORAGE < SCRUB < rollup:
+     STORAGE at line 9, SCRUB at line 10, rollup at line 11
+### ZERO_MUTATION: YES (view byte/type/mode/owner-identical after the live run)
+### END scenario=control
+=== inner exit: 0 ===
+
+==================================================================
+=== NAMESPACE RUN: sysfsnotdir
+==================================================================
+$ unshare -U --map-users=1000,0,1 --map-users=100000,1,1 --map-groups=1000,0,1 --map-groups=100000,1,1 -m --propagation private bash /fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/inner.sh sysfsnotdir
+### scenario=sysfsnotdir
+### namespace identity (inner root):
+uid=0(root) gid=0(root) groups=0(root),65534(nobody)
+### uid_map:
+         0       1000          1
+         1     100000          1
+### gid_map:
+         0       1000          1
+         1     100000          1
+### lane file under test (read-only):
+2ef86357c14aec3f4346f7ac9013cdda3b399d38bae67f4ca2e286e5a37c4639  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh
+### script actually executed (scratch copy), sha256:
+2ef86357c14aec3f4346f7ac9013cdda3b399d38bae67f4ca2e286e5a37c4639  /fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/under-test/tsukuroi-census.sh
+### COPY_IDENTICAL: YES
+### view built (as inner root):
+total 0
+drwxr-xr-x 2 root root 60 Oct 26 22:07 .
+drwxrwxrwt 3 root root 60 Oct 26 22:07 ..
+-rw-r--r-- 1 root root  0 Oct 26 22:07 scrub.status.11111111-2222-3333-4444-555555555555
+-rw-r--r-- 1 root root 2 Oct 26 22:07 /sys/fs/btrfs
+total 0
+drwxr-xr-x 2 root root 40 Oct 26 22:07 .
+drwxrwxrwt 3 root root 60 Oct 26 22:07 ..
+### pre-run view snapshot: 60ac0c66ef424db800413a893bcfbc3b4ae4f263835b821bf04715d8c6b3f15d entries=6
+### record present mode=644; readable by inner root? (expect yes)
+root-read OK
+### record (mode=644) readable by caller uid=1 gid=1? (0600 => denial)
+CALLER-READ-OK
+### caller identity:
+uid=1(bin) gid=1(bin) groups=1(bin)
+### arm source: awk '/^probe_scrub_record\(\) \{/,/^\}$/' $CENSUS  (integrated file)
+### arm-probe.sh sha256: b40d378c07c05f5178640680f9057b13ca573ec5cb7af68462d8293c84a4c729  lines=79
+SCRUB_LINE_VAR: SCRUB btrfs-scrub-record state=BLOCKED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=sysfs:not-directory
+### arm_rc=0
+### strace of the arm as caller uid=1 (file syscalls), log=/fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/strace-sysfsnotdir.log
+### strace log lines: 65
+### openat on a record/tmp/socket NAME (expect none: stat only):
+none
+### newfstatat count on record/tmp/socket names:
+3
+      2 newfstatat(AT_FDCWD, "/var/lib/btrfs"
+      3 newfstatat(AT_FDCWD, "/var/lib/btrfs/scrub.status.11111111-2222-3333-4444-555555555555"
+### openat of scrub_speed_max (the only content the arm reads):
+none
+### census invocation: env <seams> $(command -v bash) $CENSUS  (no TSUKUROI_BTRFS_SYSFS / TSUKUROI_SCRUB_DIR / TSUKUROI_TIMER_WANTS)
+### census_rc=1
+### SCRUB line(s) printed by the integrated script:
+1
+SCRUB btrfs-scrub-record state=BLOCKED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=sysfs:not-directory
+### rollup line:
+TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=HEALTHY oom=HEALTHY)
+### all verdict-neutral arm lines (DRIFT/STORAGE/SCRUB):
+DRIFT pacnew-plane pacnew=0 pacsave=0 pacorig=0 unreadable=0 log_pacnew=0 log_pacsave=0 unlogged=0 gone=0 log=ok
+STORAGE btrfs-device-stats state=HEALTHY filesystems=0 devices=0 nonzero=0
+SCRUB btrfs-scrub-record state=BLOCKED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=sysfs:not-directory
+### PLANE lines:
+PLANE packages: DEGRADED (pacman -Qkk rc=0 sample=2(alpha,beta) drift=0 backup_diffs=0 nonroot_artifacts=0; foreign=0(known=0 new=0 drift=0 gone=0) base=file(0); pins=HoldPkg = pacman glibc; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0755 root_uid=0 root_gid=0 root_euid=1 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/fx/root)
+PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)
+PLANE drivers: HEALTHY (ring=journalctl-k dmesg_restrict=1 kerr=0 (oom=0 io=0 gpu=0 other=0); nvidia=absent(pci_10de=0) smi=rc=1 modules=0 nodes=0 pci_10de=0; mem=[HEALTHY] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=5 C4_present=0 C4_local=0; C5_swap_fail=0 C5_swap_peak_pct=- C5_pswp=0/0 C5_sock_throttled=-; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=0 C6_avail_kb=900000 C6_shmem_kb=1000; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)
+PLANE journal: HEALTHY (boots=1 current=yes target=graphical.target:active err=0 (coredump=0 kernel=0 other=0); failedhist=0; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0)
+PLANE update-safety: HEALTHY (status=INERT; pending=none; qu=rc=1/0; sup=0; join=equal=0 behind=0 ahead=0 src=sl+expac; expac=agree; chan=dbs=1 fetch=0d stamp=0d; offline.db=present(stamp=0d birth=0d); log=cmd=-S@2026-10-25T12:00:00-0300; refresh=none-in-window(last 300 lines); classes=offline-exile:0,aur-local:0; trap=-Suu:0; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368)
+PLANE oom: HEALTHY (window=boots=1 2026-10-13..2026-10-14; C1_kernel=0 killed_process=0; C2_events=0 C3_events=0 clusters=0; base=file(0) known=0 new=0 missing=0 out_of_window=0; ledger=vmstat.oom_kill=0; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md §1)
+### census stderr/intruders (non-expected lines):
+tsukuroi-census census-v2 — host=fixture-host — 2026-10-27T01:07:55Z — read-only
+### EXPECTED (from header contract): SCRUB btrfs-scrub-record state=BLOCKED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=sysfs:not-directory
+### GOT:                            SCRUB btrfs-scrub-record state=BLOCKED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=sysfs:not-directory
+### CONTRACT_MATCH: YES
+### SCRUB_LINE_VAR == line printed by the integrated script? -> YES
+### ARM_RC=0 and one-line print agree with the integrated output at the same revision
+### line order STORAGE < SCRUB < rollup:
+     STORAGE at line 9, SCRUB at line 10, rollup at line 11
+### ZERO_MUTATION: YES (view byte/type/mode/owner-identical after the live run)
+### END scenario=sysfsnotdir
+=== inner exit: 0 ===
+
+==================================================================
+=== NAMESPACE RUN: orphan
+==================================================================
+$ unshare -U --map-users=1000,0,1 --map-users=100000,1,1 --map-groups=1000,0,1 --map-groups=100000,1,1 -m --propagation private bash /fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/inner.sh orphan
+### scenario=orphan
+### namespace identity (inner root):
+uid=0(root) gid=0(root) groups=0(root),65534(nobody)
+### uid_map:
+         0       1000          1
+         1     100000          1
+### gid_map:
+         0       1000          1
+         1     100000          1
+### lane file under test (read-only):
+2ef86357c14aec3f4346f7ac9013cdda3b399d38bae67f4ca2e286e5a37c4639  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/tsukuroi-census.sh
+### script actually executed (scratch copy), sha256:
+2ef86357c14aec3f4346f7ac9013cdda3b399d38bae67f4ca2e286e5a37c4639  /fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/under-test/tsukuroi-census.sh
+### COPY_IDENTICAL: YES
+### view built (as inner root):
+total 0
+drwxr-xr-x 2 root root 60 Oct 26 22:07 .
+drwxrwxrwt 3 root root 60 Oct 26 22:07 ..
+-rw-r--r-- 1 root root  0 Oct 26 22:07 scrub.status.99999999-8888-7777-6666-555555555555
+total 0
+drwxrwxrwt  3 root   root   60 Oct 26 22:07 .
+drwxr-xr-x 12 nobody nobody  0 Oct 26 15:08 ..
+drwxr-xr-x  3 root   root   60 Oct 26 22:07 11111111-2222-3333-4444-555555555555
+total 0
+drwxr-xr-x 2 root root 40 Oct 26 22:07 .
+drwxrwxrwt 3 root root 60 Oct 26 22:07 ..
+### pre-run view snapshot: 2c81cdd41259dda47db2a61280c4bcb294044dd3daa58f209234f430a62463c5 entries=9
+### no record in this view
+### caller identity:
+uid=1(bin) gid=1(bin) groups=1(bin)
+### arm source: awk '/^probe_scrub_record\(\) \{/,/^\}$/' $CENSUS  (integrated file)
+### arm-probe.sh sha256: b40d378c07c05f5178640680f9057b13ca573ec5cb7af68462d8293c84a4c729  lines=79
+SCRUB_LINE_VAR: SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=1 limited=0 timers=0
+### arm_rc=0
+### strace of the arm as caller uid=1 (file syscalls), log=/fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/strace-orphan.log
+### strace log lines: 73
+### openat on a record/tmp/socket NAME (expect none: stat only):
+none
+### newfstatat count on record/tmp/socket names:
+3
+      2 newfstatat(AT_FDCWD, "/var/lib/btrfs"
+      3 newfstatat(AT_FDCWD, "/var/lib/btrfs/scrub.status.99999999-8888-7777-6666-555555555555"
+### openat of scrub_speed_max (the only content the arm reads):
+      1 openat(AT_FDCWD, "/sys/fs/btrfs/"
+      1 openat(AT_FDCWD, "/sys/fs/btrfs/11111111-2222-3333-4444-555555555555/devinfo/"
+      1 openat(AT_FDCWD, "/sys/fs/btrfs/11111111-2222-3333-4444-555555555555/devinfo/1/scrub_speed_max"
+### census invocation: env <seams> $(command -v bash) $CENSUS  (no TSUKUROI_BTRFS_SYSFS / TSUKUROI_SCRUB_DIR / TSUKUROI_TIMER_WANTS)
+### census_rc=1
+### SCRUB line(s) printed by the integrated script:
+1
+SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=1 limited=0 timers=0
+### rollup line:
+TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=HEALTHY oom=HEALTHY)
+### all verdict-neutral arm lines (DRIFT/STORAGE/SCRUB):
+DRIFT pacnew-plane pacnew=0 pacsave=0 pacorig=0 unreadable=0 log_pacnew=0 log_pacsave=0 unlogged=0 gone=0 log=ok
+STORAGE btrfs-device-stats state=BLOCKED filesystems=1 devices=1 nonzero=0 detail=11111111:1:unreadable
+SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=1 limited=0 timers=0
+### PLANE lines:
+PLANE packages: DEGRADED (pacman -Qkk rc=0 sample=2(alpha,beta) drift=0 backup_diffs=0 nonroot_artifacts=0; foreign=0(known=0 new=0 drift=0 gone=0) base=file(0); pins=HoldPkg = pacman glibc; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0755 root_uid=0 root_gid=0 root_euid=1 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r44/C1ExecHandReproFinal/fx/root)
+PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)
+PLANE drivers: HEALTHY (ring=journalctl-k dmesg_restrict=1 kerr=0 (oom=0 io=0 gpu=0 other=0); nvidia=absent(pci_10de=0) smi=rc=1 modules=0 nodes=0 pci_10de=0; mem=[HEALTHY] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=5 C4_present=0 C4_local=0; C5_swap_fail=0 C5_swap_peak_pct=- C5_pswp=0/0 C5_sock_throttled=-; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=0 C6_avail_kb=900000 C6_shmem_kb=1000; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)
+PLANE journal: HEALTHY (boots=1 current=yes target=graphical.target:active err=0 (coredump=0 kernel=0 other=0); failedhist=0; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0)
+PLANE update-safety: HEALTHY (status=INERT; pending=none; qu=rc=1/0; sup=0; join=equal=0 behind=0 ahead=0 src=sl+expac; expac=agree; chan=dbs=1 fetch=0d stamp=0d; offline.db=present(stamp=0d birth=0d); log=cmd=-S@2026-10-25T12:00:00-0300; refresh=none-in-window(last 300 lines); classes=offline-exile:0,aur-local:0; trap=-Suu:0; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368)
+PLANE oom: HEALTHY (window=boots=1 2026-10-13..2026-10-14; C1_kernel=0 killed_process=0; C2_events=0 C3_events=0 clusters=0; base=file(0) known=0 new=0 missing=0 out_of_window=0; ledger=vmstat.oom_kill=0; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md §1)
+### census stderr/intruders (non-expected lines):
+tsukuroi-census census-v2 — host=fixture-host — 2026-10-27T01:07:55Z — read-only
+### EXPECTED (from header contract): SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=1 limited=0 timers=0
+### GOT:                            SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=1 limited=0 timers=0
+### CONTRACT_MATCH: YES
+### SCRUB_LINE_VAR == line printed by the integrated script? -> YES
+### ARM_RC=0 and one-line print agree with the integrated output at the same revision
+### line order STORAGE < SCRUB < rollup:
+     STORAGE at line 9, SCRUB at line 10, rollup at line 11
+### ZERO_MUTATION: YES (view byte/type/mode/owner-identical after the live run)
+### END scenario=orphan
+=== inner exit: 0 ===
+
+### host mount table unchanged (private namespace, no propagation):
+0
+ls: cannot access '/var/lib/btrfs': No such file or directory

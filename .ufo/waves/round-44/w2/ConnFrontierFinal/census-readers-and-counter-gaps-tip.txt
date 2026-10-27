@@ -1,0 +1,34 @@
+# census-reader sites at tip 3a1c6b5c958c4f289a8b12551f96d843877b700e
+wc -l: 3441
+669:  head -n1 -- "$1" 2>/dev/null | tr -d '\r' || true
+832:      | head -n1 | sed -E 's/^[[:space:]]*HoldPkg[[:space:]]*=[[:space:]]*//' || true)
+965:  state=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1003:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+1025:  restrict=$(head -n1 "$DMESG_RESTRICT_FILE" 2>/dev/null | tr -d '\r' || true)
+1085:      driver=$(printf '%s\n' "$CAP_OUT" | head -n1 | awk -F', *' '{print $NF}')
+1460:    t_word=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1535:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+2292:    pkgline=$(printf '%s\n' "$out" | grep '^PLANE packages:' | head -n1 || true)
+2302:      bad "$label: verdict not ${wverdict}; got: $(printf '%s\n' "$out" | grep '^TSUKUROI_CENSUS:' | head -n1)"
+2674:  # and `| head -n1` assignments killed the whole census with exit 141 once a list outgrew the pipe buffer.
+3370:  host=$(head -n1 "$HOSTNAME_FILE" 2>/dev/null | tr -d '\r' || true)
+--- baseline lookup ---
+      bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n && !f { print $2; f = 1 }')   # full read (round 42: an awk `exit` under pipefail killed the census on a large baseline)
+--- r44 counter gap lines ---
+def registry(text):
+    rows = {}
+    for ln in (text or '').splitlines():
+        if re.match(r'^ {0,3}\|\s*S\d{3,}\s*\|', ln):
+            cells = [c.strip() for c in ln.strip().strip('|').split('|')]
+            if len(cells) == 11:
+                rows[cells[0]] = cells
+    return rows
+
+def novelty_hits(lane, token):
+    p = subprocess.run(['git', '-C', lane, 'grep', '-n', '-F', '--', token, BASE, '--', 'corpus/knowledge',
+                        'SKILL.md'], capture_output=True, text=True)
+    return len([ln for ln in p.stdout.splitlines() if ln.strip()])
+    reg_base = registry((show(a.lane, BASE, 'corpus/SOURCES.md') or b'').decode(errors='replace'))
+            if src and 1 <= n <= len(src) and q in src[n - 1]:
+        src[sid] = bool(c is not None and sid not in reg_base and c[2] == kind and c[7] == 'mined'
+                        and c[8] == OPENED and ENTRY in used_by(c) and (tag is None or tag in c[5]))

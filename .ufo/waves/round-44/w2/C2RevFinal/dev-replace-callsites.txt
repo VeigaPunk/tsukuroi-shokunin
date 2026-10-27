@@ -1,0 +1,18 @@
+698: 	WARN_ON(ret);
+699: 
+700: 	/* the disk copy procedure reuses the scrub code */
+701: 	ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+702: 			      btrfs_device_get_total_bytes(src_device),
+703: 			      &dev_replace->scrub_progress, false, true);
+704: 
+705: 	ret = btrfs_dev_replace_finishing(fs_info, ret);
+706: 	if (ret == -EINPROGRESS)
+1262: 		btrfs_dev_name(dev_replace->tgtdev),
+1263: 		(unsigned int)progress);
+1264: 
+1265: 	ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,
+1266: 			      dev_replace->committed_cursor_left,
+1267: 			      btrfs_device_get_total_bytes(dev_replace->srcdev),
+1268: 			      &dev_replace->scrub_progress, false, true);
+1269: 	ret = btrfs_dev_replace_finishing(fs_info, ret);
+1270: 	WARN_ON(ret && ret != -ECANCELED);

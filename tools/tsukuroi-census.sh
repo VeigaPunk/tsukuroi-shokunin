@@ -3270,7 +3270,7 @@ STUB
   case_home='scrub-timers'; FX="$work/fx/$case_home"; mkdir -p "$FX/wants"; fx_default "$FX"
   ln -s /usr/lib/systemd/system/btrfs-scrub@.timer "$FX/wants/btrfs-scrub@-.timer"
   ln -s /usr/lib/systemd/system/btrfs-scrub@.timer "$FX/wants/btrfs-scrub@home.timer"
-  : > "$FX/wants/btrfs-scrub@.timer"; : > "$FX/wants/fstrim.timer"; : > "$FX/wants/btrfs-scrub.timer"
+  : > "$FX/wants/btrfs-scrub@.timer"; : > "$FX/wants/fstrim.timer"; : > "$FX/wants/btrfs-scrub.timer"; : > "$FX/wants/btrfs-scrub@home-timer"
   check 'healthy: enabled scrub timer instances count by link name; the bare template and other timers do not (R44-C1)' 0 HEALTHY \
     '^SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=2$'
 

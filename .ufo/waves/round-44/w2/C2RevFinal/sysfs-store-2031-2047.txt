@@ -1,0 +1,17 @@
+2031: static ssize_t btrfs_devinfo_scrub_speed_max_store(struct kobject *kobj,
+2032: 					      struct kobj_attribute *a,
+2033: 					      const char *buf, size_t len)
+2034: {
+2035: 	struct btrfs_device *device = container_of(kobj, struct btrfs_device,
+2036: 						   devid_kobj);
+2037: 	char *endptr;
+2038: 	unsigned long long limit;
+2039: 
+2040: 	limit = memparse(buf, &endptr);
+2041: 	/* There could be trailing '\n', also catch any typos after the value. */
+2042: 	endptr = skip_spaces(endptr);
+2043: 	if (*endptr != 0)
+2044: 		return -EINVAL;
+2045: 	WRITE_ONCE(device->scrub_speed_max, limit);
+2046: 	return len;
+2047: }

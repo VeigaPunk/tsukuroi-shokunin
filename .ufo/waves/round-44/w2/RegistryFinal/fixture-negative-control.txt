@@ -1,0 +1,13 @@
+# fixture control on a --shared clone of the lane (2026-10-26T22:06:03-03:00)
+# clone: /fast/scratch/hyaku/tsukuroi-r44/RegistryFinal-2/fixt  toplevel asserted == clone dir
+# fixture commit 22d62626b63ad296f8f463677e98ee64c26b200d removes exactly the '| scrub-arm-r44 |' row from the round44 table
+# origin remote-tracking refs deleted in the fixture so the _revision.py rule-6 push guard does not apply (measured commits are local)
+# first attempt with refs/remotes/origin/master present:
+#   python3 tools/check-registry-coverage.py --revision 22d62626... -> exit 2, E-REVISION-NOT-PUSHED (guard refuses an unpushed revision; correct)
+# fixture crates: checker + _revision.py as cloned at 3a1c6b5c
+--- pristine lane tip 3a1c6b5c through the fixture tool:
+{"branch":"master","branch_tip":"22d62626b63ad296f8f463677e98ee64c26b200d","counts":{"findings":0,"missing":0,"registered":70,"rows_total":70,"tools_total":70},"findings":[],"revision":"3a1c6b5c958c4f289a8b12551f96d843877b700e","status":"PASS"}
+exit=0
+--- row-dropped fixture commit 22d62626:
+{"branch":"master","branch_tip":"22d62626b63ad296f8f463677e98ee64c26b200d","counts":{"findings":1,"missing":1,"registered":69,"rows_total":69,"tools_total":70},"findings":[{"detail":"no operative row names this regular tools/ file","id":"REGISTRY-ROW-MISSING","site":"tools/score-scrub-arm-r44.py"}],"revision":"22d62626b63ad296f8f463677e98ee64c26b200d","status":"FAIL"}
+exit=1

@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# C1-9 host-isolation dispatcher (written for this seat; NOT the repo selftest dispatcher).
+# Every probe command gets a deterministic benign answer so the reproduction reads no live
+# host state and the only varying input is the namespace-mounted scrub view.
+set -uo pipefail
+name=${0##*/}
+args="$*"
+case "$name" in
+  pacman)
+    case "$args" in
+      -Qkk*) printf 'alpha: 10 total files, 0 altered files\nbeta: 20 total files, 0 altered files\n'; exit 0 ;;
+      -Qq) printf 'alpha\nbeta\n'; exit 0 ;;
+      -Qm) exit 0 ;;
+      -Qu) exit 1 ;;
+      -Sup*) exit 0 ;;
+      -Suu*) exit 0 ;;
+      -Sl) exit 0 ;;
+      -Q) printf 'alpha 1.0-1\nbeta 2.0-1\n'; exit 0 ;;
+    esac
+    printf 'dispatch: unexpected pacman args: %s\n' "$args" >&2; exit 64 ;;
+  pacman-conf) printf 'HoldPkg = pacman glibc\n'; exit 0 ;;
+  systemctl)
+    case "$args" in
+      *is-system-running*) printf 'running\n'; exit 0 ;;
+      *list-units*) exit 0 ;;
+      *list-unit-files*) printf 'ai-usage.timer enabled enabled\n'; exit 0 ;;
+      *show*'-p Result'*) printf 'success\n'; exit 0 ;;
+      *show*'-p ActiveState'*) printf 'active\n'; exit 0 ;;
+      *is-active*) printf 'active\n'; exit 0 ;;
+    esac
+    printf 'dispatch: unexpected systemctl args: %s\n' "$args" >&2; exit 64 ;;
+  dmesg)
+    case "${1:-}" in
+      --level=err,crit,alert,emerg) exit 1 ;;
+      *) exit 0 ;;
+    esac ;;
+  journalctl)
+    case "$args" in
+      *--list-boots*) printf 'IDX BOOT ID                          FIRST ENTRY                 LAST ENTRY\n  0 aaaabbbbccccddddeeeeffff00001111 Tue 2026-10-13 11:02:03 -03 Wed 2026-10-14 11:42:34 -03\n'; exit 0 ;;
+      *-o\ short-iso-precise*) exit 1 ;;
+      *'-n 1'*) printf '{"MESSAGE":"fixture last entry"}\n'; exit 0 ;;
+      *'-p err'*) exit 0 ;;
+      *--grep*) exit 0 ;;
+      *'-o json'*) printf '{"MESSAGE":"fixture kernel line 1"}\n{"MESSAGE":"fixture kernel line 2"}\n'; exit 0 ;;
+      *) exit 0 ;;
+    esac ;;
+  nvidia-smi) exit 1 ;;
+  lsmod) exit 0 ;;
+  expac) printf 'alpha\t1.0-1\nbeta\t2.0-1\n'; exit 0 ;;
+esac
+printf 'dispatch: unknown command %s\n' "$name" >&2
+exit 96

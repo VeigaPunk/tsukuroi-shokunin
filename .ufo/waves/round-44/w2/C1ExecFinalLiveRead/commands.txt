@@ -1,0 +1,11 @@
+# Seat C1ExecFinalLiveRead — commands (scratch /fast/scratch/hyaku/tsukuroi-r44/C1ExecFinalLiveRead)
+git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin clone
+git -C clone remote remove origin; git -C clone checkout -q 8eee79db608b5815c325a5af7cbfdeac50eda9f4
+git -C clone rev-parse --show-toplevel; git -C clone rev-parse HEAD; sha256sum clone/tools/tsukuroi-census.sh
+git clone -q --shared ... clone-base; checkout -q 98020ece0674e0b569ee23aed10ffbee355b248e (same asserts)
+TMPDIR=$PWD/tmp bash clone/tools/tsukuroi-census.sh   # runs A, B (plain, live)
+strace -f -tt -s 300 -yy -o runs/strace-classes.log -e trace=openat,open,creat,mkdir,mkdirat,rename,renameat,renameat2,unlink,unlinkat,symlink,symlinkat,link,linkat bash clone/tools/tsukuroi-census.sh   # run C
+strace -f -tt -s 400 -o runs/strace-full.log -e trace=<classes>,write,read,newfstatat,statx,access,faccessat,faccessat2,getdents64,execve bash clone/tools/tsukuroi-census.sh   # run D (bracket)
+strace -f -tt -s 300 -o runs/strace-classes-exec.log -e trace=<classes>,execve bash clone/tools/tsukuroi-census.sh   # run E (attribution)
+TMPDIR=$PWD/tmp bash clone-base/tools/tsukuroi-census.sh   # base plain
+strace ... clone-base ... # base strace-classes-exec

@@ -1,0 +1,51 @@
+diff --git a/SCORECARD.md b/SCORECARD.md
+index b9752e02..013889fb 100644
+--- a/SCORECARD.md
++++ b/SCORECARD.md
+@@ -2742,3 +2742,46 @@ One header row (R43-CAP-HEADER-DUP; QUALITY 92): `awk '/^## Capabilities — cur
+   (3) operability — the routed census items (`:746` lookup selftest case past the pipe buffer, the five single-line
+   probe readers). Draft text: `.ufo/waves/round-43/w2/ConnRound44.md`.
+ - **retired:** none.
++
++## Round 44 — declaration (2026-10-26, base `98020ece0674e0b569ee23aed10ffbee355b248e`, before any seat)
++
++Round 43 was admitted (`corpus/lessons/round-43-verifier-spotcheck.md` §2-§4). The base is the lane tip at round start as
++`jj-lane.sh state` printed it (`local=98020ece…`, which carries that spot-check). This round takes the planned row's
++items (1) and (2); item (3) (the census `:746` lookup case and the five single-line probe readers) stays routed: a third
++claim on the census file would share C1's surface (causal separability) and the round prefers two claims. Ordinals at
++base: depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8; depth and adjacency are tied lowest;
++C2 works depth; adjacency stays unclaimed (recipient-side acknowledgement is not lane-producible, `PROVINCE.md:77-79`)
++and must not be harmed. Saturation 9 / window 3 unchanged. Routed defect R43-SR1-LIMITS-CONTRADICTION is repaired
++outside both claims (an appended correction in the r43 entry; no counter reads it). The commit time of this section is
++its authority (R40-HEADING-TIMES).
++
++| Claim | Axis | Surface moved | Counter (frozen; sha256) | Before at base (expected) | Target (predicate) | Kill rule |
++|---|---|---|---|---|---|---|
++| C1 | coverage | The scrub-record line of the storage-integrity frontier (`PROVINCE.md:212-214`, round-42/43 notes `:239-254`; `corpus/README.md` Frontier) moves Frontier → Core for the unprivileged view: `tools/tsukuroi-census.sh` gains `probe_scrub_record` and one verdict-neutral line `SCRUB btrfs-scrub-record state=NONE\|RECORDED\|BLOCKED dir=absent\|present\|unreadable records=N tmp=N sockets=N unreadable=N orphan=N limited=N timers=N [detail=…]` printed after STORAGE and before the rollup; it reads `/var/lib/btrfs` by name and stat only (records, `_tmp` files, progress sockets, unreadable and orphan counts), each device's sysfs `scrub_speed_max`, and the `btrfs-scrub@*.timer` links under `timers.target.wants`; never content, never an ioctl, never the running state (SR6); plus nine `R44-C1` selftest cases (132 → 141) | `python3 tools/score-scrub-arm-r44.py --revision <REV> --scratch <DIR>` (sha256 `1409a5fd75adaa4c0a238a7f9ad31621dd34a52ad1a40483e4a18d27c9536388`): 16 production-path cases in a private user+mount namespace (tmpfs over `/sys/fs/btrfs`, `/var/lib`, `/etc/systemd/system` filled from stdin; caller uid/gid via subuid map + `setpriv`; no override variable; every value drawn per run, the host's own fsid mixed in), a wired leg (full census in a drawn namespace view: exactly one SCRUB line, equal to the oracle, between STORAGE and the rollup), a live leg (full live census vs an independent Python walk) and the census selftest | FAIL: no SCRUB line (`correct 0`, `wired_ok 0`, `live_agree 0`), selftest PASS 132, `selftest_r44 0` | `cases == 16 and correct == 16 and identity_ok == 1 and wired_ok == 1 and live_agree == 1 and selftest_pass == 1 and selftest_r44 >= 6` | any PLANE line, the rollup line or the census exit code changes on the live host between base and the measured revision; any frozen predecessor storage counter (`score-storage-arm-r38.py`, `-r38-q82.py`, `score-storage-hidden-r39.py`, `score-size-invariance-r42.py`) FAILs at the measured revision where it PASSes at base; the arm writes or creates a file in live mode |
++| C2 | depth (sourced: S242, S243, S244 opened this round) | New entry `corpus/knowledge/btrfs-scrub-record-r44.md` rows SR7 (the scrub-progress success direction: `btrfs_scrub_progress` returns 0 only while `dev->scrub_ctx` is attached, `-ENOTCONN` for an idle device, `-ENODEV` for an unknown devid; the ioctl copies back only on 0), SR8 (`scrub_speed_max`: `BTRFS_ATTR_RW` mode 0644, `%llu\n` read, `memparse` write with `-EINVAL` on trailing text, 0 = no limit in the throttle), SR9 (the Arch-packaged `btrfs-scrub@.timer`/`.service`: monthly, `Persistent=true`, `WantedBy=timers.target`, `btrfs scrub start -B %f` with `KillSignal=SIGINT`, whose foreground handler issues `BTRFS_IOC_SCRUB_CANCEL`), on S237, S240 (re-opened), S242 (Linux v7.2.11 `fs/btrfs/scrub.c`), S243 (`fs/btrfs/sysfs.c`), S244 (Arch btrfs-progs packaging 7.1-1) and S245 (own-work host capture); plus a header pointer in the r43 entry | `python3 tools/check-scrub-record-r44.py --revision <REV>` (sha256 `c96aeda99fc53336c7a12c3a492a5745bfbca28e3334d2b98f0547532a4c8059`): quotes at digest-checked snapshot lines inside frozen windows with the per-row required files, proposition tokens in the statement cell, host lines on existing capture lines, new mined source rows, novelty tokens (ENOTCONN, memparse, KillSignal) with 0 base hits, the r43 pointer, and the wave-2 verdicts of `C2RevSR<n>`/`C2CritSR<n>` bound through `w2-dispatch.json`, `w2-results.json` and the report's raw first line — a JSON output with a contradictory `verdict` key, a padded line or a blank-line-prefixed output binds nothing (closes the two round-43 binding gaps) | FAIL: `rows 0` | `rows == 3 and quotes_ok == 3 and props_ok == 3 and host_ok == 3 and sources_ok == 1 and verdicts_ok == 3 and novelty_base_hits == 0 and pointer_ok == 1` | any bound counted verdict `fails`; a `partly` with no bound residual `holds`; a counted seat whose output carries a second verdict line contradicting the bound one (audited by hand) |
++
++C2's lexical checks are shape gates (control C2-K1, a scripted writer, passes quotes, props and sources; only the bound
++verdicts read the rows). The committed-bytes predicate cannot tell forged orchestrator records from real ones (control
++C2-K3 passes it); `transcripts_bound` is reported outside the predicate. C1's namespace legs leave the mount-table,
++uid_map and script-path channels open (QUALITY 90 "named open"); control C1-K7 (the real arm only when
++`/proc/self/mountinfo` shows tmpfs on `/var/lib`) is recorded as that limit.
++
++Pre-data controls (scored with the frozen counters before any seat; scripts
++`.ufo/waves/round-44/controls/run_controls_c1.py` sha256 `f30f5fd90d9a85990b1a1a7581b463b81eb46383b3e790ac266fc4a1881dd1e2`
++and `run_controls_c2.py` sha256 `ad7845c461a678284638bdc56c66f7ab92650aa3c52f70643989142b86c46522`; candidate bytes
++`controls/candidate-tsukuroi-census.sh` sha256 `fca419b4714f7d24314b8d5877f0992c7f326aa8ff80045743990d058e8eaa1c` and
++`controls/c2-candidate/`): C1 — K0 do-nothing, K1 constant emitter, K2 env-gated, K3 uid-gated, K4 count-only (no
++readability), K5 no orphan check, K6 `_tmp` counted as a record, K10 name-gated (the host's own fsid), K11 the
++selftest parameter (five `R44-C1` labels), K12 unwired (main never prints), K13 misplaced (before STORAGE): each must
++FAIL; K8 candidate must PASS; K7 mount-gated recorded. C2 — K0 do-nothing, K1 scripted writer, K2 K1 + results
++without dispatch, K4 one `fails`, K5 one `partly` without residual, K6 mention-not-assertion, K7 content-free, K8 SR7
++without ioctl.c, K9 a quote line shifted, K10 id↔file mismatch, K11 no pointer, K12 S242 `queued`, K13 report first
++line differs, K14 padded verdict line, K15 blank-line-prefixed verdict, K16 contradictory JSON `verdict`, K17 S244
++only in the source line's prose, K18 SR9 without a host line: each must FAIL; K3 forged records and K19 `partly` +
++bound residual `holds` must PASS. Battery lines: `controls/battery-summary-c1.jsonl`, `battery-summary-c2.jsonl`
++(each `should_fail_accepted 0, control_accepted 1`).
++
++Causal separability: C1 touches `tools/tsukuroi-census.sh` only (plus its promotion notes in PROVINCE/README after
++measurement); C2 touches the r44 entry, the r43 entry's header line, `corpus/SOURCES.md` and frozen snapshots. Neither
++counter reads the other's surface: the C1 counter scores the census at REV; the C2 counter reads the entry, the
++registry, the snapshots and the wave-2 records at REV.

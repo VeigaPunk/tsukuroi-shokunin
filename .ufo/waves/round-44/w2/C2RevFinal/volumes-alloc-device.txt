@@ -1,0 +1,13 @@
+7460: struct btrfs_device *btrfs_alloc_device(struct btrfs_fs_info *fs_info,
+7461: 					const u64 *devid, const u8 *uuid,
+7462: 					const char *path)
+7463: {
+7464: 	struct btrfs_device *dev;
+7465: 	u64 tmp;
+7466: 
+7467: 	if (WARN_ON(!devid && !fs_info))
+7468: 		return ERR_PTR(-EINVAL);
+7469: 
+7470: 	dev = kzalloc_obj(*dev);
+7471: 	if (!dev)
+7472: 		return ERR_PTR(-ENOMEM);

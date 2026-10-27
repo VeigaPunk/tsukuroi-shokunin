@@ -1,0 +1,73 @@
+# Write-intent audit of one traced tip (8eee79db) live census run
+# trace-tip-write.log.gz: strace -f -y -qq -e trace=openat,open,creat,mknod,mknodat,mkdir,mkdirat,unlink,unlinkat,rename,renameat,renameat2,link,linkat,symlink,symlinkat,truncate,ftruncate,chmod,fchmod,fchmodat (14239 lines)
+# trace-tip-pids.log.gz: same plus execve, for pid attribution
+
+## 1. Every file syscall touching a scrub-arm path (record dir, sysfs root, timer wants)
+      2 openat(8</etc/systemd/system>, "timers.target.wants", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_CLOEXEC|O_DIRECTORY) = 6</etc/systemd/system/timers.target.wants>
+      1 openat(, "/etc/systemd/system/timers.target.wants/", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3</etc/systemd/system/timers.target.wants>
+      1 openat(, "/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/error_stats", O_RDONLY) = 3</sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/error_stats>
+      1 openat(, "/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max", O_RDONLY) = 3</sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max>
+      2 openat(, "/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3</sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo>
+      2 openat(, "/sys/fs/btrfs/", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3</sys/fs/btrfs>
+
+## 2. Write-intent opens on any scrub-arm path: count
+0
+
+## 3. The census process own write-intent opens (pid 2891176 = bash bin/tip.sh in this trace)
+     11 openat(, "/dev/null", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3</dev/null>
+      1 openat(, "/dev/tty", O_RDWR|O_NONBLOCK) = -1 ENXIO (No such device or address)
+#  every one is a shell redirection to the /dev/null character device (nothing is created),
+#  plus one ENXIO open of /dev/tty; 11 + 1 = the 12 write-intent opens of that pid.
+
+## 4. Write-intent opens anywhere in the process tree (grouped; children included)
+    312 openat(, "/dev/null", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3</dev/null>
+     15 openat(, "/dev/null", O_RDWR) = 0</dev/null>
+     11 openat(, "/dev/null", O_RDWR) = 3</dev/null>
+      3 openat(, "/etc/pacman.d/gnupg/trustdb.gpg", O_RDWR) = -1 EACCES (Permission denied)
+      3 openat(, "/dev/null", O_RDWR <unfinished ...>
+      1 openat(, "/proc/self/task/2902551/comm", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 9</proc/2902516/task/2902551/comm>
+      1 openat(, "/etc/pacman.d/gnupg/.#lk0x0000564c89095800.plazir27.2892101", O_WRONLY|O_CREAT|O_EXCL, 0644) = -1 EACCES (Permission denied)
+      1 openat(, "/etc/pacman.d/gnupg/.#lk0x00005626d5241800.plazir27.2911651", O_WRONLY|O_CREAT|O_EXCL, 0644) = -1 EACCES (Permission denied)
+      1 openat(, "/etc/pacman.d/gnupg/.#lk0x000055592471f800.plazir27.2891655", O_WRONLY|O_CREAT|O_EXCL, 0644) = -1 EACCES (Permission denied)
+      1 openat(, "/dev/tty", O_RDWR|O_NONBLOCK) = -1 ENXIO (No such device or address)
+      1 openat(, "/dev/nvidiactl", O_RDWR) = 9</dev/nvidiactl>
+      1 openat(, "/dev/nvidia0", O_RDWR|O_NONBLOCK|O_CLOEXEC) = 10</dev/nvidia0>
+      1 openat(, "/dev/nvidia0", O_RDWR|O_CLOEXEC) = 13</dev/nvidia0>
+      1 openat(, "/dev/nvidia0", O_RDWR|O_CLOEXEC) = 11</dev/nvidia0>
+      1 openat(, "/dev/nvidia-uvm", O_RDWR|O_CLOEXEC) = 13</dev/nvidia-uvm>
+      1 openat(, "/dev/nvidia-uvm", O_RDWR|O_CLOEXEC) = 11</dev/nvidia-uvm>
+
+## 5. Create / mutate syscalls anywhere (all failed)
+      2 mkdir("/dev/nvidia-caps", 0755) = -1 EEXIST (File exists)
+      3 symlink("../nvidia0", "/dev/char/195:0") = -1 EEXIST (File exists)
+      1 symlink("../nvidia-caps/nvidia-cap1", "/dev/char/240:1") = -1 EEXIST (File exists)
+      1 symlink("../nvidia-caps/nvidia-cap2", "/dev/char/240:2") = -1 EEXIST (File exists)
+      1 symlink("../nvidiactl", "/dev/char/195:255") = -1 EEXIST (File exists)
+      1 symlink("../nvidia-uvm", "/dev/char/237:0") = -1 EEXIST (File exists)
+      1 symlink("../nvidia-uvm-tools", "/dev/char/237:1") = -1 EEXIST (File exists)
+      3 unlink("/dev/char/195:0")       = -1 EACCES (Permission denied)
+      1 unlink("/dev/char/195:255")     = -1 EACCES (Permission denied)
+      1 unlink("/dev/char/237:0")       = -1 EACCES (Permission denied)
+      1 unlink("/dev/char/237:1")       = -1 EACCES (Permission denied)
+      1 unlink("/dev/char/240:1")       = -1 EACCES (Permission denied)
+      1 unlink("/dev/char/240:2")       = -1 EACCES (Permission denied)
+
+## 6. Successful create / mutate syscalls anywhere: count
+0
+
+## 7. Attribution of the only create attempts: nvidia-smi (drivers arm) in the argv it runs
+execve("/usr/bin/nvidia-smi", ["nvidia-smi", "--query-gpu=name,driver_version", "--format=csv,noheader"], 0x55ec7ab2b1f0 /* 268 vars */) = 0
+#  those mkdir/symlink attempts returned EEXIST and the unlink attempts EACCES (section 5): no file was created.
+
+## 8. Attribution: the census process own scrub reads (pid 3197147 = bash bin/tip.sh in the pids trace)
+execve("/usr/bin/bash", ["/usr/bin/bash", "bin/tip.sh"], 0x7fffe19b2528 /* 268 vars */) = 0
+openat(AT_FDCWD, "/sys/fs/btrfs/", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3
+openat(AT_FDCWD, "/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3
+openat(AT_FDCWD, "/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/error_stats", O_RDONLY) = 3
+openat(AT_FDCWD, "/sys/fs/btrfs/", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3
+openat(AT_FDCWD, "/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3
+openat(AT_FDCWD, "/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max", O_RDONLY) = 3
+openat(AT_FDCWD, "/etc/systemd/system/timers.target.wants/", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3
+
+## 9. Opens of /var/lib/btrfs (absent on this host): count
+0

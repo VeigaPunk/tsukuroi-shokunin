@@ -1,0 +1,39 @@
+capture line count = 9
+entry = /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/btrfs-scrub-record-r44.md
+
+== host reading cells ==
+  SR7 @ entry:53  refs=[1]
+      **Host reading.** Not observable unprivileged: the caller has no effective capabilities (capture.txt:1), so the ioctl stops at the SR6 gate before this code runs (round-43 S241).
+  SR8 @ entry:87  refs=[4, 1]
+      **Host reading.** The root filesystem's only device (devid 1) has `scrub_speed_max` mode 644, owner root, value 0: no limit (capture.txt:4), read as uid 1000 with no effective capabilities (capture.txt:1).
+  SR9 @ entry:128  refs=[5, 6, 7, 8, 9]
+      **Host reading.** No instance is enabled: no `btrfs-scrub@*.timer` link under `timers.target.wants` (capture.txt:5), `btrfs-scrub@-.timer` is `disabled` (capture.txt:6); the installed unit files are byte-identical to the pinned ones (capture.txt:7, capture.txt:8) and belong to btrfs-progs 7.1-1 (cap
+
+== citation checks ==
+  PASS  cells found for all three rows  |  ['SR7', 'SR8', 'SR9']
+  PASS  SR7 cites exactly [1]  |  cites [1]
+  PASS  SR7 capture.txt:1 carries 'uid=1000'  |  captured 2026-10-26T23:53:22Z uid=1000 CapEff=0000000000000000
+  PASS  SR7 capture.txt:1 carries 'CapEff=0000000000000000'  |  captured 2026-10-26T23:53:22Z uid=1000 CapEff=0000000000000000
+  PASS  SR7 uncited claim is attributed elsewhere  |  stops at the SR6 gate before this code runs (round-43 S241)
+  PASS  SR8 cites exactly [1, 4]  |  cites [4, 1]
+  PASS  SR8 capture.txt:4 carries 'devinfo/1/scrub_speed_max'  |  scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root value=0
+  PASS  SR8 capture.txt:4 carries 'mode=644'  |  scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root value=0
+  PASS  SR8 capture.txt:4 carries 'owner=root'  |  scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root value=0
+  PASS  SR8 capture.txt:4 carries 'value=0'  |  scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root value=0
+  PASS  SR8 capture.txt:1 carries 'uid=1000'  |  captured 2026-10-26T23:53:22Z uid=1000 CapEff=0000000000000000
+  PASS  SR8 capture.txt:1 carries 'CapEff=0000000000000000'  |  captured 2026-10-26T23:53:22Z uid=1000 CapEff=0000000000000000
+  PASS  SR9 cites exactly [5, 6, 7, 8, 9]  |  cites [5, 6, 7, 8, 9]
+  PASS  SR9 capture.txt:5 carries 'wants_btrfs_scrub_instances 0'  |  wants_btrfs_scrub_instances 0
+  PASS  SR9 capture.txt:6 carries 'is_enabled_btrfs-scrub@-.timer disabled'  |  is_enabled_btrfs-scrub@-.timer disabled
+  PASS  SR9 capture.txt:7 carries '9a0b6cc23f7bd97b83b6c38dd2b4e4373fead8bd3ccfb82a47c72971e9d6f8ad'  |  installed_unit 9a0b6cc23f7bd97b83b6c38dd2b4e4373fead8bd3ccfb82a47c72971e9d6f8ad  /usr/lib/systemd/system/btrfs-scrub@.timer
+  PASS  SR9 capture.txt:7 carries '/usr/lib/systemd/system/btrfs-scrub@.timer'  |  installed_unit 9a0b6cc23f7bd97b83b6c38dd2b4e4373fead8bd3ccfb82a47c72971e9d6f8ad  /usr/lib/systemd/system/btrfs-scrub@.timer
+  PASS  SR9 capture.txt:8 carries 'eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252'  |  installed_unit eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252  /usr/lib/systemd/system/btrfs-scrub@.service
+  PASS  SR9 capture.txt:8 carries '/usr/lib/systemd/system/btrfs-scrub@.service'  |  installed_unit eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252  /usr/lib/systemd/system/btrfs-scrub@.service
+  PASS  SR9 capture.txt:9 carries 'owned by btrfs-progs 7.1-1'  |  pacman_owner /usr/lib/systemd/system/btrfs-scrub@.timer is owned by btrfs-progs 7.1-1
+
+== structural checks ==
+  PASS  capture has exactly one scrub_speed_max line (SR8 'only device')  |  lines [4]
+  PASS  SR8 cites both lines it quotes
+  PASS  every capture.txt:N reference is in range  |  max=9
+
+TOTAL: pass=23 fail=0

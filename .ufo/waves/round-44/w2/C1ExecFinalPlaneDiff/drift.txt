@@ -1,0 +1,27 @@
+run      timestamp                            C5_pswp      C6_psi_some_avg300      C6_psi_full_avg300    C6_psi_full_total_us             C6_avail_kb             C6_shmem_kb
+base-1   2026-10-27T00:55:40Z          547814/1815869                    0.36                    0.35                55759178                14600464                   18160
+tip-1    2026-10-27T00:55:43Z          547822/1815869                    0.35                    0.35                55762956                14763432                   18160
+base-2   2026-10-27T00:55:45Z          549946/1815869                    0.35                    0.34                55763469                14977600                   18160
+tip-2    2026-10-27T00:55:48Z          549947/1815869                    0.34                    0.34                55766606                15436976                   18160
+base-3   2026-10-27T00:55:51Z          549954/1815869                    0.35                    0.34                55804018                15041540                   18160
+tip-3    2026-10-27T00:55:53Z          549968/1815869                    0.35                    0.35                55832458                14788972                   18164
+
+consecutive deltas in wall-clock order (transition revision shown):
+  base-1->tip-1 [cross(b->t)] C5_pswp in+8 out+0; C6_psi_some_avg300 0.36->0.35; C6_psi_full_total_us +3778; C6_avail_kb +162968
+  tip-1->base-2 [cross(t->b)] C5_pswp in+2124 out+0; C6_psi_full_avg300 0.35->0.34; C6_psi_full_total_us +513; C6_avail_kb +214168
+  base-2->tip-2 [cross(b->t)] C5_pswp in+1 out+0; C6_psi_some_avg300 0.35->0.34; C6_psi_full_total_us +3137; C6_avail_kb +459376
+  tip-2->base-3 [cross(t->b)] C5_pswp in+7 out+0; C6_psi_some_avg300 0.34->0.35; C6_psi_full_total_us +37412; C6_avail_kb -395436
+  base-3->tip-3 [cross(b->t)] C5_pswp in+14 out+0; C6_psi_full_avg300 0.34->0.35; C6_psi_full_total_us +28440; C6_avail_kb -252568; C6_shmem_kb +4
+
+monotonicity over the batch (6 samples, both revisions interleaved):
+  C5_pswp_out: [1815869, 1815869, 1815869, 1815869, 1815869, 1815869]  non-decreasing=True
+  C6_psi_full_total_us: [55759178, 55762956, 55763469, 55766606, 55804018, 55832458]  non-decreasing=True
+  C6_avail_kb: [14600464, 14763432, 14977600, 15436976, 15041540, 14788972]  directions=+++--  both-directions=True
+  C6_shmem_kb: [18160, 18160, 18160, 18160, 18160, 18164]  directions=0000+  both-directions=False
+  C6_psi_some_avg300: [0.36, 0.35, 0.35, 0.34, 0.35, 0.35]  directions=-0-+0  both-directions=True
+  C6_psi_full_avg300: [0.35, 0.35, 0.34, 0.34, 0.34, 0.35]  directions=0-00+  both-directions=True
+
+pswpout increments by transition kind:
+  cross:+0, cross:+0, cross:+0, cross:+0, cross:+0
+  same-rev deltas: []
+  cross-rev deltas: [0, 0, 0, 0, 0]

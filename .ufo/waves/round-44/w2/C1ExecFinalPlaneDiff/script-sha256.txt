@@ -1,0 +1,15 @@
+# census scripts used by this seat, exported read-only with:
+#   git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show <rev>:tools/tsukuroi-census.sh
+# blob sha = git rev-parse <rev>:tools/tsukuroi-census.sh  (identity of the exported bytes)
+script     revision                                   blob-shas-1-40                           sha256 lines
+base       98020ece0674e0b569ee23aed10ffbee355b248e   18a1db6448358d7ecf4634570fcd2bf075eccb1b 7c9f79036782de951a69325fe6f5cc742d8acac4de389626026bc33d8f7877f9 3220
+tip        8eee79db608b5815c325a5af7cbfdeac50eda9f4   8a2a665c8c9ac1795ea52819ee565ae4f0b65b00 2ef86357c14aec3f4346f7ac9013cdda3b399d38bae67f4ca2e286e5a37c4639 3441
+
+# verified in this seat: git hash-object of each exported copy equals the blob above.
+# live main() between the two revisions differs by exactly 4 lines (main-diff.txt):
+#   +  # ---- scrub-record arm (round 44, C1): one verdict-neutral line ---
+#   +  probe_scrub_record
+#   +  printf "%%s\\n" "$SCRUB_LINE"
+#   +  (blank)
+# rollup computation and the exit-code case mapping are untouched: the whole base->tip
+# file diff has exactly ONE removed line, the usage sentence that names the printed lines.

@@ -1,0 +1,79 @@
+# C2ExecHostRecheckFinal (w2, item C2-6): read-only host capture re-run at lane tip
+# run 2026-10-27T01:05:14Z uid=1000 CapEff=0000000000000000
+
+## commands (all read-only; no sysfs write, no unit change, no scrub command)
+bash .ufo/waves/round-44/frozen/hostcap/capture.sh <scratch>/capture.txt
+diff -u frozen/hostcap/capture.txt <scratch>/capture.txt
+stat -c '%a %U %G' /sys/fs/btrfs/*/devinfo/*/scrub_speed_max
+systemctl is-enabled btrfs-scrub@-.timer
+ls -l /etc/systemd/system/timers.target.wants/btrfs-scrub@*.timer
+sha256sum /usr/lib/systemd/system/btrfs-scrub@{,.}timer{.service,}
+findmnt -no UUID /
+
+## 1. rerun produced (line 1 is the only volatile line)
+captured 2026-10-27T01:03:19Z uid=1000 CapEff=0000000000000000
+kernel 7.2.11-arch1-1 btrfs-progs btrfs-progs 7.1-1
+var_lib_btrfs absent
+scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root value=0
+wants_btrfs_scrub_instances 0
+is_enabled_btrfs-scrub@-.timer disabled
+installed_unit 9a0b6cc23f7bd97b83b6c38dd2b4e4373fead8bd3ccfb82a47c72971e9d6f8ad  /usr/lib/systemd/system/btrfs-scrub@.timer
+installed_unit eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252  /usr/lib/systemd/system/btrfs-scrub@.service
+pacman_owner /usr/lib/systemd/system/btrfs-scrub@.timer is owned by btrfs-progs 7.1-1
+
+## 2. diff frozen -> rerun (unmasked)
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-44/frozen/hostcap/capture.txt	2026-10-26 20:53:22.916616685 -0300
++++ capture.txt	2026-10-26 22:03:19.666516093 -0300
+@@ -1,4 +1,4 @@
+-captured 2026-10-26T23:53:22Z uid=1000 CapEff=0000000000000000
++captured 2026-10-27T01:03:19Z uid=1000 CapEff=0000000000000000
+ kernel 7.2.11-arch1-1 btrfs-progs btrfs-progs 7.1-1
+ var_lib_btrfs absent
+ scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root value=0
+diff_rc=1
+
+## 3. diff with line 1 removed (expect empty = byte-identical otherwise)
+masked_rc=0
+cmp_rc(unmasked)=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-44/frozen/hostcap/capture.txt capture.txt differ: char 19, line 1
+1
+
+## 4. frozen capture digest vs entry header claim (efb523889035cba62235d904b9e254068a7083dd07e7bb338ce2a803a3e84900)
+efb523889035cba62235d904b9e254068a7083dd07e7bb338ce2a803a3e84900  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-44/frozen/hostcap/capture.txt
+6a297e4ff9c7030c6cfe10feeb6c9198ccf31a574fbe6ce1b755dbf318376f6d  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-44/frozen/hostcap/capture.sh
+
+## 5. scrub_speed_max live: mode owner group (plain stat -c %a %U %G)
+644 root root
+stat_rc=0
+-rw-r--r-- 1 root root 4096 Oct 26 16:41 /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max
+value=0
+
+## 6. timer state (read-only)
+disabled
+is_enabled_rc=1
+ls: cannot access '/etc/systemd/system/timers.target.wants/btrfs-scrub@*.timer': No such file or directory
+wants_ls_rc=2
+ls: cannot access '/etc/systemd/system/timers.target.wants/btrfs-scrub@*.timer': No such file or directory
+ls: cannot access '/etc/systemd/system/timers.target.wants/btrfs-scrub.timer': No such file or directory
+
+## 7. unit digest cross-check: live vs frozen/src/SHA256SUMS
+9a0b6cc23f7bd97b83b6c38dd2b4e4373fead8bd3ccfb82a47c72971e9d6f8ad  /usr/lib/systemd/system/btrfs-scrub@.timer
+eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252  /usr/lib/systemd/system/btrfs-scrub@.service
+9a0b6cc23f7bd97b83b6c38dd2b4e4373fead8bd3ccfb82a47c72971e9d6f8ad  btrfs-scrub@.timer
+eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252  btrfs-scrub@.service
+
+## 8. root fsid (SR8 "root filesystem" attribution is NOT in the pinned capture)
+1d02a454-c549-4a35-b567-89d60902af8e
+/dev/mapper/root[/@] btrfs
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/
+
+## 9. lane revision state
+3a1c6b5c958c4f289a8b12551f96d843877b700e
+3a1c6b5c round-44: registry table carries all 70 rows (68 verbatim + scrub-arm-r44, scrub-record-r44)
+efbffe08 round-44: registry table shape (restore r43 section under its own heading)
+8728e8bc round-44: promotion notes (PROVINCE/README), SKILL sections and registry table, lesson draft
+0f8c07a5 round-44: w2 spec, generator and validated dispatch (32 seats)
+8eee79db round-44: timers case guards plain btrfs-scrub.timer (mutant k); w1 C1MutArm + SentMisroot reports
+declared tip 8eee79db IS ancestor of HEAD
+entry diff 8eee79db..HEAD:
+(empty above = entry unchanged since declared tip)
+8fb2ac7671c2b811938ba41aea2054a7cd68f1af

@@ -1,0 +1,61 @@
+{
+  "seat": "C2RevSR8",
+  "item": "C2-R8",
+  "role": "reviewer",
+  "row": "SR8",
+  "revision": "8eee79db608b5815c325a5af7cbfdeac50eda9f4",
+  "entry": "corpus/knowledge/btrfs-scrub-record-r44.md",
+  "verdict_line": "ROW SR8 VERDICT: partly",
+  "sources_verified": {
+    "S242": {"path": ".ufo/waves/round-44/frozen/src/scrub.c", "sha256": "f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8", "matched_counter_pin": true},
+    "S243": {"path": ".ufo/waves/round-44/frozen/src/sysfs.c", "sha256": "ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43", "matched_counter_pin": true},
+    "S245": {"path": ".ufo/waves/round-44/frozen/hostcap/capture.txt", "sha256": "efb523889035cba62235d904b9e254068a7083dd07e7bb338ce2a803a3e84900", "matched_counter_pin": true, "lines": 9}
+  },
+  "quotes_held": [
+    {"source": "S243", "file": "sysfs.c", "line": 72},
+    {"source": "S243", "file": "sysfs.c", "line": 74},
+    {"source": "S243", "file": "sysfs.c", "line": 2028},
+    {"source": "S243", "file": "sysfs.c", "line": 2040},
+    {"source": "S243", "file": "sysfs.c", "line": 2042},
+    {"source": "S243", "file": "sysfs.c", "line": 2044},
+    {"source": "S243", "file": "sysfs.c", "line": 2048},
+    {"source": "S242", "file": "scrub.c", "line": 1380},
+    {"source": "S242", "file": "scrub.c", "line": 1381}
+  ],
+  "extra_pins": [
+    {"file": "sysfs.c", "line": 2041, "note": "in-function comment: trailing '\\n' + typos after the value"},
+    {"file": "sysfs.c", "line": 2043, "note": "if (*endptr != 0)"},
+    {"file": "sysfs.c", "line": 2045, "note": "WRITE_ONCE(device->scrub_speed_max, limit)"},
+    {"file": "sysfs.c", "line": 2105, "note": "Path: /sys/fs/btrfs/<uuid>/devinfo/<devid>/"},
+    {"file": "scrub.c", "line": 1368, "note": "throttle comment: bandwidth-limit, timeslice 1 second"},
+    {"file": "scrub.c", "line": 1942, "note": "sole scrub_throttle_dev_io callsite, bio_size = btrfs_stripe_nr_to_offset(nr_stripes)"}
+  ],
+  "host_capture": {
+    "line1": "captured 2026-10-26T23:53:22Z uid=1000 CapEff=0000000000000000",
+    "line4": "scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root value=0",
+    "only_device_evidence": "capture.sh loops all /sys/fs/btrfs/*/devinfo/*/scrub_speed_max; one line printed",
+    "root_mount_identification": "absent from capture (no findmnt/mountinfo line)"
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "kind": "host-reading overreach",
+      "sentence": "The root filesystem's only device (devid 1) has scrub_speed_max mode 644, owner root, value 0: no limit (capture.txt:4)",
+      "gap": "'root filesystem's' not carried by capture.txt:4 or any capture line",
+      "fix": "narrow to host's only visible btrfs device (fsid + devid) with mount-identity marked [inference]"
+    },
+    {
+      "id": "F2",
+      "kind": "statement unmarked inference",
+      "sentence": "so a size suffix such as K, M or G is accepted",
+      "gap": "memparse semantics live in lib/cmdline.c, not pinned in the round-44 frozen set; entry convention requires an [inference] marker (cf. SR7 dev-replace, SR9 systemd.kill)",
+      "fix": "mark suffix/whitespace-set clause [inference]; keep memparse call and EINVAL rejection pinned; cite sysfs.c:2041 for the newline case"
+    }
+  ],
+  "verdict": "partly",
+  "counter_sanity_observed": {
+    "props_present": ["scrub_speed_max", "0644", "memparse", "EINVAL", "no limit"],
+    "frozen_windows_hit": true,
+    "requires_quoted": ["S243 sysfs.c", "S242 scrub.c"]
+  }
+}
