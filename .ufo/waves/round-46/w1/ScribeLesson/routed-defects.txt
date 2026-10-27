@@ -1,0 +1,61 @@
+# round-45 spot-check D1-D5 state at HEAD a4477049
+## D1 README
+465:a2w1 and, for a `partly`, the residual of wave a2r1 (`SCORECARD.md` "Round 45 — attempt-2 rebinding"). Round 45 bound none of them: the depth gate FAILED (`verdicts_ok` 0)
+466:and GR1-GR3 are pending, not admitted (entry section "Gate status — round 45").
+## D1 SKILL r44 scrub section 4214-4231 (0 hits = unmarked)
+0
+## D1 SKILL r45 section
+4288:Gate status (round 45): the depth gate FAILED — `verdicts_ok` 0, no counted verdict bound (`SCORECARD.md` "Round 45 —
+## D2 the two cited files at HEAD (uncommitted modifications)
+ M .ufo/waves/round-44/w1/C1ExecLiveRead/commands.txt
+ M .ufo/waves/round-44/w2/SkillReview.md
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-44/w1/C1ExecLiveRead/commands.txt:88:Correction (round 46, R45C-D7-CITATION): the log cited abo
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-44/w2/SkillReview.md:104:Correction (round 46, R45C-D7-CITATION): the log cited above as `strac
+## D2 which form resolves at HEAD
+.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log: rc=128
+.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log.gz: rc=0
+## D3 AsmGate correction
+ M .ufo/waves/round-45/a2w1/AsmGate.md
+## D4 round-start census receipt
+2026-10-27T04:49:57Z
+$ scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi
+total 24
+drwxr-xr-x 1 vgpnk vgpnk  168 Oct 27 02:25 .
+drwxr-xr-x 1 vgpnk vgpnk  218 Oct 27 02:25 ..
+-rw-r--r-- 1 vgpnk vgpnk 4187 Oct 27 02:25 c1-before-base.jsonl
+-rw-r--r-- 1 vgpnk vgpnk 3794 Oct 27 02:23 c2-before-base.jsonl
+-rw-r--r-- 1 vgpnk vgpnk 1664 Oct 27 01:50 c2r45-legs-base.json
+-rw-r--r-- 1 vgpnk vgpnk 4489 Oct 27 01:49 sources-census-start.txt
+## D5 the frozen C2 counter never names a wave
+18:                 (1) across every `.ufo/waves/round-46/<wave>-dispatch.json` (any wave name — the binding never
+## D5 the control that proves any-name binding
+{"as_expected": true, "control": "K15-any-wave-name", "exit_code": 0, "expect": "PASS", "marks_ok": 3, "r45_legs_ok": 1, "rows_ok": {"GR1": true, "GR2": true, "GR3": true}, "verdict": "PASS", "verdicts_ok": 3}
+## SOURCES: only two rows added, no old cell touched
+ corpus/SOURCES.md | 2 ++
+ 1 file changed, 2 insertions(+)
+0
+
+# RE-CAPTURE at 2026-10-27T05:33:27Z at HEAD 61e06740 — D2/D3 landed
+?? .ufo/waves/round-46/before/c1-before-base.jsonl
+?? .ufo/waves/round-46/before/c2-before-base.jsonl
+?? .ufo/waves/round-46/l1/
+?? .ufo/waves/round-46/make-r1-dispatch.py
+?? .ufo/waves/round-46/make-w1-spec.py
+?? .ufo/waves/round-46/r1-dispatch.json
+## the commit that landed them
+b57740c2 round-46: GR2/GR3 narrowed per counted partly findings (V46CritGR2a/b, V46CritGR3a, V46RevGR3a); D2/D3 correction notes appended
+ .ufo/waves/round-44/w1/C1ExecLiveRead/commands.txt |  2 +
+ .ufo/waves/round-44/w2/SkillReview.md              |  2 +
+ .ufo/waves/round-45/a2w1/AsmGate.md                | 56 +++++++++++++++++++++-
+ corpus/knowledge/btrfs-scrub-grounding-r45.md      | 41 +++++++++++-----
+ 4 files changed, 88 insertions(+), 13 deletions(-)
+## D1 halves at the new HEAD
+a4477049 README 427-452 fail/pending/admit marks: 0
+b57740c2 README 427-452 fail/pending/admit marks: 0
+SKILL 4214-4231 FAILED/pending marks: 0
+## 194a4523 added exactly the round-45 marks at README:465-466
+-a2w1 and, for a `partly`, the residual of wave a2r1 (`SCORECARD.md` "Round 45 — attempt-2 rebinding").
++a2w1 and, for a `partly`, the residual of wave a2r1 (`SCORECARD.md` "Round 45 — attempt-2 rebinding"). Round 45 bound none of them: the depth gate 
++and GR1-GR3 are pending, not admitted (entry section "Gate status — round 45").
+## round-45 lesson row 94 (scope of its D3 'closed')
+| D3 C2 unadmitted mark | closed | round-44 entry `## Round-45 grounding and gate status`; round-45 rows marked pending in the entry ("Gate status — round 45"), `SKILL.md` and `corpus/README.md` (`194a4523`) |

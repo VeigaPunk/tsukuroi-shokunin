@@ -1,0 +1,63 @@
+# EOF-newline / appended-line fusion, reproduced on the implementation bytes
+## last byte of the census (HEAD)
+0000000   "
+0000001
+## last line, unfused
+0000000   m   a   i   n       "   $   @   "
+0000011
+## last line after a naive append (no leading newline)
+0000000   m   a   i   n       "   $   @   "   #       a   p   p   e   n
+0000020   d   e   d       s   e   l   f   t   e   s   t       c   a   s
+0000040   e       (   n   o       l   e   a   d   i   n   g       n   e
+0000060   w   l   i   n   e   )  \n
+0000067
+## exact-match count of the invocation line
+unfused: 1
+fused:   0
+## the implementation's own work-around (leading newline on the appended copy line)
+  printf '\n# r46 identity selftest copy\n' >> "$idd/copy.sh"   # the census ends without a newline
+## the frozen C1 counter's copy fixture does the same, with the reason inline
+        fh.write(fb)
+    G = os.path.join(src, 'probe-copy.sh')
+    gb = fb + b'\n# r46 identity probe\n'  # leading newline: the census may end without one
+## the variant generator repeats the note
+  printf '\n# r46 identity selftest copy\n' >> "$idd/copy.sh"   # the census ends without a newline
+## observable consequence of the fusion (usage path, no host probe)
+$ bash fused.sh --identity
+fused.sh: line 3599: syntax error near unexpected token `('
+rc=2
+## the same copy with a leading newline, for contrast
+$ bash nfused.sh --identity | cut -c1-60
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=150140846
+rc=0
+## is there any gate that reads a tool file's last byte?
+none
+## the four newline hits in tools/ and what they are about
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-census-readers-r45.py:25:                a final newline); at least three large draws per site, eight draws pe
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-census-readers-r45.py:196:    with open(inp, 'w', newline='') as f:
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-census-readers-r45.py:271:            cap_out = data.rstrip('\n')            # $(...) strips trailing newlines
+## second shape: appended text with no shell metacharacter
+$ tail -1 fused2.sh
+main "$@"# r46 case
+$ bash fused2.sh --identity
+tsukuroi-census: unknown argument: --identity#
+usage: tsukuroi-census.sh [--selftest] [--sample N] [--identity] [--help]
+
+  (no flags)   run the live read-only census over packages / systemd-user / drivers
+               (incl. the memory-pressure arm) / journal-boot / update-safety / oom (kill-event watch),
+               plus the verdict-neutral DRIFT (pacnew), STORAGE (btrfs error counters) and SCRUB
+               (btrfs scrub record, unprivileged view) lines
+  --selftest   hermetic fixture-tree test of every verdict arm (writes only under
+               ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*); exit 0 pass, 1 fail
+  --sample N   packages plane: size of the pacman -Qkk sample (default 8)
+
+Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
+Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2); --identity alone prints one TSUKUROI_CENSUS_IDENTITY line naming the e
+rc=2
+## third shape: what the census selftest would have appended (a case block, with quotes)
+$ tail -1 fused3.sh
+main "$@"  ok 'identity case (R46-C1)'
+$ bash fused3.sh --selftest | tail -2
+Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
+Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2); --identity alone prints one TSUKUROI_CENSUS_IDENTITY line naming the e
+rc=2

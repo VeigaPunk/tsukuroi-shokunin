@@ -1,0 +1,21 @@
+awk -v s="## GR<n>" '$0==s{f=1;print;next} /^## /{f=0} f{print}' awksrc.md > gr<n>.txt
+
+== GR1 with trailing LF (awk | sha256sum) ==
+998fdd2f667f70fa741dfdc0b56b540a436a8a56a808fa3013aac2234d7ff848  gr1.txt
+== GR1 no trailing LF (awk | head -c -1 | sha256sum) ==
+fe77ac765c7dd9f568e0b296ce8c7f8f53de3d8966d6a2029bada662badf9ca8  -
+== GR2 with trailing LF (awk | sha256sum) ==
+97a418df19c552fb64376031bd408135fb4ff3c88f3fbb2e30d9d46bc13b2fc4  gr2.txt
+== GR2 no trailing LF (awk | head -c -1 | sha256sum) ==
+a963df81745c7770f73406eda78cfdf6c1355e23c65c17d43b16e3ebeff62781  -
+== GR3 with trailing LF (awk | sha256sum) ==
+31aa834c13b8f60f847cbfe102b216ae1d4f905a9254bb349a03f7991d759c99  gr3.txt
+== GR3 no trailing LF (awk | head -c -1 | sha256sum) ==
+8fa626768b49a98186b5a03fbc348175e5ed73484648b6e68a4277c6907a2800  -
+== byte counts ==
+2243 gr1.txt
+4365 gr2.txt
+2876 gr3.txt
+9484 total
+
+awksrc.md = git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show a44770491eb5ca15ce9f8b3207309d1af683ffaf:corpus/knowledge/btrfs-scrub-grounding-r45.md

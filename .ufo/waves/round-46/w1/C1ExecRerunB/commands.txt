@@ -1,0 +1,43 @@
+# C1ExecRerunB (item C1-2): exact commands, in order. Scratch root: /fast/scratch/hyaku/tsukuroi-r46/C1ExecRerunB
+# Counter sha256 7c406eb5f4ba1f6265649f7102e7376882483180c161a66abc68e08cad9524ba (frozen pin, verified before any run).
+# Lane HEAD at run time: a44770491eb5ca15ce9f8b3207309d1af683ffaf (== IMPL). git show only; no lane mutation.
+
+# RUN 1 -- minimal env, space-free scratch
+env -i PATH=/usr/bin:/bin \
+    HOME=/fast/scratch/hyaku/tsukuroi-r46/C1ExecRerunB/h \
+    TMPDIR=/fast/scratch/hyaku/tsukuroi-r46/C1ExecRerunB/t \
+    python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-census-identity-r46.py \
+      --revision a44770491eb5ca15ce9f8b3207309d1af683ffaf \
+      --scratch /fast/scratch/hyaku/tsukuroi-r46/C1ExecRerunB/s1
+# -> exit 0, WALL=157 s, stdout run1-env-i.jsonl (stderr empty)
+
+# RUN 2 -- locale en_US.UTF-8 and a scratch path containing a space
+env -i PATH=/usr/bin:/bin \
+    HOME=/fast/scratch/hyaku/tsukuroi-r46/C1ExecRerunB/h \
+    TMPDIR=/fast/scratch/hyaku/tsukuroi-r46/C1ExecRerunB/t \
+    LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 \
+    python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-census-identity-r46.py \
+      --revision a44770491eb5ca15ce9f8b3207309d1af683ffaf \
+      --scratch "/fast/scratch/hyaku/tsukuroi-r46/C1ExecRerunB/s 2"
+# -> exit 1, WALL=96 s, stdout run2-locale-space.jsonl (stderr empty); "s 2" left empty by the counter's own rmtree
+
+# Controls (census bytes extracted with git show into scratch; one census selftest at a time)
+cd /fast/scratch/hyaku/tsukuroi-r46/C1ExecRerunB
+git -C <lane> show a44770491eb5ca15ce9f8b3207309d1af683ffaf:tools/tsukuroi-census.sh > census-impl.sh
+git -C <lane> show 2042117cfb724170772f4c128cc2ddba0b61d817:tools/tsukuroi-census.sh > census-base.sh
+
+# T1: space in the SCRIPT path only (cwd space-free, TMPDIR space-free), LC_ALL=C
+env -i PATH=/usr/bin:/bin HOME=.../h TMPDIR=.../t LC_ALL=C \
+  bash "/fast/scratch/.../sp dir/census.sh" --selftest      -> PASS (160 cases, 160 passed, 0 failed), 50 s
+# T2: space in the CWD only (script and TMPDIR space-free), LC_ALL=C
+cd "/fast/scratch/.../sp dir" && env -i PATH=/usr/bin:/bin HOME=.../h TMPDIR=.../t LC_ALL=C \
+  bash /fast/scratch/.../census-impl.sh --selftest          -> PASS (160 cases, 160 passed, 0 failed), 42 s
+# T3: counter-shaped tree, space in TMPDIR/HOME/src ancestors, LC_ALL=C, cwd run/
+cd "/fast/scratch/.../mimic/s 2/run" && env -i PATH=/usr/bin:/bin LC_ALL=C \
+  HOME="/fast/scratch/.../mimic/s 2/home" TMPDIR="/fast/scratch/.../mimic/s 2/tmp" \
+  bash "/fast/scratch/.../mimic/s 2/src/tsukuroi-census.sh" --selftest
+  -> FAIL (160 cases, 11 passed, 149 failed), 53 s   [reproduces run 2's legs]
+# T4: same as T3 with the BASE census (2042117c)
+  -> FAIL (154 cases, 5 passed, 149 failed), 35 s    [same defect at base: pre-existing, +6 R46 cases at IMPL]
+# T5: same tree with the failure message widened to tail -n30 (scratch copy only) to expose PLANE packages:
+  -> PLANE packages: BLOCKED (... root_status=unavailable(override=unsafe) ... root_src=override root_dir=unsafe)

@@ -1,0 +1,32 @@
+# mutation census: impl-live.trace
+# every open/openat/creat carrying O_CREAT/O_WRONLY/O_RDWR/O_TRUNC/O_APPEND, plus every mkdir/unlink/rename/symlink/link/truncate/chmod/chown call
+# WRITABLE-OPENS = 369 distinct=16 | NAMESPACE-MUTATORS = 18 distinct=13
+   18 OPEN openat(AT_FDCWD, "/dev/null", O_RDWR) = 0
+   11 OPEN openat(AT_FDCWD, "/dev/null", O_RDWR) = 3
+    2 OPEN openat(AT_FDCWD, "/dev/null", O_WRONLY|O_CREAT|O_TRUNC, 0666 <unfinished ...>
+  324 OPEN openat(AT_FDCWD, "/dev/null", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+    1 OPEN openat(AT_FDCWD, "/dev/nvidia-uvm", O_RDWR|O_CLOEXEC) = 11
+    1 OPEN openat(AT_FDCWD, "/dev/nvidia-uvm", O_RDWR|O_CLOEXEC) = 13
+    1 OPEN openat(AT_FDCWD, "/dev/nvidia0", O_RDWR|O_CLOEXEC) = 11
+    1 OPEN openat(AT_FDCWD, "/dev/nvidia0", O_RDWR|O_CLOEXEC) = 13
+    1 OPEN openat(AT_FDCWD, "/dev/nvidia0", O_RDWR|O_NONBLOCK|O_CLOEXEC) = 10
+    1 OPEN openat(AT_FDCWD, "/dev/nvidiactl", O_RDWR) = 9
+    1 OPEN openat(AT_FDCWD, "/dev/tty", O_RDWR|O_NONBLOCK) = -1 ENXIO (No such device or address)
+    1 OPEN openat(AT_FDCWD, "/etc/pacman.d/gnupg/.#lk0x0000558b7c37e800.plazir27.PID", O_WRONLY|O_CREAT|O_EXCL, 0644) = -1 EACCES (Permission denied)
+    1 OPEN openat(AT_FDCWD, "/etc/pacman.d/gnupg/.#lk0x000055b43f3be800.plazir27.PID", O_WRONLY|O_CREAT|O_EXCL, 0644) = -1 EACCES (Permission denied)
+    1 OPEN openat(AT_FDCWD, "/etc/pacman.d/gnupg/.#lk0x000055f9f88b7800.plazir27.PID", O_WRONLY|O_CREAT|O_EXCL, 0644) = -1 EACCES (Permission denied)
+    3 OPEN openat(AT_FDCWD, "/etc/pacman.d/gnupg/trustdb.gpg", O_RDWR) = -1 EACCES (Permission denied)
+    1 OPEN openat(AT_FDCWD, "/proc/self/task/TID/comm", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 9
+    2 MUT  mkdir("/dev/nvidia-caps", 0755) = -1 EEXIST (File exists)
+    1 MUT  symlink("../nvidia-caps/nvidia-cap1", "/dev/char/240:1") = -1 EEXIST (File exists)
+    1 MUT  symlink("../nvidia-caps/nvidia-cap2", "/dev/char/240:2") = -1 EEXIST (File exists)
+    1 MUT  symlink("../nvidia-uvm", "/dev/char/237:0") = -1 EEXIST (File exists)
+    1 MUT  symlink("../nvidia-uvm-tools", "/dev/char/237:1") = -1 EEXIST (File exists)
+    3 MUT  symlink("../nvidia0", "/dev/char/195:0") = -1 EEXIST (File exists)
+    1 MUT  symlink("../nvidiactl", "/dev/char/195:255") = -1 EEXIST (File exists)
+    3 MUT  unlink("/dev/char/195:0")       = -1 EACCES (Permission denied)
+    1 MUT  unlink("/dev/char/195:255")     = -1 EACCES (Permission denied)
+    1 MUT  unlink("/dev/char/237:0")       = -1 EACCES (Permission denied)
+    1 MUT  unlink("/dev/char/237:1")       = -1 EACCES (Permission denied)
+    1 MUT  unlink("/dev/char/240:1")       = -1 EACCES (Permission denied)
+    1 MUT  unlink("/dev/char/240:2")       = -1 EACCES (Permission denied)

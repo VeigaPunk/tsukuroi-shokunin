@@ -1,0 +1,167 @@
+--- base.sh	2026-10-27 02:21:54.738091235 -0300
++++ impl.sh	2026-10-27 02:21:54.744091227 -0300
+@@ -452,7 +452,7 @@
+ umask 077
+ 
+ VERSION='census-v2'
+-SELF=${BASH_SOURCE[0]}
++SELF=${BASH_SOURCE[0]:-}  # round 46 (C1): empty when the script is read from stdin (--identity: unverifiable)
+ 
+ # ---- probe surface (every command and every host path is override-able) ------
+ PACMAN=${TSUKUROI_PACMAN:-pacman}
+@@ -591,7 +591,7 @@
+ 
+ usage() {
+   cat <<'EOF'
+-usage: tsukuroi-census.sh [--selftest] [--sample N] [--help]
++usage: tsukuroi-census.sh [--selftest] [--sample N] [--identity] [--help]
+ 
+   (no flags)   run the live read-only census over packages / systemd-user / drivers
+                (incl. the memory-pressure arm) / journal-boot / update-safety / oom (kill-event watch),
+@@ -602,7 +602,7 @@
+   --sample N   packages plane: size of the pacman -Qkk sample (default 8)
+ 
+ Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
+-Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2)
++Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2); --identity alone prints one TSUKUROI_CENSUS_IDENTITY line naming the executed script bytes, exit 0, no host probe
+ EOF
+ }
+ 
+@@ -3381,16 +3381,121 @@
+   check_cli 'cli: --help prints usage and exits 0 (S10-2)' 0 \
+     '^usage: tsukuroi-census\.sh' -- --help
+ 
++  # ---- round 46 (C1): --identity, the one-command census identity (routed debt D12) ----
++  # Expected values are computed here with sha256sum/md5sum/wc over the same file, never read
++  # back from the identity line; the copy, symlink and stdin cases kill a constant writer and a
++  # path hasher (a decoy regular file named `bash` sits in the stdin case's cwd).
++  id_line() { # id_line FILE-FOR-EXPECTED -> the four byte fields as the identity prints them
++    printf 'sha256=%s md5=%s bytes=%s lines=%s' "$(sha256sum < "$1" | cut -d' ' -f1)" \
++      "$(md5sum < "$1" | cut -d' ' -f1)" "$(wc -c < "$1")" "$(wc -l < "$1")"
++  }
++  id_check() { # id_check LABEL WANT-FIELDS OUTPUT RC
++    local label=$1 want=$2 out=$3 rc=$4 planes
++    planes=$(grep -E "^  printf 'TSUKUROI_CENSUS: %s \(" "$SELF" | head -n1 | grep -oE '[a-z-]+=%s' | sed 's/=%s$//' | paste -sd, -)
++    if [ "$rc" -ne 0 ]; then
++      bad "$label: exit $rc wanted 0; output: $(printf '%s' "$out" | tr '\n' '|')"
++    elif [ "$(printf '%s\n' "$out" | grep -c .)" -ne 1 ]; then
++      bad "$label: wanted exactly one line; got: $(printf '%s' "$out" | tr '\n' '|')"
++    elif [[ "$out" != "TSUKUROI_CENSUS_IDENTITY: version=$VERSION $want planes=$planes exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified="* ]]; then
++      bad "$label: wanted '$want' planes=$planes; got: $out"
++    else
++      ok "$label (exit $rc)"
++    fi
++  }
++  local idd id_out id_rc id_self_want id_copy_want id_abs
++  id_abs=$(readlink -f -- "$SELF")
++  idd="$work/identity"
++  mkdir -p "$idd/dec"
++  cp -- "$SELF" "$idd/copy.sh"
++  printf '\n# r46 identity selftest copy\n' >> "$idd/copy.sh"   # the census ends without a newline
++  ln -s -- "$id_abs" "$idd/link.sh"
++  { cat -- "$SELF"; printf '# decoy\n'; } > "$idd/dec/bash"
++  id_self_want=$(id_line "$SELF")
++  id_copy_want=$(id_line "$idd/copy.sh")
++  set +e
++  id_out=$("$BASH" "$SELF" --identity 2>&1); id_rc=$?
++  set -e
++  id_check 'identity: one line naming this file, digests recomputed here, verified=yes (R46-C1)' \
++    "$id_self_want" "$id_out" "$id_rc"
++  [[ "$id_out" == *' verified=yes' ]] || bad 'identity: this file must read verified=yes (R46-C1)'
++  set +e
++  id_out=$("$BASH" "$idd/copy.sh" --identity 2>&1); id_rc=$?
++  set -e
++  if [ "$id_copy_want" = "$id_self_want" ]; then
++    bad 'identity: a one-line copy must change every byte field (R46-C1)'
++  else
++    id_check 'identity: a copy with one appended line reports its own bytes, not a constant (R46-C1)' \
++      "$id_copy_want" "$id_out" "$id_rc"
++  fi
++  set +e
++  id_out=$("$BASH" "$idd/link.sh" --identity 2>&1); id_rc=$?
++  set -e
++  id_check 'identity: a symlink invocation reports the target file (R46-C1)' "$id_self_want" "$id_out" "$id_rc"
++  set +e
++  id_out=$(cd "$idd/dec" && "$BASH" -s -- --identity < "$id_abs" 2>&1); id_rc=$?
++  set -e
++  id_check 'identity: a script read from stdin prints unverifiable, never a decoy file named bash (R46-C1)' \
++    'sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable' "$id_out" "$id_rc"
++  [[ "$id_out" == *' verified=no' ]] || bad 'identity: a stdin script must read verified=no (R46-C1)'
++  { printf 'mv -f -- "$R46_DECOY" "$R46_PATH"\n'; cat -- "$SELF"; } > "$idd/repl.sh"
++  { cat -- "$SELF"; printf '\n# decoy\n'; } > "$idd/repl.decoy"
++  set +e
++  id_out=$(R46_DECOY="$idd/repl.decoy" R46_PATH="$idd/repl.sh" "$BASH" "$idd/repl.sh" --identity 2>&1); id_rc=$?
++  set -e
++  id_check 'identity: a file replaced after bash opened it prints unverifiable, never the new bytes (R46-C1)' \
++    'sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable' "$id_out" "$id_rc"
++  check_cli 'cli: --identity with another flag exits 2 (R46-C1)' 2 \
++    '--identity takes no other argument' -- --identity --selftest
++
+   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
+     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
+   [ "$FAIL" -eq 0 ]
+ }
+ 
++# ---- --identity (round 46, C1): one-command census identity (routed debt D12) ---------
++# Prints ONE line naming the bytes this bash process executes, so a reader re-derives the
++# census revision with one command (closeout-r11.md D12: identity is by hash, not VERSION).
++# The digests are read through the descriptor bash holds open on the script (bash opens the
++# script file and moves it to a high descriptor, normally 255), re-opened as /proc/$$/fd/<n>,
++# and only when that descriptor resolves to the same file as $SELF. A script read from stdin
++# or from a pipe has no such descriptor: the four byte fields then print `unverifiable` and
++# verified=no — a path is never hashed on trust. sha256 is taken again after the other
++# fields; a change in between also reads unverifiable. Reads /proc and the script only;
++# writes nothing; runs no plane probe. Exit 0.
++CENSUS_PLANES='packages,systemd,drivers,journal,update-safety,oom'
++census_identity() {
++  local self_real fdp='' p sha md5 bytes lines sha2
++  local f_sha=unverifiable f_md5=unverifiable f_bytes=unverifiable f_lines=unverifiable verified=no
++  self_real=$(readlink -f -- "$SELF" 2>/dev/null || true)
++  if [ -n "$self_real" ] && [ -f "$self_real" ]; then
++    for p in "/proc/$$/fd/255" /proc/$$/fd/*; do
++      case "${p##*/}" in '' | *[!0-9]*) continue ;; esac
++      [ "${p##*/}" -ge 10 ] || continue
++      [ -f "$p" ] || continue
++      if [ "$(readlink -- "$p" 2>/dev/null || true)" = "$self_real" ]; then fdp=$p; break; fi
++    done
++  fi
++  if [ -n "$fdp" ]; then
++    sha=$(sha256sum < "$fdp" 2>/dev/null | cut -d' ' -f1 || true)
++    md5=$(md5sum < "$fdp" 2>/dev/null | cut -d' ' -f1 || true)
++    bytes=$(wc -c < "$fdp" 2>/dev/null || true)
++    lines=$(wc -l < "$fdp" 2>/dev/null || true)
++    sha2=$(sha256sum < "$fdp" 2>/dev/null | cut -d' ' -f1 || true)
++    if [[ "$sha" =~ ^[0-9a-f]{64}$ && "$md5" =~ ^[0-9a-f]{32}$ && "$bytes" =~ ^[0-9]+$ \
++      && "$lines" =~ ^[0-9]+$ && "$sha2" = "$sha" ]]; then
++      f_sha=$sha f_md5=$md5 f_bytes=$bytes f_lines=$lines verified=yes
++    fi
++  fi
++  printf 'TSUKUROI_CENSUS_IDENTITY: version=%s sha256=%s md5=%s bytes=%s lines=%s planes=%s exit_map=%s verified=%s\n' \
++    "$VERSION" "$f_sha" "$f_md5" "$f_bytes" "$f_lines" "$CENSUS_PLANES" '0:HEALTHY,1:DEGRADED,2:BLOCKED' "$verified"
++}
++
+ # ---- main --------------------------------------------------------------------
+ main() {
+-  local selftest=0
++  local selftest=0 identity=0 nargs=$#
+   while [ $# -gt 0 ]; do
+     case "$1" in
++      --identity) identity=1; shift ;;
+       --selftest) selftest=1; shift ;;
+       --sample)
+         SAMPLE_N=${2:-}
+@@ -3405,6 +3510,14 @@
+     esac
+   done
+ 
++  if [ "$identity" -eq 1 ]; then # round 46 (C1): --identity stands alone, before any probe
++    if [ "$nargs" -ne 1 ]; then
++      printf 'tsukuroi-census: --identity takes no other argument\n' >&2; usage >&2; exit 2
++    fi
++    census_identity
++    exit 0
++  fi
++
+   if [ "$selftest" -eq 1 ]; then
+     run_selftest
+     return

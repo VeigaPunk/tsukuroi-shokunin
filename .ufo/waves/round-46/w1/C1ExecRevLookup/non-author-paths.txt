@@ -1,0 +1,20 @@
+== absolute-path invocation from foreign cwd (cwd=/fast/scratch/hyaku/tsukuroi-r46/C1ExecRevLookup) ==
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+exit=0 wall_ms=41
+== mutant copy (one byte flipped) sha256 + lookup ==
+mutant_sha256=b1afd670bdec647f88d1f851584c88c3c394fcfcf7346b7d450907f6e6cde8b5
+mutant_matches=[] count=0
+== mutant honours --identity? ==
+tsukuroi-census: unknown argument: --identityX
+usage: tsukuroi-census.sh [--selftest] [--sample N] [--identity] [--help]
+
+  (no flags)   run the live read-only census over packages / systemd-user / drivers
+               (incl. the memory-pressure arm) / journal-boot / update-safety / oom (kill-event watch),
+               plus the verdict-neutral DRIFT (pacnew), STORAGE (btrfs error counters) and SCRUB
+               (btrfs scrub record, unprivileged view) lines
+  --selftest   hermetic fixture-tree test of every verdict arm (writes only under
+               ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*); exit 0 pass, 1 fail
+  --sample N   packages plane: size of the pacman -Qkk sample (default 8)
+
+Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
+Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2); --identity alone prints one TSUKUROI_CENSUS_IDENTITY line naming the executed script bytes, exit 0, no host probe

@@ -1,0 +1,32 @@
+# Mori recipient receipt for TSUKUROI-F1-MEM-01 (ADJ-04)
+Measured at: 2026-10-27T05:29:51Z
+Mori current HEAD: c71d088a94b5992d74c2780fde1a7ac267a9b732
+
+## PROVINCE.md lines 71-91:
+- **Received packet TSUKUROI-F1-MEM-01 (ADJ-04):** `../tsukuroi-shokunin/corpus/knowledge/adjacency-handoffs-fleet-r1.md:74-112` records the 2026-10-15T04:53:46Z capture as `prepared`; boot identity/event window were not captured, and acknowledgement/acceptance/resolution are unobserved. Its request is to compare the timestamp with watchdog/wave evidence if retained, not to infer an OOM or cause.
+- **What mori can place:** 04:53:46Z is 01:53:46-03:00, between watchdog ticks at 01:50:57 and 01:58:27; `mori round=2` and `tsukuroi round=1` launched at 01:50:57 (`.ufo/watchdog.log:395-402`). Fleet commits bookend that point: `git -C /home/vgpnk/Projects/shokunin show -s --format='%h %ci %s' 99efc52 f2df270` → `99efc52 2026-10-15 01:52:09 -0300`; `f2df270 2026-10-15 01:55:17 -0300`. [INFERENCE] This locates active fleet work, not a settled-wave state at the packet's exact second.
+- **Count-only kill sweep for the packet second:** the packet's single PSI snapshot is not a retained pressure series; its PSI `total` fields are cumulative stall time and the fixed root `memory.events` path was absent, not zero (`../tsukuroi-shokunin/corpus/knowledge/adjacency-handoffs-fleet-r1.md:94-104`). These time-bounded, MESSAGE-free queries returned 0:
+
+  ```sh
+  journalctl -k -b all -q --since='2026-10-15 04:53:46 UTC' --until='2026-10-15 04:53:47 UTC' --grep='^oom-kill:constraint=' -o json --output-fields=_BOOT_ID | wc -l
+  # 0
+  journalctl --system -b all -q --since='2026-10-15 04:53:46 UTC' --until='2026-10-15 04:53:47 UTC' MESSAGE_ID=fe6faa94e7774663a0da52717891d8ef -o json --output-fields=MESSAGE_ID,_BOOT_ID | wc -l
+  # 0
+  journalctl --system -b all -q --since='2026-10-15 04:53:46 UTC' --until='2026-10-15 04:53:47 UTC' MESSAGE_ID=d989611b15e44c9dbf31e3c81256e4ed -o json --output-fields=MESSAGE_ID,_BOOT_ID | wc -l
+  # 0
+  journalctl --user -b all -q --since='2026-10-15 04:53:46 UTC' --until='2026-10-15 04:53:47 UTC' MESSAGE_ID=fe6faa94e7774663a0da52717891d8ef -o json --output-fields=MESSAGE_ID,_BOOT_ID | wc -l
+  # 0
+  journalctl --user -b all -q --since='2026-10-15 04:53:46 UTC' --until='2026-10-15 04:53:47 UTC' MESSAGE_ID=d989611b15e44c9dbf31e3c81256e4ed -o json --output-fields=MESSAGE_ID,_BOOT_ID | wc -l
+  # 0
+  ```
+
+  No retained kernel OOM, `fe6faa94…` unit-kill notice, or `d989611b…` oomd notice overlaps this bounded query; [UNKNOWN] no independent pressure-series comparison is available for this packet. The single snapshot cannot establish fleet cause or wave settlement. Correlation is not causation.
+- **Souji's receipts distinguish only listed removals:** the approval list records hashed `aggregator-r10*` artifacts and the later sweep marks those exact paths `pushed`. For precisely those named paths, receipts support a `swept (pushed-receipt)` classification; for an empty path without a matching receipt, [UNKNOWN] history, so it is not evidence of “never written.” This is offline evidence reading, not a live census dependency.
+- **Source overlap:** R12Connector compared the S001–S030 URL set in `../.ufo/waves/kaika-w1/mori-art.md:91-124` with sibling `corpus/SOURCES.md` registries; its exact-URL sweep found no shared URL, so no source rows are merged here.
+
+
+## Commit history for the received packet in mori-shokunin:
+dde525ea4a7fca365e8ff2f3c486bccf28b94e52 2026-10-24 22:50:57 -0300 round-43: successor operability counter (C1S), calibration repair (C2), one-theme assimilation
+2520032569dae65511e7a347181004b530d99174 2026-10-24 20:56:05 -0300 round-42: S235 whitepaper copy committed by name (1 MiB dir-skip), scratch mirror recursion removed
+316f3dcf3ce10a252aedc18acff9f97774106af4 2026-10-24 20:25:39 -0300 round-42: assimilation scratch — collision guard proof, transformed append block, mirror validation rc=0, refusal record
+1f07f1dd1eed59f10c4859726e2f780199190b22 2026-10-19 19:41:08 -0300 round-12: source registry (33 rows) + 4 source-linked kill-event entries; mistakes -> 20 lesson-cited QUALITY criteria; census roster = declared lanes ∪ driver counters (9 -> 23)

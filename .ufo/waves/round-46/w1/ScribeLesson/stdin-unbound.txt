@@ -1,0 +1,15 @@
+# stdin-unbound reproduction (read-only; nothing written outside scratch)
+## base 2042117c under bash -s -- --identity
+bash: line 455: BASH_SOURCE[0]: unbound variable
+rc=1
+
+## impl a4477049 under bash -s -- --identity
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+rc=0
+
+## the guard, HEAD :455
+SELF=${BASH_SOURCE[0]:-}  # round 46 (C1): empty when the script is read from stdin (--identity: unverifiable)
+## the entry's own record
+41:  `${BASH_SOURCE[0]:-}`; before round 46 the stdin form died at line 455 with `BASH_SOURCE[0]: unbound variable`);
+## the seat receipt of the one-line change
+121:@@ -452,7 +452,7 @@     (1:1)  SELF=${BASH_SOURCE[0]} -> SELF=${BASH_SOURCE[0]:-}   [impl:455]

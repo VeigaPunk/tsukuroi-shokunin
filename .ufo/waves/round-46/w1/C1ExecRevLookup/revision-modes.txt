@@ -1,0 +1,21 @@
+== clone at a4477049 (identity present) ==
+a44770491eb5ca15ce9f8b3207309d1af683ffaf
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+exit=0
+== clone at 18389f44 (pre-identity) ==
+18389f44cf6ce414d7be205998b29c79fb0b490c
+0
+tsukuroi-census: unknown argument: --identity
+usage: tsukuroi-census.sh [--selftest] [--sample N] [--help]
+
+  (no flags)   run the live read-only census over packages / systemd-user / drivers
+               (incl. the memory-pressure arm) / journal-boot / update-safety / oom (kill-event watch),
+               plus the verdict-neutral DRIFT (pacnew), STORAGE (btrfs error counters) and SCRUB
+               (btrfs scrub record, unprivileged view) lines
+  --selftest   hermetic fixture-tree test of every verdict arm (writes only under
+               ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*); exit 0 pass, 1 fail
+  --sample N   packages plane: size of the pacman -Qkk sample (default 8)
+
+Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
+Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2)
+exit=2

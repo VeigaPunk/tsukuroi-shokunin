@@ -1,0 +1,19 @@
+built census.sh bytes=210792 decoy bytes=210792 same-length=True
+--- run (strace records the umask(2) the executed bytes asked for) ---
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=4be94d3907ca7755794b728e3dc6ef6f23928fe044e13be39b76d4fdb656087d md5=44e319081c7554690afc7651e5a43255 bytes=210792 lines=3623 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+rc=0
+--- kernel saw:
+1783821 umask(077)                      = 022
+--- the file the identity hashed, after the run:
+454:VERSION='decoy-v99'
+452:umask 000
+4be94d3907ca7755794b728e3dc6ef6f23928fe044e13be39b76d4fdb656087d  census.sh
+4be94d3907ca7755794b728e3dc6ef6f23928fe044e13be39b76d4fdb656087d  decoy
+bytes=210792 lines=3623
+
+READING THE RESULT:
+  the printed line says  version=census-v2  (that is what bash executed, and the umask
+  syscall above is umask(077)); its sha256 equals the sha256 of `census.sh`, whose own
+  VERSION line now reads decoy-v99 and whose umask line reads 000.  So verified=yes names
+  a 209238-byte file whose two identifying statements never ran.  An honest identity on
+  this run must print unverifiable/verified=no (or name only executed bytes).

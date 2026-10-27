@@ -1,0 +1,24 @@
+# Round 44 SR7-SR9 Pending Status and Gate Evidence
+Measured at: 2026-10-27T05:29:51Z
+
+## btrfs-scrub-record-r44.md lines 153-162:
+## Round-45 grounding and gate status (appended 2026-10-27, L1 TsukuroiR45)
+
+Appended; the rows above are unchanged. **Gate status:** the round-44 depth gate for SR7-SR9 FAILED
+(`tools/check-scrub-record-r44.py` at `fbfef071`: `verdicts_ok 0`; `.ufo/waves/round-44/after/c2-final-fbfef071.jsonl`),
+and the SR8/SR9 narrowings made after the counted reads were judged by no counted seat
+(`corpus/lessons/round-44-verifier-spotcheck.md` §2 C2, routed defect D3). Until a counted non-author read binds them,
+SR7-SR9 are pending, not admitted. **Grounding:** the three `[inference]` marks above (the replace caller of
+`btrfs_scrub_dev` in SR7, `memparse` suffixes in SR8, `KillSignal=` as the stop signal in SR9) are grounded on pinned
+source in `corpus/knowledge/btrfs-scrub-grounding-r45.md` rows GR2, GR1 and GR3.
+
+
+## Round-45 closure spot-check defect D1 (R45C-D3-R44-MARK-SWEEP):
+- **D1 R45C-D3-R44-MARK-SWEEP.** Round-44 D3 is only half closed:
+  - The r44 entry carries its appended gate status.
+  - `corpus/README.md:434` (the r44 row) and its paragraph `:440-452`, plus `SKILL.md:4214` "Scrub record — round 44
+    rows", still present SR7-SR9 with no "depth gate FAILED / pending" mark. `grep -n -i 'fail\|pending'` over those
+    ranges at `2e46142d` finds nothing.
+
+  The lesson's disposition table says D3 is "closed", but its own conflict note says README:434 and the SKILL row are
+  unchanged. Append the status to both, and make the disposition row agree with it.

@@ -1,0 +1,49 @@
+# Seat C1ExecRevLookup — exact commands run (all read-only on the lane)
+# host: linux 7.2.11-arch1-1; bash 5.3.20-1; date 2026-10-27
+# scratch root: /fast/scratch/hyaku/tsukuroi-r46/C1ExecRevLookup (removed at end)
+
+L=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+R=$L/.ufo/waves/round-46/w1/C1ExecRevLookup
+
+# 0. lane state (no checkout, no index touch)
+git -C "$L" rev-parse HEAD                       # a44770491eb5ca15ce9f8b3207309d1af683ffaf
+git -C "$L" log --format=%H -- tools/tsukuroi-census.sh | wc -l   # 24 commits touch the census
+
+# 1. five commits + independently derived identity fields (pre-identity commits: git show bytes)
+git -C "$L" log --format=%H -n 5 -- tools/tsukuroi-census.sh
+for h in $(git -C "$L" log --format=%H -n 5 -- tools/tsukuroi-census.sh); do
+  b=$(git -C "$L" show "$h:tools/tsukuroi-census.sh")
+  printf '%s sha256=%s md5=%s bytes=%s lines=%s\n' "$h" \
+    "$(printf '%s' "$b" | sha256sum | cut -d' ' -f1)" \
+    "$(printf '%s' "$b" | md5sum | cut -d' ' -f1)" \
+    "$(printf '%s' "$b" | wc -c)" "$(printf '%s' "$b" | wc -l)"
+done
+
+# 2. documented lookup loop from census-identity-r46.md '## Re-deriving the revision from the line'
+want=<sha256 from the identity line>
+git -C "$L" log --format=%H -- tools/tsukuroi-census.sh | while read -r h; do
+  [ "$(git -C "$L" show "$h:tools/tsukuroi-census.sh" | sha256sum | cut -d' ' -f1)" = "$want" ] && echo "$h"
+done
+
+# 3. live identity line from the lane at a4477049 (identity mode exists only from that commit)
+cd "$L" && bash tools/tsukuroi-census.sh --identity        # 61 ms, exit 0, md5 of line vs independent
+bash "$L/tools/tsukuroi-census.sh" --identity              # from a foreign cwd, absolute path, 41 ms
+
+# 4. cross-checks: full 24-revision digest table, duplicate detection, worktree == HEAD bytes
+git -C "$L" show a4477049:tools/tsukuroi-census.sh | sha256sum   # d925839c... == worktree sha256sum
+awk '{print $2}' all24-digests.txt | sort | uniq -d             # empty: no two revisions share bytes
+
+# 5. negative controls: one-hex-digit-off sha256, random sha256, one-byte-appended file, fresh local-edit mutant
+#    (all -> zero matching commits)
+
+# 6. fixture clone: identity line at a4477049 vs `unknown argument: --identity` (exit 2) at 18389f44
+D=$(mktemp -d /fast/scratch/hyaku/tsukuroi-r46/C1ExecRevLookup/fx.XXXXXX)
+git clone -q --shared "$L" "$D"; git -C "$D" remote remove origin
+[ "$(git -C "$D" rev-parse --show-toplevel)" = "$D" ]
+git -C "$D" checkout -q a4477049 && bash "$D/tools/tsukuroi-census.sh" --identity
+git -C "$D" checkout -q 18389f44 && bash "$D/tools/tsukuroi-census.sh" --identity   # exit 2, unknown argument
+
+# 7. ordering fixture: same bytes at two commits (c1 oldest, c3 newest) -> loop prints c3 then c1, c2 absent
+
+# 8. no-write: identity run inside an empty cwd (files_before=0 files_after=0, exit 0);
+#    `git -C "$L" status --porcelain` identical before/after an identity run

@@ -1,0 +1,23 @@
+round 43: comparable  9  match  9  mismatch 0
+round 44: comparable  7  match  5  mismatch 2
+round 45: comparable 12  match 11  mismatch 1
+
+class axis-grade     rows  3  mismatch 1
+class defect-status  rows  3  mismatch 1
+class freshness      rows  2  mismatch 0
+class measurement    rows 11  mismatch 0
+class quality        rows  2  mismatch 0
+class trend-grade    rows  1  mismatch 1
+class verdict        rows  6  mismatch 0
+
+MISMATCH R44-06 (axis-grade)
+  LOG   LOG.md:1615-1625: (no adjacency sentence anywhere in the round-44 entry; its incidents list names only the fleet-root fixture, the two unreported seats and the FIFO grep)
+  SPOT  corpus/lessons/round-44-verifier-spotcheck.md:137: | adjacency | harmed | anchors gate PASS→FAIL (committed receipts), IN-109 drift re-measured at tip |
+MISMATCH R44-07 (trend-grade)
+  LOG   LOG.md:1615-1625: (no quality sentence in the round-44 entry; the round-43 entry carries QUALITY 92, so the LOG does speak when quality moves)
+  SPOT  corpus/lessons/round-44-verifier-spotcheck.md:145: quality `harmed`
+MISMATCH R45-07 (defect-status)
+  LOG   LOG.md:1645: Routed defects: D1-D6, D8-D10 closed, D7 partial
+  SPOT  corpus/lessons/round-45-verifier-spotcheck.md:184: D1 R45C-D3-R44-MARK-SWEEP. Round-44 D3 is only half closed
+
+TSUKUROI_BURST_READ: rows=28 mismatch=3 rounds=3 mismatch_rounds=2

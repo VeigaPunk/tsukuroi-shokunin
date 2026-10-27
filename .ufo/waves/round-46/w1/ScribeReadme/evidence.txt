@@ -1,0 +1,147 @@
+ScribeReadme (F-6) — evidence, round 46 wave w1
+================================================
+Lane L = /home/vgpnk/Projects/shokunin/tsukuroi-shokunin   Scratch S = /fast/scratch/hyaku/tsukuroi-r46/ScribeReadme
+Every command below is read-only on the lane; the only writes are under S and under
+.ufo/waves/round-46/w1/ScribeReadme/.
+
+A. Revision state (the lane moved three times during this seat)
+---------------------------------------------------------------
+$ git -C $L rev-parse HEAD            # first observation: a44770491eb5ca15ce9f8b3207309d1af683ffaf
+$ git -C $L rev-parse HEAD            # second: b57740c21f0c68ac7eefeba0adb9c67fbeae3228
+$ git -C $L rev-parse HEAD            # third:  61e067408ad73c144e42ea8f2ec5ed3f333d7e2e
+$ git -C $L rev-parse HEAD            # at report time: c7e4d7d99892ea36b7ac3c83be32b8bcf25a9d57
+$ git -C $L log --oneline -2
+c7e4d7d9 round-46: SKILL census-identity section, D1 round-44 status notes (SKILL, README), round46 gate registry
+         table, README round-46 coverage note
+61e06740 round-46: C1 identity hardening from wave w1 — O_CLOEXEC + unique-descriptor rule (C1LabUlimit wrong-digest
+         reproducer), --identity --help refused (C1RevImpl), selftest planes pipeline guarded; two new (R46-C1) cases;
+         entry updated
+
+$ git -C $L diff --stat a4477049 b57740c2 -- corpus/README.md tools/tsukuroi-census.sh   -> empty
+$ git -C $L diff --stat a4477049 61e06740 -- corpus/README.md corpus/knowledge/census-identity-r46.md
+ corpus/knowledge/census-identity-r46.md | 30 +++++++++++++++++++++---------
+ (README not listed: byte-identical at a4477049, b57740c2 and 61e06740)
+$ git -C $L diff --stat 61e06740 c7e4d7d9 -- tools/tsukuroi-census.sh                    -> empty
+
+$ git -C $L show a4477049:corpus/README.md | sha256sum
+f4e39671fbffdc9dc4bbc27647341e5fdcdf3d0e6de7ff5759cb183da847e7ca  -
+$ git -C $L show a4477049:corpus/README.md | wc -l      -> 466
+$ git -C $L show c7e4d7d9:corpus/README.md | wc -l      -> 480
+$ git -C $L show c7e4d7d9:tools/tsukuroi-census.sh | sha256sum
+ac4e38ff99df044bf17410722b253965402afa1556fd105dde181e19e048f48e  -
+$ git -C $L show c7e4d7d9:tools/tsukuroi-census.sh | wc -lc   -> 3622 210762
+
+B. The D1 defect is real in committed bytes
+-------------------------------------------
+$ git -C $L show a4477049:corpus/README.md | sed -n '427,452p' | grep -n -i -E 'fail|pending|admit'; echo $?
+1                        # no line matches: :434 and :440-452 state SR7-SR9 with no gate result
+$ git -C $L show a4477049:corpus/README.md | awk 'NR==434' | cut -c1-200
+| `knowledge/btrfs-scrub-record-r44.md` | SR7 the scrub-progress success direction (0 only while `dev->scrub_ctx` is
+attached; `-ENOTCONN` idle; `-ENODEV` unknown devid; device replace runs through the same `btrfs_scrub_dev`); SR8 ...
+
+$ python3 -c "read of .ufo/waves/round-44/after/c2-final-fbfef071.jsonl, the aggregate record"
+{'host_ok': 3, 'novelty_base_hits': 0, 'pointer_ok': 1, 'props_ok': 3, 'quotes_ok': 3,
+ 'revision': 'fbfef071e5aa88df03027716e1e1e0cc7982ab1c', 'rows': 3, 'sources_ok': 1, 'verdicts_ok': 0}
+$ grep -o '"verdicts_ok": [0-9]' .ufo/waves/round-44/after/c2-final-fbfef071.jsonl | sort | uniq -c
+      1 "verdicts_ok": 0
+$ sed -n '50,51p' $L/tools/check-scrub-record-r44.py
+  PASS iff rows == 3 and quotes_ok == 3 and props_ok == 3 and host_ok == 3 and sources_ok == 1
+  and verdicts_ok == 3 and novelty_base_hits == 0 and pointer_ok == 1.
+
+$ sed -n '94p' $L/corpus/lessons/round-45.md | cut -c1-160
+| D3 C2 unadmitted mark | closed | round-44 entry `## Round-45 grounding and gate status`; round-45 rows marked
+pending in the entry ("Gate status — round 45"), `SKILL.md` and `corpus/README.md` (`194a4523`) |
+$ git -C $L show 194a4523 -- corpus/README.md | sed -n '16,20p'
+-a2w1 and, for a `partly`, the residual of wave a2r1 (`SCORECARD.md` "Round 45 — attempt-2 rebinding").
++a2w1 and, for a `partly`, the residual of wave a2r1 (`SCORECARD.md` "Round 45 — attempt-2 rebinding"). Round 45
+bound none of them: the depth gate FAILED (`verdicts_ok` 0)
++and GR1-GR3 are pending, not admitted (entry section "Gate status — round 45").
+   -> 194a4523 marked the round-45 rows (now :465-466); :434 and :440-452 are untouched.
+
+$ git -C $L show a4477049:corpus/README.md | awk 'NR==460' | awk -F'|' '{print $4}'
+S246-S249; `.ufo/waves/round-45/frozen/src/SHA256SUMS` and `hostcap/capture.txt` (sha256 `f5958a83…`);
+`tools/check-scrub-grounding-r45.py --revision <REV>`
+   -> the round-45 row's Sources cell names its counter and its frozen snapshot (the shape the item asked for).
+
+C. The census identity as the host prints it (observation, not the counter)
+--------------------------------------------------------------------------
+Run in S/cwd with TMPDIR=S/tmp2, cwd and TMPDIR snapshot before and after.
+$ bash $L/tools/tsukuroi-census.sh --identity            # while the worktree held the a4477049 bytes
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa
+md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom
+exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+rc=0
+$ bash $L/tools/tsukuroi-census.sh --identity --selftest    -> cli_rc=2, stderr "tsukuroi-census: --identity takes
+                                                              no other argument" + usage
+$ bash $L/tools/tsukuroi-census.sh --identity               # after the worktree reached 61e06740 bytes
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=ac4e38ff99df044bf17410722b253965402afa1556fd105dde181e19e048f48e
+md5=15e26889f9196617231eaa672d3b9752 bytes=210762 lines=3622 planes=packages,systemd,drivers,journal,update-safety,oom
+exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+rc=0
+$ bash $L/tools/tsukuroi-census.sh --identity --help        -> help_rc=2, same message
+files_before=0 files_after=0        # identity mode created nothing in cwd or TMPDIR
+   -> the second line's sha256 equals `git show 61e06740:tools/tsukuroi-census.sh | sha256sum`.
+
+D. Implementation and entry at the tip (text the index row must match)
+----------------------------------------------------------------------
+$ git -C $L show c7e4d7d9:tools/tsukuroi-census.sh | awk 'NR==3467 || NR==3513'
+3467:# ---- --identity (round 46, C1): one-command census identity (routed debt D12) ---------
+3513:}
+$ git -C $L show c7e4d7d9:tools/tsukuroi-census.sh | sed -n '/^# ---- --identity (round 46/,/^}/p' | head -30
+   ... "a descriptor qualifies when it is 10 or more, is a regular file, its link equals `readlink -f` of the invoked
+   path, ... its `flags:` line in /proc/$$/fdinfo/<n> carries `O_CLOEXEC` ... exactly one descriptor must qualify"
+$ git -C $L show c7e4d7d9:tools/tsukuroi-census.sh | awk 'NR>=3517 && NR<=3522'
+3517:  local selftest=0 identity=0 nargs=$# a
+3518:  for a in "$@"; do # round 46 (C1): --identity stands alone, checked before any flag acts (--help included)
+3519:    if [ "$a" = --identity ] && [ "$nargs" -ne 1 ]; then
+3520:      printf 'tsukuroi-census: --identity takes no other argument\n' >&2; usage >&2; exit 2
+3521:    fi
+3522:  done
+$ git -C $L show c7e4d7d9:corpus/knowledge/census-identity-r46.md | sed -n '28,40p'
+   ... "The identity therefore hashes the file through /proc/$$/fd/<n>. A descriptor qualifies when it is 10 or
+   more, is a regular file, its link equals readlink -f of the invoked path ($SELF), and its flags: line in
+   /proc/$$/fdinfo/<n> carries O_CLOEXEC (02000000) ... exactly one descriptor must qualify."
+
+E. What the L1 already landed (the audit target of this seat)
+------------------------------------------------------------
+$ git -C $L show c7e4d7d9:corpus/README.md | sed -n '468,480p'
+## Round-46 coverage note (appended 2026-10-27)
+Append-only; the coverage map, the Frontier bullets and the round-38 to round-45 notes above stay as written.
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/census-identity-r46.md` | The census `--identity` line (round-46 C1, routed debt D12): one
+`TSUKUROI_CENSUS_IDENTITY:` line naming sha256, md5, bytes and newline count of the bytes bash executes, read through
+the unique close-on-exec script descriptor of 10 or more that resolves to the invoked path; `unverifiable` for stdin,
+pipes, a path relinked after open, an ambiguous or inherited descriptor; the `git log` loop that maps the sha256 to
+commits | S250 (GNU bash 5.3 `shell.c`, `general.c`, `general.h`), S251 (`proc_pid_fd(5)`) |
+Round-44 status (routed defect D1): the row above for `knowledge/btrfs-scrub-record-r44.md` (`:434`) and the
+"Frontier notice — round 44" paragraph (`:440-452`) present SR7-SR9 without their gate result. Round 44's depth gate
+FAILED (`tools/check-scrub-record-r44.py --revision fbfef071`: `verdicts_ok 0`,
+`corpus/lessons/round-44-verifier-spotcheck.md:84,133`); SR7, SR8 and SR9 are pending, not admitted. Frontier: nothing
+moves this round; the census identity is a property of the gate, not a new host surface.
+$ git -C $L show c7e4d7d9:corpus/README.md | sed -n '476p' | cut -c1-80
+Round-44 status (routed defect D1): the row above for `knowledge/btrfs-scrub-record-r44.md` (`:434`) and the
+
+F. Patch integrity (fixture clone fx.V67SZs, `git rev-parse --show-toplevel` = the clone path)
+---------------------------------------------------------------------------------------------
+$ git clone -q --shared $L $D; git -C $D remote remove origin; git -C $D rev-parse --short HEAD  -> c7e4d7d9
+$ wc -l $D/corpus/README.md                                                                       -> 480
+$ git -C $D apply --check -p1 $S/r/apply-A.diff   # 23-line corrective append after :480
+  ok; then apply: git -C $D diff --numstat -> 23  0  corpus/README.md; wc -l -> 503
+$ git -C $D checkout -q -- corpus/README.md; wc -l -> 480
+$ git -C $D apply --check -p1 $S/r/apply-B.diff   # replace :468-480 with the 45-line section (option B)
+  ok; apply; wc -l -> 512; the result is byte-identical to (base[1..467] + append.md body) -> True
+$ git -C $D checkout -q -- corpus/README.md; wc -l -> 480   (clone left clean)
+Against the 466-line base (`git show 61e06740:corpus/README.md` > base466.md; `cat base466.md append.md`): 512
+lines, the first 466 lines byte-identical to the base, 46 newlines added. An earlier 42-line version of the same block
+was also patch-checked in a clone at b57740c2 (`git apply --check` ok, numstat 42 0, 508 lines, cmp identical,
+`git apply -R --check` ok); that check predates the two additions to the block, so it is not claimed for these bytes.
+
+G. Markdown hygiene of the drafts
+---------------------------------
+- every `|` row splits into 3 cells (unescaped pipes) -> 0 bad rows (README.cand.md, 512 lines)
+- no trailing spaces; no appended non-table line over 115 characters (max 115)
+- no code span crosses a line break (odd-backtick test on lines > 466 -> empty)
+- no line carries both `btrfs-scrub-grounding-r45.md` and `admitted round 46` (the C2 counter's README mark
+  requires both on ONE line; neither draft supplies it)
+- base 466 lines byte-identical to candidate lines 1..466 (`diff` empty)

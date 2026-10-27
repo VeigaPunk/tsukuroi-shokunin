@@ -1,0 +1,21 @@
+===== X1 external writer: outside process rewrites the same inode while bash runs past VERSION =====
+injected bytes 209216 decoy bytes 209216
+### X1 external in-place rewrite during a 2 s window
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=cd98d9d8e8011fd3d62a43973c928a47cfd672521db5168745b5f298938e33af md5=edb61337241ef8945b1c5edfc3e6b70b bytes=209216 lines=3599 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+== file on disk after the external rewrite ==
+454:VERSION='decoy-v99'
+452:umask 000
+cd98d9d8e8011fd3d62a43973c928a47cfd672521db5168745b5f298938e33af  /fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/X1/census.sh
+== decoy sha256 ==
+cd98d9d8e8011fd3d62a43973c928a47cfd672521db5168745b5f298938e33af  /fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/X1/decoy
+===== X1b same external rewrite, but by RENAME (mv) instead of in place =====
+### X1b external rename replace
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+41f1105d8a009f0968a73d5e8b07a7453fecbbc7b4784a6beb7e6b8434cea693  /fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/X1b/census.sh
+===== X3 timing: --identity vs the live census =====
+identity 0.017 s
+identity 0.026 s
+identity 0.021 s
+full live census 3.684 s

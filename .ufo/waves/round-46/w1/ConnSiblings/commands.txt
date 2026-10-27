@@ -1,0 +1,37 @@
+# Commands used for Item X-2 Sibling Overlap Scan
+
+# 1. Enumerate sibling lanes (excluding tsukuroi-shokunin)
+ls -d /home/vgpnk/Projects/shokunin/*-shokunin | grep -v 'tsukuroi-shokunin$'
+
+# 2. Build target file list (PROVINCE.md, SKILL.md, tools/, corpus/knowledge/)
+python3 -c '
+import os, glob
+lanes = [d for d in sorted(glob.glob("/home/vgpnk/Projects/shokunin/*-shokunin")) if not d.endswith("tsukuroi-shokunin")]
+for lane in lanes:
+    for target in ["PROVINCE.md", "SKILL.md"]:
+        p = os.path.join(lane, target)
+        if os.path.exists(p): print(p)
+    for d in ["tools", "corpus/knowledge"]:
+        dp = os.path.join(lane, d)
+        if os.path.isdir(dp):
+            for root, _, files in os.walk(dp):
+                for f in files: print(os.path.join(root, f))
+' > filelist.txt
+
+# 3. Ripgrep equivalents for the required surfaces:
+# 3a. tsukuroi-census CLI consumers and usage banners
+xargs -d '\n' rg -n -e 'tsukuroi-census\.sh\s+--' -e 'usage:\s*tsukuroi-census' < filelist.txt
+xargs -d '\n' rg -n -F 'tsukuroi-census' < filelist.txt
+
+# 3b. Script self-identity, BASH_SOURCE, /proc/self/fd, move_to_high_fd
+xargs -d '\n' rg -n -F 'move_to_high_fd' < filelist.txt
+xargs -d '\n' rg -n -e '/proc/(self|\$\$|[0-9]+|\$[A-Za-z0-9_]+)/fd' < filelist.txt
+xargs -d '\n' rg -n -F 'BASH_SOURCE' < filelist.txt
+xargs -d '\n' rg -n -i -e 'self[-_]identity' -e 'script[- ]identity' < filelist.txt
+
+# 3c. C2 Scrub Grounding surfaces (memparse, scrub_speed_max, dev-replace, KillSignal, DefaultTimeoutStopSec)
+xargs -d '\n' rg -n -i -w 'memparse' < filelist.txt
+xargs -d '\n' rg -n -i -w 'scrub_speed_max' < filelist.txt
+xargs -d '\n' rg -n -i -e '\bdev[-_]replace\b' < filelist.txt
+xargs -d '\n' rg -n -i -w 'KillSignal' < filelist.txt
+xargs -d '\n' rg -n -i -w 'DefaultTimeoutStopSec' < filelist.txt

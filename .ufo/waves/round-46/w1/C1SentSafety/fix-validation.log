@@ -1,0 +1,21 @@
+== fix validation: patched census (block 3467-3476) ==
+-- baseline:
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=819734bfb9879a284c7c364a2d4c5b80ea7aa4c0e111bd020e54bf576f32a977 md5=de0411b24472d13a83f0393f161e75ee bytes=209090 lines=3597 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+-- copy (+1 line): want 209235 bytes
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=867217ec21a3f9e7e92e3c51ca0e4f13ca43d799df31dc7c713ae5fa46bae06c md5=4e166edbef702040eb5877b65c37f33f bytes=209235 lines=3600 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+-- symlink -> copy:
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=867217ec21a3f9e7e92e3c51ca0e4f13ca43d799df31dc7c713ae5fa46bae06c md5=4e166edbef702040eb5877b65c37f33f bytes=209235 lines=3600 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+-- stdin:
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+-- replaced-after-open:
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+-- trail.sh<newline> (was unverifiable=no, want verified=yes):
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+-- exploit 255<decoy (want executed sha=d925839c..., bytes=209208 verified=yes):
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=9dd14d4c9a165912c52124469cae9c7e08cae99ac0d892dbc0f318c948e83d52 md5=d4da7de2d74cf1ad0015aa71271156bd bytes=209247 lines=3599 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+-- exploit 10<decoy:
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+-- sourced in subshell, fd10 (want verified=yes, correct bytes):
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=819734bfb9879a284c7c364a2d4c5b80ea7aa4c0e111bd020e54bf576f32a977 md5=de0411b24472d13a83f0393f161e75ee bytes=209090 lines=3597 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+-- --identity --selftest (want rc 2):
+rc=2

@@ -1,0 +1,27 @@
+VERDICT: defect-found
+
+## Findings
+
+### High — `selftest_r46 >= 4` accepts arbitrary labels, not asserted C1 cases
+
+The counter defines `selftest_r46` as the count of `PASS ` lines whose labels contain `(R46-C1)` (counter lines 35, 231); it does not bind that count to any expected case names or checks. The census selftest's `ok` helper emits a PASS label, so a fixture adding four `ok 'unasserted label (R46-C1)'` calls—with no assertions—meets the threshold. I made that isolated scratch-clone fixture at revision `645df91704b0f1b9b37eef9d4054aa945a9121c1` and ran `python3 <clone>/tools/score-census-identity-r46.py --lane <clone> --revision 645df91704b0f1b9b37eef9d4054aa945a9121c1 --scratch /fast/scratch/hyaku/tsukuroi-r46/C1RevCounter/s`. Observed result: `verdict=PASS`, `selftest_pass=1`, `selftest_r46=10`; its reported labels begin with the four unasserted labels, followed by the real cases (full JSON in tool result for this command). Thus the threshold is demonstrably vacuous as a guard that the labelled checks themselves ran. Require an exact set of expected R46 case labels, ideally with separate success evidence from each assertion; a bare count should not satisfy admission.
+
+### Medium — `nowrite_ok` misses writes outside the watched cwd and TMPDIR
+
+The snapshots compare only `run_d` and `tmp_d` (counter lines 166, 185, 192, 217-218); `$HOME` is a separate directory in the supplied environment (line 145) and is never snapshotted. I added `: > "$HOME/r46-counter-probe"` at the start of `census_identity()` in a separate clone, revision `108f896c679a9712085658931c3e141eee6a7d8c`. The same counter command with that revision returned `verdict=PASS` and `nowrite_ok=1` (full JSON in tool result for this command). That directly demonstrates an identity-mode file write outside cwd/TMPDIR is invisible. This also misses the declaration's broader kill rule that the census must not write a file in live or identity mode (SCORECARD.md:2979). Include HOME and other fixture-owned writable locations in the snapshot, or explicitly audit writes in the test harness.
+
+### Medium — timeout cleanup cannot contain descendants that escape the process group
+
+`run()` starts a new session, then on timeout sends SIGKILL only to `proc.pid`'s process group and calls `communicate()` (counter lines 85-97). A descendant can call `setsid()` and leave that group; it survives the kill. Concrete process fixture: an isolated Python parent launched with `start_new_session=True` started `setsid sleep 30`; after `os.killpg(parent.pid, SIGKILL)`, observed `{'outer_group_killed': -9, 'setsid_descendant_survived': True, 'descendant_pid': 631050}`; I then killed that fixture child. If such a child inherits stdout/stderr, the subsequent `communicate()` may also wait on its still-open pipe until the descendant exits, defeating bounded timeout cleanup. This fixture exercised the same session/group boundary, not the full counter `run()` timeout path. If the contract is specifically whole-descendant-tree cleanup, process-group killing alone does not establish it; use a containment mechanism that descendants cannot escape or qualify the claim and test the escaped-session case.
+
+## Counter contract and leg review
+
+The predicate sentence is the same in the docstring (counter lines 37-39), computed `ok` clause (234-235), and C1 declaration (SCORECARD.md:2979): `identity_ok == 1 and tracks_ok == 1 and symlink_ok == 1 and unverifiable_ok == 1 and cli_ok == 1 and nowrite_ok == 1 and selftest_pass == 1 and selftest_r46 >= 4`.
+
+- `identity_ok` compares the output's four fields with `facts(fb)`, the counter's own digest/size calculation over the revision bytes (counter lines 60-63, 159-171); checks the expected literal version, rollup plane order and exit-map; requires one parsed line, empty stderr, exit 0, and `verified=yes` (101-111, 162-171). Tracks does the corresponding append-copy comparison; symlink expects the original file's fields (174-184). These legs measure their stated basic identity/tracking/symlink behavior.
+- `unverifiable_ok` runs stdin, process substitution and replaced-after-open cases, requiring all four fields `unverifiable`, `verified=no`, status 0 and empty stderr (194-215). The declaration says stdin and process substitution and replaced file (2979); this is covered.
+- `cli_ok` checks the documented status outcomes and help text marker (220-226). `selftest_pass` only checks status 0 and the shape of the last summary line (228-230); it does not independently validate that each labelled test made a meaningful assertion, as the fixture above shows.
+
+## Verification and residual risk
+
+The frozen counter's SHA-256 matched the declared value: `sha256sum .../score-census-identity-r46.py` produced `7c406eb5f4ba1f6265649f7102e7376882483180c161a66abc68e08cad9524ba`. Both counter-mutant fixtures were scored in isolated scratch clones and returned PASS, falsifying the `nowrite_ok` and `selftest_r46` safeguards. The escaped-session check was a standalone process fixture, not a full `run()` timeout mutant. LSP tooling was unavailable (`read xd://lsp` returned “No such tool”); review used source reads and the declaration text, not semantic reference/diagnostics results. No lane source was modified. The equality of predicate text does not cure these counter-coverage gaps.

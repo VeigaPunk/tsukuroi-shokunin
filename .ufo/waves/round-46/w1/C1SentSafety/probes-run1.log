@@ -1,0 +1,111 @@
+
+===== P0 environment =====
+uid:gid=1000:1000  bash=GNU bash, version 5.3.20(1)-release (x86_64-pc-linux-gnu)
+census sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa bytes=209208 lines=3598
+
+===== P1 baseline: bash ABS --identity =====
+rc=0 stdout_lines=1
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+
+===== P2 relative invocation (cwd=/fast/scratch/hyaku/tsukuroi-r46/C1SentSafety, ./census.sh) =====
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+
+===== P3 script path with embedded newline forging a whole identity line =====
+rc=0 stdout_lines=1 forged_line_present=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+
+===== P4 script path with glob characters and printf metacharacters =====
+rc=0 lines=1
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+
+===== P5 leading-dash script path =====
+absolute rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+bash -- -lead.sh rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+bash ./-lead.sh rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+
+===== P6 trailing-newline filename, no decoy at the stripped path (expect unverifiable=no) =====
+readlink -f prints: [/fast/scratch/hyaku/tsukuroi-r46/C1SentSafety/trail.sh]
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+
+===== P7 trailing-newline filename + decoy at stripped path + fd 10 on decoy + fd 255 occupied =====
+executed amb.sh\n sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa
+decoy    amb.sh   sha256=9dd14d4c9a165912c52124469cae9c7e08cae99ac0d892dbc0f318c948e83d52
+crafted invocation rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=9dd14d4c9a165912c52124469cae9c7e08cae99ac0d892dbc0f318c948e83d52 md5=d4da7de2d74cf1ad0015aa71271156bd bytes=209247 lines=3599 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+control: same file, no inherited fd 10
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+
+===== P8 PATH-shadowed digest tools (sha256sum/md5sum/wc) forge the fields =====
+rc=0 (real sha=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa)
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=1111111111111111111111111111111111111111111111111111111111111111 md5=22222222222222222222222222222222 bytes=999999 lines=4242 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+
+===== P9 environment overrides cannot change the line =====
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+env -i rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+
+===== P10 inherited fds >=10: socket, FIFO, other regular file (must be skipped, no hang) =====
+socket: rc=0 lines=1 out=TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes err=
+fifo: rc=0 lines=1 out=TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes err=
+regular: rc=0 lines=1 out=TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes err=
+
+===== P11 stdin kinds (census does not read stdin in identity mode) =====
+stdin=/dev/zero rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+stdin=/etc/hostname rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+
+===== P12 script read from a pipe (process substitution) and from stdin =====
+process-substitution rc=0 lines=1
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+stdin script rc=0 lines=1
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+
+===== P13 census sourced from another shell (BASH_SOURCE is the file, not the executed script) =====
+sourced rc=0 lines=1
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+
+===== P14 FIFO at the script path, writer present =====
+rc=0 lines=1
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+
+===== P15 FIFO at the script path, writer holds it open with no bytes (bash blocks before the census runs) =====
+rc=124 (124 = timeout) bytes_out=0
+
+
+===== P16 symlink to /dev/zero at the script path =====
+rc=126 (124 = timeout) bytes_out=136
+
+===== P17 symlink to the FIFO at the script path, writer present =====
+rc=0 lines=1
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+
+===== P18 /dev/null and a symlink loop as the script path =====
+/dev/null rc=0 bytes_out=0
+symlink loop rc=126 err=bash: /fast/scratch/hyaku/tsukuroi-r46/C1SentSafety/loopa: Too many levels of symbolic links
+
+===== P19 cost scales with the file bash executes (comment-line padding, still a valid script) =====
+census.sh bytes=209208 help_ms=8 identity_ms=18 fields=sha256=d925839cde97
+bytes=209208 
+big1.sh bytes=1257786 help_ms=7 identity_ms=24 fields=sha256=5971bab82ed5
+bytes=1257786 
+big64.sh bytes=67318074 help_ms=7 identity_ms=164 fields=sha256=abe5a5c5ef9c
+bytes=67318074 
+
+===== P20 no writes: empty cwd, then find; strace write/create/rename/unlink =====
+files left in cwdtest2: 0
+openat with O_WRONLY/O_RDWR/O_CREAT: 8
+write(1,...) calls: 11   total traced lines: 89
+
+===== P21 EUID dependence of --identity and of the census root arm =====
+current id -u=1000; identity output uid fields: 0
+grep EUID in impl=6 (all ROOT_NOTE annotations); diff base..impl EUID/root lines=0
+
+===== done =====

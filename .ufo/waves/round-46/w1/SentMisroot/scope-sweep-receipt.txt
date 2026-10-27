@@ -1,0 +1,101 @@
+SentMisroot — X-7 scope/misroot sweep receipts, sweep window 2026-10-27T02:22:00-03:00 .. 02:30:00-03:00
+Every line below is a verbatim command output observation made during the window (no re-runs, no edits).
+
+[1] FLEET ROOT at 02:22-02:28 (before cleanup), `git -C /home/vgpnk/Projects/shokunin status --porcelain`:
+?? btrfs-scrub@.service
+?? dev-replace.c
+?? kengaku-shokukin/
+?? kstrtox.c
+?? scrub.c
+?? scrub237.c
+?? sha256-live.txt
+?? sysfs.c
+?? systemd.kill.xml
+?? tags-btrfs-progs.txt
+?? tags-linux.txt
+?? tags-systemd.txt
+?? vsprintf.c
+(count 13; re-checked identical at 02:26 and 02:27)
+
+[2] `stat -c '%n|%s|%y|%U:%G'` on those 13 (owner vgpnk:vgpnk for all). Second-level timestamps and byte
+sizes are exact; sub-second digits are transcribed from the same 02:22 stat output:
+btrfs-scrub@.service|190|2026-10-27 02:22:11.671990343 -0300|vgpnk:vgpnk
+dev-replace.c|39841|2026-10-27 02:22:11.147505962 -0300|vgpnk:vgpnk
+kengaku-shokukin|8|2026-10-27 02:06:37.472774735 -0300|vgpnk:vgpnk
+kstrtox.c|11483|2026-10-27 02:22:07.225073699 -0300|vgpnk:vgpnk
+scrub.c|100417|2026-10-27 02:22:11.358067968 -0300|vgpnk:vgpnk
+scrub237.c|57034|2026-10-27 02:22:11.789067373 -0300|vgpnk:vgpnk
+sha256-live.txt|628|2026-10-27 02:22:11.807067348 -0300|vgpnk:vgpnk
+sysfs.c|72925|2026-10-27 02:22:11.305280944 -0300|vgpnk:vgpnk
+systemd.kill.xml|11224|2026-10-27 02:22:10.907068592 -0300|vgpnk:vgpnk
+tags-btrfs-progs.txt|115|2026-10-27 02:22:16.682378683 -0300|vgpnk:vgpnk
+tags-linux.txt|121|2026-10-27 02:22:13.215139800 -0300|vgpnk:vgpnk
+tags-systemd.txt|115|2026-10-27 02:22:15.976371548 -0300|vgpnk:vgpnk
+vsprintf.c|92345|2026-10-27 02:22:07.302073592 -0300|vgpnk:vgpnk
+
+[3] verbatim captured content of /home/vgpnk/Projects/shokunin/sha256-live.txt (628 bytes, 8 rows):
+f07ef0a0d260cf67b7c2aff0542ec13204f9761e33df0ea9feedf143cc034f3a  dev-replace.c
+0c52ae02259f06adaf0a72a572e31ede4d8d6519e1b5625cb6b18d74db8d1ee4  kstrtox.c
+f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8  scrub.c
+48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801  scrub237.c
+ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43  sysfs.c
+cabb648a2c72fcbd4a1b00cbbf442ad11235f3224071f5e662db4a77993469ca  vsprintf.c
+448322830dbbd02c64cca99941ba92705afe9648241fc917db7a8d6ae7910e72  systemd.kill.xml
+eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252  btrfs-scrub@.service
+
+[4] `sha256sum` of the fleet-root copies vs the frozen snapshots (all match):
+dev-replace.c = f07ef0a0.. = tsukuroi-shokunin/.ufo/waves/round-45/frozen/src/dev-replace.c
+kstrtox.c     = 0c52ae02.. = .../round-45/frozen/src/kstrtox.c
+scrub.c       = f347931b.. = .../round-44/frozen/src/scrub.c
+sysfs.c       = ce146120.. = .../round-44/frozen/src/sysfs.c
+vsprintf.c    = cabb648a.. = .../round-45/frozen/src/vsprintf.c
+systemd.kill.xml = 44832283.. = .../round-45/frozen/src/systemd.kill.xml
+btrfs-scrub@.service = eaa7af92.. = .../round-44/frozen/src/btrfs-scrub@.service
+scrub237.c    = 48df2e2f.. = .../round-42/frozen/src/scrub.c
+
+[5] fleet-root tag dumps == lane seat dumps, byte-for-byte:
+`cat tags-linux.txt tags-systemd.txt tags-btrfs-progs.txt | sort` vs `sort .ufo/waves/round-46/w1/C2ExecLiveSources/tags.txt` -> TAGS-IDENTICAL
+That seat's report (/.ufo/waves/round-46/w1/C2ExecLiveSources.md:3) says the files were fetched with `curl -sfL URL -o FILE`
+and its receipt dir holds sha256-live.txt (704 B, 9 rows incl. cmdline.c 1af5ad98..) and tags.txt (351 B).
+The fleet-root capture [3] has 8 rows: the cmdline.c row is absent, and no live cmdline.c existed anywhere
+(`find /home/vgpnk/Projects/shokunin /fast/scratch/hyaku/tsukuroi-r46 -maxdepth 4 -name cmdline.c` -> empty).
+
+[6] fleet root after 02:28:44: `git -C /home/vgpnk/Projects/shokunin status --porcelain` -> 0 lines.
+All 13 entries of [1] were removed between 02:28:00 and 02:28:44 by someone other than this seat (I removed nothing).
+
+[7] lane `git -C .../tsukuroi-shokunin status --porcelain` at 02:30:00 (entries outside .ufo/waves/round-46/ only):
+ M tools/tsukuroi-census.sh
+(untracked, all inside the wave dir: before/c1-before-base.jsonl, before/c2-before-base.jsonl, l1/, make-w1-spec.py,
+ w1-dispatch.err, w1-dispatch.json, w1-spec.json, w1.ready, w1.ready.dispatched, w1/)
+`stat -c '%s|%y' tools/tsukuroi-census.sh` -> 209505|2026-10-27 02:28:53.087645808 -0300
+diff hunks start at @@ -3391, -3446, -3492, -3510 (all after the kill-rule line bound :3383); 10 insertions, 6 deletions.
+
+[8] earlier tracked-file modifications (02:21:45) were committed by the L1 in b57740c2 before 02:26:
+ M .ufo/waves/round-44/w1/C1ExecLiveRead/commands.txt (+2)
+ M .ufo/waves/round-44/w2/SkillReview.md (+2)
+ M .ufo/waves/round-45/a2w1/AsmGate.md (+56/-1, the last-line newline added)
+b57740c2 stat: 4 files changed, 88 insertions(+), 13 deletions(-), including
+corpus/knowledge/btrfs-scrub-grounding-r45.md | 41 +++++++++++-----  (13 deletions)
+
+[9] C2 counter / section-hash runs (read-only, cwd /fast/scratch/hyaku/tsukuroi-r46/SentMisroot-5):
+python3 tools/check-scrub-admission-r46.py --revision b57740c2 --section-hash
+ {"GR1": "fe77ac765c7dd9f568e0b296ce8c7f8f53de3d8966d6a2029bada662badf9ca8",
+  "GR2": "4bf28bcf3682fc5bed1d020601f35d19f696301579d2fe66f8667e7f7602f6da",
+  "GR3": "43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c"}
+python3 tools/check-scrub-admission-r46.py --revision a44770491eb5ca15ce9f8b3207309d1af683ffaf --section-hash
+ {"GR1": "fe77ac76..", "GR2": "a963df81745c7770f73406eda78cfdf6c1355e23c65c17d43b16e3ebeff62781",
+  "GR3": "8fa626768b49a98186b5a03fbc348175e5ed73484648b6e68a4277c6907a2800"}
+python3 tools/check-scrub-admission-r46.py --revision b57740c2  -> rc=1, "dispatched 0 times" for every seat,
+ marks {entry:false, readme:false, skill:false}, marks_ok 0 (w1-dispatch.json / w1-results.json are untracked, so absent at any committed revision)
+same at a4477049 -> rc=1, identical shape.
+
+[10] checklist negatives:
+find /tmp /var/tmp -maxdepth 2 -newer .ufo/waves/round-46/make-w1-spec.py | grep -Ei 'tsukuroi|r46|census|scrub|hyaku' -> empty (476 newer entries exist, all tameshi-r14 / harness / unrelated)
+find /home/vgpnk/.local/bin -newer .ufo/waves/round-46/make-w1-spec.py -> only the directory itself (mtime 02:20:02); 100 entries, none new
+ps -eo pid,ppid,stat,etimes,args | awk zombies-or-ppid1 filtered by r46|census|tsukuroi -> empty
+tsukuroi-r46 processes: 34; concurrent `tsukuroi-census.sh --selftest`: 17 (02:26), 14 (02:29:5x), 15 (02:30)
+loadavg: 42.59/55.43/51.71 (02:26), 41.26 (02:29), 40.12 (02:30) on nproc=32
+find tools .ufo/waves/round-46 -name __pycache__ -type d -> only .ufo/waves/round-46/controls/__pycache__
+  contents: run_controls_c2.cpython-314.pyc 16533 B 2026-10-27 02:23 (lane .gitignore:2 `__pycache__/`, so invisible to git status)
+/fast/scratch/hyaku/tsukuroi-r46: 32 dirs, 3.1 GB, all owned by live r46 seat names
+/fast/scratch/hyaku/run-receipt-*: 14 dirs, 3.1 GB total; 4 newer than the spec: e_b0d_77 (02:28:33), home-hqsemj0v (02:28:31), en9qlzud (400M, 02:26:28), home-f91n65hg (02:26:24); oldest 23:51 (prior round)

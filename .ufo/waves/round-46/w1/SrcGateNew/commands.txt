@@ -1,0 +1,38 @@
+# seat SrcGateNew (F-1) — exact commands, 2026-10-27, all writes under
+# /fast/scratch/hyaku/tsukuroi-r46/SrcGateNew/ and .ufo/waves/round-46/w1/SrcGateNew/
+mkdir -p /fast/scratch/hyaku/tsukuroi-r46/SrcGateNew/{s,curl}
+cd /fast/scratch/hyaku/tsukuroi-r46/SrcGateNew/curl
+date -u +%Y-%m-%dT%H:%M:%SZ                                     # 2026-10-27T05:23:21Z
+curl -sSL -o shell.c  "https://git.savannah.gnu.org/cgit/bash.git/plain/shell.c?h=bash-5.3"    # 200, 59208 B
+curl -sSL -o general.c "https://git.savannah.gnu.org/cgit/bash.git/plain/general.c?h=bash-5.3" # 200, 36727 B
+curl -sSL -o general.h "https://git.savannah.gnu.org/cgit/bash.git/plain/general.h?h=bash-5.3" # 200, 11459 B
+curl -sSL -o proc_pid_fd.5.html "https://man7.org/linux/man-pages/man5/proc_pid_fd.5.html"     # 200, 11359 B
+date -u +%Y-%m-%dT%H:%M:%SZ                                     # 2026-10-27T05:23:37Z
+sha256sum shell.c general.c general.h proc_pid_fd.5.html
+cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-46/frozen/src && sha256sum shell.c general.c general.h proc_pid_fd.5.html
+for f in shell.c general.c general.h proc_pid_fd.5.html; do cmp -s "/fast/scratch/hyaku/tsukuroi-r46/SrcGateNew/curl/$f" "$f" && echo "cmp $f: identical"; done
+git ls-remote https://git.savannah.gnu.org/git/bash.git refs/tags/bash-5.3   # b8c60bc9…ebc303, 2026-10-27T05:25:53Z
+# located quotes (see quotes.txt)
+awk 'NR==1586 || (NR>=1697 && NR<=1703) || (NR>=782 && NR<=784)' shell.c
+awk 'NR>=685 && NR<=705' general.c ; awk 'NR>=250 && NR<=252' general.h
+awk 'NR>=69 && NR<=88' proc_pid_fd.5.html
+# reject candidate 1: the tag's own manual
+curl -sSL --max-time 60 -o bash53.1 "https://git.savannah.gnu.org/cgit/bash.git/plain/doc/bash.1?h=bash-5.3"  # 200, 392678 B
+sha256sum bash53.1 ; wc -l bash53.1                              # 23f7bd15…1971, 13495
+grep -nE '\b255\b' bash53.1                                      # :5912 only (EXIT STATUS)
+grep -niE 'HIGH_FD_MAX|move_to_high_fd|close.on.exec|script descriptor' bash53.1   # rc=1, no match
+# reject candidate 2: the installed page
+man bash | col -b > bash.1.txt ; wc -l bash.1.txt                # 7319
+grep -nE '\b255\b' bash.1.txt                                    # :3160 only (EXIT STATUS)
+grep -niE 'close.on.exec|HIGH_FD_MAX|move_to_high_fd|script descriptor|descriptor .*the script' bash.1.txt  # rc=1
+pacman -Qo /usr/share/man/man1/bash.1.gz ; sha256sum /usr/share/man/man1/bash.1.gz   # bash 5.3.20-1, b68beb3e…bffe
+# reject candidate 3: the reference manual (no bytes)
+curl -sSL --max-time 25 -o bashref.html "https://www.gnu.org/software/bash/manual/bash.html"   # curl: (28), http=000, 0 B
+# reject candidate 4: input.c
+curl -sSL --max-time 40 -o input.c "https://git.savannah.gnu.org/cgit/bash.git/plain/input.c?h=bash-5.3"  # 200, 16027 B
+sha256sum input.c                                                # d88d0583…a50b
+awk 'NR<=1 || (NR>=78 && NR<=86)' input.c
+# reject candidate 5 (assimilation): receipts read, not re-run
+wc -l .ufo/waves/round-46/w1/AsmGate/{reg-ids,staged-ids,collisions}   # 251 / 147 / 52
+git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff --stat 2042117c… a4477049… -- corpus/SOURCES.md  # 2 insertions
+grep -c '^| S[0-9]' corpus/SOURCES.md                            # 251

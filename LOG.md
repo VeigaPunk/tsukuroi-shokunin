@@ -1652,3 +1652,19 @@ none (50 id collisions; no theme fits). Landed: `057c1804` rebinding; `3c42f556`
 a2w1 integration; `194a4523` a2w1 evidence and pending marks; `cd1b3a03` a2r1 integration and QUALITY 93;
 `44560592` a2r1 evidence and SKILL fixes; the outcome commit carries this entry, the lesson, the SCORECARD outcome and
 the receipts. Lesson `corpus/lessons/round-45.md`; report `.ufo/reports/round-45/tsukuroi.md` (fleet repo).
+
+## Round 46 — 2026-10-27 (hyaku run 9; L1 TsukuroiR46)
+
+Motivating evidence: the round-45 closure (`corpus/lessons/round-45-verifier-spotcheck.md` §2, §5: C2 FAIL on binding,
+routed D1-D5). Base `2042117c`; freeze `72cc2609` (declaration, counters `score-census-identity-r46.py`,
+`check-scrub-admission-r46.py`, batteries C1 9/9 and C2 22/22, round-start census D4, S250/S251 snapshots). Claims: C1
+operability — census `--identity` (D12): `a4477049`, hardened `61e06740` from wave findings (O_CLOEXEC unique
+descriptor, `--identity --help` refused); C2 depth — admit GR1-GR3 through seat-written verdicts bound to section bytes.
+Waves: `w1` one v2 wave of 66 seats; residual `r1` 4 counted seats. GR2/GR3 narrowed at `b57740c2`. Outcome: C1 PASS
+(`.ufo/waves/round-46/l1/c1-61e06740.jsonl`); C2 FAIL (verdicts_ok 2: GR2 `partly` on narrowed bytes). D1 (SKILL/README
+round-44 status notes, `c7e4d7d9`), D2/D3 (correction notes, `b57740c2`), D4, D5 closed; registry round46 (74/74).
+**Freshness.** Re-verification of predecessor pins, 2026-10-27: S246-S248, S237, S242-S244 re-fetched byte-identical to
+their `SHA256SUMS` (`w1/C2ExecLiveSources.md`); S249 capture re-run, cited values unchanged (`w1/C2ExecHostRecheck.md`);
+S250/S251 re-opened byte-identical (`w1/SrcGateNew.md`). considerthese: "Burst-aware reading" mined
+(`considerthese/2026-10-26.md`). Assimilation: none (52 collisions). Lesson `corpus/lessons/round-46.md`; report
+`.ufo/reports/round-46/tsukuroi.md` (fleet repo).

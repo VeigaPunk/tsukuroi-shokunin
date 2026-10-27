@@ -1,0 +1,25 @@
+# observed at lane commit a4477049 (working tree clean for tools/tsukuroi-census.sh), 2026-10-27
+$ bash tools/tsukuroi-census.sh --identity; echo rc=$?
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+rc=0
+
+$ wc -l tools/tsukuroi-census.sh; wc -c tools/tsukuroi-census.sh; tail -c 1 tools/tsukuroi-census.sh | od -An -c
+3598 tools/tsukuroi-census.sh
+209208 tools/tsukuroi-census.sh
+   "
+$ sha256sum tools/tsukuroi-census.sh; md5sum tools/tsukuroi-census.sh
+d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa  tools/tsukuroi-census.sh
+db08a606ce128da3839457372e91e220  tools/tsukuroi-census.sh
+
+# the lookup loop of corpus/knowledge/census-identity-r46.md, run at the same commit
+$ want=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa; git log --format=%H -- tools/tsukuroi-census.sh | while read -r h; do [ "$(git show "$h:tools/tsukuroi-census.sh" | sha256sum | cut -d' ' -f1)" = "$want" ] && echo "$h"; done
+a44770491eb5ca15ce9f8b3207309d1af683ffaf
+
+# counter digests at a4477049
+$ sha256sum tools/score-census-identity-r46.py tools/check-scrub-admission-r46.py
+7c406eb5f4ba1f6265649f7102e7376882483180c161a66abc68e08cad9524ba  tools/score-census-identity-r46.py
+28c409bef9a87338831e0cab4c194a78e7fedfefbd9c4a300a33f30b24dd11d8  tools/check-scrub-admission-r46.py
+
+# committed pre-data control receipts (not my run): .ufo/waves/round-46/controls/
+# K8-candidate (census d925839c): selftest "PASS (160 cases, 160 passed, 0 failed)", selftest_r46 6, all eight legs 1, verdict PASS
+# K0-donothing (base census 237b21c9): selftest "PASS (154 cases, 154 passed, 0 failed)", selftest_r46 0, verdict FAIL

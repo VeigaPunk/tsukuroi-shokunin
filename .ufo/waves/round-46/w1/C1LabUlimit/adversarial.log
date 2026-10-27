@@ -1,0 +1,37 @@
+== adversarial A (deterministic): parent fd 10 on a decoy inode + BASH_ENV DEBUG relink after bash opened the script ==
+executed file P.sh sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa bytes=209208
+decoy inode      sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad05c465d2a9623fe bytes=209252
+BASH_ENV (benv.sh):
+exec 10<"$R46_Q"
+trap '[ -n "$R46_ARMED" ] || { R46_ARMED=1; mv -f -- "$R46_Q" "$R46_P"; printf "FDLINKS:255=%s 10=%s\n" "$(readlink /proc/$$/fd/255)" "$(readlink /proc/$$/fd/10)" >&2; }' DEBUG
+--- run ---
+FDLINKS:255=/fast/scratch/hyaku/tsukuroi-r46/C1LabUlimit/fx3/P.sh (deleted) 10=/fast/scratch/hyaku/tsukuroi-r46/C1LabUlimit/fx3/P.sh
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad05c465d2a9623fe md5=dc4bf514f0866802ff83e44b83fa044a bytes=209252 lines=3601 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+rc=0
+note: DECOY_EXECUTED did NOT print, so the bytes bash executed are the d925839c ones; the line reports c3dad0bc.
+--- control: the same decoy, when it IS the executed file, prints its marker and its own digest ---
+DECOY_EXECUTED
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad05c465d2a9623fe md5=dc4bf514f0866802ff83e44b83fa044a bytes=209252 lines=3601 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+
+== adversarial B (no BASH_ENV): parent holds fd 10 on a decoy inode; a racer relinks the path after /proc/<pid>/fd/255 resolves to it ==
+real sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa  decoy sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad05c465d2a9623fe
+run  1 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run  2 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run  3 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run  4 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run  5 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run  6 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run  7 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run  8 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run  9 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run 10 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run 11 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run 12 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run 13 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run 14 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+run 15 saw_fd255=1 WRONG-reported-decoy TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=c3dad0bc0c062447dad560aa2120f81ca3ecd1dd2141e7bad
+SUMMARY wrong=15 correct=0 unverifiable=0 executed_decoy=0 of 15
+
+== descriptor flags at identity time: bash's script fd is O_CLOEXEC (=02000000), a shell-opened fd is not ==
+fd255 flags: flags:	02100000
+fd10  flags: flags:	0100000

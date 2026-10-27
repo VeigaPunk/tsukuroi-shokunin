@@ -1,0 +1,24 @@
+=== CROSS-CLAIM CONTENT DIGEST BINDING EVIDENCE ===
+
+1. C2 Row Narrowing and Section Hash Changes (Round 45 history):
+   - At freeze 18389f44:
+     GR2 section hash: 23adf56942e941dcbe28d8dc318e99a9efcebdf02bd31d1a271ea1ac53c760f7
+     Counted seats (a2w1/C2RevGR2, C2CritGR2) returned: partly
+   - At integration 0503400b (narrowed):
+     GR2 section hash: 3534461dba1e3725963bd062e0fe8623037b78e46ca69b48110dc7202feacc54
+     Read only by uncounted residual: a2r1/ResRevGR2
+   - At base 2042117c (further narrowed in cd1b3a03):
+     GR2 section hash: a963df81745c7770f73406eda78cfdf6c1355e23c65c17d43b16e3ebeff62781
+   Observed: A counter binding only to row name "GR2" would credit verdicts given to 23adf569...
+   to the modified text 3534461d... or a963df81... Round-46 C2 requires SECTION SHA256 on line 2,
+   failing stale hashes (C2-K5-stale-hash.jsonl: GR1 row_ok=false, bound_on_current=1/2).
+
+2. C1 Execution Descriptor vs Path Decoupling (Round 46 controls):
+   - In battery-summary-c1-draft1.jsonl:3:
+     {"control": "K2-pathhash", "exit_code": 0, "expect": "FAIL", "as_expected": false, "verdict": "PASS"}
+     Draft 1 scored PASS because it only tested regular invocation and stdin/pipes, not replaced-after-open.
+   - In battery-summary-c1.jsonl:3:
+     {"control": "K2-pathhash", "exit_code": 1, "expect": "FAIL", "as_expected": true, "verdict": "FAIL", "unverifiable_ok": 0}
+     Final counter added replaced-after-open test in unverifiable_ok:
+     R="mv -f $R46_DECOY $R46_PATH" + F's bytes, run as bash R --identity.
+     Kills mutants hashing the path $SELF rather than the script fd /proc/$$/fd/<n>.

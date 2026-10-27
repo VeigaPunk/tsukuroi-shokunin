@@ -1,0 +1,83 @@
+# D2/D3 receipts — seat D2D3Draft, round 46 (hyaku 9), 2026-10-27
+
+## D3 — id census at round-45 measured revision 44560592857660a20c6a2b296fa14fa7a90464b5
+
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 44560592857660a20c6a2b296fa14fa7a90464b5:corpus/SOURCES.md | grep -oE '^ {0,3}\|[[:space:]]*S[0-9]{3,}' | grep -oE 'S[0-9]{3,}' | sort -u | wc -l
+249
+
+$ ... | head -1 ; ... | tail -1
+S001
+S249
+
+$ grep -oE '^ {0,3}\|[[:space:]]*S[0-9]{3,}' /home/vgpnk/Projects/shokuknow/merge/tsukuroi/SOURCES.append.md | grep -oE 'S[0-9]{3,}' | sort -u | wc -l
+147
+
+$ (same) | sed -n '1p;$p'
+S200
+S346
+
+$ comm -12 reg-ids-4456059 staged-ids | wc -l ; comm -12 ... | sed -n '1p;$p'
+50
+S200
+S249
+
+## extractor variants that could explain 183 (all give 249)
+$ grep -cE '^\| S[0-9]' reg-4456059.md -> 249
+$ grep -cE '^ {0,3}\| *S[0-9]{3,}' reg-4456059.md -> 249
+$ grep -cE '\| *S[0-9]{3,}' reg-4456059.md -> 249
+$ grep -oE 'S[0-9]{3}' reg-4456059.md | sort -u | wc -l -> 249
+
+## guard fixture (0-3 leading spaces accepted, 4 not, list item not)
+$ grep -oE '^ {0,3}\| *S[0-9]{3,}' fx.md
+| S001
+ | S002
+  | S003
+   | S004
+
+## kept receipt id-collisions.txt (round-45 a2w1/AsmGate) vs the recount
+$ wc -l /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-45/a2w1/AsmGate/id-collisions.txt
+30
+$ comm -23 listed reg-ids-4456059 | tr '\n' ' '   # listed but not lane registry ids
+S250 S251 S252 S262 S268 
+$ comm -13 listed collisions | tr '\n' ' '   # genuine collisions the kept file omits
+S203 S204 S207 S208 S212 S214 S215 S216 S217 S218 S219 S220 S221 S226 S227 S229 S232 S233 S234 S240 S241 S245 S246 S247 S248 
+$ comm -13 listed collisions | wc -l
+25
+
+## D2 — strace log citation
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin cat-file -e a44770491eb5ca15ce9f8b3207309d1af683ffaf:.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log
+fatal: path '.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log' does not exist in 'a44770491eb5ca15ce9f8b3207309d1af683ffaf'
+exit=128
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin cat-file -e a44770491eb5ca15ce9f8b3207309d1af683ffaf:.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log.gz
+exit=0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin cat-file -e 2042117cfb724170772f4c128cc2ddba0b61d817:....log  (base)
+fatal: path '.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log' does not exist in '2042117cfb724170772f4c128cc2ddba0b61d817'
+exit=128
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin cat-file -e 2042117cfb724170772f4c128cc2ddba0b61d817:....log.gz  (base)
+exit=0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse 2042117c:...log.gz a4477049:...log.gz ; cat-file -s
+ec1848d66a288993c99e5f70ea901e62a412c502
+ec1848d66a288993c99e5f70ea901e62a412c502
+79436
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin log --diff-filter=A --oneline -1 -- '*strace-rev-live1.log.gz'
+ea6e0ee3 round-45: declaration + frozen counters (C1 score-census-readers-r45, C2 check-scrub-grounding-r45), pre-data control batteries (C1 K0-K10, C2 K0-K29; should_fail_accepted 0 both), frozen sources S246-S249, base gate receipts; D1 IN-109 repin 2468->2582; D7 round-44 untracked evidence committed (gz) with .ready markers
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin log --all --oneline --diff-filter=A -- '*strace-rev-live1.log'   # never committed uncompressed
+$ zcat /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log.gz | wc -lc
+  15077 1358989
+$ sha256sum .gz
+16085e679ef500cb9919bce715a332dc58cddb225f6f578a94fb2b6596130dd5  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log.gz
+$ zcat .gz | head -3 ; zcat .gz | tail -2
+947327 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+947327 openat(AT_FDCWD, "/usr/lib/libreadline.so.8", O_RDONLY|O_CLOEXEC) = 3
+947327 openat(AT_FDCWD, "/usr/lib/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+947327 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1016159, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+947327 +++ exited with 2 +++
+
+## residual citation site not covered by this item
+$ grep -rn "strace-rev-live1.log" (round-44 tree)
+.ufo/waves/round-44/w1/C1ExecLiveRead/commands.txt:26:      exit=2 ; trace 15077 lines (1,358,989 B) ; stderr empty  [receipt strace-rev-live1.log, live-run-c-strace.txt]
+.ufo/waves/round-44/w1/C1ExecLiveRead/commands.txt:81:   strace-rev-live1.log                      raw strace -f trace of run 1 (all required classes, with paths)
+.ufo/waves/round-44/w1/C1ExecLiveRead/commands.txt:88:Correction (round 46, routed R45C-D7-CITATION; appended, the lines above are unchanged): the strace log cited above as `strace-rev-live1.log` is committed only compressed, as `.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log.gz` (`git cat-file -e 2042117c:<path>`: the `.log` path exits 128, the `.log.gz` path exits 0; read it with `zcat`).
+.ufo/waves/round-44/w2/SkillReview.md:55:  (`.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log`).
+.ufo/waves/round-44/w2/SkillReview.md:104:Correction (round 46, routed R45C-D7-CITATION; appended, the lines above are unchanged): the strace log cited above as `strace-rev-live1.log` is committed only compressed, as `.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log.gz` (`git cat-file -e 2042117c:<path>`: the `.log` path exits 128, the `.log.gz` path exits 0; read it with `zcat`).
+.ufo/waves/round-44/w2/SkillReview/evidence.md:43:  (all "open, not declared"); w1/C1ExecLiveRead/strace-rev-live1.log exists.

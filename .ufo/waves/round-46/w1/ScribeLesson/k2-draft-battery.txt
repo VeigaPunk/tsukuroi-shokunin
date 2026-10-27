@@ -1,0 +1,33 @@
+# C1 battery: control K2-pathhash, first draft vs frozen battery
+## draft1 row (controls/battery-summary-c1-draft1.jsonl:3)
+{"as_expected": false, "census_sha256": "4c240740e40b4630909a732fe166e5cffe1d1931884c3dbcfdab3aafbd60deec", "cli_ok": 1, "control": "K2-pathhash", "exit_code": 0, "expect": "FAIL", "identity_ok": 1, "nowrite_ok": 1, "selftest_pass": 1, "selftest_r46": 5, "symlink_ok": 1, "tracks_ok": 1, "unverifiable_ok": 1, "verdict": "PASS"}
+## frozen row (controls/battery-summary-c1.jsonl:3)
+{"as_expected": true, "census_sha256": "6a42c7af511f771a7e2a8d8ff7ef1f0b5d7f8d208d77939259ad2c108870104e", "cli_ok": 1, "control": "K2-pathhash", "exit_code": 1, "expect": "FAIL", "identity_ok": 1, "nowrite_ok": 1, "selftest_pass": 0, "selftest_r46": 5, "symlink_ok": 1, "tracks_ok": 1, "unverifiable_ok": 0, "verdict": "FAIL"}
+## as_expected totals
+battery-summary-c1-draft1.jsonl 8/9 not-as-expected: ['K2-pathhash']
+battery-summary-c1.jsonl 9/9 not-as-expected: []
+battery-summary-c2.jsonl 22/22 not-as-expected: []
+## the SCORECARD's own record of the fix
+2994:Pre-freeze counter fix (before any seat): the first C1 counter draft let control K2 (a path hasher) PASS, because
+2995-with `${BASH_SOURCE[0]:-}` the stdin and pipe cases never name a regular file, so hashing the path and hashing the
+2996-descriptor agree there (`controls/battery-summary-c1-draft1.jsonl`, K2 `as_expected` false). The frozen counter adds
+2997-the case that separates them — the script renames a decoy over its own path on its first line, so the path names new
+2998-bytes while bash still reads the old inode — and K2 now FAILs (`battery-summary-c1.jsonl`, 9/9 as expected). The
+2999-candidate gained the matching selftest case. C2 battery: 22/22 as expected (`battery-summary-c2.jsonl`).
+3000-
+3001-Seat verdict channel (routed: R45-C2-BINDING-CHANNEL, orchestrator note of the round-46 dispatch): the counter reads
+3002-only the seat's own report file. The wave spec states the two exact first lines and nothing a seat yields is read.
+## the frozen counter's leg that now separates path-hash from descriptor-hash
+    # replaced after open: line 1 renames a decoy over the script's own path; bash keeps reading the old inode
+    rep = os.path.join(top, 'replaced')
+    os.makedirs(rep)
+    R, RD = os.path.join(rep, 'census.sh'), os.path.join(rep, 'decoy.sh')
+    with open(R, 'wb') as fh:
+        fh.write(b'mv -f -- "$R46_DECOY" "$R46_PATH"\n' + fb)
+    with open(RD, 'wb') as fh:
+        fh.write(fb + b'\n# decoy\n')
+    rc, out, err = run(['bash', R, '--identity'], rep, {**env, 'R46_DECOY': RD, 'R46_PATH': R})
+    unv.append((rc, out, err))
+    unverifiable_ok = 1
+## the seat that re-caught it in-wave
+The recorded battery summary shows every control's top-level verdict matches its expected verdict (all recorded `as_expected: true`), but this does not establish that each FAIL targets its intended leg. K2-pathhash in `battery-summary-c1-draft1.jsonl` is a decisive counterexample: it records `verdict: PASS`, `expect: FAIL`, and every leg true, hence the draft battery missed its named path-trust defect. The later `battery-summary-c1.jsonl` records K2 as FAIL because `unverifiable_ok: 0` and `selftest_pass: 0`, while identity, symlink and tracking legs remain true. Evidence: `.ufo/waves/round-46/controls/battery-summary-c1-draft1.jsonl` row `K2-pathhash`; `.ufo/waves/round-46/controls/battery-summary-c1.jsonl` row `K2-pathhash`.

@@ -1,0 +1,47 @@
+# ConsiderMine (item F-8) — commands run, working dir /fast/scratch/hyaku/tsukuroi-r46/ConsiderMine
+# Lane reads are read-only; all writes are in this scratch dir, later copied to
+# .ufo/waves/round-46/w1/ConsiderMine/.
+
+grep -ric 'burst' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SKILL.md            -> 0
+grep -ril 'burst' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/    -> (no output)
+grep -rn 'Burst-aware\|burst-aware' --include=*.md <lane>                            -> considerthese/2026-10-26.md:17 and two seat reports only
+
+python3 tally.py log-vs-spotcheck.jsonl                       -> exit 1
+  round 43: comparable  9  match  9  mismatch 0
+  round 44: comparable  7  match  5  mismatch 2
+  round 45: comparable 12  match 11  mismatch 1
+  TSUKUROI_BURST_READ: rows=28 mismatch=3 rounds=3 mismatch_rounds=2
+
+python3 check-log-axis-coverage.py                            -> exit 1
+  AXIS-GRADE-OMITTED corpus/lessons/round-44-verifier-spotcheck.md:137: adjacency graded harmed but the
+    round-44 LOG entry (LOG.md:1615-1625) never names it
+  DISPOSITION-CONFLICT corpus/lessons/round-45.md:94: D3 stated 'closed' while :108 names D3 as unchanged / half closed
+  SKIPPED corpus/lessons/round-43.md:110 numbered-list disposition (not table-shaped): needs a reader
+  SKIPPED corpus/lessons/round-44.md:50 numbered-list disposition (not table-shaped): needs a reader
+  TSUKUROI_BURST_READ_CHECK: findings=2 axes_checked=5 disposition_rows_checked=10 skipped_sections=2
+
+python3 run-fixtures.py                                       -> exit 0
+  ok F1 axis harmed, LOG silent: expected 1 findings, got 1
+  ok F2 axis harmed, LOG names it: expected 0 findings, got 0
+  ok F3 closed row contradicted: expected 1 findings, got 1
+  ok F4 closed row, unrelated conflict: expected 0 findings, got 0
+  TSUKUROI_BURST_READ_FIXTURES: cases=4 failed=0
+
+git log --format='%cI %h %s' -- LOG.md | head -3        (lane; round-heading commits)
+  2026-10-27T01:30:46-03:00 bb1a24e5 round-45: measured outcome ...
+  2026-10-26T22:34:48-03:00 ae337aab round-44: measured outcome ...
+  2026-10-26T20:29:07-03:00 a87249c7 round-43: measured outcome ...
+
+git log --oneline e2407a9d..a87249c7 | wc -l                   -> 12 ; git diff --shortstat e2407a9d a87249c7
+                                                                     628 files, 124551(+), 8(-)
+git log --oneline a87249c7..ae337aab | wc -l                   -> 15 ; 1000 files, 105557(+), 8(-)
+git log --oneline ae337aab..bb1a24e5 | wc -l                   -> 12 ;  689 files,  88941(+), 11(-)
+git log --oneline e3bc9340..bb1a24e5 | wc -l                   -> 63 ; 4223 files, 551718(+), 32(-)
+
+git log --format='%cI %h %s' -- LOG.md | awk 'substr($0,1,16) >= "2026-10-26T15:00"' | wc -l  -> 5
+  (rounds 41-45, first heading 15:32:33, last 01:30:46 => 9h58m13s; rounds 43-45 span 5h01m39s)
+
+awk LOG entry / wc -l corpus/lessons/round-NN{-verifier-spotcheck,}.md
+  round 43: 27 + 159 + 141 = 327 lines
+  round 44: 11 + 217 +  69 = 297 lines
+  round 45: 29 + 217 + 176 = 422 lines   (1,046 lines for the three rounds)

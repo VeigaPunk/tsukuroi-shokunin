@@ -243,3 +243,15 @@ therefore stay pending, not admitted; GR2 as corrected at the integration has be
    `pacman -Qo`; the `fs/`/`lib/` patch claim stays `[inference]`); 10 (the mention sweep `a2w1/C2ExecSweep.md`;
    the SKILL.md corrections land in the same integration); 11 (the LOG.md round-45 entry lands with this entry's
    integration).
+
+## Gate status — round 46 (the depth gate FAILED again; GR1-GR3 stay pending)
+
+Round 46 re-bound the rows through the seat-written channel (`tools/check-scrub-admission-r46.py`, frozen at
+`72cc2609`): 16 counted reports, every one bound by its own first two lines. GR1: four bound `holds` on its bytes
+(wave w1). GR2: `holds` 1 / `partly` 3 at `a4477049`; narrowed at `b57740c2` (setup returns, the metadata condition, the
+suspended `-ENOTCONN` timing); read `partly` again by the residual critic `r1/V46ResCritGR2.md` (an earlier `-EAGAIN`
+return on a closing filesystem, scrub.c:3094-3095, and more than one path that sets a replace suspended,
+dev-replace.c:1186, :1224, :1238), so no two bound seats read `holds` on its current bytes. GR3: `partly` 2 / `holds` 2
+at `a4477049`; narrowed at `b57740c2` (the `-B` handler install, scrub.c:1512, :1546, :439; the
+`DefaultTimeoutStopSec` reach marked [inference]); read `holds` by both residual seats. The predicate needs all three
+rows, so no row is admitted this round; GR2's residual finding is the next amendment, unread by any counted seat.

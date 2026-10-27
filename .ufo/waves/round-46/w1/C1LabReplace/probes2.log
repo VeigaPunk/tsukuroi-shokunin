@@ -1,0 +1,202 @@
+===== A0 baseline pristine =====
+### A0 pristine identity
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa  /fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/A0/census.sh
+===== (a) replace by rename after bash opened it =====
+### A rename-replace at line 1 (decoy differs by one appended line)
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+== path now holds sha256 (decoy) ==
+0afe2e17a14c02893512f17982c77d472033b6635f9127cc256236ea350d65a1  /fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/A/census.sh
+===== (a2) unlink (not replace) the invoked path mid-run =====
+### A2 unlink own path at line 1
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+total 0
+===== (b1) in-place overwrite at line 1, decoy same length (VERSION->decoy-v99) =====
+decoy bytes 209208
+### B1 in-place overwrite at line 1
+rc=2
+/fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/B1/census.sh: line 2: syntax error near unexpected token `('
+/fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/B1/census.sh: line 2: `-census.sh — six-plane host health census (tsukuroi-shokunin; started round 3, TSUKUROI-R3-2).'
+== B1 file after ==
+3b116b9ddfca7cfb73bc0c30e2570329853ef20af75b80634e4f7797adbcbc04  /fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/B1/census.sh
+454:VERSION='decoy-v99'
+===== (b1c) control: in-place overwrite with a BYTE-IDENTICAL decoy =====
+### B1c in-place overwrite with identical bytes
+rc=2
+/fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/B1c/census.sh: line 2: syntax error near unexpected token `('
+/fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/B1c/census.sh: line 2: `-census.sh — six-plane host health census (tsukuroi-shokunin; started round 3, TSUKUROI-R3-2).'
+d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa  /fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/B1c/census.sh
+===== (b2) in-place overwrite immediately before main "$@" (all executed bytes change) =====
+209239
+209208
+### B2 in-place overwrite of executed bytes just before main
+rc=0
+
+== B2 file after ==
+3b116b9ddfca7cfb73bc0c30e2570329853ef20af75b80634e4f7797adbcbc04  /fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/B2/census.sh
+454:VERSION='decoy-v99'
+===== (b2s) B2 variant: injected line also prints a marker so the executed tail is visible =====
+### B2s marker then in-place overwrite before main
+rc=0
+MARK: pre-main edited, VERSION=census-v2
+3b116b9ddfca7cfb73bc0c30e2570329853ef20af75b80634e4f7797adbcbc04  /fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/B2s/census.sh
+===== (b3) in-place overwrite with a SHORTER decoy (head only) =====
+### B3 short decoy overwrite at line 1
+rc=0
+/fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/B3/census.sh: line 2: ipefail: command not found
+DECOY-TAIL
+== B3 file after ==
+60
+===== (i) in-place overwrite of a semantic line inside bash first buffer (umask 077 -> 000) =====
+umask-byte-offset 37174 decoysame True
+### I overwrite buffered umask line, then identity
+rc=2
+/fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/I/census.sh: line 2: syntax error near unexpected token `('
+/fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/I/census.sh: line 2: `-census.sh — six-plane host health census (tsukuroi-shokunin; started round 3, TSUKUROI-R3-2).'
+== I file after: umask line on disk ==
+198d2ff732681fa3cd01314fc069e8911514f00f5ac26b15fe1f026ca1fe436e  /fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/I/census.sh
+452:umask 000
+== I strace: which umask syscall actually ran ==
+cat: census.sh/decoy: Not a directory
+rc=1
+710152 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=710197, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---
+on-disk umask: 
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  census.sh
+===== (c1) truncate in place at line 1 =====
+### C1 truncate at line 1
+rc=0
+
+0
+===== (c2) truncate in place immediately before main =====
+### C2 truncate just before main
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 md5=d41d8cd98f00b204e9800998ecf8427e bytes=0 lines=0 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+== C2 file after ==
+0
+===== (c2b) C2 control: same injection but truncate a DIFFERENT file (no self-edit) =====
+### C2b control, self untouched
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=56799c9966e54c87bd1253df74ab87314737640f8d165b914d5692790055aa65 md5=b39213e8db5f7d70edff043d73ac0b99 bytes=209229 lines=3600 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+===== (c3) truncate to 4096 bytes at line 1 =====
+### C3 truncate -s 4096 at line 1
+rc=0
+
+4096
+===== (d1) hard link invoked by the other name =====
+### D1 hardlink alias
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+1752802144 D1/census.sh
+1752802144 D1/alias.sh
+===== (d2) hardlink alias invoked, sibling name replaced by rename mid-run =====
+### D2 alias invoked, census.sh name rename-replaced
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=48674ea3936f903f1b77bdedc69ed92ebae7179952bed96c75bb3142b8ca5bc4 md5=613439ace7224d691dad0c0f41fcc39b bytes=209253 lines=3599 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+2092239359 D2/census.sh
+2092239356 D2/alias.sh
+===== (d3) hardlink alias invoked, sibling name overwritten IN PLACE (same inode) =====
+### D3 alias invoked, census.sh overwritten in place
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=2ed5d072d76a74e3e766e90d9e188e740a8752f684a8f0b7293cc2abcaf67b35 md5=01521779c312332ce557dca7e2f6bdf2 bytes=209253 lines=3599 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+454:VERSION='decoy-v99'
+3b116b9ddfca7cfb73bc0c30e2570329853ef20af75b80634e4f7797adbcbc04  D3/census.sh
+===== (d4) hardlink alias invoked, invoked NAME unlinked mid-run =====
+### D4 invoked name unlinked
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+===== (e) bind mount / read-only mount: not attempted =====
+no mount(2) in this seat: mounts are forbidden outside a private unshare namespace and the probe adds no evidence beyond F1+strace.
+unshare rc=0
+===== (f1) read-only dir 0555 + file 0444 =====
+### F1 identity from 0555 dir / 0444 file
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+dr-xr-xr-x 2 vgpnk vgpnk 23 Oct 27 02:26 /fast/scratch/hyaku/tsukuroi-r46/C1LabReplace/F1
+total 208
+-r--r--r-- 1 vgpnk vgpnk 209208 Oct 27 02:26 census.sh
+===== (f2) syscall trace of --identity: any write-mode open on the script or cwd? =====
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+rc=0
+== write-ish / mutating syscalls (excluding /dev/null, /dev/tty) ==
+NONE
+== handwriting of the script + fd reopen ==
+17:715032 openat(AT_FDCWD, "census.sh", O_RDONLY) = 3
+24:715032 openat(AT_FDCWD, "/proc/715032/fd/", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3
+31:715535 openat(AT_FDCWD, "/proc/715032/fd/255", O_RDONLY) = 3
+48:715681 openat(AT_FDCWD, "/proc/715032/fd/255", O_RDONLY) = 3
+65:715911 openat(AT_FDCWD, "/proc/715032/fd/255", O_RDONLY) = 3
+79:715993 openat(AT_FDCWD, "/proc/715032/fd/255", O_RDONLY) = 3
+93:716070 openat(AT_FDCWD, "/proc/715032/fd/255", O_RDONLY) = 3
+===== (g) invocation shapes =====
+### G1 ./census.sh from its own dir
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+### G2 path with .. segment
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+### G3 symlink to symlink target
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+### G4 sh (POSIX mode)
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+### G5 bash -o posix
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+### G6 symlink retargeted to a decoy
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=decoy-v99 sha256=3b116b9ddfca7cfb73bc0c30e2570329853ef20af75b80634e4f7797adbcbc04 md5=1377292d695cb7dc5519e342356d84a3 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+### G7 bash -c "$(cat census.sh)" (wrapper loses BASH_SOURCE)
+rc=126
+probes2.sh: line 6: /usr/bin/bash: Argument list too long
+### G8 process substitution bash <(cat census.sh)
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+### G9 script fed through a FIFO
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+===== (h) shebang invocation, exec bit =====
+### H1 ./census.sh --identity (shebang, env bash)
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+===== (j) caller holds an extra fd >=10 on the same file =====
+### J1 fd 10 also open on the script
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+### J2 fd 255 pre-set by caller on a decoy
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+===== (k) --identity line integrity vs bash limits =====
+### K1 --identity with an extra arg
+rc=2
+tsukuroi-census: unknown argument: x
+usage: tsukuroi-census.sh [--selftest] [--sample N] [--identity] [--help]
+
+  (no flags)   run the live read-only census over packages / systemd-user / drivers
+               (incl. the memory-pressure arm) / journal-boot / update-safety / oom (kill-event watch),
+               plus the verdict-neutral DRIFT (pacnew), STORAGE (btrfs error counters) and SCRUB
+               (btrfs scrub record, unprivileged view) lines
+  --selftest   hermetic fixture-tree test of every verdict arm (writes only under
+               ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*); exit 0 pass, 1 fail
+  --sample N   packages plane: size of the pacman -Qkk sample (default 8)
+
+Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
+Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2); --identity alone prints one TSUKUROI_CENSUS_IDENTITY line naming the executed script bytes, exit 0, no host probe
+### K2 --identity twice
+rc=2
+tsukuroi-census: --identity takes no other argument
+usage: tsukuroi-census.sh [--selftest] [--sample N] [--identity] [--help]
+
+  (no flags)   run the live read-only census over packages / systemd-user / drivers
+               (incl. the memory-pressure arm) / journal-boot / update-safety / oom (kill-event watch),
+               plus the verdict-neutral DRIFT (pacnew), STORAGE (btrfs error counters) and SCRUB
+               (btrfs scrub record, unprivileged view) lines
+  --selftest   hermetic fixture-tree test of every verdict arm (writes only under
+               ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*); exit 0 pass, 1 fail
+  --sample N   packages plane: size of the pacman -Qkk sample (default 8)
+
+Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
+Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2); --identity alone prints one TSUKUROI_CENSUS_IDENTITY line naming the executed script bytes, exit 0, no host probe

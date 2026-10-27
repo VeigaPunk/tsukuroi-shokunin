@@ -1,0 +1,41 @@
+## GR1
+
+**Statement.** In Linux v7.2.11 a write to `devinfo/<devid>/scrub_speed_max` is parsed by `memparse` (SR8), which
+calls `simple_strtoull` with base 0; `simple_strtoull` resolves base 0 through `_parse_integer_fixup_radix`, which
+picks hexadecimal for a leading `0x` followed by a hex digit, octal for any other leading `0`, and decimal otherwise.
+After the digits, `memparse` takes at most one suffix letter, `K`, `M`, `G`, `T`, `P` or `E` in either case, each
+step multiplying by a further 1024 (a 10-bit shift per step, so `K` is 1024, not 1000); the suffix counts only when
+at least one digit came before it, and a shifted value that overflows becomes `ULLONG_MAX`. The sysfs store then
+skips whitespace and returns `-EINVAL` unless the text ends there. So `100M` and `100m` both set 104857600 bytes per
+second, `010` sets 8 and `0x10` sets 16; `10MB` (a second letter), `10 M` (a blank before the suffix) and `-1` are
+rejected with `EINVAL`; and a write of a bare newline parses as 0 and is accepted, which removes the limit (0 means
+no limit, SR8).
+
+**Quote.** `S246` cmdline.c:147: "potentially suffixed with K, M, G, T, P, E."
+
+**Quote.** `S246` cmdline.c:156: "unsigned long long ret = simple_strtoull(ptr, &endptr, 0);"
+
+**Quote.** `S246` cmdline.c:159: "/* Consume valid suffix even in case of overflow. */"
+
+**Quote.** `S246` cmdline.c:189: "if (shl && likely(ptr != endptr)) {"
+
+**Quote.** `S246` cmdline.c:191: "if (unlikely(check_shl_overflow(ret, shl, &ret)))"
+
+**Quote.** `S246` cmdline.c:192: "ret = ULLONG_MAX;"
+
+**Quote.** `S246` vsprintf.c:86: "cp = _parse_integer_fixup_radix(startp, &base);"
+
+**Quote.** `S246` kstrtox.c:29: "if (s[0] == '0') {"
+
+**Quote.** `S246` kstrtox.c:30: "if (_tolower(s[1]) == 'x' && isxdigit(s[2]))"
+
+**Quote.** `S246` kstrtox.c:33: "*base = 8;"
+
+**Quote.** `S243` sysfs.c:2040: "limit = memparse(buf, &endptr);"
+
+**Quote.** `S243` sysfs.c:2043: "if (*endptr != 0)"
+
+**Host reading.** The host's one btrfs device (devid 1) reads `scrub_speed_max` 0, mode 644, owner root
+(capture.txt:8), as uid 1000 with no effective capabilities (capture.txt:1): no limit is set, and this caller cannot
+write one. Nothing was written to test the parse; the examples above follow from the quoted code.
+

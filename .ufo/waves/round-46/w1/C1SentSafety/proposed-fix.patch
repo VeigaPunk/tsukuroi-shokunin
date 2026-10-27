@@ -1,0 +1,21 @@
+--- census.sh	2026-10-27 02:26:04.939564355 -0300
++++ census-fix.sh	2026-10-27 02:30:25.040015389 -0300
+@@ -3464,15 +3464,14 @@
+ # writes nothing; runs no plane probe. Exit 0.
+ CENSUS_PLANES='packages,systemd,drivers,journal,update-safety,oom'
+ census_identity() {
+-  local self_real fdp='' p sha md5 bytes lines sha2
++  local fdp='' p sha md5 bytes lines sha2
+   local f_sha=unverifiable f_md5=unverifiable f_bytes=unverifiable f_lines=unverifiable verified=no
+-  self_real=$(readlink -f -- "$SELF" 2>/dev/null || true)
+-  if [ -n "$self_real" ] && [ -f "$self_real" ]; then
++  if [ -n "$SELF" ] && [ -f "$SELF" ]; then
+     for p in "/proc/$$/fd/255" /proc/$$/fd/*; do
+       case "${p##*/}" in '' | *[!0-9]*) continue ;; esac
+       [ "${p##*/}" -ge 10 ] || continue
+       [ -f "$p" ] || continue
+-      if [ "$(readlink -- "$p" 2>/dev/null || true)" = "$self_real" ]; then fdp=$p; break; fi
++      if [ "$p" -ef "$SELF" ]; then fdp=$p; break; fi
+     done
+   fi
+   if [ -n "$fdp" ]; then

@@ -1,0 +1,11 @@
+# input.c (bash-5.3, sha256 d88d0583932086cce7dc4a4db18407c084991b1574383c833579ca9ce2f2a50b), fetched 2026-10-27
+1: /* input.c -- functions to perform buffered input with synchronization. */
+78:   /* Try local buffering to reduce the number of read(2) calls. */
+79:   if (local_index == local_bufused || local_bufused == 0)
+80:     {
+81:       while (1)
+82: 	{
+83: 	  QUIT;
+84: 	  run_pending_traps ();
+85: 
+86: 	  local_bufused = read (fileno (stream), localbuf, sizeof(localbuf));

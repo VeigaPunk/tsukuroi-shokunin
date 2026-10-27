@@ -1,0 +1,16 @@
+# negative evidence: installed bash(1) page (bash 5.3.20-1) does not state the script descriptor
+# text: man bash | col -b, 7319 lines, sha256 415026365b02d5a0c2dd64322bb61065bbb57003de7c5c64a91ba9c07b076c92
+$ grep -nE "\b255\b" bash.1.txt
+3160:     255,  though,  as explained below, the shell may use values above 125 spe‐
+$ grep -niE "close.on.exec|HIGH_FD_MAX|move_to_high_fd|script descriptor|descriptor .*the script" bash.1.txt
+(no match, rc=1)
+# INVOCATION, first paragraph naming a script file
+176:      When  bash	 is started non-interactively, to run a shell script, for exam‐
+177:      ple, it looks for the variable BASH_ENV in the  environment,  expands  its
+178:      value  if	it  appears there, and uses the expanded value as the name of a
+179:      file to read and execute.	Bash behaves as if the following  command  were
+# REDIRECTION, the only statement about descriptors above 9
+2465:      Redirections  using  file	descriptors  greater than 9 should be used with
+2466:      care, as they may conflict with file descriptors  the  shell  uses	 inter‐
+2467:      nally.
+# note: "descriptor" contains the substring "script", so a bare grep -i script over-matches; the greps above use word boundaries or full phrases

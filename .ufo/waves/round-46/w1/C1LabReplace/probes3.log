@@ -1,0 +1,68 @@
+===== P0 pristine control, and umask syscall visibility =====
+strace rc=0
+umask syscalls:
+2285650 umask(077)                      = 022
+2285881 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2285900, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+2285650 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2285881, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+2285947 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2285977, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+2285650 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2285947, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+2286014 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2286051, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+2285650 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2286014, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+2286151 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2286171, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+2285650 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2286151, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+2286265 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2286293, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+2285650 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2286265, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+2286349 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2286373, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+2285650 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2286349, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+2286434 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2286453, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+2285650 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2286434, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+===== P1 THE REPRODUCER: same-length in-place rewrite AFTER VERSION/umask executed (injection at line 460) =====
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+AssertionError
+cat: ./decoy: No such file or directory
+rc=1
+== umask syscalls the kernel saw ==
+2287773 umask(077)                      = 022
+2287773 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2287872, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---
+== executed VERSION line (grep on disk now) ==
+== sha256 of the file now ==
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  census.sh
+bytes=0 lines=0
+===== P2 control: identical decoy (no byte change), same injection point =====
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=20b393f78fc3118976211fe5f51bbd95335b2f6e754e5329d0cff53b3d0b094c md5=41cbb59fb2e0829a62123f89cbdc36b6 bytes=209238 lines=3599 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+rc=0
+file sha256: 20b393f78fc3118976211fe5f51bbd95335b2f6e754e5329d0cff53b3d0b094c  census.sh
+===== P3 in-place same-length rewrite BEFORE the VERSION line is read (injection kept at line 1) =====
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+AssertionError
+cat: ./decoy: No such file or directory
+rc=1
+file sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  census.sh
+===== P4 the census sourced from a -c wrapper =====
+### P4 source ./census.sh from bash -c
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=no
+===== P5 stripped environment =====
+### P5a env -i bash ./census.sh --identity
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+### P5b env -i PATH=/usr/bin bash ./census.sh --identity
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+### P5c PATH without coreutils
+rc=127
+env: ‘bash’: No such file or directory
+===== P6 caller-exported sha256sum function shadows the tool =====
+### P6 exported sha256sum/md5sum functions
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef md5=0123456789abcdef0123456789abcdef bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+== P6 control: same wrapper without export -f ==
+### P6c no export -f
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+===== P7 PATH shadow of sha256sum (a wrapper dir) =====
+### P7 PATH-first fake sha256sum
+rc=0
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes

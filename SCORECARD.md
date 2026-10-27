@@ -3005,3 +3005,47 @@ Causal separability: C1 touches `tools/tsukuroi-census.sh`, the new identity ent
 entry's appended gate section, a SKILL section and a README line. The C1 counter reads only the census at REV; the C2
 counter reads the entry, the registry, snapshots, SKILL.md, README and the round-46 wave records. Neither reads the
 other's surface.
+
+## Round 46 — measured outcome (2026-10-27, author-side; non-author closure pending)
+
+C1 measured at `61e067408ad73c144e42ea8f2ec5ed3f333d7e2e` (census sha256 `ac4e38ff…f48e`; counter sha256 `7c406eb5…54ba`
+unchanged since the freeze `72cc2609`); C2 measured at the outcome commit (receipt `.ufo/waves/round-46/after/c2-final.jsonl`;
+counter `28c409be…11d8` unchanged since the freeze). Before receipts: `.ufo/waves/round-46/before/c1-before-base.jsonl`,
+`c2-before-base.jsonl`.
+
+| Claim | Axis | Before (base `2042117c`) | After | Predicate | Verdict |
+|---|---|---|---|---|---|
+| C1 | operability (capability `census-identity`) | FAIL: identity_ok 0, cli_ok 0, unverifiable_ok 0, selftest_r46 0 | PASS: identity_ok 1, tracks_ok 1, symlink_ok 1, unverifiable_ok 1, cli_ok 1, nowrite_ok 1, selftest_pass 1 (162/162), selftest_r46 8 (`.ufo/waves/round-46/l1/c1-61e06740.jsonl`; also PASS at `a4477049`, `l1/c1-impl-a4477049.jsonl`) | as declared | **PASS** — kill rules: PLANE/rollup lines and exit 2 unchanged base vs final apart from drivers mem counters that also differ between two base runs (`l1/planediff/`); no live write (`w1/C1ExecLiveWrite.md`); adjacency anchors PASS and lines ≤3383 moved only in place (`w1/C1ExecAdjacency.md`); counters PASS→PASS where measured (`w1/C1ExecPriorC.md`, `l1/killrule/`) |
+| C2 | depth | FAIL: r45_legs_ok 1, verdicts_ok 0, marks_ok 0 | FAIL: r45_legs_ok 1, verdicts_ok 2 (GR1, GR3), marks_ok 0 | as declared | **FAIL** — GR2 read `partly` on its narrowed bytes by `r1/V46ResCritGR2.md`; no counted seat left (R46-C2-RESIDUAL-UNIVERSE-ONE-SHOT). No admission mark written; GR1-GR3 pending |
+
+No ordinal moves: operability stays 9 (saturation band; the D12 ceiling is closed), depth stays 8. **retired:** none.
+
+## Axes — current self-assessment (round 46 final measured surface)
+
+Each count is re-derived from the committed lane tree at the round-46 outcome commit; ordinals unchanged.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 67 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); `SKILL.md` 4546 `wc -l` / 1323 table lines (`grep -c '^|' SKILL.md`); `corpus/lessons/` 68 files (`find corpus/lessons -type f | wc -l`); round-43 C2 verified; round-44 SR7-SR9 and round-45 GR1-GR3 pending (round-46 C2 FAIL: GR2 `partly` on its narrowed bytes); no ordinal move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged |
+| coverage | 9 | `corpus/README.md` 480 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus the verdict-neutral STORAGE line; the scrub record's unprivileged view is Core since round 44; nothing moved this round. | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (162 cases, 162 passed, 0 failed); `bash tools/boot-chain-audit.sh --selftest` prints `PASS total=49 failed=0`; round-46 C1 PASS: `--identity` landed (one `TSUKUROI_CENSUS_IDENTITY` line, unverifiable for stdin/pipe/relinked/inherited descriptors); open: the selftest fails when TMPDIR contains a space (`.ufo/waves/round-46/w1/C1ExecRerunB.md`). | round 11 (terminal closeout); unchanged |
+| freshness | 9 | Each round record re-ran predecessor pins; round 46 re-fetched S246-S248, S237, S242-S244 byte-identical (`.ufo/waves/round-46/w1/C2ExecLiveSources.md`) and re-ran the S249 capture (`w1/C2ExecHostRecheck.md`). | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <REV>` checks 27 fixed checks; mismatches 0 required at the round-46 outcome commit. | round 10; unchanged |
+| adjacency | 8 | formal overlap table present (finding-to-owner ADJ-01..07) and portable OUT-001..010 anchors remain; `check-adjacency-anchors.py` PASS at `a4477049` (`.ufo/waves/round-46/w1/C1ExecAdjacency.md`); recipient acknowledgement and independent replay are unverified. | fleet round 1; unchanged |
+
+## Capabilities — current full evidence set (round 46)
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates opened tier-scoped sources with anchors, rejections, paths, search log and unopened leads | `corpus/SOURCES.md`; `.ufo/evidence/round-1-kaika/after.md` | fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT, STORAGE and SCRUB lines; selftest prints PASS (162 cases, 162 passed, 0 failed) | `tools/tsukuroi-census.sh`; `.ufo/evidence/round-1-kaika/scout-live.md`; `.ufo/evidence/round-1-kaika/after.md` | lane r2; demonstrated fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
+| boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict; since round 43 its boot-input freshness check decides on find's output | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt`; `.ufo/waves/round-43/after/c1-after-c395491.jsonl` | round 17 |
+| storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line, demonstrated on fixtures, the live host and namespace views | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-41/after/c1-after-568c397.jsonl` | round 38 |
+| census-identity | Prints one `TSUKUROI_CENSUS_IDENTITY` line naming sha256, md5, bytes and lines of the bytes bash executes, read through bash's unique close-on-exec script descriptor, and `unverifiable` when that cannot be established; the sha256 maps to lane commits with one `git log` loop | `tools/score-census-identity-r46.py`; `.ufo/waves/round-46/l1/c1-61e06740.jsonl`; `corpus/knowledge/census-identity-r46.md` | round 46 |
+
+- **planned (next round):** (1) depth — admit GR1-GR3 with GR2 amended per `r1/V46ResCritGR2.md`, under a frozen rule
+  sized for two amendment rounds (or per-row admission) and a counter that closes `w1/C2RevCounter.md` F1-F3 and
+  `w1/C2CritControls.md` K22/K23; (2) operability — the census selftest under a TMPDIR with a space (149/160 FAIL,
+  `w1/C1ExecRerunB.md`); (3) adjacency stays lowest-tied at 8: a recipient-acknowledged handoff.
+- **retired:** none.

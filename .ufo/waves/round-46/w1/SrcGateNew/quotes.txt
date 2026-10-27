@@ -1,0 +1,60 @@
+# located quotes, live fetches of 2026-10-27 (bytes identical to frozen SHA256SUMS)
+## S250 shell.c (sha256 5f3d539f...bf73d)
+782:       /* In this mode, bash is reading a script from stdin, which is a
+783: 	 pipe or redirected file. */
+784:       default_buffered_input = fileno (stdin);	/* == 0 */
+1586:   fd = open (filename, O_RDONLY);
+1697:   /* Open the script.  But try to move the file descriptor to a randomly
+1698:      large one, in the hopes that any descriptors used by the script will
+1699:      not match with ours. */
+1700:   fd = move_to_high_fd (fd, 1, -1);
+1701: 
+1702:   default_buffered_input = fd;
+1703:   SET_CLOSE_ON_EXEC (default_buffered_input);
+## S250 general.c (669ef408...bd165)
+685:   if (maxfd < 20)
+686:     {
+687:       nfds = getdtablesize ();
+688:       if (nfds <= 0)
+689: 	nfds = 20;
+690:       if (nfds > HIGH_FD_MAX)
+691: 	nfds = HIGH_FD_MAX;		/* reasonable maximum */
+692:     }
+693:   else
+694:     nfds = maxfd;
+695: 
+696:   for (nfds--; check_new && nfds > 3; nfds--)
+697:     if (fcntl (nfds, F_GETFD, &ignore) == -1)
+698:       break;
+699: 
+700:   if (nfds > 3 && fd != nfds && (script_fd = dup2 (fd, nfds)) != -1)
+701:     {
+702:       if (check_new == 0 || fd != fileno (stderr))	/* don't close stderr */
+703: 	close (fd);
+704:       return (script_fd);
+705:     }
+## S250 general.h (bf9251e3...f2f2)
+250: 
+251: /* Default maximum for move_to_high_fd */
+252: #define HIGH_FD_MAX	256
+## S251 proc_pid_fd.5.html (3a50ddef...ff27e)
+69:        /proc/pid/fd/ - file descriptors
+70: </pre>
+71: <h2><a id="DESCRIPTION" href="#DESCRIPTION"></a>DESCRIPTION  &nbsp; &nbsp; &nbsp; &nbsp; <a href="#top_of_page"><span class="top-link">top</span></a></h2><pre>
+72:        <i>/proc/</i>pid<i>/fd/</i>
+73:               This is a subdirectory containing one entry for each file
+74:               which the process has open, named by its file descriptor,
+75:               and which is a symbolic link to the actual file.  Thus, 0
+76:               is standard input, 1 standard output, 2 standard error, and
+77:               so on.
+78: 
+79:               For file descriptors for pipes and sockets, the entries
+80:               will be symbolic links whose content is the file type with
+81:               the inode.  A <a href="../man2/readlink.2.html">readlink(2)</a> call on this file returns a
+82:               string in the format:
+83: 
+84:                   <i>type</i>:[<i>inode</i>]
+85: 
+86:               For example, <i>socket:[2248868]</i> will be a socket and its
+87:               inode is 2248868.  For sockets, that inode can be used to
+88:               find more information in one of the files under <i>/proc/net/</i>.

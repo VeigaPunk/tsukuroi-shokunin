@@ -1,0 +1,64 @@
+== git diff -U0 hunks (base 2042117c -> impl a4477049, tools/tsukuroi-census.sh) ==
+@@ -455 +455 @@ VERSION='census-v2'
+@@ -594 +594 @@ usage() {
+@@ -605 +605 @@ Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=..
+@@ -3383,0 +3384,66 @@ STUB
+@@ -3388,0 +3455,38 @@ STUB
+@@ -3391 +3495 @@ main() {
+@@ -3393,0 +3498 @@ main() {
+@@ -3407,0 +3513,8 @@ main() {
+
+== line counts and sha256 of the census bytes at each revision (git show) ==
+  3485 census-2042117cfb724170772f4c128cc2ddba0b61d817.sh
+  3598 census-a44770491eb5ca15ce9f8b3207309d1af683ffaf.sh
+  7083 total
+237b21c9d757e339943c29b0f005faf569ff997deca46dd5bce16bc631b5fcdc  census-2042117cfb724170772f4c128cc2ddba0b61d817.sh
+d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa  census-a44770491eb5ca15ce9f8b3207309d1af683ffaf.sh
+
+== per-line sha256 over the first 3383 lines ==
+compared lines: 3383 3383
+differing 1-based line numbers: [455, 594, 605]
+line 3383 base==impl (blank): True b''
+
+== 455 / 594 / 605: base line, then impl line ==
+SELF=${BASH_SOURCE[0]}
+SELF=${BASH_SOURCE[0]:-}  # round 46 (C1): empty when the script is read from stdin (--identity: unverifiable)
+usage: tsukuroi-census.sh [--selftest] [--sample N] [--help]
+usage: tsukuroi-census.sh [--selftest] [--sample N] [--identity] [--help]
+Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2)
+Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2); --identity alone prints one TSUKUROI_CENSUS_IDENTITY line naming the executed script bytes, exit 0, no host probe
+
+== kama pin range 594-613 base vs impl ==
+1c1
+< usage: tsukuroi-census.sh [--selftest] [--sample N] [--help]
+---
+> usage: tsukuroi-census.sh [--selftest] [--sample N] [--identity] [--help]
+12c12
+< Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2)
+---
+> Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2); --identity alone prints one TSUKUROI_CENSUS_IDENTITY line naming the executed script bytes, exit 0, no host probe
+(diff rc=1 ; 1c1 = usage line, 12c12 = exit map)
+
+== K8 candidate rebuilt from base by controls/make_c1_variant.py vs IMPL bytes ==
+d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa  cand-impl.sh
+d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa  census-a44770491eb5ca15ce9f8b3207309d1af683ffaf.sh
+CANDIDATE_BYTES_IDENTICAL_TO_IMPL=yes
+
+== first 3383 lines only: diff of the two slices ==
+455c455
+< SELF=${BASH_SOURCE[0]}
+---
+> SELF=${BASH_SOURCE[0]:-}  # round 46 (C1): empty when the script is read from stdin (--identity: unverifiable)
+594c594
+< usage: tsukuroi-census.sh [--selftest] [--sample N] [--help]
+---
+> usage: tsukuroi-census.sh [--selftest] [--sample N] [--identity] [--help]
+605c605
+< Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2)
+---
+> Exit map:     0 HEALTHY | 1 DEGRADED | 2 BLOCKED (worst plane wins; usage errors also 2); --identity alone prints one TSUKUROI_CENSUS_IDENTITY line naming the executed script bytes, exit 0, no host probe
+(pure c-hunks: no a/d, so no line before 3384 is added, deleted or moved)
+
+== wc -l of the first 3383 lines ==
+3383
+3383

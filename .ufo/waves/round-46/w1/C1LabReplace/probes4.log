@@ -1,0 +1,34 @@
+===== P1 REPRODUCER: same-length in-place rewrite AFTER VERSION (line 454) and umask (line 452) executed =====
+edited-injection file bytes 209238 decoy bytes 209238 same-length True
+VERSION occurrences in decoy: 1 umask 000: 1
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=3142445b86cd408641c5def25ed4f3bb22aa01e38d9ce4bf9936b012c841a4c9 md5=748c3b38bafebbe7075ae0093148086b bytes=209238 lines=3599 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+rc=0
+== kernel-visible umask syscalls (what the executed bytes said) ==
+2747642 umask(077)                      = 022
+== identity output above; now the file on disk ==
+454:VERSION='decoy-v99'
+452:umask 000
+3142445b86cd408641c5def25ed4f3bb22aa01e38d9ce4bf9936b012c841a4c9  census.sh
+bytes=209238 lines=3599
+== the decoy we wrote ==
+3142445b86cd408641c5def25ed4f3bb22aa01e38d9ce4bf9936b012c841a4c9  decoy
+===== P1b second run on the ALREADY-edited file (state after P1) =====
+TSUKUROI_CENSUS_IDENTITY: version=decoy-v99 sha256=3142445b86cd408641c5def25ed4f3bb22aa01e38d9ce4bf9936b012c841a4c9 md5=748c3b38bafebbe7075ae0093148086b bytes=209238 lines=3599 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+rc=0
+===== P3 in-place same-length rewrite BEFORE VERSION is read (injection at line 1) =====
+edited-injection file bytes 209238 decoy bytes 209238 same-length True
+VERSION occurrences in decoy: 1 umask 000: 1
+TSUKUROI_CENSUS_IDENTITY: version=decoy-v99 sha256=461b3da065295d616caaee001b3120ffa2cdda77e129429a1df2e2ea7441093b md5=e1b0db1bb23c3ac15e6f2f273b2e508e bytes=209238 lines=3599 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+rc=0
+== umask syscalls ==
+2750329 umask(000)                      = 022
+== file on disk ==
+455:VERSION='decoy-v99'
+453:umask 000
+461b3da065295d616caaee001b3120ffa2cdda77e129429a1df2e2ea7441093b  census.sh
+===== P4 control: P1 shape with a BYTE-IDENTICAL decoy (honesty control) =====
+edited-injection file bytes 209238 decoy bytes 209238 same-length True
+VERSION occurrences in decoy: 1 umask 000: 1
+TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=20b393f78fc3118976211fe5f51bbd95335b2f6e754e5329d0cff53b3d0b094c md5=41cbb59fb2e0829a62123f89cbdc36b6 bytes=209238 lines=3599 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+rc=0
+file sha256: 20b393f78fc3118976211fe5f51bbd95335b2f6e754e5329d0cff53b3d0b094c  census.sh

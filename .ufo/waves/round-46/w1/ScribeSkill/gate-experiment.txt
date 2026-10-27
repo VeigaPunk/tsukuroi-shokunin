@@ -1,0 +1,46 @@
+# Appended-notice gate shape, tested on a fixture clone (never the lane)
+# 2026-10-27, seat ScribeSkill. Scratch: /fast/scratch/hyaku/tsukuroi-r46/ScribeSkill/fx (removed after the run).
+
+## 1. The gate is R18-bound, so an append-only notice must quote an R18-era string
+$ git show 842a5312:SKILL.md | grep -c -i scrub
+0                      # the R18 baseline says nothing about scrub, so no round-44 row exists there
+
+$ python3 -c '...prefix test...'   # baseline bytes vs SKILL.md at a4477049
+prefix True 168208 846662          # SKILL.md at the current tip starts with the R18 baseline bytes
+
+## 2. Fixture: draft notice appended to SKILL.md + a capture file, committed (branch master, no origin)
+$ git -C fx diff --numstat HEAD~1 HEAD
+2	0	.ufo/waves/round-46/l1-capture/scribe-d1.txt
+11	0	SKILL.md                 # 11 added lines, 0 deleted: the notice is a pure append
+
+Notice heading used: "## Scrub record — round 44 status note (routed defect D1; appended 2026-10-27)"
+Capture committed at: .ufo/waves/round-46/l1-capture/scribe-d1.txt, line 1 = the counter's own verdict line.
+
+## 3. Case A — baseline_quote = the round-44 row text (the subject the notice corrects)
+$ python3 fx/tools/check-appended-notices.py --revision <A> --registry corpus/knowledge/appended-notices-r46.json
+{"branch": "master", "branch_tip": "9baf3b4dc685d3942b7fe3f93a9836162409800f", "distinct_paths": 1,
+ "findings": [{"detail": "baseline_quote is not an exact baseline substring", "id": "NOTICE-QUOTE-BASELINE",
+ "site": "SKILL.md"}], "record_count": 1, "resolved_records": 0,
+ "revision": "9baf3b4dc685d3942b7fe3f93a9836162409800f", "status": "FAIL"}
+rc=1
+
+## 4. Case B — same notice, same capture, baseline_quote = an R18-era string ("Secrets never read")
+$ python3 fx/tools/check-appended-notices.py --revision <B> --registry corpus/knowledge/appended-notices-r46.json
+{"branch": "master", "branch_tip": "4bf2bdba44d2d51fd68e1fcfe1811006b47fa3b7", "distinct_paths": 1,
+ "findings": [], "record_count": 1, "resolved_records": 1,
+ "revision": "4bf2bdba44d2d51fd68e1fcfe1811006b47fa3b7", "status": "PASS"}
+rc=0
+
+## 5. Reading
+- The gate proves: append boundary (target starts with 842a5312 bytes), unique heading absent at baseline,
+  the record's "now" and "capture_ref" strings occur inside the notice section, and the cited capture line
+  exists at the target revision with the quoted substring.
+- It cannot authenticate a post-R18 subject: its baseline is the fixed constant 842a5312, so a record whose
+  baseline_quote is a round-44 sentence fails NOTICE-QUOTE-BASELINE (case A). Case B passes only by quoting an
+  unrelated R18 line — the shape is satisfiable, the subject binding is not. D2's block at the end of SKILL.md
+  is likewise not in any registry (97 records, all R18 ids: `python3 tools/check-appended-notices.py
+  --revision a4477049` -> PASS, record_count 97).
+
+## 6. Live gate on the lane (read-only, no writes)
+$ python3 tools/check-appended-notices.py --revision 2042117c   -> PASS, record_count 97, resolved 97, findings []
+$ python3 tools/check-appended-notices.py --revision a4477049   -> PASS, record_count 97, resolved 97, findings []

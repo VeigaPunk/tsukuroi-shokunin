@@ -1,0 +1,13 @@
+harness self-check: three mutated censuses, each expected to be caught (MISMATCH)
+NEG1 [constant-digest-writer] rc=0 -> CAUGHT
+  printed: TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa md5=db08a606ce128da3839457372e91e220 bytes=209208 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+  sha256: printed='d925839cde9737fbd624ad2302671671c7ecc4e9a9331a1ff5a2ad1839112cfa' expected='eb4307344458c66a84474c66dff7010e74d16e164029f2da955dd65f4b9772a0'
+  md5: printed='db08a606ce128da3839457372e91e220' expected='04c6f975c4e02ffa0a5a7db64982ac1d'
+  bytes: printed='209208' expected='209294'
+NEG2 [exit-map-drift] rc=0 -> CAUGHT
+  printed: TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=394375e676f3239e19f5d9c1e493c5f9f86d9088618aa9b1b1239e524e6ff255 md5=0baa9c69a4e9782d7d0b4f854b5333a1 bytes=209212 lines=3598 planes=packages,systemd,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED,3:X verified=yes
+  exit_map: printed='0:HEALTHY,1:DEGRADED,2:BLOCKED,3:X' expected='0:HEALTHY,1:DEGRADED,2:BLOCKED'
+NEG3 [planes-order-drift] rc=0 -> CAUGHT
+  printed: TSUKUROI_CENSUS_IDENTITY: version=census-v2 sha256=39e0e1249b8bd6370f01f456a33ef1ace70d54fee2df60336898172706be16f2 md5=291dee021150d731c22c323b6676b9e6 bytes=209208 lines=3598 planes=systemd,packages,drivers,journal,update-safety,oom exit_map=0:HEALTHY,1:DEGRADED,2:BLOCKED verified=yes
+  planes: printed='systemd,packages,drivers,journal,update-safety,oom' expected='packages,systemd,drivers,journal,update-safety,oom'
+SELFCHECK: 3/3 mutants caught, 0 missed
