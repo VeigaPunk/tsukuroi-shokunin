@@ -118,7 +118,7 @@ unchanged, and how `btrfs scrub start` and `btrfs scrub status` print them, are 
 
 **Quote.** `S243` sysfs.c:2015: "val = !!test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);"
 
-**Quote.** `S247` dev-replace.c:1127: "Scrub doing the replace isn't running so we need to do the"
+**Quote.** `S247` dev-replace.c:1128: "Scrub doing the replace isn't running so we need to do the"
 
 **Quote.** `S247` dev-replace.c:1143: "/* Scrub for replace must not be running in suspended state */"
 
