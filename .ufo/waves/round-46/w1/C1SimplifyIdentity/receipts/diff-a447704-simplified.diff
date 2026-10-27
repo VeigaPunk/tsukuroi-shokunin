@@ -1,0 +1,16 @@
+--- v0.sh	2026-10-27 02:25:22.354009126 -0300
++++ v1.sh	2026-10-27 02:26:03.208816898 -0300
+@@ -3468,11 +3468,8 @@
+   local f_sha=unverifiable f_md5=unverifiable f_bytes=unverifiable f_lines=unverifiable verified=no
+   self_real=$(readlink -f -- "$SELF" 2>/dev/null || true)
+   if [ -n "$self_real" ] && [ -f "$self_real" ]; then
+-    for p in "/proc/$$/fd/255" /proc/$$/fd/*; do
+-      case "${p##*/}" in '' | *[!0-9]*) continue ;; esac
+-      [ "${p##*/}" -ge 10 ] || continue
+-      [ -f "$p" ] || continue
+-      if [ "$(readlink -- "$p" 2>/dev/null || true)" = "$self_real" ]; then fdp=$p; break; fi
++    for p in /proc/$$/fd/*; do # the glob already holds fd 255; a non-file (pipe, deleted) never matches
++      if [ -f "$p" ] && [ "$(readlink -- "$p" 2>/dev/null || true)" = "$self_real" ]; then fdp=$p; break; fi
+     done
+   fi
+   if [ -n "$fdp" ]; then

@@ -1,0 +1,20 @@
+--- t0.sh	2026-10-27 02:49:13.411656551 -0300
++++ t1.sh	2026-10-27 02:49:29.010938299 -0300
+@@ -3477,7 +3477,6 @@
+ # a path is never hashed on trust. sha256 is taken again after the other fields; a change in
+ # between also reads unverifiable. Reads /proc and the script only; writes nothing; runs no
+ # plane probe. Exit 0.
+-CENSUS_PLANES='packages,systemd,drivers,journal,update-safety,oom'
+ census_identity() {
+   local self_real fdp='' p n flags hits=0 sha md5 bytes lines sha2
+   local f_sha=unverifiable f_md5=unverifiable f_bytes=unverifiable f_lines=unverifiable verified=no
+@@ -3509,7 +3508,8 @@
+     fi
+   fi
+   printf 'TSUKUROI_CENSUS_IDENTITY: version=%s sha256=%s md5=%s bytes=%s lines=%s planes=%s exit_map=%s verified=%s\n' \
+-    "$VERSION" "$f_sha" "$f_md5" "$f_bytes" "$f_lines" "$CENSUS_PLANES" '0:HEALTHY,1:DEGRADED,2:BLOCKED' "$verified"
++    "$VERSION" "$f_sha" "$f_md5" "$f_bytes" "$f_lines" 'packages,systemd,drivers,journal,update-safety,oom' \
++    '0:HEALTHY,1:DEGRADED,2:BLOCKED' "$verified"
+ }
+ 
+ # ---- main --------------------------------------------------------------------
