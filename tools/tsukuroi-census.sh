@@ -2015,7 +2015,9 @@ probe_scrub_record() {
         fi
       done
       if [ "$rec" -gt 0 ] && [ "$sysok" -eq 0 ]; then
-        if [ -e "$root" ] || [ -L "$root" ]; then blocked=1; detail+='sysfs:not-directory,'; else blocked=1; detail+='sysfs:absent,'; fi
+        if [ -d "$root" ]; then :   # an unlistable dir was already flagged sysfs:unreadable above
+        elif [ -e "$root" ] || [ -L "$root" ]; then blocked=1; detail+='sysfs:not-directory,'
+        else blocked=1; detail+='sysfs:absent,'; fi
       fi
     fi
   fi
