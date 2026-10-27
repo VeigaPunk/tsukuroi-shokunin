@@ -2843,3 +2843,48 @@ One header row (R43-CAP-HEADER-DUP; QUALITY 92): `awk '/^## Capabilities — cur
   (3) operability — the routed census items (`:746` lookup selftest case past the pipe buffer, the five single-line
   probe readers). Draft text: `.ufo/waves/round-43/w2/ConnRound44.md`.
 - **retired:** none.
+
+## Round 45 — declaration (2026-10-27, base `5bbd5ff588120fd8e7c744695351a6978b4241c1`, before any seat)
+
+Round 44 was closed `rejected-harmed` (`corpus/lessons/round-44-verifier-spotcheck.md` §2: C1 coverage verified, C2
+depth FAIL, adjacency harmed by the unrepinned IN-109 anchor). The base is the lane tip at round start as `jj-lane.sh
+state` printed it (`local=5bbd5ff5…`, which carries that spot-check). Ordinals at base: depth 8, coverage 9,
+operability 9, freshness 9, calibration 9, adjacency 8; depth and adjacency are tied lowest; C2 works depth. Adjacency
+stays unclaimed: the round repairs its round-44 harm (routed defect D1, IN-109 `found_line` 2468 → 2582, committed
+with this declaration before any seat) and C1 carries the adjacency gate as a kill rule, so a census edit that moves an
+anchored line without a repin fails C1 (the round-44 mistake, shown able to fail by control C1-K7). Saturation 9 /
+window 3 unchanged. Gates at base (receipts `.ufo/waves/round-45/before/`): adjacency anchors FAIL (IN-109),
+self-assessment FAIL 1 mismatch (K10, the closure's spot-check file makes 65 lessons), census selftest PASS 148/148,
+sources census exit 0. The planned row of round 44 was stale (D4); this round takes its item (3) as C1 and replaces its
+items (1)-(2) (landed or failed in round 44) with C2, which grounds the three `[inference]` marks of the round-44 entry.
+
+| Claim | Axis | Surface moved | Counter (frozen) | Before at base (expected) | Target (predicate) | Kill rule |
+|---|---|---|---|---|---|---|
+| C1 | operability | `tools/tsukuroi-census.sh`: the five production readers that keep the first line of a captured output (`probe_systemd` `state` and the timer `Result` `r`, `probe_drivers` `driver`, `probe_journal` `t_word` and the timer `ActiveState` `r`) stop using `printf '%s\n' "$CAP_OUT" \| head -n1` in an assignment, which under `set -euo pipefail` kills the census with exit 141 once the output passes the pipe buffer (R41-CENSUS-PIPEFAIL-692 class, routed since round 42); six selftest cases labelled `(R45-C1)` put the deciding first line before ~150 KB of padding, and the sixth drives the foreign-baseline lookup (full read since round 42) past the pipe buffer with the deciding row last | `python3 tools/score-census-readers-r45.py --revision <REV> --scratch <DIR>` (legs: lexical, per-site equivalence against the base statement on drawn outputs up to 300 KB, selftest, six revert mutants, adjacency gate) | FAIL: lexical_hits 5, equiv_ok 0, selftest_r45 0, revert_killed 0, adjacency_ok 0 | `lexical_hits == 0 and sites_found == 5 and equiv_ok == 5 and selftest_pass == 1 and selftest_r45 >= 6 and revert_killed == 6 and adjacency_ok == 1` | any PLANE, HANDOFF, DRIFT, STORAGE, SCRUB or TSUKUROI_CENSUS line changes shape or the live exit code changes between base and the measured revision (other than live drift that recurs between two runs of one revision); any predecessor census counter (`score-scrub-arm-r44.py`, `score-storage-arm-r38.py`, `score-storage-arm-r38-q82.py`, `score-storage-hidden-r39.py`, `score-size-invariance-r42.py`, `score-bootinputs-r43.py`) goes PASS → FAIL; the census writes a file in live mode |
+| C2 | depth (sourced: S246, S247, S248, S249 opened this round) | New entry `corpus/knowledge/btrfs-scrub-grounding-r45.md` rows GR1 (`memparse` as the `scrub_speed_max` write parser: base-0 radix, so a leading `0` is octal; one `K`..`E` suffix in either case, each a factor of 1024; overflow to `ULLONG_MAX`; trailing text `EINVAL`; a bare newline clears the limit), GR2 (a device replace runs `btrfs_scrub_dev` with `is_dev_replace` true on the source devid, and any non-replace scrub of that filesystem is refused with `EINPROGRESS` while `btrfs_dev_replace_is_ongoing`), GR3 (`systemctl stop` of the packaged scrub service under systemd v262: `KillSignal=SIGINT` to the whole control group, then SIGCONT, then SIGKILL after `TimeoutStopSec=`; on this host 5 s from the unowned drop-in `10-faster-shutdown.conf` `DefaultTimeoutStopSec=5s`), each grounding one round-44 `[inference]`; an appended `## Round-45` section in the round-44 entry (gate status pending, pointer); SOURCES rows S246-S249, used-by edits on S237, S242, S243, S244 | `python3 tools/check-scrub-grounding-r45.py --revision <REV>` (row quotes on digest-checked snapshots with a substantial-quote rule, proposition tokens, host lines, registry read inside `## Registry` with duplicate ids fatal, base ancestry required, novelty tokens, pointer, and per-row bound verdicts of the counted seats `C2RevGR<n>`/`C2CritGR<n>` in wave `w1` with residual `C2ResGR<n>` in wave `r1`) | FAIL: rows 0 | `rows == 3 and quotes_ok == 3 and props_ok == 3 and host_ok == 3 and sources_ok == 1 and verdicts_ok == 3 and novelty_base_hits == 0 and pointer_ok == 1` | any bound counted verdict `fails` without a bound residual `holds`; `novelty_base_hits > 0`; the round-43 sourced counter (`check-scrub-record-r43.py`) goes PASS → FAIL; a re-fetch of S246-S248 differs from `SHA256SUMS` |
+
+Pre-data controls (scored with the frozen counters before any seat; scripts and candidate bytes under
+`.ufo/waves/round-45/controls/`): C1 — K0 do-nothing, K1 `| head -1` evasion, K2 constant writer, K3 conversions
+without cases, K4 cases without conversions, K5 S5 without the trailing-blank strip, K6 vacuous cases, K7 unrepinned
+anchor drift (one line above the IN-109 case), K10 fixture-gated conversion: each must FAIL; K8 candidate and K9 the
+`sed -n 1p` full-read alternative must PASS. C2 — K0 do-nothing, K1 scripted writer, K2 K1 + results without dispatch,
+K4 one `fails`, K5 one `partly` without residual, K6 mention-not-assertion, K7 content-free statements, K8 GR2 without
+dev-replace.c, K9 a quote line shifted, K10 id↔file mismatch, K11 no pointer, K12 S246 `queued`, K13 report first line
+differs, K14 padded verdict line, K15 blank-line-prefixed verdict, K16 contradictory JSON `verdict`, K17 S247 dropped
+from the source line, K18 GR3 without a host line, K20 gutted quote, K21 doctored duplicate registry row, K22
+duplicate row in a fence, K23 duplicate `verdict_line` keys, K24 top-level array results, K25 orphan repository, K27 a
+later contradicting verdict line, K28 held SR8 knowledge restated as GR1, K29 quotes as statements: each must FAIL;
+K3 forged records, K19 `partly` + bound residual `holds` and K26 JSON-string outputs must PASS (K3 is the standing
+limit: committed bytes cannot tell forged orchestrator records from real ones; `transcripts_bound` is reported
+outside the predicate). Battery lines: `controls/battery-summary-c1.jsonl`, `battery-summary-c2.jsonl`.
+
+Recorded limits (not claimed): C1's equivalence leg scores each site's first physical line only (a conversion split
+over lines is scored on its first line); the seven masked or process-substitution `| head` readers (`:707`, `:832`,
+`:997`, `:1196`, `:1517`, `:1531`, `:1817`) cannot kill the census (their status is ignored or `|| true`) and are not
+claimed; the readers are latent defects on this host, whose outputs are far below the pipe buffer. C2's verdicts are
+seat verdicts (the lane), not outside review.
+
+Causal separability: C1 touches `tools/tsukuroi-census.sh` (and depends on the D1 anchor repin committed with this
+declaration); C2 touches the r45 entry, the r44 entry's appended section, `corpus/SOURCES.md` and frozen snapshots.
+Neither counter reads the other's surface: the C1 counter scores the census and the anchor gate at REV; the C2 counter
+reads the entry, the registry, the snapshots and the wave records at REV.
