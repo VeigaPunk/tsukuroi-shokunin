@@ -2785,3 +2785,42 @@ Causal separability: C1 touches `tools/tsukuroi-census.sh` only (plus its promot
 measurement); C2 touches the r44 entry, the r43 entry's header line, `corpus/SOURCES.md` and frozen snapshots. Neither
 counter reads the other's surface: the C1 counter scores the census at REV; the C2 counter reads the entry, the
 registry, the snapshots and the wave-2 records at REV.
+
+## Round 44 — measured outcome (2026-10-26, author-side; non-author closure pending)
+
+Measured revision `fbfef071e5aa88df03027716e1e1e0cc7982ab1c` (wave-2 integration); frozen counters unchanged since
+the freeze commit `1d2afffe` (sha256 as declared). Receipts: `.ufo/waves/round-44/after/c1-final-fbfef071.jsonl`,
+`c2-final-fbfef071.jsonl` (both via `tools/run-receipt.py`); before receipts `.ufo/waves/round-44/before/`.
+
+| Claim | Axis | Before (base `98020ece`) | After (`fbfef071`) | Predicate | Verdict |
+|---|---|---|---|---|---|
+| C1 | coverage | FAIL: no SCRUB line (`correct 0`, `wired_ok 0`, `live_agree 0`, `selftest_r44 0`) | PASS: cases 16, correct 16, identity_ok 1, wired_ok 1, live_agree 1, selftest_pass 1 (148/148), selftest_r44 16 | as declared | **PASS** — kill rules not fired: PLANE/rollup/exit unchanged base vs tip (w2/C1ExecFinalPlaneDiff, only live PSI/memory drift that recurs within one revision), predecessor storage counters unchanged (w2/C1ExecFinalPrior), live arm window read-only (29 syscalls, w2/C1ExecFinalLiveRead) |
+| C2 | depth | FAIL: rows 0 | FAIL: rows 3, quotes_ok 3, props_ok 3, host_ok 3, sources_ok 1, novelty_base_hits 0, pointer_ok 1, **verdicts_ok 0** | as declared | **FAIL** — the counted wave-2 seats read SR7 holds/holds, SR8 partly(rev)/holds(crit), SR9 partly(rev)/holds(crit); no residual seat ran, so SR8 and SR9 fail the partly rule; SR7's reviewer output was a JSON string (not an object) and SR9's critic JSON carried a contradictory `verdict: supports` — both unbound by design (controls K14-K16); SR7 also lacks a bound reviewer |
+
+C2 kill rule: no bound counted verdict `fails`. The two `partly` narrowings (SR8 host reading names the fsid, not "the
+root filesystem"; the `memparse` suffix semantics marked [inference]; SR9 timer-only package ownership) were applied
+after the counted reads at `fbfef071`; they are unjudged by any counted seat and the claim stays FAIL. Depth ordinal
+unchanged (8). C1 moves the unprivileged scrub-record view Frontier → Core (`PROVINCE.md` "Round-44 promotion");
+coverage stays 9 (saturation band).
+Recorded counter limits from the waves (open, routed to round 45): C1 live leg accepts a gated constant (script-path
+and process-ancestry channels PASS the frozen counter: w2/C1CritFinalEvasion; w1/C1CritEvasion F1); C2 json
+last-wins duplicate keys, CR-stripping and substring quotes (w1/C2MutBinding, w1/C2RevCounter F1/F2); the glob
+mutant g1 survived both counter and selftest at `8eee79db` and is now killed by the selftest fixture
+`btrfs-scrub@home-timer` (148/148 at `fbfef071`).
+No-harm: 0 deleted files; SCORECARD append-only; sources census exit 0 (`after/sources-census-final.txt`);
+registry coverage 70/70 at `3a1c6b5c` onward (red 68/70 between the declaration and `3a1c6b5c`, the round-27 class,
+repaired); adjacency anchor IN-109 moved by the census insertions (w2/CritNoHarmFinal) — recorded, routed;
+self-assessment re-derived in the table below. **retired:** none.
+
+## Axes — current self-assessment (round 44 final measured surface)
+
+Each count is re-derived from the committed lane tree at the round-44 outcome commit (the commit that lands this table); ordinals unchanged.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 65 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); `SKILL.md` 4230 `wc -l` / 1156 table lines (`grep -c '^|' SKILL.md`); `corpus/lessons/` 64 files (`find corpus/lessons -type f | wc -l`); round-43 C2 verified (SR1, SR3, SR6 bound holds; SR3 through the residual); no ordinal move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged |
+| coverage | 9 | `corpus/README.md` 452 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus the verdict-neutral STORAGE line; the scrub record's unprivileged view is Core since round 44 (SCRUB line; content and running state stay Frontier; earlier: the scrub record stayed Frontier (round 43 re-grounds it from source, no Frontier move). | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (148 cases, 148 passed, 0 failed); `bash tools/boot-chain-audit.sh --selftest` prints `PASS total=49 failed=0`; round-43 C1 verified (boot-input freshness decides on find's output); `--identity` not landed. | round 11 (terminal closeout); unchanged |
+| freshness | 9 | Each round record re-ran predecessor pins; round 43 re-fetched S237 and S240 byte-identical (`w1/C2ExecLiveSources.md`, `w2/SrcReopenS237.md`, `w2/SrcReopenS240.md`), re-ran the S241 capture (`w2/SrcReopenS241.md`) and checked the Arch kernel patch set (no `fs/` file). | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <REV>` checks 27 fixed checks; mismatches 0 required at the round-44 outcome commit. | round 10; unchanged |
+| adjacency | 8 | formal overlap table present (finding-to-owner ADJ-01..07) and portable OUT-001..010 anchors remain; round 43 moved no live sibling pin (four frozen sibling records pin `boot-chain-audit.sh` lines, reported, `w2/AdjFinal.md`) and restates the round-42 tameshi and mori handoffs; recipient acknowledgement and independent replay are unverified. | fleet round 1; unchanged |

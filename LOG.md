@@ -1611,3 +1611,14 @@ mori's `PROVINCE.md:287` referents at `:455`, `:1103-1118`, `:1200-1207` (report
 `fe357001` freeze; `717b716a` C1 + C2 draft; `7d0ed1c2` w1 dispatch; `9b974f2a` w1 integration; `8acf0b02` registry
 fix; `64646d6e` w2 dispatch; `5647d4ff` w2 integration; `d950df34` residual dispatch; `c3954913` residual records and
 QUALITY 92; this entry with the outcome, axes and capabilities tables.
+
+## Round 44 — 2026-10-26 (hyaku run 9; L1 TsukuroiR44)
+
+Base `98020ece`; freeze `1d2afffe`; measured `fbfef071`. Two v1 waves (w1 46 seats, w2 32 seats; 78 total).
+C1 coverage PASS: census `probe_scrub_record` + verdict-neutral SCRUB line (unprivileged scrub-record view
+Frontier → Core; selftest 132 → 148). C2 depth FAIL: SR7-SR9 entry and S242-S245 land with every lexical gate
+green, but the counted wave-2 verdicts bound 0 of 3 rows (SR8/SR9 `partly` without a residual; two outputs unbound by
+design). Routed defect R43-SR1-LIMITS-CONTRADICTION repaired (appended correction). Incidents: one w1 seat wrote a
+fixture tree at the fleet root (quarantined by the orchestrator, disclosed); two w1 seats settled without a report
+(reconstructed from transcripts); an orphaned w1 grep blocked on a fixture FIFO (w2/SentFinalScope F-1). Lesson
+`corpus/lessons/round-44.md`; report `.ufo/reports/round-44/tsukuroi.md` (fleet repo).
