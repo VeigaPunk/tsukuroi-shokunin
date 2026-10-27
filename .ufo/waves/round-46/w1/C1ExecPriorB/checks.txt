@@ -1,0 +1,69 @@
+Seat C1ExecPriorB — item C1-6 (kill rule: score-size-invariance-r42 / score-selftest-mounts-r41 /
+score-selftest-literals-r40, base 2042117c -> implementation a4477049)
+host: linux 7.2.11-arch1-1, x64; TMPDIR=/fast/scratch/hyaku/tsukuroi-r46/C1ExecPriorB
+scratch: /fast/scratch/hyaku/tsukuroi-r46/C1ExecPriorB/s (removed at end; census snapshots and
+receipts copied into this directory first)
+
+A. identity of the instruments at both revisions (read-only, lane untouched)
+  git rev-parse <rev>:tools/<file>  ->
+    tsukuroi-census.sh               base f129a18e19106ea4fe7927dc4191477fbfc4077c  impl 412d0a4f7b2c76c6f82416350bef89ae85428933
+    score-size-invariance-r42.py     base bf7c16bdba29fe972848c1cc853248b0e62bb132  impl bf7c16bd… (identical)
+    score-selftest-mounts-r41.py     base 6351197f8d8ebd3311a06d93eb47d720b350cb82  impl 6351197f… (identical)
+    score-selftest-literals-r40.py   base 38e955b211ecd6cea3f7c42b2eda7a24ab6a2eb1  impl 38e955b2… (identical)
+  git merge-base --is-ancestor 2042117c a4477049 -> 0 (linear pair)
+  git diff --stat 2042117c a4477049 -- tools/tsukuroi-census.sh ->
+    1 file changed, 117 insertions(+), 4 deletions(-); hunks @@455 @@594 @@605 @@3383 +66 @@3388 +38 @@3391 +1 @@3393 +1 @@3407 +8
+    (no hunk before :3383 inserts or deletes a line; :455/:594/:605 are in-place replacements)
+
+B. the six runs (run-receipt.py driver, one counter at a time, TMPDIR in scratch)
+  for rev in 2042117c… a4477049…; for c in score-size-invariance-r42 score-selftest-mounts-r41 \
+      score-selftest-literals-r40; do
+    python3 tools/run-receipt.py --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin \
+      --revision $rev --timeout 1800 --out …/.ufo/waves/round-46/w1/C1ExecPriorB/$c-${rev:0:8}.jsonl \
+      -- tools/$c.py --revision '{rev}' --scratch /fast/scratch/hyaku/tsukuroi-r46/C1ExecPriorB/s
+  done
+  observed:
+    score-size-invariance-r42 @2042117c  exit 0  verdict PASS  2026-10-27T05:23:06Z->05:26:23Z
+    score-selftest-mounts-r41 @2042117c  exit 0  result  PASS  2026-10-27T05:26:28Z->05:32:54Z
+    score-selftest-literals-r40 @2042117c exit 0 result  PASS  2026-10-27T05:32:56Z->05:35:17Z
+    score-size-invariance-r42 @a4477049  exit 0  verdict PASS  2026-10-27T05:35:19Z->05:36:05Z
+    score-selftest-mounts-r41 @a4477049  exit 0  result  PASS  2026-10-27T05:36:07Z->05:40:58Z
+    score-selftest-literals-r40 @a4477049 exit 1 result  FAIL  2026-10-27T05:41:00Z->05:43:02Z
+  tool_sha256 recorded in every receipt header (same value on both legs of each pair):
+    score-size-invariance-r42.py  c511104a8e69fe6a90bb849847fe9c4635642f70ff0cb01fb62c38c098553e03
+    score-selftest-mounts-r41.py  8306d9990b156ceb625eabbe942910fc0d09b20f350a7e8af1ff2237fd07355c
+    score-selftest-literals-r40.py 8b06de18ca7eec1d928a0dfac8ca6930bf808bfd1f4250374ec300640f2f0159
+  every receipt: "timed_out": false, "stderr_tail": ""
+
+C. reproduction of the r40 FAIL (second run, separate scratch)
+  python3 tools/run-receipt.py --revision a4477049… --out …/score-selftest-literals-r40-a4477049-rerun.jsonl \
+    -- tools/score-selftest-literals-r40.py --revision '{rev}' --scratch …/s2
+  observed: exit 1, result FAIL, selfref 17, baseline_pass 1, neutral_pass 3, mutants_applied 9,
+            survivors 0, footer exit_code 1, finished 2026-10-27T05:48:23Z
+
+D. the failing term, re-computed with the counter's own regex (tools/score-selftest-literals-r40.py:53)
+  SELFREF_RE = \$\{?SELF|BASH_SOURCE|\$0\b|/proc/self/(exe|fd)|/proc/\$\$
+  git show <rev>:tools/tsukuroi-census.sh | grep -cE … :
+    base 2042117c  -> 5 matches (3486 lines)
+    impl a4477049  -> 17 matches (3599 lines)
+  the 12 net new matching lines at a4477049 (13 new texts, one replaces a base match at :455):
+    3394 planes=$(grep -E … "$SELF" …)
+    3406 id_abs=$(readlink -f -- "$SELF")
+    3409 cp -- "$SELF" "$idd/copy.sh"
+    3412 { cat -- "$SELF"; printf '# decoy\n'; } > "$idd/dec/bash"
+    3413 id_self_want=$(id_line "$SELF")
+    3416 id_out=$("$BASH" "$SELF" --identity 2>&1); id_rc=$?
+    3440 { printf 'mv -f -- "$R46_DECOY" "$R46_PATH"\n'; cat -- "$SELF"; } > "$idd/repl.sh"
+    3441 { cat -- "$SELF"; printf '\n# decoy\n'; } > "$idd/repl.decoy"
+    3459 # … re-opened as /proc/$$/fd/<n>,
+    3460 # and only when that descriptor resolves to the same file as $SELF …
+    3469 self_real=$(readlink -f -- "$SELF" 2>/dev/null || true)
+    3471 for p in "/proc/$$/fd/255" /proc/$$/fd/*; do
+
+E. worktree state at seat time (recorded, not acted on)
+  git hash-object tools/tsukuroi-census.sh -> fedfd73aefcea8f316b5b6076646fa3315cb0506
+  (differs from a4477049's 412d0a4f…; uncommitted in-flight edit adding an O_CLOEXEC selftest case
+   and '|| true' on the planes= grep, comment names seat C1LabUlimit)
+  SELFREF count on that worktree blob: 20
+  all measurements above are pinned to the revision through run-receipt's sandbox clone and
+  `git show <rev>:tools/tsukuroi-census.sh`, never to the worktree.
