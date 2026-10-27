@@ -1,0 +1,101 @@
+### pattern: memparse
+SKILL.md:4225: | `scrub_speed_max` is `BTRFS_ATTR_RW` mode 0644; reads one decimal plus newline; writes parse w
+corpus/README.md:434: | `knowledge/btrfs-scrub-record-r44.md` | SR7 the scrub-progress success direction (0 only while
+corpus/knowledge/btrfs-scrub-grounding-r45.md:9: them was not pinned: what `memparse` accepts when `scrub_speed_max` is written (SR8), whether a 
+corpus/knowledge/btrfs-scrub-grounding-r45.md:16: **Statement.** In Linux v7.2.11 a write to `devinfo/<devid>/scrub_speed_max` is parsed by `mempa
+corpus/knowledge/btrfs-scrub-grounding-r45.md:19: After the digits, `memparse` takes at most one suffix letter, `K`, `M`, `G`, `T`, `P` or `E` in 
+corpus/knowledge/btrfs-scrub-grounding-r45.md:47: **Quote.** `S243` sysfs.c:2040: "limit = memparse(buf, &endptr);"
+corpus/knowledge/btrfs-scrub-record-r44.md:61: decimal number followed by a newline. Writing parses the text with `memparse` (sysfs.c:2040), sk
+corpus/knowledge/btrfs-scrub-record-r44.md:62: whitespace including the newline, and rejects anything else after the number with `-EINVAL`; tha
+corpus/knowledge/btrfs-scrub-record-r44.md:76: **Quote.** `S243` sysfs.c:2040: "limit = memparse(buf, &endptr);"
+corpus/knowledge/btrfs-scrub-record-r44.md:160: `btrfs_scrub_dev` in SR7, `memparse` suffixes in SR8, `KillSignal=` as the stop signal in SR9) a
+### pattern: suffix
+SKILL.md:3186: | `-32`/plain pairs (`fontconfig`, `gio-querymodules`, `gio-remove-module-cache`) run in an orde
+SKILL.md:3530: | 8 | `tools/check-hook-order-r38.py` | r38 | `7cbaeb6317cb9f7323d2619eec02db4e4da29449` | `60e3
+SKILL.md:4225: | `scrub_speed_max` is `BTRFS_ATTR_RW` mode 0644; reads one decimal plus newline; writes parse w
+corpus/README.md:291: | `knowledge/pacman-hook-order-r38.md` | The host's effective ALPM hook order at pacman 54d9411 
+corpus/knowledge/aur-risk-plane.md:443: - `ls -1 /var/lib/pacman/local` — installed census by directory name; the version is the suffix.
+corpus/knowledge/btrfs-scrub-grounding-r45.md:19: After the digits, `memparse` takes at most one suffix letter, `K`, `M`, `G`, `T`, `P` or `E` in 
+corpus/knowledge/btrfs-scrub-grounding-r45.md:20: step multiplying by a further 1024 (a 10-bit shift per step, so `K` is 1024, not 1000); the suff
+corpus/knowledge/btrfs-scrub-grounding-r45.md:23: second, `010` sets 8 and `0x10` sets 16; `10MB` (a second letter), `10 M` (a blank before the su
+corpus/knowledge/btrfs-scrub-grounding-r45.md:27: **Quote.** `S246` cmdline.c:147: "potentially suffixed with K, M, G, T, P, E."
+corpus/knowledge/btrfs-scrub-grounding-r45.md:31: **Quote.** `S246` cmdline.c:159: "/* Consume valid suffix even in case of overflow. */"
+corpus/knowledge/btrfs-scrub-record-r44.md:63: accepts a size suffix such as `K`, `M` or `G` is [inference: its definition in `lib/cmdline.c` i
+corpus/knowledge/btrfs-scrub-record-r44.md:160: `btrfs_scrub_dev` in SR7, `memparse` suffixes in SR8, `KillSignal=` as the stop signal in SR9) a
+corpus/knowledge/package-state-plane.md:335: - `ls -d /var/lib/pacman/local/pacman-[0-9]*` (version is the directory-name suffix)
+corpus/knowledge/pacman-hook-order-r38.md:21: | HO1 | Order is by file name **without** the `.hook` suffix, compared bytewise (`strncmp`) over
+corpus/knowledge/path-reconciliation-r23.md:36: The outside closure already offered a tentative selector-normalization explanation; credit belon
+### pattern: dev.replace
+SKILL.md:4222: | A device carries a scrub context only inside the run's attached window: `btrfs_scrub_dev` refu
+corpus/knowledge/btrfs-scrub-grounding-r45.md:1: source: S246 S247 S248 S249 S242 S243 S244 S237 (rows in `corpus/SOURCES.md`; S246 is Linux v7.2
+corpus/knowledge/btrfs-scrub-grounding-r45.md:59: replace call `btrfs_scrub_dev` on the source device's devid with `readonly` false and `is_dev_re
+corpus/knowledge/btrfs-scrub-grounding-r45.md:60: two parameters of `btrfs_scrub_dev`. Inside `btrfs_scrub_dev`, a call with `is_dev_replace` fals
+corpus/knowledge/btrfs-scrub-grounding-r45.md:61: `-EINPROGRESS` while `btrfs_dev_replace_is_ongoing` is true for the filesystem, and any call is 
+corpus/knowledge/btrfs-scrub-grounding-r45.md:68: **Quote.** `S247` dev-replace.c:700: "/* the disk copy procedure reuses the scrub code */"
+corpus/knowledge/btrfs-scrub-grounding-r45.md:70: **Quote.** `S247` dev-replace.c:701: "ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,"
+corpus/knowledge/btrfs-scrub-grounding-r45.md:72: **Quote.** `S247` dev-replace.c:703: "&dev_replace->scrub_progress, false, true);"
+corpus/knowledge/btrfs-scrub-grounding-r45.md:74: **Quote.** `S247` dev-replace.c:1259: ""continuing dev_replace from %s (devid %llu) to target %s
+corpus/knowledge/btrfs-scrub-grounding-r45.md:76: **Quote.** `S247` dev-replace.c:1265: "ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid
+corpus/knowledge/btrfs-scrub-grounding-r45.md:78: **Quote.** `S247` dev-replace.c:1268: "&dev_replace->scrub_progress, false, true);"
+corpus/knowledge/btrfs-scrub-grounding-r45.md:80: **Quote.** `S242` scrub.c:3081: "bool readonly, bool is_dev_replace)"
+corpus/knowledge/btrfs-scrub-grounding-r45.md:82: **Quote.** `S242` scrub.c:3148: "(!is_dev_replace &&"
+corpus/knowledge/btrfs-scrub-grounding-r45.md:84: **Quote.** `S242` scrub.c:3149: "btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {"
+corpus/knowledge/btrfs-scrub-record-r44.md:21: `btrfs_scrub_dev` serves both a scrub and a device replace (its `is_dev_replace` argument) [infe
+corpus/knowledge/btrfs-scrub-record-r44.md:22: side: its caller is in `fs/btrfs/dev-replace.c`, opened this round at v7.2.11 lines 701-703 and 
+corpus/knowledge/btrfs-scrub-record-r44.md:31: **Quote.** `S242` scrub.c:3081: "bool readonly, bool is_dev_replace)"
+### pattern: device replace
+SKILL.md:2676: These decision lines summarize btrfs-progs v7.1 documentation on shared extents and defragmentat
+SKILL.md:4222: | A device carries a scrub context only inside the run's attached window: `btrfs_scrub_dev` refu
+corpus/README.md:434: | `knowledge/btrfs-scrub-record-r44.md` | SR7 the scrub-progress success direction (0 only while
+corpus/knowledge/btrfs-repair-r31.json:59:    "question": "How is a failing or missing btrfs device replaced, and what size must the target
+corpus/knowledge/btrfs-scrub-grounding-r45.md:9: them was not pinned: what `memparse` accepts when `scrub_speed_max` is written (SR8), whether a 
+corpus/knowledge/btrfs-scrub-grounding-r45.md:57: **Statement.** In Linux v7.2.11 a device replace copies the source device through the scrub code
+corpus/knowledge/btrfs-scrub-grounding-r45.md:134: - `EINPROGRESS` from `btrfs scrub start` on a filesystem with a device replace running means the
+corpus/knowledge/btrfs-scrub-record-r44.md:21: `btrfs_scrub_dev` serves both a scrub and a device replace (its `is_dev_replace` argument) [infe
+### pattern: KillSignal
+SKILL.md:4226: | The Arch package, not upstream, ships `btrfs-scrub@.timer`/`.service`; timer is monthly, `Pers
+corpus/README.md:434: | `knowledge/btrfs-scrub-record-r44.md` | SR7 the scrub-progress success direction (0 only while
+corpus/knowledge/btrfs-scrub-grounding-r45.md:94: running `btrfs scrub start -B` in this order under systemd v262. First the unit's `KillSignal=`,
+corpus/knowledge/btrfs-scrub-grounding-r45.md:97: If processes remain once `TimeoutStopSec=` has passed, the request is repeated with SIGKILL (`Fi
+corpus/knowledge/btrfs-scrub-grounding-r45.md:100: its own value, no package owns that drop-in, and `systemctl show` reports `KillSignal=2`, `KillM
+corpus/knowledge/btrfs-scrub-grounding-r45.md:101: `TimeoutStopUSec=5s`, `FinalKillSignal=9` and `SendSIGKILL=yes` for `btrfs-scrub@-.service`. SIG
+corpus/knowledge/btrfs-scrub-grounding-r45.md:106: **Quote.** `S244` btrfs-scrub@.service:9: "KillSignal=SIGINT"
+corpus/knowledge/btrfs-scrub-grounding-r45.md:124: **Host reading.** `systemctl show btrfs-scrub@-.service` reports `KillMode=control-group KillSig
+corpus/knowledge/btrfs-scrub-grounding-r45.md:125: SendSIGKILL=yes TimeoutStopUSec=5s FinalKillSignal=9` (capture.txt:3); the stop default comes fr
+corpus/knowledge/btrfs-scrub-record-r44.md:97: link. The service runs `btrfs scrub start -B %f` with `KillSignal=SIGINT`. In btrfs-progs v7.1 `
+corpus/knowledge/btrfs-scrub-record-r44.md:115: **Quote.** `S244` btrfs-scrub@.service:9: "KillSignal=SIGINT"
+corpus/knowledge/btrfs-scrub-record-r44.md:150: - SR9's systemd side (that `KillSignal=` is the signal `systemctl stop` sends) is systemd.kill(5
+corpus/knowledge/btrfs-scrub-record-r44.md:160: `btrfs_scrub_dev` in SR7, `memparse` suffixes in SR8, `KillSignal=` as the stop signal in SR9) a
+### pattern: systemctl stop
+corpus/knowledge/btrfs-scrub-grounding-r45.md:93: **Statement.** Stopping the packaged scrub service (`systemctl stop btrfs-scrub@<instance>.servi
+corpus/knowledge/btrfs-scrub-record-r44.md:150: - SR9's systemd side (that `KillSignal=` is the signal `systemctl stop` sends) is systemd.kill(5
+### pattern: scrub_speed_max
+PROVINCE.md:242: writes it and when recording is switched off, how status folds device lines, the per-device `scr
+PROVINCE.md:252: and read `scrub_speed_max`, but cannot be assumed to parse the record [inference: a record writt
+PROVINCE.md:269: now); each fsid's `devinfo/<devid>/scrub_speed_max` (a nonzero decimal is a limit and is listed 
+SKILL.md:3918: | a scrub looks slow | `devinfo/<devid>/scrub_speed_max` limits it; 0 = none, and a failed read 
+SKILL.md:4011: and the `scrub_speed_max` row reads with that section's SC5 narrowing (a limit prints only for a
+SKILL.md:4189: entry names and stat under `/var/lib/btrfs`, the per-device sysfs `scrub_speed_max` value, and
+SKILL.md:4201: | `limited=N` + `detail=<fsid8>:<devid>:speed_max=<v>` | devices whose `scrub_speed_max` reads a
+SKILL.md:4225: | `scrub_speed_max` is `BTRFS_ATTR_RW` mode 0644; reads one decimal plus newline; writes parse w
+corpus/README.md:410: | `knowledge/btrfs-scrub-record-r42.md` | Storage-integrity frontier, scrub record: SC1 file nam
+corpus/README.md:433: | `../tools/tsukuroi-census.sh` (`probe_scrub_record`, round-44 C1) | The verdict-neutral scrub-
+corpus/README.md:434: | `knowledge/btrfs-scrub-record-r44.md` | SR7 the scrub-progress success direction (0 only while
+corpus/knowledge/btrfs-scrub-grounding-r45.md:9: them was not pinned: what `memparse` accepts when `scrub_speed_max` is written (SR8), whether a 
+corpus/knowledge/btrfs-scrub-grounding-r45.md:16: **Statement.** In Linux v7.2.11 a write to `devinfo/<devid>/scrub_speed_max` is parsed by `mempa
+corpus/knowledge/btrfs-scrub-grounding-r45.md:51: **Host reading.** The host's one btrfs device (devid 1) reads `scrub_speed_max` 0, mode 644, own
+corpus/knowledge/btrfs-scrub-grounding-r45.md:131: - A `scrub_speed_max` that reads a surprising value may come from the parse, not from a typo in 
+corpus/knowledge/btrfs-scrub-record-r42.md:125: **Statement.** Each device has a scrub throughput limit in sysfs, `/sys/fs/btrfs/<fsid>/devinfo/
+corpus/knowledge/btrfs-scrub-record-r42.md:131: **Quote.** `S237` scrub.c:1215: "snprintf(path, sizeof(path), "devinfo/%llu/scrub_speed_max", de
+corpus/knowledge/btrfs-scrub-record-r42.md:137: **Quote.** `S238` CHANGES:467: "* scrub status: report limit if set in sysfs/../scrub_speed_max"
+corpus/knowledge/btrfs-scrub-record-r42.md:141: **Host reading.** The root's only device (devid 1) reads `scrub_speed_max` 0, no limit (capture.
+corpus/knowledge/btrfs-scrub-record-r42.md:151: - Before reading a slow scrub as a device problem, read `scrub_speed_max` (SC5).
+corpus/knowledge/btrfs-scrub-record-r43.md:4: extended-by: round 44 — rows SR7 (the success direction of the scrub-progress ioctl SR6 cites), 
+corpus/knowledge/btrfs-scrub-record-r44.md:11: of the scrub-progress ioctl; SR8, the per-device `scrub_speed_max` attribute the arm reads; SR9,
+corpus/knowledge/btrfs-scrub-record-r44.md:58: **Statement.** Each btrfs device's scrub bandwidth limit is the sysfs attribute `devinfo/<devid>
+corpus/knowledge/btrfs-scrub-record-r44.md:60: read it, and only its owner (root) can write it. Reading prints the device's in-memory `scrub_sp
+corpus/knowledge/btrfs-scrub-record-r44.md:74: **Quote.** `S243` sysfs.c:2028: "return sysfs_emit(buf, "%llu\n", READ_ONCE(device->scrub_speed_
+corpus/knowledge/btrfs-scrub-record-r44.md:82: **Quote.** `S243` sysfs.c:2048: "BTRFS_ATTR_RW(devid, scrub_speed_max, btrfs_devinfo_scrub_speed
+corpus/knowledge/btrfs-scrub-record-r44.md:84: **Quote.** `S242` scrub.c:1380: "bwlimit = READ_ONCE(device->scrub_speed_max);"
+corpus/knowledge/btrfs-scrub-record-r44.md:88: **Host reading.** The host's only visible btrfs device (fsid 1d02a454-c549-4a35-b567-89d60902af8
+corpus/knowledge/btrfs-scrub-record-r44.md:138: - A slow scrub with `scrub_speed_max` nonzero is the configured limit at work (SR8); 0 means non

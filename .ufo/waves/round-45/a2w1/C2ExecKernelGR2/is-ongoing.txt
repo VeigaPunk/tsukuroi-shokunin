@@ -1,0 +1,25 @@
+1276	bool __pure btrfs_dev_replace_is_ongoing(struct btrfs_dev_replace *dev_replace)
+1277	{
+1278		if (!dev_replace->is_valid)
+1279			return false;
+1280	
+1281		switch (dev_replace->replace_state) {
+1282		case BTRFS_IOCTL_DEV_REPLACE_STATE_NEVER_STARTED:
+1283		case BTRFS_IOCTL_DEV_REPLACE_STATE_FINISHED:
+1284		case BTRFS_IOCTL_DEV_REPLACE_STATE_CANCELED:
+1285			return false;
+1286		case BTRFS_IOCTL_DEV_REPLACE_STATE_STARTED:
+1287		case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
+1288			/*
+1289			 * return true even if tgtdev is missing (this is
+1290			 * something that can happen if the dev_replace
+1291			 * procedure is suspended by an umount and then
+1292			 * the tgtdev is missing (or "btrfs dev scan") was
+1293			 * not called and the filesystem is remounted
+1294			 * in degraded state. This does not stop the
+1295			 * dev_replace procedure. It needs to be canceled
+1296			 * manually if the cancellation is wanted.
+1297			 */
+1298			break;
+1299		}
+1300		return true;

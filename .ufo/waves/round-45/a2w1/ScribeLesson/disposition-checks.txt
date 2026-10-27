@@ -1,0 +1,94 @@
+# disposition-checks.txt — D1-D10 evidence at 18389f44 (generated 2026-10-27T03:35:25Z)
+
+## D1
+$ git show 18389f44:corpus/knowledge/adjacency-anchors-r19.json | jq .inbound[108].found_line
+2582
+$ (see adjacency-18389f44.json) status/findings
+PASS [] 18389f44cf6ce414d7be205998b29c79fb0b490c
+
+## D2
+$ git show 18389f44:SKILL.md | grep -n memparse
+4225:| `scrub_speed_max` is `BTRFS_ATTR_RW` mode 0644; reads one decimal plus newline; writes parse with `memparse` (K/M/G suffixes, trailing whitespace skipped, else `-EINVAL`); 0 = no limit; in-memory only (S243 sysfs.c:72,74,2028,2040,2042,2044) | any user reads it; root writes it; a nonzero value is a configured cap in bytes/s | the census reports `limited=` and never writes the attribute |
+$ git diff --name-only 5bbd5ff5 18389f44 | grep -c SKILL.md
+0
+
+## D3
+$ git show 18389f44:corpus/knowledge/btrfs-scrub-record-r44.md | grep -n "Round-45 grounding and gate status"
+153:## Round-45 grounding and gate status (appended 2026-10-27, L1 TsukuroiR45)
+$ git diff --name-only 5bbd5ff5 18389f44 | grep -E "README|SKILL"  (0 = neither carries the pending mark)
+0
+$ git show 18389f44:corpus/README.md | sed -n 434p | cut -c1-90
+| `knowledge/btrfs-scrub-record-r44.md` | SR7 the scrub-progress success direction (0 only
+
+## D4
+$ git show 18389f44:SCORECARD.md | grep -n 'planned'
+2640:- **planned (next round):** (1) operability — amend the C1 counter under QUALITY 90: production-path legs at uid 1000
+2739:- **planned (next round):** (1) coverage — a verdict-neutral scrub-record census arm for the unprivileged-readable
+2840:- **planned (next round):** (1) coverage — a verdict-neutral scrub-record census arm for the unprivileged-readable
+$ git show 18389f44:SCORECARD.md | sed -n '2840,2844p'
+- **planned (next round):** (1) coverage — a verdict-neutral scrub-record census arm for the unprivileged-readable
+  subset (directory, file stat, `scrub_speed_max`; never the running state, SR6) as Frontier → Core;
+  (2) depth — the ioctl success direction (`btrfs_scrub_progress`, Linux `fs/btrfs/scrub.c`) as a sourced row;
+  (3) operability — the routed census items (`:746` lookup selftest case past the pipe buffer, the five single-line
+  probe readers). Draft text: `.ufo/waves/round-43/w2/ConnRound44.md`.
+$ diff <(git show 18389f44:SCORECARD.md | sed -n '2840,2844p') <(git show 18389f44:SCORECARD.md | sed -n '2739,2743p'); echo rc=$?
+rc=0
+$ git show 18389f44:SCORECARD.md | grep -c 'Round 45 planned'
+0
+
+## D5
+$ ls .ufo/waves/round-45/after/
+$ grep -l "check-self-assessment" .ufo/waves/round-45/ -r | head
+.ufo/waves/round-45/make-w1-spec.py
+.ufo/waves/round-45/w1-spec.json
+.ufo/waves/round-45/w1-dispatch.json
+.ufo/waves/round-45/make-a2w1-spec.py
+.ufo/waves/round-45/a2w1-spec.json
+$ head -3 .ufo/waves/round-45/before/self-assessment-base.txt
+{
+ "revision": "5bbd5ff588120fd8e7c744695351a6978b4241c1",
+ "checked": 27,
+$ grep -n requested_revision .ufo/waves/round-45/before/self-assessment-base.txt
+363: "requested_revision": "5bbd5ff588120fd8e7c744695351a6978b4241c1"
+
+## D6
+$ ls /home/vgpnk/Projects/shokunin/.ufo/reports/round-45/
+chousa.md
+kake.md
+kama.md
+kengaku.md
+kumitate.md
+mado.md
+mori.md
+tameshi.md
+$ grep -c "^## Sources & frontier" /home/vgpnk/Projects/shokunin/.ufo/reports/round-44/tsukuroi.md
+0
+$ grep -c "^## Trend verdicts"   /home/vgpnk/Projects/shokunin/.ufo/reports/round-44/tsukuroi.md
+0
+
+## D7
+$ git ls-tree -r --name-only 18389f44 | grep -c "round-44/.*ready"
+4
+$ git cat-file -e 18389f44:.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log; echo rc=$?
+fatal: path '.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log' does not exist in '18389f44'
+rc=128
+$ git cat-file -e 18389f44:.../strace-rev-live1.log.gz; echo rc=$?
+rc=0
+$ git show 18389f44:.../commands.txt | sed -n 26p;81p
+      exit=2 ; trace 15077 lines (1,358,989 B) ; stderr empty  [receipt strace-rev-live1.log, live-run-c-strace.txt]
+   strace-rev-live1.log                      raw strace -f trace of run 1 (all required classes, with paths)
+$ git show 18389f44:.ufo/waves/round-44/w2/SkillReview.md | sed -n 55p
+  (`.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log`).
+
+## D9
+$ grep -c "knowledge/corpus/knowledge" (lane files at 18389f44)
+0
+$ python3 -c "print AsmGate item prompt from a2w1-spec.json"
+/skill:godspeed
+Item F-8. Read-only evaluation of /home/vgpnk/Projects/shokuknow/merge/tsukuroi/ (MERGE-REPORT.md, knowledge/ — note the staged entries sit under knowledge/corpus/knowledge/, round-44 closure D9 — and SOU
+
+## D10
+$ git show 18389f44:LOG.md | grep -c "round 45"
+0
+$ git show 18389f44:LOG.md | grep -n "Round 44"
+1615:## Round 44 — 2026-10-26 (hyaku run 9; L1 TsukuroiR44)

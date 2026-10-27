@@ -1,0 +1,43 @@
+# C1-21 reproduction (seat C1ExecBaseKill), run 2026-10-27
+# Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin  (read-only throughout)
+# Scratch (removed at seat end): /fast/scratch/hyaku/tsukuroi-r45/C1ExecBaseKill
+S=/fast/scratch/hyaku/tsukuroi-r45/C1ExecBaseKill; cd "$S"
+L=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+
+# 1. extract the two revisions
+git -C "$L" show 5bbd5ff588120fd8e7c744695351a6978b4241c1:tools/tsukuroi-census.sh > base.sh   # 3441 lines
+git -C "$L" show 18389f44cf6ce414d7be205998b29c79fb0b490c:tools/tsukuroi-census.sh > impl.sh   # 3485 lines
+
+# 2. graft the (R45-C1) block (impl lines 3333-3376, comment + 6 cases + blank) into base after line 3332
+{ sed -n '1,3332p' base.sh; sed -n '3333,3376p' impl.sh; sed -n '3333,$p' base.sh; } > graft-base-v2.sh
+
+# 2b. isolation check: the graft differs from impl only in the five reader statements
+diff -u graft-base-v2.sh impl.sh     # -> graft-vs-impl.diff: 5 hunks, all five readers
+
+# 3. the five reader cases must FAIL and the foreign-baseline case must PASS at the base readers
+TMPDIR=$PWD/tmp2 bash graft-base-v2.sh --selftest > graft-v2.selftest.log 2>&1; echo $?   # 1
+# -> 5 FAIL "exit 141 wanted 1/1/0/2/1", 1 PASS (foreign baseline, exit 1 DEGRADED),
+#    summary FAIL (154 cases, 149 passed, 5 failed)
+
+# 4. control: base census alone, unmodified
+TMPDIR=$PWD/tmp-base bash base.sh --selftest > base.selftest.log 2>&1; echo $?   # 0
+# -> PASS (148 cases, 148 passed, 0 failed)
+
+# 5. positive control: impl census alone
+TMPDIR=$PWD/tmp-impl bash impl.sh --selftest > impl.selftest.log 2>&1; echo $?   # 0
+# -> PASS (154 cases, 154 passed, 0 failed), all six (R45-C1) cases PASS
+
+# 6. round-41 lookup graft: replace the round-42 full-read with awk ... exit (line 777)
+cp graft-base-v2.sh graft-base-awk-v2.sh
+#   mutated line: bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n {print $2; exit}')
+TMPDIR=$PWD/tmp3 bash graft-base-awk-v2.sh --selftest > graft-v2-awk.selftest.log 2>&1; echo $?   # 1
+# -> the sixth (foreign-baseline) case also FAILs, exit 141; summary FAIL (154, 148 passed, 6 failed)
+
+# 7. single-reader attribution: revert ONLY the driver reader at impl
+cp impl.sh impl-rev-driver.sh
+#   mutated line 1085: driver=$(printf '%s\n' "$CAP_OUT" | head -n1 | awk -F', *' '{print $NF}')
+TMPDIR=$PWD/tmp4 bash impl-rev-driver.sh --selftest > impl-rev-driver.selftest.log 2>&1; echo $?   # 1
+# -> exactly one FAIL: the nvidia-smi case, exit 141; 153 passed, 0 other failures
+
+# No git/jj mutation was run in the lane; no live-mode census run; no host state touched.
+# pacman: no transactions (host-wide pause). No tool installs were needed.

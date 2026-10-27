@@ -1,0 +1,38 @@
+
+## Round-45 coverage note (appended 2026-10-27)
+
+Append-only; the coverage map, the Frontier bullets and the round-38 to round-44 notes above stay as written.
+
+| Note | Holds | Sources |
+|---|---|---|
+| `../tools/tsukuroi-census.sh` (five first-line readers, round-45 C1) | The operability repair: the five production readers that keep the first line of a captured output (`probe_systemd` `state` and the timer `Result` `r`, `probe_drivers` `driver`, `probe_journal` `t_word` and the timer `ActiveState` `r`) take it by parameter expansion — `${CAP_OUT%%$'\n'*}` at all five, with a CR strip at four and a trailing-blank strip at three, and the driver reader keeping its last comma field — instead of `printf '%s\n' "$CAP_OUT" \| head -n1` inside an assignment, which under `set -euo pipefail` exits 141 once an output passes the pipe buffer; six `(R45-C1)` selftest cases put the deciding first line before ~150 KB of padding (2,000 generator lines, `tools/tsukuroi-census.sh:3338`), the sixth driving the foreign-baseline lookup past the pipe buffer | contract `tools/tsukuroi-census.sh:965,1003,1085,1460,1535` and cases `:3342-3374`; counter `tools/score-census-readers-r45.py` |
+| `knowledge/btrfs-scrub-grounding-r45.md` | GR1 `memparse` is the `scrub_speed_max` write parser: `simple_strtoull` with base 0 (hex for `0x` and a hex digit, octal for any other leading `0`), at most one `K`/`M`/`G`/`T`/`P`/`E` suffix in either case with each step multiplying by 1024, the suffix counted only after at least one digit, overflow to `ULLONG_MAX`, trailing text `-EINVAL`, and a bare newline parses 0 and clears the limit; GR2 a device replace copies the source device through `btrfs_scrub_dev` (`readonly` false, `is_dev_replace` true) at start and on resume, so a non-replace scrub of that filesystem is refused `-EINPROGRESS` while `btrfs_dev_replace_is_ongoing`, and any call is refused while the device already carries a scrub context; GR3 `systemctl stop` of the Arch-packaged `btrfs-scrub@.service` under systemd v262 sends the unit's `KillSignal=SIGINT` to the whole control group (`KillMode=control-group` default), then SIGCONT, then SIGKILL at `TimeoutStopSec=` — 5 s on this host from an unowned drop-in — and the foreground start's handler issues `BTRFS_IOC_SCRUB_CANCEL` | S246 (Linux v7.2.11 `lib/cmdline.c`, `lib/vsprintf.c`, `lib/kstrtox.c`), S247 (`fs/btrfs/dev-replace.c`), S248 (systemd v262 `man/systemd.kill.xml`), S249 (own-work capture); S242/S243/S244 and S237 (round-44 and round-42 snapshots); counter `tools/check-scrub-grounding-r45.py` |
+
+### Correction to the round-44 entry's index row — SR7-SR9 are pending, not admitted (routed defect D3)
+
+The round-44 row above (`corpus/README.md:434`) and the `SKILL.md` section "Scrub record — round 44 rows"
+(`SKILL.md:4214-4230`) present SR7-SR9 as that entry's holdings without recording that the round-44 depth gate
+FAILED: `tools/check-scrub-record-r44.py` at `fbfef071` reports `verdicts_ok 0` with `rows 3, quotes_ok 3, props_ok
+3, host_ok 3, sources_ok 1, novelty_base_hits 0, pointer_ok 1`, verdict `FAIL`, exit 1
+(`.ufo/waves/round-44/after/c2-final-fbfef071.jsonl`), against a predicate that requires `verdicts_ok == 3`
+(`tools/check-scrub-record-r44.py:50-51`). The SR8/SR9 narrowings made after the counted reads (`8eee79db` →
+`fbfef071`) were judged by no counted seat (`corpus/lessons/round-44-verifier-spotcheck.md:81-99`, its §2 C2). Read
+SR7-SR9 as pending, not admitted: the entry now records the gate status and the round-45 grounding at its
+`## Round-45 grounding and gate status` section (`corpus/knowledge/btrfs-scrub-record-r44.md:153-161`), and the
+`SKILL.md` section carries the same omission until the round-45 SKILL append sweeps it (routed defects D2 and D3,
+`corpus/lessons/round-44-verifier-spotcheck.md:181-186`).
+
+### Frontier notice — round 45
+
+Nothing moves. C1 is an operability repair inside `tools/tsukuroi-census.sh` (five first-line readers and six
+`(R45-C1)` selftest cases), not a new coverage surface, and C2 deepens the held scrub-record surface from source: it
+adds no census arm, so the round-26 condition at `corpus/README.md:243` is untouched and the storage-integrity split
+stays as round 44 left it — the unprivileged scrub-record view Core (`../PROVINCE.md` "Round-44 promotion —
+R44-SCRUB-VIEW"), the record's content, the running state and NVMe SMART/Health Frontier, and running, canceling,
+resuming or limiting a scrub, enabling its timer, resetting the error counters, profile changes, firmware, LUKS and
+any repair operator-owned. Recorded limits: the five readers are latent here (host outputs stay far below the pipe
+buffer), the C1 equivalence leg scores each site's first physical line only, and the seven masked or
+process-substitution `| head` readers in the same file are not claimed; the C2 row makes no claim beyond its quoted
+source lines. The GR1-GR3 row verdicts bind only from this wave's counted seats, reviewers `C2RevGR1`-`3` and critics
+`C2CritGR1`-`3` in wave `a2w1`, with a residual `C2ResGR<n>` seat in `a2r1` for any row a counted seat reads
+`partly`; until a gate receipt shows `verdicts_ok 3`, no read of the entry is a pass.

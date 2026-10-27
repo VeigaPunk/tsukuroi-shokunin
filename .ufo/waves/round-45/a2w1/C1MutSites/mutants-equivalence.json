@@ -1,0 +1,2251 @@
+{
+ "census_sha256": "237b21c9d757e339943c29b0f005faf569ff997deca46dd5bce16bc631b5fcdc",
+ "seeds": [
+  "a2w1-seed-1",
+  "a2w1-seed-2",
+  "a2w1-seed-3",
+  "a2w1-seed-4"
+ ],
+ "sites": {
+  "S1": {
+   "line": 965,
+   "stmt": "state=${CAP_OUT%%$'\\n'*}; state=${state//$'\\r'/}; state=${state%\"${state##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "base": "state=$(printf '%s\\n' \"$CAP_OUT\" | head -n1 | tr -d '\\r' | sed -E 's/[[:space:]]+$//')"
+  },
+  "S2": {
+   "line": 1003,
+   "stmt": "r=${CAP_OUT%%$'\\n'*}; r=${r//$'\\r'/}   # first line, no early reader (R45-C1)",
+   "base": "r=$(printf '%s\\n' \"$CAP_OUT\" | head -n1 | tr -d '\\r')"
+  },
+  "S3": {
+   "line": 1085,
+   "stmt": "driver=${CAP_OUT%%$'\\n'*}; driver=$(printf '%s\\n' \"$driver\" | awk -F', *' '{print $NF}')   # first line, no early reader (R45-C1)",
+   "base": "driver=$(printf '%s\\n' \"$CAP_OUT\" | head -n1 | awk -F', *' '{print $NF}')"
+  },
+  "S4": {
+   "line": 1460,
+   "stmt": "t_word=${CAP_OUT%%$'\\n'*}; t_word=${t_word//$'\\r'/}; t_word=${t_word%\"${t_word##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "base": "t_word=$(printf '%s\\n' \"$CAP_OUT\" | head -n1 | tr -d '\\r' | sed -E 's/[[:space:]]+$//')"
+  },
+  "S5": {
+   "line": 1535,
+   "stmt": "r=${CAP_OUT%%$'\\n'*}; r=${r//$'\\r'/}; r=${r%\"${r##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "base": "r=$(printf '%s\\n' \"$CAP_OUT\" | head -n1 | tr -d '\\r' | sed -E 's/[[:space:]]+$//')"
+  }
+ },
+ "baseline": {
+  "S1": {
+   "a2w1-seed-1": {
+    "mismatches": 0
+   },
+   "a2w1-seed-2": {
+    "mismatches": 0
+   },
+   "a2w1-seed-3": {
+    "mismatches": 0
+   },
+   "a2w1-seed-4": {
+    "mismatches": 0
+   }
+  },
+  "S2": {
+   "a2w1-seed-1": {
+    "mismatches": 0
+   },
+   "a2w1-seed-2": {
+    "mismatches": 0
+   },
+   "a2w1-seed-3": {
+    "mismatches": 0
+   },
+   "a2w1-seed-4": {
+    "mismatches": 0
+   }
+  },
+  "S3": {
+   "a2w1-seed-1": {
+    "mismatches": 0
+   },
+   "a2w1-seed-2": {
+    "mismatches": 0
+   },
+   "a2w1-seed-3": {
+    "mismatches": 0
+   },
+   "a2w1-seed-4": {
+    "mismatches": 0
+   }
+  },
+  "S4": {
+   "a2w1-seed-1": {
+    "mismatches": 0
+   },
+   "a2w1-seed-2": {
+    "mismatches": 0
+   },
+   "a2w1-seed-3": {
+    "mismatches": 0
+   },
+   "a2w1-seed-4": {
+    "mismatches": 0
+   }
+  },
+  "S5": {
+   "a2w1-seed-1": {
+    "mismatches": 0
+   },
+   "a2w1-seed-2": {
+    "mismatches": 0
+   },
+   "a2w1-seed-3": {
+    "mismatches": 0
+   },
+   "a2w1-seed-4": {
+    "mismatches": 0
+   }
+  }
+ },
+ "mutants": [
+  {
+   "kind": "a",
+   "sid": "S1",
+   "line": 965,
+   "stmt": "state=${CAP_OUT%$'\\n'*}; state=${state//$'\\r'/}; state=${state%\"${state##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 138069,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "running",
+       "rev": "running  \ng0av.325lw dem82m.hk0,-l4gq071tm8pg8ws19w hxdat031"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 256739,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "maintenance",
+       "rev": "maintenance\t\nbg gf8rjlq0zl:3fg9:ltua95c1ncl,q6l32qyzy0e4o9 0"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 6,
+     "kinds": [
+      "large"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 168094,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "Failed to connect to bus: No medium found",
+       "rev": "Failed to connect to bus: No medium found\n snqi5j eqkgf4uj6a"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 102324,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "maintenance",
+       "rev": "maintenance\n6j2fhpw4bdi9 rndxb7xhhurf6vg3hs2jcoew=o.8uxkmfw "
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "a",
+   "sid": "S2",
+   "line": 1003,
+   "stmt": "r=${CAP_OUT%$'\\n'*}; r=${r//$'\\r'/}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 233497,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "success \t ",
+       "rev": "success \t \n_3gxc7d1-.k20r1v\n-92s7f lt4f0e3i9zyg79hp6cmgdmdf7"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 4,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 298173,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "failed ",
+       "rev": "failed \nta6:d022=-ncxo4x,lhek9-7ajorvx3xx:w0=,6=ny171,586pk."
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 5,
+     "kinds": [
+      "large"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 252451,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": " exit-code",
+       "rev": " exit-code\nht7-_-o=zs:f1,o46se8on67\nrb_0l=2j6p-i5vj7c8v3fjf4"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 212972,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "exit-code\t",
+       "rev": "exit-code\t\noc 3p10590vd23r60rl5qrbeah8hutqu 0ip39h c9p,=zyj,"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "a",
+   "sid": "S3",
+   "line": 1085,
+   "stmt": "driver=${CAP_OUT%$'\\n'*}; driver=$(printf '%s\\n' \"$driver\" | awk -F', *' '{print $NF}')   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 251199,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "no comma here\t",
+       "rev": "no comma here\t\nehe08wbi25jaex4:8.\n_i1t6:xhw8779 27uya3gx_m.x"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 200354,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "no comma here\r",
+       "rev": "no comma here\r\n.:exz4l6s_u0\nsnkw9o8dewf np\nu4\nyxq8=3fmrn45\n4"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 259635,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "610.57.04 \t \r",
+       "rev": "610.57.04 \t \r\n1wi:dgey.mf\n4lzr66dkhh_\np=d:4h\nvbc41l3781\nkt7z"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 7,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 219949,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "",
+       "rev": "\ngdf1\n2hdfd48-d36pkja0jpf.5=-vey2byc_xzb\ny5i=l.dqcdy9\nmg1_pm"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "a",
+   "sid": "S4",
+   "line": 1460,
+   "stmt": "t_word=${CAP_OUT%$'\\n'*}; t_word=${t_word//$'\\r'/}; t_word=${t_word%\"${t_word##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 5,
+     "kinds": [
+      "large"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 150120,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": " inactive",
+       "rev": " inactive\nglit30d \nif9pm m-i0.0l.7q b :kp53n8li,fd6hjku:dwx."
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 4,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 298775,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "unknown",
+       "rev": "unknown\n-ko634ibhtyptzxsmk50algg3dt,c4qxu_c6xx_5bq3.v4tkcdwd"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 73792,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "unknown",
+       "rev": "unknown \t \nx3devebhsuxzely.:pb6u22pfj_o ajav_05n\nxa4bqc96a92"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 7,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 92621,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "unknown",
+       "rev": "unknown\nbzp6l8sa q1.9.km66ymk334hqp7.7u.v42xf:89y1lauco5s3d2"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "a",
+   "sid": "S5",
+   "line": 1535,
+   "stmt": "r=${CAP_OUT%$'\\n'*}; r=${r//$'\\r'/}; r=${r%\"${r##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 112577,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "active",
+       "rev": "active  \nrfefo=bqt2yua21euhosrc5\nncv,=t9888v:_q3f._g92s7_pf7"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 248003,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "deactivating",
+       "rev": "deactivating\nzuc uz_e:m2qprvjg:znqfwhimp5aw7gga6:jqcn:l:j:= "
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 100783,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "active",
+       "rev": "active\ntdb8pps0ybw1dla8uim-vwb9o6fclqipi6raq2davy22jryosxjjq"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 7,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 213390,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "inactive",
+       "rev": "inactive\n=_ve-q33si9l=024abhjv ov4n,8y22i-fy\nmwlau9goq 5c8iz"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "b",
+   "sid": "S1",
+   "line": 965,
+   "stmt": "state=${CAP_OUT%%$'\\n'*}; state=${state%\"${state##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-2": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-3": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-4": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    }
+   },
+   "killed_all_seeds": false,
+   "killed_any_seed": false
+  },
+  {
+   "kind": "b",
+   "sid": "S2",
+   "line": 1003,
+   "stmt": "r=${CAP_OUT%%$'\\n'*}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 233497,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "success \t ",
+       "rev": "success \t \r"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "none",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 271609,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": " failed",
+       "rev": " failed\r"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 3,
+     "kinds": [
+      "large"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 137724,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "success",
+       "rev": "success\r\r"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 3,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 166982,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "success",
+       "rev": "success\r\r"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "b",
+   "sid": "S4",
+   "line": 1460,
+   "stmt": "t_word=${CAP_OUT%%$'\\n'*}; t_word=${t_word%\"${t_word##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-2": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-3": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-4": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    }
+   },
+   "killed_all_seeds": false,
+   "killed_any_seed": false
+  },
+  {
+   "kind": "b",
+   "sid": "S5",
+   "line": 1535,
+   "stmt": "r=${CAP_OUT%%$'\\n'*}; r=${r%\"${r##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-2": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-3": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-4": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    }
+   },
+   "killed_all_seeds": false,
+   "killed_any_seed": false
+  },
+  {
+   "kind": "c",
+   "sid": "S1",
+   "line": 965,
+   "stmt": "state=${CAP_OUT%%$'\\n'*}; state=${state/$'\\r'/}; state=${state%\"${state##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-2": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-3": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-4": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    }
+   },
+   "killed_all_seeds": false,
+   "killed_any_seed": false
+  },
+  {
+   "kind": "c",
+   "sid": "S2",
+   "line": 1003,
+   "stmt": "r=${CAP_OUT%%$'\\n'*}; r=${r/$'\\r'/}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 2,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 298100,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "exit-code",
+       "rev": "exit-code\r"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 2,
+     "kinds": [
+      "none"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "none",
+       "len": 3,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "",
+       "rev": "\r"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 1,
+     "kinds": [
+      "large"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 137724,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "success",
+       "rev": "success\r"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 1,
+     "kinds": [
+      "large"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 166982,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "success",
+       "rev": "success\r"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "c",
+   "sid": "S4",
+   "line": 1460,
+   "stmt": "t_word=${CAP_OUT%%$'\\n'*}; t_word=${t_word/$'\\r'/}; t_word=${t_word%\"${t_word##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-2": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-3": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-4": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    }
+   },
+   "killed_all_seeds": false,
+   "killed_any_seed": false
+  },
+  {
+   "kind": "c",
+   "sid": "S5",
+   "line": 1535,
+   "stmt": "r=${CAP_OUT%%$'\\n'*}; r=${r/$'\\r'/}; r=${r%\"${r##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-2": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-3": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    },
+    "a2w1-seed-4": {
+     "mismatches": 0,
+     "kinds": [],
+     "first_mismatch": []
+    }
+   },
+   "killed_all_seeds": false,
+   "killed_any_seed": false
+  },
+  {
+   "kind": "d",
+   "sid": "S1",
+   "line": 965,
+   "stmt": "state=${CAP_OUT%%$'\\n'*}; state=${state//$'\\r'/}; state=${state#\"${state%%[![:space:]]*}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "none",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 138069,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "running",
+       "rev": "running  "
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 4,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 256739,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "maintenance",
+       "rev": "maintenance\t"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 4,
+     "kinds": [
+      "large",
+      "none"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 254230,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": " starting",
+       "rev": "starting \t "
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 4,
+     "kinds": [
+      "large",
+      "none",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "none",
+       "len": 13,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "degraded",
+       "rev": "degraded \t "
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "d",
+   "sid": "S4",
+   "line": 1460,
+   "stmt": "t_word=${CAP_OUT%%$'\\n'*}; t_word=${t_word//$'\\r'/}; t_word=${t_word#\"${t_word%%[![:space:]]*}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 4,
+     "kinds": [
+      "large",
+      "none"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 150120,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": " inactive",
+       "rev": "inactive"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 4,
+     "kinds": [
+      "large",
+      "none",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 88686,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "inactive",
+       "rev": "inactive "
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "none",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 73792,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "unknown",
+       "rev": "unknown \t "
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 3,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 281423,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "inactive",
+       "rev": "inactive "
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "d",
+   "sid": "S5",
+   "line": 1535,
+   "stmt": "r=${CAP_OUT%%$'\\n'*}; r=${r//$'\\r'/}; r=${r#\"${r%%[![:space:]]*}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "none",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 112577,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "active",
+       "rev": "active  "
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 4,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 235782,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "deactivating",
+       "rev": "deactivating\t"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 2,
+     "kinds": [
+      "large",
+      "none"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "none",
+       "len": 8,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "failed",
+       "rev": "failed\t"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 3,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 285984,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "failed",
+       "rev": "failed  "
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "e",
+   "sid": "S1",
+   "line": 965,
+   "stmt": "state=${CAP_OUT%%$'\\n'*}; state=${state//$'\\r'/}; state=${state%\"${state##*[! ]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 2,
+     "kinds": [
+      "none",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "none",
+       "len": 43,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "Failed to connect to bus: No medium found",
+       "rev": "Failed to connect to bus: No medium found\t"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 4,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 256739,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "maintenance",
+       "rev": "maintenance\t"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 2,
+     "kinds": [
+      "large",
+      "none"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 254230,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": " starting",
+       "rev": " starting \t"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 1,
+     "kinds": [
+      "none"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "none",
+       "len": 13,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "degraded",
+       "rev": "degraded \t"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "e",
+   "sid": "S4",
+   "line": 1460,
+   "stmt": "t_word=${CAP_OUT%%$'\\n'*}; t_word=${t_word//$'\\r'/}; t_word=${t_word%\"${t_word##*[! ]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 1,
+     "kinds": [
+      "none"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "none",
+       "len": 15,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "activating",
+       "rev": "activating \t"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 3,
+     "kinds": [
+      "none",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "none",
+       "len": 12,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "activating",
+       "rev": "activating\t"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "none",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 73792,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "unknown",
+       "rev": "unknown \t"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 2,
+     "kinds": [
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "small",
+       "len": 47,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "failed",
+       "rev": "failed \t"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "e",
+   "sid": "S5",
+   "line": 1535,
+   "stmt": "r=${CAP_OUT%%$'\\n'*}; r=${r//$'\\r'/}; r=${r%\"${r##*[! ]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 3,
+     "kinds": [
+      "large",
+      "none",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 259927,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "",
+       "rev": " \t"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 3,
+     "kinds": [
+      "large"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 235782,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "deactivating",
+       "rev": "deactivating\t"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 3,
+     "kinds": [
+      "large",
+      "none"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 145986,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "",
+       "rev": "\t"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 2,
+     "kinds": [
+      "large",
+      "none"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 252903,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "",
+       "rev": "\t"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "f",
+   "sid": "S3",
+   "line": 1085,
+   "stmt": "driver=${CAP_OUT%%$'\\n'*}; driver=$(printf '%s\\n' \"$driver\" | awk -F',' '{print $NF}')   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "none",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 179676,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "z\t",
+       "rev": "   z\t"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "none"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 210457,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "610.57.04",
+       "rev": " 610.57.04"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "none",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 259635,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "610.57.04 \t \r",
+       "rev": " 610.57.04 \t \r"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 4,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 212435,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "580.95.05  \r",
+       "rev": " 580.95.05  \r"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "g",
+   "sid": "S1",
+   "line": 965,
+   "stmt": "state=${CAP_OUT##*$'\\n'}; state=${state//$'\\r'/}; state=${state%\"${state##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 138069,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "running",
+       "rev": "e68j1u8j7vzpv 27h4k=5gdz3sh"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 7,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 256739,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "maintenance",
+       "rev": "djkzhl aiv1a7hz9a=z:5lyw-i7ovmzf4w9x3__h9dvu9i:7cby-au8vv.4g"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 6,
+     "kinds": [
+      "large"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 168094,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "Failed to connect to bus: No medium found",
+       "rev": "y7c6_-qme-e 3jc2im5:4 im31wb1y3z12a7=pu,6"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 102324,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "maintenance",
+       "rev": "cx - 37zk-=19bj4h298923735=jg1cs_6cx"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "g",
+   "sid": "S2",
+   "line": 1003,
+   "stmt": "r=${CAP_OUT##*$'\\n'}; r=${r//$'\\r'/}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 233497,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "success \t ",
+       "rev": "4wx1lf5kswy59w16_4f,:.c33g-2vzi6wlm61a4fpg=s7 w:4g: pz8v:ebo"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 298173,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "failed ",
+       "rev": "h pdx=lox,9j53gbats.shyiwhdttb:z=e=,ewgoofo:dqx305w.w80s _9_"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 5,
+     "kinds": [
+      "large"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 252451,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": " exit-code",
+       "rev": "2a2=6 hd3d=iru4zlz_lr5b3tpj9yp.h=dzs 0p7tle:_blwx5"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 212972,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "exit-code\t",
+       "rev": "rq5egnu94.d90d.l_bxjook9"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "g",
+   "sid": "S3",
+   "line": 1085,
+   "stmt": "driver=${CAP_OUT##*$'\\n'}; driver=$(printf '%s\\n' \"$driver\" | awk -F', *' '{print $NF}')   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 251199,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "no comma here\t",
+       "rev": ":0dt.ktd1 :fqz5unw3swr="
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 200354,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "no comma here\r",
+       "rev": "yh5h7lq4ir3lzuhmr-.0piiqxwnmcgl=7k19a65tv34rc4v7nvv3ualpka7 "
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 259635,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "610.57.04 \t \r",
+       "rev": "petjt=iy2spzlgg8rcv"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 7,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 219949,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "",
+       "rev": "ibkunm3z91eirvuu45bpzjq39__a=kiz8mice:a_j900fjx1y8mod89bpky8"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "g",
+   "sid": "S4",
+   "line": 1460,
+   "stmt": "t_word=${CAP_OUT##*$'\\n'}; t_word=${t_word//$'\\r'/}; t_word=${t_word%\"${t_word##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 5,
+     "kinds": [
+      "large"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 150120,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": " inactive",
+       "rev": "yff:b.-:,9wk,he7ywpz d59mex.egs"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 298775,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "unknown",
+       "rev": "iolbzn2qp5xjwsr7e_kbmv9zepayf341up7p6--5=ghl9t0:qtv7y165=_jn"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 73792,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "unknown",
+       "rev": "4if_9_3p6x97y. r.um5=ouy7-_c:x2m32iysnot1zpy,beauxp2"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 7,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 92621,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "unknown",
+       "rev": "f_gxndv62r6377txzu=n6,o4=djsfmw,720.6: 0_wwmkp:5ana o91hluy8"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "g",
+   "sid": "S5",
+   "line": 1535,
+   "stmt": "r=${CAP_OUT##*$'\\n'}; r=${r//$'\\r'/}; r=${r%\"${r##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 7,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 112577,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "active",
+       "rev": "h6tftdg9mt48wvlxa4,sm q.0hl68l75vgc"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 248003,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "deactivating",
+       "rev": "_zt80cf="
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 100783,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "active",
+       "rev": "p nhmwao=z2fc.b 4t79k_svru7f6w9i6e3bnv7- az2=k71q3eub173=ceg"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 7,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 213390,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "inactive",
+       "rev": "7384=qrwp5rne  fl3mwedohpn-k 1v68wx2m_9yfzjj8e4ktmt3:pj=hi,7"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "h",
+   "sid": "S1",
+   "line": 965,
+   "stmt": "state=${CAP_OUT%%'\\n'*}; state=${state//$'\\r'/}; state=${state%\"${state##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 138069,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "running",
+       "rev": "running  \ng0av.325lw dem82m.hk0,-l4gq071tm8pg8ws19w hxdat031"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 7,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 256739,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "maintenance",
+       "rev": "maintenance\t\nbg gf8rjlq0zl:3fg9:ltua95c1ncl,q6l32qyzy0e4o9 0"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 6,
+     "kinds": [
+      "large"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 168094,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "Failed to connect to bus: No medium found",
+       "rev": "Failed to connect to bus: No medium found\n snqi5j eqkgf4uj6a"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 102324,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "maintenance",
+       "rev": "maintenance\n6j2fhpw4bdi9 rndxb7xhhurf6vg3hs2jcoew=o.8uxkmfw "
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "h",
+   "sid": "S2",
+   "line": 1003,
+   "stmt": "r=${CAP_OUT%%'\\n'*}; r=${r//$'\\r'/}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 233497,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "success \t ",
+       "rev": "success \t \n_3gxc7d1-.k20r1v\n-92s7f lt4f0e3i9zyg79hp6cmgdmdf7"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 298173,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "failed ",
+       "rev": "failed \nta6:d022=-ncxo4x,lhek9-7ajorvx3xx:w0=,6=ny171,586pk."
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 5,
+     "kinds": [
+      "large"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 252451,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": " exit-code",
+       "rev": " exit-code\nht7-_-o=zs:f1,o46se8on67\nrb_0l=2j6p-i5vj7c8v3fjf4"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 212972,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "exit-code\t",
+       "rev": "exit-code\t\noc 3p10590vd23r60rl5qrbeah8hutqu 0ip39h c9p,=zyj,"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "h",
+   "sid": "S3",
+   "line": 1085,
+   "stmt": "driver=${CAP_OUT%%'\\n'*}; driver=$(printf '%s\\n' \"$driver\" | awk -F', *' '{print $NF}')   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 251199,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "no comma here\t",
+       "rev": "no comma here\t\nehe08wbi25jaex4:8.\n_i1t6:xhw8779 27uya3gx_m.x"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 200354,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "no comma here\r",
+       "rev": "no comma here\r\n.:exz4l6s_u0\nsnkw9o8dewf np\nu4\nyxq8=3fmrn45\n4"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 259635,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "610.57.04 \t \r",
+       "rev": "610.57.04 \t \r\n1wi:dgey.mf\n4lzr66dkhh_\np=d:4h\nvbc41l3781\nkt7z"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 7,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 219949,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "",
+       "rev": "\ngdf1\n2hdfd48-d36pkja0jpf.5=-vey2byc_xzb\ny5i=l.dqcdy9\nmg1_pm"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "h",
+   "sid": "S4",
+   "line": 1460,
+   "stmt": "t_word=${CAP_OUT%%'\\n'*}; t_word=${t_word//$'\\r'/}; t_word=${t_word%\"${t_word##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 5,
+     "kinds": [
+      "large"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 150120,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": " inactive",
+       "rev": " inactive\nglit30d \nif9pm m-i0.0l.7q b :kp53n8li,fd6hjku:dwx."
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 298775,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "unknown",
+       "rev": "unknown\n-ko634ibhtyptzxsmk50algg3dt,c4qxu_c6xx_5bq3.v4tkcdwd"
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 73792,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "unknown",
+       "rev": "unknown \t \nx3devebhsuxzely.:pb6u22pfj_o ajav_05n\nxa4bqc96a92"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 7,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 92621,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "unknown",
+       "rev": "unknown\nbzp6l8sa q1.9.km66ymk334hqp7.7u.v42xf:89y1lauco5s3d2"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  },
+  {
+   "kind": "h",
+   "sid": "S5",
+   "line": 1535,
+   "stmt": "r=${CAP_OUT%%'\\n'*}; r=${r//$'\\r'/}; r=${r%\"${r##*[![:space:]]}\"}   # first line, no early reader (R45-C1)",
+   "per_seed": {
+    "a2w1-seed-1": {
+     "mismatches": 7,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 112577,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "active",
+       "rev": "active  \nrfefo=bqt2yua21euhosrc5\nncv,=t9888v:_q3f._g92s7_pf7"
+      }
+     ]
+    },
+    "a2w1-seed-2": {
+     "mismatches": 6,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 248003,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "deactivating",
+       "rev": "deactivating\nzuc uz_e:m2qprvjg:znqfwhimp5aw7gga6:jqcn:l:j:= "
+      }
+     ]
+    },
+    "a2w1-seed-3": {
+     "mismatches": 5,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 100783,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "active",
+       "rev": "active\ntdb8pps0ybw1dla8uim-vwb9o6fclqipi6raq2davy22jryosxjjq"
+      }
+     ]
+    },
+    "a2w1-seed-4": {
+     "mismatches": 7,
+     "kinds": [
+      "large",
+      "small"
+     ],
+     "first_mismatch": [
+      {
+       "kind": "large",
+       "len": 213390,
+       "oracle_rc": 0,
+       "rev_rc": 0,
+       "timed_out": false,
+       "oracle": "inactive",
+       "rev": "inactive\n=_ve-q33si9l=024abhjv ov4n,8y22i-fy\nmwlau9goq 5c8iz"
+      }
+     ]
+    }
+   },
+   "killed_all_seeds": true,
+   "killed_any_seed": true
+  }
+ ]
+}

@@ -1,0 +1,30 @@
+# census sites at base 5bbd5ff5 (five claimed)
+965:  state=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1003:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+1085:      driver=$(printf '%s\n' "$CAP_OUT" | head -n1 | awk -F', *' '{print $NF}')
+1460:    t_word=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1535:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+# census sites at impl 18389f44 (converted + masked)
+707:  mapfile -t names < <(printf '%s\n' "$CAP_OUT" | grep -v '^[[:space:]]*$' | head -n "$SAMPLE_N")
+832:      | head -n1 | sed -E 's/^[[:space:]]*HoldPkg[[:space:]]*=[[:space:]]*//' || true)
+965:  state=${CAP_OUT%%$'\n'*}; state=${state//$'\r'/}; state=${state%"${state##*[![:space:]]}"}   # first line, no early reader (R45-C1)
+997:  mapfile -t timers < <(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | head -n "$TIMER_SCAN_MAX")
+1003:    r=${CAP_OUT%%$'\n'*}; r=${r//$'\r'/}   # first line, no early reader (R45-C1)
+1085:      driver=${CAP_OUT%%$'\n'*}; driver=$(printf '%s\n' "$driver" | awk -F', *' '{print $NF}')   # first line, no early reader (R45-C1)
+1196:             -print 2>/dev/null | LC_ALL=C sort | head -n 4000)
+1460:    t_word=${CAP_OUT%%$'\n'*}; t_word=${t_word//$'\r'/}; t_word=${t_word%"${t_word##*[![:space:]]}"}   # first line, no early reader (R45-C1)
+1517:      | sort -u | head -n 6 | paste -sd, - || true)
+1531:  mapfile -t timers < <(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | head -n "$TIMER_SCAN_MAX")
+1535:    r=${CAP_OUT%%$'\n'*}; r=${r//$'\r'/}; r=${r%"${r##*[![:space:]]}"}   # first line, no early reader (R45-C1)
+1817:      unk_names=$(printf '%s\n' "$cl_out" | grep '^?' | sed 's/^?//' | head -n6 | paste -sd, - || true)
+2292:    pkgline=$(printf '%s\n' "$out" | grep '^PLANE packages:' | head -n1 || true)
+2302:      bad "$label: verdict not ${wverdict}; got: $(printf '%s\n' "$out" | grep '^TSUKUROI_CENSUS:' | head -n1)"
+2673:  # Round 42 (R41-CENSUS-PIPEFAIL-692): 4002 candidates (~100 KB) on -Qu, -Sup and -Suu. The old `printf | head -n3`
+2686:  # equal-count case above never enters them, and the old `printf | head -n3` assignment died there (exit 141).
+3334:  # output through `printf '%s\n' "$CAP_OUT" | head -n1` in an assignment. Under `set -euo pipefail` an output past
+3342:  check 'degraded: a large is-system-running output keeps its first line (R45-C1)' 1 DEGRADED \
+3347:  check 'degraded: a large timer Result output keeps its first line (R45-C1)' 1 DEGRADED \
+3355:  check 'healthy: a large nvidia-smi output keeps the first GPU line (R45-C1)' 0 HEALTHY \
+3360:  check 'blocked: a large is-active output keeps its first word, trailing blanks and CR dropped (R45-C1)' 2 BLOCKED \
+3365:  check 'degraded: a large timer ActiveState output keeps its first line (R45-C1)' 1 DEGRADED \
+3374:  check 'degraded: a foreign baseline past the pipe buffer still finds its last row (R45-C1)' 1 DEGRADED \

@@ -1,0 +1,25 @@
+## live memory arm (no mem fixtures) — live-large vs live-small vs repeat, body diff
+3c3
+< PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=67 (oom=0 io=65 gpu=0 other=2) [unknown: accepted noise floor]; nvidia=present smi=610.57.04 modules=2 nodes=2 pci_10de=1; mem=[DEGRADED] C1_kernel_oom=0
+---
+> PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=67 (oom=0 io=65 gpu=0 other=2) [unknown: accepted noise floor]; nvidia=present smi=610.57.04 modules=2 nodes=2 pci_10de=1; mem=[DEGRADED] C1_kernel_oom=0
+## live repeat (live-small vs live-small2), body diff
+3c3
+< PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=67 (oom=0 io=65 gpu=0 other=2) [unknown: accepted noise floor]; nvidia=present smi=610.57.04 modules=2 nodes=2 pci_10de=1; mem=[DEGRADED] C1_kernel_oom=0
+---
+> PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=67 (oom=0 io=65 gpu=0 other=2) [unknown: accepted noise floor]; nvidia=present smi=610.57.04 modules=2 nodes=2 pci_10de=1; mem=[DEGRADED] C1_kernel_oom=0
+## rc
+live-large rc=2
+live-small rc=2
+live-small2 rc=2
+## live variant: fields that differ live-large vs live-small
+['C6_avail_kb', 'C6_psi_full_total_us', 'C6_shmem_kb']
+  C6_avail_kb: padded=19152320 first-line-only=19390760
+  C6_psi_full_total_us: padded=70016848 first-line-only=70018028
+  C6_shmem_kb: padded=63172 first-line-only=63164
+## live variant: fields that differ live-small vs live-small2 (repeat, same revision)
+  C6_avail_kb: run1=19390760 run2=19342744
+  C6_psi_full_total_us: run1=70018028 run2=70018455
+  C6_shmem_kb: run1=63164 run2=63216
+## live variant: smi field in all three runs
+   610.57.04 610.57.04 610.57.04

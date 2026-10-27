@@ -1,0 +1,37 @@
+input                      | verdict                                                                | value
+---------------------------|------------------------------------------------------------------------|------
+100M                       | accepted                                                               | 104857600
+100m                       | accepted                                                               | 104857600
+010                        | accepted                                                               | 8
+0x10                       | accepted                                                               | 16
+10MB                       | EINVAL (rejected)                                                      | 0
+10 M                       | EINVAL (rejected)                                                      | 0
+-1                         | EINVAL (rejected)                                                      | 0
+bare \n                    | accepted                                                               | 0
+100M\n                     | accepted                                                               | 104857600
+overflow plain             | accepted                                                               | 18446744073709551615
+18446744073709551615       | accepted                                                               | 18446744073709551615
+18446744073709551616       | accepted                                                               | 18446744073709551615
+overflow+K                 | accepted                                                               | 18446744073709551615
+99999999999999999999Z      | EINVAL (rejected)                                                      | 0
+0-byte write               | 0-byte write: sysfs_kf_write returns 0, store not called               | 0
+spaces only                | accepted                                                               | 0
+tab only                   | accepted                                                               | 0
+08                         | EINVAL (rejected)                                                      | 0
+09                         | EINVAL (rejected)                                                      | 0
+0o10                       | EINVAL (rejected)                                                      | 0
+0X10                       | accepted                                                               | 16
+0x                         | EINVAL (rejected)                                                      | 0
+0xG                        | EINVAL (rejected)                                                      | 0
+ 100M                      | EINVAL (rejected)                                                      | 0
+100M                       | accepted                                                               | 104857600
++100                       | EINVAL (rejected)                                                      | 0
+1e (exa)                   | accepted                                                               | 1152921504606846976
+0x1e (hex)                 | accepted                                                               | 30
+embedded NUL 100\0junk     | accepted                                                               | 100
+1K                         | accepted                                                               | 1024
+1G                         | accepted                                                               | 1073741824
+1T                         | accepted                                                               | 1099511627776
+K alone                    | EINVAL (rejected)                                                      | 0
+0                          | accepted                                                               | 0
+00                         | accepted                                                               | 0

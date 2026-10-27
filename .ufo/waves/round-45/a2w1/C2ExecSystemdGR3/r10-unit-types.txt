@@ -1,0 +1,25 @@
+# R10 which unit types consume Manager.defaults.timeout_stop_usec (v262 src/core, 2026-10-27T03:34:30Z)
+# grep of each unit-type file for defaults.timeout_*usec
+service.c      defaults.timeout_abort_usec defaults.timeout_start_usec defaults.timeout_stop_usec
+socket.c       defaults.timeout_start_usec
+mount.c        defaults.timeout_start_usec
+swap.c         defaults.timeout_start_usec
+automount.c    
+path.c         
+device.c       
+timer.c        
+slice.c        
+scope.c        defaults.timeout_start_usec defaults.timeout_stop_usec
+target.c       
+
+# scope.c:43-45
+        s->runtime_max_usec = USEC_INFINITY;
+        s->timeout_stop_usec = u->manager->defaults.timeout_stop_usec;
+        u->ignore_on_isolate = true;
+
+# scopes at runtime
+Id=init.scope
+TimeoutStopUSec=5s
+
+Id=session-2.scope
+TimeoutStopUSec=5s

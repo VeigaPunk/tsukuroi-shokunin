@@ -1,0 +1,68 @@
+== dev-replace.c call sites ==
+698: 	WARN_ON(ret);
+699: 
+700: 	/* the disk copy procedure reuses the scrub code */
+701: 	ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+702: 			      btrfs_device_get_total_bytes(src_device),
+703: 			      &dev_replace->scrub_progress, false, true);
+704: 
+1257: 	progress = div_u64(progress, 10);
+1258: 	btrfs_info(fs_info,
+1259: 		"continuing dev_replace from %s (devid %llu) to target %s @%u%%",
+1260: 		btrfs_dev_name(dev_replace->srcdev),
+1261: 		dev_replace->srcdev->devid,
+1262: 		btrfs_dev_name(dev_replace->tgtdev),
+1263: 		(unsigned int)progress);
+1264: 
+1265: 	ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,
+1266: 			      dev_replace->committed_cursor_left,
+1267: 			      btrfs_device_get_total_bytes(dev_replace->srcdev),
+1268: 			      &dev_replace->scrub_progress, false, true);
+1269: 	ret = btrfs_dev_replace_finishing(fs_info, ret);
+== is_ongoing ==
+1276: bool __pure btrfs_dev_replace_is_ongoing(struct btrfs_dev_replace *dev_replace)
+1277: {
+1278: 	if (!dev_replace->is_valid)
+1279: 		return false;
+1280: 
+1281: 	switch (dev_replace->replace_state) {
+1282: 	case BTRFS_IOCTL_DEV_REPLACE_STATE_NEVER_STARTED:
+1283: 	case BTRFS_IOCTL_DEV_REPLACE_STATE_FINISHED:
+1284: 	case BTRFS_IOCTL_DEV_REPLACE_STATE_CANCELED:
+1285: 		return false;
+1286: 	case BTRFS_IOCTL_DEV_REPLACE_STATE_STARTED:
+1287: 	case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
+1288: 		/*
+1289: 		 * return true even if tgtdev is missing (this is
+1290: 		 * something that can happen if the dev_replace
+1291: 		 * procedure is suspended by an umount and then
+1292: 		 * the tgtdev is missing (or "btrfs dev scan") was
+1293: 		 * not called and the filesystem is remounted
+1294: 		 * in degraded state. This does not stop the
+1295: 		 * dev_replace procedure. It needs to be canceled
+1296: 		 * manually if the cancellation is wanted.
+1297: 		 */
+1298: 		break;
+1299: 	}
+== scrub.c signature/progress ==
+3079: int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+3080: 		    u64 end, struct btrfs_scrub_progress *progress,
+3081: 		    bool readonly, bool is_dev_replace)
+3082: {
+3321: int btrfs_scrub_progress(struct btrfs_fs_info *fs_info, u64 devid,
+3322: 			 struct btrfs_scrub_progress *progress)
+3323: {
+3324: 	struct btrfs_dev_lookup_args args = { .devid = devid };
+3325: 	struct btrfs_device *dev;
+3326: 	struct scrub_ctx *sctx = NULL;
+3327: 
+3328: 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
+3329: 	dev = btrfs_find_device(fs_info->fs_devices, &args);
+3330: 	if (dev)
+3331: 		sctx = dev->scrub_ctx;
+3332: 	if (sctx)
+3333: 		memcpy(progress, &sctx->stat, sizeof(*progress));
+3334: 	mutex_unlock(&fs_info->fs_devices->device_list_mutex);
+3335: 
+3336: 	return dev ? (sctx ? 0 : -ENOTCONN) : -ENODEV;
+3337: }

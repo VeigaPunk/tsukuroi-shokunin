@@ -1,0 +1,29 @@
+round-45 a2w1 C1ExecOtherCounters — parity checks behind the no-finding verdict
+base 5bbd5ff588120fd8e7c744695351a6978b4241c1 vs impl 18389f44cf6ce414d7be205998b29c79fb0b490c
+
+r32 scenarios: rows=24/24 identical=24 plane_parity_base=24 plane_parity_rev=24 rollup_and_rc_equal=24 routed=24/24
+r32 live: consistent=True/True filter_k=2/2 plain_attempt=1/1 filtered_attempt=1/1
+  plain drivers C6 fields, base-rev base-script vs rev-script : {'C6_psi_full_total_us': ('71163631', '71163631'), 'C6_avail_kb': ('19042672', '19205596'), 'C6_shmem_kb': ('51584', '51596')}
+  plain drivers C6 fields, impl-rev base-script vs rev-script : {'C6_psi_full_total_us': ('71180999', '71181001'), 'C6_avail_kb': ('18656248', '18949796'), 'C6_shmem_kb': ('49572', '50304')}
+  filtered drivers C6 fields, base-rev base-script vs rev-script : {'C6_psi_full_total_us': ('71163633', '71163677'), 'C6_avail_kb': ('18843580', '18496112'), 'C6_shmem_kb': ('51548', '51556')}
+  filtered drivers C6 fields, impl-rev base-script vs rev-script : {'C6_psi_full_total_us': ('71181001', '71185971'), 'C6_avail_kb': ('18926572', '19339848'), 'C6_shmem_kb': ('46836', '46772')}
+  attribution: tools/score-census-handoff-r32.py:748-753 — live parity compares only 'PLANE oom:'/'PLANE journal:', the rollup and rc;
+  the four other PLANE notes carry live counters (cgroup sweep, memory pressure) that change between two back-to-back runs.
+
+r41: mutants=13 killed=13/13 failing-label-sets-identical=13 params=4/4 baseline_cases=148/154 capture_pass=1/1 decoy_pass=True/True neutral_pass=3/3
+r41 param_cases identical=True labels=['P1-mountpoint-not-absolute', 'P2-source-not-dev', 'P3-no-subvol-option', 'P4-two-btrfs-lines']
+r41 mutants with an R45-C1 label in first_fails: []
+
+r40: mutants=9 killed=9/9 survivors=0/0 selfref=5/5 baseline_cases=148/154 neutral_pass=3/3 result=PASS/PASS
+  M1-VA-device-literal     TSUKUROI_CENSUS_SELFTEST: FAIL (148 cases, 142 passed, 6 failed) | TSUKUROI_CENSUS_SELFTEST: FAIL (154 cases, 148 passed, 6 failed)
+  M2-VB-root-mountpoint    TSUKUROI_CENSUS_SELFTEST: FAIL (148 cases, 143 passed, 5 failed) | TSUKUROI_CENSUS_SELFTEST: FAIL (154 cases, 149 passed, 5 failed)
+  M3-VC-substring-btrfs    TSUKUROI_CENSUS_SELFTEST: FAIL (148 cases, 147 passed, 1 failed) | TSUKUROI_CENSUS_SELFTEST: FAIL (154 cases, 153 passed, 1 failed)
+  M4-VG-subvolid-256       TSUKUROI_CENSUS_SELFTEST: FAIL (148 cases, 143 passed, 5 failed) | TSUKUROI_CENSUS_SELFTEST: FAIL (154 cases, 149 passed, 5 failed)
+  M5-a-grep-count          TSUKUROI_CENSUS_SELFTEST: FAIL (148 cases, 147 passed, 1 failed) | TSUKUROI_CENSUS_SELFTEST: FAIL (154 cases, 153 passed, 1 failed)
+  M6-b-fstype-casefold     TSUKUROI_CENSUS_SELFTEST: FAIL (148 cases, 147 passed, 1 failed) | TSUKUROI_CENSUS_SELFTEST: FAIL (154 cases, 153 passed, 1 failed)
+  M7-e-guard-drops-blocked TSUKUROI_CENSUS_SELFTEST: FAIL (148 cases, 147 passed, 1 failed) | TSUKUROI_CENSUS_SELFTEST: FAIL (154 cases, 153 passed, 1 failed)
+  M8-subvol-at-literal     TSUKUROI_CENSUS_SELFTEST: FAIL (148 cases, 143 passed, 5 failed) | TSUKUROI_CENSUS_SELFTEST: FAIL (154 cases, 149 passed, 5 failed)
+  M9-last-line-only        TSUKUROI_CENSUS_SELFTEST: FAIL (148 cases, 146 passed, 2 failed) | TSUKUROI_CENSUS_SELFTEST: FAIL (154 cases, 152 passed, 2 failed)
+
+r35b battery      candidate views=24 identical=24 passed_views=['live', 'ns-20', 'ns-21', 'ns-22'] stub_reasons=['base parity']
+r35b skipbattery- candidate views=24 identical=24 passed_views=['live', 'ns-20', 'ns-21', 'ns-22'] stub_reasons=['base parity']

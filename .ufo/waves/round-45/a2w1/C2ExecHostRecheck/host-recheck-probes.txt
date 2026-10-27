@@ -1,0 +1,89 @@
+# C2ExecHostRecheck independent probes — 2026-10-27T03:26:24Z uid=1000
+## id / caps of the probing shell
+uid=1000(vgpnk) gid=1000(vgpnk) groups=1000(vgpnk),967(docker),992(input),998(wheel)
+Uid:	1000	1000	1000	1000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+## 1. capture.sh re-run exit code (recorded in report: 0)
+## 2. sha256 frozen vs re-run
+f5958a83b7cf1e2e438ac1b543f1c521f3f9370287fc4c4bcea38947c3991e70  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-45/frozen/hostcap/capture.txt
+c015d79f66b2a65c69c2a1ace22e60562b2c02b77d89a2e6db1745d2e91b9a77  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-45/a2w1/C2ExecHostRecheck/capture-rerun.txt
+## 3. diff frozen -> re-run (exit 1 = timestamp only)
+1c1
+< captured 2026-10-27T02:09:52Z uid=1000 CapEff=0000000000000000
+---
+> captured 2026-10-27T03:24:32Z uid=1000 CapEff=0000000000000000
+diff_exit=1
+## 4. diff with the 'captured' line removed (exit 0 = no other drift)
+diff_no_timestamp_exit=0
+## 5. scrub_speed_max attribute (capture.txt:8)
+-rw-r--r-- 1 root root 4096 Oct 26 16:41 /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max
+mode=644 owner=root group=root
+value=[0
+]
+## 6. devinfo/1 contents and world-readable replace-state attributes (as uid 1000)
+error_stats
+fsid
+in_fs_metadata
+missing
+replace_target
+scrub_speed_max
+writeable
+-r--r--r-- 1 root root 4096 Oct 26 16:41 /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/replace_target
+-r--r--r-- 1 root root 4096 Oct 26 21:11 /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/exclusive_operation
+replace_target=[0
+]
+exclusive_operation=[none
+]
+## 7. unit properties (capture.txt:3, capture.txt:7)
+FragmentPath=/usr/lib/systemd/system/btrfs-scrub@.service
+DropInPaths=
+TimeoutStopUSec=5s
+KillMode=control-group
+KillSignal=2
+FinalKillSignal=9
+SendSIGKILL=yes
+-- drop-in dirs (ls exit 2 = none exist):
+ls_exit=2
+## 8. manager-level stop default (attribution of TimeoutStopUSec=5s)
+DefaultTimeoutStopUSec=5s
+53:#DefaultTimeoutStopSec=90s
+98:DefaultTimeoutStopSec=5s
+## 9. drop-in file bytes
+     1	[Manager]
+     2	DefaultTimeoutStopSec=5s
+## 10. shipped unit vs frozen S244
+unit_diff_exit=0
+## 11. pacman files-db ownership: positive controls + the drop-in
+-- control A (expect btrfs-progs-7.1-1):
+/var/lib/pacman/local/btrfs-progs-7.1-1/files
+-- control B (expect systemd-262-1):
+/var/lib/pacman/local/systemd-262-1/files
+-- target (expect empty):
+target_grep_exit=2
+-- any package shipping anything under etc/systemd/system.conf.d/ (expect empty):
+## 12. filesystem count / devid listing (capture.txt:9)
+1d02a454-c549-4a35-b567-89d60902af8e
+features
+1
+
+## 13. follow-up: grep exit semantics of the capture's dropin_owner check
+-- all local/*/files that are regular files:
+1409
+-- package dirs in the db:
+1409
+-- target over regular files only (expect exit 1 = no match, distinct from the capture's 2):
+clean_grep_exit=1
+-- the capture.sh form, showing the stderr it discards:
+grep: /var/lib/pacman/local/ALPM_DB_VERSION/files: Not a directory (os error 20)
+## 14. cross-check with a different code path (pacman query, no transaction, no lock):
+error: openai-chatgpt: missing required signature
+error: No package owns /etc/systemd/system.conf.d/10-faster-shutdown.conf
+pacman_qo_exit=1
+error: openai-chatgpt: missing required signature
+error: No package owns /etc/systemd/system.conf.d/99-omarchy-nofile.conf
+pacman_qo_exit_2=1
+## 15. which package ships the drop-in dir at all:
+error: openai-chatgpt: missing required signature
+error: No package owns /etc/systemd/system.conf.d
+pacman_qo_dir_exit=1

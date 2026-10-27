@@ -1,0 +1,39 @@
+== GR1: cmdline.c memparse
+153:unsigned long long memparse(const char *ptr, char **retptr)
+201:EXPORT_SYMBOL(memparse);
+== GR1: vsprintf.c simple_strtoull
+112:unsigned long long simple_strtoull(const char *cp, char **endp, unsigned int base)
+116:EXPORT_SYMBOL(simple_strtoull);
+== GR1: kstrtox.c kstrtoull
+103:static int _kstrtoull(const char *s, unsigned int base, unsigned long long *res)
+139:int kstrtoull(const char *s, unsigned int base, unsigned long long *res)
+== GR1: sysfs.c scrub_speed_max store
+2031:static ssize_t btrfs_devinfo_scrub_speed_max_store(struct kobject *kobj,
+2040:	limit = memparse(buf, &endptr);
+2045:	WRITE_ONCE(device->scrub_speed_max, limit);
+2049:	      btrfs_devinfo_scrub_speed_max_store);
+== GR2: dev-replace.c btrfs_scrub_dev call sites (is_dev_replace=true)
+701:	ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+948:				 "btrfs_scrub_dev(%s, %llu, %s) failed %d",
+1265:	ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,
+== GR2: scrub.c EINPROGRESS refusal
+3121:		     !is_dev_replace)) {
+3127:	if (!is_dev_replace && !readonly &&
+3148:	    (!is_dev_replace &&
+3153:		ret = -EINPROGRESS;
+3180:	if (!is_dev_replace) {
+3217:	if (!is_dev_replace)
+== GR3: systemd.kill.xml SIGINT/SIGCONT/SIGKILL/TimeoutStopSec
+72:        <constant>SIGKILL</constant> signal (see below) is sent to all remaining processes of the unit's
+91:          <listitem><para>the delay configured via the <varname>TimeoutStopSec=</varname> has passed
+96:        the termination request is repeated with the <constant>SIGKILL</constant> signal or the signal specified via
+97:        <varname>FinalKillSignal=</varname> (unless this is disabled via the <varname>SendSIGKILL=</varname>
+110:        <constant>SIGKILL</constant> (see above and below). For a list of valid signals, see
+115:        <constant>SIGCONT</constant>, to ensure that even suspended tasks can be terminated cleanly.</para>
+145:        <term><varname>SendSIGKILL=</varname></term>
+147:        <constant>SIGKILL</constant> (or the signal specified by
+163:        processes after a timeout if <varname>SendSIGKILL=</varname>
+172:        Defaults to <constant>SIGKILL</constant>.
+== GR3: packaged unit KillSignal
+9:KillSignal=SIGINT
+10:ExecStart=/usr/bin/btrfs scrub start -B %f

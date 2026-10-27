@@ -1,0 +1,11 @@
+--- impl.sh	2026-10-27 00:24:29.359931241 -0300
++++ impl-rev-driver.sh	2026-10-27 00:31:14.155271311 -0300
+@@ -1082,7 +1082,7 @@
+     smi_rc=$CAP_RC
+     if [ "$smi_rc" -eq 0 ] && [ -n "$(printf '%s' "$CAP_OUT" | tr -d '[:space:]')" ]; then
+       smi=ok
+-      driver=${CAP_OUT%%$'\n'*}; driver=$(printf '%s\n' "$driver" | awk -F', *' '{print $NF}')   # first line, no early reader (R45-C1)
++      driver=$(printf '%s\n' "$CAP_OUT" | head -n1 | awk -F', *' '{print $NF}')
+     else
+       smi="rc=$smi_rc"
+     fi

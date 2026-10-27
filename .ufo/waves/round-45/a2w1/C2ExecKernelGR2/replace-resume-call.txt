@@ -1,0 +1,26 @@
+1249	static int btrfs_dev_replace_kthread(void *data)
+1250	{
+1251		struct btrfs_fs_info *fs_info = data;
+1252		struct btrfs_dev_replace *dev_replace = &fs_info->dev_replace;
+1253		u64 progress;
+1254		int ret;
+1255	
+1256		progress = btrfs_dev_replace_progress(fs_info);
+1257		progress = div_u64(progress, 10);
+1258		btrfs_info(fs_info,
+1259			"continuing dev_replace from %s (devid %llu) to target %s @%u%%",
+1260			btrfs_dev_name(dev_replace->srcdev),
+1261			dev_replace->srcdev->devid,
+1262			btrfs_dev_name(dev_replace->tgtdev),
+1263			(unsigned int)progress);
+1264	
+1265		ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,
+1266				      dev_replace->committed_cursor_left,
+1267				      btrfs_device_get_total_bytes(dev_replace->srcdev),
+1268				      &dev_replace->scrub_progress, false, true);
+1269		ret = btrfs_dev_replace_finishing(fs_info, ret);
+1270		WARN_ON(ret && ret != -ECANCELED);
+1271	
+1272		btrfs_exclop_finish(fs_info);
+1273		return 0;
+1274	}

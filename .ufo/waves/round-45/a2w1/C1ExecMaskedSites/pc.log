@@ -1,0 +1,15 @@
+PC :707 x=$(printf|head -n1) in assignment                  rc=141  [killed by SIGPIPE]
+PC :707 x=$(printf|grep -v|head -n8) in assignment          rc=141  [killed by SIGPIPE]
+PC :832 holds=$(grep|head -n1|sed) with || true REMOVED     rc=141  [killed by SIGPIPE]
+PC :997 timers=$(printf|awk|head -n12) without process substitution rc=141  [killed by SIGPIPE]
+PC :1531 same, journal timerlist                            rc=141  [killed by SIGPIPE]
+PC :1517 fh_names=$(...|sort -u|head -n6|paste) with || true REMOVED rc=141  [killed by SIGPIPE]
+PC :1817 unk_names=$(printf|grep ^?|sed|head -n6|paste) with || true REMOVED rc=141  [killed by SIGPIPE]
+PC :1196 sweep=$(find|sort|head -n4000) as an assignment (pad-b, 637 KB) rc=0
+PC CONTROL :707 sub-buffer payload (56 B) as the same assignment rc=0
+
+-- masked forms, same padded payloads (must survive under set -euo pipefail) --
+832 masked: rc=0 holds=[pacman glibc]
+707 masked: rc=0 n=8 last=pkg-08
+1517 masked: rc=0 fh=[aa-fail-01.service,aa-fail-02.service,aa-fail-03.service,aa-fail-04.service,aa-fail-05.service,aa-fail-06.service]
+1817 masked: rc=0 unk=[zz-unk-01,1.0-1,zz-unk-02,1.0-1,zz-unk-03,1.0-1]

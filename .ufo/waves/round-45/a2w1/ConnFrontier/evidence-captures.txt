@@ -1,0 +1,48 @@
+=== 1. NVMe SMART Device Permissions ===
+crw------- 1 root root 234, 0 Oct 26 12:08 /dev/nvme0
+brw-rw---- 1 root disk 259, 1 Oct 26 12:08 /dev/nvme0n1
+brw-rw---- 1 root disk 259, 2 Oct 26 12:08 /dev/nvme0n1p1
+brw-rw---- 1 root disk 259, 3 Oct 26 12:08 /dev/nvme0n1p2
+crw------- 1 root root 234, 1 Oct 26 12:08 /dev/nvme1
+brw-rw---- 1 root disk 259, 0 Oct 26 12:08 /dev/nvme1n1
+brw-rw---- 1 root disk 259, 4 Oct 26 12:08 /dev/nvme1n1p1
+brw-rw---- 1 root disk 259, 5 Oct 26 12:08 /dev/nvme1n1p2
+uid=1000(vgpnk) gid=1000(vgpnk) groups=1000(vgpnk),967(docker),992(input),998(wheel)
+=== 2. Census Baseline Lookup and Latent Early Readers ===
+777:      bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n && !f { print $2; f = 1 }')   # full read (round 42: an awk `exit` under pipefail killed the census on a large baseline)
+89:#             pacman-conf IgnorePkg IgnoreGroup, /etc/pacman.conf HoldPkg
+831:    holds=$(grep -hE '^[[:space:]]*HoldPkg' "$PACMAN_CONF_FILE" 2>/dev/null \
+832:      | head -n1 | sed -E 's/^[[:space:]]*HoldPkg[[:space:]]*=[[:space:]]*//' || true)
+2168:    printf 'HoldPkg = pacman glibc\n' > "$d/pacman.conf"
+=== 3. Scrub Arm Counter Channels Open ===
+630:        'channels_open': ['mount table', 'uid_map', 'script path /mnt/census-lib.sh'],
+=== 4. SR7-SR9 Pending Status ===
+  under `fs/` (round-43 entry, Limits), so `fs/btrfs/scrub.c` and `sysfs.c` of the booted kernel are the pinned ones
+  [inference carried from round 43; not re-measured this round].
+- SR7 is read from source only: no privileged ioctl is run on this host.
+- SR9's systemd side (that `KillSignal=` is the signal `systemctl stop` sends) is systemd.kill(5) behaviour and is not
+  pinned here [inference]; the pinned part is the unit text and the btrfs-progs handler.
+
+## Round-45 grounding and gate status (appended 2026-10-27, L1 TsukuroiR45)
+
+Appended; the rows above are unchanged. **Gate status:** the round-44 depth gate for SR7-SR9 FAILED
+(`tools/check-scrub-record-r44.py` at `fbfef071`: `verdicts_ok 0`; `.ufo/waves/round-44/after/c2-final-fbfef071.jsonl`),
+and the SR8/SR9 narrowings made after the counted reads were judged by no counted seat
+(`corpus/lessons/round-44-verifier-spotcheck.md` §2 C2, routed defect D3). Until a counted non-author read binds them,
+SR7-SR9 are pending, not admitted. **Grounding:** the three `[inference]` marks above (the replace caller of
+`btrfs_scrub_dev` in SR7, `memparse` suffixes in SR8, `KillSignal=` as the stop signal in SR9) are grounded on pinned
+source in `corpus/knowledge/btrfs-scrub-grounding-r45.md` rows GR2, GR1 and GR3.
+=== 5. Round 45 Grounding Rows ===
+14:## GR1
+55:## GR2
+91:## GR3
+=== 6. SCORECARD Planned Row at Round 44 Closure ===
+One header row (R43-CAP-HEADER-DUP; QUALITY 92): `awk '/^## Capabilities — current full evidence set \(round 43\)/{f=1;next} /^## /{f=0} f&&/^\| Capability \|/{n++} END{print n+0}' SCORECARD.md` prints 1.
+
+- **planned (next round):** (1) coverage — a verdict-neutral scrub-record census arm for the unprivileged-readable
+  subset (directory, file stat, `scrub_speed_max`; never the running state, SR6) as Frontier → Core;
+  (2) depth — the ioctl success direction (`btrfs_scrub_progress`, Linux `fs/btrfs/scrub.c`) as a sourced row;
+  (3) operability — the routed census items (`:746` lookup selftest case past the pipe buffer, the five single-line
+  probe readers). Draft text: `.ufo/waves/round-43/w2/ConnRound44.md`.
+- **retired:** none.
+

@@ -1,0 +1,187 @@
+doc corpus/knowledge/btrfs-scrub-grounding-r45.md at 18389f44cf6ce414d7be205998b29c79fb0b490c: 11220 bytes
+== digest verification (SHA256SUMS, every snapshot the entry cites) ==
+  PASS DIGEST: .ufo/waves/round-42/frozen/src/CHANGES bd881ab899ba4f4f… == bd881ab899ba4f4f…
+  PASS DIGEST: .ufo/waves/round-42/frozen/src/scrub.c 48df2e2f468f7db7… == 48df2e2f468f7db7…
+  PASS DIGEST: .ufo/waves/round-44/frozen/src/PKGBUILD 3b803e8b05d84900… == 3b803e8b05d84900…
+  PASS DIGEST: .ufo/waves/round-44/frozen/src/btrfs-scrub@.service eaa7af92d28bfa89… == eaa7af92d28bfa89…
+  PASS DIGEST: .ufo/waves/round-44/frozen/src/btrfs-scrub@.timer 9a0b6cc23f7bd97b… == 9a0b6cc23f7bd97b…
+  PASS DIGEST: .ufo/waves/round-44/frozen/src/scrub.c f347931b795c738d… == f347931b795c738d…
+  PASS DIGEST: .ufo/waves/round-44/frozen/src/sysfs.c ce146120f29ac29c… == ce146120f29ac29c…
+  PASS DIGEST: .ufo/waves/round-45/frozen/src/cmdline.c 1af5ad98fface0b5… == 1af5ad98fface0b5…
+  PASS DIGEST: .ufo/waves/round-45/frozen/src/dev-replace.c f07ef0a0d260cf67… == f07ef0a0d260cf67…
+  PASS DIGEST: .ufo/waves/round-45/frozen/src/kstrtox.c 0c52ae02259f06ad… == 0c52ae02259f06ad…
+  PASS DIGEST: .ufo/waves/round-45/frozen/src/systemd.kill.xml 448322830dbbd02c… == 448322830dbbd02c…
+  PASS DIGEST: .ufo/waves/round-45/frozen/src/vsprintf.c cabb648a2c72fcbd… == cabb648a2c72fcbd…
+  PASS INDEXED: S246 kstrtox.c listed in .ufo/waves/round-45/frozen/src/SHA256SUMS
+  PASS INDEXED: S246 vsprintf.c listed in .ufo/waves/round-45/frozen/src/SHA256SUMS
+  PASS INDEXED: S246 cmdline.c listed in .ufo/waves/round-45/frozen/src/SHA256SUMS
+  PASS INDEXED: S247 dev-replace.c listed in .ufo/waves/round-45/frozen/src/SHA256SUMS
+  PASS INDEXED: S248 systemd.kill.xml listed in .ufo/waves/round-45/frozen/src/SHA256SUMS
+  PASS INDEXED: S242 scrub.c listed in .ufo/waves/round-44/frozen/src/SHA256SUMS
+  PASS INDEXED: S243 sysfs.c listed in .ufo/waves/round-44/frozen/src/SHA256SUMS
+  PASS INDEXED: S244 btrfs-scrub@.service listed in .ufo/waves/round-44/frozen/src/SHA256SUMS
+  PASS INDEXED: S237 scrub.c listed in .ufo/waves/round-42/frozen/src/SHA256SUMS
+  PASS DIGEST: capture.txt == f5958a83b7cf1e2e…
+
+== quote lines (31 expected) ==
+  PASS QUOTE: md:27 S246 cmdline.c:147 [slice] 'potentially suffixed with K, M, G, T, P, E.'
+       whole-line: tail='' next cmdline.c:148: '*'
+  PASS QUOTE: md:29 S246 cmdline.c:156 [exact] 'unsigned long long ret = simple_strtoull(ptr, &endptr, 0);'
+       CUT: tail='' next cmdline.c:157: 'unsigned int shl = 0;'
+  PASS QUOTE: md:31 S246 cmdline.c:159 [exact] '/* Consume valid suffix even in case of overflow. */'
+       CUT: tail='' next cmdline.c:160: 'switch (*endptr) {'
+  PASS QUOTE: md:33 S246 cmdline.c:189 [exact] 'if (shl && likely(ptr != endptr)) {'
+       whole-line: tail='' next cmdline.c:190: '/* Have valid suffix with preceding number. */'
+  PASS QUOTE: md:35 S246 cmdline.c:191 [exact] 'if (unlikely(check_shl_overflow(ret, shl, &ret)))'
+       CUT: tail='' next cmdline.c:192: 'ret = ULLONG_MAX;'
+  PASS QUOTE: md:37 S246 cmdline.c:192 [exact] 'ret = ULLONG_MAX;'
+       CUT: tail='' next cmdline.c:193: 'endptr++;'
+  PASS QUOTE: md:39 S246 vsprintf.c:86 [exact] 'cp = _parse_integer_fixup_radix(startp, &base);'
+       CUT: tail='' next vsprintf.c:87: 'prefix_chars = cp - startp;'
+  PASS QUOTE: md:41 S246 kstrtox.c:29 [exact] "if (s[0] == '0') {"
+       CUT: tail='' next kstrtox.c:30: "if (_tolower(s[1]) == 'x' && isxdigit(s[2]))"
+  PASS QUOTE: md:43 S246 kstrtox.c:30 [exact] "if (_tolower(s[1]) == 'x' && isxdigit(s[2]))"
+       whole-line: tail='' next kstrtox.c:31: '*base = 16;'
+  PASS QUOTE: md:45 S246 kstrtox.c:33 [exact] '*base = 8;'
+       whole-line: tail='' next kstrtox.c:34: '} else'
+  PASS QUOTE: md:47 S243 sysfs.c:2040 [exact] 'limit = memparse(buf, &endptr);'
+       whole-line: tail='' next sysfs.c:2041: "/* There could be trailing '\\n', also catch any typos after the value. */"
+  PASS QUOTE: md:49 S243 sysfs.c:2043 [exact] 'if (*endptr != 0)'
+       CUT: tail='' next sysfs.c:2044: 'return -EINVAL;'
+  PASS QUOTE: md:68 S247 dev-replace.c:700 [exact] '/* the disk copy procedure reuses the scrub code */'
+       CUT: tail='' next dev-replace.c:701: 'ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,'
+  PASS QUOTE: md:70 S247 dev-replace.c:701 [exact] 'ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,'
+       CUT: tail='' next dev-replace.c:702: 'btrfs_device_get_total_bytes(src_device),'
+  PASS QUOTE: md:72 S247 dev-replace.c:703 [exact] '&dev_replace->scrub_progress, false, true);'
+       whole-line: tail='' next dev-replace.c:704: ''
+  PASS QUOTE: md:74 S247 dev-replace.c:1259 [exact] '"continuing dev_replace from %s (devid %llu) to target %s @%u%%"'
+       CUT: tail='' next dev-replace.c:1260: 'btrfs_dev_name(dev_replace->srcdev),'
+  PASS QUOTE: md:76 S247 dev-replace.c:1265 [exact] 'ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,'
+       CUT: tail='' next dev-replace.c:1266: 'dev_replace->committed_cursor_left,'
+  PASS QUOTE: md:78 S247 dev-replace.c:1268 [exact] '&dev_replace->scrub_progress, false, true);'
+       CUT: tail='' next dev-replace.c:1269: 'ret = btrfs_dev_replace_finishing(fs_info, ret);'
+  PASS QUOTE: md:80 S242 scrub.c:3081 [exact] 'bool readonly, bool is_dev_replace)'
+       whole-line: tail='' next scrub.c:3082: '{'
+  PASS QUOTE: md:82 S242 scrub.c:3148 [exact] '(!is_dev_replace &&'
+       CUT: tail='' next scrub.c:3149: 'btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {'
+  PASS QUOTE: md:84 S242 scrub.c:3149 [exact] 'btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {'
+       CUT: tail='' next scrub.c:3150: 'up_read(&fs_info->dev_replace.rwsem);'
+  PASS QUOTE: md:86 S242 scrub.c:3153 [exact] 'ret = -EINPROGRESS;'
+       CUT: tail='' next scrub.c:3154: 'goto out;'
+  PASS QUOTE: md:106 S244 btrfs-scrub@.service:9 [exact] 'KillSignal=SIGINT'
+       whole-line: tail='' next btrfs-scrub@.service:10: 'ExecStart=/usr/bin/btrfs scrub start -B %f'
+  PASS QUOTE: md:108 S244 btrfs-scrub@.service:10 [exact] 'ExecStart=/usr/bin/btrfs scrub start -B %f'
+       whole-line: tail='' next btrfs-scrub@.service:11: ''
+  PASS QUOTE: md:110 S248 systemd.kill.xml:68 [exact] '<para>If set to <option>control-group</option>, all remaining pr'
+       CUT: tail='' next systemd.kill.xml:69: 'unit will be killed on unit stop (for services: after the stop command is executed, as configure'
+  PASS QUOTE: md:112 S248 systemd.kill.xml:91 [exact] '<listitem><para>the delay configured via the <varname>TimeoutSto'
+       CUT: tail='' next systemd.kill.xml:92: '(applies to <varname>KillMode=</varname>: <option>control-group</option>, <option>mixed</option>'
+  PASS QUOTE: md:114 S248 systemd.kill.xml:96 [exact] 'the termination request is repeated with the <constant>SIGKILL</'
+       CUT: tail='' next systemd.kill.xml:97: '<varname>FinalKillSignal=</varname> (unless this is disabled via the <varname>SendSIGKILL=</varn'
+  PASS QUOTE: md:116 S248 systemd.kill.xml:101 [exact] '<para>Defaults to <option>control-group</option>.</para>'
+       whole-line: tail='' next systemd.kill.xml:102: ''
+  PASS QUOTE: md:118 S248 systemd.kill.xml:108 [exact] '<listitem><para>Specifies which signal to use when stopping a se'
+       CUT: tail='' next systemd.kill.xml:109: 'is sent as first step of shutting down a unit (see above), and is usually followed by'
+  PASS QUOTE: md:120 S248 systemd.kill.xml:114 [exact] '<para>Note that, right after sending the signal specified in thi'
+       CUT: tail='' next systemd.kill.xml:115: '<constant>SIGCONT</constant>, to ensure that even suspended tasks can be terminated cleanly.</pa'
+  PASS QUOTE: md:122 S237 scrub.c:421 [exact] 'ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);'
+       CUT: tail='' next scrub.c:422: 'if (ret < 0)'
+  PASS COUNT: 31 quote lines parsed
+
+== quoted lines vs the line ranges corpus/SOURCES.md declares for that source ==
+  PASS SOURCES-RANGE: S246 cmdline.c:147 within declared ['142-201']
+  PASS SOURCES-RANGE: S246 cmdline.c:156 within declared ['142-201']
+  PASS SOURCES-RANGE: S246 cmdline.c:159 within declared ['142-201']
+  PASS SOURCES-RANGE: S246 cmdline.c:189 within declared ['142-201']
+  PASS SOURCES-RANGE: S246 cmdline.c:191 within declared ['142-201']
+  PASS SOURCES-RANGE: S246 cmdline.c:192 within declared ['142-201']
+  PASS SOURCES-RANGE: S246 vsprintf.c:86 within declared ['79-115']
+  PASS SOURCES-RANGE: S246 kstrtox.c:29 within declared ['26-40']
+  PASS SOURCES-RANGE: S246 kstrtox.c:30 within declared ['26-40']
+  PASS SOURCES-RANGE: S246 kstrtox.c:33 within declared ['26-40']
+  PASS SOURCES-RANGE: S243 sysfs.c:2040 within declared ['72-74', '2021-2049']
+  PASS SOURCES-RANGE: S243 sysfs.c:2043 within declared ['72-74', '2021-2049']
+  PASS SOURCES-RANGE: S247 dev-replace.c:700 within declared ['700-703', '1256-1268']
+  PASS SOURCES-RANGE: S247 dev-replace.c:701 within declared ['700-703', '1256-1268']
+  PASS SOURCES-RANGE: S247 dev-replace.c:703 within declared ['700-703', '1256-1268']
+  PASS SOURCES-RANGE: S247 dev-replace.c:1259 within declared ['700-703', '1256-1268']
+  PASS SOURCES-RANGE: S247 dev-replace.c:1265 within declared ['700-703', '1256-1268']
+  PASS SOURCES-RANGE: S247 dev-replace.c:1268 within declared ['700-703', '1256-1268']
+  FAIL SOURCES-RANGE: S242 scrub.c:3081 within declared ['1365-1385', '3140-3162', '3215-3226', '3321-3337']
+  PASS SOURCES-RANGE: S242 scrub.c:3148 within declared ['1365-1385', '3140-3162', '3215-3226', '3321-3337']
+  PASS SOURCES-RANGE: S242 scrub.c:3149 within declared ['1365-1385', '3140-3162', '3215-3226', '3321-3337']
+  PASS SOURCES-RANGE: S242 scrub.c:3153 within declared ['1365-1385', '3140-3162', '3215-3226', '3321-3337']
+  PASS SOURCES-RANGE: S244 btrfs-scrub@.service:9 within declared ['1-10']
+  PASS SOURCES-RANGE: S244 btrfs-scrub@.service:10 within declared ['1-10']
+  PASS SOURCES-RANGE: S248 systemd.kill.xml:68 within declared ['62-116']
+  PASS SOURCES-RANGE: S248 systemd.kill.xml:91 within declared ['62-116']
+  PASS SOURCES-RANGE: S248 systemd.kill.xml:96 within declared ['62-116']
+  PASS SOURCES-RANGE: S248 systemd.kill.xml:101 within declared ['62-116']
+  PASS SOURCES-RANGE: S248 systemd.kill.xml:108 within declared ['62-116']
+  PASS SOURCES-RANGE: S248 systemd.kill.xml:114 within declared ['62-116']
+  FAIL SOURCES-RANGE: S237 scrub.c:421 within declared ['67-70', '280-330', '446-535', '826-895', '1110-1125', '1186-1220', '1330-1340', '1498-1512', '1925-1945']
+  INFO  in declared ranges: S242 scrub.c:3147 — dev->scrub_ctx || (the 'any call' half of GR2)
+  INFO  OUTSIDE declared ranges: S237 scrub.c:439 — handler assignment fd == -1 ? SIG_DFL : ...
+  INFO  OUTSIDE declared ranges: S237 scrub.c:1546 — foreground install of the SIGINT handler
+  INFO  in declared ranges: S246 cmdline.c:183 — shl += 10 (K step of the 1024 cascade)
+
+== Statement-cell claims ==
+-- GR1: memparse / simple_strtoull / radix / store
+  PASS GR1-fn: memparse defined at cmdline.c:153
+  PASS GR1-line: sysfs.c:2040 is memparse(buf,&endptr)
+  PASS GR1-line: sysfs.c:2042 skip_spaces, :2043 test, :2044 -EINVAL
+  PASS GR1-fn: attr wired as devid/scrub_speed_max (sysfs.c:2048)
+  PASS GR1-line: memparse base 0 at cmdline.c:156
+  PASS GR1-hop: simple_strtoull -> simple_strntoull (vsprintf.c:114); quote points at :86, two hops in
+  PASS GR1-line: fixup at vsprintf.c:86
+  PASS GR1-fn: fixup defined kstrtox.c:26
+  PASS GR1-value: 0x+hexdigit -> base 16 (kstrtox.c:31)
+  PASS GR1-value: other leading 0 -> base 8 (kstrtox.c:33)
+  PASS GR1-value: else -> base 10 (kstrtox.c:35)
+  PASS GR1-value: 0x prefix consumed (kstrtox.c:38)
+  PASS GR1-value: six 'shl += 10' steps at cmdline.c:[163, 167, 171, 175, 179, 183]
+  PASS GR1-value: switch cascades E->P->T->G->M->K, both cases each
+  PASS GR1-value: each 'shl += 10' is followed by fallthrough (cascade, no break): [(163, 'fallthrough;'), (167, 'fallthrough;'), (171, 'fallthrough;'), (175, 'fallthrough;'), (179, 'fallthrough;'), (183, 'fallthrough;')]
+  PASS GR1-value: 10-bit shift per step: {'K': 10, 'M': 20, 'G': 30, 'T': 40, 'P': 50, 'E': 60} -> K=1024, M=1024**2 (not 1000-based)
+  PASS GR1-line: suffix needs consumed chars (cmdline.c:189)
+  PASS GR1-line: overflow -> ULLONG_MAX (cmdline.c:191-192)
+  PASS GR1-value: exactly one suffix char consumed (cmdline.c:193)
+  PASS GR1-sim: example table reproduced from the snapshot code: {'100M': 104857600, '100m': 104857600, '010': 8, '0x10': 16, '10MB': None, '10 M': None, '-1': None, '\n': 0, '5K': 5120, '0x1F': 31, '1G': 1073741824, 'K': None, '': 0}
+  PASS GR1-value: 0 means no limit: scrub.c:1380-1382 returns before throttling (S242; not quoted in GR1)
+-- GR2: btrfs_scrub_dev signature, call sites, EINPROGRESS condition
+  PASS GR2-value: btrfs_scrub_dev params at scrub.c:3079-3081 = ['fs_info', 'devid', 'start', 'end', 'progress', 'readonly', 'is_dev_replace']; last two = readonly, is_dev_replace
+  PASS GR2-value: replace-start call dev-replace.c:701-703: src_device->devid, ..., false, true
+  PASS GR2-value: replace-continue call dev-replace.c:1265-1268: srcdev->devid, ..., false, true
+  PASS GR2-fn: dev-replace.c:701 sits in btrfs_dev_replace_start (decl 587)
+  PASS GR2-fn: dev-replace.c:1265 sits in btrfs_dev_replace_kthread (decl 1249)
+  PASS GR2-value: condition scrub.c:3147 dev->scrub_ctx || 3148 (!is_dev_replace && ...: 'any call' is the first disjunct, unguarded by is_dev_replace
+  PASS GR2-value: the is_dev_replace guard applies only to the replace-ongoing disjunct
+  PASS GR2-value: refusal under dev_replace.rwsem read-lock, ret -EINPROGRESS at scrub.c:3153
+  PASS GR2-hop: no scrub ioctl handler / BTRFS_IOC_SCRUB in S242 scrub.c (hits=[]); the ioctl->btrfs_scrub_dev hop lives in fs/btrfs/ioctl.c, which no cited snapshot holds
+-- GR3: unit file, systemd.kill.xml, SIGINT handler
+  PASS GR3-line: unit:9 KillSignal=SIGINT
+  PASS GR3-line: unit:10 ExecStart=btrfs scrub start -B
+  PASS GR3-value: unit sets no KillMode (10 lines total: 10)
+  PASS GR3-value: xml:101 KillMode defaults to control-group
+  PASS GR3-value: xml:112 KillSignal defaults to SIGTERM
+  PASS GR3-value: the SIGCONT token sits on xml:115, one line past the quoted xml:114 which stops at 'always send'
+  PASS GR3-value: xml:97 carries FinalKillSignal=/SendSIGKILL=, one line past the quoted xml:96
+  PASS GR3-value: xml:96 names SIGKILL (quoted line, complete clause start)
+  PASS GR3-line: -B sets do_background=false at scrub.c:1293
+  PASS GR3-line: foreground path installs the child handler at scrub.c:1546 (fork path is inside if(do_background))
+  PASS GR3-value: handler = scrub_sigint_record_progress when fd != -1 (scrub.c:439)
+  PASS GR3-line: handler issues BTRFS_IOC_SCRUB_CANCEL at scrub.c:421 inside scrub_sigint_record_progress
+  PASS GR3-fn: scrub.c:417 is a signal handler (int signal) — SIGINT reaches an async handler, not the main loop
+  PASS GR3-value: parent ignores SIGINT only on the forked background path (scrub.c:1522)
+-- host values (Statement 'Host reading' cells vs S249 capture)
+  PASS HOST: capture.txt:3 matches GR3's systemctl show list exactly
+  PASS HOST: capture.txt:4 drop-in line 2 DefaultTimeoutStopSec=5s
+  PASS HOST: capture.txt:5 no package owns the drop-in
+  PASS HOST: capture.txt:1 uid 1000, empty effective capability set
+  PASS HOST: capture.txt:8 scrub_speed_max 0/644/root on devid 1
+  PASS HOST: capture.txt:9 single devid
+  PASS HOST: capture.txt:2 kernel 7.2.11-arch1-1, systemd 262-1-arch
+
+== 2 FAIL ==
+  SOURCES-RANGE: S242 scrub.c:3081 within declared ['1365-1385', '3140-3162', '3215-3226', '3321-3337']
+  SOURCES-RANGE: S237 scrub.c:421 within declared ['67-70', '280-330', '446-535', '826-895', '1110-1125', '1186-1220', '1330-1340', '1498-1512', '1925-1945']

@@ -1,0 +1,5 @@
+seat ScribeSkill, 2026-10-27, scratch fixture /fast/scratch/hyaku/tsukuroi-r45/ScribeSkill
+CAP = 20000 lines of 80 bytes (~1.6 MB) held in a shell variable
+r141.sh  (base form): set -euo pipefail; x=$(printf %s\\n "$CAP" | head -n1)   -> rc=141, stdout 0 bytes (o1.txt)
+r141b.sh (impl form): set -euo pipefail; x=${CAP%%$'\\n'*}            -> rc=0, stdout = first line (o2.txt)
+pipe capacity on this host: fcntl F_GETPIPE_SZ = 65536

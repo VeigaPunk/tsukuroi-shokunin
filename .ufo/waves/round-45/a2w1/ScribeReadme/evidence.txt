@@ -1,0 +1,101 @@
+ScribeReadme (item F-5) — evidence log, all read-only, run 2026-10-27
+Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+Scratch: /fast/scratch/hyaku/tsukuroi-r45/ScribeReadme (removed at exit)
+
+1. Revisions
+   $ git -C <lane> rev-parse HEAD
+   3c42f556f8301500aa30409e05a45dad5923872d
+   implementation commit: 18389f44cf6ce414d7be205998b29c79fb0b490c
+   $ git diff --stat 18389f44 HEAD -- corpus/ SKILL.md
+   (empty)   -> corpus/README.md and SKILL.md are byte-identical at the implementation commit
+                and at the lane tip, so the line numbers below hold at both.
+
+2. corpus/README.md at 18389f44
+   $ git show 18389f44:corpus/README.md | wc -l
+   452            (file ends with a single newline; last line 452 is the round-44 Frontier notice tail)
+   :243  "- Storage integrity is a frontier area, not Core: it becomes Core only after a read-only census arm reads it"
+   :427  "## Round-44 coverage note (appended 2026-10-26)"
+   :434  "| `knowledge/btrfs-scrub-record-r44.md` | SR7 ... SR8 ... SR9 ... | entry header and rows at the measured revision |"
+   :436  "### Frontier notice — round 44"
+   :447-448  "... (predicate rows == 3 and quotes_ok == 3 ... verdicts_ok == 3 and novelty_base_hits == 0 and
+              pointer_ok == 1), its three row verdicts binding only from the round-44 wave-2 reviewer and critic seats."
+              (names the predicate; nowhere states that the receipt returned verdicts_ok 0 / FAIL)
+
+3. Round-44 C2 gate status (committed receipt, not re-run)
+   $ python3 -c '<read .ufo/waves/round-44/after/c2-final-fbfef071.jsonl>'
+   line 2: rows 3, quotes_ok 3, props_ok 3, host_ok 3, sources_ok 1, novelty_base_hits 0, pointer_ok 1,
+           verdicts_ok 0, verdict FAIL
+   line 3: exit_code 1
+   $ grep -n "PASS iff|verdicts_ok == 3" tools/check-scrub-record-r44.py
+   :50  "PASS iff rows == 3 and quotes_ok == 3 and props_ok == 3 and host_ok == 3 and sources_ok == 1"
+   :51  "and verdicts_ok == 3 and novelty_base_hits == 0 and pointer_ok == 1."
+   -> the gate FAILED with verdicts_ok 0 against a predicate that requires 3.
+
+4. Routed defect D3 and the unjudged narrowings
+   $ git show 18389f44:corpus/lessons/round-44-verifier-spotcheck.md | sed -n '81p;96,99p;181,186p'
+   :81   "### C2 — depth (SR7-SR9 entry) — FAIL confirmed (re-measured + evidence-verified)"
+   :96-99 "- **Verdict: depth `unchanged`.** ... Two follow-ups are routed: one sibling SKILL row was not swept (D2),
+           and the entry is indexed with no \"gate failed\" mark (D3)."
+   :181-183 D2 R44C-SKILL-SR8-SWEEP (SKILL SR8 row still states memparse suffixes as fact)
+   :184-186 D3 R44C-C2-UNADMITTED-MARK ("present SR7-SR9 without saying the depth gate FAILED (`verdicts_ok 0`).
+           They also omit that the SR8/SR9 narrowings are unjudged.")
+
+5. btrfs-scrub-record-r44.md at 18389f44 (161 lines)
+   :153  "## Round-45 grounding and gate status (appended 2026-10-27, L1 TsukuroiR45)"
+   :155-159 says the gate FAILED (verdicts_ok 0, receipt .ufo/waves/round-44/after/c2-final-fbfef071.jsonl),
+          the narrowings were judged by no counted seat, and SR7-SR9 are pending; :159-161 point at
+          corpus/knowledge/btrfs-scrub-grounding-r45.md rows GR2, GR1 and GR3.
+
+6. SKILL.md at 18389f44
+   :4214  "## Scrub record — round 44 rows"
+   :4225  SR8 row: "writes parse with `memparse` (K/M/G suffixes, trailing whitespace skipped, else `-EINVAL`) ..."
+   -> the section carries the same omission (no gate-failed mark); its SR8 row is the separate D2 sweep.
+   Section body ends at :4230.
+
+7. btrfs-scrub-grounding-r45.md at 18389f44 (162 lines)
+   :1     source line lists S246 S247 S248 S249 S242 S243 S244 S237
+   :14/:55/:91  "## GR1" / "## GR2" / "## GR3"
+   :129 "## How this changes OS triage"   :141 "## Limits"   :150 "## QUALITY check"
+   $ grep -n "PASS iff|verdicts_ok == 3" tools/check-scrub-grounding-r45.py
+   :65-66 predicate "rows == 3 ... and verdicts_ok == 3 ..."
+   $ grep -n "VERDICT_WAVE|RESIDUAL_WAVE" tools/check-scrub-grounding-r45.py   (at HEAD)
+   :84 VERDICT_WAVE = 'a2w1'   :85 RESIDUAL_WAVE = 'a2r1'
+   $ sha256sum tools/check-scrub-grounding-r45.py
+   a1eb402dffae97fcefd9bd539529f1cacc5034419b6de06e1f8ac1c08d011331  (matches the declaration)
+
+8. Round-45 C1 census facts (tools/tsukuroi-census.sh at 18389f44)
+   $ git show 18389f44:tools/tsukuroi-census.sh | grep -n "R45-C1|run_selftest() {"
+   :965  state=${CAP_OUT%%$'\n'*}; state=${state//$'\r'/}; state=${state%"${state##*[![:space:]]}"}   (CR + trailing strip)
+   :1003 r=${CAP_OUT%%$'\n'*}; r=${r//$'\r'/}                                                        (CR strip)
+   :1085 driver=${CAP_OUT%%$'\n'*}; driver=$(printf '%s\n' "$driver" | awk -F', *' '{print $NF}')      (last comma field)
+   :1460 t_word=... CR + trailing strip
+   :1535 r=... CR + trailing strip
+   -> prefix removal at all five, CR strip at four (:965,:1003,:1460,:1535), trailing-blank strip at three
+      (:965,:1460,:1535).
+   :2046 run_selftest() {
+   :3338 r45pad() { ... 2000 lines ... }  -> each case's padding is 2000 generator lines (~145-160 KB by tag)
+   :3342, :3347, :3355, :3360, :3365, :3374  the six '(R45-C1)' case labels (last one: foreign baseline)
+
+9. Sources and province tokens
+   corpus/SOURCES.md at 18389f44: :246 S237, :251 S242, :252 S243, :253 S244, :254 S245, :255 S246,
+   :256 S247, :257 S248, :258 S249
+   PROVINCE.md:256 "## Round-44 promotion — R44-SCRUB-VIEW: the unprivileged scrub-record view moves Frontier → Core"
+
+10. Draft placement and patch validation
+   base = git show 18389f44:corpus/README.md (452 lines, ends '\n')
+   new  = base + readme-append.md
+   prefix equality asserted in python: new.split('\n')[:453] == base.split('\n')  -> PASS
+   new line count 490: 453 blank, 454 heading, 456 append-only sentence, 458-459 table header,
+   460 C1 census row, 461 entry row, 463 D3 correction heading, 465-475 D3 body,
+   477 Frontier notice heading, 479-490 notice body.
+   $ diff -u --label a/corpus/README.md --label b/corpus/README.md base-readme.md simulated-readme.md > apply.diff
+   44 lines. Table rows in the draft carry exactly 4 unescaped pipes (3 columns).
+   $ D=$(mktemp -d .../fz.XXXXXX); git clone -q --shared <lane> "$D"; git -C "$D" remote remove origin
+   $ git -C "$D" rev-parse --show-toplevel
+   /fast/scratch/hyaku/tsukuroi-r45/ScribeReadme/fz.ezYgBz
+   $ git -C "$D" apply --check -p1 <abs>/apply.diff   -> APPLY-CHECK OK AT HEAD
+   $ git -C "$D" apply -p1 ...; cmp "$D/corpus/README.md" simulated-readme.md -> BYTES MATCH
+   $ git -C "$D" apply -R --check -p1 ...             -> REVERSE OK
+
+11. Not done: no counter, selftest or census run (read-only byte/grep checks only); no lane file edited;
+    no git/jj mutation in the lane; no host query beyond read-only git and file reads; no tool installed.

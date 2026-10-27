@@ -1,0 +1,16 @@
+# --scratch required? argparse refusal only (read-only, exit 2 before any work), 2026-10-27T00:36:27-03:00
+score-census-readers-r45.py rc=2
+usage: score-census-readers-r45.py [-h] --revision REVISION --scratch SCRATCH
+                                   [--lane LANE] [--seed SEED]
+score-census-readers-r45.py: error: the following arguments are required: --revision, --scratch
+score-scrub-arm-r44.py rc=2
+usage: score-scrub-arm-r44.py [-h] --revision REVISION --scratch SCRATCH
+                              [--lane LANE]
+score-scrub-arm-r44.py: error: the following arguments are required: --revision, --scratch
+
+# round-42 C1 counter: --scratch optional, fallback chain (tools/score-size-invariance-r42.py)
+     1	    ap.add_argument('--scratch')
+     2	    parent = a.scratch or os.environ.get('TMPDIR') or None
+     3	    if parent:
+     4	        os.makedirs(parent, exist_ok=True)
+     5	    root = tempfile.mkdtemp(prefix='size-inv-r42.', dir=parent)

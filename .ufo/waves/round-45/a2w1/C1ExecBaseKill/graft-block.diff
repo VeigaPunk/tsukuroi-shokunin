@@ -1,0 +1,53 @@
+--- base.sh	2026-10-27 00:24:29.357868769 -0300
++++ graft-base-v2.sh	2026-10-27 00:28:55.540426752 -0300
+@@ -3330,6 +3330,50 @@
+   check 'healthy: a directory named like a scrub timer is not an enabled instance (R44-C1)' 0 HEALTHY \
+     '^SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0$'
+ 
++  # Round 45 (C1; routed since round 42, R43 item 3): five probe readers kept only the first line of a captured
++  # output through `printf '%s\n' "$CAP_OUT" | head -n1` in an assignment. Under `set -euo pipefail` an output past
++  # the pipe buffer killed the census with exit 141 (the R41-CENSUS-PIPEFAIL-692 class). Each case below puts the
++  # deciding first line in front of ~150 KB of padding; the last case drives the foreign-baseline lookup (the
++  # round-42 full-read form) past the pipe buffer with the deciding row at the end of the baseline.
++  r45pad() { awk -v t="$1" 'BEGIN { for (i = 0; i < 2000; i++) printf "%s padding line %05d ..................................................\n", t, i }'; }
++
++  case_home='r45-sysrunning-large'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  { printf 'degraded\n'; r45pad sysrunning; } > "$FX/sysrunning"; printf 1 > "$FX/sysrunning.rc"
++  check 'degraded: a large is-system-running output keeps its first line (R45-C1)' 1 DEGRADED \
++    '^PLANE systemd: DEGRADED .*state=degraded failed=0 '
++
++  case_home='r45-timerresult-large'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  { printf 'failed\n'; r45pad result; } > "$FX/timerresult"
++  check 'degraded: a large timer Result output keeps its first line (R45-C1)' 1 DEGRADED \
++    '^PLANE systemd: DEGRADED .*timer_fail=1 timer_unknown=0 \(ai-usage\.timer=failed \)\)$'
++
++  case_home='r45-smi-large'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  mkdir -p "$FX/pci/0000:01:00.0"; printf '0x10de\n' > "$FX/pci/0000:01:00.0/vendor"
++  { printf 'NVIDIA GeForce RTX 5070, 610.57.04\n'; r45pad 'NVIDIA GeForce RTX 5070, 999.99.99'; } > "$FX/smi.out"; printf 0 > "$FX/smi.rc"
++  printf 'nvidia 12345678 42\nnvidia_uvm 1234567 0\n' > "$FX/lsmod"
++  : > "$FX/dev/nvidia0"; : > "$FX/dev/nvidiactl"
++  check 'healthy: a large nvidia-smi output keeps the first GPU line (R45-C1)' 0 HEALTHY \
++    '^PLANE drivers: HEALTHY .*smi=610\.57\.04 '
++
++  case_home='r45-boottarget-large'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  { printf 'inactive \t\r\n'; r45pad active; } > "$FX/boottarget"; printf 3 > "$FX/boottarget.rc"
++  check 'blocked: a large is-active output keeps its first word, trailing blanks and CR dropped (R45-C1)' 2 BLOCKED \
++    '^PLANE journal: BLOCKED \(boot target graphical\.target=inactive \[boot did not reach graphical\.target\]'
++
++  case_home='r45-timeractive-large'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  { printf 'inactive\n'; r45pad active; } > "$FX/timeractivestate"
++  check 'degraded: a large timer ActiveState output keeps its first line (R45-C1)' 1 DEGRADED \
++    '^PLANE journal: DEGRADED .*timer_drift=1 .*\(ai-usage\.timer=inactive\)'
++
++  case_home='r45-foreign-baseline-large'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  { printf '%s\n' "$r6base"
++    awk 'BEGIN { for (i = 0; i < 2000; i++) printf "zz-r45-baseline-padding-package-%05d 1.0-1\n", i }'; } > "$FX/fbase"
++  { printf '%s\n' "$r6base"
++    awk 'BEGIN { for (i = 0; i < 1999; i++) printf "zz-r45-baseline-padding-package-%05d 1.0-1\n", i
++                 printf "zz-r45-baseline-padding-package-01999 1.0-2\n" }'; } > "$FX/pm"
++  check 'degraded: a foreign baseline past the pipe buffer still finds its last row (R45-C1)' 1 DEGRADED \
++    '^PLANE packages: DEGRADED .*foreign=2016\(known=2015 new=0 drift=1 gone=0\) base=file\(2016\) drift=\[zz-r45-baseline-padding-package-01999\(1\.0-1->1\.0-2\)\]'
++
+   check_cli 'cli: unknown argument exits 2 with usage (S10-2)' 2 \
+     '^usage: tsukuroi-census\.sh' -- --bogus
+   check_cli 'cli: --sample 0 refuses before the parse continues (S10-2)' 2 \

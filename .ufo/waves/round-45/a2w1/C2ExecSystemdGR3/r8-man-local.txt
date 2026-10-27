@@ -1,0 +1,48 @@
+# R8 local rendered man pages (systemd-262-1-arch, /usr/share/man), 2026-10-27T03:31:19Z
+## systemd.service(5) TimeoutStopSec
+     TimeoutStopSec=
+	 This option serves two purposes. First, it configures the time to wait
+	 for each ExecStop= command. If any of them times out, subsequent Exec‐
+	 Stop=	commands  are  skipped	and  the  service will be terminated by
+	 SIGTERM. If no ExecStop= commands are specified, the service gets  the
+	 SIGTERM immediately. This default behavior can be changed by the Time‐
+	 outStopFailureMode= option. Second, it configures the time to wait for
+	 the  service itself to stop. If it does not terminate in the specified
+	 time, it will be forcibly terminated by SIGKILL (see KillMode= in sys‐
+	 temd.kill(5)). Takes a unit-less value in  seconds,  or  a  time  span
+	 value	such  as  "5min	 20s".	Pass  "infinity" to disable the timeout
+	 logic. Defaults to DefaultTimeoutStopSec= from the manager  configura‐
+	 tion file (see systemd-system.conf(5)).
+
+	 If  a	service	 of  Type=notify/Type=notify-reload sends "EXTEND_TIME‐
+	 OUT_USEC=...", this may cause the stop	 time  to  be  extended	 beyond
+	 TimeoutStopSec=.  The	first receipt of this message must occur before
+	 TimeoutStopSec= is exceeded, and once the stop time has  extended  be‐
+	 yond  TimeoutStopSec=,	 the  service manager will allow the service to
+	 continue  to  stop,  provided	the   service	repeats	  "EXTEND_TIME‐
+	 OUT_USEC=..." within the interval specified, or terminates itself (see
+	 sd_notify(3)).
+
+	 Added in version 188.
+
+     TimeoutAbortSec=
+## systemd.kill(5) SIGCONT sentence
+	 a list of valid signals, see signal(7). Defaults to SIGTERM.
+
+	 Note  that,  right after sending the signal specified in this setting,
+	 systemd will always send SIGCONT, to ensure that even suspended  tasks
+	 can be terminated cleanly.
+
+## systemd.kill(5) default kill mode / signal
+	 Defaults to control-group.
+
+--
+	 a list of valid signals, see signal(7). Defaults to SIGTERM.
+
+--
+	 has been severed. Takes a boolean value. Defaults to "no".
+
+--
+	 a boolean value. Defaults to "yes".
+
+--

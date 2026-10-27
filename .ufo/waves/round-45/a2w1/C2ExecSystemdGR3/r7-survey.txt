@@ -1,0 +1,66 @@
+# R7 loaded-service stop-timeout survey, 2026-10-27T03:30:04Z
+# method: units=$(systemctl list-units --type=service --all --plain --no-legend | awk '{print $1}'); systemctl show -p Id -p TimeoutStopUSec $units
+loaded service units: 140
+distribution (TimeoutStopUSec -> count):
+    124 5s 
+      9 1min 30s
+      4 infinity 
+      1 3min 
+      1 20s 
+      1 10min 
+
+units that do NOT inherit 5s:
+plymouth-quit-wait.service infinity
+plymouth-quit.service 20s
+systemd-binfmt.service 1min 30s
+systemd-fsck-root.service infinity
+systemd-fsck@dev-disk-by\x2duuid-86D8\x2dC3F6.service infinity
+systemd-hwdb-update.service 1min 30s
+systemd-journal-catalog-update.service 1min 30s
+systemd-journal-flush.service 1min 30s
+systemd-machine-id-commit.service 1min 30s
+systemd-modules-load.service 1min 30s
+systemd-quotacheck-root.service infinity
+systemd-random-seed.service 10min
+systemd-rfkill.service 1min 30s
+systemd-sysctl.service 1min 30s
+systemd-sysusers.service 1min 30s
+systemd-udev-settle.service 3min
+
+# note: btrfs-scrub@-.service is not in list-units --all output; queried directly:
+Id=btrfs-scrub@-.service
+TimeoutStopUSec=5s
+
+# appended 2026-10-27T03:33:06Z: own-value verification of the 16 non-5s units
+systemd-binfmt                     33:TimeoutSec=90s 
+systemd-hwdb-update                29:TimeoutSec=90s 
+systemd-journal-catalog-update     26:TimeoutSec=90s 
+systemd-journal-flush              31:TimeoutSec=90s 
+systemd-machine-id-commit          24:TimeoutSec=90s 
+systemd-modules-load               31:TimeoutSec=90s 
+systemd-rfkill                     25:TimeoutSec=90s 
+systemd-sysctl                     23:TimeoutSec=90s 
+systemd-sysusers                   29:TimeoutSec=90s 
+plymouth-quit                      9:TimeoutSec=20 
+plymouth-quit-wait                 9:TimeoutSec=0 
+systemd-udev-settle                25:TimeoutSec=180 
+systemd-random-seed                35:TimeoutSec=10min 
+systemd-fsck-root                  24:TimeoutSec=infinity 
+systemd-quotacheck-root            25:TimeoutSec=infinity 
+
+# systemd-udevd-control.socket alias
+lrwxrwxrwx 1 root root  28 Sep 22 10:13 /usr/lib/systemd/system/systemd-udevd-control.socket -> systemd-udevd-varlink.socket
+-rw-r--r-- 1 root root 809 Sep 22 10:13 /usr/lib/systemd/system/systemd-udevd-varlink.socket
+
+# non-service units: TimeoutUSec only, no TimeoutStopUSec
+Id=systemd-journald.socket
+TimeoutUSec=1min 30s
+
+Id=systemd-udevd-varlink.socket
+TimeoutUSec=1min 30s
+
+Id=-.mount
+TimeoutUSec=1min 30s
+
+Id=dev-hugepages.mount
+TimeoutUSec=1min 30s

@@ -1,0 +1,39 @@
+# git grep at v7.2.11 (HEAD a2de78ee6) -- btrfs_scrub_dev
+fs/btrfs/dev-replace.c:701:	ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+fs/btrfs/dev-replace.c:948:				 "btrfs_scrub_dev(%s, %llu, %s) failed %d",
+fs/btrfs/dev-replace.c:1265:	ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,
+fs/btrfs/ioctl.c:3093:	ret = btrfs_scrub_dev(fs_info, sa->devid, sa->start, sa->end,
+fs/btrfs/ioctl.c:3098:	 * Copy scrub args to user space even if btrfs_scrub_dev() returned an
+fs/btrfs/ioctl.c:3101:	 * -ECANCELED from btrfs_scrub_dev() and return that error back to user
+fs/btrfs/scrub.c:3079:int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+fs/btrfs/scrub.h:12:int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+fs/btrfs/volumes.c:2748:	 * - Readonly scrub btrfs_scrub_dev()
+
+# btrfs_dev_replace_is_ongoing
+fs/btrfs/dev-replace.c:1276:bool __pure btrfs_dev_replace_is_ongoing(struct btrfs_dev_replace *dev_replace)
+fs/btrfs/dev-replace.h:28:bool __pure btrfs_dev_replace_is_ongoing(struct btrfs_dev_replace *dev_replace);
+fs/btrfs/extent-tree.c:1402:		if (!btrfs_dev_replace_is_ongoing(dev_replace) ||
+fs/btrfs/scrub.c:3149:	     btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {
+fs/btrfs/volumes.c:2241:	if (btrfs_dev_replace_is_ongoing(&fs_info->dev_replace)) {
+fs/btrfs/volumes.c:7201:	dev_replace_is_ongoing = btrfs_dev_replace_is_ongoing(dev_replace);
+fs/btrfs/zoned.c:1362:	dev_replace_is_ongoing = btrfs_dev_replace_is_ongoing(dev_replace);
+
+# btrfs_exclop_start (proof scrub never takes an exclusive op)
+fs/btrfs/block-group.c:2090:	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE))
+fs/btrfs/dev-replace.c:1235:	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {
+fs/btrfs/fs.c:188:bool btrfs_exclop_start(struct btrfs_fs_info *fs_info,
+fs/btrfs/fs.c:205: * with the running one.  This must be paired with btrfs_exclop_start_unlock()
+fs/btrfs/fs.c:214:bool btrfs_exclop_start_try_lock(struct btrfs_fs_info *fs_info,
+fs/btrfs/fs.c:227:void btrfs_exclop_start_unlock(struct btrfs_fs_info *fs_info)
+fs/btrfs/inode.c:10377:	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_SWAP_ACTIVATE)) {
+fs/btrfs/ioctl.c:965:		if (!btrfs_exclop_start(fs_info, type))
+fs/btrfs/ioctl.c:972:	if (btrfs_exclop_start_try_lock(fs_info, type)) {
+fs/btrfs/ioctl.c:979:		btrfs_exclop_start_unlock(fs_info);
+fs/btrfs/ioctl.c:2541:	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_ADD)) {
+fs/btrfs/ioctl.c:2542:		if (!btrfs_exclop_start_try_lock(fs_info, BTRFS_EXCLOP_DEV_ADD))
+fs/btrfs/ioctl.c:2551:		btrfs_exclop_start_unlock(fs_info);
+fs/btrfs/ioctl.c:3190:		if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {
+fs/btrfs/ioctl.c:3370:		if (btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE)) {
+fs/btrfs/volumes.c:2743:	 * - All device ops and balance - as we are in btrfs_exclop_start.
+fs/btrfs/volumes.c:5132:	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE_PAUSED))
+fs/btrfs/volumes.c:8847:	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE)) {

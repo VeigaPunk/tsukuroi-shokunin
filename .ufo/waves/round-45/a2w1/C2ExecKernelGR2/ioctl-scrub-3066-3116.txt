@@ -1,0 +1,51 @@
+3066	static long btrfs_ioctl_scrub(struct file *file, void __user *arg)
+3067	{
+3068		struct btrfs_fs_info *fs_info = inode_to_fs_info(file_inode(file));
+3069		struct btrfs_ioctl_scrub_args AUTO_KFREE(sa);
+3070		int ret;
+3071	
+3072		if (!capable(CAP_SYS_ADMIN))
+3073			return -EPERM;
+3074	
+3075		if (btrfs_fs_incompat(fs_info, EXTENT_TREE_V2)) {
+3076			btrfs_err(fs_info, "scrub: extent tree v2 not yet supported");
+3077			return -EINVAL;
+3078		}
+3079	
+3080		sa = memdup_user(arg, sizeof(*sa));
+3081		if (IS_ERR(sa))
+3082			return PTR_ERR(sa);
+3083	
+3084		if (sa->flags & ~BTRFS_SCRUB_SUPPORTED_FLAGS)
+3085			return -EOPNOTSUPP;
+3086	
+3087		if (!(sa->flags & BTRFS_SCRUB_READONLY)) {
+3088			ret = mnt_want_write_file(file);
+3089			if (ret)
+3090				return ret;
+3091		}
+3092	
+3093		ret = btrfs_scrub_dev(fs_info, sa->devid, sa->start, sa->end,
+3094				      &sa->progress, sa->flags & BTRFS_SCRUB_READONLY,
+3095				      false);
+3096	
+3097		/*
+3098		 * Copy scrub args to user space even if btrfs_scrub_dev() returned an
+3099		 * error. This is important as it allows user space to know how much
+3100		 * progress scrub has done. For example, if scrub is canceled we get
+3101		 * -ECANCELED from btrfs_scrub_dev() and return that error back to user
+3102		 * space. Later user space can inspect the progress from the structure
+3103		 * btrfs_ioctl_scrub_args and resume scrub from where it left off
+3104		 * previously (btrfs-progs does this).
+3105		 * If we fail to copy the btrfs_ioctl_scrub_args structure to user space
+3106		 * then return -EFAULT to signal the structure was not copied or it may
+3107		 * be corrupt and unreliable due to a partial copy.
+3108		 */
+3109		if (copy_to_user(arg, sa, sizeof(*sa)))
+3110			ret = -EFAULT;
+3111	
+3112		if (!(sa->flags & BTRFS_SCRUB_READONLY))
+3113			mnt_drop_write_file(file);
+3114	
+3115		return ret;
+3116	}

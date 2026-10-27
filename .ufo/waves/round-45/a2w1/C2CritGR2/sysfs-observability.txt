@@ -1,0 +1,12 @@
+== unprivileged observability on this host, uid: 1000
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/exclusive_operation mode=444 value-head=none 
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/replace_target mode=444 value-head=0 
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 value-head=0 
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/error_stats mode=444 value-head=write_errs 0 read_errs 0 flush_errs 0 corruption_errs 0 gene
+== sysfs.c show functions proving semantics ==
+1265:static ssize_t btrfs_exclusive_operation_show(struct kobject *kobj,
+1288:			str = "device replace\n";
+1302:BTRFS_ATTR(, exclusive_operation, btrfs_exclusive_operation_show);
+2007:static ssize_t btrfs_devinfo_replace_target_show(struct kobject *kobj,
+2015:	val = !!test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);
+2019:BTRFS_ATTR(devid, replace_target, btrfs_devinfo_replace_target_show);

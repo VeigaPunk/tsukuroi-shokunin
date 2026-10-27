@@ -1,0 +1,22 @@
+# receipt R1: unit + manager kill/timeout properties, 2026-10-27T03:27:29Z
+## unit
+LoadState=loaded
+ActiveState=inactive
+FragmentPath=/usr/lib/systemd/system/btrfs-scrub@.service
+DropInPaths=
+Type=simple
+TimeoutStartUSec=1min 30s
+TimeoutStopUSec=5s
+TimeoutStopFailureMode=terminate
+Result=success
+ExecStart={ path=/usr/bin/btrfs ; argv[]=/usr/bin/btrfs scrub start -B / ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }
+KillMode=control-group
+KillSignal=2
+RestartKillSignal=2
+FinalKillSignal=9
+SendSIGKILL=yes
+SendSIGHUP=no
+## manager
+DefaultTimeoutStartUSec=1min 30s
+DefaultTimeoutStopUSec=5s
+DefaultTimeoutAbortUSec=5s

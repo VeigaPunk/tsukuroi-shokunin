@@ -1,0 +1,34 @@
+C2RevCounter review probes (counter sha256 a1eb402dffae97fcefd9bd539529f1cacc5034419b6de06e1f8ac1c08d011331)
+
+Counter runs:
+- Frozen a2 counter at implementation revision 18389f44cf6ce414d7be205998b29c79fb0b490c: exit 1; content legs all pass (rows=3, quotes_ok=3, props_ok=3, host_ok=3, sources_ok=1, novelty_base_hits=0, pointer_ok=1); verdicts_ok=0 because a2w1 dispatch/results/report files are absent from this revision. See impl.json.
+- Frozen a2 counter at base 5bbd5ff588120fd8e7c744695351a6978b4241c1: exit 1; rows=0, snapshots_ok=false, capture_ok=false, pointer_ok=0, novelty_base_hits=0, base_ok=1. See base.json.
+- At base parent e9ca7ef629810df61f7090eff2f3aa57de7925ae: exit 2; {"error":"base 5bbd5ff588120fd8e7c744695351a6978b4241c1 is not an ancestor of e9ca7ef629810df61f7090eff2f3aa57de7925ae","base_ok":0,"verdict":"FAIL"}. See pre-base.json.
+- Counter blob committed at impl rev (w1-bound) run at impl: exit 1, same missing counted-verdict state. See impl-w1counter.json.
+
+Minimal false-positive GR1 content input, using actual frozen snapshot lines at impl:
+- S246 cmdline.c:154 is '{'; quote_good=True; line is in the GR1 window.
+- S246 kstrtox.c:27 is '{'; quote_good=True; line is in the GR1 window.
+- S243 sysfs.c:2034 is '{'; quote_good=True; line is in the GR1 window.
+- GR1 token-only statement 'memparse simple_strtoull octal 1024 ULLONG_MAX EINVAL' gives prop_ok=True.
+- GR1 host block referencing only capture.txt:1 gives host_ok=True; capture line 1 is generic capture metadata.
+
+Synthetic Markdown fence probes:
+- registry() input with a valid four-backtick outer fence containing a triple-backtick inner fence and one 11-cell S246 row produced rows=['S246'], dups=[] although that row is inside the four-backtick fenced block (counter's repeated toggle treats the inner triple fence as close).
+- sections() input containing a fenced '## GR1' heading opened a GR1 section; duplicate '## GR1' headings merge silently.
+- Registry rows inside a normal balanced fence are not read; duplicate S-ids on row-shaped lines are counted anywhere (including fences). Unbalanced fences before Registry silently swallow rows.
+
+Function probes:
+- declared_text() accepts JSON object/string/raw text by documented branches, rejects duplicate JSON keys and non-string/non-object JSON values; contradicts() rejects later same-row differing verdict words.
+- quote_good() rejects a 9-character substring of a 20-character line; a whole-line 1-character quote passes.
+- Actual entry has 31 quotes, zero quote strings under 10 chars; actual host refs point to non-empty capture lines; actual statement props all present.
+
+Frozen inputs:
+- All 10 SNAP/capture digest prefixes at impl match the declared table.
+- Novelty git grep for simple_strtoull, btrfs_dev_replace_is_ongoing, DefaultTimeoutStopSec returned rc=1 / 0 hits at base.
+- Actual SOURCES rows: S246/S247/S248/S249 are absent at base and have the expected kind, mined status, opened date (2026-10-27), and used-by entry; S246 anchor contains v7.2.11; S248 anchor contains v262; registry had no duplicate IDs.
+- GR1/GR2/GR3 actual statements miss no proposition tokens; actual host refs are GR1 [8,1], GR2 [9,1], GR3 [3,4,5,2]; pointer section contains the named grounding entry.
+
+Rebinding:
+- Diff 18389f44..057c1804 changes only w1/r1 to a2w1/a2r1 names/constants/docstring.
+- Counter blob at impl SHA256 7e373196decd2de09124819f81008f42dbf9fe2e56a9231b3b692f841eabf70d; declared a2 counter at 057c1804/working tree SHA256 a1eb402dffae97fcefd9bd539529f1cacc5034419b6de06e1f8ac1c08d011331.

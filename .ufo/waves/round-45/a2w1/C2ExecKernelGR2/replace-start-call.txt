@@ -1,0 +1,19 @@
+694			goto leave;
+695		}
+696	
+697		ret = btrfs_commit_transaction(trans);
+698		WARN_ON(ret);
+699	
+700		/* the disk copy procedure reuses the scrub code */
+701		ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+702				      btrfs_device_get_total_bytes(src_device),
+703				      &dev_replace->scrub_progress, false, true);
+704	
+705		ret = btrfs_dev_replace_finishing(fs_info, ret);
+706		if (ret == -EINPROGRESS)
+707			ret = BTRFS_IOCTL_DEV_REPLACE_RESULT_SCRUB_INPROGRESS;
+708	
+709		return ret;
+710	
+711	leave:
+712		btrfs_destroy_dev_replace_tgtdev(tgt_device);

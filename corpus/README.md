@@ -462,4 +462,5 @@ Append-only; the coverage map, the Frontier bullets and the round-38 to round-44
 Frontier: nothing moves. The round-44 promotion (the unprivileged record-directory view is Core) stands; the record's
 content, the running state and NVMe SMART/Health stay Frontier, and running, canceling, resuming or limiting a scrub
 stay operator-owned (`:443-444`). The three row verdicts bind only from the counted reviewer and critic seats of wave
-a2w1 and, for a `partly`, the residual of wave a2r1 (`SCORECARD.md` "Round 45 — attempt-2 rebinding").
+a2w1 and, for a `partly`, the residual of wave a2r1 (`SCORECARD.md` "Round 45 — attempt-2 rebinding"). Round 45 bound none of them: the depth gate FAILED (`verdicts_ok` 0)
+and GR1-GR3 are pending, not admitted (entry section "Gate status — round 45").

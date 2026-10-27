@@ -1,0 +1,10 @@
+# production probe_scrub_record (function declared at :1965) — type guards and no-content rule
+403:# file type (record:not-regular, tmp:not-regular, progress:not-socket), a device whose
+1994:  # the record directory: names and stat only, never content
+2004:          if [ -L "$e" ] || [ ! -f "$e" ]; then blocked=1; detail+='record:not-regular,'; continue; fi
+2009:          if [ -L "$e" ] || [ ! -f "$e" ]; then blocked=1; detail+='tmp:not-regular,'; continue; fi
+3230:  # ---- round 44 (C1): the scrub-record arm (verdict-neutral; names and stat, never content) -----
+3282:    '^SCRUB btrfs-scrub-record state=BLOCKED dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=progress:not-socket,record:not-regular,record:not-regular$' \
+
+# selftest fixture with a FIFO record/progress name
+3279:  ln -s /etc/hostname "$FX/scrub/scrub.status.$sfs"; mkfifo "$FX/scrub/scrub.progress.$sfs"

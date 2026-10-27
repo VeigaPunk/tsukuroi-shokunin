@@ -1,0 +1,21 @@
+Key grounding in mori-shokunin on SIGPIPE / exit 141 under pipefail:
+
+1. mori-shokunin/corpus/knowledge/selftest-flake-r9.md
+Line 28: printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss |$re|"
+Line 31-42: Under set -euo pipefail:
+1. grep -q exits 0 at first match and closes read end of pipe;
+2. producer element (bash printf) emits line-by-line in small writes;
+3. its next write gets EPIPE and process dies of SIGPIPE (exit 141);
+4. pipefail makes pipeline rc the rightmost non-zero element (141) despite consumer exiting 0;
+5. || miss= reads rc!=0 as false failure.
+
+2. mori-shokunin/corpus/knowledge/verdict-contract-r13.md
+Lines 1-48:
+- S031: pipe(7) default capacity is 16 pages (65,536 bytes at 4 KiB page size).
+- Production pipeline in tools/mori-census.sh:1494:
+  printf '%s\n' "$inwin" | sed -E 's/^[0-9]+ //' | grep -Fxq -- "$lane-shokunin <$lane@shokunin.local>"
+- grep -Fxq returns at first match and closes stdin.
+- sed is still writing when stream exceeds pipe buffer (64 KiB).
+- sed's next write(2) gets SIGPIPE (exit 141).
+- Under set -euo pipefail, pipeline status becomes 141.
+- Explains why payloads < 64 KiB pass, but payloads > 64 KiB reliably fail with 141.

@@ -1,0 +1,89 @@
+## census revisions under test
+17c82406fe7a7d06261b1fb2ac4be56e7d5498c6712ae90fe8233d2bb0e81a35  rev/base/tools/tsukuroi-census.sh
+237b21c9d757e339943c29b0f005faf569ff997deca46dd5bce16bc631b5fcdc  rev/impl/tools/tsukuroi-census.sh
+## base reader line numbers (5bbd5ff5)
+965:  state=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1003:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+1085:      driver=$(printf '%s\n' "$CAP_OUT" | head -n1 | awk -F', *' '{print $NF}')
+1460:    t_word=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1535:    r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+1867:    unr=$(printf '%s\n' "$err" | grep -c ': Permission denied$' || true)
+## stub output size at PAD_LINES=4000 (systemctl --user is-system-running)
+264008
+## stub output at PAD_LINES=0
+0000000   r   u   n   n   i   n   g  \n
+## run exit codes
+base-large         rc=141 stdout_bytes=83 stderr_bytes=0
+base-small         rc=2 stdout_bytes=7185 stderr_bytes=0
+impl-large         rc=2 stdout_bytes=7185 stderr_bytes=0
+impl-small         rc=2 stdout_bytes=7185 stderr_bytes=0
+impl-small2        rc=2 stdout_bytes=7185 stderr_bytes=0
+base-large-calls   rc=141 stdout_bytes=83 stderr_bytes=0
+impl-large-calls   rc=2 stdout_bytes=7185 stderr_bytes=0
+## base-large stdout (whole)
+tsukuroi-census census-v2 — host=plazir27 — 2026-10-27T03:27:38Z — read-only
+## base-large stderr (whole)
+## impl-large PLANE/HANDOFF/DRIFT/STORAGE/SCRUB/rollup lines
+PLANE packages: BLOCKED (pacman -Qkk sample probe error: error: openai-chatgpt: missing required signature; root_status=ok root_mode=0555 root_uid=0 root_gid=0 root_euid=1000 root_owner_write=absent root_owner_search=present root_report=owner-write-absent root_intent=not-assessed root_src=default root_dir=/)
+PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=2 timers_scanned=2 timer_fail=0 timer_unknown=0)
+PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=67 (oom=0 io=65 gpu=0 other=2) [unknown: accepted noise floor]; nvidia=present smi=610.57.04 modules=2 nodes=2 pci_10de=1; mem=[DEGRADED] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=1; C4_sweep=5 C4_present=0 C4_local=0; C5_swap_fail=0 C5_swap_peak_pct=0% C5_pswp=0/0 C5_sock_throttled=0; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=0 C6_avail_kb=900000 C6_shmem_kb=1000; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)
+PLANE journal: DEGRADED (boots=5 current=yes target=graphical.target:active err=159 (coredump=91 kernel=67 other=1); failedhist=0; timers_enabled=2 timers_scanned=2 armed=2 timer_drift=0 timer_unknown=0)
+PLANE update-safety: BLOCKED (status=BLOCKED; qu=rc=1/2 [pacman -Qu unreadable — never INERT]; chan=dbs=5 fetch=5d stamp=9d)
+PLANE oom: DEGRADED (window=boots=5 2026-10-24..2026-10-27; C1_kernel=1 killed_process=0; C2_events=467 C3_events=33 clusters=139[2026-10-24 21:07,2026-10-24 21:11,2026-10-24 21:16,2026-10-24 21:18,2026-10-24 21:19,2026-10-24 21:20,2026-10-24 21:21,2026-10-24 21:22,2026-10-24 21:23,2026-10-24 21:38,2026-10-24 21:39,2026-10-24 21:51,2026-10-24 21:52,2026-10-24 21:55,2026-10-24 21:56,2026-10-24 21:57,2026-10-24 21:58,2026-10-24 22:00,2026-10-24 22:01,2026-10-24 22:02,2026-10-24 22:03,2026-10-24 22:05,2026-10-24 22:06,2026-10-24 22:07,2026-10-24 22:08,2026-10-24 22:09,2026-10-24 22:12,2026-10-24 22:14,2026-10-24 22:17,2026-10-24 22:18,2026-10-24 22:19,2026-10-24 22:20,2026-10-24 22:21,2026-10-24 22:22,2026-10-24 22:23,2026-10-24 22:24,2026-10-24 22:26,2026-10-24 22:30,2026-10-24 22:31,2026-10-24 22:32,2026-10-24 22:33,2026-10-24 22:35,2026-10-24 22:36,2026-10-24 22:37,2026-10-24 22:38,2026-10-24 22:40,2026-10-24 22:41,2026-10-24 22:42,2026-10-24 22:43,2026-10-24 22:44,2026-10-24 22:45,2026-10-24 22:46,2026-10-24 22:47,2026-10-24 22:48,2026-10-24 22:49,2026-10-24 22:50,2026-10-24 22:53,2026-10-24 22:55,2026-10-24 22:56,2026-10-24 22:58,2026-10-24 22:59,2026-10-24 23:00,2026-10-24 23:01,2026-10-24 23:04,2026-10-24 23:05,2026-10-24 23:06,2026-10-24 23:07,2026-10-24 23:08,2026-10-24 23:10,2026-10-24 23:11,2026-10-24 23:14,2026-10-24 23:49,2026-10-25 01:36,2026-10-25 01:45,2026-10-25 01:47,2026-10-25 01:48,2026-10-25 01:49,2026-10-25 01:52,2026-10-25 01:54,2026-10-25 01:55,2026-10-25 02:03,2026-10-25 02:04,2026-10-25 02:06,2026-10-25 02:09,2026-10-25 02:26,2026-10-25 02:29,2026-10-25 02:30,2026-10-25 02:31,2026-10-25 02:34,2026-10-25 02:36,2026-10-25 02:38,2026-10-25 02:42,2026-10-25 02:45,2026-10-25 02:46,2026-10-25 02:47,2026-10-25 02:50,2026-10-25 02:51,2026-10-25 02:52,2026-10-25 02:54,2026-10-25 02:55,2026-10-25 03:03,2026-10-25 03:04,2026-10-25 03:07,2026-10-25 03:08,2026-10-25 13:29,2026-10-25 13:35,2026-10-25 19:46,2026-10-25 19:48,2026-10-25 20:43,2026-10-25 20:44,2026-10-25 20:53,2026-10-25 21:48,2026-10-25 22:23,2026-10-25 22:27,2026-10-25 22:28,2026-10-25 22:29,2026-10-25 22:30,2026-10-25 22:36,2026-10-25 22:37,2026-10-25 22:42,2026-10-25 22:54,2026-10-25 22:56,2026-10-25 22:57,2026-10-25 22:58,2026-10-25 22:59,2026-10-25 23:01,2026-10-25 23:02,2026-10-25 23:03,2026-10-25 23:07,2026-10-25 23:18,2026-10-25 23:21,2026-10-25 23:22,2026-10-25 23:33,2026-10-25 23:35,2026-10-25 23:38,2026-10-25 23:39,2026-10-25 23:40,2026-10-26 00:38,2026-10-26 14:06]; base=r8(2) known=0 new=139[2026-10-24 21:07,2026-10-24 21:11,2026-10-24 21:16,2026-10-24 21:18,2026-10-24 21:19,2026-10-24 21:20,2026-10-24 21:21,2026-10-24 21:22,2026-10-24 21:23,2026-10-24 21:38,2026-10-24 21:39,2026-10-24 21:51,2026-10-24 21:52,2026-10-24 21:55,2026-10-24 21:56,2026-10-24 21:57,2026-10-24 21:58,2026-10-24 22:00,2026-10-24 22:01,2026-10-24 22:02,2026-10-24 22:03,2026-10-24 22:05,2026-10-24 22:06,2026-10-24 22:07,2026-10-24 22:08,2026-10-24 22:09,2026-10-24 22:12,2026-10-24 22:14,2026-10-24 22:17,2026-10-24 22:18,2026-10-24 22:19,2026-10-24 22:20,2026-10-24 22:21,2026-10-24 22:22,2026-10-24 22:23,2026-10-24 22:24,2026-10-24 22:26,2026-10-24 22:30,2026-10-24 22:31,2026-10-24 22:32,2026-10-24 22:33,2026-10-24 22:35,2026-10-24 22:36,2026-10-24 22:37,2026-10-24 22:38,2026-10-24 22:40,2026-10-24 22:41,2026-10-24 22:42,2026-10-24 22:43,2026-10-24 22:44,2026-10-24 22:45,2026-10-24 22:46,2026-10-24 22:47,2026-10-24 22:48,2026-10-24 22:49,2026-10-24 22:50,2026-10-24 22:53,2026-10-24 22:55,2026-10-24 22:56,2026-10-24 22:58,2026-10-24 22:59,2026-10-24 23:00,2026-10-24 23:01,2026-10-24 23:04,2026-10-24 23:05,2026-10-24 23:06,2026-10-24 23:07,2026-10-24 23:08,2026-10-24 23:10,2026-10-24 23:11,2026-10-24 23:14,2026-10-24 23:49,2026-10-25 01:36,2026-10-25 01:45,2026-10-25 01:47,2026-10-25 01:48,2026-10-25 01:49,2026-10-25 01:52,2026-10-25 01:54,2026-10-25 01:55,2026-10-25 02:03,2026-10-25 02:04,2026-10-25 02:06,2026-10-25 02:09,2026-10-25 02:26,2026-10-25 02:29,2026-10-25 02:30,2026-10-25 02:31,2026-10-25 02:34,2026-10-25 02:36,2026-10-25 02:38,2026-10-25 02:42,2026-10-25 02:45,2026-10-25 02:46,2026-10-25 02:47,2026-10-25 02:50,2026-10-25 02:51,2026-10-25 02:52,2026-10-25 02:54,2026-10-25 02:55,2026-10-25 03:03,2026-10-25 03:04,2026-10-25 03:07,2026-10-25 03:08,2026-10-25 13:29,2026-10-25 13:35,2026-10-25 19:46,2026-10-25 19:48,2026-10-25 20:43,2026-10-25 20:44,2026-10-25 20:53,2026-10-25 21:48,2026-10-25 22:23,2026-10-25 22:27,2026-10-25 22:28,2026-10-25 22:29,2026-10-25 22:30,2026-10-25 22:36,2026-10-25 22:37,2026-10-25 22:42,2026-10-25 22:54,2026-10-25 22:56,2026-10-25 22:57,2026-10-25 22:58,2026-10-25 22:59,2026-10-25 23:01,2026-10-25 23:02,2026-10-25 23:03,2026-10-25 23:07,2026-10-25 23:18,2026-10-25 23:21,2026-10-25 23:22,2026-10-25 23:33,2026-10-25 23:35,2026-10-25 23:38,2026-10-25 23:39,2026-10-25 23:40,2026-10-26 00:38,2026-10-26 14:06] missing=0 out_of_window=2[2026-10-13 23:44,2026-10-14 13:10]; ledger=vmstat.oom_kill=0; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md §1)
+HANDOFF ADJ-04 mori class=kill-events value=139 kind=dated-event state=prepared window=boots=5:2026-10-24..2026-10-27 source=journal-window
+HANDOFF ADJ-04 mori class=coredumps value=91 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER
+DRIFT pacnew-plane pacnew=3 pacsave=0 pacorig=0 unreadable=11 log_pacnew=3 log_pacsave=0 unlogged=0 gone=0 log=ok
+STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0
+TSUKUROI_CENSUS: BLOCKED (packages=BLOCKED systemd=HEALTHY drivers=DEGRADED journal=DEGRADED update-safety=BLOCKED oom=DEGRADED)
+## diff impl-large vs impl-small, body only (header timestamp line 1 dropped)
+IDENTICAL_BODY
+## diff impl-small vs impl-small2, body only (live-drift repeat check)
+IDENTICAL_BODY_REPEAT
+## diff base-small vs impl-large, body only
+SAME_OUTPUT_BASE_VS_IMPL
+## stub calls, base run (PAD 4000)
+systemctl --user is-system-running --no-pager
+## stub calls, impl run (PAD 4000)
+systemctl --user is-system-running --no-pager
+systemctl --user list-units --state=failed --no-legend --plain --no-pager
+systemctl --user list-unit-files --type=timer --state=enabled --no-legend --no-pager
+systemctl --user show ai-usage.timer -p Result --value --no-pager
+systemctl --user show backup.timer -p Result --value --no-pager
+nvidia-smi --query-gpu=name,driver_version --format=csv,noheader
+lsmod 
+systemctl is-active graphical.target --no-pager
+systemctl --user list-unit-files --type=timer --state=enabled --no-legend --no-pager
+systemctl --user show ai-usage.timer -p ActiveState --value --no-pager
+systemctl --user show backup.timer -p ActiveState --value --no-pager
+## per-site probe (264 KB CAP_OUT, base statement vs impl statement)
+base S1        rc=141 bytes_out=0 value=
+impl S1        rc=0 bytes_out=7 value=running
+base S2        rc=141 bytes_out=0 value=
+impl S2        rc=0 bytes_out=7 value=success
+base S3        rc=141 bytes_out=0 value=
+impl S3        rc=0 bytes_out=9 value=610.57.04
+base S4        rc=141 bytes_out=0 value=
+impl S4        rc=0 bytes_out=6 value=active
+base S5        rc=141 bytes_out=0 value=
+impl S5        rc=0 bytes_out=6 value=active
+--- site input sizes (bytes)
+ 264008 /fast/scratch/hyaku/tsukuroi-r45/C1ExecFullLarge/site-S1.txt
+ 264008 /fast/scratch/hyaku/tsukuroi-r45/C1ExecFullLarge/site-S2.txt
+ 264035 /fast/scratch/hyaku/tsukuroi-r45/C1ExecFullLarge/site-S3.txt
+ 264007 /fast/scratch/hyaku/tsukuroi-r45/C1ExecFullLarge/site-S4.txt
+ 264007 /fast/scratch/hyaku/tsukuroi-r45/C1ExecFullLarge/site-S5.txt
+1320065 total
+## SIGPIPE threshold sweep (base S1 statement)
+pad_lines=0     bytes=8       rc=0 out=running
+pad_lines=1000  bytes=66008   rc=141 out=
+pad_lines=1200  bytes=79208   rc=141 out=
+pad_lines=1300  bytes=85808   rc=141 out=
+pad_lines=1500  bytes=99008   rc=141 out=
+pad_lines=2000  bytes=132008  rc=141 out=
+pad_lines=4000  bytes=264008  rc=141 out=
+## base xtrace: line numbers reached, last trace line
+rev/base/tools/tsukuroi-census.sh:963:
+rev/base/tools/tsukuroi-census.sh:964:
+rev/base/tools/tsukuroi-census.sh:965:
++rev/base/tools/tsukuroi-census.sh:965: state=running

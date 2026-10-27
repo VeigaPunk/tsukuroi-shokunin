@@ -1,0 +1,59 @@
+# C2RevGR2 receipts — row GR2 as committed and host capture lines
+
+Row GR2 read with:
+git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 18389f44cf6ce414d7be205998b29c79fb0b490c:corpus/knowledge/btrfs-scrub-grounding-r45.md
+
+## GR2
+
+**Statement.** In Linux v7.2.11 a device replace copies the source device through the scrub code: both the replace
+start path (the comment "the disk copy procedure reuses the scrub code") and the path that continues an interrupted
+replace call `btrfs_scrub_dev` on the source device's devid with `readonly` false and `is_dev_replace` true, the last
+two parameters of `btrfs_scrub_dev`. Inside `btrfs_scrub_dev`, a call with `is_dev_replace` false is refused with
+`-EINPROGRESS` while `btrfs_dev_replace_is_ongoing` is true for the filesystem, and any call is refused with
+`-EINPROGRESS` while the device already carries a scrub context. So while a replace runs, the scrub-start ioctl for
+any device of that filesystem returns `EINPROGRESS` although no scrub was started, and the replace's source device
+carries a scrub context for the copy, which by SR7 makes a privileged progress query for that devid answer 0
+[inference for the btrfs-progs side: how `btrfs scrub start` and `btrfs scrub status` print these two answers is
+not pinned here].
+
+**Quote.** `S247` dev-replace.c:700: "/* the disk copy procedure reuses the scrub code */"
+**Quote.** `S247` dev-replace.c:701: "ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,"
+**Quote.** `S247` dev-replace.c:703: "&dev_replace->scrub_progress, false, true);"
+**Quote.** `S247` dev-replace.c:1259: ""continuing dev_replace from %s (devid %llu) to target %s @%u%%","
+**Quote.** `S247` dev-replace.c:1265: "ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,"
+**Quote.** `S247` dev-replace.c:1268: "&dev_replace->scrub_progress, false, true);"
+**Quote.** `S242` scrub.c:3081: "bool readonly, bool is_dev_replace)"
+**Quote.** `S242` scrub.c:3148: "(!is_dev_replace &&"
+**Quote.** `S242` scrub.c:3149: "btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {"
+**Quote.** `S242` scrub.c:3153: "ret = -EINPROGRESS;"
+
+**Host reading.** The filesystem lists devid 1 only (capture.txt:9) and the caller has no effective capabilities
+(capture.txt:1): no replace or scrub state is observable to this caller, and the row is read from source.
+
+(All 10 Quote lines verified verbatim against the pinned snapshots; see s247-quote-lines.txt / s242-quote-lines.txt.)
+
+---
+S249 capture, sed -n '1,9p' .../round-45/frozen/hostcap/capture.txt (observed):
+
+ 1: captured 2026-10-27T02:09:52Z uid=1000 CapEff=0000000000000000
+ 2: kernel 7.2.11-arch1-1 systemd systemd 262 (262-1-arch)
+ 3: unit_show FinalKillSignal=9 FragmentPath=/usr/lib/systemd/system/btrfs-scrub@.service KillMode=control-group KillSignal=2 SendSIGKILL=yes TimeoutStopUSec=5s
+ 4: stop_default /etc/systemd/system.conf.d/10-faster-shutdown.conf:2:DefaultTimeoutStopSec=5s
+ 5: dropin_owner /etc/systemd/system.conf.d/10-faster-shutdown.conf none
+ 6: dropin_owner /etc/systemd/system.conf.d/99-omarchy-nofile.conf none
+ 7: unit_dropins
+ 8: scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root value=0
+ 9: devinfo 1d02a454-c549-4a35-b567-89d60902af8e/devinfo devids=1
+
+capture.txt:9 -> "devids=1" (filesystem lists devid 1 only): matches Host reading.
+capture.txt:1 -> "CapEff=0000000000000000" (no effective capabilities): matches Host reading.
+
+---
+SR7 (referenced by the row), git show 18389f44...:corpus/knowledge/btrfs-scrub-record-r44.md, row SR7
+Statement, deciding sentences (observed):
+
+"`btrfs_scrub_progress` looks the requested devid up under `device_list_mutex`; it copies that context's
+`stat` and returns 0 only when the device exists and carries a context, returns `-ENOTCONN` when the device exists
+without one, and `-ENODEV` when no device has that devid."
+plus: "a device carries a scrub context exactly while a scrub or device-replace run is in progress on it" and
+attach "at scrub.c:3159", clear "at scrub.c:3222".

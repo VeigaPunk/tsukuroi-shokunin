@@ -1,0 +1,99 @@
+232	static int btrfs_init_dev_replace_tgtdev(struct btrfs_fs_info *fs_info,
+233					  const char *device_path,
+234					  struct btrfs_device *srcdev,
+235					  struct btrfs_device **device_out)
+236	{
+237		struct btrfs_fs_devices *fs_devices = fs_info->fs_devices;
+238		struct btrfs_device *device;
+239		struct file *bdev_file;
+240		struct block_device *bdev;
+241		u64 devid = BTRFS_DEV_REPLACE_DEVID;
+242		int ret = 0;
+243	
+244		*device_out = NULL;
+245		if (srcdev->fs_devices->seeding) {
+246			btrfs_err(fs_info, "the filesystem is a seed filesystem!");
+247			return -EINVAL;
+248		}
+249	
+250		bdev_file = bdev_file_open_by_path(device_path, BLK_OPEN_WRITE,
+251						   fs_info->sb, &fs_holder_ops);
+252		if (IS_ERR(bdev_file)) {
+253			btrfs_err(fs_info, "target device %s is invalid!", device_path);
+254			return PTR_ERR(bdev_file);
+255		}
+256		bdev = file_bdev(bdev_file);
+257	
+258		if (!btrfs_check_device_zone_type(fs_info, bdev)) {
+259			btrfs_err(fs_info,
+260			"dev-replace: zoned type of target device mismatch with filesystem");
+261			ret = -EINVAL;
+262			goto error;
+263		}
+264	
+265		sync_blockdev(bdev);
+266	
+267		list_for_each_entry(device, &fs_devices->devices, dev_list) {
+268			if (device->bdev == bdev) {
+269				btrfs_err(fs_info,
+270					  "target device is in the filesystem!");
+271				ret = -EEXIST;
+272				goto error;
+273			}
+274		}
+275	
+276	
+277		if (bdev_nr_bytes(bdev) < btrfs_device_get_total_bytes(srcdev)) {
+278			btrfs_err(fs_info,
+279				  "target device is smaller than source device!");
+280			ret = -EINVAL;
+281			goto error;
+282		}
+283	
+284	
+285		device = btrfs_alloc_device(NULL, &devid, NULL, device_path);
+286		if (IS_ERR(device)) {
+287			ret = PTR_ERR(device);
+288			goto error;
+289		}
+290	
+291		ret = lookup_bdev(device_path, &device->devt);
+292		if (ret)
+293			goto error;
+294	
+295		set_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state);
+296		device->generation = 0;
+297		device->io_width = fs_info->sectorsize;
+298		device->io_align = fs_info->sectorsize;
+299		device->sector_size = fs_info->sectorsize;
+300		device->total_bytes = btrfs_device_get_total_bytes(srcdev);
+301		device->disk_total_bytes = btrfs_device_get_disk_total_bytes(srcdev);
+302		device->bytes_used = btrfs_device_get_bytes_used(srcdev);
+303		device->commit_total_bytes = srcdev->commit_total_bytes;
+304		device->commit_bytes_used = device->bytes_used;
+305		device->fs_info = fs_info;
+306		device->bdev = bdev;
+307		device->bdev_file = bdev_file;
+308		set_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &device->dev_state);
+309		set_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);
+310		/* Check the comment in btrfs_init_new_device() for the reason. */
+311		atomic_inc(&device->dev_stats_ccnt);
+312		device->dev_stats_valid = 1;
+313		set_blocksize(bdev_file, BTRFS_BDEV_BLOCKSIZE);
+314		device->fs_devices = fs_devices;
+315	
+316		ret = btrfs_get_dev_zone_info(device, false);
+317		if (ret)
+318			goto error;
+319	
+320		mutex_lock(&fs_devices->device_list_mutex);
+321		list_add(&device->dev_list, &fs_devices->devices);
+322		fs_devices->num_devices++;
+323		fs_devices->open_devices++;
+324		mutex_unlock(&fs_devices->device_list_mutex);
+325	
+326		*device_out = device;
+327		return 0;
+328	
+329	error:
+330		bdev_fput(bdev_file);

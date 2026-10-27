@@ -1,0 +1,61 @@
+# C2RevGR2 receipts — S247 dev-replace.c quoted lines (hard line anchors)
+
+File: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-45/frozen/src/dev-replace.c
+(sha256 f07ef0a0d260cf67b7c2aff0542ec13204f9761e33df0ea9feedf143cc034f3a)
+
+Anchors from grep line output on this file: 587 "static int btrfs_dev_replace_start(struct btrfs_fs_info *fs_info,";
+691 "dev_replace->srcdev = NULL;" (start-path error branch); 1245 "task = kthread_run(btrfs_dev_replace_kthread, fs_info, \"btrfs-devrepl\");";
+1198 "int btrfs_resume_dev_replace_async(struct btrfs_fs_info *fs_info)"; 309/321 target-device registration; 1276 "bool __pure btrfs_dev_replace_is_ongoing(...)".
+
+sed -n '697,707p' (observed via read range 696-710, range-anchored):
+
+  697: 	ret = btrfs_commit_transaction(trans);
+  698: 	WARN_ON(ret);
+  699:
+  700: 	/* the disk copy procedure reuses the scrub code */
+  701: 	ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+  702: 			      btrfs_device_get_total_bytes(src_device),
+  703: 			      &dev_replace->scrub_progress, false, true);
+  704:
+  705: 	ret = btrfs_dev_replace_finishing(fs_info, ret);
+  706: 	if (ret == -EINPROGRESS)
+  707: 		ret = BTRFS_IOCTL_DEV_REPLACE_RESULT_SCRUB_INPROGRESS;
+
+sed -n '1249,1270p' (observed via read range 1254-1275 and grep anchor 1245):
+
+ 1249: static int btrfs_dev_replace_kthread(void *data)
+ 1250: {
+ 1251: 	struct btrfs_fs_info *fs_info = data;
+ 1252: 	struct btrfs_dev_replace *dev_replace = &fs_info->dev_replace;
+ 1253: 	u64 progress;
+ 1254: 	int ret;
+ 1255:
+ 1256: 	progress = btrfs_dev_replace_progress(fs_info);
+ 1257: 	progress = div_u64(progress, 10);
+ 1258: 	btrfs_info(fs_info,
+ 1259: 		"continuing dev_replace from %s (devid %llu) to target %s @%u%%",
+ 1260: 		btrfs_dev_name(dev_replace->srcdev),
+ 1261: 		dev_replace->srcdev->devid,
+ 1262: 		btrfs_dev_name(dev_replace->tgtdev),
+ 1263: 		(unsigned int)progress);
+ 1264:
+ 1265: 	ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,
+ 1266: 			      dev_replace->committed_cursor_left,
+ 1267: 			      btrfs_device_get_total_bytes(dev_replace->srcdev),
+ 1268: 			      &dev_replace->scrub_progress, false, true);
+ 1269: 	ret = btrfs_dev_replace_finishing(fs_info, ret);
+ 1270: 	WARN_ON(ret && ret != -ECANCELED);
+
+Target-device registration (grep-anchored lines):
+  241: 	u64 devid = BTRFS_DEV_REPLACE_DEVID;                 (in btrfs_init_dev_replace_tgtdev, def. 232)
+  308: 	set_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &device->dev_state);
+  309: 	set_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);
+  321: 	list_add(&device->dev_list, &fs_devices->devices);
+
+is_ongoing (grep-anchored):
+ 1276: bool __pure btrfs_dev_replace_is_ongoing(struct btrfs_dev_replace *dev_replace)
+ 1286: 	case BTRFS_IOCTL_DEV_REPLACE_STATE_STARTED:
+ 1287: 	case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:   (-> true; NEVER_STARTED/FINISHED/CANCELED -> false)
+
+btrfs_dev_replace_start sets state STARTED at line 661; kthread launched from btrfs_resume_dev_replace_async
+(1197 comment: "/* resume dev_replace procedure that was interrupted by unmount */").

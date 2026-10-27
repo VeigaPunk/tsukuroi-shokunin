@@ -4285,6 +4285,10 @@ at `18389f44` is the receipt line under `.ufo/waves/round-45/`, not this section
 
 ## Scrub grounding — round 45 rows
 
+Gate status (round 45): the depth gate FAILED — `verdicts_ok` 0, no counted verdict bound (`SCORECARD.md` "Round 45 —
+measured outcome"). GR1-GR3 are pending, not admitted: read the rows below as source-checked statements that no
+counted seat has bound, and GR2 as corrected after two `partly` reads that no counted seat has re-read.
+
 Appended 2026-10-27 (round-45 C2; drafted by wave seat ScribeSkill, integrated by the L1). Entry
 `corpus/knowledge/btrfs-scrub-grounding-r45.md` rows GR1, GR2, GR3 on S246 (Linux v7.2.11 `lib/cmdline.c`,
 `lib/vsprintf.c`, `lib/kstrtox.c`), S247 (`fs/btrfs/dev-replace.c`) and S248 (systemd v262 `man/systemd.kill.xml`),

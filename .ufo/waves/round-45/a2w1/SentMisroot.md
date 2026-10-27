@@ -1,0 +1,22 @@
+VERDICT: defect-found
+
+Severity: Low (scope hygiene; no tracked source modification or host mutation by this seat was observed).
+
+## Findings
+
+1. **Lane-side Python bytecode appeared during this wave outside the allowed report/receipt area.** The sweep found `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/__pycache__/` (directory: 432 bytes; owner `vgpnk`) and three round-45 counter bytecode files: `_revision.cpython-314.pyc` (35,103 bytes, 00:24), `check-scrub-grounding-r45.cpython-314.pyc` (33,662 bytes, 00:31), and `score-census-readers-r45.cpython-314.pyc` (25,781 bytes, 00:35, all local time 2026-10-27). These postdate the wave spec at 00:22. `git check-ignore -v tools/__pycache__` reported `.gitignore:2:__pycache__/`, so ordinary status does not reveal this side effect. Seat ownership is not identifiable from the files; the tool names implicate counter imports, not a specific seat. No `__pycache__` was found under `round-45/controls/`. Evidence: `SentMisroot/final-status.txt` and the recorded file listing from `find ... -name __pycache__`.
+
+   **Exploit path / impact:** importing/running Python tools from the lane checkout writes bytecode into the lane even though the checkout is meant to be read-only; the ignore rule masks that write from a normal status review. This is limited to generated cache files, with no evidence here of tracked-file alteration. **Smallest remediation:** run those imports with `PYTHONDONTWRITEBYTECODE=1` (or `python3 -B`) and keep generated caches in the seat scratch directory.
+
+2. **Scratch remained after the sweep, with no process whose command line contained the scratch root at the final check.** Remaining seat-named directories and `du -sh` sizes: `C1CritAxis` 8.0K (report present), `C1ExecHeldOut` 236M (report present), `C1ExecPerf` 230M (no report present), `C1MutSelftest` 1.6M (no report), `C1RevCounter` 0 (no report), `C2CritGR3Host` 0 (report present), and `CritSeparability` 1.4G (no report). The pre-wave leftovers `C1CritEvasion-5` (0; timestamp 23:53) and `C1ExecLiveRead-2` (2.7M; timestamp 23:54) predate the 00:22 spec and are not attributed to this wave. Seat identity is taken from directory names; filesystem owner is `vgpnk`. Evidence: `SentMisroot/final-status.txt` records the final scratch-root inventory and empty process search; the 00:55 inventory command reported the sizes and report-presence above.
+
+   **Impact:** avoidable disk use (at least 1.8 GiB from the listed active-wave directories) and incomplete cleanup; no process was signaled and nothing was deleted. **Smallest remediation:** each owning seat should remove only its own scratch directory after receipts are copied, as required by the seat guard.
+
+## Negative and contextual results
+
+- Final lane `git status --porcelain` showed only the expected wave report/receipt paths under `.ufo/waves/round-45/a2w1/` and the coordinator's `a2w1.ready` / `a2w1.ready.dispatched` files. `git diff --name-status` was empty after L1 integration commit `0503400b`; thus the tracked C2 integration changes observed during the earlier 00:54 snapshot had been committed by the integrator and were not left as working-tree changes at the final check. Evidence: `SentMisroot/final-status.txt`.
+- Fleet status showed only untracked `.ufo/reports/round-45/kengaku.md` (6,344 bytes, mtime 2026-10-26 23:47:38 local, before this wave's spec) and `.ufo/reports/round-48/mado.md` (14,251 bytes, mtime 2026-10-27 00:39:16 local, another round). Neither is a new output attributable to this wave; no tracked fleet diff was observed.
+- No `/home/vgpnk/.local/bin` entry was newer than the wave spec. The final `ps` search found no `r45c1` counter process or process command containing `/fast/scratch/hyaku/tsukuroi-r45/`.
+- The `/tmp` and `/var/tmp` name sweep returned no `tsukuroi-r45` or `r45c1` hits. It did find 281 files matching the broad `*census*` pattern, totaling 958,711 bytes, all under `/tmp/tameshi-registry-check-odvik40d/fleet/tameshi-shokunin/`; these are from another project tree, not this wave. The exact paths, sizes, and owners are in `SentMisroot/tmp-census-final.txt` (owner shown as `vgpnk`; no seat attribution established).
+
+Receipts: `.ufo/waves/round-45/a2w1/SentMisroot/final-status.txt` and `.ufo/waves/round-45/a2w1/SentMisroot/tmp-census-final.txt`.

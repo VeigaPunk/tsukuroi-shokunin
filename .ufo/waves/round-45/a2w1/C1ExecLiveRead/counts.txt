@@ -1,0 +1,33 @@
+18389f44 pass1	trace-impl.txt	lines=14016	completed=13154	unfinished_left=0	filter=openat,open,creat,mkdir,mkdirat,rename,renameat,renameat2,unlink,unlinkat,symlink,link
+	write_opens=347 success=340 fs_success=0 failed=7
+	create_mutate=18 success=0 failed=18
+	fs_class_success_paths=[]
+5bbd5ff5 pass1	trace-base.txt	lines=14120	completed=13262	unfinished_left=0	filter=same
+	write_opens=347 success=340 fs_success=0 failed=7
+	create_mutate=18 success=0 failed=18
+	fs_class_success_paths=[]
+18389f44 pass2	trace2-impl.txt	lines=34092	completed=32860	unfinished_left=0	filter=%file
+	write_opens=347 success=340 fs_success=0 failed=7
+	create_mutate=18 success=0 failed=18
+	fs_class_success_paths=[]
+5bbd5ff5 pass2	trace2-base.txt	lines=34652	completed=33329	unfinished_left=0	filter=%file
+	write_opens=347 success=340 fs_success=0 failed=7
+	create_mutate=18 success=0 failed=18
+	fs_class_success_paths=[]
+
+SET DIFF pass1: impl_only=[] base_only=[] shared=21
+
+SET DIFF pass2: impl_only=[] base_only=[] shared=21
+
+first-line-derived fields per stdout (state/timer/smi):
+  out-impl.txt: smi=615.78.08 state=running timer_drift=0 timer_fail=0 timer_unknown=0
+  out-base.txt: smi=615.78.08 state=running timer_drift=0 timer_fail=0 timer_unknown=0
+  out2-impl.txt: smi=615.78.08 state=running timer_drift=0 timer_fail=0 timer_unknown=0
+  out2-base.txt: smi=615.78.08 state=running timer_drift=0 timer_fail=0 timer_unknown=0
+
+PASS 3 (untraced-write-channel probe: io_uring_setup,io_uring_enter,io_uring_register,open_by_handle_at,name_to_handle_at)
+  18389f44: rc=2 lines=782  io_uring_setup=0 io_uring_enter=0 io_uring_register=0 open_by_handle_at=0 name_to_handle_at=0
+  5bbd5ff5: rc=2 lines=794  io_uring_setup=0 io_uring_enter=0 io_uring_register=0 open_by_handle_at=0 name_to_handle_at=0
+  O_TMPFILE occurrences: trace-impl=0 trace-base=0 trace2-impl=0 trace2-base=0
+  TMPDIR ($S/tmp) entries after all six live runs: 0
+  six per-run cwd dirs entries after all six live runs: 0

@@ -1,0 +1,21 @@
+# SrcGateReopen — exact commands and observed outcomes (2026-10-27)
+# scratch /fast/scratch/hyaku/tsukuroi-r45/SrcGateReopen ; all curls -sSfL --max-time 60
+# stamp: 2026-10-27T03:30:51Z (f/fetch-stamp.txt)
+
+curl -sSfL -o f/S237-scrub-progs.c https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/cmds/scrub.c            # rc=0, 57034 B
+curl -sSfL -o f/S242-scrub-kernel.c 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/fs/btrfs/scrub.c?h=v7.2.11'  # rc=0, 100417 B
+curl -sSfL -o f/S243-sysfs.c        'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/fs/btrfs/sysfs.c?h=v7.2.11'   # rc=0, 72925 B
+curl -sSfL -o f/S244-btrfs-scrub@.timer   https://gitlab.archlinux.org/archlinux/packaging/packages/btrfs-progs/-/raw/7.1-1/btrfs-scrub@.timer     # rc=0, 160 B
+curl -sSfL -o f/S244-btrfs-scrub@.service https://gitlab.archlinux.org/archlinux/packaging/packages/btrfs-progs/-/raw/7.1-1/btrfs-scrub@.service   # rc=0, 190 B
+curl -sSfL -o f/S244-PKGBUILD             https://gitlab.archlinux.org/archlinux/packaging/packages/btrfs-progs/-/raw/7.1-1/PKGBUILD               # rc=0, 3057 B
+
+sha256sum f/*                     # see sha256-live.txt
+cmp -s f/<live> <frozen>          # 6/6 IDENTICAL
+
+git ls-remote https://github.com/kdave/btrfs-progs refs/tags/v7.1 'refs/tags/v7.1^{}'
+git ls-remote https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git refs/tags/v7.2.11 'refs/tags/v7.2.11^{}'
+git ls-remote https://gitlab.archlinux.org/archlinux/packaging/packages/btrfs-progs.git refs/tags/7.1-1 'refs/tags/7.1-1^{}'
+
+/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi   # EXIT=0, 40 W04, "ok"
+
+git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show <rev>:corpus/SOURCES.md   # per-cell diff base 5bbd5ff5 -> impl 18389f44

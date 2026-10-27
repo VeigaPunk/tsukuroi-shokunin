@@ -1,0 +1,83 @@
+# R6 SIGCONT ordering + kill sequence evidence, 2026-10-27T03:30:04Z
+
+## S248 frozen (systemd v262 man/systemd.kill.xml), sha256 448322830dbbd02c64cca99941ba92705afe9648241fc917db7a8d6ae7910e72
+5:        <term><varname>KillSignal=</varname></term>
+10:        Defaults to <constant>SIGTERM</constant>.</para>
+12:        <para>Note that, right after sending the signal specified in this setting, systemd will always send
+13:        <constant>SIGCONT</constant>, to ensure that even suspended tasks can be terminated cleanly.</para>
+
+## v262 src/basic/cgroup-util.c cg_kill SIGCONT rules (fetched 2026-10-27T03:28:17Z)
+
+        assert(path);
+        assert(sig >= 0);
+
+         /* Don't send SIGCONT twice. Also, SIGKILL always works even when process is suspended, hence
+          * don't send SIGCONT on SIGKILL. */
+        if (IN_SET(sig, SIGCONT, SIGKILL))
+                flags &= ~CGROUP_SIGCONT;
+
+                                ret_log_kill = log_kill(&pidref, sig, userdata);
+
+                        /* If we haven't killed this process yet, kill it */
+                        r = pidref_kill(&pidref, sig);
+                        if (r < 0 && r != -ESRCH)
+                                RET_GATHER(ret, log_debug_errno(r, "Failed to kill process with pid " PID_FMT " from cgroup '%s': %m", pidref.pid, path));
+                        if (r >= 0) {
+                                if (flags & CGROUP_SIGCONT)
+                                        (void) pidref_kill(&pidref, SIGCONT);
+
+                                if (ret == 0) {
+
+## v262 src/core/unit.c unit_kill_context control-group call (2066-2150 = 5081-5165)
+                r = unit_pid_set(u, &pid_set);
+                if (r < 0)
+                        return r;
+
+                r = cg_kill_recursive(
+                                crt->cgroup_path,
+                                sig,
+                                CGROUP_SIGCONT|CGROUP_IGNORE_SELF,
+                                pid_set,
+                                log_func, u);
+                if (r < 0) {
+                        if (!IN_SET(r, -EAGAIN, -ESRCH, -ENOENT))
+                                log_unit_warning_errno(u, r, "Failed to kill control group %s, ignoring: %m", empty_to_root(crt->cgroup_path));
+
+## v262 src/basic/process-util.c kill_and_sigcont
+int kill_and_sigcont(pid_t pid, int sig) {
+        int r;
+
+        r = RET_NERRNO(kill(pid, sig));
+
+        /* If this worked, also send SIGCONT, unless we already just sent a SIGCONT, or SIGKILL was sent which isn't
+         * affected by a process being suspended anyway. */
+        if (r >= 0 && !IN_SET(sig, SIGCONT, SIGKILL))
+                (void) kill(pid, SIGCONT);
+
+        return r;
+}
+
+## v262 src/basic/pidref.c pidref_kill_and_sigcont
+int pidref_kill_and_sigcont(const PidRef *pidref, int sig) {
+        int r;
+
+        r = pidref_kill(pidref, sig);
+        if (r < 0)
+                return r;
+
+        if (!IN_SET(sig, SIGCONT, SIGKILL))
+                (void) pidref_kill(pidref, SIGCONT);
+
+        return 0;
+}
+
+## v262 src/core/kill.c defaults
+        c->kill_signal = SIGTERM;
+        /* restart_kill_signal is unset by default and we fall back to kill_signal */
+        c->final_kill_signal = SIGKILL;
+        c->send_sigkill = true;
+        c->send_sighup = false;
+        c->watchdog_signal = SIGABRT;
+}
+
+void kill_context_dump(KillContext *c, FILE *f, const char *prefix) {

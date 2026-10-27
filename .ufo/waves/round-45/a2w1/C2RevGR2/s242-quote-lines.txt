@@ -1,0 +1,55 @@
+# C2RevGR2 receipts — S242 scrub.c quoted lines (hard line anchors)
+
+File: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-44/frozen/src/scrub.c
+(sha256 f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8, 3337 lines)
+
+All line numbers below were hard-anchored with grep line output on this file (single -EINPROGRESS occurrence
+at 3153; single "dev->scrub_ctx = sctx;" at 3159).
+
+Signature (read range 3078-3085):
+ 3079: int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+ 3080: 		    u64 end, struct btrfs_scrub_progress *progress,
+ 3081: 		    bool readonly, bool is_dev_replace)          <- GR2/SR7 quote line
+ 3082: {
+
+Missing-device refusal (grep: 3119 btrfs_find_device, 3120 condition, 3123 -ENODEV):
+ 3120: 	if (!dev || (test_bit(BTRFS_DEV_STATE_MISSING, &dev->dev_state) &&
+ 3121: 		     !is_dev_replace)) {
+ 3122: 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
+ 3123: 		ret = -ENODEV;
+ 3124: 		goto out;
+ 3125: 	}
+
+Unwritable refusal:
+ 3127: 	if (!is_dev_replace && !readonly &&
+ 3128: 	    !test_bit(BTRFS_DEV_STATE_WRITEABLE, &dev->dev_state)) {   ... 3132: ret = -EROFS;
+
+Replace-target refusal (grep: 3139 REPLACE_TGT test, 3142 -EIO):
+ 3138: 	if (unlikely(!test_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &dev->dev_state) ||
+ 3139: 		     test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &dev->dev_state))) {
+ 3140: 		mutex_unlock(&fs_info->scrub_lock);
+ 3141: 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
+ 3142: 		ret = -EIO;
+ 3143: 		goto out;
+ 3144: 	}
+
+EINPROGRESS block (grep-marked lines):
+ 3146: 	down_read(&fs_info->dev_replace.rwsem);
+ 3147: 	if (dev->scrub_ctx ||
+ 3148: 	    (!is_dev_replace &&                                <- GR2 quote line
+ 3149: 	     btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {   <- GR2 quote line
+ 3150: 		up_read(&fs_info->dev_replace.rwsem);
+ 3151: 		mutex_unlock(&fs_info->scrub_lock);
+ 3152: 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
+ 3153: 		ret = -EINPROGRESS;                            <- GR2 quote line
+ 3154: 		goto out;
+ 3155: 	}
+ 3156: 	up_read(&fs_info->dev_replace.rwsem);
+
+Attach (grep-marked):
+ 3158: 	sctx->readonly = readonly;
+ 3159: 	dev->scrub_ctx = sctx;
+
+(SR7 also cites 3222 "dev->scrub_ctx = NULL;" and 3321 btrfs_scrub_progress definition; SR7's Statement pins
+progress 0 only when the device exists and carries a context, -ENOTCONN when it exists without one, -ENODEV
+when no device has that devid.)

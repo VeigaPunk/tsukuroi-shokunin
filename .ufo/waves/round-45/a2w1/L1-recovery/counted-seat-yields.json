@@ -1,0 +1,44 @@
+{
+ "C2RevGR1": {
+  "transcript": "/home/vgpnk/.omp/agent/sessions/-Projects-shokunin/2026-10-27T03-03-17-731Z_01a17b4f-ebe3-74c7-b154-6de929023b00/C2RevGR1.jsonl",
+  "transcript_sha256": "0f92e967728c937a5f00b5c06fd1b69ab5acc14979d08341b8db8c24dc75d7e4",
+  "yield_data": null
+ },
+ "C2CritGR1": {
+  "transcript": "/home/vgpnk/.omp/agent/sessions/-Projects-shokunin/2026-10-27T03-03-17-731Z_01a17b4f-ebe3-74c7-b154-6de929023b00/C2CritGR1.jsonl",
+  "transcript_sha256": "0647da74912b64655d6b3fbea6d88368c2bd134dae686e3db3f6c6485c37124f",
+  "yield_data": {
+   "verdict": "ROW GR1 VERDICT: holds",
+   "report_path": ".ufo/waves/round-45/a2w1/C2CritGR1.md",
+   "summary": "Adversarial review completed; report records source digest verification, per-sentence findings, and simulation receipt."
+  }
+ },
+ "C2RevGR2": {
+  "transcript": "/home/vgpnk/.omp/agent/sessions/-Projects-shokunin/2026-10-27T03-03-17-731Z_01a17b4f-ebe3-74c7-b154-6de929023b00/C2RevGR2.jsonl",
+  "transcript_sha256": "95aab631e4bb986334f36a3606273b5e8f0cb756ab8060103c36a6589463d066",
+  "yield_data": "Report written and scratch removed. Final answer:\n\nROW GR2 VERDICT: partly\n\nReport: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-45/a2w1/C2RevGR2.md\n\nBoth pinned snapshots match their SHA256SUMS (S247 dev-replace.c `f07ef0a0…`, S242 scrub.c `f347931b…`); all 10 Quote lines of row GR2 verified verbatim at the cited line numbers. Every sentence of the Statement and Host reading holds except the third-sentence quantifier: \"the scrub-start ioctl for **any device of that filesystem** returns EINPROGRESS\" overreaches — the replace's own target device is a filesystem member (BTRFS_DEV_STATE_REPLACE_TGT set and list_add'ed into fs_devices->devices, S247 dev-replace.c:309,321) and is refused earlier with `-EIO` (S242 scrub.c:3138-3143), and a missing member device is refused with `-ENODEV` (S242 scrub.c:3120-3125), both before the EINPROGRESS check at 3147-3153. The core (fs-wide EINPROGRESS for ordinary members while a replace runs, source-device scrub context → privileged progress query answers 0 per SR7, [inference] bracket honest) holds; exact replacement text is in the report. Receipts in the seat dir; scratch `/fast/scratch/hyaku/tsukuroi-r45/C2RevGR2` removed; no host mutation, no writes outside the named paths."
+ },
+ "C2CritGR2": {
+  "transcript": "/home/vgpnk/.omp/agent/sessions/-Projects-shokunin/2026-10-27T03-03-17-731Z_01a17b4f-ebe3-74c7-b154-6de929023b00/C2CritGR2.jsonl",
+  "transcript_sha256": "86d13c642aeb3a0aa8e46743e51eb351d7de9681257be2dfa5110cc3ca65f05b",
+  "yield_data": {
+   "verdict": "ROW GR2 VERDICT: partly",
+   "report": ".ufo/waves/round-45/a2w1/C2CritGR2.md",
+   "finding": "The source-backed core holds, but the scrub-start EINPROGRESS claim needs an eligibility qualifier, and the host reading overlooks observable read-only sysfs state."
+  }
+ },
+ "C2RevGR3": {
+  "transcript": "/home/vgpnk/.omp/agent/sessions/-Projects-shokunin/2026-10-27T03-03-17-731Z_01a17b4f-ebe3-74c7-b154-6de929023b00/C2RevGR3.jsonl",
+  "transcript_sha256": "81330027b8b30e9f4b48de6d6e5289a1e5b90f1642547925858098d8176ae0fd",
+  "yield_data": "Receipts in place, scratch removed. Yielding the counted verdict."
+ },
+ "C2CritGR3": {
+  "transcript": "/home/vgpnk/.omp/agent/sessions/-Projects-shokunin/2026-10-27T03-03-17-731Z_01a17b4f-ebe3-74c7-b154-6de929023b00/C2CritGR3.jsonl",
+  "transcript_sha256": "54701b33f27b5b7a32b7665e32304f802aab2f618004285b602de9c0f225cd62",
+  "yield_data": {
+   "verdict": "ROW GR3 VERDICT: holds",
+   "report": ".ufo/waves/round-45/a2w1/C2CritGR3.md",
+   "receipt": ".ufo/waves/round-45/a2w1/C2CritGR3/recapture.txt"
+  }
+ }
+}

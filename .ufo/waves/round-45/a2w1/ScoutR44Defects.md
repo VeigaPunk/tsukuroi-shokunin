@@ -1,0 +1,27 @@
+VERDICT: defect-found
+
+Scope: routed round-44 defects D1–D10 plus the four still-open items, measured against implementation `18389f44cf6ce414d7be205998b29c79fb0b490c`. Evidence below is read-only; `git show` commands name that commit explicitly.
+
+| Item | State | Evidence (command + observed output / committed path) |
+|---|---|---|
+| D1 IN-109 repin and adjacency gate | done | `git show <REV>:corpus/knowledge/adjacency-anchors-r19.json \| jq '.inbound[108] \| {id,found_line,evidence_quote}'` → `IN-109`, `found_line: 2582`, quote `check 'degraded: kernel ring class counts are evidence (D14/D15)' 1 DEGRADED`. `git show <REV>:tools/tsukuroi-census.sh \| grep -n -F "check 'degraded: kernel ring class counts are evidence (D14/D15)' 1 DEGRADED"` → line 2582. `corpus/knowledge/adjacency-anchors-r19.json` at the target contains the repin. **Adjacency-gate receipt not independently checked here**; the reported D1 repair itself is present. |
+| D2 SKILL SR8 sweep | not-addressed | `git show <REV>:SKILL.md \| grep -n -i memparse` → line 4225 still says `memparse (K/M/G suffixes, trailing whitespace skipped, else -EINVAL)`. |
+| D3 pending/unjudged mark | done | `git show <REV>:corpus/knowledge/btrfs-scrub-record-r44.md \| grep -niE 'pending|failed|unjudged|verdict'` → lines 155–159 mark the SR7–SR9 depth gate FAILED (`verdicts_ok 0`), say SR7–SR9 pending/not admitted, and flag inferences. |
+| D4 planned row | open-with-plan | `git show <REV>:SCORECARD.md \| grep -n 'planned (next round)' \| tail -3` → lines 2640, 2739, 2840; the round-44 section at 2840 repeats the prior coverage scrub-record plan. No replacement round-45 planned row observed in the target round-44 section. |
+| D5 self-assessment tip receipt / adjacency axis note | not-addressed | `git show <REV>:LOG.md \| grep -ni 'check-self-assessment\\|re-verif' \| tail -5` shows older re-verification lines only (rounds 39–43); no round-44 tip receipt reference in the result. The SCORECARD's round-44 snapshot records the predecessor planned row; this assignment did not run the self-assessment counter or inspect a target-revision receipt directory. |
+| D6 report sections | not-addressed | `git cat-file -e <REV>:.ufo/reports/round-44/tsukuroi.md` → fatal: path does not exist in `<REV>`. Thus no report-section repairs are present in this implementation commit (including the cited SHONEN follow-up in the lane tree). |
+| D7 untracked files / citations | done | Required `git -C ... status --porcelain` was run; it listed current round-45 artifacts, not round-44 paths. At the target, for each of `.ufo/waves/round-44/w1/C1ExecLiveRead/commands.txt`, `.ufo/waves/round-44/w2/SkillReview.md`, `.ufo/waves/round-44/w1/C1ExecLiveRead/strace-rev-live1.log.gz`, `.ufo/waves/round-44/w1/AdjPins/raw.json.gz`, `git cat-file -e <REV>:<path>` succeeded and the loop printed each `committed`. The cited strace log and raw capture therefore resolve from that commit. |
+| D8 reject in lesson Gate | not-addressed | `git show <REV>:corpus/lessons/round-44-verifier-spotcheck.md \| grep -n '## Gate\\|reject' \| tail -6` shows the ioctl-surface candidate reject in the spot-check candidate table (line 161), while line 173 explicitly says Gate holds only admits and the reject sits under Spot-check candidates. |
+| D9 AsmGate path and staged ID hazard | open-with-plan | `git show <REV>:.ufo/waves/round-44/w1/AsmGate.md \| grep -n 'corpus/knowledge\\|staged\\|S242'` outputs the locator in the receipt context as `/home/vgpnk/Projects/shokuknow/merge/tsukuroi/knowledge/corpus/knowledge/...` (missing the expected `knowledge/corpus/knowledge` ordering relative to lane root) and documents S242/S243/S244 collisions (lines 20, 24). The receipt clearly identifies collisions but no lane-side path correction/rebinding is established by this read. Plan implied by the defect: correct locator and preserve lane/round/staged-ID tuple semantics, then renumber before any landing. |
+| D10 LOG freshness line | not-addressed | `git show <REV>:LOG.md \| grep -n 'Round 44\\|re-fetch\\|re-verification' \| tail -10` → round-44 heading at line 1615, with no round-44 re-verification line in the returned tail; preceding explicit freshness lines are rounds 41–43 (e.g. 1606). |
+
+Still-open routing from round-44 §5:
+
+| Routed item | State | Evidence |
+|---|---|---|
+| C1 live-leg evasion (script path, ancestry) | not-addressed | No dedicated evidence/repair established in the implementation files inspected for this report. I did not execute the C1 counter or its live-leg controls. |
+| C2 counter json last-wins, CR stripping, substring quotes | not-addressed | No dedicated counter repair established by the target-commit checks above. I did not execute C2 counter mutation controls. |
+| census readers (`:779` lookup and single-line readers) | open-with-plan | This was routed as follow-up work; current round-45 declaration freezes a five-reader parameter-expansion change and six large-output selftests (SCORECARD.md round-45 declaration). It is the identified plan/implementation scope, not a claim here that its gate has passed. |
+| orphaned w1 `grep` on fixture FIFO | not-addressed | No repair evidence located in the target inspection; no FIFO fixture probe was run. |
+
+Confidence: high for the explicitly queried committed text and object existence; medium for “not-addressed” where this was a bounded check rather than a full repository-wide search. No build, test, counter, or gate was run for this scout item.

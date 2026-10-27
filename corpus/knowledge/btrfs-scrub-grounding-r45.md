@@ -183,6 +183,17 @@ SendSIGKILL=yes TimeoutStopUSec=5s FinalKillSignal=9` (capture.txt:3); the stop 
   row's declared line ranges do not list `scrub.c:3081`, 3123-3142 or 3147, and the S237 row's do not list
   `scrub.c:421`; the file digests cover the whole snapshots (`a2w1/C2ExecQuotes.md` F1-F2).
 
+## Gate status — round 45 (the depth gate FAILED; rows pending)
+
+The frozen counter binds no counted verdict: `verdicts_ok` 0 (`SCORECARD.md` "Round 45 — measured outcome"). Of the
+six counted seats of wave `a2w1`, `C2RevGR1` ended without a report or a yield (transcript ends mid-turn); the other
+five wrote reports whose first lines read GR1 `holds` (critic), GR2 `partly`/`partly`, GR3 `holds`/`holds`, but none
+of their yields is a bindable declared line: three are JSON objects with a `verdict` key and no `verdict_line`, two
+are text whose first line is not the verdict line, and the orchestrator lost every seat output of the first 41
+seats at a kernel restart (`.ufo/waves/round-45/a2w1-results.json` `output` null). Scored with the outputs recovered
+verbatim from the seat transcripts, the binding still reads 0 (`.ufo/waves/round-45/a2w1/L1-recovery/`). GR1-GR3
+therefore stay pending, not admitted; GR2 as corrected at the integration has been read by no counted seat.
+
 ## QUALITY check
 
 1. Falsifiable: each statement names the quoted line that decides it; the host lines are re-runnable with

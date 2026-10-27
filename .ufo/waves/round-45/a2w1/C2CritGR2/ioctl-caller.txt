@@ -1,0 +1,20 @@
+== btrfs_ioctl_scrub call site, round-43 pinned ioctl.c (S240 lane pin, v7.2.11, sha256 verified in digests.txt) ==
+3084: 	if (sa->flags & ~BTRFS_SCRUB_SUPPORTED_FLAGS)
+3085: 		return -EOPNOTSUPP;
+3086: 
+3087: 	if (!(sa->flags & BTRFS_SCRUB_READONLY)) {
+3088: 		ret = mnt_want_write_file(file);
+3089: 		if (ret)
+3090: 			return ret;
+3091: 	}
+3092: 
+3093: 	ret = btrfs_scrub_dev(fs_info, sa->devid, sa->start, sa->end,
+3094: 			      &sa->progress, sa->flags & BTRFS_SCRUB_READONLY,
+3095: 			      false);
+3096: 
+-- dispatch --
+5576: 	case BTRFS_IOC_WAIT_SYNC:
+5577: 		return btrfs_ioctl_wait_sync(fs_info, argp);
+5578: 	case BTRFS_IOC_SCRUB:
+5579: 		return btrfs_ioctl_scrub(file, argp);
+5580: 	case BTRFS_IOC_SCRUB_CANCEL:
