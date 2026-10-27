@@ -14,15 +14,20 @@ or calls a privileged ioctl.
 
 ## SR7
 
-**Statement.** In Linux v7.2.11 a scrub runs on a device exactly while that device carries a scrub context:
+**Statement.** In Linux v7.2.11 a device carries a scrub context exactly while `btrfs_scrub_dev` runs on it:
 `btrfs_scrub_dev` refuses with `-EINPROGRESS` when `dev->scrub_ctx` is already set, attaches its own context before
-the scrub starts and sets `dev->scrub_ctx` back to NULL when it ends. `btrfs_scrub_progress` looks the requested devid
-up under `device_list_mutex`; it copies that context's `stat` and returns 0 only when the device exists and carries a
-context, returns `-ENOTCONN` when the device exists without one, and `-ENODEV` when no device has that devid. The
-progress ioctl handler (after its `CAP_SYS_ADMIN` gate, SR6) returns that value and copies the arguments back to the
-caller only when it is 0. So for a privileged `btrfs scrub status`, `is_scrub_running_in_kernel` (SR6) answers 1
-exactly when some device it asks about is being scrubbed at that moment: an idle device answers `ENOTCONN`, never 0,
-and the answer is a momentary per-device reading, not a record of past scrubs.
+the scrub starts and sets `dev->scrub_ctx` back to NULL when it ends. `btrfs_scrub_dev` serves both a scrub and a
+device replace (its `is_dev_replace` argument) [inference for the replace side: its caller is in
+`fs/btrfs/dev-replace.c`, opened this round at v7.2.11 lines 701-703 and 1265-1267 but not pinned].
+`btrfs_scrub_progress` looks the requested devid up under `device_list_mutex`; it copies that context's `stat` and
+returns 0 only when the device exists and carries a context, returns `-ENOTCONN` when the device exists without one,
+and `-ENODEV` when no device has that devid. The progress ioctl handler (after its `CAP_SYS_ADMIN` gate, SR6) returns
+that value and copies the arguments back to the caller only when it is 0. So for a privileged `btrfs scrub status`,
+`is_scrub_running_in_kernel` (SR6) answers 1 exactly when some device it asks about is being scrubbed, or is the
+source of a running replace, at that moment: an idle device answers `ENOTCONN`, never 0, and the answer is a
+momentary per-device reading, not a record of past scrubs.
+
+**Quote.** `S242` scrub.c:3081: "bool readonly, bool is_dev_replace)"
 
 **Quote.** `S242` scrub.c:3147: "if (dev->scrub_ctx ||"
 
