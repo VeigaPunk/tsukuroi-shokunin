@@ -159,3 +159,15 @@ and the SR8/SR9 narrowings made after the counted reads were judged by no counte
 SR7-SR9 are pending, not admitted. **Grounding:** the three `[inference]` marks above (the replace caller of
 `btrfs_scrub_dev` in SR7, `memparse` suffixes in SR8, `KillSignal=` as the stop signal in SR9) are grounded on pinned
 source in `corpus/knowledge/btrfs-scrub-grounding-r45.md` rows GR2, GR1 and GR3.
+
+## Round-45 qualification — the stop outcome (appended 2026-10-27, C2 sweep)
+
+Appended; nothing above is rewritten, and the grounding it points at is `corpus/knowledge/btrfs-scrub-grounding-r45.md`
+row GR3. The block above grounds SR9's systemd side; it does not qualify the outcome sentence at `:99-101` or the
+triage bullet at `:140-142`. On this host `systemctl stop btrfs-scrub@<instance>.service` is SIGINT
+(`KillSignal=2`), then SIGCONT, and SIGKILL only if a process remains once `TimeoutStopUSec=5s` has passed (GR3; S248
+`systemd.kill.xml:68,91,96,101,108,114-115`; S249 `capture.txt:3-5`). The SIGINT handler issues
+`BTRFS_IOC_SCRUB_CANCEL` (S237 `scrub.c:416-424`, installed in the foreground start at `:1546`), but whether the start
+then writes its `canceled` record before the SIGKILL is not established [inference]. "Leaves a canceled, resumable
+record" therefore holds for a start that finishes that write inside the window; otherwise the record stands as it was
+last written during the run, and `btrfs scrub resume` sees whatever that record says.

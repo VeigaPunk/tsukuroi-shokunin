@@ -450,3 +450,16 @@ reviewer and critic seats. Known limit: an absent sysfs root with no record read
 mount-table guard flags a hidden sysfs), a record's readability is counted and its content never read, and the arm's
 namespace legs leave the mount-table, `uid_map` and script-path channels open. Host at the measured revision:
 `NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0`, consistent with S245.
+
+## Round-45 coverage note (appended 2026-10-27)
+
+Append-only; the coverage map, the Frontier bullets and the round-38 to round-44 notes above stay as written.
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/btrfs-scrub-grounding-r45.md` | Grounds the three round-44 `[inference]` marks: GR1 the `scrub_speed_max` write parse (`memparse`: one letter of `K M G T P E`, 1024 per step, base-0 radix, bare newline = 0 = no limit); GR2 the device replace's two `btrfs_scrub_dev(..., false, true)` call sites, the `EINPROGRESS` a scrub start for a present, writeable non-target device gets while a replace is started or suspended (after the `-ENODEV`/`-EROFS`/`-EIO` device checks), and the unprivileged sysfs view of a replace; GR3 systemd v262's stop sequence for the packaged service (SIGINT from `KillSignal=`, SIGCONT, SIGKILL if a process remains after `TimeoutStopUSec=5s`), with the `canceled` write inside that window left undecided | S246-S249; `.ufo/waves/round-45/frozen/src/SHA256SUMS` and `hostcap/capture.txt` (sha256 `f5958a83…`); `tools/check-scrub-grounding-r45.py --revision <REV>` |
+
+Frontier: nothing moves. The round-44 promotion (the unprivileged record-directory view is Core) stands; the record's
+content, the running state and NVMe SMART/Health stay Frontier, and running, canceling, resuming or limiting a scrub
+stay operator-owned (`:443-444`). The three row verdicts bind only from the counted reviewer and critic seats of wave
+a2w1 and, for a `partly`, the residual of wave a2r1 (`SCORECARD.md` "Round 45 — attempt-2 rebinding").

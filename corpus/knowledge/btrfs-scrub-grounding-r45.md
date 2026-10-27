@@ -58,12 +58,17 @@ write one. Nothing was written to test the parse; the examples above follow from
 start path (the comment "the disk copy procedure reuses the scrub code") and the path that continues an interrupted
 replace call `btrfs_scrub_dev` on the source device's devid with `readonly` false and `is_dev_replace` true, the last
 two parameters of `btrfs_scrub_dev`. Inside `btrfs_scrub_dev`, a call with `is_dev_replace` false is refused with
-`-EINPROGRESS` while `btrfs_dev_replace_is_ongoing` is true for the filesystem, and any call is refused with
-`-EINPROGRESS` while the device already carries a scrub context. So while a replace runs, the scrub-start ioctl for
-any device of that filesystem returns `EINPROGRESS` although no scrub was started, and the replace's source device
-carries a scrub context for the copy, which by SR7 makes a privileged progress query for that devid answer 0
-[inference for the btrfs-progs side: how `btrfs scrub start` and `btrfs scrub status` print these two answers is
-not pinned here].
+`-EINPROGRESS` while `btrfs_dev_replace_is_ongoing` is true for the filesystem, which it is for a replace in state
+started or suspended (a replace suspended by an unmount still counts), and any call is refused with `-EINPROGRESS`
+while the device already carries a scrub context. Both refusals come after three earlier device checks in the same
+function, which answer first: an unknown devid, or a missing device on a non-replace call, gives `-ENODEV`; a
+non-writeable device on a non-replace, non-readonly call gives `-EROFS`; a device outside the filesystem metadata,
+or the replace's own target device, gives `-EIO`. So while a replace is ongoing, a scrub start that reaches
+`btrfs_scrub_dev` for a present, writeable member device other than the replace target is refused with
+`EINPROGRESS` although no scrub was started, and the replace's source device carries a scrub context for the copy,
+which by SR7 makes a privileged progress query for that devid answer 0 [inference for the ioctl and btrfs-progs
+side: that the scrub-start ioctl hands this return to userspace unchanged, and how `btrfs scrub start` and
+`btrfs scrub status` print these answers, are not pinned here].
 
 **Quote.** `S247` dev-replace.c:700: "/* the disk copy procedure reuses the scrub code */"
 
@@ -83,10 +88,33 @@ not pinned here].
 
 **Quote.** `S242` scrub.c:3149: "btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {"
 
+**Quote.** `S242` scrub.c:3147: "if (dev->scrub_ctx ||"
+
 **Quote.** `S242` scrub.c:3153: "ret = -EINPROGRESS;"
 
+**Quote.** `S242` scrub.c:3123: "ret = -ENODEV;"
+
+**Quote.** `S242` scrub.c:3133: "ret = -EROFS;"
+
+**Quote.** `S242` scrub.c:3139: "test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &dev->dev_state))) {"
+
+**Quote.** `S242` scrub.c:3142: "ret = -EIO;"
+
+**Quote.** `S247` dev-replace.c:1287: "case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:"
+
+**Quote.** `S247` dev-replace.c:1235: "if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {"
+
+**Quote.** `S243` sysfs.c:1288: "str = "device replace\n";"
+
+**Quote.** `S243` sysfs.c:2015: "val = !!test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);"
+
 **Host reading.** The filesystem lists devid 1 only (capture.txt:9) and the caller has no effective capabilities
-(capture.txt:1): no replace or scrub state is observable to this caller, and the row is read from source.
+(capture.txt:1), so the privileged progress query is out of its reach. Replace state is still readable without
+privilege through sysfs, which this capture does not record: the filesystem's `exclusive_operation` names
+`device replace` while a replace holds the exclusive operation (sysfs.c:1288; the resume path takes it at
+dev-replace.c:1235), and `devinfo/<devid>/replace_target` reads 1 on the replace's target device (sysfs.c:2015).
+Read on this host by wave seat C2ExecHostRecheck on 2026-10-27 (`.ufo/waves/round-45/a2w1/C2ExecHostRecheck.md`
+§3), both files are mode 444 and read `none` and `0`. The kernel rules of the row are read from source.
 
 ## GR3
 
@@ -119,6 +147,8 @@ leaves the record as it was last written during the run].
 
 **Quote.** `S248` systemd.kill.xml:114: "<para>Note that, right after sending the signal specified in this setting, systemd will always send"
 
+**Quote.** `S248` systemd.kill.xml:115: "<constant>SIGCONT</constant>, to ensure that even suspended tasks can be terminated cleanly.</para>"
+
 **Quote.** `S237` scrub.c:421: "ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);"
 
 **Host reading.** `systemctl show btrfs-scrub@-.service` reports `KillMode=control-group KillSignal=2
@@ -129,14 +159,15 @@ SendSIGKILL=yes TimeoutStopUSec=5s FinalKillSignal=9` (capture.txt:3); the stop 
 ## How this changes OS triage
 
 - A `scrub_speed_max` that reads a surprising value may come from the parse, not from a typo in the number: a
-  leading zero is octal and `K`/`M`/`G` are powers of 1024 (GR1). Writing the limit is root's; the census only
-  reports it (`limited=`), and a bare newline written to the file clears it.
-- `EINPROGRESS` from `btrfs scrub start` on a filesystem with a device replace running means the replace holds the
-  scrub machinery, not that a scrub is already running; check the replace first (GR2). Starting or cancelling either
-  stays operator-owned.
-- On this host a stopped scrub service gets SIGINT, SIGCONT and, 5 s later, SIGKILL (GR3). A scrub record left
-  without a `canceled` mark after a stop is therefore possible [inference]; read the record's timestamps before
-  treating it as a finished run.
+  leading zero is octal and `K`/`M`/`G` are powers of 1024 (GR1). Writing the limit is root's and a mutation, not a
+  triage read; the census only reports it (`limited=`). A bare newline written to the file clears it.
+- `EINPROGRESS` from a scrub start does not by itself say why: the kernel returns it when that device already
+  carries a scrub context (a scrub, or a replace copying from it) and when a non-replace scrub is asked for while a
+  replace is started or suspended (GR2). Read the unprivileged `exclusive_operation` and `replace_target` sysfs
+  files first; starting or cancelling either operation stays operator-owned.
+- On this host a stopped scrub service gets SIGINT and SIGCONT, and SIGKILL only if a process is still there after
+  the 5 s stop timeout (GR3). A scrub record left without a `canceled` mark after a stop is therefore possible
+  [inference]; read the record's timestamps before treating it as a finished run.
 
 ## Limits
 
@@ -146,6 +177,11 @@ SendSIGKILL=yes TimeoutStopUSec=5s FinalKillSignal=9` (capture.txt:3); the stop 
   attribute, capture.txt:1).
 - GR3 pins systemd's documented behaviour (man page source at the host's major version) and the host's effective
   values, not a trace of a real stop.
+- GR2's earlier device checks (`-ENODEV`, `-EROFS`, `-EIO`) and the suspended state were added at the round-45
+  integration after the counted seats read `partly` (`.ufo/waves/round-45/a2w1/C2RevGR2.md`, `C2CritGR2.md`); the
+  corrected row is read by the residual seat `C2ResGR2` (wave `a2r1`). Two registrations stay as they are: the S242
+  row's declared line ranges do not list `scrub.c:3081`, 3123-3142 or 3147, and the S237 row's do not list
+  `scrub.c:421`; the file digests cover the whole snapshots (`a2w1/C2ExecQuotes.md` F1-F2).
 
 ## QUALITY check
 
@@ -160,3 +196,10 @@ SendSIGKILL=yes TimeoutStopUSec=5s FinalKillSignal=9` (capture.txt:3); the stop 
    only (QUALITY 86).
 12. No mechanism is tagged unknown for want of a tool: the deciding source is read and pinned.
 86. Each rule row cites an upstream source row; the own-work capture carries host values beside it.
+14. The criteria not listed above, read for applicability: 5 (the round's rejects sit in `corpus/lessons/round-45.md`
+   `## Gate`), 6 and 13 do not apply (no pacman advice, no EACCES triage); 8 (header lines present; no `[unknown]`
+   kept); 9 (the one negative host claim, no package owning the drop-in, rests on the bounded `capture.sh` sweep of
+   `/var/lib/pacman/local/*/files` on 2026-10-27, capture.txt:5, re-run by `a2w1/C2ExecHostRecheck.md` §4 with
+   `pacman -Qo`; the `fs/`/`lib/` patch claim stays `[inference]`); 10 (the mention sweep `a2w1/C2ExecSweep.md`;
+   the SKILL.md corrections land in the same integration); 11 (the LOG.md round-45 entry lands with this entry's
+   integration).
