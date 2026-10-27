@@ -252,3 +252,44 @@ no-record path (`no stats available`, S241 capture line 10); a present record is
 and read `scrub_speed_max`, but cannot be assumed to parse the record [inference: a record written by a root scrub
 under the usual umask is root-only], and it cannot read the running state at all (SR6: `BTRFS_IOC_SCRUB_PROGRESS`
 returns `EPERM` without `CAP_SYS_ADMIN`). The promotion condition (a read-only census arm) is unchanged.
+
+## Round-44 promotion — R44-SCRUB-VIEW: the unprivileged scrub-record view moves Frontier → Core
+
+Append-only; the round-38 promotion, the round-39 limit closure and the round-42 and round-43 notes above stay as
+written. The condition those sections set — "it becomes Core only after a read-only census arm reads it"
+(`corpus/README.md:243`) — is met for the part of the scrub record an unprivileged reader can see.
+
+**Core now:** the census's verdict-neutral `SCRUB btrfs-scrub-record state=NONE|RECORDED|BLOCKED
+dir=absent|present|unreadable records=N tmp=N sockets=N unreadable=N orphan=N limited=N timers=N [detail=...]`
+line (`probe_scrub_record` in `tools/tsukuroi-census.sh`, printed after the `STORAGE` line and before
+`TSUKUROI_CENSUS`; contract in that file's header paragraph "Round-44 addition (C1)"). It reads the record
+directory by name and stat only: the record `scrub.status.<fsid>`, its `_tmp` staging file and the
+`scrub.progress.<fsid>` socket under `/var/lib/btrfs` (override `TSUKUROI_SCRUB_DIR`), with an `unreadable` count
+and an `orphan` count (a record whose fsid has no entry under `/sys/fs/btrfs`, so that filesystem is not mounted
+now); each fsid's `devinfo/<devid>/scrub_speed_max` (a nonzero decimal is a limit and is listed in `detail`; SR8);
+and the enabled instances `btrfs-scrub@<instance>.timer` under `/etc/systemd/system/timers.target.wants` (override
+`TSUKUROI_TIMER_WANTS`; the bare template name is not an instance and is not counted; SR9). The arm reads no
+record content, makes no ioctl, calls neither `btrfs` nor `systemctl`, needs no privilege and creates no file; the
+line is never a rollup term and never an exit-code input.
+
+**Still Frontier:** the record's content — a root-written record is mode 0600 and every open takes
+`flock(LOCK_EX|LOCK_NB)` (SR1, round-43 note above), so the arm counts and stats it rather than parsing it; the
+running state — `BTRFS_IOC_SCRUB_PROGRESS` needs `CAP_SYS_ADMIN` (SR6) and returns 0 only while `dev->scrub_ctx`
+is attached, `-ENOTCONN` for an idle device (SR7), so a leftover progress socket is counted as `sockets=N` and is
+not the running state; and NVMe SMART/Health (`smartctl -H -A`, `nvme smart-log`; SH5/SH6). The second NVMe device
+(xfs on `/tmp`, `/fast`) still has no btrfs counters and stays unread.
+**Operator-owned:** running, canceling, resuming or limiting a scrub, enabling its timer, resetting the error
+counters (`btrfs device stats -z`), profile changes, firmware, LUKS and any repair. **Mori's, unchanged:**
+disk-space runway as fleet capacity, under the round-26 wave-2 split. **Known limit:** an absent sysfs root with no
+record reads `limited=0`, and the `STORAGE` line's mount-table guard is what flags a hidden sysfs
+(`corpus/README.md:315`); a record's readability is counted, never its content; and the arm's namespace legs leave
+the mount-table, `uid_map` and script-path channels open (QUALITY 90 "named open"; control C1-K7), while this host's
+live answer is constant (`NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0`),
+so a census that behaves honestly only there cannot be told apart here; no host-side injection is authorized.
+
+Counted by `python3 tools/score-scrub-arm-r44.py --revision <REV> --scratch <DIR>` (frozen; sha256
+`1409a5fd75adaa4c0a238a7f9ad31621dd34a52ad1a40483e4a18d27c9536388`; predicate `cases == 16 and correct == 16 and
+identity_ok == 1 and wired_ok == 1 and live_agree == 1 and selftest_pass == 1 and selftest_r44 >= 6`) at the
+round-44 measured revision (`SCORECARD.md` "Round 44 — measured outcome"). The census selftest reports 148 cases,
+sixteen of them labelled `(R44-C1)`. No package, service, mount, scrub, timer, counter-reset, firmware or
+configuration action is authorized by this section.

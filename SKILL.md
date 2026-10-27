@@ -4033,7 +4033,15 @@ engages for self-written records" (`w1/C2DraftCritSR3.md` F1) is false — `scru
 itself (`scrub.c:782-792`, `return scrub_write_buf(fd, buf, ret);`) and the following `scrub_write_buf(fd, buf, ret)`
 with `ret` 0 writes nothing; the compiled harness of `w1/C2ExecTailRepro.md` parsed `devid=7` back from its record.
 
-## Gate and probe registry — round43 superseding current rows
+## Gate and probe registry — round44 superseding current rows
+
+Append-only continuation of the round43 table; every round43 row stays verbatim. Two new rows:
+
+| Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |
+|---|---|---|---|---|---|---|---|
+| scrub-arm-r44 | gate | `python3 tools/score-scrub-arm-r44.py --revision <REV> --scratch <DIR> [--lane <repo>]` | 0 predicate `cases == 16 and correct == 16 and identity_ok == 1 and wired_ok == 1 and live_agree == 1 and selftest_pass == 1 and selftest_r44 >= 6`;1 otherwise;2 usage/harness error | none: the 16 namespace cases, the wired leg, the live leg and the census selftest are the measurement; controls `.ufo/waves/round-44/controls/run_controls_c1.py` | R44 C1 frozen sha256 `1409a5fd75adaa4c0a238a7f9ad31621dd34a52ad1a40483e4a18d27c9536388`; candidate census sha256 `fca419b4714f7d24314b8d5877f0992c7f326aa8ff80045743990d058e8eaa1c` at freeze | private user+mount namespace under `--scratch`; live reads only; no host write | tsukuroi |
+| scrub-record-r44 | gate | `python3 tools/check-scrub-record-r44.py --revision <REV> [--lane <repo>] [--sessions <dir>]` | 0 predicate `rows == 3 and quotes_ok == 3 and props_ok == 3 and host_ok == 3 and sources_ok == 1 and verdicts_ok == 3 and novelty_base_hits == 0 and pointer_ok == 1`;1 otherwise;2 could-not-evaluate | none: the frozen SR7-SR9 rows and the bound wave-2 verdicts are the measurement; controls `.ufo/waves/round-44/controls/run_controls_c2.py` | R44 C2 frozen sha256 `c96aeda99fc53336c7a12c3a492a5745bfbca28e3334d2b98f0547532a4c8059`; snapshots sha256 in `.ufo/waves/round-44/frozen/src/SHA256SUMS` | committed reads | tsukuroi |
+
 
 The unique highest complete table is operative; every earlier table is historical. Every round36-table row (as it
 stood at the round-43 base, rows through `size-invariance-r42`) is retained verbatim and round43 appends two gate
@@ -4110,3 +4118,51 @@ rows, the frozen round-43 counters (wave-1 `C1ExecBootTools` F1: without them `c
 | size-invariance-r42 | gate | `python3 tools/score-size-invariance-r42.py --revision <REV> --scratch <DIR> [--lane <repo>]` | 0 predicate `cases == 10 and invariant == 10 and ns_invariant == 3 and selftest_pass == 1 and default_equal == 1` over ten P1-P6 and U1-U4 size twins and three `unshare -rm` production-path legs;1 any leg non-invariant or the census selftest not PASS;2 could-not-evaluate | none: no self-test mode; the ten fixture twins and the three namespace legs are the measurement | R42 C1 frozen counter sha256 `c511104a8e69fe6a90bb849847fe9c4635642f70ff0cb01fb62c38c098553e03`; 1 MiB verdict-neutral padding; fixtures built from the base census at `c8efaa3f` | private fixture copies under `--scratch`; `unshare -rm` namespace only for the N1/N3/N6 legs | tsukuroi |
 | bootinputs-r43 | gate | `python3 tools/score-bootinputs-r43.py --revision <REV> --scratch <DIR> [--lane <repo>]` | 0 predicate `cases == 16 and correct == 16 and identity_ok == 1 and live_agree == 1 and selftest_pass == 1 and selftest_r43 >= 2` over 16 production-path `boot_inputs_newer` cases in a private user+mount namespace, a live leg against an independent walk and the script's own selftest;1 any conjunct fails;2 could-not-evaluate (harness, namespace or read error) | none: no self-test mode; the 16 namespace cases, the live leg and the scored audit script's own `--selftest` are the measurement; controls `.ufo/waves/round-43/controls/run_controls_c1.py` | R43 C1 frozen counter sha256 `886f92c8cd58e52e4e74f4df81708f243b77e9d33de567b47371f21419b3e10f`; caller uid/gid through the `/etc/subuid` map and `setpriv`; mount-table, uid_map and script-path channels declared open | private `--scratch` only, removed on exit and on SIGINT/SIGTERM; tmpfs mounts only inside its own `unshare -m` namespace; reads the revision's script through `git show` | tsukuroi |
 | scrub-record-r43 | gate | `python3 tools/check-scrub-record-r43.py --revision <REV> [--lane <repo>] [--sessions <dir>]` | 0 predicate `rows == 3 and quotes_ok == 3 and props_ok == 3 and host_ok == 3 and sources_ok == 1 and verdicts_ok == 3 and novelty_base_hits == 0 and pointer_ok == 1` (SR1, SR3, SR6 of `corpus/knowledge/btrfs-scrub-record-r43.md`, wave-2 verdicts bound through `w2-dispatch.json`, `w2-results.json` and the report's first line);1 one or more conjuncts fail;2 could-not-evaluate | none: no self-test mode; the frozen SR rows and the bound wave-2 verdicts are the measurement; controls `.ufo/waves/round-43/controls/run_controls_c2.py` | R43 C2 frozen counter sha256 `b4602c566b4f39277e068d27ad10ad0ec361ed7e81a938831cec72631e319854`; snapshots scrub.c `48df2e2f…` (S237), ioctl.c `7b3488f2…` (S240), capture `f7ecbe7c…` (S241) | read-only: `git show` at the revision and session-transcript reads; writes nothing | tsukuroi |
+
+## Scrub-record census arm — round 44
+
+Appended 2026-10-26 (round-44 C1).
+Surface: `probe_scrub_record` (`tools/tsukuroi-census.sh`) prints one verdict-neutral line after the STORAGE line
+and before the rollup; the contract is the census header paragraph "Round-44 addition (C1)". What the arm reads:
+entry names and stat under `/var/lib/btrfs`, the per-device sysfs `scrub_speed_max` value, and
+`btrfs-scrub@*.timer` entry names under `timers.target.wants` — never a record's content, never an ioctl, never the
+kernel's running state (round-43 SR6). Read the Frontier condition (`PROVINCE.md:212-214`, `corpus/README.md:243`)
+as met for this sub-surface only: the artifact set around the record, not the record's data and not running state.
+
+| Observation | Reading | Action |
+|---|---|---|
+| `state=NONE\|RECORDED\|BLOCKED` | BLOCKED if any block reason, else RECORDED when records+tmp+sockets > 0, else NONE | `BLOCKED` is an unknown, not an absence — hand to the operator |
+| `dir=absent\|present\|unreadable` | absent = no record write created the directory yet; unreadable = BLOCKED `dir:unreadable` | never `mkdir` it (a host write) |
+| `records=N` / `tmp=N` / `sockets=N` | regular `scrub.status.<fsid>` files; `_tmp` staging files (SR1); `scrub.progress.<fsid>` sockets (a live start process, never the running state) | names are read, content never is |
+| `unreadable=N` | records/tmp the caller cannot read (a root scrub writes 0600) | re-read as root if the record matters; never chmod |
+| `orphan=N` | records whose fsid has no sysfs entry (filesystem not mounted now); computed only when sysfs is listable | confirm with `btrfs filesystem show`; never mount |
+| `limited=N` + `detail=<fsid8>:<devid>:speed_max=<v>` | devices whose `scrub_speed_max` reads a nonzero decimal; 0 = no limit (SR8, S243) | the value is root's to set; the census never writes it |
+| `timers=N` | `btrfs-scrub@<instance>.timer` links under `timers.target.wants`; bare template and directories are not counted (SR9, S244) | `systemctl enable` is operator-owned |
+| `detail=…` | block reasons in traversal order, then speed pairs; bytewise under LC_ALL=C; no name ever echoed | read the first token |
+
+Counter: `python3 tools/score-scrub-arm-r44.py --revision <REV> --scratch <DIR> [--lane <repo>]` (sha256
+`1409a5fd75adaa4c0a238a7f9ad31621dd34a52ad1a40483e4a18d27c9536388`) — PASS iff `cases == 16 and correct == 16 and
+identity_ok == 1 and wired_ok == 1 and live_agree == 1 and selftest_pass == 1 and selftest_r44 >= 6`: 16 drawn
+production-path namespace cases, a wired full-census leg, the live leg against an independent walk, and the census
+selftest (148 cases, sixteen `(R44-C1)` labels). Recorded limits (wave-1 findings): a sysfs root that exists but is
+not a directory is now BLOCKED `sysfs:not-directory`; the live leg cannot tell a cached live answer from a real read
+(C1CritEvasion F1); supplementary groups, cwd, stdin, statfs and ancestry differ between the namespace legs and
+production (C1CritChannels); live mode creates no file (strace, C1ExecLiveRead).
+
+## Scrub record — round 44 rows
+
+Appended 2026-10-26 (round-44 C2).
+Entry `corpus/knowledge/btrfs-scrub-record-r44.md` rows SR7, SR8, SR9 on S242 (Linux v7.2.11 `fs/btrfs/scrub.c`),
+S243 (`fs/btrfs/sysfs.c`) and S244 (Arch btrfs-progs 7.1-1 units), with S237, S240 and S245.
+
+| Observation | Reading | Action |
+|---|---|---|
+| A device carries a scrub context only inside the run's attached window: `btrfs_scrub_dev` refuses a second run with `-EINPROGRESS` while `dev->scrub_ctx` is set, attaches before any scrub work and clears it when the work ends (S242 scrub.c:3147,3153,3159,3222) | a non-NULL context means a scrub, or a device replace (dev-replace.c:701-703,1265-1268, unpinned), is running on that device now | read it only through a privileged `btrfs scrub status`; the census never calls the ioctl |
+| `btrfs_scrub_progress` returns 0 only when the devid exists and carries a context, `-ENOTCONN` for an idle device, `-ENODEV` for an unknown devid (S242 scrub.c:3331,3336) | 0 = running now; `ENOTCONN` = idle, never 0; a momentary per-device answer, not history | "running" says nothing about when the last scrub ran or how it ended |
+| The progress ioctl copies back only on 0, after its `CAP_SYS_ADMIN` gate (S240 ioctl.c:3132-3133,3139,3141) | an unprivileged status never prints `running` | stored-data integrity stays `UNVERIFIED` unprivileged (SH4) |
+| `scrub_speed_max` is `BTRFS_ATTR_RW` mode 0644; reads one decimal plus newline; writes parse with `memparse` (K/M/G suffixes, trailing whitespace skipped, else `-EINVAL`); 0 = no limit; in-memory only (S243 sysfs.c:72,74,2028,2040,2042,2044) | any user reads it; root writes it; a nonzero value is a configured cap in bytes/s | the census reports `limited=` and never writes the attribute |
+| The Arch package, not upstream, ships `btrfs-scrub@.timer`/`.service`; timer is monthly, `Persistent=true`, `WantedBy=timers.target`; the service runs `btrfs scrub start -B %f` with `KillSignal=SIGINT`, whose foreground handler issues `BTRFS_IOC_SCRUB_CANCEL`; a device whose ioctl returns nonzero is recorded `canceled`, which resume takes up (S244 units; S237 scrub.c:421,969,1293,1295,1546) | a monthly scrub exists only when an instance is enabled; a stopped scrub service cancels the scrub and leaves a resumable record | `systemctl enable`/start/stop are operator action; counters and `t_start` are cumulative across resume (SR3) |
+
+Limits (entry Limits): kernel behaviour is pinned at v7.2.11 lines (the Arch patch touches no `fs/` file, carried
+from round 43); SR7 is read from source only; SR9's systemd side is systemd.kill(5) inference; the SR7 replace side
+is an unpinned caller [inference].

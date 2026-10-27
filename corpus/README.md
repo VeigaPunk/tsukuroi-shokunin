@@ -423,3 +423,30 @@ The round-42 row above lists SC1-SC5 as that entry's holdings; SC1 and SC3 stand
 (its header line 4 and "Corrections — round-42 wave 2"); read the write-discipline, resume and running-state points
 from the round-43 entry. Frontier: the scrub record stays Frontier (no census arm reads it); round 43 re-grounds it
 from source and adds the kernel-side privilege fact (S240), it enters no new coverage-map ground.
+
+## Round-44 coverage note (appended 2026-10-26)
+
+Append-only; the coverage map, the Frontier bullets and the round-38 to round-43 notes above stay as written.
+
+| Note | Holds | Sources |
+|---|---|---|
+| `../tools/tsukuroi-census.sh` (`probe_scrub_record`, round-44 C1) | The verdict-neutral scrub-record arm: one `SCRUB btrfs-scrub-record state=NONE\|RECORDED\|BLOCKED dir=absent\|present\|unreadable records=N tmp=N sockets=N unreadable=N orphan=N limited=N timers=N [detail=…]` line from names and stat only under `/var/lib/btrfs` (records, `_tmp`, sockets; unreadable and orphan counts), each fsid's `devinfo/<devid>/scrub_speed_max` (nonzero = limited, listed in `detail`) and the enabled `btrfs-scrub@<instance>.timer` links under `timers.target.wants`; BLOCKED when a reading is unavailable, RECORDED when record/tmp/socket names exist | contract `tools/tsukuroi-census.sh:384-412`; PROVINCE round-44 section |
+| `knowledge/btrfs-scrub-record-r44.md` | SR7 the scrub-progress success direction (0 only while `dev->scrub_ctx` is attached; `-ENOTCONN` idle; `-ENODEV` unknown devid; device replace runs through the same `btrfs_scrub_dev`); SR8 `scrub_speed_max` (`BTRFS_ATTR_RW` 0644, `%llu` read, `memparse` write, 0 = no limit, in-memory only); SR9 the Arch-packaged `btrfs-scrub@.timer`/`.service` (monthly, `Persistent=true`, `btrfs scrub start -B %f`, `KillSignal=SIGINT` → the foreground `BTRFS_IOC_SCRUB_CANCEL`, a canceled record) | entry header and rows at the measured revision |
+
+### Frontier notice — round 44
+
+The round-26 condition at `corpus/README.md:243` is met for the unprivileged scrub-record view only: the census now
+reads the record directory by name and stat, the per-device limit and the enabled timer instances, so that part of
+the storage-integrity frontier moves Frontier → Core (`../PROVINCE.md` "Round-44 promotion — R44-SCRUB-VIEW"). The
+record's content (SR1, a 0600 root-written file opened under `flock(LOCK_EX|LOCK_NB)`), the running state (SR6
+`CAP_SYS_ADMIN`; SR7 0 only while a scrub context is attached, so a progress socket is a reading, not the running
+state) and NVMe SMART/Health (SH5/SH6) stay Frontier; running, canceling, resuming or limiting a scrub, enabling its
+timer, resetting the error counters, profile changes, firmware, LUKS and any repair stay operator-owned. Measured
+with `../tools/score-scrub-arm-r44.py --revision <REV> --scratch <DIR>` at the revision named in `../SCORECARD.md`
+"Round 44 — measured outcome"; the depth entry is counted by `tools/check-scrub-record-r44.py --revision <REV>`
+(predicate rows == 3 and quotes_ok == 3 and props_ok == 3 and host_ok == 3 and sources_ok == 1 and verdicts_ok == 3
+and novelty_base_hits == 0 and pointer_ok == 1), its three row verdicts binding only from the round-44 wave-2
+reviewer and critic seats. Known limit: an absent sysfs root with no record reads `limited=0` (the `STORAGE`
+mount-table guard flags a hidden sysfs), a record's readability is counted and its content never read, and the arm's
+namespace legs leave the mount-table, `uid_map` and script-path channels open. Host at the measured revision:
+`NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0`, consistent with S245.
