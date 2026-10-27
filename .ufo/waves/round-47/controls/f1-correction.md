@@ -1,0 +1,7 @@
+# F1 counter control correction (L1, before wave settlement)
+
+The initial round-47 counter draft at `3629c46a0e787121f1e1d4ccb53bc830e4a7633f` stopped a row at the first line beginning `## ` and then checked only inside that truncated prefix. Its F1a fixture inserted `## Annotation — round 47 probe (header terminates the counted section)` inside GR1. That draft reported `structural_ok=1`; the counter verdict was FAIL only because no counted seats existed, so the F1 control had not failed for its intended reason.
+
+Correction: `section_hashes` now binds each row to the explicit expected next header (GR1→`## GR2`, GR2→`## GR3`, GR3→`## How this changes OS triage`) and rejects any other `## ` line within that extent. The same F1a fixture after commit `77e9e2b2e96b85d8f048ae2087e246a542b71611` reports `structural_ok=0`, problem `GR1: unexpected "## " line inside the row: '## Annotation — round 47 probe (header terminates t...'`, and FAIL. The full frozen-counter battery then reports 12 controls, 0 not as expected (`controls/battery-summary-r47.jsonl`), including F1a observed 0 and F1b duplicated-row header observed 0.
+
+Commands/output are preserved in the tool transcript and the committed battery summary; the pre-fix unexpected `structural_ok=1` was observed at L1 before the second implementation commit, and was corrected before any seat was dispatched.

@@ -70,8 +70,11 @@ with `-EINPROGRESS` while the device already carries a scrub context. So while a
 `btrfs_scrub_dev` for a present, writeable device that is in the filesystem metadata and is not the replace target is
 refused with `EINPROGRESS` (as is a start on any device that already carries a scrub context), and no scrub is
 started. While the copy runs, the replace's source device carries the scrub context the copy attached, which by SR7
-makes a privileged progress query for that devid answer 0. When the unmount suspend path runs, it calls
-`btrfs_scrub_cancel`; once the scrub returns and clears its context, the progress query returns `-ENOTCONN`
+`btrfs_dev_replace_cancel` calls `btrfs_scrub_cancel` when its cancel ioctl handles a suspended replace
+(`dev-replace.c:1126-1144`); the pinned code says the replace scrub is not running in that state
+(`dev-replace.c:1127-1129`). When the replace context is absent, the progress query returns `-ENOTCONN`
+(`scrub.c:3222, :3336`). The unmount suspend path itself only sets the state to SUSPENDED
+(`dev-replace.c:1171-1199`) and does not cancel the scrub.
 [inference for the ioctl and btrfs-progs side: that the scrub-start ioctl hands these returns to userspace
 unchanged, and how `btrfs scrub start` and `btrfs scrub status` print them, are not pinned here].
 
@@ -114,6 +117,8 @@ unchanged, and how `btrfs scrub start` and `btrfs scrub status` print them, are 
 **Quote.** `S243` sysfs.c:1288: "str = "device replace\n";"
 
 **Quote.** `S243` sysfs.c:2015: "val = !!test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);"
+
+**Quote.** `S247` dev-replace.c:1127: "Scrub doing the replace isn't running so we need to do the"
 
 **Quote.** `S247` dev-replace.c:1143: "/* Scrub for replace must not be running in suspended state */"
 
