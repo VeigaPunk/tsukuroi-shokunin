@@ -1,0 +1,86 @@
+Command ledger — seat C1ExecLiveRead (item C1-3, live read-only proof)
+Host: plazir27, Linux 7.2.11-arch1-1. All runs on 2026-10-27 (census header stamps 00:06..00:09Z).
+Scratch: /fast/scratch/hyaku/tsukuroi-r44/C1ExecLiveRead (TMPDIR there; removed at end of seat).
+
+1) tooling
+   which strace; strace -V
+   -> /usr/bin/strace ; strace -- version 7.2  (already installed; nothing installed or upgraded)
+
+2) clone at the measured revision (read-only on the lane; --shared, origin removed)
+   git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin $S/clone
+   git -C $S/clone remote remove origin
+   git -C $S/clone checkout -q 7e081698d4fc3c4ea944884fd093058de9909de1
+   git -C $S/clone rev-parse --show-toplevel -> $S/clone
+   git -C $S/clone rev-parse HEAD          -> 7e081698d4fc3c4ea944884fd093058de9909de1
+   sha256sum $S/clone/tools/tsukuroi-census.sh
+   -> fca419b4714f7d24314b8d5877f0992c7f326aa8ff80045743990d058e8eaa1c
+   base clone: checkout 98020ece0674e0b569ee23aed10ffbee355b248e, toplevel $S/clonebase
+   sha256sum $S/clonebase/tools/tsukuroi-census.sh
+   -> 7c9f79036782de951a69325fe6f5cc742d8acac4de389626026bc33d8f7877f9
+
+3) live census runs (cwd = the clone, TMPDIR = scratch, no host writes by the seat)
+
+   3a run 1 — strace -f (interleaved), required class set
+      strace -f -e trace=openat,open,creat,mkdir,mkdirat,rename,renameat,renameat2,unlink,unlinkat,symlink,link \
+             -o $S/trace-live1.log bash tools/tsukuroi-census.sh > $S/out-live1.txt 2> $S/err-live1.txt
+      exit=2 ; trace 15077 lines (1,358,989 B) ; stderr empty  [receipt strace-rev-live1.log, live-run-c-strace.txt]
+
+   3b runs 2/3 — strace -ff -tt -y (+execve, only to map pid->program), per-pid files
+      revision : exit=2 -> $S/trb   [receipt strace-rev-perpid.tar.gz]
+      base     : exit=2 -> $S/trbase [receipt strace-base-perpid.tar.gz]
+      (a first attempt at run 3 was lost: strace could not fopen the -o prefix because $S/trb
+       did not exist; strace exited 1 and the census never ran. Re-run after mkdir.)
+
+   3c runs 4/5 — plain live runs, no tracer
+      bash tools/tsukuroi-census.sh > $S/out-live4-plain.txt ; exit=2  [receipt live-run-a.txt]
+      bash tools/tsukuroi-census.sh > $S/out-live5-plain.txt ; exit=2  [receipt live-run-b.txt]
+
+   3d run 6 — strace -ff with write(1,...) added, to bracket the arm's own window
+      strace -ff -tt -y -e trace=<3a set>,write -o $S/trw/t bash tools/tsukuroi-census.sh ; exit=2
+      STORAGE write(1, "STORAGE btrfs-device-stats state"...,75) at 21:09:05.841729
+      SCRUB   write(1, "SCRUB btrfs-scrub-record state=N"...,114) at 21:09:05.842489
+      4 write-class syscalls in that window, all openat O_RDONLY (see report).
+
+   3e run 7 — strace -ff with every file/desc class the arm could use
+      strace -ff -tt -y -e trace=openat,open,creat,mkdir,mkdirat,rename,renameat,renameat2,unlink,unlinkat,
+             symlink,symlinkat,link,linkat,newfstatat,statx,access,faccessat,faccessat2,getdents64,
+             ftruncate,truncate,chmod,fchmodat,utimensat,write -o $S/trf/t bash tools/tsukuroi-census.sh
+      exit=2 ; STORAGE at 21:09:22.388089, SCRUB at 21:09:22.388924
+      29 syscalls in the arm window, all read-only  -> receipt arm-window-29-syscalls.txt
+      full per-pid trace -> receipt strace-arm-window-full.tar.gz
+
+   Total live executions at the measured revision: 7 (runs 1,2,3b-rev,3c x2,3d,3e), all exit 2.
+   Total live executions at base 98020ec: 1, exit 2.
+
+4) post-run checks
+   git -C $S/clone status --porcelain    -> empty (the census left the tree untouched)
+   grep -hE '^[0-9:.]+ +(mkdir|mkdirat|unlink|unlinkat|rename|renameat|renameat2|symlink|symlinkat|link|linkat)\(' \
+       $S/trb/t.* | grep -v '= -1' | wc -l   -> 0     (revision)
+   same over $S/trbase/t.*                   -> 0     (base)
+   grep -hE 'var/lib/btrfs|scrub_speed_max|timers.target.wants' $S/trb/t.* $S/trf/t.* \
+       | grep -cE 'O_CREAT|O_WRONLY|O_RDWR|O_TRUNC|O_APPEND|O_TMPFILE|mkdir|unlink|rename|symlink|link\('
+       -> 0
+   grep -hE 'var/lib/btrfs|scrub_speed_max|timers.target.wants' $S/trf/t.* | grep -oE ' [a-z0-9_]+\(' | sort | uniq -c
+       -> 3 faccessat2(  6 getdents64(  9 newfstatat(  4 openat(   (all read-only)
+   grep -c '2>/dev/null' $S/clone/tools/tsukuroi-census.sh  -> 25
+   grep -c '>/dev/null'  $S/clone/tools/tsukuroi-census.sh  -> 27
+
+5) read-only host queries (no mutation)
+   stat -c '%A %n' /sys/fs/btrfs/*/devinfo/*/scrub_speed_max
+   -> -rw-r--r-- /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max
+   cat  /sys/fs/btrfs/1d02a454-.../devinfo/1/scrub_speed_max -> 0
+   ls -ld /var/lib/btrfs -> "No such file or directory"
+   ls -l /etc/systemd/system/timers.target.wants -> fstrim.timer, paccache.timer,
+      snapper-cleanup.timer, snapper-timeline.timer  (no btrfs-scrub@*.timer)
+
+6) evidence files in this seat dir
+   live-run-a.txt, live-run-b.txt            two consecutive plain live runs (byte-identical but the header line)
+   live-run-c-strace.txt                     live run under strace -f (identical SCRUB line)
+   live-run-d-fulltrace.txt                  live run 7 output (full file-class trace window)
+   live-base-98020ec.txt                     base 98020ec live output (no SCRUB line)
+   strace-rev-live1.log                      raw strace -f trace of run 1 (all required classes, with paths)
+   strace-rev-perpid.tar.gz                  raw per-pid trace, revision
+   strace-base-perpid.tar.gz                 raw per-pid trace, base
+   strace-arm-window-full.tar.gz             raw per-pid full file-class trace, revision
+   arm-window-29-syscalls.txt                the arm's complete syscall window, verbatim lines
+   write-syscall-summary.txt                 write-class inventory, rev vs base, by program/path/result

@@ -1,0 +1,27 @@
+# C1MutArm survivor micro-harness transcript (re-run; driver: harness/case.sh)
+# pristine = 7e081698 census-lib; mutant libs from the committed mutant shas;
+# run as uid 1000 (non-root) with LANG=en_US.UTF-8, LC_ALL unset; fixtures under scratch/harness/fx.*
+
+case a: diverges=False
+  pristine   : SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=1 sockets=0 unreadable=0 orphan=0 limited=0 timers=0
+  mutant-a   : SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=1 sockets=0 unreadable=0 orphan=0 limited=0 timers=0
+
+case e: diverges=True
+  pristine   : SCRUB btrfs-scrub-record state=BLOCKED dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=12345678:1:speed-malformed
+  mutant-e   : SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=1 timers=0 detail=12345678:1:speed_max=
+
+case h: diverges=True
+  pristine   : SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0
+  mutant-h   : SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=1 timers=0 detail=12345678:1:speed_max=00
+
+case j: diverges=True
+  pristine   : SCRUB btrfs-scrub-record state=BLOCKED dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=1 timers=0 detail=record:not-regular,12345678:1:speed_max=104857600
+  mutant-j   : SCRUB btrfs-scrub-record state=BLOCKED dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=1 timers=0 detail=12345678:1:speed_max=104857600,record:not-regular
+
+case k: diverges=True
+  pristine   : SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=1
+  mutant-k   : SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=2
+
+case l: diverges=True
+  pristine   : SCRUB btrfs-scrub-record state=BLOCKED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=sysfs:unreadable
+  mutant-l   : SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=1 limited=0 timers=0

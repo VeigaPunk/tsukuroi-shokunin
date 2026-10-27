@@ -1,0 +1,11 @@
+--- pristine-census.sh	2026-10-26 21:08:39.979676693 -0300
++++ mb.sh	2026-10-26 21:18:23.991013802 -0300
+@@ -2005,7 +2005,7 @@
+         if [[ $n =~ ^scrub\.status\.(${uuid})$ ]]; then
+           if [ -L "$e" ] || [ ! -f "$e" ]; then blocked=1; detail+='record:not-regular,'; continue; fi
+           rec=$((rec + 1))
+-          [ -r "$e" ] || unr=$((unr + 1))
++          [ -e "$e" ] || unr=$((unr + 1))
+           if [ "$sysok" -eq 1 ] && [[ $fsids != *" ${BASH_REMATCH[1]} "* ]]; then orph=$((orph + 1)); fi
+         elif [[ $n =~ ^scrub\.status\.${uuid}_tmp$ ]]; then
+           if [ -L "$e" ] || [ ! -f "$e" ]; then blocked=1; detail+='tmp:not-regular,'; continue; fi

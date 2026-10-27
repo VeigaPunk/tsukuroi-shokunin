@@ -1,0 +1,13 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index f45d0051..f649109b 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2006,7 +2006,7 @@ probe_scrub_record() {
+           if [ -L "$e" ] || [ ! -f "$e" ]; then blocked=1; detail+='record:not-regular,'; continue; fi
+           rec=$((rec + 1))
+           [ -r "$e" ] || unr=$((unr + 1))
+-          if [ "$sysok" -eq 1 ] && [[ $fsids != *" ${BASH_REMATCH[1]} "* ]]; then orph=$((orph + 1)); fi
++          if [ "$sysok" -eq 1 ] && [[ $fsids == *" ${BASH_REMATCH[1]} "* ]]; then orph=$((orph + 1)); fi
+         elif [[ $n =~ ^scrub\.status\.${uuid}_tmp$ ]]; then
+           if [ -L "$e" ] || [ ! -f "$e" ]; then blocked=1; detail+='tmp:not-regular,'; continue; fi
+           tmp=$((tmp + 1))

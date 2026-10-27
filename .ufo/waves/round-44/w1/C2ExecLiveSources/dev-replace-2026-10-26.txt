@@ -1,0 +1,30 @@
+# C2-1 dev-replace.c @ v7.2.11 — fetched 2026-10-27T00:12:57Z
+$ curl -sfL 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/fs/btrfs/dev-replace.c?h=v7.2.11' -o dev-replace.c  # rc=0
+$ sha256sum dev-replace.c
+f07ef0a0d260cf67b7c2aff0542ec13204f9761e33df0ea9feedf143cc034f3a  /fast/scratch/hyaku/tsukuroi-r44/C2ExecLiveSources/refetch/dev-replace.c
+$ wc -l dev-replace.c
+1322
+
+## cited call site 1: lines 701-703
+699:
+700:	/* the disk copy procedure reuses the scrub code */
+701:	ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+702:			      btrfs_device_get_total_bytes(src_device),
+703:			      &dev_replace->scrub_progress, false, true);
+704:
+705:	ret = btrfs_dev_replace_finishing(fs_info, ret);
+
+## cited call site 2: lines 1265-1267
+1263:		(unsigned int)progress);
+1264:
+1265:	ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,
+1266:			      dev_replace->committed_cursor_left,
+1267:			      btrfs_device_get_total_bytes(dev_replace->srcdev),
+1268:			      &dev_replace->scrub_progress, false, true);
+1269:	ret = btrfs_dev_replace_finishing(fs_info, ret);
+
+## signature (frozen round-44 scrub.c, digest-identical to refetch): 3079-3081
+3079:int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+3080:		    u64 end, struct btrfs_scrub_progress *progress,
+3081:		    bool readonly, bool is_dev_replace)
+sha256 dev-replace.c.gh = f07ef0a0d260cf67b7c2aff0542ec13204f9761e33df0ea9feedf143cc034f3a (gregkh mirror, matches kernel.org)

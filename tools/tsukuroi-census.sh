@@ -402,8 +402,6 @@
 # (dir:unreadable, sysfs:unreadable, timers:unreadable), a record, tmp or progress name of the wrong
 # file type (record:not-regular, tmp:not-regular, progress:not-socket), a device whose
 # scrub_speed_max is unreadable or not one decimal line (<fsid8>:<devid>:speed-unreadable,
-# speed-malformed) or whose devid is not decimal (<fsid8>:?:bad-devid), records present with no
-# sysfs root to judge orphans by (sysfs:absent); else RECORDED when records+tmp+sockets > 0; else
 # NONE. Globs run under LC_ALL=C, so the detail order is bytewise. Known limit: an absent sysfs root
 # with no record reads limited=0; the STORAGE line's mount-table guard is what flags a hidden sysfs.
 # No privilege, no ioctl, no `btrfs` or `systemctl` call; the line is verdict-neutral (no PLANE
@@ -2016,7 +2014,9 @@ probe_scrub_record() {
           sock=$((sock + 1))
         fi
       done
-      if [ "$rec" -gt 0 ] && [ "$sysok" -eq 0 ] && [ ! -e "$root" ]; then blocked=1; detail+='sysfs:absent,'; fi
+      if [ "$rec" -gt 0 ] && [ "$sysok" -eq 0 ]; then
+        if [ -e "$root" ] || [ -L "$root" ]; then blocked=1; detail+='sysfs:not-directory,'; else blocked=1; detail+='sysfs:absent,'; fi
+      fi
     fi
   fi
   # enabled scrub timer instances: the links `systemctl enable btrfs-scrub@<inst>.timer` makes
@@ -2027,6 +2027,7 @@ probe_scrub_record() {
       for e in "$tw"/btrfs-scrub@*.timer; do
         [ -e "$e" ] || [ -L "$e" ] || continue
         [ "${e##*/}" != 'btrfs-scrub@.timer' ] || continue
+        [ -d "$e" ] && continue
         tim=$((tim + 1))
       done
     fi
@@ -3284,6 +3285,48 @@ STUB
   printf 'scrub status:1\n' > "$srec"; chmod 644 "$srec"
   check 'healthy rollup: records with no sysfs root to judge orphans by are BLOCKED (R44-C1)' 0 HEALTHY \
     '^SCRUB btrfs-scrub-record state=BLOCKED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=sysfs:absent$'
+
+  # ---- round 44 wave-1 hardening (C1MutSelftest survivors; each case is red on its mutant) ----
+  case_home='scrub-locale-fsid'; FX="$work/fx/$case_home"; mkdir -p "$FX/btrfs" "$FX/scrub"; fx_default "$FX"
+  local lfs=$'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa\xc3\xa1a'
+  mkdir -p "$FX/btrfs/$lfs/devinfo/1"; printf '0\n' > "$FX/btrfs/$lfs/devinfo/1/scrub_speed_max"
+  printf 'scrub status:1\n' > "$FX/scrub/scrub.status.$lfs"; chmod 644 "$FX/scrub/scrub.status.$lfs"
+  EXTRA_ENV=(LC_ALL=en_US.UTF-8)
+  check 'healthy: the probe pins LC_ALL=C so a collation-inflated name is never a uuid (R44-C1)' 0 HEALTHY \
+    '^SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0$'
+
+  case_home='scrub-speed-empty'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  mkdir -p "$FX/btrfs/$sfs/devinfo/1"; printf '\n' > "$FX/btrfs/$sfs/devinfo/1/scrub_speed_max"
+  check 'healthy rollup: an empty scrub_speed_max line is malformed, never a silent no-limit (R44-C1)' 0 HEALTHY \
+    '^SCRUB btrfs-scrub-record state=BLOCKED dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=11111111:1:speed-malformed$'
+
+  case_home='scrub-speed-zero-padded'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  mkdir -p "$FX/btrfs/$sfs/devinfo/1"; printf '000\n' > "$FX/btrfs/$sfs/devinfo/1/scrub_speed_max"
+  check 'healthy: a zero-padded scrub_speed_max is still no limit (R44-C1)' 0 HEALTHY \
+    '^SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0$'
+
+  case_home='scrub-tmp-only'; FX="$work/fx/$case_home"; mkdir -p "$FX/btrfs/$sfs/devinfo/1" "$FX/scrub"; fx_default "$FX"
+  printf '0\n' > "$FX/btrfs/$sfs/devinfo/1/scrub_speed_max"
+  printf 'scrub status:1\n' > "$FX/scrub/scrub.status.${sfs}_tmp"; chmod 600 "$FX/scrub/scrub.status.${sfs}_tmp"
+  check 'healthy: an in-progress _tmp record alone reads RECORDED with zero finished records (R44-C1)' 0 HEALTHY \
+    '^SCRUB btrfs-scrub-record state=RECORDED dir=present records=0 tmp=1 sockets=0 unreadable=0 orphan=0 limited=0 timers=0$'
+
+  case_home='scrub-detail-info-both'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  mkdir -p "$FX/btrfs/$sfs/devinfo/1" "$FX/btrfs/$sfs/devinfo/2"
+  printf 'fast\n' > "$FX/btrfs/$sfs/devinfo/1/scrub_speed_max"; printf '104857600\n' > "$FX/btrfs/$sfs/devinfo/2/scrub_speed_max"
+  check 'healthy rollup: detail evidence precedes limit info in the detail join (R44-C1)' 0 HEALTHY \
+    '^SCRUB btrfs-scrub-record state=BLOCKED dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=1 timers=0 detail=11111111:1:speed-malformed,11111111:2:speed_max=104857600$'
+
+  case_home='scrub-sysfs-not-dir'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '0\n' > "$FX/btrfs"; mkdir -p "$FX/scrub"
+  printf 'scrub status:1\n' > "$FX/scrub/scrub.status.$sfs"; chmod 644 "$FX/scrub/scrub.status.$sfs"
+  check 'healthy rollup: a sysfs root that exists but is not a directory is BLOCKED, never a silent no-orphan scan (R44-C1)' 0 HEALTHY \
+    '^SCRUB btrfs-scrub-record state=BLOCKED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=sysfs:not-directory$'
+
+  case_home='scrub-timers-dir'; FX="$work/fx/$case_home"; mkdir -p "$FX/wants"; fx_default "$FX"
+  mkdir -p "$FX/wants/btrfs-scrub@x.timer"
+  check 'healthy: a directory named like a scrub timer is not an enabled instance (R44-C1)' 0 HEALTHY \
+    '^SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0$'
 
   check_cli 'cli: unknown argument exits 2 with usage (S10-2)' 2 \
     '^usage: tsukuroi-census\.sh' -- --bogus

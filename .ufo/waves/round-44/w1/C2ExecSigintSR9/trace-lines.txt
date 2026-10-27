@@ -1,0 +1,587 @@
+== progs scrub.c v7.1 sha256 48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801 ==
+416| static int cancel_fd = -1;
+417| static void scrub_sigint_record_progress(int signal)
+418| {
+419| 	int ret;
+420| 
+421| 	ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);
+422| 	if (ret < 0)
+423| 		perror("Scrub cancel failed");
+424| }
+425| 
+426| static int scrub_handle_sigint_parent(void)
+427| {
+428| 	struct sigaction sa = {
+429| 		.sa_handler = SIG_IGN,
+430| 		.sa_flags = SA_RESTART,
+431| 	};
+432| 
+433| 	return sigaction(SIGINT, &sa, NULL);
+434| }
+435| 
+436| static int scrub_handle_sigint_child(int fd)
+437| {
+438| 	struct sigaction sa = {
+439| 		.sa_handler = fd == -1 ? SIG_DFL : scrub_sigint_record_progress,
+440| 	};
+441| 
+442| 	cancel_fd = fd;
+443| 	return sigaction(SIGINT, &sa, NULL);
+444| }
+--
+508| static int scrub_open_file_w(const char *fn_base, const char *fn_local,
+509| 				const char *tmp)
+510| {
+511| 	int ret;
+512| 	char datafile[PATH_MAX];
+513| 	ret = scrub_datafile(fn_base, fn_local, tmp,
+514| 				datafile, sizeof(datafile));
+515| 	if (ret < 0)
+516| 		return ret;
+517| 	return scrub_open_file(datafile, O_WRONLY|O_CREAT);
+518| }
+519| 
+520| static int scrub_rename_file(const char *fn_base, const char *fn_local,
+521| 				const char *tmp)
+522| {
+523| 	int ret;
+524| 	char datafile_old[PATH_MAX];
+525| 	char datafile_new[PATH_MAX];
+526| 	ret = scrub_datafile(fn_base, fn_local, tmp,
+527| 				datafile_old, sizeof(datafile_old));
+528| 	if (ret < 0)
+529| 		return ret;
+530| 	ret = scrub_datafile(fn_base, fn_local, NULL,
+531| 				datafile_new, sizeof(datafile_new));
+532| 	if (ret < 0)
+533| 		return ret;
+534| 	ret = rename(datafile_old, datafile_new);
+535| 	return ret ? -errno : 0;
+536| }
+--
+854| 
+855| 	/* each -1 is to subtract one \0 byte, the + 2 is for ':' and '\n' */
+856| 	ret = scrub_write_buf(fd, SCRUB_FILE_VERSION_PREFIX ":"
+857| 				SCRUB_FILE_VERSION "\n",
+858| 				(sizeof(SCRUB_FILE_VERSION_PREFIX) - 1) +
+859| 				(sizeof(SCRUB_FILE_VERSION) - 1) + 2);
+860| 	if (ret)
+861| 		return -EOVERFLOW;
+862| 
+863| 	for (i = 0; i < n; ++i) {
+864| 		use = scrub_resumed_stats(&data[i], &local);
+865| 		if (scrub_write_buf(fd, fsid, strlen(fsid)) ||
+866| 		    scrub_write_buf(fd, ":", 1) ||
+867| 		    scrub_writev(fd, buf, sizeof(buf), "%lld",
+868| 					use->scrub_args.devid) ||
+869| 		    scrub_write_buf(fd, buf, ret) ||
+870| 		    _SCRUB_KVWRITE(fd, buf, data_extents_scrubbed, use) ||
+871| 		    _SCRUB_KVWRITE(fd, buf, tree_extents_scrubbed, use) ||
+872| 		    _SCRUB_KVWRITE(fd, buf, data_bytes_scrubbed, use) ||
+873| 		    _SCRUB_KVWRITE(fd, buf, tree_bytes_scrubbed, use) ||
+874| 		    _SCRUB_KVWRITE(fd, buf, read_errors, use) ||
+875| 		    _SCRUB_KVWRITE(fd, buf, csum_errors, use) ||
+876| 		    _SCRUB_KVWRITE(fd, buf, verify_errors, use) ||
+877| 		    _SCRUB_KVWRITE(fd, buf, no_csum, use) ||
+878| 		    _SCRUB_KVWRITE(fd, buf, csum_discards, use) ||
+879| 		    _SCRUB_KVWRITE(fd, buf, super_errors, use) ||
+880| 		    _SCRUB_KVWRITE(fd, buf, malloc_errors, use) ||
+881| 		    _SCRUB_KVWRITE(fd, buf, uncorrectable_errors, use) ||
+882| 		    _SCRUB_KVWRITE(fd, buf, corrected_errors, use) ||
+883| 		    _SCRUB_KVWRITE(fd, buf, last_physical, use) ||
+884| 		    _SCRUB_KVWRITE_STATS(fd, buf, t_start, use) ||
+885| 		    _SCRUB_KVWRITE_STATS(fd, buf, t_resumed, use) ||
+886| 		    _SCRUB_KVWRITE_STATS(fd, buf, duration, use) ||
+887| 		    _SCRUB_KVWRITE_STATS(fd, buf, canceled, use) ||
+888| 		    _SCRUB_KVWRITE_STATS(fd, buf, finished, use) ||
+889| 		    scrub_write_buf(fd, "\n", 1)) {
+890| 			return -EOVERFLOW;
+891| 		}
+892| 	}
+893| 
+894| 	return 0;
+895| }
+896| 
+897| static int scrub_write_progress(pthread_mutex_t *m, const char *fsid,
+898| 				struct scrub_progress *data, int n)
+899| {
+900| 	int ret;
+--
+903| 	int old;
+904| 
+905| 	ret = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &old);
+906| 	if (ret) {
+907| 		err = -ret;
+908| 		goto out3;
+909| 	}
+910| 
+911| 	ret = pthread_mutex_lock(m);
+912| 	if (ret) {
+913| 		err = -ret;
+914| 		goto out2;
+915| 	}
+916| 
+917| 	fd = scrub_open_file_w(SCRUB_DATA_FILE, fsid, "tmp");
+918| 	if (fd < 0) {
+919| 		err = fd;
+920| 		goto out1;
+921| 	}
+922| 	err = scrub_write_file(fd, fsid, data, n);
+923| 	if (err)
+924| 		goto out1;
+925| 	err = scrub_rename_file(SCRUB_DATA_FILE, fsid, "tmp");
+926| 	if (err)
+927| 		goto out1;
+928| 
+929| out1:
+930| 	if (fd >= 0) {
+931| 		ret = close(fd);
+932| 		if (ret)
+933| 			err = -errno;
+934| 	}
+935| 
+936| 	ret = pthread_mutex_unlock(m);
+937| 	if (ret && !err)
+938| 		err = -ret;
+939| 
+940| out2:
+941| 	ret = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &old);
+942| 	if (ret && !err)
+943| 		err = -ret;
+944| 
+945| out3:
+946| 	return err;
+--
+949| static void *scrub_one_dev(void *ctx)
+950| {
+951| 	struct scrub_progress *sp = ctx;
+952| 	int ret;
+953| 	struct timeval tv;
+954| 
+955| 	sp->stats.canceled = 0;
+956| 	sp->stats.duration = 0;
+957| 	sp->stats.finished = 0;
+958| 
+959| 	ret = syscall(SYS_ioprio_set, IOPRIO_WHO_PROCESS, 0,
+960| 		      IOPRIO_PRIO_VALUE(sp->ioprio_class,
+961| 					sp->ioprio_classdata));
+962| 	if (ret)
+963| 		warning("setting ioprio failed: %m (ignored)");
+964| 
+965| 	ret = ioctl(sp->fd, BTRFS_IOC_SCRUB, &sp->scrub_args);
+966| 	gettimeofday(&tv, NULL);
+967| 	sp->ret = ret;
+968| 	sp->stats.duration = tv.tv_sec - sp->stats.t_start;
+969| 	sp->stats.canceled = !!ret;
+970| 	sp->ioctl_errno = errno;
+971| 	ret = pthread_mutex_lock(&sp->progress_mutex);
+972| 	if (ret)
+973| 		return ERR_PTR(-ret);
+974| 	sp->stats.finished = 1;
+975| 	ret = pthread_mutex_unlock(&sp->progress_mutex);
+976| 	if (ret)
+977| 		return ERR_PTR(-ret);
+978| 
+--
+1018| 	struct sockaddr_un peer;
+1019| 	socklen_t peer_size = sizeof(peer);
+1020| 
+1021| 	perr = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &old);
+1022| 	if (perr)
+1023| 		goto out;
+1024| 
+--
+1042| 	while (1) {
+1043| 		ret = poll(&accept_poll_fd, 1, 5 * 1000);
+1044| 		if (ret == -1) {
+1045| 			ret = -errno;
+1046| 			goto out;
+--
+1085| 				if (perr)
+1086| 					goto out;
+1087| 				perr = pthread_setcancelstate(
+1088| 						PTHREAD_CANCEL_ENABLE, &old);
+1089| 				if (perr)
+1090| 					goto out;
+1091| 				memcpy(sp, sp_last, sizeof(*sp));
+1092| 				continue;
+1093| 			}
+1094| 			perr = pthread_mutex_unlock(&sp_shared->progress_mutex);
+1095| 			if (perr)
+1096| 				goto out;
+1097| 			perr = pthread_setcancelstate(
+1098| 					PTHREAD_CANCEL_ENABLE, &old);
+1099| 			if (perr)
+1100| 				goto out;
+1101| 			memcpy(sp, sp_shared, sizeof(*sp));
+1102| 			memcpy(sp_last, sp_shared, sizeof(*sp));
+1103| 		}
+1104| 		if (peer_fd != -1) {
+--
+1118| 			close(peer_fd);
+1119| 			peer_fd = -1;
+1120| 		}
+1121| 		if (!spc->do_record)
+1122| 			continue;
+1123| 		ret = scrub_write_progress(spc->write_mutex, fsid,
+1124| 					   &spc->progress[this * ndev], ndev);
+1125| 		if (ret)
+1126| 			goto out;
+--
+1292| 		case 'B':
+1293| 			do_background = false;
+1294| 			do_wait = true;
+1295| 			do_print = true;
+1296| 			break;
+--
+1335| 	if (mkdir_p(datafile)) {
+1336| 		warning("cannot create scrub data file, mkdir %s failed: %m, status recording disabled",
+1337| 			datafile);
+1338| 		do_record = false;
+1339| 	}
+1340| 
+1341| 	path = argv[optind];
+1342| 
+1343| 	fdmnt = btrfs_open_mnt(path);
+1344| 	if (fdmnt < 0)
+1345| 		return 1;
+--
+1375| 	 * Check for stale information in the status file, ie. if it's
+1376| 	 * canceled=0, finished=0 but no scrub is running.
+1377| 	 */
+1378| 	if (!is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices))
+1379| 		force = true;
+--
+1429| 		sp[i].fd = fdmnt;
+1430| 		if (resume && last_scrub && (last_scrub->stats.canceled ||
+1431| 					     !last_scrub->stats.finished)) {
+1432| 			++n_resume;
+1433| 			sp[i].scrub_args.start = last_scrub->p.last_physical;
+1434| 			sp[i].resumed = last_scrub;
+1435| 		} else if (resume) {
+1436| 			sp[i].skip = 1;
+1437| 			sp[i].resumed = last_scrub;
+1438| 			continue;
+1439| 		} else {
+1440| 			++n_start;
+1441| 			sp[i].scrub_args.start = 0ll;
+1442| 			sp[i].resumed = NULL;
+1443| 		}
+1444| 		sp[i].skip = 0;
+1445| 		sp[i].scrub_args.end = (u64)-1ll;
+1446| 		sp[i].scrub_args.flags = readonly ? BTRFS_SCRUB_READONLY : 0;
+1447| 		sp[i].ioprio_class = ioprio_class;
+1448| 		sp[i].ioprio_classdata = ioprio_classdata;
+1449| 		sp[i].limit = read_scrub_device_limit(fdmnt, devid);
+1450| 	}
+1451| 
+1452| 	if (!n_start && !n_resume) {
+--
+1500| 
+1501| 	if (do_record) {
+1502| 		/* write all-zero progress file for a start */
+1503| 		ret = scrub_write_progress(&spc_write_mutex, fsid, sp,
+1504| 					   fi_args.num_devices);
+1505| 		if (ret) {
+1506| 			errno = -ret;
+1507| 			warning("failed to write the progress status file: %m, status recording disabled");
+1508| 			do_record = false;
+1509| 		}
+1510| 	}
+1511| 
+1512| 	if (do_background) {
+1513| 		pid = fork();
+1514| 		if (pid == -1) {
+1515| 			error("cannot scrub, fork failed: %m");
+1516| 			err = 1;
+1517| 			goto out;
+1518| 		}
+1519| 
+1520| 		if (pid) {
+1521| 			int stat;
+1522| 			scrub_handle_sigint_parent();
+1523| 			pr_default("scrub %s on %s, fsid %s (pid=%d)\n",
+1524| 				   n_start ? "started" : "resumed",
+1525| 				   path, fsid, pid);
+1526| 			if (!do_wait) {
+1527| 				err = 0;
+1528| 				goto out;
+1529| 			}
+1530| 			ret = wait(&stat);
+1531| 			if (ret != pid) {
+1532| 				error("wait failed (ret=%d): %m", ret);
+1533| 				err = 1;
+1534| 				goto out;
+1535| 			}
+1536| 			if (!WIFEXITED(stat) || WEXITSTATUS(stat)) {
+1537| 				err = WIFEXITED(stat) ? WEXITSTATUS(stat) : -1;
+1538| 				error("scrub process failed with error %d", err);
+1539| 				goto out;
+1540| 			}
+1541| 			err = 0;
+1542| 			goto out;
+1543| 		}
+1544| 	}
+1545| 
+1546| 	scrub_handle_sigint_child(fdmnt);
+--
+1548| 	for (i = 0; i < fi_args.num_devices; ++i) {
+1549| 		if (sp[i].skip) {
+1550| 			sp[i].scrub_args.progress = sp[i].resumed->p;
+1551| 			sp[i].stats = sp[i].resumed->stats;
+1552| 			sp[i].ret = 0;
+1553| 			sp[i].stats.finished = 1;
+1554| 			continue;
+1555| 		}
+1556| 		devid = di_args[i].devid;
+1557| 		gettimeofday(&tv, NULL);
+1558| 		sp[i].stats.t_start = tv.tv_sec;
+1559| 		pr_default("Starting scrub on devid %llu", devid);
+1560| 		if (sp[i].limit > 0)
+1561| 			pr_default(" (limit %s/s)\n", pretty_size(sp[i].limit));
+1562| 		else
+1563| 			pr_default("\n");
+1564| 
+1565| 		ret = pthread_create(&t_devs[i], NULL,
+1566| 					scrub_one_dev, &sp[i]);
+1567| 		if (ret) {
+1568| 			if (do_print) {
+1569| 				errno = ret;
+1570| 				error(
+1571| 				"creating scrub_one_dev[%llu] thread failed: %m",
+1572| 					devid);
+1573| 			}
+1574| 			err = 1;
+1575| 			goto out;
+1576| 		}
+1577| 	}
+1578| 
+--
+1599| 		if (ret < 0) {
+1600| 			errno = -ret;
+1601| 			warning("failed to reset scrub throughput limit on devid %llu: %m",
+1602| 				di_args[i].devid);
+1603| 		}
+1604| 
+1605| 		if (sp[i].skip)
+1606| 			continue;
+1607| 		devid = di_args[i].devid;
+1608| 		ret = pthread_join(t_devs[i], NULL);
+1609| 		if (ret) {
+1610| 			if (do_print) {
+1611| 				errno = ret;
+1612| 				error(
+1613| 				"pthread_join failed for scrub_one_dev[%llu]: %m",
+1614| 					devid);
+1615| 			}
+1616| 			++err;
+1617| 			continue;
+1618| 		}
+1619| 		if (sp[i].ret) {
+1620| 			switch (sp[i].ioctl_errno) {
+1621| 			case ENODEV:
+1622| 				if (do_print)
+1623| 					warning("device %lld not present",
+1624| 						devid);
+1625| 				continue;
+1626| 			case ECANCELED:
+1627| 				++err;
+1628| 				break;
+1629| 			default:
+1630| 				if (do_print) {
+1631| 					errno = sp[i].ioctl_errno;
+1632| 					error(
+1633| 		"scrubbing %s failed for device id %lld: ret=%d, errno=%d (%m)",
+1634| 						path, devid, sp[i].ret,
+1635| 						sp[i].ioctl_errno);
+1636| 				}
+1637| 				++err;
+1638| 				continue;
+1639| 			}
+1640| 		}
+1641| 		if (sp[i].scrub_args.progress.uncorrectable_errors > 0)
+1642| 			e_uncorrectable++;
+1643| 		if (sp[i].scrub_args.progress.corrected_errors > 0
+1644| 		    || sp[i].scrub_args.progress.unverified_errors > 0)
+1645| 			e_correctable++;
+1646| 	}
+1647| 
+1648| 	if (do_print) {
+1649| 		const char *append = "done";
+1650| 		u64 total_bytes_scrubbed = 0;
+--
+1684| 
+1685| 	ret = pthread_cancel(t_prog);
+1686| 	if (!ret)
+1687| 		ret = pthread_join(t_prog, &terr);
+1688| 
+1689| 	/* check for errors from the handling of the progress thread */
+1690| 	if (do_print && ret) {
+1691| 		errno = ret;
+1692| 		error("progress thread handling failed: %m");
+1693| 	}
+1694| 
+1695| 	/* check for errors returned from the progress thread itself */
+1696| 	if (do_print && terr && terr != PTHREAD_CANCELED) {
+1697| 		errno = -PTR_ERR(terr);
+1698| 		error("recording progress failed: %m");
+1699| 	}
+1700| 
+1701| 	if (do_record) {
+1702| 		ret = scrub_write_progress(&spc_write_mutex, fsid, sp,
+1703| 					   fi_args.num_devices);
+1704| 		if (ret && do_print) {
+1705| 			errno = -ret;
+1706| 			error("failed to record the result: %m");
+1707| 		}
+1708| 	}
+1709| 
+1710| 	scrub_handle_sigint_child(-1);
+1711| 
+1712| out:
+--
+== kernel scrub.c v7.2.11 sha256 f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8 ==
+2073|  * indicate the reason:
+2074|  * - -ECANCELED - Being explicitly canceled through ioctl.
+2075|  * - -EINTR     - Being interrupted by signal or fs/process freezing.
+2076|  */
+2077| static int should_cancel_scrub(const struct scrub_ctx *sctx)
+2078| {
+2079| 	struct btrfs_fs_info *fs_info = sctx->fs_info;
+2080| 
+2081| 	if (atomic_read(&fs_info->scrub_cancel_req) ||
+2082| 	    atomic_read(&sctx->cancel_req))
+2083| 		return -ECANCELED;
+2084| 
+--
+2168| 	struct scrub_stripe *stripe;
+2169| 	bool all_empty = true;
+2170| 	const int data_stripes = nr_data_stripes(map);
+2171| 	unsigned long extent_bitmap = 0;
+2172| 	int ret;
+2173| 
+2174| 	ASSERT(sctx->raid56_data_stripes);
+2175| 
+2176| 	ret = should_cancel_scrub(sctx);
+2177| 	if (ret < 0)
+2178| 		return ret;
+2179| 
+2180| 	if (atomic_read(&fs_info->scrub_pause_req))
+--
+3166| 	__scrub_blocked_if_needed(fs_info);
+3167| 	atomic_inc(&fs_info->scrubs_running);
+3168| 	mutex_unlock(&fs_info->scrub_lock);
+3169| 
+3170| 	/*
+3171| 	 * In order to avoid deadlock with reclaim when there is a transaction
+3172| 	 * trying to pause scrub, make sure we use GFP_NOFS for all the
+3173| 	 * allocations done at btrfs_scrub_sectors() and scrub_sectors_for_parity()
+3174| 	 * invoked by our callees. The pausing request is done when the
+3175| 	 * transaction commit starts, and it blocks the transaction until scrub
+3176| 	 * is paused (done at specific points at scrub_stripe() or right above
+3177| 	 * before incrementing fs_info->scrubs_running).
+3178| 	 */
+3179| 	nofs_flag = memalloc_nofs_save();
+3180| 	if (!is_dev_replace) {
+3181| 		u64 old_super_errors;
+3182| 
+3183| 		spin_lock(&sctx->stat_lock);
+3184| 		old_super_errors = sctx->stat.super_errors;
+3185| 		spin_unlock(&sctx->stat_lock);
+3186| 
+3187| 		btrfs_info(fs_info, "scrub: started on devid %llu", devid);
+3188| 		/*
+3189| 		 * by holding device list mutex, we can
+3190| 		 * kick off writing super in log tree sync.
+3191| 		 */
+3192| 		mutex_lock(&fs_info->fs_devices->device_list_mutex);
+3193| 		ret = scrub_supers(sctx, dev);
+3194| 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
+3195| 
+3196| 		spin_lock(&sctx->stat_lock);
+3197| 		/*
+3198| 		 * Super block errors found, but we can not commit transaction
+3199| 		 * at current context, since btrfs_commit_transaction() needs
+3200| 		 * to pause the current running scrub (hold by ourselves).
+3201| 		 */
+3202| 		if (sctx->stat.super_errors > old_super_errors && !sctx->readonly)
+3203| 			need_commit = true;
+3204| 		spin_unlock(&sctx->stat_lock);
+3205| 	}
+3206| 
+3207| 	if (!ret)
+3208| 		ret = scrub_enumerate_chunks(sctx, dev, start, end);
+3209| 	memalloc_nofs_restore(nofs_flag);
+3210| 
+3211| 	atomic_dec(&fs_info->scrubs_running);
+3212| 	wake_up(&fs_info->scrub_pause_wait);
+3213| 
+3214| 	if (progress)
+3215| 		memcpy(progress, &sctx->stat, sizeof(*progress));
+3216| 
+--
+3277| int btrfs_scrub_cancel(struct btrfs_fs_info *fs_info)
+3278| {
+3279| 	mutex_lock(&fs_info->scrub_lock);
+3280| 	if (!atomic_read(&fs_info->scrubs_running)) {
+3281| 		mutex_unlock(&fs_info->scrub_lock);
+3282| 		return -ENOTCONN;
+3283| 	}
+3284| 
+3285| 	atomic_inc(&fs_info->scrub_cancel_req);
+3286| 	while (atomic_read(&fs_info->scrubs_running)) {
+3287| 		mutex_unlock(&fs_info->scrub_lock);
+3288| 		wait_event(fs_info->scrub_pause_wait,
+3289| 			   atomic_read(&fs_info->scrubs_running) == 0);
+3290| 		mutex_lock(&fs_info->scrub_lock);
+3291| 	}
+3292| 	atomic_dec(&fs_info->scrub_cancel_req);
+3293| 	mutex_unlock(&fs_info->scrub_lock);
+3294| 
+3295| 	return 0;
+3296| }
+--
+== kernel ioctl.c v7.2.11 sha256 7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01 ==
+3094| 			      &sa->progress, sa->flags & BTRFS_SCRUB_READONLY,
+3095| 			      false);
+3096| 
+3097| 	/*
+3098| 	 * Copy scrub args to user space even if btrfs_scrub_dev() returned an
+3099| 	 * error. This is important as it allows user space to know how much
+3100| 	 * progress scrub has done. For example, if scrub is canceled we get
+3101| 	 * -ECANCELED from btrfs_scrub_dev() and return that error back to user
+3102| 	 * space. Later user space can inspect the progress from the structure
+3103| 	 * btrfs_ioctl_scrub_args and resume scrub from where it left off
+3104| 	 * previously (btrfs-progs does this).
+3105| 	 * If we fail to copy the btrfs_ioctl_scrub_args structure to user space
+3106| 	 * then return -EFAULT to signal the structure was not copied or it may
+3107| 	 * be corrupt and unreliable due to a partial copy.
+3108| 	 */
+3109| 	if (copy_to_user(arg, sa, sizeof(*sa)))
+3110| 		ret = -EFAULT;
+3111| 
+3112| 	if (!(sa->flags & BTRFS_SCRUB_READONLY))
+3113| 		mnt_drop_write_file(file);
+3114| 
+3115| 	return ret;
+3116| }
+3117| 
+3118| static long btrfs_ioctl_scrub_cancel(struct btrfs_fs_info *fs_info)
+3119| {
+3120| 	if (!capable(CAP_SYS_ADMIN))
+3121| 		return -EPERM;
+3122| 
+3123| 	return btrfs_scrub_cancel(fs_info);
+3124| }
+3125| 
+--
+5576| 	case BTRFS_IOC_WAIT_SYNC:
+5577| 		return btrfs_ioctl_wait_sync(fs_info, argp);
+5578| 	case BTRFS_IOC_SCRUB:
+5579| 		return btrfs_ioctl_scrub(file, argp);
+5580| 	case BTRFS_IOC_SCRUB_CANCEL:
+5581| 		return btrfs_ioctl_scrub_cancel(fs_info);
+5582| 	case BTRFS_IOC_SCRUB_PROGRESS:
+5583| 		return btrfs_ioctl_scrub_progress(fs_info, argp);
+5584| 	case BTRFS_IOC_BALANCE_V2:
+--

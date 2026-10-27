@@ -1,0 +1,34 @@
+PREDICTION — C1ExecHandRepro, derived by hand from the census header contract
+("Round-44 addition (C1)") and probe_scrub_record (census at 7e081698:1967-2038)
+BEFORE any run. Caller = ns uid 1 (outer 100000), fixture owned by ns root.
+
+Fixture A: /var/lib/btrfs mode 0755; scrub.status.<F> 0600 root;
+            scrub.status.<F>_tmp 0600 root (btrfs-progs opens both with 0600, S237:483);
+            scrub.progress.<F> unix socket; sysfs devinfo/1 = "0", devinfo/2 = "52428800";
+            wants link btrfs-scrub@-.timer.
+  -> dir present (r-x for other)              ds=present
+  -> one regular record, not readable         rec=1, unr+=1
+  -> one regular tmp, not readable            tmp=1, unr+=1  => unreadable=2
+  -> one socket of the right type             sock=1
+  -> fsid is in sysfs                          orph=0
+  -> dev 1 reads 0 (^0+$)                      lim+=0
+  -> dev 2 reads 52428800 (nonzero)            lim=1, info="5f9d1c2e:2:speed_max=52428800,"
+  -> wants dir listable, instance link counted tim=1
+  -> blocked=0, rec+tmp+sock=3 > 0             state=RECORDED
+  detail = info only (no blocked entries)      detail=5f9d1c2e:2:speed_max=52428800
+
+PREDICTED LINE A:
+SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=1 sockets=1 unreadable=2 orphan=0 limited=1 timers=1 detail=5f9d1c2e:2:speed_max=52428800
+
+Fixture A' (tmp widened to 0644, record stays 0600): unreadable=1, everything else unchanged.
+PREDICTED LINE A':
+SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=1 sockets=1 unreadable=1 orphan=0 limited=1 timers=1 detail=5f9d1c2e:2:speed_max=52428800
+
+Fixture B: /var/lib/btrfs mode 0700 (owned by ns root); children as in A.
+  -> [ -d ] true, [ -r ] false -> ds=unreadable, blocked=1, detail="dir:unreadable,"
+  -> the scrub.* glob loop is inside the else branch, so rec=tmp=sock=unr=orph=0
+  -> sysfs still read: lim=1, info appended after the blocked detail
+  -> timers still read: tim=1
+  -> state=BLOCKED
+PREDICTED LINE B:
+SCRUB btrfs-scrub-record state=BLOCKED dir=unreadable records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=1 timers=1 detail=dir:unreadable,5f9d1c2e:2:speed_max=52428800

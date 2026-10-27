@@ -14,18 +14,19 @@ or calls a privileged ioctl.
 
 ## SR7
 
-**Statement.** In Linux v7.2.11 a device carries a scrub context exactly while `btrfs_scrub_dev` runs on it:
-`btrfs_scrub_dev` refuses with `-EINPROGRESS` when `dev->scrub_ctx` is already set, attaches its own context before
-the scrub starts and sets `dev->scrub_ctx` back to NULL when it ends. `btrfs_scrub_dev` serves both a scrub and a
-device replace (its `is_dev_replace` argument) [inference for the replace side: its caller is in
-`fs/btrfs/dev-replace.c`, opened this round at v7.2.11 lines 701-703 and 1265-1267 but not pinned].
-`btrfs_scrub_progress` looks the requested devid up under `device_list_mutex`; it copies that context's `stat` and
-returns 0 only when the device exists and carries a context, returns `-ENOTCONN` when the device exists without one,
-and `-ENODEV` when no device has that devid. The progress ioctl handler (after its `CAP_SYS_ADMIN` gate, SR6) returns
-that value and copies the arguments back to the caller only when it is 0. So for a privileged `btrfs scrub status`,
-`is_scrub_running_in_kernel` (SR6) answers 1 exactly when some device it asks about is being scrubbed, or is the
-source of a running replace, at that moment: an idle device answers `ENOTCONN`, never 0, and the answer is a
-momentary per-device reading, not a record of past scrubs.
+**Statement.** In Linux v7.2.11 a device carries a scrub context exactly while a scrub or device-replace run is
+in progress on it: `btrfs_scrub_dev` refuses with `-EINPROGRESS` when `dev->scrub_ctx` is already set, attaches its
+context at scrub.c:3159 after all refusal checks and before any scrub work, and clears it at scrub.c:3222 once the
+scrub work has ended, before the function's finalize tail; every return path leaves the field as it found it.
+`btrfs_scrub_dev` serves both a scrub and a device replace (its `is_dev_replace` argument) [inference for the replace
+side: its caller is in `fs/btrfs/dev-replace.c`, opened this round at v7.2.11 lines 701-703 and 1265-1268 but not
+pinned]. `btrfs_scrub_progress` looks the requested devid up under `device_list_mutex`; it copies that context's
+`stat` and returns 0 only when the device exists and carries a context, returns `-ENOTCONN` when the device exists
+without one, and `-ENODEV` when no device has that devid. The progress ioctl handler (after its `CAP_SYS_ADMIN`
+gate, SR6) returns that value and copies the arguments back to the caller only when it is 0. So for a privileged
+`btrfs scrub status`, `is_scrub_running_in_kernel` (SR6) answers 1 exactly when some device it asks about is being
+scrubbed, or is the source of a running replace, at that moment: an idle device answers `ENOTCONN`, never 0, and the
+answer is a momentary per-device reading, not a record of past scrubs.
 
 **Quote.** `S242` scrub.c:3081: "bool readonly, bool is_dev_replace)"
 
@@ -60,7 +61,10 @@ read it, and only its owner (root) can write it. Reading prints the device's in-
 decimal number followed by a newline. Writing parses the text with `memparse`, so a size suffix such as `K`, `M` or
 `G` is accepted, skips trailing whitespace including the newline, and rejects anything else after the number with
 `-EINVAL`. The scrub throttle reads the value as bytes per second and returns at once when it is 0, so 0 means
-no limit.
+no limit. The value is in-memory only: written with `WRITE_ONCE` into `struct btrfs_device` and read with
+`READ_ONCE`; nothing on this write path persists it, so a single-device filesystem loses it on unmount and the
+device's `kzalloc` initialisation restores 0 [inference: no persistence site was found in `fs/btrfs` at v7.2.11;
+`kzalloc_obj` zeroes the device allocation].
 
 **Quote.** `S243` sysfs.c:72: "#define BTRFS_ATTR_RW(_prefix, _name, _show, _store)"
 

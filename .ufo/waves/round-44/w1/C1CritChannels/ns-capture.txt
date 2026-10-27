@@ -1,0 +1,47 @@
+=== NS-STATE (python, ns-root) ===
+uid_map: 0       1000          1 |          1     100000      65535
+gid_map: 0       1000          1 |          1     100000      65535
+423 504 0:97 / /mnt rw,relatime - tmpfs r44lib rw,mode=755,uid=1000,gid=1000,inode64,huge=advise
+425 550 0:127 / /sys/fs/btrfs rw,relatime - tmpfs r44view rw,mode=755,uid=1000,gid=1000,inode64,huge=advise
+732 504 0:137 / /var/lib rw,relatime - tmpfs r44view rw,mode=755,uid=1000,gid=1000,inode64,huge=advise
+771 504 0:138 / /etc/systemd/system rw,relatime - tmpfs r44view rw,mode=755,uid=1000,gid=1000,inode64,huge=advise
+---
+/sys/fs/btrfs tmpfs
+/var/lib tmpfs
+/etc/systemd/system tmpfs
+/mnt tmpfs
+---
+user:[4026533760]
+mnt:[4026533764]
+---
+python3 inner2.py
+
+=== CENSUS-PROC (after setpriv reuid=1000 regid=1000 clear-groups) ===
+1000
+1000
+1000
+
+status: Uid:	1000	1000	1000	1000
+Gid:	1000	1000	1000	1000
+Groups:	 
+
+pwd: /mnt/home
+HOME=/home/vgpnk PWD=/mnt/home SHLVL=2 _=pwd
+
+argv0=bash
+BASH_SOURCE0=
+
+stdin: stdin: EOF-or-empty
+
+owner: /var/lib/btrfs/scrub.status.1d02a454-c549-4a35-b567-89d60902af8e uid=0 gid=0 mode=644
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max uid=0 gid=0 mode=644
+total 4
+-rw-r--r-- 1 root root 15 Oct 26 21:09 scrub.status.1d02a454-c549-4a35-b567-89d60902af8e
+
+nslinks: user:[4026533760]
+mnt:[4026533764]
+
+parent: python3 inner2.py
+
+mountcnt: 37
+

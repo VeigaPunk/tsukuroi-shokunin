@@ -1,0 +1,11 @@
+--- pristine-census.sh	2026-10-26 21:08:39.979676693 -0300
++++ mh.sh	2026-10-26 21:18:28.139358066 -0300
+@@ -1989,7 +1989,7 @@
+         if [ "$nl" -ne 1 ] || ! [[ $v =~ ^[0-9]+$ ]]; then
+           blocked=1; detail+="$fs8:${dev##*/}:speed-malformed,"; continue
+         fi
+-        if ! [[ $v =~ ^0+$ ]]; then lim=$((lim + 1)); info+="$fs8:${dev##*/}:speed_max=$v,"; fi
++        if [ "$v" != 0 ]; then lim=$((lim + 1)); info+="$fs8:${dev##*/}:speed_max=$v,"; fi
+       done
+     done
+   fi

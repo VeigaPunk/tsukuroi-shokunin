@@ -1,0 +1,101 @@
+== pass 0: digest verification ==
+  PASS  .ufo/waves/round-44/frozen/src/scrub.c  | expected f347931b795c738d… got f347931b795c738d…
+  PASS  .ufo/waves/round-44/frozen/src/sysfs.c  | expected ce146120f29ac29c… got ce146120f29ac29c…
+  PASS  .ufo/waves/round-44/frozen/src/btrfs-scrub@.timer  | expected 9a0b6cc23f7bd97b… got 9a0b6cc23f7bd97b…
+  PASS  .ufo/waves/round-44/frozen/src/btrfs-scrub@.service  | expected eaa7af92d28bfa89… got eaa7af92d28bfa89…
+  PASS  .ufo/waves/round-44/frozen/src/PKGBUILD  | expected 3b803e8b05d84900… got 3b803e8b05d84900…
+  PASS  .ufo/waves/round-42/frozen/src/scrub.c  | expected 48df2e2f468f7db7… got 48df2e2f468f7db7…
+  PASS  .ufo/waves/round-42/frozen/src/CHANGES  | expected bd881ab899ba4f4f… got bd881ab899ba4f4f…
+  PASS  .ufo/waves/round-43/frozen/src/ioctl.c  | expected 7b3488f2f8356313… got 7b3488f2f8356313…
+  info  .ufo/waves/round-44/frozen/hostcap/capture.txt sha256 efb523889035cba62235d904b9e254068a7083dd07e7bb338ce2a803a3e84900
+
+doc corpus/knowledge/btrfs-scrub-record-r44.md@7e081698d4fc: 145 lines
+
+== pass A: every **Quote.** line against its snapshot ==
+  PASS  doc:30 S242 scrub.c:3081
+  PASS  doc:32 S242 scrub.c:3147
+  PASS  doc:34 S242 scrub.c:3153
+  PASS  doc:36 S242 scrub.c:3159
+  PASS  doc:38 S242 scrub.c:3222
+  PASS  doc:40 S242 scrub.c:3321
+  PASS  doc:42 S242 scrub.c:3331
+  PASS  doc:44 S242 scrub.c:3333
+  PASS  doc:46 S242 scrub.c:3336
+  PASS  doc:48 S240 ioctl.c:3139
+  PASS  doc:50 S240 ioctl.c:3141
+  PASS  doc:65 S243 sysfs.c:72
+  PASS  doc:67 S243 sysfs.c:74
+  PASS  doc:69 S243 sysfs.c:2028
+  PASS  doc:71 S243 sysfs.c:2040
+  PASS  doc:73 S243 sysfs.c:2042
+  PASS  doc:75 S243 sysfs.c:2044
+  PASS  doc:77 S243 sysfs.c:2048
+  PASS  doc:79 S242 scrub.c:1380
+  PASS  doc:81 S242 scrub.c:1381
+  PASS  doc:98 S244 PKGBUILD:100
+  PASS  doc:100 S244 PKGBUILD:101
+  PASS  doc:102 S244 btrfs-scrub@.timer:5
+  PASS  doc:104 S244 btrfs-scrub@.timer:7
+  PASS  doc:106 S244 btrfs-scrub@.timer:8
+  PASS  doc:108 S244 btrfs-scrub@.timer:11
+  PASS  doc:110 S244 btrfs-scrub@.service:9
+  PASS  doc:112 S244 btrfs-scrub@.service:10
+  PASS  doc:114 S237 scrub.c:1293
+  PASS  doc:116 S237 scrub.c:1295
+  PASS  doc:118 S237 scrub.c:421
+  PASS  doc:120 S237 scrub.c:1546
+  PASS  doc:122 S237 scrub.c:969
+  note  doc:65 S243 sysfs.c:72 quote is a strict prefix of the line (dropped tail '\t\t\t\\', no ellipsis)
+  PASS  quote line count = 33 (doc has 33)
+
+== pass B: Statement-cell line/function claims ==
+ SR7
+  PASS  SR7 'refuses ... when dev->scrub_ctx is already set' guard at scrub.c:3147  | if (dev->scrub_ctx ||
+  PASS  SR7 -EINPROGRESS at scrub.c:3153 inside that guard  | guard 3147..3154
+  PASS  SR7 function btrfs_scrub_dev defined  | scrub.c:3079
+  PASS  SR7 'attaches its own context before the scrub starts'  | attach scrub.c:3159 < first scrub work scrub.c:3193
+  PASS  SR7 'sets dev->scrub_ctx back to NULL when it ends'  | detach scrub.c:3222 > last scrub work scrub.c:3215
+  PASS  SR7 'looks the requested devid up under device_list_mutex'  | progress@3321 lock@3328 find@3329 unlock@3334
+  PASS  SR7 'copies that context's stat' at scrub.c:3333  | memcpy(progress, &sctx->stat, sizeof(*progress));
+  PASS  SR7 0/-ENOTCONN/-ENODEV return at scrub.c:3336  | return dev ? (sctx ? 0 : -ENOTCONN) : -ENODEV;
+  PASS  SR7 ioctl handler: CAP_SYS_ADMIN gate before the call  | handler@3126 gate@3132 call@3139 copy_to_user@3141
+  PASS  SR7 'copies the arguments back only when it is 0' at ioctl.c:3141  | if (ret == 0 && copy_to_user(arg, sa, sizeof(*sa)))
+ SR8
+  PASS  SR8 BTRFS_ATTR_RW declared at sysfs.c:72  | #define BTRFS_ATTR_RW(_prefix, _name, _show, _store)			\
+  PASS  SR8 mode 0644 built at sysfs.c:74  | __INIT_KOBJ_ATTR(_name, 0644, _show, _store)
+  PASS  SR8 decimal + newline read at sysfs.c:2028  | return sysfs_emit(buf, "%llu\n", READ_ONCE(device->scrub_speed_max));
+  PASS  SR8 store order memparse -> skip_spaces -> -EINVAL  | memparse@2040 skip_spaces@2042 EINVAL@2044
+  PASS  SR8 'rejects anything else after the number' at sysfs.c:2043  | if (*endptr != 0)
+  PASS  SR8 attribute registration at sysfs.c:2048  | BTRFS_ATTR_RW(devid, scrub_speed_max, btrfs_devinfo_scrub_speed_max_show,
+  PASS  SR8 throttle reads scrub_speed_max and returns at once when 0  | fn@1371 read@1380 zero@1381 return@1382
+ SR9
+  PASS  SR9 PKGBUILD:100 installs the service  | install -Dm644 btrfs-scrub@.service "${pkgdir}/usr/lib/systemd/system/btrfs-scrub@.service"
+  PASS  SR9 PKGBUILD:101 installs the timer  | install -Dm644 btrfs-scrub@.timer "${pkgdir}/usr/lib/systemd/system/btrfs-scrub@.timer"
+  PASS  SR9 '-B' keeps foreground (do_background=false) and sets do_print  | case 'B'@1292..1296
+  PASS  SR9 SIGINT handler installed by scrub_handle_sigint_child  | scrub.c:439
+  PASS  SR9 handler issues BTRFS_IOC_SCRUB_CANCEL  | scrub.c:421
+  PASS  SR9 foreground start calls scrub_handle_sigint_child(fdmnt)  | do_background@1512 fg call@1546 background call@1710
+  PASS  SR9 canceled set from the scrub ioctl return  | ioctl@965 canceled@969
+
+== pass C (extra): Host reading cell pointers into capture.txt ==
+  PASS  capture.txt has at least 9 lines  | 9 lines
+  PASS  capture.txt:1 'no effective capabilities'  | captured 2026-10-26T23:53:22Z uid=1000 CapEff=0000000000000000
+  PASS  capture.txt:4 devid 1 scrub_speed_max mode=644 owner=root value=0  | scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root value=0
+  PASS  capture.txt:5 no timers.target.wants link  | wants_btrfs_scrub_instances 0
+  PASS  capture.txt:6 instance disabled  | is_enabled_btrfs-scrub@-.timer disabled
+  PASS  capture.txt:7,8 installed units byte-identical to the pinned digests  | installed_unit 9a0b6cc23f7bd97b83b6c38dd / installed_unit eaa7af92d28bfa8940bb55156
+  PASS  capture.txt:9 package ownership  | pacman_owner /usr/lib/systemd/system/btrfs-scrub@.timer is owned by btrfs-progs 7.1-1
+
+== pass D (extra): function names and sysfs path named in the statements ==
+  PASS  name btrfs_scrub_dev defined  | scrub.c:3079
+  PASS  name btrfs_scrub_progress defined  | scrub.c:3321
+  PASS  SR7 'its is_dev_replace argument' in the signature  | scrub.c:3081
+  PASS  SR7 'serves both a scrub and a device replace' — is_dev_replace branches in the body  | 7 uses: lines [3081, 3109, 3121, 3127, 3148, 3180, 3217]
+  PASS  SR7's SR6 referent is_scrub_running_in_kernel answers 1 on the first 0  | fn@1190 ioctl@1200 -> return 1
+  PASS  name BTRFS_ATTR_RW defined  | sysfs.c:72
+  PASS  name memparse used  | sysfs.c:2040
+  PASS  name skip_spaces used  | sysfs.c:2042
+  PASS  name BTRFS_IOC_SCRUB_CANCEL used  | r42 scrub.c:421
+  PASS  SR8 'devinfo/<devid>/scrub_speed_max under /sys/fs/btrfs/<fsid>/'  | sysfs.c:36, 2165-2166
+
+RESULT: ALL CHECKS PASS

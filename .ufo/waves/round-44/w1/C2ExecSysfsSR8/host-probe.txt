@@ -1,0 +1,35 @@
+## host probe 2026-10-26T21:2xZ uid=1000 CapEff=0000000000000000
+F=/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max
+$ stat -c '%A %a %U:%G %s %n' $F
+-rw-r--r-- 644 root:root 4096 /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max
+$ ls -l $(dirname $F)/
+total 0
+-r--r--r-- 1 root root 4096 Oct 26 16:41 error_stats
+-r--r--r-- 1 root root 4096 Oct 26 16:41 fsid
+-r--r--r-- 1 root root 4096 Oct 26 16:41 in_fs_metadata
+-r--r--r-- 1 root root 4096 Oct 26 16:41 missing
+-r--r--r-- 1 root root 4096 Oct 26 16:41 replace_target
+-rw-r--r-- 1 root root 4096 Oct 26 16:41 scrub_speed_max
+-r--r--r-- 1 root root 4096 Oct 26 16:41 writeable
+$ cat $F
+0
+$ test -w $F && echo RW || echo denied
+denied
+$ test -r $F && echo readable || echo denied
+readable
+$ ls /sys/fs/btrfs
+1d02a454-c549-4a35-b567-89d60902af8e
+features
+$ ls $(dirname $(dirname $F))
+1
+$ findmnt -no SOURCE,OPTIONS --target /
+/dev/mapper/root[/@] rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@
+$ uname -r; pacman -Q btrfs-progs
+7.2.11-arch1-1
+error: openai-chatgpt: missing required signature
+btrfs-progs 7.1-1
+
+## note on `pacman -Q btrfs-progs` above
+# this environment prints "error: openai-chatgpt: missing required signature" on stderr before the
+# package line (observed also for a bare `pacman -Q btrfs-progs` run from the fleet root, rc=0);
+# the authoritative output is the line "btrfs-progs 7.1-1", which matches frozen/hostcap/capture.txt:9.

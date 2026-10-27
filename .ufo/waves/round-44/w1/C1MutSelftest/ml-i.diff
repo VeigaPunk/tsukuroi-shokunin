@@ -1,0 +1,11 @@
+--- pristine-census.sh	2026-10-26 21:08:39.979676693 -0300
++++ mi.sh	2026-10-26 21:18:28.151733435 -0300
+@@ -2032,7 +2032,7 @@
+     fi
+   fi
+   local state=NONE
+-  if [ "$blocked" -eq 1 ]; then state=BLOCKED; elif [ $((rec + tmp + sock)) -gt 0 ]; then state=RECORDED; fi
++  if [ "$blocked" -eq 1 ]; then state=BLOCKED; elif [ "$rec" -gt 0 ]; then state=RECORDED; fi
+   SCRUB_LINE="SCRUB btrfs-scrub-record state=$state dir=$ds records=$rec tmp=$tmp sockets=$sock unreadable=$unr orphan=$orph limited=$lim timers=$tim"
+   detail+=$info
+   if [ -n "$detail" ]; then SCRUB_LINE+=" detail=${detail%,}"; fi

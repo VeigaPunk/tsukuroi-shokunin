@@ -1,0 +1,33 @@
+Census reader sites at lane tip ff2c264a (round-44 w1) — evidence for ConnFrontier item X-3.
+
+Foreign-baseline lookup (the "census :746 lookup case"; tip line 779, full-read form):
+  tools/tsukuroi-census.sh:779
+      bn=$(printf '%s\n' "$base_txt" | awk -v n="$nm" '$1 == n && !f { print $2; f = 1 }')   # full read (round 42: an awk `exit` under pipefail killed the census on a large baseline)
+
+Five single-line probe readers (`printf '%s\n' "$CAP_OUT" | head -n1 | …`) at tip:
+  :967   state=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+         producer: systemctl --user is-system-running --no-pager (probe_systemd_user)
+  :1005  r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r')
+         producer: systemctl --user show <t> -p Result --value --no-pager
+  :1087  driver=$(printf '%s\n' "$CAP_OUT" | head -n1 | awk -F', *' '{print $NF}')
+         producer: nvidia-smi --query-gpu=name,driver_version --format=csv,noheader
+  :1462  t_word=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+         producer: systemctl is-active graphical.target --no-pager
+  :1537  r=$(printf '%s\n' "$CAP_OUT" | head -n1 | tr -d '\r' | sed -E 's/[[:space:]]+$//')
+         producer: systemctl --user show <t> -p ActiveState --value --no-pager
+
+Selftest FOREIGN-baseline cases exist only for the 16-row embedded/override baseline and the
+absent-baseline case (lines 2262, 2399-2432, 2727); no case drives TSUKUROI_FOREIGN_BASELINE
+past the pipe buffer (~64 KiB). Large-output selftest cases exist for -Qkk/-Qu/-Sup/-Suu
+(lines 2465-2695, R42-C1) but not for the foreign baseline lookup.
+
+boot-chain-audit.sh round-43 fix in place: helper inputs_newer_than at line 463; R43-C1-*
+selftest cases at lines 1231-1238 (no find-output early reader remains).
+
+Live host state (read-only):
+  /var/lib/btrfs absent (ls: No such file or directory)
+  /etc/systemd/system/timers.target.wants/ has no btrfs-scrub@* links
+  /sys/fs/btrfs/ holds one fsid (1d02a454-c549-4a35-b567-89d60902af8e) + features
+  /dev/nvme0n1 brw-rw---- root:disk 259,1; vgpnk groups: docker,input,wheel (no disk)
+  smartctl, nvme installed (/usr/bin/smartctl, /usr/bin/nvme); unprivileged open of the
+  NVMe device is not possible (mode 660 root:disk), and sudo is banned to seats.

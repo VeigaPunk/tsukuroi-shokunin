@@ -1,0 +1,66 @@
+# C2-3 auxiliary live fetches (not part of the frozen set) — 2026-10-26
+# host: Linux 7.2.11-arch1-1 x86_64; every URL below fetched with curl -sfL from git.kernel.org plain?h=v7.2.11, rc=0
+
+## dev-replace.c — SR7 statement bracket "lines 701-703 and 1265-1267"
+url  https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/fs/btrfs/dev-replace.c?h=v7.2.11
+f07ef0a0d260cf67b7c2aff0542ec13204f9761e33df0ea9feedf143cc034f3a  live/dev-replace.c
+lines 1322
+call sites: 701 948 1265 
+--- 699-704 ---
+699:
+700:	/* the disk copy procedure reuses the scrub code */
+701:	ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+702:			      btrfs_device_get_total_bytes(src_device),
+703:			      &dev_replace->scrub_progress, false, true);
+704:
+--- 1264-1269 ---
+1264:
+1265:	ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,
+1266:			      dev_replace->committed_cursor_left,
+1267:			      btrfs_device_get_total_bytes(dev_replace->srcdev),
+1268:			      &dev_replace->scrub_progress, false, true);
+1269:	ret = btrfs_dev_replace_finishing(fs_info, ret);
+
+## lib/cmdline.c — memparse (grounds SR8 "a size suffix such as K, M or G is accepted")
+1af5ad98fface0b59694e7565c33be2e37c089cc9a1a841285414ee94546ca9d  live/cmdline.c
+141:/**
+142: *	memparse - parse a string with mem suffixes into a number
+143: *	@ptr: Where parse begins
+144: *	@retptr: (output) Optional pointer to next char after parse completes
+145: *
+146: *	Parses a string into a number.  The number stored at @ptr is
+147: *	potentially suffixed with K, M, G, T, P, E.
+148: *
+149: *	Return: The value as recognized by simple_strtoull() multiplied
+150: *	by the value as specified by suffix, if any.
+151: */
+152:
+180:		fallthrough;
+181:	case 'K':
+182:	case 'k':
+183:		shl += 10;
+184:		fallthrough;
+185:	default:
+186:		break;
+note: lib/parser.c (sha 85e9d6941d8086812db4da4564b7bf4816dd9899238adb956536e8b136786db8) has no memparse; lib/cmdline.c is the definition.
+
+## lib/string_helpers.c — skip_spaces (grounds SR8 "skips trailing whitespace including the newline")
+674e41d0f69f197783bc6970fd887a52e2cd92ff7956ac6b2d0bb700c2969535  live/c_string_helpers.c
+840:/**
+841: * skip_spaces - Removes leading whitespace from @str.
+842: * @str: The string to be stripped.
+843: *
+844: * Returns a pointer to the first non-whitespace character in @str.
+845: */
+846:char *skip_spaces(const char *str)
+847:{
+848:	while (isspace(*str))
+849:		++str;
+850:	return (char *)str;
+851:}
+852:EXPORT_SYMBOL(skip_spaces);
+isspace() covers space, \t, \n, \v, \f, \r — so a trailing newline is skipped.
+
+## include/linux/string.h — declaration only
+4dbc380b35f81d4e3992abae48fbb23b4f392fd28f633d0d96114be166d5dfd5  live/string.h
+182:extern char * __must_check skip_spaces(const char *);

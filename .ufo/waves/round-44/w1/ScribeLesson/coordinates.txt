@@ -1,0 +1,46 @@
+# coordinate and count receipts (seat ScribeLesson, 2026-10-26)
+$ git log --format="%h %ad %s" --date=iso -- tools/check-scrub-record-r44.py
+1d2afffe 2026-10-26 20:37:25 -0300 round-44: declaration, frozen C1/C2 counters, control batteries + receipts, pinned sources and host capture
+$ git log --format="%h %ad %s" --date=iso -n 4
+ff2c264a 2026-10-26 21:04:58 -0300 round-44: w1 spec, generator and validated dispatch (46 seats)
+7e081698 2026-10-26 21:02:02 -0300 round-44: C2 SR7 narrowed before wave 1 (btrfs_scrub_dev also serves device replace); C1 after receipt at ab8aae1
+ab8aae16 2026-10-26 20:59:38 -0300 round-44: C1 scrub-record census arm + 9 selftest cases; C2 draft entry SR7-SR9, S242-S245, S237/S240 used-by, r43 pointer and SR1 Limits correction; before receipts
+1d2afffe 2026-10-26 20:37:25 -0300 round-44: declaration, frozen C1/C2 counters, control batteries + receipts, pinned sources and host capture
+$ sha256sum tools/check-scrub-record-r44.py ; git show 1d2afffe:... | sha256sum
+c96aeda99fc53336c7a12c3a492a5745bfbca28e3334d2b98f0547532a4c8059  tools/check-scrub-record-r44.py
+c96aeda99fc53336c7a12c3a492a5745bfbca28e3334d2b98f0547532a4c8059  -
+$ grep -c "(R44-C1)" tools/tsukuroi-census.sh
+9
+$ grep -n "probe_scrub_record" tools/tsukuroi-census.sh | head -3
+1967:probe_scrub_record() {
+3375:  probe_scrub_record
+$ grep -n "was not reproduced" corpus/knowledge/btrfs-scrub-record-r43.md   # tip
+153:- SR1's trailing-bytes consequence is read from the open flags and was not reproduced (no record exists on this
+159:Appended 2026-10-26 (round-43 closure routed defect R43-SR1-LIMITS-CONTRADICTION, `corpus/lessons/round-43-verifier-spotcheck.md` §5 item 1); the text above stays as filed. The second "Limits" bullet ("SR1's trailing-bytes consequence is read from the open flags and was not reproduced") contradicts SR1's own statement and its evidence: the consequence was not observed on this host (no record exists and no scrub is run), but it was reproduced in a scratch harness compiled from the pinned write path, round-43 wave-1 seat C2ExecTailRepro (`.ufo/waves/round-43/w1/C2ExecTailRepro.md`, the relation `final = new_record || old_record[len(new_record):]` checked byte-wise there). Read that bullet as: "SR1's trailing-bytes consequence is inferred from the open flags and reproduced in a harness compiled from the pinned write path; it is not observed on this host (no record exists and no scrub is run)." `SKILL.md` "Scrub record re-grounded — round 43" already says "[inference, reproduced in a harness]" and `PROVINCE.md` carries no reproduction claim, so neither needs a correction.
+$ git show 98020ece:corpus/knowledge/btrfs-scrub-record-r43.md | sed -n 152p
+- SR1's trailing-bytes consequence is read from the open flags and was not reproduced (no record exists on this
+$ grep -n "Corrections — round 44\|extended-by" corpus/knowledge/btrfs-scrub-record-r43.md | cut -c1-120
+4:extended-by: round 44 — rows SR7 (the success direction of the scrub-progress ioctl SR6 cites), SR8 (the per-device `scrub_speed_max` attribute) and SR9 (the packaged scrub timer and service) are in `corpus/knowledge/btrfs-scrub-record-r44.md`; the "Limits" sentence on SR1 is corrected in "Corrections — round 44" at the end of this file.
+157:## Corrections — round 44
+extended-by: round 44 — rows SR7 (the success direction of the scrub-progress ioctl SR6 cites), SR8 (the per-device `scrub_speed_max` attribute) and SR9 (the packaged scrub timer and service) are in
+$ grep -ln "Limits" tools/check-*.py tools/score-*.py
+tools/check-adjacency-overlap.py
+$ sed -n "296p" tools/check-scrub-record-r44.py  (prop check)
+        p_ok = bool(st) and all(t in st for t in spec['props'])
+$ sed -n "86p" tools/check-scrub-record-r44.py  (SR7 props)
+    'SR7': {'novelty': 'ENOTCONN', 'props': ['btrfs_scrub_progress', 'scrub_ctx', 'ENOTCONN', 'ENODEV', 'EINPROGRESS'],
+$ sed -n "3081p" .ufo/waves/round-44/frozen/src/scrub.c
+		    bool readonly, bool is_dev_replace)
+$ ls .ufo/waves/round-44/frozen/src/
+FETCH.txt
+PKGBUILD
+SHA256SUMS
+btrfs-scrub@.service
+btrfs-scrub@.timer
+scrub.c
+sysfs.c
+$ python3 -c "..." C1 after receipt fields
+{'revision': 'ab8aae1627426c29e1445e30da0efb0c19c1bca1', 'cases': 16, 'correct': 16, 'identity': ['1000', '1000', '1000'], 'identity_ok': 1, 'wired_ok': 1, 'live_agree': 1, 'selftest_line': 'TSUKUROI_CENSUS_SELFTEST: PASS (141 cases, 141 passed, 0 failed)', 'selftest_r44': 9, 'channels_open': ['mount table', 'uid_map', 'script path /mnt/census-lib.sh']}
+$ tail -1 .ufo/waves/round-44/controls/battery-summary-c2.jsonl ; head -c 200 battery-summary-c1.jsonl
+{"should_fail_accepted": 0, "control_accepted": 1}
+{"should_fail_accepted": 0, "control_accepted": 1}

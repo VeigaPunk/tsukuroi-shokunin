@@ -1,0 +1,162 @@
+# fs/btrfs/scrub.c flush/join points (why no I/O outlives the clear)
+90:	SCRUB_STRIPE_FLAG_REPAIR_DONE,
+392:static void wait_scrub_stripe_io(struct scrub_stripe *stripe)
+976:				wait_scrub_stripe_io(stripe);
+992:			wait_scrub_stripe_io(stripe);
+1160:static void scrub_stripe_read_repair_worker(struct work_struct *work)
+1175:	wait_scrub_stripe_io(stripe);
+1200:		wait_scrub_stripe_io(stripe);
+1224:		wait_scrub_stripe_io(stripe);
+1242:			wait_scrub_stripe_io(stripe);
+1247:	set_bit(SCRUB_STRIPE_FLAG_REPAIR_DONE, &stripe->state);
+1270:		INIT_WORK(&stripe->work, scrub_stripe_read_repair_worker);
+1317:	wait_scrub_stripe_io(stripe);
+1868:		INIT_WORK(&stripe->work, scrub_stripe_read_repair_worker);
+1955:static int flush_scrub_stripes(struct scrub_ctx *sctx)
+1978:			   test_bit(SCRUB_STRIPE_FLAG_REPAIR_DONE, &stripe->state));
+2013:		wait_scrub_stripe_io(stripe);
+2066:		return flush_scrub_stripes(sctx);
+2252:			   test_bit(SCRUB_STRIPE_FLAG_REPAIR_DONE, &stripe->state));
+2568:	ret2 = flush_scrub_stripes(sctx);
+
+# 1955-2022 flush_scrub_stripes
+1955: static int flush_scrub_stripes(struct scrub_ctx *sctx)
+1956: {
+1957: 	struct btrfs_fs_info *fs_info = sctx->fs_info;
+1958: 	struct scrub_stripe *stripe;
+1959: 	const int nr_stripes = sctx->cur_stripe;
+1960: 	int ret = 0;
+1961: 
+1962: 	if (!nr_stripes)
+1963: 		return 0;
+1964: 
+1965: 	ASSERT(test_bit(SCRUB_STRIPE_FLAG_INITIALIZED, &sctx->stripes[0].state));
+1966: 
+1967: 	/* Submit the stripes which are populated but not submitted. */
+1968: 	if (nr_stripes % SCRUB_STRIPES_PER_GROUP) {
+1969: 		const int first_slot = round_down(nr_stripes, SCRUB_STRIPES_PER_GROUP);
+1970: 
+1971: 		submit_initial_group_read(sctx, first_slot, nr_stripes - first_slot);
+1972: 	}
+1973: 
+1974: 	for (int i = 0; i < nr_stripes; i++) {
+1975: 		stripe = &sctx->stripes[i];
+1976: 
+1977: 		wait_event(stripe->repair_wait,
+1978: 			   test_bit(SCRUB_STRIPE_FLAG_REPAIR_DONE, &stripe->state));
+1979: 	}
+1980: 
+1981: 	/* Submit for dev-replace. */
+1982: 	if (sctx->is_dev_replace) {
+1983: 		/*
+1984: 		 * For dev-replace, if we know there is something wrong with
+1985: 		 * metadata, we should immediately abort.
+1986: 		 */
+1987: 		for (int i = 0; i < nr_stripes; i++) {
+1988: 			if (unlikely(stripe_has_metadata_error(&sctx->stripes[i]))) {
+1989: 				ret = -EIO;
+1990: 				goto out;
+1991: 			}
+1992: 		}
+1993: 		for (int i = 0; i < nr_stripes; i++) {
+1994: 			unsigned long good;
+1995: 			unsigned long has_extent;
+1996: 			unsigned long error;
+1997: 
+1998: 			stripe = &sctx->stripes[i];
+1999: 
+2000: 			ASSERT(stripe->dev == fs_info->dev_replace.srcdev);
+2001: 
+2002: 			has_extent = scrub_bitmap_read_has_extent(stripe);
+2003: 			error = scrub_bitmap_read_error(stripe);
+2004: 			bitmap_andnot(&good, &has_extent, &error, stripe->nr_sectors);
+2005: 			scrub_write_sectors(sctx, stripe, good, true);
+2006: 		}
+2007: 	}
+2008: 
+2009: 	/* Wait for the above writebacks to finish. */
+2010: 	for (int i = 0; i < nr_stripes; i++) {
+2011: 		stripe = &sctx->stripes[i];
+2012: 
+2013: 		wait_scrub_stripe_io(stripe);
+2014: 		spin_lock(&sctx->stat_lock);
+2015: 		sctx->stat.last_physical = stripe->physical + stripe_length(stripe);
+2016: 		spin_unlock(&sctx->stat_lock);
+2017: 		scrub_reset_stripe(stripe);
+2018: 	}
+2019: out:
+2020: 	sctx->cur_stripe = 0;
+2021: 	return ret;
+2022: }
+
+# 1236-1250 repair worker completion
+1236: 		      stripe->nr_sectors);
+1237: 	if (!sctx->readonly && !bitmap_empty(&repaired, stripe->nr_sectors)) {
+1238: 		if (btrfs_is_zoned(fs_info)) {
+1239: 			btrfs_repair_one_zone(fs_info, sctx->stripes[0].bg->start);
+1240: 		} else {
+1241: 			scrub_write_sectors(sctx, stripe, repaired, false);
+1242: 			wait_scrub_stripe_io(stripe);
+1243: 		}
+1244: 	}
+1245: 
+1246: 	scrub_stripe_report_errors(sctx, stripe, &errors);
+1247: 	set_bit(SCRUB_STRIPE_FLAG_REPAIR_DONE, &stripe->state);
+1248: 	wake_up(&stripe->repair_wait);
+1249: }
+1250: 
+
+# 2560-2591 scrub_stripe out: flush on every exit
+2560: next:
+2561: 		logical += increment;
+2562: 		physical += BTRFS_STRIPE_LEN;
+2563: 		spin_lock(&sctx->stat_lock);
+2564: 		sctx->stat.last_physical = physical;
+2565: 		spin_unlock(&sctx->stat_lock);
+2566: 	}
+2567: out:
+2568: 	ret2 = flush_scrub_stripes(sctx);
+2569: 	if (!ret)
+2570: 		ret = ret2;
+2571: 	btrfs_release_path(&sctx->extent_path);
+2572: 	btrfs_release_path(&sctx->csum_path);
+2573: 
+2574: 	if (sctx->raid56_data_stripes) {
+2575: 		for (int i = 0; i < nr_data_stripes(map); i++)
+2576: 			release_scrub_stripe(&sctx->raid56_data_stripes[i]);
+2577: 		kfree(sctx->raid56_data_stripes);
+2578: 		sctx->raid56_data_stripes = NULL;
+2579: 	}
+2580: 
+2581: 	if (sctx->is_dev_replace && ret >= 0) {
+2582: 		ret2 = sync_write_pointer_for_zoned(sctx,
+2583: 				chunk_logical + offset,
+2584: 				map->stripes[stripe_index].physical,
+2585: 				physical_end);
+2586: 		if (ret2)
+2587: 			ret = ret2;
+2588: 	}
+2589: 
+2590: 	return ret < 0 ? ret : 0;
+2591: }
+
+# 2240-2258 raid56 parity join
+2240: 	}
+2241: 	if (all_empty)
+2242: 		return 0;
+2243: 
+2244: 	for (int i = 0; i < data_stripes; i++) {
+2245: 		stripe = &sctx->raid56_data_stripes[i];
+2246: 		scrub_submit_initial_read(sctx, stripe);
+2247: 	}
+2248: 	for (int i = 0; i < data_stripes; i++) {
+2249: 		stripe = &sctx->raid56_data_stripes[i];
+2250: 
+2251: 		wait_event(stripe->repair_wait,
+2252: 			   test_bit(SCRUB_STRIPE_FLAG_REPAIR_DONE, &stripe->state));
+2253: 	}
+2254: 	/* For now, no zoned support for RAID56. */
+2255: 	ASSERT(!btrfs_is_zoned(sctx->fs_info));
+2256: 
+2257: 	/*
+2258: 	 * Now all data stripes are properly verified. Check if we have any

@@ -1,0 +1,104 @@
+## capability / permission grep in the scrub_speed_max write chain (v7.2.11, sparse tree)
+$ git grep -n "capable(\|ns_capable\|CAP_SYS_ADMIN\|CAP_DAC" -- fs/btrfs/sysfs.c fs/sysfs fs/kernfs lib/kobject.c kernel/capability.c
+fs/btrfs/sysfs.c:775:	if (!capable(CAP_SYS_ADMIN))
+fs/btrfs/sysfs.c:864:	if (!capable(CAP_SYS_ADMIN))
+fs/btrfs/sysfs.c:1178:	if (!capable(CAP_SYS_RESOURCE))
+fs/btrfs/sysfs.c:1224:	if (!capable(CAP_SYS_RESOURCE))
+kernel/capability.c:282:	ret = security_capable(__task_cred(t), ns, cap, CAP_OPT_NONE);
+kernel/capability.c:307:	ret = security_capable(__task_cred(t), ns, cap, CAP_OPT_NOAUDIT);
+kernel/capability.c:331:static bool ns_capable_common(struct user_namespace *ns,
+kernel/capability.c:338:		pr_crit("capable() called with invalid cap=%u\n", cap);
+kernel/capability.c:342:	capable = security_capable(current_cred(), ns, cap, opts);
+kernel/capability.c:351: * ns_capable - Determine if the current task has a superior capability in effect
+kernel/capability.c:361:bool ns_capable(struct user_namespace *ns, int cap)
+kernel/capability.c:363:	return ns_capable_common(ns, cap, CAP_OPT_NONE);
+kernel/capability.c:365:EXPORT_SYMBOL(ns_capable);
+kernel/capability.c:368: * ns_capable_noaudit - Determine if the current task has a superior capability
+kernel/capability.c:379:bool ns_capable_noaudit(struct user_namespace *ns, int cap)
+kernel/capability.c:381:	return ns_capable_common(ns, cap, CAP_OPT_NOAUDIT);
+kernel/capability.c:383:EXPORT_SYMBOL(ns_capable_noaudit);
+kernel/capability.c:386: * ns_capable_setid - Determine if the current task has a superior capability
+kernel/capability.c:398:bool ns_capable_setid(struct user_namespace *ns, int cap)
+kernel/capability.c:400:	return ns_capable_common(ns, cap, CAP_OPT_INSETID);
+kernel/capability.c:402:EXPORT_SYMBOL(ns_capable_setid);
+kernel/capability.c:414:bool capable(int cap)
+kernel/capability.c:416:	return ns_capable(&init_user_ns, cap);
+kernel/capability.c:422: * file_ns_capable - Determine if the file's opener had a capability in effect
+kernel/capability.c:433:bool file_ns_capable(const struct file *file, struct user_namespace *ns,
+kernel/capability.c:440:	if (security_capable(file->f_cred, ns, cap, CAP_OPT_NONE) == 0)
+kernel/capability.c:445:EXPORT_SYMBOL(file_ns_capable);
+kernel/capability.c:478:	return ns_capable(ns, cap) &&
+kernel/capability.c:491:bool ptracer_capable(struct task_struct *tsk, struct user_namespace *ns)
+kernel/capability.c:499:		ret = security_capable(cred, ns, CAP_SYS_PTRACE,
+=> only fs/btrfs/sysfs.c:775,864,1178,1224 (chunk_size, force_chunk_alloc, commit_stats, quota_override) and fs/namei.c in VFS; none in the devid group or the kernfs/sysfs write path.
+
+## enclosing stores of those capable() calls
+sysfs.c:775 -> static ssize_t btrfs_chunk_size_store(struct kobject *kobj,
+sysfs.c:864 -> static ssize_t btrfs_force_chunk_alloc_store(struct kobject *kobj,
+sysfs.c:1178 -> static ssize_t btrfs_commit_stats_store(struct kobject *kobj,
+sysfs.c:1224 -> static ssize_t quota_override_store(struct kobject *kobj,
+
+## mode plumbing (numbered)
+    72	#define BTRFS_ATTR_RW(_prefix, _name, _show, _store)			\
+    73		static struct kobj_attribute btrfs_attr_##_prefix##_##_name =	\
+    74				__INIT_KOBJ_ATTR(_name, 0644, _show, _store)
+    75	
+    76	#define BTRFS_ATTR(_prefix, _name, _show)				\
+---
+  2110		BTRFS_ATTR_PTR(devid, in_fs_metadata),
+  2111		BTRFS_ATTR_PTR(devid, missing),
+  2112		BTRFS_ATTR_PTR(devid, replace_target),
+  2113		BTRFS_ATTR_PTR(devid, scrub_speed_max),
+  2114		BTRFS_ATTR_PTR(devid, writeable),
+  2115		NULL
+  2116	};
+  2117	ATTRIBUTE_GROUPS(devid);
+  2118	
+  2119	static void btrfs_release_devid_kobj(struct kobject *kobj)
+  2120	{
+  2121		struct btrfs_device *device = container_of(kobj, struct btrfs_device,
+  2122							   devid_kobj);
+  2123	
+  2124		memset(&device->devid_kobj, 0, sizeof(struct kobject));
+  2125		complete(&device->kobj_unregister);
+  2126	}
+  2127	
+  2128	static const struct kobj_type devid_ktype = {
+  2129		.sysfs_ops	= &kobj_sysfs_ops,
+  2130		.default_groups = devid_groups,
+  2131		.release	= btrfs_release_devid_kobj,
+  2132	};
+  2133	
+---
+  2166					   devinfo_kobj, "%llu", device->devid);
+  2167		if (ret) {
+--- fs/sysfs/group.c 77-83
+    77				WARN(mode & ~(SYSFS_PREALLOC | 0664),
+    78				     "Attribute %s: Invalid permissions 0%o\n",
+    79				     (*attr)->name, mode);
+    80	
+    81				mode &= SYSFS_PREALLOC | 0664;
+    82				error = sysfs_add_file_mode_ns(parent, *attr, mode, uid,
+    83							       gid, NULL);
+--- include/linux/sysfs.h 125, 240-245, 290-299
+#define SYSFS_PREALLOC		010000
+#define __ATTR(_name, _mode, _show, _store) {				\
+	.attr = {.name = __stringify(_name),				\
+		 .mode = VERIFY_OCTAL_PERMISSIONS(_mode) },		\
+	.show	= _show,						\
+	.store	= _store,						\
+}
+#define ATTRIBUTE_GROUPS(_name)					\
+static const struct attribute_group _name##_group = {		\
+	.attrs = _Generic(_name##_attrs,			\
+			  struct attribute **:			\
+				_name##_attrs,			\
+			  const struct attribute *const *:	\
+				(void *)_name##_attrs		\
+	),							\
+};								\
+__ATTRIBUTE_GROUPS(_name)
+--- fs/sysfs/file.c 316
+   316		kn = __kernfs_create_file(parent, attr->name, mode & 0777, uid, gid,
+--- fs/kernfs/dir.c 688
+   688		kn->mode = mode;

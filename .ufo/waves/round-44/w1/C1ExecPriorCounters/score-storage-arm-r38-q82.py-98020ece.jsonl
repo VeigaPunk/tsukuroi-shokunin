@@ -1,0 +1,85 @@
+{"receipt": 1, "revision": "98020ece0674e0b569ee23aed10ffbee355b248e", "tool_revision": "98020ece0674e0b569ee23aed10ffbee355b248e", "tool": "tools/score-storage-arm-r38-q82.py", "lane_branches": ["refs/heads/hyaku/s3-ready66-tsukuroi 626668261c87a7418b8947898e66e9a098502228", "refs/heads/hyaku/s3-tsukuroi-r24-author f169b3ba9a59abaf3e324c1b591e1e07a4d6003a", "refs/heads/master ff2c264a7f7b3fe4aec694ded959566f8f5b7d33", "refs/heads/round20-adjacency-20261021 0cbc34dd6b20896085a8fb07943e3ea4027d8472", "refs/heads/round20-binder-20261021 0cbc34dd6b20896085a8fb07943e3ea4027d8472", "refs/heads/round20-execscope-20261021 0cbc34dd6b20896085a8fb07943e3ea4027d8472", "refs/heads/round20-registry-20261021 0cbc34dd6b20896085a8fb07943e3ea4027d8472", "refs/heads/round23/ExecEditAudit ae01e50f582016384e620022be38bf5367000e2e", "refs/heads/round23/ExecEditContract ae01e50f582016384e620022be38bf5367000e2e", "refs/heads/round23/ExecReconciliation ae01e50f582016384e620022be38bf5367000e2e"], "tool_sha256": "a183ff580cb92cdd276a5720adb54336e7e247c9bd7c81058065e706d62d99e3", "argv": ["tools/score-storage-arm-r38-q82.py", "--revision", "98020ece0674e0b569ee23aed10ffbee355b248e", "--scratch", "/fast/scratch/hyaku/tsukuroi-r44/C1ExecPriorCounters/s/q82-base"], "started_utc": "2026-10-27T00:09:23Z"}
+{
+ "counter": "score-storage-arm-r38-q82",
+ "revision": "98020ece0674e0b569ee23aed10ffbee355b248e",
+ "branch_tip": "ff2c264a7f7b3fe4aec694ded959566f8f5b7d33",
+ "seed": "6bf94c73108e0cc225aedec5063d6ceb",
+ "predicate": "ns_views_matched == VIEWS and ns_available == 1",
+ "views_expected": 3,
+ "ns_views_matched": 3,
+ "ns_available": 1,
+ "result": "PASS",
+ "exit": 0,
+ "views": [
+  {
+   "view": 0,
+   "mode": "zero",
+   "expected": [
+    "HEALTHY",
+    2,
+    3,
+    0
+   ],
+   "got": [
+    "HEALTHY",
+    2,
+    3,
+    0
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=HEALTHY filesystems=2 devices=3 nonzero=0"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 1,
+   "mode": "nonzero",
+   "expected": [
+    "DEGRADED",
+    3,
+    5,
+    10
+   ],
+   "got": [
+    "DEGRADED",
+    3,
+    5,
+    10
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=3 devices=5 nonzero=10 detail=0bfee932:2:read_errs=93726,3e6949de:1:write_errs=86893,3e6949de:1:generation_errs=85274,3e6949de:7:read_errs=19956,3e6949de:7:corruption_errs=59992,3fae78d8:1:read_errs=46689,3fae78d8:1:corruption_errs=87478,3fae78d8:1:generation_errs=26132,3fae78d8:3:read_errs=62516,3fae78d8:3:generation_errs=94470"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  },
+  {
+   "view": 2,
+   "mode": "any",
+   "expected": [
+    "DEGRADED",
+    1,
+    2,
+    5
+   ],
+   "got": [
+    "DEGRADED",
+    1,
+    2,
+    5
+   ],
+   "storage_lines": [
+    "STORAGE btrfs-device-stats state=DEGRADED filesystems=1 devices=2 nonzero=5 detail=a5df26f8:4:write_errs=63240,a5df26f8:4:read_errs=94197,a5df26f8:8:read_errs=52656,a5df26f8:8:flush_errs=46499,a5df26f8:8:corruption_errs=14377"
+   ],
+   "six_planes": true,
+   "census_exit": 2,
+   "stderr_tail": "",
+   "match": true
+  }
+ ]
+}
+{"receipt_end": 1, "exit_code": 0, "timed_out": false, "stderr_tail": "", "finished_utc": "2026-10-27T00:09:29Z"}

@@ -1,0 +1,5 @@
+VERDICT: defect-found
+
+Report: `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-44/w1/SentMisroot.md` (receipt: `.ufo/waves/round-44/w1/SentMisroot/sweep-snapshot.txt`).
+
+Late addendum (peer claim verified, read-only): ConsiderMine's `find tools -name '*.pyc'` = 3 reproduces — `score-pacnew-arm-r35b` 21:11:05, `score-scrub-arm-r44` 21:11:09, `check-scrub-record-r44` 21:22:33 — with `git status --porcelain` still blind to them (`.gitignore:2 __pycache__/`). It is a recurrence, not r43 residue: my two r43 pyc (19:08:50, 19:21:04) and the entire `/fast/scratch/hyaku/tsukuroi-r43` tree are now gone (0 dirs, all ten root strays removed). All three headers match their sources (src_mtime/size), so the loaded code is genuine — the trigger is the loader habit, and `score-pacnew-arm-r35b` stamps a pre-r44 source, widening it beyond this round's counters. Fix unchanged: `PYTHONDONTWRITEBYTECODE=1` plus a `find`/`--ignored` sweep instead of porcelain alone.

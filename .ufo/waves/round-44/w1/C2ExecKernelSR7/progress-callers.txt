@@ -1,0 +1,24 @@
+# btrfs_scrub_progress references, linux v7.2.11
+$ grep -rn btrfs_scrub_progress fs/btrfs
+fs/btrfs/fs.h:389:	struct btrfs_scrub_progress scrub_progress;
+fs/btrfs/ioctl.c:3139:	ret = btrfs_scrub_progress(fs_info, sa->devid, &sa->progress);
+fs/btrfs/scrub.c:217:	struct btrfs_scrub_progress stat;
+fs/btrfs/scrub.c:3080:		    u64 end, struct btrfs_scrub_progress *progress,
+fs/btrfs/scrub.c:3321:int btrfs_scrub_progress(struct btrfs_fs_info *fs_info, u64 devid,
+fs/btrfs/scrub.c:3322:			 struct btrfs_scrub_progress *progress)
+fs/btrfs/scrub.h:10:struct btrfs_scrub_progress;
+fs/btrfs/scrub.h:13:		    u64 end, struct btrfs_scrub_progress *progress,
+fs/btrfs/scrub.h:19:int btrfs_scrub_progress(struct btrfs_fs_info *fs_info, u64 devid,
+fs/btrfs/scrub.h:20:			 struct btrfs_scrub_progress *progress);
+fs/btrfs/volumes.c:2749:	 * - Readonly scrub btrfs_scrub_progress()
+
+# include/trace/events/btrfs.h and include/uapi/linux/btrfs.h (fetched separately) - scrub_progress/scrub_ctx: 
+(none in trace events)
+157:struct btrfs_scrub_progress {
+197:	struct btrfs_scrub_progress progress;	/* out */
+199:	__u64 unused[(1024-32-sizeof(struct btrfs_scrub_progress))/8];
+
+# caller surface: ioctl dispatch
+5578:	case BTRFS_IOC_SCRUB:
+5580:	case BTRFS_IOC_SCRUB_CANCEL:
+5582:	case BTRFS_IOC_SCRUB_PROGRESS:

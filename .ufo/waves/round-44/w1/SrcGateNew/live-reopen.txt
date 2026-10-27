@@ -1,0 +1,40 @@
+# SrcGateNew live re-open receipt (UTC 2026-10-27T00:20Z; host local 2026-10-26T21:20-0300)
+# scratch: /fast/scratch/hyaku/tsukuroi-r44/SrcGateNew/curl; frozen: .ufo/waves/round-44/frozen/src
+
+## commands
+curl -sfL --max-time 90 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/fs/btrfs/scrub.c?h=v7.2.11' -o scrub.c   # 200 100417
+curl -sfL --max-time 90 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/fs/btrfs/sysfs.c?h=v7.2.11' -o sysfs.c   # 200 72925
+curl -sfL --max-time 90 'https://gitlab.archlinux.org/archlinux/packaging/packages/btrfs-progs/-/raw/7.1-1/btrfs-scrub@.timer'   -o btrfs-scrub@.timer   # 200 160
+curl -sfL --max-time 90 'https://gitlab.archlinux.org/archlinux/packaging/packages/btrfs-progs/-/raw/7.1-1/btrfs-scrub@.service' -o btrfs-scrub@.service # 200 190
+curl -sfL --max-time 90 'https://gitlab.archlinux.org/archlinux/packaging/packages/btrfs-progs/-/raw/7.1-1/PKGBUILD' -o PKGBUILD # 200 3057
+curl -sfL --max-time 90 'https://raw.githubusercontent.com/gregkh/linux/v7.2.11/fs/btrfs/{scrub.c,sysfs.c}' -o scrub.gregkh.c / sysfs.gregkh.c  # 200 100417 / 200 72925
+
+## sha256 fresh vs frozen (all equal)
+f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8  scrub.c
+ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43  sysfs.c
+9a0b6cc23f7bd97b83b6c38dd2b4e4373fead8bd3ccfb82a47c72971e9d6f8ad  btrfs-scrub@.timer
+eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252  btrfs-scrub@.service
+3b803e8b05d84900fcdab3513720c8005345acd1fe34ded6eaa3b7596c10ce98  PKGBUILD
+
+## mirror byte-identity (cmp -s)
+scrub identical; sysfs identical   # git.kernel.org plain ?h=v7.2.11 == raw.githubusercontent.com/gregkh/linux/v7.2.11
+
+## tag pinnings
+git ls-remote https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git "refs/tags/v7.2.11*"
+8316c24ec1b77dba19ba072ca4fe251b36dc65d3	refs/tags/v7.2.11
+a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea	refs/tags/v7.2.11^{}
+curl https://gitlab.archlinux.org/api/v4/projects/archlinux%2Fpackaging%2Fpackages%2Fbtrfs-progs/repository/tags/7.1-1  -> 200
+name=7.1-1 commit=0c0a4d77b318084ecd35aeeb6888d8a5b4d6e3e0 committed_date=2026-07-15T09:15:06.000+02:00
+
+## row shape (corpus/SOURCES.md at 7e081698, awk -F"|" NF)
+251: NF=13 sid= S242 ; 252: NF=13 S243 ; 253: NF=13 S244 ; 254: NF=13 S245   (11 cells each)
+git diff --stat 7e081698 ff2c264a -- corpus/SOURCES.md   ->  (empty: identical at lane tip)
+
+## own-work capture (frozen, read-only)
+efb523889035cba62235d904b9e254068a7083dd07e7bb338ce2a803a3e84900  capture.txt
+6a297e4ff9c7030c6cfe10feeb6c9198ccf31a574fbe6ce1b755dbf318376f6d  capture.sh
+3b803e8b05d84900fcdab3513720c8005345acd1fe34ded6eaa3b7596c10ce98  PKGBUILD
+eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252  btrfs-scrub@.service
+9a0b6cc23f7bd97b83b6c38dd2b4e4373fead8bd3ccfb82a47c72971e9d6f8ad  btrfs-scrub@.timer
+f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8  scrub.c
+ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43  sysfs.c

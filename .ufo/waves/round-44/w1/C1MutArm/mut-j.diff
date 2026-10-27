@@ -1,0 +1,13 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index f45d0051..4eb83092 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2034,7 +2034,7 @@ probe_scrub_record() {
+   local state=NONE
+   if [ "$blocked" -eq 1 ]; then state=BLOCKED; elif [ $((rec + tmp + sock)) -gt 0 ]; then state=RECORDED; fi
+   SCRUB_LINE="SCRUB btrfs-scrub-record state=$state dir=$ds records=$rec tmp=$tmp sockets=$sock unreadable=$unr orphan=$orph limited=$lim timers=$tim"
+-  detail+=$info
++  detail=$info$detail
+   if [ -n "$detail" ]; then SCRUB_LINE+=" detail=${detail%,}"; fi
+   return 0
+ }

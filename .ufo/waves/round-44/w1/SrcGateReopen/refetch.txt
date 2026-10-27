@@ -1,0 +1,40 @@
+# S237 / S240 live re-open — observed, seat SrcGateReopen (round 44, w1)
+
+workdir: /fast/scratch/hyaku/tsukuroi-r44/SrcGateReopen
+access time: 2026-10-27T00:20:00Z (date -u, same command as the fetches)
+
+## S237 — btrfs-progs v7.1 cmds/scrub.c
+cmd: curl -sSfL -w 'HTTP %{http_code} bytes %{size_download}\n' -o scrub-v7.1.live.c \
+       https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/cmds/scrub.c
+out: HTTP 200 bytes 57034
+sha256 scrub-v7.1.live.c = 48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801
+frozen .ufo/waves/round-42/frozen/src/scrub.c = 48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801 (57034 bytes)
+round-42 SHA256SUMS line = 48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801  scrub.c
+=> live == frozen == SHA256SUMS
+
+## S240 — Linux v7.2.11 fs/btrfs/ioctl.c
+cmd: curl -sSfL -w 'HTTP %{http_code} bytes %{size_download}\n' -o ioctl-v7.2.11.live.c \
+       https://raw.githubusercontent.com/gregkh/linux/v7.2.11/fs/btrfs/ioctl.c
+out: HTTP 200 bytes 145999
+sha256 = 7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01
+frozen .ufo/waves/round-43/frozen/src/ioctl.c = 7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01 (145999 bytes)
+round-43 SHA256SUMS line = 7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  ioctl.c
+
+second route (the plain URL the round-43 FETCH.txt names):
+cmd: curl -sSfL -o ioctl-kerorg.live.c \
+       'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/fs/btrfs/ioctl.c?h=v7.2.11'
+out: kernel.org plain HTTP 200 bytes 145999
+sha256 ioctl-kerorg.live.c = 7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01
+=> both routes byte-identical to the frozen snapshot
+
+## registry URLs (the URLs written in the SOURCES.md rows)
+S237 blob HTTP 200   https://github.com/kdave/btrfs-progs/blob/v7.1/cmds/scrub.c
+S240 tree HTTP 200   https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/fs/btrfs/ioctl.c?h=v7.2.11
+
+## tag pins (git ls-remote, same session)
+0a919c7d6e389c07920675b7fad3f793b92aa78b	refs/tags/v7.1
+4ab0e80be9e3bb1db2e6038e6d4316d35fb7ba8b	refs/tags/v7.1^{}
+8316c24ec1b77dba19ba072ca4fe251b36dc65d3	refs/tags/v7.2.11
+a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea	refs/tags/v7.2.11^{}
+=> equal to round-42 FETCH.txt ("tag v7.1 = 0a919c7d…, peeled commit 4ab0e80b…") and
+   round-43 FETCH.txt ("tag v7.2.11 = 8316c24e…, peeled commit a2de78ee…")

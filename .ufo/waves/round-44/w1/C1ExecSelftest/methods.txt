@@ -1,0 +1,37 @@
+Seat C1ExecSelftest — methods and timings (round 44 w1)
+=============================================================================
+Host: linux 7.2.11-arch1-1, AMD Ryzen 9 9950X, 32 CPUs.
+Ambient session locale: LANG=en_US.UTF-8, LC_ALL unset, LC_COLLATE=en_US.UTF-8.
+Installed locales (`locale -a`): C  C.utf8  en_US.utf8  POSIX.
+
+Exports (read-only, from the lane):
+  git -C <lane> show 7e081698d4fc3c4ea944884fd093058de9909de1:tools/tsukuroi-census.sh > impl.sh
+  git -C <lane> show 98020ece0674e0b569ee23aed10ffbee355b248e:tools/tsukuroi-census.sh > base.sh
+  fca419b4714f7d24314b8d5877f0992c7f326aa8ff80045743990d058e8eaa1c  impl.sh  (3396 lines)
+  7c9f79036782de951a69325fe6f5cc742d8acac4de389626026bc33d8f7877f9  base.sh  (3220 lines)
+  git -C <lane> diff --stat 7e0816 HEAD -- tools/tsukuroi-census.sh  -> empty (no drift to tip ff2c264a)
+
+Selftest wall-clock (TMPDIR=/fast/scratch/hyaku/tsukuroi-r44/C1ExecSelftest/tmp):
+  env                                  exit  elapsed  log
+  impl.sh, ambient (en_US.UTF-8)       0     27.932 s (real; user 2m15.308s sys 46.821s)  impl-selftest.log
+  base.sh, ambient (en_US.UTF-8)       0     33.006 s (real; user 2m07.509s sys 56.099s)  base-selftest.log
+  impl.sh LANG=LC_ALL=en_US.utf8       0     27.229 s  impl-selftest-en_US.utf8.log
+  impl.sh LANG=LC_ALL=C                0     27.743 s  impl-selftest-C.log
+  impl.sh LANG=LC_ALL=C.utf8           0     31.819 s  impl-selftest-C.utf8.log
+  impl.sh LANG=LC_ALL=en_US.UTF-8      0     30.517 s  impl-selftest-en_US.UTF-8.log
+All five impl runs: TSUKUROI_CENSUS_SELFTEST: PASS (141 cases, 141 passed, 0 failed); base: PASS (132 cases, 132 passed, 0 failed).
+Case-line diffs (`grep '^\(PASS\|FAIL\)'`) between ambient / C / en_US.UTF-8: byte-identical.
+
+Arm-level locale runs (real census, one heavy counter at a time, fixture overrides only for
+TSUKUROI_SCRUB_DIR / TSUKUROI_BTRFS_SYSFS / TSUKUROI_TIMER_WANTS; every other plane read the live
+host read-only; ~2.2 s per run):
+  loc-<locale>.log     : mklocfx.sh fixture, 5 detail entries, run under C / C.utf8 / en_US.utf8 / en_US.UTF-8
+  adv-<locale>.log     : mklocadv.sh fixture, non-ASCII digits + non-ASCII names, C / C.utf8 / en_US.utf8
+  nopin-<locale>.log   : impl.sh with line 1968 (`local LC_ALL=C`) deleted, fixture as loc-*, C / en_US.utf8
+
+Collation mechanism demo (scratch dir coll/m, dirs 2 10 1 20 Zz az):
+  LC_ALL=C        glob -> 1 10 2 20 Zz az
+  LC_ALL=en_US.utf8 glob -> 1 10 2 20 az Zz
+i.e. bash glob order DOES follow LC_ALL; en_US.UTF-8 ignores case at the primary level.
+
+Scratch was removed at the end; nothing was written outside this receipt dir.

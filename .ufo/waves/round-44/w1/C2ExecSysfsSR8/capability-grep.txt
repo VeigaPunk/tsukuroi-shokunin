@@ -1,0 +1,57 @@
+## capability grep, fuller (v7.2.11 sparse tree: fs/btrfs fs/sysfs fs/kernfs lib/kobject.c kernel/capability.c fs/namei.c)
+$ git grep -n "capable(\|ns_capable\|CAP_DAC\|CAP_SYS" -- fs/btrfs/sysfs.c fs/sysfs fs/kernfs lib/kobject.c fs/namei.c
+fs/btrfs/sysfs.c:775:	if (!capable(CAP_SYS_ADMIN))
+fs/btrfs/sysfs.c:864:	if (!capable(CAP_SYS_ADMIN))
+fs/btrfs/sysfs.c:1178:	if (!capable(CAP_SYS_RESOURCE))
+fs/btrfs/sysfs.c:1224:	if (!capable(CAP_SYS_RESOURCE))
+fs/namei.c:537:						     CAP_DAC_READ_SEARCH))
+fs/namei.c:540:					     CAP_DAC_OVERRIDE))
+fs/namei.c:551:					     CAP_DAC_READ_SEARCH))
+fs/namei.c:560:					     CAP_DAC_OVERRIDE))
+fs/namei.c:1264: * CAP_DAC_OVERRIDE needs to be specifically ignored if the symlink is
+fs/namei.c:1376:	    inode_owner_or_capable(idmap, inode))
+fs/namei.c:2781:			    !ns_capable(fd_file(f)->f_cred->user_ns, CAP_DAC_READ_SEARCH))
+fs/namei.c:4318:	if (flag & O_NOATIME && !inode_owner_or_capable(idmap, inode))
+fs/namei.c:5145:	    !capable(CAP_MKNOD))
+fs/namei.c:5857:	 * To use null names we require CAP_DAC_READ_SEARCH or
+
+## the two wrappers that call the driver's show/store — no capability test
+--- fs/sysfs/file.c:136-146 sysfs_kf_write
+   136	static ssize_t sysfs_kf_write(struct kernfs_open_file *of, char *buf,
+   137				      size_t count, loff_t pos)
+   138	{
+   139		const struct sysfs_ops *ops = sysfs_file_ops(of->kn);
+   140		struct kobject *kobj = sysfs_file_kobj(of->kn);
+   141	
+   142		if (!count)
+   143			return 0;
+   144	
+   145		return ops->store(kobj, of->kn->priv, buf, count);
+   146	}
+--- lib/kobject.c:832-842 kobj_attr_store
+   832	static ssize_t kobj_attr_store(struct kobject *kobj, struct attribute *attr,
+   833				       const char *buf, size_t count)
+   834	{
+   835		struct kobj_attribute *kattr;
+   836		ssize_t ret = -EIO;
+   837	
+   838		kattr = container_of(attr, struct kobj_attribute, attr);
+   839		if (kattr->store)
+   840			ret = kattr->store(kobj, kattr, buf, count);
+   841		return ret;
+   842	}
+--- fs/kernfs/file.c:304-315 kernfs_fop_write_iter head (no capability test)
+   304	static ssize_t kernfs_fop_write_iter(struct kiocb *iocb, struct iov_iter *iter)
+   305	{
+   306		struct kernfs_open_file *of = kernfs_of(iocb->ki_filp);
+   307		ssize_t len = iov_iter_count(iter);
+   308		const struct kernfs_ops *ops;
+   309		char *buf;
+   310	
+   311		if (of->atomic_write_len) {
+   312			if (len > of->atomic_write_len)
+   313				return -E2BIG;
+   314		} else {
+   315			len = min_t(size_t, len, PAGE_SIZE);
+--- fs/kernfs/file.c:330 NUL termination
+   330		buf[len] = '\0';	/* guarantee string termination */

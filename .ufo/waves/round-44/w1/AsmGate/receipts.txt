@@ -1,0 +1,13 @@
+access date 2026-10-26 (UTC); seat AsmGate round 44 w1 item F-8
+lane HEAD ff2c264a7f7b3fe4aec694ded959566f8f5b7d33 (impl 7e081698); reg-ids = git -C <lane> show HEAD:corpus/SOURCES.md | grep -oE '^ {0,3}\|[[:space:]]*S[0-9]{3,}' | grep -oE 'S[0-9]+' | sort -> 245 ids S001-S245
+staged-ids = same extractor on /home/vgpnk/Projects/shokuknow/merge/tsukuroi/SOURCES.append.md -> 147 ids S200-S346
+collisions = comm -12 reg-ids staged-ids -> 46 ids S200-S245 (round 43: 42, S200-S241)
+quarantine-slice = awk -F'|' -v l='tsukuroi' '$2 ~ ("`" l "`") && $3 ~ /round[0-9]+/ && $4 ~ /S[0-9]+/ {print $4, $5}' <register> -> 12 rows; cmp equal to round-43/w1/AsmGate/quarantine-slice
+sha256 register 5afe1810a6c3d62f37987b575a954f5b1197daa23005d4bb2f1d982f64bad833 ; SOURCES.append.md 7914d3b93cea2015c00091d7db28ca2acd289d5097cb513ad1176dc0d7148406 ; MERGE-REPORT.md 3b14f7b38e3f3296e6b0fbde25c57d5adba062aa534b52a3cc521534f91ea5fa (all unchanged vs round 43 where recorded)
+live re-fetch: https://man.archlinux.org/man/mkinitcpio.8.raw sha256 3f274415b71f3c92f70bc14e027a1d583d2179efe14cbe4741b7f8c0494fd90f (== round 43; Date 2026-10-01)
+ https://docs.kernel.org/filesystems/ext4/journal.html sha256 2e6693a2725422a22bc1d986a2ee691ca9e7fc2c0e4be26f29808241de2e5649 (== round 43)
+ https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/ch-scrub-intro.rst sha256 c3b9d344e11d842e2aed43d191b120572753bb75e8bbedd5b3e10978d24c3485 (== round 43)
+host: pacman -Q mkinitcpio -> 42.2-1; findmnt: / btrfs, /home btrfs, /boot vfat, /fast xfs (no ext4); /etc/initcpio/{hooks,install,post} empty
+sweeps (staged pkg): grep -ciE scrub MERGE-REPORT.md/.json -> 0/0, SOURCES.append.md -> 1 (S269 ext4 row); knowledge scrub hits only ext4-journal-guarantee-r32.md:6,37,48; regex "btrfs_scrub|scrub_speed|devinfo|btrfs-scrub|timers.target|OnCalendar|Persistent=|KillSignal|/var/lib/btrfs" over knowledge + SOURCES.append.md -> 0 hits; sysfs / "\.timer" -> 0 hits
+grep -rl "## QUALITY check" staged knowledge -> 0 of 70
+count: grep -c "case BTRFS_IOC_" round-43/frozen/src/ioctl.c (sha256 7b3488f2...) -> 64; staged btrfs-ioctl-surface-r27.md table rows -> 9

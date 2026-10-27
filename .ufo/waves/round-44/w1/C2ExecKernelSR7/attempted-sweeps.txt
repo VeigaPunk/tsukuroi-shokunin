@@ -1,0 +1,17 @@
+# attempted sweeps, recorded for honesty (C2ExecKernelSR7)
+date: 2026-10-27T00:21:05Z
+
+1) vacuous (NOT evidence):
+   git grep -n "scrub_ctx" -- ":!fs/btrfs"   in the --filter=blob:none sparse clone
+   -> no output, exit 1; but the same grep for a string known to exist outside fs/btrfs
+   ("BTRFS_IOC_SCRUB_PROGRESS", include/uapi/linux/btrfs.h:1196) also returned nothing,
+   which proves the working tree has no files outside the sparse set: the result is vacuous.
+
+2) timed out (NOT evidence):
+   timeout 240 git grep --cached -n "btrfs_scrub_progress|btrfs_scrub_dev|btrfs_scrub_cancel_dev" -- include/
+   -> exit 124 after real 4m0.004s (user 35m7.383s, sys 23m9.509s): blobless clone fetches
+   blobs on demand; killed by my own timeout (PID-scoped), nothing else signalled.
+
+3) performed (evidence):
+   grep -rn over the full fs/btrfs checkout (131 entries) + curl-fetched
+   include/trace/events/btrfs.h and include/uapi/linux/btrfs.h; see progress-callers.txt.

@@ -1,0 +1,9 @@
+{
+  "counter_sha256": "c96aeda99fc53336c7a12c3a492a5745bfbca28e3334d2b98f0547532a4c8059",
+  "runs": {
+    "baseline_live": {"variant": "live entry + forged all-holds (K3-equivalent)", "exit": 0, "verdict": "PASS", "rows": 3, "quotes_ok": 3, "props_ok": 3, "host_ok": 3, "sources_ok": 1, "verdicts_ok": 3, "pointer_ok": 1},
+    "contradiction": {"variant": "SR7 statement inverted, all 5 prop tokens kept, quotes unchanged", "exit": 0, "verdict": "PASS", "SR7": {"prop_ok": true, "quote_ok": true, "quotes": {"good": 11, "in_window": 10, "bad": 0}, "host_ok": true, "verdict_ok": true}},
+    "irrelevant_quotes": {"variant": "SR8 write-path claims quoted by none of the memparse/EINVAL lines; quotes: sysfs 72/74/2113, scrub 1380/1381", "exit": 0, "verdict": "PASS", "SR8": {"prop_ok": true, "quote_ok": true, "quotes": {"good": 4, "in_window": 4, "bad": 0}, "host_ok": true, "verdict_ok": true}}
+  },
+  "fixture": "git clone --shared <lane>; remote remove origin; toplevel asserted; checkout BASE; overlay; commit as fixture <fixture@invalid>; python3 tools/check-scrub-record-r44.py --lane <D> --revision <sha> --sessions <no-sessions>"
+}

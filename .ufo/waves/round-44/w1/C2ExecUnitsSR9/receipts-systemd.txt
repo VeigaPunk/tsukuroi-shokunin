@@ -1,0 +1,146 @@
+# C2ExecUnitsSR9 receipts — read-only systemd probes, 2026-10-26, host plazir27
+## systemctl --version
+systemd 262 (262-1-arch)
+
+## pacman ownership of the man pages used
+/usr/share/man/man5/systemd.kill.5.gz is owned by systemd 262-1
+/usr/share/man/man5/systemd.timer.5.gz is owned by systemd 262-1
+/usr/share/man/man5/systemd.unit.5.gz is owned by systemd 262-1
+/usr/share/man/man5/systemd.service.5.gz is owned by systemd 262-1
+
+## systemd-escape --path /
+-
+rc=0
+
+## systemctl cat btrfs-scrub@-.timer
+# /usr/lib/systemd/system/btrfs-scrub@.timer
+[Unit]
+Description=Monthly Btrfs scrub on %f
+
+[Timer]
+OnCalendar=monthly
+AccuracySec=1d
+RandomizedDelaySec=1w
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+
+## sha256 of installed vs frozen units
+9a0b6cc23f7bd97b83b6c38dd2b4e4373fead8bd3ccfb82a47c72971e9d6f8ad  /usr/lib/systemd/system/btrfs-scrub@.timer
+eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252  /usr/lib/systemd/system/btrfs-scrub@.service
+9a0b6cc23f7bd97b83b6c38dd2b4e4373fead8bd3ccfb82a47c72971e9d6f8ad  .ufo/waves/round-44/frozen/src/btrfs-scrub@.timer
+eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252  .ufo/waves/round-44/frozen/src/btrfs-scrub@.service
+
+## systemctl show btrfs-scrub@-.service (kill/exec/condition)
+RequiresMountsFor=/
+LoadState=loaded
+FragmentPath=/usr/lib/systemd/system/btrfs-scrub@.service
+DropInPaths=
+UnitFileState=static
+UnitFilePreset=disabled
+ConditionResult=no
+ConditionTimestamp=
+Conditions=[unprintable]
+Type=simple
+TimeoutStartUSec=1min 30s
+TimeoutStopUSec=5s
+ExecStart={ path=/usr/bin/btrfs ; argv[]=/usr/bin/btrfs scrub start -B / ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }
+StandardOutput=journal
+StandardError=inherit
+KillMode=control-group
+KillSignal=2
+FinalKillSignal=9
+SendSIGKILL=yes
+SendSIGHUP=no
+
+## systemctl show btrfs-scrub@-.timer
+ActiveState=inactive
+FragmentPath=/usr/lib/systemd/system/btrfs-scrub@.timer
+UnitFileState=disabled
+UnitFilePreset=disabled
+Unit=btrfs-scrub@-.service
+TimersCalendar={ OnCalendar=*-*-01 00:00:00 ; next_elapse=(null) }
+AccuracyUSec=1d
+RandomizedDelayUSec=1w
+Persistent=yes
+
+## manager defaults
+DefaultTimeoutStartUSec=1min 30s
+DefaultTimeoutStopUSec=5s
+
+## unowned drop-in
+[Manager]
+DefaultTimeoutStopSec=5s
+error: No package owns /etc/systemd/system.conf.d/10-faster-shutdown.conf
+
+## enablement directories
+total 16
+drwxr-xr-x 1 root root  138 Oct 20 09:20 .
+drwxr-xr-x 1 root root 1006 Oct 20 09:48 ..
+lrwxrwxrwx 1 root root   36 Oct 20 08:15 fstrim.timer -> /usr/lib/systemd/system/fstrim.timer
+lrwxrwxrwx 1 root root   38 Oct 20 09:20 paccache.timer -> /usr/lib/systemd/system/paccache.timer
+lrwxrwxrwx 1 root root   45 Oct 20 09:03 snapper-cleanup.timer -> /usr/lib/systemd/system/snapper-cleanup.timer
+lrwxrwxrwx 1 root root   46 Oct 20 09:03 snapper-timeline.timer -> /usr/lib/systemd/system/snapper-timeline.timer
+--- /usr/lib wants
+total 20
+drwxr-xr-x 1 root root   212 Oct 20 09:16 .
+drwxr-xr-x 1 root root 26770 Oct 20 09:38 ..
+lrwxrwxrwx 1 root root    35 Sep  9 04:45 archlinux-keyring-wkd-sync.timer -> ../archlinux-keyring-wkd-sync.timer
+lrwxrwxrwx 1 root root    15 Jul 16 12:31 man-db.timer -> ../man-db.timer
+lrwxrwxrwx 1 root root    25 Sep  6 05:38 plocate-updatedb.timer -> ../plocate-updatedb.timer
+lrwxrwxrwx 1 root root    15 Jul 30 07:04 shadow.timer -> ../shadow.timer
+lrwxrwxrwx 1 root root    31 Sep 22 10:13 systemd-tmpfiles-clean.timer -> ../systemd-tmpfiles-clean.timer
+--- /run wants
+ls: cannot access '/run/systemd/system/timers.target.wants': No such file or directory
+
+## instance-enablement analogue (template instance with WantedBy)
+/etc/systemd/system/autovt@.service -> /usr/lib/systemd/system/getty@.service
+/etc/systemd/system/getty.target.wants/getty@tty1.service -> /usr/lib/systemd/system/getty@.service
+enabled
+
+## enabled vs vendor-shipped timer links
+enabled
+enabled
+enabled
+disabled
+static
+static
+ActiveState=active
+FragmentPath=/usr/lib/systemd/system/fstrim.timer
+UnitFileState=enabled
+ActiveState=active
+FragmentPath=/usr/lib/systemd/system/man-db.timer
+UnitFileState=disabled
+
+## scrub timer state on this host
+disabled
+NEXT LEFT LAST PASSED UNIT ACTIVATES
+
+0 timers listed.
+
+## no Persistent stamp for the scrub timer
+total 0
+drwxr-xr-x 1 root root 280 Oct 20 09:20 .
+drwxr-xr-x 1 root root 194 Oct 25 02:32 ..
+-rw-r--r-- 1 root root   0 Oct 23 11:40 stamp-archlinux-keyring-wkd-sync.timer
+-rw-r--r-- 1 root root   0 Oct 26 01:40 stamp-fstrim.timer
+-rw-r--r-- 1 root root   0 Oct 26 00:52 stamp-man-db.timer
+-rw-r--r-- 1 root root   0 Oct 26 00:00 stamp-paccache.timer
+-rw-r--r-- 1 root root   0 Oct 26 00:15 stamp-plocate-updatedb.timer
+-rw-r--r-- 1 root root   0 Oct 26 00:00 stamp-shadow.timer
+
+## no preset for btrfs
+
+## root is a mount point (for ConditionPathIsMountPoint=%f)
+33 2 0:30 /@ / rw,noatime shared:1 - btrfs /dev/mapper/root rw,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@
+
+## condition contrast (evaluated vs never evaluated)
+LoadState=loaded
+ConditionResult=yes
+ConditionTimestamp=Mon 2026-10-26 12:08:37 -03
+Conditions=[unprintable]
+--- btrfs-scrub@-.service again
+LoadState=loaded
+ConditionResult=no
+ConditionTimestamp=

@@ -1,0 +1,11 @@
+--- pristine-census.sh	2026-10-26 21:08:39.979676693 -0300
++++ md.sh	2026-10-26 21:18:24.020254738 -0300
+@@ -2012,7 +2012,7 @@
+           tmp=$((tmp + 1))
+           [ -r "$e" ] || unr=$((unr + 1))
+         elif [[ $n =~ ^scrub\.progress\.${uuid}$ ]]; then
+-          if [ -L "$e" ] || [ ! -S "$e" ]; then blocked=1; detail+='progress:not-socket,'; continue; fi
++          if [ -L "$e" ] || [ ! -e "$e" ]; then blocked=1; detail+='progress:not-socket,'; continue; fi
+           sock=$((sock + 1))
+         fi
+       done

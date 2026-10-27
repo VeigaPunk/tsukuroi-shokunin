@@ -1,0 +1,36 @@
+== G1 non-dir sysfs root
+   arm    : SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0
+   patched: SCRUB btrfs-scrub-record state=BLOCKED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=sysfs:not-directory
+== G2 timer is a directory
+   arm    : SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=1
+   patched: SCRUB btrfs-scrub-record state=BLOCKED dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=timers:not-link
+== G2b timer is a dangling link
+   arm    : SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=1
+   patched: SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=1 detail=timers:dangling
+== G2c selftest timer shape (must be timers=2)
+   arm    : SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=1
+   patched: SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=1
+== G3 symlink speed_max
+   arm    : SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=1 timers=0 detail=aaaaaaaa:1:speed_max=77
+   patched: SCRUB btrfs-scrub-record state=BLOCKED dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=aaaaaaaa:1:speed-unreadable
+== G4 fsid without devinfo
+   arm    : SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0
+   patched: SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=aaaaaaaa:?:no-devinfo
+== regress H6: all three kinds + a FILE timer (now not-link)
+   arm    : SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=1 sockets=1 unreadable=0 orphan=0 limited=0 timers=1
+   patched: SCRUB btrfs-scrub-record state=BLOCKED dir=present records=1 tmp=1 sockets=1 unreadable=0 orphan=0 limited=0 timers=0 detail=timers:not-link
+== regress H6b: all three kinds + a LINK timer (healthy)
+   arm    : SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=1
+   patched: SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=1
+== regress H3: sysfs absent with a record
+   arm    : SCRUB btrfs-scrub-record state=BLOCKED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=sysfs:absent
+   patched: SCRUB btrfs-scrub-record state=BLOCKED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=sysfs:absent
+== regress H1: empty fixtures
+   arm    : SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0
+   patched: SCRUB btrfs-scrub-record state=NONE dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0
+== regress C1: FIFO speed_max
+   arm    : SCRUB btrfs-scrub-record state=BLOCKED dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=aaaaaaaa:1:speed-unreadable
+   patched: SCRUB btrfs-scrub-record state=BLOCKED dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=aaaaaaaa:1:speed-unreadable
+== regress A2: uppercase sysfs fsid
+   arm    : SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=1 limited=0 timers=0
+   patched: SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=0 unreadable=0 orphan=1 limited=0 timers=0

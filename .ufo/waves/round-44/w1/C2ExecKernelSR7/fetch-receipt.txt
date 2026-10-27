@@ -1,0 +1,95 @@
+# extra fetches by C2ExecKernelSR7 (round 44 w1)
+date: 2026-10-27T00:18:04Z
+dev-replace.c  https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/fs/btrfs/dev-replace.c?h=v7.2.11  tag v7.2.11
+volumes.h      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/fs/btrfs/volumes.h?h=v7.2.11      tag v7.2.11
+btrfs-trace-events.h include/trace/events/btrfs.h?h=v7.2.11
+btrfs-uapi.h   include/uapi/linux/btrfs.h?h=v7.2.11
+
+f07ef0a0d260cf67b7c2aff0542ec13204f9761e33df0ea9feedf143cc034f3a  /fast/scratch/hyaku/tsukuroi-r44/C2ExecKernelSR7/dev-replace.c
+2750c051156476de6465db48e893224634886c3cc279defa872373c0396a3ba1  /fast/scratch/hyaku/tsukuroi-r44/C2ExecKernelSR7/volumes.h
+a1d5bfd9a44dacc6c3dc6e68c2b176e7577084db0b6bdc234cf9b78ddccc6c55  /fast/scratch/hyaku/tsukuroi-r44/C2ExecKernelSR7/btrfs-trace-events.h
+89b9b77ae8881623e03b8b78475078c0f530a1a5985e85bb48f7b001ed8990b9  /fast/scratch/hyaku/tsukuroi-r44/C2ExecKernelSR7/btrfs-uapi.h
+
+# dev-replace.c: btrfs_scrub_dev(..., is_dev_replace=true) call sites
+701:	ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+948:				 "btrfs_scrub_dev(%s, %llu, %s) failed %d",
+1265:	ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,
+698: 	WARN_ON(ret);
+699: 
+700: 	/* the disk copy procedure reuses the scrub code */
+701: 	ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+702: 			      btrfs_device_get_total_bytes(src_device),
+703: 			      &dev_replace->scrub_progress, false, true);
+704: 
+705: 	ret = btrfs_dev_replace_finishing(fs_info, ret);
+706: 	if (ret == -EINPROGRESS)
+1262: 		btrfs_dev_name(dev_replace->tgtdev),
+1263: 		(unsigned int)progress);
+1264: 
+1265: 	ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,
+1266: 			      dev_replace->committed_cursor_left,
+1267: 			      btrfs_device_get_total_bytes(dev_replace->srcdev),
+1268: 			      &dev_replace->scrub_progress, false, true);
+1269: 	ret = btrfs_dev_replace_finishing(fs_info, ret);
+1270: 	WARN_ON(ret && ret != -ECANCELED);
+
+# volumes.h: field declaration
+190: 	struct completion flush_wait;
+191: 
+192: 	/* per-device scrub information */
+193: 	struct scrub_ctx *scrub_ctx;
+194: 
+195: 	/* disk I/O failure stats. For detailed description refer to
+
+# uapi header: progress struct + ioctls
+157: struct btrfs_scrub_progress {
+158: 	__u64 data_extents_scrubbed;	/* # of data extents scrubbed */
+159: 	__u64 tree_extents_scrubbed;	/* # of tree extents scrubbed */
+160: 	__u64 data_bytes_scrubbed;	/* # of data bytes scrubbed */
+161: 	__u64 tree_bytes_scrubbed;	/* # of tree bytes scrubbed */
+162: 	__u64 read_errors;		/* # of read errors encountered (EIO) */
+163: 	__u64 csum_errors;		/* # of failed csum checks */
+164: 	__u64 verify_errors;		/* # of occurrences, where the metadata
+165: 					 * of a tree block did not match the
+166: 					 * expected values, like generation or
+167: 					 * logical */
+168: 	__u64 no_csum;			/* # of 4k data block for which no csum
+169: 					 * is present, probably the result of
+170: 					 * data written with nodatasum */
+171: 	__u64 csum_discards;		/* # of csum for which no data was found
+172: 					 * in the extent tree. */
+173: 	__u64 super_errors;		/* # of bad super blocks encountered */
+174: 	__u64 malloc_errors;		/* # of internal kmalloc errors. These
+175: 					 * will likely cause an incomplete
+176: 					 * scrub */
+177: 	__u64 uncorrectable_errors;	/* # of errors where either no intact
+178: 					 * copy was found or the writeback
+179: 					 * failed */
+180: 	__u64 corrected_errors;		/* # of errors corrected */
+181: 	__u64 last_physical;		/* last physical address scrubbed. In
+182: 					 * case a scrub was aborted, this can
+183: 					 * be used to restart the scrub */
+184: 	__u64 unverified_errors;	/* # of occurrences where a read for a
+185: 					 * full (64k) bio failed, but the re-
+186: 					 * check succeeded for each 4k piece.
+187: 					 * Intermittent error. */
+188: };
+189: 
+190: #define BTRFS_SCRUB_READONLY	1
+191: #define BTRFS_SCRUB_SUPPORTED_FLAGS	(BTRFS_SCRUB_READONLY)
+192: struct btrfs_ioctl_scrub_args {
+193: 	__u64 devid;				/* in */
+194: 	__u64 start;				/* in */
+195: 	__u64 end;				/* in */
+196: 	__u64 flags;				/* in */
+197: 	struct btrfs_scrub_progress progress;	/* out */
+198: 	/* pad to 1k */
+199: 	__u64 unused[(1024-32-sizeof(struct btrfs_scrub_progress))/8];
+200: };
+1192: #define BTRFS_IOC_SUBVOL_SETFLAGS _IOW(BTRFS_IOCTL_MAGIC, 26, __u64)
+1193: #define BTRFS_IOC_SCRUB _IOWR(BTRFS_IOCTL_MAGIC, 27, \
+1194: 			      struct btrfs_ioctl_scrub_args)
+1195: #define BTRFS_IOC_SCRUB_CANCEL _IO(BTRFS_IOCTL_MAGIC, 28)
+1196: #define BTRFS_IOC_SCRUB_PROGRESS _IOWR(BTRFS_IOCTL_MAGIC, 29, \
+1197: 				       struct btrfs_ioctl_scrub_args)
+1198: #define BTRFS_IOC_DEV_INFO _IOWR(BTRFS_IOCTL_MAGIC, 30, \

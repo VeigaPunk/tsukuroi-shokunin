@@ -1,0 +1,54 @@
+# Write-class syscalls of the whole live census (not only the scrub arm), rev vs base.
+# Traced: openat,open,creat,mkdir,mkdirat,rename,renameat,renameat2,unlink,unlinkat,symlink,
+#   link,execve (execve only to attribute pid->program). Run from a clone of the lane.
+# Totals: rev 369 = base 369 (337 /dev/null opens + 7 successful non-/dev/null + 25 failed).
+#
+# count  revision  program  syscall  flags  path  result
+   11  base 98020ec awk          openat    O_RDWR                             /dev/null                                            ok
+   11  rev 7e08169  awk          openat    O_RDWR                             /dev/null                                            ok
+  308  base 98020ec bash         openat    O_WRONLY|O_CREAT|O_TRUNC           /dev/null                                            ok
+   18  base 98020ec bash         openat    O_RDWR                             /dev/null                                            ok
+  308  rev 7e08169  bash         openat    O_WRONLY|O_CREAT|O_TRUNC           /dev/null                                            ok
+   18  rev 7e08169  bash         openat    O_RDWR                             /dev/null                                            ok
+    1  base 98020ec bash         openat    O_RDWR|O_NONBLOCK                  /dev/tty                                             EACCES/ENOENT/ENXIO
+    1  rev 7e08169  bash         openat    O_RDWR|O_NONBLOCK                  /dev/tty                                             EACCES/ENOENT/ENXIO
+    3  base 98020ec gpg          openat    O_WRONLY|O_CREAT|O_EXCL            /etc/pacman.d/gnupg/.#lk0xADDR.plazir27.PID          EACCES/ENOENT/ENXIO
+    3  rev 7e08169  gpg          openat    O_WRONLY|O_CREAT|O_EXCL            /etc/pacman.d/gnupg/.#lk0xADDR.plazir27.PID          EACCES/ENOENT/ENXIO
+    3  base 98020ec gpg          openat    O_RDWR                             /etc/pacman.d/gnupg/trustdb.gpg                      EACCES/ENOENT/ENXIO
+    3  rev 7e08169  gpg          openat    O_RDWR                             /etc/pacman.d/gnupg/trustdb.gpg                      EACCES/ENOENT/ENXIO
+    1  base 98020ec nvidia-smi   symlink                                      ../nvidia-caps/nvidia-cap1                           EACCES/ENOENT/ENXIO
+    1  rev 7e08169  nvidia-smi   symlink                                      ../nvidia-caps/nvidia-cap1                           EACCES/ENOENT/ENXIO
+    1  base 98020ec nvidia-smi   symlink                                      ../nvidia-caps/nvidia-cap2                           EACCES/ENOENT/ENXIO
+    1  rev 7e08169  nvidia-smi   symlink                                      ../nvidia-caps/nvidia-cap2                           EACCES/ENOENT/ENXIO
+    1  base 98020ec nvidia-smi   symlink                                      ../nvidia-uvm                                        EACCES/ENOENT/ENXIO
+    1  rev 7e08169  nvidia-smi   symlink                                      ../nvidia-uvm                                        EACCES/ENOENT/ENXIO
+    1  base 98020ec nvidia-smi   symlink                                      ../nvidia-uvm-tools                                  EACCES/ENOENT/ENXIO
+    1  rev 7e08169  nvidia-smi   symlink                                      ../nvidia-uvm-tools                                  EACCES/ENOENT/ENXIO
+    3  base 98020ec nvidia-smi   symlink                                      ../nvidia0                                           EACCES/ENOENT/ENXIO
+    3  rev 7e08169  nvidia-smi   symlink                                      ../nvidia0                                           EACCES/ENOENT/ENXIO
+    1  base 98020ec nvidia-smi   symlink                                      ../nvidiactl                                         EACCES/ENOENT/ENXIO
+    1  rev 7e08169  nvidia-smi   symlink                                      ../nvidiactl                                         EACCES/ENOENT/ENXIO
+    3  base 98020ec nvidia-smi   unlink                                       /dev/char/195:0                                      EACCES/ENOENT/ENXIO
+    3  rev 7e08169  nvidia-smi   unlink                                       /dev/char/195:0                                      EACCES/ENOENT/ENXIO
+    1  base 98020ec nvidia-smi   unlink                                       /dev/char/195:255                                    EACCES/ENOENT/ENXIO
+    1  rev 7e08169  nvidia-smi   unlink                                       /dev/char/195:255                                    EACCES/ENOENT/ENXIO
+    1  base 98020ec nvidia-smi   unlink                                       /dev/char/237:0                                      EACCES/ENOENT/ENXIO
+    1  rev 7e08169  nvidia-smi   unlink                                       /dev/char/237:0                                      EACCES/ENOENT/ENXIO
+    1  base 98020ec nvidia-smi   unlink                                       /dev/char/237:1                                      EACCES/ENOENT/ENXIO
+    1  rev 7e08169  nvidia-smi   unlink                                       /dev/char/237:1                                      EACCES/ENOENT/ENXIO
+    1  base 98020ec nvidia-smi   unlink                                       /dev/char/240:1                                      EACCES/ENOENT/ENXIO
+    1  rev 7e08169  nvidia-smi   unlink                                       /dev/char/240:1                                      EACCES/ENOENT/ENXIO
+    1  base 98020ec nvidia-smi   unlink                                       /dev/char/240:2                                      EACCES/ENOENT/ENXIO
+    1  rev 7e08169  nvidia-smi   unlink                                       /dev/char/240:2                                      EACCES/ENOENT/ENXIO
+    2  base 98020ec nvidia-smi   mkdir                                        /dev/nvidia-caps                                     EACCES/ENOENT/ENXIO
+    2  rev 7e08169  nvidia-smi   mkdir                                        /dev/nvidia-caps                                     EACCES/ENOENT/ENXIO
+    2  base 98020ec nvidia-smi   openat    O_RDWR                             /dev/nvidia-uvm                                      ok
+    2  rev 7e08169  nvidia-smi   openat    O_RDWR                             /dev/nvidia-uvm                                      ok
+    1  base 98020ec nvidia-smi   openat    O_RDWR|O_NONBLOCK                  /dev/nvidia0                                         ok
+    2  base 98020ec nvidia-smi   openat    O_RDWR                             /dev/nvidia0                                         ok
+    1  rev 7e08169  nvidia-smi   openat    O_RDWR|O_NONBLOCK                  /dev/nvidia0                                         ok
+    2  rev 7e08169  nvidia-smi   openat    O_RDWR                             /dev/nvidia0                                         ok
+    1  base 98020ec nvidia-smi   openat    O_RDWR                             /dev/nvidiactl                                       ok
+    1  rev 7e08169  nvidia-smi   openat    O_RDWR                             /dev/nvidiactl                                       ok
+    1  base 98020ec nvidia-smi   openat    O_WRONLY|O_CREAT|O_TRUNC           /proc/self/task/TID/comm                             ok
+    1  rev 7e08169  nvidia-smi   openat    O_WRONLY|O_CREAT|O_TRUNC           /proc/self/task/TID/comm                             ok

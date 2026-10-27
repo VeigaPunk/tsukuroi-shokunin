@@ -1,0 +1,42 @@
+## remount never allocates or frees device structs
+$ git grep -n "btrfs_alloc_device\|free_fs_devices\|btrfs_close_devices\|btrfs_open_devices" -- fs/btrfs/super.c
+fs/btrfs/super.c:1962:		ret = btrfs_open_devices(fs_devices, mode, sb);
+
+$ grep -n "static int btrfs_reconfigure" fs/btrfs/super.c ; sed -n "1501,1575p" | grep -n "device\|opened"
+1501:static int btrfs_reconfigure(struct fs_context *fc)
+2064:static int btrfs_reconfigure_for_mount(struct fs_context *fc)
+
+## on-disk superblock has no scrub-speed field
+$ git grep -n "scrub" -- include/uapi/linux/btrfs_tree.h
+
+## every btrfs_alloc_device call site (new struct => scrub_speed_max == 0 via kzalloc_obj)
+fs/btrfs/dev-replace.c:285:	device = btrfs_alloc_device(NULL, &devid, NULL, device_path);
+fs/btrfs/volumes.c:868:		device = btrfs_alloc_device(NULL, &devid,
+fs/btrfs/volumes.c:1034:		device = btrfs_alloc_device(NULL, &orig_dev->devid,
+fs/btrfs/volumes.c:2900:	device = btrfs_alloc_device(fs_info, NULL, NULL, device_path);
+fs/btrfs/volumes.c:7424:	 * allocation, however we don't want to change btrfs_alloc_device() to
+fs/btrfs/volumes.c:7430:	device = btrfs_alloc_device(NULL, &devid, dev_uuid, NULL);
+fs/btrfs/volumes.c:7460:struct btrfs_device *btrfs_alloc_device(struct btrfs_fs_info *fs_info,
+fs/btrfs/volumes.h:756:struct btrfs_device *btrfs_alloc_device(struct btrfs_fs_info *fs_info,
+
+## device-add path context
+  2896			}
+  2897		}
+  2898		rcu_read_unlock();
+  2899	
+  2900		device = btrfs_alloc_device(fs_info, NULL, NULL, device_path);
+  2901		if (IS_ERR(device)) {
+  2902			/* we can safely leave the fs_devices entry around */
+  2903			ret = PTR_ERR(device);
+  2904			goto error;
+## dev-replace target allocation
+   283	
+   284	
+   285		device = btrfs_alloc_device(NULL, &devid, NULL, device_path);
+   286		if (IS_ERR(device)) {
+   287			ret = PTR_ERR(device);
+   288			goto error;
+   289		}
+   290	
+   291		ret = lookup_bdev(device_path, &device->devt);
+   292		if (ret)

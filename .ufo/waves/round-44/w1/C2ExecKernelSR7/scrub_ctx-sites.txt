@@ -1,0 +1,61 @@
+# every occurrence of identifier scrub_ctx in linux v7.2.11 (fs/btrfs fully checked out)
+$ grep -rn "\bscrub_ctx\b" fs/btrfs --include=*.c --include=*.h
+fs/btrfs/scrub.c:40:struct scrub_ctx;
+fs/btrfs/scrub.c:138:	struct scrub_ctx *sctx;
+fs/btrfs/scrub.c:193:struct scrub_ctx {
+fs/btrfs/scrub.c:397:static void scrub_put_ctx(struct scrub_ctx *sctx);
+fs/btrfs/scrub.c:431:static noinline_for_stack void scrub_free_ctx(struct scrub_ctx *sctx)
+fs/btrfs/scrub.c:444:static void scrub_put_ctx(struct scrub_ctx *sctx)
+fs/btrfs/scrub.c:450:static noinline_for_stack struct scrub_ctx *scrub_setup_ctx(
+fs/btrfs/scrub.c:453:	struct scrub_ctx *sctx;
+fs/btrfs/scrub.c:665:static int fill_writer_pointer_gap(struct scrub_ctx *sctx, u64 physical)
+fs/btrfs/scrub.c:996:static void scrub_stripe_report_errors(struct scrub_ctx *sctx,
+fs/btrfs/scrub.c:1144:static void scrub_write_sectors(struct scrub_ctx *sctx, struct scrub_stripe *stripe,
+fs/btrfs/scrub.c:1163:	struct scrub_ctx *sctx = stripe->sctx;
+fs/btrfs/scrub.c:1299:static void scrub_submit_write_bio(struct scrub_ctx *sctx,
+fs/btrfs/scrub.c:1341:static void scrub_write_sectors(struct scrub_ctx *sctx, struct scrub_stripe *stripe,
+fs/btrfs/scrub.c:1371:static void scrub_throttle_dev_io(struct scrub_ctx *sctx, struct btrfs_device *device,
+fs/btrfs/scrub.c:1596:static int sync_write_pointer_for_zoned(struct scrub_ctx *sctx, u64 logical,
+fs/btrfs/scrub.c:1873:static void scrub_submit_initial_read(struct scrub_ctx *sctx,
+fs/btrfs/scrub.c:1933:static void submit_initial_group_read(struct scrub_ctx *sctx,
+fs/btrfs/scrub.c:1955:static int flush_scrub_stripes(struct scrub_ctx *sctx)
+fs/btrfs/scrub.c:2029:static int queue_scrub_stripe(struct scrub_ctx *sctx, struct btrfs_block_group *bg,
+fs/btrfs/scrub.c:2077:static int should_cancel_scrub(const struct scrub_ctx *sctx)
+fs/btrfs/scrub.c:2109:static int scrub_raid56_cached_parity(struct scrub_ctx *sctx,
+fs/btrfs/scrub.c:2159:static int scrub_raid56_parity_stripe(struct scrub_ctx *sctx,
+fs/btrfs/scrub.c:2302:static int scrub_simple_mirror(struct scrub_ctx *sctx,
+fs/btrfs/scrub.c:2397:static int scrub_simple_stripe(struct scrub_ctx *sctx,
+fs/btrfs/scrub.c:2431:static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
+fs/btrfs/scrub.c:2593:static noinline_for_stack int scrub_chunk(struct scrub_ctx *sctx,
+fs/btrfs/scrub.c:2652:int scrub_enumerate_chunks(struct scrub_ctx *sctx,
+fs/btrfs/scrub.c:2945:static int scrub_one_super(struct scrub_ctx *sctx, struct btrfs_device *dev,
+fs/btrfs/scrub.c:2974:static noinline_for_stack int scrub_supers(struct scrub_ctx *sctx,
+fs/btrfs/scrub.c:3084:	struct scrub_ctx *sctx;
+fs/btrfs/scrub.c:3147:	if (dev->scrub_ctx ||
+fs/btrfs/scrub.c:3159:	dev->scrub_ctx = sctx;
+fs/btrfs/scrub.c:3222:	dev->scrub_ctx = NULL;
+fs/btrfs/scrub.c:3301:	struct scrub_ctx *sctx;
+fs/btrfs/scrub.c:3304:	sctx = dev->scrub_ctx;
+fs/btrfs/scrub.c:3310:	while (dev->scrub_ctx) {
+fs/btrfs/scrub.c:3313:			   dev->scrub_ctx == NULL);
+fs/btrfs/scrub.c:3326:	struct scrub_ctx *sctx = NULL;
+fs/btrfs/scrub.c:3331:		sctx = dev->scrub_ctx;
+fs/btrfs/volumes.h:193:	struct scrub_ctx *scrub_ctx;
+
+# dev->scrub_ctx (the per-device field) only:
+fs/btrfs/scrub.c:3147:	if (dev->scrub_ctx ||
+fs/btrfs/scrub.c:3159:	dev->scrub_ctx = sctx;
+fs/btrfs/scrub.c:3222:	dev->scrub_ctx = NULL;
+fs/btrfs/scrub.c:3304:	sctx = dev->scrub_ctx;
+fs/btrfs/scrub.c:3310:	while (dev->scrub_ctx) {
+fs/btrfs/scrub.c:3313:			   dev->scrub_ctx == NULL);
+fs/btrfs/scrub.c:3331:		sctx = dev->scrub_ctx;
+
+# outside fs/btrfs (whole-tree git grep, all blobs present) - expect empty:
+(no matches outside fs/btrfs)
+
+# declaration:
+191-
+192-	/* per-device scrub information */
+193:	struct scrub_ctx *scrub_ctx;
+194-

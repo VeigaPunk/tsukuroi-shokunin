@@ -1,0 +1,13 @@
+diff --git a/tools/tsukuroi-census.sh b/tools/tsukuroi-census.sh
+index f45d0051..d8b1be4d 100755
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2012,7 +2012,7 @@ probe_scrub_record() {
+           tmp=$((tmp + 1))
+           [ -r "$e" ] || unr=$((unr + 1))
+         elif [[ $n =~ ^scrub\.progress\.${uuid}$ ]]; then
+-          if [ -L "$e" ] || [ ! -S "$e" ]; then blocked=1; detail+='progress:not-socket,'; continue; fi
++          if [ -L "$e" ] || [ ! -e "$e" ]; then blocked=1; detail+='progress:not-socket,'; continue; fi
+           sock=$((sock + 1))
+         fi
+       done

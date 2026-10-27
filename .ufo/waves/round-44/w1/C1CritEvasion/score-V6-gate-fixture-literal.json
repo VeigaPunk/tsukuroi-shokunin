@@ -1,0 +1,104 @@
+{
+ "cases": 16,
+ "channel": "gate-fixture-literal",
+ "channels_open": [
+  "mount table",
+  "uid_map",
+  "script path /mnt/census-lib.sh"
+ ],
+ "correct": 6,
+ "counter": "score-scrub-arm-r44",
+ "exit": 1,
+ "identity": [
+  "1000",
+  "1000",
+  "1000"
+ ],
+ "identity_ok": 1,
+ "live": {
+  "got": [
+   "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0"
+  ],
+  "want": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0",
+  "wired": 1
+ },
+ "live_agree": 1,
+ "predicate": "cases == 16 and correct == 16 and identity_ok == 1 and wired_ok == 1 and live_agree == 1 and selftest_pass == 1 and selftest_r44 >= 6",
+ "revision": "c8850f014cd3861059853755747bfc25f717dd63",
+ "selftest_failures": [],
+ "selftest_line": null,
+ "selftest_pass": 0,
+ "selftest_r44": 9,
+ "variant": "V6-gate-fixture-literal",
+ "verdict": "FAIL",
+ "wired": {
+  "got": [
+   "SCRUB btrfs-scrub-record state=RECORDED dir=present records=2 tmp=1 sockets=1 unreadable=2 orphan=1 limited=1 timers=1 detail=1d02a454:9:speed_max=66558327"
+  ],
+  "rc": 2,
+  "want": "SCRUB btrfs-scrub-record state=RECORDED dir=present records=2 tmp=1 sockets=1 unreadable=2 orphan=1 limited=1 timers=1 detail=1d02a454:9:speed_max=66558327"
+ },
+ "wired_ok": 1,
+ "wrong": [
+  {
+   "got": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0\n",
+   "id": "root-records-unreadable",
+   "rc": 0,
+   "want": "SCRUB btrfs-scrub-record state=RECORDED dir=present records=2 tmp=0 sockets=0 unreadable=2 orphan=0 limited=0 timers=0"
+  },
+  {
+   "got": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0\n",
+   "id": "progress-socket",
+   "rc": 0,
+   "want": "SCRUB btrfs-scrub-record state=RECORDED dir=present records=1 tmp=0 sockets=1 unreadable=1 orphan=0 limited=0 timers=0"
+  },
+  {
+   "got": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0\n",
+   "id": "limited-devices",
+   "rc": 0,
+   "want": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=4 timers=0 detail=1d02a454:11:speed_max=746,1d02a454:24:speed_max=9,1d02a454:31:speed_max=52136498,1d02a454:37:speed_max=1750131273"
+  },
+  {
+   "got": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0\n",
+   "id": "speed-malformed",
+   "rc": 0,
+   "want": "SCRUB btrfs-scrub-record state=BLOCKED dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=1d02a454:3:speed-malformed"
+  },
+  {
+   "got": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0\n",
+   "id": "speed-unreadable",
+   "rc": 0,
+   "want": "SCRUB btrfs-scrub-record state=BLOCKED dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=1d02a454:35:speed-unreadable"
+  },
+  {
+   "got": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0\n",
+   "id": "dir-unreadable",
+   "rc": 0,
+   "want": "SCRUB btrfs-scrub-record state=BLOCKED dir=unreadable records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=dir:unreadable"
+  },
+  {
+   "got": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0\n",
+   "id": "dir-not-directory",
+   "rc": 0,
+   "want": "SCRUB btrfs-scrub-record state=BLOCKED dir=unreadable records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=dir:unreadable"
+  },
+  {
+   "got": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0\n",
+   "id": "timers-enabled",
+   "rc": 0,
+   "want": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=1"
+  },
+  {
+   "got": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0\n",
+   "id": "timers-unreadable",
+   "rc": 0,
+   "want": "SCRUB btrfs-scrub-record state=BLOCKED dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=timers:unreadable"
+  },
+  {
+   "got": "timeout",
+   "id": "wrong-types",
+   "rc": 124,
+   "want": "SCRUB btrfs-scrub-record state=BLOCKED dir=present records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=progress:not-socket,record:not-regular,record:not-regular,tmp:not-regular"
+  }
+ ]
+}

@@ -1,0 +1,74 @@
+# consumer of the success direction: btrfs-progs v7.1 cmds/scrub.c (S237, sha256 48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801)
+## is_scrub_running_in_kernel: success(0) on ANY device => 'running'
+1190: static int is_scrub_running_in_kernel(int fd,
+1191: 		struct btrfs_ioctl_dev_info_args *di_args, u64 max_devices)
+1192: {
+1193: 	struct scrub_progress sp;
+1194: 	int i;
+1195: 	int ret;
+1196: 
+1197: 	for (i = 0; i < max_devices; i++) {
+1198: 		memset(&sp, 0, sizeof(sp));
+1199: 		sp.scrub_args.devid = di_args[i].devid;
+1200: 		ret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);
+1201: 		if (!ret)
+1202: 			return 1;
+1203: 	}
+1204: 
+1205: 	return 0;
+1206: }
+
+## used for 'scrub status' in_progress flag
+1944: 		}
+1945: 	}
+1946: 	in_progress = is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices);
+1947: 
+1948: 	pr_default("UUID:             %s\n", fsid);
+
+## used to force resume over a stale status file
+1374: 	/*
+1375: 	 * Check for stale information in the status file, ie. if it's
+1376: 	 * canceled=0, finished=0 but no scrub is running.
+1377: 	 */
+1378: 	if (!is_scrub_running_in_kernel(fdmnt, di_args, fi_args.num_devices))
+1379: 		force = true;
+1380: 
+
+## progress cycle treats ENOTCONN/ENODEV as 'finished or removed'
+1060: 			progress_one_dev(sp);
+1061: 			sp->stats.duration = tv.tv_sec - sp->stats.t_start;
+1062: 			if (!sp->ret)
+1063: 				continue;
+1064: 			if (sp->ioctl_errno != ENOTCONN &&
+1065: 			    sp->ioctl_errno != ENODEV) {
+1066: 				ret = -sp->ioctl_errno;
+1067: 				goto out;
+1068: 			}
+1069: 			/*
+1070: 			 * scrub finished or device removed, check the
+
+## -B SIGINT handler -> BTRFS_IOC_SCRUB_CANCEL
+412: /*
+413:  * cancels a running scrub and makes the master process record the current
+414:  * progress status before exiting.
+415:  */
+416: static int cancel_fd = -1;
+417: static void scrub_sigint_record_progress(int signal)
+418: {
+419: 	int ret;
+420: 
+421: 	ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);
+422: 	if (ret < 0)
+423: 		perror("Scrub cancel failed");
+424: }
+
+## progress ioctl wrapper
+982: static void *progress_one_dev(void *ctx)
+983: {
+984: 	struct scrub_progress *sp = ctx;
+985: 
+986: 	sp->ret = ioctl(sp->fd, BTRFS_IOC_SCRUB_PROGRESS, &sp->scrub_args);
+987: 	sp->ioctl_errno = errno;
+988: 
+989: 	return NULL;
+990: }

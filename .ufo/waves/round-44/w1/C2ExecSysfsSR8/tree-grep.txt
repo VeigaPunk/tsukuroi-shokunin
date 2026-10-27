@@ -1,0 +1,20 @@
+## git grep -n scrub_speed_max (whole sparse set: fs/btrfs include/linux lib fs/kernfs fs/sysfs kernel)
+fs/btrfs/scrub.c:1369: * second.  Limit can be set via /sys/fs/UUID/devinfo/devid/scrub_speed_max.
+fs/btrfs/scrub.c:1380:	bwlimit = READ_ONCE(device->scrub_speed_max);
+fs/btrfs/sysfs.c:2021:static ssize_t btrfs_devinfo_scrub_speed_max_show(struct kobject *kobj,
+fs/btrfs/sysfs.c:2028:	return sysfs_emit(buf, "%llu\n", READ_ONCE(device->scrub_speed_max));
+fs/btrfs/sysfs.c:2031:static ssize_t btrfs_devinfo_scrub_speed_max_store(struct kobject *kobj,
+fs/btrfs/sysfs.c:2045:	WRITE_ONCE(device->scrub_speed_max, limit);
+fs/btrfs/sysfs.c:2048:BTRFS_ATTR_RW(devid, scrub_speed_max, btrfs_devinfo_scrub_speed_max_show,
+fs/btrfs/sysfs.c:2049:	      btrfs_devinfo_scrub_speed_max_store);
+fs/btrfs/sysfs.c:2113:	BTRFS_ATTR_PTR(devid, scrub_speed_max),
+fs/btrfs/volumes.h:216:	u64 scrub_speed_max;
+## git grep -c
+fs/btrfs/scrub.c:2
+fs/btrfs/sysfs.c:7
+fs/btrfs/volumes.h:1
+## frozen copies
+f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8  fs/btrfs/scrub.c
+ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43  fs/btrfs/sysfs.c
+f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-44/frozen/src/scrub.c
+ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-44/frozen/src/sysfs.c

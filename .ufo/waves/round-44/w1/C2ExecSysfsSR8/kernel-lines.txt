@@ -1,0 +1,301 @@
+## kernel lines, Linux v7.2.11 (sparse clone HEAD a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea)
+--- lib/cmdline.c:142-201 memparse
+   142	 *	memparse - parse a string with mem suffixes into a number
+   143	 *	@ptr: Where parse begins
+   144	 *	@retptr: (output) Optional pointer to next char after parse completes
+   145	 *
+   146	 *	Parses a string into a number.  The number stored at @ptr is
+   147	 *	potentially suffixed with K, M, G, T, P, E.
+   148	 *
+   149	 *	Return: The value as recognized by simple_strtoull() multiplied
+   150	 *	by the value as specified by suffix, if any.
+   151	 */
+   152	
+   153	unsigned long long memparse(const char *ptr, char **retptr)
+   154	{
+   155		char *endptr;	/* local pointer to end of parsed string */
+   156		unsigned long long ret = simple_strtoull(ptr, &endptr, 0);
+   157		unsigned int shl = 0;
+   158	
+   159		/* Consume valid suffix even in case of overflow. */
+   160		switch (*endptr) {
+   161		case 'E':
+   162		case 'e':
+   163			shl += 10;
+   164			fallthrough;
+   165		case 'P':
+   166		case 'p':
+   167			shl += 10;
+   168			fallthrough;
+   169		case 'T':
+   170		case 't':
+   171			shl += 10;
+   172			fallthrough;
+   173		case 'G':
+   174		case 'g':
+   175			shl += 10;
+   176			fallthrough;
+   177		case 'M':
+   178		case 'm':
+   179			shl += 10;
+   180			fallthrough;
+   181		case 'K':
+   182		case 'k':
+   183			shl += 10;
+   184			fallthrough;
+   185		default:
+   186			break;
+   187		}
+   188	
+   189		if (shl && likely(ptr != endptr)) {
+   190			/* Have valid suffix with preceding number. */
+   191			if (unlikely(check_shl_overflow(ret, shl, &ret)))
+   192				ret = ULLONG_MAX;
+   193			endptr++;
+   194		}
+   195	
+   196		if (retptr)
+   197			*retptr = endptr;
+   198	
+   199		return ret;
+   200	}
+   201	EXPORT_SYMBOL(memparse);
+--- lib/string_helpers.c:841-852 skip_spaces
+   841	 * skip_spaces - Removes leading whitespace from @str.
+   842	 * @str: The string to be stripped.
+   843	 *
+   844	 * Returns a pointer to the first non-whitespace character in @str.
+   845	 */
+   846	char *skip_spaces(const char *str)
+   847	{
+   848		while (isspace(*str))
+   849			++str;
+   850		return (char *)str;
+   851	}
+   852	EXPORT_SYMBOL(skip_spaces);
+--- include/linux/ctype.h:13-20,22-33
+#define _L	0x02	/* lower */
+#define _D	0x04	/* digit */
+#define _C	0x08	/* cntrl */
+#define _P	0x10	/* punct */
+#define _S	0x20	/* white space (space/lf/tab) */
+#define _X	0x40	/* hex digit */
+#define _SP	0x80	/* hard space (0x20) */
+
+
+#define __ismask(x) (_ctype[(int)(unsigned char)(x)])
+
+#define isalnum(c)	((__ismask(c)&(_U|_L|_D)) != 0)
+#define isalpha(c)	((__ismask(c)&(_U|_L)) != 0)
+#define iscntrl(c)	((__ismask(c)&(_C)) != 0)
+#define isgraph(c)	((__ismask(c)&(_P|_U|_L|_D)) != 0)
+#define islower(c)	((__ismask(c)&(_L)) != 0)
+#define isprint(c)	((__ismask(c)&(_P|_U|_L|_D|_SP)) != 0)
+#define ispunct(c)	((__ismask(c)&(_P)) != 0)
+/* Note: isspace() must return false for %NUL-terminator */
+#define isspace(c)	((__ismask(c)&(_S)) != 0)
+--- lib/ctype.c:11-14 (0-15: bytes 9-13 are _C|_S) and :34 (0xA0 = _S|_SP)
+    11	
+    12	const unsigned char _ctype[] = {
+    13	_C,_C,_C,_C,_C,_C,_C,_C,				/* 0-7 */
+    14	_C,_C|_S,_C|_S,_C|_S,_C|_S,_C|_S,_C,_C,			/* 8-15 */
+    15	_C,_C,_C,_C,_C,_C,_C,_C,				/* 16-23 */
+    16	_C,_C,_C,_C,_C,_C,_C,_C,				/* 24-31 */
+    17	_S|_SP,_P,_P,_P,_P,_P,_P,_P,				/* 32-39 */
+    18	_P,_P,_P,_P,_P,_P,_P,_P,				/* 40-47 */
+    19	_D,_D,_D,_D,_D,_D,_D,_D,				/* 48-55 */
+    20	_D,_D,_P,_P,_P,_P,_P,_P,				/* 56-63 */
+    21	_P,_U|_X,_U|_X,_U|_X,_U|_X,_U|_X,_U|_X,_U,		/* 64-71 */
+    22	_U,_U,_U,_U,_U,_U,_U,_U,				/* 72-79 */
+    23	_U,_U,_U,_U,_U,_U,_U,_U,				/* 80-87 */
+    24	_U,_U,_U,_P,_P,_P,_P,_P,				/* 88-95 */
+    25	_P,_L|_X,_L|_X,_L|_X,_L|_X,_L|_X,_L|_X,_L,		/* 96-103 */
+--- lib/kstrtox.c:26-39 _parse_integer_fixup_radix
+    26	const char *_parse_integer_fixup_radix(const char *s, unsigned int *base)
+    27	{
+    28		if (*base == 0) {
+    29			if (s[0] == '0') {
+    30				if (_tolower(s[1]) == 'x' && isxdigit(s[2]))
+    31					*base = 16;
+    32				else
+    33					*base = 8;
+    34			} else
+    35				*base = 10;
+    36		}
+    37		if (*base == 16 && s[0] == '0' && _tolower(s[1]) == 'x')
+    38			s += 2;
+    39		return s;
+--- include/linux/overflow.h:192-202 check_shl_overflow
+   192	#define check_shl_overflow(a, s, d) __must_check_overflow(({		\
+   193		typeof(a) _a = a;						\
+   194		typeof(s) _s = s;						\
+   195		typeof(d) _d = d;						\
+   196		unsigned long long _a_full = _a;				\
+   197		unsigned int _to_shift =					\
+   198			_s >= 0 && _s < 8 * sizeof(*d) ? _s : 0;		\
+   199		*_d = (_a_full << _to_shift);					\
+   200		(_to_shift != _s || *_d < 0 || _a < 0 ||			\
+   201		(*_d >> _to_shift) != _a);					\
+   202	}))
+--- fs/btrfs/sysfs.c:2021-2049 show/store/registration
+  2021	static ssize_t btrfs_devinfo_scrub_speed_max_show(struct kobject *kobj,
+  2022						     struct kobj_attribute *a,
+  2023						     char *buf)
+  2024	{
+  2025		struct btrfs_device *device = container_of(kobj, struct btrfs_device,
+  2026							   devid_kobj);
+  2027	
+  2028		return sysfs_emit(buf, "%llu\n", READ_ONCE(device->scrub_speed_max));
+  2029	}
+  2030	
+  2031	static ssize_t btrfs_devinfo_scrub_speed_max_store(struct kobject *kobj,
+  2032						      struct kobj_attribute *a,
+  2033						      const char *buf, size_t len)
+  2034	{
+  2035		struct btrfs_device *device = container_of(kobj, struct btrfs_device,
+  2036							   devid_kobj);
+  2037		char *endptr;
+  2038		unsigned long long limit;
+  2039	
+  2040		limit = memparse(buf, &endptr);
+  2041		/* There could be trailing '\n', also catch any typos after the value. */
+  2042		endptr = skip_spaces(endptr);
+  2043		if (*endptr != 0)
+  2044			return -EINVAL;
+  2045		WRITE_ONCE(device->scrub_speed_max, limit);
+  2046		return len;
+  2047	}
+  2048	BTRFS_ATTR_RW(devid, scrub_speed_max, btrfs_devinfo_scrub_speed_max_show,
+  2049		      btrfs_devinfo_scrub_speed_max_store);
+--- fs/btrfs/scrub.c:1366-1405 throttle
+  1366	
+  1367	/*
+  1368	 * Throttling of IO submission, bandwidth-limit based, the timeslice is 1
+  1369	 * second.  Limit can be set via /sys/fs/UUID/devinfo/devid/scrub_speed_max.
+  1370	 */
+  1371	static void scrub_throttle_dev_io(struct scrub_ctx *sctx, struct btrfs_device *device,
+  1372					  unsigned int bio_size)
+  1373	{
+  1374		const int time_slice = 1000;
+  1375		s64 delta;
+  1376		ktime_t now;
+  1377		u32 div;
+  1378		u64 bwlimit;
+  1379	
+  1380		bwlimit = READ_ONCE(device->scrub_speed_max);
+  1381		if (bwlimit == 0)
+  1382			return;
+  1383	
+  1384		/*
+  1385		 * Slice is divided into intervals when the IO is submitted, adjust by
+  1386		 * bwlimit and maximum of 64 intervals.
+  1387		 */
+  1388		div = clamp(bwlimit / (16 * 1024 * 1024), 1, 64);
+  1389	
+  1390		/* Start new epoch, set deadline */
+  1391		now = ktime_get();
+  1392		if (sctx->throttle_deadline == 0) {
+  1393			sctx->throttle_deadline = ktime_add_ms(now, time_slice / div);
+  1394			sctx->throttle_sent = 0;
+  1395		}
+  1396	
+  1397		/* Still in the time to send? */
+  1398		if (ktime_before(now, sctx->throttle_deadline)) {
+  1399			/* If current bio is within the limit, send it */
+  1400			sctx->throttle_sent += bio_size;
+  1401			if (sctx->throttle_sent <= div_u64(bwlimit, div))
+  1402				return;
+  1403	
+  1404			/* We're over the limit, sleep until the rest of the slice */
+  1405			delta = ktime_ms_delta(sctx->throttle_deadline, now);
+--- fs/btrfs/volumes.h:210-220 struct fields
+   210	
+   211		struct completion kobj_unregister;
+   212		/* For sysfs/FSID/devinfo/devid/ */
+   213		struct kobject devid_kobj;
+   214	
+   215		/* Bandwidth limit for scrub, in bytes */
+   216		u64 scrub_speed_max;
+   217	
+   218		/*
+   219		 * A temporary number of allocated space during per-profile
+   220		 * available space calculation.
+--- fs/btrfs/volumes.c:7460-7473 allocation
+  7460	struct btrfs_device *btrfs_alloc_device(struct btrfs_fs_info *fs_info,
+  7461						const u64 *devid, const u8 *uuid,
+  7462						const char *path)
+  7463	{
+  7464		struct btrfs_device *dev;
+  7465		u64 tmp;
+  7466	
+  7467		if (WARN_ON(!devid && !fs_info))
+  7468			return ERR_PTR(-EINVAL);
+  7469	
+  7470		dev = kzalloc_obj(*dev);
+  7471		if (!dev)
+  7472			return ERR_PTR(-ENOMEM);
+  7473	
+--- fs/btrfs/volumes.c:1197-1231 close_fs_devices / btrfs_close_devices
+  1197		if (--fs_devices->opened > 0)
+  1198			return;
+  1199	
+  1200		list_for_each_entry_safe(device, tmp, &fs_devices->devices, dev_list)
+  1201			btrfs_close_one_device(device);
+  1202	
+  1203		WARN_ON(fs_devices->open_devices);
+  1204		WARN_ON(fs_devices->rw_devices);
+  1205		fs_devices->opened = 0;
+  1206		fs_devices->seeding = false;
+  1207		fs_devices->fs_info = NULL;
+  1208	}
+  1209	
+  1210	void btrfs_close_devices(struct btrfs_fs_devices *fs_devices)
+  1211	{
+  1212		LIST_HEAD(list);
+  1213		struct btrfs_fs_devices *tmp;
+  1214	
+  1215		mutex_lock(&uuid_mutex);
+  1216		close_fs_devices(fs_devices);
+  1217		if (!fs_devices->opened && !fs_devices->holding) {
+  1218			list_splice_init(&fs_devices->seed_list, &list);
+  1219	
+  1220			/*
+  1221			 * If the struct btrfs_fs_devices is not assembled with any
+  1222			 * other device, it can be re-initialized during the next mount
+  1223			 * without the needing device-scan step. Therefore, it can be
+  1224			 * fully freed.
+  1225			 */
+  1226			if (fs_devices->num_devices == 1) {
+  1227				list_del(&fs_devices->fs_list);
+  1228				free_fs_devices(fs_devices);
+  1229			}
+  1230		}
+  1231	
+--- fs/btrfs/volumes.c:418-431 free_fs_devices
+   418	static void free_fs_devices(struct btrfs_fs_devices *fs_devices)
+   419	{
+   420		struct btrfs_device *device;
+   421	
+   422		WARN_ON(fs_devices->opened);
+   423		WARN_ON(fs_devices->holding);
+   424		while (!list_empty(&fs_devices->devices)) {
+   425			device = list_first_entry(&fs_devices->devices,
+   426						  struct btrfs_device, dev_list);
+   427			list_del(&device->dev_list);
+   428			btrfs_free_device(device);
+   429		}
+   430		kfree(fs_devices);
+   431	}
+--- fs/btrfs/super.c:1501-1512 btrfs_reconfigure head
+  1501	static int btrfs_reconfigure(struct fs_context *fc)
+  1502	{
+  1503		struct super_block *sb = fc->root->d_sb;
+  1504		struct btrfs_fs_info *fs_info = btrfs_sb(sb);
+  1505		struct btrfs_fs_context *ctx = fc->fs_private;
+  1506		struct btrfs_fs_context old_ctx;
+  1507		int ret = 0;
+  1508		bool mount_reconfigure = (fc->s_fs_info != NULL);
+  1509	
+  1510		btrfs_info_to_ctx(fs_info, &old_ctx);
+  1511	
+  1512		/*

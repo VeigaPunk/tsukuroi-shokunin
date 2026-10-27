@@ -1,0 +1,68 @@
+{
+ "cases": 16,
+ "channel": "sysfs-blind",
+ "channels_open": [
+  "mount table",
+  "uid_map",
+  "script path /mnt/census-lib.sh"
+ ],
+ "correct": 12,
+ "counter": "score-scrub-arm-r44",
+ "exit": 1,
+ "identity": [
+  "1000",
+  "1000",
+  "1000"
+ ],
+ "identity_ok": 1,
+ "live": {
+  "got": [
+   "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0"
+  ],
+  "want": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0",
+  "wired": 1
+ },
+ "live_agree": 1,
+ "predicate": "cases == 16 and correct == 16 and identity_ok == 1 and wired_ok == 1 and live_agree == 1 and selftest_pass == 1 and selftest_r44 >= 6",
+ "revision": "4d4ee3703089fcf0d174b28e8ade35ddfcb7e5ac",
+ "selftest_failures": [],
+ "selftest_line": "TSUKUROI_CENSUS_SELFTEST: FAIL (141 cases, 139 passed, 2 failed)",
+ "selftest_pass": 0,
+ "selftest_r44": 9,
+ "variant": "V8-sysfs-blind",
+ "verdict": "FAIL",
+ "wired": {
+  "got": [
+   "SCRUB btrfs-scrub-record state=RECORDED dir=present records=2 tmp=0 sockets=0 unreadable=1 orphan=0 limited=0 timers=3"
+  ],
+  "rc": 2,
+  "want": "SCRUB btrfs-scrub-record state=RECORDED dir=present records=2 tmp=0 sockets=0 unreadable=1 orphan=0 limited=2 timers=3 detail=1d02a454:12:speed_max=26078545,1d02a454:20:speed_max=5795439"
+ },
+ "wired_ok": 0,
+ "wrong": [
+  {
+   "got": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0\n",
+   "id": "limited-devices",
+   "rc": 0,
+   "want": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=6 timers=0 detail=1d02a454:10:speed_max=9391390789,1d02a454:3:speed_max=669571395,1d02a454:30:speed_max=63,bb9bf8e7:17:speed_max=4019582376,bb9bf8e7:18:speed_max=173,bb9bf8e7:35:speed_max=75"
+  },
+  {
+   "got": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0\n",
+   "id": "speed-malformed",
+   "rc": 0,
+   "want": "SCRUB btrfs-scrub-record state=BLOCKED dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=1d02a454:14:speed-malformed"
+  },
+  {
+   "got": "SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0\n",
+   "id": "speed-unreadable",
+   "rc": 0,
+   "want": "SCRUB btrfs-scrub-record state=BLOCKED dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0 detail=5f479b1d:22:speed-unreadable"
+  },
+  {
+   "got": "SCRUB btrfs-scrub-record state=RECORDED dir=present records=3 tmp=2 sockets=1 unreadable=2 orphan=1 limited=0 timers=3\n",
+   "id": "mixed",
+   "rc": 0,
+   "want": "SCRUB btrfs-scrub-record state=RECORDED dir=present records=3 tmp=2 sockets=1 unreadable=2 orphan=1 limited=2 timers=3 detail=1d02a454:25:speed_max=26299084,2c7d2698:5:speed_max=27329953"
+  }
+ ]
+}

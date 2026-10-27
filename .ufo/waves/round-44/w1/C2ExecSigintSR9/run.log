@@ -1,0 +1,14 @@
+# harness (pinned scrub.c:416-444 verbatim, gcc 16)
+parent-install sa_flags=0x14000000 SA_RESTART=1 handler=SIG_IGN
+child-install ret=0 cancel_fd=3
+child-install sa_flags=0x04000000 SA_RESTART=0 handler=pinned-child
+Scrub cancel failed: Inappropriate ioctl for device
+main pthread_join ret=0 (0 = main thread survived the SIGINT)
+Scrub cancel failed: Inappropriate ioctl for device
+worker poll_ret=-1 errno=4 (Interrupted system call)
+Scrub cancel failed: Inappropriate ioctl for device
+worker write_ret=-1 errno=4 (Interrupted system call)
+ret=-1 -> canceled=1 ; ret=0 -> canceled=0 (errno not consulted)
+harness_exit=0
+# probe (leader delivery)
+process-directed SIGINT handled by leader/main

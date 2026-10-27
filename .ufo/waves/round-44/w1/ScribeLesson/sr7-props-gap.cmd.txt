@@ -1,0 +1,13 @@
+# SR7 replace-clause deletion scored by the frozen counter (seat ScribeLesson, 2026-10-26)
+S=/fast/scratch/hyaku/tsukuroi-r44/ScribeLesson; export TMPDIR=$S
+L=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+D=$(mktemp -d $S/fx.XXXXXX); git clone -q --shared $L "$D"; git -C "$D" remote remove origin
+test "$(git -C "$D" rev-parse --show-toplevel)" = "$D"
+python3 - "$D"   # replace "is being scrubbed, or is the\nsource of a running replace, at that moment"
+                 #      -> "is being scrubbed at that moment"  (40 characters removed)
+git -C "$D" -c user.name=fixture -c user.email=fixture@invalid commit -q -am 'fixture: SR7 without the replace clause'
+REV=46e075fc08ce40eae2964043ebf6595ec2cec758
+cd "$S" && python3 $L/tools/check-scrub-record-r44.py --lane "$D" --revision "$REV" > sr7-props-gap.json
+# observed: rows 3, quotes_ok 3, props_ok 3, host_ok 3, sources_ok 1, verdicts_ok 0 (no w2 records), verdict FAIL
+# per_row SR7: prop_ok true, quote_ok true  -> every lexical conjunct is blind to the deleted branch
+# note: the fixture clone lives under the seat scratch only; the lane file was not touched.
