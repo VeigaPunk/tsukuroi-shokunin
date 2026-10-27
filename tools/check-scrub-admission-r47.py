@@ -125,27 +125,41 @@ def load_obj(lane, rev, path):
     return v if isinstance(v, dict) else None
 
 
+NEXT = {'GR1': '## GR2', 'GR2': '## GR3', 'GR3': '## How this changes OS triage'}
+
+
+def row_extent(lines, row):
+    """-> ((i, j) of the F1-bound extent, None) or (None, problem)."""
+    idxs = [i for i, ln in enumerate(lines) if ln == f'## {row}']
+    if not idxs:
+        return None, f'{row}: header absent'
+    if len(idxs) > 1:
+        return None, f'{row}: header occurs {len(idxs)} times'
+    i = idxs[0]
+    want = NEXT[row]
+    js = [j for j, ln in enumerate(lines[i + 1:], start=i + 1) if ln == want]
+    if len(js) != 1:
+        return None, f'{row}: expected next header {want!r} occurs {len(js)} times'
+    j = js[0]
+    inner = [ln for ln in lines[i + 1:j] if ln.startswith('## ')]
+    if inner:
+        return None, f'{row}: unexpected "## " line inside the row: {inner[0][:60]!r}'
+    return (i, j), None
+
+
 def section_hashes(entry):
-    """F1: fail closed. -> (hashes, structural_ok, problems)."""
+    """F1: the bound extent is the whole row, from `## GR<n>` up to (exclusive) the
+    expected next header; any other `## ` line inside the extent or a missing /
+    duplicated expected header fails closed. -> (hashes, structural_ok, problems)."""
     lines = entry.split('\n')
     out = {}
     problems = []
     for row in ROWS:
-        idxs = [i for i, ln in enumerate(lines) if ln == f'## {row}']
-        if not idxs:
-            problems.append(f'{row}: header absent')
+        ext, prob = row_extent(lines, row)
+        if prob:
+            problems.append(prob)
             continue
-        if len(idxs) > 1:
-            problems.append(f'{row}: header occurs {len(idxs)} times')
-            continue
-        i = idxs[0]
-        j = i + 1
-        while j < len(lines) and not lines[j].startswith('## '):
-            j += 1
-        inner = [ln for ln in lines[i + 1:j] if ln.startswith('## ')]
-        if inner:
-            problems.append(f'{row}: unbound tail: {inner[0][:60]!r}')
-            continue
+        i, j = ext
         out[row] = hashlib.sha256('\n'.join(lines[i:j]).encode('utf-8')).hexdigest()
     return out, int(not problems), problems
 
@@ -240,13 +254,11 @@ def quote_legs(lane, rev, entry, hashes):
     cache = snapshots(lane, rev)
     per = {}
     for row in ROWS:
-        if hashes.get(row) is None:
-            per[row] = {'quotes': 0, 'ok': 0, 'bad': ['no section hash']}
+        ext, prob = row_extent(lines, row)
+        if hashes.get(row) is None or prob:
+            per[row] = {'quotes': 0, 'ok': 0, 'bad': [prob or 'no section hash']}
             continue
-        i = lines.index(f'## {row}')
-        j = i + 1
-        while j < len(lines) and not lines[j].startswith('## '):
-            j += 1
+        i, j = ext
         n_ok = n_q = 0
         bad = []
         norm = lambda s: ' '.join(s.split())
