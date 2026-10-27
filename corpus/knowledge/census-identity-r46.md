@@ -31,10 +31,13 @@ descriptor limit is lower. The descriptor is close-on-exec (`shell.c:1703`). Eac
 symbolic link to the actual file" (S251 `proc_pid_fd.5.html:75`), and a pipe's entry reads `type:[inode]` instead
 (`:80`).
 
-The identity therefore hashes the file through `/proc/$$/fd/<n>`: it tries 255 first, then every descriptor of 10 or
-more, and takes the first regular-file entry whose link equals `readlink -f` of the invoked path (`$SELF`). It reads the
-sha256 again after md5, bytes and lines, and all four print only when both sha256 reads agree. When no descriptor
-qualifies, the four byte fields print `unverifiable` and `verified=no`:
+The identity therefore hashes the file through `/proc/$$/fd/<n>`. A descriptor qualifies when it is 10 or more, is a
+regular file, its link equals `readlink -f` of the invoked path (`$SELF`), and its `flags:` line in
+`/proc/$$/fdinfo/<n>` carries `O_CLOEXEC` (`02000000`), which bash sets on the script descriptor (`shell.c:1703`) and
+which neither a descriptor inherited from the parent (exec would have closed it) nor a shell redirection
+(`exec 10<file` reads `flags: 0100000` on this host) carries; exactly one descriptor must qualify. It reads the sha256
+again after md5, bytes and lines, and all four print only when both sha256 reads agree. When no descriptor qualifies,
+or more than one does, the four byte fields print `unverifiable` and `verified=no`:
 
 - the script is read from stdin (`bash -s -- --identity < tools/tsukuroi-census.sh`): bash reads commands from
   descriptor 0 (`shell.c:784`) and `BASH_SOURCE[0]` is unset, so `$SELF` is empty (the census now reads
@@ -42,7 +45,13 @@ qualifies, the four byte fields print `unverifiable` and `verified=no`:
 - the script comes through a pipe or process substitution (`bash <(cat tools/tsukuroi-census.sh) --identity`): the
   descriptor's link is `pipe:[…]`, not a regular file;
 - the invoked file was replaced after bash opened it (the descriptor's link then names the deleted inode, not the
-  path), or the descriptor limit puts the script below descriptor 10.
+  path), or the descriptor limit puts the script below descriptor 10 (`ulimit -n` 10 or less: wave seat C1LabUlimit
+  measured the script on descriptor 9 at `ulimit -n 10` and on 10 at 11);
+- a parent passed a descriptor of 10 or more on another file and that file was relinked over the script's path after
+  bash opened the script: the inherited descriptor then resolves to the path but carries no `O_CLOEXEC`, so it is not
+  hashed. The implementation at `a44770491eb5` (first landing) took the first matching descriptor without the flag and
+  printed the decoy's digests with `verified=yes` in this case (C1LabUlimit, 15/15 with a racer and 1/1
+  deterministic); the selftest case "a parent-held descriptor on a relinked decoy is never hashed" pins the fix.
 
 A path is never hashed on trust: a regular file named `bash` in the working directory, which a path-based identity
 would hash in the stdin case, is ignored.
@@ -66,10 +75,13 @@ The first hash printed is the newest commit that wrote those bytes; no output me
 - Bash behaviour is pinned at the tag bash-5.3 source; the host runs 5.3.20, and whether patches 1-20 touch
   `open_shell_script` or `move_to_high_fd` is not checked here [inference: the selftest's descriptor and stdin cases
   pass on the host bash, which is consistent with the pinned lines but does not read the patches].
-- The identity names the bytes of the file bash holds open at the moment it runs. Bash reads a script in pieces, so a
-  file edited in place while an earlier part was being executed can differ from what ran; the second sha256 read only
-  narrows that window. `main "$@"` is the file's last line, so by the time `--identity` runs bash has read the whole
-  file once.
+- `verified=yes` means that exactly one close-on-exec descriptor of 10 or more resolved to the invoked path and that
+  two sha256 reads through it, around the md5, size and line reads, agreed. It does not prove those are exactly the
+  bytes bash parsed: bash reads a script in pieces, so a file edited in place (same inode) while an earlier part was
+  read can differ from what ran, and the second sha256 read only narrows that window (wave seat C1CritRace).
+  `main "$@"` is the file's last line, so by the time `--identity` runs bash has read the whole file once.
+- Code that runs inside the census process before `main` (a `BASH_ENV` file, a `DEBUG` trap set there) can do
+  anything the census can; the identity does not defend against it.
 - `version` stays the literal `census-v2`; the identity of a revision is the sha256.
 
 ## QUALITY check

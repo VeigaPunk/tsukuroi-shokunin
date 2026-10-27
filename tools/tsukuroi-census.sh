@@ -3391,7 +3391,7 @@ STUB
   }
   id_check() { # id_check LABEL WANT-FIELDS OUTPUT RC
     local label=$1 want=$2 out=$3 rc=$4 planes
-    planes=$(grep -E "^  printf 'TSUKUROI_CENSUS: %s \(" "$SELF" | head -n1 | grep -oE '[a-z-]+=%s' | sed 's/=%s$//' | paste -sd, -)
+    planes=$(grep -E "^  printf 'TSUKUROI_CENSUS: %s \(" "$SELF" | head -n1 | grep -oE '[a-z-]+=%s' | sed 's/=%s$//' | paste -sd, - || true)
     if [ "$rc" -ne 0 ]; then
       bad "$label: exit $rc wanted 0; output: $(printf '%s' "$out" | tr '\n' '|')"
     elif [ "$(printf '%s\n' "$out" | grep -c .)" -ne 1 ]; then
@@ -3444,8 +3444,20 @@ STUB
   set -e
   id_check 'identity: a file replaced after bash opened it prints unverifiable, never the new bytes (R46-C1)' \
     'sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable' "$id_out" "$id_rc"
+  # a parent-held descriptor >= 10 on the decoy, relinked over the path after bash opened the script
+  # (wave seat C1LabUlimit's reproducer): only the close-on-exec script descriptor may be hashed
+  { printf 'mv -f -- "$R46_DECOY" "$R46_PATH"\n'; cat -- "$SELF"; } > "$idd/held.sh"
+  { cat -- "$SELF"; printf '\n# decoy\n'; } > "$idd/held.decoy"
+  set +e
+  id_out=$(R46_DECOY="$idd/held.decoy" R46_PATH="$idd/held.sh" \
+    "$BASH" -c 'exec 10<"$1"; exec "$BASH" "$2" --identity' _ "$idd/held.decoy" "$idd/held.sh" 2>&1); id_rc=$?
+  set -e
+  id_check 'identity: a parent-held descriptor on a relinked decoy is never hashed (R46-C1)' \
+    'sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable' "$id_out" "$id_rc"
   check_cli 'cli: --identity with another flag exits 2 (R46-C1)' 2 \
     '--identity takes no other argument' -- --identity --selftest
+  check_cli 'cli: --identity with --help exits 2, never usage and 0 (R46-C1)' 2 \
+    '--identity takes no other argument' -- --identity --help
 
   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
@@ -3456,24 +3468,34 @@ STUB
 # Prints ONE line naming the bytes this bash process executes, so a reader re-derives the
 # census revision with one command (closeout-r11.md D12: identity is by hash, not VERSION).
 # The digests are read through the descriptor bash holds open on the script (bash opens the
-# script file and moves it to a high descriptor, normally 255), re-opened as /proc/$$/fd/<n>,
-# and only when that descriptor resolves to the same file as $SELF. A script read from stdin
-# or from a pipe has no such descriptor: the four byte fields then print `unverifiable` and
-# verified=no — a path is never hashed on trust. sha256 is taken again after the other
-# fields; a change in between also reads unverifiable. Reads /proc and the script only;
-# writes nothing; runs no plane probe. Exit 0.
+# script file, moves it to a high descriptor, normally 255, and marks it close-on-exec), re-
+# opened as /proc/$$/fd/<n>. The descriptor must be >= 10, a regular file, resolve to the same
+# file as $SELF and carry O_CLOEXEC in /proc/$$/fdinfo/<n> — a descriptor inherited from the
+# parent cannot carry it (exec would have closed it) and a shell redirection does not set it —
+# and it must be the only such descriptor. A script read from stdin or from a pipe, a relinked
+# path, or an ambiguous match prints `unverifiable` for the four byte fields and verified=no —
+# a path is never hashed on trust. sha256 is taken again after the other fields; a change in
+# between also reads unverifiable. Reads /proc and the script only; writes nothing; runs no
+# plane probe. Exit 0.
 CENSUS_PLANES='packages,systemd,drivers,journal,update-safety,oom'
 census_identity() {
-  local self_real fdp='' p sha md5 bytes lines sha2
+  local self_real fdp='' p n flags hits=0 sha md5 bytes lines sha2
   local f_sha=unverifiable f_md5=unverifiable f_bytes=unverifiable f_lines=unverifiable verified=no
   self_real=$(readlink -f -- "$SELF" 2>/dev/null || true)
   if [ -n "$self_real" ] && [ -f "$self_real" ]; then
-    for p in "/proc/$$/fd/255" /proc/$$/fd/*; do
-      case "${p##*/}" in '' | *[!0-9]*) continue ;; esac
-      [ "${p##*/}" -ge 10 ] || continue
+    for p in /proc/$$/fd/*; do
+      n=${p##*/}
+      case "$n" in '' | *[!0-9]*) continue ;; esac
+      [ "$n" -ge 10 ] || continue
       [ -f "$p" ] || continue
-      if [ "$(readlink -- "$p" 2>/dev/null || true)" = "$self_real" ]; then fdp=$p; break; fi
+      [ "$(readlink -- "$p" 2>/dev/null || true)" = "$self_real" ] || continue
+      flags=$(sed -n 's/^flags:[[:space:]]*//p' "/proc/$$/fdinfo/$n" 2>/dev/null || true)
+      [[ "$flags" =~ ^[0-7]+$ ]] || continue
+      (( (8#$flags & 8#2000000) != 0 )) || continue
+      hits=$((hits + 1))
+      fdp=$p
     done
+    [ "$hits" -eq 1 ] || fdp=''
   fi
   if [ -n "$fdp" ]; then
     sha=$(sha256sum < "$fdp" 2>/dev/null | cut -d' ' -f1 || true)
@@ -3492,7 +3514,12 @@ census_identity() {
 
 # ---- main --------------------------------------------------------------------
 main() {
-  local selftest=0 identity=0 nargs=$#
+  local selftest=0 identity=0 nargs=$# a
+  for a in "$@"; do # round 46 (C1): --identity stands alone, checked before any flag acts (--help included)
+    if [ "$a" = --identity ] && [ "$nargs" -ne 1 ]; then
+      printf 'tsukuroi-census: --identity takes no other argument\n' >&2; usage >&2; exit 2
+    fi
+  done
   while [ $# -gt 0 ]; do
     case "$1" in
       --identity) identity=1; shift ;;
@@ -3510,10 +3537,7 @@ main() {
     esac
   done
 
-  if [ "$identity" -eq 1 ]; then # round 46 (C1): --identity stands alone, before any probe
-    if [ "$nargs" -ne 1 ]; then
-      printf 'tsukuroi-census: --identity takes no other argument\n' >&2; usage >&2; exit 2
-    fi
+  if [ "$identity" -eq 1 ]; then # round 46 (C1): before any probe; exclusivity checked above
     census_identity
     exit 0
   fi
