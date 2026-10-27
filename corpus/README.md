@@ -464,3 +464,17 @@ content, the running state and NVMe SMART/Health stay Frontier, and running, can
 stay operator-owned (`:443-444`). The three row verdicts bind only from the counted reviewer and critic seats of wave
 a2w1 and, for a `partly`, the residual of wave a2r1 (`SCORECARD.md` "Round 45 — attempt-2 rebinding"). Round 45 bound none of them: the depth gate FAILED (`verdicts_ok` 0)
 and GR1-GR3 are pending, not admitted (entry section "Gate status — round 45").
+
+## Round-46 coverage note (appended 2026-10-27)
+
+Append-only; the coverage map, the Frontier bullets and the round-38 to round-45 notes above stay as written.
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/census-identity-r46.md` | The census `--identity` line (round-46 C1, routed debt D12): one `TSUKUROI_CENSUS_IDENTITY:` line naming sha256, md5, bytes and newline count of the bytes bash executes, read through the unique close-on-exec script descriptor of 10 or more that resolves to the invoked path; `unverifiable` for stdin, pipes, a path relinked after open, an ambiguous or inherited descriptor; the `git log` loop that maps the sha256 to commits | S250 (GNU bash 5.3 `shell.c`, `general.c`, `general.h`), S251 (`proc_pid_fd(5)`) |
+
+Round-44 status (routed defect D1): the row above for `knowledge/btrfs-scrub-record-r44.md` (`:434`) and the
+"Frontier notice — round 44" paragraph (`:440-452`) present SR7-SR9 without their gate result. Round 44's depth gate
+FAILED (`tools/check-scrub-record-r44.py --revision fbfef071`: `verdicts_ok 0`,
+`corpus/lessons/round-44-verifier-spotcheck.md:84,133`); SR7, SR8 and SR9 are pending, not admitted. Frontier: nothing
+moves this round; the census identity is a property of the gate, not a new host surface.
