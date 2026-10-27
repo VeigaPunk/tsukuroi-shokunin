@@ -2902,3 +2902,61 @@ of the rule are unchanged. The C1 counter is unchanged (sha256 `fe0e31e2…bd50`
 `.ufo/waves/round-45/controls-a2/`: the C2 battery re-run with the rebound names gives field-identical results on all 30
 controls (`should_fail_accepted` 0, K3/K19/K26 PASS as before), and the salvage tip `5b3029bf` scores FAIL
 `verdicts_ok` 0 under both the frozen and the rebound counter (attempt-1 `w1` records bind nothing).
+
+## Round 45 — measured outcome (2026-10-27, author-side; non-author closure pending)
+
+Measured revision `44560592857660a20c6a2b296fa14fa7a90464b5` (integration of wave `a2w1` and residual `a2r1`); C1 counter sha256 `fe0e31e2…3250bd50`
+unchanged since the freeze `ea6e0ee3`; C2 counter `a1eb402d…d011331` (the attempt-2 rebinding `057c1804` of the frozen
+`7e373196…f70d`). Receipts: `.ufo/waves/round-45/after/c1-final-44560592.jsonl`, `c2-final-44560592.jsonl` (both via
+`tools/run-receipt.py`); before: `controls/C1-K0.jsonl` (the base bytes), `before/c2-before-a2.jsonl`.
+
+| Claim | Axis | Before (base `5bbd5ff5`) | After (`44560592`) | Predicate | Verdict |
+|---|---|---|---|---|---|
+| C1 | operability | FAIL: lexical_hits 5, equiv_ok 0, selftest_r45 0, revert_killed 0, adjacency_ok 0 | PASS: lexical_hits 0, sites_found 5, equiv_ok 5, selftest_pass 1 (154/154), selftest_r45 6, revert_killed 6, adjacency_ok 1 | as declared | **PASS** — kill rules not fired (`a2w1/C1ExecPlaneDiff.md`, `C1ExecPriorStorage.md`, `C1ExecPriorRecent.md`, `C1ExecLiveRead.md`; census bytes unchanged after `18389f44`) |
+| C2 | depth | FAIL: rows 0 | FAIL: rows 3, quotes_ok 3, props_ok 3, host_ok 3, sources_ok 1, novelty_base_hits 0, pointer_ok 1, **verdicts_ok 0** | as declared | **FAIL** — no counted verdict bound: C2RevGR1 died without a yield; the five other counted yields are unbindable shapes (JSON objects with `verdict` and no `verdict_line`, or text whose first line is not the verdict line); the orchestrator kept no output for them (`a2w1-results.json` `output` null). Scored with the yields recovered verbatim from the transcripts the binding is still 0 (`a2w1/L1-recovery/`). GR1-GR3 pending |
+
+C2 kill rules: no bound counted `fails`; `novelty_base_hits` 0; `check-scrub-record-r43.py` PASS at base and at
+`44560592` (`a2w1/RevGatesAll/`, `after/gate-check-scrub-record-r43-44560592.jsonl`); S246-S248 re-fetched
+byte-identical to `SHA256SUMS` (`a2w1/C2ExecLiveSources.md`). The report first lines of the counted seats read GR1
+`holds` (critic), GR2 `partly`/`partly`, GR3 `holds`/`holds`; GR2 was narrowed twice after them and read by the
+uncounted residual seats (`a2r1/ResRevGR2.md` `holds`, `a2r1/ResCritGR2.md` one finding, applied at `cd1b3a03`).
+No ordinal moves: depth stays 8, operability stays 9 (saturation band).
+No-harm at `44560592` (`after/gate-*-44560592.jsonl`): registry coverage PASS 72/72 (the 70/72 FAIL that the two new
+counters opened at `18389f44`, `a2w1/RevGatesAll.md`, closed by the round45 table at `0503400b`); knowledge-header,
+appended-notices, section-citations, adjacency-anchors, adjacency-overlap PASS; scrub-record-r44, edit-contract and
+review-snapshots FAIL as at base; sources census exit 0, 40 W04, 249 rows (`after/sources-census-final.txt`); every
+round-45 change to an older file is an append, except the new-this-round rows S246/S247 (teaches, ranges) and the
+round-45 SKILL sections. Self-assessment: re-derived in the table below. **retired:** none.
+
+## Axes — current self-assessment (round 45 final measured surface)
+
+Each count is re-derived from the committed lane tree at the round-45 outcome commit (the commit that lands this table); ordinals unchanged.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 66 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); `SKILL.md` 4424 `wc -l` / 1241 table lines (`grep -c '^|' SKILL.md`); `corpus/lessons/` 66 files (`find corpus/lessons -type f | wc -l`); round-43 C2 verified (SR1, SR3, SR6 bound holds; SR3 through the residual); round-44 SR7-SR9 and round-45 GR1-GR3 pending (their depth gates FAILED on binding); no ordinal move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged |
+| coverage | 9 | `corpus/README.md` 466 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus the verdict-neutral STORAGE line; the scrub record's unprivileged view is Core since round 44 (SCRUB line; content and running state stay Frontier; earlier: the scrub record stayed Frontier (round 43 re-grounds it from source, no Frontier move). | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (154 cases, 154 passed, 0 failed); `bash tools/boot-chain-audit.sh --selftest` prints `PASS total=49 failed=0`; round-43 C1 verified (boot-input freshness decides on find's output); round-45 C1 PASS (five first-line readers by parameter expansion, six `(R45-C1)` cases past the pipe buffer); `--identity` not landed. | round 11 (terminal closeout); unchanged |
+| freshness | 9 | Each round record re-ran predecessor pins; round 45 re-fetched S237 and S242-S244 byte-identical (`a2w1/SrcGateReopen.md`) and re-ran the S249 capture (`a2w1/C2ExecHostRecheck.md`); round 43 re-fetched S237 and S240 byte-identical (`w1/C2ExecLiveSources.md`, `w2/SrcReopenS237.md`, `w2/SrcReopenS240.md`), re-ran the S241 capture (`w2/SrcReopenS241.md`) and checked the Arch kernel patch set (no `fs/` file). | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <REV>` checks 27 fixed checks; mismatches 0 required at the round-45 outcome commit. | round 10; unchanged |
+| adjacency | 8 | formal overlap table present (finding-to-owner ADJ-01..07) and portable OUT-001..010 anchors remain; the round-44 IN-109 harm repaired by the round-45 repin (`check-adjacency-anchors.py` PASS at `44560592`); round 43 moved no live sibling pin (four frozen sibling records pin `boot-chain-audit.sh` lines, reported, `w2/AdjFinal.md`) and restates the round-42 tameshi and mori handoffs; recipient acknowledgement and independent replay are unverified. | fleet round 1; unchanged |
+
+## Capabilities — current full evidence set (round 45)
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates opened tier-scoped sources with anchors, rejections, paths, search log and unopened leads | `corpus/SOURCES.md`; `.ufo/evidence/round-1-kaika/after.md` | fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT, STORAGE and SCRUB lines; selftest prints PASS (154 cases, 154 passed, 0 failed) | `tools/tsukuroi-census.sh`; `.ufo/evidence/round-1-kaika/scout-live.md`; `.ufo/evidence/round-1-kaika/after.md` | lane r2; demonstrated fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
+| boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict; since round 43 its boot-input freshness check decides on find's output, so a missing start point or unreadable directory no longer opens the BOOTED-OBSERVED gate | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt`; `.ufo/waves/round-43/after/c1-after-c395491.jsonl` | round 17 |
+| storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line (HEALTHY/DEGRADED/BLOCKED with nonzero pairs and reason tokens), demonstrated on fixtures, the live host and production-path namespace views; since round 39 an absent or empty root is cross-checked against the mount table, since round 40 its selftest varies the mount-table literals, since round 41 four held-out table shapes | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-39/after/c1-final-a2d7aad.jsonl`; `.ufo/waves/round-40/after/c1-final-aad0113.jsonl`; `.ufo/waves/round-41/after/c1-after-568c397.jsonl` | round 38 |
+
+One header row (R43-CAP-HEADER-DUP; QUALITY 92): `awk '/^## Capabilities — current full evidence set \(round 45\)/{f=1;next} /^## /{f=0} f&&/^\| Capability \|/{n++} END{print n+0}' SCORECARD.md` prints 1.
+
+- **planned (next round):** (1) depth — re-bind GR1-GR3 under a counter whose counted channel the seat writes
+  verbatim (the report first line, QUALITY 93) with pre-data controls for the yield shapes of rounds 44-45, so the
+  pending rows can be admitted or refused; (2) operability — the round-45 C1 review gaps: case-level CR/blank pinning
+  at `:1003`/`:1085`-class sites and a declared kill-rule universe (`a2w1/C1CritCases.md`, `C1RevKillRules.md`);
+  (3) calibration — the counter-review survivors of `a2w1/C2MutBinding.md` (look-alike contradiction, cross-role
+  duplicate, sibling JSON key). Routed: R45-D7-CITATION-HALF-CLOSED.
+- **retired:** none.

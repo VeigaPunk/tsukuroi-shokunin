@@ -1622,3 +1622,33 @@ design). Routed defect R43-SR1-LIMITS-CONTRADICTION repaired (appended correctio
 fixture tree at the fleet root (quarantined by the orchestrator, disclosed); two w1 seats settled without a report
 (reconstructed from transcripts); an orphaned w1 grep blocked on a fixture FIFO (w2/SentFinalScope F-1). Lesson
 `corpus/lessons/round-44.md`; report `.ufo/reports/round-44/tsukuroi.md` (fleet repo).
+
+## Round 45 — 2026-10-27 (hyaku run 9; L1 TsukuroiR45a2, attempt 2)
+
+Motivating evidence: the round-44 closure (`corpus/lessons/round-44-verifier-spotcheck.md` §2, §5) — C2 FAIL, adjacency
+harmed by the unrepinned IN-109 anchor, routed defects D1-D10 and the census readers routed since round 42
+(R41-CENSUS-PIPEFAIL-692). Base `5bbd5ff5`; freeze `ea6e0ee3` (declaration, frozen counters, pre-data controls, frozen
+S246-S249, D1 repin, D7 evidence). Attempt 1 (`TsukuroiR45`) died at the orchestrator session exit (2026-10-26
+23:57:36 -03) with its wave `w1` 14/66 spawned and 0 outputs; salvage `5b3029bf` (records only, nothing cited as a
+result). Attempt 2: `057c1804` rebinds the C2 counter's counted wave names `w1`/`r1` → `a2w1`/`a2r1` before any seat
+scored (30 controls field-identical, `controls-a2/`). Claims: C1 operability — the five census first-line readers by
+parameter expansion plus six `(R45-C1)` cases (`18389f44`); C2 depth (sourced, S246-S249) — entry
+`btrfs-scrub-grounding-r45.md` GR1-GR3. Waves: `a2w1` one v2 wave of 66 seats (4 dead: C1ExecPerf, C1MutSelftest,
+C1RevCounter, C2RevGR1; 1 unreported with its output recovered: CritSeparability; the orchestrator lost the first 41
+outputs at a kernel restart); residual `a2r1` 5 reviewer/critic seats, none dead. Measured at `44560592`: C1 PASS
+(lexical 0, sites 5, equiv 5, selftest 154/154 with 6 R45 cases, revert 6/6, adjacency 1); C2 FAIL (`verdicts_ok` 0:
+no counted verdict bound; rows pending). Integrated wave findings: GR2 narrowed (earlier `-ENODEV`/`-EROFS`/`-EIO`
+checks, started-or-suspended replace, suspended replace answers `-ENOTCONN`, unprivileged sysfs replace view replacing
+a false "not observable" host reading), GR3 SIGCONT quote 114-115, triage bullets keep systemd's SIGKILL condition,
+QUALITY 14 evaluated, S246 teaches overflow, S247 ranges widened; SKILL round-45 sections, the D2 correction block and
+the round45 registry (72/72); r44 entry stop-outcome qualification; README coverage note; GR1-GR3 marked pending
+everywhere; QUALITY 93 (R45-C2-BINDING-CHANNEL). Routed defects: D1-D6, D8-D10 closed, D7 partial
+(`corpus/lessons/round-45.md` disposition table). **Freshness (D10).** Re-verification of predecessor pins, 2026-10-27: S237 (btrfs-progs v7.1 `cmds/scrub.c`), S242 (`fs/btrfs/scrub.c` at v7.2.11), S243 (`fs/btrfs/sysfs.c` at v7.2.11) and S244 (`btrfs-scrub@.timer`, `btrfs-scrub@.service`, `PKGBUILD` at packaging 7.1-1) re-fetched byte-identical (`cmp` 6/6 against the round-42/round-44 frozen copies; `48df2e2f…0801`, `f347931b…a5b8`, `ce146120…1c43`, `9a0b6cc2…f8ad`/`eaa7af92…0252`/`3b803e8b…ce98`), the tags still peel to `4ab0e80b…ba8b`, `a2de78ee…bea6` and `0c0a4d77…3e0e`, and the sources census re-ran `validate` at exit 0, `ok`, 40 W04 unchanged (249 rows against 245 at base). S246-S249 (opened this round) re-fetched byte-identical to
+`frozen/src/SHA256SUMS` (`a2w1/C2ExecLiveSources.md`, `a2w1/SrcGateNew.md`); the S249 capture re-ran identical but
+for its timestamp (`a2w1/C2ExecHostRecheck.md` §1). Adjacency: `check-adjacency-anchors.py` PASS at `44560592`
+(`after/gate-check-adjacency-anchors-44560592.jsonl`); no sibling pin moved (`a2w1/AdjPins.md`). considerthese:
+`considerthese/2026-10-26.md` "Seat-harm incident log" mined into the lesson (10 incidents, rounds 37-44). Assimilation:
+none (50 id collisions; no theme fits). Landed: `057c1804` rebinding; `3c42f556` a2w1 spec/dispatch; `0503400b`
+a2w1 integration; `194a4523` a2w1 evidence and pending marks; `cd1b3a03` a2r1 integration and QUALITY 93;
+`44560592` a2r1 evidence and SKILL fixes; the outcome commit carries this entry, the lesson, the SCORECARD outcome and
+the receipts. Lesson `corpus/lessons/round-45.md`; report `.ufo/reports/round-45/tsukuroi.md` (fleet repo).
