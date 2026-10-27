@@ -9,7 +9,7 @@ Scratch root: $HYAKU_SCRATCH/tsukuroi-r47/controls (deleted per fixture after re
 import hashlib, json, os, re, shutil, subprocess, sys, tempfile
 
 LANE = '/home/vgpnk/Projects/shokunin/tsukuroi-shokunin'
-IMPL = '3629c46a0e787121f1e1d4ccb53bc830e4a7633f'
+IMPL = '77e9e2b2e96b85d8f048ae2087e246a542b71611'
 BASE = '916019057147d7e9ba6b137647b2cee26decf4b8'
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'battery-summary-r47.jsonl')
 SCRATCH = os.environ.get('HYAKU_SCRATCH', '/fast/scratch/hyaku') + '/tsukuroi-r47/controls'
