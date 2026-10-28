@@ -1721,3 +1721,35 @@ Before at base `6256760d1382ce4ce20fcba830d4b2912cfbf12b`: C1 `corr_ok 0, verdic
 C3 `stale_ok 0, diag_ok 0, band_ok 0, cases 166`. Round-start sources census exit 0
 (`.ufo/waves/round-49/before/sources-census-start.txt`). Round shape: one v2 wave `w1` (64–128 seats), L1 holds the
 planner seat. Measured outcome and wave accounting: filled at integration.
+
+### Round 49 — measured outcome
+
+Freeze `55c07cd3`, spec/dispatch `32a85560` (73 seats, policy v2, 37 attack = 50.7%), controls `d7cfc273`,
+integrated `823425c5`, receipts `823425c5`+`5510d6ad`, cells restated `0ec92fc2`. Wave accounting from
+`w1-results.json` + `.ufo/waves/round-49/l1-summary.py`: 73 dispatched / 73 results / 73 reports / 0 dead / no
+residual call; the L1 held the planner seat (the validator rejects `planner` as a swarm role; a bounded planning
+walk rode the connector and scout items).
+
+- C1 depth **FAIL** — `check-scrub-admission-r49.py --revision 823425c5`: `structural_ok 1, corr_ok 1, quotes_ok 3,
+  verdicts_ok 0, seats_ok 18, marks_ok 0` (`.ufo/waves/round-49/after/c1-final.json`). The cohort's file verdicts are
+  17 `holds` / 1 `partly`; `R49CritGR2b`'s bound `partly` blocks GR2 (the `[inference]` mark still claims the ioctl
+  side is unpinned although S240 pins `ioctl.c` and the row cites it), and the counter's citation leg unbinds 17
+  reports for citing lane files beyond the pinned snapshots. No admission mark written.
+- C2 adjacency **PASS** — `check-adjacency-table-r49.py --revision 823425c5`: `adj_rows 7, linked_rows 7,
+  bare_ranges 0, anchors_ok 7, registry_ok 7, anchors_checker_rc 0`; before at base `bare_ranges 9, linked_rows 0`.
+  IN-109 was repinned twice in this round (2642→2660→2671) because the census edits shift its target.
+- C3 operability **PASS** — `check-fd-band-r49.py --revision 823425c5`: `stale_ok 1, diag_ok 1, band_ok 1,
+  cases 167`; before `0/0/0/166`. The round's own HIGH regression (dirty TMPDIR made `--selftest` FAIL,
+  `R49RevFdA` D1) was fixed in `0732903` and re-verified by `score-selftest-tmpdir-r48.py --cases 167` → PASS
+  (`.ufo/waves/round-49/after/r48-tmpdir-counter-at-e1.json`).
+- Calibration **PASS** — `check-self-assessment.py` 27 checks, mismatches 0 at the final revision; before the
+  restatement 4 (all four from this round's appends); the freeze-time count was 2, not the 3 the declaration said.
+
+**Freshness.** Re-verified 2026-10-28: S246/S247/S248/S243/S240/S249/S251 re-opened live by wave seats,
+byte-identical to their pins; S255 re-opened by the L1 byte-identically (`78d0eefb…`); `proc_pid_fd(5)` opened and
+refused as the traversal source (the page does not state `/proc/self/fd/<n>/<child>`); host capture S249 re-run.
+Sources census exit 0 at start and end (`.ufo/waves/round-49/{before,after}/sources-census-*.txt`); 255 rows, no new
+row, S255 `used-by` extended. Assimilation: **none** — the staged `merge/tsukuroi` package still collides with the
+lane registry and this round's claims needed no new entry (`Assimilation: none` in the report). considerthese: one
+proposal mined (`R49ScoutConsider`), no criterion landed from it this round. Lesson `corpus/lessons/round-49.md`;
+report `.ufo/reports/round-49/tsukuroi.md` (fleet repo).

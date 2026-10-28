@@ -3174,3 +3174,32 @@ Counts re-derived with the commands in each cell.
   drift seat (`R49CritAdjB`) reports as stale at the current sibling tips, and keep the IN-109 repin inside the same
   commit as the census edit (this round needed two).
 - **retired:** none.
+
+## Round 49 — measured outcome (author-side; non-author closure pending)
+
+Freeze `55c07cd3`; wave `w1` validated at `32a85560` (73 seats, policy v2, 37 attack seats = 50.7%); integrated at
+`823425c5`; receipts in `.ufo/waves/round-49/after/`; frozen record `.ufo/waves/round-49/frozen/FROZEN.md`;
+pre-data batteries `.ufo/waves/round-49/controls/battery-summary-r49-c{1,2,3}.jsonl` (all declared controls failed,
+every K-pass passed). Wave accounting: 73 dispatched, 73 results entries, 73 reports, 0 dead seats, no residual
+call. L1 held the planner seat.
+
+| Claim | Frozen predicate → measured | Verdict | Axis effect |
+|---|---|---|---|
+| C1 depth | `python3 tools/check-scrub-admission-r49.py --revision 823425c5` → `structural_ok 1, corr_ok 1, quotes_ok 3, verdicts_ok 0, seats_ok 18, marks_ok 0` → FAIL (`.ufo/waves/round-49/after/c1-final.json`). Two independent causes, both reported: (a) `R49CritGR2b` bound `partly` on the GR2 `[inference]` mark (it still claims the ioctl side is unpinned although `ioctl.c` is pinned at S240 and the row cites it), which blocks GR2; (b) the frozen counter's citation leg rejects any `path.ext:NNN` that is not a pinned snapshot file, so 17 of the 18 reports are unbound for credit (they cite `entry.md`, `FETCH.txt`, the counter, and other notes) even though their file-format verdicts are 17 `holds` / 1 `partly`. No admission mark was written. | **FAIL** | depth unchanged (8); the seven round-48-named corrections are in the bytes (`corr_ok 1`) and GR1/GR3 now read `holds` 6/6 each. |
+| C2 adjacency | `python3 tools/check-adjacency-table-r49.py --revision 823425c5` → `adj_rows 7, linked_rows 7, bare_ranges 0, anchors_ok 7, registry_ok 7, anchors_checker_rc 0` → PASS (`.ufo/waves/round-49/after/c2-final.json`); before at base `bare_ranges 9, linked_rows 0` (`.ufo/waves/round-49/before/c2-at-base.json`). | **PASS** | adjacency unchanged (8); the ADJ ownership table now cites portable anchors. Named limit: the counter is a shape test — `R49CritAdjA` and `R49RevAdjB` show a stub table passes it; the content leg is the existing `check-adjacency-anchors.py` (which caught the freeze-revision IN-109 drift). |
+| C3 operability | `python3 tools/check-fd-band-r49.py --revision 823425c5` → `stale_ok 1, diag_ok 1, band_ok 1, cases 167` → PASS (`.ufo/waves/round-49/after/c3-final.json`); before at base `stale_ok 0, diag_ok 0, band_ok 0, cases 166` (`.ufo/waves/round-49/before/c3-at-base.json`). | **PASS** | operability unchanged (9, saturation); no new capability row. A HIGH regression the round introduced (`R49RevFdA` D1: a dirty TMPDIR made `--selftest` FAIL) was reproduced, fixed in `0732903`, and re-verified with the predecessor counter `score-selftest-tmpdir-r48.py --cases 167` → `pass_ok 4, loc_ok 4, clean_ok 4, failfast_ok 2, term_ok 1, static_ok 1`, PASS (`.ufo/waves/round-49/after/r48-tmpdir-counter-at-e1.json`). |
+
+Calibration: `python3 tools/check-self-assessment.py` → `checked 27, mismatches 0, PASS` at the round's final revision
+(`.ufo/waves/round-49/after/calibration-final.json`); before the restatement 4 (K08 SKILL line count, K11 README line
+count, K14 `--identity` phrasing, K15 overlap-table phrasing — all four created by this round's own appends, and the
+freeze-time count was 2, K13/K17: the declaration's "3" was wrong, corrected by name in `corpus/lessons/round-49.md`).
+
+Sources: S255 `used-by` appended (`corpus/lessons/round-48.md` → `…, corpus/lessons/round-49.md`); no row added this
+round, no duplicate id, census exit 0 at start and end. `proc_pid_fd(5)` was opened and refused as the traversal
+source: it documents the symlink and `type:[inode]` text but not a child path component after `/proc/self/fd/<n>`.
+
+Trend verdicts: expansion **unchanged** (no new knowledge entry admitted, no new source row); quality **improved**
+(C2 and C3 measured PASS, C3's own regression found and closed by an independent predecessor counter, and the GR rows
+re-read clean by a 18-seat cohort where round 48 could not); discernment **improved** (the cohort caught a real
+overreach the author had just written, the frozen counter was shown to be forgeable by three seats, and calibration
+restates to zero mismatches).
