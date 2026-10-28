@@ -3020,34 +3020,32 @@ counter `28c409be…11d8` unchanged since the freeze). Before receipts: `.ufo/wa
 
 No ordinal moves: operability stays 9 (saturation band; the D12 ceiling is closed), depth stays 8. **retired:** none.
 
-## Axes — current self-assessment (round 46 final measured surface)
+## Axes — current self-assessment (round 48 final measured surface)
 
-Each count is re-derived from the committed lane tree at the round-46 outcome commit; ordinals unchanged.
+Re-stated 2026-10-28 at the round-48 final tree; ordinals unchanged. Depth C2 did not verify, so no depth increase; C1 operability and C3 calibration are measured separately in the Round 48 outcome below. Counts re-derived with commands in each cell.
 
 | Axis | Score | Evidence pointer (counting command) | Last change |
 |---|---|---|---|
-| depth | 8 | 67 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); `SKILL.md` 4546 `wc -l` / 1323 table lines (`grep -c '^|' SKILL.md`); `corpus/lessons/` 70 files (`find corpus/lessons -type f | wc -l`); round-43 C2 verified; round-44 SR7-SR9 and round-45 GR1-GR3 pending (round-46 C2 rejected: the verified receipt is `verdicts_ok 1`, GR2 `partly`; see round-47 correction); no ordinal move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged |
-| coverage | 9 | `corpus/README.md` 480 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus the verdict-neutral STORAGE line; the scrub record's unprivileged view is Core since round 44; nothing moved this round. | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged |
-| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (164 cases, 164 passed, 0 failed) at the round-47 implementation; `bash tools/boot-chain-audit.sh --selftest` prints `PASS total=49 failed=0`; round-46 `--identity` landed (feature present; the claim is **not verified** because the r40 kill rule fired; see `corpus/lessons/round-46-verifier-spotcheck.md` §2); round-47 spaced-TMPDIR test receipt `.ufo/waves/round-47/before/selftest-space-after.txt`. | round 11 (terminal closeout); unchanged |
-| freshness | 9 | Each round record re-ran predecessor pins; round 46 re-fetched S246-S248, S237, S242-S244 byte-identical (`.ufo/waves/round-46/w1/C2ExecLiveSources.md`) and re-ran the S249 capture (`w1/C2ExecHostRecheck.md`). | fleet round 1; unchanged |
-| calibration | 9 | `python3 tools/check-self-assessment.py --revision <REV>` checks 27 fixed checks; round-46 closure found outcome-row mismatches outside those checks: C1 PASS contradicted the r40 kill receipt, and C2 verdicts_ok was 1 (not 2) at the verified receipt. Corrections and capability withdrawal are recorded in the round-47 correction block below. | round 10; unchanged |
-| adjacency | 8 | formal overlap table present (finding-to-owner ADJ-01..07) and portable OUT-001..010 anchors remain; `check-adjacency-anchors.py` PASS at `a4477049` (`.ufo/waves/round-46/w1/C1ExecAdjacency.md`); recipient acknowledgement and independent replay are unverified. | fleet round 1; unchanged |
+| depth | 8 | 67 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); `SKILL.md` 4546 `wc -l` / 1323 table lines (`grep -c '^|' SKILL.md`); `corpus/lessons/` 72 files (`find corpus/lessons -type f | wc -l`); GR1-GR3 admission C2 FAIL at frozen counter; no ordinal move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged |
+| coverage | 9 | `corpus/README.md` 480 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus verdict-neutral STORAGE; no coverage claim this round. | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged |
+| operability | 9 | `python3 tools/score-selftest-tmpdir-r48.py --revision <REV>` PASS (166 cases in each TMPDIR scenario; counter six legs all pass at `ae99f021`); `bash tools/boot-chain-audit.sh --selftest` → `PASS total=49 failed=0`; no ordinal move. | round 11 (terminal closeout); unchanged |
+| freshness | 9 | S240 `ioctl.c` live re-open 2026-10-28, byte-identical to pinned snapshot; S251 proc-fd page re-opened by w2 seat; S253 Issue 8 opened; end census exit 0. | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <final>` checks 27 fixed checks, mismatches 0 after this table restatement; before restatement, K10/K13/K17 = 3. | round 10; unchanged |
+| adjacency | 8 | `check-adjacency-anchors.py --revision d7843b3a` PASS after IN-109 found_line 2593→2642 repin; no adjacency claim. | fleet round 1; unchanged |
 
-## Capabilities — current full evidence set (round 46)
+## Capabilities — current full evidence set (round 48)
 
 | Capability | What it can now do | Evidence pointer | First-working round |
 |---|---|---|---|
 | sources-registry | Curates opened tier-scoped sources with anchors, rejections, paths, search log and unopened leads | `corpus/SOURCES.md`; `.ufo/evidence/round-1-kaika/after.md` | fleet r1 |
-| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT, STORAGE and SCRUB lines; selftest prints PASS (164 cases, 164 passed, 0 failed) at the current round-47 implementation | `tools/tsukuroi-census.sh`; `.ufo/evidence/round-1-kaika/scout-live.md`; `.ufo/evidence/round-1-kaika/after.md` | lane r2; demonstrated fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT, STORAGE and SCRUB lines; selftest prints PASS (166 cases, 166 passed, 0 failed) at round-48 freeze | `tools/tsukuroi-census.sh`; `.ufo/evidence/round-1-kaika/scout-live.md`; `.ufo/evidence/round-1-kaika/after.md`; `.ufo/waves/round-48/after/c1-final.json` | lane r2; demonstrated fleet r1 |
 | root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
 | boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict; since round 43 its boot-input freshness check decides on find's output | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt`; `.ufo/waves/round-43/after/c1-after-c395491.jsonl` | round 17 |
 | storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line, demonstrated on fixtures, the live host and namespace views | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-41/after/c1-after-568c397.jsonl` | round 38 |
 
-- **planned (next round):** (1) depth — admit GR1-GR3 with GR2 amended per `r1/V46ResCritGR2.md`, under a frozen rule
-  sized for two amendment rounds (or per-row admission) and a counter that closes `w1/C2RevCounter.md` F1-F3 and
-  `w1/C2CritControls.md` K22/K23; (2) operability — the census selftest under a TMPDIR with a space (149/160 FAIL,
-  `w1/C1ExecRerunB.md`); (3) adjacency stays lowest-tied at 8: a recipient-acknowledged handoff.
+- **planned (next round):** depth — correct GR1/GR2 clauses identified by the round-48 counted critics and use a counter that consumes the actual orchestrator `w2-results.json` schema; operability — correct the stale `/tmp` comment and add summary diagnostics for fd-band exhaustion; calibration — retain the 27-check zero-mismatch state at the next landed revision.
 - **retired:** none.
+
 
 ## Round 47 — declaration (2026-10-27, base `916019057147d7e9ba6b137647b2cee26decf4b8`, before any seat)
 
@@ -3108,3 +3106,17 @@ C3 before at base: `check-self-assessment.py` mismatches 1 (K10).
 Pre-data controls (frozen counters; receipts under `.ufo/waves/round-48/controls/`): C1 — K0 base blob (FAIL), K2 the fix with the /tmp fallback restored (FAIL: loc_ok 3, static_ok 0), K3 the fix with the INT/TERM exit traps reverted (FAIL: term_ok 0), K4 base with only the usage text edited (FAIL), K-pass the fix (PASS) — `battery-summary-r48-c1.jsonl`. C2 — K0 do-nothing, K1 marks-only, K2 forged stale hash, K3/K3b/K3c/K3d a bound negative (bad citation / clean citations / self-contradiction / two-byte body) still blocks, K4 byte-identical bodies, K5 reviewers only, K6 unpinned citations, K7 reports without dispatch, K8 negating README mark, F1a stray `## ` header, K9 synthetic full cohort PASS — `battery-summary-r48-c2.jsonl`. C3 — K0 base, K0b implementation commit, K1 lesson count only, K2 case count only (all FAIL), K9 both fixed (PASS) — `battery-summary-r48-c3.jsonl`. Two defects of the counters' first drafts were caught by this battery before data (lesson `round-48.md` `## Mistakes`).
 
 Assimilation: none this round (claims frozen before assimilation could be scoped; the staged `merge/tsukuroi` package keeps its 53 id collisions S200-S252 with the lane registry — `.ufo/waves/round-48/assimilation/collisions`; nothing is appended from it). `considerthese/`: one proposal mined by a wave scout, landed only if the lane's own bar grounds it.
+
+## Round 48 — measured outcome (attempt 2; author-side, non-author closure pending)
+
+Freeze `ae99f021b76f8eb1c8805d32d80644464afb1ff6`; counted wave `w2`, validated v2, 71 seats (reviewer 16, critic 14, executor 15, scout 15, mutation-tester 4, sentinel 2, connector 2, scribe 3; attack roles 34/71 = 47.9%; no deaths reported). L1 held the planner seat. Attempt-1 `w1` was invalid, stopped by the orchestrator, and void; see `.ufo/waves/round-48/w1/INCIDENT.md`. No residual call.
+
+| Claim | Frozen before → measured after | Verdict | Axis effect |
+|---|---|---|---|
+| C1 operability | `score-selftest-tmpdir-r48.py --revision ae99f021…` → `pass_ok=4, loc_ok=4, clean_ok=4, failfast_ok=2, term_ok=1, static_ok=1`, `PASS`; receipt `.ufo/waves/round-48/after/c1-final.json`; census blob sha256 `375aa737…e2426` | **PASS** | operability unchanged ordinal (9, saturation); capability already existed, behavior hardened; no axis harmed observed. |
+| C2 depth | `check-scrub-admission-r48.py --revision 76066487…` → `structural_ok=1, quotes_ok=3, verdicts_ok=1, marks_ok=0`, `FAIL`; `.ufo/waves/round-48/after/c2-final.json`. GR1 and GR2 have current-hash `partly` reports; GR3 holds. No round-48 marks added. | **FAIL** | depth unchanged (8); no admission / no axis move. |
+| C3 calibration | `check-self-assessment.py --revision <final>` → checked 27, mismatches 0 after the current axes/capability table re-statement; before re-statement K10/K13/K17 = 3 at freeze | **PASS** | calibration remains ordinal 9; mismatch count reaches zero. |
+
+No ordinal score changes. C2's misses are not narrowed: counted findings remain in `.ufo/waves/round-48/w2/R48CritGR1a.md`, `R48RevGR2a.md` and `R48CritGR2a.md`; no entry, SKILL, or README admission mark was written. S240 was opened live by the L1 and is the source for the GR2/ioctl clause. C1's source phrase in the frozen declaration is more specific than the landed registry changes: existing S251 was re-opened (not a new id), S253 and S255 were newly admitted, S254 rejected; all are recorded in `corpus/SOURCES.md` and the round lesson.
+
+Trend verdicts: expansion **unchanged** (no new knowledge entry admitted); quality **improved** (C1's TMPDIR behavior and checks passed; C2 remains unadmitted); discernment **improved** (the frozen C2 counter refuses the partly rows and the calibration table mismatch count is 0). Non-author spot-check remains pending.
