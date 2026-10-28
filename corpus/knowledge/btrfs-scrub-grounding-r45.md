@@ -15,7 +15,7 @@ starts, stops or enables a unit, runs a scrub or a replace, or calls a privilege
 
 **Statement.** In Linux v7.2.11 a write to `devinfo/<devid>/scrub_speed_max` is parsed by `memparse` (SR8), which
 calls `simple_strtoull` with base 0; `simple_strtoull` resolves base 0 through `_parse_integer_fixup_radix`, which
-picks hexadecimal for a leading `0x` followed by a hex digit, octal for any other leading `0`, and decimal otherwise.
+picks hexadecimal for a leading `0x` or `0X` followed by a hex digit, octal for any other leading `0`, and decimal otherwise.
 After the digits, `memparse` takes at most one suffix letter, `K`, `M`, `G`, `T`, `P` or `E` in either case, each
 step multiplying by a further 1024 (a 10-bit shift per step, so `K` is 1024, not 1000); the suffix counts only when
 at least one digit came before it, and a shifted value that overflows becomes `ULLONG_MAX`. The sysfs store then
@@ -49,8 +49,9 @@ no limit, SR8).
 **Quote.** `S243` sysfs.c:2043: "if (*endptr != 0)"
 
 **Host reading.** The host's one btrfs device (devid 1) reads `scrub_speed_max` 0, mode 644, owner root
-(capture.txt:8), as uid 1000 with no effective capabilities (capture.txt:1): no limit is set, and this caller cannot
-write one. Nothing was written to test the parse; the examples above follow from the quoted code.
+(capture.txt:8), as uid 1000 with no effective capabilities (capture.txt:1): no limit is set, and this caller
+[inference: by ordinary file-mode checks, which the capture does not exercise; ACLs and LSM rules are not captured]
+cannot write one. Nothing was written to test the parse; the examples above follow from the quoted code.
 
 ## GR2
 
@@ -64,17 +65,21 @@ answer: an unknown devid, or a missing device on a non-replace call, gives `-ENO
 non-writeable device on a non-replace, non-readonly call gives `-EROFS`; a device outside the
 filesystem metadata, or the replace's own target device, gives `-EIO`. Only after those checks
 is a call with `is_dev_replace` false refused with `-EINPROGRESS` while
-`btrfs_dev_replace_is_ongoing` is true for the filesystem, which it is for a replace in state
-started or suspended (a replace suspended by an unmount still counts), and any call is refused
+`btrfs_dev_replace_is_ongoing` is true for the filesystem — which it is when the replace data is
+valid (`is_valid`, dev-replace.c:1278-1279) and the state is started or suspended
+(dev-replace.c:1286-1287; a replace suspended by an unmount still counts, per the comment at
+dev-replace.c:1288-1297) — and any call is refused
 with `-EINPROGRESS` while the device already carries a scrub context. So while a replace is ongoing, a scrub start that reaches
 `btrfs_scrub_dev` for a present, writeable device that is in the filesystem metadata and is not the replace target is
 refused with `EINPROGRESS` (as is a start on any device that already carries a scrub context), and no scrub is
-started. While the copy runs, the replace's source device carries the scrub context the copy attached, which by SR7
-`btrfs_dev_replace_cancel` calls `btrfs_scrub_cancel` when its cancel ioctl handles a suspended replace
-(`dev-replace.c:1126-1144`); the pinned code says the replace scrub is not running in that state
-(`dev-replace.c:1127-1129`). When the replace context is absent, the progress query returns `-ENOTCONN`
-(`scrub.c:3222, :3336`). The unmount suspend path itself only sets the state to SUSPENDED
-(`dev-replace.c:1171-1199`) and does not cancel the scrub.
+started. While the copy runs, the replace's source device carries the scrub context the copy attached
+(scrub.c:3159); by SR7, `btrfs_dev_replace_cancel` stops it with `btrfs_scrub_cancel` for a started
+replace (dev-replace.c:1111) and, for a suspended replace, calls `btrfs_scrub_cancel` too
+(dev-replace.c:1126-1144) although the pinned code says the replace scrub is not running in that state
+(dev-replace.c:1127-1129). When the replace context is absent, the progress query returns `-ENOTCONN`
+for a devid that exists (`scrub.c:3222, :3336`); an unknown devid gives `-ENODEV` (`scrub.c:3336`).
+The unmount suspend path itself only moves a STARTED replace to SUSPENDED, with `time_stopped` and a
+writeback flag (dev-replace.c:1171-1195, state set at :1184-1188), and does not call `btrfs_scrub_cancel`.
 [inference for the ioctl and btrfs-progs side: that the scrub-start ioctl hands these returns to userspace
 unchanged, and how `btrfs scrub start` and `btrfs scrub status` print them, are not pinned here].
 
@@ -135,7 +140,8 @@ unchanged, and how `btrfs scrub start` and `btrfs scrub status` print them, are 
 **Quote.** `S242` scrub.c:3222: "dev->scrub_ctx = NULL;"
 
 **Host reading.** The filesystem lists devid 1 only (capture.txt:9) and the caller has no effective capabilities
-(capture.txt:1), so the privileged progress query is out of its reach. Replace state is still readable without
+(capture.txt:1), so the privileged progress query is out of its reach (the `CAP_SYS_ADMIN` check in the
+scrub-progress ioctl, ioctl.c:3132, `-EPERM` at :3133). Replace state is still readable without
 privilege through sysfs, which this capture does not record: the filesystem's `exclusive_operation` names
 `device replace` while a replace holds the exclusive operation (sysfs.c:1288; the resume path takes it at
 dev-replace.c:1235, and the replace ioctl takes it around the start, S240 ioctl.c:3190), and
@@ -267,3 +273,15 @@ dev-replace.c:1186, :1224, :1238), so no two bound seats read `holds` on its cur
 at `a4477049`; narrowed at `b57740c2` (the `-B` handler install, scrub.c:1512, :1546, :439; the
 `DefaultTimeoutStopSec` reach marked [inference]); read `holds` by both residual seats. The predicate needs all three
 rows, so no row is admitted this round; GR2's residual finding is the next amendment, unread by any counted seat.
+
+## Gate status — round 49 (pending; the frozen cohort has not settled)
+
+Round 49 re-reads GR1-GR3 with a fresh counted cohort of one wave (`w1`, 18 seats: three reviewers
+and three critics per row) against the bytes above, after the seven corrections the round-48 counted
+seats named were applied before the freeze (GR1: the `0X` prefix and the host-reading inference mark;
+GR2: the `is_valid` gate, the cancel sentence's subject, the suspend-path range and effects, the
+`ioctl.c:3132` citation and the `-ENODEV` devid case). The frozen predicate and the seat-binding
+format are in `.ufo/waves/round-49/frozen/FROZEN.md`; the counter is
+`tools/check-scrub-admission-r49.py`. This heading records **pending**, not admission: it says
+`admitted` only after the cohort settles `holds` on the current row bytes, and the round-48 findings
+are retained above as the reason the rows were not admitted then.

@@ -3120,3 +3120,22 @@ Freeze `ae99f021b76f8eb1c8805d32d80644464afb1ff6`; counted wave `w2`, validated 
 No ordinal score changes. C2's misses are not narrowed: counted findings remain in `.ufo/waves/round-48/w2/R48CritGR1a.md`, `R48RevGR2a.md` and `R48CritGR2a.md`; no entry, SKILL, or README admission mark was written. S240 was opened live by the L1 and is the source for the GR2/ioctl clause. C1's source phrase in the frozen declaration is more specific than the landed registry changes: existing S251 was re-opened (not a new id), S253 and S255 were newly admitted, S254 rejected; all are recorded in `corpus/SOURCES.md` and the round lesson.
 
 Trend verdicts: expansion **unchanged** (no new knowledge entry admitted); quality **improved** (C1's TMPDIR behavior and checks passed; C2 remains unadmitted); discernment **improved** (the frozen C2 counter refuses the partly rows and the calibration table mismatch count is 0). Non-author spot-check remains pending.
+
+## Round 49 — declaration (2026-10-28, base `6256760d1382ce4ce20fcba830d4b2912cfbf12b`, before any seat)
+
+Ordinals at base: depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8 (depth and adjacency
+tied lowest). Saturation 9 / window 3. Round 48 closed C1 operability PASS, C2 depth FAIL (GR1/GR2 `partly`), C3
+calibration PASS. Round-start receipt: sources census exit 0 (`.ufo/waves/round-49/before/sources-census-start.txt`).
+Frozen record (predicates, cohort, hashes, controls): `.ufo/waves/round-49/frozen/FROZEN.md`.
+Round shape: ONE v2 wave (`w1`) sized 64–128; the L1 holds the planner seat.
+
+| Claim | Axis | Surface moved | Counter (frozen) | Before at base | Target (predicate) | Kill rule |
+|---|---|---|---|---|---|---|
+| C1 | depth (lowest tied) | `corpus/knowledge/btrfs-scrub-grounding-r45.md` GR1-GR3: the seven corrections the round-48 counted seats named land before the freeze (GR1 `0X` prefix + host-reading inference mark; GR2 `is_valid` gate, cancel-sentence subject, suspend-path range/effects, `ioctl.c:3132`, `-ENODEV` devid), then a fresh 18-seat cohort of one wave re-reads the corrected rows `holds` | `python3 tools/check-scrub-admission-r49.py --revision <REV>` | `corr_ok 0, verdicts_ok 0, seats_ok 0, marks_ok 0` → FAIL | `structural_ok == 1 and corr_ok == 1 and quotes_ok == 3 and verdicts_ok == 3 and seats_ok == 18 and marks_ok == 3`; row hashes GR1 `3a2ba180…`, GR2 `d4296085…`, GR3 `43430a14…` | any bound-format negative on the current row hash blocks the row; a citation that does not resolve earns no credit; two byte-identical bodies fail the row |
+| C2 | adjacency (lowest tied) | `PROVINCE.md` ADJ-01..07 **Ownership source**: bare sibling `*.md:N-M` ranges (9 occurrences) replaced by `OUT-002`…`OUT-010`, each anchor's ADJ class / pinned commit / heading / ≤25-word quote and the registry blob sha256 checked | `python3 tools/check-adjacency-table-r49.py --revision <REV>` | `bare_ranges 9, linked_rows 0` → FAIL | `adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchors_ok == 7 and registry_ok == 7 and anchors_checker_rc == 0` | a row kept on a bare range, an OUT id not naming that ADJ class, or a registry digest that does not match fails the counter |
+| C3 | operability (sourced: S255 re-opened 2026-10-28) | `tools/tsukuroi-census.sh`: stale `builds a /tmp fixture tree` comment removed; the alias resolver records `ST_BASE_ERR` and `run_selftest` prints the named `fd band … exhausted` diagnostic; one new `(R49-C3)` selftest case proves the exhausted-band path under a two-descriptor band | `python3 tools/check-fd-band-r49.py --revision <REV>` | `stale_ok 0, diag_ok 0, band_ok 0, cases 166` → FAIL | `stale_ok == 1 and diag_ok == 1 and band_ok == 1 and cases == 167` | a run that prints 166 cases, a kept stale comment, or a missing diagnostic fails; the diagnostic case must fail under a band-free mutant |
+
+Pre-data controls (frozen counters, receipts `.ufo/waves/round-49/controls/battery-summary-r49-c{1,2,3}.jsonl`):
+C1 K0/K1/K2/K3/K4/K5/K6 must FAIL and K-pass PASS; C2 K0/K1/K2/K3 FAIL, K-pass PASS; C3 K0/K1/K2 FAIL, K-pass PASS.
+Causal separability: C1 reads only the entry + cohort + marks; C2 only `PROVINCE.md` + the anchor registry; C3 only
+the census blob. No claim's counter reads another's bytes.

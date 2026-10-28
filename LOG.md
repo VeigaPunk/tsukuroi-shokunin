@@ -1698,3 +1698,26 @@ Measured at the integrated revision `76066487148483c8cc00ff4fe45f543e9e9e46c2`: 
 Freshness/frontier: start and end `sources-census.sh validate` exit 0 (`before/sources-census-start.txt`, `after/sources-census-end.txt`; 252→255 ids). S240 `ioctl.c` re-opened live by L1 (2026-10-28, sha256 unchanged); S251 proc_fd re-opened by SScoutProcFd; S253 POSIX Issue 8 and S255 Bash Manual admitted; S254 community gloss rejected with flip condition. S240 and S251 used-by changed old→new to include this lesson. Assimilation: none; the external package remains read-only and its id collisions are not resolved by this round. `considerthese/` mined by ScoutConsider; no round-48 implementation adopted from it.
 
 Landed work: `174a2c79` C1 implementation and frozen counters; `d7843b3a` IN-109 anchor correction (2593→2642) and C1 summary-PASS needle correction; `ae99f021` freeze (claims, counters, batteries, incident disclosure); `23f85377` validated 71-seat spec/dispatch; `76066487` w2 integration. Final outcome commit, report and remote proof follow this entry. No tools installed or updated.
+
+## Round 49 — 2026-10-28 (hyaku run 11; L1 TsukuroiR49, attempt 1)
+
+Motivating evidence: round-48 measured outcome in `SCORECARD.md` (C2 depth FAIL: GR1 and GR2 read `partly` by
+`R48CritGR1a`, `R48RevGR2a`, `R48CritGR2a` on bytes `fe77ac76…` / `e0b391e1…`); the round-48 planned row (depth:
+correct the GR1/GR2 clauses those critics named and use a counter that consumes the real `w2-results.json` schema;
+operability: the stale `/tmp` comment and fd-band diagnostics; calibration: retain zero mismatches); and the operator
+scratch-discipline clause 7.4 (a committed counter that ignores TMPDIR/`--work` is a routed defect).
+
+Claims (frozen at `.ufo/waves/round-49/frozen/FROZEN.md`): C1 depth (lowest tied 8) — the seven r48-named corrections
+land in GR1/GR2 before any seat, then an 18-seat cohort of one wave re-reads the corrected rows `holds`; counter
+`tools/check-scrub-admission-r49.py` (adds `corr_ok` and the real `w1-results.json` seat check to the r48 predicate).
+C2 adjacency (lowest tied 8) — ADJ-01..07 ownership cells move from bare sibling line ranges (9 occurrences) to the
+OUT-0NN portable anchors that name each class; counter `tools/check-adjacency-table-r49.py`. C3 operability (sourced:
+S255 GNU Bash fd>9 caveat, re-opened this round byte-identical) — the census alias resolver names descriptor-band
+exhaustion, the stale `builds a /tmp fixture tree` comment goes, and one `(R49-C3)` selftest case proves it (166 → 167
+cases); counter `tools/check-fd-band-r49.py`.
+
+Before at base `6256760d1382ce4ce20fcba830d4b2912cfbf12b`: C1 `corr_ok 0, verdicts_ok 0, seats_ok 0, marks_ok 0`
+(section hashes GR1 `3a2ba180…`, GR2 `d4296085…`, GR3 `43430a14…` at the freeze); C2 `bare_ranges 9, linked_rows 0`;
+C3 `stale_ok 0, diag_ok 0, band_ok 0, cases 166`. Round-start sources census exit 0
+(`.ufo/waves/round-49/before/sources-census-start.txt`). Round shape: one v2 wave `w1` (64–128 seats), L1 holds the
+planner seat. Measured outcome and wave accounting: filled at integration.

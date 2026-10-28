@@ -43,13 +43,13 @@ protocol integrator, never to whichever lane answered first.
 
 | ID | Finding / boundary trigger | Tsukuroi retains | Next analysis recipient | Minimum handoff evidence | Ownership source |
 |---|---|---|---|---|---|
-| ADJ-01 | A local model endpoint or served-model identity is wrong; GPU readiness alone cannot decide this | Kernel, driver, device and user-unit state | kama | Capture time; driver query and unit-state command/exit; reported endpoint symptom without credentials. Kama must obtain its own endpoint evidence; no endpoint diagnosis from `nvidia-smi` | `../kama-shokunin/PROVINCE.md:3-24` |
-| ADJ-02 | A credential-bearing helper has a permission/ownership finding or an auth-flow question | Package owner/version and filesystem mode; package drift is not proof of credential exposure | kagi | Path, mode, uid/gid, package owner/version, command/exit and capture time only; no secret values, vault references, session bytes or helper invocation | `../kagi-shokunin/PROVINCE.md:3-6,10-17,32-34,54` |
-| ADJ-03 | Desktop rendering, bindings, menu or idle behavior needs configuration-level diagnosis | User-manager/unit, package and driver health; an active unit does not prove the UI works | mado | Observed UI symptom and time plus relevant OS probe/exit; identify configuration surface without copying its contents. Mado verifies file/screenshot behavior itself | `../mado-shokunin/PROVINCE.md:3-16` |
-| ADJ-04 | Host pressure or a kill signal needs fleet/wave attribution, liveness or progress correlation | OS memory, journal and boot diagnosis; cumulative counters are not dated incidents | mori | Capture time, boot/window, exact counter or PSI command/exit and observed value; distinguish presence, cumulative count and dated event. Request correlation, not a claim that a wave caused OOM | `../mori-shokunin/PROVINCE.md:3-16` |
-| ADJ-05 | Task/hub dispatch, routing or orchestration semantics are wrong, rather than merely a failed host unit | systemd and resource evidence; unit liveness cannot prove dispatch correctness | kumitate | Minimal reported dispatch symptom, task/wave identifier if non-sensitive, capture time and OS probe/exit; exclude tokens, environment and raw process arguments | `../kumitate-shokunin/PROVINCE.md:3-6`; `../mori-shokunin/PROVINCE.md:12-16` |
-| ADJ-06 | Driver/firmware/package mechanism requires shipped-artifact reverse engineering beyond health inventory | Loaded version, package provenance and driver/boot symptoms; no binary-internals inference | protocol integrator — kaidoku/revenger ownership unresolved | Exact question, authorized artifact identity/path and digest when safely obtainable, capture time and relevant OS evidence. Request an ownership ruling before any RE work; do not invoke a target or forward raw cores | `../kaidoku-shokunin/PROVINCE.md:3-6,88-100`; `../revenger-shokunin/PROVINCE.md:3-7,19-25` |
-| ADJ-07 | A census blind spot raises a reusable verification/mutation-testing question | Census bug, domain contract, implementation and repair in this repo | tameshi | Minimal failing behavior, command/exit, measured census revision and expected domain invariant; ask for method advice, not transfer of gate ownership or a general claim from one lane | `../tameshi-shokunin/PROVINCE.md:3-18` |
+| ADJ-01 | A local model endpoint or served-model identity is wrong; GPU readiness alone cannot decide this | Kernel, driver, device and user-unit state | kama | Capture time; driver query and unit-state command/exit; reported endpoint symptom without credentials. Kama must obtain its own endpoint evidence; no endpoint diagnosis from `nvidia-smi` | `OUT-002` |
+| ADJ-02 | A credential-bearing helper has a permission/ownership finding or an auth-flow question | Package owner/version and filesystem mode; package drift is not proof of credential exposure | kagi | Path, mode, uid/gid, package owner/version, command/exit and capture time only; no secret values, vault references, session bytes or helper invocation | `OUT-003` |
+| ADJ-03 | Desktop rendering, bindings, menu or idle behavior needs configuration-level diagnosis | User-manager/unit, package and driver health; an active unit does not prove the UI works | mado | Observed UI symptom and time plus relevant OS probe/exit; identify configuration surface without copying its contents. Mado verifies file/screenshot behavior itself | `OUT-004` |
+| ADJ-04 | Host pressure or a kill signal needs fleet/wave attribution, liveness or progress correlation | OS memory, journal and boot diagnosis; cumulative counters are not dated incidents | mori | Capture time, boot/window, exact counter or PSI command/exit and observed value; distinguish presence, cumulative count and dated event. Request correlation, not a claim that a wave caused OOM | `OUT-005` |
+| ADJ-05 | Task/hub dispatch, routing or orchestration semantics are wrong, rather than merely a failed host unit | systemd and resource evidence; unit liveness cannot prove dispatch correctness | kumitate | Minimal reported dispatch symptom, task/wave identifier if non-sensitive, capture time and OS probe/exit; exclude tokens, environment and raw process arguments | `OUT-006`, `OUT-007` |
+| ADJ-06 | Driver/firmware/package mechanism requires shipped-artifact reverse engineering beyond health inventory | Loaded version, package provenance and driver/boot symptoms; no binary-internals inference | protocol integrator — kaidoku/revenger ownership unresolved | Exact question, authorized artifact identity/path and digest when safely obtainable, capture time and relevant OS evidence. Request an ownership ruling before any RE work; do not invoke a target or forward raw cores | `OUT-008`, `OUT-009` |
+| ADJ-07 | A census blind spot raises a reusable verification/mutation-testing question | Census bug, domain contract, implementation and repair in this repo | tameshi | Minimal failing behavior, command/exit, measured census revision and expected domain invariant; ask for method advice, not transfer of gate ownership or a general claim from one lane | `OUT-010` |
 
 ### Handoff checklist
 
@@ -293,3 +293,28 @@ identity_ok == 1 and wired_ok == 1 and live_agree == 1 and selftest_pass == 1 an
 round-44 measured revision (`SCORECARD.md` "Round 44 — measured outcome"). The census selftest reports 148 cases,
 sixteen of them labelled `(R44-C1)`. No package, service, mount, scrub, timer, counter-reset, firmware or
 configuration action is authorized by this section.
+
+## Round 49 — the ownership-source column now cites portable anchors
+
+Append-only note, 2026-10-28. The seven rows of `## Adjacent — finding-to-owner handoffs`
+carried bare sibling line ranges in their **Ownership source** cell
+(`../kama-shokunin/PROVINCE.md:3-24`, `../kagi-shokunin/PROVINCE.md:3-6,10-17,32-34,54`,
+`../mado-shokunin/PROVINCE.md:3-16`, `../mori-shokunin/PROVINCE.md:3-16`,
+`../kumitate-shokunin/PROVINCE.md:3-6` + `../mori-shokunin/PROVINCE.md:12-16`,
+`../kaidoku-shokunin/PROVINCE.md:3-6,88-100` + `../revenger-shokunin/PROVINCE.md:3-7,19-25`,
+`../tameshi-shokunin/PROVINCE.md:3-18`). That is the locator class QUALITY 32 / R19-ADJ-POINTERS
+rules out: a line range is not a locator, and a quote that moved must resolve by quote plus pinned
+blob. Each cell now names the `OUT-0NN` anchor of `## Adjacent — portable ownership anchors (round
+19)` whose own **ADJ row** cell names that finding class (ADJ-01 → OUT-002, ADJ-02 → OUT-003,
+ADJ-03 → OUT-004, ADJ-04 → OUT-005, ADJ-05 → OUT-006 and OUT-007, ADJ-06 → OUT-008 and OUT-009,
+ADJ-07 → OUT-010). The old ranges are preserved only in this note; the anchor rows carry the pinned
+sibling commit, exact heading, ≤25-word quote and the registry blob sha256, so the ownership pointer
+now resolves by content. The round-19 rule "the line-range table is not changed" is superseded for
+this column only; the finding classes, retains, recipients and handoff evidence are unchanged.
+Nothing here grants write authority, and the kaidoku/revenger ownership arbitration stays open
+(ADJ-06, integrator's call).
+
+Counted by `python3 tools/check-adjacency-table-r49.py --revision <REV>` (predicate
+`adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchors_ok == 7 and registry_ok == 7
+and anchors_checker_rc == 0`; the existing `tools/check-adjacency-anchors.py` still re-checks the
+anchors against the live sibling bytes).

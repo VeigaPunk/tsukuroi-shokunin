@@ -412,7 +412,9 @@
 # when TMPDIR holds characters the root-override locator refuses, the same dir is reached
 # through a whitespace-free /proc/self/fd alias inside TMPDIR — never /tmp — R48-C2).
 #
-# Hermetic selftest: `--selftest` builds a /tmp fixture tree with a dispatcher stub for
+# Hermetic selftest: `--selftest` builds a fixture tree under the resolved base
+# (selftest_base_dir: TMPDIR, or its /proc/self/fd alias; never /tmp when TMPDIR
+# names another directory) with a dispatcher stub for
 # every probe command and re-invokes this script against it via env overrides. Each case
 # asserts exit code + final verdict + one or more evidence substrings, and asserts the
 # fixture tree is byte-unchanged after the run (zero mutation). Every probe command and
@@ -601,7 +603,10 @@ usage: tsukuroi-census.sh [--selftest] [--sample N] [--identity] [--help]
   --selftest   hermetic fixture-tree test of every verdict arm (writes only under
                ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*; a TMPDIR with characters the
                root-override locator refuses is reached through a /proc/self/fd
-               alias inside TMPDIR, never /tmp — R48-C2); exit 0 pass, 1 fail
+               alias inside TMPDIR, never /tmp — R48-C2; when every descriptor of
+               the 240-249 alias band is already open the resolver fails with the
+               named diagnostic `fd band 240-249 exhausted` instead of a silent
+               retry — R49-C3); exit 0 pass, 1 fail
   --sample N   packages plane: size of the pacman -Qkk sample (default 8)
 
 Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
@@ -2068,22 +2073,28 @@ selftest_base_dir() {
   # it would break (observed 2026-10-28: R46-C1 held-descriptor case failed
   # with "/proc/self/fd/10/...: Not a directory"). 240-249 stays below bash's
   # script descriptor band (255) and above anything fixtures auto-allocate.
-  local base fdn
+  local base fdn band
   ST_BASE_DIR=
   ST_BASE_FD=
+  ST_BASE_ERR=
+  # (R49-C3) The band is overridable so a selftest case can exhaust a two-descriptor
+  # band deterministically; production keeps the fixed 240-249 band documented above.
+  band=${SELFTEST_FD_BAND:-240 241 242 243 244 245 246 247 248 249}
   base=${TMPDIR:-/tmp}
   case "$base" in
     *[!A-Za-z0-9._/+-]*)
       # dirty TMPDIR: it must exist and be a directory for the alias to bind
-      [ -d "$base" ] || return 1
-      for fdn in 240 241 242 243 244 245 246 247 248 249; do
+      if [ ! -d "$base" ]; then ST_BASE_ERR=dirty-missing; return 1; fi
+      for fdn in $band; do
         [ -e "/proc/self/fd/$fdn" ] || break
       done
-      [ -e "/proc/self/fd/$fdn" ] && return 1
-      eval "exec ${fdn}<\"\$base\"" || return 1
+      if [ -e "/proc/self/fd/$fdn" ]; then ST_BASE_ERR=fd-band; return 1; fi
+      eval "exec ${fdn}<\"\$base\"" || { ST_BASE_ERR=alias-open; return 1; }
       ST_BASE_FD=$fdn
       ST_BASE_DIR=/proc/self/fd/$fdn
-      [ -d "$ST_BASE_DIR" ] || { eval "exec ${fdn}<&-"; ST_BASE_FD=; ST_BASE_DIR=; return 1; }
+      if [ ! -d "$ST_BASE_DIR" ]; then
+        eval "exec ${fdn}<&-"; ST_BASE_FD=; ST_BASE_DIR=; ST_BASE_ERR=alias-not-dir; return 1
+      fi
       ;;
     *) ST_BASE_DIR=$base ;;
   esac
@@ -2099,7 +2110,14 @@ run_selftest() {
   # never to /tmp; a nonexistent TMPDIR fails fast instead of building anywhere.
   local st_base
   selftest_base_dir || {
-    printf 'selftest: TMPDIR <%s> cannot host the fixture tree (no /tmp fallback, R48-C2)\n' "${TMPDIR:-<unset>}" >&2
+    case "${ST_BASE_ERR:-}" in
+      fd-band)
+        printf 'selftest: fd band %s exhausted (every descriptor already open), cannot alias TMPDIR <%s>; no /tmp fallback (R49-C3)\n' \
+          "${SELFTEST_FD_BAND:-240 241 242 243 244 245 246 247 248 249}" "${TMPDIR:-<unset>}" >&2 ;;
+      *)
+        printf 'selftest: TMPDIR <%s> cannot host the fixture tree (%s; no /tmp fallback, R48-C2)\n' \
+          "${TMPDIR:-<unset>}" "${ST_BASE_ERR:-resolver}" >&2 ;;
+    esac
     return 1
   }
   st_base=$ST_BASE_DIR
@@ -3553,6 +3571,35 @@ STUB
   else
     ok 'selftest: nonexistent dirty TMPDIR fails the base resolver, no /tmp fallback (R48-C2)'
   fi
+  # (R49-C3) fd-band exhaustion is named, not silent: with the alias band narrowed to
+  # two descriptors and both already open, a dirty TMPDIR must fail the resolver with
+  # ST_BASE_ERR=fd-band, leave no base and never fall back to /tmp.
+  r49_dir="$work/fx/dirty fd band"
+  mkdir -p "$r49_dir"
+  r49_held=0
+  if [ ! -e /proc/self/fd/240 ] && [ ! -e /proc/self/fd/241 ]; then
+    if eval 'exec 240<&0' 2>/dev/null && eval 'exec 241<&0' 2>/dev/null; then r49_held=1; fi
+  fi
+  if [ "$r49_held" -eq 1 ]; then
+    r49_old_tmp=${TMPDIR-}; r49_old_band=${SELFTEST_FD_BAND-}
+    TMPDIR="$r49_dir"
+    SELFTEST_FD_BAND='240 241'
+    if selftest_base_dir; then
+      bad 'selftest: an exhausted fd band must fail the base resolver (R49-C3)'
+    elif [ "${ST_BASE_ERR:-}" = 'fd-band' ] && [ -z "${ST_BASE_DIR:-}" ] && [ -z "${ST_BASE_FD:-}" ]; then
+      ok 'selftest: exhausted fd band fails the base resolver and names err=fd-band (R49-C3)'
+    else
+      bad "selftest: exhausted fd band must name err=fd-band (got '${ST_BASE_ERR:-<empty>}') (R49-C3)"
+    fi
+    if [ -n "$r49_old_band" ]; then SELFTEST_FD_BAND=$r49_old_band; else unset SELFTEST_FD_BAND; fi
+    if [ -n "$r49_old_tmp" ]; then TMPDIR=$r49_old_tmp; else unset TMPDIR; fi
+    eval 'exec 240<&-' 2>/dev/null
+    eval 'exec 241<&-' 2>/dev/null
+  else
+    bad 'selftest: could not reserve the 240/241 probe descriptors for the fd-band case (R49-C3)'
+  fi
+  unset r49_dir r49_held r49_old_tmp r49_old_band
+
   unset r48_dir r48_base r48_fd r48_rc
 
   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
