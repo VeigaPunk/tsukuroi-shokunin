@@ -1,0 +1,14 @@
+--- /fast/scratch/hyaku/tsukuroi-r49/R49RevFdB/census-freeze.sh	2026-10-28 14:18:20.201300869 -0300
++++ /fast/scratch/hyaku/tsukuroi-r49/R49RevFdB/census-mutant-m1.sh	2026-10-28 14:22:42.201012808 -0300
+@@ -2112,8 +2112,9 @@
+   selftest_base_dir || {
+     case "${ST_BASE_ERR:-}" in
+       fd-band)
+-        printf 'selftest: fd band %s exhausted (every descriptor already open), cannot alias TMPDIR <%s>; no /tmp fallback (R49-C3)\n' \
+-          "${SELFTEST_FD_BAND:-240 241 242 243 244 245 246 247 248 249}" "${TMPDIR:-<unset>}" >&2 ;;
++        # (MUTANT) the user-visible diagnostic is suppressed; the literal survives as a
++        # comment so the counter's static leg still finds it: selftest: fd band %s exhausted
++        : ;;
+       *)
+         printf 'selftest: TMPDIR <%s> cannot host the fixture tree (%s; no /tmp fallback, R48-C2)\n' \
+           "${TMPDIR:-<unset>}" "${ST_BASE_ERR:-resolver}" >&2 ;;

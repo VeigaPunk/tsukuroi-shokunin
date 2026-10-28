@@ -1,0 +1,232 @@
+===== S248 systemd.kill.xml (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-45/frozen/src/systemd.kill.xml) lines 62,116
+    62	      <varlistentry>
+    63	        <term><varname>KillMode=</varname></term>
+    64	        <listitem><para>Specifies how processes of this unit shall be killed. One of
+    65	        <option>control-group</option>, <option>mixed</option>, <option>process</option>,
+    66	        <option>none</option>.</para>
+    67	
+    68	        <para>If set to <option>control-group</option>, all remaining processes in the control group of this
+    69	        unit will be killed on unit stop (for services: after the stop command is executed, as configured
+    70	        with <varname>ExecStop=</varname>). If set to <option>mixed</option>, the
+    71	        <constant>SIGTERM</constant> signal (see below) is sent to the main process while the subsequent
+    72	        <constant>SIGKILL</constant> signal (see below) is sent to all remaining processes of the unit's
+    73	        control group. If set to <option>process</option>, only the main process itself is killed (not
+    74	        recommended!). If set to <option>none</option>, no process is killed (strongly recommended
+    75	        against!). In this case, only the stop command will be executed on unit stop, but no process will be
+    76	        killed otherwise.  Processes remaining alive after stop are left in their control group and the
+    77	        control group continues to exist after stop unless empty.</para>
+    78	
+    79	        <para>Note that it is not recommended to set <varname>KillMode=</varname> to
+    80	        <constant>process</constant> or even <constant>none</constant>, as this allows processes to escape
+    81	        the service manager's lifecycle and resource management, and to remain running even while their
+    82	        service is considered stopped and is assumed to not consume any resources.</para>
+    83	
+    84	        <para>Processes will first be terminated via <constant>SIGTERM</constant> (unless the signal to send
+    85	        is changed via <varname>KillSignal=</varname> or <varname>RestartKillSignal=</varname>). Optionally,
+    86	        this is immediately followed by a <constant>SIGHUP</constant> (if enabled with
+    87	        <varname>SendSIGHUP=</varname>). If processes still remain after:
+    88	        <itemizedlist>
+    89	          <listitem><para>the main process of a unit has exited (applies to <varname>KillMode=</varname>:
+    90	              <option>mixed</option>)</para></listitem>
+    91	          <listitem><para>the delay configured via the <varname>TimeoutStopSec=</varname> has passed
+    92	              (applies to <varname>KillMode=</varname>: <option>control-group</option>, <option>mixed</option>,
+    93	              <option>process</option>)</para></listitem>
+    94	        </itemizedlist>
+    95	
+    96	        the termination request is repeated with the <constant>SIGKILL</constant> signal or the signal specified via
+    97	        <varname>FinalKillSignal=</varname> (unless this is disabled via the <varname>SendSIGKILL=</varname>
+    98	        option). See <citerefentry><refentrytitle>kill</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+    99	        for more information.</para>
+   100	
+   101	        <para>Defaults to <option>control-group</option>.</para>
+   102	
+   103	        <xi:include href="version-info.xml" xpointer="v187"/></listitem>
+   104	      </varlistentry>
+   105	
+   106	      <varlistentry>
+   107	        <term><varname>KillSignal=</varname></term>
+   108	        <listitem><para>Specifies which signal to use when stopping a service. This controls the signal that
+   109	        is sent as first step of shutting down a unit (see above), and is usually followed by
+   110	        <constant>SIGKILL</constant> (see above and below). For a list of valid signals, see
+   111	        <citerefentry project='man-pages'><refentrytitle>signal</refentrytitle><manvolnum>7</manvolnum></citerefentry>.
+   112	        Defaults to <constant>SIGTERM</constant>.</para>
+   113	
+   114	        <para>Note that, right after sending the signal specified in this setting, systemd will always send
+   115	        <constant>SIGCONT</constant>, to ensure that even suspended tasks can be terminated cleanly.</para>
+   116
+===== S244 btrfs-scrub@.service (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-44/frozen/src/btrfs-scrub@.service) lines 1,10
+     1	[Unit]
+     2	Description=Btrfs scrub on %f
+     3	ConditionPathIsMountPoint=%f
+     4	RequiresMountsFor=%f
+     5	
+     6	[Service]
+     7	Nice=19
+     8	IOSchedulingClass=idle
+     9	KillSignal=SIGINT
+    10	ExecStart=/usr/bin/btrfs scrub start -B %f
+===== S249 capture.txt (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-45/frozen/hostcap/capture.txt) lines 1,9
+     1	captured 2026-10-27T02:09:52Z uid=1000 CapEff=0000000000000000
+     2	kernel 7.2.11-arch1-1 systemd systemd 262 (262-1-arch)
+     3	unit_show FinalKillSignal=9 FragmentPath=/usr/lib/systemd/system/btrfs-scrub@.service KillMode=control-group KillSignal=2 SendSIGKILL=yes TimeoutStopUSec=5s
+     4	stop_default /etc/systemd/system.conf.d/10-faster-shutdown.conf:2:DefaultTimeoutStopSec=5s
+     5	dropin_owner /etc/systemd/system.conf.d/10-faster-shutdown.conf none
+     6	dropin_owner /etc/systemd/system.conf.d/99-omarchy-nofile.conf none
+     7	unit_dropins 
+     8	scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root value=0
+     9	devinfo 1d02a454-c549-4a35-b567-89d60902af8e/devinfo devids=1
+===== S237 scrub.c cancel handler (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c) lines 412,444
+   412	/*
+   413	 * cancels a running scrub and makes the master process record the current
+   414	 * progress status before exiting.
+   415	 */
+   416	static int cancel_fd = -1;
+   417	static void scrub_sigint_record_progress(int signal)
+   418	{
+   419		int ret;
+   420	
+   421		ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);
+   422		if (ret < 0)
+   423			perror("Scrub cancel failed");
+   424	}
+   425	
+   426	static int scrub_handle_sigint_parent(void)
+   427	{
+   428		struct sigaction sa = {
+   429			.sa_handler = SIG_IGN,
+   430			.sa_flags = SA_RESTART,
+   431		};
+   432	
+   433		return sigaction(SIGINT, &sa, NULL);
+   434	}
+   435	
+   436	static int scrub_handle_sigint_child(int fd)
+   437	{
+   438		struct sigaction sa = {
+   439			.sa_handler = fd == -1 ? SIG_DFL : scrub_sigint_record_progress,
+   440		};
+   441	
+   442		cancel_fd = fd;
+   443		return sigaction(SIGINT, &sa, NULL);
+   444	}
+===== S237 scrub.c flag parse + -B (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c) lines 1247,1296
+  1247		bool do_background = true;
+  1248		bool do_wait = false;
+  1249		bool do_print = false;
+  1250		bool do_record = true;
+  1251		bool readonly = false;
+  1252		bool do_stats_per_dev = false;
+  1253		int ioprio_class = IOPRIO_CLASS_IDLE;
+  1254		int ioprio_classdata = 0;
+  1255		int n_start = 0;
+  1256		int n_resume = 0;
+  1257		struct btrfs_ioctl_fs_info_args fi_args;
+  1258		struct btrfs_ioctl_dev_info_args *di_args = NULL;
+  1259		struct scrub_progress *sp = NULL;
+  1260		struct scrub_fs_stat fs_stat;
+  1261		struct timeval tv;
+  1262		struct sockaddr_un addr = {
+  1263			.sun_family = AF_UNIX,
+  1264		};
+  1265		pthread_t *t_devs = NULL;
+  1266		pthread_t t_prog;
+  1267		struct scrub_file_record **past_scrubs = NULL;
+  1268		struct scrub_file_record *last_scrub = NULL;
+  1269		char datafile[] = SCRUB_DATA_FILE;
+  1270		char fsid[BTRFS_UUID_UNPARSED_SIZE];
+  1271		char sock_path[PATH_MAX] = "";
+  1272		struct scrub_progress_cycle spc;
+  1273		pthread_mutex_t spc_write_mutex = PTHREAD_MUTEX_INITIALIZER;
+  1274		void *terr;
+  1275		u64 throughput_limit = 0;
+  1276		u64 devid;
+  1277		bool force = false;
+  1278		bool nothing_to_resume = false;
+  1279	
+  1280		while (1) {
+  1281			int c;
+  1282			enum { GETOPT_VAL_LIMIT = GETOPT_VAL_FIRST };
+  1283			static const struct option long_options[] = {
+  1284				{"limit", required_argument, NULL, GETOPT_VAL_LIMIT},
+  1285				{ NULL, 0, NULL, 0 }
+  1286			};
+  1287	
+  1288			c = getopt_long(argc, argv, "BdqrRc:n:f", long_options, NULL);
+  1289			if (c < 0)
+  1290				break;
+  1291			switch (c) {
+  1292			case 'B':
+  1293				do_background = false;
+  1294				do_wait = true;
+  1295				do_print = true;
+  1296				break;
+===== S237 scrub.c fdmnt open (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c) lines 1340,1348
+  1340	
+  1341		path = argv[optind];
+  1342	
+  1343		fdmnt = btrfs_open_mnt(path);
+  1344		if (fdmnt < 0)
+  1345			return 1;
+  1346	
+  1347		ret = get_fs_info(path, &fi_args, &di_args);
+  1348		if (ret) {
+===== S237 scrub.c fork gate + handler install (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c) lines 1508,1550
+  1508				do_record = false;
+  1509			}
+  1510		}
+  1511	
+  1512		if (do_background) {
+  1513			pid = fork();
+  1514			if (pid == -1) {
+  1515				error("cannot scrub, fork failed: %m");
+  1516				err = 1;
+  1517				goto out;
+  1518			}
+  1519	
+  1520			if (pid) {
+  1521				int stat;
+  1522				scrub_handle_sigint_parent();
+  1523				pr_default("scrub %s on %s, fsid %s (pid=%d)\n",
+  1524					   n_start ? "started" : "resumed",
+  1525					   path, fsid, pid);
+  1526				if (!do_wait) {
+  1527					err = 0;
+  1528					goto out;
+  1529				}
+  1530				ret = wait(&stat);
+  1531				if (ret != pid) {
+  1532					error("wait failed (ret=%d): %m", ret);
+  1533					err = 1;
+  1534					goto out;
+  1535				}
+  1536				if (!WIFEXITED(stat) || WEXITSTATUS(stat)) {
+  1537					err = WIFEXITED(stat) ? WEXITSTATUS(stat) : -1;
+  1538					error("scrub process failed with error %d", err);
+  1539					goto out;
+  1540				}
+  1541				err = 0;
+  1542				goto out;
+  1543			}
+  1544		}
+  1545	
+  1546		scrub_handle_sigint_child(fdmnt);
+  1547	
+  1548		for (i = 0; i < fi_args.num_devices; ++i) {
+  1549			if (sp[i].skip) {
+  1550				sp[i].scrub_args.progress = sp[i].resumed->p;
+===== S237 scrub.c handler reset + final write (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c) lines 1698,1712
+  1698			error("recording progress failed: %m");
+  1699		}
+  1700	
+  1701		if (do_record) {
+  1702			ret = scrub_write_progress(&spc_write_mutex, fsid, sp,
+  1703						   fi_args.num_devices);
+  1704			if (ret && do_print) {
+  1705				errno = -ret;
+  1706				error("failed to record the result: %m");
+  1707			}
+  1708		}
+  1709	
+  1710		scrub_handle_sigint_child(-1);
+  1711	
+  1712	out:

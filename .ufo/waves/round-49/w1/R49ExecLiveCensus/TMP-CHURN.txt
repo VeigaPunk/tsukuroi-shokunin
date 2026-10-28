@@ -1,0 +1,25 @@
+# /tmp churn observations (find /tmp -maxdepth 1 -newer <marker> -name 'tsukuroi*')
+# 90+ sibling seats run `tools/tsukuroi-census.sh --selftest`, which mktemp's
+# /tmp/tsukuroi-r3-2-selftest.XXXXXX; those dirs are transient and are NOT mine.
+
+after base-live-1 window (base blob, no --selftest):            new=[]   (only non-tsukuroi entries: /tmp/cc.*, /tmp/rc.*, /tmp/rp.*, /tmp/tameshi-r14-*, /tmp/w5-mado-*)
+control windows, NO census run at all (8 s each):
+  control_window=1 (no census run) new=[/tmp/tsukuroi-r3-2-selftest.7jGsRh ]
+  control_window=2 (no census run) new=[/tmp/tsukuroi-r3-2-selftest.HBYZXr ]
+  control_window=3 (no census run) new=[]
+  control_window=4 (no census run) new=[]
+  => siblings create these dirs while I am idle: background churn, not attributable to my runs.
+windowed runs (8 s each, marker -> live run -> find):
+  round=a blob=base exit=2 new_tsukuroi_in_tmp=[/tmp/tsukuroi-r3-2-selftest.WssQrj ]
+  round=a blob=fix  exit=2 new_tsukuroi_in_tmp=[/tmp/tsukuroi-r3-2-selftest.YkqFT3 /tmp/tsukuroi-r3-2-selftest.R4L0Wb ]
+  round=b blob=base exit=2 new_tsukuroi_in_tmp=[/tmp/tsukuroi-r3-2-selftest.b1mgjD /tmp/tsukuroi-r3-2-selftest.8poM29 ]
+  round=b blob=fix  exit=2 new_tsukuroi_in_tmp=[/tmp/tsukuroi-r3-2-selftest.rj8BI4 ]
+attribution runs (immediate inspection of any new dir; both windows: none appeared):
+  == blob=base exit=2   (no new dir)
+  == blob=fix exit=2    (no new dir)
+one earlier transient, /tmp/tsukuroi-r3-2-selftest.bvlH0s, was already gone ~30 s after
+first sighting (stat: No such file or directory at 2026-10-28T17:44:35Z) — selftest
+fixture dirs are removed by their owning run; a live-mode run never creates one:
+  fix.sh:2124 `work=$(mktemp -d "$st_base/tsukuroi-r3-2-selftest.XXXXXX")` is the ONLY
+  mktemp call site and it is inside run_selftest(), reached only from fix.sh:3688-3689
+  (`if [ "$selftest" -eq 1 ]; then run_selftest`), i.e. never by `bash <blob>` with no args.

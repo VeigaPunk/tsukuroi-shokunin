@@ -1,0 +1,102 @@
+--- counter-frozen.py	2026-10-28 14:15:09.860247572 -0300
++++ counter-patched.py	2026-10-28 14:20:52.148782063 -0300
+@@ -232,12 +232,19 @@
+     return per
+ 
+ 
++HEADER_RE = re.compile(r'^([^\w]*)(//|/\*|\*)\s*(SPDX|Copyright)|^<\?xml')
++
++
+ def verify_citation(cache, fname, lineno):
+     cands = [lines for (sid, sf), lines in cache.items() if sf == fname]
+     if not cands:
+         return False, f'{fname} not a pinned snapshot file'
+-    if any(1 <= lineno <= len(lines) for lines in cands):
+-        return True, 'resolves'
++    for lines in cands:
++        if 1 <= lineno <= len(lines):
++            text = lines[lineno - 1].strip()
++            if not text or HEADER_RE.match(text):
++                return False, f'{fname}:{lineno} is a blank/header line'
++            return True, 'resolves'
+     return False, f'{fname}:{lineno} outside all pinned snapshots'
+ 
+ 
+@@ -249,6 +256,8 @@
+     hits = CITE_RE.findall(body)
+     if not hits:
+         return False, 'no file:line citations'
++    if len({f for f, _ in hits if f in CITE[row]}) < 2:
++        return False, 'only one row-source file cited'
+     for fname, lineno in hits:
+         ok, why = verify_citation(cache, fname, int(lineno))
+         if not ok:
+@@ -277,7 +286,7 @@
+         return None, None, None, 'not exactly one results entry'
+     if hits[0].get('agent') != role:
+         return None, None, None, f'results agent {hits[0].get("agent")!r} != {role}'
+-    if not hits[0].get('output'):
++    if not str(hits[0].get('output') or '').strip():
+         return None, None, None, 'no completed output'
+     if wave_dir:
+         path = os.path.join(wave_dir, f'{seat}.md')
+@@ -304,8 +313,12 @@
+     if not h:
+         return None, None, None, f'second line {lines[1][:80]!r}'
+     for r, w in ANY_VERDICT_RE.findall('\n'.join(lines[1:])):
+-        if r != row or w != m.group(2):
++        if r == row and w != m.group(2):
+             return 'partly', h.group(1), '\n'.join(lines[2:]), f'contradicting line ROW {r} VERDICT: {w}'
++    NEG_BODY = re.compile(r'\b(is|are)\s+false\b|must not be admitted|did not land|'
++                          r'contradicts the row', re.I)
++    if NEG_BODY.search('\n'.join(lines[2:])):
++        return 'partly', h.group(1), '\n'.join(lines[2:]), 'body contradicts the verdict'
+     return m.group(2), h.group(1), '\n'.join(lines[2:]), f'{seat}.md'
+ 
+ 
+@@ -316,7 +329,8 @@
+     norm = ' '.join(readme.split())
+     name, phrase = MARK_README
+     for sentence in re.split(r'(?<=[.!?])\s+', norm):
+-        if name in sentence and phrase in sentence and not NEGATE_RE.search(sentence):
++        if (name in sentence and phrase in sentence
++                and not re.search(r'\b(not|never|no longer|refused?|pending)\b', sentence, re.I)):
+             marks['readme'] = True
+             break
+     return marks, sum(1 for v in marks.values() if v)
+@@ -343,8 +357,15 @@
+     cache = snapshots(lane, rev)
+     quotes = quote_legs(entry, hashes, cache)
+     quotes_ok = sum(1 for r in ROWS if quotes[r]['quotes'] > 0 and not quotes[r]['bad'])
+-    corr_missing = [p for p in CORR_REQ if not re.search(p, entry)]
++    row_text = '\n'.join('\n'.join(entry.split('\n')[v[0]:v[1]])
++                         for v in (row_extent(entry.split('\n'), r)[0] for r in ROWS) if v)
++    corr_missing = [p for p in CORR_REQ if not re.search(p, row_text)]
+     corr_present = [p for p in CORR_FORBID if re.search(p, entry)]
++    NEG = re.compile(r'\b(not|never|no longer|refused)\b', re.I)
++    for p in CORR_REQ:
++        for m in re.finditer(p, row_text):
++            if NEG.search(row_text[max(0, m.start() - 80):m.start()]):
++                corr_missing.append(p + ' (negated)')
+     corr_ok = int(not corr_missing and not corr_present)
+     tasks = dispatch_tasks(lane, rev)
+     res = load_json(lane, rev, f'{WAVES}/{WAVE}-results.json', a.results_file)
+@@ -372,7 +393,7 @@
+                 seat_rows.append(f'{seat}: {why}')
+                 continue
+             credited.append(seat)
+-            bodies.add(hashlib.sha256((body or '').encode('utf-8')).hexdigest())
++            bodies.add(hashlib.sha256(' '.join((body or '').split()).encode('utf-8')).hexdigest())
+         roles = {role for seat, role in exp if seat in credited}
+         distinct = len(bodies) == len(credited)
+         row_ok = (len(credited) >= 3 and 'reviewer' in roles and 'critic' in roles
+@@ -380,7 +401,8 @@
+         per_row[row] = {'credited': credited, 'blocking': blocking, 'distinct_bodies': distinct,
+                         'row_ok': row_ok, 'quotes': quotes[row], 'seats': seats}
+         verdicts_ok += int(row_ok)
+-        seats_ok += sum(1 for s in seats.values() if s['verdict'] is not None)
++        seats_ok += sum(1 for s in seats.values()
++                    if s['verdict'] is not None and s['hash'] == hashes.get(row))
+     marks, marks_ok = marks_leg(entry, skill, readme, hashes)
+     out = {'counter': 'check-scrub-admission-r49', 'revision': rev, 'base': BASE,
+            'structural_ok': structural_ok, 'problems': problems, 'corr_ok': corr_ok,

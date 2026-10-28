@@ -1,0 +1,52 @@
+== step 0: baseline descriptors ==
+0 1 16 18 2 3 
+ulimit -n (soft) = 524288   ulimit -Hn (hard) = 524288
+bash = 5.3.20(1)-release pid = 1766360
+== step 1: open 238..249 </dev/null ==
+exec 238</dev/null            -> ok
+exec 239</dev/null            -> ok
+exec 240</dev/null            -> ok
+exec 241</dev/null            -> ok
+exec 242</dev/null            -> ok
+exec 243</dev/null            -> ok
+exec 244</dev/null            -> ok
+exec 245</dev/null            -> ok
+exec 246</dev/null            -> ok
+exec 247</dev/null            -> ok
+exec 248</dev/null            -> ok
+exec 249</dev/null            -> ok
+-- /proc/self/fd now: --
+total 0
+0 -> /dev/null
+1 -> pipe:[1541783239]
+16 -> /dev/pts/0
+18 -> /dev/pts/0
+2 -> /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-49/w1/R49LabFd/probe-a-fd-band-exhaustion.out
+238 -> /dev/null
+239 -> /dev/null
+240 -> /dev/null
+241 -> /dev/null
+242 -> /dev/null
+243 -> /dev/null
+244 -> /dev/null
+245 -> /dev/null
+246 -> /dev/null
+247 -> /dev/null
+248 -> /dev/null
+249 -> /dev/null
+3 -> /proc/1766435/fd
+-- numbers: 0 1 2 3 16 18 238 239 240 241 242 243 244 245 246 247 248 249 
+== step 2: explicit exec 240</dev/null while 240 is held ==
+re-exec 240 -> ok (re-pointed)
+/proc/self/fd/240 -> /dev/null
+== step 3: minimal resolver copy, SELFTEST_FD_BAND unset ==
+band (SELFTEST_FD_BAND unset) = <unset>
+resolver rc=1 ST_BASE_ERR=fd-band ST_BASE_DIR=<empty> ST_BASE_FD=<empty>
+-- diagnostic line the selftest prints for this class: --
+selftest: fd band 240 241 242 243 244 245 246 247 248 249 exhausted (every descriptor already open), cannot alias TMPDIR </fast/scratch/hyaku/tsukuroi-r49/R49LabFd>; no /tmp fallback (R49-C3)
+== step 4: release 248/249, resolver must succeed in the band ==
+resolver rc=0 ST_BASE_ERR=<empty> ST_BASE_FD=248
+/proc/self/fd/248 -> /fast/scratch/hyaku/tsukuroi-r49/R49LabFd/dirty tmpdir
+/fast/scratch/hyaku/tsukuroi-r49/R49LabFd/dirty tmpdir
+== step 5: dump what an already-open slot looks like ==
+/proc/self/fd/240 -> /dev/null

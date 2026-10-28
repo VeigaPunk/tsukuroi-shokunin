@@ -1,0 +1,136 @@
+R49Simplify receipts — all read-only against lane bytes at the FREEZE revision.
+Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+FREEZE = 55c07cd3f8bff2e12117c34d57b4c618de74d85c
+BASE   = 6256760d1382ce4ce20fcba830d4b2912cfbf12b
+R20 baseline = 0cbc34dd6b20896085a8fb07943e3ea4027d8472
+
+$ git -C <lane> diff BASE FREEZE --stat
+ .../waves/round-49/before/sources-census-start.txt |  41 ++
+ .ufo/waves/round-49/frozen/FROZEN.md               |  60 +++
+ LOG.md                                             |  23 ++
+ PROVINCE.md                                        |  39 +-
+ SCORECARD.md                                       |  19 +
+ corpus/knowledge/btrfs-scrub-grounding-r45.md      |  42 +-
+ tools/check-adjacency-table-r49.py                 | 223 +++++++++++
+ tools/check-fd-band-r49.py                         | 137 +++++++
+ tools/check-scrub-admission-r49.py                 | 421 +++++++++++++++++++++
+ tools/tsukuroi-census.sh                           |  65 +++-
+ 10 files changed, 1042 insertions(+), 28 deletions(-)
+
+# (1) row_extent dead branch — j is the first k>i with lines[k].startswith('## ')
+$ git show FREEZE:tools/check-scrub-admission-r49.py | sed -n '166,176p'
+166 def row_extent(lines, row):
+167     heads = [i for i, ln in enumerate(lines) if ln.strip() == f'## {row}']
+168     if len(heads) != 1:
+169         return None, f'{row}: header appears {len(heads)} times'
+170     i = heads[0]
+171     j = next((k for k in range(i + 1, len(lines)) if lines[k].startswith('## ')), len(lines))
+172     inner = [ln for ln in lines[i + 1:j] if ln.startswith('## ')]
+173     if inner:
+174         return None, f'{row}: unexpected "## " line inside the row: {inner[0][:60]!r}'
+175     return (i, j), None
+
+# (2) marks_leg takes `hashes` and never reads it
+$ git show FREEZE:tools/check-scrub-admission-r49.py | sed -n '312,322p;384p'
+312 def marks_leg(entry, skill, readme, hashes):
+        marks = {'entry': MARK_ENTRY in entry.split('\n'),
+                 'skill': any(ln.strip() == MARK_SKILL for ln in skill.split('\n')),
+                 'readme': False}
+        norm = ' '.join(readme.split())
+        name, phrase = MARK_README
+        for sentence in re.split(r'(?<=[.!?])\s+', norm):
+            if name in sentence and phrase in sentence and not NEGATE_RE.search(sentence):
+                marks['readme'] = True
+                break
+        return marks, sum(1 for v in marks.values() if v)
+384     marks, marks_ok = marks_leg(entry, skill, readme, hashes)
+
+# (3) the C1 docstring names a flag this script does not define (it is C2's flag)
+$ git show FREEZE:tools/check-scrub-admission-r49.py | sed -n '36,41p'
+36 Fixture overrides (control batteries only; production reads the revision's committed bytes):
+37   --entry-file --skill-file --readme-file --wave-dir --results-file --no-base-check
+38   --skip-anchors-check is not used here; --lane names the repo.
+40 Usage: python3 tools/check-scrub-admission-r49.py --revision <REV> [--lane <repo>] [--section-hash]
+
+# (4) C3 band_ok repeats the `cases` conjunct that the predicate already ANDs
+$ git show FREEZE:tools/check-fd-band-r49.py | sed -n '103,114p'
+103         cases = int(summary.group(2)) if summary else 0
+104         case_pass = any(DIAG_CASE in ln and ln.lstrip().startswith('PASS') for ln in lines)
+105         band_ok = 1 if (p.returncode == 0 and summary and summary.group(1) == 'PASS'
+106                         and summary.group(4) == '0' and case_pass and cases == TARGET_CASES) else 0
+113         ok = stale_ok == 1 and diag_ok == 1 and band_ok == 1 and cases == TARGET_CASES
+# summary group(3) = "passed" is parsed by SUMMARY (line 48) and never read.
+
+# (5) census: the usage text quotes a message form no code path prints
+$ git show FREEZE:tools/tsukuroi-census.sh | grep -n 'fd band'
+608:               named diagnostic `fd band 240-249 exhausted` instead of a silent
+2115:        printf 'selftest: fd band %s exhausted (every descriptor already open), cannot alias TMPDIR <%s>; no /tmp fallback (R49-C3)\n' \
+3577:  r49_dir="$work/fx/dirty fd band"
+3588:      bad 'selftest: an exhausted fd band must fail the base resolver (R49-C3)'
+3590:      ok 'selftest: exhausted fd band fails the base resolver and names err=fd-band (R49-C3)'
+3592:      bad "selftest: exhausted fd band must name err=fd-band (got '${ST_BASE_ERR:-<empty>}') (R49-C3)"
+# producer expands the band: 2115-2116 prints "fd band 240 241 ... 249 exhausted", never "240-249"
+
+# (6) the default band literal is written twice
+$ git show FREEZE:tools/tsukuroi-census.sh | sed -n '2082p;2116p'
+2082   band=${SELFTEST_FD_BAND:-240 241 242 243 244 245 246 247 248 249}
+2116           "${SELFTEST_FD_BAND:-240 241 242 243 244 245 246 247 248 249}" "${TMPDIR:-<unset>}" >&2 ;;
+
+# (7) C3 extract(): tar of a single blob where `git show` would do
+$ git show FREEZE:tools/check-fd-band-r49.py | sed -n '38p;63,72p'
+38 import tarfile
+63 def extract(lane, rev, dest):
+64     p = git(lane, 'archive', '--format=tar', rev, CENSUS)
+65     if p.returncode != 0:
+66         return None
+67     path = os.path.join(dest, CENSUS)
+68     os.makedirs(os.path.dirname(path), exist_ok=True)
+69     import io
+70     with tarfile.open(fileobj=io.BytesIO(p.stdout)) as tf:
+71         tf.extractall(dest)
+72     return path
+
+# (8) snapshots used by **Quote.** lines (S240 ioctl.c and S249 capture.txt are NOT quoted)
+$ git show FREEZE:corpus/knowledge/btrfs-scrub-grounding-r45.md | grep -o '^\*\*Quote\.\*\* `S[0-9]*`' | sort | uniq -c
+      3 **Quote.** `S237`
+     16 **Quote.** `S242`
+      4 **Quote.** `S243`
+      2 **Quote.** `S244`
+     10 **Quote.** `S246`
+     11 **Quote.** `S247`
+      7 **Quote.** `S248`
+# SNAPSHOTS (C1:58-81) also carries S240 ioctl.c and S249 capture.txt; CITE (C1:82-84) needs both
+# for GR2/GR3 report citations via verify_citation (C1:235-241). Not dead.
+
+# (9) C2 cross-check leg never falsified; receipts do not record the command line
+$ python3 -c '...' on .ufo/waves/round-49/controls/battery-summary-r49-c2.jsonl
+K0     rc 1 checker -1 problems []
+K1     rc 1 checker -1 problems []
+K2     rc 1 checker -1 problems []
+K3     rc 1 checker -1 problems []
+K-pass rc 0 checker  0 problems []
+# .ufo/waves/round-49/before/c2-at-base.json records anchors_checker_rc: 0 for the same base
+# province, so K0..K3 were run with --skip-anchors-check (rc -1 by construction). Receipt keys
+# are ['_rc','base','control','note',...] — no argv/cmd/flags field, so the battery is not
+# replayable from its own receipts.
+
+# (10) R20 baseline prefix — broken at FREEZE line 46, already unusable at BASE
+$ git show 0cbc34dd:PROVINCE.md | wc -l          -> 146
+base prefix identical:   YES   (baseline == head -146 of BASE:PROVINCE.md)
+freeze prefix identical: NO    (cmp: "differ: char 3079, line 46")
+$ git show BASE:PROVINCE.md | sed -n '147,154p'
+(blank)
+## R20 ownership clarification — OUT-009
+(blank)
+R20-OUT009: ...
+(blank)
+This explicitly supersedes only ...
+(blank)
+## Round-26 frontier — storage integrity
+# check-adjacency-anchors.py:189-193 requires current==baseline+exact R20 suffix, so
+# --ownership-corrections already FAILed at BASE (line 154 is not the R20 section).
+
+# (11) housekeeping
+# No scratch tree was created for this seat (no clone, no fixture, no mutant).
+# A throwaway /dev/shm/adjchk.py copy of the checker (used for one grep) was deleted
+# immediately (rm -f) and never touched the lane, the fleet repo or any PATH dir.

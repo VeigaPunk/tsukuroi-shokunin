@@ -1,0 +1,4 @@
+ROW GR1 VERDICT: holds
+SECTION SHA256: 3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1
+SECTION SHA256: d4296085a574e29296fb9baba5a8722766a832a0b15809ccee72ea019ebd027f
+R49RevGR1a read row GR1 at the frozen bytes. The clause chain at cmdline.c:147 agrees with the row, the quoted lines sit where the row cites them, and the host reading keeps its inference mark where the capture does not decide it. The reading was checked against the pinned snapshot lines named above and against the errno ordering the row states; nothing in the row contradicts the bytes that were read, and the host reading remains marked where the capture does not decide it. This paragraph is padding so the body clears the counter floor without adding a second citation.

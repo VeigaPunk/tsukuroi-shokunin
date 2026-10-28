@@ -1,0 +1,38 @@
+# C1-B8 control receipts — commands as run
+
+counter = git -C LANE show :tools/check-scrub-admission-r49.py
+counter sha256 = 3dd52ef376e233192f955208c1132f6b0d23bbebe97dd1df75e6296f55d970a4
+revision for --revision = 32a855608aa3ebb19b0602a94cc33bcfda564a61 (dispatch commit used by the frozen C1 controls)
+entry/skill/readme = freeze blobs + marks appended (battery.py c1() shape)
+
+## isolation: every variant dir holds 18 reports and differs from wave-base in exactly the intended files
+wave-E1-trailing-space files=18 differing-vs-base=1
+wave-E2-uppercase-hash files=18 differing-vs-base=1
+wave-E3-body-300-ok-cite files=18 differing-vs-base=1
+wave-E4-body-298 files=18 differing-vs-base=1
+wave-E5-body-299-nonl files=18 differing-vs-base=1
+wave-E6-badcite-3 files=18 differing-vs-base=3
+wave-E7-badcite-4 files=18 differing-vs-base=4
+wave-E8-nonenum-word files=18 differing-vs-base=1
+wave-a-crlf files=18 differing-vs-base=1
+wave-b-bom files=18 differing-vs-base=1
+wave-base files=18 differing-vs-base=0
+wave-c-lead-space files=18 differing-vs-base=1
+wave-d-fence files=18 differing-vs-base=1
+wave-e-capital files=18 differing-vs-base=1
+wave-f-third-line files=18 differing-vs-base=1
+wave-g-second-hash files=18 differing-vs-base=1
+wave-h-body-299 files=18 differing-vs-base=1
+wave-i-body-300-bad-cite files=18 differing-vs-base=1
+
+## body-byte arithmetic (joined body = '\n'.join(text.split('\n')[2:]))
+wave-h-body-299: file=404B endsLF=True body-line=299B joined=300B
+wave-E4-body-298: file=403B endsLF=True body-line=298B joined=299B
+wave-E5-body-299-nonl: file=403B endsLF=False body-line=299B joined=299B
+wave-i-body-300-bad-cite: file=405B endsLF=True body-line=300B joined=301B
+wave-E3-body-300-ok-cite: file=405B endsLF=True body-line=300B joined=301B
+
+## g fixture head (line 2 bound hash, line 3 GR2 hash)
+ROW GR1 VERDICT: holds
+SECTION SHA256: 3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1
+SECTION SHA256: d4296085a574e29296fb9baba5a8722766a832a0b15809ccee72ea019ebd027f

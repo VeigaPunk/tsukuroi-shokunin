@@ -1,0 +1,16 @@
+# --revision is interpolated into git's argv without a separator or validation
+frozen counter line 64: git(lane, 'archive', '--format=tar', rev, CENSUS)
+
+$ python3 tools/check-fd-band-r49.py "--revision=--output=<scratch>/injected.tar" --work <scratch>/work-inj
+{"error": "tools/tsukuroi-census.sh unreadable at --output=<scratch>/injected.tar", "verdict": "FAIL"}
+$ ls -l <scratch>/injected.tar
+-rw-r--r-- 1 vgpnk vgpnk 0 ... injected.tar          # created/truncated outside --work
+
+$ git -C <lane> archive --format=tar "--output=<scratch>/injected2.tar" tools/tsukuroi-census.sh
+fatal: not a valid object name: tools/tsukuroi-census.sh
+-rw-r--r-- 1 vgpnk vgpnk 0 ... injected2.tar         # still created before the failure
+
+## hardening that works (measured)
+$ git -C <lane> rev-parse --verify --quiet --end-of-options '55c07cd3...^{commit}'   -> sha, rc 0
+$ git -C <lane> rev-parse --verify --quiet --end-of-options '--output=/tmp/x^{commit}' -> rc 1 (rejected)
+$ git -C <lane> archive --format=tar <resolved-sha> -- tools/tsukuroi-census.sh       -> tools/tsukuroi-census.sh

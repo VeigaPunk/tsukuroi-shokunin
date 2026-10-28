@@ -1,0 +1,35 @@
+1 hash convention: counter value (final LF) vs the documented "no trailing LF"
+  GR1 with=3a2ba1807a7f without=0b67bea0ed49 frozen=3a2ba1807a7f last_elem=''
+  GR2 with=d4296085a574 without=75d24ea6635b frozen=d4296085a574 last_elem=''
+  GR3 with=43430a140695 without=17b19a535014 frozen=43430a140695 last_elem=''
+2 corr_ok is entry-wide + presence-only
+  in-row revert only:            corr_ok 0
+  + correction outside the rows: corr_ok 1
+  remove GR2 in-row ioctl.c:3132 citation -> corr_ok 1
+  negated correction:            corr_ok 1
+  legit errata naming a defect:  corr_ok 0
+3 report_citations_ok: one non-pinned token voids the body
+  ''                                     (True, '3 citations resolve')
+  'check-scrub-admission-r49.py:205'     (False, 'check-scrub-admission-r49.py not a pinned snapshot file')
+  'FROZEN.md:12'                         (False, 'FROZEN.md not a pinned snapshot file')
+  'example.org:8443'                     (False, 'example.org not a pinned snapshot file')
+  'v7.2.11:18'                           (False, 'v7.2.11 not a pinned snapshot file')
+  negated citation: (True, '12 citations resolve')
+  citation 1 past EOF scrub.c:3338: (True, 'resolves')
+4 quotes_ok floor: empty / 1-char quote text passes
+  sole quote ""       {'quotes': 1, 'ok': 1, 'bad': []}
+  sole quote "f"      {'quotes': 1, 'ok': 1, 'bad': []}
+  sole quote "     "  {'quotes': 1, 'ok': 1, 'bad': []}
+5 extent rule: stray "## " truncates; indented header is not a terminator
+  stray "## Stray" in GR2 -> structural_ok 1 problem [] GR2 extent (55, 70)
+  indented "  ## GR2"  -> structural_ok 1 GR1 extent (13, 151) (frozen (13, 55) )
+6 marks_leg README negation is a 5-phrase case-sensitive list
+  readme=True  btrfs-scrub-grounding-r45.md is NOT admitted round 49.
+  readme=True  btrfs-scrub-grounding-r45.md isn’t admitted round 49.
+  readme=False btrfs-scrub-grounding-r45.md is admitted round 49 while other.md stays pending.
+  readme=True  The heading `admitted round 49` belongs to btrfs-scrub-grounding-r45.md.
+7 seat binding: ANY_VERDICT_RE scan (counter.py:306-308) turns a cross-row quotation into partly
+  body 'Sibling format example: ROW GR2 VERDICT: holds.' -> scan hits [('GR2', 'holds')]
+  body 'On reflection, ROW GR2 verdict: fails.' -> scan hits []
+  (row GR1 with a GR2 hit -> bind_seat returns ("partly", ...) and blocks per counter.py:364-366)
+8 frozen constants present in the counter? False

@@ -1,0 +1,18 @@
+=== r48 C2 counter: results-file binding (frozen bytes) @55c07cd3 ===
+15:  A3  Universe per row: three reviewers + three critics in the single wave (R48RevGR<n>{a,b,c},
+185:    res = load_obj(lane, rev, f'{WAVES}/{wave}-results.json')
+188:        return None, None, None, f'{wave}-results.json unreadable'
+190:        return None, None, None, 'not exactly one results entry'
+=== identical at its own freeze ae99f021? (empty diff = identical to the 76066487 measurement rev) ===
+(end diff)
+=== r48 C1 counter static leg (comments skipped; only the 'or /tmp itself' promise read) ===
+147:def static_leg(census):
+   150	    bad = []
+   151	    for n, ln in enumerate(text.split('\n'), start=1):
+   152	        if ln.lstrip().startswith('#'):
+   153	            continue
+   154	        if BASE_ASSIGN.search(ln):
+   155	            bad.append(f'{n}: {ln.strip()[:80]}')
+   156	    if 'or /tmp itself' in text:
+   157	        bad.append('usage/comment promises a /tmp fallback ("or /tmp itself")')
+   158	    return {'ok': int(not bad), 'problems': bad}

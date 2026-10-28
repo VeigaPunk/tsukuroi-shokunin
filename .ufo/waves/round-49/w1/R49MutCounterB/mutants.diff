@@ -1,0 +1,43 @@
+--- base/check.py	2026-10-28 14:15:51.120679701 -0300
++++ mutants/M5.py	2026-10-28 14:17:39.173328731 -0300
+@@ -242,6 +242,7 @@
+ 
+ 
+ def report_citations_ok(cache, body, row):
++    return True, 'M5: citation leg neutralized'
+     if len(body.encode('utf-8')) < 300:
+         return False, 'report body under 300 bytes'
+     if not any(re.search(re.escape(f) + r':\d+', body) for f in CITE[row]):
+--- base/check.py	2026-10-28 14:15:51.120679701 -0300
++++ mutants/M6.py	2026-10-28 14:17:39.173485841 -0300
+@@ -242,7 +242,7 @@
+ 
+ 
+ def report_citations_ok(cache, body, row):
+-    if len(body.encode('utf-8')) < 300:
++    if len(body.encode('utf-8')) < 0:
+         return False, 'report body under 300 bytes'
+     if not any(re.search(re.escape(f) + r':\d+', body) for f in CITE[row]):
+         return False, 'no file:line citation of the row sources'
+--- base/check.py	2026-10-28 14:15:51.120679701 -0300
++++ mutants/M7.py	2026-10-28 14:17:39.173630562 -0300
+@@ -342,7 +342,7 @@
+         return 0 if len(hashes) == 3 and structural_ok else 2
+     cache = snapshots(lane, rev)
+     quotes = quote_legs(entry, hashes, cache)
+-    quotes_ok = sum(1 for r in ROWS if quotes[r]['quotes'] > 0 and not quotes[r]['bad'])
++    quotes_ok = sum(1 for r in ROWS if quotes[r]['quotes'] > 0)
+     corr_missing = [p for p in CORR_REQ if not re.search(p, entry)]
+     corr_present = [p for p in CORR_FORBID if re.search(p, entry)]
+     corr_ok = int(not corr_missing and not corr_present)
+--- base/check.py	2026-10-28 14:15:51.120679701 -0300
++++ mutants/M8.py	2026-10-28 14:17:39.173755432 -0300
+@@ -316,7 +316,7 @@
+     norm = ' '.join(readme.split())
+     name, phrase = MARK_README
+     for sentence in re.split(r'(?<=[.!?])\s+', norm):
+-        if name in sentence and phrase in sentence and not NEGATE_RE.search(sentence):
++        if name in sentence and phrase in sentence:
+             marks['readme'] = True
+             break
+     return marks, sum(1 for v in marks.values() if v)

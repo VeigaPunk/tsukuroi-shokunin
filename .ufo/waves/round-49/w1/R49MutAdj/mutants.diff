@@ -1,0 +1,57 @@
+===== M1-bare-leg-removed  sha256=35f083f808d0b25a3e4de48d3cb8c2683734e2425ff2c6ee71ecb99f3ddb25d7
+--- /fast/scratch/hyaku/tsukuroi-r49/R49MutAdj/counter-frozen.py	2026-10-28 14:18:58.244900518 -0300
++++ /fast/scratch/hyaku/tsukuroi-r49/R49MutAdj/M1-bare-leg-removed.py	2026-10-28 14:20:31.893837629 -0300
+@@ -134,7 +134,6 @@
+         own = cs[-1] if cs else ''
+         row_bare = BARE.findall(own)
+         outs = OUT_ID.findall(own)
+-        bare += len(row_bare)
+         row_problems = []
+         if row_bare:
+             row_problems.append(f'bare locator(s): {row_bare}')
+===== M2-class-equality-removed  sha256=a978b568b2fd45aa0f236a17d71ccf3d546437e8339b38e2681a49e79106d9bb
+--- /fast/scratch/hyaku/tsukuroi-r49/R49MutAdj/counter-frozen.py	2026-10-28 14:18:58.244900518 -0300
++++ /fast/scratch/hyaku/tsukuroi-r49/R49MutAdj/M2-class-equality-removed.py	2026-10-28 14:20:31.941897605 -0300
+@@ -154,9 +154,6 @@
+                 row_problems.append(f'{out} anchor row has {len(anc)} cells')
+                 a_ok = r_ok = False
+                 continue
+-            if anc[1] != row_id:
+-                row_problems.append(f'{out} points at {anc[1]!r}, not {row_id}')
+-                a_ok = False
+             sm = SIB.fullmatch(anc[2])
+             if not sm:
+                 row_problems.append(f'{out} sibling cell {anc[2]!r} not `<path>/PROVINCE.md` @ `<12-40 hex>`')
+===== M3-quote-wordcount-removed  sha256=596ed0b5bdc991225b54833b3bf412d554cae44aa585809acca5392afa4ec77d
+--- /fast/scratch/hyaku/tsukuroi-r49/R49MutAdj/counter-frozen.py	2026-10-28 14:18:58.244900518 -0300
++++ /fast/scratch/hyaku/tsukuroi-r49/R49MutAdj/M3-quote-wordcount-removed.py	2026-10-28 14:20:31.985560880 -0300
+@@ -165,7 +165,7 @@
+                 row_problems.append(f'{out} heading cell {anc[3]!r} not `# ...`')
+                 a_ok = False
+             quote = anc[4].strip('`').strip()
+-            if not quote or len(quote.split()) > 25:
++            if not quote:
+                 row_problems.append(f'{out} quote cell empty or over 25 words ({len(quote.split())})')
+                 a_ok = False
+             rr = registry.get(out)
+===== M4-registry-leg-removed  sha256=37b5f1b8c8ce6a06d6a360248c81ddad2640500f589206bf9500aae56d32e63a
+--- /fast/scratch/hyaku/tsukuroi-r49/R49MutAdj/counter-frozen.py	2026-10-28 14:18:58.244900518 -0300
++++ /fast/scratch/hyaku/tsukuroi-r49/R49MutAdj/M4-registry-leg-removed.py	2026-10-28 14:20:32.029456655 -0300
+@@ -168,17 +168,6 @@
+             if not quote or len(quote.split()) > 25:
+                 row_problems.append(f'{out} quote cell empty or over 25 words ({len(quote.split())})')
+                 a_ok = False
+-            rr = registry.get(out)
+-            if rr is None:
+-                row_problems.append(f'{out} absent from {REGISTRY}')
+-                r_ok = False
+-                continue
+-            if not HEX64.fullmatch(str(rr.get('sibling_blob_sha256', ''))):
+-                row_problems.append(f'{out} registry blob sha256 invalid')
+-                r_ok = False
+-            if not HEX12.fullmatch(str(rr.get('sibling_commit', ''))):
+-                row_problems.append(f'{out} registry commit invalid')
+-                r_ok = False
+         anchors_ok += int(a_ok)
+         registry_ok += int(r_ok)
+         per_row[row_id] = {'outs': outs, 'bare': row_bare, 'problems': row_problems}

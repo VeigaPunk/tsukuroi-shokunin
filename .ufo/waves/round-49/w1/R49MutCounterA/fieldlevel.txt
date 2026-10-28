@@ -1,0 +1,18 @@
+== M1 A2 blocking rule dropped
+  d1-partly: FAIL(v2,s18) -> PASS(v3,s18)  | GR2: credited 5->5 blocking ['R49CritGR2b']->['R49CritGR2b'] row_ok False->True
+  d1b-fails: FAIL(v2,s18) -> PASS(v3,s18)  | GR3: credited 5->5 blocking ['R49RevGR3a']->['R49RevGR3a'] row_ok False->True
+  d1c-contradict: FAIL(v2,s18) -> PASS(v3,s18)  | GR1: credited 5->5 blocking ['R49RevGR1c']->['R49RevGR1c'] row_ok False->True
+== M2 distinct-bodies check dropped
+  d2-dupbodies: FAIL(v2,s18) -> PASS(v3,s18)  | GR1: credited 6->6 blocking []->[] row_ok False->True
+== M3 results.json seat check dropped
+  d3-noresults: FAIL(v3,s17) -> PASS(v3,s18)  | GR3: credited 5->6 blocking []->[] row_ok True->True
+  d3b-emptyresults: FAIL(v0,s0) -> PASS(v3,s18)  | GR1: credited 0->6 blocking []->[] row_ok False->True; GR2: credited 0->6 blocking []->[] row_ok False->True; GR3: credited 0->6 blocking []->[] row_ok False->True
+  d3c-emptyoutput: FAIL(v3,s17) -> PASS(v3,s18)  | GR2: credited 5->6 blocking []->[] row_ok True->True
+  d3d-wrongrole: FAIL(v3,s17) -> PASS(v3,s18)  | GR2: credited 5->6 blocking []->[] row_ok True->True
+  d3e-dupentry: FAIL(v3,s17) -> PASS(v3,s18)  | GR3: credited 5->6 blocking []->[] row_ok True->True
+== M4 any-64-hex hash accepted
+  d4-badhash: PASS(v3,s18) -> PASS(v3,s18)  | GR2: credited 5->6 blocking []->[] row_ok True->True
+  d4b-badhash-all: FAIL(v2,s18) -> PASS(v3,s18)  | GR3: credited 0->6 blocking []->[] row_ok False->True
+  d4c-badhash-3of6: PASS(v3,s18) -> PASS(v3,s18)  | GR1: credited 3->6 blocking []->[] row_ok True->True
+  d4d-badhash-4of6: FAIL(v2,s18) -> PASS(v3,s18)  | GR1: credited 2->6 blocking []->[] row_ok False->True
+  d4e-crossrow: FAIL(v2,s18) -> PASS(v3,s18)  | GR1: credited 2->6 blocking []->[] row_ok False->True

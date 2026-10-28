@@ -3139,3 +3139,38 @@ Pre-data controls (frozen counters, receipts `.ufo/waves/round-49/controls/batte
 C1 K0/K1/K2/K3/K4/K5/K6 must FAIL and K-pass PASS; C2 K0/K1/K2/K3 FAIL, K-pass PASS; C3 K0/K1/K2 FAIL, K-pass PASS.
 Causal separability: C1 reads only the entry + cohort + marks; C2 only `PROVINCE.md` + the anchor registry; C3 only
 the census blob. No claim's counter reads another's bytes.
+
+## Axes — current self-assessment (round 49 final measured surface)
+
+Re-stated 2026-10-28 at the round-49 final tree; ordinals unchanged. No axis is claimed as moved: C1 did not admit
+(the counted cohort bound one `partly` on GR2), C2 and C3 landed and are measured in the Round 49 outcome below.
+Counts re-derived with the commands in each cell.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 67 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4546 `wc -l` / 1323 table lines (`grep -c '^\|' SKILL.md`); `corpus/lessons/` 73 files (`find corpus/lessons -type f \| wc -l`); GR1-GR3 still pending: the round-49 cohort read GR1 holds 6/6, GR3 holds 6/6, GR2 holds 5/6 with one bound `partly` (`CritGR2b`) on the [inference] mark's ioctl conjunct. | round 4; unchanged |
+| coverage | 9 | `corpus/README.md` 480 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus verdict-neutral STORAGE; no coverage claim this round. | round 11 (terminal closeout); unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (167 cases, 167 passed, 0 failed) at round 49 (`.ufo/waves/round-49/after/c3-final.json`); `--identity` present; `bash tools/boot-chain-audit.sh --selftest` `PASS total=49 failed=0`. | round 11 (terminal closeout); unchanged |
+| freshness | 9 | S246, S247, S248, S243, S240, S249 and S251 re-opened live by round-49 seats 2026-10-28 (byte-identical pins); S255 re-opened by the L1 byte-identically; end census exit 0 (`.ufo/waves/round-49/after/sources-census-end.txt`). | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <round-49 final measured revision>` → checked 27, mismatches 0 after the restatement below; before the restatement 2 (K13 lesson-file count 72 = 72, K17 census case count 166 → 167 in the capabilities row). | round 10; unchanged |
+| adjacency | 8 | ADJ-01..07 ownership cells cite `OUT-002`…`OUT-010` and no bare sibling range (`python3 tools/check-adjacency-table-r49.py --revision <REV>`); `check-adjacency-anchors.py` PASS at the same revision after two IN-109 found_line repins this round (2642→2660→2671). | fleet round 1; unchanged |
+
+## Capabilities — current full evidence set (round 49)
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates opened tier-scoped sources with anchors, rejections, paths, search log and unopened leads | `corpus/SOURCES.md`; `.ufo/evidence/round-1-kaika/after.md` | fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT, STORAGE and SCRUB lines; the selftest prints PASS (167 cases, 167 passed, 0 failed) at round 49 and its alias resolver names descriptor-band exhaustion (`fd band … exhausted`) and a malformed band (`err=fd-band-invalid`) instead of failing silently | `tools/tsukuroi-census.sh`; `.ufo/waves/round-49/after/c3-final.json`; `.ufo/waves/round-49/before/c3-at-base.json` | lane r2; demonstrated fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
+| boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict; since round 43 its boot-input freshness check decides on find's output | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt`; `.ufo/waves/round-43/after/c1-after-c395491.jsonl` | round 17 |
+| storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line, demonstrated on fixtures, the live host and namespace views | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-41/after/c1-after-568c397.jsonl` | round 38 |
+
+- **planned (next round):** depth — apply the one remaining GR2 defect the round-49 cohort named (the `[inference]`
+  mark still claims the ioctl side is unpinned although `ioctl.c` is pinned at S240; exact replacement is in
+  `.ufo/waves/round-49/w1/R49CritGR2b.md` defect 1) and add `S240` to the entry's `source:` line and QUALITY item 7
+  (defect 2), then re-read GR2 with a NEW cohort; operability — harden `check-fd-band-r49.py` (a spaced-TMPDIR PASS
+  leg, a diagnostic-not-in-comment leg) and `check-scrub-admission-r49.py` (a `--dispatch-file` override; a
+  distinct-bodies rule that ignores whitespace padding); adjacency — re-pin or hand over the anchors the round-49
+  drift seat (`R49CritAdjB`) reports as stale at the current sibling tips, and keep the IN-109 repin inside the same
+  commit as the census edit (this round needed two).
+- **retired:** none.

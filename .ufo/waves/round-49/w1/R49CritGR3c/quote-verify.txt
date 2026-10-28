@@ -1,0 +1,27 @@
+# R49CritGR3c receipt: all 12 GR3 quotes checked verbatim on their cited lines
+S237 scrub.c:421 exact=YES line='ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);'
+S237 scrub.c:1546 exact=YES line='scrub_handle_sigint_child(fdmnt);'
+S237 scrub.c:439 exact=YES line='.sa_handler = fd == -1 ? SIG_DFL : scrub_sigint_record_progress,'
+S248 systemd.kill.xml:68 exact=YES line='<para>If set to <option>control-group</option>, all remaining processes in the control group of this'
+S248 systemd.kill.xml:91 exact=YES line='<listitem><para>the delay configured via the <varname>TimeoutStopSec=</varname> has passed'
+S248 systemd.kill.xml:96 exact=YES line='the termination request is repeated with the <constant>SIGKILL</constant> signal or the signal specified via'
+S248 systemd.kill.xml:101 exact=YES line='<para>Defaults to <option>control-group</option>.</para>'
+S248 systemd.kill.xml:108 exact=YES line='<listitem><para>Specifies which signal to use when stopping a service. This controls the signal that'
+S248 systemd.kill.xml:114 exact=YES line='<para>Note that, right after sending the signal specified in this setting, systemd will always send'
+S248 systemd.kill.xml:115 exact=YES line='<constant>SIGCONT</constant>, to ensure that even suspended tasks can be terminated cleanly.</para>'
+S244 btrfs-scrub@.service:9 exact=YES line='KillSignal=SIGINT'
+S244 btrfs-scrub@.service:10 exact=YES line='ExecStart=/usr/bin/btrfs scrub start -B %f'
+TOTAL_MISMATCH=0
+
+# R49CritGR3c receipt: -B plumbing and mount-fd provenance (S237)
+scrub.c:1247: bool do_background = true;
+scrub.c:1292: case 'B':
+scrub.c:1293: do_background = false;
+scrub.c:1294: do_wait = true;
+scrub.c:1343: fdmnt = btrfs_open_mnt(path);
+scrub.c:1512: if (do_background) {
+scrub.c:1546: scrub_handle_sigint_child(fdmnt);
+scrub.c:442: cancel_fd = fd;
+scrub.c:443: return sigaction(SIGINT, &sa, NULL);
+scrub.c:421: ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);
+scrub.c:1710: scrub_handle_sigint_child(-1);

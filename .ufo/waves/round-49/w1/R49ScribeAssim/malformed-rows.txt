@@ -1,0 +1,19 @@
+# staged rows whose awk -F'|' field count != 13 (CORPUS.md malformed test), with the column that lands in $9
+# awk -F'|' on a 11-column row gives NF=13 (leading and trailing empty field)
+# id	NF	awk-$9	$9-is-valid-status
+S231	15	\	False
+S234	17	2024-08-30\	False
+S245	16	2025-12-27\	False
+S246	16	2025-03-22\	False
+S253	16	mkinitcpio\	False
+S254	15	#\	False
+S255	15	#\	False
+S262	15	mined	True
+S263	14	mined	True
+S264	14	mined	True
+S265	14	mined	True
+S266	14	mined	True
+S267	14	mined	True
+S268	15	mined	True
+# malformed: 14 of 147; NF==13 gate drops these before the enum test
+# rows whose $9 is not a valid status: 7

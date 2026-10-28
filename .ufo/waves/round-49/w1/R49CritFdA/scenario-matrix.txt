@@ -1,0 +1,41 @@
+resolver scenario matrix on the frozen resolver (census.sh sha256 above; lines 2063-2101)
+TMPDIR clean = /fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/clean ; TMPDIR dirty = /fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/dirty tmpdir
+
+-- A clean TMPDIR, SELFTEST_FD_BAND=240 (inert)
+RC=0 ERR=<> FD=<> DIR=</fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/clean>
+-- B dirty TMPDIR, default band
+RC=0 ERR=<> FD=<240> DIR=</proc/self/fd/240>
+-- C dirty, SELFTEST_FD_BAND=' ' (whitespace)
+RC=1 ERR=<fd-band> FD=<> DIR=<> | DIAG: fd band   exhausted (every descriptor already open), cannot alias TMPDIR </fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/dirty tmpdir>; no /tmp fallback (R49-C3)
+-- D dirty, SELFTEST_FD_BAND='240-249'
+/fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/resolver.sh: line 30: exec: 240-249: not found
+-- E dirty, SELFTEST_FD_BAND=abc
+/fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/resolver.sh: line 30: exec: abc: not found
+-- F dirty, ulimit -n 128
+/fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/resolver.sh: line 30: 240: Bad file descriptor
+RC=1 ERR=<alias-open> FD=<> DIR=<> | DIAG: TMPDIR </fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/dirty tmpdir> cannot host the fixture tree (alias-open; no /tmp fallback, R48-C2)
+-- G dirty, band=241 with 241 held
+RC=1 ERR=<fd-band> FD=<> DIR=<> | DIAG: fd band 241 exhausted (every descriptor already open), cannot alias TMPDIR </fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/dirty tmpdir>; no /tmp fallback (R49-C3)
+-- H dirty, band=240 with 240 free
+RC=0 ERR=<> FD=<240> DIR=</proc/self/fd/240>
+-- I dirty, band=240 with 240 held
+RC=1 ERR=<fd-band> FD=<> DIR=<> | DIAG: fd band 240 exhausted (every descriptor already open), cannot alias TMPDIR </fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/dirty tmpdir>; no /tmp fallback (R49-C3)
+-- J dirty, SELFTEST_FD_BAND=-1
+/fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/resolver.sh: line 30: exec: -1: invalid option
+exec: usage: exec [-cl] [-a name] [command [argument ...]] [redirection ...]
+RC=1 ERR=<alias-open> FD=<> DIR=<> | DIAG: TMPDIR </fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/dirty tmpdir> cannot host the fixture tree (alias-open; no /tmp fallback, R48-C2)
+-- K dirty, SELFTEST_FD_BAND=999999
+/fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/resolver.sh: line 30: 999999: Bad file descriptor
+RC=1 ERR=<alias-open> FD=<> DIR=<> | DIAG: TMPDIR </fast/scratch/hyaku/tsukuroi-r49/R49CritFdA/dirty tmpdir> cannot host the fixture tree (alias-open; no /tmp fallback, R48-C2)
+-- L fd-10 alias collision: child re-points 10
+alias fd=10 dir=/proc/self/fd/10
+parent: dir ok
+mkdir: cannot create directory ‘/proc/self/fd/10/zz’: Not a directory
+-- M fd feasibility vs limits
+ulimit 128: fd 127 opens
+ulimit 128: fd 120 opens
+ulimit 128: fd 100 opens
+ulimit 128: fd 16 opens
+ulimit 128: fd 240 FAILS
+fd 250 opens
+fd 255 opens

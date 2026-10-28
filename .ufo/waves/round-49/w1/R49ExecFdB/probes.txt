@@ -1,0 +1,15 @@
+## probe 1: exec onto an already-held high descriptor (M2 mechanism)
+$ bash -c "exec 240<&0; eval \"exec 240<\\\"$d\\\"\""   (d = <scratch>/probe/dirty fd band, contains a space)
+before: 240 -> /dev/null
+exec-onto-held-240 rc=0
+after:  240 -> /fast/scratch/hyaku/tsukuroi-r49/R49ExecFdB/probe/dirty fd band
+=> re-opening a held descriptor succeeds and silently steals it; nothing fails.
+
+## probe 2: fail-fast diagnostic, TMPDIR dirty, fds 240-249 all held
+### census.base.sh (frozen)
+selftest: fd band 240 241 242 243 244 245 246 247 248 249 exhausted (every descriptor already open), cannot alias TMPDIR </fast/scratch/hyaku/tsukuroi-r49/R49ExecFdB/dirty dir>; no /tmp fallback (R49-C3)
+rc=1
+### census.m1.sh (ST_BASE_ERR=fd-band deleted)
+selftest: TMPDIR </fast/scratch/hyaku/tsukuroi-r49/R49ExecFdB/dirty dir> cannot host the fixture tree (resolver; no /tmp fallback, R48-C2)
+rc=1
+=> M1 also loses the named cause on the production fail-fast path (generic "resolver"), while check-fd-band-r49.py diag_ok stays 1 (text grep).

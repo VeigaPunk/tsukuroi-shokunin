@@ -478,3 +478,23 @@ Round-44 status (routed defect D1): the row above for `knowledge/btrfs-scrub-rec
 FAILED (`tools/check-scrub-record-r44.py --revision fbfef071`: `verdicts_ok 0`,
 `corpus/lessons/round-44-verifier-spotcheck.md:84,133`); SR7, SR8 and SR9 are pending, not admitted. Frontier: nothing
 moves this round; the census identity is a property of the gate, not a new host surface.
+
+## Round 49 — GR rows re-read; portable ownership pointers
+
+Append-only; the coverage map, the Frontier bullets and the notes above stay as written.
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/btrfs-scrub-grounding-r45.md` (round-49 read) | The seven corrections the round-48 cohort named are in the bytes (GR1 `0X` prefix + host-reading mark; GR2 `is_valid` gate, cancel-sentence subject, suspend-path range and effects, `ioctl.c:3132` citation, `-ENODEV` devid). The fresh cohort read GR1 `holds` 6/6, GR3 `holds` 6/6, GR2 `holds` 5/6 with one bound `partly` on the `[inference]` mark's ioctl conjunct, so the rows stay **pending** (`## Gate status — round 49 (pending…)`); GR1-GR3 are not admitted round 49 and no admission mark is written | S237-S249 (re-opened by round-49 seats 2026-10-28); counter `.ufo/waves/round-49/before/c1-at-base.json` → `.ufo/waves/round-49/after/c1-final.json` |
+| `../PROVINCE.md` ADJ-01..07 **Ownership source** | Each finding-to-owner row now cites the portable `OUT-0NN` anchor that carries the pinned sibling commit, heading and ≤25-word quote, instead of a bare sibling line range (9 ranges removed); the old ranges are preserved in the PROVINCE note "Round 49 — the ownership-source column now cites portable anchors" | `knowledge/adjacency-anchors-r19.json`; `tools/check-adjacency-table-r49.py` |
+| `../tools/tsukuroi-census.sh` (`selftest_base_dir`, round 49) | The alias resolver records `ST_BASE_ERR` and the harness prints a named descriptor-band diagnostic (`fd band … exhausted`, `fd-band-invalid`); the `(R49-C3)` case proves the exhausted-band path; 166 → 167 cases | S255; `tools/check-fd-band-r49.py` |
+
+### Frontier notice — round 49
+
+Nothing moves. C2 changes how the lane *cites* ownership, not which domain owns what: the kaidoku/revenger RE
+arbitration (ADJ-06) stays open with the integrator, and the anchors' drift against current sibling tips is a
+reported finding (`R49CritAdjB`), not a re-pin. The C3 change is a diagnostic inside the round-44/38 census
+surface, not a new surface. The scrub record's content, the running state and NVMe SMART stay Frontier. The new
+open item: the `/proc/self/fd/<n>/<child>` traversal the alias resolver relies on is **not** stated by S251 (the
+page documents the symlink and the `type:[inode]` text only), so that mechanism remains an inference and a source
+hunt for a page that states traversal is carried debt (`R49ScoutProcFd`).

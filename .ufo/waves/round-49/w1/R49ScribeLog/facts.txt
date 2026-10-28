@@ -1,0 +1,133 @@
+# R49ScribeLog receipts (round-49 w1) — observed commands and output excerpts
+# All reads at lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin, HEAD d7cfc273, freeze 55c07cd3f8bff2e12117c34d57b4c618de74d85c.
+# Nothing here is a counter run; no selftest, no git mutation, no lane write.
+
+$ git log --oneline 6256760d1382ce4ce20fcba830d4b2912cfbf12b..HEAD
+d7cfc273 round-49: pre-data control batteries (K0..K-pass per claim) at 32a85560
+32a85560 round-49: w1 spec + validated dispatch (73 seats, policy v2); IN-109 repin 2642->2660
+55c07cd3 round-49: FREEZE — claims C1/C2/C3, frozen counters, r48-named GR corrections applied before data
+
+$ git show --stat --oneline 55c07cd3 | head -12
+.ufo/waves/round-49/before/sources-census-start.txt |  41 ++
+.ufo/waves/round-49/frozen/FROZEN.md               |  60 +++
+LOG.md                                             |  23 ++
+PROVINCE.md                                        |  39 +-
+SCORECARD.md                                       |  19 +
+corpus/knowledge/btrfs-scrub-grounding-r45.md      |  42 +-
+tools/check-adjacency-table-r49.py                 | 223 +++++++++++
+tools/check-fd-band-r49.py                         | 137 +++++++
+tools/check-scrub-admission-r49.py                 | 421 +++++++++++++++++++++++
+tools/tsukuroi-census.sh                           |  65 +++-
+10 files changed, 1042 insertions(+), 28 deletions(-)
+
+$ git show --stat --oneline 32a85560 | head -9
+.ufo/waves/round-49/controls/battery.py     |  289 ++++++
+.ufo/waves/round-49/make-w1-spec.py         |  226 +++++
+.ufo/waves/round-49/w1-dispatch.json        | 1283 +++++++++++++++++++++++++++
+.ufo/waves/round-49/w1-spec.json            |  810 +++++++++++++++++
+.ufo/waves/round-49/w1-validate.log         |    0
+.ufo/waves/round-49/w1/swarm-registry.json  |  884 +++++++++++++++++++++++++++
+corpus/knowledge/adjacency-anchors-r19.json |    4 +-
+7 files changed, 3494 insertions(+), 2 deletions(-)
+
+$ git show 32a85560 -- corpus/knowledge/adjacency-anchors-r19.json | grep '^[-+]'
+-      "found_line": 2642,
++      "found_line": 2660,
+
+$ git show --stat --oneline d7cfc273 | head -7
+.ufo/waves/round-49/controls/battery-summary-r49-c1.jsonl | 8 +
+.ufo/waves/round-49/controls/battery-summary-r49-c2.jsonl | 5 +
+.ufo/waves/round-49/controls/battery-summary-r49-c3.jsonl | 4 +
+.ufo/waves/round-49/controls/battery.py                    | 11 +++---
+.ufo/waves/round-49/frozen/FROZEN.md                       | 8 +
+5 files changed, 31 insertions(+), 5 deletions(-)
+
+$ python3 -c "json.load('.ufo/waves/round-49/w1-spec.json')"
+wave w1 reportDir .ufo/waves/round-49/w1 maxLanes 256 n items 73
+item keys ['name','role','axes','milestone','prompt']
+roles {'connector': 2, 'critic': 15, 'executor': 10, 'mutation-tester': 4, 'reviewer': 18, 'scout': 13, 'scribe': 7, 'sentinel': 4}
+cohort names: R49RevGR{1,2,3}{a,b,c} (9) + R49CritGR{1,2,3}{a,b,c} (9)  -> 18; plus non-counted R49ExecGRCorr, R49RevCorr
+
+$ ls .ufo/waves/round-49/w1/*.md | wc -l      -> 50   (of 73 spec seats; wave still running)
+$ ls .ufo/waves/round-49/w1/ | sed 's/\.md$//' | sort -u | wc -l -> 54 (dirs + reports)
+
+$ grep -n "Measured outcome and wave accounting" LOG.md -> 1723
+$ grep -n "^## Round 49" LOG.md -> 1702
+$ wc -l LOG.md -> 1723
+
+$ git show 55c07cd3:SCORECARD.md | grep -n "Round 49" -> 3124
+  header: "## Round 49 — declaration (2026-10-28, base `6256760d…`, before any seat)"
+  line 3132: "Round shape: ONE v2 wave (`w1`) sized 64–128; the L1 holds the planner seat."
+
+$ git show 55c07cd3:corpus/SOURCES.md | grep -c '^| S[0-9]'   -> 255
+$ grep -c '^| S[0-9]' corpus/SOURCES.md                       -> 255
+$ git show 55c07cd3:corpus/SOURCES.md | grep -n "^| S24[0-9]|^| S246..S249"
+249:| S240 | Linux v7.2.11 fs/btrfs/ioctl.c
+252:| S243 | Linux v7.2.11 fs/btrfs/sysfs.c
+255:| S246 | Linux v7.2.11 lib/cmdline.c, lib/vsprintf.c, lib/kstrtox.c
+256:| S247 | Linux v7.2.11 fs/btrfs/dev-replace.c
+257:| S248 | systemd v262 man/systemd.kill.xml
+258:| S249 | Round-45 host scrub-service stop capture
+260:| S251 | Linux man-pages proc_pid_fd(5)
+262:| S253 | POSIX.1-2024 (Issue 8) Shell Command Language ch.2
+264:| S255 | GNU Bash Reference Manual 5.3, Redirections
+
+$ wc -l .ufo/waves/round-49/before/sources-census-start.txt -> 41
+  line 41: "tsukuroi\tok\t/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md"
+  40 preceding lines: "tsukuroi\tW04\tS<id> duplicate url <host/path> across scopes"; no row-count line.
+
+$ cat .ufo/waves/round-49/w1.ready
+{"lane":"tsukuroi","round":49,"wave":"w1","dispatch":"…/w1-dispatch.json","l1":"TsukuroiR49"}
+
+$ controls/battery-summary-r49-c1.jsonl controls (from 'control' key): K0 K1 K2 K3 K4 K5 K6 K-pass
+$ controls/battery-summary-r49-c2.jsonl controls: K0 K1 K2 K3 K-pass
+$ controls/battery-summary-r49-c3.jsonl controls: K0 K1 K2 K-pass
+  C3 K-pass record excerpt: {"_rc": 0, "band_ok": 1, "cases": 167, "case_line": "PASS selftest: exhausted
+  fd band fails the base resolver and names err=fd-band (R49-C3)", "control": "K-pass", "counter":
+  "check-fd-band-r49", "diag_ok": 1, "stale_ok": 1, ...}
+  C3 K0: {"cases": 166, "diag_ok": 0, "stale_ok": 0, "band_ok": 0, "_rc": 1}
+
+$ git show 55c07cd3:tools/check-scrub-admission-r49.py | sed -n '94p'
+PREDICATE = ('structural_ok == 1 and corr_ok == 1 and quotes_ok == 3 and verdicts_ok == 3 '
+             'and seats_ok == 18 and marks_ok == 3')
+  out keys (:384-390): structural_ok, problems, corr_ok, corr_missing, corr_forbidden_present,
+  quotes_ok, verdicts_ok, seats_ok, marks_ok, marks, per_row, section_sha256, seat_notes, predicate, verdict
+  results default (:350): f'{WAVES}/{WAVE}-results.json' -> .ufo/waves/round-49/w1-results.json
+  marks (:85-87): '## Gate status — round 49 (GR1-GR3 admitted)', '## Scrub grounding — round 49 admission',
+  ('btrfs-scrub-grounding-r45.md', 'admitted round 49')
+
+$ git show 55c07cd3:tools/check-adjacency-table-r49.py | sed -n '54p'
+PREDICATE = ('adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchors_ok == 7 '
+             'and registry_ok == 7 and anchors_checker_rc == 0')
+  out keys: adj_rows, linked_rows, bare_ranges, anchors_ok, registry_ok, anchors_checker_rc,
+  per_row, problems, verdict
+
+$ git show 55c07cd3:tools/check-fd-band-r49.py | sed -n '49p'
+PREDICATE = 'stale_ok == 1 and diag_ok == 1 and band_ok == 1 and cases == 167'
+  out keys: stale_ok, diag_ok, band_ok, cases, selftest_rc, case_line, summary, verdict
+
+$ sed -n '1696,1700p' LOG.md   (house format, round 48)
+  "Measured at the integrated revision `76066487…`: C1 `score-selftest-tmpdir-r48.py` PASS — pass_ok 4, …
+   C2 `check-scrub-admission-r48.py` FAIL — …"
+  "Freshness/frontier: start and end `sources-census.sh validate` exit 0 (`before/…`, `after/…`; 252→255 ids). …"
+  "Landed work: `174a2c79` C1 implementation and frozen counters; … No tools installed or updated."
+
+$ sed -n '3110,3123p' SCORECARD.md (round-48 outcome section header + wave accounting sentence shape)
+  "## Round 48 — measured outcome (attempt 2; author-side, non-author closure pending)"
+  "Freeze `ae99f021…`; counted wave `w2`, validated v2, 71 seats (reviewer 16, … ; attack roles 34/71 = 47.9%;
+   no deaths reported). L1 held the planner seat. … No residual call."
+
+Seat report proposals seen while reading (not used as block values):
+  .ufo/waves/round-49/w1/R49ScoutBashRedir.md:5  "Opener of record for the existing row S255 … No new id."
+  .ufo/waves/round-49/w1/R49ScoutQuality.md:58   "61 — `SOURCES.md` is not in the `55c07cd3` diff; S255 is a
+                                                 re-open, not a new row."
+  .ufo/waves/round-49/w1/R49ScoutReject.md:28-29 duplicates of S252 / S253 reconfirmed, "no new row".
+  corpus/lessons/round-49.md:17-19               re-open list S246,S247,S248,S243,S240,S249; "any proposed new
+                                                 row (proc_pid_fd, bash redirections) was gated by the L1".
+  => no S256+ id exists yet; both new-row ids remain the L1's to assign.
+
+$ git diff --stat corpus/SOURCES.md      -> 1 file changed, 1 insertion(+), 1 deletion(-)
+$ git diff corpus/SOURCES.md | grep '^[-+]' -> only the S255 row (used-by cell) changes
+$ grep -c '^| S[0-9]' corpus/SOURCES.md  -> 255  (worktree row count unchanged)
+  => one uncommitted lane hunk at read time; must land in the SOURCES append commit or be reverted.
+$ git status --porcelain (excerpt): " M corpus/SOURCES.md"; untracked .ufo/waves/round-49/* (wave outputs)

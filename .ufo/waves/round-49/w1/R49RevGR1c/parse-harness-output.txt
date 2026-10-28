@@ -1,0 +1,33 @@
+100M                       -> ok limit=104857600
+100m                       -> ok limit=104857600
+010                        -> ok limit=8
+0x10                       -> ok limit=16
+0X10                       -> ok limit=16
+10MB                       -> EINVAL
+10 M                       -> EINVAL
+-1                         -> EINVAL
+"\n"                       -> ok limit=0
+100M
+                      -> ok limit=104857600
+""                         -> accepted(empty) limit=0
+0                          -> ok limit=0
+00                         -> ok limit=0
+08                         -> EINVAL
+1k                         -> ok limit=1024
+1K                         -> ok limit=1024
+1E                         -> ok limit=1152921504606846976
+1P                         -> ok limit=1125899906842624
+17592186044416E            -> ok limit=18446744073709551615
+18446744073709551615K      -> ok limit=18446744073709551615
+0x                         -> EINVAL
+0xK                        -> EINVAL
+ 10M                       -> EINVAL
+1                          -> ok limit=1
++1                         -> EINVAL
+0x1f                       -> ok limit=31
+5G                         -> ok limit=5368709120
+M                          -> EINVAL
+K                          -> EINVAL
+k                          -> EINVAL
+0M                         -> ok limit=0
+000M                       -> ok limit=0

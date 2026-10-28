@@ -1,0 +1,679 @@
+<HTML>
+<HEAD>
+<TITLE>Introduction and Terminology</TITLE>
+<META NAME="ROBOTS" CONTENT="NOFOLLOW">
+<META NAME="DESCRIPTION" CONTENT=": ">
+<META NAME="GENERATOR" CONTENT="Created from DocBook 2.4.1 SGML source by sgtoht">
+<META NAME="AUTHOR" CONTENT="Copyright (c)  1999. All Rights Reserved.">
+</HEAD>
+
+<BODY BGCOLOR="#CCCCCC">
+<HR>
+<A NAME="chap01.chap.1"></A><H1>1&#160;&#160;&#160;&#160;Introduction and Terminology</H1>
+<P>This chapter provides an overview of the technologies that make up the
+ActiveX Core Technologies.
+These technologies, including reference documentation
+and source code to reference implementations are being handed over to The
+Open Group by Microsoft.
+Each of these technologies is specified in detail
+in Part II of this document.
+<P>The ActiveX Core Technologies comprises:
+<P><UL TYPE="Disc">
+<P><LI><P>The Component Object Model (COM).
+The underlying distributed
+object model for all ActiveX and COM components.
+This includes:
+<P><UL TYPE="Circle">
+<P><LI><P>Distributed capabilities, commonly referred to as DCOM.
+</LI>
+<P><LI><P>The Service Control Manager.
+A part of the COM library responsible
+for locating class implementations implemented as libraries, local processes,
+or remote servers.
+</LI>
+<P><LI><P>Security.
+A rich and pluggable infrastructure for building
+secure distributed applications.
+Facilities are provided for authentication,
+authorization, and privacy.
+</LI>
+<P><LI><P>Structured Storage.
+Provides a rich, transaction based, hierarchical
+file format that enables COM applications to create files that can be shared
+across applications and platforms.
+</LI>
+<P><LI><P>Monikers.
+Allows references to objects to be stored persistently.
+Provides for persistent, intelligent names.
+</LI>
+<P><LI><P>Automation.
+Allows objects to expose functionality to high-level
+programming languages and scripting environments.
+</LI>
+</UL><P>
+</LI>
+<P><LI><P>MS-RPC.
+An implementation of the Distributed Computing Environment
+<A NAME="anch_0012"></A>
+(DCE) Remote Procedure Call (RPC) reference
+documentation, upon which COM is based.
+</LI>
+<P><LI><P>The Registry.
+Provides a database of COM components and their
+configuration information.
+</LI>
+<P><LI><P>The Security Support Provider Interface (SSPI).
+A standard
+for pluggable security providers.
+</LI>
+<P><LI><P>The Windows NT Distributed Security Provider.
+An SSPI security
+provider which supports the Windows NT Distributed Security model (also called
+the NTLM SSP).
+</LI>
+</UL><P>
+<P>Each of these sub-technologies is described below.
+Lists of relevant
+interfaces and APIs are provided for each.
+<A NAME="chap01.sect1.1"></A><H2>1.1&#160;&#160;&#160;&#160;The Component Object Model</H2>
+<P>The Component Object Model (COM) is an object-based, distributed programming
+model designed to promote software interoperability.
+COM allows two or more
+applications or ``components'' to easily cooperate with one another, even
+if they were written by different vendors at different times, in different
+programming languages, or if they are running on different machines running
+different operating systems.
+COM is based on the Distributed Computing Environment's
+(DCE) Remote Procedure Call (RPC).
+Microsoft's implementation of DCE RPC
+is called MS-RPC and is described in detail later in this document.
+<A NAME="anch_0013"></A>
+<A NAME="f0101"></A>
+<H3>Figure 1-1:&#160;&#160;COM Client and Object Communicate Directly</H3>
+<P><CENTER><IMG SRC="FIGU_001.GIF"></CENTER><P>
+<P>To support its interoperability features, COM defines and implements
+mechanisms that allow applications to connect to each other as ``component
+objects''.
+A component object is a collection of related function (or intelligence)
+and the function's associated state.
+In other words, COM, like a traditional
+system service API, provides the operations through which a client of some
+service can connect to multiple providers of that service in a polymorphic
+fashion.
+But once a connection is established, COM drops out of the picture.
+COM serves to connect a client and an object, but once that connection is
+established, the client and object communicate directly without having to
+suffer overhead of being forced through a central piece of API code as illustrated
+in
+<A HREF="CHP01CHP.HTM#f0101">Figure 1-1</A>.
+<P>COM is not a prescribed way to structure an application; rather, it
+is a set of technologies for building robust groups of services in both systems
+and applications such that the services and the clients of those services
+can evolve over time.
+In this way, COM is a technology that makes the programming,
+use, and uncoordinated/independent evolution of binary objects possible.
+<A NAME="anch_0014"></A>
+<P>This is a fundamental strength of COM: COM solves the ``deployment problem,''
+the versioning/evolution problem where it is necessary that the functionality
+of
+<A NAME="anch_0015"></A>
+objects can incrementally
+evolve or change without the need to simultaneously and in lockstep evolve
+or change all existing clients of the object.
+Objects/services can easily
+continue to support the interfaces through which they communicated with older
+clients as well as provide new and better interfaces through which they communicate
+with newer clients.
+<P>To solve the versioning problems as well as providing connection services
+without undue overhead, the Component Object Model builds a foundation that:
+<P><UL TYPE="Disc">
+<P><LI><P>Enables the creation and use of reusable components by making
+them ``component objects.''
+</LI>
+<P><LI><P>Defines strict rules for interoperability between applications
+and objects.
+This means that on a given operating system the interface between
+a user of an object and the object itself, the calling interface is defined.
+In addition, since the distributed operation of COM is based on DCE RPC, the
+remote interface is also well defined and independent of languages or operating
+systems.
+</LI>
+<P><LI><P>Provides secure distributed capabilities.
+<P>COM is designed to allow clients to transparently communicate with objects
+regardless of where those objects are running, be it the same process, the
+same machine, or a different machine.
+What this means is that there is a single
+programming model for all types of objects for not only clients of those objects
+but also for the servers of those objects.
+</LI>
+</UL><P>
+<P>At the core the Component Object Model is reference documentation (hence
+``Model'') for how objects and their clients interact through interfaces.
+As a such it defines a number of other standards for interoperability:
+<P><UL TYPE="Disc">
+<P><LI><P>The fundamental process of interface negotiation.
+</LI>
+<P><LI><P>A reference counting mechanism through which objects (and
+their resources) are managed even when connected to multiple clients.
+</LI>
+<P><LI><P>Rules for memory allocation and responsibility for those allocations
+when exchanged between independently developed components.
+</LI>
+<P><LI><P>Consistent and rich error reporting facilities.
+<P>In addition to being reference documentation, COM is also an implementation
+contained in what is called the ``COM Library.'' The implementation is provided
+through a library (such as a DLL on Microsoft Windows) that includes:
+</LI>
+<P><LI><P>A small number of fundamental API functions that facilitate
+the creation of COM applications, both clients and servers.
+For clients, COM
+supplies basic object creation functions; for servers the facilities to expose
+their objects.
+</LI>
+<P><LI><P>Implementation locator services through which COM determines
+from a class identifier which server implements that class and where that
+server is located.
+This includes support for a level of indirection, usually
+a system registry, between the identity of an object class and the packaging
+of the implementation such that clients are independent of the packaging which
+can change in the future.
+</LI>
+<P><LI><P>Transparent remote procedure calls when an object is running
+in a local or remote server.
+</LI>
+<P><LI><P>A standard mechanism to allow an application to control how
+memory is allocated within its process.
+</LI>
+<P><LI><P>A rich and robust security model which allows for multiple,
+pluggable, security providers.
+</LI>
+</UL><P>
+<P>COM provides security along several crucial dimensions.
+First, COM uses
+standard operating system permissions to determine whether a client (running
+in a particular user's security context) has the right to start the code associated
+with a particular class of object.
+Second, with respect to persistent objects
+(class code along with data stored in a persistent store such as file system
+or database), COM uses operating system or application permissions to determine
+if a particular client can load the object at all.
+COM's security model supports
+multiple simultaneous security providers.
+Security providers are plugged in
+to the system using the Security Service Provider Interface (SSPI).
+Finally, COM's
+security architecture is based on the design of the DCE RPC
+<A NAME="anch_0016"></A>
+security architecture, an industry-standard
+communications mechanism that includes fully authenticated sessions.
+COM provides
+cross-process and cross-network object servers with standard security information
+about the client or clients that are using it so that a server can use security
+in more sophisticated fashion than that of simple OS permissions on code execution
+and read/write access to persistent data.
+<P>In general, only one vendor needs to, or should, implement a COM Library
+for any particular operating system.
+<A NAME="chap01.sect2.1"></A><H3>1.1.1&#160;&#160;&#160;&#160;COM Infrastructure</H3>
+<P>COM provides more than just the fundamental object creation and management
+facilities: it also builds an infrastructure of other core system components.
+<P>The combination of the foundation and the infrastructure COM components
+reveals a system that describes how to create and communicate with objects,
+how to store them, how to label to them, and how to exchange data with them.
+These four aspects of COM form the core of information management.
+Furthermore,
+the infrastructure components not only build on the foundation, but monikers
+and uniform data transfer also build on storage.
+The result is a system that
+is not
+<A NAME="anch_0017"></A>
+only
+very rich, but also deep, which means that work done in an application to
+implement lower level features is leveraged to build higher level features.
+<P>From a technology perspective, the interfaces and APIs that make up
+COM can be broken down into sub-technologies.
+Each of these sub-technologies
+is briefly described below.
+<A NAME="chap01.sect2.2"></A><H3>1.1.2&#160;&#160;&#160;&#160;ORPC</H3>
+<P>Object RPC, or ORPC, refers to the layer of code which separates the
+component object model from the base RPC runtime.
+ORPC can be broken into
+the following major components: Interface Marshaling, Message Filter/Call
+Control, and Proxy/Stub management.
+Interface marshaling, as its name implies
+<A NAME="anch_0018"></A>
+is concerned with how COM marshals object
+interface pointers.
+The MessageFilter/Call control component deals with reentrancy
+concerns and call categories.
+Proxy/Stub component ensures that for each
+remoted interface, correct proxy and stubs are generated which marshal/unmarshal
+all parameters.
+<A NAME="chap01.sect2.3"></A><H3>1.1.3&#160;&#160;&#160;&#160;Service Control Manager</H3>
+<A NAME="anch_0019"></A>
+<P>The Service Control Manager (SCM) is the component of the COM
+<A NAME="anch_0020"></A>
+Library responsible for locating class
+implementations and running them.
+The SCM ensures that when a client request
+is made, the appropriate server is connected and ready to receive the request.
+The SCM keeps a database of class information based on the system registry
+that the client caches locally through the COM library.
+<P>The SCM uses DCE RPC interfaces to communicate with SCM implementations
+on other machines.
+<A NAME="chap01.sect2.4"></A><H3>1.1.4&#160;&#160;&#160;&#160;Security</H3>
+<P>Using the network for distributing an application is challenging not
+only because of the physical limitations of bandwidth and latency.
+It also
+raises new issues related to security between and among clients and components.
+Since many operations are now physically accessible by anyone with access
+to the network, access to these operations has to be restricted at a higher
+level.
+<P>Without security support from the distributed development platform,
+each application would be forced to implement its own security mechanisms.
+A typical mechanism would involve passing some kind of username and password
+(or a public key)--usually encrypted--to some kind of logon method.
+The application would validate these credentials  against a user database
+or directory and return some dynamic identifier for use in future method calls.
+On each subsequent call to a secure method, the clients would have to pass
+this security identifier.
+Each application would have to store and manage
+a list of usernames and passwords, protect the user directory against unauthorized
+access, and manage changes to passwords, as well as dealing with the security
+hazard of sending passwords over the network.
+<P>A distributed platform must thus provide a security framework to safely
+distinguish different clients or different groups of clients so that the system
+or the application has a way of knowing who is trying to perform an operation
+on a component.
+COM uses an extensible security framework (SSPI) that supports
+multiple identification and authentication mechanisms, from traditional trusted-domain
+security models to non-centrally managed, massively scaling public-key security
+mechanisms.
+A central part of the security framework is a user directory,
+which stores the necessary information to validate a user's credentials (user
+name, password, public key).
+Most COM implementations on non-Windows NT platforms
+provide a similar or identical extensibility mechanism to use  whatever kind
+of security providers is available on that platform.
+Most UNIX-implementations
+of COM will include a Windows NT-compatible security provider.
+<A NAME="chap01.sect2.5"></A><H3>1.1.5&#160;&#160;&#160;&#160;Error Handling</H3>
+<P>COM interface member functions and COM Library API functions use a specific
+convention for error codes in order to pass back to the caller both a useful
+return value along with an indication of status or error information.
+For
+example, it is highly useful for a function to be capable of returning a Boolean
+result (true or false) as well as indicate failure or success.
+Returning true
+and false means that the function executed successfully, and true or false
+is the answer whereas an error code indicates the function failed completely.
+<P>In addition, for those programming languages that support exception
+handling, COM provides mechanisms where the client can obtain very rich exception
+information.
+<A NAME="chap01.sect2.6"></A><H3>1.1.6&#160;&#160;&#160;&#160;Uniform Data Transfer</H3>
+<A NAME="anch_0021"></A>
+<P>COM provides a standard mechanism for transferring structured data between
+components.
+This mechanism is the data object, which is simply any COM object
+that implements the
+<CODE>IDataObject()</CODE>
+interface.
+Some data
+objects, such as a piece of text copied to the clipboard, have
+<CODE>IDataObject()</CODE>
+as their sole interface.
+<P>By exchanging pointers to a data object, providers and consumers of
+data can manage data transfers in a uniform manner, regardless of the format
+of the data, the type of medium used to transfer the data, or the target device
+on which it is to be rendered.
+<A NAME="chap01.sect2.7"></A><H3>1.1.7&#160;&#160;&#160;&#160;Structured Storage</H3>
+<A NAME="anch_0022"></A>
+<P>Traditional file systems face challenges when they try to efficiently
+store multiple kinds of objects in one document.
+COM provides a solution:
+a file system within a file.
+COM structured storage defines how to treat a
+single file entity as a structured collection of two types of objects, storages
+and streams, that act like directories and files.
+This scheme is called structured
+storage.
+The purpose of structured storage is to reduce the performance penalties
+and overhead associated with storing separate objects in a flat file.
+<P>A storage object is analogous to a file system directory.
+Just as a
+directory
+<A NAME="anch_0023"></A>
+can contain
+other directories and files, a storage object can contain other storage objects
+and stream objects.
+Also like a directory, a storage object
+<A NAME="anch_0024"></A>
+tracks the locations and sizes of the
+storage objects and stream objects nested beneath it.
+<P>A stream object is analogous to the traditional notion of a file.
+Like
+a file, a stream contains data stored as a consecutive sequence of bytes.
+<P>Although an application or component developer can implement the structured
+storage objects, COM provides a standard implementation called Compound Files.
+<A NAME="anch_0025"></A>
+The ActiveX Core Technologies
+includes a reference implementation of Compound Files.
+This implementation
+has the following features:
+<P><UL TYPE="Disc">
+<P><LI><P>File-system and platform independence.
+Since the Compound
+Files implementation runs on top of existing flat file systems, compound files
+stored on FAT, NTFS, Macintosh, or any other file system can be opened by
+applications using any one of the others.
+</LI>
+<P><LI><P>Browsability.
+The separate objects in a compound file are
+saved in a standard format and can be accessed using standard interfaces and
+APIs.
+Therefore any browser utility using these interfaces and APIs can list
+the objects in the file, even though the data within a given object may be
+in a proprietary format.
+</LI>
+<P><LI><P>Access to certain internal data.
+Since the Compound Files
+implementation provides standard ways of writing certain types of data (document
+summary information properties, for example) applications can read this data
+using the structured storage interfaces and APIs.
+</LI>
+</UL><P>
+<A NAME="chap01.sect3.1"></A><H3>1.1.7.1&#160;&#160;&#160;&#160;Persistent Property Sets</H3>
+<A NAME="anch_0026"></A>
+<P>Persistent Property Sets directly addresses the need to attach structured
+information to objects which have been stored via structured storage.
+This
+information could include other objects, files (structured, compound, etc.),
+directories, document properties, and summary catalogs.
+<P>Structured Storage defines both a standard serialized format, and a
+set of interfaces and functions that allow you to create and manipulate persistent
+property sets.
+The reference implementation of Structured Storage includes
+full support for these interfaces.
+<P>Persistent properties are stored as sets, and one or more sets may be
+associated with a file system entity.
+These persistent property sets are intended
+to be used to store data that is suited to being represented as a collection
+of fine-grained values.
+They are not intended to be used as a large database.
+They can be used, for example, to store summary information about an object
+on the system, which can then be accessed by any other object that understands
+how to interpret that property set.
+<A NAME="chap01.sect2.8"></A><H3>1.1.8&#160;&#160;&#160;&#160;Persistent Objects</H3>
+<P>COM objects can save their internal state when asked to do so by a client.
+COM defines standards through which clients can request objects to be initialized,
+loaded, and saved to and from a data store (for example an HTML &#60;OBJECT>
+tag, structured storage, or memory).
+It is the client's
+<A NAME="anch_0027"></A>
+responsibility to manage the place
+where the object's persistent data is stored, but not the format of the data.
+COM objects that adhere to these standards are called persistent objects.
+<A NAME="chap01.sect2.9"></A><H3>1.1.9&#160;&#160;&#160;&#160;Monikers</H3>
+<P>Monikers are best described as ``Persistent, Intelligent Names''.
+To
+set the context for why ``Persistent, Intelligent Names'' are an important
+technology in COM, think for a moment about a standard, mundane filename.
+That filename refers to some collection of data that happens to be stored
+on disk somewhere.
+The filename describes the somewhere.
+In that sense, the
+filename is really a name for a particular ``object'' of sorts where the object
+is defined by the data in the file.
+<P>The limitation is that a filename by itself is unintelligent; all the
+intelligence about what that filename means and how it gets used, as well
+as how it is stored persistently if necessary, is contained in whatever application
+is the client of that filename.
+The filename is nothing more than some piece
+of data in that client.
+This means that the client must have specific code
+to handle filenames.
+This normally isn't seen as much of a problem--most
+applications can deal with files and have been doing so for a long time.
+<P>Now introduce some sort of name that describes a query in a database.
+Then introduce others that describe a file and a specific range of data within
+that file, such as a range of spreadsheet cells or a paragraph is a document.
+Introduce yet more than identify a piece of code on the system somewhere that
+can execute some interesting operation.
+In a world where clients have to know
+what a name means in order to use it, those clients end up having to write
+specific code for each type of name causing that application to grow monolithically
+in size and complexity.
+This is one of the problems that COM was created to
+solve.
+<P>
+<A NAME="ch1fnote.1_rtn"></A><A HREF="FOOTNOTE.HTM#ch1fnote.1"><SUP>[Footnote&#160;1]</SUP></A>
+In COM, therefore, the intelligence of how to work with a particular
+name is encapsulated inside the name itself, where the name becomes an object
+that implements name-related interfaces.
+These objects are called monikers.
+<A HREF="FOOTNOTE.HTM#ch1fnote.1"><SUP>[Footnote&#160;1]</SUP></A>
+</footnoteref>
+A moniker implementation provides an abstraction
+to some underlying connection (or ``binding'') mechanism.
+Each different moniker
+class (with a different CLSID) has its own semantics as to what sort of object
+or operation it can refer to, which is entirely up to the moniker itself.
+A section below describes some typical types of monikers.
+While a moniker
+class itself defines the operations necessary to locate some general type
+of object or perform some general type of action, each individual moniker
+object (each instantiation) maintains its own name data that identifies some
+other particular object or operation.
+The moniker class defines the functionality;
+a moniker object maintains the parameters.
+<P>With monikers, clients always work with names through an interface,
+rather than directly manipulating the strings (or whatever) themselves.
+This
+means that whenever a client wishes to perform any operation with a name,
+it calls some code to do it instead of doing the work itself.
+This level of
+indirection means that the moniker can transparently provide a whole host
+of services, and that the client can seamlessly interoperate over time with
+various different moniker implementations which implement these services in
+different ways.
+<P>Monikers provide the perfect model for allowing applications to integrate
+with new name services.
+For example, a logical next step to the integration
+of ActiveX Core Technologies with DCE RPC would be to design and implement
+a DCE
+<A NAME="anch_0028"></A>
+CDS moniker class.
+<A NAME="chap01.sect2.10"></A><H3>1.1.10&#160;&#160;&#160;&#160;Connectable Objects</H3>
+<A NAME="anch_0029"></A>
+<P>The COM technology known as Connectable Objects (also called ``connection
+points'') supports a generic ability for any object, called in this context
+a ``connectable'' object, to express these capabilities:
+<P><UL TYPE="Disc">
+<P><LI><P>The existence of ``outgoing'' interfaces, such as event sets.
+</LI>
+<P><LI><P>The ability to enumerate the outgoing interfaces.
+</LI>
+<P><LI><P>The ability to connect and disconnect ``sinks'' to the object
+for those outgoing interfaces.
+</LI>
+<P><LI><P>The ability to enumerate the connections that exist to a particular
+outgoing interface.
+</LI>
+</UL><P>
+<A NAME="chap01.sect2.11"></A><H3>1.1.11&#160;&#160;&#160;&#160;Component Categories</H3>
+<P>Being able to group COM classes based on their capabilities is extremely
+useful.
+Building lists of available classes for a particular task which the
+user may choose from, an object which automatically chooses to aggregate in
+the closest/smallest/most-efficient class from those available, and type browsers
+for COM development tools are just some examples of using such categorization
+information.
+<A NAME="chap01.sect2.12"></A><H3>1.1.12&#160;&#160;&#160;&#160;Licensing</H3>
+<P>In a component software industry, vendors need a fine level of control
+over the licensing of their components.
+The COM Licensing protocol allows
+vendors to support machine, application, and user level licensing.
+This protocol
+makes it possible for vendors, for example, to ship a component that can be
+used in a development environment without royalty but only with a royalty
+on the end-users machine.
+Or the vendor may choose to make the component available
+to software developers at a relatively large fee, but allow it to be freely
+redistributable as part of the developers application.
+<A NAME="chap01.sect2.13"></A><H3>1.1.13&#160;&#160;&#160;&#160;Type Libraries</H3>
+<P>Type libraries are COM's ``interface repository''.
+A type library
+<A NAME="anch_0030"></A>
+is a database that contains
+details about interfaces.
+COM uses type libraries for data driven cross process
+and cross-machine marshaling.
+COM development tools use type libraries to
+provide graphical object browsers and code generators.
+<P>The contents of type libraries (type information) are exposed to programmers
+through interfaces.
+The actual binary file format is opaque.
+<A NAME="chap01.sect2.14"></A><H3>1.1.14&#160;&#160;&#160;&#160;Automation</H3>
+<P>Automation allows COM objects to expose functionality to high-level
+programming environments such as visual development tools.
+Scripting languages
+such as JScript and VBScript can make use of COM components that support automation.
+<P>Automation adds the following capabilities to COM:
+<P><UL TYPE="Disc">
+<P><LI><P>Late bound, dynamic method invocation.
+</LI>
+<P><LI><P>Type unsafe method invocation.
+This is useful to ``typeless''
+programming environments such as VBScript and REXX.
+</LI>
+<P><LI><P>National language independent programming.
+This allows programmers
+to use their chosen language (spoken, not programming) in their source code.
+</LI>
+</UL><P>
+<A NAME="chap01.sect1.2"></A><H2>1.2&#160;&#160;&#160;&#160;MS-RPC</H2>
+<A NAME="anch_0031"></A>
+<P>MS-RPC is an implementation of The Open Group's Distributed Computing
+Environment (DCE) Remote Procedure Call (RPC) system.
+<P>The design and technology behind DCE RPC is just one part of a complete
+<A NAME="anch_0032"></A>
+environment for distributed computing
+defined by The Open Group.
+<P>In selecting the RPC standard, The Open Group cited the following rationale:
+<P><UL TYPE="Disc">
+<P><LI><P>The three most important properties of a remote procedure
+call are simplicity, transparency, and performance.
+</LI>
+<P><LI><P>The selected RPC model adheres to the local procedure model
+as closely as possible.
+This requirement minimizes the amount of time developers
+spend learning the new environment.
+</LI>
+<P><LI><P>The selected RPC model permits interoperability; its core
+protocol is well defined and cannot be modified by the user.
+</LI>
+<P><LI><P>The selected RPC model allows applications to remain independent
+of the transport and protocol on which they run, while supporting a variety
+of transports and protocols.
+</LI>
+<P><LI><P>The selected RPC model can be easily integrated with other
+components of the DCE.
+</LI>
+</UL><P>
+<P>The DCE remote procedure call standards define not only the overall
+approach, but the language and the specific protocols to use for communications
+between computers as well, down to the format of data as it is transmitted
+over the network[CAE RPC].
+The Component Object Model adds to this definition
+by specifying an object oriented, programming language independent programming
+model.
+<P>Microsoft's implementation of DCE RPC is compatible with The Open Group
+standard with the exception of some minor differences.
+Client or server applications
+written using Microsoft RPC will interoperate with any DCE RPC client or server
+whose run-time libraries run over a supported protocol.
+<P>MS-RPC includes the following major components:
+<P><UL TYPE="Disc">
+<P><LI><P>MIDL compiler
+</LI>
+<P><LI><P>Run-time libraries and header files
+</LI>
+<P><LI><P>Transport interface modules
+</LI>
+<P><LI><P>Name service provider
+</LI>
+<P><LI><P>Endpoint supply service
+<P>MS-RPC includes the following features beyond those defined by The Open
+Group:
+</LI>
+<P><LI><P>Support for marshaling of interface pointers
+</LI>
+<P><LI><P>Support for custom marshaling (i.e.
+application defined mechanisms
+for marshaling which are more efficient than standard NDR marshaling)
+</LI>
+<P><LI><P>Support for additional transport protocols such as Appletalk
+and local RPC.
+</LI>
+</UL><P>
+<A NAME="chap01.sect1.3"></A><H2>1.3&#160;&#160;&#160;&#160;Registry</H2>
+<P>The registry is a database that ActiveX components use to store and
+retrieve configuration data.
+The registry stores data in opaque binary files.
+To manipulate registry data, a component must use the registry API functions.
+The ActiveX Core Technology runtime uses the registry to map COM class identifiers
+to the implementation of that class, among other things.
+<A NAME="chap01.sect1.4"></A><H2>1.4&#160;&#160;&#160;&#160;Security Support Provider Interface</H2>
+<P>The Security Support Provider Interface (SSPI) is a common interface
+to security support providers.
+Security support providers export a set of
+functions that can be used to gain a certain level of security support.
+This
+interface is supported by MS-RPC.
+<A NAME="anch_0033"></A>
+<P>The Security Support Provider Interface provides a common interface
+from a transport provider, such as Microsoft RPC, and security providers,
+such as Windows NT Distributed Security (NTLM).
+<P>The functions defined fall into the following major categories:
+<P><UL TYPE="Disc">
+<P><LI><P>Credential management.
+A credential is data used by a principal
+to establish the identity of the principal, such as a password, or a Kerberos
+ticket.
+</LI>
+<P><LI><P>Context management.
+A context contains information such as
+a session key, duration of the session, and so on.
+</LI>
+<P><LI><P>Message support.
+Message support functions provide integrity
+services based on a security context.
+</LI>
+<P><LI><P>Package management.
+Support for differing security models
+(such as Kerberos and Microsoft LAN Manager) is supported through security
+packages providing the necessary mapping between this API and the actual security
+model.
+</LI>
+</UL><P>
+<A NAME="chap01.sect1.5"></A><H2>1.5&#160;&#160;&#160;&#160;Windows NT Distributed Security Provider</H2>
+<P>The Windows NT Distributed Security Provider is the primary security
+provider used by Windows NT.
+It is also called the NTLM security provider.
+It is a Security Support Provider Interface (SSPI) ``package''.
+<P>The NTLM SPP provided in source code form as part of the PST project
+supports ``pass-through'' security to a Windows NT domain.
+<P>ActiveX provides a developer with a well integrated set of technologies
+that can be used for building applications and components at all levels right
+from desktop applications, ActiveX controls for the internet, right up to
+distributed enterprise class applications that integrate with Microsoft Transaction
+Server.
+COM and Distributed COM are pieces of infrastructure that underlies
+all of the ActiveX technologies and ties them together.
+DCOM is a key piece
+of infrastructure that makes it easier to build distributed applications.
+This section provides information on how software vendors and corporations
+have benefited from using ActiveX technologies particularly DCOM when building
+software solutions.
+<HR>
+</BODY>
+</HTML>

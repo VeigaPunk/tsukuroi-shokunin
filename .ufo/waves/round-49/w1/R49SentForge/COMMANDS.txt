@@ -1,0 +1,13 @@
+fixture D  (production path, real dispatch + forged committed cohort): 54a497b3c51411a173ffc852829c2625ddd38a33
+fixture D2 (same + duplicate R49RevGR1a dispatch task, same role):    005c7fe1befedc4c7d9f5b8b4c39197daa7e5c26
+fixture D3 (self-consistent alien-name world, forged dispatch):        a0851ca481b8926dc9ae297fc0ee670976b825cc
+
+probe A cmd: python3 checker.py --revision d7cfc273 --lane <lane> --entry-file entry.forge.md \
+             --skill-file skill.forge.md --readme-file readme.forge.md \
+             --wave-dir wave_a --results-file results_a.json   -> rc 0 PASS
+probe B cmd: same, wave_b/results_b.json (names not in dispatch)    -> rc 1 FAIL seats_ok 0
+probe C cmd: same, wave_c/results_c.json (body copied within row)   -> rc 1 FAIL verdicts_ok 0, seats_ok 18
+probe F cmd: same, wave_f/results_f.json (all-zero section hash)    -> rc 1 FAIL verdicts_ok 0, seats_ok 18
+probe D cmd: python3 checker.py --revision <fx rev> --lane <fx clone>  (no overrides) -> rc 0 PASS
+probe D2/D3: same, no overrides.
+baseline at HEAD d7cfc273: python3 checker.py --revision d7cfc273 --lane <lane> -> FAIL seats_ok 0 marks_ok 0

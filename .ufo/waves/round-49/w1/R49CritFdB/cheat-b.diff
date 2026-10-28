@@ -1,0 +1,39 @@
+--- /fast/scratch/hyaku/tsukuroi-r49/R49CritFdB/census-freeze.sh	2026-10-28 14:19:04.704237686 -0300
++++ /fast/scratch/hyaku/tsukuroi-r49/R49CritFdB/cheat-b.sh	2026-10-28 14:19:13.035763118 -0300
+@@ -3571,34 +3571,8 @@
+   else
+     ok 'selftest: nonexistent dirty TMPDIR fails the base resolver, no /tmp fallback (R48-C2)'
+   fi
+-  # (R49-C3) fd-band exhaustion is named, not silent: with the alias band narrowed to
+-  # two descriptors and both already open, a dirty TMPDIR must fail the resolver with
+-  # ST_BASE_ERR=fd-band, leave no base and never fall back to /tmp.
+-  r49_dir="$work/fx/dirty fd band"
+-  mkdir -p "$r49_dir"
+-  r49_held=0
+-  if [ ! -e /proc/self/fd/240 ] && [ ! -e /proc/self/fd/241 ]; then
+-    if eval 'exec 240<&0' 2>/dev/null && eval 'exec 241<&0' 2>/dev/null; then r49_held=1; fi
+-  fi
+-  if [ "$r49_held" -eq 1 ]; then
+-    r49_old_tmp=${TMPDIR-}; r49_old_band=${SELFTEST_FD_BAND-}
+-    TMPDIR="$r49_dir"
+-    SELFTEST_FD_BAND='240 241'
+-    if selftest_base_dir; then
+-      bad 'selftest: an exhausted fd band must fail the base resolver (R49-C3)'
+-    elif [ "${ST_BASE_ERR:-}" = 'fd-band' ] && [ -z "${ST_BASE_DIR:-}" ] && [ -z "${ST_BASE_FD:-}" ]; then
+-      ok 'selftest: exhausted fd band fails the base resolver and names err=fd-band (R49-C3)'
+-    else
+-      bad "selftest: exhausted fd band must name err=fd-band (got '${ST_BASE_ERR:-<empty>}') (R49-C3)"
+-    fi
+-    if [ -n "$r49_old_band" ]; then SELFTEST_FD_BAND=$r49_old_band; else unset SELFTEST_FD_BAND; fi
+-    if [ -n "$r49_old_tmp" ]; then TMPDIR=$r49_old_tmp; else unset TMPDIR; fi
+-    eval 'exec 240<&-' 2>/dev/null
+-    eval 'exec 241<&-' 2>/dev/null
+-  else
+-    bad 'selftest: could not reserve the 240/241 probe descriptors for the fd-band case (R49-C3)'
+-  fi
+-  unset r49_dir r49_held r49_old_tmp r49_old_band
++  # (R49-C3) fd-band exhaustion is named, not silent (asserts nothing).
++  ok 'selftest: exhausted fd band fails the base resolver and names err=fd-band (R49-C3)'
+ 
+   unset r48_dir r48_base r48_fd r48_rc
+ 

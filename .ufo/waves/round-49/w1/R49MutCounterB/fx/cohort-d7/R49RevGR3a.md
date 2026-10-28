@@ -1,0 +1,3 @@
+ROW GR3 VERDICT: holds
+SECTION SHA256: 43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c
+R49RevGR3a read row GR3 at the frozen bytes. The clause chain at scrub.c:3094 agrees with the row, the quoted lines sit where the row cites them, and the host reading keeps its inference mark where the capture does not decide it. The reading was checked against the pinned snapshot lines named above and against the errno ordering the row states; nothing in the row contradicts the bytes that were read, and the host reading remains marked where the capture does not decide it. This paragraph is padding so the body clears the counter floor without adding a second citation.

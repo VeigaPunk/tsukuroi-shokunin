@@ -1,0 +1,24 @@
+# process hygiene, env sufficiency, regex/locale
+
+## child cwd is inherited from the counter's caller (subprocess.run has no cwd=)
+fixture census file under --census-file: `printf 'cwd proof\n' > cwd-write-proof.txt`
+run from <scratch>/cwdtest -> cwd-write-proof.txt appeared in the CALLER's cwd: YES
+(the census under test can therefore write relative paths into the caller's cwd)
+
+## cleanup
+shutil.rmtree('run', ignore_errors=True) with run/sub mode 000 -> leftover: run True, run/sub True
+(after a normal counter run the mkdtemp work dir is gone; the `--work` parent stays behind, empty:
+ work-freeze/ and work-base/ are empty dirs after their runs)
+
+## env: the 167-case frozen selftest passes with exactly the counter's env
+env -i PATH=/usr/bin:/bin LC_ALL=C TMPDIR=<work>/run HOME=<work> /bin/bash <freeze census> --selftest
+-> 167/167 PASS. The census names no HOME/USER/LOGNAME anywhere (grep: no hits);
+every external binary it uses on the selftest path resolves under PATH=/usr/bin:/bin.
+
+## LC_ALL=C is NOT required for the summary regex
+printf '%d' emits ASCII digits under C and under a broken tr_TR.UTF-8 alike (same bytes).
+SUMMARY = ^TSUKUROI_CENSUS_SELFTEST: (PASS|FAIL) \((\d+) cases, (\d+) passed, (\d+) failed)$
+fullmatch('... (1670 cases, 1670 passed, 0 failed)') -> groups ('1670','1670','0')  (multi-digit ok)
+fullmatch('... (١٦٧ cases, ...)') -> matches, int()=167  (\d is Unicode-wide: cosmetic false-positive surface)
+fullmatch('  <summary>  '.strip()) -> True ; trailing text -> False ; leading text -> False
+case_pass: 'PASS <text> (R49-C3)' -> True ; 'FAIL <text> (R49-C3)' -> False

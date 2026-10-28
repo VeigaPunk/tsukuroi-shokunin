@@ -1,0 +1,51 @@
+# live-census comparison matrix (normalized: every digit run -> N)
+# reference: base-live-1 (blob 6256760d...=base.sh)
+IDENTICAL  base-live-1 vs base-live-2
+IDENTICAL  base-live-1 vs base-live-a
+IDENTICAL  base-live-1 vs base-live-b
+IDENTICAL  base-live-1 vs base-live-attr
+IDENTICAL  base-live-1 vs base-dirtytmp
+IDENTICAL  base-live-1 vs fix-live-1
+IDENTICAL  base-live-1 vs fix-live-a
+IDENTICAL  base-live-1 vs fix-live-b
+IDENTICAL  base-live-1 vs fix-live-attr
+IDENTICAL  base-live-1 vs fix-dirtytmp
+
+# md5 of normalized outputs
+4a1ef421db371859ff1af0a99d89a294  base-dirtytmp.norm.txt
+4a1ef421db371859ff1af0a99d89a294  base-live-1.norm.txt
+4a1ef421db371859ff1af0a99d89a294  base-live-2.norm.txt
+4a1ef421db371859ff1af0a99d89a294  base-live-a.norm.txt
+4a1ef421db371859ff1af0a99d89a294  base-live-attr.norm.txt
+4a1ef421db371859ff1af0a99d89a294  base-live-b.norm.txt
+4a1ef421db371859ff1af0a99d89a294  fix-dirtytmp.norm.txt
+4a1ef421db371859ff1af0a99d89a294  fix-live-1.norm.txt
+4a1ef421db371859ff1af0a99d89a294  fix-live-a.norm.txt
+4a1ef421db371859ff1af0a99d89a294  fix-live-attr.norm.txt
+4a1ef421db371859ff1af0a99d89a294  fix-live-b.norm.txt
+
+# line counts / bytes of raw outputs
+    27   1181 COMPARE.txt
+    13   9110 base-dirtytmp.txt
+     1    288 base-identity.txt
+    13   9110 base-live-1.txt
+    13   9110 base-live-2.txt
+    13   9110 base-live-a.txt
+    13   9110 base-live-attr.txt
+    13   9110 base-live-b.txt
+    13   9110 fix-dirtytmp.txt
+     1    288 fix-identity.txt
+    13   9110 fix-live-1.txt
+    13   9110 fix-live-a.txt
+    13   9110 fix-live-attr.txt
+    13   9110 fix-live-b.txt
+   315 176393 total
+
+# observed exit codes (env -i PATH=/usr/bin:/bin LC_ALL=C HOME=<scratch>)
+base-live-1   exit=2   (run 2026-10-28T17:43:09Z)
+base-live-2   exit=2   (noise baseline, same blob, second run)
+fix-live-1    exit=2
+base-live-a   exit=2 ; fix-live-a exit=2
+base-live-b   exit=2 ; fix-live-b exit=2
+base-live-attr exit=2 ; fix-live-attr exit=2
+base-dirtytmp exit=2 (TMPDIR="<scratch>/dirty tmp") ; fix-dirtytmp exit=2

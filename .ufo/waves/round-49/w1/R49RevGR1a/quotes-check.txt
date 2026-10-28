@@ -1,0 +1,70 @@
+# GR1 receipts, seat R49RevGR1a, 2026-10-28T17:03:57Z
+## section hash, independent recompute (lines 14-55, LF-joined, no trailing LF)
+42 lines; first= '## GR1' last= ''
+3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1
+## counter --section-hash
+{"entry": "corpus/knowledge/btrfs-scrub-grounding-r45.md", "problems": [], "revision": "55c07cd3f8bff2e12117c34d57b4c618de74d85c", "section_sha256": {"GR1": "3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1", "GR2": "d4296085a574e29296fb9baba5a8722766a832a0b15809ccee72ea019ebd027f", "GR3": "43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c"}, "structural_ok": 1}
+## pinned blobs at the freeze revision
+1af5ad98fface0b59694e7565c33be2e37c089cc9a1a841285414ee94546ca9d  .ufo/waves/round-45/frozen/src/cmdline.c
+cabb648a2c72fcbd4a1b00cbbf442ad11235f3224071f5e662db4a77993469ca  .ufo/waves/round-45/frozen/src/vsprintf.c
+0c52ae02259f06adaf0a72a572e31ede4d8d6519e1b5625cb6b18d74db8d1ee4  .ufo/waves/round-45/frozen/src/kstrtox.c
+ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43  .ufo/waves/round-44/frozen/src/sysfs.c
+f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8  .ufo/waves/round-44/frozen/src/scrub.c
+f5958a83b7cf1e2e438ac1b543f1c521f3f9370287fc4c4bcea38947c3991e70  .ufo/waves/round-45/frozen/hostcap/capture.txt
+## sha256sum -c in each snapshot dir
+cmdline.c: OK
+dev-replace.c: OK
+systemd.kill.xml: OK
+kstrtox.c: OK
+vsprintf.c: OK
+scrub.c: OK
+sysfs.c: OK
+btrfs-scrub@.timer: OK
+btrfs-scrub@.service: OK
+PKGBUILD: OK
+## 12 quotes, exact-substring test on the cited line
+OK   cmdline.c 147 ' *\tpotentially suffixed with K, M, G, T, P, E.'
+OK   cmdline.c 156 '\tunsigned long long ret = simple_strtoull(ptr, &endptr, 0);'
+OK   cmdline.c 159 '\t/* Consume valid suffix even in case of overflow. */'
+OK   cmdline.c 189 '\tif (shl && likely(ptr != endptr)) {'
+OK   cmdline.c 191 '\t\tif (unlikely(check_shl_overflow(ret, shl, &ret)))'
+OK   cmdline.c 192 '\t\t\tret = ULLONG_MAX;'
+OK   vsprintf.c 86 '\tcp = _parse_integer_fixup_radix(startp, &base);'
+OK   kstrtox.c 29 "\t\tif (s[0] == '0') {"
+OK   kstrtox.c 30 "\t\t\tif (_tolower(s[1]) == 'x' && isxdigit(s[2]))"
+OK   kstrtox.c 33 '\t\t\t\t*base = 8;'
+OK   sysfs.c 2040 '\tlimit = memparse(buf, &endptr);'
+OK   sysfs.c 2043 '\tif (*endptr != 0)'
+12/12 exact
+## kernfs write path, upstream v7.2.11, fetched 2026-10-28T17:03:57Z from https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/fs/kernfs/file.c?h=v7.2.11 (NOT part of the pinned SHA256SUMS)
+sha256 64060083099abe105b6e20a2bf310f3a1f0370198bda517ce32b4114787874df  kernfs-file.c  (1085 lines)
+static ssize_t kernfs_fop_write_iter(struct kiocb *iocb, struct iov_iter *iter)
+{
+	struct kernfs_open_file *of = kernfs_of(iocb->ki_filp);
+	ssize_t len = iov_iter_count(iter);
+	const struct kernfs_ops *ops;
+	char *buf;
+
+	if (of->atomic_write_len) {
+		if (len > of->atomic_write_len)
+			return -E2BIG;
+	} else {
+		len = min_t(size_t, len, PAGE_SIZE);
+	}
+
+	buf = of->prealloc_buf;
+	if (buf)
+		mutex_lock(&of->prealloc_mutex);
+	else
+		buf = kmalloc(len + 1, GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
+
+	if (copy_from_iter(buf, len, iter) != len) {
+		len = -EFAULT;
+		goto out_free;
+	}
+	buf[len] = '\0';	/* guarantee string termination */
+
+grep for newline stripping in kernfs_fop_write_iter (304-361):
+  none

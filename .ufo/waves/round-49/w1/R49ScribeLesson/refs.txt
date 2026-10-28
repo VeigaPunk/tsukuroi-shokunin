@@ -1,0 +1,48 @@
+=== r48 counter (frozen bytes) results check + static leg @55c07cd3 ===
+15:  A3  Universe per row: three reviewers + three critics in the single wave (R48RevGR<n>{a,b,c},
+185:    res = load_obj(lane, rev, f'{WAVES}/{wave}-results.json')
+188:        return None, None, None, f'{wave}-results.json unreadable'
+=== r48 counter: identical at its own freeze ae99f021? (git diff 76066487..55c07cd3, empty = identical) ===
+=== r49 C1 counter legs ===
+8:  corr_ok       the seven corrections the round-48 counted cohort named are in the bytes
+20:  seats_ok      each of the 18 expected seats is exactly one completed entry of
+28:Predicate: structural_ok == 1 and corr_ok == 1 and quotes_ok == 3 and verdicts_ok == 3
+29:           and seats_ok == 18 and marks_ok == 3
+94:PREDICATE = ('structural_ok == 1 and corr_ok == 1 and quotes_ok == 3 and verdicts_ok == 3 '
+95:             'and seats_ok == 18 and marks_ok == 3')
+348:    corr_ok = int(not corr_missing and not corr_present)
+353:    seats_ok, verdicts_ok, per_row, seat_rows = 0, 0, {}, []
+=== r49 C3 counter stale leg ===
+44:STALE = 'builds a /tmp fixture tree'
+91:        stale_ok = 1 if STALE not in text else 0
+=== r49 C2 counter legs ===
+17:  linked_rows     rows whose ownership cell names >=1 OUT id
+18:  bare_ranges     total `*.md:N[-M]` occurrences in the ownership cells (target 0)
+26:Predicate: adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchors_ok == 7
+54:PREDICATE = ('adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchors_ok == 7 '
+194:           'adj_rows': len(adj), 'linked_rows': linked, 'bare_ranges': bare,
+=== anchors checker: PROVINCE section and every ADJ reference ===
+27:PROVINCE_SECTION = "## Adjacent — portable ownership anchors (round 19)"
+57:    "scope, not arbitrary packages. ADJ-06's unresolved recipient and Frontier arbitration "
+75:    "| OUT-008 | ADJ-06 | fixture |\n"
+76:    "| OUT-009 | ADJ-06 | fixture |\n"
+211:            or "| OUT-008 | ADJ-06 |" not in province_text
+212:            or "| OUT-009 | ADJ-06 |" not in province_text):
+213:        return invalid("the original ADJ-06 arbitration context was removed or changed")
+=== QUALITY 32 / 91 ===
+53:32. **Sibling ownership is cited by portable anchor, not line range (R19-ADJ-POINTERS):** each of the 10
+179:91. **An integrator adopts a reviewer's proposed text only after checking it against the cited source line itself, and a counted read follows every adopted change (R42-ADOPTED-UNREAD):** a precision note or exact replacement a non-counted seat proposes is a candidate, not evidence; before it enters a row that a counted verdict will judge, the integrator records, per adopted sentence, the source line that supports it (command and observed text), and changed rows are re-read by a counted seat. Failing example (round 42): two wave-1 notes adopted into SC3 unverified ("(or is resumed)", "only the final write reports a failure") were both false against the pinned `scrub.c` (:795-796, :823-825; :1690-1699), and the counted wave-2 reads returned SC3 `fails` (`.ufo/waves/round-42/w2/C2RevSC3.md`, `C2CritSC3.md`). Lesson: `corpus/lessons/round-42.md` Mistakes R42-ADOPTED-UNREAD.
+=== round-48 lessons stale row ===
+31:| R48-C1-STALE-TMPDIR-COMMENT | documentation drift — census comment still says selftest builds a `/tmp` fixture tree, contradicting the actual TMPDIR behavior | frozen `tools/tsukuroi-census.sh:415`; independent `TExecLint.md` and `TExecStrace.md` | Not covered by the frozen C1 static leg (comments are excluded) | Next round correct the comment; routed, not patched after this freeze. |
+=== round-38 nit ===
+19:| tools/tsukuroi-census.sh:373 | comment: "builds a /tmp fixture tree" | no (comment) | STALE WORDING, see nit 1 |
+50:1. tools/tsukuroi-census.sh:373 still says "builds a /tmp fixture tree" although the code (:1892) and its sibling comments (:370,:553) now use ${TMPDIR:-/tmp}. Wording-only; the 52ffd65 diff did not touch that line (it is not in the grep of `^[-+]` lines above).
+=== round-48 w2 flag ===
+39:- c.sh:415 still reads "builds a /tmp fixture tree" — stale for the scratch/spaced-TMPDIR scenarios (fixture lands under TMPDIR there). Doc drift only.
+=== FROZEN r49 corrections + K6 ===
+15:| C1 | depth (lowest tied 8) | `corpus/knowledge/btrfs-scrub-grounding-r45.md` GR1-GR3: the seven corrections the round-48 counted seats named (CritGR1a ×2, CritGR2a ×4, RevGR2a ×2 as one list of seven) are in the 
+45:| C1 | K0 base/freeze bytes and no cohort (FAIL) · K1 corrected entry + marks, no cohort (FAIL) · K2 all-holds synthetic cohort on bytes with the five r48 defect strings restored (FAIL: `corr_ok 0`) · K3 one bound 
+64:Receipts: `controls/battery-summary-r49-c1.jsonl` (K0 K1 K2 K3 K4 K5 K6 FAIL, K-pass PASS), `-c2.jsonl`
+=== w1-validate.log size and refusal-text search ===
+0 .ufo/waves/round-49/w1-validate.log
+no file under .ufo/waves/round-49 carries the refusal text

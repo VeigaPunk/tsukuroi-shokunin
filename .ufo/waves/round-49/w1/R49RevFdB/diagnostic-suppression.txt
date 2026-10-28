@@ -1,0 +1,17 @@
+# Does the counter's diag_ok distinguish a PRINTED diagnostic from a literal in a comment?
+
+## freeze census, production band (all 240-249 held, dirty TMPDIR):
+    selftest: fd band 240 241 242 243 244 245 246 247 248 249 exhausted (every descriptor already open), cannot alias TMPDIR <...>; no /tmp fallback (R49-C3)
+    rc=1 (from run_selftest)
+
+## mutant M1 (printf replaced by a comment carrying the same literal):
+    output bytes: 0   <- the silent failure the round claims to have removed
+    rc=1
+
+## counter verdict on mutant M1 (--census-file):
+    {"band_ok": 1, "case_line": "PASS selftest: exhausted fd band fails the base resolver and names err=fd-band (R49-C3)", "cases": 167, "diag_ok": 1, "selftest_rc": 0, "stale_ok": 1, "summary": "TSUKUROI_CENSUS_SELFTEST: PASS (167 cases, 167 passed, 0 failed)", "verdict": "PASS"}
+
+## why: band_ok runs --selftest, whose (R49-C3) case asserts the RESOLVER STATE
+   (ST_BASE_ERR=fd-band, empty base/fd), never the printed text; diag_ok only greps the
+   file for two literals + >=2 occurrences of 'fd band' (comments count).
+   frozen counter lines 92-93 (diag_ok), 104-106 (case_pass/band_ok); census lines 2112-2120 (print), 3574-3600 (case).

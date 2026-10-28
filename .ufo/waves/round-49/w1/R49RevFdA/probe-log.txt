@@ -1,0 +1,70 @@
+2026-10-28T17:31:24Z
+=== A. band override shapes (frozen resolver in isolation) ===
+
+-- SELFTEST_FD_BAND=<>
+rc=0 dir=</proc/self/fd/240> fd=<240> err=<>
+rc=0 dir=</proc/self/fd/240> fd=<240> err=<>
+wrapper rc=0
+
+-- SELFTEST_FD_BAND=< >
+probe.sh: line 31: fdn: unbound variable
+wrapper rc=1
+
+-- SELFTEST_FD_BAND=<abc>
+probe.sh: line 32: exec: abc: not found
+wrapper rc=127
+
+-- SELFTEST_FD_BAND unset
+rc=0 dir=</proc/self/fd/240> fd=<240> err=<>
+rc=0 dir=</proc/self/fd/240> fd=<240> err=<>
+=== B. whitespace band without set -u (misdiagnosis path) ===
+rc=1 dir=<> fd=<> err=<fd-band>
+=== C. harness alias then R49 guard (exact ordering) ===
+harness base=</proc/self/fd/240> fd=<240>
+r48 rc=0 fd=<241>
+r49_held=0 (240-open=y 241-open=n)
+=> would print: FAIL selftest: could not reserve the 240/241 probe descriptors for the fd-band case (R49-C3)
+=== D. guard with stdin closed ===
+held=0
+=== E. partial reservation leak ===
+held=0 240-open=yes
+=== F. patched resolver across band shapes ===
+
+-- patched SELFTEST_FD_BAND=<>
+rc=0 dir=</proc/self/fd/240> fd=<240> err=<>
+
+-- patched SELFTEST_FD_BAND=< >
+rc=1 dir=<> fd=<> err=<fd-band>
+
+-- patched SELFTEST_FD_BAND=<abc>
+rc=1 dir=<> fd=<> err=<band-token>
+
+-- patched SELFTEST_FD_BAND=<240 241>
+rc=0 dir=</proc/self/fd/240> fd=<240> err=<>
+=== G. patched R49 case under harness-held 240 ===
+harness fd=<240>
+probe fd=<241>
+patched-case rc=1 err=<fd-band> dir=<> fd=<>
+=== H. IFS assignments ===
+1188:  while IFS= read -r f; do
+1758:    while IFS=$'\t' read -r tag dn dv rv; do
+1780:        while IFS=$'\t' read -r tag dn dv rv; do
+1872:    host=$(while IFS= read -r l; do printf '/etc/%s\n' "${l#"$etc"/}"; done <<< "$fs" | LC_ALL=C sort -u)
+1876:    while IFS= read -r l; do
+1896:    while IFS= read -r t; do
+1899:      while IFS= read -r d; do
+1935:        while IFS=' ' read -r k v extra || [ -n "${k:-}" ]; do
+1994:        while IFS= read -r line || [ -n "$line" ]; do nl=$((nl + 1)); v=$line; done < "$f"
+=== I. patched_fn2 variants (band-empty / band-token / held member) ===
+-- band=<>
+rc=0 dir=</proc/self/fd/240> fd=<240> err=<>
+-- band=<   >
+rc=1 dir=<> fd=<> err=<band-empty>
+-- band=<abc>
+rc=1 dir=<> fd=<> err=<band-token>
+-- band=<0 1>
+rc=1 dir=<> fd=<> err=<fd-band>
+-- band=<245>
+rc=0 dir=</proc/self/fd/245> fd=<245> err=<>
+-- all 240-249 held, default band
+rc=1 dir=<> fd=<> err=<fd-band>

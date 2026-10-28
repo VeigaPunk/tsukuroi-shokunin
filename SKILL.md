@@ -4544,3 +4544,29 @@ Append-only continuation; every row of the round-45 table is carried verbatim be
 | scrub-grounding-r45 | gate | `python3 tools/check-scrub-grounding-r45.py --revision <REV> [--lane <repo>] [--sessions <dir>]` | 0 predicate `rows == 3 and quotes_ok == 3 and props_ok == 3 and host_ok == 3 and sources_ok == 1 and verdicts_ok == 3 and novelty_base_hits == 0 and pointer_ok == 1`;1 otherwise;2 usage/read error | none: the frozen GR1-GR3 rows and the bound a2w1/a2r1 verdicts are the measurement; controls `.ufo/waves/round-45/controls-a2/run_controls_c2.py` | R45 C2 sha256 `a1eb402dffae97fcefd9bd539529f1cacc5034419b6de06e1f8ac1c08d011331` (attempt-2 rebinding of frozen `7e373196decd2de09124819f81008f42dbf9fe2e56a9231b3b692f841eabf70d`); snapshots sha256 in `.ufo/waves/round-45/frozen/src/SHA256SUMS` | committed reads | tsukuroi |
 | census-identity-r46 | gate | `python3 tools/score-census-identity-r46.py --revision <REV> --scratch <DIR> [--lane <repo>]` | 0 predicate `identity_ok == 1 and tracks_ok == 1 and symlink_ok == 1 and unverifiable_ok == 1 and cli_ok == 1 and nowrite_ok == 1 and selftest_pass == 1 and selftest_r46 >= 4`;1 any conjunct fails;2 usage/read error | none: no self-test mode of its own; the identity, tracks, symlink, three-unverifiable, cli and nowrite legs plus the scored census's own selftest and its four (R46-C1) case labels are the measurement; controls `.ufo/waves/round-46/controls/run_controls_c1.py` | R46 C1 frozen sha256 `7c406eb5f4ba1f6265649f7102e7376882483180c161a66abc68e08cad9524ba`; the one-line `TSUKUROI_CENSUS_IDENTITY:` shape, the four `unverifiable` byte fields and the `--identity` argument refusal in code; base `2042117c` | scratch fixtures and census runs under `--scratch`; identity runs leave their cwd byte-unchanged; no host write | tsukuroi |
 | scrub-admission-r46 | gate | `python3 tools/check-scrub-admission-r46.py --revision <REV> [--lane <repo>] [--section-hash]` | 0 predicate `r45_legs_ok == 1 and verdicts_ok == 3 and marks_ok == 3`;1 otherwise;2 usage/read error or the base is not an ancestor | none: no self-test mode; the frozen round-45 non-verdict legs, the twelve counted seats' report-bound verdicts on the current GR section hashes and the three admission marks are the measurement; controls `.ufo/waves/round-46/controls/run_controls_c2.py` | R46 C2 frozen sha256 `28c409bef9a87338831e0cab4c194a78e7fedfefbd9c4a300a33f30b24dd11d8`; GR1-GR3, the frozen seat universe and the two-line `ROW GR<n> VERDICT:` plus `SECTION SHA256:` report shape in code; base `2042117c` | committed reads; `--section-hash` prints hashes only; no host write | tsukuroi |
+
+## Scrub grounding — round 49 (the cohort read; GR2 stays partly)
+
+Round 49 applied the seven corrections the round-48 counted cohort named and re-read GR1-GR3 with a fresh
+18-seat cohort (`.ufo/waves/round-49/w1/`): GR1 `holds` 6/6, GR3 `holds` 6/6, GR2 `holds` 5/6 with one bound
+`partly` (`R49CritGR2b`). The frozen predicate needs all three rows, so **no row is admitted this round** and no
+admission mark is written. GR2's remaining defect is named: the bracketed mark still reads "for the ioctl and
+btrfs-progs side … not pinned here" although `ioctl.c` *is* pinned (S240) and the row cites it at `ioctl.c:3132`
+and `ioctl.c:3190`; the mark must shrink to the btrfs-progs printing it actually leaves open, and the entry's
+`source:` line must name S240. Row hashes at the round-49 freeze: GR1 `3a2ba180…`, GR2 `d4296085…`, GR3
+`43430a14…`. Counter: `python3 tools/check-scrub-admission-r49.py --revision <REV>`
+(legs `structural_ok`, `corr_ok`, `quotes_ok`, `verdicts_ok`, `seats_ok`, `marks_ok`). The counter is a shape
+gate, not a forgery gate: a fabricated cohort that satisfies the file shapes passes it (receipt
+`.ufo/waves/round-49/w1/R49CritCounter/`), so admission credit still rests on the orchestrator's real dispatch and
+results file, never on a hand-written report set.
+
+## Census selftest — descriptor-band diagnostic (round 49)
+
+The `--selftest` alias resolver now records a failure class and the harness prints it: an exhausted alias band
+prints `fd band <band> exhausted (every descriptor already open), cannot alias TMPDIR <t>; no /tmp fallback`
+and a malformed band prints `… cannot host the fixture tree (fd-band-invalid; no /tmp fallback, R48-C2)`. The
+band is the fixed 240-249 list, overridable only for the selftest case through `SELFTEST_FD_BAND` (a caller who
+exports it changes selftest behaviour — named limit). The `(R49-C3)` case chooses two probe descriptors that are
+free and not the run's own alias descriptor, so it never breaks a dirty-TMPDIR run (the round-49 regression
+`R49RevFdA` D1, fixed in the same round). Counted by `python3 tools/check-fd-band-r49.py --revision <REV>`
+(predicate `stale_ok == 1 and diag_ok == 1 and band_ok == 1 and cases == 167`); current: 167 cases, PASS.

@@ -1,0 +1,53 @@
+R49ScoutHost P-8 receipts. Read-only. No privileged commands. No installs.
+Anchor: `date -u` printed `Wed 28 Oct 2026 05:43:49 PM UTC` (exit 0).
+Other probes were the same batch; per-command clocks were not taken.
+
+date -u
+  exit 0
+  Wed 28 Oct 2026 05:43:49 PM UTC
+
+uname -r
+  exit 0
+  7.2.11-arch1-1
+
+systemctl --user is-system-running
+  exit 0
+  running
+
+journalctl -b -p err -o json --no-pager | wc -l
+  journalctl exit 0, wc exit 0
+  250
+
+pacman -Q | wc -l
+  pacman exit 0, wc exit 0
+  1414
+
+pacman -Qu | wc -l
+  pacman exit 0, wc exit 0
+  3
+  (stdout lines discarded by wc; names not observed)
+
+pacman -Dk
+  exit 0
+  No database errors have been found!
+
+systemctl --user list-units --state=failed --no-legend
+  exit 0
+  (empty stdout)
+
+nvidia-smi --query-gpu=driver_version --format=csv,noheader
+  exit 0
+  615.78.08
+
+ls /var/lib/btrfs
+  exit 2
+  ls: cannot access '/var/lib/btrfs': No such file or directory
+
+stat -c '%w' /var/lib/pacman/sync/*.db
+  exit 0
+  2026-10-18 14:11:00.026135178 -0300
+  2026-10-18 14:11:00.026135178 -0300
+  2026-10-18 14:11:00.026135178 -0300
+  2026-10-21 20:32:00.056568686 -0300
+  2026-10-21 20:32:00.056568686 -0300
+  (format prints birth only; names not in this command's stdout)

@@ -1,0 +1,28 @@
+# tar extraction path safety, measured (fixtures under the seat scratch, deleted after copy)
+
+## 1. archive fidelity (freeze revision 55c07cd3)
+git archive --format=tar 55c07cd3 tools/tsukuroi-census.sh -> members:
+  'tools' 0o775 (dir, pax comment = commit id)
+  'tools/tsukuroi-census.sh' 0o775 (regular, 218581 bytes)
+tarfile.extractall() bytes == git cat-file blob 55c07cd3:tools/tsukuroi-census.sh  -> True
+mode after extraction: 0755 (exec bit irrelevant: the counter runs `/bin/bash <path>`)
+
+## 2. default extractall() filter by interpreter (no `filter=` passed, as in the counter)
+python3.14.8  '../escape.txt'      -> OutsideDestinationError (nothing written)
+python3.14.8  '/abs-escape.txt'    -> refused (data filter; nothing written)
+python3.14.8  symlink -> /etc/passwd         -> AbsoluteLinkError
+python3.14.8  symlink -> ../../../etc/passwd -> LinkOutsideDestinationError
+python3.12.15 '../escape.txt'      -> NO ERROR; extract/escape.txt written OUTSIDE dest
+python3.13.16 '../escape.txt'      -> NO ERROR; extract/escape.txt written OUTSIDE dest
+code: /usr/lib/python3.14/tarfile.py:2448 `return data_filter` (default when extraction_filter is None)
+
+## 3. explicit filter is accepted on 3.14
+tarfile.open(...).extractall(dest, filter='data')  -> census extracted, ok
+
+## 4. .gitattributes / export-ignore fixture (throwaway repo under scratch)
+repo with `tools/tsukuroi-census.sh export-ignore` in .gitattributes:
+  git archive --format=tar HEAD tools/tsukuroi-census.sh  -> only 'tools/' (file dropped), rc 0
+  counter behaviour: extract() returns the path unconditionally, os.path.isfile() is False,
+  -> {"error": "tools/tsukuroi-census.sh unreadable at <rev>", "verdict": "FAIL"}, rc 2 (loud)
+freeze tree has no root .gitattributes: `git ls-tree -r <FREEZE> | grep gitattributes` ->
+  only .ufo/waves/round-30/... and .ufo/waves/round-35/... (none affects tools/)

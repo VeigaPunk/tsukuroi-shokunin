@@ -1,0 +1,70 @@
+R49CritAdjB — commands actually run (read-only; no lane/git mutation)
+Observation instant: 2026-10-28T17:17:49Z (date -u)
+Lane bytes: git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 55c07cd3:PROVINCE.md
+
+1. Tips (read-only):
+   for s in mori kama kagi mado kumitate kaidoku revenger tameshi; do
+     git -C /home/vgpnk/Projects/shokunin/$s-shokunin rev-parse HEAD; done
+   -> mori 325f7e639916fcbc77fa2ec7475951a1b86bb1cb
+      kama 7ee8cbdf160f8c945954e4737e7a2f797e3b2987
+      kagi 69b61db46be4ed955994f6f1d1cba522bc5f4e97
+      mado 3b55b6e91e40f455dd56b2985e4ffc087ada92d5
+      kumitate 14057f3e3899180c95713bace088fb9c0d0046e3
+      kaidoku c0112995817b4d8caddd86705b08e89bdac99640
+      revenger 6defe31e4af9f7b3780b2942f1e4e325f6d53cbc
+      tameshi 9cf0146b94ddba12d454ebf7288ce6e5c5d535bb
+
+2. Quote presence at tip (exact substring, one occurrence each):
+   python3 driver over `git -C <sib> show <tip>:PROVINCE.md`
+   -> OUT-001:9 OUT-002:12 OUT-003:3 OUT-004:6 OUT-005:8
+      OUT-006:3 OUT-007:12 OUT-008:3 OUT-009:3 OUT-010:7
+   Same line numbers as at the pins; occurrences at tip = 1 for all ten.
+
+3. Pin blob digests vs the registry digests printed in PROVINCE.md:136-146:
+   sha256(git show <pin>:PROVINCE.md) -> 10/10 MATCH
+   (e.g. OUT-001 73abda79bcb3ab26... , OUT-009 63acc3d033869f93...)
+
+4. Pin ancestry:
+   git -C <sib> merge-base --is-ancestor <pin> <tip> ; echo $?
+   -> rc 0 for all ten; commits-since counts 63..503.
+
+5. Drift classification per file:
+   git -C <sib> diff --stat <pin>:PROVINCE.md <tip>:PROVINCE.md
+   -> mori 362+/7-, kama 108+/0-, kagi 26+/5-, mado 102+/0-,
+      kumitate 5+/3-, kaidoku 273+/5-, revenger 7+/1-, tameshi 35+/0-
+   Deleted lines inspected: none is a quoted line (each quote is present at tip).
+
+6. Reciprocity / class-presence spot checks at tips:
+   mori tip:13 refuses OS package/systemd unit/driver/firmware/boot -> tsukuroi
+   mori tip:25 same-boot journal-window probe (admitted round 16)
+   mori tip:66 cites ../tsukuroi-shokunin/PROVINCE.md:8-14 ; mori tip:288 cites :30-33
+   kama tip:44 "is the thing at this baseURL the model this config believes it is"
+   mado tip:34 "its unit-state rows sit next to tsukuroi's unit-health ground,
+                which stays tsukuroi's"
+   mado tip:96 cites "tsukuroi's OUT-004 routes only this file's lines 3-16"
+   kaidoku tip:125 "Full-system upgrades go through tsukuroi-shokunin's update-safety gate first"
+   tameshi tip:14 "**Refuses:** product domains ... tameshi owns only the reusable craft"
+   kagi tip:10-17 round-18 erratum (janitor substrate absent)
+
+7. Lane line-range resolution at freeze 55c07cd3:
+   PROVINCE.md:8-14 = owns (pacman/systemd/journal/driver surfaces)
+   PROVINCE.md:30-33 = fleet correlation of host pressure belongs to mori
+   PROVINCE.md:33 cites ../mori-shokunin/PROVINCE.md:6-16 -> resolves at mori tip 6-16
+   PROVINCE.md:166 cites ../mori-shokunin/PROVINCE.md:26 -> resolves at mori tip 26
+
+8. OV2 bookkeeping check:
+   PROVINCE.md:185 @ freeze: "mori PROVINCE.md:66 -> lane PROVINCE lines now
+   30-33 and 44-53; mori re-pins"
+   git -C mori-shokunin log -S'../tsukuroi-shokunin/PROVINCE.md:8-14' -- PROVINCE.md
+   -> af42101d 2026-10-22 round-30: routed R7 - PROVINCE stale statements fixed ...
+   mori tip:66 now cites :8-14 (the owns paragraph), not :30-33/:44-53.
+
+9. Counter source read (no execution):
+   git show 55c07cd3:tools/check-adjacency-anchors.py
+     :456 git show <sibling_commit>:<path>  (pinned-blob reachability only)
+     :615-646 quote/heading checked against record["snapshot"], not the sibling tip
+   git show 55c07cd3:tools/check-adjacency-table-r49.py :3,:13 (anchors are portable;
+     the live-sibling leg is a cross-check of the pinned object)
+
+NOT run (not in this item's authorized command list): the C1/C2/C3 counters,
+their --selftest arms, and any lane/state-mutating git or jj command.

@@ -1,0 +1,19 @@
+# GIT_* inheritance test against the frozen counters (env not scrubbed)
+date=2026-10-28T14:35:06-03:00
+foreign_commit=c79ba052daa93f52974f07aa48e8614794281f43  (fixture toplevel=/fast/scratch/hyaku/tsukuroi-r49/R49ConnWave/gd.VrQWVW)
+-- lane contains it? (expect rc=128)
+fatal: Not a valid object name c79ba052daa93f52974f07aa48e8614794281f43^{commit}
+lane_rc=128
+-- with inherited GIT_DIR=<fixture>/.git (expect rc=0)
+env_rc=0
+-- bytes read through the lane path:
+SENTINEL foreign bytes
+-- counters' git helper (frozen bytes):
+59:    return subprocess.run(['git', '-C', lane, *args], capture_output=True, stdin=subprocess.DEVNULL)
+131:    return subprocess.run(['git', '-C', lane, *args], capture_output=True, stdin=subprocess.DEVNULL)
+-- lane helper that DOES scrub:
+def clean_env():
+    # Round 33 C1: an allow-list. No ambient name reaches a git child; only these fixed
+    # settings do (PATH is fixed, never copied).
+    return {"PATH": "/usr/bin:/bin", "GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat",
+            "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}
