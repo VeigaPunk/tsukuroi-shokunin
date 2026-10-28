@@ -3028,10 +3028,10 @@ Re-stated 2026-10-28 at the round-48 final tree; ordinals unchanged. Depth C2 di
 |---|---|---|---|
 | depth | 8 | 67 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); `SKILL.md` 4546 `wc -l` / 1323 table lines (`grep -c '^|' SKILL.md`); `corpus/lessons/` 72 files (`find corpus/lessons -type f | wc -l`); GR1-GR3 admission C2 FAIL at frozen counter; no ordinal move. | round 4 (move-log row at `SCORECARD.md:30`); unchanged |
 | coverage | 9 | `corpus/README.md` 480 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus verdict-neutral STORAGE; no coverage claim this round. | round 11 (terminal closeout, `SCORECARD.md:37`); unchanged |
-| operability | 9 | `python3 tools/score-selftest-tmpdir-r48.py --revision <REV>` PASS (166 cases in each TMPDIR scenario; counter six legs all pass at `ae99f021`); `bash tools/boot-chain-audit.sh --selftest` → `PASS total=49 failed=0`; no ordinal move. | round 11 (terminal closeout); unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (166 cases, 166 passed, 0 failed) at round-48 freeze; `--identity` landed (feature present; round-46 admission withdrawn because the r40 kill rule fired); `bash tools/boot-chain-audit.sh --selftest` prints `PASS total=49 failed=0`; TMPDIR behavior receipt `.ufo/waves/round-48/after/c1-final.json`. | round 11 (terminal closeout); unchanged |
 | freshness | 9 | S240 `ioctl.c` live re-open 2026-10-28, byte-identical to pinned snapshot; S251 proc-fd page re-opened by w2 seat; S253 Issue 8 opened; end census exit 0. | fleet round 1; unchanged |
 | calibration | 9 | `python3 tools/check-self-assessment.py --revision <final>` checks 27 fixed checks, mismatches 0 after this table restatement; before restatement, K10/K13/K17 = 3. | round 10; unchanged |
-| adjacency | 8 | `check-adjacency-anchors.py --revision d7843b3a` PASS after IN-109 found_line 2593→2642 repin; no adjacency claim. | fleet round 1; unchanged |
+| adjacency | 8 | formal overlap table present (PROVINCE `| ID | Finding` table; findings ADJ-01..07); portable OUT-001..010 anchors remain; `check-adjacency-anchors.py --revision d7843b3a` PASS after IN-109 found_line 2593→2642 repin. | fleet round 1; unchanged |
 
 ## Capabilities — current full evidence set (round 48)
 
