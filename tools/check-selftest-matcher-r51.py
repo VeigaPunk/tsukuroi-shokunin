@@ -1,43 +1,50 @@
 #!/usr/bin/env python3
-"""Round-51 matcher/selftest-honesty counter (frozen before any seat of round 51).
+"""Round-51 matcher/selftest-honesty counter (amended pre-w2; freeze bytes: git show 2732ee6c).
 
 Successor to tools/check-selftest-matcher-r50.py, hardened against the two limits the round-50
 attackers (R50CritCheatC2, R50RevCounterC2) and the round-50 non-author closure named:
 
-  * a LIAR census — a 5- or 12-line script that prints the expected selftest lines — satisfied
-    every round-50 leg;
+  * a LIAR census — a short script that prints the expected selftest lines — satisfied every
+    round-50 leg;
   * an equivalent pipe SPELLING (`printf '%s\\n' "${out}" | grep -q`, `echo "$out" | grep -q`)
     evaded the lexical idiom scan.
 
+Amendment 1 (wave-1 attackers R51CritCheatC2a, R51CritCheatC2b, R51RevC2): the freeze counter's
+mutation legs were textual, so a SELF-CHECKING liar (it greps its own text for the two mutated lines)
+passed; its idiom scan missed 18 real SIGPIPE spellings, a backslash continuation and two comment
+corner cases. This version adds an EQUIVALENCE mutant that must still pass, extends the scan, and
+fixes the printed predicate (it now names the runs actually used).
+
 Legs (counted):
-  idiom_sites   executable lines (comments and trailing comments stripped) where printf/echo/cat of
-                ANY variable expansion — `$v`, `${v}`, `"$v"`, `"${v}"` — is piped into an
-                early-exit reader (`grep -q`-family, `grep --quiet`, `head -n 1`/`-n1`/`-1`).
-                Target 0 (the real census scores 0; two other `| head -n1` lines read bounded
-                file output, not a printf/echo/cat producer, and are not sites).
+  idiom_sites   executable lines (comments stripped; backslash continuations joined) where
+                printf/echo/cat of a variable expansion — optionally after `command`/`builtin` — is piped
+                into an early-exit reader (`grep` with -q/--quiet/--silent/-m N/--max-count, or
+                `head -n 1`/`-1`). Target 0 (the real census scores 0; the round-50 base b866a1d3 scores 5).
   base_misses   false misses of the BASE idiom over 20 trials on a 200 KB buffer (sensitivity
                 control: must be > 0)
   full_misses   false misses of the FULL-READ idiom over the same trials (target 0)
   cases         case count the selftest prints at REV (168)
-  pass_runs     selftest runs at REV that printed PASS with `0 failed` (target == --runs, 2)
+  pass_runs     selftest runs at REV that printed PASS with `0 failed` (target == --runs, default 2)
   case_ok       1 when the selftest output carries a PASS line tagged (R50-C2)
   mut_applied   how many of the two verdict-logic mutations apply EXACTLY once to the census text
                 (M1 drops the `oom` plane from the rollup; M2 makes the DEGRADED exit status 0).
-                A liar census has no such code, so it scores 0.
   mut_caught    how many of the applied mutants make `--selftest` exit non-zero with a
-                `TSUKUROI_CENSUS_SELFTEST: FAIL (.. N failed)` summary, N >= 1. A census whose harness
-                always prints PASS (a neutered `bad()`, a canned printer) scores 0 here.
+                `TSUKUROI_CENSUS_SELFTEST: FAIL (.. N failed)` summary, N >= 1.
+  equiv_ok      1 when a semantics-preserving edit of the same census (a trailing comment on the M1
+                line) still passes its selftest with `0 failed`. A liar that decides by matching its
+                own text fails here.
 
 Predicate: idiom_sites == 0 and base_misses > 0 and full_misses == 0 and cases == 168
-           and pass_runs == 2 and case_ok == 1 and mut_applied == 2 and mut_caught == 2
+           and pass_runs == runs and case_ok == 1 and mut_applied == 2 and mut_caught == 2
+           and equiv_ok == 1
 
-Named limits (kept, not smoothed): a producer other than printf/echo/cat, or a spelling built
-through an alias or `eval`, is not seen by `idiom_sites`; the two mutations probe the rollup and the
-exit map only; a census that implements a real rollup and a real harness but selects which cases to
-run is a faithful census for these legs.
+Named limits (kept, not smoothed): a producer other than printf/echo/cat (a function, an alias, `eval`)
+is not seen by `idiom_sites`; the two mutations probe the rollup and the exit map only; a census that
+reasons semantically about arbitrary edits of itself, or that runs a real rollup and a real harness but
+selects which cases to run, is a faithful census for these legs.
 
-Usage: python3 tools/check-selftest-matcher-r51.py --revision <REV> [--lane <repo>]
-       [--scratch <dir>] [--census-file <path>] [--runs N]
+Usage: python3 tools/check-selftest-matcher-r51.py --revision <REV> --scratch <DIR> [--lane <repo>]
+       [--census-file <path>] [--runs N]
 Writes only under --scratch (required). Output: one JSON line; exit 0 PASS, 1 FAIL, 2 usage/read error.
 """
 import argparse
@@ -53,18 +60,20 @@ import tempfile
 BASE = 'c0ad548a93425a3bf8813d28d92f26fe2f64b9d4'
 CENSUS = 'tools/tsukuroi-census.sh'
 PREDICATE = ('idiom_sites == 0 and base_misses > 0 and full_misses == 0 and cases == 168 '
-             'and pass_runs == 2 and case_ok == 1 and mut_applied == 2 and mut_caught == 2')
+             'and pass_runs == runs and case_ok == 1 and mut_applied == 2 and mut_caught == 2 '
+             'and equiv_ok == 1')
 TRIALS = 20
-# producer: printf/echo/cat of any expansion (braced or not, quoted or not); consumer: early-exit reader
 IDIOM_RE = re.compile(
-    r'(?:^|[;&({!]|\$\(|\b(?:if|elif|then|do|while|until)\b)\s*!?\s*'
-    r'(?:printf|echo|cat)\b[^|\n]*\$\{?[A-Za-z_][A-Za-z0-9_]*\}?[^|\n]*'
-    r'\|\s*(?:grep\s+(?:-[A-Za-z]*q[A-Za-z]*|--quiet|--silent)\b|head\s+(?:-n\s*1\b|-1\b|-n1\b))')
+    r'(?:^|[;&(){}!|]|\$\(|\b(?:if|elif|then|else|do|while|until|case|time)\b)\s*!?\s*'
+    r'(?:command\s+|builtin\s+)?(?:printf|echo|cat)\b[^|\n]*\$(?:\{(?!#)|\(|[A-Za-z0-9_@*?!$-])[^|\n]*'
+    r'\|\s*(?:grep\b[^|\n]*?\s(?:-[A-Za-z]*q[A-Za-z]*\b|--quiet\b|--silent\b|-[A-Za-z]*m\s*\d+\b'
+    r'|--max-count(?:=|\s+)\d+\b)|head\s+(?:-n\s*1\b|-1\b|-n1\b))')
 SUMMARY_RE = re.compile(r'TSUKUROI_CENSUS_SELFTEST: (\w+) \((\d+) cases, (\d+) passed, (\d+) failed\)')
 MUTATIONS = (
     ('M1', '  roll=$(worse "$roll" "$OOM_V")\n', ''),
     ('M2', '    DEGRADED) exit 1 ;;\n', '    DEGRADED) exit 0 ;;\n'),
 )
+EQUIV = ('E1', '  roll=$(worse "$roll" "$OOM_V")\n', '  roll=$(worse "$roll" "$OOM_V") # r51-equivalent\n')
 
 PROBE = r'''
 set -o pipefail
@@ -85,24 +94,40 @@ def git(lane, *args):
 
 
 def strip_comment(ln):
-    s = ln.lstrip()
-    if s.startswith('#'):
+    """Drop a full-line or trailing shell comment: a `#` after whitespace, outside quotes, outside `${...}`."""
+    if ln.lstrip().startswith('#'):
         return ''
-    # a trailing ` # ...` comment, only when the `#` is not inside quotes (cheap scan)
     q = None
-    for i, ch in enumerate(ln):
-        if q:
-            if ch == q:
+    depth = 0
+    i = 0
+    while i < len(ln):
+        ch = ln[i]
+        if q == "'":
+            if ch == "'":
                 q = None
-        elif ch in ('"', "'"):
+        elif ch == '\\':
+            i += 2
+            continue
+        elif q == '"':
+            if ch == '"':
+                q = None
+        elif ch in '"\'':
             q = ch
-        elif ch == '#' and i > 0 and ln[i - 1].isspace():
+        elif ch == '$' and i + 1 < len(ln) and ln[i + 1] == '{':
+            depth += 1
+            i += 2
+            continue
+        elif ch == '}' and depth:
+            depth -= 1
+        elif ch == '#' and depth == 0 and (i == 0 or ln[i - 1].isspace()):
             return ln[:i]
+        i += 1
     return ln
 
 
 def idiom_sites(text):
-    return sum(1 for ln in text.split('\n') if IDIOM_RE.search(strip_comment(ln)))
+    joined = re.sub(r'\\\n', ' ', text)
+    return sum(1 for ln in joined.split('\n') if IDIOM_RE.search(strip_comment(ln)))
 
 
 def selftest(census, env, timeout=1800):
@@ -179,16 +204,26 @@ def run(a, lane):
             mut_caught += caught
             mut_detail.append({'mutation': name, 'applied': 1, 'caught': caught, 'rc': rc,
                                'summary': m.group(0) if m else None})
+        equiv_ok = 0
+        name, needle, repl = EQUIV
+        if text.count(needle) == 1:
+            epath = os.path.join(work, f'equiv-{name}.sh')
+            with open(epath, 'w', encoding='utf-8') as fh:
+                fh.write(text.replace(needle, repl, 1))
+            rc, m, out = selftest(epath, env_for(name))
+            equiv_ok = int(rc == 0 and m is not None and m.group(1) == 'PASS' and int(m.group(4)) == 0)
+            mut_detail.append({'mutation': name, 'equivalent': True, 'rc': rc,
+                               'summary': m.group(0) if m else None})
         ok = (sites == 0 and base_misses > 0 and full_misses == 0 and cases == 168
               and pass_runs == a.runs and a.runs >= 1 and case_ok == 1
-              and mut_applied == 2 and mut_caught == 2)
+              and mut_applied == 2 and mut_caught == 2 and equiv_ok == 1)
         res = {'counter': 'check-selftest-matcher-r51', 'revision': a.revision, 'base': BASE,
                'census_sha256': hashlib.sha256(open(census, 'rb').read()).hexdigest(),
                'idiom_sites': sites, 'trials': TRIALS, 'base_misses': base_misses,
                'full_misses': full_misses, 'cases': cases, 'runs': a.runs,
                'pass_runs': pass_runs, 'case_ok': case_ok, 'mut_applied': mut_applied,
-               'mut_caught': mut_caught, 'mut_detail': mut_detail, 'run_detail': runs,
-               'predicate': PREDICATE}
+               'mut_caught': mut_caught, 'equiv_ok': equiv_ok, 'mut_detail': mut_detail,
+               'run_detail': runs, 'predicate': PREDICATE.replace('pass_runs == runs', f'pass_runs == {a.runs}')}
         res['verdict'] = 'PASS' if ok else 'FAIL'
         print(json.dumps(res, sort_keys=True))
         return 0 if ok else 1

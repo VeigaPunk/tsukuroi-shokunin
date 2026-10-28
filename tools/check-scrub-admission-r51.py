@@ -7,6 +7,14 @@ cohort reads (a quote that drops a comment leader; a cited line outside a source
 ranges that the entry never names), and a fresh counted cohort of ONE wave (w2) reads GR1-GR3
 `holds` on the bytes frozen after the uncounted wave-1 pre-read.
 
+Amendment 1 (pre-w2, before any counted seat scored; freeze bytes: `git show 2732ee6c:<this file>`):
+the lint leg now calls `lint-grounding-r51.py`'s `evaluate()` (the amended lint, see its docstring);
+the citation leg still requires >= 2 distinct row-source files with resolving `file:line` citations
+in a report, but a citation of a basename that is neither a pinned row source nor a declared lane
+artifact (`LANE_FILES`, now including `host-btrfs-progs.txt`) is ignored instead of disqualifying
+(the round-49 failure mode: 17 of 18 real reports unbound by citations of their own scratch files);
+a row-source basename with a line that does not exist still disqualifies the report.
+
   structural_ok the bound extent of each row is `## GR<n>` up to the next `## ` heading,
                 one header each, no inner heading.
   lint_ok       rows clean under tools/lint-grounding-r51.py (quotes are the WHOLE pinned
@@ -71,7 +79,7 @@ HASH_RE = re.compile(r'SECTION SHA256: ([0-9a-f]{64})')
 CITE_RE = re.compile(r'\b([A-Za-z0-9_.@+-]+\.[a-z0-9]+):(\d+)\b')
 PREDICATE = ('structural_ok == 1 and lint_ok == 3 and quotes_ok == 3 and verdicts_ok == 3 '
              'and seats_ok == 18 and marks_ok == 3')
-CITE = {'GR1': ('cmdline.c', 'vsprintf.c', 'kstrtox.c', 'sysfs.c'),
+CITE = {'GR1': ('cmdline.c', 'vsprintf.c', 'kstrtox.c', 'sysfs.c', 'scrub.c'),
         'GR2': ('dev-replace.c', 'scrub.c', 'sysfs.c', 'ioctl.c'),
         'GR3': ('systemd.kill.xml', 'btrfs-scrub@.service', 'scrub.c', 'capture.txt')}
 # Lane/evidence artifacts a seat may cite besides the pinned kernel/doc snapshots: basename ->
@@ -89,6 +97,7 @@ LANE_FILES = {
     'lint-grounding-r51.py': ('tools/lint-grounding-r51.py',),
     'FROZEN.md': ('.ufo/waves/round-51/frozen/FROZEN.md',),
     'capture.txt': ('.ufo/waves/round-45/frozen/hostcap/capture.txt',),
+    'host-btrfs-progs.txt': ('.ufo/waves/round-51/host/host-btrfs-progs.txt',),
 }
 
 
@@ -191,28 +200,14 @@ def snapshots(lane, rev):
 
 def lint_legs(entry, sources, cache):
     """Run the committed lint over the entry bytes; return (lint_ok, quotes_ok, detail)."""
-    per, gaps = LINT.analyze(entry, sources, cache)
-    decl = LINT.declared_gaps(entry)
-    missing, extra = [], []
-    if decl is None:
-        missing = [f'{k[0]} {k[1]}' for k in sorted(gaps)]
-        extra = ['no gap block']
-    else:
-        for key, nums in gaps.items():
-            if nums - decl.get(key, set()):
-                missing.append(f'{key[0]} {key[1]}')
-        for key, nums in decl.items():
-            if key[0] == '?' or nums - gaps.get(key, set()):
-                extra.append(f'{key[0]} {key[1]}')
-    snap_missing = [f'{sid} {f}' for sid, files in SNAPSHOTS.items() for f in files
-                    if (sid, f) not in cache]
-    gap_ok = not missing and not extra and not snap_missing
-    rows_clean = sum(1 for r in ROWS if not per[r]['problems'])
+    res = LINT.evaluate(entry, sources, cache,
+                        [f'{sid} {f}: snapshot absent or digest moved'
+                         for sid, files in SNAPSHOTS.items() for f in files if (sid, f) not in cache])
+    per = res['per_row']
     quotes_ok = sum(1 for r in ROWS if per[r]['quotes'] > 0 and per[r]['quote_bad'] == 0)
-    return (rows_clean if gap_ok else 0), quotes_ok, {
-        'rows_clean': rows_clean, 'gap_missing': missing, 'gap_extra': extra,
-        'snapshots_missing': snap_missing,
-        'per_row': {r: {k: v for k, v in per[r].items()} for r in ROWS}}
+    detail = {k: v for k, v in res.items() if k not in ('_gaps', 'per_row')}
+    detail['per_row'] = {r: dict(per[r]) for r in ROWS}
+    return res['lint_ok'], quotes_ok, detail
 
 
 def verify_citation(cache, fname, lineno, lane=None, rev=None):
@@ -231,7 +226,9 @@ def verify_citation(cache, fname, lineno, lane=None, rev=None):
                 return True, f'resolves in {path}'
             return False, f'{fname}:{lineno} outside {path} ({n} lines)'
         return False, f'{fname} declared but absent at REV'
-    return False, f'{fname} is neither a pinned snapshot nor a declared lane artifact'
+    # a basename that is neither a pinned row source nor a declared lane artifact (a seat's own
+    # scratch file, a sibling report) is not evidence for the row and is ignored, not disqualifying
+    return True, f'{fname} is not a row source or declared artifact: ignored'
 
 
 def report_citations_ok(cache, body, row, lane=None, rev=None):

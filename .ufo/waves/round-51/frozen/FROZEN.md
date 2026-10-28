@@ -77,3 +77,58 @@ Lane repo `/home/vgpnk/Projects/shokunin/tsukuroi-shokunin` (git `master`, jj-co
 exit; no git/jj mutation outside a throwaway fixture repo under that scratch dir; tooling authorization with the
 pacman pause (install via `uv tool`/`npx`/official `~/.local/bin` binary only). Relative `Report:` trailers land
 under the lane root.
+
+## Amendment 1 (pre-w2: after wave w1 settled its attacks, before the counted cohort and before the final measurement)
+
+Wave `w1` (54 seats, `w1-dispatch.json`) attacked the frozen instruments and pre-read the rows. No claim has
+been scored: the counted cohort is in `w2`, and the integrated measurements are taken after `w2`. The w1
+findings below change the instruments and the row bytes once, here, and every change is recorded with its
+source. Freeze bytes stay in git (`git show 2732ee6c:<path>`); the freeze hashes are in `FROZEN-hashes.txt`,
+the amended ones in `FROZEN-hashes-amend1.txt`.
+
+**C1 — entry rows** (`corpus/knowledge/btrfs-scrub-grounding-r45.md`): the twelve uncounted pre-read seats
+`R51W1Pre{Rev,Crit}GR{1,2,3}{a,b}` found, on the freeze bytes, defects of one class: clauses whose only support
+sat on an uncited line (GR1: the suffix cases, the digit scan, `skip_spaces`, the `0` limit, the unit; GR3: the
+signal source lines 84-85/109/112, the SIGHUP step, `-B`, the handler window scrub.c:1546-1710, the host side of
+btrfs-progs) and the GR2 universal `any call` and the replace-state sentence of its host reading. All were applied
+(GR1/GR2/GR3 rewritten; row hashes are re-printed at the amendment revision); the host side of GR3 rests on a new
+read-only receipt `.ufo/waves/round-51/host/host-btrfs-progs.txt` (`pacman -Q btrfs-progs` 7.1-1, `btrfs
+--version` v7.1, `SendSIGHUP=no`, the installed unit file's sha256 equals the S244 snapshot's). The entry's
+`recheck:` command moves from the round-45 counter (it has no S240 snapshot key and compares quotes without
+whitespace normalisation; `R51ExecLintFresh`) to the round-51 lint. The `### Range gaps (R51)` block is
+regenerated with `python3 tools/lint-grounding-r51.py --emit-gaps`.
+
+**C1 — lint and counter** (`R51RevLint`, `R51CritLintCheat`, `R51MutLintA/B`): the freeze lint missed parenthesised
+colon-led citations, dash variants, unmapped basenames, non-canonical spellings (`line N of file`), malformed and
+empty quotes, quotes outside the rows, quote labels naming the wrong source row, duplicate gap keys, range bloat,
+and a widenable SOURCES.md anchor; the freeze counter's citation leg disqualified a report for citing its own
+scratch file. All closed: the lint is rewritten (`evaluate()`; pinned declared ranges; canonical citations), the
+counter calls it and ignores non-row-source citations (a row-source citation to a nonexistent line still
+disqualifies). The C1 predicate is unchanged: `structural_ok == 1 and lint_ok == 3 and quotes_ok == 3 and
+verdicts_ok == 3 and seats_ok == 18 and marks_ok == 3`.
+
+**C2** (`R51CritCheatC2a/b`, `R51RevC2`): a self-checking liar passed the freeze matcher counter (`liar2.sh`:
+`mut_applied 2, mut_caught 2`), 18 real SIGPIPE spellings scored `idiom_sites 0`, and the scorer ran the mutable
+working tree. Added: the equivalence mutant `E1` (`equiv_ok == 1`), the broader idiom scan, a fifth cheat (the
+self-checking liar), counters materialised from the revision, JSON errors. **The C2 predicate changes from
+`cheats == 4 and cheats_rejected == 4` to `cheats == 5 and cheats_rejected == 5`** (the strictest direction: one
+more cheat must be rejected); the matcher gains `equiv_ok == 1`.
+
+**C3** (`R51RevC3`, `R51CritCheatC3a/b`): the freeze counter bound only the last of a duplicated row, scanned the
+whole file for the digest list, ran a mutable checker, ignored `--lane` and `--no-base-check`, and accepted a
+coordinated relink and an off-master pin. Added legs `anchor_rows_exact`, `adj_exact`, `bare_all`,
+`checker_rev_bytes`, `ancestry_ok == 10`, `recipient_ok == 7`; the override gate now includes `--lane`,
+`--no-base-check` and git/python redirection environment (not an unrelated `GIT_PAGER`). The C3 predicate gains
+`anchor_rows_exact == 1 and adj_exact == 1 and bare_all == 0 and ancestry_ok == 10 and recipient_ok == 7`; no
+earlier conjunct is dropped or loosened.
+
+**Named limits left open** (reported, not closed): a coordinated forgery that swaps a quote for another REAL
+sentence of the same pinned blob (C3: bytes-bound, not proposition-bound); a PATH/sitecustomize shim that changes
+what git returns (C3); a liar that reasons semantically about arbitrary edits of itself, a producer that is a
+function, alias or `eval` (C2); a clause the pre-read and the cohort both misjudge (C1: the lint checks quotes and
+citations, not truth).
+
+**Controls**: the C1 battery gains K9-K11 and A1-A7/G1/G2/D2/Q3/Q4/Q6/H8 (lint cheats); the C3 battery gains K6-K13.
+All run at the amendment revision (`battery-summary-r51-amend1-c{1,2,3}.jsonl`). The before-receipt for C2 is
+re-taken at the amendment revision (the census is byte-identical to the base: `git diff c0ad548a <AMEND> --stat --
+tools/tsukuroi-census.sh` is empty), and the round-50 counter still rejects none of the five cheats.

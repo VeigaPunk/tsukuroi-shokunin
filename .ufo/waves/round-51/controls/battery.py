@@ -110,7 +110,7 @@ def c1_battery(freeze, scratch):
     out = []
 
     def score(name, expect, tag, entry_text, hashes_used=None, verdicts=None, bodies=None, roles=None,
-              cohort=True, results_empty=False, **kw):
+              cohort=True, results_empty=False, sources=None, **kw):
         d = os.path.join(scratch, f'c1-{tag}')
         os.makedirs(d, exist_ok=True)
         wave = build_cohort(d, hashes_used or hashes, verdicts=verdicts, bodies=bodies, roles=roles,
@@ -123,6 +123,8 @@ def c1_battery(freeze, scratch):
                '--entry-file', paths['entry.md'], '--skill-file', paths['skill.md'],
                '--readme-file', paths['readme.md'], '--dispatch-file', os.path.join(d, 'dispatch.json'),
                '--results-file', os.path.join(d, 'results.json'), '--wave-dir', wave]
+        if sources:
+            cmd += ['--sources-file', sources]
         rc, obj = run_json(cmd)
         got = obj.get('verdict')
         out.append({'control': name, 'expected': expect, 'got': got, 'rc': rc, 'as_expected': got == expect,
@@ -132,19 +134,40 @@ def c1_battery(freeze, scratch):
 
     score('K0 base entry, no cohort', 'FAIL', 'k0', base_entry, cohort=False)
     score('K1 corrected entry + marks, no cohort', 'FAIL', 'k1', entry, cohort=False)
-    # K2: all-holds cohort on bytes whose cmdline.c:147 quote drops its comment leader (the round-50 defect)
-    bad = entry.replace('"* potentially suffixed with K, M, G, T, P, E."', '"potentially suffixed with K, M, G, T, P, E."')
-    assert bad != entry
-    score('K2 all-holds cohort, dropped comment leader', 'FAIL', 'k2', bad, hashes_used=section_hashes(freeze, _w(scratch, 'k2h', bad)))
-    # K3: all-holds cohort on bytes citing a line outside the declared ranges that the gap block omits
+
+    def mut(name, tag, text, sources=None):
+        """An all-holds cohort on mutated entry bytes: the lint/quote legs alone must FAIL it."""
+        assert text != entry, name
+        score(name, 'FAIL', tag, text, hashes_used=section_hashes(freeze, _w(scratch, f'{tag}h', text)),
+              sources=sources)
+
+    # K2: the cmdline.c:147 quote drops its comment leader (the round-50 defect)
+    mut('K2 all-holds cohort, dropped comment leader', 'k2',
+        entry.replace('"* potentially suffixed with K, M, G, T, P, E."', '"potentially suffixed with K, M, G, T, P, E."'))
+    # K3: a cited line outside the declared ranges that the gap block omits
     anchor = 'scrub.c:3094-3153'
-    bad3 = entry.replace(anchor, anchor + ' and :3200', 1)
-    assert bad3 != entry
-    score('K3 all-holds cohort, undeclared range gap', 'FAIL', 'k3', bad3, hashes_used=section_hashes(freeze, _w(scratch, 'k3h', bad3)))
-    # K3b: a quote that is a fragment of its line, not the whole line
-    bad3b = entry.replace('"if (btrfs_fs_closing(fs_info))"', '"btrfs_fs_closing(fs_info)"', 1)
-    assert bad3b != entry
-    score('K3b all-holds cohort, fragment quote', 'FAIL', 'k3b', bad3b, hashes_used=section_hashes(freeze, _w(scratch, 'k3bh', bad3b)))
+    mut('K3 all-holds cohort, undeclared range gap', 'k3', entry.replace(anchor, anchor + ' and :3200', 1))
+    # K3b: a quote that is a fragment of its line
+    mut('K3b all-holds cohort, fragment quote', 'k3b', entry.replace('"if (btrfs_fs_closing(fs_info))"', '"btrfs_fs_closing(fs_info)"', 1))
+    # amendment-1 controls, from the wave-1 attackers R51RevLint and R51CritLintCheat
+    mut('K9 declared-but-uncited gap line', 'k9', entry.replace('- S247 dev-replace.c: 309, 970, 1197, 1236-1242', '- S247 dev-replace.c: 309, 970, 1197, 1198, 1236-1242', 1))
+    mut('K10 unresolvable prose cite', 'k10', entry.replace('btrfs-scrub@.service:9)', 'btrfs-scrub@.service:9, btrfs-scrub@.service:999)', 1))
+    mut('A1 non-canonical spelling `lines N to M`', 'a1', entry.replace('(scrub.c:3094-3153)', '(scrub.c lines 3200 to 3250)', 1))
+    mut('A3 space before the colon, undeclared line', 'a3', entry.replace('(scrub.c:3094-3153)', '(scrub.c :3094-3153 and scrub.c :3200)', 1))
+    mut('A4 `line N of file`', 'a4', entry.replace('(scrub.c:3094-3153)', '(line 3200 of scrub.c)', 1))
+    mut('A5 en-dash range hides lines', 'a5', entry.replace('(scrub.c:3094-3153)', '(scrub.c:3094\u20133160)', 1))
+    mut('A7 unmapped basename', 'a7', entry.replace('(scrub.c:3094-3153)', '(scrub.c:3094-3153; volumes.c:6100)', 1))
+    mut('G1 range bloat plus regenerated block', 'g1', entry.replace('(scrub.c:3094-3153)', '(scrub.c:1-3337)', 1))
+    mut('G2 duplicate gap key hides bloat', 'g2', entry.replace('- S242 scrub.c: 1400-1401, 3081, 3094-3139, 3250-3253', '- S242 scrub.c: 1-3337\n- S242 scrub.c: 1400-1401, 3081, 3094-3139, 3250-3253', 1))
+    mut('D2 empty quote of a blank source line', 'd2', entry.replace('**Quote.** `S246` cmdline.c:147: "* potentially suffixed with K, M, G, T, P, E."', '**Quote.** `S246` cmdline.c:152: ""', 1))
+    mut('Q3 quote outside every row', 'q3', entry.replace('## How this changes OS triage', '**Quote.** `S242` scrub.c:3153: "ret = -EINPROGRESS;"\n\n## How this changes OS triage', 1))
+    mut('Q4 quote labelled with the wrong source row', 'q4', entry.replace('`S247` dev-replace.c:700:', '`S237` dev-replace.c:700:', 1))
+    mut('Q6 bullet-prefixed quote line', 'q6', entry.replace('**Quote.** `S246` cmdline.c:156:', '- **Quote.** `S246` cmdline.c:156:', 1))
+    # H8: a widened SOURCES.md anchor must not remove a gap (the ranges are pinned in the lint)
+    sources = git_show(freeze, 'corpus/SOURCES.md')
+    widened = sources.replace('cmds/scrub.c lines 67-70,', 'cmds/scrub.c lines 421, 439, 442, 1247, 1292-1293, 1546, 1710, 67-70,', 1)
+    assert widened != sources
+    score('H8 widened SOURCES.md anchor, same entry', 'FAIL', 'h8', entry, sources=_w(scratch, 'h8src', widened))
     score('K4 one bound partly', 'FAIL', 'k4', entry, verdicts={'R51CritGR2b': 'partly'})
     c1, c2 = CITE['GR2']
     same = f'The cited lines {c1} and {c2} decide the statement of this row. ' + 'Evidence. ' * 40
@@ -156,6 +179,11 @@ def c1_battery(freeze, scratch):
     lane_only = {s: 'Only lane artifacts are cited here: entry.md:5 and SHA256SUMS:2 decide it. '
                     + 'Padding sentence. ' * 20 for s in ROLES['GR2']}
     score('K8 lane-artifact citations only', 'FAIL', 'k8', entry, bodies=lane_only)
+    # a report that cites a real row source on a line that does not exist is disqualified
+    c1x, c2x = CITE['GR2']
+    badcite = {s: f'The statement rests on dev-replace.c:99999 and scrub.c:3094 as read. ' + 'Padding sentence. ' * 20
+               for s in ROLES['GR2']}
+    score('K11 row-source citation to a nonexistent line', 'FAIL', 'k11', entry, bodies=badcite)
     score('K-pass corrected entry + marks + 18 valid reports', 'PASS', 'pass', entry)
     return out
 
@@ -196,8 +224,14 @@ def c3_battery(freeze, scratch):
     d = os.path.join(scratch, 'c3')
     os.makedirs(d, exist_ok=True)
 
-    def score(name, expect, extra, want_rc=None):
-        rc, obj = run_json([sys.executable, C3, '--revision', freeze, '--no-base-check'] + extra)
+    def score(name, expect, extra, want_rc=None, env=None, base_check=True):
+        e = dict(os.environ, **env) if env else None
+        cmd = [sys.executable, C3, '--revision', freeze] + (['--no-base-check'] if base_check else []) + extra
+        p = subprocess.run(cmd, capture_output=True, text=True, timeout=3600, env=e)
+        try:
+            rc, obj = p.returncode, json.loads(p.stdout.strip().split('\n')[-1])
+        except Exception:
+            rc, obj = p.returncode, {'error': (p.stdout + p.stderr)[-400:], 'verdict': 'ERROR'}
         got = obj.get('verdict')
         ok = got == expect and (want_rc is None or rc == want_rc)
         out.append({'control': name, 'expected': expect, 'got': got, 'rc': rc, 'as_expected': ok,
@@ -235,7 +269,40 @@ def c3_battery(freeze, scratch):
     assert badd != prov
     pd = _w(d, 'mutated-digest-list', badd)
     score('K5 displayed OUT-010 digest altered', 'CONTROL-FAIL', ['--control', '--province-file', pd])
-    score('K-pass real province and registry, measurement mode', 'PASS', [])
+    # ---- amendment-1 controls (wave-1 attackers R51RevC3, R51CritCheatC3a, R51CritCheatC3b) ----
+    dup = prov.replace('| OUT-009 |', '| OUT-009 | ADJ-06 | `revenger-shokunin/PROVINCE.md`@ `df02419276e5` | `# revenger province` | Owns: reverse engineering of shipped artifacts | false first row |\n| OUT-009 |', 1)
+    assert dup != prov
+    score('K6 duplicate displayed OUT-009 row (no-space spelling)', 'CONTROL-FAIL',
+          ['--control', '--province-file', _w(d, 'dup-anchor', dup)])
+    true_line = [ln for ln in prov.split('\n') if ln.startswith('- OUT-009 ')][0]
+    shadow = prov.replace(true_line, true_line.replace('sha256 63acc3', 'sha256 73acc3', 1), 1)
+    shadow = shadow.replace('Limits (round-19', true_line + '\n\nLimits (round-19', 1)
+    assert shadow != prov
+    score('K7 shadowed digest-list line', 'CONTROL-FAIL', ['--control', '--province-file', _w(d, 'digest-shadow', shadow)])
+    relink = prov.replace('`OUT-006`, `OUT-007`', '`OUT-002`', 1)
+    if relink == prov:
+        relink = prov.replace('`OUT-006`', '`OUT-002`', 1)
+    assert relink != prov
+    score('K8 ADJ-05 relinked to another sibling anchor', 'CONTROL-FAIL', ['--control', '--province-file', _w(d, 'relink', relink)])
+    score('K9 --lane override without --control', 'OVERRIDE-NOT-MEASURED', ['--lane', d], want_rc=3)
+    score('K10 --no-base-check without --control', 'OVERRIDE-NOT-MEASURED', [], want_rc=3)
+    score('K11 GIT_DIR redirection without --control', 'OVERRIDE-NOT-MEASURED', [], want_rc=3,
+          env={'GIT_DIR': os.path.join(d, 'nowhere')}, base_check=False)
+    # in-process legs: an off-master pin and a relinked recipient fail their leg, the real tables pass
+    regd = {r['id']: r for r in json.loads(reg)['outbound']}
+    anc_real = adj.ancestry_ok(regd, adj.R50.SIBLINGS)
+    regd2 = {k: dict(v) for k, v in regd.items()}
+    regd2['OUT-006']['sibling_commit'] = '4bc966c4febd9ada521b91897b90dfde09e71ef1'
+    anc_off = adj.ancestry_ok(regd2, adj.R50.SIBLINGS)
+    adj_rows, anchors = adj.parse_tables(prov)
+    rec_real = adj.recipient_ok(adj_rows, anchors, regd)
+    adj_rows2, anchors2 = adj.parse_tables(relink)
+    rec_relink = adj.recipient_ok(adj_rows2, anchors2, regd)
+    for name, got, want in (('K12 off-master pin fails ancestry_ok (10 -> 9)', (anc_real, anc_off), (10, 9)),
+                            ('K13 relinked ADJ-05 fails recipient_ok (7 -> 6)', (rec_real, rec_relink), (7, 6))):
+        out.append({'control': name, 'expected': str(want), 'got': str(got), 'rc': 0,
+                    'as_expected': got == want, 'legs': {'real_vs_forged': got}})
+    score('K-pass real province and registry, measurement mode', 'PASS', [], base_check=False)
     return out
 
 

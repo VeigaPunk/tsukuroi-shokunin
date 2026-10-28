@@ -1,6 +1,6 @@
 source: S246 S247 S248 S249 S242 S243 S244 S237 S240 (rows in `corpus/SOURCES.md`; S246 is Linux v7.2.11 `lib/cmdline.c`, `lib/vsprintf.c` and `lib/kstrtox.c`, S247 Linux v7.2.11 `fs/btrfs/dev-replace.c`, S248 systemd v262 `man/systemd.kill.xml`, snapshots `.ufo/waves/round-45/frozen/src/`, digests in its `SHA256SUMS`, fetch log `FETCH.txt`; S240 is Linux v7.2.11 `fs/btrfs/ioctl.c`, snapshot `.ufo/waves/round-43/frozen/src/ioctl.c`, sha256 7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01 (round 50: the row cites it at ioctl.c:3093-3095, :3109-3110, :3115, :3132-3133 and :3190); S249 is the host capture `.ufo/waves/round-45/frozen/hostcap/capture.txt`, sha256 f5958a83b7cf1e2e438ac1b543f1c521f3f9370287fc4c4bcea38947c3991e70; S242 and S243 are `.ufo/waves/round-44/frozen/src/scrub.c` and `sysfs.c`, S244 that directory's `btrfs-scrub@.service`, S237 `.ufo/waves/round-42/frozen/src/scrub.c`)
 verified-at: 2026-10-27 (Linux tag v7.2.11, peeled commit a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea; systemd tag v262, peeled commit 8cc40e0c5e9234bf45084751ac53b1fbfe70b492; host systemd 262-1-arch, kernel 7.2.11-arch1-1; capture 2026-10-27T02:09:52Z)
-recheck: on-release — re-fetch the URLs in `.ufo/waves/round-45/frozen/src/FETCH.txt` and compare `sha256sum` with its `SHA256SUMS`; re-run `bash .ufo/waves/round-45/frozen/hostcap/capture.sh <file>` (unprivileged, read-only); `python3 tools/check-scrub-grounding-r45.py --revision <REV>`
+recheck: on-release — re-fetch the URLs in `.ufo/waves/round-45/frozen/src/FETCH.txt` and compare `sha256sum` with its `SHA256SUMS`; re-run `bash .ufo/waves/round-45/frozen/hostcap/capture.sh <file>` (unprivileged, read-only); `python3 tools/lint-grounding-r51.py --revision <REV>` (since round 51 the rows' mechanical check; `tools/check-scrub-grounding-r45.py` is the round-45 instrument, retired for this entry because it has no S240 snapshot key and compares quotes without whitespace normalisation)
 
 # The btrfs scrub record, round 45: grounding three round-44 inferences
 
@@ -13,16 +13,25 @@ starts, stops or enables a unit, runs a scrub or a replace, or calls a privilege
 
 ## GR1
 
-**Statement.** In Linux v7.2.11 a write to `devinfo/<devid>/scrub_speed_max` is parsed by `memparse` (SR8), which
-calls `simple_strtoull` with base 0; `simple_strtoull` resolves base 0 through `_parse_integer_fixup_radix`, which
-picks hexadecimal for a leading `0x` or `0X` followed by a hex digit, octal for any other leading `0`, and decimal otherwise.
-After the digits, `memparse` takes at most one suffix letter, `K`, `M`, `G`, `T`, `P` or `E` in either case, each
-step multiplying by a further 1024 (a 10-bit shift per step, so `K` is 1024, not 1000); the suffix counts only when
-at least one digit came before it, and a shifted value that overflows becomes `ULLONG_MAX`. The sysfs store then
-skips whitespace and returns `-EINVAL` unless the text ends there. So `100M` and `100m` both set 104857600 bytes per
-second, `010` sets 8 and `0x10` sets 16; `10MB` (a second letter), `10 M` (a blank before the suffix) and `-1` are
-rejected with `EINVAL`; and a write of a bare newline parses as 0 and is accepted, which removes the limit (0 means
-no limit, SR8).
+**Statement.** In Linux v7.2.11 a write to `devinfo/<devid>/scrub_speed_max` is parsed by `memparse` (sysfs.c:2040),
+which calls `simple_strtoull` with base 0 (cmdline.c:156). `simple_strtoull` passes the base to `simple_strntoull`
+(vsprintf.c:114), which resolves base 0 through `_parse_integer_fixup_radix` (vsprintf.c:86): hexadecimal for a leading
+`0x` or `0X` followed by a hex digit (kstrtox.c:30-31), octal for any other leading `0` (kstrtox.c:33), and decimal
+otherwise (kstrtox.c:35); the `0x` prefix is then skipped (kstrtox.c:37-38). The digit scan stops at the first character
+that is not a digit of that base (kstrtox.c:70, kstrtox.c:75, kstrtox.c:77) and the end pointer is advanced over the
+digits it took (vsprintf.c:91), so a leading `-` consumes nothing. After the digits, `memparse` takes at most one suffix
+letter (cmdline.c:193), `K`, `M`, `G`, `T`, `P` or `E` in either case (cmdline.c:161-184), each arm adding a 10-bit shift
+and falling through to the arms below it (cmdline.c:183 is the `K` arm's shift), so `K` is 1024, not 1000; the suffix
+counts only when at least one digit came before it (cmdline.c:189), and a shifted value that overflows becomes
+`ULLONG_MAX` (cmdline.c:191-192). The sysfs store then calls `skip_spaces` (sysfs.c:2042) [inference: `skip_spaces` is
+defined outside the pinned files; it is taken to skip `isspace()` characters, which covers the trailing newline of an
+`echo`] and returns `-EINVAL` (sysfs.c:2044) unless the text ends there (sysfs.c:2043). So `100M` and `100m` both set
+the value 104857600 (100 times 2^20), `010` sets 8 and `0x10` sets 16; `10MB` (a second letter), `10 M` (a blank before
+the suffix) and `-1` are rejected with `EINVAL`; and a write of a bare newline parses as 0 and is accepted [inference:
+that the sysfs write buffer is NUL-terminated after the newline, which sysfs.c:2043 assumes, is not shown by any pinned
+file], which removes the limit: the throttle returns at once when the limit is 0 (scrub.c:1381-1382). The limit is a
+bandwidth limit over a one-second timeslice (scrub.c:1368-1369) [inference: the unit is bytes per second; scrub.c:1400-1401
+compares a byte count, `bio_size`, with it, outside the declared range and not quoted].
 
 **Quote.** `S246` cmdline.c:147: "* potentially suffixed with K, M, G, T, P, E."
 
@@ -30,13 +39,25 @@ no limit, SR8).
 
 **Quote.** `S246` cmdline.c:159: "/* Consume valid suffix even in case of overflow. */"
 
+**Quote.** `S246` cmdline.c:177: "case 'M':"
+
+**Quote.** `S246` cmdline.c:178: "case 'm':"
+
+**Quote.** `S246` cmdline.c:183: "shl += 10;"
+
 **Quote.** `S246` cmdline.c:189: "if (shl && likely(ptr != endptr)) {"
 
 **Quote.** `S246` cmdline.c:191: "if (unlikely(check_shl_overflow(ret, shl, &ret)))"
 
 **Quote.** `S246` cmdline.c:192: "ret = ULLONG_MAX;"
 
+**Quote.** `S246` cmdline.c:193: "endptr++;"
+
 **Quote.** `S246` vsprintf.c:86: "cp = _parse_integer_fixup_radix(startp, &base);"
+
+**Quote.** `S246` vsprintf.c:91: "cp += (rv & ~KSTRTOX_OVERFLOW);"
+
+**Quote.** `S246` vsprintf.c:114: "return simple_strntoull(cp, endp, base, INT_MAX);"
 
 **Quote.** `S246` kstrtox.c:29: "if (s[0] == '0') {"
 
@@ -44,14 +65,40 @@ no limit, SR8).
 
 **Quote.** `S246` kstrtox.c:33: "*base = 8;"
 
+**Quote.** `S246` kstrtox.c:35: "*base = 10;"
+
+**Quote.** `S246` kstrtox.c:37: "if (*base == 16 && s[0] == '0' && _tolower(s[1]) == 'x')"
+
+**Quote.** `S246` kstrtox.c:38: "s += 2;"
+
+**Quote.** `S246` kstrtox.c:70: "if ('0' <= c && c <= '9')"
+
+**Quote.** `S246` kstrtox.c:75: "break;"
+
+**Quote.** `S246` kstrtox.c:77: "if (val >= base)"
+
 **Quote.** `S243` sysfs.c:2040: "limit = memparse(buf, &endptr);"
+
+**Quote.** `S243` sysfs.c:2042: "endptr = skip_spaces(endptr);"
 
 **Quote.** `S243` sysfs.c:2043: "if (*endptr != 0)"
 
-**Host reading.** The host's one btrfs device (devid 1) reads `scrub_speed_max` 0, mode 644, owner root
-(capture.txt:8), as uid 1000 with no effective capabilities (capture.txt:1): no limit is set, and this caller
-[inference: by ordinary file-mode checks, which the capture does not exercise; ACLs and LSM rules are not captured]
-cannot write one. Nothing was written to test the parse; the examples above follow from the quoted code.
+**Quote.** `S243` sysfs.c:2044: "return -EINVAL;"
+
+**Quote.** `S242` scrub.c:1368: "* Throttling of IO submission, bandwidth-limit based, the timeslice is 1"
+
+**Quote.** `S242` scrub.c:1369: "* second. Limit can be set via /sys/fs/UUID/devinfo/devid/scrub_speed_max."
+
+**Quote.** `S242` scrub.c:1381: "if (bwlimit == 0)"
+
+**Quote.** `S242` scrub.c:1382: "return;"
+
+**Host reading.** The host's one btrfs device (devid 1, capture.txt:9) reads `scrub_speed_max` 0, mode 644, owner root
+(capture.txt:8), as uid 1000 with no effective capabilities (capture.txt:1): under the quoted code no limit is set
+[inference: that the Arch 7.2.11-arch1-1 kernel carries this upstream code unchanged is carried from the Limits
+section], and this caller [inference: by ordinary file-mode checks, which the capture does not exercise; ACLs and LSM
+rules are not captured] cannot write one. Nothing was written to test the parse; the examples above follow from the
+quoted code.
 
 ## GR2
 
@@ -72,8 +119,8 @@ is true when the replace data is valid (`is_valid`, dev-replace.c:1278-1279) and
 (dev-replace.c:1286-1287); a replace suspended by an unmount still counts, per the comment at dev-replace.c:1288-1297.
 So while a replace is ongoing in that sense, a scrub start that is not a replace and gets past the earlier checks (a
 present device, writeable unless read-only, in the filesystem metadata, not the replace target) is refused with
-`-EINPROGRESS` and no scrub is started; any call, replace or not, is refused the same way while its device already
-carries a scrub context.
+`-EINPROGRESS` and no scrub is started; any call that gets past the earlier checks above, replace or not, is refused the
+same way while its device already carries a scrub context.
 
 The scrub-start ioctl `btrfs_ioctl_scrub` answers before it calls `btrfs_scrub_dev` with `-EPERM` for a caller without
 `CAP_SYS_ADMIN` (ioctl.c:3072-3073), `-EINVAL` on an extent-tree-v2 filesystem (:3075-3078), the error of `memdup_user`
@@ -166,34 +213,56 @@ device carries the context the copy attached.
 **Quote.** `S243` sysfs.c:2015: "val = !!test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);"
 
 **Quote.** `S247` dev-replace.c:1235: "if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {"
+**Quote.** `S247` dev-replace.c:309: "set_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);"
 
+**Quote.** `S247` dev-replace.c:970: "clear_bit(BTRFS_DEV_STATE_REPLACE_TGT, &tgt_device->dev_state);"
 
-**Host reading.** The filesystem lists devid 1 only (capture.txt:9) and the caller has no effective capabilities
-(capture.txt:1), so the privileged progress query is out of its reach (the `CAP_SYS_ADMIN` check in the
-scrub-progress ioctl, ioctl.c:3132, `-EPERM` at :3133). Replace state is still readable without
-privilege through sysfs, which this capture does not record: the filesystem's `exclusive_operation` names
-`device replace` while a replace holds the exclusive operation (sysfs.c:1288; the resume path takes it at
-dev-replace.c:1235, and the replace ioctl takes it around the start, S240 ioctl.c:3190), and
-`devinfo/<devid>/replace_target` reads 1 on the replace's target device (sysfs.c:2015).
-Read on this host by wave seat C2ExecHostRecheck on 2026-10-27 (`.ufo/waves/round-45/a2w1/C2ExecHostRecheck.md`
-§3), both files are mode 444 and read `none` and `0`. The kernel rules of the row are read from source.
+**Quote.** `S243` sysfs.c:78: "__INIT_KOBJ_ATTR(_name, 0444, _show, NULL)"
+
+**Quote.** `S243` sysfs.c:1302: "BTRFS_ATTR(, exclusive_operation, btrfs_exclusive_operation_show);"
+
+**Quote.** `S243` sysfs.c:2019: "BTRFS_ATTR(devid, replace_target, btrfs_devinfo_replace_target_show);"
+
+**Host reading.** The caller has no effective capabilities (capture.txt:1), so the privileged progress query is out of
+its reach (the `CAP_SYS_ADMIN` check in the scrub-progress ioctl, ioctl.c:3132, `-EPERM` at ioctl.c:3133). Two sysfs
+files report part of the replace activity to an unprivileged reader; both are registered with `BTRFS_ATTR`, whose mode
+is 0444 (sysfs.c:78; registered at sysfs.c:1302 and sysfs.c:2019). `exclusive_operation` names `device replace` while a
+replace holds the exclusive operation (sysfs.c:1288; the resume path takes it at dev-replace.c:1235, and the replace
+ioctl takes it around the start, ioctl.c:3190), and `devinfo/<devid>/replace_target` reads 1 on the replace's target
+device (sysfs.c:2015), whose target bit the target-device setup sets (dev-replace.c:309) and the finish path clears
+(dev-replace.c:970). Neither file reports the replace state itself: a replace that the resume path set to suspended
+without taking the exclusive operation (dev-replace.c:1235-1242) shows in neither, although the Statement counts it as
+ongoing. This capture does not record the two files; the round-45 host recheck
+(`.ufo/waves/round-45/a2w1/C2ExecHostRecheck.md` §3) read both as mode 444 on this host with the values `none` and `0`.
+The kernel rules of the row are read from source.
 
 ## GR3
 
 **Statement.** Stopping the packaged scrub service (`systemctl stop btrfs-scrub@<instance>.service`) signals the
-running `btrfs scrub start -B` in this order under systemd v262. First the unit's `KillSignal=`, which this unit sets
-to SIGINT instead of the SIGTERM default; because the unit sets no `KillMode=`, the default `control-group` applies
-and every remaining process in the unit's control group receives it. Right after that signal systemd sends SIGCONT.
-If processes remain once `TimeoutStopSec=` has passed, the request is repeated with SIGKILL (`FinalKillSignal=`,
-unless `SendSIGKILL=no`). On this host the unit's effective stop timeout is 5 s: the drop-in
+running `btrfs scrub start -B` in this order under systemd v262. First the unit's `KillSignal=` is sent as the first
+step of the stop (systemd.kill.xml:108-109, systemd.kill.xml:84-85); this unit sets it to SIGINT
+(btrfs-scrub@.service:9) instead of the SIGTERM default (systemd.kill.xml:112); because the unit sets no `KillMode=`
+(btrfs-scrub@.service:1-10 is the whole unit), the default `control-group` applies (systemd.kill.xml:101) and all
+remaining processes in the unit's control group are killed on stop (systemd.kill.xml:68), so every remaining process
+receives that signal. A SIGHUP follows it immediately only if `SendSIGHUP=` is enabled (systemd.kill.xml:86-87); the unit
+does not set it (btrfs-scrub@.service:1-10) and this host reports `SendSIGHUP=no` (host-btrfs-progs.txt:4). Right after
+the first signal systemd sends SIGCONT (systemd.kill.xml:114-115). If processes remain once `TimeoutStopSec=` has passed
+(systemd.kill.xml:91), the request is repeated with SIGKILL (systemd.kill.xml:96-97; `FinalKillSignal=`, unless
+`SendSIGKILL=no`). On this host the unit's effective stop timeout is 5 s: the drop-in
 `/etc/systemd/system.conf.d/10-faster-shutdown.conf` sets `DefaultTimeoutStopSec=5s` (that this default reaches every
 system unit without its own `TimeoutStopSec=` is [inference]: `systemd-system.conf(5)` is not pinned here), no package
 owns that drop-in, and `systemctl show` reports `KillSignal=2`, `KillMode=control-group`, `TimeoutStopUSec=5s`,
-`FinalKillSignal=9` and `SendSIGKILL=yes` for `btrfs-scrub@-.service`. With `-B` the start does not fork into the
-background (btrfs-progs `scrub.c:1512`) and installs its SIGINT handler on the mount's descriptor (`scrub.c:1546`,
-`:439`), so SIGINT reaches that handler, which issues `BTRFS_IOC_SCRUB_CANCEL` (SR9). Whether the start then writes its
-canceled record (SR3) within the 5 s before SIGKILL is not established [inference: a start killed before that write
-leaves the record as it was last written during the run].
+`FinalKillSignal=9` and `SendSIGKILL=yes` for `btrfs-scrub@-.service`. The `btrfs` side is btrfs-progs v7.1: on
+2026-10-28 `pacman -Q btrfs-progs` printed `btrfs-progs 7.1-1`, `btrfs --version` printed `btrfs-progs v7.1`, and the
+installed unit file's sha256 equals the S244 snapshot's (host-btrfs-progs.txt:2-3, host-btrfs-progs.txt:5-6). With `-B`
+the start does not fork into the background: `-B` clears `do_background` (scrub.c:1292-1293), whose default is true
+(scrub.c:1247), and the fork is guarded by it (scrub.c:1512). From scrub.c:1546 until scrub.c:1710 resets it, the start
+process has its SIGINT handler installed on the mount's descriptor (scrub.c:439, scrub.c:442), so a SIGINT in that window
+reaches that handler, which issues `BTRFS_IOC_SCRUB_CANCEL` (scrub.c:421; SR9 of
+`corpus/knowledge/btrfs-scrub-record-r44.md`). A SIGINT that arrives before scrub.c:1546 meets no handler installed by
+`cmds/scrub.c` on this path [inference: the disposition it meets is inherited from systemd and is not pinned here].
+Whether the start then writes its canceled record (SR3) within the 5 s before SIGKILL is not established [inference: a
+start killed before that write leaves the record as it was last written during the run].
 
 **Quote.** `S244` btrfs-scrub@.service:9: "KillSignal=SIGINT"
 
@@ -201,13 +270,27 @@ leaves the record as it was last written during the run].
 
 **Quote.** `S248` systemd.kill.xml:68: "<para>If set to <option>control-group</option>, all remaining processes in the control group of this"
 
+**Quote.** `S248` systemd.kill.xml:84: "<para>Processes will first be terminated via <constant>SIGTERM</constant> (unless the signal to send"
+
+**Quote.** `S248` systemd.kill.xml:85: "is changed via <varname>KillSignal=</varname> or <varname>RestartKillSignal=</varname>). Optionally,"
+
+**Quote.** `S248` systemd.kill.xml:86: "this is immediately followed by a <constant>SIGHUP</constant> (if enabled with"
+
+**Quote.** `S248` systemd.kill.xml:87: "<varname>SendSIGHUP=</varname>). If processes still remain after:"
+
 **Quote.** `S248` systemd.kill.xml:91: "<listitem><para>the delay configured via the <varname>TimeoutStopSec=</varname> has passed"
 
 **Quote.** `S248` systemd.kill.xml:96: "the termination request is repeated with the <constant>SIGKILL</constant> signal or the signal specified via"
 
+**Quote.** `S248` systemd.kill.xml:97: "<varname>FinalKillSignal=</varname> (unless this is disabled via the <varname>SendSIGKILL=</varname>"
+
 **Quote.** `S248` systemd.kill.xml:101: "<para>Defaults to <option>control-group</option>.</para>"
 
 **Quote.** `S248` systemd.kill.xml:108: "<listitem><para>Specifies which signal to use when stopping a service. This controls the signal that"
+
+**Quote.** `S248` systemd.kill.xml:109: "is sent as first step of shutting down a unit (see above), and is usually followed by"
+
+**Quote.** `S248` systemd.kill.xml:112: "Defaults to <constant>SIGTERM</constant>.</para>"
 
 **Quote.** `S248` systemd.kill.xml:114: "<para>Note that, right after sending the signal specified in this setting, systemd will always send"
 
@@ -215,14 +298,29 @@ leaves the record as it was last written during the run].
 
 **Quote.** `S237` scrub.c:421: "ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);"
 
+**Quote.** `S237` scrub.c:439: ".sa_handler = fd == -1 ? SIG_DFL : scrub_sigint_record_progress,"
+
+**Quote.** `S237` scrub.c:442: "cancel_fd = fd;"
+
+**Quote.** `S237` scrub.c:1247: "bool do_background = true;"
+
+**Quote.** `S237` scrub.c:1292: "case 'B':"
+
+**Quote.** `S237` scrub.c:1293: "do_background = false;"
+
+**Quote.** `S237` scrub.c:1512: "if (do_background) {"
+
 **Quote.** `S237` scrub.c:1546: "scrub_handle_sigint_child(fdmnt);"
 
-**Quote.** `S237` scrub.c:439: ".sa_handler = fd == -1 ? SIG_DFL : scrub_sigint_record_progress,"
+**Quote.** `S237` scrub.c:1710: "scrub_handle_sigint_child(-1);"
 
 **Host reading.** `systemctl show btrfs-scrub@-.service` reports `KillMode=control-group KillSignal=2
 SendSIGKILL=yes TimeoutStopUSec=5s FinalKillSignal=9` (capture.txt:3); the stop default comes from
 `10-faster-shutdown.conf` line 2 (capture.txt:4), a drop-in no installed package lists (capture.txt:5); systemd is
-262-1-arch (capture.txt:2). No unit was started or stopped.
+262-1-arch (capture.txt:2). No unit was started or stopped. The L1's read-only receipt of 2026-10-28 for the btrfs-progs
+package, the `btrfs` binary version, `SendSIGHUP=no` and the unit file's digest is
+`.ufo/waves/round-51/host/host-btrfs-progs.txt` (cited above as `host-btrfs-progs.txt`; it is a lane artifact, not a
+pinned row source).
 
 ## How this changes OS triage
 
@@ -268,11 +366,12 @@ SendSIGKILL=yes TimeoutStopUSec=5s FinalKillSignal=9` (capture.txt:3); the stop 
 
 ### Range gaps (R51)
 
-- S237 scrub.c: 421, 439, 1546
-- S240 ioctl.c: 3080, 3084-3085, 3088, 3093, 3109-3110, 3115, 3190
-- S242 scrub.c: 3081, 3094-3139
-- S243 sysfs.c: 1288, 2015
-- S247 dev-replace.c: 1197
+- S237 scrub.c: 421, 439, 442, 1247, 1292-1293, 1546, 1710
+- S240 ioctl.c: 3076-3078, 3080-3082, 3084-3085, 3087-3090, 3093-3095, 3109-3110, 3115, 3190
+- S242 scrub.c: 1400-1401, 3081, 3094-3139, 3250-3253
+- S243 sysfs.c: 78, 1288, 1302, 2015, 2019
+- S246 kstrtox.c: 70, 75, 77
+- S247 dev-replace.c: 309, 970, 1197, 1236-1242
 
 ## Gate status — round 45 (the depth gate FAILED; rows pending)
 

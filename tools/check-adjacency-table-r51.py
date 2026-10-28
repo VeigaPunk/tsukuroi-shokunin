@@ -32,20 +32,45 @@ round-50 non-author closure routed:
   digests_bound_ok   lines of the `Portable digests` list (10 expected) whose path, full commit and
                      sha256 equal the registry record (the list a reader uses to verify the bytes).
 
+  anchor_rows_exact  1 when the displayed anchor table rows (every section headed as such, in order) are
+                     exactly OUT-001..OUT-010: a repeated or extra row, or a repeated section, is a
+                     displayed table the counter would otherwise bind only the last row of.
+  adj_exact / bare_all  the same for ADJ-01..ADJ-07, and the count of bare sibling `*.md:N` locators over
+                     EVERY displayed ADJ row (a shadowed row cannot hide one).
+  checker_rev_bytes  1 when tools/check-adjacency-anchors.py and tools/_revision.py in the working tree
+                     equal their bytes at REV (else anchors_checker_rc is -2: the checker leg must run
+                     the committed checker, not a mutable one).
+  ancestry_ok        registry pins (10) whose commit is an ancestor of the sibling's `master` (else
+                     `HEAD`): a locator naming a commit only a keep-ref reaches is not portable.
+  recipient_ok       ADJ rows (7) whose named recipient sibling(s) own at least one of the row's OUT
+                     anchors: a coordinated relink of an ADJ row to another sibling's anchor fails.
+
+Amendment 1 (pre-w2, before the final measurement): the wave-1 attackers R51RevC3, R51CritCheatC3a and
+R51CritCheatC3b showed the freeze counter bound only the last of a duplicated row, scanned the whole
+file for the digest list, ran a mutable checker, ignored `--lane`, `--no-base-check` and git/python
+redirection, and accepted a coordinated relink and an off-master pin. The freeze bytes are in git history
+(`git show 2732ee6c:tools/check-adjacency-table-r51.py`). Environment redirection is limited to the
+variables in REDIRECT_ENV (an unrelated GIT_PAGER or GIT_EDITOR is not an override).
+
 Predicate: adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchors_ok == 7
            and registry_ok == 7 and anchors_checker_rc == 0 and quote_at_pin_ok == 9
            and live_quote_ok >= 8 and stub_fails == 1 and display_bound_ok == 10
            and quote_specific_ok == 10 and display_forge_fails == 1 and override_blocked == 1
-           and digests_bound_ok == 10 and r50_blind == 1
+           and digests_bound_ok == 10 and r50_blind == 1 and anchor_rows_exact == 1
+           and adj_exact == 1 and bare_all == 0 and ancestry_ok == 10 and recipient_ok == 7
 
-Named limits: byte-substring quotes are not semantic entailment; the sibling repos are read from the
-working checkouts under /home/vgpnk/Projects/shokunin (a commit a sibling later rewrites out of its
-history makes the pin leg fail, never pass); a coordinated rewrite of table, registry AND sibling
-history is outside this counter.
+Named limits: byte-substring quotes are not semantic entailment (a real but different sentence from the
+same pinned blob passes); the sibling repos are read from the working checkouts under
+/home/vgpnk/Projects/shokunin (a commit a sibling later rewrites out of its history makes the pin leg fail,
+never pass); a PATH or sitecustomize shim that substitutes the bytes git returns is outside this counter
+(the measurement is a run of the committed counter on the canonical lane by an honest caller); a
+coordinated rewrite of table, registry AND sibling history is outside this counter.
 
-Usage: python3 tools/check-adjacency-table-r51.py --revision <REV> [--lane <repo>] [--control]
-       [--province-file F] [--registry-file F] [--siblings-root D] [--skip-anchors-check] [--no-base-check]
-Writes nothing (the override_blocked leg runs this file once more as a child). Output: one JSON line;
+Usage: python3 tools/check-adjacency-table-r51.py --revision <REV> [--control]
+       [--lane <repo>] [--province-file F] [--registry-file F] [--siblings-root D]
+       [--skip-anchors-check] [--no-base-check]
+Writes nothing but its own temporary files under TMPDIR (the override_blocked and r50_blind legs run the
+counters once more as children). Output: one JSON line;
 exit 0 PASS, 1 FAIL, 2 usage/read error, 3 override run without a measurement verdict.
 """
 import argparse
@@ -62,7 +87,8 @@ PREDICATE = ('adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchor
              'and registry_ok == 7 and anchors_checker_rc == 0 and quote_at_pin_ok == 9 '
              'and live_quote_ok >= 8 and stub_fails == 1 and display_bound_ok == 10 '
              'and quote_specific_ok == 10 and display_forge_fails == 1 and override_blocked == 1 '
-             'and digests_bound_ok == 10 and r50_blind == 1')
+             'and digests_bound_ok == 10 and r50_blind == 1 and anchor_rows_exact == 1 '
+             'and adj_exact == 1 and bare_all == 0 and ancestry_ok == 10 and recipient_ok == 7')
 
 
 def _load_r50():
@@ -85,13 +111,13 @@ def bound_legs(anchors, registry, siblings_root):
     """display_bound_ok and quote_specific_ok over every anchor row; returns counts + detail."""
     bound = specific = 0
     detail = {}
-    for out in sorted(anchors):
-        cs = anchors[out]
+    for n, (out, cs) in enumerate(anchors):
+        key = f'{out}#{n}'
         d = {'bound': False, 'specific': False, 'why': []}
         rr = registry.get(out)
         if rr is None or len(cs) < 5:
             d['why'].append('no registry row or short anchor row')
-            detail[out] = d
+            detail[key] = d
             continue
         m = R50.SIB.fullmatch(cs[2])
         full_commit = str(rr.get('sibling_commit', ''))
@@ -136,43 +162,13 @@ def bound_legs(anchors, registry, siblings_root):
         d['specific'] = not spec_why
         d['why'] = d['why'] + spec_why
         specific += int(d['specific'])
-        detail[out] = d
+        detail[key] = d
     return bound, specific, detail
 
 
 DIGEST_RE = re.compile(r'^- (OUT-\d{3}) `([^`]+)` @ ([0-9a-f]{40}) sha256 ([0-9a-f]{64})\s*$')
 
 
-def digests_bound(prov_text, registry):
-    """The `Portable digests` list: each line's path, full commit and sha256 equal the registry record."""
-    n = 0
-    seen = set()
-    for ln in prov_text.split('\n'):
-        m = DIGEST_RE.match(ln)
-        if not m or m.group(1) in seen:
-            continue
-        rr = registry.get(m.group(1))
-        if rr is None:
-            continue
-        seen.add(m.group(1))
-        if (m.group(2) == f"{rr.get('sibling')}-shokunin/{rr.get('sibling_path')}"
-                and m.group(3) == rr.get('sibling_commit') and m.group(4) == rr.get('sibling_blob_sha256')):
-            n += 1
-    return n
-
-
-def parse_tables(prov_text):
-    lines = prov_text.split('\n')
-    adj, anchors = {}, {}
-    for ln in R50.section(lines, R50.ADJ_HEAD) or []:
-        m = R50.ADJ_ROW.match(ln)
-        if m:
-            adj[m.group(1)] = R50.cells(ln)
-    for ln in R50.section(lines, R50.ANCHOR_HEAD) or []:
-        m = R50.OUT_ROW.match(ln)
-        if m:
-            anchors[m.group(1)] = R50.cells(ln)
-    return adj, anchors
 
 
 def load_registry(text):
@@ -185,6 +181,117 @@ def load_registry(text):
     except Exception:
         pass
     return reg
+EXPECTED_OUT = [f'OUT-{i:03d}' for i in range(1, 11)]
+EXPECTED_ADJ = [f'ADJ-{i:02d}' for i in range(1, 8)]
+DEFAULT_LANE = os.path.dirname(HERE)
+# environment that redirects where git or python reads bytes from: an override, never a measurement
+REDIRECT_ENV = ('GIT_DIR', 'GIT_WORK_TREE', 'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES',
+                'GIT_INDEX_FILE', 'GIT_REPLACE_REF_BASE', 'GIT_COMMON_DIR', 'GIT_NAMESPACE', 'GIT_CONFIG',
+                'GIT_CONFIG_GLOBAL', 'GIT_CONFIG_SYSTEM', 'GIT_CONFIG_COUNT', 'GIT_CEILING_DIRECTORIES',
+                'GIT_EXEC_PATH', 'PYTHONPATH', 'PYTHONSTARTUP')
+SIBLING_NAMES = ('kama', 'kagi', 'mado', 'mori', 'kumitate', 'kaidoku', 'revenger', 'tameshi')
+
+
+def ancestry_ok(registry, siblings_root):
+    """Registry pins whose commit is an ancestor of the sibling's `master` (else its HEAD)."""
+    n = 0
+    for out in EXPECTED_OUT:
+        rr = registry.get(out)
+        if rr is None:
+            continue
+        repo = os.path.join(siblings_root, f"{rr.get('sibling')}-shokunin")
+        commit = str(rr.get('sibling_commit', ''))
+        for ref in ('master', 'HEAD'):
+            p = subprocess.run(['git', '-C', repo, 'merge-base', '--is-ancestor', commit, ref],
+                               capture_output=True, stdin=subprocess.DEVNULL)
+            if p.returncode == 0:
+                n += 1
+                break
+            if p.returncode == 1:
+                break  # the ref exists and the commit is not its ancestor
+    return n
+
+
+def recipient_ok(adj, anchors, registry):
+    """ADJ rows whose named recipient siblings all own at least one of the row's OUT anchors."""
+    n = 0
+    owners = {o: registry.get(o, {}).get('sibling') for o, _ in anchors}
+    for row_id, cs in adj:
+        if len(cs) < 6:
+            continue
+        want = {s for s in SIBLING_NAMES if re.search(r'\b' + s + r'\b', cs[3])}
+        have = {owners.get(o) for o in R50.OUT_ID.findall(cs[-1])}
+        if want and want <= have:
+            n += 1
+    return n
+
+
+def all_section_lines(lines, head):
+    """Lines of EVERY section headed `head`: a repeated heading is a second displayed table."""
+    out = []
+    for i, ln in enumerate(lines):
+        if ln.strip() == head:
+            end = next((k for k in range(i + 1, len(lines)) if lines[k].startswith('## ')), len(lines))
+            out.extend(lines[i:end])
+    return out
+
+
+def parse_tables(prov_text):
+    """Every displayed row in order, as (id, cells). A later row never replaces an earlier one."""
+    lines = prov_text.split('\n')
+    adj, anchors = [], []
+    for ln in all_section_lines(lines, R50.ADJ_HEAD):
+        m = R50.ADJ_ROW.match(ln)
+        if m:
+            adj.append((m.group(1), R50.cells(ln)))
+    for ln in all_section_lines(lines, R50.ANCHOR_HEAD):
+        m = R50.OUT_ROW.match(ln)
+        if m:
+            anchors.append((m.group(1), R50.cells(ln)))
+    return adj, anchors
+
+
+def digest_list_lines(prov_text):
+    """The lines of the `Portable digests` list only (from its lead line to the next section or Limits)."""
+    lines = prov_text.split('\n')
+    start = next((i for i, ln in enumerate(lines) if ln.startswith('Portable digests')), None)
+    if start is None:
+        return []
+    out = []
+    for ln in lines[start + 1:]:
+        if ln.startswith('## ') or ln.startswith('Limits '):
+            break
+        out.append(ln)
+    return out
+
+
+def checker_is_rev_bytes(lane, rev):
+    """The anchors checker and its import must be the bytes at REV, not the mutable working tree."""
+    for rel in (R50.CHECKER, 'tools/_revision.py'):
+        shown = R50.git(lane, 'show', f'{rev}:{rel}')
+        try:
+            with open(os.path.join(lane, rel), 'rb') as fh:
+                wt = fh.read()
+        except OSError:
+            return False
+        if shown.returncode or shown.stdout != wt:
+            return False
+    return True
+
+
+def digests_bound(prov_text, registry):
+    """Bound lines of the `Portable digests` list only; 0 unless the list is exactly OUT-001..010."""
+    ids, n = [], 0
+    for ln in digest_list_lines(prov_text):
+        m = DIGEST_RE.match(ln)
+        if not m:
+            continue
+        ids.append(m.group(1))
+        rr = registry.get(m.group(1))
+        if (rr is not None and m.group(2) == f"{rr.get('sibling')}-shokunin/{rr.get('sibling_path')}"
+                and m.group(3) == rr.get('sibling_commit') and m.group(4) == rr.get('sibling_blob_sha256')):
+            n += 1
+    return n if sorted(ids) == EXPECTED_OUT else 0
 
 
 def forged_province(prov_text):
@@ -204,7 +311,9 @@ def forged_province(prov_text):
 
 def run(a, lane):
     overridden = bool(a.province_file or a.registry_file or a.siblings_root != R50.SIBLINGS
-                      or a.skip_anchors_check)
+                      or a.skip_anchors_check or a.no_base_check
+                      or os.path.abspath(a.lane) != os.path.abspath(DEFAULT_LANE)
+                      or any(k in os.environ for k in REDIRECT_ENV))
     if overridden and not a.control:
         print(json.dumps({'counter': 'check-adjacency-table-r51', 'verdict': 'OVERRIDE-NOT-MEASURED',
                           'note': 'an input override is a control, never a measurement; pass --control'}))
@@ -235,6 +344,10 @@ def run(a, lane):
                           'verdict': 'FAIL'}))
         return 2
     adj, anchors = parse_tables(prov)
+    anchor_rows_exact = int(sorted(o for o, _ in anchors) == EXPECTED_OUT)
+    adj_exact = int(sorted(i for i, _ in adj) == EXPECTED_ADJ)
+    bare_all = sum(len(R50.BARE.findall(cs[-1] if cs else '')) for _, cs in adj)
+    rev_checker = checker_is_rev_bytes(lane, rev)
     registry = load_registry(reg_text)
     bound, specific, detail = bound_legs(anchors, registry, a.siblings_root)
     digests_ok = digests_bound(prov, registry)
@@ -276,16 +389,24 @@ def run(a, lane):
             os.unlink(ftmp)
     legs = {k: r50.get(k) for k in ('adj_rows', 'linked_rows', 'bare_ranges', 'anchors_ok', 'registry_ok',
                                     'anchors_checker_rc', 'quote_at_pin_ok', 'live_quote_ok', 'stub_fails')}
+    if not rev_checker:
+        legs['anchors_checker_rc'] = -2
+    anc_ok = ancestry_ok(registry, a.siblings_root)
+    rec_ok = recipient_ok(adj, anchors, registry)
     ok = (legs['adj_rows'] == 7 and legs['linked_rows'] == 7 and legs['bare_ranges'] == 0
           and legs['anchors_ok'] == 7 and legs['registry_ok'] == 7 and legs['anchors_checker_rc'] == 0
           and legs['quote_at_pin_ok'] == 9 and (legs['live_quote_ok'] or 0) >= 8
           and legs['stub_fails'] == 1 and bound == 10 and specific == 10
           and digests_ok == 10
-          and display_forge_fails == 1 and ((override_blocked == 1 and r50_blind == 1) or a.control))
+          and display_forge_fails == 1 and anchor_rows_exact == 1 and adj_exact == 1 and bare_all == 0
+          and anc_ok == 10 and rec_ok == 7
+          and ((override_blocked == 1 and r50_blind == 1) or a.control))
     out = {'counter': 'check-adjacency-table-r51', 'revision': rev, 'base': BASE, **legs,
            'display_bound_ok': bound, 'quote_specific_ok': specific, 'digests_bound_ok': digests_ok,
            'display_forge_fails': display_forge_fails, 'override_blocked': override_blocked,
-           'r50_blind': r50_blind,
+           'r50_blind': r50_blind, 'anchor_rows_exact': anchor_rows_exact, 'adj_exact': adj_exact,
+           'bare_all': bare_all, 'checker_rev_bytes': int(rev_checker),
+           'ancestry_ok': anc_ok, 'recipient_ok': rec_ok,
            'mode': 'control' if a.control else 'measurement', 'detail': detail,
            'r50_problems': r50.get('problems'), 'predicate': PREDICATE}
     if a.control:
