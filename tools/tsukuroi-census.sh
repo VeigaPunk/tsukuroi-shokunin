@@ -604,9 +604,10 @@ usage: tsukuroi-census.sh [--selftest] [--sample N] [--identity] [--help]
                ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*; a TMPDIR with characters the
                root-override locator refuses is reached through a /proc/self/fd
                alias inside TMPDIR, never /tmp — R48-C2; when every descriptor of
-               the 240-249 alias band is already open the resolver fails with the
-               named diagnostic `fd band 240-249 exhausted` instead of a silent
-               retry — R49-C3); exit 0 pass, 1 fail
+               the alias band is already open the resolver fails with the named
+               diagnostic `fd band <band> exhausted (every descriptor already open)`
+               instead of a silent retry, and a malformed band fails as
+               `err=fd-band-invalid` — R49-C3); exit 0 pass, 1 fail
   --sample N   packages plane: size of the pacman -Qkk sample (default 8)
 
 Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
@@ -2080,6 +2081,16 @@ selftest_base_dir() {
   # (R49-C3) The band is overridable so a selftest case can exhaust a two-descriptor
   # band deterministically; production keeps the fixed 240-249 band documented above.
   band=${SELFTEST_FD_BAND:-240 241 242 243 244 245 246 247 248 249}
+  # (R49-C3, R49RevFdA D3/D4) A malformed band is a named failure: a whitespace-only value
+  # must not reach the `for` loop (where `$fdn` would be unset under `set -u`) and a
+  # non-numeric token must not become a bogus redirection target (rc 127, no summary).
+  case "$band" in
+    *[!0-9\ ]*) ST_BASE_ERR=fd-band-invalid; return 1 ;;
+  esac
+  case "$band" in
+    *[0-9]*) : ;;
+    *) ST_BASE_ERR=fd-band-invalid; return 1 ;;
+  esac
   base=${TMPDIR:-/tmp}
   case "$base" in
     *[!A-Za-z0-9._/+-]*)
@@ -3571,19 +3582,32 @@ STUB
   else
     ok 'selftest: nonexistent dirty TMPDIR fails the base resolver, no /tmp fallback (R48-C2)'
   fi
-  # (R49-C3) fd-band exhaustion is named, not silent: with the alias band narrowed to
-  # two descriptors and both already open, a dirty TMPDIR must fail the resolver with
+  # (R49-C3) fd-band exhaustion is named, not silent: with the alias band narrowed to two
+  # descriptors that the case itself holds open, a dirty TMPDIR must fail the resolver with
   # ST_BASE_ERR=fd-band, leave no base and never fall back to /tmp.
+  # (Round-49 fix, R49RevFdA D1/D5) The probe descriptors are chosen from a candidate list
+  # EXCLUDING the descriptor this run already holds as its own TMPDIR alias (ST_BASE_FD): a
+  # dirty caller TMPDIR makes run_selftest take fd 240 before this case runs, and a fixed
+  # 240/241 probe then failed the whole selftest in exactly that input class — the regression
+  # round 48's contract forbids. If two free descriptors cannot be reserved, the case records
+  # an explicit skip (ok) instead of a pass or a failure, so it never breaks the run.
   r49_dir="$work/fx/dirty fd band"
   mkdir -p "$r49_dir"
+  r49_f1=; r49_f2=
+  for r49_c in 236 237 238 239 242 243 244 245 246 247 248 249 250 251 252 253 254; do
+    [ -n "$r49_f1" ] && [ -n "$r49_f2" ] && break
+    [ "$r49_c" = "${ST_BASE_FD:-}" ] && continue
+    [ -e "/proc/self/fd/$r49_c" ] && continue
+    if [ -z "$r49_f1" ]; then r49_f1=$r49_c; else r49_f2=$r49_c; fi
+  done
   r49_held=0
-  if [ ! -e /proc/self/fd/240 ] && [ ! -e /proc/self/fd/241 ]; then
-    if eval 'exec 240<&0' 2>/dev/null && eval 'exec 241<&0' 2>/dev/null; then r49_held=1; fi
+  if [ -n "$r49_f1" ] && [ -n "$r49_f2" ]; then
+    if eval "exec $r49_f1<&0" 2>/dev/null && eval "exec $r49_f2<&0" 2>/dev/null; then r49_held=1; fi
   fi
   if [ "$r49_held" -eq 1 ]; then
     r49_old_tmp=${TMPDIR-}; r49_old_band=${SELFTEST_FD_BAND-}
     TMPDIR="$r49_dir"
-    SELFTEST_FD_BAND='240 241'
+    SELFTEST_FD_BAND="$r49_f1 $r49_f2"
     if selftest_base_dir; then
       bad 'selftest: an exhausted fd band must fail the base resolver (R49-C3)'
     elif [ "${ST_BASE_ERR:-}" = 'fd-band' ] && [ -z "${ST_BASE_DIR:-}" ] && [ -z "${ST_BASE_FD:-}" ]; then
@@ -3593,12 +3617,14 @@ STUB
     fi
     if [ -n "$r49_old_band" ]; then SELFTEST_FD_BAND=$r49_old_band; else unset SELFTEST_FD_BAND; fi
     if [ -n "$r49_old_tmp" ]; then TMPDIR=$r49_old_tmp; else unset TMPDIR; fi
-    eval 'exec 240<&-' 2>/dev/null
-    eval 'exec 241<&-' 2>/dev/null
+    eval "exec $r49_f1<&-" 2>/dev/null
+    eval "exec $r49_f2<&-" 2>/dev/null
   else
-    bad 'selftest: could not reserve the 240/241 probe descriptors for the fd-band case (R49-C3)'
+    [ -n "$r49_f1" ] && eval "exec $r49_f1<&-" 2>/dev/null
+    [ -n "$r49_f2" ] && eval "exec $r49_f2<&-" 2>/dev/null
+    ok 'selftest: fd-band case skipped, no two free probe descriptors (R49-C3)'
   fi
-  unset r49_dir r49_held r49_old_tmp r49_old_band
+  unset r49_dir r49_c r49_f1 r49_f2 r49_held r49_old_tmp r49_old_band
 
   unset r48_dir r48_base r48_fd r48_rc
 
