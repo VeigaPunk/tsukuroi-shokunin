@@ -1,0 +1,46 @@
+## GR3
+
+**Statement.** Stopping the packaged scrub service (`systemctl stop btrfs-scrub@<instance>.service`) signals the
+running `btrfs scrub start -B` in this order under systemd v262. First the unit's `KillSignal=`, which this unit sets
+to SIGINT instead of the SIGTERM default; because the unit sets no `KillMode=`, the default `control-group` applies
+and every remaining process in the unit's control group receives it. Right after that signal systemd sends SIGCONT.
+If processes remain once `TimeoutStopSec=` has passed, the request is repeated with SIGKILL (`FinalKillSignal=`,
+unless `SendSIGKILL=no`). On this host the unit's effective stop timeout is 5 s: the drop-in
+`/etc/systemd/system.conf.d/10-faster-shutdown.conf` sets `DefaultTimeoutStopSec=5s` (that this default reaches every
+system unit without its own `TimeoutStopSec=` is [inference]: `systemd-system.conf(5)` is not pinned here), no package
+owns that drop-in, and `systemctl show` reports `KillSignal=2`, `KillMode=control-group`, `TimeoutStopUSec=5s`,
+`FinalKillSignal=9` and `SendSIGKILL=yes` for `btrfs-scrub@-.service`. With `-B` the start does not fork into the
+background (btrfs-progs `scrub.c:1512`) and installs its SIGINT handler on the mount's descriptor (`scrub.c:1546`,
+`:439`), so SIGINT reaches that handler, which issues `BTRFS_IOC_SCRUB_CANCEL` (SR9). Whether the start then writes its
+canceled record (SR3) within the 5 s before SIGKILL is not established [inference: a start killed before that write
+leaves the record as it was last written during the run].
+
+**Quote.** `S244` btrfs-scrub@.service:9: "KillSignal=SIGINT"
+
+**Quote.** `S244` btrfs-scrub@.service:10: "ExecStart=/usr/bin/btrfs scrub start -B %f"
+
+**Quote.** `S248` systemd.kill.xml:68: "<para>If set to <option>control-group</option>, all remaining processes in the control group of this"
+
+**Quote.** `S248` systemd.kill.xml:91: "<listitem><para>the delay configured via the <varname>TimeoutStopSec=</varname> has passed"
+
+**Quote.** `S248` systemd.kill.xml:96: "the termination request is repeated with the <constant>SIGKILL</constant> signal or the signal specified via"
+
+**Quote.** `S248` systemd.kill.xml:101: "<para>Defaults to <option>control-group</option>.</para>"
+
+**Quote.** `S248` systemd.kill.xml:108: "<listitem><para>Specifies which signal to use when stopping a service. This controls the signal that"
+
+**Quote.** `S248` systemd.kill.xml:114: "<para>Note that, right after sending the signal specified in this setting, systemd will always send"
+
+**Quote.** `S248` systemd.kill.xml:115: "<constant>SIGCONT</constant>, to ensure that even suspended tasks can be terminated cleanly.</para>"
+
+**Quote.** `S237` scrub.c:421: "ret = ioctl(cancel_fd, BTRFS_IOC_SCRUB_CANCEL, NULL);"
+
+**Quote.** `S237` scrub.c:1546: "scrub_handle_sigint_child(fdmnt);"
+
+**Quote.** `S237` scrub.c:439: ".sa_handler = fd == -1 ? SIG_DFL : scrub_sigint_record_progress,"
+
+**Host reading.** `systemctl show btrfs-scrub@-.service` reports `KillMode=control-group KillSignal=2
+SendSIGKILL=yes TimeoutStopUSec=5s FinalKillSignal=9` (capture.txt:3); the stop default comes from
+`10-faster-shutdown.conf` line 2 (capture.txt:4), a drop-in no installed package lists (capture.txt:5); systemd is
+262-1-arch (capture.txt:2). No unit was started or stopped.
+

@@ -1,0 +1,236 @@
+{
+ "base_idiom_sites": 0,
+ "target": "    elif ! out_has 'host=fixture-host'; then",
+ "rows": [
+  {
+   "id": "C0",
+   "desc": "control: printf | grep -q",
+   "bash_n_rc": 0,
+   "idiom_sites": 1,
+   "delta_vs_base": 1,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | grep -q 'host=fixture-host'; then"
+  },
+  {
+   "id": "S01",
+   "desc": "producer through variable",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! { p=printf; \"$p\" '%s\\n' \"$out\" | grep -q 'host=fixture-host'; }; then"
+  },
+  {
+   "id": "S02",
+   "desc": "command printf",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! command printf '%s\\n' \"$out\" | grep -q 'host=fixture-host'; then"
+  },
+  {
+   "id": "S03",
+   "desc": "builtin printf",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! builtin printf '%s\\n' \"$out\" | grep -q 'host=fixture-host'; then"
+  },
+  {
+   "id": "S04",
+   "desc": "consumer in brace group",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | { grep -q 'host=fixture-host'; }; then"
+  },
+  {
+   "id": "S05",
+   "desc": "process substitution",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 20 BAD 0",
+   "haz_mid": "OK 20 BAD 0",
+   "line": "    elif ! grep -q 'host=fixture-host' <(printf '%s\\n' \"$out\"); then"
+  },
+  {
+   "id": "S06",
+   "desc": "grep -E -q",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | grep -E -q 'host=fixture-host'; then"
+  },
+  {
+   "id": "S07",
+   "desc": "grep --quiet (control)",
+   "bash_n_rc": 0,
+   "idiom_sites": 1,
+   "delta_vs_base": 1,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | grep --quiet 'host=fixture-host'; then"
+  },
+  {
+   "id": "S08",
+   "desc": "grep -m1",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | grep -m1 'host=fixture-host' >/dev/null; then"
+  },
+  {
+   "id": "S09",
+   "desc": "sed -n 1p then grep -q",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 20 BAD 0",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | sed -n 1p | grep -q 'host=fixture-host'; then"
+  },
+  {
+   "id": "S10",
+   "desc": "awk match-exit",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | awk '/host=fixture-host/ { exit 0 } END { exit 1 }'; then"
+  },
+  {
+   "id": "S11",
+   "desc": "read -r (probe)",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | read -r _; then"
+  },
+  {
+   "id": "S12",
+   "desc": "head -c 64 then grep -q",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | head -c 64 | grep -q 'host=fixture-host'; then"
+  },
+  {
+   "id": "S13",
+   "desc": "head --lines=1 then grep -q",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | head --lines=1 | grep -q 'host=fixture-host'; then"
+  },
+  {
+   "id": "S14",
+   "desc": "grep -e PAT -q (q after pattern)",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | grep -e 'host=fixture-host' -q; then"
+  },
+  {
+   "id": "S15",
+   "desc": "/usr/bin/grep -q",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | /usr/bin/grep -q 'host=fixture-host'; then"
+  },
+  {
+   "id": "S16",
+   "desc": "command grep -q",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | command grep -q 'host=fixture-host'; then"
+  },
+  {
+   "id": "S17",
+   "desc": "subshell consumer",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | ( grep -q 'host=fixture-host' ); then"
+  },
+  {
+   "id": "S18",
+   "desc": "awk NR==1{exit} (probe)",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | awk 'NR==1{exit}'; then"
+  },
+  {
+   "id": "S19",
+   "desc": "grep -m 1 (spaced)",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | grep -m 1 'host=fixture-host' >/dev/null; then"
+  },
+  {
+   "id": "S20",
+   "desc": "echo producer, grep -E -q",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! echo \"$out\" | grep -E -q 'host=fixture-host'; then"
+  },
+  {
+   "id": "S21",
+   "desc": "timeout wrapper then grep -q",
+   "bash_n_rc": 0,
+   "idiom_sites": 0,
+   "delta_vs_base": 0,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | timeout 5 grep -q 'host=fixture-host'; then"
+  },
+  {
+   "id": "S22",
+   "desc": "head -n 1 then grep -q (control)",
+   "bash_n_rc": 0,
+   "idiom_sites": 1,
+   "delta_vs_base": 1,
+   "haz_first": "OK 0 BAD 20",
+   "haz_mid": "OK 0 BAD 20",
+   "line": "    elif ! printf '%s\\n' \"$out\" | head -n 1 | grep -q 'host=fixture-host'; then"
+  }
+ ]
+}

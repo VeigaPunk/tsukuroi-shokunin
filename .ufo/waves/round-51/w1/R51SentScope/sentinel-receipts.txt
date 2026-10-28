@@ -1,0 +1,45 @@
+R51SentScope receipts (read-only sentinel pass, item N-2). Commands run from /fast/scratch/hyaku/tsukuroi-r51/R51SentScope.
+
+[a] git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff c0ad548a93425a3bf8813d28d92f26fe2f64b9d4 2732ee6c06108c031c4d8043239b994e0504eb2f --name-status  -> 21 paths
+A .ufo/waves/round-51/before/{c1-at-base.json,c1-at-base.rc,c2-cheats-at-base.json,c2-cheats-at-base.rc,c3-at-base.json,c3-at-base.rc,lint-at-base.json,registry-coverage-at-base.json,self-assessment-at-base.json,sources-census-start.txt}  (10)
+A .ufo/waves/round-51/controls/battery.py
+A .ufo/waves/round-51/frozen/FROZEN-hashes.txt
+A .ufo/waves/round-51/frozen/FROZEN.md
+M SCORECARD.md
+M SKILL.md
+M corpus/knowledge/btrfs-scrub-grounding-r45.md
+A tools/check-adjacency-table-r51.py
+A tools/check-scrub-admission-r51.py
+A tools/check-selftest-matcher-r51.py
+A tools/lint-grounding-r51.py
+A tools/score-counter-cheats-r51.py
+No path touches MANIFEST.json, fleet templates/scripts or .ufo/state.
+
+[b] git -C /home/vgpnk/Projects/shokunin status --porcelain  -> 41 entries (tracked modified/added and untracked), incl.
+ M .scratch/goal-20261028-hyaku-run11.md  (mentions tsukuroi at lines 36, 77, 82)
+?? .scratch/closure-r54/lane/  (evidence tree; tsukuroi/round-51 strings in many files)
+?? .scratch/closure-r54/work-c2-base/clone/ , ?? .scratch/closure-r54/work-c2/clone/
+?? lane3/  (125 files match tsukuroi|round-51|R51 patterns)
+?? tools/  (contains only tools/round-49/)
+?? .ufo/waves/round-56/  (no pattern match)
+A  o.bin, oldrep1.out, oldrep2.out, .scratch/source-routing-queue.md, .scratch/kasegi-r44/*, .scratch/closure-mado-r50.json (no pattern match)
+git -C /home/vgpnk/Projects/shokunin diff --stat -> 41 files changed, 24475 insertions(+), 4 deletions(-)
+Whole-fleet pattern grep (tsukuroi|round-51|R51, excluding tsukuroi-shokunin/ and .git): 18923 files, dominated by committed .ufo/reports/round-NN and .ufo/prompts; committed round-51 fleet paths: .ufo/reports/round-51/{chousa,kake,kama,kengaku,kotoba,kotodama,kumitate,mado,mori,tameshi}.md and .ufo/prompts/*round-51.md (fleet's own round-51, separate tree from lane .ufo/waves/round-51).
+
+[c] grep -n '/tmp' tools/*r51*.py .ufo/waves/round-51/controls/battery.py -> no output
+    grep -nE 'shell=True' -> no output
+    grep -nE 'sudo|urllib|requests|http|socket|curl|wget|ssh|credential|token|API_KEY|getenv|environ' over the 5 r51 tools + battery.py -> only subprocess.run lines (no network, no sudo, no credential reads)
+    write sites (open/mkdir/mkdtemp/NamedTemporaryFile/rmtree/unlink):
+      check-selftest-matcher-r51.py:125-126 mkdtemp(dir=--scratch); env TMPDIR/HOME under work at 149-152; rmtree 196
+      score-counter-cheats-r51.py:99-100 mkdtemp(dir=--scratch); rmtree 147
+      battery.py:245 default --scratch /fast/scratch/hyaku/tsukuroi-r51/controls; mkdtemp 250; rmtree 267
+      check-adjacency-table-r51.py:248-253 NamedTemporaryFile(delete=False) with no dir= (tempfile default: $TMPDIR else /tmp); unlink 275-276 in finally; creation sits before the try
+      lint-grounding-r51.py, check-scrub-admission-r51.py: read-only (git show / override reads)
+
+[d] adjacency counter: writes nothing into lane/sibling repos (sibling reads: sibling_blob git show, check-adjacency-table-r51.py:78-80; repo .git probe :115-116).
+    score-counter-cheats-r51.py: writes only under --scratch (99-100, 147); reads lane via git show (93); runs counter from working tree: counter = os.path.join(lane, a.counter) (91), r50 = os.path.join(lane, 'tools/check-selftest-matcher-r50.py') (92).
+    check-adjacency-table-r51.py loads r50 from HERE (working tree): :68-69 importlib spec, :222, :265.
+    tools/__pycache__/ exists in the lane working tree (ignored via .gitignore:2), created 18:02 (same timestamp as battery-summary-r51-freeze-c1/c3.jsonl); git check-ignore -v tools/__pycache__ -> .gitignore:2.
+    git -C lane diff --quiet 2732ee6c... -- tools  -> identical (rc 0).
+
+No installs, no updates, no network calls, no sudo, no lane/fleet writes by this seat.

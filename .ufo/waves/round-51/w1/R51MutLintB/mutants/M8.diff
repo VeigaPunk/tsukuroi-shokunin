@@ -1,0 +1,11 @@
+--- frozen
++++ mutant
+@@ -365,7 +365,7 @@
+             norm_body = ' '.join((body or '').split())
+             bodies.add(hashlib.sha256(norm_body.encode('utf-8')).hexdigest())
+         roles = {role for seat, role in exp if seat in credited}
+-        distinct = len(bodies) == len(credited)
++        distinct = True
+         row_ok = (len(credited) >= 3 and 'reviewer' in roles and 'critic' in roles
+                   and distinct and not blocking)
+         per_row[row] = {'credited': credited, 'blocking': blocking, 'distinct_bodies': distinct,

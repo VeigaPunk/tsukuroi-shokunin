@@ -1,0 +1,140 @@
+FILE cmdline.c live_lines=285 snap_lines=285
+cmdline.c:147 EQUAL INSIDE declared 142-201
+  LIVE ' *\tpotentially suffixed with K, M, G, T, P, E.'
+cmdline.c:148 EQUAL INSIDE declared 142-201
+  LIVE ' *'
+cmdline.c:149 EQUAL INSIDE declared 142-201
+  LIVE ' *\tReturn: The value as recognized by simple_strtoull() multiplied'
+cmdline.c:150 EQUAL INSIDE declared 142-201
+  LIVE ' *\tby the value as specified by suffix, if any.'
+cmdline.c:151 EQUAL INSIDE declared 142-201
+  LIVE ' */'
+cmdline.c:152 EQUAL INSIDE declared 142-201
+  LIVE ''
+cmdline.c:153 EQUAL INSIDE declared 142-201
+  LIVE 'unsigned long long memparse(const char *ptr, char **retptr)'
+cmdline.c:154 EQUAL INSIDE declared 142-201
+  LIVE '{'
+cmdline.c:155 EQUAL INSIDE declared 142-201
+  LIVE '\tchar *endptr;\t/* local pointer to end of parsed string */'
+cmdline.c:156 EQUAL INSIDE declared 142-201
+  LIVE '\tunsigned long long ret = simple_strtoull(ptr, &endptr, 0);'
+cmdline.c:157 EQUAL INSIDE declared 142-201
+  LIVE '\tunsigned int shl = 0;'
+cmdline.c:158 EQUAL INSIDE declared 142-201
+  LIVE ''
+cmdline.c:159 EQUAL INSIDE declared 142-201
+  LIVE '\t/* Consume valid suffix even in case of overflow. */'
+cmdline.c:160 EQUAL INSIDE declared 142-201
+  LIVE '\tswitch (*endptr) {'
+cmdline.c:161 EQUAL INSIDE declared 142-201
+  LIVE "\tcase 'E':"
+cmdline.c:162 EQUAL INSIDE declared 142-201
+  LIVE "\tcase 'e':"
+cmdline.c:163 EQUAL INSIDE declared 142-201
+  LIVE '\t\tshl += 10;'
+cmdline.c:164 EQUAL INSIDE declared 142-201
+  LIVE '\t\tfallthrough;'
+cmdline.c:165 EQUAL INSIDE declared 142-201
+  LIVE "\tcase 'P':"
+cmdline.c:166 EQUAL INSIDE declared 142-201
+  LIVE "\tcase 'p':"
+cmdline.c:167 EQUAL INSIDE declared 142-201
+  LIVE '\t\tshl += 10;'
+cmdline.c:168 EQUAL INSIDE declared 142-201
+  LIVE '\t\tfallthrough;'
+cmdline.c:169 EQUAL INSIDE declared 142-201
+  LIVE "\tcase 'T':"
+cmdline.c:170 EQUAL INSIDE declared 142-201
+  LIVE "\tcase 't':"
+cmdline.c:171 EQUAL INSIDE declared 142-201
+  LIVE '\t\tshl += 10;'
+cmdline.c:172 EQUAL INSIDE declared 142-201
+  LIVE '\t\tfallthrough;'
+cmdline.c:173 EQUAL INSIDE declared 142-201
+  LIVE "\tcase 'G':"
+cmdline.c:174 EQUAL INSIDE declared 142-201
+  LIVE "\tcase 'g':"
+cmdline.c:175 EQUAL INSIDE declared 142-201
+  LIVE '\t\tshl += 10;'
+cmdline.c:176 EQUAL INSIDE declared 142-201
+  LIVE '\t\tfallthrough;'
+cmdline.c:177 EQUAL INSIDE declared 142-201
+  LIVE "\tcase 'M':"
+cmdline.c:178 EQUAL INSIDE declared 142-201
+  LIVE "\tcase 'm':"
+cmdline.c:179 EQUAL INSIDE declared 142-201
+  LIVE '\t\tshl += 10;'
+cmdline.c:180 EQUAL INSIDE declared 142-201
+  LIVE '\t\tfallthrough;'
+cmdline.c:181 EQUAL INSIDE declared 142-201
+  LIVE "\tcase 'K':"
+cmdline.c:182 EQUAL INSIDE declared 142-201
+  LIVE "\tcase 'k':"
+cmdline.c:183 EQUAL INSIDE declared 142-201
+  LIVE '\t\tshl += 10;'
+cmdline.c:184 EQUAL INSIDE declared 142-201
+  LIVE '\t\tfallthrough;'
+cmdline.c:185 EQUAL INSIDE declared 142-201
+  LIVE '\tdefault:'
+cmdline.c:186 EQUAL INSIDE declared 142-201
+  LIVE '\t\tbreak;'
+cmdline.c:187 EQUAL INSIDE declared 142-201
+  LIVE '\t}'
+cmdline.c:188 EQUAL INSIDE declared 142-201
+  LIVE ''
+cmdline.c:189 EQUAL INSIDE declared 142-201
+  LIVE '\tif (shl && likely(ptr != endptr)) {'
+cmdline.c:190 EQUAL INSIDE declared 142-201
+  LIVE '\t\t/* Have valid suffix with preceding number. */'
+cmdline.c:191 EQUAL INSIDE declared 142-201
+  LIVE '\t\tif (unlikely(check_shl_overflow(ret, shl, &ret)))'
+cmdline.c:192 EQUAL INSIDE declared 142-201
+  LIVE '\t\t\tret = ULLONG_MAX;'
+FILE vsprintf.c live_lines=3746 snap_lines=3746
+vsprintf.c:86 EQUAL INSIDE declared 79-115
+  LIVE '\tcp = _parse_integer_fixup_radix(startp, &base);'
+FILE kstrtox.c live_lines=442 snap_lines=442
+kstrtox.c:29 EQUAL INSIDE declared 26-40
+  LIVE "\t\tif (s[0] == '0') {"
+kstrtox.c:30 EQUAL INSIDE declared 26-40
+  LIVE "\t\t\tif (_tolower(s[1]) == 'x' && isxdigit(s[2]))"
+kstrtox.c:31 EQUAL INSIDE declared 26-40
+  LIVE '\t\t\t\t*base = 16;'
+kstrtox.c:32 EQUAL INSIDE declared 26-40
+  LIVE '\t\t\telse'
+kstrtox.c:33 EQUAL INSIDE declared 26-40
+  LIVE '\t\t\t\t*base = 8;'
+OUTSIDE (none)
+QUOTE_CHECKS
+cmdline.c:147 quote_norm_match=True
+  norm='* potentially suffixed with K, M, G, T, P, E.'
+  norm_words=10
+cmdline.c:156 quote_norm_match=True
+  norm='unsigned long long ret = simple_strtoull(ptr, &endptr, 0);'
+  norm_words=8
+cmdline.c:159 quote_norm_match=True
+  norm='/* Consume valid suffix even in case of overflow. */'
+  norm_words=10
+cmdline.c:189 quote_norm_match=True
+  norm='if (shl && likely(ptr != endptr)) {'
+  norm_words=7
+cmdline.c:191 quote_norm_match=True
+  norm='if (unlikely(check_shl_overflow(ret, shl, &ret)))'
+  norm_words=4
+cmdline.c:192 quote_norm_match=True
+  norm='ret = ULLONG_MAX;'
+  norm_words=3
+vsprintf.c:86 quote_norm_match=True
+  norm='cp = _parse_integer_fixup_radix(startp, &base);'
+  norm_words=4
+kstrtox.c:29 quote_norm_match=True
+  norm="if (s[0] == '0') {"
+  norm_words=5
+kstrtox.c:30 quote_norm_match=True
+  norm="if (_tolower(s[1]) == 'x' && isxdigit(s[2]))"
+  norm_words=6
+kstrtox.c:33 quote_norm_match=True
+  norm='*base = 8;'
+  norm_words=3
+GATE raw_words=10 raw=' *\tpotentially suffixed with K, M, G, T, P, E.'

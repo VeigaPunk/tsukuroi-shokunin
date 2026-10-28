@@ -1,0 +1,16 @@
+0 | function-producer (expected hole) | emit "$out" | grep -q x
+1 | no space before grep | printf '%s\n' "$out" |grep -q x
+1 | no spaces at pipe | printf '%s\n' "$out"|grep -q x
+1 | echo + -qF | echo "$out" | grep -qF host
+1 | -Fq | printf '%s\n' "$out" | grep -Fq host
+1 | -e then -q | printf '%s\n' "$out" | grep -F -e host -q
+1 | awk exit before END | printf '%s\n' "$out" | awk '{print; exit}'
+0 | awk exit in END (harmless, expect 0) | printf '%s\n' "$out" | awk 'END{exit}'
+0 | grep -c full read (harmless, expect 0) | printf '%s\n' "$out" | grep -c host
+0 | sed -n 1p (harmless, expect 0) | printf '%s\n' "$out" | sed -n 1p
+0 | discarded status (exempt by design) | printf '%s\n' "$out" | grep -q host || true
+1 | assignment head -n1 no || true (expect 1) | x=$(printf '%s\n' "$out" | head -n1)
+1 | braced var --quiet (expect 1) | elif ! printf '%s\n' "${out}" | grep --quiet host; then
+1 | unquoted format (expect 1) | elif ! printf %s "$out" | grep -q host; then
+producer-agnostic census hits: 1
+(1205, '-print 2>/dev/null | LC_ALL=C sort | head -n 4000)')

@@ -1,0 +1,31 @@
+Receipt: GR2 cited lines outside SOURCES.md declared ranges (critic R51W1PreCritGR2a, uncounted pre-read)
+revision 2732ee6c06108c031c4d8043239b994e0504eb2f
+declared ranges read from corpus/SOURCES.md rows S240 (line 249), S242 (251), S243 (252), S247 (256)
+
+Declared (parsed by tools/lint-grounding-r51.py declared_ranges):
+  S240 ioctl.c:   3066-3075, 3118-3140, 5578-5584
+  S242 scrub.c:   1365-1385, 3140-3162, 3215-3226, 3321-3337
+  S243 sysfs.c:   72-74, 2021-2049, 2113
+  S247 dev-replace.c: 700-703, 1143-1144, 1235, 1256-1268, 1276-1300
+
+GR2 cites, file assigned by hand from the clause that carries each (bare ":NNN" forms included):
+  ioctl.c : 3072-3073, 3075-3078, 3080-3082, 3084-3085, 3087-3090, 3093-3095, 3109-3110, 3115, 3132-3133, 3190
+  scrub.c : 3081, 3094-3153, 3109-3111, 3114-3116, 3250-3253, 3120-3123, 3127-3133, 3138-3142, 3147-3153, 3159, 3222, 3321-3336
+  sysfs.c : 1288, 2015
+  dev-replace.c: 700-703, 1197, 1265-1268, 1235, 1278-1279, 1286-1287, 1288-1297
+
+Undeclared cited lines (computed):
+  ioctl.c     : 3076 3077 3078 3080 3081 3082 3084 3085 3087 3088 3089 3090 3093 3094 3095 3109 3110 3115 3190
+  scrub.c     : 3081 3094-3139 3250-3253   (3094-3139 includes the range 3094-3153 cited in prose)
+  sysfs.c     : 1288 2015
+  dev-replace.c: 1197
+
+Entry's current ### Range gaps (R51) block:
+  S240 ioctl.c: 3080, 3084-3085, 3088, 3093, 3109-3110, 3115, 3190      <- omits 3076-3078, 3081-3082, 3087, 3089-3090, 3094-3095
+  S242 scrub.c: 3081, 3094-3139                                         <- omits 3250-3253
+  S243 sysfs.c: 1288, 2015
+  S247 dev-replace.c: 1197
+
+Lint parse check (lint-grounding-r51.py prose_cites, GR2): 20 prose cites parsed, all with explicit basename or a
+colon continuation directly after a comma/"and"/";". Not parsed: "(:3075-3078)", "(:3080-3082)", "(:3087-3090)",
+"(:3093-3095)", "(:3094-3095)", "returned at :3250-3253", "-EPERM at :3133" (the last is declared, so harmless).

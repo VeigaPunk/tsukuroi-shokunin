@@ -1,0 +1,25 @@
+BAD count 1
+ARM count 1
+needle M1 1 M2 1
+OOM_V occurrences 10
+bare printf|grep -q                  sites=1
+grep -E -q (flag order)              sites=0
+grep -m1 (no -q)                     sites=0
+positional $1 producer               sites=0
+|| producer                          sites=0
+else producer                        sites=0
+case ) producer                      sites=0
+command printf                       sites=0
+escaped-quote then fake comment      sites=0
+${v/ #/} unquoted with space-hash    sites=0
+${#out} (must be a site)             sites=0
+$# in test (must not be a site)      sites=1
+backslash-continuation               sites=0
+F2 braced-spell                      sites=1
+F3 echo-spell                        sites=1
+--- frozen broad producer|consumer lines (producer uses $) ---
+716 mapfile -t names < <(printf '%s\n' "$CAP_OUT" | grep -v '^[[:space:]]*$' | head -n "$SAMPLE_N")
+1006 mapfile -t timers < <(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | head -n "$TIMER_SCAN_MAX")
+1540 mapfile -t timers < <(printf '%s\n' "$CAP_OUT" | awk 'NF && $1 ~ /\.timer$/ {print $1}' | head -n "$TIMER_SCAN_MAX")
+1826 unk_names=$(printf '%s\n' "$cl_out" | grep '^?' | sed 's/^?//' | head -n6 | paste -sd, - || true)
+3495 planes=$(grep -E "^  printf 'TSUKUROI_CENSUS: %s \(" "$SELF" | head -n1 | grep -oE '[a-z-]+=%s' | sed 's/=%s$//' | paste -sd, - || true)

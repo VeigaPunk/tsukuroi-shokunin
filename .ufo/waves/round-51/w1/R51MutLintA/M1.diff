@@ -1,0 +1,11 @@
+--- orig
++++ M1
+@@ -230,7 +230,7 @@
+                     prob.append(f'quote {sid} {base}:{n}: outside snapshot ({len(src)} lines)')
+                     continue
+                 cited.setdefault((sid, base), set()).add(n)
+-                if norm(want) != norm(src[n - 1]):
++                if norm(want) not in norm(src[n - 1]):
+                     nqb += 1
+                     prob.append(f'quote {sid} {base}:{n}: not the whole line; line is {norm(src[n - 1])!r}')
+                 continue

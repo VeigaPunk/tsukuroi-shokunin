@@ -1,0 +1,55 @@
+62|      <varlistentry>
+63|        <term><varname>KillMode=</varname></term>
+64|        <listitem><para>Specifies how processes of this unit shall be killed. One of
+65|        <option>control-group</option>, <option>mixed</option>, <option>process</option>,
+66|        <option>none</option>.</para>
+67|
+68|        <para>If set to <option>control-group</option>, all remaining processes in the control group of this
+69|        unit will be killed on unit stop (for services: after the stop command is executed, as configured
+70|        with <varname>ExecStop=</varname>). If set to <option>mixed</option>, the
+71|        <constant>SIGTERM</constant> signal (see below) is sent to the main process while the subsequent
+72|        <constant>SIGKILL</constant> signal (see below) is sent to all remaining processes of the unit's
+73|        control group. If set to <option>process</option>, only the main process itself is killed (not
+74|        recommended!). If set to <option>none</option>, no process is killed (strongly recommended
+75|        against!). In this case, only the stop command will be executed on unit stop, but no process will be
+76|        killed otherwise.  Processes remaining alive after stop are left in their control group and the
+77|        control group continues to exist after stop unless empty.</para>
+78|
+79|        <para>Note that it is not recommended to set <varname>KillMode=</varname> to
+80|        <constant>process</constant> or even <constant>none</constant>, as this allows processes to escape
+81|        the service manager's lifecycle and resource management, and to remain running even while their
+82|        service is considered stopped and is assumed to not consume any resources.</para>
+83|
+84|        <para>Processes will first be terminated via <constant>SIGTERM</constant> (unless the signal to send
+85|        is changed via <varname>KillSignal=</varname> or <varname>RestartKillSignal=</varname>). Optionally,
+86|        this is immediately followed by a <constant>SIGHUP</constant> (if enabled with
+87|        <varname>SendSIGHUP=</varname>). If processes still remain after:
+88|        <itemizedlist>
+89|          <listitem><para>the main process of a unit has exited (applies to <varname>KillMode=</varname>:
+90|              <option>mixed</option>)</para></listitem>
+91|          <listitem><para>the delay configured via the <varname>TimeoutStopSec=</varname> has passed
+92|              (applies to <varname>KillMode=</varname>: <option>control-group</option>, <option>mixed</option>,
+93|              <option>process</option>)</para></listitem>
+94|        </itemizedlist>
+95|
+96|        the termination request is repeated with the <constant>SIGKILL</constant> signal or the signal specified via
+97|        <varname>FinalKillSignal=</varname> (unless this is disabled via the <varname>SendSIGKILL=</varname>
+98|        option). See <citerefentry><refentrytitle>kill</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+99|        for more information.</para>
+100|
+101|        <para>Defaults to <option>control-group</option>.</para>
+102|
+103|        <xi:include href="version-info.xml" xpointer="v187"/></listitem>
+104|      </varlistentry>
+105|
+106|      <varlistentry>
+107|        <term><varname>KillSignal=</varname></term>
+108|        <listitem><para>Specifies which signal to use when stopping a service. This controls the signal that
+109|        is sent as first step of shutting down a unit (see above), and is usually followed by
+110|        <constant>SIGKILL</constant> (see above and below). For a list of valid signals, see
+111|        <citerefentry project='man-pages'><refentrytitle>signal</refentrytitle><manvolnum>7</manvolnum></citerefentry>.
+112|        Defaults to <constant>SIGTERM</constant>.</para>
+113|
+114|        <para>Note that, right after sending the signal specified in this setting, systemd will always send
+115|        <constant>SIGCONT</constant>, to ensure that even suspended tasks can be terminated cleanly.</para>
+116|

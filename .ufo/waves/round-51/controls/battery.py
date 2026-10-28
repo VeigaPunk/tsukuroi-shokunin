@@ -155,7 +155,7 @@ def c1_battery(freeze, scratch):
     mut('A1 non-canonical spelling `lines N to M`', 'a1', entry.replace('(scrub.c:3094-3153)', '(scrub.c lines 3200 to 3250)', 1))
     mut('A3 space before the colon, undeclared line', 'a3', entry.replace('(scrub.c:3094-3153)', '(scrub.c :3094-3153 and scrub.c :3200)', 1))
     mut('A4 `line N of file`', 'a4', entry.replace('(scrub.c:3094-3153)', '(line 3200 of scrub.c)', 1))
-    mut('A5 en-dash range hides lines', 'a5', entry.replace('(scrub.c:3094-3153)', '(scrub.c:3094\u20133160)', 1))
+    mut('A5 en-dash range hides lines', 'a5', entry.replace('(scrub.c:3094-3153)', '(scrub.c:3094\u20133250)', 1))
     mut('A7 unmapped basename', 'a7', entry.replace('(scrub.c:3094-3153)', '(scrub.c:3094-3153; volumes.c:6100)', 1))
     mut('G1 range bloat plus regenerated block', 'g1', entry.replace('(scrub.c:3094-3153)', '(scrub.c:1-3337)', 1))
     mut('G2 duplicate gap key hides bloat', 'g2', entry.replace('- S242 scrub.c: 1400-1401, 3081, 3094-3139, 3250-3253', '- S242 scrub.c: 1-3337\n- S242 scrub.c: 1400-1401, 3081, 3094-3139, 3250-3253', 1))

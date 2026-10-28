@@ -1,0 +1,23 @@
+Lane bytes under test: 2732ee6c06108c031c4d8043239b994e0504eb2f (freeze). Lane HEAD 6d051ef0 (r51 counter, r50 counter, anchors checker identical at both).
+Baseline:      python3 <LANE>/tools/check-adjacency-table-r51.py --revision 2732ee6c...   -> PASS (b0-lane-R.json not copied; see h4.json)
+Fixture clone: git clone -q --shared <LANE> <S>/fx ; git -C <S>/fx checkout -q --detach 2732ee6c...
+F5 = fixture commit with `| \`OUT-002\` \`../revenger-shokunin/PROVINCE.md:3-5\` |` in ADJ-01 ownership cell (bare locator), not landed (a1,a2,a3...)
+a1: python3 <LANE>/tools/check-adjacency-table-r51.py --revision F5 --lane <S>/fx
+a2: python3 <S>/fx/tools/check-adjacency-table-r51.py --revision F5
+a3: a1 with fixture tools/check-adjacency-anchors.py replaced by a stub printing PASS, exit 0
+a4: a1 with fixture tools/check-adjacency-table-r50.py given a forged main printing passing r50 legs
+a5: a2 with the same forged fixture r50 (loader = own directory)
+b1: F6 = fixture-only benign commit; refs/heads/master and refs/remotes/origin/master set to F6 in the FIXTURE ONLY; --lane <S>/fx --revision F6
+b0: lane R for comparison
+c1: GIT_DIR=<S>/fx/.git python3 <LANE>/tools/check-adjacency-table-r51.py --revision F6
+d0: F5 landed in fixture refs; --lane <S>/fx (real bytes) ; d1: PATH=<S>/bin:$PATH FORGE_REV=F5 FORGE_PROVINCE=honest-province.md (wrapper-git.sh)
+e1: PYTHONPATH=<S>/pp FORGE_REV=F5 FORGE_PROVINCE=honest-province.md (sitecustomize.py) ; e2: same PYTHONPATH without forge env
+f : GIT_DIR=<S>/fx/.git git -C <home>/revenger-shokunin show <fixture FS commit>:PROVINCE.md  (sibling-read primitive; fixture commit with "# FORGED SIBLING" first line)
+     checker scrub probe: GIT_DIR=<S>/fx/.git python3 <LANE>/tools/check-adjacency-anchors.py --revision F6 -> CANNOT_EVALUATE (rc 2)
+g1: --siblings-root <S>/sibl (symlink -> fleet root) ; g2: --siblings-root <fleet root>/ ; g3: g1 + --control
+h1-h3: --province-file / --skip-anchors-check / F5 --control ; h4: lane R --no-base-check
+e1-nobasecheck-off / e2-nobasecheck: fresh unrelated root commit (git archive of R into a new repo) without / with --no-base-check
+i1: fixture `git replace R F5` then --lane <S>/fx --revision R (replace removed afterwards)
+Textconv probe: GIT_CONFIG_COUNT core.attributesFile + diff.forge.textconv; `git show` and `cat-file blob` return real bytes; `git show --textconv` returns the driver output.
+Frozen hashes (FROZEN-hashes.txt) cover only r51 counter 3d09a8e9...; r50 d571adc9..., checker a4f500ef..., _revision.py fc861ec8... are NOT frozen (computed from 2732ee6c).
+Tools installed: none. Lane writes: none (receipts only).

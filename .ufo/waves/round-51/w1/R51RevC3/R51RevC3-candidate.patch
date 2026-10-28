@@ -1,0 +1,186 @@
+--- a/tools/check-adjacency-table-r51.py
++++ b/tools/check-adjacency-table-r51.py
+@@ -85,13 +85,13 @@
+     """display_bound_ok and quote_specific_ok over every anchor row; returns counts + detail."""
+     bound = specific = 0
+     detail = {}
+-    for out in sorted(anchors):
+-        cs = anchors[out]
++    for n, (out, cs) in enumerate(anchors):
++        key = f'{out}#{n}'
+         d = {'bound': False, 'specific': False, 'why': []}
+         rr = registry.get(out)
+         if rr is None or len(cs) < 5:
+             d['why'].append('no registry row or short anchor row')
+-            detail[out] = d
++            detail[key] = d
+             continue
+         m = R50.SIB.fullmatch(cs[2])
+         full_commit = str(rr.get('sibling_commit', ''))
+@@ -136,43 +136,13 @@
+         d['specific'] = not spec_why
+         d['why'] = d['why'] + spec_why
+         specific += int(d['specific'])
+-        detail[out] = d
++        detail[key] = d
+     return bound, specific, detail
+ 
+ 
+ DIGEST_RE = re.compile(r'^- (OUT-\d{3}) `([^`]+)` @ ([0-9a-f]{40}) sha256 ([0-9a-f]{64})\s*$')
+ 
+ 
+-def digests_bound(prov_text, registry):
+-    """The `Portable digests` list: each line's path, full commit and sha256 equal the registry record."""
+-    n = 0
+-    seen = set()
+-    for ln in prov_text.split('\n'):
+-        m = DIGEST_RE.match(ln)
+-        if not m or m.group(1) in seen:
+-            continue
+-        rr = registry.get(m.group(1))
+-        if rr is None:
+-            continue
+-        seen.add(m.group(1))
+-        if (m.group(2) == f"{rr.get('sibling')}-shokunin/{rr.get('sibling_path')}"
+-                and m.group(3) == rr.get('sibling_commit') and m.group(4) == rr.get('sibling_blob_sha256')):
+-            n += 1
+-    return n
+-
+-
+-def parse_tables(prov_text):
+-    lines = prov_text.split('\n')
+-    adj, anchors = {}, {}
+-    for ln in R50.section(lines, R50.ADJ_HEAD) or []:
+-        m = R50.ADJ_ROW.match(ln)
+-        if m:
+-            adj[m.group(1)] = R50.cells(ln)
+-    for ln in R50.section(lines, R50.ANCHOR_HEAD) or []:
+-        m = R50.OUT_ROW.match(ln)
+-        if m:
+-            anchors[m.group(1)] = R50.cells(ln)
+-    return adj, anchors
+ 
+ 
+ def load_registry(text):
+@@ -185,6 +155,77 @@
+     except Exception:
+         pass
+     return reg
++EXPECTED_OUT = [f'OUT-{i:03d}' for i in range(1, 11)]
++EXPECTED_ADJ = [f'ADJ-{i:02d}' for i in range(1, 8)]
++DEFAULT_LANE = os.path.dirname(HERE)
++
++
++def all_section_lines(lines, head):
++    """Lines of EVERY section headed `head`: a repeated heading is a second displayed table."""
++    out = []
++    for i, ln in enumerate(lines):
++        if ln.strip() == head:
++            end = next((k for k in range(i + 1, len(lines)) if lines[k].startswith('## ')), len(lines))
++            out.extend(lines[i:end])
++    return out
++
++
++def parse_tables(prov_text):
++    """Every displayed row in order, as (id, cells). A later row never replaces an earlier one."""
++    lines = prov_text.split('\n')
++    adj, anchors = [], []
++    for ln in all_section_lines(lines, R50.ADJ_HEAD):
++        m = R50.ADJ_ROW.match(ln)
++        if m:
++            adj.append((m.group(1), R50.cells(ln)))
++    for ln in all_section_lines(lines, R50.ANCHOR_HEAD):
++        m = R50.OUT_ROW.match(ln)
++        if m:
++            anchors.append((m.group(1), R50.cells(ln)))
++    return adj, anchors
++
++
++def digest_list_lines(prov_text):
++    """The lines of the `Portable digests` list only (from its lead line to the next section or Limits)."""
++    lines = prov_text.split('\n')
++    start = next((i for i, ln in enumerate(lines) if ln.startswith('Portable digests')), None)
++    if start is None:
++        return []
++    out = []
++    for ln in lines[start + 1:]:
++        if ln.startswith('## ') or ln.startswith('Limits '):
++            break
++        out.append(ln)
++    return out
++
++
++def checker_is_rev_bytes(lane, rev):
++    """The anchors checker and its import must be the bytes at REV, not the mutable working tree."""
++    for rel in (R50.CHECKER, 'tools/_revision.py'):
++        shown = R50.git(lane, 'show', f'{rev}:{rel}')
++        try:
++            with open(os.path.join(lane, rel), 'rb') as fh:
++                wt = fh.read()
++        except OSError:
++            return False
++        if shown.returncode or shown.stdout != wt:
++            return False
++    return True
++
++
++def digests_bound(prov_text, registry):
++    """Bound lines of the `Portable digests` list only; 0 unless the list is exactly OUT-001..010."""
++    ids, n = [], 0
++    for ln in digest_list_lines(prov_text):
++        m = DIGEST_RE.match(ln)
++        if not m:
++            continue
++        ids.append(m.group(1))
++        rr = registry.get(m.group(1))
++        if (rr is not None and m.group(2) == f"{rr.get('sibling')}-shokunin/{rr.get('sibling_path')}"
++                and m.group(3) == rr.get('sibling_commit') and m.group(4) == rr.get('sibling_blob_sha256')):
++            n += 1
++    return n if sorted(ids) == EXPECTED_OUT else 0
+ 
+ 
+ def forged_province(prov_text):
+@@ -204,7 +245,8 @@
+ 
+ def run(a, lane):
+     overridden = bool(a.province_file or a.registry_file or a.siblings_root != R50.SIBLINGS
+-                      or a.skip_anchors_check)
++                      or a.skip_anchors_check or os.path.abspath(a.lane) != os.path.abspath(DEFAULT_LANE)
++                      or any(k.startswith('GIT_') for k in os.environ))
+     if overridden and not a.control:
+         print(json.dumps({'counter': 'check-adjacency-table-r51', 'verdict': 'OVERRIDE-NOT-MEASURED',
+                           'note': 'an input override is a control, never a measurement; pass --control'}))
+@@ -235,6 +277,10 @@
+                           'verdict': 'FAIL'}))
+         return 2
+     adj, anchors = parse_tables(prov)
++    anchor_rows_exact = int(sorted(o for o, _ in anchors) == EXPECTED_OUT)
++    adj_exact = int(sorted(i for i, _ in adj) == EXPECTED_ADJ)
++    bare_all = sum(len(R50.BARE.findall(cs[-1] if cs else '')) for _, cs in adj)
++    rev_checker = checker_is_rev_bytes(lane, rev)
+     registry = load_registry(reg_text)
+     bound, specific, detail = bound_legs(anchors, registry, a.siblings_root)
+     digests_ok = digests_bound(prov, registry)
+@@ -276,16 +322,20 @@
+             os.unlink(ftmp)
+     legs = {k: r50.get(k) for k in ('adj_rows', 'linked_rows', 'bare_ranges', 'anchors_ok', 'registry_ok',
+                                     'anchors_checker_rc', 'quote_at_pin_ok', 'live_quote_ok', 'stub_fails')}
++    if not rev_checker:
++        legs['anchors_checker_rc'] = -2
+     ok = (legs['adj_rows'] == 7 and legs['linked_rows'] == 7 and legs['bare_ranges'] == 0
+           and legs['anchors_ok'] == 7 and legs['registry_ok'] == 7 and legs['anchors_checker_rc'] == 0
+           and legs['quote_at_pin_ok'] == 9 and (legs['live_quote_ok'] or 0) >= 8
+           and legs['stub_fails'] == 1 and bound == 10 and specific == 10
+           and digests_ok == 10
+-          and display_forge_fails == 1 and ((override_blocked == 1 and r50_blind == 1) or a.control))
++          and display_forge_fails == 1 and anchor_rows_exact == 1 and adj_exact == 1 and bare_all == 0
++          and ((override_blocked == 1 and r50_blind == 1) or a.control))
+     out = {'counter': 'check-adjacency-table-r51', 'revision': rev, 'base': BASE, **legs,
+            'display_bound_ok': bound, 'quote_specific_ok': specific, 'digests_bound_ok': digests_ok,
+            'display_forge_fails': display_forge_fails, 'override_blocked': override_blocked,
+-           'r50_blind': r50_blind,
++           'r50_blind': r50_blind, 'anchor_rows_exact': anchor_rows_exact, 'adj_exact': adj_exact,
++           'bare_all': bare_all, 'checker_rev_bytes': int(rev_checker),
+            'mode': 'control' if a.control else 'measurement', 'detail': detail,
+            'r50_problems': r50.get('problems'), 'predicate': PREDICATE}
+     if a.control:
