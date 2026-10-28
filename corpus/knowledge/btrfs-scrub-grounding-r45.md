@@ -1,4 +1,4 @@
-source: S246 S247 S248 S249 S242 S243 S244 S237 (rows in `corpus/SOURCES.md`; S246 is Linux v7.2.11 `lib/cmdline.c`, `lib/vsprintf.c` and `lib/kstrtox.c`, S247 Linux v7.2.11 `fs/btrfs/dev-replace.c`, S248 systemd v262 `man/systemd.kill.xml`, snapshots `.ufo/waves/round-45/frozen/src/`, digests in its `SHA256SUMS`, fetch log `FETCH.txt`; S249 is the host capture `.ufo/waves/round-45/frozen/hostcap/capture.txt`, sha256 f5958a83b7cf1e2e438ac1b543f1c521f3f9370287fc4c4bcea38947c3991e70; S242 and S243 are `.ufo/waves/round-44/frozen/src/scrub.c` and `sysfs.c`, S244 that directory's `btrfs-scrub@.service`, S237 `.ufo/waves/round-42/frozen/src/scrub.c`)
+source: S246 S247 S248 S249 S242 S243 S244 S237 S240 (rows in `corpus/SOURCES.md`; S246 is Linux v7.2.11 `lib/cmdline.c`, `lib/vsprintf.c` and `lib/kstrtox.c`, S247 Linux v7.2.11 `fs/btrfs/dev-replace.c`, S248 systemd v262 `man/systemd.kill.xml`, snapshots `.ufo/waves/round-45/frozen/src/`, digests in its `SHA256SUMS`, fetch log `FETCH.txt`; S240 is Linux v7.2.11 `fs/btrfs/ioctl.c`, snapshot `.ufo/waves/round-43/frozen/src/ioctl.c`, sha256 7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01 (round 50: the row cites it at ioctl.c:3093-3095, :3109-3110, :3115, :3132-3133 and :3190); S249 is the host capture `.ufo/waves/round-45/frozen/hostcap/capture.txt`, sha256 f5958a83b7cf1e2e438ac1b543f1c521f3f9370287fc4c4bcea38947c3991e70; S242 and S243 are `.ufo/waves/round-44/frozen/src/scrub.c` and `sysfs.c`, S244 that directory's `btrfs-scrub@.service`, S237 `.ufo/waves/round-42/frozen/src/scrub.c`)
 verified-at: 2026-10-27 (Linux tag v7.2.11, peeled commit a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea; systemd tag v262, peeled commit 8cc40e0c5e9234bf45084751ac53b1fbfe70b492; host systemd 262-1-arch, kernel 7.2.11-arch1-1; capture 2026-10-27T02:09:52Z)
 recheck: on-release — re-fetch the URLs in `.ufo/waves/round-45/frozen/src/FETCH.txt` and compare `sha256sum` with its `SHA256SUMS`; re-run `bash .ufo/waves/round-45/frozen/hostcap/capture.sh <file>` (unprivileged, read-only); `python3 tools/check-scrub-grounding-r45.py --revision <REV>`
 
@@ -80,8 +80,9 @@ replace (dev-replace.c:1111) and, for a suspended replace, calls `btrfs_scrub_ca
 for a devid that exists (`scrub.c:3222, :3336`); an unknown devid gives `-ENODEV` (`scrub.c:3336`).
 The unmount suspend path itself only moves a STARTED replace to SUSPENDED, with `time_stopped` and a
 writeback flag (dev-replace.c:1171-1195, state set at :1184-1188), and does not call `btrfs_scrub_cancel`.
-[inference for the ioctl and btrfs-progs side: that the scrub-start ioctl hands these returns to userspace
-unchanged, and how `btrfs scrub start` and `btrfs scrub status` print them, are not pinned here].
+[inference: how `btrfs scrub start` and `btrfs scrub status` print these returns is not pinned here; the
+scrub-start ioctl's own path is pinned and returns the `btrfs_scrub_dev` value (ioctl.c:3093-3095) unless the
+argument copy fails, when it returns `-EFAULT` instead (ioctl.c:3109-3110, ioctl.c:3115)].
 
 **Quote.** `S247` dev-replace.c:700: "/* the disk copy procedure reuses the scrub code */"
 
@@ -123,7 +124,7 @@ unchanged, and how `btrfs scrub start` and `btrfs scrub status` print them, are 
 
 **Quote.** `S243` sysfs.c:2015: "val = !!test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);"
 
-**Quote.** `S247` dev-replace.c:1128: "Scrub doing the replace isn't running so we need to do the"
+**Quote.** `S247` dev-replace.c:1128: "* Scrub doing the replace isn't running so we need to do the"
 
 **Quote.** `S247` dev-replace.c:1143: "/* Scrub for replace must not be running in suspended state */"
 
@@ -225,6 +226,13 @@ SendSIGKILL=yes TimeoutStopUSec=5s FinalKillSignal=9` (capture.txt:3); the stop 
   ranges (1365-1385, 3140-3162, 3215-3226, 3321-3337) do not list `scrub.c:3081`, 3123, 3133 or 3139; S243's
   (72-74, 2021-2049, 2113) do not list `sysfs.c:1288` or 2015; S237's do not list `scrub.c:421`. The file digests
   cover the whole snapshots (`a2w1/C2ExecQuotes.md` F1-F2, `a2r1/ResRevGR2.md`, `a2r1/ResRevGR3Triage.md` D1).
+- Round 50: the widened S247 ranges still do not list `dev-replace.c:1111`, `:1126-1142`, `:1171-1195` or
+  `:1184-1188`, the lines the GR2 cancel and unmount-suspend clauses cite; the snapshot bytes are digest-pinned
+  whole-file, so no claim is unsupported, but the gap is declared here instead of left undeclared
+  (`.ufo/waves/round-49/w1/R49CritGR2b.md` defect 4).
+- Round 50: S240's declared ranges (3066-3075, 3118-3140, 5578-5584) likewise do not list
+  `ioctl.c:3093-3095`, `:3109-3110`, `:3115` or `:3190`, the scrub-start and replace-ioctl lines GR2 now cites; the
+  row's raw bytes are digest-pinned whole-file (sha256 `7b3488f2…ba01`, re-fetched byte-identical on 2026-10-28).
 - GR2's filesystem-closing `-EAGAIN` check (scrub.c:3094-3095) and the unmount-only wording of the suspend-path
   cancellation were added at the round-47 integration after the counted round-46 residual critic read `partly`
   (`.ufo/waves/round-46/r1/V46ResCritGR2.md`); the amended row was re-read by the counted round-47 seats
@@ -250,7 +258,7 @@ therefore stay pending, not admitted; GR2 as corrected at the integration has be
 3. `[inference]` marks the two consequences the pinned code does not decide (btrfs-progs printing for GR2, the record
    after SIGKILL for GR3).
 4. New entry; the round-44 entry gains an appended pointer, not an edit of its rows.
-7. External claims cite S246-S248 (tier A, code and docs at pinned tags); S249 is own-work and carries host values
+7. External claims cite S246-S248 and S240 (tier A, code and docs at pinned tags); S249 is own-work and carries host values
    only (QUALITY 86).
 12. No mechanism is tagged unknown for want of a tool: the deciding source is read and pinned.
 86. Each rule row cites an upstream source row; the own-work capture carries host values beside it.
@@ -285,3 +293,15 @@ format are in `.ufo/waves/round-49/frozen/FROZEN.md`; the counter is
 `tools/check-scrub-admission-r49.py`. This heading records **pending**, not admission: it says
 `admitted` only after the cohort settles `holds` on the current row bytes, and the round-48 findings
 are retained above as the reason the rows were not admitted then.
+
+## Gate status — round 50 (pending; the round-50 cohort has not settled)
+
+Round 49 closed with GR2 bound `partly` by one counted critic (`R49CritGR2b`) on four defects: the `[inference]`
+mark's ioctl conjunct (ioctl.c is pinned at S240 and the row cites it), S240 missing from the `source:` line and
+QUALITY item 7, the dev-replace.c:1128 quote missing its `* ` prefix, and the undeclared S247 range gap. Round 50
+applies those four corrections before its freeze and re-reads GR1-GR3 with a fresh counted cohort of one wave
+(`w1`, 18 seats: three reviewers and three critics per row). The frozen predicate, the row hashes and the
+seat-binding format are in `.ufo/waves/round-50/frozen/FROZEN.md`; the counter is
+`tools/check-scrub-admission-r50.py`, whose citation leg accepts a `file:line` that resolves in a pinned snapshot
+**or** in the committed lane tree at the measured revision (round-49 spot-check routed defect 2), and whose
+distinct-bodies leg ignores whitespace-only differences. This heading records **pending**, not admission.

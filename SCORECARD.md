@@ -3203,3 +3203,28 @@ Trend verdicts: expansion **unchanged** (no new knowledge entry admitted, no new
 re-read clean by a 18-seat cohort where round 48 could not); discernment **improved** (the cohort caught a real
 overreach the author had just written, the frozen counter was shown to be forgeable by three seats, and calibration
 restates to zero mismatches).
+
+## Round 50 — declaration (2026-10-28, base `b866a1d3d26616119a089f1a69b080136becc17b`, before any seat)
+
+Ordinals at base: depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8 (depth and adjacency
+tied lowest, so the lowest-axis duty binds). Saturation 9 / window 3 (no waiver). Round 49 closed
+`rejected-honest-stop` (C2 adjacency PASS, C3 operability PASS, C1 depth FAIL on a bound `partly`). Round-start
+receipts (`.ufo/waves/round-50/before/`): sources census exit 0 at this attempt's own start (255 rows, 40 W04);
+C2 at base `idiom_sites 7, base_misses 20/20, full_misses 0, cases 167, case_ok 0` (`.ufo/waves/round-50/before/c2-at-base.json`).
+Frozen record (predicates, row hashes, cohort, controls): `.ufo/waves/round-50/frozen/FROZEN.md`.
+Round shape: ONE v2 wave (`w1`) sized 64–128; the L1 holds the planner seat.
+
+| Claim | Axis | Surface moved | Counter (frozen) | Before at base | Target (predicate) | Kill rule |
+|---|---|---|---|---|---|---|
+| C1 | depth (lowest tied) | `corpus/knowledge/btrfs-scrub-grounding-r45.md`: the four corrections `R49CritGR2b` named land before the freeze (the `[inference]` mark narrowed to btrfs-progs printing; S240 in the `source:` line and QUALITY item 7; the `dev-replace.c:1128` quote exact; the S247/S240 range gaps declared in Limits); the counter's citation leg binds real reports (lane artifacts + >=2 distinct row sources) and its distinct-bodies leg ignores whitespace padding; a fresh 18-seat cohort of one wave re-reads GR1-GR3 | `python3 tools/check-scrub-admission-r50.py --revision <REV>` | `corr_ok 0, verdicts_ok 0, seats_ok 0, marks_ok 0` → FAIL | `structural_ok == 1 and corr_ok == 1 and quotes_ok == 3 and verdicts_ok == 3 and seats_ok == 18 and marks_ok == 3`; row hashes GR1 `3a2ba180…`, GR2 `a2e955ce…`, GR3 `43430a14…` | any bound-format negative on the current row hash blocks the row; a cohort on defective bytes fails `corr_ok` |
+| C2 | operability (sourced: S256 opened this round) | `tools/tsukuroi-census.sh` selftest harness: `printf '%s\n' "$out" \| grep -q` / `\| head -n1` under `set -euo pipefail` replaced by a full-read matcher (`buf_has`/`out_has`), and one `(R50-C2)` case pins 20 trials on a 200 KB buffer (167 → 168 cases) | `python3 tools/check-selftest-matcher-r50.py --revision <REV> --scratch <DIR>` | `idiom_sites 7, cases 167, case_ok 0` → FAIL | `idiom_sites == 0 and base_misses > 0 and full_misses == 0 and cases == 168 and pass_runs == 2 and case_ok == 1` | a census that keeps the pipe idiom scores `idiom_sites > 0`; a run printing 167 cases fails; the probe must show the base idiom can false-miss |
+| C3 | adjacency (lowest tied) | `tools/check-adjacency-table-r50.py`: content legs (registry digest + heading + quote against the pinned sibling blob; the quote again at the sibling's live tip) and a `stub_fails` leg that separates a shape-valid stub from the real table (routed V5) | `python3 tools/check-adjacency-table-r50.py --revision <REV>` | `quote_at_pin_ok 0, live_quote_ok 0, stub_fails 0` (legs absent at r49) → FAIL | `adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchors_ok == 7 and registry_ok == 7 and anchors_checker_rc == 0 and quote_at_pin_ok == 9 and live_quote_ok >= 8 and stub_fails == 1` | a wrong-class row, a mutated digest or a drifted quote fails its leg; a counter that cannot fail a stub scores 0 |
+
+Pre-data controls (frozen counters; receipts `.ufo/waves/round-50/controls/battery-summary-r50-c{1,2,3}.jsonl`):
+C1 K0/K1/K2/K3/K4/K5/K6/K7 must FAIL and K-pass PASS; C2 K0/K1/K2 FAIL, K-pass PASS; C3 K1/K2/K3 FAIL, K-pass PASS.
+Causal separability: C1 reads the entry + cohort + marks; C2 reads the census blob; C3 reads `PROVINCE.md` + the
+anchor registry + the sibling repos. No claim's counter reads another's surface.
+
+Assimilation: none this round — the staged `merge/tsukuroi` package still collides with the lane registry
+(`.ufo/waves/round-50/assimilation/collisions`); nothing is appended from it. `considerthese/`: one proposal mined
+by a wave scout, landed only if the lane's own bar grounds it.

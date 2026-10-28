@@ -2226,6 +2226,18 @@ STUB
   bad() { FAIL=$((FAIL + 1)); printf 'FAIL %s\n' "$*" >&2; }
   skip() { printf 'SKIP %s\n' "$*"; }
 
+  # Round 50 (R49-EXEC-SELFASSESS §4 / routed defect 5): the must-match arms used
+  # `printf '%s\n' "$out" | grep -q` under `set -euo pipefail`. `grep -q` exits at the first match,
+  # printf then dies of SIGPIPE and the pipeline reads false — measured 4/20 false misses at a 64 KiB
+  # buffer and 11/20 at 96 KiB with a mid-stream match — so a passing case could print a
+  # self-contradicting FAIL (round-49 seat R49ExecSelfAssess). The matcher below consumes every line
+  # (awk with no early exit), which is the round-42 rule; a here-string is not used because over
+  # 64 KiB it is a temporary file and would break the no-write contract.
+  buf_has() { # buf_has BUFFER ERE — true when any line of BUFFER matches ERE (full read, no early exit)
+    printf '%s\n' "$1" | RE="$2" awk '$0 ~ ENVIRON["RE"] { f = 1 } END { exit(f ? 0 : 1) }'
+  }
+  out_has() { buf_has "$out" "$1"; }
+
   fx_default() { # clean fixture: everything passes, dmesg restricted like the measured host
     local d=$1
     mkdir -p "$d/pacmandb" "$d/pci" "$d/dev" "$d/root" "$d/etc"
@@ -2378,17 +2390,17 @@ STUB
       "$BASH" "$SELF" 2>&1)
     rc=$?
     set -e
-    pkgline=$(printf '%s\n' "$out" | grep '^PLANE packages:' | head -n1 || true)
+    pkgline=$(printf '%s\n' "$out" | awk '/^PLANE packages:/ && !p { print; p = 1 }')   # round 50: full read (a `| head -n1` assignment SIGPIPEs on a large buffer)
     if [ "$rc" -ne "$wrc" ]; then
       bad "$label: exit $rc wanted $wrc; output: $(printf '%s' "$out" | tail -n2 | tr '\n' '|')"
-    elif ! printf '%s\n' "$out" | grep -q 'host=fixture-host'; then
+    elif ! out_has 'host=fixture-host'; then
       bad "$label: hostname override not honoured — possible host read"
     elif ! printf '%s\n' "$pkgline" | grep -qE '^PLANE packages: [A-Z]+ \(.*root_status=.*root_mode=.*root_dir='; then
       bad "$label: root metadata not composed into the packages line (blind spot survives?)"
     elif [[ "$pkgline" != *"root_dir=$root_expect "* && "$pkgline" != *"root_dir=$root_expect)" ]]; then
       bad "$label: configured root not asserted at a field boundary (wanted root_dir=$root_expect; possible live-root read)"
-    elif ! printf '%s\n' "$out" | grep -qE "^TSUKUROI_CENSUS: ${wverdict} \("; then
-      bad "$label: verdict not ${wverdict}; got: $(printf '%s\n' "$out" | grep '^TSUKUROI_CENSUS:' | head -n1)"
+    elif ! out_has "^TSUKUROI_CENSUS: ${wverdict} \("; then
+      bad "$label: verdict not ${wverdict}; got: $(printf '%s\n' "$out" | awk '/^TSUKUROI_CENSUS:/ && !p { print; p = 1 }')"
     else
       for re in "$@"; do
         case "$re" in
@@ -2398,7 +2410,7 @@ STUB
             fi
             ;;
           *)
-            printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss '$re'"
+            out_has "$re" || miss="$miss '$re'"
             ;;
         esac
       done
@@ -2429,7 +2441,7 @@ STUB
       bad "$label: exit $rc wanted $wrc; output: $(printf '%s' "$out" | tail -n2 | tr '\n' '|')"
     else
       for re in "${res[@]}"; do
-        printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss '$re'"
+        out_has "$re" || miss="$miss '$re'"
       done
       if [ -n "$miss" ]; then
         bad "$label: output missing:$miss"
@@ -3627,6 +3639,27 @@ STUB
   unset r49_dir r49_c r49_f1 r49_f2 r49_held r49_old_tmp r49_old_band
 
   unset r48_dir r48_base r48_fd r48_rc
+
+  # (R50-C2) The must-match arm must find a mid-stream line in a buffer far past the 64 KiB pipe
+  # buffer on every trial. The round-49 flake (R49ExecSelfAssess §4: a passing case printed a
+  # self-contradicting FAIL whose `got:` matched the reported-missing pattern) came from
+  # `printf | grep -q` under `set -euo pipefail`; this case pins the replacement matcher. 20 trials,
+  # because the old idiom false-missed 11/20 at this size — one trial would not discriminate.
+  r50_big=$(printf '%*s' 100000 '' | tr ' ' x)
+  r50_probe=$(printf '%s\n' "$r50_big" 'TSUKUROI_CENSUS: R50 marker' "$r50_big")
+  r50_miss=0 r50_t=0
+  while [ "$r50_t" -lt 20 ]; do
+    r50_t=$((r50_t + 1))
+    buf_has "$r50_probe" '^TSUKUROI_CENSUS: R50 marker' || r50_miss=$((r50_miss + 1))
+  done
+  if [ "$r50_miss" -ne 0 ]; then
+    bad "selftest: mid-stream match lost in a 200 KB buffer ($r50_miss/20 false misses) (R50-C2)"
+  elif buf_has "$r50_probe" '^TSUKUROI_CENSUS: absent marker'; then
+    bad 'selftest: an absent pattern matched a 200 KB buffer (R50-C2)'
+  else
+    ok 'selftest: mid-stream match held 20/20 in a 200 KB buffer and an absent pattern was rejected (R50-C2)'
+  fi
+  unset r50_big r50_probe r50_miss r50_t
 
   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
