@@ -1781,9 +1781,10 @@ Three claims (full predicates, row hashes, cohort and controls: `.ufo/waves/roun
   Before: the content legs do not exist at r49.
 
 Round shape: ONE v2 wave `w1`, 71 seats (reviewer 19, critic 18, executor 10, scout 9, scribe 5,
-mutation-tester 4, connector 2, sentinel 2, revenger 1, simplifier 1; attack roles 44/71 = 62.0%), validated
-rc=0 under policy v2 (band 64-128), counts spawn 71 / resume 0 / total 71. L1 holds the planner seat (the
-validator rejects `planner` as a swarm role; a bounded planning data-walk rides the connector and scout items).
+mutation-tester 4, connector 2, sentinel 2, revenger 1, simplifier 1; attack roles reviewer+critic+mutation-tester
+41/71 = 57.7%, exceeding 25%), validated rc=0 under policy v2 (band 64-128), counts spawn 71 / resume 0 / total 71.
+L1 holds the planner seat (the validator rejects `planner` as a swarm role; a bounded planning data-walk rides the
+connector and scout items).
 Pre-data control batteries: 17 controls, all as declared (`.ufo/waves/round-50/controls/battery-summary-r50-c{1,2,3}.jsonl`).
 Freeze amendment 1 (pre-data, before any seat): the fifth pipe site, a comment-blind `idiom_sites` count and
 the IN-109 repin — all three caught by the K-pass controls (see `FROZEN.md` and `corpus/lessons/round-50.md`
