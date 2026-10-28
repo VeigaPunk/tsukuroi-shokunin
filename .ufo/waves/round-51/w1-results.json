@@ -1,0 +1,332 @@
+{
+ "lane": "tsukuroi",
+ "round": 51,
+ "wave": "w1",
+ "seats": 54,
+ "results": [
+  {
+   "name": "R51W1PreRevGR1a",
+   "agent": "reviewer",
+   "output": "{\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51W1PreRevGR1a.md\",\n  \"verdict\": \"defect-found\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51W1PreRevGR1b",
+   "agent": "reviewer",
+   "output": "{\n  \"verdict\": \"defect-found\",\n  \"section_sha256\": \"8eff963765feccd759ac62e601776c8cc9ae07352b43d50c9e4d81e6b5178660\",\n  \"report\": \".ufo/waves/round-51/w1/R51W1PreRevGR1b.md\",\n  \"defects\": [\n    \"D1 zero-limit clause cites unpinned SR8; pin scrub.c:1380-1382 (S242)\",\n    \"D2 bytes-per-second unit uncited; mark inference or cite scrub.c:1388\",\n    \"D3 bare-newline acceptance depends on unpinned sysfs NUL termination; mark inference\",\n    \"D4 skip_spaces definition unpinned; mark inference\",\n    \"D5 simple_strtoull link cites only vsprintf.c:86; add vsprintf.c:114\",\n    \"D6 devid 1 host citation should include capture.txt:9\"\n  ],\n  \"checks\": \"section hash matched; snapshot digests OK; lint PASS for GR1; all 12 quotes and cited lines checked against pinned bytes; derived parse examples traced through kstrtox/cmdline/sysfs\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51W1PreCritGR1a",
+   "agent": "critic",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51W1PreCritGR1a.md\",\n  \"verdict\": \"defect-found\",\n  \"section_sha256\": \"8eff963765feccd759ac62e601776c8cc9ae07352b43d50c9e4d81e6b5178660\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51W1PreCritGR1b",
+   "agent": "critic",
+   "output": "{\n  \"seat\": \"R51W1PreCritGR1b\",\n  \"item\": \"C1-PREREAD\",\n  \"verdict\": \"defect-found\",\n  \"section_sha256\": \"8eff963765feccd759ac62e601776c8cc9ae07352b43d50c9e4d81e6b5178660\",\n  \"report\": \".ufo/waves/round-51/w1/R51W1PreCritGR1b.md\",\n  \"receipts\": [\n    \".ufo/waves/round-51/w1/R51W1PreCritGR1b/section-hash.txt\",\n    \".ufo/waves/round-51/w1/R51W1PreCritGR1b/lint.json\"\n  ],\n  \"defects\": [\n    \"D1: examples depend on uncited digit scan (vsprintf.c:89,:91; kstrtox.c:37-38,:70,:74-75,:77)\",\n    \"D2: 'skips whitespace' is an unmarked inference; sysfs.c:2042 uncited; skip_spaces body not pinned\",\n    \"D3: '0 means no limit' and 'bytes per second' cite no S242 line (scrub.c:1368-1369,:1381,:1400-1401)\"\n  ],\n  \"lint\": \"PASS (lint_ok 3, GR1 cites 2, quotes 12, bad 0)\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51W1PreRevGR2a",
+   "agent": "reviewer",
+   "output": "{\n  \"seat\": \"R51W1PreRevGR2a\",\n  \"verdict\": \"defect-found\",\n  \"section_sha256\": \"27aa7abbb20087c531e55de77a3af4259c5ee056f668085c1d5138c70815d6ed\",\n  \"report\": \".ufo/waves/round-51/w1/R51W1PreRevGR2a.md\",\n  \"defects\": [\n    \"D1 universal 'any call' overstates the scrub-context refusal (scrub.c:3120-3133, 3138-3142 return earlier)\",\n    \"D2 'reads 1 on the replace target' cites only sysfs.c:2015; set site dev-replace.c:309 and clear :970 uncited\",\n    \"D3 attribute names exclusive_operation/replace_target not cited to registrations (sysfs.c:1302, 2019)\",\n    \"D4 devid list cited as a reason for lack of reach; reach is set by CapEff alone\"\n  ]\n}",
+   "note": null
+  },
+  {
+   "name": "R51W1PreRevGR2b",
+   "agent": "reviewer",
+   "output": "{\n  \"verdict\": \"defect-found\",\n  \"section_sha256\": \"27aa7abbb20087c531e55de77a3af4259c5ee056f668085c1d5138c70815d6ed\",\n  \"report\": \".ufo/waves/round-51/w1/R51W1PreRevGR2b.md\",\n  \"defects\": [\n    {\n      \"id\": \"D1\",\n      \"clause\": \"Range gaps (R51) block; GR2 citations at entry lines 66, 79-82\",\n      \"finding\": \"S240 gap line omits cited ioctl.c 3076-3078, 3081-3082, 3087-3090, 3094-3095; S242 gap line omits scrub.c 3250-3253. Lint prose_cites() only resolves colon-led continuations directly after basename:line, so parenthesised (:a-b) and 'returned at :a-b' are never counted; lint_ok 3 / gap_ok 1 is not evidence for these lines.\",\n      \"replacement\": \"- S240 ioctl.c: 3076-3078, 3080-3082, 3084-3085, 3087-3090, 3093-3095, 3109-3110, 3115, 3190\\n- S242 scrub.c: 3081, 3094-3139, 3250-3253\\n(plus write the basename on each citation so the lint counts it; S243 line per D2)\"\n    },\n    {\n      \"id\": \"D2\",\n      \"clause\": \"Host reading, entry lines 171-177: 'Replace state is still readable without privilege through sysfs'\",\n      \"finding\": \"Cited sysfs.c:1288 and :2015 show values, not readability. World-readability comes from sysfs.c:78 (BTRFS_ATTR mode 0444), registrations at sysfs.c:1302 and :2019; none cited, none in S243 declared ranges. Host fact supported by C2ExecHostRecheck.md:84-89, not by the cited lines.\",\n      \"replacement\": \"Replace state is still readable without privilege through sysfs, which this capture does not record: the attributes are registered with `BTRFS_ATTR`, whose mode is 0444 (sysfs.c:78, `__INIT_KOBJ_ATTR(_name, 0444, _show, NULL)`; registrations at sysfs.c:1302 and :2019). The filesystem's `exclusive_operation` names `device replace` while a replace holds the exclusive operation (sysfs.c:1288; the resume path takes it at dev-replace.c:1235, and the replace ioctl takes it around the start, S240 ioctl.c:3190), and `devinfo/<devid>/replace_target` reads 1 on the replace's target device (sysfs.c:2015).\"\n    }\n  ],\n  \"checked_supported\": [\n    \"section hash 27aa7abb\u2026 matches; snapshot digests and S-row mapping (S247 dev-replace.c, S242 scrub.c, S243 sysfs.c, S240 ioctl.c) verified; lint PASS (quotes 63, quote_bad 0, cites 28, cite_bad 0)\",\n    \"btrfs_scrub_dev return order and conditions scrub.c:3094-3153 complete (no unlisted returns)\",\n    \"dev-replace.c:700-703 and 1265-1268 call sites (readonly false, is_dev_replace true)\",\n    \"btrfs_dev_replace_is_ongoing dev-replace.c:1276-1300 and umount comment 1288-1297\",\n    \"ioctl.c btrfs_ioctl_scrub 3072-3115 order and return values\",\n    \"btrfs_scrub_progress scrub.c:3321-3336 uses only dev->scrub_ctx\",\n    \"scrub_ctx attach/clear scrub.c:3159, 3222\",\n    \"all GR2 quotes equal whole source lines; ranges stay within their functions\",\n    \"capture.txt:1 CapEff=0 and :9 devids=1; capture does not record replace state\",\n    \"[inference] mark at entry line 90 is correctly placed\"\n  ],\n  \"not_done\": [\n    \"GR1/GR3 not read beyond cited overlap\",\n    \"no counter or selftest run; no userspace btrfs output verified (entry marks as inference)\",\n    \"S237 gap line (GR3) not reviewed\"\n  ]\n}",
+   "note": null
+  },
+  {
+   "name": "R51W1PreCritGR2a",
+   "agent": "critic",
+   "output": "{\n  \"verdict\": \"defect-found\",\n  \"section_sha256\": \"27aa7abbb20087c531e55de77a3af4259c5ee056f668085c1d5138c70815d6ed\",\n  \"report\": \".ufo/waves/round-51/w1/R51W1PreCritGR2a.md\",\n  \"receipt\": \".ufo/waves/round-51/w1/R51W1PreCritGR2a/gr2-gap-recount.txt\",\n  \"defects\": [\n    \"D1: 'any call ... refused the same way' is false; scrub.c:3127-3133, 3120-3123, 3138-3142 return before the -EINPROGRESS test at 3147-3153\",\n    \"D2: 'Replace state is still readable through sysfs' overclaims; sysfs exposes only exclusive_operation name and replace_target, and dev-replace.c:1235-1242 leaves a SUSPENDED replace without the exclusive operation\",\n    \"D3: range-gap block omits cited lines (ioctl.c 3076-3078, 3081-3082, 3087, 3089-3090, 3094-3095; scrub.c 3250-3253) because lint prose_cites misses parenthesised and 'returned at' bare cites\"\n  ],\n  \"checks\": \"section hash matches; all four snapshot digests verified; v7.2.11 provenance confirmed; lint PASS (GR2 20 cites, 39 quotes, no problems); host capture lines 1 and 9 match; every cited range sits inside its function; quotes spot-checked against pinned lines\",\n  \"scratch\": \"removed\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51W1PreCritGR2b",
+   "agent": "critic",
+   "output": "{\n  \"seat\": \"R51W1PreCritGR2b\",\n  \"item\": \"C1-PREREAD GR2 (uncounted)\",\n  \"verdict\": \"defect-found\",\n  \"section_sha256\": \"27aa7abbb20087c531e55de77a3af4259c5ee056f668085c1d5138c70815d6ed\",\n  \"report\": \".ufo/waves/round-51/w1/R51W1PreCritGR2b.md\",\n  \"receipts\": [\n    \".ufo/waves/round-51/w1/R51W1PreCritGR2b/lint-r51.json\"\n  ],\n  \"defects\": [\n    {\n      \"id\": \"D1\",\n      \"entry_lines\": \"75-76\",\n      \"clause\": \"any call, replace or not, is refused the same way while its device already carries a scrub context\",\n      \"contradicted_by\": \"scrub.c:3120-3123 (ENODEV), :3127-3133 (EROFS), :3138-3142 (EIO) return before the scrub_ctx check at :3147\",\n      \"replacement\": \"any call that gets past the earlier checks above, replace or not, is refused the same way while its device already carries a scrub context.\"\n    },\n    {\n      \"id\": \"D2\",\n      \"entry_lines\": \"66, 79-82, 271-275\",\n      \"clause\": \"### Range gaps (R51) block\",\n      \"contradicted_by\": \"lint CONT_RE (tools/lint-grounding-r51.py:78) does not chain bare :NNN cites after prose; block omits S240 ioctl.c 3076-3078, 3081-3082, 3087, 3089-3090, 3094-3095 and S242 scrub.c 3250-3253 (outside declared ranges per corpus/SOURCES.md:249,251 at the revision)\",\n      \"replacement\": \"- S240 ioctl.c: 3076-3078, 3080-3082, 3084-3085, 3087-3090, 3093-3095, 3109-3110, 3115, 3190 ; - S242 scrub.c: 3081, 3094-3139, 3250-3253 ; lint fix: chain :N after any ,/;/(/at continuation on the same line\"\n    },\n    {\n      \"id\": \"D3\",\n      \"entry_lines\": \"174, 177\",\n      \"clause\": \"exclusive_operation names device replace; devinfo/<devid>/replace_target reads 1\",\n      \"contradicted_by\": \"names are registered at sysfs.c:1302 and sysfs.c:2019, not cited; cites 1288 and 2015 support only the string and the body\",\n      \"replacement\": \"add (sysfs.c:1302) after exclusive_operation and (sysfs.c:2019) after replace_target; gap block S243 line becomes '1288, 1302, 2015, 2019'\"\n    }\n  ],\n  \"supported\": \"Statement dev-replace.c:700-703, 1197, 1265-1268 (only two btrfs_scrub_dev callers; kthread spawned only by resume at :1245); scrub.c:3081, 3094-3095, 3109-3111, 3114-3116 (goto out_free_ctx lands at 3250-3253), 3120-3123, 3127-3133, 3138-3142, 3147-3153, 3159, 3222, 3321-3336; dev-replace.c:1278-1279, 1286-1297; ioctl.c:3072-3095, 3109-3110, 3115, 3132-3133, 3190; sysfs.c:1288, 2015; capture.txt:1, :9; C2ExecHostRecheck.md \u00a73 mode 444 and reads none/0; all 39 GR2 quotes whole-line; section hash matches; digests of all four frozen snapshots OK; lint PASS (lint_ok 3, gap_ok 1 but blind per D2).\",\n  \"not_checked\": \"btrfs-progs printing of returns (marked inference in entry); Limits process-history claims (round-45/46/47/50 artifacts); exclusive_operation mode beyond C2ExecHostRecheck \u00a73\",\n  \"installs\": \"none\",\n  \"scratch\": \"removed\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51W1PreRevGR3a",
+   "agent": "reviewer",
+   "output": "{\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51W1PreRevGR3a.md\",\n  \"verdict\": \"defect-found\",\n  \"section_sha256\": \"43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c\",\n  \"defects\": [\n    \"D1 citation :68 says 'killed', not the KillSignal; add S248:84-85\",\n    \"D2 'first step' sentence cited only at :108; add :109\",\n    \"D3 'SIGINT reaches that handler' unqualified; handler installed only at scrub.c:1546\",\n    \"D4 '-B does not fork' cites :1512 (the branch), not :1293 (the -B option); gap block must be regenerated\"\n  ],\n  \"lint\": \"PASS, rows_clean 3, GR3 quotes 12/0 bad, cites 6/0 bad\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51W1PreRevGR3b",
+   "agent": "reviewer",
+   "output": "{\n  \"verdict\": \"defect-found\",\n  \"report\": \".ufo/waves/round-51/w1/R51W1PreRevGR3b.md\",\n  \"section_sha256\": \"43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c\",\n  \"defects\": [\n    \"D1 -B no-fork clause cites scrub.c:1512 (guard only); setting is scrub.c:1293; S237 gap block must add 1293\",\n    \"D2 SIGTERM default and 'every remaining process receives it' lack supporting citations; add systemd.kill.xml:84-85 and :112\",\n    \"D3 'in this order' omits optional SIGHUP (systemd.kill.xml:84-87); SendSIGHUP not queried by capture.txt\",\n    \"D4 'SIGINT reaches that handler' holds only from scrub.c:1546 to :1710; pre-1546 window unhandled; gap block gains 1710\"\n  ],\n  \"lint\": {\n    \"verdict\": \"PASS\",\n    \"lint_ok\": 3,\n    \"gr3_cites\": 6,\n    \"gr3_quotes\": 12,\n    \"problems\": 0\n  },\n  \"receipts\": [\n    \".ufo/waves/round-51/w1/R51W1PreRevGR3b/GR3-section-2732ee6c.md\"\n  ],\n  \"scratch_removed\": true\n}",
+   "note": null
+  },
+  {
+   "name": "R51W1PreCritGR3a",
+   "agent": "critic",
+   "output": "{\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51W1PreCritGR3a.md\",\n  \"verdict\": \"defect-found\",\n  \"section_sha256\": \"43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c\",\n  \"defects\": [\n    \"D1 signal-identity clause cited to S248:68 which does not name the signal; add :84,:85,:109,:112 quotes\",\n    \"D2 -B fork clause cites scrub.c:1512 test, not the flag at :1292-1293\",\n    \"D3 'SIGINT reaches that handler' unqualified; handler exists only from scrub.c:1546 until :1710 reset\",\n    \"D4 host btrfs-progs version and unit ExecStart unobserved; chain is v7.1 source applied to host\",\n    \"D5 FinalKillSignal/SendSIGKILL parenthetical needs S248:97\"\n  ]\n}",
+   "note": null
+  },
+  {
+   "name": "R51W1PreCritGR3b",
+   "agent": "critic",
+   "output": "{\n  \"verdict\": \"defect-found\",\n  \"section_sha256\": \"43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c\",\n  \"report\": \".ufo/waves/round-51/w1/R51W1PreCritGR3b.md\",\n  \"receipt\": \".ufo/waves/round-51/w1/R51W1PreCritGR3b/lint-grounding-r51.out\",\n  \"defects\": [\n    \"D1 unqualified SIGINT-reaches-handler (handler installed only at scrub.c:1546)\",\n    \"D2 -B cited to :1512 instead of :1292-1293\",\n    \"D3 'in this order' omits optional SIGHUP; SendSIGHUP not captured\",\n    \"D4 SIGTERM default uncited (systemd.kill.xml:112)\",\n    \"D5 KillMode absence has no cited range (S244:1-10)\",\n    \"D6 btrfs-progs host binary version not captured\"\n  ],\n  \"gap_block_regeneration_needed\": [\n    \"D1 (scrub.c:433, :443)\",\n    \"D2 (scrub.c:1292-1293)\"\n  ]\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScoutReopenS237",
+   "agent": "scout",
+   "output": "{\n  \"verdict\": \"supports\",\n  \"report\": \".ufo/waves/round-51/w1/R51ScoutReopenS237.md\",\n  \"sha256\": \"48df2e2f468f7db79a3611ae2f3b1b794d330e8d02cc91f9ce386de8ed8f0801\",\n  \"byte_identical\": true\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScoutReopenS240",
+   "agent": "scout",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51ScoutReopenS240.md\",\n  \"verdict\": \"supports\",\n  \"line\": \"Report: .ufo/waves/round-51/w1/R51ScoutReopenS240.md\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScoutReopenS242",
+   "agent": "scout",
+   "output": "{\n  \"verdict\": \"supports\",\n  \"report\": \".ufo/waves/round-51/w1/R51ScoutReopenS242.md\",\n  \"byte_identical\": true,\n  \"sha256\": \"f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8\",\n  \"access_utc\": \"2026-10-28T21:13:21Z\",\n  \"url\": \"https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/fs/btrfs/scrub.c?h=v7.2.11\",\n  \"quote_line\": 3336,\n  \"quote\": \"return dev ? (sctx ? 0 : -ENOTCONN) : -ENODEV;\",\n  \"outside_anchor\": \"3081, 3094-3139, 3250-3253\",\n  \"emit_gaps_s242\": \"3081, 3094-3139\",\n  \"gap_omits\": \"3250-3253\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScoutReopenS243",
+   "agent": "scout",
+   "output": "{\n  \"verdict\": \"supports\",\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51ScoutReopenS243.md\",\n  \"line\": \"VERDICT: supports \u2014 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51ScoutReopenS243.md\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScoutReopenS246",
+   "agent": "scout",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51ScoutReopenS246.md\",\n  \"verdict\": \"supports\",\n  \"line\": \"Report: .ufo/waves/round-51/w1/R51ScoutReopenS246.md\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScoutReopenS247",
+   "agent": "scout",
+   "output": "{\n  \"verdict\": \"supports\",\n  \"report\": \".ufo/waves/round-51/w1/R51ScoutReopenS247.md\",\n  \"sha256\": \"f07ef0a0d260cf67b7c2aff0542ec13204f9761e33df0ea9feedf143cc034f3a\",\n  \"byte_identical\": true,\n  \"outside_anchor\": [\n    1197\n  ]\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScoutReopenS248",
+   "agent": "scout",
+   "output": "{\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51ScoutReopenS248.md\",\n  \"verdict\": \"supports\",\n  \"line\": \"Report: .ufo/waves/round-51/w1/R51ScoutReopenS248.md\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScoutReopenS244",
+   "agent": "scout",
+   "output": "{\n  \"verdict\": \"supports\",\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51ScoutReopenS244.md\",\n  \"sha256\": \"eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252\",\n  \"byte_identical\": true\n}",
+   "note": null
+  },
+  {
+   "name": "R51RevLint",
+   "agent": "reviewer",
+   "output": "{\n  \"verdict\": \"defect-found\",\n  \"report\": \".ufo/waves/round-51/w1/R51RevLint.md\",\n  \"receipts\": \".ufo/waves/round-51/w1/R51RevLint/\",\n  \"summary\": \"Pinned lint PASSES (lint_ok 3; 63 quotes, 28 cites, 62 gap lines). Gap leg omits 14 truly out-of-range cited lines (S240 ioctl.c 3076-3078, 3081-3082, 3087, 3089-3090, 3094-3095; S242 scrub.c 3250-3253); a truthful block FAILS the frozen lint. Quote leg is bypassed by bullet-prefixed or trailing-text quote lines, and accepts empty quotes and tab-for-space. Tokenizer misses colon-only continuations, en-dash ranges, unmapped basenames, spaced colons and backtick/word-separated continuations. Duplicate gap-block keys overwrite silently. SOURCES.md declared ranges are unpinned: widening S237 plus regenerating the block passes. Every hole has a fixture in fixtures-lint-r51.py with output in fixtures-lint-r51.out.\",\n  \"tools_installed\": \"none\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51CritLintCheat",
+   "agent": "critic",
+   "output": "{\n  \"verdict\": \"defect-found\",\n  \"seat\": \"R51CritLintCheat\",\n  \"item\": \"C1-L2\",\n  \"report\": \".ufo/waves/round-51/w1/R51CritLintCheat.md\",\n  \"receipts\": \".ufo/waves/round-51/w1/R51CritLintCheat/\",\n  \"summary\": {\n    \"fixtures_run\": 18,\n    \"frozen_lint_ok_3_on_all\": true,\n    \"frozen_counter_pass_on_cheats\": 17,\n    \"frozen_counter_fail_only_D1_quotes_ok\": 1,\n    \"e0_frozen_counter_pass\": true,\n    \"prototype_rules_closing_all_cheats\": \"1-9 close all but Q5 family; rule 10 (heuristic) closes Q5a/b/c but flags 2 frozen E0 quotes (dev-replace.c:703, :1268)\"\n  },\n  \"cheats_passing_frozen_counter\": [\n    \"A1 scrub.c lines N to M prose\",\n    \"A2 backticked basename before colon\",\n    \"A3 space before colon\",\n    \"A4 line N of scrub.c\",\n    \"A5 en-dash range hides 3201-3250\",\n    \"A6 comma continuation without colon\",\n    \"A7 unpinned basename volumes.c\",\n    \"G1 whole-file range cite with regenerated gap block\",\n    \"G2 duplicate gap-block key overwrite\",\n    \"D2 GR3 single empty quote\",\n    \"Q3 GR2 S242 quotes moved outside row\",\n    \"Q4 mislabelled source S237 quote\",\n    \"Q5a/Q5b/Q5c same-text line relabel\",\n    \"Q6/Q6b quote-label drift with wrong text\"\n  ],\n  \"cheats_failing_frozen_counter\": [\n    \"D1 GR3 zero quotes and zero citations (quotes_ok 2; lint_ok still 3)\"\n  ],\n  \"not_done\": [\n    \"C2 scorer not run\",\n    \"C3 adjacency checker not run\",\n    \"full battery not run (helpers only)\",\n    \"prototype rules not checked on other entries\",\n    \"cohorts are battery-built, not real seat reports\"\n  ],\n  \"installs\": \"none\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51MutLintA",
+   "agent": "mutation-tester",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51MutLintA.md\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51MutLintB",
+   "agent": "mutation-tester",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51MutLintB.md\",\n  \"verdict\": \"defect-found\",\n  \"summary\": \"M5 killed by K3, M7 by K4, M8 by K5; M6 survives all battery controls (killed only by probe K9); M9 survives the battery (K8 fails via distinct-bodies leg), killed only by probe K8b. Receipts in .ufo/waves/round-51/w1/R51MutLintB/.\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ExecLintFresh",
+   "agent": "executor",
+   "output": "{\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51ExecLintFresh.md\",\n  \"verdict\": \"defect-found\",\n  \"summary\": \"Fresh clone at 2732ee6c: lint PASS (lint_ok 3), gaps block identical, admission no-cohort FAIL as expected (lint_ok 3 quotes_ok 3), base lint_ok 0 quotes_ok 2. check-scrub-grounding-r45.py FAILS at freeze (quotes_ok 3->1; verdicts_ok 0 at both revisions): GR1 cmdline.c:147 space-vs-TAB leader, and 10 GR2 S240 ioctl.c quotes with no S240 key in the r45 SNAP table. Repairs proposed in report.\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51CritCheatC2a",
+   "agent": "critic",
+   "output": "{\n  \"verdict\": \"defect-found\",\n  \"report\": \".ufo/waves/round-51/w1/R51CritCheatC2a.md\",\n  \"summary\": \"idiom_sites misses 18 real SIGPIPE-hazard spellings (producer through variable, command/builtin printf, brace/subshell consumers, -E/-e before -q, -m/-m1, head -c/--lines, /usr/bin/grep, timeout wrapper, bare read, awk exit). Proposed PROD2/CONS2 pipe leg with `|| true` and `< <(` exemptions scores 0 on the 2732ee6 census and flags all 18.\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51CritCheatC2b",
+   "agent": "critic",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51CritCheatC2b.md\",\n  \"verdict\": \"defect-found\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51MutC2",
+   "agent": "mutation-tester",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51MutC2.md\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51RevC2",
+   "agent": "reviewer",
+   "output": "\"{\\\"verdict\\\": \\\"defect-found\\\", \\\"report\\\": \\\".ufo/waves/round-51/w1/R51RevC2.md\\\", \\\"receipts\\\": \\\".ufo/waves/round-51/w1/R51RevC2/\\\", \\\"findings\\\": [{\\\"id\\\": \\\"F1\\\", \\\"severity\\\": \\\"HIGH\\\", \\\"title\\\": \\\"self-checking liar passes the matcher counter\\\", \\\"evidence\\\": \\\"liar2-matcher.json: verdict PASS on a census that never probes the host; both mutants caught; proposed fix is an equivalence-mutant leg E1 (unrun)\\\"}, {\\\"id\\\": \\\"F2\\\", \\\"severity\\\": \\\"MEDIUM\\\", \\\"title\\\": \\\"IDIOM_RE and strip_comment miss real printf|grep -q sites\\\", \\\"evidence\\\": \\\"eight static evasions verified (grep -E -q, grep -m1, || / else / case producers, $1 producer, backslash continuation, escaped quote and ${v/ #/} comment mis-stripping); census scores unchanged (0/5/0); replacement validated statically only\\\"}, {\\\"id\\\": \\\"F3\\\", \\\"severity\\\": \\\"MEDIUM\\\", \\\"latent\\\", \\\"title\\\": \\\"scorer runs counter and r50 control from the working tree, not the frozen rev\\\", \\\"evidence\\\": \\\"score-counter-cheats-r51.py:91-92; bytes currently identical; materialize-from-rev fix proposed (unrun)\\\"}, {\\\"id\\\": \\\"F4\\\", \\\"severity\\\": \\\"LOW\\\", \\\"title\\\": \\\"printed PREDICATE says pass_runs == 2 while the check uses a.runs; scorer defaults --runs 1\\\", \\\"evidence\\\": \\\"matcher.py:55-56, 182-184, 191; score-counter-cheats-r51.py:88\\\"}, {\\\"id\\\": \\\"F5\\\", \\\"severity\\\": \\\"LOW\\\", \\\"title\\\": \\\"scorer F1 liar docstring says 12 lines; it is 9\\\", \\\"evidence\\\": \\\"score-counter-cheats-r51.py:8, 37-46\\\"}, {\\\"id\\\": \\\"F6\\\", \\\"severity\\\": \\\"LOW\\\", \\\"title\\\": \\\"renamed needle fails closed but the reason is hidden; cases==168 hard-coded\\\", \\\"evidence\\\": \\\"M1 and M2 needles occur once each at frozen rev; OOM_V occurs 10 times\\\"}, {\\\"id\\\": \\\"F7\\\", \\\"severity\\\": \\\"LOW\\\", \\\"title\\\": \\\"fixture-anchor errors exit 1, same code as a FAIL verdict\\\", \\\"evidence\\\": \\\"score-counter-cheats-r51.py:62, 65\\\"}], \\\"clean_checks\\\": [\\\"IDIOM_RE counts 0/5/0 at 2732ee6c, b866a1d3, c0ad548a (five matches at b866a1d: lines 2384, 2386, 2390, 2401, 2432)\\\", \\\"probe base_misses > 0 holds: ten runs, 18-20 misses, full_misses 0\\\", \\\"env_for PATH=/usr/bin:/bin: one real census selftest passes (rc 0, 168/168) with no ~/.local/bin dependency\\\", \\\"fixture ARM and BAD anchors each occur exactly once; F2 and F3 rejected by idiom leg; case_ok matches census ok() helper\\\"], \\\"not_run\\\": [\\\"F4 neutered fixture end-to-end\\\", \\\"real-census M1/M2 mutants\\\", \\\"scorer end-to-end\\\", \\\"proposed E1, IDIOM_RE/strip_comment and materialize code through a selftest\\\"]}\"",
+   "note": null
+  },
+  {
+   "name": "R51ExecC2Determinism",
+   "agent": "executor",
+   "output": "{\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51ExecC2Determinism.md\",\n  \"verdict\": \"supports\",\n  \"summary\": \"C2 scorer deterministic across 2 runs on a loaded host (load 28-54 on 32 cores): run1.json and run2.json are byte-identical (sha256 6165b9bd...), PASS, rc 0, empty stderr; no flake, no mut_caught variation. Wall times 408 s and 321 s.\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScoutS256",
+   "agent": "scout",
+   "output": "{\n  \"verdict\": \"supports\",\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51ScoutS256.md\",\n  \"line\": \"Report: .ufo/waves/round-51/w1/R51ScoutS256.md\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScribeC2Lesson",
+   "agent": "scribe",
+   "output": "{\n  \"verdict\": \"draft\",\n  \"report\": \".ufo/waves/round-51/w1/R51ScribeC2Lesson.md\",\n  \"receipt\": \".ufo/waves/round-51/w1/R51ScribeC2Lesson/grep1-lines-201-205.txt\",\n  \"summary\": \"C2/S256 Gate draft written. Live grep(1) page sha256 matches the recorded hash. Quote located at raw lines 202-204 within the declared 201-205, 16 words. Flagged: the before file's top-level r51 values satisfy the full C2 predicate on their own, and the r51 scorer is absent at base c0ad548, so the Gate should cite only r50_cheats_rejected 0 as the before-value. Nothing run beyond the grep fetch and reads; scratch removed.\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51RevC3",
+   "agent": "reviewer",
+   "output": "{\n  \"verdict\": \"defect-found\",\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51RevC3.md\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51CritCheatC3a",
+   "agent": "critic",
+   "output": "{\n  \"verdict\": \"defect-found\",\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51CritCheatC3a.md\",\n  \"summary\": \"C3 counter passes coordinated forgeries: spec forgery (quote swap + commit/digest/snapshot to real master commit 76bdda4b) PASS all legs; off-master commit 4bc966c4 (jj-keep only) PASS; ADJ-05 kama relink with ADJ-01/OUT-001 relink PASS. Caught: table-only/registry-only edits, snapshot-less commit swap (checker SNAPSHOT-TAMPERED), out-of-section quote, partial relink (incidental).\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51CritCheatC3b",
+   "agent": "critic",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51CritCheatC3b.md\",\n  \"verdict\": \"defect-found\",\n  \"summary\": \"C3 counter prints PASS on non-lane or env-substituted bytes via --lane fixture, forged loader copy, PATH/PYTHONPATH substitution and --no-base-check; symlink siblings-root and textconv are not holes.\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51MutC3a",
+   "agent": "mutation-tester",
+   "output": "{\n  \"verdict\": \"defect-found\",\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51MutC3a.md\",\n  \"receipts\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51MutC3a/\",\n  \"mutants\": {\n    \"M1\": \"killed by K-pass (PASS->FAIL); K0 stays CONTROL-FAIL\",\n    \"M2\": \"SURVIVES all seven controls (control gap); killed by proposed K6 (real substituted pinned-blob quote: base CONTROL-FAIL, M2 CONTROL-PASS)\",\n    \"M3\": \"killed by K4 (CONTROL-FAIL->CONTROL-PASS)\",\n    \"M4\": \"killed by K5 (CONTROL-FAIL->CONTROL-PASS)\"\n  },\n  \"baseline\": \"unmutated pin reproduces battery-summary-r51-freeze-c3.jsonl exactly, 7/7\",\n  \"tools_installed\": \"none\",\n  \"host_hygiene\": \"lane controls/__pycache__/battery.cpython-314.pyc (18:17:04) not caused by this seat per evidence; not removed\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51MutC3b",
+   "agent": "mutation-tester",
+   "output": "{\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51MutC3b.md\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScoutLiveTips",
+   "agent": "scout",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51ScoutLiveTips.md\",\n  \"verdict\": \"no-finding\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ExecC3Fresh",
+   "agent": "executor",
+   "output": "{\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51ExecC3Fresh.md\",\n  \"verdict\": \"supports\",\n  \"summary\": \"C3 counter PASS rc=0 on fresh clone at freeze 2732ee6c and at base c0ad548a (identical legs, predicate met); battery C3: 7 controls, 7 as expected, 0 not.\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ConnOverlap",
+   "agent": "connector",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51ConnOverlap.md\",\n  \"verdict\": \"defect-found\",\n  \"summary\": \"Counters run working-tree code (C1/C2/C3 and battery), not the pin; C3 displayed-bound leg is non-duplicate for path, commit prefix and heading; C1 lint and r45 quote legs disagree on GR1 cmdline.c:147; ADJ-06 kaidoku/revenger overlap is pre-existing.\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScoutConsider",
+   "agent": "scout",
+   "output": "{\n  \"verdict\": \"draft\",\n  \"report\": \".ufo/waves/round-51/w1/R51ScoutConsider.md\",\n  \"line\": \"Report: .ufo/waves/round-51/w1/R51ScoutConsider.md\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScoutAssimilation",
+   "agent": "scout",
+   "output": "{\n  \"verdict\": \"defect-found\",\n  \"report\": \".ufo/waves/round-51/w1/R51ScoutAssimilation.md\",\n  \"adopted\": false,\n  \"registry\": {\n    \"path\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md\",\n    \"count\": 256,\n    \"range\": \"S001-S256\"\n  },\n  \"staged\": {\n    \"path\": \"/home/vgpnk/Projects/shokuknow/merge/tsukuroi/SOURCES.append.md\",\n    \"count\": 147,\n    \"range\": \"S200-S346\"\n  },\n  \"collisions\": {\n    \"count\": 57,\n    \"range\": \"S200-S256\",\n    \"gaps\": 0,\n    \"list\": \"S200 S201 S202 S203 S204 S205 S206 S207 S208 S209 S210 S211 S212 S213 S214 S215 S216 S217 S218 S219 S220 S221 S222 S223 S224 S225 S226 S227 S228 S229 S230 S231 S232 S233 S234 S235 S236 S237 S238 S239 S240 S241 S242 S243 S244 S245 S246 S247 S248 S249 S250 S251 S252 S253 S254 S255 S256\"\n  },\n  \"staged_not_in_registry\": {\n    \"count\": 90,\n    \"range\": \"S257-S346\"\n  },\n  \"merge_report_stale\": \"MERGE-REPORT.md:9 claims 199 registry rows and first staged id S200; live registry is 256 and already occupies S200-S256. Lane S200 is mount(2) (SOURCES.md:209); staged S200 is mkinitcpio(8) (SOURCES.append.md:7).\",\n  \"indent_proof\": {\n    \"fixture\": \"  | S200 |\",\n    \"pattern_0_3_matches\": 1,\n    \"pattern_0_3_exit\": 0,\n    \"column_zero_matches\": 0,\n    \"column_zero_exit\": 1,\n    \"comm_0_3\": \"S200\",\n    \"comm_col0_bytes\": 0\n  },\n  \"quarantine\": {\n    \"lane\": \"tsukuroi\",\n    \"data_rows\": 12,\n    \"ids\": [\n      \"S211\",\n      \"S213\",\n      \"S225\",\n      \"S230\",\n      \"S231\",\n      \"S242\",\n      \"S243\",\n      \"S244\",\n      \"S249\",\n      \"S250\",\n      \"S251\",\n      \"S252\"\n    ],\n    \"note\": \"by-lane total of 2 counts only payload-absent; slice also includes NEVER CHECKED\"\n  },\n  \"theme\": \"mkinitcpio hook API and the mkinitcpio-42 boot-recovery gate\",\n  \"province\": \"Core \u2014 Initramfs v42 and boot recovery (PROVINCE.md:22)\",\n  \"candidates\": [\n    {\n      \"path\": \"/home/vgpnk/Projects/shokuknow/merge/tsukuroi/knowledge/corpus/knowledge/initramfs-hook-api-r25.md\",\n      \"cites\": [\n        \"S200\",\n        \"S210\"\n      ],\n      \"collide\": true,\n      \"quarantined\": false\n    },\n    {\n      \"path\": \"/home/vgpnk/Projects/shokuknow/merge/tsukuroi/knowledge/corpus/knowledge/mkinitcpio-42-upgrade-gate-cjk-r26.md\",\n      \"cites\": [\n        \"S216\",\n        \"S221\"\n      ],\n      \"collide\": true,\n      \"quarantined\": false\n    },\n    {\n      \"path\": \"/home/vgpnk/Projects/shokuknow/merge/tsukuroi/knowledge/corpus/knowledge/initramfs-hook-api-zh-r27.md\",\n      \"cites\": [\n        \"S222\"\n      ],\n      \"collide\": true,\n      \"quarantined\": false\n    }\n  ],\n  \"renumber_from\": \"S257\",\n  \"scratch_removed\": true\n}",
+   "note": null
+  },
+  {
+   "name": "R51ExecCensusSources",
+   "agent": "executor",
+   "output": "{\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51ExecCensusSources.md\",\n  \"verdict\": \"defect-found\",\n  \"summary\": \"validate exit 0, 40 W04, 256 rows; all 10 rows sane (11 cells, ISO opened, valid recheck, used-by resolves at 2732ee6c). Defect: corpus/lessons/round-51.md does not exist at the rev, so the used-by edits (append ', corpus/lessons/round-51.md' to S237 S240 S242 S243 S246 S247 S248 S256) must land in the same commit as that file or E11 fires. Edits old->new are in the report.\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScribeSourcesGate",
+   "agent": "scribe",
+   "output": "{\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51ScribeSourcesGate.md\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScribeMistakes",
+   "agent": "scribe",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51ScribeMistakes.md\",\n  \"verdict\": \"draft\",\n  \"summary\": \"Draft Mistakes table for corpus/lessons/round-51.md: eight rows, each with a checked pointer at 2732ee6c or a marked [untracked] receipt. Misrooted edit, registry gap, C2 docstring, round-50 Admitted pointer, GR2 over-reach, range gaps and leader, seven seats without report files, fd-band exact count, IDIOM_RE false positive.\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51RevNoHarm",
+   "agent": "reviewer",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51RevNoHarm.md\",\n  \"verdict\": \"defect-found: check-self-assessment 3 mismatches at 2732ee6c (base 1); K08/K09 are self-inflicted by the +11 SKILL.md rows; rest PASS\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51SentScope",
+   "agent": "sentinel",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51SentScope.md\",\n  \"verdict\": \"defect-found\",\n  \"summary\": \"Scope clean; 3 minor defects (D1 working-tree counter binding, D2 tools/__pycache__ written, D3 adjacency tempfiles outside --scratch).\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ConnCross",
+   "agent": "connector",
+   "output": "{\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51ConnCross.md\",\n  \"verdict\": \"no-finding\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51RevSeparability",
+   "agent": "reviewer",
+   "output": "{\n  \"seat\": \"R51RevSeparability\",\n  \"verdict\": \"defect-found\",\n  \"report\": \".ufo/waves/round-51/w1/R51RevSeparability.md\",\n  \"receipts\": \".ufo/waves/round-51/w1/R51RevSeparability/\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51CritTrends",
+   "agent": "critic",
+   "output": "{\n  \"report\": \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-51/w1/R51CritTrends.md\",\n  \"verdict\": \"defect-found\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScribeSkill",
+   "agent": "scribe",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51ScribeSkill.md\",\n  \"verdict\": \"defect-found\",\n  \"summary\": \"Drafted both round-51 SKILL.md append variants (A: `## Scrub grounding \u2014 round 51 admission`, 32 lines; B: `\u2026 (pending)`, 28 lines). Defect: the `--control` override rule exists only in tools/check-adjacency-table-r51.py; tools/check-scrub-admission-r51.py has no gate and prints PASS on fixture-overridden inputs. No lane, fleet or SKILL.md file written; no counter, lint or selftest run.\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScribeReadme",
+   "agent": "scribe",
+   "output": "{\n  \"verdict\": \"draft\",\n  \"report\": \".ufo/waves/round-51/w1/R51ScribeReadme.md\",\n  \"summary\": \"Drafted README admission sentence (names btrfs-scrub-grounding-r45.md, contains 'admitted round 51', no negation), a pending-outcome sentence without the phrase, and no Frontier-row change. Simulated marks_leg split only; counter not run. Lane not written; scratch removed.\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51ScribeLog",
+   "agent": "scribe",
+   "output": "{\n  \"verdict\": \"draft\",\n  \"report\": \".ufo/waves/round-51/w1/R51ScribeLog.md\",\n  \"pin\": \"2732ee6c06108c031c4d8043239b994e0504eb2f\",\n  \"summary\": \"Draft round-51 LOG declaration and PENDING-marked outcome skeleton, all pointers verified at the pin. Flags: C2 and C3 base receipts already satisfy their full target predicates (discrimination carried by the pre-data K0 controls); pre-data control summaries are not committed at the pin; self-assessment already FAILS at base on K10 (75 vs 76 lesson files). No counter or census was run; scratch removed.\"\n}",
+   "note": null
+  },
+  {
+   "name": "R51Simplifier",
+   "agent": "simplifier",
+   "output": "{\n  \"report\": \".ufo/waves/round-51/w1/R51Simplifier.md\",\n  \"verdict\": \"defect-found\",\n  \"summary\": \"Read the five round-51 tools and battery.py at 2732ee6c. Found 9 calibration defects (C-1..C-9; C-1 r50 leg passes vacuously on crash, C-2 pass_runs predicate mismatch with counted --runs 1, C-3 row-blind citation resolution) and dead weight (unused params, duplicated snapshot/gap/row-extent logic, unreachable LANE_FILES entry, unused lint --worktree/--entry-file/--sources-file, unused adjacency --skip-anchors-check and adj). All six files are frozen, so every proposal is classed [B]/[D]/[U]; [U] items surfaced, not proposed. No counter, selftest or battery was run (outside EXEC-AUTHORIZED); findings are from reading, with [INFERENCE] marked where unmeasured.\"\n}",
+   "note": null
+  }
+ ]
+}

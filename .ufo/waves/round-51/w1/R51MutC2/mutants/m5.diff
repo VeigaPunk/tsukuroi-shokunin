@@ -1,0 +1,11 @@
+--- base-score-counter-cheats-r51.py	2026-10-28 18:14:48.048310929 -0300
++++ mut/m5.py	2026-10-28 18:15:18.154505122 -0300
+@@ -131,7 +131,7 @@
+             if name == 'real':
+                 if who == 'r51':
+                     real_pass = int(obj.get('verdict') == 'PASS' and rc == 0)
+-            elif obj.get('verdict') == 'FAIL' and rc == 1:
++            elif who == 'r51' or (obj.get('verdict') == 'FAIL' and rc == 1):
+                 rejected[who] += 1
+         out = {'counter': 'score-counter-cheats-r51', 'revision': a.revision,
+                'real_pass': real_pass, 'cheats': len(fx), 'cheats_rejected': rejected['r51'],
