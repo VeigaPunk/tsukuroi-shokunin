@@ -1832,3 +1832,51 @@ Trend verdicts: expansion **unchanged** (no new entry admitted/frontier move); q
 introduced an overbroad GR2 ioctl inference that remains in the frozen row, explicitly named in the Gate status);
 discernment **unprovable-but-better** (the cohort caught real provenance/quote defects and QUALITY 94 records them,
 but all L2 seats were lane-dispatched, not an independent non-author spot-check).
+
+## Round 51 — post-hoc record (authored in round 52, 2026-10-30)
+
+Round 51 (hyaku run 11, L1 `TsukuroiR51` attempt 1, base `c0ad548a`, tip `91227829`) closed
+`rejected-honest-stop` with **no LOG entry** (routed defect 3 of
+`corpus/lessons/round-51-verifier-spotcheck.md`). This entry records what round 51 landed, without
+re-scoring it; the round-51 lesson (`corpus/lessons/round-51.md`, also post-hoc) carries the Gate
+and Mistakes.
+
+- FREEZE `2732ee6c`: claims C1/C2/C3 frozen (counters `check-scrub-admission-r51.py`,
+  `score-counter-cheats-r51.py`, `check-adjacency-table-r51.py`, lint `lint-grounding-r51.py`),
+  GR2/GR1/GR3 rewritten from the freeze-time evidence, 11 SKILL gate-registry rows added (6
+  previously missing tools registered), before-receipts taken.
+- w1 spec/dispatch `6d051ef0`: 54 seats, policy v1, validated; freeze batteries C1 11/11, C2 2/2,
+  C3 7/7.
+- AMENDMENT 1 `6abef5d0`: rows rewritten from the 12 uncounted pre-reads, lint/counters hardened
+  from the w1 attacks, batteries extended (C1 26/26, C3 15/15), host receipt
+  `.ufo/waves/round-51/host/host-btrfs-progs.txt`; C2 predicate widened 4 → 5 cheats (strictest
+  direction).
+- `91227829`: w1 reports and receipts, amend1 batteries, A5 control fix, end census exit 0. The
+  last two seats (`R51CritCheatC2b`, `R51MutC2`) settled after the report was filed and were
+  committed at the round-52 base `cc88b81d` without integration — round 52 re-runs their findings.
+- Closure: `rejected-honest-stop` (no counted verdict; no admission mark; no axis harmed). Mistakes
+  mined in `corpus/lessons/round-51.md` (misroot, scratch deletion, early filing, missed frontier
+  step), each routed to a round-52 obligation.
+
+## Round 52 — declaration (2026-10-30, base `cc88b81d`, freeze = the commit carrying the round-52 FROZEN.md)
+
+Claims frozen (full record `.ufo/waves/round-52/frozen/FROZEN.md`; SCORECARD "Round 52 — declaration"):
+- **C1 depth** (lowest tied) — the round-51 AMENDMENT-1 row bytes read `holds` by a fresh counted
+  18-seat cohort (`R52RevGR<n>{a,b,c}` / `R52CritGR<n>{a,b,c}`) in ONE v2 wave `w1` of 64 seats;
+  counter `check-scrub-admission-r52.py` (the r51 counter with wave path/seat names/marks/base
+  changed, no logic change); predicate `structural_ok 1, lint_ok 3, quotes_ok 3, verdicts_ok 3,
+  seats_ok 18, marks_ok 3`; before at base FAIL (`before/c1-at-base.json`). The three round-52
+  admission marks are written only after three clean counted rows.
+- **C2 operability** (instrument-measurement completion; sourced S256 + new S257) — a VALID receipt
+  of `score-counter-cheats-r51.py` (5 cheats) in an undisturbed scratch at the integrated revision;
+  predicate `real_pass 1, cheats 5, cheats_rejected 5, r50_cheats_rejected 0`; the r51 amend1
+  attempt is committed broken (bytes preserved under `.ufo/waves/round-52/inherited/`).
+- **C3 adjacency** (lowest tied; instrument-measurement completion) — `check-adjacency-table-r51.py`
+  measured at ONE named integrated revision with the full leg set plus the battery re-run; before at
+  base all legs green but no named-revision receipt exists anywhere.
+
+Round-51 routed defects closed in the freeze commit: the post-hoc `corpus/lessons/round-51.md`
+(Gate + Mistakes), this LOG round-51 entry, the SCORECARD axes restatement (K08/K09/K10), the
+inherited r51 receipt bytes moved to `.ufo/waves/round-52/inherited/` (working copy restored),
+S257 opened and registered, QUALITY 95 (misroot criterion), the `scrub-admission-r52` registry row,
+and the stale `counter-cheats-r51` verdict-map cell (4 → 5, the r51 Amendment 1).

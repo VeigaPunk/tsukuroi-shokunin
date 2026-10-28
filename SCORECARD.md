@@ -3315,3 +3315,57 @@ C1 K0-K8 must FAIL and K-pass PASS; C2 K0 FAIL and K-pass PASS; C3 K0-K5 must no
 OVERRIDE-NOT-MEASURED) and K-pass PASS.
 Causal separability: C1 reads the entry + snapshots + cohort; C2 reads the census blob; C3 reads `PROVINCE.md`, the
 registry and sibling repos. C2 and C3 are instrument claims; the census, `PROVINCE.md` and the registry are not changed.
+
+## Round 52 — declaration (2026-10-30, base `cc88b81d78bcbe06bce3f6bf722a108432ad276f`, before any seat)
+
+Ordinals at base: depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8 (depth and adjacency
+tied lowest, so the lowest-axis duty binds). Saturation 9 / window 3 (no waiver). Rounds 49-51 each closed
+`rejected-honest-stop` on the C1 depth claim; round 51's closure routed the resume point (dispatch the counted
+cohort, produce a valid C2 receipt in an undisturbed scratch, measure all three claims at one named revision) and
+four defects (r51 leftovers, the missing r51 lesson/LOG entry, the stale axes restatement, SHONEN re-filing) — all
+four are landed in this round's freeze commit. Round-start receipts (`.ufo/waves/round-52/before/`): sources census
+exit 0 at start; C1 at base `lint_ok 3, quotes_ok 3, verdicts_ok 0, seats_ok 0, marks_ok 0` FAIL (`c1-at-base.json`);
+C3 at base full-legs PASS with `r50_blind 1` (`c3-at-base-r52.json`); `check-self-assessment.py` at base
+`checked 27, mismatches 3` (K08 SKILL lines 4594 vs 4605, K09 table lines 1326 vs 1337 — the r51 registry rows — and
+K10 lessons 75 vs 77; restated below, before the wave); `check-registry-coverage.py` at base PASS 88/88.
+Frozen record: `.ufo/waves/round-52/frozen/FROZEN.md`. The counted row bytes are the
+round-51 AMENDMENT-1 bytes, unchanged since `6abef5d0` (`git diff 6abef5d0 cc88b81d -- corpus/knowledge/btrfs-scrub-grounding-r45.md`
+is empty); section hashes at the freeze: GR1 `98fa4e07…63987`, GR2 `9fd581a0…4f0ec5`, GR3 `0405f38a…b9eac`
+(`python3 tools/check-scrub-admission-r52.py --revision <FREEZE> --section-hash`).
+
+Round shape: ONE v2 wave `w1` (band 64-128) of **64 seats** — the counted 18-seat cohort plus build, attack,
+frontier and verification items; ≥25% attack roles (reviewer/critic/mutation-tester); the L1 holds the planner seat.
+The wave dispatches only after this freeze commit; nothing scores before it.
+
+| Claim | Axis | Surface moved | Counter (frozen) | Do-nothing control at base | Target (predicate) |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied; sourced S237 S240 S242 S243 S246 S247 S248; row bytes = the r51 amendment) | rows GR1-GR3 of `corpus/knowledge/btrfs-scrub-grounding-r45.md` read `holds` by a fresh counted 18-seat cohort in `w1`; the three round-52 admission marks land only on three clean counted rows | `python3 tools/check-scrub-admission-r52.py --revision <REV>` (defaults read `.ufo/waves/round-52/w1-results.json` and `-dispatch.json` at REV; seat universe `R52RevGR<n>{a,b,c}`/`R52CritGR<n>{a,b,c}`) | base bytes, no cohort: `verdicts_ok 0, seats_ok 0, marks_ok 0` FAIL (`before/c1-at-base.json`) | `structural_ok == 1 and lint_ok == 3 and quotes_ok == 3 and verdicts_ok == 3 and seats_ok == 18 and marks_ok == 3` |
+| C2 | operability (instrument-measurement completion; sourced S256 and, this round, S257) | a VALID receipt of the round-51 5-cheat scorer (`tools/score-counter-cheats-r51.py`), in an undisturbed scratch, at the integrated revision — the round-51 amend1 attempt is committed broken (ERROR rows; spot-check defect e; bytes at `.ufo/waves/round-52/inherited/`) | `python3 tools/score-counter-cheats-r51.py --revision <REV> --scratch <DIR>` | skip the run: no valid receipt exists (the only committed one is broken; the r51 spot-check graded C2 `unprovable`) | `real_pass == 1 and cheats == 5 and cheats_rejected == 5 and r50_cheats_rejected == 0`; kill: any ERROR row, any unrejected cheat, or a scratch disturbed between run and receipt |
+| C3 | adjacency (lowest tied; instrument-measurement completion) | the round-51 counter measured at ONE named integrated revision with its full leg set — r51 closed with no named-revision measurement (only battery K-pass rows) | `python3 tools/check-adjacency-table-r51.py --revision <REV>` | at base the counter already PASSES all legs (`before/c3-at-base-r52.json`) — the unreachable part is the receipt at the integrated revision with the battery re-run green; skip the round and no such receipt exists | the full r51 predicate (`adj_rows == 7 … and recipient_ok == 7`) PASS at the named revision; kill: any leg failing at that revision |
+
+Pre-data controls: the C1 battery re-derived for the round-52 counter (`.ufo/waves/round-52/controls/battery.py`,
+26 controls, run at the freeze after the commit, before dispatch); the C2 and C3 batteries are the round-51 ones
+re-run at the freeze (their instruments are reused, not refrozen). Causal separability unchanged: C1 reads the
+entry + snapshots + cohort + marks; C2 reads the census blob and its scratch; C3 reads `PROVINCE.md`, the anchor
+registry and sibling repos. No counter reads another claim's surface.
+
+Frontier step: S257 (GNU Bash Reference Manual, Pipelines) opened 2026-10-30 and registered `queued` this round;
+C2 is the sourced claim resting on it (with S256); the lesson's Gate records URL, access date and the located
+quote. Assimilation: none (the staged `merge/tsukuroi` package still collides with the lane registry — 57 ids —
+and no entry is adopted this round). `considerthese`: the still-unimplemented counter-attack-scoreboard proposal
+(`considerthese/2026-10-26.md`) is landed this round as a lesson table with a verification seat.
+
+## Axes — current self-assessment (round 52 frozen surface)
+
+Restated 2026-10-30 at the round-52 freeze tree; ordinals unchanged (no axis moved before data). Counts re-derived
+with the commands in each cell at the freeze tree (K08 4605→4606 and K09 1337→1338 are the round-51 registry rows
+plus this round's `scrub-admission-r52` row; K10 77→78 adds the post-hoc `corpus/lessons/round-51.md`).
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 67 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4606 `wc -l` / 1338 table lines (`grep -c '^\|' SKILL.md`); `corpus/lessons/` 78 files (`find corpus/lessons -type f \| wc -l`); GR1-GR3 pending under C1 (`verdicts_ok 0`, `before/c1-at-base.json`); no ordinal move. | round 4; unchanged |
+| coverage | 9 | `corpus/README.md` 522 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; no surface promotion. | round 11; unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` → PASS (168 cases, 168 passed, 0 failed); `--identity` landed; `bash tools/boot-chain-audit.sh --selftest` `PASS total=49 failed=0`; `check-fd-band-r49.py` accepts later case additions while retaining R49-C3. | round 11; unchanged |
+| freshness | 9 | S240 re-opened byte-identically at sha256 `7b3488f2…ba01` (r51 spot-check §4, agree); S257 opened 2026-10-30; sources census exit 0 at round start (`.ufo/waves/round-52/before/sources-census-start.txt`). | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <FREEZE>` → 27 checked, 0 mismatches after this restatement (receipt committed with the wave evidence); at base before the restatement: 3 (K08, K09, K10). | round 10; unchanged |
+| adjacency | 8 | formal overlap table present (PROVINCE `\| ID \| Finding`); C3 legs all green at base with `r50_blind 1` (`before/c3-at-base-r52.json`); caller-supplied C3 overrides can still score fabricated input (`R50CritCheatC3.md`). | fleet round 1; unchanged |
