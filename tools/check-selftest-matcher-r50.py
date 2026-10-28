@@ -96,7 +96,9 @@ def run(a, lane):
             with open(census, 'wb') as fh:
                 fh.write(blob.stdout)
         text = open(census, encoding='utf-8', errors='replace').read()
-        idiom_sites = len(IDIOM_RE.findall(text))
+        # a comment that QUOTES the banned idiom is not a site: only executable lines count
+        idiom_sites = sum(1 for ln in text.split('\n')
+                          if not ln.lstrip().startswith('#') and IDIOM_RE.search(ln))
         probe = os.path.join(work, 'probe.sh')
         with open(probe, 'w', encoding='utf-8') as fh:
             fh.write(PROBE % {'trials': TRIALS})

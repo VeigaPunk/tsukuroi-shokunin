@@ -40,8 +40,16 @@ def section_hashes(rev):
     return json.loads(p.stdout)['section_sha256']
 
 
-def build_cohort(d, hashes, verdicts=None, bodies=None, roles=None):
-    """Write 18 reports + a results file + a dispatch file under d."""
+def build_cohort(d, hashes, verdicts=None, bodies=None, roles=None, cohort=True):
+    """Write 18 reports + a results file + a dispatch file under d (cohort=False: none of them)."""
+    if not cohort:
+        wave = os.path.join(d, 'wave')
+        os.makedirs(wave, exist_ok=True)
+        with open(os.path.join(d, 'results.json'), 'w', encoding='utf-8') as fh:
+            json.dump({'results': []}, fh)
+        with open(os.path.join(d, 'dispatch.json'), 'w', encoding='utf-8') as fh:
+            json.dump({'taskCall': {'context': 'fixture', 'tasks': []}}, fh)
+        return wave
     verdicts = verdicts or {}
     wave = os.path.join(d, 'wave')
     os.makedirs(wave, exist_ok=True)
@@ -123,13 +131,13 @@ def c1_battery(freeze, scratch):
     # K0: base bytes, no cohort
     d = os.path.join(scratch, 'c1-k0')
     os.makedirs(d, exist_ok=True)
-    wave = build_cohort(d, hashes)
+    wave = build_cohort(d, hashes, cohort=False)
     score('K0 base entry, no cohort', 'FAIL', d, base_entry, wave=wave,
           dispatch=os.path.join(d, 'dispatch.json'), results=os.path.join(d, 'results.json'))
     # K1: corrected entry + marks, no cohort
     d = os.path.join(scratch, 'c1-k1')
     os.makedirs(d, exist_ok=True)
-    wave = build_cohort(d, hashes)
+    wave = build_cohort(d, hashes, cohort=False)
     score('K1 corrected entry + marks, no cohort', 'FAIL', d, entry, wave=wave,
           dispatch=os.path.join(d, 'dispatch.json'), results=os.path.join(d, 'results.json'))
     # K2: all-holds cohort on bytes with a round-49 defect string restored

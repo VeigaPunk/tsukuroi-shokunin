@@ -68,3 +68,23 @@ receipts under `.ufo/waves/round-50/w1/<seat>[.md]`; scratch under
 fixture repo under that scratch dir; tooling authorization with the pacman pause (install via
 `uv tool`/`npx`/official `~/.local/bin` binary only). Relative `Report:` trailers land under the lane
 root.
+
+## Freeze amendment 1 (pre-data, before any seat scored)
+
+Three repairs landed after the freeze commit `43bcce06` and before the wave was dispatched; no seat had
+scored, so every predicate, cohort, row hash and control is unchanged. The bytes under test move to the
+amendment commit named below (`git log --format=%H -1 -- .ufo/waves/round-50/frozen/FROZEN.md` at that
+commit), and `make-w1-spec.py` was re-run against it:
+
+1. **Census: one more pipe assertion** (`tools/tsukuroi-census.sh`): the plane-line assertion on
+   `$pkgline` still used `printf '%s\n' "$pkgline" | grep -qE` under `set -euo pipefail` — the same defect
+   class C2 claims to close. It now uses `buf_has "$pkgline" '…'`. Control K-pass caught this
+   (`idiom_sites 2`); it is the C2 counter doing its job on the author.
+2. **C2 counter: `idiom_sites` ignores comment lines.** The freeze census's own comment quotes the banned
+   idiom verbatim, so a text count scored 2 on a clean file. Only executable lines count now (a comment
+   cannot execute). The base census still scores 7.
+3. **IN-109 repin** (`corpus/knowledge/adjacency-anchors-r19.json`): the census edit moved the D14/D15
+   case from line 2671 to 2683; `found_line` is updated in the same commit (round-49 routed defect V3:
+   "keep the IN-109 repin inside the same commit as the census edit"). Before this repair
+   `check-adjacency-anchors.py` failed at `43bcce06`, which would have failed C3's `anchors_checker_rc` leg
+   for a reason unrelated to the claim; the C3 K-pass control caught it.

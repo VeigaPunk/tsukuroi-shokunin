@@ -2395,7 +2395,7 @@ STUB
       bad "$label: exit $rc wanted $wrc; output: $(printf '%s' "$out" | tail -n2 | tr '\n' '|')"
     elif ! out_has 'host=fixture-host'; then
       bad "$label: hostname override not honoured — possible host read"
-    elif ! printf '%s\n' "$pkgline" | grep -qE '^PLANE packages: [A-Z]+ \(.*root_status=.*root_mode=.*root_dir='; then
+    elif ! buf_has "$pkgline" '^PLANE packages: [A-Z]+ \(.*root_status=.*root_mode=.*root_dir='; then
       bad "$label: root metadata not composed into the packages line (blind spot survives?)"
     elif [[ "$pkgline" != *"root_dir=$root_expect "* && "$pkgline" != *"root_dir=$root_expect)" ]]; then
       bad "$label: configured root not asserted at a field boundary (wanted root_dir=$root_expect; possible live-root read)"
