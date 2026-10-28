@@ -1,0 +1,30 @@
+# D-6 count re-derivation at 8029cdba1049df25632c91a23c8db4eefb54be5f (freeze)
+# tree = git -C <lane> archive 8029cdba... | tar -x -C tree ; all commands run inside tree/
+
+$ find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l
+67
+$ wc -l < SKILL.md
+4572
+$ grep -c '^|' SKILL.md
+1323
+$ find corpus/lessons -type f | wc -l
+74
+$ wc -l < corpus/README.md
+500
+$ grep -c '^| ID | Finding' PROVINCE.md
+1
+$ sed -n '44,75p' PROVINCE.md | grep -c '^| ADJ-'
+7
+$ grep -c '^      --identity) identity=1' tools/tsukuroi-census.sh
+1
+$ grep -nE "printf 'PLANE" tools/tsukuroi-census.sh
+3769:  printf 'PLANE packages: %s (%s; %s)\n' "$PKG_V" "$PKG_NOTE" "$ROOT_NOTE"
+3770:  printf 'PLANE systemd: %s (%s)\n' "$SYS_V" "$SYS_NOTE"
+3771:  printf 'PLANE drivers: %s (%s; mem=%s)\n' "$DRV_V" "$DRV_NOTE" "$MEM_NOTE"
+3772:  printf 'PLANE journal: %s (%s)\n' "$JRN_V" "$JRN_NOTE"
+3773:  printf 'PLANE update-safety: %s (%s)\n' "$UPD_V" "$UPD_NOTE"
+3774:  printf 'PLANE oom: %s (%s)\n' "$OOM_V" "$OOM_NOTE"
+$ grep -cE '^\| S[0-9]+' corpus/SOURCES.md
+256
+$ grep -c R50-C2 tools/tsukuroi-census.sh
+4

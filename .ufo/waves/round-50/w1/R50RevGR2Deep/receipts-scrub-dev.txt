@@ -1,0 +1,82 @@
+S242 scrub.c sha256 f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8 want f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8
+S247 dev-replace.c sha256 f07ef0a0d260cf67b7c2aff0542ec13204f9761e33df0ea9feedf143cc034f3a want f07ef0a0d260cf67b7c2aff0542ec13204f9761e33df0ea9feedf143cc034f3a
+
+--- returns/ret-assignments inside btrfs_scrub_dev (3079..3254) ---
+3095: 		return -EAGAIN;
+3111: 		return PTR_ERR(sctx);
+3114: 	ret = scrub_workers_get(fs_info);
+3123: 		ret = -ENODEV;
+3133: 		ret = -EROFS;
+3142: 		ret = -EIO;
+3153: 		ret = -EINPROGRESS;
+3193: 		ret = scrub_supers(sctx, dev);
+3208: 		ret = scrub_enumerate_chunks(sctx, dev, start, end);
+3237: 			ret = PTR_ERR(trans);
+3240: 			return ret;
+3242: 		ret = btrfs_commit_transaction(trans);
+3247: 	return ret;
+3253: 	return ret;
+
+--- raw bytes of -EINPROGRESS gate 3146-3159 ---
+3146: '\tdown_read(&fs_info->dev_replace.rwsem);'
+3147: '\tif (dev->scrub_ctx ||'
+3148: '\t    (!is_dev_replace &&'
+3149: '\t     btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {'
+3150: '\t\tup_read(&fs_info->dev_replace.rwsem);'
+3151: '\t\tmutex_unlock(&fs_info->scrub_lock);'
+3152: '\t\tmutex_unlock(&fs_info->fs_devices->device_list_mutex);'
+3153: '\t\tret = -EINPROGRESS;'
+3154: '\t\tgoto out;'
+3155: '\t}'
+3156: '\tup_read(&fs_info->dev_replace.rwsem);'
+3157: ''
+3158: '\tsctx->readonly = readonly;'
+3159: '\tdev->scrub_ctx = sctx;'
+
+--- GR2 row quote check: every Quote citing scrub.c in [3079,3260] ---
+entry:99 -> S242 scrub.c:3081 [EXACT] want='bool readonly, bool is_dev_replace)' got='\t\t    bool readonly, bool is_dev_replace)'
+entry:100 -> S242 scrub.c:3094 [EXACT] want='if (btrfs_fs_closing(fs_info))' got='\tif (btrfs_fs_closing(fs_info))'
+entry:101 -> S242 scrub.c:3095 [EXACT] want='return -EAGAIN;' got='\t\treturn -EAGAIN;'
+entry:103 -> S242 scrub.c:3148 [EXACT] want='(!is_dev_replace &&' got='\t    (!is_dev_replace &&'
+entry:105 -> S242 scrub.c:3149 [EXACT] want='btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {' got='\t     btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {'
+entry:107 -> S242 scrub.c:3147 [EXACT] want='if (dev->scrub_ctx ||' got='\tif (dev->scrub_ctx ||'
+entry:109 -> S242 scrub.c:3153 [EXACT] want='ret = -EINPROGRESS;' got='\t\tret = -EINPROGRESS;'
+entry:111 -> S242 scrub.c:3123 [EXACT] want='ret = -ENODEV;' got='\t\tret = -ENODEV;'
+entry:113 -> S242 scrub.c:3133 [EXACT] want='ret = -EROFS;' got='\t\tret = -EROFS;'
+entry:115 -> S242 scrub.c:3139 [EXACT] want='test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &dev->dev_state))) {' got='\t\t     test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &dev->dev_state))) {'
+entry:117 -> S242 scrub.c:3142 [EXACT] want='ret = -EIO;' got='\t\tret = -EIO;'
+entry:135 -> S242 scrub.c:3109 [EXACT] want='sctx = scrub_setup_ctx(fs_info, is_dev_replace);' got='\tsctx = scrub_setup_ctx(fs_info, is_dev_replace);'
+entry:137 -> S242 scrub.c:3114 [EXACT] want='ret = scrub_workers_get(fs_info);' got='\tret = scrub_workers_get(fs_info);'
+entry:139 -> S242 scrub.c:3138 [EXACT] want='if (unlikely(!test_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &dev->dev_state) ||' got='\tif (unlikely(!test_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &dev->dev_state) ||'
+entry:141 -> S242 scrub.c:3222 [EXACT] want='dev->scrub_ctx = NULL;' got='\tdev->scrub_ctx = NULL;'
+
+--- all GR2 quotes (any file) ---
+entry:87 -> S247 dev-replace.c:700 [EXACT]
+entry:89 -> S247 dev-replace.c:701 [EXACT]
+entry:91 -> S247 dev-replace.c:703 [EXACT]
+entry:93 -> S247 dev-replace.c:1259 [EXACT]
+entry:95 -> S247 dev-replace.c:1265 [EXACT]
+entry:97 -> S247 dev-replace.c:1268 [EXACT]
+entry:99 -> S242 scrub.c:3081 [EXACT]
+entry:100 -> S242 scrub.c:3094 [EXACT]
+entry:101 -> S242 scrub.c:3095 [EXACT]
+entry:103 -> S242 scrub.c:3148 [EXACT]
+entry:105 -> S242 scrub.c:3149 [EXACT]
+entry:107 -> S242 scrub.c:3147 [EXACT]
+entry:109 -> S242 scrub.c:3153 [EXACT]
+entry:111 -> S242 scrub.c:3123 [EXACT]
+entry:113 -> S242 scrub.c:3133 [EXACT]
+entry:115 -> S242 scrub.c:3139 [EXACT]
+entry:117 -> S242 scrub.c:3142 [EXACT]
+entry:119 -> S247 dev-replace.c:1287 [EXACT]
+entry:121 -> S247 dev-replace.c:1235 [EXACT]
+entry:123 -> S243 sysfs.c:1288 [EXACT]
+entry:125 -> S243 sysfs.c:2015 [EXACT]
+entry:127 -> S247 dev-replace.c:1128 [EXACT]
+entry:129 -> S247 dev-replace.c:1143 [EXACT]
+entry:131 -> S247 dev-replace.c:1144 [EXACT]
+entry:133 -> S242 scrub.c:3336 [EXACT]
+entry:135 -> S242 scrub.c:3109 [EXACT]
+entry:137 -> S242 scrub.c:3114 [EXACT]
+entry:139 -> S242 scrub.c:3138 [EXACT]
+entry:141 -> S242 scrub.c:3222 [EXACT]

@@ -1,0 +1,550 @@
+{
+ "fixture_entry_hashes": {
+  "D1": {
+   "rc": 0,
+   "section_sha256": {
+    "GR1": "3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1",
+    "GR2": "a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f",
+    "GR3": "43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c"
+   },
+   "structural_ok": 1
+  },
+  "D2": {
+   "rc": 0,
+   "section_sha256": {
+    "GR1": "3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1",
+    "GR2": "a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f",
+    "GR3": "43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c"
+   },
+   "structural_ok": 1
+  },
+  "D3": {
+   "rc": 0,
+   "section_sha256": {
+    "GR1": "3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1",
+    "GR2": "a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f",
+    "GR3": "43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c"
+   },
+   "structural_ok": 1
+  },
+  "D4": {
+   "rc": 0,
+   "section_sha256": {
+    "GR1": "3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1",
+    "GR2": "a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f",
+    "GR3": "43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c"
+   },
+   "structural_ok": 1
+  },
+  "clean": {
+   "rc": 0,
+   "section_sha256": {
+    "GR1": "3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1",
+    "GR2": "a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f",
+    "GR3": "43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c"
+   },
+   "structural_ok": 1
+  }
+ },
+ "frozen_counter_sha256": "0af0e679ee82d608d6278d2575391b1a7dd53af49099e962349bddac35f333db",
+ "mutants": [
+  {
+   "anchor_count": 1,
+   "bytes_delta": -104,
+   "mutant": "M1",
+   "mutant_sha256": "891b4a7ea7055e474d98c3b83d9c4120b753e44bd2258df3b9e388fa87680d0b",
+   "new": "",
+   "old": "            if v in ('partly', 'fails'):\n                blocking.append(seat)\n                continue\n",
+   "pristine_sha256": "0af0e679ee82d608d6278d2575391b1a7dd53af49099e962349bddac35f333db",
+   "why": "drop the blocking rule"
+  },
+  {
+   "anchor_count": 1,
+   "bytes_delta": -93,
+   "mutant": "M2",
+   "mutant_sha256": "754834036d61c101d67b346858213ae30805112730d21b5cb3364e368961f187",
+   "new": "            bodies.add(hashlib.sha256((body or '').encode('utf-8')).hexdigest())\n",
+   "old": "            norm_body = '\\n'.join(ln.rstrip() for ln in (body or '').split('\\n') if ln.strip())\n            bodies.add(hashlib.sha256(norm_body.encode('utf-8')).hexdigest())\n",
+   "pristine_sha256": "0af0e679ee82d608d6278d2575391b1a7dd53af49099e962349bddac35f333db",
+   "why": "drop the whitespace-collapsing distinct-bodies check"
+  },
+  {
+   "anchor_count": 1,
+   "bytes_delta": -380,
+   "mutant": "M3",
+   "mutant_sha256": "46d2abd02f2e9a71bbc96b336961b4d636ced192d8def8889b3b965106c59b1d",
+   "new": "",
+   "old": "    hits = [r for r in results if isinstance(r, dict) and r.get('name') == seat]\n    if len(hits) != 1:\n        return None, None, None, 'not exactly one results entry'\n    if hits[0].get('agent') != role:\n        return None, None, None, f'results agent {hits[0].get(\"agent\")!r} != {role}'\n    if not hits[0].get('output'):\n        return None, None, None, 'no completed output'\n",
+   "pristine_sha256": "0af0e679ee82d608d6278d2575391b1a7dd53af49099e962349bddac35f333db",
+   "why": "drop the results.json seat check"
+  },
+  {
+   "anchor_count": 1,
+   "bytes_delta": 15,
+   "mutant": "M4",
+   "mutant_sha256": "734c93fc15994535aed3ccacb12a8ed74b2b13d7725c8997079bf06530da6934",
+   "new": "            if not re.fullmatch(r'[0-9a-f]{64}', h or ''):\n                seat_rows.append(f'{seat}: hash {h} is not 64 hex')\n                continue\n",
+   "old": "            if h != hashes.get(row):\n                seat_rows.append(f'{seat}: hash {h} != {hashes.get(row)}')\n                continue\n",
+   "pristine_sha256": "0af0e679ee82d608d6278d2575391b1a7dd53af49099e962349bddac35f333db",
+   "why": "accept a report hash that is any 64-hex string"
+  }
+ ],
+ "pristine_copy_sha256_after": "0af0e679ee82d608d6278d2575391b1a7dd53af49099e962349bddac35f333db",
+ "pristine_copy_sha256_before": "0af0e679ee82d608d6278d2575391b1a7dd53af49099e962349bddac35f333db",
+ "pristine_restored": true,
+ "revision": "8029cdba1049df25632c91a23c8db4eefb54be5f",
+ "runs": [
+  {
+   "as_expected": true,
+   "cmd": "/usr/bin/python3 /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/counters/pristine.py --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --no-base-check --entry-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/entry.md --skill-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/skill.md --readme-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/readme.md --dispatch-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/dispatch.json --results-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/results.json --wave-dir /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/wave",
+   "counter": "pristine.py",
+   "expect": "PASS",
+   "fixture": "clean",
+   "got": "PASS",
+   "legs": {
+    "corr_ok": 1,
+    "marks_ok": 3,
+    "quotes_ok": 3,
+    "seats_ok": 18,
+    "structural_ok": 1,
+    "verdicts_ok": 3
+   },
+   "per_row_blocking": {
+    "GR1": [],
+    "GR2": [],
+    "GR3": []
+   },
+   "per_row_distinct": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "per_row_ok": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "rc": 0,
+   "run": "pristine/clean",
+   "seat_notes": []
+  },
+  {
+   "as_expected": true,
+   "cmd": "/usr/bin/python3 /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/counters/pristine.py --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --no-base-check --entry-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D1-partly/entry.md --skill-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D1-partly/skill.md --readme-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D1-partly/readme.md --dispatch-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D1-partly/dispatch.json --results-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D1-partly/results.json --wave-dir /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D1-partly/wave",
+   "counter": "pristine.py",
+   "expect": "FAIL",
+   "fixture": "D1",
+   "got": "FAIL",
+   "legs": {
+    "corr_ok": 1,
+    "marks_ok": 3,
+    "quotes_ok": 3,
+    "seats_ok": 18,
+    "structural_ok": 1,
+    "verdicts_ok": 2
+   },
+   "per_row_blocking": {
+    "GR1": [],
+    "GR2": [
+     "R50CritGR2b"
+    ],
+    "GR3": []
+   },
+   "per_row_distinct": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "per_row_ok": {
+    "GR1": true,
+    "GR2": false,
+    "GR3": true
+   },
+   "rc": 1,
+   "run": "pristine/D1",
+   "seat_notes": []
+  },
+  {
+   "as_expected": true,
+   "cmd": "/usr/bin/python3 /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/counters/pristine.py --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --no-base-check --entry-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D2-padded/entry.md --skill-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D2-padded/skill.md --readme-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D2-padded/readme.md --dispatch-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D2-padded/dispatch.json --results-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D2-padded/results.json --wave-dir /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D2-padded/wave",
+   "counter": "pristine.py",
+   "expect": "FAIL",
+   "fixture": "D2",
+   "got": "FAIL",
+   "legs": {
+    "corr_ok": 1,
+    "marks_ok": 3,
+    "quotes_ok": 3,
+    "seats_ok": 18,
+    "structural_ok": 1,
+    "verdicts_ok": 2
+   },
+   "per_row_blocking": {
+    "GR1": [],
+    "GR2": [],
+    "GR3": []
+   },
+   "per_row_distinct": {
+    "GR1": true,
+    "GR2": false,
+    "GR3": true
+   },
+   "per_row_ok": {
+    "GR1": true,
+    "GR2": false,
+    "GR3": true
+   },
+   "rc": 1,
+   "run": "pristine/D2",
+   "seat_notes": []
+  },
+  {
+   "as_expected": true,
+   "cmd": "/usr/bin/python3 /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/counters/pristine.py --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --no-base-check --entry-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D3-noresults/entry.md --skill-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D3-noresults/skill.md --readme-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D3-noresults/readme.md --dispatch-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D3-noresults/dispatch.json --results-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D3-noresults/results.json --wave-dir /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D3-noresults/wave",
+   "counter": "pristine.py",
+   "expect": "FAIL",
+   "fixture": "D3",
+   "got": "FAIL",
+   "legs": {
+    "corr_ok": 1,
+    "marks_ok": 3,
+    "quotes_ok": 3,
+    "seats_ok": 0,
+    "structural_ok": 1,
+    "verdicts_ok": 0
+   },
+   "per_row_blocking": {
+    "GR1": [],
+    "GR2": [],
+    "GR3": []
+   },
+   "per_row_distinct": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "per_row_ok": {
+    "GR1": false,
+    "GR2": false,
+    "GR3": false
+   },
+   "rc": 1,
+   "run": "pristine/D3",
+   "seat_notes": [
+    "R50RevGR1a: unbound (not exactly one results entry)",
+    "R50RevGR1b: unbound (not exactly one results entry)",
+    "R50RevGR1c: unbound (not exactly one results entry)"
+   ]
+  },
+  {
+   "as_expected": true,
+   "cmd": "/usr/bin/python3 /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/counters/pristine.py --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --no-base-check --entry-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D4-stalehash/entry.md --skill-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D4-stalehash/skill.md --readme-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D4-stalehash/readme.md --dispatch-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D4-stalehash/dispatch.json --results-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D4-stalehash/results.json --wave-dir /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D4-stalehash/wave",
+   "counter": "pristine.py",
+   "expect": "FAIL",
+   "fixture": "D4",
+   "got": "FAIL",
+   "legs": {
+    "corr_ok": 1,
+    "marks_ok": 3,
+    "quotes_ok": 3,
+    "seats_ok": 18,
+    "structural_ok": 1,
+    "verdicts_ok": 2
+   },
+   "per_row_blocking": {
+    "GR1": [],
+    "GR2": [],
+    "GR3": []
+   },
+   "per_row_distinct": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "per_row_ok": {
+    "GR1": true,
+    "GR2": false,
+    "GR3": true
+   },
+   "rc": 1,
+   "run": "pristine/D4",
+   "seat_notes": [
+    "R50RevGR2a: hash e519cbe421a46569310d967cbfb90e905e3c101549ba1f61a7f21ab4c50a7521 != a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f",
+    "R50RevGR2b: hash e519cbe421a46569310d967cbfb90e905e3c101549ba1f61a7f21ab4c50a7521 != a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f",
+    "R50RevGR2c: hash e519cbe421a46569310d967cbfb90e905e3c101549ba1f61a7f21ab4c50a7521 != a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f"
+   ]
+  },
+  {
+   "as_expected": true,
+   "cmd": "/usr/bin/python3 /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/counters/m1.py --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --no-base-check --entry-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/entry.md --skill-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/skill.md --readme-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/readme.md --dispatch-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/dispatch.json --results-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/results.json --wave-dir /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/wave",
+   "counter": "m1.py",
+   "expect": "PASS",
+   "fixture": "clean",
+   "got": "PASS",
+   "legs": {
+    "corr_ok": 1,
+    "marks_ok": 3,
+    "quotes_ok": 3,
+    "seats_ok": 18,
+    "structural_ok": 1,
+    "verdicts_ok": 3
+   },
+   "per_row_blocking": {
+    "GR1": [],
+    "GR2": [],
+    "GR3": []
+   },
+   "per_row_distinct": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "per_row_ok": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "rc": 0,
+   "run": "M1/clean",
+   "seat_notes": []
+  },
+  {
+   "as_expected": true,
+   "cmd": "/usr/bin/python3 /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/counters/m1.py --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --no-base-check --entry-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D1-partly/entry.md --skill-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D1-partly/skill.md --readme-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D1-partly/readme.md --dispatch-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D1-partly/dispatch.json --results-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D1-partly/results.json --wave-dir /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D1-partly/wave",
+   "counter": "m1.py",
+   "expect": "PASS",
+   "fixture": "D1",
+   "got": "PASS",
+   "legs": {
+    "corr_ok": 1,
+    "marks_ok": 3,
+    "quotes_ok": 3,
+    "seats_ok": 18,
+    "structural_ok": 1,
+    "verdicts_ok": 3
+   },
+   "per_row_blocking": {
+    "GR1": [],
+    "GR2": [],
+    "GR3": []
+   },
+   "per_row_distinct": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "per_row_ok": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "rc": 0,
+   "run": "M1/D1",
+   "seat_notes": []
+  },
+  {
+   "as_expected": true,
+   "cmd": "/usr/bin/python3 /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/counters/m2.py --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --no-base-check --entry-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/entry.md --skill-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/skill.md --readme-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/readme.md --dispatch-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/dispatch.json --results-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/results.json --wave-dir /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/wave",
+   "counter": "m2.py",
+   "expect": "PASS",
+   "fixture": "clean",
+   "got": "PASS",
+   "legs": {
+    "corr_ok": 1,
+    "marks_ok": 3,
+    "quotes_ok": 3,
+    "seats_ok": 18,
+    "structural_ok": 1,
+    "verdicts_ok": 3
+   },
+   "per_row_blocking": {
+    "GR1": [],
+    "GR2": [],
+    "GR3": []
+   },
+   "per_row_distinct": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "per_row_ok": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "rc": 0,
+   "run": "M2/clean",
+   "seat_notes": []
+  },
+  {
+   "as_expected": true,
+   "cmd": "/usr/bin/python3 /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/counters/m2.py --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --no-base-check --entry-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D2-padded/entry.md --skill-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D2-padded/skill.md --readme-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D2-padded/readme.md --dispatch-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D2-padded/dispatch.json --results-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D2-padded/results.json --wave-dir /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D2-padded/wave",
+   "counter": "m2.py",
+   "expect": "PASS",
+   "fixture": "D2",
+   "got": "PASS",
+   "legs": {
+    "corr_ok": 1,
+    "marks_ok": 3,
+    "quotes_ok": 3,
+    "seats_ok": 18,
+    "structural_ok": 1,
+    "verdicts_ok": 3
+   },
+   "per_row_blocking": {
+    "GR1": [],
+    "GR2": [],
+    "GR3": []
+   },
+   "per_row_distinct": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "per_row_ok": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "rc": 0,
+   "run": "M2/D2",
+   "seat_notes": []
+  },
+  {
+   "as_expected": true,
+   "cmd": "/usr/bin/python3 /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/counters/m3.py --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --no-base-check --entry-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/entry.md --skill-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/skill.md --readme-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/readme.md --dispatch-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/dispatch.json --results-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/results.json --wave-dir /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/wave",
+   "counter": "m3.py",
+   "expect": "PASS",
+   "fixture": "clean",
+   "got": "PASS",
+   "legs": {
+    "corr_ok": 1,
+    "marks_ok": 3,
+    "quotes_ok": 3,
+    "seats_ok": 18,
+    "structural_ok": 1,
+    "verdicts_ok": 3
+   },
+   "per_row_blocking": {
+    "GR1": [],
+    "GR2": [],
+    "GR3": []
+   },
+   "per_row_distinct": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "per_row_ok": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "rc": 0,
+   "run": "M3/clean",
+   "seat_notes": []
+  },
+  {
+   "as_expected": true,
+   "cmd": "/usr/bin/python3 /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/counters/m3.py --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --no-base-check --entry-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D3-noresults/entry.md --skill-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D3-noresults/skill.md --readme-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D3-noresults/readme.md --dispatch-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D3-noresults/dispatch.json --results-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D3-noresults/results.json --wave-dir /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D3-noresults/wave",
+   "counter": "m3.py",
+   "expect": "PASS",
+   "fixture": "D3",
+   "got": "PASS",
+   "legs": {
+    "corr_ok": 1,
+    "marks_ok": 3,
+    "quotes_ok": 3,
+    "seats_ok": 18,
+    "structural_ok": 1,
+    "verdicts_ok": 3
+   },
+   "per_row_blocking": {
+    "GR1": [],
+    "GR2": [],
+    "GR3": []
+   },
+   "per_row_distinct": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "per_row_ok": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "rc": 0,
+   "run": "M3/D3",
+   "seat_notes": []
+  },
+  {
+   "as_expected": true,
+   "cmd": "/usr/bin/python3 /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/counters/m4.py --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --no-base-check --entry-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/entry.md --skill-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/skill.md --readme-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/readme.md --dispatch-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/dispatch.json --results-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/results.json --wave-dir /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/clean/wave",
+   "counter": "m4.py",
+   "expect": "PASS",
+   "fixture": "clean",
+   "got": "PASS",
+   "legs": {
+    "corr_ok": 1,
+    "marks_ok": 3,
+    "quotes_ok": 3,
+    "seats_ok": 18,
+    "structural_ok": 1,
+    "verdicts_ok": 3
+   },
+   "per_row_blocking": {
+    "GR1": [],
+    "GR2": [],
+    "GR3": []
+   },
+   "per_row_distinct": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "per_row_ok": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "rc": 0,
+   "run": "M4/clean",
+   "seat_notes": []
+  },
+  {
+   "as_expected": true,
+   "cmd": "/usr/bin/python3 /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/counters/m4.py --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin --no-base-check --entry-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D4-stalehash/entry.md --skill-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D4-stalehash/skill.md --readme-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D4-stalehash/readme.md --dispatch-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D4-stalehash/dispatch.json --results-file /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D4-stalehash/results.json --wave-dir /fast/scratch/hyaku/tsukuroi-r50/R50MutCounterA/work/fx/D4-stalehash/wave",
+   "counter": "m4.py",
+   "expect": "PASS",
+   "fixture": "D4",
+   "got": "PASS",
+   "legs": {
+    "corr_ok": 1,
+    "marks_ok": 3,
+    "quotes_ok": 3,
+    "seats_ok": 18,
+    "structural_ok": 1,
+    "verdicts_ok": 3
+   },
+   "per_row_blocking": {
+    "GR1": [],
+    "GR2": [],
+    "GR3": []
+   },
+   "per_row_distinct": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "per_row_ok": {
+    "GR1": true,
+    "GR2": true,
+    "GR3": true
+   },
+   "rc": 0,
+   "run": "M4/D4",
+   "seat_notes": []
+  }
+ ]
+}

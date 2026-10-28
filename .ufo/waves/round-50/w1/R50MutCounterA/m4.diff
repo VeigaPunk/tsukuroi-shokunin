@@ -1,0 +1,13 @@
+--- pristine.py	2026-10-28 16:03:42.163729336 -0300
++++ m4.py	2026-10-28 16:03:42.163993126 -0300
+@@ -415,8 +415,8 @@
+             if v in ('partly', 'fails'):
+                 blocking.append(seat)
+                 continue
+-            if h != hashes.get(row):
+-                seat_rows.append(f'{seat}: hash {h} != {hashes.get(row)}')
++            if not re.fullmatch(r'[0-9a-f]{64}', h or ''):
++                seat_rows.append(f'{seat}: hash {h} is not 64 hex')
+                 continue
+             cit_ok, why = report_citations_ok(cache, body or '', row, lane, rev)
+             if not cit_ok:

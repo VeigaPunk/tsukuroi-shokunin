@@ -1,0 +1,11 @@
+--- census.freeze.sh	2026-10-28 16:02:34.904511584 -0300
++++ fx/mut.braced.sh	2026-10-28 16:07:39.168247445 -0300
+@@ -2393,7 +2393,7 @@
+     pkgline=$(printf '%s\n' "$out" | awk '/^PLANE packages:/ && !p { print; p = 1 }')   # round 50: full read (a `| head -n1` assignment SIGPIPEs on a large buffer)
+     if [ "$rc" -ne "$wrc" ]; then
+       bad "$label: exit $rc wanted $wrc; output: $(printf '%s' "$out" | tail -n2 | tr '\n' '|')"
+-    elif ! out_has 'host=fixture-host'; then
++    elif ! printf '%s\n' "${out}" | grep -q 'host=fixture-host'; then
+       bad "$label: hostname override not honoured — possible host read"
+     elif ! buf_has "$pkgline" '^PLANE packages: [A-Z]+ \(.*root_status=.*root_mode=.*root_dir='; then
+       bad "$label: root metadata not composed into the packages line (blind spot survives?)"

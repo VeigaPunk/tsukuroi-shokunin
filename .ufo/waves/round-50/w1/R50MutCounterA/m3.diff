@@ -1,0 +1,16 @@
+--- pristine.py	2026-10-28 16:03:42.163729336 -0300
++++ m3.py	2026-10-28 16:03:42.163945876 -0300
+@@ -320,13 +320,6 @@
+ def bind_seat(lane, rev, tasks, results, seat, role, wave_dir, row, hashes, cache):
+     if tasks.get(seat) != role:
+         return None, None, None, f'dispatch agent {tasks.get(seat)!r} != {role}'
+-    hits = [r for r in results if isinstance(r, dict) and r.get('name') == seat]
+-    if len(hits) != 1:
+-        return None, None, None, 'not exactly one results entry'
+-    if hits[0].get('agent') != role:
+-        return None, None, None, f'results agent {hits[0].get("agent")!r} != {role}'
+-    if not hits[0].get('output'):
+-        return None, None, None, 'no completed output'
+     if wave_dir:
+         path = os.path.join(wave_dir, f'{seat}.md')
+         try:

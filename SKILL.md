@@ -4544,6 +4544,9 @@ Append-only continuation; every row of the round-45 table is carried verbatim be
 | scrub-grounding-r45 | gate | `python3 tools/check-scrub-grounding-r45.py --revision <REV> [--lane <repo>] [--sessions <dir>]` | 0 predicate `rows == 3 and quotes_ok == 3 and props_ok == 3 and host_ok == 3 and sources_ok == 1 and verdicts_ok == 3 and novelty_base_hits == 0 and pointer_ok == 1`;1 otherwise;2 usage/read error | none: the frozen GR1-GR3 rows and the bound a2w1/a2r1 verdicts are the measurement; controls `.ufo/waves/round-45/controls-a2/run_controls_c2.py` | R45 C2 sha256 `a1eb402dffae97fcefd9bd539529f1cacc5034419b6de06e1f8ac1c08d011331` (attempt-2 rebinding of frozen `7e373196decd2de09124819f81008f42dbf9fe2e56a9231b3b692f841eabf70d`); snapshots sha256 in `.ufo/waves/round-45/frozen/src/SHA256SUMS` | committed reads | tsukuroi |
 | census-identity-r46 | gate | `python3 tools/score-census-identity-r46.py --revision <REV> --scratch <DIR> [--lane <repo>]` | 0 predicate `identity_ok == 1 and tracks_ok == 1 and symlink_ok == 1 and unverifiable_ok == 1 and cli_ok == 1 and nowrite_ok == 1 and selftest_pass == 1 and selftest_r46 >= 4`;1 any conjunct fails;2 usage/read error | none: no self-test mode of its own; the identity, tracks, symlink, three-unverifiable, cli and nowrite legs plus the scored census's own selftest and its four (R46-C1) case labels are the measurement; controls `.ufo/waves/round-46/controls/run_controls_c1.py` | R46 C1 frozen sha256 `7c406eb5f4ba1f6265649f7102e7376882483180c161a66abc68e08cad9524ba`; the one-line `TSUKUROI_CENSUS_IDENTITY:` shape, the four `unverifiable` byte fields and the `--identity` argument refusal in code; base `2042117c` | scratch fixtures and census runs under `--scratch`; identity runs leave their cwd byte-unchanged; no host write | tsukuroi |
 | scrub-admission-r46 | gate | `python3 tools/check-scrub-admission-r46.py --revision <REV> [--lane <repo>] [--section-hash]` | 0 predicate `r45_legs_ok == 1 and verdicts_ok == 3 and marks_ok == 3`;1 otherwise;2 usage/read error or the base is not an ancestor | none: no self-test mode; the frozen round-45 non-verdict legs, the twelve counted seats' report-bound verdicts on the current GR section hashes and the three admission marks are the measurement; controls `.ufo/waves/round-46/controls/run_controls_c2.py` | R46 C2 frozen sha256 `28c409bef9a87338831e0cab4c194a78e7fedfefbd9c4a300a33f30b24dd11d8`; GR1-GR3, the frozen seat universe and the two-line `ROW GR<n> VERDICT:` plus `SECTION SHA256:` report shape in code; base `2042117c` | committed reads; `--section-hash` prints hashes only; no host write | tsukuroi |
+| scrub-admission-r50 | gate | `python3 tools/check-scrub-admission-r50.py --revision <REV> [--lane <repo>] [--section-hash] [--wave-dir <DIR>] [--results-file <PATH>] [--dispatch-file <PATH>]` | 0 predicate `structural_ok == 1 and corr_ok == 1 and quotes_ok == 3 and verdicts_ok == 3 and seats_ok == 18 and marks_ok == 3`;1 otherwise;2 usage/read error or unreadable base | none: no self-test mode; frozen GR1-GR3 row bytes, cited source snapshots, 18 report-bound cohort results and three admission marks are the measurement; controls `.ufo/waves/round-50/controls/battery.py` | Round-50 C1; correction set and report-binding legs are in the frozen counter; does not prove verdict substance or prevent a fabricated result bundle | committed reads; fixture-only overrides; no host writes | tsukuroi |
+| selftest-matcher-r50 | gate | `python3 tools/check-selftest-matcher-r50.py --revision <REV> --scratch <DIR> [--runs N]` | 0 frozen predicate passes;1 any predicate leg fails;2 usage/read error | `bash tools/tsukuroi-census.sh --selftest` (two runs by default) | Round-50 C2; base matcher probe and census selftest summary; counter can be satisfied by a shape-valid liar census, so its output is not standalone behavior proof | private scratch under `--scratch`; census fixture tree under TMPDIR | tsukuroi |
+| adjacency-table-r50 | gate | `python3 tools/check-adjacency-table-r50.py --revision <REV> [--lane <repo>] [--siblings-root <DIR>]` | 0 frozen shape/content/stub predicate passes;1 any leg fails;2 usage/read error | none: no self-test mode; frozen ADJ table, sibling pin bytes, live tip quotes and synthesized stub are the measurement | Round-50 C3; verifies the default lane table and nine referenced OUT anchors; content legs are overrideable and do not prove quote semantics | read-only lane/sibling Git reads; override fixtures only | tsukuroi |
 
 ## Scrub grounding — round 49 (the cohort read; GR2 stays partly)
 
@@ -4569,4 +4572,23 @@ band is the fixed 240-249 list, overridable only for the selftest case through `
 exports it changes selftest behaviour — named limit). The `(R49-C3)` case chooses two probe descriptors that are
 free and not the run's own alias descriptor, so it never breaks a dirty-TMPDIR run (the round-49 regression
 `R49RevFdA` D1, fixed in the same round). Counted by `python3 tools/check-fd-band-r49.py --revision <REV>`
-(predicate `stale_ok == 1 and diag_ok == 1 and band_ok == 1 and cases == 167`); current: 167 cases, PASS.
+(`tools/check-fd-band-r49.py` was rounded forward in round 50 to require at least 167 cases, preserving the
+R49-C3 witness while tolerating later selftest additions); the round-49 capture had 167 cases. Round 50 adds
+one full-read matcher case: current `--selftest` is 168/168 PASS at `.ufo/waves/round-50/after/c2-final.json`.
+The C2 counter's name-match leg is lexical and can be fooled by an equivalent spelling or a printed stub; its
+counter receipt is not standalone proof of behavior.
+
+## Census selftest — full-read matcher (round 50)
+
+The must-match assertions that inspect a probe's captured output use `buf_has`/`out_has`, an `awk` matcher that
+consumes the complete buffer. This preserves the no-write contract: no here-string is used on a buffer larger
+than 64 KiB, because bash may materialize one as a temporary file. The old `printf | grep -q` form could exit
+early, SIGPIPE its writer, and make `pipefail` report a false miss on a large plane output (round-49
+`R49ExecSelfAssess.md` §4; grep semantics opened this round at S256). The `(R50-C2)` case checks 20 full-read
+matches and one absent match in a 200 KB buffer. Measured by
+`bash tools/tsukuroi-census.sh --selftest`: `TSUKUROI_CENSUS_SELFTEST: PASS (168 cases, 168 passed, 0 failed)`
+at the round-50 measured revision. This is still a selftest of the matcher, not proof against a modified census
+that merely prints the expected lines; the round-50 counter-cheat report names that limit.
+
+The round-49 `check-fd-band-r49.py` still measures the R49-C3 witness, but its total-case leg is a minimum
+(167), not an exact count, so a later independently labelled selftest case does not invalidate that witness.

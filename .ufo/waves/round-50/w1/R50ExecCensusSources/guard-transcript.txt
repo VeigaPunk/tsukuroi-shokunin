@@ -1,0 +1,39 @@
+### DEMO 1 — staged set = fixture with S002 (item-specified)
+staged ids: S002 
+0-3-space pattern ids: S001 S002 S999 
+col0-only pattern ids : S001 S999 
+collisions 0-3 : S002 count=1
+collisions col0: count=0
+
+### DEMO 2 — staged set = real append ids (S200..S346), indented row S200
+collisions 0-3 : S200 count=1
+collisions col0: count=0
+
+### The indented row is LIVE for the maintained parser (0-3 spaces accepted)
+file	rows	3
+file	tier.B	3
+file	status.queued	3
+### census on indented-row fixture (rows counts the indented S002 row)
+census rc=0
+file	rows	3
+file	tier.B	3
+file	status.queued	3
+### validate on indented-row fixture
+validate rc=0
+file	ok	/fast/scratch/hyaku/tsukuroi-r50/R50ExecCensusSources/guard2/reg-s002.md
+
+--- fixture registry used above (reg-s002.md); reg-s200.md is identical with S200 in the indented row ---
+# SOURCES — guard fixture
+
+## Registry
+
+| id | source | kind | tier | scope | anchor | teaches | status | opened | recheck | used-by |
+|---|---|---|---|---|---|---|---|---|---|---|
+| S001 | fixture row one — https://example.invalid/one | docs | B | fixture scope one | §1 | fixture teaches one | queued | 2026-10-01 | 90d | — |
+  | S002 | fixture indented row — https://example.invalid/two | docs | B | fixture scope two | §2 | fixture teaches two | queued | 2026-10-01 | 90d | — |
+| S999 | fixture row three — https://example.invalid/three | docs | B | fixture scope three | §3 | fixture teaches three | queued | 2026-10-01 | 90d | — |
+
+--- staged fixture for demo 1 (staged-s002.md) ---
+| id | source | kind | tier | scope | anchor | teaches | status | opened | recheck | used-by |
+|---|---|---|---|---|---|---|---|---|---|---|
+| S002 | staged collision row — https://example.invalid/staged-two | docs | B | staged scope two | §2 | staged teaches two | queued | 2026-10-20 | 90d | — |

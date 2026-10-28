@@ -1,0 +1,38 @@
+named: 100M                                | memparse=104857600            endptr=4 | store=ACCEPT(5) limit=104857600
+named: 100m                                | memparse=104857600            endptr=4 | store=ACCEPT(5) limit=104857600
+named: 010                                 | memparse=8                    endptr=3 | store=ACCEPT(4) limit=8
+named: 0x10                                | memparse=16                   endptr=4 | store=ACCEPT(5) limit=16
+named: 10MB                                | memparse=10485760             endptr=3 | store=EINVAL(-22)
+named: 10 M                                | memparse=10                   endptr=2 | store=EINVAL(-22)
+named: -1                                  | memparse=0                    endptr=0 | store=EINVAL(-22)
+named: bare newline                        | memparse=0                    endptr=0 | store=ACCEPT(1) limit=0
+extra: 0X10 (upper X)                      | memparse=16                   endptr=4 | store=ACCEPT(5) limit=16
+extra: 0x no hex digit                     | memparse=0                    endptr=1 | store=EINVAL(-22)
+extra: 0X no hex digit                     | memparse=0                    endptr=1 | store=EINVAL(-22)
+extra: leading +                           | memparse=0                    endptr=0 | store=EINVAL(-22)
+extra: leading space                       | memparse=0                    endptr=0 | store=EINVAL(-22)
+extra: leading tab                         | memparse=0                    endptr=0 | store=EINVAL(-22)
+extra: suffix only, no digits              | memparse=0                    endptr=0 | store=EINVAL(-22)
+extra: K only                              | memparse=0                    endptr=0 | store=EINVAL(-22)
+extra: 0                                   | memparse=0                    endptr=1 | store=ACCEPT(2) limit=0
+extra: 1K                                  | memparse=1024                 endptr=2 | store=ACCEPT(3) limit=1024
+extra: 1k                                  | memparse=1024                 endptr=2 | store=ACCEPT(3) limit=1024
+extra: 1G                                  | memparse=1073741824           endptr=2 | store=ACCEPT(3) limit=1073741824
+extra: 1E                                  | memparse=1152921504606846976  endptr=2 | store=ACCEPT(3) limit=1152921504606846976
+extra: suffix then space                   | memparse=104857600            endptr=4 | store=ACCEPT(6) limit=104857600
+extra: suffix then newline                 | memparse=104857600            endptr=4 | store=ACCEPT(5) limit=104857600
+extra: suffix then tab+newline             | memparse=104857600            endptr=4 | store=ACCEPT(6) limit=104857600
+extra: number then space+newline           | memparse=100                  endptr=3 | store=ACCEPT(5) limit=100
+extra: number then newline+space+newline   | memparse=100                  endptr=3 | store=ACCEPT(6) limit=100
+extra: suffix then junk                    | memparse=104857600            endptr=4 | store=EINVAL(-22)
+extra: hex then suffix                     | memparse=16777216             endptr=5 | store=ACCEPT(6) limit=16777216
+extra: 08 (octal rejects 8)                | memparse=0                    endptr=1 | store=EINVAL(-22)
+extra: hex digit then non-hex              | memparse=1073741824           endptr=4 | store=ACCEPT(5) limit=1073741824
+extra: 1e3 (e is the E suffix)             | memparse=1152921504606846976  endptr=2 | store=EINVAL(-22)
+extra: 2^64-1                              | memparse=18446744073709551615 endptr=20 | store=ACCEPT(21) limit=18446744073709551615
+extra: 2^64 (decimal overflow)             | memparse=18446744073709551615 endptr=20 | store=ACCEPT(21) limit=18446744073709551615
+extra: suffix shift overflow               | memparse=18446744073709551615 endptr=19 | store=ACCEPT(20) limit=18446744073709551615
+extra: suffix overflow + second letter     | memparse=18446744073709551615 endptr=19 | store=EINVAL(-22)
+extra: 1024K                               | memparse=1048576              endptr=5 | store=ACCEPT(6) limit=1048576
+extra: two newlines                        | memparse=0                    endptr=0 | store=ACCEPT(2) limit=0
+extra: empty write buffer                  | memparse=0                    endptr=0 | store=ACCEPT(0) limit=0

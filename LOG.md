@@ -1753,3 +1753,81 @@ row, S255 `used-by` extended. Assimilation: **none** — the staged `merge/tsuku
 lane registry and this round's claims needed no new entry (`Assimilation: none` in the report). considerthese: one
 proposal mined (`R49ScoutConsider`), no criterion landed from it this round. Lesson `corpus/lessons/round-49.md`;
 report `.ufo/reports/round-49/tsukuroi.md` (fleet repo).
+
+## Round 50 — declaration (2026-10-28, base `b866a1d3`, freeze `43bcce06`, amendment `8029cdba`)
+
+Round 49 closed `rejected-honest-stop` (C2 adjacency PASS, C3 operability PASS, C1 depth FAIL on one bound
+`partly`). Ordinals at base: depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8;
+depth and adjacency tied lowest, so the lowest-axis duty binds. Saturation 9 / window 3.
+
+Three claims (full predicates, row hashes, cohort and controls: `.ufo/waves/round-50/frozen/FROZEN.md`):
+
+- **C1 depth** — `corpus/knowledge/btrfs-scrub-grounding-r45.md`: the four corrections the round-49 counted
+  critic `R49CritGR2b` named land before the freeze (the `[inference]` mark narrowed to btrfs-progs printing;
+  S240 named in the `source:` line and QUALITY item 7; the `dev-replace.c:1128` quote exact; the S247/S240 range
+  gaps declared in Limits); the counter's citation leg now binds real reports (declared lane artifacts plus
+  >=2 distinct row sources) and its distinct-bodies leg ignores whitespace padding; a fresh 18-seat cohort of
+  one wave re-reads GR1-GR3. Counter `tools/check-scrub-admission-r50.py`; before at base `corr_ok 0,
+  verdicts_ok 0, seats_ok 0, marks_ok 0`.
+- **C2 operability** (sourced S256, opened this round) — `tools/tsukuroi-census.sh` selftest harness: the
+  must-match arms no longer pipe `$out`/`$pkgline` into `grep -q`/`head -n1` under `set -euo pipefail` (the
+  round-49 flake, `R49ExecSelfAssess` §4: 11/20 false misses at a 96 KiB buffer), and one `(R50-C2)` case pins
+  the full-read matcher with 20 trials on a 200 KB buffer (167 -> 168 cases). Counter
+  `tools/check-selftest-matcher-r50.py`; before at base `idiom_sites 7, base_misses 20/20, cases 167,
+  case_ok 0` (`.ufo/waves/round-50/before/c2-at-base.json`).
+- **C3 adjacency** — `tools/check-adjacency-table-r50.py`: the ADJ-01..07 anchors are verified by CONTENT
+  (registry digest, heading and quote against the pinned sibling blob; the quote again at the sibling's live
+  tip) and the counter must fail a shape-valid stub the round-49 counter passed (routed defect 3, V5).
+  Before: the content legs do not exist at r49.
+
+Round shape: ONE v2 wave `w1`, 71 seats (reviewer 19, critic 18, executor 10, scout 9, scribe 5,
+mutation-tester 4, connector 2, sentinel 2, revenger 1, simplifier 1; attack roles 44/71 = 62.0%), validated
+rc=0 under policy v2 (band 64-128), counts spawn 71 / resume 0 / total 71. L1 holds the planner seat (the
+validator rejects `planner` as a swarm role; a bounded planning data-walk rides the connector and scout items).
+Pre-data control batteries: 17 controls, all as declared (`.ufo/waves/round-50/controls/battery-summary-r50-c{1,2,3}.jsonl`).
+Freeze amendment 1 (pre-data, before any seat): the fifth pipe site, a comment-blind `idiom_sites` count and
+the IN-109 repin — all three caught by the K-pass controls (see `FROZEN.md` and `corpus/lessons/round-50.md`
+`## Mistakes`).
+
+### Round 50 — measured outcome and closure facts
+
+Freeze amendment `8029cdba`; wave evidence `39e69493`; C1/C2/C3 receipts in `.ufo/waves/round-50/after/`.
+`w1-results.json` has 71 distinct result entries, all settled by `WAVE-DONE`; 64 report files landed, with seven
+settled result outputs but no seat report files (`R50MutCounterC`, `R50ScoutLiveTip`, `R50RevCounterC3`,
+`R50ExecPriorCounters`, `R50Simplifier`, `R50CritGR2Host`, `R50RevScopeSiblings`); no dead seats, replacements
+or residual call.
+
+- C1 depth **FAIL** — frozen counter `check-scrub-admission-r50.py` with the live wave report/results overrides:
+  `structural_ok 1, corr_ok 1, quotes_ok 3, verdicts_ok 0, seats_ok 18, marks_ok 0`
+  (`.ufo/waves/round-50/after/c1-final.json`). GR1: one bound `partly` (`R50RevGR1b`) for the missing
+  `* ` in the cmdline.c:147 quote. GR2: four bound `partly` (`R50RevGR2c`, `R50CritGR2a/b/c`) for the `by SR7`
+  misattribution, the overbroad ioctl `[inference]` sentence, the incomplete S242 range declaration, and the
+  progress-query wording. GR3: six bound `partly` (all six counted GR3 seats) for the undeclared S237 citations
+  `scrub.c:439` and `:1546`. No admission mark was written; entry's round-50 Gate status names the defects and
+  keeps all three rows pending.
+- C2 operability **PASS measured** — `check-selftest-matcher-r50.py` at freeze `8029cdba` → `idiom_sites 0,
+  base_misses 19/20, full_misses 0, cases 168, pass_runs 2, case_ok 1` (both actual census runs PASS 168/168;
+  `.ufo/waves/round-50/after/c2-final.json`). The no-harm seat found the round-49 fd-band counter's exact
+  167-case pin would fail against 168 and the `check-self-assessment` table's K13/K17 would mismatch; `tools/
+  check-fd-band-r49.py` now treats 167 as a minimum, retaining its R49-C3 witness while accepting later
+  independently-labelled cases; the current self-assessment is restated below. The counter's own shape can be
+  fooled by a liar census and equivalent `${out}` pipe spelling, recorded by `R50CritCheatC2` and
+  `R50RevCounterC2`; the actual census bytes and two executed selftests are the measurement.
+- C3 adjacency **PASS measured, limited** — `check-adjacency-table-r50.py --revision 8029cdba` →
+  `adj_rows 7, linked_rows 7, bare_ranges 0, anchors_ok 7, registry_ok 7, anchors_checker_rc 0,
+  quote_at_pin_ok 9, live_quote_ok 9, stub_fails 1` (`.ufo/waves/round-50/after/c3-final.json`). `R50CritCheatC3`
+  found the displayed OUT-009 pin can be made false while the counter still passes and that a crafted
+  `--siblings-root` fixture can score; it also showed the default content predicate checks bytes, not quote
+  entailment. The limit is reported, not hidden.
+
+No axis ordinal changed. Round-level admission: **not admitted** — C1 failed and the wave exposed counter
+limitations. No tools installed or updated. The source row S256 was opened 2026-10-28; S240 re-opened byte-identically
+and its `used-by` was appended. Sources census start: exit 0 / 255 rows / 40 W04; end: exit 0 / 256 rows / 40 W04.
+The staged assimilation package was not adopted because 57 IDs collide; the collision guard caught an indented
+S200 fixture (0-3-space pattern: 1, column-zero-only: 0). No Frontier row advanced. `considerthese/2026-10-26.md`
+counter-attack scoreboard proposal was mined but not implemented.
+
+Trend verdicts: expansion **unchanged** (no new entry admitted/frontier move); quality **unchanged** (no admitted
+entry changed quality status; GR rows remain pending and explicitly marked); discernment **unprovable-but-better**
+(the cohort caught real provenance/quote defects and QUALITY 94 records them, but all L2 seats were lane-dispatched,
+not an independent non-author spot-check).

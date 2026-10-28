@@ -1,0 +1,13 @@
+MATCH printf '%s\n' "$out" | grep -q X
+MATCH printf '%s\n' "$out" | grep -qE X
+MATCH printf '%s\n' "$pkgline" | grep -qE X
+MATCH printf '%s\n' "$out" | head -n1
+MATCH printf '%s\n' "$out" | grep X | head -n1
+miss  printf '%s\n' "${out}" | grep -q X
+miss  printf "%s\n" "$out" | grep -q X
+miss  printf '%s\n' "$out" | grep -m1 X
+miss  printf '%s\n' "$out" | grep --quiet X
+miss  printf '%s\n' "$out"|grep -q X
+miss  printf '%s\n' "$CAP_OUT" | head -n1
+miss  echo "$out" | grep -q X
+miss  grep -q X <<<"$out"

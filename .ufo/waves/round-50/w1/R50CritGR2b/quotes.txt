@@ -1,0 +1,79 @@
+quotes exact-or-substring: ok=29 bad=0
+
+S247 dev-replace.c:700 substring
+S247 dev-replace.c:701 substring
+S247 dev-replace.c:703 substring
+S247 dev-replace.c:1259 substring
+S247 dev-replace.c:1265 substring
+S247 dev-replace.c:1268 substring
+S242 scrub.c:3081 substring
+S242 scrub.c:3094 substring
+S242 scrub.c:3095 substring
+S242 scrub.c:3148 substring
+S242 scrub.c:3149 substring
+S242 scrub.c:3147 substring
+S242 scrub.c:3153 substring
+S242 scrub.c:3123 substring
+S242 scrub.c:3133 substring
+S242 scrub.c:3139 substring
+S242 scrub.c:3142 substring
+S247 dev-replace.c:1287 substring
+S247 dev-replace.c:1235 substring
+S243 sysfs.c:1288 substring
+S243 sysfs.c:2015 substring
+S247 dev-replace.c:1128 substring
+S247 dev-replace.c:1143 substring
+S247 dev-replace.c:1144 substring
+S242 scrub.c:3336 substring
+S242 scrub.c:3109 substring
+S242 scrub.c:3114 substring
+S242 scrub.c:3138 substring
+S242 scrub.c:3222 substring
+
+statement file:line citations and the cited text:
+dev-replace.c:1111: ret = btrfs_scrub_cancel(fs_info);
+dev-replace.c:1126: case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
+dev-replace.c:1127: /*
+dev-replace.c:1128: * Scrub doing the replace isn't running so we need to do the
+dev-replace.c:1143: /* Scrub for replace must not be running in suspended state */
+dev-replace.c:1144: btrfs_scrub_cancel(fs_info);
+dev-replace.c:1171: void btrfs_dev_replace_suspend_for_unmount(struct btrfs_fs_info *fs_info)
+dev-replace.c:1235: if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {
+dev-replace.c:1259: "continuing dev_replace from %s (devid %llu) to target %s @%u%%",
+dev-replace.c:1265: ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,
+dev-replace.c:1268: &dev_replace->scrub_progress, false, true);
+dev-replace.c:1278: if (!dev_replace->is_valid)
+dev-replace.c:1286: case BTRFS_IOCTL_DEV_REPLACE_STATE_STARTED:
+dev-replace.c:1287: case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
+dev-replace.c:1288: /*
+dev-replace.c:700: /* the disk copy procedure reuses the scrub code */
+dev-replace.c:701: ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+dev-replace.c:703: &dev_replace->scrub_progress, false, true);
+ioctl.c:3093: ret = btrfs_scrub_dev(fs_info, sa->devid, sa->start, sa->end,
+ioctl.c:3109: if (copy_to_user(arg, sa, sizeof(*sa)))
+ioctl.c:3115: return ret;
+ioctl.c:3132: if (!capable(CAP_SYS_ADMIN))
+ioctl.c:3190: if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {
+scrub.c:3081: bool readonly, bool is_dev_replace)
+scrub.c:3094: if (btrfs_fs_closing(fs_info))
+scrub.c:3095: return -EAGAIN;
+scrub.c:3109: sctx = scrub_setup_ctx(fs_info, is_dev_replace);
+scrub.c:3114: ret = scrub_workers_get(fs_info);
+scrub.c:3123: ret = -ENODEV;
+scrub.c:3133: ret = -EROFS;
+scrub.c:3138: if (unlikely(!test_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &dev->dev_state) ||
+scrub.c:3139: test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &dev->dev_state))) {
+scrub.c:3142: ret = -EIO;
+scrub.c:3147: if (dev->scrub_ctx ||
+scrub.c:3148: (!is_dev_replace &&
+scrub.c:3149: btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {
+scrub.c:3153: ret = -EINPROGRESS;
+scrub.c:3159: dev->scrub_ctx = sctx;
+scrub.c:3222: dev->scrub_ctx = NULL;
+scrub.c:3336: return dev ? (sctx ? 0 : -ENOTCONN) : -ENODEV;
+sysfs.c:1288: str = "device replace\n";
+sysfs.c:2015: val = !!test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);
+
+GR2 span 1-based 56..152
+joined with final LF: a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f
+joined without final LF: e41b3b6bb7ab7ccc7e2bce5ea2bfe887a7f7b99663a8c4308bd5e5c0f3c316a5

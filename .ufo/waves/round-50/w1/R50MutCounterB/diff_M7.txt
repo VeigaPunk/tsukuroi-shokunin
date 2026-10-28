@@ -1,0 +1,11 @@
+--- counter_orig.py	2026-10-28 15:59:59.162481450 -0300
++++ counter_M7.py	2026-10-28 16:06:12.260547091 -0300
+@@ -390,7 +390,7 @@
+         return 0 if len(hashes) == 3 and structural_ok else 2
+     cache = snapshots(lane, rev)
+     quotes = quote_legs(entry, hashes, cache)
+-    quotes_ok = sum(1 for r in ROWS if quotes[r]['quotes'] > 0 and not quotes[r]['bad'])
++    quotes_ok = sum(1 for r in ROWS if quotes[r]['quotes'] > 0)
+     corr_missing = [p for p in CORR_REQ if not re.search(p, entry)]
+     corr_present = [p for p in CORR_FORBID if re.search(p, entry)]
+     corr49_missing = [p for p in CORR49_REQ if not re.search(p, entry, re.M)]

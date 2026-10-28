@@ -1,0 +1,104 @@
+# sysfs reads (uid 1000, 2026-10-28T19:14Z)
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/exclusive_operation mode=444 owner=root:root value=[none]
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/replace_target mode=444 owner=root:root value=[0]
+
+# ioctl.c gates (round-43 frozen, sha256 7b3488f2...)
+static long btrfs_ioctl_scrub_progress(struct btrfs_fs_info *fs_info,
+				       void __user *arg)
+{
+	struct btrfs_ioctl_scrub_args AUTO_KFREE(sa);
+	int ret;
+
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+
+static long btrfs_ioctl_dev_replace(struct btrfs_fs_info *fs_info,
+				    void __user *arg)
+{
+	struct btrfs_ioctl_dev_replace_args AUTO_KFREE(p);
+	int ret;
+
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+
+	if (btrfs_fs_incompat(fs_info, EXTENT_TREE_V2)) {
+		btrfs_err(fs_info, "device replace not supported on extent tree v2 yet");
+		return -EINVAL;
+	}
+
+	p = memdup_user(arg, sizeof(*p));
+	if (IS_ERR(p))
+		return PTR_ERR(p);
+
+	switch (p->cmd) {
+	case BTRFS_IOCTL_DEV_REPLACE_CMD_START:
+		if (sb_rdonly(fs_info->sb))
+			return -EROFS;
+		if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {
+			ret = BTRFS_ERROR_DEV_EXCL_RUN_IN_PROGRESS;
+		} else {
+			ret = btrfs_dev_replace_by_ioctl(fs_info, p);
+			btrfs_exclop_finish(fs_info);
+		}
+		break;
+	case BTRFS_IOCTL_DEV_REPLACE_CMD_STATUS:
+		btrfs_dev_replace_status(fs_info, p);
+		ret = 0;
+		break;
+	if ((ret == 0 || ret == -ECANCELED) && copy_to_user(arg, p, sizeof(*p)))
+		return -EFAULT;
+
+	return ret;
+}
+
+# dispatch
+	case BTRFS_IOC_SCRUB_PROGRESS:
+		return btrfs_ioctl_scrub_progress(fs_info, argp);
+	case BTRFS_IOC_DEV_REPLACE:
+		return btrfs_ioctl_dev_replace(fs_info, argp);
+
+# exclop DEV_REPLACE sites (all three pinned snapshots)
+.ufo/waves/round-43/frozen/src/ioctl.c:3190:		if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {
+.ufo/waves/round-44/frozen/src/sysfs.c:1287:		case BTRFS_EXCLOP_DEV_REPLACE:
+.ufo/waves/round-45/frozen/src/dev-replace.c:1235:	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {
+
+# suspend/resume corner
+	case BTRFS_IOCTL_DEV_REPLACE_STATE_STARTED:
+		break;
+	case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
+		dev_replace->replace_state =
+			BTRFS_IOCTL_DEV_REPLACE_STATE_STARTED;
+		break;
+	}
+	if (!dev_replace->tgtdev || !dev_replace->tgtdev->bdev) {
+		btrfs_info(fs_info,
+			   "cannot continue dev_replace, tgtdev is missing");
+		btrfs_info(fs_info,
+			   "you may cancel the operation after 'mount -o degraded'");
+		dev_replace->replace_state =
+					BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED;
+		up_write(&dev_replace->rwsem);
+		return 0;
+	}
+	up_write(&dev_replace->rwsem);
+
+	/*
+	 * This could collide with a paused balance, but the exclusive op logic
+	 * should never allow both to start and pause. We don't want to allow
+	 * dev-replace to start anyway.
+	 */
+	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {
+		down_write(&dev_replace->rwsem);
+		dev_replace->replace_state =
+					BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED;
+		up_write(&dev_replace->rwsem);
+		btrfs_info(fs_info,
+		"cannot resume dev-replace, other exclusive operation running");
+		return 0;
+	}
+
+	task = kthread_run(btrfs_dev_replace_kthread, fs_info, "btrfs-devrepl");
+	return PTR_ERR_OR_ZERO(task);
+
+# capture.sh coverage
+NO MATCH (rc=1): capture records neither attribute

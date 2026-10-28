@@ -498,3 +498,25 @@ surface, not a new surface. The scrub record's content, the running state and NV
 open item: the `/proc/self/fd/<n>/<child>` traversal the alias resolver relies on is **not** stated by S251 (the
 page documents the symlink and the `type:[inode]` text only), so that mechanism remains an inference and a source
 hunt for a page that states traversal is carried debt (`R49ScoutProcFd`).
+
+## Round 50 — scrub rows remain pending; census matcher corrected
+
+Round 50 re-read GR1-GR3 with a fresh 18-seat cohort. The frozen counter returns `verdicts_ok 0`:
+GR1 has one bound `partly` on the cmdline.c:147 quote missing its `* ` comment leader; GR2 is blocked
+by bound `partly` reports on the `by SR7` attribution, its ioctl `[inference]` overreach and incomplete
+S242 range declaration; GR3 is blocked by incomplete S237 range declarations for `scrub.c:439` and
+`:1546`. No round-50 admission mark was written; the rows stay pending. See
+`corpus/lessons/round-50.md` and `.ufo/waves/round-50/after/c1-final.json`.
+
+The census selftest's must-match arm now reads the full output buffer instead of using `grep -q` under
+`pipefail`; `(R50-C2)` tests 20 matches on a 200 KB buffer. The live committed selftest prints 168/168
+PASS twice (`.ufo/waves/round-50/after/c2-final.json`). This is an operability repair on an existing
+Core surface, not new coverage. The ADJ table still has seven rows and its nine referenced portable
+anchors resolve to their pinned sibling blobs and current tips (`check-adjacency-table-r50.py`), but the
+counter remains vulnerable to crafted fixture overrides and does not prove quote entailment.
+
+### Frontier notice — round 50
+
+Nothing moves in the province frontier: GR1-GR3 remain pending, and the scrub-record content/running
+state and NVMe SMART stay Frontier. `S256` was opened for the sourced selftest-matcher claim; no new
+knowledge entry was admitted. Assimilation: none — 57 staged source ids collide with this registry.

@@ -1,0 +1,38 @@
+== ioctl.c (round-43 S240) 3078-3096 ==
+3078|	}
+3079|
+3080|	sa = memdup_user(arg, sizeof(*sa));
+3081|	if (IS_ERR(sa))
+3082|		return PTR_ERR(sa);
+3083|
+3084|	if (sa->flags & ~BTRFS_SCRUB_SUPPORTED_FLAGS)
+3085|		return -EOPNOTSUPP;
+3086|
+3087|	if (!(sa->flags & BTRFS_SCRUB_READONLY)) {
+3088|		ret = mnt_want_write_file(file);
+3089|		if (ret)
+3090|			return ret;
+3091|	}
+3092|
+3093|	ret = btrfs_scrub_dev(fs_info, sa->devid, sa->start, sa->end,
+3094|			      &sa->progress, sa->flags & BTRFS_SCRUB_READONLY,
+3095|			      false);
+3096|
+== ioctl.c 3109-3115 ==
+3109|	if (copy_to_user(arg, sa, sizeof(*sa)))
+3110|		ret = -EFAULT;
+3111|
+3112|	if (!(sa->flags & BTRFS_SCRUB_READONLY))
+3113|		mnt_drop_write_file(file);
+3114|
+3115|	return ret;
+== ioctl.c 3132-3133, 3190 ==
+3132|	if (!capable(CAP_SYS_ADMIN))
+3133|		return -EPERM;
+3190|		if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {
+== dev-replace.c (round-45 S247) 1126-1130 ==
+1126|	case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
+1127|		/*
+1128|		 * Scrub doing the replace isn't running so we need to do the
+1129|		 * cleanup step of btrfs_dev_replace_finishing() here
+1130|		 */

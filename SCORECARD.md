@@ -3228,3 +3228,65 @@ anchor registry + the sibling repos. No claim's counter reads another's surface.
 Assimilation: none this round — the staged `merge/tsukuroi` package still collides with the lane registry
 (`.ufo/waves/round-50/assimilation/collisions`); nothing is appended from it. `considerthese/`: one proposal mined
 by a wave scout, landed only if the lane's own bar grounds it.
+
+## Round 50 — measured outcome (author-side; non-author closure pending)
+
+Freeze amendment `8029cdba1049df25632c91a23c8db4eefb54be5f`; wave spec/dispatch commit
+`39e694934cf6c56434987edc730e8b3580a251f3`; one v2 wave `w1`, 71 seats, 71 results entries, 64 report files,
+0 dead seats, no residual call. Seven settled seats have a final output in `w1-results.json` but no
+`<seat>.md` report file: `R50MutCounterC`, `R50ScoutLiveTip`, `R50RevCounterC3`, `R50ExecPriorCounters`,
+`R50Simplifier`, `R50CritGR2Host`, `R50RevScopeSiblings`. No seat replacement was made.
+
+| Claim | Frozen predicate → measured | Verdict | Axis effect |
+|---|---|---|---|
+| C1 depth | `python3 tools/check-scrub-admission-r50.py --revision 8029cdba --wave-dir .ufo/waves/round-50/w1 --results-file .ufo/waves/round-50/w1-results.json --dispatch-file .ufo/waves/round-50/w1-dispatch.json` → `structural_ok 1, corr_ok 1, quotes_ok 3, verdicts_ok 0, seats_ok 18, marks_ok 0`, FAIL (`.ufo/waves/round-50/after/c1-final.json`) | **FAIL** — all three rows blocked by bound-format `partly`: GR1 one (cmdline.c:147 quote omits `* `); GR2 four (`R50RevGR2c`, `R50CritGR2a/b/c`, misattributed `by SR7`, overbroad ioctl inference, incomplete S242 range list, progress-query context wording); GR3 six (S237 list omits `scrub.c:439` and `:1546`). No admission mark written. | depth unchanged (8); no row admitted; no axis score moves |
+| C2 operability | `python3 tools/check-selftest-matcher-r50.py --revision 8029cdba --scratch <DIR>` → `idiom_sites 0, base_misses 19/20, full_misses 0, cases 168, pass_runs 2, case_ok 1`, PASS; both runs `TSUKUROI_CENSUS_SELFTEST: PASS (168 cases, 168 passed, 0 failed)` (`after/c2-final.json`) | **PASS measured, with instrument limits** — the live frozen census executes the new case and both full selftests pass; `R50CritCheatC2` and `R50RevCounterC2` show a 5-/12-line liar census can satisfy the counter, and an equivalent `${out}` pipe idiom can evade its lexical detector. | operability ordinal remains 9; no new capability row |
+| C3 adjacency | `python3 tools/check-adjacency-table-r50.py --revision 8029cdba` → `adj_rows 7, linked_rows 7, bare_ranges 0, anchors_ok 7, registry_ok 7, anchors_checker_rc 0, quote_at_pin_ok 9, live_quote_ok 9, stub_fails 1`, PASS (`after/c3-final.json`) | **PASS measured, with instrument limits** — the default lane table's nine cited anchors match their pinned sibling digests/quotes and live-tip quotes; `R50CritCheatC3` shows a caller-supplied adapted stub and a false displayed OUT-009 pin can still pass. | adjacency ordinal remains 8; no new surface claimed |
+
+No ordinal score changes. No claim is admitted as a round-level improvement because C1's frozen predicate fails.
+C1's four round-49 corrections are real, but the new counted cohort found remaining defects and one new overreach
+in the narrowed ioctl mark. No depth admission marks were written. C2/C3 predicates PASS on their measured bytes,
+but their counter-cheat limits are disclosed rather than smoothed.
+
+## Axes — current self-assessment (round 50 final measured surface)
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 67 knowledge notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4594 lines / 1326 table lines; 75 lesson files (`find corpus/lessons -type f \| wc -l`); GR1-GR3 remain pending under C1 (`verdicts_ok 0`); no ordinal move. | round 4; unchanged |
+| coverage | 9 | `corpus/README.md` 522 lines; PROVINCE Core/Frontier/Adjacent present; no surface promotion. | round 11; unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` → PASS 168/168; C2 counter PASS, but a liar census can pass it (`R50CritCheatC2.md`) and its lexical leg misses `${out}` forms (`R50RevCounterC2.md`); `check-fd-band-r49.py --revision <REV>` compatibility leg accepts the 168-case selftest while retaining R49-C3. | round 11; unchanged |
+| freshness | 9 | S240 re-opened byte-identically at sha256 `7b3488f2…ba01`; S256 opened 2026-10-28; sources census exit 0 at start and end. | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <FINAL>` → checked 27, mismatches 0 after this restatement; no ordinal move. | round 10; unchanged |
+| adjacency | 8 | `python3 tools/check-adjacency-table-r50.py --revision <REV>` → 9/9 pinned quote/digests, 9/9 live quotes, stub_fails 1; counter's caller-supplied overrides can score fabricated input (`R50CritCheatC3.md`). | fleet round 1; unchanged |
+
+## Capabilities — current full evidence set (round 50)
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| sources-registry | Curates opened tier-scoped sources with anchors, rejections, paths, search log and unopened leads | `corpus/SOURCES.md`; `.ufo/evidence/round-1-kaika/after.md` | fleet r1 |
+| host-census-gate | Emits a read-only six-plane host verdict and verdict-neutral DRIFT, STORAGE and SCRUB lines; selftest prints PASS (168 cases, 168 passed, 0 failed); its full-read selftest matcher is covered by `(R50-C2)` | `tools/tsukuroi-census.sh`; `.ufo/waves/round-50/after/c2-final.json` | lane r2; demonstrated fleet r1 |
+| root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
+| boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict; since round 43 its boot-input freshness check decides on find's output | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt`; `.ufo/waves/round-43/after/c1-after-c395491.jsonl` | round 17 |
+| storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line, demonstrated on fixtures, the live host and namespace views | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-41/after/c1-after-568c397.jsonl` | round 38 |
+
+- **planned (next round):** depth — correct GR1's missing `* ` prefix; complete S242/S237 range-gap disclosures; remove the `by SR7` misattribution and narrow the ioctl inference to the call path and copy-back; correct the progress-query context wording; then re-read all affected rows with a new counted cohort. Operability — harden C1/C2/C3 counters against fabricated results, liar census output, equivalent pipe spellings and override-fed fake sibling roots; retain C2's end-to-end matcher case. Adjacency — bind each displayed OUT row's sibling path/commit/quote to its registry record and require source-specific meaningful quotes, not any substring. Keep the round-50 source-range/exact-line mistake as QUALITY 94.
+- **retired:** none.
+
+### Sources & frontier status
+
+Registry: 255 → 256 rows; one tier-A documentation row S256 added; S240 `used-by` appended from
+`corpus/knowledge/btrfs-scrub-record-r43.md, corpus/knowledge/btrfs-scrub-record-r44.md, corpus/lessons/round-48.md`
+to those three plus `corpus/knowledge/btrfs-scrub-grounding-r45.md`; no status/recheck cell changed.
+`/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi`
+exit 0 at start and end (40 W04 warnings; 256 rows at end). No Frontier row advanced. Assimilation: none; 57 id
+collisions; `considerthese/2026-10-26.md` counter-attack scoreboard proposal was mined but not implemented.
+
+### Trend verdicts
+
+- expansion: **unchanged** — no new knowledge entry admitted and no province Frontier row moved; the SOURCES row
+  is curation, not an expansion claim.
+- quality: **unchanged** — C1 remains pending and its new defects are explicitly marked; C2's matcher runs twice
+  cleanly, but no weaker knowledge entry was superseded and the C2/C3 counters have named cheat paths.
+- discernment: **unprovable-but-better** — the counted cohort exposed provenance/quote defects and the C2/C3
+  attackers falsified counter assumptions, and QUALITY 94 records the lesson; these are lane-dispatched seats,
+  not the required independent non-author sample. External closure remains pending.

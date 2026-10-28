@@ -1,0 +1,44 @@
+## 4. Report contract
+
+Write the round report at `/home/vgpnk/Projects/shokunin/.ufo/reports/round-50/tsukuroi.md` on the
+fleet repo. Required sections, in order:
+
+- **Work performed** — opens by naming the round's declared claims (1–3) and their
+  target axes or capability; then one bullet per work item, each carrying an
+  evidence pointer (path:line, command output, or commit hash).
+- **Landed changes** — every change tied to a LOG.md entry and to the commit hash that
+  carries it.
+- **Before → after measurements** — one per claim, each with the counting command and the
+  commit it was measured against.
+- **Sources & frontier** — `SOURCES.md` rows before→after with the counting command, rows
+  added by tier, rows touched old→new, frontier rows advanced; a lane with no `corpus/`
+  writes a line beginning `SOURCES: unchanged —` that names why (main-repo lanes:
+  `SOURCES: unchanged — main-repo lanes hold no corpus/`). This is a conformance item,
+  not a report marker predicate.
+- **Trend verdicts** — one verdict each for `expansion`, `quality`, and `discernment`
+  (`improved`, `harmed`, `unchanged`, `unprovable-but-better`), with evidence; no scalar.
+- **SHONEN** — one line per box of your SHONEN.md checklist: `[x]` only with a named
+  non-author verifier, `[~]` with a resolvable evidence pointer, `[ ]` if untouched.
+
+**Marker rule:** a contentless report (placeholder text, missing required sections
+other than **Sources & frontier** and **Trend verdicts**, or no evidence pointers)
+counts as the round **failed** — the driver relaunches the same round. A report that
+names real committed work but skips those sections is `ok` plus a minimum-content
+conformance defect, logged as one; neither section is a marker predicate.
+
+The watchdog logs its Sources & frontier marker and applies its source-census gate; it
+does not check trend verdicts or the full claim-admission criteria. Driver completion
+is not admission; independent non-author verification remains required.
+
+## 5. Commit, push scope, L0 side channel
+=== pre-report gate ===
+   **Pre-report gate (run 6: kotoba r69 and kake r52 left every round commit off-branch):** before
+   writing the report run `git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin ls-remote origin refs/heads/<branch>` — it MUST print
+   your final lane hash. If it prints an older hash, your commits are not on the branch: land them
+   through `jj-lane.sh` (never plain git) until it does. Commit the report only via `fleet-commit.sh --as tsukuroi`.
+   Before committing the report run `grep -c '^## SHONEN' <report>` — it must print 1, followed by
+   one `[~]`/`[ ]` line per SHONEN.md box (run 6: kotoba r69 and r71 both filed without it).
+5. **Inherited state.** Uncommitted lane-authored leftovers → resolve per PROTOCOL (commit under
+=== report extras ===
+512:6. **Report extras:** the canonical **Trend verdicts** section; a `Stale-lane` line (respawn-per-
+513:   round driver; no other mission of this lane is open); and any tool installs.

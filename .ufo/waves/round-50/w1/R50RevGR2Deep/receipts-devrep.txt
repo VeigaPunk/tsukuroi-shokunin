@@ -1,0 +1,114 @@
+=== S247 dev-replace.c 285-310 (tgtdev init) ===
+   285		device = btrfs_alloc_device(NULL, &devid, NULL, device_path);
+   286		if (IS_ERR(device)) {
+   287			ret = PTR_ERR(device);
+   288			goto error;
+   289		}
+   290	
+   291		ret = lookup_bdev(device_path, &device->devt);
+   292		if (ret)
+   293			goto error;
+   294	
+   295		set_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state);
+   296		device->generation = 0;
+   297		device->io_width = fs_info->sectorsize;
+   298		device->io_align = fs_info->sectorsize;
+   299		device->sector_size = fs_info->sectorsize;
+   300		device->total_bytes = btrfs_device_get_total_bytes(srcdev);
+   301		device->disk_total_bytes = btrfs_device_get_disk_total_bytes(srcdev);
+   302		device->bytes_used = btrfs_device_get_bytes_used(srcdev);
+   303		device->commit_total_bytes = srcdev->commit_total_bytes;
+   304		device->commit_bytes_used = device->bytes_used;
+   305		device->fs_info = fs_info;
+   306		device->bdev = bdev;
+   307		device->bdev_file = bdev_file;
+   308		set_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &device->dev_state);
+   309		set_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);
+   310		/* Check the comment in btrfs_init_new_device() for the reason. */
+
+=== 695-712 (scrub call + -EINPROGRESS map) ===
+   695		}
+   696	
+   697		ret = btrfs_commit_transaction(trans);
+   698		WARN_ON(ret);
+   699	
+   700		/* the disk copy procedure reuses the scrub code */
+   701		ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+   702				      btrfs_device_get_total_bytes(src_device),
+   703				      &dev_replace->scrub_progress, false, true);
+   704	
+   705		ret = btrfs_dev_replace_finishing(fs_info, ret);
+   706		if (ret == -EINPROGRESS)
+   707			ret = BTRFS_IOCTL_DEV_REPLACE_RESULT_SCRUB_INPROGRESS;
+   708	
+   709		return ret;
+   710	
+   711	leave:
+   712		btrfs_destroy_dev_replace_tgtdev(tgt_device);
+
+=== 748-758 (don't-warn comment) ===
+   748	
+   749		ret = btrfs_dev_replace_start(fs_info, args->start.tgtdev_name,
+   750						args->start.srcdevid,
+   751						args->start.srcdev_name,
+   752						args->start.cont_reading_from_srcdev_mode);
+   753		args->result = ret;
+   754		/* don't warn if EINPROGRESS, someone else might be running scrub */
+   755		if (ret == BTRFS_IOCTL_DEV_REPLACE_RESULT_SCRUB_INPROGRESS ||
+   756		    ret == BTRFS_IOCTL_DEV_REPLACE_RESULT_NO_ERROR)
+   757			return 0;
+   758	
+
+=== 1171-1195 (unmount suspend) ===
+  1171	void btrfs_dev_replace_suspend_for_unmount(struct btrfs_fs_info *fs_info)
+  1172	{
+  1173		struct btrfs_dev_replace *dev_replace = &fs_info->dev_replace;
+  1174	
+  1175		mutex_lock(&dev_replace->lock_finishing_cancel_unmount);
+  1176		down_write(&dev_replace->rwsem);
+  1177	
+  1178		switch (dev_replace->replace_state) {
+  1179		case BTRFS_IOCTL_DEV_REPLACE_STATE_NEVER_STARTED:
+  1180		case BTRFS_IOCTL_DEV_REPLACE_STATE_FINISHED:
+  1181		case BTRFS_IOCTL_DEV_REPLACE_STATE_CANCELED:
+  1182		case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
+  1183			break;
+  1184		case BTRFS_IOCTL_DEV_REPLACE_STATE_STARTED:
+  1185			dev_replace->replace_state =
+  1186				BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED;
+  1187			dev_replace->time_stopped = ktime_get_real_seconds();
+  1188			dev_replace->item_needs_writeback = 1;
+  1189			btrfs_info(fs_info, "suspending dev_replace for unmount");
+  1190			break;
+  1191		}
+  1192	
+  1193		up_write(&dev_replace->rwsem);
+  1194		mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
+  1195	}
+
+=== 1276-1300 (is_ongoing) ===
+  1276	bool __pure btrfs_dev_replace_is_ongoing(struct btrfs_dev_replace *dev_replace)
+  1277	{
+  1278		if (!dev_replace->is_valid)
+  1279			return false;
+  1280	
+  1281		switch (dev_replace->replace_state) {
+  1282		case BTRFS_IOCTL_DEV_REPLACE_STATE_NEVER_STARTED:
+  1283		case BTRFS_IOCTL_DEV_REPLACE_STATE_FINISHED:
+  1284		case BTRFS_IOCTL_DEV_REPLACE_STATE_CANCELED:
+  1285			return false;
+  1286		case BTRFS_IOCTL_DEV_REPLACE_STATE_STARTED:
+  1287		case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
+  1288			/*
+  1289			 * return true even if tgtdev is missing (this is
+  1290			 * something that can happen if the dev_replace
+  1291			 * procedure is suspended by an umount and then
+  1292			 * the tgtdev is missing (or "btrfs dev scan") was
+  1293			 * not called and the filesystem is remounted
+  1294			 * in degraded state. This does not stop the
+  1295			 * dev_replace procedure. It needs to be canceled
+  1296			 * manually if the cancellation is wanted.
+  1297			 */
+  1298			break;
+  1299		}
+  1300		return true;

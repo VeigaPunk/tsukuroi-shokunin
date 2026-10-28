@@ -1,0 +1,13 @@
+--- counter_orig.py	2026-10-28 15:59:59.162481450 -0300
++++ counter_M5.py	2026-10-28 16:06:12.260304581 -0300
+@@ -293,9 +293,7 @@
+     if len(body.encode('utf-8')) < 300:
+         return False, 'report body under 300 bytes'
+     hits = CITE_RE.findall(body)
+-    if not hits:
+-        return False, 'no file:line citations'
+-    if len({f for f, _ in hits} & set(CITE[row])) < 2:
++    if hits and len({f for f, _ in hits} & set(CITE[row])) < 2:
+         return False, 'fewer than 2 distinct row source files cited'
+     for fname, lineno in hits:
+         ok, why = verify_citation(cache, fname, int(lineno), lane, rev)

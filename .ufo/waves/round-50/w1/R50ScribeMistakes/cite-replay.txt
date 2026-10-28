@@ -1,0 +1,34 @@
+Static replay of the r49 CITE_RE over the two seat bodies absent from
+c1-final.json seat_notes (R49CritGR1c, R49CritGR2b). Method: extracted the
+counter's CITE_RE `r'\b([A-Za-z0-9_.@+-]+\.[a-z0-9]+):(\d+)\b'` and the ten
+pinned snapshot basenames from tools/check-scrub-admission-r49.py at
+55c07cd3f8bff2e12117c34d57b4c618de74d85c, then tokenised each report body.
+
+pinned snapshot names: btrfs-scrub@.service, capture.txt, cmdline.c,
+dev-replace.c, ioctl.c, kstrtox.c, scrub.c, sysfs.c, systemd.kill.xml,
+vsprintf.c
+
+R49CritGR1c: body 6113 bytes, 23 citation tokens, 6 distinct files,
+             0 non-pinned tokens (all cite pinned snapshots).
+R49CritGR2b: body 8922 bytes, 55 citation tokens, 6 distinct files,
+             0 non-pinned tokens (all cite pinned snapshots).
+
+=> Both bodies are citation-clean under the r49 leg; the leg refused
+   exactly the other 16 seats. c1-final.json seat_notes length = 16.
+   R49RevCounter §3 independently reports "16 voided".
+   The frozen r50 counter docstring (check-scrub-admission-r50.py:16) says
+   "17 of 18" — off by one.
+
+r49 counter binding order (check-scrub-admission-r49.py at 55c07cd3,
+bind_seat driver lines 357-374):
+    if v is None: unbound note; continue
+    if v in ('partly','fails'): blocking.append(seat); continue   <-- R49CritGR2b exits here, before the citation leg
+    if h != hashes.get(row): hash note; continue
+    cit_ok, why = report_citations_ok(cache, body, row)
+    if not cit_ok: seat_rows.append(f'{seat}: {why}')             <-- the 16 notes
+
+r49 K-pass fixture used synthetic bodies only
+(.ufo/waves/round-49/controls/battery.py:74-96, report()/cohort_reports()):
+body = f'{seat} read row {row} at the frozen bytes. The clause chain at {cite}
+        agrees with the row, ...' where cite = CITE[row] (pinned snapshot
+        files only). No real report body entered the author's battery.

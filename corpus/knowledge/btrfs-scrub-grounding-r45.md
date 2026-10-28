@@ -294,14 +294,19 @@ format are in `.ufo/waves/round-49/frozen/FROZEN.md`; the counter is
 `admitted` only after the cohort settles `holds` on the current row bytes, and the round-48 findings
 are retained above as the reason the rows were not admitted then.
 
-## Gate status — round 50 (pending; the round-50 cohort has not settled)
+## Gate status — round 50 (the depth gate FAILED; GR1-GR3 stay pending)
 
-Round 49 closed with GR2 bound `partly` by one counted critic (`R49CritGR2b`) on four defects: the `[inference]`
-mark's ioctl conjunct (ioctl.c is pinned at S240 and the row cites it), S240 missing from the `source:` line and
-QUALITY item 7, the dev-replace.c:1128 quote missing its `* ` prefix, and the undeclared S247 range gap. Round 50
-applies those four corrections before its freeze and re-reads GR1-GR3 with a fresh counted cohort of one wave
-(`w1`, 18 seats: three reviewers and three critics per row). The frozen predicate, the row hashes and the
-seat-binding format are in `.ufo/waves/round-50/frozen/FROZEN.md`; the counter is
-`tools/check-scrub-admission-r50.py`, whose citation leg accepts a `file:line` that resolves in a pinned snapshot
-**or** in the committed lane tree at the measured revision (round-49 spot-check routed defect 2), and whose
-distinct-bodies leg ignores whitespace-only differences. This heading records **pending**, not admission.
+Round 50 applied the four round-49 GR2 corrections before the freeze and re-read all three rows with a fresh
+18-seat cohort of one wave (`w1`; three reviewers and three critics per row). The frozen predicate and row hashes
+are in `.ufo/waves/round-50/frozen/FROZEN.md`; counter `tools/check-scrub-admission-r50.py`; measured receipt
+`.ufo/waves/round-50/after/c1-final.json` at lane revision `8029cdba`. It prints `structural_ok 1, corr_ok 1,
+quotes_ok 3, verdicts_ok 0, seats_ok 18, marks_ok 0`, so the claim FAILS and no admission marks were written.
+
+Bound negatives block all three rows: GR1 has one `partly` (`R50RevGR1b`) on the cmdline.c:147 quote omitting its
+`* ` comment leader; GR2 has four `partly` reports (`R50RevGR2c`, `R50CritGR2a/b/c`) on (a) the `by SR7`
+misattribution of `btrfs_dev_replace_cancel`, (b) the scrub-start ioctl inference overstates the path before it
+reaches `btrfs_scrub_dev` and calls copy-to-user failure an argument-copy failure, (c) the S242 out-of-range
+citation enumeration omits scrub.c:3094-3095, :3109, :3114 and :3138, and (d) the progress-query condition is
+per-device `scrub_ctx`, not replace state; GR3 has six `partly` reports because the S237 range declaration omits
+scrub.c:439 and :1546. Exact replacements and supporting citations are in those seat reports under
+`.ufo/waves/round-50/w1/`; the row bytes remain frozen and pending rather than narrowed after scoring.

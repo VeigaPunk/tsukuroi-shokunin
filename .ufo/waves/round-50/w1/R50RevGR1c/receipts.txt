@@ -1,0 +1,129 @@
+# R50RevGR1c receipts — GR1 quote/digest verification (frozen 8029cdba1049df25632c91a23c8db4eefb54be5f)
+
+## pinned digest verification
+cmdline.c: OK
+dev-replace.c: OK
+systemd.kill.xml: OK
+kstrtox.c: OK
+vsprintf.c: OK
+scrub.c: OK
+sysfs.c: OK
+btrfs-scrub@.timer: OK
+btrfs-scrub@.service: OK
+PKGBUILD: OK
+f5958a83b7cf1e2e438ac1b543f1c521f3f9370287fc4c4bcea38947c3991e70  capture.txt
+
+## section hash (tool)
+{"entry": "corpus/knowledge/btrfs-scrub-grounding-r45.md", "problems": [], "revision": "8029cdba1049df25632c91a23c8db4eefb54be5f", "section_sha256": {"GR1": "3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1", "GR2": "a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f", "GR3": "43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c"}, "structural_ok": 1}
+
+## section hash (independent recompute)
+lines 14..55 incl blank sep -> 3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1
+lines 14..54 no blank -> 0b67bea0ed4960e3297ef69f117c4339059c1d739561e127f9dd8e99df911aff
+
+## quote exactness (substring on cited line)
+OK  cmdline.c:147 '*\tpotentially suffixed with K, M, G, T, P, E.'
+OK  cmdline.c:156 'unsigned long long ret = simple_strtoull(ptr, &endptr, 0);'
+OK  cmdline.c:159 '/* Consume valid suffix even in case of overflow. */'
+OK  cmdline.c:189 'if (shl && likely(ptr != endptr)) {'
+OK  cmdline.c:191 'if (unlikely(check_shl_overflow(ret, shl, &ret)))'
+OK  cmdline.c:192 'ret = ULLONG_MAX;'
+OK  vsprintf.c:86 'cp = _parse_integer_fixup_radix(startp, &base);'
+OK  kstrtox.c:29 "if (s[0] == '0') {"
+OK  kstrtox.c:30 "if (_tolower(s[1]) == 'x' && isxdigit(s[2]))"
+OK  kstrtox.c:33 '*base = 8;'
+OK  sysfs.c:2040 'limit = memparse(buf, &endptr);'
+OK  sysfs.c:2043 'if (*endptr != 0)'
+
+## decisive source lines
+cmdline.c:153: unsigned long long memparse(const char *ptr, char **retptr)
+cmdline.c:154: {
+cmdline.c:155: 	char *endptr;	/* local pointer to end of parsed string */
+cmdline.c:156: 	unsigned long long ret = simple_strtoull(ptr, &endptr, 0);
+cmdline.c:157: 	unsigned int shl = 0;
+cmdline.c:158: 
+cmdline.c:159: 	/* Consume valid suffix even in case of overflow. */
+cmdline.c:160: 	switch (*endptr) {
+cmdline.c:161: 	case 'E':
+cmdline.c:162: 	case 'e':
+cmdline.c:163: 		shl += 10;
+cmdline.c:164: 		fallthrough;
+cmdline.c:165: 	case 'P':
+cmdline.c:166: 	case 'p':
+cmdline.c:167: 		shl += 10;
+cmdline.c:168: 		fallthrough;
+cmdline.c:169: 	case 'T':
+cmdline.c:170: 	case 't':
+cmdline.c:171: 		shl += 10;
+cmdline.c:172: 		fallthrough;
+cmdline.c:173: 	case 'G':
+cmdline.c:174: 	case 'g':
+cmdline.c:175: 		shl += 10;
+cmdline.c:176: 		fallthrough;
+cmdline.c:177: 	case 'M':
+cmdline.c:178: 	case 'm':
+cmdline.c:179: 		shl += 10;
+cmdline.c:180: 		fallthrough;
+cmdline.c:181: 	case 'K':
+cmdline.c:182: 	case 'k':
+cmdline.c:183: 		shl += 10;
+cmdline.c:184: 		fallthrough;
+cmdline.c:185: 	default:
+cmdline.c:186: 		break;
+cmdline.c:187: 	}
+cmdline.c:188: 
+cmdline.c:189: 	if (shl && likely(ptr != endptr)) {
+cmdline.c:190: 		/* Have valid suffix with preceding number. */
+cmdline.c:191: 		if (unlikely(check_shl_overflow(ret, shl, &ret)))
+cmdline.c:192: 			ret = ULLONG_MAX;
+cmdline.c:193: 		endptr++;
+cmdline.c:194: 	}
+cmdline.c:195: 
+cmdline.c:196: 	if (retptr)
+cmdline.c:197: 		*retptr = endptr;
+cmdline.c:198: 
+cmdline.c:199: 	return ret;
+cmdline.c:200: }
+kstrtox.c:25: noinline
+kstrtox.c:26: const char *_parse_integer_fixup_radix(const char *s, unsigned int *base)
+kstrtox.c:27: {
+kstrtox.c:28: 	if (*base == 0) {
+kstrtox.c:29: 		if (s[0] == '0') {
+kstrtox.c:30: 			if (_tolower(s[1]) == 'x' && isxdigit(s[2]))
+kstrtox.c:31: 				*base = 16;
+kstrtox.c:32: 			else
+kstrtox.c:33: 				*base = 8;
+kstrtox.c:34: 		} else
+kstrtox.c:35: 			*base = 10;
+kstrtox.c:36: 	}
+kstrtox.c:37: 	if (*base == 16 && s[0] == '0' && _tolower(s[1]) == 'x')
+kstrtox.c:38: 		s += 2;
+kstrtox.c:39: 	return s;
+kstrtox.c:40: }
+vsprintf.c:111: noinline
+vsprintf.c:112: unsigned long long simple_strtoull(const char *cp, char **endp, unsigned int base)
+vsprintf.c:113: {
+vsprintf.c:114: 	return simple_strntoull(cp, endp, base, INT_MAX);
+vsprintf.c:115: }
+vsprintf.c:116: EXPORT_SYMBOL(simple_strtoull);
+sysfs.c:2031: static ssize_t btrfs_devinfo_scrub_speed_max_store(struct kobject *kobj,
+sysfs.c:2032: 					      struct kobj_attribute *a,
+sysfs.c:2033: 					      const char *buf, size_t len)
+sysfs.c:2034: {
+sysfs.c:2035: 	struct btrfs_device *device = container_of(kobj, struct btrfs_device,
+sysfs.c:2036: 						   devid_kobj);
+sysfs.c:2037: 	char *endptr;
+sysfs.c:2038: 	unsigned long long limit;
+sysfs.c:2039: 
+sysfs.c:2040: 	limit = memparse(buf, &endptr);
+sysfs.c:2041: 	/* There could be trailing '\n', also catch any typos after the value. */
+sysfs.c:2042: 	endptr = skip_spaces(endptr);
+sysfs.c:2043: 	if (*endptr != 0)
+sysfs.c:2044: 		return -EINVAL;
+sysfs.c:2045: 	WRITE_ONCE(device->scrub_speed_max, limit);
+sysfs.c:2046: 	return len;
+sysfs.c:2047: }
+scrub.c:1378: 	u64 bwlimit;
+scrub.c:1379: 
+scrub.c:1380: 	bwlimit = READ_ONCE(device->scrub_speed_max);
+scrub.c:1381: 	if (bwlimit == 0)
+scrub.c:1382: 		return;

@@ -1,0 +1,10 @@
+base: regex hits=7 executable=7 comment=0
+  2381: CODE    pkgline=$(printf '%s\n' "$out" | grep '^PLANE packages:' | head -n1 || true)
+  2384: CODE    elif ! printf '%s\n' "$out" | grep -q 'host=fixture-host'; then
+  2386: CODE    elif ! printf '%s\n' "$pkgline" | grep -qE '^PLANE packages: [A-Z]+ \(.*root_status=.*root_mode=.*root_dir='; then
+  2390: CODE    elif ! printf '%s\n' "$out" | grep -qE "^TSUKUROI_CENSUS: ${wverdict} \("; then
+  2391: CODE    bad "$label: verdict not ${wverdict}; got: $(printf '%s\n' "$out" | grep '^TSUKUROI_CENSUS:' | head -n1)"
+  2401: CODE    printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss '$re'"
+  2432: CODE    printf '%s\n' "$out" | grep -qE -- "$re" || miss="$miss '$re'"
+freeze: regex hits=1 executable=0 comment=1
+  2230: COMMENT # `printf '%s\n' "$out" | grep -q` under `set -euo pipefail`. `grep -q` exits at the first match,

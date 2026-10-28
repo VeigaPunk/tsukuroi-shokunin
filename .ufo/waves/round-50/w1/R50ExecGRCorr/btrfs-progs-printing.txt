@@ -1,0 +1,51 @@
+== btrfs-progs scrub.c (round-42 S237) ==
+963|		warning("setting ioprio failed: %m (ignored)");
+964|
+965|	ret = ioctl(sp->fd, BTRFS_IOC_SCRUB, &sp->scrub_args);
+966|	gettimeofday(&tv, NULL);
+967|	sp->ret = ret;
+968|	sp->stats.duration = tv.tv_sec - sp->stats.t_start;
+969|	sp->stats.canceled = !!ret;
+970|	sp->ioctl_errno = errno;
+971|	ret = pthread_mutex_lock(&sp->progress_mutex);
+--
+1619|		if (sp[i].ret) {
+1620|			switch (sp[i].ioctl_errno) {
+1621|			case ENODEV:
+1622|				if (do_print)
+1623|					warning("device %lld not present",
+1624|						devid);
+1625|				continue;
+1626|			case ECANCELED:
+1627|				++err;
+1628|				break;
+1629|			default:
+1630|				if (do_print) {
+1631|					errno = sp[i].ioctl_errno;
+1632|					error(
+1633|		"scrubbing %s failed for device id %lld: ret=%d, errno=%d (%m)",
+1634|						path, devid, sp[i].ret,
+1635|						sp[i].ioctl_errno);
+1636|				}
+1637|				++err;
+1638|				continue;
+1639|			}
+--
+1198|		memset(&sp, 0, sizeof(sp));
+1199|		sp.scrub_args.devid = di_args[i].devid;
+1200|		ret = ioctl(fd, BTRFS_IOC_SCRUB_PROGRESS, &sp.scrub_args);
+1201|		if (!ret)
+1202|			return 1;
+1203|	}
+1204|
+1205|	return 0;
+1206|}
+--
+1845|};
+1846|
+1847|static int cmd_scrub_status(const struct cmd_struct *cmd, int argc, char **argv)
+1848|{
+1849|	char *path;
+1850|	struct btrfs_ioctl_fs_info_args fi_args;
+1851|	struct btrfs_ioctl_dev_info_args *di_args = NULL;
+1852|	struct btrfs_ioctl_space_args *si_args = NULL;

@@ -1,0 +1,17 @@
+# Exact lines from w1/R50ScoutReopenS240/ioctl.c (live v7.2.11 body).
+# sha256 7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01
+# Format: <lineno>|<raw line>  (tab and spaces preserved after the pipe)
+
+3066|static long btrfs_ioctl_scrub(struct file *file, void __user *arg)
+3093|	ret = btrfs_scrub_dev(fs_info, sa->devid, sa->start, sa->end,
+3094|			      &sa->progress, sa->flags & BTRFS_SCRUB_READONLY,
+3095|			      false);
+3109|	if (copy_to_user(arg, sa, sizeof(*sa)))
+3110|		ret = -EFAULT;
+3115|	return ret;
+3126|static long btrfs_ioctl_scrub_progress(struct btrfs_fs_info *fs_info,
+3132|	if (!capable(CAP_SYS_ADMIN))
+3133|		return -EPERM;
+3168|static long btrfs_ioctl_dev_replace(struct btrfs_fs_info *fs_info,
+3187|	case BTRFS_IOCTL_DEV_REPLACE_CMD_START:
+3190|		if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {

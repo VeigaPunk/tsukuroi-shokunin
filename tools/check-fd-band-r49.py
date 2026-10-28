@@ -15,12 +15,12 @@ Legs (counted):
   diag_ok    the script carries the failure class assignment `ST_BASE_ERR=fd-band`, the
              printed diagnostic `fd band %s exhausted`, and >=2 occurrences of `fd band`
              (code path + usage text)
-  band_ok    `bash <census> --selftest` at REV exits 0, its last line is
-             `TSUKUROI_CENSUS_SELFTEST: PASS (167 cases, 167 passed, 0 failed)`, and the
-             R49-C3 case line is a PASS line
-  cases      the case count parsed from that last line (target 167 = 166 + 1)
+  band_ok    `bash <census> --selftest` at REV exits 0, its last line is PASS with 0 failed,
+             includes at least the 167 cases present at the round-49 freeze, and the
+             R49-C3 case line is a PASS line (later independent cases may increase the total)
+  cases      the case count parsed from that last line (minimum 167 = 166 + R49-C3)
 
-Predicate: stale_ok == 1 and diag_ok == 1 and band_ok == 1 and cases == 167
+Predicate: stale_ok == 1 and diag_ok == 1 and band_ok == 1 and cases >= 167
 
 Scratch: the selftest tree lives under --work (default $HYAKU_SCRATCH/tsukuroi-r49/counter-c3,
 HYAKU_SCRATCH default /fast/scratch/hyaku); the counter removes its work dir on exit and
@@ -46,7 +46,7 @@ DIAG_CODE = 'ST_BASE_ERR=fd-band'
 DIAG_TEXT = 'fd band %s exhausted'
 DIAG_CASE = 'R49-C3'
 SUMMARY = re.compile(r'^TSUKUROI_CENSUS_SELFTEST: (PASS|FAIL) \((\d+) cases, (\d+) passed, (\d+) failed\)$')
-PREDICATE = 'stale_ok == 1 and diag_ok == 1 and band_ok == 1 and cases == 167'
+PREDICATE = 'stale_ok == 1 and diag_ok == 1 and band_ok == 1 and cases >= 167'
 
 
 def git(lane, *args):
@@ -103,14 +103,14 @@ def run(a, lane):
         cases = int(summary.group(2)) if summary else 0
         case_pass = any(DIAG_CASE in ln and ln.lstrip().startswith('PASS') for ln in lines)
         band_ok = 1 if (p.returncode == 0 and summary and summary.group(1) == 'PASS'
-                        and summary.group(4) == '0' and case_pass and cases == TARGET_CASES) else 0
+                        and summary.group(4) == '0' and case_pass and cases >= TARGET_CASES) else 0
         out_obj = {'counter': 'check-fd-band-r49', 'revision': rev, 'base': BASE,
                    'stale_ok': stale_ok, 'diag_ok': diag_ok, 'band_ok': band_ok,
                    'cases': cases, 'selftest_rc': p.returncode,
                    'case_line': next((ln.strip() for ln in lines if DIAG_CASE in ln), None),
                    'summary': summary.group(0) if summary else None,
                    'predicate': PREDICATE}
-        ok = stale_ok == 1 and diag_ok == 1 and band_ok == 1 and cases == TARGET_CASES
+        ok = stale_ok == 1 and diag_ok == 1 and band_ok == 1 and cases >= TARGET_CASES
         out_obj['verdict'] = 'PASS' if ok else 'FAIL'
         print(json.dumps(out_obj, sort_keys=True))
         return 0 if ok else 1

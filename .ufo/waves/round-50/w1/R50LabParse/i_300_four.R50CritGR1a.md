@@ -1,0 +1,3 @@
+ROW GR1 VERDICT: holds
+SECTION SHA256: 3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1
+ROW GR1 holds; `entry.md:5` and `SHA256SUMS:1`; marker R50CritGR1a. pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp

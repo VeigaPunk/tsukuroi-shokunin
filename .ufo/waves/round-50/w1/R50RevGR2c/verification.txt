@@ -1,0 +1,33 @@
+# R50RevGR2c receipts (seat R50RevGR2c, claim C1, row GR2)
+## A. snapshot digests
+$ (cd .ufo/waves/round-45/frozen/src && sha256sum -c SHA256SUMS)
+cmdline.c: OK
+dev-replace.c: OK
+systemd.kill.xml: OK
+kstrtox.c: OK
+vsprintf.c: OK
+$ (cd .ufo/waves/round-44/frozen/src && sha256sum -c SHA256SUMS)
+scrub.c: OK
+sysfs.c: OK
+btrfs-scrub@.timer: OK
+btrfs-scrub@.service: OK
+PKGBUILD: OK
+$ (cd .ufo/waves/round-43/frozen/src && sha256sum -c SHA256SUMS)
+ioctl.c: OK
+## B. section hash leg
+$ python3 tools/check-scrub-admission-r50.py --revision 8029cdba... --section-hash
+{"entry": "corpus/knowledge/btrfs-scrub-grounding-r45.md", "problems": [], "revision": "8029cdba1049df25632c91a23c8db4eefb54be5f", "section_sha256": {"GR1": "3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1", "GR2": "a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f", "GR3": "43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c"}, "structural_ok": 1}
+## C. independent section recompute (lines 56-152 of the extracted entry, LF-joined, no trailing LF)
+a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f
+first/last: b'## GR2' b'' next: b'## GR3'
+## D. all 29 Quotes vs cited line (verbatim substring)
+quotes: 29
+mismatches: 0
+## E. call-site census
+701:	ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+948:				 "btrfs_scrub_dev(%s, %llu, %s) failed %d",
+1265:	ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,
+1111:		ret = btrfs_scrub_cancel(fs_info);
+1144:		btrfs_scrub_cancel(fs_info);
+## F. S242 registered ranges (frozen corpus/SOURCES.md)
+| S242 | Linux v7.2.11 fs/btrfs/scrub.c — https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/fs/btrfs/scrub.c?h=v7.2.11 | code | A | When the kernel reports a scrub in progress on a device, and how the per-device scrub limit throttles a scrub | tag v7.2.11 (peeled commit a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea), fs/btrfs/scrub.c lines 1365-1385, 3140-3162, 3215-3226, 3321-3337; raw bytes sha256 

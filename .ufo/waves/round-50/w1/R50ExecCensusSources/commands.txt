@@ -1,0 +1,21 @@
+# R50ExecCensusSources — reproduction (run from a scratch dir; S = scratch root)
+REV=8029cdba1049df25632c91a23c8db4eefb54be5f
+LANE=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+
+# (a) census over the freeze registry (full tree so E11 paths resolve)
+git -C $LANE archive $REV | tar -x -C $S/full
+/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --file $S/full/corpus/SOURCES.md ; echo "rc=$?"
+/home/vgpnk/Projects/shokunin/scripts/sources-census.sh census   --file $S/full/corpus/SOURCES.md
+
+# (b) id-collision guard, 0-3 leading spaces
+git -C $LANE show $REV:corpus/SOURCES.md > $S/reg-frozen.md
+grep -oE '^ {0,3}\|[[:space:]]*S[0-9]{3,}' $S/reg-frozen.md | sed -E 's/^ *\|[[:space:]]*//' | sort -u > $S/reg-ids
+grep -oE '^ {0,3}\|[[:space:]]*S[0-9]{3,}' /home/vgpnk/Projects/shokuknow/merge/tsukuroi/SOURCES.append.md | sed -E 's/^ *\|[[:space:]]*//' | sort -u > $S/staged-ids
+comm -12 $S/reg-ids $S/staged-ids            # 57 ids, S200..S256
+
+# (c) guard-can-fail fixture: indented "  | S002 |" row
+#     registry fixture rows: S001 (col0), "  | S002 |" (2 spaces), S999 (col0)
+grep -oE '^ {0,3}\|[[:space:]]*S[0-9]{3,}' $S/guard2/reg-s002.md | sed -E 's/^ *\|[[:space:]]*//' | sort -u  # S001 S002 S999
+grep -oE '^\|[[:space:]]*S[0-9]{3,}'        $S/guard2/reg-s002.md | sed -E 's/^\|[[:space:]]*//'  | sort -u  # S001 S999
+# -> 0-3 pattern collides on S002 (count 1); column-zero-only misses it (count 0)
+# -> the indented row is live: census rows=3, validate rc=0

@@ -1,0 +1,64 @@
+## 6. Conformance defects noted (status-neutral)
+
+- **V1 — in-place rewrite of the filed report.** `85becaa2` filed the report;
+  `de2a8b75` then edited one line inside its `## SHONEN` block
+  (`SKILL.md:4556-4582` → `4548-4572`). The subject labels the change, but
+  `PROTOCOL.md` allows a correction to a filed report only as the correcting
+  round's report or an appended erratum naming the superseded text — never a
+  rewrite of filed bytes.
+- **V2 — freeze declaration written before its instrument.** The declaration
+  said 3 calibration mismatches at the freeze; the measured count was 2
+  (K13, K17). Disclosed and corrected by name in the lesson and the outcome
+  block; the declaration text is retained (append-only).
+- **V3 — IN-109 repin drift.** The freeze commit left `check-adjacency-anchors.py`
+  failing (the census edit shifted IN-109); the repin landed one commit later
+  (`32a85560`) and was needed again at integration (2642→2660→2671). Disclosed
+  by `R49ExecAnchorB` / `R49RevAdjB` / `R49CritAdjA`.
+- **V4 — C1 counter's citation leg over-restricts.** `verdicts_ok` is 0 although
+  the cohort's file verdicts are 17 `holds` / 1 `partly`, because the leg
+  rejects lane-relative `path.ext:NNN` outside pinned snapshots. Reported, not
+  narrowed; it makes the claim's measurement partly uninformative (routed).
+- **V5 — C2 counter is a shape test.** A stub table passes it (`R49CritAdjA`,
+  `R49RevAdjB`); the content leg is the pre-existing checker. My independent
+  anchor re-verification is what carries the PASS (routed hardening).
+- **V6 — attack-share arithmetic has an unstated basis.** "37/73 = 50.7 %" holds
+  for reviewer+critic+sentinel (18+15+4); critic+sentinel+mutation-tester is
+  23/73 = 31.5 %. Either way the ≥25 % directive is met; the report should name
+  the set it counts. Role histogram itself is exact (`w1-spec.json`: reviewer
+  18, critic 15, scout 13, executor 10, scribe 7, mutation-tester 4, sentinel 4,
+  connector 2 = 73).
+- **V7 — census selftest self-contradiction under load** (`R49ExecSelfAssess`
+  §4): one run printed a `FAIL degraded … (R42-C1)` line whose `got:` matched
+  the reported-missing regex; two later runs printed 167/167. Pre-existing
+  flake, no gate; routed.
+
+## 7. Routed defects for the lane's next round
+
+1. GR2 admission: shrink the `[inference]` mark to the btrfs-progs printing it
+   actually leaves open (the ioctl side is pinned at S240, `ioctl.c:3132`/
+   `:3190`) and add `S240` to the entry's `source:` line; then re-read GR2 with
+   a NEW counted cohort (this is the lane's own planned item and the only thing
+   blocking GR1–GR3 admission).
+2. `check-scrub-admission-r49.py`: accept lane-relative `path.ext:NNN`
+   citations (or a `--dispatch-file` override) so real seat reports bind, and
+   make the distinct-bodies rule ignore whitespace padding (V4).
+3. `check-adjacency-table-r49.py`: move the registry-digest and
+   quote-resolution content legs into the counter so a stub table cannot pass
+   (V5); keep the IN-109 repin in the same commit as the census edit (V3).
+4. `check-fd-band-r49.py`: add the spaced-TMPDIR PASS leg and a
+   "diagnostic not merely in a comment" leg (`R49RevFdB` F1/F6, `R49CritFdB`
+   cheat Pb: a 19-line "liar" census passes).
+5. Census selftest: reset the per-case accumulators and assert the plane line's
+   field boundary, then re-run under load (V7).
+6. Report corrections: append an erratum naming the superseded text instead of
+   editing the filed report (V1).
+7. Re-pin or hand over the anchors `R49CritAdjB` reports stale at the current
+   sibling tips; the kaidoku/revenger ADJ-06 arbitration stays with the
+   integrator.
+
+## 8. Verdict
+
+`rejected-honest-stop`: real report, conformance satisfied apart from the noted
+status-neutral defects, C2 and C3 verified (adjacency/operability improved), C1
+honestly reported unverified against its own frozen predicate with both causes
+named, no axis harmed. `admitted=false`, `lanes.tsukuroi=ok`.

@@ -1,0 +1,39 @@
+$ git -C /home/vgpnk/Projects/shokunin status --porcelain
+ M .scratch/goal-20261028-hyaku-run11.md
+?? .scratch/closure-mado-r50.json
+?? .scratch/closure-r54/
+?? .scratch/kasegi-r44/
+?? .scratch/source-routing-queue.md
+?? .ufo/reports/round-50/tsukuroi.md
+?? lane3/
+?? o.bin
+?? oldrep1.out
+?? oldrep2.out
+
+$ git -C /home/vgpnk/Projects/shokunin ls-files .ufo/reports/round-50 | wc -l
+10
+$ git -C /home/vgpnk/Projects/shokunin ls-files .ufo/reports/round-50 | grep tsukuroi
+(no output; rc=1)
+
+--- naming test per untracked entry (grep -oiE 'tsukuroi|kengaku|kasegi|mado|round-50|r50|run11' <f> | sort | uniq -c) ---
+.scratch/closure-mado-r50.json      8 mado  1 r50  1 R50  2 round-50
+.scratch/source-routing-queue.md    1 kasegi
+.ufo/reports/round-50/tsukuroi.md   4 r50  2 R50  4 round-50  2 tsukuroi  1 Tsukuroi
+o.bin                             (0 hits; Cloudflare challenge HTML, file(1) "HTML document")
+oldrep1.out                       1 TSUKUROI   (head: "PASS healthy: all planes pass"; tail: "TSUKUROI_CENSUS_SELFTEST: PASS (164 cases, 164 passed, 0 failed)")
+oldrep2.out                       1 TSUKUROI   (same 15 314 bytes)
+.scratch/closure-r54/               dir; manifest-entry.json "round": 54 (no lane name in head)
+.scratch/kasegi-r44/                dir; contains R44Critic5, R44Scribe5 seat dirs
+lane3/                            dir; kengaku-shokunin clone (remote url /home/vgpnk/Projects/shokunin/kengaku-shokunin; HEAD 297e179 "round-50: receipt notes...")
+
+Tracked convention checks:
+$ git -C /home/vgpnk/Projects/shokunin ls-files .ufo/reports | wc -l
+871
+$ git -C /home/vgpnk/Projects/shokunin ls-files .scratch | wc -l
+19
+$ git -C /home/vgpnk/Projects/shokunin ls-files .scratch | grep -c closure
+0
+$ git -C /home/vgpnk/Projects/shokunin ls-files lane3 | wc -l
+0
+$ git -C /home/vgpnk/Projects/shokunin check-ignore -v .ufo/reports/round-50/tsukuroi.md
+rc=1 (not ignored)

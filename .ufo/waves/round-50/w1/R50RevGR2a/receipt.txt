@@ -1,0 +1,71 @@
+R50RevGR2a receipts — claim C1, row GR2 — 2026-10-28
+Freeze revision: 8029cdba1049df25632c91a23c8db4eefb54be5f (lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin)
+
+## 1. Extraction (exact item command)
+mkdir -p /fast/scratch/hyaku/tsukuroi-r50/R50RevGR2a && \
+git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show \
+    8029cdba1049df25632c91a23c8db4eefb54be5f:corpus/knowledge/btrfs-scrub-grounding-r45.md \
+    > /fast/scratch/hyaku/tsukuroi-r50/R50RevGR2a/entry.md
+wc -l -> 307
+grep -n '^## ' -> GR2 starts at line 56, next heading "## GR3" at line 153
+
+## 2. Section hash, recomputed independently (python3 hashlib, not the counter)
+start line(1-based) 56  next section line 153  rows 97
+hash no trailing LF: a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f
+hash with trailing LF: 67023d9f0cf29b9bc385ddd268603addf9437c8f34ec1dfa3e53812abcda49c4
+matches claim: True
+first row line: '## GR2'   last row line: '' (blank line before ## GR3)
+section bytes: 6012
+=> convention confirmed: row lines joined with LF, no trailing LF.
+
+## 3. Counter, section-hash mode only (the only counter command this item authorises)
+python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-scrub-admission-r50.py \
+        --revision 8029cdba1049df25632c91a23c8db4eefb54be5f --section-hash
+{"entry": "corpus/knowledge/btrfs-scrub-grounding-r45.md", "problems": [], "revision": "8029cdba1049df25632c91a23c8db4eefb54be5f",
+ "section_sha256": {"GR1": "3a2ba1807a7f2308acb11b2f928f85dba5156c6eb9fe865216a06ba2a843fee1",
+                    "GR2": "a2e955cefbd110ced928407c79b2cedb3cc431734487aa29e74682b23aeb7f3f",
+                    "GR3": "43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c"},
+ "structural_ok": 1}
+
+## 4. Snapshot digests (sha256sum -c SHA256SUMS in each directory)
+S247 = .ufo/waves/round-45/frozen/src/dev-replace.c  f07ef0a0d260cf67b7c2aff0542ec13204f9761e33df0ea9feedf143cc034f3a  OK
+       (dir also: cmdline.c OK, systemd.kill.xml OK, kstrtox.c OK, vsprintf.c OK)
+S242 = .ufo/waves/round-44/frozen/src/scrub.c        f347931b795c738db08c5706b5caaabce891c9545309a9f8dff5fab9938ca5b8  OK
+S243 = .ufo/waves/round-44/frozen/src/sysfs.c        ce146120f29ac29c0bc1859f21e4b84da91a536df2ec9fd2fa5649144f731c43  OK
+       (dir also: btrfs-scrub@.timer OK, btrfs-scrub@.service OK, PKGBUILD OK)
+S240 = .ufo/waves/round-43/frozen/src/ioctl.c        7b3488f2f83563134fec1a3d40c4149a5fe3606de6628cd33f7897fd4534ba01  OK
+S-row assignment provenance: r44 FETCH.txt names scrub.c -> S242, sysfs.c -> S243; r45 FETCH.txt pins
+dev-replace.c at tag v7.2.11 (peeled a2de78ee6ed8bf8cd99d177c74865a6e8c3cb6ea) and the entry's source:
+line assigns S247 = fs/btrfs/dev-replace.c; r43 FETCH.txt + the source: line assign S240 = fs/btrfs/ioctl.c
+with sha256 7b3488f2...ba01, the digest just verified.
+
+## 5. Host-capture lines cited by the row (frozen artifact, not re-run by this seat)
+.ufo/waves/round-45/frozen/hostcap/capture.txt (9 lines, 686 bytes)
+line 1: captured 2026-10-27T02:09:52Z uid=1000 CapEff=0000000000000000
+line 9: devinfo 1d02a454-c549-4a35-b567-89d60902af8e/devinfo devids=1
+No line records exclusive_operation or replace_target => the row's "which this capture does not record" is true.
+
+## 6. Seat receipt the row cites for the un-captured half
+.ufo/waves/round-45/a2w1/C2ExecHostRecheck.md sec.3 (mtime 2026-10-27 00:28) shows
+  -r--r--r-- 1 root root ... /sys/fs/btrfs/1d02a454-.../devinfo/1/replace_target   # cat -> 0
+  -r--r--r-- 1 root root ... /sys/fs/btrfs/1d02a454-.../exclusive_operation         # cat -> none
+and .ufo/waves/round-45/a2w1/C2ExecHostRecheck/host-recheck-probes.txt sec.6 (uid=1000, CapEff 0):
+  line 32: -r--r--r-- ... replace_target      line 34: replace_target=[0
+  line 33: -r--r--r-- ... exclusive_operation line 36: exclusive_operation=[none
+=> "both files are mode 444 and read `none` and `0`" is exactly what that dated receipt records.
+
+## 7. Scope notes
+- One selftest-bearing command was never needed: this item's counter call is --section-hash only.
+- No git/jj mutation anywhere; no fixture repo was created. Scratch /fast/scratch/hyaku/tsukuroi-r50/R50RevGR2a
+  held only entry.md and was removed at the end (df: 540G free on /fast).
+
+## 8. Quote and citation resolution (script, GR2 section only)
+Regex-parsed every `**Quote.**` line in GR2 (lines 56-152 of the entry):
+  quotes: 29   exact-substring at the cited line: 29   mismatches: 0
+Distinct `file:line` tokens in the section: 42, all inside their snapshot:
+  dev-replace.c (S247, 1323 lines): 18 tokens, all <= 1323
+  ioctl.c       (S240, 5679 lines):  5 tokens, all <= 5679
+  scrub.c       (S242, 3338 lines): 17 tokens, all <= 3338
+  sysfs.c       (S243, 2703 lines):  2 tokens, all <= 2703
+Method: open each snapshot, take line N (1-based), test `quote in line`; a quote that resolves nowhere would
+print as MISMATCH. No mismatch printed.

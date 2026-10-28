@@ -1,0 +1,12 @@
+--- pristine.py	2026-10-28 16:03:42.163729336 -0300
++++ m2.py	2026-10-28 16:03:42.163886436 -0300
+@@ -423,8 +423,7 @@
+                 seat_rows.append(f'{seat}: {why}')
+                 continue
+             credited.append(seat)
+-            norm_body = '\n'.join(ln.rstrip() for ln in (body or '').split('\n') if ln.strip())
+-            bodies.add(hashlib.sha256(norm_body.encode('utf-8')).hexdigest())
++            bodies.add(hashlib.sha256((body or '').encode('utf-8')).hexdigest())
+         roles = {role for seat, role in exp if seat in credited}
+         distinct = len(bodies) == len(credited)
+         row_ok = (len(credited) >= 3 and 'reviewer' in roles and 'critic' in roles

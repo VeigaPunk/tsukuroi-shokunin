@@ -1,0 +1,41 @@
+GATE-ORDER TRACE — btrfs_scrub_dev (S242 scrub.c, sha256 f347931b...9a5b8)
+Device profile under test: present, writeable, in fs metadata, NOT the replace target;
+a device replace is ongoing; call is a scrub start (is_dev_replace=false, per ioctl.c:3095).
+
+  line    code step                                            outcome for this profile
+  3091    progress->last_physical = start                      SIDE EFFECT: out-param written even on refusal
+  3094    btrfs_fs_closing(fs_info)                            false -> continue (row: "-EAGAIN first")
+  3109    sctx = scrub_setup_ctx(fs_info, is_dev_replace)      ok (error would return PTR_ERR at 3111)
+  3114    ret = scrub_workers_get(fs_info)                     0 (error -> goto out_free_ctx)
+  3119    dev = btrfs_find_device(...)                         dev found (under device_list_mutex)
+  3120    !dev || (MISSING && !is_dev_replace)                 present -> pass   (row: -ENODEV)
+  3127    !is_dev_replace && !readonly && !WRITEABLE           writeable -> pass (row: -EROFS)
+  3138    !IN_FS_METADATA || REPLACE_TGT  (under scrub_lock)   in metadata, not target -> pass (row: -EIO)
+  3146    down_read(&fs_info->dev_replace.rwsem)
+  3147    dev->scrub_ctx ||                                    ctx NULL -> eval 2nd disjunct
+  3148      (!is_dev_replace &&                                true && 
+  3149       btrfs_dev_replace_is_ongoing(&fs_info->dev_replace)) ongoing -> true
+  3153    ret = -EINPROGRESS;  goto out -> workers_put, free_ctx, return ret (3253)
+
+ROW ORDER vs CODE ORDER: matches exactly (EAGAIN -> ctx/workers -> ENODEV -> EROFS -> EIO ->
+EINPROGRESS). Within the single `if` the code tests dev->scrub_ctx FIRST, then the
+!is_dev_replace/ongoing arm (3147-3149); the prose describes the ongoing arm first.
+Immaterial: || operands are side-effect-free and both arms yield the same -EINPROGRESS.
+
+SENTENCE/CLAUSE AUDIT of "any call is refused with -EINPROGRESS while the device already
+carries a scrub context" (entry lines 71-72, restated parenthetically at line 74):
+  * EXACT on the is_dev_replace axis: the ctx arm has no is_dev_replace guard, so it covers
+    is_dev_replace=true calls too. Proven exercised: dev-replace.c:701-703 calls with
+    `false, true`; -EINPROGRESS is then mapped at dev-replace.c:705-707 to
+    BTRFS_IOCTL_DEV_REPLACE_RESULT_SCRUB_INPROGRESS, and the comment at dev-replace.c:754
+    says "don't warn if EINPROGRESS, someone else might be running scrub".
+  * NOT unconditional: the ctx test at scrub.c:3147 is reached only after the -ENODEV
+    (3120-3124), -EROFS (3127-3134) and -EIO (3138-3143) gates. A call on a device carrying
+    a scrub context that simultaneously fails an earlier gate returns the earlier errno,
+    not -EINPROGRESS. Reachability of such a state is NOT pinned (MISSING/IN_FS_METADATA
+    bit manipulation lives in volume.c, absent from the frozen snapshots) [inference], but
+    the *structural* fact is pinned: the test is gated.
+  * The sentence at 66-72 is scoped by "Only after those checks is ..." which defensibly
+    covers both arms; the parenthetical at line 74 "(as is a start on any device that
+    already carries a scrub context)" drops the scope and asserts the unconditional rule.
+    That clause overreaches: "any device" includes devices that fail the earlier gates.
