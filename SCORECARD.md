@@ -3252,12 +3252,12 @@ but their counter-cheat limits are disclosed rather than smoothed.
 
 | Axis | Score | Evidence pointer (counting command) | Last change |
 |---|---|---|---|
-| depth | 8 | 67 knowledge notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4594 lines / 1326 table lines; 75 lesson files (`find corpus/lessons -type f \| wc -l`); GR1-GR3 remain pending under C1 (`verdicts_ok 0`); no ordinal move. | round 4; unchanged |
-| coverage | 9 | `corpus/README.md` 522 lines; PROVINCE Core/Frontier/Adjacent present; no surface promotion. | round 11; unchanged |
-| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` → PASS 168/168; C2 counter PASS, but a liar census can pass it (`R50CritCheatC2.md`) and its lexical leg misses `${out}` forms (`R50RevCounterC2.md`); `check-fd-band-r49.py --revision <REV>` compatibility leg accepts the 168-case selftest while retaining R49-C3. | round 11; unchanged |
+| depth | 8 | 67 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4594 `wc -l` / 1326 table lines (`grep -c '^\|' SKILL.md`); `corpus/lessons/` 75 files (`find corpus/lessons -type f \| wc -l`); GR1-GR3 remain pending under C1 (`verdicts_ok 0`); no ordinal move. | round 4; unchanged |
+| coverage | 9 | `corpus/README.md` 522 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; no surface promotion. | round 11; unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` → PASS (168 cases, 168 passed, 0 failed); `--identity` landed; `bash tools/boot-chain-audit.sh --selftest` `PASS total=49 failed=0`; `check-fd-band-r49.py` accepts later case additions while retaining R49-C3. | round 11; unchanged |
 | freshness | 9 | S240 re-opened byte-identically at sha256 `7b3488f2…ba01`; S256 opened 2026-10-28; sources census exit 0 at start and end. | fleet round 1; unchanged |
 | calibration | 9 | `python3 tools/check-self-assessment.py --revision <FINAL>` → checked 27, mismatches 0 after this restatement; no ordinal move. | round 10; unchanged |
-| adjacency | 8 | `python3 tools/check-adjacency-table-r50.py --revision <REV>` → 9/9 pinned quote/digests, 9/9 live quotes, stub_fails 1; counter's caller-supplied overrides can score fabricated input (`R50CritCheatC3.md`). | fleet round 1; unchanged |
+| adjacency | 8 | formal overlap table present (PROVINCE `| ID | Finding`); C3 measured 9/9 pinned quotes/digests and 9/9 live-tip quotes; caller-supplied C3 overrides can still score fabricated input (`R50CritCheatC3.md`). | fleet round 1; unchanged |
 
 ## Capabilities — current full evidence set (round 50)
 
