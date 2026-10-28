@@ -1,0 +1,11 @@
+--- census-pristine.sh	2026-10-28 08:58:29.744721497 -0300
++++ census-m3.sh	2026-10-28 09:04:52.922393010 -0300
+@@ -2075,7 +2075,7 @@
+   case "$base" in
+     *[!A-Za-z0-9._/+-]*)
+       # dirty TMPDIR: it must exist and be a directory for the alias to bind
+-      [ -d "$base" ] || return 1
++      [ -d "$base" ] || { ST_BASE_DIR=/tmp; ST_BASE_FD=; return 0; }
+       for fdn in 240 241 242 243 244 245 246 247 248 249; do
+         [ -e "/proc/self/fd/$fdn" ] || break
+       done

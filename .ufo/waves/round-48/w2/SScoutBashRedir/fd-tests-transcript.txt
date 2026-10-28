@@ -1,0 +1,26 @@
+=== SRC-N2 evidence transcript, 2026-10-28T12:11:23Z ===
+--- T1 explicit fd 240 open/close:
+lr-x------ 1 vgpnk vgpnk 64 Oct 28 09:11 /proc/self/fd/240 -> /etc/hostname
+closed-ok
+--- T2 varname alloc (lowest free >=10):
+v=10
+--- T6 directory fd 240 alias:
+file
+--- T8 in-process script fd 255 (close-on-exec):
+bash: w.sh: No such file or directory
+--- T5 close 255 mid-script:
+bash: t.sh: No such file or directory
+rc=127
+--- version:
+GNU bash, version 5.3.20(1)-release (x86_64-pc-linux-gnu)
+--- T8 in-process script fd 255:
+fd255: present in-process
+visible fds: 0 1 16 18 2 3 
+cat: /proc/self/fdinfo/255: No such file or directory
+--- T5 close 255 mid-script:
+after-close-255 ok
+rc=0
+--- T9 child exec sees no 255 (close-on-exec):
+fd255: present in-process
+visible fds: 0 1 16 18 2 245 3 
+cat: /proc/self/fdinfo/255: No such file or directory

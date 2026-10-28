@@ -1,0 +1,13 @@
+== (c) empty work: mktemp failure aborts before the trap exists; empty operands are harmless ==
+-- real frozen script, clean-charset but non-writable TMPDIR (mktemp must fail) --
+census rc=1
+stderr: mktemp: failed to create directory via template ‘/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r6/ro/tsukuroi-r3-2-selftest.XXXXXX’: Permission denied
+stdout last: 
+leftovers in TMPDIR: [] ; fixtures in cwd: [0]
+after trap with empty work: cwd=[c.err c.out keep.txt ro ] cwd_mode=755 root_mode=555
+chmod: cannot access '': No such file or directory
+chmod-empty rc=1
+rm-empty rc=0
+cwd after raw empty operands: [c.err c.out keep.txt ro ]
+
+== (a4) sticky bit vs a plain 0777 dir, real second uid (nobody) ==

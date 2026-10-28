@@ -1,0 +1,21 @@
+--- anchors in live bytes ---
+701:	ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,
+948:				 "btrfs_scrub_dev(%s, %llu, %s) failed %d",
+1085:int btrfs_dev_replace_cancel(struct btrfs_fs_info *fs_info)
+1111:		ret = btrfs_scrub_cancel(fs_info);
+1144:		btrfs_scrub_cancel(fs_info);
+1171:void btrfs_dev_replace_suspend_for_unmount(struct btrfs_fs_info *fs_info)
+1265:	ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,
+--- line 1111 ---
+		ret = btrfs_scrub_cancel(fs_info);
+--- lines 1143-1144 ---
+		/* Scrub for replace must not be running in suspended state */
+		btrfs_scrub_cancel(fs_info);
+--- line 1171 ---
+void btrfs_dev_replace_suspend_for_unmount(struct btrfs_fs_info *fs_info)
+--- function span 1171-1195 ---
+}
+
+/* resume dev_replace procedure that was interrupted by unmount */
+int btrfs_resume_dev_replace_async(struct btrfs_fs_info *fs_info)
+{

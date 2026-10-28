@@ -1,0 +1,28 @@
+Seat: TExecCounterA (item C1-X1: replicate frozen C1 counter)
+Host: linux 7.2.11-arch1-1 x64; python3 3.14.8 (/usr/bin/python3)
+
+Command (one run, started 2026-10-28T08:58:0x-03:00, wall 206.32 s):
+
+  S=/fast/scratch/hyaku/tsukuroi-r48/TExecCounterA; mkdir -p "$S"
+  cd /fast/scratch/hyaku/tsukuroi-r48/TExecCounterA
+  env -u TMPDIR python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/score-selftest-tmpdir-r48.py \
+      --revision ae99f021b76f8eb1c8805d32d80644464afb1ff6 \
+      --work /fast/scratch/hyaku/tsukuroi-r48/TExecCounterA/w \
+      > /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-48/w2/TExecCounterA/counter.json \
+      2> /fast/scratch/hyaku/tsukuroi-r48/TExecCounterA/counter.err
+
+Observed: RC=0; counter.err empty (0 bytes).
+
+Counter bytes identity (frozen before data):
+  sha256sum tools/score-selftest-tmpdir-r48.py
+    8eead161e990e9e6f5155984797396d79fe7a3e6524a1a0c3087758658625640  (== FROZEN.md row)
+  git show ae99f021b76f8eb1c8805d32d80644464afb1ff6:tools/score-selftest-tmpdir-r48.py | sha256sum
+    8eead161e990e9e6f5155984797396d79fe7a3e6524a1a0c3087758658625640
+  git diff --stat ae99f021... -- tools/score-selftest-tmpdir-r48.py tools/tsukuroi-census.sh  -> empty
+
+Subject census blob identity (digest as reported by the counter, subject ae99f021...):
+  census_sha256 375aa7370f84b0ee9d4630e2cd34165c1403901e3266db603ffa43f3a76e2426
+  (== frozen blob hash; independently `git show ae99f021...:tools/tsukuroi-census.sh | sha256sum` -> same)
+
+Receipt: counter.json (sha256 54587c277788c4ab5fc1224e2ae06c3ab4debb7f78fce91c8f8b76c2fd7fcc90)
+Work dir removed by the counter itself (`shutil.rmtree(work)` in main()'s finally): observed absent afterwards.

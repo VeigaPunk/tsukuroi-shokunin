@@ -1,0 +1,20 @@
+fd-matrix receipt: selftest_base_dir unit sweep (fdef.sh = frozen lines 2058-2089 of tools/tsukuroi-census.sh @ ae99f021b76f8eb1c8805d32d80644464afb1ff6)
+TMPDIR='/fast/scratch/hyaku/tsukuroi-r48/TExecFdHold/dirty tmpdir'  (contains one space); taken 2026-10-28T12:15:56Z
+held=0 [ ] outer rc=0 alias=240 | second-call rc=0 fd=241
+held=1 [ 240 ] outer rc=0 alias=241 | second-call rc=0 fd=242
+held=2 [ 240 241 ] outer rc=0 alias=242 | second-call rc=0 fd=243
+held=4 [ 240 241 242 243 ] outer rc=0 alias=244 | second-call rc=0 fd=245
+held=8 [ 240 241 242 243 244 245 246 247 ] outer rc=0 alias=248 | second-call rc=0 fd=249
+held=9 [ 240 241 242 243 244 245 246 247 248 ] outer rc=0 alias=249 | second-call rc=1 (band exhausted)
+held=10 [ 240 241 242 243 244 245 246 247 248 249 ] outer rc=1 (band exhausted)
+--- occupied-by-kinds (fd 240 pre-held by a non-regular object) ---
+pipe@240 -e=TRUE rc=0 alias=241
+deleted-file@240 -e=TRUE rc=0 alias=241
+socket@240 -e=TRUE rc=0 alias=241
+--- RLIMIT_NOFILE sweep (dirty TMPDIR, nothing pre-held; stderr captured in scratch) ---
+ulimit -n 1024 rc=0 alias=240
+ulimit -n 256 rc=0 alias=240
+ulimit -n 249 rc=0 alias=240
+ulimit -n 241 rc=0 alias=240
+ulimit -n 240 rc=1 stderr="/fast/scratch/hyaku/tsukuroi-r48/TExecFdHold/fdef.sh: line 26: 240: Bad file descriptor"
+ulimit -n 200 rc=1 stderr="/fast/scratch/hyaku/tsukuroi-r48/TExecFdHold/fdef.sh: line 26: 240: Bad file descriptor"

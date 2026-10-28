@@ -1,0 +1,9 @@
+### eval alternatives (alt.sh, bash 5.3.20):
+literal-fd case (exec 241<"$base")        -> ok, alias resolves
+dup: exec {t}<"$base" && exec 245<&"$t" && exec {t}<&-   -> fd245 alias ok, temp fd10 closed
+eval: eval "exec ${fdn}<\"\$base\""        -> ok (existing code)
+preset var: fdv=246; exec {fdv}<"$base"    -> IGNORES preset; bash auto-allocated fd 10
+set -x of eval:  + eval 'exec 240<"$base"' / ++ exec     -> $base expanded once, never re-tokenized
+### closes
+exec {v}<&- with v empty -> "bash: line 1: v: ambiguous redirect" rc=1
+exec {v}<&- with v=999 (unopened) -> rc=0 (silent success)

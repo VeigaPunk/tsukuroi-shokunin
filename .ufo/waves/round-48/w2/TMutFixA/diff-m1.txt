@@ -1,0 +1,19 @@
+--- census-pristine.sh	2026-10-28 08:58:29.744721497 -0300
++++ census-m1.sh	2026-10-28 09:04:52.856393069 -0300
+@@ -2076,14 +2076,8 @@
+     *[!A-Za-z0-9._/+-]*)
+       # dirty TMPDIR: it must exist and be a directory for the alias to bind
+       [ -d "$base" ] || return 1
+-      for fdn in 240 241 242 243 244 245 246 247 248 249; do
+-        [ -e "/proc/self/fd/$fdn" ] || break
+-      done
+-      [ -e "/proc/self/fd/$fdn" ] && return 1
+-      eval "exec ${fdn}<\"\$base\"" || return 1
+-      ST_BASE_FD=$fdn
+-      ST_BASE_DIR=/proc/self/fd/$fdn
+-      [ -d "$ST_BASE_DIR" ] || { eval "exec ${fdn}<&-"; ST_BASE_FD=; ST_BASE_DIR=; return 1; }
++      # MUTANT M1: return the plain dirty path, no fd alias
++      ST_BASE_DIR=$base
+       ;;
+     *) ST_BASE_DIR=$base ;;
+   esac

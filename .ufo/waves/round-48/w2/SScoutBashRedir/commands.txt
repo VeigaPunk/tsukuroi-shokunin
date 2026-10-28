@@ -1,0 +1,13 @@
+date -u +%F                                                            # 2026-10-28
+curl -fsSL --max-time 60 -o bash.html https://www.gnu.org/software/bash/manual/bash.html
+sha256sum bash.html                                                    # 78d0eefbe60cfe7345ffdafede7294f055b04e53bd520360ff699b24f81e2b4b
+wc -c bash.html                                                        # 1040954
+git -C $L grep -n "gnu.org/software/bash" ae99f021b76f8eb1c8805d32d80644464afb1ff6   # manual URL absent from SOURCES.md
+git -C $L show ae99f021b76f8eb1c8805d32d80644464afb1ff6:tools/tsukuroi-census.sh     # resolver lines 2058-2090, close at 3551
+find $L/.ufo -name '*bash*'                                            # no prior bash.html snapshot pinned
+bash -c 'exec 240</etc/hostname; ...; exec 240<&-'                       # explicit fd>=10 open/close OK
+bash -c 'exec {v}</etc/hostname; echo $v; exec {v}<&-'                   # v=10 (lowest free >=10)
+bash -c 'exec 240<DIR; ls /proc/self/fd/240/sub'                         # directory fd alias works
+bash w.sh                                                              # script fd 255: [ -e ] true in-process; absent from exec'd children
+bash t.sh                                                              # exec 255<&- mid-script: rc=0
+bash --version                                                         # GNU bash, version 5.3.20(1)-release

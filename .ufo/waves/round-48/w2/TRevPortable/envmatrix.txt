@@ -1,0 +1,15 @@
+### environment matrix on selftest_base_dir (isolated, fn.sh = exact ae99f021 extraction)
+B  TMPDIR parent is a symlink          rc=0 alias resolves to real dir through symlink
+B2 TMPDIR itself is a symlink (clean name) -> clean arm, used directly, mktemp ok
+C  /proc replaced by tmpfs (userns)    rc=1 FAIL-CLOSED, no /tmp write; TMPDIR=/tmp still works clean-arm
+D  procfs remounted hidepid=invisible  rc=0 alias works (only /proc/self used)
+E  TMPDIR mode 0311 (no read perm)     open() EACCES, rc=1 fail-closed
+F  fd 240 pre-occupied                 picks 241, rc=0
+G  fds 240-249 ALL pre-occupied        rc=1 fail-closed
+H  TMPDIR a regular file               rc=1 fail-closed
+I  TMPDIR nonexistent                  rc=1 fail-closed
+J  ulimit -n 100 (< fd band)           "240: Bad file descriptor", rc=1 fail-closed
+K  python3 subprocess ls /proc/self/fd/240 -> close_fds=True (default): FAILS (fd closed); close_fds=False: ok
+L  env -i / setsid children            inherit fd 240, alias resolves
+M  real census.sh --selftest under userns tmpfs-/proc, dirty TMPDIR -> "cannot host the fixture tree (no /tmp fallback, R48-C2)" fail-fast
+### end-to-end: census.sh --selftest with TMPDIR="...tmp d" -> TSUKUROI_CENSUS_SELFTEST: PASS (166,166,0), rc=0, dir empty after

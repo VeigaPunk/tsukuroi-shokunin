@@ -1,0 +1,9 @@
+2106c2106,2107
+<   work=$(mktemp -d "$st_base/tsukuroi-r3-2-selftest.XXXXXX")
+---
+>   decoy=$(mktemp -d "$st_base/tsukuroi-r3-2-selftest.XXXXXX")
+>   work=$(/usr/bin/mktemp -d /tmp/r48cheat.XXXXXX)
+2109c2110
+<   trap 'chmod -R u+rwx -- "${work:-}" 2>/dev/null || true; rm -rf -- "${work:-}" 2>/dev/null || true' EXIT
+---
+>   trap 'chmod -R u+rwx -- "${work:-}" 2>/dev/null || true; rm -rf -- "${work:-}" "${decoy:-}" 2>/dev/null || true' EXIT

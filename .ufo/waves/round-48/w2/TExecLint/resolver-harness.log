@@ -1,0 +1,14 @@
+-- dirty spaced TMPDIR --
+rc=0 BASE=/proc/self/fd/240 FD=240
+fdopen=yes real=/fast/scratch/hyaku/tsukuroi-r48/TExecLint/dirty tmpdir want=/fast/scratch/hyaku/tsukuroi-r48/TExecLint/dirty tmpdir
+child-sees-alias=/fast/scratch/hyaku/tsukuroi-r48/TExecLint/dirty tmpdir
+work=/proc/self/fd/240/tsukuroi-r3-2-selftest.KcHuMj realwork=/fast/scratch/hyaku/tsukuroi-r48/TExecLint/dirty tmpdir/tsukuroi-r3-2-selftest.KcHuMj
+child-fixture-write-ok
+class_of_work=absolute
+after close: fdpath=gone
+-- dirty nonexistent TMPDIR --
+rc=1 resolver refused
+-- plain nonexistent TMPDIR --
+rc=0 BASE=/fast/scratch/hyaku/tsukuroi-r48/TExecLint/no-such-dir-plain (resolver ACCEPTED)
+-- plain nonexistent TMPDIR, mktemp step --
+mktemp rc=1 out=mktemp: failed to create directory via template ‘/fast/scratch/hyaku/tsukuroi-r48/TExecLint/no-such-dir-plain/tsk.XXXXXX’: No such file or directory

@@ -1,0 +1,622 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+        <head>
+                <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+                <style>
+        body {
+            background: white;
+            font-size: 10pt;
+            font-family: "Georgia";
+            text-align:justify;
+        }
+        </style>
+                <link rel="stylesheet" href="/stylesheets/export.css?v=1"/>
+                <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
+                <link rel="canonical" href="http://www.stackprinter.com/export?service=unix.stackexchange&amp;question=131766&amp;printer=false&amp;linktohome=true"/>
+                <title>Why does my shell script choke on whitespace or other special characters?</title>
+                <script type="text/javascript" src="/javascripts/jquery-1.4.2.min.js"></script>
+                <script type="text/javascript" src="/javascripts/main.js"></script>
+                    <script type="text/javascript" src="/javascripts/prettify/prettify.js"></script>
+                    <link rel="stylesheet" href="/stylesheets/prettify.css"> 
+                    <script type="text/javascript">jQuery(document).ready(function(){StyleCode();});</script>
+                <script type="text/javascript">
+                    jQuery(document).ready(function(){Print();});
+                </script>
+    </head>
+        <body>
+            <div id="home">
+                <a href="/"><img title="Back to home" width="20px" height="20px" src="/images/icon_home.png" style="border:0"/></a>
+                <a href="http://www.stackprinter.com/export?format=HTML&amp;service=unix.stackexchange&amp;printer=false&amp;question=131766"><img title="Link to this printed question" width="20px" height="20px" alt="share" src="/images/Share.gif" style="border:0"/></a>
+            </div>
+        <div id="question-block">           
+            <div id="question-title">   
+                 <img alt="Unix &amp; Linux" src="https://unix.stackexchange.com/Content/Sites/unix/Img/apple-touch-icon.png"/>Why does my shell script choke on whitespace or other special characters?<br/>
+            </div>
+          <div id="donate">
+          [Please support Stackprinter with a donation]
+              <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+                  <input type="hidden" name="cmd" value="_donations" />
+                  <input type="hidden" name="business" value="YWAN3PD3PQE2L" />
+                  <input type="hidden" name="item_name" value="thank you for supporting Stackprinter" />
+                  <input type="hidden" name="currency_code" value="USD" />
+                  <input type="hidden" name="country" value="USA" />                    
+                  <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="Please support Stackprinter making a PayPal donation!" alt="Donate with PayPal button" />
+                  <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
+              </form>
+          </div>
+          <div class="question-details">
+              [+351] [6]
+               Gilles 'SO- stop being evil' 
+          </div>
+          <div class="question-details">
+            [2014-05-24 03:25:05]
+          </div>
+          <div class="question-details">
+              [
+              bash
+              shell
+              shell-script
+              quoting
+              whitespace
+              ]
+          </div>
+          <div class="question-details">
+              [ https://unix.stackexchange.com/questions/131766/why-does-my-shell-script-choke-on-whitespace-or-other-special-characters ]
+          </div>            
+          <div id="question">
+          <p>Or, an introductory guide to robust filename handling and other string passing in shell scripts.</p>
+<p>I wrote a shell script which works well most of the time. But it chokes on some inputs (e.g. on some file names).</p>
+<p>I encountered a problem such as the following:</p>
+<ul>
+<li>I have a file name containing a space <code>hello world</code>, and it was treated as two separate files <code>hello</code> and <code>world</code>.</li>
+<li>I have an input line with two consecutive spaces and they shrank to one in the input.</li>
+<li>Leading and trailing whitespace disappears from input lines.</li>
+<li>Sometimes, when the input contains one of the characters <code>\[*?</code>, they are
+replaced by some text which is is actually the name of files.</li>
+<li>There is an apostrophe <code>'</code> (or a double quote <code>"</code>) in the input and things got weird after that point.</li>
+<li>There is a backslash in the input (or: I am using Cygwin and some of my file names have Windows-style <code>\</code> separators).</li>
+</ul>
+<p>What is going on and how do I fix it?</p>
+
+          <div id="question-links">
+          </div>
+          </div>
+          <div class="question-comments">  
+              <div class="comment">
+                  (31)    
+                  <code>shellcheck</code> help you to improve the quality of your programs. - <b> aurelien</b>                   
+              </div>
+              <div class="comment">
+                  (3)    
+                  Besides the protective techniques described in the answers, and although it is probably obvious to most readers, I think it may be worth commenting that when files are intended to be processed using command-line tools, it is good practice to avoid fancy characters in the names in the first place, if possible. - <b> bli</b>                   
+              </div>
+              <div class="comment">
+                  (3)    
+                  There are now also <a href="http://stackoverflow.com/questions/41104131/tool-to-automatically-rewrite-a-bash-script-with-proper-quoting">tools to rewrite shell scripts with proper quoting</a>. - <b> user2394284</b>                   
+              </div>
+              <div class="comment">
+                  (3)    
+                  @bli No, that makes only bugs take longer to turn up. It&#39;s hiding bugs today. And now, you don&#39;t know all filenames later used with your code. - <b> Volker Siegel</b>                   
+              </div>
+              <div class="comment">
+                  (1)    
+                  First off, if your parameters contain spaces then they need to be quoted going in ( on the command line ).  However you could grab the entire command line and parse it yourself.  Two spaces don&#39;t turn to one space; any amount of space tells your script that is the next variable so if you do something like &quot;echo $1 $2&quot; it is your script putting one space in between.  Also use &quot;find (-exec)&quot; to iterate over files with spaces rather than a for loop; you can deal with the spaces more easily. - <b> Patrick Taylor</b>                   
+              </div>
+              <div class="comment">
+                  Kudos for using the word &quot;choke&quot; in the title. Thanks to the word, finding this useful question by searching is even easier than via bookmarks, if only one remembers the word. - <b> Kamil Maciorowski</b>                   
+              </div>
+              <div class="comment">
+                  @KamilMaciorowski That&#39;s how I usually find it when I want to cite it or use it as a duplicate target. Another way to find it is in the <a href="https://unix.stackexchange.com/questions/tagged/quoting">quoting</a> tag wiki. - <b> Gilles 'SO- stop being evil'</b>                   
+              </div>
+          </div>
+          <div class="answers">
+              <div class="answer-details">
+                  [+447]
+                  [2014-05-24 03:25:05]     
+                  Gilles 'SO- stop being evil'
+                  [<img  height="17px" width="17px" src="/images/blackflag.png"/>ACCEPTED]
+              </div>
+              <div class="answer">
+                <h2>Always use double quotes around variable substitutions and command substitutions: <code>"$foo"</code>, <code>"$(foo)"</code></h2>
+<p>If you use <code>$foo</code> unquoted, your script will choke on input or parameters (or command output, with <code>$(foo)</code>) containing whitespace or <code>\[*?</code>.</p>
+<p>There, you can stop reading. Well, ok, here are a few more:</p>
+<ul>
+<li><code>read</code> — <strong>To read input line by line with the <code>read</code> builtin, use <code>while IFS= read -r line; do …</code></strong><br />
+Plain <code>read</code> treats backslashes and whitespace specially.</li>
+<li><code>xargs</code> — <strong>Avoid <code>xargs</code></strong>. If you must use <code>xargs</code>, make that <code>xargs -0</code>. Instead of <code>find … | xargs</code>, <strong>prefer <code>find … -exec …</code></strong>.<br />
+<code>xargs</code> treats whitespace and the characters <code>\"'</code> specially.</li>
+</ul>
+<p>This answer applies to Bourne/POSIX-style shells (<code>sh</code>, <code>ash</code>, <code>dash</code>, <code>bash</code>, <code>ksh</code>, <code>mksh</code>, <code>yash</code>…). Zsh users should skip it and read the end of <a href="https://unix.stackexchange.com/questions/68694/when-is-double-quoting-necessary/68748#68748">
+When is double-quoting necessary?
+</a>
+<sup style="font-size:9px">[1]</sup> instead. If you want the whole nitty-gritty, <a href="http://pubs.opengroup.org/onlinepubs/009695399/utilities/xcu_chap02.html#tag_02_06" rel="noreferrer">
+read the standard
+</a>
+<sup style="font-size:9px">[2]</sup> or your shell's manual.</p>
+<hr />
+<p>Note that the explanations below contains a few approximations (statements that are true in most conditions but can be affected by the surrounding context or by configuration).</p>
+<h2>Why do I need to write <code>"$foo"</code>? What happens without the quotes?</h2>
+<p><code>$foo</code> does not mean “take the value of the variable <code>foo</code>”. It means something much more complex:</p>
+<ul>
+<li>First, take the value of the variable.</li>
+<li>Field splitting: treat that value as a whitespace-separated list of fields, and build the resulting list. For example, if the variable contains <code>foo *  bar ​</code> then the result of this step is the 3-element list <code>foo</code>, <code>*</code>, <code>bar</code>.</li>
+<li>Filename generation: treat each field as a glob, i.e. as a wildcard pattern, and replace it by the list of file names that match this pattern. If the pattern doesn't match any files, it is left unmodified. In our example, this results in the list containing <code>foo</code>, following by the list of files in the current directory, and finally <code>bar</code>. If the current directory is empty, the result is <code>foo</code>, <code>*</code>, <code>bar</code>.</li>
+</ul>
+<p>Note that the result is a list of strings. There are two contexts in shell syntax: list context and string context. Field splitting and filename generation only happen in list context, but that's most of the time. Double quotes delimit a string context: the whole double-quoted string is a single string, not to be split. (Exception: <code>"$@"</code> to expand to the list of positional parameters, e.g. <code>"$@"</code> is equivalent to <code>"$1" "$2" "$3"</code> if there are three positional parameters. See <a href="https://unix.stackexchange.com/questions/41571/what-is-the-difference-between-and/94200#94200">
+What is the difference between $* and $@?
+</a>
+<sup style="font-size:9px">[3]</sup>)</p>
+<p>The same happens to command substitution with <code>$(foo)</code> or with <code>`foo`</code>. On a side note, don't use <code>`foo`</code>: its quoting rules are weird and non-portable, and all modern shells support <code>$(foo)</code> which is absolutely equivalent except for having intuitive quoting rules.</p>
+<p>The output of arithmetic substitution also undergoes the same expansions, but that isn't normally a concern as it only contains non-expandable characters (assuming <code>IFS</code> doesn't contain digits or <code>-</code>).</p>
+<p>See <a href="https://unix.stackexchange.com/questions/68694/when-is-double-quoting-necessary">
+When is double-quoting necessary?
+</a>
+<sup style="font-size:9px">[4]</sup> for more details about the cases when you can leave out the quotes.</p>
+<p>Unless you mean for all this rigmarole to happen, just remember to always use double quotes around variable and command substitutions. Do take care: leaving out the quotes can lead not just to errors but to <a href="https://unix.stackexchange.com/questions/171346/security-implications-of-forgetting-to-quote-a-variable-in-bash-posix-shells/171347#171347">
+security holes
+</a>
+<sup style="font-size:9px">[5]</sup>.</p>
+<h3>How do I process a list of file names?</h3>
+<p>If you write <code>myfiles="file1 file2"</code>, with spaces to separate the files, this can't work with file names containing spaces. Unix file names can contain any character other than <code>/</code> (which is always a directory separator) and null bytes (which you can't use in shell scripts with most shells).</p>
+<p>Same problem with <code>myfiles=*.txt; … process $myfiles</code>. When you do this, the variable <code>myfiles</code> contains the 5-character string <code>*.txt</code>, and it's when you write <code>$myfiles</code> that the wildcard is expanded. This example will actually work, until you change your script to be <code>myfiles="$someprefix*.txt"; … process $myfiles</code>. If <code>someprefix</code> is set to <code>final report</code>, this won't work.</p>
+<p>To process a list of any kind (such as file names), put it in an array. This requires mksh, ksh93, yash or bash (or zsh, which doesn't have all these quoting issues); a plain POSIX shell (such as ash or dash) doesn't have array variables.</p>
+<pre><code>myfiles=("$someprefix"*.txt)
+process "${myfiles[@]}"
+</code></pre>
+<p>Ksh88 has array variables with a different assignment syntax <code>set -A myfiles "someprefix"*.txt</code> (see <a href="https://stackoverflow.com/questions/22862038/assignation-variable-under-different-ksh-environment">
+assignation variable under different ksh environment
+</a>
+<sup style="font-size:9px">[6]</sup> if you need ksh88/bash portability). Bourne/POSIX-style shells have a single one array, the array of positional parameters <code>"$@"</code> which you set with <code>set</code> and which is local to a function:</p>
+<pre><code>set -- "$someprefix"*.txt
+process -- "$@"
+</code></pre>
+<h3>What about file names that begin with <code>-</code>?</h3>
+<p>On a related note, keep in mind that file names can begin with a <code>-</code> (dash/minus), which most commands interpret as denoting an option. Some commands (like <code>sh</code>, <code>set</code> or <code>sort</code>) also accept options that start with <code>+</code>. If you have a file name that begins with a variable part, be sure to pass <code>--</code> before it, as in the snippet above. This indicates to the command that it has reached the end of options, so anything after that is a file name even if it starts with <code>-</code> or <code>+</code>.</p>
+<p>Alternatively, you can make sure that your file names begin with a character other than <code>-</code>. Absolute file names begin with <code>/</code>, and you can add <code>./</code> at the beginning of relative names. The following snippet turns the content of the variable <code>f</code> into a “safe” way of referring to the same file that's guaranteed not to start with <code>-</code> nor <code>+</code>.</p>
+<pre><code>case "$f" in -* | +*) "f=./$f";; esac
+</code></pre>
+<p>On a final note on this topic, beware that some commands interpret <code>-</code> as meaning standard input or standard output, even after <code>--</code>. If you need to refer to an actual file named <code>-</code>, or if you're calling such a program and you don't want it to read from stdin or write to stdout, make sure to rewrite <code>-</code> as above. See <a href="https://unix.stackexchange.com/questions/110750/what-is-the-difference-between-du-sh-and-du-sh/110756#110756">
+What is the difference between &quot;du -sh *&quot; and &quot;du -sh ./*&quot;?
+</a>
+<sup style="font-size:9px">[7]</sup> for further discussion.</p>
+<h2>How do I store a command in a variable?</h2>
+<p>“Command” can mean three things: a command name (the name as an executable, with or without full path, or the name of a function, builtin or alias), a command name with arguments, or a piece of shell code. There are accordingly different ways of storing them in a variable.</p>
+<p>If you have a command name, just store it and use the variable with double quotes as usual.</p>
+<pre><code>command_path="$1"
+…
+"$command_path" --option --message="hello world"
+</code></pre>
+<p>If you have a command with arguments, the problem is the same as with a list of file names above: this is a list of strings, not a string. You can't just stuff the arguments into a single string with spaces in between, because if you do that you can't tell the difference between spaces that are part of arguments and spaces that separate arguments. If your shell has arrays, you can use them.</p>
+<pre><code>cmd=(/path/to/executable --option --message="hello world" --)
+cmd=("${cmd[@]}" "$file1" "$file2")
+"${cmd[@]}"
+</code></pre>
+<p>What if you're using a shell without arrays? You can still use the positional parameters, if you don't mind modifying them.</p>
+<pre><code>set -- /path/to/executable --option --message="hello world" --
+set -- "$@" "$file1" "$file2"
+"$@"
+</code></pre>
+<p>What if you need to store a complex shell command, e.g. with redirections, pipes, etc.? Or if you don't want to modify the positional parameters? Then you can build a string containing the command, and use the <code>eval</code> builtin.</p>
+<pre><code>code='/path/to/executable --option --message="hello world" -- /path/to/file1 | grep "interesting stuff"'
+eval "$code"
+</code></pre>
+<p>Note the nested quotes in the definition of <code>code</code>: the single quotes <code>'…'</code> delimit a string literal, so that the value of the variable <code>code</code> is the string <code>/path/to/executable --option --message="hello world" -- /path/to/file1</code>. The <code>eval</code> builtin tells the shell to parse the string passed as an argument as if it appeared in the script, so at that point the quotes and pipe are parsed, etc.</p>
+<p>Using <code>eval</code> is tricky. Think carefully about what gets parsed when. In particular, you can't just stuff a file name into the code: you need to quote it, just like you would if it was in a source code file. There's no direct way to do that. Something like <code>code="$code $filename"</code> breaks if the file name contains any shell special character (spaces, <code>$</code>, <code>;</code>, <code>|</code>, <code>&lt;</code>, <code>&gt;</code>, etc.). <code>code="$code \"$filename\""</code> still breaks on <code>"$\`</code>. Even <code>code="$code '$filename'"</code> breaks if the file name contains a <code>'</code>. There are two solutions.</p>
+<ul>
+<li><p>Add a layer of quotes around the file name. The easiest way to do that is to add single quotes around it, and replace single quotes by <code>'\''</code>.</p>
+<pre><code>quoted_filename=$(printf %s. "$filename" | sed "s/'/'\\\\''/g")
+code="$code '${quoted_filename%.}'"
+</code></pre></li>
+<li><p>Keep the variable expansion inside the code, so that it's looked up when the code is evaluated, not when the code fragment is built. This is simpler but only works if the variable is still around with the same value at the time the code is executed, not e.g. if the code is built in a loop.</p>
+<pre><code>code="$code \"\$filename\""
+</code></pre></li>
+</ul>
+<p>Finally, do you really need a variable containing code? The most natural way to give a name to a code block is to define a function.</p>
+<h2>What's up with <code>read</code>?</h2>
+<p>Without <code>-r</code>, <code>read</code> allows continuation lines — this is a single logical line of input:</p>
+<pre><code>hello \
+world
+</code></pre>
+<p><code>read</code> splits the input line into fields delimited by characters in <code>$IFS</code> (without <code>-r</code>, backslash also escapes those). For example, if the input is a line containing three words, then <code>read first second third</code> sets <code>first</code> to the first word of input, <code>second</code> to the second word and <code>third</code> to the third word. If there are more words, the last variable contains everything that's left after setting the preceding ones. Leading and trailing whitespace are trimmed.</p>
+<p>Setting <code>IFS</code> to the empty string avoids any trimming. See <a href="https://unix.stackexchange.com/questions/18886/why-is-while-ifs-read-used-so-often-instead-of-ifs-while-read/18936#18936">
+Why is `while IFS= read` used so often, instead of `IFS=; while read..`?
+</a>
+<sup style="font-size:9px">[8]</sup> for a longer explanation.</p>
+<h2>What's wrong with <code>xargs</code>?</h2>
+<p>The input format of <code>xargs</code> is whitespace-separated strings which can optionally be single- or double-quoted. No standard tool outputs this format.</p>
+<p>The input to <code>xargs -L1</code> or <code>xargs -l</code> is almost a list of lines, but not quite — if there is a space at the end of a line, the following line is a continuation line.</p>
+<p>You can use <code>xargs -0</code> where applicable (and where available: GNU (Linux, Cygwin), BusyBox, BSD, OSX, but it isn't in POSIX). That's safe, because null bytes can't appear in most data, in particular in file names. To produce a null-separated list of file names, use <code>find … -print0</code> (or you can use <code>find … -exec …</code> as explained below).</p>
+<h3>How do I process files found by <code>find</code>?</h3>
+<pre><code>find … -exec some_command a_parameter another_parameter {} +
+</code></pre>
+<p><code>some_command</code> needs to be an external command, it can't be a shell function or alias. If you need to invoke a shell to process the files, call <code>sh</code> explicitly.</p>
+<pre><code>find … -exec sh -c '
+  for x do
+    … # process the file "$x"
+  done
+' find-sh {} +
+</code></pre>
+<h2>I have some other question</h2>
+<p>Browse the <a href="/questions/tagged/quoting" class="post-tag" title="show questions tagged 'quoting'" rel="tag">
+quoting
+</a>
+<sup style="font-size:9px">[9]</sup> tag on this site, or <a href="/questions/tagged/shell" class="post-tag" title="show questions tagged 'shell'" rel="tag">
+shell
+</a>
+<sup style="font-size:9px">[10]</sup> or <a href="/questions/tagged/shell-script" class="post-tag" title="show questions tagged 'shell-script'" rel="tag">
+shell-script
+</a>
+<sup style="font-size:9px">[11]</sup>. (Click on “learn more…” to see some general tips and a hand-selected list of common questions.) If you've searched and you can't find an answer, <a href="https://unix.stackexchange.com/questions/ask">
+ask away
+</a>
+<sup style="font-size:9px">[12]</sup>.</p>
+  
+                [1] https://unix.stackexchange.com/questions/68694/when-is-double-quoting-necessary/68748#68748<br/>
+                [2] http://pubs.opengroup.org/onlinepubs/009695399/utilities/xcu_chap02.html#tag_02_06<br/>
+                [3] https://unix.stackexchange.com/questions/41571/what-is-the-difference-between-and/94200#94200<br/>
+                [4] https://unix.stackexchange.com/questions/68694/when-is-double-quoting-necessary<br/>
+                [5] https://unix.stackexchange.com/questions/171346/security-implications-of-forgetting-to-quote-a-variable-in-bash-posix-shells/171347#171347<br/>
+                [6] https://stackoverflow.com/questions/22862038/assignation-variable-under-different-ksh-environment<br/>
+                [7] https://unix.stackexchange.com/questions/110750/what-is-the-difference-between-du-sh-and-du-sh/110756#110756<br/>
+                [8] https://unix.stackexchange.com/questions/18886/why-is-while-ifs-read-used-so-often-instead-of-ifs-while-read/18936#18936<br/>
+                [9] /questions/tagged/quoting<br/>
+                [10] /questions/tagged/shell<br/>
+                [11] /questions/tagged/shell-script<br/>
+                [12] https://unix.stackexchange.com/questions/ask<br/>
+                <br/>
+              </div>
+              <div class="answer-comments">       
+              <div class="comment">
+               (2)    
+              You also need quotes around <code>$(( ... ))</code> (also <code>$[...]</code> in some shells) except in <code>zsh</code> (even in sh emulation) and <code>mksh</code>. - <b> Stéphane Chazelas</b>     
+              </div>
+              <div class="comment">
+               (3)    
+              Note that <code>xargs -0</code> is not POSIX. Except with FreeBSD <code>xargs</code>, you generally want <code>xargs -r0</code> instead of <code>xargs -0</code>. - <b> Stéphane Chazelas</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              In <code>zsh</code> you generally want <code>&quot;$var&quot;</code> if <code>$var</code> may be empty and you don&#39;t want it to be removed (you want an empty argument). <code>$(cmd)</code> also undergoes word splitting (but not globbing) in zsh. - <b> Stéphane Chazelas</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              @St&#233;phaneChazelas Can an unquoted arithmetic expression go wrong under “sane” values of <code>IFS</code> (if you set <code>IFS</code> to contain a digit, you presumably know what you&#39;re doing)? Are there locales where a number format uses a wildcard character? - <b> Gilles 'SO- stop being evil'</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              @Gilles, an unquoted arithmetic expression still is the split+glob operator. IMO, it&#39;s better not to use that operator rather than having to watch what $IFS may contain. If you write <code>echo $((11*11))</code> in a function (which is like writing <code>print(glob(split(11*11, $IFS)))</code>), that means your function will fail if it&#39;s ever called in a context where IFS contains 2 for instance (and one may want to split the output of your function on digits, a more common case would be splitting on <code>-</code> which can also occur in arithmetic expansions). - <b> Stéphane Chazelas</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              @St&#233;phaneChazelas - I&#39;m fairly certain splitting math is a POSIX no-no. It still <i>happens</i> - but it shouldn&#39;t, I think. The <a href="http://pubs.opengroup.org/onlinepubs/009604599/utilities/xcu_chap02.html#tag_02_06_04" rel="nofollow noreferrer">shell spec says:</a> <i>The expression shall be treated as if it were in double-quotes, except that a double-quote inside the expression is not treated specially. The shell shall expand all tokens in the expression for parameter expansion, command substitution, and quote removal.</i> - most annoying, I can confirm. - <b> mikeserv</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              @mikeserv, no it&#39;s unfortunate, it doesn&#39;t make sense, but that&#39;s <a href="http://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06" rel="nofollow noreferrer">what POSIX requires</a>. It&#39;s been discussed before on the austin-group mailing list. IIRC some have also asked it be changed there. AT&amp;T ksh, ash, dash, bash, yash all do the splitting. The only exceptions are pdksh/mksh (also posh maybe not for long) and zsh (even with <code>sh_word_split</code>). What you&#39;re quoting is about the things that are inside the <code>$((...))</code>, not its expansion itself. - <b> Stéphane Chazelas</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              @St&#233;phaneChazelas hmmm... That <i>is</i> unfortunate if someone should interpret that the way you describe - as i read it that only guarantees at least a single field per expansion - not split words within. im not the austin group of course, but given the two i would only prefer the second interpretation if i were the maintainer of a shell&#39;s parser and had not yet worked out how do it right.... the language is certainly more explicit in the quote above, anyway... - <b> mikeserv</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              @St&#233;phaneChazelas - specifically, I think, that the arithmetic wording notes that the expansion shall be treated <i>as if in double-quotes</i> and that it <i>next</i> requires all subsequent <i>results</i> of the expansion occur <i>before</i> the math evaluation itself support what I am saying.  As I read it the wording <i>forbids</i> word-splitting entirely. Any interpretation to the contrary is <i>most unfortunate</i> because if you <i>do</i> put numbers in <code>$IFS</code> you&#39;re very likely <i>working with numbers</i>. Ugh. - <b> mikeserv</b>     
+              </div>
+              <div class="comment">
+               (3)    
+              @St&#233;phaneChazelas i see. i think probably you meant to link <a href="http://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_05" rel="nofollow noreferrer">here</a> or at least that i should read through to it which does, unfortunately, explicitly specify math expansions to be field split on <code>$IFS</code>. <i>sigh</i> - <b> mikeserv</b>     
+              </div>
+              <div class="comment">
+               (3)    
+              Another nice (GNU-only) feature is <code>xargs -d &quot;\n&quot;</code> so that you can run e.g. <code>locate PATTERN1 |xargs -d &quot;\n&quot; grep PATTERN2</code> to search for file names matching <i>PATTERN1</i> with content matching <i>PATTERN2</i>.  Without GNU, you can do it e.g. like <code>locate PATTERN1 |perl -pne &#39;s&#47;\n&#47;\0&#47;&#39; |xargs -0 grep PATTERN1</code> - <b> Adam Katz</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              See also <a href="http://unix.stackexchange.com/q/209123">Understand &quot;IFS= read -r line&quot;?</a> as a potentially more <i>canonical</i> Q&amp;A about <code>IFS= read -r var</code>. - <b> Stéphane Chazelas</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              Prefer <code>find ... -execdir</code> to <code>find ... -exec</code> <a href="https://www.gnu.org/software/findutils/manual/html_node/find_html/Race-Conditions-with-_002dexec.html" rel="nofollow noreferrer">gnu.org/software/findutils/manual/html_node/find_html/&hellip;</a> - <b> David Conrad</b>     
+              </div>
+              <div class="comment">
+              Superb answer. Also, you could mention <a href="https://www.shellcheck.net/" rel="nofollow noreferrer">shellcheck</a> to help script writers avoid such quote omissions. - <b> Jules Sam. Randolph</b>     
+              </div>
+              <div class="comment">
+               (2)    
+              From <code>man find</code>: <code>There are unavoidable security problems surrounding use of the -exec action; you should  use  the -execdir option instead.</code>. The article would benefit from mentioning the better way instead of teaching people how to use the worse option. - <b> styrofoam fly</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              @styrofoamfly These security problems occur in relatively unusual circumstances (traversing directories that other users can modify) and generic workarounds such as <code>-execdir</code> don&#39;t always work (depending on what the commands do, this may or may not avoid the race condition). Given that this answer is already pretty long, I don&#39;t think it&#39;s reasonable to get into this complexity here. - <b> Gilles 'SO- stop being evil'</b>     
+              </div>
+              </div>
+              <div class="answer-pagenumber">1</div>
+              
+              <div class="answer-details">
+                  [+25]
+                  [2014-05-24 08:05:48]     
+                  Zombo
+              </div>
+              <div class="answer">
+                <p>While Gilles answer is excellent, I take issue at his main point</p>
+<blockquote>
+<p>Always use double quotes around variable substitutions and command
+  substitutions: "$foo", "$(foo)"</p>
+</blockquote>
+<p>When you are starting out with a Bash-like shell that does word splitting, yes of
+course the safe advice is always use quotes. However word splitting is not
+always performed</p>
+<p><a href="http://mywiki.wooledge.org/WordSplitting#Notes" rel="noreferrer">
+&sect; Word Splitting
+</a><sup style="font-size:9px">[1]</sup></p>
+<p>These commands can be run without error</p>
+<pre><code>foo=$bar
+bar=$(a command)
+logfile=$logdir/foo-$(date +%Y%m%d)
+PATH=/usr/local/bin:$PATH ./myscript
+case $foo in bar) echo bar ;; baz) echo baz ;; esac
+</code></pre>
+<p>I am not encouraging users to adopt this behavior, but if someone firmly
+understands when word splitting occurs then they should be able to decide for
+themselves when to use quotes.</p>
+  
+                [1] http://mywiki.wooledge.org/WordSplitting#Notes<br/>
+                <br/>
+              </div>
+              <div class="answer-comments">       
+              <div class="comment">
+               (25)    
+              As I mention in my answer, see <a href="http://unix.stackexchange.com/questions/68694/when-is-double-quoting-necessary" title="when is double quoting necessary">unix.stackexchange.com/questions/68694/&hellip;</a> for details. Do notice the question — “Why does my shell script choke?”. The most common problem (from years of experience on this site and elsewhere) is missing double quotes. “Always use double quotes” is easier to remember than “always use double quotes, except for these cases where they aren&#39;t necessary”. - <b> Gilles 'SO- stop being evil'</b>     
+              </div>
+              <div class="comment">
+               (2)    
+              @Gilles - that&#39;s a good point, but I think it&#39;s good Steven said his thing too, though. Especially important I think - though not mentioned here - is the ability to parse shell argument arrays by quoting then unquoting <code>$*</code> after defining <code>$IFS</code> different ways. And, though less importantly probably, since you do touch on globbing, maybe mentioning <code>set [-+]f</code> could be worthwhile. - <b> mikeserv</b>     
+              </div>
+              <div class="comment">
+               (2)    
+              @Gilles yes while <code>Always ... except ...</code> is not as pithy, it is more correct. - <b> Zombo</b>     
+              </div>
+              <div class="comment">
+               (16)    
+              Rules are difficult to understand for beginners. For instance, <code>foo=$bar</code> is OK, but <code>export foo=$bar</code> or <code>env foo=$var</code> are not (at least in some shells). An advise for beginner: <i>always quote your variables unless you know what you&#39;re doing and have a good reason not to</i>. - <b> Stéphane Chazelas</b>     
+              </div>
+              <div class="comment">
+               (2)    
+              @StephaneChazelas - it&#39;s <i>because</i> they&#39;re difficult to understand that rules need <i>repeating</i> - not sidelining. - <b> mikeserv</b>     
+              </div>
+              <div class="comment">
+               (7)    
+              @StevenPenny Is it really more correct? Are there reasonable cases where quotes would break the script?  In situations where in half cases quotes <i>must</i> be used, and in other half quotes <i>may</i> be used optionally - then a recommendation &quot;always use quotes, just in case&quot; is the one that should be thought, since it&#39;s true, simple and less risky. Teaching such lists of exceptions to beginners is well known to be ineffective (lacking context, they won&#39;t remember them) and counterproductive, as they&#39;ll confuse needed/unneeded quotes, breaking their scripts and demotivating them to learn further. - <b> Peteris</b>     
+              </div>
+              <div class="comment">
+               (2)    
+              @Peteris - it&#39;s a lot less risky to understand what they do. What if someone thought the double-quotes would protect everything and they wind up using <code>eval</code> on variables containing double-quotes? - <b> mikeserv</b>     
+              </div>
+              <div class="comment">
+               (8)    
+              My $0.02 would be that recommending to quote everything is good advice.  Mistakenly quoting something that doesn&#39;t need it is harmless, mistakenly failing to quote something that does need it is harmful.  So, for the majority of shell script authors who will never understand the intricacies of when exactly word splitting occurs, quoting everything is much safer than trying to quote only where necessary. - <b> godlygeek</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              @godlygeek - if the majority of shell script authors don&#39;t understand what they&#39;re doing then that situation can certainly not be helped if those that do understand neglect to teach them. - <b> mikeserv</b>     
+              </div>
+              <div class="comment">
+               (3)    
+              Teach, sure, but don&#39;t overwhelm with details right from the get-go.  If quoting is always safe, tell them to always quote.  Once they&#39;ve mastered that, then move on to tell them that there are some cases where it&#39;s not needed.  Think of teaching Physics, for example: we first teach students about Newton&#39;s laws, rather than starting with general relativity and treating Newton&#39;s laws like the special cases that they are. - <b> godlygeek</b>     
+              </div>
+              <div class="comment">
+               (6)    
+              @Peteris and godlygeek: &quot;Are there reasonable cases where quotes would break the script?&quot; It depends on your definition of &quot;reasonable&quot;. If a script sets <code>criteria=&quot;-type f&quot;</code>, then <code>find . $criteria</code> works but <code>find . &quot;$criteria&quot;</code> doesn&#39;t. - <b> G-Man Says 'Reinstate Monica'</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              @G-Man - that is a good point. They also break math evaluations, and the shell will not accept a quoted command - or anything parser level, really, as it is the parser that notes what they delimit. - <b> mikeserv</b>     
+              </div>
+              <div class="comment">
+              Note that I addressed the <code>criteria=&quot;-type f&quot;</code> issue  <a href="https://unix.stackexchange.com/q/171346/80216#286350" title="But what if …?">here</a>. - <b> G-Man Says 'Reinstate Monica'</b>     
+              </div>
+              </div>
+              <div class="answer-pagenumber">2</div>
+              
+              <div class="answer-details">
+                  [+24]
+                  [2014-09-14 18:41:50]     
+                  mikeserv
+              </div>
+              <div class="answer">
+                <p>As far as I know, there are only two cases in which it is necessary to double-quote expansions, and those cases involve the two special shell parameters <code>"$@"</code> and <code>"$*"</code> - which are specified to expand differently when enclosed in double-quotes. In all other cases <em>(excluding, perhaps, shell-specific array implementations)</em> the behavior of an expansion is a configurable thing - there are options for that.</p>
+<p>This is not to say, of course, that double-quoting should be avoided - to the contrary, it is probably the most convenient and robust method of delimiting an expansion which the shell has to offer. But, I think, as alternatives have already been expertly expounded, this an excellent place to discuss what happens when the shell expands a value.</p>
+<p>The shell, in its heart and soul <em>(for those that have such)</em>, is a command-interpreter - it is a parser, like a big, interactive, <code>sed</code>. If your shell statement is <em>choking</em> on <em>whitespace</em> or similar then it is very likely because you have not fully understood the shell's interpretation process - especially how and why it translates an input statement to an actionable command. The shell's job is to:</p>
+<ol>
+<li><p>accept input</p></li>
+<li><p>interpret and <em>split</em> it correctly into tokenized input <em>words</em> </p>
+<ul>
+<li><p>input <em>words</em> are the shell syntax items such as <code>$word</code> or <code>echo $words 3 4* 5</code></p></li>
+<li><p><em>words</em> are always split on whitespace - that's just syntax - but only the literal whitespace characters served to the shell in its input file</p></li>
+</ul></li>
+<li><p>expand those if necessary into multiple <em>fields</em> </p>
+<ul>
+<li><p><em>fields</em> result from <em>word</em> expansions - they make up the final executable command </p></li>
+<li><p>excepting <code>"$@"</code>, <code>$IFS</code> <em>field-splitting</em>, and <em>pathname expansion</em> an input <em>word</em> must always evaluate to a single <em>field</em>.</p></li>
+</ul></li>
+<li><p>and then to execute the resulting command</p>
+<ul>
+<li>in most cases this involves passing on the results of its interpretation in some form or another </li>
+</ul></li>
+</ol>
+<p>People often say the shell is a <em>glue</em>, and, if this is true, then what it is <em>sticking</em> is lists of arguments - or <em>fields</em> - to one process or another when it <code>exec</code>s them. Most shells do not handle the <code>NUL</code> byte well - if at all - and this is because they're already splitting on it. The shell has to <code>exec</code> <em>a lot</em> and it must do this with a <code>NUL</code> delimited array of arguments that it hands to the system kernel at <code>exec</code> time. If you were to intermingle the shell's delimiter with its delimited data then the shell would probably screw it up. Its internal data structures - like most programs - rely on that delimiter. <code>zsh</code>, notably, does not screw this up. </p>
+<p>And that's where <code>$IFS</code> comes in. <code>$IFS</code> is an always present - and likewise settable - shell parameter that defines how the shell should split shell expansions from <em>word</em> to <em>field</em> - specifically on what values those <em>fields</em> should delimit. <code>$IFS</code> splits shell expansions on delimiters other than <code>NUL</code> - or, in other words the shell substitutes bytes resulting from an expansion that match those in the value of <code>$IFS</code> with <code>NUL</code> in its internal data-arrays. When you look at it like that you might begin to see that every <em>field-split</em> shell expansion is an <code>$IFS</code>-delimited data array. </p>
+<p>It's important to understand that <code>$IFS</code> only <em>delimits</em> expansions that are <em>not</em> already otherwise delimited - which you can do with <code>"</code>double-quotes. When you quote an expansion you delimit it at the head and <em>at least</em> to the tail of its value. In those cases <code>$IFS</code> does not apply as there are no fields to separate. In fact, a double-quoted expansion exhibits identical <em>field-splitting</em> behavior to an unquoted expansion when <code>IFS=</code> is set to an empty value.</p>
+<p>Unless quoted, <code>$IFS</code> is itself an <code>$IFS</code> delimited shell expansion. It defaults to a specified value of <code>&lt;space&gt;&lt;tab&gt;&lt;newline&gt;</code> - all three of which exhibit special properties when contained within <code>$IFS</code>. Whereas any other value for <code>$IFS</code> is specified to evaluate to a single <em>field</em> per expansion <em>occurrence</em>, <code>$IFS</code> <em>whitespace</em> - any of those three - is specified to elide to a single field per expansion <em>sequence</em> and leading/trailing sequences are elided entirely. This is probably easiest to understand via example.</p>
+<pre><code>slashes=///// spaces='     '
+IFS=/; printf '&lt;%s&gt;' $slashes$spaces
+&lt;&gt;&lt;&gt;&lt;&gt;&lt;&gt;&lt;&gt;&lt;     &gt;
+IFS=' '; printf '&lt;%s&gt;' $slashes$spaces
+&lt;/////&gt;
+IFS=; printf '&lt;%s&gt;' $slashes$spaces
+&lt;/////     &gt;
+unset IFS; printf '&lt;%s&gt;' "$slashes$spaces"
+&lt;/////     &gt;
+</code></pre>
+<p>But that's just <code>$IFS</code> - just the word-splitting or <em>whitespace</em> as asked, so what of the the <em>special characters</em>?</p>
+<p>The shell - by default - will also expand certain unquoted tokens <em>(such as <code>?*[</code> as noted elsewhere here)</em> into multiple <em>fields</em> when they occur in a list. This is called <em>pathname expansion</em>, or <em>globbing</em>. It is an incredibly useful tool, and, as it occurs after <em>field-splitting</em> in the shell's parse-order it is not affected by <em>$IFS</em> - <em>fields</em> generated by a pathname expansion are delimited on the head/tail of the filenames themselves regardless of whether their contents contain any characters currently in <code>$IFS</code>. This behavior is set to on by default - but it is very easily configured otherwise.</p>
+<pre><code>set -f
+</code></pre>
+<p>That instructs the shell <em>not</em> to <em>glob</em>. Pathname expansion will not occur at least until that setting is somehow undone - such as if the current shell is replaced with another new shell process or....</p>
+<pre><code>set +f
+</code></pre>
+<p>...is issued to the shell. Double-quotes - as they also do for <code>$IFS</code> <em>field-splitting</em> - render this global setting unnecessary per expansion. So:</p>
+<pre><code>echo "*" *
+</code></pre>
+<p>...if pathname expansion is currently enabled will likely produce very different results per argument - as the first will expand only to its literal value <em>(the single asterisk character, which is to say, not at all)</em> and the second only to the same if the current working directory contains no filenames which might match <em>(and it matches nearly all of them)</em>. However if you do:</p>
+<pre><code>set -f; echo "*" *
+</code></pre>
+<p>...the results for both arguments are identical - the <code>*</code> does not expand in that case.</p>
+  
+                <br/>
+              </div>
+              <div class="answer-comments">       
+              <div class="comment">
+              I actually agree with @St&#233;phaneChazelas that it (mostly) confuses things more than helping...but I found it helpful, personally, so I upvoted.  I now have a better idea (and some examples) of how <code>IFS</code> actually works.  What I <i>don&#39;t</i> get is why it would <i>ever</i> be a good idea to set <code>IFS</code> to something other than default. - <b> Wildcard</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              @Wildcard - it&#39;s a field delimiter. if you have a value in a variable that you want to expand to multiple fields you split it on <code>$IFS</code>. <code>cd &#47;usr&#47;bin; set -f; IFS=&#47;; for path_component in $PWD; do echo $path_component; done</code> prints <code>\n</code> then <code>usr\n</code> then <code>bin\n</code>. The first <code>echo</code> is empty because <code>&#47;</code> is a null field. The path_components can have newlines or spaces or whatever - wouldn&#39;t matter because the components were split on <code>&#47;</code> and not the default value. people do it w/ <code>awk</code> all the time, anyway. your shell does it too - <b> mikeserv</b>     
+              </div>
+              <div class="comment">
+              &quot;$@&quot; is of course special, and doesn&#39;t really obey any other rule. I don&#39;t consider $* to be special because unquoted, it will undergo word splitting as you would expect, whereas quoted it becomes one blob, as you would expect. For that reason $* and &quot;$*&quot; are almost entirely useless, the former because you would hardly want new word splitting on the parameters, and the latter because you would hardly want them as one blob. - <b> xpusostomos</b>     
+              </div>
+              <div class="comment">
+              @xpusostomos, <code>$*</code> is special because when unquoted it can produce multiple words even if <code>IFS</code> is set to the empty string (which generally would disable word splitting). Quoted <code>&quot;$*&quot;</code> can be useful e.g. to join the positional parameters into one string for printing. - <b> ilkkachu</b>     
+              </div>
+              <div class="comment">
+              @ikkachu  wow, I didn&#39;t know that.  Too many weird rules in /bin/sh - <b> xpusostomos</b>     
+              </div>
+              </div>
+              <div class="answer-pagenumber">3</div>
+              
+              <div class="answer-details">
+                  [+4]
+                  [2018-02-28 13:25:55]     
+                  Russ
+              </div>
+              <div class="answer">
+                <p>I had a large video project with spaces in filenames and spaces in directory names.  While <code>find -type f -print0 | xargs -0</code> works for several purposes and across different shells, I find that using a custom IFS (input field separator) gives you more flexibility if you're using bash.  The snippet below uses bash and sets IFS to just a newline; provided there aren't newlines in your filenames:</p>
+<pre><code>(IFS=$'\n'; for i in $(find -type f -print) ; do
+    echo "&gt;&gt;&gt;$i&lt;&lt;&lt;"
+done)
+</code></pre>
+<p>Note the use of parens to isolate the redefinition of IFS.  I've read other posts about how to recover IFS, but this is just easier.</p>
+<p>More, setting IFS to newline lets you set shell variables beforehand and easily print them out.  For instance, I can grow a variable V incrementally using newlines as separators:</p>
+<pre><code>V=""
+V="./Ralphie's Camcorder/STREAM/00123.MTS,04:58,05:52,-vf yadif"
+V="$V"$'\n'"./Ralphie's Camcorder/STREAM/00111.MTS,00:00,59:59,-vf yadif"
+V="$V"$'\n'"next item goes here..."
+</code></pre>
+<p>and correspondingly:</p>
+<pre><code>(IFS=$'\n'; for v in $V ; do
+    echo "&gt;&gt;&gt;$v&lt;&lt;&lt;"
+done)
+</code></pre>
+<p>Now I can "list" the setting of V with <code>echo "$V"</code> using double quotes to output the newlines.  (Credit to <a href="https://stackoverflow.com/q/4128235/8542716">
+this thread
+</a>
+<sup style="font-size:9px">[1]</sup> for the <code>$'\n'</code> explanation.)</p>
+  
+                [1] https://stackoverflow.com/q/4128235/8542716<br/>
+                <br/>
+              </div>
+              <div class="answer-comments">       
+              <div class="comment">
+               (3)    
+              But then you&#39;ll still have problems with filenames containing newline or glob characters. See also: <a href="//unix.stackexchange.com/q/321697">Why is looping over find&#39;s output bad practice?</a>. If using <code>zsh</code>, you can use <code>IFS=$&#39;\0&#39;</code> and use <code>-print0</code> (<code>zsh</code> doesn&#39;t do globbing upon expansions so glob characters are not a problem there). - <b> Stéphane Chazelas</b>     
+              </div>
+              <div class="comment">
+               (1)    
+              This works with file names containing spaces, but it doesn&#39;t work against potentially hostile file names or accidental “nonsensical” file names. You can easily fix the issue of file names containing wildcard characters by adding <code>set -f</code>. On the other hand, your approach fundamentally fails with file names containing newlines. When dealing with data other than file names, it also fails with empty items. - <b> Gilles 'SO- stop being evil'</b>     
+              </div>
+              <div class="comment">
+              Right, my caveat is that it won&#39;t work with newlines in filenames.  However, I believe we have to draw the line just shy of madness ;-) - <b> Russ</b>     
+              </div>
+              <div class="comment">
+              And I&#39;m not sure why this received a downvote.  This is a perfectly reasonable method for iterating over filenames with spaces.  Using -print0 requires xargs, and there are things that are difficult using that chain.  I&#39;m sorry someone does not agree with my answer, but that&#39;s no reason to downvote it. - <b> Russ</b>     
+              </div>
+              </div>
+              <div class="answer-pagenumber">4</div>
+              
+              <div class="answer-details">
+                  [0]
+                  [2019-10-01 18:30:19]     
+                  Mattias Wadman
+              </div>
+              <div class="answer">
+                <p>Considering all security implications mention above and assuming you trust and have  control over the variables your expanding it is possible to have multiple paths with whitespaces using <code>eval</code>. But be careful!</p>
+<pre class="lang-bsh prettyprint-override"><code>$ FILES='"a b" c'
+$ eval ls $FILES
+ls: a b: No such file or directory
+ls: c: No such file or directory
+$ FILES='a\ b c'
+$ eval ls $FILES
+ls: a b: No such file or directory
+ls: c: No such file or directory
+</code></pre>
+  
+                <br/>
+              </div>
+              <div class="answer-pagenumber">5</div>
+              
+              <div class="answer-details">
+                  [0]
+                  [2020-03-16 14:26:12]     
+                  user400462
+              </div>
+              <div class="answer">
+                <p>The method of using <code>find directory -print0 | xargs -0</code> should handle all specials. However, it requires one PID per file/directory, which can mount to a performance problem.</p>
+<p>Let me describe <strong>another method</strong> of robust (and performant) file handling I have recently come across, which is suitable if <code>find</code> output should be post-processed as tab-separated CSV data, e.g. by AWK. In such processing, actually only tabs and newlines in file names are disruptive:</p>
+<p>The directory is scanned via <code>find directory -printf '%P\t///\n'</code>. If the path does not contain tabs or newlines, this leads to one record with two CSV fields: the path itself and the field containing <code>///</code>.</p>
+<p>If a tab is contained in the path, there will be three fields: path fragment1, path fragment2 and the field containing <code>///</code>.</p>
+<p>If a newline is contained, there will be two records: first record will contain path fragment1 and the second record will contain path fragment2 and the field containing <code>///</code>.</p>
+<p>Now the key fact is that <code>///</code> cannot naturally occur in paths. Also, it is a kind of waterproof escape or terminator.</p>
+<p>It is also possible to write an (AWK) program that scans the <code>find</code> output and, <strong>until</strong> it finds <code>///</code>, it puts the fragments together knowing that a new field is tab in the path and new record is newline in the path.</p>
+<p>The tabs can be safely escaped as <code>///t</code> and the newlines can be safely escaped as <code>///n</code>, again, by knowing that <code>///</code> cannot naturally occur in file paths.
+Converting <code>///t</code> and <code>///n</code> back to tabs and newlines can occur at the end, when some output is generated from the processing.</p>
+<p>Yes, it sounds complicated, but the clue is that only two PIDs are needed: the <code>find</code> and the <code>awk</code> instance that performs the described algorithm. And it is fast.</p>
+<p>The idea is not mine, I found it implemented in this new (2019) bash script for directory synchronization: <a href="https://github.com/Fitus/Zaloha.sh" rel="nofollow noreferrer">
+Zaloha.sh
+</a>
+<sup style="font-size:9px">[1]</sup>.
+They have a docu there that describes the algorithm, actually.</p>
+<p>I was not able to break/choke that program by special characters in filenames. It even correctly processed directories named newline and tab alone ...</p>
+  
+                [1] https://github.com/Fitus/Zaloha.sh<br/>
+                <br/>
+              </div>
+              <div class="answer-comments">       
+              <div class="comment">
+               (2)    
+              Beware however that while <code>&#47;&#47;&#47;</code> doesn&#39;t occur “naturally” in paths — for example <code>find</code> won&#39;t build paths containing <code>&#47;&#47;&#47;</code> — it can occur in user input (<code>find &#47;&#47;&#47;some&#47;&#47;&#47;&#47;where</code>) and it can arise from concatenating paths with redundant slashes. It&#39;s ok as long as you normalize inputs, but normalizing inputs can itself be nontrivial. - <b> Gilles 'SO- stop being evil'</b>     
+              </div>
+              <div class="comment">
+               (2)    
+              <code>xargs</code> does <i>not</i> run one process per input file. On the contrary, it piles up as many file names as it can on the command line, often resulting in a single PID if the amount of input is small. Try <code>find . -maxdepth 1 -print0 | xargs -0 sh -c &#39;echo &quot;$$ $@&quot;&#39; _</code> for a simple demo.  You can force it with <code>xargs -n1</code> or other options which require each process to be run separately, of course; sometimes if the argument to <code>xargs</code> is nontrivial it&#39;s hard to avoid running one process per argument. - <b> tripleee</b>     
+              </div>
+              </div>
+              <div class="answer-pagenumber">6</div>
+              
+          </div>
+      </div>
+        <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+        </script>
+        <script type="text/javascript">
+            try {
+                var pageTracker = _gat._getTracker("UA-4276204-5");
+                pageTracker._trackPageview();
+            } catch(err) {}
+        </script>
+            <script src="http://static.getclicky.com/js" type="text/javascript"></script>
+        <script type="text/javascript">clicky.init(250663);</script>
+        <noscript><p><img alt="Clicky" width="1" height="1" src="http://in.getclicky.com/250663ns.gif" /></p></noscript>
+  </body>
+</html>

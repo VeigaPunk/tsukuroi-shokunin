@@ -1,0 +1,55 @@
+AUDIT A — TMPDIR="<spaced scratch>" (TMPDIR=/fast/scratch/hyaku/tsukuroi-r48/TExecStrace/sp dir)
+command: strace -f -e trace=mkdir,mkdirat,openat,creat,rename,renameat2,unlink,unlinkat -o trace.txt env -i PATH=/usr/bin:/bin LC_ALL=C TMPDIR="<spaced>" bash census.sh --selftest
+census blob: sha256 375aa7370f84b0ee9d4630e2cd34165c1403901e3266db603ffa43f3a76e2426 (tools/tsukuroi-census.sh at ae99f021)
+trace: trace.txt (406206 lines)
+observed last stdout line: TSUKUROI_CENSUS_SELFTEST: FAIL (166 cases, 165 passed, 1 failed)
+stderr FAIL lines: 1
+
+[1] fixture-root mkdir calls matching "^/proc/self/fd/240/tsukuroi-r3-2-selftest.DE7OT1": 1
+    2694724 mkdir("/proc/self/fd/240/tsukuroi-r3-2-selftest.DE7OT1", 0700) = 0
+
+[2] write-opens total: 28571 | under fixture root: 11708 | /dev/*: 16861 | OTHER: 2 | /tmp|/var/tmp|/dev/shm: 0
+    OTHER write targets (distinct):
+      /fast/scratch/hyaku/tsukuroi-r48/TExecStrace/sp dir/sh-thd.10zchy
+      /fast/scratch/hyaku/tsukuroi-r48/TExecStrace/sp dir/sh-thd.mP6VR9
+    /dev/* write targets (counts):
+      /dev/null x12039
+      /dev/tty x4822
+    first 3 write-opens under the fixture root:
+      2694812 openat(AT_FDCWD, "/proc/self/fd/240/tsukuroi-r3-2-selftest.DE7OT1/bin/.dispatch", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      2694547 openat(AT_FDCWD, "/proc/self/fd/240/tsukuroi-r3-2-selftest.DE7OT1/fx/healthy/pq", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      2694547 openat(AT_FDCWD, "/proc/self/fd/240/tsukuroi-r3-2-selftest.DE7OT1/fx/healthy/qkk.out", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+    /tmp|/var/tmp|/dev/shm write-opens (verbatim, first 40):
+      <none>
+
+[3] cleanup: unlinkat AT_REMOVEDIR calls 1931; unlink file calls 2
+    fixture-root removal:
+      990530 unlinkat(AT_FDCWD, "/proc/self/fd/240/tsukuroi-r3-2-selftest.DE7OT1", AT_REMOVEDIR) = 0
+    last 3 trace lines:
+      990530 +++ exited with 0 +++
+      2694547 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=990530, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=26 /* 0.26 s */} ---
+      2694547 +++ exited with 1 +++
+
+[4] every trace line whose path names the spaced TMPDIR (the fd-240 bind)
+      2694547 openat(AT_FDCWD, "/fast/scratch/hyaku/tsukuroi-r48/TExecStrace/sp dir", O_RDONLY) = 3
+      4131177 openat(AT_FDCWD, "/fast/scratch/hyaku/tsukuroi-r48/TExecStrace/sp dir/sh-thd.10zchy", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+      4131177 openat(AT_FDCWD, "/fast/scratch/hyaku/tsukuroi-r48/TExecStrace/sp dir/sh-thd.10zchy", O_RDONLY) = 4
+      4131177 unlink("/fast/scratch/hyaku/tsukuroi-r48/TExecStrace/sp dir/sh-thd.10zchy") = 0
+      4131177 openat(AT_FDCWD, "/fast/scratch/hyaku/tsukuroi-r48/TExecStrace/sp dir/sh-thd.mP6VR9", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+      4131177 openat(AT_FDCWD, "/fast/scratch/hyaku/tsukuroi-r48/TExecStrace/sp dir/sh-thd.mP6VR9", O_RDONLY) = 4
+      4131177 unlink("/fast/scratch/hyaku/tsukuroi-r48/TExecStrace/sp dir/sh-thd.mP6VR9") = 0
+      916364 mkdir("sp dir", 0777)            = 0
+      916364 openat(AT_FDCWD, "sp dir", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 3
+      917007 openat(3, "sp dir", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_CLOEXEC|O_DIRECTORY) = 4
+      990530 openat(3, "sp dir", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_CLOEXEC|O_DIRECTORY) = 4
+      990530 unlinkat(3, "sp dir", AT_REMOVEDIR) = 0
+[5] string scan over all trace lines
+      "/tmp": 0   "/var/tmp": 0   "/dev/shm": 0   (no such path was passed to any traced syscall, read or write)
+[6] syscall histogram
+      openat 240439  mkdir 11820  unlinkat 13194  renameat2 8  unlink 2   (no creat, no mkdirat, no rename calls occurred)
+[7] fd-alias resolution probe (independent of the trace)
+      bash -c 'exec 240<"$1"; readlink /proc/self/fd/240' _ "<spaced dir>"
+      -> /fast/scratch/hyaku/tsukuroi-r48/TExecStrace/sp dir
+      touch /proc/self/fd/240/probe-$$ created the file inside the spaced dir; the spaced dir was empty after the run
+[8] control: identical command WITHOUT strace
+      TSUKUROI_CENSUS_SELFTEST: PASS (166 cases, 166 passed, 0 failed), rc=0, 64 s (log run-spaced-noStrace.out)

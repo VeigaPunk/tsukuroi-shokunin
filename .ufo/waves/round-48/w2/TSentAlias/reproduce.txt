@@ -1,0 +1,55 @@
+== blob under test: sha256 375aa7370f84b0ee9d4630e2cd34165c1403901e3266db603ffa43f3a76e2426 ==
+
+== (a1) the open fd pins the directory INODE, not the name ==
+fd240 -> /fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r1/base
+name base -> /fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r1/victim ; fd240 -> /fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r1/base.moved ; same inode: YES
+mktemp -> tsukuroi-r3-2-selftest.V1dl8e
+created in moved original: YES ; created in victim: NO
+
+== (a2) post-mktemp name re-resolution: the trap's chmod -R follows a swapped symlink, rm -rf does not ==
+work name -> /fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r2/victim
+after trap chmod: victim/inner=0700 victim/inner/f=0700
+after trap rm: victim alive=YES ; real fixture leaked as hidden=YES
+
+== (a3) fd-pinned correction (PATH, fixture root, chmod through /proc/self/fd/241) ==
+pinned PATH -> GENUINE ; name PATH -> HOSTILE
+pinned chmod fixed real deep=0700 ; victim deep untouched=0000
+
+== (b) no eval injection: hostile TMPDIR directory names in the dirty-branch charset ==
+resolved </proc/self/fd/240> fd=240
+resolved </proc/self/fd/240> fd=240
+resolved </proc/self/fd/240> fd=240
+PWN files created: []
+
+== (b2) residual: dash-leading (clean-charset) TMPDIR reaches mktemp as an option; relative TMPDIR writes into cwd ==
+st_base=<-p/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r5/exists>
+mktemp: failed to create directory via template ‘/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r5/exists/tsukuroi-r3-2-selftest.XXXXXX/tmp.XXXXXXXXXX’: No such file or directory
+rel/tsukuroi-r3-2-selftest.WC59kt
+cwd fixture: rel/tsukuroi-r3-2-selftest.aXJXlb
+rel/tsukuroi-r3-2-selftest.msB6wv
+rel/tsukuroi-r3-2-selftest.WC59kt
+
+== (c) empty work: mktemp failure aborts before the trap exists; empty operands are harmless ==
+-- real frozen script, clean-charset but non-writable TMPDIR (mktemp must fail) --
+census rc=1
+stderr: mktemp: failed to create directory via template ‘/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r6/ro/tsukuroi-r3-2-selftest.XXXXXX’: Permission denied
+stdout last: 
+leftovers in TMPDIR: [] ; fixtures in cwd: [0]
+after trap with empty work: cwd=[c.err c.out keep.txt ro ] cwd_mode=755 root_mode=555
+chmod: cannot access '': No such file or directory
+chmod-empty rc=1
+rm-empty rc=0
+cwd after raw empty operands: [c.err c.out keep.txt ro ]
+
+== (a4) sticky bit vs a plain 0777 dir, real second uid (nobody) ==
+mv: cannot move '/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r7/work' to '/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r7/stolen': Operation not permitted
+sticky(1777) mv-rc=1
+ln: failed to create symbolic link '/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r7/work/etc': Permission denied
+sticky(1777) ln-rc=1
+plain(0777) mv-rc=0
+plain(0777) ln-rc=0
+
+== done. End-to-end receipts (one census --selftest each, performed against the frozen blob):
+   receipts/exp4-cross-user.txt  (nobody attacks, vgpnk runs the census)
+   receipts/exp3-same-uid.txt    (same-uid model of the same capability set)
+   receipts/spaced-counted-case.txt (honest spaced-TMPDIR control for the counted claim)

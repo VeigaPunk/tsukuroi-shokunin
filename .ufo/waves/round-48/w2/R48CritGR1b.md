@@ -1,0 +1,21 @@
+ROW GR1 VERDICT: holds
+SECTION SHA256: fe77ac765c7dd9f568e0b296ce8c7f8f53de3d8966d6a2029bada662badf9ca8
+Critic body (R48CritGR1b, read-only, revision ae99f021b76f8eb1c8805d32d80644464afb1ff6).
+
+Hash: the counter's --section-hash printed GR1 fe77ac76...f9ca8 (matches the expected value); my own sha256 over the LF-joined lines from "## GR1" up to (exclusive) "## GR2" gave the same digest.
+Snapshots: sha256sum of cmdline.c, vsprintf.c, kstrtox.c equals the round-45 SHA256SUMS entries; sysfs.c equals the round-44 entry (ce146120...c43). capture.txt digest f5958a83...e70 matches the entry header. The scrub.c of round 44 (f347931b...5b8) matches its SHA256SUMS.
+
+Quotes: all 13 are verbatim on their cited lines: cmdline.c:147, 156, 159, 189, 191, 192; vsprintf.c:86; kstrtox.c:29, 30, 33; sysfs.c:2040, 2043.
+
+Clause attack (each checked in the surroundings, not only the quoted line):
+1. memparse parses the write: sysfs.c:2040 calls memparse(buf, &endptr). OK.
+2. memparse calls simple_strtoull with base 0: cmdline.c:156. OK.
+3. Base 0 resolved via _parse_integer_fixup_radix: the quoted vsprintf.c:86 sits in simple_strntoull, reached from simple_strtoull through the one-line wrapper at vsprintf.c:114 (max_chars INT_MAX). The row elides that wrapper; harmless, same call chain.
+4. Radix: kstrtox.c:29-35: leading 0 + 'x'/'X' + hex digit gives 16 (line 31), any other leading 0 gives 8 (line 33), else 10 (line 35). "0x" then a non-hex-digit falls to octal, which is "any other leading 0". OK. The 0x prefix is then dropped at kstrtox.c:37-38, so 0x10 = 16.
+5. Suffix: cmdline.c:160-187: K/k, M/m, G/g, T/t, P/p, E/e, fallthrough adds 10 per level (E = 50 bits, K = 10 bits), so K = 1024. Only a single character *endptr is examined, so at most one suffix letter. Digit required before it: the guard is "ptr != endptr" at cmdline.c:189. Overflow: check_shl_overflow then ULLONG_MAX at cmdline.c:191-192 (the macro body is not pinned; the name and the guarded assignment carry the claim). The suffix is consumed (endptr++ at cmdline.c:193) even then. OK. Nuance, not an error: in base 16 an 'e' is a hex digit and is eaten by the digit loop (kstrtox.c:72-73) before memparse looks, so E is a suffix only after a decimal or octal number; the row's examples do not touch this and "after the digits" stays true.
+6. sysfs.c:2041-2044: skip_spaces(endptr) then *endptr != 0 returns -EINVAL. The skip_spaces body is not pinned, but the comment at sysfs.c:2041 names the trailing newline it exists for. Imprecision is minor; the clause follows.
+7. Examples: 100M and 100m = 100*2^20 = 104857600 (decimal, line 35, shl 20). 010 = octal 8. 0x10 = 16. "10MB": after M endptr points at 'B', non-zero, EINVAL. "10 M": digits end at the blank, 'blank' is not a suffix case, skip_spaces lands on 'M', EINVAL. "-1": _parse_integer_limit (kstrtox.c:70-75) breaks on '-', nothing parsed, no sign handling in simple_strntoull (vsprintf.c:79-101), endptr stays at '-', EINVAL. Bare newline: base 10, loop breaks at once (kstrtox.c:74-75), result 0, endptr at the newline, skip_spaces reaches NUL, accepted: store writes 0 (sysfs.c:2045). OK.
+8. "0 means no limit, SR8": the round-44 scrub.c line 1381 (bwlimit == 0 returns before throttling) supports it; not a clause of this row's own quotes but consistent.
+9. Host reading: capture.txt:8 shows value=0, mode=644, owner=root for devinfo/1; capture.txt:1 shows uid=1000 and CapEff all zero; capture.txt:9 shows devids=1 for the one filesystem listed. "cannot write one" rests on ordinary permission semantics (mode 644, not owner, no capabilities), which the pinned bytes do not themselves decide and the row does not mark [inference]; I judge this routine DAC arithmetic and a point-in-time reading of a 2026-10-27 capture, not an overreach. The row also states honestly that nothing was written.
+
+Counterexample hunt: leading whitespace (" 10") is not claimed and would be rejected; an overflowing decimal also saturates; neither contradicts the row. I found no clause that is false, no omitted return, and no mechanism on the wrong function. Nits (non-blocking): elided wrapper simple_strtoull to simple_strntoull; skip_spaces and check_shl_overflow bodies not pinned; the "cannot write" clause could carry "at capture time". Verdict holds.

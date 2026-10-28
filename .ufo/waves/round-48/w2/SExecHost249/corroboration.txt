@@ -1,0 +1,90 @@
+# corroboration receipts, collected 2026-10-28T12:03:00Z uid=1000 on plazir27
+
+$ grep -n 'DefaultTimeoutStopSec' /etc/systemd/system.conf
+rc=0
+52:#DefaultTimeoutStopSec=90s
+
+
+$ stat -c '%n %U:%G %a' /etc/systemd/system.conf.d/10-faster-shutdown.conf /etc/systemd/system.conf.d/99-omarchy-nofile.conf
+rc=0
+/etc/systemd/system.conf.d/10-faster-shutdown.conf root:root 644
+/etc/systemd/system.conf.d/99-omarchy-nofile.conf root:root 644
+
+
+$ sed -n '1,5p' /etc/systemd/system.conf.d/10-faster-shutdown.conf
+rc=0
+[Manager]
+DefaultTimeoutStopSec=5s
+
+
+$ sed -n '1,5p' /etc/systemd/system.conf.d/99-omarchy-nofile.conf
+rc=0
+[Manager]
+DefaultLimitNOFILE=65536:524288
+
+
+$ grep -l 'faster-shutdown\|omarchy-nofile' /var/lib/pacman/local/*/files 2>/dev/null; echo grep_rc=$?
+rc=0
+grep_rc=1
+
+
+$ ls -la /usr/lib/systemd/system.conf.d/ 2>&1
+rc=2
+ls: cannot access '/usr/lib/systemd/system.conf.d/': No such file or directory
+
+
+$ ls -l /usr/lib/systemd/system/btrfs-scrub@.service /etc/systemd/system/btrfs-scrub@.service 2>&1
+rc=2
+ls: cannot access '/etc/systemd/system/btrfs-scrub@.service': No such file or directory
+-rw-r--r-- 1 root root 190 Jul 15 04:12 /usr/lib/systemd/system/btrfs-scrub@.service
+
+
+$ grep -n 'KillSignal\|ExecStart\|TimeoutStopSec\|\[Service\]' /usr/lib/systemd/system/btrfs-scrub@.service
+rc=0
+6:[Service]
+9:KillSignal=SIGINT
+10:ExecStart=/usr/bin/btrfs scrub start -B %f
+
+
+$ grep -l 'btrfs-scrub@\.service' /var/lib/pacman/local/*/files
+rc=0
+/var/lib/pacman/local/btrfs-progs-7.1-1/files
+
+
+$ ls /sys/fs/btrfs/
+rc=0
+1d02a454-c549-4a35-b567-89d60902af8e
+features
+
+
+$ ls /sys/fs/btrfs/*/devinfo | sort -n | paste -sd, -
+rc=0
+1
+
+
+$ stat -c '%n mode=%a owner=%U' /sys/fs/btrfs/*/devinfo/1/scrub_speed_max; cat /sys/fs/btrfs/*/devinfo/1/scrub_speed_max
+rc=0
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root
+0
+
+
+$ systemctl show 'btrfs-scrub@-.service' -p DefaultTimeoutStopSec -p TimeoutStopUSec -p LoadState -p UnitFileState
+rc=0
+LoadState=loaded
+UnitFileState=static
+TimeoutStopUSec=5s
+
+
+$ capsh --print 2>/dev/null | sed -n '1,3p'; echo capsh_rc=$?
+rc=0
+Current: cap_wake_alarm=i
+Bounding set =cap_chown,cap_dac_override,cap_dac_read_search,cap_fowner,cap_fsetid,cap_kill,cap_setgid,cap_setuid,cap_setpcap,cap_linux_immutable,cap_net_bind_service,cap_net_broadcast,cap_net_admin,cap_net_raw,cap_ipc_lock,cap_ipc_owner,cap_sys_module,cap_sys_rawio,cap_sys_chroot,cap_sys_ptrace,cap_sys_pacct,cap_sys_admin,cap_sys_boot,cap_sys_nice,cap_sys_resource,cap_sys_time,cap_sys_tty_config,cap_mknod,cap_lease,cap_audit_write,cap_audit_control,cap_setfcap,cap_mac_override,cap_mac_admin,cap_syslog,cap_wake_alarm,cap_block_suspend,cap_audit_read,cap_perfmon,cap_bpf,cap_checkpoint_restore
+Ambient set =
+capsh_rc=0
+
+
+$ grep -c . /dev/null; systemctl --version | head -n1
+rc=0
+0
+systemd 262 (262-1-arch)
+

@@ -1,0 +1,75 @@
+AUDIT B — TMPDIR unset (expectation: fixture under /tmp)
+command: strace -f -e trace=mkdir,mkdirat,openat,creat,rename,renameat2,unlink,unlinkat -o trace-unset.txt env -i PATH=/usr/bin:/bin LC_ALL=C bash census.sh --selftest
+census blob: sha256 375aa7370f84b0ee9d4630e2cd34165c1403901e3266db603ffa43f3a76e2426 (tools/tsukuroi-census.sh at ae99f021)
+trace: trace-unset.txt (217312 lines)
+observed last stdout line: TSUKUROI_CENSUS_SELFTEST: FAIL (167 cases, 66 passed, 101 failed)
+stderr FAIL lines: 101
+
+[1] fixture-root mkdir calls matching "^/tmp/tsukuroi-r3-2-selftest.lY448E": 1
+    1631693 mkdir("/tmp/tsukuroi-r3-2-selftest.lY448E", 0700) = 0
+
+[2] write-opens total: 20100 | under fixture root: 11708 | /dev/*: 8392 | OTHER: 0 | /tmp|/var/tmp|/dev/shm: 11708
+    OTHER write targets (distinct):
+    /dev/* write targets (counts):
+      /dev/null x6893
+      /dev/tty x1499
+    first 3 write-opens under the fixture root:
+      1631947 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/bin/.dispatch", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/pq", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/qkk.out", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+    /tmp|/var/tmp|/dev/shm write-opens (verbatim, first 40):
+      1631947 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/bin/.dispatch", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/pq", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/qkk.out", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/qkk.rc", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/pm", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/fbase", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/pconf", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/mounts", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/pacmandb/sync/core.db", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/pacmandb/sync/omarchy.db", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/pacmandb/sync/offline.db", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/qu", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/qu.rc", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/sup", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/sup.rc", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/suu", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/suu.rc", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/q", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/sl", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/expacsl", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/pacman.log", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/pacman.conf", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/sysrunning", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/sysrunning.rc", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/failedunits", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/timerlist", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/timerresult", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/dmesg.rc", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/dmesg.out", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/dmesg-all.out", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/dmesg-all.rc", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/journal-err.json", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/journal-all.json", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/journal-err.rc", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/journal-all.rc", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/smi.out", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/smi.rc", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/lsmod", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/hostname", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+      1631061 openat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E/fx/healthy/dmesg_restrict", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+
+[3] cleanup: unlinkat AT_REMOVEDIR calls 1387; unlink file calls 0
+    fixture-root removal:
+      1180280 unlinkat(AT_FDCWD, "/tmp/tsukuroi-r3-2-selftest.lY448E", AT_REMOVEDIR) = 0
+    last 3 trace lines:
+      1180280 +++ exited with 0 +++
+      1631061 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1180280, si_uid=1000, si_status=0, si_utime=0, si_stime=12 /* 0.12 s */} ---
+      1631061 +++ exited with 1 +++
+
+[9] fixture location as passed
+      mkdir("/tmp/tsukuroi-r3-2-selftest.lY448E", 0700) = 0   <- mktemp default /tmp, as expected for TMPDIR unset
+[10] string scan over all trace lines
+      "/tmp": 43843   "/var/tmp": 0   "/dev/shm": 0
+[11] control: identical command WITHOUT strace
+      TSUKUROI_CENSUS_SELFTEST: PASS (166 cases, 166 passed, 0 failed), rc=0, 102 s (log run-unset-noStrace.out)

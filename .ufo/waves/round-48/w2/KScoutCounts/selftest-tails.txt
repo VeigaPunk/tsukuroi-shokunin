@@ -1,0 +1,27 @@
+Receipt: verbatim output tails observed by KScoutCounts on the FREEZE checkout
+(clone at ae99f021b76f8eb1c8805d32d80644464afb1ff6; scratch removed after copying this file).
+
+$ TMPDIR=/fast/scratch/hyaku/tsukuroi-r48/KScoutCounts/td bash tools/tsukuroi-census.sh --selftest   # one run, ~82 s, rc=0
+PASS identity: a parent-held descriptor on a relinked decoy is never hashed (R46-C1) (exit 0)
+PASS cli: --identity with another flag exits 2 (R46-C1) (exit 2)
+PASS cli: --identity with --help exits 2, never usage and 0 (R46-C1) (exit 2)
+PASS selftest: the fixture base classifies absolute even when TMPDIR contains a space (R47-C2)
+PASS selftest: a space in a root override stays unsafe by design (R47-C2)
+PASS selftest: dirty TMPDIR resolves to an in-TMPDIR fd alias, not /tmp (R48-C2)
+PASS selftest: nonexistent dirty TMPDIR fails the base resolver, no /tmp fallback (R48-C2)
+TSUKUROI_CENSUS_SELFTEST: PASS (166 cases, 166 passed, 0 failed)
+
+$ TMPDIR=/fast/scratch/hyaku/tsukuroi-r48/KScoutCounts/td bash tools/boot-chain-audit.sh --selftest   # one run, rc=0
+TSUKUROI_BOOTCHAIN_SELFTEST: PASS total=49 failed=0
+
+Note: the first boot-chain attempt failed with 'mktemp: ... No such file or directory' because the
+supplied TMPDIR did not exist yet (TMPDIR=<scratch>/td had not been mkdir'd); mkdir -p then rerun
+produced the PASS above. Harness requires its TMPDIR to exist.
+
+Count commands at FREEZE (clone):
+find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l   -> 67
+find corpus/lessons -type f | wc -l                              -> 71
+wc -l SKILL.md                                                   -> 4546
+grep -c '^|' SKILL.md                                            -> 1323
+wc -l corpus/README.md                                           -> 480
+sha256sum tools/tsukuroi-census.sh -> 375aa7370f84b0ee9d4630e2cd34165c1403901e3266db603ffa43f3a76e2426 (matches frozen blob)

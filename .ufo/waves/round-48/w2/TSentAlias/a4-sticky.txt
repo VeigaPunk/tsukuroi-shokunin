@@ -1,0 +1,12 @@
+== (a4) sticky bit vs a plain 0777 dir, real second uid (nobody) ==
+mv: cannot move '/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r7/work' to '/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r7/stolen': Operation not permitted
+sticky(1777) mv-rc=1
+ln: failed to create symbolic link '/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r7/work/etc': Permission denied
+sticky(1777) ln-rc=1
+plain(0777) mv-rc=0
+plain(0777) ln-rc=0
+
+== done. End-to-end receipts (one census --selftest each, performed against the frozen blob):
+   receipts/exp4-cross-user.txt  (nobody attacks, vgpnk runs the census)
+   receipts/exp3-same-uid.txt    (same-uid model of the same capability set)
+   receipts/spaced-counted-case.txt (honest spaced-TMPDIR control for the counted claim)

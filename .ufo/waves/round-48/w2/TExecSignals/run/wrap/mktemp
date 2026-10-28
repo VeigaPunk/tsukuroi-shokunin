@@ -1,0 +1,6 @@
+#!/bin/bash
+out=$(/usr/bin/mktemp "$@") || exit $?
+case "$*" in
+  *tsukuroi-r3-2-selftest*) printf '%s\t%s\t%s\t%s\n' "$*" "$out" "$(readlink -f -- "$out")" "$(date +%s.%N)" >>"$MKTEMP_LOG" ;;
+esac
+printf '%s\n' "$out"

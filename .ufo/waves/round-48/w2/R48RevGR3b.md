@@ -1,0 +1,18 @@
+ROW GR3 VERDICT: holds
+SECTION SHA256: 43430a14069598947d225c1f8ae897d9baea1c0e268cb88c2b5ad9e247bbc32c
+
+Hash: the checker's --section-hash printed the expected value for GR3; my own recomputation (sha256 over the LF-joined lines from the GR3 header up to, excluding, the "How this changes OS triage" header) gave the same value. Snapshot digests: sha256sum -c on the round-42, 44 and 45 SHA256SUMS reported OK for scrub.c (r42, 48df2e2f...), btrfs-scrub@.service and systemd.kill.xml; capture.txt sha256 is f5958a83b7cf1e2e438ac1b543f1c521f3f9370287fc4c4bcea38947c3991e70, equal to the digest in the entry header.
+
+Clause review (each opened in the snapshot):
+- KillSignal=SIGINT, no KillMode: btrfs-scrub@.service:9 reads KillSignal=SIGINT; the unit has no KillMode, SendSIGKILL or TimeoutStopSec line (lines 1-10 read in full). ExecStart at btrfs-scrub@.service:10 has -B. Capture shows no drop-in directory (capture.txt:7, empty).
+- Default is SIGTERM, KillSignal is the first step: systemd.kill.xml:25 "Defaults to SIGTERM", systemd.kill.xml:21-22 "sent as first step of shutting down a unit". The sentence at systemd.kill.xml:84-85 says processes are first terminated via SIGTERM unless KillSignal changes it. Row matches.
+- control-group, all remaining processes: systemd.kill.xml:68 (cited quote text matches), default at systemd.kill.xml:101 matches.
+- SIGCONT right after: systemd.kill.xml:114-115 match the two quoted lines. The optional SIGHUP (xml lines 86-87) is not mentioned by the row; it needs SendSIGHUP= and is not claimed, so no overreach.
+- SIGKILL repeat after TimeoutStopSec, FinalKillSignal, unless SendSIGKILL=no: systemd.kill.xml:91 and systemd.kill.xml:96 match; the sentence continues at systemd.kill.xml:97-98 with the FinalKillSignal and SendSIGKILL text.
+- Host values: capture.txt:3 holds FinalKillSignal=9, KillMode=control-group, KillSignal=2, SendSIGKILL=yes, TimeoutStopUSec=5s; the capture script queries btrfs-scrub@-.service, as the row says. capture.txt:4 holds the DefaultTimeoutStopSec=5s line at drop-in line 2; capture.txt:5 reports owner none; capture.txt:2 holds systemd 262 (262-1-arch). The row's [inference] on the default reaching every system unit is correctly marked, since the manual page for system.conf is not pinned; the row's host claim relies on the unit-level show value of 5s, which is observed.
+- -B does not fork: scrub.c:1247 default do_background = true, scrub.c:1292-1293 case 'B' sets it false, scrub.c:1512 forks only if do_background. Row cites 1512, which is the fork branch; accurate. Handler: scrub.c:1546 calls scrub_handle_sigint_child(fdmnt) (fdmnt opened at scrub.c:1343), scrub.c:439 sets sa_handler to scrub_sigint_record_progress when fd is not -1, scrub.c:442-443 store cancel_fd and install it with sigaction on SIGINT, scrub.c:421 issues BTRFS_IOC_SCRUB_CANCEL on cancel_fd. Quotes at scrub.c:421, scrub.c:439 and scrub.c:1546 are verbatim on those lines.
+- Last sentence (canceled record within 5 s before SIGKILL) is explicitly not established and carries [inference]; the pinned bytes indeed do not decide timing. Correctly placed.
+- Host reading: "No unit was started or stopped" matches the capture script header (read-only show, no start/stop).
+- Cross-references SR9 and SR3 exist in the sibling record entries.
+
+Imprecision noted, not a defect: the row does not quote the -B option parse at scrub.c:1293, only the fork test; the cited lines still show the fork is conditional, and the option line is readable in the same snapshot. No clause overreaches; no core clause is contradicted. Not done: I did not run systemd or stop any unit; claims about runtime ordering rest on the manual text, not on observation.

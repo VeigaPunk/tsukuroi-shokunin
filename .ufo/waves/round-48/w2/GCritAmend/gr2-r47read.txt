@@ -1,0 +1,86 @@
+## GR2
+
+**Statement.** In Linux v7.2.11 a device replace copies the source device through the scrub code: both the replace
+start path (the comment "the disk copy procedure reuses the scrub code") and the path that continues an interrupted
+replace call `btrfs_scrub_dev` on the source device's devid with `readonly` false and `is_dev_replace` true, the last
+two parameters of `btrfs_scrub_dev`. Inside `btrfs_scrub_dev`, after a filesystem-closing check that returns `-EAGAIN` first
+(`btrfs_fs_closing`), the function allocates its scrub context and takes the scrub workers
+(`scrub_setup_ctx`, `scrub_workers_get`), whose errors return first; then three device checks
+answer: an unknown devid, or a missing device on a non-replace call, gives `-ENODEV`; a
+non-writeable device on a non-replace, non-readonly call gives `-EROFS`; a device outside the
+filesystem metadata, or the replace's own target device, gives `-EIO`. Only after those checks
+is a call with `is_dev_replace` false refused with `-EINPROGRESS` while
+`btrfs_dev_replace_is_ongoing` is true for the filesystem, which it is for a replace in state
+started or suspended (a replace suspended by an unmount still counts), and any call is refused
+with `-EINPROGRESS` while the device already carries a scrub context. So while a replace is ongoing, a scrub start that reaches
+`btrfs_scrub_dev` for a present, writeable device that is in the filesystem metadata and is not the replace target is
+refused with `EINPROGRESS` (as is a start on any device that already carries a scrub context), and no scrub is
+started. While the copy runs, the replace's source device carries the scrub context the copy attached, which by SR7
+makes a privileged progress query for that devid answer 0. When the unmount suspend path runs, it calls
+`btrfs_scrub_cancel`; once the scrub returns and clears its context, the progress query returns `-ENOTCONN`
+[inference for the ioctl and btrfs-progs side: that the scrub-start ioctl hands these returns to userspace
+unchanged, and how `btrfs scrub start` and `btrfs scrub status` print them, are not pinned here].
+
+**Quote.** `S247` dev-replace.c:700: "/* the disk copy procedure reuses the scrub code */"
+
+**Quote.** `S247` dev-replace.c:701: "ret = btrfs_scrub_dev(fs_info, src_device->devid, 0,"
+
+**Quote.** `S247` dev-replace.c:703: "&dev_replace->scrub_progress, false, true);"
+
+**Quote.** `S247` dev-replace.c:1259: ""continuing dev_replace from %s (devid %llu) to target %s @%u%%","
+
+**Quote.** `S247` dev-replace.c:1265: "ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,"
+
+**Quote.** `S247` dev-replace.c:1268: "&dev_replace->scrub_progress, false, true);"
+
+**Quote.** `S242` scrub.c:3081: "bool readonly, bool is_dev_replace)"
+**Quote.** `S242` scrub.c:3094: "if (btrfs_fs_closing(fs_info))"
+**Quote.** `S242` scrub.c:3095: "return -EAGAIN;"
+
+**Quote.** `S242` scrub.c:3148: "(!is_dev_replace &&"
+
+**Quote.** `S242` scrub.c:3149: "btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {"
+
+**Quote.** `S242` scrub.c:3147: "if (dev->scrub_ctx ||"
+
+**Quote.** `S242` scrub.c:3153: "ret = -EINPROGRESS;"
+
+**Quote.** `S242` scrub.c:3123: "ret = -ENODEV;"
+
+**Quote.** `S242` scrub.c:3133: "ret = -EROFS;"
+
+**Quote.** `S242` scrub.c:3139: "test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &dev->dev_state))) {"
+
+**Quote.** `S242` scrub.c:3142: "ret = -EIO;"
+
+**Quote.** `S247` dev-replace.c:1287: "case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:"
+
+**Quote.** `S247` dev-replace.c:1235: "if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {"
+
+**Quote.** `S243` sysfs.c:1288: "str = "device replace\n";"
+
+**Quote.** `S243` sysfs.c:2015: "val = !!test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);"
+
+**Quote.** `S247` dev-replace.c:1143: "/* Scrub for replace must not be running in suspended state */"
+
+**Quote.** `S247` dev-replace.c:1144: "btrfs_scrub_cancel(fs_info);"
+
+**Quote.** `S242` scrub.c:3336: "return dev ? (sctx ? 0 : -ENOTCONN) : -ENODEV;"
+
+**Quote.** `S242` scrub.c:3109: "sctx = scrub_setup_ctx(fs_info, is_dev_replace);"
+
+**Quote.** `S242` scrub.c:3114: "ret = scrub_workers_get(fs_info);"
+
+**Quote.** `S242` scrub.c:3138: "if (unlikely(!test_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &dev->dev_state) ||"
+
+**Quote.** `S242` scrub.c:3222: "dev->scrub_ctx = NULL;"
+
+**Host reading.** The filesystem lists devid 1 only (capture.txt:9) and the caller has no effective capabilities
+(capture.txt:1), so the privileged progress query is out of its reach. Replace state is still readable without
+privilege through sysfs, which this capture does not record: the filesystem's `exclusive_operation` names
+`device replace` while a replace holds the exclusive operation (sysfs.c:1288; the resume path takes it at
+dev-replace.c:1235, and the replace ioctl takes it around the start, S240 ioctl.c:3190), and
+`devinfo/<devid>/replace_target` reads 1 on the replace's target device (sysfs.c:2015).
+Read on this host by wave seat C2ExecHostRecheck on 2026-10-27 (`.ufo/waves/round-45/a2w1/C2ExecHostRecheck.md`
+§3), both files are mode 444 and read `none` and `0`. The kernel rules of the row are read from source.
+

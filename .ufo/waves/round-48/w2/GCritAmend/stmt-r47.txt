@@ -1,0 +1,19 @@
+**Statement.** In Linux v7.2.11 a device replace copies the source device through the scrub code: both the replace
+start path (the comment "the disk copy procedure reuses the scrub code") and the path that continues an interrupted
+replace call `btrfs_scrub_dev` on the source device's devid with `readonly` false and `is_dev_replace` true, the last
+two parameters of `btrfs_scrub_dev`. Inside `btrfs_scrub_dev`, after a filesystem-closing check that returns `-EAGAIN` first
+(`btrfs_fs_closing`), the function allocates its scrub context and takes the scrub workers
+(`scrub_setup_ctx`, `scrub_workers_get`), whose errors return first; then three device checks
+answer: an unknown devid, or a missing device on a non-replace call, gives `-ENODEV`; a
+non-writeable device on a non-replace, non-readonly call gives `-EROFS`; a device outside the
+filesystem metadata, or the replace's own target device, gives `-EIO`. Only after those checks
+is a call with `is_dev_replace` false refused with `-EINPROGRESS` while
+`btrfs_dev_replace_is_ongoing` is true for the filesystem, which it is for a replace in state
+started or suspended (a replace suspended by an unmount still counts), and any call is refused
+with `-EINPROGRESS` while the device already carries a scrub context. So while a replace is ongoing, a scrub start that reaches
+`btrfs_scrub_dev` for a present, writeable device that is in the filesystem metadata and is not the replace target is
+refused with `EINPROGRESS` (as is a start on any device that already carries a scrub context), and no scrub is
+started. While the copy runs, the replace's source device carries the scrub context the copy attached, which by SR7
+makes a privileged progress query for that devid answer 0. When the unmount suspend path runs, it calls
+`btrfs_scrub_cancel`; once the scrub returns and clears its context, the progress query returns `-ENOTCONN`
+[inference for the ioctl and btrfs-progs side: that the scrub-start ioctl hands these returns to userspace

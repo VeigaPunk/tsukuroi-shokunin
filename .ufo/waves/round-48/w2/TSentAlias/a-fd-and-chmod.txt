@@ -1,0 +1,19 @@
+=== reproducer transcript (see receipts/reproduce.txt) ===
+blob sha256: 375aa7370f84b0ee9d4630e2cd34165c1403901e3266db603ffa43f3a76e2426
+
+== (a1) the open fd pins the directory INODE, not the name ==
+fd240 -> /fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r1/base
+name base -> /fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r1/victim ; fd240 -> /fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r1/base.moved ; same inode: YES
+mktemp -> tsukuroi-r3-2-selftest.V1dl8e
+created in moved original: YES ; created in victim: NO
+
+== (a2) post-mktemp name re-resolution: the trap's chmod -R follows a swapped symlink, rm -rf does not ==
+work name -> /fast/scratch/hyaku/tsukuroi-r48/TSentAlias/r2/victim
+after trap chmod: victim/inner=0700 victim/inner/f=0700
+after trap rm: victim alive=YES ; real fixture leaked as hidden=YES
+
+== (a3) fd-pinned correction (PATH, fixture root, chmod through /proc/self/fd/241) ==
+pinned PATH -> GENUINE ; name PATH -> HOSTILE
+pinned chmod fixed real deep=0700 ; victim deep untouched=0000
+
+== (b) no eval injection: hostile TMPDIR directory names in the dirty-branch charset ==
