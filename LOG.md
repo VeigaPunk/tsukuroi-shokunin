@@ -1827,7 +1827,7 @@ The staged assimilation package was not adopted because 57 IDs collide; the coll
 S200 fixture (0-3-space pattern: 1, column-zero-only: 0). No Frontier row advanced. `considerthese/2026-10-26.md`
 counter-attack scoreboard proposal was mined but not implemented.
 
-Trend verdicts: expansion **unchanged** (no new entry admitted/frontier move); quality **unchanged** (no admitted
-entry changed quality status; GR rows remain pending and explicitly marked); discernment **unprovable-but-better**
-(the cohort caught real provenance/quote defects and QUALITY 94 records them, but all L2 seats were lane-dispatched,
-not an independent non-author spot-check).
+Trend verdicts: expansion **unchanged** (no new entry admitted/frontier move); quality **harmed** (the correction
+introduced an overbroad GR2 ioctl inference that remains in the frozen row, explicitly named in the Gate status);
+discernment **unprovable-but-better** (the cohort caught real provenance/quote defects and QUALITY 94 records them,
+but all L2 seats were lane-dispatched, not an independent non-author spot-check).

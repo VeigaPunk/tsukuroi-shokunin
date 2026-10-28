@@ -3256,7 +3256,7 @@ but their counter-cheat limits are disclosed rather than smoothed.
 | coverage | 9 | `corpus/README.md` 522 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; no surface promotion. | round 11; unchanged |
 | operability | 9 | `bash tools/tsukuroi-census.sh --selftest` → PASS (168 cases, 168 passed, 0 failed); `--identity` landed; `bash tools/boot-chain-audit.sh --selftest` `PASS total=49 failed=0`; `check-fd-band-r49.py` accepts later case additions while retaining R49-C3. | round 11; unchanged |
 | freshness | 9 | S240 re-opened byte-identically at sha256 `7b3488f2…ba01`; S256 opened 2026-10-28; sources census exit 0 at start and end. | fleet round 1; unchanged |
-| calibration | 9 | `python3 tools/check-self-assessment.py --revision <FINAL>` → checked 27, mismatches 0 after this restatement; no ordinal move. | round 10; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision 9c5d6b436e599c7809ffe458e973cd14d410bb51` → checked 27, mismatches 0; no ordinal move. | round 10; unchanged |
 | adjacency | 8 | formal overlap table present (PROVINCE `| ID | Finding`); C3 measured 9/9 pinned quotes/digests and 9/9 live-tip quotes; caller-supplied C3 overrides can still score fabricated input (`R50CritCheatC3.md`). | fleet round 1; unchanged |
 
 ## Capabilities — current full evidence set (round 50)
@@ -3285,8 +3285,10 @@ collisions; `considerthese/2026-10-26.md` counter-attack scoreboard proposal was
 
 - expansion: **unchanged** — no new knowledge entry admitted and no province Frontier row moved; the SOURCES row
   is curation, not an expansion claim.
-- quality: **unchanged** — C1 remains pending and its new defects are explicitly marked; C2's matcher runs twice
-  cleanly, but no weaker knowledge entry was superseded and the C2/C3 counters have named cheat paths.
+- quality: **harmed** — the round's correction narrowed the GR2 `[inference]` mark but still overstates the
+   ioctl path before the `btrfs_scrub_dev` call (`R50CritGR2a/b`); GR1-GR3 remain pending and no admission
+   mark was written. The defect is named in the round-50 gate status and lesson, but the erroneous clause remains
+   in the frozen row for next-round correction.
 - discernment: **unprovable-but-better** — the counted cohort exposed provenance/quote defects and the C2/C3
   attackers falsified counter assumptions, and QUALITY 94 records the lesson; these are lane-dispatched seats,
   not the required independent non-author sample. External closure remains pending.
