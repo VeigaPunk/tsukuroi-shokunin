@@ -408,9 +408,9 @@
 # text, rollup term or exit code changes) and live mode creates no files.
 #
 # Read-only guarantee: no probe writes; the gate creates no files at all in live mode
-# (selftest writes only under a mktemp dir named ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX,
-# or /tmp itself when TMPDIR holds characters the root-override locator refuses — R47-C2).
-# Secrets are never read: only public package/system unit/driver/journal state is queried.
+# (selftest writes only under a mktemp dir named ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX;
+# when TMPDIR holds characters the root-override locator refuses, the same dir is reached
+# through a whitespace-free /proc/self/fd alias inside TMPDIR — never /tmp — R48-C2).
 #
 # Hermetic selftest: `--selftest` builds a /tmp fixture tree with a dispatcher stub for
 # every probe command and re-invokes this script against it via env overrides. Each case
@@ -599,8 +599,9 @@ usage: tsukuroi-census.sh [--selftest] [--sample N] [--identity] [--help]
                plus the verdict-neutral DRIFT (pacnew), STORAGE (btrfs error counters) and SCRUB
                (btrfs scrub record, unprivileged view) lines
   --selftest   hermetic fixture-tree test of every verdict arm (writes only under
-               ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*, or /tmp itself when TMPDIR
-               holds characters the root-override locator refuses); exit 0 pass, 1 fail
+               ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*; a TMPDIR with characters the
+               root-override locator refuses is reached through a /proc/self/fd
+               alias inside TMPDIR, never /tmp — R48-C2); exit 0 pass, 1 fail
   --sample N   packages plane: size of the pacman -Qkk sample (default 8)
 
 Verdict line: TSUKUROI_CENSUS: HEALTHY|DEGRADED|BLOCKED (packages=.. systemd=.. drivers=.. journal=.. update-safety=.. oom=..)
@@ -2045,21 +2046,69 @@ probe_scrub_record() {
 }
 
 # ---- hermetic selftest -------------------------------------------------------
+# (R48-C2) Resolve the directory the selftest fixture tree is built under. TMPDIR
+# unset or empty means the mktemp(1) default /tmp (S252). A TMPDIR that contains
+# characters root_locator_class refuses (whitespace, `=` ...) cannot name a
+# classifiable root override: the fixture tree then builds INSIDE that TMPDIR
+# through a whitespace-free alias — an open file descriptor on TMPDIR spelled
+# /proc/self/fd/<n> — never under /tmp. (The round-47 `st_base=/tmp` fallback is
+# removed: it re-created the exact defect the scratch discipline forbids,
+# R47-C2-TMPDIR-FALLBACK.) A TMPDIR that is absent or not a directory makes the
+# resolver fail; the selftest then fails fast, still never under /tmp.
+selftest_base_dir() {
+  # Result contract: ST_BASE_DIR receives the base, ST_BASE_FD the descriptor id
+  # (empty when no alias was needed). Must run in the CALLER's shell — the fd a
+  # /proc/self/fd alias refers to must outlive this function, so command
+  # substitution (a subshell whose fds die with it) is forbidden here.
+  #
+  # The alias uses a fixed high descriptor (240-249), never the auto-allocated
+  # lowest-free fd: selftest fixture children legitimately `exec 10<...` and
+  # auto-allocated fds start at 10, so an alias at 10 would be silently
+  # re-pointed inside a child and every "$work"-relative path resolved through
+  # it would break (observed 2026-10-28: R46-C1 held-descriptor case failed
+  # with "/proc/self/fd/10/...: Not a directory"). 240-249 stays below bash's
+  # script descriptor band (255) and above anything fixtures auto-allocate.
+  local base fdn
+  ST_BASE_DIR=
+  ST_BASE_FD=
+  base=${TMPDIR:-/tmp}
+  case "$base" in
+    *[!A-Za-z0-9._/+-]*)
+      # dirty TMPDIR: it must exist and be a directory for the alias to bind
+      [ -d "$base" ] || return 1
+      for fdn in 240 241 242 243 244 245 246 247 248 249; do
+        [ -e "/proc/self/fd/$fdn" ] || break
+      done
+      [ -e "/proc/self/fd/$fdn" ] && return 1
+      eval "exec ${fdn}<\"\$base\"" || return 1
+      ST_BASE_FD=$fdn
+      ST_BASE_DIR=/proc/self/fd/$fdn
+      [ -d "$ST_BASE_DIR" ] || { eval "exec ${fdn}<&-"; ST_BASE_FD=; ST_BASE_DIR=; return 1; }
+      ;;
+    *) ST_BASE_DIR=$base ;;
+  esac
+}
+
 run_selftest() {
   local bin fx
-  # (R47-C2) The fixture roots below are handed to the census as caller root overrides,
-  # which root_locator_class deliberately restricts to a whitespace-free character set
-  # (a path like "/x root_mode=0755" must not forge a token or reach stat). If TMPDIR
-  # cannot yield classifiable override paths, build the fixture tree under /tmp instead;
-  # a caller's dirty TMPDIR must not turn 149 cases red (round-46 w1/C1ExecRerunB).
-  local st_base=${TMPDIR:-/tmp}
-  case "$st_base" in
-    *[!A-Za-z0-9._/+-]*) st_base=/tmp ;;
-  esac
+  # (R47-C2 / R48-C2) The fixture roots below are handed to the census as caller root
+  # overrides, which root_locator_class deliberately restricts to a whitespace-free
+  # character set (a path like "/x root_mode=0755" must not forge a token or reach
+  # stat). A TMPDIR that cannot yield classifiable override paths now resolves to a
+  # whitespace-free /proc/self/fd alias INSIDE that TMPDIR (selftest_base_dir),
+  # never to /tmp; a nonexistent TMPDIR fails fast instead of building anywhere.
+  local st_base
+  selftest_base_dir || {
+    printf 'selftest: TMPDIR <%s> cannot host the fixture tree (no /tmp fallback, R48-C2)\n' "${TMPDIR:-<unset>}" >&2
+    return 1
+  }
+  st_base=$ST_BASE_DIR
   work=$(mktemp -d "$st_base/tsukuroi-r3-2-selftest.XXXXXX")
   # A 000 fixture directory would block `rm -rf` (unlink needs write+search on the parent);
   # restore permissions on the temp tree only, never on a live path.
-  trap 'chmod -R u+rwx -- "${work:-}" 2>/dev/null || true; rm -rf -- "${work:-}" 2>/dev/null || true' EXIT INT TERM
+  trap 'chmod -R u+rwx -- "${work:-}" 2>/dev/null || true; rm -rf -- "${work:-}" 2>/dev/null || true' EXIT
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
   bin="$work/bin"
   mkdir -p "$bin" "$work/fx"
 
@@ -3480,6 +3529,31 @@ STUB
   [ "$(root_locator_class "$work/fx/sp dir/root")" = 'unsafe' ] \
     && ok 'selftest: a space in a root override stays unsafe by design (R47-C2)' \
     || bad 'selftest: root_locator_class must refuse whitespace overrides (R47-C2)'
+
+  # (R48-C2) pin the no-/tmp-fallback contract of selftest_base_dir:
+  #  - a dirty (space-bearing) TMPDIR resolves to a /proc/self/fd alias that still
+  #    resolves INSIDE that TMPDIR (readlink -f lands under the real base), so the
+  #    fixture tree never lands in /tmp and the caller's TMPDIR stays honored;
+  #  - a TMPDIR that does not exist fails the resolver instead of falling back.
+  r48_dir="$work/fx/dirty tmpdir"
+  mkdir -p "$r48_dir"
+  TMPDIR="$r48_dir" selftest_base_dir; r48_rc=$?
+  r48_base=$ST_BASE_DIR; r48_fd=$ST_BASE_FD
+  if [ "$r48_rc" -eq 0 ] && [ -n "$r48_base" ] \
+    && [ "$(root_locator_class "$r48_base")" = 'absolute' ] \
+    && [ "$(readlink -f -- "$r48_base")" = "$(readlink -f -- "$r48_dir")" ]; then
+    ok 'selftest: dirty TMPDIR resolves to an in-TMPDIR fd alias, not /tmp (R48-C2)'
+  else
+    bad 'selftest: dirty TMPDIR must resolve to a /proc/self/fd alias inside TMPDIR (R48-C2)'
+  fi
+  [ -n "$r48_fd" ] && exec {r48_fd}<&-
+  if TMPDIR="$work/fx/definitely missing dir" selftest_base_dir; then
+    [ -n "${ST_BASE_FD:-}" ] && exec {ST_BASE_FD}<&-
+    bad 'selftest: nonexistent dirty TMPDIR must fail the base resolver (R48-C2)'
+  else
+    ok 'selftest: nonexistent dirty TMPDIR fails the base resolver, no /tmp fallback (R48-C2)'
+  fi
+  unset r48_dir r48_base r48_fd r48_rc
 
   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
