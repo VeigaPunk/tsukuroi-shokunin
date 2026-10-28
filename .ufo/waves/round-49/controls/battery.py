@@ -258,16 +258,17 @@ def c3(batt):
     run('K0', base_cen, 'base census: stale comment, no diagnostic, 166 cases -> FAIL')
     lines = freeze_cen.split('\n')
     if any('(R49-C3)' in ln for ln in lines):
-        i = next(k for k, ln in enumerate(lines) if ln.lstrip().startswith('# (R49-C3)'))
+        start = next(k for k, ln in enumerate(lines) if ln.strip() == 'run_selftest() {')
+        i = next(k for k, ln in enumerate(lines) if k > start and ln.lstrip().startswith('# (R49-C3)'))
         j = next(k for k, ln in enumerate(lines) if ln.startswith('  unset r49_dir r49_held'))
         k1 = '\n'.join(lines[:i] + lines[j + 1:])
     else:
         k1 = freeze_cen
     run('K1', k1, 'diagnostic present, the R49-C3 case removed -> FAIL (band_ok 0)')
-    run('K2', freeze_cen.replace(
-        '  # Hermetic selftest: `--selftest` builds a fixture tree under the resolved base',
-        '  # Hermetic selftest: `--selftest` builds a /tmp fixture tree with a dispatcher stub for'),
-        'stale comment restored -> FAIL (stale_ok 0)')
+    k2 = freeze_cen.replace('builds a fixture tree under the resolved base',
+                            'builds a /tmp fixture tree')
+    assert 'builds a /tmp fixture tree' in k2, 'K2 fixture did not restore the stale comment'
+    run('K2', k2, 'stale comment restored -> FAIL (stale_ok 0)')
     run('K-pass', freeze_cen, 'the freeze census -> PASS (167 cases)')
     return out
 

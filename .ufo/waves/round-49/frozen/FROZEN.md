@@ -58,3 +58,11 @@ receipts under `.ufo/waves/round-49/w1/<seat>[.md]`; scratch under
 fixture repo under that scratch dir; tooling authorization with the pacman pause (install via
 `uv tool`/`npx`/official `~/.local/bin` binary only). Relative `Report:` trailers land under the lane
 root.
+
+## Control outcomes (scored at `32a85560`, before wave w1 was dispatched)
+
+Receipts: `controls/battery-summary-r49-c1.jsonl` (K0 K1 K2 K3 K4 K5 K6 FAIL, K-pass PASS), `-c2.jsonl`
+(K0 K1 K2 K3 FAIL, K-pass PASS), `-c3.jsonl` (K0 K1 K2 FAIL, K-pass PASS). The K-pass fixtures prove each
+counter can pass; they are not the claim measurement. Two fixture bugs were found and fixed while scoring
+(C3-K1 cut the wrong `(R49-C3)` comment, C3-K2's stale-comment replacement did not match); both were
+controls-only and no claim byte changed.
