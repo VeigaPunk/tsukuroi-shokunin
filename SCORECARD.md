@@ -3292,3 +3292,26 @@ collisions; `considerthese/2026-10-26.md` counter-attack scoreboard proposal was
 - discernment: **unprovable-but-better** — the counted cohort exposed provenance/quote defects and the C2/C3
   attackers falsified counter assumptions, and QUALITY 94 records the lesson; these are lane-dispatched seats,
   not the required independent non-author sample. External closure remains pending.
+
+## Round 51 — declaration (2026-10-28, base `c0ad548a93425a3bf8813d28d92f26fe2f64b9d4`, before any seat)
+
+Ordinals at base: depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8 (depth and adjacency
+tied lowest, so the lowest-axis duty binds). Saturation 9 / window 3 (no waiver). Rounds 47-50 each closed
+`rejected-honest-stop` on C1 depth; round 50's closure routed the defects below. Round-start receipts
+(`.ufo/waves/round-51/before/`): sources census exit 0 (256 rows, 40 W04); `check-self-assessment.py` at base
+`checked 27, mismatches 1` (K10: the lesson-file count, 75 stated vs 76 files — the closure's own spot-check file);
+`check-registry-coverage.py` at base `missing 6`. Frozen record: `.ufo/waves/round-51/frozen/FROZEN.md`.
+Round shape: TWO v1 waves (`w1` build + uncounted pre-read + attacks; `w2` counted cohort + falsify), 64-128 seats
+total; the L1 holds the planner seat.
+
+| Claim | Axis | Surface moved | Counter (frozen) | Do-nothing control at base | Target (predicate) |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied; sourced S237 S240 S242 S243 S246 S247 S248) | `btrfs-scrub-grounding-r45.md` GR1-GR3: GR2 rewritten, GR1 quote leader, `### Range gaps (R51)` block; counted w2 18-seat cohort | `python3 tools/check-scrub-admission-r51.py --revision <REV> --wave-dir .ufo/waves/round-51/w2 --results-file .ufo/waves/round-51/w2-results.json --dispatch-file .ufo/waves/round-51/w2-dispatch.json` | `lint_ok 0, quotes_ok 2, verdicts_ok 0, seats_ok 0, marks_ok 0` | `structural_ok == 1 and lint_ok == 3 and quotes_ok == 3 and verdicts_ok == 3 and seats_ok == 18 and marks_ok == 3` |
+| C2 | operability (census-gate instrument; sourced S256) | matcher counter hardened against a liar census, respelled pipes and a neutered harness | `python3 tools/score-counter-cheats-r51.py --revision <REV> --scratch <DIR>` | round-50 counter rejects 0 of 4 cheats | `real_pass == 1 and cheats == 4 and cheats_rejected == 4 and r50_cheats_rejected == 0` |
+| C3 | adjacency (lowest tied) | displayed anchors and digest list bound to the registry; override cannot print PASS | `python3 tools/check-adjacency-table-r51.py --revision <REV>` | round-50 counter passes a false displayed OUT-009 commit (`r50_blind 1`) | the r50 legs plus `display_bound_ok == 10 and quote_specific_ok == 10 and digests_bound_ok == 10 and display_forge_fails == 1 and override_blocked == 1 and r50_blind == 1` |
+
+Pre-data controls (frozen counters; receipts `.ufo/waves/round-51/controls/battery-summary-r51-*-c{1,2,3}.jsonl`):
+C1 K0-K8 must FAIL and K-pass PASS; C2 K0 FAIL and K-pass PASS; C3 K0-K5 must not PASS (CONTROL-FAIL or
+OVERRIDE-NOT-MEASURED) and K-pass PASS.
+Causal separability: C1 reads the entry + snapshots + cohort; C2 reads the census blob; C3 reads `PROVINCE.md`, the
+registry and sibling repos. C2 and C3 are instrument claims; the census, `PROVINCE.md` and the registry are not changed.

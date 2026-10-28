@@ -24,7 +24,7 @@ second, `010` sets 8 and `0x10` sets 16; `10MB` (a second letter), `10 M` (a bla
 rejected with `EINVAL`; and a write of a bare newline parses as 0 and is accepted, which removes the limit (0 means
 no limit, SR8).
 
-**Quote.** `S246` cmdline.c:147: "potentially suffixed with K, M, G, T, P, E."
+**Quote.** `S246` cmdline.c:147: "* potentially suffixed with K, M, G, T, P, E."
 
 **Quote.** `S246` cmdline.c:156: "unsigned long long ret = simple_strtoull(ptr, &endptr, 0);"
 
@@ -55,34 +55,39 @@ cannot write one. Nothing was written to test the parse; the examples above foll
 
 ## GR2
 
-**Statement.** In Linux v7.2.11 a device replace copies the source device through the scrub code: both the replace
-start path (the comment "the disk copy procedure reuses the scrub code") and the path that continues an interrupted
-replace call `btrfs_scrub_dev` on the source device's devid with `readonly` false and `is_dev_replace` true, the last
-two parameters of `btrfs_scrub_dev`. Inside `btrfs_scrub_dev`, after a filesystem-closing check that returns `-EAGAIN` first
-(`btrfs_fs_closing`), the function allocates its scrub context and takes the scrub workers
-(`scrub_setup_ctx`, `scrub_workers_get`), whose errors return first; then three device checks
-answer: an unknown devid, or a missing device on a non-replace call, gives `-ENODEV`; a
-non-writeable device on a non-replace, non-readonly call gives `-EROFS`; a device outside the
-filesystem metadata, or the replace's own target device, gives `-EIO`. Only after those checks
-is a call with `is_dev_replace` false refused with `-EINPROGRESS` while
-`btrfs_dev_replace_is_ongoing` is true for the filesystem — which it is when the replace data is
-valid (`is_valid`, dev-replace.c:1278-1279) and the state is started or suspended
-(dev-replace.c:1286-1287; a replace suspended by an unmount still counts, per the comment at
-dev-replace.c:1288-1297) — and any call is refused
-with `-EINPROGRESS` while the device already carries a scrub context. So while a replace is ongoing, a scrub start that reaches
-`btrfs_scrub_dev` for a present, writeable device that is in the filesystem metadata and is not the replace target is
-refused with `EINPROGRESS` (as is a start on any device that already carries a scrub context), and no scrub is
-started. While the copy runs, the replace's source device carries the scrub context the copy attached
-(scrub.c:3159); by SR7, `btrfs_dev_replace_cancel` stops it with `btrfs_scrub_cancel` for a started
-replace (dev-replace.c:1111) and, for a suspended replace, calls `btrfs_scrub_cancel` too
-(dev-replace.c:1126-1144) although the pinned code says the replace scrub is not running in that state
-(dev-replace.c:1127-1129). When the replace context is absent, the progress query returns `-ENOTCONN`
-for a devid that exists (`scrub.c:3222, :3336`); an unknown devid gives `-ENODEV` (`scrub.c:3336`).
-The unmount suspend path itself only moves a STARTED replace to SUSPENDED, with `time_stopped` and a
-writeback flag (dev-replace.c:1171-1195, state set at :1184-1188), and does not call `btrfs_scrub_cancel`.
-[inference: how `btrfs scrub start` and `btrfs scrub status` print these returns is not pinned here; the
-scrub-start ioctl's own path is pinned and returns the `btrfs_scrub_dev` value (ioctl.c:3093-3095) unless the
-argument copy fails, when it returns `-EFAULT` instead (ioctl.c:3109-3110, ioctl.c:3115)].
+**Statement.** In Linux v7.2.11 a device replace copies the source device through the scrub code: the replace start
+path (the comment "the disk copy procedure reuses the scrub code", dev-replace.c:700) and the path that continues a
+replace interrupted by an unmount (dev-replace.c:1197, :1265-1268) each call `btrfs_scrub_dev` with the source device's
+devid, `readonly` false and `is_dev_replace` true, the last two parameters of `btrfs_scrub_dev` (dev-replace.c:701-703,
+:1265-1268; scrub.c:3081).
+
+Inside `btrfs_scrub_dev` the answers come in this order before a scrub context is attached to the device
+(scrub.c:3094-3153): `-EAGAIN` while the filesystem is closing (:3094-3095); the error `scrub_setup_ctx` returned, if
+any (:3109-3111); the error `scrub_workers_get` returned, if any (:3114-3116, returned at :3250-3253); `-ENODEV` for an
+unknown devid, or for a missing device on a call that is not a replace (:3120-3123); `-EROFS` when the call is
+neither a replace nor read-only and the device is not writeable (:3127-3133); `-EIO` when the device is not in the
+filesystem metadata or is the replace's target device (:3138-3142); and `-EINPROGRESS` when the device already carries a
+scrub context, or when the call is not a replace and `btrfs_dev_replace_is_ongoing` is true (:3147-3153). That function
+is true when the replace data is valid (`is_valid`, dev-replace.c:1278-1279) and the state is started or suspended
+(dev-replace.c:1286-1287); a replace suspended by an unmount still counts, per the comment at dev-replace.c:1288-1297.
+So while a replace is ongoing in that sense, a scrub start that is not a replace and gets past the earlier checks (a
+present device, writeable unless read-only, in the filesystem metadata, not the replace target) is refused with
+`-EINPROGRESS` and no scrub is started; any call, replace or not, is refused the same way while its device already
+carries a scrub context.
+
+The scrub-start ioctl `btrfs_ioctl_scrub` answers before it calls `btrfs_scrub_dev` with `-EPERM` for a caller without
+`CAP_SYS_ADMIN` (ioctl.c:3072-3073), `-EINVAL` on an extent-tree-v2 filesystem (:3075-3078), the error of `memdup_user`
+for the argument structure (:3080-3082), `-EOPNOTSUPP` for flags outside `BTRFS_SCRUB_SUPPORTED_FLAGS` (:3084-3085) and the
+error of `mnt_want_write_file` when the start is not read-only (:3087-3090). It then stores the `btrfs_scrub_dev` return
+in `ret` (:3093-3095), copies the argument structure back to the caller, replaces `ret` with `-EFAULT` if that copy to
+user space fails (:3109-3110) and returns `ret` (:3115).
+
+The progress query `btrfs_scrub_progress` answers from the device's scrub context alone, not from the replace state: 0
+for an existing devid whose device carries a context, `-ENOTCONN` for an existing devid whose device carries none, and
+`-ENODEV` for an unknown devid (scrub.c:3321-3336). `btrfs_scrub_dev` attaches the context to the device (scrub.c:3159)
+and clears it when that call's scrub run ends (scrub.c:3222), so while a replace copies from the source device that
+device carries the context the copy attached.
+[inference: how `btrfs scrub start` and `btrfs scrub status` print these returns is not pinned here]
 
 **Quote.** `S247` dev-replace.c:700: "/* the disk copy procedure reuses the scrub code */"
 
@@ -90,55 +95,78 @@ argument copy fails, when it returns `-EFAULT` instead (ioctl.c:3109-3110, ioctl
 
 **Quote.** `S247` dev-replace.c:703: "&dev_replace->scrub_progress, false, true);"
 
-**Quote.** `S247` dev-replace.c:1259: ""continuing dev_replace from %s (devid %llu) to target %s @%u%%","
+**Quote.** `S247` dev-replace.c:1197: "/* resume dev_replace procedure that was interrupted by unmount */"
 
 **Quote.** `S247` dev-replace.c:1265: "ret = btrfs_scrub_dev(fs_info, dev_replace->srcdev->devid,"
 
 **Quote.** `S247` dev-replace.c:1268: "&dev_replace->scrub_progress, false, true);"
 
-**Quote.** `S242` scrub.c:3081: "bool readonly, bool is_dev_replace)"
-**Quote.** `S242` scrub.c:3094: "if (btrfs_fs_closing(fs_info))"
-**Quote.** `S242` scrub.c:3095: "return -EAGAIN;"
-
-**Quote.** `S242` scrub.c:3148: "(!is_dev_replace &&"
-
-**Quote.** `S242` scrub.c:3149: "btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {"
-
-**Quote.** `S242` scrub.c:3147: "if (dev->scrub_ctx ||"
-
-**Quote.** `S242` scrub.c:3153: "ret = -EINPROGRESS;"
-
-**Quote.** `S242` scrub.c:3123: "ret = -ENODEV;"
-
-**Quote.** `S242` scrub.c:3133: "ret = -EROFS;"
-
-**Quote.** `S242` scrub.c:3139: "test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &dev->dev_state))) {"
-
-**Quote.** `S242` scrub.c:3142: "ret = -EIO;"
-
 **Quote.** `S247` dev-replace.c:1287: "case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:"
 
-**Quote.** `S247` dev-replace.c:1235: "if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {"
+**Quote.** `S242` scrub.c:3081: "bool readonly, bool is_dev_replace)"
 
-**Quote.** `S243` sysfs.c:1288: "str = "device replace\n";"
+**Quote.** `S242` scrub.c:3094: "if (btrfs_fs_closing(fs_info))"
 
-**Quote.** `S243` sysfs.c:2015: "val = !!test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);"
-
-**Quote.** `S247` dev-replace.c:1128: "* Scrub doing the replace isn't running so we need to do the"
-
-**Quote.** `S247` dev-replace.c:1143: "/* Scrub for replace must not be running in suspended state */"
-
-**Quote.** `S247` dev-replace.c:1144: "btrfs_scrub_cancel(fs_info);"
-
-**Quote.** `S242` scrub.c:3336: "return dev ? (sctx ? 0 : -ENOTCONN) : -ENODEV;"
+**Quote.** `S242` scrub.c:3095: "return -EAGAIN;"
 
 **Quote.** `S242` scrub.c:3109: "sctx = scrub_setup_ctx(fs_info, is_dev_replace);"
 
 **Quote.** `S242` scrub.c:3114: "ret = scrub_workers_get(fs_info);"
 
+**Quote.** `S242` scrub.c:3120: "if (!dev || (test_bit(BTRFS_DEV_STATE_MISSING, &dev->dev_state) &&"
+
+**Quote.** `S242` scrub.c:3123: "ret = -ENODEV;"
+
+**Quote.** `S242` scrub.c:3127: "if (!is_dev_replace && !readonly &&"
+
+**Quote.** `S242` scrub.c:3133: "ret = -EROFS;"
+
 **Quote.** `S242` scrub.c:3138: "if (unlikely(!test_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &dev->dev_state) ||"
 
+**Quote.** `S242` scrub.c:3139: "test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &dev->dev_state))) {"
+
+**Quote.** `S242` scrub.c:3142: "ret = -EIO;"
+
+**Quote.** `S242` scrub.c:3147: "if (dev->scrub_ctx ||"
+
+**Quote.** `S242` scrub.c:3148: "(!is_dev_replace &&"
+
+**Quote.** `S242` scrub.c:3149: "btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {"
+
+**Quote.** `S242` scrub.c:3153: "ret = -EINPROGRESS;"
+
+**Quote.** `S242` scrub.c:3159: "dev->scrub_ctx = sctx;"
+
 **Quote.** `S242` scrub.c:3222: "dev->scrub_ctx = NULL;"
+
+**Quote.** `S242` scrub.c:3336: "return dev ? (sctx ? 0 : -ENOTCONN) : -ENODEV;"
+
+**Quote.** `S240` ioctl.c:3072: "if (!capable(CAP_SYS_ADMIN))"
+
+**Quote.** `S240` ioctl.c:3075: "if (btrfs_fs_incompat(fs_info, EXTENT_TREE_V2)) {"
+
+**Quote.** `S240` ioctl.c:3080: "sa = memdup_user(arg, sizeof(*sa));"
+
+**Quote.** `S240` ioctl.c:3084: "if (sa->flags & ~BTRFS_SCRUB_SUPPORTED_FLAGS)"
+
+**Quote.** `S240` ioctl.c:3085: "return -EOPNOTSUPP;"
+
+**Quote.** `S240` ioctl.c:3088: "ret = mnt_want_write_file(file);"
+
+**Quote.** `S240` ioctl.c:3093: "ret = btrfs_scrub_dev(fs_info, sa->devid, sa->start, sa->end,"
+
+**Quote.** `S240` ioctl.c:3109: "if (copy_to_user(arg, sa, sizeof(*sa)))"
+
+**Quote.** `S240` ioctl.c:3110: "ret = -EFAULT;"
+
+**Quote.** `S240` ioctl.c:3115: "return ret;"
+
+**Quote.** `S243` sysfs.c:1288: "str = "device replace\n";"
+
+**Quote.** `S243` sysfs.c:2015: "val = !!test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);"
+
+**Quote.** `S247` dev-replace.c:1235: "if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {"
+
 
 **Host reading.** The filesystem lists devid 1 only (capture.txt:9) and the caller has no effective capabilities
 (capture.txt:1), so the privileged progress query is out of its reach (the `CAP_SYS_ADMIN` check in the
@@ -226,17 +254,25 @@ SendSIGKILL=yes TimeoutStopUSec=5s FinalKillSignal=9` (capture.txt:3); the stop 
   ranges (1365-1385, 3140-3162, 3215-3226, 3321-3337) do not list `scrub.c:3081`, 3123, 3133 or 3139; S243's
   (72-74, 2021-2049, 2113) do not list `sysfs.c:1288` or 2015; S237's do not list `scrub.c:421`. The file digests
   cover the whole snapshots (`a2w1/C2ExecQuotes.md` F1-F2, `a2r1/ResRevGR2.md`, `a2r1/ResRevGR3Triage.md` D1).
-- Round 50: the widened S247 ranges still do not list `dev-replace.c:1111`, `:1126-1142`, `:1171-1195` or
-  `:1184-1188`, the lines the GR2 cancel and unmount-suspend clauses cite; the snapshot bytes are digest-pinned
-  whole-file, so no claim is unsupported, but the gap is declared here instead of left undeclared
-  (`.ufo/waves/round-49/w1/R49CritGR2b.md` defect 4).
-- Round 50: S240's declared ranges (3066-3075, 3118-3140, 5578-5584) likewise do not list
-  `ioctl.c:3093-3095`, `:3109-3110`, `:3115` or `:3190`, the scrub-start and replace-ioctl lines GR2 now cites; the
-  row's raw bytes are digest-pinned whole-file (sha256 `7b3488f2…ba01`, re-fetched byte-identical on 2026-10-28).
+- Round 51: GR2 was rewritten before the freeze. The cancel and unmount-suspend clauses (dev-replace.c:1111,
+  :1126-1144, :1171-1195) and the `by SR7` attribution are removed; the scrub-start ioctl clause now lists the returns
+  that come before `btrfs_scrub_dev`; the progress-query clause is stated per device scrub context. These are the defects
+  `R50CritGR2a/b/c` and `R50RevGR2c` named (`.ufo/waves/round-50/w1/`). GR1's cmdline.c:147 quote carries its `* ` leader.
+  The range gaps of the rows' citations are not hand-listed: `python3 tools/lint-grounding-r51.py --emit-gaps` prints
+  the block below, and the lint fails when the block differs from the lines the rows cite. The round-50 gap bullets
+  that stood here are superseded by it; each row source's bytes stay digest-pinned whole-file.
 - GR2's filesystem-closing `-EAGAIN` check (scrub.c:3094-3095) and the unmount-only wording of the suspend-path
   cancellation were added at the round-47 integration after the counted round-46 residual critic read `partly`
   (`.ufo/waves/round-46/r1/V46ResCritGR2.md`); the amended row was re-read by the counted round-47 seats
   (`tools/check-scrub-admission-r47.py`, wave `w1` of `.ufo/waves/round-47/`).
+
+### Range gaps (R51)
+
+- S237 scrub.c: 421, 439, 1546
+- S240 ioctl.c: 3080, 3084-3085, 3088, 3093, 3109-3110, 3115, 3190
+- S242 scrub.c: 3081, 3094-3139
+- S243 sysfs.c: 1288, 2015
+- S247 dev-replace.c: 1197
 
 ## Gate status — round 45 (the depth gate FAILED; rows pending)
 
