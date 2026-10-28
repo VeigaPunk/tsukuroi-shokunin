@@ -3148,12 +3148,12 @@ Counts re-derived with the commands in each cell.
 
 | Axis | Score | Evidence pointer (counting command) | Last change |
 |---|---|---|---|
-| depth | 8 | 67 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4546 `wc -l` / 1323 table lines (`grep -c '^\|' SKILL.md`); `corpus/lessons/` 73 files (`find corpus/lessons -type f \| wc -l`); GR1-GR3 still pending: the round-49 cohort read GR1 holds 6/6, GR3 holds 6/6, GR2 holds 5/6 with one bound `partly` (`CritGR2b`) on the [inference] mark's ioctl conjunct. | round 4; unchanged |
-| coverage | 9 | `corpus/README.md` 480 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus verdict-neutral STORAGE; no coverage claim this round. | round 11 (terminal closeout); unchanged |
-| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (167 cases, 167 passed, 0 failed) at round 49 (`.ufo/waves/round-49/after/c3-final.json`); `--identity` present; `bash tools/boot-chain-audit.sh --selftest` `PASS total=49 failed=0`. | round 11 (terminal closeout); unchanged |
+| depth | 8 | 67 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4572 `wc -l` / 1323 table lines (`grep -c '^\|' SKILL.md`); `corpus/lessons/` 73 files (`find corpus/lessons -type f \| wc -l`); GR1-GR3 still pending: the round-49 cohort read GR1 holds 6/6, GR3 holds 6/6, GR2 holds 5/6 with one bound `partly` (`CritGR2b`) on the [inference] mark's ioctl conjunct. | round 4; unchanged |
+| coverage | 9 | `corpus/README.md` 500 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; six census planes plus verdict-neutral STORAGE; no coverage claim this round. | round 11 (terminal closeout); unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` prints PASS (167 cases, 167 passed, 0 failed) at round 49 (`.ufo/waves/round-49/after/c3-final.json`); `--identity` landed; `bash tools/boot-chain-audit.sh --selftest` `PASS total=49 failed=0`. | round 11 (terminal closeout); unchanged |
 | freshness | 9 | S246, S247, S248, S243, S240, S249 and S251 re-opened live by round-49 seats 2026-10-28 (byte-identical pins); S255 re-opened by the L1 byte-identically; end census exit 0 (`.ufo/waves/round-49/after/sources-census-end.txt`). | fleet round 1; unchanged |
 | calibration | 9 | `python3 tools/check-self-assessment.py --revision <round-49 final measured revision>` → checked 27, mismatches 0 after the restatement below; before the restatement 2 (K13 lesson-file count 72 = 72, K17 census case count 166 → 167 in the capabilities row). | round 10; unchanged |
-| adjacency | 8 | ADJ-01..07 ownership cells cite `OUT-002`…`OUT-010` and no bare sibling range (`python3 tools/check-adjacency-table-r49.py --revision <REV>`); `check-adjacency-anchors.py` PASS at the same revision after two IN-109 found_line repins this round (2642→2660→2671). | fleet round 1; unchanged |
+| adjacency | 8 | formal overlap table present (PROVINCE `| ID | Finding`); ADJ-01..07 ownership cells cite `OUT-002`…`OUT-010` and no bare sibling range (`python3 tools/check-adjacency-table-r49.py --revision <REV>`); `check-adjacency-anchors.py` PASS at the same revision after two IN-109 found_line repins this round (2642→2660→2671). | fleet round 1; unchanged |
 
 ## Capabilities — current full evidence set (round 49)
 
