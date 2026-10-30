@@ -445,3 +445,33 @@ citation enumeration omits scrub.c:3094-3095, :3109, :3114 and :3138, and (d) th
 per-device `scrub_ctx`, not replace state; GR3 has six `partly` reports because the S237 range declaration omits
 scrub.c:439 and :1546. Exact replacements and supporting citations are in those seat reports under
 `.ufo/waves/round-50/w1/`; the row bytes remain frozen and pending rather than narrowed after scoring.
+
+## Gate status — round 52 (the depth gate FAILED on seats_ok and bound negatives; GR2/GR3 stay pending, GR1 read holds by every bound seat)
+
+The round-52 counted cohort (wave `w1`, counter `tools/check-scrub-admission-r52.py` at the freeze
+`ff9470ea`) bound 16 of 18 seats: `R52CritGR1b` and `R52CritGR3b` produced full transcripts but never
+wrote their report files (cut mid-turn; no replacement per the orchestrator recovery boundary), so
+`seats_ok` reads 16 against the frozen 18 and the predicate fails before admission. No admission mark
+was written. Measured outcome: `structural_ok 1, lint_ok 3, quotes_ok 3, verdicts_ok 1, seats_ok 16,
+marks_ok 0` (`.ufo/waves/round-52/after/c1-at-freeze.json`).
+
+- GR1 — `holds` by all five bound seats (3 reviewers, 2 critics; distinct bodies, no negative). Not
+  admitted this round: the frozen claim binds all three rows together and the cohort was incomplete.
+- GR2 — blocked by every bound seat: the three reviewers bind `fails` and the three critics `partly`
+  on one clause family. Entry lines 233-235 say a replace that the resume path set to suspended
+  without taking the exclusive operation "shows in neither" attribute. The pinned bytes contradict
+  the `replace_target` half: the resume-failure branch only sets SUSPENDED and returns
+  (dev-replace.c 1235-1242), the mount-time restore resolves a present target and sets
+  BTRFS_DEV_STATE_REPLACE_TGT (dev-replace.c 170-174, 196-210) after the target/bdev check the resume
+  path passes first (dev-replace.c 1218-1235), so `replace_target` still reads 1 for such a replace.
+  Exact replacement text proposed per seat in `.ufo/waves/round-52/w1/R52RevGR2{a,b,c}.md`.
+- GR3 — blocked `partly` by three seats (two credited `holds`): the SIGINT handler-window sentence
+  overstates the pinned caller. scrub_handle_sigint_child builds the sigaction and returns its result
+  (scrub.c 436-443), which the start path discards at scrub.c 1546 — an attempted, unchecked
+  installation — and the thread-creation failure branches jump straight to `out`
+  (scrub.c 1565-1575, 1585-1592, out at 1712), bypassing the reset at scrub.c 1710. Replacement text
+  proposed in `.ufo/waves/round-52/w1/R52RevGR3{a,c}.md` and `R52CritGR3c.md`.
+
+Next round: amend the GR2 observability clause and the GR3 handler-window sentence (one commit),
+re-print the section hashes, and re-count with a fresh cohort; GR1's bytes need no change unless the
+new amendment shifts them.

@@ -1,0 +1,11 @@
+VERDICT: defect-found
+
+Evidence (all commands ran in fresh shared clones; each clone's `git rev-parse --show-toplevel` was checked against its scratch directory):
+
+1. `python3 tools/lint-grounding-r51.py --revision ff9470ea9ff06966a37dd91c1cbe823ffe46ecf0` — observed one-line JSON: `{"cite_bad":0,"cites":96,"counter":"lint-grounding-r51","entry_problems":[],"gap_dups":[],"gap_extra":[],"gap_missing":[],"gap_note":"ok","gap_ok":1,"gaps_computed":98,"lint_ok":3,...,"quote_bad":0,"quotes":99,...,"rows_clean":3,...,"verdict":"PASS"}` (full observed JSON in command output). Expected lint result achieved (`lint_ok: 3`, rc 0).
+2. `python3 tools/lint-grounding-r51.py --revision ff9470ea9ff06966a37dd91c1cbe823ffe46ecf0 --emit-gaps` — observed `### Range gaps (R51)` block and `gap_ok:1`, `gap_missing:[]`, `gap_extra:[]`, `gap_dups:[]`; block lists 6 source ranges (S237, S240, S242, S243, S246, S247). Thus emitted gaps match the entry's R51 gap block according to the tool.
+3. `python3 tools/check-scrub-admission-r52.py --revision ff9470ea9ff06966a37dd91c1cbe823ffe46ecf0 --no-base-check --section-hash` — observed JSON `structural_ok:1`, `problems:[]`, and exact section hashes: GR1 `98fa4e07768d240eaf5ea2cce13ce0623fdb756054e5df9f7b9fe68ab2e63987`; GR2 `9fd581a0c9d02b02100b6a15648b7c6e4be896ac746ed09303a88dc8a24f0ec5`; GR3 `0405f38a5783c49b6c078b118c9868543eb494b43f8b1c5e6c14284a123b9eac`.
+4. Same admission counter without `--section-hash` — observed JSON: `lint_ok:3`, `quotes_ok:3`, `verdicts_ok:0`, `seats_ok:0`, `marks_ok:0`, `structural_ok:1`, `verdict:"FAIL"`; all 18 seats unbound (`dispatch agent None`) and marks false. Command exited 1. This confirms the requested no-cohort counts, while appropriately not passing the full predicate.
+5. Base control attempt: `python3 tools/check-scrub-admission-r52.py --revision cc88b81d78bcbe06bce3f6bf722a108432ad276f --no-base-check` in a fresh clone failed before counter execution: `python3: can't open file '.../tools/check-scrub-admission-r52.py': [Errno 2] No such file or directory`. Therefore base admission JSON is unavailable at that revision; this is an observed prerequisite mismatch, not a counter verdict.
+
+No lane files other than this report were written. Scratch clones were removed on command exit. No checks beyond those specified were run.

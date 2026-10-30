@@ -1,0 +1,55 @@
+{
+  "revision": "ff9470ea9ff06966a37dd91c1cbe823ffe46ecf0",
+  "commands": [
+    {
+      "item": 1,
+      "command": "grep -cE '^\\|[[:space:]]*S[0-9]{3,}[[:space:]]*\\|' corpus/SOURCES.md",
+      "exit": 0,
+      "stdout": "257\n",
+      "stderr": ""
+    },
+    {
+      "item": 2,
+      "command": "awk -F'|' '/^\\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\\|/ && NF!=13 {n++} END{print n+0}' corpus/SOURCES.md",
+      "exit": 0,
+      "stdout": "0\n",
+      "stderr": ""
+    },
+    {
+      "item": 3,
+      "command": "awk -F'|' '/^\\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\\|/ {t=$5; gsub(/[[:space:]]/,\"\",t); n[t]++} END{for(k in n) printf \"%s=%d \", k, n[k]; print \"\"}' corpus/SOURCES.md",
+      "exit": 0,
+      "stdout": "A=241 B=5 C=11 \n",
+      "stderr": ""
+    },
+    {
+      "item": 4,
+      "command": "awk -F'|' '/^\\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\\|/ {s=$9; gsub(/[[:space:]]/,\"\",s); n[s]++} END{for(k in n) printf \"%s=%d \", k, n[k]; print \"\"}' corpus/SOURCES.md",
+      "exit": 0,
+      "stdout": "mined=229 queued=6 rejected=22 \n",
+      "stderr": ""
+    },
+    {
+      "item": 5,
+      "command": "awk -F'|' '/^\\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\\|/ {i=$2; gsub(/[[:space:]]/,\"\",i); print i}' corpus/SOURCES.md | sort | uniq -d",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "item": 6,
+      "command": "awk -F'|' '/^\\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\\|/ && NF==13 {i=$2;k=$4;t=$5;s=$9; gsub(/[[:space:]]/,\"\",i); gsub(/[[:space:]]/,\"\",k); gsub(/[[:space:]]/,\"\",t); gsub(/[[:space:]]/,\"\",s); if (t !~ /^[ABC]$/) print \"tier\", i, t; if (s !~ /^(queued|mined|rejected)$/) print \"status\", i, s; if (k !~ /^(spec|docs|paper|code|tool|dataset|talk|book|community|own-work)$/) print \"kind\", i, k; if (t==\"A\" && k==\"community\") print \"tier-inflation\", i}' corpus/SOURCES.md",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "item": 7,
+      "command": "awk -F'|' '/^\\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\\|/ && NF==13 {s=$9; gsub(/[[:space:]]/,\"\",s); if (s==\"mined\") {n=split($12, a, /[,;]/); for (j=1;j<=n;j++) {p=a[j]; gsub(/^[[:space:]]+|[[:space:]]+$/,\"\",p); if (p!=\"\" && p!=\"\u2014\") print p}}}' corpus/SOURCES.md | while read -r p; do [ -e \"$p\" ] || echo \"missing: $p\"; done",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "missing_frozen_paths": []
+}

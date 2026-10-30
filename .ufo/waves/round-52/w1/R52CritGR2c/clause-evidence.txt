@@ -1,0 +1,102 @@
+### dev-replace.c 205-212 (mount restore sets the REPLACE_TGT bit)
+205: 					dev_replace->srcdev->bytes_used;
+206: 				dev_replace->tgtdev->commit_bytes_used =
+207: 					dev_replace->srcdev->commit_bytes_used;
+208: 			}
+209: 			set_bit(BTRFS_DEV_STATE_REPLACE_TGT,
+210: 				&dev_replace->tgtdev->dev_state);
+211: 
+212: 			WARN_ON(fs_info->fs_devices->rw_devices == 0);
+### dev-replace.c 309 (target-device setup sets the bit)
+309: 	set_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);
+### dev-replace.c 970 (finish path clears the bit)
+970: 	clear_bit(BTRFS_DEV_STATE_REPLACE_TGT, &tgt_device->dev_state);
+### dev-replace.c 1159-1161 (cancel of a SUSPENDED replace destroys the target device)
+1159: 		if (tgt_device)
+1160: 			btrfs_destroy_dev_replace_tgtdev(tgt_device);
+1161: 		break;
+### dev-replace.c 1235-1243 (resume path: exclop_start fails -> state SUSPENDED, no exclop taken)
+1235: 	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {
+1236: 		down_write(&dev_replace->rwsem);
+1237: 		dev_replace->replace_state =
+1238: 					BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED;
+1239: 		up_write(&dev_replace->rwsem);
+1240: 		btrfs_info(fs_info,
+1241: 		"cannot resume dev-replace, other exclusive operation running");
+1242: 		return 0;
+1243: 	}
+### dev-replace.c 1276-1300 (is_ongoing)
+1276: bool __pure btrfs_dev_replace_is_ongoing(struct btrfs_dev_replace *dev_replace)
+1277: {
+1278: 	if (!dev_replace->is_valid)
+1279: 		return false;
+1280: 
+1281: 	switch (dev_replace->replace_state) {
+1282: 	case BTRFS_IOCTL_DEV_REPLACE_STATE_NEVER_STARTED:
+1283: 	case BTRFS_IOCTL_DEV_REPLACE_STATE_FINISHED:
+1284: 	case BTRFS_IOCTL_DEV_REPLACE_STATE_CANCELED:
+1285: 		return false;
+1286: 	case BTRFS_IOCTL_DEV_REPLACE_STATE_STARTED:
+1287: 	case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
+1288: 		/*
+1289: 		 * return true even if tgtdev is missing (this is
+1290: 		 * something that can happen if the dev_replace
+1291: 		 * procedure is suspended by an umount and then
+1292: 		 * the tgtdev is missing (or "btrfs dev scan") was
+1293: 		 * not called and the filesystem is remounted
+1294: 		 * in degraded state. This does not stop the
+1295: 		 * dev_replace procedure. It needs to be canceled
+1296: 		 * manually if the cancellation is wanted.
+1297: 		 */
+1298: 		break;
+1299: 	}
+1300: 	return true;
+### sysfs.c 2107-2117 (devid_attrs group contains replace_target)
+2107: static struct attribute *devid_attrs[] = {
+2108: 	BTRFS_ATTR_PTR(devid, error_stats),
+2109: 	BTRFS_ATTR_PTR(devid, fsid),
+2110: 	BTRFS_ATTR_PTR(devid, in_fs_metadata),
+2111: 	BTRFS_ATTR_PTR(devid, missing),
+2112: 	BTRFS_ATTR_PTR(devid, replace_target),
+2113: 	BTRFS_ATTR_PTR(devid, scrub_speed_max),
+2114: 	BTRFS_ATTR_PTR(devid, writeable),
+2115: 	NULL
+2116: };
+2117: ATTRIBUTE_GROUPS(devid);
+### sysfs.c 2164-2166 (devinfo kobj named after the device devid)
+2164: 	init_completion(&device->kobj_unregister);
+2165: 	ret = kobject_init_and_add(&device->devid_kobj, &devid_ktype,
+2166: 				   devinfo_kobj, "%llu", device->devid);
+### sysfs.c 76-78 (BTRFS_ATTR mode 0444)
+76: #define BTRFS_ATTR(_prefix, _name, _show)				\
+77: 	static struct kobj_attribute btrfs_attr_##_prefix##_##_name =	\
+78: 			__INIT_KOBJ_ATTR(_name, 0444, _show, NULL)
+### capture.sh (what the capture records)
+23:  for f in /sys/fs/btrfs/*/devinfo/*/scrub_speed_max; do
+25:    printf 'scrub_speed_max %s mode=%s owner=%s value=%s\n' "${f#/sys/fs/btrfs/}" "$(stat -c '%a' "$f")" "$(stat -c '%U' "$f")" "$(cat "$f")"
+27:  for d in /sys/fs/btrfs/*/devinfo; do
+29:    printf 'devinfo %s devids=%s\n' "${d#/sys/fs/btrfs/}" "$(ls "$d" | sort -n | paste -sd, -)"
+### capture.txt
+     1	captured 2026-10-27T02:09:52Z uid=1000 CapEff=0000000000000000
+     2	kernel 7.2.11-arch1-1 systemd systemd 262 (262-1-arch)
+     3	unit_show FinalKillSignal=9 FragmentPath=/usr/lib/systemd/system/btrfs-scrub@.service KillMode=control-group KillSignal=2 SendSIGKILL=yes TimeoutStopUSec=5s
+     4	stop_default /etc/systemd/system.conf.d/10-faster-shutdown.conf:2:DefaultTimeoutStopSec=5s
+     5	dropin_owner /etc/systemd/system.conf.d/10-faster-shutdown.conf none
+     6	dropin_owner /etc/systemd/system.conf.d/99-omarchy-nofile.conf none
+     7	unit_dropins 
+     8	scrub_speed_max 1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max mode=644 owner=root value=0
+     9	devinfo 1d02a454-c549-4a35-b567-89d60902af8e/devinfo devids=1
+### ioctl.c 3126-3134 (scrub progress ioctl CAP_SYS_ADMIN)
+3126: static long btrfs_ioctl_scrub_progress(struct btrfs_fs_info *fs_info,
+3127: 				       void __user *arg)
+3128: {
+3129: 	struct btrfs_ioctl_scrub_args AUTO_KFREE(sa);
+3130: 	int ret;
+3131: 
+3132: 	if (!capable(CAP_SYS_ADMIN))
+3133: 		return -EPERM;
+3134: 
+### dev-replace.c 673-675 (target device added to sysfs devinfo)
+673: 	ret = btrfs_sysfs_add_device(tgt_device);
+674: 	if (ret)
+675: 		btrfs_err(fs_info, "kobj add dev failed %d", ret);

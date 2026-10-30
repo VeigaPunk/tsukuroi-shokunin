@@ -1,0 +1,393 @@
+1: #!/usr/bin/env python3
+2: """Round-50 C3 counter (frozen before any seat of round 50): the ADJ-01..07 ownership table
+3: rows cite PORTABLE anchors, and those anchors are now verified by CONTENT against the sibling
+4: bytes — at their pin and at the sibling's live tip — not only by cell shape.
+5: 
+6: Round-50 addition (round-49 non-author spot-check routed defect 3, V5: "the counter is a shape
+7: test; a stub table passes it"). Legs kept from round 49 (adj_rows, linked_rows, bare_ranges,
+8: anchors_ok, registry_ok, anchors_checker_rc) are the SHAPE legs. New legs:
+9:   quote_at_pin_ok   for every OUT id an ADJ row names: the registry's sibling_commit exists in
+10:                     the sibling repo, its PROVINCE.md blob sha256 equals the registry digest,
+11:                     the anchor's heading is in that blob and its quote is a verbatim substring
+12:                     of it.
+13:   live_quote_ok     the same quote is a verbatim substring of the sibling's current tip bytes
+14:                     (freshness: the locator still names a sentence that exists).
+15:   stub_fails        1 only when a synthesized shape-valid stub province (7 ADJ rows naming OUT
+16:                     ids, 10 anchor rows with fabricated pins/quotes, fabricated registry) PASSES
+17:                     the shape legs and FAILS the content legs — i.e. the counter now separates
+18:                     a stub from the real table. A counter that cannot fail a stub scores 0.
+19: 
+20: Predicate: adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchors_ok == 7
+21:            and registry_ok == 7 and anchors_checker_rc == 0 and quote_at_pin_ok == 9
+22:            and live_quote_ok >= 8 and stub_fails == 1
+23: 
+24: Original round-49 docstring follows (surface moved): the ADJ-01..07 ownership table
+25: rows cite PORTABLE anchors, not sibling line ranges.
+26: 
+27: Surface moved: `PROVINCE.md` `## Adjacent — finding-to-owner handoffs`. That table's
+28: "Ownership source" column still carried bare `../<sibling>/PROVINCE.md:N-M` ranges — the
+29: exact locator class QUALITY 32 / R19-ADJ-POINTERS rules out ("a bare path:N-M is not a
+30: locator"). Each row must now name the OUT-0NN anchor of the `## Adjacent — portable ownership
+31: anchors (round 19)` table whose own `province_pointer` names that ADJ row; the anchor row
+32: must in turn carry its pinned sibling commit, heading and a <=25-word quote, and the
+33: round-19 JSON registry must carry the anchor's blob sha256. The existing read-only checker
+34: `tools/check-adjacency-anchors.py` must still PASS at the measured revision (it re-checks the
+35: anchors against the live sibling bytes) — that leg is a cross-check, never the only leg.
+36: 
+37: Legs (counted):
+38:   adj_rows        rows found in the ADJ table (7 expected)
+39:   linked_rows     rows whose ownership cell names >=1 OUT id
+40:   bare_ranges     total `*.md:N[-M]` occurrences in the ownership cells (target 0)
+41:   anchors_ok      rows whose every referenced OUT id exists in the anchor table, names this
+42:                   ADJ row, pins a sibling PROVINCE.md at a 12-40 hex commit, has an `# ...`
+43:                   heading cell and a non-empty quote cell of <=25 words
+44:   registry_ok     rows whose every referenced OUT id has a registry row with a 64-hex
+45:                   sibling_blob_sha256 and a 12-40 hex sibling_commit
+46:   anchors_checker_rc  exit status of tools/check-adjacency-anchors.py at REV
+47: 
+48: Predicate: adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchors_ok == 7
+49:            and registry_ok == 7 and anchors_checker_rc == 0
+50: 
+51: Fixture overrides (controls only): --province-file, --registry-file, --skip-anchors-check.
+52: Usage: python3 tools/check-adjacency-table-r49.py --revision <REV> [--lane <repo>]
+53: Writes nothing. Output: one JSON line; exit 0 PASS, 1 FAIL, 2 usage/read error.
+54: """
+55: import argparse
+56: import hashlib
+57: import json
+58: import os
+59: import re
+60: import subprocess
+61: import sys
+62: 
+63: BASE = 'b866a1d3d26616119a089f1a69b080136becc17b'
+64: PROVINCE = 'PROVINCE.md'
+65: REGISTRY = 'corpus/knowledge/adjacency-anchors-r19.json'
+66: CHECKER = 'tools/check-adjacency-anchors.py'
+67: ADJ_HEAD = '## Adjacent — finding-to-owner handoffs'
+68: ANCHOR_HEAD = '## Adjacent — portable ownership anchors (round 19)'
+69: ADJ_ROW = re.compile(r'^\|\s*(ADJ-0\d)\s*\|')
+70: OUT_ROW = re.compile(r'^\|\s*(OUT-\d{3})\s*\|')
+71: OUT_ID = re.compile(r'OUT-\d{3}')
+72: BARE = re.compile(r'[A-Za-z0-9_.-]+\.md:\d+(?:-\d+)?')
+73: SIB = re.compile(r'^`([A-Za-z0-9_.-]+/PROVINCE\.md)`\s*@\s*`([0-9a-f]{12,40})`$')
+74: HEAD = re.compile(r'^`#[^`]+`$')
+75: HEX64 = re.compile(r'^[0-9a-f]{64}$')
+76: HEX12 = re.compile(r'^[0-9a-f]{12,40}$')
+77: PREDICATE = ('adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchors_ok == 7 '
+78:              'and registry_ok == 7 and anchors_checker_rc == 0 and quote_at_pin_ok == 9 '
+79:              'and live_quote_ok >= 8 and stub_fails == 1')
+80: SIBLINGS = '/home/vgpnk/Projects/shokunin'
+81: OUT_REF = re.compile(r'OUT-\d{3}')
+82: 
+83: 
+84: def git(lane, *args):
+85:     return subprocess.run(['git', '-C', lane, *args], capture_output=True, stdin=subprocess.DEVNULL)
+86: 
+87: 
+88: def show_text(lane, rev, path, override):
+89:     if override:
+90:         try:
+91:             with open(override, 'rb') as fh:
+92:                 return fh.read().decode('utf-8', errors='replace')
+93:         except OSError:
+94:             return None
+95:     p = git(lane, 'show', f'{rev}:{path}')
+96:     return None if p.returncode else p.stdout.decode('utf-8', errors='replace')
+97: 
+98: 
+99: def section(lines, head):
+100:     start = next((i for i, ln in enumerate(lines) if ln.strip() == head), None)
+101:     if start is None:
+102:         return None
+103:     end = next((k for k in range(start + 1, len(lines)) if lines[k].startswith('## ')), len(lines))
+104:     return lines[start:end]
+105: 
+106: 
+107: def cells(line):
+108:     parts = line.split('|')
+109:     return [p.strip() for p in parts[1:-1]]
+110: 
+111: 
+112: def content_legs(adj, anchors, registry, siblings_root):
+113:     """Resolve every OUT id the ADJ rows name against the sibling bytes: pin digest, heading,
+114:     quote, and the quote at the sibling's live tip. Returns counts + per-id detail."""
+115:     ids = sorted({o for cs in adj.values() for o in OUT_REF.findall(cs[-1] if cs else '')})
+116:     pin_ok = 0
+117:     live_ok = 0
+118:     detail = {}
+119:     for out in ids:
+120:         d = {'pin': False, 'live': False, 'why': []}
+121:         anc = anchors.get(out)
+122:         rr = registry.get(out)
+123:         if anc is None or rr is None:
+124:             d['why'].append('no anchor row or registry row')
+125:             detail[out] = d
+126:             continue
+127:         sib = rr.get('sibling') or (anc[2].split('/PROVINCE.md')[0].strip('`').replace('-shokunin', ''))
+128:         repo = os.path.join(siblings_root, f'{sib}-shokunin')
+129:         commit = str(rr.get('sibling_commit', ''))
+130:         want_sha = str(rr.get('sibling_blob_sha256', ''))
+131:         quote = anc[4].strip('`').strip() if len(anc) > 4 else ''
+132:         heading = anc[3].strip('`').strip() if len(anc) > 3 else ''
+133:         if not os.path.isdir(os.path.join(repo, '.git')):
+134:             d['why'].append(f'sibling repo absent: {repo}')
+135:             detail[out] = d
+136:             continue
+137:         blob = subprocess.run(['git', '-C', repo, 'show', f'{commit}:PROVINCE.md'],
+138:                               capture_output=True, stdin=subprocess.DEVNULL)
+139:         if blob.returncode != 0:
+140:             d['why'].append(f'pin {commit} does not resolve to PROVINCE.md')
+141:             detail[out] = d
+142:             continue
+143:         text = blob.stdout.decode('utf-8', errors='replace')
+144:         if hashlib.sha256(blob.stdout).hexdigest() != want_sha:
+145:             d['why'].append('registry blob sha256 does not match the pinned blob')
+146:         elif heading not in text:
+147:             d['why'].append('heading absent from the pinned blob')
+148:         elif quote not in text:
+149:             d['why'].append('quote absent from the pinned blob')
+150:         else:
+151:             d['pin'] = True
+152:         tip = subprocess.run(['git', '-C', repo, 'rev-parse', 'HEAD'],
+153:                              capture_output=True, stdin=subprocess.DEVNULL)
+154:         if tip.returncode == 0:
+155:             tipblob = subprocess.run(['git', '-C', repo, 'show',
+156:                                       f'{tip.stdout.decode().strip()}:PROVINCE.md'],
+157:                                      capture_output=True, stdin=subprocess.DEVNULL)
+158:             if tipblob.returncode == 0 and quote and quote in tipblob.stdout.decode('utf-8', errors='replace'):
+159:                 d['live'] = True
+160:             else:
+161:                 d['why'].append('quote absent from the sibling tip bytes')
+162:         else:
+163:             d['why'].append('sibling HEAD unreadable')
+164:         pin_ok += int(d['pin'])
+165:         live_ok += int(d['live'])
+166:         detail[out] = d
+167:     return pin_ok, live_ok, detail
+168: 
+169: 
+170: def stub_province():
+171:     """A shape-valid stub: 7 ADJ rows naming OUT ids, 10 anchor rows with fabricated pins and
+172:     quotes, plus the matching fabricated registry. Round 49's counter passed exactly this."""
+173:     lines = [ADJ_HEAD, '', '| ID | Finding | Tsukuroi retains | Next analysis recipient | Minimum handoff evidence | Ownership source |',
+174:              '|---|---|---|---|---|---|']
+175:     for n in range(1, 8):
+176:         target = {1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 8, 7: 10}[n]
+177:         lines.append(f'| ADJ-0{n} | stub finding | stub retains | stub recipient | stub evidence | `OUT-{target:03d}` |')
+178:     lines += ['', ANCHOR_HEAD, '',
+179:               '| Anchor | ADJ row | Sibling file @ commit | Heading | Quote | Proposition |',
+180:               '|---|---|---|---|---|---|']
+181:     reg = {'outbound': []}
+182:     mapping = {2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 5, 8: 6, 9: 6, 10: 7}
+183:     for out, adjn in mapping.items():
+184:         sib = 'stub'
+185:         lines.append(f'| OUT-{out:03d} | ADJ-0{adjn} | `{sib}-shokunin/PROVINCE.md` @ `{"0" * 12}` | `# stub province` | `stub quote that exists in no sibling file` | stub proposition |')
+186:         reg['outbound'].append({'id': f'OUT-{out:03d}', 'sibling': sib, 'sibling_path': 'PROVINCE.md',
+187:                                 'sibling_commit': '0' * 40, 'sibling_blob_sha256': '1' * 64})
+188:     lines.append('| OUT-001 | Core | `stub-shokunin/PROVINCE.md` @ `000000000000` | `# stub province` | `stub quote` | stub |')
+189:     reg['outbound'].append({'id': 'OUT-001', 'sibling': 'stub', 'sibling_path': 'PROVINCE.md',
+190:                             'sibling_commit': '0' * 40, 'sibling_blob_sha256': '1' * 64})
+191:     return '\n'.join(lines), reg
+192: 
+193: 
+194: def shape_legs(adj, anchors, registry):
+195:     """The round-49 legs, factored so the stub can be scored by them without touching the lane."""
+196:     bare = linked = anchors_ok = registry_ok = 0
+197:     for row_id in sorted(adj):
+198:         cs = adj[row_id]
+199:         own = cs[-1] if cs else ''
+200:         bare += len(BARE.findall(own))
+201:         outs = OUT_ID.findall(own)
+202:         if outs:
+203:             linked += 1
+204:         a_ok = r_ok = bool(outs)
+205:         for out in outs:
+206:             anc = anchors.get(out)
+207:             if anc is None or len(anc) < 5:
+208:                 a_ok = r_ok = False
+209:                 continue
+210:             if anc[1] != row_id:
+211:                 a_ok = False
+212:             if not SIB.fullmatch(anc[2]) or not HEAD.fullmatch(anc[3]):
+213:                 a_ok = False
+214:             quote = anc[4].strip('`').strip()
+215:             if not quote or len(quote.split()) > 25:
+216:                 a_ok = False
+217:             rr = registry.get(out)
+218:             if rr is None:
+219:                 r_ok = False
+220:                 continue
+221:             if not HEX64.fullmatch(str(rr.get('sibling_blob_sha256', ''))):
+222:                 r_ok = False
+223:             if not HEX12.fullmatch(str(rr.get('sibling_commit', ''))):
+224:                 r_ok = False
+225:         anchors_ok += int(a_ok)
+226:         registry_ok += int(r_ok)
+227:     return {'adj_rows': len(adj), 'linked_rows': linked, 'bare_ranges': bare,
+228:             'anchors_ok': anchors_ok, 'registry_ok': registry_ok}
+229: 
+230: 
+231: def run(a, lane):
+232:     rev = a.revision
+233:     if not a.no_base_check and git(lane, 'cat-file', '-e', f'{BASE}^{{commit}}').returncode:
+234:         print(json.dumps({'error': f'base {BASE} unreadable', 'verdict': 'FAIL'}))
+235:         return 2
+236:     prov = show_text(lane, rev, PROVINCE, a.province_file)
+237:     if prov is None:
+238:         print(json.dumps({'error': f'{PROVINCE} unreadable', 'verdict': 'FAIL'}))
+239:         return 2
+240:     lines = prov.split('\n')
+241:     adj_sec = section(lines, ADJ_HEAD)
+242:     anc_sec = section(lines, ANCHOR_HEAD)
+243:     problems = []
+244:     if adj_sec is None:
+245:         problems.append(f'missing heading {ADJ_HEAD!r}')
+246:     if anc_sec is None:
+247:         problems.append(f'missing heading {ANCHOR_HEAD!r}')
+248:     adj = {}
+249:     for ln in adj_sec or []:
+250:         m = ADJ_ROW.match(ln)
+251:         if m:
+252:             adj[m.group(1)] = cells(ln)
+253:     anchors = {}
+254:     for ln in anc_sec or []:
+255:         m = OUT_ROW.match(ln)
+256:         if m:
+257:             anchors[m.group(1)] = cells(ln)
+258:     registry = {}
+259:     reg_text = show_text(lane, rev, REGISTRY, a.registry_file)
+260:     if reg_text:
+261:         try:
+262:             reg = json.loads(reg_text)
+263:             rows = reg.get('outbound') if isinstance(reg, dict) else None
+264:             if isinstance(rows, list):
+265:                 for r in rows:
+266:                     if isinstance(r, dict) and isinstance(r.get('id'), str):
+267:                         registry[r['id']] = r
+268:         except Exception as e:
+269:             problems.append(f'registry unparsable: {type(e).__name__}')
+270:     elif not a.registry_file:
+271:         problems.append('registry absent')
+272:     bare = 0
+273:     linked = 0
+274:     anchors_ok = 0
+275:     registry_ok = 0
+276:     per_row = {}
+277:     for row_id in sorted(adj):
+278:         cs = adj[row_id]
+279:         own = cs[-1] if cs else ''
+280:         row_bare = BARE.findall(own)
+281:         outs = OUT_ID.findall(own)
+282:         bare += len(row_bare)
+283:         row_problems = []
+284:         if row_bare:
+285:             row_problems.append(f'bare locator(s): {row_bare}')
+286:         if not outs:
+287:             row_problems.append('no OUT anchor named')
+288:         else:
+289:             linked += 1
+290:         a_ok = bool(outs)
+291:         r_ok = bool(outs)
+292:         for out in outs:
+293:             anc = anchors.get(out)
+294:             if anc is None:
+295:                 row_problems.append(f'{out} absent from anchor table')
+296:                 a_ok = r_ok = False
+297:                 continue
+298:             if len(anc) < 5:
+299:                 row_problems.append(f'{out} anchor row has {len(anc)} cells')
+300:                 a_ok = r_ok = False
+301:                 continue
+302:             if anc[1] != row_id:
+303:                 row_problems.append(f'{out} points at {anc[1]!r}, not {row_id}')
+304:                 a_ok = False
+305:             sm = SIB.fullmatch(anc[2])
+306:             if not sm:
+307:                 row_problems.append(f'{out} sibling cell {anc[2]!r} not `<path>/PROVINCE.md` @ `<12-40 hex>`')
+308:                 a_ok = False
+309:             if not HEAD.fullmatch(anc[3]):
+310:                 row_problems.append(f'{out} heading cell {anc[3]!r} not `# ...`')
+311:                 a_ok = False
+312:             quote = anc[4].strip('`').strip()
+313:             if not quote or len(quote.split()) > 25:
+314:                 row_problems.append(f'{out} quote cell empty or over 25 words ({len(quote.split())})')
+315:                 a_ok = False
+316:             rr = registry.get(out)
+317:             if rr is None:
+318:                 row_problems.append(f'{out} absent from {REGISTRY}')
+319:                 r_ok = False
+320:                 continue
+321:             if not HEX64.fullmatch(str(rr.get('sibling_blob_sha256', ''))):
+322:                 row_problems.append(f'{out} registry blob sha256 invalid')
+323:                 r_ok = False
+324:             if not HEX12.fullmatch(str(rr.get('sibling_commit', ''))):
+325:                 row_problems.append(f'{out} registry commit invalid')
+326:                 r_ok = False
+327:         anchors_ok += int(a_ok)
+328:         registry_ok += int(r_ok)
+329:         per_row[row_id] = {'outs': outs, 'bare': row_bare, 'problems': row_problems}
+330:     shape = shape_legs(adj, anchors, registry)
+331:     pin_ok, live_ok, content_detail = content_legs(adj, anchors, registry, a.siblings_root)
+332:     stub_text, stub_reg = stub_province()
+333:     stub_lines = stub_text.split('\n')
+334:     stub_adj, stub_anch = {}, {}
+335:     for ln in section(stub_lines, ADJ_HEAD) or []:
+336:         m = ADJ_ROW.match(ln)
+337:         if m:
+338:             stub_adj[m.group(1)] = cells(ln)
+339:     for ln in section(stub_lines, ANCHOR_HEAD) or []:
+340:         m = OUT_ROW.match(ln)
+341:         if m:
+342:             stub_anch[m.group(1)] = cells(ln)
+343:     stub_shape = shape_legs(stub_adj, stub_anch, {r['id']: r for r in stub_reg['outbound']})
+344:     stub_shape_ok = int(stub_shape['adj_rows'] == 7 and stub_shape['linked_rows'] == 7
+345:                         and stub_shape['bare_ranges'] == 0 and stub_shape['anchors_ok'] == 7
+346:                         and stub_shape['registry_ok'] == 7)
+347:     s_pin, s_live, _ = content_legs(stub_adj, stub_anch, {r['id']: r for r in stub_reg['outbound']},
+348:                                     a.siblings_root)
+349:     stub_fails = int(stub_shape_ok == 1 and s_pin == 0 and s_live == 0)
+350:     checker_rc = -1
+351:     if not a.skip_anchors_check:
+352:         checker = os.path.join(lane, CHECKER)
+353:         p = subprocess.run([sys.executable, checker, '--revision', rev],
+354:                            capture_output=True, stdin=subprocess.DEVNULL, text=True)
+355:         checker_rc = p.returncode
+356:         if checker_rc != 0:
+357:             problems.append(f'{CHECKER} rc={checker_rc}: {p.stdout.strip()[:200]}')
+358:     out = {'counter': 'check-adjacency-table-r50', 'revision': rev, 'base': BASE,
+359:            'adj_rows': len(adj), 'linked_rows': linked, 'bare_ranges': bare,
+360:            'anchors_ok': anchors_ok, 'registry_ok': registry_ok,
+361:            'anchors_checker_rc': checker_rc, 'per_row': per_row, 'problems': problems,
+362:            'quote_at_pin_ok': pin_ok, 'live_quote_ok': live_ok,
+363:            'content_detail': content_detail, 'stub_shape_ok': stub_shape_ok,
+364:            'stub_shape': stub_shape, 'stub_content_pin': s_pin, 'stub_fails': stub_fails,
+365:            'predicate': PREDICATE}
+366:     ok = (len(adj) == 7 and linked == 7 and bare == 0 and anchors_ok == 7
+367:           and registry_ok == 7 and checker_rc == 0 and pin_ok == 9 and live_ok >= 8
+368:           and stub_fails == 1)
+369:     out['verdict'] = 'PASS' if ok else 'FAIL'
+370:     print(json.dumps(out, sort_keys=True))
+371:     return 0 if ok else 1
+372: 
+373: 
+374: def main():
+375:     ap = argparse.ArgumentParser()
+376:     ap.add_argument('--revision', required=True)
+377:     ap.add_argument('--lane', default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+378:     ap.add_argument('--province-file')
+379:     ap.add_argument('--registry-file')
+380:     ap.add_argument('--skip-anchors-check', action='store_true')
+381:     ap.add_argument('--no-base-check', action='store_true')
+382:     ap.add_argument('--siblings-root', default=SIBLINGS)
+383:     a = ap.parse_args()
+384:     try:
+385:         return run(a, os.path.abspath(a.lane))
+386:     except Exception as e:
+387:         print(json.dumps({'counter': 'check-adjacency-table-r50',
+388:                           'error': f'{type(e).__name__}: {e}', 'verdict': 'FAIL'}))
+389:         return 2
+390: 
+391: 
+392: if __name__ == '__main__':
+393:     sys.exit(main())

@@ -1,0 +1,440 @@
+1: #!/usr/bin/env python3
+2: """Round-51 C3 counter (frozen before any seat of round 51): the displayed ownership anchors are
+3: BOUND to their registry records, quotes are source-specific, and a counter run on caller-supplied
+4: inputs can no longer print PASS.
+5: 
+6: It reuses the round-50 legs unchanged (tools/check-adjacency-table-r50.py: adj_rows, linked_rows,
+7: bare_ranges, anchors_ok, registry_ok, anchors_checker_rc, quote_at_pin_ok, live_quote_ok,
+8: stub_fails) and adds the three the round-50 attackers (R50CritCheatC3, R50RevCounterC3) and the
+9: round-50 non-author closure routed:
+10: 
+11:   display_bound_ok   anchor rows of the `## Adjacent — portable ownership anchors (round 19)` table
+12:                      (10 expected, OUT-001..OUT-010) whose DISPLAYED sibling cell, heading and quote
+13:                      equal the registry record — `<sibling>-shokunin/<sibling_path>` equal, the
+14:                      displayed `@ <12-40 hex>` a prefix of the registry's full `sibling_commit`,
+15:                      displayed heading equal to the registry heading, displayed quote equal to the
+16:                      registry quote. (Round 50 verified the registry's pin against the sibling repo,
+17:                      but never that the table the reader sees shows that pin: a false displayed
+18:                      OUT-009 locator passed.)
+19:   quote_specific_ok  anchor rows whose quote has >= 6 words, sits on the registry `quote_line` of the
+20:                      pinned sibling blob, and lies in the section of the declared heading (after the
+21:                      heading line, before the next markdown heading) — not an arbitrary substring.
+22:   display_forge_fails  1 when a control built from the real province with the displayed OUT-009
+23:                      commit prefix altered scores exactly one fewer `display_bound_ok` than the real
+24:                      province (a counter that cannot see a false displayed locator scores 0).
+25:   override_blocked   1 when the counter run on a caller-supplied `--province-file` (a copy of the real
+26:                      bytes) exits 3 and prints verdict OVERRIDE-NOT-MEASURED, never PASS. Overrides
+27:                      exist for control batteries only and require `--control`, which prints
+28:                      CONTROL-PASS / CONTROL-FAIL, never PASS.
+29:   r50_blind          1 when the frozen round-50 counter, given the same province with the displayed
+30:                      OUT-009 commit altered, still PASSes (the sensitivity control: the forgery is
+31:                      real and the old instrument cannot see it; a do-nothing control scores here).
+32:   digests_bound_ok   lines of the `Portable digests` list (10 expected) whose path, full commit and
+33:                      sha256 equal the registry record (the list a reader uses to verify the bytes).
+34: 
+35:   anchor_rows_exact  1 when the displayed anchor table rows (every section headed as such, in order) are
+36:                      exactly OUT-001..OUT-010: a repeated or extra row, or a repeated section, is a
+37:                      displayed table the counter would otherwise bind only the last row of.
+38:   adj_exact / bare_all  the same for ADJ-01..ADJ-07, and the count of bare sibling `*.md:N` locators over
+39:                      EVERY displayed ADJ row (a shadowed row cannot hide one).
+40:   checker_rev_bytes  1 when tools/check-adjacency-anchors.py and tools/_revision.py in the working tree
+41:                      equal their bytes at REV (else anchors_checker_rc is -2: the checker leg must run
+42:                      the committed checker, not a mutable one).
+43:   ancestry_ok        registry pins (10) whose commit is an ancestor of the sibling's `master` (else
+44:                      `HEAD`): a locator naming a commit only a keep-ref reaches is not portable.
+45:   recipient_ok       ADJ rows (7) whose named recipient sibling(s) own at least one of the row's OUT
+46:                      anchors: a coordinated relink of an ADJ row to another sibling's anchor fails.
+47: 
+48: Amendment 1 (pre-w2, before the final measurement): the wave-1 attackers R51RevC3, R51CritCheatC3a and
+49: R51CritCheatC3b showed the freeze counter bound only the last of a duplicated row, scanned the whole
+50: file for the digest list, ran a mutable checker, ignored `--lane`, `--no-base-check` and git/python
+51: redirection, and accepted a coordinated relink and an off-master pin. The freeze bytes are in git history
+52: (`git show 2732ee6c:tools/check-adjacency-table-r51.py`). Environment redirection is limited to the
+53: variables in REDIRECT_ENV (an unrelated GIT_PAGER or GIT_EDITOR is not an override).
+54: 
+55: Predicate: adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchors_ok == 7
+56:            and registry_ok == 7 and anchors_checker_rc == 0 and quote_at_pin_ok == 9
+57:            and live_quote_ok >= 8 and stub_fails == 1 and display_bound_ok == 10
+58:            and quote_specific_ok == 10 and display_forge_fails == 1 and override_blocked == 1
+59:            and digests_bound_ok == 10 and r50_blind == 1 and anchor_rows_exact == 1
+60:            and adj_exact == 1 and bare_all == 0 and ancestry_ok == 10 and recipient_ok == 7
+61: 
+62: Named limits: byte-substring quotes are not semantic entailment (a real but different sentence from the
+63: same pinned blob passes); the sibling repos are read from the working checkouts under
+64: /home/vgpnk/Projects/shokunin (a commit a sibling later rewrites out of its history makes the pin leg fail,
+65: never pass); a PATH or sitecustomize shim that substitutes the bytes git returns is outside this counter
+66: (the measurement is a run of the committed counter on the canonical lane by an honest caller); a
+67: coordinated rewrite of table, registry AND sibling history is outside this counter.
+68: 
+69: Usage: python3 tools/check-adjacency-table-r51.py --revision <REV> [--control]
+70:        [--lane <repo>] [--province-file F] [--registry-file F] [--siblings-root D]
+71:        [--skip-anchors-check] [--no-base-check]
+72: Writes nothing but its own temporary files under TMPDIR (the override_blocked and r50_blind legs run the
+73: counters once more as children). Output: one JSON line;
+74: exit 0 PASS, 1 FAIL, 2 usage/read error, 3 override run without a measurement verdict.
+75: """
+76: import argparse
+77: import importlib.util
+78: import json
+79: import os
+80: import re
+81: import subprocess
+82: import sys
+83: 
+84: BASE = 'c0ad548a93425a3bf8813d28d92f26fe2f64b9d4'
+85: HERE = os.path.dirname(os.path.abspath(__file__))
+86: PREDICATE = ('adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchors_ok == 7 '
+87:              'and registry_ok == 7 and anchors_checker_rc == 0 and quote_at_pin_ok == 9 '
+88:              'and live_quote_ok >= 8 and stub_fails == 1 and display_bound_ok == 10 '
+89:              'and quote_specific_ok == 10 and display_forge_fails == 1 and override_blocked == 1 '
+90:              'and digests_bound_ok == 10 and r50_blind == 1 and anchor_rows_exact == 1 '
+91:              'and adj_exact == 1 and bare_all == 0 and ancestry_ok == 10 and recipient_ok == 7')
+92: 
+93: 
+94: def _load_r50():
+95:     spec = importlib.util.spec_from_file_location('adj50', os.path.join(HERE, 'check-adjacency-table-r50.py'))
+96:     mod = importlib.util.module_from_spec(spec)
+97:     spec.loader.exec_module(mod)
+98:     return mod
+99: 
+100: 
+101: R50 = _load_r50()
+102: 
+103: 
+104: def sibling_blob(repo, commit):
+105:     p = subprocess.run(['git', '-C', repo, 'show', f'{commit}:PROVINCE.md'], capture_output=True,
+106:                        stdin=subprocess.DEVNULL)
+107:     return p.stdout.decode('utf-8', errors='replace') if p.returncode == 0 else None
+108: 
+109: 
+110: def bound_legs(anchors, registry, siblings_root):
+111:     """display_bound_ok and quote_specific_ok over every anchor row; returns counts + detail."""
+112:     bound = specific = 0
+113:     detail = {}
+114:     for n, (out, cs) in enumerate(anchors):
+115:         key = f'{out}#{n}'
+116:         d = {'bound': False, 'specific': False, 'why': []}
+117:         rr = registry.get(out)
+118:         if rr is None or len(cs) < 5:
+119:             d['why'].append('no registry row or short anchor row')
+120:             detail[key] = d
+121:             continue
+122:         m = R50.SIB.fullmatch(cs[2])
+123:         full_commit = str(rr.get('sibling_commit', ''))
+124:         want_path = f"{rr.get('sibling')}-shokunin/{rr.get('sibling_path')}"
+125:         disp_head = cs[3][1:-1].strip() if cs[3].startswith('`') and cs[3].endswith('`') else cs[3].strip()
+126:         disp_quote = cs[4].strip()
+127:         why = []
+128:         if not m:
+129:             why.append('displayed sibling cell not `<path>` @ `<hex>`')
+130:         else:
+131:             if m.group(1) != want_path:
+132:                 why.append(f'displayed path {m.group(1)!r} != registry {want_path!r}')
+133:             if not full_commit.startswith(m.group(2)):
+134:                 why.append(f'displayed commit {m.group(2)} is not a prefix of registry {full_commit[:12]}')
+135:         if disp_head != str(rr.get('heading', '')).strip():
+136:             why.append('displayed heading != registry heading')
+137:         if disp_quote != str(rr.get('quote', '')).strip():
+138:             why.append('displayed quote != registry quote')
+139:         d['bound'] = not why
+140:         d['why'] = why
+141:         bound += int(d['bound'])
+142:         repo = os.path.join(siblings_root, f"{rr.get('sibling')}-shokunin")
+143:         blob = sibling_blob(repo, full_commit) if os.path.isdir(os.path.join(repo, '.git')) else None
+144:         spec_why = []
+145:         quote = str(rr.get('quote', '')).strip()
+146:         if blob is None:
+147:             spec_why.append('pinned sibling blob unreadable')
+148:         else:
+149:             lines = blob.split('\n')
+150:             qline = rr.get('quote_line')
+151:             if len(quote.split()) < 6:
+152:                 spec_why.append(f'quote has {len(quote.split())} words (<6)')
+153:             if not isinstance(qline, int) or not (1 <= qline <= len(lines)) or quote not in lines[qline - 1]:
+154:                 spec_why.append('quote is not on the registry quote_line of the pinned blob')
+155:             hidx = next((i for i, ln in enumerate(lines) if ln.strip() == str(rr.get('heading', '')).strip()), None)
+156:             if hidx is None:
+157:                 spec_why.append('heading line absent from the pinned blob')
+158:             else:
+159:                 nxt = next((k for k in range(hidx + 1, len(lines)) if re.match(r'^#{1,6}\s', lines[k])), len(lines))
+160:                 if not any(quote in ln for ln in lines[hidx + 1:nxt]):
+161:                     spec_why.append('quote is outside the declared heading section')
+162:         d['specific'] = not spec_why
+163:         d['why'] = d['why'] + spec_why
+164:         specific += int(d['specific'])
+165:         detail[key] = d
+166:     return bound, specific, detail
+167: 
+168: 
+169: DIGEST_RE = re.compile(r'^- (OUT-\d{3}) `([^`]+)` @ ([0-9a-f]{40}) sha256 ([0-9a-f]{64})\s*$')
+170: 
+171: 
+172: 
+173: 
+174: def load_registry(text):
+175:     reg = {}
+176:     try:
+177:         obj = json.loads(text)
+178:         for r in obj.get('outbound', []):
+179:             if isinstance(r, dict) and isinstance(r.get('id'), str):
+180:                 reg[r['id']] = r
+181:     except Exception:
+182:         pass
+183:     return reg
+184: EXPECTED_OUT = [f'OUT-{i:03d}' for i in range(1, 11)]
+185: EXPECTED_ADJ = [f'ADJ-{i:02d}' for i in range(1, 8)]
+186: DEFAULT_LANE = os.path.dirname(HERE)
+187: # environment that redirects where git or python reads bytes from: an override, never a measurement
+188: REDIRECT_ENV = ('GIT_DIR', 'GIT_WORK_TREE', 'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES',
+189:                 'GIT_INDEX_FILE', 'GIT_REPLACE_REF_BASE', 'GIT_COMMON_DIR', 'GIT_NAMESPACE', 'GIT_CONFIG',
+190:                 'GIT_CONFIG_GLOBAL', 'GIT_CONFIG_SYSTEM', 'GIT_CONFIG_COUNT', 'GIT_CEILING_DIRECTORIES',
+191:                 'GIT_EXEC_PATH', 'PYTHONPATH', 'PYTHONSTARTUP')
+192: SIBLING_NAMES = ('kama', 'kagi', 'mado', 'mori', 'kumitate', 'kaidoku', 'revenger', 'tameshi')
+193: 
+194: 
+195: def ancestry_ok(registry, siblings_root):
+196:     """Registry pins whose commit is an ancestor of the sibling's `master` (else its HEAD)."""
+197:     n = 0
+198:     for out in EXPECTED_OUT:
+199:         rr = registry.get(out)
+200:         if rr is None:
+201:             continue
+202:         repo = os.path.join(siblings_root, f"{rr.get('sibling')}-shokunin")
+203:         commit = str(rr.get('sibling_commit', ''))
+204:         for ref in ('master', 'HEAD'):
+205:             p = subprocess.run(['git', '-C', repo, 'merge-base', '--is-ancestor', commit, ref],
+206:                                capture_output=True, stdin=subprocess.DEVNULL)
+207:             if p.returncode == 0:
+208:                 n += 1
+209:                 break
+210:             if p.returncode == 1:
+211:                 break  # the ref exists and the commit is not its ancestor
+212:     return n
+213: 
+214: 
+215: def recipient_ok(adj, anchors, registry):
+216:     """ADJ rows whose named recipient siblings all own at least one of the row's OUT anchors."""
+217:     n = 0
+218:     owners = {o: registry.get(o, {}).get('sibling') for o, _ in anchors}
+219:     for row_id, cs in adj:
+220:         if len(cs) < 6:
+221:             continue
+222:         want = {s for s in SIBLING_NAMES if re.search(r'\b' + s + r'\b', cs[3])}
+223:         have = {owners.get(o) for o in R50.OUT_ID.findall(cs[-1])}
+224:         if want and want <= have:
+225:             n += 1
+226:     return n
+227: 
+228: 
+229: def all_section_lines(lines, head):
+230:     """Lines of EVERY section headed `head`: a repeated heading is a second displayed table."""
+231:     out = []
+232:     for i, ln in enumerate(lines):
+233:         if ln.strip() == head:
+234:             end = next((k for k in range(i + 1, len(lines)) if lines[k].startswith('## ')), len(lines))
+235:             out.extend(lines[i:end])
+236:     return out
+237: 
+238: 
+239: def parse_tables(prov_text):
+240:     """Every displayed row in order, as (id, cells). A later row never replaces an earlier one."""
+241:     lines = prov_text.split('\n')
+242:     adj, anchors = [], []
+243:     for ln in all_section_lines(lines, R50.ADJ_HEAD):
+244:         m = R50.ADJ_ROW.match(ln)
+245:         if m:
+246:             adj.append((m.group(1), R50.cells(ln)))
+247:     for ln in all_section_lines(lines, R50.ANCHOR_HEAD):
+248:         m = R50.OUT_ROW.match(ln)
+249:         if m:
+250:             anchors.append((m.group(1), R50.cells(ln)))
+251:     return adj, anchors
+252: 
+253: 
+254: def digest_list_lines(prov_text):
+255:     """The lines of the `Portable digests` list only (from its lead line to the next section or Limits)."""
+256:     lines = prov_text.split('\n')
+257:     start = next((i for i, ln in enumerate(lines) if ln.startswith('Portable digests')), None)
+258:     if start is None:
+259:         return []
+260:     out = []
+261:     for ln in lines[start + 1:]:
+262:         if ln.startswith('## ') or ln.startswith('Limits '):
+263:             break
+264:         out.append(ln)
+265:     return out
+266: 
+267: 
+268: def checker_is_rev_bytes(lane, rev):
+269:     """The anchors checker and its import must be the bytes at REV, not the mutable working tree."""
+270:     for rel in (R50.CHECKER, 'tools/_revision.py'):
+271:         shown = R50.git(lane, 'show', f'{rev}:{rel}')
+272:         try:
+273:             with open(os.path.join(lane, rel), 'rb') as fh:
+274:                 wt = fh.read()
+275:         except OSError:
+276:             return False
+277:         if shown.returncode or shown.stdout != wt:
+278:             return False
+279:     return True
+280: 
+281: 
+282: def digests_bound(prov_text, registry):
+283:     """Bound lines of the `Portable digests` list only; 0 unless the list is exactly OUT-001..010."""
+284:     ids, n = [], 0
+285:     for ln in digest_list_lines(prov_text):
+286:         m = DIGEST_RE.match(ln)
+287:         if not m:
+288:             continue
+289:         ids.append(m.group(1))
+290:         rr = registry.get(m.group(1))
+291:         if (rr is not None and m.group(2) == f"{rr.get('sibling')}-shokunin/{rr.get('sibling_path')}"
+292:                 and m.group(3) == rr.get('sibling_commit') and m.group(4) == rr.get('sibling_blob_sha256')):
+293:             n += 1
+294:     return n if sorted(ids) == EXPECTED_OUT else 0
+295: 
+296: 
+297: def forged_province(prov_text):
+298:     """The real province with the displayed OUT-009 commit prefix altered (one hex digit)."""
+299:     out, hit = [], 0
+300:     for ln in prov_text.split('\n'):
+301:         if re.match(r'^\|\s*OUT-009\s*\|', ln) and '`revenger-shokunin/PROVINCE.md` @ `' in ln:
+302:             m = re.search(r'(`revenger-shokunin/PROVINCE\.md` @ `)([0-9a-f]{12,40})(`)', ln)
+303:             if m:
+304:                 h = m.group(2)
+305:                 alt = ('0' if h[0] != '0' else '1') + h[1:]
+306:                 ln = ln[:m.start(2)] + alt + ln[m.end(2):]
+307:                 hit += 1
+308:         out.append(ln)
+309:     return '\n'.join(out), hit
+310: 
+311: 
+312: def run(a, lane):
+313:     overridden = bool(a.province_file or a.registry_file or a.siblings_root != R50.SIBLINGS
+314:                       or a.skip_anchors_check or a.no_base_check
+315:                       or os.path.abspath(a.lane) != os.path.abspath(DEFAULT_LANE)
+316:                       or any(k in os.environ for k in REDIRECT_ENV))
+317:     if overridden and not a.control:
+318:         print(json.dumps({'counter': 'check-adjacency-table-r51', 'verdict': 'OVERRIDE-NOT-MEASURED',
+319:                           'note': 'an input override is a control, never a measurement; pass --control'}))
+320:         return 3
+321:     rev = a.revision
+322:     if not a.no_base_check and R50.git(lane, 'cat-file', '-e', f'{BASE}^{{commit}}').returncode:
+323:         print(json.dumps({'error': f'base {BASE} unreadable', 'verdict': 'FAIL'}))
+324:         return 2
+325:     prov = R50.show_text(lane, rev, R50.PROVINCE, a.province_file)
+326:     reg_text = R50.show_text(lane, rev, R50.REGISTRY, a.registry_file)
+327:     if prov is None or reg_text is None:
+328:         print(json.dumps({'error': 'province/registry unreadable', 'verdict': 'FAIL'}))
+329:         return 2
+330:     # round-50 legs, unchanged: run the frozen counter as a child on the same inputs
+331:     cmd = [sys.executable, os.path.join(HERE, 'check-adjacency-table-r50.py'), '--revision', rev,
+332:            '--lane', lane, '--no-base-check', '--siblings-root', a.siblings_root]
+333:     if a.province_file:
+334:         cmd += ['--province-file', a.province_file]
+335:     if a.registry_file:
+336:         cmd += ['--registry-file', a.registry_file]
+337:     if a.skip_anchors_check:
+338:         cmd.append('--skip-anchors-check')
+339:     p = subprocess.run(cmd, capture_output=True, text=True, stdin=subprocess.DEVNULL)
+340:     try:
+341:         r50 = json.loads(p.stdout.strip().split('\n')[-1])
+342:     except Exception:
+343:         print(json.dumps({'error': f'round-50 legs unreadable: {(p.stdout + p.stderr)[-200:]}',
+344:                           'verdict': 'FAIL'}))
+345:         return 2
+346:     adj, anchors = parse_tables(prov)
+347:     anchor_rows_exact = int(sorted(o for o, _ in anchors) == EXPECTED_OUT)
+348:     adj_exact = int(sorted(i for i, _ in adj) == EXPECTED_ADJ)
+349:     bare_all = sum(len(R50.BARE.findall(cs[-1] if cs else '')) for _, cs in adj)
+350:     rev_checker = checker_is_rev_bytes(lane, rev)
+351:     registry = load_registry(reg_text)
+352:     bound, specific, detail = bound_legs(anchors, registry, a.siblings_root)
+353:     digests_ok = digests_bound(prov, registry)
+354:     forged, hit = forged_province(prov)
+355:     _, f_anchors = parse_tables(forged)
+356:     f_bound, _, _ = bound_legs(f_anchors, registry, a.siblings_root)
+357:     display_forge_fails = int(hit == 1 and bound == 10 and f_bound == bound - 1)
+358:     override_blocked = 0
+359:     r50_blind = 0
+360:     if not a.control:
+361:         import tempfile
+362:         with tempfile.NamedTemporaryFile('w', suffix='.md', delete=False, encoding='utf-8') as fh:
+363:             fh.write(prov)
+364:             tmp = fh.name
+365:         with tempfile.NamedTemporaryFile('w', suffix='.md', delete=False, encoding='utf-8') as fh:
+366:             fh.write(forged)
+367:             ftmp = fh.name
+368:         try:
+369:             q = subprocess.run([sys.executable, os.path.abspath(__file__), '--revision', rev, '--lane', lane,
+370:                                 '--no-base-check', '--province-file', tmp],
+371:                                capture_output=True, text=True, stdin=subprocess.DEVNULL)
+372:             try:
+373:                 qobj = json.loads(q.stdout.strip().split('\n')[-1])
+374:             except Exception:
+375:                 qobj = {}
+376:             override_blocked = int(q.returncode == 3 and qobj.get('verdict') == 'OVERRIDE-NOT-MEASURED')
+377:             # sensitivity control: the frozen round-50 counter, given the forged display, still PASSes
+378:             f = subprocess.run([sys.executable, os.path.join(HERE, 'check-adjacency-table-r50.py'),
+379:                                 '--revision', rev, '--lane', lane, '--no-base-check',
+380:                                 '--province-file', ftmp, '--siblings-root', a.siblings_root],
+381:                                capture_output=True, text=True, stdin=subprocess.DEVNULL)
+382:             try:
+383:                 fobj = json.loads(f.stdout.strip().split('\n')[-1])
+384:             except Exception:
+385:                 fobj = {}
+386:             r50_blind = int(f.returncode == 0 and fobj.get('verdict') == 'PASS')
+387:         finally:
+388:             os.unlink(tmp)
+389:             os.unlink(ftmp)
+390:     legs = {k: r50.get(k) for k in ('adj_rows', 'linked_rows', 'bare_ranges', 'anchors_ok', 'registry_ok',
+391:                                     'anchors_checker_rc', 'quote_at_pin_ok', 'live_quote_ok', 'stub_fails')}
+392:     if not rev_checker:
+393:         legs['anchors_checker_rc'] = -2
+394:     anc_ok = ancestry_ok(registry, a.siblings_root)
+395:     rec_ok = recipient_ok(adj, anchors, registry)
+396:     ok = (legs['adj_rows'] == 7 and legs['linked_rows'] == 7 and legs['bare_ranges'] == 0
+397:           and legs['anchors_ok'] == 7 and legs['registry_ok'] == 7 and legs['anchors_checker_rc'] == 0
+398:           and legs['quote_at_pin_ok'] == 9 and (legs['live_quote_ok'] or 0) >= 8
+399:           and legs['stub_fails'] == 1 and bound == 10 and specific == 10
+400:           and digests_ok == 10
+401:           and display_forge_fails == 1 and anchor_rows_exact == 1 and adj_exact == 1 and bare_all == 0
+402:           and anc_ok == 10 and rec_ok == 7
+403:           and ((override_blocked == 1 and r50_blind == 1) or a.control))
+404:     out = {'counter': 'check-adjacency-table-r51', 'revision': rev, 'base': BASE, **legs,
+405:            'display_bound_ok': bound, 'quote_specific_ok': specific, 'digests_bound_ok': digests_ok,
+406:            'display_forge_fails': display_forge_fails, 'override_blocked': override_blocked,
+407:            'r50_blind': r50_blind, 'anchor_rows_exact': anchor_rows_exact, 'adj_exact': adj_exact,
+408:            'bare_all': bare_all, 'checker_rev_bytes': int(rev_checker),
+409:            'ancestry_ok': anc_ok, 'recipient_ok': rec_ok,
+410:            'mode': 'control' if a.control else 'measurement', 'detail': detail,
+411:            'r50_problems': r50.get('problems'), 'predicate': PREDICATE}
+412:     if a.control:
+413:         out['verdict'] = 'CONTROL-PASS' if ok else 'CONTROL-FAIL'
+414:     else:
+415:         out['verdict'] = 'PASS' if ok else 'FAIL'
+416:     print(json.dumps(out, sort_keys=True))
+417:     return 0 if ok else 1
+418: 
+419: 
+420: def main():
+421:     ap = argparse.ArgumentParser()
+422:     ap.add_argument('--revision', required=True)
+423:     ap.add_argument('--lane', default=os.path.dirname(HERE))
+424:     ap.add_argument('--province-file')
+425:     ap.add_argument('--registry-file')
+426:     ap.add_argument('--skip-anchors-check', action='store_true')
+427:     ap.add_argument('--no-base-check', action='store_true')
+428:     ap.add_argument('--siblings-root', default=R50.SIBLINGS)
+429:     ap.add_argument('--control', action='store_true')
+430:     a = ap.parse_args()
+431:     try:
+432:         return run(a, os.path.abspath(a.lane))
+433:     except Exception as e:  # noqa: BLE001
+434:         print(json.dumps({'counter': 'check-adjacency-table-r51',
+435:                           'error': f'{type(e).__name__}: {e}', 'verdict': 'FAIL'}))
+436:         return 2
+437: 
+438: 
+439: if __name__ == '__main__':
+440:     sys.exit(main())

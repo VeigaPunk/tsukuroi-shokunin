@@ -1,0 +1,32 @@
+100M                       memparse=104857600              rest=""  store(isspace)=OK      store(nl-only)=OK
+100m                       memparse=104857600              rest=""  store(isspace)=OK      store(nl-only)=OK
+010                        memparse=8                      rest=""  store(isspace)=OK      store(nl-only)=OK
+0x10                       memparse=16                     rest=""  store(isspace)=OK      store(nl-only)=OK
+10MB                       memparse=10485760               rest="B"  store(isspace)=EINVAL  store(nl-only)=EINVAL
+10 M                       memparse=10                     rest=" M"  store(isspace)=EINVAL  store(nl-only)=EINVAL
+-1                         memparse=0                      rest="-1"  store(isspace)=EINVAL  store(nl-only)=EINVAL
+<newline>                  memparse=0                      rest="
+"  store(isspace)=OK      store(nl-only)=OK
+100
+                       memparse=100                    rest="
+"  store(isspace)=OK      store(nl-only)=OK
+0x                         memparse=0                      rest="x"  store(isspace)=EINVAL  store(nl-only)=EINVAL
+0X10                       memparse=16                     rest=""  store(isspace)=OK      store(nl-only)=OK
+0K                         memparse=0                      rest=""  store(isspace)=OK      store(nl-only)=OK
+K                          memparse=0                      rest="K"  store(isspace)=EINVAL  store(nl-only)=EINVAL
+M                          memparse=0                      rest="M"  store(isspace)=EINVAL  store(nl-only)=EINVAL
+08                         memparse=0                      rest="8"  store(isspace)=EINVAL  store(nl-only)=EINVAL
+1K                         memparse=1024                   rest=""  store(isspace)=OK      store(nl-only)=OK
+1M                         memparse=1048576                rest=""  store(isspace)=OK      store(nl-only)=OK
+0x1f                       memparse=31                     rest=""  store(isspace)=OK      store(nl-only)=OK
+10G                        memparse=10737418240            rest=""  store(isspace)=OK      store(nl-only)=OK
+1E                         memparse=1152921504606846976    rest=""  store(isspace)=OK      store(nl-only)=OK
+18446744073709551615K      memparse=18446744073709551615   rest=""  store(isspace)=OK      store(nl-only)=OK
+99999999999999999999999K   memparse=18446744073709551615   rest=""  store(isspace)=OK      store(nl-only)=OK
+  10                       memparse=0                      rest="  10"  store(isspace)=EINVAL  store(nl-only)=EINVAL
+10                         memparse=10                     rest=" "  store(isspace)=OK      store(nl-only)=EINVAL
+<NUL>                      memparse=0                      rest=""  store(isspace)=OK      store(nl-only)=OK
+0x1                        memparse=1                      rest=""  store(isspace)=OK      store(nl-only)=OK
+0b101                      memparse=0                      rest="b101"  store(isspace)=EINVAL  store(nl-only)=EINVAL
+10                         memparse=10                     rest=""  store(isspace)=OK      store(nl-only)=OK
+0xdeadbeef                 memparse=3735928559             rest=""  store(isspace)=OK      store(nl-only)=OK

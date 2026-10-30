@@ -1,0 +1,28 @@
+--- scrub-v7.1.c	2026-10-30 02:39:18.232101018 -0300
++++ scrub-v7.3.c	2026-10-30 02:39:10.667116128 -0300
+@@ -571 +571 @@
+-		warning("invalid data on line %d pos "			\
++		warning("invalid data on line %d position "		\
+@@ -1375 +1375 @@
+-	 * Check for stale information in the status file, ie. if it's
++	 * Check for stale information in the status file, i.e. if it's
+@@ -1597,8 +1596,0 @@
+-		/* Revert to the older scrub limit. */
+-		ret = write_scrub_device_limit(fdmnt, di_args[i].devid, sp[i].old_limit);
+-		if (ret < 0) {
+-			errno = -ret;
+-			warning("failed to reset scrub throughput limit on devid %llu: %m",
+-				di_args[i].devid);
+-		}
+-
+@@ -1647,0 +1640,10 @@
++	/* Revert to the older scrub limits. */
++	for (i = 0; i < fi_args.num_devices; ++i) {
++		ret = write_scrub_device_limit(fdmnt, di_args[i].devid, sp[i].old_limit);
++		if (ret < 0) {
++			errno = -ret;
++			warning("failed to reset scrub throughput limit on devid %llu: %m",
++				di_args[i].devid);
++		}
++	}
++

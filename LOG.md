@@ -1880,3 +1880,46 @@ Round-51 routed defects closed in the freeze commit: the post-hoc `corpus/lesson
 inherited r51 receipt bytes moved to `.ufo/waves/round-52/inherited/` (working copy restored),
 S257 opened and registered, QUALITY 95 (misroot criterion), the `scrub-admission-r52` registry row,
 and the stale `counter-cheats-r51` verdict-map cell (4 → 5, the r51 Amendment 1).
+
+## Round 52 — measured outcome (2026-10-30; base `cc88b81d`, freeze `ff9470ea`, wave evidence `4ee3226d`)
+
+ONE v2 wave `w1` (64 seats: reviewer 23, critic 17, executor 9, scout 7, scribe 4, mutation-tester 2,
+sentinel 1, connector 1; attack roles 42/64 = 65.6%), validated rc=0 under policy v2, dispatched via
+the inline ready-file handoff, WAVE-DONE received before this entry. 64 results entries, 0 duplicate
+names; **4 seats dead or file-less**: `R52CritGR1b`, `R52CritGR3b` (cohort; full transcripts, no
+report file — cut mid-turn), `R52CritLimits`, `R52ScoutArch` (empty output; provider loss). No seat
+replaced (recovery boundary). Two more seats (`R52MutScorer`, `R52CritHoleC3Relink`) ended mid-turn
+with partial output and no report — items named unverified.
+
+- **C1 depth FAIL (honest).** `check-scrub-admission-r52.py` at the freeze with the live wave:
+  `structural_ok 1, lint_ok 3, quotes_ok 3, verdicts_ok 1, seats_ok 16, marks_ok 0`
+  (`.ufo/waves/round-52/after/c1-at-freeze.json`). GR1 read `holds` by all five bound seats; GR2
+  blocked by all six (one clause family: the resume-suspended replace still shows in
+  `replace_target` — dev-replace.c 1235-1242 vs 170-174/196-210); GR3 blocked `partly` by three
+  (the SIGINT handler-window sentence overstates the pinned caller — scrub.c 436-443/1546, out at
+  1712 bypassing the 1710 reset). No admission mark written; the entry's `## Gate status — round 52`
+  section records the outcome and the replacement texts. Fourth consecutive honest stop on this
+  claim; the defect set is now two single-clause fixes.
+- **C2 operability PASS.** The valid 5-cheat scorer receipt the round-51 closure routed:
+  `real_pass 1, cheats 5, cheats_rejected 5, r50_cheats_rejected 0` in an undisturbed scratch — the
+  seat's run at the freeze (`w1/R52ExecValidC2/c2-scorer.json`) and the L1's independent run
+  (`after/c2-final.json`, revision `ff9470ea`). The scorer's inputs (census, both counters) are
+  byte-identical from the freeze through the integration commit (proof diff in `after/`), so the
+  receipt measures the integrated instrument. The r51 amend1 broken receipt is superseded by a
+  valid one.
+- **C3 adjacency PASS.** Full-leg predicate PASS at revision `ff9470ea`
+  (`adj_rows 7 … recipient_ok 7, r50_blind 1`, `after/c3-final.json`); battery 15/15 at the freeze.
+  The counter's inputs (PROVINCE.md, the anchor registry, sibling reads) are byte-identical from the
+  freeze through the integration commit (proof diff in `after/`).
+- Named limits, reported not smoothed: the counter PASSes a forged bundle through its declared
+  fixture overrides (`R52CritForgeC1a`); the r51 F5/mutant-replay reproducers still reproduce under
+  name-recognizing fixtures and honest equivalent respellings still false-negative the equivalence
+  leg (`R52RevHoleC2EQ`); 6 of 9 r51 C3-counter mutants survive the battery (`R52MutAdj`); the C2/C3
+  instruments are unchanged from round 51 and carry its disclosed limits.
+- Frontier step: S257 added (queued→mined, used-by this lesson file), census exit 0 throughout;
+  mistake mined (QUALITY 96: counted seats write the binding file first); the considerthese
+  counter-attack scoreboard proposal landed (`corpus/lessons/round-52.md`, corrected by
+  `R52RevScoreboard`). Assimilation: none (57 id collisions stand).
+
+Round-level admission: **not admitted** (C1 fails). Ordinals unchanged: depth 8, coverage 9,
+operability 9, freshness 9, calibration 9, adjacency 8. Trend verdicts in the round report.

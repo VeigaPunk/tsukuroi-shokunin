@@ -1,0 +1,16 @@
+--- /fast/scratch/hyaku/tsukuroi-r52/R52MutAdj/clone_base/tools/check-adjacency-table-r51.py	2026-10-30 02:41:11.388305956 -0300
++++ /fast/scratch/hyaku/tsukuroi-r52/R52MutAdj/clone_M7b_heading_block_dropped/tools/check-adjacency-table-r51.py	2026-10-30 02:42:13.534592180 -0300
+@@ -152,13 +152,6 @@
+                 spec_why.append(f'quote has {len(quote.split())} words (<6)')
+             if not isinstance(qline, int) or not (1 <= qline <= len(lines)) or quote not in lines[qline - 1]:
+                 spec_why.append('quote is not on the registry quote_line of the pinned blob')
+-            hidx = next((i for i, ln in enumerate(lines) if ln.strip() == str(rr.get('heading', '')).strip()), None)
+-            if hidx is None:
+-                spec_why.append('heading line absent from the pinned blob')
+-            else:
+-                nxt = next((k for k in range(hidx + 1, len(lines)) if re.match(r'^#{1,6}\s', lines[k])), len(lines))
+-                if not any(quote in ln for ln in lines[hidx + 1:nxt]):
+-                    spec_why.append('quote is outside the declared heading section')
+         d['specific'] = not spec_why
+         d['why'] = d['why'] + spec_why
+         specific += int(d['specific'])

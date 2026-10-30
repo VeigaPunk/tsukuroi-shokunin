@@ -1,0 +1,18 @@
+--- /fast/scratch/hyaku/tsukuroi-r52/R52MutAdj/clone_base/tools/check-adjacency-table-r51.py	2026-10-30 02:41:11.388305956 -0300
++++ /fast/scratch/hyaku/tsukuroi-r52/R52MutAdj/clone_M5_selfrun_skipped_override_forced/tools/check-adjacency-table-r51.py	2026-10-30 02:41:50.579956501 -0300
+@@ -366,14 +366,7 @@
+             fh.write(forged)
+             ftmp = fh.name
+         try:
+-            q = subprocess.run([sys.executable, os.path.abspath(__file__), '--revision', rev, '--lane', lane,
+-                                '--no-base-check', '--province-file', tmp],
+-                               capture_output=True, text=True, stdin=subprocess.DEVNULL)
+-            try:
+-                qobj = json.loads(q.stdout.strip().split('\n')[-1])
+-            except Exception:
+-                qobj = {}
+-            override_blocked = int(q.returncode == 3 and qobj.get('verdict') == 'OVERRIDE-NOT-MEASURED')
++            override_blocked = 1
+             # sensitivity control: the frozen round-50 counter, given the forged display, still PASSes
+             f = subprocess.run([sys.executable, os.path.join(HERE, 'check-adjacency-table-r50.py'),
+                                 '--revision', rev, '--lane', lane, '--no-base-check',

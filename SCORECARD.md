@@ -3369,3 +3369,48 @@ plus this round's `scrub-admission-r52` row; K10 77→78 adds the post-hoc `corp
 | freshness | 9 | S240 re-opened byte-identically at sha256 `7b3488f2…ba01` (r51 spot-check §4, agree); S257 opened 2026-10-30; sources census exit 0 at round start (`.ufo/waves/round-52/before/sources-census-start.txt`). | fleet round 1; unchanged |
 | calibration | 9 | `python3 tools/check-self-assessment.py --revision <FREEZE>` → 27 checked, 0 mismatches after this restatement (receipt committed with the wave evidence); at base before the restatement: 3 (K08, K09, K10). | round 10; unchanged |
 | adjacency | 8 | formal overlap table present (PROVINCE `\| ID \| Finding`); C3 legs all green at base with `r50_blind 1` (`before/c3-at-base-r52.json`); caller-supplied C3 overrides can still score fabricated input (`R50CritCheatC3.md`). | fleet round 1; unchanged |
+
+## Round 52 — measured outcome (author-side; non-author closure pending)
+
+Freeze `ff9470ea`; wave evidence `4ee3226d`; ONE v2 wave `w1` of 64 seats (attack roles 42/64 =
+65.6%), WAVE-DONE received before filing. Wave accounting: 64 dispatched, 64 results entries, 58
+report files, no duplicate names, no residual call. **Dead/file-less seats (4):** `R52CritGR1b`,
+`R52CritGR3b` (counted cohort; full transcripts, no report file — cut mid-turn),
+`R52CritLimits`, `R52ScoutArch` (empty output; provider loss). Two further seats ended mid-turn with
+partial output and no report (`R52MutScorer`, `R52CritHoleC3Relink`) — their items are named
+unverified. No seat was replaced (orchestrator recovery boundary).
+
+| Claim | Frozen predicate → measured | Verdict | Axis effect |
+|---|---|---|---|
+| C1 depth | `python3 tools/check-scrub-admission-r52.py --revision ff9470ea --wave-dir .ufo/waves/round-52/w1 --results-file .ufo/waves/round-52/w1-results.json --dispatch-file .ufo/waves/round-52/w1-dispatch.json` → `structural_ok 1, lint_ok 3, quotes_ok 3, verdicts_ok 1, seats_ok 16, marks_ok 0`, FAIL (`.ufo/waves/round-52/after/c1-at-freeze.json`). GR1 `holds` by all five bound seats; GR2 blocked by all six bound seats — one clause family: entry lines 233-235 say a resume-suspended replace "shows in neither" attribute, contradicted for `replace_target` (the resume-failure branch sets SUSPENDED without clearing REPLACE_TGT, dev-replace.c 1235-1242; the mount-time restore re-sets it when a target is present, 170-174/196-210); GR3 blocked `partly` by three (the SIGINT handler-window sentence overstates: the sigaction result is discarded at scrub.c 1546, and thread-creation failures jump to `out` at 1712, bypassing the 1710 reset). `R52CritGR1b`/`R52CritGR3b` never wrote report files → `seats_ok 16`. No admission mark written; the entry's round-52 Gate-status section records outcome + replacement texts. | **FAIL** | depth unchanged (8); rows stay pending; the fix set is two single-clause amendments |
+| C2 operability | `python3 tools/score-counter-cheats-r51.py` → `real_pass 1, cheats 5, cheats_rejected 5, r50_cheats_rejected 0` — the valid 5-cheat receipt (seat run at the freeze `.ufo/waves/round-52/w1/R52ExecValidC2/c2-scorer.json`; L1 run `after/c2-final.json`, revision `ff9470ea`; scorer inputs byte-identical from the freeze through the integration commit, proof diff in `after/`). Limits unchanged from round 51 and named: override-injection forgery of the C1 counter (R52CritForgeC1a), F5/mutant-replay name-recognition reproducers and honest-respell false negatives (R52RevHoleC2EQ). | **PASS measured** | operability unchanged (9, saturation); no new capability row; the routed round-51 defect (broken amend1 receipt) is closed with a valid one |
+| C3 adjacency | `python3 tools/check-adjacency-table-r51.py --revision ff9470ea` → full-leg PASS (`adj_rows 7, linked_rows 7, anchors_ok 7, registry_ok 7, quote_at_pin_ok 9, live_quote_ok 9, stub_fails 1, display_bound_ok 10, quote_specific_ok 10, digests_bound_ok 10, display_forge_fails 1, override_blocked 1, r50_blind 1, anchor_rows_exact 1, adj_exact 1, bare_all 0, ancestry_ok 10, recipient_ok 7`) at the named revision; battery 15/15 at the freeze. Limit: 6 of 9 r51 counter mutants survive the battery (R52MutAdj) — detector limits, disclosed. | **PASS measured** | adjacency unchanged (8); the routed round-51 defect (no named-revision measurement) is closed |
+
+Round-level admission: **not admitted** — C1 fails; C2/C3 are instrument-measurement completions and
+move no ordinal. No axis harmed: operability's instruments measured green; the entry gained an honest
+Gate-status section; SOURCES gained one correctly-anchored row (anchor defect found by R52ScoutS257
+and fixed before the commit); PROVINCE untouched.
+
+## Axes — current self-assessment (round 52 final measured surface)
+
+Restated 2026-10-30 at the round-52 final tree; ordinals unchanged. Counts re-derived with the
+commands in each cell (K10 78 → 79 adds `corpus/lessons/round-52.md`; SKILL/README unchanged since
+the freeze).
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 67 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4606 `wc -l` / 1338 table lines (`grep -c '^\|' SKILL.md`); `corpus/lessons/` 79 files (`find corpus/lessons -type f \| wc -l`); GR1-GR3 pending: round-52 counted cohort bound `verdicts_ok 1, seats_ok 16` (`.ufo/waves/round-52/after/c1-at-freeze.json`); no ordinal move. | round 4; unchanged |
+| coverage | 9 | `corpus/README.md` 522 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; no surface promotion. | round 11; unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` → PASS (168 cases, 168 passed, 0 failed); `--identity` landed; `bash tools/boot-chain-audit.sh --selftest` `PASS total=49 failed=0`; the 5-cheat scorer receipt valid at the round-52 integration revision (`.ufo/waves/round-52/after/c2-final.json`). | round 11; unchanged |
+| freshness | 9 | S240 re-opened byte-identically at sha256 `7b3488f2…ba01` (r51 spot-check §4); S257 opened 2026-10-30 and mined; sources census exit 0 at start, freeze and round end. | fleet round 1; unchanged |
+| calibration | 9 | `python3 tools/check-self-assessment.py --revision <integration commit>` → 27 checked, 0 mismatches (restated here); at the r52 base before restatement: 3 (K08, K09, K10). | round 10; unchanged |
+| adjacency | 8 | formal overlap table present (PROVINCE `\| ID \| Finding`); C3 full-leg PASS at the named revision with `r50_blind 1` (`after/c3-final.json`); 6 of 9 counter mutants survive the battery (R52MutAdj) — disclosed. | fleet round 1; unchanged |
+
+- **planned (next round):** depth — amend the two named clauses (GR2's resume-suspended observability
+  sentence; GR3's SIGINT handler-window sentence) using the replacement texts the cohort proposed
+  (`R52RevGR2{a,b,c}.md`, `R52RevGR3{a,c}.md`, `R52CritGR3c.md`), re-hash, and re-count with a fresh
+  18-seat cohort under the QUALITY 96 write-first rule; report the two lost seats' items
+  (`R52CritLimits`, `R52ScoutArch`) and the two mid-turn seats (`R52MutScorer`, `R52CritHoleC3Relink`)
+  as unverified work if not re-run. Adjacency — fold the six surviving C3-counter mutants
+  (R52MutAdj) into the disclosed-limits list or the battery, owner's choice next round.
+- **retired:** none.
