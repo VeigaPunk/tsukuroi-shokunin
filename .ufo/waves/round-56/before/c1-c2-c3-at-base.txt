@@ -1,0 +1,21 @@
+# before-counts at base 62b47771 (2026-11-01, plumbing reads only)
+census_receipt_mode_grep=0
+recheck_budget_flag_grep=0
+recheck_services_r56_exists_rc=128
+config_plane_file_rc=128
+sources_rows_at_base=265
+config_plane_rows_at_base=0
+  (grep rc 2 = 0 rows: file absent)
+
+# base-invocation checks (2026-11-01): the base tools reject the new flags
+base_census_receipt_rc=2 (2 = usage rejection)
+base_recheck_budget_rc=1 (2 = usage rejection)
+
+# CORRECTION (same day, before the outcome commit): base_census_receipt_rc=2 is a true usage
+# rejection (the base census rejects ALL argv). base_recheck_budget_rc=1 is NOT a flag rejection:
+# the base recheck script has NO argument validation — it silently IGNORES unknown $1 (the flag
+# does not exist; the grep=0 line above is the load-bearing before-evidence). The rc=1 came from
+# running a COPY of the script from scratch: the script cd's to dirname/.., so its register/
+# PROVINCE reads missed and drift lines fired by construction — an artifact of the check harness,
+# not a host reading. The honest before-state: --budget does not exist at base (grep 0), and the
+# base script would have run the 90 s default with the flag silently swallowed.

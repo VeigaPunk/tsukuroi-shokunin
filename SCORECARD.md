@@ -3844,3 +3844,68 @@ counted-cohort resume stays operator-gated. Frontier step: S266 (`sc config`), S
 (`sc failure`) — Microsoft Learn pages opened this round, after this declaration; C3 is the
 sourced claim. Round-start census: exit 0, 42 W04 (all duplicate-URL, warning-class; no
 E-code), receipt `.ufo/waves/round-56/before/sources-census-start.txt`.
+
+## Round 56 — measured outcome (2026-11-01, author-side; non-author closure pending)
+
+Declaration `ebaf9856`; work `a4d88715`. All measurements run on THIS host at the work tip
+`a4d88715` (counting battery `.ufo/waves/round-56/after/c1-c2-c3-counts-at-work.txt`;
+before-counts at base `.ufo/waves/round-56/before/c1-c2-c3-at-base.txt`, plumbing reads of
+`62b47771` — the worktree/index views on this host are unreliable, see lesson R56-STALE-DRAFT).
+
+| Claim | Counting command → measured | Verdict | Axis effect |
+|---|---|---|---|
+| C1 operability | before: `git show 62b47771:tools/win-host-census-r53.py \| grep -c -- "--receipt"` → **0**; `…recheck-drift-r54.sh \| grep -c -- "--budget"` → **0**; the base census rejects all argv (rc 2); the base recheck has no arg validation — `--budget` silently swallowed (corrected note in the before-receipt). After: `--receipt` grep → **7**, `--budget` grep → **5**; `python tools/win-host-census-r53.py --selftest` → `WIN_CENSUS_SELFTEST: PASS (25 cases, 25 passed, 0 failed)`; receipt-mode live run `--receipt .ufo/waves/round-56/receipts/win-census-receipt-mode.txt --budget 120` → census rc **1** (the host's standing DEGRADED reading) with the receipt carrying `receipt_run=1`, full argv, `budget_s=120`, `rc=1`, `stdout_bytes=330`, verbatim planes; D7 420 s leg: `bash tools/recheck-drift-r54.sh --budget 420 --receipt …d7-budget420-summary.txt` → recheck rc **0**, 10 match + 2 doc rows, **0 drift**, `D7 match (timeout rc 124, partial: 18 PASS / 0 FAIL / no summary line; budget 420s…)`; the whole leg routed through receipt-run (`.ufo/waves/round-56/receipts/d7-budget420-raw.txt`: `budget_s=480`, `duration_s=423.7`, `rc=0`); receipt-run selftest 7/7 unchanged. Landing the flag surfaced the host find: the on-disk r54 draft had lost the committed `> "$receipt"` write line — restored with an exit-2 write-failure path (lesson R56-STALE-DRAFT; the committed tree was right). | **PASS measured** | operability unchanged (9, saturated) — the receipt capability's third working use; both r55 planned instrument surfaces landed |
+| C2 freshness | before: `git cat-file -e 62b47771:tools/recheck-services-r56.sh` → rc **128**; the duty existed only as the two notes' prose `recheck:` lines. After: first run `bash tools/recheck-services-r56.sh --receipt .ufo/waves/round-56/receipts/recheck-services-t1t12.txt` → rc **0**, `RECHECK_SERVICES: PASS (12 rows, 12 match, 0 drift)`; receipt header `rows=12 matched=12 drift=0`; T2 246 rows (r54's value, stable), T4 active-only **111** vs 273 total (r54: 110 — the documented count-drift class, recorded as evidence, never judged), T9 wuauserv `4 RUNNING`, T11 `START_TYPE 3 DEMAND_START` (value drift-class); every invariant signature held (T1 mangled-option rc 1, T5/T10/T12 the 1060/rc-36 family with qc's own function line, T6 the S262 divergence persists, T7 the stray-file class re-created in a deleted temp cwd, T8 the Enum-overflow negative) | **PASS measured** | freshness unchanged (9, saturated) — the 30d discipline became executable; positively exercised at 0 drift |
+| C3 depth (lowest tied, 8; SOURCED S266 S267, opened this round) | before: `git cat-file -e 62b47771:corpus/knowledge/windows-services-config-plane-r56.md` → rc **128**; SOURCES rows **265**. After: `grep -c "^| T" corpus/knowledge/windows-services-config-plane-r56.md` → **4** (T13-T16); knowledge-header gate at the work revision → PASS, **72** notes, **0** findings; SOURCES rows **267** (S266, S267), 0 malformed; every row cites S266/S267 or a dated receipt under `.ufo/waves/round-56/services-probes/`. Measured signatures: the config/failure USAGE GATE (name but no options → usage block, rc **103** — option-validation precedes OpenService; the usage text confirms S266's start= domain and adds type= `userown\|usershare` the page omits); absence-refused changes (`sc config <nonexistent> start= demand`, `sc failure <nonexistent> reset= 30 actions= restart/5000` → `[SC] OpenService FAILED 1060:` + rc **36** — the surface probed with zero mutation risk); the failure QUERY is spelled `qfailure` (wuauserv: RESET_PERIOD 86400, FAILURE_ACTIONS `RESTART -- Delay = 60000 milliseconds.` — the host's own recovery config) while bare `sc failure <svc>` does NOT query on this build (usage rc 103) | **PASS measured** | depth unchanged (8) — the move is the sourced entry, not the ordinal |
+
+Repairs landed (routed carry-ins of the r55 closure, not claims): **R1** the r52 "58 seat files"
+counting command — SCORECARD correction block (58 = `git ls-tree -r --name-only HEAD --
+.ufo/waves/round-52 \| grep -cE "R52[A-Za-z0-9]*\.md$"`, all role classes; the GR-cohort
+sub-convention counts 17 committed, matching `seats_ok 16` + 2 unbound + the Host seat); **R2**
+the r55 lesson Gate's explicit zero-rejections line (append-only); **R3** scratch hygiene —
+disposition in the round report and LOG (the r55 dir held the closure's own `closure.json`
+written after the spot-check's observation; this round's scratch deleted before finish);
+**R4** W04 watch: **42 at round start and end**, no growth (the two new rows carry fresh URLs).
+
+Gates at the work tip `a4d88715`: registry-coverage PASS **94 tools / 94 rows / 0 findings**
+(`recheck-services-r56` registered); knowledge-header PASS **72 notes / 0 findings**; SCORECARD
+uniqueness on the committed blob ok rc 0; receipt-run selftest 7/7; census **exit 0 both passes,
+42 W04, no E-code** (receipts `.ufo/waves/round-56/before/sources-census-start.txt`,
+`.ufo/waves/round-56/after/sources-census-end.txt`).
+
+Named limits: the receipt-mode census run records TODAY's host state (DEGRADED rc 1 is the
+plane's standing reading, not a regression); D7's partial-PASS count (18) is a wall-clock fact
+and varies; T13's rc-103 usage gate and T16's qfailure-only query behavior are THIS build's
+measurements (Windows 10.0.26200 x64) — the archived S267 page documents set-only syntax and the
+tool agrees; the config-surface `type= interact` error sentence (S266, the S262 family) is
+UNTESTED here because testing it is a mutation (operator-owned); `check-self-assessment.py`
+remains could-not-evaluate on this host (K13, named limit); L2 floor absent surface, routed
+around (L0 `tsukuroi | round-53`); the round-1 kaidoku/revenger scope L0 likewise stands, routed
+around. Mistakes mined: R56-STALE-DRAFT-REVERT, R56-RECEIPT-FLAG-UNEXERCISED,
+R56-UGREP-LEADINGSLASH, R56-USAGE-GATE-ASSUMED-ABSENCE, R56-COPY-RUNS-OUT-OF-TREE
+(corpus/lessons/round-56.md).
+
+## Axes — current self-assessment (round 56 final measured surface)
+
+Restated 2026-11-01 at the round-56 final tree `a4d88715`; ordinals unchanged (all three claims
+are measured moves on saturated or lowest axes; the depth move is the sourced entry, not a
+number). Counts re-derived with each cell's command at this tree.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 72 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4709 `wc -l`; `corpus/lessons/` 87 files (`find corpus/lessons -type f \| wc -l`); the sourced services config/failure plane T13-T16 landed round 56 (round-56 measured outcome; S266 current + S267 archive); GR1-GR3 of the scrub entry remain pending behind the operator-gated cohort resume; no ordinal move. | round 4; round-56 entry added, ordinal unchanged |
+| coverage | 9 | `corpus/README.md` 522 `wc -l`, byte-identical to base (the r56 plane extends the r54/r55 services surface inside the same province record; no map row added or re-homed); PROVINCE Core, Frontier and Adjacent sections present. | round 11; unchanged |
+| operability | 9 | `python tools/win-host-census-r53.py --selftest` PASS (25/25, receipt mode included); `python tools/receipt-run.py --selftest` PASS (7/7); `bash -n` rc 0 on both recheck scripts; census receipt-mode receipt + D7-420 s receipts committed (`.ufo/waves/round-56/receipts/`); registry-coverage 94/94 at `a4d88715`; live census DEGRADED rc 1 (standing reading). | round 11; round-56 receipt/budget modes added, ordinal unchanged |
+| freshness | 9 | services plane T1-T12 re-verified by one committed command, 0 drift (`.ufo/waves/round-56/receipts/recheck-services-t1t12.txt`); drift register D1-D12 re-verified at the 420 s class, 0 drift; S266/S267 opened live this round; sources census exit 0 at round start and end (42 W04 both, `.ufo/waves/round-56/{before,after}/sources-census-*.txt`). | fleet round 1; round-56 executable recheck pass added, ordinal unchanged |
+| calibration | 9 | the axes table above restated to counts recomputed on this host; SCORECARD uniqueness gate ok on the committed blob; all three claims measured with before-receipts at base via plumbing (the worktree view is untrusted this round — lesson R56-STALE-DRAFT); `python tools/check-self-assessment.py` cannot evaluate here (K13, named limit). | round 10; round-56 base-plumbing before-receipts added, ordinal unchanged |
+| adjacency | 8 | formal overlap table present; no sibling scope touched; the config/failure surface stays inside the lane's own host-operability province (no sibling absorbed); contested kaidoku/revenger ownership remains unruled (carried, routed around). | fleet round 1; unchanged |
+
+- **planned (next round):** operator-gated first — the L0 wave-dispatch question (`tsukuroi |
+  round-53`) still decides the r52 counted-cohort depth resume; if the lane stays on this host:
+  give `recheck-services-r56.sh` a per-row raw-receipt mode (route each T-probe through
+  `receipt-run.py` so a drift leg ships its own verbatim capture, not only the summary receipt),
+  record the recheck cadence dates (r56 = day 0; next services-plane pass due 2026-11-30) in the
+  two notes' `recheck:` headers as dated entries, and — if the operator authorizes — exercise the
+  config surface's `type= interact` sentence (S266) with a real operator-owned config change as
+  the falsification probe the lane cannot run read-only.
+- **retired:** none.
