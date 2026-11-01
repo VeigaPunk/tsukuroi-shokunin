@@ -2222,3 +2222,71 @@ L0 likewise stands). L2 floor: absent surface, routed around, recorded in the de
   receipt/budget modes (9, saturated), freshness the executable T1-T12 pass + D-420 s leg (9,
   saturated), calibration the base-plumbing before-receipts discipline (9, saturated), coverage
   map unchanged (9), adjacency untouched (8). Trend verdicts in the round report.
+
+## Round 57 (2026-11-01, Windows host, base `a36bfaaf` = the carry-in landing → declaration `0555a010` → work `19f6b5c8`)
+
+Carry-in first (the r56 closure's one routed defect, R56-RECEIPTS-UNCOMMITTED — a plumbing repair,
+not a claim): the 14 round-56 receipt files under `.ufo/waves/round-56/{after,receipts,services-probes}/`
+cited as committed by `ebaf9856`/`a4d88715`/`ed26680d` but present only on disk were landed as
+**`a36bfaaf`** (14 explicit file paths through the plumbing helper — directory paths silently
+no-op; 312 insertions) after contents were verified against every reported value. FRESH-START
+(prompt §7): r50/r51/r52 re-spot-checked from committed bytes (FAIL/0/18; absent rc 128;
+FAIL/1/16 with predicate == 18) and the counted-cohort resume stays ruled out (no dispatch
+surface; L0 `tsukuroi | round-53` stands unanswered, routed around; the round-1 kaidoku/revenger
+L0 likewise stands; a new L0 line `tsukuroi | round-57` requests operator authorization for the
+S266 `type= interact` falsification probe and is routed around, never treated as answered).
+
+- **C1 depth PASS (lowest tied, 8; SOURCED S268-S270, one rejection S271).**
+  `corpus/knowledge/windows-services-sddl-plane-r57.md` rows T19-T24: the service
+  SECURITY-DESCRIPTOR and METADATA-query surface the three prior services notes never touch —
+  `sc sdshow wuauserv` → the DACL-only SDDL
+  `D:(A;;CCLCSWRPLORC;;;AU)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;SY)`
+  (3 AccessAllowed ACEs; no O:/G:/S: — S269's omitted-components anchor; tool usage matches S268's
+  function sentence and adds `<showrights>` the page omits); `sdshow <nonexistent>` refused by
+  absence (1060/rc 36); `qsidtype` → `SERVICE_SID_TYPE: UNRESTRICTED`; the description query is
+  spelled `qdescription` (`qdesc` → usage block rc 103, the T13 gate); `qtriggerinfo` → two GROUP
+  POLICY start triggers; `enumdepend` → `entriesread = 0`; `sdset <nonexistent>` is PRIVILEGE-gated
+  before service resolution (`[SC] OpenSCManager FAILED 5:` Access denied, rc 5 — a real BLOCKED
+  signature; `sdset` on a live service never executed); `ConvertFrom-SddlString` decodes the
+  structure but names bits in filesystem vocabulary — the letter→SERVICE_* mapping stays
+  Sddl.h-anchored [inference], cross-checked against S270's default-grants table (BA/SY full
+  Administrators class; AU read/interrogate + start; no interactive/service ACEs) and recorded as
+  measured evidence, provenance [unknown]. SOURCES 267 → **271** (S268 archived sc-sdshow — the
+  current reference 404s; S269 SDDL string format; S270 service access rights; S271 ACE Strings
+  REJECTED — the DS-letters name collision), 0 malformed. knowledge-header PASS 73/0 at the work
+  tip. Every row cites an S-row opened 2026-11-01 or a dated receipt under
+  `.ufo/waves/round-57/services-probes/` (t19-t28, all through receipt-run).
+- **C2 operability PASS.** `tools/receipt-write.py` (registry `receipt-write-r57`): receipt-run-
+  FORMAT receipts for ALREADY-CAPTURED output — `build_receipt` imported from receipt-run.py (one
+  format implementation, the r56 C1 rule), selftest 5/5; plus `recheck-services-r56.sh --raw-dir
+  <dir>`: one raw receipt per row (judged capture + the leg's rc + the exact command text), the
+  probe NEVER re-executed (T1's signature is bash/MSYS-exec-specific; T7's stray file a re-run
+  would create twice). First use: 12 raw receipts (`.ufo/waves/round-57/receipts/raw-t1t12/`,
+  rc spread 7×0 / 2×1 / 3×36) alongside a 12/12/0 pass — this window: active 110, wuauserv
+  STOPPED, START_TYPE DEMAND_START (all drift-class, recorded not judged). receipt-run selftest
+  7/7 unchanged. registry-coverage PASS 95 tools / 95 rows / 0 findings.
+- **C3 freshness PASS.** The three services notes (r54 T1-T8, r55 T9-T12, r56 T13-T16) gained an
+  appended operative `recheck:` line binding the 30d cadence to day 0 = 2026-11-01 (the committed
+  r56 first-pass receipt) with the next pass **due 2026-11-30** — recheck lateness is now
+  observable from committed bytes; old lines byte-unchanged (the header gate reads the LAST
+  `recheck:` line; old→new logged in the round lesson Gate). The new r57 note was born with the
+  dated line.
+- **Gates/receipts at the work tip `19f6b5c8`:** before-counts at base
+  `.ufo/waves/round-57/before/c1-c2-c3-at-base.txt` (plumbing reads: note rc 128, SOURCES 267,
+  --raw-dir grep 0, write-tool rc 128, dated greps 0+0+0, negative sweep sdshow/qsidtype/
+  qtriggerinfo 0+0+0); after-counts `.ufo/waves/round-57/after/c1-c2-c3-counts-at-work.txt` (rows
+  6; SOURCES 271/0 malformed; raw receipts 12/12 with all three keys; selftests 5/5 and 7/7);
+  census exit 0 both passes, 42 W04 both, no E-code; SCORECARD uniqueness ok rc 0.
+- **Named limits (reported, not smoothed):** the descriptor/counts are captures of 2026-11-01
+  (drift-class); the letter mapping is [inference] (no doc table exists on Learn — S271 records
+  the trap); T24's sdset rc-5 gate is THIS session's token (an elevated session would pass the SCM
+  gate — the change still stays operator-owned); `<showrights>` unexercised (no diagnosis value);
+  `check-self-assessment.py` remains could-not-evaluate on this host (K13); L2 floor absent
+  surface, routed around. Mistakes mined: R57-CITED-UNCOMMITTED (the routed carry-in, class
+  `landing`), R57-SDSET-ASSUMED-ABSENCE, R57-SELFTEST-WRITTEN-THEN-PASSED, R57-UGREP-XARGS-ARGS
+  (corpus/lessons/round-57.md). Round-level admission (author-side): all three claims verify by
+  measurement on THIS host; no axis harmed — depth gained the sourced SDDL/metadata entry (8),
+  operability the write-side receipt capability (9, saturated), freshness the dated cadence
+  contract (9, saturated), calibration the assumed-gate lesson + honest selftest FAIL kept on
+  record (9, saturated), coverage map unchanged (9), adjacency untouched (8). Trend verdicts in
+  the round report.

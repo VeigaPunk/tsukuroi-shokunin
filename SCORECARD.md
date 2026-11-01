@@ -3973,3 +3973,60 @@ are single-session inline; the counted-cohort resume stays operator-gated. Front
 after this declaration; C1 is the sourced claim. Round-start census: exit 0, 42 W04 (all
 duplicate-URL warning class; no E-code), receipt
 `.ufo/waves/round-57/before/sources-census-start.txt`.
+
+## Round 57 — measured outcome (2026-11-01, author-side; non-author closure pending)
+
+Declaration `0555a010`; work `19f6b5c8`. All measurements run on THIS host at the work tip
+`19f6b5c8` (counting battery `.ufo/waves/round-57/after/c1-c2-c3-counts-at-work.txt`; before-counts
+at base `.ufo/waves/round-57/before/c1-c2-c3-at-base.txt`, plumbing reads of `a36bfaaf` — the
+worktree/index views on this host are unreliable, lesson R56-STALE-DRAFT).
+
+| Claim | Counting command → measured | Verdict | Axis effect |
+|---|---|---|---|
+| C1 depth (lowest tied, 8; SOURCED S268-S270, rejection S271, opened after the declaration) | before: `git cat-file -e a36bfaaf:corpus/knowledge/windows-services-sddl-plane-r57.md` → rc **128**; SOURCES rows **267**; negative sweep (sdshow/qsidtype/qtriggerinfo across the 3 prior services notes) → **0+0+0**. After: `grep -c "^| T" corpus/knowledge/windows-services-sddl-plane-r57.md` → **6** (T19-T24); SOURCES rows 267 → **271**, malformed **0** (awk NF!=13); knowledge-header gate at the work revision → PASS, **73** notes, **0** findings. Measured signatures (receipts t19-t28, all through receipt-run): sdshow wuauserv rc 0, `D:`-only 3-ACE SDDL (AU/BA/SY; S269 omitted-components anchor); sdshow nonexistent rc 36 `[SC] OpenService FAILED 1060:`; qsidtype rc 0 `SERVICE_SID_TYPE: UNRESTRICTED`; `qdesc` rc 103 usage gate vs `qdescription` rc 0 (the T13 spelling class); qtriggerinfo rc 0 two GROUP POLICY start triggers; enumdepend rc 0 `entriesread = 0`; sdset nonexistent rc 5 `[SC] OpenSCManager FAILED 5:` Access denied (privilege gate BEFORE service resolution — the assumed 1060 refusal does not fire; mined as R57-SDSET-ASSUMED-ABSENCE); ConvertFrom-SddlString rc 0 confirming the 3-ACE structure with filesystem-vocabulary bit names. Measured-vs-doc: ACE sets cross-checked against S270's default-grants table (BA/SY full Administrators class; AU read/interrogate + a start right; no interactive/service ACEs) — recorded as evidence, provenance [unknown]; the letter mapping stays Sddl.h-anchored [inference] (S271 records the DS-letters name-collision trap) | **PASS measured** | depth unchanged (8) — the move is the sourced entry, not the ordinal |
+| C2 operability | before: `git show a36bfaaf:tools/recheck-services-r56.sh \| grep -c -- "--raw-dir"` → **0**; `git cat-file -e a36bfaaf:tools/receipt-write.py` → rc **128**; receipt-run selftest cases at base 7. After: `--raw-dir` grep → **4**; `python tools/receipt-write.py --selftest` → `RECEIPT_WRITE_SELFTEST: PASS (5 cases, 5 passed, 0 failed)` (first run 1/5 — two real defects fixed before landing, kept on record as R57-SELFTEST-WRITTEN-THEN-PASSED); receipt-run selftest still `PASS (7 cases, 7 passed, 0 failed)`; one live pass `bash tools/recheck-services-r56.sh --receipt .ufo/waves/round-57/receipts/recheck-services-raw-summary.txt --raw-dir .ufo/waves/round-57/receipts/raw-t1t12` → rc **0**, `RECHECK_SERVICES: PASS (12 rows, 12 match, 0 drift)`, and the dir holds **12** raw receipts, all 12 carrying `receipt_run=1` + `command=` + `rc=` (rc spread 7×0 / 2×1 / 3×36; this window: active 110, wuauserv STOPPED, START_TYPE DEMAND_START — drift-class, recorded not judged); registry-coverage PASS **95 tools / 95 rows / 0 findings** (`receipt-write-r57` registered, `recheck-services-r56` annotated) | **PASS measured** | operability unchanged (9, saturated) — the write-side receipt capability (capture-and-judge counterpart of receipt-run); the per-row raw-receipt mode landed |
+| C3 freshness | before: `git show a36bfaaf:corpus/knowledge/<note> \| grep -c "next pass due 2026-11-30"` → **0 + 0 + 0** (r54/r55/r56 notes). After: each **≥ 1** (counted together with the new r57 note: **4** notes carry the dated line); each note now has exactly 2 `recheck:` lines (old kept byte-identical, new operative last — header gate reads 73/0); the operative lines bind day 0 = 2026-11-01 (the committed r56 first-pass receipt) to next pass due **2026-11-30** | **PASS measured** | freshness unchanged (9, saturated) — the 30d duty became time-falsifiable from committed bytes |
+
+Repairs landed (routed carry-ins, not claims): the r56 closure's R56-RECEIPTS-UNCOMMITTED — the 14
+receipt files landed as `a36bfaaf` BEFORE the declaration (this round's base); mined as
+R57-CITED-UNCOMMITTED (class `landing`) in the round lesson. New L0 line appended:
+`tsukuroi | round-57` (operator authorization requested for the S266 `type= interact`
+falsification probe; routed around, never treated as answered).
+
+Gates at the work tip `19f6b5c8`: knowledge-header PASS **73 / 0**; registry-coverage PASS **95/95/0**;
+SCORECARD uniqueness on the committed blob ok rc 0; receipt-write selftest 5/5; receipt-run selftest
+7/7; census **exit 0 both passes, 42 W04, no E-code** (receipts
+`.ufo/waves/round-57/before/sources-census-start.txt`, `.ufo/waves/round-57/after/sources-census-end.txt`).
+
+Named limits: all descriptor/count values are captures of 2026-11-01 (drift-class); the SDDL
+letter→SERVICE_* mapping is [inference] anchored to Sddl.h and cross-checked against S270's
+default-grants table only (no Learn page documents it; the host decoder names bits in filesystem
+vocabulary — measured, t27); T24's rc-5 SCM gate is THIS session's token — an elevated session
+would pass the gate, and the change still stays operator-owned; `<showrights>` unexercised (no
+diagnosis value named); `check-self-assessment.py` remains could-not-evaluate on this host (K13);
+L2 floor absent surface, routed around (L0 `tsukuroi | round-53`); the round-1 kaidoku/revenger
+scope L0 likewise stands. Mistakes mined: R57-CITED-UNCOMMITTED, R57-SDSET-ASSUMED-ABSENCE,
+R57-SELFTEST-WRITTEN-THEN-PASSED, R57-UGREP-XARGS-ARGS (corpus/lessons/round-57.md).
+
+## Axes — current self-assessment (round 57 final measured surface)
+
+Restated 2026-11-01 at the round-57 final tree `19f6b5c8`; ordinals unchanged (the depth move is
+the sourced entry, not a number; operability/freshness are saturated). Counts re-derived with each
+cell's command at this tree.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 73 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4742 `wc -l`; `corpus/lessons/` 89 files (`find corpus/lessons -type f \| wc -l`); the sourced services SDDL/metadata plane T19-T24 landed round 57 (round-57 measured outcome; S268 archive + S269/S270 current; S271 rejection records the letter-collision trap); GR1-GR3 of the scrub entry remain pending behind the operator-gated cohort resume; no ordinal move. | round 4; round-57 entry added, ordinal unchanged |
+| coverage | 9 | `corpus/README.md` 522 `wc -l`, byte-identical to base (the r57 plane extends the r54/r55/r56 services surface inside the same province record; no map row added or re-homed); PROVINCE Core, Frontier and Adjacent sections present. | round 11; unchanged |
+| operability | 9 | `python tools/receipt-write.py --selftest` PASS (5/5); `python tools/receipt-run.py --selftest` PASS (7/7); `bash -n` rc 0 on the extended recheck script; 12 per-row raw receipts + summary receipt committed (`.ufo/waves/round-57/receipts/`); registry-coverage 95/95 at `19f6b5c8`; live census not re-run this round (no census-surface change; the r56 receipt-mode run stands as its first use). | round 11; round-57 write-side receipt capability added, ordinal unchanged |
+| freshness | 9 | services plane T1-T12 re-verified again at the work tip, 0 drift, WITH per-row raw receipts (`.ufo/waves/round-57/receipts/raw-t1t12/`); the three services notes' `recheck:` duty now carries a dated due date (2026-11-30) observable from committed bytes; S268-S271 opened live this round; sources census exit 0 at round start and end (42 W04 both, `.ufo/waves/round-57/{before,after}/sources-census-*.txt`). | fleet round 1; round-57 dated cadence contract added, ordinal unchanged |
+| calibration | 9 | the axes table above restated to counts recomputed on this host; SCORECARD uniqueness gate ok on the committed blob; all three claims measured with before-receipts at base via plumbing; the round's own new instrument failed its first selftest 1/5 and the FAIL is kept on record (R57-SELFTEST-WRITTEN-THEN-PASSED) with the fixed tool re-measured 5/5; `python tools/check-self-assessment.py` cannot evaluate here (K13, named limit). | round 10; round-57 honest-selftest-fail-on-record added, ordinal unchanged |
+| adjacency | 8 | formal overlap table present; no sibling scope touched; the SDDL/metadata surface stays inside the lane's own host-operability province (no sibling absorbed); contested kaidoku/revenger ownership remains unruled (carried, routed around). | fleet round 1; unchanged |
+
+- **planned (next round):** operator-gated first — the L0 wave-dispatch question (`tsukuroi |
+  round-53`) still decides the r52 counted-cohort depth resume, and the new L0 `tsukuroi |
+  round-57` decides the S266 `type= interact` falsification probe. If the lane stays on this
+  host: extend `recheck-services-r56.sh` with rows T19-T24 so the SDDL/metadata plane joins the
+  one-command recheck pass (the raw-receipt mode already exists for it), and record the FIRST
+  cadence-dated pass receipt when the 2026-11-30 due date arrives (or before, if a drift fires).
+- **retired:** none.
