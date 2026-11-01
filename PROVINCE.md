@@ -318,3 +318,21 @@ Counted by `python3 tools/check-adjacency-table-r49.py --revision <REV>` (predic
 `adj_rows == 7 and linked_rows == 7 and bare_ranges == 0 and anchors_ok == 7 and registry_ok == 7
 and anchors_checker_rc == 0`; the existing `tools/check-adjacency-anchors.py` still re-checks the
 anchors against the live sibling bytes).
+
+## Round-53 host transition — dated absent-surface record (2026-10-31)
+
+Append-only correction; every section above stays as written. The host this lane runs on changed: as of
+2026-10-31 the session host is **Windows 10.0.26200 x64 under Git Bash (MSYS bash 5.3.15)**, not the Arch
+Linux host rounds 1-52 probed. Measured the same day (read-only): `pacman`, `systemctl`, `journalctl`,
+`btrfs`, `nvidia-smi` and `jq` do not resolve (register rows D1-D6,
+`corpus/knowledge/host-transition-drift-r53.md`), and the historical census selftest does not complete
+(40 of 168 cases in 90 s and in 420 s, rc 124; D7). The Core surfaces above stay declared for the Linux
+host class they were minted on — their knowledge entries and recheck procedures remain valid there — and
+read ABSENT/BLOCKED on this host until the operator returns the lane to that host class. The current
+host's own operability state (tool presence, PATH health, interpreter identity, git plumbing) is now a
+documented surface of this province, read by `tools/win-host-census-r53.py` (registry `win-host-census-r53`):
+per-plane verdicts with the decision content in `corpus/knowledge/windows-host-plane-r53.md` (W1-W7,
+sourced S258 S259). The `python3` interpreter name resolves to the Store App-execution-alias stub on this
+host (exit 49) — invoke lane tools with `python`. The git index stays untouchable on NTFS paths: lane
+commits go through the campaign plumbing helper only. Detection and report only; alias, PATH, package and
+plumbing repairs are operator-owned (RP1-RP3). Correction logged in LOG.md (round-53 correction entry).

@@ -4559,6 +4559,7 @@ Append-only continuation; every row of the round-45 table is carried verbatim be
 | selftest-matcher-r51 | gate | `python3 tools/check-selftest-matcher-r51.py --revision <REV> --scratch <DIR> [--runs N] [--census-file <PATH>]` | 0 frozen predicate passes;1 any leg fails;2 usage/read error | runs the census selftest `--runs` times plus two mutant selftests; no separate self-test mode | Round-51 C2; broadened idiom scan plus two rollup/exit-map mutations a liar or neutered census cannot catch | private scratch under `--scratch` | tsukuroi |
 | counter-cheats-r51 | gate | `python3 tools/score-counter-cheats-r51.py --revision <REV> --scratch <DIR> [--counter <PATH>] [--skip-r50] [--runs N]` | 0 predicate `real_pass == 1 and cheats == 5 and cheats_rejected == 5 and r50_cheats_rejected == 0` (round-51 Amendment 1 added the fifth cheat; the row said 4 before it);1 otherwise;2 usage/read error | none: builds a liar, two respelled-pipe, one neutered-harness and one self-checking-liar census and runs the counters on them | Round-51 C2; the five cheat classes it builds are its named scope | private scratch under `--scratch`; census runs | tsukuroi |
 | adjacency-table-r51 | gate | `python3 tools/check-adjacency-table-r51.py --revision <REV> [--lane <repo>] [--control ...]` | 0 frozen predicate passes (`PASS`);1 any leg fails;2 usage/read error;3 an input override without `--control` (`OVERRIDE-NOT-MEASURED`) | none: no self-test mode; the real table, registry and sibling bytes plus built-in forged-display and override controls are the measurement; controls `.ufo/waves/round-51/controls/battery.py` | Round-51 C3; binds displayed anchors and the digest list to the registry; byte-substring quotes are not semantic entailment | read-only lane/sibling Git reads; override fixtures only with `--control` | tsukuroi |
+| win-host-census-r53 | gate | `python tools/win-host-census-r53.py` (spell `python`, not `python3` — the Store alias stub is the python plane's own finding, D8) | 0 all four planes GREEN;1 at least one DEGRADED and none BLOCKED;2 at least one BLOCKED; a probe result, never operator clearance | `python tools/win-host-census-r53.py --selftest` (hermetic, 20 cases, injected resolvers — logic proof; the live run is the host-state reading; both required before any verdict) | Round-53 C1 on the Windows host: four planes (tools, path, python, git); grammar echoes only validated tokens (QUALITY 84), host paths classified never echoed; decision content `corpus/knowledge/windows-host-plane-r53.md` W1-W7 | read-only host probes (`which`, version commands, `isdir`); selftest is in-process, writes nothing | tsukuroi |
 
 ## Scrub grounding — round 49 (the cohort read; GR2 stays partly)
 
@@ -4604,3 +4605,23 @@ that merely prints the expected lines; the round-50 counter-cheat report names t
 
 The round-49 `check-fd-band-r49.py` still measures the R49-C3 witness, but its total-case leg is a minimum
 (167), not an exact count, so a later independently labelled selftest case does not invalidate that witness.
+
+## Windows host plane — round 53 (FRESH-START host)
+
+The lane's host changed: as of 2026-10-31 the session host is Windows 10.0.26200 x64 under Git Bash
+(MSYS bash 5.3.15). The Arch Linux census planes above were minted for the old host and are flagged
+stale-here by the dated drift register (`corpus/knowledge/host-transition-drift-r53.md`, D1-D12): the
+six Linux tools do not resolve, and `bash tools/tsukuroi-census.sh --selftest` does not complete here
+(40 of 168 cases in 90 s and in 420 s, rc 124) — its round-50 "168/168 PASS" is not citable on this
+host. The current host's tool-state surface is read by the new gate `python
+tools/win-host-census-r53.py` (registry `win-host-census-r53`; hermetic `--selftest`, 20 cases):
+`tools` (required vs Linux-only tools), `path` (entries/missing/duplicate values/empty), `python`
+(real interpreter vs the `WindowsApps` alias stub — this host's `python3` exits 49, so invoke
+everything with `python`), `git` (git/gh versions, lane commit identity, repo detection). Exit map
+0/1/2 = all-GREEN / some-DEGRADED / some-BLOCKED; verdict-neutral plane lines; host paths are
+classified, never echoed (QUALITY 84 grammar rule). First live reading (2026-10-31, receipt
+`.ufo/waves/round-53/after/win-census-live.txt`): `WIN_CENSUS: DEGRADED (git=GREEN path=DEGRADED
+python=DEGRADED tools=DEGRADED)` — 5/5 required tools present, 6 Linux-only absent-by-class, 1 stub
+(python3), PATH 51 entries / 3 missing dirs / 5 duplicate values, git 2.55.0.windows.3 + gh 2.101.0
+with the lane identity set. Decision table W1-W7 and operator-gated repair plans RP1-RP3:
+`corpus/knowledge/windows-host-plane-r53.md` (sourced S258 S259, opened 2026-10-31).
