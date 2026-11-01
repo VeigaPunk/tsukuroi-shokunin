@@ -41,3 +41,24 @@ knowledge is wrong — the entries stay valid for their host class, and their re
 Linux tools that simply do not resolve here (that is what D1-D7 flag). D7's budget numbers are
 wall-clock facts of this session's load. D12's second-session behavior is labeled inference, not a
 probe; a later round that opens a second session can measure it and append the correction.
+
+## Round-54 correction — in-row probe dates (2026-10-31, append-only)
+
+Routed defect 4 of closure `5cbcb06e`: the register's original table carried its date only in the
+column header "probe (read-only, 2026-10-31)" and the file's `verified-at:` line, so a row-level
+excerpt loses its date. The original table bytes above stay untouched; this block gives every row
+its in-row probe date, re-affirmed by this round's recheck probe (`tools/recheck-drift-r54.sh`,
+receipt `.ufo/waves/round-54/after/recheck-drift-r54.txt`):
+
+D1 2026-10-31
+D2 2026-10-31
+D3 2026-10-31
+D4 2026-10-31
+D5 2026-10-31
+D6 2026-10-31
+D7 2026-10-31 (raw budget receipts re-derived and committed this round: `.ufo/waves/round-54/d7-receipts/`)
+D8 2026-10-31
+D9 2026-10-31
+D10 2026-10-31 (doc row)
+D11 2026-10-31 (doc row)
+D12 2026-10-31

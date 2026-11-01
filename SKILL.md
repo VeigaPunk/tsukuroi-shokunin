@@ -4560,6 +4560,8 @@ Append-only continuation; every row of the round-45 table is carried verbatim be
 | counter-cheats-r51 | gate | `python3 tools/score-counter-cheats-r51.py --revision <REV> --scratch <DIR> [--counter <PATH>] [--skip-r50] [--runs N]` | 0 predicate `real_pass == 1 and cheats == 5 and cheats_rejected == 5 and r50_cheats_rejected == 0` (round-51 Amendment 1 added the fifth cheat; the row said 4 before it);1 otherwise;2 usage/read error | none: builds a liar, two respelled-pipe, one neutered-harness and one self-checking-liar census and runs the counters on them | Round-51 C2; the five cheat classes it builds are its named scope | private scratch under `--scratch`; census runs | tsukuroi |
 | adjacency-table-r51 | gate | `python3 tools/check-adjacency-table-r51.py --revision <REV> [--lane <repo>] [--control ...]` | 0 frozen predicate passes (`PASS`);1 any leg fails;2 usage/read error;3 an input override without `--control` (`OVERRIDE-NOT-MEASURED`) | none: no self-test mode; the real table, registry and sibling bytes plus built-in forged-display and override controls are the measurement; controls `.ufo/waves/round-51/controls/battery.py` | Round-51 C3; binds displayed anchors and the digest list to the registry; byte-substring quotes are not semantic entailment | read-only lane/sibling Git reads; override fixtures only with `--control` | tsukuroi |
 | win-host-census-r53 | gate | `python tools/win-host-census-r53.py` (spell `python`, not `python3` — the Store alias stub is the python plane's own finding, D8) | 0 all four planes GREEN;1 at least one DEGRADED and none BLOCKED;2 at least one BLOCKED; a probe result, never operator clearance | `python tools/win-host-census-r53.py --selftest` (hermetic, 20 cases, injected resolvers — logic proof; the live run is the host-state reading; both required before any verdict) | Round-53 C1 on the Windows host: four planes (tools, path, python, git); grammar echoes only validated tokens (QUALITY 84), host paths classified never echoed; decision content `corpus/knowledge/windows-host-plane-r53.md` W1-W7 | read-only host probes (`which`, version commands, `isdir`); selftest is in-process, writes nothing | tsukuroi |
+| receipt-run-r54 | instrument | `python tools/receipt-run.py --budget <sec> --receipt <path> -- <command…>` (spell `python` — D8) | 0 command completed within budget, receipt written;1 budget expired, receipt written with `rc=timeout` + `timeout_after_s`;2 could-not-evaluate (usage error, unwritable receipt path); the child's own exit code lives in the receipt's `rc=` line, never mirrored by the exit code | `python tools/receipt-run.py --selftest` (hermetic, 7 cases: injected-runner receipt shapes + real self-spawned rc-0 and timeout children; last line `RECEIPT_RUN_SELFTEST: PASS/FAIL (N cases, N passed, N failed)`) | Round-54 C1, closes the routed scratch-receipt defect (closure `5cbcb06e` defect 3): receipt header keys receipt_run/command/budget_s/start_utc/end_utc/duration_s/timed_out/rc/timeout_after_s/stdout_bytes/stderr_bytes; verbatim byte capture (CRLF preserved); first working use = the D7 90 s/420 s re-derivations `.ufo/waves/round-54/d7-receipts/` | writes only the named receipt path | tsukuroi |
+| recheck-drift-r54 | probe | `bash tools/recheck-drift-r54.sh [--receipt <path>]` | 0 every host-probed register row matches its recorded observation and both doc rows present;1 at least one drift/absent — an appended register correction is then owed; a drift line is honest output, never smoothed | built-in: emits one `D<k> match\|drift\|doc-row` line per register row (12) + `RECHECK_DRIFT: PASS/FAIL` rollup; D7 leg runs `timeout 90 bash tools/tsukuroi-census.sh --selftest` (rc 124 + 0 FAIL + no summary expected) | Round-54 C3: the drift register's recheck loop (prose in the register `recheck:` line, PROVINCE record and SKILL round-53 section) made executable; expected values mirror `corpus/knowledge/host-transition-drift-r53.md` D1-D12 observations of 2026-10-31; decision content `corpus/knowledge/windows-services-plane-r54.md` is the new-plane complement (S261 S262) | read-only probes; `--receipt` writes one lane-tree file; D7 leg writes a deleted temp file | tsukuroi |
 
 ## Scrub grounding — round 49 (the cohort read; GR2 stays partly)
 
@@ -4625,3 +4627,27 @@ python=DEGRADED tools=DEGRADED)` — 5/5 required tools present, 6 Linux-only ab
 (python3), PATH 51 entries / 3 missing dirs / 5 duplicate values, git 2.55.0.windows.3 + gh 2.101.0
 with the lane identity set. Decision table W1-W7 and operator-gated repair plans RP1-RP3:
 `corpus/knowledge/windows-host-plane-r53.md` (sourced S258 S259, opened 2026-10-31).
+
+
+## Windows services and tasks plane — round 54
+
+The drift register's D2/D3 name the lane's systemd units + timers and journal planes ABSENT on this
+host; the operable Windows analog is the service state (`sc.exe query`) and Task Scheduler state
+(`schtasks /query`) surface, now sourced and measured: decision table T1-T8 in
+`corpus/knowledge/windows-services-plane-r54.md` (sourced S261 `schtasks query` and S262
+`sc.exe query`, both Microsoft Learn pages opened 2026-10-31, frontmatter `git_commit_id 48fd0532…`,
+`updated_at` 2026-02-16). Measured 2026-10-31 (read-only, receipts
+`.ufo/waves/round-54/after/services-probes/`): 246 scheduled tasks; 110 active vs 273 total services
+(a bare `sc query` is active-only — S262's `state= active` default); a nonexistent service returns
+win32 1060 with process rc 36; the documented `type= interact` error does not fire on this client
+build (S262 divergence recorded, T6). Two shell-level signatures every probe here must respect:
+MSYS path conversion rewrites `schtasks /query` into `C:/Program Files/Git/query` (spell
+`MSYS_NO_PATHCONV=1`, doubled slashes, or `cmd //c` — T1), and inside powershell.exe `sc` is the
+Set-Content alias, so `sc query <svc>` silently writes a file instead of querying (T7 — run sc from
+bash or spell `sc.exe`). Service/task state changes stay operator-owned (RP4/RP5); this plane is
+detection only. New instruments this round: `python tools/receipt-run.py` (registry
+`receipt-run-r54` — budgeted runner writing raw receipts into the lane tree; closes the routed
+scratch-receipt defect; first use = the D7 90 s/420 s re-derivations,
+`.ufo/waves/round-54/d7-receipts/`) and `bash tools/recheck-drift-r54.sh` (registry
+`recheck-drift-r54` — one command re-verifying register rows D1-D12 against their recorded
+observations).
