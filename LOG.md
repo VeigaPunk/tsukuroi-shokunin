@@ -2061,3 +2061,13 @@ at start: exit 0, 40 W04 (`.ufo/waves/round-54/before/sources-census-start.txt`)
   receipt capability (9, saturated), freshness gained the executable recheck loop + the four routed
   repairs (9, saturated), coverage's map unchanged (9), calibration recorded its own gate findings
   (9), adjacency untouched (8). Trend verdicts in the round report.
+
+## Round 54 — receipts commit (2026-10-31, post-verification fix)
+
+The work (`f24ca241`) and outcome (`01ecfad4`) commits passed the directory `.ufo/waves/round-54` to
+the commit helper, whose file-path contract silently no-opped it — the printed shas were clean but
+the trees carried zero round-54 receipts. Caught by the prompt's own verification rule
+(`git diff <base>..<new> --stat` showed no wave files). Every receipt file is committed explicitly
+in this commit (round-start/end census, before-receipts, selftest, gate receipts, counting battery,
+recheck receipt, 12 services-probe raw captures, the two D7 budget receipts and the runner log); the
+lesson records the class as R54-DIRPATHSPEC.

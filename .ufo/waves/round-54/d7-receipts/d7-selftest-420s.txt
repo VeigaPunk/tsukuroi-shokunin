@@ -1,0 +1,43 @@
+receipt_run=1
+command=bash tools/tsukuroi-census.sh --selftest
+budget_s=420
+start_utc=2026-11-01T03:59:48Z
+end_utc=2026-11-01T04:06:58Z
+duration_s=429.6
+timed_out=1
+rc=timeout
+timeout_after_s=420
+stdout_bytes=1905
+stderr_bytes=0
+--- stdout ---
+PASS healthy: all planes pass (exit 0, HEALTHY)
+PASS healthy: nvidia present and answering (exit 0, HEALTHY)
+PASS healthy: unrestricted dmesg ring preferred (exit 0, HEALTHY)
+PASS healthy: rc=1 backup-only sample is not a defect (exit 0, HEALTHY)
+PASS degraded: Qkk sample drift (exit 1, DEGRADED)
+PASS degraded: foreign packages (exit 1, DEGRADED)
+PASS healthy: foreign set equals the accepted baseline (16 rows, hit) (exit 0, HEALTHY)
+PASS healthy: embedded r6 snapshot is the default source (exit 0, HEALTHY)
+PASS degraded: new foreign arrival is named (exit 1, DEGRADED)
+PASS degraded: baseline version change shows both versions (exit 1, DEGRADED)
+PASS degraded: baseline row no longer installed is never silent (exit 1, DEGRADED)
+PASS degraded: absent baseline never reads HEALTHY (exit 1, DEGRADED)
+PASS degraded: declared hold (IgnorePkg) (exit 1, DEGRADED)
+PASS degraded: failed unit (exit 1, DEGRADED)
+PASS degraded: timer last run failed (exit 1, DEGRADED)
+PASS degraded: kernel error ring (exit 1, DEGRADED)
+PASS blocked: pacman db.lck (exit 2, BLOCKED)
+PASS blocked: pacman binary missing (exit 2, BLOCKED)
+PASS blocked: sample probe error (exit 2, BLOCKED)
+PASS blocked: a sample error ahead of a large -Qkk output still blocks (R42-C1) (exit 2, BLOCKED)
+PASS blocked: systemd user bus unreachable (exit 2, BLOCKED)
+PASS blocked: nvidia hardware, driver offline (exit 2, BLOCKED)
+PASS blocked: both kernel rings unusable (exit 2, BLOCKED)
+PASS blocked: empty ring is not a clean bill (exit 2, BLOCKED)
+PASS healthy: journal/boot plane in the rollup (exit 0, HEALTHY)
+PASS degraded: journal boot errors at entry level (exit 1, DEGRADED)
+PASS degraded: failed services history from journal (exit 1, DEGRADED)
+PASS degraded: enabled timer not armed (drift) (exit 1, DEGRADED)
+PASS blocked: journalctl missing (fails closed) (exit 2, BLOCKED)
+PASS blocked: boot record missing (exit 2, BLOCKED)
+--- stderr ---

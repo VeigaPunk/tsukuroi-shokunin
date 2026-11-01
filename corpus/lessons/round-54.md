@@ -99,6 +99,17 @@ register is not reachable from this host.
   hardcoded. Lesson: a multi-row reporter must derive its totals from what it emitted, and every
   classification branch ends in a catch-all that names its input.
 
+- **R54-DIRPATHSPEC** (class: bulk tool fed a directory where its contract names files; silent
+  no-op) — the work and outcome commits passed `.ufo/waves/round-54` to the commit helper, whose
+  contract reads "Each path is repo-relative" and whose body branches on `os.path.isfile`:
+  a directory path took the else-arm and REMOVED the (nonexistent) path from the tree, so both
+  commits landed without a single round-54 receipt while printing a clean sha — caught only because
+  the post-commit verification step (`git diff <base>..<new> --stat`, the prompt's own rule) showed
+  no wave files. Captured-by: the commit-verification diff, this round. Fix: enumerate receipt
+  files explicitly and pass each path; after every helper commit, verify the committed tree contains
+  the paths the commit message claims (`git ls-tree -r <new> -- <dir>`), never trust the printed sha
+  alone. Receipts landed in the follow-up commit of this round.
+
 Sweep that found no further mistakes this round: the round's files were re-read for superseded
 claims and stale numbers before the outcome commit (`grep -n "python3 tools" SKILL.md` → only the
 historical r51 rows, which describe Linux-era tools as such; the four r53-routed defects each
