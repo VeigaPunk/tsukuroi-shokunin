@@ -4030,3 +4030,49 @@ cell's command at this tree.
   one-command recheck pass (the raw-receipt mode already exists for it), and record the FIRST
   cadence-dated pass receipt when the 2026-11-30 due date arrives (or before, if a drift fires).
 - **retired:** none.
+
+## Round 58 — declaration (2026-11-01, base `5a59f79e…`, written before any measurement)
+
+Context: r57 admitted (non-author verifier spot-check committed at `5a59f79e`). Its closure routed four
+status-neutral carry-ins, addressed this round BEFORE the claims: (1) the r57 in-place annotation of the
+`recheck-services-r56` registry row — noted as a lesson correction (the convention for registry corrections is
+the appended superseding table, the round-18/19/… mechanism; C2 applies that mechanism to the same row this
+round); (2) the sed-deleted failure line self-named in `bde06613` — the restated lesson was verified this
+round against committed bytes (the after-receipt carries only the replacement line; the lesson says exactly
+that), and the rule (append the correction beside the preserved failure, never substitute) binds this round's
+receipts; (3) the stale `local master = origin/master = 51199d52` header statement in the r57 report —
+superseded minutes later by the same round's correction commit `bde06613` (fleet-repo report, lane cannot
+mutate it; the correction block is recorded here and in the round-58 lesson and report); (4) standing L0s
+`tsukuroi | round-53` (wave-dispatch surface, `.ufo/l0-questions.md:229`), the round-1 kaidoku/revenger scope
+(PROVINCE Frontier), and `tsukuroi | round-57` (S266 interact authorization, `.ufo/l0-questions.md:247`) all
+stand unanswered — routed around, never treated as answered.
+
+FRESH-START (prompt §7 names r50/r51/r52): the three `rejected-honest-stop` closures re-spot-checked from
+committed bytes at this base (receipt `.ufo/waves/round-58/before/freshstart-spotcheck.txt` + top-level JSON
+fields re-parsed): r50 `.ufo/waves/round-50/after/c1-final.json` → `verdict FAIL, verdicts_ok 0, marks_ok 0,
+seats_ok 18`; r51 `.ufo/waves/round-51/before/c2-cheats-at-amend1.json` → exists at base but is a **0-byte**
+file (committed by `91227829` "round NOT complete: w2 not dispatched" — the battery was never populated),
+consistent with the r51 closure's unmeasured verdict; r52 `.ufo/waves/round-52/after/c1-final.json` →
+`verdict FAIL, verdicts_ok 1, marks_ok 0, seats_ok 16` (predicate bound 18). Ruled out this round (each for
+cause, none reachable by a do-nothing control): (a) the counted-cohort depth resume — still gated on the
+absent wave-dispatch surface (L0 round-53); (b) re-claiming any admitted r53-r57 move (live census,
+receipt/budget modes, T1-T24) — an admitted move re-claimed is not a move; (c) a bare re-run of
+`recheck-services-r56.sh` or `recheck-drift-r54.sh` as THE freshness move — the instruments exist; a re-run is
+supporting evidence inside C3, never the move; (d) the `considerthese/` five self-improvement ideas —
+aggregator/wave-class or Linux-host-class on this host (mined again this round; nothing adopted).
+
+The r57 planned item (lane stays on this host) is C2 below. The services planes' 2026-11-30 cadence pass is
+NOT due today and no drift fired; the census pass C3 runs is the W-plane's own day-0 anchor under its NEW
+dated line, not the services-plane cadence pass.
+
+| # | axis | claim | before → after | falsifier | verdict condition |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — S272 S273 to be opened this round AFTER this declaration) | `corpus/knowledge/windows-eventlog-plane-r58.md` — the Windows EVENT-LOG triage plane, the current host's analog of the journal/boot plane this lane owns in Core (drift rows D2/D3 name the Linux journal ABSENT here; PROVINCE round-53 host-transition record). Rows E1-E6: channel inventory (`wevtutil el`), newest-first text query on System, the query-absence class on a nonexistent channel, `gli` channel metadata, the level-filtered `/q:` xpath error query (the `journalctl -p err` analog, Git Bash quoting class), and the absence class under `gli` compared with E3's query-leg signature. Every state-changing form (`wevtutil cl` clear-log, log config) is documented operator-owned and never executed. Probes through receipt-run into `.ufo/waves/round-58/eventlog-probes/`. Header duty `python tools/check-knowledge-header.py --revision <work>`. | before at base (verified this declaration, receipt `.ufo/waves/round-58/before/c1-c2-c3-at-base.txt`): `git cat-file -e 5a59f79e:corpus/knowledge/windows-eventlog-plane-r58.md` → rc **128**; negative sweep `git grep -l -i wevtutil <base> -- corpus SKILL.md PROVINCE.md tools` → **0 files** (rc 1); SOURCES rows **271**. after: `grep -c "^| E" <note>` ≥ 3; SOURCES rows ≥ 273, 0 malformed; knowledge-header gate 0 findings at the work revision | at base the note, the rows and the S-rows do not exist; no lane file mentions the surface (sweep above) | rows ≥ 3 AND every row cites an opened S-row or a dated receipt AND knowledge-header gate 0 findings AND SOURCES ≥ 273 rows 0 malformed AND depth ordinal unchanged (8) — the move is the sourced entry, not the ordinal |
+| C2 | operability | `tools/recheck-services-r56.sh` extended to the FULL services surface in one command: rows T13-T16 (r56 config/failure plane) and T19-T24 (r57 SDDL plane) join the pass → **22 rows**. Class split per the notes' own operative lines: T19-T23 LIVE re-run (read-only/refusal class: sdshow, sdshow-absent, qsidtype, qdescription-vs-qdesc, qtriggerinfo/enumdepend); T13-T16 + T24 RECEIPT-COMPARED — their probes are config-change-shaped or SCM-write-shaped, so the instrument NEVER re-executes them; it verifies each committed dated receipt (`.ufo/waves/round-56/services-probes/t13-t18`, `.ufo/waves/round-57/services-probes/t27-input-sddl-line.txt` + `t28-…`) still carries the row's invariant signature, failing the row on receipt-missing or signature drift. Registry: the `recheck-services-r56` row is corrected by an APPENDED `## Gate and probe registry — round58 superseding current rows` table (round-46 rows carried verbatim, one row updated) — the r57 carry-in lesson's fix, applied to the same row r57 edited in place. | before at base (verified): `grep -oE 'T[0-9]+ match' tools/recheck-services-r56.sh \| sort -u \| wc -l` → **12**; script mentions T13/T19/receipt-compared → **0**; round-58 registry table → **0**. after: row count **22**; one live pass `bash tools/recheck-services-r56.sh --receipt <r> --raw-dir <dir>` → rc 0, `RECHECK_SERVICES: PASS (22 rows, 22 match, 0 drift)`; `bash -n` rc 0; registry-coverage gate 95 tools / 95 rows / 0 findings against the NEW highest table; the round-46 table byte-unchanged | at base no executable instrument re-verifies T13-T24; no superseding registry table exists | 22 rows judged AND 0 drift (any drift = honest FAIL rc 1 + an appended correction owed, reported as such) AND the receipt carries the full output AND registry-coverage 0 findings AND the round-46 table byte-identical |
+| C3 | freshness | The W-plane note (`windows-host-plane-r53.md`) joins the dated cadence contract AND its STALE selftest expectation is corrected by append: the note's operative duty says "expect PASS, **20 cases**" while the instrument has reported **25 cases** since r56's receipt/budget modes (measured at this base: `WIN_CENSUS_SELFTEST: PASS (25 cases, 25 passed, 0 failed)` — note-vs-instrument drift). An operative `recheck:` line is appended (old line byte-unchanged, journal-boot-plane convention): day 0 = 2026-11-01 (the committed r56 receipt-mode receipt `.ufo/waves/round-56/receipts/win-census-receipt-mode.txt`), next pass due **2026-11-30**, operative expectation PASS with **25** cases. Plus the W-plane's first re-verification pass under the new line: fresh selftest 25/25 + a live receipt-mode census run, W-plane verdicts compared against the r56 receipt (drift-class values recorded, never judged). | before at base (verified): `grep -c "next pass due" corpus/knowledge/windows-host-plane-r53.md` → **0**; `grep -c "20 cases" <note>` → **1** (the stale line); instrument selftest → 25 cases. after: the dated line ≥ 1 naming 25 cases; the stale "20 cases" line byte-unchanged (append-only); fresh selftest PASS 25/25 rc 0; a live receipt-mode run committed under `.ufo/waves/round-58/receipts/` | at base no note names a W-plane due date; the note's expectation contradicts the instrument (drift unrecorded) | dated line present AND the old line byte-identical AND fresh selftest PASS 25/25 AND the live receipt committed AND the r56-vs-live verdict comparison recorded (any plane flip = honest record, not smoothed) |
+
+Causal separability: C1 touches only its new note + SOURCES rows; C2 touches only the recheck script + the
+appended SKILL registry section; C3 touches only the W-plane note header + fresh receipts. No claim's
+verification depends on another having landed. No exploratory claim this round. The r57-ruled-out bare-rerun
+class is respected: C3's census pass is the day-0 anchor of a NEW committed cadence line plus a
+stale-expectation correction — the pass alone is not claimed.

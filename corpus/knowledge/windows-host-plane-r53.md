@@ -1,6 +1,7 @@
 source: S258 S259 (rows in `corpus/SOURCES.md`, both opened 2026-10-31) plus the dated host captures under `.ufo/waves/round-53/after/` of this repo (`win-census-live.txt`, `native-path-view.txt`, `win-census-selftest.txt`)
 verified-at: 2026-10-31 (host: Windows 10.0.26200 x64 under Git Bash / MSYS, bash 5.3.15; git 2.55.0.windows.3, gh 2.101.0, node v24.21.0, Python 3.13.15; census capture 2026-10-31)
 recheck: 30d — re-run `python tools/win-host-census-r53.py --selftest` (expect PASS, 20 cases) and the live run; compare the four plane verdicts with `.ufo/waves/round-53/after/win-census-live.txt`; re-open S258/S259 on upstream content change
+recheck: 30d from day 0 2026-11-01 (the r56 census receipt-mode first use, receipt `.ufo/waves/round-56/receipts/win-census-receipt-mode.txt`: rc 1, `WIN_CENSUS: DEGRADED (git=GREEN path=DEGRADED python=DEGRADED tools=DEGRADED)`) — next pass due 2026-11-30; the operative selftest expectation is PASS with **25 cases** (the r56 receipt/budget modes added five cases — the "20 cases" figure in the line above is superseded by this line and stays for the record); compare the four plane verdicts with the day-0 receipt; instrument `python tools/win-host-census-r53.py [--receipt <path>] [--budget <s>]`; a late pass is observable from this line (operative; appended r58, supersedes the cadence-only line above, which stays)
 
 # The Windows host tool-state plane (round 53)
 

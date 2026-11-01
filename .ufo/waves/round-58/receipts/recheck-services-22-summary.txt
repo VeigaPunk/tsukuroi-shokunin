@@ -1,0 +1,29 @@
+recheck_services_r56=1
+date_utc=2026-11-01T11:04:20Z
+rows=22
+matched=22
+drift=0
+---
+T1 match (bare schtasks rc 1 mangled-option error — MSYS path conversion class)
+T2 match (schtasks CSV rc 0, 246 rows — count drift-class, r54 captured 246)
+T3 match (nonexistent task rc 1 path-class error)
+T4 match (query rc 0: active-only 111 blocks vs state= all 273 — counts drift-class, r54 captured 110/273)
+T5 match (nonexistent service rc 36 FAILED 1060)
+T6 match (type= interact rc 0 interactive listing — S262's documented error still does not fire)
+T7 match (powershell rc 0 no output, stray 'query' file recreated with wuauserv, temp cwd deleted)
+T8 match (state= all rc 0, no Enum more-data message — S262 resumption path stays doc-only here)
+T9 match (queryex rc 0 PID+FLAGS present;         STATE              : 4  RUNNING  — value drift-class)
+T10 match (queryex nonexistent rc 36 FAILED 1060)
+T11 match (qc rc 0 QueryServiceConfig with START_TYPE+BINARY_PATH_NAME;         START_TYPE         : 3   DEMAND_START — value drift-class)
+T12 match (qc nonexistent rc 36 [SC] OpenService FAILED 1060: — qc's own function line)
+T13 match (receipt-compared: 2 receipt(s) rc+invariant held — probes not re-executed)
+T14 match (receipt-compared: 1 receipt(s) rc+invariant held — probes not re-executed)
+T15 match (receipt-compared: 1 receipt(s) rc+invariant held — probes not re-executed)
+T16 match (receipt-compared: 2 receipt(s) rc+invariant held — probes not re-executed)
+T19 match (sdshow rc 0, D:-only descriptor with 3 AccessAllowed ACEs — the r57 shape)
+T20 match (sdshow nonexistent rc 36 [SC] OpenService FAILED 1060:)
+T21 match (qsidtype rc 0, QueryServiceConfig2 with SERVICE_SID_TYPE line)
+T22 match (qdescription rc 0 QueryServiceConfig2 SUCCESS; shorthand qdesc rc 103 usage gate)
+T23 match (qtriggerinfo rc 0 with START SERVICE trigger lines; enumdepend rc 0 entriesread = 0)
+T24 match (receipt-compared: 3 receipt(s) rc+invariant held — probes not re-executed)
+RECHECK_SERVICES: PASS (22 rows, 22 match, 0 drift)
