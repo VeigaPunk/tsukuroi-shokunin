@@ -3706,3 +3706,59 @@ round; S265 (correction note on S262, R2); C2 is the sourced claim. Round-start 
 mined (latest 2026-10-26; the cross-note correction propagation map was partially applied in r54;
 no still-unimplemented proposal clears this round's bar — the R1 dedupe is routed-repair work, not
 an adopted proposal); nothing adopted.
+
+## Round 55 — measured outcome (2026-10-31, author-side; non-author closure pending)
+
+Declaration `76b9d9e5`; work `3ac4b124`. All measurements run on THIS host at the work tip
+`3ac4b124` (counting battery: `.ufo/waves/round-55/after/c1-c2-c3-counts-at-work.txt`); before-
+receipts at the declaration commit (`.ufo/waves/round-55/before/c{1,2,3}-at-base.txt`).
+
+| Claim | Counting command → measured | Verdict | Axis effect |
+|---|---|---|---|
+| C1 operability | before (`before/c1-at-base.txt`): `grep -h "^rc=" .ufo/waves/round-54/after/services-probes/* \| wc -l` → **0** across the 12 output-only r54 receipts; `wc -c` of `t7-powershell-sc-alias-stdout.txt` → **0**; reissued dir absent. After: `ls .ufo/waves/round-55/reissued-r54/* \| wc -l` → **11**; `grep -l "^rc=" … \| wc -l` → **11** (every receipt self-describing); the re-derived t7 stdout receipt carries `command=powershell … sc query wuauserv`, `rc=0`, `stdout_bytes=0` — the 0-byte no-metadata class closed; rc verdicts in the receipts: t1 rc=1 (mangled T1 signature byte-matched), t3 rc=1, t5 **rc=36** (the value the r54 closure had to re-derive by hand), t6 rc=0 (divergence reproduces), t4-sc-active 109 SERVICE_NAME blocks / t4-sc-all 273 (host drift, documented class; wuauserv reads `4 RUNNING` today vs r54's `1 STOPPED` — drift, not smoothing); r54 receipts untouched (`git diff 59a62bfe 3ac4b124 -- .ufo/waves/round-54` empty). | **PASS measured** | operability unchanged (9, saturated); the receipt-run capability's second working use, and the routed-defect-2 rule now applied by default |
+| C2 depth (lowest tied, 8; sourced S263 S264 opened this round) | before: file absent at base, rc 128 / grep rc 2 (`before/c2-at-base.txt`). After: `grep -c "^| T" corpus/knowledge/windows-services-plane-r55.md` → **4** (target ≥3); python row check: 4/4 rows cite S263/S264/S265 or a dated capture; header duty `python tools/check-knowledge-header.py --revision 3ac4b124` → PASS, 71 notes, 0 findings (`.ufo/waves/round-55/after/knowledge-header-at-work.txt`); SOURCES rows 262 → **265** (S263, S264, S265). Measured signatures: queryex adds PID + FLAGS and a wait-hint states line (T9); nonexistent-service = FAILED 1060 rc 36 for both queryex (T10) and qc (T12, function line `[SC] OpenService FAILED 1060:` vs query's `EnumQueryServicesStatus:OpenService`); qc shows START_TYPE + BINARY_PATH_NAME and codes TYPE differently from query (`20 WIN32_SHARE_PROCESS` vs `30 WIN32`, T11); S264's Remarks field list omits START_TYPE (doc-list incompleteness, recorded). | **PASS measured** | depth unchanged (8) — the move is the sourced entry, not the ordinal |
+| C3 calibration | before: gate absent at base, rc 128 (`before/c3-at-base.txt`); `grep -c "^## Round 54 — declaration" SCORECARD.md` → **2**. After: `grep -c` → **1** (R1); `python tools/check-scorecard-unique-sections.py --selftest` → `SCORECARD_UNIQUE_SECTIONS: PASS (5 cases, 5 passed, 0 failed)` rc 0; the gate on the COMMITTED blob (`git show 3ac4b124:SCORECARD.md` → `--file`) reads ok rc 0 (`.ufo/waves/round-55/after/scorecard-unique-sections-at-work.txt`); worktree == committed (`git diff 3ac4b124 -- SCORECARD.md` empty). The gate's first real sweep found the routed r54 pair AND an unmarked round-30 declaration prefix-repost (removed, named) AND three legacy marked pairs (kept — see R1). | **PASS measured** | calibration unchanged (9, saturated); SCORECARD shape is now gate-enforced instead of prose |
+
+Repairs landed (routed defects of closure `59a62bfe`, not claims): **R1** the SCORECARD dedupe —
+the unmarked r54 declaration pair (one-word divergence, kept copy = `/query` wording matching the
+measured T1 signature) and an unmarked round-30 declaration prefix-repost (`b == a[:len(b)]`, no
+unique content) removed and named in the correction block "Round-54/30 duplicate-section
+deduplication — correction"; the three legacy declared-correction pairs (r26 axes, r37 axes, r37
+capabilities) stay, each already superseded in-body by its correcting copy — the sweep that found
+them is what reshaped C3's predicate (lesson R55-ZERO-DUP-PREDICATE). **R2** SOURCES row S265 (the
+page-side typo note; S262 stands). **Routed defect 2** (route T-probes through receipt-run) is C1's
+surface: 11/11 reissued receipts carry rc/argv metadata.
+
+Named limits: the C1 re-derivations are TODAY's captures, not r54's (service state and counts drift
+with the host — wuauserv RUNNING vs STOPPED, 109 vs 110 active services, 273 total unchanged); the
+claim's surface is the receipt METADATA, which is complete. S263/S264 are archived (2012-R2
+library) pages, recorded as such in the rows and the knowledge note; the current reference's TOC
+gap (no queryex/qc pages) is recorded, not smoothed. T10/T12's rc-36 arithmetic stays labeled
+inference (1060 mod 256). `check-self-assessment.py` remains could-not-evaluate on this host (K13,
+named limit, unchanged since r53). The L2 floor stays an absent surface, routed around. Gate
+receipts at the work tip: registry-coverage PASS 93 tools / 93 rows / 0 findings;
+knowledge-header PASS 71 notes / 0 findings; receipt-run selftest PASS 7/7; census start exit 0
+(41 W04) → end exit 0 (42 W04, +1 = S265's same-URL warning, warning-class, no E-code).
+
+## Axes — current self-assessment (round 55 final measured surface)
+
+Restated 2026-10-31 at the round-55 final tree `3ac4b124`; ordinals unchanged (all three claims are
+measured moves on saturated or lowest axes; the depth move is the sourced entry, not a number).
+Counts re-derived with each cell's command at this tree.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 71 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4677 `wc -l`; `corpus/lessons/` 84 files (`find corpus/lessons -type f \| wc -l`); the sourced services extended-query/config plane T9-T12 landed round 55 (round-55 measured outcome; S263/S264 archive pages); GR1-GR3 of the scrub entry remain pending behind the operator-gated cohort resume; no ordinal move. | round 4; round-55 entry added, ordinal unchanged |
+| coverage | 9 | `corpus/README.md` 522 `wc -l` (unchanged — the r55 plane extends the r54 services surface inside the same province record; no map row added or re-homed); PROVINCE Core, Frontier and Adjacent sections present. | round 11; unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` PASS (168/168) on its Linux host class (non-runnable here, D7); `python tools/win-host-census-r53.py --selftest` PASS (20/20); `python tools/receipt-run.py --selftest` PASS (7/7); 11/11 reissued r54 T-probe receipts carry rc/argv metadata (`.ufo/waves/round-55/after/c1-counts.txt`); live census DEGRADED rc 1; registry-coverage 93/93 at `3ac4b124`. | round 11; round-55 reissued-receipt battery added, ordinal unchanged |
+| freshness | 9 | drift register D1-D12 re-verified by one committed command, 0 drift (r54 receipt stands; no register change this round); S262 re-opened live this round (S265 correction row), S261 unchanged; sources census exit 0 at round start and end (41 → 42 W04, the +1 warning-class, `.ufo/waves/round-55/{before,after}/sources-census-*.txt`). | fleet round 1; round-55 source re-verification added, ordinal unchanged |
+| calibration | 9 | the axes table above restated to counts recomputed on this host; SCORECARD round-section uniqueness now gate-enforced (`tools/check-scorecard-unique-sections.py`, selftest 5/5, committed-blob run ok — `.ufo/waves/round-55/after/scorecard-unique-sections-at-work.txt`); the gate's first sweep caught an unmarked r30 repost the lane had shipped twice; `python tools/check-self-assessment.py` cannot evaluate here (K13, named limit). | round 10; round-55 uniqueness gate added, ordinal unchanged |
+| adjacency | 8 | formal overlap table present; no sibling scope touched; the extended services surface stays inside the lane's own host-operability province (PROVINCE round-53 record); nothing absorbed; contested kaidoku/revenger ownership remains unruled (carried, routed around). | fleet round 1; unchanged |
+
+- **planned (next round):** operator-gated first — the L0 wave-dispatch question still decides the
+  r52 depth resume; if the lane stays on this host: give `win-host-census-r53` a `--receipt` mode
+  routed through `receipt-run.py` (carried from r54's plan; C1 exercised the instrument on the
+  T-probe set this round), add `recheck-drift-r54.sh --budget <s>` so the D7 leg can take the 420 s
+  budget without editing the script, and extend the services plane's recheck discipline to the r55
+  rows (fold T9-T12 into a recheck pass alongside the r54 T1-T8 probes on their 30d cadence).
+- **retired:** none.

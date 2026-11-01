@@ -2091,3 +2091,63 @@ bytes (r50 `verdicts_ok 0`; r51's amend1 receipt absent at `c0ad548a`; r52 `seat
 files); ruled-out set in the SCORECARD declaration. Round-start census exit 0, 41 W04
 (`.ufo/waves/round-55/before/sources-census-start.txt`). All probes this round read-only; every
 repair operator-gated; receipt paths live in the lane tree, never scratch.
+
+## Round 55 — measured outcome (2026-10-31; base `59a62bfe`, declaration `76b9d9e5`, work `3ac4b124`)
+
+- **Repairs first (routed defects of closure `59a62bfe`; not claims).** R1: the SCORECARD dedupe —
+  two UNMARKED duplicate sections removed and named in the correction block "Round-54/30 duplicate-
+  section deduplication — correction": the r54 declaration pair (kept copy = the `/query` wording
+  matching the measured T1 signature; the removed copy read `/opt`; `diff` verified exactly one
+  word differed) and an unmarked round-30 declaration prefix-repost (`b == a[:len(b)]`, 15 lines,
+  no unique content). Three further duplicate-heading pairs found by the same sweep are the file's
+  declared-correction convention (the later copy names its predecessor and restates only corrected
+  rows) and were KEPT — removing them would delete historical rows that exist only in the earlier
+  copy; that finding reshaped C3's predicate (lesson R55-ZERO-DUP-PREDICATE). R2: SOURCES row S265,
+  the correction note recording that S262's (and S263's) Remarks "WIN32_EXIT_B, SERVICE_EXIT_B" is
+  a typo on the pages while every measured receipt shows WIN32_EXIT_CODE / SERVICE_EXIT_CODE; S262
+  stands, no supersedes.
+- **C1 operability PASS.** The whole r54 T-probe set re-derived through `tools/receipt-run.py` and
+  committed at `.ufo/waves/round-55/reissued-r54/` (11 receipts): 11/11 carry `^rc=` + argv +
+  budget + UTC stamps + stream sizes; the r54 0-byte `t7-powershell-sc-alias-stdout.txt` class is
+  closed by a receipt reading `command=powershell … sc query wuauserv`, `rc=0`, `stdout_bytes=0`;
+  the stray `query` file (10 bytes, `wuauserv\r\n`) reproduced inside scratch and its bytes are
+  receipted through `cat query`. Receipt verdicts: t1 rc=1 (mangled signature byte-matched), t3
+  rc=1, t5 rc=36 (the value the r54 closure had to re-derive by hand), t6 rc=0 (the S262 divergence
+  reproduces), t4 109 active / 273 total, wuauserv `4 RUNNING` today (r54: STOPPED — host drift,
+  documented class). r54 receipts untouched (`git diff 59a62bfe 3ac4b124 -- .ufo/waves/round-54`
+  empty). Before: 0 `rc=` lines across the r54 set (`before/c1-at-base.txt`).
+- **C2 depth PASS (sourced; lowest tied axis).** `corpus/knowledge/windows-services-plane-r55.md`:
+  4 rows T9-T12 (`grep -c "^| T"` = 4; base rc 2), every row citing S263/S264/S265 or a dated
+  receipt under `.ufo/waves/round-55/services-probes/` (its own dir — C1 and C2 counters never read
+  each other's surfaces). Measured signatures: `sc queryex` adds PID + FLAGS and a wait-hint states
+  line; nonexistent service = FAILED 1060 rc 36 for queryex (T10) and qc (T12 — function line
+  `[SC] OpenService FAILED 1060:` differs from query's `EnumQueryServicesStatus:OpenService`);
+  `sc qc` shows START_TYPE and BINARY_PATH_NAME and codes TYPE differently from query
+  (`20 WIN32_SHARE_PROCESS` vs `30 WIN32` — never diff TYPE across the two commands); S264's
+  Remarks field list omits START_TYPE (doc-list incompleteness recorded, not smoothed). Sources:
+  S263/S264 are ARCHIVED Microsoft pages (the current Windows Server reference TOC carries only sc
+  config/create/delete/query — recorded in the rows); both carry the same archive commit identity
+  `5327995a…`. Header gate PASS 71 notes / 0 findings; SOURCES rows 262 → 265.
+- **C3 calibration PASS.** `tools/check-scorecard-unique-sections.py` (registry
+  `scorecard-unique-sections-r55`): selftest `SCORECARD_UNIQUE_SECTIONS: PASS (5 cases, 5 passed,
+  0 failed)` rc 0; the gate on the committed blob reads ok rc 0; worktree == committed. Predicate:
+  a duplicate `##` heading pair is a finding only when NEITHER body declares supersession — the
+  rule the three legacy correction pairs already satisfy and the two removed copies violated. The
+  gate's limit (it cannot prove a marker true) is named in the docstring and registry row.
+- **Gate receipts at the work tip `3ac4b124` (`.ufo/waves/round-55/after/`):**
+  registry-coverage PASS 93 tools / 93 rows / 0 findings (the new gate tool registered);
+  knowledge-header PASS 71 notes / 0 findings; receipt-run selftest PASS 7/7;
+  scorecard-unique-sections ok rc 0; counting battery c1-c2-c3-counts-at-work.txt (includes one
+  honest failed-counter line — a ugrep pipe-form error — replaced in-place by the python re-count,
+  lesson R55-UGREP-PIPE).
+- **Named limits (reported, not smoothed):** C1's re-derivations are today's captures (drift
+  class); S263/S264 archived-page status recorded; T10/T12 rc-36 arithmetic labeled inference;
+  `check-self-assessment.py` stays could-not-evaluate (K13); L2 floor absent surface, routed
+  around (L0 `tsukuroi | round-53` unanswered); census 41 → 42 W04 (the +1 warning-class, S265
+  same-URL; no E-code either pass). Mistakes mined: R55-HEREDOC-TRUNCATION,
+  R55-MSYS-NO-PATHCONV-SELF, R55-ZERO-DUP-PREDICATE, R55-UGREP-PIPE (corpus/lessons/round-55.md).
+- **Round-level admission (author-side):** all three claims verify by measurement on THIS host; no
+  axis harmed — depth gained a sourced entry (8), operability self-describing receipts + the
+  receipt capability's second working use (9, saturated), freshness re-opened S262 with a recorded
+  correction (9, saturated), calibration gained the uniqueness gate (9, saturated), coverage map
+  unchanged (9), adjacency untouched (8). Trend verdicts in the round report.
