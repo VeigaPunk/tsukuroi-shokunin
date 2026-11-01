@@ -3762,3 +3762,85 @@ Counts re-derived with each cell's command at this tree.
   budget without editing the script, and extend the services plane's recheck discipline to the r55
   rows (fold T9-T12 into a recheck pass alongside the r54 T1-T8 probes on their 30d cadence).
 - **retired:** none.
+
+## Round-52 seat-file count — counting command (round 56; carry-in 1 of closure `aeb268f3`)
+
+The "58 seat files" figure in "Round 55 — declaration" (the r52 spot-check bullet) is a
+counting-convention number; this block supplies its command (a count carries its command,
+CORPUS round-1 rules):
+
+    git ls-tree -r --name-only HEAD -- .ufo/waves/round-52 | grep -cE "R52[A-Za-z0-9]*\.md$"
+    # → 58  (measured 2026-11-01 at `62b47771`; identical at the r55 base `59a62bfe`)
+
+Convention: EVERY seat-report `.md` of the round-52 wave across all role classes (Crit, Rev,
+Exec, Scout, Scribe, Sent, Mut, Conn — including `R52CritDecl.md` and `R52CritMistakes.md`),
+58 distinct files, each present exactly once. Sub-conventions on the same tree, for
+reconciliation: the 18-seat GR cohort glob `R52(Crit|Rev)GR[^/]*\.md$` counts 17 committed —
+the 16 bound reports plus the extra `R52CritGR2Host.md`, with `R52CritGR1b.md` and
+`R52CritGR3b.md` absent — exactly the two "no report" unbound seats behind `seats_ok 16` in
+`.ufo/waves/round-52/after/c1-final.json` (predicate binds `seats_ok == 18`). The
+load-bearing values in the r55 declaration (`seats_ok 16`, verdict FAIL, verdicts_ok 1) are
+read from that JSON and are exact; only the seat-file figure needed its command named.
+
+## Round 56 — declaration (2026-11-01, base `62b47771…`, written before any measurement)
+
+Context: r55 admitted (non-author verifier spot-check committed at this base, `62b47771`).
+Its closure routed four carry-ins; they land first as repairs R1-R4, not claims (r33/r34
+precedent): **R1** the r52 seat-file counting command (block above); **R2** the r55 lesson
+Gate's explicit zero-rejections line (append-only); **R3** scratch hygiene — the r55 dir was
+re-inspected this round: empty at the spot-check's observation, but the closure session
+itself wrote `closure.json` there at 06:19Z, after observing it; disposition recorded in the
+round report and LOG (this round's own scratch `scratch/tsukuroi-r56` is deleted before
+finish); **R4** the W04 watch count noted: **42 at round start**, stable against the r55 end
+count (receipt `.ufo/waves/round-56/before/sources-census-start.txt`).
+
+FRESH-START (prompt §7 names r50/r51/r52): the three `rejected-honest-stop` closures
+re-spot-checked against committed bytes this round — r50
+`.ufo/waves/round-50/after/c1-final.json` reads `verdict FAIL, verdicts_ok 0, marks_ok 0,
+seats_ok 18`; r51 `.ufo/waves/round-51/before/c2-cheats-at-amend1.json` does not exist at
+`c0ad548a` (`git cat-file -e` rc 128); r52 `.ufo/waves/round-52/after/c1-final.json` reads
+`verdict FAIL, verdicts_ok 1, seats_ok 16` (predicate binds `== 18`; unbound
+`R52CritGR1b`/`R52CritGR3b`). The declared round rules out:
+
+- **The counted-cohort depth resume** (r50/r51/r52's common binding: amend GR2/GR3, fresh
+  18-seat cohort through check-scrub-admission-r5x) — still unreachable: no wave/AgentSwarm
+  dispatch surface on this host; L0 `tsukuroi | round-53` stands unanswered, routed around,
+  never treated as answered. A do-nothing control cannot reach the claim, but neither can
+  this round; asserting `seats_ok` would fabricate.
+- **Re-claiming admitted r53/r54/r55 moves** (win-host-census live runs, T1-T8, T9-T12, the
+  D1-D12 drift recheck, the uniqueness gate, the reissued receipts): landed, verified, and a
+  do-nothing control already reaches them — no fresh axis-move.
+- **r53-planned RP1/RP2 post-state verification arms**: the operator-gated PATH/alias repairs
+  remain unexecuted; post-state arms could only re-report today's DEGRADED state.
+- **Sourcing D12's fnm second-session behavior**: requires a second concurrent session; this
+  round is single and inline. Cannot be measured honestly here.
+- **A bare re-run of `recheck-drift-r54.sh` or a re-fetch of S261/S262 as THE freshness
+  move**: a do-nothing control reaches a pure re-run. (C2 below is not a re-run: the
+  executable T1-T12 pass does not exist at base; C1's 420 s D7 leg is a new parameterized
+  mode with its own raw receipt, not a repeat of the r54 run.)
+
+Assimilation: `considerthese/` mined (latest 2026-10-26): the five self-improvement ideas are
+aggregator/wave-class or Linux-host-class on this host, and the cross-note correction
+propagation map was partially applied in r54; none clears this round's bar; nothing adopted.
+The shokuknow register is not reachable from this host. L2 floor (MISSION ≥8 in one batched
+AgentSwarm call): absent surface, routed around (standing L0 `tsukuroi | round-53`); the
+round-1 kaidoku/revenger scope L0 likewise stands, routed around. Lowest-axis duty: depth and
+adjacency tied lowest at 8 — **C3 works depth**. Saturation 9 / window 3; no capability entry
+is claimed this round, so the stagnation nudge is not invoked. Ordinals at base: depth 8,
+coverage 9, operability 9, freshness 9, calibration 9, adjacency 8; none retired.
+
+| Claim | Axis | Surface moved | Counting command | Do-nothing control at base | Target (predicate) |
+|---|---|---|---|---|---|
+| C1 | operability | The r55 planned instrument surfaces land: `win-host-census-r53.py --receipt <path> [--budget <s>]` — the live census re-run routed THROUGH the receipt-run instrument by import (`run_command`/`build_receipt` reused, not duplicated), so the census writes its own receipt-run-format receipt (argv, budget, start/end UTC, duration, `rc=`, stream sizes, verbatim streams) — and `recheck-drift-r54.sh --budget <s>` — the D7 leg takes its wall-clock budget as a parameter (default 90 preserves today's behavior; the register's 420 s class runs without editing the script). Registry rows updated for both. | before at base: `git show 62b47771:tools/win-host-census-r53.py \| grep -c -- "--receipt"` → **0**; `git show 62b47771:tools/recheck-drift-r54.sh \| grep -c -- "--budget"` → **0** (both verified this declaration). after: each ≥ 1; `python tools/win-host-census-r53.py --receipt <path>` exits with the census rc and the receipt carries `receipt_run=1` + `command=` + `rc=`; `bash tools/recheck-drift-r54.sh --budget 420 --receipt <path>` runs the D7 leg at 420 s | at base no receipt mode and no budget parameter exist; nothing on this host produces a census self-receipt or a parameterized D7 leg | census selftest extended (≥ 24 cases, 0 failed) AND both modes run on THIS host producing receipt-run-format receipts AND the 420 s D7 leg reads `D7 match` (rc 124 partial class) with its raw receipt committed AND `check-registry-coverage` reads 0 findings |
+| C2 | freshness | `tools/recheck-services-r56.sh` — the 30d recheck duty that today lives only as prose (`recheck:` lines of both services-plane notes) becomes ONE executable read-only pass over rows T1-T8 (r54 plane) + T9-T12 (r55 plane): per-row `T<k> match\|drift` lines re-running each row's probe and comparing the row's INVARIANT signature (error line, rc family, field presence); drift-class values (task/service counts, STATE/PID) are recorded as evidence, never judged; T7 runs inside a deleted temp cwd (the stray-file probe); `--receipt <path>` writes a lane-tree receipt; rollup `RECHECK_SERVICES: PASS (12 rows, M match, 0 drift)`. Registry row `recheck-services-r56`. | before: `git cat-file -e 62b47771:tools/recheck-services-r56.sh` → rc **128** (verified this declaration); the duty exists only as prose. after: the script runs 12 rows + rollup; receipt committed | at base nothing executable re-verifies T1-T12; prose cannot run | 12 rows judged AND 0 drift (any drift = honest FAIL rc 1 + an appended correction owed, reported as such) AND the receipt carries the full output AND registry-coverage 0 findings |
+| C3 | depth (lowest tied, 8; SOURCED — S266 S267 opened this round after this declaration) | `corpus/knowledge/windows-services-config-plane-r56.md` — the service-control CONFIGURATION-CHANGE and FAILURE-ACTION surfaces (`sc config`, `sc failure`/`sc qfailure`), rows T13+, each citing an S-row opened this round or a dated receipt under `.ufo/waves/round-56/services-probes/`; every state-changing form is documented as operator-owned and never executed — the probes are the absence-refused forms (nonexistent service → the 1060 family: mutation refused by absence) and the pure query forms. Header duty `python tools/check-knowledge-header.py --revision <work>`. | before: `git cat-file -e 62b47771:corpus/knowledge/windows-services-config-plane-r56.md` → rc **128** (verified); SOURCES rows **265** (`grep -cE '^\| S[0-9]{3,} \|' corpus/SOURCES.md` spacing-tolerant → 265). after: `grep -c "^| T" <file>` ≥ 3; header gate 0 findings; SOURCES rows ≥ 267 | at base the file, the rows and the S-rows do not exist | rows ≥ 3 AND every row cites S266/S267 or a dated receipt AND knowledge-header gate 0 findings AND depth ordinal unchanged (8) — the move is the sourced entry, not the ordinal |
+
+Causal separability: C1 touches only its two tools + their registry rows + its own receipts
+under `.ufo/waves/round-56/receipts/`; C2 adds its own script + its own receipt (it READS the
+two knowledge notes, modifies nothing); C3 adds its own knowledge note + SOURCES rows + its
+own probe receipts under `.ufo/waves/round-56/services-probes/` (probes C1/C2 never issue).
+No claim's counter reads another claim's surface. All three are single-session inline; the
+counted-cohort resume stays operator-gated. Frontier step: S266 (`sc config`), S267
+(`sc failure`) — Microsoft Learn pages opened this round, after this declaration; C3 is the
+sourced claim. Round-start census: exit 0, 42 W04 (all duplicate-URL, warning-class; no
+E-code), receipt `.ufo/waves/round-56/before/sources-census-start.txt`.

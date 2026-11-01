@@ -56,6 +56,11 @@ this round — none of the still-unimplemented proposals clears this round's bar
 Linux-host-class work unavailable here or already superseded by admitted rounds). The shokuknow
 register is not reachable from this host. Assimilation: none — shokuknow unreachable.
 
+Rejections this round: **0 — stated explicitly** (line added round 56, carry-in 2 of the r55
+verifier spot-check, closure `aeb268f3`): all three source records above are admits; no
+`SOURCES.md` row was opened-then-rejected in round 55. No row quota applies (CORPUS contract v1
+rule 4); the same-day S265 decision was a no-supersedes correction note on S262, not a rejection.
+
 ## Mistakes
 
 - **R55-HEREDOC-TRUNCATION** (class: bulk content pushed through a shell heredoc without a
