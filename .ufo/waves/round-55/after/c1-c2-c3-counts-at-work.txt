@@ -1,0 +1,60 @@
+round-55 counting battery at work 3ac4b124 (2026-11-01T05:42:29Z)
+
+== C1 operability ==
+--- before (committed at 76b9d9e5): .ufo/waves/round-55/before/c1-at-base.txt
+c1-at-base (76b9d9e5):
+--- grep -h ^rc= .ufo/waves/round-54/after/services-probes/* | wc -l
+0
+--- wc -c t7-powershell-sc-alias-stdout.txt
+0
+--- ls .ufo/waves/round-55/reissued-r54 | wc -l
+0
+--- after: ls .ufo/waves/round-55/reissued-r54/* | wc -l
+11
+--- after: grep -l ^rc= .ufo/waves/round-55/reissued-r54/* | wc -l
+11
+--- t7 stdout receipt header:
+command=powershell -NoProfile -Command 'Set-Location '"'"'C:/Users/jpvei/.zcode/workspace/95b1ba4d-5089-47a4-9fd8-54adebbce2ae/scratch/tsukuroi-r55/t7run'"'"'; sc query wuauserv'
+rc=0
+stdout_bytes=0
+--- r54 receipts untouched: git diff 59a62bfe 3ac4b124 --stat -- .ufo/waves/round-54 | wc -l
+0
+
+== C2 depth ==
+--- before: before/c2-at-base.txt
+c2-at-base (76b9d9e5):
+--- git cat-file -e 76b9d9e5:corpus/knowledge/windows-services-plane-r55.md
+fatal: path 'corpus/knowledge/windows-services-plane-r55.md' does not exist in '76b9d9e5'
+rc=128
+--- grep -c '^| T' (file absent)
+ugrep: warning: corpus/knowledge/windows-services-plane-r55.md: No such file or directory
+rc=2
+--- after: grep -c '^| T' corpus/knowledge/windows-services-plane-r55.md
+4
+--- SOURCES rows: grep -cE '^\|[[:space:]]*S[0-9]{3,}[[:space:]]*\|' corpus/SOURCES.md
+265
+--- every T row cites S26x or dated capture (python check; the ugrep pipe-form was the wrong instrument, see lesson R55-UGREP-PIPE):
+T rows: 4
+  T9 cites source/capture: True
+  T10 cites source/capture: True
+  T11 cites source/capture: True
+  T12 cites source/capture: True
+
+
+== C3 calibration ==
+--- before: before/c3-at-base.txt
+c3-at-base (76b9d9e5):
+--- git cat-file -e 76b9d9e5:tools/check-scorecard-unique-sections.py
+fatal: path 'tools/check-scorecard-unique-sections.py' does not exist in '76b9d9e5'
+rc=128
+--- grep -c '^## Round 54 — declaration' SCORECARD.md
+2
+--- after: grep -c '^## Round 54 — declaration' SCORECARD.md
+1
+--- gate selftest:
+SCORECARD_UNIQUE_SECTIONS: PASS (5 cases, 5 passed, 0 failed)
+--- gate on committed blob:
+check-scorecard-unique-sections: every duplicate level-2 heading pair carries a supersession marker; ok
+committed-blob gate rc=0
+--- worktree == committed: git diff 3ac4b124 -- SCORECARD.md | wc -l
+0
