@@ -3909,3 +3909,67 @@ number). Counts re-derived with each cell's command at this tree.
   config surface's `type= interact` sentence (S266) with a real operator-owned config change as
   the falsification probe the lane cannot run read-only.
 - **retired:** none.
+
+## Round 57 — declaration (2026-11-01, base `a36bfaaf…`, written before any measurement)
+
+Context: r56 admitted (non-author verifier spot-check committed at `b1ca23a0`). Its closure routed
+one item, landed FIRST as this round's plumbing carry-in (not a claim; r33/r34 precedent): the 14
+round-56 receipt files under `.ufo/waves/round-56/{after,receipts,services-probes}/` cited as
+committed by `ebaf9856`/`a4d88715`/`ed26680d` but never plumbed (closure defect
+R56-RECEIPTS-UNCOMMITTED) — landed as **`a36bfaaf`** (14 files, 312 insertions; contents verified
+against every reported value before landing: T1-T12 12/12 drift 0, D7 420 s rc-124 partial 18
+PASS/0 FAIL, selftest 25/25, receipt-run 7/7, gates 94/94/0 + 72/0, census 42 W04 exit 0 both
+passes, sources 267 rows 0 malformed). This round's base IS that landing; the defect is mined as
+R57-CITED-UNCOMMITTED in the round lesson.
+
+FRESH-START (prompt §7 names r50/r51/r52): the three `rejected-honest-stop` closures re-spot-checked
+against committed bytes at this base — r50 `.ufo/waves/round-50/after/c1-final.json` reads
+`"verdict": "FAIL", "verdicts_ok": 0, "marks_ok": 0` with `seats_ok 18`; r51
+`.ufo/waves/round-51/before/c2-cheats-at-amend1.json` is absent at `c0ad548a` (`git cat-file -e`
+rc 128); r52 `.ufo/waves/round-52/after/c1-final.json` reads `"verdict": "FAIL", "verdicts_ok": 1,
+"seats_ok": 16`, predicate binds `seats_ok == 18`, seat_notes name exactly the two unbound
+`R52CritGR1b`/`R52CritGR3b` seats. The declared round rules out:
+
+- **The counted-cohort depth resume** (r50/r51/r52's common binding) — still unreachable: no
+  wave/AgentSwarm dispatch surface on this host; L0 `tsukuroi | round-53` stands unanswered, routed
+  around, never treated as answered. A do-nothing control cannot reach the claim, but neither can
+  this round; asserting `seats_ok` would fabricate.
+- **Re-claiming admitted r53-r56 moves** (live census runs, receipt mode, budget mode, T1-T16
+  rechecks, the D1-D12 drift pass, the uniqueness gate): landed and verified; a do-nothing control
+  already reaches a pure re-run — no fresh axis-move.
+- **The operator-gated `type= interact` falsification probe** (S266's documented config-error
+  sentence): a real config change is operator-owned; this round appended the L0 request
+  (`tsukuroi | round-57`) and routes around it — never executed read-only.
+- **Sourcing D12's fnm second-session behavior**: requires a second concurrent session; this round
+  is single and inline. Cannot be measured honestly here.
+- **A bare re-run of `recheck-services-r56.sh` or `recheck-drift-r54.sh` as THE freshness move**: a
+  do-nothing control reaches a pure re-run. (C2 below is not a re-run — the per-row raw-receipt
+  mode does not exist at base; C3 is not a re-run — no dated cadence contract exists at base.)
+
+Assimilation: `considerthese/` mined (latest 2026-10-26; seven notes): the self-improvement ideas
+remain aggregator/wave-class or Linux-host-class on this host, and the cross-note correction
+propagation map was partially applied in r54 — none clears this round's bar; nothing adopted. The
+shokuknow register is not reachable from this host. L2 floor (MISSION ≥8 in one batched AgentSwarm
+call): absent surface, routed around (standing L0 `tsukuroi | round-53`; the round-1
+kaidoku/revenger scope L0 likewise stands). Lowest-axis duty: depth and adjacency tied lowest at 8
+— **C1 works depth** (sourced SDDL/metadata plane; the lane's own host province, no sibling scope).
+Saturation 9 / window 3; the stagnation nudge is not invoked. Ordinals at base: depth 8, coverage
+9, operability 9, freshness 9, calibration 9, adjacency 8; none retired.
+
+| Claim | Axis | Surface moved | Counting command | Do-nothing control at base | Target (predicate) |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — S268 S269 to be opened this round AFTER this declaration) | `corpus/knowledge/windows-services-sddl-plane-r57.md` — the service SECURITY-DESCRIPTOR and METADATA-query surface the three prior services notes never touch: `sc sdshow` (the SDDL string — ACE/right/SID grammar), `sc qsidtype`, `sc qdesc`, `sc qtriggerinfo`, `sc enumdepend`, rows T19+, each citing an S-row opened this round or a dated receipt under `.ufo/waves/round-57/services-probes/` (every probe through receipt-run); `sc sdset` documented operator-owned, never executed — only the query forms and the absence-refused nonexistent-service forms run. Header duty `python tools/check-knowledge-header.py --revision <work>`. | before at base (all verified this declaration, receipt `.ufo/waves/round-57/before/c1-c2-c3-at-base.txt`): `git cat-file -e a36bfaaf:corpus/knowledge/windows-services-sddl-plane-r57.md` → rc **128**; SOURCES rows **267**; the negative sweep `git show a36bfaaf:corpus/knowledge/<each of the 3 services notes> \| grep -cE "sdshow\|qsidtype\|qtriggerinfo"` → **0 + 0 + 0**. after: `grep -c "^| T" <note>` ≥ 3; SOURCES rows ≥ 269, 0 malformed; knowledge-header gate 0 findings at the work revision | at base the note, the rows and the S-rows do not exist; no existing note mentions the surface (sweep above) | rows ≥ 3 AND every row cites an opened S-row or a dated receipt AND knowledge-header gate 0 findings AND SOURCES ≥ 269 rows 0 malformed AND depth ordinal unchanged (8) — the move is the sourced entry, not the ordinal |
+| C2 | operability | `tools/receipt-write.py` — receipt-run-FORMAT receipts for ALREADY-CAPTURED output: imports `build_receipt` from `receipt-run.py` (one format implementation, never duplicated — the r56 C1 import rule), so any bash-side probe whose exec environment must NOT change can ship verbatim raw receipts; with `--selftest`. Plus `recheck-services-r56.sh --raw-dir <dir>`: each of the 12 legs additionally writes `<dir>/t<k>-raw.txt` through receipt-write (command= the exact probe command text, rc= the leg's own rc, streams verbatim); the judgment logic and the probes' exec environment are UNCHANGED — routing the probes through a python-subprocess runner would change T1's MSYS-mangling signature class (the runner, not bash, would exec the child), so the capture rides alongside, not instead. Registry: `receipt-write-r57` row added; `recheck-services-r56` row annotated in place. | before at base (verified): `git show a36bfaaf:tools/recheck-services-r56.sh \| grep -c -- "--raw-dir"` → **0**; `git cat-file -e a36bfaaf:tools/receipt-write.py` → rc **128**; receipt-run selftest cases at base **7**. after: each grep ≥ 1; one live pass `bash tools/recheck-services-r56.sh --receipt <r> --raw-dir <dir>` → rc 0, `RECHECK_SERVICES: PASS (12 rows, 12 match, 0 drift)`, and `<dir>` holds 12 raw receipts each carrying `receipt_run=1` + `command=` + `rc=`; `python tools/receipt-write.py --selftest` PASS; `python tools/receipt-run.py --selftest` still 7/7; registry-coverage 0 findings | at base no raw-receipt mode and no write-tool exist; the 30d pass ships only its summary receipt | the live pass is 12/12 0 drift AND 12 raw receipts exist with the three key lines each AND receipt-write selftest PASS AND receipt-run selftest 7/7 unchanged AND registry-coverage 0 findings |
+| C3 | freshness | Dated cadence contract for the services-plane recheck duty: the THREE services notes (r54 T1-T8, r55 T9-T12, r56 T13-T16) each gain an appended operative `recheck:` line (the header gate reads the LAST `recheck:` line at column 0; the old lines stay — append-only header convention, journal-boot-plane precedent) binding the 30d cadence to day 0 = **2026-11-01** (the committed r56 first-pass receipt `.ufo/waves/round-56/receipts/recheck-services-t1t12.txt`, 07:04:06Z) with the next pass **due 2026-11-30** — lateness becomes observable from committed bytes, which a cadence-only header cannot show. | before at base (verified): `git show a36bfaaf:corpus/knowledge/<note> \| grep -c "next pass due 2026-11-30"` → **0 + 0 + 0** (the three notes). after: each ≥ 1 (total 3); knowledge-header gate 0 findings (each operative `recheck:` still carries cadence + ISO date); old header lines byte-unchanged | at base no note names a due date; nothing on the host can observe recheck lateness from committed bytes | 3 notes carry the dated line AND the knowledge-header gate reads 0 findings AND the r54/r55/r56 original `recheck:` lines remain byte-identical (append-only) |
+
+Causal separability: C1 touches only its new note + SOURCES rows S268/S269 + its probe receipts
+under `.ufo/waves/round-57/services-probes/` + a SKILL round-57 section; C2 touches only its new
+tool + the recheck script's arg surface + the registry rows + its own run receipts under
+`.ufo/waves/round-57/receipts/`; C3 touches only the three notes' `recheck:` header lines. No
+claim's counter reads another claim's surface (C2's live pass judges T1-T12 exactly as at base;
+C1's note does not modify the recheck script; C3's headers are inert prose for C1/C2). All three
+are single-session inline; the counted-cohort resume stays operator-gated. Frontier step: S268
+(`sc sdshow`), S269 (SDDL service-object rights) — Microsoft Learn pages to be opened this round,
+after this declaration; C1 is the sourced claim. Round-start census: exit 0, 42 W04 (all
+duplicate-URL warning class; no E-code), receipt
+`.ufo/waves/round-57/before/sources-census-start.txt`.
