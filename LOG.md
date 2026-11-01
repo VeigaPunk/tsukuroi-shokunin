@@ -2354,3 +2354,76 @@ the SCORECARD declaration + measured-outcome sections, and receipts under `.ufo/
   the W-plane dated cadence + stale-expectation correction (9, saturated), calibration the honest first-run
   FAIL + declared-command correction (9, saturated), coverage map unchanged (9), adjacency untouched (8).
   Trend verdicts in the round report.
+
+## Round 59 (2026-11-01, base `c2e32b00`; declaration `c5a33d08`, work `2913b75d`, repair `c4aa0f5c`)
+
+- **Carry-in discharged first (routed from the r58 closure, status-neutral, not a claim):**
+  D-R58-BEFORE-RECEIPTS-UNLANDED — the three cited `.ufo/waves/round-58/before/` receipts regenerated from
+  the committed probe definitions and landed at `81776bef` (every r58 declared before-value re-derives
+  exactly: rc 128 / sweep 0 / SOURCES 271 / 12 / 0 / 0 / 0 / 1 / selftest 25/25; freshstart r50 FAIL 0/0/18
+  + r51 evidence 0 bytes + r52 FAIL 1/0/16; census exit 0, 42 W04). The twice-repeated class closed with a
+  named rule: a landed-changes receipt count must equal the distinct receipt paths the round's committed
+  bytes name — the r58 "(5)" overcounted (two of the five are named by no committed pointer; the
+  correction is appended in the lesson + SCORECARD declaration + report, never substituted into the
+  fleet-repo report, which is lane-unmutable). The bde06613 receipt-hygiene rule bound this round's
+  receipts. The three standing L0s routed around, never treated as answered.
+- **FRESH-START r50/r51/r52 re-spot-checked** at this base from committed bytes (receipt
+  `.ufo/waves/round-59/before/freshstart-spotcheck.txt`) and five move classes ruled out for cause:
+  counted-cohort resume (L0 round-53), S266 interact probe (L0 round-57), re-claiming admitted r53-r58
+  moves, bare instrument re-runs as THE freshness move, and the considerthese/ self-improvement set (mined
+  again; nothing adopted — Assimilation: none — shokuknow unreachable).
+- **C1 depth PASS (SOURCED, S274 opened this round after the declaration).**
+  `corpus/knowledge/windows-scheduled-task-status-plane-r59.md` rows J1-J5 — the scheduled-task STATUS
+  triage plane, the value grammar of the r54 surface (T1-T3 own spelling/count/absence; T2 named the field
+  NAMES). Measured: Status census 246 rows Ready 206 / Disabled 37 / Running 3; the verbose decision table
+  — `Last Result: 0` = last run succeeded (j2b), `Last Result: 267009` on a Running task = SCHED_S_TASK_
+  RUNNING 0x41301 in DECIMAL (S274 constant; decimal↔hex arithmetic [inference]), so a nonzero Last Result
+  is a failure only outside the 0x413xx informational class on a non-Running task; `/hresult` left the
+  display decimal — measured divergence from S261's exit-code-reshaping anchor (the T6 class);
+  `Scheduled Task State` (configuration) distinct from `Status`; Disabled census 37 = configuration, not
+  an incident; CSV/LIST format shapes captured. Before: note rc 128, vocabulary sweeps 0/0/0 files,
+  SOURCES 273. After: 5 rows, SOURCES 274/0 malformed (S274 inside Registry after S273 — the
+  R58-SOURCES-APPEND-POSITION rule applied on first use), header gate 75/0. The direct
+  `task-scheduler-error-and-success-codes` URL 404'd (recorded in S274's row; the `-constants` page is
+  live; Gate quote 19 words by `wc -w`).
+- **C2 operability PASS.** `tools/recheck-eventlog-r59.sh` — the event-log plane's executable recheck arm
+  (the r58 planned item), 11 LIVE rows on invariant signatures (E1-E6 + the E2s/E2b/E3s/E3b
+  spelling-boundary variants + E6b), the R58-WEVTUTIL-NUL-RECEIPTS parsing rule bound at capture
+  (`tr -d '\r\0'` + PIPESTATUS on the E2/E5 text rows). First run FAILED 2 drift (E2b/E3b called
+  receipt-run without `--receipt` — guard exit 2; FAIL receipt committed beside the fixed pass,
+  R59-ARM-FIRST-RUN); a second intermediate misread (receipt-run exits 0 itself — the judged child rc must
+  come from the spawn receipt's `rc=` line) is NAMED in the lesson (R59-RECEIPT-RUN-EXITS-ZERO, no byte
+  receipt existed between two edits of the same uncommitted file — the gap itself recorded). Fixed run:
+  `RECHECK_EVENTLOG: PASS (11 rows, 11 match, 0 drift)` rc 0; declared counting commands all read 11;
+  `bash -n` rc 0. Registry row landed via the APPENDED round-59 superseding table (95 round-58 rows
+  carried verbatim, one new row); the first append carried extraction blank lines that made the
+  registry-coverage gate read 95/95/1 at `2913b75d` (R59-REGISTRY-TABLE-GAP — the parser stops at a blank
+  gap and silently selects the previous table); repaired at `c4aa0f5c` (rows contiguous, no row bytes
+  changed) → gate PASS **96/96/0**.
+- **C3 freshness PASS.** The event-log plane's cadence duty became OPERATIVE and EXECUTED: operative pass
+  block appended to `windows-eventlog-plane-r58.md` (old bytes byte-identical — sha256 prefix 09e7b6f2…
+  equal base=work) naming the arm as the pass instrument, binding the NUL-strip rule, day 0 = 2026-11-01
+  (r58 probe receipts the anchor), next pass due **2026-11-30**; the plane's FIRST executable pass
+  committed (rollup PASS 11/11 + FAIL receipt beside it). The DECLARED receipt-side grep (`due 2026-11-30`
+  in the receipt) measured **0** — R59-DECLARED-COMMAND-RECEIPT-SIDE: the instrument's receipt format
+  carries the rollup only; the corrected target is the note (`grep -c "due 2026-11-30" <note>` = 1), the
+  correction is APPENDED in the after-battery, and a `due=` receipt-header line is recorded as a planned
+  item, not smuggled into committed receipt bytes.
+- **Gates/receipts:** before-counts at base `.ufo/waves/round-59/before/c1-c2-c3-at-base.txt`; after
+  battery `.ufo/waves/round-59/after/c1-c2-c3-counts-at-work.txt` (incl. the R59-DECLARED-COMMAND-
+  RECEIPT-SIDE correction block); knowledge-header PASS 75/0; registry-coverage PASS 96/96/0 (json receipts
+  at `.ufo/waves/round-59/after/`); SCORECARD uniqueness ok rc 0; receipt-run 7/7, receipt-write 5/5
+  unchanged; census exit 0 both passes 42 W04 0 E-code (an S274 placement inside Registry — no E12 this
+  round).
+- **Named limits (reported, not smoothed):** the API-constant ↔ CLI-Status-string mapping and the decimal
+  267009=0x41301 arithmetic are measured/inference, not sourced (S274 grounds the constants only); J4's
+  Disabled count is a name-substring census; `/hresult`'s exit-code effect untested (both probes rc 0);
+  E2b/E3b judge the spawn receipt's rc line (receipt-run exits 0 itself); `check-self-assessment.py`
+  remains could-not-evaluate on this host (K13); L2 floor absent surface, routed around. Mistakes mined:
+  R59-ARM-FIRST-RUN, R59-RECEIPT-RUN-EXITS-ZERO, R59-REGISTRY-TABLE-GAP,
+  R59-DECLARED-COMMAND-RECEIPT-SIDE + the routed r58 receipt-count correction (corpus/lessons/round-59.md).
+  Round-level admission (author-side): all three claims verify by measurement on THIS host; no axis harmed
+  — depth gained the sourced task-status entry (8), operability the E-plane arm + appended-registry
+  convention (9, saturated), freshness the E-plane executed pass under its operative block (9, saturated),
+  calibration the honest first-run FAIL + declared-command correction (9, saturated), coverage map
+  unchanged (9), adjacency untouched (8). Trend verdicts in the round report.

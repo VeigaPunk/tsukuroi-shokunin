@@ -1,0 +1,33 @@
+# after-counting battery at the round-59 final tree c4aa0f5cd8717e08bc5a331212036561786b90f0 (2026-11-01; each line names its command and the measured value; declared commands run BEFORE the outcome commit cites them — R58-DECLARED-COMMAND rule)
+# C1 — scheduled-task status plane:
+c1_rows_J = 5   (cmd: grep -c '^| J' corpus/knowledge/windows-scheduled-task-status-plane-r59.md; declared >=3)
+c1_note_size_lines = 62
+c1_sources_rows = 274   (cmd: grep -cE '^\| S[0-9]{3,} \|' corpus/SOURCES.md; base 273)
+c1_sources_malformed = 0   (awk NF!=13 check over S-rows)
+c1_sources_S274_in_Registry = in Registry=True (line 283; Registry spans 3..286, S274 before ## Paths at 286; after S273 line 282)   (placement check; R58-SOURCES-APPEND-POSITION rule; census end exit 0 0 E-code proves placement)
+c1_gate_quote_words = 19   (wc -w of the S274 Gate quote; <= 25)
+# C2 — eventlog recheck arm:
+c2_bash_n_rc = 0
+c2_live_match_count = 11   (cmd: bash tools/recheck-eventlog-r59.sh | grep -c ' match '; declared 11)
+c2_receipt_match_count = 11   (cmd: grep -c ' match (' .ufo/waves/round-59/receipts/recheck-eventlog-11-summary.txt)
+c2_receipt_row_ids = 11   (cmd: grep -cE '^E[0-9]+[a-z]? (match|drift)' <receipt>)
+c2_receipt_rollup = RECHECK_EVENTLOG: PASS (11 rows, 11 match, 0 drift)
+c2_registry_gate_at_final = PASS 96 tools / 96 rows / 0 findings (json receipt below; at the intermediate work revision 2913b75d the same gate read 95/95/1 REGISTRY-ROW-MISSING for recheck-eventlog-r59 — the R59-REGISTRY-TABLE-GAP defect: extraction blank lines between the carried rows and the new row made the operative-table parser stop at the gap and silently select the round-58 table; repaired by c4aa0f5c, rows made contiguous, no row bytes changed — the diff shows only blank-line removals and the re-rendered Round-59 section)
+c2_registry_rows_carried = 95 round-58 row names all present in the round-59 table; exactly one name added: recheck-eventlog-r59 (kind probe); parser cross-check cells[0] names at c4aa0f5c
+# C3 — eventlog operative pass:
+c3_operative_lines = 1   (cmd: grep -c 'bash tools/recheck-eventlog-r59.sh' <note>; base 0)
+c3_note_due_2026_11_30 = 1   (cmd: grep -c 'due 2026-11-30' <note>; the r58 header line contributed 1 of these at base)
+c3_pass_receipt_rollup = RECHECK_EVENTLOG: PASS (11 rows, 11 match, 0 drift)
+c3_receipt_due_grep = 0   (DECLARED as >=1 — measured 0; correction appended below)
+c3_old_bytes_identity = sha256(committed blob c5a33d08:corpus/knowledge/windows-eventlog-plane-r58.md) = sha256(first N bytes of worktree file) = 09e7b6f220787f4f... (append-only proven; N = blob byte length)
+
+## R59-DECLARED-COMMAND correction (appended, never substituted):
+The C3 declaration bound 'grep -c "due 2026-11-30" <receipt> >= 1' to the PASS receipt; the instrument's receipt format carries only the rollup line — the measured value is 0. The due date lives in the NOTE's operative block (c3_note_due_2026_11_30 = 1) and in the r58 header line; the receipt carries the rollup + rc. Verdict condition satisfied by the note-side grep (measured above); the receipt-side clause is corrected by this block to target the note. A due= line in the instrument's receipt header is the proper future fix and is recorded as a planned item, not smuggled into this round's committed receipt.
+
+# Gates at c4aa0f5c:
+knowledge-header = PASS 75 notes / 0 findings (at-work json receipt)
+registry-coverage = PASS 96 tools / 96 rows / 0 findings (at-work json receipt)
+scorecard-unique = every duplicate level-2 heading pair carries a supersession marker; ok rc 0
+receipt-run selftest = PASS 7/7; receipt-write selftest = PASS 5/5 (unchanged)
+census = start exit 0 / 42 W04 (before/sources-census-start.txt); end exit 0 / 42 W04 / 0 E-code (after/sources-census-end.txt)
+first-run FAIL kept beside the pass = .ufo/waves/round-59/receipts/recheck-eventlog-11-first-run-FAIL-2drift.txt (bde06613 rule)

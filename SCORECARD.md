@@ -4176,3 +4176,49 @@ Causal separability: C1 touches only its new note + its SOURCES row; C2 touches 
 appended registry table; C3 touches only the appended note block + the pass receipt. No claim's verification
 depends on another having landed. No exploratory claim this round. Declared counting commands are each RUN
 before the outcome commit cites them (R58-DECLARED-COMMAND rule).
+
+## Round 59 — measured outcome (2026-11-01, author-side; non-author closure pending)
+
+Measured at work revision `2913b75d` with the registry-table repair landing at `c4aa0f5c` (counting battery
+`.ufo/waves/round-59/after/c1-c2-c3-counts-at-work.txt`; before-counts at base `.ufo/waves/round-59/before/
+c1-c2-c3-at-base.txt`, plumbing reads of `c2e32b00` — the worktree view is untrusted on this host, r56/r57
+lesson). Gates at the final tree `c4aa0f5c`: knowledge-header PASS 75/0, registry-coverage PASS 96/96/0,
+SCORECARD uniqueness ok rc 0, receipt-run 7/7, receipt-write 5/5; census exit 0 both passes 42 W04 0 E-code.
+
+| Claim | Before → after (measured) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 depth (lowest tied, 8; SOURCED S274 opened after the declaration) | before at `c2e32b00`: note cat-file rc **128**; vocabulary sweeps 0 files for `41303` / `last result` / `task scheduler error` (`hresult` → 2 files: S261's parameter-row anchor + the r54 lesson quoting it — the NAME only); SOURCES **273**. After at `c4aa0f5c`: `grep -c "^| J"` → **5** (J1-J5); SOURCES 273 → **274**, malformed **0**, S274 inside Registry after S273; knowledge-header gate → PASS **75** notes / **0** findings. Measured signatures (receipts j1-j5+j2b via receipt-run, all rc 0): Status census 246 rows Ready 206 / Disabled 37 / Running 3 (the r54 count 246, drift-class); verbose fields' decision grammar — `Last Result: 0` = last run succeeded (j2b Ready task) vs `Last Result: 267009` on the Running task = SCHED_S_TASK_RUNNING 0x41301 in DECIMAL (0x41301 = 267009, arithmetic [inference]); `/hresult` left the display decimal — measured DIVERGENCE from S261's exit-code-reshaping anchor (the T6 class); Scheduled Task State distinct from Status; format shapes CSV/LIST captured | **PASS measured** | depth unchanged (8) — the move is the sourced entry, not the ordinal |
+| C2 operability | before at `c2e32b00`: arm cat-file rc **128**; SKILL mentions **0**; round59 registry heading **0**. After: `bash tools/recheck-eventlog-r59.sh --receipt <r>` → rc 0, `RECHECK_EVENTLOG: PASS (11 rows, 11 match, 0 drift)`; declared counting commands all read **11** (live `| grep -c ' match '`, receipt match lines, receipt row ids, `rows=11`); FIRST RUN FAIL 2 drift kept on record (E2b/E3b called receipt-run without --receipt, guard exit 2 — R59-ARM-FIRST-RUN; a second intermediate misread — receipt-run exits 0 itself — named in the lesson, R59-RECEIPT-RUN-EXITS-ZERO); `bash -n` rc 0; NUL-strip rule bound at capture (tr -d '\r\0' + PIPESTATUS on E2/E5); registry-coverage gate → PASS **96/96/0** at `c4aa0f5c` after the repair (at `2913b75d` it read 95/95/1 — R59-REGISTRY-TABLE-GAP, the extraction's trailing blanks made the parser stop at the gap and silently select the round-58 table; rows made contiguous, no row bytes changed, all 95 round-58 names carried) | **PASS measured** | operability unchanged (9, saturated) — the E-plane's 30d recheck duty made one-command executable, the r58 planned item |
+| C3 freshness | before at `c2e32b00`: operative pass lines in the note → **0**; first-pass receipt cat-file rc **128**; the r58 cadence header line present (1). After: operative block appended → `grep -c "bash tools/recheck-eventlog-r59.sh" <note>` → **1**; old bytes byte-identical (sha256 prefix 09e7b6f2… equal base=work, recorded in the battery); first executable pass committed (rollup PASS 11/11 + the FAIL receipt beside it); `grep -c "due 2026-11-30" <note>` → **1** (the operative block carries the due date); the DECLARED receipt-side grep read **0** — the R59-DECLARED-COMMAND-RECEIPT-SIDE correction appended in the battery (the receipt format carries the rollup only; the note-side grep is the corrected target; a `due=` receipt-header line recorded as a planned fix, not smuggled into committed receipt bytes) | **PASS measured** | freshness unchanged (9, saturated) — the E-plane's duty moved from prose to executed-and-receipted, day 0 anchored, next pass due 2026-11-30 |
+
+Declared-command corrections: R59-DECLARED-COMMAND-RECEIPT-SIDE (above, appended in the battery). Repairs
+landed (routed carry-ins, not claims): the r58 before-receipts at `81776bef` + the "(5)"-overcount
+correction (lesson + SCORECARD declaration + report); the registry-table contiguity repair `c4aa0f5c`; the
+three standing L0s routed around. No exploratory claim this round.
+
+## Axes — current self-assessment (round 59 final measured surface)
+
+Restated 2026-11-01 at the round-59 final tree (counts re-derived with each cell's command; ordinals
+unchanged — operability/freshness/calibration saturated, depth's move is the sourced entry, coverage/
+adjacency untouched this round).
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 75 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); the sourced scheduled-task-status plane J1-J5 landed round 59 (S274 current, the `-codes` 404 recorded); GR1-GR3 of the scrub entry remain pending behind the operator-gated cohort resume; no ordinal move. | round 4; round-59 entry added, ordinal unchanged |
+| coverage | 9 | `corpus/README.md` byte-identical to base `c2e32b00` (the r59 plane instruments a province surface — scheduled-task triage — inside the existing host-transition record; map-row addition still deferred to a coverage round with its own claim). PROVINCE Core, Frontier and Adjacent sections present. | round 11; unchanged |
+| operability | 9 | `bash tools/recheck-eventlog-r59.sh` → `RECHECK_EVENTLOG: PASS (11 rows, 11 match, 0 drift)` rc 0 (committed receipt + first-run FAIL beside it); `python tools/receipt-run.py --selftest` PASS 7/7; `python tools/receipt-write.py --selftest` PASS 5/5; `bash -n` rc 0; registry-coverage 96/96/0 at `c4aa0f5c`. | round 11; round-59 eventlog arm + appended registry table added, ordinal unchanged |
+| freshness | 9 | services plane T1-T24 re-verifiable by one committed command (r58 pass, 0 drift); W-plane re-verified 2026-11-01 (r58 anchor); the event-log plane's pass is now EXECUTED and receipted under its operative block (day 0 = 2026-11-01, next pass due 2026-11-30 observable from committed bytes); six notes carry dated cadence lines; S274 opened live this round; sources census exit 0 at round start and end (42 W04 both). | fleet round 1; round-59 E-plane operative pass added, ordinal unchanged |
+| calibration | 9 | the axes table restated to counts recomputed on this host; SCORECARD uniqueness gate ok; all three claims measured with before-receipts at base via plumbing; the round's own arm failed its first run (2 drift) and the FAIL is on record; the declared receipt-side grep shortfall self-caught and corrected by append (R59-DECLARED-COMMAND-RECEIPT-SIDE); `python tools/check-self-assessment.py` cannot evaluate here (K13, named limit). | round 10; round-59 honest-first-run-FAIL + declared-command correction added, ordinal unchanged |
+| adjacency | 8 | formal overlap table present; no sibling scope touched; the scheduled-task surface stays inside the lane's own host-operability province (the systemd-timers analog — no sibling absorbed); contested kaidoku/revenger ownership remains unruled (carried, routed around). | fleet round 1; unchanged |
+
+
+- **planned (next round):** operator-gated first — the L0 wave-dispatch question (`tsukuroi | round-53`)
+  still decides the r52 counted-cohort depth resume, and the L0 `tsukuroi | round-57` decides the S266
+  `type= interact` falsification probe. If the lane stays on this host: a `due=` line in the
+  recheck-eventlog receipt header (the R59-DECLARED-COMMAND-RECEIPT-SIDE proper fix) plus the same for
+  `recheck-services-r56.sh` receipts; the task-status plane's J-rows join the executable-recheck discipline
+  if a J-probe drift fires (the 2026-11-30 cadence
+ pass for the services planes, the E-plane and the J-plane is due 2026-11-30 or on drift); the four
+  0x413xx-vs-schtasks-Status mapping cells stay measured-inference until a source naming the CLI's own
+  mapping is opened.
+- **retired:** none.
