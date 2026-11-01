@@ -2427,3 +2427,15 @@ the SCORECARD declaration + measured-outcome sections, and receipts under `.ufo/
   convention (9, saturated), freshness the E-plane executed pass under its operative block (9, saturated),
   calibration the honest first-run FAIL + declared-command correction (9, saturated), coverage map
   unchanged (9), adjacency untouched (8). Trend verdicts in the round report.
+## Round 60 carry-in (2026-11-01, base `5dd83fa3`): the r59 gate-failure receipt lands
+
+Routed R59-GATE-FAIL-RECEIPT-UNLANDED (r59 closure note 1; the bde06613 rule applied to gate receipts):
+`python tools/check-registry-coverage.py --revision 2913b75d` re-run from the committed gate at
+`5dd83fa3` regenerates the R59-REGISTRY-TABLE-GAP red state exactly — registered 95, rows_total 95,
+findings 1 (REGISTRY-ROW-MISSING, `tools/recheck-eventlog-r59.sh`), status FAIL — committed raw under
+its honest name `.ufo/waves/round-59/after/registry-coverage-FAIL-at-2913b75d.regenerated-r60.json`
+beside the regeneration note `registry-coverage-FAIL.regeneration-note-r60.md` (the r59 original run's
+JSON died with the round scratch; byte-equality to it is not claimed and cannot be checked). The gate
+reads PASS 96/96/0 at the r59 final tree `c4aa0f5c` and at this base (both re-run this round). The
+routing rule is named in the note: a gate red state that is part of a repair story commits its raw
+receipt beside the correction in the same round, named FAIL + revision + original-or-regeneration.
