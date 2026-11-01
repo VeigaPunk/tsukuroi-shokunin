@@ -1923,3 +1923,18 @@ with partial output and no report — items named unverified.
 
 Round-level admission: **not admitted** (C1 fails). Ordinals unchanged: depth 8, coverage 9,
 operability 9, freshness 9, calibration 9, adjacency 8. Trend verdicts in the round report.
+
+## Round 53 — declaration (2026-10-31, base `d4f2ffe1`, FRESH-START host: Windows 10.0.26200 x64 / Git Bash)
+
+Motivating evidence: the three consecutive `rejected-honest-stop` closures r50-r52 all bind the
+counted-cohort depth resume, whose wave machinery (AgentSwarm dispatch, results/dispatch JSON) does not exist
+on this host; and the host itself changed (Arch Linux → Windows under Git Bash), so every Linux-only surface in
+the operative census/province needs re-verification (AXES freshness signal). Round-start probes (read-only):
+`pacman`/`systemctl`/`journalctl`/`btrfs`/`nvidia-smi`/`jq` absent; `python3` resolves to the Microsoft Store
+alias stub (message `Python was not found…`, exit 49) while `python` is Python 3.13.15;
+`bash tools/tsukuroi-census.sh --selftest` does not complete here (40 of 168 cases in 90 s, rc 124; still
+incomplete at 420 s, rc 124). Declared claims (full table and ruled-out set in SCORECARD "Round 53 —
+declaration"): C1 operability capability acquisition (`tools/win-host-census-r53.py`, four planes +
+hermetic selftest), C2 depth (sourced `corpus/knowledge/windows-host-plane-r53.md`, S258 S259 opened this
+round), C3 freshness (drift register + PROVINCE dated host-transition correction). All probes read-only; every
+repair stays operator-gated. L0 question filed (wave-dispatch surface absent). Census at start: exit 0, 40 W04.

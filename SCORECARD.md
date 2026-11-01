@@ -3414,3 +3414,46 @@ the freeze).
   as unverified work if not re-run. Adjacency — fold the six surviving C3-counter mutants
   (R52MutAdj) into the disclosed-limits list or the battery, owner's choice next round.
 - **retired:** none.
+
+## Round 53 — declaration (2026-10-31, base `d4f2ffe17a461140017ad596f73d0f2d9d8d6c22`, FRESH-START host, written before any measurement)
+
+FRESH-START round on a new host: this is Windows 10.0.26200 x64 under Git Bash (MSYS/Cygwin bash 5.3.15);
+the Arch Linux host the rounds 1-52 instruments assume is gone. Last three closures were
+`rejected-honest-stop` (r50, r51, r52), all on the C1 depth claim (`corpus/knowledge/btrfs-scrub-grounding-r45.md`
+GR1-GR3 + a counted 18-seat cohort). Fresh-start spot-check of the three rejections, and what is ruled out:
+
+- **Ruled out — r52's planned depth resume** (amend GR2's resume-suspended-observability clause and GR3's
+  SIGINT handler-window sentence, re-count with a fresh 18-seat cohort). The counted-cohort wave machinery
+  (AgentSwarm dispatch, `w1-dispatch.json`/`w1-results.json` via the hyaku driver) is absent on this host and in
+  this session's toolset, so `seats_ok == 18` in the frozen predicate of `check-scrub-admission-r52.py` can never
+  be measured here; the claim's verdict could not be produced, only asserted. A do-nothing control cannot reach
+  it, but neither can this round; it stays queued behind the operator (L0 question filed this round).
+- **Ruled out — re-declaring C2/C3-style instrument-measurement completions** on the r51 counters: r52 already
+  measured both PASS (do-nothing control reached them — no fresh axis-move), and their receipts bind r50-r52
+  wave bytes that are not re-runnable here.
+- **Ruled out — claiming the old census (`tools/tsukuroi-census.sh`) as operability evidence on this host:**
+  measured at round start, its hermetic `--selftest` does not complete — 40 of 168 cases in 90 s (rc 124) and
+  still incomplete at 420 s (rc 124, 40 PASS lines, 0 FAIL before the cut), so the historical 168-case PASS
+  cannot be reproduced here. Recorded as a drift finding (C3), not smoothed into a claim.
+- Lowest-axis duty: depth and adjacency are tied lowest at 8; **C2 works depth**. Saturation 9 / window 3; not
+  every axis sits at the line, so no stagnation-nudge waiver applies. The L2 floor (MISSION.md ≥8 in one
+  batched AgentSwarm call) has no dispatch surface on this host — recorded as an absent surface, not silently
+  skipped; this round is single-session inline per its prompt (§3 helpers optional).
+
+Ordinals at base: depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8. All three claims
+are measured on THIS host against committed bytes; repair actions stay operator-gated (read-only probes and
+documented repair plans only).
+
+| Claim | Axis | Surface moved | Counting command | Do-nothing control at base | Target (predicate) |
+|---|---|---|---|---|---|
+| C1 | operability (capability acquisition) | `tools/win-host-census-r53.py` — the lane's first gate for this Windows host: four planes (`tools` tool presence, `path` health, `python` interpreter identity, `git`/`gh` state), plane lines + `WIN_CENSUS` rollup, exit map 0 clean / 1 degraded / 2 could-not-evaluate, hermetic `--selftest` over injected resolvers; registry row and capabilities row land the same round | `python tools/win-host-census-r53.py --selftest` (last line `WIN_CENSUS_SELFTEST: PASS (N cases, N passed, 0 failed)`, rc 0); live: `python tools/win-host-census-r53.py` (rc matches the rollup rule) | at base the tool does not exist: `git cat-file -e d4f2ffe1:tools/win-host-census-r53.py` exits 128; the counting command exits 2 (`can't open file`) | selftest `cases == N and passed == N` rc 0 AND the live run emits all four plane lines with rc matching the rollup; disclosed limit: the selftest injects resolvers (logic proof), the live leg is the host-state reading |
+| C2 | depth (lowest tied, 8; sourced S258 S259, opened this round) | `corpus/knowledge/windows-host-plane-r53.md` — sourced decision table for the Windows host tool-state plane, ≥6 rows each with a named error signature and an S-row or dated host capture: the `python3` WindowsApps alias stub (rc 49), `where.exe` current-directory+PATH+PATHEXT search (S258), per-session fnm shim dirs in PATH, duplicate PATH values, PATH entries whose directory is absent, the `python` vs `python3` interpreter naming (S259) | `grep -c "^| W" corpus/knowledge/windows-host-plane-r53.md`; header duty: `python tools/check-knowledge-header.py --worktree` | the file is absent at base: `grep -c` exits 2 (0 rows); 0 sourced Windows-host rows exist in the corpus (`grep -rl "WindowsApps" corpus/knowledge/` at base is empty) | rows ≥ 6 AND the knowledge-header gate reads 0 findings AND every row cites S258/S259 or a dated capture command; depth ordinal unchanged (8) — the move is recorded in the move log, not the ordinal |
+| C3 | freshness | `corpus/knowledge/host-transition-drift-r53.md` — dated drift register: every Linux-only surface the operative census/SKILL checklist names, probed against this host with the measured command, observed result and recheck cadence; `PROVINCE.md` gains the dated host-transition record (protocol correction, §6 absent-surface rule) and the correction is logged | `grep -c "^| D" corpus/knowledge/host-transition-drift-r53.md` | the register is absent at base: `grep -c` exits 2 (0 flagged items); PROVINCE.md at base names zero surfaces that resolve on this host | rows ≥ 8 AND every row carries its probe command, observed result and capture date AND the PROVINCE correction is logged in LOG.md; freshness ordinal unchanged (9, saturated) |
+
+Causal separability: C1 reads its own tool + the live host; C2 reads its entry + SOURCES + the header gate; C3
+reads its register + PROVINCE.md + the measured probe results. No claim's counter reads another claim's surface.
+All three are single-session inline (no wave dispatch exists on this host); the counted-cohort depth resume stays
+operator-gated. Frontier step this round: SOURCES rows S258 (Microsoft Learn, `where`) and S259 (Python 3.13
+Windows docs) opened by the L1; C2 is the sourced claim. Assimilation: `considerthese/` mined; no proposal
+adopted (all four open ones are calibrated to the old host's wave machinery). Round-start census: exit 0,
+40 W04 (`.ufo/waves/round-53/before/sources-census-start.txt`).
