@@ -3165,6 +3165,8 @@ Counts re-derived with the commands in each cell.
 | boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict; since round 43 its boot-input freshness check decides on find's output | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt`; `.ufo/waves/round-43/after/c1-after-c395491.jsonl` | round 17 |
 | storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line, demonstrated on fixtures, the live host and namespace views | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-41/after/c1-after-568c397.jsonl` | round 38 |
 | win-host-census | Reads the Windows host's tool presence, PATH health, interpreter identity (real `python` vs the Store `python3` alias stub) and git/gh state as four verdict planes with a hermetic 20-case selftest | `python tools/win-host-census-r53.py --selftest` rc 0 (`.ufo/waves/round-53/after/win-census-selftest.txt`); live `.ufo/waves/round-53/after/win-census-live.txt` | 53 |
+| receipt-run | Runs any host-state measurement under a wall-clock budget and writes its raw receipt (argv, start/end UTC, duration, rc or `rc=timeout` + `timeout_after_s`, verbatim CRLF-preserving stdout/stderr) directly into a lane-tree path — the scratch-deleted-receipt defect class (closure `5cbcb06e` defect 3) is closed by instrument, not procedure | `python tools/receipt-run.py --selftest` rc 0, 7 cases (`.ufo/waves/round-54/after/receipt-run-selftest.txt`); first working use = the D7 re-derivations `.ufo/waves/round-54/d7-receipts/` (90 s + 420 s raw receipts, both `rc=timeout`) | 54 |
+| drift-recheck-loop | Re-verifies all 12 drift-register rows against their recorded observations with one read-only command (10 host probes + 2 doc rows), rc 0 iff no drift; a drift line is honest output owed an appended correction | `bash tools/recheck-drift-r54.sh --receipt <path>` rc 0, `RECHECK_DRIFT: PASS (12 rows, 10 host-probed match, 2 doc rows, 0 drift)` (`.ufo/waves/round-54/after/recheck-drift-r54.txt`) | 54 |
 
 - **planned (next round):** depth — apply the one remaining GR2 defect the round-49 cohort named (the `[inference]`
   mark still claims the ioctl side is unpinned although `ioctl.c` is pinned at S240; exact replacement is in
@@ -3619,3 +3621,58 @@ single-session inline; the counted-cohort resume stays operator-gated. Frontier 
 (2026-10-26 "cross-note correction propagation map" — its core move is applied once inside R1's
 correction entry: dependent surfaces enumerated and each confirmed corrected; the full map is not
 built this round); nothing else adopted.
+
+## Round 54 — measured outcome (2026-10-31, author-side; non-author closure pending)
+
+Declaration `13554741`; work `f24ca241`; work-amend1 `0cd50d45` (registry rows fixed from the
+coverage gate's four findings — kind `probe` not `instrument`, census path de-spelled from the
+recheck row, verdict code 2 added). All measurements run on THIS host at the work tip `0cd50d45`
+(counting battery: `.ufo/waves/round-54/after/c1-c2-c3-counts-at-work.txt`); before-receipts at the
+declaration commit (`.ufo/waves/round-54/before/c{1,2,3}-at-base.txt`, each rc 128 = absent).
+
+| Claim | Counting command → measured | Verdict | Axis effect |
+|---|---|---|---|
+| C1 operability (capability acquisition) | `python tools/receipt-run.py --selftest` → `RECEIPT_RUN_SELFTEST: PASS (7 cases, 7 passed, 0 failed)` rc 0; `ls .ufo/waves/round-54/d7-receipts \| wc -l` → **2**; `grep -c "^rc=" d7-selftest-90s.txt` → **1** (`rc=timeout`, `timeout_after_s=90`; 420 s receipt likewise `rc=timeout`, timeout_after_s=420). Before at `13554741`: `git cat-file -e` rc 128 (`before/c1-at-base.txt`), receipts dir absent. | **PASS measured** — the capability runs, its output verifies, the row entered the capabilities table the same round; first working use is repair R3 | operability unchanged (9, saturated); acquisition recorded |
+| C2 depth (lowest tied, 8; sourced S261 S262 opened this round) | `grep -c "^| T" corpus/knowledge/windows-services-plane-r54.md` → **8** (target ≥6); base: rc 2, 0 rows (`before/c2-at-base.txt`); header duty `python tools/check-knowledge-header.py --revision 0cd50d45` → PASS, 70 notes, 0 findings (`.ufo/waves/round-54/after/knowledge-header-at-work.txt`); every row cites S261/S262 or a dated capture | **PASS measured** | depth unchanged (8) — the move is the sourced decision table, not the ordinal |
+| C3 freshness | `bash tools/recheck-drift-r54.sh --receipt .ufo/waves/round-54/after/recheck-drift-r54.txt` → rc 0, `RECHECK_DRIFT: PASS (12 rows, 10 host-probed match, 2 doc rows, 0 drift)`, 12 `^D[0-9]` lines. Before at `13554741`: script absent, rc 128 (`before/c3-at-base.txt`); the recheck loop existed only as prose in three files. | **PASS measured** — 10/10 host probes match their recorded observations on this host-day; no correction owed | freshness unchanged (9, saturated); the executable recheck loop + receipt is the move |
+
+Repairs landed (routed defects of closure `5cbcb06e`, not claims): **R1** S260 correction row
+(`grep -c "supersedes S259" corpus/SOURCES.md` → 1; locator §4.6.2 → §4.2, verified by re-opening
+the live page this round); **R2** word-count correction recorded in the round-54 lesson (S258
+24 → 18, S259 21 → 20, both recounted by `wc -w`, both ≤25 so the contract bound holds); **R3** the
+D7/W5 raw budget receipts re-derived and committed (`.ufo/waves/round-54/d7-receipts/`, 90 s and
+420 s, both rc=timeout — today's partial counts 5 and 30 PASS lines vs r53's 40/40 are wall-clock
+facts of session load, same drift class: stall, no FAIL, no summary line); **R4** the D-register's
+appended dated-correction block gives D1-D12 in-row probe dates (`grep -c "^D[0-9]"` → 12) while the
+original table bytes stay untouched.
+
+Named limits: the D7 90 s/420 s receipts record UTC stamps that cross into 2026-11-01Z (local date
+2026-10-31, UTC-07:00); the 90 s receipt's duration_s=112.8 includes the child-kill grace — the
+budget and the timeout verdict are what the receipt asserts. `check-self-assessment.py` remains
+could-not-evaluate on this host (K13 needs the census selftest; non-runnable — named limit, r53).
+The registry-coverage gate found four defects in the first registry rows (work `f24ca241` FAIL
+receipt superseded by the amend `0cd50d45` PASS receipt: 92 tools / 92 rows / 0 findings); the FAIL
+receipt was overwritten in place by the PASS run at the amended tip — the FAIL JSON is quoted in
+LOG.md and the lesson records the class.
+
+## Axes — current self-assessment (round 54 final measured surface)
+
+Restated 2026-10-31 at the round-54 final tree `0cd50d45`; ordinals unchanged (all three claims are
+measured moves on saturated or lowest axes; the depth move is the sourced entry, not a number).
+Counts re-derived with each cell's command at this tree.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 70 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4653 `wc -l` / 1341 `grep -c '^\|' SKILL.md` lines; `corpus/lessons/` 83 files at the outcome tree (`find corpus/lessons -type f \| wc -l`; 82 at the work tree `0cd50d45` + this round's lesson); the sourced services/tasks plane T1-T8 landed round 54 (round-54 measured outcome); GR1-GR3 of the scrub entry remain pending behind the operator-gated cohort resume; no ordinal move. | round 4; round-54 entry added, ordinal unchanged |
+| coverage | 9 | `corpus/README.md` 522 `wc -l` (unchanged — no surface map row added; the services/tasks plane documents the current host inside the province's round-53 host-transition record); PROVINCE Core, Frontier and Adjacent sections present. | round 11; unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` PASS (168/168) on its Linux host class (non-runnable here, D7); `python tools/win-host-census-r53.py --selftest` PASS (20/20); `python tools/receipt-run.py --selftest` PASS (7/7) round 54; live census DEGRADED rc 1; registry-coverage 92/92 at `0cd50d45`. | round 11; round-54 probes added, ordinal unchanged |
+| freshness | 9 | drift register D1-D12 re-verified by one committed command, 0 drift (`.ufo/waves/round-54/after/recheck-drift-r54.txt`); S260 correction row + in-row dating block land the routed locator/dating fixes; sources census exit 0 at round start and end (`.ufo/waves/round-54/{before,after}/sources-census-*.txt`, 40 → 41 W04 warnings, the +1 the S260 same-URL correction row, warning-class). | fleet round 1; round-54 recheck loop added, ordinal unchanged |
+| calibration | 9 | the axes table above restated to counts recomputed on this host; `python tools/check-self-assessment.py` cannot evaluate here (K13, named limit); the gate-found registry-row defects were recorded, not smoothed (r54 lesson R54-REGISTRY-KIND). | round 10; unchanged |
+| adjacency | 8 | formal overlap table present; no sibling scope touched; the services/tasks plane is the lane's own host-operability domain on the current host (PROVINCE round-53 record); nothing absorbed. | fleet round 1; unchanged |
+
+- **planned (next round):** operator-gated first — the L0 wave-dispatch question still decides the
+  r52 depth resume; if the lane stays on this host: source the fnm session-dir behavior (D12) from a
+  second session when one exists, extend `recheck-drift-r54.sh` with a `--budget` flag so the D7 leg
+  can take the 420 s budget without editing the script, and give `win-host-census-r53` a
+  `--receipt` mode routed through `receipt-run.py` so the live reading commits itself the same way.
+- **retired:** none.

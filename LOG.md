@@ -2001,3 +2001,63 @@ Git/query` (error captured); `powershell -Command "sc query wuauserv"` silently 
 and repairs' verification stay read-only; every remediation of findings (PATH hygiene, alias
 disable) stays operator-gated. L0 wave-dispatch question stands unanswered — routed around. Census
 at start: exit 0, 40 W04 (`.ufo/waves/round-54/before/sources-census-start.txt`).
+
+## Round 54 — measured outcome (2026-10-31; base `5cbcb06e`, declaration `13554741`, work `f24ca241`, work-amend1 `0cd50d45`)
+
+- **Repairs first (routed defects of closure `5cbcb06e`; not claims).** R1: SOURCES row **S260**
+  appended inside the Registry table after S259, `teaches` opens `supersedes S259 —` (the census
+  E04 rule's sanctioned shape), recording that the S259 Gate quote lives in §4.2 "The Microsoft
+  Store package", not §4.6.2 — verified by re-opening the live page this round; S259's row anchor
+  already listed §4.2, so the row's grounding stands. R2: recount by `wc -w` gives the S258 quote
+  **18** words (Gate stated 24) and the S259 quote **20** words (stated 21); both ≤25, bound holds;
+  correction entry in `corpus/lessons/round-54.md`; the round-53 lesson bytes untouched. R3: D7/W5
+  raw budget receipts re-derived through the new instrument and committed at
+  `.ufo/waves/round-54/d7-receipts/` (90 s and 420 s, both `rc=timeout`; today's partial counts
+  5 and 30 PASS lines vs r53's 40/40 — wall-clock facts of session load, same drift class). R4:
+  `host-transition-drift-r53.md` gained the appended "Round-54 correction — in-row probe dates"
+  block: D1-D12 each dated in-row (`grep -c "^D[0-9]"` = 12), original table untouched.
+- **C1 operability PASS (capability acquisition).** `python tools/receipt-run.py --selftest` →
+  `RECEIPT_RUN_SELFTEST: PASS (7 cases, 7 passed, 0 failed)` rc 0; the instrument's first working
+  use produced the R3 receipts; capability row `receipt-run` entered the SCORECARD table this round.
+  First selftest run failed case `live-child-rc0` (7 cases, 6 passed): the fixture asserted POSIX
+  `
+` while Windows `print()` emits CRLF — fixture fixed, verbatim byte capture was already
+  correct (lesson R54-CRLF-FIXTURE).
+- **C2 depth PASS (sourced; lowest tied axis).** `corpus/knowledge/windows-services-plane-r54.md`:
+  8 decision-table rows T1-T8 (`grep -c "^| T"` = 8; base rc 2), every row a named error signature
+  citing S261/S262 (both Microsoft Learn pages opened 2026-10-31) or a dated capture under
+  `.ufo/waves/round-54/after/services-probes/` (12 raw receipts — measured this round, committed,
+  never scratch). Measured signatures: MSYS mangles `schtasks /query` into
+  `C:/Program Files/Git/query` (three workarounds measured identical); a nonexistent task returns
+  "The system cannot find the path specified." rc 1; bare `sc query` is active-only (110 of 273);
+  a nonexistent service returns win32 1060 with process rc 36 [inference: 1060 mod 256]; S262's
+  `type= interact` error sentence does not fire on this client build (recorded divergence, T6);
+  `sc` inside powershell.exe is the Set-Content alias and silently writes a file named `query`
+  (measured; stray file created inside scratch, its bytes committed as the receipt, deleted with
+  scratch). Header gate PASS (70 notes, 0 findings). Depth ordinal unchanged (8).
+- **C3 freshness PASS.** `bash tools/recheck-drift-r54.sh` → rc 0, 12 row lines,
+  `RECHECK_DRIFT: PASS (12 rows, 10 host-probed match, 2 doc rows, 0 drift)` — the register's
+  recheck loop, formerly prose in three files, is now one executable read-only command; receipt
+  `.ufo/waves/round-54/after/recheck-drift-r54.txt`. The gate caught two of my probe bugs before
+  landing: the registry-coverage gate's four findings on the first rows (see below) and the D9
+  silent-skip case bug (below).
+- **Gate findings recorded, then fixed (calibration).** registry-coverage at work `f24ca241` read
+  FAIL with four findings: `receipt-run-r54 has invalid kind 'instrument'`; `recheck-drift-r54
+  names 2 tools: tools/recheck-drift-r54.sh, tools/tsukuroi-census.sh`; `2 operative rows cover
+  this tool [tsukuroi-census.sh]`; `recheck-drift-r54 probe verdict map lacks code(s) 2`. Fixed in
+  work-amend1 `0cd50d45` (kind `probe`; census path de-spelled; verdict 2 added); the gate at
+  `0cd50d45` reads PASS 92 tools / 92 rows / 0 findings
+  (`.ufo/waves/round-54/after/registry-coverage-at-work.txt` — the FAIL JSON was overwritten in
+  place by the PASS run at the amended tip; the FAIL findings are quoted here verbatim as the
+  record). Class mined as R54-REGISTRY-KIND in the round lesson.
+- **Named limits (reported, not smoothed):** D7 receipt UTC stamps cross into 2026-11-01Z (local
+  2026-10-31, UTC-07:00); the 90 s receipt's duration_s=112.8 includes the child-kill grace (the
+  budget and rc=timeout are the asserted facts). `check-self-assessment.py` stays could-not-evaluate
+  here (K13 needs the non-runnable census selftest — named limit, unchanged from r53). D12's
+  second-session behavior stays labeled inference. Sources census: start exit 0 (40 W04), end
+  exit 0 (41 W04 — the +1 is S260's same-URL correction row, warning-class; no E-code either pass).
+- **Round-level admission (author-side):** all three claims verify by measurement on THIS host; no
+  axis harmed — depth gained a sourced entry (8), operability gained two working probes + the
+  receipt capability (9, saturated), freshness gained the executable recheck loop + the four routed
+  repairs (9, saturated), coverage's map unchanged (9), calibration recorded its own gate findings
+  (9), adjacency untouched (8). Trend verdicts in the round report.
