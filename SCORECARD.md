@@ -3164,6 +3164,7 @@ Counts re-derived with the commands in each cell.
 | root-metadata-observer | Emits root mode, uid, gid and owner-bit observations while preserving fixture isolation and policy boundaries | `.ufo/waves/round-12/resumed/after.json`; `.ufo/waves/round-12/resumed/selftest-after.json`; `.ufo/waves/round-12/resumed/mode-policy-mutant.json` | round 12 |
 | boot-chain-audit | Reads and types initramfs root paths against the selected firmware entry, producing a per-entry next-boot verdict; since round 43 its boot-input freshness check decides on find's output | `tools/boot-chain-audit.sh`; `.ufo/waves/round-17/l1-capture/audit-live.txt`; `.ufo/waves/round-43/after/c1-after-c395491.jsonl` | round 17 |
 | storage-error-counter-reader | Reads every btrfs device's five error counters from sysfs and prints one verdict-neutral STORAGE line, demonstrated on fixtures, the live host and namespace views | `tools/tsukuroi-census.sh`; `.ufo/waves/round-38/after/c1-final-b0005ae.json`; `.ufo/waves/round-41/after/c1-after-568c397.jsonl` | round 38 |
+| win-host-census | Reads the Windows host's tool presence, PATH health, interpreter identity (real `python` vs the Store `python3` alias stub) and git/gh state as four verdict planes with a hermetic 20-case selftest | `python tools/win-host-census-r53.py --selftest` rc 0 (`.ufo/waves/round-53/after/win-census-selftest.txt`); live `.ufo/waves/round-53/after/win-census-live.txt` | 53 |
 
 - **planned (next round):** depth — apply the one remaining GR2 defect the round-49 cohort named (the `[inference]`
   mark still claims the ioctl side is unpinned although `ioctl.c` is pinned at S240; exact replacement is in
@@ -3457,3 +3458,44 @@ operator-gated. Frontier step this round: SOURCES rows S258 (Microsoft Learn, `w
 Windows docs) opened by the L1; C2 is the sourced claim. Assimilation: `considerthese/` mined; no proposal
 adopted (all four open ones are calibrated to the old host's wave machinery). Round-start census: exit 0,
 40 W04 (`.ufo/waves/round-53/before/sources-census-start.txt`).
+
+## Round 53 — measured outcome (2026-10-31, author-side; non-author closure pending)
+
+Base `d4f2ffe1`; declaration commit `b3421a8d`; work commit `9160ffb85bd6ebd841d71c560637de4c7aebcb64`. Single-session inline
+round: the counted-cohort wave machinery has no dispatch surface on this host (recorded absent; L0
+question filed), so no wave seats were dispatched and no claim binds a cohort. All measurements run on
+this host against the working tree at the work commit.
+
+| Claim | Counting command → measured | Verdict | Axis effect |
+|---|---|---|---|
+| C1 operability (capability acquisition) | `python tools/win-host-census-r53.py --selftest` → `WIN_CENSUS_SELFTEST: PASS (20 cases, 20 passed, 0 failed)` rc 0 (`.ufo/waves/round-53/after/win-census-selftest.txt`); live `python tools/win-host-census-r53.py` → `WIN_CENSUS: DEGRADED (git=GREEN path=DEGRADED python=DEGRADED tools=DEGRADED)` rc 1, all four planes (`.ufo/waves/round-53/after/win-census-live.txt`). Before at base `d4f2ffe1`: `git cat-file -e` exits 128, command rc 2 (`before/c1-at-base.txt`). | **PASS measured** — the capability runs, its output verifies, the row entered the capabilities table the same round | operability unchanged (9, saturated); acquisition recorded |
+| C2 depth (lowest tied, 8; sourced S258 S259 opened this round) | `grep -c "^| W" corpus/knowledge/windows-host-plane-r53.md` → **7** (target ≥6); base: rc 2, 0 rows and `grep -rl WindowsApps corpus/knowledge/` empty (`before/c2-at-base.txt`); header duty: `python tools/check-knowledge-header.py` at the work commit; every row cites S258/S259 or a dated capture | **PASS measured** | depth unchanged (8) — the move is the sourced decision table, not the ordinal |
+| C3 freshness | `grep -c "^| D" corpus/knowledge/host-transition-drift-r53.md` → **12** (target ≥8); base: rc 2, 0 rows (`before/c3-at-base.txt`); every row carries probe + observed + date; PROVINCE dated correction logged in LOG.md | **PASS measured** | freshness unchanged (9, saturated); the dated register + correction is the move |
+
+Named limits: `check-self-assessment.py` is could-not-evaluate on this host (K13 runs the census
+selftest; the selftest stalls at case 41 — 40 PASS / 0 FAIL at 90 s and 420 s budgets, rc 124, D7); the checker run itself measured TimeoutExpired at its own 900 s budget (`.ufo/waves/round-53/after/self-assessment-at-work.txt`, rc 1);
+the K07-K12 counts were recomputed manually with the same commands and the axes table restated to
+them below. The old census 168-case PASS stays a Linux-host fact, not citable here. D12 second-session
+behavior: labeled inference.
+
+## Axes — current self-assessment (round 53 final measured surface)
+
+Restated 2026-10-31 at the round-53 final tree; ordinals unchanged (all three claims are measured
+moves that do not re-rank the saturated axes; the depth move is the sourced entry, not a number).
+Counts re-derived with each cell's command at this tree.
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 69 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4627 `wc -l` / 1339 table lines (`grep -c '^\|' SKILL.md`); `corpus/lessons/` 81 files (`find corpus/lessons -type f \| wc -l`); the sourced Windows-host plane W1-W7 landed round 53 (round-53 measured outcome); GR1-GR3 of the scrub entry remain pending behind the operator-gated cohort resume; no ordinal move. | round 4; round-53 entry added, ordinal unchanged |
+| coverage | 9 | `corpus/README.md` 522 `wc -l`; PROVINCE Core, Frontier and Adjacent sections present; the round-53 host-transition correction records the current host's surfaces without re-homing any row. | round 11; unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` → PASS (168 cases, 168 passed, 0 failed) on its Linux host class (non-runnable here — stalls at case 41, D7); `python tools/win-host-census-r53.py --selftest` → PASS (20 cases, 20 passed, 0 failed) on this host; `--identity` landed; live census DEGRADED rc 1 (`.ufo/waves/round-53/after/win-census-live.txt`). | round 11; round-53 gate added, ordinal unchanged |
+| freshness | 9 | drift register D1-D12 with dated probes (`corpus/knowledge/host-transition-drift-r53.md`); S258/S259 opened 2026-10-31; sources census exit 0 at round start and end (`.ufo/waves/round-53/{before,after}/sources-census-*.txt`). | fleet round 1; round-53 register added, ordinal unchanged |
+| calibration | 9 | the axes table above restated to counts recomputed on this host; `python tools/check-self-assessment.py` cannot evaluate here (K13 needs the census selftest, non-runnable — named limit, round-53 measured outcome); at the r52 close the checker read 27 checked, 0 mismatches on its host. | round 10; unchanged |
+| adjacency | 8 | formal overlap table present (PROVINCE `\| ID \| Finding`); no sibling scope touched this round; the host transition absorbs nothing (drift register D10 routes the surface split by question). | fleet round 1; unchanged |
+
+- **planned (next round):** operator-gated first — the L0 question (wave-dispatch surface) decides
+  whether the r52 depth resume (amend GR2/GR3, fresh 18-seat cohort) is reachable; if the lane stays
+  on this host: extend `win-host-census-r53` with the two PATH repairs' verification arms (RP1/RP2
+  post-state probes), source the `fnm` session-dir behavior (D12) from a second session, and port the
+  drift register's recheck loop into a committed probe so D1-D7 re-verify by one command.
+- **retired:** none.

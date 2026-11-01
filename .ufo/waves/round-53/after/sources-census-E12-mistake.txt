@@ -1,0 +1,8 @@
+observed 2026-10-31: appending the S258/S259 rows at end-of-file (after the ## Leads section) instead
+of inside the ## Registry table made the round-end census fail:
+  tsukuroi  E12  S258 row outside Registry section
+  tsukuroi  E12  S259 row outside Registry section
+  census_rc=1
+fix: rows moved inside the Registry table (after the S257 row, before the blank line preceding
+## Paths); re-validation exit 0 (sources-census-end.txt). Note: the census START receipt read exit 0
+because the two rows did not exist yet.

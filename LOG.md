@@ -1938,3 +1938,47 @@ declaration"): C1 operability capability acquisition (`tools/win-host-census-r53
 hermetic selftest), C2 depth (sourced `corpus/knowledge/windows-host-plane-r53.md`, S258 S259 opened this
 round), C3 freshness (drift register + PROVINCE dated host-transition correction). All probes read-only; every
 repair stays operator-gated. L0 question filed (wave-dispatch surface absent). Census at start: exit 0, 40 W04.
+
+## Round 53 — PROVINCE correction (2026-10-31, logged per the absent-surface rule)
+
+PROVINCE.md gained the append-only section "Round-53 host transition — dated absent-surface record
+(2026-10-31)": the Arch Linux Core surfaces stay declared for their host class and read
+ABSENT/BLOCKED on the current Windows host (register rows D1-D7); the Windows tool/PATH/interpreter/
+git state enters the province as a documented surface served by `tools/win-host-census-r53.py`. No
+Core row re-homed, no sibling scope absorbed, no repair executed. Re-verification trigger: any host
+change or 30 days (`host-transition-drift-r53.md` recheck).
+
+## Round 53 — measured outcome (2026-10-31; base `d4f2ffe1`, declaration `b3421a8d`, work `9160ffb85bd6ebd841d71c560637de4c7aebcb64`)
+
+- **C1 operability PASS (capability acquisition).** `python tools/win-host-census-r53.py --selftest`
+  → `WIN_CENSUS_SELFTEST: PASS (20 cases, 20 passed, 0 failed)` rc 0; live
+  `python tools/win-host-census-r53.py` → `WIN_CENSUS: DEGRADED (git=GREEN path=DEGRADED
+  python=DEGRADED tools=DEGRADED)` rc 1 with all four planes emitted (receipts
+  `.ufo/waves/round-53/after/win-census-selftest.txt`, `win-census-live.txt`). The first selftest run
+  failed 7 of 18 cases — four fixture bugs and one real `git_plane` verdict bug (identity/repo
+  ignored) — fixed before the measured runs (lesson R53-FIXTURE-INTENT). Registry row
+  `win-host-census-r53` and the capabilities row landed in the same round.
+- **C2 depth PASS (sourced; lowest tied axis).** 7 decision-table rows W1-W7 in
+  `corpus/knowledge/windows-host-plane-r53.md` (`grep -c "^| W"` = 7; base: file absent, `grep` rc 2,
+  0 sourced Windows-host rows — `before/c2-at-base.txt`), every row carrying a named error signature
+  and an S-row (S258/S259, opened this round) or a dated capture; header duty
+  (`source:`/`verified-at:`/`recheck:`) satisfied, gate re-run at the work commit. Depth ordinal
+  unchanged (8): the move is the sourced entry + verdict, not the ordinal.
+- **C3 freshness PASS.** 12 drift rows D1-D12 in `corpus/knowledge/host-transition-drift-r53.md`
+  (`grep -c "^| D"` = 12; base: file absent, rc 2 — `before/c3-at-base.txt`), each with its read-only
+  probe, observed result and date; the PROVINCE correction is logged above. Freshness ordinal
+  unchanged (9, saturated): the move is the dated register + correction.
+- **Named limits (reported, not smoothed):** `check-self-assessment.py` cannot evaluate on this host —
+  its K13 leg runs the census selftest with a 900 s timeout, and the census selftest stalls at case 41
+  here (40 PASS / 0 FAIL / no summary line at both 90 s and 420 s budgets, rc 124; D7) — the checker run itself measured `subprocess.TimeoutExpired: Command '['bash', 'tools/tsukuroi-census.sh', '--selftest']' timed out after 900 seconds`, rc 1 — receipts `.ufo/waves/round-53/after/self-assessment-at-work.txt`; the K07-K12 counts it would read were recomputed manually with the
+  same commands and the axes table restated to them. The old census's 168-case PASS stays a Linux-host
+  fact. D12's second-session behavior is labeled inference, not probed.
+- **Absent surfaces (recorded, not skipped):** the MISSION.md L2 floor (≥8 subagents, one batched
+  AgentSwarm call) has no dispatch surface on this host; L0 question filed this round. The counted-
+  cohort depth resume of r52 stays operator-gated.
+
+Round-level admission (author-side): all three claims verify by measurement on THIS host; no axis
+harmed — depth gained a sourced entry (8, unchanged), coverage's province record was corrected
+(9, unchanged), operability gained a working gate (9, saturated), freshness gained the register
+(9, saturated), calibration restated to recomputed counts (checker could-not-evaluate here — the
+limit is named, 9, unchanged), adjacency untouched and nothing absorbed (8, unchanged).

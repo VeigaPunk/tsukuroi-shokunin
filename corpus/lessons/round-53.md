@@ -64,7 +64,17 @@ round start and round end (40 W04 duplicate-URL warnings at both passes, unchang
   shape); FAIL lines print got/want so the next divergence names itself; every verdict arm named in a
   plane's grammar has a case that exercises it.
 
+- **R53-ROW-PLACEMENT** (class: registry row appended outside its section) — the S258/S259 rows were
+  appended at end-of-file, after the `## Leads` section, instead of inside the `## Registry` table;
+  the round-end census failed with `E12 S258 row outside Registry section` / `E12 S259 row outside
+  Registry section`, rc 1 (receipt `.ufo/waves/round-53/after/sources-census-E12-mistake.txt`). The
+  rows moved inside the table (after S257, before the blank line preceding `## Paths`) and the
+  re-validation reads exit 0 (`sources-census-end.txt`). Captured-by: the sources-census validator at
+  round end, this round. Fix: a SOURCES row is appended at the end of the Registry table (after the
+  last `| S###` row), never at end-of-file; the round-end census run is what proves placement, so it
+  must run after the last row edit — the round-start exit 0 proves nothing about rows added later.
+
 Sweep that found no further mistakes this round: the round's own files were re-read for superseded
 claims before commit (`grep -n "python3 tools" corpus/knowledge/windows-host-plane-r53.md
-corpus/knowledge/host-transition-drift-r53.md` → only the deliberate D8/W1 naming-class statements;
-the two 404/FAIL receipts above are the complete defect set observed).
+corpus/knowledge/host-transition-drift-r53.md` → one hit, the deliberate D8 naming-class statement;
+the receipts above (404, first selftest FAIL, E12) are the complete defect set observed this round).
