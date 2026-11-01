@@ -3676,3 +3676,76 @@ Counts re-derived with each cell's command at this tree.
   can take the 420 s budget without editing the script, and give `win-host-census-r53` a
   `--receipt` mode routed through `receipt-run.py` so the live reading commits itself the same way.
 - **retired:** none.
+
+## Round 55 — declaration (2026-10-31, base `59a62bfe07bbf109a59d92d220afee1fd10fd8eb`, written before any measurement)
+
+Context: r54 was admitted (closure `59a62bfe`, non-author verifier spot-check). That closure routed
+three defects; they are this round's repairs first (R1-R2 below; repairs are not claims, per the
+r33/r34 precedent), and its two standing scope L0s are routed around, never treated as answered. The
+rendered prompt's §7 FRESH-START block names the three prior `rejected-honest-stop` closures (r50
+`72c114a5`, r51 `daf5b626`, r52 `5b147403`, all in the fleet repo); spot-checked this round against
+committed bytes — r50's `.ufo/waves/round-50/after/c1-final.json` reads `verdicts_ok 0, marks_ok 0,
+seats_ok 18` (the honest FAIL), r51's `before/c2-cheats-at-amend1.json` does not exist at
+`c0ad548a` (`git cat-file -e` fails — the live-peer output was never committed, as the closure
+said), r52's `.ufo/waves/round-52/after/c1-final.json` reads `seats_ok 16` with 58 seat files vs the
+18-seat frozen predicate — and the declared round rules out:
+
+- **Ruled out — the counted-cohort depth resume (r50/r51/r52's common binding: amend GR2/GR3, fresh
+  18-seat cohort through check-scrub-admission-r5x).** Still unreachable: this host exposes no
+  wave/AgentSwarm dispatch surface (L0 `tsukuroi | round-53` stands unanswered — routed around,
+  never treated as answered). A do-nothing control cannot reach the claim, but neither can this
+  round; asserting `seats_ok` would fabricate.
+- **Ruled out — re-claiming r53/r54's admitted moves** (win-host-census-r53, the T1-T8 services
+  plane, the D1-D12 recheck loop): landed, verified, and a do-nothing control already reaches them —
+  no fresh axis-move.
+- **Ruled out — r53-planned RP1/RP2 post-state verification arms** for `win-host-census-r53`: the
+  operator-gated PATH/alias repairs remain unexecuted, so post-state arms can only re-report today's
+  DEGRADED state — nothing falsifiable moves. Deferred until the operator runs RP1/RP2.
+- **Ruled out — sourcing D12's fnm second-session behavior**: requires a second concurrent session;
+  this session is single and inline. Cannot be measured honestly here.
+- **Ruled out — claiming a bare re-run of `recheck-drift-r54.sh` or a re-fetch of S261/S262 as a
+  freshness move**: a do-nothing control reaches a pure re-run; freshness gains no new move this
+  round (the round works operability, depth and calibration instead).
+- **Carried, not claimed** (r54 planned list): `win-host-census-r53 --receipt` mode routed through
+  `receipt-run.py` (C1 exercises the instrument on the T-probe set first), and
+  `recheck-drift-r54.sh --budget <s>` (the 420 s leg stays covered by the r54 committed receipt).
+  Both stay on the planned list for r56.
+
+Reachable moves declared below. Lowest-axis duty: depth and adjacency are tied lowest at 8; **C2
+works depth**. Saturation 9 / window 3; a capability entered the table in r54, so the stagnation
+nudge does not apply. L2 floor (MISSION.md ≥8 in one batched AgentSwarm call): absent surface on
+this host — recorded, routed around. Ordinals at base: depth 8, coverage 9, operability 9,
+freshness 9, calibration 9, adjacency 8; none retired. Repairs R1-R2 (routed defects of closure
+`59a62bfe`, status-neutral, not claims):
+
+- **R1 — SCORECARD duplicate declaration (routed defect 1).** The section "Round 54 — declaration
+  (2026-10-31, base `5cbcb06e…`)" appears TWICE at the closure tip (landed at `f24ca241`; verified
+  by this round's `diff` of the two copies: exactly one word differs — the first copy's C2 row reads
+  "MSYS `/opt` mangling", the second copy reads "MSYS `/query` mangling", which matches the
+  measured T1 signature `Invalid argument/option - 'C:/Program Files/Git/query'`). Fix: keep exactly
+  one authoritative copy (the `/query` wording), remove the superseded duplicate, and land a
+  correction block naming the superseded text — not a silent delete.
+- **R2 — S262 field-name correction row (routed defect 3).** S262's `teaches` names the display
+  fields WIN32_EXIT_CODE / SERVICE_EXIT_CODE (matching every measured receipt, e.g.
+  `t4-sc-active.txt`), while the page's Remarks literally read "WIN32_EXIT_B, SERVICE_EXIT_B" — a
+  typo on the page. Fix: a SOURCES correction row written after re-opening the live page this round,
+  recording the divergence; S262 stands for all other content (no supersedes — the row is right
+  about the tool).
+
+| Claim | Axis | Surface moved | Counting command | Do-nothing control at base | Target (predicate) |
+|---|---|---|---|---|---|
+| C1 | operability | The round-54 T-probe receipts become self-describing: the whole probe set re-derived through `tools/receipt-run.py` and committed at `.ufo/waves/round-55/reissued-r54/` — each receipt carries its own verdict metadata (command argv, budget, start/end UTC, duration, `rc=`, stream sizes), closing routed defect 2 (the r54 receipts are output-only; `t7-powershell-sc-alias-stdout.txt` is 0 bytes) | before: `grep -h "^rc=" .ufo/waves/round-54/after/services-probes/* \| wc -l` → 0 across 12 files; `wc -c < .ufo/waves/round-54/after/services-probes/t7-powershell-sc-alias-stdout.txt` → 0. after: `ls .ufo/waves/round-55/reissued-r54/* \| wc -l` → N; `grep -l "^rc=" .ufo/waves/round-55/reissued-r54/* \| wc -l` → N (all) | at base the reissued dir does not exist and no instrument re-issues the set; the r54 receipts stay output-only forever | N ≥ 10 receipts AND every one carries `^rc=` AND the re-derived t7 stdout receipt records `rc=0`, `stdout_bytes=0` and the full argv in its header (the 0-byte no-metadata class closed); the r54 receipts stay untouched |
+| C2 | depth (lowest tied, 8; sourced S263 S264, opened this round) | `corpus/knowledge/windows-services-plane-r55.md` — sourced decision-table rows for the service-control extended query/config surface (`sc queryex`, `sc qc`), each row a named error signature citing S263/S264 (Microsoft Learn pages opened this round) or a dated receipt under `.ufo/waves/round-55/services-probes/` (its own dir, distinct from C1's); header duty `python tools/check-knowledge-header.py --revision <work>` | `grep -c "^| T" corpus/knowledge/windows-services-plane-r55.md`; header duty as above | the file is absent at base: `git cat-file -e 59a62bfe:corpus/knowledge/windows-services-plane-r55.md` exits 128; `grep -c` exits 2 (0 rows) | rows ≥ 3 AND the knowledge-header gate reads 0 findings AND every row cites S263/S264 or a dated receipt; depth ordinal unchanged (8) — the move is the sourced entry, not the ordinal |
+| C3 | calibration | SCORECARD round-section uniqueness becomes an enforced invariant: `tools/check-scorecard-unique-sections.py` (gate; exit 0 every `^## ` heading unique, 1 on any duplicate with line numbers, 2 could-not-evaluate; hermetic `--selftest`); repair R1 is the gate's first real catch — a defect class the lane shipped twice and the non-author closure had to find | before: `git cat-file -e 59a62bfe:tools/check-scorecard-unique-sections.py` exits 128; `grep -c "^## Round 54 — declaration" SCORECARD.md` → 2. after: `grep -c` → 1 (R1 landed); `python tools/check-scorecard-unique-sections.py --selftest` → PASS rc 0; worktree run rc 0 | at base the gate does not exist and nothing on this host would flag the next duplicated SCORECARD section | selftest PASS rc 0 AND the worktree/committed SCORECARD run exits 0 AND `grep -c "^## Round 54 — declaration" SCORECARD.md` = 1 with the correction block naming the superseded duplicate; calibration ordinal unchanged (9, saturated) |
+
+Causal separability: C1 reads only its reissued dir + the base-committed r54 receipts; C2 reads its
+own knowledge file + SOURCES + the header gate + its own probe receipts in
+`.ufo/waves/round-55/services-probes/` (a directory C1 never writes); C3 reads SCORECARD + its own
+gate (its R1 precondition is a repair, not a claim). No claim's counter reads another claim's
+surface. All three are single-session inline; the counted-cohort resume stays operator-gated.
+Frontier step: S263 (`sc.exe queryex`), S264 (`sc.exe qc`) — Microsoft Learn pages opened this
+round; S265 (correction note on S262, R2); C2 is the sourced claim. Round-start census: exit 0,
+41 W04 (`.ufo/waves/round-55/before/sources-census-start.txt`). Assimilation: `considerthese/`
+mined (latest 2026-10-26; the cross-note correction propagation map was partially applied in r54;
+no still-unimplemented proposal clears this round's bar — the R1 dedupe is routed-repair work, not
+an adopted proposal); nothing adopted.

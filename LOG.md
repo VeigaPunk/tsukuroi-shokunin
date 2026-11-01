@@ -2071,3 +2071,23 @@ the trees carried zero round-54 receipts. Caught by the prompt's own verificatio
 in this commit (round-start/end census, before-receipts, selftest, gate receipts, counting battery,
 recheck receipt, 12 services-probe raw captures, the two D7 budget receipts and the runner log); the
 lesson records the class as R54-DIRPATHSPEC.
+
+## Round 55 — declaration (2026-10-31; base `59a62bfe` = r54 closure tip)
+
+Shape: single-session inline round (unchanged since r53: no wave/AgentSwarm dispatch surface on this
+host; the L0 question `tsukuroi | round-53` stands unanswered and was routed around, never treated as
+answered; the contested kaidoku/revenger scope question of round 1 likewise stands). Claims declared
+before any measurement (SCORECARD "Round 55 — declaration"): C1 operability (the r54 T-probe receipt
+set re-derived through `tools/receipt-run.py`, every receipt self-describing — closes routed defect
+2), C2 depth, lowest tied axis (sourced `corpus/knowledge/windows-services-plane-r55.md`, S263/S264
+opened this round), C3 calibration (`tools/check-scorecard-unique-sections.py` — SCORECARD
+round-section uniqueness enforced; repair R1 is its first real catch). Repairs first, not claims:
+R1 the SCORECARD duplicate "Round 54 — declaration" section (routed defect 1; kept copy = the
+`/query` wording matching the measured T1 signature; superseded duplicate named in a correction
+block, not silently deleted), R2 the S262 field-name correction row (routed defect 3; the page's
+Remarks typo "WIN32_EXIT_B, SERVICE_EXIT_B" vs the measured WIN32_EXIT_CODE / SERVICE_EXIT_CODE).
+FRESH-START spot-check (prompt §7): r50/r51/r52 rejected closures re-verified against committed
+bytes (r50 `verdicts_ok 0`; r51's amend1 receipt absent at `c0ad548a`; r52 `seats_ok 16`, 58 seat
+files); ruled-out set in the SCORECARD declaration. Round-start census exit 0, 41 W04
+(`.ufo/waves/round-55/before/sources-census-start.txt`). All probes this round read-only; every
+repair operator-gated; receipt paths live in the lane tree, never scratch.
