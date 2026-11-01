@@ -1,6 +1,7 @@
 source: S266 S267 (rows in `corpus/SOURCES.md`; both opened 2026-11-01) plus the dated host captures under `.ufo/waves/round-56/services-probes/` of this repo
 verified-at: 2026-11-01 (host: Windows 10.0.26200 x64 under Git Bash / MSYS, bash 5.3.15; probes run 2026-11-01 via `tools/receipt-run.py`, read-only)
 recheck: 30d — re-run the probe commands of rows T13-T16 (all read-only or absence-refused), compare the observed signatures with the receipts in `.ufo/waves/round-56/services-probes/`; re-open S266 on its 180d refresh class and S267 on upstream content change (S267 is an archived page — archive-side edits are the drift risk, `is_archived: true`); a changed row gets an appended correction, never an in-place edit
+recheck: 30d from day 0 2026-11-01 (the r56 first executable pass, receipt `.ufo/waves/round-56/receipts/recheck-services-t1t12.txt`: rows=12 matched=12 drift=0; this note's rows T13-T16 re-check against `.ufo/waves/round-56/services-probes/` on the same cadence; instrument `tools/recheck-services-r56.sh [--receipt PATH] [--raw-dir DIR]` covers T1-T12, T13-T16 stay receipt-compared) — next pass due 2026-11-30; a late pass is observable from this line (operative; appended r57, supersedes the cadence-only line above, which stays)
 
 # The Windows services plane, configuration-change and failure-action surface (round 56)
 

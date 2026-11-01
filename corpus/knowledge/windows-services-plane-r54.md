@@ -1,6 +1,7 @@
 source: S261 S262 (rows in `corpus/SOURCES.md`, both opened 2026-10-31) plus the dated host captures under `.ufo/waves/round-54/after/services-probes/` of this repo
 verified-at: 2026-10-31 (host: Windows 10.0.26200 x64 under Git Bash / MSYS, bash 5.3.15; probes run 2026-10-31, read-only)
 recheck: 30d — re-run the probe commands of rows T1-T8 (all read-only), compare the observed signatures with the captures in `.ufo/waves/round-54/after/services-probes/`; re-open S261/S262 on upstream content change; a changed row gets an appended correction, never an in-place edit
+recheck: 30d from day 0 2026-11-01 (the r56 first executable pass, receipt `.ufo/waves/round-56/receipts/recheck-services-t1t12.txt`: rows=12 matched=12 drift=0; instrument `tools/recheck-services-r56.sh [--receipt PATH] [--raw-dir DIR]`) — next pass due 2026-11-30; a late pass is observable from this line (operative; appended r57, supersedes the cadence-only line above, which stays)
 
 # The Windows services and scheduled-tasks plane (round 54)
 
