@@ -2290,3 +2290,67 @@ S266 `type= interact` falsification probe and is routed around, never treated as
   contract (9, saturated), calibration the assumed-gate lesson + honest selftest FAIL kept on
   record (9, saturated), coverage map unchanged (9), adjacency untouched (8). Trend verdicts in
   the round report.
+
+## Round 58 — measured outcome (2026-11-01; declaration + work `e4e33606`, base `5a59f79e`)
+
+Motivating evidence and per-claim record (full detail in the round lesson `corpus/lessons/round-58.md`,
+the SCORECARD declaration + measured-outcome sections, and receipts under `.ufo/waves/round-58/`):
+
+- **Carry-ins landed first (routed from the r57 closure, status-neutral, not claims):** the registry-
+  correction convention restated and APPLIED to the same row r57 edited in place — the round-58 superseding
+  registry table appended to SKILL.md (round-46 rows verbatim, one row updated; round-46 table byte-
+  identical, sha256 `e290c2b3…` measured base=work); the `bde06613` receipt-hygiene rule verified against
+  committed bytes before use and bound to this round's receipts (first-run FAIL receipt committed under its
+  honest name; declared-command correction appended, nothing substituted); the r57 report's stale
+  `= 51199d52` header statement correction block recorded (lesson + SCORECARD + report — the fleet-repo
+  report itself is lane-unmutable); the three standing L0s routed around, never treated as answered.
+  FRESH-START r50/r51/r52 re-spot-checked from committed bytes (r50 c1-final FAIL 0/0/18; r51 battery file
+  committed EMPTY by `91227829`; r52 c1-final FAIL 1/0/16 vs bound 18) and four move classes ruled out for
+  cause.
+- **C1 depth PASS (SOURCED, S272 S273 opened this round).** `corpus/knowledge/windows-eventlog-plane-r58.md`
+  rows E1-E6 — the Windows EVENT-LOG triage plane, the current host's analog of the lane's Core journal/boot
+  surface (D2/D3: `journalctl` ABSENT here). Measured: `wevtutil el` rc 0 (1162→1164 channels, drift-class);
+  `qe System /c:3 /rd:true /f:text` rc 0 newest-first (S272's own example shape); query-leg absence =
+  `Failed to open event query.` + `The specified channel could not be found.` at rc **15007** (python spawn)
+  = **159** (bash) — 15007 mod 256, the T5 truncation class; `gli System` rc 0 metadata
+  (numberOfLogRecords/fileSize — the journal-disk-usage analog); the `/q:` level-filter reads recent errors
+  rc 0; metadata-leg absence shares message + rc family with a leg-specific function line. Spelling trap one
+  gate deeper than T1: MSYS rewrites `/c:3` → `c:3` (rc 87), and `MSYS_NO_PATHCONV=1` must be set on the
+  PYTHON spawn — inside the child argv does not protect (receipts e2/e2b, e3/e3b). `cl`/`sl`/`epl`/`al`
+  operator-owned; bare `cl` measured at its usage gate rc 87 (no accidental clear possible). Before: note rc
+  128, wevtutil sweep 0 files, SOURCES 271. After: 6 rows, SOURCES 273/0 malformed, header gate 74/0.
+- **C2 operability PASS.** `tools/recheck-services-r56.sh` extended to the FULL services surface — 22 rows:
+  T19-T23 live, T13-T16 + T24 receipt-compared (config-change-shaped/SCM-write-shaped probes NEVER
+  re-executed; committed dated receipts are the evidence compared). First run FAILED 2 drift (T19 grep -c
+  lines-vs-occurrences; T24 input file misread as receipt-run receipt) — FAIL receipt + raw captures
+  committed under honest names; fixed run `RECHECK_SERVICES: PASS (22 rows, 22 match, 0 drift)` rc 0
+  (`.ufo/waves/round-58/receipts/recheck-services-22-summary.txt`), 17 raw receipts for the live rows.
+  Registry row corrected via the APPENDED round-58 superseding table; registry-coverage gate 95/95/0 at
+  `e4e33606` (gate selects the round-58 table). Declared counting command measured 17 (literal names only)
+  — the appended correction block in the after-battery names it and gives the combined command (17+5=22)
+  and the receipt-side count.
+- **C3 freshness PASS.** The W-plane note joined the dated cadence contract: appended operative `recheck:`
+  line (old line byte-identical, sha256 measured) binding day 0 = 2026-11-01 to the committed r56
+  receipt-mode receipt, next pass due 2026-11-30, operative selftest expectation corrected 20 → **25 cases**
+  (note-vs-instrument drift, now in committed bytes). First W-plane re-verification pass under the new line:
+  selftest 25/25 rc 0; live receipt-mode census stdout byte-IDENTICAL to the r56 anchor (all four plane
+  verdicts `DEGRADED/GREEN/DEGRADED/DEGRADED`, rc 1 — stability recorded, never smoothed).
+- **Gates/receipts at the work revision `e4e33606`:** before-counts at base
+  `.ufo/waves/round-58/before/c1-c2-c3-at-base.txt`; after-counts `.ufo/waves/round-58/after/
+  c1-c2-c3-counts-at-work.txt` (incl. the R58-DECLARED-COMMAND correction block); knowledge-header 74/0;
+  registry-coverage 95/95/0; SCORECARD uniqueness ok rc 0; receipt-run 7/7, receipt-write 5/5 unchanged;
+  census exit 0 both passes 42 W04 (an intermediate pass exit 1 E12 — R58-SOURCES-APPEND-POSITION, repaired,
+  the committed end receipt is the repaired re-pass).
+- **Named limits (reported, not smoothed):** E1 channel counts and all gli fields are captures (drift-class);
+  the 15007↔159 relation is arithmetic inference per the T5 class; S273 documents manifest channels, not the
+  CLI; E1's Analytic/Debug count is name-substring only (no per-channel type query exists in the CLI per
+  S272's option table); `cl` with a log name is UNTESTED by design; wevtutil text receipts may carry NUL
+  bytes (R58-WEVTUTIL-NUL-RECEIPTS); `check-self-assessment.py` remains could-not-evaluate on this host
+  (K13); L2 floor absent surface, routed around. Mistakes mined: R58-SOURCES-APPEND-POSITION,
+  R58-RECHECK-EXTENSION-FIRST-RUN, R58-DECLARED-COMMAND, R58-WEVTUTIL-NUL-RECEIPTS + the routed r57
+  registry-append lesson correction (corpus/lessons/round-58.md). Round-level admission (author-side): all
+  three claims verify by measurement on THIS host; no axis harmed — depth gained the sourced event-log entry
+  (8), operability the full-surface 22-row recheck + appended-registry convention (9, saturated), freshness
+  the W-plane dated cadence + stale-expectation correction (9, saturated), calibration the honest first-run
+  FAIL + declared-command correction (9, saturated), coverage map unchanged (9), adjacency untouched (8).
+  Trend verdicts in the round report.

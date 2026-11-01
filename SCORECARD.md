@@ -4076,3 +4076,52 @@ appended SKILL registry section; C3 touches only the W-plane note header + fresh
 verification depends on another having landed. No exploratory claim this round. The r57-ruled-out bare-rerun
 class is respected: C3's census pass is the day-0 anchor of a NEW committed cadence line plus a
 stale-expectation correction — the pass alone is not claimed.
+
+## Round 58 — measured outcome (2026-11-01, author-side; non-author closure pending)
+
+Measured at work revision `e4e33606` (counting battery `.ufo/waves/round-58/after/c1-c2-c3-counts-at-work.txt`;
+before-counts at base `.ufo/waves/round-58/before/c1-c2-c3-at-base.txt`, plumbing reads of `5a59f79e` — the
+worktree view is untrusted on this host, r56/r57 lesson). Gates at `e4e33606`: knowledge-header PASS 74/0,
+registry-coverage PASS 95/95/0 (round-58 table selected), SCORECARD uniqueness ok rc 0, receipt-run 7/7,
+receipt-write 5/5; census exit 0 both passes 42 W04 (intermediate E12 repaired — R58-SOURCES-APPEND-POSITION).
+
+| Claim | Before → after (measured) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 depth (lowest tied, 8; SOURCED S272 S273 opened after the declaration) | before: `git cat-file -e 5a59f79e:…windows-eventlog-plane-r58.md` → rc **128**; wevtutil sweep **0 files**; SOURCES **271**. After: `grep -c "^| E"` → **6** (E1-E6); SOURCES 271 → **273**, malformed **0** (all inside Registry); knowledge-header gate at the work revision → PASS **74** notes / **0** findings. Measured signatures (receipts e1-e6b, all through receipt-run): `el` rc 0 (1162→1164, drift-class); `qe System /c:3 /rd:true /f:text` rc 0 newest-first Event[N] (S272's example shape); query-absence rc **15007**/159 (15007 mod 256, T5 class) `Failed to open event query.` + `The specified channel could not be found.`; `gli System` rc 0 (numberOfLogRecords/fileSize); level-filter `/q:*[System[(Level=1 or Level=2)]]` rc 0 newest errors; `gli`-absence same message + rc family, function line `Failed to read log status information`; MSYS rewrite `/c:3`→`c:3` rc 87 with the python-spawn boundary nuance (e2/e2b, e3/e3b); bare `cl` usage-refused rc 87 (no mutation possible) | **PASS measured** | depth unchanged (8) — the move is the sourced entry, not the ordinal |
+| C2 operability | before: `grep -oE 'T[0-9]+ match' … \| sort -u \| wc -l` → **12** (base; the declared command's after-value is corrected below the table); T13/T19/receipt-compared mentions **0**; round-58 registry table **0**. After: script rows 17 literal + 5 rcr = **22** (combined command); live pass `RECHECK_SERVICES: PASS (22 rows, 22 match, 0 drift)` rc 0; FIRST RUN FAIL 2 drift kept on record (T19 grep-lines-vs-occurrences, T24 input-file-as-receipt — R58-RECHECK-EXTENSION-FIRST-RUN, FAIL receipt + raw captures committed under honest names); 17 raw receipts (live rows only); registry-coverage 95/95/0 against the appended round-58 table; round-46 table byte-identical (sha256 `e290c2b3…` base=work); `bash -n` rc 0 | **PASS measured** | operability unchanged (9, saturated) — the full services surface in one command; the registry-append convention applied to the row r57 edited in place |
+| C3 freshness | before: W-plane `next pass due` → **0**; stale `20 cases` line → **1**; instrument selftest → **25** cases (the drift). After: dated operative line → **1** (day 0 = 2026-11-01, due 2026-11-30, expectation **25** cases); old line byte-identical (sha256 `364df0a1…` base=work); stale line still present (append-only); fresh selftest `PASS (25 cases, 25 passed, 0 failed)` rc 0; live receipt-mode census committed, stdout byte-IDENTICAL to the r56 anchor (`WIN_CENSUS: DEGRADED (git=GREEN path=DEGRADED python=DEGRADED tools=DEGRADED)` rc 1) — stability recorded, never smoothed | **PASS measured** | freshness unchanged (9, saturated) — the W-plane cadence became time-falsifiable and its stale expectation corrected by append |
+
+Declared-command correction (R58-DECLARED-COMMAND; appended in the after-battery, never substituted): the
+declared C2 counting command counts literal row names only — after-value **17**, not the declared 22; the 22
+is measured by the combined command (17 + 5 rcr rows) and by the committed receipt (`rows=22`).
+
+Repairs landed (routed carry-ins, not claims): the round-58 superseding registry table (the r57 in-place
+annotation corrected by the convention's own mechanism); the bde06613 rule verified and applied (FAIL
+receipts kept, corrections appended); the r57 report stale-header correction block (lesson/SCORECARD/report);
+the three standing L0s routed around. An intermediate census pass exit 1 (E12 rows outside Registry) was
+repaired in-round and re-passed exit 0 — the committed end receipt is the repaired pass.
+
+## Axes — current self-assessment (round 58 final measured surface)
+
+Restated 2026-11-01 at the round-58 final tree (counts re-derived with each cell's command; ordinals
+unchanged — operability/freshness/calibration saturated, depth's move is the sourced entry, coverage/adjacency
+untouched this round).
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 74 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); `SKILL.md` 4886 `wc -l`; `corpus/lessons/` 90 files (`find corpus/lessons -type f \| wc -l`); the sourced event-log plane E1-E6 landed round 58 (round-58 measured outcome; S272 current + S273 current, `event-channels` 404 recorded); GR1-GR3 of the scrub entry remain pending behind the operator-gated cohort resume; no ordinal move. | round 4; round-58 entry added, ordinal unchanged |
+| coverage | 9 | `corpus/README.md` 522 `wc -l`, byte-identical to base (the r58 plane instruments a province surface — host event-log triage — inside the existing host-transition record; the README map's services rows were never re-homed and the eventlog plane joins the same class; map row addition deferred to a coverage round with its own claim). PROVINCE Core, Frontier and Adjacent sections present. | round 11; unchanged |
+| operability | 9 | `bash tools/recheck-services-r56.sh` → `RECHECK_SERVICES: PASS (22 rows, 22 match, 0 drift)` rc 0 (committed receipt); `python tools/receipt-run.py --selftest` PASS 7/7; `python tools/receipt-write.py --selftest` PASS 5/5; `bash -n` rc 0; registry-coverage 95/95/0 at `e4e33606`; first-run FAIL kept on record. | round 11; round-58 22-row extension + appended registry table added, ordinal unchanged |
+| freshness | 9 | services plane T1-T24 re-verifiable by one committed command, 0 drift at the r58 pass; W-plane re-verified 2026-11-01, stdout byte-identical to the r56 anchor; five notes now carry dated cadence lines (r54/r55/r56/r57 services + r53 W-plane), next pass due 2026-11-30 observable from committed bytes; S272/S273 opened live this round; sources census exit 0 at round start and end (42 W04 both). | fleet round 1; round-58 W-plane dated cadence + stale-expectation correction added, ordinal unchanged |
+| calibration | 9 | the axes table above restated to counts recomputed on this host; SCORECARD uniqueness gate ok; all three claims measured with before-receipts at base via plumbing; the round's own extension failed its first run (2 drift) and the FAIL is on record; the declared counting command's shortfall self-caught and corrected by append (R58-DECLARED-COMMAND); `python tools/check-self-assessment.py` cannot evaluate here (K13, named limit). | round 10; round-58 honest-first-run-FAIL + declared-command correction added, ordinal unchanged |
+| adjacency | 8 | formal overlap table present; no sibling scope touched; the event-log surface stays inside the lane's own host-operability province (the journal/boot analog, D2/D3 — no sibling absorbed); contested kaidoku/revenger ownership remains unruled (carried, routed around). | fleet round 1; unchanged |
+
+
+- **planned (next round):** operator-gated first — the L0 wave-dispatch question (`tsukuroi | round-53`)
+  still decides the r52 counted-cohort depth resume, and the L0 `tsukuroi | round-57` decides the S266
+  `type= interact` falsification probe. If the lane stays on this host: the event-log plane's E1-E6 join the
+  dated recheck discipline (an executable recheck arm for the E-rows, mirroring `recheck-services-r56.sh`,
+  receipt-compared where the probe class requires it); the services planes' first cadence-dated pass receipt
+  is due 2026-11-30 (or before, if a drift fires); the wevtutil NUL-byte finding wants a parsing rule in the
+  plane's probes (strip `\r\0`) before any count is judged.
+- **retired:** none.

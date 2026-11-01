@@ -46,3 +46,12 @@ is a name-substring count (339), not the Event Log service's own channel-type cl
 does not expose type per channel through this CLI surface [bounded by S272's option table, which defines no
 type query]. The `cl` usage-gate probe (rc 87) demonstrates the argument gate only; the behavior of `cl` WITH
 a log name under a read-only session is UNTESTED by design (it would clear a log — operator territory).
+
+## Limits correction (appended r58, same round — the two probe receipts are binary-flagged)
+
+Post-commit sweep finding: the E2 and E5 receipt files (`.ufo/waves/round-58/eventlog-probes/
+e2-qe-recent-text.txt`, `e5-qe-level-filter.txt`) carry embedded **NUL bytes** (0x00 in the
+`wevtutil /f:text` event text — git diff-tree numstat flags both files binary). The committed
+bytes are the receipts as captured; nothing was cleaned. Parsing consequence: a NUL-containing
+file is treated as binary by grep (use `-a` or strip `\r\0` first — the `tr '\r' '\n'` class in
+E2's cell extends to `tr -d '\0'`); a byte-level evidence check (sha256) is unaffected.

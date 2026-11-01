@@ -1,0 +1,59 @@
+# tsukuroi r58 after-counts at work e4e33606 (2026-11-01T11:44:07Z)
+
+== C1 depth ==
+-- note T-row count (grep -c '^| E'):
+6
+-- SOURCES rows:
+273
+-- malformed rows (awk NF!=13):
+0
+-- knowledge-header gate (receipt .ufo/waves/round-58/after/knowledge-header-at-work.json):
+PASS notes 74 findings 0 e4e33606
+
+== C2 operability ==
+-- row-count command (grep -oE 'T[0-9]+ match' | sort -u | wc -l):
+17
+-- live pass rollup (committed receipt):
+RECHECK_SERVICES: PASS (22 rows, 22 match, 0 drift)
+-- first-run FAIL receipt kept:
+RECHECK_SERVICES: FAIL (2 drift)
+-- raw receipts (live rows):
+17
+-- registry-coverage gate (receipt):
+PASS {'findings': 0, 'missing': 0, 'registered': 95, 'rows_total': 95, 'tools_total': 95} e4e33606
+-- round-46 table byte-identical (plumbing hash base vs work):
+e290c2b385b7eb99279877cfd190e03211076e1075df6e3ac8bfa23b23172301 *-
+e290c2b385b7eb99279877cfd190e03211076e1075df6e3ac8bfa23b23172301 *-
+-- round-58 table present:
+1
+
+== C3 freshness ==
+-- W-plane dated line:
+1
+-- W-plane old line byte-check (base vs work, line 3):
+364df0a1065c4630500236e862b6eff6ea1c7f9ee5fa8c897873d2812152356e *-
+364df0a1065c4630500236e862b6eff6ea1c7f9ee5fa8c897873d2812152356e *-
+-- stale 20-cases line still present (append-only):
+2
+-- operative 25-cases expectation:
+1
+-- fresh selftest:
+WIN_CENSUS_SELFTEST: PASS (25 cases, 25 passed, 0 failed)
+-- live receipt vs r56 anchor, stdout section diff:
+stdout IDENTICAL to r56 anchor
+
+== CORRECTION (appended beside, never substituted — the bde06613 rule) ==
+The DECLARED C2 counting command (grep -oE 'T[0-9]+ match' | sort -u | wc -l) counts LITERAL row
+names only — it reads 17 (the live rows T1-T12 + T19-T23) because the five receipt-compared rows
+are parameterized through rcr <k> (emit "T$k match"). The declared target "22" is measured by the
+combined command and by the committed pass receipt:
+-- combined script-side row count (emit-literal + rcr invocations):
+grep -oE 'T[0-9]+ match' tools/recheck-services-r56.sh | sort -u | wc -l
+grep -cE '^rcr [0-9]+' tools/recheck-services-r56.sh
+-- receipt-side row count:
+grep -c " match (" .ufo/waves/round-58/receipts/recheck-services-22-summary.txt
+grep "^rows=" .ufo/waves/round-58/receipts/recheck-services-22-summary.txt
+17
+5
+22
+rows=22
