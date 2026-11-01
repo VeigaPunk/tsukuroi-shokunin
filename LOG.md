@@ -2439,3 +2439,37 @@ JSON died with the round scratch; byte-equality to it is not claimed and cannot 
 reads PASS 96/96/0 at the r59 final tree `c4aa0f5c` and at this base (both re-run this round). The
 routing rule is named in the note: a gate red state that is part of a repair story commits its raw
 receipt beside the correction in the same round, named FAIL + revision + original-or-regeneration.
+## Round 60 (2026-11-01, base `5dd83fa3`; carry-in `e1e10178`, declaration `41c18296`, work `bef165c4` + addendum `6d65fc0f`)
+
+Claims (declared before any after-measurement, `41c18296`): C1 depth (SOURCED Windows registry READ plane,
+rows RG1-RG5, S275 opened live this round) — PASS measured: `grep -c "^| RG"` 5, SOURCES 274→275 (0
+malformed, S275 in-Registry after S274), header gate 76/0/76; probes rg1-rg5c via receipt-run (absence =
+one CLI message line for both missing key and missing value, rc 1 — S275 documents 0/1 with no text;
+REG_QWORD exists and `/t REG_QWORD` is ACCEPTED, the documented set the stale side, the J3 class; bare
+`/v` fails Invalid-syntax rc 1 at the MSYS boundary, forward-slash keys refuse Invalid-key-name rc 1).
+The declared grep's first work-tree run read 0 (rows were ## headings) — R60-C1-DECLARED-GREP: fixed by
+addendum `6d65fc0f` (the row-index decision table), FAIL receipt re-derived from committed bytes
+(`.ufo/waves/round-60/after/c1-declared-grep-first-run-FAIL-at-bef165c4.txt`), nothing substituted. C2
+operability (the `--due YYYY-MM-DD` receipt anchor on both recheck arms, the R59-DECLARED-COMMAND-RECEIPT-SIDE
+proper fix) — PASS measured: live passes services 22/22/0 and eventlog 11/11/0 with `due=2026-11-30`
+exactly once per receipt header; no-flag run shape-preserved (`^due=` 0); malformed values refused rc 2
+before any probe and with no receipt written (R60-STRAY-RECEIPT: the first shape-only gate leaked one
+receipt to /tmp — gate strengthened to calendar range, stray deleted same session); `bash -n` rc 0. C3
+calibration (`tools/append-receipt.py`, the byte-stable append verifier; tameshi r63 convention credited,
+tsukuroi's own implementation) — PASS measured: selftest `PASS (5 cases)` rc 0; registry-coverage 97/97/0
+at the work trees (96 round-59 rows carried verbatim + 1 new, contiguous); SKILL/SOURCES work-tree pairs
+old-only 0/0 raw and normalized, `--require-raw` exit 0 — this round's record appends are byte-pure (the
+r55-r59 CRLF-rewrite class avoided; every append written binary-mode against the target file's own
+convention). Carried-in first (not claims): the r59 registry-coverage FAIL receipt regenerated from
+committed bytes at `2913b75d` and landed under its honest name at `e1e10178` (registered 95, rows 95,
+findings 1 REGISTRY-ROW-MISSING; PASS 96/96/0 re-run at `c4aa0f5c` and the base); the whole-SKILL SHONEN
+verification routed to the operator via a new L0 question (`.ufo/l0-questions.md`, `tsukuroi | round-60`),
+marks untouched; three standing L0s routed around. FRESH-START r50/r51/r52 re-spot-checked at the base
+(r50 FAIL 0/0/18, r51 evidence 0 bytes, r52 FAIL 1/0/16 — identical to r58/r59); five move classes ruled
+out for cause. Gates at the work trees: registry-coverage 97/97/0, knowledge-header 76/0/76, SCORECARD
+uniqueness ok, receipt-run 7/7, receipt-write 5/5, `bash -n` 0/0. Protected surfaces byte-identical to
+base (README, PROVINCE, SHONEN, QUALITY, AGENTS). Census exit 0 at round start (42 W04, 0 E-code,
+`.ufo/waves/round-60/before/sources-census-start.txt`); end receipt lands with the final commit. No axis
+harmed — depth gained the sourced registry entry (8), operability the self-describing receipts (9,
+saturated), calibration the byte-pure append proof (9, saturated), coverage map unchanged (9), adjacency
+untouched (8). Trend verdicts in the round report.
