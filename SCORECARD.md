@@ -3499,3 +3499,123 @@ Counts re-derived with each cell's command at this tree.
   post-state probes), source the `fnm` session-dir behavior (D12) from a second session, and port the
   drift register's recheck loop into a committed probe so D1-D7 re-verify by one command.
 - **retired:** none.
+
+## Round 54 — declaration (2026-10-31, base `5cbcb06e026720adf3d1eb8cf3c8dabab4dac72e`, written before any measurement)
+
+Context: r53 was admitted (closure `5cbcb06e`); the four routed defects of that closure are this
+round's repairs first (R1-R4 below; repairs are not claims, per the r33/r34 precedent). The rendered
+prompt's §7 FRESH-START block names the three prior `rejected-honest-stop` closures (r50 `72c114a5`,
+r51 `daf5b626`, r52 `5b147403`, all in the fleet repo); spot-checked this round — the common binding
+of all three is the counted-cohort depth resume, and the declared round rules out:
+
+- **Ruled out — r52's counted-cohort depth resume (amend GR2/GR3, fresh cohort).** Still unreachable:
+  this session has no subagent/wave dispatch surface (no AgentSwarm call available; L0 question filed
+  round 53, unanswered — routed around, never treated as answered). A do-nothing control cannot reach
+  the claim, but neither can this round; asserting `seats_ok` would be fabrication.
+- **Ruled out — re-claiming r53's admitted moves** (win-host-census, windows-host-plane, drift
+  register): they landed, verified, and a do-nothing control already reaches them — no fresh axis-move.
+- **Ruled out — r53's planned "RP1/RP2 post-state verification arms"** for `win-host-census-r53`: the
+  PATH/alias repairs are operator-gated and unexecuted, so post-state arms can only re-report today's
+  DEGRADED state — nothing falsifiable moves. Deferred until the operator runs RP1/RP2.
+- **Ruled out — sourcing D12's fnm second-session behavior**: requires a second concurrent session;
+  this session is single and inline. Cannot be measured honestly here.
+- **Ruled out — claiming the old census 168-case PASS as operability here** (r53's ruling stands): D7
+  says it does not reproduce; this round re-derives its raw budget receipts as a repair, not a claim.
+
+Reachable moves declared below. Lowest-axis duty: depth and adjacency are tied lowest at 8; **C2 works
+depth**. Saturation 9 / window 3; not every axis sits at the line, so no stagnation-nudge waiver
+applies. L2 floor (MISSION.md ≥8 in one batched AgentSwarm call): absent surface on this host —
+recorded, routed around. Ordinals at base: depth 8, coverage 9, operability 9, freshness 9,
+calibration 9, adjacency 8; none retired. Repairs R1-R4 (routed defects from closure `5cbcb06e`,
+status-neutral, not claims):
+
+- **R1** — S259 locator correction: closure verified against the raw page that the S259 Gate quote
+  lives in §4.2 (The Microsoft Store package), not §4.6.2 (Finding the Python executable). Fix: new
+  row **S260** whose `teaches` opens `supersedes S259 —` (contract v1 rule 2; census E04's supersedes
+  exemption), written after re-opening the live page this round; the round-54 lesson carries the
+  correction entry naming the superseded text — the round-53 lesson bytes are never rewritten.
+- **R2** — Gate word-count drift, same correction entry: recount by command gives S258 = **18** words
+  (stated 24), S259 = **20** words (stated 21); both ≤25 so the contract bound holds; old→new recorded.
+- **R3** — D7/W5 raw budget receipts: re-derived this round under the same budgets (90 s, 420 s) with
+  raw outputs committed at `.ufo/waves/round-54/d7-receipts/` — receipts live in the lane tree, never
+  scratch; C1's instrument produces them.
+- **R4** — D-row dating form: the drift register gains an appended dated correction block giving
+  D1-D12 in-row probe dates (append-only; the original table bytes stay untouched).
+
+| Claim | Axis | Surface moved | Counting command | Do-nothing control at base | Target (predicate) |
+|---|---|---|---|---|---|
+| C1 | operability (capability acquisition) | `tools/receipt-run.py` — a budgeted command runner that writes raw receipts into the lane tree (command argv, start/end ISO-8601, duration, rc or `timeout_after=<budget>s`, verbatim stdout/stderr), hermetic `--selftest` over an injected runner; first working use = the D7 budget re-derivations (R3) committed at `.ufo/waves/round-54/d7-receipts/` | `python tools/receipt-run.py --selftest` (last line `RECEIPT_RUN_SELFTEST: PASS (N cases, N passed, 0 failed)`, rc 0); `ls .ufo/waves/round-54/d7-receipts \| wc -l`; `grep -c "^rc=" .ufo/waves/round-54/d7-receipts/d7-selftest-90s.txt` | at base the tool does not exist: `git cat-file -e 5cbcb06e:tools/receipt-run.py` exits 128; the receipts dir does not exist | selftest PASS rc 0 AND ≥2 D7 receipts present, each naming its budget and rc/timeout line AND stdout captured verbatim (PASS-line count matches the recorded D7 signature class); capability row enters the SCORECARD table the same round |
+| C2 | depth (lowest tied, 8; sourced S261 S262, opened this round) | `corpus/knowledge/windows-services-plane-r54.md` — sourced decision table for the Windows service + scheduled-task plane (the operable analog of the ABSENT D2 systemd plane): ≥6 rows T1-T7+, each with a named error signature, every row citing S261/S262 or a dated host capture; includes the measured doc-vs-host divergences (MSYS `/opt` mangling of `schtasks /query`; `sc` inside powershell.exe silently aliasing to Set-Content and writing a file; `sc` rc 36 for win32 1060; the documented `type= interact` error not firing on this host) | `grep -c "^| T" corpus/knowledge/windows-services-plane-r54.md`; header duty: `python tools/check-knowledge-header.py --worktree` | the file is absent at base: `git cat-file -e 5cbcb06e:corpus/knowledge/windows-services-plane-r54.md` exits 128; `grep -c` exits 2 (0 rows) | rows ≥ 6 AND the knowledge-header gate reads 0 findings AND every row cites S261/S262 or a dated capture command; depth ordinal unchanged (8) — the move is the sourced entry, not the ordinal |
+| C3 | freshness | `tools/recheck-drift-r54.sh` — the drift register's recheck loop ported into one committed read-only command: re-runs the D1-D6 `command -v` probes, the D7 90 s budget leg, D8 interpreter identity, D9 via the census path plane, D12 node-shim shape, and greps the register + PROVINCE for the D10/D11 doc rows; emits one `D<k> match\|drift\|doc-row` line per register row and rc 0 iff no drift; receipt committed at `.ufo/waves/round-54/after/recheck-drift-r54.txt` | `bash tools/recheck-drift-r54.sh` (rc 0; 12 lines matching `^D[0-9]+ `); before: script absent at base (rc 128), the command exits 127 | at base the script does not exist and the register's recheck loop exists only as prose in three files | rc 0 AND 12 row lines AND every host-probed row reads `match` on this host-day (a `drift` line is honest output and would owe an appended register correction — expected none) |
+
+Causal separability: C1 reads its own tool + its receipts; C2 reads its entry + SOURCES + the header
+gate; C3 reads its script + the register + PROVINCE + the host — C3's D7 leg uses plain `timeout` +
+shell redirect, NOT C1's instrument, and its 420 s leg is covered by R3's separately committed
+receipt (pointer, disclosed), so no claim's counter reads another claim's surface. All three are
+single-session inline; the counted-cohort resume stays operator-gated. Frontier step: S260
+(supersedes-S259 correction), S261 (Microsoft Learn `schtasks query`), S262 (Microsoft Learn
+`sc.exe query`) — S261/S262 opened this round; C2 is the sourced claim. Round-start census: exit 0,
+40 W04 (`.ufo/waves/round-54/before/sources-census-start.txt`). Assimilation: `considerthese/` mined
+(2026-10-26 "cross-note correction propagation map" — its core move is applied once inside R1's
+correction entry: dependent surfaces enumerated and each confirmed corrected; the full map is not
+built this round); nothing else adopted.
+
+## Round 54 — declaration (2026-10-31, base `5cbcb06e026720adf3d1eb8cf3c8dabab4dac72e`, written before any measurement)
+
+Context: r53 was admitted (closure `5cbcb06e`); the four routed defects of that closure are this
+round's repairs first (R1-R4 below; repairs are not claims, per the r33/r34 precedent). The rendered
+prompt's §7 FRESH-START block names the three prior `rejected-honest-stop` closures (r50 `72c114a5`,
+r51 `daf5b626`, r52 `5b147403`, all in the fleet repo); spot-checked this round — the common binding
+of all three is the counted-cohort depth resume, and the declared round rules out:
+
+- **Ruled out — r52's counted-cohort depth resume (amend GR2/GR3, fresh cohort).** Still unreachable:
+  this session has no subagent/wave dispatch surface (no AgentSwarm call available; L0 question filed
+  round 53, unanswered — routed around, never treated as answered). A do-nothing control cannot reach
+  the claim, but neither can this round; asserting `seats_ok` would be fabrication.
+- **Ruled out — re-claiming r53's admitted moves** (win-host-census, windows-host-plane, drift
+  register): they landed, verified, and a do-nothing control already reaches them — no fresh axis-move.
+- **Ruled out — r53's planned "RP1/RP2 post-state verification arms"** for `win-host-census-r53`: the
+  PATH/alias repairs are operator-gated and unexecuted, so post-state arms can only re-report today's
+  DEGRADED state — nothing falsifiable moves. Deferred until the operator runs RP1/RP2.
+- **Ruled out — sourcing D12's fnm second-session behavior**: requires a second concurrent session;
+  this session is single and inline. Cannot be measured honestly here.
+- **Ruled out — claiming the old census 168-case PASS as operability here** (r53's ruling stands): D7
+  says it does not reproduce; this round re-derives its raw budget receipts as a repair, not a claim.
+
+Reachable moves declared below. Lowest-axis duty: depth and adjacency are tied lowest at 8; **C2 works
+depth**. Saturation 9 / window 3; not every axis sits at the line, so no stagnation-nudge waiver
+applies. L2 floor (MISSION.md ≥8 in one batched AgentSwarm call): absent surface on this host —
+recorded, routed around. Ordinals at base: depth 8, coverage 9, operability 9, freshness 9,
+calibration 9, adjacency 8; none retired. Repairs R1-R4 (routed defects from closure `5cbcb06e`,
+status-neutral, not claims):
+
+- **R1** — S259 locator correction: closure verified against the raw page that the S259 Gate quote
+  lives in §4.2 (The Microsoft Store package), not §4.6.2 (Finding the Python executable). Fix: new
+  row **S260** whose `teaches` opens `supersedes S259 —` (contract v1 rule 2; census E04's supersedes
+  exemption), written after re-opening the live page this round; the round-54 lesson carries the
+  correction entry naming the superseded text — the round-53 lesson bytes are never rewritten.
+- **R2** — Gate word-count drift, same correction entry: recount by command gives S258 = **18** words
+  (stated 24), S259 = **20** words (stated 21); both ≤25 so the contract bound holds; old→new recorded.
+- **R3** — D7/W5 raw budget receipts: re-derived this round under the same budgets (90 s, 420 s) with
+  raw outputs committed at `.ufo/waves/round-54/d7-receipts/` — receipts live in the lane tree, never
+  scratch; C1's instrument produces them.
+- **R4** — D-row dating form: the drift register gains an appended dated correction block giving
+  D1-D12 in-row probe dates (append-only; the original table bytes stay untouched).
+
+| Claim | Axis | Surface moved | Counting command | Do-nothing control at base | Target (predicate) |
+|---|---|---|---|---|---|
+| C1 | operability (capability acquisition) | `tools/receipt-run.py` — a budgeted command runner that writes raw receipts into the lane tree (command argv, start/end ISO-8601, duration, rc or `timeout_after=<budget>s`, verbatim stdout/stderr), hermetic `--selftest` over an injected runner; first working use = the D7 budget re-derivations (R3) committed at `.ufo/waves/round-54/d7-receipts/` | `python tools/receipt-run.py --selftest` (last line `RECEIPT_RUN_SELFTEST: PASS (N cases, N passed, 0 failed)`, rc 0); `ls .ufo/waves/round-54/d7-receipts \| wc -l`; `grep -c "^rc=" .ufo/waves/round-54/d7-receipts/d7-selftest-90s.txt` | at base the tool does not exist: `git cat-file -e 5cbcb06e:tools/receipt-run.py` exits 128; the receipts dir does not exist | selftest PASS rc 0 AND ≥2 D7 receipts present, each naming its budget and rc/timeout line AND stdout captured verbatim (PASS-line count matches the recorded D7 signature class); capability row enters the SCORECARD table the same round |
+| C2 | depth (lowest tied, 8; sourced S261 S262, opened this round) | `corpus/knowledge/windows-services-plane-r54.md` — sourced decision table for the Windows service + scheduled-task plane (the operable analog of the ABSENT D2 systemd plane): ≥6 rows T1-T7+, each with a named error signature, every row citing S261/S262 or a dated host capture; includes the measured doc-vs-host divergences (MSYS `/query` mangling of `schtasks /query`; `sc` inside powershell.exe silently aliasing to Set-Content and writing a file; `sc` rc 36 for win32 1060; the documented `type= interact` error not firing on this host) | `grep -c "^| T" corpus/knowledge/windows-services-plane-r54.md`; header duty: `python tools/check-knowledge-header.py --worktree` | the file is absent at base: `git cat-file -e 5cbcb06e:corpus/knowledge/windows-services-plane-r54.md` exits 128; `grep -c` exits 2 (0 rows) | rows ≥ 6 AND the knowledge-header gate reads 0 findings AND every row cites S261/S262 or a dated capture command; depth ordinal unchanged (8) — the move is the sourced entry, not the ordinal |
+| C3 | freshness | `tools/recheck-drift-r54.sh` — the drift register's recheck loop ported into one committed read-only command: re-runs the D1-D6 `command -v` probes, the D7 90 s budget leg, D8 interpreter identity, D9 via the census path plane, D12 node-shim shape, and greps the register + PROVINCE for the D10/D11 doc rows; emits one `D<k> match\|drift\|doc-row` line per register row and rc 0 iff no drift; receipt committed at `.ufo/waves/round-54/after/recheck-drift-r54.txt` | `bash tools/recheck-drift-r54.sh` (rc 0; 12 lines matching `^D[0-9]+ `); before: script absent at base (rc 128), the command exits 127 | at base the script does not exist and the register's recheck loop exists only as prose in three files | rc 0 AND 12 row lines AND every host-probed row reads `match` on this host-day (a `drift` line is honest output and would owe an appended register correction — expected none) |
+
+Causal separability: C1 reads its own tool + its receipts; C2 reads its entry + SOURCES + the header
+gate; C3 reads its script + the register + PROVINCE + the host — C3's D7 leg uses plain `timeout` +
+shell redirect, NOT C1's instrument, and its 420 s leg is covered by R3's separately committed
+receipt (pointer, disclosed), so no claim's counter reads another claim's surface. All three are
+single-session inline; the counted-cohort resume stays operator-gated. Frontier step: S260
+(supersedes-S259 correction), S261 (Microsoft Learn `schtasks query`), S262 (Microsoft Learn
+`sc.exe query`) — S261/S262 opened this round; C2 is the sourced claim. Round-start census: exit 0,
+40 W04 (`.ufo/waves/round-54/before/sources-census-start.txt`). Assimilation: `considerthese/` mined
+(2026-10-26 "cross-note correction propagation map" — its core move is applied once inside R1's
+correction entry: dependent surfaces enumerated and each confirmed corrected; the full map is not
+built this round); nothing else adopted.

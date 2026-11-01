@@ -1982,3 +1982,22 @@ harmed — depth gained a sourced entry (8, unchanged), coverage's province reco
 (9, unchanged), operability gained a working gate (9, saturated), freshness gained the register
 (9, saturated), calibration restated to recomputed counts (checker could-not-evaluate here — the
 limit is named, 9, unchanged), adjacency untouched and nothing absorbed (8, unchanged).
+
+## Round 54 — declaration (2026-10-31, base `5cbcb06e`, FRESH-START discipline per prompt §7)
+
+Motivating evidence: closure `5cbcb06e` admitted r53 and routed four defects (S259 Gate locator
+says §4.6.2, quote lives in §4.2; Gate word counts 24/21 vs true 18/20; D7/W5 raw budget receipts
+deleted with scratch; D-row header-only dating). Those land first this round as repairs R1-R4 (not
+claims). Declared claims, before any measurement (full table + ruled-out set in SCORECARD "Round 54
+— declaration"): C1 operability capability acquisition (`tools/receipt-run.py` — budgeted command
+runner writing raw receipts into the lane tree; first use = the D7 90 s/420 s re-derivations
+committed under `.ufo/waves/round-54/d7-receipts/`), C2 depth (lowest tied, 8; sourced
+`corpus/knowledge/windows-services-plane-r54.md` on S261/S262, opened this round: Microsoft Learn
+`schtasks query` and `sc.exe query`), C3 freshness (`tools/recheck-drift-r54.sh` — one committed
+read-only command re-verifying drift rows D1-D12, receipt committed). Round-start probes (read-only):
+`schtasks`, `sc`, `powershell` resolve; MSYS converts `schtasks /query` to `C:/Program Files
+Git/query` (error captured); `powershell -Command "sc query wuauserv"` silently writes a file named
+`query` (Set-Content alias) — receipts land in the lane tree this round, never scratch. All repairs
+and repairs' verification stay read-only; every remediation of findings (PATH hygiene, alias
+disable) stays operator-gated. L0 wave-dispatch question stands unanswered — routed around. Census
+at start: exit 0, 40 W04 (`.ufo/waves/round-54/before/sources-census-start.txt`).
