@@ -5,23 +5,35 @@
 # the PROVINCE host-transition record and the SKILL round-53 section; this script is that loop,
 # executable (AXES operability signal) in service of freshness.
 #
-# Usage: bash tools/recheck-drift-r54.sh [--receipt PATH]
+# Usage: bash tools/recheck-drift-r54.sh [--receipt PATH] [--budget SECONDS]
 #   Emits one line per register row:  D<k> match|drift|doc-row <evidence>
 #   Rollup:  RECHECK_DRIFT: PASS (12 rows, H host-probed match, DOC doc rows, 0 drift)  rc 0
 #            RECHECK_DRIFT: FAIL  (N drift)                                            rc 1
 #   A drift line is honest output, not a crash: it owes an appended register correction next.
+#   --budget SECONDS (round 56): the D7 leg's wall-clock budget; default 90 (the register's
+#   recorded class). The 420 s class runs without editing this script; the D7 match predicate
+#   is budget-independent (the old census selftest does not complete: rc 124, 0 FAIL, no
+#   summary at either budget — .ufo/waves/round-54/d7-receipts/).
 #
 # Read-only: every probe is command -v / version / grep / the census path plane. The D7 leg runs
-# the old census selftest under `timeout 90` (GNU coreutils, the same budget class the register
-# recorded) with output to a temp file that is deleted; its durable 90 s/420 s receipts live at
-# .ufo/waves/round-54/d7-receipts/ (round-54 re-derivation). --receipt writes the output copy to a
-# lane-tree path; nothing else is written. Spell `python`, not `python3` (register D8). Owner: tsukuroi.
+# the old census selftest under `timeout <budget>` (GNU coreutils) with output to a temp file that
+# is deleted; its durable 90 s/420 s receipts live at .ufo/waves/round-54/d7-receipts/ (round-54
+# re-derivation). --receipt writes the output copy to a lane-tree path; nothing else is written.
+# Spell `python`, not `python3` (register D8). Owner: tsukuroi.
 set -u
 cd "$(dirname "$0")/.." || exit 2
 REG=corpus/knowledge/host-transition-drift-r53.md
 PROV=PROVINCE.md
 receipt=""
-if [ "${1:-}" = "--receipt" ]; then receipt="${2:?--receipt needs a path}"; shift 2; fi
+budget=90
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --receipt) receipt="${2:?--receipt needs a path}"; shift 2 ;;
+    --budget)  budget="${2:?--budget needs seconds}"; shift 2 ;;
+    *) echo "usage: recheck-drift-r54.sh [--receipt PATH] [--budget SECONDS]" >&2; exit 2 ;;
+  esac
+done
+case "$budget" in ''|*[!0-9]*|0) echo "--budget needs a positive integer (seconds)" >&2; exit 2 ;; esac
 
 drift=0; matched=0; docrows=0
 lines_out=""
@@ -39,18 +51,18 @@ for t in pacman systemctl journalctl btrfs nvidia-smi jq; do
   i=$((i+1))
 done
 
-# D7: old census selftest does not complete under the 90 s budget (timeout, partial PASS list, no summary)
+# D7: old census selftest does not complete under the budget (timeout, partial PASS list, no summary)
 tmp7="$(mktemp "${TMPDIR:-/tmp}/recheck-d7.XXXXXX")"
-timeout 90 bash tools/tsukuroi-census.sh --selftest >"$tmp7" 2>&1
+timeout "$budget" bash tools/tsukuroi-census.sh --selftest >"$tmp7" 2>&1
 rc7=$?
 pass7=$(grep -c "^PASS " "$tmp7")
 fail7=$(grep -c "^FAIL " "$tmp7")
 summ7=$(grep -c "SELFTEST: PASS (" "$tmp7")
 rm -f "$tmp7"
 if [ "$rc7" -eq 124 ] && [ "$fail7" -eq 0 ] && [ "$summ7" -eq 0 ]; then
-  emit "D7 match (timeout rc 124, partial: ${pass7} PASS / 0 FAIL / no summary line; durable receipts .ufo/waves/round-54/d7-receipts/)"; matched=$((matched+1))
+  emit "D7 match (timeout rc 124, partial: ${pass7} PASS / 0 FAIL / no summary line; budget ${budget}s; durable receipts .ufo/waves/round-54/d7-receipts/)"; matched=$((matched+1))
 else
-  emit "D7 drift (rc=$rc7 pass=$pass7 fail=$fail7 summary=$summ7 — register recorded rc 124 partial)"; drift=$((drift+1))
+  emit "D7 drift (rc=$rc7 pass=$pass7 fail=$fail7 summary=$summ7 — register recorded rc 124 partial at the 90s/420s classes)"; drift=$((drift+1))
 fi
 
 # D8: python3 is the Store alias stub (nonzero rc), python is real
@@ -109,7 +121,8 @@ out="${lines_out}${rollup}
 printf '%s' "$out"
 if [ -n "$receipt" ]; then
   mkdir -p "$(dirname "$receipt")"
-  printf 'recheck_drift_r54=1\ndate_utc=%s\nhost_probes_matched=%s\ndoc_rows=%s\ndrift=%s\n---\n%s' \
-    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$matched" "$docrows" "$drift" "$out" > "$receipt"
+  printf 'recheck_drift_r54=1\ndate_utc=%s\nbudget_s=%s\nhost_probes_matched=%s\ndoc_rows=%s\ndrift=%s\n---\n%s' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$budget" "$matched" "$docrows" "$drift" "$out" > "$receipt" \
+    || { echo "cannot write receipt $receipt" >&2; exit 2; }
 fi
 exit $rc

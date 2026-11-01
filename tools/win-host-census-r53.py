@@ -38,12 +38,24 @@ logic, not the host state; the live run is the host-state reading. Both are
 required before the round's C1 claim verifies (SCORECARD "Round 53 —
 declaration"). Run with `python` (the real interpreter); `python3` on this host
 is the Store stub (rc 49) — that finding is what the python plane reports.
+
+`--receipt <path> [--budget <seconds>]` (round 56): the live census re-run routed
+THROUGH the receipt-run instrument (`tools/receipt-run.py`, imported — one
+implementation, never copied): the census re-spawns itself as the measured child
+under the budget, and the named path receives a receipt-run-format receipt
+(receipt_run=1, command argv, budget_s, start/end UTC, duration_s, rc=, stream
+sizes, verbatim streams) plus the child's census lines echoed to stdout. Exit:
+the census rc; 2 when the census does not complete inside the budget or the
+receipt path is unwritable (could-not-evaluate). A receipt-mode run is the
+host-state reading, same as the plain live run.
 """
+import importlib.util
 import os
 import re
 import shutil
 import subprocess
 import sys
+import time
 
 REQUIRED_TOOLS = ["git", "gh", "node", "python", "bash"]
 LINUX_ONLY_TOOLS = ["pacman", "systemctl", "journalctl", "btrfs", "nvidia-smi", "jq"]
@@ -218,7 +230,7 @@ def live_census(repo_dir, out):
 
 
 def selftest(out):
-    """20 hermetic cases over injected resolvers/runners. No subprocess, no writes."""
+    """25 hermetic cases over injected resolvers/runners. No subprocess, no writes."""
     class FakeProc:
         def __init__(self, rc=0, out=""):
             self.returncode = rc
@@ -286,6 +298,33 @@ def selftest(out):
          (DEGRADED, "WIN_CENSUS: DEGRADED (git=GREEN path=DEGRADED python=GREEN tools=GREEN)"))
     case("rollup-blocked-wins", rollup({"tools": GREEN, "path": GREEN, "python": BLOCKED, "git": GREEN})[0], BLOCKED)
 
+    # receipt mode (r56): blob shape via the imported receipt-run instrument, usage rejection,
+    # and the unwritable-receipt exit map — all in-process, nothing written, no host probes.
+    rr = load_receipt_run()
+    blob = census_receipt_blob(rr, [sys.executable, "win-host-census-r53.py"], 120, "S", "E", 1.0,
+                               b"PLANE tools GREEN required=5/5 linux_absent=6 stub=0\n"
+                               b"WIN_CENSUS: HEALTHY (git=GREEN path=GREEN python=GREEN tools=GREEN)\n",
+                               b"", 0, False)
+    head = blob.split(b"--- stdout ---")[0].decode("utf-8")
+    kv = dict(line.split("=", 1) for line in head.strip().splitlines())
+    case("receipt-blob-header",
+         tuple(k in kv for k in ("receipt_run", "command", "budget_s", "start_utc", "end_utc",
+                                 "duration_s", "timed_out", "rc", "stdout_bytes", "stderr_bytes")),
+         (True,) * 10)
+    case("receipt-blob-command", "win-host-census-r53.py" in kv.get("command", ""), True)
+    blob2 = census_receipt_blob(rr, ["x"], 7, "S", "E", 7.1, b"", b"", None, True)
+    case("receipt-blob-timeout", (b"\nrc=timeout\n" in blob2, b"timeout_after_s=7" in blob2), (True, True))
+    case("receipt-usage-rejected", (main(["--receipt"]), main(["--bogus"]), main(["--budget", "x"])),
+         (EXIT_BLOCKED, EXIT_BLOCKED, EXIT_BLOCKED))
+
+    def _boom(path, blob):
+        raise OSError("denied")
+
+    case("receipt-write-fail-blocked",
+         receipt_mode("/ok", "unused-path", 5, sys.stdout,
+                      runner=lambda a, b: (b"", b"", 0, False), writer=_boom),
+         EXIT_BLOCKED)
+
     passed = sum(1 for _, ok, _ in cases if ok)
     for name, ok, msg in cases:
         out.write("%s %s\n" % ("PASS" if ok else "FAIL", name))
@@ -296,14 +335,88 @@ def selftest(out):
     return EXIT_CLEAN if passed == len(cases) else EXIT_DEGRADED
 
 
+def load_receipt_run():
+    """Import the receipt-run instrument from tools/ (single implementation, never copied)."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "receipt-run.py")
+    spec = importlib.util.spec_from_file_location("tsukuroi_receipt_run", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def census_receipt_blob(mod, argv, budget, start, end, duration,
+                        child_out, child_err, rc, timed_out):
+    """Receipt bytes for a census receipt-mode run (pure; the selftest checks the shape)."""
+    return mod.build_receipt(
+        argv, budget, start, end, duration, child_out, child_err,
+        "timeout" if timed_out else rc, timed_out)
+
+
+def receipt_mode(repo_dir, receipt_path, budget, out, runner=None, writer=None):
+    """--receipt: run the live census as a measured child and write its own receipt.
+
+    The child is this tool itself (its argv is recorded in the receipt); the budget is
+    enforced by the receipt-run instrument's run_command. Exit: the census rc;
+    EXIT_BLOCKED when the census does not complete inside the budget (could-not-evaluate)
+    or when the receipt path is unwritable."""
+    mod = load_receipt_run()
+    runner = runner or mod.run_command
+    writer = writer or mod.write_receipt
+    argv = [sys.executable, os.path.abspath(__file__)]
+    start = mod.utcnow()
+    t0 = time.monotonic()
+    child_out, child_err, rc, timed_out = runner(argv, float(budget))
+    duration = time.monotonic() - t0
+    blob = census_receipt_blob(mod, argv, budget, start, mod.utcnow(), duration,
+                               child_out or b"", child_err or b"", rc, timed_out)
+    try:
+        writer(receipt_path, blob)
+    except OSError as exc:
+        sys.stderr.write("win-host-census-r53: cannot write receipt %s: %s\n" % (receipt_path, exc))
+        return EXIT_BLOCKED
+    out.write((child_out or b"").decode("utf-8", "replace"))
+    if timed_out:
+        sys.stderr.write("win-host-census-r53: census did not complete within %ss budget\n" % budget)
+        return EXIT_BLOCKED
+    return rc if rc is not None else EXIT_BLOCKED
+
+
+def parse_receipt_args(argv):
+    """-> (receipt_path, budget, error). Receipt mode takes --receipt PATH, optional --budget S."""
+    receipt = None
+    budget = 120
+    args = list(argv)
+    while args:
+        a = args.pop(0)
+        if a == "--receipt" and args:
+            receipt = args.pop(0)
+        elif a == "--budget" and args:
+            try:
+                budget = int(args.pop(0))
+            except ValueError:
+                return None, None, "--budget needs an integer number of seconds"
+            if budget <= 0:
+                return None, None, "--budget needs a positive number of seconds"
+        else:
+            return None, None, "unrecognized or incomplete argument: %s" % a
+    if receipt is None:
+        return None, None, "--receipt needs a path"
+    return receipt, budget, None
+
+
 def main(argv):
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     if "--selftest" in argv:
         return selftest(sys.stdout)
-    if argv:
-        sys.stderr.write("usage: win-host-census-r53.py [--selftest]\n")
+    if not argv:
+        return live_census(repo_dir, sys.stdout)
+    receipt, budget, err = parse_receipt_args(argv)
+    if err:
+        sys.stderr.write("usage: win-host-census-r53.py [--selftest] "
+                         "[--receipt <path> [--budget <seconds>]]\n")
+        sys.stderr.write("win-host-census-r53: %s\n" % err)
         return EXIT_BLOCKED
-    return live_census(repo_dir, sys.stdout)
+    return receipt_mode(repo_dir, receipt, budget, sys.stdout)
 
 
 if __name__ == "__main__":
