@@ -153,10 +153,13 @@ shokuknow register is not reachable from this host. Assimilation: none — shoku
 - **R57-UGREP-XARGS-ARGS** (class: this host's grep is ugrep and an `xargs`-piped multi-file
   count mangled its arguments — the r55/r56 ugrep family, new shape) — the after-battery's
   `grep -l '^command=' raw-t1t12/*.txt | xargs grep -l '^rc='` printed `grep: …t<k>-raw.txt: No
-  such file or directory` for all twelve EXISTING files and counted 0. Captured-by: the after
-  receipt itself (kept uncorrected) plus the replacement line appended to it. Fix: per-file loops
-  for multi-file key checks on this host (`for f in …; do grep -q … && …; done` → 12/12); the
-  committed after-receipt carries both the failed line and the corrected count.
+  such file or directory` for all twelve EXISTING files and counted 0. Captured-by: the shell
+  transcript (the failed line plus the twelve errors); the committed after-receipt carries the
+  REPLACEMENT line naming the failure class — and names a second defect honestly: the failed line
+  itself was deleted from the receipt by an in-place sed before staging, so the committed evidence
+  is the correction note, not the failure. Fix: per-file loops for multi-file key checks on this
+  host (`for f in …; do grep -q … && …; done` → 12/12); deleting a failure line from a receipt
+  under commit is wrong — append the correction beside the preserved failure, never substitute.
 
 Sweep that found no further mistakes this round: before the outcome commit the round's files were
 re-read against the declared predicates — C1's receipt headers re-checked key by key (t19-t28 rc
