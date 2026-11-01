@@ -55,3 +55,15 @@ e2-qe-recent-text.txt`, `e5-qe-level-filter.txt`) carry embedded **NUL bytes** (
 bytes are the receipts as captured; nothing was cleaned. Parsing consequence: a NUL-containing
 file is treated as binary by grep (use `-a` or strip `\r\0` first — the `tr '\r' '\n'` class in
 E2's cell extends to `tr -d '\0'`); a byte-level evidence check (sha256) is unaffected.
+
+## Operative recheck pass (appended r59 — the executable arm)
+
+The `recheck:` header above named probes; as of round 59 the pass is ONE committed command with the
+comparison bound in code: `bash tools/recheck-eventlog-r59.sh --receipt <path>` (11 rows: E1-E6 plus the
+E2s/E2b/E3s/E3b spelling-boundary variants and E6b; every probe is read-only or refusal-class, so no
+receipt-compared class is needed). The R58-WEVTUTIL-NUL-RECEIPTS parsing rule is bound in the arm at
+capture (strip `\r\0` before any count). Day 0 = 2026-11-01 (anchor: the committed r58 probe receipts,
+`.ufo/waves/round-58/eventlog-probes/`); FIRST executable pass 2026-11-01:
+`RECHECK_EVENTLOG: PASS (11 rows, 11 match, 0 drift)` rc 0 (`.ufo/waves/round-59/receipts/
+recheck-eventlog-11-summary.txt`; the arm's first run FAILED 2 drift and is committed beside the pass —
+bde06613 rule); next pass due **2026-11-30**.

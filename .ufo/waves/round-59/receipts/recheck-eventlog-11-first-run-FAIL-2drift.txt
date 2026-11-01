@@ -1,0 +1,17 @@
+# FIRST RUN of tools/recheck-eventlog-r59.sh at the work tree (2026-11-01) — honest FAIL kept on record (bde06613 rule); fixed run committed beside this
+# defects found (both in the arm's judgment code, never in the probes): E2b/E3b called receipt-run without --receipt (receipt-run guard exits 2); bash emitted 'command substitution: ignored null byte' warnings on the E2/E5 captures (NUL-strip now bound at capture via tr + PIPESTATUS)
+tools/recheck-eventlog-r59.sh: line 75: warning: command substitution: ignored null byte in input
+tools/recheck-eventlog-r59.sh: line 137: warning: command substitution: ignored null byte in input
+E1 match (wevtutil el rc 0, 1162 channels — count drift-class, r58 captured 1164)
+E2 match (qe System rc 0, 3 Event[N] blocks newest-first after NUL-strip)
+E2s match (bare qe rc 87 'Too many arguments are specified.' — MSYS /c:3 -> c:3 class)
+E2b drift (rc=2 — expected rc 87 with MSYS_NO_PATHCONV only on the child argv)
+E3 match (query absence rc 159 in the 15007/159 family with both message lines)
+E3s match (bare absence probe rc 87 — mangled-spelling pair of e3)
+E3b drift (rc=2 — expected rc 87 with MSYS_NO_PATHCONV only on the child argv)
+E4 match (gli System rc 0 with numberOfLogRecords/fileSize fields — values drift-class, records=5274)
+E5 match (level-filter qe rc 0 — 5 Event[N] blocks, empty result also valid)
+E6 match (metadata absence rc 159 in the 15007/159 family with the leg-specific function line)
+E6b match (bare cl usage-refused rc 87 — no log name given, nothing cleared)
+RECHECK_EVENTLOG: FAIL (2 drift)
+FIRST_RUN_RC=1
