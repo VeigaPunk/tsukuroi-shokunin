@@ -520,3 +520,24 @@ counter remains vulnerable to crafted fixture overrides and does not prove quote
 Nothing moves in the province frontier: GR1-GR3 remain pending, and the scrub-record content/running
 state and NVMe SMART stay Frontier. `S256` was opened for the sourced selftest-matcher claim; no new
 knowledge entry was admitted. Assimilation: none — 57 staged source ids collide with this registry.
+
+## Rounds 53-61 — the Windows host transition (2026-10-31 → 2026-11-01)
+
+The session host changed to Windows 10.0.26200 x64 under Git Bash (MSYS bash 5.3.15); the Linux-host
+surfaces in the sections above stay declared for the host class they were minted on. These nine
+entries are the Windows-host transition planes — the same host-operability province read through the
+new host's tools. Each row's sources are `corpus/SOURCES.md` S-rows opened at the named round, with
+dated probe receipts under `.ufo/waves/round-<N>/`. Map rows appended round 61 (C3) — the duty the
+round-60 axes table deferred to a coverage round; map governance on held ground, no frontier claim.
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/windows-host-plane-r53.md` | the host-transition drift register D1-D7 (the Linux toolset absent on this host; the historical census selftest does not complete) and the W1-W7 Windows host-operability planes: tool presence, PATH health, interpreter identity (the `python3` Store-alias stub exits 49 — invoke `python`), git plumbing state (the index untouchable on NTFS paths; commits through the campaign plumbing helper) | S258 S259; `lessons/round-53.md` Gate |
+| `knowledge/windows-services-plane-r54.md` | the service state plane via `sc query`, rows T1-T8: query shape, the STATE vocabulary, exit codes and the absence class | S261 S262; `lessons/round-54.md` Gate |
+| `knowledge/windows-services-plane-r55.md` | the services plane continuation, rows T9-T12: the query-type divergence measured rc 0 against the documented sentence (the S262 class) and same-day corrections | S263 S264 S265; `lessons/round-55.md` Gate |
+| `knowledge/windows-services-config-plane-r56.md` | the `sc config` refusal surface, rows T13-T16: usage/rc gates on the operator-owned write surface, the S266 `type= interact` sentence recorded UNTESTED (L0 round-57 routed around) | S266 S267; `lessons/round-56.md` Gate |
+| `knowledge/windows-services-sddl-plane-r57.md` | the security-descriptor read plane via `sc sdshow`, rows T19-T24: SDDL string parse, the boundary against the config surface | S268 S269 S270; `lessons/round-57.md` Gate |
+| `knowledge/windows-eventlog-plane-r58.md` | the event-log plane via wevtutil, rows E1-E6: channel enumeration, query/metadata legs, the NUL-receipt parsing rule bound at capture, the 15007/159 absence family | S272 S273; `lessons/round-58.md` Gate |
+| `knowledge/windows-scheduled-task-status-plane-r59.md` | the scheduled-task status plane via schtasks, rows J1-J5: the STATUS vocabulary decoded against the S274 API constants, the Last Result decimal display (267009), the /hresult divergence | S261 S274; `lessons/round-59.md` Gate |
+| `knowledge/windows-registry-read-plane-r60.md` | the registry READ plane via reg query, rows RG1-RG5: named-value/absence/recursion/type-census contracts, REG_QWORD measured against the stale documented type set, the MSYS boundary (RG5) | S275; `lessons/round-60.md` Gate |
+| `knowledge/windows-driver-query-plane-r61.md` | the driver query plane via driverquery, rows DQ1-DQ5: the CSV inventory (trailing-space `"Kernel "` cells, empty Link Dates), the host-measured 15-column verbose set, the documented /nh-list and /v-signed restrictions measured, the /SI table, the MSYS boundary on a second command | S276; `lessons/round-61.md` Gate |
