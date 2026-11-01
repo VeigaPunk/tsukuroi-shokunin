@@ -4398,4 +4398,62 @@ claim this round. Declared counting commands are each RUN before the outcome com
 R58/R59 declared-command rule): the C1 grep binds to the DELIVERED table shape — the note ships `| DQ`
 rows from the first commit (the R60-C1-DECLARED-GREP rule applied at authoring time); the SKILL round-61
 section documents all three moves (round documentation, not claim content); the battery receipt lands
-with the outcome.
+with the outcome.## Round 61 — measured outcome (2026-11-01, author-side; non-author closure pending)
+
+Measured at the work tree `abb2a161` (work after declaration `136bfb00`; counting battery
+`.ufo/waves/round-61/after/c1-c2-c3-counts-at-work.txt`; before-counts at base
+`.ufo/waves/round-61/before/c1-c2-c3-at-base.txt`, plumbing reads of `6b26c338` — the worktree view is
+untrusted on this host, r56/r57 lesson). Gates at the work revision: registry-coverage **98 tools /
+98 rows / 0 findings** PASS and knowledge-header **77 notes / 0 findings / 77 complete** PASS (JSON
+receipts under `.ufo/waves/round-61/after/`); SCORECARD uniqueness ok rc 0;
+`RECEIPT_RUN_SELFTEST: PASS (7 cases)`, `RECEIPT_WRITE_SELFTEST: PASS (5 cases)` and
+`APPEND_RECEIPT_SELFTEST: PASS (5 cases)` unchanged; `bash -n tools/recheck-registry-r61.sh` rc 0.
+The final append-receipt measurement (base `6b26c338` → final tree, five record files) lands as a
+receipt in the immediately-following commit (receipt-after-subject ordering, the tameshi r63
+precedent); the work-tree pairs measured at `abb2a161` read old-only 0/0 raw and normalized on
+SKILL.md, corpus/SOURCES.md and corpus/README.md (SOURCES an insert after S275, README an append —
+prefix false by position on both, the R58-SOURCES-APPEND-POSITION rule).
+
+| Claim | Before → after (measured) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 depth (lowest tied, 8; SOURCED — S276 opened live 2026-11-01 before the declaration text, disclosed there) | before at `6b26c338`: note cat-file rc **128**; vocabulary sweep `driverquery` **0 files** (`git grep -c -i` rc 1); SOURCES **275**. After at `abb2a161`: `grep -c "^| DQ" <note>` → **5** (the declared command's shape — the row-index table shipped in the delivered form at the first commit, the R60-C1-DECLARED-GREP rule applied at authoring time; no FAIL state this round); SOURCES 275 → **276**, 0 duplicate ids, S276 at line 285 directly after S275 (line 284), 11 cells (NF 13 = S275's NF); the Gate quote recounted `wc -w` → **14**; knowledge-header gate PASS **77/0/77**. Measured signatures (receipts dq1-dq5c via receipt-run): CSV inventory rc 0, 412 stdout lines = 1 four-column header + 411 quoted rows with the trailing-space `"Kernel "` Driver Type cell and empty Link Date cells (drift-class); `/FO csv /V` rc 0, 15 quoted columns ending `"Link Date","Path","Init(bytes)"`; invalid `/FO` value → `ERROR: Invalid syntax. 'bogus' value is not allowed for '/FO' option.` rc 1; `/FO LIST /NH` → `ERROR: Invalid syntax. /NH option is valid only for "TABLE" and "CSV" format.` rc 1 (S276's /nh-list restriction MEASURED, docs and host agree, message text host-measured); `/V /SI` → `ERROR: Invalid syntax. The verbose option is invalid for signed drivers.` rc 1 (S276's /v-signed restriction MEASURED); `/SI` rc 0, plain-text 4-column table (159 rows at capture); the MSYS boundary: bare `/FO` mangled at the bash→python boundary (the receipt's own `command=` line records `driverquery 'C:/Program Files/Git/FO' csv`), rc 1 with the Invalid-argument message — the `//FO` escape and the on-invocation `MSYS_NO_PATHCONV=1` both pass rc 0 (dq5b/dq5c) — the RG5 class on a second command | **PASS measured** | depth unchanged (8) — the move is the sourced entry, not the ordinal |
+| C2 operability | before at `6b26c338`: tool cat-file rc **128**; `RECHECK_REGISTRY` mentions **0**; no round-61 receipts. After: `bash tools/recheck-registry-r61.sh --receipt <r1> --due 2026-11-30` → rc 0 `RECHECK_REGISTRY: PASS (10 rows, 10 match, 0 drift)`, `grep -c '^due=' <r1>` → **1** with `due=2026-11-30`; the no-flag run → rc 0 10/10/0 with `^due=` **0** (shape preserved); malformed `--due` refused rc **2** with NO receipt (`2026-13-45` calendar-range refusal, `30d` and `2026-11-3X` shape refusals — receipt path checked absent after each, the R60-STRAY-RECEIPT rule); `bash -n` rc 0; registry-coverage gate **98/98/0** at the work revision. First run of the arm FAILED 1 drift (R4) — the type-extraction regex `REG_[A-Z]+` truncated at the underscore (REG_EXPAND_SZ read as REG_EXPAND), an authoring-time artifact, not host drift; FAIL receipt kept under its honest name `recheck-registry-FIRST-RUN-FAIL-at-authoring.txt` (R61-ARM-FIRST-RUN, the r59 rule), fixed run passes 10/10 (the r59 ARM-FIRST-RUN pattern: FAIL beside the pass) | **PASS measured** | operability unchanged (9, saturated) — the r60 registry plane's recheck duty became executable (the r59 C2 pattern on the newest plane) |
+| C3 coverage | before at `6b26c338`: `knowledge/windows-` in corpus/README.md **0 files** (rc 1); the map's last section `## Round 50`. After: `grep -c 'knowledge/windows-' corpus/README.md` → **9** (the eight r53-r60 notes + the r61 note, one row each with verified row-ids and source ids); the section is an append after the Round-50 section; PROVINCE.md **blob-identical** to base (`git rev-parse` both revisions → `23198d74…` = `23198d74…`); README old-only 0 at the work-tree pair (the append is pure; the final five-file measurement lands next commit) | **PASS measured** | coverage unchanged (9, saturated) — map governance on held ground; no frontier claim |
+
+Declared-command notes: all three claims' counting commands ran at the work revision on the channels
+they name (the battery receipt) — no declared-command FAIL state this round (the C1 grep bound to the
+delivered table shape per R60-C1-DECLARED-GREP; the C2 arm's own first-run FAIL is the instrument's
+honest first run, receipted and repaired in the same session, R61-ARM-FIRST-RUN). Repairs landed
+(routed carry-ins, not claims): the bde06613 rule re-applied (the discharged r59 FAIL receipt verified
+present at the base; no r61 gate red state occurred — the arm FAIL is a probe-instrument first run,
+not a gate red state, and is receipted regardless); every record append byte-stable (the r60 C3
+convention; the final measurement lands next commit). No exploratory claim this round.
+
+## Axes — current self-assessment (round 61 final measured surface)
+
+Restated 2026-11-01 at the round-61 final tree (counts re-derived with each cell's command; ordinals
+unchanged — operability/freshness/calibration/coverage saturated, depth's move is the sourced entry,
+adjacency untouched this round).
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 77 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); the sourced driver-query plane DQ1-DQ5 landed round 61 (S276 current, opened live); GR1-GR3 of the scrub entry remain pending behind the operator-gated cohort resume; no ordinal move. | round 4; round-61 entry added, ordinal unchanged |
+| coverage | 9 | the corpus README Coverage map now carries the Windows-host transition rows (`grep -c 'knowledge/windows-' corpus/README.md` → 9; before 0 at base) — map governance on held ground, the r60-deferred duty; PROVINCE Core, Frontier and Adjacent sections unchanged (blob-identical to base). | round 11; round-61 map rows added, ordinal unchanged |
+| operability | 9 | `bash tools/recheck-registry-r61.sh --due 2026-11-30` → `RECHECK_REGISTRY: PASS (10 rows, 10 match, 0 drift)` (committed receipts carrying `due=2026-11-30`; shape-preserving no-flag run beside them; the first-run FAIL receipt kept); `python tools/receipt-run.py --selftest` PASS 7/7; `python tools/receipt-write.py --selftest` PASS 5/5; `bash -n` rc 0; registry-coverage 98/98/0. | round 11; round-61 registry arm added, ordinal unchanged |
+| freshness | 9 | the three planes' cadence pass (services T, eventlog E, task-status J) due 2026-11-30 (the r60 receipts' `due=` anchors); the registry plane's recheck duty now executable (this round's arm; its receipts self-carry `due=2026-11-30` matching the r60 note's operative block); the new driver-query note carries its own 30d cadence (day 0 2026-11-01, due 2026-11-30); S276 opened live this round; sources census exit 0 at round start (42 W04, 0 E-code) and at round end (receipt with the final commit). | fleet round 1; round-61 driver-query cadence + registry arm added, ordinal unchanged |
+| calibration | 9 | the axes table restated to counts recomputed on this host; SCORECARD uniqueness gate ok; the C2 arm's first-run FAIL self-caught BEFORE any outcome cited it, receipted under its honest name and repaired (R61-ARM-FIRST-RUN); the S276 row's 14-cell delimiter slip self-caught at the awk NF check BEFORE any commit (no committed byte carries the malformed shape); the dq1 first spawn's wrong-var form self-caught at the receipt rc line and re-run correct before commit (R61-SPAWN-VAR-POSITION); `python tools/check-self-assessment.py` cannot evaluate here (K13, named limit). | round 10; round-61 honest-first-run-FAIL + two pre-landing self-catches added, ordinal unchanged |
+| adjacency | 8 | formal overlap table present; no sibling scope touched; the driver-query plane stays inside the lane's own driver/firmware province (PROVINCE Core — state and health reading, not shipped-artifact internals; kaidoku/revenger unaffected); the README map rows name only this lane's own notes and sources; contested kaidoku/revenger ownership remains unruled (carried, routed around). | fleet round 1; unchanged |
+
+
+- **planned (next round):** operator-gated first — the L0 wave-dispatch question (`tsukuroi | round-53`)
+  still decides the r52 counted-cohort depth resume, the L0 `tsukuroi | round-57` decides the S266
+  `type= interact` falsification probe, and `tsukuroi | round-60` decides whether the hyaku closure
+  judge's spot-checks may discharge the whole-SKILL SHONEN boxes. If the lane stays on this host: the
+  2026-11-30 cadence pass (services T-rows, eventlog E-rows, task-status J-rows, and NOW the registry
+  R-rows through the new arm) re-run through the three arms WITH the next `--due` anchor (the receipts
+  then self-carry it); the DQ rows join the executable-recheck discipline only if a DQ-probe drift
+  fires (the r59 planned-item pattern, applied to the driver plane); a Windows pagefile/commit-charge
+  memory CONFIG read (pagefile location/size via `wmic pagefile`/CIM) is the candidate next plane —
+  memory PRESSURE evidence stays mori's (ADJ-04), the config surface is this lane's; S276 re-open at
+  180d or on upstream change.
+- **retired:** none.

@@ -2473,3 +2473,40 @@ base (README, PROVINCE, SHONEN, QUALITY, AGENTS). Census exit 0 at round start (
 harmed — depth gained the sourced registry entry (8), operability the self-describing receipts (9,
 saturated), calibration the byte-pure append proof (9, saturated), coverage map unchanged (9), adjacency
 untouched (8). Trend verdicts in the round report.
+
+## Round 61 (2026-11-01, base `6b26c338`; declaration `136bfb00`, work `abb2a161`)
+
+Claims (declared before any after-measurement, `136bfb00`): C1 depth (SOURCED Windows driver query
+plane, rows DQ1-DQ5, S276 opened live this round) — PASS measured: `grep -c "^| DQ"` 5 (the row-index
+table shipped in the delivered shape — no declared-grep FAIL this round), SOURCES 275→276 (0 duplicate
+ids, S276 at line 285 after S275), header gate 77/0/77; probes dq1-dq5c via receipt-run (CSV inventory
+412 lines with the trailing-space `"Kernel "` type cell and empty Link Dates; 15-column /V header;
+`/FO LIST /NH` and `/V /SI` refusals MEASURE S276's documented /nh-list and /v-signed restrictions with
+host-measured message text; the MSYS boundary fires on a second command — bare `/FO` mangled to a
+Git-path argv recorded in the receipt's own command= line, the `//FO` escape and on-invocation
+`MSYS_NO_PATHCONV=1` both passing). C2 operability (`tools/recheck-registry-r61.sh`, the r60 registry
+plane's prose recheck duty made executable, the r59 C2 pattern on the newest plane) — PASS measured:
+live passes 10/10 0-drift with `due=2026-11-30` exactly once and shape-preserving no-flag run;
+malformed due refused rc 2 writing no receipt; registry-coverage 98/98/0; FIRST RUN FAILED 1 drift —
+the R4 type-extraction regex truncated at the underscore (`REG_[A-Z]+` read REG_EXPAND/REG_MULTI
+outside the superset), an authoring-time artifact not host drift — FAIL receipt kept
+(`recheck-registry-FIRST-RUN-FAIL-at-authoring.txt`, R61-ARM-FIRST-RUN) and the fixed run cited. C3
+coverage (corpus/README.md Coverage map gains `## Rounds 53-61 — the Windows host transition`, 9
+Windows-host rows with verified row-ids and source ids) — PASS measured: `knowledge/windows-` rows 0→9,
+PROVINCE.md blob-identical to base, map governance on held ground (the r60-deferred duty). Carried-in
+first (not claims): the bde06613 gate-receipt rule re-applied (the discharged r59 FAIL receipt verified
+present at the base; no r61 gate red state occurred — the arm FAIL is a probe-instrument first run,
+receipted regardless); byte-stable appends via the r60 C3 instrument (SCORECARD/SKILL/SOURCES CRLF,
+LOG/README LF; the final five-file append-receipt measurement lands receipt-after-subject); four
+standing L0s routed around (round-53 line 229, round-57 line 247, round-60 line 253, kaidoku/revenger
+scope). FRESH-START r50/r51/r52 re-spot-checked at the base (r50 FAIL 0/0/18, r51 0 bytes, r52 FAIL
+1/0/16 — identical to r58/r59/r60); five move classes ruled out for cause; considerthese re-mined
+(seven notes, latest 2026-10-26, unchanged set), nothing adopted. Gates at the work revision:
+registry-coverage 98/98/0, knowledge-header 77/0/77, SCORECARD uniqueness ok, receipt-run 7/7,
+receipt-write 5/5, append-receipt 5/5, `bash -n` 0. Protected surfaces byte-identical to base
+(PROVINCE, SHONEN, QUALITY, AGENTS). Census exit 0 at round start (42 W04, 0 E-code,
+`.ufo/waves/round-61/before/sources-census-start.txt`); end receipt lands with the final commit. No
+axis harmed — depth gained the sourced driver-query entry (8), operability the registry arm (9,
+saturated), coverage the map rows (9, saturated), freshness the new cadence + live source (9,
+saturated), calibration the honest first-run FAIL + two pre-landing self-catches (9, saturated),
+adjacency untouched (8). Trend verdicts in the round report.

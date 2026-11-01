@@ -1,0 +1,86 @@
+round-61 counting battery at work revision abb2a161f557ae575e480c2e6f7787044f8b40cd
+captured_utc=2026-11-01T22:28:34Z
+
+== C1 (depth) ==
+$ grep -c '^| DQ' corpus/knowledge/windows-driver-query-plane-r61.md
+5
+rc=0
+
+$ grep -cE '^[[:space:]]*\|[[:space:]]*S[0-9]{3,}[[:space:]]*\|' corpus/SOURCES.md
+276
+rc=0
+
+$ grep -n '^| S275' corpus/SOURCES.md | cut -c1-30
+284:| S275 | reg query — Mic
+rc=0
+
+$ grep -n '^| S276' corpus/SOURCES.md | cut -c1-30
+285:| S276 | driverquery — M
+rc=0
+
+$ printf '%s' 'Enables an administrator to display a list of installed device drivers and their properties.' | wc -w
+14
+rc=0
+
+$ grep -c '^| S276' corpus/SOURCES.md
+1
+rc=0
+
+$ grep -oE '\| S[0-9]{3,} ' corpus/SOURCES.md | sort | uniq -d | wc -l
+0
+rc=0
+
+== C2 (operability) ==
+$ bash -n tools/recheck-registry-r61.sh
+rc=0
+
+$ grep -c '^due=' .ufo/waves/round-61/receipts/recheck-registry-10-due-2026-11-30.txt
+1
+rc=0
+
+$ grep -c '^due=' .ufo/waves/round-61/receipts/recheck-registry-10-nodue-shape.txt
+0
+rc=1
+
+$ grep -m1 'RECHECK_REGISTRY' .ufo/waves/round-61/receipts/recheck-registry-10-due-2026-11-30.txt
+RECHECK_REGISTRY: PASS (10 rows, 10 match, 0 drift)
+rc=0
+
+$ grep -m1 'RECHECK_REGISTRY' .ufo/waves/round-61/receipts/recheck-registry-10-nodue-shape.txt
+RECHECK_REGISTRY: PASS (10 rows, 10 match, 0 drift)
+rc=0
+
+$ grep -m1 'RECHECK_REGISTRY' .ufo/waves/round-61/receipts/recheck-registry-FIRST-RUN-FAIL-at-authoring.txt
+RECHECK_REGISTRY: FAIL (1 drift)
+rc=0
+
+== C3 (coverage) ==
+$ grep -c 'knowledge/windows-' corpus/README.md
+9
+rc=0
+
+$ git diff --stat abb2a161f557ae575e480c2e6f7787044f8b40cd -- PROVINCE.md
+rc=0
+
+$ git rev-parse abb2a161f557ae575e480c2e6f7787044f8b40cd:PROVINCE.md 6b26c338be47e0632d9387792964ec526496ee9f:PROVINCE.md
+23198d74e591e6686b368e1031ea5a9e01455a4a
+23198d74e591e6686b368e1031ea5a9e01455a4a
+rc=0
+
+== gates at the work revision ==
+$ python tools/check-scorecard-unique-sections.py --revision abb2a161f557ae575e480c2e6f7787044f8b40cd 2>&1 | tail -2
+check-scorecard-unique-sections: unknown arguments ['--revision', 'abb2a161f557ae575e480c2e6f7787044f8b40cd']
+rc=0
+
+$ python tools/receipt-run.py --selftest 2>&1 | tail -1
+RECEIPT_RUN_SELFTEST: PASS (7 cases, 7 passed, 0 failed)
+rc=0
+
+$ python tools/receipt-write.py --selftest 2>&1 | tail -1
+RECEIPT_WRITE_SELFTEST: PASS (5 cases, 5 passed, 0 failed)
+rc=0
+
+$ python tools/append-receipt.py --selftest 2>&1 | tail -1
+APPEND_RECEIPT_SELFTEST: PASS (5 cases, 5 passed, 0 failed)
+rc=0
+
