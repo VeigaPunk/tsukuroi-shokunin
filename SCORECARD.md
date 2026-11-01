@@ -1178,21 +1178,6 @@ Appended 2026-10-22 by round 30. This table supersedes the round-29 table; the o
 | calibration | 9 | `corpus/knowledge/calibration-synthesis.md` holds the claim, re-measure, append, supersede, rule loop for rounds 1 to 9; errata stay visible instead of being rewritten (the r1 retractions, the 5-plane numerals, the AUD-X7 credit correction); the register is the `closeout-r11.md` section 3 block; this round's C1 makes the lane's own table measurable against repository state. Ceiling: the D13 verification debts stay open. | round 10 (`SCORECARD.md:36`); unchanged since |
 | adjacency | 8 | reported-not-absorbed rows across the arc (coredump storm to the journal workstream and the app lanes, `walker-restart.hook` root-exec to kagi, GSP selection to kaidoku and revenger); `PROVINCE.md` carries the formal overlap table present (the ADJ-01 to ADJ-07 finding-to-owner handoff table at `PROVINCE.md:44`, with the round-19 portable ownership anchors OUT-001 to OUT-010); contested scope is reported, never absorbed. Ceiling: recipient acknowledgement and independently replayed handoffs are not verified. | fleet round 1 (2026-10-19), post-review correction at `SCORECARD.md:213`; unchanged since |
 
-## Round 30 — declaration, attempt 1 (2026-10-22)
-
-Claim base `fbfec6bdf8833e7513732a06000801a8ee9b690b` (branch tip at dispatch, 20:57Z). Ordinals at the base (`SCORECARD.md:1133-1138`): depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8. Depth and adjacency are tied lowest; C1 works depth. Following the round-29 spot-check ruling (C1DepthFraming: only O01–O04 were new depth), C1 adds new sourced host knowledge on a surface the lane has not covered — btrfs space allocation and ENOSPC — instead of carrying existing corrections into companions: `Global reserve`, `unallocated` and the allocation sysfs files have 0 hits in `SKILL.md`, `corpus/knowledge/` and `corpus/SOURCES.md` at the base (`grep -rl`). Both counting tools and the C1 battery are committed in this declaration, before any counted run.
-
-| Claim | Axis (ordinal) | Before | Declared after-value | Counting command |
-|---|---|---|---|---|
-| C1 ten frozen btrfs space questions D01–D10 (D01 unallocated space and ENOSPC, D02 global reserve, D03 balance usage filters, D04 metadata DUP, D05 block-group reclaim, D06 the allocation sysfs directory, D07 snapshots keep extents allocated, D08–D10 host metadata, data/unallocated and global-reserve values from a read-only sysfs capture) each answered by one row of `corpus/knowledge/btrfs-space-r30.json` that quotes a `mined` source opened this round at a cited snapshot line and has one `| [R30-Dnn] ` decision-table line in `SKILL.md` (rules R1–R9 in the counter docstring) | depth 8 → 8 | measured at the declaration commit | `verified` 10 of 10, exit 0 | `python3 tools/check-btrfs-space-r30.py --revision <REV>` → last line, field `verified` |
-| C2 the eleven frozen git-writing lane tools (the round-29 eight plus `check-self-assessment.py --selftest` and both round-29 owed-statement batteries) stop following the three residual git channels of the round-29 spot-check routed defect 4 — a `git` wrapper on `PATH`, per-user git files under `HOME`/`XDG_CONFIG_HOME` (config, hooks path, ignore, attributes), and an enclosing repository — 33 (tool, channel) pairs | operability 9 → 9 | measured at the declaration commit | `leaking` 0 of `pairs` 33, `harness_errors` empty, exit 0 | `python3 tools/probe-git-env-residual-r30.py --revision <REV>` → last line, fields `leaking`, `pairs`, `harness_errors` |
-
-Sizing and fail conditions. C1: the counter reads 0 at the base by construction (no JSON file); its battery `tools/mutants-btrfs-space-r30.py` (QUALITY 73) is committed with it: control 10 on a synthetic fixture, 46 should-fail shapes (including the round-29 spot-check routed-2 shapes: `<!-->` before a hidden comment, list-prefixed and indented markers, extra JSON keys such as `"status": "withdrawn"`, italic, bold and unbalanced-asterisk ids) and 6 should-pass shapes; a miss on any of the ten frozen questions is an honest stop. C2: if the before-value is below 3 leaking pairs, C2 has too little to fix and lands as not verified; the probe's control run no longer inherits the caller's `HOME` (the fourth round-29 residual item).
-
-Separability: C1 changes only `corpus/`, `SKILL.md` and round-30 wave evidence; C2 changes only the eleven target tools. The C1 counter reads no tool behaviour and the probe reads no corpus file.
-
-Routed items of the round-29 spot-check (`corpus/lessons/round-29-verifier-spotcheck.md:144-154`) that are not claims: 1 committed receipts for the v4 batteries (digest `3516d579…`), the declared round-29 counter (`5b6cf227…`) at a tip-equal revision, and a revision field in selftest receipts, plus every "Gates at" row of this round's report backed by a committed receipt naming its revision; 2 v4 battery shapes for `<!-->`, list-indented code, extra JSON metadata values and the italic id; 3 adjacency padding shapes; 4 is claim C2; 5 the depth framing statement (only O01–O04 are depth); 6 committed receipts for the sandbox-only round-29 mutation tests. No exploratory claim, no ordinal change, no package transaction, no service, module, sysctl, boot, balance or configuration action. The L1 holds the planner seat.
-
 ## Round 31 — declaration, attempt 1 (2026-10-22)
 
 Claim base `2077e2fa4fa70ea79aa77b6d91f4acd35bc54897` (branch tip at dispatch, 22:38Z). Ordinals at the base (`SCORECARD.md:1174-1179`): depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8. Depth and adjacency are tied lowest; C1 works depth. Round 30 was rejected as an honest stop because its depth counter could not fail on depth: a sourceless fixture reached its target (`corpus/lessons/round-30-verifier-spotcheck.md`, section 2, C1). This declaration therefore names the surface each claim changes, freezes one predicate per claim, and commits the cheapest do-nothing controls scored under that predicate before any seat produces data (addendum section 9).
@@ -3502,66 +3487,38 @@ Counts re-derived with each cell's command at this tree.
   drift register's recheck loop into a committed probe so D1-D7 re-verify by one command.
 - **retired:** none.
 
-## Round 54 — declaration (2026-10-31, base `5cbcb06e026720adf3d1eb8cf3c8dabab4dac72e`, written before any measurement)
+## Round-54/30 duplicate-section deduplication — correction (round 55; names every superseded copy)
 
-Context: r53 was admitted (closure `5cbcb06e`); the four routed defects of that closure are this
-round's repairs first (R1-R4 below; repairs are not claims, per the r33/r34 precedent). The rendered
-prompt's §7 FRESH-START block names the three prior `rejected-honest-stop` closures (r50 `72c114a5`,
-r51 `daf5b626`, r52 `5b147403`, all in the fleet repo); spot-checked this round — the common binding
-of all three is the counted-cohort depth resume, and the declared round rules out:
+This SCORECARD carried four UNMARKED duplicate level-2 headings when round 55 opened (each a
+section reposted under the byte-identical heading with no in-body supersession marker — the defect
+class that produced routed defect 1 of closure `59a62bfe`). Repair R1 removes the superseded copy
+of each and names it here — not a silent delete:
 
-- **Ruled out — r52's counted-cohort depth resume (amend GR2/GR3, fresh cohort).** Still unreachable:
-  this session has no subagent/wave dispatch surface (no AgentSwarm call available; L0 question filed
-  round 53, unanswered — routed around, never treated as answered). A do-nothing control cannot reach
-  the claim, but neither can this round; asserting `seats_ok` would be fabrication.
-- **Ruled out — re-claiming r53's admitted moves** (win-host-census, windows-host-plane, drift
-  register): they landed, verified, and a do-nothing control already reaches them — no fresh axis-move.
-- **Ruled out — r53's planned "RP1/RP2 post-state verification arms"** for `win-host-census-r53`: the
-  PATH/alias repairs are operator-gated and unexecuted, so post-state arms can only re-report today's
-  DEGRADED state — nothing falsifiable moves. Deferred until the operator runs RP1/RP2.
-- **Ruled out — sourcing D12's fnm second-session behavior**: requires a second concurrent session;
-  this session is single and inline. Cannot be measured honestly here.
-- **Ruled out — claiming the old census 168-case PASS as operability here** (r53's ruling stands): D7
-  says it does not reproduce; this round re-derives its raw budget receipts as a repair, not a claim.
+1. "## Round 54 — declaration (2026-10-31, base `5cbcb06e…`, written before any measurement)" —
+   twice at the closure tip (`59a62bfe`, lines 3505 and 3565; both copies landed at `f24ca241`).
+   Removed copy: the FIRST. The two copies differed by exactly one word, verified by `diff` before
+   removal: the removed copy's claim-C2 surface cell read "MSYS `/opt` mangling of
+   `schtasks /query`"; the retained copy reads "MSYS `/query` mangling of `schtasks /query`",
+   which matches the measured T1 signature (`ERROR: Invalid argument/option -
+   'C:/Program Files/Git/query'.`, receipt
+   `.ufo/waves/round-54/after/services-probes/t1-msys-mangled-error.txt`). No other byte differed
+   between the copies. The authoritative section is the one that follows this block.
+2. "## Round 30 — declaration, attempt 1 (2026-10-22)" — twice (worktree lines 1140 and 1181 when
+   this repair opened). Removed copy: the SECOND, a byte-exact 15-line PREFIX repost of the first
+   (verified: `b == a[:len(b)]` over the two section bodies), carrying no unique content. The
+   authoritative section is the first, which also carries the round-30 measured-outcome subsection.
 
-Reachable moves declared below. Lowest-axis duty: depth and adjacency are tied lowest at 8; **C2 works
-depth**. Saturation 9 / window 3; not every axis sits at the line, so no stagnation-nudge waiver
-applies. L2 floor (MISSION.md ≥8 in one batched AgentSwarm call): absent surface on this host —
-recorded, routed around. Ordinals at base: depth 8, coverage 9, operability 9, freshness 9,
-calibration 9, adjacency 8; none retired. Repairs R1-R4 (routed defects from closure `5cbcb06e`,
-status-neutral, not claims):
-
-- **R1** — S259 locator correction: closure verified against the raw page that the S259 Gate quote
-  lives in §4.2 (The Microsoft Store package), not §4.6.2 (Finding the Python executable). Fix: new
-  row **S260** whose `teaches` opens `supersedes S259 —` (contract v1 rule 2; census E04's supersedes
-  exemption), written after re-opening the live page this round; the round-54 lesson carries the
-  correction entry naming the superseded text — the round-53 lesson bytes are never rewritten.
-- **R2** — Gate word-count drift, same correction entry: recount by command gives S258 = **18** words
-  (stated 24), S259 = **20** words (stated 21); both ≤25 so the contract bound holds; old→new recorded.
-- **R3** — D7/W5 raw budget receipts: re-derived this round under the same budgets (90 s, 420 s) with
-  raw outputs committed at `.ufo/waves/round-54/d7-receipts/` — receipts live in the lane tree, never
-  scratch; C1's instrument produces them.
-- **R4** — D-row dating form: the drift register gains an appended dated correction block giving
-  D1-D12 in-row probe dates (append-only; the original table bytes stay untouched).
-
-| Claim | Axis | Surface moved | Counting command | Do-nothing control at base | Target (predicate) |
-|---|---|---|---|---|---|
-| C1 | operability (capability acquisition) | `tools/receipt-run.py` — a budgeted command runner that writes raw receipts into the lane tree (command argv, start/end ISO-8601, duration, rc or `timeout_after=<budget>s`, verbatim stdout/stderr), hermetic `--selftest` over an injected runner; first working use = the D7 budget re-derivations (R3) committed at `.ufo/waves/round-54/d7-receipts/` | `python tools/receipt-run.py --selftest` (last line `RECEIPT_RUN_SELFTEST: PASS (N cases, N passed, 0 failed)`, rc 0); `ls .ufo/waves/round-54/d7-receipts \| wc -l`; `grep -c "^rc=" .ufo/waves/round-54/d7-receipts/d7-selftest-90s.txt` | at base the tool does not exist: `git cat-file -e 5cbcb06e:tools/receipt-run.py` exits 128; the receipts dir does not exist | selftest PASS rc 0 AND ≥2 D7 receipts present, each naming its budget and rc/timeout line AND stdout captured verbatim (PASS-line count matches the recorded D7 signature class); capability row enters the SCORECARD table the same round |
-| C2 | depth (lowest tied, 8; sourced S261 S262, opened this round) | `corpus/knowledge/windows-services-plane-r54.md` — sourced decision table for the Windows service + scheduled-task plane (the operable analog of the ABSENT D2 systemd plane): ≥6 rows T1-T7+, each with a named error signature, every row citing S261/S262 or a dated host capture; includes the measured doc-vs-host divergences (MSYS `/opt` mangling of `schtasks /query`; `sc` inside powershell.exe silently aliasing to Set-Content and writing a file; `sc` rc 36 for win32 1060; the documented `type= interact` error not firing on this host) | `grep -c "^| T" corpus/knowledge/windows-services-plane-r54.md`; header duty: `python tools/check-knowledge-header.py --worktree` | the file is absent at base: `git cat-file -e 5cbcb06e:corpus/knowledge/windows-services-plane-r54.md` exits 128; `grep -c` exits 2 (0 rows) | rows ≥ 6 AND the knowledge-header gate reads 0 findings AND every row cites S261/S262 or a dated capture command; depth ordinal unchanged (8) — the move is the sourced entry, not the ordinal |
-| C3 | freshness | `tools/recheck-drift-r54.sh` — the drift register's recheck loop ported into one committed read-only command: re-runs the D1-D6 `command -v` probes, the D7 90 s budget leg, D8 interpreter identity, D9 via the census path plane, D12 node-shim shape, and greps the register + PROVINCE for the D10/D11 doc rows; emits one `D<k> match\|drift\|doc-row` line per register row and rc 0 iff no drift; receipt committed at `.ufo/waves/round-54/after/recheck-drift-r54.txt` | `bash tools/recheck-drift-r54.sh` (rc 0; 12 lines matching `^D[0-9]+ `); before: script absent at base (rc 128), the command exits 127 | at base the script does not exist and the register's recheck loop exists only as prose in three files | rc 0 AND 12 row lines AND every host-probed row reads `match` on this host-day (a `drift` line is honest output and would owe an appended register correction — expected none) |
-
-Causal separability: C1 reads its own tool + its receipts; C2 reads its entry + SOURCES + the header
-gate; C3 reads its script + the register + PROVINCE + the host — C3's D7 leg uses plain `timeout` +
-shell redirect, NOT C1's instrument, and its 420 s leg is covered by R3's separately committed
-receipt (pointer, disclosed), so no claim's counter reads another claim's surface. All three are
-single-session inline; the counted-cohort resume stays operator-gated. Frontier step: S260
-(supersedes-S259 correction), S261 (Microsoft Learn `schtasks query`), S262 (Microsoft Learn
-`sc.exe query`) — S261/S262 opened this round; C2 is the sourced claim. Round-start census: exit 0,
-40 W04 (`.ufo/waves/round-54/before/sources-census-start.txt`). Assimilation: `considerthese/` mined
-(2026-10-26 "cross-note correction propagation map" — its core move is applied once inside R1's
-correction entry: dependent surfaces enumerated and each confirmed corrected; the full map is not
-built this round); nothing else adopted.
-
+Three further duplicate-heading pairs were found by the same sweep and are NOT duplicates in
+content — they are this file's older declared-correction convention, where the LATER copy's body
+explicitly names and corrects its predecessor ("This table supersedes the earlier round-26 table";
+"Correction to the immediately preceding round-37 axis table"; "Correction to the preceding
+round-37 capability table"): "## Axes — current self-assessment (round 26)" (the later copy
+restates only the two counts the wave-2 repair commit changed), "## Axes — current self-assessment
+(round 37)" and "## Capabilities — current (round 37)" (each a correction to the preceding table).
+They stay; removing them would delete historical rows the correcting copies do not restate.
+Uniqueness with declared supersession is enforced from this round forward by
+`tools/check-scorecard-unique-sections.py` (claim C3): it fails on any duplicate `##` heading pair
+where NEITHER body declares the supersession.
 ## Round 54 — declaration (2026-10-31, base `5cbcb06e026720adf3d1eb8cf3c8dabab4dac72e`, written before any measurement)
 
 Context: r53 was admitted (closure `5cbcb06e`); the four routed defects of that closure are this

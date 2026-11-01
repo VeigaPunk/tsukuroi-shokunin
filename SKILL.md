@@ -4562,6 +4562,7 @@ Append-only continuation; every row of the round-45 table is carried verbatim be
 | win-host-census-r53 | gate | `python tools/win-host-census-r53.py` (spell `python`, not `python3` — the Store alias stub is the python plane's own finding, D8) | 0 all four planes GREEN;1 at least one DEGRADED and none BLOCKED;2 at least one BLOCKED; a probe result, never operator clearance | `python tools/win-host-census-r53.py --selftest` (hermetic, 20 cases, injected resolvers — logic proof; the live run is the host-state reading; both required before any verdict) | Round-53 C1 on the Windows host: four planes (tools, path, python, git); grammar echoes only validated tokens (QUALITY 84), host paths classified never echoed; decision content `corpus/knowledge/windows-host-plane-r53.md` W1-W7 | read-only host probes (`which`, version commands, `isdir`); selftest is in-process, writes nothing | tsukuroi |
 | receipt-run-r54 | probe | `python tools/receipt-run.py --budget <sec> --receipt <path> -- <command…>` (spell `python` — D8) | 0 command completed within budget, receipt written;1 budget expired, receipt written with `rc=timeout` + `timeout_after_s`;2 could-not-evaluate (usage error, unwritable receipt path); the child's own exit code lives in the receipt's `rc=` line, never mirrored by the exit code | `python tools/receipt-run.py --selftest` (hermetic, 7 cases: injected-runner receipt shapes + real self-spawned rc-0 and timeout children; last line `RECEIPT_RUN_SELFTEST: PASS/FAIL (N cases, N passed, N failed)`) | Round-54 C1, closes the routed scratch-receipt defect (closure `5cbcb06e` defect 3): receipt header keys receipt_run/command/budget_s/start_utc/end_utc/duration_s/timed_out/rc/timeout_after_s/stdout_bytes/stderr_bytes; verbatim byte capture (CRLF preserved); first working use = the D7 90 s/420 s re-derivations `.ufo/waves/round-54/d7-receipts/` | writes only the named receipt path | tsukuroi |
 | recheck-drift-r54 | probe | `bash tools/recheck-drift-r54.sh [--receipt <path>]` | 0 every host-probed register row matches its recorded observation and both doc rows present;1 at least one drift/absent — an appended register correction is then owed (a drift line is honest output, never smoothed);2 could-not-evaluate (register or PROVINCE unreadable, or the census path-plane line absent so D9 cannot be judged) | built-in: emits one `D<k> match\|drift\|doc-row` line per register row (12) + `RECHECK_DRIFT: PASS/FAIL` rollup; the D7 leg runs the register's census-selftest leg under `timeout 90` (rc 124 + 0 FAIL + no summary line expected, counts are wall-clock facts) | Round-54 C3: the drift register's recheck loop (prose in the register `recheck:` line, PROVINCE record and SKILL round-53 section) made executable; expected values mirror `corpus/knowledge/host-transition-drift-r53.md` D1-D12 observations of 2026-10-31; decision content `corpus/knowledge/windows-services-plane-r54.md` is the new-plane complement (S261 S262) | read-only probes; `--receipt` writes one lane-tree file; the D7 leg writes one deleted temp file | tsukuroi |
+| scorecard-unique-sections-r55 | gate | `python tools/check-scorecard-unique-sections.py [--file <path>]` (default `SCORECARD.md` at the lane root; spell `python` — D8) | 0 every duplicate level-2 heading pair carries an in-body supersession declaration (supersed/correct/re-stated/restat/deduplication), or there are no duplicates;1 at least one unmarked duplicate pair (each printed as `SCORECARD-DUPLICATE-UNMARKED` with heading + line numbers);2 could-not-evaluate (file missing/unreadable or no level-2 headings) | `python tools/check-scorecard-unique-sections.py --selftest` (hermetic fixtures: unmarked duplicate fails, marked duplicate passes, unique headings pass, no-level-2 rc 2, missing file rc 2) | Round-55 C3: closes routed defect 1 of closure `59a62bfe` (the lane shipped the Round-54 declaration section twice; the closure had to find it) by enforcing the correction convention as a gate; first real sweep also caught an unmarked round-30 declaration prefix-repost (removed, named in the SCORECARD correction block) — the three legacy marked pairs (r26/r37 axes+capabilities corrections) stay | reads the named file only; selftest writes fixture files under its own temp dir and removes them | tsukuroi |
 
 ## Scrub grounding — round 49 (the cohort read; GR2 stays partly)
 
@@ -4651,3 +4652,26 @@ scratch-receipt defect; first use = the D7 90 s/420 s re-derivations,
 `.ufo/waves/round-54/d7-receipts/`) and `bash tools/recheck-drift-r54.sh` (registry
 `recheck-drift-r54` — one command re-verifying register rows D1-D12 against their recorded
 observations).
+
+## Round 55 — services plane extension and scorecard uniqueness (Windows host, 2026-10-31)
+
+Extends the round-54 services/tasks plane with the service-control EXTENDED-query and CONFIGURATION
+surfaces, sourced from the Microsoft archive pages (S263 `sc queryex`, S264 `sc qc`; the current
+Windows Server commands reference carries only sc config/create/delete/query — both new pages are
+`is_archived: true`, `ms.date` 2016-08-31). Decision content
+`corpus/knowledge/windows-services-plane-r55.md`, rows T9-T12, every probe issued through
+`tools/receipt-run.py` so the receipt itself carries argv, budget, timestamps, `rc=` and stream
+sizes (the r54 routed-defect-2 rule applied to new probes from the start): `sc queryex` adds PID
+and FLAGS to the query field set and its nonexistent-service signature matches `sc query` (FAILED
+1060, rc 36); `sc qc` shows START_TYPE and BINARY_PATH_NAME (the only one of the three probes that
+does), its TYPE display codes differently from query's (`20 WIN32_SHARE_PROCESS` vs `30 WIN32` for
+the same service — never diff TYPE across the two commands), and its nonexistent-service line names
+a different function (`[SC] OpenService FAILED 1060:` vs query's
+`[SC] EnumQueryServicesStatus:OpenService FAILED 1060:`) with the same rc 36. Routed defect 3 of
+closure `59a62bfe` corrected as S265: the WIN32_EXIT_B / SERVICE_EXIT_B names in S262's (and
+S263's) Remarks are a typo on the pages; the tools print WIN32_EXIT_CODE / SERVICE_EXIT_CODE.
+SCORECARD round-section uniqueness is now a gate (registry `scorecard-unique-sections-r55`):
+duplicate level-2 headings must carry an in-body supersession declaration; the round-54 duplicate
+pair and an unmarked round-30 prefix-repost were removed and named in the SCORECARD correction
+block, while the three legacy marked correction pairs stay. Repairs stay operator-owned; all probes
+read-only.
