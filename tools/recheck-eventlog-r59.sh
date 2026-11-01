@@ -9,11 +9,23 @@
 # it)". All E-probes are read-only or refusal-class, so every row here is LIVE (no
 # receipt-compared class needed — the r58 probes never touched config/SCM-write-shaped surfaces).
 #
-# Usage: bash tools/recheck-eventlog-r59.sh [--receipt PATH]
+# Usage: bash tools/recheck-eventlog-r59.sh [--receipt PATH] [--due YYYY-MM-DD]
 #   Emits one line per row:  E<k> match|drift <evidence>
 #   Rollup:  RECHECK_EVENTLOG: PASS (11 rows, M match, 0 drift)   rc 0
 #            RECHECK_EVENTLOG: FAIL (N drift)                      rc 1
 #   A drift line is honest output, not a crash: it owes an appended row correction next.
+#
+# --due YYYY-MM-DD (round 60, C2 — the R59-DECLARED-COMMAND-RECEIPT-SIDE proper fix): when
+#   present, the receipt header carries exactly one added line `due=<value>` before the `---`
+#   separator, so the pass's next-due anchor is observable from the receipt itself (the
+#   windows-eventlog-plane-r58.md operative block's `due 2026-11-30` is the same anchor in the
+#   note channel). The value is format-validated (`^[0-9]{4}-[0-9]{2}-[0-9]{2}$` shape, case
+#   form, plus calendar range month 01-12 / day 01-31; the exact month-length is NOT
+#   validated) at the argument gate, before any probe runs; a malformed value usage-refuses rc 2.
+#   The instrument does NOT compute dates — the caller states the cadence due (the note carries
+#   the cadence; the receipt records it). When the flag is absent the receipt shape is
+#   byte-identical to the landed r59 convention (no due line), so the committed r58/r59
+#   receipts stay reproducible.
 #
 # Rows (11) and invariants (each judged on its INVARIANT signature only — counts, record
 # numbers, timestamps and sizes are drift-class captures, recorded as evidence, never judged):
@@ -47,12 +59,25 @@
 set -u
 cd "$(dirname "$0")/.." || exit 2
 receipt=""
+due=""
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --receipt) receipt="${2:?--receipt needs a path}"; shift 2 ;;
-    *) echo "usage: recheck-eventlog-r59.sh [--receipt PATH]" >&2; exit 2 ;;
+    --due) due="${2:?--due needs a YYYY-MM-DD value}"; shift 2 ;;
+    *) echo "usage: recheck-eventlog-r59.sh [--receipt PATH] [--due YYYY-MM-DD]" >&2; exit 2 ;;
   esac
 done
+case "$due" in
+  "") ;;
+  [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])
+    # shape plus calendar range: month 01-12, day 01-31 (the exact month-length is NOT
+    # validated — a 02-31 value passes the gate; the note channel carries the real due)
+    due_m="${due#????-}"; due_m="${due_m%%-*}"; due_d="${due##*-}"
+    if [ "$due_m" -lt 1 ] || [ "$due_m" -gt 12 ] || [ "$due_d" -lt 1 ] || [ "$due_d" -gt 31 ]; then
+      echo "usage: --due expects a real YYYY-MM-DD calendar date, got '$due'" >&2; exit 2
+    fi ;;
+  *) echo "usage: --due expects YYYY-MM-DD, got '$due'" >&2; exit 2 ;;
+esac
 
 drift=0; matched=0
 lines_out=""
@@ -184,8 +209,13 @@ out="${lines_out}${rollup}
 printf '%s' "$out"
 if [ -n "$receipt" ]; then
   mkdir -p "$(dirname "$receipt")" || { echo "cannot write receipt dir" >&2; exit 2; }
-  printf 'recheck_eventlog_r59=1\ndate_utc=%s\nrows=11\nmatched=%s\ndrift=%s\n---\n%s' \
-    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$matched" "$drift" "$out" > "$receipt" \
+  # r60 C2: the due line is inserted before the --- separator only when --due was given;
+  # with no --due the header is byte-identical to the r59 convention (due_line empty).
+  due_line=""
+  [ -n "$due" ] && due_line="due=${due}
+"
+  printf 'recheck_eventlog_r59=1\ndate_utc=%s\nrows=11\nmatched=%s\ndrift=%s\n%s---\n%s' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$matched" "$drift" "$due_line" "$out" > "$receipt" \
     || { echo "cannot write receipt $receipt" >&2; exit 2; }
 fi
 exit $rc
