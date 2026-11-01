@@ -4125,3 +4125,54 @@ untouched this round).
   is due 2026-11-30 (or before, if a drift fires); the wevtutil NUL-byte finding wants a parsing rule in the
   plane's probes (strip `\r\0`) before any count is judged.
 - **retired:** none.
+
+## Round 59 — declaration (2026-11-01, base `c2e32b00…`, written before any after-measurement)
+
+Carry-ins addressed first (routed from the r58 closure, status-neutral, none claimed): (1)
+**D-R58-BEFORE-RECEIPTS-UNLANDED discharged** — the three cited before-receipts were regenerated from the
+committed probe definitions and landed at `81776bef` (every r58 declared before-value re-derives: cat-file rc
+128, wevtutil sweep 0 files, SOURCES 271, literal T-rows 12, T13/T19/receipt-compared mentions 0, round58
+registry heading 0, W-plane dated 0, stale `20 cases` 1, selftest 25/25 rc 0; freshstart r50 FAIL 0/0/18 +
+r51 evidence 0 bytes + r52 FAIL 1/0/16; census exit 0, 42 W04, 0 E-code — receipts
+`.ufo/waves/round-58/before/{c1-c2-c3-at-base,freshstart-spotcheck,sources-census-start}.txt`; the census
+receipt carries a reconciliation header because the 271-row original predates S272/S273 and is not
+byte-reproducible after they landed). **Correction appended (never substituted):** the r58 landed-changes
+table's "before-receipts (5)" overcounted — committed bytes cite exactly THREE distinct
+`round-58/before/` paths; the remaining two of the five are named by no committed pointer, so no receipt can
+be regenerated for them without inventing a citation. Every cited pointer now resolves. The r58 report lives
+in the FLEET repo (lane-unmutable); this block, the round-59 lesson and the report are the correction
+record. (2) The `bde06613` receipt-hygiene rule binds this round's receipts: any first-run FAIL is committed
+under its honest name beside the fixed pass; any declared-command shortfall gets an appended correction
+beside, never a substitution. (3) Standing L0s routed around, never treated as answered: `tsukuroi |
+round-53` (wave-dispatch surface, `.ufo/l0-questions.md:229`), the round-1 kaidoku/revenger scope (PROVINCE
+Frontier), `tsukuroi | round-57` (S266 interact authorization, `.ufo/l0-questions.md:247`). No new L0
+question owed (nothing operator-gated attempted this round).
+
+FRESH-START (prompt §7 names r50/r51/r52): the three rejected-honest-stop closures re-spot-checked from
+committed bytes at THIS base (receipt `.ufo/waves/round-59/before/freshstart-spotcheck.txt`): r50
+`.ufo/waves/round-50/after/c1-final.json` → `verdict FAIL, verdicts_ok 0, marks_ok 0, seats_ok 18`; r51
+`.ufo/waves/round-51/before/c2-cheats-at-amend1.json` → committed EMPTY (0 bytes, `91227829`); r52
+`.ufo/waves/round-52/after/c1-final.json` → `verdict FAIL, verdicts_ok 1, marks_ok 0, seats_ok 16`
+(predicate bound 18) — identical to the r58 re-derivation at its base. Ruled out for cause (each for cause,
+none reachable by a do-nothing control): (a) the counted-cohort depth resume — still gated on the absent
+wave-dispatch surface (L0 round-53); (b) the S266 `type= interact` falsification probe — L0 round-57 still
+unanswered; (c) re-claiming any admitted r53–r58 move (census receipt/budget modes, T1–T24 recheck +
+`--raw-dir`, E1–E6 first entry, W-plane dated cadence + stale-expectation correction); (d) a bare re-run of
+an existing instrument as THE freshness move — the services planes' cadence pass is due 2026-11-30, not
+today, and C3's pass below is the day-0 anchor of a NEW operative line, not a bare re-run; (e) the
+`considerthese/` self-improvement set — mined again this round (seven notes, latest 2026-10-26, unchanged
+set), all aggregator/wave-class or Linux-host-class on this host; nothing adopted. Assimilation: none —
+shokuknow unreachable.
+
+The r58 planned lane-host items are C2 and C3 below; C1 is the round's lowest-axis move.
+
+| # | axis | claim | before → after | falsifier | verdict condition |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — S274 to be opened this round AFTER this declaration) | `corpus/knowledge/windows-scheduled-task-status-plane-r59.md` — the scheduled-task STATUS triage plane, rows J1-J5: the Status-column vocabulary as observed on this host against the S261/S274 contract; per-task `/fo LIST /v` triage FIELDS' decision grammar (values drift-class, presence invariants); the `/hresult` hex form for Last Result and S274's success/informational/failure vocabulary (0x0 vs the 0x413xx informational class vs nonzero failure); the Disabled class census; the format-switch contract (`/fo` TABLE vs CSV vs LIST row shapes for one task). Extends the r54 plane's T1-T3 (spelling/count/absence) and T2's field-NAMES row with the VALUES' grammar — no state change is ever issued (`/create /run /end /change /delete` stay operator-owned). Probes through receipt-run into `.ufo/waves/round-59/task-probes/`. Header duty `python tools/check-knowledge-header.py --revision <work>`. | before at base (verified this declaration, receipt `.ufo/waves/round-59/before/c1-c2-c3-at-base.txt`): `git cat-file -e c2e32b00:corpus/knowledge/windows-scheduled-task-status-plane-r59.md` → rc **128**; vocabulary sweeps at base, `git grep -l -i "<term>" <base> -- corpus SKILL.md PROVINCE.md tools`: `41303` → **0 files**, `last result` → **0 files**, `task scheduler error` → **0 files** (`hresult` → 2 files: S261's own parameter-row anchor and the r54 lesson quoting it — the NAME only, no value grammar); SOURCES rows **273**. after: `grep -c "^| J" <note>` ≥ 3; SOURCES rows ≥ 274, 0 malformed; knowledge-header gate 0 findings at the work revision | at base the note and the J-rows do not exist; no lane file governs the status/last-result value grammar (sweeps above) | rows ≥ 3 AND every row cites S261 or an opened S-row or a dated receipt AND knowledge-header gate 0 findings AND SOURCES ≥ 274 rows 0 malformed AND depth ordinal unchanged (8) — the move is the sourced entry, not the ordinal |
+| C2 | operability | `tools/recheck-eventlog-r59.sh` — the event-log plane's executable recheck arm (the r58 planned item), mirroring `recheck-services-r56.sh`'s conventions (`--receipt <p>` + per-row `E<k> match\|drift` lines + rollup `RECHECK_EVENTLOG: PASS (N rows, M match, 0 drift)`): **11 rows** re-verifying E1-E6 plus the spelling/boundary variants on their invariant signatures — E1 enumeration rc 0 one-name-per-line; E2 newest-first rc 0 `Event[0]` with the NUL-strip parsing rule applied BEFORE any count (`tr -d '\r\0'` — the R58-WEVTUTIL-NUL-RECEIPTS fix bound in code); the E2/E3 bare-spelling variants rc 87 and the E2b/E3b env-in-child-argv variants rc 87 (the MSYS boundary pair); E3 query-absence (rc family 15007/159 + both message lines); E4 metadata field presence (`numberOfLogRecords`/`fileSize`); E5 level-filter rc 0 + Level header; E6 metadata-absence (leg-specific function line + shared message); E6b bare-`cl` usage refusal rc 87. Drift-class values (channel counts, record counts, sizes, timestamps) recorded as evidence, never judged. Registry row lands via the APPENDED `## Gate and probe registry — round59 superseding current rows` table (every round-58 row verbatim + the new row). | before at base (verified): arm `git cat-file -e c2e32b00:tools/recheck-eventlog-r59.sh` → rc **128**; `git grep -c "recheck-eventlog-r59" <base> -- SKILL.md` → **0**; round59 registry heading → **0**. after: one live pass `bash tools/recheck-eventlog-r59.sh --receipt <r>` → rc 0, `RECHECK_EVENTLOG: PASS (11 rows, 11 match, 0 drift)`; `bash -n` rc 0; registry-coverage gate **96 tools / 96 rows / 0 findings** against the appended round-59 table; the round-58 table byte-unchanged | at base no executable instrument re-verifies E1-E6b; no round-59 registry table exists | 11 rows judged AND 0 drift (any drift = honest FAIL rc 1 + an appended correction owed, reported as such) AND registry-coverage 0 findings AND the round-58 table byte-identical AND the receipt carries the full output |
+| C3 | freshness | The event-log plane's cadence duty becomes OPERATIVE and is EXECUTED: an appended operative pass block in `corpus/knowledge/windows-eventlog-plane-r58.md` (old bytes byte-identical, sha256 measured base=work) naming the executable arm as the pass instrument, binding the NUL-strip parsing rule into the pass procedure, anchoring day 0 = 2026-11-01 (the r58 probe receipts as the comparison anchor), next pass due **2026-11-30** — plus the plane's FIRST executable re-verification pass under its r58 cadence line, receipted. The pass is produced by C2's arm; the claim is verifiable without C2 having landed (the note's own `recheck:` header procedure — re-run the probes through receipt-run — is the fallback producer), and C2's verdict never cites C3's block. | before at base (verified): operative pass lines in the note → **0** (`grep -c "recheck-eventlog-r59" <note>`); first-pass receipt `git cat-file -e c2e32b00:.ufo/waves/round-59/receipts/recheck-eventlog-11-summary.txt` → rc **128**; the note's r58 cadence line → **1** (stays byte-identical). after: the operative block names the arm → `grep -c "bash tools/recheck-eventlog-r59.sh" <note>` → **1**; old bytes byte-identical (sha256 base=work recorded in the after-battery); first-pass receipt committed `.ufo/waves/round-59/receipts/recheck-eventlog-11-summary.txt` carrying the rollup line and the due date (`grep -c "due 2026-11-30" <receipt>` ≥ 1) | at base no operative pass duty or pass receipt exists for the E-plane; the r58 cadence line named probes, not an instrument | operative block present AND old bytes byte-identical AND first-pass receipt committed with the rollup line AND the r58 header line byte-unchanged (append-only) AND freshness ordinal unchanged (9, saturated) — the move is duty→executed-pass, not the ordinal |
+
+Causal separability: C1 touches only its new note + its SOURCES row; C2 touches only the new arm + the
+appended registry table; C3 touches only the appended note block + the pass receipt. No claim's verification
+depends on another having landed. No exploratory claim this round. Declared counting commands are each RUN
+before the outcome commit cites them (R58-DECLARED-COMMAND rule).
