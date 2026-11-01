@@ -18,6 +18,14 @@ subkey in the registry." All probes are read-only `reg query` legs through `tool
 DRIFT-CLASS captures — recorded as evidence, never judged; the exit codes, message lines and column
 shapes are the invariants.
 
+| Row | Surface (read-only) | Invariant (the judged signature) | Drift-class (never judged) | Receipt |
+|---|---|---|---|---|
+| RG1 | `reg query <key> /v <name>` | rc 0; blank line, key echo, then ONE three-column entry line `Name Type Data` | the data column's value | rg1 |
+| RG2 | missing key or missing value | rc 1 + exactly one stderr line, `ERROR: The system was unable to find the specified registry key or value.` (S275 documents 0/1 only — the text is measured) | which of key/value was missed (same class) | rg2, rg2b |
+| RG3 | `reg query <key> /s` (bounded target) | rc 0; key echo lines interleaved with RG1-shaped entry lines | subkey/entry counts; output size | rg3 |
+| RG4 | type census vs the documented `/t` set | rc 0; observed type tokens are second-column tokens of entry lines; REG_QWORD exists AND `/t REG_QWORD` is ACCEPTED (S275's six-type set is the stale side) | per-type counts | rg4, rg4b, rg4c |
+| RG5 | the bash/MSYS boundary + the `/ve` leg | bare `/v` fails `Invalid syntax.` rc 1 (conversion boundary); forward-slash key refuses `Invalid key name.` rc 1; with `MSYS_NO_PATHCONV=1` on the receipt-run invocation the probe passes; `/ve` returns the `(Default)` line with the literal `(value not set)` sentinel | the sentinel's value column; channel counts | rg5a, rg5b, rg5c |
+
 ## RG1 — the named-value query shape
 
 `reg query <key> /v <valuename>` (rg1 receipt, rc 0): stdout is a blank line, the key echo line
