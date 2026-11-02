@@ -1,0 +1,25 @@
+round-62 before-receipt - c1/c2 plumbing reads at base bcf1af189ae833f7f49c0bd12e5aaeb953f23e7e
+captured 2026-11-02T01:25:02Z; plumbing only (worktree untrusted, r56/r57 lesson)
+
+$ git cat-file -e bcf1af189ae833f7f49c0bd12e5aaeb953f23e7e:corpus/knowledge/windows-pagefile-config-plane-r62.md
+rc=128
+
+$ git grep -c -iE 'pagefile|PageFileUsage|AutomaticManagedPagefile' bcf1af189ae833f7f49c0bd12e5aaeb953f23e7e -- corpus SKILL.md PROVINCE.md tools
+rc=1
+
+$ git cat-file -e bcf1af189ae833f7f49c0bd12e5aaeb953f23e7e:tools/check-cited-receipts-r62.py
+rc=128
+
+$ git grep -c CHECK_CITED_RECEIPTS bcf1af189ae833f7f49c0bd12e5aaeb953f23e7e -- tools SKILL.md
+rc=1
+
+$ SOURCES rows at base: git show bcf1af189ae833f7f49c0bd12e5aaeb953f23e7e:corpus/SOURCES.md | grep -c '^| S'
+276
+rc=0
+
+$ check-cited-receipts gate (scratch copy of the r62 instrument) --revision bcf1af189ae833f7f49c0bd12e5aaeb953f23e7e --round 61
+  -> verdict FAIL, cited 5, findings 3 (the three committed-bytes-named r61 receipts the carry-in landed at ccfa4706):
+     .ufo/waves/round-61/receipts/recheck-registry-10-due-2026-11-30.txt
+     .ufo/waves/round-61/receipts/recheck-registry-10-nodue-shape.txt
+     .ufo/waves/round-61/receipts/recheck-registry-FIRST-RUN-FAIL-at-authoring.txt
+  (full JSON: .ufo/waves/round-62/before/cited-receipts-at-base-round61.json)

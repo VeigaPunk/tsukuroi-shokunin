@@ -4476,3 +4476,62 @@ one must be landed before the round closes. Made mechanical by the round-62 gate
 `tools/check-cited-receipts-r62.py` (at `52d9ba1a` --round 61: FAIL naming exactly the three
 committed-bytes-named receipts; at the round-62 final tree: PASS). No measurement above changed:
 the r61 values were independently re-derived live by the non-author judge from the instruments.
+
+## Round 62 — declaration (2026-11-01, base `bcf1af18` + carry-ins `ccfa4706`/`f47bb0aa`, written before any after-measurement)
+
+Carry-ins addressed FIRST (both landed and pushed before this declaration, neither claimed):
+(1) **R61-RAW-RECEIPTS-UNLANDED discharged at `ccfa4706`** — the twelve r61 receipts (nine
+`driver-probes/` dq files + three `receipts/` files incl. the FIRST-RUN-FAIL) landed byte-identically
+under their honest names (pre-landing `git hash-object` ids in
+`.ufo/waves/round-62/carry-in/r61-raw-receipts-landing-note.md`; treecommit reads disk bytes, so
+landed = worktree bytes; 12/12 `git cat-file -e` rc 0 verified); the class rule restated at the
+landing (the r59 rule, third occurrence of the class): count the cited paths before writing counts —
+a receipt count cited in a landed-changes table must equal the number of distinct receipt paths the
+round's committed bytes name, and every one of them must be landed before the round closes.
+(2) **The landing-class misstatements corrected at `f47bb0aa`** — appended correction blocks in the
+r61 lesson and here (the "committed" statements were false at `52d9ba1a`, true from `ccfa4706`; the
+interval named), plus the r53 coverage-map row's Note cell now naming the sibling note
+`knowledge/host-transition-drift-r53.md` where the D1-D7 table lives (disclosed one-cell repair).
+(3) **Standing L0s unchanged and routed around, never treated as answered**: `tsukuroi | round-53`
+(wave-dispatch surface, fleet `.ufo/l0-questions.md:229`), round-1 kaidoku/revenger scope (PROVINCE
+Frontier), `tsukuroi | round-57` (S266 interact authorization, `:247`), `tsukuroi | round-60`
+(whole-SKILL SHONEN verification, `:253`). No new L0 question owed this round. (4) Byte-stable
+writers (the r60 C3 convention, kept): SCORECARD/SKILL/SOURCES appends CRLF, LOG/README LF, proven
+by the final append-receipt measurement (lands receipt-after-subject, the tameshi r63 precedent).
+
+FRESH-START (prompt §7 names r50/r51/r52): the three rejected-honest-stop closures re-spot-checked
+from committed bytes at THIS base (receipt `.ufo/waves/round-62/before/freshstart-spotcheck.txt`,
+plumbing reads only): r50 `.ufo/waves/round-50/after/c1-final.json` → `verdict FAIL, verdicts_ok 0,
+marks_ok 0, seats_ok 18`; r51 `.ufo/waves/round-51/before/c2-cheats-at-amend1.json` → committed
+EMPTY (0 bytes); r52 `.ufo/waves/round-52/after/c1-final.json` → `verdict FAIL, verdicts_ok 1,
+marks_ok 0, seats_ok 16` — identical to the r58–r61 re-derivations. Ruled out for cause (none
+reachable by a do-nothing control): (a) the counted-cohort depth resume — still gated on the absent
+wave-dispatch surface (L0 round-53); (b) the S266 `type= interact` falsification probe — L0
+round-57 still unanswered; (c) re-claiming any admitted r53–r61 move (host/services/eventlog/
+task-status/SDDL/registry/driver-query planes, census receipt/budget modes, operative pass blocks,
+the registry-table and before-receipts repairs, the `--due` receipt anchors, the append-receipt
+instrument, the map rows); (d) the 2026-11-30 cadence pass as THE freshness move — not due (the
+r60/r61 receipts' own `due=` anchors; today is day 0 of the new plane's cadence, not a due day);
+(e) the `considerthese/` self-improvement set — re-mined (seven notes, latest 2026-10-26, unchanged
+set since r57), all aggregator/wave-class or Linux-host-class on this host; nothing adopted.
+Assimilation: none — shokuknow unreachable.
+
+The r61 planned non-gated candidate becomes C1 (the pagefile/commit-charge memory CONFIG read —
+"memory PRESSURE evidence stays mori's (ADJ-04), the config surface is this lane's"). C2
+materializes the restated class rule mechanically: the unlanded-receipt class occurred three times
+(r58, r59, r61) and each discharge was by hand; the gate is the machine that catches the next one.
+S277 was opened LIVE before this declaration text was written (fetched 2026-11-01) — the r60/r61
+disclosure order; the row lands with the work commit, quote counted. No exploratory claim this
+round.
+
+| # | axis | claim | before → after | falsifier | verdict condition |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — S277 opened this round, see above) | `corpus/knowledge/windows-pagefile-config-plane-r62.md` — the Windows pagefile/commit-charge CONFIG READ plane, rows PF1-PF6: the usage counters per S277 (AllocatedBaseSize / CurrentUsage / PeakUsage, each documented units ("megabytes"); AllocatedBaseSize "corresponds to the range established in Win32_PageFileSetting under the InitialSize and MaximumSize properties, set at system startup"); the automatic-management triad (Win32_ComputerSystem.AutomaticManagedPagefile TRUE; Win32_PageFileSetting EMPTY instance set — the system-managed indicator S277 does not document; registry PagingFiles REG_MULTI_SZ `?:\pagefile.sys` the system-managed wildcard form, no explicit sizes); the commit-charge fields (Win32_OperatingSystem TotalVirtualMemorySize / FreeVirtualMemory, KB) recorded drift-class with the ADJ-04 boundary stated in the note (pressure attribution is mori's; raw counters are captures, never judged here); the wmic.exe ABSENCE (bare spawn WinError 2 at CreateProcess; the `cmd /c` refusal receiptable `'wmic' is not recognized...` rc 1 — the D8 tool-absence class, now including a legacy binary). Probes through receipt-run into `.ufo/waves/round-62/probes/`. Header duty `python tools/check-knowledge-header.py --revision <work>`. | before at base (verified this declaration, receipt `.ufo/waves/round-62/before/c1-c2-at-base.txt`): `git cat-file -e bcf1af18:corpus/knowledge/windows-pagefile-config-plane-r62.md` → rc **128**; vocabulary sweep at base `git grep -c -iE 'pagefile|PageFileUsage|AutomaticManagedPagefile' bcf1af18 -- corpus SKILL.md PROVINCE.md tools` → **0 files** (rc 1); SOURCES rows **276**. after: `grep -c '^| PF' <note>` ≥ 4; SOURCES rows ≥ 277, 0 malformed, S277 at id position directly after S276; knowledge-header gate 0 findings at the work revision | at base the note and the PF rows do not exist; no lane file governs the pagefile config-read surface (sweep above) | rows ≥ 4 AND every row cites S277 or a dated receipt AND knowledge-header gate 0 findings AND SOURCES ≥ 277 rows 0 malformed AND depth ordinal unchanged (8) — the move is the sourced entry, not the ordinal |
+| C2 | operability | `tools/check-cited-receipts-r62.py` — the round-scoped cited-receipt landing gate (the r59 count rule made mechanical; catches the cited-and-unlanded half of the class before closure): at a revision, scans the round's OWN committed artifacts (its `.ufo/waves/round-<N>/` receipts, `corpus/lessons/round-<N>.md`, its `corpus/knowledge/*-r<N>.md` note) for `.ufo/waves/round-<N>/...` file citations and verifies each against the SAME revision's tree (ls-tree + one `cat-file --batch`, index-free, read-only, the round-32 child-env allow-list); documented exclusions: sibling-repo citations (a `<lane>/.ufo/waves/...` prefix names another repo's tree), directory prefixes and bare directory mentions, prose ellipses; findings = CITED-RECEIPT-MISSING. Named limit stated in the docstring: a receipt retained in scratch and never cited by a resolvable path (the r59 occurrence) is invisible to any path-citation gate — the closure catches that half. | before at base (verified, same receipt): `git cat-file -e bcf1af18:tools/check-cited-receipts-r62.py` → rc **128**; `git grep -c CHECK_CITED_RECEIPTS bcf1af18 -- tools SKILL.md` → **0** (rc 1); and the class itself: the gate run at THIS base `--round 61` → verdict **FAIL, findings 3** naming exactly the three committed-bytes-named r61 receipts (full JSON `.ufo/waves/round-62/before/cited-receipts-at-base-round61.json`) — the defect the carry-in landed by hand at `ccfa4706`, re-derived mechanically at the base. after: `python tools/check-cited-receipts-r62.py --selftest` → PASS 4 cases rc 0; at the r62 final tree `--round 61` → **PASS, 0 findings** (the discharged state) and `--round 62` → **PASS, 0 findings** (this round's receipts landed receipt-after-subject); registry-coverage gate **99/99/0** at the work tree (the new row); the r58 demonstration re-derived (`--round 58` at r58-final `c2e32b00` → FAIL naming `.ufo/waves/round-58/before/sources-census-start.txt`, the in-scope half of that occurrence) | at base no committed instrument checks cited-receipt landing; the class occurred three times (r58/r59/r61) | selftest PASS rc 0 AND --round 61 PASS at the r62 final tree AND --round 62 PASS at the r62 final tree AND registry-coverage 99/99/0 AND operability ordinal unchanged (9, saturated) AND the r59 scratch-retained citation named as the gate's limit in the lesson (honest reach — no claim of total class coverage) |
+
+Causal separability: C1 touches only its new note + its SOURCES row + its probe receipts; C2 touches
+only the new tool + its registry-table row + its run receipts. C1 verifies without C2 (note + row +
+header gate); C2 verifies without C1 (tool + selftest + final-tree passes + registry gate). No
+exploratory claim this round. Declared counting commands are each RUN before the outcome commit
+cites them (the R58/R59 declared-command rule); the SKILL round-62 section documents both moves
+(round documentation, not claim content); the battery receipt lands with the outcome.

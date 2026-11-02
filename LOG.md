@@ -2542,3 +2542,20 @@ D1-D7 drift register that lives in the sibling note `knowledge/host-transition-d
 (cross-referenced twice from the named note, pointer resolved only indirectly); the row's first cell
 now names the sibling note — a disclosed one-cell repair to corpus/README.md (intentional byte change
 to two cells, logged here), not an append. The r61 receipt-count rule stays binding.
+
+## Round 62 — declaration before measurement (2026-11-01, base bcf1af18 + carry-ins ccfa4706/f47bb0aa)
+
+Carry-ins landed first (before-receipt): the twelve r61 receipts byte-identical at ccfa4706 (class
+rule restated: count cited paths before writing counts) and the landing-class correction blocks + r53
+map-row sibling pointer at f47bb0aa. FRESH-START r50/r51/r52 re-spot-checked at the base (r50 FAIL
+0/0/18, r51 0 bytes, r52 FAIL 1/0/16; receipt .ufo/waves/round-62/before/freshstart-spotcheck.txt);
+five move classes ruled out for cause; considerthese re-mined (seven notes, unchanged set), nothing
+adopted. Claims declared before any after-measurement: C1 depth (SOURCED windows-pagefile-config-plane
+rows PF1-PF6 per S277 Win32_PageFileUsage opened live this round — the r61 planned candidate: memory
+CONFIG is this lane's, pressure attribution stays mori's per ADJ-04) and C2 operability
+(tools/check-cited-receipts-r62.py — the round-scoped cited-receipt landing gate, the r59 count rule
+made mechanical; at this base --round 61 it FAILs naming exactly the three committed-bytes-named r61
+receipts the carry-in landed by hand). S277 opened live before the declaration text (the r60/r61
+disclosure order). Before-receipts: census start exit 0 (42 W04, 0 E-code), c1-c2 at-base plumbing
+reads (note rc 128, sweep 0 files, tool rc 128, mentions 0, SOURCES 276, gate --round 61 FAIL 3),
+freshstart receipt. Standing L0s routed around; byte-stable writers kept; no exploratory claim.
