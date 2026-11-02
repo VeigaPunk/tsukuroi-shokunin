@@ -2629,3 +2629,24 @@ the r62 reading; .ufo/waves/round-63/before/freshstart-spotcheck.txt), the junct
 receipt, the spawn-crash reproduction, and the C1/C2 at-base before-counts
 (.ufo/waves/round-63/before/c1-c2-at-base.txt: note rc 128, vocabulary sweep 0 files, SOURCES 277,
 spawn-error mentions 0, selftest call-sites 7, extended-map text 0).
+
+## Round 63 â declaration before measurement (2026-11-01, base 74f9846a + carry-in caeccef4)
+
+Claims declared before any after-measurement: C1 operability (tools/receipt-run.py child-spawn
+failure becomes a receipted could-not-evaluate â exit rc 2, receipt header rc=spawn-error +
+spawn_error=1 + the OSError text, selftest call-sites 7 -> 8 with the spawn-failure-receipted case;
+the R62-RECEIPT-RUN-SPAWN-FAIL routed proper fix) and C2 depth, lowest tied axis 8, SOURCED (the
+Windows power-scheme CONFIG read plane, rows PW1-PW6 per S278 Microsoft Learn powercfg
+command-line options, opened live before the declaration text; probe receipts pw1-pw6 under
+.ufo/waves/round-63/probes/). FRESH-START: the rendered prompt names r50/r51/r52 as the last three
+rejected closures â stale framing (r53-r62 admitted since); re-derived at the base anyway
+(receipt with the carry-in) and the same move classes stay ruled out for cause: the counted-cohort
+depth resume (L0 tsukuroi|round-53 still unanswered; no wave/dispatch surface on this host), the
+S266 interact falsification probe (L0 tsukuroi|round-57 unanswered; requires a non-read-only
+service config change), the whole-SKILL SHONEN discharge (L0 tsukuroi|round-60 unanswered), the
+2026-11-30 cadence passes and the 2026-12-01 pagefile pass (not due; their gates refuse early
+runs), re-claiming admitted r53-r62 moves, the unchanged considerthese/ set (seven notes, latest
+2026-10-26, re-mined this round â nothing clears the bar), the DQ executable-recheck (only on a
+DQ drift; none named). S278 opened live before the declaration text (the r60-r62 disclosure order).
+Before-counts at base: note rc 128, power vocabulary 0 files, SOURCES 277, spawn_error mentions 0,
+selftest call-sites 7, extended-map text 0 (receipt .ufo/waves/round-63/before/c1-c2-at-base.txt).

@@ -4598,3 +4598,45 @@ adjacency untouched this round).
   (`bcdedit /enum` read-only), SOURCED, with the MSYS boundary re-armed for its forward-slash flags.
   If the lane stays on this host, none of the operator-gated items move; the lane-owned list is the
   round-63 menu.
+
+
+## Round 63 â declaration (2026-11-01, base 74f9846a + carry-in caeccef4, written before any after-measurement)
+
+Carry-ins landed first (LOG 'Round 63 â carry-in'): the D1-D12 precision one-cell repair, the
+junction-layout naming + byte-identity receipt, the spawn-crash before-state re-derived. FRESH-START
+r50/r51/r52 re-spot-checked at the base (receipt .ufo/waves/round-63/before/freshstart-spotcheck.txt:
+r50 FAIL verdicts_ok 0 / marks_ok 0 / seats_ok 18; r51 evidence 0 bytes; r52 FAIL 1/0/16) â the
+rendered prompt's FRESH-START framing names these as the last three closures; rounds 53-62 have since
+been admitted, the framing is stale, and the spot-checks are re-derived anyway with the same move
+classes ruled out (see the LOG declaration entry). S278 was opened live BEFORE this text (fetched
+2026-11-01: verbatim lede, option table, /query syntax, overlay three-arg form, frontmatter ms.date
+2017-10-27). Claims, each causally separable:
+
+- **C1 operability** â tools/receipt-run.py child-spawn failure joins the documented exit map as a
+  RECEIPTED could-not-evaluate (the R62-RECEIPT-RUN-SPAWN-FAIL proper fix, the r62 routed planned
+  item). Before (re-derived at caeccef4, live): bare absent-executable spawn crashes unhandled
+  (FileNotFoundError traceback at CreateProcess), tool exit rc 1 (the map reserves 1 for budget
+  expiry), NO receipt written â .ufo/waves/round-63/before/spawn-crash-repro.txt ends
+  receipt-run-rc=1 and the named receipt is proven absent. After (declared predicate): the same
+  probe exits rc 2 and WRITES a receipt whose header carries rc=spawn-error + spawn_error=1 with the
+  OSError text in the stderr section; run_command returns a spawn sentinel, build_receipt gains the
+  conditional spawn_error=1 line, execute maps the sentinel to 2; the selftest gains a case
+  (spawn-failure-receipted; call-sites 7 -> 8) and prints RECEIPT_RUN_SELFTEST: PASS (8 cases);
+  py_compile rc 0; the SKILL registry row superseded with the extended map (extended text occurs
+  exactly once â the operative round-63 table; historical tables keep their bytes).
+- **C2 depth (lowest tied axis, 8; SOURCED)** â the Windows power-scheme CONFIG read plane,
+  corpus/knowledge/windows-power-config-plane-r63.md rows PW1-PW6, per S278 (Microsoft Learn,
+  powercfg command-line options, opened live this round): PW1 active-scheme identity; PW2 scheme
+  inventory; PW3 available-sleep-states (measured: NO sleep state available on this host, per-state
+  reasons); PW4/PW4b/PW4c the idle-threshold decision table (STANDBYIDLE / HIBERNATEIDLE / DISKIDLE:
+  units Seconds, min 0x0, max 0xffffffff, increment 1, AC/DC indices); PW5/PW5b/PW5c the MSYS
+  slash-flag boundary (/list mangled to a Git-root path rc 1, /a to A:/ rc 1, dash aliases rc 0,
+  MSYS_NO_PATHCONV=1 restores the slash form rc 0); PW6 the alias inventory (33 rows; the page
+  documents the /aliases command but no names). Predicate: rows >= 4, SOURCES 277 -> 278 with S278
+  at id position directly after S277 (NF 13), knowledge-header gate PASS at the work revision, depth
+  ordinal unchanged.
+
+No exploratory claim this round. Two genuine verified claims beat a third manufactured one; the
+r62 planned menu's remaining lane-owned items are cadence-anchored and not due (2026-11-30 services/
+eventlog/task-status/registry passes; 2026-12-01 pagefile note pass; S277 re-open at 180d) or
+conditional on absent triggers (DQ executable recheck), so they are routed, not claimed.
