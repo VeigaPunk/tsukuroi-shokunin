@@ -1,0 +1,75 @@
+round-62 counting battery at work revision f9eee551ab52291ffd5ff77fee3ffc682955c145 (outcome f9eee551)
+captured 2026-11-02T02:17:15Z; declared counting commands + outputs; plumbing reads for committed bytes
+
+== C1 ==
+$ git cat-file -e bcf1af189ae833f7f49c0bd12e5aaeb953f23e7e:corpus/knowledge/windows-pagefile-config-plane-r62.md  (before)
+   rc 128 (before-receipt .ufo/waves/round-62/before/c1-c2-at-base.txt)
+$ grep -c '^| PF' corpus/knowledge/windows-pagefile-config-plane-r62.md  (after)
+6
+   rc=0
+$ grep -c '^| S' <SOURCES at work>
+277
+   rc=0
+$ awk -F'|' 'S276 row NF / S277 row NF / S277 line number'
+  S276 line 285 NF=13
+  S277 line 286 NF=13
+$ git show f9eee551ab52291ffd5ff77fee3ffc682955c145:corpus/SOURCES.md | grep -o '^| S[0-9]*' | sort | uniq -d | wc -l  (duplicate ids)
+0
+$ printf '<S277 lede quote>' | wc -w
+18
+
+== C2 ==
+$ git cat-file -e bcf1af189ae833f7f49c0bd12e5aaeb953f23e7e:tools/check-cited-receipts-r62.py  (before)
+   rc 128 (before-receipt)
+$ python -I tools/check-cited-receipts-r62.py --selftest  (from committed tools copy)
+
+  {
+   "case": "landing-clears",
+   "ok": true
+  },
+  {
+   "case": "bad-rev-cannot",
+   "ok": true
+  }
+ ]
+}
+   rc=0
+$ gate at base --round 61 (before): verdict/cited/findings
+   FAIL 5 3
+$ gate demonstrations from the committed tool (after receipts):
+   cited-receipts-r58-at-c2e32b00-FAIL1.json -> FAIL cited 4 findings 1
+   cited-receipts-r59-at-35c2748f-PASS0-limit.json -> PASS cited 6 findings 0
+   cited-receipts-r61-at-52d9ba1a-FAIL3.json -> FAIL cited 5 findings 3
+   cited-receipts-r61-at-work-PASS0.json -> PASS cited 5 findings 0
+   cited-receipts-r62-at-work.json -> PASS cited 8 findings 0
+
+== gates ==
+$ python tools/check-knowledge-header.py --revision f9eee551ab52291ffd5ff77fee3ffc682955c145
+   PASS 78 0 78
+$ python tools/check-registry-coverage.py --revision f9eee551ab52291ffd5ff77fee3ffc682955c145
+   PASS {'findings': 0, 'missing': 0, 'registered': 99, 'rows_total': 99, 'tools_total': 99}
+$ python -I tools/check-scorecard-unique-sections.py
+check-scorecard-unique-sections: every duplicate level-2 heading pair carries a supersession marker; ok
+   rc=0
+$ receipt selftests
+RECEIPT_RUN_SELFTEST: PASS (7 cases, 7 passed, 0 failed)
+RECEIPT_WRITE_SELFTEST: PASS (5 cases, 5 passed, 0 failed)
+APPEND_RECEIPT_SELFTEST: PASS (5 cases, 5 passed, 0 failed)
+$ python -I -m py_compile tools/check-cited-receipts-r62.py
+   rc=0
+
+== probe receipts (pf1-pf7) ==
+  .ufo/waves/round-62/probes/pf1-usage.txt
+rc=0
+  .ufo/waves/round-62/probes/pf2-setting-empty.txt
+rc=0
+  .ufo/waves/round-62/probes/pf3-automatic-managed.txt
+rc=0
+  .ufo/waves/round-62/probes/pf4-registry-pagingfiles.txt
+rc=0
+  .ufo/waves/round-62/probes/pf5-commit-charge-fields.txt
+rc=0
+  .ufo/waves/round-62/probes/pf6-wmic-absent-via-cmd.txt
+rc=1
+  .ufo/waves/round-62/probes/pf7-bare-spawn-crash-metareceipt.txt
+  (meta-receipt, no rc= line)
