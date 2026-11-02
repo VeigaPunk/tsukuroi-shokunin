@@ -1,0 +1,40 @@
+== receipt-run spawn-crash reproduction (C1 before-state), 2026-11-02T04:17:17Z ==
+-- run: python tools/receipt-run.py --budget 10 --receipt <lane>/pf7r63-repro.txt -- tsukuroi-zz-absent-tool-63 --version --
+Traceback (most recent call last):
+  File "C:\Users\jpvei\.zcode\workspace\95b1ba4d-5089-47a4-9fd8-54adebbce2ae\fleet\tsukuroi-shokunin\tools\receipt-run.py", line 262, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "C:\Users\jpvei\.zcode\workspace\95b1ba4d-5089-47a4-9fd8-54adebbce2ae\fleet\tsukuroi-shokunin\tools\receipt-run.py", line 258, in main
+    return execute(args)
+  File "C:\Users\jpvei\.zcode\workspace\95b1ba4d-5089-47a4-9fd8-54adebbce2ae\fleet\tsukuroi-shokunin\tools\receipt-run.py", line 122, in execute
+    out, err, rc, timed_out = run_command(list(args.command), float(args.budget))
+                              ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jpvei\.zcode\workspace\95b1ba4d-5089-47a4-9fd8-54adebbce2ae\fleet\tsukuroi-shokunin\tools\receipt-run.py", line 68, in run_command
+    proc = subprocess.Popen(
+        argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False
+    )
+  File "C:\Users\jpvei\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jpvei\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1554, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                             # no special security
+                             ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                             cwd,
+                             ^^^^
+                             startupinfo)
+                             ^^^^^^^^^^^^
+FileNotFoundError: [WinError 2] The system cannot find the file specified
+receipt-run-rc=1
+-- receipt file exists? --
+ls: cannot access '.ufo/waves/round-63/before/spawn-crash-repro-receipt-expected-absent.txt': No such file or directory
+RECEIPT ABSENT (the defect: no evidence left behind)

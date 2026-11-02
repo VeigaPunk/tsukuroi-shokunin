@@ -2604,3 +2604,28 @@ demonstrated it running: `cited-receipt-landing-gate`, first-working round 62, e
 receipt + the five demonstration receipts + the two final-tree receipts (all committed). The
 stagnation window (N = 3 rounds without a new capability row) resets with this entry. C1/C2 stand as
 declared; the capability entry adds no axis verdict of its own (operability already carries C2's).
+
+## Round 63 â carry-in (r62 closure routing, addressed first, status-neutral)
+
+Three routed items from the r62 non-author closure, addressed before any claim. (1) Precision note:
+the "D1-D7 drift-register table" wording (r61 defect 3, inherited verbatim by the f47bb0aa README
+repair) names the register's Linux-toolset rows only; the register has held twelve rows D1-D12 since
+its r53 minting â pointer accurate, nothing falsified. The corpus README map Note cell repaired
+again as one disclosed one-cell edit (D1-D12 stated in place of the D1-D7 synecdoche; the file stays
+LF-only, byte count 72210 -> updated). (2) The census object named: the r62 closure's operator note
+("the mirror is a second copy that could drift") is resolved by the junction layout â
+shokunin-clone/shokunin/tsukuroi-shokunin is an NTFS mount point (reparse tag 0xa0000003) whose
+target IS this lane repo, so the census object the script prints (.../shokunin/tsukuroi-shokunin/
+corpus/SOURCES.md) is the lane's own file reached through the junction; byte-identity verified today
+(cmp identical through the junction; worktree == HEAD blob; HEAD blob == mirror file; receipt
+.ufo/waves/round-63/before/junction-byte-identity.txt). The layout is named in the round-63 lesson.
+(3) R62-RECEIPT-RUN-SPAWN-FAIL proper fix â this round's C1; the before-state re-derived live:
+bare absent-executable spawn -> unhandled FileNotFoundError traceback, tool rc 1, NO receipt written
+(repro .ufo/waves/round-63/before/spawn-crash-repro.txt, ends receipt-run-rc=1, the expected receipt
+proven absent). Before-receipts landed with this entry: census start exit 0 (42 W04 duplicate-URL
+warnings, 0 E-code; .ufo/waves/round-63/before/sources-census-start.txt), FRESH-START r50/r51/r52
+re-derivations at base 74f9846a (r50 FAIL 0/0/18, r51 0 bytes, r52 FAIL 1/0/16 â identical to
+the r62 reading; .ufo/waves/round-63/before/freshstart-spotcheck.txt), the junction byte-identity
+receipt, the spawn-crash reproduction, and the C1/C2 at-base before-counts
+(.ufo/waves/round-63/before/c1-c2-at-base.txt: note rc 128, vocabulary sweep 0 files, SOURCES 277,
+spawn-error mentions 0, selftest call-sites 7, extended-map text 0).
