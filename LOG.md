@@ -2559,3 +2559,19 @@ receipts the carry-in landed by hand). S277 opened live before the declaration t
 disclosure order). Before-receipts: census start exit 0 (42 W04, 0 E-code), c1-c2 at-base plumbing
 reads (note rc 128, sweep 0 files, tool rc 128, mentions 0, SOURCES 276, gate --round 61 FAIL 3),
 freshstart receipt. Standing L0s routed around; byte-stable writers kept; no exploratory claim.
+
+## Round 62 — work (2026-11-01)
+
+C1: corpus/knowledge/windows-pagefile-config-plane-r62.md rows PF1-PF6 SOURCED S277 (Win32_PageFileUsage
+opened live, quote 18 words counted before landing) — usage counters in MB, the automatic-management
+triad (AutomaticManagedPagefile TRUE + PageFileSetting EMPTY instance set + PagingFiles REG_MULTI_SZ
+?:\pagefile.sys), commit-charge fields captured under the ADJ-04 boundary, and wmic.exe ABSENT
+(cmd /c refusal receipted; the bare spawn's WinError 2 crash of receipt-run itself captured as the pf7
+meta-receipt — R62-RECEIPT-RUN-SPAWN-FAIL, mined). Seven probe receipts through receipt-run under
+.ufo/waves/round-62/probes/ (pf1-pf7). SOURCES 276 -> 277 (S277 at id position directly after S276,
+11 cells NF 13, pipe-free). C2: tools/check-cited-receipts-r62.py — the round-scoped cited-receipt
+landing gate (ls-tree + one cat-file --batch, index-free, read-only; sibling/directory/ellipsis
+exclusions documented; --selftest 4 cases). SKILL round-62 section + the round62 superseding registry
+table (98 round-61 rows carried verbatim + 1 new row, contiguous). The gate's batch reader first-run
+deadlock (write-all-then-read) self-caught in the scratch draft before any landing — R62-BATCH-DEADLOCK,
+mined. Gates re-run at the work revision after this commit (the outcome cites their receipts).
