@@ -2594,3 +2594,13 @@ adjacency unchanged with the round-62 evidence). Lesson round-62 (Gate S277 quot
 each class - evidence - captured-by - fix, plus the no-further-mistakes sweep). Standing L0s routed
 around; byte-stable appends; the final append-receipt measurement and census-end receipt land with the
 receipts commit. No axis harmed.
+
+## Round 62 — capabilities-table entry (2026-11-01, post-outcome fixup)
+
+C2's instrument is a NEW capability class, not an extension of an existing one (nothing in the lane
+could verify cited-receipt landing before this round — the class was discharged by hand three times),
+so per AXES.md §Capabilities its row enters the SCORECARD capabilities table in the same round that
+demonstrated it running: `cited-receipt-landing-gate`, first-working round 62, evidence = the selftest
+receipt + the five demonstration receipts + the two final-tree receipts (all committed). The
+stagnation window (N = 3 rounds without a new capability row) resets with this entry. C1/C2 stand as
+declared; the capability entry adds no axis verdict of its own (operability already carries C2's).
