@@ -1,0 +1,37 @@
+== C1 after-state: py_compile + selftest + receipted spawn failure (2026-11-02T04:49:42Z) ==
+-- py_compile --
+py_compile-rc=0
+-- selftest (fixed tool) --
+PASS rc0-header-complete
+PASS rc3-streams-verbatim
+PASS timeout-receipt-shape
+PASS argv-quoting
+PASS stream-separation
+PASS live-child-rc0
+PASS live-child-timeout
+PASS spawn-failure-receipted
+RECEIPT_RUN_SELFTEST: PASS (8 cases, 8 passed, 0 failed)
+selftest-rc=0
+-- companion selftests (shared builder importers) --
+RECEIPT_WRITE_SELFTEST: PASS (5 cases, 5 passed, 0 failed)
+receipt-write-rc=0
+APPEND_RECEIPT_SELFTEST: PASS (5 cases, 5 passed, 0 failed)
+append-receipt-rc=0
+-- live absent-executable probe with the FIXED tool (same argv as the before-repro) --
+receipt-run: could-not-evaluate (child-spawn failure); receipt .ufo/waves/round-63/after/spawn-fail-receipted.txt
+receipt-run-rc=2  (expect 2 = could-not-evaluate)
+-- receipt written? --
+-rw-r--r-- 1 jpvei 197609 317 Nov  1 20:50 .ufo/waves/round-63/after/spawn-fail-receipted.txt
+-- receipt header --
+receipt_run=1
+command=tsukuroi-zz-absent-tool-63 --version
+budget_s=10
+start_utc=2026-11-02T04:50:05Z
+end_utc=2026-11-02T04:50:05Z
+duration_s=0.0
+timed_out=0
+rc=spawn-error
+spawn_error=1
+stdout_bytes=0
+stderr_bytes=68
+--- stdout ---

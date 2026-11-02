@@ -10,12 +10,15 @@ Contract
   python tools/receipt-run.py --budget <seconds> --receipt <path> -- <command> [args...]
     Runs the command with subprocess (no shell), kills it when the budget expires, and writes the
     receipt file with verbatim stdout/stderr. Exit map: 0 command completed within budget; 1 budget
-    expired (timed out); 2 could-not-evaluate (usage error, unwritable receipt path). The child's
-    own exit code is recorded in the receipt, not mirrored by this tool.
+    expired (timed out); 2 could-not-evaluate (usage error, unwritable receipt path, and since r63
+    child-spawn failure — an OSError at CreateProcess/spawn writes the receipt with rc=spawn-error
+    and exits 2 instead of crashing, the R62-RECEIPT-RUN-SPAWN-FAIL fix). The child's own exit code
+    is recorded in the receipt, not mirrored by this tool.
 
   python tools/receipt-run.py --selftest
-    Hermetic cases over the injected runner (logic) plus one real sleeping-child timeout (the
-    interpreter running this tool spawns itself; nothing else on the host is required). Prints
+    Hermetic cases over the injected runner (logic) plus real self-spawned children: an rc-0 child,
+    a sleeping-child timeout, and (r63) a nonexistent-child spawn failure — the interpreter running
+    this tool spawns itself; nothing else on the host is required. Prints
     RECEIPT_RUN_SELFTEST: PASS/FAIL (N cases, N passed, N failed) and exits 0/1.
 
 Receipt format (key=value header, then verbatim captured streams):
@@ -26,8 +29,10 @@ Receipt format (key=value header, then verbatim captured streams):
   end_utc=<ISO-8601 Z>
   duration_s=<seconds, one decimal>
   timed_out=0|1
-  rc=<child exit int, or the string timeout when timed_out=1>
+  rc=<child exit int, the string timeout when timed_out=1, or the string spawn-error on a
+      child-spawn failure>
   timeout_after_s=<int, only when timed_out=1>
+  spawn_error=1 (only when the child could not be spawned)
   stdout_bytes=<int>
   stderr_bytes=<int>
   --- stdout ---
@@ -53,6 +58,7 @@ sys.dont_write_bytecode = True
 
 PROG = "receipt-run"
 SELFTEST_TAG = "RECEIPT_RUN_SELFTEST"
+SPAWN_ERROR = "spawn-error"
 HEADER_KEYS = (
     "receipt_run", "command", "budget_s", "start_utc", "end_utc", "duration_s",
     "timed_out", "rc", "stdout_bytes", "stderr_bytes",
@@ -63,11 +69,18 @@ def utcnow() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def run_command(argv: list[str], budget: float) -> tuple[bytes, bytes, int | None, bool]:
-    """Run argv with a budget. Returns (stdout, stderr, rc, timed_out). Injected in the selftest."""
-    proc = subprocess.Popen(
-        argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False
-    )
+def run_command(argv: list[str], budget: float) -> tuple[bytes, bytes, int | str | None, bool]:
+    """Run argv with a budget. Returns (stdout, stderr, rc, timed_out). rc is the SPAWN_ERROR
+    sentinel when the child could not be started (OSError at CreateProcess/spawn — r63: the
+    R62-RECEIPT-RUN-SPAWN-FAIL fix, the failure is receipted, never a traceback). Injected in
+    the selftest."""
+    try:
+        proc = subprocess.Popen(
+            argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False
+        )
+    except OSError as exc:
+        msg = f"spawn-failed: {exc}".encode("utf-8", "replace")
+        return b"", msg, SPAWN_ERROR, False
     try:
         out, err = proc.communicate(timeout=budget)
     except subprocess.TimeoutExpired:
@@ -84,6 +97,7 @@ def run_command(argv: list[str], budget: float) -> tuple[bytes, bytes, int | Non
 def build_receipt(
     argv: list[str], budget: int, start: str, end: str, duration: float,
     out: bytes, err: bytes, rc: int | str, timed_out: bool,
+    spawn_error: bool = False,
 ) -> bytes:
     lines = [
         "receipt_run=1",
@@ -97,6 +111,8 @@ def build_receipt(
     ]
     if timed_out:
         lines.append(f"timeout_after_s={budget}")
+    if spawn_error:
+        lines.append("spawn_error=1")
     lines.append(f"stdout_bytes={len(out)}")
     lines.append(f"stderr_bytes={len(err)}")
     blob = ("\n".join(lines) + "\n").encode("utf-8")
@@ -120,16 +136,20 @@ def execute(args: argparse.Namespace) -> int:
     start = utcnow()
     t0 = time.monotonic()
     out, err, rc, timed_out = run_command(list(args.command), float(args.budget))
+    spawn_failed = rc == SPAWN_ERROR
     duration = time.monotonic() - t0
     end = utcnow()
     blob = build_receipt(
         list(args.command), args.budget, start, end, duration, out, err,
-        "timeout" if timed_out else rc, timed_out,
+        "timeout" if timed_out else rc, timed_out, spawn_error=spawn_failed,
     )
     try:
         write_receipt(args.receipt, blob)
     except OSError as exc:
         print(f"{PROG}: cannot write receipt {args.receipt}: {exc}", file=sys.stderr)
+        return 2
+    if spawn_failed:
+        print(f"{PROG}: could-not-evaluate (child-spawn failure); receipt {args.receipt}")
         return 2
     if timed_out:
         print(f"{PROG}: timed out after {args.budget}s; receipt {args.receipt}")
@@ -233,6 +253,24 @@ def selftest() -> int:
         _check(case, b"PASS early" in blob, True, "partial stdout preserved")
         receipt.unlink(missing_ok=True)
     run_case("live-child-timeout", c7)
+
+    def c8(case: Case):
+        # r63 spawn-failure case (R62-RECEIPT-RUN-SPAWN-FAIL fix): a child that cannot be
+        # started at all — the sentinel comes back, the receipt is written could-not-evaluate,
+        # nothing crashes. FileNotFoundError is raised on every host class (POSIX and Windows).
+        receipt = scratch / "receipt-run-selftest-spawnfail.txt"
+        argv = ["tsukuroi-zz-no-such-executable-r63", "--version"]
+        out, err, rc, timed_out = run_command(argv, 10)
+        blob = build_receipt(argv, 10, utcnow(), utcnow(), 0.1, out, err, rc, timed_out,
+                             spawn_error=(rc == SPAWN_ERROR))
+        write_receipt(str(receipt), blob)
+        _check(case, (rc, timed_out), (SPAWN_ERROR, False), "spawn sentinel, not timeout")
+        _check(case, b"\nrc=spawn-error\n" in blob, True, "rc=spawn-error line")
+        _check(case, b"\nspawn_error=1\n" in blob, True, "spawn_error flag line")
+        _check(case, err.startswith(b"spawn-failed: "), True, "OSError text captured in stderr")
+        _check(case, b"timeout_after_s" in blob, False, "no timeout line on spawn failure")
+        receipt.unlink(missing_ok=True)
+    run_case("spawn-failure-receipted", c8)
 
     passed = sum(1 for c in cases if c.fail is None)
     failed = len(cases) - passed

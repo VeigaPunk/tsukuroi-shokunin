@@ -2650,3 +2650,24 @@ runs), re-claiming admitted r53-r62 moves, the unchanged considerthese/ set (sev
 DQ drift; none named). S278 opened live before the declaration text (the r60-r62 disclosure order).
 Before-counts at base: note rc 128, power vocabulary 0 files, SOURCES 277, spawn_error mentions 0,
 selftest call-sites 7, extended-map text 0 (receipt .ufo/waves/round-63/before/c1-c2-at-base.txt).
+
+## Round 63 â work (2026-11-01)
+
+C1: tools/receipt-run.py child-spawn failure receipted â run_command catches the OSError at the Popen
+boundary and returns the SPAWN_ERROR sentinel; execute maps it to exit 2 and writes the receipt (header
+gains conditional rc=spawn-error + spawn_error=1, OSError text verbatim in the stderr section);
+build_receipt carries the conditional line with default False (shared-builder output for normal runs
+byte-identical to the pre-r63 shape); selftest case 8 spawn-failure-receipted; py_compile rc 0 across
+receipt-run/receipt-write/append-receipt/win-host-census-r53; RECEIPT_RUN_SELFTEST: PASS (8 cases),
+RECEIPT_WRITE_SELFTEST PASS 5/5, APPEND_RECEIPT_SELFTEST PASS 5/5; live after-state
+.ufo/waves/round-63/after/spawn-fail-receipted.txt (exit 2, receipt on disk) beside the before-repro
+.ufo/waves/round-63/before/spawn-crash-repro.txt (rc 1, no receipt); receipt
+.ufo/waves/round-63/after/c1-after-state.txt. C2: corpus/knowledge/windows-power-config-plane-r63.md
+(rows PW1-PW6, LF) + SOURCES S278 inserted at id position directly after S277 (line 287; one-row
+insert, worktree-minus-S278 proven sha256-identical to the HEAD blob) + SKILL round63 superseding
+registry table (99 rows: 98 verbatim + receipt-run-r54 exit-map/self-test/pinned cells updated) and
+the Round 63 SKILL section appended â landed with a strict-prefix proof (HEAD bytes a byte-prefix of
+the new file, +73,188 bytes; an earlier in-place transform of the r62 table was REVERTED before any
+commit when the post-write check showed it had destroyed the r62 section â mined in the round-63
+lesson). Probe receipts pw1-pw6 (plus pw4b/pw4c/pw5b/pw5c legs) under
+.ufo/waves/round-63/probes/.
