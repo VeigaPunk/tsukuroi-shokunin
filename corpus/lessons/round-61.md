@@ -115,3 +115,22 @@ unverified numbers (none: every figure cites a receipt or this lesson's Gate), t
 cross-checked against each note's own row-ids and source-id header lines, and the protected surfaces
 diffed byte-identical to the base (README counted as changed-by-claim C3; PROVINCE, SHONEN, QUALITY,
 AGENTS identical). The three mistakes above are the complete defect set observed this round.
+
+## Correction (appended round 62 — R61-RAW-RECEIPTS-UNLANDED discharge; the landing-class misstatements)
+
+Two statements above assert committed status for files that were worktree-only at the r61 head
+`52d9ba1a` — R61-ARM-FIRST-RUN says "the FAIL receipt is committed under its honest name" and
+R61-SPAWN-VAR-POSITION says "the committed dq1 receipt is the correct-form run". At `52d9ba1a` bytes
+neither was true: the twelve r61 receipts (nine `.ufo/waves/round-61/driver-probes/` dq files and
+three `.ufo/waves/round-61/receipts/` files) landed only in round 62's carry-in commit `ccfa4706`
+(byte-identically, pre-landing hash-object ids in
+`.ufo/waves/round-62/carry-in/r61-raw-receipts-landing-note.md`). From `ccfa4706` on, both statements
+hold of committed bytes; this block is the correction record for the interval in which they did not.
+The class rule (third occurrence of the lane's unlanded-receipt class): count the cited paths before
+writing counts — a receipt count cited in a landed-changes table must equal the number of distinct
+receipt paths the round's committed bytes name, and every one must be landed before the round closes.
+The round-62 gate `tools/check-cited-receipts-r62.py` makes the rule mechanical (round-scoped:
+at `52d9ba1a` --round 61 it FAILs naming exactly the three committed-bytes-named receipts).
+One precision note for R61-SPAWN-VAR-POSITION as now read on committed bytes: the dq1 receipt at
+`ccfa4706` is the corrected-form run (rc 0, 412 lines); the wrong-form first spawn left no committed
+trace — the statement stands with "committed" true only from `ccfa4706` onward.

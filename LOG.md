@@ -2528,3 +2528,17 @@ carry-in's note + LOG). The r61 DQ rows' 2026-11-30 recheck duty now has its com
 base; the two landing-class misstatements the closure named in the r61 lesson/SCORECARD ("the FAIL
 receipt is committed...", "the committed dq1 receipt is...") become true on bytes from this commit,
 and correction blocks are appended to both records in the following commit.
+
+## Round 62 — carry-in part 2: correction blocks + the r53 map-row precision fix (2026-11-01)
+
+The r61 closure's defects 2 and 3. (2) The landing-class misstatements — the r61 lesson's
+R61-ARM-FIRST-RUN ("the FAIL receipt is committed under its honest name") and R61-SPAWN-VAR-POSITION
+("the committed dq1 receipt is the correct-form run") and the SCORECARD's committed-status assertions
+— were false on the `52d9ba1a` bytes and are discharged by the carry-in landing at `ccfa4706`;
+correction blocks appended to both records naming the interval in which the statements were false and
+restating the class rule (count cited paths before writing counts). (3) The r53 coverage-map row's
+Note column named only `knowledge/windows-host-plane-r53.md` while its Holds column describes the
+D1-D7 drift register that lives in the sibling note `knowledge/host-transition-drift-r53.md`
+(cross-referenced twice from the named note, pointer resolved only indirectly); the row's first cell
+now names the sibling note — a disclosed one-cell repair to corpus/README.md (intentional byte change
+to two cells, logged here), not an append. The r61 receipt-count rule stays binding.

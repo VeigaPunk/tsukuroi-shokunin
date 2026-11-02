@@ -4457,3 +4457,22 @@ adjacency untouched this round).
   memory PRESSURE evidence stays mori's (ADJ-04), the config surface is this lane's; S276 re-open at
   180d or on upstream change.
 - **retired:** none.
+
+## Round 62 — correction block: the r61 landing-class receipt statements (R61-RAW-RECEIPTS-UNLANDED discharge)
+
+The round-61 rows above (C2 declaration verdict condition "the pass receipts with `due=2026-11-30`
+committed under `.ufo/waves/round-61/receipts/`"; C2 outcome "FAIL receipt kept under its honest
+name `recheck-registry-FIRST-RUN-FAIL-at-authoring.txt`"; axes-table operability cell "committed
+receipts carrying `due=2026-11-30` ... the first-run FAIL receipt kept") asserted committed status
+for files that were worktree-only at the r61 head `52d9ba1a` — the r61 closure's defect 1
+(R61-RAW-RECEIPTS-UNLANDED, the lane's unlanded-receipt class, third occurrence) and defect 2 (the
+landing-class misstatements). Discharged in round 62's carry-in commit `ccfa4706`: all twelve cited
+receipts (nine `driver-probes/` dq files + three `receipts/` files) landed byte-identically under
+their honest names, nothing substituted; from `ccfa4706` on every statement above holds of committed
+bytes and the C2 verdict condition's receipts clause is satisfied. Class rule restated at the
+landing: count the cited paths before writing counts — a receipt count cited in a landed-changes
+table must equal the number of distinct receipt paths the round's committed bytes name, and every
+one must be landed before the round closes. Made mechanical by the round-62 gate
+`tools/check-cited-receipts-r62.py` (at `52d9ba1a` --round 61: FAIL naming exactly the three
+committed-bytes-named receipts; at the round-62 final tree: PASS). No measurement above changed:
+the r61 values were independently re-derived live by the non-author judge from the instruments.
