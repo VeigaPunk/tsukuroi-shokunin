@@ -4640,3 +4640,62 @@ No exploratory claim this round. Two genuine verified claims beat a third manufa
 r62 planned menu's remaining lane-owned items are cadence-anchored and not due (2026-11-30 services/
 eventlog/task-status/registry passes; 2026-12-01 pagefile note pass; S277 re-open at 180d) or
 conditional on absent triggers (DQ executable recheck), so they are routed, not claimed.
+
+
+## Round 63 — measured outcome (2026-11-01, author-side; non-author closure pending)
+
+Measured at the work tree `82f0e1a9` (declaration `cdfd8b8c`; counting battery
+`.ufo/waves/round-63/after/c1-c2-counts-at-work.txt`, plumbing reads of the revision — the worktree
+view is untrusted on this host, r56/r57 lesson). Gates at the work revision: knowledge-header PASS
+**79 notes / 0 findings / 79 complete** (JSON `.ufo/waves/round-63/after/knowledge-header-at-work.json`,
+revision-pinned `82f0e1a9`, the new note listed with no problems); registry-coverage PASS **99 tools /
+99 rows / 0 findings** (JSON `.ufo/waves/round-63/after/registry-coverage-at-work.json`); SCORECARD
+uniqueness ok rc 0; `RECEIPT_RUN_SELFTEST: PASS (8 cases, 8 passed, 0 failed)`,
+`RECEIPT_WRITE_SELFTEST: PASS (5 cases)`, `APPEND_RECEIPT_SELFTEST: PASS (5 cases)` unchanged;
+`python -m py_compile` rc 0 across receipt-run/receipt-write/append-receipt/win-host-census-r53; the
+SKILL append proven append-only (HEAD bytes a strict byte-prefix of the new file, +73,188 bytes).
+
+| Claim | Before —> after (measured) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 operability (the R62-RECEIPT-RUN-SPAWN-FAIL routed fix) | before at `82f0e1a9^` (live repro `.ufo/waves/round-63/before/spawn-crash-repro.txt`; at-base receipt `.ufo/waves/round-63/before/c1-c2-at-base.txt`): bare absent-executable spawn —> unhandled `FileNotFoundError: [WinError 2]` traceback at CreateProcess, tool exit **rc 1** (the map reserves 1 for budget expiry), **NO receipt written** (the named receipt proven absent); `spawn_error` mentions in the tool **0**, selftest call-sites **7**, extended-map text in SKILL **0**. After at `82f0e1a9`: the same probe exits **rc 2** (could-not-evaluate) and WRITES the receipt — header `rc=spawn-error` + `spawn_error=1`, OSError text verbatim in the stderr section (`.ufo/waves/round-63/after/spawn-fail-receipted.txt`, 317 bytes; run receipt `.ufo/waves/round-63/after/c1-after-state.txt`); `RECEIPT_RUN_SELFTEST: PASS (8 cases)` with the new `spawn-failure-receipted` case (call-sites 8); extended-map text exactly **1** occurrence in SKILL.md (the operative round-63 table; the 98 other rows and all historical tables byte-identical) | **PASS measured** | operability unchanged (9, saturated) — the instrument's documented map now covers its observed failure mode; a spawn failure leaves evidence behind |
+| C2 depth (lowest tied, 8; SOURCED — S278 opened live 2026-11-01 before the declaration text, disclosed there) | before at `82f0e1a9^`: note cat-file rc **128**; power vocabulary sweep `powercfg|STANDBYIDLE|SCHEME_CURRENT` over `corpus SKILL.md PROVINCE.md tools` **0 files** (rc 1); SOURCES **277**. After at `82f0e1a9`: note `^| PW` row count — **6**; SOURCES 277 —> **278**, S278 at line 287 directly after S277 (286), NF 13, 0 malformed rows, 0 duplicate ids, the insert proven one-row (worktree-minus-S278 sha256 == HEAD blob); the Gate quote `wc -w` — **17 (≤ 25); knowledge-header gate PASS **79/0/79**. Measured signatures (receipts pw1-pw6 via receipt-run): `-getactivescheme` rc 0 (Ultimate Performance, GUID drift-class); `-list` rc 0, 4 schemes + the blank-first-line output shape; `-a` rc 0, 806 bytes, **zero available sleep states** with per-state reason lines; STANDBYIDLE AC `0x00000000` / DC `0x00000258` (=600 s), HIBERNATEIDLE and DISKIDLE AC/DC `0x00000000`, each `Possible Settings units: Seconds`, min `0x0` / max `0xffffffff` / increment `0x1`; the MSYS boundary: bare `/list` arrived as `C:/Program Files/Git/list` rc 1 and bare `/a` as `A:/` rc 1 (the mangled argv visible in the receipts' own `command=` lines; 41-byte `Invalid Parameters -- try "/?" for help` refusal), dash aliases rc 0, `MSYS_NO_PATHCONV=1` restores the slash form rc 0 (806 bytes, shape identical to the dash run); `-aliases` **33** rows (names host-enumerated; the page documents none) | **PASS measured** | depth unchanged (8) — the move is the sourced entry, not the ordinal |
+
+Declared-command notes: both claims' counting commands ran at the work revision on the channels they
+name (the battery receipt) — no declared-command FAIL state this round. Carry-ins landed (routed, not
+claims): the D1-D12 precision one-cell repair, the junction byte-identity receipt, and the spawn-crash
+before-state at `caeccef4`. Three mistakes mined this round (R63-SCRIPT-REWRITE-BLOCK — the SKILL
+in-place transform that destroyed the r62 section, reverted before any commit; R63-NONIDEMPOTENT-LANDER
+— the doubled S278 insert, removed and proven against HEAD; R63-COUNT-PATTERN-SLOP — over-matching
+count patterns, re-taken with exact ones); no-further-mistakes sweep in the lesson. No exploratory
+claim this round.
+
+## Axes — current self-assessment (round 63 final measured surface)
+
+Restated 2026-11-01 at the round-63 work tree (counts re-derived with each cell's command; ordinals
+unchanged — operability/freshness/calibration/coverage saturated, depth's move is the sourced entry,
+adjacency untouched this round).
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 79 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); the sourced power-scheme plane PW1-PW6 landed round 63 (S278 current, opened live); GR1-GR3 of the scrub entry remain pending behind the operator-gated cohort resume; no ordinal move. | round 4; round-63 entry added, ordinal unchanged |
+| coverage | 9 | the corpus README Coverage map carries the Windows-host transition rows through r62 (9 rows; `grep -c 'knowledge/windows-' corpus/README.md` —> 9) plus the round-63 precision repair of the r53 map row's Note cell (D1-D12 stated); PROVINCE Core, Frontier and Adjacent sections unchanged (no round-63 writes). | round 11; round-63 map-row precision repair, ordinal unchanged |
+| operability | 9 | `python tools/receipt-run.py --selftest` —> PASS 8/8 (the spawn-failure map leg, r63); the live absent-executable probe exits 2 WITH a receipt (`.ufo/waves/round-63/after/spawn-fail-receipted.txt`) where the pre-fix instrument exited 1 with none; `python tools/receipt-write.py --selftest` PASS 5/5; `python tools/append-receipt.py --selftest` PASS 5/5; `python tools/check-cited-receipts-r62.py --selftest` PASS 4/4; `py_compile` rc 0; registry-coverage 99/99/0; knowledge-header 79/0/79. | round 11; round-63 receipt-run spawn-map leg added, ordinal unchanged |
+| freshness | 9 | S278 opened live this round; the new power note carries its own 180d cadence (day 0 2026-11-01, due 2027-04-30); the planes' cadence pass (services T, eventlog E, task-status J, registry R) still due 2026-11-30 (not due today), the pagefile note's due 2026-12-01, the drift register's 30d pass due 2026-11-30; the census mirror byte-identity receipted at round start (the junction layout named); sources census exit 0 at round start (42 W04, 0 E-code) and at round end (receipt with the final commit). | fleet round 1; round-63 power cadence + junction byte-identity receipt added, ordinal unchanged |
+| calibration | 9 | the axes table restated to counts recomputed on this host; SCORECARD uniqueness gate ok; three mistakes self-caught and mined with evidence (R63-SCRIPT-REWRITE-BLOCK — caught by the script's own post-write check before any commit; R63-NONIDEMPOTENT-LANDER — caught by the immediate duplicate grep; R63-COUNT-PATTERN-SLOP — caught by expect-comment mismatch in the before-receipt), none after an outcome cited them; the destroyed-and-restored SKILL near-miss is disclosed in the lesson, not smoothed. | round 10; round-63 three-catch set added, ordinal unchanged |
+| adjacency | 8 | formal overlap table present; no sibling surface touched; the power note restates the ADJ-04 discipline in its scope paragraph (config reads only; attribution stays with its owners); the `powercfg` plane names no sibling surface; contested kaidoku/revenger ownership remains unruled (carried, routed around). | fleet round 1; round-63 ADJ-04 restatement in the new note, ordinal unchanged |
+
+
+- **planned (next round):** operator-gated first — the L0 wave-dispatch question (`tsukuroi | round-53`)
+  still decides the r52 counted-cohort depth resume, the L0 `tsukuroi | round-57` decides the S266
+  `type= interact` falsification probe, and `tsukuroi | round-60` decides whether the hyaku closure
+  judge's spot-checks may discharge the whole-SKILL SHONEN boxes. Lane-owned, not gated: (1) the
+  2026-11-30 cadence pass (services T-rows, eventlog E-rows, task-status J-rows, registry R-rows, the
+  drift register's 30d pass) and the pagefile note's own 2026-12-01 pass, each through their due
+  anchors; (2) the DQ plane joins the executable-recheck discipline only if a DQ-probe drift fires (the
+  r59 planned-item pattern); (3) S277 re-open at 180d (due 2027-04-30, the same day as the power
+  note's pass); (4) S278 re-open at 180d or on upstream change; (5) candidate next plane: the
+  boot-configuration store (`bcdedit /enum` read-only — likely elevation-gated, which would first
+  make it an L0 authorization question) or the Windows Update session plane via read/COM registry legs,
+  SOURCED, with the MSYS boundary re-armed per the r63 measured signatures (dash aliases or
+  MSYS_NO_PATHCONV=1). If the lane stays on this host, none of the operator-gated items move; the
+  lane-owned list is the round-64 menu.

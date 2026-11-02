@@ -2671,3 +2671,19 @@ the new file, +73,188 bytes; an earlier in-place transform of the r62 table was 
 commit when the post-write check showed it had destroyed the r62 section â mined in the round-63
 lesson). Probe receipts pw1-pw6 (plus pw4b/pw4c/pw5b/pw5c legs) under
 .ufo/waves/round-63/probes/.
+
+## Round 63 — measured outcome (2026-11-01)
+
+C1/C2 PASS measured at work `82f0e1a9` (battery `.ufo/waves/round-63/after/c1-c2-counts-at-work.txt`):
+C1 â before bare-spawn rc 1 NO receipt / after rc 2 WITH receipt (rc=spawn-error + spawn_error=1 +
+OSError text; `.ufo/waves/round-63/after/spawn-fail-receipted.txt`), selftest 7â8 cases PASS,
+extended-map text exactly 1 in SKILL; C2 â note rc 128â6 PW rows, SOURCES 277â278 (S278 at
+id position line 287, NF 13, insert proven one-row against HEAD), quote 17 words, knowledge-header
+79/0/79, registry-coverage 99/99/0, SCORECARD uniqueness ok; power-plane signatures: zero available
+sleep states, STANDBYIDLE AC 0x0/DC 0x258=600 s, HIBERNATEIDLE/DISKIDLE 0x0, the MSYS boundary
+(`/list`â`C:/Program Files/Git/list` rc 1, `/a`â`A:/` rc 1, dash aliases rc 0,
+MSYS_NO_PATHCONV=1 restores rc 0), 33 alias rows. Axes restated, ordinals unchanged; lesson round-63
+(three mistakes incl. the reverted SKILL rewrite-block near-miss, the Gate with S278 quote + explicit
+0 rejections); planned items restated for r64. Record appends binary-mode byte-stable; the final
+append-receipt measurement (base `74f9846a` — final tree; README's disclosed one-cell repair
+expected old-only 1/new-only 1) lands in the receipts commit (receipt-after-subject ordering).
