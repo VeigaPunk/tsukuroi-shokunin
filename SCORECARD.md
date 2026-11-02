@@ -4535,3 +4535,65 @@ header gate); C2 verifies without C1 (tool + selftest + final-tree passes + regi
 exploratory claim this round. Declared counting commands are each RUN before the outcome commit
 cites them (the R58/R59 declared-command rule); the SKILL round-62 section documents both moves
 (round documentation, not claim content); the battery receipt lands with the outcome.
+
+## Round 62 — measured outcome (2026-11-01, author-side; non-author closure pending)
+
+Measured at the work tree `f3f64812` (work after declaration `e50973da`; counting battery
+`.ufo/waves/round-62/after/c1-c2-counts-at-work.txt`; before-counts at base
+`.ufo/waves/round-62/before/c1-c2-at-base.txt`, plumbing reads of `bcf1af18` — the worktree view is
+untrusted on this host, r56/r57 lesson). Gates at the work revision: registry-coverage **99 tools /
+99 rows / 0 findings** PASS and knowledge-header **78 notes / 0 findings / 78 complete** PASS (JSON
+receipts under `.ufo/waves/round-62/after/`); SCORECARD uniqueness ok rc 0;
+`RECEIPT_RUN_SELFTEST: PASS (7 cases)`, `RECEIPT_WRITE_SELFTEST: PASS (5 cases)` and
+`APPEND_RECEIPT_SELFTEST: PASS (5 cases)` unchanged; the new gate's `--selftest` PASS 4 cases rc 0;
+`python -m py_compile tools/check-cited-receipts-r62.py` rc 0. The class demonstrations re-run from
+the committed tool (receipts `.ufo/waves/round-62/after/`): `--round 61` at `52d9ba1a` FAIL 3,
+`--round 58` at `c2e32b00` FAIL 1, `--round 59` at `35c2748f` PASS 0 (the named limit), `--round 61`
+and `--round 62` at this round's trees PASS 0. The final append-receipt measurement (base `bcf1af18`
+→ final tree, five record files; README's disclosed one-cell repair expected as old-only 1 /
+new-only 1) lands as a receipt in the immediately-following commit (receipt-after-subject ordering,
+the tameshi r63 precedent).
+
+| Claim | Before → after (measured) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 depth (lowest tied, 8; SOURCED — S277 opened live 2026-11-01 before the declaration text, disclosed there) | before at `bcf1af18`: note cat-file rc **128**; vocabulary sweep `pagefile|PageFileUsage|AutomaticManagedPagefile` **0 files** (`git grep -c -iE` rc 1); SOURCES **276**. After at `f3f64812`: `grep -c '^| PF' <note>` → **6**; SOURCES 276 → **277**, 0 duplicate ids, S277 at line 286 directly after S276 (line 285), 11 cells (NF 13 = S275's NF, awk-verified before the work commit); the Gate quote recounted `wc -w` → **18**; knowledge-header gate PASS **78/0/78**. Measured signatures (receipts pf1-pf7 via receipt-run): `Get-CimInstance Win32_PageFileUsage` rc 0, exactly ONE instance — `Name : C:\pagefile.sys`, `AllocatedBaseSize : 18035`, `CurrentUsage : 4570`, `PeakUsage : 5287` (MB per S277's units, values drift-class); `Get-CimInstance Win32_PageFileSetting` rc 0 with an EMPTY instance set (the system-managed indicator S277 does not document); `(Get-CimInstance Win32_ComputerSystem).AutomaticManagedPagefile` → `True` rc 0; `reg query ...Memory Management /v PagingFiles` rc 0, `REG_MULTI_SZ` data `?:\pagefile.sys` (the system-managed wildcard, no explicit sizes); `Get-CimInstance Win32_OperatingSystem` rc 0, TotalVirtualMemorySize 35161444 / FreeVirtualMemory 1710148 KB at capture (drift-class, ADJ-04-bounded — attribution is mori's, recorded never judged); `wmic pagefile list /format:list` — bare spawn WinError 2 (wmic.exe ABSENT; the receipt-run crash captured as the pf7 meta-receipt, R62-RECEIPT-RUN-SPAWN-FAIL), the `cmd /c` wrapper receipts the refusal `'wmic' is not recognized...` rc 1 | **PASS measured** | depth unchanged (8) — the move is the sourced entry, not the ordinal |
+| C2 operability | before at `bcf1af18`: tool cat-file rc **128**; `CHECK_CITED_RECEIPTS` mentions **0**; and the class itself: the gate at THIS base `--round 61` → verdict **FAIL, findings 3** naming exactly the three committed-bytes-named r61 receipts (`.ufo/waves/round-62/before/cited-receipts-at-base-round61.json`) — the defect the carry-in landed by hand at `ccfa4706`, re-derived mechanically. After at `f3f64812`: `python tools/check-cited-receipts-r62.py --selftest` → JSON `selftest PASS` 4 cases rc 0; `--round 61` at the work tree → **PASS, 0 findings** (5 cited paths — the discharged state); `--round 62` at the work tree → **PASS, 0 findings** (8 cited paths — this round's receipts landed with the work commit); the historical demonstrations from the committed tool: `52d9ba1a` `--round 61` → FAIL **3** (the exact three receipt paths), `c2e32b00` `--round 58` → FAIL **1** (`sources-census-start.txt`), `35c2748f` `--round 59` → PASS **0** (the r59 occurrence was scratch-retained and never cited by a resolvable path — the gate's named limit, stated in the docstring and the lesson); registry-coverage gate **99/99/0** at the work revision (the new row contiguous after 98 carried rows) | **PASS measured** | operability unchanged (9, saturated) — the r59 count rule became an executable gate (the class's cited-and-unlanded half is now caught mechanically before closure) |
+
+Declared-command notes: both claims' counting commands ran at the work revision on the channels
+they name (the battery receipt) — no declared-command FAIL state this round. Repairs landed (routed
+carry-ins, not claims): R61-RAW-RECEIPTS-UNLANDED at `ccfa4706` and the landing-class correction
+blocks + r53 map-row sibling pointer at `f47bb0aa`. Three mistakes mined this round
+(R62-RECEIPT-RUN-SPAWN-FAIL, R62-BATCH-DEADLOCK, R62-RECEIPT-RUN-TMP-PATH — all
+captured-by/evidence/fix in the lesson); the receipt-run spawn-map proper fix is the round-63
+planned item. No exploratory claim this round.
+
+## Axes — current self-assessment (round 62 final measured surface)
+
+Restated 2026-11-01 at the round-62 final tree (counts re-derived with each cell's command; ordinals
+unchanged — operability/freshness/calibration/coverage saturated, depth's move is the sourced entry,
+adjacency untouched this round).
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 78 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' | wc -l`); the sourced pagefile-config plane PF1-PF6 landed round 62 (S277 current, opened live); GR1-GR3 of the scrub entry remain pending behind the operator-gated cohort resume; no ordinal move. | round 4; round-62 entry added, ordinal unchanged |
+| coverage | 9 | the corpus README Coverage map carries the Windows-host transition rows through r61 (9 rows; `grep -c 'knowledge/windows-' corpus/README.md` → 9); the r53 map row's Note cell now names the sibling drift note (the r61 closure's defect 3, repaired `f47bb0aa`); PROVINCE Core, Frontier and Adjacent sections unchanged (blob-identical to base). | round 11; round-62 map-row repair, ordinal unchanged |
+| operability | 9 | `python tools/check-cited-receipts-r62.py --selftest` → PASS 4 cases rc 0; the gate re-derives the class at `52d9ba1a` (FAIL 3) and passes at this round's trees (`--round 61` and `--round 62` PASS 0); `python tools/receipt-run.py --selftest` PASS 7/7; `python tools/receipt-write.py --selftest` PASS 5/5; `python tools/append-receipt.py --selftest` PASS 5/5; `py_compile` rc 0; registry-coverage 99/99/0; knowledge-header 78/0/78. | round 11; round-62 cited-receipts gate added, ordinal unchanged |
+| freshness | 9 | S277 opened live this round; the new pagefile note carries its own 30d cadence (day 0 2026-11-01, due 2026-12-01); the three planes' cadence pass (services T, eventlog E, task-status J, registry R) still due 2026-11-30 (the r60/r61 receipts' `due=` anchors — not due today); the DQ rows' 2026-11-30 pass now has its committed comparison base (the carry-in's twelve receipts); sources census exit 0 at round start (42 W04, 0 E-code) and at round end (receipt with the final commit). | fleet round 1; round-62 pagefile cadence + committed DQ base added, ordinal unchanged |
+| calibration | 9 | the axes table restated to counts recomputed on this host; SCORECARD uniqueness gate ok; three mistakes self-caught and mined with evidence (R62-RECEIPT-RUN-SPAWN-FAIL — pf7 meta-receipt; R62-BATCH-DEADLOCK — scratch-draft timeout before landing; R62-RECEIPT-RUN-TMP-PATH — the failed immediate read), none after an outcome cited them; the gate's honest reach stated (the r59 scratch-retained occurrence named as invisible to it); `python tools/check-self-assessment.py` cannot evaluate here (K13, named limit). | round 10; round-62 three-catch set added, ordinal unchanged |
+| adjacency | 8 | formal overlap table present; no sibling scope touched; the pagefile plane stays inside the lane's own host-operability province with the ADJ-04 boundary WRITTEN INTO the note (pressure attribution is mori's; PF5's counters are captures, never judged); `wmic` absence and the CIM legs name no sibling surface; contested kaidoku/revenger ownership remains unruled (carried, routed around). | fleet round 1; round-62 ADJ-04 boundary restated in the new note, ordinal unchanged |
+
+
+- **planned (next round):** operator-gated first — the L0 wave-dispatch question (`tsukuroi | round-53`)
+  still decides the r52 counted-cohort depth resume, the L0 `tsukuroi | round-57` decides the S266
+  `type= interact` falsification probe, and `tsukuroi | round-60` decides whether the hyaku closure
+  judge's spot-checks may discharge the whole-SKILL SHONEN boxes. Lane-owned, not gated: (1) the
+  R62-RECEIPT-RUN-SPAWN-FAIL proper fix — receipt-run catches child-spawn failure into its documented
+  exit map (receipted could-not-evaluate, no traceback) plus the selftest case; (2) the 2026-11-30
+  cadence pass (services T-rows, eventlog E-rows, task-status J-rows, registry R-rows) and the
+  pagefile note's own 2026-12-01 pass, each through their `--due` anchors; (3) the DQ plane joins the
+  executable-recheck discipline only if a DQ-probe drift fires (the r59 planned-item pattern); (4)
+  S277 re-open at 180d or on upstream change; (5) candidate next plane: a Windows power/battery
+  CONFIG read (`powercfg /q` scheme/substring read-only legs) or the boot-configuration store
+  (`bcdedit /enum` read-only), SOURCED, with the MSYS boundary re-armed for its forward-slash flags.
+  If the lane stays on this host, none of the operator-gated items move; the lane-owned list is the
+  round-63 menu.

@@ -2575,3 +2575,22 @@ exclusions documented; --selftest 4 cases). SKILL round-62 section + the round62
 table (98 round-61 rows carried verbatim + 1 new row, contiguous). The gate's batch reader first-run
 deadlock (write-all-then-read) self-caught in the scratch draft before any landing — R62-BATCH-DEADLOCK,
 mined. Gates re-run at the work revision after this commit (the outcome cites their receipts).
+
+## Round 62 — measured outcome (2026-11-01)
+
+C1/C2 PASS measured at work f3f64812. C1: PF rows 6, SOURCES 276 -> 277 (S277 at id position line 286,
+quote 18 words, 0 duplicate ids), knowledge-header 78/0/78; the config story measured — one
+Win32_PageFileUsage instance (C:\pagefile.sys, 18035/4570/5287 MB), PageFileSetting EMPTY under
+AutomaticManagedPagefile True, PagingFiles REG_MULTI_SZ ?:\pagefile.sys, commit-charge fields captured
+ADJ-04-bounded, wmic.exe ABSENT with the cmd /c refusal receipted (pf7 meta-receipt for the
+receipt-run spawn crash). C2: the cited-receipts gate selftest 4/4 rc 0; at base --round 61 FAIL 3
+(the carry-in's defect re-derived mechanically); at work --round 61 and --round 62 PASS 0; from the
+committed tool: 52d9ba1a --round 61 FAIL 3, c2e32b00 --round 58 FAIL 1, 35c2748f --round 59 PASS 0
+(the scratch-retained r59 occurrence named as the gate's limit); registry-coverage 99/99/0; SCORECARD
+uniqueness ok; receipt selftests 7/7 5/5 5/5. Axes restated, ordinals unchanged (depth 8 — the move is
+the sourced entry; operability 9 saturated — the gate is the move; freshness/calibration/coverage/
+adjacency unchanged with the round-62 evidence). Lesson round-62 (Gate S277 quote 18 words + explicit
+0 rejections + 3 mistakes: R62-RECEIPT-RUN-SPAWN-FAIL, R62-BATCH-DEADLOCK, R62-RECEIPT-RUN-TMP-PATH,
+each class - evidence - captured-by - fix, plus the no-further-mistakes sweep). Standing L0s routed
+around; byte-stable appends; the final append-receipt measurement and census-end receipt land with the
+receipts commit. No axis harmed.
