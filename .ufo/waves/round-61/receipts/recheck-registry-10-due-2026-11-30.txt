@@ -1,0 +1,18 @@
+recheck_registry_r61=1
+date_utc=2026-11-01T22:14:35Z
+rows=10
+matched=10
+drift=0
+due=2026-11-30
+---
+R1 match (named-value rc 0, exactly one ProductName/REG_SZ entry line — data column drift-class)
+R2 match (missing-key absence rc 1 with exactly one ERROR line — the single-message class)
+R2b match (missing-value absence rc 1 with the SAME single message — rg2b class)
+R3 match (bounded /s recursion rc 0, 8 entry lines — count drift-class)
+R4 match (type census rc 0, 5 distinct types all inside the documented-superset — counts drift-class, r60 captured 5)
+R4b match (Winlogon named-value rc 0 with a REG_QWORD type cell — value drift-class)
+R4c match (/t REG_QWORD accepted rc 0 with an End-of-search line — the documented set is the stale side)
+R5a match (bare /v mangled at the bash->python boundary: receipt rc 1 + 'ERROR: Invalid syntax.' — the mangled argv is in the receipt, judged rc+message only)
+R5b match (forward-slash key refused rc 1 + 'ERROR: Invalid key name.')
+R5c match (/ve rc 0 with the (Default) line — the literal sentinel text, value drift-class)
+RECHECK_REGISTRY: PASS (10 rows, 10 match, 0 drift)

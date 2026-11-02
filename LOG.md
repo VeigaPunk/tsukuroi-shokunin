@@ -2510,3 +2510,21 @@ axis harmed — depth gained the sourced driver-query entry (8), operability the
 saturated), coverage the map rows (9, saturated), freshness the new cadence + live source (9,
 saturated), calibration the honest first-run FAIL + two pre-landing self-catches (9, saturated),
 adjacency untouched (8). Trend verdicts in the round report.
+
+## Round 62 — carry-in: R61-RAW-RECEIPTS-UNLANDED discharged (2026-11-01, first obligation, before any claim)
+
+The r61 closure's defect 1: twelve cited receipt files were worktree-only at `52d9ba1a` — the nine
+`.ufo/waves/round-61/driver-probes/` dq receipts (dq1-dq5c) and the three `.ufo/waves/round-61/receipts/`
+run receipts (due pass, no-due shape pass, FIRST-RUN-FAIL-at-authoring) — the lane's unlanded-receipt
+class, third occurrence. All twelve landed byte-identically under their honest names in one commit
+(pre-landing `git hash-object` ids recorded in
+`.ufo/waves/round-62/carry-in/r61-raw-receipts-landing-note.md`; treecommit reads disk bytes, so
+landed = worktree bytes; nothing substituted). Class rule restated at the landing (the r59 rule):
+count the cited paths before writing counts — a receipt count cited in a landed-changes table must
+equal the number of distinct receipt paths the round's committed bytes name, and every one of them
+must be landed before the round closes. Post-landing verification: per-path `git cat-file -e
+<commit>:<path>` rc 0 x12 plus `git diff <base>..<commit> --stat` = 14 files (12 receipts + this
+carry-in's note + LOG). The r61 DQ rows' 2026-11-30 recheck duty now has its committed comparison
+base; the two landing-class misstatements the closure named in the r61 lesson/SCORECARD ("the FAIL
+receipt is committed...", "the committed dq1 receipt is...") become true on bytes from this commit,
+and correction blocks are appended to both records in the following commit.
