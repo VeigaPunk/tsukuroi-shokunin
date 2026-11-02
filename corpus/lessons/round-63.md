@@ -144,3 +144,20 @@ protected surfaces confirmed untouched (PROVINCE, SHONEN, AGENTS, QUALITY — no
 and the receipt-run diff re-read line by line against the declaration's after-predicate (sentinel,
 exit 2, conditional header lines, selftest case). The three mistakes above are the complete defect set
 observed this round.
+
+
+## Correction (appended round 63, receipts stage — the cited-receipts gate's named limit for this round)
+
+The gate run `--revision 896e3c8b --round 63` returned FAIL with 13 findings: 12 were the receipts and
+probe files this stage lands (the two work-revision gate JSONs, the pw1-pw6 + pw4b/pw4c/pw5b/pw5c probe
+receipts — the work commit carried the tool/note/SOURCES/SKILL/LOG only; `treecommit.py` does not
+expand a directory path, so the `probes` directory argument silently landed nothing and the receipts
+stage commits the probe files explicitly), and ONE is permanent and named: the path
+`.ufo/waves/round-63/before/spawn-crash-repro-receipt-expected-absent.txt` is flagged
+CITED-RECEIPT-MISSING forever, because the only place that path occurs is inside the committed
+before-receipt `spawn-crash-repro.txt` itself — its `ls` error line is the PROOF that the receipt
+was not written (the C1 before-state). A path-existence gate cannot express "cited as proven-absent";
+this is the r59 scratch-retained limit class again, in the opposite direction: here the gate sees TOO
+MUCH, flagging the absence-evidence as a missing receipt. The finding is disclosed, expected, and not
+a defect in the before-state; the post-receipts-tree gate run lands as the fixup receipt with exactly
+this one finding.

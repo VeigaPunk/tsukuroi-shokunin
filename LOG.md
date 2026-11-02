@@ -2687,3 +2687,19 @@ MSYS_NO_PATHCONV=1 restores rc 0), 33 alias rows. Axes restated, ordinals unchan
 0 rejections); planned items restated for r64. Record appends binary-mode byte-stable; the final
 append-receipt measurement (base `74f9846a` — final tree; README's disclosed one-cell repair
 expected old-only 1/new-only 1) lands in the receipts commit (receipt-after-subject ordering).
+
+## Round 63 — receipts (2026-11-01, receipt-after-subject)
+
+Census END exit 0 (42 W04, 0 E-code; `after/append-receipts-final-five-files.txt` carries it beside the
+measurement). Final append-receipt measurement base `74f9846a` → `896e3c8b` (the outcome tree):
+LOG/SKILL pure appends old_only 0/0 prefix_ok true; SCORECARD pure append old_only 0/0; SOURCES the
+S278 id-position insert (old_only 0/0, new_only 1, prefix false by position — the documented R58
+case, rc 0); README the disclosed one-cell repair old_only 1/1 new_only 1/1 by design, rc 1 the
+expected footprint. Final-tree gates: knowledge-header PASS 79/0/79 and registry-coverage PASS 99/99/0
+at `896e3c8b` (JSONs beside the work-revision pair); cited-receipts `--round 62` at `896e3c8b` PASS 0
+findings (11 cited); the r61 historical demonstration re-derived FAIL 3 at `52d9ba1a`; `--round 63`
+FAIL 13 at `896e3c8b` — 12 uncommitted-at-that-revision receipts this stage lands + the one named
+permanent finding (the absent-by-proof path inside the before-receipt; the lesson correction block
+names it). The pw probe receipts land explicitly here (the work commit's directory argument did not
+expand — treecommit takes file paths; disclosed, timing note in the lesson correction). The
+post-receipts-tree `--round 63` run lands as the fixup receipt.
