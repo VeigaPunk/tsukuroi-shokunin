@@ -1,0 +1,80 @@
+2026-11-03T18:39:19Z
+$ grep -n "latehook\|run_hook\|mount_handler\|sysroot" /usr/lib/initcpio/init | head -40
+7:mount_handler=default_mount_handler
+33:run_hookfunctions 'run_earlyhook' 'early hook' $EARLYHOOKS
+43:run_hookfunctions 'run_hook' 'hook' $HOOKS
+49:    run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
+66:# Mount root at /sysroot
+67:"$mount_handler" /sysroot
+71:run_hookfunctions 'run_latehook' 'late hook' $LATEHOOKS
+75:run_hookfunctions 'run_cleanuphook' 'cleanup hook' $CLEANUPHOOKS
+77:if [ "$(stat -c %D /)" = "$(stat -c %D /sysroot)" ]; then
+78:    # Nothing got mounted on /sysroot. This is the end, we don't know what to do anymore
+82:    run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
+87:elif [ ! -x "/sysroot${init}" ]; then
+88:    # Successfully mounted /sysroot, but ${init} is missing
+91:    run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
+100:    run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
+110:    /usr/bin/switch_root /sysroot "$init" "$@"
+rc=0
+
+$ sed -n "55,115p" /usr/lib/initcpio/init
+    # If the tag is supported by util-linux mount, pass it as is.
+    # Otherwise, use the resolved device path.
+    case "$root" in
+        'UUID='* | 'LABEL='* | 'PARTUUID='* | 'PARTLABEL='*) : ;;
+        *) root="$rootdev" ;;
+    esac
+fi
+unset rootdev
+
+fsck_root
+
+# Mount root at /sysroot
+"$mount_handler" /sysroot
+
+# We rely on word splitting
+# shellcheck disable=SC2086
+run_hookfunctions 'run_latehook' 'late hook' $LATEHOOKS
+
+# We rely on word splitting
+# shellcheck disable=SC2086
+run_hookfunctions 'run_cleanuphook' 'cleanup hook' $CLEANUPHOOKS
+
+if [ "$(stat -c %D /)" = "$(stat -c %D /sysroot)" ]; then
+    # Nothing got mounted on /sysroot. This is the end, we don't know what to do anymore
+    # We fall back into a shell, but the shell has now PID 1
+    # This way, manual recovery is still possible.
+    # shellcheck disable=SC2086
+    run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
+    err "Failed to mount the real root device."
+    echo "Bailing out, you are on your own. Good luck."
+    echo
+    launch_interactive_shell --exec
+elif [ ! -x "/sysroot${init}" ]; then
+    # Successfully mounted /sysroot, but ${init} is missing
+    # The same logic as above applies
+    # shellcheck disable=SC2086
+    run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
+    err "Root device mounted successfully, but ${init} does not exist."
+    echo "Bailing out, you are on your own. Good luck."
+    echo
+    launch_interactive_shell --exec
+fi
+
+if [ "${break}" = "postmount" ]; then
+    # shellcheck disable=SC2086
+    run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
+    echo ":: Post-mount break requested, type 'exit' to resume operation"
+    launch_interactive_shell
+fi
+
+# this should always be the last thing we do before the switch_root.
+rdlogger_stop
+
+exec env -i \
+    "TERM=$TERM" \
+    /usr/bin/switch_root /sysroot "$init" "$@"
+
+# vim: set ft=sh ts=4 sw=4 et:
+rc=0

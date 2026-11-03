@@ -1,0 +1,26 @@
+2026-11-03T18:37:24Z
+$ journalctl -b --no-pager | wc -l
+44564
+rc=0
+$ journalctl -b -o short-monotonic --no-pager | sed -n "1,5p"
+[   13.794339] plazir27 kernel: Linux version 7.2.11-arch1-1 (linux@archlinux) (gcc (GCC) 16.2.1 20260810, GNU ld (GNU Binutils) 2.47) #1 SMP PREEMPT_DYNAMIC Fri, 16 Oct 2026 00:28:58 +0000
+[   13.794362] plazir27 kernel: Command line: resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+[   13.794369] plazir27 kernel: x86/split lock detection: #DB: warning on user-space bus_locks
+[   13.794373] plazir27 kernel: BIOS-provided physical RAM map:
+[   13.794376] plazir27 kernel: BIOS-e820: [mem 0x0000000000000000-0x000000000009ffff]  System RAM
+rc=0
+$ journalctl -b --no-pager | grep -icE 'plymouth|overlay'
+14
+rc=0
+$ journalctl -b --no-pager | grep -iE 'plymouth|overlay' | head -10
+Nov 02 12:07:17 plazir27 systemd[1]: Starting Show Plymouth Boot Screen...
+Nov 02 12:07:17 plazir27 systemd[1]: Started Show Plymouth Boot Screen.
+Nov 02 12:07:17 plazir27 systemd[1]: Dispatch Password Requests to Console Directory Watch skipped, unmet condition check ConditionPathExists=!/run/plymouth/pid
+Nov 02 12:07:17 plazir27 systemd[1]: Started Forward Password Requests to Plymouth Directory Watch.
+Nov 02 12:07:18 plazir27 systemd[1]: Dispatch Password Requests to Console Directory Watch skipped, unmet condition check ConditionPathExists=!/run/plymouth/pid
+Nov 02 12:07:18 plazir27 systemd[1]: Dispatch Password Requests to Console Directory Watch skipped, unmet condition check ConditionPathExists=!/run/plymouth/pid
+Nov 02 12:07:18 plazir27 systemd[1]: Dispatch Password Requests to Console Directory Watch skipped, unmet condition check ConditionPathExists=!/run/plymouth/pid
+Nov 02 12:07:19 plazir27 systemd[1]: Starting Tell Plymouth To Write Out Runtime Data...
+Nov 02 12:07:19 plazir27 systemd[1]: Received SIGRTMIN+20 from PID 512 (plymouthd).
+Nov 02 12:07:19 plazir27 systemd[1]: Finished Tell Plymouth To Write Out Runtime Data.
+rc=0

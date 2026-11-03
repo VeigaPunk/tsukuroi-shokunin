@@ -1,0 +1,126 @@
+2026-11-03T18:45:31Z
+# CN1Siblings — SS10 assimilation id-collision receipt
+
+## C1) live registry id extraction
+$ grep -oE '^ {0,3}\\|[[:space:]]*S[0-9]{3,}' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md | grep -oE 'S[0-9]+' | sort > reg-ids
+rc=0
+$ wc -l reg-ids
+278 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-64/assimilation/reg-ids
+
+## C2) staged package id extraction
+$ grep -oE '^ {0,3}\\|[[:space:]]*S[0-9]{3,}' /home/vgpnk/Projects/shokuknow/merge/tsukuroi/SOURCES.append.md | grep -oE 'S[0-9]+' | sort > staged-ids
+rc=0
+$ wc -l staged-ids
+147 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-64/assimilation/staged-ids
+
+## C3) intersection
+$ comm -12 reg-ids staged-ids > collisions
+rc=0
+$ wc -l collisions
+79 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-64/assimilation/collisions
+$ head -3 collisions; tail -3 collisions
+S200
+S201
+S202
+...
+S276
+S277
+S278
+
+## C4) set differences
+$ comm -13 reg-ids staged-ids | wc -l  (staged-only)
+68
+$ comm -23 reg-ids staged-ids | wc -l  (registry-only)
+199
+$ comm -13 reg-ids staged-ids | head -3
+S279
+S280
+S281
+$ comm -13 reg-ids staged-ids | tail -1
+S346
+
+## C5) guard sanity fixture (2-space indented rows, one staged id present)
+$ cat fixture-registry.md
+# fixture registry
+
+| Id | Note |
+|---|---|
+  | S001 | fixture row, 2-space indented |
+  | S300 | fixture row, 2-space indented, id present in staged set |
+  | S999 | fixture row, 2-space indented, not in staged set |
+$ grep -oE '^ {0,3}\\|[[:space:]]*S[0-9]{3,}' fixture-registry.md | grep -oE 'S[0-9]+' | sort
+S001
+S300
+S999
+rc=0
+$ comm -12 fixture-reg-ids staged-ids
+S300
+rc=0
+
+## C6) guard window limit (4-space indented row is NOT matched by '^ {0,3}\|')
+$ cat fixture-indent4.md
+| Id | Note |
+|---|---|
+    | S300 | four-space indented row, outside the 0-3 space window |
+$ grep -oE '^ {0,3}\\|[[:space:]]*S[0-9]{3,}' fixture-indent4.md | grep -oE 'S[0-9]+' | sort
+rc=0 (no output = no match)
+$ wc -l fixture4-ids
+0 /fast/scratch/hyaku/tsukuroi-r64/CN1Siblings/fixture4-ids
+
+## C7) row-indent census of the two real files
+$ awk '/^ *\| S[0-9]{3}/ {match($0,/^ */); print RLENGTH}' corpus/SOURCES.md | sort | uniq -c
+    278 0
+$ awk '/^ *\| S[0-9]{3}/ {match($0,/^ */); print RLENGTH}' SOURCES.append.md | sort | uniq -c
+    147 0
+
+## C8) blind-spot probe: S-ids present in the files but NOT as row-leading ids
+$ grep -oE '\bS[0-9]{3,}\b' SOURCES.append.md | sort -u | wc -l
+152
+$ comm -23 (all staged ids) (row-leading staged ids)
+S008
+S096
+S097
+S110
+S111
+rc=0
+$ comm -23 (all registry ids) (row-leading registry ids) | wc -l
+0
+
+## C9) staged ids that this round's own declaration wants for new rows
+$ grep -E '^\| S(279|280|281) ' SOURCES.append.md | cut -c1-160
+| S279 | errno(3) — the upstream man-pages page for the C library's error-number contract — https://man7.org/linux/man-pages/man3/errno.3.html | docs | A | 
+| S280 | errno(3) — the upstream man-pages page for the C library's error-number contract — https://man7.org/linux/man-pages/man3/errno.3.html | docs | A | 
+| S281 | errno(3) — the upstream man-pages page for the C library's error-number contract — https://man7.org/linux/man-pages/man3/errno.3.html | docs | A | 
+$ grep -cE '^\| S(279|280|281) ' corpus/SOURCES.md (live registry)
+0
+
+## C10) prior-round collision counts recorded in the lane (trend)
+3094:Assimilation: none this round (claims frozen before assimilation could be scoped; the staged `merge/tsukuroi` package keeps its 53 id collisions S200-S252 with the lane registry — `.ufo/waves/round-48/assimilation/collisions`; nothing is appended from it). `considerthese/`: one proposal mined by a wave scout, landed only if the lane's own bar grounds it.
+
+## C11) collision classification: is a colliding id the SAME row on both sides?
+$ python3 - <<'EOF'  (id -> url on both sides)
+colliding ids: 79 same-source-on-both-sides: 0 different-source: 79
+   S200 live: https://man7.org/linux/man-pages/man2/mount.2.html
+   S200 staged: https://man.archlinux.org/man/mkinitcpio.8
+   S201 live: https://raw.githubusercontent.com/torvalds/linux/v7.2/fs/btrfs/ioctl.c
+   S201 staged: https://man.archlinux.org/man/alpm-hooks.5
+
+## C12) staged material vs live registry by SOURCE URL (not by id)
+$ python3 (url-keyed classification of all 147 staged rows)
+staged rows: 147
+  colliding ids (same id in live registry): 79
+  non-colliding staged ids: 68
+    of which the source URL already exists in live under another id: 34
+    of which the source URL is absent from live (new material): 34
+    new-material ids: S283, S284, S285, S289, S290, S291, S292, S294, S295, S297, S298, S300, S302, S303, S306, S311, S313, S315, S316, S321, S324, S325, S328, S329, S330, S334, S336, S339, S340, S342, S343, S344, S345, S346
+    live-duplicate ids (would stay W04 after any renumber): S279, S280, S281, S282, S286, S287, S288, S293, S296, S299, S301, S304, S305, S307, S308, S309, S310, S312, S314, S317, S318, S319, S320, S322, S323, S326, S327, S331, S332, S333, S335, S337, S338, S341
+
+## C13) future-collision check against THIS round's own new ids (S279-S281)
+$ grep -cE '^\| S(279|280|281) ' corpus/SOURCES.md   # live registry today
+0
+$ grep -E '^\| S(279|280|281) ' SOURCES.append.md | cut -c1-120   # staged rows that would take S279-S281
+| S279 | errno(3) — the upstream man-pages page for the C library's error-number contract — https://man7.org/linux/m
+| S280 | errno(3) — the upstream man-pages page for the C library's error-number contract — https://man7.org/linux/m
+| S281 | errno(3) — the upstream man-pages page for the C library's error-number contract — https://man7.org/linux/m
+$ grep -n 'S279 (v42.2 release notes' LOG.md   # this round's declaration for S279-S281
+2768:  S279 (v42.2 release notes, kind docs, tier A), S280 (supersedes S021 — re-pinned master

@@ -1,0 +1,26 @@
+2026-11-03T18:39:44Z
+$ strings /usr/bin/plymouth | grep -iE "root|sysroot|new_root" | head -20
+Tell boot daemon root filesystem is mounted read-write
+Tell boot daemon that new root filesystem is mounted
+Tell daemon about root filesystem changes
+Root filesystem is no longer read-only
+Root filesystem is about to change
+new-root-dir
+newroot
+update-root-fs
+ply_boot_client_tell_daemon_to_change_root
+rc=0
+
+# plymouth client: does update-root-fs touch the path at all? check the client source in the libply-splash-client strings
+$ strings /usr/lib/libply-splash-core.so* 2>/dev/null | grep -iE "new-root-dir|new_root|sysroot" | head
+/usr/lib/libply-boot-client.so
+/usr/lib/libply-boot-client.so.5
+/usr/lib/libply-boot-client.so.5.0.0
+/usr/lib/libply-splash-core.so
+/usr/lib/libply-splash-core.so.5
+/usr/lib/libply-splash-core.so.5.0.0
+/usr/lib/libply-splash-graphics.so
+/usr/lib/libply-splash-graphics.so.5
+/usr/lib/libply-splash-graphics.so.5.0.0
+/usr/lib/libply.so
+rc=0

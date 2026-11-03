@@ -1,0 +1,20 @@
+2026-11-03T18:41:43Z
+# m6 — boot images: is there a vmlinuz-/initramfs- pair, and what are the UKI mtimes?
+$ ls -la /boot/vmlinuz-* /boot/initramfs-* 2>/dev/null
+rc=2  (no vmlinuz-*/initramfs-* files: this host boots Limine UKIs)
+
+$ stat -c "%y %n" /boot/initramfs-linux.img 2>/dev/null
+rc=1
+
+# UKI mtime read is BLOCKED: /boot is drwx------ root:root and this seat is unprivileged.
+$ ls -ld /boot; ls -l /boot
+drwx------ 5 root root 4096 Dec 31  1969 /boot
+ls: cannot open directory '/boot': Permission denied
+rc=0
+$ stat -c "%y %s %n" /boot/EFI/Linux/omarchy_linux.efi /boot/EFI/Linux/omarchy_linux-lts.efi
+stat: cannot stat '/boot/EFI/Linux/omarchy_linux.efi': Permission denied (os error 13)
+stat: cannot stat '/boot/EFI/Linux/omarchy_linux-lts.efi': Permission denied (os error 13)
+rc=1
+
+# Verdict: image mtimes are NOT measurable without root => BLOCKED (recorded, not derivable).
+# Substitute evidence for "were images rebuilt after the 42.2 upgrade?" is the pacman log (m12/m6e), which records the rebuild.

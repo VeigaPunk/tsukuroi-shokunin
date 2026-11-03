@@ -1,0 +1,45 @@
+# c1 mutant-kill receipt — 2026-11-03T18:44:12Z
+tool: tools/check-line-endings-r64.py sha256=15f0e65c889acc3b591ca44c7e52fe16fa14d79c367e743ebcc905b17d50c030
+hypothesis: the guard exits 1 naming the path on a single CR injected mid-line into an
+otherwise-clean guarded file, and passes the same file unmutated.
+
+$ cp corpus/SOURCES.md /fast/scratch/hyaku/tsukuroi-r64/E1LineEnd/mut/mutant-cr.md
+rc=0
+$ python3 -c "insert one b'\r' at byte offset 5000 (mid-line, mid-file)"
+injected 1 CR byte at offset 5000; 278906 -> 278907 bytes
+
+$ python3 tools/check-line-endings-r64.py --check --root /fast/scratch/hyaku/tsukuroi-r64/E1LineEnd/mut mutant-cr.md
+check-line-endings-r64: 1 violation(s)
+  mutant-cr.md:15: CR byte at offset 5000
+CHECK_LINE_ENDINGS: FAIL (1 file(s) checked, 1 violation(s))
+rc=1
+
+--- control A: same bytes, unmutated -> PASS (so the FAIL is caused by the CR alone) ---
+$ cp corpus/SOURCES.md /fast/scratch/hyaku/tsukuroi-r64/E1LineEnd/mut/control.md
+CHECK_LINE_ENDINGS: PASS (1 file(s) checked, 0 violation(s))
+rc=0
+
+--- control B: the r59 damage SHAPE (one CRLF inserted at offset 200) -> FAIL ---
+wrote crlf.md: one CRLF inserted at offset 200
+check-line-endings-r64: 1 violation(s)
+  crlf.md:7: CR byte at offset 200
+CHECK_LINE_ENDINGS: FAIL (1 file(s) checked, 1 violation(s))
+rc=1
+
+--- retro-detection: the guard against the REAL r59 damage (bytes of 2f3061ef) ---
+The three files are recovered with `git show 2f3061ef:F` — exactly the bytes the r59
+work commit landed — and --root points at that recovered tree so --check aims at it.
+
+$ for f in corpus/SOURCES.md SKILL.md SCORECARD.md; do git show 2f3061ef:$f > <base>/$f; done
+rc=0
+
+$ python3 tools/check-line-endings-r64.py --check --root /fast/scratch/hyaku/tsukuroi-r64/E1LineEnd/base corpus/SOURCES.md SKILL.md SCORECARD.md
+check-line-endings-r64: 3 violation(s)
+  corpus/SOURCES.md:1: CR byte at offset 35
+  SKILL.md:1: CR byte at offset 3
+  SCORECARD.md:1: CR byte at offset 33
+CHECK_LINE_ENDINGS: FAIL (3 file(s) checked, 3 violation(s))
+rc=1
+
+Decisive: against the bytes r59 landed, the guard names exactly the three files the C1
+claim names and no fourth file — red-before is now mechanical, green-after is proven.

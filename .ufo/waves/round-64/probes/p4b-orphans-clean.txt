@@ -1,0 +1,13 @@
+2026-11-03T18:39:06Z
+$ pacman -Qdt; echo ---
+rc=1
+$ pacman -Qdt | wc -l
+0
+$ pacman -Q electron39 mbedtls webp-pixbuf-loader   # stored orphan set, still installed?
+error: package 'electron39' was not found
+error: package 'webp-pixbuf-loader' was not found
+mbedtls 4.2.0-1
+rc=1
+$ expac -Qs "%n %r" -- electron39 mbedtls webp-pixbuf-loader 2>/dev/null || true  # required-by
+electron39 <- required by: mbedtls <- required by: imhex-bin
+webp-pixbuf-loader <- required by: 

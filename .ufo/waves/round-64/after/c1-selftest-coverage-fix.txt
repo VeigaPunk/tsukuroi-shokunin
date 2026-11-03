@@ -1,0 +1,20 @@
+# able-to-fail proof: the two new selftest cases kill MT1Guard's surviving mutants — 2026-11-03T19:13:18Z
+red-before (MT1Guard, .ufo/waves/round-64/after/mutation/mutation-report.txt): M3 and M5 SURVIVED the tool's own 5-case --selftest (PASS 5/5); killed only by the seat's out-of-band D2/D3 detectors.
+fix: cases 6 (exit-code-contract) + 7 (tools-python-is-guarded) added to run_selftest; selftest now 7 cases.
+
+$ python3 $S/mut/tool-M3.py --selftest --work $S/work-M3   # M3 = exit-inversion in report()
+rc=1
+  exit-code-contract                   FAIL
+CHECK_LINE_ENDINGS_SELFTEST: FAIL (7 cases, 6 passed, 1 failed)
+
+$ python3 $S/mut/tool-M5.py --selftest --work $S/work-M5   # M5 = tools/*.py branch deleted from is_guarded
+rc=1
+  tools-python-is-guarded              FAIL
+CHECK_LINE_ENDINGS_SELFTEST: FAIL (7 cases, 6 passed, 1 failed)
+
+$ python3 $S/tool-pristine.py --selftest --work $S/work-p   # control: the landed tool
+rc=0
+CHECK_LINE_ENDINGS_SELFTEST: PASS (7 cases, 7 passed, 0 failed)
+
+repo tool untouched by this proof (mutants ran from scratch copies): sha256:
+f87a9300ad6e13af5e292c991a30ac0e8d8c168cbbff93ced1ee1220b8a48a13  tools/check-line-endings-r64.py

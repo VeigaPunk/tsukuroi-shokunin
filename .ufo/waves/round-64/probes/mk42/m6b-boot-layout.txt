@@ -1,0 +1,13 @@
+2026-11-03T18:37:14Z
+$ ls -la /boot | head -40
+ls: cannot open directory '/boot': Permission denied
+rc=0
+$ findmnt -o TARGET,SOURCE,FSTYPE,OPTIONS /boot /efi /boot/efi
+rc=1
+$ ls -la /efi 2>&1 | head -20
+ls: cannot access '/efi': No such file or directory
+rc=0
+$ findmnt -o TARGET,SOURCE,FSTYPE -t vfat
+TARGET SOURCE         FSTYPE
+/boot  /dev/nvme0n1p1 vfat
+rc=0

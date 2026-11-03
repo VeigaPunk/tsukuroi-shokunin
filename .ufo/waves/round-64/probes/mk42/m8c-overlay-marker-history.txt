@@ -1,0 +1,18 @@
+2026-11-03T18:38:11Z
+$ journalctl --list-boots --no-pager | tail -8
+IDX BOOT ID                          FIRST ENTRY                 LAST ENTRY
+ -2 bcbf8b4825bb4aa5b379018848f39361 Mon 2026-10-26 12:08:45 -03 Sat 2026-10-31 20:25:18 -03
+ -1 9b1b2c44b87343b78069192a81235222 Sat 2026-10-31 20:26:17 -03 Mon 2026-11-02 12:06:39 -03
+  0 1c5e4375946b4abbb68cf222fe64bed6 Mon 2026-11-02 12:07:17 -03 Tue 2026-11-03 15:38:04 -03
+rc=0
+
+$ journalctl -b -1..-6 --no-pager 2>/dev/null | grep -c 'OverlayFS setup'
+rc=0
+
+$ journalctl --no-pager -k -b -0..-8 2>/dev/null | grep -i 'overlayfs' | head
+Nov 03 15:38:04 plazir27 kernel: overlayfs: failed to set xattr on upper
+Nov 03 15:38:04 plazir27 kernel: overlayfs: ...falling back to redirect_dir=nofollow.
+Nov 03 15:38:04 plazir27 kernel: overlayfs: ...falling back to metacopy=off.
+Nov 03 15:38:04 plazir27 kernel: overlayfs: ...falling back to index=off.
+Nov 03 15:38:04 plazir27 kernel: overlayfs: ...falling back to uuid=null.
+rc=0

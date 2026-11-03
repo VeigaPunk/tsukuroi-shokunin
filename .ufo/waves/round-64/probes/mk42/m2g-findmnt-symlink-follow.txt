@@ -1,0 +1,21 @@
+2026-11-03T18:37:51Z
+# emulation of the v42 image layout: sysroot is the mountpoint, new_root is a symlink to it
+$ mkdir -p $S/emu && ln -sfn /boot $S/emu/new_root
+rc=0
+$ ls -la $S/emu
+total 0
+drwxr-xr-x 2 vgpnk vgpnk 22 Nov  3 15:37 .
+drwxr-xr-x 3 vgpnk vgpnk 59 Nov  3 15:37 ..
+lrwxrwxrwx 1 vgpnk vgpnk  5 Nov  3 15:37 new_root -> /boot
+$ findmnt --mountpoint $S/emu/new_root -no FSTYPE
+vfat
+rc=0
+$ findmnt --mountpoint $S/emu/new_root -no SOURCE,TARGET
+/dev/nvme0n1p1 /boot
+rc=0
+$ findmnt --mountpoint /boot -no FSTYPE
+vfat
+rc=0
+# control: a dangling symlink must fail like the r1 note predicted
+$ ln -sfn /nonexistent-mnt $S/emu/dangling && findmnt --mountpoint $S/emu/dangling -no FSTYPE
+rc=1

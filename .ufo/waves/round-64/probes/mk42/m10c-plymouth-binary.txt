@@ -1,0 +1,97 @@
+2026-11-03T18:38:04Z
+$ plymouth --version
+Splash control client
+USAGE: plymouth [OPTION...] [COMMAND [OPTION...]...]
+
+Options:
+  --help                         This help message
+  --debug                        Enable verbose debug logging
+  --get-splash-plugin-path       Get directory where splash plugins are installed
+  --newroot=<string>             Tell boot daemon that new root filesystem is mounted
+  --quit                         Tell boot daemon to quit
+  --ping                         Check if boot daemon is running
+  --has-active-vt                Check if boot daemon has an active vt
+  --sysinit                      Tell boot daemon root filesystem is mounted read-write
+  --show-splash                  Show splash screen
+  --hide-splash                  Hide splash screen
+  --ask-for-password             Ask user for password
+  --ignore-keystroke=<string>    Remove sensitivity to a keystroke
+  --update=<string>              Tell boot daemon an update about boot progress
+  --details                      Tell boot daemon there were errors during boot
+  --wait                         Wait for boot daemon to quit
+
+Available commands:
+  change-mode        Change the operation mode
+  system-update      Tell the daemon about updates progress
+  update             Tell daemon about boot status changes
+  update-root-fs     Tell daemon about root filesystem changes
+  show-splash        Tell daemon to show splash screen
+  hide-splash        Tell daemon to hide splash screen
+  ask-for-password   Ask user for password
+  ask-question       Ask user a question
+  display-message    Display a message
+  hide-message       Hide a message
+  watch-keystroke    Become sensitive to a keystroke
+  ignore-keystroke   Remove sensitivity to a keystroke
+  pause-progress     Pause boot progress bar
+  unpause-progress   Unpause boot progress bar
+  report-error       Tell boot daemon there were errors during boot
+  deactivate         Tell boot daemon to deactivate
+  reactivate         Tell boot daemon to reactivate
+  quit               Tell boot daemon to quit
+  reload             Tell the daemon to reload the theme
+
+Options for change-mode command:
+  --boot-up             Starting the system up
+  --shutdown            Shutting the system down
+  --reboot              Rebooting the system
+  --updates             Applying updates
+  --system-upgrade      Upgrading the OS to a new version
+  --firmware-upgrade    Upgrading firmware to a new version
+  --system-reset        Resetting the OS and erasing all user data
+
+Options for system-update command:
+  --progress=<integer>    The percentage progress of the updates
+
+Options for update command:
+  --status=<string>    Tell daemon the current boot status
+
+Options for update-root-fs command:
+  --new-root-dir=<string>    Root filesystem is about to change
+  --read-write               Root filesystem is no longer read-only
+
+Options for ask-for-password command:
+  --command=<string>             Command to send password to via standard input
+  --prompt=<string>              Message to display when asking for password
+  --number-of-tries=<integer>    Number of times to ask before giving up (requires --command)
+  --dont-pause-progress          Don't pause boot progress bar while asking
+
+Options for ask-question command:
+  --command=<string>       Command to send the answer to via standard input
+  --prompt=<string>        Message to display when asking the question
+  --dont-pause-progress    Don't pause boot progress bar while asking
+
+Options for display-message command:
+  --text=<string>    The message text
+
+Options for hide-message command:
+  --text=<string>    The message text
+
+Options for watch-keystroke command:
+  --command=<string>    Command to send keystroke to via standard input
+  --keys=<string>       Keys to become sensitive to
+
+Options for ignore-keystroke command:
+  --keys=<string>    Keys to remove sensitivity to
+
+Options for quit command:
+  --retain-splash    Don't explicitly hide boot splash on exit
+
+rc=1
+
+$ strings /usr/bin/plymouth | grep -nE 'new-root-dir|realpath|stat\(|mountcheck' | head -20
+new-root-dir
+rc=0
+
+$ grep -n 'new-root-dir' /usr/share/man/man1/plymouth.1.gz 2>/dev/null; zcat /usr/share/man/man1/plymouth.1.gz 2>/dev/null | grep -n -A3 'new-root-dir'
+rc=1

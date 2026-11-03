@@ -1,0 +1,16 @@
+2026-11-03T18:42:24Z
+# was any retained boot a read-only snapshot boot? cheaper proxies that need no root
+$ journalctl -b 0 -k --no-pager -o cat | grep -i "mounted.*snapshot" | head -3
+rc=0
+$ for b in 0 -1 -2; do printf "boot %s: "; journalctl -b $b --no-pager -o cat 2>/dev/null | grep -ic "OverlayFS setup"; done
+boot 0: 0
+boot -1: 0
+boot -2: 0
+rc=1
+$ journalctl -b 0 --no-pager -o cat | grep -i "snapshot" | grep -iv "snapper\|snapshots/1/info" | head -5
+Started Hourly Cleanup of Snapper Snapshots.
+Started Timeline of Snapper Snapshots.
+Started [limine-snapper-sync.service] automatically synchronizes boot entries with the Snapper snapshot list..
+You are not in a snapshot.
+INFO  2026-11-02T15:07:22.286+00:00 ThreadId(1) [1P:native-messaging/op-nm-installer/src/nix_utils.rs:68] Created NMH manifest at /home/<redacted-username>/.config/vivaldi-snapshot/NativeMessagingHosts/com.1password.1password.json
+rc=0

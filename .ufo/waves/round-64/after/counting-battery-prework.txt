@@ -1,0 +1,23 @@
+# round-64 counting battery at the work tree (pre-commit) — 2026-11-03T19:17:23Z
+$ /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi
+rc=0
+E-code: 0
+W04: 44
+tsukuroi	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
+$ grep -c '^\| S' corpus/SOURCES.md
+281
+$ grep -n '^\| S279 ' corpus/SOURCES.md | cut -c1-40
+289:| S279 | mkinitcpio v42.2 release no
+$ awk -F'|' '/^\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\|/ && NF!=13 {n++} END{print n+0}' corpus/SOURCES.md
+0
+$ awk -F'|' '/^\|[[:space:]]*S[0-9][0-9][0-9]+[[:space:]]*\|/ {i=$2; gsub(/[[:space:]]/,"",i); print i}' corpus/SOURCES.md | sort | uniq -d | wc -l
+0
+$ grep -c '^\| DR' corpus/knowledge/host-drift-recheck-r64.md
+25
+$ grep -c '^\| MK' corpus/knowledge/mkinitcpio42-onrelease-r64.md
+6
+$ python3 tools/check-line-endings-r64.py --check --root $PWD
+CHECK_LINE_ENDINGS: PASS (326 file(s) checked, 0 violation(s))
+check-line-endings-r64: 22370 allow-listed .ufo path(s) skipped (upstream captures)
+$ python3 -m py_compile tools/check-line-endings-r64.py
+rc=0

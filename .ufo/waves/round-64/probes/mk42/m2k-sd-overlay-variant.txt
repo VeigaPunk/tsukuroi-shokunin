@@ -1,0 +1,35 @@
+2026-11-03T18:38:35Z
+$ cat /usr/lib/initcpio/install/sd-btrfs-overlayfs; echo ---; ls /usr/lib/initcpio/hooks/ | grep -i overlay
+#!/usr/bin/env bash
+
+build() {
+	add_module btrfs
+	add_module overlay
+	map add_binary bash btrfs findmnt logger mount mktemp mkdir echo
+	add_file '/usr/lib/limine/overlayfs-setup' '/usr/lib/limine/overlayfs-setup' 755
+	if ! add_systemd_unit overlayfs-setup.service; then
+		error "sd-btrfs-overlayfs requires systemd hook, not busybox hooks."
+		exit 1
+	fi
+	add_symlink '/usr/lib/systemd/system/initrd.target.wants/overlayfs-setup.service' '/usr/lib/systemd/system/overlayfs-setup.service'
+}
+
+help() {
+	cat <<HELPEOF
+This hook uses overlayfs to boot on a read only snapshot.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:
+--- hooks dir ---
+btrfs-overlayfs
+rc=0
+
+$ pacman -Qo /usr/lib/initcpio/install/sd-btrfs-overlayfs
+/usr/lib/initcpio/install/sd-btrfs-overlayfs is owned by limine-mkinitcpio-hook 1.40.0-2
+rc=0
+
+$ grep -n "sysroot\|new_root" /usr/lib/initcpio/hooks/usr
+5:    local usr_source mountopts passno realtab=/sysroot/etc/fstab
+18:            mount "$usr_source" /sysroot/usr -o "$mountopts"
+rc=0

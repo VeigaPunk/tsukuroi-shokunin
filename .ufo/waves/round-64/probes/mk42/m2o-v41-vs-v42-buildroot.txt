@@ -1,0 +1,24 @@
+2026-11-03T18:40:07Z
+# v41 vs v42 build-root: was the new_root DIRECTORY replaced by a symlink to sysroot?
+$ grep -n "new_root\|sysroot" $S/functions-v41 (context)
+1186-    # base directory structure
+1187-    for root in "$buildroot" "$earlyroot"; do
+1188:        install -dm755 "$root"/{new_root,proc,sys,dev,run,tmp,var,etc,usr/{local{,/bin,/sbin,/lib},lib,bin}}
+1189-        ln -s "usr/lib" "$root/lib"
+1190-        ln -s "bin"     "$root/usr/sbin"
+rc=0
+
+$ grep -n -B3 -A2 "new_root\|sysroot" $S/functions-v42
+1209-                ;;
+1210-        esac
+1211-    done
+1212:    install -dm755 "$buildroot/sysroot"
+1213:    ln -s "sysroot" "$buildroot/new_root"
+1214-
+1215-    # mkinitcpio version stamp
+rc=0
+
+# relative symlink target check: "ln -s sysroot .../new_root" is RELATIVE, so /new_root -> /sysroot inside the image root
+$ python3 -c "import posixpath; print(posixpath.normpath(posixpath.join(\"/\", \"sysroot\")))"
+/sysroot
+rc=0

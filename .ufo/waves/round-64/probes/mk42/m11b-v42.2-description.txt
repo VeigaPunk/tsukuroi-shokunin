@@ -1,0 +1,26 @@
+2026-11-03T18:38:16Z
+$ curl -fsSL 'https://gitlab.archlinux.org/api/v4/projects/archlinux%2Fmkinitcpio%2Fmkinitcpio/releases/v42.2' -o $S/v422.json
+rc=0
+$ wc -c $S/v422.json
+3905 /fast/scratch/hyaku/tsukuroi-r64/E3Mk42/v422.json
+$ python3 -c "json.load; print name/tag/released/description"
+name       : v42.2
+tag_name   : v42.2
+released_at: 2026-10-01T07:10:00.872Z
+--- description (verbatim) ---
+CHANGES WITH v42.2
+
+        Changes in hooks:
+
+        * install/systemd includes systemd-tpm2-setup-early.service and
+          systemd-pcrnvdone.service because of changes in systemd v262. They are
+          required to initialize NvPCRs and to measure a separator into PCR 9.
+          Note that this does not fix the issue of failing units with UKIs built
+          by mkinitcpio itself. systemd v262 requires that the UKI must be
+          signed with a PCR policy and there is still no solution for that
+          without using ukify.
+
+        Contributions from: Aidan Dang, nl6720
+
+        - 2026-10-01
+rc=0

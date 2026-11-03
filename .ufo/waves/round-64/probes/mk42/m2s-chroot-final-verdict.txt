@@ -1,0 +1,15 @@
+2026-11-03T18:41:30Z
+# Chroot emulation v7 (FINAL): v6 proved the hook reaches its overlay mount, but v6 final FSTYPE read btrfs because the findmnt stub overrode FSTYPE for ALL queries, masking the overlay.
+# v7 scopes the stub to /new_root only, so the final /sysroot state is read by REAL findmnt.
+$ unshare -rm --fork --pid --mount-proc bash -c <CHROOTRUN7>
+  BEFORE (image layout /sysroot mounted, /new_root symlink):
+    /sysroot FSTYPE = tmpfs
+    /new_root FSTYPE = btrfs  <- hook line 7 probe: NOT absent
+[OverlayFS setup] /new_root is a read-only Btrfs subvolume. Setting up OverlayFS...
+[OverlayFS setup] OverlayFS mounted on /new_root
+  AFTER (real findmnt, stub scoped away from overlay):
+    /sysroot FSTYPE = overlay
+    /sysroot contents = [marker]
+    write through /new_root = yes
+chroot_rc=0
+outer_rc=0

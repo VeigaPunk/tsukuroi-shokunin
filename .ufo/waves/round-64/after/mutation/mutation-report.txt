@@ -1,0 +1,227 @@
+# mutation-report.txt — MT1Guard, lane round 64 / wave w1
+# UTC stamp: 2026-11-03T18:44:35Z
+# seat: MT1Guard (mutation-tester). Target: tools/check-line-endings-r64.py
+# toolchain: Python 3.14.8 (main, Oct 2 2026) [GCC 16.2.1 20260810]; git 2.56.0
+# scratch: /fast/scratch/hyaku/tsukuroi-r64/MT1Guard (removed after receipts landed here)
+#
+# RESULT: killed 5/5. survivors: none. Coverage finding: the tool's OWN --selftest
+# survives M3 and M5 (see §4) — routed, not repaired.
+
+## 0. TARGET IDENTITY — the repo file was never written by this seat
+
+Precondition met: the file exists and `--selftest` passes.
+
+The target was rewritten by seat E1LineEnd **while this seat was working**. Observed
+sequence (each a `sha256sum tools/check-line-endings-r64.py`):
+
+    18:39:55Z  ff4b655262eec441…  11965 bytes   (session start; transient)
+    18:40:50Z  75108a81a0248abd…  11600 bytes
+    18:41:40Z  75108a81a0248abd…  11600 bytes   (stable 6 x 10 s samples)
+    18:43:04Z  5a42b4c8c6ab2083…  12417 bytes   (moved again after the first full run)
+    18:43:24Z  15f0e65c889acc3b…  12858 bytes
+    18:43:44Z  15f0e65c889acc3b…  12858 bytes
+    18:44:35Z  15f0e65c889acc3b…  12858 bytes   (stable at session end)
+
+A first complete mutation run was executed against `75108a81` and killed 5/5. Because the
+file then moved to `15f0e65c` (a real shape change: `check_paths()` went 4-tuple → 3-tuple,
+missing-file now raises, `guarded_set()` returns `(paths, allowlisted_count)`,
+`is_allowlisted()` became anchored to the leading component, `report()` grew the allow-list
+disclosure line), **this report and every receipt are re-derived from the settled
+`15f0e65c` bytes**. The earlier run is not cited as evidence.
+
+Final target identity, identical at snapshot and at session end:
+
+    $ sha256sum tools/check-line-endings-r64.py
+    15f0e65c889acc3b591ca44c7e52fe16fa14d79c367e743ebcc905b17d50c030  tools/check-line-endings-r64.py
+    rc=0
+    stat -c '%y %s' : 2026-11-03 15:43:08.042163803 -0300 12858
+
+    $ cmp tool-pristine-snapshot.py <lane>/tools/check-line-endings-r64.py
+    output: <empty>
+    rc=0
+    $ sha256sum tool-pristine-snapshot.py
+    15f0e65c889acc3b591ca44c7e52fe16fa14d79c367e743ebcc905b17d50c030  tool-pristine-snapshot.py
+
+The pristine snapshot kept beside this report (`tool-pristine-snapshot.py`) is byte-identical
+to the settled repo file. The repo file is untracked (`git status --porcelain tools/` →
+`?? tools/check-line-endings-r64.py`), so git holds no baseline; the sha is the identity anchor.
+
+## 1. DETECTORS — run on pristine, mutated and restored bytes alike
+
+D1  $ python3 <tool> --selftest --work <scratch>/work
+    the tool's OWN five-case fixture suite.
+D2  $ python3 <tool> --check --root <scratch>/fixtures/dirty
+    default guarded set over a hermetic fixture tree. `git` is shimmed: a wrapper placed
+    first on PATH answers `ls-files -z` from a fixed path list. No real repository is read
+    and no git state is touched.
+D3  $ python3 <tool> --check --root <scratch>/fixtures/clean
+    the same tree with every guarded file clean → the exit-code contract.
+
+Fixture: 9 tracked paths, identical in both trees, only bytes differ:
+  corpus/ok.md      "alpha\nbeta\n"                    → clean
+  corpus/bad.md     "alpha\r\nbeta\r\n"                → CRLF, guarded, must flag
+  plans/ok.md       "one\ntwo\n"                       → clean
+  plans/eof.md      "alpha\nbeta\r"                    → CR at EOF, no newline, must flag
+  tools/good.py     "x = 1\n"                          → clean
+  tools/bad.py      "x = 1\r\n"                        → CRLF, guarded (tools/*.py), must flag
+  SKILL.md          "# skill\n"                        → canonical, clean
+  .ufo/waves/cap.txt "HTTP/1.1 200 OK\r\nServer: x\r\n"→ allow-listed, must be skipped
+  docs/notes.txt    "untracked-class\r\n"              → outside the guarded set, must be ignored
+
+--- BASELINE (pristine) — must be GREEN, else the run is inconclusive ---
+D1  rc=0  CHECK_LINE_ENDINGS_SELFTEST: PASS (5 cases, 5 passed, 0 failed)
+          lf-file-passes PASS | crlf-file-fails-naming-path PASS
+          allowlisted-ufo-path-ignored PASS | cr-at-eof-without-newline-flagged PASS
+          cr-midline-flagged PASS
+D2  rc=1  check-line-endings-r64: 3 violation(s)
+            corpus/bad.md:1: CR byte at offset 5
+            plans/eof.md:2: CR byte at offset 10
+            tools/bad.py:1: CR byte at offset 5
+          CHECK_LINE_ENDINGS: FAIL (7 file(s) checked, 3 violation(s))
+          check-line-endings-r64: 1 allow-listed .ufo path(s) skipped (upstream captures)
+D3  rc=0  CHECK_LINE_ENDINGS: PASS (7 file(s) checked, 0 violation(s))
+          check-line-endings-r64: 1 allow-listed .ufo path(s) skipped (upstream captures)
+
+Baseline green on all three: D1 passes, D2 names exactly the 3 CR-bearing guarded files and
+correctly excludes `.ufo/waves/cap.txt` and `docs/notes.txt`, D3 exits 0. Detection is real,
+so a mutant that flips one of these is attributable to the mutation and nothing else.
+
+## 2. MUTANTS — 5/5 KILLED
+
+### M1 allow-all — the CR check never fires
+sha256 13eb7c49ce4db81d…
+Patch: `hit = first_cr(path)` → `hit = None`
+diff hunk:
+@@ -178,7 +178,7 @@
+         checked += 1
+-        hit = first_cr(path)
++        hit = None  # M1 allow-all: the CR check never fires
+         if hit is not None:
+             violations.append((rel, hit[0], hit[1]))
+  D1 rc=1 KILLED — FAIL (5 cases, 2 passed, 3 failed); crlf-file-fails-naming-path FAIL,
+     cr-at-eof-without-newline-flagged FAIL, cr-midline-flagged FAIL
+  D2 rc=0 KILLED — CHECK_LINE_ENDINGS: PASS (7 file(s) checked, 0 violation(s))  [was rc 1 / FAIL]
+  D3 rc=0 survived — clean tree still clean; correct, there is no behavior to change there
+VERDICT: KILLED
+
+### M2 allowlist-inversion — `.ufo/**` becomes the ONLY guarded set, real set becomes allowlist
+sha256 ea4d50b2a1f8660c…
+Patch: bodies of is_guarded / is_allowlisted swapped wholesale (allowlist stays anchored).
+diff hunk:
+@@ -71,7 +71,13 @@
+ def is_guarded(relpath):
+-    """True when the repo-relative path belongs to the guarded set."""
++    """M2: only `.ufo` paths are guarded now."""
++    parts = relpath.replace(os.sep, "/").split("/")
++    return bool(parts) and parts[0] == ALLOW_DIR
++
++
++def is_allowlisted(relpath):
++    """M2: the old guarded set is the allowlist now."""
+     p = relpath.replace(os.sep, "/")
+     ...
+@@ -84,19 +90,6 @@
+-def is_allowlisted(relpath):
+-    """True when the path sits under a TOP-LEVEL `.ufo/` directory.
+...
+-    return bool(parts) and parts[0] == ALLOW_DIR
+  D1 rc=1 KILLED — FAIL (5 cases, 4 passed, 1 failed); allowlisted-ufo-path-ignored FAIL
+  D2 rc=1 KILLED — only ".ufo/waves/cap.txt:1: CR byte at offset 15"; corpus/bad.md,
+     plans/eof.md and tools/bad.py all silent; "7 allow-listed .ufo path(s) skipped"
+  D3 rc=1 KILLED — clean tree now FAILs on the capture file
+VERDICT: KILLED (all three detectors)
+
+### M3 exit-inversion — rc 0 on violations, 1 on clean
+sha256 7d528698ec1da950…
+Patch: `return FAIL if violations else PASS` → `return PASS if violations else FAIL`
+diff hunk:
+@@ -222,7 +222,7 @@
+-    return FAIL if violations else PASS
++    return PASS if violations else FAIL  # M3 exit-inversion
+  D1 rc=0 **SURVIVED** — CHECK_LINE_ENDINGS_SELFTEST: PASS (5 cases, 5 passed, 0 failed)
+  D2 rc=0 KILLED — prints "3 violation(s)" … "CHECK_LINE_ENDINGS: FAIL" but exits 0
+  D3 rc=1 KILLED — prints "CHECK_LINE_ENDINGS: PASS" but exits 1
+VERDICT: KILLED (D2 + D3). §4: the tool's own selftest does NOT kill M3.
+
+### M4 cr-at-eof-blindness — a CR as the file's final byte is not reported
+sha256 9cfdd594f45473b6…
+Patch: in first_cr, before returning the hit, swallow a CR that is the last byte of a
+< 64 KiB chunk (i.e. a CR at EOF with no trailing newline).
+diff hunk:
+@@ -152,6 +152,8 @@
+             idx = chunk.find(CR)
+             if idx != -1:
++                if idx == len(chunk) - 1 and len(chunk) < 65536:
++                    return None  # M4 cr-at-eof-blindness
+                 return line + chunk.count(LF, 0, idx), offset + idx
+  D1 rc=1 KILLED — FAIL (5 cases, 4 passed, 1 failed); cr-at-eof-without-newline-flagged FAIL
+  D2 rc=1 KILLED — 2 violation(s): corpus/bad.md:1, tools/bad.py:1  [plans/eof.md:2 dropped from 3]
+  D3 rc=0 survived — clean tree unaffected; correct
+VERDICT: KILLED
+
+### M5 guard-set-shrink — tools/*.py dropped from the guarded set
+sha256 285dd1cff4a207c8…
+Patch: delete the `tools/` + `.py` branch of is_guarded.
+diff hunk:
+@@ -77,10 +77,7 @@
+     if any(p.startswith(prefix) for prefix in GUARDED_DIRS):
+         return True
+-    if p.startswith(TOOLS_PY_PREFIX) and p.endswith(".py"):
+-        rest = p[len(TOOLS_PY_PREFIX):]
+-        if rest and "/" not in rest:
+-            return True
++    # M5 guard-set-shrink: tools/*.py is no longer guarded
+     return False
+  D1 rc=0 **SURVIVED** — CHECK_LINE_ENDINGS_SELFTEST: PASS (5 cases, 5 passed, 0 failed)
+  D2 rc=1 KILLED — 5 file(s) checked, 2 violation(s): corpus/bad.md:1, plans/eof.md:2;
+     tools/bad.py:1 absent (was 7 checked / 3 violations)
+  D3 rc=0 KILLED — checked count 7 → 5 in the PASS line
+VERDICT: KILLED (D2 + D3). §4: the tool's own selftest does NOT kill M5.
+
+## 3. SCORE
+
+  killed 5/5 — M1, M2, M3, M4, M5.  survivors: none.
+
+Restoration: UNNECESSARY AND PROVEN A NO-OP. No mutant was ever applied to the repo file —
+each was written to `<scratch>/mut/tool-M<id>.py` and executed from there. The repo file's
+sha256 is identical at snapshot and session end (`15f0e65c…` both times, §0). The scratch
+working copy was restored-verified by `cmp` against the repo file (rc 0). Preserved here:
+tool-pristine-snapshot.py, tool-M1..M5.py, mutant-diffs.txt, mutation-results.json, harness.py.
+
+## 4. COVERAGE FINDINGS (routed; not contract changes)
+
+Verdict is per mutant against any detector, so 5/5 stands. The per-detector matrix isolates a
+real gap in the tool's own `--selftest`, which is the gate the L1 will run.
+
+Structural proof from the settled bytes:
+    selftest case names : ['lf-file-passes', 'crlf-file-fails-naming-path',
+                           'allowlisted-ufo-path-ignored', 'cr-midline-flagged']
+                          (the fifth, cr-at-eof-without-newline-flagged, appends across lines)
+    check_paths() calls in run_selftest : 5
+    is_guarded   references in run_selftest : 0
+    report(      references in run_selftest : 0
+
+  M3 exit-inversion SURVIVED the selftest — no case asserts a return code. All five cases
+     call check_paths() and inspect the violations list; none calls report() or main() and
+     asserts rc. The inverted return in report() leaves all five PASSing.
+     MISSING CASE: `exit-code-contract` — main(["--check", <dirty fixture>]) == 1 and
+     main(["--check", <clean fixture>]) == 0.
+
+  M5 guard-set-shrink SURVIVED the selftest — is_guarded() is never called by any case.
+     Cases 1-2 check `guarded/lf.md` / `guarded/crlf.md` as EXPLICIT --check arguments, so
+     only is_allowlisted() is consulted; membership in the guarded set is never exercised.
+     MISSING CASE: `tools-python-is-guarded` — assert is_guarded("tools/x.py") is True and
+     that a default-set scan of a tree containing a CR-bearing tools/x.py flags it.
+     CANONICAL membership is unexercised for the same reason (secondary).
+
+Consequence for C1: real-world detection still holds, because default mode builds its set via
+guarded_set() (D2/D3 killed both mutants on checked-file counts and violation lists). The gap
+is selftest COVERAGE: a future regression to report()'s return value or to is_guarded() would
+ship green through the selftest gate while D2/D3 would have caught it. Recommendation for
+E1LineEnd: add the two named cases. This seat did not edit the tool.
+
+## 5. TOOLING / SCRATCH
+
+No installs — nothing was needed (Python 3.14.8 and git 2.56.0 already present); no pacman,
+no PATH-directory writes. Scratch `/fast/scratch/hyaku/tsukuroi-r64/MT1Guard/` removed after
+every receipt was copied here. No commit, no push, no git/jj mutation of any kind.

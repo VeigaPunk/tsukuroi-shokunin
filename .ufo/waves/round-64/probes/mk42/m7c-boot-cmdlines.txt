@@ -1,0 +1,14 @@
+2026-11-03T18:38:26Z
+$ for b in 0 -1 -2; do journalctl -b $b -k --no-pager -o cat | grep -m1 "Command line" ; done
+boot 0: root=/dev/mapper/root rootflags=subvol=@ 
+boot -1: root=/dev/mapper/root rootflags=subvol=@ 
+boot -2: 
+rc=0
+
+$ journalctl -b 0 -k --no-pager -o cat | grep -m1 "Command line:"
+Command line: resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+rc=0
+
+$ journalctl -b -1 -k --no-pager -o cat | grep -m1 "Command line:"
+Command line: resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+rc=0

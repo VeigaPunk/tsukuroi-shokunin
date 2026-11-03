@@ -1,0 +1,29 @@
+2026-11-03T18:37:44Z
+$ grep -nE 'upgraded (kernel/)?mkinitcpio 42|v42|sysroot' /var/log/pacman.log | tail -15
+245:[2026-10-03T20:42:01+0000] [ALPM] installed mkinitcpio (41-4)
+1883:[2026-10-11T16:14:34-0300] [ALPM] upgraded mkinitcpio (41-4 -> 41.1-1)
+2539:[2026-10-20T09:16:29-0300] [ALPM] upgraded mkinitcpio (41.1-1 -> 42.2-1)
+rc=0
+
+$ sed -n '2983,3050p' /var/log/pacman.log | grep -E 'SCRIPTLET|hook' | head -20
+[2026-10-20T09:18:13-0300] [ALPM] running '90-mkinitcpio-install.hook'...
+[2026-10-20T09:18:14-0300] [ALPM-SCRIPTLET] Building UKI for linux-lts (6.18.57-2-lts)
+[2026-10-20T09:18:14-0300] [ALPM-SCRIPTLET] ==> Using drop-in configuration file: 'nvidia.conf'
+[2026-10-20T09:18:14-0300] [ALPM-SCRIPTLET] ==> Using drop-in configuration file: 'omarchy_hooks.conf'
+[2026-10-20T09:18:14-0300] [ALPM-SCRIPTLET] ==> Using drop-in configuration file: 'omarchy_resume.conf'
+[2026-10-20T09:18:14-0300] [ALPM-SCRIPTLET] ==> Using drop-in configuration file: 'thunderbolt_module.conf'
+[2026-10-20T09:18:14-0300] [ALPM-SCRIPTLET] ==> Starting build: '6.18.57-2-lts'
+[2026-10-20T09:18:14-0300] [ALPM-SCRIPTLET]   -> Running build hook: [base]
+[2026-10-20T09:18:14-0300] [ALPM-SCRIPTLET]   -> Running build hook: [udev]
+[2026-10-20T09:18:14-0300] [ALPM-SCRIPTLET]   -> Running build hook: [plymouth]
+[2026-10-20T09:18:14-0300] [ALPM-SCRIPTLET]   -> Running build hook: [keyboard]
+[2026-10-20T09:18:14-0300] [ALPM-SCRIPTLET] ==> WARNING: Possibly missing firmware for module: 'xhci_pci_renesas'
+[2026-10-20T09:18:15-0300] [ALPM-SCRIPTLET]   -> Running build hook: [autodetect]
+[2026-10-20T09:18:15-0300] [ALPM-SCRIPTLET]   -> Running build hook: [microcode]
+[2026-10-20T09:18:15-0300] [ALPM-SCRIPTLET]   -> Running build hook: [modconf]
+[2026-10-20T09:18:15-0300] [ALPM-SCRIPTLET]   -> Running build hook: [kms]
+[2026-10-20T09:18:17-0300] [ALPM-SCRIPTLET]   -> Running build hook: [keymap]
+[2026-10-20T09:18:17-0300] [ALPM-SCRIPTLET]   -> Running build hook: [consolefont]
+[2026-10-20T09:18:17-0300] [ALPM-SCRIPTLET]   -> Running build hook: [block]
+[2026-10-20T09:18:17-0300] [ALPM-SCRIPTLET]   -> Running build hook: [encrypt]
+rc=0

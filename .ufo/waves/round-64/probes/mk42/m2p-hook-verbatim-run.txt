@@ -1,0 +1,9 @@
+2026-11-03T18:40:19Z
+# verbatim execution of the INSTALLED hook body with stubbed btrfs-specific probes, to show the /new_root check does NOT return early when the symlink resolves
+# stubs on PATH report: findmnt=ok(btrfs,/dev/x[/@snapshot/@]) btrfs=ro=true; the mount/sysroot topology is real (tmpfs stand-in)
+$ unshare -rm bash -c <HOOKRUN>
+== running the installed hook body (source) ==
+hook_call_rc=0
+final /sysroot FSTYPE=[tmpfs] contents=[marker]
+write through /new_root: yes
+hookrun_rc=0

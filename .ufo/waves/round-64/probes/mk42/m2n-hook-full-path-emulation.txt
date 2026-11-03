@@ -1,0 +1,15 @@
+2026-11-03T18:39:33Z
+# full-sequence path emulation, corrected: mktemp -p "$R" (the / of a user namespace is not writable)
+# v42 image layout (sysroot dir + new_root symlink, per /usr/lib/initcpio/functions:1212-1213) + the path steps of the installed btrfs-overlayfs run_latehook
+$ unshare -rm --propagation private bash -c <EMU2b>
+layout: lrwxrwxrwx 1 root root 7 Nov  3 15:39 new_root -> sysroot
+== hook line 7: fstype=$(findmnt --mountpoint "$root_mnt" -no FSTYPE) || return 0 ==
+   findmnt SUCCEEDED (rc=0), fstype=[tmpfs]  <- r1 predicted absence
+== hook line 12: SOURCE through the symlink ==
+   SOURCE=[snapshotroot]
+== hook lines 34-57, path steps verbatim (btrfs-only probes skipped: tmpfs stand-in) ==
+   mount --move $root_mnt -> lower : rc=0
+   mount -t overlay onto $root_mnt : rc=0
+   final /sysroot FSTYPE=[overlay]  contents=[marker]
+   writable through new_root: yes
+emu2b_rc=0

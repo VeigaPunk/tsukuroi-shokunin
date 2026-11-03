@@ -2785,3 +2785,37 @@ The three r63-closure routed items are honored: counting batteries commit with (
 commits that cite them; SHONEN boxes stay `[~]` (the r60 L0 question is still unanswered);
 the S278 Gate 17-word count stands (no action). Open operator-gated L0s (round-53/57/60) stay
 routed around, never treated as answered.
+
+## Round 64 — work (2026-11-03)
+
+Wave w1 (13 seats: 4 executor, 2 scout, 2 reviewer, 1 scribe, 1 connector, 1 critic,
+1 mutation-tester, 1 revenger; attack share 4/13; ONE batched dispatch via the inline spawn
+handoff, `.ufo/waves/round-64/w1{,-spec,-dispatch}.json`, results `w1-results.json`, no dead
+seats) returned and the L1 integrated:
+
+- **C1**: the three CRLF files normalized (content bytes unchanged except removed CR —
+  `git show 2f3061ef:F | tr -d '\r' | cmp - F` rc 0 ×3; independent 0x0D byte counts by R1C1Rev:
+  blob stray-CR 0/0/0, size delta == CR count); `tools/check-line-endings-r64.py` landed (350
+  lines + the two selftest cases MT1Guard routed: exit-code-contract, tools-python-is-guarded —
+  selftest 7 cases PASS; able-to-fail proven against the same M3/M5 mutants,
+  `after/c1-selftest-coverage-fix.txt`); census validate rc 0, 0 E-code, 44 W04 (42 pre-existing +
+  2 from C3's re-pin rows, disclosed). The worktree repair regressed three times during the wave
+  (18:43:21Z/18:44:30Z/18:47:32Z — re-materialised CRLF blobs; reverter unnamed, mechanism class
+  checkout/restore against the uncommitted worktree; mined in the lesson).
+- **C2**: `corpus/knowledge/host-drift-recheck-r64.md` — 25 DR rows (20 drift, 5 match, 0
+  unknown), every live value receipted under `probes/` (26 receipts, committed with the note);
+  findings: user manager `degraded` (2 failed transient rembg scopes, Result=oom-kill), rollback
+  net now exists (snapper root+home), /boot 687M free, stale dkms class moved to 7.2.3-arch1-3.
+- **C3**: `corpus/knowledge/mkinitcpio42-onrelease-r64.md` — 6 MK rows, SOURCED via S279/S280/S281
+  (opened live 2026-11-03, quotes ≤ 25 words, R2Sources ADMIT ×3 with the `opens:` prefix
+  stripped to house form); the r1 silent-no-op prediction REFUTED at mechanism level (the v42
+  `new_root -> sysroot` compatibility symlink; the refutation was first recorded at r17 —
+  precedence disclosed in the note, the README notice, and the lesson's
+  R64-DECLARATION-STALE-PRIOR); the by-design gate is `hook:14` (normal `@` boot); snapshot-boot
+  behavior stays operator-owned `unk`.
+- Frontier step: census before→after receipted; the mistake mined (R64-CRLF-HOST-DRIFT + the
+  declaration-stale-prior + the selftest-coverage gap + the L1's own `jj st` slip — all in
+  `corpus/lessons/round-64.md`); SOURCED claim = C3. Assimilation: none from `merge/tsukuroi/`
+  (79 id collisions, L0 filed); considerthese Counter-attack scoreboard resumed with the r64 row
+  (SKILL.md). QUALITY criterion 97 landed. SKILL: round-64 registry section (100 rows), the C2
+  erratum, the scoreboard row. README: the round-64 discharge notice.

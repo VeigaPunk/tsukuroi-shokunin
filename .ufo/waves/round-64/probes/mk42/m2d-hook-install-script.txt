@@ -1,0 +1,52 @@
+2026-11-03T18:37:24Z
+$ sed -n "40,80p" /usr/lib/initcpio/hooks/btrfs-overlayfs
+		echo "[OverlayFS setup] mkdir failed"
+		return 0
+	}
+
+	mount --move "$root_mnt" "$lower_dir" || {
+		echo "[OverlayFS setup] mount move failed"
+		return 0
+	}
+
+	mount -t overlay overlay \
+		-o "lowerdir=$lower_dir,upperdir=$ram_dir/upper,workdir=$ram_dir/work" \
+		"$root_mnt" || {
+		echo "[OverlayFS setup] mount overlay failed"
+		return 0
+	}
+
+	echo "[OverlayFS setup] OverlayFS mounted on ${root_mnt}"
+}
+rc=0
+
+$ ls /usr/lib/initcpio/install/ | grep -iE "overlay|plymouth"
+btrfs-overlayfs
+plymouth
+plymouth-shutdown
+sd-btrfs-overlayfs
+rc=0
+
+$ cat /usr/lib/initcpio/install/btrfs-overlayfs
+#!/usr/bin/env bash
+
+build() {
+	add_module btrfs
+	add_module overlay
+	add_binary btrfs
+	add_binary echo
+	add_binary findmnt
+	add_binary mktemp
+	add_binary mount
+	add_binary mkdir
+	add_runscript
+}
+
+help() {
+	cat <<HELPEOF
+This hook uses overlayfs to boot on a read only snapshot.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:
+rc=0

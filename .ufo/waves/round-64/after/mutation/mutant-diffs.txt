@@ -1,0 +1,87 @@
+===== M1 =====
+--- tool-pristine.py	2026-11-03 15:44:31.753218843 -0300
++++ mut/tool-M1.py	2026-11-03 15:44:31.845306799 -0300
+@@ -178,7 +178,7 @@
+         if not os.path.exists(path):
+             raise ValueError("no such file: %s" % rel)
+         checked += 1
+-        hit = first_cr(path)
++        hit = None  # M1 allow-all: the CR check never fires
+         if hit is not None:
+             violations.append((rel, hit[0], hit[1]))
+     return violations, checked, skipped
+===== M2 =====
+--- tool-pristine.py	2026-11-03 15:44:31.753218843 -0300
++++ mut/tool-M2.py	2026-11-03 15:44:31.935834305 -0300
+@@ -71,7 +71,13 @@
+ # --------------------------------------------------------------------------- paths
+ 
+ def is_guarded(relpath):
+-    """True when the repo-relative path belongs to the guarded set."""
++    """M2: only `.ufo` paths are guarded now."""
++    parts = relpath.replace(os.sep, "/").split("/")
++    return bool(parts) and parts[0] == ALLOW_DIR
++
++
++def is_allowlisted(relpath):
++    """M2: the old guarded set is the allowlist now."""
+     p = relpath.replace(os.sep, "/")
+     if p in CANONICAL:
+         return True
+@@ -84,19 +90,6 @@
+     return False
+ 
+ 
+-def is_allowlisted(relpath):
+-    """True when the path sits under a TOP-LEVEL `.ufo/` directory.
+-
+-    Anchored to the leading component on purpose: a nested `.ufo` directory further down
+-    (`corpus/.ufo/…`) does NOT buy the allowlist, because the guarded tree is exactly
+-    where a stray capture must not hide. See the symlink case in the round-64 review:
+-    the allowlist is name-based on the tracked path, so a guarded path can never inherit
+-    a target's `.ufo` shield.
+-    """
+-    parts = relpath.replace(os.sep, "/").split("/")
+-    return bool(parts) and parts[0] == ALLOW_DIR
+-
+-
+ def repo_relative(path, root):
+     """Best-effort repo-relative form of `path`; absolute fallback outside the root."""
+     abspath = os.path.abspath(path)
+===== M3 =====
+--- tool-pristine.py	2026-11-03 15:44:31.753218843 -0300
++++ mut/tool-M3.py	2026-11-03 15:44:32.027012910 -0300
+@@ -222,7 +222,7 @@
+             "check-line-endings-r64: %d allow-listed .ufo path(s) skipped (upstream captures)"
+             % default_set_skipped
+         )
+-    return FAIL if violations else PASS
++    return PASS if violations else FAIL  # M3 exit-inversion
+ 
+ 
+ # --------------------------------------------------------------------------- selftest
+===== M4 =====
+--- tool-pristine.py	2026-11-03 15:44:31.753218843 -0300
++++ mut/tool-M4.py	2026-11-03 15:44:32.119313636 -0300
+@@ -152,6 +152,8 @@
+                 return None
+             idx = chunk.find(CR)
+             if idx != -1:
++                if idx == len(chunk) - 1 and len(chunk) < 65536:
++                    return None  # M4 cr-at-eof-blindness
+                 return line + chunk.count(LF, 0, idx), offset + idx
+             line += chunk.count(LF)
+             offset += len(chunk)
+===== M5 =====
+--- tool-pristine.py	2026-11-03 15:44:31.753218843 -0300
++++ mut/tool-M5.py	2026-11-03 15:44:32.213163152 -0300
+@@ -77,10 +77,7 @@
+         return True
+     if any(p.startswith(prefix) for prefix in GUARDED_DIRS):
+         return True
+-    if p.startswith(TOOLS_PY_PREFIX) and p.endswith(".py"):
+-        rest = p[len(TOOLS_PY_PREFIX):]
+-        if rest and "/" not in rest:
+-            return True
++    # M5 guard-set-shrink: tools/*.py is no longer guarded
+     return False

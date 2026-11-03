@@ -1,0 +1,182 @@
+{
+  "source_sha_at_snapshot": "15f0e65c889acc3b591ca44c7e52fe16fa14d79c367e743ebcc905b17d50c030",
+  "pristine_sha": "15f0e65c889acc3b591ca44c7e52fe16fa14d79c367e743ebcc905b17d50c030",
+  "pristine_identical_to_source": true,
+  "baseline": {
+    "D1-selftest": [
+      0,
+      "check-line-endings-r64 selftest (fixtures under /fast/scratch/hyaku/tsukuroi-r64/MT1Guard/work)\n  lf-file-passes                       PASS\n  crlf-file-fails-naming-path          PASS\n  allowlisted-ufo-path-ignored         PASS\n  cr-at-eof-without-newline-flagged    PASS\n  cr-midline-flagged                   PASS\nCHECK_LINE_ENDINGS_SELFTEST: PASS (5 cases, 5 passed, 0 failed)\n",
+      ""
+    ],
+    "D2-dirty-default-set": [
+      1,
+      "check-line-endings-r64: 3 violation(s)\n  corpus/bad.md:1: CR byte at offset 5\n  plans/eof.md:2: CR byte at offset 10\n  tools/bad.py:1: CR byte at offset 5\nCHECK_LINE_ENDINGS: FAIL (7 file(s) checked, 3 violation(s))\ncheck-line-endings-r64: 1 allow-listed .ufo path(s) skipped (upstream captures)\n",
+      ""
+    ],
+    "D3-clean-exit": [
+      0,
+      "CHECK_LINE_ENDINGS: PASS (7 file(s) checked, 0 violation(s))\ncheck-line-endings-r64: 1 allow-listed .ufo path(s) skipped (upstream captures)\n",
+      ""
+    ]
+  },
+  "mutants": {
+    "M1": {
+      "desc": "allow-all: the CR check never fires (hit forced to None); every file reports clean",
+      "missing_case": null,
+      "sha": "13eb7c49ce4db81da652035b8f43c2b6a9a796f5c49dc9039da3942c3d4fed25",
+      "detectors": {
+        "D1-selftest": {
+          "rc": 1,
+          "stdout": "check-line-endings-r64 selftest (fixtures under /fast/scratch/hyaku/tsukuroi-r64/MT1Guard/work)\n  lf-file-passes                       PASS\n  crlf-file-fails-naming-path          FAIL\n  allowlisted-ufo-path-ignored         PASS\n  cr-at-eof-without-newline-flagged    FAIL\n  cr-midline-flagged                   FAIL\nCHECK_LINE_ENDINGS_SELFTEST: FAIL (5 cases, 2 passed, 3 failed)\n",
+          "stderr": "",
+          "killed": true
+        },
+        "D2-dirty-default-set": {
+          "rc": 0,
+          "stdout": "CHECK_LINE_ENDINGS: PASS (7 file(s) checked, 0 violation(s))\ncheck-line-endings-r64: 1 allow-listed .ufo path(s) skipped (upstream captures)\n",
+          "stderr": "",
+          "killed": true
+        },
+        "D3-clean-exit": {
+          "rc": 0,
+          "stdout": "CHECK_LINE_ENDINGS: PASS (7 file(s) checked, 0 violation(s))\ncheck-line-endings-r64: 1 allow-listed .ufo path(s) skipped (upstream captures)\n",
+          "stderr": "",
+          "killed": false
+        }
+      },
+      "killed_by": [
+        "D1-selftest",
+        "D2-dirty-default-set"
+      ],
+      "any_killed": true,
+      "selftest_survived": false
+    },
+    "M2": {
+      "desc": "allowlist-inversion: `.ufo/**` is the ONLY guarded set; the real guarded set becomes the allowlist (guarded/allowlisted swapped)",
+      "missing_case": null,
+      "sha": "ea4d50b2a1f8660c8c0be14465708efd25d4da57f616e346b12856a05e79908b",
+      "detectors": {
+        "D1-selftest": {
+          "rc": 1,
+          "stdout": "check-line-endings-r64 selftest (fixtures under /fast/scratch/hyaku/tsukuroi-r64/MT1Guard/work)\n  lf-file-passes                       PASS\n  crlf-file-fails-naming-path          PASS\n  allowlisted-ufo-path-ignored         FAIL\n  cr-at-eof-without-newline-flagged    PASS\n  cr-midline-flagged                   PASS\nCHECK_LINE_ENDINGS_SELFTEST: FAIL (5 cases, 4 passed, 1 failed)\n",
+          "stderr": "",
+          "killed": true
+        },
+        "D2-dirty-default-set": {
+          "rc": 1,
+          "stdout": "check-line-endings-r64: 1 violation(s)\n  .ufo/waves/cap.txt:1: CR byte at offset 15\nCHECK_LINE_ENDINGS: FAIL (1 file(s) checked, 1 violation(s))\ncheck-line-endings-r64: 7 allow-listed .ufo path(s) skipped (upstream captures)\n",
+          "stderr": "",
+          "killed": true
+        },
+        "D3-clean-exit": {
+          "rc": 1,
+          "stdout": "check-line-endings-r64: 1 violation(s)\n  .ufo/waves/cap.txt:1: CR byte at offset 15\nCHECK_LINE_ENDINGS: FAIL (1 file(s) checked, 1 violation(s))\ncheck-line-endings-r64: 7 allow-listed .ufo path(s) skipped (upstream captures)\n",
+          "stderr": "",
+          "killed": true
+        }
+      },
+      "killed_by": [
+        "D1-selftest",
+        "D2-dirty-default-set",
+        "D3-clean-exit"
+      ],
+      "any_killed": true,
+      "selftest_survived": false
+    },
+    "M3": {
+      "desc": "exit-inversion: report() returns 0 on violations and 1 on clean",
+      "missing_case": "exit-code-contract (no case asserts report()/main() return value)",
+      "sha": "7d528698ec1da950a12333391ff0e5773638176b41b4255e1cc92ce5b605142f",
+      "detectors": {
+        "D1-selftest": {
+          "rc": 0,
+          "stdout": "check-line-endings-r64 selftest (fixtures under /fast/scratch/hyaku/tsukuroi-r64/MT1Guard/work)\n  lf-file-passes                       PASS\n  crlf-file-fails-naming-path          PASS\n  allowlisted-ufo-path-ignored         PASS\n  cr-at-eof-without-newline-flagged    PASS\n  cr-midline-flagged                   PASS\nCHECK_LINE_ENDINGS_SELFTEST: PASS (5 cases, 5 passed, 0 failed)\n",
+          "stderr": "",
+          "killed": false
+        },
+        "D2-dirty-default-set": {
+          "rc": 0,
+          "stdout": "check-line-endings-r64: 3 violation(s)\n  corpus/bad.md:1: CR byte at offset 5\n  plans/eof.md:2: CR byte at offset 10\n  tools/bad.py:1: CR byte at offset 5\nCHECK_LINE_ENDINGS: FAIL (7 file(s) checked, 3 violation(s))\ncheck-line-endings-r64: 1 allow-listed .ufo path(s) skipped (upstream captures)\n",
+          "stderr": "",
+          "killed": true
+        },
+        "D3-clean-exit": {
+          "rc": 1,
+          "stdout": "CHECK_LINE_ENDINGS: PASS (7 file(s) checked, 0 violation(s))\ncheck-line-endings-r64: 1 allow-listed .ufo path(s) skipped (upstream captures)\n",
+          "stderr": "",
+          "killed": true
+        }
+      },
+      "killed_by": [
+        "D2-dirty-default-set",
+        "D3-clean-exit"
+      ],
+      "any_killed": true,
+      "selftest_survived": true
+    },
+    "M4": {
+      "desc": "cr-at-eof-blindness: a CR that is the file's final byte (no trailing newline) is not reported",
+      "missing_case": null,
+      "sha": "9cfdd594f45473b6d1e1ff2c3ed620a453ec3115cac46482977af0280ddff1e1",
+      "detectors": {
+        "D1-selftest": {
+          "rc": 1,
+          "stdout": "check-line-endings-r64 selftest (fixtures under /fast/scratch/hyaku/tsukuroi-r64/MT1Guard/work)\n  lf-file-passes                       PASS\n  crlf-file-fails-naming-path          PASS\n  allowlisted-ufo-path-ignored         PASS\n  cr-at-eof-without-newline-flagged    FAIL\n  cr-midline-flagged                   PASS\nCHECK_LINE_ENDINGS_SELFTEST: FAIL (5 cases, 4 passed, 1 failed)\n",
+          "stderr": "",
+          "killed": true
+        },
+        "D2-dirty-default-set": {
+          "rc": 1,
+          "stdout": "check-line-endings-r64: 2 violation(s)\n  corpus/bad.md:1: CR byte at offset 5\n  tools/bad.py:1: CR byte at offset 5\nCHECK_LINE_ENDINGS: FAIL (7 file(s) checked, 2 violation(s))\ncheck-line-endings-r64: 1 allow-listed .ufo path(s) skipped (upstream captures)\n",
+          "stderr": "",
+          "killed": true
+        },
+        "D3-clean-exit": {
+          "rc": 0,
+          "stdout": "CHECK_LINE_ENDINGS: PASS (7 file(s) checked, 0 violation(s))\ncheck-line-endings-r64: 1 allow-listed .ufo path(s) skipped (upstream captures)\n",
+          "stderr": "",
+          "killed": false
+        }
+      },
+      "killed_by": [
+        "D1-selftest",
+        "D2-dirty-default-set"
+      ],
+      "any_killed": true,
+      "selftest_survived": false
+    },
+    "M5": {
+      "desc": "guard-set-shrink: tools/*.py dropped from the guarded set",
+      "missing_case": "tools-python-is-guarded (is_guarded is never exercised: fixtures pass explicit paths)",
+      "sha": "285dd1cff4a207c80618068bae33805ad4c280f9d5d5acc5f62b05ad0d92d348",
+      "detectors": {
+        "D1-selftest": {
+          "rc": 0,
+          "stdout": "check-line-endings-r64 selftest (fixtures under /fast/scratch/hyaku/tsukuroi-r64/MT1Guard/work)\n  lf-file-passes                       PASS\n  crlf-file-fails-naming-path          PASS\n  allowlisted-ufo-path-ignored         PASS\n  cr-at-eof-without-newline-flagged    PASS\n  cr-midline-flagged                   PASS\nCHECK_LINE_ENDINGS_SELFTEST: PASS (5 cases, 5 passed, 0 failed)\n",
+          "stderr": "",
+          "killed": false
+        },
+        "D2-dirty-default-set": {
+          "rc": 1,
+          "stdout": "check-line-endings-r64: 2 violation(s)\n  corpus/bad.md:1: CR byte at offset 5\n  plans/eof.md:2: CR byte at offset 10\nCHECK_LINE_ENDINGS: FAIL (5 file(s) checked, 2 violation(s))\ncheck-line-endings-r64: 1 allow-listed .ufo path(s) skipped (upstream captures)\n",
+          "stderr": "",
+          "killed": true
+        },
+        "D3-clean-exit": {
+          "rc": 0,
+          "stdout": "CHECK_LINE_ENDINGS: PASS (5 file(s) checked, 0 violation(s))\ncheck-line-endings-r64: 1 allow-listed .ufo path(s) skipped (upstream captures)\n",
+          "stderr": "",
+          "killed": true
+        }
+      },
+      "killed_by": [
+        "D2-dirty-default-set",
+        "D3-clean-exit"
+      ],
+      "any_killed": true,
+      "selftest_survived": true
+    }
+  },
+  "source_sha_at_end": "15f0e65c889acc3b591ca44c7e52fe16fa14d79c367e743ebcc905b17d50c030",
+  "source_unchanged": true
+}

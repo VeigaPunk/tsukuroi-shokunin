@@ -1,0 +1,145 @@
+# c1 guard check receipt — 2026-11-03T18:44:05Z
+tool: tools/check-line-endings-r64.py sha256=15f0e65c889acc3b591ca44c7e52fe16fa14d79c367e743ebcc905b17d50c030
+
+$ python3 tools/check-line-endings-r64.py --check --root /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+CHECK_LINE_ENDINGS: PASS (326 file(s) checked, 0 violation(s))
+check-line-endings-r64: 22370 allow-listed .ufo path(s) skipped (upstream captures)
+rc=0
+
+--- guarded-set membership, from git -C <lane> ls-files ---
+tracked-total=22712 guarded-and-checked=326
+  canonical top-level (7): AGENTS.md LOG.md MINT.md PROVINCE.md SCORECARD.md SHONEN.md SKILL.md
+  corpus/=208 plans/=18 tools/*.py=93
+  guarded-but-allow-listed (must be 0): 0
+  top-level .ufo tracked files skipped: 22370
+  nested-'.ufo' tracked paths (must be 0): 0
+
+--- byte-level state of the three repaired files ---
+corpus/SOURCES.md    CR-bytes=0 lines=381 sha256=e1558e4b3eeef8857e27a64299e08c50e52c3b9f5f2160a09cd6647e90c3df77
+SKILL.md             CR-bytes=0 lines=5489 sha256=bda5249b161e7442f056e924c9091331ac091a6d38e49bbcd762a93ad331c85d
+SCORECARD.md         CR-bytes=0 lines=4723 sha256=1304750516c86ab17a1cdb0ee0df956e26aed25ae7e5f73bb2130b2e2c89df66
+
+
+--- allowlist anchoring (round-64 review F1, fixed) ---
+$ python3 tools/check-line-endings-r64.py --check --root <scratch>/f1 corpus/.ufo/inner.md   # nested .ufo must FAIL
+check-line-endings-r64: 1 violation(s)
+  corpus/.ufo/inner.md:1: CR byte at offset 3
+CHECK_LINE_ENDINGS: FAIL (1 file(s) checked, 1 violation(s))
+rc=1
+
+$ python3 tools/check-line-endings-r64.py --check --root <scratch>/f1 .ufo/cap.txt   # top-level .ufo skipped
+CHECK_LINE_ENDINGS: PASS (0 file(s) checked, 0 violation(s), 1 allow-listed)
+rc=0
+
+Anchored to the leading component: a `.ufo` directory nested INSIDE the guarded tree no
+longer buys the allowlist, so a stray CRLF capture cannot hide at corpus/.ufo/.
+
+
+--- symlink attack: guarded path pointing into .ufo is still read through and flagged ---
+$ python3 tools/check-line-endings-r64.py --check --root <scratch>/sl corpus/SOURCES.md
+check-line-endings-r64: 1 violation(s)
+  corpus/SOURCES.md:1: CR byte at offset 15
+CHECK_LINE_ENDINGS: FAIL (1 file(s) checked, 1 violation(s))
+rc=1
+
+The allowlist is name-based on the TRACKED path, so the target location grants no shield.
+
+
+--- exit-code contract: 0 clean / 1 violations / 2 usage-or-IO ---
+$ python3 tools/check-line-endings-r64.py            # no mode supplied
+check-line-endings-r64.py: error: one of --check or --selftest is required
+rc=2
+
+$ python3 tools/check-line-endings-r64.py --check --root /tmp    # not a git repo -> cannot evaluate
+check-line-endings-r64: git ls-files failed (rc=128): fatal: not a git repository (or any parent up to mount point /)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+rc=2
+
+$ python3 tools/check-line-endings-r64.py --check /nonexistent/x.md --root .   # unreadable path
+check-line-endings-r64: no such file: /nonexistent/x.md
+rc=2
+
+$ python3 tools/check-line-endings-r64.py --check    # cwd = lane, default guarded set
+CHECK_LINE_ENDINGS: PASS (326 file(s) checked, 0 violation(s))
+check-line-endings-r64: 22370 allow-listed .ufo path(s) skipped (upstream captures)
+rc=0
+
+
+--- concurrency note: a sibling seat transiently rewrote corpus/SOURCES.md ---
+At 2026-11-03T18:43:21Z a guardian run observed 381 CR bytes reappear in the LANE
+worktree corpus/SOURCES.md (mtime then 15:43:24-0300). By 18:43:5xZ the file was back
+to its repaired digest e1558e4b3eeef8857e27a64299e08c50e52c3b9f5f2160a09cd6647e90c3df77
+with 0 CR bytes, and the census at 18:44Z is still rc 0 with 0 E-codes. The guard caught
+the drift live and the tree is clean at the time of this receipt; the sibling was messaged.
+The L1 should re-run this receipt after integration (the seat is not the only writer).
+
+
+--- concurrency correction (2026-11-03T18:45:32Z) ---
+The 18:43:21Z CRLF transient was NOT seat R1C1Rev. That seat supplied evidence it used
+`git -C <absolute-clone> checkout-index -f`, so the write landed in its clone; its own
+lane re-measurement at 18:40:53Z showed mtime 15:37:05 and CR=0, and its scratch was
+deleted ~18:42Z. Attribution to that seat is withdrawn; the author is unknown.
+
+Further churn observed with unchanged bytes (rewrites, not damage):
+$ for i in 1 2 3; do stat -c %y corpus/SOURCES.md; sha256sum corpus/SOURCES.md; sleep 2; done
+18:45:15Z cr=0 sha=e1558e4b3eeef885 mtime=2026-11-03 15:44:30.565020298 -0300
+18:45:17Z cr=0 sha=e1558e4b3eeef885 mtime=2026-11-03 15:44:30.565020298 -0300
+18:45:19Z cr=0 sha=e1558e4b3eeef885 mtime=2026-11-03 15:44:30.565020298 -0300
+mtime moved to 18:44:30Z while the digest stayed e1558e4b - a rewrite with identical LF
+content, consistent with a mutation-test cycle that mutates and restores the file.
+Only two lane paths have mtime >= 15:43:00: corpus/SOURCES.md and this tool. No tracked
+byte changed: `git status --porcelain --untracked-files=no` still shows exactly the three
+normalized files modified and no fourth.
+
+
+--- RECURRENCE (2026-11-03T18:56:07Z): lane corpus/SOURCES.md regressed to the CRLF HEAD blob ---
+Reported by seat CN1Siblings at ~18:53Z. Reproduced read-only before repair:
+
+$ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-11-03T18:55:56Z
+$ sha256sum corpus/SOURCES.md ; stat -c %y corpus/SOURCES.md
+2349bfda141ab0556c2918a08246184f31f70dbbca0bfcd2d6726e3b72d2d800  corpus/SOURCES.md
+2026-11-03 15:47:32.602919502 -0300   size=279287  cr=381  crlf_lines=381
+That digest is the committed 2f3061ef blob byte-for-byte, and 279287 == the base size.
+SKILL.md and SCORECARD.md were untouched by it (cr=0, sha bda5249b / 13047505).
+
+$ python3 tools/check-line-endings-r64.py --check --root .
+check-line-endings-r64: 1 violation(s)
+  corpus/SOURCES.md:1: CR byte at offset 35
+CHECK_LINE_ENDINGS: FAIL (326 file(s) checked, 1 violation(s))
+rc=1
+
+Repair (this seat s file per the wave ownership map):
+$ sed -i 's/\r$//' corpus/SOURCES.md
+rc=0
+
+$ printf "cr=%s sha=%s size=%s lines=%s\n" ...
+cr=0 sha=e1558e4b3eeef8857e27a64299e08c50e52c3b9f5f2160a09cd6647e90c3df77 size=278906 lines=381
+
+$ git show 2f3061ef:corpus/SOURCES.md | tr -d "\r" | cmp - corpus/SOURCES.md
+output: <empty>
+identity_rc=0
+
+$ python3 tools/check-line-endings-r64.py --check --root .
+CHECK_LINE_ENDINGS: PASS (326 file(s) checked, 0 violation(s))
+rc=0
+
+$ /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi
+census_rc=0
+E-lines: 0
+W04-lines: 42
+tsukuroi	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
+
+
+Mechanism, per CN1Siblings: the E12 flood is heading-anchored - ONE CR inside the
+"## Registry" heading makes the census read all 278 rows as outside-Registry. And any
+`git checkout-index -f` / `git restore` / `git checkout --` on this detached HEAD
+re-materialises the CRLF HEAD blob on that path. Both facts are consistent with what I
+measured: the regressed file was byte-identical to the committed blob, and re-stripping
+restored the exact same digest as the first repair (e1558e4b).
+
+Sequence for this path this wave: 18:37 repaired -> 18:43:21 CRLF transient -> 18:43:5x
+restored -> 18:44:30 rewrite (same LF digest) -> 18:47:32 CRLF blob (the state CN1Siblings
+caught) -> 18:56 repaired. The guard caught every one of the CRLF states. This path has
+no stable writer other than this seat; the L1 must confirm the final state after
+integration and re-run the census, since another seat keeps re-materialising the blob.

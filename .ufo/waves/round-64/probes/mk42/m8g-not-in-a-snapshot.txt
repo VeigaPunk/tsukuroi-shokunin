@@ -1,0 +1,19 @@
+2026-11-03T18:42:31Z
+# "You are not in a snapshot." is limine-snapper-sync own report; capture it per boot, with the unit and count
+--- boot 0 ---
+$ journalctl -b 0 --no-pager -o short | grep -i 'not in a snapshot'
+Nov 02 12:07:21 plazir27 limine-snapper-restore[2628]: You are not in a snapshot.
+rc=0
+--- boot -1 ---
+$ journalctl -b -1 --no-pager -o short | grep -i 'not in a snapshot'
+Oct 31 20:27:35 plazir27 limine-snapper-restore[2666]: You are not in a snapshot.
+rc=0
+--- boot -2 ---
+$ journalctl -b -2 --no-pager -o short | grep -i 'not in a snapshot'
+rc=1
+
+$ journalctl -b 0 --no-pager -u limine-snapper-sync.service | tail -5
+Nov 02 12:07:20 plazir27 systemd[1]: Started [limine-snapper-sync.service] automatically synchronizes boot entries with the Snapper snapshot list..
+Nov 02 12:07:20 plazir27 limine-snapper-watcher[1374]: inotifywait is not installed. Falling back to Snapper plugin integration.
+Nov 02 12:07:20 plazir27 systemd[1]: limine-snapper-sync.service: Deactivated successfully.
+rc=0

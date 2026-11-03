@@ -1,0 +1,22 @@
+2026-11-03T18:38:26Z
+$ curl -fsSL 'https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio/-/raw/v41/functions' -o $S/functions-v41
+rc=0
+$ curl -fsSL '.../v42/functions' -o $S/functions-v42
+rc=0
+$ wc -c
+46521 /fast/scratch/hyaku/tsukuroi-r64/E3Mk42/functions-v41
+47113 /fast/scratch/hyaku/tsukuroi-r64/E3Mk42/functions-v42
+93634 total
+
+$ grep -n 'new_root\|sysroot' $S/functions-v41
+1188:        install -dm755 "$root"/{new_root,proc,sys,dev,run,tmp,var,etc,usr/{local{,/bin,/sbin,/lib},lib,bin}}
+rc=0
+
+$ grep -n 'new_root\|sysroot' $S/functions-v42
+1212:    install -dm755 "$buildroot/sysroot"
+1213:    ln -s "sysroot" "$buildroot/new_root"
+rc=0
+
+--- sha256 of installed vs v42 (CR-normalized) ---
+8ccfad0212fe808c409d43c90dd3d2566baffee502909b0d778b41fff0fb777d  /usr/lib/initcpio/functions
+8ccfad0212fe808c409d43c90dd3d2566baffee502909b0d778b41fff0fb777d  /fast/scratch/hyaku/tsukuroi-r64/E3Mk42/functions-v42

@@ -1,0 +1,11 @@
+2026-11-03T18:37:24Z
+$ grep -c "/new_root" /usr/lib/initcpio/init; grep -n "sysroot\|new_root" /usr/lib/initcpio/init
+0
+66:# Mount root at /sysroot
+67:"$mount_handler" /sysroot
+77:if [ "$(stat -c %D /)" = "$(stat -c %D /sysroot)" ]; then
+78:    # Nothing got mounted on /sysroot. This is the end, we don't know what to do anymore
+87:elif [ ! -x "/sysroot${init}" ]; then
+88:    # Successfully mounted /sysroot, but ${init} is missing
+110:    /usr/bin/switch_root /sysroot "$init" "$@"
+rc=0

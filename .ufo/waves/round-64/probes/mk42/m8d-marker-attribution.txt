@@ -1,0 +1,11 @@
+2026-11-03T18:38:16Z
+# NOTE: the overlayfs kernel lines timestamped 15:38:04 in m8c are from THIS seat note-taking emulation inside an unprivileged user+mount namespace, not from boot-time overlay setup.
+$ journalctl -b --no-pager -o short-monotonic | grep -i "OverlayFS setup"
+rc=1
+
+$ journalctl -b -1 --no-pager -o short-monotonic | grep -icE "plymouth|overlay"
+30
+rc=0
+
+$ journalctl -b -1 --no-pager | grep -iE "plymouth update-root-fs|new-root-dir|switch root" | head -5
+rc=0

@@ -1,0 +1,15 @@
+2026-11-03T18:42:18Z
+# boot -2 has no "Command line" in -k output; determine what that journal actually contains before citing it
+$ journalctl -b -2 --no-pager -o short-monotonic | sed -n "1,3p"
+[   24.909731] plazir27 systemd-resolved[1110]: Clock change detected. Flushing caches.
+[   24.909805] plazir27 systemd-timesyncd[1135]: Contacted time server [2001:12d0:2040:229::211]:123 (2.arch.pool.ntp.org).
+[   24.925680] plazir27 systemd-journald[1024]: Time jumped backwards, rotating.
+rc=0
+$ journalctl -b -2 --no-pager | grep -c "kernel:"
+49433
+rc=0
+$ journalctl -b -2 -k --no-pager | wc -l
+49469
+rc=0
+$ journalctl -b -2 --no-pager -o short-monotonic | grep -m1 -i "Linux version"
+rc=1

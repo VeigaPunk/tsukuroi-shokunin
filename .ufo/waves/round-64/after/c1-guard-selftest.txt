@@ -1,0 +1,27 @@
+# c1 guard selftest receipt — 2026-11-03T18:43:13Z
+tool: tools/check-line-endings-r64.py sha256=15f0e65c889acc3b591ca44c7e52fe16fa14d79c367e743ebcc905b17d50c030 (350 lines)
+python: Python 3.14.8 ; imports: argparse, os, shutil, subprocess, sys, tempfile (stdlib only)
+
+$ python3 tools/check-line-endings-r64.py --selftest --work /fast/scratch/hyaku/tsukuroi-r64/E1LineEnd
+check-line-endings-r64 selftest (fixtures under /fast/scratch/hyaku/tsukuroi-r64/E1LineEnd)
+  lf-file-passes                       PASS
+  crlf-file-fails-naming-path          PASS
+  allowlisted-ufo-path-ignored         PASS
+  cr-at-eof-without-newline-flagged    PASS
+  cr-midline-flagged                   PASS
+CHECK_LINE_ENDINGS_SELFTEST: PASS (5 cases, 5 passed, 0 failed)
+rc=0
+
+--- scratch base after exit: `try/finally` shutil.rmtree ran, no fixture tree left ---
+  <empty>
+
+--- scratch-base precedence: $TMPDIR honored with --work absent (no hardcoded /tmp) ---
+$ TMPDIR=/fast/scratch/hyaku/tsukuroi-r64/E1LineEnd python3 tools/check-line-endings-r64.py --selftest
+check-line-endings-r64 selftest (fixtures under /fast/scratch/hyaku/tsukuroi-r64/E1LineEnd)
+  lf-file-passes                       PASS
+  crlf-file-fails-naming-path          PASS
+  allowlisted-ufo-path-ignored         PASS
+  cr-at-eof-without-newline-flagged    PASS
+  cr-midline-flagged                   PASS
+CHECK_LINE_ENDINGS_SELFTEST: PASS (5 cases, 5 passed, 0 failed)
+rc=0

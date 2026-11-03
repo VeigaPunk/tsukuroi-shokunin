@@ -1,0 +1,61 @@
+# c1 CR-strip content-identity receipt — 2026-11-03T18:44:22Z
+lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+base (pre-normalization committed state): git rev 2f3061ef (declaration commit)
+repair: `sed -i "s/\r$//"` per file — removes exactly a CR that immediately precedes
+a newline, inserts nothing, changes no other byte.
+
+--- pre-normalization CR inventory (measured BEFORE the sed pass) ---
+corpus/SOURCES.md total_CR=381  CR-at-line-end=381  lines=381  last_byte=0a
+SKILL.md          total_CR=5452 CR-at-line-end=5452 lines=5489 last_byte=2e
+SCORECARD.md      total_CR=4723 CR-at-line-end=4723 lines=4723 last_byte=0a
+In all three, total_CR == CR-at-line-end, so sed had exactly those CRs to remove and
+no other byte in reach; SKILL.md last_byte=2e rules out a CR-at-EOF case.
+
+--- identity proof: stripped base == repaired worktree, per file ---
+method: silent cmp output + rc 0 == byte-identical
+
+$ git -C <lane> show 2f3061ef:corpus/SOURCES.md | tr -d "\r" | cmp - <lane>/corpus/SOURCES.md
+output: <empty>
+rc=0
+
+$ git -C <lane> show 2f3061ef:SKILL.md | tr -d "\r" | cmp - <lane>/SKILL.md
+output: <empty>
+rc=0
+
+$ git -C <lane> show 2f3061ef:SCORECARD.md | tr -d "\r" | cmp - <lane>/SCORECARD.md
+output: <empty>
+rc=0
+
+--- cross-check A: `git diff --ignore-cr-at-eol` is EMPTY ---
+$ git -C <lane> diff --ignore-cr-at-eol --stat
+output: <empty>
+A non-empty stat would mean a non-CR byte moved; empty means the diff is CR-at-EOL only.
+
+--- cross-check B: numstat deletions == insertions == that file s CR count ---
+$ git -C <lane> diff --numstat
+4723	4723	SCORECARD.md
+5452	5452	SKILL.md
+381	381	corpus/SOURCES.md
+SCORECARD 4723/4723 vs CR=4723 ; SKILL 5452/5452 vs CR=5452 ; SOURCES 381/381 vs CR=381
+One line rewritten per stripped CR - a rewrite would not balance like this.
+
+--- cross-check C: line counts unchanged by normalization ---
+corpus/SOURCES.md    base_lines=381 worktree_lines=381 same=yes
+SKILL.md             base_lines=5489 worktree_lines=5489 same=yes
+SCORECARD.md         base_lines=4723 worktree_lines=4723 same=yes
+
+--- post-normalization CR inventory ---
+corpus/SOURCES.md    CR=0
+SKILL.md             CR=0
+SCORECARD.md         CR=0
+
+--- file digests at this seat s end state ---
+e1558e4b3eeef8857e27a64299e08c50e52c3b9f5f2160a09cd6647e90c3df77  corpus/SOURCES.md
+bda5249b161e7442f056e924c9091331ac091a6d38e49bbcd762a93ad331c85d  SKILL.md
+1304750516c86ab17a1cdb0ee0df956e26aed25ae7e5f73bb2130b2e2c89df66  SCORECARD.md
+
+--- changed tracked paths (nothing else touched by this seat) ---
+ M SCORECARD.md
+ M SKILL.md
+ M corpus/SOURCES.md
+?? tools/check-line-endings-r64.py   (new file, untracked; the L1 commits it)

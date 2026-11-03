@@ -1,0 +1,13 @@
+2026-11-03T18:37:44Z
+$ stat -c '%y %s %n' /boot/EFI/Linux/omarchy_linux.efi
+stat: cannot stat '/boot/EFI/Linux/omarchy_linux.efi': Permission denied (os error 13)
+rc=1
+
+$ ls -ld /boot; ls -l /boot 2>&1 | head -5
+drwx------ 5 root root 4096 Dec 31  1969 /boot
+ls: cannot open directory '/boot': Permission denied
+rc=0
+
+$ findmnt -no TARGET,SOURCE,FSTYPE,OPTIONS /boot
+/boot /dev/nvme0n1p1 vfat rw,relatime,fmask=0077,dmask=0077,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro
+rc=0

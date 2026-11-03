@@ -541,3 +541,20 @@ round-60 axes table deferred to a coverage round; map governance on held ground,
 | `knowledge/windows-scheduled-task-status-plane-r59.md` | the scheduled-task status plane via schtasks, rows J1-J5: the STATUS vocabulary decoded against the S274 API constants, the Last Result decimal display (267009), the /hresult divergence | S261 S274; `lessons/round-59.md` Gate |
 | `knowledge/windows-registry-read-plane-r60.md` | the registry READ plane via reg query, rows RG1-RG5: named-value/absence/recursion/type-census contracts, REG_QWORD measured against the stale documented type set, the MSYS boundary (RG5) | S275; `lessons/round-60.md` Gate |
 | `knowledge/windows-driver-query-plane-r61.md` | the driver query plane via driverquery, rows DQ1-DQ5: the CSV inventory (trailing-space `"Kernel "` cells, empty Link Dates), the host-measured 15-column verbose set, the documented /nh-list and /v-signed restrictions measured, the /SI table, the MSYS boundary on a second command | S276; `lessons/round-61.md` Gate |
+
+## Round-64 notice — the on-release watch re-measured post-upgrade (2026-11-03)
+
+Append-only; the round-17 superseded notice above stays as written. The watch bullet's
+post-upgrade state is now measured in `knowledge/mkinitcpio42-onrelease-r64.md` (rows MK1-MK6,
+sourced S279/S280/S281 opened live 2026-11-03): installed `mkinitcpio 42.2-1` /
+`limine-mkinitcpio-hook 1.40.0-2` / `plymouth 26.134.222-3`; the installed hooks still name
+`/new_root` (`btrfs-overlayfs:4`, `plymouth:11`) and upstream master/main bytes are byte-identical
+to the installed files (dated re-pins, S280/S281 supersedes S021/S022); the v42 compatibility
+symlink (`functions:1212-1213`) is re-demonstrated end-to-end in a user namespace (the full hook
+body completes and passes `init:77`); the S002 TPM2 manual intervention and the v42.2 changeset
+(systemd-hook-only, NvPCR/PCR-9) measurably do not bind this host (busybox `encrypt` HOOKS, no
+`/etc/crypttab.initramfs`). The remaining untested discriminator is unchanged from round 17: a
+read-only snapshot boot under the v42 chain — operator-owned. The r64 contribution is the
+post-upgrade measured state and the dated re-pins, not a first discharge: round 17 withdrew the
+silent-no-op prediction and emulated the hooks first (`knowledge/boot-chain-r17.md`, the notice
+above).

@@ -1,0 +1,31 @@
+2026-11-03T18:42:14Z
+# corrected per-boot root-subvolume evidence: boot -2 yielded no Command line in m7c, so verify it separately
+--- boot 0 ---
+$ journalctl -b 0 -k --no-pager -o cat | grep -c 'Command line'
+1
+rc=0
+$ journalctl -b 0 -k --no-pager -o cat | grep -m1 -o 'rootflags=[^ ]*'
+rootflags=subvol=@
+rc=0
+$ journalctl -b 0 --no-pager -o cat | grep -ic 'snapshot'
+117
+rc=0
+--- boot -1 ---
+$ journalctl -b -1 -k --no-pager -o cat | grep -c 'Command line'
+1
+rc=0
+$ journalctl -b -1 -k --no-pager -o cat | grep -m1 -o 'rootflags=[^ ]*'
+rootflags=subvol=@
+rc=0
+$ journalctl -b -1 --no-pager -o cat | grep -ic 'snapshot'
+195
+rc=0
+--- boot -2 ---
+$ journalctl -b -2 -k --no-pager -o cat | grep -c 'Command line'
+0
+rc=1
+$ journalctl -b -2 -k --no-pager -o cat | grep -m1 -o 'rootflags=[^ ]*'
+rc=1
+$ journalctl -b -2 --no-pager -o cat | grep -ic 'snapshot'
+556
+rc=0

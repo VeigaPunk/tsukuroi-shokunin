@@ -1,0 +1,17 @@
+2026-11-03T18:37:31Z
+$ grep -rn 'new_root' /etc/mkinitcpio* /etc/mkinitcpio.conf.d/ /usr/lib/initcpio/ 2>/dev/null | wc -l
+3
+rc=0
+$ grep -rn 'sysroot' /usr/lib/initcpio/install/*.conf 2>/dev/null | head
+/usr/lib/initcpio/functions:1212:    install -dm755 "$buildroot/sysroot"
+/usr/lib/initcpio/functions:1213:    ln -s "sysroot" "$buildroot/new_root"
+/usr/lib/initcpio/hooks/usr:5:    local usr_source mountopts passno realtab=/sysroot/etc/fstab
+/usr/lib/initcpio/hooks/usr:18:            mount "$usr_source" /sysroot/usr -o "$mountopts"
+/usr/lib/initcpio/init:66:# Mount root at /sysroot
+/usr/lib/initcpio/init:67:"$mount_handler" /sysroot
+/usr/lib/initcpio/init:77:if [ "$(stat -c %D /)" = "$(stat -c %D /sysroot)" ]; then
+/usr/lib/initcpio/init:78:    # Nothing got mounted on /sysroot. This is the end, we don't know what to do anymore
+/usr/lib/initcpio/init:87:elif [ ! -x "/sysroot${init}" ]; then
+/usr/lib/initcpio/init:88:    # Successfully mounted /sysroot, but ${init} is missing
+/usr/lib/initcpio/init:110:    /usr/bin/switch_root /sysroot "$init" "$@"
+rc=0

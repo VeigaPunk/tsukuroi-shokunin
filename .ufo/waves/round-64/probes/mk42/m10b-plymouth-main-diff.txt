@@ -1,0 +1,27 @@
+2026-11-03T18:37:08Z
+$ curl -fsSL 'https://gitlab.archlinux.org/archlinux/packaging/packages/plymouth/-/raw/main/plymouth.initcpio_hook' -o $S/ply-main.txt
+rc=0
+$ wc -c
+336 /fast/scratch/hyaku/tsukuroi-r64/E3Mk42/ply-main.txt
+$ grep -n '/new_root' ply-main.txt
+11:  plymouth update-root-fs --new-root-dir=/new_root
+rc=0
+--- head of fetch ---
+#!/usr/bin/ash
+
+run_hook() {
+  mkdir -m755 -p /dev/pts
+  mount -t devpts devpts /dev/pts -o nosuid,noexec,gid=5,mode=620
+  plymouthd --mode=boot --pid-file=/run/plymouth/pid --attach-to-session
+  plymouth show-splash
+}
+
+run_latehook(){
+  plymouth update-root-fs --new-root-dir=/new_root
+}
+
+run_emergencyhook(){
+  plymouth --wait quit
+}
+--- diff (CR-normalized) installed vs upstream ---
+diff_rc=0
