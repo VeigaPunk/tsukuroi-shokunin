@@ -4785,3 +4785,24 @@ sourced entry on r17-held ground, adjacency untouched this round).
   cadence passes (2026-11-30) are due regardless of host — an L0 question may be needed if the
   Windows host is unreachable at that date. If the lane stays on this host, the operator-gated items
   do not move; the lane-owned list is the round-65 menu.
+
+## Round 65 — declaration (2026-11-03, base `1bd8e196`, written before any after-measurement)
+
+Lowest non-retired axis: **depth (8, tied with adjacency 8)**; saturation line 9 / window 3
+unchanged; none retired; capability `line-endings-guard` entered r64 (inside the stagnation
+window), so the nudge does not waive the lowest-axis duty. S282 opened live 2026-11-03 before this
+text (r60/r61/r64 disclosure order; receipt `.ufo/waves/round-65/before/s282-open-receipt.txt`).
+
+| # | axis/type | claim | before → after (frozen predicate) | counting command | kill rule |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — S282) | `corpus/knowledge/systemd262-uki-pcr-r65.md` — the systemd v262 NvPCR/UKI requirement plane measured against this host's boot chain (rows SY1-SY5: requirement per S282 "Changes in the TPM Subsystem" cross-linked to S279's mkinitcpio-42.2 sentence; host firmware state; host build state; applicability verdict + named falsifier; unknowns) | note absent (cat-file rc 128) + SOURCES 281 → note present, `^| SY` rows ≥ 5, SOURCES ≥ 282 with S282 directly after S281 (NF 13, quote ≤ 25 words), every live value receipted, knowledge-header PASS | `git cat-file -e <rev>:corpus/knowledge/systemd262-uki-pcr-r65.md`; `grep -c '^| SY' <note>`; `grep -cE '^\| S[0-9]{3,}' corpus/SOURCES.md`; the census validate at round end | live-fetch or host-probe contradiction → note states what measured; honest stop |
+| C2 | coverage+operability (capability `initramfs-arm`) | `probe_initramfs_arm` + the verdict-neutral `INITRAMFS` line in `tools/tsukuroi-census.sh` — the owned initramfs/boot-recovery surface (fleet r1) gains its census arm; no privilege, no mutation, never rollup/exit input (DRIFT/STORAGE/SCRUB precedent) | `grep -c INITRAMFS` 0 + selftest 168 → label present + selftest ≥ 174 (≥ 6 new hermetic cases) PASS rc 0; live run prints exactly one INITRAMFS line; base rc + existing verdict lines unchanged; registry-coverage + knowledge-header PASS | `grep -c INITRAMFS tools/tsukuroi-census.sh`; `bash tools/tsukuroi-census.sh --selftest` (frozen before: 168 cases) | not hermetic under the existing fixture pattern → honest stop |
+
+Causal separability: C1 touches only its note + its SOURCES row(s) + probe receipts; C2 touches
+only the census tool + its selftest cases. Each verifies without the other. Do-nothing controls
+receipted at base (`.ufo/waves/round-65/before/absence-controls-receipt.txt`): note cat-file rc
+128 / S282 count 0 / INITRAMFS count 0 / selftest 168 — none reaches either target.
+
+Routed repairs this round (not claims): the R64-SPOTCHECK-C1-PROOF re-expression (append-only
+erratum; the re-expressed command re-runs green at `431f0c9`), one considerthese proposal mined,
+assimilation none (L0 `tsukuroi | round-64` open). Open L0s round-53/57/60 routed around.

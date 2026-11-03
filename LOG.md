@@ -2840,3 +2840,60 @@ entered the SCORECARD capabilities table. Axes restated, ordinals unchanged (8/9
 round-64 carries the Gate (3 admits, explicit zero rejections, spot-check pending) and four
 mistakes. Assimilation: none from merge/tsukuroi (79 collisions, L0 filed); considerthese
 scoreboard resumed. Full detail: SCORECARD "Round 64 — measured outcome".
+
+## Round 65 — declaration (2026-11-03, base 1bd8e196, written before any after-measurement)
+
+Host: canonical Linux/omp host (Arch, kernel 7.2.11, systemd 262.1-1); the r53-r63 Windows-era
+planes stay frozen. Round-start conformance: sources census **rc 0, 0 E-code, rows 281**
+(`.ufo/waves/round-65/before/census-before-receipt.txt`). **S282 opened live 2026-11-03 before
+this text** (r60/r61/r64 disclosure order): systemd v262 release notes, GitHub releases API tag
+`v262`, HTTP 200, 55194 bytes, sha256 `008e1265…babce0b`; Gate quote 23 words located under
+"## Changes in the TPM Subsystem:" (receipt + captures
+`.ufo/waves/round-65/before/s282-open-receipt.txt`, `s282-v262-release.json`, `s282-v262-body.md`).
+
+Claims (each causally separable; ordinals stay — saturated axes move at the instrument/entry level):
+
+- **C1 depth (lowest tied axis, 8; SOURCED via S282)** —
+  `corpus/knowledge/systemd262-uki-pcr-r65.md`, the systemd v262 NvPCR/UKI requirement plane
+  measured against this host's boot chain, rows SY1-SY5: SY1 the requirement text (all NvPCR
+  definitions must ship in the UKI; the UKI must embed a signed PCR policy via
+  `ukify --sign-initrd-pcrs`), cross-linked to S279's mkinitcpio-42.2 sentence; SY2 host firmware
+  state (TPM2 Support no, Secure Boot disabled, Measured UKI no); SY3 host build state
+  (mkinitcpio presets dir empty, ukify/systemd-ukify absent, 4 `mkinitcpio.conf.d` drop-ins);
+  SY4 applicability verdict for this boot chain + the named falsifier; SY5 unknowns. Predicate:
+  note exists, `grep -c '^| SY'` >= 5; SOURCES 281 -> >= 282 with S282 at the id position
+  directly after S281, NF 13, Gate quote <= 25 words; every live host value receipted under
+  `.ufo/waves/round-65/probes/`, committed with-or-before the citing commit; knowledge-header
+  gate PASS at the work revision; round-end census rc 0. Kill rule: a live-fetch or host-probe
+  contradiction -> the note states what measured; honest stop. Do-nothing control: note absent
+  (cat-file rc 128) + S282 count 0 at base (`.ufo/waves/round-65/before/absence-controls-receipt.txt`).
+- **C2 coverage+operability (capability `initramfs-arm`)** — `tools/tsukuroi-census.sh` gains
+  `probe_initramfs_arm` + the verdict-neutral `INITRAMFS` line (mkinitcpio-conf / conf_d / hooks /
+  newroot_latehooks / presets / ukify / unreadable counts; overrides
+  `TSUKUROI_MKINITCPIO_{CONF,CONFD,PRESETS,HOOKS}`; no mkinitcpio run, no privilege, no mutation,
+  never a rollup term, never an exit-code input — the DRIFT/STORAGE/SCRUB precedent), instrumenting
+  the owned initramfs/boot-recovery surface the executable census never read (fleet-r1 province
+  addition; knowledge existed since fleet r1, no arm). Predicate: `grep -c INITRAMFS` 0 -> >= 1;
+  selftest **168 -> >= 174** (>= 6 new hermetic fixture cases), PASS rc 0; live run prints exactly
+  one INITRAMFS line; base census rc and existing verdict lines unchanged; registry-coverage and
+  knowledge-header gates PASS. Kill rule: cannot be made hermetic under the existing fixture
+  pattern (TMPDIR-honoring, no /tmp hardcode) -> honest stop. Do-nothing control: grep 0 + selftest
+  168 at base (same receipt).
+
+Routed repairs (not claims): (1) **R64-SPOTCHECK-C1-PROOF** — the r64 closure's routed defect (the
+C1 identity proof as worded is only true against the fix-time worktree): an append-only SCORECARD
+erratum re-expresses the proof in the additive-only form re-runnable at the cited revision
+`431f0c9`; the re-run receipt lands with the repair. (2) **considerthese**: ONE still-unimplemented
+proposal mined (seat-drafted; lesson cites `considerthese/<file>` + date). (3) **Assimilation**:
+none from `merge/tsukuroi/` — L0 `tsukuroi | round-64` (+ 82-id addendum) open; mass id drift
+routed, nothing adopted. (4) Open L0s `tsukuroi | round-53/57/60` routed around, never treated as
+answered.
+
+Frontier step: S282 opened live this round; census before rc 0 (rows 281) / after at round end;
+mistakes mined into `corpus/lessons/round-65.md` `## Mistakes`; SOURCED claim = C1.
+
+Wave: ONE v1 wave **w1 of 13 seats** (band 8-16; attack share 5/13 = 38% — 2 reviewer, 1 critic,
+1 mutation-tester, 1 labrat; 1 connector; 3 executor, 2 scribe, 1 scout, 1 sentinel), roles span
+m_flash/m_mim/m_zfl via the run-15 route table; planner = the L1 (the validator rejects planner;
+recorded). Dispatch `.ufo/waves/round-65/w1-dispatch.json`; inline spawn handoff via `w1.ready`;
+the orchestrator spawns and messages WAVE-DONE.
