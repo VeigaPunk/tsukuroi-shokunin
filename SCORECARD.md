@@ -4945,3 +4945,68 @@ Routed from the same critic seat: the C2 counted half is a live re-verification 
 anchor quotes, which is freshness's own definition ("stale items flagged or fixed"), and the
 overlap table is an uncounted adjacency-shaped half. The claim therefore stands with a named limit
 and no ordinal move: adjacency stays 8 (see the round-66 measured outcome).
+
+## Round 66 — measured outcome (2026-11-03, author-side; non-author closure pending)
+
+Measured at the work revision `97dba116` (landing commit; receipts `.ufo/waves/round-66/after/`).
+Declared before data at `aa75398e`; the frozen predicates, counters and kill rules are unchanged.
+
+| Claim | Before → after (measured) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 depth (SOURCED — S283) | before at `c68bfe97`: `git cat-file -e` note → rc **128**; SOURCES **282**. After at `97dba116`: note present (rc 0); `grep -c '^| CB'` → **5** (CB1–CB5, no header row); SOURCES **282 → 283**; S283 at `corpus/SOURCES.md:293` directly after S282 (`:292`); `awk -F'|'` NF **13**; Gate quote **18** words (`wc -w`), located by whitespace-normalised match in the pinned body; census validate rc **0**; knowledge-header PASS 84/0/84 | improved (predicate met; author-side) | depth ordinal **8 → 8** — no uplift claimed (lane convention: a sourced entry does not by itself lift the ordinal; `SCORECARD.md:962` precedent) |
+| C2 adjacency (live anchors + overlap + erratum) | before at `c68bfe97`: `adjacency-recheck-r66.md` absent (rc **128**); live-located rows **0**; `## Erratum (round 66)` count **0**; `2277` at `adjacency-anchors-r19.md:204`. After at `97dba116`: frozen row-regex count → **10** (`after/gates-at-work.txt`); located **10/10**; live HEAD object existence **10/10** (`after/c2-existence-at-work.txt`); erratum count **1**; `python3 tools/check-adjacency-anchors.py --revision 97dba116` → status **PASS** (`after/adjacency-at-work.json`) | improved (predicate met; author-side) | adjacency ordinal **8 → 8** — the counted half is live re-verification (freshness-shaped), the overlap table is uncounted, and the recorded ceiling (recipient acknowledgement) is untouched (critic K1, `drafts/critic-claims.md`) |
+
+Counting commands (run at `97dba116`; full outputs in `after/gates-at-work.txt`):
+
+```
+git cat-file -e 97dba116:corpus/knowledge/systemd262-credentials-boot-policy-r66.md        -> rc 0
+git show 97dba116:corpus/knowledge/systemd262-credentials-boot-policy-r66.md | grep -c '^| CB'  -> 5
+git show 97dba116:corpus/SOURCES.md | grep -cE '^\| S[0-9]{3,}'                              -> 283
+git show 97dba116:corpus/SOURCES.md | awk -F'|' '/^\| S283 /{print NF}'                        -> 13
+git show 97dba116:corpus/knowledge/adjacency-recheck-r66.md | grep -cE '^\| AR[0-9]+ \| OUT-0[0-9]{2} \| [a-z]+ \| [0-9a-f]{40} \| [0-9a-f]{64} \| located \|' -> 10
+git show 97dba116:corpus/knowledge/adjacency-anchors-r19.md | grep -c '^## Erratum (round 66)'  -> 1
+git -C /home/vgpnk/Projects/shokunin/<sib>-shokunin cat-file -e <HEAD>^{commit}  (10 rows)    -> 10 of 10 rc 0
+scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi               -> rc 0, E 0, W04 44 -> 45 (the S283 cross-scope duplicate URL)
+python3 tools/check-knowledge-header.py --revision 97dba116                                     -> PASS 84/0/84, findings 0
+python3 tools/check-registry-coverage.py --revision 97dba116                                    -> PASS 100/100/0
+python3 tools/check-line-endings-r64.py --check                                                 -> rc 0
+```
+
+Named limits, carried into the closure (none is a harm; each is recorded, not smoothed):
+
+- **C2 counter shape-only (R66-M3).** The frozen row regex counts a row whose 40-hex HEAD names no
+  commit (mutant C2-c → 10, rc 0). The object-existence check above was run as **verification of the
+  same "live HEAD" predicate**; it is not an amendment of the counter. The resolve-then-count pipeline
+  that kills the mutant is proposed for the next round as a frozen-counter amendment
+  (`.ufo/waves/round-66/drafts/mutation-battery.md` §6).
+- **C1 counter prefix match (R66-M4).** `^| CB` counts any line that begins `| CB`; the note has no header
+  row, so 5 means five rows. Amendment proposed: `^\| CB[0-9]+ \|`.
+- **C1 sourcing is not counted (critic K1, C1 Attack 2).** The knowledge-header gate checks that
+  `source:` is present, not that it names a registered row; a sourceless note with five CB rows
+  fails the header gate, but a note with `source: S999` passes it. Sourcing rests on the receipts.
+- **C1 ground is not new.** `git grep -c credentials_boot c68bfe97 -- corpus` → one file
+  (`corpus/knowledge/systemd262-uki-pcr-r65.md:24`, SY5 unknown). This round takes that unknown forward
+  into a dedicated sourced entry; it is not uncovered ground.
+- **Host applicability is measured, not decided.** CB4 reads the option as inert on this host (no cmdline
+  token; default `relaxed` governs; SecureBoot disabled and no TPM2 device, so the default accept
+  condition holds). The UKI interior and the boot partition stay unread (`/boot` is `fmask=0077`; CB5).
+
+Capabilities: none entered this round. The round's outputs are knowledge entries and a live table; no
+repertoire row is demonstrated beyond them.
+
+Ordinals: depth **8**, coverage **9**, operability **9**, freshness **9**, calibration **9**, adjacency **8**
+— unchanged. Calibration is recorded, not rescored: one declaration-provenance miss (R66-M2, the false
+AXES.md attribution, corrected by the erratum above) was caught by a critic seat, not by the lane.
+Saturation line **9** and window **3** are unchanged; none retired. The lowest-axis duty is met by both
+claims (both on the tied-lowest axes, depth and adjacency at 8).
+
+Learning trends (author-side; a non-author spot-check is pending and owed by the closure judge):
+**expansion: improved** — one sourced entry promotes a named unknown (SY5) into a dedicated entry; the
+adjacency table is re-verification, not expansion. **quality: improved** — ten anchors re-located at
+live HEADs with an existence check, and the stale `2277` cell is superseded by an appended erratum with
+no admitted entry failing. **discernment: unchanged** — no non-author spot-check has run; seat attacks
+are evidence, not discernment verdicts.
+
+Routed, not claimed: the r65 C2 A/B sensitivity demonstration (calibration on a saturated axis); the two
+frozen-counter amendments above; the adjacency-recheck §4 display cell (sentinel observation #5, one
+leading space in a backtick cell; no predicate reads it).

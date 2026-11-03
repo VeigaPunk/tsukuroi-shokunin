@@ -105,3 +105,11 @@ The standing per-round tally proposed in `considerthese/2026-10-26.md:19`. Rows 
 - `corpus/SOURCES.md` S283 (new, `mined`), S282 (unchanged), S069 (unchanged, cited by the C2 note).
 - `corpus/knowledge/adjacency-anchors-r19.json` (register, authoritative), `adjacency-anchors-r19.md:204`
   (superseded prose), `PROVINCE.md` ADJ-02/04/06/07 (cited by id only).
+
+## Sweep results at the work revision (`97dba116`)
+
+- Census validate after the landing: rc 0, E 0, W04 44 → 45 (the one cross-scope duplicate URL that S283 introduces by design) — `.ufo/waves/round-66/after/census-after-work.txt`.
+- Knowledge-header PASS 84/0/84, findings 0; adjacency-anchors PASS; registry-coverage PASS 100/100/0; line-endings check rc 0 — `.ufo/waves/round-66/after/gates-at-work.txt`.
+- C2 object existence 10/10 (`git -C <sibling>-shokunin cat-file -e <HEAD>^{commit}`) — `.ufo/waves/round-66/after/c2-existence-at-work.txt`.
+- Non-author seat audit (sentinel N1, `.ufo/waves/round-66/drafts/sentinel-scope.md`): **CLEAN**. No executed privileged or mutating command, no secret material, no out-of-lane write. Its observation #4 (tracked files changed during its audit window) is the L1 landing, attributed by mtime and content identity, with HEAD unchanged and no seat commit. Its observation #5 (one leading space in the `adjacency-recheck-r66.md` §4 display quote, AR2) has no predicate impact and is recorded in SCORECARD as routed.
+- Misroot sweep (`git -C /home/vgpnk/Projects/shokunin status --porcelain`): no file written by this round's seats in the fleet root; the entries listed are orchestrator `.scratch/` files, another lane's round-58 report and another lane's L0 append.

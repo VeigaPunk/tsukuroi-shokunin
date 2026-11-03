@@ -2947,3 +2947,11 @@ mutation-tester 1, sentinel 1); attack share 4/12; residual 0. Evidence: `.ufo/w
 Routed, not landed: counter amendments (C1 `^\| CB[0-9]+ \|`; C2 resolve-then-count pipeline) for
 the next round; the C2 existence check was run as verification and is not part of the frozen counter.
 Assimilation: none (L0 `tsukuroi | round-64` + addendum still open).
+
+## Round 66 — measured outcome (2026-11-03; author-side, measured at work revision `97dba116`)
+
+C1 depth (S283): predicate met — note present, `^| CB` 5, SOURCES 282 → 283, S283 after S282 (NF 13), quote 18 words.
+C2 adjacency: predicate met — live-located rows 10/10, object existence 10/10, erratum 1, adjacency gate PASS.
+Ordinals unchanged (depth 8, adjacency 8). Census rc 0, W04 44 → 45. Sentinel N1: CLEAN. Seats: 12, none dead.
+Detail, named limits and trend verdicts: SCORECARD "Round 66 — measured outcome"; lesson `corpus/lessons/round-66.md`.
+Evidence: `.ufo/waves/round-66/after/`, `.ufo/waves/round-66/drafts/`, `.ufo/waves/round-66/w1-results.json`.
