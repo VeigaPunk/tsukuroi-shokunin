@@ -2315,12 +2315,15 @@ probe_kernel_arm() {
       ''|*[!0-9]*)
         taint=UNKNOWN; bits=UNKNOWN; detail+='tainted:unparsable,'
         ;;
-      0)
-        bits=none
-        ;;
       *)
-        if [ "$taint" -gt 1048575 ]; then
+        # bounded decimal: strip leading zeros first (`08` and `00` are decimal here, never
+        # octal), then refuse anything past the closed table BEFORE any arithmetic on it
+        while [ "${taint#0}" != "$taint" ]; do taint=${taint#0}; done
+        [ -z "$taint" ] && taint=0
+        if [ "${#taint}" -gt 7 ] || [ "$taint" -gt 1048575 ]; then
           bits=UNKNOWN; detail+='tainted:bits-outside-closed-table,'
+        elif [ "$taint" -eq 0 ]; then
+          bits=none
         else
           bits=''
           for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19; do
@@ -4117,6 +4120,16 @@ STUB
   printf ' 0 \n' > "$FX/kernel-tainted"
   check 'healthy: a whitespace-padded taint of 0 reads taint_bits=none (R69-C2)' 0 HEALTHY \
     '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=NO unreadable=0$'
+
+  case_home='kernel-taint-leading-zero'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '08\n' > "$FX/kernel-tainted"
+  check 'healthy: a leading-zero taint is decimal, never octal, so 08 decodes to bit 3 and the run survives (R69-C2)' 0 HEALTHY \
+    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=8 taint_bits=R pending=NO unreadable=0$'
+
+  case_home='kernel-taint-huge'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '9999999999999999999999999\n' > "$FX/kernel-tainted"
+  check 'healthy: a value wider than the closed table reads UNKNOWN without any arithmetic on it (R69-C2)' 0 HEALTHY \
+    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=9999999999999999999999999 taint_bits=UNKNOWN pending=NO unreadable=0 detail=tainted:bits-outside-closed-table$'
 
   case_home='kernel-taint-oe'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
   printf 12288 > "$FX/kernel-tainted"

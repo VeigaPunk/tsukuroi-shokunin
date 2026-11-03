@@ -1,0 +1,120 @@
++ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-11-03T23:35:06Z
++ echo rev=68faae464b60711b0f9ba36169b87e22208ee5ae
+rev=68faae464b60711b0f9ba36169b87e22208ee5ae
++ echo '$ python3 tools/count-kr-rows-r69.py --revision 68faae464b60711b0f9ba36169b87e22208ee5ae --snapshots .ufo/waves/round-69/before/src'
+$ python3 tools/count-kr-rows-r69.py --revision 68faae464b60711b0f9ba36169b87e22208ee5ae --snapshots .ufo/waves/round-69/before/src
++ python3 tools/count-kr-rows-r69.py --revision 68faae464b60711b0f9ba36169b87e22208ee5ae --snapshots .ufo/waves/round-69/before/src
+KR_ROWS=5 KR_VERIFIED=5
+KR_ROW KR1 ok
+KR_ROW KR2 ok
+KR_ROW KR3 ok
+KR_ROW KR4 ok
+KR_ROW KR5 ok
++ echo rc=0
+rc=0
++ echo '$ git show 68faae464b60711b0f9ba36169b87e22208ee5ae:corpus/SOURCES.md | grep -cE "^\\| S[0-9]{3,}"'
+$ git show 68faae464b60711b0f9ba36169b87e22208ee5ae:corpus/SOURCES.md | grep -cE "^\\| S[0-9]{3,}"
+++ git show 68faae464b60711b0f9ba36169b87e22208ee5ae:corpus/SOURCES.md
+++ grep -cE '^\| S[0-9]{3,}'
+289
++ echo '$ git show 68faae464b60711b0f9ba36169b87e22208ee5ae:corpus/SOURCES.md | awk -F"|" "/^\\| S28[789] /{print \$2,NF}"'
+$ git show 68faae464b60711b0f9ba36169b87e22208ee5ae:corpus/SOURCES.md | awk -F"|" "/^\\| S28[789] /{print \$2,NF}"
+++ git show 68faae464b60711b0f9ba36169b87e22208ee5ae:corpus/SOURCES.md
+++ awk '-F|' '/^\| S28[789] /{print $2, "NF="NF}'
+ S287  NF=13
+ S288  NF=13
+ S289  NF=13
++ echo '$ git show 68faae464b60711b0f9ba36169b87e22208ee5ae:corpus/knowledge/kernel-taint-plane-r69.md | grep -cE "^\\| KR[0-9]+ \\|"'
+$ git show 68faae464b60711b0f9ba36169b87e22208ee5ae:corpus/knowledge/kernel-taint-plane-r69.md | grep -cE "^\\| KR[0-9]+ \\|"
+++ git show 68faae464b60711b0f9ba36169b87e22208ee5ae:corpus/knowledge/kernel-taint-plane-r69.md
+++ grep -cE '^\| KR[0-9]+ \|'
+5
++ echo '$ bash tools/tsukuroi-census.sh --selftest | tail -1'
+$ bash tools/tsukuroi-census.sh --selftest | tail -1
+++ tail -1
+TSUKUROI_CENSUS_SELFTEST: PASS (194 cases, 194 passed, 0 failed)
++ echo rc=0
+rc=0
++ echo '$ grep -c "KERNEL kernel-plane" tools/tsukuroi-census.sh'
+$ grep -c "KERNEL kernel-plane" tools/tsukuroi-census.sh
++ grep -c 'KERNEL kernel-plane' tools/tsukuroi-census.sh
+18
++ echo '$ python3 tools/check-knowledge-header.py --revision 68faae464b60711b0f9ba36169b87e22208ee5ae (summary)'
+$ python3 tools/check-knowledge-header.py --revision 68faae464b60711b0f9ba36169b87e22208ee5ae (summary)
+++ python3 -c 'import json,sys;d=json.load(sys.stdin);print("PASS" if d["finding_count"]==0 else "FAIL", d["note_count"], "notes", d["finding_count"], "findings")'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,sys;d=json.load(sys.stdin);print("PASS" if d["finding_count"]==0 else "FAIL", d["note_count"], "notes", d["finding_count"], "findings")
+                      ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.14/json/__init__.py", line 298, in load
+    return loads(fp.read(),
+        cls=cls, object_hook=object_hook,
+        parse_float=parse_float, parse_int=parse_int,
+        parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)
+  File "/usr/lib/python3.14/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/lib/python3.14/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
++ echo '$ python3 tools/check-registry-coverage.py --revision 68faae464b60711b0f9ba36169b87e22208ee5ae (summary)'
+$ python3 tools/check-registry-coverage.py --revision 68faae464b60711b0f9ba36169b87e22208ee5ae (summary)
+++ python3 -c 'import json,sys;d=json.load(sys.stdin);print(d["status"], d["counts"])'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,sys;d=json.load(sys.stdin);print(d["status"], d["counts"])
+                      ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.14/json/__init__.py", line 298, in load
+    return loads(fp.read(),
+        cls=cls, object_hook=object_hook,
+        parse_float=parse_float, parse_int=parse_int,
+        parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)
+  File "/usr/lib/python3.14/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/lib/python3.14/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
++ echo '$ python3 tools/check-knowledge-refs-r68.py --revision 68faae464b60711b0f9ba36169b87e22208ee5ae (summary)'
+$ python3 tools/check-knowledge-refs-r68.py --revision 68faae464b60711b0f9ba36169b87e22208ee5ae (summary)
+++ python3 -c 'import json,sys;d=json.load(sys.stdin);print("PASS" if d["finding_count"]==0 else "FAIL", d["dangling_count"], "dangling")'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,sys;d=json.load(sys.stdin);print("PASS" if d["finding_count"]==0 else "FAIL", d["dangling_count"], "dangling")
+                      ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.14/json/__init__.py", line 298, in load
+    return loads(fp.read(),
+        cls=cls, object_hook=object_hook,
+        parse_float=parse_float, parse_int=parse_int,
+        parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)
+  File "/usr/lib/python3.14/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/lib/python3.14/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
++ echo '$ python3 tools/check-line-endings-r64.py --check'
+$ python3 tools/check-line-endings-r64.py --check
+++ tail -2
+CHECK_LINE_ENDINGS: PASS (348 file(s) checked, 0 violation(s))
+check-line-endings-r64: 22908 allow-listed .ufo path(s) skipped (upstream captures)
++ echo '$ /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi'
+$ /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi
++ echo 'census rc=0'
+census rc=0
++ tail -1 .ufo/waves/round-69/after/census.txt
+tsukuroi	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
++ echo '$ git ls-remote origin refs/heads/master'
+$ git ls-remote origin refs/heads/master
++ git ls-remote origin refs/heads/master
+68faae464b60711b0f9ba36169b87e22208ee5ae	refs/heads/master
