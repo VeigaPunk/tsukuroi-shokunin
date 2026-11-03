@@ -4897,3 +4897,32 @@ Receipts: `.ufo/waves/round-65/after/reidentity-at-431f0c9.txt`; the wave's inde
 `.ufo/waves/round-65/drafts/rev-repair.md` (R2RevRepair: AGREE on command, counts and append-only
 safety). The original `cmp -` wording is false at HEAD (rc 1/1/1) and at `431f0c9` (rc 1 for SOURCES
 and SKILL); it held only at the fix-time worktree. This erratum does not change the round-64 verdict.
+
+
+## Round 66 — declaration (2026-11-03, base `c68bfe97`, written before any after-measurement)
+
+Lowest non-retired axis: **depth (8, tied with adjacency 8)**; saturation line 9 / window 3
+unchanged; none retired; capability `initramfs-arm` entered r65 (inside the window), so the nudge
+does not waive the lowest-axis duty. Two claims on two distinct axes. S283 opened live 2026-11-03
+before this text (receipt `.ufo/waves/round-66/before/s283-open-receipt.txt`; the pinned document is
+byte-identical to S282's, sha256 `008e1265…`). Do-nothing controls at base:
+`.ufo/waves/round-66/before/absence-controls-receipt.txt` (C1 note cat-file rc 128; C2 note rc 128,
+`^## Erratum (round 66)` count 0, `2277` present at `adjacency-anchors-r19.md:204`). Census before:
+`scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi` → rc 0, 0 E-code,
+44 W04, 282 rows (`.ufo/waves/round-66/before/census-before-receipt.txt`).
+
+| # | axis/type | claim | before → after (frozen predicate) | counting command | kill rule |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — S283) | `corpus/knowledge/systemd262-credentials-boot-policy-r66.md`: the systemd v262 `systemd.credentials_boot_policy=` plane measured against this host. Rows `CB1`–`CB5`: documented mechanism (S283 section "Changes in the system and service manager:"; the four values and the null-key scope); host boot chain (limine `protocol: efi`, UKI presence, stub version); host policy inputs (cmdline token, TPM2 presence, SecureBoot state, each by a no-sudo read); applicability verdict with a named falsifier; unknowns | note absent (cat-file rc 128) and SOURCES 282 → note present, `^\| CB` rows **≥ 5**, SOURCES **≥ 283** with S283 directly after S282 (NF 13, Gate quote ≤ 25 words), every host value receipted, knowledge-header PASS | `git cat-file -e <rev>:corpus/knowledge/systemd262-credentials-boot-policy-r66.md`; `grep -c '^| CB' <note>`; `grep -cE '^\| S[0-9]{3,}' corpus/SOURCES.md`; the census validate and `check-knowledge-header.py` at round end | the option absent from the pinned bytes, or a measured input contradicting the documented semantics → the note states what was measured and the claim stops honestly (no verdict is softened) |
+| C2 | adjacency (lowest tied, 8; ceiling read from `AXES.md`: "no formal overlap table") | a **formal, live-verified sibling-ownership table**: `corpus/knowledge/adjacency-recheck-r66.md` with one row per OUT-001…OUT-010 — columns `| AR<n> | OUT-<nnn> | <sibling> | <40-hex live HEAD> | <64-hex blob sha256> | located | <locator> |` — the quote of each `adjacency-anchors-r19.md` anchor located at that sibling's live HEAD; plus an overlap table (ADJ-02 / ADJ-06 / ADJ-04 boundaries for the systemd credential plane, connector-scanned); plus an append-only erratum `## Erratum (round 66)` in `adjacency-anchors-r19.md` superseding the `2277` prose at :204 with the register pin (`found_line` 2822, r65 re-pin) | before: **0** rows with a live-located quote (note absent; erratum 0). After: **located = 10 of 10**, erratum count **1**, `python3 tools/check-adjacency-anchors.py --revision <REV>` PASS | `grep -cE '^\| AR[0-9]+ \| OUT-0[0-9]{2} \| [a-z]+ \| [0-9a-f]{40} \| [0-9a-f]{64} \| located \|' corpus/knowledge/adjacency-recheck-r66.md` → 10; `grep -c '^## Erratum (round 66)' corpus/knowledge/adjacency-anchors-r19.md` → 1; the anchors gate | a sibling HEAD unreadable or a quote unlocated → that row is not `located` and the count is below 10 → the claim stays unverified (never padded, never re-pinned to a convenient quote) |
+
+Causal separability: C1 touches only its note, `corpus/SOURCES.md` (one row) and receipts; C2
+touches only its recheck note, the anchors erratum and receipts. Each verifies without the other.
+Standing duties this round (not claims): the QUALITY 98 upstream-release watch re-read (receipts);
+the r65 routed defect 1 (in-place edit of a filed line) mined as a lesson with a sweep that is shown
+able to fail (`## Mistakes`, red-before on `1bd8e196..7ab7c876`); the considerthese proposal "Seat-harm
+incident log" (`considerthese/2026-10-26.md:19`) adopted as a standing per-round tally in the round
+lesson, grounded in `corpus/lessons/round-39.md` R39-SEAT-PKILL, `round-40.md` R40-TMP-MISROOT and
+`round-41.md` R41-TMP-MISROOT-REPEAT, all opened this round. Assimilation: none (L0 `tsukuroi |
+round-64` and addendum still open; no operator answer in `.ufo/l0-questions.md`). Routed-not-claimed:
+the r65 C2 A/B sensitivity demonstration (a calibration move on a saturated axis, not a claim).

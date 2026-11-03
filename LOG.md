@@ -2920,3 +2920,15 @@ SCORECARD "Round 65 — measured outcome".
 ## Round 65 — repair commit (2026-11-03)
 
 Late-caught defects, fixed before the outcome: (1) the C2 neutrality A/B compared whole outputs, which carry live PSI/swap counters that move between two runs — now the rollup line, the exit code and the non-INITRAMFS line count (`cecc9e3e`); (2) IN-109 in `corpus/knowledge/adjacency-anchors-r19.json` re-pinned 2683 → 2822 (the arm shifted the case line). Both were found by the wave's C1SiblingScan and the adjacency gate, not by the frozen predicate, which named only registry-coverage and knowledge-header — the predicate is unchanged; the gate set actually run now includes the adjacency gate.
+
+## Round 66 — declaration (2026-11-03, base `c68bfe97`; frozen before any seat ran)
+
+Motivating evidence (SCORECARD "Round 66 — declaration" is the frozen text): the systemd v262 release
+body (S283 scope, the `systemd.credentials_boot_policy=` bullet; pinned sha256 `008e1265…`, the same
+document S282 pinned, new scope) is not yet a lane entry, and the adjacency ownership anchors have no
+live-verified table (0 rows; the r19 prose at `adjacency-anchors-r19.md:204` still reads `2277` for
+IN-109 while the register is 2822). Claims: C1 depth (sourced, S283) and C2 adjacency (live
+sibling-anchor table + overlap table + erratum). Do-nothing controls at base:
+`.ufo/waves/round-66/before/absence-controls-receipt.txt`. Standing duties and the mined mistake
+(R65 in-place SCORECARD edit) are named in the declaration. Wave w1 (12 seats) spec frozen at
+`.ufo/waves/round-66/w1-spec.json`, plan at `w1-plan.json` (validated rc 0 under v1 policy).

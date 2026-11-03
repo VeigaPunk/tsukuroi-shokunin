@@ -1,0 +1,19 @@
+# tsukuroi r66 before-receipts — 2026-11-03T20:49:48Z
+base revision: c68bfe97e9ed8fda5477fa9ba80f979eaf278fd0
+## C1/C2/C3 absence controls
+$ git cat-file -e c68bfe97e9ed8fda5477fa9ba80f979eaf278fd0:corpus/knowledge/systemd262-credentials-boot-policy-r66.md
+fatal: path 'corpus/knowledge/systemd262-credentials-boot-policy-r66.md' does not exist in 'c68bfe97e9ed8fda5477fa9ba80f979eaf278fd0'
+rc=128 (128 expected: note absent)
+$ git cat-file -e c68bfe97e9ed8fda5477fa9ba80f979eaf278fd0:corpus/knowledge/adjacency-recheck-r66.md
+fatal: path 'corpus/knowledge/adjacency-recheck-r66.md' does not exist in 'c68bfe97e9ed8fda5477fa9ba80f979eaf278fd0'
+rc=128 (128 expected: note absent)
+$ grep -cE "^\| S[0-9]{3,}" corpus/SOURCES.md
+282
+$ grep -c "^## Erratum (round 66)" corpus/knowledge/adjacency-anchors-r19.md
+0
+rc=1 (1 expected: no erratum yet)
+$ grep -rl "R66-C3" .ufo/waves/round-66/ | grep -v "before/absence-controls" | wc -l
+0   (rc 1 from grep -rl: no file carries an R66-C3 receipt yet)
+$ grep -n "2277" corpus/knowledge/adjacency-anchors-r19.md
+204:| IN-109 | `tameshi:corpus/knowledge/service-optin-protocol.md:153` | `tools/tsukuroi-census.sh:915-970` | operative | DRIFTED | 2277 | check 'degraded: kernel ring class counts are evidence (D14/D15)' 1 DEGRADED |
+231:| HP-IN-109 | tameshi | `corpus/knowledge/service-optin-protocol.md:153` @ `01d586ddbc5f` | `tools/tsukuroi-census.sh:915-970` | line 2277 | `tools/tsukuroi-census.sh` marker `# ---- round-5 mutation hardening (lane S5-1, 2026-10-14)` |
