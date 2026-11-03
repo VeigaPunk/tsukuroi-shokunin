@@ -5010,3 +5010,32 @@ are evidence, not discernment verdicts.
 Routed, not claimed: the r65 C2 A/B sensitivity demonstration (calibration on a saturated axis); the two
 frozen-counter amendments above; the adjacency-recheck §4 display cell (sentinel observation #5, one
 leading space in a backtick cell; no predicate reads it).
+
+## Round 67 — declaration (2026-11-03, base `5abc31d9`, written before any after-measurement)
+
+Lowest non-retired axis: **depth (8, tied with adjacency 8)**; saturation line 9 / window 3 unchanged;
+none retired; capability `initramfs-arm` entered r65 (inside the window), so the nudge does not waive
+the lowest-axis duty. Two claims on two distinct axes (depth; calibration). Pre-declaration receipts,
+disclosed in order: the btrfs-progs v7.3 `scrub.c` and `CHANGES` were fetched and read by the L1 before
+this text (`.ufo/waves/round-67/before/src/{FETCH.txt,SHA256SUMS,TAG.txt}`; the QUALITY 98 watch fired on
+btrfs-progs 7.3, installed host 7.1-1); the round-66 frozen counters were run against fixtures as
+do-nothing controls (`/fast/scratch/hyaku/tsukuroi-r67/l1/controls`, not committed evidence).
+
+| # | axis/type | claim | before → after (frozen predicate) | counting command | kill rule |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — S284, S285) | `corpus/knowledge/btrfs-scrub-limit-revert-r67.md`: the btrfs-progs v7.3 change that moves the per-device scrub-limit revert from inside the per-device result loop (v7.1 `scrub.c:1597-1604`) to a loop after all devices finish (v7.3 `scrub.c:1640-1649`), its CHANGES line, the v7.1 bytes it replaces, and this host's applicability (one device, `scrub_speed_max` 0). Rows `SL1`–`SL4` (≥4) | note absent (`git cat-file -e 5abc31d9:…` rc 128) and SOURCES **283** → note present; `grep -cE '^\| SL[0-9]+ \|'` **≥ 4**; `corpus/SOURCES.md` rows **≥ 284** with S284 on the line directly after S283, `awk -F'|' NF == 13`; Gate quote ≤ 25 words; S285 (CHANGES) may follow | `git cat-file -e <rev>:corpus/knowledge/btrfs-scrub-limit-revert-r67.md`; `git show <rev>:corpus/knowledge/btrfs-scrub-limit-revert-r67.md \| grep -cE '^\| SL[0-9]+ \|'`; `git show <rev>:corpus/SOURCES.md \| grep -cE '^\| S[0-9]{3,}'`; the S284 line-number awk check; census validate at round end | the v7.3 revert-after-all-devices block is absent from the re-fetched bytes (sha256 or line mismatch) → honest stop, no row lands |
+| C2 | calibration (9; overreach caught) | `tools/check-adjacency-anchors.py`: a register record whose `sibling_commit` does not resolve in its sibling repo is **silently uncounted** (`_live_object_hash` returns None; no finding; `status` stays PASS). Fix: an `ANCHOR-LIVE-OBJECT-UNRESOLVED` finding that makes the gate FAIL, plus one selftest case | before (base `5abc31d9`, sandbox mutant with one fabricated 40-hex `sibling_commit` and matching published digest, `--siblings-root /home/vgpnk/Projects/shokunin`): **status PASS, live_object_checked 9 of 10** → after (patched tool, same mutant): **status FAIL with finding ANCHOR-LIVE-OBJECT-UNRESOLVED**; honest base still **PASS, live_object_checked 10 of 10**; `--selftest` passes with the new case | `python3 tools/check-adjacency-anchors.py --revision <sandbox-rev> --siblings-root /home/vgpnk/Projects/shokunin` (sandbox = `git clone --shared` in scratch; the patched tool is run from the draft path against the sandbox); `… --selftest` | the honest 10/10 base regresses to FAIL, or the new finding fires on a repo that is absent rather than a commit that does not resolve (false positive) → honest stop |
+
+Causal separability: C1 touches only its note, its SOURCES rows and receipts; C2 touches only the
+gate tool, its selftest and receipts. Each verifies without the other. Do-nothing controls at base:
+C1 note cat-file rc 128, SOURCES 283; C2 base gate on the honest register PASS 10/10 (a do-nothing
+tool leaves the mutant PASS, which is the "before" of C2 by measurement, not assertion).
+
+Standing duties this round (not claims): the QUALITY 98 watch re-read for the btrfs scrub entries
+(r42/r43) recorded in the lesson Gate; the round-66 routed frozen-counter defect R66-M4 (header-row
+`^| CB` inflation) measured on a fixture and, if it kills, carried as the C1 counter's next amendment;
+a mistake mined from this round. Assimilation: none (L0 `tsukuroi | round-64` and addendum still open;
+no operator answer in `.ufo/l0-questions.md`). considerthese: see the report's Sources & frontier.
+
+Wave w1 (one v1 wave, 11 seats: scout 1, scribe 1, executor 3, connector 1, reviewer 2, critic 1,
+mutation-tester 1, sentinel 1; attack share 4/11) spec frozen at `.ufo/waves/round-67/w1-spec.json`.
