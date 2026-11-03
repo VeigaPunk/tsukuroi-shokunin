@@ -5181,3 +5181,49 @@ Expansion improved; quality improved; discernment unchanged (lesson).
 Round not admitted author-side because C1 is not verified; operator/closure rules.
 Planned: freeze a content-sensitive counter before data, carry S243's stable
 watch and R66 AR resolution debt; never alter this round's frozen predicate.
+
+## Round 69 — declaration (2026-11-03, base `acce353b`, written before any after-measurement)
+
+Lowest non-retired axis: **depth (8, tied with adjacency 8)**; saturation line 9 / window 3 unchanged;
+none retired. Capability `knowledge-source-ref-gate` entered r68, so the stagnation window is at 1 of 3
+and the nudge does not waive the lowest-axis duty. Two claims on two distinct axes (depth; operability).
+This round carries the r68 closure routings as work, not as extra claims: the content-sensitive counter is
+C1's counting command (R68-SHAPE-ONLY-DECLARED-COUNTER), and the declaration-hygiene criterion is a routed
+repair (`corpus/QUALITY.md`, R68 routed item 2).
+
+Pre-declaration receipts, disclosed in order. (a) The two source documents for C1 were fetched and read
+before this text and committed as snapshots: Linux v7.2.11 `Documentation/admin-guide/tainted-kernels.rst`
+sha256 `727ddb82bc042e4c5777592128bc8ca0dd640376af515efa8cba2dff5f9a0841` and
+`include/linux/vermagic.h` sha256 `0556c28fe7711d0383dbd5e91667560c1b96a9a914d4d15e2fdd85dea3671aea`, both
+from the stable tree at tag v7.2.11; `sha256sum -c` rc 0 (`.ufo/waves/round-69/before/src/{FETCH.txt,SHA256SUMS}`).
+(b) Host capture, read-only (`.ufo/waves/round-69/before/host.txt`): `uname -r` `7.2.11-arch1-1`;
+`pacman -Q linux` `7.2.11.arch1-1`; `pacman -Q linux-lts` `6.18.57-2`; `/usr/lib/modules/` holds two trees, each
+owned by its package (`pacman -Qo`); `/proc/sys/kernel/tainted` `12288`; the boot's kernel log prints
+`Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODULE`; `modinfo -F vermagic` on the dkms nvidia module
+`7.2.11-arch1-1 SMP preempt mod_unload`; `lsmod | wc -l` 132; soft-lockup log lines this boot 0.
+(c) QUALITY 98 watch fired on Linux v7.3; S243's v7.2.11 `fs/btrfs/sysfs.c` pin (`ce146120…`) re-read at the
+v7.3 stable tag → digest `098cb522…` = **changed**, equal to S287's torvalds-v7.3 pin, the single change being
+the comment line outside S243's registered ranges (`.ufo/waves/round-69/before/s243-v73-recheck.txt`).
+(d) Canonical census before: `/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root
+/home/vgpnk/Projects/shokunin tsukuroi` → rc 0, 287 rows (`.ufo/waves/round-69/before/census-before-receipt.txt`).
+(e) Do-nothing controls at base (`before/absence-controls-receipt.txt`): C1 note `cat-file` rc 128; C1 counter
+`cat-file` rc 128; `^| KR[0-9]` rows in the tree 0; `grep -c KERNEL tools/tsukuroi-census.sh` 0; selftest
+**177** cases; SOURCES 287 rows; S288 and S289 rows 0.
+
+| # | axis/type | claim | before → after (frozen predicate) | counting command | kill rule |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — S288, S289) | `corpus/knowledge/kernel-taint-plane-r69.md`: the kernel taint, vermagic and module-tree plane measured against this host, rows `KR1`–`KR5`. Each row is `| KR<n> | <statement, ≥ 12 words> | source=S### | snapshot=<file> | digest=<64-hex> | quote="<text>" |`; the round's **content-sensitive** counter `tools/count-kr-rows-r69.py` is frozen before any note exists and verifies per row: unique id, statement ≥ 12 words, the `source=` id present in `corpus/SOURCES.md` at the measured revision, `digest=` equal to the sha256 of the named committed snapshot under `.ufo/waves/round-69/before/src/`, and `quote=` ≤ 25 words located verbatim in that snapshot | note absent (`git cat-file -e <rev>:corpus/knowledge/kernel-taint-plane-r69.md` rc 128) and counter absent (rc 128), SOURCES **287** → note present at the measured revision, counter present, `KR_ROWS=5 KR_VERIFIED=5` rc 0; `corpus/SOURCES.md` rows **≥ 289** with S288 and S289 on the lines directly after S287, `awk -F'|' '/^\| S28[89] /{print NF}'` = 13, 13; Gate quote ≤ 25 words; knowledge-header gate PASS; canonical census validate rc 0 | `python3 tools/count-kr-rows-r69.py --revision <rev> --snapshots .ufo/waves/round-69/before/src` (print `KR_ROWS` / `KR_VERIFIED`); `git show <rev>:corpus/SOURCES.md \| grep -cE '^\| S[0-9]{3,}'` | any row failing one clause reads `KR_VERIFIED < 5` → honest stop; the counter's pre-data battery must fail all five malformed fixtures (duplicate id, wrong digest, absent quote, unregistered source id, 7-word statement) while the well-formed control reads 5 — a battery that passes any malformed fixture makes the counter vacuous and C1 is not declared verified |
+| C2 | operability (9; capability `kernel-arm`) | `probe_kernel_arm` + one verdict-neutral `KERNEL` line in `tools/tsukuroi-census.sh`: `KERNEL kernel-plane release=<uts> pkg=<name> pkgver=<ver> modules_tree=PRESENT\|ABSENT\|UNKNOWN tainted=<int\|UNKNOWN> taint_bits=<csv\|none\|UNKNOWN> pending=NO\|YES\|UNKNOWN unreadable=<n> [detail=...]`, decoded with the closed bit→log table 0–19 of S288; read-only, no privilege, no package transaction, never a rollup term and never an exit-code input | `grep -c 'KERNEL' tools/tsukuroi-census.sh` **0**, selftest **177** → label present (`grep -c 'KERNEL kernel-plane'` ≥ 1), selftest **≥ 185** PASS rc 0 with ≥ 8 new `R69-C2` hermetic cases; live run prints exactly one `KERNEL` line carrying every field exactly once in contract order; the verdict-bearing lines and the exit code identical to the pre-arm baseline; knowledge-header, registry-coverage and line-endings gates PASS | `grep -c 'KERNEL kernel-plane' tools/tsukuroi-census.sh`; `bash tools/tsukuroi-census.sh --selftest`; `bash tools/tsukuroi-census.sh 2>/dev/null \| grep -c '^KERNEL kernel-plane'` | not hermetic under the existing fixture/override pattern → honest stop; a field absent, duplicated or out of contract order on the live line → honest stop; any rollup or exit-code change → honest stop |
+
+Causal separability: C1 touches only its note, its two SOURCES rows, the new counter and receipts; C2 touches
+only `tools/tsukuroi-census.sh`. Each verifies without the other. Counter strictness is frozen here, before any
+note or selftest case exists; both new table-row predicates are strict from the start (distinct ids, non-empty
+evidence cells, no fenced-block or prose row). Routed repairs this round (not claims): the declaration-hygiene
+criterion in `corpus/QUALITY.md` with a receipt applying it to the round-68 declaration; the QUALITY 98 S243
+re-read above; one considerthese proposal mined; assimilation: none (L0 `tsukuroi | round-64` and its addendum
+remain open and unanswered in `.ufo/l0-questions.md`).
+
+Wave w1: one v1 wave, band 8–16, 13 seats; seat shape and counts are fixed in `.ufo/waves/round-69/w1-spec.json`.
+
+**planned (next round):** R66-M3/M4 frozen-counter amendments where still reachable; the AR resolve-then-count
+debt; the kernel arm's second-device and non-systemd-boot coverage; no amendment of this round's frozen predicates.

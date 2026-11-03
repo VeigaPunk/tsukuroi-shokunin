@@ -1,0 +1,59 @@
++ echo '# host capture 2026-11-03 (round 69 pre-declaration), read-only'
+# host capture 2026-11-03 (round 69 pre-declaration), read-only
++ echo '## uname -r'
+## uname -r
++ uname -r
+7.2.11-arch1-1
++ echo '## /proc/sys/kernel/osrelease'
+## /proc/sys/kernel/osrelease
++ cat /proc/sys/kernel/osrelease
+7.2.11-arch1-1
++ echo '## pacman -Q linux linux-headers linux-lts'
+## pacman -Q linux linux-headers linux-lts
++ pacman -Q linux linux-headers linux-lts
+linux 7.2.11.arch1-1
+linux-headers 7.2.11.arch1-1
+linux-lts 6.18.57-2
++ echo '## pacman -Qo /usr/lib/modules/7.2.11-arch1-1'
+## pacman -Qo /usr/lib/modules/7.2.11-arch1-1
++ pacman -Qo /usr/lib/modules/7.2.11-arch1-1
+/usr/lib/modules/7.2.11-arch1-1/ is owned by linux 7.2.11.arch1-1
+/usr/lib/modules/7.2.11-arch1-1/ is owned by linux-headers 7.2.11.arch1-1
++ echo '## pacman -Qo /usr/lib/modules/6.18.57-2-lts'
+## pacman -Qo /usr/lib/modules/6.18.57-2-lts
++ pacman -Qo /usr/lib/modules/6.18.57-2-lts
+/usr/lib/modules/6.18.57-2-lts/ is owned by linux-lts 6.18.57-2
+/usr/lib/modules/6.18.57-2-lts/ is owned by linux-lts-headers 6.18.57-2
++ echo '## ls /usr/lib/modules/'
+## ls /usr/lib/modules/
++ ls /usr/lib/modules/
+6.18.57-2-lts
+7.2.11-arch1-1
++ echo '## cat /proc/sys/kernel/tainted'
+## cat /proc/sys/kernel/tainted
++ cat /proc/sys/kernel/tainted
+12288
++ echo '## modinfo -F vermagic dkms nvidia module'
+## modinfo -F vermagic dkms nvidia module
+++ uname -r
++ modinfo -F vermagic /lib/modules/7.2.11-arch1-1/updates/dkms/nvidia.ko.zst
+7.2.11-arch1-1 SMP preempt mod_unload 
++ echo '## lsmod line count'
+## lsmod line count
+++ lsmod
+++ wc -l
+132
++ echo '## journalctl -b -k taint lines'
+## journalctl -b -k taint lines
+++ grep -m3 'Tainted: \['
+Nov 02 16:49:24 plazir27 kernel: Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
+Nov 02 16:49:45 plazir27 kernel: Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
++ echo '## journalctl -b -k nvidia load lines'
+## journalctl -b -k nvidia load lines
+++ grep -m2 'nvidia: '
+Nov 02 12:07:17 plazir27 kernel: nvidia: loading out-of-tree module taints kernel.
+Nov 02 12:07:17 plazir27 kernel: nvidia: module verification failed: signature and/or required key missing - tainting kernel
++ echo '## journalctl -b -k soft lockup lines count'
+## journalctl -b -k soft lockup lines count
+++ grep -ciE 'soft lockup'
+0
