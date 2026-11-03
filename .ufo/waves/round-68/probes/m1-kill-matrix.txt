@@ -1,0 +1,167 @@
+2026-11-03T22:34:31Z
+M1Mutation — C1 RW-row predicate kill matrix (round 68, wave w1)
+Subject: independent counter /fast/scratch/hyaku/tsukuroi-r68/M1Mutation/mycount.py
+         sha256 3ad6e99a929bc7e5273400e22345dc66afe7fc51283ed9457cf0b9f8a6646cc9
+         derived ONLY from SCORECARD.md "Round 68 — declaration" C1 row text
+         ("grep -cE '^\| RW[0-9]+ \| '" + declared strictness: table rows only, never
+         fenced-block or prose rows; 3rd cell non-empty; last non-empty cell non-empty;
+         distinct RW ids) — drafts/c1/count-rw-r68.py not read, not executed yet.
+Fixture set: /fast/scratch/hyaku/tsukuroi-r68/M1Mutation/m/m0..m7.md
+
+$ sha256sum m/m*.md
+09ea4c215fd5029eca7f966e723e2d9aaab2217f1f382bd3c6f63a4da957daf2  m/m0.md
+e0af27dc9eec61ff9e3d6676854c3be9b5ebfa28c5160763a496884bb51bf035  m/m1.md
+cff18b78a173abc321b67e6dfbb9a1a53410a0e63da98a6cfb5d1d3002647772  m/m2.md
+258c6b6751698a954b0eeec618652e5e1d1bc1833d7f39fb0bf25c79af35d3bd  m/m3.md
+8964de2de77c62f00676e93b1fca51d4a609d9a48024f16429162a63d6cbe7cd  m/m4.md
+8b583877bebde3c4c0395142ac6bf19f6376048a2fe1553393f690673817f721  m/m5.md
+b6aa7a79199aff2fd1dedcd87bd37cc16d2b519d61cc9a4e3af618a182381162  m/m6.md
+224e3457e321105e5d2854664e46a76f8eb7c46cc1e3bfeb93ca55bc4d702d1a  m/m7.md
+
+A. FIXTURE MATRIX, item-literal definition ("KILLED (observed != expected for a red mutant)")
+$ for f in m/m{0..7}.md; do python3 mycount.py "$f"; echo "rc=$?"; done
+m/m0.md RW_ROWS=6   rc=0   <- control
+m/m1.md RW_ROWS=1   rc=0
+m/m2.md RW_ROWS=3   rc=0
+m/m3.md RW_ROWS=0   rc=0
+m/m4.md RW_ROWS=5   rc=0
+m/m5.md RW_ROWS=0   rc=0
+m/m6.md RW_ROWS=0   rc=0
+m/m7.md RW_ROWS=6   rc=0
+
+name  observed  expected  verdict
+m0    6         6         CONTROL-PASS (control)
+m1    1         1         SURVIVED (observed == expected; no deviation from oracle)
+m2    3         3         SURVIVED (observed == expected)
+m3    0         0         SURVIVED (observed == expected)
+m4    5         5         SURVIVED (observed == expected)
+m5    0         0         SURVIVED (observed == expected)
+m6    0         0         SURVIVED (observed == expected)
+m7    6         6         SURVIVED (observed == expected)
+
+red_killed=0/7  control=6  oracle_exact=8/8
+Reading: the predicate reproduced every declared expected count, so no red fixture exposed a
+deviation (a red fixture is "killed" only if the counter's answer differs from the oracle).
+
+A'. CALIBRATION — the declared counting command itself, run literally on the same fixtures
+$ grep -cE '^\| RW[0-9]+ \|' m/mN.md   (rc 0 when >=1 match, rc 1 when 0)
+m0 naive=6 rc=0 | m1 naive=6 rc=0 | m2 naive=6 rc=0 | m3 naive=0 rc=1
+m4 naive=6 rc=0 | m5 naive=0 rc=1 | m6 naive=0 rc=1 | m7 naive=6 rc=0
+The literal grep command deviates from the oracle on m1 (6 vs 1), m2 (6 vs 3) and m4 (6 vs 5):
+the three strictness clauses (distinct ids, fenced-block exclusion, non-empty evidence cell) are
+each behaviour-bearing. m5/m6/m7 are shape floors that the literal grep already satisfies.
+
+B. COUNTER-LEVEL MUTANTS (milestone: mutate the strict counter) — 6 single-point defects in
+   mycount.py, each run over the same 8 fixtures; battery = the 8 declared expectations.
+$ python3 cmut.py
+pristine_sha256=3ad6e99a929bc7e5273400e22345dc66afe7fc51283ed9457cf0b9f8a6646cc9
+pristine rc=0 deviates=[]
+pristine counts=m/m0.md=6 m/m1.md=1 m/m2.md=3 m/m3.md=0 m/m4.md=5 m/m5.md=0 m/m6.md=0 m/m7.md=6
+c1-drop-distinct-ids rc=0 deviates=['m/m1.md'] counts=... m/m1.md=6 ...
+c2-drop-fence-guard rc=0 deviates=['m/m2.md'] counts=... m/m2.md=6 ...
+c3-count-prose-rows rc=0 deviates=[] counts=m/m0.md=6 m/m1.md=1 m/m2.md=3 m/m3.md=0 m/m4.md=5 m/m5.md=0 m/m6.md=0 m/m7.md=6
+c4-allow-space-in-id rc=0 deviates=['m/m6.md'] counts=... m/m6.md=6 ...
+c5-drop-evidence-cell rc=0 deviates=['m/m4.md'] counts=... m/m4.md=6 ...
+c6-count-repeated-header rc=0 deviates=['m/m7.md'] counts=... m/m7.md=7 ...
+post_run_pristine_sha256=3ad6e99a929bc7e5273400e22345dc66afe7fc51283ed9457cf0b9f8a6646cc9
+restored=True
+
+mutant                    sha256 (mutant copy)                                             deviating fixture  verdict
+c1 drop distinct ids       acd09676b406fe9e56be22fd56fefae71f5464981ea83c0597d3d15b9b5c677a m1                 KILLED
+c2 drop fence guard       0a50af44b56583f72d4d4b06fa7a6e1befbb213eb0dfd706888737bd87b332ec m2                 KILLED
+c3 drop leading-pipe guard 20bef7e633e9bb7151aa2d79e9a1182d11d22c7d3a43384b40e7c301b2bcf20e (none)             SURVIVED
+c4 accept "RW 1"          2d00cf1da55a51f6996fb50649897f957735825fcae3bc8707939cd55d6f5360 m6                 KILLED
+c5 count blank evidence   770f8607329dcfd9dca65af683373d416441eae842cc387d3be19627d082de51 m4                 KILLED
+c6 count repeated header  640ab3b137976afd8ed741c4b58bd1b83a8a07e5371245d54f88de18da1c6313 m7                 KILLED
+counter_mutants_killed=5/6
+
+C. THE SURVIVOR, DIAGNOSED (why c3 cannot be killed by the declared m3 shape)
+m3 is specified as prose lines that START with "RW1 |". For such a line the id field is
+cells[0], not cells[1], so dropping the leading-pipe guard still leaves cells[1] = row-kind and
+the id test fails:
+$ python3 -c "print(repr('RW1 | verdict | ev a |'.split('|'))); print(repr('| RW1 | verdict | ev a |'.split('|')))"
+['RW1 ', ' verdict ', ' ev a ', '']
+['', ' RW1 ', ' verdict ', ' ev a ', '']
+c3 is therefore EQUIVALENT on the declared fixture shape, not merely untested by a weak oracle.
+The guard is behaviour-bearing against a non-pipe-led line whose SECOND field holds the id
+(diagnostic file, not one of the eight):
+$ cat diag_non_pipe.md ; python3 mycount.py diag_non_pipe.md ; python3 cm_c3.py diag_non_pipe.md
+# note | RW9 | ev a | ev b |
+diag_non_pipe.md RW_ROWS=0      (pristine, rc 0)
+diag_non_pipe.md RW_ROWS=1      (c3, rc 0)
+Also checked: a 4-cell prose line that does start with "RW1 |" is still 0 under both pristine and
+c3 ($ python3 mycount.py diag_prose4.md -> diag_prose4.md RW_ROWS=0), because cells[1] is the
+row-kind. Routed, not applied: adding a "preamble | RW<id> | ev | ev |" prose case to the C1
+battery would kill c3; the eight declared fixtures were left unchanged.
+
+D. RECONSTRUCTION (scratch is removed at exit; these bytes reproduce every number above)
+
+D.1 frozen counter source (/fast/scratch/hyaku/tsukuroi-r68/M1Mutation/mycount.py)
+#!/usr/bin/env python3
+import sys
+sys.dont_write_bytecode = True
+import re
+
+def count(path):
+    with open(path, "r", encoding="utf-8", errors="replace") as fh:
+        lines = fh.read().splitlines()
+    fence = False
+    ids = set()
+    for raw in lines:
+        stripped = raw.lstrip()
+        if stripped.startswith("```"):
+            fence = not fence
+            continue
+        if fence:
+            continue
+        if not raw.startswith("|"):
+            continue
+        cells = [c.strip() for c in raw.split("|")]
+        if len(cells) < 4 or not cells[3]:
+            continue
+        nonempty = [c for c in cells if c]
+        if not nonempty or not nonempty[-1]:
+            continue
+        if not re.fullmatch(r"RW[0-9]+", cells[1]):
+            continue
+        ids.add(cells[1])
+    return len(ids)
+
+def main(argv):
+    if len(argv) < 2:
+        sys.stderr.write("usage: mycount.py FILE...\n")
+        return 2
+    for path in argv[1:]:
+        print("%s RW_ROWS=%d" % (path, count(path)))
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
+(executable bit set; prints "<path> RW_ROWS=<n>" per file; sha256 3ad6e99a...)
+
+D.2 fixtures m0-m7 (3 data cells; note the trailing "|" on every row)
+Every file starts with these two header lines:
+| id | row-kind | evidence |
+|---|---|---|
+m0.md  six rows "| RW1..RW6 | verdict | sha pair + anchor line 1..6 |"
+m1.md  six rows "| RW1 | verdict | dup evidence 1..6 |"
+m2.md  three rows "| RW1 | verdict | outside ev 1..3 |", then a line ```, then three rows
+       "| RW4 | verdict | fenced ev 4..6 |", then a line ```
+m3.md  no table; six prose lines "RW1..RW6 | verdict | sha pair a9433bb0 -> 2750c11a, prose line 1..6 |"
+m4.md  six rows "| RW1..RW6 | verdict | ev 1..6 |" except RW2 is "| RW2 | verdict |  |"
+m5.md  header only (the two lines above)
+m6.md  six rows "| RW 1..6 | verdict | ev 1..6 |" (space between RW and the digits)
+m7.md  rows RW1..RW3, then a repeated header "| id | row-kind | evidence |", then rows RW4..RW6
+
+D.3 arity-matched set (m8/): header
+| id | row-kind | fact | v7.2 anchor | v7.3 anchor | verdict | applicability | evidence |
+|---|---|---|---|---|---|---|---|
+row template: "| RW<i> | re-read | S138 cgroup-v2.rst | a9433bb0 | 2750c11a | changed | host-correct | <ev> |"
+m0 ev "sha pair + anchor line <i>"; m1 six RW1 rows; m2 three rows, ```, three rows, ```;
+m3 six prose lines starting "RW<i> | re-read | ... | prose <i> |"; m4 RW2 evidence blank;
+m5 header only; m6 ids "RW 1".."RW 6"; m7 repeated 8-column header between RW3 and RW4.
+Probes: d_num_id = RW1 and RW01; d_placeholder = RW1 and RW2 with evidence "-";
+d_tilde_fence = three rows, "~~~", three rows, "~~~"; d_no_separator = one 8-column RW1 row and no
+header/separator above it. Diagnostic diag_non_pipe.md = "# note | RW9 | ev a | ev b |".
+
+D.4 oracle used throughout: m0=6 m1=1 m2=3 m3=0 m4=5 m5=0 m6=0 m7=6

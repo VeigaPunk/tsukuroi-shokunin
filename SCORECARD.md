@@ -5134,3 +5134,27 @@ round-67 Mistakes row cited 21 as a line count); one considerthese proposal mine
 `tsukuroi | round-64` and its addendum remain open and unanswered in `.ufo/l0-questions.md`).
 
 Wave w1: one v1 wave, band 8–16. Seat shape and counts are fixed in `.ufo/waves/round-68/w1-spec.json`.
+
+## Round 68 — declaration errata (append-only; predicate unchanged)
+
+The C1 sentence "changed hunks ... outside the memory-controller section" is
+falsified: S1Scout and R1Reviewer measured one of sixteen hunks inside Memory,
+changing memory.pressure's documented access mode at v7.3:1939. The declaration's
+oom_kill label locator is 1506→1533, not 1507→1533. "The five" means only the five
+named rows; R1Reviewer enumerated eleven v7.2-family rows for these files.
+The note records the actual scope and the true memory hunk. These corrections do
+not amend the frozen content conjunct or its shape-only counting command:
+**C1 not verified**. Its row/registry counts remain measurements, not admission.
+Evidence: `.ufo/waves/round-68/w1/{S1Scout,R1Reviewer,K1Critic}.md`.
+
+The positive-control erratum lives in `corpus/lessons/round-67.md` as an appended
+round-68 block and is mined in `corpus/lessons/round-68.md`; the declaration's
+"in the round-68 lesson" wording refers to that mined mistake, not its placement.
+The saturation nudge requires all axes saturated, which is false (depth/adjacency
+8); a capability is encouraged but not mandated by a three-round window alone.
+
+## Capabilities — round 68 demonstrated entry
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| knowledge-source-ref-gate | Resolves operative source-line S-ids against the same-revision registry; fails dangling references and ignores fenced registry examples | `python3 tools/check-knowledge-refs-r68.py --selftest` PASS 21/21; live base 85 notes/285 ids/0 findings; S999 header PASS/new-gate FAIL in round-68 probes and integration receipts | round 68 |

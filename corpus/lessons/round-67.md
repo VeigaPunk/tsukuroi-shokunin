@@ -125,3 +125,18 @@ C1 counter (controls B, C pass), K1Critic FALSIFIES C1 attack A1 (wrong URL pass
 - **discernment: unchanged.** The two attack seats found real gaps in the lane's own C1 counter (routed as
   R67-COUNTER-SHAPE-ONLY); the lane did not catch them at write time. One round of self-assessed admits does
   not demonstrate improved discernment, and nothing shows harm.
+## Erratum (round 68) — R67-POSITIVE-CONTROL-COMMAND-MISMATCH
+
+Append-only. Supersedes only the figure `21` in the Mistakes row R67-NUMBER-DRIFT-WATCH and in the
+"Shown able to fail" sentence above (`grep -c -i limit` on r42 → 21). The round-67 verifier
+spot-check (`corpus/lessons/round-67-verifier-spotcheck.md` §6 item 1) found that the pasted command
+prints **14**; `21` is the occurrence count from `grep -o -i limit … | wc -l`. Re-derived at base
+`42400ec6` over `corpus/knowledge/btrfs-scrub-record-r42.md`:
+
+    $ grep -c -i limit corpus/knowledge/btrfs-scrub-record-r42.md        → 14   (matching lines)
+    $ grep -o -i limit corpus/knowledge/btrfs-scrub-record-r42.md | wc -l → 21   (occurrences)
+
+The positive-control claim stands unchanged (the pattern returns nonzero on r42, so the negative counts
+for "revert" and "old_limit" are not vacuous). Only the figure and the command it names differ. The
+miscount is classed as a count without its command (CORPUS.md "A count carries its command") and
+is carried by the round-68 lesson as a Mistakes row.

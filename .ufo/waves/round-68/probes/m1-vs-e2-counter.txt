@@ -1,0 +1,135 @@
+2026-11-03T22:38:00Z
+M1Mutation — M1 counter vs C1/E2 counter (drafts/c1/count-rw-r68.py), same 8 fixtures + diagnostics
+MINE  /fast/scratch/hyaku/tsukuroi-r68/M1Mutation/mycount.py
+      sha256 3ad6e99a929bc7e5273400e22345dc66afe7fc51283ed9457cf0b9f8a6646cc9 (unchanged before and
+      after every comparison; never edited after reading the E2 counter)
+E2    /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-68/drafts/c1/count-rw-r68.py
+      live draft, three revisions observed while this seat ran:
+        2026-11-03T22:34Z a31c8573f0008752a05b03b74d8b4c62b0076e42b06f75d65be70d7281d3b826
+        2026-11-03T22:36Z eba881ad4d788a21a55caef22d925a8f787eb1fc347751dcf477de274dceb06d
+        2026-11-03T22:36Z d14c00317ecd3378f646a3c77e3d10ed3f32d6d86d870b039c06b58c97cb0dda  (final rerun)
+      Every file run under more than one revision returned the same E2 number each time, so the table
+      below holds for all three.
+
+$ python3 mycount.py FILE ; python3 <E2> FILE     (rc 0 from both on every file listed)
+
+1. REQUIRED COMPARISON — the 8 declared fixtures (3 data cells: id | row-kind | evidence)
+file     M1  E2  verdict    E2 first REJECT line (verbatim excerpt)
+m0.md     6   0  DISAGREE   REJECT line=3 id=RW1 reason=SHAPE detail=3 data cells, 5 raw fields (need 8)
+m1.md     1   0  DISAGREE   REJECT line=3 id=RW1 reason=SHAPE detail=3 data cells, 5 raw fields (need 8)
+m2.md     3   0  DISAGREE   REJECT line=3 id=RW1 reason=SHAPE detail=3 data cells, 5 raw fields (need 8)
+m3.md     0   0  AGREE      REJECT line=1 id=- reason=ANCHOR detail=line does not start with a pipe (prose)
+m4.md     5   0  DISAGREE   REJECT line=3 id=RW1 reason=SHAPE detail=3 data cells, 5 raw fields (need 8)
+m5.md     0   0  AGREE      (no REJECT lines)
+m6.md     0   0  AGREE      (no REJECT lines)
+m7.md     6   0  DISAGREE   REJECT line=3 id=RW1 reason=SHAPE detail=3 data cells, 5 raw fields (need 8)
+COUNTERS_AGREE=3/8 (m3, m5, m6). All five disagreements are one clause: E2's R4 requires an 8- or
+9-cell row and rejects the item's 3-cell fixture shape, so E2 measures 0 on every fixture that has
+any counted row. Nothing in the disagreements contradicts the declared oracle: M1 equals the oracle
+on all 8, E2 equals it on the three fixtures that contain no count.
+
+2. ARITY-MATCHED DIAGNOSTIC — same 8 defects rebuilt as 8-column rows (id | row-kind | fact |
+   v7.2 anchor | v7.3 anchor | verdict | applicability | evidence), column count no longer variable
+file       M1  E2  oracle  verdict
+m8/m0.md    6   6     6    AGREE
+m8/m1.md    1   1     1    AGREE
+m8/m2.md    3   3     3    AGREE
+m8/m3.md    0   0     0    AGREE
+m8/m4.md    6   5     5    DISAGREE  <- M1 over-counts; E2 equals the oracle
+m8/m5.md    0   0     0    AGREE
+m8/m6.md    0   0     0    AGREE
+m8/m7.md    6   6     6    AGREE
+COUNTERS_AGREE=7/8 on this set.
+M1 defect isolated by m8/m4: M1 checks "the 3rd data cell is non-empty" positionally. In an 8-column
+row the 3rd data cell is `fact`, not `evidence`; the evidence cell is the last one, and M1's other
+clause ("last non-empty cell non-empty") is a tautology as written (the last non-empty cell is
+non-empty by construction, and a trailing pipe always supplies a final field). So on the note's real
+layout M1 counts a row whose evidence cell is blank. E2's R6 (evidence cell non-empty after trim,
+placeholders rejected) is the clause that catches it. M1 was NOT changed after this observation
+(item step 5 freeze); the defect is recorded, not patched.
+
+3. CLAUSE PROBES (8-column, one clause varied per file; diagnostic, outside the declared 8)
+probe                M1  E2  clause isolated
+d_num_id.md           2   1  distinct ids: M1 compares strings, E2 compares numeric value
+                              (RW1 vs RW01 are one id to E2)
+d_placeholder.md      2   1  evidence: M1 accepts "-", E2 treats "-" as a placeholder/blank
+d_tilde_fence.md      6   3  fences: M1 toggles only on ``` (item's literal wording), E2 also
+                              tracks ~~~ with a same-character closing run
+d_no_separator.md     1   0  table membership: M1 accepts a pipe-led row with no header/|---|
+                              above it, E2 requires the separator in the contiguous run (R3)
+Four further readings are therefore open in the frozen text and each is behaviour-bearing:
+id equality granularity, placeholder evidence, fence characters, and table membership.
+
+4. LIVE C1 DRAFT NOTE (read-only; not a fixture)
+$ sha256sum .ufo/waves/round-68/drafts/c1/note.md
+30d3b2fd2ff0e75ad01b146f2abc0fc09bbbd8a03f820150aeeba766d124c6ea  note.md
+$ grep -cE '^\| RW[0-9]+ \| ' note.md            -> 6   (rc 0; frozen literal predicate)
+$ awk -F'|' '/^\| RW[0-9]+ \| /{print NR, NF}' note.md -> 30 11 | 31 11 | 32 11 | 33 11 | 34 13 | 35 10
+$ python3 mycount.py note.md                     -> RW_ROWS=6 (rc 0)
+$ python3 <E2> note.md                           -> RW_ROWS=5, LAYOUT=mixed (rc 0)
+   REJECT line=34 id=RW5 reason=SHAPE detail=11 data cells, 13 raw fields (need 8)
+The header at line 28 is 8 data cells and RW6 (line 35, NF=10) matches it. RW1-RW4 are 9 cells
+because each carries an unescaped `|` inside the v7.2-anchor cell, in the literal text
+`awk -F'|' on the S138/S158/S149/S182 row, field 7`; RW5 is 11 cells because it adds a second
+unescaped pipe in its evidence cell, `grep -n '^| S185 ' corpus/SOURCES.md prints line 191`. E2's
+9-cell tolerance (LAYOUT=9) admits RW1-RW4 and rejects RW5; M1 has no arity clause and admits all
+six. Consequence for C1: the frozen literal predicate reports 6 (>= 6 PASS) while an arity-binding
+strict counter reports 5 (< 6, so the claim's row floor fails on this draft). The note's own rows
+also break the `awk -F'|'` field addressing the note uses elsewhere. This is a landing-blocking
+shape question for the L1, not a counter-vs-counter arithmetic error; both numbers are reproducible
+from the bytes above.
+
+5. FREEZE / RESTORATION EVIDENCE
+$ sha256sum mycount.py  (before the E2 comparison and after the final rerun)
+3ad6e99a929bc7e5273400e22345dc66afe7fc51283ed9457cf0b9f8a6646cc9  mycount.py   (both times)
+M1 counter mutants are separate scratch copies cm_c1..cm_c6.py; mycount.py itself was never edited,
+and the fixture set m/ and m8/ was hashed before the first E2 run and is unchanged by it.
+
+6. ADDENDUM (2026-11-03T22:45:12Z) after E2Battery's IRC — one sentence above is superseded
+$ sha256sum count-rw-r68.py note.md
+b93f5912d91be4787c5c595e10f5a15501cd64e9af6cd87916b28cd350438458  count-rw-r68.py
+1d2a4d8d78a0c1d0a704d887b26df4cc4e0c5f8fc979062f1fc7602fa30bbd8b  note.md
+E2Battery's message names a final sha of fa0d866d3f00ff6e7c94961ccd9a4df956a96177b5e16c5b519d60e9b83155d0;
+that is not the byte state on disk at this measurement (b93f5912...). Every number below is against
+b93f5912..., rc 0 on every run. Replay: the eight declared fixtures were rebuilt from section D and
+sha256-verified byte-identical to section A's hashes before any run.
+$ python3 count-rw-r68.py m/m0.md ... m/m7.md -> RW_ROWS=0 on all eight (SHAPE "3 data cells, 5 raw
+  fields (need 8)" on m0/m1/m2/m4/m7; ANCHOR prose on m3; no rejects m5/m6)
+=> section 1 stands: COUNTERS_AGREE=3/8 on the declared fixtures.
+$ awk -F'|' '/^\| RW[0-9]+ \| /{print NR, NF}' note.md -> 30 10 | 31 10 | 32 10 | 33 10 | 34 10 | 35 10
+$ grep -cE '^\| RW[0-9]+ \| ' note.md -> 6
+$ python3 count-rw-r68.py note.md -> RW_ROWS=6, LAYOUT=8, no REJECT
+=> section 4's 5-vs-6 divergence is resolved on note.md sha 1d2a4d8d...: every row is 8 data cells and
+strict count = frozen literal count = 6. The RW5 row with 11 data cells is gone from these bytes.
+Claim checks on the current counter (each rc 0, M1's number after the arrow):
+u9_stray_blank.md (9 cells from a stray pipe, blank evidence) -> RW_ROWS=1, REJECT line=4 id=RW2
+  reason=SHAPE detail=9 data cells, 11 raw fields (need 8)          -> M1 2  (9-cell tolerance gone)
+u_no_trailing.md (8-cell row, no trailing pipe, 9 raw fields)     -> RW_ROWS=1, LAYOUT=8 -> M1 1
+d_num_id.md (RW1 + RW01)                                          -> RW_ROWS=1, DUPLICATE-ID -> M1 2
+d_placeholder.md (evidence "-")                                   -> RW_ROWS=1, EMPTY-EVIDENCE -> M1 2
+SUPERSEDED: section 4's "E2's 9-cell tolerance (LAYOUT=9) admits RW1-RW4 and rejects RW5" describes
+only the revisions named in section 1 (a31c8573 / eba881ad / d14c0031). On b93f5912... a ninth data
+cell is rejected as SHAPE. Still open between the two counters on these bytes: numeric id equality
+(1 vs 2) and placeholder evidence (1 vs 2). M1's counter is unchanged (sha 3ad6e99a...), so its
+m8/m4 over-count in an 8-cell layout still stands.
+
+7. CLARIFICATION (2026-11-03T22:46:42Z) — hash history and the lone-row reading
+fa0d866d3f00ff6e7c94961ccd9a4df956a96177b5e16c5b519d60e9b83155d0 was on disk when E2Battery sent
+its message; the edit after it touched only docstring lines 45-50, so b93f5912... (above) is the final
+counter state and the one §6 and this section use. The §6 phrase "9-cell tolerance gone" must not be
+read as the strict counter counting a 9-cell row: on a lone row it counts nothing. Measured here:
+$ header + separator + one 8-column row with a stray pipe in the fact cell and blank evidence
+$ python3 count-rw-r68.py m8/single9.md
+  RW_ROWS=0
+  LAYOUT=none
+  REJECT line=3 id=RW1 reason=SHAPE detail=9 data cells, 11 raw fields (need 8)     (rc 0)
+$ M1 positional rule on the same bytes -> RW_ROWS=1 (rc 0)
+E2Battery's battery records the same fixture: probes/c1-battery.txt sha256
+5ff7a184334ee624ca074fec5483e3b427f16292192b0e295fadfff47cffc260 (264 lines), line 57
+"v-stray-pipe 0 0 extra PASS rc=0 layout=none", fixture sha256 2e0761161d7445a7ecaba0bb162285deb419f81ed5a6c79c7e83cd7398b13f2a.
+So the lone-row false accept is closed on the strict side; the residual divergence is exactly M1's
+positional evidence rule (3rd data cell instead of the evidence/last cell), already named in §2 and §3.
+The two other open readings are deliberate on E2Battery's side: numeric id equality (R5) and
+placeholder evidence (R6), read from "distinct ids" and "a non-empty evidence cell". M1's item wording
+("3rd cell non-empty", "distinct RW ids") supports the positional/string reading. Neither counter
+changes; binding one reading is an L1 decision.

@@ -579,3 +579,11 @@ The round-19 register `knowledge/adjacency-anchors-r19.md` gains an appended `##
 | `tools/check-adjacency-anchors.py` (patched) | an outbound `sibling_commit` that does not resolve in an existing sibling repository now yields `ANCHOR-LIVE-OBJECT-UNRESOLVED` and FAIL; an absent sibling directory still yields no finding; one selftest case added | `.ufo/waves/round-67/drafts/c2-patch.diff`; `.ufo/waves/round-67/probes/e2-*.json`; `e3-battery-base.tsv` vs `e3-battery-patched.tsv` |
 | `QUALITY.md` criterion 100 | a gate's PASS counts each record it checks; an unresolvable live predicate is a finding | the criterion text; red state `.ufo/waves/round-67/probes/e2-mutant-base.json` |
 | `lessons/round-67.md` | Gate, Mistakes (R67-FLEET-MISROOT-SCORECARD, R67-FIXTURE-SED-NON-ROW, R67-NUMBER-DRIFT-WATCH), the frozen-counter battery (frozen SL counter survives 4 of 5 fixtures; strict counter kills 5 of 5) | `.ufo/waves/round-67/probes/m1-c1-counter-battery.txt` |
+
+## Round-68 index — Linux v7.3 pinwatch and source-reference gate
+
+| Path | What it holds |
+|---|---|
+| `knowledge/linux-v73-pinwatch-r68.md` | Five named registry pins re-read against v7.3; one memory.pressure documentation hunk and one sysfs comment hunk; S286/S287 |
+| `lessons/round-68.md` | Gate, mistakes, falsified frozen C1 conjunct and C2 repair evidence |
+| `../tools/check-knowledge-refs-r68.py` | Executable dangling source-reference check with fenced-registry and glued-id red cases |

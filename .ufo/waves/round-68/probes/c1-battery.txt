@@ -1,0 +1,264 @@
+2026-11-03T22:44:28Z
+seat=E2Battery  lane=tsukuroi-shokunin  round=68  wave=w1  item=E2Battery (C1 strict counter and battery)
+lane_base=42400ec6  declaration=SCORECARD.md "Round 68 - declaration" row C1
+frozen note corpus/knowledge/linux-v73-pinwatch-r68.md: ABSENT (counter rc 2, EDGE PROBES below)
+battery frozen before the note: named fixtures a-f were written 2026-11-03 19:34:41
+  (2026-11-03 19:34:41 for the control); a sibling's DRAFT note first appeared
+  2026-11-03 19:38:33 - after the fixtures. The draft is not the frozen artefact; its read is
+  recorded separately under LIVE DRAFT NOTE.
+scratch=/fast/scratch/hyaku/tsukuroi-r68/E2Battery  (disposable; every file copied out before removal)
+counter=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-68/drafts/c1/count-rw-r68.py
+b93f5912d91be4787c5c595e10f5a15501cd64e9af6cd87916b28cd350438458  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-68/drafts/c1/count-rw-r68.py
+Python 3.14.8 (main, Oct  2 2026, 10:23:31) [GCC 16.2.1 20260810]
+
+== WHAT THE COUNTER IS ==
+The frozen predicate is the shape-only grep '^\| RW[0-9]+ \| ' (row C1, counting-command column). It counts
+duplicate ids, fenced example rows, prose and empty evidence cells - the round-67 defect
+R67-COUNTER-SHAPE-ONLY (corpus/lessons/round-67-verifier-spotcheck.md section 2). The counter keeps the
+frozen anchor and adds the clauses the declaration freezes: distinct ids, non-empty evidence cell, no
+fenced-block row, no prose row; and it requires the note's 8-column layout
+  id | row-kind | fact | v7.2 anchor | v7.3 anchor | verdict | applicability | evidence
+Every clause is a rejection, never a repair: a row that fails prints REJECT with its line, id and reason.
+
+Shape rules (the item's text names two shapes; the note's real header decides):
+  - exactly 8 data cells, evidence is the LAST cell - the note's own header at drafts/c1/note.md:28 is
+    '| id | row-kind | fact | v7.2 anchor | v7.3 anchor | verdict | applicability | evidence |'.
+  - 'NF == 9 when split on |' is the same row without its trailing pipe: '| a | ... | h |' splits into 10
+    raw fields and '| a | ... | h' into 9. Both are 8 data cells, so the rule is the data-cell count.
+  - a NINTH data cell is rejected (reason=SHAPE). The item's parenthetical calls evidence 'the 4th-from-
+    last data cell'; in an 8-column table a ninth cell means an unescaped pipe or an extra column, and
+    then the 4th-from-last cell is the verdict, not evidence. Accepting it tests the wrong cell and
+    admits a row whose evidence is blank - the false accept M1Mutation's probe found on this counter.
+  - subset property: the anchor requires the frozen grep's own spacing (space after the second pipe), so
+    the strict count can never exceed the frozen count; it can only be smaller (the red fixtures).
+
+== COMMAND (battery driver) ==
+$ ./battery.sh
+a-header-only	0	0	red	PASS	rc=0	layout=none
+b-duplicate-id	1	1	red	PASS	rc=0	layout=8
+c-fenced-rows	3	3	red	PASS	rc=0	layout=8
+d-prose	0	0	red	PASS	rc=0	layout=none
+e-empty-evidence	5	5	red	PASS	rc=0	layout=8
+f-control	6	6	control	PASS	rc=0	layout=8
+g-absent	0	0	null	PASS	rc=0	layout=none
+h-escaped-pipe	1	1	extra	PASS	rc=0	layout=8
+i-indented	0	0	extra	PASS	rc=0	layout=none
+j-lone-row	0	0	extra	PASS	rc=0	layout=none
+k-duplicate-numeric	1	1	extra	PASS	rc=0	layout=8
+l-first-invalid-then-valid	1	1	extra	PASS	rc=0	layout=8
+m-two-tables	6	6	extra	PASS	rc=0	layout=8
+n-placeholder-evidence	0	0	extra	PASS	rc=0	layout=none
+o-fence-mismatch	0	0	extra	PASS	rc=0	layout=none
+p-nine-cells	0	0	extra	PASS	rc=0	layout=none
+r-rehearsal	6	6	extra	PASS	rc=0	layout=8
+s-tight-cells	0	0	extra	PASS	rc=0	layout=none
+t-a4-boilerplate	0	0	extra	PASS	rc=0	layout=none
+u-no-trailing-pipe	1	1	extra	PASS	rc=0	layout=8
+v-stray-pipe	0	0	extra	PASS	rc=0	layout=none
+battery_should_fail_accepted=5 of 5 red/5 control=6
+extra_controls=14/14 failed_fixtures=0
+rc=0
+
+columns: name<TAB>observed<TAB>expected<TAB>class<TAB>verdict<TAB>rc<TAB>layout
+class red = the 5 should-fail fixtures, control = the well-formed 6-row table, null = the do-nothing
+empty note, extra = 14 further controls; every expectation is in fixtures/expected.tsv.
+
+== FROZEN GREP vs STRICT COUNTER (sensitivity: the frozen predicate is shape-only) ==
+$ grep -cE '^\| RW[0-9]+ \| ' <fixture>  vs  python3 count-rw-r68.py <fixture>
+a-header-only	frozen_grep=0	strict=0	class=red
+b-duplicate-id	frozen_grep=6	strict=1	class=red
+c-fenced-rows	frozen_grep=6	strict=3	class=red
+d-prose	frozen_grep=0	strict=0	class=red
+e-empty-evidence	frozen_grep=6	strict=5	class=red
+f-control	frozen_grep=6	strict=6	class=control
+g-absent	frozen_grep=0	strict=0	class=null
+h-escaped-pipe	frozen_grep=1	strict=1	class=extra
+i-indented	frozen_grep=0	strict=0	class=extra
+j-lone-row	frozen_grep=1	strict=0	class=extra
+k-duplicate-numeric	frozen_grep=2	strict=1	class=extra
+l-first-invalid-then-valid	frozen_grep=2	strict=1	class=extra
+m-two-tables	frozen_grep=6	strict=6	class=extra
+n-placeholder-evidence	frozen_grep=1	strict=0	class=extra
+o-fence-mismatch	frozen_grep=2	strict=0	class=extra
+p-nine-cells	frozen_grep=1	strict=0	class=extra
+r-rehearsal	frozen_grep=6	strict=6	class=extra
+s-tight-cells	frozen_grep=0	strict=0	class=extra
+t-a4-boilerplate	frozen_grep=6	strict=0	class=extra
+u-no-trailing-pipe	frozen_grep=1	strict=1	class=extra
+v-stray-pipe	frozen_grep=1	strict=0	class=extra
+rc=0
+frozen_grep > strict on: b-duplicate-id(6>1) c-fenced-rows(6>3) e-empty-evidence(6>5) j-lone-row(1>0) k-duplicate-numeric(2>1) l-first-invalid-then-valid(2>1) n-placeholder-evidence(1>0) o-fence-mismatch(2>0) p-nine-cells(1>0) t-a4-boilerplate(6>0) v-stray-pipe(1>0)
+frozen_grep == strict on: a-header-only d-prose f-control g-absent h-escaped-pipe i-indented m-two-tables r-rehearsal s-tight-cells u-no-trailing-pipe
+t-a4-boilerplate (frozen_grep 6, strict 0) is R1Attack's own A4 falsifier - six boilerplate rows with no
+located anchor that the frozen grep accepts; the counter rejects all six. Where the two agree, the strict
+clauses cost no legitimate row.
+
+== ORDERING CHECK (the strict count is a subset of the frozen count) ==
+$ for each fixture: strict > frozen_grep ?
+violations=0 (0 = no fixture lets the strict counter report more rows than the frozen predicate)
+
+== SAMPLE REJECT DIAGNOSTICS (one line per rejected row, as the item requires) ==
+$ python3 count-rw-r68.py fixtures/b-duplicate-id.md
+RW_ROWS=1
+LAYOUT=8
+REJECT line=6 id=RW1 reason=DUPLICATE-ID detail=already counted at line 5
+REJECT line=7 id=RW1 reason=DUPLICATE-ID detail=already counted at line 5
+REJECT line=8 id=RW1 reason=DUPLICATE-ID detail=already counted at line 5
+REJECT line=9 id=RW1 reason=DUPLICATE-ID detail=already counted at line 5
+REJECT line=10 id=RW1 reason=DUPLICATE-ID detail=already counted at line 5
+rc=0
+$ python3 count-rw-r68.py fixtures/c-fenced-rows.md
+RW_ROWS=3
+LAYOUT=8
+REJECT line=6 id=RW1 reason=FENCED detail=line sits in a fenced block
+REJECT line=7 id=RW2 reason=FENCED detail=line sits in a fenced block
+REJECT line=8 id=RW3 reason=FENCED detail=line sits in a fenced block
+rc=0
+$ python3 count-rw-r68.py fixtures/e-empty-evidence.md
+RW_ROWS=5
+LAYOUT=8
+REJECT line=7 id=RW3 reason=EMPTY-EVIDENCE detail=evidence cell ''
+rc=0
+$ python3 count-rw-r68.py fixtures/o-fence-mismatch.md
+RW_ROWS=0
+LAYOUT=none
+REJECT line=6 id=RW1 reason=FENCED detail=line sits in a fenced block
+REJECT line=9 id=RW2 reason=FENCED detail=line sits in a fenced block
+rc=0
+$ python3 count-rw-r68.py fixtures/n-placeholder-evidence.md
+RW_ROWS=0
+LAYOUT=none
+REJECT line=5 id=RW1 reason=EMPTY-EVIDENCE detail=evidence cell '—'
+rc=0
+$ python3 count-rw-r68.py fixtures/i-indented.md
+RW_ROWS=0
+LAYOUT=none
+REJECT line=5 id=- reason=ANCHOR detail=row is indented; the frozen anchor starts at column 0
+rc=0
+$ python3 count-rw-r68.py fixtures/s-tight-cells.md
+RW_ROWS=0
+LAYOUT=none
+REJECT line=5 id=- reason=ANCHOR detail=no `| RW<n> | ` prefix (id cell or pipe spacing differs)
+rc=0
+$ python3 count-rw-r68.py fixtures/p-nine-cells.md
+RW_ROWS=0
+LAYOUT=none
+REJECT line=5 id=RW1 reason=SHAPE detail=9 data cells, 11 raw fields (need 8)
+rc=0
+$ python3 count-rw-r68.py fixtures/v-stray-pipe.md
+RW_ROWS=0
+LAYOUT=none
+REJECT line=5 id=RW1 reason=SHAPE detail=9 data cells, 11 raw fields (need 8)
+rc=0
+$ python3 count-rw-r68.py fixtures/f-control.md
+RW_ROWS=6
+LAYOUT=8
+rc=0
+
+== LIVE DRAFT NOTE (read-only; the sibling draft, not the frozen artefact) ==
+$ sha256sum /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-68/drafts/c1/note.md
+1d2a4d8d78a0c1d0a704d887b26df4cc4e0c5f8fc979062f1fc7602fa30bbd8b  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-68/drafts/c1/note.md
+$ grep -cE '^\| RW[0-9]+ \| ' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-68/drafts/c1/note.md
+6
+rc=0
+$ awk -F'|' '/^\| RW[0-9]+ \| /{print NR": NF="NF}' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-68/drafts/c1/note.md
+30: NF=10
+31: NF=10
+32: NF=10
+33: NF=10
+34: NF=10
+35: NF=10
+rc=0
+$ python3 count-rw-r68.py /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-68/drafts/c1/note.md
+RW_ROWS=6
+LAYOUT=8
+rc=0
+The draft's six rows are 10 raw fields each (8 data cells), so both instruments read 6 and no REJECT is
+printed. The draft has no escaped pipe and no unescaped pipe inside a cell, which is the shape the
+counter requires; M1Mutation's earlier read (5, LAYOUT=mixed) was a superseded draft with unescaped
+pipes inside three cells.
+
+== FIXTURE SHAPES (reproducible after the scratch dir is removed) ==
+a-header-only.md               table header + separator, zero RW rows             -> 0
+b-duplicate-id.md              6 rows, all id RW1                                 -> 1
+c-fenced-rows.md               6 rows, 3 in a ```markdown fence                    -> 3
+d-prose.md                     6 prose lines starting 'RW1 | ', no table          -> 0
+e-empty-evidence.md            6 rows, exactly one blank evidence cell            -> 5
+f-control.md                   6 distinct valid rows, all evidence non-empty      -> 6
+g-absent.md                    '## Rows' only (do-nothing empty note)             -> 0
+h-escaped-pipe.md              1 valid row whose evidence cell quotes '\| grep'  -> 1
+i-indented.md                  1 valid row indented 2 spaces (anchor is column 0) -> 0
+j-lone-row.md                  row-shaped line inside a paragraph, no separator   -> 0
+k-duplicate-numeric.md         RW7 then RW007 (same numeric id)                    -> 1
+l-first-invalid-then-valid.md  same id twice: first blank evidence, then valid     -> 1
+m-two-tables.md                3+3 valid rows in two tables under two headings    -> 6
+n-placeholder-evidence.md      1 row with an em-dash evidence cell                 -> 0
+o-fence-mismatch.md            ~~~ fence holds through a ``` line, rows inside it    -> 0
+p-nine-cells.md                9 data cells (extra column / unescaped pipe)        -> 0
+r-rehearsal.md                 rehearsal of the round-68 note: RW1..RW6, real sha  -> 6
+s-tight-cells.md               row with no space after any pipe (grep's form)      -> 0
+t-a4-boilerplate.md            R1Attack A4: 6 boilerplate rows, 4 data cells        -> 0
+u-no-trailing-pipe.md          8 cells, no trailing pipe (9 raw fields, item's NF) -> 1
+v-stray-pipe.md                8-column row with one raw pipe and a blank evidence  -> 0
+
+== FIXTURE BYTES (sha256 of the files these numbers were measured on) ==
+95bbb44b1f29c741d5b01d2628167bd7e43ff214493a560f1463009e24b486c7  a-header-only.md
+094e9d0f9f49e948efffa52cd33d97472aabe1681bef879a47abfbd9db08152d  b-duplicate-id.md
+2001816b9ff4a783fea5d9a74533d9af65fdb1058ad18738b3f96bb45ddd86e0  c-fenced-rows.md
+aaadca5864f84fd3579d96bd7a31a020bf039d0fd5af6324fc55fa72da926312  d-prose.md
+9551641414c4bb14a7f564d84b07bf407f55d0f8532d773b12ee114b43e5940d  e-empty-evidence.md
+1addcb985aa3ad85584675832b9e16f9cac698e44504cc350b3020a55cc30a93  f-control.md
+1afb96ae5064a438c7bea126541c8d9ac86f76e1b07edc4579443e216c3d5fcf  g-absent.md
+ee215b16fa5612e2b46ba70b340fda99b3a0753ffa74eb470d94b4fdbed98de0  h-escaped-pipe.md
+3483909a9015c12fd93dcf9ef1639035323e2f57d9a9644e8c9c11e8c76a5d28  i-indented.md
+ab1b78f3d7d1a2ff299d40909285fc32368e0080127a022419a84418078be094  j-lone-row.md
+49fdf2a76a9d3c651a93c025c7bf5f7a27698d64f7fbf4de80cb79acf8a3bef8  k-duplicate-numeric.md
+2da65530194553cbf14d85c3389eb00f11e994b0d0ebaefe1dddd8f7cb297ae1  l-first-invalid-then-valid.md
+c6aa71a6a36d0ca4afcf7f69ddc43f67856f29455293d253cccd78a042b602e3  m-two-tables.md
+2553944940ed40f6fbf09c55b6d976d0187202b119233ef63c2659857081b55b  n-placeholder-evidence.md
+af79ef0b0c3237c069344e4994703b729406ab988efa18e0e411a2149ca47e90  o-fence-mismatch.md
+4cc1748c69d9d362163346a364dc6192c8f517be543ce64e1233776449d5e212  p-nine-cells.md
+b5cb45ea7465eb86fe24300fb5b61bb4d59b684478119495181c3db71daf4c9a  r-rehearsal.md
+9c13581e5e4f6cc431bf42401f905e5446ae7204d7bb824fab7bbbabdf09893c  s-tight-cells.md
+a6cf306b8b5c6fe37241f5880592d3b6d7d1bfa07513805fa864380f25b541a6  t-a4-boilerplate.md
+4f2b5e5362faa3e1157a887f3ae0e1e3fd106fb433e2d22306ac60fc78c40dbb  u-no-trailing-pipe.md
+2e0761161d7445a7ecaba0bb162285deb419f81ed5a6c79c7e83cd7398b13f2a  v-stray-pipe.md
+
+== EDGE PROBES (the instrument cannot invent a count) ==
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-68/drafts/c1/count-rw-r68.py /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/linux-v73-pinwatch-r68.md
+CANNOT-MEASURE /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge/linux-v73-pinwatch-r68.md: not a regular file
+rc=2
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-68/drafts/c1/count-rw-r68.py   # no argv
+usage: count-rw-r68.py [-h] NOTE
+count-rw-r68.py: error: the following arguments are required: NOTE
+rc=2
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-68/drafts/c1/count-rw-r68.py /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge   # a directory
+CANNOT-MEASURE /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/knowledge: not a regular file
+rc=2
+rc 2 means nothing was measured: no RW_ROWS line is printed, so an absent or unreadable note can never be
+read as RW_ROWS=0 by a caller that only greps stdout.
+$ python3 -W error::SyntaxWarning -c 'compile(open(counter).read(), counter, "exec")'
+compile clean under -W error::SyntaxWarning
+rc=0
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-68/drafts/c1/count-rw-r68.py fixtures/r-rehearsal.md  (twice; stdout compared)
+cmp rc=0 (deterministic)
+$ diff <ls of drafts/c1 before a counter run> <ls after>
+diff rc=0 (a run writes nothing)
+$ find /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-68 -name __pycache__ -o -name '*.pyc'
+find rc=0 (no output = none written)
+
+== LIMITS OF THE INSTRUMENT (recorded, not smoothed) ==
+1. The evidence cell is only checked for presence; the counter cannot tell a sha pair from the word
+   'yes'. Binding evidence to bytes is the reviewer's job (the note's rows cite before/src/SHA256SUMS).
+2. Any table block with a separator above counts, wherever it sits in the note; the counter does not
+   require the table to live under the heading the declaration names.
+3. The header row is not validated against the 8 column names: an 8-cell row under a differently worded
+   header still counts. The column NAMES are pinned in the counter docstring and in drafts/c1/E2-report.md.
+4. The 8-cell rule means a note that genuinely used nine columns (evidence 4th-from-last) would read 0
+   with reason=SHAPE on every row; that reading was rejected because it accepts stray-pipe rows with the
+   verdict cell standing in for evidence (v-stray-pipe pins the rejection). Docstring R4 states this.
+
+== VERDICT ==
+battery_should_fail_accepted=5 of 5 red/5 control=6
+extra_controls=14/14 failed_fixtures=0
+rc=0

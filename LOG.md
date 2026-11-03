@@ -2978,3 +2978,17 @@ C2 calibration (adjacency gate): mutant PASS 9/10 → FAIL `ANCHOR-LIVE-OBJECT-U
 sibling no finding; selftest 25 → 26 cases pass. Ordinal calibration 9 → 9.
 Named limits and routed items: SCORECARD "Round 67 — measured outcome"; lesson `corpus/lessons/round-67.md`
 (R67-COUNTER-SHAPE-ONLY routed). Evidence: `.ufo/waves/round-67/probes/`, `.ufo/waves/round-67/drafts/`, `.ufo/waves/round-67/w1-results.json`.
+
+## Round 68 — landing (2026-11-03; declaration `3f6edcc9`)
+
+C1 depth: Linux v7.3 pinwatch note `corpus/knowledge/linux-v73-pinwatch-r68.md`,
+S286/S287 in SOURCES.md, with pinned source bytes and eight digest checks in
+`.ufo/waves/round-68/before/src/`. Frozen C1 content conjunct FALSIFIED:
+one changed cgroup-v2 hunk is inside Memory (`memory.pressure` access wording);
+the declaration said outside. No post-data predicate amendment.
+C2 operability: `tools/check-knowledge-refs-r68.py`, QUALITY 101 and its SKILL
+registry row; selftest 21/21, S999 header PASS/new-gate FAIL proof; fenced-row
+and glued-id draft defects repaired with red cases. Evidence:
+`.ufo/waves/round-68/{probes,drafts,w1}/`; lesson `corpus/lessons/round-68.md`.
+Round-67 positive-control command erratum appended to its lesson: 14 matching
+lines versus 21 occurrences. SOURCES 285→287; final measurements follow landing.
