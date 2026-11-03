@@ -1,0 +1,33 @@
+# E2InitramfsArm — live run of the patched census (2026-11-03, lane host plazir27)
+# command: bash tools/tsukuroi-census.sh    (read-only; full output in live-post.log)
+# rc = 1
+# exactly one INITRAMFS line: grep -c '^INITRAMFS ' = 1
+
+INITRAMFS initramfs-plane mkinitcpio-conf=PRESENT conf_d=4 hooks=12 newroot_latehooks=2 presets=0 ukify=ABSENT unreadable=0
+
+TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=DEGRADED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)
+
+-- byte-identical to the pre-arm baseline .ufo/waves/round-65/before/live-census-baseline-prearm.txt:
+   IDENTICAL ^DRIFT pacnew-plane pacnew=3 pacsave=0 pacorig=0 unreadable=12 ... log=ok
+   IDENTICAL ^STORAGE btrfs-device-stats state=HEALTHY filesystems=1 devices=1 nonzero=0
+   IDENTICAL ^SCRUB btrfs-scrub-record state=NONE dir=absent records=0 tmp=0 sockets=0 unreadable=0 orphan=0 limited=0 timers=0
+   IDENTICAL ^TSUKUROI_CENSUS: DEGRADED (six planes, same terms)   and rc 1 == 1
+-- the only inter-run difference is PLANE drivers, a host measurement that drifts
+   (C4_sweep 222 -> 220, C5_swap_fail 22847436 -> 22847470, psi avg300 0.54 -> 0.71); the
+   receipt itself warns "Counts drift, re-run". This arm reads nothing under that plane.
+
+-- grounding of every live field against the round-65 bootstrap probes:
+   mkinitcpio-conf=PRESENT : /etc/mkinitcpio.conf, regular, mode 644 (probes/r65-mkinitcpio-conf.txt)
+   conf_d=4                : nvidia.conf, omarchy_hooks.conf, omarchy_resume.conf,
+                             thunderbolt_module.conf (same probe; ls -1 shows 4 entries)
+   hooks=12                : /usr/lib/initcpio/hooks, 12 entries (probes/r65-hooks.txt rc0)
+   newroot_latehooks=2     : btrfs-overlayfs, plymouth name /new_root (probes/r65-hooks.txt)
+   presets=0               : /etc/mkinitcpio.d EXISTS and is EMPTY (ls -1A | wc -l = 0)
+   ukify=ABSENT            : `command -v ukify` rc1; systemd-ukify not installed (probes/r65-ukify.txt)
+   unreadable=0            : no unreadable entry among the four paths
+
+-- operability reading for the L1 (a reading, not a judgement): presets=0 on a host whose
+   /etc/mkinitcpio.d is an empty directory means no `*.preset` exists, so a `mkinitcpio -P`
+   driven by presets has nothing to build on this host, and /boot/kernel pairing cannot come
+   from presets here. That state is exactly what the round's C1 note has to place against the
+   v262 UKI requirement plane.

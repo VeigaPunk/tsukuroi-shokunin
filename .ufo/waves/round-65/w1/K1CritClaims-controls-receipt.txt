@@ -1,0 +1,45 @@
+# K1CritClaims controls receipt — round-65 w1 — re-run at base 1bd8e196, 2026-11-03
+# All values below were observed by this seat (not copied from the before-receipts).
+# Scratch census-base.sh copy is removed at yield; this transcript is the kept record.
+
+-- C1 control: note absence at base
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin cat-file -e 1bd8e196:corpus/knowledge/systemd262-uki-pcr-r65.md
+fatal: path 'corpus/knowledge/systemd262-uki-pcr-r65.md' does not exist in '1bd8e196'
+rc=128
+
+-- C1 control: S282 row count at base
+$ git show 1bd8e196:corpus/SOURCES.md | grep -cE '^\| S282'
+0
+rc=1
+
+-- C1 ground: total S-rows at base and HEAD
+$ git show 1bd8e196:corpus/SOURCES.md | grep -cE '^\| S[0-9]{3,}'   -> 281
+$ grep -cE '^\| S[0-9]{3,}' corpus/SOURCES.md                        -> 281 (HEAD = freeze)
+
+-- C2 control: INITRAMFS count at base
+$ git show 1bd8e196:tools/tsukuroi-census.sh | grep -c INITRAMFS
+0
+rc=1
+
+-- C2 ground: selftest case count at base
+# worktree tools/tsukuroi-census.sh is dirty vs base (git diff --quiet 1bd8e196 -- <file> rc=1),
+# so per seat spec the base copy was extracted and run from scratch:
+$ git show 1bd8e196:tools/tsukuroi-census.sh > /fast/scratch/hyaku/tsukuroi-r65/K1CritClaims/census-base.sh
+$ bash census-base.sh --selftest    (cwd = scratch)
+TSUKUROI_CENSUS_SELFTEST: PASS (168 cases, 168 passed, 0 failed)
+rc=0   (32.1 s)
+
+-- C2 patched (E2 worktree revision) selftest, hermetic (TMPDIR = own scratch)
+$ TMPDIR=/fast/scratch/hyaku/tsukuroi-r65/K1CritClaims/tmp bash tools/tsukuroi-census.sh --selftest
+PASS initramfs: one INITRAMFS line per run, every other line and the exit code identical with the arm inputs present or absent (exit 1) (R65-C2)
+PASS initramfs: the emitted line carries every field, in contract order, once (R65-C2)
+TSUKUROI_CENSUS_SELFTEST: PASS (177 cases, 177 passed, 0 failed)
+rc=0   (33.1 s); no writes outside scratch observed
+
+-- capture hash check
+$ sha256sum .ufo/waves/round-65/before/s282-v262-release.json
+008e1265088e4a8b11f749cb646789fb805a5d82c23dc8996588a85c9babce0b  (== frozen before-value)
+
+-- control scores
+C1: 0/3 sub-targets (note / S282 row / SOURCES >= 282) — do-nothing control cannot reach
+C2: 0/2 sub-targets (label / selftest >= 174 PASS rc0) — do-nothing control cannot reach

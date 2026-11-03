@@ -1,0 +1,221 @@
+# E3 routed repair — raw receipt (R64-SPOTCHECK-C1-PROOF)
+seat: E3RoutedRepair (executor; round 65 / hyaku run 15 / wave w1)
+date: 2026-11-03T16:40:50-03:00 .. 2026-11-03 (seat window)
+lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+cited measured revision: 431f0c9 = 431f0c9768c7c03c34355df3cad6fde89774c306
+declaration base:        2f3061ef = 2f3061ef725abebd8cd157b778203f1cf5c0cb0c  (== 431f0c9^)
+scope: read-only on the repo; deliverables under .ufo/waves/round-65/w1-artifacts/E3/ only.
+scratch: /fast/scratch/hyaku/tsukuroi-r65/E3RoutedRepair (removed at seat end — §8)
+
+environment (measured):
+  git version 2.56.0
+  diff --version -> "diff diff (pi-uu-diff) 0.8.0"   [NOT GNU diff: --old-line-format /
+    --unchanged-line-format are rejected ("unexpected argument") -> the line counting uses
+    `git diff --no-index --numstat`, which is the portable form for this host]
+
+--------------------------------------------------------------------------------
+## 0. Commit relationship (measured)
+
+$ git rev-list --parents -n1 431f0c9
+431f0c9768c7c03c34355df3cad6fde89774c306 2f3061ef725abebd8cd157b778203f1cf5c0cb0c      rc=0
+$ git merge-base --is-ancestor 2f3061ef 431f0c9                                               rc=0 (ancestor)
+$ git rev-list --count 2f3061ef..431f0c9   -> 1     (single commit: the r64 work commit)
+
+--------------------------------------------------------------------------------
+## 1. Blob inventory at both revisions (measured)
+
+$ git show 2f3061ef:"$F" > rawbase; tr -d '\r' < rawbase > base; git show 431f0c9:"$F" > work
+
+corpus/SOURCES.md
+  git show 2f3061ef:  rc=0 bytes=279287 stray_CR=381 sha256=2349bfda141ab0556c2918a08246184f31f70dbbca0bfcd2d6726e3b72d2d800
+  tr -d '\r'         rc=0 bytes=278906 stray_CR=0   sha256=e1558e4b3eeef8857e27a64299e08c50e52c3b9f5f2160a09cd6647e90c3df77
+  git show 431f0c9:  rc=0 bytes=281931 stray_CR=0   sha256=863be44bcb6a9b92c6030e5f23c07e45df91c6ff5a8dbbc0b4b999300c9a653c
+  cmp -s base work    rc=1  (differ)
+SKILL.md
+  git show 2f3061ef:  rc=0 bytes=1356990 stray_CR=5452 sha256=d2fdd6e6bce53c9047c3ce2eb409b3f9dc253e6c22954929d66c66edde37f036
+  tr -d '\r'         rc=0 bytes=1351538 stray_CR=0    sha256=bda5249b161e7442f056e924c9091331ac091a6d38e49bbcd762a93ad331c85d
+  git show 431f0c9:  rc=0 bytes=1425807 stray_CR=0    sha256=5a99794d063f07465f81c4732167acf5c1ce3236516bc5c2f70e1fc086ae5c1a
+  cmp -s base work    rc=1  (differ)
+SCORECARD.md
+  git show 2f3061ef:  rc=0 bytes=773314 stray_CR=4723 sha256=769d5e959a358f6f983ebcc8e7f25ead738e7e9f71a409d66f818a97addc54ad
+  tr -d '\r'         rc=0 bytes=768591 stray_CR=0    sha256=1304750516c86ab17a1cdb0ee0df956e26aed25ae7e5f73bb2130b2e2c89df66
+  git show 431f0c9:  rc=0 bytes=768591 stray_CR=0    sha256=1304750516c86ab17a1cdb0ee0df956e26aed25ae7e5f73bb2130b2e2c89df66
+  cmp -s base work    rc=0  (BYTE-IDENTICAL)
+
+Pre-normalization stray-CR recomputed from committed bytes: 381 / 5452 / 4723 — equal to the
+round-64 receipt's own inventory (`.ufo/waves/round-64/after/c1-cr-identity.txt`), independent seat.
+
+--------------------------------------------------------------------------------
+## 2. Re-expressed proof — additions-only numstat at the cited revision (MEASURED)
+
+$ git --no-pager diff --no-index --numstat base-F work-F
+
+corpus/SOURCES.md   rc=1   "3	0"
+SKILL.md            rc=1   "120	1"
+SCORECARD.md        rc=0   (empty output — no difference)
+
+=> SOURCES +3/-0 ; SKILL +120/-1 ; SCORECARD 0/0.  All three match the expected shape exactly.
+
+### 2a. SOURCES: the 3 added lines are S279/S280/S281 at id position
+
+$ git diff --no-index -U0 base-corpus_SOURCES.md work-corpus_SOURCES.md
+@@ -288,0 +289,3 @@
++| S279 | mkinitcpio v42.2 release notes — https://gitlab.archlinux.org/api/v4/... |
++| S280 | limine-entry-tool btrfs-overlayfs hook, master re-pin — https://gitlab.com/Zesko/... |
++| S281 | Arch plymouth packaging initcpio hook, main re-pin — https://gitlab.archlinux.org/... |
+rc=1 (differences) ; hunks=1 ; removed=0
+
+Context at 431f0c9 lines 286-292: `| S277 |` `| S278 |` <blank> `| S279 |` `| S280 |` `| S281 |`
+-> inserted directly after S278, at id position; nothing else in the file changed.
+
+### 2b. SCORECARD: byte-identical, not merely additions-only
+
+$ git show 431f0c9:SCORECARD.md | cmp - <(git show 2f3061ef:SCORECARD.md | tr -d '\r')
+rc=0 ; both sides sha256 1304750516c86ab17a1cdb0ee0df956e26aed25ae7e5f73bb2130b2e2c89df66
+
+### 2c. SKILL: the single removed line is the EOF-newline artifact — proven byte-for-byte
+
+$ git diff --no-index -U0 base-SKILL.md work-SKILL.md
+@@ -5490 +5490,120 @@ Append-only continuation (round 63, C1): ...
+
+base file: last byte = 0x2e ('.')  -> NO terminal newline;  wc -l = 5489 (5490th line unterminated)
+work file: last byte = 0x0a        -> terminated;           wc -l = 5609
+=> 5490 - 1 + 120 = 5609  (consistent)
+
+removed line vs added line #1 (leading diff marker stripped):
+  removed bytes=861 added bytes=861 ; cmp rc=0 ; removed_len=859 added_len=859 ; prefix=True
+  suffix_after_removed = b''        -> the two lines are the SAME 859 bytes.
+
+Cross-check (base with terminal newline restored, one byte appended):
+$ git diff --no-index --numstat base-SKILL-nl.md work-SKILL.md
+119	0	  rc=1     -> zero removed content; 119 genuinely new lines (the 120th is the re-emission).
+
+=> The `-1` removes NO content: it is the diff engine pairing the unterminated final line with its
+   now-terminated copy. The r64 closure's disclosure is confirmed, not merely repeated.
+
+--------------------------------------------------------------------------------
+## 3. The ORIGINAL wording, across three states (measured) — step 2 of the item
+
+original wording: `git show 2f3061ef:F | tr -d '\r' | cmp - F`
+
+state A — declaration tree 2f3061ef (blobs carry CR; the worktree at that commit was CRLF):
+  corpus/SOURCES.md  differ: char 36, line 1   rc=1
+  SKILL.md           differ: char 4,  line 1   rc=1
+  SCORECARD.md       differ: char 34, line 1   rc=1
+  -> the wording was never true against the declaration tree itself.
+
+state B — the fix-time worktree, RECONSTRUCTED as the CR-stripped 2f3061ef blob:
+  corpus/SOURCES.md  rc=0 ; SKILL.md rc=0 ; SCORECARD.md rc=0
+  (definitionally rc 0 — the same bytes on both sides — so this run proves nothing by itself;
+   what makes state B the real fix-time operand is the r64 receipt, below.)
+
+state C — the cited measured revision 431f0c9:
+  corpus/SOURCES.md  differ: char 238601, line 289   rc=1
+  SKILL.md           cmp: EOF on - after byte 1351538   rc=1
+  SCORECARD.md       rc=0
+  -> exactly the closure's ruling: false for SOURCES/SKILL, and it fails AT the additive work
+     (char 238601/line 289 is the S279 insertion; "EOF on - after byte 1351538" is the base
+     being a strict prefix of the blob).
+
+### 3a. Which pair the original wording compared, and why it held only there
+
+From the r64 fix-time receipt `.ufo/waves/round-64/after/c1-cr-identity.txt` (not re-run — quoted
+as committed evidence):
+  - the operand `F` was the lane worktree, not a revision: `cmp - <lane>/corpus/SOURCES.md` etc.;
+  - the worktree then held ONLY the normalization, proven twice in that receipt:
+      `git diff --numstat`  = 4723/4723 SCORECARD.md, 5452/5452 SKILL.md, 381/381 corpus/SOURCES.md
+                              (deletions == insertions == that file's CR count; no additive work);
+      `git status --porcelain -uno` = " M SCORECARD.md / M SKILL.md / M corpus/SOURCES.md" only;
+  - end-state digests recorded there:
+      e1558e4b3eeef8857e27a64299e08c50e52c3b9f5f2160a09cd6647e90c3df77  corpus/SOURCES.md
+      bda5249b161e7442f056e924c9091331ac091a6d38e49bbcd762a93ad331c85d  SKILL.md
+      1304750516c86ab17a1cdb0ee0df956e26aed25ae7e5f73bb2130b2e2c89df66  SCORECARD.md
+  - those three digests are BYTE-IDENTICAL to the CR-stripped declaration blobs recomputed this
+    round from committed bytes (§1). So the original wording's right-hand operand was exactly
+    `git show 2f3061ef:F | tr -d '\r'`, and `cmp` held there by construction.
+  - the same receipt also records the recurrence at 18:56:11Z after the 18:47:32Z regression, with
+    the same three digests and the same ` M` status list — i.e. the pre-additive state persisted
+    through the fix.
+
+Conclusion: the wording measured (stripped declaration blob) vs (the uncommitted, pre-additive
+worktree). Any later state — including 431f0c9 — carries the round's additive work and cannot
+satisfy it. The proof was true of a moment, not of a revision.
+
+--------------------------------------------------------------------------------
+## 4. The counting command that re-runs green at the cited revision (gate, rc 0)
+
+gate script (self-contained; run from the lane root):
+
+  cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+  BASE=2f3061ef; REV=431f0c9; fail=0
+  while read -r F ea er; do
+    got=$(git --no-pager diff --no-index --numstat \
+          <(git show "$BASE":"$F" | tr -d '\r') <(git show "$REV":"$F") 2>/dev/null || true)
+    a=$(printf '%s\n' "$got" | awk 'NF{print $1; exit}'); a=${a:-0}
+    r=$(printf '%s\n' "$got" | awk 'NF{print $2; exit}'); r=${r:-0}
+    printf '%-18s added=%-4s removed=%-3s (expected %s/%s)\n' "$F" "$a" "$r" "$ea" "$er"
+    { [ "$a" = "$ea" ] && [ "$r" = "$er" ]; } || fail=1
+  done <<'EOF'
+  corpus/SOURCES.md 3 0
+  SKILL.md 120 1
+  SCORECARD.md 0 0
+  EOF
+  echo "gate rc=$fail"; exit "$fail"
+
+run output (measured):
+  corpus/SOURCES.md  added=3    removed=0   (expected 3/0)
+  SKILL.md           added=120  removed=1   (expected 120/1)
+  SCORECARD.md       added=0    removed=0   (expected 0/0)
+  gate rc=0                                (outer rc=0)
+
+negative control — same gate with REV=2f3061ef (unnormalized tree; must fail):
+  corpus/SOURCES.md  added=381  removed=381 (expected 3/0)
+  SKILL.md           added=5452 removed=5452 (expected 120/1)
+  SCORECARD.md       added=4723 removed=4723 (expected 0/0)
+  gate rc=1                                (outer rc=1)
+  -> able to fail; and the counts it prints are exactly the raw CR counts / the r64 receipt's
+     `git diff --numstat` line for the same tree — the gate reproduces the r64 instrument.
+
+--------------------------------------------------------------------------------
+## 5. Independent cross-check: the round-65 after receipt
+
+`.ufo/waves/round-65/after/reidentity-at-431f0c9.txt` (written by another path/seat at
+2026-11-03T19:39:24Z) states the same three pairs:
+  corpus/SOURCES.md: added=3 removed=0 / SKILL.md: added=120 removed=1 / SCORECARD.md: added=0 removed=0
+Consistent with §2 (my own measurement, separate blob extraction and separate counting tool).
+
+--------------------------------------------------------------------------------
+## 6. Verdicts (measured, not fitted)
+
+1. Re-expressed proof at 431f0c9: PASS — SOURCES 3/0, SKILL 120/1, SCORECARD 0/0; exactly the
+   expected shape, no fitted numbers.
+2. SKILL's `-1`: the disclosed EOF-newline artifact, now proven (same 859 bytes; `119 0` with the
+   base's terminal newline restored) — removed content is zero.
+3. Original wording: reproduced the closure's finding — rc 1/1/0 at 431f0c9, failing precisely at
+   the additive insertions; true only of the pre-additive fix-time worktree, whose digests the r64
+   receipt recorded and which equal the stripped declaration blobs.
+4. SCORECARD: byte-identical between stripped base and cited blob (cmp rc 0, equal sha256).
+5. Counting command: green (rc 0) at the cited revision and red (rc 1) at the unnormalized tree.
+
+--------------------------------------------------------------------------------
+## 7. Files written by this seat
+
+  .ufo/waves/round-65/w1-artifacts/E3/routed-repair-draft.md    (SCORECARD block + LOG entry text)
+  .ufo/waves/round-65/w1-artifacts/E3/routed-repair-receipt.txt (this file)
+  .ufo/waves/round-65/w1/E3RoutedRepair.md                      (seat report)
+NO edit to SCORECARD.md, LOG.md, SKILL.md, corpus/SOURCES.md, corpus/knowledge/, PROVINCE.md,
+SHONEN.md, AGENTS.md, MANIFEST.json, .ufo/state/ — the L1 lands the draft verbatim.
+
+--------------------------------------------------------------------------------
+## 8. Scratch cleanup
+
+scratch dir: /fast/scratch/hyaku/tsukuroi-r65/E3RoutedRepair
+
+CONFIRMED removed 2026-11-03T16:43:57-03:00 (2026-11-03T19:43:57Z):
+  $ rm -rf -- /fast/scratch/hyaku/tsukuroi-r65/E3RoutedRepair      rc=0
+  $ test -e /fast/scratch/hyaku/tsukuroi-r65/E3RoutedRepair      -> absent
+  parent /fast/scratch/hyaku/tsukuroi-r65/ still holds other seats' dirs only (E2InitramfsArm,
+  S1Scout, S2Considerthese, drafts, l1, probes) — none touched by this seat.
+Every kept artifact was written into the lane repo before removal; nothing citable lived in /tmp.
+Tracked-file check after all writes: `git status --porcelain --untracked-files=no` -> empty (no
+tracked file modified by this seat; deliverables are new untracked paths under .ufo/waves/round-65/).

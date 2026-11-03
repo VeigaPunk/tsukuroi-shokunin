@@ -1,0 +1,91 @@
+r65-double-census-ground — independent host census for the INITRAMFS arm (seat L1DoubleCensus)
+host=plazir27 kernel=7.2.11-arch1-1 utc=2026-11-03T19:49:32Z
+lane HEAD=37c74e27 ; working-tree tools/tsukuroi-census.sh sha256=fe15cc5d38ebfd32852f6c3bddc8b5966c6f7e17620dcd492b3438ebd7a39f3f (git: modified vs HEAD blob 8c2e4888)
+Method: computed ONLY from stat/find/grep/command -v against the live host, before inspecting
+any count emitted by the census. No dependency on probe_initramfs_arm's own logic.
+
+[1] mkinitcpio-conf presence
+$ stat -c '%n %s %a %U:%G' /etc/mkinitcpio.conf ; echo rc=$?
+/etc/mkinitcpio.conf 3357 644 root:root
+rc=0
+$ [ -r /etc/mkinitcpio.conf ] && echo 0 || echo 1
+0
+=> ground: PRESENT (regular, readable, 3357 bytes, mode 644, root:root)
+
+[2] /etc/mkinitcpio.conf.d entries
+$ find /etc/mkinitcpio.conf.d -maxdepth 1 | sort
+/etc/mkinitcpio.conf.d
+/etc/mkinitcpio.conf.d/nvidia.conf
+/etc/mkinitcpio.conf.d/omarchy_hooks.conf
+/etc/mkinitcpio.conf.d/omarchy_resume.conf
+/etc/mkinitcpio.conf.d/thunderbolt_module.conf
+rc=0
+$ find /etc/mkinitcpio.conf.d -mindepth 1 -maxdepth 1 | wc -l
+4
+$ find /etc/mkinitcpio.conf.d -maxdepth 1 -type f | wc -l
+4
+$ find /etc/mkinitcpio.conf.d -maxdepth 1 -mindepth 1 -name '.*' | wc -l
+0
+$ find /etc/mkinitcpio.conf.d -maxdepth 1 -mindepth 1 ! -readable | wc -l
+0
+$ stat -c '%n %s %a %U:%G' /etc/mkinitcpio.conf.d
+/etc/mkinitcpio.conf.d 142 755 root:root
+=> ground: conf_d=4 (4 regular files, no hidden entries, all readable, dir readable+executable)
+
+[3] /usr/lib/initcpio/hooks entries
+$ find /usr/lib/initcpio/hooks -maxdepth 1 -type f | sort
+/usr/lib/initcpio/hooks/btrfs
+/usr/lib/initcpio/hooks/btrfs-overlayfs
+/usr/lib/initcpio/hooks/consolefont
+/usr/lib/initcpio/hooks/encrypt
+/usr/lib/initcpio/hooks/keymap
+/usr/lib/initcpio/hooks/memdisk
+/usr/lib/initcpio/hooks/plymouth
+/usr/lib/initcpio/hooks/resume
+/usr/lib/initcpio/hooks/shutdown
+/usr/lib/initcpio/hooks/sleep
+/usr/lib/initcpio/hooks/udev
+/usr/lib/initcpio/hooks/usr
+rc=0
+$ find /usr/lib/initcpio/hooks -maxdepth 1 -type f | wc -l
+12
+$ find /usr/lib/initcpio/hooks -maxdepth 1 -mindepth 1 -name '.*' | wc -l
+0
+$ find /usr/lib/initcpio/hooks -maxdepth 1 -type f ! -readable | wc -l
+0
+$ stat -c '%n %s %a %U:%G' /usr/lib/initcpio/hooks
+/usr/lib/initcpio/hooks 170 755 root:root
+=> ground: hooks=12 (all 12 regular, readable, no hidden entries)
+
+[4] /new_root referents among the hooks
+$ grep -ls '/new_root' /usr/lib/initcpio/hooks/* ; echo rc=$?
+/usr/lib/initcpio/hooks/btrfs-overlayfs
+/usr/lib/initcpio/hooks/plymouth
+rc=0
+$ grep -ls '/new_root' /usr/lib/initcpio/hooks/* 2>/dev/null | wc -l
+2
+=> ground: newroot_latehooks=2 (btrfs-overlayfs, plymouth; grep rc 0, no stderr)
+
+[5] /etc/mkinitcpio.d presets entries
+$ find /etc/mkinitcpio.d -maxdepth 1 | sort ; echo rc=$?
+/etc/mkinitcpio.d
+rc=0
+$ find /etc/mkinitcpio.d -mindepth 1 -maxdepth 1 | wc -l
+0
+$ find /etc/mkinitcpio.d -maxdepth 1 -mindepth 1 -name '.*' | wc -l
+0
+$ stat -c '%n %s %a %U:%G' /etc/mkinitcpio.d
+/etc/mkinitcpio.d 0 755 root:root
+=> ground: presets=0 (directory exists and is empty)
+
+[6] ukify producer
+$ command -v ukify ; echo rc=$?
+rc=1
+=> ground: ukify=ABSENT (not on PATH; no output)
+
+[7] unreadable roll-up (arm's unreadable term)
+conf: readable (0) ; confd entries: 0 unreadable ; hooks entries: 0 unreadable
+=> ground: unreadable=0
+
+GROUND SUMMARY (single source of truth for the comparison):
+mkinitcpio-conf=PRESENT conf_d=4 hooks=12 newroot_latehooks=2 presets=0 ukify=ABSENT unreadable=0

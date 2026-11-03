@@ -1,0 +1,346 @@
+# probe: which mechanism builds /boot UKIs today (SY5 inputs)
+# utc: 2026-11-03T19:41:39Z
+-- pacman -Qi limine-mkinitcpio-hook | grep -E '^(Name|Version|Provides|Depends)' --
+Name            : limine-mkinitcpio-hook
+Version         : 1.40.0-2
+Provides        : limine-entry-tool
+Depends On      : bash  grep  tar  limine  mkinitcpio  efibootmgr
+Required By     : None
+rc=0
+-- ls -la /usr/local/bin/mkinitcpio --
+-rwxr-xr-x 1 root root 733 Oct  8 11:51 /usr/local/bin/mkinitcpio
+rc=0
+-- file type / first lines of /usr/local/bin/mkinitcpio --
+#!/usr/bin/env bash
+
+/usr/bin/mkinitcpio "$@"
+
+_color_reset=""
+_color_yellow=""
+colors="$(tput colors 2>/dev/null || echo 0)"
+if ((colors >= 8)); then
+	_color_reset="\033[0m"
+	_color_yellow="\033[1;33m"
+fi
+
+rc=0
+-- cat /etc/pacman.d/hooks/90-mkinitcpio-install.hook --
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Target = usr/lib/initcpio/*
+Target = usr/lib/firmware/*
+Target = usr/lib/modules/*/extramodules/
+Target = usr/src/*/dkms.conf
+Target = usr/lib/systemd/systemd
+Target = usr/bin/cryptsetup
+Target = usr/bin/lvm
+
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Target = usr/lib/modules/*/modules.builtin
+
+[Trigger]
+Type = Package
+Operation = Install
+Operation = Upgrade
+Target = mkinitcpio
+Target = mkinitcpio-git
+
+[Action]
+Description = Updating linux initcpios...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/limine-mkinitcpio-install
+NeedsTargets
+rc=0
+-- cat /etc/boot/hooks/pre.d/10-limine-reset-enroll --
+#!/usr/bin/env bash
+
+readonly SCRIPT_NAME="limine-reset-enroll"
+readonly AUTH_HELPER=/usr/lib/limine/auth-helper
+readonly LIMINE_FUNCTIONS_PATH=/usr/lib/limine/limine-common-functions
+
+if ((EUID != 0)); then
+	if [[ -f "${AUTH_HELPER}" ]]; then
+		# shellcheck disable=SC1090
+		source "${AUTH_HELPER}" || exit
+	else
+		printf '\033[91m%s must be run as root.\033[0m\n' "${SCRIPT_NAME}" >&2
+		exit 1
+	fi
+fi
+
+if [[ -f "${LIMINE_FUNCTIONS_PATH}" ]]; then
+	# shellcheck disable=SC1090
+	source "${LIMINE_FUNCTIONS_PATH}" || {
+		echo "ERROR: Failed to source '${LIMINE_FUNCTIONS_PATH}'." >&2
+		exit 1
+	}
+fi
+
+initialize_header || exit 1
+reset_enroll_config
+rc=0
+-- cat /etc/boot/hooks/post.d/90-limine-enroll-config --
+#!/usr/bin/env bash
+
+readonly SCRIPT_NAME="limine-enroll-config"
+readonly AUTH_HELPER=/usr/lib/limine/auth-helper
+readonly LIMINE_FUNCTIONS_PATH=/usr/lib/limine/limine-common-functions
+
+if ((EUID != 0)); then
+	if [[ -f "${AUTH_HELPER}" ]]; then
+		# shellcheck disable=SC1090
+		source "${AUTH_HELPER}" || exit
+	else
+		printf '\033[91m%s must be run as root.\033[0m\n' "${SCRIPT_NAME}" >&2
+		exit 1
+	fi
+fi
+
+if [[ -f "${LIMINE_FUNCTIONS_PATH}" ]]; then
+	# shellcheck disable=SC1090
+	source "${LIMINE_FUNCTIONS_PATH}" || {
+		echo "ERROR: Failed to source '${LIMINE_FUNCTIONS_PATH}'." >&2
+		exit 1
+	}
+fi
+
+initialize_header || exit 1
+enroll_config
+rc=0
+-- grep -nE 'uki|UKI|EFI/Linux|preset|mkinitcpio' /etc/limine-entry-tool.conf | head -25 --
+64:### - Multiple `initrd=` parameters are automatically converted into Limine module paths for non-UKI entries.
+154:##############  Below options apply to Arch Linux when 'limine-mkinitcpio-hook' is installed ##############
+156:### UKI (Unified Kernel Image)
+157:### Automatically create UKIs in '$ESP_PATH/EFI/Linux/' for UEFI. (yes|no)
+160:###  + UKIs can be detected and loaded by 'systemd-boot' or 'rEFInd'.
+161:###  + UKIs can boot directly from UEFI firmware when a fixed UKI filename is manually registered as a UEFI boot entry.
+163:###  - UKIs require more ESP space than separate 'initramfs' and 'vmlinuz' files, especially with multiple snapshots.
+166:###  * Duplicate 'initramfs' and 'vmlinuz' files are automatically removed after generating UKIs.
+167:###  * With Snapper and Secure Boot enabled, UKIs use the kernel cmdline from 'limine.conf' instead of an embedded cmdline.
+168:ENABLE_UKI=no
+171:### Custom UKI Name
+172:### Set a shorter, custom name for UKI files instead of the default machine-id.
+173:### This avoids issues when booting UKIs directly from some buggy UEFI firmware (e.g. Asus AMI BIOS)
+174:### that may crash or freeze with long UKI filenames.
+177:### * Custom name must be unique (like an ID) to avoid conflicts with other installations, otherwise UKIs will be overwritten.
+180:### Example: ${CUSTOM_UKI_NAME}_${kernel_version}.efi -> arch_linux-lts.efi (when CUSTOM_UKI_NAME="arch" is set)
+184:### Changing the name does not remove existing UKI files with the previous name or machine-id.
+186:### UKI location: $ESP_PATH/EFI/Linux/{machine-id or old name}_{kernel_version}.efi
+187:#CUSTOM_UKI_NAME="arch"
+191:### Automatically create a fallback initramfs or UKI. (yes|no|<kernel-name>)
+198:### mkinitcpio UKI Build Options
+199:### Additional options for mkinitcpio UKI builds
+200:### See: https://man.archlinux.org/man/mkinitcpio.8.en#OPTIONS_FOR_UNIFIED_KERNEL_IMAGE
+202:#MKINITCPIO_UKI_OPTIONS="--splash /usr/share/systemd/bootctl/splash-arch.bmp"
+rc=0
+-- ls -la /etc/mkinitcpio.d (recheck, absolute) --
+total 0
+drwxr-xr-x 1 root root    0 Oct 11 16:14 .
+drwxr-xr-x 1 root root 3534 Nov  2 15:30 ..
+rc=0
+
+# --- ENABLE_UKI context: /etc/limine-entry-tool.conf lines 150-215 (verbatim) ---
+### To enable, copy this option to /etc/default/limine and set it to (yes|no)
+#ENABLE_ENROLL_LIMINE_CONFIG=no
+
+
+##############  Below options apply to Arch Linux when 'limine-mkinitcpio-hook' is installed ##############
+
+### UKI (Unified Kernel Image)
+### Automatically create UKIs in '$ESP_PATH/EFI/Linux/' for UEFI. (yes|no)
+###
+### Advantages:
+###  + UKIs can be detected and loaded by 'systemd-boot' or 'rEFInd'.
+###  + UKIs can boot directly from UEFI firmware when a fixed UKI filename is manually registered as a UEFI boot entry.
+### Disadvantage:
+###  - UKIs require more ESP space than separate 'initramfs' and 'vmlinuz' files, especially with multiple snapshots.
+###
+### Additional notes:
+###  * Duplicate 'initramfs' and 'vmlinuz' files are automatically removed after generating UKIs.
+###  * With Snapper and Secure Boot enabled, UKIs use the kernel cmdline from 'limine.conf' instead of an embedded cmdline.
+ENABLE_UKI=no
+
+
+### Custom UKI Name
+### Set a shorter, custom name for UKI files instead of the default machine-id.
+### This avoids issues when booting UKIs directly from some buggy UEFI firmware (e.g. Asus AMI BIOS)
+### that may crash or freeze with long UKI filenames.
+###
+### Rules:
+### * Custom name must be unique (like an ID) to avoid conflicts with other installations, otherwise UKIs will be overwritten.
+### * Use only lowercase letters (aâ€“z) and digits (0â€“9) for maximum compatibility with UEFI firmware and devices.
+###
+### Example: ${CUSTOM_UKI_NAME}_${kernel_version}.efi -> arch_linux-lts.efi (when CUSTOM_UKI_NAME="arch" is set)
+### Default: The machine-id is used if the custom name is invalid or not set.
+###
+### Note:
+### Changing the name does not remove existing UKI files with the previous name or machine-id.
+### They remain unused on the ESP and can be removed manually to free up space.
+### UKI location: $ESP_PATH/EFI/Linux/{machine-id or old name}_{kernel_version}.efi
+#CUSTOM_UKI_NAME="arch"
+
+
+### Initramfs Fallback
+### Automatically create a fallback initramfs or UKI. (yes|no|<kernel-name>)
+### Set to 'yes' to create fallback images for all kernels.
+### Set to a specific kernel name to create a fallback image only for that kernel.
+### Fallback images consume additional storage space, especially when keeping multiple snapshots.
+#MKINITCPIO_FALLBACK=linux-lts
+
+
+### mkinitcpio UKI Build Options
+### Additional options for mkinitcpio UKI builds
+### See: https://man.archlinux.org/man/mkinitcpio.8.en#OPTIONS_FOR_UNIFIED_KERNEL_IMAGE
+### Example: Add a splash screen
+#MKINITCPIO_UKI_OPTIONS="--splash /usr/share/systemd/bootctl/splash-arch.bmp"rc=0
+# --- every assignment of ENABLE_UKI / UKI knobs (grep '^[A-Z_]*UKI') ---
+168:ENABLE_UKI=no
+187:#CUSTOM_UKI_NAME="arch"
+202:#MKINITCPIO_UKI_OPTIONS="--splash /usr/share/systemd/bootctl/splash-arch.bmp"
+rc=0
+# --- ls -la /etc/boot/ (config dir) ---
+total 0
+drwxr-xr-x 1 root root   10 Oct  3 17:45 .
+drwxr-xr-x 1 root root 3534 Nov  2 15:30 ..
+drwxr-xr-x 1 root root   22 Oct  3 17:45 hooks
+rc=0
+# --- limine-mkinitcpio wrapper: first 60 lines (world-readable) ---
+#!/usr/bin/env bash
+
+readonly SCRIPT_NAME="limine-mkinitcpio"
+readonly AUTH_HELPER=/usr/lib/limine/auth-helper
+
+if ((EUID != 0)); then
+	if [[ -f "${AUTH_HELPER}" ]]; then
+		# shellcheck disable=SC1090
+		source "${AUTH_HELPER}" || exit
+	else
+		printf '\033[91m%s must be run as root.\033[0m\n' "${SCRIPT_NAME}" >&2
+		exit 1
+	fi
+fi
+
+validate_kernel_packages() {
+	local kernel_package
+	for kernel_package in "$@"; do
+		if ! pacman -Q "$kernel_package" &>/dev/null; then
+			printf "\033[91mERROR: kernel package '%s' is not installed.\033[0m\n" "$kernel_package" >&2
+			return 1
+		fi
+	done
+}
+
+if [[ $# -eq 0 ]]; then
+	echo rebuild | /usr/share/libalpm/scripts/limine-mkinitcpio-install
+else
+	if ! validate_kernel_packages "$@"; then
+		exit 1
+	fi
+	printf '%s\n' "$@" | /usr/share/libalpm/scripts/limine-mkinitcpio-install
+fi
+rc=0
+
+# --- decisive override: /etc/default/limine (world-readable; grep knobs, not bulk) ---
+-rw-r--r-- 1 root root 701 Oct 20 09:19 /etc/default/limine
+rc=0
+1:TARGET_OS_NAME="Omarchy"
+3:ESP_PATH="/boot"
+8:ENABLE_UKI=yes
+9:CUSTOM_UKI_NAME="omarchy"
+11:ENABLE_LIMINE_FALLBACK=yes
+14:FIND_BOOTLOADERS=yes
+16:BOOT_ORDER="*, *fallback, Snapshots"
+18:MAX_SNAPSHOT_ENTRIES=5
+20:SNAPSHOT_FORMAT_CHOICE=5
+rc=0
+# --- full /etc/default/limine (small config, no secrets) ---
+TARGET_OS_NAME="Omarchy"
+
+ESP_PATH="/boot"
+
+KERNEL_CMDLINE[default]+="cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs"
+KERNEL_CMDLINE[default]+=" quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0"
+
+ENABLE_UKI=yes
+CUSTOM_UKI_NAME="omarchy"
+
+ENABLE_LIMINE_FALLBACK=yes
+
+# Find and add other bootloaders
+FIND_BOOTLOADERS=yes
+
+BOOT_ORDER="*, *fallback, Snapshots"
+
+MAX_SNAPSHOT_ENTRIES=5
+
+SNAPSHOT_FORMAT_CHOICE=5
+KERNEL_CMDLINE[default]+=" resume=/dev/mapper/root resume_offset=3795013"
+rc=0
+
+# --- how the UKI is produced: grep the shipped (world-readable) tool text for UKI invocations ---
+-- grep -nE 'uki|UKI' /usr/lib/limine/limine-entry-tool | head -40 --
+56952:    --add-uki <kernel name> <UKI path> [--comment <comment>]
+56953:        Add a UKI entry under the current OS entry
+56964:    --remove-uki <kernel name> [--keep-files]
+56965:        Remove UKI entry under the current OS entry
+56968:        Remove all kernel or UKI entries matching the given kernel names under the current OS entry
+64827: Õl¾&   CUSTOM_UKI_NAME     ¸ È q)w    þP£2     
+65234: ïÓ¹P   Bhaiksuki Digits    ¸ tÒ Ý¢1    „j
+65236: ¸]Š'	   Bhaiksuki   ¸ zÒ ‚    ´t     
+65431: "‘Uu	   BHAIKSUKI   ¸ ×Ö F      ñ©\     
+68031: #Ð{C@    bdv bfw dso dwk gaq gbj gdb jun juy or peg rei spv uki xis zrg     ¸ T	 ‹Ýžz    ÁÈa     
+73068: ç8eE	   --add-uki   
+73072: X²[   --remove-ukiÚ     
+rc=0
+-- grep -nE 'uki|UKI' /usr/share/libalpm/scripts/limine-mkinitcpio-install | head -30 --
+24:UKI_PATH=""
+25:UKI_FALLBACK_PATH=""
+28:UKI_PREFIX="$MACHINE_ID"
+29:read -ra UKI_OPTIONS <<<"${MKINITCPIO_UKI_OPTIONS:-}"
+41:resolve_uki_prefix() {
+42:	UKI_PREFIX="$MACHINE_ID"
+43:	[[ -z ${CUSTOM_UKI_NAME:-} ]] && return
+45:	if [[ $CUSTOM_UKI_NAME =~ ^[a-z0-9]+$ ]]; then
+46:		UKI_PREFIX=$CUSTOM_UKI_NAME
+48:		warning_msg "CUSTOM_UKI_NAME is invalid. Only lowercase letters (a-z) and digits (0-9) are allowed."
+52:resolve_uki_prefix
+142:	local uki_install_dir="${BOOT_PATH}/EFI/Linux"
+143:	UKI_PATH="${uki_install_dir}/${UKI_PREFIX}_${KERNEL_NAME}.efi"
+144:	UKI_FALLBACK_PATH="${uki_install_dir}/${UKI_PREFIX}_${KERNEL_NAME}-fallback.efi"
+153:		# Signed UKIs with embedded cmdlines cannot boot Btrfs snapshots.
+166:# build_uki OUTPUT IS_FALLBACK CMDLINE_FILE
+167:build_uki() {
+175:	args+=(--uki "$output")
+179:	args+=("${UKI_OPTIONS[@]}")
+193:# install_uki KERNEL_NAME UKI_FILE COMMENT
+194:install_uki() {
+196:	limine-entry-tool --add-uki "$name" "$file" \
+207:remove_uki_if_present() {
+210:	limine-entry-tool --remove-uki "$name" --no-mutex --no-hooks --quiet
+214:cleanup_legacy_uki_entries() {
+215:	remove_uki_if_present "$KERNEL_NAME" "$UKI_PATH"
+216:	remove_uki_if_present "${KERNEL_NAME}-fallback" "$UKI_FALLBACK_PATH"
+223:# build_install_uki KERNEL_NAME TMP_PATH IS_FALLBACK COMMENT
+224:build_install_uki() {
+225:	local kernel_name="$1" tmp_uki="$2" is_fallback="$3" comment="$4"
+rc=0
+-- mkinitcpio man page: --uki / sign-initrd-pcrs support (zcat, read-only) --
+135:\fB\-U\fP, \fB\-\-uki\fP \fIfilename\fP
+233:if \fIukify\fP is being used.
+238:\fB\-\-ukiconfig\fP \fIfilename\fP
+240:Configuration file to pass to \fIukify\fP. If none is specified, try one of the
+241:files  \fI/etc/kernel/uki.conf\fP or \fI/usr/lib/kernel/uki.conf\fP. If neither of
+242:those exists, \fIukify\fP will use its internal default.
+245:\fB\-\-no\-ukify\fP
+247:Do not use \fIukify\fP to build UKIs even if it is available. This is not
+303:\fB<preset>_uki\fP (one of \fB<preset>_uki\fP and \fB<preset>_image\fP is \fBrequired\fP)
+308:\fB<preset>_image\fP (one of \fB<preset>_uki\fP and \fB<preset>_image\fP is \fBrequired\fP)
+rc=0
+-- mkinitcpio help text shipped in man: options owning '--uki' --
+rc=0

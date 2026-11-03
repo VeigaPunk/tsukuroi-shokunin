@@ -407,6 +407,39 @@
 # No privilege, no ioctl, no `btrfs` or `systemctl` call; the line is verdict-neutral (no PLANE
 # text, rollup term or exit code changes) and live mode creates no files.
 #
+# Round-65 addition (C2): the initramfs-plane arm. The round's C1 depth note reads the systemd
+# v262 UKI/NvPCR requirement plane against this host's boot chain; that note owns the requirement
+# reading, and this arm is the operability half — what the boot-recovery surface a reader can see
+# actually contains, judged by nobody. It prints ONE line after the SCRUB line and before the
+# rollup:
+#   INITRAMFS initramfs-plane mkinitcpio-conf=PRESENT|ABSENT|UNREADABLE conf_d=N hooks=N
+#     newroot_latehooks=N presets=N ukify=PRESENT|ABSENT|SKIP unreadable=N [detail=<reason>,...]
+# mkinitcpio-conf: stat plus a readability test on TSUKUROI_MKINITCPIO_CONF (default
+# /etc/mkinitcpio.conf). The path is never opened (ADJ-02): PRESENT when an existing, regular,
+# readable file; UNREADABLE when an entry exists but is not one (a directory, a dangling symlink,
+# a mode the caller cannot read); ABSENT when no entry exists.
+# conf_d: entries under TSUKUROI_MKINITCPIO_CONFD (default /etc/mkinitcpio.conf.d), counted by
+# name and stat, never opened. An absent directory is 0 with detail=confd:absent; an existing
+# entry that is not a directory is 0 with detail=confd:not-directory.
+# hooks: entries under TSUKUROI_MKINITCPIO_HOOKS (default /usr/lib/initcpio/hooks); absent -> 0
+# with detail=hooks:absent. newroot_latehooks: how many of those entries are regular, readable
+# files whose bytes name the literal /new_root anywhere — a plain text state read with `grep -F`,
+# never a binary or decision analysis and never an mkinitcpio run.
+# presets: entries under TSUKUROI_MKINITCPIO_PRESETS (default /etc/mkinitcpio.d); absent -> 0
+# with detail=presets:absent. Which entries mkinitcpio itself reads (`*.preset`) is its own rule:
+# this arm counts entries and echoes no name.
+# ukify: PRESENT when `command -v` resolves TSUKUROI_UKIFY (default ukify), ABSENT when it does
+# not, SKIP when TSUKUROI_UKIFY_PROBE=skip asks for no lookup at all (the reading for a caller
+# that cannot vouch for the PATH). Any other value probes.
+# unreadable: existing entries the caller cannot read, one per encounter — the conf file, a
+# directory the sweep cannot list (counted once, named confd:unreadable / hooks:unreadable /
+# presets:unreadable), or an entry inside one of them (confd:entry-unreadable /
+# hooks:entry-unreadable / presets:entry-unreadable). detail repeats no token; its order is the
+# field order above, bytewise (LC_ALL=C).
+# No mkinitcpio, dracut, ukify or bootctl call, no privilege, no network, no write: the arm stats
+# four paths, greps the hook files and resolves one command name. The line is verdict-neutral: no
+# PLANE text, rollup term or exit code changes. Live mode creates no files.
+#
 # Read-only guarantee: no probe writes; the gate creates no files at all in live mode
 # (selftest writes only under a mktemp dir named ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX;
 # when TMPDIR holds characters the root-override locator refuses, the same dir is reached
@@ -437,6 +470,11 @@
 #   TSUKUROI_PROC_MOUNTS (round 39: the storage arm's mount table; default /proc/self/mounts)
 #   TSUKUROI_SCRUB_DIR TSUKUROI_TIMER_WANTS (round 44: the scrub-record arm's record directory and
 #   timers.target.wants directory; defaults /var/lib/btrfs, /etc/systemd/system/timers.target.wants)
+#   TSUKUROI_MKINITCPIO_CONF TSUKUROI_MKINITCPIO_CONFD TSUKUROI_MKINITCPIO_HOOKS
+#   TSUKUROI_MKINITCPIO_PRESETS TSUKUROI_UKIFY TSUKUROI_UKIFY_PROBE (round 65: the initramfs-plane
+#   arm's four paths and the ukify command; defaults /etc/mkinitcpio.conf, /etc/mkinitcpio.conf.d,
+#   /usr/lib/initcpio/hooks, /etc/mkinitcpio.d, ukify, probe; a TSUKUROI_UKIFY_PROBE of `skip`
+#   prints ukify=SKIP and runs no lookup at all)
 #   TSUKUROI_CHANNEL_MAX_AGE_D TSUKUROI_LOG_TAIL_N (the update-safety plane's seams). The
 #   channel stamp is the fixture db file's own mtime — settable with `touch -d` — so the
 #   stale-channel case is executed against a real probe, not asserted vacuous.
@@ -494,6 +532,13 @@ BTRFS_SYSFS=${TSUKUROI_BTRFS_SYSFS:-/sys/fs/btrfs}
 PROC_MOUNTS=${TSUKUROI_PROC_MOUNTS:-/proc/self/mounts}
 SCRUB_DIR=${TSUKUROI_SCRUB_DIR:-/var/lib/btrfs}
 TIMER_WANTS=${TSUKUROI_TIMER_WANTS:-/etc/systemd/system/timers.target.wants}
+# initramfs-plane arm (round 65, C2): four fixed paths and one command name, all seams.
+MKINITCPIO_CONF=${TSUKUROI_MKINITCPIO_CONF:-/etc/mkinitcpio.conf}
+MKINITCPIO_CONFD=${TSUKUROI_MKINITCPIO_CONFD:-/etc/mkinitcpio.conf.d}
+MKINITCPIO_HOOKS=${TSUKUROI_MKINITCPIO_HOOKS:-/usr/lib/initcpio/hooks}
+MKINITCPIO_PRESETS=${TSUKUROI_MKINITCPIO_PRESETS:-/etc/mkinitcpio.d}
+UKIFY_BIN=${TSUKUROI_UKIFY:-ukify}
+UKIFY_PROBE=${TSUKUROI_UKIFY_PROBE:-probe}
 OFFLINE_DB=${TSUKUROI_OFFLINE_DB:-$PACMAN_DB/sync/offline.db}
 EXPAC=${TSUKUROI_EXPAC:-expac}
 VERCMP=${TSUKUROI_VERCMP:-vercmp}
@@ -598,8 +643,9 @@ usage: tsukuroi-census.sh [--selftest] [--sample N] [--identity] [--help]
 
   (no flags)   run the live read-only census over packages / systemd-user / drivers
                (incl. the memory-pressure arm) / journal-boot / update-safety / oom (kill-event watch),
-               plus the verdict-neutral DRIFT (pacnew), STORAGE (btrfs error counters) and SCRUB
-               (btrfs scrub record, unprivileged view) lines
+               plus the verdict-neutral DRIFT (pacnew), STORAGE (btrfs error counters), SCRUB
+               (btrfs scrub record, unprivileged view) and INITRAMFS (mkinitcpio conf, drop-ins,
+               hooks, presets, ukify) lines
   --selftest   hermetic fixture-tree test of every verdict arm (writes only under
                ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.*; a TMPDIR with characters the
                root-override locator refuses is reached through a /proc/self/fd
@@ -2051,6 +2097,86 @@ probe_scrub_record() {
   return 0
 }
 
+# ---- initramfs-plane arm (round 65, C2; contract in the header) ----------------------
+probe_initramfs_arm() {
+  local LC_ALL=C
+  local conf=$MKINITCPIO_CONF confd=$MKINITCPIO_CONFD hooks=$MKINITCPIO_HOOKS presets=$MKINITCPIO_PRESETS
+  local e cs=ABSENT cdn=0 hkn=0 nrn=0 prn=0 unr=0 uk=ABSENT detail=''
+  local cds=absent hks=absent prs=absent cdu=0 hku=0 pru=0
+  # the main configuration file: stat and a readability test only; it is never opened
+  if [ -e "$conf" ] || [ -L "$conf" ]; then
+    if [ -f "$conf" ] && [ -r "$conf" ]; then cs=PRESENT
+    else cs=UNREADABLE; unr=$((unr + 1))
+    fi
+  fi
+  # /etc/mkinitcpio.conf.d: drop-ins counted by name and stat, never opened
+  if [ -d "$confd" ]; then
+    if [ -r "$confd" ] && [ -x "$confd" ]; then
+      cds=present
+      for e in "$confd"/*; do
+        [ -e "$e" ] || [ -L "$e" ] || continue
+        cdn=$((cdn + 1))
+        [ -r "$e" ] || cdu=$((cdu + 1))
+      done
+    else cds=unreadable; cdu=1
+    fi
+  elif [ -e "$confd" ] || [ -L "$confd" ]; then cds=not-dir; cdu=1
+  fi
+  # /usr/lib/initcpio/hooks: entries counted; newroot_latehooks is a plain text state over the
+  # regular readable files among them (does the file name /new_root anywhere?), never a
+  # decision analysis and never an mkinitcpio run
+  if [ -d "$hooks" ]; then
+    if [ -r "$hooks" ] && [ -x "$hooks" ]; then
+      hks=present
+      for e in "$hooks"/*; do
+        [ -e "$e" ] || [ -L "$e" ] || continue
+        hkn=$((hkn + 1))
+        if [ ! -r "$e" ]; then
+          hku=$((hku + 1))
+        elif [ -f "$e" ] && grep -qF -- '/new_root' "$e" 2>/dev/null; then nrn=$((nrn + 1))
+        fi
+      done
+    else hks=unreadable; hku=1
+    fi
+  elif [ -e "$hooks" ] || [ -L "$hooks" ]; then hks=not-dir; hku=1
+  fi
+  # /etc/mkinitcpio.d: presets counted as entries; which ones mkinitcpio reads is its own rule
+  if [ -d "$presets" ]; then
+    if [ -r "$presets" ] && [ -x "$presets" ]; then
+      prs=present
+      for e in "$presets"/*; do
+        [ -e "$e" ] || [ -L "$e" ] || continue
+        prn=$((prn + 1))
+        [ -r "$e" ] || pru=$((pru + 1))
+      done
+    else prs=unreadable; pru=1
+    fi
+  elif [ -e "$presets" ] || [ -L "$presets" ]; then prs=not-dir; pru=1
+  fi
+  # ukify: the producer the v262 plane names; a skipped probe is named, never guessed
+  case "$UKIFY_PROBE" in
+    skip) uk=SKIP ;;
+    *) if have "$UKIFY_BIN"; then uk=PRESENT; fi ;;
+  esac
+  unr=$((unr + cdu + hku + pru))
+  [ "$cs" = UNREADABLE ] && detail+='conf:unreadable,'
+  [ "$cds" = absent ] && detail+='confd:absent,'
+  [ "$cds" = unreadable ] && detail+='confd:unreadable,'
+  [ "$cds" = not-dir ] && detail+='confd:not-directory,'
+  [ "$cds" = present ] && [ "$cdu" -gt 0 ] && detail+='confd:entry-unreadable,'
+  [ "$hks" = absent ] && detail+='hooks:absent,'
+  [ "$hks" = unreadable ] && detail+='hooks:unreadable,'
+  [ "$hks" = not-dir ] && detail+='hooks:not-directory,'
+  [ "$hks" = present ] && [ "$hku" -gt 0 ] && detail+='hooks:entry-unreadable,'
+  [ "$prs" = absent ] && detail+='presets:absent,'
+  [ "$prs" = unreadable ] && detail+='presets:unreadable,'
+  [ "$prs" = not-dir ] && detail+='presets:not-directory,'
+  [ "$prs" = present ] && [ "$pru" -gt 0 ] && detail+='presets:entry-unreadable,'
+  INITRAMFS_LINE="INITRAMFS initramfs-plane mkinitcpio-conf=$cs conf_d=$cdn hooks=$hkn newroot_latehooks=$nrn presets=$prn ukify=$uk unreadable=$unr"
+  if [ -n "$detail" ]; then INITRAMFS_LINE+=" detail=${detail%,}"; fi
+  return 0
+}
+
 # ---- hermetic selftest -------------------------------------------------------
 # (R48-C2) Resolve the directory the selftest fixture tree is built under. TMPDIR
 # unset or empty means the mktemp(1) default /tmp (S252). A TMPDIR that contains
@@ -2347,6 +2473,49 @@ STUB
 
   EXTRA_ENV=()
   ROOT_EXPECT=''
+  # round 65 (C2): the fixture seams live in one array, so the initramfs verdict-neutrality
+  # case can run the identical census invocation with only EXTRA_ENV changed instead of a
+  # second copy of this list (a drifted copy would make the neutrality proof vacuous).
+  ENV_BASE=()
+  base_env() { # base_env -> ENV_BASE: the census environment for the current $FX and $bin
+    ENV_BASE=(
+      TSUKUROI_FIXTURE="$FX"
+      TSUKUROI_PACMAN="$bin/pacman"
+      TSUKUROI_PACMAN_CONF="$bin/pacman-conf"
+      TSUKUROI_PACMAN_CONF_FILE="$FX/pacman.conf"
+      TSUKUROI_PACMAN_DB="$FX/pacmandb"
+      TSUKUROI_ROOT_DIR="$FX/root"
+      TSUKUROI_FOREIGN_BASELINE="$FX/fbase"
+      TSUKUROI_SYSTEMCTL="$bin/systemctl"
+      TSUKUROI_DMESG="$bin/dmesg"
+      TSUKUROI_JOURNALCTL="$bin/journalctl"
+      TSUKUROI_NVIDIA_SMI="$bin/nvidia-smi"
+      TSUKUROI_LSMOD="$bin/lsmod"
+      TSUKUROI_PCI_SYSFS="$FX/pci"
+      TSUKUROI_DEV_DIR="$FX/dev"
+      TSUKUROI_HOSTNAME_FILE="$FX/hostname"
+      TSUKUROI_DMESG_RESTRICT_FILE="$FX/dmesg_restrict"
+      TSUKUROI_CGROUP_ROOT="$FX/cgroup"
+      TSUKUROI_MEM_SLICE='user.slice/user-1000.slice'
+      TSUKUROI_PRESSURE_FILE="$FX/pressure/memory"
+      TSUKUROI_MEMINFO_FILE="$FX/meminfo"
+      TSUKUROI_VMSTAT_FILE="$FX/vmstat"
+      TSUKUROI_OOM_BASELINE="$FX/obase"
+      TSUKUROI_PACMAN_LOG="$FX/pacman.log"
+      TSUKUROI_ETC_DIR="$FX/etc"
+      TSUKUROI_BTRFS_SYSFS="$FX/btrfs"
+      TSUKUROI_PROC_MOUNTS="$FX/mounts"
+      TSUKUROI_SCRUB_DIR="$FX/scrub"
+      TSUKUROI_TIMER_WANTS="$FX/wants"
+      TSUKUROI_MKINITCPIO_CONF="$FX/mkinitcpio.conf"
+      TSUKUROI_MKINITCPIO_CONFD="$FX/mkinitcpio.conf.d"
+      TSUKUROI_MKINITCPIO_HOOKS="$FX/initcpio-hooks"
+      TSUKUROI_MKINITCPIO_PRESETS="$FX/mkinitcpio.d"
+      TSUKUROI_UKIFY="$bin/ukify-absent"
+      TSUKUROI_EXPAC="$bin/expac"
+    )
+  }
+
   check() { # check LABEL WANT_RC WANT_VERDICT WANT_RE [WANT_RE...]
     # A WANT_RE prefixed with `ABSENT:` is a must-not-match assertion (round 32, C1: the
     # ADJ-04 handoff lines must be absent where no dated event was measured). Every other
@@ -2354,40 +2523,10 @@ STUB
     local label=$1 wrc=$2 wverdict=$3
     shift 3
     local out rc before re miss='' unwanted='' pkgline root_expect=${ROOT_EXPECT:-$FX/root}
+    base_env
     before=$(fx_hash "$FX")
     set +e
-    out=$(env \
-      TSUKUROI_FIXTURE="$FX" \
-      TSUKUROI_PACMAN="$bin/pacman" \
-      TSUKUROI_PACMAN_CONF="$bin/pacman-conf" \
-      TSUKUROI_PACMAN_CONF_FILE="$FX/pacman.conf" \
-      TSUKUROI_PACMAN_DB="$FX/pacmandb" \
-      TSUKUROI_ROOT_DIR="$FX/root" \
-      TSUKUROI_FOREIGN_BASELINE="$FX/fbase" \
-      TSUKUROI_SYSTEMCTL="$bin/systemctl" \
-      TSUKUROI_DMESG="$bin/dmesg" \
-      TSUKUROI_JOURNALCTL="$bin/journalctl" \
-      TSUKUROI_NVIDIA_SMI="$bin/nvidia-smi" \
-      TSUKUROI_LSMOD="$bin/lsmod" \
-      TSUKUROI_PCI_SYSFS="$FX/pci" \
-      TSUKUROI_DEV_DIR="$FX/dev" \
-      TSUKUROI_HOSTNAME_FILE="$FX/hostname" \
-      TSUKUROI_DMESG_RESTRICT_FILE="$FX/dmesg_restrict" \
-      TSUKUROI_CGROUP_ROOT="$FX/cgroup" \
-      TSUKUROI_MEM_SLICE='user.slice/user-1000.slice' \
-      TSUKUROI_PRESSURE_FILE="$FX/pressure/memory" \
-      TSUKUROI_MEMINFO_FILE="$FX/meminfo" \
-      TSUKUROI_VMSTAT_FILE="$FX/vmstat" \
-      TSUKUROI_OOM_BASELINE="$FX/obase" \
-      TSUKUROI_PACMAN_LOG="$FX/pacman.log" \
-      TSUKUROI_ETC_DIR="$FX/etc" \
-      TSUKUROI_BTRFS_SYSFS="$FX/btrfs" \
-      TSUKUROI_PROC_MOUNTS="$FX/mounts" \
-      TSUKUROI_SCRUB_DIR="$FX/scrub" \
-      TSUKUROI_TIMER_WANTS="$FX/wants" \
-      TSUKUROI_EXPAC="$bin/expac" \
-      "${EXTRA_ENV[@]}" \
-      "$BASH" "$SELF" 2>&1)
+    out=$(env "${ENV_BASE[@]}" "${EXTRA_ENV[@]}" "$BASH" "$SELF" 2>&1)
     rc=$?
     set -e
     pkgline=$(printf '%s\n' "$out" | awk '/^PLANE packages:/ && !p { print; p = 1 }')   # round 50: full read (a `| head -n1` assignment SIGPIPEs on a large buffer)
@@ -3661,6 +3800,108 @@ STUB
   fi
   unset r50_big r50_probe r50_miss r50_t
 
+  # ---- round 65 (C2): the initramfs-plane arm (verdict-neutral) --------------------
+  # The boot-recovery surface the round's C1 note reads: the conf file, its drop-in dir, the
+  # initcpio hooks (and how many of them name /new_root), the preset dir and the UKI producer.
+  # Every path is a seam in base_env and ukify is a path override plus the skip switch, so no
+  # case reads the live /etc, /usr or PATH — the house pattern for a command is a path
+  # override (TSUKUROI_UKIFY), never a PATH mutation.
+  EXTRA_ENV=()
+  case_home='initramfs-present'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'HOOKS=(base udev autodetect modconf block filesystems fsck)\n' > "$FX/mkinitcpio.conf"
+  mkdir -p "$FX/mkinitcpio.conf.d" "$FX/initcpio-hooks" "$FX/mkinitcpio.d"
+  : > "$FX/mkinitcpio.conf.d/10-nvidia.conf"; : > "$FX/mkinitcpio.conf.d/20-hooks.conf"
+  printf 'run_latehook() {\n  mount -t btrfs -o subvol=/@ /dev/fx0 /new_root\n}\n' > "$FX/initcpio-hooks/btrfs"
+  printf 'run_hook() {\n  msg "fixture plain hook"\n}\n' > "$FX/initcpio-hooks/udev"
+  printf 'run_hook() {\n  msg "fixture resume hook"\n}\n' > "$FX/initcpio-hooks/resume"
+  : > "$FX/mkinitcpio.d/linux.preset"
+  printf '#!/bin/sh\nexit 0\n' > "$FX/ukify"; chmod 755 "$FX/ukify"
+  EXTRA_ENV=(TSUKUROI_UKIFY="$FX/ukify")
+  check 'healthy: conf + 2 drop-ins + 3 hooks (1 naming /new_root) + 1 preset + ukify PRESENT (R65-C2)' 0 HEALTHY \
+    '^INITRAMFS initramfs-plane mkinitcpio-conf=PRESENT conf_d=2 hooks=3 newroot_latehooks=1 presets=1 ukify=PRESENT unreadable=0$'
+
+  case_home='initramfs-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  check 'healthy: an absent conf, drop-in dir, hooks dir and preset dir read 0 with named absences (R65-C2)' 0 HEALTHY \
+    '^INITRAMFS initramfs-plane mkinitcpio-conf=ABSENT conf_d=0 hooks=0 newroot_latehooks=0 presets=0 ukify=ABSENT unreadable=0 detail=confd:absent,hooks:absent,presets:absent$'
+
+  case_home='initramfs-conf-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'HOOKS=(base udev)\n' > "$FX/mkinitcpio.conf"; chmod 000 "$FX/mkinitcpio.conf"
+  check 'healthy: a mode-000 conf reads UNREADABLE and counts once, never ABSENT or PRESENT (R65-C2)' 0 HEALTHY \
+    '^INITRAMFS initramfs-plane mkinitcpio-conf=UNREADABLE conf_d=0 hooks=0 newroot_latehooks=0 presets=0 ukify=ABSENT unreadable=1 detail=conf:unreadable,confd:absent,hooks:absent,presets:absent$'
+  chmod 600 "$FX/mkinitcpio.conf"
+
+  case_home='initramfs-presets-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'HOOKS=(base udev)\n' > "$FX/mkinitcpio.conf"
+  mkdir -p "$FX/mkinitcpio.conf.d" "$FX/initcpio-hooks"
+  printf 'mount -t btrfs -o subvol=/@ /dev/fx0 /new_root\n' > "$FX/initcpio-hooks/btrfs"
+  check 'healthy: a host with no preset directory reads presets=0 detail=presets:absent (R65-C2)' 0 HEALTHY \
+    '^INITRAMFS initramfs-plane mkinitcpio-conf=PRESENT conf_d=0 hooks=1 newroot_latehooks=1 presets=0 ukify=ABSENT unreadable=0 detail=presets:absent$'
+
+  case_home='initramfs-hooks-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'HOOKS=(base udev)\n' > "$FX/mkinitcpio.conf"
+  mkdir -p "$FX/mkinitcpio.d"; : > "$FX/mkinitcpio.d/linux.preset"
+  check 'healthy: no initcpio hooks directory reads hooks=0 detail=hooks:absent (R65-C2)' 0 HEALTHY \
+    '^INITRAMFS initramfs-plane mkinitcpio-conf=PRESENT conf_d=0 hooks=0 newroot_latehooks=0 presets=1 ukify=ABSENT unreadable=0 detail=confd:absent,hooks:absent$'
+
+  case_home='initramfs-ukify-skip'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '#!/bin/sh\nexit 0\n' > "$FX/ukify"; chmod 755 "$FX/ukify"
+  EXTRA_ENV=(TSUKUROI_UKIFY="$FX/ukify" TSUKUROI_UKIFY_PROBE=skip)
+  check 'healthy: a skipped ukify probe reads SKIP even with a resolvable stub, never a guess (R65-C2)' 0 HEALTHY \
+    '^INITRAMFS initramfs-plane mkinitcpio-conf=ABSENT conf_d=0 hooks=0 newroot_latehooks=0 presets=0 ukify=SKIP unreadable=0 detail=confd:absent,hooks:absent,presets:absent$'
+
+  case_home='initramfs-hooks-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  mkdir -p "$FX/initcpio-hooks"; printf 'mount /dev/fx0 /new_root\n' > "$FX/initcpio-hooks/btrfs"
+  chmod 000 "$FX/initcpio-hooks"
+  check 'healthy: an unlistable hooks directory reads hooks=0 unreadable=1 and is named (R65-C2)' 0 HEALTHY \
+    '^INITRAMFS initramfs-plane mkinitcpio-conf=ABSENT conf_d=0 hooks=0 newroot_latehooks=0 presets=0 ukify=ABSENT unreadable=1 detail=confd:absent,hooks:unreadable,presets:absent$'
+  chmod 755 "$FX/initcpio-hooks"
+
+  # Verdict-neutrality, proven on ONE fixture tree: the same tree with the arm's inputs present
+  # and with every seam pointed at an absent path must print identical lines apart from the
+  # INITRAMFS line and exit identically — the line is outside the rollup and the exit map.
+  arm_run() { # arm_run -> ARM_OUT, ARM_RC: the census over $FX with base seams + EXTRA_ENV, no assertions
+    base_env
+    set +e
+    ARM_OUT=$(env "${ENV_BASE[@]}" "${EXTRA_ENV[@]}" "$BASH" "$SELF" 2>&1)
+    ARM_RC=$?
+    set -e
+  }
+  case_home='initramfs-neutral'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'ai-usage.timer loaded failed failed\n' > "$FX/failedunits"   # one plane DEGRADED in both runs
+  printf 'HOOKS=(base udev)\n' > "$FX/mkinitcpio.conf"
+  mkdir -p "$FX/mkinitcpio.conf.d" "$FX/initcpio-hooks" "$FX/mkinitcpio.d"
+  : > "$FX/mkinitcpio.conf.d/10-nvidia.conf"
+  printf 'mount -t btrfs -o subvol=/@ /dev/fx0 /new_root\n' > "$FX/initcpio-hooks/btrfs"
+  : > "$FX/mkinitcpio.d/linux.preset"
+  printf '#!/bin/sh\nexit 0\n' > "$FX/ukify"; chmod 755 "$FX/ukify"
+  EXTRA_ENV=(TSUKUROI_UKIFY="$FX/ukify")
+  arm_run; narm_on_out=$ARM_OUT narm_on_rc=$ARM_RC
+  EXTRA_ENV=(TSUKUROI_MKINITCPIO_CONF="$FX/absent/mkinitcpio.conf" TSUKUROI_MKINITCPIO_CONFD="$FX/absent/conf.d" \
+    TSUKUROI_MKINITCPIO_HOOKS="$FX/absent/hooks" TSUKUROI_MKINITCPIO_PRESETS="$FX/absent/presets.d" \
+    TSUKUROI_UKIFY="$FX/absent/ukify")
+  arm_run; narm_off_out=$ARM_OUT narm_off_rc=$ARM_RC
+  EXTRA_ENV=()
+  narm_on_n=$(printf '%s\n' "$narm_on_out" | grep -c '^INITRAMFS ' || true)
+  narm_off_n=$(printf '%s\n' "$narm_off_out" | grep -c '^INITRAMFS ' || true)
+  narm_on_rest=$(printf '%s\n' "$narm_on_out" | grep -v '^INITRAMFS ' || true)
+  narm_off_rest=$(printf '%s\n' "$narm_off_out" | grep -v '^INITRAMFS ' || true)
+  if [ "$narm_on_rc" -ne "$narm_off_rc" ]; then
+    bad "initramfs: the arm changed the exit code ($narm_on_rc vs $narm_off_rc) (R65-C2)"
+  elif [ "$narm_on_rest" != "$narm_off_rest" ]; then
+    bad 'initramfs: the arm changed a line other than INITRAMFS, so it is rollup input (R65-C2)'
+  elif [ "$narm_on_n" -ne 1 ] || [ "$narm_off_n" -ne 1 ]; then
+    bad "initramfs: wanted exactly one INITRAMFS line per run, got $narm_on_n/$narm_off_n (R65-C2)"
+  else
+    ok "initramfs: one INITRAMFS line per run, every other line and the exit code identical with the arm inputs present or absent (exit $narm_on_rc) (R65-C2)"
+  fi
+  narm_line=$(printf '%s\n' "$narm_on_out" | grep '^INITRAMFS ' || true)
+  case "$narm_line" in
+    'INITRAMFS initramfs-plane mkinitcpio-conf=PRESENT conf_d=1 hooks=1 newroot_latehooks=1 presets=1 ukify=PRESENT unreadable=0')
+      ok 'initramfs: the emitted line carries every field, in contract order, once (R65-C2)' ;;
+    *) bad "initramfs: line shape drifted: $narm_line (R65-C2)" ;;
+  esac
+  unset narm_on_out narm_on_rc narm_off_out narm_off_rc narm_on_n narm_off_n narm_on_rest narm_off_rest narm_line
+
   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
   [ "$FAIL" -eq 0 ]
@@ -3802,6 +4043,10 @@ main() {
   # ---- scrub-record arm (round 44, C1): one verdict-neutral line ----------------------------
   probe_scrub_record
   printf '%s\n' "$SCRUB_LINE"
+
+  # ---- initramfs-plane arm (round 65, C2): one verdict-neutral line ------------------------
+  probe_initramfs_arm
+  printf '%s\n' "$INITRAMFS_LINE"
 
   local roll=HEALTHY
   roll=$(worse "$roll" "$PKG_V")

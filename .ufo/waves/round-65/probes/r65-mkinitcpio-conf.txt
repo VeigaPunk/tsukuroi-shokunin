@@ -1,0 +1,167 @@
+# probe: mkinitcpio config
+# command: grep -nE '^(HOOKS|MODULES|COMPRESSION|URI)' /etc/mkinitcpio.conf
+# utc: 2026-11-03T19:39:10Z
+--- main conf ---
+7:MODULES=()
+55:HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
+--- rc: 0 ---
+
+# drop-ins: /etc/mkinitcpio.conf.d/*.conf in full
+=== /etc/mkinitcpio.conf.d/nvidia.conf ===
+MODULES+=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
+=== rc: 0 ===
+
+=== /etc/mkinitcpio.conf.d/omarchy_hooks.conf ===
+HOOKS=(base udev plymouth keyboard autodetect microcode modconf kms keymap consolefont block encrypt filesystems fsck btrfs-overlayfs)
+FILES+=(/etc/vconsole.conf)
+=== rc: 0 ===
+
+=== /etc/mkinitcpio.conf.d/omarchy_resume.conf ===
+HOOKS+=(resume)
+=== rc: 0 ===
+
+=== /etc/mkinitcpio.conf.d/thunderbolt_module.conf ===
+MODULES+=(thunderbolt)
+=== rc: 0 ===
+
+# drop-in inventory:
+total 16
+drwxr-xr-x 1 root root  142 Oct  3 17:45 .
+drwxr-xr-x 1 root root 3534 Nov  2 15:30 ..
+-rw-r--r-- 1 root root   55 Oct  3 17:45 nvidia.conf
+-rw-r--r-- 1 root root  163 Oct  3 17:45 omarchy_hooks.conf
+-rw-r--r-- 1 root root   16 Oct  3 17:45 omarchy_resume.conf
+-rw-r--r-- 1 root root   23 Oct  3 17:45 thunderbolt_module.conf
+--- ls rc: 0 ---
+
+# --- supplementary: /etc/mkinitcpio.d/ (UKI preset check) ---
+total 0
+drwxr-xr-x 1 root root    0 Oct 11 16:14 .
+drwxr-xr-x 1 root root 3534 Nov  2 15:30 ..
+rc=0
+--- file count: 0 ---
+# --- supplementary: effective HOOKS resolution order (drop-ins lexical, later assignment wins) ---
+#   /etc/mkinitcpio.conf:55 HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
+#   nvidia.conf          MODULES+=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
+#   omarchy_hooks.conf   HOOKS=(...)  <-- FULL reassignment, supersedes the main HOOKS
+#   omarchy_resume.conf  HOOKS+=(resume)  <-- appends to the reassigned list
+#   thunderbolt_module.conf MODULES+=(thunderbolt)
+#   => effective HOOKS ends 'fsck btrfs-overlayfs resume'; COMPRESSION/URI unset (defaults)
+# --- supplementary: ls /boot for kernel/initramfs payload names (name-only, no content) ---
+/boot/amd-ucode.img|307200|2026-09-17 00:21
+rc=0
+# --- supplementary: /usr/lib/modules/<running>/vmlinuz presence ---
+total 0
+drwxr-xr-x 1 root root     62 Oct 20 09:57 .
+drwxr-xr-x 1 root root 260090 Nov  2 14:47 ..
+drwxr-xr-x 1 root root      0 Oct 22 04:55 .old
+drwxr-xr-x 1 root root    532 Oct 20 09:18 6.18.57-2-lts
+drwxr-xr-x 1 root root    532 Oct 20 09:18 7.2.11-arch1-1
+rc=0
+/usr/lib/modules/7.2.11-arch1-1/vmlinuz|17244672|2026-10-15 21:28:58.000000000 -0300
+rc=0
+
+# --- supplementary: UKI producer surface (who builds /boot/EFI/Linux images) ---
+-- ls -la /etc/kernel/install.d/ --
+total 0
+drwxr-xr-x 1 root root  0 Jun 26 08:27 .
+drwxr-xr-x 1 root root 18 Oct  3 17:41 ..
+rc=0
+-- ls -1 /usr/lib/kernel/install.d/ --
+50-depmod.install
+50-mkinitcpio.install
+90-loaderentry.install
+90-uki-copy.install
+rc=0
+-- ls -la /etc/limine-entry-tool.conf (metadata) --
+/etc/limine-entry-tool.conf|9756|2026-10-08 11:51:33.000000000 -0300
+rc=0
+-- ls -1 /etc/limine-entry-tool/ --
+ls: cannot access '/etc/limine-entry-tool/': No such file or directory
+rc=2
+-- pacman -Qo /boot/EFI/Linux/omarchy_linux.efi --
+error: No package owns /boot/EFI/Linux/omarchy_linux.efi
+rc=1
+-- pacman -Q limine-entry-tool --
+limine-mkinitcpio-hook 1.40.0-2
+rc=0
+
+# --- retry/verify: which package is the UKI producer ---
+-- pacman -Q limine-entry-tool (separate) --
+limine-mkinitcpio-hook 1.40.0-2
+rc=0
+-- pacman -Q | grep -i limine --
+limine 12.9.4-1
+limine-mkinitcpio-hook 1.40.0-2
+limine-snapper-sync 1.32.1-2
+rc=0
+-- pacman -Qo /usr/bin/limine-entry-tool --
+/usr/bin/limine-entry-tool is owned by limine-mkinitcpio-hook 1.40.0-2
+rc=0
+-- pacman -Qo /usr/lib/kernel/install.d/90-uki-copy.install --
+/usr/lib/kernel/install.d/90-uki-copy.install is owned by systemd 262.1-1
+rc=0
+-- pacman -Qo /usr/lib/kernel/install.d/50-mkinitcpio.install --
+/usr/lib/kernel/install.d/50-mkinitcpio.install is owned by mkinitcpio 42.2-1
+rc=0
+-- pacman -Ql limine-mkinitcpio-hook --
+limine-mkinitcpio-hook /etc/
+limine-mkinitcpio-hook /etc/boot/
+limine-mkinitcpio-hook /etc/boot/hooks/
+limine-mkinitcpio-hook /etc/boot/hooks/post.d/
+limine-mkinitcpio-hook /etc/boot/hooks/post.d/89-warn-missing-file-hashes
+limine-mkinitcpio-hook /etc/boot/hooks/post.d/90-limine-enroll-config
+limine-mkinitcpio-hook /etc/boot/hooks/post.d/91-example-esp-set-ro.disabled
+limine-mkinitcpio-hook /etc/boot/hooks/pre.d/
+limine-mkinitcpio-hook /etc/boot/hooks/pre.d/05-example-esp-set-rw.disabled
+limine-mkinitcpio-hook /etc/boot/hooks/pre.d/10-limine-reset-enroll
+limine-mkinitcpio-hook /etc/limine-entry-tool.conf
+limine-mkinitcpio-hook /etc/pacman.d/
+limine-mkinitcpio-hook /etc/pacman.d/hooks/
+limine-mkinitcpio-hook /etc/pacman.d/hooks/90-mkinitcpio-install.hook
+limine-mkinitcpio-hook /usr/
+limine-mkinitcpio-hook /usr/bin/
+limine-mkinitcpio-hook /usr/bin/limine-enroll-config
+limine-mkinitcpio-hook /usr/bin/limine-entry-tool
+limine-mkinitcpio-hook /usr/bin/limine-install
+limine-mkinitcpio-hook /usr/bin/limine-list
+limine-mkinitcpio-hook /usr/bin/limine-mkinitcpio
+limine-mkinitcpio-hook /usr/bin/limine-remove-entry
+limine-mkinitcpio-hook /usr/bin/limine-reset-enroll
+limine-mkinitcpio-hook /usr/bin/limine-scan
+limine-mkinitcpio-hook /usr/bin/limine-update
+limine-mkinitcpio-hook /usr/lib/
+limine-mkinitcpio-hook /usr/lib/initcpio/
+limine-mkinitcpio-hook /usr/lib/initcpio/hooks/
+limine-mkinitcpio-hook /usr/lib/initcpio/hooks/btrfs-overlayfs
+limine-mkinitcpio-hook /usr/lib/initcpio/install/
+limine-mkinitcpio-hook /usr/lib/initcpio/install/btrfs-overlayfs
+limine-mkinitcpio-hook /usr/lib/initcpio/install/sd-btrfs-overlayfs
+limine-mkinitcpio-hook /usr/lib/limine/
+limine-mkinitcpio-hook /usr/lib/limine/auth-helper
+limine-mkinitcpio-hook /usr/lib/limine/limine-common-functions
+limine-mkinitcpio-hook /usr/lib/limine/limine-entry-tool
+limine-mkinitcpio-hook /usr/lib/limine/overlayfs-setup
+limine-mkinitcpio-hook /usr/lib/systemd/
+limine-mkinitcpio-hook /usr/lib/systemd/system/
+limine-mkinitcpio-hook /usr/lib/systemd/system/overlayfs-setup.service
+limine-mkinitcpio-hook /usr/local/
+limine-mkinitcpio-hook /usr/local/bin/
+limine-mkinitcpio-hook /usr/local/bin/mkinitcpio
+limine-mkinitcpio-hook /usr/share/
+limine-mkinitcpio-hook /usr/share/doc/
+limine-mkinitcpio-hook /usr/share/doc/limine-entry-tool/
+limine-mkinitcpio-hook /usr/share/doc/limine-entry-tool/CHANGELOG.md
+limine-mkinitcpio-hook /usr/share/doc/limine-entry-tool/README.md
+limine-mkinitcpio-hook /usr/share/libalpm/
+limine-mkinitcpio-hook /usr/share/libalpm/hooks/
+limine-mkinitcpio-hook /usr/share/libalpm/hooks/60-limine-mkinitcpio-remove-pre.hook
+limine-mkinitcpio-hook /usr/share/libalpm/hooks/80-limine-efi-deploy.hook
+limine-mkinitcpio-hook /usr/share/libalpm/hooks/90-limine-mkinitcpio-remove-post.hook
+limine-mkinitcpio-hook /usr/share/libalpm/scripts/
+limine-mkinitcpio-hook /usr/share/libalpm/scripts/limine-mkinitcpio-install
+limine-mkinitcpio-hook /usr/share/libalpm/scripts/limine-mkinitcpio-remove
+rc=0
+-- pacman -Q limine-mkinitcpio-hook --
+limine-mkinitcpio-hook 1.40.0-2
+rc=0

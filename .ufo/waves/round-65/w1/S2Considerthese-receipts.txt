@@ -1,0 +1,109 @@
+# S2Considerthese — upstream release watch: first sweep receipt — 2026-11-03
+# lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin   base HEAD: 37c74e27b29d979ee749caa622eb58f9bfe39ed4
+# read-only seat; no lane file edited by this seat
+
+## 1. STILL-UNIMPLEMENTED grep receipts (corpus/ SKILL.md tools/)
+$ grep -rn -i -- 'upstream release watch' corpus/ SKILL.md tools/  ->  0 hit(s)
+$ grep -rn -i -- 'upstream-release watch' corpus/ SKILL.md tools/  ->  1 hit(s)
+    corpus/knowledge/pause-lift-gate-r24.md:90:- P3: the relative symlink's construction is S109; mounted-root behavior comes from separate init and probe evidence. S110 quotes the three daemon statements separatel
+$ grep -rn -i -- 'latest upstream' corpus/ SKILL.md tools/  ->  0 hit(s)
+$ grep -rn -i -- 'behind the latest' corpus/ SKILL.md tools/  ->  0 hit(s)
+$ grep -rn -i -- 'newest upstream' corpus/ SKILL.md tools/  ->  0 hit(s)
+$ grep -rn -i -- 'upstream tag index' corpus/ SKILL.md tools/  ->  0 hit(s)
+$ grep -rn -i -- 'release index' corpus/ SKILL.md tools/  ->  0 hit(s)
+$ grep -rn -i -- 'pinned version.*behind' corpus/ SKILL.md tools/  ->  0 hit(s)
+
+## 2. no tool or corpus text executes a version sweep
+$ grep -rln -iE 'releases/latest|kernel.org/releases|tags\?per_page|repository/tags' tools/ corpus/ SKILL.md
+    (no output; rc=1) => no mechanism exists
+
+## 3. registry scale and recheck cadence
+    total S-rows: 281
+      recheck='on-release': 212
+      recheck='180d': 41
+      recheck='90d': 16
+      recheck='30d': 11
+      recheck='every capture': 1
+    => 'on-release' cadence is DECLARED on 212 of 281 rows; EXECUTED on 0
+
+## 4. pinned-upstream inventory (mechanical URL patterns over the 281 S-rows)
+    systemd v262 (tag): 17 rows -> S072, S120, S121, S122, S123, S124, S126, S136, S137, S177, S184, S186, S187, S188, S189, S190, S199
+    btrfs-progs v7.1 (tag): 15 rows -> S128, S129, S130, S139, S152, S153, S154, S155, S157, S164, S165, S166, S167, S168, S169
+    Linux v7.2 (release tag): 22 rows -> S115, S116, S117, S118, S119, S132, S133, S138, S140, S141, S142, S143, S144, S145, S148, S149, S156, S158, S182, S185, S201, S205
+    Linux v7.2.11 (stable point release): 5 rows -> S240, S242, S243, S246, S247
+    man-pages 6.19 (tag): 3 rows -> S171, S176, S181
+    mkinitcpio v42.x (tag): 10 rows -> S015, S016, S053, S054, S058, S094, S109, S279, S280, S281
+    pacman 54d9411 (commit): 23 rows -> S208, S209, S210, S211, S213, S214, S215, S216, S217, S219, S221, S222, S223, S224, S226, S228, S229, S230, S231, S232, S233, S234, S235
+    TOTAL rows pinned to an upstream version: 95 (of 281)
+## 5. LIVE DELTA: pinned version -> latest upstream at read time (2026-11-03)
+    systemd v262      -> v262.1    GitHub releases/latest, published 2026-10-16T21:57:14Z   BEHIND
+    btrfs-progs v7.1  -> v7.3      GitHub tags, commit afdc3a65e33f, 2026-10-23T17:09:57Z       BEHIND (2 releases)
+    Linux v7.2.11     -> 7.2.15 (in-line), latest_stable 7.3.1   kernel.org/releases.json   BEHIND
+    Linux v7.2        -> 7.2.15 (in-line), latest_stable 7.3.1                               BEHIND
+    man-pages 6.19    -> 6.20      git.kernel.org man-pages refs/tags                        BEHIND
+    mkinitcpio v42.x  -> v42.2     GitLab releases (v42.2, 2026-10-01)                       CURRENT (r64 C3 discharged)
+    pacman 54d9411    -> v7.1.0    git ls-remote (pin is a COMMIT, not a tag)                commit-pin, 23 rows
+
+## 6. CONTENT DRIFT at the corpus-cited artifacts (byte comparison, not token match)
+    systemd v262 vs v262.1:
+      IDENTICAL  man/systemd.kill.xml
+      IDENTICAL  man/oomd.conf.xml
+      IDENTICAL  man/systemd.resource-control.xml
+      IDENTICAL  src/coredump/coredump-submit.c
+      IDENTICAL  src/shared/logs-show.c
+    Linux v7.2.11 vs v7.2.15:
+      IDENTICAL  fs_btrfs_scrub.c
+      IDENTICAL  fs_btrfs_ioctl.c
+      IDENTICAL  fs_btrfs_sysfs.c
+      IDENTICAL  fs_btrfs_dev-replace.c
+      IDENTICAL  lib_cmdline.c
+    Linux v7.2 vs v7.3.1 (the release-tag rows):
+      IDENTICAL  fs_btrfs_sysfs.c  (v7.2 == v7.2.15)
+        and v7.2 != v7.3.1 (DIFFERS)
+      IDENTICAL  mm_oom_kill.c  (v7.2 == v7.2.15)
+        and v7.2 == v7.3.1
+      IDENTICAL  Documentation_admin-guide_cgroup-v2.rst  (v7.2 == v7.2.15)
+        and v7.2 != v7.3.1 (DIFFERS)
+    man-pages 6.19 vs 6.20:
+      IDENTICAL  man/man5/proc_pid_environ.5
+      IDENTICAL  man/man5/proc_pid_status.5
+      IDENTICAL  man/man7/environ.7
+      IDENTICAL  man/man8/ld.so.8
+    btrfs-progs v7.1 vs v7.3, S237's nine cited line windows (difflib line mapping):
+      v7.1 67-70 -> v7.3 67-70  offset +0  UNCHANGED
+      v7.1 280-330 -> v7.3 280-330  offset +0  UNCHANGED
+      v7.1 446-535 -> v7.3 446-535  offset +0  UNCHANGED
+      v7.1 826-895 -> v7.3 826-895  offset +0  UNCHANGED
+      v7.1 1110-1125 -> v7.3 1110-1125  offset +0  UNCHANGED
+      v7.1 1186-1220 -> v7.3 1186-1220  offset +0  UNCHANGED
+      v7.1 1330-1340 -> v7.3 1330-1340  offset +0  UNCHANGED
+      v7.1 1498-1512 -> v7.3 1498-1512  offset +0  UNCHANGED
+      v7.1 1925-1945 -> v7.3 1927-1947  offset +2  *** WINDOW MOVED ***
+
+    corpus note citing the drifted literal: corpus/knowledge/btrfs-scrub-record-r42.md:184
+      quotes scrub.c :569-576 for 'invalid data on line ...'; that literal is at v7.1 line 571 and v7.3 line 571,
+      but its TEXT changed: v7.1 'invalid data on line %d pos ' -> v7.3 'invalid data on line %d position '.
+
+## 7. host versions (read-only pacman -Q)
+systemd 262.1-1
+btrfs-progs 7.1-1
+mkinitcpio 42.2-1
+linux 7.2.11.arch1-1
+    rc=0
+    uname -r: 7.2.11-arch1-1
+
+## 8. mkinitcpio v42 -> v42.2 content check (the r64-discharged pair)
+    cmds/init v42 == v42.2: IDENTICAL (3318 bytes both)
+
+## 9. the one corpus literal that MOVED between the pinned version and the latest upstream
+    corpus/knowledge/btrfs-scrub-record-r42.md:184 quotes scrub.c :569-576 ('invalid data on line ...')
+    btrfs-progs v7.1 scrub.c:571  warning("invalid data on line %d pos "
+    btrfs-progs v7.3 scrub.c:571  warning("invalid data on line %d position "
+    => the LINE anchor survives (571 -> 571) but the quoted TEXT differs (pos -> position).
+    => a v7.3 re-read of that quote would FAIL a verbatim check; the corpus pins v7.1, so its quote is correct at its pin.
+
+## 10. what this sweep does NOT claim
+    - no corpus row is wrong today: every cited artifact was re-fetched at its PINNED version and matches.
+    - the sweep reports PIN DELTA only; a delta is not a defect. It is a trigger to re-read, not a re-score.
+    - the pacman pin is a COMMIT (54d9411, 2026-01-07), not a tag: a tag-vs-commit watch needs both a tag set and a commit set.
+    - 'on-release' on 212 rows is a DECLARED cadence; executing it is the watch's job and is not done by any tool.

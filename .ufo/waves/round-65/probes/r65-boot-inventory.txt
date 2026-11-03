@@ -1,0 +1,110 @@
+# probe: /boot inventory
+# command: sudo -n ls -laR /boot (depth<=3)
+# utc: 2026-11-03T19:39:41Z
+--- output ---
+/boot:
+total 332
+drwx------ 5 root root   4096 Dec 31  1969 .
+dr-xr-xr-x 1 root root    176 Oct 31 04:50 ..
+drwx------ 3 root root   4096 Oct 20 09:03 432d02b544a5459ebbff9c42ec68334d
+-rwx------ 1 root root 307200 Sep 17 00:21 amd-ucode.img
+drwx------ 5 root root   4096 Oct  3 17:45 EFI
+-rwx------ 1 root root   4919 Nov  3 16:19 limine.conf
+-rwx------ 1 root root   4919 Nov  3 13:19 limine.conf.old
+drwx------ 2 root root   4096 Nov  2 12:07 loader
+
+/boot/432d02b544a5459ebbff9c42ec68334d:
+total 12
+drwx------ 3 root root 4096 Oct 20 09:03 .
+drwx------ 5 root root 4096 Dec 31  1969 ..
+drwx------ 2 root root 4096 Oct 20 09:29 limine_history
+
+/boot/432d02b544a5459ebbff9c42ec68334d/limine_history:
+total 836148
+drwx------ 2 root root      4096 Oct 20 09:29 .
+drwx------ 3 root root      4096 Oct 20 09:03 ..
+-rwx------ 1 root root 290422784 Oct 20 09:03 omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0
+-rwx------ 1 root root 284439552 Oct 20 09:29 omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8
+-rwx------ 1 root root 281318912 Oct 20 09:29 omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8
+-rwx------ 1 root root     11818 Oct 20 09:29 snapshots.json
+-rwx------ 1 root root      4570 Oct 20 09:29 snapshots.json.old
+
+/boot/EFI:
+total 20
+drwx------ 5 root root 4096 Oct  3 17:45 .
+drwx------ 5 root root 4096 Dec 31  1969 ..
+drwx------ 2 root root 4096 Oct  3 17:45 BOOT
+drwx------ 2 root root 4096 Oct  3 17:45 limine
+drwx------ 2 root root 4096 Oct 29 03:45 Linux
+
+/boot/EFI/BOOT:
+total 780
+drwx------ 2 root root   4096 Oct  3 17:45 .
+drwx------ 5 root root   4096 Oct  3 17:45 ..
+-rwx------ 1 root root 405504 Oct 29 03:45 BOOTIA32.EFI
+-rwx------ 1 root root 385024 Oct 29 03:45 BOOTX64.EFI
+
+/boot/EFI/limine:
+total 764
+drwx------ 2 root root   4096 Oct  3 17:45 .
+drwx------ 5 root root   4096 Oct  3 17:45 ..
+-rwx------ 1 root root 389120 Oct 29 03:45 limine_x64.bak
+-rwx------ 1 root root 385024 Oct 29 03:45 limine_x64.efi
+
+/boot/EFI/Linux:
+total 552540
+drwx------ 2 root root      4096 Oct 29 03:45 .
+drwx------ 5 root root      4096 Oct  3 17:45 ..
+-rwx------ 1 root root 284447744 Oct 29 03:45 omarchy_linux.efi
+-rwx------ 1 root root 281338880 Oct 29 03:45 omarchy_linux-lts.efi
+
+/boot/loader:
+total 16
+drwx------ 2 root root 4096 Nov  2 12:07 .
+drwx------ 5 root root 4096 Dec 31  1969 ..
+-rwx------ 1 root root   32 Oct  3 19:09 boot-secret-mixin
+-rwx------ 1 root root   32 Nov  2 12:07 random-seed
+--- rc: 0 ---
+
+--- supplementary: sudo -n stat -c '%n|%s|%y|%a|%U:%G' on UKI/EFI images (metadata only, no content read) ---
+/boot/EFI/Linux/omarchy_linux.efi|284447744|2026-10-29 03:45:24.000000000 -0300|700|root:root
+  rc=0
+/boot/EFI/Linux/omarchy_linux-lts.efi|281338880|2026-10-29 03:45:18.000000000 -0300|700|root:root
+  rc=0
+/boot/EFI/limine/limine_x64.efi|385024|2026-10-29 03:45:10.000000000 -0300|700|root:root
+  rc=0
+/boot/EFI/BOOT/BOOTX64.EFI|385024|2026-10-29 03:45:24.000000000 -0300|700|root:root
+  rc=0
+/boot/EFI/BOOT/BOOTIA32.EFI|405504|2026-10-29 03:45:24.000000000 -0300|700|root:root
+  rc=0
+--- supplementary stat rc done ---
+--- supplementary: find /boot -maxdepth 4 typology by extension (name only) ---
+      1 bak
+      1 /boot/loader/boot-secret-mixin
+      1 /boot/loader/random-seed
+      1 conf
+      3 efi
+      2 EFI
+      1 efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0
+      1 efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8
+      1 efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8
+      1 img
+      1 json
+      2 old
+--- rc: 0 ---
+
+# --- supplementary: stat on limine_history UKI snapshots (metadata only) ---
+stat: cannot statx '/boot/432d02b544a5459ebbff9c42ec68334d/limine_history/*.efi_sha256_*': No such file or directory
+rc=1
+# --- supplementary: limine.conf vs limine.conf.old (size/mtime only, no content diff) ---
+/boot/limine.conf|4919|2026-11-03 16:19:30.000000000 -0300
+/boot/limine.conf.old|4919|2026-11-03 13:19:16.000000000 -0300
+rc=0
+
+# --- retry: stat on limine_history UKIs with EXPLICIT names (no glob: /boot is root-only, shell cannot expand) ---
+/boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0|290422784|2026-10-20 09:03:02.000000000 -0300|700|root:root
+  rc=0
+/boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8|284439552|2026-10-20 09:29:18.000000000 -0300|700|root:root
+  rc=0
+/boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8|281318912|2026-10-20 09:29:18.000000000 -0300|700|root:root
+  rc=0

@@ -1,0 +1,88 @@
+# probe: TPM2/NvPCR unit + payload surface
+# utc: 2026-11-03T19:39:41Z
+--- systemctl list-unit-files | grep -Ei 'tpm2|pcr|nvpcr' ---
+systemd-pcrextend@.service                   static          -
+systemd-pcrfs-root.service                   static          -
+systemd-pcrfs@.service                       static          -
+systemd-pcrlock-file-system.service          disabled        disabled
+systemd-pcrlock-firmware-code.service        disabled        disabled
+systemd-pcrlock-firmware-config.service      disabled        disabled
+systemd-pcrlock-machine-id.service           disabled        disabled
+systemd-pcrlock-make-policy.service          disabled        disabled
+systemd-pcrlock-secureboot-authority.service disabled        disabled
+systemd-pcrlock-secureboot-policy.service    disabled        disabled
+systemd-pcrlock@.service                     static          -
+systemd-pcrlogin@.service                    static          -
+systemd-pcrmachine.service                   static          -
+systemd-pcrnvdone.service                    static          -
+systemd-pcrosseparator.service               static          -
+systemd-pcrphase-factory-reset.service       static          -
+systemd-pcrphase-initrd.service              static          -
+systemd-pcrphase-storage-target-mode.service static          -
+systemd-pcrphase-sysinit.service             static          -
+systemd-pcrphase.service                     static          -
+systemd-pcrproduct.service                   static          -
+systemd-report-sign-tpm2@.service            static          -
+systemd-sysupdate-notify-pcrlock@.service    static          -
+systemd-tpm2-clear.service                   disabled        enabled
+systemd-tpm2-setup-early.service             static          -
+systemd-tpm2-setup.service                   static          -
+systemd-tpm2-swtpm.service                   static          -
+systemd-pcrextend.socket                     disabled        disabled
+systemd-pcrlock.socket                       static          -
+systemd-report-sign-tpm2.socket              disabled        enabled
+systemd-sysupdate-notify-pcrlock.socket      disabled        enabled
+tpm2.target                                  static          -
+--- rc: 0 ---
+--- pacman -Ql systemd | grep -E 'tpm2-setup|nvpcr' ---
+systemd /usr/lib/nvpcr/
+systemd /usr/lib/nvpcr/cryptsetup.nvpcr
+systemd /usr/lib/nvpcr/hardware.nvpcr
+systemd /usr/lib/nvpcr/login.nvpcr
+systemd /usr/lib/nvpcr/verity.nvpcr
+systemd /usr/lib/pcrlock.d/770-nvpcr-separator.pcrlock
+systemd /usr/lib/systemd/system/sysinit.target.wants/systemd-tpm2-setup-early.service
+systemd /usr/lib/systemd/system/sysinit.target.wants/systemd-tpm2-setup.service
+systemd /usr/lib/systemd/system/systemd-tpm2-setup-early.service
+systemd /usr/lib/systemd/system/systemd-tpm2-setup.service
+systemd /usr/lib/systemd/systemd-tpm2-setup
+systemd /usr/share/man/man8/systemd-tpm2-setup-early.service.8.gz
+systemd /usr/share/man/man8/systemd-tpm2-setup.8.gz
+systemd /usr/share/man/man8/systemd-tpm2-setup.service.8.gz
+--- rc: 0 ---
+--- supplementary (read-only): ls -la /sys/class/tpm ---
+total 0
+drwxr-xr-x  2 root root 0 Nov  3 16:39 .
+drwxr-xr-x 73 root root 0 Nov  2 21:18 ..
+--- rc: 0 ---
+--- supplementary: command -v systemd-pcrlock / tpm2-setup ---
+rc=1
+rc=1
+--- supplementary: ls /etc/kernel ---
+total 0
+drwxr-xr-x 1 root root   18 Oct  3 17:41 .
+drwxr-xr-x 1 root root 3534 Nov  2 15:30 ..
+drwxr-xr-x 1 root root    0 Jun 26 08:27 install.d
+rc=0
+
+# --- supplementary: kernel-log TPM evidence (journalctl read verb) ---
+Nov 02 12:07:17 plazir27 systemd[1]: systemd 262.1-1-arch running in system mode (+PAM +AUDIT -SELINUX +APPARMOR -IMA +IPE +SMACK +SECCOMP +GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF +XKBCOMMON +UTMP +LIBARCHIVE)
+Nov 02 12:07:17 plazir27 systemd[1]: TPM PCR Measurements skipped, unmet condition check ConditionSecurity=measured-os
+Nov 02 12:07:17 plazir27 systemd[1]: Make TPM PCR Policy skipped, unmet condition check ConditionSecurity=measured-uki
+Nov 02 12:07:17 plazir27 systemd[1]: TPM PCR Machine ID Measurement skipped, unmet condition check ConditionSecurity=measured-os
+Nov 02 12:07:17 plazir27 systemd[1]: TPM PCR OS Separator skipped, unmet condition check ConditionSecurity=measured-os
+Nov 02 12:07:17 plazir27 systemd[1]: Early TPM SRK Setup skipped, unmet condition check ConditionSecurity=measured-os
+Nov 02 12:07:17 plazir27 systemd[1]: TPM PCR NvPCR Initialization Separator skipped, unmet condition check ConditionPathExists=/etc/initrd-release
+Nov 02 12:07:17 plazir27 systemd[1]: TPM NvPCR Product ID Measurement skipped, unmet condition check ConditionSecurity=measured-os
+rc=0
+--- grep match count: 8 ---
+# --- supplementary: systemctl is-system-running ---
+running
+rc=0
+
+# --- supplementary: /dev/tpm* presence ---
+ls: cannot access '/dev/tpm*': No such file or directory
+rc=2
+# --- supplementary: kernel cmdline as seen by the running kernel (/proc/cmdline, world-readable) ---
+resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+rc=0

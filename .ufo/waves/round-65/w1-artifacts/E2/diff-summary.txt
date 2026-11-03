@@ -1,0 +1,46 @@
+# E2InitramfsArm — diff summary, tools/tsukuroi-census.sh (round 65 / wave w1)
+# base HEAD 37c74e27 (lane repo). The file is modified in the WORKING TREE only; this seat ran
+# no mutating git/jj command anywhere and wrote no other lane file.
+#
+# before sha256 : aeda2cbcdcc4b08b09fefcddc237da7c0d8ee903aaf063a1578452081e0245dc
+#                 (222197 B, 3824 lines, mode 755, grep -c INITRAMFS = 0)
+# after  sha256 : fe15cc5d38ebfd32852f6c3bddc8b5966c6f7e17620dcd492b3438ebd7a39f3f
+#                 (237634 B, 4069 lines, mode 755, grep -c INITRAMFS = 22)
+# applied as `install -m 755 <scratch copy> tools/.tsukuroi-census.sh.E2.tmp && mv -f` (single
+# rename in the target directory, so a concurrent reader never sees a partial file)
+# git diff --stat: 1 file changed, 279 insertions(+), 34 deletions(-)
+#
+# Hunks:
+#  1. config seams after TIMER_WANTS (:497-503): MKINITCPIO_CONF, MKINITCPIO_CONFD,
+#     MKINITCPIO_HOOKS, MKINITCPIO_PRESETS, UKIFY_BIN, UKIFY_PROBE — every path and the one
+#     command name the arm reads, `:-` defaults exactly like the neighbouring arms.
+#  2. header contract block "Round-65 addition (C2)" before the Read-only guarantee paragraph:
+#     the one-line grammar, the per-field reading rule, the unreadable accounting, the detail
+#     vocabulary and its order, and the no-mkinitcpio / no-privilege / no-write /
+#     verdict-neutral contract.
+#  3. header override list: the six new TSUKUROI_* seams named next to the round-35/38/44 ones.
+#  4. probe_initramfs_arm() at :2101-2178, immediately after probe_scrub_record, house pattern
+#     (locals, globals published as INITRAMFS_LINE, `return 0`, LC_ALL=C, globs guarded with
+#     `[ -e "$e" ] || [ -L "$e" ]`, names never echoed).
+#  5. main(): probe_initramfs_arm + one printf after the SCRUB line and before `local roll=`.
+#  6. usage(): INITRAMFS added to the verdict-neutral line list.
+#  7. selftest harness: base_env()/ENV_BASE[]. The 32-line inline `env` invocation in check() is
+#     replaced by `env "${ENV_BASE[@]}" "${EXTRA_ENV[@]}"`, so the neutrality case runs the
+#     byte-identical invocation with only EXTRA_ENV changed. The array carries the same 30
+#     assignments as before plus the five round-65 seams — none dropped, none reordered in
+#     effect (later EXTRA_ENV entries still win).
+#  8. selftest cases: 9 new counted cases (7 `check` + 2 `ok`) after the R50 case:
+#     present-happy-path, all-absent, mode-000 conf, presets-absent, hooks-absent, ukify-skip,
+#     hooks-dir-unlistable, verdict-neutral A/B on one tree, and the emitted-line shape/order.
+#
+# Deletion inventory (34 lines): 2 usage lines rewritten in place and the 32-line inline env
+# block moved into ENV_BASE with identical values. No existing probe, arm or assertion was
+# removed or weakened.
+#
+# Verdict-neutrality wiring: INITRAMFS_LINE is assigned at :2175, appended with detail at :2176
+# (inside probe_initramfs_arm) and printed at :4049. It is read nowhere else — no rollup term,
+# no `worse` call, no exit-map branch — mirroring the STORAGE/SCRUB wiring.
+#
+# Read-only posture of the arm itself: four `stat`/glob sweeps, a readability test on entries,
+# `grep -qF /new_root` over regular readable hook files, and `command -v` on one name. It never
+# invokes mkinitcpio/dracut/ukify/bootctl, never writes, needs no privilege, touches no network.

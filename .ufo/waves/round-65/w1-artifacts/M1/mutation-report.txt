@@ -1,0 +1,304 @@
+MUTATION BATTERY - tools/check-cited-receipts-r62.py (cited-receipt landing gate)
+seat M1MutBattery, round 65 (hyaku run 15), wave w1
+date 2026-11-03; python3 3.14.8; lane HEAD 37c74e27b29d979ee749caa622eb58f9bfe39ed4
+
+Target under test (pristine bytes, never edited):
+  tools/check-cited-receipts-r62.py
+  sha256 04e9703d5c57909303df930c39ca610c2212af54c87cc0ef5d0bd998f4fdadba
+  351 lines, PASS=0 FAIL=1 CANNOT=2, four selftest cases.
+
+===============================================================================
+0. METHOD
+===============================================================================
+One mutant per file, built by exact single-occurrence string replacement of a
+scratch copy (/fast/scratch/hyaku/tsukuroi-r65/M1MutBattery/work.py, byte-identical
+to the lane tool). The lane tool was read only; no mutant was run from, or
+written to, the lane tree. Every mutant was exercised by the SAME detector suite
+as the pristine copy, from the same cwd, with an explicit --lane.
+
+Two operability facts were established before mutating, because they change how
+the gate must be invoked by any harness:
+
+  O1  --revision is mandatory alongside --round. `python3 work.py --round 61`
+      exits 2 via argparse ("--revision and --round are required unless
+      --selftest"), it does NOT default to HEAD. The red expectation named in
+      the seat brief therefore needs its revision spelled out; the committed r62
+      receipt pins it at bcf1af18.
+  O2  --lane defaults to the *script's* grandparent directory, not the cwd
+      (`here = Path(__file__).resolve().parent; default_lane = here.parent`).
+      A copy of the tool living anywhere else (scratch, a temp harness) CANNOT
+      bind a revision in the lane unless --lane is passed explicitly:
+        $ python3 work.py --revision 37c74e27 --round 65      -> CANNOT rc 2
+        $ python3 work.py --lane <lane> --revision 37c74e27 ... -> PASS  rc 0
+      Consequence for this battery: cwd=lane is NOT sufficient. Every run below
+      passes --lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin.
+
+===============================================================================
+1. CONTROLS (pristine bytes)
+===============================================================================
+C1 green, built-in suite
+  $ python3 work.py --selftest
+  -> {"selftest":"PASS","cases":[base-pass ok, head-finds-ghost ok,
+      landing-clears ok, bad-rev-cannot ok]}                       rc 0   PASS
+
+C2 red, the class re-derived at the r62 base
+  $ python3 work.py --lane <lane> --revision bcf1af18 --round 61
+  -> verdict FAIL, finding_count 3, rc 1
+     findings (exact set):
+       .ufo/waves/round-61/receipts/recheck-registry-10-due-2026-11-30.txt
+       .ufo/waves/round-61/receipts/recheck-registry-10-nodue-shape.txt
+       .ufo/waves/round-61/receipts/recheck-registry-FIRST-RUN-FAIL-at-authoring.txt
+     identical to the committed expectation
+     .ufo/waves/round-62/before/cited-receipts-at-base-round61.json
+     (8 fields match: verdict, finding_count, cited set, round, revision).
+
+C3 green, discharged round at the current tree
+  $ python3 work.py --lane <lane> --revision 37c74e27 --round 61
+  -> verdict PASS, finding_count 0, cited_paths 5, rc 0            PASS
+
+C4 live-round emptiness (measured, not a control)
+  $ python3 work.py --lane <lane> --revision 37c74e27 --round 65
+  -> verdict PASS, finding_count 0, cited_paths 0, files_scanned 7, rc 0
+  The gate is green at HEAD for round 65 because the round's committed bytes
+  cite no `.ufo/waves/round-65/` file path yet (cited_paths 0). See finding F4.
+
+Detector suite applied to every mutant:
+  D1 selftest           --selftest must print PASS with 4 ok cases and rc 0.
+  D2 red                bcf1af18 --round 61 must give rc 1, FAIL, count 3, and
+                        the exact three-path set (count AND identity).
+  D3 green              37c74e27 --round 61 must give rc 0, PASS, cited_paths 5.
+  D4 meta (M2 only)     a suite stacked on a known-broken scan must go RED;
+                        i.e. run --selftest on M2+M1 and require non-PASS.
+
+===============================================================================
+2. MUTANTS - diff, output, verdict
+===============================================================================
+Base for every diff: tools/check-cited-receipts-r62.py (work.py in scratch).
+
+--- M1 allow-all ---------------------------------------------------------------
+@@ -215,7 +215,7 @@
+-    findings = sorted(p for p in cited if p not in paths)
++    findings = []  # M1 allow-all: never report
+
+D1 FAIL  selftest rc=1, "FAIL";
+         cases base-pass ok, head-finds-ghost **false**, landing-clears ok,
+         bad-rev-cannot ok
+D2 FAIL  red rc=0, verdict PASS, count 0, set_ok False
+D3 PASS  green rc=0, PASS, cited_paths 5   <-- green detector cannot see it
+VERDICT: KILLED by D1 (selftest head-finds-ghost) and by D2 (red run).
+Minimal killer: D1 alone (one boolean case), or D2 alone.
+
+--- M2 selftest-blindness ------------------------------------------------------
+@@ -340,7 +340,7 @@
+-    ok = all(passed for name, passed, _ in results)
++    ok = True  # M2 selftest-blindness: assert nothing
+
+D1 PASS  rc=0, "PASS", all 4 cases report ok (they are still COMPUTED; the
+         verdict just ignores them)
+D2 PASS  red rc=1, FAIL, count 3, set_ok True   (scan is untouched)
+D3 PASS  green rc=0, PASS, cited_paths 5
+D4 FAIL  stacked M2+M1: `--selftest` -> {"selftest":"PASS"} rc 0, while the
+         same file's head-finds-ghost case prints ok:false. The suite reports
+         4/4 green with an allow-all scan underneath: it has no teeth.
+VERDICT: **SURVIVED** the committed suite (D1+D2+D3 all green).
+         Killed only by the differential meta-detector D4.
+         This is a coverage finding, not a contract change.
+
+--- M3 exit-inversion ---------------------------------------------------------
+@@ -228,7 +228,7 @@
+-    return result, PASS if not findings else FAIL
++    return result, FAIL if not findings else PASS  # M3 inverted
+
+D1 FAIL  selftest rc=1; base-pass false, head-finds-ghost false,
+         landing-clears false, bad-rev-cannot ok
+D2 FAIL  red rc=0, verdict FAIL, count 3 (right JSON, wrong exit code)
+D3 FAIL  green rc=1, verdict PASS (right JSON, wrong exit code)
+VERDICT: KILLED by D1, D2 and D3. JSON carries its own verdict, so a harness
+that asserts the exit code is what kills it; a harness that parses only the
+JSON verdict would call M3 healthy.
+
+--- M4 tree-scope hole --------------------------------------------------------
+@@ -215,7 +215,8 @@
+-    findings = sorted(p for p in cited if p not in paths)
++    findings = sorted(p for p in cited if p not in paths
++                      and not p.startswith(".ufo/waves/"))  # M4 scope hole
+
+D1 FAIL  rc=1; head-finds-ghost false
+D2 FAIL  red rc=0, verdict PASS, count 0 (the exact class the gate exists for
+         is skipped: all three r61 receipts live under .ufo/waves/)
+D3 PASS  green rc=0, PASS, cited_paths 5
+VERDICT: KILLED by D1 and D2. Note D2's cited_paths stays 5 - only the finding
+filter changed - so a harness asserting cited_paths instead of finding_count
+would miss it.
+
+--- M5 batch-partial ----------------------------------------------------------
+@@ -215,7 +215,7 @@
+-    findings = sorted(p for p in cited if p not in paths)
++    findings = sorted(p for p in cited if p not in paths)[:1]  # M5 first only
+
+D1 PASS  rc=0, PASS, 4/4 (the fixture cites only ONE ghost; truncation to 1 is
+         indistinguishable from correctness there)
+D2 FAIL  red rc=1, verdict FAIL, count **1**, set_ok False
+D3 PASS  green rc=0, PASS, cited_paths 5
+naive detector: red rc==1 only -> rc 1, SURVIVES
+VERDICT: killed ONLY because D2 asserts finding_count==3 AND the exact path set.
+         Any rc-only or "FAIL happened" detector leaves it alive.
+
+===============================================================================
+3. MATRIX
+===============================================================================
+mutant                 D1 selftest  D2 red(exact)  D3 green   verdict
+M1 allow-all           FAIL         FAIL           PASS       KILLED
+M2 selftest-blind      PASS         PASS           PASS       SURVIVED (D4 only)
+M3 exit-inversion      FAIL         FAIL           FAIL       KILLED
+M4 tree-scope hole     FAIL         FAIL           PASS       KILLED
+M5 batch-partial       PASS         FAIL(count 1)  PASS       KILLED (count/set assert only)
+
+Stacked probe:
+M2+M1 (blind suite over allow-all scan)  --selftest -> PASS rc 0  => suite blind
+
+Kill tally by detector, over the 5 mutants:
+  D1 selftest          2/5   (M1, M3)  + M4 by its ghost case
+  D2 red exact         4/5   (M1, M3, M4, M5)
+  D3 green             1/5   (M3 only)
+  D3 alone on a PASS-only round report: 1/5 - the green "PASS at the final tree"
+  evidence style the round tables carry has almost no discriminating power.
+
+===============================================================================
+4. COVERAGE FINDINGS
+===============================================================================
+F1 (highest)  The suite cannot detect its own blindness. `ok = True` (M2) is a
+   one-line change that leaves D1/D2/D3 all green while removing every
+   assurance the selftest claims. No case INSIDE selftest() can close this,
+   because the mutation is downstream of `results`. The closing detector must be
+   a test-the-test: run the tool's selftest on a copy with a known-broken scan
+   and require RED. Validated patch below (P1).
+
+F2 The batch-completeness property (r62's three-findings red run) is held by an
+   out-of-band revision run only. The fixture has a single ghost, so a
+   findings-list truncation (M5) is invisible to `--selftest`. Validated patch
+   below (P2): a three-ghost case makes both the count and the set internal to
+   the suite.
+
+F3 A green-only check kills 1/5. The r59 count rule ("count the cited paths,
+   then write the count") is exactly the property M5 breaks; if the round's
+   evidence for this gate is ever reduced to "PASS 4/4 at the final tree", the
+   gate's remaining teeth are M3 only.
+
+F4 Vacuous green for the live round. At 37c74e27 `--round 65` gives
+   cited_paths 0 -> PASS, and M1 (allow-all) produces the byte-identical result
+   (count 0, cited 0, rc 0). Until this round cites a `.ufo/waves/round-65/`
+   file path in its own committed artifacts, the gate's green at the round's
+   tree is green-by-emptiness and carries zero information. This is not a
+   defect of the tool (it reports what the bytes name); it is a limit on using
+   the round's own PASS as evidence.
+
+F5 Honest limit already in the docstring: a receipt written but never cited is
+   invisible. M5 shows the mirror case - a citation SET can be under-reported
+   without any single citation being wrong, on exactly the shape (one ghost)
+   the fixture used.
+
+===============================================================================
+5. PROPOSED SELFTEST HARDENING - patch text only, NOT applied
+===============================================================================
+Both patches were built and exercised on scratch copies. Neither was applied to
+the lane tool (hash unchanged; see section 6).
+
+--- P1: close M2 (test-the-test) - new mode, validated --------------------------
+Add to main(), after the existing --selftest argument and dispatch:
+
+    ap.add_argument("--mutate-selftest", action="store_true")
+    ...
+    if args.mutate_selftest:
+        return mutate_selftest()
+
+and add before selftest():
+
+def mutate_selftest():
+    """Test-the-test: a copy whose findings loop reports nothing must make
+    --selftest go RED.  Guards the suite against silently asserting nothing
+    (a blanket `ok = True` in selftest() cannot be caught from inside it)."""
+    import shutil
+    mine = Path(__file__).read_text()
+    broken = mine.replace(
+        "    findings = sorted(p for p in cited if p not in paths)\n",
+        "    findings = []  # injected allow-all mutant\n")
+    if broken == mine:
+        print(json.dumps({"mutation_selftest": "CANNOT",
+                          "error": "mutation anchor not found"}))
+        return CANNOT
+    tmp = tempfile.mkdtemp(prefix="cited-receipts-mutant-")
+    rc = None
+    try:
+        copy = Path(tmp) / "mutant.py"
+        copy.write_text(broken)
+        proc = subprocess.run([sys.executable, str(copy), "--selftest"],
+                              stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE, env=clean_env(), timeout=300)
+        rc = proc.returncode
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    killed = rc != 0
+    print(json.dumps({"mutation_selftest": "PASS" if killed else "FAIL",
+                      "mutant_exit": rc}, indent=1))
+    return PASS if killed else FAIL
+
+Measured on the patched copies:
+  pristine + P1   --mutate-selftest -> {"mutation_selftest":"PASS","mutant_exit":1} rc 0
+  M2      + P1   --mutate-selftest -> {"mutation_selftest":"FAIL","mutant_exit":0} rc 1
+  M3      + P1   --mutate-selftest -> PASS rc 0 (exit inversion is killed by the
+                  injected mutant independently of D1)
+  M1/M4/M5 + P1  --mutate-selftest -> CANNOT (anchor line reshaped by those
+                  mutants; fails closed, never a false PASS)
+Limit of P1: the anchor is a literal line; if the findings line changes shape the
+mode reports CANNOT, which is honest but must be re-anchored by whoever edits it.
+
+--- P2: close M5 (batch completeness) - new case, validated --------------------
+Insert into selftest() after the landing-clears append:
+
+        # Case 5: batch completeness - three ghosts cited, three reported.
+        multi = root / ".ufo/waves/round-62/after/multi-ghost.md"
+        multi.write_bytes(("three missing: `.ufo/waves/round-62/receipts/g1.txt` "
+                           "`.ufo/waves/round-62/receipts/g2.txt` "
+                           "`.ufo/waves/round-62/receipts/g3.txt`\n").encode())
+        _git_in(root, "add", "-f", str(multi.relative_to(root)))
+        _git_in(root, "commit", "-q", "-m", "three ghosts")
+        multi_rev = _git_in(root, "rev-parse", "HEAD").stdout.decode().strip()
+        r5, v5 = scan(multi_rev, str(root), 62)
+        got5 = sorted(f["path"] for f in r5["findings"])
+        results.append(("batch-complete", v5 == FAIL and r5["finding_count"] == 3
+                        and got5 == [".ufo/waves/round-62/receipts/g1.txt",
+                                     ".ufo/waves/round-62/receipts/g2.txt",
+                                     ".ufo/waves/round-62/receipts/g3.txt"], r5))
+
+Measured on the patched copies:
+  pristine + P2   --selftest -> "PASS", 5 cases, batch-complete ok:true  rc 0
+  M5      + P2   --selftest -> "FAIL", 5 cases, batch-complete ok:false rc 1
+  (case 3 lands ghost.txt before case 5 runs, so the three g*.txt ghosts are the
+   only findings at multi_rev - count 3 is exact, not incidental)
+
+Neither patch touches scan()'s semantics; both are additive. P2 raises the suite
+from 4 to 5 cases, so any landing table citing "PASS 4 cases" must move to 5.
+
+===============================================================================
+6. RESTORATION / NON-PERTURBATION EVIDENCE
+===============================================================================
+  lane tool sha256 before battery : 04e9703d5c57909303df930c39ca610c2212af54c87cc0ef5d0bd998f4fdadba
+  lane tool sha256 after  battery : 04e9703d5c57909303df930c39ca610c2212af54c87cc0ef5d0bd998f4fdadba
+  scratch work.py sha256          : identical (byte copy; used as the diff base)
+  mutants: 5 files, each one mutation, never executed from the lane tree.
+  no lane file was written outside
+    .ufo/waves/round-65/w1-artifacts/M1/ and .ufo/waves/round-65/w1/seats/
+  lane git status: only pre-existing entries (M tools/tsukuroi-census.sh and the
+    round-65 untracked wave dirs of other seats); this seat added no tracked-path
+    mutation and ran no mutating git command.
+  scratch /fast/scratch/hyaku/tsukuroi-r65/M1MutBattery removed after this file
+    was copied out.
+
+Reproduce:
+  S=/fast/scratch/hyaku/tsukuroi-r65/M1MutBattery; mkdir -p $S; cd $S
+  cp <lane>/tools/check-cited-receipts-r62.py work.py
+  # apply the five one-line mutations above (each must match exactly once)
+  for f in work.py mut-*.py; do python3 $f --selftest; echo rc=$?; done
+  python3 work.py --lane <lane> --revision bcf1af18 --round 61; echo rc=$?
+  python3 work.py --lane <lane> --revision 37c74e27 --round 61; echo rc=$?

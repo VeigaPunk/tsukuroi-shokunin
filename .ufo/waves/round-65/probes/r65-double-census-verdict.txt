@@ -1,0 +1,75 @@
+r65-double-census-verdict — H: 'the INITRAMFS arm's live line counts equal an independent
+census of the same directories computed with find/awk (double-entry)'
+seat=L1DoubleCensus host=plazir27 utc=2026-11-03T19:49:32Z lane HEAD=37c74e27
+ground receipt: .ufo/waves/round-65/probes/r65-double-census-ground.txt (computed first, without
+reading the census counts). Live evidence captured after the ground receipt was frozen.
+
+[WIRING CHECK — arm present]
+$ grep -c INITRAMFS tsukuroi-shokunin/tools/tsukuroi-census.sh
+22
+$ grep -n 'INITRAMFS' tools/tsukuroi-census.sh
+415 (header contract) ; 647 (header doc) ; 2175-2176 (INITRAMFS_LINE assignment + detail) ;
+3821,3825,3830,3838,3844,3850,3856 (selftest expected lines) ; 3861,3884-3899 (selftest A/B) ;
+4049 (print site)
+(Before control, before/absence-controls-receipt.txt at base HEAD 1bd8e196:
+ grep -c INITRAMFS -> 0. So the label went 0 -> 22 in this round.)
+
+[LIVE RUN 1 — pipeline form named by the seat]
+$ bash tools/tsukuroi-census.sh 2>/dev/null | grep '^INITRAMFS ' ; echo pipeline_rc=$?
+INITRAMFS initramfs-plane mkinitcpio-conf=PRESENT conf_d=4 hooks=12 newroot_latehooks=2 presets=0 ukify=ABSENT unreadable=0
+pipeline_rc=0
+=> exactly one INITRAMFS line; stderr empty.
+
+[LIVE RUN 2 — exit code and determinism]
+$ bash tools/tsukuroi-census.sh > run2.txt 2> run2.err ; echo census_rc=$?
+census_rc=1
+$ grep '^INITRAMFS ' run2.txt ; wc -l run2.txt ; wc -c run2.err
+INITRAMFS initramfs-plane mkinitcpio-conf=PRESENT conf_d=4 hooks=12 newroot_latehooks=2 presets=0 ukify=ABSENT unreadable=0
+14 run2.txt
+0 run2.err
+=> rc 1 = DEGRADED rollup (line 14 lists six DEGRADED planes: packages/systemd/drivers/
+journal/update-safety/oom); zero-byte stderr; the INITRAMFS line appears exactly once, on
+stdout line 13, after SCRUB (line 12) and before the rollup (line 14). Identical to run 1.
+
+[DOUBLE-ENTRY COMPARISON — field by field]
+field              | independent ground (stat/find/grep/command -v)      | live line | verdict
+mkinitcpio-conf    | PRESENT (regular, readable, 3357 B, 644 root:root)   | PRESENT   | held
+conf_d             | 4  (find -mindepth 1 -maxdepth 1 = 4 regular files)  | 4         | held
+hooks              | 12 (find -maxdepth 1 -type f = 12)                   | 12        | held
+newroot_latehooks  | 2  (grep -ls '/new_root' = btrfs-overlayfs,plymouth) | 2         | held
+presets            | 0  (/etc/mkinitcpio.d exists and is empty)           | 0         | held
+ukify              | ABSENT (command -v ukify rc=1, no output)            | ABSENT    | held
+unreadable         | 0  (0 unreadable conf/drop-ins/hooks, dirs r+x)      | 0         | held
+
+VERDICT: H HELD. All seven fields of the live INITRAMFS line equal the independent census
+computed before the line was read. No count mismatch exists on this host; the hypothesis is
+not refuted by any field. Zero-byte stderr means no seam warnings leaked past the line.
+
+[BOUNDARY / SEMANTIC NOTE — method difference, no current divergence]
+The arm counts drop-in entries with the shell glob "$dir"/* (probe_initramfs_arm, lines
+2111-2117/2126-2132), which by shell semantics skips dotfiles; the ground used
+find -mindepth 1, which includes them. Measured hidden entries: conf.d=0, mkinitcpio.d=0,
+hooks=0, so the two methods agree exactly on this host. Risk only: a future dotfile drop-in
+(e.g. .nvidia.conf) would be invisible to the arm but visible to find-based consumers. Not a
+defect on current evidence; the arm's contract is name+stat over visible entries.
+
+[VERDICT-NEUTRALITY — static corroboration (E2's structural claim, not re-tested)]
+$ grep -n 'INITRAMFS_LINE' tools/tsukuroi-census.sh
+2175 assignment ; 2176 detail append ; 4049 print
+=> INITRAMFS_LINE is never read by `worse`, the rollup printf or the exit-map case (print at
+4049 occurs before `local roll=HEALTHY` at 4053 and before the rollup printf). Live run shows
+the rollup parenthetical naming exactly the six plane ids, no initramfs term. Pre-arm baseline
+receipt (.ufo/waves/round-65/before/live-census-baseline-prearm.txt, run 2026-11-03T19:39:34Z)
+shows: 13 stdout lines (header lines 3-15), `grep -c '^INITRAMFS '` = 0, `census-rc=1`.
+Post-arm: 14 stdout lines, exactly one INITRAMFS line, rc=1. Delta = +1 line, exit code and
+rollup text unchanged => neutrality corroborated by observed before/after, not inference.
+
+[OPERABILITY NOTES]
+- Census wall time: ~4.1 s per run (two runs: 4.13 s, 4.05 s), stdout 14 lines, stderr
+  0 bytes. Pre-arm baseline: 13 stdout lines, rc1 (before/live-census-baseline-prearm.txt),
+  so the arm adds exactly one line and no stderr. All other line shapes (PLANE x6, HANDOFF x2,
+  DRIFT, STORAGE, SCRUB, rollup) are present in the same order.
+- The arm is read-only: it stats paths and never opens /etc/mkinitcpio.conf (code comment
+  2106-2107) and never runs mkinitcpio.
+- No scratch residue: all temp files lived under
+  /fast/scratch/hyaku/tsukuroi-r65/L1DoubleCensus/ and were removed after this receipt.

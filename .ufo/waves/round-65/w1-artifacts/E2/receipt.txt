@@ -1,0 +1,54 @@
+# E2InitramfsArm — run receipt (round 65, wave w1, claim C2)
+# every command below is either read-only or inside the seat's write scope; no sudo, no pacman,
+# no network, no mutating git/jj, no tool installs, no host-config edit.
+
+# ---- red-before (lane repo, HEAD 37c74e27) -------------------------------------------
+git -C <lane> rev-parse --short HEAD                                  -> rc0, 37c74e27
+grep -c INITRAMFS tools/tsukuroi-census.sh                            -> rc1, prints 0 (no match)
+
+# ---- scratch clone (one --shared clone, scratch-only) --------------------------------
+git clone --shared --no-checkout <lane> lane                         -> rc0
+git rev-parse --show-toplevel                                        -> rc0, /fast/scratch/.../lane
+git checkout -q 37c74e27                                             -> rc0
+sha256sum <lane>/tools/tsukuroi-census.sh <scratch>/lane/tools/...   -> rc0, equal (aeda2cbc...)
+
+# ---- implement + verify in the clone -------------------------------------------------
+bash -n tools/tsukuroi-census.sh                                     -> rc0 (SYNTAX-OK)
+TMPDIR=<scratch>/tmp bash tools/tsukuroi-census.sh --selftest        -> rc0
+    TSUKUROI_CENSUS_SELFTEST: PASS (177 cases, 177 passed, 0 failed)     (before: 168)
+bash tools/tsukuroi-census.sh                                         -> rc1, one INITRAMFS line
+git diff -U3 -- tools/tsukuroi-census.sh                              -> rc0, 279 insertions, 34 deletions
+
+# ---- atomic install into the lane repo ----------------------------------------------
+install -m 755 <scratch>/lane/tools/tsukuroi-census.sh tools/.tsukuroi-census.sh.E2.tmp -> rc0
+mv -f tools/.tsukuroi-census.sh.E2.tmp tools/tsukuroi-census.sh       -> rc0 (single rename)
+sha256sum <lane>/tools/tsukuroi-census.sh <scratch copy>             -> one unique hash (identical)
+stat -c '%a %s' tools/tsukuroi-census.sh                             -> mode=755 size=237634
+bash -n tools/tsukuroi-census.sh                                     -> rc0
+git diff -U3 -- tools/tsukuroi-census.sh | cmp - <scratch>/patch.diff -> rc0 (byte-identical)
+
+# ---- after-state verification on the real file --------------------------------------
+TMPDIR=<scratch>/tmp bash tools/tsukuroi-census.sh --selftest        -> rc0
+    TSUKUROI_CENSUS_SELFTEST: PASS (177 cases, 177 passed, 0 failed)     (>= 174 required)
+    R65-C2 cases: 9 (7 check + 2 ok), all PASS
+bash tools/tsukuroi-census.sh                                         -> rc1
+    grep -c '^INITRAMFS ' = 1
+    INITRAMFS initramfs-plane mkinitcpio-conf=PRESENT conf_d=4 hooks=12 newroot_latehooks=2 presets=0 ukify=ABSENT unreadable=0
+    TSUKUROI_CENSUS: DEGRADED (six planes, identical to the pre-arm baseline receipt)
+TMPDIR="<scratch>/dirty tmpdir" bash tools/tsukuroi-census.sh --selftest -> rc0, 177/177
+    (R47-C2/R48-C2 no-/tmp contract still holds with the new cases)
+shellcheck -S error tools/tsukuroi-census.sh                          -> rc0 (clean; installed already)
+
+# ---- read-only host probes used to ground the live values ----------------------------
+ls -ld /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d /usr/lib/initcpio/hooks /etc/mkinitcpio.d -> rc0
+ls -1 /etc/mkinitcpio.conf.d                                          -> rc0, 4 entries
+ls -1A /etc/mkinitcpio.d | wc -l                                      -> rc0, 0 (empty dir)
+ls -1A /usr/lib/initcpio/hooks | wc -l                                -> rc0, 12
+grep -lF /new_root /usr/lib/initcpio/hooks/*                          -> rc0, btrfs-overlayfs, plymouth
+command -v ukify                                                      -> rc1 (absent)
+
+# ---- battery tallies ----------------------------------------------------------------
+selftest: 168 -> 177 cases (9 new, all counted: 7 `check` + 2 `ok`), 177 passed 0 failed
+grep -c INITRAMFS tools/tsukuroi-census.sh: 0 -> 22
+live: exactly one INITRAMFS line; DRIFT / STORAGE / SCRUB / TSUKUROI_CENSUS lines byte-identical
+to .ufo/waves/round-65/before/live-census-baseline-prearm.txt; rc 1 -> 1

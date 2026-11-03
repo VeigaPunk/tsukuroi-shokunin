@@ -1,0 +1,63 @@
+# S1Scribe independent re-open receipt — S282 (systemd v262 release notes) — 2026-11-03
+# Seat: S1Scribe (scribe), round 65, wave w1. Read-only; scratch removed after copy.
+
+-- 1. live re-open of the declared URL
+$ curl -sS -o s282-reopen.json -w 'HTTP=%{http_code} BYTES=%{size_download}\n' \
+    'https://api.github.com/repos/systemd/systemd/releases/tags/v262'
+HTTP=200 BYTES=55194
+curl rc=0
+$ sha256sum s282-reopen.json
+008e1265088e4a8b11f749cb646789fb805a5d82c23dc8996588a85c9babce0b  s282-reopen.json
+-- comparison with the L1's pre-declaration capture
+$ sha256sum .ufo/waves/round-65/before/s282-v262-release.json
+008e1265088e4a8b11f749cb646789fb805a5d82c23dc8996588a85c9babce0b  .ufo/waves/round-65/before/s282-v262-release.json
+== byte-identical to the L1 capture (raw sha256 equal) ==
+-- parsed fields of the live re-open
+tag_name=v262  name="systemd v262"  published_at=2026-09-22T13:19:16Z
+-- body capture sha256 (for the .md copy)
+cb2d1416920dd3210e43acf455027c1fcbb4265d600a8272f024239f32e346fc  .ufo/waves/round-65/before/s282-v262-body.md
+
+-- 2. quote location + word count
+$ grep -n "Changes in the TPM Subsystem" s282-v262-body.md
+437:##         Changes in the TPM Subsystem:
+$ grep -n "must also embed a signed PCR policy" s282-v262-body.md
+444:          shipped in the UKI. The UKI must also embed a signed PCR policy that
+$ printf '%s' 'The UKI must also embed a signed PCR policy that is bound to the initrd boot phase and with the "initrd" policy reference.' | wc -w
+23
+-- verdict: 23 words <= 25 (CORPUS.md SOURCES Rule 1 cap) --
+
+-- 3. v262.1 tag (why the anchor names the v262 body)
+$ curl -sS -o v2621.json -w 'HTTP=%{http_code} BYTES=%{size_download}\n' \
+    'https://api.github.com/repos/systemd/systemd/releases/tags/v262.1'
+HTTP=200 BYTES=2228
+tag_name=v262.1  name="systemd-stable v262.1"  body_len=76
+body: '**Full Changelog**: https://github.com/systemd/systemd/compare/v262...v262.1'
+-- verdict: v262.1 carries a 76-char changelog pointer only, no release notes;
+--    the S282 anchor must name the v262 body. --
+
+-- 4. S279 cross-check (live re-open of the r64 row)
+$ curl -sS -o mk42.json -w 'HTTP=%{http_code} BYTES=%{size_download}\n' \
+    'https://gitlab.archlinux.org/api/v4/projects/archlinux%2Fmkinitcpio%2Fmkinitcpio/releases/v42.2'
+HTTP=200 BYTES=3905
+$ sha256sum mk42.json
+9ebec7b1c8a1fdccd246282fd868e36acbcc1805917d564b41a0a946516c0bc2  mk42.json
+-- byte-identical to the r64 capture sha256 (9ebec7b1...) --
+released_at=2026-10-01T07:10:00.872Z
+present verbatim in description:
+  systemd-tpm2-setup-early.service  True
+  systemd-pcrnvdone.service        True
+  PCR policy                       True
+  ukify                            True
+  measure a separator into PCR 9   True
+-- verdict: the r64 Gate's S279 sentences are still present verbatim. --
+
+-- 5. scribe's independent census re-run (read-only, lane untouched)
+$ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi
+rc=0
+W04 count: 44
+E-code count: 0
+rows (manual census, CORPUS.md frozen command):
+$ grep -cE '^\|[[:space:]]*S[0-9]{3,}[[:space:]]*\|' corpus/SOURCES.md
+281
+malformed rows (NF!=13): 0
+duplicate ids: (none printed)

@@ -1,0 +1,80 @@
+# probe: /usr/lib/nvpcr/
+# utc: 2026-11-03T19:39:10Z
+--- test -d /usr/lib/nvpcr ---
+exists
+--- ls -la /usr/lib/nvpcr ---
+total 16
+drwxr-xr-x 1 root root    106 Oct 29 03:45 .
+drwxr-xr-x 1 root root 260090 Nov  2 14:47 ..
+-rw-r--r-- 1 root root    106 Oct 17 05:46 cryptsetup.nvpcr
+-rw-r--r-- 1 root root    127 Oct 17 05:46 hardware.nvpcr
+-rw-r--r-- 1 root root    101 Oct 17 05:46 login.nvpcr
+-rw-r--r-- 1 root root    102 Oct 17 05:46 verity.nvpcr
+--- rc: 0 ---
+--- count *.nvpcr ---
+4
+--- rc: 0 ---
+--- files ---
+/usr/lib/nvpcr/cryptsetup.nvpcr
+/usr/lib/nvpcr/hardware.nvpcr
+/usr/lib/nvpcr/login.nvpcr
+/usr/lib/nvpcr/verity.nvpcr
+--- rc: 0 ---
+
+# --- supplementary: ownership proof (pacman -Qo) ---
+/usr/lib/nvpcr/cryptsetup.nvpcr is owned by systemd 262.1-1
+/usr/lib/nvpcr/hardware.nvpcr is owned by systemd 262.1-1
+/usr/lib/nvpcr/login.nvpcr is owned by systemd 262.1-1
+/usr/lib/nvpcr/verity.nvpcr is owned by systemd 262.1-1
+rc=0
+# --- supplementary: full file bytes (plain-text defs, 101-127 B; no secrets in this format) ---
+=== /usr/lib/nvpcr/cryptsetup.nvpcr (106 B) ===
+{
+    "name" : "cryptsetup",
+    "algorithm" : "sha256",
+    "nvIndex" : 30474753,
+    "priority" : 700
+}
+=== rc=0 ===
+=== /usr/lib/nvpcr/hardware.nvpcr (127 B) ===
+{
+    "name" : "hardware",
+    "algorithm" : "sha256",
+    "nvIndex" : 30474752,
+    "priority" : 500,
+    "orderly" : false
+}
+=== rc=0 ===
+=== /usr/lib/nvpcr/login.nvpcr (101 B) ===
+{
+    "name" : "login",
+    "algorithm" : "sha256",
+    "nvIndex" : 30474755,
+    "priority" : 800
+}
+=== rc=0 ===
+=== /usr/lib/nvpcr/verity.nvpcr (102 B) ===
+{
+    "name" : "verity",
+    "algorithm" : "sha256",
+    "nvIndex" : 30474754,
+    "priority" : 300
+}
+=== rc=0 ===
+# --- supplementary: ls /usr/lib/pcrlock.d/ ---
+total 40
+drwxr-xr-x 1 root root    612 Oct 29 03:45 .
+drwxr-xr-x 1 root root 260090 Nov  2 14:47 ..
+-rw-r--r-- 1 root root    494 Oct 17 05:46 350-action-efi-application.pcrlock
+drwxr-xr-x 1 root root     88 Oct 29 03:45 400-secureboot-separator.pcrlock.d
+drwxr-xr-x 1 root root     88 Oct 29 03:45 500-separator.pcrlock.d
+drwxr-xr-x 1 root root     74 Oct 29 03:45 700-action-efi-exit-boot-services.pcrlock.d
+-rw-r--r-- 1 root root    495 Oct 17 05:46 750-enter-initrd.pcrlock
+-rw-r--r-- 1 root root   5777 Oct 17 05:46 750-os-separator.pcrlock
+-rw-r--r-- 1 root root    494 Oct 17 05:46 770-nvpcr-separator.pcrlock
+-rw-r--r-- 1 root root    495 Oct 17 05:46 800-leave-initrd.pcrlock
+-rw-r--r-- 1 root root    495 Oct 17 05:46 850-sysinit.pcrlock
+-rw-r--r-- 1 root root    495 Oct 17 05:46 900-ready.pcrlock
+-rw-r--r-- 1 root root    495 Oct 17 05:46 950-shutdown.pcrlock
+-rw-r--r-- 1 root root    495 Oct 17 05:46 990-final.pcrlock
+rc=0
