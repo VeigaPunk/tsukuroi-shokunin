@@ -5158,3 +5158,26 @@ The saturation nudge requires all axes saturated, which is false (depth/adjacenc
 | Capability | What it can now do | Evidence pointer | First-working round |
 |---|---|---|---|
 | knowledge-source-ref-gate | Resolves operative source-line S-ids against the same-revision registry; fails dangling references and ignores fenced registry examples | `python3 tools/check-knowledge-refs-r68.py --selftest` PASS 21/21; live base 85 notes/285 ids/0 findings; S999 header PASS/new-gate FAIL in round-68 probes and integration receipts | round 68 |
+
+## Round 68 — measured outcome (2026-11-03, revision `a5fc44a7`)
+
+Declaration `3f6edcc9`; wave w1 settled (WAVE-DONE received), twelve seats, no
+reported dead seat; planner held by L1. Role counts: scout2/executor2/scribe2/
+connector1/reviewer2/critic1/mutation-tester1/sentinel1; attack 4/12, residual0.
+
+| Claim | Before → after | Verdict |
+|---|---|---|
+| C1 depth | Base `42400ec6` note absent rc128, SOURCES285; `a5fc44a7` note present, RW6, SOURCES287, S286/S287 adjacent after S285, NF13/13. Strict counter RW_ROWS=6. Eight source digest pairs match; new-row quotes 11/7 words. But the frozen outside-memory conjunct is false: one memory.pressure hunk is inside Memory. | **not verified**, frozen conjunct falsified; no predicate replacement |
+| C2 operability / capability | Tool absent → executable gate; selftest21/21 rc0; S999 header PASS/new-gate FAIL. At `a5fc44a7`, gate PASS86 notes/254 refs/287 registry ids/0 findings. | **improved**, author-verified |
+
+Counting commands and digested receipts: `.ufo/waves/round-68/after/`.
+`python3 tools/run-receipt.py --revision a5fc44a7 --out <receipt> -- <tool>
+--revision a5fc44a7` ran refs, header and registry gates: all rc0; refs-selftest
+receipt records21/21. `python3 .ufo/waves/round-68/drafts/c1/count-rw-r68.py
+corpus/knowledge/linux-v73-pinwatch-r68.md` → RW_ROWS=6, LAYOUT=8.
+Canonical census validate rc0, W04=45, rows287; line-ending guard PASS344/0.
+No SHONEN promotion. Ordinals unchanged: depth8, adjacency8, remaining four9.
+Expansion improved; quality improved; discernment unchanged (lesson).
+Round not admitted author-side because C1 is not verified; operator/closure rules.
+Planned: freeze a content-sensitive counter before data, carry S243's stable
+watch and R66 AR resolution debt; never alter this round's frozen predicate.
