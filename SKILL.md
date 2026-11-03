@@ -5747,3 +5747,9 @@ overrides `TSUKUROI_KERNEL_{OSRELEASE,MODULES,TAINTED}`; one `pacman -Qo` on the
 no ioctl, no dmesg/journal read, no privilege, never a rollup or exit-code term). The census selftest
 grows 177 → 192 cases. The registry gains one row for `tools/count-kr-rows-r69.py` (the C1 counter);
 the arm itself lives inside the registered `tsukuroi-census` gate.
+
+Round-69 C2 correction (append-only, after critic K1 A5): the `KERNEL` line's `pending` is not one
+string rewrite. It is a candidate set — the owning package's version, every single-dot rewrite of it,
+and `<version>-lts` for an `-lts` package — so `linux 7.2.11.arch1-1` → `7.2.11-arch1-1` and
+`linux-lts 6.18.57-2` → `6.18.57-2-lts` both read `pending=NO` for their own running release, while a
+newer installed kernel reads `pending=YES`. The arm's selftest carries both shapes (194 cases).

@@ -122,3 +122,15 @@ untouched.
   `corpus/knowledge/kernel-taint-plane-r69.md`.
 - **S289** — Linux v7.2.11 stable `include/linux/vermagic.h`, opened 2026-11-03, kind `code`, tier A,
   `mined`; used by `corpus/knowledge/kernel-taint-plane-r69.md`.
+
+- **R69-PENDING-DERIVATION-UNDERSPECIFIED** — class `underspecified-field` · evidence: the declaration
+  froze only the grammar `pending=NO|YES|UNKNOWN`; the derivation lived in the wave item, and the arm
+  first implemented one dot→dash rewrite. Critic K1 A5 ran the arm on the host's installed LTS pair
+  (`release=6.18.57-2-lts`, `pkg=linux-lts pkgver=6.18.57-2`) and read `pending=YES`, which is false;
+  `grep -c 'pending=YES'` in the arm was 0, so no case exercised the positive branch
+  (`probes/K1Critic/critique.md` A5) · captured-by: nothing — the frozen predicate names field
+  presence and order, not field semantics · fix: the derivation became a candidate set (version,
+  every single-dot rewrite, `<version>-lts`), the selftest gained an LTS `pending=NO` case and a
+  `pending=YES` case (192 → 194), and the live line was re-measured unchanged
+  (`.ufo/waves/round-69/after/{selftest-repair.txt,census-live-postrepair.txt}`). This is a defect
+  fix inside the frozen grammar, not a predicate change.

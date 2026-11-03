@@ -472,9 +472,10 @@
 # outside the closed table and reads taint_bits=UNKNOWN with detail
 # tainted:bits-outside-closed-table — the raw integer still prints in tainted=, so nothing is
 # dropped, it is only not decoded.
-# pending: pkgver's last `.` replaced by `-` (7.2.11.arch1-1 -> 7.2.11-arch1-1) compared to
-# release — NO on equality, YES on difference, UNKNOWN when pkg or release is unknown or pkgver
-# carries no arch dot.
+# pending: is the running release one this package version can produce? Candidates are pkgver
+# itself, every single-dot rewrite of pkgver (7.2.11.arch1-1 -> 7.2.11-arch1-1), and `${pkgver}-lts`
+# for an -lts package (6.18.57-2 -> 6.18.57-2-lts); NO when one equals release, YES when none does
+# (an upgrade is installed and not booted), UNKNOWN when pkg, pkgver or release is unknown.
 # unreadable: existing inputs the caller cannot read, once per encounter (osrelease / modules /
 # tainted). detail repeats no token; its order is the field order above.
 # No module, ioctl, dmesg or journal read, no privilege, no network, no write: the arm reads two
@@ -2330,15 +2331,25 @@ probe_kernel_arm() {
         ;;
     esac
   fi
-  # pending: pkgver's last `.` replaced by `-`, compared to release
-  if [ "$pkg" != UNKNOWN ] && [ "$release" != UNKNOWN ]; then
-    case $pkgver in
-      *.*)
-        mapped="${pkgver%.*}-${pkgver##*.}"
-        if [ "$mapped" = "$release" ]; then pend=NO; else pend=YES; fi
-        ;;
-      *) pend=UNKNOWN ;;
+  # pending: is the running release one this package version can produce? Arch versions carry a
+  # flavour component after a dot (7.2.11.arch1-1 -> 7.2.11-arch1-1); an -lts package carries no
+  # such component and its tree name appends -lts (6.18.57-2 -> 6.18.57-2-lts). Every single-dot
+  # rewrite, the identity and the -lts suffix are candidates; NO when one equals the release, YES
+  # when none does (an upgrade is installed and not booted), UNKNOWN without pkg or release.
+  if [ "$pkg" != UNKNOWN ] && [ "$release" != UNKNOWN ] && [ "$pkgver" != UNKNOWN ]; then
+    pend=YES
+    case $pkg in
+      *-lts) if [ "${pkgver}-lts" = "$release" ]; then pend=NO; fi ;;
     esac
+    [ "$pkgver" = "$release" ] && pend=NO
+    if [ "$pend" = YES ]; then
+      pfx=''; rest=$pkgver
+      while case $rest in *.*) true ;; *) false ;; esac; do
+        head=${rest%%.*}; tail=${rest#*.}
+        if [ "${pfx}${head}-${tail}" = "$release" ]; then pend=NO; break; fi
+        pfx="${pfx}${head}."; rest=$tail
+      done
+    fi
   fi
   KERNEL_LINE="KERNEL kernel-plane release=$release pkg=$pkg pkgver=$pkgver modules_tree=$mts tainted=$taint taint_bits=$bits pending=$pend unreadable=$unr"
   if [ -n "$detail" ]; then KERNEL_LINE+=" detail=${detail%,}"; fi
@@ -4117,6 +4128,17 @@ STUB
   check 'healthy: a bit above the closed table reads UNKNOWN while the raw value stays printed (R69-C2)' 0 HEALTHY \
     '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=1048576 taint_bits=UNKNOWN pending=NO unreadable=0 detail=tainted:bits-outside-closed-table$' \
     ABSENT:'^KERNEL .*taint_bits=O,'
+
+  case_home='kernel-lts-release'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '6.18.57-2-lts\n' > "$FX/kernel-osrelease"
+  printf '/modules-tree is owned by linux-lts 6.18.57-2\n' > "$FX/qo"
+  check 'healthy: an -lts tree name is the package version plus -lts, so the same build reads pending=NO (R69-C2)' 0 HEALTHY \
+    '^KERNEL kernel-plane release=6\.18\.57-2-lts pkg=linux-lts pkgver=6\.18\.57-2 modules_tree=PRESENT tainted=0 taint_bits=none pending=NO unreadable=0$'
+
+  case_home='kernel-pending-yes'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '/modules-tree is owned by linux 7.2.12.arch1-1\n' > "$FX/qo"
+  check 'healthy: a newer installed kernel than the running release reads pending=YES (the positive branch) (R69-C2)' 0 HEALTHY \
+    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.12\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=YES unreadable=0$'
 
   case_home='kernel-modtree-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
   rm -rf "$FX/modtree"

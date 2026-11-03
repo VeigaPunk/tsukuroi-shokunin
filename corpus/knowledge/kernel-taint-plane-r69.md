@@ -104,3 +104,14 @@ pending. Both trees are owned by installed packages; the non-running tree is a s
 - Binding: `/usr/lib/modules/$(uname -r)` being absent or owned by a package other than
   `linux`/`linux-headers`, or `pacman -Q linux` mapping to a release different from `uname -r`,
   would flip `pending` to YES.
+
+## Erratum (2026-11-03, round 69) — the pending transform also covers an `-lts` package
+
+Append-only; the Reading paragraph stays as written. Its transform (replace the dot before the arch
+component) is the `linux` package's rule; an `-lts` package's tree name appends `-lts`
+(`linux-lts 6.18.57-2` → tree `6.18.57-2-lts`), so the same-build test is not one string rewrite but
+a candidate set: the package version itself, every single-dot rewrite of it, and `version-lts` for an
+`-lts` package. The census arm implements that set (critic K1 A5 measured that the single-rewrite
+rule read `pending=YES` on the installed LTS pair, which is false; the repaired arm reads
+`pending=NO` there, `.ufo/waves/round-69/after/census-live-postrepair.txt`). The running tree's
+`pending=NO` is unchanged.

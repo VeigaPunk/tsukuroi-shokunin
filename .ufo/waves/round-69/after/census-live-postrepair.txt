@@ -1,0 +1,36 @@
++ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-11-03T23:34:19Z
++ echo '$ bash tools/tsukuroi-census.sh  (live)'
+$ bash tools/tsukuroi-census.sh  (live)
++ echo rc=1
+rc=1
++ grep '^KERNEL kernel-plane' /fast/scratch/hyaku/tsukuroi-r69/l1/ctl/live.out
+KERNEL kernel-plane release=7.2.11-arch1-1 pkg=linux pkgver=7.2.11.arch1-1 modules_tree=PRESENT tainted=12288 taint_bits=O,E pending=NO unreadable=0 detail=qo:multi-owner
++ echo '$ live KERNEL line count'
+$ live KERNEL line count
++ grep -c '^KERNEL kernel-plane' /fast/scratch/hyaku/tsukuroi-r69/l1/ctl/live.out
+1
++ echo '$ LTS control: release=6.18.57-2-lts, modules=/usr/lib/modules/6.18.57-2-lts'
+$ LTS control: release=6.18.57-2-lts, modules=/usr/lib/modules/6.18.57-2-lts
+++ grep '^KERNEL kernel-plane'
+KERNEL kernel-plane release=6.18.57-2-lts pkg=linux-lts pkgver=6.18.57-2 modules_tree=PRESENT tainted=12288 taint_bits=O,E pending=NO unreadable=0 detail=qo:multi-owner
++ echo '$ neutrality diff vs pre-arm baseline (lines other than the KERNEL line)'
+$ neutrality diff vs pre-arm baseline (lines other than the KERNEL line)
+++ diff /dev/fd/63 /dev/fd/62
++++ sed '1d;$d' .ufo/waves/round-69/before/census-live-baseline.txt
+++ grep -v '^[0-9,]*\(a\|d\|c\)[0-9,]*$'
++++ sed '1d;$d' /fast/scratch/hyaku/tsukuroi-r69/l1/ctl/live.out
+++ grep -v '^> KERNEL kernel-plane'
+++ head -12
+< 2026-11-03T23:19:19Z
+< + bash tools/tsukuroi-census.sh
+< tsukuroi-census census-v2 — host=plazir27 — 2026-11-03T23:19:19Z — read-only
+---
+> tsukuroi-census census-v2 — host=plazir27 — 2026-11-03T23:34:19Z — read-only
+< PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=100 (oom=0 io=95 gpu=0 other=5) [unknown: accepted noise floor]; nvidia=present smi=615.78.08 modules=4 nodes=6 pci_10de=2; mem=[DEGRADED] C1_kernel_oom=0 C2_sysd_oom=5 C3_sigkill=25; C4_sweep=218 C4_present=4[user.slice,user.slice/user-1000.slice,user.slice/user-1000.slice/user@1000.service/app.slice] C4_local=0; C5_swap_fail=22847614 C5_swap_peak_pct=99% C5_pswp=37686344/73992508 C5_sock_throttled=271730; C6_psi_some_avg300=0.54 C6_psi_full_avg300=0.54 C6_psi_full_total_us=653307766 C6_avail_kb=23792648 C6_shmem_kb=4628; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)
+< PLANE journal: DEGRADED (boots=3 current=yes target=graphical.target:active err=5389 (coredump=57 kernel=100 other=5232); failedhist=5231[ai-usage.service,app.slice,comfyui.service,init.scope,-.slice,user@1000.service]; timers_enabled=2 timers_scanned=2 armed=2 timer_drift=0 timer_unknown=0)
+---
+> PLANE drivers: DEGRADED (ring=journalctl-k dmesg_restrict=1 kerr=100 (oom=0 io=95 gpu=0 other=5) [unknown: accepted noise floor]; nvidia=present smi=615.78.08 modules=4 nodes=6 pci_10de=2; mem=[DEGRADED] C1_kernel_oom=0 C2_sysd_oom=5 C3_sigkill=25; C4_sweep=228 C4_present=4[user.slice,user.slice/user-1000.slice,user.slice/user-1000.slice/user@1000.service/app.slice] C4_local=0; C5_swap_fail=22847626 C5_swap_peak_pct=99% C5_pswp=37728318/74097658 C5_sock_throttled=281496; C6_psi_some_avg300=3.79 C6_psi_full_avg300=3.78 C6_psi_full_total_us=674627484 C6_avail_kb=22656856 C6_shmem_kb=3188; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md §8)
+> PLANE journal: DEGRADED (boots=3 current=yes target=graphical.target:active err=5441 (coredump=109 kernel=100 other=5232); failedhist=5231[ai-usage.service,app.slice,comfyui.service,init.scope,-.slice,user@1000.service]; timers_enabled=2 timers_scanned=2 armed=2 timer_drift=0 timer_unknown=0)
+< HANDOFF ADJ-04 mori class=coredumps value=57 kind=dated-event state=prepared scope=boot0-merged selector=SYSLOG_IDENTIFIER
+---
