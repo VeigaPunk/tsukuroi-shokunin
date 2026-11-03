@@ -5039,3 +5039,60 @@ no operator answer in `.ufo/l0-questions.md`). considerthese: see the report's S
 
 Wave w1 (one v1 wave, 11 seats: scout 1, scribe 1, executor 3, connector 1, reviewer 2, critic 1,
 mutation-tester 1, sentinel 1; attack share 4/11) spec frozen at `.ufo/waves/round-67/w1-spec.json`.
+
+## Round 67 — measured outcome (2026-11-03; author-side, measured at landing `f9fa49b8`; non-author closure pending)
+
+Declared before data at `071a55c9`; predicates, counters and kill rules unchanged. Work commit `f9fa49b8`
+(landing), measured outcome in the commit that adds this block. Wave w1: 11 seats, 0 dead (`w1-results.json`).
+
+| Claim | Before (base `5abc31d9`) → after (`f9fa49b8`), measured | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 depth (SOURCED — S284, S285) | `git cat-file -e 5abc31d9:corpus/knowledge/btrfs-scrub-limit-revert-r67.md` rc **128** → `git cat-file -e f9fa49b8:…` rc **0**; `git show f9fa49b8:corpus/knowledge/btrfs-scrub-limit-revert-r67.md \| grep -cE '^\| SL[0-9]+ \|'` **0 → 4**; `git show <rev>:corpus/SOURCES.md \| grep -cE '^\| S[0-9]{3,}'` **283 → 285**; S284 at `corpus/SOURCES.md:294` directly after S283 (`:293`); `awk -F'|' '/^\| S28[45] /{print NF}'` → **13, 13**; Gate quote **8 words** (`/* Revert to the older scrub limits. */`) and **12 words** (CHANGES:20) | improved (predicate met; author-side) | depth ordinal **8 → 8** (lane convention: a sourced entry does not by itself lift the ordinal) |
+| C2 calibration (overreach caught) | sandbox mutant (one fabricated 40-hex `sibling_commit`): base tool **status PASS, live_object_checked 9 of 10** (`probes/e2-mutant-base.json`; battery `probes/e3-battery-base.tsv` M1 PASS). After (patched tool, same mutant): **status FAIL, finding `ANCHOR-LIVE-OBJECT-UNRESOLVED`** (`probes/e2-mutant-patched.json`; battery `probes/e3-battery-patched.tsv` M1 FAIL). Honest base `5abc31d9`: **PASS 10/10** before and after (`probes/e2-honest-base.json`, `final-adjacency-landed.json` at `f9fa49b8`: PASS, live 10, match 10, findings []). Absent sibling directory (battery M4): **PASS, no new finding** (`probes/e2-absent-sibling.json`). Selftest **25/25 → 26/26** (`probes/e2-selftest.txt`) | improved (predicate met) | calibration ordinal **9 → 9** |
+
+Counting commands (run at `f9fa49b8`; outputs in the probe receipts):
+
+```
+git cat-file -e f9fa49b8:corpus/knowledge/btrfs-scrub-limit-revert-r67.md        -> rc 0
+git show f9fa49b8:corpus/knowledge/btrfs-scrub-limit-revert-r67.md | grep -cE '^\| SL[0-9]+ \|'   -> 4
+git show f9fa49b8:corpus/SOURCES.md | grep -cE '^\| S[0-9]{3,}'                                   -> 285
+python3 tools/check-adjacency-anchors.py --revision f9fa49b8… --siblings-root /home/vgpnk/Projects/shokunin  -> PASS, live 10/10, rc 0
+python3 tools/check-adjacency-anchors.py --selftest                                              -> PASS (26 cases), rc 0
+python3 tools/check-knowledge-header.py --revision f9fa49b8…                                      -> PASS, rc 0
+python3 tools/check-registry-coverage.py --revision f9fa49b8…                                     -> PASS 100/100/0, rc 0
+python3 tools/check-line-endings-r64.py --check                                                   -> PASS 340/0, rc 0
+scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi                  -> rc 0, W04 45 (unchanged from round 66)
+```
+
+Named limits (recorded, not smoothed):
+
+- **C1 counter is shape-only (R67-COUNTER-SHAPE-ONLY).** The frozen SL predicate passes fixtures with duplicate ids,
+  a fenced-block row, a prose row and empty evidence cells (M1 battery: 4 of 5 survive the frozen counter). The
+  strict counter in the same battery kills all five with the control passing. R1Reviewer verdict FAILS (controls B
+  and C pass); K1Critic FALSIFIES A1 (a wrong-URL S284 row satisfies the predicate). The landed rows are real and
+  verified by S1Scout (ALL_MATCH), so the verdict rests on the located bytes, not on the counter. Routed: the strict
+  counter is the next frozen-counter amendment, declared before data.
+- **C1 anchor coverage.** SL1 cites v7.3 lines outside S284's registered 1640-1649 range; SL2 cites v7.1 lines outside
+  S237's registered ranges. Pinned bytes match; registry rows are append-only (CORPUS.md rule 2), so the citations are
+  named in the note's Limits rather than absorbed into the rows.
+- **C2 environment limit.** A depth-1 shallow clone of a sibling trips the new finding on an honest pinned commit
+  (`R2Reviewer-c2-attack.md`, SHALLOW_TRIPS yes). The canonical fleet checkouts are full (10/10 resolve). The gate
+  reports the environment rather than passing it.
+- **C2 scope.** The finding covers an unresolved `sibling_commit` in an existing sibling directory only. An abbreviated
+  or uppercase commit is handled by existing checks (M2 already FAILs via OUTBOUND-FIELDS; M3 resolves case-insensitively
+  and passes).
+
+Ordinals unchanged: depth **8**, coverage **9**, operability **9**, freshness **9**, calibration **9**, adjacency **8**.
+Saturation line **9**, window **3**; none retired. Lowest-axis duty met by C1 (depth, tied lowest at 8).
+Capabilities: none entered this round (the outputs are a sourced entry and a gate finding, not a new repertoire row).
+
+Learning trends (author-side; non-author verdict owed by the closure judge): **expansion: improved** — one sourced entry
+on uncovered ground (S284/S285, `mined`). **quality: improved** — the adjacency gate fails an unresolvable commit
+instead of silently uncounting it (QUALITY 100); the r42/r43 scrub notes were re-read against the v7.3 bytes and
+nothing in them is contradicted. **discernment: unchanged** — the attack seats found the C1 counter gap; the lane did not
+catch it at write time; the gap is named and routed, not closed.
+
+Routed, not claimed: the strict-counter amendment for the C1 SL predicate; the round-66 counter amendments (AR
+resolve-then-count, CB header-row `^\| CB[0-9]+ \|`); the `source:`-value gate gap (K1 C1 Attack 2); the adjacency-recheck
+§4 display cell; the r65 C2 A/B demonstration; L0 `tsukuroi | round-64` id-drift (open, unanswered; nothing adopted from
+`merge/tsukuroi/`).

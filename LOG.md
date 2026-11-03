@@ -2969,3 +2969,12 @@ S284, S285 after S283; `tools/check-adjacency-anchors.py` (the two-hunk patch in
 index; `corpus/lessons/round-67.md`. Wave w1: 11 seats, 0 dead (`.ufo/waves/round-67/w1-results.json`). Routed:
 the strict-counter amendment for the C1 SL predicate (R67-COUNTER-SHAPE-ONLY) and the round-66 counter
 amendments. Measured outcome in the following commit.
+
+## Round 67 — measured outcome (2026-11-03; author-side, measured at landing `f9fa49b8`)
+
+C1 depth (S284/S285): predicate met — note present (cat-file rc 0), `^| SL` rows 0 → 4, SOURCES 283 → 285, S284 at
+`corpus/SOURCES.md:294` after S283 (NF 13), Gate quotes 8 and 12 words. Ordinal depth 8 → 8 (no uplift claimed).
+C2 calibration (adjacency gate): mutant PASS 9/10 → FAIL `ANCHOR-LIVE-OBJECT-UNRESOLVED`; honest 10/10 PASS; absent
+sibling no finding; selftest 25 → 26 cases pass. Ordinal calibration 9 → 9.
+Named limits and routed items: SCORECARD "Round 67 — measured outcome"; lesson `corpus/lessons/round-67.md`
+(R67-COUNTER-SHAPE-ONLY routed). Evidence: `.ufo/waves/round-67/probes/`, `.ufo/waves/round-67/drafts/`, `.ufo/waves/round-67/w1-results.json`.
