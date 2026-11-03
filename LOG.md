@@ -2703,3 +2703,85 @@ permanent finding (the absent-by-proof path inside the before-receipt; the lesso
 names it). The pw probe receipts land explicitly here (the work commit's directory argument did not
 expand — treecommit takes file paths; disclosed, timing note in the lesson correction). The
 post-receipts-tree `--round 63` run lands as the fixup receipt.
+
+## Round 64 — declaration (2026-11-03, base 44fc183b, written before any after-measurement)
+
+Run 15 moved this lane back to the canonical Linux/omp host (the r53–r63 Windows era ended; the
+Windows-only planes stay frozen this round). Round-start conformance sweep found the canonical
+sources census BROKEN on this host: `sources-census.sh validate --root <fleet> tsukuroi` → rc 1
+with **278 E12** (`row outside Registry section`) and 0 W04 — every registry row flagged. Root
+cause (receipted, `.ufo/waves/round-64/before/`): the Windows-era record tooling landed CRLF line
+endings — `corpus/SOURCES.md` 381/381 lines CRLF, `SKILL.md` 5452/5489, `SCORECARD.md` 4654/4701
+(crlf-inventory-receipt.txt); blob archaeology: the parent of round-59 work (`c5a33d08`) is 100% LF,
+`2913b75d` (r59 work, 2026-11-01, Windows host) is the first CR commit for all three files. The
+census's `## Registry` heading match is CR-intolerant (`## Registry\r` ≠ `Registry`), so the whole
+table reads as outside-Registry. The r63 closure judge saw exit 0 because the Windows fleet's
+census copy tolerated CR — a host-specific pass the canonical fleet never reproduced. This is the
+round's mined mistake and C1's red-before.
+
+**SOURCED disclosure (before this text):** the mkinitcpio **v42.2** release notes were fetched live
+2026-11-03 (GitLab releases API, `v42.2` released 2026-10-01) — a source no registry row holds
+(S015 holds the v42 notes, S094 the v42.2 *functions* file); the limine-entry-tool master
+`btrfs-overlayfs` hook and the Arch plymouth `main` hook were also fetched live 2026-11-03 for
+re-pin rows. Registry pre-append: 278 rows (c3-note-absent-receipt.txt).
+
+Claims (three, causally separable, distinct axes; ordinals stay unchanged — saturated axes move at
+the instrument/entry level per the r62/r63 pattern):
+
+- **C1 operability — the host-transition gate repair.** Before (receipted): census rc 1, E12=278,
+  0 W04; `tools/check-line-endings-r64.py` absent at base (guard-absent-receipt.txt, cat-file rc
+  128). After predicate (frozen): (a) the same census command exits **0** with zero E-code findings
+  (the 42 W04 duplicate-url-across-scope warnings reappear — disclosed, warning class); (b) the
+  three CRLF files differ from base ONLY by removed CR bytes, proven per file by
+  `git show <base>:F | tr -d '\r' | cmp - <worktree F>` → identical; (c) the new guard exists,
+  `python3 tools/check-line-endings-r64.py --selftest` → PASS (its cases include a CRLF-fixture
+  kill and an allowlisted `.ufo/**` capture), `--check` over the lane tree rc 0; (d) the mutant
+  demonstration: one CR injected into a guarded file in a scratch copy makes `--check` exit
+  non-zero (receipted). Kill rule: if (b) cannot hold (a content change beyond CR removal is
+  needed to reach rc 0), the repair is wrong — honest stop, no claim.
+- **C2 freshness — the SKILL decision-table snapshot re-measured after the host's upgrade cycle.**
+  The SKILL plane table's snapshot column still reads "Measured 2026-10-14"; the host has since run
+  the pacman-pause-lifted upgrade arc (kernel 7.2.3 → 7.2.11 running; mkinitcpio 41.1 → 42.2;
+  systemd → 262; nvidia-open-dkms → 615.78.08; sync dbs born 2026-10-29/11-02). Before: the stored
+  values are the committed SKILL bytes (skill-snapshot-values.txt); no drift register exists (note
+  cat-file rc 128). After predicate (frozen): `corpus/knowledge/host-drift-recheck-r64.md` exists
+  with `^| DR` rows ≥ 6, each row naming plane / stored value (verbatim + SKILL anchor) / live
+  value / match-or-drift, and **≥ 5 rows verdict `drift`**; every live value carries a per-probe
+  receipt under `.ufo/waves/round-64/probes/` **committed in the same or an earlier commit than the
+  note that cites it** (the r63 routed defect honored); the six-plane live census line is one of the
+  probes; the SKILL table gets a dated append-only erratum pointing at the note. Kill rule: < 5
+  drift rows → the round reports "no drift found" honestly (unchanged verdict, claim not improved).
+- **C3 depth (lowest tied axis, 8; SOURCED) — the mkinitcpio-42 on-release watch, discharged.**
+  The corpus frontier bullet "Pending mkinitcpio 42 upgrade strands two /new_root hooks … watch
+  upstream btrfs-overlayfs / plymouth hooks on-release" (`corpus/README.md`) has FIRED: mkinitcpio
+  42.2-1 is installed and the running kernel 7.2.11 booted on the v42-era chain (busybox init now
+  mounts root at `/sysroot`, S015). The r1 note's [inf] prediction — the `btrfs-overlayfs`
+  `run_latehook` `/new_root` lookup becomes a silent no-op (its line-32 falsifier needed a v42-era
+  boot, which did not exist on 2026-10-19) — is testable NOW on this host. Before: the note is
+  absent (c3-note-absent-receipt.txt); the v42.2 notes are unopened; the installed-hook /new_root
+  state is unrecorded. After predicate (frozen): `corpus/knowledge/mkinitcpio42-onrelease-r64.md`
+  exists with `^| MK` rows ≥ 5 covering (MK1) installed versions vs the r1 pinned versions,
+  (MK2) installed-hook `/new_root` residue with line numbers, (MK3) the prediction state on the
+  current boot (journal/mount receipts), (MK4) the S002 TPM2 manual-intervention applicability
+  (HOOKS line + crypttab.initramfs absence, measured), (MK5) upstream state (master hook bytes vs
+  the installed bytes, dated); `^| MK` rows ≥ 5 each carry a receipt path; SOURCES 278 → ≥ 281 with
+  S279 (v42.2 release notes, kind docs, tier A), S280 (supersedes S021 — re-pinned master
+  btrfs-overlayfs hook), S281 (supersedes S022 — re-pinned plymouth main hook), S279 at id position
+  directly after S278, 11 columns (NF 13), Gate quotes ≤ 25 words (`wc -w`); the
+  knowledge-header gate PASS at the final tree; the README frontier bullet gets its on-release
+  discharge notice (append-only). Kill rule: if the installed hooks do NOT carry the residue or the
+  prediction refutes (overlay actually mounted), the note records the refutation — the claim is the
+  sourced measured plane, either outcome.
+
+Frontier step: census before→after receipted (start receipt exists; end receipt at the receipts
+commit); ≥1 sourced claim = C3; one mistake mined (the CRLF host-transition class, `## Mistakes`
+in `corpus/lessons/round-64.md`). Assimilation: the merge package (`merge/tsukuroi/`, 147 staged
+rows starting S200) collides with the lane's live S200–S278 register — the §10 id-collision check
+runs in scratch this round; mass id drift gets an L0 question and no adoption. do-nothing controls:
+C1 — the base tree's census run already fails rc 1 (start receipt IS the control); C2 — rows
+without committed receipts do not count, a control writing none stays at 0; C3 — a sourceless
+fixture cannot add S279–S281 (census id/Gate checks) nor the measured rows (receipt-backed).
+The three r63-closure routed items are honored: counting batteries commit with (or before) the
+commits that cite them; SHONEN boxes stay `[~]` (the r60 L0 question is still unanswered);
+the S278 Gate 17-word count stands (no action). Open operator-gated L0s (round-53/57/60) stay
+routed around, never treated as answered.

@@ -4699,3 +4699,25 @@ adjacency untouched this round).
   SOURCED, with the MSYS boundary re-armed per the r63 measured signatures (dash aliases or
   MSYS_NO_PATHCONV=1). If the lane stays on this host, none of the operator-gated items move; the
   lane-owned list is the round-64 menu.
+
+
+## Round 64 — declaration (2026-11-03, base 44fc183b, written before any after-measurement)
+
+Host transition: run 15 returned the lane to the canonical Linux/omp host; the r53–r63
+Windows-era planes stay frozen this round. Round-start conformance sweep: the canonical sources
+census exits **rc 1 with 278 E12** — the Windows-era tooling landed CRLF line endings in
+`corpus/SOURCES.md` (381/381 lines), `SKILL.md` (5452/5489), `SCORECARD.md` (4654/4701); blob
+archaeology pins the origin at round-59 work `2913b75d` (parent `c5a33d08` is 100 % LF). Receipts:
+`.ufo/waves/round-64/before/{census-start,crlf-inventory,guard-absent,skill-snapshot-values,c3-note-absent}-receipt.txt`.
+
+| Claim | Axis/type | Before → after (frozen predicate) | Counting command | Kill rule |
+|---|---|---|---|---|
+| C1 | operability (host-transition gate repair) | census rc 1, E12=278, 0 W04 + guard absent (cat-file rc 128) → census **rc 0, zero E-code** (42 W04 warnings reappear, disclosed), the three files differ from base ONLY by removed CR (`git show <base>:F \| tr -d '\r' \| cmp - F` identical ×3), `python3 tools/check-line-endings-r64.py --selftest` PASS (CRLF-fixture kill + `.ufo/**` allowlist case) and `--check` rc 0, one CR injected in a scratch copy → `--check` non-zero (receipted mutant) | the census command verbatim; the tr-d/cmp triple; the guard selftest/`--check` lines | a content change beyond CR removal is needed → repair wrong, honest stop |
+| C2 | freshness (SKILL decision-table snapshot re-measured after the upgrade arc: kernel 7.2.3→7.2.11, mkinitcpio 41.1→42.2, systemd→262, nvidia 610.57.04→615.78.08, sync-db birth 2026-10-11→2026-10-29/11-02) | stored = committed SKILL "Measured 2026-10-14" cells; no drift note (cat-file rc 128) → `corpus/knowledge/host-drift-recheck-r64.md` with `^| DR` rows ≥ 6, each plane/stored(verbatim+anchor)/live/match-or-drift, **≥ 5 rows `drift`**, every live value receipted under `.ufo/waves/round-64/probes/` and committed with-or-before the citing commit (r63 routed defect honored); SKILL dated erratum appended | `grep -c '^| DR' corpus/knowledge/host-drift-recheck-r64.md` ≥ 6; drift-labeled rows ≥ 5 | < 5 drift rows → "no drift found" reported honestly, claim not improved |
+| C3 | depth (lowest tied 8; SOURCED — the mkinitcpio-42 on-release watch FIRED, discharged) | note absent (cat-file rc 128); v42.2 notes unopened; installed-hook `/new_root` state unrecorded → `corpus/knowledge/mkinitcpio42-onrelease-r64.md` with `^| MK` rows ≥ 5 (MK1 versions vs r1 pins; MK2 installed-hook residue lines; MK3 prediction state on the current boot; MK4 S002 TPM2 applicability via HOOKS+crypttab, measured; MK5 upstream master vs installed, dated), every row receipted; SOURCES 278 → ≥ 281 (S279 v42.2 release notes tier A docs; S280 supersedes S021 re-pin; S281 supersedes S022 re-pin), S279 directly after S278, NF 13, Gate quotes ≤ 25 words (`wc -w`); knowledge-header gate PASS; README frontier bullet discharge notice appended | `grep -c '^| MK' <note>` ≥ 5; `grep -c '^| S' corpus/SOURCES.md` ≥ 281; header-gate JSON | residue absent or prediction refutes → the note records the refutation; the claim is the sourced measured plane either way |
+
+Ordinals: unchanged this round (saturated axes move at the instrument/entry level); the r62/r63
+axes table stays the standing self-assessment until the measured outcome restates it. Assimilation:
+the merge package's 147 staged rows start at S200 and collide with the live S200–S278 register —
+the §10 id-collision check runs in scratch; mass id drift → L0 question, no adoption this round.
+Open L0s (round-53/57/60) stay routed around, never treated as answered.
