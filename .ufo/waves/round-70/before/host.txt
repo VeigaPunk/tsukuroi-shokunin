@@ -1,0 +1,166 @@
+# round-70 host capture — 2026-11-04T00:02:40Z — read-only
+## kernel and tools
+7.2.11-arch1-1
+linux 7.2.11.arch1-1
+xfsprogs 7.2.0-1
+btrfs-progs 7.1-1
+smartmontools 7.5-2
+## xfs mounts (findmnt)
+TARGET SOURCE         FSTYPE OPTIONS
+/tmp   /dev/nvme1n1p1 xfs    rw,nosuid,nodev,noatime,inode64,logbufs=8,logbsize=256k,noquota
+/fast  /dev/nvme1n1p2 xfs    rw,nosuid,nodev,noatime,inode64,logbufs=8,logbsize=256k,noquota
+## filesystem magic
+btrfs /
+xfs /tmp
+xfs /fast
+## mount table xfs lines
+/dev/nvme1n1p1 /tmp xfs rw,nosuid,nodev,noatime,inode64,logbufs=8,logbsize=256k,noquota 0 0
+/dev/nvme1n1p2 /fast xfs rw,nosuid,nodev,noatime,inode64,logbufs=8,logbsize=256k,noquota 0 0
+## legacy proc symlink
+lrwxrwxrwx 1 root root 23 Nov  3 21:02 /proc/fs/xfs/stat -> /sys/fs/xfs/stats/stats
+/sys/fs/xfs/stats/stats
+## sysfs tree (mode, path)
+drwxr-xr-x /sys/fs/xfs
+drwxr-xr-x /sys/fs/xfs/nvme1n1p1
+drwxr-xr-x /sys/fs/xfs/nvme1n1p1/error
+drwxr-xr-x /sys/fs/xfs/nvme1n1p1/error/metadata
+drwxr-xr-x /sys/fs/xfs/nvme1n1p1/log
+drwxr-xr-x /sys/fs/xfs/nvme1n1p1/stats
+drwxr-xr-x /sys/fs/xfs/nvme1n1p2
+drwxr-xr-x /sys/fs/xfs/nvme1n1p2/error
+drwxr-xr-x /sys/fs/xfs/nvme1n1p2/error/metadata
+drwxr-xr-x /sys/fs/xfs/nvme1n1p2/log
+drwxr-xr-x /sys/fs/xfs/nvme1n1p2/stats
+drwxr-xr-x /sys/fs/xfs/stats
+-r--r--r-- /sys/fs/xfs/nvme1n1p1/log/log_head_lsn
+-r--r--r-- /sys/fs/xfs/nvme1n1p1/log/log_tail_lsn
+-r--r--r-- /sys/fs/xfs/nvme1n1p1/log/reserve_grant_head_bytes
+-r--r--r-- /sys/fs/xfs/nvme1n1p1/log/write_grant_head_bytes
+-r--r--r-- /sys/fs/xfs/nvme1n1p1/stats/stats
+-r--r--r-- /sys/fs/xfs/nvme1n1p2/log/log_head_lsn
+-r--r--r-- /sys/fs/xfs/nvme1n1p2/log/log_tail_lsn
+-r--r--r-- /sys/fs/xfs/nvme1n1p2/log/reserve_grant_head_bytes
+-r--r--r-- /sys/fs/xfs/nvme1n1p2/log/write_grant_head_bytes
+-r--r--r-- /sys/fs/xfs/nvme1n1p2/stats/stats
+-r--r--r-- /sys/fs/xfs/stats/stats
+-rw-r--r-- /sys/fs/xfs/nvme1n1p1/error/fail_at_unmount
+-rw-r--r-- /sys/fs/xfs/nvme1n1p2/error/fail_at_unmount
+--w------- /sys/fs/xfs/nvme1n1p1/stats/stats_clear
+--w------- /sys/fs/xfs/nvme1n1p2/stats/stats_clear
+--w------- /sys/fs/xfs/stats/stats_clear
+## per-filesystem stats files
+-- /sys/fs/xfs/nvme1n1p1//stats/stats
+34
+extent_alloc abt blk_map bmbt dir trans ig log push_ail xstrat rw attr icluster vnodes buf abtb2 abtc2 bmbt2 ibt2 fibt2 rmapbt refcntbt rmapbt_mem rcbagbt rtrmapbt rtrmapbt_mem rtrefcntbt qm zoned metafile xpc defer_relog debug gc 
+-- /sys/fs/xfs/nvme1n1p2//stats/stats
+34
+extent_alloc abt blk_map bmbt dir trans ig log push_ail xstrat rw attr icluster vnodes buf abtb2 abtc2 bmbt2 ibt2 fibt2 rmapbt refcntbt rmapbt_mem rcbagbt rtrmapbt rtrmapbt_mem rtrefcntbt qm zoned metafile xpc defer_relog debug gc 
+## global stats file
+34
+extent_alloc abt blk_map bmbt dir trans ig log push_ail xstrat rw attr icluster vnodes buf abtb2 abtc2 bmbt2 ibt2 fibt2 rmapbt refcntbt rmapbt_mem rcbagbt rtrmapbt rtrmapbt_mem rtrefcntbt qm zoned metafile xpc defer_relog debug gc 
+## content sample: first and last three lines of each per-filesystem stats file
+-- /sys/fs/xfs/nvme1n1p1//stats/stats
+extent_alloc 9985713 64290045 9956026 58170740
+abt 0 0 0 0
+blk_map 41251973 48446984 28241409 19051604 14992809 138662995 0
+...
+defer_relog 3768
+debug 0
+gc xpc 0
+-- /sys/fs/xfs/nvme1n1p2//stats/stats
+extent_alloc 29392098 416623409 27382505 351226382
+abt 0 0 0 0
+blk_map 296521906 169963402 80516229 58467639 41713838 630167742 0
+...
+defer_relog 1311
+debug 0
+gc xpc 0
+## stats_clear modes
+200 root root /sys/fs/xfs/nvme1n1p1/stats/stats_clear
+200 root root /sys/fs/xfs/nvme1n1p2/stats/stats_clear
+200 root root /sys/fs/xfs/stats/stats_clear
+## log subtree
+-- /sys/fs/xfs/nvme1n1p1/log/
+-r--r--r-- 1 root root 4096 Nov  3 20:58 log_head_lsn
+-r--r--r-- 1 root root 4096 Nov  3 20:58 log_tail_lsn
+-r--r--r-- 1 root root 4096 Nov  3 20:58 reserve_grant_head_bytes
+-r--r--r-- 1 root root 4096 Nov  3 20:58 write_grant_head_bytes
+   log_head_lsn = 9443:142464
+   log_tail_lsn = 9443:140968
+   reserve_grant_head_bytes = 21737264
+   write_grant_head_bytes = 22157760
+-- /sys/fs/xfs/nvme1n1p2/log/
+-r--r--r-- 1 root root 4096 Nov  3 21:02 log_head_lsn
+-r--r--r-- 1 root root 4096 Nov  3 21:02 log_tail_lsn
+-r--r--r-- 1 root root 4096 Nov  3 21:02 reserve_grant_head_bytes
+-r--r--r-- 1 root root 4096 Nov  3 21:02 write_grant_head_bytes
+   log_head_lsn = 12767:325728
+   log_tail_lsn = 12767:270960
+   reserve_grant_head_bytes = 24590144
+   write_grant_head_bytes = 24590492
+## error subtree (mode, path, value for regular files)
+-- /sys/fs/xfs/nvme1n1p1/error/
+644 /sys/fs/xfs/nvme1n1p1/error/fail_at_unmount 1
+644 /sys/fs/xfs/nvme1n1p1/error/metadata/default/max_retries -1
+644 /sys/fs/xfs/nvme1n1p1/error/metadata/default/retry_timeout_seconds -1
+644 /sys/fs/xfs/nvme1n1p1/error/metadata/EIO/max_retries -1
+644 /sys/fs/xfs/nvme1n1p1/error/metadata/EIO/retry_timeout_seconds -1
+644 /sys/fs/xfs/nvme1n1p1/error/metadata/ENODEV/max_retries 0
+644 /sys/fs/xfs/nvme1n1p1/error/metadata/ENODEV/retry_timeout_seconds 0
+644 /sys/fs/xfs/nvme1n1p1/error/metadata/ENOSPC/max_retries -1
+644 /sys/fs/xfs/nvme1n1p1/error/metadata/ENOSPC/retry_timeout_seconds -1
+-- /sys/fs/xfs/nvme1n1p2/error/
+644 /sys/fs/xfs/nvme1n1p2/error/fail_at_unmount 1
+644 /sys/fs/xfs/nvme1n1p2/error/metadata/default/max_retries -1
+644 /sys/fs/xfs/nvme1n1p2/error/metadata/default/retry_timeout_seconds -1
+644 /sys/fs/xfs/nvme1n1p2/error/metadata/EIO/max_retries -1
+644 /sys/fs/xfs/nvme1n1p2/error/metadata/EIO/retry_timeout_seconds -1
+644 /sys/fs/xfs/nvme1n1p2/error/metadata/ENODEV/max_retries 0
+644 /sys/fs/xfs/nvme1n1p2/error/metadata/ENODEV/retry_timeout_seconds 0
+644 /sys/fs/xfs/nvme1n1p2/error/metadata/ENOSPC/max_retries -1
+644 /sys/fs/xfs/nvme1n1p2/error/metadata/ENOSPC/retry_timeout_seconds -1
+## geometry (xfs_info)
+-- xfs_info /tmp
+meta-data=/dev/nvme1n1p1         isize=512    agcount=32, agsize=1048576 blks
+         =                       sectsz=4096  attr=2, projid32bit=1
+         =                       crc=1        finobt=1, sparse=1, rmapbt=1
+         =                       reflink=1    bigtime=1 inobtcount=1 nrext64=1
+         =                       exchange=1   metadir=0
+data     =                       bsize=4096   blocks=33554432, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0, ftype=1, parent=1
+log      =internal log           bsize=4096   blocks=25087, version=2
+         =                       sectsz=4096  sunit=1 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+         =                       rgcount=0    rgsize=0 extents
+         =                       zoned=0      start=0 reserved=0
+-- xfs_info /fast
+meta-data=/dev/nvme1n1p2         isize=512    agcount=32, agsize=6582368 blks
+         =                       sectsz=4096  attr=2, projid32bit=1
+         =                       crc=1        finobt=1, sparse=1, rmapbt=1
+         =                       reflink=1    bigtime=1 inobtcount=1 nrext64=1
+         =                       exchange=1   metadir=0
+data     =                       bsize=4096   blocks=210635776, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0, ftype=1, parent=1
+log      =internal log           bsize=4096   blocks=102849, version=2
+         =                       sectsz=4096  sunit=1 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+         =                       rgcount=0    rgsize=0 extents
+         =                       zoned=0      start=0 reserved=0
+## online health reader (xfs_spaceman health)
+-- xfs_spaceman health /tmp
+Health status has not been collected for this filesystem.
+Please run xfs_scrub(8) to remedy this situation.
+rc=0
+-- xfs_spaceman health /fast
+Health status has not been collected for this filesystem.
+Please run xfs_scrub(8) to remedy this situation.
+rc=0
+## device nodes
+brw-rw---- 1 root disk 259, 0 Nov  2 12:07 /dev/nvme1n1
+brw-rw---- 1 root disk 259, 1 Nov  2 12:07 /dev/nvme1n1p1
+brw-rw---- 1 root disk 259, 2 Nov  2 12:07 /dev/nvme1n1p2
+## filesystem device mapping
+/tmp source=/dev/nvme1n1p1
+/fast source=/dev/nvme1n1p2

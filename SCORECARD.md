@@ -5267,3 +5267,65 @@ Named limits, recorded and not smoothed:
 Ordinals unchanged: depth **8**, coverage **9**, operability **9**, freshness **9**, calibration **9**, adjacency **8**. Saturation line **9**, window **3**; none retired. The lowest-axis duty is met by C1 (depth, tied lowest at 8); the round's depth verdict is **unchanged**, reported as such. Learning trends (author-side; a non-author spot-check is owed by the closure judge): **expansion: improved** (S289 on ground never held; S288 a stated re-pin; one entry; capability `kernel-arm`); **quality: improved** (the r68 shape-only counter debt answered by a content-sensitive counter frozen before data; QUALITY 102 and 103; two stale kernel-pairing sentences corrected by appended errata; two attack-found defects repaired in-round); **discernment: unchanged** (the lane declared a novelty it did not have and a wave seat caught it; no outside admit/reject spot-check is recorded here).
 
 Planned (next round): a statement-substance clause for the KR counter and a source-to-snapshot binding clause, both frozen before data; R66-M3/M4 where still reachable; the AR resolve-then-count debt; no amendment of this round's frozen predicates.
+
+## Round 70 — declaration (2026-11-03/04, base `b2aa0be0`, written before any after-measurement)
+
+Lowest non-retired axis: **depth (8, tied with adjacency 8)**; saturation line 9 / window 3 unchanged;
+none retired. A capability entered at round 69 (`kernel-arm`), so the stagnation window is at 1 of 3 and
+the nudge does not waive the lowest-axis duty. Two claims on two distinct axes (depth; operability).
+
+Pre-declaration receipts, disclosed in order; all under `.ufo/waves/round-70/before/`.
+(a) Source snapshots fetched and read before this text, committed byte-exact under `before/src/` with
+`SHA256SUMS` (`sha256sum -c` rc 0) and `SOURCES.json` (snapshot → URL, tag, access date, digest):
+Linux stable v7.2.11 `Documentation/admin-guide/xfs.rst` sha256 `53bda67b…d051c`,
+`fs/xfs/xfs_stats.c` sha256 `4b6a9b6c…9e452`, `fs/xfs/xfs_sysfs.c` sha256 `1cbcffa1…a5805`;
+xfsprogs v7.2.0 `spaceman/health.c` sha256 `84fdd0be…15950`. `FETCH.txt` records route 1; a second route
+is required from the wave's scout before any row is admitted.
+(b) Host capture, read-only (`before/host.txt`, `capture.sh`): the host runs
+`7.2.11-arch1-1`, `linux 7.2.11.arch1-1`, `xfsprogs 7.2.0-1`; two xfs filesystems —
+`/dev/nvme1n1p1` on `/tmp` and `/dev/nvme1n1p2` on `/fast`; `/sys/fs/xfs/<dev>/{stats,error,log}` present
+for both, `stats/stats` 34 lines each and 0444, `stats_clear` 0200 on each and on the global
+`/sys/fs/xfs/stats`, `/proc/fs/xfs/stat` a symlink to the global stats file, four log files per filesystem
+with `log_head_lsn` `cycle:block`, error subtree 7 regular files per filesystem with `-1` retry values;
+`xfs_info` geometry per mount; `xfs_spaceman -c health` prints "Health status has not been collected…" for
+both mounts.
+(c) Held-ground sweep (`before/novelty-sweep.txt`): 18 xfs lines in `corpus/ SKILL.md PROVINCE.md`, all
+peripheral (mount type, package list, a `/tmp` correction); `sys/fs/xfs`, `stats_clear`, `log_head_lsn`,
+`reserve_grant_head_bytes`, `fail_at_unmount`, `xfs_spaceman`, `max_retries` each **0** hits at base; no
+xfs knowledge note exists (`git ls-tree … | grep -i xfs | wc -l` 0); `storage-health-r26.md` holds SH1-SH6
+over btrfs and NVMe SMART only.
+(d) Do-nothing controls (`before/absence-controls.txt`, base `b2aa0be0`): C1 note `git cat-file -e` rc
+**128**, C1 counter rc **128**, `^| XS[n]` rows **0**, `XFS xfs-stats` label **0**, `probe_xfs` **0**,
+selftest **196** PASS rc 0, registry **289** rows, canonical census validate rc 0, 87 knowledge notes.
+(e) Frozen counter and its pre-data battery: `tools/count-xs-rows-r70.py` sha256
+`65065d9d18cea52027619697264de430780e65ff13ab6da2a790c3d2054f6f5c`; battery
+`before/control/battery.txt` (8 cases) — well-formed control reads `XS_ROWS=6 XS_VERIFIED=6
+XS_SOURCES=4 XS_SNAPSHOTS=4` rc 0; content-free, any-registered-id, digest-swap, quote-absent,
+short-statement, five-row and duplicate-id mutants each read below the target and exit 1.
+(f) Base live census (`before/census-live-base.txt`): rollup
+`TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=DEGRADED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)`, rc **1**.
+
+| # | axis/type | claim | before → after (frozen predicate) | counting command | kill rule |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — four new registry rows) | `corpus/knowledge/xfs-storage-plane-r70.md` states the XFS sysfs storage plane the lane never held: the per-filesystem and global stats file, one summary line per named counter group with summed per-CPU counters, the four precision counters, the write-only `stats_clear` contract, the log head/tail LSN and grant-head files, the error-configuration tree with the metadata class, and the online health reader's "not collected" state; rows `XS1`–`XS6`, each `| XS<n> | <statement, ≥ 12 words> | source=S### | snapshot=<file> | digest=<64-hex> | quote="<text>" |` | note absent rc 128 and counter absent rc 128 at base → note present, counter present, registry 289 → 293 rows, and the frozen counter prints `XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4 XS_TARGET … met=1` rc **0** | `python3 tools/count-xs-rows-r70.py --revision <REV>` | the pre-data battery's control must read 6/6 rc 0 **and** every mutant (content-free statement, any-registered-id, digest-swap, quote-absent, short statement, five rows, duplicate id) must read below the target and exit 1; a mutant meeting the target falsifies the counter |
+| C2 | operability (9; capability `xfs-stats-arm`) | one verdict-neutral `XFS xfs-stats mounts=<n> present=<n> absent=<n> unreadable=<n> stats=<n> error=<n> log=<n> detail=<token|none>` line in `tools/tsukuroi-census.sh`, printed after the KERNEL line and before the rollup: distinct xfs mount sources from the mount table (`TSUKUROI_PROC_MOUNTS`), their `/sys/fs/xfs/<dev>` presence (`TSUKUROI_XFS_SYSFS`), readable `stats/stats` files whose first line matches `^[a-z][a-z0-9_]*([ ][0-9]+)+$`, readable regular files under `error/` and `log/`, and a closed-vocabulary detail token set; read-only, unprivileged, never a rollup term and never an exit-code input | label **0**, `probe_xfs` **0**, selftest **196** → label present, exactly **1** live line with every field once in contract order, `mounts` equal to the distinct xfs source count `findmnt -t xfs` reports in the same capture, `stats` ≤ `present`, `error`/`log` equal to the enumerated regular-file counts, rollup line and exit code identical to (f), `--selftest` `PASS (N cases, N passed, 0 failed)` rc 0 with **N ≥ 206** and **≥ 10** `R70-C2` cases | `grep -c 'XFS xfs-stats' tools/tsukuroi-census.sh`; `bash tools/tsukuroi-census.sh --selftest`; `bash tools/tsukuroi-census.sh` | a live line that echoes an unvalidated name, a line that changes the rollup or exit code, a `mounts` count that disagrees with the mount table, or fewer than 10 labelled cases each falsifies the claim |
+
+Causal separability: C1 touches only its note, four registry rows, its counter and receipts; C2 touches only
+`tools/tsukuroi-census.sh`. Each verifies without the other. Both predicates are frozen here, before any note,
+registry row, census label or selftest case exists; the counter and its battery are committed with this
+declaration (round-69 D4's ordering defect answered).
+
+Routed repairs this round as work, not as claims (r69 non-author spot-check, `corpus/lessons/round-69-verifier-spotcheck.md` §6):
+D1 appended Gate erratum carrying the URL/access-date/located-quote record for S288/S289; D2 the
+`check-cited-receipts-r62.py` PASS receipt committed at the final tree; D3 every receipt bound to the revision
+it measured; D4 the freeze-ordering correction above; D5 the three refused r69 candidates landed as
+`rejected` registry rows with reason and flip; D6 LOG entries tying the r69 post-landing commits; D7 the LOG
+selftest figure corrected to 196. One `considerthese` proposal mined: `considerthese/2026-10-26.md`
+"Counter-attack scoreboard". Assimilation: none — the open L0 `tsukuroi | round-64` addendum (82 colliding
+staged ids) still rules the merge package quarantined.
+
+Wave w1: one v1 wave, band 8–16, **13 seats**; seat shape and counts are fixed in `.ufo/waves/round-70/w1-spec.json`.
+
+**planned (next round):** the r70 depth entry's row-verdict binding (the XS rows are rules, not admitted
+propositions — a counted read of host applicability); R66-M3/M4 frozen-counter amendments where still reachable;
+the AR resolve-then-count debt; no amendment of this round's frozen predicates.
