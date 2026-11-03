@@ -163,6 +163,7 @@ matches the entry snapshot. Full command/output/comparison:
 | root-metadata-observer | Emits root mode/uid/gid and owner-bit observations even on package-probe failure; isolates fixtures and blocks unavailable/non-directory metadata without grading intentional 0555 policy | `.ufo/waves/round-12/resumed/{after,selftest-after,mode-policy-mutant}.json`; measured commit `70fede2a7a890cb50a72db2d4230ee541183bf7b` | round 12 |
 | boot-chain-audit | Audits every limine entry live and read-only: copies each UKI via `sudo -n cat`, extracts its initramfs in a private mktemp dir, types `/new_root`, binds the firmware-selected entry, and emits a per-entry next-boot verdict plus `TSUKUROI_BOOTCHAIN` | `bash tools/boot-chain-audit.sh --live` → `.ufo/waves/round-17/l1-capture/audit-live.txt` (6 entries, CONSISTENT, rc 0); `--selftest` 44/44 | round 17 |
 | cited-receipt-landing-gate | Verifies at any revision that every `.ufo/waves/round-<N>/...` FILE path the round's own committed artifacts cite (wave receipts + round lesson + round knowledge note) exists as a blob in that same revision's tree — the unlanded-receipt class's cited-and-unlanded half caught mechanically before closure (the r59 count rule made executable); sibling-repo citations, directory prefixes, bare directory mentions and prose ellipses are documented non-citations; a receipt retained in scratch and never path-cited (the r59 occurrence) is the gate's named limit | `python tools/check-cited-receipts-r62.py --selftest` → JSON PASS 4 cases rc 0 (`.ufo/waves/round-62/after/cited-receipts-selftest-at-work.json`); demonstrations from the committed tool (`.ufo/waves/round-62/after/cited-receipts-*.json`): r61@`52d9ba1a` FAIL 3 (the class caught), r58@`c2e32b00` FAIL 1, r59@`35c2748f` PASS 0 (the named limit), r61/r62@work PASS 0 and r61/r62@final PASS 0; measured commit `f3f648123c907dd09b53caa1ac009a67598506ee` | round 62 |
+| line-endings-guard | Detects and localizes CR bytes in the lane's guarded tracked text files (the host-transition CRLF class that E12-floods the canonical census), with a 7-case hermetic selftest covering the exit-code contract and the guarded-set membership predicates, and mutant-killing coverage proven against a 5-mutant battery | `python3 tools/check-line-endings-r64.py --selftest` → `CHECK_LINE_ENDINGS_SELFTEST: PASS (7 cases, 7 passed, 0 failed)` rc 0; `--check` → `CHECK_LINE_ENDINGS: PASS (330 file(s) checked, 0 violation(s))` rc 0 (`.ufo/waves/round-64/after/{c1-guard-selftest,c1-guard-check,c1-selftest-coverage-fix}.txt`); battery `.ufo/waves/round-64/after/mutation/mutation-report.txt` | round 64 |
 
 Rows enter only through a round that demonstrates the capability running
 (`AXES.md` §Capabilities); none enter through this rollout.
@@ -4721,3 +4722,66 @@ axes table stays the standing self-assessment until the measured outcome restate
 the merge package's 147 staged rows start at S200 and collide with the live S200–S278 register —
 the §10 id-collision check runs in scratch; mass id drift → L0 question, no adoption this round.
 Open L0s (round-53/57/60) stay routed around, never treated as answered.
+
+
+## Round 64 — measured outcome (2026-11-03, author-side; non-author closure pending)
+
+Measured at the work tree `431f0c9` (declaration `2f3061ef`; counting battery
+`.ufo/waves/round-64/after/counting-battery-prework.txt`, gates receipt
+`.ufo/waves/round-64/after/gates-at-work-rev.txt` — both committed with the work commit, the r63
+routed receipt-discipline defect honored). Gates at the work revision: knowledge-header PASS
+**81 notes / 0 findings / 81 complete** (the two new notes listed with no problems);
+registry-coverage PASS **100 tools / 100 rows / 0 findings** (the new guard registered in the
+round-64 operative registry section); cited-receipts `--round 64` **PASS, 0 findings, 36 cited
+paths** (every receipt the round's artifacts cite is in the same tree); scorecard-uniqueness ok;
+census validate **rc 0, 0 E-code, 44 W04** (42 pre-existing duplicate-url-across-scope warnings +
+2 from C3's re-pin rows, disclosed before landing in the lesson's Gate); guard `--check` PASS 330
+files / 0 violations; `git ls-files --eol` = **i/lf w/lf on all three** repaired files (the
+durability invariant); `py_compile` rc 0.
+
+| Claim | Before → after (measured) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 operability (capability `line-endings-guard` enters the table) | before at `2f3061ef`: census **rc 1, E12=278, 0 W04** (`.ufo/waves/round-64/before/census-start-receipt.txt`); guard absent (cat-file rc 128); the three files CRLF (SOURCES 381/381, SKILL 5452/5489, SCORECARD 4654/4701 lines CR at 44fc183b; 4723/4723 at the fix base — the declaration commit itself added 69 CRLF lines, disclosed R1C1Rev F3). After at `431f0c9`: census **rc 0, 0 E-code, 44 W04**; the three files differ from base ONLY by removed CR (`git show 2f3061ef:F \| tr -d '\r' \| cmp - F` rc 0 ×3; blob stray-CR 0/0/0, size delta == CR count — R1C1Rev's independent byte census); guard `--selftest` **PASS (7 cases, 7 passed, 0 failed)**, `--check` PASS 330/0; the EOF-CR mutant exits 1 naming path/line/offset; the M3/M5 mutants that survived the 5-case selftest are killed by the 7-case one (able-to-fail receipt `after/c1-selftest-coverage-fix.txt`); post-commit `i/lf w/lf` ×3 | improved, author-verified | operability: the lane's executable census gate runs clean on the canonical host again; the repair class is guarded mechanically (ordinal 9 unchanged, saturated) |
+| C2 freshness (the SKILL snapshot re-measured) | before at `2f3061ef`: the stored snapshot = committed SKILL bytes ("Measured 2026-10-14", `SKILL.md:44-50`); no drift note (cat-file rc 128). After at `431f0c9`: `corpus/knowledge/host-drift-recheck-r64.md` — **25 DR rows, 20 `drift`, 5 `match`, 0 unknown** (`grep -c '^\| DR'` = 25), every live value receipted (26 receipts under `probes/`, committed with the note); per-plane drift: packages 6/7, systemd 3/4, journal 3/3, drivers 4/4, update-safety 3/6, census rollup 1/1; the SKILL dated erratum appended (points at the note, 30d cadence) | improved, author-verified | freshness: the 20-day-stale snapshot column re-measured with receipts; ordinals unchanged (9, saturated) — the move is the re-verification itself |
+| C3 depth (lowest tied axis, 8; SOURCED — S279/S280/S281 opened live 2026-11-03) | before at `2f3061ef`: note absent (cat-file rc 128); v42.2 notes unopened; installed-hook `/new_root` state unrecorded; SOURCES 278. After at `431f0c9`: `corpus/knowledge/mkinitcpio42-onrelease-r64.md` — **6 MK rows** (`grep -c '^\| MK'` = 6), every row receipted (58 mk42 receipts + the labrat report, committed with the note); SOURCES **278 → 281**, S279 at the id position directly after S278 (line 289), NF 13 ×3, 0 malformed, 0 duplicate ids; Gate quotes ≤ 25 words (11/1/3 primary; supporting 14/17/24/7/12/1); R2Sources **ADMIT ×3** (live re-opens, pin freshness, byte-identity, E04-exemption proven both directions); knowledge-header gate PASS; the README round-64 notice appended. **The r1 silent-no-op prediction is REFUTED at mechanism level** (the v42 `new_root → sysroot` compatibility symlink; `hook:14` is the by-design gate on a normal `@` boot) — and the refutation was FIRST recorded at round 17 (`## R17-SYMLINK`, `initramfs-v42-sysroot-recovery.md:83-89`; `corpus/README.md:147-155` superseded the frontier bullet then): the r64 contribution is the post-upgrade measured state, the positive end-to-end emulation, the applicability matrix, and the dated upstream re-pins — disclosed in the note, the README notice, and the lesson (R64-DECLARATION-STALE-PRIOR) | improved (the sourced entry landed), author-verified | depth: the sourced measured plane landed; the ground was r17-held, so the ordinal stays 8 — the move is the entry + re-pins, not new coverage (expansion unchanged) |
+
+Declared-command notes: every counting command ran at the work revision on the channel it names
+(the battery + gates receipts); no declared-command FAIL state. Mistakes mined this round (4, all
+with committed evidence): R64-CRLF-HOST-DRIFT (+ the three in-wave worktree regressions + the
+census default-mode silent-zero finding), R64-DECLARATION-STALE-PRIOR, R64-SELFTEST-COVERAGE-GAP,
+R64-JJ-ST-WITHOUT-IGNORE-WC (the L1's own slip, disclosed). No exploratory claim this round.
+Assimilation: none from `merge/tsukuroi/` (79 id collisions, L0 `tsukuroi | round-64` filed);
+considerthese Counter-attack scoreboard resumed (SKILL.md r64 row, citing
+`considerthese/2026-10-26.md` + 2026-11-03).
+
+## Axes — current self-assessment (round 64 final measured surface)
+
+Restated 2026-11-03 at the round-64 work tree (counts re-derived with each cell's command;
+ordinals unchanged — operability/freshness/calibration/coverage saturated, depth's move is the
+sourced entry on r17-held ground, adjacency untouched this round).
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 81 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); the sourced mkinitcpio-42 plane MK1-MK6 landed round 64 (S279-S281 current, opened live) on ground r17 held — the post-upgrade measured state, the emulation, the applicability matrix, the re-pins; GR1-GR3 of the scrub entry remain pending behind the operator-gated cohort resume; no ordinal move. | round 4; round-64 entry added, ordinal unchanged |
+| coverage | 9 | the corpus README Coverage map carries the Windows-host transition rows through r61 plus the round-64 discharge notice on the mkinitcpio frontier bullet; PROVINCE Core, Frontier and Adjacent sections unchanged (no round-64 writes). | round 11; round-64 frontier-bullet notice, ordinal unchanged |
+| operability | 9 | `python3 tools/check-line-endings-r64.py --selftest` → PASS 7/7; `--check` → PASS 330/0; the census validate rc 0 (0 E-code, 44 W04) where the round started rc 1 (278 E12); `python tools/receipt-run.py --selftest` PASS 8/8; `python tools/receipt-write.py --selftest` PASS 5/5; `python tools/append-receipt.py --selftest` PASS 5/5; `python tools/check-cited-receipts-r62.py --selftest` PASS 4/4; registry-coverage 100/100/0; knowledge-header 81/0/81. | round 11; round-64 line-endings guard added, ordinal unchanged |
+| freshness | 9 | the SKILL decision-table snapshot re-measured with 26 receipts (25 DR rows, 20 drift); S279-S281 opened live this round; the new notes carry their own cadences (drift note 30d due 2026-12-03; mk42 note on-release); the planes' cadence pass (services T, eventlog E, task-status J, registry R) still due 2026-11-30 (not due today); the pagefile note's due 2026-12-01; sources census exit 0 at round end (44 W04, 0 E-code) after the round-start rc 1 repair. | fleet round 1; round-64 snapshot re-measure + new cadences added, ordinal unchanged |
+| calibration | 9 | the axes table restated to counts recomputed on this host; SCORECARD uniqueness gate ok; four mistakes self-caught and mined with evidence (the CRLF class with its origin archaeology + the in-wave regressions; the declaration's stale-prior framing — caught in-round by the L1 reading the labrat's precedence note and the README's r17 notice BEFORE the outcome landed; the selftest coverage gap — caught by the mutation battery; the L1's own `jj st` slip — self-disclosed), none after an outcome cited them. | round 10; round-64 four-catch set added, ordinal unchanged |
+| adjacency | 8 | formal overlap table present; no sibling surface touched; the mk42 note restates the ADJ-06 (kaidoku/revenger, unresolved) and ADJ-04 (mori) boundaries in its scope paragraph; the drift note routes the oom-kill scopes' attribution to mori; contested kaidoku/revenger ownership remains unruled (carried, routed around). | fleet round 1; round-64 boundary restatements in the two new notes, ordinal unchanged |
+
+
+- **planned (next round):** operator-gated first — the L0 wave-dispatch question (`tsukuroi | round-53`)
+  still decides the r52 counted-cohort depth resume, the L0 `tsukuroi | round-57` decides the S266
+  `type= interact` falsification probe, and `tsukuroi | round-60` decides whether the hyaku closure
+  judge's spot-checks may discharge the whole-SKILL SHONEN boxes; new this round: `tsukuroi | round-64`
+  rules the merge-package id-drift adoption path (79→82 collisions after S279-S281). Lane-owned, not
+  gated: (1) the 2026-11-30 cadence pass (services T-rows, eventlog E-rows, task-status J-rows,
+  registry R-rows, the drift register's 30d pass) and the pagefile note's 2026-12-01 pass, each
+  through their due anchors — the drift note's own 30d pass lands 2026-12-03; (2) the DQ plane joins
+  the executable-recheck discipline only if a DQ-probe drift fires; (3) S277/S278 re-opens at 180d
+  (due 2027-04-30); (4) S279-S281 re-open on-release (the next mkinitcpio / limine-mkinitcpio-hook /
+  plymouth release re-fires the watch — the mk42 note's recheck procedure); (5) the Windows-era
+  planes (r53-r63 notes) stay frozen until the lane is dispatched on a Windows host again; their
+  cadence passes (2026-11-30) are due regardless of host — an L0 question may be needed if the
+  Windows host is unreachable at that date. If the lane stays on this host, the operator-gated items
+  do not move; the lane-owned list is the round-65 menu.

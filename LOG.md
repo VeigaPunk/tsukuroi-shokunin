@@ -2819,3 +2819,24 @@ seats) returned and the L1 integrated:
   (79 id collisions, L0 filed); considerthese Counter-attack scoreboard resumed with the r64 row
   (SKILL.md). QUALITY criterion 97 landed. SKILL: round-64 registry section (100 rows), the C2
   erratum, the scoreboard row. README: the round-64 discharge notice.
+
+## Round 64 — measured outcome (2026-11-03)
+
+C1/C2/C3 PASS measured at work `431f0c9` (battery `.ufo/waves/round-64/after/counting-battery-prework.txt`,
+gates `.ufo/waves/round-64/after/gates-at-work-rev.txt`, both committed with the work commit):
+C1 — census rc 1/E12=278 → **rc 0/0 E-code/44 W04** (42 pre-existing + 2 from C3's re-pin rows,
+disclosed), CR-only delta proven (`cmp` ×3 + 0x0D byte census), guard selftest **7/7** (the two
+MT1Guard-routed cases added; able-to-fail proven vs M3/M5), `--check` PASS 330/0, post-commit
+`i/lf w/lf` ×3; C2 — drift note **25 DR rows (20 drift, 5 match, 0 unknown)**, 26 receipts
+committed with the note, SKILL erratum appended; C3 — mk42 note **6 MK rows**, SOURCES **278→281**
+(S279-S281 at id position, NF 13, quotes ≤ 25 words, R2Sources ADMIT ×3), the r1 prediction
+REFUTED at mechanism level with the **r17 precedence disclosed** (R64-DECLARATION-STALE-PRIOR —
+the declaration's "testable NOW / watch FIRED" framing was stale against the r1 note's own
+`## R17-SYMLINK` erratum and the README's r17 superseded notice; the r64 contribution is the
+post-upgrade measured state + re-pins, not a first discharge). Gates at `431f0c9`:
+knowledge-header 81/0/81, registry-coverage 100/100/0, cited-receipts `--round 64` PASS 0 findings
+(36 cited — the r63 routed defect honored), scorecard-unique ok. Capability `line-endings-guard`
+entered the SCORECARD capabilities table. Axes restated, ordinals unchanged (8/9/9/9/9/8); lesson
+round-64 carries the Gate (3 admits, explicit zero rejections, spot-check pending) and four
+mistakes. Assimilation: none from merge/tsukuroi (79 collisions, L0 filed); considerthese
+scoreboard resumed. Full detail: SCORECARD "Round 64 — measured outcome".
