@@ -1,0 +1,53 @@
+2026-11-03T21:49:47Z
+$ ls -la /var/lib/btrfs
+ls: cannot access '/var/lib/btrfs': No such file or directory
+rc=2
+
+$ ls -1 /etc/systemd/system/timers.target.wants/ | grep -i scrub
+rc=1
+
+$ systemctl is-enabled 'btrfs-scrub@-.timer'
+disabled
+rc=1
+
+$ systemctl list-timers --all | grep -i scrub
+rc=1
+
+$ systemctl cat 'btrfs-scrub@.timer' | head -20
+# /usr/lib/systemd/system/btrfs-scrub@.timer
+[Unit]
+Description=Monthly Btrfs scrub on %f
+
+[Timer]
+OnCalendar=monthly
+AccuracySec=1d
+RandomizedDelaySec=1w
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+rc=0
+
+$ systemctl cat 'btrfs-scrub@.service' | grep -E 'ExecStart|Description'
+Description=Btrfs scrub on %f
+ExecStart=/usr/bin/btrfs scrub start -B %f
+rc=0
+
+$ ls -1 /usr/lib/systemd/system/ | grep -i scrub
+btrfs-scrub@.service
+btrfs-scrub@.timer
+e2scrub_all.service
+e2scrub_all.timer
+e2scrub_fail@.service
+e2scrub_reap.service
+e2scrub@.service
+system-xfs_scrub.slice
+xfs_scrub_all_fail.service
+xfs_scrub_all.service
+xfs_scrub_all.timer
+xfs_scrub_fail@.service
+xfs_scrub_media_fail@.service
+xfs_scrub_media@.service
+xfs_scrub@.service
+rc=0
+

@@ -1,0 +1,37 @@
+2026-11-03T21:49:47Z
+$ findmnt -t btrfs -o TARGET,SOURCE,FSTYPE,OPTIONS
+TARGET                  SOURCE                   FSTYPE OPTIONS
+/                       /dev/mapper/root[/@]     btrfs  rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@
+├─/home                 /dev/mapper/root[/@home] btrfs  rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home
+├─/var/cache/pacman/pkg /dev/mapper/root[/@pkg]  btrfs  rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=259,subvol=/@pkg
+└─/var/log              /dev/mapper/root[/@log]  btrfs  rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=258,subvol=/@log
+rc=0
+
+$ btrfs filesystem show
+Label: none  uuid: 1d02a454-c549-4a35-b567-89d60902af8e
+	Total devices 1 FS bytes used 208.43GiB
+	devid    1 size 0 used 0 path /dev/mapper/root MISSING
+rc=0
+
+$ lsblk -o NAME,FSTYPE,MOUNTPOINT
+NAME        FSTYPE      MOUNTPOINT
+sda         iso9660     
+├─sda1      iso9660     
+└─sda2      vfat        
+sr0         iso9660     
+nvme1n1                 
+├─nvme1n1p1 xfs         /tmp
+└─nvme1n1p2 xfs         /fast
+nvme0n1                 
+├─nvme0n1p1 vfat        /boot
+└─nvme0n1p2 crypto_LUKS 
+  └─root    btrfs       /var/log
+rc=0
+
+$ grep btrfs /proc/mounts
+/dev/mapper/root / btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@ 0 0
+/dev/mapper/root /home btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home 0 0
+/dev/mapper/root /var/cache/pacman/pkg btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=259,subvol=/@pkg 0 0
+/dev/mapper/root /var/log btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=258,subvol=/@log 0 0
+rc=0
+

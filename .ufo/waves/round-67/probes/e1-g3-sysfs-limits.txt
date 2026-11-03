@@ -1,0 +1,37 @@
+2026-11-03T21:49:47Z
+$ ls -1 /sys/fs/btrfs/
+1d02a454-c549-4a35-b567-89d60902af8e
+features
+rc=0
+
+$ for d in /sys/fs/btrfs/*/devinfo; do echo "== $d"; ls -1 "$d"; echo "ls rc=$?"; done
+== /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo
+1
+ls rc=0
+rc=0
+
+$ for d in /sys/fs/btrfs/*/devinfo; do for devid in $(ls -1 "$d" 2>/dev/null); do echo "-- devid=$devid"; cat "$d/$devid/scrub_speed_max"; echo "cat rc=$?"; done; done
+-- devid=1
+0
+cat rc=0
+rc=0
+
+$ for d in /sys/fs/btrfs/*/devinfo; do for devid in $(ls -1 "$d"); do printf "%s devid=%s scrub_speed_max=" "$d" "$devid"; cat "$d/$devid/scrub_speed_max"; done; done
+/sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo devid=1 scrub_speed_max=0
+rc=0
+
+$ ls -l /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/
+total 0
+-r--r--r-- 1 root root 4096 Nov  3 18:48 error_stats
+-r--r--r-- 1 root root 4096 Nov  3 18:48 fsid
+-r--r--r-- 1 root root 4096 Nov  3 18:48 in_fs_metadata
+-r--r--r-- 1 root root 4096 Nov  3 18:48 missing
+-r--r--r-- 1 root root 4096 Nov  3 18:48 replace_target
+-rw-r--r-- 1 root root 4096 Nov  3 18:48 scrub_speed_max
+-r--r--r-- 1 root root 4096 Nov  3 18:48 writeable
+rc=0
+
+$ cat /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/devinfo/1/scrub_speed_max
+0
+rc=0
+

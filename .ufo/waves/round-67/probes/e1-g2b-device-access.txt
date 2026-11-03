@@ -1,0 +1,36 @@
+2026-11-03T21:50:21Z
+$ btrfs filesystem show
+Label: none  uuid: 1d02a454-c549-4a35-b567-89d60902af8e
+	Total devices 1 FS bytes used 208.44GiB
+	devid    1 size 0 used 0 path /dev/mapper/root MISSING
+rc=0
+
+$ btrfs filesystem show /dev/mapper/root
+ERROR: cannot open /dev/dm-0: Permission denied
+ERROR: no btrfs on /dev/dm-0
+rc=1
+
+$ stat -L -c "%n %s %F" /dev/mapper/root
+/dev/mapper/root 0 block special file
+rc=0
+
+$ ls -l /dev/dm-0 /dev/mapper/root
+brw-rw---- 1 root disk 253, 0 Nov  2 12:07 /dev/dm-0
+lrwxrwxrwx 1 root root      7 Nov  2 12:07 /dev/mapper/root -> ../dm-0
+rc=0
+
+$ id -u; id -un
+1000
+vgpnk
+rc=0
+
+$ cat /proc/self/status | grep -E "^CapEff"
+CapEff:	0000000000000000
+rc=0
+
+$ df -B1 / /home
+Filesystem          1B-blocks         Used    Available Use% Mounted on
+/dev/mapper/root 998037782528 229262102528 768338227200  23% /
+/dev/mapper/root 998037782528 229262102528 768338227200  23% /home
+rc=0
+

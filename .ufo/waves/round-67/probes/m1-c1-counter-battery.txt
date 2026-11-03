@@ -1,0 +1,618 @@
+2026-11-03T21:53:19Z
+seat=M1Mutation  lane=tsukuroi-shokunin  round=67  wave=w1  item=M1Mutation (mutate C1 counter)
+scratch=/fast/scratch/hyaku/tsukuroi-r67/M1Mutation  (disposable; removed after every receipt is copied out)
+lane_head=071a55c9c0fd022890d1b255c2782e4761e7a7d8
+frozen_declaration=SCORECARD.md "Round 67 - declaration" (lane 071a55c9), row C1, predicate column 3
+
+== TOOLS ==
+$ command -v grep awk
+/usr/bin/grep
+/usr/bin/awk
+$ grep -V | sed -n 1p
+grep (GNU grep) 3.12-modified
+$ awk --version | sed -n 1p
+GNU Awk 5.4.1, API 4.1, PMA Avon 8-g1, (GNU MPFR 4.2.2, GNU MP 6.3.0)
+$ sha256sum strict.awk strict-v1.awk
+91dee1cff8976edc3d1e12606abe9433de1edd3344a530b367f27d132f56f965  /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk
+63193caa47ce4b32929f22fb9d9ed14ff065fe5e1f66ed19865baed5fe462c4d  /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict-v1.awk
+
+== FROZEN COUNTER (verbatim) ==
+grep -cE '^\| SL[0-9]+ \|'   predicate: count >= 4   (SCORECARD.md C1 predicate cell)
+bytes extracted from the lane declaration row:
+grep -cE '^\| SL[0-9]+ \|'
+
+== STRICT COUNTER (defined here, not landed) ==
+primary = strict.awk (v2)
+A line is ONE valid row iff ALL of:
+  S1 outside a fenced code block (a line whose first non-space chars are ``` toggles the fence)
+  S2 exact frozen anchor: line starts with '| SL<digits> |' (byte-equivalent to ^\| SL[0-9]+ \|)
+  S3 exactly 3 visible columns (awk -F'|': NF == 5); a markdown-escaped '\|' inside a cell is
+     protected before the split, so evidence quoting a pipeline still yields 3 columns
+  S4 id = SL<digits>, unique across all valid rows
+  S5 claim cell non-empty after trim
+  S6 evidence cell non-empty after trim AND matching a line-number pattern:
+       PATH:[0-9]+(-[0-9]+)?   e.g. scrub.c:1640 or scrub.c:1640-1649  |  bare NNN-NNN or NNNN-NNNN
+count = number of distinct valid rows; predicate: count >= 4
+strict-v1.awk = same rules WITHOUT the S3 escape protection (kept to show the S3 defect, probe B4).
+S2 is implemented by byte tests (substr), not a regex, so it cannot drift from the frozen anchor
+through ERE escaping; anchor-equivalence probes B1-B3 check that axis directly.
+
+== GROUNDING for the line ranges used inside fixture evidence cells ==
+$ sed -n '1594,1604p' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-42/frozen/src/scrub.c
+
+	err = 0;
+	for (i = 0; i < fi_args.num_devices; ++i) {
+		/* Revert to the older scrub limit. */
+		ret = write_scrub_device_limit(fdmnt, di_args[i].devid, sp[i].old_limit);
+		if (ret < 0) {
+			errno = -ret;
+			warning("failed to reset scrub throughput limit on devid %llu: %m",
+				di_args[i].devid);
+		}
+
+$ sed -n '1640,1649p' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-67/before/src/scrub.c
+	/* Revert to the older scrub limits. */
+	for (i = 0; i < fi_args.num_devices; ++i) {
+		ret = write_scrub_device_limit(fdmnt, di_args[i].devid, sp[i].old_limit);
+		if (ret < 0) {
+			errno = -ret;
+			warning("failed to reset scrub throughput limit on devid %llu: %m",
+				di_args[i].devid);
+		}
+	}
+
+
+== BATTERY: control + five fixtures ==
+
+---- K0 control (4 correct rows, distinct ids SL1..SL4) ----
+$ wc -c < /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/fixtures/K0.txt
+550
+$ sha256sum /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/fixtures/K0.txt
+f82703311d14d38598d57954076fa2d750209c40a11f06cd17e2f9aa3e0f454b
+$ grep -cE '^\| SL[0-9]+ \|' /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/fixtures/K0.txt
+4
+rc=0
+$ [ 4 -ge 4 ] ; echo rc=$?
+rc=0  -> PASS
+$ awk -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/fixtures/K0.txt
+STRICT_COUNT=4
+rc=0
+$ [ 4 -ge 4 ] ; echo rc=$?
+rc=0  -> PASS
+$ awk -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict-v1.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/fixtures/K0.txt   # pre-fix variant, equality check
+STRICT_COUNT=4
+v1_vs_v2: v1=4 v2=4 identical=YES
+FROZEN: count=4 predicate=PASS (SURVIVES-FROZEN) | STRICT: count=4 predicate=PASS (SURVIVES-STRICT)
+
+---- Ma header row '| SL | claim | evidence |' plus 3 correct rows ----
+$ wc -c < /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Ma.txt
+423
+$ sha256sum /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Ma.txt
+7dccdb693d22701cde01cefce234b9463015ed76bbcb5fd9f74902fcf242f9ee
+$ grep -cE '^\| SL[0-9]+ \|' /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Ma.txt
+3
+rc=0
+$ [ 3 -ge 4 ] ; echo rc=$?
+rc=1  -> FAIL
+$ awk -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Ma.txt
+STRICT_COUNT=3
+rc=0
+$ [ 3 -ge 4 ] ; echo rc=$?
+rc=1  -> FAIL
+$ awk -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict-v1.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Ma.txt   # pre-fix variant, equality check
+STRICT_COUNT=3
+v1_vs_v2: v1=3 v2=3 identical=YES
+FROZEN: count=3 predicate=FAIL (KILLED-BY-FROZEN) | STRICT: count=3 predicate=FAIL (KILLED-BY-STRICT)
+
+---- Mb four rows all '| SL1 |' (duplicate ids) ----
+$ wc -c < /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mb.txt
+530
+$ sha256sum /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mb.txt
+ea217b5dd1124d99be3da66bcb7fe5b88034e7506f6a4225544cc240672e5f10
+$ grep -cE '^\| SL[0-9]+ \|' /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mb.txt
+4
+rc=0
+$ [ 4 -ge 4 ] ; echo rc=$?
+rc=0  -> PASS
+$ awk -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mb.txt
+STRICT_COUNT=1
+rc=0
+$ [ 1 -ge 4 ] ; echo rc=$?
+rc=1  -> FAIL
+$ awk -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict-v1.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mb.txt   # pre-fix variant, equality check
+STRICT_COUNT=1
+v1_vs_v2: v1=1 v2=1 identical=YES
+FROZEN: count=4 predicate=PASS (SURVIVES-FROZEN) | STRICT: count=1 predicate=FAIL (KILLED-BY-STRICT)
+
+---- Mc 3 correct rows + one '| SL5 |' row inside a fenced code block ----
+$ wc -c < /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mc.txt
+533
+$ sha256sum /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mc.txt
+3f164aeb2b963fbe4b42cfa2972a4e6cb9cc9cebe1e6cf6c1de1ba074f00319d
+$ grep -cE '^\| SL[0-9]+ \|' /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mc.txt
+4
+rc=0
+$ [ 4 -ge 4 ] ; echo rc=$?
+rc=0  -> PASS
+$ awk -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mc.txt
+STRICT_COUNT=3
+rc=0
+$ [ 3 -ge 4 ] ; echo rc=$?
+rc=1  -> FAIL
+$ awk -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict-v1.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mc.txt   # pre-fix variant, equality check
+STRICT_COUNT=3
+v1_vs_v2: v1=3 v2=3 identical=YES
+FROZEN: count=4 predicate=PASS (SURVIVES-FROZEN) | STRICT: count=3 predicate=FAIL (KILLED-BY-STRICT)
+
+---- Md 3 correct rows + prose line beginning '| SL4 | ...' with no evidence ----
+$ wc -c < /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Md.txt
+509
+$ sha256sum /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Md.txt
+8143d9d063c64ea64a0de3a39aba16df023211b8fbebeb31d8d0646c48d715be
+$ grep -cE '^\| SL[0-9]+ \|' /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Md.txt
+4
+rc=0
+$ [ 4 -ge 4 ] ; echo rc=$?
+rc=0  -> PASS
+$ awk -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Md.txt
+STRICT_COUNT=3
+rc=0
+$ [ 3 -ge 4 ] ; echo rc=$?
+rc=1  -> FAIL
+$ awk -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict-v1.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Md.txt   # pre-fix variant, equality check
+STRICT_COUNT=3
+v1_vs_v2: v1=3 v2=3 identical=YES
+FROZEN: count=4 predicate=PASS (SURVIVES-FROZEN) | STRICT: count=3 predicate=FAIL (KILLED-BY-STRICT)
+
+---- Me 4 rows whose evidence cell is empty ----
+$ wc -c < /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Me.txt
+424
+$ sha256sum /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Me.txt
+39f36a3e2a585959aa62589ebaf8f23565d354ccd05d706e17530a8f85139913
+$ grep -cE '^\| SL[0-9]+ \|' /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Me.txt
+4
+rc=0
+$ [ 4 -ge 4 ] ; echo rc=$?
+rc=0  -> PASS
+$ awk -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Me.txt
+STRICT_COUNT=0
+rc=0
+$ [ 0 -ge 4 ] ; echo rc=$?
+rc=1  -> FAIL
+$ awk -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict-v1.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Me.txt   # pre-fix variant, equality check
+STRICT_COUNT=0
+v1_vs_v2: v1=0 v2=0 identical=YES
+FROZEN: count=4 predicate=PASS (SURVIVES-FROZEN) | STRICT: count=0 predicate=FAIL (KILLED-BY-STRICT)
+
+== STRICT per-row reasons (verbose, stderr) ==
+$ awk -v verbose=1 -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/fixtures/K0.txt
+ACCEPT line 4 (SL1)
+ACCEPT line 5 (SL2)
+ACCEPT line 6 (SL3)
+ACCEPT line 7 (SL4)
+STRICT_COUNT=4
+$ awk -v verbose=1 -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Ma.txt
+ACCEPT line 4 (SL1)
+ACCEPT line 5 (SL2)
+ACCEPT line 6 (SL3)
+STRICT_COUNT=3
+$ awk -v verbose=1 -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mb.txt
+ACCEPT line 4 (SL1)
+REJECT line 5 (SL1): duplicate id
+REJECT line 6 (SL1): duplicate id
+REJECT line 7 (SL1): duplicate id
+STRICT_COUNT=1
+$ awk -v verbose=1 -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mc.txt
+ACCEPT line 4 (SL1)
+ACCEPT line 5 (SL2)
+ACCEPT line 6 (SL3)
+REJECT line 9: inside fenced code block
+STRICT_COUNT=3
+$ awk -v verbose=1 -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Md.txt
+ACCEPT line 4 (SL1)
+ACCEPT line 5 (SL2)
+ACCEPT line 6 (SL3)
+REJECT line 7 (SL4): NF=3, want 5 (3 visible columns)
+STRICT_COUNT=3
+$ awk -v verbose=1 -f /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Me.txt
+REJECT line 4 (SL1): empty evidence cell
+REJECT line 5 (SL2): empty evidence cell
+REJECT line 6 (SL3): empty evidence cell
+REJECT line 7 (SL4): empty evidence cell
+STRICT_COUNT=0
+
+== MUTATE -> RUN -> REVERT (single working file; control bytes restored after each mutant) ==
+control_sha256=f82703311d14d38598d57954076fa2d750209c40a11f06cd17e2f9aa3e0f454b  (source: /fast/scratch/hyaku/tsukuroi-r67/M1Mutation/fixtures/K0.txt)
+$ cp -p fixtures/K0.txt work.txt ; sha256sum work.txt
+work_sha256=f82703311d14d38598d57954076fa2d750209c40a11f06cd17e2f9aa3e0f454b  baseline_match=yes
+
+[Ma] $ cp -p mutants/Ma.txt work.txt ; sha256sum work.txt
+work_sha256=7dccdb693d22701cde01cefce234b9463015ed76bbcb5fd9f74902fcf242f9ee  mutant_sha256=7dccdb693d22701cde01cefce234b9463015ed76bbcb5fd9f74902fcf242f9ee  bytes_match=yes
+$ grep -cE '^\| SL[0-9]+ \|' work.txt  ->  3  (rc=0)
+$ awk -f strict.awk work.txt  ->  STRICT_COUNT=3  (rc=0)
+[Ma] revert: $ cp -p fixtures/K0.txt work.txt ; sha256sum work.txt
+work_sha256=f82703311d14d38598d57954076fa2d750209c40a11f06cd17e2f9aa3e0f454b  restored=YES  restore_rc=0
+
+[Mb] $ cp -p mutants/Mb.txt work.txt ; sha256sum work.txt
+work_sha256=ea217b5dd1124d99be3da66bcb7fe5b88034e7506f6a4225544cc240672e5f10  mutant_sha256=ea217b5dd1124d99be3da66bcb7fe5b88034e7506f6a4225544cc240672e5f10  bytes_match=yes
+$ grep -cE '^\| SL[0-9]+ \|' work.txt  ->  4  (rc=0)
+$ awk -f strict.awk work.txt  ->  STRICT_COUNT=1  (rc=0)
+[Mb] revert: $ cp -p fixtures/K0.txt work.txt ; sha256sum work.txt
+work_sha256=f82703311d14d38598d57954076fa2d750209c40a11f06cd17e2f9aa3e0f454b  restored=YES  restore_rc=0
+
+[Mc] $ cp -p mutants/Mc.txt work.txt ; sha256sum work.txt
+work_sha256=3f164aeb2b963fbe4b42cfa2972a4e6cb9cc9cebe1e6cf6c1de1ba074f00319d  mutant_sha256=3f164aeb2b963fbe4b42cfa2972a4e6cb9cc9cebe1e6cf6c1de1ba074f00319d  bytes_match=yes
+$ grep -cE '^\| SL[0-9]+ \|' work.txt  ->  4  (rc=0)
+$ awk -f strict.awk work.txt  ->  STRICT_COUNT=3  (rc=0)
+[Mc] revert: $ cp -p fixtures/K0.txt work.txt ; sha256sum work.txt
+work_sha256=f82703311d14d38598d57954076fa2d750209c40a11f06cd17e2f9aa3e0f454b  restored=YES  restore_rc=0
+
+[Md] $ cp -p mutants/Md.txt work.txt ; sha256sum work.txt
+work_sha256=8143d9d063c64ea64a0de3a39aba16df023211b8fbebeb31d8d0646c48d715be  mutant_sha256=8143d9d063c64ea64a0de3a39aba16df023211b8fbebeb31d8d0646c48d715be  bytes_match=yes
+$ grep -cE '^\| SL[0-9]+ \|' work.txt  ->  4  (rc=0)
+$ awk -f strict.awk work.txt  ->  STRICT_COUNT=3  (rc=0)
+[Md] revert: $ cp -p fixtures/K0.txt work.txt ; sha256sum work.txt
+work_sha256=f82703311d14d38598d57954076fa2d750209c40a11f06cd17e2f9aa3e0f454b  restored=YES  restore_rc=0
+
+[Me] $ cp -p mutants/Me.txt work.txt ; sha256sum work.txt
+work_sha256=39f36a3e2a585959aa62589ebaf8f23565d354ccd05d706e17530a8f85139913  mutant_sha256=39f36a3e2a585959aa62589ebaf8f23565d354ccd05d706e17530a8f85139913  bytes_match=yes
+$ grep -cE '^\| SL[0-9]+ \|' work.txt  ->  4  (rc=0)
+$ awk -f strict.awk work.txt  ->  STRICT_COUNT=0  (rc=0)
+[Me] revert: $ cp -p fixtures/K0.txt work.txt ; sha256sum work.txt
+work_sha256=f82703311d14d38598d57954076fa2d750209c40a11f06cd17e2f9aa3e0f454b  restored=YES  restore_rc=0
+
+== AUXILIARY probes ==
+B1-B3: frozen and strict must agree on the ANCHOR axis (no added discrimination there).
+B4: a legitimate row whose evidence quotes a markdown-escaped pipeline AND cites a line range.
+    Expected: frozen=4, v2=4 (S3 protects the escaped pipe), v1=3 (S3 splits on it -> false kill).
+B5: a legitimate bare line range '1640-1649' in the evidence cell (S6 branch).
+$ grep -cE '^\| SL[0-9]+ \|' aux/B1.txt -> 3 (rc=0)
+$ awk -f strict.awk aux/B1.txt -> STRICT_COUNT=3 (rc=0)
+$ awk -f strict-v1.awk aux/B1.txt -> STRICT_COUNT=3
+B1: frozen=3 strict_v2=3 strict_v1=3 frozen_vs_v2_agree=YES
+$ grep -cE '^\| SL[0-9]+ \|' aux/B2.txt -> 4 (rc=0)
+$ awk -f strict.awk aux/B2.txt -> STRICT_COUNT=4 (rc=0)
+$ awk -f strict-v1.awk aux/B2.txt -> STRICT_COUNT=4
+B2: frozen=4 strict_v2=4 strict_v1=4 frozen_vs_v2_agree=YES
+$ grep -cE '^\| SL[0-9]+ \|' aux/B3.txt -> 0 (rc=1)
+$ awk -f strict.awk aux/B3.txt -> STRICT_COUNT=0 (rc=0)
+$ awk -f strict-v1.awk aux/B3.txt -> STRICT_COUNT=0
+B3: frozen=0 strict_v2=0 strict_v1=0 frozen_vs_v2_agree=YES
+$ grep -cE '^\| SL[0-9]+ \|' aux/B4.txt -> 4 (rc=0)
+$ awk -f strict.awk aux/B4.txt -> STRICT_COUNT=4 (rc=0)
+$ awk -f strict-v1.awk aux/B4.txt -> STRICT_COUNT=3
+B4: frozen=4 strict_v2=4 strict_v1=3 frozen_vs_v2_agree=YES
+$ grep -cE '^\| SL[0-9]+ \|' aux/B5.txt -> 4 (rc=0)
+$ awk -f strict.awk aux/B5.txt -> STRICT_COUNT=4 (rc=0)
+$ awk -f strict-v1.awk aux/B5.txt -> STRICT_COUNT=4
+B5: frozen=4 strict_v2=4 strict_v1=4 frozen_vs_v2_agree=YES
+
+== FIXTURE AND COUNTER BYTES (embedded so the receipt outlives the scratch dir) ==
+--- fixtures/K0.txt  sha256=f82703311d14d38598d57954076fa2d750209c40a11f06cd17e2f9aa3e0f454b ---
+# K0 control: 4 correct rows, distinct ids SL1..SL4, evidence cites real pinned line ranges
+| SL | claim | evidence |
+|---|---|---|
+| SL1 | v7.1 reverts the per-device scrub throughput limit inside the per-device result loop | `scrub.c:1597-1604` |
+| SL2 | v7.3 reverts the limit in ONE loop after all devices finish | `scrub.c:1640-1649` |
+| SL3 | the v7.3 pinned bytes carry the hoisted block, one loop, not the nested copy | `scrub.c:1640-1649` |
+| SL4 | the v7.1 frozen copy keeps the revert nested inside the device loop | `scrub.c:1597-1604` |
+--- end fixtures/K0.txt ---
+--- mutants/Ma.txt  sha256=7dccdb693d22701cde01cefce234b9463015ed76bbcb5fd9f74902fcf242f9ee ---
+# Ma: header row `| SL | claim | evidence |` plus 3 correct rows
+| SL | claim | evidence |
+|---|---|---|
+| SL1 | v7.1 reverts the per-device scrub throughput limit inside the per-device result loop | `scrub.c:1597-1604` |
+| SL2 | v7.3 reverts the limit in ONE loop after all devices finish | `scrub.c:1640-1649` |
+| SL3 | the v7.3 pinned bytes carry the hoisted block, one loop, not the nested copy | `scrub.c:1640-1649` |
+--- end mutants/Ma.txt ---
+--- mutants/Mb.txt  sha256=ea217b5dd1124d99be3da66bcb7fe5b88034e7506f6a4225544cc240672e5f10 ---
+# Mb: four rows all `| SL1 |` (duplicate ids), evidence present on each
+| SL | claim | evidence |
+|---|---|---|
+| SL1 | v7.1 reverts the per-device scrub throughput limit inside the per-device result loop | `scrub.c:1597-1604` |
+| SL1 | v7.3 reverts the limit in ONE loop after all devices finish | `scrub.c:1640-1649` |
+| SL1 | the v7.3 pinned bytes carry the hoisted block, one loop, not the nested copy | `scrub.c:1640-1649` |
+| SL1 | the v7.1 frozen copy keeps the revert nested inside the device loop | `scrub.c:1597-1604` |
+--- end mutants/Mb.txt ---
+--- mutants/Mc.txt  sha256=3f164aeb2b963fbe4b42cfa2972a4e6cb9cc9cebe1e6cf6c1de1ba074f00319d ---
+# Mc: 3 correct rows plus one `| SL5 |` row inside a fenced code block
+| SL | claim | evidence |
+|---|---|---|
+| SL1 | v7.1 reverts the per-device scrub throughput limit inside the per-device result loop | `scrub.c:1597-1604` |
+| SL2 | v7.3 reverts the limit in ONE loop after all devices finish | `scrub.c:1640-1649` |
+| SL3 | the v7.3 pinned bytes carry the hoisted block, one loop, not the nested copy | `scrub.c:1640-1649` |
+
+```text
+| SL5 | example row pasted inside a fence, not a real registry row | `scrub.c:1640-1649` |
+```
+--- end mutants/Mc.txt ---
+--- mutants/Md.txt  sha256=8143d9d063c64ea64a0de3a39aba16df023211b8fbebeb31d8d0646c48d715be ---
+# Md: 3 correct rows plus a prose line beginning `| SL4 | ...` with no evidence cell
+| SL | claim | evidence |
+|---|---|---|
+| SL1 | v7.1 reverts the per-device scrub throughput limit inside the per-device result loop | `scrub.c:1597-1604` |
+| SL2 | v7.3 reverts the limit in ONE loop after all devices finish | `scrub.c:1640-1649` |
+| SL3 | the v7.3 pinned bytes carry the hoisted block, one loop, not the nested copy | `scrub.c:1640-1649` |
+| SL4 | this row was pasted as prose and carries no evidence cell
+--- end mutants/Md.txt ---
+--- mutants/Me.txt  sha256=39f36a3e2a585959aa62589ebaf8f23565d354ccd05d706e17530a8f85139913 ---
+# Me: 4 rows whose evidence cell is empty
+| SL | claim | evidence |
+|---|---|---|
+| SL1 | v7.1 reverts the per-device scrub throughput limit inside the per-device result loop |  |
+| SL2 | v7.3 reverts the limit in ONE loop after all devices finish |  |
+| SL3 | the v7.3 pinned bytes carry the hoisted block, one loop, not the nested copy |  |
+| SL4 | the v7.1 frozen copy keeps the revert nested inside the device loop |  |
+--- end mutants/Me.txt ---
+--- aux/B1.txt  sha256=2e33c80ba63f0a9260ff8a5994e65bab25b1868953334414ad30ad2039e270ca ---
+# B1: id cell without the space before the closing pipe (`| SL1|`)
+| SL | claim | evidence |
+|---|---|---|
+| SL1| v7.1 reverts the per-device scrub throughput limit inside the per-device result loop | `scrub.c:1597-1604` |
+| SL2 | v7.3 reverts the limit in ONE loop after all devices finish | `scrub.c:1640-1649` |
+| SL3 | the v7.3 pinned bytes carry the hoisted block, one loop, not the nested copy | `scrub.c:1640-1649` |
+| SL4 | the v7.1 frozen copy keeps the revert nested inside the device loop | `scrub.c:1597-1604` |
+--- end aux/B1.txt ---
+--- aux/B2.txt  sha256=5e70adacb3927643311c55a4f512e7358eb808ea04cf5c430501e6f6d3ac7b04 ---
+# B2: multi-digit id `| SL10 |` (frozen anchor uses [0-9]+, not a single digit)
+| SL | claim | evidence |
+|---|---|---|
+| SL10 | v7.1 reverts the per-device scrub throughput limit inside the per-device result loop | `scrub.c:1597-1604` |
+| SL11 | v7.3 reverts the limit in ONE loop after all devices finish | `scrub.c:1640-1649` |
+| SL12 | the v7.3 pinned bytes carry the hoisted block, one loop, not the nested copy | `scrub.c:1640-1649` |
+| SL13 | the v7.1 frozen copy keeps the revert nested inside the device loop | `scrub.c:1597-1604` |
+--- end aux/B2.txt ---
+--- aux/B3.txt  sha256=f615da4a80f0da6476831d07fa6d67ef7cbad63ffb5e5a8909baba868ab2a9ac ---
+# B3: rows indented by two spaces (not column 1)
+| SL | claim | evidence |
+|---|---|---|
+  | SL1 | v7.1 reverts the per-device scrub throughput limit inside the per-device result loop | `scrub.c:1597-1604` |
+  | SL2 | v7.3 reverts the limit in ONE loop after all devices finish | `scrub.c:1640-1649` |
+  | SL3 | the v7.3 pinned bytes carry the hoisted block, one loop, not the nested copy | `scrub.c:1640-1649` |
+  | SL4 | the v7.1 frozen copy keeps the revert nested inside the device loop | `scrub.c:1597-1604` |
+--- end aux/B3.txt ---
+--- aux/B4.txt  sha256=66079d98e8ca9441ba0e3740d2acf80856055b0d0a39a0fdac919b46b8817af3 ---
+# B4: legitimate rows; SL3 evidence quotes a markdown-escaped pipeline AND cites a line range.
+# This is the markdown-correct way to put a pipe inside a table cell.
+| SL | claim | evidence |
+|---|---|---|
+| SL1 | v7.1 reverts the per-device scrub throughput limit inside the per-device result loop | `scrub.c:1597-1604` |
+| SL2 | v7.3 reverts the limit in ONE loop after all devices finish | `scrub.c:1640-1649` |
+| SL3 | the hoisted block hashes the same through a pipeline read | `sed -n '1640,1649p' scrub.c \| sha256sum` scrub.c:1640-1649 |
+| SL4 | the v7.1 frozen copy keeps the revert nested inside the device loop | `scrub.c:1597-1604` |
+--- end aux/B4.txt ---
+--- aux/B5.txt  sha256=4842177c0054370246b5c949e3b9d41d206c8730ce6e7c6e43c2024123e6687a ---
+# B5: one evidence cell carries a BARE line range `1640-1649` (no path prefix)
+| SL | claim | evidence |
+|---|---|---|
+| SL1 | v7.1 reverts the per-device scrub throughput limit inside the per-device result loop | `scrub.c:1597-1604` |
+| SL2 | v7.3 reverts the limit in ONE loop after all devices finish | `scrub.c:1640-1649` |
+| SL3 | the hoisted block starts at the post-loop revert comment | 1640-1649 |
+| SL4 | the v7.1 frozen copy keeps the revert nested inside the device loop | `scrub.c:1597-1604` |
+--- end aux/B5.txt ---
+--- strict.awk  sha256=91dee1cff8976edc3d1e12606abe9433de1edd3344a530b367f27d132f56f965 ---
+# STRICT C1 SL-row counter (v2) — defined by seat M1Mutation (round 67), stricter
+# than the frozen `grep -cE '^\| SL[0-9]+ \|'`.
+# A line counts as ONE valid row iff ALL of:
+#   S1 not inside a fenced code block (first non-space chars "```" toggle the fence)
+#   S2 exact frozen anchor: line starts with "| SL<digits> |" (byte-equivalent to ^\| SL[0-9]+ \|)
+#   S3 exactly 3 visible columns (awk -F'|': NF == 5, i.e. leading+trailing empty fields);
+#      a markdown-escaped "\|" inside a cell is protected before the split, so a legitimate
+#      row whose evidence quotes a pipeline still yields 3 columns (v1 lacked this)
+#   S4 id = SL<digits>, unique across all valid rows
+#   S5 claim cell non-empty after trim
+#   S6 evidence cell non-empty after trim and matching a line-number pattern:
+#        PATH:[0-9]+(-[0-9]+)?            e.g. scrub.c:1640  or scrub.c:1640-1649
+#        [0-9][0-9][0-9]-[0-9][0-9][0-9]  e.g. 597-604
+#        [0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]  e.g. 1640-1649
+# Output: "STRICT_COUNT=<n>" on stdout (n = distinct valid rows); exit 0.
+# -v verbose=1 : per-candidate ACCEPT/REJECT with reason on stderr.
+
+function trim(s) { sub(/^[ \t]+/, "", s); sub(/[ \t]+$/, "", s); return s }
+
+function unprotect(s) { gsub("\001", "|", s); return s }
+
+BEGIN { fence = 0; count = 0 }
+
+{
+    raw = $0
+
+    # S1 fence tracking
+    tmp = raw
+    sub(/^[ \t]+/, "", tmp)
+    if (substr(tmp, 1, 3) == "```") { fence = !fence; next }
+    if (fence) { if (verbose) printf "REJECT line %d: inside fenced code block\n", NR; next }
+
+    # S2 frozen anchor, reproduced without regex metacharacter hazards
+    if (substr(raw, 1, 2) != "| ") next
+    rest = substr(raw, 3)
+    if (rest !~ /^SL[0-9]/) next
+    id = rest
+    sub(/[^0-9A-Za-z_].*$/, "", id)
+    if (id !~ /^SL[0-9]+$/) next
+    if (substr(rest, length(id) + 1, 1) != " ") next
+    if (substr(rest, length(id) + 2, 1) != "|") next
+
+    # protect markdown-escaped pipes so S3 sees the real column count
+    line = raw
+    gsub(/\\\|/, "\001", line)
+
+    # S3 exactly 3 visible columns
+    nf = split(line, c, "|")
+    if (nf != 5) {
+        if (verbose) printf "REJECT line %d (%s): NF=%d, want 5 (3 visible columns)\n", NR, id, nf
+        next
+    }
+    claim = trim(unprotect(c[3]))
+    ev = trim(unprotect(c[4]))
+
+    # S4 unique id
+    if (id in seen) {
+        if (verbose) printf "REJECT line %d (%s): duplicate id\n", NR, id
+        next
+    }
+    # S5 claim non-empty
+    if (claim == "") {
+        if (verbose) printf "REJECT line %d (%s): empty claim cell\n", NR, id
+        next
+    }
+    # S6 evidence present and line-number bearing
+    if (ev == "") {
+        if (verbose) printf "REJECT line %d (%s): empty evidence cell\n", NR, id
+        next
+    }
+    hit = (ev ~ /[[:alnum:]_./-]+:[0-9][0-9]*(-[0-9][0-9]*)?/) \
+          || (ev ~ /[0-9][0-9][0-9]-[0-9][0-9][0-9]/) \
+          || (ev ~ /[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]/)
+    if (!hit) {
+        if (verbose) printf "REJECT line %d (%s): evidence has no line-number pattern: %s\n", NR, id, ev
+        next
+    }
+
+    seen[id] = 1
+    count++
+    if (verbose) printf "ACCEPT line %d (%s)\n", NR, id
+}
+
+END { printf "STRICT_COUNT=%d\n", count }
+--- end strict.awk ---
+--- strict-v1.awk  sha256=63193caa47ce4b32929f22fb9d9ed14ff065fe5e1f66ed19865baed5fe462c4d ---
+# STRICT C1 SL-row counter — defined by seat M1Mutation (round 67), stricter
+# than the frozen `grep -cE '^\| SL[0-9]+ \|'`.
+# A line counts as ONE valid row iff ALL of:
+#   S1 not inside a fenced code block (first non-space chars "```" toggle the fence)
+#   S2 exact frozen anchor: line starts with "| SL<digits> |" (byte-equivalent to ^\| SL[0-9]+ \|)
+#   S3 exactly 3 visible columns (awk -F'|': NF == 5, i.e. leading+trailing empty fields)
+#   S4 id = SL<digits>, unique across all valid rows
+#   S5 claim cell non-empty after trim
+#   S6 evidence cell non-empty after trim and matching a line-number pattern:
+#        PATH:[0-9]+(-[0-9]+)?            e.g. scrub.c:1640  or  scrub.c:1640-1649
+#        [0-9][0-9][0-9]-[0-9][0-9][0-9]  e.g. 597-604
+#        [0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]  e.g. 1640-1649
+# Output: "STRICT_COUNT=<n>" on stdout (n = distinct valid rows); exit 0.
+# -v verbose=1 : per-candidate ACCEPT/REJECT with reason on stderr.
+
+function trim(s) { sub(/^[ \t]+/, "", s); sub(/[ \t]+$/, "", s); return s }
+
+BEGIN { fence = 0; count = 0 }
+
+{
+    line = $0
+
+    # S1 fence tracking
+    tmp = line
+    sub(/^[ \t]+/, "", tmp)
+    if (substr(tmp, 1, 3) == "```") { fence = !fence; next }
+    if (fence) { if (verbose) printf "REJECT line %d: inside fenced code block\n", NR; next }
+
+    # S2 frozen anchor, reproduced without regex metacharacter hazards
+    if (substr(line, 1, 2) != "| ") next
+    rest = substr(line, 3)
+    if (rest !~ /^SL[0-9]/) next
+    id = rest
+    sub(/[^0-9A-Za-z_].*$/, "", id)
+    if (id !~ /^SL[0-9]+$/) next
+    if (substr(rest, length(id) + 1, 1) != " ") next
+    if (substr(rest, length(id) + 2, 1) != "|") next
+
+    # S3 exactly 3 visible columns
+    nf = split(line, c, "|")
+    if (nf != 5) {
+        if (verbose) printf "REJECT line %d (%s): NF=%d, want 5 (3 visible columns)\n", NR, id, nf
+        next
+    }
+    claim = trim(c[3])
+    ev = trim(c[4])
+
+    # S4 unique id
+    if (id in seen) {
+        if (verbose) printf "REJECT line %d (%s): duplicate id\n", NR, id
+        next
+    }
+    # S5 claim non-empty
+    if (claim == "") {
+        if (verbose) printf "REJECT line %d (%s): empty claim cell\n", NR, id
+        next
+    }
+    # S6 evidence present and line-number bearing
+    if (ev == "") {
+        if (verbose) printf "REJECT line %d (%s): empty evidence cell\n", NR, id
+        next
+    }
+    hit = (ev ~ /[[:alnum:]_./-]+:[0-9][0-9]*(-[0-9][0-9]*)?/) \
+          || (ev ~ /[0-9][0-9][0-9]-[0-9][0-9][0-9]/) \
+          || (ev ~ /[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]/)
+    if (!hit) {
+        if (verbose) printf "REJECT line %d (%s): evidence has no line-number pattern: %s\n", NR, id, ev
+        next
+    }
+
+    seen[id] = 1
+    count++
+    if (verbose) printf "ACCEPT line %d (%s)\n", NR, id
+}
+
+END { printf "STRICT_COUNT=%d\n", count }
+--- end strict-v1.awk ---
+--- work.txt  sha256=f82703311d14d38598d57954076fa2d750209c40a11f06cd17e2f9aa3e0f454b ---
+# K0 control: 4 correct rows, distinct ids SL1..SL4, evidence cites real pinned line ranges
+| SL | claim | evidence |
+|---|---|---|
+| SL1 | v7.1 reverts the per-device scrub throughput limit inside the per-device result loop | `scrub.c:1597-1604` |
+| SL2 | v7.3 reverts the limit in ONE loop after all devices finish | `scrub.c:1640-1649` |
+| SL3 | the v7.3 pinned bytes carry the hoisted block, one loop, not the nested copy | `scrub.c:1640-1649` |
+| SL4 | the v7.1 frozen copy keeps the revert nested inside the device loop | `scrub.c:1597-1604` |
+--- end work.txt ---
+
+== SUMMARY (one line per mutant) ==
+K0=FROZEN:4/SURVIVES-FROZEN STRICT:4/SURVIVES-STRICT
+Ma=FROZEN:3/KILLED-BY-FROZEN STRICT:3/KILLED-BY-STRICT
+Mb=FROZEN:4/SURVIVES-FROZEN STRICT:1/KILLED-BY-STRICT
+Mc=FROZEN:4/SURVIVES-FROZEN STRICT:3/KILLED-BY-STRICT
+Md=FROZEN:4/SURVIVES-FROZEN STRICT:3/KILLED-BY-STRICT
+Me=FROZEN:4/SURVIVES-FROZEN STRICT:0/KILLED-BY-STRICT
+SURVIVES_FROZEN=4 of 5
+SURVIVES_STRICT=0 of 5
+CONTROL=VALID (K0 passes both detectors -> a mutant verdict is meaningful, not a detector-wide failure)
+READING: the frozen predicate counts ROW SHAPES only. Every mutant that keeps >=4 matching lines
+         (Mb duplicates, Mc fenced copy, Md prose line, Me empty evidence) passes it; only Ma,
+         which removes a row, fails. So the frozen counter is a shape count, not a coverage check.
+         The strict counter kills all four shape-preserving mutants and, in v2, keeps legitimate
+         escaped-pipe and bare-range rows (B4/B5) that v1 would have false-killed (B4).
+NOTE: this battery runs on synthetic fixtures; the lane's real counter gets its honest-base run
+      only at L1 integration. No tracked file is read for its content beyond the pinned sources
+      quoted above, and none is written.
+
+== SCOPE ==
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse HEAD
+071a55c9c0fd022890d1b255c2782e4761e7a7d8
+head_start=071a55c9c0fd022890d1b255c2782e4761e7a7d8 head_end=071a55c9c0fd022890d1b255c2782e4761e7a7d8 unchanged=yes
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain -- corpus SCORECARD.md tools
+?? corpus/lessons/round-67.md
+(the above is an UNTRACKED '??' entry written by a sibling seat during this wave; this seat issued
+ no write outside /fast/scratch/hyaku/tsukuroi-r67/M1Mutation and the two receipt paths, and modified no tracked file)
+$ stat -c '%y %n' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-67.md
+2026-11-03 18:48:55.319496419 -0300 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/lessons/round-67.md
+rc=0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain -- SCORECARD.md tools  (tracked-only check)
+(empty output = SCORECARD.md and tools/ unmodified)
+rc=0
+scratch contents (deleted after copy-out):
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/aux/B1.txt
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/aux/B2.txt
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/aux/B3.txt
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/aux/B4.txt
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/aux/B5.txt
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/fixtures/K0.txt
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Ma.txt
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mb.txt
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Mc.txt
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Md.txt
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/mutants/Me.txt
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/receipt.txt
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/run-battery.sh
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/run.err
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/run.out
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict.awk
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/strict-v1.awk
+/fast/scratch/hyaku/tsukuroi-r67/M1Mutation/work.txt

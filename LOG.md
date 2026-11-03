@@ -2955,3 +2955,17 @@ C2 adjacency: predicate met — live-located rows 10/10, object existence 10/10,
 Ordinals unchanged (depth 8, adjacency 8). Census rc 0, W04 44 → 45. Sentinel N1: CLEAN. Seats: 12, none dead.
 Detail, named limits and trend verdicts: SCORECARD "Round 66 — measured outcome"; lesson `corpus/lessons/round-66.md`.
 Evidence: `.ufo/waves/round-66/after/`, `.ufo/waves/round-66/drafts/`, `.ufo/waves/round-66/w1-results.json`.
+
+## Round 67 — declaration and landing (2026-11-03; declaration `071a55c9`, work commit in the next line of history)
+
+Declared (frozen, SCORECARD "Round 67 — declaration"): C1 depth (lowest tied, 8) — the btrfs-progs v7.3
+scrub-limit revert moved to after all devices finish; source S284 (`cmds/scrub.c` 1640-1649) and S285
+(`CHANGES` line 20). C2 calibration (9) — the adjacency gate's silent uncount of an unresolved
+`sibling_commit`. Evidence for the motivating observation: `.ufo/waves/round-67/before/src/` (scrub.c, CHANGES,
+SHA256SUMS, FETCH.txt, TAG.txt) and `.ufo/waves/round-67/probes/e2-mutant-base.json` (base mutant PASS,
+live_object_checked 9). Landed: `corpus/knowledge/btrfs-scrub-limit-revert-r67.md`; `corpus/SOURCES.md` rows
+S284, S285 after S283; `tools/check-adjacency-anchors.py` (the two-hunk patch in
+`.ufo/waves/round-67/drafts/c2-patch.diff`); `corpus/QUALITY.md` criterion 100; `corpus/README.md` round-67
+index; `corpus/lessons/round-67.md`. Wave w1: 11 seats, 0 dead (`.ufo/waves/round-67/w1-results.json`). Routed:
+the strict-counter amendment for the C1 SL predicate (R67-COUNTER-SHAPE-ONLY) and the round-66 counter
+amendments. Measured outcome in the following commit.

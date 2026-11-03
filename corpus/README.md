@@ -569,3 +569,13 @@ Append-only; the notices above stay as written. Two entries land this round; the
 | `knowledge/adjacency-recheck-r66.md` | live-HEAD re-location of the ten round-19 sibling ownership anchors (OUT-001…OUT-010), blob digests, and the systemd boot-credential overlap table against the ADJ rows | `.ufo/waves/round-66/probes/c2-sibling-heads.txt`; `.ufo/waves/round-66/drafts/c2-anchors-live.tsv` |
 
 The round-19 register `knowledge/adjacency-anchors-r19.md` gains an appended `## Erratum (round 66)` naming the stale `| 2277 |` cell of its IN-109 row; the register JSON is authoritative.
+
+## Round-67 index — btrfs scrub-limit revert ordering and the adjacency gate's unresolved-commit finding (2026-11-03)
+
+| Path | What it holds | Evidence |
+|---|---|---|
+| `knowledge/btrfs-scrub-limit-revert-r67.md` | btrfs-progs v7.3 moves the per-device scrub-limit revert to after all devices finish (rows SL1–SL4), its CHANGES line, the v7.1 bytes it replaces, the QUALITY 98 watch re-read of r42/r43, and the host applicability (inert: one device, limit 0, timer disabled) | `.ufo/waves/round-67/before/src/{scrub.c,CHANGES,SHA256SUMS}`; `.ufo/waves/round-67/probes/e1-*`; `.ufo/waves/round-67/drafts/S1Scout-verify.md` (ALL_MATCH) |
+| `SOURCES.md` rows S284, S285 | the v7.3 `cmds/scrub.c` and `CHANGES` pins, tier A, `mined`, recheck `on-release` | the note's source line and Gate block; `.ufo/waves/round-67/drafts/S1Scribe-c1-note.md` |
+| `tools/check-adjacency-anchors.py` (patched) | an outbound `sibling_commit` that does not resolve in an existing sibling repository now yields `ANCHOR-LIVE-OBJECT-UNRESOLVED` and FAIL; an absent sibling directory still yields no finding; one selftest case added | `.ufo/waves/round-67/drafts/c2-patch.diff`; `.ufo/waves/round-67/probes/e2-*.json`; `e3-battery-base.tsv` vs `e3-battery-patched.tsv` |
+| `QUALITY.md` criterion 100 | a gate's PASS counts each record it checks; an unresolvable live predicate is a finding | the criterion text; red state `.ufo/waves/round-67/probes/e2-mutant-base.json` |
+| `lessons/round-67.md` | Gate, Mistakes (R67-FLEET-MISROOT-SCORECARD, R67-FIXTURE-SED-NON-ROW, R67-NUMBER-DRIFT-WATCH), the frozen-counter battery (frozen SL counter survives 4 of 5 fixtures; strict counter kills 5 of 5) | `.ufo/waves/round-67/probes/m1-c1-counter-battery.txt` |

@@ -650,6 +650,11 @@ def evaluate(registry_bytes, revision, registry_revision, reader, siblings_root=
                 counts["live_object_checked"] += 1
                 if live_digest == record["sibling_blob_sha256"]:
                     counts["live_object_match"] += 1
+            elif (_safe_sibling(record["sibling"])
+                  and (Path(siblings_root) / f"{record['sibling']}-shokunin").is_dir()):
+                findings.append(_finding("ANCHOR-LIVE-OBJECT-UNRESOLVED", site,
+                                         "sibling_commit does not resolve in the sibling repository"))
+                valid = False
 
         if valid:
             portable_ids.add(anchor_id)
@@ -1008,6 +1013,23 @@ def selftest():
             assert_case("clean-pass", ["--revision", clean_revision, "--registry", registry_path,
                                         "--siblings-root", siblings_root], PASS, [],
                         lambda p: "ownership_corrections" not in p["counts"])
+
+            present_root = Path(temp) / "present-sibling-repositories"
+            present_sibling = present_root / "fixture-shokunin"
+            present_sibling.mkdir(parents=True)
+            _selftest_git(present_sibling, "init", "--quiet", "--initial-branch=master")
+            _selftest_git(present_sibling, "config", "user.name", "Adjacency selftest sibling")
+            _selftest_git(present_sibling, "config", "user.email", "adjacency-selftest@example.invalid")
+            (present_sibling / "PROVINCE.md").write_text("# Fixture Province\n", encoding="utf-8")
+            _selftest_git(present_sibling, "add", "--all")
+            _selftest_git(present_sibling, "commit", "--quiet", "-m",
+                          "sibling repository without the pinned commit")
+
+            assert_case("live-object-unresolved",
+                        ["--revision", clean_revision, "--registry", registry_path,
+                         "--siblings-root", str(present_root)],
+                        FAIL, ["ANCHOR-LIVE-OBJECT-UNRESOLVED"],
+                        lambda p: p["counts"].get("live_object_checked") == 0)
 
             assert_case("ownership-correction-mode-wiring",
                         ["--revision", clean_revision, "--registry", registry_path,
