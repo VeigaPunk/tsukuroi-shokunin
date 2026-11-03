@@ -5227,3 +5227,43 @@ Wave w1: one v1 wave, band 8–16, 13 seats; seat shape and counts are fixed in 
 
 **planned (next round):** R66-M3/M4 frozen-counter amendments where still reachable; the AR resolve-then-count
 debt; the kernel arm's second-device and non-systemd-boot coverage; no amendment of this round's frozen predicates.
+
+## Round 69 — measured outcome (2026-11-03, measured revision `7d7d3aee`; author-side, non-author closure pending)
+
+Declared at `920a9eea`; base `acce353b`; measured surface `7d7d3aeecacd8633537bf68427a24a02534884f4`. Wave w1: one v1 wave, **13 seats, 0 dead** (`w1-results.json`, 13/13 settled); scout2 / executor3 / scribe2 / connector1 / reviewer2 / critic1 / mutation-tester1 / sentinel1; attack seats 4/13 = 31 % (≥ 25 %); connector 1; residual 0; the L1 held the planner seat (not a validator role). Two post-wave repairs landed inside the round (see limits): the `pending` derivation (critic K1 A5) and the taint-input normalization (reviewer R2 HIGH).
+
+| Claim | Before (base `acce353b`) → after (measured revision) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 depth (SOURCED — S288 re-pin, S289) | note `cat-file` rc **128** → present; counter rc **128** → present; SOURCES **287 → 289**; `KR_ROWS=5 KR_VERIFIED=5` rc **0**; S288/S289 on the lines directly after S287; `awk -F'|'` NF **13/13**; knowledge-header PASS **87/87**, 0 findings; refs **0** dangling; cited-receipts round 69 **PASS**; census validate rc **0**, 289 rows | **verified** on the frozen predicate (author-side) | depth **8 → 8**: one new mechanism (the vermagic composition and its `CONFIG` conditionals) and one host binding (tree ownership; the pending candidate set); the seat draft's duplicate taint rows were restructured so four rows are additive and one states the re-grounding. No ordinal uplift claimed |
+| C2 operability (capability `kernel-arm`) | `grep -c KERNEL tools/tsukuroi-census.sh` **0**, selftest **177** → label present (`grep -c 'KERNEL kernel-plane'` **20**), selftest **196** PASS rc **0** (19 `R69-C2` cases); live run prints exactly **1** KERNEL line, every field once in contract order; rollup line and exit code (rc 1) identical to the pre-arm baseline; the live diff is timestamps, time-varying counters and the new line only | **verified** | operability **9 → 9** (no uplift; the capability row enters) |
+
+Counting commands (outputs in `.ufo/waves/round-69/after/gates-final.txt` and `gates-at-final.txt`):
+
+```
+python3 tools/count-kr-rows-r69.py --revision 7d7d3aee --snapshots .ufo/waves/round-69/before/src  -> KR_ROWS=5 KR_VERIFIED=5, rc 0
+git show 7d7d3aee:corpus/SOURCES.md | grep -cE '^\| S[0-9]{3,}'                                    -> 289
+git show 7d7d3aee:corpus/SOURCES.md | awk -F'|' '/^\| S2(87|88|89) /{print $2,NF}'                  -> NF 13, 13, 13
+bash tools/tsukuroi-census.sh --selftest                                                            -> PASS (196 cases, 196 passed, 0 failed)
+bash tools/tsukuroi-census.sh | grep -c '^KERNEL kernel-plane'                                      -> 1
+python3 tools/check-cited-receipts-r62.py --revision 7d7d3aee --round 69                           -> PASS, 0 findings
+scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi                     -> rc 0, 289 rows
+```
+
+**Capabilities — round 69 entry.**
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| kernel-arm | Reports the running kernel's operability state on the census's verdict-neutral `KERNEL kernel-plane` line: release, owning package and version, module-tree state, taint mask decoded through the closed 0–19 table, the reboot-pending candidate set and an unreadable count — read-only, unprivileged, one `pacman -Qo`, never a rollup or exit-code input | `bash tools/tsukuroi-census.sh` → one KERNEL line (`after/census-live-postrepair.txt`); `--selftest` → PASS 196/196 (`after/selftest-taint-repair.txt`) | round 69 |
+
+Named limits, recorded and not smoothed:
+
+- **C1's counter is content-sensitive on its evidence legs, not on its statement** (`K1Critic` A2; `M1Mutation` survivors `m1`, `m6`): a filler statement of ≥ 12 words with a real source/snapshot/digest/quote verifies. The five malformed fixtures (duplicate id, wrong digest, absent quote, unregistered id, 7-word statement) each read below the control's 5 (`probes/E2Counter/battery.txt`); the boilerplate fixture reads 5. Routed: a statement-substance clause is a next-round frozen-counter amendment.
+- **C1's counter `source=` clause is membership only** (`K1Critic` A4, fatal as worded): any registered id passes. The landed rows cite S288/S289, and a supplementary binding check (`after/c1-source-binding.txt`) shows each row's source registry row carries that row's digest (`BOUND=5/5`) — verification of the same predicate, never an amendment of it.
+- **S288 adds no document content**: byte-identical to S140 (`cmp` rc 0). It is admitted as a re-pin at the running tag, with the reason in its teaches cell; depth credit rests on S289 and the host binding, not on S288.
+- **The `pending` derivation was under-specified at freeze**: the seat-item transform read `pending=YES` on the installed `linux-lts` pair (critic K1 A5). Repaired inside the frozen grammar as a candidate set (version, every single-dot rewrite, `<version>-lts`) with an LTS `NO` case and a `YES` case; selftest 192 → 194.
+- **The arm's taint input was not bounded** (reviewer R2 HIGH): `08` aborted the census (octal) and a 25-digit value fabricated an all-bits decode. Repaired by stripping leading zeros and refusing values wider than the table before any arithmetic; selftest 194 → 196; live line unchanged.
+- **Vermagic coverage is two module files**, not the trees, and no foreign-module load was attempted — the cross-tree incompatibility is [inference] from the header rule plus the observed token identity.
+
+Ordinals unchanged: depth **8**, coverage **9**, operability **9**, freshness **9**, calibration **9**, adjacency **8**. Saturation line **9**, window **3**; none retired. The lowest-axis duty is met by C1 (depth, tied lowest at 8); the round's depth verdict is **unchanged**, reported as such. Learning trends (author-side; a non-author spot-check is owed by the closure judge): **expansion: improved** (S289 on ground never held; S288 a stated re-pin; one entry; capability `kernel-arm`); **quality: improved** (the r68 shape-only counter debt answered by a content-sensitive counter frozen before data; QUALITY 102 and 103; two stale kernel-pairing sentences corrected by appended errata; two attack-found defects repaired in-round); **discernment: unchanged** (the lane declared a novelty it did not have and a wave seat caught it; no outside admit/reject spot-check is recorded here).
+
+Planned (next round): a statement-substance clause for the KR counter and a source-to-snapshot binding clause, both frozen before data; R66-M3/M4 where still reachable; the AR resolve-then-count debt; no amendment of this round's frozen predicates.
