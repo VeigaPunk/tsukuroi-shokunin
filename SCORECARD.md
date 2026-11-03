@@ -5096,3 +5096,41 @@ Routed, not claimed: the strict-counter amendment for the C1 SL predicate; the r
 resolve-then-count, CB header-row `^\| CB[0-9]+ \|`); the `source:`-value gate gap (K1 C1 Attack 2); the adjacency-recheck
 §4 display cell; the r65 C2 A/B demonstration; L0 `tsukuroi | round-64` id-drift (open, unanswered; nothing adopted from
 `merge/tsukuroi/`).
+## Round 68 — declaration (2026-11-03, base `42400ec6`, written before any after-measurement)
+
+Lowest non-retired axis: **depth (8, tied with adjacency 8)**; saturation line 9 / window 3 unchanged;
+none retired. Capability `initramfs-arm` entered r65; r66 and r67 entered none, so the window is at 2 of 3
+and the nudge does not waive the lowest-axis duty. Two claims on two distinct axes (depth; operability).
+
+Pre-declaration receipts, disclosed in order: the QUALITY 98 upstream-release watch fired on Linux v7.3
+before this text. The L1 fetched the v7.2 and v7.3 bytes of the four v7.2-pinned files and computed their
+sha256s (`.ufo/waves/round-68/before/src/{FETCH.txt,SHA256SUMS}`; host state `before/host.txt`). Verdicts
+on the five v7.2-pinned registry rows: S138 CHANGED (`a9433bb0…` → `2750c11a…`); S158 CHANGED (`ce146120…`
+→ `098cb522…`); S149 and S182 UNCHANGED (`452f1348…` identical); S185 UNCHANGED (`11c6b712…` identical; row
+stays `rejected`). Anchor spot-checks: the three S138 anchor quotes are byte-identical in v7.3 at drifted
+lines (memory.events 1468 → 1495; oom_kill 1507 → 1533; memory.events.local 1517 → 1544); the S158 v7.3
+diff is one comment-only hunk at `:1339`. Census before: rc 0, 0 E-code, 45 W04, 285 rows
+(`before/census-before-receipt.txt`). Do-nothing controls at base: note cat-file rc 128; tool cat-file rc 128;
+S286/S287 rows 0 (`before/absence-controls-receipt.txt`). C2 live-corpus pre-scan at base: 85 notes, 285
+registry ids, 0 dangling operative `source:` S-refs.
+
+| # | axis/type | claim | before → after (frozen predicate) | counting command | kill rule |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — S286, S287) | `corpus/knowledge/linux-v73-pinwatch-r68.md`: the QUALITY 98 watch fired on Linux v7.3. The five v7.2-pinned registry rows are re-read against v7.3 bytes, each with a verdict, a located v7.3 anchor and an applicability line; S286 (cgroup-v2.rst @ v7.3) and S287 (fs/btrfs/sysfs.c @ v7.3) are opened as reference rows; the registry rows are never edited in place. Rows `RW1`–`RW6` (≥ 6): RW1 S138 changed (sha pair; memory anchors byte-identical at drifted lines; the changed hunks named and shown outside the memory-controller section); RW2 S158 changed (sha pair; comment-only hunk; registered anchor lines intact); RW3 S149 unchanged; RW4 S182 unchanged (same bytes as S149); RW5 S185 unchanged, stays rejected; RW6 host applicability (installed `linux 7.2.11.arch1-1`; v7.3 not installed, so the v7.2 reference rows stay host-correct; named falsifier: `uname -r` ≥ 7.3 re-opens the rows) | note absent (`git cat-file -e 42400ec6…:corpus/knowledge/linux-v73-pinwatch-r68.md` rc 128) and SOURCES **285** → note present; `grep -cE '^\| RW[0-9]+ \|'` **≥ 6**; SOURCES **≥ 287** with S286 directly after S285 and S287 directly after S286; `awk -F'|' 'NF==13'` on both new rows; each Gate quote ≤ 25 words; receipt `before/src/SHA256SUMS` committed; knowledge-header PASS; census validate rc 0 at round end | `git cat-file -e <rev>:corpus/knowledge/linux-v73-pinwatch-r68.md`; `git show <rev>:corpus/knowledge/linux-v73-pinwatch-r68.md \| grep -cE '^\| RW[0-9]+ \| '`; `git show <rev>:corpus/SOURCES.md \| grep -cE '^\| S[0-9]{3,}'`; `scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi` | any do-nothing control reaches the after-state, or a sha pair does not reproduce → honest stop |
+| C2 | operability (9; capability `knowledge-source-ref-gate`) | `tools/check-knowledge-refs-r68.py`: the round-66 routed gap (K1 C1 Attack 2). `tools/check-knowledge-header.py` checks `source:` presence, never that the cited S-ids exist, so `source: S999 …` passes. The new gate reads every `corpus/knowledge/*.md` at `--revision` with the header gate's binding and fence rules, extracts the `S\d{3,}` ids on the operative `source:` line, and reports `KNOWLEDGE-REF-DANGLING` for any id absent from `corpus/SOURCES.md` at that revision. Hermetic `--selftest` with ≥ 8 cases including red cases (dangling id; id only inside a fence ignored; mid-sentence mention ignored; well-formed control passes) | tool absent (`git cat-file -e` rc 128) → tool present; `--selftest` PASS rc 0; on a fixture note citing `source: S999`: header gate rc 0 (passes) and new gate rc 1 with finding `KNOWLEDGE-REF-DANGLING`; live corpus at the work revision: rc 0, 0 findings | `git cat-file -e <rev>:tools/check-knowledge-refs-r68.py`; `python3 tools/check-knowledge-refs-r68.py --selftest`; both gates on the S999 fixture; `python3 tools/check-knowledge-refs-r68.py --revision <rev>` | any live-corpus false positive not repairable in-round → honest stop |
+
+Causal separability: C1 touches only its note, its two SOURCES rows and receipts; C2 touches only the new
+tool, its selftest fixtures, its registry row (`SKILL.md`, QUALITY 70) and receipts. Each verifies without
+the other. Counter strictness: both new table-row predicates are strict from the start (distinct ids, a
+non-empty evidence cell, no fenced-block or prose row). The R67-COUNTER-SHAPE-ONLY strict battery (header-only,
+duplicate-id, fenced-row, prose-row, empty-evidence fixtures plus a well-formed control) is committed under
+`probes/` before any note exists. Routed and not counted this round: R66-M3 (AR resolve-then-count) and
+R66-M4 (CB header-row shape, already answered by the strict regex on the new rows).
+
+Standing duties (not claims): the QUALITY 98 watch re-read (executed; results land in C1); the round-67 routed
+defect R67-POSITIVE-CONTROL-COMMAND-MISMATCH is corrected by an appended erratum in the round-68 lesson
+(`grep -c -i limit` on r42 prints 14 matching lines; `grep -o -i limit … | wc -l` prints 21 occurrences; the
+round-67 Mistakes row cited 21 as a line count); one considerthese proposal mined; assimilation: none (L0
+`tsukuroi | round-64` and its addendum remain open and unanswered in `.ufo/l0-questions.md`).
+
+Wave w1: one v1 wave, band 8–16. Seat shape and counts are fixed in `.ufo/waves/round-68/w1-spec.json`.
