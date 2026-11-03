@@ -3885,14 +3885,21 @@ STUB
   narm_off_n=$(printf '%s\n' "$narm_off_out" | grep -c '^INITRAMFS ' || true)
   narm_on_rest=$(printf '%s\n' "$narm_on_out" | grep -v '^INITRAMFS ' || true)
   narm_off_rest=$(printf '%s\n' "$narm_off_out" | grep -v '^INITRAMFS ' || true)
+  # Live host counters (PSI, swap, memory) move between the two runs, so whole-output equality is
+  # not a neutrality test. The rollup line, the exit code and the non-INITRAMFS line count are the
+  # inputs the arm could possibly touch; those are compared exactly.
+  narm_on_roll=$(printf '%s\n' "$narm_on_out" | grep '^TSUKUROI_CENSUS:' || true)
+  narm_off_roll=$(printf '%s\n' "$narm_off_out" | grep '^TSUKUROI_CENSUS:' || true)
+  narm_on_rest_n=$(printf '%s\n' "$narm_on_rest" | grep -c . || true)
+  narm_off_rest_n=$(printf '%s\n' "$narm_off_rest" | grep -c . || true)
   if [ "$narm_on_rc" -ne "$narm_off_rc" ]; then
     bad "initramfs: the arm changed the exit code ($narm_on_rc vs $narm_off_rc) (R65-C2)"
-  elif [ "$narm_on_rest" != "$narm_off_rest" ]; then
-    bad 'initramfs: the arm changed a line other than INITRAMFS, so it is rollup input (R65-C2)'
+  elif [ "$narm_on_roll" != "$narm_off_roll" ] || [ "$narm_on_rest_n" -ne "$narm_off_rest_n" ]; then
+    bad 'initramfs: the arm changed the rollup line or the non-INITRAMFS line count (R65-C2)'
   elif [ "$narm_on_n" -ne 1 ] || [ "$narm_off_n" -ne 1 ]; then
     bad "initramfs: wanted exactly one INITRAMFS line per run, got $narm_on_n/$narm_off_n (R65-C2)"
   else
-    ok "initramfs: one INITRAMFS line per run, every other line and the exit code identical with the arm inputs present or absent (exit $narm_on_rc) (R65-C2)"
+    ok "initramfs: one INITRAMFS line per run; rollup line, exit code and non-INITRAMFS line count identical with the arm inputs present or absent (exit $narm_on_rc) (R65-C2)"
   fi
   narm_line=$(printf '%s\n' "$narm_on_out" | grep '^INITRAMFS ' || true)
   case "$narm_line" in

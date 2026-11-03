@@ -4806,3 +4806,94 @@ receipted at base (`.ufo/waves/round-65/before/absence-controls-receipt.txt`): n
 Routed repairs this round (not claims): the R64-SPOTCHECK-C1-PROOF re-expression (append-only
 erratum; the re-expressed command re-runs green at `431f0c9`), one considerthese proposal mined,
 assimilation none (L0 `tsukuroi | round-64` open). Open L0s round-53/57/60 routed around.
+
+## Round 65 — measured outcome (2026-11-03, author-side; non-author closure pending)
+
+Measured at the work revision `2ddd5e79` (work commit; counting battery
+`.ufo/waves/round-65/after/counting-battery-at-work.txt`; live census
+`.ufo/waves/round-65/after/census-postarm-live.txt`; drift diff
+`.ufo/waves/round-65/after/prearm-vs-postarm-live.diff`). Gates at the work revision:
+census validate **rc 0, 0 E-code, 44 W04, 282 rows**; knowledge-header **PASS 82/0/82**;
+registry-coverage **PASS 100/100/0**; scorecard-unique ok; line-endings check rc 0; selftest
+`TSUKUROI_CENSUS_SELFTEST: PASS (177 cases, 177 passed, 0 failed)`.
+
+| Claim | Before → after (measured) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 depth (lowest tied, 8; SOURCED — S282 opened live 2026-11-03 before the declaration text) | before at `1bd8e196`: note `cat-file` rc **128**; S282 rows **0**; SOURCES **281**. After at `2ddd5e79`: `grep -c '^| SY'` → **5** (SY1-SY5); SOURCES **281 → 282**, S282 at line 292 directly after S281, NF **13**; Gate quote **23** words (`wc -w`); knowledge-header PASS 82/0/82; census validate rc 0, 0 E-code. Predicate met (SY ≥ 5; SOURCES ≥ 282; S282 after S281, NF 13, quote ≤ 25). Applicability measured, not assumed: UKIs boot (limine `protocol: efi` × 6; `ENABLE_UKI=yes` in `/etc/default/limine`), no TPM hardware, no initrd systemd hook, ukify absent → requirement **inert** on this host (SY4); the watch is re-armed by its named falsifiers | improved, author-verified (ordinal unchanged 8) | depth: one sourced entry; the first on-release re-read (v262.1) ran in-round with no change |
+| C2 coverage+operability (capability `initramfs-arm`) | before at `1bd8e196`: `grep -c INITRAMFS tools/tsukuroi-census.sh` **0**; selftest **168**; no initramfs plane in the executable census. After at `2ddd5e79`: `grep -c INITRAMFS` **22**; selftest **177** (≥ 174 predicate; 9 new `R65-C2` hermetic cases, `grep -c R65-C2` 13 incl. the A/B neutrality case) PASS rc 0; live run prints **exactly one** `INITRAMFS initramfs-plane mkinitcpio-conf=PRESENT conf_d=4 hooks=12 newroot_latehooks=2 presets=0 ukify=ABSENT unreadable=0`; the verdict-bearing lines are identical to the pre-arm baseline (`DEGRADED (packages=DEGRADED systemd=DEGRADED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)`, rc 1 both). Neutrality: by construction (the INITRAMFS value is assigned and printed only, never read by the rollup or exit code) and by a selftest A/B on one tree (inputs present vs absent → identical non-INITRAMFS output and exit). Independent double-entry census (L1DoubleCensus): all 7 INITRAMFS fields match a `find`/`stat` ground computed before reading the line (H held) | improved, author-verified | coverage: the initramfs surface now has an executable read; operability: one more runnable arm (verdict-neutral by design) |
+
+Drift disclosure (the critic's predicted false-flag, measured): the pre-arm and post-arm live
+outputs differ only in the timestamp and the drivers-plane memory/PSI counters (C4_sweep 222 → 220,
+C5_swap_fail, C6_psi_* and C6_avail_kb moved within the minutes between the captures;
+`prearm-vs-postarm-live.diff`, 8 lines). No verdict, rc or INITRAMFS-adjacent field changed. The
+claim's "existing verdict lines unchanged" clause is read as verdict-line identity, not
+byte-identity of host-pressure counters, which are time-varying by design.
+
+Routed repairs (landed in this round, not claims):
+- **R64-SPOTCHECK-C1-PROOF** re-expressed — see the erratum block below. Measured at `431f0c9`:
+  SOURCES +3/-0, SKILL +120/-1 (EOF artifact), SCORECARD 0/0 (`.ufo/waves/round-65/after/reidentity-at-431f0c9.txt`).
+- **considerthese**: "Upstream release watch" (`considerthese/2026-10-24.md:17`) adopted as
+  QUALITY criterion **98** (R65-UPSTREAM-WATCH); the sweep found 95 of 281 rows pin an upstream
+  version, 212 declare `on-release`, zero executed; the live delta (systemd v262.1, btrfs-progs
+  v7.3, Linux 7.2.15, man-pages 6.20) produced one recheck trigger (btrfs-scrub-record-r42.md:184)
+  and no rejection.
+
+Learning trends (author-side; non-author spot-check pending):
+- **expansion: improved** — the `initramfs-arm` capability enters the table (LEARNING: "a capability
+  admitted to SCORECARD.md"); the systemd v262 applicability plane is an admitted entry, although
+  its ground (NvPCR/UKI) was touched by r64's installer-side note — stated, not hidden.
+- **quality: improved** — the r64 proof wording is corrected by a re-expression that re-runs
+  green at the cited revision; criterion 98 turns a proposal into a standing, receipted duty; the
+  declaration's "watch fired" framing was not repeated (the on-release re-read ran and changed nothing).
+- **discernment: unchanged** — no non-author spot-check has occurred; the attack seats (reviewer,
+  critic, mutation-tester) gave verdicts that are evidence, not discernment verdicts.
+
+## Axes — current self-assessment (round 65 final measured surface)
+
+Restated 2026-11-03 at the round-65 work revision (counts re-derived with each cell's command;
+ordinals unchanged — operability/freshness/calibration/coverage saturated, depth's move is the
+sourced entry, adjacency untouched this round).
+
+| Axis | Score | Evidence pointer (counting command) | Last change |
+|---|---|---|---|
+| depth | 8 | 82 notes (`find corpus/knowledge -maxdepth 1 -type f -name '*.md' \| wc -l`); the sourced systemd v262 applicability plane SY1-SY5 landed round 65 (S282 current, opened live pre-declaration); the mkinitcpio-42 plane (r64) and GR1-GR3 of the scrub entry stay as before; no ordinal move. | round 4; round-65 entry added, ordinal unchanged |
+| coverage | 9 | the initramfs surface is now covered by an executable census read (`grep -c INITRAMFS tools/tsukuroi-census.sh` → 22); PROVINCE Core/Frontier/Adjacent unchanged (no round-65 writes). | round 11; round-65 initramfs-arm, ordinal unchanged |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` → PASS 177/177 rc 0; live census prints one INITRAMFS line; `python3 tools/check-line-endings-r64.py --check` rc 0; registry-coverage 100/100/0; knowledge-header 82/0/82. | round 11; round-65 initramfs-arm, ordinal unchanged |
+| freshness | 9 | S282 re-opened live by three independent seats (sha256 `008e1265…` identical); the upstream sweep re-read the registry's `on-release` pins against live releases (`corpus/lessons/round-65.md`, QUALITY 98); the planes' cadence pass (2026-11-30) still due. | fleet round 1; round-65 on-release re-read + QUALITY 98, ordinal unchanged |
+| calibration | 9 | the axes restated to counts recomputed on this host; three mistakes self-caught and mined (R65-SOURCES-INSERT-WRONG-OCCURRENCE, R65-SPEC-SHAPE-DRIFT, R65-LABRAT-ROLE-INVALID) and one draft-verdict-before-probes error (R65-NOTE-VERDICT-BEFORE-PROBES) caught by the declaration's own kill rule. | round 10; round-65 mistake set, ordinal unchanged |
+| adjacency | 8 | the C1 note restates the ADJ-06 (kaidoku/revenger) and ADJ-04 (mori) boundaries in its scope paragraph; the C1SiblingScan overlap register is in `.ufo/waves/round-65/drafts/overlap-scan.md` (see the report); contested kaidoku/revenger ownership remains unruled. | fleet round 1; round-65 boundary restatement, ordinal unchanged |
+
+## Capabilities — round 65 entry
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| initramfs-arm | Reports the owned initramfs/boot-recovery surface on the census's verdict-neutral `INITRAMFS` line: mkinitcpio.conf presence, drop-in count, hook count, hooks naming `/new_root`, preset-directory entries, ukify presence and unreadable entries — read-only, no mkinitcpio run, no privilege, never a rollup or exit-code input | `bash tools/tsukuroi-census.sh` → one `INITRAMFS` line (`.ufo/waves/round-65/after/census-postarm-live.txt`); `--selftest` → PASS 177/177 (`.ufo/waves/round-65/after/counting-battery-at-work.txt`); neutrality A/B in the selftest (R65-C2) | round 65 |
+
+## Erratum (round 65) — R64-SPOTCHECK-C1-PROOF: the round-64 C1 identity proof re-expressed
+
+Append-only. Supersedes only the **wording** of the round-64 C1 identity proof in the round-64
+"Measured outcome" C1 row (this file, the "Round 64 — measured outcome" section, row C1 — the text
+`git show 2f3061ef:F | tr -d '\r' | cmp - F` rc 0 ×3). The normalization fact stands as measured
+(stray-CR 381/5452/4723 at `2f3061ef` → 0/0/0 at `431f0c9`; the three files differ from the CR-stripped
+base by additions only). The round-64 closure (`corpus/lessons/round-64-verifier-spotcheck.md` §5)
+ruled that wording true only against the fix-time worktree: at the cited revision `431f0c9` the
+same comparison fails, because that commit also carries the round's additive work.
+
+Re-expressed proof, re-runnable green at the cited revision from committed bytes:
+
+```sh
+for F in corpus/SOURCES.md SKILL.md SCORECARD.md; do
+  git --no-pager diff --no-index --numstat \
+    <(git show 2f3061ef:"$F" | tr -d '\r') <(git show 431f0c9:"$F")
+done
+# measured 2026-11-03 (host diff is pi-uu-diff, so --numstat via git diff --no-index):
+# corpus/SOURCES.md  added=3   removed=0
+# SKILL.md           added=120 removed=1  (the -1 is the EOF newline artifact: base's last byte is 0x2e, the removed line equals added line 1)
+# SCORECARD.md       added=0   removed=0  (byte-identical)
+```
+
+Receipts: `.ufo/waves/round-65/after/reidentity-at-431f0c9.txt`; the wave's independent re-run
+`.ufo/waves/round-65/w1-artifacts/E3/routed-repair-receipt.txt` and the attack
+`.ufo/waves/round-65/drafts/rev-repair.md` (R2RevRepair: AGREE on command, counts and append-only
+safety). The original `cmp -` wording is false at HEAD (rc 1/1/1) and at `431f0c9` (rc 1 for SOURCES
+and SKILL); it held only at the fix-time worktree. This erratum does not change the round-64 verdict.

@@ -5607,3 +5607,20 @@ Resumed 2026-11-03 per the `considerthese/2026-10-26.md` proposal "Counter-attac
 | Counter | Round | Arms fielded (reports) | Arms that reached PASS | Beating class |
 |---|---|---|---|---|
 | `check-line-endings-r64.py` | r64 | 5 mutants (M1 allow-all, M2 allowlist-inversion, M3 exit-inversion, M4 cr-at-eof-blindness, M5 guard-set-shrink) — `.ufo/waves/round-64/after/mutation/{mutation-report.txt,mutant-diffs.txt,tool-M1..M5.py}` | 0 reached PASS (5/5 killed); M1/M2/M4 also killed by the tool's own selftest; M3/M5 killed only by the seat's out-of-band D2/D3 detectors | the survivors' class: a selftest that never asserts the exit contract nor the canonical guarded-set membership — closed in-round with selftest cases 6-7, able-to-fail proven against the same mutants (`.ufo/waves/round-64/after/c1-selftest-coverage-fix.txt`) |
+
+## Round-65 additions (C1 sourced plane; C2 census arm)
+
+Append-only round documentation (2026-11-03). C1: the systemd v262 NvPCR/UKI applicability plane
+(`corpus/knowledge/systemd262-uki-pcr-r65.md`, SY1-SY5, SOURCED via S282 — the v262 release body's
+"Changes in the TPM Subsystem" NvPCR bullet, fetched live before the declaration text). Measured
+verdict for this host: the requirement is **inert** — UKIs boot via limine-mkinitcpio-hook
+(`ENABLE_UKI=yes`), but there is no TPM hardware, no systemd hook in the initramfs, and no ukify, so
+neither NvPCR extension nor an initrd-phase signed PCR policy can occur here.
+
+C2: the census initramfs arm (`probe_initramfs_arm`, the verdict-neutral `INITRAMFS` line, overrides
+`TSUKUROI_MKINITCPIO_{CONF,CONFD,PRESETS,HOOKS}` and `TSUKUROI_UKIFY_PROBE`; no mkinitcpio run, no
+privilege, never a rollup or exit-code term). The census selftest grows 168 → 177 cases. The registry
+stays at 100 rows: the arm lives inside the registered `tsukuroi-census` gate.
+
+Routed repairs (not claims): the R64 C1-identity-proof wording re-expressed as an additive-only
+diff (SCORECARD erratum); considerthese "Upstream release watch" adopted as QUALITY 98.

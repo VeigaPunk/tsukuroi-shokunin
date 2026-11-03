@@ -141,4 +141,14 @@ one row's trigger, not the standing mechanism — the criterion is the mechanism
 
 ## No-further-mistakes sweep
 
-[SWEEP-FILLED-AT-RECEIPTS-COMMIT]
+Command and output (run at the work revision `2ddd5e79`, 2026-11-03):
+
+- `grep -c '^| SY' corpus/knowledge/systemd262-uki-pcr-r65.md` → 5; `grep -cE '^\| S[0-9]{3,}' corpus/SOURCES.md` → 282; S282 `awk -F'|' NF` → 13; quote `wc -w` → 23.
+- `grep -c INITRAMFS tools/tsukuroi-census.sh` → 22 (base 0); `bash tools/tsukuroi-census.sh --selftest` → PASS 177/177 rc 0.
+- `bash tools/tsukuroi-census.sh` → one `INITRAMFS` line; `TSUKUROI_CENSUS:` verdict identical to the pre-arm baseline.
+- `scripts/sources-census.sh validate --root … tsukuroi` → rc 0, E-codes 0, W04 44.
+- `check-knowledge-header.py`, `check-registry-coverage.py` PASS; `check-line-endings-r64.py --check` rc 0.
+- `check-cited-receipts-r62.py --round 65` at the outcome commit: the gate's cited-path set is re-run after the wave's two in-flight seat reports land (`w1/C1SiblingScan.md`, `w1/N1ScopeCheck.md`) — recorded in the outcome commit's receipt.
+
+No further mistake found beyond the four in `## Mistakes`. The sweep found no unlanded S-row citation, no
+note citing a missing receipt, and no QUALITY criterion number collision (98 is the next free number).

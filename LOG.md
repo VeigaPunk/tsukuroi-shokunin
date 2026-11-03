@@ -2897,3 +2897,23 @@ Wave: ONE v1 wave **w1 of 13 seats** (band 8-16; attack share 5/13 = 38% — 2 r
 m_flash/m_mim/m_zfl via the run-15 route table; planner = the L1 (the validator rejects planner;
 recorded). Dispatch `.ufo/waves/round-65/w1-dispatch.json`; inline spawn handoff via `w1.ready`;
 the orchestrator spawns and messages WAVE-DONE.
+
+## Round 65 — measured outcome (2026-11-03)
+
+C1/C2 PASS measured at work `2ddd5e79` (battery `.ufo/waves/round-65/after/counting-battery-at-work.txt`,
+live census `.ufo/waves/round-65/after/census-postarm-live.txt`, both committed with the work commit
+`2ddd5e79`): C1 — SY rows **5**; SOURCES **281 → 282** (S282 directly after S281, NF 13, Gate quote 23
+words); applicability measured: UKIs boot via limine-mkinitcpio-hook `ENABLE_UKI=yes`, no TPM hardware,
+no initrd systemd hook, ukify absent → the v262 NvPCR/UKI requirement is inert on this host, watch re-armed
+by its named falsifiers. C2 — `INITRAMFS` label **0 → 22** grep hits, selftest **168 → 177** PASS rc 0, live
+census prints exactly one `INITRAMFS` line, verdict lines identical to the pre-arm baseline (drift only in
+time-varying PSI/swap counters, `prearm-vs-postarm-live.diff`), neutrality by construction + selftest A/B,
+independent double-entry census H held (7/7). Gates at `2ddd5e79`: census rc 0, 0 E-code, 44 W04, 282 rows;
+knowledge-header 82/0/82; registry-coverage 100/100/0; scorecard-unique ok; line-endings rc 0.
+Routed repairs (not claims): the R64-SPOTCHECK-C1-PROOF re-expression (SCORECARD erratum; measured at
+`431f0c9`: SOURCES +3/-0, SKILL +120/-1, SCORECARD 0/0); considerthese "Upstream release watch" adopted as
+QUALITY 98 (R65-UPSTREAM-WATCH; live delta: systemd v262.1, btrfs-progs v7.3, Linux 7.2.15 — one recheck
+trigger at `btrfs-scrub-record-r42.md:184`, no rejection). Mistakes mined: R65-SOURCES-INSERT-WRONG-OCCURRENCE,
+R65-SPEC-SHAPE-DRIFT, R65-LABRAT-ROLE-INVALID, R65-NOTE-VERDICT-BEFORE-PROBES (`corpus/lessons/round-65.md`).
+Assimilation: none from `merge/tsukuroi/` (L0 `tsukuroi | round-64` + addendum open). Full detail:
+SCORECARD "Round 65 — measured outcome".
