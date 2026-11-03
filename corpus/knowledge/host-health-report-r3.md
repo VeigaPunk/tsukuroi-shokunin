@@ -669,3 +669,11 @@ The historical 1password-beta downgrade-trap statement at line 335 is superseded
 ## Round-39 correction (TO1, TO8; append-only)
 
 Round-39 clarification (TO1, TO8): these hooks are PostTransaction hooks; they run after `transaction completed` is logged, within the same `pacman` command but not inside the logged `transaction started`…`completed` window, and none of them runs if the commit is interrupted or fails (`trans.c:230-239`, HO6); their output is logged as `[ALPM-SCRIPTLET]`. It qualifies the "in the transaction" / "in-transaction" / "in one transaction" wording above. Source: `corpus/knowledge/pacman-transaction-order-r39.md` TO1, TO8 (S216, S217).
+
+## Erratum (2026-11-03, round 69) — the U3 kernel-pairing sentence is a dated capture
+
+Append-only; the U3 paragraph above stays as written. "`uname -r` = `pacman -Q linux` = `7.2.3` → no
+reboot pending today" is a round-3 (2026-10-14) capture. Measured 2026-11-03: `uname -r` =
+`7.2.11-arch1-1`, `pacman -Q linux` = `7.2.11.arch1-1`, so the pairing holds at a later version and
+the conclusion (no reboot pending) still holds; only the values moved. The operative predicate lives
+in `corpus/knowledge/kernel-taint-plane-r69.md`; evidence `.ufo/waves/round-69/before/host.txt`.

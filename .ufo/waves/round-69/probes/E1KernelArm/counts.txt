@@ -1,0 +1,35 @@
+2026-11-03T23:27:39Z
+$ grep -n "KERNEL kernel-plane" tools/tsukuroi-census.sh
+447:#   KERNEL kernel-plane release=<uts> pkg=<name> pkgver=<ver>
+2343:  KERNEL_LINE="KERNEL kernel-plane release=$release pkg=$pkg pkgver=$pkgver modules_tree=$mts tainted=$taint taint_bits=$bits pending=$pend unreadable=$unr"
+4093:    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=NO unreadable=0$'
+4098:    '^KERNEL kernel-plane release=UNKNOWN pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=0 detail=osrelease:absent$'
+4103:    '^KERNEL kernel-plane release=UNKNOWN pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=0 detail=osrelease:unparsable$'
+4108:    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=NO unreadable=0$'
+4113:    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=12288 taint_bits=O,E pending=NO unreadable=0$'
+4118:    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=1048576 taint_bits=UNKNOWN pending=NO unreadable=0 detail=tainted:bits-outside-closed-table$' \
+4124:    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=UNKNOWN pkgver=UNKNOWN modules_tree=ABSENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=0 detail=modules:absent$' \
+4130:    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=UNKNOWN pkgver=UNKNOWN modules_tree=PRESENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=0 detail=qo:failed$' \
+4136:    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=UNKNOWN pkgver=UNKNOWN modules_tree=PRESENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=0 detail=qo:unowned$'
+4141:    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=UNKNOWN pkgver=UNKNOWN modules_tree=PRESENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=0 detail=qo:shape$'
+4146:    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=NO unreadable=0 detail=qo:multi-owner$'
+4151:    '^KERNEL kernel-plane release=UNKNOWN pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=1 detail=osrelease:unreadable$'
+4157:    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=UNKNOWN taint_bits=UNKNOWN pending=NO unreadable=0 detail=tainted:unparsable$'
+4191:    'KERNEL kernel-plane release=7.2.11-arch1-1 pkg=linux pkgver=7.2.11.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=NO unreadable=0')
+rc=0
+$ grep -c "KERNEL kernel-plane" tools/tsukuroi-census.sh
+16
+rc=0
+$ grep -c "^KERNEL kernel-plane" <(bash tools/tsukuroi-census.sh)
+1
+rc=0
+$ git -C <clone> status --porcelain
+ M tools/tsukuroi-census.sh
+?? base-selftest.txt
+?? live.out
+?? live.txt
+?? selftest.txt
+rc=0
+$ git -C <clone> rev-parse HEAD
+920a9eea3c5c5400567be0e96141014f338973df
+rc=0

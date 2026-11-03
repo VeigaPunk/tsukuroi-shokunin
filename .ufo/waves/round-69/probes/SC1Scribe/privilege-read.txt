@@ -1,0 +1,22 @@
+2026-11-03T23:20:53Z
+$ cat /proc/sys/kernel/dmesg_restrict
+1
+rc=0
+
+$ ls -ld /sys/kernel/debug
+drwx------ 60 root root 0 Nov  2 12:07 /sys/kernel/debug
+rc=0
+
+$ journalctl -b -k --no-pager | grep -m3 "Tainted: \["
+Nov 02 16:49:24 plazir27 kernel: Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
+Nov 02 16:49:45 plazir27 kernel: Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
+rc=0
+
+$ journalctl -b -k --no-pager | grep -m2 "nvidia: "
+Nov 02 12:07:17 plazir27 kernel: nvidia: loading out-of-tree module taints kernel.
+Nov 02 12:07:17 plazir27 kernel: nvidia: module verification failed: signature and/or required key missing - tainting kernel
+rc=0
+
+$ journalctl -b -k --no-pager | grep -ciE "soft lockup"
+0
+rc=1

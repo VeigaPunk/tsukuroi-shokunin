@@ -1,0 +1,357 @@
+diff --git i/tools/tsukuroi-census.sh w/tools/tsukuroi-census.sh
+index 1ee7b083..3fd749b0 100755
+--- i/tools/tsukuroi-census.sh
++++ w/tools/tsukuroi-census.sh
+@@ -440,6 +440,48 @@
+ # four paths, greps the hook files and resolves one command name. The line is verdict-neutral: no
+ # PLANE text, rollup term or exit code changes. Live mode creates no files.
+ #
++# Round-69 addition (C2): the kernel-plane arm. The round's C1 depth note reads the taint-plane
++# evidence into the knowledge corpus; that note owns the evidence reading, and this arm is the
++# operability half — what the running kernel a reader can see actually carries, judged by nobody.
++# It prints ONE line after the INITRAMFS line and before the rollup:
++#   KERNEL kernel-plane release=<uts> pkg=<name> pkgver=<ver>
++#     modules_tree=PRESENT|ABSENT|UNKNOWN tainted=<int|UNKNOWN>
++#     taint_bits=<csv|none|UNKNOWN> pending=NO|YES|UNKNOWN unreadable=N [detail=<reason>,...]
++# release: the first whitespace-delimited field of TSUKUROI_KERNEL_OSRELEASE (default
++# /proc/sys/kernel/osrelease), printed as read; absent -> UNKNOWN (detail osrelease:absent); an
++# entry that is not a readable regular file -> UNKNOWN, unreadable+1 (osrelease:unreadable); an
++# empty first field -> UNKNOWN (osrelease:unparsable).
++# modules_tree: TSUKUROI_KERNEL_MODULES (empty/unset derives /usr/lib/modules/<release> from the
++# release reading; with release UNKNOWN and no override the tree cannot be derived and reads
++# UNKNOWN, detail modules:release-unknown). PRESENT when an existing, readable, searchable
++# directory; ABSENT when no entry exists (modules:absent); otherwise UNKNOWN, unreadable+1
++# (modules:unreadable / modules:not-directory).
++# pkg/pkgver: the owning package of the tree, asked once as `pacman -Qo <dir>` through the shared
++# capture wrapper — and only when the tree is PRESENT. The FIRST line carrying ` is owned by ` in
++# pacman's own order is reported as `<name> <version>`; the answer is never guessed: a failing
++# command (qo:failed), no owner line (qo:unowned), or a tail that is not exactly `<name>
++# <version>` (qo:shape) reads pkg=UNKNOWN pkgver=UNKNOWN; further owner lines are flagged
++# (qo:multi-owner) — pacman -Qo on a modules tree answers with every owning package, the kernel
++# package printed first on the measured host.
++# tainted: the first whitespace-delimited field of TSUKUROI_KERNEL_TAINTED (default
++# /proc/sys/kernel/tainted); absent -> UNKNOWN (tainted:absent); an entry that is not a readable
++# regular file -> UNKNOWN, unreadable+1 (tainted:unreadable); a non-integer -> UNKNOWN
++# (tainted:unparsable). taint_bits decodes only bits 0-19 through the closed bit->log table pinned
++# by S288 (0 P, 1 F, 2 S, 3 R, 4 M, 5 B, 6 U, 7 D, 8 A, 9 W, 10 C, 11 I, 12 O, 13 E, 14 L, 15 K,
++# 16 X, 17 T, 18 N, 19 J), ascending bit order; 0 reads `none`. A value carrying any bit >= 20 is
++# outside the closed table and reads taint_bits=UNKNOWN with detail
++# tainted:bits-outside-closed-table — the raw integer still prints in tainted=, so nothing is
++# dropped, it is only not decoded.
++# pending: pkgver's last `.` replaced by `-` (7.2.11.arch1-1 -> 7.2.11-arch1-1) compared to
++# release — NO on equality, YES on difference, UNKNOWN when pkg or release is unknown or pkgver
++# carries no arch dot.
++# unreadable: existing inputs the caller cannot read, once per encounter (osrelease / modules /
++# tainted). detail repeats no token; its order is the field order above.
++# No module, ioctl, dmesg or journal read, no privilege, no network, no write: the arm reads two
++# files, stats one directory and runs one `pacman -Qo` on the derived or overridden tree. The
++# line is verdict-neutral: no PLANE text, rollup term or exit code changes. Live mode creates no
++# files.
++#
+ # Read-only guarantee: no probe writes; the gate creates no files at all in live mode
+ # (selftest writes only under a mktemp dir named ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX;
+ # when TMPDIR holds characters the root-override locator refuses, the same dir is reached
+@@ -475,6 +517,10 @@
+ #   arm's four paths and the ukify command; defaults /etc/mkinitcpio.conf, /etc/mkinitcpio.conf.d,
+ #   /usr/lib/initcpio/hooks, /etc/mkinitcpio.d, ukify, probe; a TSUKUROI_UKIFY_PROBE of `skip`
+ #   prints ukify=SKIP and runs no lookup at all)
++#   TSUKUROI_KERNEL_OSRELEASE TSUKUROI_KERNEL_MODULES TSUKUROI_KERNEL_TAINTED (round 69: the
++#   kernel-plane arm's three inputs; defaults /proc/sys/kernel/osrelease, a derived
++#   /usr/lib/modules/<release>, /proc/sys/kernel/tainted; an empty TSUKUROI_KERNEL_MODULES
++#   takes the derived default)
+ #   TSUKUROI_CHANNEL_MAX_AGE_D TSUKUROI_LOG_TAIL_N (the update-safety plane's seams). The
+ #   channel stamp is the fixture db file's own mtime — settable with `touch -d` — so the
+ #   stale-channel case is executed against a real probe, not asserted vacuous.
+@@ -539,6 +585,11 @@ MKINITCPIO_HOOKS=${TSUKUROI_MKINITCPIO_HOOKS:-/usr/lib/initcpio/hooks}
+ MKINITCPIO_PRESETS=${TSUKUROI_MKINITCPIO_PRESETS:-/etc/mkinitcpio.d}
+ UKIFY_BIN=${TSUKUROI_UKIFY:-ukify}
+ UKIFY_PROBE=${TSUKUROI_UKIFY_PROBE:-probe}
++# kernel-plane arm (round 69, C2): three inputs, all seams; an empty/unset TSUKUROI_KERNEL_MODULES
++# derives /usr/lib/modules/<release> from the release reading inside the probe.
++KERNEL_OSRELEASE=${TSUKUROI_KERNEL_OSRELEASE:-/proc/sys/kernel/osrelease}
++KERNEL_MODULES=${TSUKUROI_KERNEL_MODULES:-}
++KERNEL_TAINTED=${TSUKUROI_KERNEL_TAINTED:-/proc/sys/kernel/tainted}
+ OFFLINE_DB=${TSUKUROI_OFFLINE_DB:-$PACMAN_DB/sync/offline.db}
+ EXPAC=${TSUKUROI_EXPAC:-expac}
+ VERCMP=${TSUKUROI_VERCMP:-vercmp}
+@@ -2177,6 +2228,123 @@ probe_initramfs_arm() {
+   return 0
+ }
+ 
++# ---- kernel-plane arm (round 69, C2; contract in the header) -------------------------
++probe_kernel_arm() {
++  local LC_ALL=C
++  local rel_f=$KERNEL_OSRELEASE tree=$KERNEL_MODULES tnt_f=$KERNEL_TAINTED
++  local release=UNKNOWN taint=UNKNOWN bits=UNKNOWN pkg=UNKNOWN pkgver=UNKNOWN
++  local pend=UNKNOWN unr=0 mts=UNKNOWN detail='' out='' cand='' mapped='' multi=0
++  local i
++  local letters='PFSRMBUDAWCIOELKXTNJ'   # S288 bits 0-19, pinned snapshot tk-v7211.rst
++  # release: first whitespace-delimited field of the osrelease file, printed as read
++  if [ ! -e "$rel_f" ] && [ ! -L "$rel_f" ]; then
++    detail+='osrelease:absent,'
++  elif [ ! -f "$rel_f" ] || [ ! -r "$rel_f" ]; then
++    unr=$((unr + 1)); detail+='osrelease:unreadable,'
++  else
++    read -r release _ < "$rel_f" || true
++    case $release in
++      ''|*[[:space:]]*) release=UNKNOWN; detail+='osrelease:unparsable,' ;;
++    esac
++  fi
++  # modules tree: the directory whose owning package is asked for
++  if [ -z "$tree" ]; then
++    if [ "$release" != UNKNOWN ]; then tree="/usr/lib/modules/$release"
++    else detail+='modules:release-unknown,'
++    fi
++  fi
++  if [ -n "$tree" ]; then
++    if [ -d "$tree" ]; then
++      if [ -r "$tree" ] && [ -x "$tree" ]; then
++        mts=PRESENT
++        # owner: one `pacman -Qo` through the shared capture wrapper; the FIRST line carrying
++        # ` is owned by ` in pacman's own order is parsed, further owners are flagged and the
++        # tail must be exactly `<name> <version>` — a name is never guessed
++        cap "$PACMAN" -Qo "$tree"
++        if [ "$CAP_RC" -ne 0 ]; then
++          detail+='qo:failed,'
++        else
++          out=$CAP_OUT; multi=0; pkg=''
++          while [ -n "$out" ]; do
++            cand=${out%%$'\n'*}   # the first remaining line
++            case $cand in
++              *' is owned by '*)
++                multi=$((multi + 1))
++                if [ -z "$pkg" ]; then
++                  cand=${cand#*' is owned by '}
++                  case $cand in
++                    *[[:space:]]*)
++                      if [[ $cand =~ ^[^[:space:]]+[[:space:]]+[^[:space:]]+$ ]]; then
++                        pkg=${cand%%[[:space:]]*}; pkgver=${cand##*[[:space:]]}
++                      fi
++                      ;;
++                  esac
++                fi
++                ;;
++            esac
++            case $out in
++              *$'\n'*) out=${out#*$'\n'} ;;
++              *) out='' ;;
++            esac
++          done
++          if [ "$multi" -eq 0 ]; then
++            detail+='qo:unowned,'; pkg=UNKNOWN; pkgver=UNKNOWN
++          elif [ -z "$pkg" ]; then
++            detail+='qo:shape,'; pkg=UNKNOWN; pkgver=UNKNOWN
++          fi
++          [ "$multi" -gt 1 ] && detail+='qo:multi-owner,'
++        fi
++      else
++        mts=UNKNOWN; unr=$((unr + 1)); detail+='modules:unreadable,'
++      fi
++    elif [ -e "$tree" ] || [ -L "$tree" ]; then
++      mts=UNKNOWN; unr=$((unr + 1)); detail+='modules:not-directory,'
++    else
++      mts=ABSENT; detail+='modules:absent,'
++    fi
++  fi
++  # tainted: first whitespace-delimited field; decoded only through the closed 0-19 table
++  if [ ! -e "$tnt_f" ] && [ ! -L "$tnt_f" ]; then
++    detail+='tainted:absent,'
++  elif [ ! -f "$tnt_f" ] || [ ! -r "$tnt_f" ]; then
++    unr=$((unr + 1)); detail+='tainted:unreadable,'
++  else
++    read -r taint _ < "$tnt_f" || true
++    case $taint in
++      ''|*[!0-9]*)
++        taint=UNKNOWN; bits=UNKNOWN; detail+='tainted:unparsable,'
++        ;;
++      0)
++        bits=none
++        ;;
++      *)
++        if [ "$taint" -gt 1048575 ]; then
++          bits=UNKNOWN; detail+='tainted:bits-outside-closed-table,'
++        else
++          bits=''
++          for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19; do
++            if [ $(( (taint >> i) & 1 )) -eq 1 ]; then bits+="${letters:i:1},"; fi
++          done
++          bits=${bits%,}
++        fi
++        ;;
++    esac
++  fi
++  # pending: pkgver's last `.` replaced by `-`, compared to release
++  if [ "$pkg" != UNKNOWN ] && [ "$release" != UNKNOWN ]; then
++    case $pkgver in
++      *.*)
++        mapped="${pkgver%.*}-${pkgver##*.}"
++        if [ "$mapped" = "$release" ]; then pend=NO; else pend=YES; fi
++        ;;
++      *) pend=UNKNOWN ;;
++    esac
++  fi
++  KERNEL_LINE="KERNEL kernel-plane release=$release pkg=$pkg pkgver=$pkgver modules_tree=$mts tainted=$taint taint_bits=$bits pending=$pend unreadable=$unr"
++  if [ -n "$detail" ]; then KERNEL_LINE+=" detail=${detail%,}"; fi
++  return 0
++}
++
+ # ---- hermetic selftest -------------------------------------------------------
+ # (R48-C2) Resolve the directory the selftest fixture tree is built under. TMPDIR
+ # unset or empty means the mktemp(1) default /tmp (S252). A TMPDIR that contains
+@@ -2282,6 +2450,7 @@ case "$name" in
+     case "${1:-}" in
+       -Q) out_of q; exit "$(rc_of q)" ;;
+       -Qq) out_of pq; exit "$(rc_of pq)" ;;
++      -Qo) out_of qo; exit "$(rc_of qo)" ;;
+       -Qm) out_of pm; exit "$(rc_of pm)" ;;
+       -Qkk) out_of qkk.out; exit "$(rc_of qkk)" ;;
+       -Qu) out_of qu; exit "$(rc_of qu)" ;;
+@@ -2453,6 +2622,12 @@ STUB
+     : > "$d/oomwin-kernel"; printf 1 > "$d/oomwin-kernel.rc"
+     : > "$d/oomwin-attrib"; printf 1 > "$d/oomwin-attrib.rc"
+     : > "$d/oomwin-sigkill"; printf 1 > "$d/oomwin-sigkill.rc"
++    # kernel-plane arm fixture (round 69, C2): the live host's shape in miniature — release and
++    # taint files, a modules tree directory, and a single-owner `pacman -Qo` answer
++    printf '7.2.11-arch1-1\n' > "$d/kernel-osrelease"
++    mkdir -p "$d/modtree"
++    printf 0 > "$d/kernel-tainted"
++    printf '/modules-tree is owned by linux 7.2.11.arch1-1\n' > "$d/qo"
+   }
+ 
+   fx_hash() { # tree digest: entry type/mode/owner/group AND regular-file content
+@@ -2512,6 +2687,9 @@ STUB
+       TSUKUROI_MKINITCPIO_HOOKS="$FX/initcpio-hooks"
+       TSUKUROI_MKINITCPIO_PRESETS="$FX/mkinitcpio.d"
+       TSUKUROI_UKIFY="$bin/ukify-absent"
++      TSUKUROI_KERNEL_OSRELEASE="$FX/kernel-osrelease"
++      TSUKUROI_KERNEL_MODULES="$FX/modtree"
++      TSUKUROI_KERNEL_TAINTED="$FX/kernel-tainted"
+       TSUKUROI_EXPAC="$bin/expac"
+     )
+   }
+@@ -3909,6 +4087,114 @@ STUB
+   esac
+   unset narm_on_out narm_on_rc narm_off_out narm_off_rc narm_on_n narm_off_n narm_on_rest narm_off_rest narm_line
+ 
++  # ---- kernel-plane arm (round 69, C2) ------------------------------------------------
++  case_home='kernel-healthy'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  check 'healthy: the live-shaped kernel plane reads owned, present, untainted, not pending (R69-C2)' 0 HEALTHY \
++    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=NO unreadable=0$'
++
++  case_home='kernel-osrelease-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  rm -f "$FX/kernel-osrelease"
++  check 'healthy: an absent osrelease reads UNKNOWN and leaves the overridden modules tree readable (R69-C2)' 0 HEALTHY \
++    '^KERNEL kernel-plane release=UNKNOWN pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=0 detail=osrelease:absent$'
++
++  case_home='kernel-osrelease-empty'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  : > "$FX/kernel-osrelease"
++  check 'healthy: an empty osrelease reads UNKNOWN detail=osrelease:unparsable, never a guess (R69-C2)' 0 HEALTHY \
++    '^KERNEL kernel-plane release=UNKNOWN pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=0 detail=osrelease:unparsable$'
++
++  case_home='kernel-taint-zero'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf ' 0 \n' > "$FX/kernel-tainted"
++  check 'healthy: a whitespace-padded taint of 0 reads taint_bits=none (R69-C2)' 0 HEALTHY \
++    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=NO unreadable=0$'
++
++  case_home='kernel-taint-oe'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf 12288 > "$FX/kernel-tainted"
++  check 'healthy: tainted 12288 decodes the closed S288 table to O,E in bit order (R69-C2)' 0 HEALTHY \
++    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=12288 taint_bits=O,E pending=NO unreadable=0$'
++
++  case_home='kernel-taint-over'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf 1048576 > "$FX/kernel-tainted"
++  check 'healthy: a bit above the closed table reads UNKNOWN while the raw value stays printed (R69-C2)' 0 HEALTHY \
++    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=1048576 taint_bits=UNKNOWN pending=NO unreadable=0 detail=tainted:bits-outside-closed-table$' \
++    ABSENT:'^KERNEL .*taint_bits=O,'
++
++  case_home='kernel-modtree-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  rm -rf "$FX/modtree"
++  check 'healthy: an absent modules tree reads ABSENT and UNKNOWN ownership with no pacman run and no guess (R69-C2)' 0 HEALTHY \
++    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=UNKNOWN pkgver=UNKNOWN modules_tree=ABSENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=0 detail=modules:absent$' \
++    ABSENT:'^KERNEL .*pkg=linux'
++
++  case_home='kernel-qo-failed'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf 1 > "$FX/qo.rc"
++  check 'healthy: a failing pacman -Qo reads pkg=UNKNOWN, never a guessed name (R69-C2)' 0 HEALTHY \
++    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=UNKNOWN pkgver=UNKNOWN modules_tree=PRESENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=0 detail=qo:failed$' \
++    ABSENT:'^KERNEL .*pkg=linux'
++
++  case_home='kernel-qo-unowned'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf 'error: no package owns anything\n' > "$FX/qo"
++  check 'healthy: a pacman -Qo answer with no `is owned by` reads pkg=UNKNOWN (R69-C2)' 0 HEALTHY \
++    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=UNKNOWN pkgver=UNKNOWN modules_tree=PRESENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=0 detail=qo:unowned$'
++
++  case_home='kernel-qo-shape'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf '/t is owned by linux 7.2.11.arch1-1 extra words\n' > "$FX/qo"
++  check 'healthy: an owner tail that is not exactly name+version reads pkg=UNKNOWN (R69-C2)' 0 HEALTHY \
++    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=UNKNOWN pkgver=UNKNOWN modules_tree=PRESENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=0 detail=qo:shape$'
++
++  case_home='kernel-qo-multi'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf '/t is owned by linux 7.2.11.arch1-1\n/t is owned by linux-headers 7.2.11.arch1-1\n' > "$FX/qo"
++  check 'healthy: multiple owners read the first owner pacman prints, flagged, never merged (R69-C2)' 0 HEALTHY \
++    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=NO unreadable=0 detail=qo:multi-owner$'
++
++  case_home='kernel-osrelease-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  chmod 000 "$FX/kernel-osrelease"
++  check 'healthy: a mode-000 osrelease reads UNKNOWN and counts unreadable once (R69-C2)' 0 HEALTHY \
++    '^KERNEL kernel-plane release=UNKNOWN pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=UNKNOWN unreadable=1 detail=osrelease:unreadable$'
++  chmod 600 "$FX/kernel-osrelease"
++
++  case_home='kernel-taint-unparsable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf '12x\n' > "$FX/kernel-tainted"
++  check 'healthy: a non-integer taint reads UNKNOWN, never a partial decode (R69-C2)' 0 HEALTHY \
++    '^KERNEL kernel-plane release=7\.2\.11-arch1-1 pkg=linux pkgver=7\.2\.11\.arch1-1 modules_tree=PRESENT tainted=UNKNOWN taint_bits=UNKNOWN pending=NO unreadable=0 detail=tainted:unparsable$'
++
++  # verdict neutrality A/B: the identical census invocation over the same fixture with the kernel
++  # seams live vs pointed at absent paths — the line is outside the rollup and the exit map.
++  case_home='kernel-neutral'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
++  printf 'ai-usage.timer loaded failed failed\n' > "$FX/failedunits"   # one plane DEGRADED in both runs
++  EXTRA_ENV=()
++  arm_run; karm_on_out=$ARM_OUT karm_on_rc=$ARM_RC
++  EXTRA_ENV=(TSUKUROI_KERNEL_OSRELEASE="$FX/absent/osrelease" TSUKUROI_KERNEL_MODULES="$FX/absent/modtree" \
++    TSUKUROI_KERNEL_TAINTED="$FX/absent/tainted")
++  arm_run; karm_off_out=$ARM_OUT karm_off_rc=$ARM_RC
++  EXTRA_ENV=()
++  karm_on_n=$(printf '%s\n' "$karm_on_out" | grep -c '^KERNEL ' || true)
++  karm_off_n=$(printf '%s\n' "$karm_off_out" | grep -c '^KERNEL ' || true)
++  karm_on_rest=$(printf '%s\n' "$karm_on_out" | grep -v '^KERNEL ' || true)
++  karm_off_rest=$(printf '%s\n' "$karm_off_out" | grep -v '^KERNEL ' || true)
++  # Live host counters (PSI, swap, memory) move between the two runs, so whole-output equality is
++  # not a neutrality test. The rollup line, the exit code and the non-KERNEL line count are the
++  # inputs the arm could possibly touch; those are compared exactly.
++  karm_on_roll=$(printf '%s\n' "$karm_on_out" | grep '^TSUKUROI_CENSUS:' || true)
++  karm_off_roll=$(printf '%s\n' "$karm_off_out" | grep '^TSUKUROI_CENSUS:' || true)
++  karm_on_rest_n=$(printf '%s\n' "$karm_on_rest" | grep -c . || true)
++  karm_off_rest_n=$(printf '%s\n' "$karm_off_rest" | grep -c . || true)
++  if [ "$karm_on_rc" -ne "$karm_off_rc" ]; then
++    bad "kernel: the arm changed the exit code ($karm_on_rc vs $karm_off_rc) (R69-C2)"
++  elif [ "$karm_on_roll" != "$karm_off_roll" ] || [ "$karm_on_rest_n" -ne "$karm_off_rest_n" ]; then
++    bad 'kernel: the arm changed the rollup line or the non-KERNEL line count (R69-C2)'
++  elif [ "$karm_on_n" -ne 1 ] || [ "$karm_off_n" -ne 1 ]; then
++    bad "kernel: wanted exactly one KERNEL line per run, got $karm_on_n/$karm_off_n (R69-C2)"
++  else
++    ok "kernel: one KERNEL line per run; rollup line, exit code and non-KERNEL line count identical with the arm inputs present or absent (exit $karm_on_rc) (R69-C2)"
++  fi
++  karm_line=$(printf '%s\n' "$karm_on_out" | grep '^KERNEL ' || true)
++  case "$karm_line" in
++    'KERNEL kernel-plane release=7.2.11-arch1-1 pkg=linux pkgver=7.2.11.arch1-1 modules_tree=PRESENT tainted=0 taint_bits=none pending=NO unreadable=0')
++      ok 'kernel: the emitted line carries every field, in contract order, once (R69-C2)' ;;
++    *) bad "kernel: line shape drifted: $karm_line (R69-C2)" ;;
++  esac
++  unset karm_on_out karm_on_rc karm_off_out karm_off_rc karm_on_n karm_off_n karm_on_rest karm_off_rest \
++    karm_line karm_on_roll karm_off_roll karm_on_rest_n karm_off_rest_n
++
+   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
+     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
+   [ "$FAIL" -eq 0 ]
+@@ -4055,6 +4341,10 @@ main() {
+   probe_initramfs_arm
+   printf '%s\n' "$INITRAMFS_LINE"
+ 
++  # ---- kernel-plane arm (round 69, C2): one verdict-neutral line ---------------------------
++  probe_kernel_arm
++  printf '%s\n' "$KERNEL_LINE"
++
+   local roll=HEALTHY
+   roll=$(worse "$roll" "$PKG_V")
+   roll=$(worse "$roll" "$SYS_V")

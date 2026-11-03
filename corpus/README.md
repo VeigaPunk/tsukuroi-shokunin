@@ -587,3 +587,15 @@ The round-19 register `knowledge/adjacency-anchors-r19.md` gains an appended `##
 | `knowledge/linux-v73-pinwatch-r68.md` | Five named registry pins re-read against v7.3; one memory.pressure documentation hunk and one sysfs comment hunk; S286/S287 |
 | `lessons/round-68.md` | Gate, mistakes, falsified frozen C1 conjunct and C2 repair evidence |
 | `../tools/check-knowledge-refs-r68.py` | Executable dangling source-reference check with fenced-registry and glued-id red cases |
+
+## Round-69 index — vermagic stamp, module-tree binding and the kernel-plane arm (2026-11-03)
+
+Append-only; the round-68 index above stays as written.
+
+| Path | What it holds |
+|---|---|
+| `knowledge/kernel-taint-plane-r69.md` | The `VERMAGIC_STRING` composition rule and its CONFIG conditionals (S289), the host dkms module's instantiated string, the release-token consequence for the two module trees and their owning packages, the reboot-pending transform, and — as re-grounding only — the taint table at the running tag (S288, bytes identical to S140); rows KR1-KR5 |
+| `SOURCES.md` rows S288, S289 | S288 is a re-pin of S140 at the host's tag (no new document content); S289 is the new vermagic-header row |
+| `../tools/count-kr-rows-r69.py` | The content-sensitive counter for the note's rows (source id resolved, snapshot sha256 pinned, quote located); pre-data battery `.ufo/waves/round-69/probes/E2Counter/battery.txt` |
+| `../tools/tsukuroi-census.sh` | The verdict-neutral `KERNEL kernel-plane` arm (release, owning package, module-tree state, taint mask decoded 0-19, reboot-pending, unreadable count); selftest 177 → 192 cases |
+| `lessons/round-69.md` | Gate (admit/reject), the mined mistakes (incl. the declared-novelty miss and the boilerplate-acceptance limit), trend verdicts |

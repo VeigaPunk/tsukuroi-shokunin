@@ -1,0 +1,26 @@
+2026-11-03T23:21:03Z
+
+$ git -C /fast/scratch/hyaku/tsukuroi-r69/E2Counter/clone rev-parse --show-toplevel
+/fast/scratch/hyaku/tsukuroi-r69/E2Counter/clone
+rc=0
+
+$ git -C /fast/scratch/hyaku/tsukuroi-r69/E2Counter/clone add -- corpus/SOURCES.md corpus/knowledge/kernel-taint-plane-r69.md
+rc=0
+
+$ git -C /fast/scratch/hyaku/tsukuroi-r69/E2Counter/clone -c 'user.name=E2Counter fixture' -c user.email=e2counter@fixture.invalid -c commit.gpgsign=false commit --no-verify -m 'Fixture quote'
+[master 803e5133] Fixture quote
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+rc=0
+
+$ git -C /fast/scratch/hyaku/tsukuroi-r69/E2Counter/clone rev-parse HEAD
+803e51339d81ec665758819fb6f4e64e3e1782fd
+rc=0
+
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-69/drafts/c2/count-kr-rows-r69.py --revision 803e51339d81ec665758819fb6f4e64e3e1782fd --lane /fast/scratch/hyaku/tsukuroi-r69/E2Counter/clone --snapshots /fast/scratch/hyaku/tsukuroi-r69/E2Counter/fixtures/snapshots
+KR_ROWS=5 KR_VERIFIED=4
+KR_ROW KR1 ok
+KR_ROW KR2 ok
+KR_ROW KR3 ok
+KR_ROW KR4 ok
+KR_ROW KR5 fail:quote
+rc=1

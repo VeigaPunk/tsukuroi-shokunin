@@ -1,0 +1,19 @@
+2026-11-03T23:22:04Z
+$ sed -n "1,6p" /var/lib/pacman/local/linux-7.2.11.arch1-1/desc
+%NAME%
+linux
+
+%VERSION%
+7.2.11.arch1-1
+
+rc=0
+
+$ grep -nE "%(NAME|VERSION)%" /var/lib/pacman/local/linux-7.2.11.arch1-1/desc
+1:%NAME%
+4:%VERSION%
+rc=0
+
+$ awk "/%NAME%/{getline;print} /%VERSION%/{getline;print}" /var/lib/pacman/local/linux-7.2.11.arch1-1/desc
+linux
+7.2.11.arch1-1
+rc=0

@@ -584,3 +584,16 @@ at line 7). The superseding note records the same: "the values those entries rec
 ## Round-39 correction (TO1, TO8; append-only)
 
 Round-39 clarification (TO1, TO8): these hooks are PostTransaction hooks; they run after `transaction completed` is logged, within the same `pacman` command but not inside the logged `transaction started`…`completed` window, and none of them runs if the commit is interrupted or fails (`trans.c:230-239`, HO6); their output is logged as `[ALPM-SCRIPTLET]`. It qualifies the "in the transaction" / "in-transaction" / "in one transaction" wording above. Source: `corpus/knowledge/pacman-transaction-order-r39.md` TO1, TO8 (S216, S217).
+
+## Erratum (2026-11-03, round 69) — the kernel pairing sentence is stale
+
+Append-only; the bullet above stays as written. Its sentence "`ls /usr/lib/modules/` = `7.2.3-arch1-3`
+only; `uname -r` = `7.2.3-arch1-3`; `pacman -Q linux` = `7.2.3.arch1-3` ⇒ **no kernel reboot is
+pending today**" is a 2026-10-14 capture. Measured 2026-11-03: `uname -r` = `7.2.11-arch1-1`,
+`pacman -Q linux` = `7.2.11.arch1-1`, and `/usr/lib/modules/` holds two trees (`7.2.11-arch1-1`,
+`6.18.57-2-lts`), each owned by its own package. The conclusion is unchanged in kind — no kernel
+reboot is pending — but the values are not current. The predicate and the exact transform
+(`7.2.11.arch1-1` → `7.2.11-arch1-1`, `s/\.(arch[0-9]+)-/-\1-/`) are now in
+`corpus/knowledge/kernel-taint-plane-r69.md`, and the round-69 census reports it as the
+verdict-neutral `KERNEL kernel-plane ... pending=NO` line. Evidence:
+`.ufo/waves/round-69/before/host.txt`, `.ufo/waves/round-69/probes/S2Scout-host.md`.

@@ -2992,3 +2992,34 @@ and glued-id draft defects repaired with red cases. Evidence:
 `.ufo/waves/round-68/{probes,drafts,w1}/`; lesson `corpus/lessons/round-68.md`.
 Round-67 positive-control command erratum appended to its lesson: 14 matching
 lines versus 21 occurrences. SOURCES 285→287; final measurements follow landing.
+
+## Round 69 — landing (2026-11-03; declaration `920a9eea`)
+
+C1 depth: `corpus/knowledge/kernel-taint-plane-r69.md` (KR1-KR5: the `VERMAGIC_STRING` composition
+order and its CONFIG conditionals; the host dkms module's instantiated string; the release-token
+consequence for the two module trees and their owning packages; the reboot-pending transform; and the
+taint table re-grounded at the running tag). Sources: S289 (`include/linux/vermagic.h` @ v7.2.11,
+new) and S288 (a byte-identical re-pin of S140 at the host's tag, reason stated). The content-sensitive
+counter `tools/count-kr-rows-r69.py` was frozen before any note existed, with its five-fixture kill
+battery (`.ufo/waves/round-69/probes/E2Counter/battery.txt`: control 5/5, malformed 3-4). The
+declaration's novelty premise was wrong — `kernel-taint-r27.md` already holds the taint mechanism — and
+the note was restructured so four rows carry new mechanism/host binding and one states the re-grounding;
+depth is reported unchanged.
+
+C2 operability: `probe_kernel_arm` and the verdict-neutral `KERNEL kernel-plane` line in
+`tools/tsukuroi-census.sh` (release, owning package and version, module-tree state, taint mask decoded
+with the closed 0-19 table of S288, reboot-pending, unreadable count). Additive diff (290 lines, 0
+deletions), selftest 177 → 192 cases, live line printed once with the rollup and exit code unchanged;
+SKILL gains the gate-registry row for the counter and a round-69 documentation block.
+
+Routed repairs (not claims): QUALITY 102 (R69-DECLARATION-HYGIENE, with the checklist run on the
+round-68 and round-69 declarations); QUALITY 103 (R69-PATCH-OFFSET, the `considerthese/2026-10-26.md`
+"Downstream patch-offset check" proposal); appended errata in `update-safety-note.md` and
+`host-health-report-r3.md` for their stale 7.2.3 kernel pairing.
+
+Standing duty: the QUALITY 98 watch re-read S243's v7.2.11 `fs/btrfs/sysfs.c` pin at v7.3 → changed
+(`098cb522…`, equal to S287's v7.3 pin); no contradiction in the r44/r45 entries
+(`.ufo/waves/round-69/before/s243-v73-recheck.txt`).
+
+Evidence: `.ufo/waves/round-69/{before,probes,drafts,w1}/`; lesson `corpus/lessons/round-69.md`.
+Measured outcome and final counts follow the landing commit.
