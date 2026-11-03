@@ -1,0 +1,29 @@
+2026-11-03T21:00:56Z
+$ cat /proc/cmdline
+[OUTPUT WITHHELD — non-policy token values are not written to disk, per item C1-PROBES ("for every other token report only its name (never values)"). Integrity anchor of the raw line below, so the L1 can confirm identity without exposing values.]
+$ printf %s "$(cat /proc/cmdline)" | sha256sum
+690a91783b1e569e949f9490e671df782cef5b239bb50ac4a7eab617605d79f7  -
+rc=0
+$ tr ' ' '\n' < /proc/cmdline | wc -l
+15
+rc=0
+--- token names (VALUE echoed only for a systemd.credentials_boot_policy= token) ---
+NAME(has-value): resume
+NAME(has-value): resume_offset
+NAME(bare): quiet
+NAME(bare): splash
+NAME(has-value): loglevel
+NAME(has-value): systemd.show_status
+NAME(has-value): rd.udev.log_level
+NAME(has-value): vt.global_cursor_default
+NAME(has-value): cryptdevice
+NAME(has-value): root
+NAME(has-value): zswap.enabled
+NAME(has-value): zswap.max_pool_percent
+NAME(has-value): rootflags
+NAME(bare): rw
+NAME(has-value): rootfstype
+tokens_rc=0
+$ grep -c 'systemd.credentials_boot_policy=' /proc/cmdline
+0
+rc=1

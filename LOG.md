@@ -2932,3 +2932,18 @@ sibling-anchor table + overlap table + erratum). Do-nothing controls at base:
 `.ufo/waves/round-66/before/absence-controls-receipt.txt`. Standing duties and the mined mistake
 (R65 in-place SCORECARD edit) are named in the declaration. Wave w1 (12 seats) spec frozen at
 `.ufo/waves/round-66/w1-spec.json`, plan at `w1-plan.json` (validated rc 0 under v1 policy).
+
+## Round 66 — landing (2026-11-03; work commit, measured outcome in the following commit)
+
+Landed on the frozen declaration (`aa75398e`): C1 `corpus/knowledge/systemd262-credentials-boot-policy-r66.md`
+(CB1–CB5) with registry row S283 (`corpus/SOURCES.md`, directly after S282); C2
+`corpus/knowledge/adjacency-recheck-r66.md` (AR1–AR10 live-HEAD table, overlap table) with the
+append-only `## Erratum (round 66)` in `corpus/knowledge/adjacency-anchors-r19.md` (IN-109 prose
+`2277` → register `found_line` 2822). Lesson `corpus/lessons/round-66.md` (Gate, Mistakes R66-M1–M5,
+seat-harm tally). QUALITY 99 (append-only erratum sweep, shown able to fail). README round-66 index
+section. SCORECARD erratum for the declaration's false AXES provenance (R66-M2).
+Wave w1: 12 seats (scout 1, executor 3, scribe 2, connector 1, reviewer 2, critic 1,
+mutation-tester 1, sentinel 1); attack share 4/12; residual 0. Evidence: `.ufo/waves/round-66/`.
+Routed, not landed: counter amendments (C1 `^\| CB[0-9]+ \|`; C2 resolve-then-count pipeline) for
+the next round; the C2 existence check was run as verification and is not part of the frozen counter.
+Assimilation: none (L0 `tsukuroi | round-64` + addendum still open).

@@ -558,3 +558,14 @@ read-only snapshot boot under the v42 chain — operator-owned. The r64 contribu
 post-upgrade measured state and the dated re-pins, not a first discharge: round 17 withdrew the
 silent-no-op prediction and emulated the hooks first (`knowledge/boot-chain-r17.md`, the notice
 above).
+
+## Round-66 index — boot-credential policy and sibling anchor recheck (2026-11-03)
+
+Append-only; the notices above stay as written. Two entries land this round; the frontier bullets above are unchanged.
+
+| Path | What it holds | Evidence |
+|---|---|---|
+| `knowledge/systemd262-credentials-boot-policy-r66.md` | systemd v262 `systemd.credentials_boot_policy=` read against this host: documented values and null-key scope (S283), host boot chain, policy inputs (cmdline token absent, no TPM2 device, SecureBoot disabled), applicability verdict with its falsifier, unknowns (the UKI interior read is out of scope). Takes forward the round-65 note's SY5 unknown. | `.ufo/waves/round-66/probes/r66-*.txt`; S283 open receipt `.ufo/waves/round-66/before/s283-open-receipt.txt` |
+| `knowledge/adjacency-recheck-r66.md` | live-HEAD re-location of the ten round-19 sibling ownership anchors (OUT-001…OUT-010), blob digests, and the systemd boot-credential overlap table against the ADJ rows | `.ufo/waves/round-66/probes/c2-sibling-heads.txt`; `.ufo/waves/round-66/drafts/c2-anchors-live.tsv` |
+
+The round-19 register `knowledge/adjacency-anchors-r19.md` gains an appended `## Erratum (round 66)` naming the stale `| 2277 |` cell of its IN-109 row; the register JSON is authoritative.

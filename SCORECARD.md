@@ -4926,3 +4926,22 @@ lesson, grounded in `corpus/lessons/round-39.md` R39-SEAT-PKILL, `round-40.md` R
 `round-41.md` R41-TMP-MISROOT-REPEAT, all opened this round. Assimilation: none (L0 `tsukuroi |
 round-64` and addendum still open; no operator answer in `.ufo/l0-questions.md`). Routed-not-claimed:
 the r65 C2 A/B sensitivity demonstration (a calibration move on a saturated axis, not a claim).
+
+## Erratum (round 66) — declaration provenance: the C2 ceiling is not AXES.md text
+
+Append-only. Supersedes only one parenthetical in the round-66 declaration above: the C2 row's
+"ceiling read from `AXES.md`: "no formal overlap table"". No AXES.md revision contains that text
+(`grep -n overlap /home/vgpnk/Projects/shokunin/AXES.md` → no match; the same grep over the fleet
+HEAD and over the historical AXES.md blobs returns nothing). The phrase is this lane's own round-11
+ceiling for the adjacency row (`SCORECARD.md:52`). It was superseded from round 25, when the
+adjacency row recorded the formal overlap table as present (`PROVINCE.md:44`, the ADJ-01 to ADJ-07
+table), and the operative adjacency ceiling is recipient acknowledgement and independent replay
+(`SCORECARD.md` adjacency rows, round 65 surface). Source of the correction: critic seat K1Critic
+(`.ufo/waves/round-66/drafts/critic-claims.md`, Attack 1 of C2). The C2 predicate, counter, kill rule
+and target are unchanged; the claim's verdict is not affected by the provenance text, which named a
+ceiling the predicate never counted.
+
+Routed from the same critic seat: the C2 counted half is a live re-verification of already-reported
+anchor quotes, which is freshness's own definition ("stale items flagged or fixed"), and the
+overlap table is an uncounted adjacency-shaped half. The claim therefore stands with a named limit
+and no ordinal move: adjacency stays 8 (see the round-66 measured outcome).

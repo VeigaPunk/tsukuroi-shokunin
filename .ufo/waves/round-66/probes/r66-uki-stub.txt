@@ -1,0 +1,27 @@
+2026-11-03T20:58:41Z
+$ ls -la /boot/EFI/Linux/ 2>&1
+ls: cannot open file '/boot/EFI/Linux/': Permission denied
+rc=2
+$ command -v ukify
+rc=1
+$ pacman -Q systemd systemd-ukify 2>&1
+error: package 'systemd-ukify' was not found
+systemd 262.1-1
+rc=1
+$ ls -la /usr/lib/systemd/boot/efi/ 2>&1 | head
+total 608
+drwxr-xr-x 1 root root    218 Oct 29 03:45 .
+drwxr-xr-x 1 root root     16 Oct  3 17:41 ..
+-rw-r--r-- 1 root root   2048 Oct 17 05:46 addonia32.efi.stub
+-rw-r--r-- 1 root root   2048 Oct 17 05:46 addonx64.efi.stub
+-rw-r--r-- 1 root root 139776 Oct 17 05:46 linuxia32.efi.stub
+-rw-r--r-- 1 root root 134144 Oct 17 05:46 linuxx64.efi.stub
+-rw-r--r-- 1 root root 171520 Oct 17 05:46 systemd-bootia32.efi
+-rw-r--r-- 1 root root 160256 Oct 17 05:46 systemd-bootx64.efi
+rc=0
+$ uname -r
+7.2.11-arch1-1
+rc=0
+$ systemctl --version | head -1
+systemd 262 (262.1-1-arch)
+rc=0

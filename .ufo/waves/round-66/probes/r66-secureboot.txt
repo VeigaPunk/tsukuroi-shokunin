@@ -1,0 +1,30 @@
+2026-11-03T20:58:41Z
+$ command -v mokutil
+rc=1
+$ mokutil --sb-state
+error: command not found: mokutil
+rc=127
+$ ls -la /sys/firmware/efi/efivars/ | grep -i SecureBoot
+-rw-r--r-- 1 root root     5 Nov  2 12:07 SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c
+-rw-r--r-- 1 root root    11 Nov  2 12:07 SecureBootSetup-7b59104a-c00d-4158-87ff-f04d6396a915
+rc=0
+$ od -An -t u1 -j4 -N1 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c
+   6
+od: /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c: Illegal seek
+rc=1
+--- SecureBootSetup-7b59104a-c00d-4158-87ff-f04d6396a915 (11 bytes, informational only) ---
+   7
+od: /sys/firmware/efi/efivars/SecureBootSetup-7b59104a-c00d-4158-87ff-f04d6396a915: Illegal seek
+rc=1
+--- SUPPLEMENT (deviation, disclosed): efivarfs is non-seekable, so -j4 fails; the minimal sequential read below stops at the 5-byte header+data boundary (4 attribute bytes + the 1 data byte); the 5th value is the SecureBoot data byte ---
+$ od -An -t u1 -N5 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c
+   6   0   0   0   0
+rc=0
+$ od -An -t u1 -j4 -N1 (control, seekable 5-byte file 06 00 00 00 01) -> proves -j4 selects offset 4 only when seekable
+   1
+rc=0
+--- control-file provenance (scratch is deleted at seat exit; the control is reproducible from these bytes) ---
+$ printf '\x06\x00\x00\x00\x01' > ctl5.bin   # 5 bytes: 06 00 00 00 01
+$ od -An -t u1 ctl5.bin
+   6   0   0   0   1
+rc=0

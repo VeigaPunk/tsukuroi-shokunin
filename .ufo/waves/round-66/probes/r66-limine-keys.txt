@@ -1,0 +1,55 @@
+2026-11-03T20:58:41Z
+$ grep -E '^(ENABLE_UKI|ENABLE_LIMINE)=' /etc/default/limine
+ENABLE_UKI=yes
+rc=0
+--- SUPPLEMENT for CB2 (host boot chain): limine config provenance, read-only; /boot is permission-denied to this account so any /boot read is recorded as BLOCKED ---
+$ pacman -Q limine
+limine 12.9.4-1
+rc=0
+$ command -v limine
+/usr/bin/limine
+rc=0
+$ ls -la /etc/default/limine
+-rw-r--r-- 1 root root 701 Oct 20 09:19 /etc/default/limine
+rc=0
+$ grep -n 'ENABLE_LIMINE' /etc/default/limine
+11:ENABLE_LIMINE_FALLBACK=yes
+rc=0
+$ for p in /boot/limine.conf /boot/limine/limine.conf /etc/limine/limine.conf /etc/limine.conf; do grep -n protocol: "$p"; done
+PATH: /boot/limine.conf
+grep: /boot/limine.conf: Permission denied (os error 13)
+rc=2
+PATH: /boot/limine/limine.conf
+grep: /boot/limine/limine.conf: Permission denied (os error 13)
+rc=2
+PATH: /etc/limine/limine.conf
+grep: /etc/limine/limine.conf: No such file or directory (os error 2)
+rc=2
+PATH: /etc/limine.conf
+grep: /etc/limine.conf: No such file or directory (os error 2)
+rc=2
+--- further CB2 provenance attempts (read-only) ---
+$ findmnt -no SOURCE,TARGET,FSTYPE,OPTIONS /boot /efi
+rc=1
+$ grep -rn 'protocol: efi' /etc 2>/dev/null | head -5
+rc=2
+$ ls -la /etc/limine-entry-tool.d /etc/limine-entry-tool.conf 2>&1
+-rw-r--r-- 1 root root 9756 Oct  8 11:51 /etc/limine-entry-tool.conf
+
+/etc/limine-entry-tool.d:
+total 4
+drwxr-xr-x 1 root root   22 Oct  3 17:45 .
+drwxr-xr-x 1 root root 3534 Nov  2 15:30 ..
+-rw-r--r-- 1 root root   74 Oct  3 17:45 resume.conf
+rc=0
+--- CB2 provenance continuation 2 ---
+$ findmnt -no SOURCE,TARGET,FSTYPE,OPTIONS /boot
+/dev/nvme0n1p1 /boot vfat rw,relatime,fmask=0077,dmask=0077,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro
+rc=0
+$ findmnt -no SOURCE,TARGET,FSTYPE,OPTIONS /efi
+rc=1
+$ grep -n protocol /etc/limine-entry-tool.conf | head -10
+rc=1
+$ grep -n -E '^(ENABLE_UKI|ENABLE_LIMINE|KERNEL_CMDLINE)' /etc/limine-entry-tool.conf | head -10
+168:ENABLE_UKI=no
+rc=0

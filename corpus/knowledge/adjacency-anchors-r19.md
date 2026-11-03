@@ -276,3 +276,15 @@ Appended after the seats below; earlier bytes unchanged. These are corrections o
 - **Capture hygiene (FxScoutCapture):** `host-capture-r19c.txt` now redacts the operator user token to `[operator]`; command text stays because C2's 09:03 snapper evidence cites it. The capture sha256 in `boot-writers-r19.json` was updated with it.
 
 R33 correction (append-only; the IN-101 table row above stays as written): round-33 C1 (`c8fcfbf6`) replaced the ambient-copy expression in `tools/_revision.py` `clean_env()` with a fixed allow-list, so IN-101's quoted expression no longer exists in its target. The JSON ledger now records IN-101 as `UNRESOLVABLE` (empty quote, found line 0). Tameshi's round-18 note called that helper the canonical GIT_* filter to port, and the helper no longer copies the ambient environment. This is reported for tameshi's reading, not absorbed. Found by round-33 wave a3w2 GatesAfterNoHarm (`check-adjacency-anchors` exit 1, `INBOUND-CLASSIFICATION-WRONG` at `inbound[100]`).
+
+## Erratum (round 66)
+
+Append-only. The inbound row at line 204 of this file is **not** rewritten here; it is named and superseded by the register.
+
+Superseded text, quoted verbatim from `corpus/knowledge/adjacency-anchors-r19.md:204` (read at lane HEAD `aa75398e`):
+
+```
+| IN-109 | `tameshi:corpus/knowledge/service-optin-protocol.md:153` | `tools/tsukuroi-census.sh:915-970` | operative | DRIFTED | 2277 | check 'degraded: kernel ring class counts are evidence (D14/D15)' 1 DEGRADED |
+```
+
+The `| 2277 |` cell in that row is stale. The authoritative value is the register's: `corpus/knowledge/adjacency-anchors-r19.json` `inbound[108]` (id `IN-109`) carries `found_line` **2822**, the round-65 re-pin (commit `cecc9e3e7fc7c91dddfd3b0fe5d3955d9eebb477`, "adjacency IN-109 found_line 2683->2822 re-pinned to the arm-shifted case line"). At that revision the cited target holds the evidence quote at `tools/tsukuroi-census.sh:2822` (`git show HEAD:tools/tsukuroi-census.sh | grep -n "check 'degraded: kernel ring class counts are evidence (D14/D15)' 1 DEGRADED"` → `2822:`), so the row's `DRIFTED` classification against the cited range `915-970` is unchanged. The prose above is history; the register is the authority for this record.
