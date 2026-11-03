@@ -2900,15 +2900,14 @@ the orchestrator spawns and messages WAVE-DONE.
 
 ## Round 65 — measured outcome (2026-11-03)
 
-C1/C2 PASS measured at work `2ddd5e79` (battery `.ufo/waves/round-65/after/counting-battery-at-work.txt`,
-live census `.ufo/waves/round-65/after/census-postarm-live.txt`, both committed with the work commit
-`2ddd5e79`): C1 — SY rows **5**; SOURCES **281 → 282** (S282 directly after S281, NF 13, Gate quote 23
+C1/C2 PASS measured at the repair revision `cecc9e3e` (battery `.ufo/waves/round-65/after/counting-battery-at-repair.txt`,
+live census `.ufo/waves/round-65/after/census-repair-live.txt`; the earlier work-revision pass `2ddd5e79` is `after/counting-battery-at-work.txt`): C1 — SY rows **5**; SOURCES **281 → 282** (S282 directly after S281, NF 13, Gate quote 23
 words); applicability measured: UKIs boot via limine-mkinitcpio-hook `ENABLE_UKI=yes`, no TPM hardware,
 no initrd systemd hook, ukify absent → the v262 NvPCR/UKI requirement is inert on this host, watch re-armed
 by its named falsifiers. C2 — `INITRAMFS` label **0 → 22** grep hits, selftest **168 → 177** PASS rc 0, live
 census prints exactly one `INITRAMFS` line, verdict lines identical to the pre-arm baseline (drift only in
 time-varying PSI/swap counters, `prearm-vs-postarm-live.diff`), neutrality by construction + selftest A/B,
-independent double-entry census H held (7/7). Gates at `2ddd5e79`: census rc 0, 0 E-code, 44 W04, 282 rows;
+independent double-entry census H held (7/7). Adjacency anchors gate (new in this round's review): FAIL at `2ddd5e79` (INBOUND-CLASSIFICATION-WRONG at inbound[108] = IN-109, the arm shifted its cited case line 2683 → 2822); re-pinned, PASS 114/114 at `cecc9e3e`. Gates at `cecc9e3e`: census rc 0, 0 E-code, 44 W04, 282 rows;
 knowledge-header 82/0/82; registry-coverage 100/100/0; scorecard-unique ok; line-endings rc 0.
 Routed repairs (not claims): the R64-SPOTCHECK-C1-PROOF re-expression (SCORECARD erratum; measured at
 `431f0c9`: SOURCES +3/-0, SKILL +120/-1, SCORECARD 0/0); considerthese "Upstream release watch" adopted as
@@ -2917,3 +2916,7 @@ trigger at `btrfs-scrub-record-r42.md:184`, no rejection). Mistakes mined: R65-S
 R65-SPEC-SHAPE-DRIFT, R65-LABRAT-ROLE-INVALID, R65-NOTE-VERDICT-BEFORE-PROBES (`corpus/lessons/round-65.md`).
 Assimilation: none from `merge/tsukuroi/` (L0 `tsukuroi | round-64` + addendum open). Full detail:
 SCORECARD "Round 65 — measured outcome".
+
+## Round 65 — repair commit (2026-11-03)
+
+Late-caught defects, fixed before the outcome: (1) the C2 neutrality A/B compared whole outputs, which carry live PSI/swap counters that move between two runs — now the rollup line, the exit code and the non-INITRAMFS line count (`cecc9e3e`); (2) IN-109 in `corpus/knowledge/adjacency-anchors-r19.json` re-pinned 2683 → 2822 (the arm shifted the case line). Both were found by the wave's C1SiblingScan and the adjacency gate, not by the frozen predicate, which named only registry-coverage and knowledge-header — the predicate is unchanged; the gate set actually run now includes the adjacency gate.

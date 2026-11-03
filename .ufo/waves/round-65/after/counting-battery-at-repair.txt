@@ -1,0 +1,32 @@
+# counting battery at repair revision cecc9e3e (2026-11-03T20:31:36Z) — supersedes the 2ddd5e79 pass for the gates that depend on the repair
+## adjacency anchors (C2 neutrality re-pin)
+rc=0
+status PASS counts {'inbound_total': 114, 'inbound_classified': 114}
+## C2 selftest (work tree = repair commit)
+TSUKUROI_CENSUS_SELFTEST: PASS (177 cases, 177 passed, 0 failed)
+rc=0
+## C2 live
+rc=1
+INITRAMFS initramfs-plane mkinitcpio-conf=PRESENT conf_d=4 hooks=12 newroot_latehooks=2 presets=0 ukify=ABSENT unreadable=0
+TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=DEGRADED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)
+## C2 neutrality A/B lines in selftest
+9
+## census validate
+rc=0
+E-codes: 0  W04: 44  rows: 282
+## knowledge-header
+rc=0
+## registry-coverage
+rc=0
+## cited-receipts --round 65
+rc=1
+verdict FAIL findings 2 files 106
+## scorecard-unique
+rc=0
+## line endings
+rc=0
+## frozen C1 predicate
+SY rows: 5
+S282 NF: 13
+## frozen C2 predicate
+INITRAMFS base=0 work=23

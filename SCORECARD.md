@@ -4647,7 +4647,7 @@ conditional on absent triggers (DQ executable recheck), so they are routed, not 
 
 Measured at the work tree `82f0e1a9` (declaration `cdfd8b8c`; counting battery
 `.ufo/waves/round-63/after/c1-c2-counts-at-work.txt`, plumbing reads of the revision — the worktree
-view is untrusted on this host, r56/r57 lesson). Gates at the work revision: knowledge-header PASS
+view is untrusted on this host, r56/r57 lesson). Adjacency anchors gate: FAIL at `2ddd5e79` (IN-109 line shifted by the arm), PASS **114/114** at `cecc9e3e` after the re-pin. Gates at the repair revision: knowledge-header PASS
 **79 notes / 0 findings / 79 complete** (JSON `.ufo/waves/round-63/after/knowledge-header-at-work.json`,
 revision-pinned `82f0e1a9`, the new note listed with no problems); registry-coverage PASS **99 tools /
 99 rows / 0 findings** (JSON `.ufo/waves/round-63/after/registry-coverage-at-work.json`); SCORECARD
@@ -4809,7 +4809,7 @@ assimilation none (L0 `tsukuroi | round-64` open). Open L0s round-53/57/60 route
 
 ## Round 65 — measured outcome (2026-11-03, author-side; non-author closure pending)
 
-Measured at the work revision `2ddd5e79` (work commit; counting battery
+Measured at the repair revision `cecc9e3e` (repair commit; counting battery `.ufo/waves/round-65/after/counting-battery-at-repair.txt`; the work-revision pass at `2ddd5e79` is `after/counting-battery-at-work.txt`; earlier battery
 `.ufo/waves/round-65/after/counting-battery-at-work.txt`; live census
 `.ufo/waves/round-65/after/census-postarm-live.txt`; drift diff
 `.ufo/waves/round-65/after/prearm-vs-postarm-live.diff`). Gates at the work revision:
