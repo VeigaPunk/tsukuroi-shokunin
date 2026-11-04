@@ -5645,3 +5645,14 @@ Wave w1: one v1 wave, band 8–16, **12 seats**; seat shape and counts are fixed
 **planned (next round):** the C1 counter's lexical-substance channel (a row that negates its snapshot
 but keeps the vocabulary reads `met=1`); the `--selftest` mode's own mutants; the r71 report pointer
 erratum's closure check; no amendment of this round's frozen predicates.
+
+## Round 71 — receipt erratum (appended round 72, append-only)
+
+The round-71 C1 outcome header names measured revisions `2959254a` (C1) and `2b358d2d` (C2) while the
+C1 counting command names `2b358d2d`, and no committed output carried that run (closure routed defect
+R71-C1-UNRECEIPTED-RUN). The single C1 measured revision is **`2b358d2d`**: the final run is committed
+at `.ufo/waves/round-71/after/count-mp-rows-final.txt` and its summary lines equal a fresh
+`python3 tools/count-mp-rows-r71.py --revision 2b358d2d` (`MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4
+MP_SNAPSHOTS=4 MP_MALFORMED=0`, `MP_TARGET … met=1`, rc 0). `2959254a` is the note's landing commit,
+not a counter run; it is superseded by this erratum and stays visible as filed. Checker:
+`python3 tools/check-r71-routed-r72.py --revision <REV>`.

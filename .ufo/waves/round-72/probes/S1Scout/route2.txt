@@ -1,0 +1,49 @@
+# C1 source re-open by a second route — round 72, seat S1Scout, wave w1
+# captured: 2026-11-03
+# lane:      /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+# committed: .ufo/waves/round-72/before/src (route 1: git.kernel.org plain, h=v34)
+# route 2:   https://raw.githubusercontent.com/kmod-project/kmod/<tag>/<path>
+# method:    curl -sS -w '%{http_code}' -o <file>; sha256sum; cmp -s vs committed
+# every path below is absolute; no git command was run against the lane tree
+
+[primary: tag v34 — the tag recorded in src/SOURCES.json]
+
+snapshot		http	route2_sha256	committed_sha256	map_sha256	cmp
+modprobe.d.5.scd	200	aa1a869e57db31c8187a436b5eab3047394da5fd779794e1cdd4ccad598ee46e	aa1a869e57db31c8187a436b5eab3047394da5fd779794e1cdd4ccad598ee46e	aa1a869e57db31c8187a436b5eab3047394da5fd779794e1cdd4ccad598ee46e	IDENTICAL
+libkmod-config.c	200	ae520a0721aad0bc61c7b13369fccf8e46fc408d8c0884fda9260a05da7ceb11	ae520a0721aad0bc61c7b13369fccf8e46fc408d8c0884fda9260a05da7ceb11	ae520a0721aad0bc61c7b13369fccf8e46fc408d8c0884fda9260a05da7ceb11	IDENTICAL
+modprobe.c		200	1e8e352634026e6618f37c0aee9974cf51427bfa3a77d12bcd2220ea8a71bf3f	1e8e352634026e6618f37c0aee9974cf51427bfa3a77d12bcd2220ea8a71bf3f	1e8e352634026e6618f37c0aee9974cf51427bfa3a77d12bcd2220ea8a71bf3f	IDENTICAL
+
+ROUTE2_OK=3/3
+MISMATCHES=none
+
+[bytes]
+wc -lc on committed files:
+  189   8306 modprobe.d.5.scd
+ 1292  28910 libkmod-config.c
+  980  23892 modprobe.c
+ 2461  61108 total
+
+[tag provenance note — supplementary, does not alter the frozen claim]
+The map's `tag` field is v34 and its `kmod_version` field is 34.2. Both tags exist
+upstream: api.github.com/repos/kmod-project/kmod/tags lists v34.3, v34.2, v34.1, v34,
+v33 … v30 (37 tags). So the declared pair (snapshot@v34, host kmod 34.2) is not a
+tag-typo; it is a deliberate patch-level split. The consequence is measured below.
+
+[secondary route 2, tag v34.2 — the version the host actually runs]
+snapshot		route2_sha256 (v34.2)	vs committed	verdict
+modprobe.d.5.scd	aa1a869e57db31c8187a436b5eab3047394da5fd779794e1cdd4ccad598ee46e	equal SAME_AS_V34
+libkmod-config.c	df0976a9532ce37f9e22b9eb180d285cded6949c1e2fe3540607ecf03c416e64	different DIFFERS_V34_V34.2
+modprobe.c	1e8e352634026e6618f37c0aee9974cf51427bfa3a77d12bcd2220ea8a71bf3f	equal SAME_AS_V34
+
+v34 -> v34.2 delta in libkmod-config.c is one hunk at @@ -574,7 +574,8 @@ (weak-dependency
+string sizing: `size_t sz` -> `size_t sz = 1; /* at least '\0' */` plus `size_t sz_weak`).
+No config-file-precedence, duplicate-insertion, kcmdline or parse-loop code changes.
+Both C1 quotes for S302 survive verbatim in the v34.2 bytes, shifted +2 lines:
+  "Ignoring duplicate config file: %s/%s"   v34 line 942 -> v34.2 line 944
+  kmod_config_parse_kcmdline(config);       v34 line 1083 -> v34.2 line 1085
+Conclusion: quoting from the committed v34 snapshots is sound for the MD3/MD4 rows, but
+line numbers are tag-relative and MUST NOT be written into the note; the frozen counter
+locates quotes by whitespace-normalized text, so content-anchoring is the only safe form.
+
+[scratch] trees were created under /fast/scratch/hyaku/tsukuroi-r72/S1Scout and removed
+before yield; nothing was written to /tmp.

@@ -1,0 +1,87 @@
+# Round 72 host re-capture — seat S1Scout, wave w1, 2026-11-03
+# mode: read-only. No config file contents read. `modprobe --showconfig` NOT run (out of bounds).
+# No sudo used. No pacman. No service touched.
+# comparison baseline: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-72/before/host.txt
+
+[kernel]
+$ uname -r
+7.2.11-arch1-1
+== baseline 7.2.11-arch1-1 -> MATCH
+
+[kmod]
+$ kmod --version
+kmod version 34.2
++ZSTD +XZ +ZLIB +OPENSSL
+== baseline "kmod version 34.2 / +ZSTD +XZ +ZLIB +OPENSSL" -> MATCH
+
+[config directories — path + mode only, contents never read]
+$ for d in ...; do [ -e "$d" ] && stat -c '%A %U:%G %n' "$d" || echo "ABSENT $d"; done
+drwxr-xr-x root:root /etc/modprobe.d
+ABSENT /run/modprobe.d
+ABSENT /usr/local/lib/modprobe.d
+drwxr-xr-x root:root /usr/lib/modprobe.d
+drwxr-xr-x root:root /lib/modprobe.d
+== baseline identical, all five lines -> MATCH (3 existing, 2 absent)
+
+[/lib resolution]
+$ readlink -f /lib ; readlink -f /lib/modprobe.d
+/usr/lib
+/usr/lib/modprobe.d
+== baseline identical -> MATCH
+== consequence: /usr/lib/modprobe.d and /lib/modprobe.d are ONE physical directory that occupies
+== TWO positions (4 and 5) of libkmod's default_config_paths. Secondary scan of the same directory
+== re-inserts the same names and each one is dropped by conf_files_insert_sorted (strcmp == 0 ->
+== -EEXIST), so the duplicate path costs a directory scan but can never cause a double parse.
+
+[directory entries — names only, `ls`, no file reads]
+-- /etc/modprobe.d
+disable-usb-autosuspend.conf
+hid_apple.conf
+nvidia.conf
+   count = 3 (3 *.conf)
+-- /usr/lib/modprobe.d
+README
+bluetooth-usb.conf
+gsr-nvidia.conf
+nvidia-utils.conf
+systemd.conf
+   count = 5 (4 *.conf + README)
+== baseline names: /etc {disable-usb-autosuspend.conf, hid_apple.conf, nvidia.conf};
+== /usr/lib {bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, README, systemd.conf}
+== set comparison: IDENTICAL as multisets. ORDER_ONLY differs on /usr/lib (baseline sorts
+== case-insensitively with README between nvidia-utils.conf and systemd.conf; this capture's `ls`
+== under LC_ALL=C/en_US.UTF-8 puts README first). Ordering of `ls` is not a host fact and libkmod
+== itself re-sorts by name, so this is recorded as ORDER_ONLY=1, not drift.
+== out-of-scope names present: none (.rpmnew/.rpmsave/.pacnew/.bak) — no backup files in either dir.
+
+[/proc/cmdline]
+$ cat /proc/cmdline
+resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+== baseline byte-identical -> MATCH
+$ grep -c 'module\.' /proc/cmdline
+0
+== no "module.<name>.<param>=<value>" token -> MATCH (MD4 row is therefore host-silent:
+== the kernel-command-line branch of the config plane is reachable but unexercised on this host)
+
+[/sys/module parameter directories]
+$ ls -d /sys/module/*/parameters | wc -l
+136
+== baseline 136 -> MATCH
+
+[loaded modules touching nvidia/bluetooth — names only]
+$ awk '/^(btusb|bluetooth|nvidia)/ {print $1, $3}' /proc/modules
+btusb 0
+bluetooth 34
+nvidia_drm 61
+nvidia_uvm 12
+nvidia_modeset 18
+nvidia 456
+== baseline identical (btusb 0, bluetooth 34, nvidia_drm 61, nvidia_uvm 12, nvidia_modeset 18,
+== nvidia 456) -> MATCH
+== note: this kernel's /proc/modules carries no header line, so the first record is a module.
+
+[verdict]
+HOST_DRIFT=0
+DRIFT_FIELDS=none
+ORDER_ONLY=1 (/usr/lib/modprobe.d `ls` ordering differs; name set identical)
+OUT_OF_SCOPE_READS=none

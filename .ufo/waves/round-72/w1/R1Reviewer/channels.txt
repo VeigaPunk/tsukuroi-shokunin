@@ -1,0 +1,26 @@
+R1Reviewer counter channels — frozen counter tools/count-md-rows-r72.py
+(sha256 d615c653f32a29af3a4355d882041b8543ff56882b3225f7e3eedf173d8706a6 verified), --fixture runs.
+Baseline (re-derived rows): MD_ROWS=6 MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0, met=1, rc 0.
+
+CH1 negation-keeps-vocabulary: MD2 statement inverted ("No configuration files are sorted in
+lexicographic order; each directory is read separately in isolation, and a configuration file
+ordered later never replaced an earlier one..."), quote unchanged, grounding still passes.
+  -> MD_ROWS=6 MD_VERIFIED=6 met=1 rc 0. UNCAUGHT. (Declaration pre-plans this lexical-substance
+     channel for next round; confirmed empirically at the frozen digest.)
+
+CH2 quote lives in a different snapshot than cited: MD3 row cites snapshot=libkmod-config.c but
+quote is the man page's "All configuration files are sorted in lexicographic order..." sentence.
+  -> MD_ROW fail MD3 quote-absent, MD_VERIFIED=5, met=0 rc 1. CAUGHT.
+
+CH3 registry kind=community at tier A: S302 kind cell flipped docs->community, tier A unchanged,
+URL/anchor bindings intact.
+  -> all six rows ok, met=1 rc 0. UNCAUGHT. community is in the counter KINDS set and the tier
+     cell (registry cell 4) is never read; only own-work is excluded by name.
+
+CH4 MD9 hidden in a fenced code block (``` fence, well-formed 7th row, quote verbatim from man):
+  -> MD_ROW ok MD9 counted, then "MD_ROW fail ids-not-contiguous" + "MD_ROW fail snapshot-reuse
+     modprobe.d.5.scd=3", MD_ROWS=7 met=0 rc 1. CAUGHT. Fences give no invisibility; CAND_RE is
+     fence-blind. A malformed row in a fence would trip MD_MALFORMED the same way (counter counts
+     any MD-shaped line).
+
+COUNTER_CHANNELS_UNCAUGHT=2 (CH1 lexical-substance/negation; CH3 kind-tier blindness)

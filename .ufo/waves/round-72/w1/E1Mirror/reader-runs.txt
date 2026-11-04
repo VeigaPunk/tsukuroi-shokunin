@@ -1,0 +1,190 @@
+# E1Mirror — independent reader runs (round 72, wave w1)
+# reader: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-72/w1/E1Mirror/reader.py sha256=c1fa45b42104057bd4e55071505a315d0587e55c4e06f9a3539b5059c3d1a75f
+# reader imports only hashlib, json, re, sys, pathlib; it never imports or runs the counter
+# scratch S=/fast/scratch/hyaku/tsukuroi-r72/E1Mirror (removed before yield)
+# each block is the exact stdout/exit code of
+#   python3 reader.py $S/<case>
+
+## CASE control
+$ python3 reader.py $S/mirror
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 ok source=S302 snapshot=libkmod-config.c
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 ok source=S303 snapshot=modprobe.c
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER rows=6 ok=6 red=0 contiguous=1
+rc=0
+
+## CASE quote-foreign
+$ python3 reader.py $S/mutants/quote-foreign
+READER row MD1 red quote-absent
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 ok source=S302 snapshot=libkmod-config.c
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 ok source=S303 snapshot=modprobe.c
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER rows=6 ok=5 red=1 contiguous=1
+rc=1
+
+## CASE short-statement
+$ python3 reader.py $S/mutants/short-statement
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 ok source=S302 snapshot=libkmod-config.c
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 ok source=S303 snapshot=modprobe.c
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER rows=6 ok=6 red=0 contiguous=1
+rc=0
+
+## CASE ungrounded-long
+$ python3 reader.py $S/mutants/ungrounded-long
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 ok source=S302 snapshot=libkmod-config.c
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 ok source=S303 snapshot=modprobe.c
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER rows=6 ok=6 red=0 contiguous=1
+rc=0
+
+## CASE ownwork-kind
+$ python3 reader.py $S/mutants/ownwork-kind
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 ok source=S302 snapshot=libkmod-config.c
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 ok source=S303 snapshot=modprobe.c
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER rows=6 ok=6 red=0 contiguous=1
+rc=0
+
+## CASE map-digest
+$ python3 reader.py $S/mutants/map-digest
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 ok source=S302 snapshot=libkmod-config.c
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 ok source=S303 snapshot=modprobe.c
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER rows=6 ok=6 red=0 contiguous=1
+rc=0
+
+## CASE reuse-three
+$ python3 reader.py $S/mutants/reuse-three
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 ok source=S302 snapshot=libkmod-config.c
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER rows=6 ok=6 red=0 contiguous=1
+rc=0
+
+## CASE malformed-row
+$ python3 reader.py $S/mutants/malformed-row
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 ok source=S302 snapshot=libkmod-config.c
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 ok source=S303 snapshot=modprobe.c
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER info malformed-lines=1 (not gated by this reader)
+READER rows=6 ok=6 red=0 contiguous=1
+rc=0
+
+## CASE long-quote
+$ python3 reader.py $S/mutants/long-quote
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 ok source=S302 snapshot=libkmod-config.c
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 ok source=S303 snapshot=modprobe.c
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER rows=6 ok=6 red=0 contiguous=1
+rc=0
+
+## CASE anchor-missing
+$ python3 reader.py $S/mutants/anchor-missing
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 red anchor-not-bound
+READER row MD4 red anchor-not-bound
+READER row MD5 ok source=S303 snapshot=modprobe.c
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER rows=6 ok=4 red=2 contiguous=1
+rc=1
+
+## CASE source-url-missing
+$ python3 reader.py $S/mutants/source-url-missing
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 ok source=S302 snapshot=libkmod-config.c
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 red source-url-not-bound
+READER row MD6 red source-url-not-bound
+READER rows=6 ok=4 red=2 contiguous=1
+rc=1
+
+## CASE digest-swap
+$ python3 reader.py $S/mutants/digest-swap
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 ok source=S302 snapshot=libkmod-config.c
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 red digest-mismatch
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER rows=6 ok=5 red=1 contiguous=1
+rc=1
+
+## CASE quote-pipe
+$ python3 reader.py $S/mutants/quote-pipe
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 red quote-absent
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 ok source=S303 snapshot=modprobe.c
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER rows=6 ok=5 red=1 contiguous=1
+rc=1
+
+## CASE spacing
+$ python3 reader.py $S/mutants/spacing
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD2 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 ok source=S302 snapshot=libkmod-config.c
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 ok source=S303 snapshot=modprobe.c
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER rows=6 ok=6 red=0 contiguous=1
+rc=0
+
+## CASE duplicate-id
+$ python3 reader.py $S/mutants/duplicate-id
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD1 ok source=S301 snapshot=modprobe.d.5.scd
+READER row MD3 ok source=S302 snapshot=libkmod-config.c
+READER row MD4 ok source=S302 snapshot=libkmod-config.c
+READER row MD5 ok source=S303 snapshot=modprobe.c
+READER row MD6 ok source=S303 snapshot=modprobe.c
+READER global red ids-not-contiguous ids=[1, 3, 4, 5, 6]
+READER rows=6 ok=6 red=0 contiguous=0
+rc=1
+
+# VERDICT MATRIX (counter vs independent reader, same fixture tree)
+# CASE control: AGREE-GREEN counter_rc=0 met=1 reader_rc=0 reader_rows/ok/red=('6', '6', '0') counter_fail=[] reader_red=[] row_disagreements=[]
+# CASE quote-foreign: AGREE-RED counter_rc=1 met=0 reader_rc=1 reader_rows/ok/red=('6', '5', '1') counter_fail=[1] reader_red=[1] row_disagreements=[]
+# CASE short-statement: DISAGREE counter_rc=1 met=0 reader_rc=0 reader_rows/ok/red=('6', '6', '0') counter_fail=[1] reader_red=[] row_disagreements=[1]
+# CASE ungrounded-long: DISAGREE counter_rc=1 met=0 reader_rc=0 reader_rows/ok/red=('6', '6', '0') counter_fail=[2] reader_red=[] row_disagreements=[2]
+# CASE ownwork-kind: DISAGREE counter_rc=1 met=0 reader_rc=0 reader_rows/ok/red=('6', '6', '0') counter_fail=[1, 2] reader_red=[] row_disagreements=[1, 2]
+# CASE map-digest: DISAGREE counter_rc=1 met=0 reader_rc=0 reader_rows/ok/red=('6', '6', '0') counter_fail=[5, 6] reader_red=[] row_disagreements=[5, 6]
+# CASE reuse-three: DISAGREE counter_rc=1 met=0 reader_rc=0 reader_rows/ok/red=('6', '6', '0') counter_fail=[] reader_red=[] row_disagreements=[]
+# CASE malformed-row: DISAGREE counter_rc=1 met=0 reader_rc=0 reader_rows/ok/red=('6', '6', '0') counter_fail=[] reader_red=[] row_disagreements=[]
+# CASE long-quote: DISAGREE counter_rc=1 met=0 reader_rc=0 reader_rows/ok/red=('6', '6', '0') counter_fail=[1] reader_red=[] row_disagreements=[1]
+# CASE anchor-missing: AGREE-RED counter_rc=1 met=0 reader_rc=1 reader_rows/ok/red=('6', '4', '2') counter_fail=[3, 4] reader_red=[3, 4] row_disagreements=[]
+# CASE source-url-missing: AGREE-RED counter_rc=1 met=0 reader_rc=1 reader_rows/ok/red=('6', '4', '2') counter_fail=[5, 6] reader_red=[5, 6] row_disagreements=[]
+# CASE digest-swap: AGREE-RED counter_rc=1 met=0 reader_rc=1 reader_rows/ok/red=('6', '5', '1') counter_fail=[5] reader_red=[5] row_disagreements=[]
+# CASE quote-pipe: AGREE-RED counter_rc=1 met=0 reader_rc=1 reader_rows/ok/red=('6', '5', '1') counter_fail=[] reader_red=[3] row_disagreements=[]
+# CASE spacing: DISAGREE counter_rc=1 met=0 reader_rc=0 reader_rows/ok/red=('6', '6', '0') counter_fail=[] reader_red=[] row_disagreements=[1]
+# CASE duplicate-id: AGREE-RED counter_rc=1 met=0 reader_rc=1 reader_rows/ok/red=('6', '6', '0') counter_fail=[1] reader_red=[] row_disagreements=[1]

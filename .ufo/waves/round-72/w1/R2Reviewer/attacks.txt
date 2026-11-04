@@ -1,0 +1,512 @@
+Axes: operability (C2), freshness (C3), hermeticity, mutation discrimination.
+Frozen declaration: 6b4267623b3d6cf88b32c2df8daaad1a5bc9f19e; predicates unchanged.
+Target: live worktree C2 (E2 draft directory absent at inspection), clone frozen C3 df8a59c7a2891f58ab37a1b22e73819d953f1781528d4f2f4937641e093de712.
+
+C2 SHA256=e47baa781ed4f45c9b5d6fcbc384718ad13db0bc376e9152f0ab98b45e25274d
+
+C2 original selftest
+rc=0
+PASS (SELFTEST-match) rc=0 want=0
+PASS (SELFTEST-mismatch) rc=1 want=1
+PASS (SELFTEST-label-mismatch) rc=1 want=1
+PASS (SELFTEST-superseded-skip) rc=0 want=0
+PASS (SELFTEST-out-of-scope) rc=0 want=0
+PASS (SELFTEST-no-receipt-line) rc=2 want=2
+PASS (SELFTEST-green-control) rc=0 want=0
+SELFTEST: PASS (7 cases, 7 passed, 0 failed)
+
+
+C2 mutant case-compare
+rc=1
+PASS (SELFTEST-match) rc=0 want=0
+FAIL (SELFTEST-mismatch) rc=0 want=1
+PASS (SELFTEST-label-mismatch) rc=1 want=1
+PASS (SELFTEST-superseded-skip) rc=0 want=0
+PASS (SELFTEST-out-of-scope) rc=0 want=0
+PASS (SELFTEST-no-receipt-line) rc=2 want=2
+PASS (SELFTEST-green-control) rc=0 want=0
+SELFTEST: FAIL (7 cases, 6 passed, 1 failed)
+
+
+C2 mutant label-compare
+rc=1
+PASS (SELFTEST-match) rc=0 want=0
+PASS (SELFTEST-mismatch) rc=1 want=1
+FAIL (SELFTEST-label-mismatch) rc=0 want=1
+PASS (SELFTEST-superseded-skip) rc=0 want=0
+PASS (SELFTEST-out-of-scope) rc=0 want=0
+PASS (SELFTEST-no-receipt-line) rc=2 want=2
+PASS (SELFTEST-green-control) rc=0 want=0
+SELFTEST: FAIL (7 cases, 6 passed, 1 failed)
+
+
+C2 mutant superseded
+rc=1
+PASS (SELFTEST-match) rc=0 want=0
+PASS (SELFTEST-mismatch) rc=1 want=1
+PASS (SELFTEST-label-mismatch) rc=1 want=1
+FAIL (SELFTEST-superseded-skip) rc=1 want=0
+PASS (SELFTEST-out-of-scope) rc=0 want=0
+PASS (SELFTEST-no-receipt-line) rc=2 want=2
+PASS (SELFTEST-green-control) rc=0 want=0
+SELFTEST: FAIL (7 cases, 6 passed, 1 failed)
+
+
+C2 mutant scope
+rc=1
+PASS (SELFTEST-match) rc=0 want=0
+PASS (SELFTEST-mismatch) rc=1 want=1
+PASS (SELFTEST-label-mismatch) rc=1 want=1
+PASS (SELFTEST-superseded-skip) rc=0 want=0
+FAIL (SELFTEST-out-of-scope) rc=1 want=0
+PASS (SELFTEST-no-receipt-line) rc=2 want=2
+PASS (SELFTEST-green-control) rc=0 want=0
+SELFTEST: FAIL (7 cases, 6 passed, 1 failed)
+
+
+C2 mutant no-receipt
+rc=1
+PASS (SELFTEST-match) rc=0 want=0
+PASS (SELFTEST-mismatch) rc=1 want=1
+PASS (SELFTEST-label-mismatch) rc=1 want=1
+PASS (SELFTEST-superseded-skip) rc=0 want=0
+PASS (SELFTEST-out-of-scope) rc=0 want=0
+FAIL (SELFTEST-no-receipt-line) rc=0 want=2
+PASS (SELFTEST-green-control) rc=0 want=0
+SELFTEST: FAIL (7 cases, 6 passed, 1 failed)
+
+
+C2 mutant positive-case
+rc=1
+FAIL (SELFTEST-match) rc=1 want=0
+PASS (SELFTEST-mismatch) rc=1 want=1
+PASS (SELFTEST-label-mismatch) rc=1 want=1
+PASS (SELFTEST-superseded-skip) rc=0 want=0
+PASS (SELFTEST-out-of-scope) rc=0 want=0
+PASS (SELFTEST-no-receipt-line) rc=2 want=2
+PASS (SELFTEST-green-control) rc=0 want=0
+SELFTEST: FAIL (7 cases, 6 passed, 1 failed)
+
+
+C2 mutant all-figures-ignored
+rc=1
+PASS (SELFTEST-match) rc=0 want=0
+FAIL (SELFTEST-mismatch) rc=0 want=1
+PASS (SELFTEST-label-mismatch) rc=1 want=1
+PASS (SELFTEST-superseded-skip) rc=0 want=0
+PASS (SELFTEST-out-of-scope) rc=0 want=0
+PASS (SELFTEST-no-receipt-line) rc=2 want=2
+PASS (SELFTEST-green-control) rc=0 want=0
+SELFTEST: FAIL (7 cases, 6 passed, 1 failed)
+
+
+C2 mutant exit-map
+rc=1
+PASS (SELFTEST-match) rc=0 want=0
+FAIL (SELFTEST-mismatch) rc=0 want=1
+FAIL (SELFTEST-label-mismatch) rc=0 want=1
+PASS (SELFTEST-superseded-skip) rc=0 want=0
+PASS (SELFTEST-out-of-scope) rc=0 want=0
+PASS (SELFTEST-no-receipt-line) rc=2 want=2
+PASS (SELFTEST-green-control) rc=0 want=0
+SELFTEST: FAIL (7 cases, 5 passed, 2 failed)
+
+
+C2 usage
+rc=2
+Pre-report stale-tally sweep (QUALITY 105 draft, round 71 seat SC3Lesson).
+
+Every selftest case-count and label-count figure a round writes is diffed against the
+final receipt's own line, before the report is filed.  Scope is the round's added lines
+(`git diff -U0 <base>..<head>`), so historical figures in the same files are out of scope
+by construction.
+
+Usage:
+  check-selftest-tally.py --receipt <file> --label <token> --range <A>..<B> -- <path>...
+  check-selftest-tally.py --receipt <file> --label <token> --diff-file <file>
+  check-selftest-tally.py --selftest
+
+Exit: 0 when every added figure equals the receipt's figure, 1 on any mismatch, 2 when the
+receipt carries no `PASS (N cases, ...)` line or on usage.
+`--selftest` runs seven hermetic cases over fixtures it builds under `$TMPDIR` (never a
+hardcoded `/tmp`), prints one named `PASS (SELFTEST-<id>)`/`FAIL (SELFTEST-<id>)` line per case
+and a final `SELFTEST: PASS (N cases, N passed, 0 failed)`, and exits 0 only when all pass.
+
+Only lines that name the census selftest or carry the receipt's own "cases, " phrasing are
+scored: a battery's "11 cases", a registry row's historical count or any other instrument's
+figure is out of scope by construction. An added line that explicitly marks its figure as superseded (it contains "superseded",
+"stays as written" or "stays visible as filed") is printed as SKIP: a correction block must
+quote the figure it supersedes, and quoting it is not filing it as current.
+
+
+
+C2 r70 self-demo
+rc=0
+SWEEP added_figures_mismatched=0 skipped_superseded=0 receipt_cases=214 receipt_labels=18
+
+
+TMPDIR=/fast/scratch/hyaku/tsukuroi-r72/R2Reviewer/tmpdir TEMP_REQUEST {'prefix': 'selftest-tally-', 'dir': '/fast/scratch/hyaku/tsukuroi-r72/R2Reviewer/tmpdir'}
+
+TMPDIR=/fast/scratch/hyaku/tsukuroi-r72/R2Reviewer/missing-dir TEMP_REQUEST {'prefix': 'selftest-tally-', 'dir': None}
+
+C3 fresh counter 2b358d2d
+rc=0
+MP_ROW ok MP1 source=S297 snapshot=params.c
+MP_ROW ok MP2 source=S297 snapshot=params.c
+MP_ROW ok MP3 source=S298 snapshot=moduleparam.h
+MP_ROW ok MP4 source=S299 snapshot=main.c
+MP_ROW ok MP5 source=S299 snapshot=main.c
+MP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst
+MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+MP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1
+
+
+C3 correct-repair
+rc=0
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=0
+
+
+INPUTS {"receipt": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1\n", "scorecard": "## Round 71 \u2014 receipt erratum\nThe prior receipt was missing; this appended erratum records .ufo/waves/round-71/after/count-mp-rows-final.txt at revision 2b358d2d.\n", "note": "Original filed note: four /usr/lib/modprobe.d paths.\n\n## Correction\nR71-NOTE-MODPROBE-COUNT: the superseded four figure is five /usr/lib/modprobe.d paths: README, bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, systemd.conf.\n"}
+
+C3 fabricated-plausible
+rc=1
+ROUTED_RECEIPT mismatch: receipt summary differs from a fresh counter run
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=1
+
+
+INPUTS {"receipt": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=7 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1\n", "scorecard": "## Round 71 \u2014 receipt erratum\nThe prior receipt was missing; this appended erratum records .ufo/waves/round-71/after/count-mp-rows-final.txt at revision 2b358d2d.\n", "note": "Original filed note: four /usr/lib/modprobe.d paths.\n\n## Correction\nR71-NOTE-MODPROBE-COUNT: the superseded four figure is five /usr/lib/modprobe.d paths: README, bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, systemd.conf.\n"}
+
+C3 not-an-erratum
+rc=0
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=0
+
+
+INPUTS {"receipt": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1\n", "scorecard": "## Round 71 \u2014 receipt erratum\nThis is NOT an erratum; do NOT correct .ufo/waves/round-71/after/count-mp-rows-final.txt at 2b358d2d. No change is recorded.\n", "note": "Original filed note: four /usr/lib/modprobe.d paths.\n\n## Correction\nR71-NOTE-MODPROBE-COUNT: the superseded four figure is five /usr/lib/modprobe.d paths: README, bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, systemd.conf.\n"}
+
+C3 missing-defect-id
+rc=1
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE missing: no appended correction naming the defect, five paths and the superseded figure
+ROUTED_STALE=1
+
+
+INPUTS {"receipt": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1\n", "scorecard": "## Round 71 \u2014 receipt erratum\nThe prior receipt was missing; this appended erratum records .ufo/waves/round-71/after/count-mp-rows-final.txt at revision 2b358d2d.\n", "note": "Original filed note: four /usr/lib/modprobe.d paths.\n\n## Correction\nthe superseded four figure is five /usr/lib/modprobe.d paths: README, bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, systemd.conf.\n"}
+
+C3 no-five-path-names
+rc=0
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=0
+
+
+INPUTS {"receipt": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1\n", "scorecard": "## Round 71 \u2014 receipt erratum\nThe prior receipt was missing; this appended erratum records .ufo/waves/round-71/after/count-mp-rows-final.txt at revision 2b358d2d.\n", "note": "## Correction\nR71-NOTE-MODPROBE-COUNT five four /usr/lib/modprobe.d\n"}
+
+C3 inverted-correction
+rc=0
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=0
+
+
+INPUTS {"receipt": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1\n", "scorecard": "## Round 71 \u2014 receipt erratum\nThe prior receipt was missing; this appended erratum records .ufo/waves/round-71/after/count-mp-rows-final.txt at revision 2b358d2d.\n", "note": "## Correction\nR71-NOTE-MODPROBE-COUNT: five /usr/lib/modprobe.d paths is wrong; four remains correct.\n"}
+
+C3 capitalized-five
+rc=1
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE missing: no appended correction naming the defect, five paths and the superseded figure
+ROUTED_STALE=1
+
+
+INPUTS {"receipt": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1\n", "scorecard": "## Round 71 \u2014 receipt erratum\nThe prior receipt was missing; this appended erratum records .ufo/waves/round-71/after/count-mp-rows-final.txt at revision 2b358d2d.\n", "note": "Original filed note: four /usr/lib/modprobe.d paths.\n\n## Correction\nR71-NOTE-MODPROBE-COUNT: the superseded four figure is Five /usr/lib/modprobe.d paths: README, bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, systemd.conf.\n"}
+
+C3 erratum-note-heading
+rc=1
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE missing: no appended correction naming the defect, five paths and the superseded figure
+ROUTED_STALE=1
+
+
+INPUTS {"receipt": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1\n", "scorecard": "## Round 71 \u2014 receipt erratum\nThe prior receipt was missing; this appended erratum records .ufo/waves/round-71/after/count-mp-rows-final.txt at revision 2b358d2d.\n", "note": "Original filed note: four /usr/lib/modprobe.d paths.\n\n## Erratum\nR71-NOTE-MODPROBE-COUNT: the superseded four figure is five /usr/lib/modprobe.d paths: README, bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, systemd.conf.\n"}
+
+C3 receipt-extra-detail
+rc=0
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=0
+
+
+INPUTS {"receipt": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1\nThis receipt was fabricated, not captured.\n", "scorecard": "## Round 71 \u2014 receipt erratum\nThe prior receipt was missing; this appended erratum records .ufo/waves/round-71/after/count-mp-rows-final.txt at revision 2b358d2d.\n", "note": "Original filed note: four /usr/lib/modprobe.d paths.\n\n## Correction\nR71-NOTE-MODPROBE-COUNT: the superseded four figure is five /usr/lib/modprobe.d paths: README, bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, systemd.conf.\n"}
+
+C3 correct-repair-spaced-summary
+rc=1
+ROUTED_RECEIPT mismatch: receipt summary differs from a fresh counter run
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=1
+
+
+INPUTS {"receipt": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6  MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1\n", "scorecard": "## Round 71 \u2014 receipt erratum\nThe prior receipt was missing; this appended erratum records .ufo/waves/round-71/after/count-mp-rows-final.txt at revision 2b358d2d.\n", "note": "Original filed note: four /usr/lib/modprobe.d paths.\n\n## Correction\nR71-NOTE-MODPROBE-COUNT: the superseded four figure is five /usr/lib/modprobe.d paths: README, bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, systemd.conf.\n"}
+
+C3 doctored-counter-prep
+rc=0
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=0
+
+
+INPUTS {"receipt": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1\n", "scorecard": "## Round 71 \u2014 receipt erratum\nThe prior receipt was missing; this appended erratum records .ufo/waves/round-71/after/count-mp-rows-final.txt at revision 2b358d2d.\n", "note": "Original filed note: four /usr/lib/modprobe.d paths.\n\n## Correction\nR71-NOTE-MODPROBE-COUNT: the superseded four figure is five /usr/lib/modprobe.d paths: README, bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, systemd.conf.\n"}
+
+C3 fixture-doctored-counter-one-byte
+rc=1
+ROUTED_RECEIPT mismatch: receipt summary differs from a fresh counter run
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=1
+
+
+ONE_BYTE_COUNTER_MUTATION MP_ROWS= -> MP_ROWS: in fixture/tools/count-mp-rows-r71.py; fixture receipt follows doctored output. Checker invokes clone/tools/count-mp-rows-r71.py, not fixture/tools copy.
+
+C2 filesystem audit valid TMPDIR
+rc=0
+AUDIT tempfile.mkdtemp ('/fast/scratch/hyaku/tsukuroi-r72/R2Reviewer/tmpdir/selftest-tally-t2163lq8',)
+AUDIT os.mkdir ('/fast/scratch/hyaku/tsukuroi-r72/R2Reviewer/tmpdir/selftest-tally-t2163lq8', 448, -1)
+PASS (SELFTEST-match) rc=0 want=0
+PASS (SELFTEST-mismatch) rc=1 want=1
+PASS (SELFTEST-label-mismatch) rc=1 want=1
+PASS (SELFTEST-superseded-skip) rc=0 want=0
+PASS (SELFTEST-out-of-scope) rc=0 want=0
+PASS (SELFTEST-no-receipt-line) rc=2 want=2
+PASS (SELFTEST-green-control) rc=0 want=0
+SELFTEST: PASS (7 cases, 7 passed, 0 failed)
+AUDIT os.rmdir ('/fast/scratch/hyaku/tsukuroi-r72/R2Reviewer/tmpdir/selftest-tally-t2163lq8', -1)
+
+
+C3 doctored fixture invocation trace
+rc=1
+AUDIT_SUBPROCESS ['/usr/bin/python3', '/fast/scratch/hyaku/tsukuroi-r72/R2Reviewer/clone/tools/count-mp-rows-r71.py', '--revision', '2b358d2d']
+ROUTED_RECEIPT mismatch: receipt summary differs from a fresh counter run
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=1
+
+
+COUNTER_COPY_BYTE_DIFF=1 same_length=True lane_sha256=fa67d4deb5f01a5124120276a8571fa36c7367d9db711ceb39bc1ca6fded48bc fixture_sha256=ddee22f81c632032e347958cc7384c2bbd4fba95b3c3cfdd5800a0232fc8d6fd
+
+C2 CLI match
+rc=0
+OK   A.md:1 cases_figure=218 receipt=218
+SWEEP added_figures_mismatched=0 skipped_superseded=0 receipt_cases=218 receipt_labels=1
+
+
+C2 CLI mismatch
+rc=1
+MISM A.md:1 cases_figure=217 receipt=218
+SWEEP added_figures_mismatched=1 skipped_superseded=0 receipt_cases=218 receipt_labels=1
+
+
+C2 CLI no-receipt
+rc=2
+SWEEP: no receipt line
+
+
+C2 MUTATION RULES
+{
+  "case-compare": [
+    "ok = v == n",
+    "ok = True"
+  ],
+  "label-compare": [
+    "ok = v == labels",
+    "ok = True"
+  ],
+  "superseded": [
+    "if any(marker in line for marker in SUPERSEDED):",
+    "if False:"
+  ],
+  "scope": [
+    "if (\"selftest\" not in line.lower()) and (\"cases, \" not in line):",
+    "if False:"
+  ],
+  "no-receipt": [
+    "return 2, None, None",
+    "return 0, None, None"
+  ],
+  "positive-case": [
+    "ok = v == n",
+    "ok = False"
+  ],
+  "all-figures-ignored": [
+    "for mm in CASE.finditer(line):",
+    "for mm in []:"
+  ],
+  "exit-map": [
+    "return (1 if mism else 0), mism, skipped",
+    "return 0, mism, skipped"
+  ]
+}
+
+CAPTURED C2 SOURCE (line numbers correspond to findings)
+1: #!/usr/bin/env python3
+2: """Pre-report stale-tally sweep (QUALITY 105 draft, round 71 seat SC3Lesson).
+3: 
+4: Every selftest case-count and label-count figure a round writes is diffed against the
+5: final receipt's own line, before the report is filed.  Scope is the round's added lines
+6: (`git diff -U0 <base>..<head>`), so historical figures in the same files are out of scope
+7: by construction.
+8: 
+9: Usage:
+10:   check-selftest-tally.py --receipt <file> --label <token> --range <A>..<B> -- <path>...
+11:   check-selftest-tally.py --receipt <file> --label <token> --diff-file <file>
+12:   check-selftest-tally.py --selftest
+13: 
+14: Exit: 0 when every added figure equals the receipt's figure, 1 on any mismatch, 2 when the
+15: receipt carries no `PASS (N cases, ...)` line or on usage.
+16: `--selftest` runs seven hermetic cases over fixtures it builds under `$TMPDIR` (never a
+17: hardcoded `/tmp`), prints one named `PASS (SELFTEST-<id>)`/`FAIL (SELFTEST-<id>)` line per case
+18: and a final `SELFTEST: PASS (N cases, N passed, 0 failed)`, and exits 0 only when all pass.
+19: 
+20: Only lines that name the census selftest or carry the receipt's own "cases, " phrasing are
+21: scored: a battery's "11 cases", a registry row's historical count or any other instrument's
+22: figure is out of scope by construction. An added line that explicitly marks its figure as superseded (it contains "superseded",
+23: "stays as written" or "stays visible as filed") is printed as SKIP: a correction block must
+24: quote the figure it supersedes, and quoting it is not filing it as current.
+25: """
+26: import os
+27: import re
+28: import shutil
+29: import subprocess
+30: import sys
+31: import tempfile
+32: import pathlib
+33: 
+34: LANE = "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin"
+35: CASE = re.compile(r"(?<![\w.])(\d{2,4})\s+cases|(\d{2,4})\s*(?:\u2192|->)\s*(\d{2,4})")
+36: LABEL = re.compile(r"(?<![\w.])(\d{1,3})\s+(?:of them\s+)?labelled")
+37: RECEIPT = re.compile(r"PASS \((\d+) cases, (\d+) passed, (\d+) failed\)")
+38: 
+39: 
+40: def sweep(receipt_text, diff_text, label, out):
+41:     """Score one receipt/diff pair. Writes lines through `out`; returns (rc, mism, skipped)."""
+42:     m = RECEIPT.search(receipt_text)
+43:     if not m:
+44:         out("SWEEP: no receipt line")
+45:         return 2, None, None
+46:     n = int(m.group(1))
+47:     labels = sum(1 for line in receipt_text.splitlines() if label in line)
+48: 
+49:     mism = 0
+50:     skipped = 0
+51:     SUPERSEDED = ("superseded", "stays as written", "stays visible as filed")
+52:     f = ln = None
+53:     for line in diff_text.splitlines():
+54:         if line.startswith("+++ b/"):
+55:             f = line[6:]
+56:         elif line.startswith("@@"):
+57:             ln = int(re.search(r"\+(\d+)", line).group(1))
+58:         elif line.startswith("+") and not line.startswith("+++"):
+59:             if ("selftest" not in line.lower()) and ("cases, " not in line):
+60:                 ln += 1
+61:                 continue
+62:             if any(marker in line for marker in SUPERSEDED):
+63:                 skipped += 1
+64:                 out(f"SKIP {f}:{ln} superseded-figure quote (the correction block names it as such)")
+65:                 ln += 1
+66:                 continue
+67:             for mm in CASE.finditer(line):
+68:                 v = int(mm.group(1) or mm.group(3))
+69:                 ok = v == n
+70:                 mism += 0 if ok else 1
+71:                 out(f"{'OK  ' if ok else 'MISM'} {f}:{ln} cases_figure={v} receipt={n}")
+72:             for mm in LABEL.finditer(line):
+73:                 v = int(mm.group(1))
+74:                 ok = v == labels
+75:                 mism += 0 if ok else 1
+76:                 out(f"{'OK  ' if ok else 'MISM'} {f}:{ln} label_figure={v} receipt={labels}")
+77:             ln += 1
+78:     out(f"SWEEP added_figures_mismatched={mism} skipped_superseded={skipped} receipt_cases={n} receipt_labels={labels}")
+79:     return (1 if mism else 0), mism, skipped
+80: 
+81: 
+82: def selftest():
+83:     base = os.environ.get("TMPDIR") or "/fast/scratch/hyaku"
+84:     if not pathlib.Path(base).is_dir():
+85:         base = None
+86:     root = pathlib.Path(tempfile.mkdtemp(prefix="selftest-tally-", dir=base))
+87:     receipt = ("TSUKUROI_CENSUS_SELFTEST: PASS (218 cases, 218 passed, 0 failed)\n"
+88:                + "R72-C2 line\n" * 4)
+89:     cases = [
+90:         ("match", receipt,
+91:          "+++ b/A.md\n@@ -1,0 +1,1 @@\n+the selftest now reads PASS (218 cases, 218 passed, 0 failed)",
+92:          0, "added_figures_mismatched=0"),
+93:         ("mismatch", receipt,
+94:          "+++ b/A.md\n@@ -1,0 +1,1 @@\n+the selftest reads 217 cases", 1,
+95:          "MISM A.md:1 cases_figure=217 receipt=218"),
+96:         ("label-mismatch", receipt,
+97:          "+++ b/A.md\n@@ -1,0 +1,1 @@\n+the selftest emitted 3 labelled arms", 1,
+98:          "MISM A.md:1 label_figure=3 receipt=4"),
+99:         ("superseded-skip", receipt,
+100:          "+++ b/A.md\n@@ -1,0 +1,1 @@\n+the selftest figure 217 cases is superseded by this correction",
+101:          0, "SKIP A.md:1"),
+102:         ("out-of-scope", receipt,
+103:          "+++ b/A.md\n@@ -1,0 +1,1 @@\n+the battery ran 11 cases", 0,
+104:          "added_figures_mismatched=0"),
+105:         ("no-receipt-line", "no summary here\n",
+106:          "+++ b/A.md\n@@ -1,0 +1,1 @@\n+the selftest reads 218 cases", 2,
+107:          "SWEEP: no receipt line"),
+108:         ("green-control", receipt, "", 0, "added_figures_mismatched=0"),
+109:     ]
+110:     passed = 0
+111:     try:
+112:         for name, rtext, dtext, want_rc, want_tok in cases:
+113:             lines = []
+114:             rc, _, _ = sweep(rtext, dtext, "R72-C2", lines.append)
+115:             ok = rc == want_rc and any(want_tok in l for l in lines)
+116:             passed += ok
+117:             print(f"{'PASS' if ok else 'FAIL'} (SELFTEST-{name}) rc={rc} want={want_rc}")
+118:         total = len(cases)
+119:         print(f"SELFTEST: {'PASS' if passed == total else 'FAIL'} "
+120:               f"({total} cases, {passed} passed, {total - passed} failed)")
+121:         return 0 if passed == total else 1
+122:     finally:
+123:         shutil.rmtree(root, ignore_errors=True)
+124: 
+125: 
+126: def main(argv):
+127:     if "--selftest" in argv:
+128:         return selftest()
+129:     if "--receipt" not in argv or "--label" not in argv or "--" not in argv:
+130:         print(__doc__)
+131:         return 2
+132:     receipt = argv[argv.index("--receipt") + 1]
+133:     label = argv[argv.index("--label") + 1]
+134:     paths = argv[argv.index("--") + 1:]
+135: 
+136:     rtext = pathlib.Path(receipt).read_text(errors="replace")
+137:     if "--diff-file" in argv:
+138:         dtext = pathlib.Path(argv[argv.index("--diff-file") + 1]).read_text()
+139:     else:
+140:         a, b = argv[argv.index("--range") + 1].split("..")
+141:         dtext = subprocess.run(
+142:             ["git", "-C", LANE, "diff", "-U0", a, b, "--", *paths],
+143:             capture_output=True, text=True).stdout
+144:     rc, _, _ = sweep(rtext, dtext, label, print)
+145:     return rc
+146: 
+147: 
+148: if __name__ == "__main__":
+149:     sys.exit(main(sys.argv))

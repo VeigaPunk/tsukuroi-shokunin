@@ -1,0 +1,62 @@
+# C1 quote locator — round 72, seat S1Scout
+# source root: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-72/before/src
+# route 2 bytes verified IDENTICAL to committed snapshots (see route2.txt); all coordinates are v34
+# method: whitespace-normalized substring search with index->line:col mapping (matches the frozen counter's rule)
+# columns: id  snapshot  span(line:col-line:col)  words  chars  pipe  dquote  verbatim  distinct_ge4  planned_row  usable_in_quote_cell
+# distinct_ge4 = count of distinct non-stopword tokens of len>=4 inside the quote alone; the frozen counter needs
+# >= 6 shared with the snapshot text, so a row whose quote alone scores low MUST carry the rest of its tokens in the statement.
+
+id	snapshot	span	words	chars	pipe	dquote	verbatim	distinct_ge4	planned_row	usable_in_quote_cell
+a	modprobe.d.5.scd	43:22-44:47	20	106	false	false	true	6	MD1	YES
+b	modprobe.d.5.scd	46:1-47:25	15	102	false	false	true	8	MD2	YES
+b2	modprobe.d.5.scd	47:27-50:7	35	221	false	false	true	10	MD2 (alternative)	NO — 35 words, over the 25-word ceiling
+c	libkmod-config.c	942:13-942:49	5	37	false	false	true	3	MD3	YES
+d	libkmod-config.c	1083:2-1083:36	1	35	false	false	true	2	MD4	YES
+e	modprobe.c	128:40-128:80	7	41	false	false	true	3	MD5	YES
+f1	modprobe.c	111:40-111:73	5	34	false	false	true	4	MD6	YES
+f2	modprobe.c	626:2-626:48	3	47	TRUE	false	true	2	MD6 (code anchor)	NO — bitwise-or pipe would break the 7-cell grammar
+f3	modprobe.c	629:3-629:38	3	36	TRUE	false	true	2	MD6 (code anchor)	NO — bitwise-or pipe would break the 7-cell grammar
+
+[supporting anchors that pin the six propositions]
+MD1 directory precedence
+  syNOPSIS order in the same snapshot, modprobe.d.5.scd lines 9-17:
+    @SYSCONFDIR@/modprobe.d/*.conf, /run/modprobe.d/*.conf, /usr/local/lib/modprobe.d/*.conf,
+    @DISTCONFDIR@/modprobe.d/*.conf, /lib/modprobe.d/*.conf
+  mechanism, libkmod-config.c:1025 iterates config_paths in that order and calls conf_files_list
+  (line 1007 passes every accepted directory entry to conf_files_insert_sorted).
+  Default list (supplementary fetch, libkmod/libkmod.c:44-52 @v34): SYSCONFDIR/modprobe.d,
+  /run/modprobe.d, /usr/local/lib/modprobe.d, DISTCONFDIR/modprobe.d, /lib/modprobe.d, NULL
+  — identical order to SYNOPSIS, so quote (a) is a description of code, not just of docs.
+MD2 lexicographic order + partial replacement
+  libkmod-config.c:937 `if ((cmp = strcmp(name, cf->name)) <= 0) break;` — the sort key is the
+  FILE NAME only; the directory is not part of the key. One global name-sorted list is then walked
+  at 1058-1081, so parse order is lexicographic across all directories, as quote (b) states.
+  Quote b2 states the replace/partial-replace consequence but is 35 words: unusable as a quote cell.
+MD3 duplicate rejection at insertion
+  libkmod-config.c:920 conf_files_insert_sorted(); 941-944 `if (cmp == 0) ... return -EEXIST`.
+  Because directories are visited in precedence order, the FIRST copy of a name is inserted and every
+  later copy of that name is dropped with -EEXIST — MD1 and MD3 are the same branch, seen from two sides.
+MD4 kcmdline parsed after the files
+  libkmod-config.c:1083 kmod_config_parse_kcmdline(config); sits after the 1058-1081 file loop and
+  before `return 0;` at 1085 — into the same `config` object. Merge is by append, not replacement:
+  kmod_config_add_options (155-181) appends every options entry, and kmod_module_get_options
+  (supplementary fetch libkmod-module.c:1116-1155 @v34) concatenates all matching entries in list
+  order, so the kcmdline options are appended after the file-derived ones. MD4's wording must stay
+  "land in the same config object" and must NOT claim a replacement/override.
+MD5 dry-run
+  modprobe.c:128 usage text is the only CLI-level statement; flag propagation at 623-624
+  (`if (dry_run) flags |= KMOD_PROBE_DRY_RUN;`). Neither line contains a pipe or a double quote.
+  (Two other `if (dry_run)` sites exist at 298 and 323 in the command/insert paths.)
+MD6 blacklist alias-only by default
+  modprobe.c:626 sets KMOD_PROBE_APPLY_BLACKLIST_ALIAS_ONLY unconditionally; 628-629 adds
+  KMOD_PROBE_APPLY_BLACKLIST only when use_blacklist (-b/--use-blacklist). Behaviour, supplementary
+  fetch libkmod/libkmod-module.c:1023-1031 @v34: if the module is blacklisted and it has an alias and
+  ALIAS_ONLY is set, the probe stops; a directly named (non-alias) module is stopped only when
+  APPLY_BLACKLIST or APPLY_BLACKLIST_ALL is set. So MD6 as drafted is accurate for modprobe(8).
+
+[sum]
+QUOTES_LOCATED=6/6 (plus 3 code anchors = 9 located strings)
+PIPES_OR_QUOTES=2 (f2, f3 — both pipe-bearing code anchors; zero double quotes anywhere in the set)
+OVER_25_WORDS=1 (b2, 35 words — must not be used)
+NOT_VERBATIM=0
+LINE_NUMBER_CAVEAT=1 (S302 quotes shift +2 lines under v34.2; anchor by text, never by line)

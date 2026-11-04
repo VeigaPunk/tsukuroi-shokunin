@@ -62,9 +62,17 @@ def evaluate(rt, fixture=None):
         print(f"ROUTED_RECEIPT missing {RECEIPT}")
         stale += 1
     else:
+        if RECORD_REVISION not in receipt:
+            print(f"ROUTED_RECEIPT missing revision token {RECORD_REVISION}")
+            stale += 1
+            receipt_ok = False
+        else:
+            receipt_ok = True
         have = "\n".join(SUMMARY.findall(receipt))
         fresh = counter_summary()
-        if fresh is None:
+        if not receipt_ok:
+            pass
+        elif fresh is None:
             print("ROUTED_RECEIPT unresolved: counter produced no summary line")
             stale += 1
         elif have != fresh:
@@ -75,7 +83,8 @@ def evaluate(rt, fixture=None):
 
     score = rt(SCORECARD) or ""
     block = ""
-    m = re.search(r"## Round 71 — receipt erratum.*?(?=\n## |\Z)", score, re.S)
+    # Line-anchored: the prose may quote the heading inline; only a real heading opens the block.
+    m = re.search(r"^## Round 71 — receipt erratum.*?(?=\n## |\Z)", score, re.S | re.M)
     if m:
         block = m.group(0)
     if RECEIPT in block and RECORD_REVISION in block:

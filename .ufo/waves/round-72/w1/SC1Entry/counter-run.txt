@@ -1,0 +1,52 @@
+# round-72 C1 counter run — seat SC1Entry
+# host: Linux 7.2.11-arch1-1 x86_64; date: 2026-11-03T22:38:16-03:00
+
+## 1. fixture mirror (note draft + snapshots + planned registry rows S301-S303)
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture /fast/scratch/hyaku/tsukuroi-r72/SC1Entry/mirror
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROWS=6 MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+## 2. lane tree at HEAD (note not committed yet; the L1 owns the commit)
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --revision HEAD
+MD_NOTE absent path=corpus/knowledge/modprobe-config-plane-r72.md
+rc=128
+
+## 3. per-row lexical share (counter's own grounding(), read-only import)
+1 snapshot=modprobe.d.5.scd tokens=15/15 share=1.00 stmt_words=31 quote_words=15 quote_located=True
+2 snapshot=modprobe.d.5.scd tokens=17/17 share=1.00 stmt_words=48 quote_words=15 quote_located=True
+3 snapshot=libkmod-config.c tokens=13/19 share=0.68 stmt_words=34 quote_words=4 quote_located=True
+4 snapshot=libkmod-config.c tokens=11/15 share=0.73 stmt_words=25 quote_words=1 quote_located=True
+5 snapshot=modprobe.c tokens=10/13 share=0.77 stmt_words=30 quote_words=7 quote_located=True
+6 snapshot=modprobe.c tokens=9/13 share=0.69 stmt_words=25 quote_words=5 quote_located=True
+
+## 4. note digest
+d2570b68531af50706b4fe30ca6984911c85c9e1600b1e17ee0c25a35bf2edf7  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-72/w1/SC1Entry/modprobe-config-plane-r72.md
+
+## 5. same draft against the real (uncommitted) registry bytes
+# corpus/SOURCES.md copied verbatim from the lane; S301 kind=docs, S302 kind=code,
+# S303 kind=code; each source cell carries the SOURCES.json URL and each anchor
+# cell contains the snapshot basename. Snapshots copied from before/src/ byte-exact.
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture /fast/scratch/hyaku/tsukuroi-r72/SC1Entry/mirror
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROWS=6 MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+# Quote-cell note: the seat alert about usage lines 100-130 "ending inside a C
+# literal" does not apply to the two quote cells drawn from that block
+# (MD5 "Do not execute operations, just print out" and MD6 "Apply blacklist to
+# resolved alias."); both are whitespace-normalized substrings of the committed
+# modprobe.c bytes and the counter located them (quote_located=True above).
+# MD3's quote is the L942 DBG format string, not the L626 "|=" line.

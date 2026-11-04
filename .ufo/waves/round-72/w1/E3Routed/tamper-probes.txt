@@ -1,0 +1,153 @@
+# r72 C3 — tamper probes against tools/check-r71-routed-r72.py
+
+Fixture recipe (no lane write): a fixture is a three-artefact tree
+`<root>/.ufo/waves/round-71/after/count-mp-rows-final.txt`, `<root>/SCORECARD.md`,
+`<root>/corpus/knowledge/module-parameter-plane-r71.md`.
+The green fixture copies the live note (already carrying the `## Correction`), the draft receipt, and the
+live SCORECARD with its EOF-appended erratum block **moved** above `## Round 72 — declaration` (same bytes).
+Checker invoked as `python3 tools/check-r71-routed-r72.py --fixture <root>`.
+Note: `counter_summary()` (checker line 50) always re-derives from the lane repo at the constant
+`RECORD_REVISION = 2b358d2d`; `--fixture` changes only the text readers (lines 36-48), never the counter.
+
+## 0. Green control (block moved before `## Round 72 — declaration`)
+
+```
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=0
+rc=0
+```
+Verdict: fixture green; all three artefacts accepted.
+
+## 1. Tamper: one number in the receipt summary (`MP_ROWS=6` -> `MP_ROWS=5`)
+
+```
+ROUTED_RECEIPT mismatch: receipt summary differs from a fresh counter run
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=1
+rc=1
+```
+Verdict: CAUGHT (rc 1), exactly one stale item.
+
+## 2. Ordering trap (not a probe, a placement requirement): same block appended at EOF
+
+The live SCORECARD already quotes the heading literal inside the Round 72 C3 row (line 5624:
+"`SCORECARD.md` carries a `## Round 71 — receipt erratum` block ..."). Checker line 78 uses
+`re.search(r"## Round 71 — receipt erratum.*?(?=\n## |\Z)", score, re.S)`, which has no `^` anchor, so
+the **first** match starts at that inline quote and stops at the next line-initial `##`. A block
+appended after the Round 72 declaration is therefore never read:
+
+```
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD missing: no erratum block naming the receipt and the record revision
+ROUTED_NOTE ok
+ROUTED_STALE=1
+rc=1
+```
+Verdict: FALSE NEGATIVE. The live tree currently sits in exactly this state (block at EOF), so the
+erratum must be inserted **before** `## Round 72 — declaration` to be readable.
+
+## 3. Probe (i): receipt lines copied but revision fabricated
+
+Receipt header changed to `--revision deadbeef` / `# revision: deadbeef…`; the two summary lines
+unchanged. The checker never reads the receipt's revision text (it prints the constant, not the receipt).
+
+```
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=0
+rc=0
+```
+Verdict: FALSE PASS. A receipt naming a fabricated revision is accepted as the receipt of `2b358d2d`.
+
+## 4. Probe (ii): erratum names the receipt inside a sentence with no revision
+
+`## Round 71 — receipt erratum` + one sentence naming `.ufo/waves/round-71/after/count-mp-rows-final.txt`.
+
+```
+ROUTED_SCORECARD missing: no erratum block naming the receipt and the record revision
+ROUTED_STALE=1  rc=1
+```
+Verdict: CAUGHT.
+
+## 5. Probe (ii-b): block names receipt and revision with no statement
+
+`## Round 71 — receipt erratum` + "See `<receipt>` and `2b358d2d`."
+
+```
+ROUTED_SCORECARD ok   ... ROUTED_STALE=0  rc=0
+```
+Verdict: literal pass (line 81 is a two-substring test); recorded, not counted as a false pass.
+
+## 6. Probe (iii): note correction says five but omits the defect id
+
+```
+ROUTED_NOTE missing: no appended correction naming the defect, five paths and the superseded figure
+ROUTED_STALE=1  rc=1
+```
+Verdict: CAUGHT.
+
+## 7. Probe (iii-b): id + "five" + "four" + `/usr/lib/modprobe.d`, no path named
+
+`R71-NOTE-MODPROBE-COUNT: five entries under /usr/lib/modprobe.d supersede the four-path figure.`
+
+```
+ROUTED_NOTE ok   ... ROUTED_STALE=0  rc=0
+```
+Verdict: FALSE PASS. Checker line 89-90 tests four bare substrings; the five individual
+`/usr/lib/modprobe.d` paths (which the frozen predicate requires "naming") are not checked.
+
+## 8. Probe (iii-c): append-only violated — filed sentence edited, correction appended anyway
+
+MP5 sentence edited `four` -> `five` in the body, plus a `## Correction` section carrying the four
+substrings and a sentence admitting the body was edited in place.
+
+```
+ROUTED_NOTE ok   ... ROUTED_STALE=0  rc=0
+```
+Verdict: FALSE PASS. "the filed sentence is quoted, not edited" is unverified.
+
+## 9. Probe (v): no erratum heading at all — path+revision as plain prose in the declaration
+
+SCORECARD = live bytes minus the EOF block, plus one appended sentence in the Round 72 declaration
+naming `<receipt>` and `2b358d2d`, no `##` heading.
+
+```
+ROUTED_SCORECARD ok   ... ROUTED_STALE=0  rc=0
+```
+Verdict: FALSE PASS. Because the match anchors on the C3 row's inline quote, prose anywhere later in
+that section satisfies the "block" requirement; no erratum block is needed.
+
+## 10. Probe (iv): receipt text correct, tree under test's real run differs (shared clone)
+
+- `git clone --shared <lane> $S/clone` (rc 0, 433 MB, objects shared);
+  `git -C $S/clone rev-parse --show-toplevel` == `$S/clone` asserted before touching the tree.
+- One MP row (`| MP1 | …`) removed from `$S/clone/corpus/knowledge/module-parameter-plane-r71.md`;
+  **no git metadata was mutated**, only the working-tree file.
+- Real run over that tree: `python3 tools/count-mp-rows-r71.py --fixture $S/clone` ->
+  `MP_ROW fail ids-not-contiguous`, `MP_ROWS=5 MP_VERIFIED=5 …`, `MP_TARGET … met=0`, rc 1.
+- Fixture built from that mutated note (+ live correction so the NOTE item is satisfiable), the draft
+  receipt and the green SCORECARD:
+
+```
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=0
+rc=0
+```
+Verdict: FALSE PASS. `--fixture` never re-derives over the fixture (checker line 50 docstring says so);
+the receipt is judged against the frozen lane revision only, so any tree whose real run differs passes.
+
+## Tally
+
+- green fixture: `ROUTED_STALE=0` rc 0
+- number tamper: caught, `ROUTED_STALE=1` rc 1
+- probes caught: (ii) no revision, (iii) no defect id — 2
+- false passes: (i) fabricated revision, (iii-b) unenumerated paths, (iii-c) edited filed sentence,
+  (v) no heading at all, (iv) fixture drift ignored — **5**
+- false negatives: EOF-appended erratum block — 1 (placement hazard for the live tree)
+- no `/tmp` write, no git mutation, no package install.

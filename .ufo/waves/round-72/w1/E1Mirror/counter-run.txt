@@ -1,0 +1,195 @@
+# E1Mirror — frozen C1 counter runs over the mirror fixture (round 72, wave w1)
+# lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+# counter: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py
+# counter sha256 (frozen declaration): d615c653f32a29af3a4355d882041b8543ff56882b3225f7e3eedf173d8706a6
+# counter sha256 measured before and after all runs: d615c653f32a29af3a4355d882041b8543ff56882b3225f7e3eedf173d8706a6 (unchanged)
+# python: 3.14.8
+# scratch S=/fast/scratch/hyaku/tsukuroi-r72/E1Mirror (removed before yield)
+# fixture builder: build-mirror.py; matrix driver: run-matrix.py (both copied beside this file)
+# each block below is the exact stdout/exit code of
+#   python3 <counter> --fixture $S/<case>
+
+## CASE control
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mirror
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROWS=6 MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+## CASE quote-foreign
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/quote-foreign
+MD_ROW fail MD1 quote-absent
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROWS=6 MD_VERIFIED=5 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## CASE short-statement
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/short-statement
+MD_ROW fail MD1 statement-words=7 statement-grounding=5/5
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROWS=6 MD_VERIFIED=5 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## CASE ungrounded-long
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/ungrounded-long
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW fail MD2 statement-grounding=5/10
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROWS=6 MD_VERIFIED=5 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## CASE ownwork-kind
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/ownwork-kind
+MD_ROW fail MD1 source-kind=own-work
+MD_ROW fail MD2 source-kind=own-work
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROWS=6 MD_VERIFIED=4 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## CASE map-digest
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/map-digest
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW fail MD5 map-digest
+MD_ROW fail MD6 map-digest
+MD_ROWS=6 MD_VERIFIED=4 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## CASE reuse-three
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/reuse-three
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROW fail snapshot-reuse modprobe.d.5.scd=3
+MD_ROWS=6 MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## CASE malformed-row
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/malformed-row
+MD_ROW fail malformed-row: | MD7 | invisible broken row |
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROWS=6 MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=1
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## CASE long-quote
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/long-quote
+MD_ROW fail MD1 quote-words=30
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROWS=6 MD_VERIFIED=5 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## CASE anchor-missing
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/anchor-missing
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW fail MD3 anchor-not-bound
+MD_ROW fail MD4 anchor-not-bound
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROWS=6 MD_VERIFIED=4 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## CASE source-url-missing
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/source-url-missing
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW fail MD5 source-not-bound
+MD_ROW fail MD6 source-not-bound
+MD_ROWS=6 MD_VERIFIED=4 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## CASE digest-swap
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/digest-swap
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW fail MD5 digest-mismatch map-digest
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROWS=6 MD_VERIFIED=5 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## CASE quote-pipe
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/quote-pipe
+MD_ROW fail malformed-row: | MD3 | conf_files_insert_sorted stops at a sorted position and return
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROW fail ids-not-contiguous
+MD_ROWS=5 MD_VERIFIED=5 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=1
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## CASE spacing
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/spacing
+MD_ROW fail malformed-row: | MD1 | Configuration directories are read in SYNOPSIS precedence orde
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROW fail ids-not-contiguous
+MD_ROWS=5 MD_VERIFIED=5 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=1
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## CASE duplicate-id
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-md-rows-r72.py --fixture $S/mutants/duplicate-id
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW fail MD1 duplicate-id
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROW fail ids-not-contiguous
+MD_ROWS=6 MD_VERIFIED=5 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1

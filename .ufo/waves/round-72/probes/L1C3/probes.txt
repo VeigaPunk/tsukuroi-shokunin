@@ -1,0 +1,24 @@
+# C3 post-repair probes (instrument repair after E3Routed's attack found an unanchored block match)
+# fix 1: the erratum heading regex is line-anchored (^## with re.M), so the declaration's inline quote of the heading no longer matches
+# fix 2: the receipt must name the record revision (2b358d2d) in its own text
+
+## green: the live three artefacts as a fixture
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=0
+rc=0
+
+## red: the same receipt with every 2b358d2d occurrence removed
+ROUTED_RECEIPT missing revision token 2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=1
+rc=1
+
+## red: a receipt summary with one number changed
+ROUTED_RECEIPT mismatch: receipt summary differs from a fresh counter run
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=1
+rc=1

@@ -5932,3 +5932,41 @@ a module, which is MP1's subject rather than an additional rule.
 the final instrument is **218 cases, 218 passed, 0 failed, with four `R71-C2` case labels**
 (`.ufo/waves/round-71/after/selftest-after.txt`). Those earlier figures are superseded by this paragraph
 and stay visible as filed; QUALITY 105's sweep is the check that would have caught them before the report.
+
+## Round 72 — the modprobe configuration surface (decision table)
+
+Read-only decision table for an observed `modprobe.d` shape. Every row rests on a rule row of
+`corpus/knowledge/modprobe-config-plane-r72.md` (MD1-MD6; sources S301-S303, kmod v34, host kmod 34.2);
+the cross-reference MP5 belongs to `corpus/knowledge/module-parameter-plane-r71.md`. **No row authorizes a
+write, a load or a blacklist change:** the lane reads paths, modes and names and records them; every
+action named in a right-hand column is the operator's and is never executed, attempted or retried by this
+lane. Fragment contents are not read — the table therefore never states which line is effective.
+
+| # | Observed shape (read-only probe) | Verdict | Operator action | Rests on |
+|---|---|---|---|---|
+| T1 | The same `.conf` basename in two configuration directories, e.g. `nvidia.conf` under `/etc/modprobe.d` and under `/usr/lib/modprobe.d` | ONE COPY, HIGHER PRECEDENCE WINS: the first directory in SYNOPSIS order loads the name, and every later same-name file is ignored; the copies are not merged, and libkmod's sorted insertion would reject the duplicate anyway | Edit the higher-precedence copy (the `/etc` one here); the later copy is inert while the duplicate exists. Never assume both files contribute lines | MD1; MD3 |
+| T2 | `/lib/modprobe.d` and `/usr/lib/modprobe.d` both appear in the directory list while `/lib` resolves to `/usr/lib` | ONE DIRECTORY BEHIND TWO PATHS: the second listing presents the same names, which the sorted filename list rejects as duplicates, so nothing is parsed twice; counting files per SYNOPSIS entry double-counts | Resolve the path (`readlink -f`) before counting or naming a fragment; edit the single real file | MD1; MD3 |
+| T3 | An `install` line exists for a module name | COMMAND, NOT A LOAD: modprobe runs the configured shell command instead of inserting the module; with `-n` the plan prints `install <commands> <options>` and nothing executes | Read the command before relying on a load (an operator-owned content read); the lane records that an install line exists, never what it says | MD5 |
+| T4 | A `blacklist <name>` line exists and the same module is requested by its real name | ALIAS-ONLY SUPPRESSION: blacklist hides the module's internal aliases, so `modprobe <real-name>` still loads it; only `--use-blacklist` adds the unconditional probe flag | Decide the intent: alias suppression (leave the blacklist) versus load refusal (needs the kernel `module_blacklist=` route — MP5 of the r71 note — or an install command); both are operator-owned | MD6 |
+| T5 | A `softdep <module> pre: <list> post: <list>` line exists | ORDER DECIDES WHICH FRAGMENT'S LINE SURVIVES: softdep lines are read in the same single lexicographic pass, and a later-ordered file partially replaces an earlier one; whether a given softdep is in force cannot be read from the surface without contents | Read the fragments, or have the operator run `modprobe -c` (which prints the parsed softdep entries); the lane records paths and names only | MD2; MD1 |
+| T6 | The operator asks what `modprobe -n <name>` would do | PLAN, NOT EXECUTION: `-n/--dry-run` sets the dry-run probe flag and prints the planned actions (insmod lines, install commands, builtin lines); no module is inserted and no install command runs. A plan line is not proof the action would succeed | The operator runs it; the lane records the option's documented contract and never executes modprobe | MD5 |
+| T7 | `/proc/cmdline` carries a `module.parameter=value` token | PARSED AFTER THE FILES: the command line enters the same configuration object after every configuration file; the lane can state that order, not that the token overrides a file line | Record the token; if a specific value matters, the operator checks the parsed configuration (`modprobe -c`) and the running value under `/sys/module/<name>/parameters/` (MP6 of the r71 note) | MD4 |
+
+Named limits, not table rows: the surface yields paths, modes and filenames, never contents, so no row
+states an effective value or which of two fragments' lines wins in fact; `MODPROBE_OPTIONS` can alter the
+directory list (the manual's NOTE) and the lane does not read it, so the SYNOPSIS order is the documented
+default and not a measured per-invocation order; a blacklist refusal is a kernel load event (MP5), not
+observable from the configuration surface; `weakdep` and `remove` are documented in the manual but are not
+rule rows of the entry, so no row cites them as such.
+
+## Round 72 — `selftest-tally` registry row continuation (append-only)
+
+Append-only replacement row for the `## Gate and probe registry — round71 superseding current rows`
+table. The r71 row stays as written; this row is the round-72 continuation and carries the tool's own
+`--selftest` mode in the Self-test column (the r71 cell's "self-demo on the r70 added lines" is the mode
+it replaces). Everything else in the row is carried, with the fixture root named in the pinned-values and
+write-scope cells.
+
+| Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |
+|---|---|---|---|---|---|---|---|
+| selftest-tally | gate | `python3 tools/check-selftest-tally.py --receipt <FILE> --label <TOKEN> --range <A>..<B> -- <paths>` | 0 every added figure equals the receipt line; 1 mismatch; 2 no receipt line or usage | `python3 tools/check-selftest-tally.py --selftest` — hermetic, nine cases over fixture files it writes under one `$TMPDIR` root (MATCH; MISMATCH printing `MISM <file>:<line> … [SWEEP-MISMATCH]`; LABEL `[SWEEP-LABEL]`; SUPERSEDED printed as `SKIP`; OUT-OF-SCOPE battery figure not scored; NO-RECEIPT `[SWEEP-NO-RECEIPT]` with rc 2; GREEN-DIFF; MIXED; HERMETIC with 0 writes under `/tmp`), one named `PASS (SELFTEST-<ID>)`/`FAIL (SELFTEST-<ID>)` line per case and last line `SELFTEST: PASS (9 cases, 9 passed, 0 failed)`; exit 0 when all cases pass, 1 when a case fails; a set-but-missing `$TMPDIR` fails `SELFTEST-TMPDIR` with rc 2 | R72 added-line scope; figures read from `PASS (N cases, N passed, N failed)` and the label count; the sweep's exit map unchanged; instrument sha256 `af46203c8ca983841ae5f049e706e5037e416013e72bca03333cbbbfbd5a2abb` | committed reads; `git diff -U0` read-only; selftest fixture files under `$TMPDIR` only | tsukuroi |
