@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 # round-70 C1 strict row counter (frozen by the round-70 declaration, before any note exists).
 #
 # Counts only XS rows of corpus/knowledge/xfs-storage-plane-r70.md that satisfy every frozen
