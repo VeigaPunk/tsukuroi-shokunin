@@ -1,0 +1,24 @@
+# Receipt 3 — restart policy properties for the two named services
+command: systemctl show systemd-journald.service dbus.service -p Id -p ActiveState -p Result -p Restart -p NRestarts -p RestartUSec -p StartLimitBurst -p StartLimitIntervalUSec --no-pager
+rc: 0
+note: requested dbus.service; the daemon answered with Id=dbus-broker.service (alias resolution). No unit file or drop-in was read.
+clock receipt (assigned `date -u`, same concurrent batch): Wed Nov  4 08:13:46 PM UTC 2026
+--- output verbatim ---
+Id=systemd-journald.service
+ActiveState=active
+StartLimitIntervalUSec=10s
+StartLimitBurst=5
+Restart=always
+RestartUSec=0
+Result=success
+NRestarts=0
+
+Id=dbus-broker.service
+ActiveState=active
+StartLimitIntervalUSec=10s
+StartLimitBurst=5
+Restart=no
+RestartUSec=100ms
+Result=success
+NRestarts=0
+--- end output ---

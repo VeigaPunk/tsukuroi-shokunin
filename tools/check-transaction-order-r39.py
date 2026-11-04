@@ -33,12 +33,21 @@ Predicate (same sentence in the declaration, here and in the receipt):
     and counts_ok == 2 and oracle_violations == 0                                 -> PASS, exit 0
 
 Exit: 0 PASS; 1 FAIL; 2 could-not-evaluate (binding, git, frozen input tampered). Read-only.
+
+Selftest (`--selftest`): hermetic, exit 0 when every case passes and 3 otherwise. It builds
+throwaway Git repos under one $TMPDIR root (fixture-only committer identity, `git rev-parse
+--show-toplevel` verified before any write), reads this tree's digest-pinned frozen snapshots, and
+drives this file's public CLI (`--repo`/`--revision`) on a passing entry (rc 0, 8/8 rules), a
+missing entry, a wrong source file, a corrupted quote, an S-id absent from the `source:` line, a
+malformed row, a duplicated block, wrong host counts (all rc 1 with the named finding) and an
+unresolvable revision (rc 2, E-REVISION-INVALID). No write outside the temporary root.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -149,12 +158,238 @@ def git_show(repo, rev, path):
     return p.stdout.decode('utf-8', 'replace') if p.returncode == 0 else None
 
 
+# --- selftest (round 80 C2): hermetic fixtures, public CLI only ----------------------
+
+SELFTEST_ENTRY = 'corpus/knowledge/pacman-transaction-order-r39.md'
+
+
+def _selftest_git(repo, *args):
+    p = subprocess.run(['git', '-C', str(repo), *args], env=_revision.clean_env(),
+                       capture_output=True, timeout=60)
+    if p.returncode != 0:
+        raise RuntimeError('git %s failed in %s: %s'
+                           % (args[0], repo, p.stderr.decode('utf-8', 'replace')[:200]))
+    return p.stdout.decode('utf-8', 'replace')
+
+
+def _selftest_fixture(root, files):
+    """Init a throwaway repo at the empty dir `root`; verify its top-level before any write."""
+    p = subprocess.run(['git', '-c', 'init.defaultBranch=master', 'init', '-q', str(root)],
+                       env=_revision.clean_env(), capture_output=True, timeout=60)
+    if p.returncode != 0:
+        raise RuntimeError('git init failed: ' + p.stderr.decode('utf-8', 'replace')[:200])
+    toplevel = Path(_selftest_git(root, 'rev-parse', '--show-toplevel').strip()).resolve()
+    if toplevel != root.resolve():
+        raise RuntimeError(f'fixture top-level {toplevel} is not {root.resolve()}')
+    root_dir = str(root.resolve()) + os.sep
+    for rel, text in files.items():
+        path = root / rel
+        if not str(path.resolve()).startswith(root_dir):
+            raise RuntimeError(f'fixture path escapes the repo: {rel!r}')
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding='utf-8')
+    ident = ('-c', 'user.name=tsukuroi-selftest', '-c', 'user.email=selftest@scratch.invalid')
+    _selftest_git(root, *ident, 'add', '-A')
+    _selftest_git(root, *ident, 'commit', '-q', '-m', 'selftest fixture')
+    return _selftest_git(root, 'rev-parse', 'HEAD').strip()
+
+
+def _selftest_texts():
+    """Fixture rows derived from this tree's own digest-pinned snapshots."""
+    src, log = load_frozen()
+    hc = host_counts(log)
+    sids = {'trans.c': 'S213', 'sync.c': 'S214', 'add.c': 'S215', 'hook.c': 'S216',
+            'remove.c': 'S217', 'util.c': 'S218'}
+    quotes = {}
+    for fname in sids:
+        for idx, line in enumerate(src[fname]):
+            words = collapse(line).split()
+            if len(words) >= 4:
+                quotes[fname] = (' '.join(words[:8]), idx + 1)
+                break
+        if fname not in quotes:
+            raise RuntimeError('no 4+ word line in frozen snapshot ' + fname)
+    return hc, sids, quotes
+
+
+def _selftest_sources(sids):
+    rows = [f'| {sids[f]} | pacman 54d9411 lib/libalpm/{f} | '
+            f'https://example.invalid/pacman/-/blob/54d9411/lib/libalpm/{f} | upstream | tier-A | '
+            f'fetched 2026-10-26 | libalpm | mined | 2026-10-26 | r39 | {ENTRY} |'
+            for f in ('trans.c', 'sync.c', 'add.c', 'hook.c', 'remove.c', 'util.c')]
+    head = ('# SOURCES (selftest fixture)\n\n| id | title | url | class | tier | fetched | area | '
+            'status | opened | wave | used_by |\n|---|---|---|---|---|---|---|---|---|---|---|\n')
+    return head + '\n'.join(rows) + '\n'
+
+
+def _selftest_entry(hc, sids, quotes, mutate=None):
+    """A minimal but honest TO1-TO8 entry; `mutate` bends one clause per defect case."""
+    m = mutate or {}
+    rules = {'TO1': 'trans.c', 'TO2': 'sync.c', 'TO3': 'add.c', 'TO4': 'add.c',
+             'TO5': 'hook.c', 'TO6': 'add.c', 'TO7': 'remove.c', 'TO8': 'util.c'}
+    text = {'TO1': 'Pre hooks run before the first package is touched, Post hooks after the last',
+            'TO2': 'the sync commit downloads then commits the package set in one transaction',
+            'TO3': 'an upgrade removes the old package before installing the new one',
+            'TO4': 'package files are extracted after the old version is removed',
+            'TO5': 'PreTransaction and PostTransaction hooks run inside the commit phase',
+            'TO6': 'ldconfig runs from the PostTransaction hook after extraction',
+            'TO7': 'removal runs its own hooks then deletes the package files',
+            'TO8': 'scriptlet output is tagged ALPM-SCRIPTLET in the log'}
+    host = {'TO1': f"{hc['transactions_started']} transactions captured; 0 hooks ran inside a commit",
+            'TO8': f"{hc['scriptlet_tag_outside_commit']} of {hc['scriptlet_tag_total']} "
+                   "scriptlet lines outside a commit phase"}
+    out = ['verified-at: 2026-10-26 (selftest fixture)', '',
+           '# The libalpm transaction order (selftest fixture)', '',
+           m.get('source_line', 'source: ' + ' '.join(sids[f] for f in
+                                                      ('trans.c', 'sync.c', 'add.c', 'hook.c',
+                                                       'remove.c', 'util.c'))), '',
+           '## Rules', '',
+           '| id | rule | source | host consequence |', '|---|---|---|---|']
+    for tid, fname in rules.items():
+        quote, line_no = quotes[fname]
+        src_cell = m.get(tid, f'“{quote}” {sids[fname]} {fname}:{line_no}-{line_no}')
+        host_cell = m.get('HOST:' + tid, host.get(tid, 'observed'))
+        if m.get('NOHOST:' + tid):
+            out.append(f'| {tid} | {text[tid]} | {src_cell} |')
+        else:
+            out.append(f'| {tid} | {text[tid]} | {src_cell} | {host_cell} |')
+    if m.get('dup'):
+        quote, line_no = quotes['trans.c']
+        out += ['', '## Rules', '',
+                '| id | rule | source | host consequence |', '|---|---|---|---|',
+                f'| TO1 | duplicated row | “{quote}” {sids["trans.c"]} trans.c:{line_no}-{line_no} '
+                f'| {host["TO1"]} |']
+    out.append('')
+    return '\n'.join(out)
+
+
+def _selftest_cli(argv):
+    p = subprocess.run([sys.executable, str(Path(__file__).resolve()), *argv],
+                       capture_output=True, timeout=300)
+    return (p.returncode, p.stdout.decode('utf-8', 'replace'),
+            p.stderr.decode('utf-8', 'replace'))
+
+
+def _selftest():
+    import shutil
+    import tempfile
+    import traceback
+    failed = passed = 0
+    tmp = None
+    try:
+        tmp = Path(tempfile.mkdtemp(prefix='check-transaction-order-r39-selftest-'))
+        hc, sids, quotes = _selftest_texts()
+        sources = _selftest_sources(sids)
+        entry = _selftest_entry(hc, sids, quotes)
+        full = {'corpus/SOURCES.md': sources, SELFTEST_ENTRY: entry}
+        sources_only = {'corpus/SOURCES.md': sources}
+
+        def cli(root, rev):
+            return ['--repo', str(root), '--revision', rev]
+
+        def want(result=None, error_id=None, **fields):
+            def check(rec):
+                out = []
+                if error_id is not None and not str(rec.get('error', '')).startswith(error_id):
+                    out.append(f"error {rec.get('error')!r} does not start with {error_id!r}")
+                if result is not None and rec.get('result') != result:
+                    out.append(f"result {rec.get('result')!r} != {result!r}")
+                for k, v in fields.items():
+                    if rec.get(k) != v:
+                        out.append(f'{k}={rec.get(k)!r} != {v!r}')
+                return out
+            return check
+
+        def has_reason(tid, reason):
+            def check(rec):
+                reasons = rec.get('rules', {}).get(tid, {}).get('reasons', [])
+                return ([] if reason in reasons
+                        else [f'{tid} reasons {reasons!r} lack {reason!r}'])
+            return check
+
+        cases = [
+            ('POSITIVE', full, 0, want('PASS', rules_verified=8, duplicate_rows=0,
+                                       duplicate_headings=0, source_ok=1, counts_ok=2,
+                                       oracle_violations=0, entry_present=True)),
+            ('ENTRY-MISSING', sources_only, 1, want('FAIL', entry_present=False,
+                                                    rules_verified=0, source_ok=0)),
+            ('WRONG-SOURCE-FILE', None, 1, want('FAIL', rules_verified=7)),
+            ('QUOTE-CORRUPTED', None, 1, want('FAIL', rules_verified=7)),
+            ('SID-NOT-ON-SOURCE-LINE', None, 1, want('FAIL', rules_verified=7, source_ok=1)),
+            ('ROW-MALFORMED', None, 1, want('FAIL', rules_verified=7)),
+            ('DUPLICATE-BLOCK', None, 1, want('FAIL', rules_verified=8, duplicate_rows=1,
+                                              duplicate_headings=1)),
+            ('HOST-COUNTS-WRONG', None, 1, want('FAIL', rules_verified=8, counts_ok=0)),
+            ('REVISION-INVALID', full, 2, want(error_id='E-REVISION-INVALID')),
+        ]
+        quote, line_no = quotes['sync.c']
+        mut_wrong_file = _selftest_entry(hc, sids, quotes, {
+            'TO2': f'“{quote}” {sids["sync.c"]} remove.c:{line_no}-{line_no}'})
+        quote, line_no = quotes['add.c']
+        mut_quote = _selftest_entry(hc, sids, quotes, {
+            'TO4': f'“zzz {quote}” {sids["add.c"]} add.c:{line_no}-{line_no}'})
+        mut_sid = _selftest_entry(hc, sids, quotes, {
+            'TO3': f'“{quote}” S299 add.c:{line_no}-{line_no}'})
+        mut_row = _selftest_entry(hc, sids, quotes, {'NOHOST:TO5': True})
+        mut_dup = _selftest_entry(hc, sids, quotes, {'dup': True})
+        mut_counts = _selftest_entry(hc, sids, quotes, {'HOST:TO1': '999 transactions captured',
+                                                        'HOST:TO8': '999 of 999 scriptlet lines'})
+        payloads = {'WRONG-SOURCE-FILE': {'corpus/SOURCES.md': sources, SELFTEST_ENTRY: mut_wrong_file},
+                    'QUOTE-CORRUPTED': {'corpus/SOURCES.md': sources, SELFTEST_ENTRY: mut_quote},
+                    'SID-NOT-ON-SOURCE-LINE': {'corpus/SOURCES.md': sources, SELFTEST_ENTRY: mut_sid},
+                    'ROW-MALFORMED': {'corpus/SOURCES.md': sources, SELFTEST_ENTRY: mut_row},
+                    'DUPLICATE-BLOCK': {'corpus/SOURCES.md': sources, SELFTEST_ENTRY: mut_dup},
+                    'HOST-COUNTS-WRONG': {'corpus/SOURCES.md': sources, SELFTEST_ENTRY: mut_counts}}
+        for name, files, rc_want, check in cases:
+            if files is None:
+                files = payloads[name]
+            problems = []
+            try:
+                root = tmp / name.lower()
+                rev = _selftest_fixture(root, files)
+                args = cli(root, rev)
+                if name == 'REVISION-INVALID':
+                    args = cli(root, 'f' * 64)
+                rc, out, err = _selftest_cli(args)
+                rec = json.loads(out) if out.strip() else None
+                if rc != rc_want:
+                    problems.append(f'rc {rc} != {rc_want}')
+                    if err.strip():
+                        problems.append('stderr: ' + err.strip()[:160])
+                if rec is None:
+                    problems.append('no JSON on stdout')
+                else:
+                    problems += check(rec)
+            except Exception as exc:  # noqa: BLE001 — reported and counted, never swallowed
+                problems.append(f'unexpected {type(exc).__name__}: {exc}')
+            if problems:
+                failed += 1
+                print(f'FAIL (SELFTEST-{name}): ' + '; '.join(problems))
+            else:
+                passed += 1
+                print(f'PASS (SELFTEST-{name})')
+    except Exception:  # noqa: BLE001 — setup failure is a selftest failure, printed in full
+        failed += 1
+        traceback.print_exc()
+    finally:
+        if tmp is not None:
+            shutil.rmtree(tmp, ignore_errors=True)
+    print(f'SELFTEST total={passed + failed} passed={passed} failed={failed}')
+    return 0 if not failed else 3
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--repo', default=str(TOOL_ROOT))
-    ap.add_argument('--revision', required=True)
+    ap.add_argument('--revision')
     ap.add_argument('--branch', default='master')
+    ap.add_argument('--selftest', action='store_true',
+                    help='run the hermetic selftest: exit 0 pass, 3 failed')
     a = ap.parse_args(argv)
+    if a.selftest:
+        return _selftest()
+    if not a.revision:
+        ap.error('the following arguments are required: --revision')
     try:
         b = _revision.bind(a.repo, a.revision, a.branch)
         src, log = load_frozen()

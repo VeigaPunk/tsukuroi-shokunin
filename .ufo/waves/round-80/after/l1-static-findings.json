@@ -1,0 +1,17 @@
+{
+  "stage": "post-freeze static inspection, before candidate integration",
+  "findings": [
+    {
+      "id": "R80-C2-REGISTRY-NAME",
+      "evidence": "tools/measure-round80.py compares row[0] against name[:-3]; tools/check-transaction-order-r39.py therefore requires registry name check-transaction-order-r39, while current SKILL.md:5846 names transaction-order-r39",
+      "effect": "The existing conventionally named row will not count even when its selftest and receipt are genuine. Synthetic pre-data positive fixtures copied the instrument's name instead of the existing row's name and hid this mismatch.",
+      "disposition": "Keep frozen instrument and target unchanged. Do not rename the truthful registry row merely to fit the counter. Record the actual after count and honest miss if unchanged. The actual-source public-path control is necessary before future freeze."
+    },
+    {
+      "id": "R80-INSTRUMENT-SELFTEST-SCOPE",
+      "evidence": "measure-round80.py --selftest calls evaluate on two absent-file readers only",
+      "effect": "This helper-only selftest does not satisfy the full public-self-invocation gate standard. Pre-data controls test positive/negative mechanics separately but do not make this selftest conformant.",
+      "disposition": "Disclose gate-standard conformance debt; do not rewrite frozen instrument or claim whole-instrument conformance."
+    }
+  ]
+}

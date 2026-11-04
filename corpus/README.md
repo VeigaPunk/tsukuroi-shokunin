@@ -758,3 +758,19 @@ four current continuation tables non-operative and gives the two routed
 round-72 gates hermetic selftests; it is operability work, not new knowledge
 ground. Round-78 outside closure admitted that round; round-79 outside closure
 is pending.
+
+## Round80 — conditional service restart matrix and two self-invocation repairs
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/service-restart-matrix-r80.md` and `.json` | Six documented exit causes × seven Restart= settings, with explicit-stop, oneshot, main-process override, clean-status and rate-limit limits; upstream documentation only | S330; `lessons/round-80.md` Gate |
+
+This deepens existing systemd service ground. Frontier/PROVINCE unchanged;
+no capability or coverage promotion. The two old KR/transaction-order gates
+now expose genuine isolated public-CLI selftests. The frozen round80 counter's
+transaction row-name mismatch remains a claim miss rather than a false registry
+rename. The new round instrument's own helper-only selftest remains disclosed
+gate-standard debt. Round79 outside closure rejected that round honestly
+(DP6 AND null-output binding); its formerly pending author text is historical,
+not current admission.
+

@@ -1,0 +1,76 @@
+SOURCES registry row draft — S330 (round 80, wave 1, seat ScribeFrontier)
+
+One row only. The L1 appends it to `corpus/SOURCES.md` inside the `## Registry`
+table (currently `corpus/SOURCES.md:7`–`:340`; `## Paths` starts at `:342`).
+This file is a draft, not the registry. Nothing in the registry, `SKILL.md`,
+`LOG.md`, `SCORECARD.md` or `corpus/knowledge/` was edited by this seat.
+
+DRAFT ROW (copy verbatim; exactly 11 `|`-separated cells, no `|` inside a cell):
+
+| S330 | systemd.service(5) — https://raw.githubusercontent.com/systemd/systemd/v262/man/systemd.service.xml | docs | A | Restart= policy and its exit-cause table for service triage: the seven settings no, always, on-success, on-failure, on-abnormal, on-abort, on-watchdog against the six exit causes clean exit code or signal, unclean exit code, unclean signal, timeout, watchdog and termination due to OOM, and the conditions that qualify the table (clean-exit status, systemd-operation and explicit stops, RestartPreventExitStatus= and RestartForceExitStatus= overrides, Type=oneshot exclusion, start rate limiting) | man/systemd.service.xml [Service] Section Options Restart= at tag v262 — Restart= definition :877-883, settings list :885-911, exit-cause table :913-994 (title :914, header :920-929, six cause rows :932-991), exception paragraph :996-1002, rate limiting :1004-1008, RestartPreventExitStatus= :1104-1134, RestartForceExitStatus= :1136-1149; pinned snapshot .ufo/waves/round-80/before/systemd.service.xml sha256 12770f86a26dcdf32873225669f5aa9421283c303bbc72bddb04530850f66d44 | Restart= is a policy over exit causes, not over exits alone: the manual's table fixes which of no, always, on-success, on-failure, on-abnormal, on-abort and on-watchdog restart the service for each of six exit causes, and every reading of that table is qualified by the clean-exit definition, by no restart after a systemd-operation or explicit stop, by RestartPreventExitStatus= and RestartForceExitStatus= overriding the setting, by Type=oneshot being excluded, and by start rate limiting — documented semantics of the upstream v262 manual, not a live-host or installed-Arch-build behaviour claim | mined | 2026-11-04 | on-release | corpus/knowledge/service-restart-matrix-r80.md, corpus/knowledge/service-restart-matrix-r80.json |
+
+Provenance of each cell
+
+- id — `S330`. The committed registry holds 329 rows, `S001`–`S329` contiguous,
+  so `S330` is the next unused id in this registry and no id is reused. The id
+  is also forced: the frozen instrument greps the registry literally for a
+  line starting `| S330 |` (`tools/measure-round80.py:35`), so the round's own
+  predicate fixes the number.
+- source / kind / tier — `docs` / `A`: the upstream v262 manual page is the
+  primary source for the `Restart=` directive semantics, the same tier-A
+  `docs` treatment `S329` gives the sibling `systemd.unit.xml` page. The URL
+  is the pinned upstream tag, not an installed-build page.
+- scope — exactly the `Restart=` settings/exit-cause table and the conditions
+  that qualify it. It does not claim the behaviour of any host unit, does not
+  cover `systemd.unit(5)` dependency keywords (`S329`'s scope), and does not
+  cover `ExecStopPost=` (`S070`'s scope, a different page revision).
+- anchor — directive term and the enclosing `varlistentry` and table ranges in
+  the pinned v262 snapshot, plus that snapshot's SHA-256
+  `12770f86a26dcdf32873225669f5aa9421283c303bbc72bddb04530850f66d44`,
+  measured read-only and equal to `snapshot_sha256` in
+  `before/expected.json` and to the digest frozen in `SCORECARD.md`.
+- teaches — one sentence, each clause carried by a located line of the same
+  file: the table at `:913`–`:994`, the clean-exit definition at `:889`–`:897`,
+  the no-restart-after-stop sentences at `:881`–`:882` and `:996`–`:1000`, the
+  prevent/force overrides at `:1108`–`:1109` and `:1140`–`:1141`, the
+  `Type=oneshot` exclusion at `:909`–`:911`, and the rate limiting at
+  `:1004`–`:1006`. It states documentation semantics only; it claims no
+  live-host state and no installed-Arch-build equivalence.
+- status / opened / recheck — `mined`, `2026-11-04` (the date the URL was
+  opened and pinned), `on-release` (reopen the page at the next systemd
+  release tag and re-run `python3 tools/measure-round80.py --revision <REV>
+  --claim C1`).
+- used-by — the two planned companions of this round: the explanatory note
+  `corpus/knowledge/service-restart-matrix-r80.md` and the pinned matrix
+  `corpus/knowledge/service-restart-matrix-r80.json`.
+
+Three consequences the L1 must know before appending
+
+1. **The used-by paths must exist when the census runs.** The census emits
+   `E11` for a `mined` row whose used-by path is missing from disk
+   (`scripts/sources-census.sh`, `usedby_findings`). Both companions are
+   produced this wave, so the row and both companions must land in the same
+   integration step.
+2. **The row must land inside the `## Registry` section.** The census emits
+   `E12` for a registry-shaped row outside that section.
+3. **No duplicate-URL finding is expected.** `url_of()` takes the first URL in
+   the source cell, i.e.
+   `raw.githubusercontent.com/systemd/systemd/v262/man/systemd.service.xml`.
+   No existing row's first URL is that string (`S070` is the only row that
+   mentions a `systemd.service` page and its first URL is the freedesktop
+   one), so neither `W04` nor `E04` applies. This is derived from reading the
+   census rule code and the registry, not from a census run — this seat ran
+   no census.
+
+Id-collision caveat, recorded and not smoothed
+
+The read-only staged package
+`/home/vgpnk/Projects/shokuknow/merge/tsukuroi/SOURCES.append.md` already uses
+the bare id `S330` for a different document
+(`lanes/tsukuroi/round14/captures/mirror-language-list-capture.txt`, an own-work
+mirror changelog capture; the package also used `S329` for the same capture
+file). That package is **not adopted**, no bytes are copied, and no
+renumbering is applied to this registry: the id is a document-scoped label, so
+the safe resolution is document context, never arithmetic renumbering. The
+collision verdict itself belongs to ConnectorScope's lane; this seat records
+the collision and adopts nothing. No rows changed yet.

@@ -1,0 +1,100 @@
+{
+  "method": "elementtree",
+  "source_file": "live-systemd.service.xml",
+  "source_url": "https://raw.githubusercontent.com/systemd/systemd/v262/man/systemd.service.xml",
+  "source_sha256": "12770f86a26dcdf32873225669f5aa9421283c303bbc72bddb04530850f66d44",
+  "source_size_bytes": 120642,
+  "table_title": "Exit causes and the effect of the Restart= settings",
+  "settings": [
+    "no",
+    "always",
+    "on-success",
+    "on-failure",
+    "on-abnormal",
+    "on-abort",
+    "on-watchdog"
+  ],
+  "rows": [
+    {
+      "cause": "Clean exit code or signal",
+      "restart": [
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "cause": "Unclean exit code",
+      "restart": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "cause": "Unclean signal",
+      "restart": [
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "cause": "Timeout",
+      "restart": [
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "cause": "Watchdog",
+      "restart": [
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "cause": "Termination due to OOM",
+      "restart": [
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
+    }
+  ],
+  "cell_count": 42,
+  "true_cell_count": 18,
+  "cross_checks": {
+    "elementtree_vs_regex_xml": "identical (settings, 6 cause labels, 42 cells)",
+    "elementtree_vs_roff_installed_man": "identical (settings, 6 cause labels, 42 cells)",
+    "elementtree_vs_frozen_expected_json": "identical on all 42 cells; settings order identical; cause labels identical",
+    "v262_tag_vs_v262_1_tag": "table identical; the two tags differ only at line 1579 (an ExecStart= + prefix paragraph, unrelated to Restart=)",
+    "v262_tag_vs_upstream_main": "table identical; same 42 cells"
+  }
+}

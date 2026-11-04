@@ -1,0 +1,25 @@
+# ExecTransaction digests — round80 w1 C2 (check-transaction-order-r39.py)
+
+frozen_original_sha256  f1c97836abb50887231b82d27cd026d05b8083cefcdd713217071648b07c991e
+  = lane working tree tools/check-transaction-order-r39.py at dispatch
+  = git blob at frozen commit 61ec89ec6e6f284b6fba2127721359e6931a5789 (cat-file, corroboration)
+  = git blob at lane HEAD aad05ef173176cf5223f7c315297240c2db1abe2 (corroboration; lane tool bytes
+    unchanged since the round-39 freeze — instrument/expected untouched by this seat)
+
+final_repaired_sha256   c7055a81f98b8462b3a34ba17545087bdb09bb17532594dd1a9823aa9b5aec33
+  = scratch tree tools/check-transaction-order-r39.py (receipt run + red-before control ran on
+    exactly these bytes)
+  = deliverable .ufo/waves/round-80/w1/ExecTransaction/check-transaction-order-r39.py
+  = receipt .ufo/waves/round-80/w1/check-transaction-order-r39.py.receipt.json tool_sha256
+
+shared_import_copied    tools/_revision.py sha256 fc861ec8a4f2539ac3f16d1a04af8335a974c17c8ffba0a41f6dad972cad36de
+instrument_sha256       tools/measure-round80.py 688766756d0fb73ffb8f1d746e3377d58532bd4afa0a3aa92489c61165614d1d
+  = .ufo/waves/round-80/before/controls.json instrument_sha256 (matches)
+
+receipt_observed        argv ["python3","tools/check-transaction-order-r39.py","--selftest"]
+                        rc 0, passed 9, failed 0 (see selftest.stdout / selftest.stderr)
+red_before_control      single-point mutant `dup_rows = 0  # MUTANT` (duplicate-row counting dropped)
+                        -> rc 3, FAIL (SELFTEST-DUPLICATE-BLOCK): duplicate_rows=0 != 1,
+                        8/9 cases still pass (see redbefore.stdout / redbefore.stderr)
+
+python3 (host) CPython, git 2.56.0. No tools installed or updated (none needed).

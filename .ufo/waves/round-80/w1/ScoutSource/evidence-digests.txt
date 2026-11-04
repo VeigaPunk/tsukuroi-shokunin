@@ -1,0 +1,112 @@
+ScoutSource — round 80 w1 — independent source evidence digests
+==============================================================
+
+A. PINNED SOURCE IDENTITY
+-------------------------
+URL (as frozen in before/expected.json):
+  https://raw.githubusercontent.com/systemd/systemd/v262/man/systemd.service.xml
+
+Live fetch (2026-11-04, curl -sS -L --fail --max-time 60):
+  sha256 = 12770f86a26dcdf32873225669f5aa9421283c303bbc72bddb04530850f66d44
+  size   = 120642 bytes
+
+Frozen snapshot (.ufo/waves/round-80/before/systemd.service.xml):
+  sha256 = 12770f86a26dcdf32873225669f5aa9421283c303bbc72bddb04530850f66d44
+  size   = 120642 bytes
+  cmp: BYTE-IDENTICAL to the live fetch
+
+Frozen expected object (.ufo/waves/round-80/before/expected.json):
+  sha256 = 05abbf14c2c2e8d5ce31cc5c815e264937d6c11a882d3fc08d90ca6952965153
+  (matches the SCORECARD Round-80 declaration and the instrument's EXPECTED_SHA)
+
+Frozen instrument (tools/measure-round80.py):
+  sha256 = 688766756d0fb73ffb8f1d746e3377d58532bd4afa0a3aa92489c61165614d1d
+  (matches the SCORECARD declaration and the instrument's own SHA claim)
+
+Git tree check (read-only `git show` at the frozen commit 61ec89ec):
+  61ec89ec:.ufo/waves/round-80/before/systemd.service.xml -> 12770f86...d44
+  61ec89ec:.ufo/waves/round-80/before/expected.json        -> 05abbf14...5153
+
+B. UPSTREAM TAG PROVENANCE (API, read-only)
+-------------------------------------------
+refs/tags/v262          -> annotated tag object 1f7dffaf714cc4488159c498b7a17cf34c5a96d5
+tag v262 tagger date    -> 2026-09-22T13:12:43Z
+tag -> commit           -> 8cc40e0c5e9234bf45084751ac53b1fbfe70b492
+contents API, man/systemd.service.xml @ 8cc40e0c:
+  git blob sha1 = 57bb224c24fd71e53a3a52fea9f35aed994d1ed9
+  size          = 120642
+Locally recomputed git blob sha1 of the fetched bytes:
+  git blob sha1 = 57bb224c24fd71e53a3a52fea9f35aed994d1ed9   -> MATCH
+  (sha1("blob " + len + "\0" + content))
+=> the fetched bytes are the blob the v262 tag points at, not a mutable branch tip.
+
+C. THREE INDEPENDENT EXTRACTION METHODS (no measure-round80 import)
+--------------------------------------------------------------------
+M1 ElementTree   (extract_table.py)        -> independent-matrix.json
+M2 regex over raw XML text (extract_table_regex.py) -> independent-matrix-regex.json
+M3 roff/T{...}T parse of the INSTALLED man page /usr/share/man/man5/systemd.service.5.gz
+   (extract_table_roff.py)                  -> independent-matrix-roff.json
+
+M1 vs M2: identical settings, identical 6 cause labels, identical 42 cells.
+M1 vs M3: identical settings, identical 6 cause labels, identical 42 cells.
+M3 reads the host's INSTALLED systemd 262.1 man page (a different rendering of the
+   same upstream document), so the agreement also shows the host's installed
+   documentation carries the same table.
+
+D. INDEPENDENT MATRIX vs FROZEN EXPECTED
+----------------------------------------
+compare.py independent-matrix.json before/expected.json  ->  VERDICT: MATCH
+  settings order MATCHES XML header order:
+    no, always, on-success, on-failure, on-abnormal, on-abort, on-watchdog
+  cause labels identical (6 rows), in identical order
+  all 42 cells MATCH
+  true-cell count: expected=18 independent=18
+
+The expected.json cell order is exactly the XML header order, so the matrix is
+order-sensitive by construction: a permuted settings list would not compare equal.
+
+E. CROSS-VERSION STABILITY
+---------------------------
+v262.1 tag  -> table identical (matrix-v262_1.json); the two tags differ ONLY at
+               line 1579, an ExecStart= "+" prefix paragraph, unrelated to Restart=
+upstream main -> table identical (matrix-main.json); all 42 cells the same
+=> the Restart= exit-cause table is stable across v262, v262.1 and current main.
+
+F. BASE REGISTRY ROW COUNT (independent, not copied from r79)
+------------------------------------------------------------
+corpus/SOURCES.md at base commit 467a9b78 (via read-only git show):
+  rows matching '^| S[0-9]{3} |'      = 329
+  unique ids                          = 329
+  id range                            = S001..S329, NO gaps, NO duplicates
+  S330 present                        = 0  (S330 is the next free id)
+  pipe-split field count per row      = 13 for all 329 rows (no stray '|')
+  tier  A=312  B=6  C=11
+  kind  docs=174 code=108 own-work=34 community=8 dataset=2 tool=2 spec=1
+  status mined=291 queued=5 rejected=33
+=> base registry = 329 rows, matching the SCORECARD's "329 source rows".
+
+G. INDEPENDENT CENSUS RE-DERIVATION (read-only re-implementation of the frozen
+   scripts/sources-census.sh validate-mode rules, run against corpus/SOURCES.md)
+-------------------------------------------------------------------------------
+BASE:      rows=329, findings=52, all of them W04 "duplicate url ... across scopes",
+           0 E-level errors.
+W04 id set is EXACTLY the frozen before/census.txt W04 id set (52 == 52, set-equal).
+frozen census.txt: 52 W04 lines + 1 "ok" line, exit=0, 0 E-level errors.
+WITH a hypothetical S330 row inserted directly after S329:
+  rows=330, NEW findings = 2, both E11 only:
+    E11 S330 missing used-by corpus/knowledge/service-restart-matrix-r80.md
+    E11 S330 missing used-by corpus/knowledge/service-restart-matrix-r80.json
+  -> E11 is expected until the two companion files exist on disk; it is not an
+     error in the row's content. No E01/E03/E04/E05/E06/E07/E08/E09/E10/E12 and
+     no new W04 for the S330 URL.
+
+H. S330 URL UNIQUENESS
+----------------------
+Planned S330 first URL, normalized the way the census normalizes:
+  raw.githubusercontent.com/systemd/systemd/v262/man/systemd.service.xml
+Rows whose FIRST url equals that key: 0   -> no W04, no E04 risk.
+Rows citing raw.githubusercontent.com/systemd/systemd/v262/man/systemd.service.xml
+anywhere in their source cell: 0.
+The only registry row citing any raw systemd.service.xml is S070, and it cites
+v262.1 (a different URL) with a different scope (ExecStopPost=), and its FIRST
+url is freedesktop.org, so it does not collide with the S330 url key.

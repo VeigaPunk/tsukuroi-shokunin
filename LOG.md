@@ -3546,3 +3546,21 @@ Measured base C1 0/42 rc1, C2 0/2 rc1; eleven pre-data controls meet their
 expected rc, including positives. The counter binds files, not volatile output.
 No domain mutation, promotion, package adoption or next round is authorized.
 
+
+## Round80 — integration after WAVE-DONE (2026-11-04)
+
+Integrated eight delivered reports from the ten-seat wave; two attack seats died
+on observed provider402, with no replacement (`after/settlement.json`). Results
+outputs are null; actual seat files bind the work. Added S330 and the conditional
+restart matrix; source-only table has42 cells, independently re-derived by ScoutSource.
+L1 replaced the verbose draft with provenance-first, complete-row excerpts;
+ReviewMatrix re-read the actual source row and renewed verdict on final companion
+SHA81006519… and unchanged JSON05abbf14… (`w1/ReviewMatrix/verdict.json`).
+KR and transaction-order tools landed byte-exact from their final executor copies;
+both actual registry labels are retained. The frozen counter mistakenly seeks
+check-transaction-order-r39 rather than transaction-order-r39: this remains a
+frozen claim miss, not a renamed/duplicate registry row. QUALITY111/112 and the
+lesson mine that mistake and the latest reflection's burst-aware-reading idea.
+Domain task `w1/ExecHost/handoff.md` ran four read-only commands, no remediation.
+Final revision-bound measurement follows; no admission is pre-claimed.
+
