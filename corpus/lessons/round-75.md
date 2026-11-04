@@ -132,3 +132,8 @@ carrier still presents 12/11 as current.
 - The `corpus-expansion-1` id drift awaits the L0 answer.
 - R1Reviewer's note that five `S314`-`S316` anchor ranges are substrings of functions rather than
   full extents is worth a future anchor widening; the rows' quotes and statements are unaffected.
+- **R75-JT2-REFRESH** · evidence S1Scout section 5 gap 3 and `src/core/unit.h:64-66` · captured-by
+  QUALITY 106 (read the definition before freezing a set-like phrase) · fix: the note now carries an
+  appended erratum naming `UNIT_REFRESHING` and restating that expansions are outside the pinned
+  snapshots. Able to fail: the erratum's quoted macro line is located in the corroborating fetch and
+  absent from all three pinned snapshots.

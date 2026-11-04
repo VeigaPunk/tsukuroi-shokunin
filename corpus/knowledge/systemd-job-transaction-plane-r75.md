@@ -82,3 +82,12 @@ job queue; they do not observe a transaction, a merge or a job result.
   are not verified against the installed binary's build (QUALITY 103).
 - Nothing here authorises building, cancelling or forcing a job, a `systemctl start/stop/restart`,
   a `daemon-reload`, or any unit edit; every such write remains operator-owned.
+
+## Erratum (2026-11-04, round 75) — JT2's predicate expansion
+
+JT2 names `UNIT_IS_ACTIVE_OR_RELOADING` in English as "active or reloading". The macro expands to
+`IN_SET(t, UNIT_ACTIVE, UNIT_RELOADING, UNIT_REFRESHING)` at `src/core/unit.h:64-66`, a file outside
+the three pinned snapshots (fetched for corroboration only; sha256
+`563a8180f79038ddc28d267cd971c902bd6c1df438ac92cee6e0a6612b8e1eca`); the wave's S1Scout found the
+omission. The row names the predicate and its two headline states, not its full expansion, and the
+Limits section's statement stands: expansions are outside the pinned bytes.

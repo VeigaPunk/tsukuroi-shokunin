@@ -3264,3 +3264,47 @@ Round-74 final measurement: `dc5114c5eb8e6349780d7bca8eb6e7470ec55553`,
 routed stale 2→0 (real base→measured commit), registry 308→313, notes 91→92,
 census rc 0, unchanged instrument selftests 13/13 and 6/6. C1 remains not verified
 as declared; C2 repairs verified. No numeric score changes.
+
+## Round 75 (2026-11-04) — the systemd job-transaction plane, four r74 routed repairs, and one over-broad clause
+
+Declaration `1e2bb29c`, base `a21302a48d24cf5242ac2a66cc5b5b453f7a1b20`; two frozen claims on two
+axes (C1 depth, the lowest tied axis at 8; C2 freshness at 9). Integration commit `c15fe829`.
+
+**C1 depth (SOURCED — S314–S316).** `corpus/knowledge/systemd-job-transaction-plane-r75.md` states the
+v262 job-transaction plane in six rows JT1–JT6: the merge algebra (commutative; associative and
+mergeability-transitive only with immediate collapse; lower triangle stored), the state-dependent
+redundancy predicate, `JOB_TRY_RESTART`'s exclusion from any transaction, the full thirteen-member
+`JobResult` outcome set, the ten labelled `transaction_activate` stages, and the five per-class
+pull-in flags with restart propagated as a collapsed try-restart inside `PROPAGATE_STOP` and a separate
+graceful-stop branch that may enqueue a direct restart. Frozen counter `tools/count-jt-rows-r75.py`
+reads `JT_ROWS=6 JT_VERIFIED=6 JT_SOURCES=3 JT_SNAPSHOTS=3 JT_MALFORMED=0 met=1` rc 0 at `c15fe829`
+(before: `JT_MAP absent` rc 128). Registry 313 → 317 (S314–S316 mined, S317 the measured refusal of
+the systemctl(1) manual), notes 92 → 93. **The claim is not verified as declared**: the frozen C1
+sentence's "propagating restart only as try-restart" is over-broad against
+`transaction.c:999-1027,1199-1247`; the erratum `R75-DECL-PROPAGATE-SCOPE` and the note's own JT6
+state both branches, and no depth uplift is claimed.
+
+**C2 freshness.** The four round-74 closure routed defects close by append-only prose:
+`corpus/lessons/round-74.md` names `R74-DEATH-RECEIPT-MISSING` (SC3Index 429/`RESOURCE_EXHAUSTED`,
+no receipt committed) and `R74-REPORT-WORDING` (the accurate "no review-accepted drafts" plus the
+existing 27552-byte `w1/SC3Index/report.md`); `receipt-g-landing.txt` carries `R74-SWEEP-RESIDUE`
+quoting both the fabricated and the real OID; `SCORECARD.md` carries `## Round 75 — axes table
+restated` with six rows and real counting commands, superseding the round-65 table. Checker
+`tools/check-r74-routed-r75.py`: `ROUTED_STALE=4 ROUTED_OK=0/4` rc 1 at base → `ROUTED_STALE=0
+ROUTED_OK=4/4` rc 0 at `c15fe829`.
+
+**Docs and corpus.** SKILL gains a job-transaction diagnosis table (five symptoms, read-only checks);
+PROVINCE records the Core reading and the remaining Frontier (an observed transaction, a queued job,
+a live merge, host-build lines) with every job submission operator-owned; `corpus/README.md` indexes
+the note; QUALITY 108 adopts the `considerthese/2026-10-26.md` "Cross-note correction propagation map"
+proposal with a three-set map in the lesson; the round lesson mines five mistakes, two of them caught
+before data by the frozen counter and by R1Reviewer. Both new tools carry operative registry rows.
+
+Wave `w1`: one v1 wave, twelve seats (scout 1, executor 3, scribe 3, connector 1, reviewer 2,
+critic 1, mutation-tester 1; strict attack 4/12 = 33 %; connector 1; L1 held the planner seat;
+residual 0). Evidence under `.ufo/waves/round-75/`; measured receipt
+`after/measure-c15fe829.txt`; census rc 0 at both ends; line-endings gate PASS (377 files);
+registry coverage 107 rows with six pre-existing missing rows for the r72–r74 tools.
+
+Assimilation: none — the `corpus-expansion-1` package collides on 114 of 147 staged ids and is routed
+to an L0 question instead of an append.
