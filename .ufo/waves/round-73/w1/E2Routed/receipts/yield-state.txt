@@ -1,0 +1,35 @@
+# state at yield (read-only), HEAD 3efb9b24
+$ git log -1 --format="%h %ci %s"
+3efb9b24 2026-11-03 23:19:03 -0300 round-73 measured outcome, lesson and LOG: both claims verified at 583eea87; ten mistake classes recorded
+
+$ git show HEAD:tools/check-r72-routed-r73.py | sha256sum
+71931c1c225ecda5f8b6529091dc9383542d0c054ae62ff6e0a16f3fbe51496e  -
+$ git show HEAD:tools/count-ul-rows-r73.py | sha256sum
+97f6f5ec83401b02d6c83b48bcad27f0f97c06c9e4ad134cc1cbfb202dbb03d0  -
+
+$ python3 tools/check-r72-routed-r73.py --revision HEAD
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+$ python3 tools/check-r72-routed-r73.py --revision 583eea87627353d6e21037216e316af8e19bdf4d
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+$ python3 tools/check-r72-routed-r73.py --revision eb1057575d5d8b940c4846e21611674cf5571aea
+LESSON-STALE path=corpus/lessons/round-72.md reason=no-block
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-tokens
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+# the lane after receipt cited as "final bytes" names an intermediate digest:
+# tool: tools/check-r72-routed-r73.py sha256 71931c1c225ecda5f8b6529091dc9383542d0c054ae62ff6e0a16f3fbe51496e

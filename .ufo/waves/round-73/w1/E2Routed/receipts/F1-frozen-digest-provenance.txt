@@ -1,0 +1,12 @@
+# F1 — provenance of the frozen r71-checker digest (read-only)
+
+$ git -C <lane> show 6b4267623b3d6cf88b32c2df8daaad1a5bc9f19e:tools/check-r71-routed-r72.py | sha256sum
+df8a59c7a2891f58ab37a1b22e73819d953f1781528d4f2f4937641e093de712  -   (blob at 6b42676 == the frozen old digest)
+
+$ git -C <lane> cat-file -e a7015d2731cfc56796bd2e159a7e9151b60ca479:tools/check-r71-routed-r72.py
+rc=128  fatal: path 'tools/check-r71-routed-r72.py' exists on disk, but not in 'a7015d2731cfc56796bd2e159a7e9151b60ca479'
+
+$ for c in 6b42676 123e1c57 53bcddef eb105757 8eeadcb9; do printf '%s ' $c; git -C <lane> show $c:tools/check-r71-routed-r72.py | sha256sum; done
+53bcddef rc=0 2610ff433bf5d4e945ce5b2da0cf168745e4142ecffabc3d160afee33005cdcc
+eb105757 rc=0 2610ff433bf5d4e945ce5b2da0cf168745e4142ecffabc3d160afee33005cdcc
+8eeadcb9 rc=0 2610ff433bf5d4e945ce5b2da0cf168745e4142ecffabc3d160afee33005cdcc

@@ -40,6 +40,7 @@ ITEMS = {
     "LESSON": {
         "path": LESSON,
         "heading": re.compile(r"^## .*(?i:correction|erratum).*$", re.M),
+        "label": "R72-LESSON-SUPERSEDED-CLAIMS",
         "tokens": ["R72-LESSON-SUPERSEDED-CLAIMS",
                    "No capability row enters this round",
                    "nine hermetic cases",
@@ -52,6 +53,7 @@ ITEMS = {
     "DIGEST": {
         "path": SCORECARD,
         "heading": re.compile(r"^## .*(?i:correction|erratum).*$", re.M),
+        "label": "R72-C3-INSTRUMENT-DIGEST-DRIFT",
         "tokens": ["R72-C3-INSTRUMENT-DIGEST-DRIFT", OLD_DIGEST, TIP_DIGEST,
                    "check-r71-routed-r72.py"],
         "need_any": [("same-instrument", "re-run", "re-ran", RECEIPT)],
@@ -141,10 +143,16 @@ def check_item(rt, item, out):
     for head, body in blocks(text):
         if not item["heading"].match(head):
             continue
-        bnorm = " ".join(body.split())
-        if not all(has_token(bnorm, tok) for tok in item["tokens"]):
+        full = " ".join(body.split())
+        body_only = " ".join(" ".join(body.splitlines()[1:]).split()) if body.startswith("#") else full
+        label = item.get("label")
+        if label and not has_token(full, label):
+            reasons.append("block-label")
+            continue
+        if not all(has_token(body_only, tok) for tok in item["tokens"] if tok != label):
             reasons.append("block-tokens")
             continue
+        bnorm = body_only
         if not all(any(has_token(bnorm, alt) for alt in alts) for alts in item["need_any"]):
             reasons.append("block-need-any")
             continue
@@ -263,6 +271,10 @@ def selftest():
         return m
 
     case("PLACEHOLDER", placeholder_map(), 1, "DIGEST-STALE")
+    case("TITLE-TOKEN",
+         texts(cap_block="## Capability refresh (round 73) gate-selftest\n\n"
+                         "the count is stated in this body, receipt " + RECEIPT + ".\n"),
+         1, "CAPABILITY-STALE")
     case("VACUOUS",
          texts(lesson_block="## Correction (round 73)\n\nR72-LESSON-SUPERSEDED-CLAIMS "
                             "No capability row enters this round nine hermetic cases gate-selftest "

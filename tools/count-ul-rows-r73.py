@@ -186,7 +186,10 @@ def evaluate(rt, rb, out=sys.stdout):
         return 128
     try:
         snapmap = json.loads(map_text)["snapshots"]
-    except (ValueError, KeyError):
+    except (ValueError, KeyError, TypeError):
+        emit(f"UL_MAP malformed path={MAP}")
+        return 1
+    if not isinstance(snapmap, dict):
         emit(f"UL_MAP malformed path={MAP}")
         return 1
     reg = registry_rows(reg_text)
@@ -402,6 +405,12 @@ def selftest():
         p.write_text("\n".join(out) + "\n")
 
     case("EMPTYQUOTE", empty_quote, 1, "quote-words")
+
+    def map_list(root):
+        p = root / MAP
+        p.write_text(json.dumps({"snapshots": ["not-a-map"]}) + "\n")
+
+    case("MAPLIST", map_list, 1, "UL_MAP malformed")
     shutil.rmtree(base, ignore_errors=True)
     passed = sum(1 for c in cases if c[1])
     print(f"SELFTEST: {'PASS' if passed == len(cases) else 'FAIL'} "

@@ -1,0 +1,297 @@
+# Evidence for E1Counter round-73 C1 counter attack
+# lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+# counter: tools/count-ul-rows-r73.py sha256 542f9c2947139b5c8f6aec7110f1e6c874d106efc7dc05efe6a91f090711a3d6
+# git blob at declaration 74937132 / HEAD / worktree: 26ce286b66e34b0fc618b9342b3eb708c05249f2 / 26ce286b66e34b0fc618b9342b3eb708c05249f2 / 26ce286b66e34b0fc618b9342b3eb708c05249f2
+# spec row source: .ufo/waves/round-73/w1/L1Entry/note.md sha256 6d766b7c4fac075612ee894151a9d56b008aca304d3c82754e0472af3f56a46b (untracked)
+
+## selftest (TMPDIR=$S)
+PASS (SELFTEST-CONTROL) rc=0 expect=0 token=UL_TARGET
+PASS (SELFTEST-SHORT) rc=1 expect=1 token=statement-words
+PASS (SELFTEST-UNREGISTERED) rc=1 expect=1 token=source-unregistered
+PASS (SELFTEST-QUOTE) rc=1 expect=1 token=quote-absent
+PASS (SELFTEST-FIVE) rc=1 expect=1 token=UL_ROWS=5
+PASS (SELFTEST-DUPID) rc=1 expect=1 token=duplicate-id
+PASS (SELFTEST-REUSE) rc=1 expect=1 token=snapshot-reuse
+PASS (SELFTEST-UNGROUNDED) rc=1 expect=1 token=statement-grounding
+PASS (SELFTEST-MALFORMED) rc=1 expect=1 token=malformed-row
+PASS (SELFTEST-DIGEST) rc=1 expect=1 token=digest-mismatch
+PASS (SELFTEST-OWNWORK) rc=1 expect=1 token=source-kind
+SELFTEST: PASS (11 cases, 11 passed, 0 failed)
+rc=0
+
+## selftest environment guards
+SELFTEST: FAIL (SELFTEST-TMPDIR) $TMPDIR names no directory
+rc=2
+SELFTEST: FAIL (SELFTEST-TMPDIR) $TMPDIR names no directory
+rc=2
+SELFTEST: FAIL (SELFTEST-HERMETIC) TMPDIR is /tmp
+rc=2
+
+## base/declaration/HEAD revisions
+UL_NOTE absent path=corpus/knowledge/systemd-unit-load-plane-r73.md
+rc=128
+UL_NOTE absent path=corpus/knowledge/systemd-unit-load-plane-r73.md
+rc=128
+UL_NOTE absent path=corpus/knowledge/systemd-unit-load-plane-r73.md
+rc=128
+
+## variant mirror
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/mirror
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+## variant iso-id
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-id
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL7 source=S306 snapshot=install.c
+UL_ROW fail ids-not-contiguous
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## variant iso-words
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-words
+UL_ROW fail UL1 statement-words=8
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=5 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## variant iso-ground
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-ground
+UL_ROW fail UL1 statement-grounding=0/13
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=5 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## variant iso-kind
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-kind
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW fail UL5 source-kind=own-work
+UL_ROW fail UL6 source-kind=own-work
+UL_ROWS=6 UL_VERIFIED=4 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## variant iso-digest
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-digest
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW fail UL3 digest-mismatch
+UL_ROW fail UL4 digest-mismatch
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=4 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## variant iso-mapdigest
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-mapdigest
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW fail UL3 map-digest
+UL_ROW fail UL4 map-digest
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=4 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## variant iso-mapurl
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-mapurl
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW fail UL3 source-not-bound
+UL_ROW fail UL4 source-not-bound
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=4 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## variant iso-anchor
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-anchor
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW fail UL5 anchor-not-bound
+UL_ROW fail UL6 anchor-not-bound
+UL_ROWS=6 UL_VERIFIED=4 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## variant iso-quote-loc
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-quote-loc
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW fail UL2 quote-absent
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=5 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## variant iso-quote-len
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-quote-len
+UL_ROW fail UL1 quote-words=45
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=5 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## variant iso-reuse
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-reuse
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROW fail snapshot-reuse systemd.unit.xml=3
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## variant iso-emptyquote
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-emptyquote
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+## variant iso-onewordquote
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-onewordquote
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+## variant iso-unanchored
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-unanchored
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+## variant iso-dupecontent
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-dupecontent
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+## variant iso-shadow
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-shadow
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+## variant iso-fabricated
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-fabricated
+UL_NOTE absent path=corpus/knowledge/systemd-unit-load-plane-r73.md
+rc=128
+
+## variant iso-indent
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/iso-indent
+UL_ROW fail malformed-row:  | UL1 | Unit files are loaded from a compilation-time path list, and 
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROW fail ids-not-contiguous
+UL_ROWS=5 UL_VERIFIED=5 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=1
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=0
+rc=1
+
+## variant blind-negate
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/blind-negate
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+## variant scripted
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/scripted
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+## variant declared-spec
+$ python3 tools/count-ul-rows-r73.py --fixture $S/fx/declared-spec
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+

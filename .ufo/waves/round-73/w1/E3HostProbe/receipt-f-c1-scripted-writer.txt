@@ -1,0 +1,40 @@
+# receipt F — C1 attack: a scripted writer that copies a snapshot slice (QUALITY 81 shape)
+# observed 2026-11-03T23:14:11-03:00; counter sha256 542f9c2947139b5c8f6aec7110f1e6c874d106efc7dc05efe6a91f090711a3d6
+$ TMPDIR=$S python3 .ufo/waves/round-73/w1/E3HostProbe/attack-c1-scripted-writer.py
+COPIED STATEMENT: Unit files found in directories listed earlier override files with the same name in directories lower in the list <xi:include href="standard-conf.xml" xpointer="usr-local-footnote" />. </para> <para>When the variable <varname>$SYSTEMD_UNIT_PATH</varname> is set, the contents of this variable overrides the unit load path. If <varname>$SYSTEMD_UNIT_PATH</varname> ends with an empty component (<literal>:</literal>), the usual uni
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+
+counter rc = 0
+ATTACK: survived — a mechanically copied snapshot slice is credited as a UL row
+rc=0
+
+# the control beside it: the counter on its own untouched fixture
+$ TMPDIR=$S python3 tools/count-ul-rows-r73.py --selftest
+PASS (SELFTEST-CONTROL) rc=0 expect=0 token=UL_TARGET
+PASS (SELFTEST-SHORT) rc=1 expect=1 token=statement-words
+PASS (SELFTEST-UNREGISTERED) rc=1 expect=1 token=source-unregistered
+PASS (SELFTEST-QUOTE) rc=1 expect=1 token=quote-absent
+PASS (SELFTEST-FIVE) rc=1 expect=1 token=UL_ROWS=5
+PASS (SELFTEST-DUPID) rc=1 expect=1 token=duplicate-id
+PASS (SELFTEST-REUSE) rc=1 expect=1 token=snapshot-reuse
+PASS (SELFTEST-UNGROUNDED) rc=1 expect=1 token=statement-grounding
+PASS (SELFTEST-MALFORMED) rc=1 expect=1 token=malformed-row
+PASS (SELFTEST-DIGEST) rc=1 expect=1 token=digest-mismatch
+PASS (SELFTEST-OWNWORK) rc=1 expect=1 token=source-kind
+SELFTEST: PASS (11 cases, 11 passed, 0 failed)
+rc=0
+
+# the counter at HEAD and at base, as the declaration states
+$ python3 tools/count-ul-rows-r73.py --revision HEAD
+UL_NOTE absent path=corpus/knowledge/systemd-unit-load-plane-r73.md
+rc=128
+$ python3 tools/count-ul-rows-r73.py --revision eb1057575d5d8b940c4846e21611674cf5571aea
+UL_NOTE absent path=corpus/knowledge/systemd-unit-load-plane-r73.md
+rc=128

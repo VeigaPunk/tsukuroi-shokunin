@@ -1,0 +1,36 @@
+# git revision-mode control with instrument bytes 71931c1c225ecda5f8b6529091dc9383542d0c054ae62ff6e0a16f3fbe51496e
+# fixture $S/gfinal2 from committed base blobs eb1057575d5d8b940c4846e21611674cf5571aea; tool copied byte-identical; toplevel asserted /fast/scratch/hyaku/tsukuroi-r73/E2Routed/gfinal2
+# --revision reads committed blobs only, so G2 must equal G1.
+
+## G1-base (base blobs committed)
+$ git -C $S/gfinal2 rev-parse --short HEAD -> 38a5b86
+$ python3 $S/gfinal2/tools/check-r72-routed-r73.py --revision HEAD
+LESSON-STALE path=corpus/lessons/round-72.md reason=no-block
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-tokens
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+## G2-drafts-uncommitted (drafts in worktree, not committed)
+$ git -C $S/gfinal2 rev-parse --short HEAD -> 38a5b86
+$ python3 $S/gfinal2/tools/check-r72-routed-r73.py --revision HEAD
+LESSON-STALE path=corpus/lessons/round-72.md reason=no-block
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-tokens
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+## G3-drafts-committed (drafts committed)
+$ git -C $S/gfinal2 rev-parse --short HEAD -> e6b64e0
+$ python3 $S/gfinal2/tools/check-r72-routed-r73.py --revision HEAD
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0

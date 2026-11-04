@@ -1,0 +1,27 @@
+# receipt A — live run (unprivileged, read-only), defaults, no TSUKUROI_UNIT_DIRS
+$ bash probe.sh
+SEARCHPATH dirs=12 first=/etc/systemd/system.control etc_before_usr=1
+MASKED count=2 targets=/dev/null:2
+DROPINS unit=user@1000.service paths=2 etc=1 usr=1
+TEMPLATE instance=getty@tty1.service fragment=getty@.service template=1
+UNITSTATE unit=passim.service load=masked
+rc=0
+
+# receipt A2 — the committed host capture (before/host.txt) beside these lines
+  SEARCHPATH  12 dirs, first /etc/systemd/system.control        -> dirs=12 first=/etc/systemd/system.control
+  MASKED      2 masked, both -> /dev/null                       -> count=2 targets=/dev/null:2
+  DROPINS     user@1000.service: 1 usr + 1 etc                  -> paths=2 etc=1 usr=1
+  TEMPLATE    getty@tty1.service -> getty@.service              -> fragment=getty@.service template=1
+  UNITSTATE   passim.service LoadState=masked                   -> load=masked
+
+# receipt A3 — more units the capture records, two readings of the same kind in one run
+$ bash probe.sh --reading dropins:systemd-udevd.service --reading dropins:passim.service --reading unitstate:systemd-networkd-wait-online.service
+DROPINS unit=systemd-udevd.service paths=1 etc=0 usr=1
+DROPINS unit=passim.service paths=0 etc=0 usr=0
+UNITSTATE unit=systemd-networkd-wait-online.service load=masked
+rc=0
+
+# receipt A4 — an absent unit is a reading, not a block
+$ bash probe.sh --reading unitstate:nosuch-unit-xyz.service
+UNITSTATE unit=nosuch-unit-xyz.service load=not-found
+rc=0

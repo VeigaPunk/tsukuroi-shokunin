@@ -1,0 +1,97 @@
+# receipt G — the frozen claims at the landing commit, and the residual attacks
+# observed 2026-11-03T23:17:38-03:00
+
+$ git log --oneline -1
+583eea87 round-73 fix: the five new registry rows belong inside the Registry table (census E12 outside-section); after receipt at 09dac09f
+$ sha256sum tools/count-ul-rows-r73.py tools/check-r72-routed-r73.py
+97f6f5ec83401b02d6c83b48bcad27f0f97c06c9e4ad134cc1cbfb202dbb03d0  tools/count-ul-rows-r73.py
+71931c1c225ecda5f8b6529091dc9383542d0c054ae62ff6e0a16f3fbe51496e  tools/check-r72-routed-r73.py
+$ git show HEAD:tools/count-ul-rows-r73.py | sha256sum ; git show HEAD:tools/check-r72-routed-r73.py | sha256sum
+97f6f5ec83401b02d6c83b48bcad27f0f97c06c9e4ad134cc1cbfb202dbb03d0  -
+71931c1c225ecda5f8b6529091dc9383542d0c054ae62ff6e0a16f3fbe51496e  -
+$ git status --porcelain -- tools/      # empty = worktree == committed
+
+# digest record old -> new (the declaration's frozen rule: record old->new)
+#   C1 declared 542f9c2947139b5c8f6aec7110f1e6c874d106efc7dc05efe6a91f090711a3d6
+#   C1 final    97f6f5ec83401b02d6c83b48bcad27f0f97c06c9e4ad134cc1cbfb202dbb03d0  (+MIN_QUOTE_WORDS=4, EMPTYQUOTE)
+#   C2 declared 93f034e3dbb1edbe73995d11e7bd8311c45c0929f1902e342bf8305f902a2f9e
+#   C2 final    71931c1c225ecda5f8b6529091dc9383542d0c054ae62ff6e0a16f3fbe51496e  (hardened post-data)
+
+$ python3 tools/count-ul-rows-r73.py --revision HEAD
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+$ python3 tools/check-r72-routed-r73.py --revision HEAD
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+$ python3 tools/count-ul-rows-r73.py --revision eb1057575d5d8b940c4846e21611674cf5571aea
+UL_NOTE absent path=corpus/knowledge/systemd-unit-load-plane-r73.md
+rc=128
+$ python3 tools/check-r72-routed-r73.py --revision eb1057575d5d8b940c4846e21611674cf5571aea
+LESSON-STALE path=corpus/lessons/round-72.md reason=no-block
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-tokens
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+$ TMPDIR=$S python3 tools/check-r72-routed-r73.py --selftest
+PASS (SELFTEST-CONTROL) rc=0 expect=0 token=ROUTED_STALE=0
+PASS (SELFTEST-LESSON) rc=1 expect=1 token=LESSON-STALE
+PASS (SELFTEST-DIGEST) rc=1 expect=1 token=DIGEST-STALE
+PASS (SELFTEST-CAPABILITY) rc=1 expect=1 token=CAPABILITY-STALE
+PASS (SELFTEST-UNANCHORED) rc=1 expect=1 token=LESSON-STALE
+PASS (SELFTEST-RECEIPT-SUPERSTRING) rc=1 expect=1 token=CAPABILITY-STALE
+PASS (SELFTEST-RECEIPT-MISSING) rc=1 expect=1 token=receipt-absent
+PASS (SELFTEST-RECEIPT-NINE) rc=1 expect=1 token=receipt-count
+PASS (SELFTEST-SUBSTRING-TEN) rc=1 expect=1 token=CAPABILITY-STALE
+PASS (SELFTEST-DIGEST-REVERSED) rc=1 expect=1 token=DIGEST-STALE
+PASS (SELFTEST-VACUOUS) rc=1 expect=1 token=LESSON-STALE
+SELFTEST: PASS (11 cases, 11 passed, 0 failed)
+rc=0
+
+$ TMPDIR=$S python3 .ufo/waves/round-73/w1/E3HostProbe/attack-c1-scripted-writer.py
+COPIED STATEMENT: Unit files found in directories listed earlier override files with the same name in directories lower in the list <xi:include href="standard-conf.xml" xpointer="usr-local-footnote" />. </para> <para>When the variable <varname>$SYSTEMD_UNIT_PATH</varname> is set, the contents of this variable overrides the unit load path. If <varname>$SYSTEMD_UNIT_PATH</varname> ends with an empty component (<literal>:</literal>), the usual uni
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+
+counter rc = 0
+ATTACK: survived — a mechanically copied snapshot slice is credited as a UL row
+rc=0
+
+$ TMPDIR=$S python3 .ufo/waves/round-73/w1/E3HostProbe/attack-c2-vacuous.py
+PASS CONTROL rc=0
+PASS VACUOUS   lesson credited without a sentence — LESSON-STALE path=corpus/lessons/round-72.md reason=block-no-supersede-verb
+SURVIVED CAPSUGAR  a bare token list under the heading was credited
+          | ROUTED_ITEM LESSON ok
+          | ROUTED_ITEM DIGEST ok
+          | ROUTED_ITEM CAPABILITY ok
+          | ROUTED_STALE=0 ROUTED_OK=3/3
+ATTACK: held on the instrument's own controls
+rc=0
+
+$ grep -oE '^\| S[0-9]+ ' corpus/SOURCES.md | sort -V | tail -5
+| S304 
+| S305 
+| S306 
+| S307 
+| S308 

@@ -1,0 +1,29 @@
+# round-73 instruments at wave close: final bytes, both selftests, before/after and the trap fixtures
+# counter: tools/count-ul-rows-r73.py sha256 1f22c26b95c52be745a8cdd97ec52ebf06a362f697daf2a8e1e0d77e28f3e643 (13 cases)
+# checker: tools/check-r72-routed-r73.py sha256 ad853877bd4d5117d0ee356f346f3bf515c0b064fd1e9ed8bc670ac97295a281 (14 cases)
+
+$ TMPDIR=... python3 tools/count-ul-rows-r73.py --selftest | tail -1
+SELFTEST: PASS (13 cases, 13 passed, 0 failed)
+$ TMPDIR=... python3 tools/check-r72-routed-r73.py --selftest | tail -1
+SELFTEST: PASS (14 cases, 14 passed, 0 failed)
+
+# checker before/after on the final bytes (full output, the tool exit code recorded beside its last line)
+$ python3 tools/check-r72-routed-r73.py --revision eb105757
+LESSON-STALE path=corpus/lessons/round-72.md reason=no-block
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-label
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+$ python3 tools/check-r72-routed-r73.py --revision 583eea87
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+# the trap fixture (FAIL receipt + a token only in a heading must not pass)
+trap fixture: FAIL receipt + heading-only token -> ROUTED_STALE=2 ROUTED_OK=1/3 rc=1

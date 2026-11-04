@@ -175,3 +175,13 @@ outcome block says "eleven". The last repair (E2Routed's absolute-path/FAIL-rece
 lands **thirteen** cases (`SELFTEST: PASS (13 cases, 13 passed, 0 failed)`, final checker sha256
 `73184198…`, receipt `.ufo/waves/round-73/after/c2-final-instrument.txt`); the earlier figures stand as
 filed and this line is the correction of record.
+
+## Correction 2 (round 73, wave close; append-only)
+
+The wave's last attack seat (M1Mutation) mutated both instruments after the correction above: the counter
+crashed on a non-map `snapshots` value and now prints `UL_MAP malformed` (rc 1) instead, with a thirteenth
+case `MAPLIST`; the checker accepted a finding id placed only in a block heading and now requires the block's
+body (the id itself may label the heading), with a fourteenth case `TITLE-TOKEN`. Final bytes: counter
+`1f22c26b…` (13 cases), checker `ad853877…` (14 cases). Both still read `met=1` and `ROUTED_STALE=0` at the
+measured tip. M1Mutation's matrices (`w1/M1Mutation/{counter_matrix.json,c2_matrix.json,battery.py}`) record
+38 mutants, 6 survivors, all dead/entailed clauses.

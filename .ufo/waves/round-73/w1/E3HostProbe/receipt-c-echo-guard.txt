@@ -1,0 +1,42 @@
+# receipt C — echo guard: hostile unit names planted in a fixture directory
+$ mkdir -p $S/fixtures/etc/systemd/system; ln -s /dev/null ...
+$ ls -1b $S/fixtures/etc/systemd/system
+a=b.service
+evil.service\nMASKED\ count=999
+evil|pipe.service
+legit.service
+tab\tstop.service
+
+$ TSUKUROI_UNIT_DIRS=$S/fixtures/etc/systemd/system bash probe.sh --reading masked
+BLOCKED reading=MASKED reason=bad-unit-name
+rc=1
+
+# the reading emits exactly one line and the forged payload never appears as a line
+$ ... | wc -l                                   -> 1
+$ ... | grep -c '^MASKED count='                -> 0
+$ ... | grep -c 'count=999'                     -> 0
+$ ... | grep -c 'reason=bad-unit-name'          -> 1
+
+# C2 — the control: a clean fixture directory with one real mask still reads a count
+$ TSUKUROI_UNIT_DIRS=$S/fixtures-clean bash probe.sh --reading masked
+MASKED count=1 targets=/dev/null:1
+rc=0
+
+# C3 — live cross-check: the same unit-directory reader against the host's /etc/systemd/system
+$ TSUKUROI_UNIT_DIRS=/etc/systemd/system bash probe.sh --reading masked
+MASKED count=2 targets=/dev/null:2
+rc=0
+$ systemctl list-unit-files --state=masked --no-legend --no-pager | wc -l
+2
+$ readlink /etc/systemd/system/passim.service /etc/systemd/system/systemd-networkd-wait-online.service
+/dev/null
+/dev/null
+
+# C4 — a hostile name in the *unit* position (not just the directory scan)
+$ bash probe.sh '--reading' 'dropins:evil|pipe.service'
+BLOCKED reading=DROPINS reason=bad-unit-name
+rc=1
+$ bash probe.sh "--reading" 'unitstate:a.service
+MASKED count=999'
+BLOCKED reading=UNITSTATE reason=bad-unit-name
+rc=1

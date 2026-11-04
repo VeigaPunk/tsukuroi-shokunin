@@ -1,0 +1,28 @@
+# receipt D — hermetic selftest, TMPDIR=$S (never /tmp)
+$ TMPDIR=$S bash probe.sh --selftest
+PASS clean rc=0 line=MASKED count=1 targets=/dev/null:1
+PASS pipe rc=1 line=BLOCKED reading=MASKED reason=bad-unit-name
+PASS newline rc=1 line=BLOCKED reading=MASKED reason=bad-unit-name
+PASS space rc=1 line=BLOCKED reading=MASKED reason=bad-unit-name
+PASS extension rc=1 line=BLOCKED reading=MASKED reason=bad-unit-name
+PASS dotfile rc=1 line=BLOCKED reading=MASKED reason=bad-unit-name
+PASS withdirs rc=0 line=MASKED count=1 targets=/dev/null:1
+PASS per-reading-arg two units stayed distinct
+PASS absent rc=1 line=BLOCKED reading=UNITSTATE reason=tool-absent
+PASS absent-all lines=5 all BLOCKED reason=tool-absent
+PASS dropins-forged rc=1 line=BLOCKED reading=DROPINS reason=bad-path
+PASS searchpath-forged rc=1 line=BLOCKED reading=SEARCHPATH reason=bad-path
+PASS masked-rc3 rc=1 line=BLOCKED reading=MASKED reason=unparsable
+PASS masked-nomatch rc=0 line=MASKED count=0 targets=/dev/null:0
+PASS loadstate-forged rc=1 line=BLOCKED reading=UNITSTATE reason=unparsable
+PASS containment forged line did not escape
+SELFTEST: PASS
+rc=0
+
+# D2 — the selftest refuses an unusable or /tmp TMPDIR
+$ TMPDIR= bash probe.sh --selftest
+SELFTEST: FAIL (SELFTEST-TMPDIR) TMPDIR names no directory
+rc=4
+$ TMPDIR=/tmp bash probe.sh --selftest
+SELFTEST: FAIL (SELFTEST-HERMETIC) TMPDIR is /tmp
+rc=4

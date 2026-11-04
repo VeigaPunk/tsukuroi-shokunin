@@ -1,0 +1,82 @@
+# receipt E — the C2 instrument is not frozen: worktree bytes differ from the declared/committed bytes
+# observed 2026-11-03T23:13:07-03:00
+
+$ sha256sum tools/check-r72-routed-r73.py
+328a6bf60c5237fe4ba857b36d2b4401833a61b933f735ec468139b7531a03fe  tools/check-r72-routed-r73.py
+# declared in the round-73 brief: 93f034e3dbb1edbe73995d11e7bd8311c45c0929f1902e342bf8305f902a2f9e
+
+$ git show 74937132:tools/check-r72-routed-r73.py | sha256sum     # declaration commit
+93f034e3dbb1edbe73995d11e7bd8311c45c0929f1902e342bf8305f902a2f9e  -
+$ git show HEAD:tools/check-r72-routed-r73.py | sha256sum        # HEAD
+93f034e3dbb1edbe73995d11e7bd8311c45c0929f1902e342bf8305f902a2f9e  -
+
+$ git status --porcelain -- tools/
+ M tools/check-r72-routed-r73.py
+
+$ git diff --stat -- tools/check-r72-routed-r73.py
+ tools/check-r72-routed-r73.py | 173 ++++++++++++++++++++++++++++++------------
+ 1 file changed, 125 insertions(+), 48 deletions(-)
+
+# the worktree file changed under this seat during the wave (three observations):
+#   23:09:5x  sha256 f1c4b4d36b8e2f4c5b85fee9b5de333b604b39606ad9618331c25b44f16048fe  11842 bytes?
+#   23:12:19  mtime moved; sha256 328a6bf60c5237fe4ba857b36d2b4401833a61b933f735ec468139b7531a03fe
+#   (see evidence/ for the copy this receipt pins)
+
+$ stat -c '%y %s %n' tools/check-r72-routed-r73.py tools/count-ul-rows-r73.py
+2026-11-03 23:12:19.008408931 -0300 11842 tools/check-r72-routed-r73.py
+2026-11-03 23:02:58.201779865 -0300 17669 tools/count-ul-rows-r73.py
+
+# C1 instrument for comparison: the worktree bytes equal the declared digest
+$ sha256sum tools/count-ul-rows-r73.py   # declared 542f9c2947139b5c8f6aec7110f1e6c874d106efc7dc05efe6a91f090711a3d6
+542f9c2947139b5c8f6aec7110f1e6c874d106efc7dc05efe6a91f090711a3d6  tools/count-ul-rows-r73.py
+$ git status --porcelain -- tools/count-ul-rows-r73.py   # empty = committed
+
+# the registry the C1 rows must resolve into stops at S303
+$ grep -oE '^\| S[0-9]+ ' corpus/SOURCES.md | sort -V | tail -3
+| S301 
+| S302 
+| S303 
+$ grep -cE '^\| S(304|305|306) ' corpus/SOURCES.md
+0
+
+# ---------------------------------------------------------------------------
+# receipt E2 — the C1 counter moved too (observed 2026-11-03T23:16:46-03:00)
+# the first reading in this receipt (23:13) found the C1 counter clean: worktree = declared.
+# it stopped being clean at mtime 23:14:42.
+
+$ sha256sum tools/count-ul-rows-r73.py
+97f6f5ec83401b02d6c83b48bcad27f0f97c06c9e4ad134cc1cbfb202dbb03d0  tools/count-ul-rows-r73.py
+# declared 542f9c2947139b5c8f6aec7110f1e6c874d106efc7dc05efe6a91f090711a3d6
+$ git show HEAD:tools/count-ul-rows-r73.py | sha256sum
+97f6f5ec83401b02d6c83b48bcad27f0f97c06c9e4ad134cc1cbfb202dbb03d0  -
+$ git status --porcelain -- tools/
+$ git diff -- tools/count-ul-rows-r73.py     # the delta: a quote floor + its selftest arm
+
+# observed digest sequence for the C1 counter during this wave:
+#   23:13:0x  542f9c2947139b5c8f6aec7110f1e6c874d106efc7dc05efe6a91f090711a3d6  (= declared, committed)
+#   23:15:57  84501ab8d4968293de8b38f68a9f53d658535d90df8191cbd96a20df98e94832  (18138 bytes, mtime 23:14:42)
+#   23:16:05  97f6f5ec83401b02d6c83b48bcad27f0f97c06c9e4ad134cc1cbfb202dbb03d0
+
+$ TMPDIR=$S python3 tools/count-ul-rows-r73.py --selftest
+PASS (SELFTEST-CONTROL) rc=0 expect=0 token=UL_TARGET
+PASS (SELFTEST-SHORT) rc=1 expect=1 token=statement-words
+PASS (SELFTEST-UNREGISTERED) rc=1 expect=1 token=source-unregistered
+PASS (SELFTEST-QUOTE) rc=1 expect=1 token=quote-absent
+PASS (SELFTEST-FIVE) rc=1 expect=1 token=UL_ROWS=5
+PASS (SELFTEST-DUPID) rc=1 expect=1 token=duplicate-id
+PASS (SELFTEST-REUSE) rc=1 expect=1 token=snapshot-reuse
+PASS (SELFTEST-UNGROUNDED) rc=1 expect=1 token=statement-grounding
+PASS (SELFTEST-MALFORMED) rc=1 expect=1 token=malformed-row
+PASS (SELFTEST-DIGEST) rc=1 expect=1 token=digest-mismatch
+PASS (SELFTEST-OWNWORK) rc=1 expect=1 token=source-kind
+PASS (SELFTEST-EMPTYQUOTE) rc=1 expect=1 token=quote-words
+SELFTEST: PASS (12 cases, 12 passed, 0 failed)
+rc=0
+
+# the scripted-writer attack still survives the hardened predicate (quotes are long)
+$ TMPDIR=$S python3 .ufo/waves/round-73/w1/E3HostProbe/attack-c1-scripted-writer.py | tail -5
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+
+counter rc = 0
+ATTACK: survived — a mechanically copied snapshot slice is credited as a UL row

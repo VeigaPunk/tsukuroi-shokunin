@@ -1,0 +1,467 @@
+--- CONTROL (instrument's own fixture): internal score_tree(/fast/scratch/hyaku/tsukuroi-r73/K1Critic/f-base)
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+--- f-neg (frozen counter via --fixture): internal score_tree(/fast/scratch/hyaku/tsukuroi-r73/K1Critic/f-neg)
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+--- f-salad (frozen counter via --fixture): internal score_tree(/fast/scratch/hyaku/tsukuroi-r73/K1Critic/f-salad)
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+--- f-swapquote (frozen counter via --fixture): internal score_tree(/fast/scratch/hyaku/tsukuroi-r73/K1Critic/f-swapquote)
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+### ATTACK D2/ANSWER-KEY: note rows are the frozen instrument's own SAMPLE_ROWS
+$ python3 tools/count-ul-rows-r73.py --fixture /fast/scratch/hyaku/tsukuroi-r73/K1Critic/answerkey
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+registry rows in that tree: 306
+
+### ATTACK D6: same note, three EXISTING registry rows repurposed and marked rejected (registry stays 303)
+$ python3 tools/count-ul-rows-r73.py --fixture /fast/scratch/hyaku/tsukuroi-r73/K1Critic/repurposed
+UL_ROW ok UL1 source=S001 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S001 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S002 snapshot=unit.c
+UL_ROW ok UL4 source=S002 snapshot=unit.c
+UL_ROW ok UL5 source=S003 snapshot=install.c
+UL_ROW ok UL6 source=S003 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+registry rows in that tree: 303
+
+### ATTACK D3: C2 blocks that RE-ASSERT the superseded sentences and cite no receipt file
+$ python3 tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/c2soup
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+receipt exists? True
+
+### ATTACK D7: C2-octies tree (no note) -> both counters
+$ python3 tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/c2soup
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+$ python3 tools/count-ul-rows-r73.py --fixture /fast/scratch/hyaku/tsukuroi-r73/K1Critic/c2soup
+UL_NOTE absent path=corpus/knowledge/systemd-unit-load-plane-r73.md
+rc=128
+
+### ATTACK D7: C1-only tree (answer key, no SCORECARD/lesson) -> both counters
+$ python3 tools/count-ul-rows-r73.py --fixture /fast/scratch/hyaku/tsukuroi-r73/K1Critic/answerkey
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+$ python3 tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/answerkey
+LESSON-STALE absent path=corpus/lessons/round-72.md
+ROUTED_ITEM LESSON stale
+DIGEST-STALE absent path=SCORECARD.md
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE absent path=SCORECARD.md
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+
+### ATTACK D4: a replacement counter that prints the target lines
+$ python3 /fast/scratch/hyaku/tsukuroi-r73/K1Critic/fake-counter.py
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+$ python3 /fast/scratch/hyaku/tsukuroi-r73/K1Critic/fake-counter.py --selftest
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+SELFTEST: PASS (11 cases, 11 passed, 0 failed)
+rc=0
+
+$ sha256sum /fast/scratch/hyaku/tsukuroi-r73/K1Critic/fake-counter.py tools/count-ul-rows-r73.py
+45206cfb227393e7f99f0dd38d943d532757839a4c60a6cf47d51b879f35bbfe  /fast/scratch/hyaku/tsukuroi-r73/K1Critic/fake-counter.py
+542f9c2947139b5c8f6aec7110f1e6c874d106efc7dc05efe6a91f090711a3d6  tools/count-ul-rows-r73.py
+rc=0
+
+declared digest at 74937132:
+542f9c2947139b5c8f6aec7110f1e6c874d106efc7dc05efe6a91f090711a3d6
+
+### ATTACK D5/exit-map: checker --root on an empty tree (docstring says rc 2 for absent input)
+$ python3 tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/empty
+LESSON-STALE absent path=corpus/lessons/round-72.md
+ROUTED_ITEM LESSON stale
+DIGEST-STALE absent path=SCORECARD.md
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE absent path=SCORECARD.md
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+
+===== ADDENDUM: CLI runs for the three row-level channels =====
+
+--- g-neg: the UL1 row text is:
+| UL1 | Unit files found in directories listed earlier do not override files with the same name in directories lower in the list | source=S304 | snapshot=systemd.unit.xml | digest=eb9479bea50ccb0e7643836ec083e8ef68bdf9ef2b26f31839939168f82714c6 | quote="Unit files found in directories listed earlier override files with the same name in directories lower in the list" |
+
+$ python3 tools/count-ul-rows-r73.py --fixture /fast/scratch/hyaku/tsukuroi-r73/K1Critic/g-neg
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+--- g-salad: the UL1 row text is:
+| UL1 | unit files directories earlier override same name lower list unit files directories unit files | source=S304 | snapshot=systemd.unit.xml | digest=eb9479bea50ccb0e7643836ec083e8ef68bdf9ef2b26f31839939168f82714c6 | quote="Unit files found in directories listed earlier override files with the same name in directories lower in the list" |
+
+$ python3 tools/count-ul-rows-r73.py --fixture /fast/scratch/hyaku/tsukuroi-r73/K1Critic/g-salad
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+--- g-swap: UL5 (mask row) now carries UL6's alias quote and vice versa
+$ python3 tools/count-ul-rows-r73.py --fixture /fast/scratch/hyaku/tsukuroi-r73/K1Critic/g-swap
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+
+===== ADDENDUM: C2 erratum citing the WRONG (round-72) receipt only =====
+
+$ python3 tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/c2wrong
+LESSON-STALE path=corpus/lessons/round-72.md reason=receipt-absent path=.ufo/waves/round-72/after/selftest-selftest-after.txt
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-digest-direction
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=receipt-absent path=.ufo/waves/round-72/after/selftest-selftest-after.txt
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+does that cited receipt contain either digest?
+df8a59c7 present: False | 2610ff43 present: False
+
+===== ADDENDUM: C2 block re-asserting, with no receipt file at all =====
+
+$ python3 tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/c2noreceipt
+LESSON-STALE path=corpus/lessons/round-72.md reason=receipt-absent path=.ufo/waves/round-72/after/selftest-selftest-after.txt
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-digest-direction
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=receipt-absent path=.ufo/waves/round-72/after/selftest-selftest-after.txt
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+
+===== ADDENDUM 2: attacks on the hardened checker (sha256 328a6bf6) =====
+
+observed at: current working tree; frozen digest 93f034e3, hardened 328a6bf6
+
+$ python3 tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/h-neg
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+$ python3 tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/h-pos
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+A (negated blocks) vs B (affirmative blocks): same verdict? see rc above
+
+$ python3 tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/h-trunc
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+file is 3 lines, no '# Round 72' header, no prior blocks: the checker cannot see that nothing was appended
+
+
+===== ADDENDUM 3: same trees, frozen bytes vs current bytes =====
+
+frozen tool sha256: 93f034e3dbb1edbe73995d11e7bd8311c45c0929f1902e342bf8305f902a2f9e
+current tool sha256: 71931c1c225ecda5f8b6529091dc9383542d0c054ae62ff6e0a16f3fbe51496e 
+
+--- token-soup tree on FROZEN bytes (93f034e3)
+$ python3 /fast/scratch/hyaku/tsukuroi-r73/K1Critic/frozen/tools/frozen.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/z-soup
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+--- token-soup tree on CURRENT bytes (328a6bf6)
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/z-soup
+LESSON-STALE path=corpus/lessons/round-72.md reason=receipt-absent path=.ufo/waves/round-72/after/selftest-selftest-after.txt
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-digest-direction
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=receipt-absent path=.ufo/waves/round-72/after/selftest-selftest-after.txt
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+--- negation tree on FROZEN bytes (93f034e3)
+$ python3 /fast/scratch/hyaku/tsukuroi-r73/K1Critic/frozen/tools/frozen.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/z-neg
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+--- negation tree on CURRENT bytes (328a6bf6)
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/z-neg
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+--- before control eb105757 on FROZEN bytes
+$ python3 /fast/scratch/hyaku/tsukuroi-r73/K1Critic/frozen/tools/frozen.py --revision eb105757
+LESSON-STALE path=corpus/lessons/round-72.md reason=block-incomplete missing_tokens=2
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-incomplete missing_tokens=2
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete missing_tokens=0
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+--- before control eb105757 on CURRENT bytes
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-r72-routed-r73.py --revision eb105757
+LESSON-STALE path=corpus/lessons/round-72.md reason=no-block
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-tokens
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+
+===== ADDENDUM 4: state after the landing (HEAD 583eea87) =====
+
+$ sha256sum tools/count-ul-rows-r73.py tools/check-r72-routed-r73.py
+97f6f5ec83401b02d6c83b48bcad27f0f97c06c9e4ad134cc1cbfb202dbb03d0  tools/count-ul-rows-r73.py
+71931c1c225ecda5f8b6529091dc9383542d0c054ae62ff6e0a16f3fbe51496e  tools/check-r72-routed-r73.py
+rc=0
+
+$ git show 74937132:tools/count-ul-rows-r73.py | sha256sum
+542f9c2947139b5c8f6aec7110f1e6c874d106efc7dc05efe6a91f090711a3d6
+
+--- C1 counting command at the after commit
+$ python3 tools/count-ul-rows-r73.py --revision 583eea87
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+--- C2 counting command at the after commit
+$ python3 tools/check-r72-routed-r73.py --revision 583eea87
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+--- before controls with the FINAL instruments
+$ python3 tools/count-ul-rows-r73.py --revision eb105757
+UL_NOTE absent path=corpus/knowledge/systemd-unit-load-plane-r73.md
+rc=128
+
+$ python3 tools/check-r72-routed-r73.py --revision eb105757
+LESSON-STALE path=corpus/lessons/round-72.md reason=no-block
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-tokens
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+--- selftests with the FINAL instruments
+$ python3 tools/count-ul-rows-r73.py --selftest
+PASS (SELFTEST-CONTROL) rc=0 expect=0 token=UL_TARGET
+PASS (SELFTEST-SHORT) rc=1 expect=1 token=statement-words
+PASS (SELFTEST-UNREGISTERED) rc=1 expect=1 token=source-unregistered
+PASS (SELFTEST-QUOTE) rc=1 expect=1 token=quote-absent
+PASS (SELFTEST-FIVE) rc=1 expect=1 token=UL_ROWS=5
+PASS (SELFTEST-DUPID) rc=1 expect=1 token=duplicate-id
+PASS (SELFTEST-REUSE) rc=1 expect=1 token=snapshot-reuse
+PASS (SELFTEST-UNGROUNDED) rc=1 expect=1 token=statement-grounding
+PASS (SELFTEST-MALFORMED) rc=1 expect=1 token=malformed-row
+PASS (SELFTEST-DIGEST) rc=1 expect=1 token=digest-mismatch
+PASS (SELFTEST-OWNWORK) rc=1 expect=1 token=source-kind
+PASS (SELFTEST-EMPTYQUOTE) rc=1 expect=1 token=quote-words
+SELFTEST: PASS (12 cases, 12 passed, 0 failed)
+rc=0
+
+$ python3 tools/check-r72-routed-r73.py --selftest
+PASS (SELFTEST-CONTROL) rc=0 expect=0 token=ROUTED_STALE=0
+PASS (SELFTEST-LESSON) rc=1 expect=1 token=LESSON-STALE
+PASS (SELFTEST-DIGEST) rc=1 expect=1 token=DIGEST-STALE
+PASS (SELFTEST-CAPABILITY) rc=1 expect=1 token=CAPABILITY-STALE
+PASS (SELFTEST-UNANCHORED) rc=1 expect=1 token=LESSON-STALE
+PASS (SELFTEST-RECEIPT-SUPERSTRING) rc=1 expect=1 token=CAPABILITY-STALE
+PASS (SELFTEST-RECEIPT-MISSING) rc=1 expect=1 token=receipt-absent
+PASS (SELFTEST-RECEIPT-NINE) rc=1 expect=1 token=receipt-count
+PASS (SELFTEST-SUBSTRING-TEN) rc=1 expect=1 token=CAPABILITY-STALE
+PASS (SELFTEST-DIGEST-REVERSED) rc=1 expect=1 token=DIGEST-STALE
+PASS (SELFTEST-VACUOUS) rc=1 expect=1 token=LESSON-STALE
+SELFTEST: PASS (11 cases, 11 passed, 0 failed)
+rc=0
+
+--- answer key (SAMPLE_ROWS verbatim) on the FINAL counter
+$ python3 tools/count-ul-rows-r73.py --fixture /fast/scratch/hyaku/tsukuroi-r73/K1Critic/f2
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+--- negated row on the FINAL counter
+$ python3 tools/count-ul-rows-r73.py --fixture /fast/scratch/hyaku/tsukuroi-r73/K1Critic/f2-neg
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+--- word-salad row on the FINAL counter
+$ python3 tools/count-ul-rows-r73.py --fixture /fast/scratch/hyaku/tsukuroi-r73/K1Critic/f2-salad
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+--- swapped UL5/UL6 quotes on the FINAL counter
+$ python3 tools/count-ul-rows-r73.py --fixture /fast/scratch/hyaku/tsukuroi-r73/K1Critic/f2-swap
+UL_ROW ok UL1 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL2 source=S304 snapshot=systemd.unit.xml
+UL_ROW ok UL3 source=S305 snapshot=unit.c
+UL_ROW ok UL4 source=S305 snapshot=unit.c
+UL_ROW ok UL5 source=S306 snapshot=install.c
+UL_ROW ok UL6 source=S306 snapshot=install.c
+UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0
+UL_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+
+
+===== ADDENDUM 5: C2 trees on the FINAL checker (71931c1c) =====
+
+current checker sha256: 71931c1c225ecda5f8b6529091dc9383542d0c054ae62ff6e0a16f3fbe51496e 
+
+$ python3 tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/z2-soup
+LESSON-STALE path=corpus/lessons/round-72.md reason=receipt-absent path=.ufo/waves/round-72/after/selftest-selftest-after.txt
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-digest-direction
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=receipt-absent path=.ufo/waves/round-72/after/selftest-selftest-after.txt
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+$ python3 tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/z2-neg
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+$ python3 tools/check-r72-routed-r73.py --root /fast/scratch/hyaku/tsukuroi-r73/K1Critic/z2-trunc
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+

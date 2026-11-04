@@ -1,0 +1,40 @@
+# git revision-mode control, fixture $S/gfixture built from eb1057575d5d8b940c4846e21611674cf5571aea blobs
+# tool copied byte-identical: sha256 93f034e3dbb1edbe73995d11e7bd8311c45c0929f1902e342bf8305f902a2f9e
+# toplevel asserted: /fast/scratch/hyaku/tsukuroi-r73/E2Routed/gfixture
+
+## G1-git-base-committed (base commit, lane bytes only)
+$ git -C $S/gfixture rev-parse --short HEAD
+4aa9324
+$ python3 $S/gfixture/tools/check-r72-routed-r73.py --revision HEAD
+LESSON-STALE path=corpus/lessons/round-72.md reason=block-incomplete missing_tokens=2
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-incomplete missing_tokens=2
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete missing_tokens=0
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+## G2-git-drafts-uncommitted (drafts written to worktree, not committed)
+$ git -C $S/gfixture rev-parse --short HEAD
+4aa9324
+$ python3 $S/gfixture/tools/check-r72-routed-r73.py --revision HEAD
+LESSON-STALE path=corpus/lessons/round-72.md reason=block-incomplete missing_tokens=2
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-incomplete missing_tokens=2
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete missing_tokens=0
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+## G3-git-drafts-committed (drafts committed)
+$ git -C $S/gfixture rev-parse --short HEAD
+166bf2f
+$ python3 $S/gfixture/tools/check-r72-routed-r73.py --revision HEAD
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+

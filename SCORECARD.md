@@ -6026,3 +6026,21 @@ predicate text changes.
    `SELFTEST: PASS (13 cases, 13 passed, 0 failed)`; an absolute-receipt fixture reads `ROUTED_STALE=0`.
 4. **Still a named limit:** the denial leg. A block that keeps every token while contradicting it reads 0/3
    (R2Reviewer P4b, E2Routed's final message); direction rests on a non-author reading, never on this check.
+
+## Round 73 — instruments at wave close (append-only)
+
+M1Mutation's clause-isolated batteries (38 mutants: 21 against the counter, 17 against the checker) found two
+further defects after the block above: the counter crashed with a traceback on a non-map `snapshots` value
+(rc 1 instead of a finding), and the checker accepted a defect id placed only in a block heading. Both are
+fixed and each carries a new selftest case.
+
+| instrument | state at the block above | final at wave close | what changed |
+|---|---|---|---|
+| `tools/count-ul-rows-r73.py` | `97f6f5ec…` (12 cases) | `1f22c26b95c52be745a8cdd97ec52ebf06a362f697daf2a8e1e0d77e28f3e643` (13 cases) | non-map `snapshots` now reads `UL_MAP malformed` rc 1 instead of raising; case `MAPLIST` |
+| `tools/check-r72-routed-r73.py` | `73184198…` (13 cases) | `ad853877bd4d5117d0ee356f346f3bf515c0b064fd1e9ed8bc670ac97295a281` (14 cases) | required tokens must sit in the block body; only the defect id may label the heading; case `TITLE-TOKEN` |
+
+Re-run at the final bytes (`.ufo/waves/round-73/after/c2-final-instrument.txt`): counter `met=1` rc 0 over
+the note, checker `ROUTED_STALE=0 ROUTED_OK=3/3` rc 0 over the landed blocks, `--revision eb105757` still
+`ROUTED_STALE=3` rc 1, and both selftests pass (13 and 14 cases). M1Mutation's survivors are six dead or
+entailed clauses (own-work arm, map-url, quote-pipe, snapshots conjunct, item-heading anchor, lesson
+`need_any`), recorded in `w1/M1Mutation/report.md`.

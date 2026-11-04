@@ -1,0 +1,52 @@
+=== commit order and checker digests ===
+6b42676 2026-11-03 22:33:39 -0300 round-72 declaration: freezes thre
+   blob df8a59c7a2891f58ab37a1b22e73819d953f1781528d4f2f4937641e093de712
+123e1c57 2026-11-03 22:41:54 -0300 round-72 C1/C2/C3: modprobe config
+   blob b17fddfa3b907e7f20edf1c8a1f7e96aadf778e84dfc30df90923d0f6cc17a9e
+53bcddef 2026-11-03 22:44:36 -0300 round-72 repairs from the wave: C3
+   blob 2610ff433bf5d4e945ce5b2da0cf168745e4142ecffabc3d160afee33005cdcc
+7fb35c74 2026-11-03 22:50:08 -0300 round-72: after receipt at the wav
+   blob 2610ff433bf5d4e945ce5b2da0cf168745e4142ecffabc3d160afee33005cdcc
+eb105757 2026-11-03 22:56:20 -0300 round-72 verifier spot-check (inte
+   blob 2610ff433bf5d4e945ce5b2da0cf168745e4142ecffabc3d160afee33005cdcc
+
+=== ancestry ===
+123e1c57 IS ancestor of 53bcddef
+53bcddef ancestor of 7fb35c74
+
+=== r73 after dir ===
+total 12
+drwxr-xr-x 1 vgpnk vgpnk  146 Nov  3 23:12 .
+drwxr-xr-x 1 vgpnk vgpnk  186 Nov  3 23:06 ..
+-rw-r--r-- 1 vgpnk vgpnk 1299 Nov  3 23:12 c2-before-final-instrument.txt
+-rwxr-xr-x 1 vgpnk vgpnk 1807 Nov  3 23:06 measure.sh
+-rw-r--r-- 1 vgpnk vgpnk 1501 Nov  3 23:07 r72-c3-same-instrument-before.txt
+
+=== c2-before-final-instrument ===
+# round-73 C2 before control, re-run with the FINAL hardened instrument (declaration item (b))
+# tool: tools/check-r72-routed-r73.py sha256 328a6bf60c5237fe4ba857b36d2b4401833a61b933f735ec468139b7531a03fe
+# the declaration froze the same file at 93f034e3dbb1edbe73995d11e7bd8311c45c0929f1902e342bf8305f902a2f9e.
+$ TMPDIR=$HYAKU_SCRATCH/tsukuroi-r73/l1 python3 tools/check-r72-routed-r73.py --selftest | tail -1
+SELFTEST: PASS (11 cases, 11 passed, 0 failed)
+
+# (a) base eb105757 (all three routed defects open)
+$ python3 tools/check-r72-routed-r73.py --revision eb105757
+LESSON-STALE path=corpus/lessons/round-72.md reason=no-block
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-tokens
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+# (b) round-72 base a7015d27 (the same three open)
+$ python3 tools/check-r72-routed-r73.py --revision a7015d27
+LESSON-STALE absent path=corpus/lessons/round-72.md
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-tokens
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=receipt-absent path=.ufo/waves/round-72/after/selftest-selftest-after.txt
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1

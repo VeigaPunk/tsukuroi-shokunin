@@ -1,0 +1,30 @@
+# receipt B — stub PATH: $S/bin first on PATH, systemctl exits 127 (the item's stub shape)
+$ cat bin/systemctl
+#!/bin/sh
+exit 127
+$ PATH="$S/bin:$PATH" bash probe.sh
+SEARCHPATH dirs=12 first=/etc/systemd/system.control etc_before_usr=1
+BLOCKED reading=MASKED reason=tool-absent
+BLOCKED reading=DROPINS reason=tool-absent
+BLOCKED reading=TEMPLATE reason=tool-absent
+BLOCKED reading=UNITSTATE reason=tool-absent
+rc=1
+
+# receipt B2 — PATH="$S/bin" only: no tool resolves at all, so every reading degrades
+$ PATH="$S/bin" bash probe.sh
+BLOCKED reading=SEARCHPATH reason=tool-absent
+BLOCKED reading=MASKED reason=tool-absent
+BLOCKED reading=DROPINS reason=tool-absent
+BLOCKED reading=TEMPLATE reason=tool-absent
+BLOCKED reading=UNITSTATE reason=tool-absent
+rc=1
+
+# receipt B3 — the stub-PATH line count: no MASKED count is printed at all (no wrong zero)
+$ PATH="$S/bin:$PATH" bash probe.sh | grep -c '^MASKED count='
+0
+(rc of grep, 1 = no match)
+
+# receipt B4 — a systemctl-shaped stub that prints garbage and exits 3 is unparsable, not a count
+$ PATH="$S/bin:$PATH" bash probe.sh --reading masked
+BLOCKED reading=MASKED reason=unparsable
+rc=1
