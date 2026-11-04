@@ -3308,3 +3308,48 @@ registry coverage 107 rows with six pre-existing missing rows for the r72–r74 
 
 Assimilation: none — the `corpus-expansion-1` package collides on 114 of 147 staged ids and is routed
 to an L0 question instead of an append.
+
+## Round 76 (2026-11-04) — the journald retention plane, six r75 routed repairs, and one host-config drift
+
+Declaration `d5f0565b`, base `865b38c9`; two frozen claims on two axes (C1 depth, the lowest tied
+axis at 8; C2 freshness at 9). Integration commit `780bad66`.
+
+**C1 depth (SOURCED — S318–S321).** `corpus/knowledge/journald-retention-plane-r76.md` states the
+v262 journald retention plane in eight rows JD1–JD8: storage-mode selection by `/var/log/journal`'s
+existence, the MaxUse/KeepFree defaults (10%/15%, each capped 4G) and the manager's saturated-
+subtraction clamp, the startup `min_use` floor, the MaxFileSize/MaxFiles rotation limits, the
+compiled rate-limit/sync/max-file defaults, and the `journalctl --vacuum-*` semantics. The note
+derives this host's effective limit from the merged configuration: the
+`/etc/systemd/journald.conf.d/size.conf` drop-in (born 2026-10-16 11:53:47 -03) sets
+`SystemMaxUse=256M`, so `effective_limit=256M` and `SystemMaxFileSize=32M` against `148.6M`
+observed, closing the round-3 open item. Frozen counter `tools/count-jd-rows-r76.py` reads
+`JD_ROWS=8 JD_VERIFIED=8 JD_SOURCES=4 JD_SNAPSHOTS=4 JD_HOST=1 JD_MALFORMED=0 met=1` rc 0 at
+`780bad66` (before: `JD_MAP absent` rc 128). Registry 317 → 323 (S318–S321 mined, S322 the S314
+supersede, S323 the S318 anchor correction), notes 93 → 94. The declaration sentence's "smaller of
+free space and keep_free" clause was wrong (`LESS_BY` is saturated subtraction); the erratum
+`R76-DECL-SPACE-CLAUSE` records it and the landed JD3 row states the true mechanism; C1 is reported
+verified on the frozen predicate with that erratum on record.
+
+**C2 freshness.** The six round-75 closure routed defects close by append-only prose and one row:
+S322 supersedes S314's unqualified clause; the round-75 note's JT5 erratum corrects "nine comma
+items" to eight items / ten labels with the split method; the lesson names round-75's five
+`## Mistakes` rows plus two owed; both round-75 instruments re-run at `bd0acc44` (`met=1`,
+`ROUTED_OK=4/4`); the seven carried wave markers are tracked; the quality wording is narrowed to
+"no admitted knowledge entry is left failing its own re-check". The three stale journald negative
+claims are corrected append-only (`journal-boot-plane.md`, `degraded-triage-r4.md`, `boot-plane.md`)
+and QUALITY 109 makes a recheck command and cadence mandatory for negative host-state claims. Checker
+`tools/check-r75-routed-r76.py` reads `ROUTED_STALE=0 ROUTED_OK=8/8` rc 0 at `780bad66` (base 8/0
+rc 1).
+
+Frontier: census exit 0 at both ends (W04 duplicate-URL warnings only); the `R76-JD-CONFIG-DRIFT`
+mistake is mined with its fix; C1 is the sourced claim (S318–S321 opened this round). Assimilation:
+none — the `corpus-expansion-1` package stays quarantined under the open round-75 L0 id-drift
+question. Adjacency: C1Connector found mori's `journal-reach-r49.md` and mado's
+`SafetyService.md:73-74` hold overlapping journald statements; the boundary is reported in
+`PROVINCE.md`, not absorbed.
+
+Wave: one v1 wave, 13 seats (scout 1 / executor 3 / scribe 4 / connector 1 / reviewer 2 / critic 1 /
+mutation-tester 1; attack 4/13 = 31 %); no dead seat. Named limits: the C1 counter is a form
+instrument (R1Reviewer holds all eight rows on the landed note); the C2 checker passes a minimal
+non-repair fixture (R2Reviewer); three semantic mutants survive (M1Mutation); two pre-existing header
+findings and one pre-existing adjacency finding remain.

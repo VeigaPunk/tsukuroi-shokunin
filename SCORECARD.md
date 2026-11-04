@@ -6333,3 +6333,45 @@ the declaration prose. The frozen predicate (the counter line) is unchanged and 
 replacement predicate is written. C1 is reported **verified on the frozen predicate** with this
 erratum on record, and the round report discloses the sentence defect rather than letting the
 counter's PASS stand for the prose.
+
+## Round 76 — measured outcome (2026-11-04, measured revision `780bad66cd0d62a58153bad541531ebc4f349c4e`; author-side, non-author closure pending)
+
+Wave w1: one v1 wave, **13 seats** (scout 1 / executor 3 / scribe 4 / connector 1 / reviewer 2 /
+critic 1 / mutation-tester 1; strict attack seats 4/13 = 31 %; connector 1; the L1 held the planner
+seat; residual 0). No dead seat: all 13 results are non-empty. Seat reports under
+`.ufo/waves/round-76/w1/`; spec, dispatch, results and the ready marker under `.ufo/waves/round-76/`.
+
+| Claim | Before (base `865b38c9`) -> after (`780bad66`) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 depth (lowest tied, 8; SOURCED — S318–S321) | note `cat-file` rc **128** -> present; `JD_MAP absent` rc **128** -> `JD_ROWS=8 JD_VERIFIED=8 JD_SOURCES=4 JD_SNAPSHOTS=4 JD_HOST=1 JD_MALFORMED=0 met=1` rc **0**; registry **317 → 323**; knowledge notes **93 → 94**; R1Reviewer's final-note re-review at `b698d13d` holds JD1–JD8; the declaration's "smaller of free space and keep_free" clause is corrected by `R76-DECL-SPACE-CLAUSE` and the landed JD3 row | **verified on the frozen predicate** (author-side; sentence erratum disclosed) | depth **8 -> 8**: a new sourced mechanism on ground the province never held; no ordinal uplift claimed |
+| C2 freshness (9) | `ROUTED_STALE=8 ROUTED_OK=0/8` rc **1** -> `ROUTED_STALE=0 ROUTED_OK=8/8` rc **0**; all eight items in committed bytes; the three drift carriers carry appended errata; QUALITY 109 lands | **verified** on the frozen predicate (author-side) | freshness **9 -> 9** (no uplift; the routed defects and the drift close) |
+
+Counting commands (outputs in `.ufo/waves/round-76/after/measure-final.txt`):
+
+```
+python3 tools/count-jd-rows-r76.py --revision 780bad66 -> met=1, rc 0
+python3 tools/count-jd-rows-r76.py --revision 865b38c9 -> JD_MAP absent, rc 128
+python3 tools/check-r75-routed-r76.py --revision 780bad66 -> ROUTED_STALE=0 ROUTED_OK=8/8, rc 0
+python3 tools/check-r75-routed-r76.py --revision 865b38c9 -> ROUTED_STALE=8 ROUTED_OK=0/8, rc 1
+git show 780bad66:corpus/SOURCES.md | grep -cE '^ {0,3}\| *S[0-9]{3,} *\|' -> 323
+git ls-tree -r --name-only 780bad66 corpus/knowledge | grep -c '\.md$' -> 94
+/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi -> rc 0
+```
+
+**No capability row enters this round.** Both instruments are per-round gates whose objects are this
+round's note and this round's repairs; they are registered in `SKILL.md`'s round-76 continuation but
+are not new reusable modes the lane did not already hold.
+
+Named limits, recorded and not smoothed:
+
+- **The C1 counter is a form instrument** (R1Reviewer, K1Critic, M1Mutation): grounding is lexical, so
+  row truth rests on R1Reviewer's per-row verdicts (JD1–JD8 HOLD on the landed note) and the closure
+  judge, never on the counter alone; M1Mutation's numeric-truth mutant (100→101) survives.
+- **The C2 checker is a token/block instrument** (R2Reviewer): a minimal non-repair fixture reads
+  `ROUTED_STALE=0 ROUTED_OK=8/8`; the eight items are evidence-persistence checks, not repair proofs.
+- **The declaration sentence defect**: the C1 prose said "smaller of free space and keep_free" where
+  the pinned code uses `LESS_BY` (saturated subtraction); the erratum and the note's JD3 row correct
+  it, and C1 is claimed on the counter predicate only.
+- **Pre-existing gate findings** carried, not caused: 2 `KNOWLEDGE-HEADER-VALUE` findings
+  (`modprobe-config-plane-r72.md`, `module-parameter-plane-r71.md`) and 1 adjacency
+  `INBOUND-CLASSIFICATION-WRONG` at `adjacency-anchors-r19.json:inbound[108]`.
