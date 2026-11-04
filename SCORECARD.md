@@ -6951,3 +6951,11 @@ prints the expected token, survives case A. C3's gate reads the last column-0
 `verified-at:` line; the appended dates rest on this round's `sha256sum -c` runs,
 not on a re-fetch of the round-71/72 upstream tags. No capability row is entered
 and no ordinal moves.
+
+Delivered-tip re-measurement (`9e72333620d6bc2035a1649b25b83470eff01728`, the commit that
+also registers the two instruments): C1 `count 8 / met / rc 0`, C2 `count 6 / met /
+rc 0`, C3 `finding_count 0 / note_count 99 / rc 0`. Supporting gates at the same
+revision: registry coverage `registered 122 / tools_total 122 / findings 0` rc 0,
+knowledge refs `dangling 0 / findings 0 / notes 99` rc 0; line endings is a worktree
+check (`CHECK_LINE_ENDINGS: PASS (409 file(s) checked, 0 violation(s))`, rc 0) and is
+not bound to a revision. Receipts: `.ufo/waves/round-81/after/commands-tip.txt`.
