@@ -110,3 +110,54 @@ This is the author's explicit check, not an admission.
 - **99 (append-only):** `SCORECARD.md`, `LOG.md`, `QUALITY.md`, `SOURCES.md` and `corpus/README.md` gain appended blocks only; the record sweep is in `after/record-sweep.json`.
 - **103 (upstream line ≠ host line):** the entry states its lines are v262 tag lines, not installed-build lines.
 - **110 (seat harm tally):** present above with an explicit empty verdict and its source.
+
+## Wave settlement (final, appended after WAVE-DONE)
+
+One v1 wave, 12 seats dispatched and 12 settled (`w1-results.json`, `seats: 12`):
+scout 1 (ScoutSources), executors 3 (ExecInstrument, ExecRegistry, ExecHost),
+scribes 3 (ScribeNote, ScribeSources, ScribeLesson), connector 1
+(ConnectorScope), reviewers 2 (ReviewDeps, ReviewRegistry), critic 1
+(CriticFreeze), mutation-tester 1 (MutationCounter). Attack share 4/12; L1
+holds the planner seat; residual 0; dead seats 0.
+
+The delivered `w1-results.json` carries 12 rows with `output: null` and the
+orchestrator note "orchestrator kernel restarted mid-wave; seat output was
+delivered to the orchestrator session but not retained — read the seat report
+file in the wave dir". No output was reconstructed, inferred or fabricated from
+a transcript. Every seat's own report and artifacts are present in
+`.ufo/waves/round-79/w1/`, and every claim this round rests on bytes those
+seats wrote, not on a recovered vote. Because the results bundle retains no
+output, C1's review-binding leg cannot be re-derived from it; C1 is a declared
+miss on the equality leg before that leg would run, and the review binding is
+evidenced by `w1/ReviewDeps/verdict.json` (digest `0c2dd4ad…`, verified by the
+L1 against the landed bytes) plus `w1/ReviewDeps.md` line 1.
+
+### Correction to R79-SCRIBELESSON-UNSETTLED (append-only; the row above stays as filed)
+
+The row `R79-SCRIBELESSON-UNSETTLED` was true when the L1 wrote this lesson
+(16:30 local): the seat had produced no binding file. It is now superseded:
+ScribeLesson wrote `w1/ScribeLesson.md` at 16:36 and its draft at
+`w1/ScribeLesson/round-79.md` afterwards. The seat did not die; it was late.
+No dead seat is recorded for round 79.
+
+### Seat harm (final, supersedes the empty first table above)
+
+| Round | Harmed seat | Causing seat | Evidence class | Effect | Fix |
+|---|---|---|---|---|---|
+| 79 | ReviewRegistry | ExecInstrument | seat disclosure (`w1/ReviewRegistry/findings.md` F4) plus the mtime of `tools/count-md-rows-r72.py` (16:14:00) | One `count-md-rows-r72.py --selftest` run returned rc 3 with `SELFTEST map-digest … FAIL` while ExecInstrument was rewriting that file; the run's bytes were not digest-captured, and the reviewer re-ran at the final digest 5× → 23/23 rc 0 | The writer owns the file; a reader measures a filename that is stable during its run and records the digest it executed |
+| 79 | ReviewDeps | ScribeNote | seat disclosure (L1 re-dispatch message 19:21:46Z; `w1/ReviewDeps/review-first.md`) | The reviewer's first digests bound bytes at 16:16–16:19; the L1's DP6 correction at 16:21 changed both files and voided that binding; a second review re-issued it (`review_sha256=0c2dd4ad…`) | Byte-bound review must either precede integration edits or be re-issued; the first review is preserved as `review-first.md` |
+| 79 | — | — | checked, not attributable | Two `/tmp` files dated inside the wave window (`x`, 0 B, 16:10; `o.1978295`, 16:11, another lane's COUNTER_RECEIPT) carry no round-79 or tsukuroi marker | `[unk]`, not attributed (QUALITY 75); no round-79 seat reports a `/tmp` write |
+
+No kill signal, `pkill`/`killall` or lane-tree write outside a seat's tree was
+reported by any round-79 seat.
+
+### Mistakes measured by the ScribeLesson seat (appended to the table above)
+
+| Class / id | Evidence | Captured-by | Fix shown able to fail |
+|---|---|---|---|
+| reference-drift — R79-DUPLICATE-SEVEN-VS-SIX | `corpus/lessons/round-78-verifier-spotcheck.md` routed item 4; `w1/ReviewRegistry/findings.md` | QUALITY 104 (counts bind to receipts) | A line-keyed sweep counts prose mentions as duplicates (two of the eight second mentions are prose at `SKILL.md:6038-6039`); the row-keyed counter measures six. |
+| correction-not-reproducible — R79-SEVEN-NOT-RECONSTRUCTIBLE | the seat's re-derivation at `a15aff6e` and `9086589a` with the frozen checker's own table parser | QUALITY 99 (a correction set is re-derivable) | Of the eight paths r78 registered, four also appear as later-table rows, two are single-row and two are row-plus-prose; the closure's "seven" is not reconstructible as stated. Recorded, not silently repaired. |
+| counter-defect — R79-C2-DUPLICATE-LEG-EVASIONS | `w1/CriticFreeze` A12/A17/A18; `w1/ReviewRegistry/findings.md` F1c; `check-gate-standard-r79.py:127` (`lines.index(heading)`) | QUALITY 100 (a PASS counts each record it claims to check) | `duplicates=0` is weaker than it reads: a self-declared `NON-OPERATIVE` marker removes a table, a new highest-numbered heading drops earlier tables, and `lines.index` resolves duplicated heading text to the first occurrence. Declared limit; owned fix routed to a later round. |
+| vacuous — R79-C1-EQUALITY-SHADOWS-DEEP-LEGS | `w1/MutationCounter/matrix.json` survivors `c1-seven-rows-rowcount`, `c1-no-line-check` | QUALITY 81 (a scripted non-reader must read below the target) | With the frozen equality leg at `measure-unit-deps-r79.py:97`, data-side mutations die at `finite-content-mismatch` before `quote-location` or `row-shape` can fire; the per-row selftest cases are answered by equality, not by the clause they name. Declared limit. |
+| process — R79-SCRIBE-LESSON-LATE-BINDING | `w1/ScribeLesson.md` mtime 16:36 against this lesson's first write 16:30 | QUALITY 96 (first write is the binding file) | The seat's first write came ~28 minutes in, after deep verification; the L1's interim dead-seat row was true when written and is superseded above. The seat records the same event in its own QUALITY check. |
+| reference-drift — R79-DRAFT-DIGEST-TYPO | `w1/ScribeLesson/round-79.md` header and its QUALITY 2 bullet cite snapshot `…14c8`; the frozen and measured digest is `…14c6` | QUALITY 2 (counts and digests carry their command) | The L1 did not adopt the draft's header; the landed lesson cites the measured digest. This demonstrates why the seat's draft is a draft, not the record. |
