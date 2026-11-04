@@ -1,0 +1,27 @@
+# round-73 C2 before control, re-run with the FINAL hardened instrument (declaration item (b))
+# tool: tools/check-r72-routed-r73.py sha256 328a6bf60c5237fe4ba857b36d2b4401833a61b933f735ec468139b7531a03fe
+# the declaration froze the same file at 93f034e3dbb1edbe73995d11e7bd8311c45c0929f1902e342bf8305f902a2f9e.
+$ TMPDIR=$HYAKU_SCRATCH/tsukuroi-r73/l1 python3 tools/check-r72-routed-r73.py --selftest | tail -1
+SELFTEST: PASS (11 cases, 11 passed, 0 failed)
+
+# (a) base eb105757 (all three routed defects open)
+$ python3 tools/check-r72-routed-r73.py --revision eb105757
+LESSON-STALE path=corpus/lessons/round-72.md reason=no-block
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-tokens
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+# (b) round-72 base a7015d27 (the same three open)
+$ python3 tools/check-r72-routed-r73.py --revision a7015d27
+LESSON-STALE absent path=corpus/lessons/round-72.md
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-tokens
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=receipt-absent path=.ufo/waves/round-72/after/selftest-selftest-after.txt
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1

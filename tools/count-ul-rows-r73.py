@@ -17,8 +17,9 @@
 # malformed-row finding. No snapshot may be cited more than twice.
 # Target: rows == 6 and verified == 6 and distinct sources >= 3 and distinct snapshots >= 3.
 #
-# Exit map: 0 target met; 1 target missed; 2 cannot evaluate ($TMPDIR unusable for --selftest);
-# 3 self-test failed.
+# Exit map: 0 target met; 1 target missed (including UL_MAP malformed); 2 cannot evaluate under
+# --selftest only ($TMPDIR names no directory, or is /tmp); 3 self-test failed; 128 UL_NOTE,
+# UL_REGISTRY or UL_MAP absent. An absent data file in --revision/--fixture mode is 128, not 2.
 import argparse
 import hashlib
 import io
@@ -41,6 +42,7 @@ TARGET_SNAPSHOTS = 3
 MIN_WORDS = 12
 MIN_TOKENS = 6
 MIN_SHARE = 0.5
+MIN_QUOTE_WORDS = 4
 MAX_QUOTE_WORDS = 25
 MAX_SNAPSHOT_REUSE = 2
 KINDS = {"spec", "docs", "paper", "code", "tool", "dataset", "talk", "book", "community"}
@@ -228,6 +230,8 @@ def evaluate(rt, rb, out=sys.stdout):
             quote = m.group("quote")
             if "|" in quote:
                 problems.append("quote-pipe")
+            if words(quote) < MIN_QUOTE_WORDS:
+                problems.append(f"quote-words={words(quote)}")
             if words(quote) > MAX_QUOTE_WORDS:
                 problems.append(f"quote-words={words(quote)}")
             if norm(quote) not in norm(snap):
@@ -387,6 +391,17 @@ def selftest():
     case("OWNWORK", edit(REGISTRY, "| code | A | fixture scope | install.c at",
                          "| own-work | A | fixture scope | install.c at"),
          1, "source-kind")
+
+    def empty_quote(root):
+        p = root / NOTE
+        out = []
+        for l in p.read_text().splitlines():
+            if l.startswith("| UL1 |"):
+                l = re.sub(r'quote="[^"]*"', 'quote=""', l)
+            out.append(l)
+        p.write_text("\n".join(out) + "\n")
+
+    case("EMPTYQUOTE", empty_quote, 1, "quote-words")
     shutil.rmtree(base, ignore_errors=True)
     passed = sum(1 for c in cases if c[1])
     print(f"SELFTEST: {'PASS' if passed == len(cases) else 'FAIL'} "

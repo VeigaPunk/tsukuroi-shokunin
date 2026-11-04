@@ -1,0 +1,26 @@
+# round-73 C2 same-instrument pair for the round-72 C3 repairs (R72-C3-INSTRUMENT-DIGEST-DRIFT)
+# tool: tools/check-r71-routed-r72.py sha256 2610ff433bf5d4e945ce5b2da0cf168745e4142ecffabc3d160afee33005cdcc
+# --revision only selects the DATA revision the tool reads; the tool bytes are the working tree's.
+
+# (a) pre-repair data, the round-72 base: a7015d2731cfc56796bd2e159a7e9151b60ca479
+$ python3 tools/check-r71-routed-r72.py --revision a7015d27
+ROUTED_RECEIPT missing .ufo/waves/round-71/after/count-mp-rows-final.txt
+ROUTED_SCORECARD missing: no erratum block naming the receipt and the record revision
+ROUTED_NOTE missing: no appended correction/erratum section
+ROUTED_STALE=3
+rc=1
+
+# (b) post-repair data, the round-73 base: eb1057575d5d8b940c4846e21611674cf5571aea
+$ python3 tools/check-r71-routed-r72.py --revision eb105757
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=0
+rc=0
+
+# (c) the instrument's own bytes cannot be sampled at a7015d27 — the tool was created in round 72,
+#     which is the provenance defect itself: the round-72 declaration froze a digest for a tool that
+#     did not exist at its declared base. Its bytes are identical at the round-72 landing and now:
+eb105757 tool sha256: 2610ff433bf5d4e945ce5b2da0cf168745e4142ecffabc3d160afee33005cdcc
+tip tool sha256:      2610ff433bf5d4e945ce5b2da0cf168745e4142ecffabc3d160afee33005cdcc
+frozen in the round-72 declaration: df8a59c7a2891f58ab37a1b22e73819d953f1781528d4f2f4937641e093de712

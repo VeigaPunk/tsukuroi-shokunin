@@ -5865,3 +5865,84 @@ Wave w1: one v1 wave, band 8–16, **12 seats** (scout 1 / executor 3 / scribe 3
 `met=1`); the three held drop-in observations (`faster-shutdown.conf`, `app-walker@autostart.service.d/`)
 re-bound to the new merge rules as sources; the `install.c` alias rows' host-side blank (no alias symlink
 is read this round); no amendment of this round's frozen predicates.
+
+## Round 73 — C2 instrument repair (appended mid-wave; the frozen predicate text is unchanged)
+
+The C2 checker was hardened after the wave's attack receipts, under the declaration's own item (b)
+("if a wave attack changes either instrument after data, the before control is re-run with the final
+instrument and both revisions are cited in an appended erratum naming old→new digests"). The predicate
+sentence, the target `ROUTED_STALE=0` and the kill rule are untouched; only the instrument's bytes moved.
+
+- **old → new.** `tools/check-r72-routed-r73.py` `93f034e3dbb1edbe73995d11e7bd8311c45c0929f1902e342bf8305f902a2f9e`
+  → `328a6bf60c5237fe4ba857b36d2b4401833a61b933f735ec468139b7531a03fe`.
+- **what the attacks proved** (`w1/R2Reviewer/report.md` F2/F4/F6/F7, `w1/E2Routed/receipts/`): the frozen
+  bytes matched required tokens as substrings (`often` satisfied "ten"; `…selftest-selftest-after.txt.bak`
+  satisfied the receipt path), never read the receipt they named, could not order the two digests, and
+  accepted a keyword list with no supersession sentence.
+- **what changed.** Tokens now match as whole tokens, and path-shaped tokens additionally reject a
+  neighbouring path character (F4, F7); the digest item requires the old digest to precede the new one
+  with a direction token between them (F2); the two receipt-bearing items require the named receipt to
+  exist at the same revision and report at least ten cases (F4); the lesson item requires a supersession
+  verb in its body, id label excluded (F6); `--selftest` grows from five to eleven cases
+  (SUPERSTRING, RECEIPT-MISSING, RECEIPT-NINE, SUBSTRING-TEN, DIGEST-REVERSED, VACUOUS).
+- **same-instrument before control re-run with the final bytes**
+  (`.ufo/waves/round-73/after/c2-before-final-instrument.txt`): `--revision eb105757` →
+  `ROUTED_STALE=3` rc 1; `--revision a7015d27` → `ROUTED_STALE=3` rc 1; `--selftest` →
+  `SELFTEST: PASS (11 cases, 11 passed, 0 failed)` rc 0.
+- **process defect, recorded not smoothed.** The instrument was edited in the worktree before this block
+  existed, and `S1Scout` observed two intermediate digests (`316dd51a…`, `f1c4b4d3…`) against the then-
+  declared `93f034e3…` and the missing SCORECARD record (`w1/S1Scout/report.md` §8). The class and the fix
+  are the round lesson's `R73-INSTRUMENT-MIDWAVE` mistake: the erratum must precede the first repair
+  commit and name each intermediate digest, not follow the edit.
+- **remaining limit, still not provable lexically.** A block that keeps every token while *denying* the
+  repair reads `ROUTED_STALE=0` (R2Reviewer F1/F2 and the round-72 named limit); the direction rests on a
+  non-author reading of the landed sentences, which this round records rather than claims.
+
+## Round 72 — instrument digest erratum (appended round 73; R72-C3-INSTRUMENT-DIGEST-DRIFT)
+
+The round-72 declaration froze `tools/check-r71-routed-r72.py` at sha256
+`df8a59c7a2891f58ab37a1b22e73819d953f1781528d4f2f4937641e093de712` (`SCORECARD.md:5616`). That value was
+the tool's true digest at the declaration commit `6b426762`; the tool then changed in the wave's repair
+commit `53bcddef` (`2610ff43…`), changed again at `123e1c57` (`b17fddfa…`), and has been
+`2610ff433bf5d4e945ce5b2da0cf168745e4142ecffabc3d160afee33005cdcc` from `7fb35c74` through the present
+tip. No erratum recorded the drift; the round-72 erratum described the three repairs (unanchored block,
+receipt provenance, five-path token list) without a digest old→new. The instrument moved from
+`df8a59c7a2891f58ab37a1b22e73819d953f1781528d4f2f4937641e093de712` to
+`2610ff433bf5d4e945ce5b2da0cf168745e4142ecffabc3d160afee33005cdcc`, and this block is the record.
+
+**Same-instrument evidence, re-run with the final instrument**
+(`.ufo/waves/round-73/after/r72-c3-same-instrument-before.txt`): `python3
+tools/check-r71-routed-r72.py --revision a7015d27` (pre-repair data) reads `ROUTED_STALE=3` rc 1 and
+`--revision eb105757` (post-repair data) reads `ROUTED_STALE=0` rc 0, with the tool's bytes
+`2610ff43…` on both sides. `--revision` selects only the data revision the tool reads, and the tool
+does not exist at `a7015d27` at all (it is a round-72 artifact), so the pair is same-instrument in the
+only sense available: one committed instrument, two data revisions. The frozen `df8a59c7…` is
+superseded by `2610ff43…`. Counted by `python3 tools/check-r72-routed-r73.py --revision <REV>` (item
+DIGEST).
+
+## Capability refresh — round 73 (append-only)
+
+The `gate-selftest` row above (round 72) still reads "nine named cases" and `PASS 9/9`. The landed
+instrument prints **ten** cases: `SELFTEST: PASS (10 cases, 10 passed, 0 failed)` (receipt
+`.ufo/waves/round-72/after/selftest-selftest-after.txt`, tool sha256 `f22eb94f…`), the tenth being
+`SELFTEST-CASES`, which fails when a declared case row is deleted. Read the row with this line as its
+current count; the row's own text stays as filed (QUALITY 99). Counted by
+`python3 tools/check-r72-routed-r73.py --revision <REV>` (item CAPABILITY).
+
+## Round 73 — final instrument digests (appended after the last repair; append-only)
+
+The instrument-repair block above records the first hardened state (`328a6bf6…` / the counter at
+`84501ab8…`). Two later changes landed before this round's commit, both recorded here so every state the
+wave observed is named:
+
+| instrument | declared | intermediate | final (committed) | last change |
+|---|---|---|---|---|
+| `tools/count-ul-rows-r73.py` | `542f9c2947139b5c8f6aec7110f1e6c874d106efc7dc05efe6a91f090711a3d6` | `84501ab8d4968293de8b38f68a9f53d658535d90df8191cbd96a20df98e94832` (EMPTYQUOTE repair: `MIN_QUOTE_WORDS=4` + a twelfth selftest case) | `97f6f5ec83401b02d6c83b48bcad27f0f97c06c9e4ad134cc1cbfb202dbb03d0` | exit-map docstring now names 128 and the `--selftest`-only 2 (SC3Index F4) |
+| `tools/check-r72-routed-r73.py` | `93f034e3dbb1edbe73995d11e7bd8311c45c0929f1902e342bf8305f902a2f9e` | `328a6bf60c5237fe4ba857b36d2b4401833a61b933f735ec468139b7531a03fe` (whole-token and path-token matching, digest direction, receipt existence and count, supersession verb; eleven selftest cases) | `71931c1c225ecda5f8b6529091dc9383542d0c054ae62ff6e0a16f3fbe51496e` | exit-map docstring now says 2 is `--selftest`-only and an absent file is rc 1 (SC3Index F2) |
+
+Every before→after pair in this round was re-run with the FINAL bytes: the C1 before control at `eb105757`
+is still `UL_NOTE absent` rc 128 and the after is `met=1` rc 0 (a tighter instrument can only lower the
+after, and the six rows pass it); the C2 before control is still `ROUTED_STALE=3` rc 1 at `eb105757` and
+`ROUTED_STALE=0` rc 0 after (`.ufo/waves/round-73/after/c2-before-final-instrument.txt`). Selftest tallies
+at the final bytes: counter `SELFTEST: PASS (12 cases, 12 passed, 0 failed)`; checker
+`SELFTEST: PASS (11 cases, 11 passed, 0 failed)`.

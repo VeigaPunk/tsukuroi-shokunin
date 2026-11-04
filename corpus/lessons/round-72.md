@@ -175,3 +175,16 @@ round by the S302 anchor note (R72-S302-LINE-ANCHORS).
 
 Round 72: OWED — the sentinel seat did not land; the L1's own boundary check is the misroot sweep at
 report time. Running tally since r66: 0, 0, 0, 0, 1, 0, (r72 pending).
+
+## Correction (round 73, append-only; R72-LESSON-SUPERSEDED-CLAIMS)
+
+The "Trend verdicts" section above says expansion is improved because "No capability row enters this
+round", and the C2 notes call the suite "nine hermetic cases". Both sentences are superseded by the
+round's own landing and stay visible as filed. The landed state is the `gate-selftest` capability row in
+`SCORECARD.md` (round 72, `| gate-selftest | …`) and a **ten**-case suite: the instrument prints
+`SELFTEST: PASS (10 cases, 10 passed, 0 failed)` (receipt
+`.ufo/waves/round-72/after/selftest-selftest-after.txt`, tool sha256 `f22eb94f…`), the tenth case being
+`SELFTEST-CASES`, which fails when a declared case row is deleted. The round-72 LOG entry
+("C2 instrument superseded in-round") and the SCORECARD supersession note already record the count; this
+block records that the lesson text did not, and corrects it here rather than in place (QUALITY 99).
+Counted by `python3 tools/check-r72-routed-r73.py --revision <REV>`, item LESSON.

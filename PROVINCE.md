@@ -478,3 +478,44 @@ Counted by `python3 tools/count-md-rows-r72.py --revision <REV>` (frozen; sha256
 `d615c653f32a29af3a4355d882041b8543ff56882b3225f7e3eedf173d8706a6`) with target `MD_ROWS=6 MD_VERIFIED=6
 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0` and `met=1`, at the revision named in `SCORECARD.md`
 "Round 72 — measured outcome".
+
+## Round-73 entry — R73-UNIT-LOAD-VIEW: the systemd unit-load merge plane enters Core (new area)
+
+Append-only; the round-70, round-71 and round-72 sections above stay as written. This is a **new area**,
+not a promotion of a listed frontier bullet: the held-ground sweep at the declaration base `eb105757`
+read **0** lines for `unit_load_dropin`, `dropin_paths`, `unit_need_daemon_reload`, `null_or_empty`,
+`unit_file_mask` and `config_parse_alias` across `corpus/ SKILL.md PROVINCE.md`; `unit load path`,
+`unit search path`, `FragmentPath` and `DropInPaths` read **0** files; and every `corpus/knowledge/`
+`drop-in` hit is a host observation of a named drop-in file or an mkinitcpio hook context, none of them a
+merge rule (`.ufo/waves/round-73/before/held-ground.txt`). The entry is
+`corpus/knowledge/systemd-unit-load-plane-r73.md`, rows UL1-UL6, sourced S304-S306
+(`man/systemd.unit.xml`, `src/core/unit.c`, `src/shared/install.c` at systemd **v262**, the tag matching
+the installed 262.1-1-arch; snapshots committed byte-exact under `.ufo/waves/round-73/before/src/`).
+
+**Core now — the reading.** Unit files load from a compiled path in which a directory listed earlier
+overrides a same-named file lower down, and `SYSTEMD_UNIT_PATH` overrides that path, with the documented
+trailing-empty-component append case (UL1). Drop-in `.conf` files merge in one lexicographic pass parsed
+after the unit file; `/etc` outranks `/run` which outranks `/usr/lib` for a same-named drop-in, and a
+drop-in **under those directories** outranks the unit file wherever that file lives (UL2). A loaded unit
+needs a daemon reload when its drop-in path list differs from the list read at load time or a drop-in is
+newer than the last reload, and masked drop-ins are omitted from that list (UL3). A masked unit keeps
+suppressing a reload while the file at its fragment path is null or empty — an empty regular file or a
+`/dev/null` symlink; the `null_or_empty` predicate itself lives in `src/basic/stat-util.*`, outside the
+three pinned snapshots — and stops when that file changes or can no longer be stat'ed (UL4). The mask
+writes a `/dev/null` symlink, the install mode distinguishes `masked` from `masked-runtime`, and a
+generator's mask cannot be unmasked (UL5). At enable time an `[Install] Alias=` symlink is created even
+when its target does not exist, while the dangling-alias change is reported on disable and preset removal
+paths (UL6).
+
+**Still Frontier:** the effective merged configuration of a named unit on this host (the entry states
+precedence and order, not a resolved value); the mask decision for a name present in several search-path
+directories (the fragment choice lives in `load-fragment.c`, outside the pinned snapshots); the instance
+`.d/` leg (documented, absent on this host); `SYSTEMD_UNIT_PATH` (unset here); and any alias symlink on
+this host (none read).
+**Operator-owned:** every mask, unmask, enable, disable, unit-file or drop-in edit, `daemon-reload`, unit
+start/stop and any write under a unit directory.
+**Mori's, unchanged:** nothing about capacity or fleet runway is stated here.
+
+Counted by `python3 tools/count-ul-rows-r73.py --revision <REV>` (target `UL_ROWS=6 UL_VERIFIED=6
+UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0`, `met=1`) at the round-73 measured revision in
+`SCORECARD.md`.

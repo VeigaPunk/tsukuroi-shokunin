@@ -668,3 +668,24 @@ as a resolution of this host's fragments; `install`/`softdep`/`weakdep` command 
 `MODPROBE_OPTIONS` alteration of the directory list, and any blacklist refusal are documented shapes, not
 host observations. The modprobe side of the r71 parameter routes (MP6) is named there as a documented
 alternative; this entry does not measure it line by line either.
+
+## Round 73 — systemd unit-load merge plane (C1), three routed repairs (C2)
+
+New area, not a frontier promotion: the held-ground sweep at base `eb105757` read 0 lines for the plane's
+code anchors and 0 files for `unit load path` / `FragmentPath` / `DropInPaths`
+(`.ufo/waves/round-73/before/held-ground.txt`). The C2 move is registry/lesson/tool-record work, not a
+coverage row: three round-72 closure defects close in committed bytes (the round-72 lesson correction, the
+instrument digest erratum and the `gate-selftest` count refresh).
+
+### Coverage rows — round 73
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/systemd-unit-load-plane-r73.md` | The unit-load merge surface at v262, six rule rows UL1-UL6: the compiled load path with earlier-directory override, the `SYSTEMD_UNIT_PATH` override and its trailing-empty-component append case (UL1); drop-in merge order, `/etc` > `/run` > `/usr/lib` for a same-named drop-in, one cross-directory lexicographic pass and drop-ins under those directories outranking the unit file (UL2); the daemon-reload condition and omitted masked drop-ins (UL3); the still-masked test while the file at the fragment path is null or empty (UL4); the `/dev/null` mask symlink, `masked` vs `masked-runtime` and the unmaskable generator mask (UL5); enable-time `[Install] Alias=` creation even for a missing target, with the dangling-alias change reported on removal paths (UL6). Host: 12 search-path directories, two `/dev/null` masks, `user@1000.service` reading template and prefix drop-ins, `getty@tty1.service` resolving to the template | S304-S306 |
+| `../tools/count-ul-rows-r73.py` | The frozen row counter (sha256 `97f6f5ec…` (final, after the EMPTYQUOTE repair)): per row a unique contiguous id, a statement of at least 12 words, at least 6 distinct non-stopword tokens shared with the row's own snapshot text and a shared/total ratio of at least 0.5, a `source=` id present in the registry whose `source` cell carries the map URL and whose `anchor` cell carries the snapshot basename, a snapshot sha256 equal to both the `digest=` cell and the `SOURCES.json` map digest, and a quote of 4 to 25 words without a pipe located verbatim in those bytes; no snapshot cited more than twice; a twelve-case `--selftest` | S304-S306 |
+| `../tools/check-r72-routed-r73.py` | The frozen routed-defect checker (sha256 `71931c1c…` (final, after the C2 instrument erratum)): each of the three round-72 routed defects is satisfied only inside a line-anchored `##` block whose whole tokens, supersession sentence, digest direction and named receipt all verify, with an eleven-case `--selftest` | — |
+
+**Frontier:** the effective merged configuration of a named unit is not read — the entry states precedence
+and order, not a resolved value; the mask decision for a name present in several search-path directories
+lives in `load-fragment.c`, outside the pinned snapshots; the instance `.d/` leg is documented and absent on
+this host; `SYSTEMD_UNIT_PATH` is unset; and no `[Install] Alias=` symlink was read.
