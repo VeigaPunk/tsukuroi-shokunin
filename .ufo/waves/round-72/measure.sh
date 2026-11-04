@@ -22,11 +22,16 @@ cd "$LANE" || exit 1
   python3 tools/check-selftest-tally.py --receipt .ufo/waves/round-70/after/selftest-after.txt \
     --label R70-C2 --range 4035c1a0..40c35ee7 -- SCORECARD.md PROVINCE.md corpus/README.md SKILL.md
   echo "rc=$?"
-  echo "## C2 /tmp scan over the tool"
-  grep -c '/tmp' tools/check-selftest-tally.py || true
+  echo "## C2 named TMPDIR measurement (a set-but-missing TMPDIR must fail the suite, rc 2)"
+  TMPDIR=/nonexistent/x python3 tools/check-selftest-tally.py --selftest >/dev/null 2>&1; echo "missing-TMPDIR rc=$?"
+  echo "## C2 committed red-before recipe (must FAIL)"
+  bash .ufo/waves/round-72/after/redbefore-mutant.sh >/dev/null 2>&1; echo "redbefore rc=$?"
+  echo "## C2 /tmp write tokens in the tool (docstring/negative only)"
+  grep -n '/tmp' tools/check-selftest-tally.py | sed 's/^/  /' || true
   echo "## C3 routed checker"
   python3 tools/check-r71-routed-r72.py --revision "$REV"; echo "rc=$?"
   echo "## canonical census"
+  echo "command: /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi"
   cd /home/vgpnk/Projects/shokunin
   ./scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi > /dev/null 2>&1
   echo "census validate rc=$?"

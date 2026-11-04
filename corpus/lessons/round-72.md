@@ -81,6 +81,28 @@ only).
   (`R2Reviewer` medium) · captured-by: `R2Reviewer` · fix: recorded as a named limit, not repaired — the
   checker verifies naming, not entailment; the correction's substance rests on the non-author review and
   the closure judge.
+- **R72-DECL-REDBEFORE-UNCOMMITTED** — class `cited receipt absent from the declared commit` · evidence:
+  the frozen C2 row names `before/control/selftest-redbefore.txt`, absent from `6b42676` (committed one
+  commit later at `123e1c57`) · captured-by: `K1Critic` D1 · fix: a reproducible recipe lands at
+  `.ufo/waves/round-72/after/redbefore-mutant.sh` with its committed run
+  (`after/redbefore-selftest.txt`, rc 1, two named cases fail); the frozen row is not edited.
+- **R72-BATTERY-DUPID** — class `battery case killed by the wrong clause` (r71 erratum-(d) recurrence) ·
+  evidence: `mutant-duplicate-id` renumbers positionally, so it is killed by `snapshot-reuse`, not by the
+  id clause · captured-by: `K1Critic` D5 · fix: a true in-place duplicate case
+  (`mutant-duplicate-id-true`) is added post-data; it prints `duplicate-id` + `ids-not-contiguous`; the
+  amended battery is 12 cases / 12 pass and the filed 11-case receipt stays as filed.
+- **R72-DECL-WINDOW** — class `premise arithmetic contradicting the lane's own precedents` · evidence: the
+  declaration says the stagnation window is "2 of 3"; `AXES.md` counts rounds *without* a capability and
+  the r68/r70/r71 declarations read "1 of 3" in the same position · captured-by: `K1Critic` D6 · fix:
+  erratum (h) records 1 of 3; no predicate or duty change (depth 8 is below the line).
+- **R72-DOCSTRING-COUNTS** — class `prose count contradicting the code beside it` · evidence:
+  `battery.py` says "eleven mutants" and builds ten (11 cases); `routed-battery.py` says "three red
+  mutants" and defines four (5 cases) · captured-by: `K1Critic` D8 · fix: recorded in erratum (j); the
+  frozen bytes are not rewritten.
+- **R72-DECL-BASE-PROVENANCE** — class `measurement base conflated with the commit that carried the
+  files` · evidence: no `before/` file exists at `a7015d27`; all thirteen were introduced by `6b42676`
+  · captured-by: `K1Critic` D9 · fix: erratum (k) states "measured against `a7015d27`, committed with the
+  declaration at `6b42676`".
 - **R72-S302-LINE-ANCHORS** — class `upstream line pin read as a host-build line` (QUALITY 103) ·
   evidence: the host runs kmod 34.2 while the snapshot is v34; `libkmod-config.c` shifts +2 after its one
   changed hunk, so a host-side reading of the v34 line numbers would be wrong · captured-by: `S1Scout`
@@ -135,10 +157,13 @@ round by the S302 anchor note (R72-S302-LINE-ANCHORS).
   (`ROUTED_STALE=3` → `0`); the S302 anchor now states the upstream/host-build line split
   (QUALITY 103); the `selftest-tally` gate gains nine hermetic cases with a suite shown able to fail; the
   C3 checker's two attack-found defects are repaired with before/after probes.
-- **discernment: unchanged (author-side).** The wave caught two of the lane's own instrument defects
-  (fixtureless selftest, unanchored block) plus the unchecked receipt revision, and the SKILL row slip
-  was caught before landing; the outside non-author admit/reject spot-check is owed by the closure judge
-  and no author-side `[x]` is claimed.
+- **discernment: unchanged (author-side).** The wave caught the lane's own defects in every claim: the
+  fixtureless selftest and the green-control vacuity (`E2GateSelftest`), the C3 unanchored block, the
+  unchecked receipt revision and the token-list correction (`E3Routed`, `R2Reviewer`), the wrong cmdline
+  host fact (`R1Reviewer` F1), the `community`/tier counter channel (F4), and the nine declaration
+  defects D1-D9 (`K1Critic`, including the uncommitted red-before, the mis-attributed battery case, the
+  window arithmetic and the docstring counts); the SKILL row slip was caught before landing. The outside
+  non-author admit/reject spot-check is owed by the closure judge and no author-side `[x]` is claimed.
 
 ## Seat-harm tally (standing per-round tally, r66 adoption continued)
 

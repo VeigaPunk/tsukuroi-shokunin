@@ -31,8 +31,9 @@ the mutated instrument. This is the standard mutation-testing rule and the only 
 
 The seat text's clause "a mutant is KILLED when the bad fixture **still** reads met=0 rc 1" is inverted: under
 that literal reading the battery-green survivors (11 C1 + 7 C3) are "killed" and the 7 battery-red mutants are
-not, i.e. it can never emit a survivor. Recorded here rather than silently redefined; the literal mapping is
-noted per row in `mutants.tsv` semantics (`battery_verdict` is the standard-rule verdict).
+not, i.e. it can never emit a survivor. Recorded here rather than silently redefined: `mutants.tsv.battery_verdict` carries the standard-rule
+verdict. Under the literal wording the same 25 rows invert (18 would read "killed", 7 not), which is why
+it cannot be the operative rule.
 
 ## C1 counter — 16 mutants, 5 killed by the committed battery, 11 survived
 
@@ -138,14 +139,18 @@ out-of-scope filter disabled and label regex disabled each → `FAIL (9 cases, 8
 
 ## Drift observed (lane tree is being written concurrently)
 
-- `tools/check-r71-routed-r72.py`: `df8a59c7…` (frozen, HEAD) → `b17fddfa…` in the working tree during this
-  session. Mutation testing used the frozen clone bytes; the drifted worktree adds an intermediate
-  `receipt_ok` branch and was not tested.
+- `tools/check-r71-routed-r72.py`: `df8a59c7…` (frozen, HEAD) → `b17fddfa…` → `2610ff43…` in the working tree during this session
+  (three states). Mutation testing used the frozen clone bytes (`df8a59c7…`, re-verified after the run);
+  the drifted worktree adds an intermediate `receipt_ok` branch and was not tested.
 - `tools/check-selftest-tally.py` (uncommitted): `e47baa78…` (7 lower-case cases, hashed at 22:44) →
   `af4620…` (8 upper-case cases + forbidden-token channel + HERMETIC case) during this session. Pinned at
   `af4620…`; the earlier 7-case state was used only for the initial baseline (`SELFTEST: PASS (7 cases…)`).
 - Consequence for the C2 claim: the `--selftest` draft is not committed, so "before: rc 2, 0 case lines"
   and the case inventory at closure must be re-measured against the commit, not this working tree.
+
+Final re-hash after the runs (22:47): lane C1 `d615c653…06a6` (unchanged), lane C3 `2610ff43…` (drifted,
+not written by this seat), C2 draft `af4620…`; clone HEAD `6b4267…` with tools `d615c653…06a6` /
+`df8a59c7…e712`.
 
 ## Reproduce
 

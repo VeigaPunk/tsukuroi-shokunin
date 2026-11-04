@@ -5672,3 +5672,51 @@ not a counter run; it is superseded by this erratum and stays visible as filed. 
    and tier A verifies `met=1` — the counter reads `kind` but not `tier`. The frozen counter is not
    amended this round; the channel is carried into the round-72 planned-next-round debt.
 
+## Round 72 — wave erratum (append-only; the frozen predicates are unchanged)
+
+`K1Critic` filed nine defects (D1-D9) against the declaration's prose and its instruments; the wave also
+filed three fabrication controls. Dispositions:
+
+1. **(c) D1 — the C2 red-before receipt's provenance.** The frozen C2 row names
+   `before/control/selftest-redbefore.txt`, which was not in `6b42676` (the declaration commit omits it;
+   the file was committed at `123e1c57`). The reproducible recipe now lands at
+   `.ufo/waves/round-72/after/redbefore-mutant.sh`; its committed run
+   `.ufo/waves/round-72/after/redbefore-selftest.txt` fails `SELFTEST-MISMATCH` and `SELFTEST-MIXED`
+   (`SELFTEST: FAIL (9 cases, 7 passed, 2 failed)`, rc 1). The frozen row is not edited.
+2. **(d) D2 — C3's measured scope.** The checker now enumerates the five `/usr/lib/modprobe.d` names
+   (R72-C3-TOKEN-LIST); a correction that names the defect and paths is required. A block that names the
+   receipt and revision while *denying* the repair still reads `ROUTED_STALE=0` — recorded as a named
+   limit: the checker verifies naming, not entailment, and the correction's direction rests on the
+   non-author review.
+3. **(e) D3 — the cmdline fact** is corrected in item (a) above: four `name.param` tokens are parsed
+   (`zswap.enabled`, `zswap.max_pool_percent`, `vt.global_cursor_default`, `systemd.show_status`), so
+   MD4's parse is live; no `modprobe.blacklist=` token is present.
+4. **(f) D4 — the C2 case set.** The frozen target is `N >= 7`; the landed suite is nine cases whose ids
+   are `MATCH`, `MISMATCH`, `LABEL`, `SUPERSEDED`, `OUT-OF-SCOPE`, `NO-RECEIPT`, `GREEN-DIFF`, `MIXED`,
+   `HERMETIC`. Named measurements now ride the after receipt: a set-but-missing `$TMPDIR` reads rc 2
+   (`SELFTEST-TMPDIR`), the committed red-before recipe reads rc 1, and the `HERMETIC` case asserts the
+   fixture root is not under `/tmp` when `TMPDIR` is set. The r70 self-demo is unchanged.
+5. **(g) D5 — the battery's duplicate-id case.** The filed case `mutant-duplicate-id` is killed by
+   snapshot reuse, not by the id clause (the r71 erratum-(d) class recurring). A true in-place duplicate
+   is added post-data as `mutant-duplicate-id-true`; the amended battery reads 12 cases / 12 passed
+   (`before/control/battery-amended.txt`) and the new case prints `duplicate-id` + `ids-not-contiguous`
+   with `met=0`. The filed 11-case receipt stays as filed.
+6. **(h) D6 — stagnation-window arithmetic.** The declaration says "window at 2 of 3". `AXES.md` counts
+   rounds *without* a new capability, and the lane's own r68/r70/r71 declarations read "1 of 3" in the
+   same position, so the correct reading is **1 of 3**. No duty changes: depth is 8, below the
+   saturation line 9, so the lowest-axis duty binds either way.
+7. **(i) D7 — the census command is named:** `/home/vgpnk/Projects/shokunin/scripts/sources-census.sh
+   validate --root /home/vgpnk/Projects/shokunin tsukuroi` (rc 0), and the after receipt prints it.
+8. **(j) D8 — instrument docstrings.** `battery.py` says "eleven mutants" and builds ten (11 cases);
+   `routed-battery.py` says "three red mutants" and defines four (5 cases). The prose is wrong, the
+   counts in the declaration are right, and the frozen bytes are not rewritten.
+9. **(k) D9 — base vs provenance.** Every `before/` receipt was measured against `a7015d27` and committed
+   with the declaration at `6b42676`; the declaration's phrase "all under `before/` at base `a7015d27`"
+   conflates the measurement base with the commit that carried the files.
+
+Named limits from the same wave, not repaired: (i) the C1 counter has no entailment channel (a row that
+negates its snapshot reads `met=1`; `K1Critic` control 1); (ii) a `kind=community` row at tier A passes
+(`R1Reviewer` F4); (iii) the `--selftest` suite tests the tool's own core, so a replacement tool that
+prints the expected lines can fake its own verdict (`K1Critic` control 2) — the defence is the committed
+expected-verdict and red-before receipts, not the summary line; (iv) C3 accepts a denial block (item 2).
+

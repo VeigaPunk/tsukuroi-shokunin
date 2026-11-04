@@ -122,6 +122,14 @@ def main():
         mut("mutant-five-rows", ROWS[:5])
         mut("mutant-duplicate-id", [ROWS[0], ROWS[1], ROWS[1], ROWS[3], ROWS[4], ROWS[5]])
 
+        # R72-D5 amendment: a true in-place duplicate id (reuse stays at 2 per snapshot, so only
+        # duplicate-id / ids-not-contiguous can fail). The original case above is killed by reuse.
+        dup = base / "mutant-duplicate-id-true"
+        build(dup, ROWS)
+        dp = dup / "corpus/knowledge/modprobe-config-plane-r72.md"
+        dp.write_text(dp.read_text().replace("| MD4 |", "| MD3 |", 1))
+        cases.append(("mutant-duplicate-id-true", dup, 1, "met=0"))
+
         # three rows citing modprobe.d.5.scd (reuse 3 > 2)
         mut("mutant-snapshot-reuse",
             ROWS[:5] + [(ROWS[5][0], "S301", "modprobe.d.5.scd", ROWS[0][3])])
