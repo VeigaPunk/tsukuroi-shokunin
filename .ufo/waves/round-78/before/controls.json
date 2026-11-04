@@ -1,0 +1,61 @@
+[
+  {
+    "name": "selftest",
+    "argv": [
+      "/usr/bin/python3",
+      "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/measure-journal-usage-r78.py",
+      "--selftest"
+    ],
+    "exit_code": 0,
+    "stdout": "SELFTEST control expected=1 observed=1 reason=finite-content-and-review PASS\nSELFTEST wrong-U1 expected=0 observed=0 reason=finite-content-mismatch PASS\nSELFTEST wrong-U2 expected=0 observed=0 reason=finite-content-mismatch PASS\nSELFTEST wrong-U3 expected=0 observed=0 reason=finite-content-mismatch PASS\nSELFTEST wrong-U4 expected=0 observed=0 reason=finite-content-mismatch PASS\nSELFTEST wrong-U5 expected=0 observed=0 reason=finite-content-mismatch PASS\nSELFTEST wrong-U6 expected=0 observed=0 reason=finite-content-mismatch PASS\nSELFTEST missing-journald-path-usage-r78.json expected=0 observed=0 reason=unreadable:KeyError PASS\nSELFTEST missing-verdict.json expected=0 observed=0 reason=unreadable:KeyError PASS\nSELFTEST missing-w1-results.json expected=0 observed=0 reason=unreadable:KeyError PASS\nSELFTEST snapshot expected=0 observed=0 reason=snapshot-tampered PASS\nSELFTEST sourceless expected=0 observed=0 reason=finite-content-mismatch PASS\nSELFTEST wrong-role expected=0 observed=0 reason=result-identity PASS\nSELFTEST lost-result expected=0 observed=0 reason=result-digest PASS\nSELFTEST failed-row expected=0 observed=0 reason=review-not-bound PASS\nSELFTEST total=15 passed=15 failed=0\n",
+    "stderr": ""
+  },
+  {
+    "name": "C1-do-nothing",
+    "argv": [
+      "/usr/bin/python3",
+      "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/measure-journal-usage-r78.py",
+      "--revision",
+      "b9019a1d0558241bf67cf31ff90256284d8657af"
+    ],
+    "exit_code": 1,
+    "stdout": "C1 predicate=\"six pinned path-usage cases match with review binding\" count=0 met=0 reason=unreadable:ValueError\n",
+    "stderr": ""
+  },
+  {
+    "name": "C2-do-nothing",
+    "argv": [
+      "/usr/bin/python3",
+      "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-registry-coverage.py",
+      "--revision",
+      "b9019a1d0558241bf67cf31ff90256284d8657af"
+    ],
+    "exit_code": 1,
+    "stdout": "{\"branch\":\"master\",\"branch_tip\":\"b9019a1d0558241bf67cf31ff90256284d8657af\",\"counts\":{\"findings\":10,\"missing\":8,\"registered\":108,\"rows_total\":108,\"tools_total\":116},\"findings\":[{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/check-r71-routed-r72.py\"},{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/check-r72-routed-r73.py\"},{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/check-r73-routed-r74.py\"},{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/check-r75-routed-r76.py\"},{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/count-jd-rows-r76.py\"},{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/count-md-rows-r72.py\"},{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/count-uf-rows-r74.py\"},{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/count-ul-rows-r73.py\"},{\"detail\":\"count-jt-rows-r75 gate verdict map lacks code(s) 2\",\"id\":\"REGISTRY-VERDICT-INCOMPLETE\",\"site\":\"SKILL.md:5892\"},{\"detail\":\"check-r74-routed-r75 gate verdict map lacks code(s) 2\",\"id\":\"REGISTRY-VERDICT-INCOMPLETE\",\"site\":\"SKILL.md:5893\"}],\"revision\":\"b9019a1d0558241bf67cf31ff90256284d8657af\",\"status\":\"FAIL\"}\n",
+    "stderr": ""
+  },
+  {
+    "name": "scripted-fetch-fill-no-review",
+    "argv": [
+      "/usr/bin/python3",
+      "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/measure-journal-usage-r78.py",
+      "--root",
+      "/fast/scratch/hyaku/tsukuroi-r78/L1Controls/writer"
+    ],
+    "exit_code": 1,
+    "stdout": "C1 predicate=\"six pinned path-usage cases match with review binding\" count=0 met=0 reason=unreadable:FileNotFoundError\n",
+    "stderr": ""
+  },
+  {
+    "name": "fabricated-review-without-orchestrator-result",
+    "argv": [
+      "/usr/bin/python3",
+      "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/measure-journal-usage-r78.py",
+      "--root",
+      "/fast/scratch/hyaku/tsukuroi-r78/L1Controls/writer"
+    ],
+    "exit_code": 1,
+    "stdout": "C1 predicate=\"six pinned path-usage cases match with review binding\" count=0 met=0 reason=unreadable:FileNotFoundError\n",
+    "stderr": ""
+  }
+]

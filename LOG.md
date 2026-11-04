@@ -3421,3 +3421,23 @@ end census exit 0; row/note accounting is 323→326 / 94→95. Append-only
 record sweep has no removals. Receipts and full commands are under `after/`.
 Outside current-round discernment remains pending; expansion unchanged,
 quality improved, discernment unchanged are the honest author-side trends.
+
+## Round 78 (2026-11-04) — path-usage depth and operative-registry repair
+
+Trigger: round-77 outside closure (`corpus/lessons/round-77-verifier-spotcheck.md`,
+Routed defects 1–4) admits the finite work but identifies ten inherited registry
+findings and the missing reviewer-binding control. C1 deepens existing journald
+ground with six finite path-usage cases and a report/result digest binding;
+C2 repairs discoverability and verdict classes, independently of the examples.
+Frozen declaration: SCORECARD.md Round 78; exact source snapshots, expected
+cases, control runner and observed red-before controls:
+`.ufo/waves/round-78/before/`. Pre-data controls are 15/15 selftests rc0,
+C1 base 0/rc1, C2 base 10 findings/rc1; scripted source reader and a fabricated
+review without an orchestrator result each C1 0/rc1.
+
+Source opened before freeze: systemd v262 `journald-manager.c:91-135`,
+especially suffix filter :119-121, no-follow stat :123, skip :125,
+regular-file guard :128-129 and allocated blocks times 512 :131.
+This is not apparent size and not a claim of a live daemon's cached usage.
+No host mutation, package adoption, promotion or ordinal uplift is authorized.
+The actual host task and reviewer findings will be recorded after wave settlement.

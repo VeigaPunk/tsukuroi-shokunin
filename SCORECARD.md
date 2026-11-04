@@ -6493,3 +6493,48 @@ Planned: outside closure first; retain the six finite-example boundary and
 the source-row supersession. A later round may address inherited registry
 debt or reviewer-binding requirements under a fresh predicate. This round
 claims no such repair and does not start round 78.
+
+## Round 78 — frozen declaration (2026-11-04)
+
+Base `b9019a1d0558241bf67cf31ff90256284d8657af`; round-77 outside closure
+is admitted, with inherited registry debt routed next. Canonical protocol,
+appendix, deployment mission/axes/corpus/learning, lane boundaries and latest
+outside closure were loaded before this freeze. Depth 8 (tied adjacency 8)
+is lowest non-retired; operability stays 9. No ordinal uplift is preclaimed.
+L1 holds the planner seat; one 12-seat v1 wave is planned.
+
+Source opened before freeze: upstream systemd v262 `journald-manager.c`
+:119-121 skips filenames without `.journal` or `.journal~`; :123 uses
+`AT_SYMLINK_NOFOLLOW`, :125 skips a failed stat, :128-129 skips non-regular
+files, :131 adds `(uint64_t) st.st_blocks * 512UL`. :114 separately obtains
+filesystem availability from `ss.f_bsize * ss.f_bavail`. These are upstream
+function semantics, not a claim about installed Arch build line numbers.
+Snapshots and the exact six U1-U6 cases are pinned in
+`.ufo/waves/round-78/before/expected.json`.
+
+| Claim | Axis | Frozen predicate and target | Counting command | Kill rule |
+|---|---|---|---|---|
+| C1 | depth 8, sourced S327 | **six pinned path-usage cases match with review binding**: `corpus/knowledge/journald-path-usage-r78.json` equals the six U1-U6 descriptors and outputs in expected.json, source S327; ReviewUsage's verdict.json binds that file's SHA256 and holds each case; its report SHA256 is carried as `review_sha256=<digest>` in the unique reviewer-role ReviewUsage w1 result. Before 0 → target 6. Companion prose accurately explains selection, no-follow, skipped stats and allocated blocks rather than apparent size. | `python3 tools/measure-journal-usage-r78.py --revision <REV>` | count != 6; false upstream interpretation or companion explanation; changed counter, expected cases, pins, target or binding after data |
+| C2 | operability 9 | **operative registry findings equal zero**: register the eight missing tool paths and supply both missing code-2 verdict classes while retaining existing tools and accurate rows. Before 10 → target 0 findings. This is discoverability/interface operability, not proof every historical tool is conformant or executable on Linux. | `python3 tools/check-registry-coverage.py --revision <REV>` | findings != 0; absent/deleted existing tool, false command or verdict-map repair, or alteration of the frozen registry checker |
+
+C1 is finite worked-example depth on existing journald ground, not coverage,
+not a general semantic oracle and not an authenticity system. Source truth
+and companion accuracy remain falsifiable outside the numeric gate. The
+reviewer is a separate author-side seat, not the outside closure authority.
+The fixed digest binding improves QUALITY81's missing-review weakness; a
+fully fabricated report plus fabricated orchestrator bundle remains a known
+limit, not a closed attack family. No seat vote is inferred from a mention.
+
+Controls run before seat data in `before/controls.json`: 15/15 same-reader
+selftests rc 0; base C1 0/rc1; base C2 10 findings/rc1; scripted source-reading
+fetch-and-fill writer without review 0/rc1; fabricated report without the
+orchestrator result 0/rc1. Both do-nothing controls fail their target.
+The full expected JSON and frozen counter, not mutable answer data, define
+C1. C1 does not read the operative registry; C2 does not read the new note,
+its review or its examples. Thus the claims are independently verifiable.
+
+Frontier duty remains inside these claims: opened scoped sources, a Gate
+admit and reject, census and a mined mistake. Assimilation: none; package
+adoption/promotion holds remain unresolved. The inherited registry debt
+is repaired directly, not by reinterpreting the prior frozen counters.
+No next round is started.
