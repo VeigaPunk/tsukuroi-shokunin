@@ -1,0 +1,391 @@
+{
+ "seat": "MutationCounter",
+ "round": 79,
+ "wave": "w1",
+ "claim": "C1+C2",
+ "base": "9086589a82f221d130ed6711fbe70b85f0d07aea",
+ "claim_commit": "afe1f26128bde87484001cd02ebf11fa524c4059",
+ "detector": "mutated tool --selftest; rc!=0 killed, rc==0 survived",
+ "pristine": {
+  "measure-unit-deps-r79.py": {
+   "sha256": "132be669e367670e8af15d8830443097c6c22f91ce36d1088e7282cf48882d1d",
+   "selftest_rc": 0,
+   "selftest_total": "SELFTEST total=32 passed=32 failed=0"
+  },
+  "check-gate-standard-r79.py": {
+   "sha256": "0b32ddbcaf1fcab3721745ef9629d20ff1d249403d0d590655e537b2ad72cfda",
+   "selftest_rc": 0,
+   "selftest_total": "SELFTEST total=8 passed=8 failed=0"
+  }
+ },
+ "frozen_inputs": {
+  "expected.json": "0c09c7a4ad010dd19e99b47940b94030f945498a20b705981b581e308f3add21",
+  "systemd.unit.xml": "eb9479bea50ccb0e7643836ec083e8ef68bdf9ef2b26f31839939168f82714c6"
+ },
+ "exact_commands": [
+  "S=/fast/scratch/hyaku/tsukuroi-r79/MutationCounter; cp <lane>/tools/{measure-unit-deps-r79.py,check-gate-standard-r79.py,_revision.py} \"$S/base/tools/\"",
+  "python3 \"$S/base/tools/measure-unit-deps-r79.py\" --selftest   # rc 0, 32/32",
+  "python3 \"$S/base/tools/check-gate-standard-r79.py\" --selftest   # rc 0, 8/8",
+  "python3 \"$S/drive.py\"     # 12 single-hunk mutants + 2 neutral renames, one scratch tree each",
+  "python3 \"$S/fixtures.py\"  # positive fixtures + --root differential pristine vs survivor",
+  "python3 <inline>  # mirrored probe c2-no-selftest-word + c2-code3-noword --root fixture"
+ ],
+ "mutants": [
+  {
+   "mutant": "c1-seven-rows-equality",
+   "tool": "tools/measure-unit-deps-r79.py",
+   "clause": "row-set equality accepts a 7-row prefix",
+   "edit": "if data != {'source': expected['source'], 'rows': expected['rows']}:  ==>  if data.get('source') != expected['source'] or data.get('rows', [])[:7] != expected['rows'][:7]:",
+   "py_compile_rc": 0,
+   "selftest_rc": 3,
+   "selftest_total": "SELFTEST total=32 passed=29 failed=3",
+   "expected": "killed",
+   "verdict": "killed",
+   "hunks": 1,
+   "changed_lines": 2,
+   "killed_by": [
+    "quote-DP8",
+    "line-DP8",
+    "seven-rows"
+   ]
+  },
+  {
+   "mutant": "c1-seven-rows-rowcount",
+   "tool": "tools/measure-unit-deps-r79.py",
+   "clause": "row-set leg accepts 7 rows",
+   "edit": "if len(ids) != TARGET_ROWS or len(set(ids)) != TARGET_ROWS:  ==>  if len(ids) > TARGET_ROWS or len(set(ids)) != len(ids):",
+   "py_compile_rc": 0,
+   "selftest_rc": 0,
+   "selftest_total": "SELFTEST total=32 passed=32 failed=0",
+   "expected": "killed",
+   "verdict": "survived",
+   "hunks": 1,
+   "changed_lines": 2,
+   "killed_by": []
+  },
+  {
+   "mutant": "c1-no-expected-digest",
+   "tool": "tools/measure-unit-deps-r79.py",
+   "clause": "expected.json frozen-digest check removed",
+   "edit": "if digest(read(EXPECTED)) != FROZEN_EXPECTED_SHA256:  ==>  if False:",
+   "py_compile_rc": 0,
+   "selftest_rc": 3,
+   "selftest_total": "SELFTEST total=32 passed=31 failed=1",
+   "expected": "killed",
+   "verdict": "killed",
+   "hunks": 1,
+   "changed_lines": 2,
+   "killed_by": [
+    "expected-drift"
+   ]
+  },
+  {
+   "mutant": "c1-no-line-check",
+   "tool": "tools/measure-unit-deps-r79.py",
+   "clause": "quote token-line-range check removed",
+   "edit": "if locate(snapshot, row['quote']) != row['line']:  ==>  if False:",
+   "py_compile_rc": 0,
+   "selftest_rc": 0,
+   "selftest_total": "SELFTEST total=32 passed=32 failed=0",
+   "expected": "killed",
+   "verdict": "survived",
+   "hunks": 1,
+   "changed_lines": 2,
+   "killed_by": []
+  },
+  {
+   "mutant": "c1-no-source-registry",
+   "tool": "tools/measure-unit-deps-r79.py",
+   "clause": "S329 registry-resolution leg removed",
+   "edit": "if cells is None or cells[2] == 'own-work' or row['snapshot'] not in cells[1]:  ==>  if False:",
+   "py_compile_rc": 0,
+   "selftest_rc": 3,
+   "selftest_total": "SELFTEST total=32 passed=31 failed=1",
+   "expected": "killed",
+   "verdict": "killed",
+   "hunks": 1,
+   "changed_lines": 2,
+   "killed_by": [
+    "own-work-source"
+   ]
+  },
+  {
+   "mutant": "c1-one-nonholds",
+   "tool": "tools/measure-unit-deps-r79.py",
+   "clause": "review accepts one non-holds verdict",
+   "edit": "or review.get('verdicts') != {row['id']: 'holds' for row in expected['rows']}):  ==>  or sum(v != 'holds' for v in (review.get('verdicts') or {}).values()) > 1):",
+   "py_compile_rc": 0,
+   "selftest_rc": 3,
+   "selftest_total": "SELFTEST total=32 passed=31 failed=1",
+   "expected": "killed",
+   "verdict": "killed",
+   "hunks": 1,
+   "changed_lines": 2,
+   "killed_by": [
+    "failed-row"
+   ]
+  },
+  {
+   "mutant": "c1-duplicate-result",
+   "tool": "tools/measure-unit-deps-r79.py",
+   "clause": "duplicate reviewer result accepted",
+   "edit": "or results.get('wave') != 'w1' or len(seats) != 1  ==>  or results.get('wave') != 'w1' or len(seats) < 1",
+   "py_compile_rc": 0,
+   "selftest_rc": 3,
+   "selftest_total": "SELFTEST total=32 passed=31 failed=1",
+   "expected": "killed",
+   "verdict": "killed",
+   "hunks": 1,
+   "changed_lines": 2,
+   "killed_by": [
+    "duplicate-result"
+   ]
+  },
+  {
+   "mutant": "c2-operative-only",
+   "tool": "tools/check-gate-standard-r79.py",
+   "clause": "only the operative table is counted",
+   "edit": "if table['operative'] or not table['non_operative']:  ==>  if table['operative']:",
+   "py_compile_rc": 0,
+   "selftest_rc": 3,
+   "selftest_total": "SELFTEST total=8 passed=7 failed=1",
+   "expected": "killed",
+   "verdict": "killed",
+   "hunks": 1,
+   "changed_lines": 2,
+   "killed_by": [
+    "unmarked-continuation-duplicate"
+   ]
+  },
+  {
+   "mutant": "c2-ignore-nonoperative",
+   "tool": "tools/check-gate-standard-r79.py",
+   "clause": "NON-OPERATIVE marker ignored",
+   "edit": "non_operative = NON_OPERATIVE in block  ==>  non_operative = False",
+   "py_compile_rc": 0,
+   "selftest_rc": 3,
+   "selftest_total": "SELFTEST total=8 passed=6 failed=2",
+   "expected": "killed",
+   "verdict": "killed",
+   "hunks": 1,
+   "changed_lines": 2,
+   "killed_by": [
+    "control",
+    "marked-continuation"
+   ]
+  },
+  {
+   "mutant": "c2-no-tool-source",
+   "tool": "tools/check-gate-standard-r79.py",
+   "clause": "tool-blob --selftest/SELFTEST check removed",
+   "edit": "and source is not None and '--selftest' in source and 'SELFTEST' in source)  ==>  and True)",
+   "py_compile_rc": 0,
+   "selftest_rc": 3,
+   "selftest_total": "SELFTEST total=8 passed=7 failed=1",
+   "expected": "killed",
+   "verdict": "killed",
+   "hunks": 1,
+   "changed_lines": 2,
+   "killed_by": [
+    "tool-without-selftest"
+   ]
+  },
+  {
+   "mutant": "c2-accept-shape-one",
+   "tool": "tools/check-gate-standard-r79.py",
+   "clause": "exit rule accepts shape 1/2",
+   "edit": "ok = duplicates == 0 and shape == len(FROZEN_ROWS)  ==>  ok = duplicates == 0 and shape >= 1",
+   "py_compile_rc": 0,
+   "selftest_rc": 0,
+   "selftest_total": "SELFTEST total=8 passed=8 failed=0",
+   "expected": "killed",
+   "verdict": "survived",
+   "hunks": 1,
+   "changed_lines": 2,
+   "killed_by": []
+  },
+  {
+   "mutant": "c2-accept-no-code3",
+   "tool": "tools/check-gate-standard-r79.py",
+   "clause": "verdict map without code 3 accepted",
+   "edit": "and '3' in re.findall(r'(?<![0-9])[0-9](?![0-9])', verdict)  ==>  and True",
+   "py_compile_rc": 0,
+   "selftest_rc": 0,
+   "selftest_total": "SELFTEST total=8 passed=8 failed=0",
+   "expected": "killed",
+   "verdict": "survived",
+   "hunks": 1,
+   "changed_lines": 2,
+   "killed_by": []
+  },
+  {
+   "mutant": "c2-no-selftest-word",
+   "tool": "tools/check-gate-standard-r79.py",
+   "clause": "verdict map without the 'self-test' wording accepted (mirrored probe)",
+   "edit": "and 'self-test' in verdict.lower()  ==>  and True",
+   "py_compile_rc": 0,
+   "selftest_rc": 0,
+   "selftest_total": "SELFTEST total=8 passed=8 failed=0",
+   "expected": "killed",
+   "verdict": "survived",
+   "hunks": 1,
+   "changed_lines": 2,
+   "killed_by": []
+  },
+  {
+   "mutant": "neutral-c1-rename",
+   "tool": "tools/measure-unit-deps-r79.py",
+   "clause": "NEUTRAL rename toks->tokens (must pass)",
+   "edit": "rename toks->tokens",
+   "py_compile_rc": 0,
+   "selftest_rc": 0,
+   "selftest_total": "SELFTEST total=32 passed=32 failed=0",
+   "expected": "pass",
+   "verdict": "pass",
+   "hunks": 1,
+   "changed_lines": 6,
+   "killed_by": []
+  },
+  {
+   "mutant": "neutral-c2-rename",
+   "tool": "tools/check-gate-standard-r79.py",
+   "clause": "NEUTRAL rename counted->countable (must pass)",
+   "edit": "rename counted->countable",
+   "py_compile_rc": 0,
+   "selftest_rc": 0,
+   "selftest_total": "SELFTEST total=8 passed=8 failed=0",
+   "expected": "pass",
+   "verdict": "pass",
+   "hunks": 2,
+   "changed_lines": 8,
+   "killed_by": []
+  }
+ ],
+ "livepath_differential": [
+  {
+   "run": "pristine",
+   "tool": "measure-unit-deps-r79.py",
+   "fixture": "positive",
+   "rc": 0,
+   "summary": "DEPS predicate=\"eight pinned dependency-propagation rows match with review binding\" rows=8 verified=8 review=1 met=1 reason=finite-content-and-review"
+  },
+  {
+   "run": "c1-seven-rows-rowcount",
+   "tool": "measure-unit-deps-r79.py",
+   "fixture": "positive",
+   "rc": 0,
+   "summary": "DEPS predicate=\"eight pinned dependency-propagation rows match with review binding\" rows=8 verified=8 review=1 met=1 reason=finite-content-and-review"
+  },
+  {
+   "run": "c1-no-line-check",
+   "tool": "measure-unit-deps-r79.py",
+   "fixture": "positive",
+   "rc": 0,
+   "summary": "DEPS predicate=\"eight pinned dependency-propagation rows match with review binding\" rows=8 verified=8 review=1 met=1 reason=finite-content-and-review"
+  },
+  {
+   "run": "pristine",
+   "tool": "measure-unit-deps-r79.py",
+   "fixture": "seven",
+   "rc": 1,
+   "summary": "DEPS predicate=\"eight pinned dependency-propagation rows match with review binding\" rows=0 verified=0 review=0 met=0 reason=finite-content-mismatch"
+  },
+  {
+   "run": "c1-seven-rows-rowcount",
+   "tool": "measure-unit-deps-r79.py",
+   "fixture": "seven",
+   "rc": 1,
+   "summary": "DEPS predicate=\"eight pinned dependency-propagation rows match with review binding\" rows=0 verified=0 review=0 met=0 reason=finite-content-mismatch"
+  },
+  {
+   "run": "c1-no-line-check",
+   "tool": "measure-unit-deps-r79.py",
+   "fixture": "seven",
+   "rc": 1,
+   "summary": "DEPS predicate=\"eight pinned dependency-propagation rows match with review binding\" rows=0 verified=0 review=0 met=0 reason=finite-content-mismatch"
+  },
+  {
+   "run": "pristine",
+   "tool": "measure-unit-deps-r79.py",
+   "fixture": "lineshift",
+   "rc": 1,
+   "summary": "DEPS predicate=\"eight pinned dependency-propagation rows match with review binding\" rows=0 verified=0 review=0 met=0 reason=finite-content-mismatch"
+  },
+  {
+   "run": "c1-seven-rows-rowcount",
+   "tool": "measure-unit-deps-r79.py",
+   "fixture": "lineshift",
+   "rc": 1,
+   "summary": "DEPS predicate=\"eight pinned dependency-propagation rows match with review binding\" rows=0 verified=0 review=0 met=0 reason=finite-content-mismatch"
+  },
+  {
+   "run": "c1-no-line-check",
+   "tool": "measure-unit-deps-r79.py",
+   "fixture": "lineshift",
+   "rc": 1,
+   "summary": "DEPS predicate=\"eight pinned dependency-propagation rows match with review binding\" rows=0 verified=0 review=0 met=0 reason=finite-content-mismatch"
+  },
+  {
+   "run": "pristine",
+   "tool": "check-gate-standard-r79.py",
+   "fixture": "shape1",
+   "rc": 1,
+   "summary": "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=1/2 met=0"
+  },
+  {
+   "run": "c2-accept-shape-one",
+   "tool": "check-gate-standard-r79.py",
+   "fixture": "shape1",
+   "rc": 0,
+   "summary": "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=1/2 met=1"
+  },
+  {
+   "run": "c2-accept-no-code3",
+   "tool": "check-gate-standard-r79.py",
+   "fixture": "shape1",
+   "rc": 1,
+   "summary": "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=1/2 met=0"
+  },
+  {
+   "run": "pristine",
+   "tool": "check-gate-standard-r79.py",
+   "fixture": "nocode3",
+   "rc": 1,
+   "summary": "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=1/2 met=0"
+  },
+  {
+   "run": "c2-accept-shape-one",
+   "tool": "check-gate-standard-r79.py",
+   "fixture": "nocode3",
+   "rc": 0,
+   "summary": "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=1/2 met=1"
+  },
+  {
+   "run": "c2-accept-no-code3",
+   "tool": "check-gate-standard-r79.py",
+   "fixture": "nocode3",
+   "rc": 0,
+   "summary": "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=2/2 met=1"
+  },
+  {
+   "run": "pristine",
+   "tool": "check-gate-standard-r79.py",
+   "fixture": "code3-noword",
+   "rc": 1,
+   "summary": "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=1/2 met=0"
+  },
+  {
+   "run": "c2-no-selftest-word",
+   "tool": "check-gate-standard-r79.py",
+   "fixture": "code3-noword",
+   "rc": 0,
+   "summary": "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=2/2 met=1"
+  }
+ ],
+ "totals": {
+  "mutants": 15,
+  "killed": 8,
+  "survived": 5,
+  "neutral_pass": 2
+ }
+}

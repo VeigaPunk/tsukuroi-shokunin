@@ -741,3 +741,20 @@ case. Registry discoverability repair is operability work, not new knowledge
 ground or a capability. Round-77's former pending outside result above is
 superseded by `lessons/round-77-verifier-spotcheck.md`: admitted with admit
 and reject agreement. Round-78 outside closure is still pending.
+
+## Round 79 — unit dependency propagation, and the gate-standard registry
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/systemd-dependency-propagation-r79.md` and `.json` | Eight finite rows distinguish requirement propagation (`Wants=`, `Requires=`, `Requisite=`, `BindsTo=`, `PartOf=`, `Upholds=`, `RequiresMountsFor=`) from ordering (`After=`): ordering never pulls a unit in, `Requires=` does not keep the listed unit active, `PartOf=` is one-way, `Upholds=` keeps restarting listed units while the configuring unit is up, and mount paths pull their mount units. Quotes are located in the tag-stripped v262 snapshot by token position. | S329 (S304 shares the URL for a different scope) |
+
+This deepens the owned systemd-unit surface; `PROVINCE.md` and the coverage
+frontier are unchanged, and no capability row is claimed. The entry landed with
+a reviewer-corrected DP6 statement ("when no job is queued for them") after the
+frozen C1 tuple was found to have dropped that precondition; the frozen claim is
+a **declared miss** (its expected row cannot be altered after data) while the
+landed entry is the reviewed, corrected bytes. Round-79 registry work marks the
+four current continuation tables non-operative and gives the two routed
+round-72 gates hermetic selftests; it is operability work, not new knowledge
+ground. Round-78 outside closure admitted that round; round-79 outside closure
+is pending.

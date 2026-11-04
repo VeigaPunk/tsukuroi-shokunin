@@ -17,11 +17,16 @@
 # malformed-row finding. No snapshot may be cited more than twice.
 # Target: rows == 6 and verified == 6 and distinct sources >= 3 and distinct snapshots >= 3.
 import argparse
+import contextlib
 import hashlib
+import io
 import json
+import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 NOTE = "corpus/knowledge/modprobe-config-plane-r72.md"
@@ -220,11 +225,267 @@ def evaluate(rt, rb):
     return 0 if met else 1
 
 
+# --- round-79 routed selftest (C2 item 2): hermetic, TMPDIR-bound, read-only ---
+# The frozen evaluate/readers logic above is not modified; the selftest only
+# drives it over synthetic fixture trees.
+HARNESS_LINE = "HARNESS-TMPDIR-REFUSED"
+
+_URLS = {"modprobe.conf": "https://example.com/r72/modprobe.json",
+         "blacklist.conf": "https://example.com/r72/blacklist.json",
+         "alsa.conf": "https://example.com/r72/alsa.json"}
+
+_SNAP_MODPROBE = (
+    "synthetic fixture snapshot one for the counter selftest\n"
+    "the modprobe program reads configuration files from the etc directory\n"
+    "and applies options to kernel modules while loading them on demand\n"
+    "blacklisted modules are skipped during automatic loading\n"
+    "install commands run external helpers when a module loads\n")
+_SNAP_BLACKLIST = (
+    "synthetic fixture snapshot two\n"
+    "the blacklist entry prevents automatic module loading at boot time\n"
+    "alias lines map device driver names onto alternative modules\n")
+_SNAP_ALSA = (
+    "synthetic fixture snapshot three\n"
+    "sound hardware configuration stores card order and index options per module\n"
+    "users pin slot assignments through the options line of the sound driver\n")
+_LONG_SENTENCE = (
+    "when the boot process reaches the stage where automatic module loading happens "
+    "the helper reads every options line and then merges each requested parameter "
+    "into the final module parameter set before the kernel starts the module")
+
+_STMT1 = ("the modprobe program reads configuration files from the etc directory "
+          "and applies options to kernel modules while loading them")
+_STMT2 = ("blacklisted modules are skipped during automatic loading and "
+          "install commands run external helpers")
+_STMT3 = ("the blacklist entry prevents automatic module loading at boot time "
+          "and alias lines map names")
+_STMT4 = ("alias lines map device driver names onto alternative modules "
+          "when automatic hardware detection runs")
+_STMT5 = "sound hardware configuration stores card order and index options per loaded module"
+_STMT6 = "users pin slot assignments through the options line of the sound driver"
+_QUOTES = {
+    1: "reads configuration files from the etc directory",
+    2: "blacklisted modules are skipped during automatic loading",
+    3: "prevents automatic module loading at boot time",
+    4: "map device driver names onto alternative modules",
+    5: "stores card order and index options per module",
+    6: "pin slot assignments through the options line",
+}
+
+
+def selftest_root():
+    """Private fixture root: an explicit TMPDIR, never unset, never under /tmp."""
+    tmp = os.environ.get("TMPDIR")
+    if not tmp:
+        print(f"{HARNESS_LINE} reason=tmpdir-unset")
+        return None
+    real = os.path.realpath(tmp)
+    if real == "/tmp" or real.startswith("/tmp/"):
+        print(f"{HARNESS_LINE} reason=tmpdir-under-tmp")
+        return None
+    if not os.path.isdir(real):
+        print(f"{HARNESS_LINE} reason=tmpdir-missing")
+        return None
+    return real
+
+
+def _md_rows():
+    return [
+        {"n": 1, "stmt": _STMT1, "src": "S901", "snap": "modprobe.conf", "quote": _QUOTES[1]},
+        {"n": 2, "stmt": _STMT2, "src": "S901", "snap": "modprobe.conf", "quote": _QUOTES[2]},
+        {"n": 3, "stmt": _STMT3, "src": "S902", "snap": "blacklist.conf", "quote": _QUOTES[3]},
+        {"n": 4, "stmt": _STMT4, "src": "S902", "snap": "blacklist.conf", "quote": _QUOTES[4]},
+        {"n": 5, "stmt": _STMT5, "src": "S903", "snap": "alsa.conf", "quote": _QUOTES[5]},
+        {"n": 6, "stmt": _STMT6, "src": "S903", "snap": "alsa.conf", "quote": _QUOTES[6]},
+    ]
+
+
+def _swap(idx, row):
+    rows = _md_rows()
+    rows[idx] = row
+    return rows
+
+
+def _render_row(row, raw):
+    digest = row.get("digest") or raw.get(row["snap"], "0" * 64)
+    return (f'| MD{row["n"]} | {row["stmt"]} | source={row["src"]} | '
+            f'snapshot={row["snap"]} | digest={digest} | quote="{row["quote"]}" |')
+
+
+def _md_fixture(rows=None, registry=None, snapshots=None, map_entries=None,
+                map_text=None, note_extra=(), omit=()):
+    """One synthetic mirror tree; each case mutates exactly one facet."""
+    snaps = {"modprobe.conf": _SNAP_MODPROBE, "blacklist.conf": _SNAP_BLACKLIST,
+             "alsa.conf": _SNAP_ALSA}
+    if snapshots:
+        snaps.update(snapshots)
+    reg = {sid: [f"fixture source — {_URLS[name]}", "docs", f"{name} pinned snapshot"]
+           for sid, name in (("S901", "modprobe.conf"), ("S902", "blacklist.conf"),
+                             ("S903", "alsa.conf"))}
+    if registry:
+        for sid, patch in registry.items():
+            row = reg.get(sid, ["", "docs", ""])
+            for key, val in patch.items():
+                row[{"source": 0, "kind": 1, "anchor": 2}[key]] = val
+            reg[sid] = row
+    raw = {name: hashlib.sha256(text.encode("utf-8")).hexdigest()
+           for name, text in snaps.items()}
+    entries = {name: {"sha256": raw[name], "url": _URLS[name]}
+               for name in snaps}
+    if map_entries:
+        for name, patch in map_entries.items():
+            slot = entries.setdefault(name, {})
+            for key, val in patch.items():
+                if val is None:
+                    slot.pop(key, None)
+                else:
+                    slot[key] = val
+    rows = _md_rows() if rows is None else rows
+    note = ["# modprobe configuration plane — fixture note", ""]
+    note += [_render_row(r, raw) for r in rows]
+    note += list(note_extra)
+    reglines = ["# SOURCES fixture", "",
+                "| id | source | kind | tier | scope | anchor | teaches | status | "
+                "opened | recheck | used-by |",
+                "|---|---|---|---|---|---|---|---|---|---|---|"]
+    for sid in sorted(reg):
+        src, kind, anchor = reg[sid]
+        reglines.append(f"| {sid} | {src} | {kind} | A | synthetic scope | {anchor} | "
+                        "synthetic teaches cell | mined | 2026-11-04 | 90d | — |")
+    files = {NOTE: "\n".join(note) + "\n", REGISTRY: "\n".join(reglines) + "\n",
+             MAP: map_text if map_text is not None
+                  else json.dumps({"snapshots": entries}, indent=1) + "\n"}
+    for name, text in snaps.items():
+        files[f"{SNAPDIR}/{name}"] = text
+    for rel in omit:
+        files.pop(rel, None)
+    return files
+
+
+def _write_tree(root, files):
+    for rel, text in files.items():
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+
+
+def run_selftest():
+    """Fixture-tree selftest: one SELFTEST line per case, rc 0 all-pass, rc 3 any-fail."""
+    root = selftest_root()
+    if root is None:
+        return 2
+    work = Path(tempfile.mkdtemp(prefix="count-md-rows-r72-selftest-", dir=root))
+    cases = []
+
+    def case(name, files, want_rc, need, forbid=()):
+        d = work / name
+        d.mkdir(parents=True)
+        _write_tree(d, files)
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf):
+                rc = evaluate(*readers(None, str(d)))
+        except Exception as exc:  # a crashing case is a failing case, never a hang
+            rc = None
+            buf.write(f"case-exception: {type(exc).__name__}: {exc}\n")
+        out = buf.getvalue()
+        absent = [s for s in need if s not in out]
+        present = [s for s in forbid if s in out]
+        ok = rc == want_rc and not absent and not present
+        cases.append(ok)
+        print(f"SELFTEST {name} rc={rc} {'PASS' if ok else 'FAIL'}")
+        if absent:
+            print(f"  expected-but-absent: {absent}")
+        if present:
+            print(f"  forbidden-but-present: {present}")
+        if not ok:
+            for line in out.rstrip().splitlines():
+                print(f"  | {line}")
+
+    case("clean-pass", _md_fixture(), 0,
+         ["MD_ROWS=6", "MD_VERIFIED=6", "met=1"], forbid=("fail",))
+    case("note-absent", _md_fixture(omit=(NOTE,)), 128, ["MD_NOTE absent"])
+    case("registry-absent", _md_fixture(omit=(REGISTRY,)), 128, ["MD_REGISTRY absent"])
+    case("map-absent", _md_fixture(omit=(MAP,)), 128, ["MD_MAP absent"])
+    case("map-malformed", _md_fixture(map_text="{not json"), 1, ["MD_MAP malformed"])
+    case("malformed-row", _md_fixture(note_extra=("| MD9 | oops |",)), 1, ["malformed-row"])
+    case("duplicate-id", _md_fixture(rows=_md_rows()[:5] + [dict(_md_rows()[0])]), 1,
+         ["duplicate-id"])
+    short = dict(_md_rows()[0])
+    short["stmt"] = "too short this statement"
+    case("statement-words", _md_fixture(rows=_swap(0, short)), 1, ["statement-words="])
+    unground = dict(_md_rows()[0])
+    unground["stmt"] = "alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima"
+    case("statement-grounding", _md_fixture(rows=_swap(0, unground)), 1,
+         ["statement-grounding=0/"])
+    ghost = dict(_md_rows()[0])
+    ghost["snap"] = "ghost.conf"
+    case("snapshot-absent", _md_fixture(rows=_swap(0, ghost)), 1, ["snapshot-absent"])
+    wrong_digest = dict(_md_rows()[0])
+    wrong_digest["digest"] = "a" * 64
+    case("digest-mismatch", _md_fixture(rows=_swap(0, wrong_digest)), 1, ["digest-mismatch"])
+    case("map-digest", _md_fixture(map_entries={"modprobe.conf": {"sha256": "b" * 64}}), 1,
+         ["map-digest"])
+    case("map-url-absent", _md_fixture(map_entries={"modprobe.conf": {"url": None}}), 1,
+         ["map-url"])
+    no_quote = dict(_md_rows()[0])
+    no_quote["quote"] = "words that appear nowhere in this snapshot"
+    case("quote-absent", _md_fixture(rows=_swap(0, no_quote)), 1, ["quote-absent"])
+    long_quote = dict(_md_rows()[1])
+    long_quote["quote"] = _LONG_SENTENCE
+    case("quote-words", _md_fixture(
+        snapshots={"modprobe.conf": _SNAP_MODPROBE + _LONG_SENTENCE + "\n"},
+        rows=_swap(1, long_quote)), 1, ["quote-words="])
+    piped = dict(_md_rows()[1])
+    piped["quote"] = "skipped | during automatic loading"
+    case("quote-pipe-dead-branch", _md_fixture(rows=_swap(1, piped)), 1,
+         ["malformed-row"], forbid=("quote-pipe",))
+    unregistered = dict(_md_rows()[0])
+    unregistered["src"] = "S999"
+    case("source-unregistered", _md_fixture(rows=_swap(0, unregistered)), 1,
+         ["source-unregistered"])
+    case("source-kind-own-work", _md_fixture(registry={"S901": {"kind": "own-work"}}), 1,
+         ["source-kind=own-work"])
+    case("source-not-bound",
+         _md_fixture(registry={"S901": {"source": "https://example.com/unbound.json"}}), 1,
+         ["source-not-bound"])
+    case("anchor-not-bound", _md_fixture(registry={"S901": {"anchor": "other.conf"}}), 1,
+         ["anchor-not-bound"])
+    seven = dict(_md_rows()[5])
+    seven["n"] = 7
+    case("ids-not-contiguous", _md_fixture(rows=_md_rows()[:5] + [seven]), 1,
+         ["ids-not-contiguous"])
+    reuse = {"n": 3, "stmt": _STMT2, "src": "S902", "snap": "modprobe.conf",
+             "quote": _QUOTES[2]}
+    case("snapshot-reuse",
+         _md_fixture(rows=[_md_rows()[0], _md_rows()[1], reuse] + _md_rows()[3:]), 1,
+         ["snapshot-reuse modprobe.conf=3"])
+    variant = [_md_rows()[0], _md_rows()[2], _md_rows()[1],
+               _md_rows()[4], _md_rows()[3], _md_rows()[5]]
+    spaced = dict(variant[1])
+    spaced["quote"] = "prevents   automatic module loading at boot time"
+    variant[1] = spaced
+    case("accepted-variant",
+         _md_fixture(rows=variant,
+                     note_extra=("", "prose between rows is ignored by the candidate scan", ""),
+                     registry={"S901": {"anchor": "modprobe.conf (round-72 pinned snapshot)"}}),
+         0, ["MD_ROWS=6", "MD_VERIFIED=6", "met=1"], forbid=("fail",))
+    shutil.rmtree(work, ignore_errors=True)
+    total, passed = len(cases), sum(cases)
+    print(f"SELFTEST: {'PASS' if passed == total else 'FAIL'} "
+          f"({total} cases, {passed} passed, {total - passed} failed)")
+    return 0 if passed == total else 3
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--revision", default="HEAD")
-    ap.add_argument("--fixture")
+    group = ap.add_mutually_exclusive_group()
+    group.add_argument("--revision", default="HEAD")
+    group.add_argument("--fixture")
+    group.add_argument("--selftest", action="store_true")
     args = ap.parse_args()
+    if args.selftest:
+        return run_selftest()
     return evaluate(*readers(args.revision, args.fixture))
 
 

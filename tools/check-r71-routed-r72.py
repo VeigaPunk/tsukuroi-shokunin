@@ -16,10 +16,15 @@
 #
 # Exit 0 iff STALE=0; 1 on any stale item. --fixture <dir> reads a tree instead of a revision.
 import argparse
+import contextlib
+import io
 import json
+import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 LANE = Path(__file__).resolve().parent.parent
@@ -119,11 +124,152 @@ def evaluate(rt, fixture=None):
     return 0 if stale == 0 else 1
 
 
+# --- round-79 routed selftest (C2 item 2): hermetic, TMPDIR-bound, read-only ---
+# The frozen evaluate/readers/counter_summary logic above is not modified; the
+# selftest only drives it over synthetic fixture trees.
+HARNESS_LINE = "HARNESS-TMPDIR-REFUSED"
+
+
+def selftest_root():
+    """Private fixture root: an explicit TMPDIR, never unset, never under /tmp."""
+    tmp = os.environ.get("TMPDIR")
+    if not tmp:
+        print(f"{HARNESS_LINE} reason=tmpdir-unset")
+        return None
+    real = os.path.realpath(tmp)
+    if real == "/tmp" or real.startswith("/tmp/"):
+        print(f"{HARNESS_LINE} reason=tmpdir-under-tmp")
+        return None
+    if not os.path.isdir(real):
+        print(f"{HARNESS_LINE} reason=tmpdir-missing")
+        return None
+    return real
+
+
+def _write_tree(root, files):
+    for rel, text in files.items():
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+
+
+_ERRATUM = """# tsukuroi-shokunin — Scorecard
+
+## Round 71 — receipt erratum
+
+The counting command ran against revision {rev} and its summary landed in
+{rcpt}.
+
+## Round 72 — declaration
+
+Placeholder prose so the erratum block is bounded by a following heading.
+"""
+
+_NOTE_OK = """# module parameter plane
+
+## Correction — modprobe path enumeration
+
+R71-NOTE-MODPROBE-COUNT: the appended correction replaces the superseded
+four-path figure with five paths under /usr/lib/modprobe.d: README,
+bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, systemd.conf.
+"""
+
+_NOTE_NO_SECTION = """# module parameter plane
+
+Plain prose with no appended correction or erratum section at all.
+"""
+
+_NOTE_MISSING_FIVE = """# module parameter plane
+
+## Correction — modprobe path enumeration
+
+R71-NOTE-MODPROBE-COUNT: the appended correction replaces the superseded
+four-path figure with 5 paths under /usr/lib/modprobe.d: README,
+bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, systemd.conf.
+"""
+
+
+def run_selftest():
+    """Fixture-tree selftest: one SELFTEST line per case, rc 0 all-pass, rc 3 any-fail."""
+    root = selftest_root()
+    if root is None:
+        return 2
+    work = Path(tempfile.mkdtemp(prefix="check-r71-routed-r72-selftest-", dir=root))
+    try:
+        fresh = counter_summary()
+    except OSError:
+        fresh = None
+    cases = []
+    if fresh is None:
+        print("SELFTEST harness-counter-unavailable FAIL")
+        cases.append(False)
+    receipt_ok = f"record revision {RECORD_REVISION}\n\n{fresh or 'MP_ROWS=unavailable'}\n"
+
+    def case(name, files, want_rc, need):
+        d = work / name
+        d.mkdir(parents=True)
+        _write_tree(d, files)
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf):
+                rc = evaluate(readers(None, str(d)))
+        except Exception as exc:  # a crashing case is a failing case, never a hang
+            rc = None
+            buf.write(f"case-exception: {type(exc).__name__}: {exc}\n")
+        out = buf.getvalue()
+        absent = [s for s in need if s not in out]
+        ok = rc == want_rc and not absent
+        cases.append(ok)
+        print(f"SELFTEST {name} rc={rc} {'PASS' if ok else 'FAIL'}")
+        if absent:
+            print(f"  expected-but-absent: {absent}")
+        if not ok:
+            for line in out.rstrip().splitlines():
+                print(f"  | {line}")
+
+    erratum = _ERRATUM.format(rev=RECORD_REVISION, rcpt=RECEIPT)
+    case("clean-pass", {RECEIPT: receipt_ok, SCORECARD: erratum, NOTE: _NOTE_OK}, 0,
+         ["ROUTED_RECEIPT ok", "ROUTED_SCORECARD ok", "ROUTED_NOTE ok", "ROUTED_STALE=0"])
+    case("receipt-missing", {SCORECARD: erratum, NOTE: _NOTE_OK}, 1,
+         ["ROUTED_RECEIPT missing"])
+    case("receipt-missing-revision-token",
+         {RECEIPT: "MP_ROWS=1 met=1 without any revision token\n", SCORECARD: erratum,
+          NOTE: _NOTE_OK}, 1, ["missing revision token"])
+    case("receipt-mismatch",
+         {RECEIPT: f"stale snapshot line\nMP_ROWS=999 MP_X=1\nrev {RECORD_REVISION}\n",
+          SCORECARD: erratum, NOTE: _NOTE_OK}, 1, ["ROUTED_RECEIPT mismatch"])
+    case("malformed-scorecard",
+         {RECEIPT: receipt_ok,
+          SCORECARD: "prose quotes '## Round 71 — receipt erratum' inline and indented only",
+          NOTE: _NOTE_OK}, 1, ["ROUTED_SCORECARD missing"])
+    case("note-missing-section",
+         {RECEIPT: receipt_ok, SCORECARD: erratum, NOTE: _NOTE_NO_SECTION}, 1,
+         ["ROUTED_NOTE missing"])
+    case("note-missing-tokens",
+         {RECEIPT: receipt_ok, SCORECARD: erratum, NOTE: _NOTE_MISSING_FIVE}, 1,
+         ["ROUTED_NOTE missing: five"])
+    case("accepted-variant",
+         {RECEIPT: f"preamble prose\n\n{fresh or ''}\ntrailing prose {RECORD_REVISION}\n",
+          SCORECARD: erratum.replace("ran against revision", "ran against REVISION")
+                            .replace(RECEIPT, "`" + RECEIPT + "`"),
+          NOTE: _NOTE_OK.replace("Correction", "erratum")}, 0,
+         ["ROUTED_RECEIPT ok", "ROUTED_SCORECARD ok", "ROUTED_NOTE ok", "ROUTED_STALE=0"])
+    shutil.rmtree(work, ignore_errors=True)
+    total, passed = len(cases), sum(cases)
+    print(f"SELFTEST: {'PASS' if passed == total else 'FAIL'} "
+          f"({total} cases, {passed} passed, {total - passed} failed)")
+    return 0 if passed == total else 3
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--revision", default="HEAD")
-    ap.add_argument("--fixture")
+    group = ap.add_mutually_exclusive_group()
+    group.add_argument("--revision", default="HEAD")
+    group.add_argument("--fixture")
+    group.add_argument("--selftest", action="store_true")
     args = ap.parse_args()
+    if args.selftest:
+        return run_selftest()
     return evaluate(readers(args.revision, args.fixture), args.fixture)
 
 

@@ -1,0 +1,86 @@
+{
+  "seat": "ExecHost",
+  "round": 79,
+  "wave": "w1",
+  "capture_window_utc": { "start": "2026-11-04T19:08:44Z", "end": "2026-11-04T19:09:59Z" },
+  "privilege": "all commands unprivileged; sudo -n never used",
+  "sanitization": "unit names, states, results, timings, memory peaks kept; argv/environment/credential-bearing output dropped (systemd-run description columns and journal 'Started [systemd-run] ...' lines withheld)",
+  "receipts": [
+    {
+      "id": "r1-user-failed",
+      "command": "systemctl --user list-units --state=failed --no-legend --no-pager",
+      "rc": 0,
+      "capture_utc": "2026-11-04T19:08:44Z",
+      "excerpt": "run-p1157862-i1164315.scope loaded failed failed; run-p1159104-i1145275.scope loaded failed failed (both [systemd-run] transient scopes; argv-bearing description column dropped)"
+    },
+    {
+      "id": "r2-system-failed",
+      "command": "systemctl list-units --state=failed --no-legend --no-pager",
+      "rc": 0,
+      "capture_utc": "2026-11-04T19:08:44Z",
+      "excerpt": "(empty output — 0 system failed units)"
+    },
+    {
+      "id": "r3-running-count",
+      "command": "systemctl list-units --type=service --state=running --no-legend --no-pager | wc -l",
+      "rc": 0,
+      "capture_utc": "2026-11-04T19:08:44Z",
+      "excerpt": "23"
+    },
+    {
+      "id": "r4-directive-grep",
+      "command": "grep -rn --include='*.service' --include='*.timer' --include='*.mount' -E '^(BindsTo|PartOf|Upholds|RequiresMountsFor|Wants|Requires|After|Before)=' /etc/systemd /usr/lib/systemd",
+      "rc": 0,
+      "capture_utc": "2026-11-04T19:08:44Z",
+      "excerpt": "729 matched lines; per-name counts: After=279 Before=240 Wants=75 Requires=70 PartOf=24 RequiresMountsFor=20 BindsTo=20 Upholds=1; origin: /etc/systemd=0 /usr/lib/systemd=729; grep stderr: 0 lines (nothing unreadable). Bounds: drop-ins (*.d/*.conf: 26 etc + 32 usrlib), /run generated units, symlinked /etc unit files, and Requisite= (outside pattern) not covered — zero counts are bounded grep results, not proof of non-use."
+    },
+    {
+      "id": "r5-show-scope1",
+      "command": "systemctl --user show -p Id,ActiveState,Result,Requires,Wants,BindsTo,PartOf,Upholds,RequiresMountsFor run-p1157862-i1164315.scope",
+      "rc": 0,
+      "capture_utc": "2026-11-04T19:09:59Z",
+      "excerpt": "Id=run-p1157862-i1164315.scope Requires=app.slice Wants= BindsTo= PartOf= Upholds= RequiresMountsFor= ActiveState=failed Result=oom-kill"
+    },
+    {
+      "id": "r6-show-scope2",
+      "command": "systemctl --user show -p Id,ActiveState,Result,Requires,Wants,BindsTo,PartOf,Upholds,RequiresMountsFor run-p1159104-i1145275.scope",
+      "rc": 0,
+      "capture_utc": "2026-11-04T19:09:59Z",
+      "excerpt": "Id=run-p1159104-i1145275.scope Requires=app.slice Wants= BindsTo= PartOf= Upholds= RequiresMountsFor= ActiveState=failed Result=oom-kill"
+    },
+    {
+      "id": "r7-journal-scope1",
+      "command": "journalctl --user -b -u run-p1157862-i1164315.scope -n 50 --no-pager",
+      "rc": 0,
+      "capture_utc": "2026-11-04T19:09:59Z",
+      "excerpt": "Nov 02 16:49:24 systemd[1487]: run-p1157862-i1164315.scope: The kernel OOM killer killed some processes in this unit. | run-p1157862-i1164315.scope: Failed with result 'oom-kill'. | run-p1157862-i1164315.scope: Consumed 38.434s CPU time over 5.183s wall clock time, 3G memory peak. (started 16:49:19; 'Started [systemd-run] <argv>' line withheld as argv-bearing)"
+    },
+    {
+      "id": "r8-journal-scope2",
+      "command": "journalctl --user -b -u run-p1159104-i1145275.scope -n 50 --no-pager",
+      "rc": 0,
+      "capture_utc": "2026-11-04T19:09:59Z",
+      "excerpt": "Nov 02 16:49:45 systemd[1487]: run-p1159104-i1145275.scope: The kernel OOM killer killed some processes in this unit. | run-p1159104-i1145275.scope: Failed with result 'oom-kill'. | run-p1159104-i1145275.scope: Consumed 3min 19.220s CPU time over 11.616s wall clock time, 8G memory peak. (started 16:49:33; 'Started [systemd-run] <argv>' line withheld as argv-bearing)"
+    },
+    {
+      "id": "r9-class-examples",
+      "command": "grep -E '^[^:]*:[0-9]*:(BindsTo|PartOf|Upholds|RequiresMountsFor)=' over captured grep output (scratch), head 6 per class",
+      "rc": 0,
+      "capture_utc": "2026-11-04T19:09:59Z",
+      "excerpt": "BindsTo: /usr/lib/systemd/system/systemd-coredump-register.service:16 BindsTo=systemd-coredumpd.service (also gpsdctl@, quotaon@, serial-getty@, systemd-fsck@, systemd-growfs@). PartOf: sddm.service:6 PartOf=graphical.target; systemd-nspawn@.service:14 PartOf=machines.target; xdg-desktop-portal-rewrite-launchers.service:5 PartOf=graphical-session-pre.target. Upholds: /usr/lib/systemd/system/systemd-coredumpd.service:19 Upholds=systemd-coredump-register.service (exactly 1 hit in scanned trees). RequiresMountsFor: pacman-filesdb-refresh.service:3 \"/var/lib/pacman/sync\"; btrfs-scrub@.service:4 %f; xfs_scrub@.service:20 %f; rpcbind.service:5 /var/lib/rpcbind. Origin counts: /etc/systemd=0, /usr/lib/systemd=729."
+    },
+    {
+      "id": "r10-file-counts",
+      "command": "find /etc/systemd -name '*.conf' | wc -l ; find /usr/lib/systemd -name '*.conf' | wc -l ; find /etc/systemd (-name '*.service' -o -name '*.timer' -o -name '*.mount') | wc -l ; same for /usr/lib/systemd",
+      "rc": 0,
+      "capture_utc": "2026-11-04T19:09:59Z",
+      "excerpt": "etc_dropins=26 usrlib_dropins=32 etc_units=32 usrlib_units=513 (drop-in .conf files and symlinked /etc unit entries are outside the r4 include-filter coverage)"
+    }
+  ],
+  "notes": [
+    "Zero counts (system failed=0, /etc grep hits=0, stderr=0) are bounded observations of the listed commands, not proofs of absence.",
+    "No unit state was changed; reset-failed and any restart remain operator actions (see handoff.md).",
+    "No tool installed or updated; tooling-authorization clause not exercised; no pacman transaction attempted.",
+    "Scratch /fast/scratch/hyaku/tsukuroi-r79/ExecHost deleted before yield."
+  ]
+}

@@ -1,0 +1,1519 @@
+{
+ "seat": "ReviewRegistry",
+ "claim": "C2",
+ "wave": "round-79/w1",
+ "measured_at": "2026-11-04T16:19:39-03:00",
+ "lane_root": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin",
+ "revisions": {
+  "base": "9086589a82f221d130ed6711fbe70b85f0d07aea",
+  "freeze": "afe1f26128bde87484001cd02ebf11fa524c4059",
+  "integration_head": "883aae6107cace30795d3163092b08498e8d4b73"
+ },
+ "digests_measured": {
+  "SKILL.md": "97716dd920cca67f3c948ebed02f5a29b56a3afce3e8f93c2b82a449f2a8054d",
+  "tools/check-r71-routed-r72.py": "3060dcfe4f126d3eb6474a1f543bf415a3996065c410e9a898f70d22588c5175",
+  "tools/count-md-rows-r72.py": "58f7397ea39186afc8f2e476391715d3d482c9c1139d72e44023364be845063c",
+  "tools/check-gate-standard-r79.py": "0b32ddbcaf1fcab3721745ef9629d20ff1d249403d0d590655e537b2ad72cfda",
+  "tools/measure-unit-deps-r79.py": "132be669e367670e8af15d8830443097c6c22f91ce36d1088e7282cf48882d1d",
+  ".ufo/waves/round-79/before/expected.json": "0c09c7a4ad010dd19e99b47940b94030f945498a20b705981b581e308f3add21",
+  ".ufo/waves/round-79/before/src/systemd.unit.xml": "eb9479bea50ccb0e7643836ec083e8ef68bdf9ef2b26f31839939168f82714c6"
+ },
+ "runs": [
+  {
+   "id": "after-gate-standard-root",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--root",
+    "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin"
+   ],
+   "rc": 0,
+   "stdout": [
+    "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=2/2 met=1"
+   ]
+  },
+  {
+   "id": "before-gate-standard-freeze",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--revision",
+    "afe1f26128bde87484001cd02ebf11fa524c4059"
+   ],
+   "rc": 1,
+   "stdout": [
+    "REGISTRY-CURRENT-DUPLICATE tools/check-r72-routed-r73.py: 2 current rows",
+    "REGISTRY-CURRENT-DUPLICATE tools/check-r75-routed-r76.py: 2 current rows",
+    "REGISTRY-CURRENT-DUPLICATE tools/check-selftest-tally.py: 2 current rows",
+    "REGISTRY-CURRENT-DUPLICATE tools/count-jd-rows-r76.py: 2 current rows",
+    "REGISTRY-CURRENT-DUPLICATE tools/count-ul-rows-r73.py: 2 current rows",
+    "REGISTRY-CURRENT-DUPLICATE tools/measure-journal-arithmetic-r77.py: 2 current rows",
+    "GATE-STANDARD-SHAPE check-r71-routed-r72: kind/selftest/verdict/source clause unmet",
+    "GATE-STANDARD-SHAPE count-md-rows-r72: kind/selftest/verdict/source clause unmet",
+    "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=6 shape_ok=0/2 met=0 revision=afe1f26128bde87484001cd02ebf11fa524c4059 branch=master"
+   ]
+  },
+  {
+   "id": "before-gate-standard-base",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--revision",
+    "9086589a82f221d130ed6711fbe70b85f0d07aea"
+   ],
+   "rc": 1,
+   "stdout": [
+    "REGISTRY-CURRENT-DUPLICATE tools/check-r72-routed-r73.py: 2 current rows",
+    "REGISTRY-CURRENT-DUPLICATE tools/check-r75-routed-r76.py: 2 current rows",
+    "REGISTRY-CURRENT-DUPLICATE tools/check-selftest-tally.py: 2 current rows",
+    "REGISTRY-CURRENT-DUPLICATE tools/count-jd-rows-r76.py: 2 current rows",
+    "REGISTRY-CURRENT-DUPLICATE tools/count-ul-rows-r73.py: 2 current rows",
+    "REGISTRY-CURRENT-DUPLICATE tools/measure-journal-arithmetic-r77.py: 2 current rows",
+    "GATE-STANDARD-SHAPE check-r71-routed-r72: kind/selftest/verdict/source clause unmet",
+    "GATE-STANDARD-SHAPE count-md-rows-r72: kind/selftest/verdict/source clause unmet",
+    "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=6 shape_ok=0/2 met=0 revision=9086589a82f221d130ed6711fbe70b85f0d07aea branch=master"
+   ]
+  },
+  {
+   "id": "selftest-gate-standard",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "stdout": [
+    "SELFTEST control duplicates=0 shape=2 findings=none PASS",
+    "SELFTEST unmarked-continuation-duplicate duplicates=1 shape=2 findings=REGISTRY-CURRENT-DUPLICATE PASS",
+    "SELFTEST marked-continuation duplicates=0 shape=2 findings=none PASS",
+    "SELFTEST gate-without-selftest duplicates=0 shape=1 findings=GATE-STANDARD-SHAPE PASS",
+    "SELFTEST verdict-without-code3 duplicates=0 shape=1 findings=GATE-STANDARD-SHAPE PASS",
+    "SELFTEST tool-without-selftest duplicates=0 shape=1 findings=GATE-STANDARD-SHAPE PASS",
+    "SELFTEST missing-row duplicates=0 shape=1 findings=GATE-STANDARD-ROW PASS",
+    "SELFTEST duplicate-operative-heading duplicates=None shape=None findings=CANNOT PASS",
+    "SELFTEST total=8 passed=8 failed=0"
+   ]
+  },
+  {
+   "id": "selftest-measure-unit-deps",
+   "argv": [
+    "python3",
+    "tools/measure-unit-deps-r79.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "stdout": [
+    "SELFTEST control expected=1 observed=1 count=8 reason=finite-content-and-review label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST expected-drift expected=0 observed=0 count=0 reason=expected-drift label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST quote-DP1 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST line-DP1 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST quote-DP2 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST line-DP2 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST quote-DP3 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST line-DP3 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST quote-DP4 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST line-DP4 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST quote-DP5 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST line-DP5 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST quote-DP6 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST line-DP6 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST quote-DP7 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST line-DP7 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST quote-DP8 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST line-DP8 expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST seven-rows expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST duplicate-id expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST wrong-source expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST snapshot-tampered expected=0 observed=0 count=0 reason=snapshot-digest label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST own-work-source expected=0 observed=0 count=0 reason=source-unresolved label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST companion-changed expected=0 observed=0 count=0 reason=review-not-bound label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST quote-absent expected=0 observed=0 count=0 reason=finite-content-mismatch label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST missing-systemd-dependency-propagation-r79.json expected=0 observed=0 count=0 reason=unreadable:KeyError label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST missing-verdict.json expected=0 observed=0 count=0 reason=unreadable:KeyError label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST missing-w1-results.json expected=0 observed=0 count=0 reason=unreadable:KeyError label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST wrong-role expected=0 observed=0 count=0 reason=result-identity label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST lost-result expected=0 observed=0 count=0 reason=result-digest label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST failed-row expected=0 observed=0 count=0 reason=review-not-bound label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST duplicate-result expected=0 observed=0 count=0 reason=result-identity label=eight pinned dependency-propagation rows match with review binding PASS",
+    "SELFTEST total=32 passed=32 failed=0"
+   ]
+  },
+  {
+   "id": "coverage-freeze",
+   "argv": [
+    "python3",
+    "tools/check-registry-coverage.py",
+    "--revision",
+    "afe1f26128bde87484001cd02ebf11fa524c4059"
+   ],
+   "rc": 1,
+   "stdout": [
+    "{\"branch\":\"master\",\"branch_tip\":\"883aae6107cace30795d3163092b08498e8d4b73\",\"counts\":{\"findings\":2,\"missing\":2,\"registered\":117,\"rows_total\":117,\"tools_total\":119},\"findings\":[{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/check-gate-standard-r79.py\"},{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/measure-unit-deps-r79.py\"}],\"revision\":\"afe1f26128bde87484001cd02ebf11fa524c4059\",\"status\":\"FAIL\"}"
+   ]
+  },
+  {
+   "id": "coverage-base",
+   "argv": [
+    "python3",
+    "tools/check-registry-coverage.py",
+    "--revision",
+    "9086589a82f221d130ed6711fbe70b85f0d07aea"
+   ],
+   "rc": 0,
+   "stdout": [
+    "{\"branch\":\"master\",\"branch_tip\":\"883aae6107cace30795d3163092b08498e8d4b73\",\"counts\":{\"findings\":0,\"missing\":0,\"registered\":117,\"rows_total\":117,\"tools_total\":117},\"findings\":[],\"revision\":\"9086589a82f221d130ed6711fbe70b85f0d07aea\",\"status\":\"PASS\"}"
+   ]
+  },
+  {
+   "id": "coverage-integration-head",
+   "argv": [
+    "python3",
+    "tools/check-registry-coverage.py",
+    "--revision",
+    "883aae6107cace30795d3163092b08498e8d4b73"
+   ],
+   "rc": 1,
+   "stdout": [
+    "{\"branch\":\"master\",\"branch_tip\":\"883aae6107cace30795d3163092b08498e8d4b73\",\"counts\":{\"findings\":2,\"missing\":2,\"registered\":117,\"rows_total\":117,\"tools_total\":119},\"findings\":[{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/check-gate-standard-r79.py\"},{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/measure-unit-deps-r79.py\"}],\"revision\":\"883aae6107cace30795d3163092b08498e8d4b73\",\"status\":\"FAIL\"}"
+   ]
+  },
+  {
+   "id": "coverage-freeze-baseline-tools",
+   "argv": [
+    "python3",
+    "tools/check-registry-coverage.py",
+    "--revision",
+    "afe1f26128bde87484001cd02ebf11fa524c4059",
+    "--baseline-tools",
+    "9086589a82f221d130ed6711fbe70b85f0d07aea"
+   ],
+   "rc": 1,
+   "stdout": [
+    "{\"branch\":\"master\",\"branch_tip\":\"883aae6107cace30795d3163092b08498e8d4b73\",\"counts\":{\"baseline_tools_missing\":0,\"baseline_tools_total\":117,\"discovered_tools\":[\"tools/check-gate-standard-r79.py\",\"tools/measure-unit-deps-r79.py\"],\"findings\":2,\"missing\":2,\"registered\":117,\"rows_total\":117,\"tools_total\":119},\"findings\":[{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/check-gate-standard-r79.py\"},{\"detail\":\"no operative row names this regular tools/ file\",\"id\":\"REGISTRY-ROW-MISSING\",\"site\":\"tools/measure-unit-deps-r79.py\"}],\"revision\":\"afe1f26128bde87484001cd02ebf11fa524c4059\",\"status\":\"FAIL\"}"
+   ]
+  },
+  {
+   "id": "selftest-coverage-tool",
+   "argv": [
+    "python3",
+    "tools/check-registry-coverage.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "stdout": [
+    "PASS (23 cases, 23 passed, 0 failed)"
+   ]
+  },
+  {
+   "id": "selftest-check-r71-routed-r72",
+   "argv": [
+    "python3",
+    "tools/check-r71-routed-r72.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "stdout": [
+    "SELFTEST clean-pass rc=0 PASS",
+    "SELFTEST receipt-missing rc=1 PASS",
+    "SELFTEST receipt-missing-revision-token rc=1 PASS",
+    "SELFTEST receipt-mismatch rc=1 PASS",
+    "SELFTEST malformed-scorecard rc=1 PASS",
+    "SELFTEST note-missing-section rc=1 PASS",
+    "SELFTEST note-missing-tokens rc=1 PASS",
+    "SELFTEST accepted-variant rc=0 PASS",
+    "SELFTEST: PASS (8 cases, 8 passed, 0 failed)"
+   ]
+  },
+  {
+   "id": "selftest-count-md-rows-r72",
+   "argv": [
+    "python3",
+    "tools/count-md-rows-r72.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "stdout": [
+    "SELFTEST clean-pass rc=0 PASS",
+    "SELFTEST note-absent rc=128 PASS",
+    "SELFTEST registry-absent rc=128 PASS",
+    "SELFTEST map-absent rc=128 PASS",
+    "SELFTEST map-malformed rc=1 PASS",
+    "SELFTEST malformed-row rc=1 PASS",
+    "SELFTEST duplicate-id rc=1 PASS",
+    "SELFTEST statement-words rc=1 PASS",
+    "SELFTEST statement-grounding rc=1 PASS",
+    "SELFTEST snapshot-absent rc=1 PASS",
+    "SELFTEST digest-mismatch rc=1 PASS",
+    "SELFTEST map-digest rc=1 PASS",
+    "SELFTEST map-url-absent rc=1 PASS",
+    "SELFTEST quote-absent rc=1 PASS",
+    "SELFTEST quote-words rc=1 PASS",
+    "SELFTEST quote-pipe-dead-branch rc=1 PASS",
+    "SELFTEST source-unregistered rc=1 PASS",
+    "SELFTEST source-kind-own-work rc=1 PASS",
+    "SELFTEST source-not-bound rc=1 PASS",
+    "SELFTEST anchor-not-bound rc=1 PASS",
+    "SELFTEST ids-not-contiguous rc=1 PASS",
+    "SELFTEST snapshot-reuse rc=1 PASS",
+    "SELFTEST accepted-variant rc=0 PASS",
+    "SELFTEST: PASS (23 cases, 23 passed, 0 failed)"
+   ]
+  },
+  {
+   "id": "default-check-r71-at-freeze",
+   "argv": [
+    "python3",
+    "tools/check-r71-routed-r72.py",
+    "--revision",
+    "afe1f26128bde87484001cd02ebf11fa524c4059"
+   ],
+   "rc": 0,
+   "stdout": [
+    "ROUTED_RECEIPT ok revision=2b358d2d",
+    "ROUTED_SCORECARD ok",
+    "ROUTED_NOTE ok",
+    "ROUTED_STALE=0"
+   ]
+  },
+  {
+   "id": "default-count-md-at-freeze",
+   "argv": [
+    "python3",
+    "tools/count-md-rows-r72.py",
+    "--revision",
+    "afe1f26128bde87484001cd02ebf11fa524c4059"
+   ],
+   "rc": 0,
+   "stdout": [
+    "MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd",
+    "MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd",
+    "MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c",
+    "MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c",
+    "MD_ROW ok MD5 source=S303 snapshot=modprobe.c",
+    "MD_ROW ok MD6 source=S303 snapshot=modprobe.c",
+    "MD_ROWS=6 MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0",
+    "MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1"
+   ]
+  },
+  {
+   "id": "gate-bad-revision",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--revision",
+    "zzzz"
+   ],
+   "rc": 2,
+   "stdout": [
+    "GATE_STANDARD_BINDING E-REVISION-INVALID revision: 7-64 hex commit required"
+   ]
+  },
+  {
+   "id": "count-md-bad-flag",
+   "argv": [
+    "python3",
+    "tools/count-md-rows-r72.py",
+    "--bogus"
+   ],
+   "rc": 2,
+   "stdout": [
+    "usage: count-md-rows-r72.py [-h] [--revision REVISION | --fixture FIXTURE |",
+    "                            --selftest]",
+    "count-md-rows-r72.py: error: unrecognized arguments: --bogus"
+   ]
+  },
+  {
+   "id": "harness-check-r71-unset",
+   "argv": [
+    "env",
+    "-u",
+    "TMPDIR",
+    "python3",
+    "tools/check-r71-routed-r72.py",
+    "--selftest"
+   ],
+   "rc": 2,
+   "stdout": [
+    "HARNESS-TMPDIR-REFUSED reason=tmpdir-unset"
+   ]
+  },
+  {
+   "id": "harness-check-r71-tmp",
+   "argv": [
+    "TMPDIR=/tmp",
+    "python3",
+    "tools/check-r71-routed-r72.py",
+    "--selftest"
+   ],
+   "rc": 2,
+   "stdout": [
+    "HARNESS-TMPDIR-REFUSED reason=tmpdir-under-tmp"
+   ]
+  },
+  {
+   "id": "harness-count-md-unset",
+   "argv": [
+    "env",
+    "-u",
+    "TMPDIR",
+    "python3",
+    "tools/count-md-rows-r72.py",
+    "--selftest"
+   ],
+   "rc": 2,
+   "stdout": [
+    "HARNESS-TMPDIR-REFUSED reason=tmpdir-unset"
+   ]
+  },
+  {
+   "id": "harness-count-md-tmp",
+   "argv": [
+    "TMPDIR=/tmp",
+    "python3",
+    "tools/count-md-rows-r72.py",
+    "--selftest"
+   ],
+   "rc": 2,
+   "stdout": [
+    "HARNESS-TMPDIR-REFUSED reason=tmpdir-under-tmp"
+   ]
+  },
+  {
+   "id": "line-endings",
+   "argv": [
+    "python3",
+    "tools/check-line-endings-r64.py",
+    "--check"
+   ],
+   "rc": 0,
+   "stdout": [
+    "CHECK_LINE_ENDINGS: PASS (395 file(s) checked, 0 violation(s))",
+    "check-line-endings-r64: 23895 allow-listed .ufo path(s) skipped (upstream captures)"
+   ]
+  },
+  {
+   "id": "bothflags-freeze-copy",
+   "argv": [
+    "python3",
+    "<freeze blob copy>/check-r71-routed-r72.py",
+    "--revision",
+    "afe1f261",
+    "--fixture",
+    "/nonexistent-fixture"
+   ],
+   "rc": 1,
+   "stdout": [
+    "ROUTED_RECEIPT missing .ufo/waves/round-71/after/count-mp-rows-final.txt",
+    "ROUTED_SCORECARD missing: no erratum block naming the receipt and the record revision",
+    "ROUTED_NOTE missing: no appended correction/erratum section",
+    "ROUTED_STALE=3"
+   ],
+   "note": "the freeze tool accepts --revision together with --fixture (fixture wins)"
+  },
+  {
+   "id": "bothflags-current",
+   "argv": [
+    "python3",
+    "tools/check-r71-routed-r72.py",
+    "--revision",
+    "afe1f261",
+    "--fixture",
+    "/nonexistent-fixture"
+   ],
+   "rc": 2,
+   "stdout": [
+    "usage: check-r71-routed-r72.py [-h] [--revision REVISION | --fixture FIXTURE |",
+    "                               --selftest]",
+    "check-r71-routed-r72.py: error: argument --fixture: not allowed with argument --revision"
+   ],
+   "note": "the post-edit tool rejects the combination via the mutually exclusive group; documented single-mode invocations are unchanged"
+  }
+ ],
+ "controls": [
+  {
+   "fixture": "good",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--root",
+    "/fast/scratch/hyaku/tsukuroi-r79/ReviewRegistry/fixtures/good"
+   ],
+   "rc": 0,
+   "stdout": [
+    "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=2/2 met=1"
+   ]
+  },
+  {
+   "fixture": "lying",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--root",
+    "/fast/scratch/hyaku/tsukuroi-r79/ReviewRegistry/fixtures/lying"
+   ],
+   "rc": 1,
+   "stdout": [
+    "GATE-STANDARD-SHAPE check-r71-routed-r72: kind/selftest/verdict/source clause unmet",
+    "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=1/2 met=0"
+   ]
+  },
+  {
+   "fixture": "unmarked",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--root",
+    "/fast/scratch/hyaku/tsukuroi-r79/ReviewRegistry/fixtures/unmarked"
+   ],
+   "rc": 1,
+   "stdout": [
+    "REGISTRY-CURRENT-DUPLICATE tools/check-r72-routed-r73.py: 2 current rows",
+    "REGISTRY-CURRENT-DUPLICATE tools/count-ul-rows-r73.py: 2 current rows",
+    "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=2 shape_ok=2/2 met=0"
+   ]
+  },
+  {
+   "fixture": "tool-without-selftest",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--root",
+    "/fast/scratch/hyaku/tsukuroi-r79/ReviewRegistry/fixtures/tool-without-selftest"
+   ],
+   "rc": 1,
+   "stdout": [
+    "GATE-STANDARD-SHAPE count-md-rows-r72: kind/selftest/verdict/source clause unmet",
+    "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=1/2 met=0"
+   ]
+  },
+  {
+   "fixture": "verdict-no-3",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--root",
+    "/fast/scratch/hyaku/tsukuroi-r79/ReviewRegistry/fixtures/verdict-no-3"
+   ],
+   "rc": 1,
+   "stdout": [
+    "GATE-STANDARD-SHAPE count-md-rows-r72: kind/selftest/verdict/source clause unmet",
+    "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=1/2 met=0"
+   ]
+  },
+  {
+   "fixture": "forged-source",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--root",
+    "/fast/scratch/hyaku/tsukuroi-r79/ReviewRegistry/fixtures/forged-source"
+   ],
+   "rc": 1,
+   "stdout": [
+    "REGISTRY-CURRENT-DUPLICATE tools/count-md-rows-r72.py: 2 current rows",
+    "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=1 shape_ok=2/2 met=0"
+   ]
+  },
+  {
+   "fixture": "forged-borrow",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--root",
+    "/fast/scratch/hyaku/tsukuroi-r79/ReviewRegistry/fixtures/forged-borrow"
+   ],
+   "rc": 1,
+   "stdout": [
+    "GATE-STANDARD-SHAPE check-r71-routed-r72: kind/selftest/verdict/source clause unmet",
+    "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=1/2 met=0"
+   ]
+  },
+  {
+   "fixture": "red-selftest",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--root",
+    "/fast/scratch/hyaku/tsukuroi-r79/ReviewRegistry/fixtures/red-selftest"
+   ],
+   "rc": 0,
+   "stdout": [
+    "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=2/2 met=1"
+   ]
+  },
+  {
+   "fixture": "phantom-selftest",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--root",
+    "/fast/scratch/hyaku/tsukuroi-r79/ReviewRegistry/fixtures/phantom-selftest"
+   ],
+   "rc": 0,
+   "stdout": [
+    "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=2/2 met=1"
+   ],
+   "note": "self-test cell names tools/does-not-exist-r79.py plus the row name; the entry cell still points at the real tool, whose blob carries --selftest/SELFTEST, so shape_ok=2/2 met=1 even though the advertised self-test command does not exist"
+  },
+  {
+   "fixture": "heading-collision",
+   "argv": [
+    "python3",
+    "tools/check-gate-standard-r79.py",
+    "--root",
+    "/fast/scratch/hyaku/tsukuroi-r79/ReviewRegistry/fixtures/heading-collision"
+   ],
+   "rc": 0,
+   "stdout": [
+    "GATE_STANDARD predicate=\"zero duplicate current rows and two gate-standard rows\" duplicates=0 shape_ok=2/2 met=1"
+   ],
+   "note": "an exact duplicate of the Round-72 continuation heading inserted earlier in SKILL.md; lines.index() resolves the table heading to the earlier line, the table is skipped as \"before the operative heading\", and its duplicate row stops counting (duplicates=0)"
+  }
+ ],
+ "independent_verifier": {
+  "implementation": "/fast/scratch/hyaku/tsukuroi-r79/ReviewRegistry/verify_registry.py (reimplements the frozen duplicate/shape clauses; does not import the lane counters)",
+  "before_freeze_root": {
+   "skill_sha256": "6b3c64a3bc57664a55ebdb3477d7d94152932489845ca903c0f7de0ad1e38418",
+   "operative_heading_line": 5777,
+   "operative_rows": 117,
+   "current_rows": 123,
+   "duplicates": 6,
+   "duplicate_paths": {
+    "tools/check-selftest-tally.py": 2,
+    "tools/measure-journal-arithmetic-r77.py": 2,
+    "tools/check-r72-routed-r73.py": 2,
+    "tools/check-r75-routed-r76.py": 2,
+    "tools/count-jd-rows-r76.py": 2,
+    "tools/count-ul-rows-r73.py": 2
+   },
+   "tables": [
+    {
+     "heading": "### Gate registry",
+     "line": 1705,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 1
+    },
+    {
+     "heading": "## Round 13 — active unit-path correction (R13-DAC-EXCLUSIVITY)",
+     "line": 1717,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 1
+    },
+    {
+     "heading": "### Round-14 correction-conformance gate registry",
+     "line": 1774,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 1
+    },
+    {
+     "heading": "## Round 15 — portable locators, positive option domain, and the dated update recheck",
+     "line": 1787,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 2
+    },
+    {
+     "heading": "## Round 16 — citation-only section/table errata",
+     "line": 1837,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 1
+    },
+    {
+     "heading": "### Gate and probe registry (round 17)",
+     "line": 1893,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 6
+    },
+    {
+     "heading": "## Gate and probe registry — round18 superseding current rows",
+     "line": 1952,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 13
+    },
+    {
+     "heading": "## Gate and probe registry — round19 superseding current rows",
+     "line": 2060,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 17
+    },
+    {
+     "heading": "## Gate and probe registry — round20 superseding current rows",
+     "line": 2096,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 17
+    },
+    {
+     "heading": "## Gate and probe registry — round21 superseding current rows",
+     "line": 2127,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 19
+    },
+    {
+     "heading": "## Gate and probe registry — round22 superseding current rows",
+     "line": 2167,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 22
+    },
+    {
+     "heading": "## Gate and probe registry — round23 superseding current rows",
+     "line": 2206,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 24
+    },
+    {
+     "heading": "## Gate and probe registry — round24 superseding current rows",
+     "line": 2254,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 26
+    },
+    {
+     "heading": "## Gate and probe registry — round25 superseding current rows",
+     "line": 2324,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 28
+    },
+    {
+     "heading": "## Gate and probe registry — round26 superseding current rows",
+     "line": 2379,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 29
+    },
+    {
+     "heading": "## Gate and probe registry — round27 superseding current rows",
+     "line": 2440,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 31
+    },
+    {
+     "heading": "## Gate and probe registry — round28 superseding current rows",
+     "line": 2490,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 33
+    },
+    {
+     "heading": "## Gate and probe registry — round29 superseding current rows",
+     "line": 2549,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 37
+    },
+    {
+     "heading": "## Gate and probe registry — round30 superseding current rows",
+     "line": 2620,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 43
+    },
+    {
+     "heading": "## Gate and probe registry — round31 superseding current rows",
+     "line": 2689,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 45
+    },
+    {
+     "heading": "## Gate and probe registry — round32 superseding current rows",
+     "line": 2756,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 47
+    },
+    {
+     "heading": "## Gate and probe registry — round33 superseding current rows",
+     "line": 2814,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 48
+    },
+    {
+     "heading": "## Gate and probe registry — round34 superseding current rows",
+     "line": 2884,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 50
+    },
+    {
+     "heading": "## Gate and probe registry — round35 superseding current rows",
+     "line": 2945,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 52
+    },
+    {
+     "heading": "## Gate and probe registry — round36 superseding current rows",
+     "line": 3050,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 66
+    },
+    {
+     "heading": "## Historical instrument pins — round 39",
+     "line": 3305,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 2
+    },
+    {
+     "heading": "## Gate and probe registry — round44 superseding current rows",
+     "line": 4036,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 139
+    },
+    {
+     "heading": "## Gate and probe registry — round45 superseding current rows",
+     "line": 4347,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 72
+    },
+    {
+     "heading": "## Gate and probe registry — round46 superseding current rows",
+     "line": 4467,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 95
+    },
+    {
+     "heading": "## Gate and probe registry — round58 superseding current rows",
+     "line": 4744,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 95
+    },
+    {
+     "heading": "## Gate and probe registry — round59 superseding current rows",
+     "line": 4888,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 96
+    },
+    {
+     "heading": "## Gate and probe registry — round60 superseding current rows",
+     "line": 5011,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 97
+    },
+    {
+     "heading": "## Gate and probe registry — round61 superseding current rows",
+     "line": 5154,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 98
+    },
+    {
+     "heading": "## Gate and probe registry — round62 superseding current rows",
+     "line": 5267,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 99
+    },
+    {
+     "heading": "## Gate and probe registry — round63 superseding current rows",
+     "line": 5380,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 99
+    },
+    {
+     "heading": "## Gate and probe registry — round64 superseding current rows",
+     "line": 5492,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 100
+    },
+    {
+     "heading": "## Gate and probe registry — round68 superseding current rows",
+     "line": 5628,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 102
+    },
+    {
+     "heading": "## Gate and probe registry — round71 superseding current rows",
+     "line": 5777,
+     "marked": false,
+     "operative": true,
+     "counted": true,
+     "rows": 117
+    },
+    {
+     "heading": "## Round 72 — `selftest-tally` registry row continuation (append-only)",
+     "line": 5974,
+     "marked": false,
+     "operative": false,
+     "counted": true,
+     "rows": 1
+    },
+    {
+     "heading": "## Round 73 — registry continuation for the two round-73 instruments (append-only)",
+     "line": 6010,
+     "marked": false,
+     "operative": false,
+     "counted": true,
+     "rows": 1
+    },
+    {
+     "heading": "## Round 73 — registry continuation for the two round-73 instruments (append-only)",
+     "line": 6010,
+     "marked": false,
+     "operative": false,
+     "counted": true,
+     "rows": 1
+    },
+    {
+     "heading": "### Round-76 instrument registry (append-only continuation)",
+     "line": 6087,
+     "marked": false,
+     "operative": false,
+     "counted": true,
+     "rows": 2
+    },
+    {
+     "heading": "## Gate and probe registry — round 77 addition",
+     "line": 6094,
+     "marked": false,
+     "operative": false,
+     "counted": true,
+     "rows": 1
+    }
+   ],
+   "markers": {
+    "## Round 72 — `selftest-tally` registry row continuation (append-only)": "next='Append-only replacement row for the `## Gate and probe regis'",
+    "## Round 73 — registry continuation for the two round-73 instruments (append-only)": "next='Append-only continuation rows for the `## Gate and probe reg'",
+    "### Round-76 instrument registry (append-only continuation)": "next='| name | kind | entry | verdict map | self-test | pinned val'",
+    "## Gate and probe registry — round 77 addition": "next='| name | kind | entry command | verdict map | self-test comm'"
+   },
+   "shape": {
+    "check-r71-routed-r72": {
+     "operative_rows": 1,
+     "kind": "gate",
+     "entry": "`python3 tools/check-r71-routed-r72.py --revision <REV>` (or `--fixture <DIR>`)",
+     "selftest": "none: no self-test mode",
+     "verdict_codes": [
+      "0",
+      "1",
+      "2"
+     ],
+     "selftest_has_own_tool": false,
+     "verdict_has_3": false,
+     "verdict_has_self_test_word": false,
+     "source_has_selftest": false,
+     "source_has_SELFTEST": false,
+     "source_path": "tools/check-r71-routed-r72.py"
+    },
+    "count-md-rows-r72": {
+     "operative_rows": 1,
+     "kind": "gate",
+     "entry": "`python3 tools/count-md-rows-r72.py --revision <REV>` (or `--fixture <DIR>`)",
+     "selftest": "none: no self-test mode",
+     "verdict_codes": [
+      "0",
+      "1",
+      "2"
+     ],
+     "selftest_has_own_tool": false,
+     "verdict_has_3": false,
+     "verdict_has_self_test_word": false,
+     "source_has_selftest": false,
+     "source_has_SELFTEST": false,
+     "source_path": "tools/count-md-rows-r72.py"
+    },
+    "measure-unit-deps-r79": {
+     "operative_rows": 0
+    },
+    "check-gate-standard-r79": {
+     "operative_rows": 0
+    }
+   },
+   "operative_coverage": {
+    "rows": 117,
+    "multi": {},
+    "ambiguous": []
+   }
+  },
+  "after_worktree": {
+   "skill_sha256": "97716dd920cca67f3c948ebed02f5a29b56a3afce3e8f93c2b82a449f2a8054d",
+   "operative_heading_line": 5777,
+   "operative_rows": 119,
+   "current_rows": 119,
+   "duplicates": 0,
+   "duplicate_paths": {},
+   "tables": [
+    {
+     "heading": "### Gate registry",
+     "line": 1705,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 1
+    },
+    {
+     "heading": "## Round 13 — active unit-path correction (R13-DAC-EXCLUSIVITY)",
+     "line": 1717,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 1
+    },
+    {
+     "heading": "### Round-14 correction-conformance gate registry",
+     "line": 1774,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 1
+    },
+    {
+     "heading": "## Round 15 — portable locators, positive option domain, and the dated update recheck",
+     "line": 1787,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 2
+    },
+    {
+     "heading": "## Round 16 — citation-only section/table errata",
+     "line": 1837,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 1
+    },
+    {
+     "heading": "### Gate and probe registry (round 17)",
+     "line": 1893,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 6
+    },
+    {
+     "heading": "## Gate and probe registry — round18 superseding current rows",
+     "line": 1952,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 13
+    },
+    {
+     "heading": "## Gate and probe registry — round19 superseding current rows",
+     "line": 2060,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 17
+    },
+    {
+     "heading": "## Gate and probe registry — round20 superseding current rows",
+     "line": 2096,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 17
+    },
+    {
+     "heading": "## Gate and probe registry — round21 superseding current rows",
+     "line": 2127,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 19
+    },
+    {
+     "heading": "## Gate and probe registry — round22 superseding current rows",
+     "line": 2167,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 22
+    },
+    {
+     "heading": "## Gate and probe registry — round23 superseding current rows",
+     "line": 2206,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 24
+    },
+    {
+     "heading": "## Gate and probe registry — round24 superseding current rows",
+     "line": 2254,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 26
+    },
+    {
+     "heading": "## Gate and probe registry — round25 superseding current rows",
+     "line": 2324,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 28
+    },
+    {
+     "heading": "## Gate and probe registry — round26 superseding current rows",
+     "line": 2379,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 29
+    },
+    {
+     "heading": "## Gate and probe registry — round27 superseding current rows",
+     "line": 2440,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 31
+    },
+    {
+     "heading": "## Gate and probe registry — round28 superseding current rows",
+     "line": 2490,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 33
+    },
+    {
+     "heading": "## Gate and probe registry — round29 superseding current rows",
+     "line": 2549,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 37
+    },
+    {
+     "heading": "## Gate and probe registry — round30 superseding current rows",
+     "line": 2620,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 43
+    },
+    {
+     "heading": "## Gate and probe registry — round31 superseding current rows",
+     "line": 2689,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 45
+    },
+    {
+     "heading": "## Gate and probe registry — round32 superseding current rows",
+     "line": 2756,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 47
+    },
+    {
+     "heading": "## Gate and probe registry — round33 superseding current rows",
+     "line": 2814,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 48
+    },
+    {
+     "heading": "## Gate and probe registry — round34 superseding current rows",
+     "line": 2884,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 50
+    },
+    {
+     "heading": "## Gate and probe registry — round35 superseding current rows",
+     "line": 2945,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 52
+    },
+    {
+     "heading": "## Gate and probe registry — round36 superseding current rows",
+     "line": 3050,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 66
+    },
+    {
+     "heading": "## Historical instrument pins — round 39",
+     "line": 3305,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 2
+    },
+    {
+     "heading": "## Gate and probe registry — round44 superseding current rows",
+     "line": 4036,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 139
+    },
+    {
+     "heading": "## Gate and probe registry — round45 superseding current rows",
+     "line": 4347,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 72
+    },
+    {
+     "heading": "## Gate and probe registry — round46 superseding current rows",
+     "line": 4467,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 95
+    },
+    {
+     "heading": "## Gate and probe registry — round58 superseding current rows",
+     "line": 4744,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 95
+    },
+    {
+     "heading": "## Gate and probe registry — round59 superseding current rows",
+     "line": 4888,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 96
+    },
+    {
+     "heading": "## Gate and probe registry — round60 superseding current rows",
+     "line": 5011,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 97
+    },
+    {
+     "heading": "## Gate and probe registry — round61 superseding current rows",
+     "line": 5154,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 98
+    },
+    {
+     "heading": "## Gate and probe registry — round62 superseding current rows",
+     "line": 5267,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 99
+    },
+    {
+     "heading": "## Gate and probe registry — round63 superseding current rows",
+     "line": 5380,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 99
+    },
+    {
+     "heading": "## Gate and probe registry — round64 superseding current rows",
+     "line": 5492,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 100
+    },
+    {
+     "heading": "## Gate and probe registry — round68 superseding current rows",
+     "line": 5628,
+     "marked": false,
+     "operative": null,
+     "counted": null,
+     "rows": 102
+    },
+    {
+     "heading": "## Gate and probe registry — round71 superseding current rows",
+     "line": 5777,
+     "marked": false,
+     "operative": true,
+     "counted": true,
+     "rows": 119
+    },
+    {
+     "heading": "## Round 72 — `selftest-tally` registry row continuation (append-only)",
+     "line": 5976,
+     "marked": true,
+     "operative": false,
+     "counted": false,
+     "rows": 1
+    },
+    {
+     "heading": "## Round 73 — registry continuation for the two round-73 instruments (append-only)",
+     "line": 6013,
+     "marked": true,
+     "operative": false,
+     "counted": false,
+     "rows": 1
+    },
+    {
+     "heading": "## Round 73 — registry continuation for the two round-73 instruments (append-only)",
+     "line": 6013,
+     "marked": true,
+     "operative": false,
+     "counted": false,
+     "rows": 1
+    },
+    {
+     "heading": "### Round-76 instrument registry (append-only continuation)",
+     "line": 6091,
+     "marked": true,
+     "operative": false,
+     "counted": false,
+     "rows": 2
+    },
+    {
+     "heading": "## Gate and probe registry — round 77 addition",
+     "line": 6099,
+     "marked": true,
+     "operative": false,
+     "counted": false,
+     "rows": 1
+    }
+   ],
+   "markers": {
+    "## Round 72 — `selftest-tally` registry row continuation (append-only)": "OK",
+    "## Round 73 — registry continuation for the two round-73 instruments (append-only)": "OK",
+    "### Round-76 instrument registry (append-only continuation)": "OK",
+    "## Gate and probe registry — round 77 addition": "OK"
+   },
+   "shape": {
+    "check-r71-routed-r72": {
+     "operative_rows": 1,
+     "kind": "gate",
+     "entry": "`python3 tools/check-r71-routed-r72.py --revision <REV>` (or `--fixture <DIR>`)",
+     "selftest": "`python3 tools/check-r71-routed-r72.py --selftest`",
+     "verdict_codes": [
+      "0",
+      "1",
+      "2",
+      "3"
+     ],
+     "selftest_has_own_tool": true,
+     "verdict_has_3": true,
+     "verdict_has_self_test_word": true,
+     "source_has_selftest": false,
+     "source_has_SELFTEST": false,
+     "source_path": "tools/check-r71-routed-r72.py"
+    },
+    "count-md-rows-r72": {
+     "operative_rows": 1,
+     "kind": "gate",
+     "entry": "`python3 tools/count-md-rows-r72.py --revision <REV>` (or `--fixture <DIR>`)",
+     "selftest": "`python3 tools/count-md-rows-r72.py --selftest`",
+     "verdict_codes": [
+      "0",
+      "1",
+      "2",
+      "3"
+     ],
+     "selftest_has_own_tool": true,
+     "verdict_has_3": true,
+     "verdict_has_self_test_word": true,
+     "source_has_selftest": false,
+     "source_has_SELFTEST": false,
+     "source_path": "tools/count-md-rows-r72.py"
+    },
+    "measure-unit-deps-r79": {
+     "operative_rows": 1,
+     "kind": "gate",
+     "entry": "`python3 tools/measure-unit-deps-r79.py --revision <REV>`",
+     "selftest": "`python3 tools/measure-unit-deps-r79.py --selftest` — 32 hermetic cases, prints `SELFTEST total=32 passed=32 failed=0`",
+     "verdict_codes": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "8"
+     ],
+     "selftest_has_own_tool": true,
+     "verdict_has_3": true,
+     "verdict_has_self_test_word": true,
+     "source_has_selftest": true,
+     "source_has_SELFTEST": true,
+     "source_path": "tools/measure-unit-deps-r79.py"
+    },
+    "check-gate-standard-r79": {
+     "operative_rows": 1,
+     "kind": "gate",
+     "entry": "`python3 tools/check-gate-standard-r79.py --revision <REV>` (or `--root <DIR>` for isolated controls",
+     "selftest": "`python3 tools/check-gate-standard-r79.py --selftest` — 8 hermetic cases, prints `SELFTEST total=8 passed=8 failed=0`",
+     "verdict_codes": [
+      "0",
+      "1",
+      "2",
+      "3"
+     ],
+     "selftest_has_own_tool": true,
+     "verdict_has_3": true,
+     "verdict_has_self_test_word": true,
+     "source_has_selftest": true,
+     "source_has_SELFTEST": true,
+     "source_path": "tools/check-gate-standard-r79.py"
+    }
+   },
+   "operative_coverage": {
+    "rows": 119,
+    "multi": {},
+    "ambiguous": []
+   },
+   "diff": {
+    "removed_lines": [
+     {
+      "line": "| check-r71-routed-r72 | gate | `python3 tools/check-r71-routed-r72.py --revision <REV>` (or `--fixture <DIR>`) | 0 clean (`ROUTED_STALE=0`); 1 failed (stale re",
+      "missing": 1
+     },
+     {
+      "line": "| count-md-rows-r72 | gate | `python3 tools/count-md-rows-r72.py --revision <REV>` (or `--fixture <DIR>`) | 0 clean (six rows verified, at least three sources a",
+      "missing": 1
+     }
+    ],
+    "added_lines": [
+     {
+      "line": "| check-r71-routed-r72 | gate | `python3 tools/check-r71-routed-r72.py --revision <REV>` (or `--fixture <DIR>`) | 0 clean (`ROUTED_STALE=0`); 1 failed (stale re",
+      "extra": 1
+     },
+     {
+      "line": "| count-md-rows-r72 | gate | `python3 tools/count-md-rows-r72.py --revision <REV>` (or `--fixture <DIR>`) | 0 clean (six rows verified, at least three sources a",
+      "extra": 1
+     },
+     {
+      "line": "| measure-unit-deps-r79 | gate | `python3 tools/measure-unit-deps-r79.py --revision <REV>` | 0 met (`met=1`: the eight DP1-DP8 rows match the pinned snapshot an",
+      "extra": 1
+     },
+     {
+      "line": "| check-gate-standard-r79 | gate | `python3 tools/check-gate-standard-r79.py --revision <REV>` (or `--root <DIR>` for isolated controls) | 0 met (`duplicates=0 ",
+      "extra": 1
+     },
+     {
+      "line": "> NON-OPERATIVE — carried for history; the round-71 table is the sole operative registry.",
+      "extra": 4
+     }
+    ],
+    "removed_count": 2,
+    "added_count": 5
+   }
+  }
+ },
+ "structural_checks": {
+  "skill_lines_before_after": [
+   6144,
+   6150
+  ],
+  "skill_diff_numstat": {
+   "insertions": 8,
+   "deletions": 2,
+   "explanation": "2 replaced row lines (each 1 del + 1 add) + 4 marker lines + 2 appended rows = 8 insertions / 2 deletions"
+  },
+  "markers": {
+   "literal": "> NON-OPERATIVE — carried for history; the round-71 table is the sole operative registry.",
+   "occurrences_after": 4,
+   "strict_adjacency_under_each_heading": true
+  },
+  "replaced_cells": {
+   "check-r71-routed-r72": [
+    "Verdict map",
+    "Self-test"
+   ],
+   "count-md-rows-r72": [
+    "Verdict map",
+    "Self-test"
+   ]
+  },
+  "removed_historical_rows": [],
+  "operative_table_rows": [
+   117,
+   119
+  ],
+  "continuation_tables_unchanged": true
+ },
+ "transient_observation": {
+  "when": "2026-11-04 between 16:13:50 and 16:14:00 local (the two tool files were being rewritten; count-md-rows-r72.py mtime 16:14:00)",
+  "command": [
+   "python3",
+   "tools/count-md-rows-r72.py",
+   "--selftest"
+  ],
+  "observed_rc": 3,
+  "observed_lines": [
+   "SELFTEST map-digest rc=1 FAIL",
+   "  expected-but-absent: ['map-digest']",
+   "SELFTEST: FAIL (23 cases, 22 passed, 1 failed)"
+  ],
+  "follow_up": "five consecutive runs at the final digest 58f7397e... pass 23/23 rc=0; the digest of the bytes executed during the red run was not captured, so it cannot be attributed to the final artifact or certified as repaired from that observation alone.",
+  "significance": "shows the declared code-3-on-selftest-failure mapping is real, and that the C2 numeric gate is insensitive to a red selftest (see control red-selftest)."
+ },
+ "limits": [
+  "C2 shape leg is presence-based: a tool whose --selftest exits 3 still yields met=1 (control red-selftest: rc0, shape 2/2).",
+  "the shape source clause reads the entry cell's first tool path, and --root/--revision load only the two frozen tools, so a borrowed-selftest forgery cannot reach met=1 (controls forged-source rc1 duplicates=1; forged-borrow rc1 shape 1/2).",
+  "check-registry-coverage at the freeze revision is FAIL (2 REGISTRY-ROW-MISSING) because freeze added both r79 tools before their rows; the seat text expectation \"freeze must stay PASS\" is contradicted by measurement. After-worktree coverage is projected PASS by the tool's own functions (0 findings, 119/119); the revision-bound after value requires the L1 integration commit."
+ ]
+}

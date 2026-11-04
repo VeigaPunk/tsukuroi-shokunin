@@ -1,0 +1,169 @@
+{
+  "seat": "ExecInstrument",
+  "wave": "round-79/w1",
+  "lane_root": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin",
+  "base": "9086589a82f221d130ed6711fbe70b85f0d07aea",
+  "frozen_claim_commit": "afe1f26128bde87484001cd02ebf11fa524c4059",
+  "claim_served": "C2 operability (routed item 2: hermetic selftests for the two round-72 gate tools)",
+  "files_changed": [
+    {
+      "path": "tools/check-r71-routed-r72.py",
+      "sha256": "3060dcfe4f126d3eb6474a1f543bf415a3996065c410e9a898f70d22588c5175",
+      "delta": "frozen evaluate/readers/counter_summary untouched; +--selftest mode, run_selftest (8 cases)"
+    },
+    {
+      "path": "tools/count-md-rows-r72.py",
+      "sha256": "58f7397ea39186afc8f2e476391715d3d482c9c1139d72e44023364be845063c",
+      "delta": "frozen evaluate/readers untouched; +--selftest mode, run_selftest (23 cases)"
+    }
+  ],
+  "working_tree_diffstat": "2 files changed, 411 insertions(+), 4 deletions(-) — only the two owned tools",
+  "runs": [
+    {
+      "run": "selftest-green-check",
+      "argv": ["python3", "-B", "tools/check-r71-routed-r72.py", "--selftest"],
+      "env": "TMPDIR=/fast/scratch/hyaku/tsukuroi-r79/ExecInstrument/tmp",
+      "rc": 0,
+      "summary": [
+        "SELFTEST clean-pass rc=0 PASS",
+        "SELFTEST receipt-missing rc=1 PASS",
+        "SELFTEST receipt-missing-revision-token rc=1 PASS",
+        "SELFTEST receipt-mismatch rc=1 PASS",
+        "SELFTEST malformed-scorecard rc=1 PASS",
+        "SELFTEST note-missing-section rc=1 PASS",
+        "SELFTEST note-missing-tokens rc=1 PASS",
+        "SELFTEST accepted-variant rc=0 PASS",
+        "SELFTEST: PASS (8 cases, 8 passed, 0 failed)"
+      ],
+      "tally": {"cases": 8, "passed": 8, "failed": 0}
+    },
+    {
+      "run": "selftest-green-count",
+      "argv": ["python3", "-B", "tools/count-md-rows-r72.py", "--selftest"],
+      "env": "TMPDIR=/fast/scratch/hyaku/tsukuroi-r79/ExecInstrument/tmp",
+      "rc": 0,
+      "summary": [
+        "SELFTEST clean-pass rc=0 PASS",
+        "SELFTEST note-absent rc=128 PASS",
+        "SELFTEST registry-absent rc=128 PASS",
+        "SELFTEST map-absent rc=128 PASS",
+        "SELFTEST map-malformed rc=1 PASS",
+        "SELFTEST malformed-row rc=1 PASS",
+        "SELFTEST duplicate-id rc=1 PASS",
+        "SELFTEST statement-words rc=1 PASS",
+        "SELFTEST statement-grounding rc=1 PASS",
+        "SELFTEST snapshot-absent rc=1 PASS",
+        "SELFTEST digest-mismatch rc=1 PASS",
+        "SELFTEST map-digest rc=1 PASS",
+        "SELFTEST map-url-absent rc=1 PASS",
+        "SELFTEST quote-absent rc=1 PASS",
+        "SELFTEST quote-words rc=1 PASS",
+        "SELFTEST quote-pipe-dead-branch rc=1 PASS (asserts malformed-row emitted, quote-pipe forbidden: the frozen pipe-in-quote branch is unreachable by construction)",
+        "SELFTEST source-unregistered rc=1 PASS",
+        "SELFTEST source-kind-own-work rc=1 PASS",
+        "SELFTEST source-not-bound rc=1 PASS",
+        "SELFTEST anchor-not-bound rc=1 PASS",
+        "SELFTEST ids-not-contiguous rc=1 PASS",
+        "SELFTEST snapshot-reuse rc=1 PASS",
+        "SELFTEST accepted-variant rc=0 PASS",
+        "SELFTEST: PASS (23 cases, 23 passed, 0 failed)"
+      ],
+      "tally": {"cases": 23, "passed": 23, "failed": 0}
+    },
+    {
+      "run": "tmpdir-refusal-unset-check",
+      "argv": ["env -u TMPDIR python3 -B tools/check-r71-routed-r72.py --selftest"],
+      "rc": 2,
+      "summary": ["HARNESS-TMPDIR-REFUSED reason=tmpdir-unset"]
+    },
+    {
+      "run": "tmpdir-refusal-tmp-check",
+      "argv": ["TMPDIR=/tmp python3 -B tools/check-r71-routed-r72.py --selftest"],
+      "rc": 2,
+      "summary": ["HARNESS-TMPDIR-REFUSED reason=tmpdir-under-tmp"]
+    },
+    {
+      "run": "tmpdir-refusal-unset-count",
+      "argv": ["env -u TMPDIR python3 -B tools/count-md-rows-r72.py --selftest"],
+      "rc": 2,
+      "summary": ["HARNESS-TMPDIR-REFUSED reason=tmpdir-unset"]
+    },
+    {
+      "run": "tmpdir-refusal-tmp-count",
+      "argv": ["TMPDIR=/tmp python3 -B tools/count-md-rows-r72.py --selftest"],
+      "rc": 2,
+      "summary": ["HARNESS-TMPDIR-REFUSED reason=tmpdir-under-tmp"]
+    },
+    {
+      "run": "argparse-conflict-check",
+      "argv": ["python3 -B tools/check-r71-routed-r72.py --selftest --revision HEAD"],
+      "rc": 2,
+      "summary": ["check-r71-routed-r72.py: error: argument --revision: not allowed with argument --selftest"]
+    },
+    {
+      "run": "argparse-conflict-count",
+      "argv": ["python3 -B tools/count-md-rows-r72.py --selftest --revision HEAD"],
+      "rc": 2,
+      "summary": ["count-md-rows-r72.py: error: argument --revision: not allowed with argument --selftest"]
+    },
+    {
+      "run": "registry-coverage",
+      "argv": ["python3", "-B", "tools/check-registry-coverage.py", "--revision", "afe1f26128bde87484001cd02ebf11fa524c4059"],
+      "rc": 1,
+      "summary": [
+        "status=FAIL registered=117 rows_total=117 tools_total=119 findings=2 missing=2 branch_tip=883aae6107cace30795d3163092b08498e8d4b73",
+        "REGISTRY-ROW-MISSING tools/check-gate-standard-r79.py: no operative row names this regular tools/ file",
+        "REGISTRY-ROW-MISSING tools/measure-unit-deps-r79.py: no operative row names this regular tools/ file"
+      ],
+      "note": "Item expected PASS 0 findings; neither finding names the two owned tools (their rows exist and bind). The two missing rows are the new r79 instruments (gate-standard, unit-deps) — registry/SKILL.md surface owned by other seats; not edited here."
+    },
+    {
+      "run": "revision-form-check",
+      "argv": ["python3", "-B", "tools/check-r71-routed-r72.py", "--revision", "afe1f26128bde87484001cd02ebf11fa524c4059"],
+      "rc": 0,
+      "summary": ["ROUTED_RECEIPT ok revision=2b358d2d", "ROUTED_SCORECARD ok", "ROUTED_NOTE ok", "ROUTED_STALE=0"]
+    },
+    {
+      "run": "revision-form-count",
+      "argv": ["python3", "-B", "tools/count-md-rows-r72.py", "--revision", "afe1f26128bde87484001cd02ebf11fa524c4059"],
+      "rc": 0,
+      "summary": [
+        "MD_ROW ok MD1..MD6 (S301/modprobe.d.5.scd x2, S302/libkmod-config.c x2, S303/modprobe.c x2)",
+        "MD_ROWS=6 MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0",
+        "MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1"
+      ]
+    },
+    {
+      "run": "red-before-check",
+      "argv": ["TMPDIR=... python3 -B /fast/scratch/hyaku/tsukuroi-r79/ExecInstrument/red-check/tools/check-r71-routed-r72.py --selftest"],
+      "mutation": "counter_summary cmd clause: [sys.executable, str(LANE / COUNTER), ...] -> [\"/bin/true\", \"--revision\", RECORD_REVISION] (receipt re-derivation broken)",
+      "rc": 3,
+      "summary": [
+        "SELFTEST harness-counter-unavailable FAIL",
+        "SELFTEST clean-pass rc=1 FAIL (ROUTED_RECEIPT unresolved: counter produced no summary line)",
+        "SELFTEST receipt-missing rc=1 PASS",
+        "SELFTEST receipt-missing-revision-token rc=1 PASS",
+        "SELFTEST receipt-mismatch rc=1 FAIL",
+        "SELFTEST malformed-scorecard rc=1 PASS",
+        "SELFTEST note-missing-section rc=1 PASS",
+        "SELFTEST note-missing-tokens rc=1 PASS",
+        "SELFTEST accepted-variant rc=1 FAIL",
+        "SELFTEST: FAIL (9 cases, 5 passed, 4 failed)"
+      ],
+      "tally": {"cases": 9, "passed": 5, "failed": 4}
+    },
+    {
+      "run": "red-before-count",
+      "argv": ["TMPDIR=... python3 -B /fast/scratch/hyaku/tsukuroi-r79/ExecInstrument/red-count/tools/count-md-rows-r72.py --selftest"],
+      "mutation": "evaluate candidate-scan clause: if CAND_RE.match(line): -> if False and CAND_RE.match(line): (malformed/valid rows never collected)",
+      "rc": 3,
+      "summary": [
+        "every row-derived case fails with MD_ROWS=0 MD_VERIFIED=0 ... met=0",
+        "SELFTEST: FAIL (23 cases, 4 passed, 19 failed)"
+      ],
+      "tally": {"cases": 23, "passed": 4, "failed": 19}
+    }
+  ],
+  "tooling_changes": "none installed or updated (python3 3.14.8 already present; pacman pause honored)",
+  "scratch": "/fast/scratch/hyaku/tsukuroi-r79/ExecInstrument deleted before yield"
+}
