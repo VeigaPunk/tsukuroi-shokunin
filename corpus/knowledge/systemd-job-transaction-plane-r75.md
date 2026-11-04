@@ -103,3 +103,18 @@ retry (`:862`); **Eights step** — the upstream spelling — the second redunda
 **Ninth** the destructive check (`:872`); **Tenth** apply (`:878`). Ten labels, one of them
 misspelled upstream; a `grep 'Eighth'` audit reads nine, so the count is established by reading the
 labels, not by a single grep.
+
+## Erratum (2026-11-04, round 76) — JT5's comma count, corrected (R76-JT5-COUNT)
+
+The round-75 erratum above says the JT5 statement "compresses the list into nine comma items". That
+count is wrong: the JT5 row has **eight comma-separated items** — matter discovery; impact
+minimization; redundant dropping; garbage collection; order verification with cycle repair; job
+merging; "a second collection and redundant drop"; "the destructive check and apply" — and **ten labels**
+once the two compound items are split by their `and` conjunctions (second collection /
+second redundant drop; destructive check / apply), matching the ten labelled step comments at
+`transaction.c:822-878`. Split method: count `,`-separated fields first (eight), then split each
+field on the conjunction that joins two labelled steps (two fields, two extra labels) → ten. The
+nine figure came from a single `grep 'Eighth'` audit that reads nine because the upstream comment
+misspells the eighth label as "Eights step"; reading the labels, not grepping one spelling, is the
+method. This block supersedes the "nine comma items" sentence; the earlier erratum's label
+enumeration stands.

@@ -316,3 +316,7 @@ source: own-work — `systemd-analyze`, `journalctl`, `systemctl`, `getfacl`, `/
 verified-at: 2026-10-14 (the original boot-plane capture window recorded in this note).
 recheck: 30d; procedure: Appendix command set; preserve the `-o json | jq` entry-count convention.
 supersedes the pointer-only recheck: line above.
+
+## Round-76 erratum — the effective journald retention is now derived (append-only)
+
+**R76-JD-CONFIG-DRIFT.** The §1.4 bounds line "effective journald retention not derived (round-3 open item)" and the §6 unknown "Effective journald retention beyond the 13 retained boots" are superseded. The merged configuration includes `/etc/systemd/journald.conf.d/size.conf` (born 2026-10-16 11:53:47 -03) setting `SystemMaxUse=256M` and `RuntimeMaxUse=64M`; the effective system limit is `effective_limit=256M` with `SystemMaxFileSize=32M`, derived in `corpus/knowledge/journald-retention-plane-r76.md` §"Effective limits on this host" against `.ufo/waves/round-76/before/host.txt`. The old lines stay as the record; this erratum supersedes them.

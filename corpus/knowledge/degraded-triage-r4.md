@@ -665,3 +665,7 @@ The historical 1password-beta downgrade-trap statements at lines 77 and 394 are 
 ## Round-39 correction (TO1, TO8; append-only)
 
 Round-39 clarification (TO1, TO8): these hooks are PostTransaction hooks; they run after `transaction completed` is logged, within the same `pacman` command but not inside the logged `transaction started`…`completed` window, and none of them runs if the commit is interrupted or fails (`trans.c:230-239`, HO6); their output is logged as `[ALPM-SCRIPTLET]`. It qualifies the "in the transaction" / "in-transaction" / "in one transaction" wording above. Source: `corpus/knowledge/pacman-transaction-order-r39.md` TO1, TO8 (S216, S217).
+
+## Round-76 correction — the J2 "no retention policy configured anywhere" row is false (append-only)
+
+**R76-JD-CONFIG-DRIFT.** The J2 row above ("no retention policy configured anywhere (merged coredump/journald conf = defaults only)") is superseded: `/etc/systemd/journald.conf.d/size.conf` (born 2026-10-16 11:53:47 -03) sets `SystemMaxUse=256M` and `RuntimeMaxUse=64M`. The effective system limit is `effective_limit=256M` and `SystemMaxFileSize=32M`; the J2 "3.9 G and climbing" reading is also stale (`journalctl --disk-usage` read 148.6M at the 2026-11-04 capture). The row stays as the round-4 record; this correction supersedes it. Evidence: `corpus/knowledge/journald-retention-plane-r76.md` §"Effective limits on this host" and `.ufo/waves/round-76/before/host.txt`.
