@@ -3505,3 +3505,30 @@ correction rather than counted twice. Load order and its disclosed deviation
 are recorded in the declaration. No host mutation, package adoption, promotion
 or ordinal uplift is authorized. Wave and integration evidence follow in the
 round's later commits.
+
+## Round 79 — integration and measured outcome (2026-11-04)
+
+Landed: `afe1f261` (freeze), `883aae61` (w1 dispatch evidence),
+`c7dcd241` (entry + registry repair + wave evidence), `36336aac` (settlement
+and the reviewer-corrected lesson; measured revision). The reviewed entry
+landed byte-exact from `w1/ScribeNote/{data.json,note.md}` after the DP6
+correction; ReviewDeps' second verdict binds those bytes
+(`artifact_sha256=1b8f833d…`, `companion_sha256=8c6b3809…`,
+`review_sha256=0c2dd4ad…`).
+
+Measured revision `36336aac07c25cc9c36343e4a57146035b0592aa`:
+C1 `rows=0 met=0 reason=finite-content-mismatch` rc 1 — **not verified**, because
+the frozen DP6 statement dropped the source's precondition and the landed entry
+carries the reviewer's correction; the expected tuple, predicate and counter
+were not altered after data. C2 `duplicates=0 shape_ok=2/2 met=1` rc 0 —
+verified. Selftests 32/32 and 8/8; registry coverage PASS 119/119;
+knowledge refs 0 dangling; line endings PASS; knowledge-header keeps its two
+inherited findings. Census 328 → 329 rows (A 311 → 312; mined 290 → 291),
+notes 96 → 97, tools 117 → 119; frozen snapshot/expected byte-identical.
+Wave w1: 12 seats, 12 settled, 0 dead, residual 0, attack share 4/12; the
+delivered results carry null outputs with the orchestrator's kernel-restart
+note and the reports are the retained evidence (no reconstructed vote).
+Attacks: 13 critic kills / several disclosed survives and 8/13 mutants killed;
+ReviewRegistry reproduced the C2 after-value and its presence-based gaps.
+Outside round-79 closure remains pending; assimilation none; no capability or
+frontier promotion.

@@ -6669,3 +6669,55 @@ change, not a claim.
 
 Planned wave evidence lives under `.ufo/waves/round-79/`; scratch root
 `/fast/scratch/hyaku/tsukuroi-r79/<seat>`. No next round is started.
+
+## Round 79 — measured outcome (measured revision `36336aac07c25cc9c36343e4a57146035b0592aa`; author-side, non-author closure pending)
+
+| Claim / axis | Before at `9086589a82f221d130ed6711fbe70b85f0d07aea` | After at measured revision | Verdict / ordinal |
+|---|---|---|---|
+| C1 depth | `rows=0 met=0 reason=unreadable:FileNotFoundError` rc 1 | `rows=0 met=0 reason=finite-content-mismatch` rc 1 | **not verified — honest stop**; depth 8 → 8 |
+| C2 operability | `duplicates=6 shape_ok=0/2 met=0` rc 1 | `duplicates=0 shape_ok=2/2 met=1` rc 0 | verified; operability 9 → 9 |
+
+Commands: `python3 tools/measure-unit-deps-r79.py --revision <REV>` and
+`python3 tools/check-gate-standard-r79.py --revision <REV>`; revision-bound
+receipts with tool digests and argv are `after/{before,after}-C{1,2}.txt` and
+`after/commands.json`. Supporting same-run gates: C1 selftest 32/32, C2
+selftest 8/8 (both rc 0); `check-registry-coverage` PASS 119/119 with 0
+findings; `check-knowledge-refs-r68` 0 dangling; `check-line-endings` PASS;
+`check-knowledge-header` retains its 2 inherited findings
+(`modprobe-config-plane-r72.md`, `module-parameter-plane-r71.md`), identical at
+base and after.
+
+**Why C1 is not verified.** The frozen DP6 statement stopped at "failed," and
+dropped the quoted sentence's continuation "and no job is queued for them"
+(`systemd.unit.xml:785`), asserting a broader trigger than the source. The
+first ReviewDeps pass returned DP6 `partly-holds` and the frozen predicate
+requires eight holds. The landed knowledge entry carries the reviewer's
+corrected DP6 statement, so it differs from `before/expected.json` in exactly
+that one field and the frozen equality leg reads `finite-content-mismatch` at
+every revision. The expected tuple, predicate and counter were not altered
+after data: a corrected data file plus an unchanged frozen spec is a miss, not
+a pass. Post-correction, ReviewDeps' second review holds all eight rows against
+the landed bytes (`review_sha256=0c2dd4ad601e179110df546ec4933f2b3e8249e462a548db8263cbf5da1c8168`,
+artifact `1b8f833d…`, companion `8c6b3809…`, verified by the L1); that is
+corpus-quality evidence, not claim admission. S329 landed as mined with the
+entry; census 328 → 329 rows (A 311 → 312; mined 290 → 291), notes 96 → 97,
+tools 117 → 119, frozen inputs byte-identical (`after/structural.json`).
+
+**Wave.** w1: 12 seats, 12 settled, 0 dead, residual 0, attack share 4/12; L1
+holds the planner. The delivered `w1-results.json` carries null outputs with
+the orchestrator's kernel-restart note; the seats' reports are the retained
+evidence and no vote was reconstructed. Attack results: CriticFreeze 22 runs /
+13 kills, with A3/A7 surviving by declared design and A13/A14/A15/A17/A18
+surviving as disclosed instrument gaps; MutationCounter killed 8/13 single-clause
+mutants and left 5 survivors (3 live-path C2 detector gaps, 2 behind the
+frozen-equality leg); ReviewRegistry independently reproduced C2
+`0/2/2 met=1` and found F1/F1b counter gaps (presence-based shape leg) while
+confirming the delivered rows' modes run green.
+
+**Limits.** C1's numeric gate is answer-key equality plus digest arithmetic; a
+fabricated review bundle can pass it, and the equality leg shadows the
+per-row quote/line clauses. C2's duplicate leg can be weakened by a
+self-declared `NON-OPERATIVE` marker, a new highest heading, or duplicated
+heading text (`lines.index`); 36 of 93 operative `gate` rows still declare no
+selftest. Neither instrument is an authenticity or whole-registry conformance
+proof. No capability row is entered and no ordinal moves.
