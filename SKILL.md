@@ -6165,3 +6165,51 @@ looks for check-transaction-order-r39: this is an instrument-name mismatch, not
 permission to add a duplicate or rename a truthful registry entry to get PASS.
 The new round instrument is registered with its helper-only-selftest debt stated;
 it does not close the inherited full gate-standard debt.
+
+## Round81 mount-unit plane, gate-standard repair and provenance-header closure
+
+Read `corpus/knowledge/mount-unit-fstab-plane-r81.md` with its `.json` companion
+for the fstab-to-mount-unit translation plane (S331 upstream `systemd.mount(5)`
+at v262, S332 this host's read-only generator capture). MT1-MT8 are the eight
+settings that decide what an `/etc/fstab` line becomes at boot:
+
+| Observed question | Read-only interpretation / next action |
+|---|---|
+| A mount is missing but the boot finished | A `nofail` entry is only *wanted* by `local-fs.target`, not required, and it is not ordered before the target; check `local-fs.target.wants` vs `.requires` before treating the absence as a failure. |
+| A `nofail` mount still delays boot | `x-systemd.before=<target>` re-acquires the ordering the `nofail` leg dropped; the wait is bounded by `x-systemd.device-timeout=` on the generated device unit, not by the mount unit's own `JobTimeoutUSec`. |
+| A mount should not be mounted at boot | `noauto` removes it from the target's dependency set; `x-systemd.automount` generates an automount unit that joins the target instead and makes `auto`/`noauto` inert. |
+| A unit's target dependency was replaced | `x-systemd.wanted-by=`/`x-systemd.required-by=` replace the generated target dependencies except `umount.target`; ordering then has to be restored by hand. |
+| A generated `Options=` still carries an `x-systemd.*` token | Only `x-systemd.device-timeout=` is consumed into a `.device.d` drop-in; every other option (including `x-systemd.before=`) is copied verbatim into `Options=` — that they are filtered at mount time, keeping the kernel view clean, is [INFERENCE], not in the pinned snapshot. |
+
+Measured on this host 2026-11-04: seven generated mount units, five in
+`local-fs.target.requires` and two in `.wants`; `tmp.mount` carries
+`Before=local-fs.target` from its explicit option and `fast.mount` does not.
+The generator reproduces the captured tree byte-for-byte into scratch
+directories (`.ufo/waves/round-81/w1/SentinelProbe/probe.txt`); the live
+`/run/systemd/generator` tree additionally holds other generators' units.
+No service, unit, fstab or package mutation is authorized by this section.
+
+Line-anchor convention: the `S331 :N-M` anchors and the MT row ranges index the
+snapshot with XML tags stripped (707 raw lines become 703, because the DOCTYPE
+at raw 2-3 and a `<ulink>` at raw 84-85 each swallow a newline); the raw-file
+span of a quote is two lines later. A reader using `sed -n` on the stored or
+upstream file adds 2.
+
+| Instrument | Entry | Verdict map | Self-test |
+|---|---|---|---|
+| `tools/count-mount-rows-r81.py` | `--revision <REV>` (or `--fixture <DIR>`) | 0 met / 1 unmet / 2 could-not-evaluate / 3 selftest failed | `--selftest`, six cases |
+| `tools/measure-round81.py` | `--revision <REV> [--table <FILE>]` | same map, over the six frozen gate-standard cases | `--selftest`, two cases |
+
+Known coverage debt, measured by this round's mutation seat: the C1 counter's
+selftest kills 3 of 18 single-clause mutants (13 behaviour-bearing survivors,
+2 equivalent clauses), and the C2 table's case A is a string check that a
+token-printing selftest survives. Neither counter is an authenticity proof.
+
+The round-80 evidence counter now returns `snapshot_tampered` and
+`snapshot_absent` as exit 2 instead of exit 1, and its public selftest runs the
+six gate-standard cases; `tools/measure-round81.py` scores exactly that
+behaviour. The two inherited provenance-header findings on
+`modprobe-config-plane-r72.md` and `module-parameter-plane-r71.md` are closed by
+appended `verified-at: 2026-11-04` lines after re-verifying all seven pinned
+snapshots (`sha256sum -c SHA256SUMS` in the round-71 and round-72 `before/src/`
+directories), not by editing the filed header lines.

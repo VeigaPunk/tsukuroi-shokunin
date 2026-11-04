@@ -64,3 +64,14 @@ The three `/etc/modprobe.d` names are unchanged (`disable-usb-autosuspend.conf`,
 `hid_apple.conf`, `nvidia.conf`), so the capture holds 3 + 5 = 8 modprobe.d paths, not 3 + 4.
 The path-and-mode-only boundary and the blacklist conclusion of MP5 are unaffected; only the
 figure and its enumeration are corrected here, by append, with the filed sentence left in place.
+
+## Provenance re-verification — round 81 (appended, 2026-11-04)
+
+The header's operative `verified-at:` line named the round-71 declaration commit and the snapshot
+manifest check but carried no ISO date, so `tools/check-knowledge-header.py` reported
+`KNOWLEDGE-HEADER-VALUE` for this note. The date is supplied here as an appended superseding line
+rather than by editing the filed header; the snapshot set was re-verified this round, not assumed.
+
+verified-at: 2026-11-04 — snapshots re-verified at round 81: `sha256sum -c SHA256SUMS` in
+`.ufo/waves/round-71/before/src/` returns 4/4 OK (kernel-parameters.rst, params.c, moduleparam.h,
+main.c); the round-71 declaration commit `0fcfca31` named in the header above is unchanged.

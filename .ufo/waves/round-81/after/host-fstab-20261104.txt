@@ -1,0 +1,36 @@
+# /etc/fstab read-only capture, round 81, 2026-11-04T18:42:48-03:00
+# sha256: a265a5044bddd20500d7caabea3dddafbcbf7d32808a9f5311d8197816e0de35
+# stat: 2026-10-20 09:48:47.027882542 -0300 size=1641
+# generator output mtimes: 2026-11-04 17:34:49.335219123 -0300 2026-11-04 17:34:49.335254013 -0300 
+# boot: 2026-11-02 12:07:17
+--- cat -n /etc/fstab
+     1	# Static information about the filesystems.
+     2	# See fstab(5) for details.
+     3	
+     4	# <file system> <dir> <type> <options> <dump> <pass>
+     5	# /dev/mapper/root
+     6	UUID=1d02a454-c549-4a35-b567-89d60902af8e	/         	btrfs     	rw,noatime,compress=zstd:3,ssd,space_cache=v2,subvol=/@	0 0
+     7	
+     8	# /dev/mapper/root
+     9	UUID=1d02a454-c549-4a35-b567-89d60902af8e	/home     	btrfs     	rw,noatime,compress=zstd:3,ssd,space_cache=v2,subvol=/@home	0 0
+    10	
+    11	# /dev/mapper/root
+    12	UUID=1d02a454-c549-4a35-b567-89d60902af8e	/var/cache/pacman/pkg	btrfs     	rw,noatime,compress=zstd:3,ssd,space_cache=v2,subvol=/@pkg	0 0
+    13	
+    14	# /dev/mapper/root
+    15	UUID=1d02a454-c549-4a35-b567-89d60902af8e	/var/log  	btrfs     	rw,noatime,compress=zstd:3,ssd,space_cache=v2,subvol=/@log	0 0
+    16	
+    17	# /dev/nvme0n1p1
+    18	UUID=86D8-C3F6      	/boot     	vfat      	rw,relatime,fmask=0077,dmask=0077,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro	0 2
+    19	
+    20	
+    21	# Btrfs swapfile for system hibernation
+    22	/swap/swapfile none swap defaults,pri=0 0 0
+    23	
+    24	# Second NVMe (WD_BLACK SN8100, serial 253575801427), unencrypted.
+    25	# /tmp is emptied at every boot by /etc/tmpfiles.d/tmp.conf; nofail keeps boot working if the drive is missing.
+    26	UUID=1f8a5361-4f35-449a-bb30-63669df878d1	/tmp      	xfs       	rw,noatime,nosuid,nodev,logbsize=256k,nofail,x-systemd.before=local-fs.target,x-systemd.device-timeout=10s	0 0
+    27	UUID=070be1ea-e5fc-46aa-a6b2-adf9df7656ac	/fast     	xfs       	rw,noatime,nosuid,nodev,logbsize=256k,nofail,x-systemd.device-timeout=10s	0 0
+    28	
+    29	# Cap shared memory at 8 GiB (default is half of RAM) so a runaway /dev/shm user cannot take RAM from everything else.
+    30	tmpfs	/dev/shm	tmpfs	rw,nosuid,nodev,size=8G	0 0

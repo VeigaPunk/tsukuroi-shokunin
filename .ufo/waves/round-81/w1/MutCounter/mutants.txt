@@ -1,0 +1,240 @@
+# MutCounter — round-81 w1 mutation probe receipts
+# seat      : MutCounter (leaf; no subagent dispatch)
+# lane      : /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+# base rev  : 96ad75b84160da58efaee4997576ce718fd72e2b
+# decl rev  : 8023711867eaa788f68af09d7f29d24db749cca7 (declaration-only; author trials preceded it)
+# scratch   : /fast/scratch/hyaku/tsukuroi-r81/MutCounter (removed before yield)
+# host      : linux 7.2.11-arch1-1, python 3.14.8 (/usr/bin/python3)
+# no pacman transaction; no tool installed; no PATH write
+
+DETECTOR (assigned)   : python3 <mutant> --selftest   ; killed iff observed rc != 0
+DETECTOR (secondary)  : python3 <mutant> --fixture <targeted tree>  vs pristine on the same tree
+                        (distinguishes a behaviour-bearing clause from an equivalent/masked one)
+
+BASE BYTES (pinned; identical to `git show 8023711:tools/<file>`):
+  80351a2868a277899d350ad434f4c07bc3a46efbd1059ae054036ef6835bfa7a  tools/count-mount-rows-r81.py
+  0e94c9b4a9bc0f3ab92ec33005ea2d8743f558ccac26719adcf1765bfd3f5db9  tools/measure-round81.py
+  fc861ec8a4f2539ac3f16d1a04af8335a974c17c8ffba0a41f6dad972cad36de  tools/_revision.py
+
+PRISTINE BASELINE (both detectors green before any mutant):
+  count   --selftest  -> "SELFTEST total=6 passed=6 failed=0"  rc=0
+  measure --selftest  -> "SELFTEST total=2 passed=2 failed=0"  rc=0
+
+------------------------------------------------------------------------------
+TOOL 1: tools/count-mount-rows-r81.py   (18 mutants: 3 killed / 15 survived)
+------------------------------------------------------------------------------
+C01-quote-word-cap          line 149   clause R5 quote <= 25 words
+  MUT: `if len(quote.split()) > MAX_QUOTE_WORDS or '|' in quote:` -> `if '|' in quote:`
+  SELFTEST: rc=0  SURVIVED
+  PROBE P01 (30-word quote): pristine rc=1 problems ["MT8:R5-quote-shape"] |
+                             mutant   rc=1 problems ["MT8:R5-quote-not-located"]
+  GAP: no selftest case carries an over-long quote; the clause is only exercised
+       through the accidental not-located path.
+
+C02-quote-pipe              line 149   clause R5 quote carries no pipe
+  MUT: `if len(quote.split()) > MAX_QUOTE_WORDS or '|' in quote:` -> `if len(quote.split()) > MAX_QUOTE_WORDS:`
+  SELFTEST: rc=0  SURVIVED
+  PROBE P02 (quote "With nofail | this mount"): pristine rc=1 ["MT8:R5-quote-shape"] |
+                             mutant rc=1 ["MT8:R5-quote-not-located"]
+  GAP: no selftest case carries a pipe inside a quote.
+
+C03-statement-pipe          line 134   clause R2 statement contains no pipe
+  MUT: `if len(str(statement).split()) < MIN_WORDS or '|' in str(statement):` -> drops the pipe disjunct
+  SELFTEST: rc=0  SURVIVED
+  PROBE P03: pristine rc=1 ["MT8:R2-statement"] | mutant rc=0 "met"
+  GAP: no selftest case carries a pipe in a statement.
+
+C04-id-contiguity           line 131   clause R1 id == MT<index>
+  MUT: `if row.get('id') != 'MT%d' % index:` -> `if False:`
+  SELFTEST: rc=0  SURVIVED
+  PROBE P04 (rows[7].id = MT9): pristine rc=1 ["MT9:R1-id"] | mutant rc=0 "met"
+  GAP: no selftest case skips or duplicates an id; the whole contiguity clause is unguarded.
+
+C05-statement-word-floor    line 134   clause R2 statement >= 12 words
+  MUT: drops the `< MIN_WORDS` disjunct
+  SELFTEST: rc=0  SURVIVED
+  PROBE P05 (4-word statement): pristine rc=1 ["MT8:R2-statement"] | mutant rc=0 "met"
+  GAP: the fixture statement is exactly 12 words, so the floor is satisfied by
+       construction and never tested from below.
+
+C06-source-id-shape         line 138   clause R3 source matches ^S[0-9]{3,}$
+  MUT: `if not SOURCE_ID.match(src) or entry is None:` -> `if entry is None:`
+  SELFTEST: rc=0  SURVIVED
+  PROBE P06 (source "S331 "): pristine rc=1 ["MT8:R3-source-unresolved"] |
+                              mutant rc=1 ["MT8:R3-source-unresolved"]   IDENTICAL
+  CLASS: EQUIVALENT (dead clause). registry_rows() only admits keys matching
+         S[0-9]{3,}, so any src failing SOURCE_ID can never resolve; no input can
+         separate the two. Not a coverage gap, a redundancy.
+
+C07-own-work-rejection      line 140   clause R3 own-work is not a source kind
+  MUT: `elif entry['kind'] not in KINDS or entry['kind'] == OWN_WORK:` -> drops the OWN_WORK disjunct
+  SELFTEST: rc=0  SURVIVED
+  PROBE P07 (row 4 -> S332, kind own-work): pristine rc=1 ["MT4:R3-source-kind"] |
+                              mutant rc=1 ["MT4:R3-source-kind"]   IDENTICAL
+  CLASS: EQUIVALENT (dead clause) while 'own-work' is absent from KINDS: the KINDS
+         whitelist already rejects it. CONSEQUENCE: the selftest case named
+         `own-work-source` passes for the wrong reason — it exercises the KINDS
+         whitelist, not the own-work clause (QUALITY 86).
+
+C08-digest-check            line 111   clause R4 snapshot bytes hash to the listed digest
+  MUT: `if sha(data) != want:` -> `if False:`
+  SELFTEST: rc=3  KILLED
+  EVIDENCE: "SELFTEST total=6 passed=5 failed=1 / FAIL snapshot-tampered rc=1 body=... finding unmet"
+
+C09-measured-leg-requirement line 179  clause measured rows >= 2
+  MUT: finding expression drops `and measured >= TARGET_MEASURED`
+  SELFTEST: rc=0  SURVIVED
+  PROBE P09 (both measured legs removed): pristine rc=1 finding "unmet" (problems []) |
+                              mutant rc=0 finding "met"
+  GAP: no selftest case with 0 or 1 measured legs. Note the pristine output shows
+       "unmet" with an EMPTY problems list — the target shortfall is invisible in the
+       problems array, so a reader of `problems` alone cannot see why it failed.
+
+C10-distinct-settings       line 179   clause distinct settings == 8
+  MUT: finding expression drops `and len(settings) == TARGET_ROWS`
+  SELFTEST: rc=0  SURVIVED
+  PROBE P10 (rows[7].setting = "nofail"): pristine rc=1 "unmet" | mutant rc=0 "met"
+  GAP: no selftest case duplicates a setting.
+
+C11-row-count-target        line 178   clause len(rows) == 8
+  MUT: finding expression drops `len(rows) == TARGET_ROWS`
+  SELFTEST: rc=0  SURVIVED
+  PROBE P11 (9 rows, 8 verify): pristine rc=1 "unmet" |
+                              mutant rc=0 "met" with problems ["MT9:R5-quote-not-located"]
+  GAP: no selftest case has 7 or 9 rows. The mutant reports "met" while printing a
+       problem row — the count clause is what suppresses that contradiction.
+
+C12-note-absent-mapping     line 118   clause absent note maps to note-absent
+  MUT: `return 0, 'note-absent', []` -> `return 0, 'note-invalid', []`
+  SELFTEST: rc=3  KILLED
+  EVIDENCE: "SELFTEST total=6 passed=5 failed=1 / FAIL note-absent rc=1 body=... finding note-invalid"
+
+C13-exit-code-mapping       line 302   clause unmet exits 1
+  MUT: `return 0 if finding == 'met' else 1` -> `return 0`
+  SELFTEST: rc=3  KILLED
+  EVIDENCE: "SELFTEST total=6 passed=3 failed=3 / FAIL one-row-unlocated rc=0 / FAIL note-absent rc=0 / FAIL own-work-source rc=0"
+
+C14-locate-span-bounds      line 91    clause locate rejects out-of-range spans
+  MUT: `if not (1 <= a <= b <= len(lines)):` -> `if not (1 <= a):`
+  SELFTEST: rc=0  SURVIVED
+  PROBE P14 (lines [1,99]): pristine rc=1 ["MT8:R5-quote-not-located"] | mutant rc=0 "met"
+  GAP: no selftest case cites lines beyond the snapshot length; an unbounded span
+       silently widens the search window and can locate a quote the row never cited.
+
+C15-snapshot-unnamed        line 144   clause unnamed snapshot is reported as R4
+  MUT: `why.append('R4-snapshot-unnamed')` -> `pass`
+  SELFTEST: rc=0  SURVIVED
+  PROBE P15 (snapshot "nope.xml"): pristine rc=1 ["MT8:R4-snapshot-unnamed,R6-setting"] |
+                              mutant rc=1 ["MT8:R6-setting"]
+  GAP: exit code unchanged but the R4 attribution disappears; no selftest case
+       asserts the problem taxonomy for an unnamed snapshot.
+
+C16-empty-manifest          line 103   clause empty SHA256SUMS is could-not-evaluate
+  MUT: `if not digests: raise CannotEvaluate('snapshot-manifest-empty')` -> `if False:`
+  SELFTEST: rc=0  SURVIVED
+  PROBE P16 (empty SHA256SUMS): pristine rc=2 finding "snapshot-manifest-empty" |
+                              mutant rc=1 finding "unmet" with 8 R4/R6 problems
+  GAP: the selftest's `manifest-absent` case DELETES the file, which raises OSError
+       and exits through main()'s handler; the empty-manifest clause itself is never
+       reached. A could-not-evaluate is thereby convertible into a hard unmet.
+
+C17-setting-presence        line 156   clause R6 setting occurs in the snapshot
+  MUT: drops `setting not in normalize(' '.join(snapshots[name]))`
+  SELFTEST: rc=0  SURVIVED
+  PROBE P17 (setting "absent-token"): pristine rc=1 ["MT8:R6-setting"] | mutant rc=0 "met"
+  GAP: no selftest case uses a setting absent from the snapshot text.
+
+C18-measured-source         line 164   clause R7 measured leg names S332
+  MUT: `if (leg or {}).get('source') != 'S332':` -> `if False:`
+  SELFTEST: rc=0  SURVIVED
+  PROBE P18 (measured.source = S999): pristine rc=1 ["MT1:R7-measured-source"] | mutant rc=0 "met"
+  GAP: no selftest case points a measured leg at a non-S332 source.
+
+------------------------------------------------------------------------------
+TOOL 2: tools/measure-round81.py        (8 mutants: 4 killed / 4 survived)
+------------------------------------------------------------------------------
+M01-rc-ignored              line 74    clause observed exit code compared with the table
+  MUT: `ok = proc.returncode == want['rc'] and want['token'] in body` -> `ok = want['token'] in body`
+  SELFTEST: rc=3  KILLED
+  EVIDENCE: "FAIL defective-double met=5 expected=3" (case A-selftest ok=False on rc/token)
+  NOTE: killed by the *selftest double*, not by the shipped table.
+
+M02-token-ignored           line 74    clause observed finding token compared with the table
+  MUT: -> `ok = proc.returncode == want['rc']`
+  SELFTEST: rc=3  KILLED
+  EVIDENCE: "FAIL defective-double met=4 expected=3"
+
+M03-table-from-disk         line 80    clause table read from the bound revision
+  MUT: `json.loads(read(TABLE))` -> `json.loads((ROOT / TABLE).read_text())`
+  SELFTEST: rc=1  KILLED (crash: FileNotFoundError at check('gate-conformant-double'))
+  REAL-REVISION PROBE (mutant placed in a scratch clone at tools/, run --revision 96ad75b8):
+     pristine rc=2 {"finding": "cannot-evaluate:CalledProcessError", "cases": []}
+     mutant   rc=1 {"count": 3, "target": 6, "finding": "gate-standard"}  <- read the
+              worktree table that revision never contained
+  NOTE: the selftest kills this only incidentally (no table at ROOT in the scratch
+        layout); it does not assert the revision-bound read.
+
+M04-target-constant         line 40    clause gate target is 6 conformant cases
+  MUT: `TARGET = 6` -> `TARGET = 5`
+  SELFTEST: rc=0  SURVIVED
+  PROBE G01 (6/6 conformant): pristine rc=0 count=6 finding "met" |
+                              mutant rc=1 count=6 finding "gate-standard" (target 5)
+  GAP: the selftest compares only the `met` integer from evaluate(); TARGET feeds
+       only the finding/exit mapping, which no selftest case reaches.
+
+M05-exit-code-mapping       line 242   clause unmet exits 1
+  MUT: `return 0 if count == TARGET else 1` -> `return 0`
+  SELFTEST: rc=0  SURVIVED
+  PROBE G03 (3/6 conformant): pristine rc=1 | mutant rc=0 (identical JSON, count 3)
+  GAP: no selftest case runs the tool through its CLI exit path on a failing tree.
+
+M06-mutation-unlink-noop    line 93    clause unlink mutation applied to the case tree
+  MUT: `path.unlink()` -> `pass`
+  SELFTEST: rc=3  KILLED
+  EVIDENCE: "FAIL gate-conformant-double met=5 expected=6"
+
+M07-finding-mapping         line 112   clause unmet cases yield gate-standard
+  MUT: `finding = 'met' if met == TARGET else 'gate-standard'` -> `finding = 'met'`
+  SELFTEST: rc=0  SURVIVED
+  PROBE G03: pristine rc=1 finding "gate-standard" | mutant rc=1 finding "met" (count 3)
+  GAP: the finding string is never asserted by the selftest.
+
+M08-export-absent           line 59    clause a missing export is could-not-evaluate
+  MUT: `raise CannotEvaluate('export-absent:' + name)` -> `data = b''`
+  SELFTEST: rc=0  SURVIVED
+  PROBE G08 (systemd.service.xml removed): pristine rc=2 "export-absent:..." |
+                              mutant rc=0 count=6 "met"
+  GAP: no selftest case removes a fixture export; a missing input silently becomes
+       empty bytes and the gate reports met.
+
+------------------------------------------------------------------------------
+TALLY
+------------------------------------------------------------------------------
+  count-mount-rows-r81.py : 18 mutants | killed 3 (C08, C12, C13) | survived 15
+                            survived-but-behaviour-bearing (coverage gap): 13
+                            survived-and-equivalent (dead clause):        2 (C06, C07)
+                            kill rate 3/18 = 16.7%
+  measure-round81.py      :  8 mutants | killed 4 (M01, M02, M03, M06) | survived 4
+                            all 4 survivors are behaviour-bearing (coverage gap)
+                            kill rate 4/8 = 50.0%
+  combined                : 26 mutants | killed 7 (26.9%) | survived 19
+                            of which 17 are genuine coverage gaps, 2 equivalent
+
+UNGUARDED CLAUSES (coverage gaps, each verified behaviour-bearing by probe):
+  C1: R1 id contiguity; R2 word floor; R2 statement pipe; R5 quote word cap;
+      R5 quote pipe; R5 locate span bounds; R4 snapshot naming; R4 empty-manifest
+      could-not-evaluate; R6 setting presence; R7 measured source; the three
+      target clauses (rows==8, measured>=2, distinct==8).
+  C2: TARGET constant; the unmet exit mapping; the finding string; the
+      export-absent could-not-evaluate mapping.
+
+DEAD CLAUSES (no distinguishing input exists; redundancy, not coverage):
+  C1 R3 SOURCE_ID.match — subsumed by registry_rows()' key shape.
+  C1 R3 own-work disjunct — subsumed by the KINDS whitelist; the selftest case
+     `own-work-source` therefore tests the whitelist, not QUALITY 86's own-work rule.
+
+RESTORATION EVIDENCE
+  Mutants were written only under mut/<tool>/<id>/<file>; base copies were never
+  rewritten. Post-run hashes of the base copies equal the pinned hashes above.
+  Clone copy restored: tools/measure-round81.py -> 0e94c9b4a9bc0f3ab92ec33005ea2d8743f558ccac26719adcf1765bfd3f5db9
+  (equals base). No file in the lane tree or fleet repo was written.

@@ -88,3 +88,14 @@ that decides the verdict; "host" means the shape itself is in the capture.
   `@SYSCONFDIR@` and `@DISTCONFDIR@`; this note maps them to `/etc/modprobe.d`
   and `/usr/lib/modprobe.d` because the host capture shows those two paths, and
   the mapping is not itself stated in the snapshot.
+
+## Provenance re-verification — round 81 (appended, 2026-11-04)
+
+The header's operative `verified-at:` line named the round-72 declaration commit and the snapshot
+manifest check but carried no ISO date, so `tools/check-knowledge-header.py` reported
+`KNOWLEDGE-HEADER-VALUE` for this note. The date is supplied here as an appended superseding line
+rather than by editing the filed header; the snapshot set was re-verified this round, not assumed.
+
+verified-at: 2026-11-04 — snapshots re-verified at round 81: `sha256sum -c SHA256SUMS` in
+`.ufo/waves/round-72/before/src/` returns 3/3 OK (modprobe.d.5.scd, libkmod-config.c, modprobe.c);
+the round-72 declaration commit `6b42676` named in the header above is unchanged.

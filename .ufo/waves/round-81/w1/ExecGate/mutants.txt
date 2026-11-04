@@ -1,0 +1,103 @@
+# ExecGate — mutants.txt
+
+One clause per mutant, applied to a COPY of the repaired candidate (`sha256 ca2c8be9c5996b27a7d05278f9845ef667bf8aa85b750fabe836d726f58a6af3`); the candidate itself is never modified.
+Mutant bytes live in `/fast/scratch/hyaku/tsukuroi-r81/ExecGate/mutants`.
+A mutant is KILLED iff at least one of the six frozen cases FAILs (rc or token diverges from the table).
+
+```
+$ python3 mutate.py   # rc=0
+SOURCE /fast/scratch/hyaku/tsukuroi-r81/ExecGate/exports/candidate/measure-round80.py sha256=ca2c8be9c5996b27a7d05278f9845ef667bf8aa85b750fabe836d726f58a6af3
+MUTANT a-tampered-exits-1 sha256=85945fc862f9d37fb107fe8d141b5ae8bb3e134fef6a652a84f4b9d76b5ff4d5 anchor="except CannotEvaluate as exc:\n            print(json.dumps({'claim': a"
+DESC snapshot_tampered (and only it) returns 1 instead of 2
+LABEL a-tampered-exits-1 MET=4/6
+A-selftest   FAIL rc=3 finding='SELFTEST' token_ok=False | SELFTEST total=6 passed=5 failed=1 FAIL expected-tampered rc=1 body={"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snaps
+B-met        PASS rc=0 finding='met' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 42, "target": 42, "finding": "met", "met": true}
+C-mismatch   PASS rc=1 finding='matrix-mismatch' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "matrix-mismatch", "met": false}
+D-tampered   FAIL rc=1 finding='snapshot_tampered' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_tampered", "met": false}
+E-absent     PASS rc=2 finding='snapshot_absent' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_absent", "met": false}
+F-noargs     PASS rc=2 finding='argparse-usage' token_ok=True | usage: measure-round80.py [-h] [--claim {C1,C2}] [--revision REVISION |                           --fixture FIXTURE] [--digests DIGESTS] [--selftest] 
+MATRIX A-selftest:F/rc3 B-met:P/rc0 C-mismatch:P/rc1 D-tampered:F/rc1 E-absent:P/rc2 F-noargs:P/rc2
+VERDICT a-tampered-exits-1 KILLED
+
+MUTANT b-absent-exits-1 sha256=a74d6e69e2620018f151f88947713042566c726b5f06abcf7eabc6a38be71614 anchor="except CannotEvaluate as exc:\n            print(json.dumps({'claim': a"
+DESC snapshot_absent (and only it) returns 1 instead of 2
+LABEL b-absent-exits-1 MET=4/6
+A-selftest   FAIL rc=3 finding='SELFTEST' token_ok=False | SELFTEST total=6 passed=5 failed=1 FAIL snapshot-absent rc=1 body={"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapsho
+B-met        PASS rc=0 finding='met' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 42, "target": 42, "finding": "met", "met": true}
+C-mismatch   PASS rc=1 finding='matrix-mismatch' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "matrix-mismatch", "met": false}
+D-tampered   PASS rc=2 finding='snapshot_tampered' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_tampered", "met": false}
+E-absent     FAIL rc=1 finding='snapshot_absent' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_absent", "met": false}
+F-noargs     PASS rc=2 finding='argparse-usage' token_ok=True | usage: measure-round80.py [-h] [--claim {C1,C2}] [--revision REVISION |                           --fixture FIXTURE] [--digests DIGESTS] [--selftest] 
+MATRIX A-selftest:F/rc3 B-met:P/rc0 C-mismatch:P/rc1 D-tampered:P/rc2 E-absent:F/rc1 F-noargs:P/rc2
+VERDICT b-absent-exits-1 KILLED
+
+MUTANT c-selftest-helper-only sha256=b79aa55bbd1b643094f27b554d81d1564dd1f6feeef70fabfdb0ba8e3a5d9e07 anchor='if a.selftest:\n        return selftest()'
+DESC --selftest no longer drives the public CLI over fixture trees: it checks one helper and prints the conformant token
+LABEL c-selftest-helper-only MET=6/6
+A-selftest   PASS rc=0 finding='SELFTEST' token_ok=True | SELFTEST total=6 passed=6 failed=0
+B-met        PASS rc=0 finding='met' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 42, "target": 42, "finding": "met", "met": true}
+C-mismatch   PASS rc=1 finding='matrix-mismatch' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "matrix-mismatch", "met": false}
+D-tampered   PASS rc=2 finding='snapshot_tampered' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_tampered", "met": false}
+E-absent     PASS rc=2 finding='snapshot_absent' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_absent", "met": false}
+F-noargs     PASS rc=2 finding='argparse-usage' token_ok=True | usage: measure-round80.py [-h] [--claim {C1,C2}] [--revision REVISION |                           --fixture FIXTURE] [--digests DIGESTS] [--selftest] 
+MATRIX A-selftest:P/rc0 B-met:P/rc0 C-mismatch:P/rc1 D-tampered:P/rc2 E-absent:P/rc2 F-noargs:P/rc2
+VERDICT c-selftest-helper-only SURVIVED
+
+MUTANT d-matrix-length-only sha256=d198d67ba9696ad711131fdcc684c0c3b4f69bf36afef13deded26a05d25b1b9 anchor='if json.loads(data) != expected:'
+DESC matrix equality weakened to a top-level length comparison
+LABEL d-matrix-length-only MET=4/6
+A-selftest   FAIL rc=3 finding='SELFTEST' token_ok=False | SELFTEST total=6 passed=5 failed=1 FAIL matrix-mismatch rc=1 body={"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "review-
+B-met        PASS rc=0 finding='met' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 42, "target": 42, "finding": "met", "met": true}
+C-mismatch   FAIL rc=1 finding='review-binding' token_ok=False | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "review-binding", "met": false}
+D-tampered   PASS rc=2 finding='snapshot_tampered' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_tampered", "met": false}
+E-absent     PASS rc=2 finding='snapshot_absent' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_absent", "met": false}
+F-noargs     PASS rc=2 finding='argparse-usage' token_ok=True | usage: measure-round80.py [-h] [--claim {C1,C2}] [--revision REVISION |                           --fixture FIXTURE] [--digests DIGESTS] [--selftest] 
+MATRIX A-selftest:F/rc3 B-met:P/rc0 C-mismatch:F/rc1 D-tampered:P/rc2 E-absent:P/rc2 F-noargs:P/rc2
+VERDICT d-matrix-length-only KILLED
+
+MUTANT e-mismatch-promoted-to-met sha256=b73c72af7ab12d3a6e816bfd2b210d0fbe279d09c886930d5aeae0eabe3b8bc5 anchor="return 0, 'matrix-mismatch'"
+DESC matrix-mismatch counted as the 42 cells it was supposed to refute
+LABEL e-mismatch-promoted-to-met MET=4/6
+A-selftest   FAIL rc=3 finding='SELFTEST' token_ok=False | SELFTEST total=6 passed=5 failed=1 FAIL matrix-mismatch rc=0 body={"claim": "C1", "revision": "fixture", "count": 42, "target": 42, "finding": "matrix
+B-met        PASS rc=0 finding='met' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 42, "target": 42, "finding": "met", "met": true}
+C-mismatch   FAIL rc=0 finding='matrix-mismatch' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 42, "target": 42, "finding": "matrix-mismatch", "met": true}
+D-tampered   PASS rc=2 finding='snapshot_tampered' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_tampered", "met": false}
+E-absent     PASS rc=2 finding='snapshot_absent' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_absent", "met": false}
+F-noargs     PASS rc=2 finding='argparse-usage' token_ok=True | usage: measure-round80.py [-h] [--claim {C1,C2}] [--revision REVISION |                           --fixture FIXTURE] [--digests DIGESTS] [--selftest] 
+MATRIX A-selftest:F/rc3 B-met:P/rc0 C-mismatch:F/rc0 D-tampered:P/rc2 E-absent:P/rc2 F-noargs:P/rc2
+VERDICT e-mismatch-promoted-to-met KILLED
+
+MUTANT f-noargs-accepted sha256=cb5c50ea3522d981d1455cb928a9d19091d7dcd897e19dc9b9dac5a4046d3261 anchor="p.error('--claim and --revision or --fixture required')"
+DESC a bare invocation is accepted instead of refused with exit 2
+LABEL f-noargs-accepted MET=5/6
+A-selftest   PASS rc=0 finding='SELFTEST' token_ok=True | SELFTEST total=6 passed=6 failed=0
+B-met        PASS rc=0 finding='met' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 42, "target": 42, "finding": "met", "met": true}
+C-mismatch   PASS rc=1 finding='matrix-mismatch' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "matrix-mismatch", "met": false}
+D-tampered   PASS rc=2 finding='snapshot_tampered' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_tampered", "met": false}
+E-absent     PASS rc=2 finding='snapshot_absent' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_absent", "met": false}
+F-noargs     FAIL rc=0 finding='' token_ok=True | {}
+MATRIX A-selftest:P/rc0 B-met:P/rc0 C-mismatch:P/rc1 D-tampered:P/rc2 E-absent:P/rc2 F-noargs:F/rc0
+VERDICT f-noargs-accepted KILLED
+```
+
+## Tally
+
+- killed: 5 — a-tampered-exits-1, b-absent-exits-1, d-matrix-length-only, e-mismatch-promoted-to-met, f-noargs-accepted
+- survived: 1 — c-selftest-helper-only
+
+## Which case kills what
+
+| mutant | clause | killing case(s) |
+|---|---|---|
+| a-tampered-exits-1 | `CannotEvaluate(snapshot_tampered)` returns 1 | D (rc 2 expected), and A (the tool's own selftest re-runs D internally and prints rc=3) |
+| b-absent-exits-1 | `CannotEvaluate(snapshot_absent)` returns 1 | E (rc 2 expected), and A |
+| c-selftest-helper-only | `--selftest` checks one helper and prints the conformant token | none — SURVIVOR |
+| d-matrix-length-only | `json.loads(data) != expected` -> `len(...) != len(...)` | C (finding degrades to `review-binding`, token lost), and A |
+| e-mismatch-promoted-to-met | matrix mismatch returns 42 cells | C (rc 0 observed), and A |
+| f-noargs-accepted | bare invocation returns 0 | F (rc 0 observed) |
+
+## Survivor analysis (observation, then inference)
+
+- [observation] mutant c keeps rc=0 and prints `SELFTEST total=6 passed=6 failed=0` while performing no fixture-tree work; the frozen table scores it 6/6 and the round-81 counter reports `count: 6, finding: "met"` against it (counters.txt, last-but-one block).
+- [observation] case A compares `spec["token"] in body` and `returncode == spec["rc"]` only (runner.py `run_case`; the same predicate in tools/measure-round81.py `run_case`).
+- [inference] case A is a string-equality check on a self-report, so it cannot audit the one claim-relevant behaviour (a selftest that drives the public CLI over fixture trees). The candidate's own selftest does run six real cases, but nothing in the frozen table distinguishes that from a token printer.

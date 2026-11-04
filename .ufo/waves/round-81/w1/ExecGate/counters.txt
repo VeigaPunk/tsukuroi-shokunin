@@ -1,0 +1,70 @@
+# ExecGate — counters.txt
+
+Round-81 C2 counter (`tools/measure-round81.py`) over the base revision, HEAD, and the uncommitted candidate. Every line is captured stdout plus the process rc.
+
+Counter bytes: `git show 80237118:tools/measure-round81.py` = worktree bytes, sha256 `0e94c9b4a9bc0f3ab92ec33005ea2d8743f558ccac26719adcf1765bfd3f5db9`.
+
+## counter --selftest
+
+```
+$ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && /usr/bin/python3 tools/measure-round81.py --selftest
+# rc=0
+SELFTEST total=2 passed=2 failed=0
+```
+
+## counter at base rev, no --table (table absent at that rev)
+
+```
+$ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && /usr/bin/python3 tools/measure-round81.py --revision 96ad75b84160da58efaee4997576ce718fd72e2b
+# rc=2
+{"claim": "C2", "revision": "96ad75b84160da58efaee4997576ce718fd72e2b", "count": 0, "target": 6, "finding": "cannot-evaluate:CalledProcessError", "cases": []}
+```
+
+## counter at base rev with the frozen table supplied
+
+```
+$ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && /usr/bin/python3 tools/measure-round81.py --revision 96ad75b84160da58efaee4997576ce718fd72e2b --table .ufo/waves/round-81/before/gate-standard-r81.json
+# rc=1
+{"claim": "C2", "revision": "96ad75b84160da58efaee4997576ce718fd72e2b", "count": 3, "target": 6, "finding": "gate-standard", "cases": [{"case": "A-selftest", "ok": false, "rc": 0, "expected_rc": 0, "token": "SELFTEST total=6 passed=6 failed=0", "observed": "SELFTEST total=2 passed=2 failed=0"}, {"case": "B-met", "ok": true, "rc": 0, "expected_rc": 0, "token": "\"met\": true", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 42, \"target\": 42, \"finding\": \"met\", \"met\": true}"}, {"case": "C-mismatch", "ok": true, "rc": 1, "expected_rc": 1, "token": "matrix-mismatch", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 42, \"finding\": \"matrix-mismatch\", \"met\": false}"}, {"case": "D-tampered", "ok": false, "rc": 1, "expected_rc": 2, "token": "snapshot_tampered", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 42, \"finding\": \"snapshot_tampered\", \"met\": false}"}, {"case": "E-absent", "ok": false, "rc": 1, "expected_rc": 2, "token": "snapshot_absent", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 42, \"finding\": \"missing-or-invalid:FileNotFoundError\", \"met\": false}"}, {"case": "F-noargs", "ok": true, "rc": 2, "expected_rc": 2, "token": "", "observed": "usage: measure-round80.py [-h] [--claim {C1,C2}] [--revision REVISION |\n                          --fixture FIXTURE] [--selftest]\nmeasure-round80.py: error: --claim and --revision or --fixture require"}]}
+```
+
+## counter at HEAD e8e5d5b3 (committed pre-repair tool)
+
+```
+$ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && /usr/bin/python3 tools/measure-round81.py --revision e8e5d5b39b25a83f705dc3aa760df21c6a2af508
+# rc=1
+{"claim": "C2", "revision": "e8e5d5b39b25a83f705dc3aa760df21c6a2af508", "count": 3, "target": 6, "finding": "gate-standard", "cases": [{"case": "A-selftest", "ok": false, "rc": 0, "expected_rc": 0, "token": "SELFTEST total=6 passed=6 failed=0", "observed": "SELFTEST total=2 passed=2 failed=0"}, {"case": "B-met", "ok": true, "rc": 0, "expected_rc": 0, "token": "\"met\": true", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 42, \"target\": 42, \"finding\": \"met\", \"met\": true}"}, {"case": "C-mismatch", "ok": true, "rc": 1, "expected_rc": 1, "token": "matrix-mismatch", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 42, \"finding\": \"matrix-mismatch\", \"met\": false}"}, {"case": "D-tampered", "ok": false, "rc": 1, "expected_rc": 2, "token": "snapshot_tampered", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 42, \"finding\": \"snapshot_tampered\", \"met\": false}"}, {"case": "E-absent", "ok": false, "rc": 1, "expected_rc": 2, "token": "snapshot_absent", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 42, \"finding\": \"missing-or-invalid:FileNotFoundError\", \"met\": false}"}, {"case": "F-noargs", "ok": true, "rc": 2, "expected_rc": 2, "token": "", "observed": "usage: measure-round80.py [-h] [--claim {C1,C2}] [--revision REVISION |\n                          --fixture FIXTURE] [--selftest]\nmeasure-round80.py: error: --claim and --revision or --fixture require"}]}
+```
+
+## counter against the uncommitted candidate (fixture tree holding the candidate bytes)
+
+```
+$ python3 tools/measure-round81.py --fixture /fast/scratch/hyaku/tsukuroi-r81/ExecGate/run-z7hjw_v2/pristine
+# rc=0
+{"claim": "C2", "revision": "fixture", "count": 6, "target": 6, "finding": "met", "cases": [{"case": "A-selftest", "ok": true, "rc": 0, "expected_rc": 0, "token": "SELFTEST total=6 passed=6 failed=0", "observed": "SELFTEST total=6 passed=6 failed=0"}, {"case": "B-met", "ok": true, "rc": 0, "expected_rc": 0, "token": "\"met\": true", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 42, \"target\": 42, \"finding\": \"met\", \"met\": true}"}, {"case": "C-mismatch", "ok": true, "rc": 1, "expected_rc": 1, "token": "matrix-mismatch", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 42, \"finding\": \"matrix-mismatch\", \"met\": false}"}, {"case": "D-tampered", "ok": true, "rc": 2, "expected_rc": 2, "token": "snapshot_tampered", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 42, \"finding\": \"snapshot_tampered\", \"met\": false}"}, {"case": "E-absent", "ok": true, "rc": 2, "expected_rc": 2, "token": "snapshot_absent", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 42, \"finding\": \"snapshot_absent\", \"met\": false}"}, {"case": "F-noargs", "ok": true, "rc": 2, "expected_rc": 2, "token": "", "observed": "usage: measure-round80.py [-h] [--claim {C1,C2}] [--revision REVISION |\n                          --fixture FIXTURE] [--digests DIGESTS] [--selftest]\nmeasure-round80.py: error: --claim and --revision "}]}
+```
+
+## counter against survivor mutant c (selftest prints the token, does no fixture work)
+
+```
+$ python3 tools/measure-round81.py --fixture /fast/scratch/hyaku/tsukuroi-r81/ExecGate/run-9m3fl9ey/pristine
+# rc=0
+{"claim": "C2", "revision": "fixture", "count": 6, "target": 6, "finding": "met", "cases": [{"case": "A-selftest", "ok": true, "rc": 0, "expected_rc": 0, "token": "SELFTEST total=6 passed=6 failed=0", "observed": "SELFTEST total=6 passed=6 failed=0"}, {"case": "B-met", "ok": true, "rc": 0, "expected_rc": 0, "token": "\"met\": true", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 42, \"target\": 42, \"finding\": \"met\", \"met\": true}"}, {"case": "C-mismatch", "ok": true, "rc": 1, "expected_rc": 1, "token": "matrix-mismatch", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 42, \"finding\": \"matrix-mismatch\", \"met\": false}"}, {"case": "D-tampered", "ok": true, "rc": 2, "expected_rc": 2, "token": "snapshot_tampered", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 42, \"finding\": \"snapshot_tampered\", \"met\": false}"}, {"case": "E-absent", "ok": true, "rc": 2, "expected_rc": 2, "token": "snapshot_absent", "observed": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 42, \"finding\": \"snapshot_absent\", \"met\": false}"}, {"case": "F-noargs", "ok": true, "rc": 2, "expected_rc": 2, "token": "", "observed": "usage: measure-round80.py [-h] [--claim {C1,C2}] [--revision REVISION |\n                          --fixture FIXTURE] [--digests DIGESTS] [--selftest]\nmeasure-round80.py: error: --claim and --revision "}]}
+```
+
+## C2 on the real lane, base export
+
+```
+$ PYTHONPATH=exports python3 exports/base/measure-round80.py --claim C2 --fixture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+# rc=1
+{"claim": "C2", "revision": "fixture", "count": 1, "target": 2, "finding": "gate-standard", "met": false}
+```
+
+## C2 on the real lane, candidate export
+
+```
+$ PYTHONPATH=exports python3 exports/candidate/measure-round80.py --claim C2 --fixture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+# rc=1
+{"claim": "C2", "revision": "fixture", "count": 1, "target": 2, "finding": "gate-standard", "met": false}
+```
+

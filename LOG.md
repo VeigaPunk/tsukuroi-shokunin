@@ -3610,3 +3610,54 @@ Transaction's red rc3 remains reported in its report/digests text, not a
 separately bound rc receipt. Two tool digests do not inventory an entire
 exact-revision sandbox. No earlier rejected claim is repaired by this erratum.
 
+
+## Round81 — mount-unit plane, round-80 gate standard, provenance-header closure
+
+Motivation: `corpus/lessons/round-80-verifier-spotcheck.md` routed defects 2–4
+(gate-standard debt, the KR digest erratum already landed, and two inherited
+provenance-header findings) and left the lane's lowest non-retired axis at
+depth8. Claims and immutable targets are in `SCORECARD.md` "Round 81 —
+declaration"; the measured outcome lands in the section after it.
+
+**Chronology erratum (carried, not repaired):** candidate author trials ran
+before the declaration commit `8023711`. The thirteen controls in
+`before/controls.json` did run before it, but candidate scoring did too; this is
+not a compliant pre-data freeze and no later measurement makes it one.
+
+**C1 — mount-unit plane (depth).** `corpus/knowledge/mount-unit-fstab-plane-r81.md`
+and its `.json` companion hold MT1–MT8 over S331 (systemd v262
+`man/systemd.mount.xml`) with three measured legs from S332 (this host's
+read-only generator capture). The wave falsified four sentences and one measured
+leg of the first candidate and they were corrected before landing: the fstab
+count (nine rows, seven local mount points, five required, two `nofail`), the
+`Options=` claim (only `x-systemd.device-timeout=` is consumed; `x-systemd.before=`
+survives on `tmp.mount`), the "measured on this boot" and "up to ten seconds"
+phrasings (regeneration time 2026-11-04 17:34:49 is after the 2026-11-02 boot;
+the delay is [INFERENCE] and the kernel device unit the mount requires reports
+`JobRunningTimeoutUSec=1min 30s` while the by-uuid alias carries the 10 s
+drop-in value), and MT5's measured
+leg, which pointed at `var-log.mount` and now points at `tmp.mount` :69-70. The
+line anchors index the tag-stripped XML (707 raw lines become 703) and both the
+entry's Limits and S331's anchor cell now say so; the counter's per-line strip
+is routed to the next round.
+
+**C2 — gate standard (operability).** `tools/measure-round80.py` now returns
+`snapshot_tampered` and `snapshot_absent` as exit 2 through the public CLI and
+its selftest drives the six gate-standard cases; `tools/measure-round81.py`
+scores exactly that behaviour against the frozen table
+`.ufo/waves/round-81/before/gate-standard-r81.json`. The frozen table's case A
+remains a string check: a `--selftest` that prints the expected token survives it
+(measured by this round's mutation seat).
+
+**C3 — provenance headers (freshness).** The two inherited findings on
+`modprobe-config-plane-r72.md` and `module-parameter-plane-r71.md` are closed by
+appended dated `verified-at:` lines after all seven pinned snapshots re-verified
+(`sha256sum -c SHA256SUMS`, 4/4 and 3/3 OK). The filed header lines were not
+rewritten.
+
+**Wave.** One v1 wave, twelve seats, ten durable reports; the reviewer and critic
+seats died at their first turn with no report and receive no attack credit. Their
+falsification duty was carried by the executor, scribe, scout and sentinel seats,
+which produced the four corrections above. Mutation seat: 26 single-clause
+mutants, 7 killed (C1 3/18, C2 4/8), 17 behaviour-bearing survivors named as
+coverage debt.

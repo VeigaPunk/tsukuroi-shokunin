@@ -1,0 +1,133 @@
+[
+  {
+    "id": "F1",
+    "axis": "freshness",
+    "kind": "contradicted-by-pinned-capture",
+    "severity": "high",
+    "site": "corpus/knowledge/mount-unit-fstab-plane-r81.md:30",
+    "claim": "`/etc/fstab` carries six local file systems; four are required and two are not:",
+    "also": "md:32 enumerates five required mounts: `/`, `/home`, `/var/cache/pacman/pkg`, `/var/log` and `/boot`",
+    "evidence_command": "python3 - <<'EOF' (count '### /run/systemd/generator/*.mount' lines and the local-fs.target.wants/.requires blocks of .ufo/waves/round-81/before/host/generator.txt) EOF",
+    "observed": "generated_mount_units 7 ['-.mount', 'boot.mount', 'fast.mount', 'home.mount', 'tmp.mount', 'var-cache-pacman-pkg.mount', 'var-log.mount']; wants_block_lines 136 138 ['fast.mount', 'systemd-remount-fs.service', 'tmp.mount']; requires_block_lines 140 144 ['-.mount', 'boot.mount', 'home.mount', 'var-cache-pacman-pkg.mount', 'var-log.mount']; capture_generator_mounts 7",
+    "pinned": "host/generator.txt:3-107 generates seven .mount units; :140-145 lists five under local-fs.target.requires; :136-139 lists two mounts plus systemd-remount-fs.service under local-fs.target.wants. host/capture.txt '## generator' also lists seven .mount entries.",
+    "verdict": "contradicted: seven mount units, five required, two wanted. 'six' and 'four' are both wrong, and the sentence contradicts its own bullet on md:32."
+  },
+  {
+    "id": "F2",
+    "axis": "depth",
+    "kind": "contradicted-by-pinned-capture",
+    "severity": "high",
+    "site": "corpus/knowledge/mount-unit-fstab-plane-r81.md:49-50",
+    "claim": "The generated `Options=` line keeps `nofail` but drops the `x-systemd.*` tokens, which is the consumption MT6 describes.",
+    "evidence_command": "python3 - <<'EOF' (print .ufo/waves/round-81/before/host/generator.txt with line numbers) EOF",
+    "observed": "77|Options=rw,noatime,nosuid,nodev,logbsize=256k,nofail,x-systemd.before=local-fs.target",
+    "pinned": "host/generator.txt:77 keeps x-systemd.before=local-fs.target in tmp.mount's Options=. Only x-systemd.device-timeout= is absent from both Options= lines (:47, :77), because it is consumed into the device drop-in (:120-134).",
+    "verdict": "contradicted: the generator drops x-systemd.device-timeout= only; it retains x-systemd.before=. The sentence is true for one token and false for the x-systemd.* class it asserts."
+  },
+  {
+    "id": "F3",
+    "axis": "depth",
+    "kind": "wrong-anchor",
+    "severity": "medium",
+    "site": "corpus/knowledge/mount-unit-fstab-plane-r81.md:42-43",
+    "claim": "`tmp.mount` is generated with `Before=local-fs.target`; `fast.mount` is not (S332 :35-47 vs :95-107).",
+    "evidence_command": "python3 - <<'EOF' (print .ufo/waves/round-81/before/host/generator.txt with line numbers) EOF",
+    "observed": "35|### /run/systemd/generator/fast.mount ... 47|Options=...; 64|### /run/systemd/generator/tmp.mount ... 70|Before=local-fs.target ... 77|Options=...; 94|### /run/systemd/generator/var-log.mount ... 100|Before=local-fs.target ... 107|Options=...",
+    "pinned": "host/generator.txt:64-77 is the tmp.mount block; :95-107 is the var-log.mount block (a required mount, not a nofail one).",
+    "verdict": "the claim is true (tmp.mount:70 carries Before=local-fs.target, fast.mount:35-47 does not) but the second anchor points at a different unit, so the citation cannot be checked as written."
+  },
+  {
+    "id": "F4",
+    "axis": "depth",
+    "kind": "coordinate-drift",
+    "severity": "medium",
+    "site": "corpus/knowledge/mount-unit-fstab-plane-r81.json rows[*].lines and corpus/knowledge/mount-unit-fstab-plane-r81.md:19-26, md:62",
+    "claim": "md:62: 'The line anchors above are v262 upstream lines'",
+    "evidence_command": "python3 rederive.py (locate each quote in tag-stripped lines and in per-line-tag-stripped raw lines) ; sha256sum re-fetched upstream",
+    "observed": "raw_lines 707  tag_stripped_lines 703  drift 4; upstream re-fetch http=200 bytes=37234 sha256=afbf3be663b139422b38217cd17083a96fa08507a1a3e58a844cbb2f67652394 (byte-identical to the snapshot). Per row, quoted span in raw file coordinates: MT1 135-138, MT2 502-503, MT3 486-487, MT4 491-492, MT5 234-236, MT6 339-341, MT7 198-201, MT8 259-260.",
+    "pinned": "The cited numbers index the tag-stripped list, not the file: two multi-line tags (DOCTYPE at raw 2-3, <ulink> at raw 84-85) each swallow a newline, so every cited range is 2 lines early relative to the stored and upstream bytes.",
+    "rows": [
+      {"id": "MT1", "cited": [133, 137], "stripped_quote_span": [133, 136], "raw_quote_span": [135, 138], "contained_in_cited_raw": false},
+      {"id": "MT2", "cited": [498, 503], "stripped_quote_span": [500, 501], "raw_quote_span": [502, 503], "contained_in_cited_raw": true},
+      {"id": "MT3", "cited": [481, 487], "stripped_quote_span": [484, 485], "raw_quote_span": [486, 487], "contained_in_cited_raw": true},
+      {"id": "MT4", "cited": [489, 491], "stripped_quote_span": [489, 490], "raw_quote_span": [491, 492], "contained_in_cited_raw": false},
+      {"id": "MT5", "cited": [229, 241], "stripped_quote_span": [232, 234], "raw_quote_span": [234, 236], "contained_in_cited_raw": true},
+      {"id": "MT6", "cited": [335, 347], "stripped_quote_span": [337, 339], "raw_quote_span": [339, 341], "contained_in_cited_raw": true},
+      {"id": "MT7", "cited": [194, 212], "stripped_quote_span": [196, 199], "raw_quote_span": [198, 201], "contained_in_cited_raw": true},
+      {"id": "MT8", "cited": [254, 265], "stripped_quote_span": [257, 258], "raw_quote_span": [259, 260], "contained_in_cited_raw": true}
+    ],
+    "verdict": "all eight quotes locate inside the cited ranges in the instrument's stripped coordinates; in the file's own coordinates two (MT1, MT4) fall outside the cited end, and every range starts 2 lines early. A reader checking with sed -n on the stored or upstream file sees a different unit line at the cited start."
+  },
+  {
+    "id": "F5",
+    "axis": "depth",
+    "kind": "unsupported-inference",
+    "severity": "medium",
+    "site": "corpus/knowledge/mount-unit-fstab-plane-r81.md:51-55",
+    "claim": "a `nofail` entry that names `x-systemd.before=local-fs.target` still delays `local-fs.target` by up to the device timeout ... The boot cost of a missing second NVMe is therefore up to ten seconds for `/tmp` and nothing for `/fast`.",
+    "evidence_command": "grep of the pinned snapshot for the two propositions",
+    "observed": "nofail text at stripped 500-503 says only: 'this mount will be only wanted, not required, by local-fs.target or remote-fs.target. Moreover, the mount unit is not ordered before these target units. This means that the boot will continue without waiting for the mount unit and regardless whether the mount point can be mounted successfully.' x-systemd.before text at stripped 232-241 says only that it is 'particularly useful for mount point declarations with nofail option that are mounted asynchronously but need to be mounted before or after some unit start'.",
+    "pinned": "Neither pinned source states the wait duration, nor that a nofail entry with x-systemd.before= delays the target. The nofail sentence points the other way ('boot will continue without waiting for the mount unit'); the man page never resolves the combination.",
+    "verdict": "not supported by the pinned snapshot and not contradicted by it: an inference presented as a conclusion. [INFERENCE] - unverified, and in tension with the nofail sentence it is derived from."
+  },
+  {
+    "id": "F6",
+    "axis": "depth",
+    "kind": "over-extension-of-pinned-text",
+    "severity": "low",
+    "site": "corpus/knowledge/mount-unit-fstab-plane-r81.json rows[MT7].statement",
+    "claim": "x-systemd.requires= and x-systemd.wants= add Requires= or Wants= plus After= against another unit, and they always attach to the created mount unit even under automount.",
+    "evidence_command": "python3 - <<'EOF' (probe the tag-stripped snapshot for 'always applies to the created mount unit' and 'similar to the') EOF",
+    "observed": "always applies to the created mount unit stripped_lines=[210]; similar to the stripped_lines=[222]",
+    "pinned": "The automount-independence note exists only in the x-systemd.requires= entry (raw 212-214 / stripped 210-212). The x-systemd.wants= entry (raw 219-228) says only 'similar to the x-systemd.requires= option' and carries no automount note.",
+    "verdict": "the requires= half is verbatim; the wants= half is an inference from 'similar to'. The row's quote (raw 198-200) covers only the requires= sentence, so R5/R7 cannot catch it."
+  },
+  {
+    "id": "F7",
+    "axis": "depth",
+    "kind": "gate-standard-weakness",
+    "severity": "medium",
+    "site": "corpus/knowledge/mount-unit-fstab-plane-r81.json rows[MT2].measured and tools/count-mount-rows-r81.py R7",
+    "claim": "measured: {source S332, lines [140,143], quote 'local-fs.target.requires -.mount boot.mount home.mount'} for the row 'nofail makes the target only want the mount instead of requiring it'.",
+    "evidence_command": "python3 - <<'EOF' (print generator.txt with line numbers) EOF",
+    "observed": "140|### local-fs.target.requires 141|-.mount 142|boot.mount 143|home.mount",
+    "pinned": "R7 tests only that the measured quote is located at the cited capture lines. The quoted text contains no nofail token and no local-fs.target.wants block, so a locatable quote that does not evidence the statement passes the clause. The wants block is at :136-139.",
+    "verdict": "the clause is satisfiable by a non-evidencing measured leg; the instrument checks locatability, never entailment. MT5's leg (:99-100) has the same shape but does at least contain the Before= line it claims."
+  },
+  {
+    "id": "F8",
+    "axis": "operability",
+    "kind": "unrunnable-recheck",
+    "severity": "medium",
+    "site": "corpus/knowledge/mount-unit-fstab-plane-r81.md:5",
+    "claim": "procedure: `python3 tools/count-mount-rows-r81.py --revision <REV>` must print `\"count\": 8, \"target\": 8, \"finding\": \"met\"` rc 0",
+    "evidence_command": "python3 tools/count-mount-rows-r81.py --revision <base|declaration|HEAD>; git ls-files corpus/knowledge/mount-unit-fstab-plane-r81.json",
+    "observed": "96ad75b8 -> finding cannot-evaluate:CalledProcessError rc 2; 8023711 -> finding note-absent rc 1; e8e5d5b (HEAD) -> finding note-absent rc 1; git ls-files prints nothing for the entry",
+    "pinned": "The entry is untracked at HEAD, so no committed revision can satisfy the documented recheck; the only working invocation in this wave is --fixture against the working tree.",
+    "verdict": "the recheck as written is not executable at the revision the entry is delivered at; it becomes executable only after a commit that includes the entry. Not observed to have ever been run through --revision successfully."
+  },
+  {
+    "id": "F9",
+    "axis": "depth",
+    "kind": "incomplete-enumeration",
+    "severity": "low",
+    "site": "corpus/knowledge/mount-unit-fstab-plane-r81.md:38-40",
+    "claim": "`local-fs.target.wants` holds `fast.mount`, `tmp.mount` (S332 :135-145).",
+    "evidence_command": "python3 - <<'EOF' (print generator.txt with line numbers) EOF",
+    "observed": "136|### local-fs.target.wants 137|fast.mount 138|systemd-remount-fs.service 139|tmp.mount",
+    "pinned": "host/generator.txt:138 is systemd-remount-fs.service, which the sentence omits.",
+    "verdict": "not false ('holds' is not 'holds only') but the enumeration is incomplete for a directory listing the entry cites as evidence."
+  },
+  {
+    "id": "F10",
+    "axis": "freshness",
+    "kind": "provenance-observation",
+    "severity": "info",
+    "site": "commit 8023711867eaa788f68af09d7f29d24db749cca7; .ufo/waves/round-81/before/declaration-baseline.json[0]",
+    "claim": "declaration-baseline.json records C1 at the declaration commit as count 0, finding note-absent, rc 1.",
+    "evidence_command": "git cat-file -e 8023711:corpus/knowledge/mount-unit-fstab-plane-r81.json; git ls-tree --name-only 8023711:.ufo/waves/round-81/before/src/",
+    "observed": "fatal: path 'corpus/knowledge/mount-unit-fstab-plane-r81.json' exists on disk, but not in '8023711867eaa788f68af09d7f29d24db749cca7' (rc=128); src/ tracked as SHA256SUMS fstab-generator.c systemd-fstab-generator.xml systemd.mount.xml",
+    "pinned": "The commit pins the four snapshot inputs and nothing the row clause reads. It is a declaration-only commit whose own recorded trial already failed; it is not a compliant pre-data freeze and is not counted as one here.",
+    "verdict": "observation recorded; no action taken (leaf seat, no Git mutation)."
+  }
+]

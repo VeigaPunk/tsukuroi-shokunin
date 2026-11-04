@@ -1,0 +1,313 @@
+ExecHeader — independent check of C3 (provenance-header closure), round-81 w1
+Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+Seat: .ufo/waves/round-81/w1/ExecHeader/
+Scratch: /fast/scratch/hyaku/tsukuroi-r81/ExecHeader/ (removed before yield; receipts copied here)
+Date of execution: 2026-11-04. Host: linux 7.2.11-arch1-1.
+No production edit was made by this seat. No git/jj mutation in the lane or the fleet root.
+The only git writes were in the seat's own scratch clone (see §6).
+
+Frozen C3 row (SCORECARD.md at 80237118, quoted):
+  | C3 | freshness9 | The existing knowledge-header gate reports finding_count2→0, rc1→0, after
+  seven pinned snapshot files actually re-verify and the two operative dates are appended |
+  `python3 tools/check-knowledge-header.py --revision <REV>` | any remaining header finding;
+  any of the seven snapshot rechecks fails; rewriting the two filed header lines instead of
+  appending; a date not supported by this round's execution |
+
+==========================================================================================
+§1  SHA256SUMS re-run in both frozen snapshot sets
+==========================================================================================
+$ cd .ufo/waves/round-71/before/src && sha256sum -c SHA256SUMS; echo rc=$?
+kernel-parameters.rst: OK
+params.c: OK
+moduleparam.h: OK
+main.c: OK
+rc=0
+(raw: r71-sha256sum-c.txt)
+
+$ cd .ufo/waves/round-72/before/src && sha256sum -c SHA256SUMS; echo rc=$?
+modprobe.d.5.scd: OK
+libkmod-config.c: OK
+modprobe.c: OK
+rc=0
+(raw: r72-sha256sum-c.txt)
+
+Seven files total (4 + 3) — exactly the "seven pinned snapshot files" of the frozen C3 row.
+All OK, both rc 0. Manifest digests:
+$ sha256sum .ufo/waves/round-71/before/src/SHA256SUMS
+5d40a2dd1a11b1f0851885e41c32c31a3ca7b4e264906e995fe7de46733f9b97  .ufo/waves/round-71/before/src/SHA256SUMS
+$ sha256sum .ufo/waves/round-72/before/src/SHA256SUMS
+3357881617610420b5ce939e3ec9c0aa55179659786449db745a4afdb91cdd65  .ufo/waves/round-72/before/src/SHA256SUMS
+
+Adjacent (not part of C3's seven, recorded because the same declaration pins them):
+$ sha256sum .ufo/waves/round-81/before/src/SHA256SUMS
+41e80e89fd9c5b777f9bbaf282ebc805ad1a1515d1e8652ecfe3313069308cc4  .ufo/waves/round-81/before/src/SHA256SUMS
+   -> equals the declaration's "source manifest = 41e80e89…" (SCORECARD.md at 80237118)
+$ cd .ufo/waves/round-81/before/src && sha256sum -c SHA256SUMS; echo rc=$?
+systemd-fstab-generator.xml: OK
+systemd.mount.xml: OK
+fstab-generator.c: OK
+r81_src_rc=0
+$ sha256sum tools/count-mount-rows-r81.py tools/measure-round81.py
+80351a2868a277899d350ad434f4c07bc3a46efbd1059ae054036ef6835bfa7a  tools/count-mount-rows-r81.py
+0e94c9b4a9bc0f3ab92ec33005ea2d8743f558ccac26719adcf1765bfd3f5db9  tools/measure-round81.py
+   -> both equal the declaration's pinned instrument digests
+$ sha256sum .ufo/waves/round-81/before/gate-standard-r81.json .ufo/waves/round-81/before/host/generator.txt
+6dbf5624283cff011edba8d63fc5814871fc4254cfc003481b0482fa816984b3  gate-standard-r81.json
+8e1bb73bcd012978512e8a24ca9f8d2d6f5433b8b3d03ca8a5d26675609ee4f8  host/generator.txt
+   -> equal the declaration's "frozen table" and "host generator capture"
+
+==========================================================================================
+§2  The rule the fix rests on: the gate takes the LAST column-0 `verified-at:` occurrence
+==========================================================================================
+Source: tools/check-knowledge-header.py (sha256 592b6c2e765e2a0aec94cc745271878ef748ef3a2e2303ec722828d7cc13f919)
+Docstring, lines 16-21 (verbatim):
+  "A key counts only at column 0 and outside a fenced code block: an example
+  inside ``` or ~~~ fences, or a `source:` word mid-sentence, is not a header —
+  the same rule `tools/check-recheck-commands.py` applies to headings. A key's
+  operative line is its LAST occurrence, because later lines supersede earlier
+  pointer lines (the journal-boot-plane convention `check-recheck-commands.py`
+  follows): a note whose first `recheck:` is a bare section pointer and whose
+  appended block carries `30d` passes on the appended line."
+
+Implementing lines (grep -n 'hits[-1]' tools/check-knowledge-header.py):
+  172:                found[key].append((number, line[len(key) + 1:].strip()))
+  212:            lines[key] = hits[-1][0] if hits else None
+  221:            problem = rule(hits[-1][1])
+  223:                findings.append(Finding(VALUE, path, f"{problem} at line {hits[-1][0]}"))
+  224:                problems.append(f"{problem} at line {hits[-1][0]}")
+
+The load-bearing line is 221 — the VALUE rule is applied to hits[-1][1], i.e. the VALUE OF THE LAST
+occurrence. `header_lines()` appends in document order (line 172, inside `enumerate(text.split("\n"), 1)`),
+so hits[-1] is the last column-0, non-fenced occurrence.
+
+Sibling convention corroborated: tools/check-recheck-commands.py:450
+  450:    return (hits[-1], text.splitlines()[hits[-1]]) if hits else (None, None)
+
+Gate's own hermetic selftest contains the same rule as a fixture:
+  case("appended-block-supersedes-pointer", ["--revision", pointer], PASS, set(),
+       want_counts={"finding_count": 0})
+  with fixture body: header(recheck="§4 for the counting command.") + "\n## Appended block\n\n"
+                     "recheck: 90d; procedure: §4.\n"
+$ python3 tools/check-knowledge-header.py --selftest; echo rc=$?
+{"selftest": {"cases": 25, "failures": [], "passed": 25, "status": "PASS"}}
+rc=0
+(raw: gate-selftest.json)
+
+Exit map (line 55): PASS, FAIL, CANNOT = 0, 1, 2
+
+==========================================================================================
+§3  The appended block is the last occurrence in each file
+==========================================================================================
+$ grep -n '^verified-at:' corpus/knowledge/modprobe-config-plane-r72.md corpus/knowledge/module-parameter-plane-r71.md
+corpus/knowledge/modprobe-config-plane-r72.md:4:verified-at: round-72 declaration `6b42676`; snapshots `.ufo/waves/round-72/before/src/` (`sha256sum -c SHA256SUMS` 3/3 OK)
+corpus/knowledge/modprobe-config-plane-r72.md:99:verified-at: 2026-11-04 — snapshots re-verified at round 81: `sha256sum -c SHA256SUMS` in
+corpus/knowledge/module-parameter-plane-r71.md:4:verified-at: round-71 declaration `0fcfca31`; snapshots `.ufo/waves/round-71/before/src/` (`sha256sum -c SHA256SUMS` 4/4 OK)
+corpus/knowledge/module-parameter-plane-r71.md:75:verified-at: 2026-11-04 — snapshots re-verified at round 81: `sha256sum -c SHA256SUMS` in
+
+$ wc -l corpus/knowledge/modprobe-config-plane-r72.md corpus/knowledge/module-parameter-plane-r71.md
+  101 corpus/knowledge/modprobe-config-plane-r72.md
+   77 corpus/knowledge/module-parameter-plane-r71.md
+  178 total
+So the appended occurrence is the last one in each file (99/101 and 75/77) and no later
+column-0 key re-supersedes it.
+
+Both blocks sit outside fences (the gate reports them as the operative lines: §6 shows
+"verified-at": 99 and "verified-at": 75 in the candidate run).
+
+Append-only proof (no header rewrite — the C3 kill rule):
+$ git diff --numstat -- corpus/knowledge/modprobe-config-plane-r72.md corpus/knowledge/module-parameter-plane-r71.md
+11	0	corpus/knowledge/modprobe-config-plane-r72.md
+11	0	corpus/knowledge/module-parameter-plane-r71.md
+$ git show 80237118:corpus/knowledge/modprobe-config-plane-r72.md | sed -n '4p' | sha256sum
+32610e9f6ca636e4c6990ce0e2a79308836b90a62290b07455bcbc4a166030cd  -
+$ sed -n '4p' corpus/knowledge/modprobe-config-plane-r72.md | sha256sum
+32610e9f6ca636e4c6990ce0e2a79308836b90a62290b07455bcbc4a166030cd  -
+$ git show 80237118:corpus/knowledge/module-parameter-plane-r71.md | sed -n '4p' | sha256sum
+f2e126c97e5c0e4a6bafa0c4061429229b2ebe7199c660525f4e8ab7f23929f3  -
+$ sed -n '4p' corpus/knowledge/module-parameter-plane-r71.md | sha256sum
+f2e126c97e5c0e4a6bafa0c4061429229b2ebe7199c660525f4e8ab7f23929f3  -
+Filed header line 4 is byte-identical in both notes; 11 insertions, 0 deletions each.
+
+The two commit ids named in the appended blocks exist:
+$ git cat-file -t 6b42676 ; git log -1 --format='%h %s' 6b42676
+commit
+6b426762 round-72 declaration: freezes three claims (depth modprobe.d config plane, operability gate-selftest, freshness r71 routed repairs) with instruments, batteries and pre-data receipts
+$ git cat-file -t 0fcfca31 ; git log -1 --format='%h %s' 0fcfca31
+commit
+0fcfca31 round-71: declaration — C1 module-parameter plane (frozen counter + 12-case battery) and C2 selftest case-timeout harness predicate; pre-data receipts
+
+==========================================================================================
+§4  Gate against the freeze commit's parent and the freeze commit
+==========================================================================================
+$ git -C <lane> log --oneline -3 master
+e8e5d5b3 round-81: land twelve-seat inline wave payload
+80237118 round-81: pin controls and disclose predeclaration trials
+96ad75b8 round-80 verifier spot-check (integrator, hyaku): non-author admit/reject
+
+Freeze commit = 80237118 (the declaration-only commit); its parent = 96ad75b8.
+e8e5d5b3 (master tip) is included because it is the landed revision the gate binds to.
+
+$ python3 tools/check-knowledge-header.py --revision 96ad75b84160da58efaee4997576ce718fd72e2b
+rc=1  status FAIL  finding_count 2  note_count 98  clean_count 96  complete_count 98
+      branch_tip e8e5d5b39b25a83f705dc3aa760df21c6a2af508  origin_tip e8e5d5b39b25a83f705dc3aa760df21c6a2af508
+findings:
+  KNOWLEDGE-HEADER-VALUE corpus/knowledge/modprobe-config-plane-r72.md
+    "verified-at: carries no ISO date (YYYY-MM-DD) at line 4"
+  KNOWLEDGE-HEADER-VALUE corpus/knowledge/module-parameter-plane-r71.md
+    "verified-at: carries no ISO date (YYYY-MM-DD) at line 4"
+(raw: gate-before-96ad75b8.json)
+
+$ python3 tools/check-knowledge-header.py --revision 8023711867eaa788f68af09d7f29d24db749cca7
+rc=1  status FAIL  finding_count 2  note_count 98  clean_count 96  complete_count 98
+      branch_tip e8e5d5b39b25a83f705dc3aa760df21c6a2af508  origin_tip e8e5d5b39b25a83f705dc3aa760df21c6a2af508
+findings: identical two, both at line 4.
+(raw: gate-before-80237118.json)
+
+$ python3 tools/check-knowledge-header.py --revision e8e5d5b39b25a83f705dc3aa760df21c6a2af508
+rc=1  status FAIL  finding_count 2  note_count 98  clean_count 96  complete_count 98
+findings: identical two, both at line 4.
+(raw: gate-before-e8e5d5b3.json)
+
+Observation: all three revisions return rc 1 / finding_count 2, because the appended blocks are
+NOT committed anywhere — the declaration-only commit intentionally carries the old two headers,
+and master's tip carries them too. The C3 "after" state exists only as uncommitted worktree
+changes in the lane.
+
+Per-revision committed note digests (pre-fix):
+$ git show 80237118:corpus/knowledge/modprobe-config-plane-r72.md | sha256sum
+e5d17a685423e6f11e2c039d7aceb620a78bb4c7bf0de08e52f6247900abdad5  -
+$ git show 80237118:corpus/knowledge/module-parameter-plane-r71.md | sha256sum
+c222341808f1c40389b9aa6337b5437edb1bbb0409c92f9ed7db7dbb7b98543f  -
+
+==========================================================================================
+§5  Candidate "after" leg in one sandbox clone
+==========================================================================================
+$ git clone --no-local --depth 1 --single-branch --branch master \
+      file:///home/vgpnk/Projects/shokunin/tsukuroi-shokunin \
+      /fast/scratch/hyaku/tsukuroi-r81/ExecHeader/candidate
+$ git -C /fast/scratch/hyaku/tsukuroi-r81/ExecHeader/candidate rev-parse --show-toplevel
+/fast/scratch/hyaku/tsukuroi-r81/ExecHeader/candidate
+$ git -C <sandbox> log --oneline -1
+e8e5d5b3 round-81: land twelve-seat inline wave payload
+$ git -C <sandbox> for-each-ref --format='%(refname) %(objectname:short)'
+refs/heads/master e8e5d5b3
+refs/remotes/origin/master e8e5d5b3
+
+Copied ONLY the two current candidate notes into the clone:
+$ sha256sum <lane>/corpus/knowledge/modprobe-config-plane-r72.md <lane>/corpus/knowledge/module-parameter-plane-r71.md
+0d039b5cc6ca1a09c6570d379c70a339fb587e9dd42a4675de84eda68a5535ac  corpus/knowledge/modprobe-config-plane-r72.md
+4e4f7bc42cb287cc8f59c41edb99550e214dc4436f89c64f1786cf5b71bc0e44  corpus/knowledge/module-parameter-plane-r71.md
+$ sha256sum <sandbox>/corpus/knowledge/modprobe-config-plane-r72.md <sandbox>/corpus/knowledge/module-parameter-plane-r71.md
+0d039b5cc6ca1a09c6570d379c70a339fb587e9dd42a4675de84eda68a5535ac  ...
+4e4f7bc42cb287cc8f59c41edb99550e214dc4436f89c64f1786cf5b71bc0e44  ...
+$ git -C <sandbox> status --porcelain
+ M corpus/knowledge/modprobe-config-plane-r72.md
+ M corpus/knowledge/module-parameter-plane-r71.md
+(exactly two paths — nothing else copied)
+
+$ git -C <sandbox> rev-parse --show-toplevel        # asserted before the commit
+/fast/scratch/hyaku/tsukuroi-r81/ExecHeader/candidate
+$ git -C <sandbox> -c user.email=… -c user.name=… -c commit.gpgsign=false -c core.hooksPath=/dev/null \
+      add corpus/knowledge/modprobe-config-plane-r72.md corpus/knowledge/module-parameter-plane-r71.md
+$ git -C <sandbox> … commit -q -m "sandbox candidate: append round-81 provenance re-verification to two notes"
+$ git -C <sandbox> log --oneline -2
+fcc25997 sandbox candidate: append round-81 provenance re-verification to two notes
+e8e5d5b3 round-81: land twelve-seat inline wave payload
+$ git -C <sandbox> status --porcelain
+(empty)
+$ git -C <sandbox> rev-parse HEAD
+fcc259979f04614f0aa52007d025d30b473c730d
+
+Refs before / after the single permitted ref deletion (origin tracking ref only):
+$ git -C <sandbox> for-each-ref --format='%(refname) %(objectname:short)'
+refs/heads/master fcc25997
+refs/remotes/origin/master e8e5d5b3
+$ git -C <sandbox> update-ref -d refs/remotes/origin/master ; echo rc=$?
+rc=0
+$ git -C <sandbox> for-each-ref --format='%(refname) %(objectname:short)'
+refs/heads/master fcc25997
+
+Gate BEFORE the ref deletion (recorded, shows why the deletion is needed):
+$ python3 <sandbox>/tools/check-knowledge-header.py --lane <sandbox> --revision fcc25997…
+rc=2  status CANNOT_EVALUATE  finding_count 1  note_count 0
+  {"detail": "fcc259979f04 is not an ancestor", "id": "E-REVISION-NOT-PUSHED",
+   "site": "refs/remotes/origin/master"}
+(raw: gate-candidate-origin-ref-present.json)
+
+Gate AFTER the ref deletion:
+$ python3 <sandbox>/tools/check-knowledge-header.py --lane <sandbox> --revision fcc259979f04614f0aa52007d025d30b473c730d
+rc=0  status PASS  finding_count 0  note_count 98  complete_count 98  clean_count 98
+      revision fcc259979f04614f0aa52007d025d30b473c730d
+      branch master  branch_tip fcc259979f04614f0aa52007d025d30b473c730d  origin_tip null
+      findings []
+  operative lines reported for the two notes:
+    modprobe-config-plane-r72.md  {"recheck": 5, "source": 3, "verified-at": 99}  problems []
+    module-parameter-plane-r71.md {"recheck": 5, "source": 3, "verified-at": 75}  problems []
+(raw: gate-candidate.json)
+
+==========================================================================================
+§6  Control: the same candidate under a FIRST-occurrence rule
+==========================================================================================
+A copy of the gate in scratch was patched to read hits[0] instead of hits[-1] at the VALUE rule:
+$ diff -u <lane>/tools/check-knowledge-header.py <scratch>/rulefirst/tools/check-knowledge-header.py
+@@ -218,10 +218,10 @@
+-            problem = rule(hits[-1][1])
++            problem = rule(hits[0][1])
+             if problem:
+-                findings.append(Finding(VALUE, path, f"{problem} at line {hits[-1][0]}"))
+-                problems.append(f"{problem} at line {hits[-1][0]}")
++                findings.append(Finding(VALUE, path, f"{problem} at line {hits[0][0]}"))
++                problems.append(f"{problem} at line {hits[0][0]}")
+
+$ python3 <scratch>/rulefirst/tools/check-knowledge-header.py --lane <sandbox> --revision fcc25997…
+rc=1  status FAIL  finding_count 17  note_count 98  clean_count 81
+  15 of the findings are `recheck:` pointer-first notes (adjacency-handoffs-fleet-r1, aur-drift-receipt-r9,
+  aur-risk-plane, boot-plane, calibration-synthesis, census-closeout-receipt-r10, closeout-r11,
+  degraded-triage-r4, foreign-provenance-r6, host-health-report-r3, journal-boot-plane,
+  kill-event-deep-r8, oom-event-plane, pause-lift-gate-r24, timer-drift-plane), each
+  "recheck: carries no ISO date, no <N>d cadence and no on-release at line <first recheck>".
+  2 of the findings are the two C3 notes, again at line 4:
+    "verified-at: carries no ISO date (YYYY-MM-DD) at line 4"
+(raw: gate-first-occurrence-control.json)
+
+Consequence: the append-only fix passes only because the gate's operative value is the LAST
+occurrence; under first-occurrence semantics the identical bytes fail with 17 findings.
+
+==========================================================================================
+§7  Hash inventory (what was read, and what was written where)
+==========================================================================================
+tools/check-knowledge-header.py  592b6c2e765e2a0aec94cc745271878ef748ef3a2e2303ec722828d7cc13f919
+tools/_revision.py               fc861ec8a4f2539ac3f16d1a04af8335a974c17c8ffba0a41f6dad972cad36de
+corpus/knowledge/modprobe-config-plane-r72.md (lane worktree, candidate)
+                                 0d039b5cc6ca1a09c6570d379c70a339fb587e9dd42a4675de84eda68a5535ac
+corpus/knowledge/module-parameter-plane-r71.md (lane worktree, candidate)
+                                 4e4f7bc42cb287cc8f59c41edb99550e214dc4436f89c64f1786cf5b71bc0e44
+  at 80237118 (pre-fix):         e5d17a685423e6f11e2c039d7aceb620a78bb4c7bf0de08e52f6247900abdad5
+                                 c222341808f1c40389b9aa6337b5437edb1bbb0409c92f9ed7db7dbb7b98543f
+.ufo/waves/round-71/before/src/SHA256SUMS  5d40a2dd1a11b1f0851885e41c32c31a3ca7b4e264906e995fe7de46733f9b97
+.ufo/waves/round-72/before/src/SHA256SUMS  3357881617610420b5ce939e3ec9c0aa55179659786449db745a4afdb91cdd65
+.ufo/waves/round-81/before/src/SHA256SUMS  41e80e89fd9c5b777f9bbaf282ebc805ad1a1515d1e8652ecfe3313069308cc4
+sandbox candidate commit          fcc259979f04614f0aa52007d025d30b473c730d (sandbox-only; never in the lane)
+
+Lane refs observed (read-only): refs/heads/master = e8e5d5b3, refs/remotes/origin/master = e8e5d5b3,
+origin = https://github.com/VeigaPunk/tsukuroi-shokunin.git
+
+==========================================================================================
+§8  Forward check: does the wave's own pending note keep finding_count at 0?
+==========================================================================================
+The lane worktree carries an untracked note that this seat did NOT copy or commit:
+corpus/knowledge/mount-unit-fstab-plane-r81.md (ScribeEntry's file). Its header, read with the
+gate's own parser in-process (no git write, no copy):
+  source      occurrences 1 operative (3, 'S331 (systemd v262 `man/systemd.mount.xml`); S332 (round-81 read-only generator capture, own-work)') problem None
+  verified-at occurrences 1 operative (4, '2026-11-04 — snapshot `systemd.mount.xml` re-fetched at tag v262 and digest-checked (SHA256 `afbf3be663b139422b38217cd17083a96fa08507a1a3e58a844cbb2f67652394`); generator capture taken the same day') problem None
+  recheck     occurrences 1 operative (5, 'on-release of the systemd tag the host runs (host systemd 262.1-1-arch); procedure: `python3 tools/count-mount-rows-r81.py --revision <REV>` must print `"count": 8, "target": 8, "finding": "met"` rc 0') problem None
+The digest it cites (afbf3be6…) is the r81 SHA256SUMS row for systemd.mount.xml, verified OK in §1.
+
+In-process evaluate over the candidate's 98 notes PLUS that pending note:
+  with pending r81 note: note_count 99 finding_count 0 clean 99
+So landing the wave's own new note does not reopen C3.
+
+Tooling installed or upgraded by this seat: none (python3 3.x, git, coreutils already present).
+
+Scratch removal: /fast/scratch/hyaku/tsukuroi-r81/ExecHeader/ removed after the receipts above were
+copied into this directory; the removal command and its rc are recorded in the report.

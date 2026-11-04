@@ -1,0 +1,87 @@
+# ScribeEntry receipts, round 81 (observed outputs, copied verbatim; read-only session)
+# Scratch: /fast/scratch/hyaku/tsukuroi-r81/ScribeEntry (removed before yield; no file written under /tmp)
+
+R1  cd tsukuroi-shokunin && TMPDIR=<scratch> python3 tools/count-mount-rows-r81.py --selftest; echo RC=$?
+    SELFTEST total=6 passed=6 failed=0
+    RC=0
+
+R2  fixture = working-tree copies of corpus/knowledge/mount-unit-fstab-plane-r81.json, corpus/SOURCES.md,
+    .ufo/waves/round-81/before/src/{SHA256SUMS,systemd.mount.xml,systemd-fstab-generator.xml,fstab-generator.c},
+    .ufo/waves/round-81/before/host/generator.txt; then python3 tools/count-mount-rows-r81.py --fixture <fixture>
+    {"claim": "C1", "revision": "fixture", "count": 8, "target": 8, "finding": "met", "problems": []}
+    RC 0
+    (contains the recheck's expected substring "count": 8, "target": 8, "finding": "met" verbatim)
+
+R3  python3 tools/count-mount-rows-r81.py --revision HEAD
+    E-REVISION-INVALID revision: 7-64 hex commit required          (rc 2; counter requires hex)
+    python3 tools/count-mount-rows-r81.py --revision e8e5d5b39b25a83f705dc3aa760df21c6a2af508
+    {"claim": "C1", "revision": "e8e5d5b39b25a83f705dc3aa760df21c6a2af508", "count": 0, "target": 8, "finding": "note-absent", "problems": []}   rc 1
+    python3 tools/count-mount-rows-r81.py --revision 8023711867eaa788f68af09d7f29d24db749cca7
+    {"claim": "C1", "revision": "8023711867eaa788f68af09d7f29d24db749cca7", "count": 0, "target": 8, "finding": "note-absent", "problems": []}   rc 1
+
+R4  git status --porcelain (entry files)
+    ?? corpus/knowledge/mount-unit-fstab-plane-r81.json
+    ?? corpus/knowledge/mount-unit-fstab-plane-r81.md
+    git ls-files corpus/knowledge/mount-unit-fstab-plane-r81.{json,md}   -> (no output)
+    git show --stat e8e5d5b3 -> 4 files (declaration-baseline.json, w1-dispatch.json, w1-spec.json, w1/swarm-registry.json); none is the entry
+
+R5  git show HEAD:corpus/SOURCES.md | grep -c '^| S33[12] '  -> 0
+    grep -c '^| S33[12] ' corpus/SOURCES.md (worktree)       -> 2   (S331, S332 uncommitted; SOURCES.md shown as " M")
+
+R6  curl -sS https://raw.githubusercontent.com/systemd/systemd/v262/man/systemd.mount.xml -> scratch (18:32 -03:00)
+    sha256  afbf3be663b139422b38217cd17083a96fa08507a1a3e58a844cbb2f67652394  (upstream fetch)
+    sha256  afbf3be663b139422b38217cd17083a96fa08507a1a3e58a844cbb2f67652394  .ufo/waves/round-81/before/src/systemd.mount.xml
+    SHA256SUMS lists afbf3be6...652394  systemd.mount.xml
+
+R7  uptime -s -> 2026-11-02 12:07:17 ; who -b -> system boot 2026-11-02 12:07 ; date -Is -> 2026-11-04T18:32:35-03:00
+    stat -c '%y %n' /run/systemd/generator/{tmp,fast,-}.mount
+    2026-11-04 17:34:49.335219123 -0300 /run/systemd/generator/tmp.mount
+    2026-11-04 17:34:49.335254013 -0300 /run/systemd/generator/fast.mount
+    2026-11-04 17:34:49.335048543 -0300 /run/systemd/generator/-.mount
+
+R8  stat -c '%y %n' /etc/fstab -> 2026-10-20 09:48:47.027882542 -0300 /etc/fstab
+    cat -n /etc/fstab (local rows):  6 /  9 /home  12 /var/cache/pacman/pkg  15 /var/log  18 /boot   (5, no nofail)
+                                     26 /tmp  (rw,noatime,nosuid,nodev,logbsize=256k,nofail,x-systemd.before=local-fs.target,x-systemd.device-timeout=10s)
+                                     27 /fast (rw,noatime,nosuid,nodev,logbsize=256k,nofail,x-systemd.device-timeout=10s)
+                                     22 /swap/swapfile swap ; 30 tmpfs /dev/shm tmpfs (rw,nosuid,nodev,size=8G)
+    no fstab row carries noauto, auto, x-systemd.automount, x-systemd.requires=, x-systemd.wants=, x-systemd.wanted-by=, x-systemd.required-by=
+    fstab is NOT contained in before/host/capture.txt or generator.txt (grep of the two capture files finds none)
+
+R9  systemctl --version | head -1 -> systemd 262 (262.1-1-arch)
+    pacman -Q systemd -> systemd 262.1-1   (read-only query; no transaction)
+
+R10 generator.txt structure (grep -n '^### \|^## '):
+    3 -.mount  18 boot.mount  35 fast.mount  49 home.mount  64 tmp.mount  79 var-cache-pacman-pkg.mount
+    94 var-log.mount  109 swap-swapfile.swap  120 ## device.d drop-ins  121/128 device.d drop-ins
+    135 ## target dependency dirs  136 local-fs.target.wants  140 local-fs.target.requires
+    146 swap.target.requires  148 sockets.target.wants
+    line 70 `Before=local-fs.target` lies in tmp.mount (64-77); line 100 `Before=local-fs.target` lies in var-log.mount (94-107)
+    fast.mount Options (line 47): rw,noatime,nosuid,nodev,logbsize=256k,nofail
+    tmp.mount  Options (line 77): rw,noatime,nosuid,nodev,logbsize=256k,nofail,x-systemd.before=local-fs.target
+    local-fs.target.wants (136-139): fast.mount / systemd-remount-fs.service / tmp.mount
+    local-fs.target.requires (140-145): -.mount / boot.mount / home.mount / var-cache-pacman-pkg.mount / var-log.mount
+    dev-shm grep -c over generator.txt and capture.txt -> 0 and 0 (no dev-shm unit observed)
+
+R11 before/host/capture.txt: line 5 `Requires=system.slice dev-nvme1n1p1.device -.mount` (tmp.mount block, header line 3)
+                             line 16 `Requires=system.slice -.mount dev-nvme1n1p2.device` (fast.mount block, header line 14)
+
+R12 Quote location, tag-stripped numbering vs raw upstream file (python, normalized whitespace, shortest span):
+    MT1 cited 133-137 | stripped 133-136 | raw 135-138
+    MT2 cited 498-503 | stripped 500-501 | raw 502-503
+    MT3 cited 481-487 | stripped 484-485 | raw 486-487
+    MT4 cited 489-491 | stripped 489-490 | raw 491-492
+    MT5 cited 229-241 | stripped 232-234 | raw 234-236
+    MT6 cited 335-347 | stripped 337-339 | raw 339-341
+    MT7 cited 194-212 | stripped 196-199 | raw 198-201
+    MT8 cited 254-265 | stripped 257-258 | raw 259-260
+    (tag-stripped numbering contains every quote inside its cited window; raw numbering places MT1 and MT4 outside it)
+    Lane precedent: corpus/knowledge/systemd-dependency-propagation-r79.md:25-29 discloses tag-stripped token numbering; r81 does not.
+
+R13 measured legs (json -> generator.txt):
+    MT2 [140,143] "local-fs.target.requires -.mount boot.mount home.mount"   (requires side; nofail/wants side is 136-139)
+    MT5 [99,100]  "SourcePath=/etc/fstab Before=local-fs.target"              -> both lines are inside var-log.mount (94-107)
+    MT6 [124,127] device.d header + JobRunningTimeoutSec=10s                  -> fast drop-in, consistent
+    Counter R7 test is a substring test (locate(capture, span, quote)); it does not check the unit that owns the span.
+
+R14 knowledge-header lines (col 0): 3 `source:` ; 4 `verified-at: 2026-11-04 ...` ; 5 `recheck: on-release ... <REV>`
+    knowledge-header gate not run (entry untracked, so --revision cannot see it)

@@ -1,0 +1,100 @@
+# ExecGate — boundary.txt
+
+The six frozen cases cover two could-not-evaluate inputs (`expected.json` tampered, `systemd.service.xml` absent) and one unmet artifact (`note-absent` is only in the tool's own selftest). These probes measure the *rest* of the classification boundary on the repaired candidate, because the repair rewrote it.
+
+Fixture: `/fast/scratch/hyaku/tsukuroi-r81/ExecGate/run-5a0c9zm_/pristine` (materialised from the lane, read-only; SKILL.md, both C2 tools and both round-80 receipts copied in).
+
+## C1 with corpus/knowledge/service-restart-matrix-r80.json removed (claim artifact missing)
+
+```
+$ PYTHONPATH=exports python3 exports/base/measure-round80.py --claim C1 --fixture /fast/scratch/hyaku/tsukuroi-r81/ExecGate/boundary-0
+# rc=1
+{"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "missing-or-invalid:FileNotFoundError", "met": false}
+```
+
+```
+$ PYTHONPATH=exports python3 exports/candidate/measure-round80.py --claim C1 --fixture /fast/scratch/hyaku/tsukuroi-r81/ExecGate/boundary-0
+# rc=1
+{"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "note-absent", "met": false}
+```
+
+## C1 with .ufo/waves/round-80/w1/ReviewMatrix/verdict.json removed (claim artifact missing)
+
+```
+$ PYTHONPATH=exports python3 exports/base/measure-round80.py --claim C1 --fixture /fast/scratch/hyaku/tsukuroi-r81/ExecGate/boundary-1
+# rc=1
+{"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "missing-or-invalid:FileNotFoundError", "met": false}
+```
+
+```
+$ PYTHONPATH=exports python3 exports/candidate/measure-round80.py --claim C1 --fixture /fast/scratch/hyaku/tsukuroi-r81/ExecGate/boundary-1
+# rc=2
+{"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "review_absent", "met": false}
+```
+
+## C2 with .ufo/waves/round-80/w1/count-kr-rows-r69.py.receipt.json removed (claim artifact missing)
+
+```
+$ PYTHONPATH=exports python3 exports/base/measure-round80.py --claim C2 --fixture /fast/scratch/hyaku/tsukuroi-r81/ExecGate/boundary-2
+# rc=1
+{"claim": "C2", "revision": "fixture", "count": 0, "target": 2, "finding": "missing-or-invalid:FileNotFoundError", "met": false}
+```
+
+```
+$ PYTHONPATH=exports python3 exports/candidate/measure-round80.py --claim C2 --fixture /fast/scratch/hyaku/tsukuroi-r81/ExecGate/boundary-2
+# rc=2
+{"claim": "C2", "revision": "fixture", "count": 0, "target": 2, "finding": "receipt_absent", "met": false}
+```
+
+## control — C2 with every artifact present
+
+```
+$ PYTHONPATH=exports python3 exports/base/measure-round80.py --claim C2 --fixture /fast/scratch/hyaku/tsukuroi-r81/ExecGate/run-5a0c9zm_/pristine
+# rc=1
+{"claim": "C2", "revision": "fixture", "count": 1, "target": 2, "finding": "gate-standard", "met": false}
+```
+
+```
+$ PYTHONPATH=exports python3 exports/candidate/measure-round80.py --claim C2 --fixture /fast/scratch/hyaku/tsukuroi-r81/ExecGate/run-5a0c9zm_/pristine
+# rc=1
+{"claim": "C2", "revision": "fixture", "count": 1, "target": 2, "finding": "gate-standard", "met": false}
+```
+
+## why the control is count=1: the registry row the counter looks for is absent
+
+```
+$ grep -c '^| check-transaction-order-r39 ' SKILL.md
+# rc=1  output='0'
+$ grep -c '^| transaction-order-r39 ' SKILL.md
+# rc=0  output='14'
+$ grep -n "name\[:-3\]" exports/candidate/measure-round80.py
+# rc=0  output="92:        rows = [line for line in section.splitlines() if line.startswith('| ' + name[:-3] + ' |')]"
+```
+
+- [observation] the counter keys its row lookup on `name[:-3]`, i.e. `check-transaction-order-r39`, and SKILL.md has zero rows under that name while it has several `transaction-order-r39` rows. The candidate did not change that line.
+- [observation] therefore C2 on the real lane stays `count: 1` for both exports (counters.txt) even though the repaired exit map is fully conformant.
+
+## `--digests` cannot weaken the revision path
+
+```
+$ git clone --no-hardlinks --quiet /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /fast/scratch/hyaku/tsukuroi-r81/ExecGate/clone
+# rc=0
+$ git -C /fast/scratch/hyaku/tsukuroi-r81/ExecGate/clone rev-parse --show-toplevel
+# /fast/scratch/hyaku/tsukuroi-r81/ExecGate/clone
+$ cp exports/candidate/measure-round80.py /fast/scratch/hyaku/tsukuroi-r81/ExecGate/clone/tools/measure-round80.py
+```
+
+```
+$ python3 tools/measure-round80.py --claim C1 --revision e8e5d5b39b25a83f705dc3aa760df21c6a2af508    # without --digests
+# rc=0
+{"claim": "C1", "revision": "e8e5d5b39b25a83f705dc3aa760df21c6a2af508", "count": 42, "target": 42, "finding": "met", "met": true}
+```
+
+```
+$ python3 tools/measure-round80.py --claim C1 --revision e8e5d5b39b25a83f705dc3aa760df21c6a2af508 --digests /nonexistent/digests.json   # with a nonexistent --digests
+# rc=0
+{"claim": "C1", "revision": "e8e5d5b39b25a83f705dc3aa760df21c6a2af508", "count": 42, "target": 42, "finding": "met", "met": true}
+```
+
+- [observation] the two revision-mode runs are byte-identical in rc and body, so the digest override is inert outside `--fixture`; a revision-mode verdict cannot be re-pinned by an operator-supplied digest file. Fixture-mode runs, including every case in the frozen table, can be re-pinned that way by design.
+- [observation] with the candidate bytes installed in a clone, the revision-mode run at HEAD returns `count: 42, finding: "met"` rc 0 both with and without a nonexistent `--digests`: the lane's `expected.json` and `systemd.service.xml` at HEAD hash to the two constants, so C1 is genuinely met at HEAD and the digest override never reaches the revision path.

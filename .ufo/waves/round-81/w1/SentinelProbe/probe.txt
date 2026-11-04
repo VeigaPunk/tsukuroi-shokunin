@@ -1,0 +1,180 @@
+# SentinelProbe — systemd-fstab-generator reproduction probe, round 81 w1
+# host: Linux 7.2.11-arch1-1 x86_64; systemd: systemd 262 (262.1-1-arch)
+# generator binary: /usr/lib/systemd/system-generators/systemd-fstab-generator
+# binary sha256: 7285dfbd36593167ecd2d1656876c1d7a97a6f1f8adc1da82aa8f1c758cbc1e2
+# capture compared against: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-81/before/host/generator.txt
+# capture sha256: 8e1bb73bcd012978512e8a24ca9f8d2d6f5433b8b3d03ca8a5d26675609ee4f8
+# scratch: /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe (d1=run1, d4=clean run3, e1=run2 determinism, s1=ssh-generator, y1=SYSTEMD_SYSROOT_FSTAB attempt)
+# run UTC: 2026-11-04T21:34:35Z
+
+## 1. run record (clean invocation, no xtrace)
+$ /usr/lib/systemd/system-generators/systemd-fstab-generator /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/d4 /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/d5 /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/d6
+rc=0
+stdout bytes: 0
+stderr bytes: 0
+--- stdout (verbatim) ---
+--- stderr (verbatim) ---
+note: the first invocation's stderr file (/fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/run.stderr) contains 211 bytes of the caller's own
+      'set -x' trace, not generator output; the clean rerun above supersedes it.
+--- output tree (find d4 d5 d6 -mindepth 1) ---
+d4/boot.mount
+d4/dev-disk-by\x2duuid-070be1ea\x2de5fc\x2d46aa\x2da6b2\x2dadf9df7656ac.device.d
+d4/dev-disk-by\x2duuid-070be1ea\x2de5fc\x2d46aa\x2da6b2\x2dadf9df7656ac.device.d/50-device-timeout.conf
+d4/dev-disk-by\x2duuid-1f8a5361\x2d4f35\x2d449a\x2dbb30\x2d63669df878d1.device.d
+d4/dev-disk-by\x2duuid-1f8a5361\x2d4f35\x2d449a\x2dbb30\x2d63669df878d1.device.d/50-device-timeout.conf
+d4/fast.mount
+d4/home.mount
+d4/local-fs.target.requires
+d4/local-fs.target.requires/boot.mount
+d4/local-fs.target.requires/home.mount
+d4/local-fs.target.requires/-.mount
+d4/local-fs.target.requires/var-cache-pacman-pkg.mount
+d4/local-fs.target.requires/var-log.mount
+d4/local-fs.target.wants
+d4/local-fs.target.wants/fast.mount
+d4/local-fs.target.wants/systemd-remount-fs.service
+d4/local-fs.target.wants/tmp.mount
+d4/-.mount
+d4/swap-swapfile.swap
+d4/swap.target.requires
+d4/swap.target.requires/swap-swapfile.swap
+d4/tmp.mount
+d4/var-cache-pacman-pkg.mount
+d4/var-log.mount
+d5 empty: 0 entries; d6 empty: 0 entries
+
+## 2. verbatim diffs: captured /run/systemd/generator vs fresh run
+### diff -u captured/fast.mount d4/fast.mount
+(diff rc=0; empty body above == byte-identical)
+
+### diff -u captured/tmp.mount d4/tmp.mount
+(diff rc=0; empty body above == byte-identical)
+
+### diff -u captured/-.mount d4/-.mount
+(diff rc=0; empty body above == byte-identical)
+
+### diff -u captured/boot.mount d4/boot.mount
+(diff rc=0; empty body above == byte-identical)
+
+## 2b. remaining units
+home.mount: byte-identical (diff -q rc=0)
+var-log.mount: byte-identical (diff -q rc=0)
+var-cache-pacman-pkg.mount: byte-identical (diff -q rc=0)
+swap-swapfile.swap: byte-identical (diff -q rc=0)
+
+## 3. sha256, captured vs fresh
+fast.mount captured=007f62bc134f2d716e369b14c9011f46311e102144bd2052b779e9f209f11b66 fresh=007f62bc134f2d716e369b14c9011f46311e102144bd2052b779e9f209f11b66
+tmp.mount captured=d2c10c6b910c4d494da16e118069e13526a572406f378c292e56ee1e7b05f023 fresh=d2c10c6b910c4d494da16e118069e13526a572406f378c292e56ee1e7b05f023
+-.mount captured=80db34a14149851219f2afb20e483e544959db0527a88492eda6b498d0746ddb fresh=80db34a14149851219f2afb20e483e544959db0527a88492eda6b498d0746ddb
+boot.mount captured=22026a9797de1ce604ae1bfa856c982db1031c46853f722ffdd118ad5f7ba8fe fresh=22026a9797de1ce604ae1bfa856c982db1031c46853f722ffdd118ad5f7ba8fe
+home.mount captured=db8b9bca35ef1cb65bdd98a0d193243b5e1ad20998a990f2d4840ab4eef5660c fresh=db8b9bca35ef1cb65bdd98a0d193243b5e1ad20998a990f2d4840ab4eef5660c
+var-log.mount captured=d4abe9a9e9b0315b4b5e9b3008e60572a2119e8d5fcd6582d578c3d366256afb fresh=d4abe9a9e9b0315b4b5e9b3008e60572a2119e8d5fcd6582d578c3d366256afb
+var-cache-pacman-pkg.mount captured=a1b77939016de41bd33525b67ff1fee812441fd55c7651fbdc75c4323123be09 fresh=a1b77939016de41bd33525b67ff1fee812441fd55c7651fbdc75c4323123be09
+swap-swapfile.swap captured=36e1bc37421e95f909a92875247b0dd32c9d215181e4c48f9c670a01bf6630d4 fresh=36e1bc37421e95f909a92875247b0dd32c9d215181e4c48f9c670a01bf6630d4
+
+## 4. full recursive diff, fresh vs live /run/systemd/generator
+$ diff -r /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/d4 /run/systemd/generator
+Only in /run/systemd/generator: sockets.target.wants
+Only in /run/systemd/generator: sshd-unix-local.socket
+Only in /run/systemd/generator: sshd-unix-local@.service
+rc=1
+
+## 5. residual live entries are not fstab-generator output
+$ /usr/lib/systemd/system-generators/systemd-ssh-generator /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/s1 /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/s2 /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/s3 ; rc=0
+s1/sockets.target.wants
+s1/sockets.target.wants/sshd-unix-local.socket
+s1/sshd-unix-local@.service
+s1/sshd-unix-local.socket
+$ diff -r /run/systemd/generator/sockets.target.wants /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/s1/sockets.target.wants
+rc=0
+$ diff -r /run/systemd/generator/sshd-unix-local.socket /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/s1/sshd-unix-local.socket
+rc=0
+$ ls -l .../sshd-unix-local@.service (both)
+lrwxrwxrwx 1 vgpnk vgpnk 37 Nov  4 18:32 /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/s1/sshd-unix-local@.service -> /usr/lib/systemd/system/sshd@.service
+lrwxrwxrwx 1 root  root  37 Nov  4 17:34 /run/systemd/generator/sshd-unix-local@.service -> /usr/lib/systemd/system/sshd@.service
+
+## 6. determinism
+$ diff -r /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/d1 /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/e1
+rc=0 (empty == identical)
+$ diff -r /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/d1 /fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/d4
+rc=0 (empty == identical)
+
+## 7. device.d drop-in bodies (capture carries a '--- <path>' banner line = capture format, not unit content)
+### dev-disk-by\x2duuid-070be1ea\x2de5fc\x2d46aa\x2da6b2\x2dadf9df7656ac.device.d
+--- fresh ---
+# Automatically generated by systemd-fstab-generator
+# from supplied options "rw,noatime,nosuid,nodev,logbsize=256k,nofail,x-systemd.device-timeout=10s"
+
+[Unit]
+JobRunningTimeoutSec=10s
+--- live ---
+# Automatically generated by systemd-fstab-generator
+# from supplied options "rw,noatime,nosuid,nodev,logbsize=256k,nofail,x-systemd.device-timeout=10s"
+
+[Unit]
+JobRunningTimeoutSec=10s
+--- live-vs-fresh diff ---
+rc=0
+### dev-disk-by\x2duuid-1f8a5361\x2d4f35\x2d449a\x2dbb30\x2d63669df878d1.device.d
+--- fresh ---
+# Automatically generated by systemd-fstab-generator
+# from supplied options "rw,noatime,nosuid,nodev,logbsize=256k,nofail,x-systemd.before=local-fs.target,x-systemd.device-timeout=10s"
+
+[Unit]
+JobRunningTimeoutSec=10s
+--- live ---
+# Automatically generated by systemd-fstab-generator
+# from supplied options "rw,noatime,nosuid,nodev,logbsize=256k,nofail,x-systemd.before=local-fs.target,x-systemd.device-timeout=10s"
+
+[Unit]
+JobRunningTimeoutSec=10s
+--- live-vs-fresh diff ---
+rc=0
+
+## 8. no-write evidence
+$ stat -c '%y %n' /run/systemd/generator /run/systemd/generator/{tmp,fast,-,boot}.mount
+2026-11-04 17:34:49.335769153 -0300 /run/systemd/generator
+2026-11-04 17:34:49.335219123 -0300 /run/systemd/generator/tmp.mount
+2026-11-04 17:34:49.335254013 -0300 /run/systemd/generator/fast.mount
+2026-11-04 17:34:49.335048543 -0300 /run/systemd/generator/-.mount
+2026-11-04 17:34:49.335165573 -0300 /run/systemd/generator/boot.mount
+$ stat -c '%y %s %n' /etc/fstab ; sha256sum /etc/fstab
+2026-10-20 09:48:47.027882542 -0300 1641 /etc/fstab
+a265a5044bddd20500d7caabea3dddafbcbf7d32808a9f5311d8197816e0de35  /etc/fstab
+
+## 9. kernel view of the nofail mounts
+$ grep -E ' /tmp | /fast | /boot ' /proc/self/mountinfo
+210 33 259:4 / /boot rw,relatime shared:201 - vfat /dev/nvme0n1p1 rw,fmask=0077,dmask=0077,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro
+244 33 259:1 / /tmp rw,nosuid,nodev,noatime shared:207 - xfs /dev/nvme1n1p1 rw,inode64,logbufs=8,logbsize=256k,noquota
+250 33 259:2 / /fast rw,nosuid,nodev,noatime shared:213 - xfs /dev/nvme1n1p2 rw,inode64,logbufs=8,logbsize=256k,noquota
+
+## 10. mechanism (source snapshot .ufo/waves/round-81/before/src; sha256sum -c SHA256SUMS -> 3x OK)
+fstab-generator.c:603  if (target_unit && !FLAGS_SET(flags, MOUNT_NOFAIL))
+fstab-generator.c:604      fprintf(f, "Before=%s\n", target_unit);
+fstab-generator.c:645  r = generator_write_device_timeout(dest, what, opts, &filtered);
+fstab-generator.c:663  r = write_options(f, filtered);
+fstab-generator.c:199  fprintf(f, "Options=%s\n", o);
+fstab-generator.c:354  fstab_filter_options(opts, filter, NULL, NULL, &unit_names, NULL);  /* ret_options=NULL: read-only, option stays in Options= */
+fstab-generator.c:394  "x-systemd.before\0", STRV_MAKE_CONST("Before")
+
+## 11. synthetic-fstab attempt (negative result)
+$ SYSTEMD_SYSROOT_FSTAB=/fast/scratch/hyaku/tsukuroi-r81/SentinelProbe/synth/fstab systemd-fstab-generator y1 y2 y3 ; rc=0
+probe.mount produced: ABSENT
+=> SYSTEMD_SYSROOT_FSTAB (only /sysroot fstab, initrd path) does not redirect the generator to a synthetic
+   fstab; the host /etc/fstab was used. No synthetic causal test was run; causality rests on the host's
+   own differential (tmp.mount carries both x-systemd.before= and x-systemd.device-timeout=10s).
+
+## 12. live unit-property plane vs kernel plane (read-only, after scratch removal)
+$ systemctl show tmp.mount -p Options -p Before -p JobTimeoutUSec
+Before=basic.target paccache.service polkit.service archlinux-keyring-wkd-sync.service man-db.service shadow.service power-profiles-daemon.service systemd-logind.service local-fs.target tmp-.mount_alma.AFFvYd1.mount plocate-updatedb.service umount.target bluetooth.service iwd.service upower.service
+JobTimeoutUSec=infinity
+Options=rw,nosuid,nodev,noatime,inode64,logbufs=8,logbsize=256k,noquota,x-systemd.before=local-fs.target
+$ systemctl show fast.mount -p Options -p Before
+Before=umount.target
+Options=rw,nosuid,nodev,noatime,inode64,logbufs=8,logbsize=256k,noquota
+$ systemctl show 'dev-disk-by\x2duuid-1f8a5361\x2d4f35\x2d449a\x2dbb30\x2d63669df878d1.device' -p JobRunningTimeoutUSec -p JobTimeoutUSec
+JobTimeoutUSec=infinity
+JobRunningTimeoutUSec=10s
+
+## 13. scratch
+/fast/scratch/hyaku/tsukuroi-r81/SentinelProbe (/fast/scratch/hyaku/tsukuroi-r81/SentinelProbe) removed; ls -d -> No such file or directory

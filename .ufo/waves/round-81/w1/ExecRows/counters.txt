@@ -1,0 +1,55 @@
+C1 counter runs, round 81, seat ExecRows, 2026-11-04
+root: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+tool: tools/count-mount-rows-r81.py (read-only; no Git mutation)
+
+== run 1: fixture (required) ================================================
+$ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+$ python3 tools/count-mount-rows-r81.py --fixture /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+{"claim": "C1", "revision": "fixture", "count": 8, "target": 8, "finding": "met", "problems": []}
+RC=0
+
+== run 2: selftest (required) ===============================================
+$ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+$ python3 tools/count-mount-rows-r81.py --selftest
+SELFTEST total=6 passed=6 failed=0
+RC=0
+
+== run 3: base 96ad75b8 (context, read-only --revision) =====================
+$ python3 tools/count-mount-rows-r81.py --revision 96ad75b84160da58efaee4997576ce718fd72e2b
+{"claim": "C1", "revision": "96ad75b84160da58efaee4997576ce718fd72e2b", "count": 0, "target": 8, "finding": "cannot-evaluate:CalledProcessError", "problems": []}
+RC=2
+note: the pinned snapshot directory .ufo/waves/round-81/before/src/ does not
+exist at this revision, so the instrument cannot evaluate. Not a row failure.
+
+== run 4: declaration 8023711 (context, read-only --revision) ==============
+$ python3 tools/count-mount-rows-r81.py --revision 8023711867eaa788f68af09d7f29d24db749cca7
+{"claim": "C1", "revision": "8023711867eaa788f68af09d7f29d24db749cca7", "count": 0, "target": 8, "finding": "note-absent", "problems": []}
+RC=1
+note: src/ is tracked at this commit (git ls-tree lists SHA256SUMS,
+fstab-generator.c, systemd-fstab-generator.xml, systemd.mount.xml) but the
+corpus note is not: `git cat-file -e 8023711:corpus/knowledge/mount-unit-fstab-plane-r81.json`
+-> fatal: path ... exists on disk, but not in '8023711867eaa...' rc=128.
+
+== run 5: HEAD e8e5d5b (context, read-only --revision) =====================
+$ python3 tools/count-mount-rows-r81.py --revision e8e5d5b39b25a83f705dc3aa760df21c6a2af508
+{"claim": "C1", "revision": "e8e5d5b39b25a83f705dc3aa760df21c6a2af508", "count": 0, "target": 8, "finding": "note-absent", "problems": []}
+RC=1
+note: `git ls-files corpus/knowledge/mount-unit-fstab-plane-r81.json` prints
+nothing (entry is untracked at HEAD).
+
+== independent re-derivation (seat instrument, not the lane counter) =======
+$ cd /fast/scratch/hyaku/tsukuroi-r81/ExecRows && python3 rederive.py
+independent_totals rows=8 verified=8 measured=3 distinct_settings=8
+independent_finding met
+RC=0
+per-row detail: .ufo/waves/round-81/w1/ExecRows/rows.txt
+instrument:     .ufo/waves/round-81/w1/ExecRows/rederive.py
+
+== measured counts (this seat) =============================================
+rows in entry .......... 8
+rows verified (R1-R7) .. 8
+measured legs .......... 3  (MT2, MT5, MT6)
+distinct settings ...... 8
+finding ................ met   (row clause only; see findings.json for the
+                                entry prose that the same snapshot does not
+                                support)

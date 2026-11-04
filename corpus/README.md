@@ -774,3 +774,19 @@ gate-standard debt. Round79 outside closure rejected that round honestly
 (DP6 AND null-output binding); its formerly pending author text is historical,
 not current admission.
 
+
+## Round81 — mount-unit generation from fstab, gate-standard repair and header closure
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/mount-unit-fstab-plane-r81.md` and `.json` | Eight documented fstab-to-mount-unit settings (MT1–MT8): default-dependency ordering and its `nofail`/wanted-by drop, wanted-vs-required, `noauto`, automount, `x-systemd.before/after`, device-timeout consumption into a `.device.d` drop-in, requires/wants, and wanted-by/required-by replacement; measured against this host's generator output (seven generated mount units, five required, two wanted) with the row-by-row limits named | S331, S332; `lessons/round-81.md` Gate |
+
+This deepens the systemd boot plane; PROVINCE and the coverage frontier are
+unchanged. The round also repairs the round-80 evidence counter's exit map
+(`snapshot_tampered` and `snapshot_absent` now exit 2 through the public CLI,
+scored by six frozen gate-standard cases) and closes the two inherited
+provenance-header findings by appending dated `verified-at` lines after
+re-verifying all seven pinned snapshots. Author-side measured outcome is in
+`SCORECARD.md`; non-author closure is pending. The entry's line anchors index
+the tag-stripped XML and say so; the counter's own selftest kills only 3 of 18
+single-clause mutants, which stays named coverage debt.

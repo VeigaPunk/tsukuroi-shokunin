@@ -1,0 +1,91 @@
+snapshot_path /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-81/before/src/systemd.mount.xml
+snapshot_sha256_observed afbf3be663b139422b38217cd17083a96fa08507a1a3e58a844cbb2f67652394
+snapshot_sha256_declared_SHA256SUMS afbf3be663b139422b38217cd17083a96fa08507a1a3e58a844cbb2f67652394
+snapshot_sha256_declared_entry afbf3be663b139422b38217cd17083a96fa08507a1a3e58a844cbb2f67652394
+raw_lines 707  tag_stripped_lines 703  drift 4
+capture_path /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-81/before/host/generator.txt lines 149
+rows 8
+
+COORDINATE NOTE: every row below cites numbers that index the tag-stripped
+list (707-line file -> 703-line list). raw = stripped + 2 for all eight
+ranges, because two multi-line tags (DOCTYPE raw 2-3, ulink raw 84-85)
+each swallow one newline before any cited line.
+
+== MT1  setting=DefaultDependencies  source=S331  cited(stripped)=133-137  cited(raw)=135-139
+   statement (24 words): A generated local mount unit gains After=local-fs-pre.target and Before=local-fs.target, and the Before= leg is dropped when nofail or an explicit wanted-by/required-by option is present.
+   quote (21 words): automatically gain an After= dependency on local-fs-pre.target, and a Before= dependency on local-fs.target unless one or more mount options among nofail
+   text at stripped[133-137] (XML tags stripped):
+     Mount units referring to local file systems automatically gain an After= dependency on local-fs-pre.target, and a Before= dependency on local-fs.target unless one or more mount options among nofail, x-systemd.wanted-by=, and x-systemd.required-by= is set. See below for detailed information.
+   verbatim after whitespace normalisation: stripped=True raw=False
+   text at raw[133-137] (tags stripped per line):
+     umount.target in order to be stopped during shutdown. Mount units referring to local file systems automatically gain an After= dependency on local-fs-pre.target, and a Before= dependency on local-fs.target unless one or more
+   measured: none
+
+== MT2  setting=nofail  source=S331  cited(stripped)=498-503  cited(raw)=500-505
+   statement (28 words): nofail makes the target only want the mount instead of requiring it and removes the ordering, so boot proceeds whether or not the mount point can be mounted.
+   quote (14 words): With nofail, this mount will be only wanted, not required, by local-fs.target or remote-fs.target.
+   text at stripped[498-503] (XML tags stripped):
+     nofail With nofail, this mount will be only wanted, not required, by local-fs.target or remote-fs.target. Moreover, the mount unit is not ordered before these target units. This means that the boot will continue without waiting for the mount unit and regardless whether the mount point can be mounted successfully.
+   verbatim after whitespace normalisation: stripped=True raw=True
+   measured: S332 :140-143 located=True
+
+== MT3  setting=noauto  source=S331  cited(stripped)=481-487  cited(raw)=483-489
+   statement (27 words): noauto keeps the generated mount unit out of the target dependency set, so the file system is not mounted during boot unless another unit pulls it in.
+   quote (16 words): With noauto, the mount unit will not be added as a dependency for local-fs.target or remote-fs.target.
+   text at stripped[481-487] (XML tags stripped):
+     noauto auto With noauto, the mount unit will not be added as a dependency for local-fs.target or remote-fs.target. This means that it will not be mounted automatically during boot, unless it is pulled in by some other unit. The auto option has the opposite meaning and is the default.
+   verbatim after whitespace normalisation: stripped=True raw=True
+   measured: none
+
+== MT4  setting=x-systemd.automount  source=S331  cited(stripped)=489-491  cited(raw)=491-493
+   statement (25 words): When x-systemd.automount is present the generated automount unit is added to the target instead, and the auto and noauto options have no effect at all.
+   quote (15 words): Note that if x-systemd.automount (see above) is used, neither auto nor noauto have any effect.
+   text at stripped[489-491] (XML tags stripped):
+     Note that if x-systemd.automount (see above) is used, neither auto nor noauto have any effect. The matching automount unit will be added as a dependency to the appropriate target.
+   verbatim after whitespace normalisation: stripped=True raw=False
+   text at raw[489-491] (tags stripped per line):
+     auto option has the opposite meaning and is the default. Note that if x-systemd.automount (see above) is used, neither
+   measured: none
+
+== MT5  setting=x-systemd.before=  source=S331  cited(stripped)=229-241  cited(raw)=231-243
+   statement (28 words): x-systemd.before= and x-systemd.after= add an ordering dependency on another unit to the created mount unit, which is the way a nofail entry re-acquires an ordering it otherwise loses.
+   quote (20 words): In the created mount unit, configures a Before= or After= dependency on another systemd unit, such as a mount unit.
+   text at stripped[229-241] (XML tags stripped):
+     x-systemd.before= x-systemd.after= In the created mount unit, configures a Before= or After= dependency on another systemd unit, such as a mount unit. The argument should be a unit name or an absolute path to a mount point. This option may be specified more than once. This option is particularly useful for mount point declarations with nofail option that are mounted asynchronously but need to be mounted before or after some unit start, for example, before local-fs.target unit.
+   verbatim after whitespace normalisation: stripped=True raw=True
+   measured: S332 :99-100 located=True
+
+== MT6  setting=x-systemd.device-timeout=  source=S331  cited(stripped)=335-347  cited(raw)=337-349
+   statement (27 words): x-systemd.device-timeout= bounds how long the generated device unit is waited for, and the option is honoured only in fstab and ignored inside a unit file's Options= setting.
+   quote (20 words): Configure how long systemd should wait for a device to show up before giving up on an entry from /etc/fstab.
+   text at stripped[335-347] (XML tags stripped):
+     x-systemd.device-timeout= Configure how long systemd should wait for a device to show up before giving up on an entry from /etc/fstab. Specify a time in seconds or explicitly append a unit such as s, min, h, ms. Note that this option can only be used in /etc/fstab, and will be ignored when part of the Options= setting in a unit file.
+   verbatim after whitespace normalisation: stripped=True raw=True
+   measured: S332 :124-127 located=True
+
+== MT7  setting=x-systemd.requires=  source=S331  cited(stripped)=194-212  cited(raw)=196-214
+   statement (24 words): x-systemd.requires= and x-systemd.wants= add Requires= or Wants= plus After= against another unit, and they always attach to the created mount unit even under automount.
+   quote (23 words): Configures a Requires= and an After= dependency between the created mount unit and another systemd unit, such as a device or mount unit.
+   text at stripped[194-212] (XML tags stripped):
+     x-systemd.requires= Configures a Requires= and an After= dependency between the created mount unit and another systemd unit, such as a device or mount unit. The argument should be a unit name, or an absolute path to a device node or mount point. This option may be specified more than once. This option is particularly useful for mount point declarations that need an additional device to be around (such as an external journal device for journal file systems) or an additional mount to be in place (such as an overlay file system that merges multiple mount points). See After= and Requires= in systemd.unit5 for details. Note that this option always applies to the created mount unit only regardless whether x-systemd.automount has been specified.
+   verbatim after whitespace normalisation: stripped=True raw=True
+   measured: none
+
+== MT8  setting=x-systemd.wanted-by=  source=S331  cited(stripped)=254-265  cited(raw)=256-267
+   statement (20 words): x-systemd.wanted-by= and x-systemd.required-by= replace the generated target dependencies apart from umount.target, so ordering usually has to be restored by hand.
+   quote (14 words): In the created mount unit, configures a WantedBy= or RequiredBy= dependency on another unit.
+   text at stripped[254-265] (XML tags stripped):
+     x-systemd.wanted-by= x-systemd.required-by= In the created mount unit, configures a WantedBy= or RequiredBy= dependency on another unit. This option may be specified more than once. If this is specified, the default dependencies (see above) other than umount.target on the created mount unit, e.g. local-fs.target, are not automatically created. Hence it is likely that some ordering dependencies need to be set up manually through x-systemd.before= and x-systemd.after=. See WantedBy= and RequiredBy= in systemd.unit5 for details.
+   verbatim after whitespace normalisation: stripped=True raw=True
+   measured: none
+
+independent_totals rows=8 verified=8 measured=3 distinct_settings=8
+independent_finding met
+verdict MT1 PASS
+verdict MT2 PASS
+verdict MT3 PASS
+verdict MT4 PASS
+verdict MT5 PASS
+verdict MT6 PASS
+verdict MT7 PASS
+verdict MT8 PASS

@@ -1,0 +1,64 @@
+# ExecGate — frozen six-case matrix over two exports of tools/measure-round80.py
+
+Seat: round-81 w1 ExecGate (leaf, read-only over the lane tree).
+Table: .ufo/waves/round-81/before/gate-standard-r81.json (bytes as committed in 80237118).
+Runner: /fast/scratch/hyaku/tsukuroi-r81/ExecGate/runner.py (written for this seat; it does not import tools/measure-round81.py).
+Runner sha256: 5257ca3a56150151a4d7aa5dffff8b72654be396c1a88b745ee0403f0e842314
+
+## Export identities
+
+| export | source | sha256 |
+|---|---|---|
+| base | `git show 96ad75b84160da58efaee4997576ce718fd72e2b:tools/measure-round80.py` | `688766756d0fb73ffb8f1d746e3377d58532bd4afa0a3aa92489c61165614d1d` |
+| candidate | worktree `tools/measure-round80.py` (uncommitted, `M`) | `ca2c8be9c5996b27a7d05278f9845ef667bf8aa85b750fabe836d726f58a6af3` |
+| helper | `git show 96ad75b84160da58efaee4997576ce718fd72e2b:tools/_revision.py` (identical to worktree) | `fc861ec8a4f2539ac3f16d1a04af8335a974c17c8ffba0a41f6dad972cad36de` |
+
+## Raw run — base
+
+```
+$ python3 runner.py exports/base/measure-round80.py --label base-96ad75b8   # rc=0
+LABEL base-96ad75b8 MET=3/6
+A-selftest   FAIL rc=0 finding='SELFTEST' token_ok=False | SELFTEST total=2 passed=2 failed=0
+B-met        PASS rc=0 finding='met' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 42, "target": 42, "finding": "met", "met": true}
+C-mismatch   PASS rc=1 finding='matrix-mismatch' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "matrix-mismatch", "met": false}
+D-tampered   FAIL rc=1 finding='snapshot_tampered' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_tampered", "met": false}
+E-absent     FAIL rc=1 finding='missing-or-invalid:FileNotFoundError' token_ok=False | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "missing-or-invalid:FileNotFoundError", "met": false}
+F-noargs     PASS rc=2 finding='argparse-usage' token_ok=True | usage: measure-round80.py [-h] [--claim {C1,C2}] [--revision REVISION |                           --fixture FIXTURE] [--selftest] measure-round80.py: 
+MATRIX A-selftest:F/rc0 B-met:P/rc0 C-mismatch:P/rc1 D-tampered:F/rc1 E-absent:F/rc1 F-noargs:P/rc2
+```
+
+## Raw run — candidate
+
+```
+$ python3 runner.py exports/candidate/measure-round80.py --label candidate-uncommitted   # rc=0
+LABEL candidate-uncommitted MET=6/6
+A-selftest   PASS rc=0 finding='SELFTEST' token_ok=True | SELFTEST total=6 passed=6 failed=0
+B-met        PASS rc=0 finding='met' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 42, "target": 42, "finding": "met", "met": true}
+C-mismatch   PASS rc=1 finding='matrix-mismatch' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "matrix-mismatch", "met": false}
+D-tampered   PASS rc=2 finding='snapshot_tampered' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_tampered", "met": false}
+E-absent     PASS rc=2 finding='snapshot_absent' token_ok=True | {"claim": "C1", "revision": "fixture", "count": 0, "target": 42, "finding": "snapshot_absent", "met": false}
+F-noargs     PASS rc=2 finding='argparse-usage' token_ok=True | usage: measure-round80.py [-h] [--claim {C1,C2}] [--revision REVISION |                           --fixture FIXTURE] [--digests DIGESTS] [--selftest] 
+MATRIX A-selftest:P/rc0 B-met:P/rc0 C-mismatch:P/rc1 D-tampered:P/rc2 E-absent:P/rc2 F-noargs:P/rc2
+```
+
+## Per-case (rc, finding) matrix
+
+`finding` is the `finding` field of the tool's JSON line; `SELFTEST`/`argparse-usage` mark non-JSON output.
+
+| case | table rc | table token | base rc | base finding | base | candidate rc | candidate finding | candidate |
+|---|---|---|---|---|---|---|---|---|
+| A-selftest | 0 | `SELFTEST total=6 passed=6 failed=0` | 0 | 'SELFTEST' | FAIL | 0 | 'SELFTEST' | PASS |
+| B-met | 0 | `"met": true` | 0 | 'met' | PASS | 0 | 'met' | PASS |
+| C-mismatch | 1 | `matrix-mismatch` | 1 | 'matrix-mismatch' | PASS | 1 | 'matrix-mismatch' | PASS |
+| D-tampered | 2 | `snapshot_tampered` | 1 | 'snapshot_tampered' | FAIL | 2 | 'snapshot_tampered' | PASS |
+| E-absent | 2 | `snapshot_absent` | 1 | 'missing-or-invalid:FileNotFoundError' | FAIL | 2 | 'snapshot_absent' | PASS |
+| F-noargs | 2 | `(none)` | 2 | 'argparse-usage' | PASS | 2 | 'argparse-usage' | PASS |
+
+Met: base 3/6, candidate 6/6.
+
+## Observation / inference
+
+- [observation] base fails A (selftest prints `total=2`), D (`snapshot_tampered` at rc 1), E (`missing-or-invalid:FileNotFoundError` at rc 1); it passes B, C, F.
+- [observation] candidate passes all six: D and E both exit 2 with their own finding ids.
+- [observation] the two exports agree on every C1 verdict except the could-not-evaluate class; the repair changes exactly D and E plus the selftest shape.
+- [inference] case A cannot distinguish a selftest that runs the six fixture trees from one that prints the token: see mutants.txt, mutant c.
