@@ -6226,3 +6226,15 @@ behaviour. The two inherited provenance-header findings on
 appended `verified-at: 2026-11-04` lines after re-verifying all seven pinned
 snapshots (`sha256sum -c SHA256SUMS` in the round-71 and round-72 `before/src/`
 directories), not by editing the filed header lines.
+
+## Counter-attack scoreboard — round 81 (continuation)
+
+| Counter | Round | Arms fielded (reports) | Arms that reached PASS | Beating class |
+|---|---|---|---|---|
+| `count-mount-rows-r81.py` | r81 | 18 single-clause mutants + targeted fixtures (`.ufo/waves/round-81/w1/MutCounter.md`) | 15 survived the selftest: 13 behaviour-bearing (R5 quote shape/pipe, R2 length/pipe, R1 contiguity, measured-count, distinct-setting, row-count, locate-span, R4 attribution, empty-manifest class, R6 setting, R7 measured-source) + 2 equivalent (C06, C07) | coverage gap — `--selftest` never reaches the clause; C07's `own-work-source` case passes for the wrong reason (the KINDS whitelist rejects `own-work` before the rule runs) |
+| `measure-round81.py` | r81 | 8 single-clause mutants (M01-M08) | 4 survived: TARGET, unmet-exit, unmet-label, export-absent class | coverage gap, plus the case-A answer-key class: a `--selftest` that prints `SELFTEST total=6 passed=6 failed=0` satisfies the token check without running six cases |
+
+Reading: the repair moves the could-not-evaluate class into the exit map (measured: base 3/6,
+candidate 6/6 at `c6fd9949`), but neither counter's own selftest is a coverage proof — the selftest
+kills 3 of 18 and 4 of 8 respectively. Both rows stay named coverage debt in `SCORECARD.md`
+"Round 81 — measured outcome", not admission evidence.
