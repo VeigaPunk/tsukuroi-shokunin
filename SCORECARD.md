@@ -6240,3 +6240,82 @@ transaction. The landed JT6 row states both branches; the frozen sentence's unqu
 over-broad, so **C1 is reported not verified as declared**. No replacement predicate is written and
 no depth uplift is claimed (QUALITY 106: a post-freeze contradiction is an honest miss and is never
 made to fit its claim).
+
+## Round 76 — declaration (frozen before data; append-only)
+
+Base `865b38c96c23ec0bcace8ca3ee884f860693ce43` (round-75 verifier spot-check; `git cat-file -t`
+reads `commit`). **Lowest non-retired axis: depth (8, tied with adjacency 8)**; saturation line 9,
+window 3. The last capability row entered at round 64, so the stagnation window stands at 3 of 3,
+but the nudge requires every owned axis at or above the saturation line and depth is 8: the nudge
+does **not** waive the lowest-axis duty. Two claims on two axes: C1 depth, C2 freshness.
+
+**Held-ground sweep (QUALITY 102b)** — `.ufo/waves/round-76/before/held-ground.txt`, run at the base:
+the symbol sweep `git grep -nE 'SystemKeepFree|SystemMaxFileSize|SystemMaxFiles|RuntimeMaxUse|
+RuntimeKeepFree|RuntimeMaxFileSize|RuntimeMaxFiles|RateLimitIntervalSec|RateLimitBurst|vacuum-size|
+vacuum-files|MaxFileSec|MaxRetentionSec' <base> -- corpus/ SKILL.md PROVINCE.md` reads **0 lines**
+(exit 1). The near-token sweep (`SystemMaxUse|journald.conf|Storage=|journal-file`) hits only host
+observations and the coredump plane's `Storage=none` (S187): `journal-boot-plane.md:51,362,373`
+(rotation policy not proven; effective value not derived), `degraded-triage-r4.md:70` ("no retention
+policy configured anywhere"), `boot-plane.md:79,240` (retention not derived), `oom-event-plane.md:189`
+(all-commented config), and `coredump-count-unit-r34.md` (`coredump.conf`, not journald). None states
+a journald retention rule, a default, a cap or a vacuum semantic. The ground is therefore **the
+journald retention plane**, and the round's host probe found those held observations stale (below).
+
+**Sources pinned before the declaration text** (`.ufo/waves/round-76/before/src/`, byte-exact, systemd
+**v262**, the tag matching the host's installed 262.1-1-arch; `sha256sum -c SHA256SUMS` reads 4/4 OK):
+
+| snapshot | URL (tag v262) | sha256 | bytes |
+|---|---|---|---|
+| `journald.conf.xml` | `https://raw.githubusercontent.com/systemd/systemd/v262/man/journald.conf.xml` | `ed71e38df308227a94aca77b0840742b2c6ec49c1e43c2376d4aa135908f87f2` | 32708 |
+| `journald-config.c` | `https://raw.githubusercontent.com/systemd/systemd/v262/src/journal/journald-config.c` | `99f3e972cc639985ff60f637a505938a65b164e9510fdcc30b15d9634bf81a9d` | 20807 |
+| `journald-manager.c` | `https://raw.githubusercontent.com/systemd/systemd/v262/src/journal/journald-manager.c` | `428dc8308d5caf70faee074e87888264c3708aa8e24c6069854790b952a7ffa2` | 101383 |
+| `journalctl.xml` | `https://raw.githubusercontent.com/systemd/systemd/v262/man/journalctl.xml` | `d54bbede45d5b1e3dc856da9624649ef8cb0829731597c212be303a76a1edbdd` | 61619 |
+
+`SHA256SUMS` and `SOURCES.json` (map of url + sha256 per snapshot) are committed with them; the
+counter pins every digest it accepts. Host readings for the plane are committed in
+`before/host.txt`: systemd `262.1-1`; the merged `systemd-analyze cat-config systemd/journald.conf`
+reads the shipped file all-commented **plus** `/etc/systemd/journald.conf.d/size.conf` (born
+2026-10-16 11:53:47 -03) setting `SystemMaxUse=256M` and `RuntimeMaxUse=64M`; `journalctl
+--disk-usage` reads `148.6M`; `/var/log/journal/432d02b544a5459ebbff9c42ec68334d` holds 13
+`.journal` files whose `%s` sizes sum to 209715200 bytes; `/` is 998037782528 bytes with 764239769600
+available; `journalctl --list-boots` reads 3 retained boots.
+
+**(a) Do-nothing controls** (`before/absence-controls.txt`): the note `git cat-file -e` rc **128**; the
+frozen counter over the base prints `JD_MAP absent` rc **128**; `git show <base>:corpus/README.md |
+grep -c 'JD[0-9]'` reads **0**; registry **317** rows, **93** knowledge notes, **126** lesson files;
+`S318`–`S321` absent at base (grep count **0**); the C2 checker at base reads `ROUTED_STALE=8
+ROUTED_OK=0/8` rc **1**. The draft rows scored under the frozen C1 predicate before any note existed
+read `JD_ROWS=8 JD_VERIFIED=8 JD_SOURCES=4 JD_SNAPSHOTS=4 JD_HOST=1 JD_MALFORMED=0 met=1` rc 0
+(`before/draft-row-control.txt`, draft committed as `before/draft-rows-validated.md`) — the predicate
+is reachable, and the base cannot reach it.
+
+**(b) Frozen instruments.** `tools/count-jd-rows-r76.py` sha256
+`549f6ba352284d44d7462954d1de36d2134bab73b0440e4e011b9017ec58fe4f`, `--selftest` **14 cases**
+(CONTROL + short statement, absent quote, quote > 25 words, non-contiguous id, unregistered source,
+snapshot reuse 5, ungrounded statement, malformed row, digest swap, own-work source, duplicate
+registry id, missing host block, non-map mapfile), synthetic snapshots only and no answer key; a
+failing self-test prints `SELFTEST: FAIL` and exits 3. `tools/check-r75-routed-r76.py` sha256
+`01e12e6a57211f80d2f9e042a336cf7ebe933b0560fecedef0411fe158ffe3d7`, `--selftest` **10 cases**
+(CONTROL + eight item mutants + a decoy token placed beyond the frozen 80-line window).
+
+**Instrument-change rule for this round, frozen now**: if a wave attack changes either instrument
+after data, the before control is re-run with the final instrument and both revisions are cited in an
+appended erratum naming old→new digests, so the before→after pair is same-instrument evidence.
+
+| # | axis/type | claim | before → after (frozen predicate) | counting command | kill rule |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — S318–S321) | `corpus/knowledge/journald-retention-plane-r76.md` states the systemd journald retention plane this lane never held, as eight JD rows: `Storage=auto` selects persistent storage exactly when `/var/log/journal` exists and volatile otherwise, while `none` drops storage and keeps forwarding; `SystemMaxUse` and `SystemKeepFree` default to 10% and 15% of the respective file system, each capped to 4G; the manager computes its space limit as used space plus the smaller of free space and `keep_free`, clamped between `min_use` and `max_use`; a startup patch raises `min_use` to current usage, so journald stops growing without deleting to shrink; `SystemMaxFileSize` defaults to one eighth of MaxUse capped to 128M with seven rotated files kept, and compact mode caps the maximum file size at 4G; `SystemMaxFiles` defaults to 100 and only archived files are deleted; the compiled defaults are a 30s rate-limit interval, 10000 burst, 5min sync and one-month max file time; and `journalctl --vacuum-size` deletes the oldest archived files until their disk use falls below the size, with `--disk-usage` including active files and `--rotate` archiving active files first. The note also derives this host's effective system limit: `SystemMaxUse=256M` from `/etc/systemd/journald.conf.d/size.conf`, `effective_limit=256M`, `SystemMaxFileSize=32M`, observed `148.6M`, closing the round-3 open item | note `cat-file -e` rc **128** → present; `JD_MAP absent` rc **128** → `JD_ROWS=8 JD_VERIFIED=8 JD_SOURCES=4 JD_SNAPSHOTS=4 JD_HOST=1 JD_MALFORMED=0 met=1` rc **0**; knowledge notes **93 → 94**; registry **317 → 322** (S318–S321 plus the S322 supersede row) | `python3 tools/count-jd-rows-r76.py --revision <REV>` | any frozen clause fails, any snapshot digest mismatches, or the effective-limit block is absent or missing a literal → **not verified**; no ordinal uplift is claimed (depth 8 → 8) |
+| C2 | freshness (9) | the six round-75 closure routed defects close in committed bytes and the three stale journald negative claims are corrected append-only: (1) a `SOURCES.md` row whose `teaches` opens `supersedes S314 —`, scoped to `PROPAGATE_STOP` and naming the graceful branch; (2) the round-75 note carries an erratum naming eight comma-separated items and ten labels with its split method; (3) the round-76 lesson names round-75's five `## Mistakes` rows plus two owed rows; (4) both round-75 instruments re-run at `bd0acc44` with a committed receipt (`met=1`, `ROUTED_OK=4/4`) and the lesson names `e5f5ca9e` and `bd0acc44`; (5) the seven carried wave markers are tracked in the revision; (6) the narrowed wording "no admitted knowledge entry is left failing its own re-check" lands in the lesson; (7) `journal-boot-plane.md`, `degraded-triage-r4.md` and `boot-plane.md` each carry an appended erratum naming `/etc/systemd/journald.conf.d/size.conf` and `SystemMaxUse=256M`; (8) `corpus/QUALITY.md` criterion 109 requires a recheck command and cadence for negative host-state claims and cites the round-76 lesson | `ROUTED_STALE=8 ROUTED_OK=0/8` rc **1** → `ROUTED_STALE=0 ROUTED_OK=8/8` rc **0** | `python3 tools/check-r75-routed-r76.py --revision <REV>` | any item stale → **not verified**; freshness 9 → 9 (no uplift) |
+
+Causal separability: C1 touches only its note, four registry rows and its counter receipts; C2 touches
+only the round-76 lesson, the round-75 note erratum, the S322 supersede row, the three drift carriers,
+`QUALITY.md`, the marker files and the checker receipt. Each verifies without the other having landed
+(the two counters read disjoint files; the registry rows are disjoint).
+
+Frontier step (not a claim): `corpus/SOURCES.md` census before→after, the `R76-JD-CONFIG-DRIFT`
+mistake in `corpus/lessons/round-76.md` `## Mistakes`, and the sourced C1 claim (S318–S321 opened
+this round). Assimilation: **none** — the `merge/tsukuroi/` package stays quarantined under the open
+`tsukuroi | round-75` L0 id-drift question (114 of 147 staged ids collide); nothing is adopted.
+
+Scratch: every seat works under `$HYAKU_SCRATCH/tsukuroi-r76/<seat>/` (`HYAKU_SCRATCH` default
+`/fast/scratch/hyaku`); `/tmp` is for files under 50 MB only; a seat removes its own tree on exit.
