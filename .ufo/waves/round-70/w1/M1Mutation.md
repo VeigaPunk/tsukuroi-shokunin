@@ -13,6 +13,7 @@ Instruments under test (hashes re-derived at measurement, not copied from a clai
 |---|---|---|
 | `tools/count-xs-rows-r70.py` (frozen, unchanged) | 208 lines | `65065d9d18cea52027619697264de430780e65ff13ab6da2a790c3d2054f6f5c` (equals the frozen digest) |
 | delivered arm: sandbox clone `tools/tsukuroi-census.sh` after `git apply` of `probes/E1XfsArm/r70-xfs-arm.diff` | — | `5268b53949eb0d5988fe3f3d5b9a605622e16ea00b76c15afd488627d357ff7d` (equals the producer receipt `applied-vs-sandbox-sha256.txt`) |
+| the same arm as **landed** in the lane working tree (repaired after the diff: root-blocked rule, `find -type f -readable` enumeration) | — | `042c6b4b79914245313221374bfcd643f43585cc67e08ee984eb8c117efe518c` (read-only copy; the lane file was never written) |
 
 Detector definition used throughout: a case is a bounded behavioral reading (counter `--fixture`
 rc, or the census `--selftest` verdict) whose expected value is derived from the frozen
@@ -73,22 +74,26 @@ Evidence detail (raw table in `counter-mutation-table.txt`, unified diffs in
 Method. `git clone --shared` of the lane into scratch, `git rev-parse --show-toplevel` asserted
 the clone, `git apply` of the delivered `probes/E1XfsArm/r70-xfs-arm.diff`; applied bytes hash
 equals the producer's receipt. Baseline selftest on those bytes: **PASS (211 cases, 211 passed,
-0 failed)**, rc 0 — includes the 15 `R70-C2` labels. Each mutant is a separate copy of those
-bytes (`arm/<label>/tsukuroi-census.sh`; diffs in `arm-mutants.diff`), run with a hermetic
-`TMPDIR` under scratch and a 100 s watchdog.
+0 failed)**, rc 0 — includes the 15 `R70-C2` labels. The lane's working tree then moved to a
+repaired arm (root-blocked rule, `find -type f -readable` for error/log); the same eight mutants
+were re-anchored on those landed bytes and re-run there: baseline **PASS (214 cases, 214 passed,
+0 failed)**, rc 0. Each mutant is a separate copy of the bytes under test
+(`arm/<label>/`, `arm-landed/<label>/`; diffs in `arm-mutants.diff`, `arm-landed-mutants.diff`),
+run with a hermetic `TMPDIR` under scratch and a 100 s watchdog.
 
-| mutant | frozen arm clause broken | killing case (label) | evidence |
+| mutant | frozen arm clause broken | killing case (label) | evidence (diff bytes · landed bytes) |
 |---|---|---|---|
-| A1-no-dedupe | mounts == **distinct** xfs source count | `... one source mounted twice counts once, so the fields stay per-filesystem (R70-C2)` | FAIL 1/211, rc 1 |
-| A2-global-as-fs | the global stats dir is never a filesystem | `... the global stats directory under the sysfs root is never counted as a filesystem (R70-C2)` | FAIL 1/211, rc 1 |
-| A3-echo-bad-name | unvalidated basename never spelled/used; `echo:bad-name` | `... an escaped-space source and an embedded forged line never forge the census line (R70-C2)` | FAIL 1/211, rc 1 |
-| A4-read-fifo | a FIFO is never opened | `... a FIFO stats file is never opened (no block) ... (R70-C2)` (run reached 200 PASS then hung) | watchdog rc 124 |
-| A5-unreadable-parsed | unreadable stats file names `stats:unreadable`, never counted | `... a mode-000 stats file is never counted and names stats:unreadable (R70-C2)` | FAIL 3/211, rc 1 |
-| A6-rollup-term | the line is never a rollup term | `healthy rollup: an unreadable mount table with no sysfs root is BLOCKED (R39-C1)` (first of 11) | FAIL 11/211, rc 1 |
-| A7-silent-absent | absent names `sysfs:absent` | `... a listed xfs mount with no sysfs root counts absent and names sysfs:absent (R70-C2)` | FAIL 1/211, rc 1 |
-| A8-no-first-line | first line must match the frozen regex, else `stats:malformed` | `... a first line outside the frozen shape names stats:malformed and is not counted (R70-C2)` | FAIL 1/211, rc 1 |
+| A1-no-dedupe | mounts == **distinct** xfs source count | `... one source mounted twice counts once, so the fields stay per-filesystem (R70-C2)` | FAIL 1/211 · FAIL 1/214 |
+| A2-global-as-fs | the global stats dir is never a filesystem | `... the global stats directory under the sysfs root is never counted as a filesystem (R70-C2)` | FAIL 1/211 · FAIL 1/214 |
+| A3-echo-bad-name | unvalidated basename never spelled/used; `echo:bad-name` | `... an escaped-space source and an embedded forged line never forge the census line (R70-C2)` | FAIL 1/211 · FAIL 1/214 |
+| A4-read-fifo | a FIFO is never opened | `... a FIFO stats file is never opened (no block) ... (R70-C2)` (200 PASS then hang) | watchdog rc 124 · watchdog SIGKILL rc -9 |
+| A5-unreadable-parsed | unreadable stats file names `stats:unreadable`, never counted | `... a mode-000 stats file is never counted and names stats:unreadable (R70-C2)` | FAIL 3/211 · FAIL 3/214 |
+| A6-rollup-term | the line is never a rollup term | `healthy rollup: an unreadable mount table with no sysfs root is BLOCKED (R39-C1)` (first of 11/12) | FAIL 11/211 · FAIL 12/214 |
+| A7-silent-absent | absent names `sysfs:absent` | `... a listed xfs mount with no sysfs root counts absent and names sysfs:absent (R70-C2)` | FAIL 1/211 · FAIL 1/214 |
+| A8-no-first-line | first line must match the frozen regex, else `stats:malformed` | `... a first line outside the frozen shape names stats:malformed and is not counted (R70-C2)` | FAIL 1/211 · FAIL 1/214 |
 
-Score: **8/8 killed, 0 survivors.** Two precision notes for the integrator:
+Score: **8/8 killed on the diff bytes and 8/8 killed again on the landed bytes, 0 survivors.**
+Three precision notes for the integrator:
 
 - **A6** (rollup term) is caught by three pre-existing R39 rollup cases and by eight R70 shape
   cases, but **not** by the new R70 neutrality A/B case: that fixture seeds
@@ -97,11 +102,16 @@ Score: **8/8 killed, 0 survivors.** Two precision notes for the integrator:
 - **A4** is killed by the watchdog, not by an assertion: the FIFO case cannot report a FAIL when
   the arm blocks, so a hang is the only observable. The selftest's own case therefore proves the
   non-block only if the runner has a timeout; without one, the suite hangs rather than fails.
+- The **landed** arm differs behaviourally from the delivered diff (root-blocked rule; `find
+  -type f -readable` instead of globstar). All eight anchors still applied on the landed bytes
+  and all eight were killed there too; the repair added one more A6 failure (12 vs 11). The
+  root-blocked rule does not absorb A7 because a *missing* root leaves `root_blocked=0`, so the
+  per-device absent branch still runs — that is exactly the branch A7 removes the token from.
 
 ## 3. What this battery does and does not say
 
 - Both instruments are mutation-robust under the full detector set built here: counter 7/7,
-  arm 8/8, no survivors.
+  arm 8/8 on the diff bytes and 8/8 on the landed bytes, no survivors.
 - The **committed** C1 pre-data battery under-detects its own clauses: 5 of 7 mutants escape it.
   That is a coverage finding about a committed receipt, not a defect in the frozen predicate and
   not a licence to amend the contract; any added case is a planner amendment.
@@ -109,17 +119,22 @@ Score: **8/8 killed, 0 survivors.** Two precision notes for the integrator:
   in the final conjunction, which is subsumed by `verified == TARGET_ROWS` with `rows == 6`) were
   not counted as kills. The arm was mutated only in its body and its rollup wiring, not in its
   fixture cases or its header.
-- One host, one revision, no network. Scratch under `/fast/scratch/hyaku/tsukuroi-r70/M1Mutation`
-  was removed after the receipts were written.
+- The two arm byte-sets are two revisions of a moving tree: the diff is the producer's artifact,
+  the landed file is the lane working tree at the time of the copy, and later edits are outside
+  this battery. The counter was frozen and did not move.
+- One host, no network. Scratch under `/fast/scratch/hyaku/tsukuroi-r70/M1Mutation` was removed
+  after the receipts were written.
 
 Restoration evidence: the pristine counter copy still hashes
-`65065d9d…4f6f5c` and the applied clone's census still hashes `5268b539…7ff7d` after the whole
-battery (verified post-run); no mutant was ever written over either file, and the lane tree was
-never in a mutation path.
+`65065d9d…4f6f5c`, the diff-applied clone's census still hashes `5268b539…7ff7d`, and the landed
+copy still hashes `042c6b4b…18c` after the whole battery (verified post-run); no mutant was ever
+written over any of those files, the lane census was copied (never opened for write), and the
+lane tree was never in a mutation path.
 
 Raw receipts: `probes/M1Mutation/{environment,counter-mutation-table,counter-mutants.diff,
 fixture-digests,mutant-results.json,arm-mutation-table,arm-mutants.diff,arm-results.json,
-arm-baseline-and-A6}.txt|json|diff`.
+arm-baseline-and-A6.txt,arm-landed-mutation-table,arm-landed-mutants.diff,
+arm-landed-results.json,arm-lands-and-A4-note.txt}`.
 
 COUNTER_MUTANTS=7 COUNTER_KILLED=7 ARM_MUTANTS=8 ARM_KILLED=8 SURVIVORS=none
 COUNTER_PREDATA_BATTERY_KILLED=2

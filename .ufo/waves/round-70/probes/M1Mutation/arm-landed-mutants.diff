@@ -1,0 +1,94 @@
+=== A1-no-dedupe sha256 c2ab0e0186eef9167bb3d2cc73e56d441c4994e6193f1b90d08203ce7795f37e
+@@ -2416,7 +2416,6 @@
+     while read -r src mp fst rest; do
+       [ "${fst:-}" = xfs ] || continue
+       [ -n "${src:-}" ] || continue
+-      if [ -n "${seen[$src]:-}" ]; then continue; fi
+       seen["$src"]=1
+       mounts=$((mounts + 1))
+       name=${src##*/}
+=== A2-global-as-fs sha256 1d463c04aa6d1e950335f8ff0e65253c77717bbfc2848dfccf04649d80b71ce8
+@@ -2464,6 +2464,7 @@
+   else
+     xfs_detail_add 'mounts:unreadable'
+   fi
++  if [ -d "$root/stats" ]; then present=$((present + 1)); stats=$((stats + 1)); fi
+   detail=${detail%,}
+   XFS_LINE="XFS xfs-stats mounts=$mounts present=$present absent=$absent unreadable=$unreadable stats=$stats error=$errn log=$logn detail=${detail:-none}"
+   return 0
+=== A3-echo-bad-name sha256 7a3debcaa137f884b428791663973a20cfde16d748e8b5480a784f2210381126
+@@ -2422,9 +2422,6 @@
+       name=${src##*/}
+       # a name that cannot be a sysfs device basename is never spelled into the line and
+       # never used to build a path: it counts absent with its own reason token
+-      if ! [[ $name =~ $name_re ]]; then
+-        absent=$((absent + 1)); xfs_detail_add 'echo:bad-name'; continue
+-      fi
+       if [ "$root_blocked" -eq 1 ]; then
+         unreadable=$((unreadable + 1)); xfs_detail_add 'sysfs:unreadable'; continue
+       fi
+=== A4-read-fifo sha256 a66c0d270c50f669d5e977494351d0738b834c57820ae52cca008bde0301c21f
+@@ -2437,7 +2437,7 @@
+         present=$((present + 1))
+         # stats/stats: first line only, and only from a readable regular file
+         f=$d/stats/stats
+-        if [ -f "$f" ] && [ -r "$f" ]; then
++        if [ -e "$f" ] && [ -r "$f" ]; then
+           first=''
+           IFS= read -r first < "$f" || true
+           if [[ $first =~ $stats_re ]]; then
+=== A5-unreadable-parsed sha256 b362c5415cb6f1f7710ecb2344d041ba9f3b195b033fd470dfad8b8963052954
+@@ -2437,14 +2437,8 @@
+         present=$((present + 1))
+         # stats/stats: first line only, and only from a readable regular file
+         f=$d/stats/stats
+-        if [ -f "$f" ] && [ -r "$f" ]; then
+-          first=''
+-          IFS= read -r first < "$f" || true
+-          if [[ $first =~ $stats_re ]]; then
+-            stats=$((stats + 1))
+-          else
+-            xfs_detail_add 'stats:malformed'
+-          fi
++        if [ -e "$f" ]; then
++          stats=$((stats + 1))
+         else
+           xfs_detail_add 'stats:unreadable'
+         fi
+=== A6-rollup-term sha256 b2fb99bb982f002f2703b489277cecd23b6447906da1ebe2ae24f47c6f76d3cd
+@@ -2465,6 +2465,7 @@
+     xfs_detail_add 'mounts:unreadable'
+   fi
+   detail=${detail%,}
++  if [ -n "$detail" ]; then XFS_V=DEGRADED; else XFS_V=HEALTHY; fi
+   XFS_LINE="XFS xfs-stats mounts=$mounts present=$present absent=$absent unreadable=$unreadable stats=$stats error=$errn log=$logn detail=${detail:-none}"
+   return 0
+ }
+@@ -4661,6 +4662,7 @@
+   roll=$(worse "$roll" "$JRN_V")
+   roll=$(worse "$roll" "$UPD_V")
+   roll=$(worse "$roll" "$OOM_V")
++  roll=$(worse "$roll" "${XFS_V:-HEALTHY}")
+ 
+   printf 'TSUKUROI_CENSUS: %s (packages=%s systemd=%s drivers=%s journal=%s update-safety=%s oom=%s)\n' \
+     "$roll" "$PKG_V" "$SYS_V" "$DRV_V" "$JRN_V" "$UPD_V" "$OOM_V"
+=== A7-silent-absent sha256 6bd4e71b24dc0587d12e452a091bbe52648572d6142bfc7dcbcf20d6114ec374
+@@ -2458,7 +2458,7 @@
+       elif [ -e "$d" ] || [ -L "$d" ]; then
+         unreadable=$((unreadable + 1)); xfs_detail_add 'sysfs:unreadable'
+       else
+-        absent=$((absent + 1)); xfs_detail_add 'sysfs:absent'
++        absent=$((absent + 1))
+       fi
+     done <<< "$mtabbuf"
+   else
+=== A8-no-first-line sha256 6041a6d81c54d10b3151ab56d1b6c48df70b07703db523ab2491c1d0b2c51f97
+@@ -2440,7 +2440,7 @@
+         if [ -f "$f" ] && [ -r "$f" ]; then
+           first=''
+           IFS= read -r first < "$f" || true
+-          if [[ $first =~ $stats_re ]]; then
++          if true; then
+             stats=$((stats + 1))
+           else
+             xfs_detail_add 'stats:malformed'

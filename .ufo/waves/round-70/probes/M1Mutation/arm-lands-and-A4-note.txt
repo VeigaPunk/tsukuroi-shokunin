@@ -1,0 +1,6 @@
+two arm byte-sets tested, same 8 mutants:
+  1) delivered diff applied to sandbox clone: census sha256 5268b53949eb0d5988fe3f3d5b9a605622e16ea00b76c15afd488627d357ff7d, baseline 211/211 PASS
+  2) landed lane working tree at 2026-11-04T00:2xZ: census sha256 042c6b4b79914245313221374bfcd643f43585cc67e08ee984eb8c117efe518c, baseline 214/214 PASS
+the landed body differs behaviourally from the diff: it adds a root-blocked rule and replaces globstar enumeration with find -type f -readable; all 8 mutants were re-anchored and re-run on the landed bytes and all 8 were killed again.
+
+A4-read-fifo: no FAIL line is possible when the arm blocks; the run reached 200 PASS and the watchdog SIGKILLed it (rc -9), so the killing case is the next case after the last PASS = 'healthy: a FIFO stats file is never opened (no block) ... (R70-C2)'.

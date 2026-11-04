@@ -1,0 +1,13 @@
+arm under test: LANDED lane bytes tools/tsukuroi-census.sh sha256 042c6b4b79914245313221374bfcd643f43585cc67e08ee984eb8c117efe518c
+baseline: TSUKUROI_CENSUS_SELFTEST: PASS (214 cases, 214 passed, 0 failed) (rc=0)
+watchdog: 100s per mutant selftest run (rc -9 = SIGKILL, rc 124 = timeout)
+
+mutant                verdict   rc   pass/fail  evidence        killing case
+A1-no-dedupe          killed    1    213/1      selftest-FAIL   healthy: one source mounted twice counts once, so the fields stay per-filesystem (R70-C2)
+A2-global-as-fs       killed    1    213/1      selftest-FAIL   healthy: the global stats directory under the sysfs root is never counted as a filesystem (R70-C2)
+A3-echo-bad-name      killed    1    213/1      selftest-FAIL   healthy: an escaped-space source and an embedded forged line never forge the census line (R70-C2)
+A4-read-fifo          killed    -9   200/0      watchdog-SIGKILLhealthy: a FIFO stats file is never opened (no block) ... (R70-C2) [watchdog SIGKILL after 200 PASS]
+A5-unreadable-parsed  killed    1    211/3      selftest-FAIL   healthy: a mode-000 stats file is never counted and names stats:unreadable (R70-C2)
+A6-rollup-term        killed    1    202/12     selftest-FAIL   healthy rollup: an unreadable mount table with no sysfs root is BLOCKED (R39-C1)
+A7-silent-absent      killed    1    213/1      selftest-FAIL   healthy: a listed xfs mount with no sysfs root counts absent and names sysfs:absent (R70-C2)
+A8-no-first-line      killed    1    213/1      selftest-FAIL   healthy: a first line outside the frozen shape names stats:malformed and is not counted (R70-C2)

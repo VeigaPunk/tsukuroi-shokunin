@@ -1,0 +1,92 @@
+{
+ "applied_sha256": "042c6b4b79914245313221374bfcd643f43585cc67e08ee984eb8c117efe518c",
+ "watchdog_s": 100,
+ "baseline": {
+  "rc": 0,
+  "pass": 214,
+  "fail": 0,
+  "summary": "TSUKUROI_CENSUS_SELFTEST: PASS (214 cases, 214 passed, 0 failed)"
+ },
+ "mutants": {
+  "A1-no-dedupe": {
+   "clause_broken": "count mounts without dedupe (frozen: mounts == distinct xfs source count)",
+   "verdict": "killed",
+   "rc": 1,
+   "pass": 213,
+   "fail": 1,
+   "killed_by": "healthy: one source mounted twice counts once, so the fields stay per-filesystem (R70-C2): plane evidence missing: '^XFS xfs-stats mounts=1 present=1 absent=0 unreadable=0 stats=1 error=2 log=2 detail=none$'; got: PLANE packages: HEALTHY (pacman -Qkk rc=0 sample=4(alpha,beta,gamma,delta) drift=0 backup_diffs=0 nonroot_artifacts=0; foreign=0(known=0 new=0 drift=0 gone=0) base=file(0); pins=none; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0755 root_uid=1000 root_gid=1000 root_euid=1000 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r70/M1Mutation/tmp/A1-no-dedupe/tsukuroi-r3-2-selftest.ZF3n6N/fx/xfs-dedupe/root)|PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)|PLANE drivers: HEALTHY (ring=journalctl-k dmesg_restrict=1 kerr=0 (oom=0 io=0 gpu=0 other=0); nvidia=absent(pci_10de=0) smi=rc=1 modules=0 nodes=0 pci_10de=0; mem=[HEALTHY] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=5 C4_present=0 C4_local=0; C5_swap_fail=0 C5_swap_peak_pct=0% C5_pswp=0/0 C5_sock_throttled=0; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=0 C6_avail_kb=900000 C6_shmem_kb=1000; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md \u00a78)|PLANE journal: HEALTHY (boots=2 current=yes target=graphical.target:active err=0 (coredump=0 kernel=0 other=0); failedhist=0; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0)|PLANE update-safety: HEALTHY (status=INERT; pending=none; qu=rc=1/0; sup=0; join=equal=2 behind=0 ahead=0 src=sl+expac; expac=agree; chan=dbs=2 fetch=0d stamp=0d; offline.db=present(stamp=0d birth=0d); log=cmd=-S@2026-10-13T16:37:58-0300; refresh=none-in-window(last 300 lines); classes=offline-exile:0,aur-local:0; trap=-Suu:0; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368)|PLANE oom: HEALTHY (window=boots=2 2026-10-11..2026-10-14; C1_kernel=0 killed_process=0; C2_events=0 C3_events=0 clusters=0; base=file(0) known=0 new=0 missing=0 out_of_window=0; ledger=vmstat.oom_kill=0; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md \u00a71)|",
+   "evidence": "selftest-FAIL",
+   "mutant_sha256": "c2ab0e0186eef9167bb3d2cc73e56d441c4994e6193f1b90d08203ce7795f37e"
+  },
+  "A2-global-as-fs": {
+   "clause_broken": "count the global stats dir as a filesystem (frozen: per-filesystem roots only; the global stats dir is never a filesystem)",
+   "verdict": "killed",
+   "rc": 1,
+   "pass": 213,
+   "fail": 1,
+   "killed_by": "healthy: the global stats directory under the sysfs root is never counted as a filesystem (R70-C2): plane evidence missing: '^XFS xfs-stats mounts=0 present=0 absent=0 unreadable=0 stats=0 error=0 log=0 detail=none$'; got: PLANE packages: HEALTHY (pacman -Qkk rc=0 sample=4(alpha,beta,gamma,delta) drift=0 backup_diffs=0 nonroot_artifacts=0; foreign=0(known=0 new=0 drift=0 gone=0) base=file(0); pins=none; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0755 root_uid=1000 root_gid=1000 root_euid=1000 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r70/M1Mutation/tmp/A2-global-as-fs/tsukuroi-r3-2-selftest.BOBDhW/fx/xfs-global-not-fs/root)|PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)|PLANE drivers: HEALTHY (ring=journalctl-k dmesg_restrict=1 kerr=0 (oom=0 io=0 gpu=0 other=0); nvidia=absent(pci_10de=0) smi=rc=1 modules=0 nodes=0 pci_10de=0; mem=[HEALTHY] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=5 C4_present=0 C4_local=0; C5_swap_fail=0 C5_swap_peak_pct=0% C5_pswp=0/0 C5_sock_throttled=0; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=0 C6_avail_kb=900000 C6_shmem_kb=1000; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md \u00a78)|PLANE journal: HEALTHY (boots=2 current=yes target=graphical.target:active err=0 (coredump=0 kernel=0 other=0); failedhist=0; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0)|PLANE update-safety: HEALTHY (status=INERT; pending=none; qu=rc=1/0; sup=0; join=equal=2 behind=0 ahead=0 src=sl+expac; expac=agree; chan=dbs=2 fetch=0d stamp=0d; offline.db=present(stamp=0d birth=0d); log=cmd=-S@2026-10-13T16:37:58-0300; refresh=none-in-window(last 300 lines); classes=offline-exile:0,aur-local:0; trap=-Suu:0; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368)|PLANE oom: HEALTHY (window=boots=2 2026-10-11..2026-10-14; C1_kernel=0 killed_process=0; C2_events=0 C3_events=0 clusters=0; base=file(0) known=0 new=0 missing=0 out_of_window=0; ledger=vmstat.oom_kill=0; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md \u00a71)|",
+   "evidence": "selftest-FAIL",
+   "mutant_sha256": "1d463c04aa6d1e950335f8ff0e65253c77717bbfc2848dfccf04649d80b71ce8"
+  },
+  "A3-echo-bad-name": {
+   "clause_broken": "use an unvalidated device name (frozen: a basename outside ^[A-Za-z0-9._:-]+$ is never spelled or used for a path; echo:bad-name)",
+   "verdict": "killed",
+   "rc": 1,
+   "pass": 213,
+   "fail": 1,
+   "killed_by": "healthy: an escaped-space source and an embedded forged line never forge the census line (R70-C2): plane evidence missing: '^XFS xfs-stats mounts=1 present=0 absent=1 unreadable=0 stats=0 error=0 log=0 detail=echo:bad-name$'; got: PLANE packages: HEALTHY (pacman -Qkk rc=0 sample=4(alpha,beta,gamma,delta) drift=0 backup_diffs=0 nonroot_artifacts=0; foreign=0(known=0 new=0 drift=0 gone=0) base=file(0); pins=none; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0755 root_uid=1000 root_gid=1000 root_euid=1000 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r70/M1Mutation/tmp/A3-echo-bad-name/tsukuroi-r3-2-selftest.myDHOw/fx/xfs-name-forgery/root)|PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)|PLANE drivers: HEALTHY (ring=journalctl-k dmesg_restrict=1 kerr=0 (oom=0 io=0 gpu=0 other=0); nvidia=absent(pci_10de=0) smi=rc=1 modules=0 nodes=0 pci_10de=0; mem=[HEALTHY] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=5 C4_present=0 C4_local=0; C5_swap_fail=0 C5_swap_peak_pct=0% C5_pswp=0/0 C5_sock_throttled=0; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=0 C6_avail_kb=900000 C6_shmem_kb=1000; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md \u00a78)|PLANE journal: HEALTHY (boots=2 current=yes target=graphical.target:active err=0 (coredump=0 kernel=0 other=0); failedhist=0; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0)|PLANE update-safety: HEALTHY (status=INERT; pending=none; qu=rc=1/0; sup=0; join=equal=2 behind=0 ahead=0 src=sl+expac; expac=agree; chan=dbs=2 fetch=0d stamp=0d; offline.db=present(stamp=0d birth=0d); log=cmd=-S@2026-10-13T16:37:58-0300; refresh=none-in-window(last 300 lines); classes=offline-exile:0,aur-local:0; trap=-Suu:0; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368)|PLANE oom: HEALTHY (window=boots=2 2026-10-11..2026-10-14; C1_kernel=0 killed_process=0; C2_events=0 C3_events=0 clusters=0; base=file(0) known=0 new=0 missing=0 out_of_window=0; ledger=vmstat.oom_kill=0; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md \u00a71)|",
+   "evidence": "selftest-FAIL",
+   "mutant_sha256": "7a3debcaa137f884b428791663973a20cfde16d748e8b5480a784f2210381126"
+  },
+  "A4-read-fifo": {
+   "clause_broken": "read a FIFO stats file (frozen: a FIFO is never opened)",
+   "verdict": "killed",
+   "rc": -9,
+   "pass": 200,
+   "fail": 0,
+   "killed_by": null,
+   "evidence": "none",
+   "mutant_sha256": "a66c0d270c50f669d5e977494351d0738b834c57820ae52cca008bde0301c21f"
+  },
+  "A5-unreadable-parsed": {
+   "clause_broken": "treat an unreadable stats file as parsed (frozen: a missing, unreadable or non-regular stats file names stats:unreadable and is never counted)",
+   "verdict": "killed",
+   "rc": 1,
+   "pass": 211,
+   "fail": 3,
+   "killed_by": "healthy: a mode-000 stats file is never counted and names stats:unreadable (R70-C2): plane evidence missing: '^XFS xfs-stats mounts=1 present=1 absent=0 unreadable=0 stats=0 error=2 log=2 detail=stats:unreadable$'; got: PLANE packages: HEALTHY (pacman -Qkk rc=0 sample=4(alpha,beta,gamma,delta) drift=0 backup_diffs=0 nonroot_artifacts=0; foreign=0(known=0 new=0 drift=0 gone=0) base=file(0); pins=none; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0755 root_uid=1000 root_gid=1000 root_euid=1000 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r70/M1Mutation/tmp/A5-unreadable-parsed/tsukuroi-r3-2-selftest.zZSsfA/fx/xfs-stats-unreadable/root)|PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)|PLANE drivers: HEALTHY (ring=journalctl-k dmesg_restrict=1 kerr=0 (oom=0 io=0 gpu=0 other=0); nvidia=absent(pci_10de=0) smi=rc=1 modules=0 nodes=0 pci_10de=0; mem=[HEALTHY] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=5 C4_present=0 C4_local=0; C5_swap_fail=0 C5_swap_peak_pct=0% C5_pswp=0/0 C5_sock_throttled=0; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=0 C6_avail_kb=900000 C6_shmem_kb=1000; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md \u00a78)|PLANE journal: HEALTHY (boots=2 current=yes target=graphical.target:active err=0 (coredump=0 kernel=0 other=0); failedhist=0; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0)|PLANE update-safety: HEALTHY (status=INERT; pending=none; qu=rc=1/0; sup=0; join=equal=2 behind=0 ahead=0 src=sl+expac; expac=agree; chan=dbs=2 fetch=0d stamp=0d; offline.db=present(stamp=0d birth=0d); log=cmd=-S@2026-10-13T16:37:58-0300; refresh=none-in-window(last 300 lines); classes=offline-exile:0,aur-local:0; trap=-Suu:0; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368)|PLANE oom: HEALTHY (window=boots=2 2026-10-11..2026-10-14; C1_kernel=0 killed_process=0; C2_events=0 C3_events=0 clusters=0; base=file(0) known=0 new=0 missing=0 out_of_window=0; ledger=vmstat.oom_kill=0; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md \u00a71)|",
+   "evidence": "selftest-FAIL",
+   "mutant_sha256": "b362c5415cb6f1f7710ecb2344d041ba9f3b195b033fd470dfad8b8963052954"
+  },
+  "A6-rollup-term": {
+   "clause_broken": "add the line's verdict to the rollup term (frozen: never a rollup term)",
+   "verdict": "killed",
+   "rc": 1,
+   "pass": 202,
+   "fail": 12,
+   "killed_by": "healthy rollup: an unreadable mount table with no sysfs root is BLOCKED (R39-C1): exit 1 wanted 0; output: XFS xfs-stats mounts=0 present=0 absent=0 unreadable=0 stats=0 error=0 log=0 detail=mounts:unreadable|TSUKUROI_CENSUS: DEGRADED (packages=HEALTHY systemd=HEALTHY drivers=HEALTHY journal=HEALTHY update-safety=HEALTHY oom=HEALTHY)",
+   "evidence": "selftest-FAIL",
+   "mutant_sha256": "b2fb99bb982f002f2703b489277cecd23b6447906da1ebe2ae24f47c6f76d3cd"
+  },
+  "A7-silent-absent": {
+   "clause_broken": "make a missing sysfs dir silently absent without a detail token (frozen: absent names sysfs:absent)",
+   "verdict": "killed",
+   "rc": 1,
+   "pass": 213,
+   "fail": 1,
+   "killed_by": "healthy: a listed xfs mount with no sysfs root counts absent and names sysfs:absent (R70-C2): plane evidence missing: '^XFS xfs-stats mounts=1 present=0 absent=1 unreadable=0 stats=0 error=0 log=0 detail=sysfs:absent$'; got: PLANE packages: HEALTHY (pacman -Qkk rc=0 sample=4(alpha,beta,gamma,delta) drift=0 backup_diffs=0 nonroot_artifacts=0; foreign=0(known=0 new=0 drift=0 gone=0) base=file(0); pins=none; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0755 root_uid=1000 root_gid=1000 root_euid=1000 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r70/M1Mutation/tmp/A7-silent-absent/tsukuroi-r3-2-selftest.0EORr0/fx/xfs-sysfs-absent/root)|PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)|PLANE drivers: HEALTHY (ring=journalctl-k dmesg_restrict=1 kerr=0 (oom=0 io=0 gpu=0 other=0); nvidia=absent(pci_10de=0) smi=rc=1 modules=0 nodes=0 pci_10de=0; mem=[HEALTHY] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=5 C4_present=0 C4_local=0; C5_swap_fail=0 C5_swap_peak_pct=0% C5_pswp=0/0 C5_sock_throttled=0; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=0 C6_avail_kb=900000 C6_shmem_kb=1000; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md \u00a78)|PLANE journal: HEALTHY (boots=2 current=yes target=graphical.target:active err=0 (coredump=0 kernel=0 other=0); failedhist=0; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0)|PLANE update-safety: HEALTHY (status=INERT; pending=none; qu=rc=1/0; sup=0; join=equal=2 behind=0 ahead=0 src=sl+expac; expac=agree; chan=dbs=2 fetch=0d stamp=0d; offline.db=present(stamp=0d birth=0d); log=cmd=-S@2026-10-13T16:37:58-0300; refresh=none-in-window(last 300 lines); classes=offline-exile:0,aur-local:0; trap=-Suu:0; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368)|PLANE oom: HEALTHY (window=boots=2 2026-10-11..2026-10-14; C1_kernel=0 killed_process=0; C2_events=0 C3_events=0 clusters=0; base=file(0) known=0 new=0 missing=0 out_of_window=0; ledger=vmstat.oom_kill=0; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md \u00a71)|",
+   "evidence": "selftest-FAIL",
+   "mutant_sha256": "6bd4e71b24dc0587d12e452a091bbe52648572d6142bfc7dcbcf20d6114ec374"
+  },
+  "A8-no-first-line": {
+   "clause_broken": "count a stats file without judging its first line (frozen: first line must match ^[a-z][a-z0-9_]*([ ][0-9]+)+$, else stats:malformed)",
+   "verdict": "killed",
+   "rc": 1,
+   "pass": 213,
+   "fail": 1,
+   "killed_by": "healthy: a first line outside the frozen shape names stats:malformed and is not counted (R70-C2): plane evidence missing: '^XFS xfs-stats mounts=1 present=1 absent=0 unreadable=0 stats=0 error=2 log=2 detail=stats:malformed$'; got: PLANE packages: HEALTHY (pacman -Qkk rc=0 sample=4(alpha,beta,gamma,delta) drift=0 backup_diffs=0 nonroot_artifacts=0; foreign=0(known=0 new=0 drift=0 gone=0) base=file(0); pins=none; holds=pacman glibc; db.lck=absent; root_status=ok root_mode=0755 root_uid=1000 root_gid=1000 root_euid=1000 root_owner_write=present root_owner_search=present root_src=override root_dir=/fast/scratch/hyaku/tsukuroi-r70/M1Mutation/tmp/A8-no-first-line/tsukuroi-r3-2-selftest.ogDybj/fx/xfs-stats-malformed/root)|PLANE systemd: HEALTHY (scope=user state=running failed=0 timers_enabled=1 timers_scanned=1 timer_fail=0 timer_unknown=0)|PLANE drivers: HEALTHY (ring=journalctl-k dmesg_restrict=1 kerr=0 (oom=0 io=0 gpu=0 other=0); nvidia=absent(pci_10de=0) smi=rc=1 modules=0 nodes=0 pci_10de=0; mem=[HEALTHY] C1_kernel_oom=0 C2_sysd_oom=0 C3_sigkill=0; C4_sweep=5 C4_present=0 C4_local=0; C5_swap_fail=0 C5_swap_peak_pct=0% C5_pswp=0/0 C5_sock_throttled=0; C6_psi_some_avg300=0.00 C6_psi_full_avg300=0.00 C6_psi_full_total_us=0 C6_avail_kb=900000 C6_shmem_kb=1000; guards=max/max oom.group=0; r6 vocab: oom-event-plane.md \u00a78)|PLANE journal: HEALTHY (boots=2 current=yes target=graphical.target:active err=0 (coredump=0 kernel=0 other=0); failedhist=0; timers_enabled=1 timers_scanned=1 armed=1 timer_drift=0 timer_unknown=0)|PLANE update-safety: HEALTHY (status=INERT; pending=none; qu=rc=1/0; sup=0; join=equal=2 behind=0 ahead=0 src=sl+expac; expac=agree; chan=dbs=2 fetch=0d stamp=0d; offline.db=present(stamp=0d birth=0d); log=cmd=-S@2026-10-13T16:37:58-0300; refresh=none-in-window(last 300 lines); classes=offline-exile:0,aur-local:0; trap=-Suu:0; traps=[-Qu blind to shadowed-newer; '%s' is not a size]; vocab: SKILL.md:358-368)|PLANE oom: HEALTHY (window=boots=2 2026-10-11..2026-10-14; C1_kernel=0 killed_process=0; C2_events=0 C3_events=0 clusters=0; base=file(0) known=0 new=0 missing=0 out_of_window=0; ledger=vmstat.oom_kill=0; anchors=see drivers.mem; traps=presence-not-count,peak-not-datable,launch-not-live; rule=both-readings-carried; r8 vocab: kill-event-deep-r8.md \u00a71)|",
+   "evidence": "selftest-FAIL",
+   "mutant_sha256": "6041a6d81c54d10b3151ab56d1b6c48df70b07703db523ab2491c1d0b2c51f97"
+  }
+ }
+}
