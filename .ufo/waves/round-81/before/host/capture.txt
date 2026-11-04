@@ -1,0 +1,83 @@
+# live read-only host capture, round 81, 2026-11-04T17:54:16-03:00
+## systemctl show for the nofail mounts
+### tmp.mount
+Id=tmp.mount
+Requires=system.slice dev-nvme1n1p1.device -.mount
+Wants=
+RequiredBy=tmp-.mount_alma.AFFvYd1.mount
+WantedBy=paccache.service bluetooth.service basic.target polkit.service archlinux-keyring-wkd-sync.service upower.service shadow.service local-fs.target man-db.service iwd.service plocate-updatedb.service power-profiles-daemon.service systemd-logind.service
+Before=basic.target paccache.service polkit.service archlinux-keyring-wkd-sync.service man-db.service shadow.service power-profiles-daemon.service systemd-logind.service local-fs.target tmp-.mount_alma.AFFvYd1.mount plocate-updatedb.service umount.target bluetooth.service iwd.service upower.service
+After=systemd-journald.socket local-fs-pre.target "blockdev@dev-disk-by\\x2duuid-1f8a5361\\x2d4f35\\x2d449a\\x2dbb30\\x2d63669df878d1.target" blockdev@dev-nvme1n1p1.target dev-nvme1n1p1.device system.slice -.mount
+LoadState=loaded
+ActiveState=active
+DefaultDependencies=yes
+### fast.mount
+Id=fast.mount
+Requires=system.slice -.mount dev-nvme1n1p2.device
+Wants=
+RequiredBy=
+WantedBy=local-fs.target
+Before=umount.target
+After=local-fs-pre.target systemd-journald.socket "blockdev@dev-disk-by\\x2duuid-070be1ea\\x2de5fc\\x2d46aa\\x2da6b2\\x2dadf9df7656ac.target" dev-nvme1n1p2.device -.mount system.slice blockdev@dev-nvme1n1p2.target
+LoadState=loaded
+ActiveState=active
+DefaultDependencies=yes
+### boot.mount
+Id=boot.mount
+Requires=system.slice "systemd-fsck@dev-disk-by\\x2duuid-86D8\\x2dC3F6.service" -.mount dev-nvme0n1p1.device
+Wants=
+RequiredBy=local-fs.target
+WantedBy=
+Before=local-fs.target umount.target
+After="systemd-fsck@dev-disk-by\\x2duuid-86D8\\x2dC3F6.service" system.slice blockdev@dev-nvme0n1p1.target "blockdev@dev-disk-by\\x2duuid-86D8\\x2dC3F6.target" -.mount systemd-journald.socket local-fs-pre.target dev-nvme0n1p1.device
+LoadState=loaded
+ActiveState=active
+DefaultDependencies=yes
+### home.mount
+Id=home.mount
+Requires=-.mount dev-mapper-root.device system.slice
+Wants=
+RequiredBy=local-fs.target session-2.scope
+WantedBy=
+Before=systemd-user-sessions.service session-2.scope umount.target local-fs.target
+After="blockdev@dev-disk-by\\x2duuid-1d02a454\\x2dc549\\x2d4a35\\x2db567\\x2d89d60902af8e.target" systemd-journald.socket system.slice dev-mapper-root.device blockdev@dev-mapper-root.target local-fs-pre.target -.mount
+LoadState=loaded
+ActiveState=active
+DefaultDependencies=yes
+### var-log.mount
+Id=var-log.mount
+Requires=-.mount system.slice dev-mapper-root.device
+Wants=
+RequiredBy=systemd-update-utmp.service systemd-journal-flush.service local-fs.target
+WantedBy=
+Before=systemd-update-utmp.service systemd-journal-flush.service umount.target local-fs.target
+After=systemd-journald.socket blockdev@dev-mapper-root.target dev-mapper-root.device system.slice "blockdev@dev-disk-by\\x2duuid-1d02a454\\x2dc549\\x2d4a35\\x2db567\\x2d89d60902af8e.target" local-fs-pre.target -.mount
+LoadState=loaded
+ActiveState=active
+DefaultDependencies=yes
+## generator
+-.mount
+boot.mount
+dev-disk-by\x2duuid-070be1ea\x2de5fc\x2d46aa\x2da6b2\x2dadf9df7656ac.device.d
+dev-disk-by\x2duuid-1f8a5361\x2d4f35\x2d449a\x2dbb30\x2d63669df878d1.device.d
+fast.mount
+home.mount
+local-fs.target.requires
+local-fs.target.wants
+sockets.target.wants
+sshd-unix-local.socket
+sshd-unix-local@.service
+swap-swapfile.swap
+swap.target.requires
+tmp.mount
+var-cache-pacman-pkg.mount
+var-log.mount
+## local-fs.target wants
+fast.mount
+systemd-remount-fs.service
+tmp.mount
+## systemd-escape
+/tmp -> tmp.mount
+/fast -> fast.mount
+/var/log -> var-log.mount
+/boot -> boot.mount

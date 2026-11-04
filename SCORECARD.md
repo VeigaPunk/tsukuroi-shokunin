@@ -6797,3 +6797,63 @@ adjacency8 unchanged. Observed support checks find no new harm; their finite sco
 is not a universal no-harm proof. Overall round not admitted by the author: C2 misses.
 Planned: fix future instrument identity controls before freeze; no next round started.
 
+
+## Round 81 — declaration (before wave; author trials already run)
+
+Base `96ad75b84160da58efaee4997576ce718fd72e2b`. Lowest non-retired
+axes remain depth8 and adjacency8; C1 works depth. Other ordinals remain
+coverage9/operability9/freshness9/calibration9. No retirement, promotion or
+capability acquisition is pre-claimed. L1 holds the planner because the
+validator prohibits that role. One v1 wave of twelve seats is planned,
+three attack roles plus a sentinel probe, one connector, no residual.
+
+**Chronology defect, not a retroactive freeze:** the L1 authored and scored
+candidate files before writing this declaration. The thirteen controls in
+`before/controls.json` actually ran before this declaration, but candidate
+scoring did too. This is not a compliant pre-data freeze. The trial outputs
+and subsequent implementation fixes are not backdated; even green final
+finite measurements cannot erase this procedural miss. The following
+predicates and targets will remain unchanged through the wave.
+
+| Claim | Axis | Predicate and target | Counting command | Kill rule |
+|---|---|---|---|---|
+| C1 | depth8; sourced S331/S332 | Exactly eight verified fstab-to-mount rows, eight distinct settings, and at least two located measured legs: count0→8, finding met, rc0 | `python3 tools/count-mount-rows-r81.py --revision <REV>` | any unmet frozen R1–R7 or target conjunct; source-inconsistent statement or companion; absent/tampered pinned evidence; instrument alteration after this declaration |
+| C2 | operability9 | Six exported public-CLI cases match the frozen rc/token table: count3→6, finding met, rc0 | `python3 tools/measure-round81.py --revision <REV>` | any mismatched case; no actual tool execution; a claimed public-path selftest that is helper-only; candidate-running counter changed after this declaration |
+| C3 | freshness9 | The existing knowledge-header gate reports finding_count2→0, rc1→0, after seven pinned snapshot files actually re-verify and the two operative dates are appended | `python3 tools/check-knowledge-header.py --revision <REV>` | any remaining header finding; any of the seven snapshot rechecks fails; rewriting the two filed header lines instead of appending; a date not supported by this round's execution |
+
+C1 R1–R7 and the exact target conjunction are in the counter header. C1
+before is the base registry plus this round's committed source/capture inputs
+with the note absent: count0, note-absent, rc1. The untouched historical base
+predates those inputs and instead returns could-not-evaluate rc2; this is
+not relabelled as an assessed base-tree verdict. The declaration-only commit
+will provide the revision-bound count0 before state.
+C2's untouched base scores3/6 with the frozen table supplied by `--table`
+(the base predates that table); C3's actual base has two header findings.
+Do-nothing controls therefore miss all three targets. C1 actual-path
+positive8, wrong-quote7, own-work-rule7, missing-measured count8/unmet rc1,
+and snapshot-tampered rc2 were executed. C2 actual-path positive6,
+blanket-green1 and blanket-refusal2 were executed. No filename-derived
+registry label is invented: `before/actual-registry-identities.json` keeps
+the literal current rows, including transaction-order-r39.
+
+Finite limits: located text is not semantic entailment. A case-aware forger
+can simulate a finite behavioural battery, and this is not authenticity or
+whole-registry conformance. Human source review and genuine self-invocation
+remain explicit kill rules, not guaranteed by string matches.
+The newer instrument's own selftest exercises a conformant/defective double;
+its helper-level orchestration is not presented as complete public-self-
+invocation coverage. Round80's failed target and recorded digest remain history.
+
+Pinned instrument SHA256:
+`count-mount-rows-r81.py` = `80351a2868a277899d350ad434f4c07bc3a46efbd1059ae054036ef6835bfa7a`;
+`measure-round81.py` = `0e94c9b4a9bc0f3ab92ec33005ea2d8743f558ccac26719adcf1765bfd3f5db9`.
+Frozen table = `6dbf5624283cff011edba8d63fc5814871fc4254cfc003481b0482fa816984b3`;
+source manifest = `41e80e89fd9c5b777f9bbaf282ebc805ad1a1515d1e8652ecfe3313069308cc4`;
+host generator capture = `8e1bb73bcd012978512e8a24ca9f8d2d6f5433b8b3d03ca8a5d26675609ee4f8`.
+
+Ground sweep: `git grep -l -i 'fstab\|automount\|systemd.mount\|x-systemd' -- corpus/`
+at base found SOURCES, boot-chain-r17, degraded-triage-r4 and round-18 lesson,
+not a mount-unit decision plane. A proposed ALPM hook plane was discarded
+before declaration: r38/r39/r40 already hold it. Census start rc0, rows330.
+Assimilation: none; no staged package row is adopted. No operator input is edited.
+

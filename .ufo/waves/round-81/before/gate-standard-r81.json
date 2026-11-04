@@ -1,0 +1,82 @@
+{
+  "claim": "C2",
+  "instrument": "tools/measure-round81.py",
+  "frozen": "2026-11-04, before any after-measurement",
+  "cases": {
+    "A-selftest": {
+      "argv": [
+        "--selftest"
+      ],
+      "rc": 0,
+      "token": "SELFTEST total=6 passed=6 failed=0"
+    },
+    "B-met": {
+      "argv": [
+        "--claim",
+        "C1",
+        "--fixture",
+        "{work}"
+      ],
+      "rc": 0,
+      "token": "\"met\": true"
+    },
+    "C-mismatch": {
+      "argv": [
+        "--claim",
+        "C1",
+        "--fixture",
+        "{work}"
+      ],
+      "rc": 1,
+      "token": "matrix-mismatch",
+      "mutations": [
+        {
+          "path": "corpus/knowledge/service-restart-matrix-r80.json",
+          "action": "json-set",
+          "keys": [
+            "url"
+          ],
+          "value": "https://example.invalid/other.xml"
+        }
+      ]
+    },
+    "D-tampered": {
+      "argv": [
+        "--claim",
+        "C1",
+        "--fixture",
+        "{work}"
+      ],
+      "rc": 2,
+      "token": "snapshot_tampered",
+      "mutations": [
+        {
+          "path": ".ufo/waves/round-80/before/expected.json",
+          "action": "write",
+          "text": "{}\n"
+        }
+      ]
+    },
+    "E-absent": {
+      "argv": [
+        "--claim",
+        "C1",
+        "--fixture",
+        "{work}"
+      ],
+      "rc": 2,
+      "token": "snapshot_absent",
+      "mutations": [
+        {
+          "path": ".ufo/waves/round-80/before/systemd.service.xml",
+          "action": "unlink"
+        }
+      ]
+    },
+    "F-noargs": {
+      "argv": [],
+      "rc": 2,
+      "token": ""
+    }
+  }
+}

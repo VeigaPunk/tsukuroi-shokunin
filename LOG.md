@@ -3582,3 +3582,31 @@ receive no fictitious attack credit. No capability/frontier/ordinal promotion.
 Overall honest stop on C2; outside closure pending. Fleet sweep found only
 operator/sibling/unknown files, no identifiable round80 lane artifact; untouched.
 
+
+## Round81 — declaration, controls and round80 evidence erratum
+
+Motivation: `corpus/lessons/round-80-verifier-spotcheck.md` routed defects1–4:
+actual identity controls, a helper-only selftest and wrong tamper exit map,
+the contradictory KR red-file digest, and two inherited header findings.
+Claims and immutable targets are recorded in SCORECARD Round81; supporting
+procedure and thirteen observed controls are
+`.ufo/waves/round-81/before/run-controls.py` and `before/controls.json`.
+The C1 host task read this boot's fstab-generated units and dependency dirs;
+no host service, package or configuration was changed.
+
+**Chronology erratum R81-PREDECLARATION-SCORING:** candidate author trials ran
+before the declaration. They cannot be relabelled pre-data controls or used
+to claim a valid earlier freeze. Final measurements and source corrections
+will still land, with honest procedural non-admission.
+
+**R80-KR-RED-DIGEST erratum (append-only):** supersedes the red-file digest
+in round80 `w1/ExecKR/tool.sha256.txt:3`, not the production digest or the
+historical execution report. The listed `908592d2f8a209fdd070c6adc3157f04d69fcfe6815bda5ceb3d9981848ac97d`
+is the unmutated production file. The retained unique-return mutation recipe
+instead derives `f9a9ad74e1d1d72f6dc0eb3d041c1485587f53eb4b296f9922effa4ce4297113`,
+as the outside round80 spotcheck independently calculated. The historical
+red-file digest is contradictory and not verified; its old bytes stay.
+Transaction's red rc3 remains reported in its report/digests text, not a
+separately bound rc receipt. Two tool digests do not inventory an entire
+exact-revision sandbox. No earlier rejected claim is repaired by this erratum.
+

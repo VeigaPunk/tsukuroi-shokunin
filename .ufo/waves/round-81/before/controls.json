@@ -1,0 +1,232 @@
+{
+  "base": "96ad75b84160da58efaee4997576ce718fd72e2b",
+  "chronology": "Author trials and candidate scoring occurred BEFORE declaration; no pre-data freeze is claimed.",
+  "hashes": {
+    "tools/count-mount-rows-r81.py": "80351a2868a277899d350ad434f4c07bc3a46efbd1059ae054036ef6835bfa7a",
+    "tools/measure-round81.py": "0e94c9b4a9bc0f3ab92ec33005ea2d8743f558ccac26719adcf1765bfd3f5db9",
+    ".ufo/waves/round-81/before/gate-standard-r81.json": "6dbf5624283cff011edba8d63fc5814871fc4254cfc003481b0482fa816984b3"
+  },
+  "records": [
+    {
+      "name": "count-mount-rows-r81.py-selftest",
+      "argv": [
+        "/usr/bin/python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-mount-rows-r81.py",
+        "--selftest"
+      ],
+      "expected_rc": 0,
+      "expected_count": null,
+      "expected_token": "failed=0",
+      "rc": 0,
+      "count": null,
+      "stdout": "SELFTEST total=6 passed=6 failed=0\n",
+      "stderr": "",
+      "holds": true
+    },
+    {
+      "name": "measure-round81.py-selftest",
+      "argv": [
+        "/usr/bin/python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/measure-round81.py",
+        "--selftest"
+      ],
+      "expected_rc": 0,
+      "expected_count": null,
+      "expected_token": "failed=0",
+      "rc": 0,
+      "count": null,
+      "stdout": "SELFTEST total=2 passed=2 failed=0\n",
+      "stderr": "",
+      "holds": true
+    },
+    {
+      "name": "no-work-C2",
+      "argv": [
+        "/usr/bin/python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/measure-round81.py",
+        "--revision",
+        "96ad75b84160da58efaee4997576ce718fd72e2b",
+        "--table",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-81/before/gate-standard-r81.json"
+      ],
+      "expected_rc": 1,
+      "expected_count": 3,
+      "expected_token": null,
+      "rc": 1,
+      "count": 3,
+      "stdout": "{\"claim\": \"C2\", \"revision\": \"96ad75b84160da58efaee4997576ce718fd72e2b\", \"count\": 3, \"target\": 6, \"finding\": \"gate-standard\", \"cases\": [{\"case\": \"A-selftest\", \"ok\": false, \"rc\": 0, \"expected_rc\": 0, \"token\": \"SELFTEST total=6 passed=6 failed=0\", \"observed\": \"SELFTEST total=2 passed=2 failed=0\"}, {\"case\": \"B-met\", \"ok\": true, \"rc\": 0, \"expected_rc\": 0, \"token\": \"\\\"met\\\": true\", \"observed\": \"{\\\"claim\\\": \\\"C1\\\", \\\"revision\\\": \\\"fixture\\\", \\\"count\\\": 42, \\\"target\\\": 42, \\\"finding\\\": \\\"met\\\", \\\"met\\\": true}\"}, {\"case\": \"C-mismatch\", \"ok\": true, \"rc\": 1, \"expected_rc\": 1, \"token\": \"matrix-mismatch\", \"observed\": \"{\\\"claim\\\": \\\"C1\\\", \\\"revision\\\": \\\"fixture\\\", \\\"count\\\": 0, \\\"target\\\": 42, \\\"finding\\\": \\\"matrix-mismatch\\\", \\\"met\\\": false}\"}, {\"case\": \"D-tampered\", \"ok\": false, \"rc\": 1, \"expected_rc\": 2, \"token\": \"snapshot_tampered\", \"observed\": \"{\\\"claim\\\": \\\"C1\\\", \\\"revision\\\": \\\"fixture\\\", \\\"count\\\": 0, \\\"target\\\": 42, \\\"finding\\\": \\\"snapshot_tampered\\\", \\\"met\\\": false}\"}, {\"case\": \"E-absent\", \"ok\": false, \"rc\": 1, \"expected_rc\": 2, \"token\": \"snapshot_absent\", \"observed\": \"{\\\"claim\\\": \\\"C1\\\", \\\"revision\\\": \\\"fixture\\\", \\\"count\\\": 0, \\\"target\\\": 42, \\\"finding\\\": \\\"missing-or-invalid:FileNotFoundError\\\", \\\"met\\\": false}\"}, {\"case\": \"F-noargs\", \"ok\": true, \"rc\": 2, \"expected_rc\": 2, \"token\": \"\", \"observed\": \"usage: measure-round80.py [-h] [--claim {C1,C2}] [--revision REVISION |\\n                          --fixture FIXTURE] [--selftest]\\nmeasure-round80.py: error: --claim and --revision or --fixture require\"}]}\n",
+      "stderr": "",
+      "holds": true
+    },
+    {
+      "name": "no-work-C3",
+      "argv": [
+        "/usr/bin/python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-knowledge-header.py",
+        "--revision",
+        "96ad75b84160da58efaee4997576ce718fd72e2b"
+      ],
+      "expected_rc": 1,
+      "expected_count": 2,
+      "expected_token": "KNOWLEDGE-HEADER-VALUE",
+      "rc": 1,
+      "count": 2,
+      "stdout": "{\"branch\": \"master\", \"branch_tip\": \"96ad75b84160da58efaee4997576ce718fd72e2b\", \"clean_count\": 96, \"complete_count\": 98, \"finding_count\": 2, \"findings\": [{\"detail\": \"verified-at: carries no ISO date (YYYY-MM-DD) at line 4\", \"id\": \"KNOWLEDGE-HEADER-VALUE\", \"site\": \"corpus/knowledge/modprobe-config-plane-r72.md\"}, {\"detail\": \"verified-at: carries no ISO date (YYYY-MM-DD) at line 4\", \"id\": \"KNOWLEDGE-HEADER-VALUE\", \"site\": \"corpus/knowledge/module-parameter-plane-r71.md\"}], \"note_count\": 98, \"notes\": [{\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/adjacency-anchors-r19.md\", \"problems\": []}, {\"lines\": {\"recheck\": 221, \"source\": 219, \"verified-at\": 220}, \"path\": \"corpus/knowledge/adjacency-handoffs-fleet-r1.md\", \"problems\": []}, {\"lines\": {\"recheck\": 4, \"source\": 3, \"verified-at\": 5}, \"path\": \"corpus/knowledge/adjacency-mori-oom-r27.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/adjacency-recheck-2026-10-19.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/adjacency-recheck-r66.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/alpm-package-anatomy-r41.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/arch-news-gate-2026.md\", \"problems\": []}, {\"lines\": {\"recheck\": 254, \"source\": 252, \"verified-at\": 253}, \"path\": \"corpus/knowledge/aur-drift-receipt-r9.md\", \"problems\": []}, {\"lines\": {\"recheck\": 139, \"source\": 137, \"verified-at\": 138}, \"path\": \"corpus/knowledge/aur-risk-plane-ver-s6.md\", \"problems\": []}, {\"lines\": {\"recheck\": 190, \"source\": 188, \"verified-at\": 189}, \"path\": \"corpus/knowledge/aur-risk-plane-ver-s7.md\", \"problems\": []}, {\"lines\": {\"recheck\": 347, \"source\": 345, \"verified-at\": 346}, \"path\": \"corpus/knowledge/aur-risk-plane.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/boot-chain-r17.md\", \"problems\": []}, {\"lines\": {\"recheck\": 317, \"source\": 315, \"verified-at\": 316}, \"path\": \"corpus/knowledge/boot-plane.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/boot-writers-r19.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/btrfs-repair-r31.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/btrfs-scrub-grounding-r45.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/btrfs-scrub-limit-revert-r67.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/btrfs-scrub-record-r42.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/btrfs-scrub-record-r43.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/btrfs-scrub-record-r44.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/btrfs-space-r30.md\", \"problems\": []}, {\"lines\": {\"recheck\": 469, \"source\": 467, \"verified-at\": 468}, \"path\": \"corpus/knowledge/calibration-synthesis.md\", \"problems\": []}, {\"lines\": {\"recheck\": 189, \"source\": 187, \"verified-at\": 188}, \"path\": \"corpus/knowledge/census-closeout-receipt-r10.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/census-identity-r46.md\", \"problems\": []}, {\"lines\": {\"recheck\": 415, \"source\": 413, \"verified-at\": 414}, \"path\": \"corpus/knowledge/closeout-r11.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/contract-corrections-r20.md\", \"problems\": []}, {\"lines\": {\"recheck\": 5, \"source\": 3, \"verified-at\": 4}, \"path\": \"corpus/knowledge/coredump-count-unit-r34.md\", \"problems\": []}, {\"lines\": {\"recheck\": 632, \"source\": 630, \"verified-at\": 631}, \"path\": \"corpus/knowledge/degraded-triage-r4.md\", \"problems\": []}, {\"lines\": {\"recheck\": 268, \"source\": 266, \"verified-at\": 267}, \"path\": \"corpus/knowledge/driver-firmware-plane.md\", \"problems\": []}, {\"lines\": {\"recheck\": 9, \"source\": 7, \"verified-at\": 8}, \"path\": \"corpus/knowledge/errno-contract-variance-r37.md\", \"problems\": []}, {\"lines\": {\"recheck\": 225, \"source\": 223, \"verified-at\": 224}, \"path\": \"corpus/knowledge/executor-test-sufficiency.md\", \"problems\": []}, {\"lines\": {\"recheck\": 313, \"source\": 311, \"verified-at\": 312}, \"path\": \"corpus/knowledge/foreign-provenance-r6.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/host-drift-recheck-r64.md\", \"problems\": []}, {\"lines\": {\"recheck\": 575, \"source\": 573, \"verified-at\": 574}, \"path\": \"corpus/knowledge/host-health-report-r3.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/host-transition-drift-r53.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/initramfs-v42-sysroot-recovery.md\", \"problems\": []}, {\"lines\": {\"recheck\": 441, \"source\": 439, \"verified-at\": 440}, \"path\": \"corpus/knowledge/journal-boot-plane.md\", \"problems\": []}, {\"lines\": {\"recheck\": 5, \"source\": 3, \"verified-at\": 4}, \"path\": \"corpus/knowledge/journalctl-v262-field-filter-r36.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/journald-path-usage-r78.md\", \"problems\": []}, {\"lines\": {\"recheck\": 5, \"source\": 3, \"verified-at\": 4}, \"path\": \"corpus/knowledge/journald-retention-plane-r76.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/journald-space-arithmetic-r77.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/kernel-taint-plane-r69.md\", \"problems\": []}, {\"lines\": {\"recheck\": 6, \"source\": 3, \"verified-at\": 5}, \"path\": \"corpus/knowledge/kernel-taint-r27.md\", \"problems\": []}, {\"lines\": {\"recheck\": 346, \"source\": 344, \"verified-at\": 345}, \"path\": \"corpus/knowledge/kill-event-deep-r8.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 4, \"verified-at\": 5}, \"path\": \"corpus/knowledge/kill-oom-boundary-r33.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/linux-v73-pinwatch-r68.md\", \"problems\": []}, {\"lines\": {\"recheck\": 187, \"source\": 185, \"verified-at\": 186}, \"path\": \"corpus/knowledge/memory-arm-mutants-s8.md\", \"problems\": []}, {\"lines\": {\"recheck\": 257, \"source\": 255, \"verified-at\": 256}, \"path\": \"corpus/knowledge/memory-arm-ver-s8.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/memory-pressure-r25.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/mkinitcpio42-onrelease-r64.md\", \"problems\": []}, {\"lines\": {\"recheck\": 5, \"source\": 3, \"verified-at\": 4}, \"path\": \"corpus/knowledge/modprobe-config-plane-r72.md\", \"problems\": [\"verified-at: carries no ISO date (YYYY-MM-DD) at line 4\"]}, {\"lines\": {\"recheck\": 5, \"source\": 3, \"verified-at\": 4}, \"path\": \"corpus/knowledge/module-parameter-plane-r71.md\", \"problems\": [\"verified-at: carries no ISO date (YYYY-MM-DD) at line 4\"]}, {\"lines\": {\"recheck\": 5, \"source\": 3, \"verified-at\": 4}, \"path\": \"corpus/knowledge/mount-errno-contract-r37.md\", \"problems\": []}, {\"lines\": {\"recheck\": 438, \"source\": 436, \"verified-at\": 437}, \"path\": \"corpus/knowledge/oom-event-plane.md\", \"problems\": []}, {\"lines\": {\"recheck\": 328, \"source\": 326, \"verified-at\": 327}, \"path\": \"corpus/knowledge/package-state-plane.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/pacman-backup-files-r35.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/pacman-exec-environment-r40.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/pacman-hook-order-r38.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/pacman-transaction-order-r39.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/pacnew-plane.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/partial-upgrade-recheck-r15.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/path-reconciliation-r23.md\", \"problems\": []}, {\"lines\": {\"recheck\": 94, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/pause-lift-gate-r24.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/root-dac-correction-r13.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/root-dac-decision-r12.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/seat-boundary-r22.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/section-citation-errata-r16.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/selector-contract-r21-corrected.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/selector-contract-r21.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/service-restart-matrix-r80.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/snapper-eacces-mechanism.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/source-locator-clarification-r15.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/source-scope-correction-r14.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/storage-health-r26.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/structured-edit-r23.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/systemd-dependency-propagation-r79.md\", \"problems\": []}, {\"lines\": {\"recheck\": 5, \"source\": 3, \"verified-at\": 4}, \"path\": \"corpus/knowledge/systemd-job-transaction-plane-r75.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/systemd-unit-fragment-plane-r74.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/systemd-unit-load-plane-r73.md\", \"problems\": []}, {\"lines\": {\"recheck\": 270, \"source\": 268, \"verified-at\": 269}, \"path\": \"corpus/knowledge/systemd-user-plane.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/systemd262-credentials-boot-policy-r66.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/systemd262-uki-pcr-r65.md\", \"problems\": []}, {\"lines\": {\"recheck\": 338, \"source\": 336, \"verified-at\": 337}, \"path\": \"corpus/knowledge/timer-drift-plane.md\", \"problems\": []}, {\"lines\": {\"recheck\": 496, \"source\": 494, \"verified-at\": 495}, \"path\": \"corpus/knowledge/update-safety-note.md\", \"problems\": []}, {\"lines\": {\"recheck\": 366, \"source\": 364, \"verified-at\": 365}, \"path\": \"corpus/knowledge/update-safety-v2.md\", \"problems\": []}, {\"lines\": {\"recheck\": 393, \"source\": 391, \"verified-at\": 392}, \"path\": \"corpus/knowledge/update-safety-v3.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/windows-driver-query-plane-r61.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/windows-eventlog-plane-r58.md\", \"problems\": []}, {\"lines\": {\"recheck\": 4, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/windows-host-plane-r53.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/windows-pagefile-config-plane-r62.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/windows-power-config-plane-r63.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/windows-registry-read-plane-r60.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/windows-scheduled-task-status-plane-r59.md\", \"problems\": []}, {\"lines\": {\"recheck\": 4, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/windows-services-config-plane-r56.md\", \"problems\": []}, {\"lines\": {\"recheck\": 4, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/windows-services-plane-r54.md\", \"problems\": []}, {\"lines\": {\"recheck\": 4, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/windows-services-plane-r55.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/windows-services-sddl-plane-r57.md\", \"problems\": []}, {\"lines\": {\"recheck\": 3, \"source\": 1, \"verified-at\": 2}, \"path\": \"corpus/knowledge/xfs-storage-plane-r70.md\", \"problems\": []}], \"origin_tip\": \"96ad75b84160da58efaee4997576ce718fd72e2b\", \"revision\": \"96ad75b84160da58efaee4997576ce718fd72e2b\", \"scope\": \"every *.md under corpus/knowledge/ at the bound revision; column-0 header keys outside fenced blocks; operative (last) value per key; read-only, no host action taken\", \"status\": \"FAIL\"}\n",
+      "stderr": "",
+      "holds": true
+    },
+    {
+      "name": "no-work-C1-input-overlay",
+      "argv": [
+        "/usr/bin/python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-mount-rows-r81.py",
+        "--fixture",
+        "/fast/scratch/hyaku/tsukuroi-r81/l1-controls/controls-0tixnpgn/before"
+      ],
+      "expected_rc": 1,
+      "expected_count": 0,
+      "expected_token": "note-absent",
+      "rc": 1,
+      "count": 0,
+      "stdout": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 8, \"finding\": \"note-absent\", \"problems\": []}\n",
+      "stderr": "",
+      "holds": true
+    },
+    {
+      "name": "actual-identity-C1-positive",
+      "argv": [
+        "/usr/bin/python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-mount-rows-r81.py",
+        "--fixture",
+        "/fast/scratch/hyaku/tsukuroi-r81/l1-controls/controls-0tixnpgn/positive"
+      ],
+      "expected_rc": 0,
+      "expected_count": 8,
+      "expected_token": "\"finding\": \"met\"",
+      "rc": 0,
+      "count": 8,
+      "stdout": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 8, \"target\": 8, \"finding\": \"met\", \"problems\": []}\n",
+      "stderr": "",
+      "holds": true
+    },
+    {
+      "name": "wrong-quote",
+      "argv": [
+        "/usr/bin/python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-mount-rows-r81.py",
+        "--fixture",
+        "/fast/scratch/hyaku/tsukuroi-r81/l1-controls/controls-0tixnpgn/wrong-quote"
+      ],
+      "expected_rc": 1,
+      "expected_count": 7,
+      "expected_token": null,
+      "rc": 1,
+      "count": 7,
+      "stdout": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 7, \"target\": 8, \"finding\": \"unmet\", \"problems\": [\"MT1:R5-quote-not-located\"]}\n",
+      "stderr": "",
+      "holds": true
+    },
+    {
+      "name": "own-work-rule",
+      "argv": [
+        "/usr/bin/python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-mount-rows-r81.py",
+        "--fixture",
+        "/fast/scratch/hyaku/tsukuroi-r81/l1-controls/controls-0tixnpgn/own-work-rule"
+      ],
+      "expected_rc": 1,
+      "expected_count": 7,
+      "expected_token": null,
+      "rc": 1,
+      "count": 7,
+      "stdout": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 7, \"target\": 8, \"finding\": \"unmet\", \"problems\": [\"MT1:R3-source-kind\"]}\n",
+      "stderr": "",
+      "holds": true
+    },
+    {
+      "name": "missing-measured",
+      "argv": [
+        "/usr/bin/python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-mount-rows-r81.py",
+        "--fixture",
+        "/fast/scratch/hyaku/tsukuroi-r81/l1-controls/controls-0tixnpgn/missing-measured"
+      ],
+      "expected_rc": 1,
+      "expected_count": 8,
+      "expected_token": null,
+      "rc": 1,
+      "count": 8,
+      "stdout": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 8, \"target\": 8, \"finding\": \"unmet\", \"problems\": []}\n",
+      "stderr": "",
+      "holds": true
+    },
+    {
+      "name": "tampered-snapshot",
+      "argv": [
+        "/usr/bin/python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-mount-rows-r81.py",
+        "--fixture",
+        "/fast/scratch/hyaku/tsukuroi-r81/l1-controls/controls-0tixnpgn/tampered-snapshot"
+      ],
+      "expected_rc": 2,
+      "expected_count": 0,
+      "expected_token": null,
+      "rc": 2,
+      "count": 0,
+      "stdout": "{\"claim\": \"C1\", \"revision\": \"fixture\", \"count\": 0, \"target\": 8, \"finding\": \"snapshot_tampered\", \"problems\": []}\n",
+      "stderr": "",
+      "holds": true
+    },
+    {
+      "name": "candidate-C2-positive",
+      "argv": [
+        "/usr/bin/python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/measure-round81.py",
+        "--fixture",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin"
+      ],
+      "expected_rc": 0,
+      "expected_count": 6,
+      "expected_token": "\"finding\": \"met\"",
+      "rc": 0,
+      "count": 6,
+      "stdout": "{\"claim\": \"C2\", \"revision\": \"fixture\", \"count\": 6, \"target\": 6, \"finding\": \"met\", \"cases\": [{\"case\": \"A-selftest\", \"ok\": true, \"rc\": 0, \"expected_rc\": 0, \"token\": \"SELFTEST total=6 passed=6 failed=0\", \"observed\": \"SELFTEST total=6 passed=6 failed=0\"}, {\"case\": \"B-met\", \"ok\": true, \"rc\": 0, \"expected_rc\": 0, \"token\": \"\\\"met\\\": true\", \"observed\": \"{\\\"claim\\\": \\\"C1\\\", \\\"revision\\\": \\\"fixture\\\", \\\"count\\\": 42, \\\"target\\\": 42, \\\"finding\\\": \\\"met\\\", \\\"met\\\": true}\"}, {\"case\": \"C-mismatch\", \"ok\": true, \"rc\": 1, \"expected_rc\": 1, \"token\": \"matrix-mismatch\", \"observed\": \"{\\\"claim\\\": \\\"C1\\\", \\\"revision\\\": \\\"fixture\\\", \\\"count\\\": 0, \\\"target\\\": 42, \\\"finding\\\": \\\"matrix-mismatch\\\", \\\"met\\\": false}\"}, {\"case\": \"D-tampered\", \"ok\": true, \"rc\": 2, \"expected_rc\": 2, \"token\": \"snapshot_tampered\", \"observed\": \"{\\\"claim\\\": \\\"C1\\\", \\\"revision\\\": \\\"fixture\\\", \\\"count\\\": 0, \\\"target\\\": 42, \\\"finding\\\": \\\"snapshot_tampered\\\", \\\"met\\\": false}\"}, {\"case\": \"E-absent\", \"ok\": true, \"rc\": 2, \"expected_rc\": 2, \"token\": \"snapshot_absent\", \"observed\": \"{\\\"claim\\\": \\\"C1\\\", \\\"revision\\\": \\\"fixture\\\", \\\"count\\\": 0, \\\"target\\\": 42, \\\"finding\\\": \\\"snapshot_absent\\\", \\\"met\\\": false}\"}, {\"case\": \"F-noargs\", \"ok\": true, \"rc\": 2, \"expected_rc\": 2, \"token\": \"\", \"observed\": \"usage: measure-round80.py [-h] [--claim {C1,C2}] [--revision REVISION |\\n                          --fixture FIXTURE] [--digests DIGESTS] [--selftest]\\nmeasure-round80.py: error: --claim and --revision \"}]}\n",
+      "stderr": "",
+      "holds": true
+    },
+    {
+      "name": "blanket-green",
+      "argv": [
+        "/usr/bin/python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/measure-round81.py",
+        "--fixture",
+        "/fast/scratch/hyaku/tsukuroi-r81/l1-controls/controls-0tixnpgn/blanket-green"
+      ],
+      "expected_rc": 1,
+      "expected_count": 1,
+      "expected_token": null,
+      "rc": 1,
+      "count": 1,
+      "stdout": "{\"claim\": \"C2\", \"revision\": \"fixture\", \"count\": 1, \"target\": 6, \"finding\": \"gate-standard\", \"cases\": [{\"case\": \"A-selftest\", \"ok\": false, \"rc\": 0, \"expected_rc\": 0, \"token\": \"SELFTEST total=6 passed=6 failed=0\", \"observed\": \"{\\\"met\\\": true, \\\"finding\\\": \\\"met\\\", \\\"count\\\": 42}\"}, {\"case\": \"B-met\", \"ok\": true, \"rc\": 0, \"expected_rc\": 0, \"token\": \"\\\"met\\\": true\", \"observed\": \"{\\\"met\\\": true, \\\"finding\\\": \\\"met\\\", \\\"count\\\": 42}\"}, {\"case\": \"C-mismatch\", \"ok\": false, \"rc\": 0, \"expected_rc\": 1, \"token\": \"matrix-mismatch\", \"observed\": \"{\\\"met\\\": true, \\\"finding\\\": \\\"met\\\", \\\"count\\\": 42}\"}, {\"case\": \"D-tampered\", \"ok\": false, \"rc\": 0, \"expected_rc\": 2, \"token\": \"snapshot_tampered\", \"observed\": \"{\\\"met\\\": true, \\\"finding\\\": \\\"met\\\", \\\"count\\\": 42}\"}, {\"case\": \"E-absent\", \"ok\": false, \"rc\": 0, \"expected_rc\": 2, \"token\": \"snapshot_absent\", \"observed\": \"{\\\"met\\\": true, \\\"finding\\\": \\\"met\\\", \\\"count\\\": 42}\"}, {\"case\": \"F-noargs\", \"ok\": false, \"rc\": 0, \"expected_rc\": 2, \"token\": \"\", \"observed\": \"{\\\"met\\\": true, \\\"finding\\\": \\\"met\\\", \\\"count\\\": 42}\"}]}\n",
+      "stderr": "",
+      "holds": true
+    },
+    {
+      "name": "blanket-refusal",
+      "argv": [
+        "/usr/bin/python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/measure-round81.py",
+        "--fixture",
+        "/fast/scratch/hyaku/tsukuroi-r81/l1-controls/controls-0tixnpgn/blanket-refusal"
+      ],
+      "expected_rc": 1,
+      "expected_count": 2,
+      "expected_token": null,
+      "rc": 1,
+      "count": 2,
+      "stdout": "{\"claim\": \"C2\", \"revision\": \"fixture\", \"count\": 2, \"target\": 6, \"finding\": \"gate-standard\", \"cases\": [{\"case\": \"A-selftest\", \"ok\": false, \"rc\": 2, \"expected_rc\": 0, \"token\": \"SELFTEST total=6 passed=6 failed=0\", \"observed\": \"snapshot_tampered\"}, {\"case\": \"B-met\", \"ok\": false, \"rc\": 2, \"expected_rc\": 0, \"token\": \"\\\"met\\\": true\", \"observed\": \"snapshot_tampered\"}, {\"case\": \"C-mismatch\", \"ok\": false, \"rc\": 2, \"expected_rc\": 1, \"token\": \"matrix-mismatch\", \"observed\": \"snapshot_tampered\"}, {\"case\": \"D-tampered\", \"ok\": true, \"rc\": 2, \"expected_rc\": 2, \"token\": \"snapshot_tampered\", \"observed\": \"snapshot_tampered\"}, {\"case\": \"E-absent\", \"ok\": false, \"rc\": 2, \"expected_rc\": 2, \"token\": \"snapshot_absent\", \"observed\": \"snapshot_tampered\"}, {\"case\": \"F-noargs\", \"ok\": true, \"rc\": 2, \"expected_rc\": 2, \"token\": \"\", \"observed\": \"snapshot_tampered\"}]}\n",
+      "stderr": "",
+      "holds": true
+    }
+  ]
+}
