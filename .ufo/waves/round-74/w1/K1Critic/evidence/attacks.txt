@@ -1,0 +1,68 @@
+=== K1Critic Round 74 Adversarial Attack Battery ===
+Repo: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+
+--- ATTACK 1: C1 Instrument Answer-Key Check ---
+RESULT: count-uf-rows-r74.py uses synthetic fixtures (syn-alpha.c, etc.) in selftest.
+VERDICT: No real-corpus note/registry answer-key found in count-uf-rows-r74.py (D2 answered).
+
+--- ATTACK 2: C2 Instrument Answer-Key Leakage ---
+check-r73-routed-r74.py contains good_lesson answer key: True
+check-r73-routed-r74.py contains good_log answer key: True
+Answer-Key Test Execution:
+Extracted answer key passes checker: ROUTED_STALE=0 ROUTED_OK=2/2
+VERDICT: C2 instrument check-r73-routed-r74.py embeds verbatim solution blocks for both targets.
+
+--- ATTACK 3: C2 Denial and Token Jumble Channel ---
+3a. Explicit Denial Test:
+Denial text evaluation: ROUTED_STALE=0 ROUTED_OK=2/2 reasons=[]
+3b. Bare Token Salad Test:
+Bare token salad evaluation: ROUTED_STALE=0 ROUTED_OK=2/2 reasons=[]
+VERDICT: C2 checker is purely lexical with no syntax/semantic verification; accepts denials and token dumps.
+
+--- ATTACK 4: C1 Semantic Detachment (Negation & Salad Rows) ---
+C1 Negated Claims Test:
+Negated claims test: rc=0 met=1 findings=[]
+VERDICT: C1 counter evaluates only lexical token overlap (MIN_TOKENS>=6, share>=0.5) and verbatim quote existence; contradictory/negated statements pass.
+
+--- ATTACK 5: Unfalsifiable Conjunct in count-uf-rows-r74.py ---
+Expression: met = (len(parsed_rows) == TARGET_ROWS and len(findings) == 0 and len(sources_used) >= TARGET_SOURCES and len(snapshots_used) >= TARGET_SNAPSHOTS)
+Target parameters: TARGET_ROWS = 6, MAX_SNAPSHOT_REUSE = 2, TARGET_SNAPSHOTS = 3
+Mathematical Theorem: For any partition of N items into subsets of size at most M, the number of subsets S satisfies:
+  S >= ceil(N / M)
+For N=6, M=2: S >= ceil(6 / 2) = 3.
+Since MAX_SNAPSHOT_REUSE enforcement in loop adds a finding whenever reuse_count[snap] > 2,
+any execution with len(findings) == 0 and len(parsed_rows) == 6 MUST have len(snapshots_used) >= 3.
+Thus, the conjunct `and len(snapshots_used) >= TARGET_SNAPSHOTS` is 100% UNREACHABLE ON FALSE / UNFALSIFIABLE.
+Selftest on Mutant with conjunct removed: SELFTEST: PASS (13 cases, 13 passed, 0 failed)
+Exit code: 0
+VERDICT: The conjunct `len(snapshots_used) >= TARGET_SNAPSHOTS` is completely unfalsifiable; all 13 selftest cases pass when it is neutralized.
+
+--- ATTACK 6: Redundant Disjunct `or rinfo['kind'] == 'own-work'` ---
+In count-uf-rows-r74.py:
+  KINDS = {'spec', 'docs', 'paper', 'code', 'tool', 'dataset', 'talk', 'book', 'community'}
+  if rinfo['kind'] not in KINDS or rinfo['kind'] == 'own-work':
+Since 'own-work' is not in KINDS, whenever kind == 'own-work', `kind not in KINDS` is already True.
+The right-hand side `or rinfo['kind'] == 'own-work'` is dead code.
+Selftest on Mutant with own-work arm removed: SELFTEST: PASS (13 cases, 13 passed, 0 failed)
+Exit code: 0
+VERDICT: The second disjunct `or rinfo['kind'] == 'own-work'` is completely unreachable / dead code.
+
+--- ATTACK 7: Declaration Sizing Contradiction ---
+Declaration claim text (SCORECARD.md line 6092):
+  'Rows UF1-UF6, sources S309-S311 (v262 unit-file.c, load-fragment.c, unit-file.h)'
+  -> Cites exactly 3 sources: S309, S310, S311.
+Declaration kill rule (SCORECARD.md line 6092):
+  'kill rule: any finding > 0, rows != 6, verified != 6, sources < 3, snapshots < 3, census != 0, registry < 313, notes < 92'
+  -> Base registry is 308. 308 + 3 = 311. 'registry < 313' requires at least +5 rows!
+Declaration scope text (SCORECARD.md line 6095):
+  'C1 touches only its note, five registry rows, and its counter receipts'
+Swarm spec (w1-spec.json line 75):
+  'milestone': 'registry rows S309-S313, Gate quotes, search log and one honest rejection'
+ANALYSIS: If an implementer faithfully executes the frozen claim (adding sources S309-S311 for the 3 snapshots),
+the registry count is 311, which triggers the kill rule `registry < 313` and FAILS the round!
+The declaration text claims 3 sources (S309-S311) but hardcodes a predicate threshold expecting 5 rows (S309-S313).
+--- ATTACK 8: First-Match Block Shadowing Blocks Appended LOG.md ---
+First-match shadowing test execution:
+Append at EOF evaluation: ok=False msg=missing token '14' in LOG.md correction block body
+VERDICT: Appending a valid correction at EOF is shadowed by the older Round 73 block; frozen C2 checker rejects appended correction.
+

@@ -3219,3 +3219,42 @@ landed substantive files; no seat died.
 Evidence: `.ufo/waves/round-73/{before,after,w1}/`; lesson `corpus/lessons/round-73.md`; measured outcome in
 `SCORECARD.md` "Round 73 — measured outcome". The registry rows first landed after `## Leads` (census E12) and
 were moved into the Registry table before this commit (R73-REGISTRY-ROWS-OUTSIDE-TABLE).
+
+- **Round-73 count correction (appended round 74; R73-LOG-COUNT-STALE):**
+  The preceding entry's twelfth selftest case (12) for `tools/count-ul-rows-r73.py`
+  and checker growing to eleven cases (11) for `tools/check-r72-routed-r73.py`
+  are superseded by the final committed counts: 13 and 14 cases respectively.
+  Evidence: `SCORECARD.md` "Round 73 — instruments at wave close",
+  `.ufo/waves/round-73/after/wave-close-instruments.txt` and round-73 lesson Correction 2.
+  This unheaded append is E2Routed Form A: the frozen r74 checker shadows an EOF-headed
+  correction with this original Round-73 block (R2Reviewer HIGH-1). No original log text changed.
+
+## Round 74 (2026-11-04) — unit-fragment reading, literal claim miss, and r73 repairs
+
+Declaration `e51fb49d`, base real `d749a625b3054b7cb3435983fb9626ab3d0ed0c4`, dispatch `810daf13`.
+C1 depth sought the fragment-resolution plane, but its frozen volume alias clause is false:
+the pinned definition permits service/socket/target/device/timer/path (R1Reviewer F1).
+The sourced note lands the six true UF rows; **C1 is not verified as declared**.
+C2 freshness appends r73 quote-anchor Correction 3 and the preceding count correction,
+closing R73-GATE-QUOTE-LINE-DRIFT and R73-LOG-COUNT-STALE without rewriting historical bytes.
+
+New sources S309-S311 (v262 unit-file.c, load-fragment.c, unit-file.h) ground the note;
+S312-S313 retain two opened refusals. SKILL's read-only decision table, PROVINCE and README
+record the true scope and untested write paths. Host task: captured search paths and masks,
+read a timer alias; S1Scout re-fetched all snapshots and recaptured host checks without delta.
+QUALITY 106/107 capture the wrong-set and invalid-base-OID mistakes, with red/green evidence.
+
+One v1 wave, 12 seats: scout 1, executor 3, scribe 3, connector 1, reviewer 2, critic 1,
+mutation-tester 1; strict attack 4/12; L1 planner. WAVE-DONE received; w1-results.json
+contains nine nonempty outputs and three empty (SC1Entry, SC3Index, M1Mutation). SC1Entry
+left the reviewed note draft; L1 integrated it, the registry and docs. SC1Entry/SC3Index
+hit provider quota 429 (reset 2026-11-04T08:23Z); M1Mutation ended without a final output,
+so no completed mutation-battery claim is made. No dead seat was replaced.
+
+Frozen instruments unchanged: counter 94d46a5e… (13 selftests), checker 2da4ff1f… (6).
+E1Counter's scripted writer and semantic blind spots passed; R2Reviewer proved C2 first-block
+shadow, substring and direction defects. The production LOG repair uses E2Routed Form A;
+these are disclosed lexical limits, not silently changed scoring rules.
+Evidence: round-74 before/, w1/, w1-results.json; lesson round-74.md; SCORECARD errata.
+Scores remain depth 8 and freshness 9 (no numerical uplift). Entire round honest-stop
+because C1's literal frozen statement cannot be admitted. Final measurement receipt follows.

@@ -1,0 +1,1033 @@
+{
+  "frozen_sha256": "94d46a5edfcdc00858a1b1c37bc459322fc7e337fba19cc38a85776d0dd36482",
+  "fixtures": {
+    "control": {
+      "rc": 0,
+      "findings": []
+    },
+    "f_contig": {
+      "rc": 1,
+      "findings": [
+        [
+          0,
+          "non-contiguous IDs: [7, 2, 3, 4, 5, 6]"
+        ]
+      ]
+    },
+    "f_words": {
+      "rc": 1,
+      "findings": [
+        [
+          1,
+          "short statement (11 < 12)"
+        ]
+      ]
+    },
+    "f_ground_tokens": {
+      "rc": 1,
+      "findings": [
+        [
+          1,
+          "too few shared tokens (5 < 6)"
+        ]
+      ]
+    },
+    "f_ground_share": {
+      "rc": 1,
+      "findings": [
+        [
+          1,
+          "shared share too low (0.43 < 0.5)"
+        ]
+      ]
+    },
+    "f_unreg_src": {
+      "rc": 1,
+      "findings": [
+        [
+          1,
+          "source S999 not in registry"
+        ]
+      ]
+    },
+    "f_kind_bogus": {
+      "rc": 1,
+      "findings": [
+        [
+          1,
+          "source S401 invalid kind blog"
+        ],
+        [
+          2,
+          "source S401 invalid kind blog"
+        ]
+      ]
+    },
+    "f_kind_own": {
+      "rc": 1,
+      "findings": [
+        [
+          1,
+          "source S401 invalid kind own-work"
+        ],
+        [
+          2,
+          "source S401 invalid kind own-work"
+        ]
+      ]
+    },
+    "f_reg_dups": {
+      "rc": 1,
+      "findings": {}
+    },
+    "f_map_url": {
+      "rc": 1,
+      "findings": [
+        [
+          1,
+          "registry row S401 does not cite URL https://example.org/test/syn-alpha.c"
+        ],
+        [
+          2,
+          "registry row S401 does not cite URL https://example.org/test/syn-alpha.c"
+        ]
+      ]
+    },
+    "f_anchor": {
+      "rc": 1,
+      "findings": [
+        [
+          1,
+          "registry row S401 does not anchor syn-alpha.c"
+        ],
+        [
+          2,
+          "registry row S401 does not anchor syn-alpha.c"
+        ]
+      ]
+    },
+    "f_snap_unknown": {
+      "rc": 1,
+      "findings": [
+        [
+          6,
+          "unknown snapshot unknown.c"
+        ]
+      ]
+    },
+    "f_digest_mismatch": {
+      "rc": 1,
+      "findings": [
+        [
+          6,
+          "digest mismatch for syn-gamma.h"
+        ]
+      ]
+    },
+    "f_missing_snap": {
+      "rc": 1,
+      "findings": [
+        [
+          5,
+          "missing snapshot file syn-gamma.h"
+        ],
+        [
+          6,
+          "missing snapshot file syn-gamma.h"
+        ]
+      ]
+    },
+    "f_byte_mismatch": {
+      "rc": 1,
+      "findings": [
+        [
+          1,
+          "snapshot syn-alpha.c byte mismatch"
+        ],
+        [
+          2,
+          "snapshot syn-alpha.c byte mismatch"
+        ],
+        [
+          0,
+          "non-contiguous IDs: [3, 4, 5, 6]"
+        ]
+      ]
+    },
+    "f_quote_short": {
+      "rc": 1,
+      "findings": [
+        [
+          1,
+          "quote length out of bounds (3)"
+        ]
+      ]
+    },
+    "f_quote_long": {
+      "rc": 0,
+      "findings": []
+    },
+    "f_quote_pipe": {
+      "rc": 1,
+      "findings": [
+        [
+          1,
+          "quote contains pipe"
+        ],
+        [
+          1,
+          "quote not located in snapshot syn-alpha.c"
+        ]
+      ]
+    },
+    "f_quote_absent": {
+      "rc": 1,
+      "findings": [
+        [
+          1,
+          "quote not located in snapshot syn-alpha.c"
+        ]
+      ]
+    },
+    "f_reuse": {
+      "rc": 1,
+      "findings": [
+        [
+          3,
+          "malformed row shape"
+        ],
+        [
+          0,
+          "non-contiguous IDs: [1, 2, 4, 5, 6]"
+        ]
+      ]
+    },
+    "f_malformed": {
+      "rc": 1,
+      "findings": [
+        [
+          7,
+          "malformed row shape"
+        ]
+      ]
+    },
+    "f_seven": {
+      "rc": 1,
+      "findings": []
+    },
+    "f_few_sources": {
+      "rc": 1,
+      "findings": []
+    },
+    "f_few_snaps": {
+      "rc": 1,
+      "findings": [
+        [
+          5,
+          "malformed row shape"
+        ],
+        [
+          6,
+          "malformed row shape"
+        ]
+      ]
+    },
+    "f_map_not_dict": {
+      "rc": 1,
+      "findings": {}
+    }
+  },
+  "mutants": [
+    {
+      "mutant": "U01",
+      "clause": "id contiguity check",
+      "old": "    if parsed_rows != list(range(1, len(parsed_rows) + 1)):",
+      "new": "    if False and parsed_rows != list(range(1, len(parsed_rows) + 1)):",
+      "sha256": "f930acb61c3a9e3c986ab2eb413f32b7ac905a49379e7f1f0725692e8deeae91",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_contig",
+          "base_rc": 1,
+          "mutant_rc": 0,
+          "base_findings": [
+            [
+              0,
+              "non-contiguous IDs: [7, 2, 3, 4, 5, 6]"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U02",
+      "clause": "statement min words",
+      "old": "        if len(words) < MIN_WORDS:",
+      "new": "        if False and len(words) < MIN_WORDS:",
+      "sha256": "90a16ab6b349d8075a5fcb1f201381602c17dd9627f488a55f5b60a1e1f11486",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_words",
+          "base_rc": 1,
+          "mutant_rc": 0,
+          "base_findings": [
+            [
+              1,
+              "short statement (11 < 12)"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U03",
+      "clause": "grounding min tokens",
+      "old": "        if len(shared) < MIN_TOKENS:",
+      "new": "        if False and len(shared) < MIN_TOKENS:",
+      "sha256": "52a39a2383902bc168a58e75ee5ad3399131219dffc93aae184e50b86224720a",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_ground_tokens",
+          "base_rc": 1,
+          "mutant_rc": 0,
+          "base_findings": [
+            [
+              1,
+              "too few shared tokens (5 < 6)"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U04",
+      "clause": "grounding min share",
+      "old": "        if stmt_tokens and (len(shared) / len(stmt_tokens)) < MIN_SHARE:",
+      "new": "        if False and (len(shared) / len(stmt_tokens)) < MIN_SHARE:",
+      "sha256": "4aa379ea965c8d8092b48b0332e2a8c60634cba209c4b602a092096ac880cecc",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_ground_share",
+          "base_rc": 1,
+          "mutant_rc": 0,
+          "base_findings": [
+            [
+              1,
+              "shared share too low (0.43 < 0.5)"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U05",
+      "clause": "source registered",
+      "old": "        if src not in reg_rows:",
+      "new": "        if False and src not in reg_rows:",
+      "sha256": "1c80c557f7c1387188d4a99de3f4b973675487240547ced48ddcbac922432d66",
+      "selftest_rc": 1,
+      "selftest_verdict": "killed",
+      "targets": [
+        {
+          "fixture": "f_unreg_src",
+          "base_rc": 1,
+          "mutant_rc": "EXC",
+          "base_findings": [
+            [
+              1,
+              "source S999 not in registry"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": "KeyError: 'S999'"
+        }
+      ]
+    },
+    {
+      "mutant": "U06",
+      "clause": "source kind membership in KINDS",
+      "old": "            if rinfo[\"kind\"] not in KINDS or rinfo[\"kind\"] == \"own-work\":",
+      "new": "            if rinfo[\"kind\"] == \"own-work\":",
+      "sha256": "b77180b9ce01df90b153fa40a72c318e98194b49a27e41b6d8e8c6c5596f806c",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_kind_bogus",
+          "base_rc": 1,
+          "mutant_rc": 0,
+          "base_findings": [
+            [
+              1,
+              "source S401 invalid kind blog"
+            ],
+            [
+              2,
+              "source S401 invalid kind blog"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U07",
+      "clause": "source kind not own-work",
+      "old": "            if rinfo[\"kind\"] not in KINDS or rinfo[\"kind\"] == \"own-work\":",
+      "new": "            if rinfo[\"kind\"] not in KINDS:",
+      "sha256": "f416833f63f1c68d19b7f3fa604efc46b09b0162def8f9086fe84a597bb8954c",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_kind_own",
+          "base_rc": 1,
+          "mutant_rc": 1,
+          "base_findings": [
+            [
+              1,
+              "source S401 invalid kind own-work"
+            ],
+            [
+              2,
+              "source S401 invalid kind own-work"
+            ]
+          ],
+          "mutant_findings": [
+            [
+              1,
+              "source S401 invalid kind own-work"
+            ],
+            [
+              2,
+              "source S401 invalid kind own-work"
+            ]
+          ],
+          "verdict": "survived",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U08",
+      "clause": "registry duplicate ID",
+      "old": "    if reg_dups:",
+      "new": "    if False and reg_dups:",
+      "sha256": "e4cb86eb17fab61ab267f06f636edd50c3623b48c064ac500d35cfd69a0315bf",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_reg_dups",
+          "base_rc": 1,
+          "mutant_rc": 1,
+          "base_findings": {},
+          "mutant_findings": [
+            [
+              1,
+              "registry row S401 does not cite URL https://example.org/test/syn-alpha.c"
+            ],
+            [
+              1,
+              "registry row S401 does not anchor syn-alpha.c"
+            ],
+            [
+              2,
+              "registry row S401 does not cite URL https://example.org/test/syn-alpha.c"
+            ],
+            [
+              2,
+              "registry row S401 does not anchor syn-alpha.c"
+            ]
+          ],
+          "verdict": "token_lost",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U09",
+      "clause": "source cites map URL",
+      "old": "            if map_url and map_url not in rinfo[\"source_cell\"]:",
+      "new": "            if False and map_url not in rinfo[\"source_cell\"]:",
+      "sha256": "b4e8db502d1436b836f1c621a936e5778a462b65a60b31650343b2e692b1c8ae",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_map_url",
+          "base_rc": 1,
+          "mutant_rc": 0,
+          "base_findings": [
+            [
+              1,
+              "registry row S401 does not cite URL https://example.org/test/syn-alpha.c"
+            ],
+            [
+              2,
+              "registry row S401 does not cite URL https://example.org/test/syn-alpha.c"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U10",
+      "clause": "anchor cites snapshot basename",
+      "old": "            if snap not in rinfo[\"anchor\"]:",
+      "new": "            if False and snap not in rinfo[\"anchor\"]:",
+      "sha256": "ffdba589e6a52787bbb6c490ea90407f530dbb5e6df2bccca83ab6f04ff63735",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_anchor",
+          "base_rc": 1,
+          "mutant_rc": 0,
+          "base_findings": [
+            [
+              1,
+              "registry row S401 does not anchor syn-alpha.c"
+            ],
+            [
+              2,
+              "registry row S401 does not anchor syn-alpha.c"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U11",
+      "clause": "snapshot known in source map",
+      "old": "        if snap not in source_map:",
+      "new": "        if False and snap not in source_map:",
+      "sha256": "5084c7103a72fe9f8595d3c53bd2e82ebd162d2a30665ba4338dbdb1d49373d7",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_snap_unknown",
+          "base_rc": 1,
+          "mutant_rc": "EXC",
+          "base_findings": [
+            [
+              6,
+              "unknown snapshot unknown.c"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": "KeyError: 'unknown.c'"
+        }
+      ]
+    },
+    {
+      "mutant": "U12",
+      "clause": "note digest equals map sha256",
+      "old": "        if not isinstance(snap_info, dict) or snap_info.get(\"sha256\") != digest:",
+      "new": "        if not isinstance(snap_info, dict):",
+      "sha256": "ec91143a1e4a61b1dd71357f6fff06491798d3597586951f7129542a7fd30b36",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_digest_mismatch",
+          "base_rc": 1,
+          "mutant_rc": 1,
+          "base_findings": [
+            [
+              6,
+              "digest mismatch for syn-gamma.h"
+            ]
+          ],
+          "mutant_findings": [
+            [
+              6,
+              "snapshot syn-gamma.h byte mismatch"
+            ]
+          ],
+          "verdict": "token_lost",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U13",
+      "clause": "snapshot file exists",
+      "old": "        if raw_snap is None:",
+      "new": "        if False and raw_snap is None:",
+      "sha256": "c3f4120ab5f9190752cdf2458d3a5d9347d3213514e372fc121a6ff4bf78bc71",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_missing_snap",
+          "base_rc": 1,
+          "mutant_rc": "EXC",
+          "base_findings": [
+            [
+              5,
+              "missing snapshot file syn-gamma.h"
+            ],
+            [
+              6,
+              "missing snapshot file syn-gamma.h"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": "TypeError: object supporting the buffer API required"
+        }
+      ]
+    },
+    {
+      "mutant": "U14",
+      "clause": "snapshot file sha256 byte match",
+      "old": "        if actual_digest != digest:",
+      "new": "        if False and actual_digest != digest:",
+      "sha256": "87513741bd5aaf4ff8c8dd6fecff28f23d9b8a2671b5f8431efadd29fea43564",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_byte_mismatch",
+          "base_rc": 1,
+          "mutant_rc": 0,
+          "base_findings": [
+            [
+              1,
+              "snapshot syn-alpha.c byte mismatch"
+            ],
+            [
+              2,
+              "snapshot syn-alpha.c byte mismatch"
+            ],
+            [
+              0,
+              "non-contiguous IDs: [3, 4, 5, 6]"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U15",
+      "clause": "quote min words",
+      "old": "        if not (MIN_QUOTE_WORDS <= len(qwords) <= MAX_QUOTE_WORDS):",
+      "new": "        if not (0 <= len(qwords) <= MAX_QUOTE_WORDS):",
+      "sha256": "bba544e81605814b0df8d6906df0864821173e62bcd4dd8d22a9e969efa2d2d4",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_quote_short",
+          "base_rc": 1,
+          "mutant_rc": 0,
+          "base_findings": [
+            [
+              1,
+              "quote length out of bounds (3)"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U16",
+      "clause": "quote max words",
+      "old": "        if not (MIN_QUOTE_WORDS <= len(qwords) <= MAX_QUOTE_WORDS):",
+      "new": "        if not (MIN_QUOTE_WORDS <= len(qwords) <= 999):",
+      "sha256": "4f068c4821d84086660edb820be1e5ba34f11ff9630f7856484160ff7d2265a0",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_quote_long",
+          "base_rc": 0,
+          "mutant_rc": 0,
+          "base_findings": [],
+          "mutant_findings": [],
+          "verdict": "survived",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U17",
+      "clause": "quote contains no pipe",
+      "old": "        if \"|\" in quote:",
+      "new": "        if False and \"|\" in quote:",
+      "sha256": "26a64bd79c5b601b774e5685a099cf38f60be2d5b1fe48cc5f87772abaec307b",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_quote_pipe",
+          "base_rc": 1,
+          "mutant_rc": 1,
+          "base_findings": [
+            [
+              1,
+              "quote contains pipe"
+            ],
+            [
+              1,
+              "quote not located in snapshot syn-alpha.c"
+            ]
+          ],
+          "mutant_findings": [
+            [
+              1,
+              "quote not located in snapshot syn-alpha.c"
+            ]
+          ],
+          "verdict": "token_lost",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U18",
+      "clause": "quote verbatim in snapshot",
+      "old": "        if quote_norm and quote_norm not in snap_norm:",
+      "new": "        if False and quote_norm not in snap_norm:",
+      "sha256": "a667fd6c4b78288fbec4e94284df93d44b9e66bc636dd132022557b64ce923d5",
+      "selftest_rc": 3,
+      "selftest_verdict": "killed",
+      "targets": [
+        {
+          "fixture": "f_quote_absent",
+          "base_rc": 1,
+          "mutant_rc": 0,
+          "base_findings": [
+            [
+              1,
+              "quote not located in snapshot syn-alpha.c"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U19",
+      "clause": "snapshot reuse limit",
+      "old": "        if reuse_count[snap] > MAX_SNAPSHOT_REUSE:",
+      "new": "        if False and reuse_count[snap] > MAX_SNAPSHOT_REUSE:",
+      "sha256": "895eabacbb575e0d245f3aba8200cef8ccbea499a27b35d209e9dda6d9ef9af4",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_reuse",
+          "base_rc": 1,
+          "mutant_rc": 1,
+          "base_findings": [
+            [
+              3,
+              "malformed row shape"
+            ],
+            [
+              0,
+              "non-contiguous IDs: [1, 2, 4, 5, 6]"
+            ]
+          ],
+          "mutant_findings": [
+            [
+              3,
+              "malformed row shape"
+            ],
+            [
+              0,
+              "non-contiguous IDs: [1, 2, 4, 5, 6]"
+            ]
+          ],
+          "verdict": "survived",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U20",
+      "clause": "candidate row matches regex",
+      "old": "        if not m:\n            findings.append((line_no, \"malformed row shape\"))\n            continue",
+      "new": "        if False and not m:\n            findings.append((line_no, \"malformed row shape\"))\n            continue",
+      "sha256": "5625b2ecb4028e0163ddb15802efb6717d4a1d0605053eaaf2cd83771dc180f2",
+      "selftest_rc": 1,
+      "selftest_verdict": "killed",
+      "targets": [
+        {
+          "fixture": "f_malformed",
+          "base_rc": 1,
+          "mutant_rc": "EXC",
+          "base_findings": [
+            [
+              7,
+              "malformed row shape"
+            ]
+          ],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": "AttributeError: 'NoneType' object has no attribute 'group'"
+        }
+      ]
+    },
+    {
+      "mutant": "U21",
+      "clause": "target rows == 6",
+      "old": "        len(parsed_rows) == TARGET_ROWS",
+      "new": "        True # len(parsed_rows) == TARGET_ROWS",
+      "sha256": "1a3853fc88fe2689d976d47a5961463b8dd0eb25a9dfe024636ff4c00e6c8206",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_seven",
+          "base_rc": 1,
+          "mutant_rc": 0,
+          "base_findings": [],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U22",
+      "clause": "target verified == 6 (no findings)",
+      "old": "        and len(findings) == 0",
+      "new": "        and True # len(findings) == 0",
+      "sha256": "7401978de0855612b118db75561a5be953eb482c8b58e49a8e0102f57f74f82f",
+      "selftest_rc": 3,
+      "selftest_verdict": "killed",
+      "targets": [
+        {
+          "fixture": "f_words",
+          "base_rc": 1,
+          "mutant_rc": 0,
+          "base_findings": [
+            [
+              1,
+              "short statement (11 < 12)"
+            ]
+          ],
+          "mutant_findings": [
+            [
+              1,
+              "short statement (11 < 12)"
+            ]
+          ],
+          "verdict": "killed",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U23",
+      "clause": "target sources >= 3",
+      "old": "        and len(sources_used) >= TARGET_SOURCES",
+      "new": "        and True # len(sources_used) >= TARGET_SOURCES",
+      "sha256": "ef53d5a0b5cecaa7697bcf1860cc5f5e7fff0f5159cdcfb19f91c8579bbd1645",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_few_sources",
+          "base_rc": 1,
+          "mutant_rc": 0,
+          "base_findings": [],
+          "mutant_findings": [],
+          "verdict": "killed",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U24",
+      "clause": "target snapshots >= 3",
+      "old": "        and len(snapshots_used) >= TARGET_SNAPSHOTS",
+      "new": "        and True # len(snapshots_used) >= TARGET_SNAPSHOTS",
+      "sha256": "3e8588c2c507f7cd99991df7e190db926555089dffab3c15802e3d9559c49b2d",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_few_snaps",
+          "base_rc": 1,
+          "mutant_rc": 1,
+          "base_findings": [
+            [
+              5,
+              "malformed row shape"
+            ],
+            [
+              6,
+              "malformed row shape"
+            ]
+          ],
+          "mutant_findings": [
+            [
+              5,
+              "malformed row shape"
+            ],
+            [
+              6,
+              "malformed row shape"
+            ]
+          ],
+          "verdict": "survived",
+          "exception": null
+        }
+      ]
+    },
+    {
+      "mutant": "U25",
+      "clause": "source map root is dict",
+      "old": "        if not isinstance(source_map, dict):",
+      "new": "        if False and not isinstance(source_map, dict):",
+      "sha256": "2e8af7d899582ea274b72740fd14b8ecbee313c3837f9f8402e587eeefbaf048",
+      "selftest_rc": 0,
+      "selftest_verdict": "survived",
+      "targets": [
+        {
+          "fixture": "f_map_not_dict",
+          "base_rc": 1,
+          "mutant_rc": 1,
+          "base_findings": {},
+          "mutant_findings": [
+            [
+              1,
+              "unknown snapshot syn-alpha.c"
+            ],
+            [
+              2,
+              "unknown snapshot syn-alpha.c"
+            ],
+            [
+              3,
+              "unknown snapshot syn-beta.c"
+            ],
+            [
+              4,
+              "unknown snapshot syn-beta.c"
+            ],
+            [
+              5,
+              "unknown snapshot syn-gamma.h"
+            ],
+            [
+              6,
+              "unknown snapshot syn-gamma.h"
+            ]
+          ],
+          "verdict": "token_lost",
+          "exception": null
+        }
+      ]
+    }
+  ],
+  "selftest_cases": [
+    {
+      "case": "CONTROL",
+      "token": "met=1",
+      "single_clause": false
+    },
+    {
+      "case": "SHORT-STMT",
+      "token": "short statement",
+      "single_clause": true
+    },
+    {
+      "case": "ABSENT-QUOTE",
+      "token": "quote not located in snapshot",
+      "single_clause": true
+    },
+    {
+      "case": "QUOTE-TOO-LONG",
+      "token": "quote length out of bounds",
+      "single_clause": true
+    },
+    {
+      "case": "NON-CONTIGUOUS",
+      "token": "non-contiguous IDs",
+      "single_clause": false
+    },
+    {
+      "case": "UNREGISTERED-SRC",
+      "token": "source S999 not in registry",
+      "single_clause": true
+    },
+    {
+      "case": "SNAPSHOT-REUSE-3",
+      "token": "snapshot syn-alpha.c cited 3 > 2",
+      "single_clause": true
+    },
+    {
+      "case": "UNGROUNDED",
+      "token": "too few shared tokens",
+      "single_clause": false
+    },
+    {
+      "case": "MALFORMED-ROW",
+      "token": "malformed row shape",
+      "single_clause": true
+    },
+    {
+      "case": "DIGEST-SWAP",
+      "token": "digest mismatch for syn-alpha.c",
+      "single_clause": true
+    },
+    {
+      "case": "OWN-WORK-SOURCE",
+      "token": "source S401 invalid kind own-work",
+      "single_clause": true
+    },
+    {
+      "case": "DUPLICATE-REGISTRY-ID",
+      "token": "UF_REGISTRY duplicate id",
+      "single_clause": true
+    },
+    {
+      "case": "NON-MAP-MAPFILE",
+      "token": "UF_MAP malformed",
+      "single_clause": true
+    }
+  ]
+}

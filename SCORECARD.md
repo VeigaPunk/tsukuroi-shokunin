@@ -6095,3 +6095,36 @@ erratum naming old→new digests, so the before→after pair is same-instrument 
 Causal separability: C1 touches only its note, five registry rows, and its counter receipts; C2 touches
 only the round-73 lesson correction and one LOG.md correction entry. Each verifies without the other
 having landed (the counters are independent and read different files).
+
+## Round 74 — declaration errata and attack dispositions (append-only)
+
+1. **R74-DECL-ALIAS-SET (R1Reviewer F1).** C1's frozen clause incorrectly says
+   "service, socket, target, device, and volume". The pinned `unit-file.h:25-32` says
+   SERVICE, SOCKET, TARGET, DEVICE, TIMER, PATH. The note states that true set.
+   **C1 as literally declared is not verified, even if the mechanical counter reaches met=1.**
+   No replacement predicate, retroactive amendment, or depth score uplift is claimed.
+2. **R74-BASE-OID (R1Reviewer F2).** The declaration and dispatch's full base suffix is erroneous:
+   `d749a625f483c66f2a6f2005db3799630c776bc3` does not exist. The real base is
+   `d749a625b3054b7cb3435983fb9626ab3d0ed0c4`, parent of declaration `e51fb49d`.
+   The actual before receipt ran the resolving short `d749a625`; use that real object.
+   A missing-object run produces the same counts for the wrong reason (R1Reviewer receipt).
+3. **K1Critic D2 (sizing).** Three mined note-grounding sources S309-S311 plus two opened
+   refusals S312-S313 produce the frozen five-row registry increase, 308→313. Source count 3
+   is not total registry-row count 5; no threshold changes.
+4. **K1Critic D1/D7.** The snapshot conjunct is entailed by six rows and reuse cap two;
+   the own-work disjunct is entailed by exclusion from KINDS. These are named redundancy,
+   not independent sensitivity evidence. The instruments remain frozen unchanged.
+5. **R2Reviewer HIGH-1 / E2Routed F1.** A headed EOF LOG correction is shadowed by the
+   existing Round-73 block. The landed repair uses E2Routed Form A, an unheaded append
+   inside that last block; it is honest append-only prose and meets the frozen checker.
+6. **Named limits, not repaired in the frozen instrument:** C1 lexical overlap admits
+   negation, unanchored quotes, duplicate content and a scripted non-reader (E1Counter);
+   C2 substring matching admits numeric superstrings, inverted direction, wrong tool
+   attribution and token dumps (R2Reviewer/K1Critic). C2 selftest contains a literal answer
+   key (K1Critic D3). Mechanical success alone is not semantic admission. R1Reviewer
+   reviewed the six true rows independently; C2's repair prose is read directly.
+7. **Protocol-load defect.** Required protocol/skill loading was completed after freeze
+   and dispatch rather than before; that cannot be repaired retroactively. The initial
+   wave context also omitted the explicit scratch and pacman guard paragraphs. No package
+   transaction or host service write was authorized or executed by the L1. Report these
+   conformance defects; do not claim flawless protocol compliance.

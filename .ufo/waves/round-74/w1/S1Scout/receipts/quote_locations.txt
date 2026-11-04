@@ -1,0 +1,81 @@
+=== Quote Locations and Verification in v262 Snapshots ===
+
+Row: UF1 | Snapshot: unit-file.c | Lines: 504-533 | Words: 13 | Pipe: False | Present: True
+  Desc: lines 533-533, comment lede on search priority
+  Quote: search_path is ordered by priority (highest first). If the name is already mapped
+
+Row: UF1 | Snapshot: unit-file.c | Lines: 504-533 | Words: 7 | Pipe: False | Present: True
+  Desc: line 533, first sentence
+  Quote: search_path is ordered by priority (highest first).
+
+Row: UF1 | Snapshot: unit-file.c | Lines: 508-537 | Words: 4 | Pipe: False | Present: True
+  Desc: lines 536-537, duplicate registration bypass
+  Quote: if (hashmap_contains(ids, de->d_name)) continue;
+
+Row: UF1 | Snapshot: unit-file.c | Lines: 387-416 | Words: 15 | Pipe: False | Present: True
+  Desc: line 416, lookup paths ordering comment
+  Quote: Search paths are ordered by priority (highest first), and we need to maintain this order.
+
+Row: UF2 | Snapshot: unit-file.c | Lines: 45-74 | Words: 6 | Pipe: False | Present: True
+  Desc: line 74, doc-comment on self-alias return
+  Quote: -ELOOP for an alias to self.
+
+Row: UF2 | Snapshot: unit-file.c | Lines: 81-110 | Words: 6 | Pipe: False | Present: True
+  Desc: line 110, log debug message on self-alias
+  Quote: unit self-alias: %s → %s, ignoring.
+
+Row: UF2 | Snapshot: unit-file.c | Lines: 80-109 | Words: 5 | Pipe: False | Present: True
+  Desc: lines 108-109, self-alias check
+  Quote: if (streq(src, dst)) return log_debug_errno(SYNTHETIC_ERRNO(ELOOP),
+
+Row: UF2 | Snapshot: unit-file.c | Lines: None-None | Words: 11 | Pipe: False | Present: False
+  Desc: line 122, name type incompatibility log
+  Quote: %s: symlink target name type "%s" does not match source, rejecting.
+
+Row: UF2 | Snapshot: unit-file.c | Lines: None-None | Words: 10 | Pipe: False | Present: False
+  Desc: line 130, instance name incompatibility log
+  Quote: %s: unit symlink target "%s" instance name doesn't match, rejecting.
+
+Row: UF3 | Snapshot: unit-file.h | Lines: 3-32 | Words: 14 | Pipe: False | Present: True
+  Desc: lines 25-32, unit_type_may_alias function body
+  Quote: static inline bool unit_type_may_alias(UnitType type) { return IN_SET(type, UNIT_SERVICE, UNIT_SOCKET, UNIT_TARGET, UNIT_DEVICE, UNIT_TIMER, UNIT_PATH);
+
+Row: UF3 | Snapshot: unit-file.h | Lines: 3-32 | Words: 8 | Pipe: False | Present: True
+  Desc: lines 26-32, IN_SET statement
+  Quote: return IN_SET(type, UNIT_SERVICE, UNIT_SOCKET, UNIT_TARGET, UNIT_DEVICE, UNIT_TIMER, UNIT_PATH);
+
+Row: UF4 | Snapshot: unit-file.h | Lines: 1-14 | Words: 7 | Pipe: False | Present: True
+  Desc: lines 8-14, enum entries distinguishing runtime states
+  Quote: UNIT_FILE_ENABLED, UNIT_FILE_ENABLED_RUNTIME, UNIT_FILE_LINKED, UNIT_FILE_LINKED_RUNTIME, UNIT_FILE_ALIAS, UNIT_FILE_MASKED, UNIT_FILE_MASKED_RUNTIME,
+
+Row: UF4 | Snapshot: unit-file.h | Lines: 1-14 | Words: 11 | Pipe: False | Present: True
+  Desc: lines 7-14, enum definition start
+  Quote: typedef enum UnitFileState { UNIT_FILE_ENABLED, UNIT_FILE_ENABLED_RUNTIME, UNIT_FILE_LINKED, UNIT_FILE_LINKED_RUNTIME, UNIT_FILE_ALIAS, UNIT_FILE_MASKED, UNIT_FILE_MASKED_RUNTIME,
+
+Row: UF5 | Snapshot: load-fragment.c | Lines: 6219-6248 | Words: 9 | Pipe: False | Present: True
+  Desc: lines 6247-6248, null_or_empty mask branch
+  Quote: if (null_or_empty(&st)) { /* Unit file is masked */
+
+Row: UF5 | Snapshot: load-fragment.c | Lines: 6221-6250 | Words: 17 | Pipe: False | Present: True
+  Desc: line 6250, perpetual immunity check
+  Quote: u->load_state = u->perpetual ? UNIT_LOADED : UNIT_MASKED; /* don't allow perpetual units to ever be masked */
+
+Row: UF5 | Snapshot: load-fragment.c | Lines: 6222-6251 | Words: 20 | Pipe: False | Present: True
+  Desc: lines 6250-6251, perpetual immunity and zero mtime
+  Quote: u->load_state = u->perpetual ? UNIT_LOADED : UNIT_MASKED; /* don't allow perpetual units to ever be masked */ u->fragment_mtime = 0;
+
+Row: UF6 | Snapshot: load-fragment.c | Lines: 6256-6285 | Words: 7 | Pipe: False | Present: True
+  Desc: line 6285, system runtime scope fallback check
+  Quote: } else if (u->manager->runtime_scope == RUNTIME_SCOPE_SYSTEM) {
+
+Row: UF6 | Snapshot: load-fragment.c | Lines: 6258-6287 | Words: 20 | Pipe: False | Present: True
+  Desc: lines 6286-6287, comment on builtin fallback
+  Quote: No fragment found on disk. For system units, fall back to a built-in copy if we have one * embedded.
+
+Row: UF6 | Snapshot: load-fragment.c | Lines: 6260-6289 | Words: 21 | Pipe: False | Present: True
+  Desc: lines 6288-6289, comment on on-disk files precedence
+  Quote: On-disk files always take precedence (including masks), since we only get * here when nothing was found in the lookup paths.
+
+Row: UF6 | Snapshot: load-fragment.c | Lines: 6262-6291 | Words: 5 | Pipe: False | Present: True
+  Desc: line 6291, builtin lookup invocation
+  Quote: const char *data = builtin_unit_lookup(u->id);

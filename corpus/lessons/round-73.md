@@ -185,3 +185,11 @@ body (the id itself may label the heading), with a fourteenth case `TITLE-TOKEN`
 `1f22c26b…` (13 cases), checker `ad853877…` (14 cases). Both still read `met=1` and `ROUTED_STALE=0` at the
 measured tip. M1Mutation's matrices (`w1/M1Mutation/{counter_matrix.json,c2_matrix.json,battery.py}`) record
 38 mutants, 6 survivors, all dead/entailed clauses.
+
+## Correction 3 (round 74, C2 routed repair; append-only)
+
+R73-GATE-QUOTE-LINE-DRIFT: S306's quote `path = path_make_absolute(*name, config_path);`
+is at install.c:2383 in the pinned v262 snapshot, superseding the cited 2387.
+S304's corrected quote anchors are :368-370 (superseding :367-370), :237-238 (superseding
+:236-238), and :238-239 (superseding :238-240). The earlier Gate table remains visible;
+these exact locations replace its over-wide or incorrect anchors.

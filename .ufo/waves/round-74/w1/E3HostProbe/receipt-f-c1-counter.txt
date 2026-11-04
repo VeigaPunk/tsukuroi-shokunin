@@ -1,0 +1,29 @@
+=== RECEIPT F: C1 COUNTER & SCRIPTED-WRITER ATTACK ===
+Instrument: tools/count-uf-rows-r74.py
+SHA256: 94d46a5edfcdc00858a1b1c37bc459322fc7e337fba19cc38a85776d0dd36482
+Timestamp: 2026-11-04
+
+--- 1. Frozen Instrument Selftest ---
+SELFTEST: PASS (13 cases, 13 passed, 0 failed)
+rc=0
+
+--- 2. Base revision d749a625 ---
+UF_MAP absent
+rc=128
+
+--- 3. Declaration revision e51fb49d ---
+UF_NOTE absent
+rc=128
+
+--- 4. Scripted-Writer Attack Battery (attack-c1-scripted-writer.py) ---
+CONTROL: PASS (target met=1, verified=6, rc=0)
+PASS A1-insufficient-tokens: counter rejected forged row (rc=1, met=0)
+PASS A2-low-share-ratio: counter rejected forged row (rc=1, met=0)
+PASS A3-quote-too-long: counter rejected forged row (rc=1, met=0)
+PASS A4-quote-not-in-snapshot: counter rejected forged row (rc=1, met=0)
+PASS A5-snapshot-reuse-exceeded: counter rejected forged row (rc=1, met=0)
+PASS A6-own-work-source: counter rejected forged row (rc=1, met=0)
+PASS A7-duplicate-registry-id: counter rejected forged row (rc=1, met=0)
+
+ATTACK SUITE RESULT: 7/7 attacks caught by frozen C1 counter
+rc=0

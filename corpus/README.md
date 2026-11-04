@@ -689,3 +689,17 @@ instrument digest erratum and the `gate-selftest` count refresh).
 and order, not a resolved value; the mask decision for a name present in several search-path directories
 lives in `load-fragment.c`, outside the pinned snapshots; the instance `.d/` leg is documented and absent on
 this host; `SYSTEMD_UNIT_PATH` is unset; and no `[Install] Alias=` symlink was read.
+
+## Round 74 — unit-fragment resolution and round-73 corrections
+
+`knowledge/systemd-unit-fragment-plane-r74.md` holds UF1-UF6, sourced S309-S311:
+priority registration, alias validation, the true service/socket/target/device/timer/path set,
+runtime file-state variants, perpetual-unit mask immunity, and system-scope builtin fallback.
+R1Reviewer reviewed the six actual rows; the C1 declaration's erroneous volume clause is
+not admitted (SCORECARD round-74 errata). The two r73 repairs are in lesson Correction 3
+and LOG's appended Round-73 count correction; instruments remain at their frozen bytes.
+
+**Frontier:** effective merged directive values, deliberately conflicting host fragments,
+live invalid-alias rejection, live masking of perpetual units, and actual builtin fallback
+selection remain untested. Host alias `systemd-sysupdate.timer` was read this round.
+The previous round's "no alias read" limit is superseded only for that observed symlink.

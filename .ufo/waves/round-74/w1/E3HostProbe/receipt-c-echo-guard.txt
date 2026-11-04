@@ -1,0 +1,51 @@
+=== RECEIPT C: ECHO GUARD & INJECTION HARDENING ===
+Tests closed grammar regex and hostile input blocking across all probe commands.
+
+--- 1. Pipe injection attempt ---
+BLOCKED reading=CAT reason=bad-unit-name
+rc=1
+
+--- 2. Newline injection attempt ---
+BLOCKED reading=CAT reason=bad-unit-name
+rc=1
+
+--- 3. Command chaining semicolon attempt ---
+BLOCKED reading=CAT reason=bad-unit-name
+rc=1
+
+--- 4. Path traversal attempt ---
+BLOCKED reading=TEMPLATE reason=bad-unit-name
+rc=1
+
+--- 5. Leading dot forbidden ---
+BLOCKED reading=TEMPLATE reason=bad-unit-name
+rc=1
+
+--- 6. Missing valid unit extension ---
+BLOCKED reading=ALIAS reason=bad-unit-name
+rc=1
+
+--- 7. Whitespace (tab and space) ---
+BLOCKED reading=ALIAS reason=bad-unit-name
+rc=1
+BLOCKED reading=ALIAS reason=bad-unit-name
+rc=1
+
+--- 8. Quotes and shell metacharacters ---
+BLOCKED reading=UNITSTATE reason=bad-unit-name
+rc=1
+BLOCKED reading=UNITSTATE reason=bad-unit-name
+rc=1
+
+--- 9. Length limit enforcement (>255 characters) ---
+BLOCKED reading=UNITSTATE reason=bad-unit-name
+rc=1
+
+--- 10. Self-alias rejection fixture (UF2 ELOOP) ---
+PASS T14-alias-self rc=1 line=BLOCKED reading=ALIAS reason=self-alias
+
+--- 11. Incompatible type alias fixture (UF2 EXDEV) ---
+PASS T15-alias-incompatible-type rc=1 line=BLOCKED reading=ALIAS reason=incompatible-type
+
+--- 12. Disallowed alias type fixture (UF3 unit_type_may_alias) ---
+PASS T16-alias-disallowed-type rc=1 line=BLOCKED reading=ALIAS reason=incompatible-type

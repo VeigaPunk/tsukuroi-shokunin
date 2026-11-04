@@ -1,0 +1,67 @@
+=== RECEIPT G: WAVE W1 STATE & INSTRUMENT VERIFICATION ===
+Commit HEAD: 810daf137d865e6a6f64937adedfa1acb828f414 (round-74 wave w1 evidence: 12-seat spec, validated dispatch (spawn 12, band 8-16))
+Declaration: e51fb49d1790ef283b6aad6752a8c12fac347377
+Base commit: d749a625f483c66f2a6f2005db3799630c776bc3
+Timestamp: 2026-11-04
+
+--- 1. Frozen Instrument Digests ---
+94d46a5edfcdc00858a1b1c37bc459322fc7e337fba19cc38a85776d0dd36482  tools/count-uf-rows-r74.py
+2da4ff1fd8e7ed1287230e43769a1d75233b992b9f04eeb77cc981f2677efd77  tools/check-r73-routed-r74.py
+
+--- 2. C1 Counter Baseline Controls ---
+Base revision d749a625:
+UF_MAP absent
+rc=128
+Declaration revision e51fb49d:
+UF_NOTE absent
+rc=128
+Counter selftest:
+SELFTEST: PASS (13 cases, 13 passed, 0 failed)
+rc=0
+
+--- 3. C2 Checker Baseline Controls ---
+Base revision d749a625:
+ROUTED_STALE=2 ROUTED_OK=0/2
+rc=1
+Declaration revision e51fb49d:
+ROUTED_STALE=2 ROUTED_OK=0/2
+rc=1
+Checker selftest:
+SELFTEST: PASS (6 cases, 6 passed, 0 failed)
+rc=0
+
+--- 4. E3HostProbe Tool Verification ---
+eff63e2c979f9ae0589135a4456973b9192c30911c3f2d8e23612fe7a4a3932f  .ufo/waves/round-74/w1/E3HostProbe/probe.sh
+PASS T01-searchpath-hermetic rc=0 line=SEARCHPATH scope=system dirs=3 first=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-74/w1/E3HostProbe/scratch/st-unit-fragment-probe.qSDiR6/etc/systemd/system etc_before_usr=1
+PASS T02-searchpath-tool-absent rc=1 line=BLOCKED reading=SEARCHPATH reason=tool-absent
+PASS T03-masked-hermetic rc=0 line=MASKED count=2 targets=/dev/null:1
+PASS T04-masked-tool-absent rc=1 line=BLOCKED reading=MASKED reason=tool-absent
+PASS T05-cat-hermetic-worker rc=0 line=CAT unit=worker.service fragment=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-74/w1/E3HostProbe/scratch/st-unit-fragment-probe.qSDiR6/usr/lib/systemd/system/worker.service masked=0 dropins=1
+PASS T06-cat-hermetic-masked rc=0 line=CAT unit=masked-null.service fragment=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-74/w1/E3HostProbe/scratch/st-unit-fragment-probe.qSDiR6/etc/systemd/system/masked-null.service masked=1 dropins=0
+PASS T07-cat-tool-absent rc=1 line=BLOCKED reading=CAT reason=tool-absent
+PASS T08-cat-unknown rc=1 line=BLOCKED reading=CAT reason=unknown-unit
+PASS T09-cat-bad-unit-pipe rc=1 line=BLOCKED reading=CAT reason=bad-unit-name
+PASS T10-template-instance rc=0 line=TEMPLATE instance=container@app1.service fragment=container@.service template=1
+PASS T11-template-plain rc=0 line=TEMPLATE instance=worker.service fragment=worker.service template=0
+PASS T12-template-bad-name rc=1 line=BLOCKED reading=TEMPLATE reason=bad-unit-name
+PASS T13-alias-valid rc=0 line=ALIAS alias=worker-alias.service target=worker.service may_alias=1
+PASS T14-alias-self rc=1 line=BLOCKED reading=ALIAS reason=self-alias
+PASS T15-alias-incompatible-type rc=1 line=BLOCKED reading=ALIAS reason=incompatible-type
+PASS T16-alias-disallowed-type rc=1 line=BLOCKED reading=ALIAS reason=incompatible-type
+PASS T17-unitstate-static rc=0 line=UNITSTATE unit=worker.service file_state=static load_state=loaded
+PASS T18-unitstate-masked rc=0 line=UNITSTATE unit=masked-null.service file_state=masked load_state=masked
+PASS T19-unitstate-not-found rc=0 line=UNITSTATE unit=nosuch.service file_state=not-found load_state=not-found
+PASS T20-unitstate-bad-name rc=1 line=BLOCKED reading=UNITSTATE reason=bad-unit-name
+PASS T21-first-seen-precedence rc=0 line=CAT unit=shadow.service fragment=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-74/w1/E3HostProbe/scratch/st-unit-fragment-probe.qSDiR6/etc/systemd/system/shadow.service masked=0 dropins=0
+SELFTEST: PASS (21 cases, 21 passed, 0 failed)
+selftest rc=0
+SEARCHPATH scope=system dirs=12 first=/etc/systemd/system.control etc_before_usr=1
+MASKED count=2 targets=/dev/null:2
+CAT unit=passim.service fragment=/etc/systemd/system/passim.service masked=1 dropins=0
+CAT unit=user@1000.service fragment=/usr/lib/systemd/system/user@.service masked=0 dropins=2
+TEMPLATE instance=getty@tty1.service fragment=getty@.service template=1
+ALIAS alias=dbus.service target=dbus-broker.service may_alias=1
+UNITSTATE unit=systemd-remount-fs.service file_state=enabled-runtime load_state=loaded
+UNITSTATE unit=passim.service file_state=masked load_state=masked
+UNITSTATE unit=getty@tty1.service file_state=enabled load_state=loaded
+live rc=0

@@ -6009,3 +6009,22 @@ heading would become the operative table and drop every carried row).
 | Name | Kind | Entry command | Verdict map | Self-test | Pinned values | Write scope | Owner |
 |---|---|---|---|---|---|---|---|
 | check-r72-routed-r73 | gate | `python3 tools/check-r72-routed-r73.py --revision <REV>` (or `--root <DIR>`) | 0 all three routed items satisfied (`ROUTED_STALE=0 ROUTED_OK=3/3`); 1 one or more stale — findings `LESSON-STALE`, `DIGEST-STALE`, `CAPABILITY-STALE`, each printing `reason=` one of `no-block`, `block-tokens`, `block-need-any`, `block-no-supersede-verb`, `block-digest-direction`, `block-incomplete`, `receipt-absent`, `receipt-count`, and an absent required file printing `<FINDING> absent path=<path>`; 2 only under `--selftest` when `$TMPDIR` names no directory; 3 self-test failed. An absent data file is a stale finding (rc 1), not rc 2 | `python3 tools/check-r72-routed-r73.py --selftest` — hermetic, **fourteen** cases (CONTROL, LESSON, DIGEST, CAPABILITY, UNANCHORED, RECEIPT-SUPERSTRING, RECEIPT-MISSING, RECEIPT-NINE, SUBSTRING-TEN, DIGEST-REVERSED, VACUOUS, RECEIPT-FAIL, PLACEHOLDER, TITLE-TOKEN) under one `$TMPDIR` root | the six lesson tokens, the two r72 instrument digests and the `gate-selftest` receipt path are constants in the tool; the receipt's `SELFTEST: PASS (N cases` line is read at the scored revision and must report at least ten | `$TMPDIR` only in `--selftest`; reads git objects otherwise | tsukuroi |
+
+## Round 74 — unit-fragment diagnosis (S309-S311, UF1-UF6)
+
+Read `corpus/knowledge/systemd-unit-fragment-plane-r74.md` for the v262 code contracts.
+These checks read state only; no unit edit, mask/unmask, reload, enable or service restart is permitted.
+
+| Symptom | Read-only check | Interpretation / boundary |
+|---|---|---|
+| Unit loads an unexpected fragment | `systemctl show -p FragmentPath -p Id -p Names <unit>`; `systemd-analyze unit-paths` | First registered name wins priority traversal (UF1); observations do not prove a deliberately untested collision. |
+| Alias appears to be a different unit | Read the named symlink target and `Id`/`Names` | Alias validation rejects self-alias and incompatible name types (UF2). Alias-capable types are service/socket/target/device/timer/path, not the erroneous volume set in the round declaration (UF3). |
+| Mask reported as runtime or persistent | `systemctl list-unit-files --state=masked,masked-runtime --no-pager` | UnitFileState has separate runtime variants (UF4). Never remove a mask. |
+| Fragment is empty or resolves to `/dev/null` | Read only its path, symlink and stat metadata | The code masks null_or_empty fragments except perpetual units (UF5); immunity was not live-tested by masking. |
+| A core system unit has no disk fragment | Inspect `FragmentPath`, `LoadState`, and installed unit metadata | System-scope builtin fallback exists (UF6); missing-path observation alone does not prove it was selected. |
+
+Round-74 counters: `python3 tools/count-uf-rows-r74.py --revision <REV>` (0 shape target met,
+1 missed, 128 missing input) and `python3 tools/check-r73-routed-r74.py --revision <REV>`
+(0 both repairs found, 1 stale). Selftests: 13 and 6 cases respectively; set TMPDIR to
+`/fast/scratch/hyaku/tsukuroi-r74/L1` when running them. These are lexical instruments, not
+semantic or admission authorities; scripted non-readers and denial text can pass (round-74 lesson).

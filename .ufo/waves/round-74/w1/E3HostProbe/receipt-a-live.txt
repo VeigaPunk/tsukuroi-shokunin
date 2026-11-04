@@ -1,0 +1,51 @@
+=== RECEIPT A: LIVE HOST READINGS ===
+Host: Linux 7.2.11-arch1-1 x86_64 Arch Linux
+Systemd: systemd 262 (262.1-1-arch)
+Timestamp: 2026-11-04
+
+--- 1. Default live probe run ---
+SEARCHPATH scope=system dirs=12 first=/etc/systemd/system.control etc_before_usr=1
+MASKED count=2 targets=/dev/null:2
+CAT unit=passim.service fragment=/etc/systemd/system/passim.service masked=1 dropins=0
+CAT unit=user@1000.service fragment=/usr/lib/systemd/system/user@.service masked=0 dropins=2
+TEMPLATE instance=getty@tty1.service fragment=getty@.service template=1
+ALIAS alias=dbus.service target=dbus-broker.service may_alias=1
+UNITSTATE unit=systemd-remount-fs.service file_state=enabled-runtime load_state=loaded
+UNITSTATE unit=passim.service file_state=masked load_state=masked
+UNITSTATE unit=getty@tty1.service file_state=enabled load_state=loaded
+rc=0
+
+--- 2. Comprehensive live probe set ---
+SEARCHPATH scope=system dirs=12 first=/etc/systemd/system.control etc_before_usr=1
+SEARCHPATH scope=user dirs=18 first=/home/vgpnk/.config/systemd/user.control etc_before_usr=1
+MASKED count=2 targets=/dev/null:2
+CAT unit=passim.service fragment=/etc/systemd/system/passim.service masked=1 dropins=0
+CAT unit=user@1000.service fragment=/usr/lib/systemd/system/user@.service masked=0 dropins=2
+TEMPLATE instance=getty@tty1.service fragment=getty@.service template=1
+TEMPLATE instance=user@1000.service fragment=user@.service template=1
+ALIAS alias=dbus.service target=dbus-broker.service may_alias=1
+ALIAS alias=default.target target=graphical.target may_alias=1
+UNITSTATE unit=systemd-remount-fs.service file_state=enabled-runtime load_state=loaded
+UNITSTATE unit=passim.service file_state=masked load_state=masked
+UNITSTATE unit=getty@tty1.service file_state=enabled load_state=loaded
+UNITSTATE unit=user@1000.service file_state=static load_state=loaded
+UNITSTATE unit=nosuch-unit-xyz.service file_state=not-found load_state=not-found
+rc=0
+
+--- 3. Direct verification of masked units on /dev/null ---
+lrwxrwxrwx 1 root root 9 Oct 20 09:48 /etc/systemd/system/passim.service -> /dev/null
+lrwxrwxrwx 1 root root 9 Oct  3 17:44 /etc/systemd/system/systemd-networkd-wait-online.service -> /dev/null
+
+--- 4. Direct verification of unit search paths ---
+/etc/systemd/system.control
+/run/systemd/system.control
+/run/systemd/transient
+/run/systemd/generator.early
+/etc/systemd/system
+/etc/systemd/system.attached
+/run/systemd/system
+/run/systemd/system.attached
+/run/systemd/generator
+/usr/local/lib/systemd/system
+/usr/lib/systemd/system
+/run/systemd/generator.late

@@ -519,3 +519,16 @@ start/stop and any write under a unit directory.
 Counted by `python3 tools/count-ul-rows-r73.py --revision <REV>` (target `UL_ROWS=6 UL_VERIFIED=6
 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0`, `met=1`) at the round-73 measured revision in
 `SCORECARD.md`.
+
+## Round 74 — unit-fragment resolution reading (S309-S311)
+
+The v262 code reading in `corpus/knowledge/systemd-unit-fragment-plane-r74.md` extends
+the systemd Core reading to first-name registration, alias validation and allowed types
+(service/socket/target/device/timer/path), file-state runtime variants, perpetual-mask immunity,
+and system-scope builtin fallback. It is not permission to exercise those write paths.
+The declaration's volume-set error is preserved and explicitly not admitted in SCORECARD.
+
+Still Frontier: actual conflicting fragments, invalid aliases, intentional perpetual masks,
+builtin fallback selection, and effective merged directive values. The observed timer alias
+does not make arbitrary host aliases or directory precedence live-tested.
+Every unit-directory write, reload, start/stop, enable/disable and mask/unmask remains operator-owned.

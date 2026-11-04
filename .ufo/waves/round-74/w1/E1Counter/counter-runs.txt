@@ -1,0 +1,279 @@
+================================================================================
+E1Counter round-74: Frozen C1 Counter Tamper Battery & Fixture Execution Log
+Tool: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py
+================================================================================
+
+--- Case: mirror ---
+Description: Independent mirror written from v262 snapshots
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/mirror
+Verdict: PASS (rc=0, expected_rc=0)
+Required token: 'met=1' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=6 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=0 met=1
+
+--- Case: scripted ---
+Description: Scripted non-reader (100% snapshot vocabulary, candidate quote)
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/scripted
+Verdict: PASS (rc=0, expected_rc=0)
+Required token: 'met=1' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=6 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=0 met=1
+
+--- Case: blind-negate ---
+Description: Blind spot: negated claim with vocabulary preserved
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/blind-negate
+Verdict: PASS (rc=0, expected_rc=0)
+Required token: 'met=1' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=6 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=0 met=1
+
+--- Case: blind-unanchored-quote ---
+Description: Blind spot: license header quote unanchored to claim
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/blind-unanchored-quote
+Verdict: PASS (rc=0, expected_rc=0)
+Required token: 'met=1' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=6 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=0 met=1
+
+--- Case: blind-dupecontent ---
+Description: Blind spot: identical statement and quote duplicated across rows
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/blind-dupecontent
+Verdict: PASS (rc=0, expected_rc=0)
+Required token: 'met=1' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=6 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=0 met=1
+
+--- Case: iso-id-gap ---
+Description: Isolation: non-contiguous row IDs (UF1..UF5, UF7)
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-id-gap
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'non-contiguous IDs' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=1 met=0
+Stderr:
+line 0: non-contiguous IDs: [1, 2, 3, 4, 5, 7]
+
+--- Case: iso-id-dupe ---
+Description: Isolation: duplicate UF row ID
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-id-dupe
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'duplicate UF id 1' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+Stderr:
+line 4: duplicate UF id 1
+  line 0: non-contiguous IDs: [1, 1, 3, 4, 5, 6]
+
+--- Case: iso-words-short ---
+Description: Isolation: statement < 12 words
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-words-short
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'short statement' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+Stderr:
+line 3: short statement (8 < 12)
+  line 3: too few shared tokens (4 < 6)
+
+--- Case: iso-ground-zero ---
+Description: Isolation: ungrounded statement (0 shared tokens)
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-ground-zero
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'too few shared tokens' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+Stderr:
+line 3: too few shared tokens (0 < 6)
+  line 3: shared share too low (0.00 < 0.5)
+
+--- Case: iso-ground-low ---
+Description: Isolation: token share ratio < 0.50
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-ground-low
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'shared share too low' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+Stderr:
+line 3: too few shared tokens (4 < 6)
+  line 3: shared share too low (0.25 < 0.5)
+
+--- Case: iso-src-unreg ---
+Description: Isolation: unregistered source S999
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-src-unreg
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'source S999 not in registry' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=4 UF_SNAPSHOTS=3 UF_MALFORMED=1 met=0
+Stderr:
+line 3: source S999 not in registry
+
+--- Case: iso-src-ownwork ---
+Description: Isolation: source kind is own-work
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-src-ownwork
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'invalid kind own-work' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+Stderr:
+line 3: source S309 invalid kind own-work
+  line 4: source S309 invalid kind own-work
+
+--- Case: iso-src-badkind ---
+Description: Isolation: source kind is invalid
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-src-badkind
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'invalid kind fabricated' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+Stderr:
+line 3: source S309 invalid kind fabricated
+  line 4: source S309 invalid kind fabricated
+
+--- Case: iso-reg-dupid ---
+Description: Isolation: duplicate S-ID in registry
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-reg-dupid
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'UF_REGISTRY duplicate id' (found=True)
+Stdout:
+UF_REGISTRY duplicate id: ['S309']
+
+--- Case: iso-snap-corrupt ---
+Description: Isolation: snapshot file modified
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-snap-corrupt
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'byte mismatch' (found=True)
+Stdout:
+UF_ROWS=4 UF_VERIFIED=0 UF_SOURCES=2 UF_SNAPSHOTS=2 UF_MALFORMED=3 met=0
+Stderr:
+line 3: snapshot unit-file.c byte mismatch
+  line 4: snapshot unit-file.c byte mismatch
+  line 0: non-contiguous IDs: [3, 4, 5, 6]
+
+--- Case: iso-digest-swap ---
+Description: Isolation: row digest mismatch with SOURCES.json
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-digest-swap
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'digest mismatch' (found=True)
+Stdout:
+UF_ROWS=5 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+Stderr:
+line 3: digest mismatch for unit-file.c
+  line 0: non-contiguous IDs: [2, 3, 4, 5, 6]
+
+--- Case: iso-map-corrupt ---
+Description: Isolation: SOURCES.json digest mismatch
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-map-corrupt
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'digest mismatch' (found=True)
+Stdout:
+UF_ROWS=4 UF_VERIFIED=0 UF_SOURCES=2 UF_SNAPSHOTS=2 UF_MALFORMED=3 met=0
+Stderr:
+line 3: digest mismatch for unit-file.c
+  line 4: digest mismatch for unit-file.c
+  line 0: non-contiguous IDs: [3, 4, 5, 6]
+
+--- Case: iso-map-url ---
+Description: Isolation: registry source cell missing map URL
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-map-url
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'does not cite URL' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+Stderr:
+line 3: registry row S309 does not cite URL https://raw.githubusercontent.com/systemd/systemd/v262/src/shared/unit-file.c
+  line 4: registry row S309 does not cite URL https://raw.githubusercontent.com/systemd/systemd/v262/src/shared/unit-file.c
+
+--- Case: iso-anchor-missing ---
+Description: Isolation: registry anchor cell missing snapshot basename
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-anchor-missing
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'does not anchor' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+Stderr:
+line 3: registry row S309 does not anchor unit-file.c
+  line 4: registry row S309 does not anchor unit-file.c
+
+--- Case: iso-quote-absent ---
+Description: Isolation: quote altered from snapshot text
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-quote-absent
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'quote not located in snapshot' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=1 met=0
+Stderr:
+line 3: quote not located in snapshot unit-file.c
+
+--- Case: iso-quote-long ---
+Description: Isolation: quote > 25 words
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-quote-long
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'quote length out of bounds' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+Stderr:
+line 3: quote length out of bounds (26)
+  line 3: quote not located in snapshot unit-file.c
+
+--- Case: iso-quote-short ---
+Description: Isolation: quote < 4 words
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-quote-short
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'quote length out of bounds' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=1 met=0
+Stderr:
+line 3: quote length out of bounds (3)
+
+--- Case: iso-quote-pipe ---
+Description: Isolation: quote contains pipe |
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-quote-pipe
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'quote contains pipe' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+Stderr:
+line 3: quote contains pipe
+  line 3: quote not located in snapshot unit-file.c
+
+--- Case: iso-malformed-row ---
+Description: Isolation: malformed row shape
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-malformed-row
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'malformed row shape' (found=True)
+Stdout:
+UF_ROWS=5 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+Stderr:
+line 3: malformed row shape
+  line 0: non-contiguous IDs: [2, 3, 4, 5, 6]
+
+--- Case: iso-reuse-3 ---
+Description: Isolation: snapshot cited 3 times (> MAX_SNAPSHOT_REUSE 2)
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-reuse-3
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'cited 3 > 2' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+Stderr:
+line 5: shared share too low (0.45 < 0.5)
+  line 5: snapshot unit-file.c cited 3 > 2
+
+--- Case: iso-nonmap-mapfile ---
+Description: Isolation: SOURCES.json root is not a dict
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-nonmap-mapfile
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'UF_MAP malformed' (found=True)
+Stdout:
+UF_MAP malformed: root is not a dict
+
+--- Case: iso-empty-quote ---
+Description: Isolation: quote is empty string quote=""
+Command: python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-uf-rows-r74.py --fixture /fast/scratch/hyaku/tsukuroi-r74/E1Counter/fixtures/iso-empty-quote
+Verdict: PASS (rc=1, expected_rc=1)
+Required token: 'quote length out of bounds' (found=True)
+Stdout:
+UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=1 met=0
+Stderr:
+line 3: quote length out of bounds (0)
+
+BATTERY RESULTS: 27 passed, 0 failed out of 27 cases

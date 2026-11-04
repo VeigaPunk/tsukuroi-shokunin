@@ -1,0 +1,10 @@
+[CONTROL (six REC rows)] rc=0 expect=0 PASS
+    stdout: UF_ROWS=6 UF_VERIFIED=6 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=0 met=1
+[T1 escaped-quote log string] rc=1 expect=1 PASS
+    stdout: UF_ROWS=5 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=2 met=0
+    stderr: line 4: malformed row shape
+  line 0: non-contiguous IDs: [1, 3, 4, 5, 6]
+[T2 asterisk-less multiline comment] rc=1 expect=1 PASS
+    stdout: UF_ROWS=6 UF_VERIFIED=0 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=1 met=0
+    stderr: line 8: quote not located in snapshot load-fragment.c
+PROBE: PASS
