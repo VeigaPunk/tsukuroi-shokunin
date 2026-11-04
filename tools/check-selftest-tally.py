@@ -12,6 +12,12 @@ Usage:
 
 Exit: 0 when every added figure equals the receipt's figure, 1 on any mismatch, 2 when the
 receipt carries no `PASS (N cases, ...)` line.
+
+Only lines that name the census selftest or carry the receipt's own "cases, " phrasing are
+scored: a battery's "11 cases", a registry row's historical count or any other instrument's
+figure is out of scope by construction. An added line that explicitly marks its figure as superseded (it contains "superseded",
+"stays as written" or "stays visible as filed") is printed as SKIP: a correction block must
+quote the figure it supersedes, and quoting it is not filing it as current.
 """
 import re
 import subprocess
@@ -49,6 +55,8 @@ def main(argv):
             capture_output=True, text=True).stdout
 
     mism = 0
+    skipped = 0
+    SUPERSEDED = ("superseded", "stays as written", "stays visible as filed")
     f = ln = None
     for line in diff.splitlines():
         if line.startswith("+++ b/"):
@@ -56,6 +64,14 @@ def main(argv):
         elif line.startswith("@@"):
             ln = int(re.search(r"\+(\d+)", line).group(1))
         elif line.startswith("+") and not line.startswith("+++"):
+            if ("selftest" not in line.lower()) and ("cases, " not in line):
+                ln += 1
+                continue
+            if any(marker in line for marker in SUPERSEDED):
+                skipped += 1
+                print(f"SKIP {f}:{ln} superseded-figure quote (the correction block names it as such)")
+                ln += 1
+                continue
             for mm in CASE.finditer(line):
                 v = int(mm.group(1) or mm.group(3))
                 ok = v == n
@@ -67,7 +83,7 @@ def main(argv):
                 mism += 0 if ok else 1
                 print(f"{'OK  ' if ok else 'MISM'} {f}:{ln} label_figure={v} receipt={labels}")
             ln += 1
-    print(f"SWEEP added_figures_mismatched={mism} receipt_cases={n} receipt_labels={labels}")
+    print(f"SWEEP added_figures_mismatched={mism} skipped_superseded={skipped} receipt_cases={n} receipt_labels={labels}")
     return 1 if mism else 0
 
 
