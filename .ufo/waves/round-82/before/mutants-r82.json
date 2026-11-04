@@ -1,0 +1,210 @@
+[
+ {
+  "id": "C01-quote-word-cap",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "R5 quote <= 25 words",
+  "old": "if len(quote.split()) > MAX_QUOTE_WORDS or '|' in quote:",
+  "new": "if '|' in quote:",
+  "genuine_gap": true
+ },
+ {
+  "id": "C02-quote-pipe",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "R5 quote carries no pipe",
+  "old": "if len(quote.split()) > MAX_QUOTE_WORDS or '|' in quote:",
+  "new": "if len(quote.split()) > MAX_QUOTE_WORDS:",
+  "genuine_gap": true
+ },
+ {
+  "id": "C03-statement-pipe",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "R2 statement contains no pipe",
+  "old": "if len(str(statement).split()) < MIN_WORDS or '|' in str(statement):",
+  "new": "if len(str(statement).split()) < MIN_WORDS:",
+  "genuine_gap": true
+ },
+ {
+  "id": "C04-id-contiguity",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "R1 id is MT<index>, contiguous from MT1",
+  "old": "if row.get('id') != 'MT%d' % index:",
+  "new": "if False:",
+  "genuine_gap": true
+ },
+ {
+  "id": "C05-statement-word-floor",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "R2 statement >= 12 words",
+  "old": "if len(str(statement).split()) < MIN_WORDS or '|' in str(statement):",
+  "new": "if '|' in str(statement):",
+  "genuine_gap": true
+ },
+ {
+  "id": "C06-source-id-shape",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "R3 source matches ^S[0-9]{3,}$",
+  "old": "if not SOURCE_ID.match(src) or entry is None:",
+  "new": "if entry is None:",
+  "genuine_gap": false
+ },
+ {
+  "id": "C07-own-work-rejection",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "R3 own-work rows are not source kinds",
+  "old": "elif entry['kind'] not in KINDS or entry['kind'] == OWN_WORK:",
+  "new": "elif entry['kind'] not in KINDS:",
+  "genuine_gap": false
+ },
+ {
+  "id": "C08-digest-check",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "R4 snapshot bytes hash to the listed digest",
+  "old": "if sha(data) != want:",
+  "new": "if False:",
+  "genuine_gap": false
+ },
+ {
+  "id": "C09-measured-leg-requirement",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "target measured rows >= 2",
+  "old": "and measured >= TARGET_MEASURED and len(settings) == TARGET_ROWS) else 'unmet'",
+  "new": "and len(settings) == TARGET_ROWS) else 'unmet'",
+  "genuine_gap": true
+ },
+ {
+  "id": "C10-distinct-settings",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "distinct settings == 8",
+  "old": "and measured >= TARGET_MEASURED and len(settings) == TARGET_ROWS) else 'unmet'",
+  "new": "and measured >= TARGET_MEASURED) else 'unmet'",
+  "genuine_gap": true
+ },
+ {
+  "id": "C11-row-count-target",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "rows == 8",
+  "old": "finding = 'met' if (len(rows) == TARGET_ROWS and verified == TARGET_ROWS",
+  "new": "finding = 'met' if (verified == TARGET_ROWS",
+  "genuine_gap": true
+ },
+ {
+  "id": "C12-note-absent-mapping",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "absent note maps to note-absent",
+  "old": "return 0, 'note-absent', []",
+  "new": "return 0, 'note-invalid', []",
+  "genuine_gap": false
+ },
+ {
+  "id": "C13-exit-code-mapping",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "unmet exits 1",
+  "old": "return 0 if finding == 'met' else 1",
+  "new": "return 0",
+  "genuine_gap": false
+ },
+ {
+  "id": "C14-locate-span-bounds",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "locate rejects out-of-range spans",
+  "old": "if not (1 <= a <= b <= len(lines)):",
+  "new": "if not (1 <= a):",
+  "genuine_gap": true
+ },
+ {
+  "id": "C15-snapshot-unnamed",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "R4 unnamed snapshot is reported",
+  "old": "why.append('R4-snapshot-unnamed')",
+  "new": "pass",
+  "genuine_gap": true
+ },
+ {
+  "id": "C16-empty-manifest",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "empty SHA256SUMS is could-not-evaluate",
+  "old": "if not digests:\\n        raise CannotEvaluate('snapshot-manifest-empty')",
+  "new": "if False:\\n        raise CannotEvaluate('snapshot-manifest-empty')",
+  "genuine_gap": true
+ },
+ {
+  "id": "C17-setting-presence",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "R6 setting occurs in the snapshot",
+  "old": "if not setting or name not in snapshots or setting not in normalize(' '.join(snapshots[name])):",
+  "new": "if not setting or name not in snapshots:",
+  "genuine_gap": true
+ },
+ {
+  "id": "C18-measured-source",
+  "tool": "count-mount-rows-r81.py",
+  "clause": "R7 measured leg names S332",
+  "old": "if (leg or {}).get('source') != 'S332':",
+  "new": "if False:",
+  "genuine_gap": true
+ },
+ {
+  "id": "M01-rc-ignored",
+  "tool": "measure-round81.py",
+  "clause": "observed exit code compared with the table",
+  "old": "ok = proc.returncode == want['rc'] and want['token'] in body",
+  "new": "ok = want['token'] in body",
+  "genuine_gap": false
+ },
+ {
+  "id": "M02-token-ignored",
+  "tool": "measure-round81.py",
+  "clause": "observed finding token compared with the table",
+  "old": "ok = proc.returncode == want['rc'] and want['token'] in body",
+  "new": "ok = proc.returncode == want['rc']",
+  "genuine_gap": false
+ },
+ {
+  "id": "M03-table-from-disk",
+  "tool": "measure-round81.py",
+  "clause": "table read from the bound revision",
+  "old": "table = table if table is not None else json.loads(read(TABLE))",
+  "new": "table = table if table is not None else json.loads((ROOT / TABLE).read_text())",
+  "genuine_gap": false
+ },
+ {
+  "id": "M04-target-constant",
+  "tool": "measure-round81.py",
+  "clause": "gate target is 6 conformant cases",
+  "old": "TARGET = 6",
+  "new": "TARGET = 5",
+  "genuine_gap": true
+ },
+ {
+  "id": "M05-exit-code-mapping",
+  "tool": "measure-round81.py",
+  "clause": "unmet exits 1",
+  "old": "return 0 if count == TARGET else 1",
+  "new": "return 0",
+  "genuine_gap": true
+ },
+ {
+  "id": "M06-mutation-unlink-noop",
+  "tool": "measure-round81.py",
+  "clause": "unlink mutation applied to the case tree",
+  "old": "if mutation['action'] == 'unlink':\\n                    path.unlink()",
+  "new": "if mutation['action'] == 'unlink':\\n                    pass",
+  "genuine_gap": false
+ },
+ {
+  "id": "M07-finding-mapping",
+  "tool": "measure-round81.py",
+  "clause": "unmet cases yield gate-standard",
+  "old": "finding = 'met' if met == TARGET else 'gate-standard'",
+  "new": "finding = 'met'",
+  "genuine_gap": true
+ },
+ {
+  "id": "M08-export-absent",
+  "tool": "measure-round81.py",
+  "clause": "missing export is could-not-evaluate",
+  "old": "raise CannotEvaluate('export-absent:' + name)",
+  "new": "data = b''",
+  "genuine_gap": true
+ }
+]

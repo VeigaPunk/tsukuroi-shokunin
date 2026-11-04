@@ -6959,3 +6959,43 @@ revision: registry coverage `registered 122 / tools_total 122 / findings 0` rc 0
 knowledge refs `dangling 0 / findings 0 / notes 99` rc 0; line endings is a worktree
 check (`CHECK_LINE_ENDINGS: PASS (409 file(s) checked, 0 violation(s))`, rc 0) and is
 not bound to a revision. Receipts: `.ufo/waves/round-81/after/commands-tip.txt`.
+
+## Round 82 — declaration (frozen before any candidate work; controls committed with it)
+
+Chronology (the routed defect R81-V2): this block, the three frozen instruments, their
+sha256 values, the 26 mutation recipes and the no-work/red control receipts land in one
+commit before any candidate file of this round is authored, run or scored. Nothing below
+was re-scoped, widened or narrowed after data. A miss is reported as a miss.
+
+| Claim | Axis | Predicate (the counter's own condition) | Target | Kill rule | Counting command | Instrument sha256 |
+|---|---|---|---|---|---|---|
+| C1 | depth (8, tied lowest with adjacency 8) | for every `MT` row of `corpus/knowledge/mount-unit-fstab-plane-r81.json`, the row's `quote` locates in the line-preserving strip of the pinned snapshot and the row's cited `lines` is exactly the located raw span `[first,last]` | `count 8 / target 8 / met` | unmet if `count < 8`; `cannot-evaluate` (rc 2) is not a pass; a cited range that merely contains the quote does not count (round 81's shape) | `python3 tools/check-anchor-coordinates.py --revision <REV>` | `fedd45ce350b3d62f6fcc526c44bca4846abe7c533a35c3633318454c5acc3b3` |
+| C2 | operability (9) | of the 26 committed single-clause mutants of `tools/count-mount-rows-r81.py` and `tools/measure-round81.py`, those whose own `--selftest` exits non-zero | `killed >= 24 / 26` **and** `genuine_killed == 17 / 17` | unmet if either leg misses; a recipe whose old-string no longer occurs is not a kill; a red pristine baseline is `cannot-evaluate`, never a pass; the two equivalent recipes (C06, C07) are excluded from the genuine leg and no test can kill them | `python3 tools/mutation-kill-r82.py --revision <REV>` | `6e6d9715739e2231f8eba0f33bee2f017c436709b5e17188e7759e8d4fdf7c24` |
+| C3 | calibration (9) | every (round, axis) asserted by the SCORECARD blocks that still stand carries exactly one *after* ordinal; a block retires earlier assertions only through a `supersedes-ordinal: round-N axis` line | `count 0 findings` | a finding stands if two non-retired blocks disagree; a correction naming nothing retires nothing; `cannot-evaluate` is not a pass | `python3 tools/check-scorecard-ordinals.py --revision <REV>` | `888a3da9b34dcbd4786a815f5656854c946d2168b7d73cc9f79c2eaa7c341e84` |
+
+Frozen recipe set: `.ufo/waves/round-82/before/mutants-r82.json` sha256
+`5e176afc62d475904e2accbc53b564d5689ac757204dd7c6ff11df395b83cb43` (26 recipes, 17
+`genuine_gap: true`, derived by the round-81 mutation seat and committed verbatim).
+
+**No-work control (recorded at the lane tip `d5b3e13492b3878fc8734368b0bbcab04f6c79c0`
+before any candidate work, receipt `.ufo/waves/round-82/before/controls.txt`):**
+C1 `count 0 / target 8 / unmet` rc 1, all eight rows `cited-range-not-the-quote-span` with
+the located span exactly two lines later than the cited one; C3 `count 1` finding (round 81,
+depth `{8, 9}`, blocks at `SCORECARD.md:6861` and `:6903`) rc 1. A do-nothing round reaches
+neither target. C2's no-work score is measured at this commit and appended in the next
+commit, still before any candidate exists.
+
+**Red controls (each instrument's own suite, green here because the case is red):**
+C1 `shifted-two-lines` unmet, `fabricated-quote` unmet, `range-too-wide` unmet,
+`correct-span` met — blanket refusal is not a gain. C3 `contradiction` 1 finding,
+`silent-correction` 1 finding, `named-correction` clean. C2 `kill-and-survive`,
+`recipe-missing-is-not-a-kill`, `red-baseline-refuses`, `no-recipes-absent` all ok.
+
+**Causal separability.** C1 reads one entry JSON and one pinned snapshot; C2 reads two
+tool blobs and the recipe file; C3 reads `SCORECARD.md` blocks. No claim reads another
+claim's output, and each verifies with its own command whether or not the others landed.
+
+**Lowest non-retired axis.** depth 8 and adjacency 8 are tied lowest. C1 works depth;
+adjacency is not worked this round because its open item (ADJ-06/OUT-009 kaidoku/revenger
+arbitration) is operator-owned and unruled, and inventing an adjacency move would be
+padding. Saturation 9, stagnation window 3, retired: none.

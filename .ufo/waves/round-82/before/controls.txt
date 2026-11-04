@@ -1,0 +1,44 @@
+# round-82 controls — the no-work score and the red controls, recorded before any candidate
+# generated 2026-11-04T21:17:03-03:00; lane tip d5b3e13492b3878fc8734368b0bbcab04f6c79c0
+# host: Linux 7.2.11-arch1-1; Python 3.14.8
+
+## instrument hashes (frozen)
+fedd45ce350b3d62f6fcc526c44bca4846abe7c533a35c3633318454c5acc3b3  tools/check-anchor-coordinates.py
+6e6d9715739e2231f8eba0f33bee2f017c436709b5e17188e7759e8d4fdf7c24  tools/mutation-kill-r82.py
+888a3da9b34dcbd4786a815f5656854c946d2168b7d73cc9f79c2eaa7c341e84  tools/check-scorecard-ordinals.py
+5e176afc62d475904e2accbc53b564d5689ac757204dd7c6ff11df395b83cb43  .ufo/waves/round-82/before/mutants-r82.json
+
+## instrument selftests (each carries its own red cases)
+$ python3 tools/check-anchor-coordinates.py --selftest  -> rc=0
+SELFTEST total=12 passed=12 failed=0
+$ python3 tools/mutation-kill-r82.py --selftest  -> rc=0
+SELFTEST total=4 passed=4 failed=0
+$ python3 tools/check-scorecard-ordinals.py --selftest  -> rc=0
+SELFTEST total=8 passed=8 failed=0
+
+## NO-WORK CONTROL — C1 at the lane tip: no candidate work landed
+$ python3 tools/check-anchor-coordinates.py --revision d5b3e13  -> rc=1
+{"claim": "C1", "revision": "d5b3e13492b3878fc8734368b0bbcab04f6c79c0", "count": 0, "target": 8, "finding": "unmet"}
+  MT1 [133, 137] [135, 138] cited-range-not-the-quote-span
+  MT2 [498, 503] [502, 503] cited-range-not-the-quote-span
+  MT3 [481, 487] [486, 487] cited-range-not-the-quote-span
+  MT4 [489, 491] [491, 492] cited-range-not-the-quote-span
+  MT5 [229, 241] [234, 236] cited-range-not-the-quote-span
+  MT6 [335, 347] [339, 341] cited-range-not-the-quote-span
+  MT7 [194, 212] [198, 201] cited-range-not-the-quote-span
+  MT8 [254, 265] [259, 260] cited-range-not-the-quote-span
+
+## NO-WORK CONTROL — C3 at the lane tip: no candidate work landed
+$ python3 tools/check-scorecard-ordinals.py --revision d5b3e13  -> rc=1
+{"claim": "C3", "revision": "d5b3e13492b3878fc8734368b0bbcab04f6c79c0", "count": 1, "examined": 78, "finding": "findings", "findings": [{"round": 81, "axis": "depth", "ordinals": [8, 9], "sites": [{"after": 9, "line": 6861}, {"after": 9, "line": 6861}, {"after": 9, "line": 6861}, {"after": 8, "line": 6903}]}]}
+
+## RED CONTROL — C1 must fail a two-line shift and a fabricated quote (from its own suite)
+  ok   correct-span: rc=0 count=1/1 met
+  ok   shifted-two-lines: rc=1 count=0/1 unmet
+  ok   fabricated-quote: rc=1 count=0/1 unmet
+  ok   range-too-wide: rc=1 count=0/1 unmet
+
+## RED CONTROL — C3 must fail a silent correction (from its own suite)
+  ok   contradiction: rc=1 findings=1 examined=2
+  ok   named-correction: rc=0 findings=0 examined=1
+  ok   silent-correction: rc=1 findings=1 examined=1
