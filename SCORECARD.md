@@ -6319,3 +6319,17 @@ this round). Assimilation: **none** — the `merge/tsukuroi/` package stays quar
 
 Scratch: every seat works under `$HYAKU_SCRATCH/tsukuroi-r76/<seat>/` (`HYAKU_SCRATCH` default
 `/fast/scratch/hyaku`); `/tmp` is for files under 50 MB only; a seat removes its own tree on exit.
+
+## Round 76 — declaration erratum R76-DECL-SPACE-CLAUSE (append-only)
+
+C1's frozen sentence says the manager "computes its space limit as used space plus the smaller of
+free space and keep_free, clamped between min_use and max_use". The pinned
+`journald-manager.c:168-170` reads `avail = LESS_BY(vfs_avail, metrics->keep_free);` and then
+`space->limit = CLAMP(vfs_used + avail, metrics->min_use, metrics->max_use);` — saturated
+subtraction, not `min(free, keep_free)`. The landed JD3 row states the subtraction and the clamp,
+and the note's "Reading the rows" bullet says so explicitly; the manual's "use the smaller of the
+two values" (MaxUse against the KeepFree-derived allowance) was mis-transcribed into code terms in
+the declaration prose. The frozen predicate (the counter line) is unchanged and passes; no
+replacement predicate is written. C1 is reported **verified on the frozen predicate** with this
+erratum on record, and the round report discloses the sentence defect rather than letting the
+counter's PASS stand for the prose.
