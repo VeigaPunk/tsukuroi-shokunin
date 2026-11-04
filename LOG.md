@@ -3258,3 +3258,9 @@ these are disclosed lexical limits, not silently changed scoring rules.
 Evidence: round-74 before/, w1/, w1-results.json; lesson round-74.md; SCORECARD errata.
 Scores remain depth 8 and freshness 9 (no numerical uplift). Entire round honest-stop
 because C1's literal frozen statement cannot be admitted. Final measurement receipt follows.
+
+Round-74 final measurement: `dc5114c5eb8e6349780d7bca8eb6e7470ec55553`,
+`.ufo/waves/round-74/after/measure-dc5114c5.txt`: six verified UF rows/met=1 rc 0;
+routed stale 2→0 (real base→measured commit), registry 308→313, notes 91→92,
+census rc 0, unchanged instrument selftests 13/13 and 6/6. C1 remains not verified
+as declared; C2 repairs verified. No numeric score changes.

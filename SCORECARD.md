@@ -6128,3 +6128,24 @@ having landed (the counters are independent and read different files).
    wave context also omitted the explicit scratch and pacman guard paragraphs. No package
    transaction or host service write was authorized or executed by the L1. Report these
    conformance defects; do not claim flawless protocol compliance.
+
+## Round 74 — measured outcome (author-side honest stop)
+
+Measured commit `dc5114c5eb8e6349780d7bca8eb6e7470ec55553`; receipt
+`.ufo/waves/round-74/after/measure-dc5114c5.txt`. Same frozen instruments at both revisions.
+
+| Claim | Before (real d749a625) | After (dc5114c5) | Score / verdict |
+|---|---|---|---|
+| C1 depth | UF_MAP absent, rc 128; registry 308, notes 91 | UF_ROWS=6 UF_VERIFIED=6 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=0 met=1, rc 0; registry 313, notes 92; census rc 0 | 8→8; **not verified as declared**, wrong volume clause despite mechanical target met |
+| C2 freshness | ROUTED_STALE=2 ROUTED_OK=0/2, rc 1 | ROUTED_STALE=0 ROUTED_OK=2/2, rc 0 | 9→9; repair verified mechanically and by direct reading; numerical uplift not claimed |
+
+Commands: `python3 tools/count-uf-rows-r74.py --revision <REV>` and
+`python3 tools/check-r73-routed-r74.py --revision <REV>`. Count registry rows by
+`git show <REV>:corpus/SOURCES.md` matching `^ {0,3}\| *S[0-9]+ *\|`; count `.md`
+names from `git ls-tree --name-only <REV>:corpus/knowledge`. The receipt records exact revisions.
+Selftests counter 13/13, checker 6/6; digests remain 94d46a5e… and 2da4ff1f….
+
+No new capability row; no score changes on other axes. Wave 12/12 settled (nine nonempty,
+three empty finals), strict attack 4/12, connector 1. WAVE-DONE received before report.
+No completed M1Mutation result is inferred. The correct source-backed note remains useful
+but cannot retroactively satisfy the false frozen C1 sentence. **Round honest-stop.**
