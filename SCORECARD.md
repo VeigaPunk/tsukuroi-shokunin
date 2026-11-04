@@ -6579,3 +6579,93 @@ canonical-copy load order was not fully followed; these are disclosed
 conformance limits, not new universal claims. Outside admission and the
 round-78 admit/reject discernment check remain pending. No promotion or
 package hold is lifted. Planned: outside closure first; no round 79 started.
+
+## Round 79 — declaration (frozen before data; append-only)
+
+Base `9086589a82f221d130ed6711fbe70b85f0d07aea`. Depth remains the lowest
+non-retired axis (8, tied adjacency 8); operability stays 9. No saturation
+waiver, no ordinal uplift pre-claimed, no promotion. L1 holds the planner seat.
+One v1 wave of 12 seats is planned (scout 1, executor 3, scribe 3, connector 1,
+reviewer 2, critic 1, mutation-tester 1; residual 0, attack share 4/12).
+
+**Load order actually used (routed r78 item 5).** (1) the dispatched prompt;
+(2) `skill://godspeed`; (3) fleet `MISSION.md`, `AXES.md`; (4) lane
+`SCORECARD.md`, `LOG.md`, `corpus/QUALITY.md`, the newest lessons and
+`considerthese/`; (5) `skill://shokunin` and the canonical
+`kimi-shokunin/skills/shokunin/SKILL.md`; (6) canonical `protocol/PROTOCOL.md`
+and deployment `CORPUS.md`, `LEARNING.md`; (7) `skill://swarm` before the spec.
+Deviation, disclosed rather than smoothed: the pinned snapshot and the first
+drafts of both instruments were written before step 6 ran; this freeze commit,
+`before/controls.json` and every seat data point come after it. No claim text
+was frozen before the protocol/CORPUS/LEARNING read.
+
+**Source opened before freeze** (2026-11-04): systemd v262
+`man/systemd.unit.xml`, SHA-256
+`eb9479bea50ccb0e7643836ec083e8ef68bdf9ef2b26f31839939168f82714c6`,
+snapshot `.ufo/waves/round-79/before/src/systemd.unit.xml`. Anchors:
+`Wants=` :663–673, `Requires=` :684–704, `Requisite=` :713–717,
+`BindsTo=` :734–748, `PartOf=` :764–772, `Upholds=` :783–791,
+`After=` :855–859, `RequiresMountsFor=` :934–940. These are upstream
+man-page lines, not installed Arch build lines. Quotes are located in the
+tag-stripped, whitespace-normalized snapshot by token position; the computed
+token line range must equal the row's `line` cell.
+
+| Claim | Axis | Frozen predicate and target | Counting command | Kill rule |
+|---|---|---|---|---|
+| C1 | depth 8, sourced S329 | **eight pinned dependency-propagation rows match with review binding**: `corpus/knowledge/systemd-dependency-propagation-r79.json` equals the eight DP1–DP8 objects in `before/expected.json` (id, directive, statement, source S329, snapshot, digest, line, quote), `source` is S329; S329 resolves in `corpus/SOURCES.md` as a non-`own-work` row naming `systemd.unit.xml`; every quote locates at its recorded token line range in the pinned snapshot; ReviewDeps' verdict binds the JSON digest, the companion digest and eight `holds`, and its report digest appears as `review_sha256=` in the unique reviewer-role ReviewDeps w1 result. Before 0 → target 8. | `python3 tools/measure-unit-deps-r79.py --revision <REV>` | rows != 8; a quote absent or at another line; digest, expected spec, source row or companion inconsistent; a changed counter/expected after data; review unbound |
+| C2 | operability 9 | **zero duplicate current rows and two gate-standard rows**: no tool path is named by more than one current operative registry row (`duplicates=0`), and the two rows the round-78 closure routed — `check-r71-routed-r72`, `count-md-rows-r72` — are `gate` rows whose self-test cell names their own `--selftest`, whose verdict map carries code 3 for self-test failure, and whose tool blob carries `--selftest` and a `SELFTEST` line (`shape_ok=2/2`). Before duplicates 6, shape 0/2 → target 0 and 2. | `python3 tools/check-gate-standard-r79.py --revision <REV>` | duplicates != 0; shape_ok != 2; a deleted/renamed existing tool; a false interface or an altered frozen checker |
+
+C1 is finite worked-example depth on the owned systemd-unit surface: a frozen
+decision set plus a byte-bound review, not a universal semantic oracle, not an
+authenticity system and not installed-build equivalence. A fully fabricated
+review/result bundle can still pass the numeric gate; the companion and source
+truth remain separate kill rules. C2 measures registry legibility and two
+truthful interfaces, not executable historical conformance.
+
+**Measured before-values.** `python3 tools/check-gate-standard-r79.py --revision 9086589a...`
+reads `duplicates=6 shape_ok=0/2 met=0` rc 1. The six are
+`check-r72-routed-r73`, `check-r75-routed-r76`, `check-selftest-tally`,
+`count-jd-rows-r76`, `count-ul-rows-r73`, `measure-journal-arithmetic-r77`.
+The round-78 closure's "seven" is corrected here by measurement: the seventh
+candidate it names, `count-uf-rows-r74`, appears a second time only as prose in
+the round-73 continuation block, not as a table row; a line-keyed counter would
+double-count prose and is therefore not used. `python3 tools/measure-unit-deps-r79.py --revision 9086589a...`
+reads `rows=0 ... reason=unreadable:FileNotFoundError` rc 1 (the target file
+does not exist at the base).
+
+**Pre-data controls** (`.ufo/waves/round-79/before/controls.json`, produced by
+`run-controls.py` before any seat existed): C1 selftest 32/32 rc 0; base C1
+0/rc1; scripted fetch-and-fill writer 0/rc1; sourceless 0/rc1; nine-row
+parameter violation 0/rc1; no-review bundle 0/rc1. C2 selftest 8/8 rc 0;
+base C2 duplicates 6, shape 0/2, rc1. The do-nothing base meets neither target.
+`before/expected.json` SHA-256
+`0c09c7a4ad010dd19e99b47940b94030f945498a20b705981b581e308f3add21`
+is frozen in the C1 instrument; changing either is a different instrument.
+
+**Routed defects from the round-78 closure.**
+1. QUALITY 28: both new instruments import `tools/_revision.py`; their selftests
+   exercise the instrument, and revision binding is demonstrated in the after
+   receipts. The frozen r78 counter is not retrofitted.
+2. Gate standard: C2's shape leg is exactly this repair; rc 2 stays usage or
+   could-not-evaluate and selftest failure exits 3. The r73/r74 selftest-TMPDIR
+   code-2 mapping stays as its accurate historical note, not silently rewritten.
+3. r78's indistinguishable red-before controls are historical: that frozen
+   counter is not edited; the limit is recorded in the round lesson.
+4. Duplicate continuation rows: the four current continuation tables gain an
+   explicit `NON-OPERATIVE` marker; C2's duplicate leg is their measurement.
+5. Load order: recorded above before freeze.
+6. Promotion input stays operator-owned; no `[x]` is written.
+
+**Frontier and sources.** Round start census
+`scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi`
+exits 0 (`before/census.txt`), W04 duplicate-URL warnings only. The round
+plans one new row, S329 (systemd.unit(5) v262, tier A/docs/mined, used by the
+new entry), one Gate admit and at least one Gate reject; no existing row's
+status/recheck/used-by changes. Assimilation: none (package and promotion
+holds unresolved). `considerthese/2026-10-26.md` adoption: the "seat-harm
+incident log" proposal lands as a QUALITY criterion requiring a per-round
+`## Seat harm` tally (this round's first tally is empty); it is a curation
+change, not a claim.
+
+Planned wave evidence lives under `.ufo/waves/round-79/`; scratch root
+`/fast/scratch/hyaku/tsukuroi-r79/<seat>`. No next round is started.

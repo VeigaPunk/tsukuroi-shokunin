@@ -3476,3 +3476,32 @@ operator package/promotion holds unchanged. Source, tool and record sweeps
 are retained under `after/`; only the two inherited SKILL registry rows
 are replaced versus base, plus the new r78 row's instrument-boundary wording
 is corrected between this round's commits. No corpus record is rewritten.
+
+## Round 79 (2026-11-04) — dependency-propagation depth and gate-standard registry
+
+Trigger: the round-78 non-author closure (`corpus/lessons/round-78-verifier-spotcheck.md`,
+routed defects 1–6) admits r78 but routes the missing shared revision
+validator, two gate rows without selftests, the duplicate continuation rows,
+the load-order record and the operator-owned promotion item. C1 opens
+systemd v262 `man/systemd.unit.xml` and freezes eight dependency-propagation
+rows on the owned unit surface; C2 makes the current registry legible and
+gives the two routed gate rows hermetic selftests. The claims are frozen in
+`SCORECARD.md` Round 79; snapshots, expected rows, control runner and observed
+pre-data controls are under `.ufo/waves/round-79/before/`.
+
+Source opened before freeze: v262 `systemd.unit.xml` SHA-256
+`eb9479bea50ccb0e7643836ec083e8ef68bdf9ef2b26f31839939168f82714c6`,
+anchors `Wants=` :663–673, `Requires=` :684–704, `Requisite=` :713–717,
+`BindsTo=` :734–748, `PartOf=` :764–772, `Upholds=` :783–791,
+`After=` :855–859 and `RequiresMountsFor=` :934–940. This is dependency
+propagation and ordering semantics, not an installed-build or live-host claim.
+
+Pre-data controls: C1 selftest 32/32 rc 0, base 0/rc1, scripted
+fetch-and-fill 0/rc1, sourceless 0/rc1, nine-row 0/rc1, no-review 0/rc1;
+C2 selftest 8/8 rc 0, base duplicates 6 / shape 0/2 rc 1. The C2 duplicate
+count is measured as six: the r78 closure's seventh candidate
+(`count-uf-rows-r74`) is prose, not a table row, and is recorded as a
+correction rather than counted twice. Load order and its disclosed deviation
+are recorded in the declaration. No host mutation, package adoption, promotion
+or ordinal uplift is authorized. Wave and integration evidence follow in the
+round's later commits.
