@@ -1,0 +1,34 @@
+# C2 v2: case-set guard on top of the landed --selftest (r72 E2GateSelftest)
+# v2 tool: $S/v2.py sha256 f22eb94f1ed86157d94875d0943b5ec62fba8214dd520e7eb4d645969b283464
+# patch base (live lane bytes): sha256 af46203c8ca983841ae5f049e706e5037e416013e72bca03333cbbbfbd5a2abb
+# patch: $S/selftest-v2.patch (38 lines)
+
+## (1) --selftest green run (10 cases)
+$ TMPDIR=/fast/scratch/hyaku/tsukuroi-r72/E2GateSelftest/tmp python3 /fast/scratch/hyaku/tsukuroi-r72/E2GateSelftest/v2.py --selftest
+PASS (SELFTEST-MATCH)
+PASS (SELFTEST-MISMATCH)
+PASS (SELFTEST-LABEL)
+PASS (SELFTEST-SUPERSEDED)
+PASS (SELFTEST-OUT-OF-SCOPE)
+PASS (SELFTEST-NO-RECEIPT)
+PASS (SELFTEST-GREEN-DIFF)
+PASS (SELFTEST-MIXED)
+PASS (SELFTEST-HERMETIC)
+PASS (SELFTEST-CASES)
+SELFTEST: PASS (10 cases, 10 passed, 0 failed)
+rc=0
+case_lines=10
+tmp_leak_under_slash_tmp=0
+
+## (2) patch applies to the live bytes and reproduces the tested file
+$ git init /fast/scratch/hyaku/tsukuroi-r72/E2GateSelftest/applycheck2 && git -C /fast/scratch/hyaku/tsukuroi-r72/E2GateSelftest/applycheck2 commit -qm base   # base = live lane file
+$ git -C /fast/scratch/hyaku/tsukuroi-r72/E2GateSelftest/applycheck2 apply --check /fast/scratch/hyaku/tsukuroi-r72/E2GateSelftest/selftest-v2.patch   -> rc=0
+$ git -C /fast/scratch/hyaku/tsukuroi-r72/E2GateSelftest/applycheck2 apply /fast/scratch/hyaku/tsukuroi-r72/E2GateSelftest/selftest-v2.patch           -> rc=0
+applied_bytes_equal_tested_file=1
+applied_copy_selftest_rc=0 last_line=SELFTEST: PASS (10 cases, 10 passed, 0 failed)
+
+## (3) existing mode unchanged (r70 self-demo, lane root, read-only)
+$ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && python3 /fast/scratch/hyaku/tsukuroi-r72/E2GateSelftest/v2.py --receipt /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-70/after/selftest-after.txt --label R70-C2 --range 4035c1a0..40c35ee7 -- SCORECARD.md PROVINCE.md corpus/README.md SKILL.md
+SWEEP added_figures_mismatched=0 skipped_superseded=0 receipt_cases=214 receipt_labels=18
+rc=0
+v2_ok=1

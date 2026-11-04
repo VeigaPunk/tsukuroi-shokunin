@@ -1,0 +1,205 @@
+# C2 v2 mutation matrix over the --selftest cases (case-set guard included)
+# Every case must fail when the branch it names is disabled or its row is deleted,
+# and only then: a case that survives all eleven mutants would pass vacuously.
+# base: $S/v2.py sha256 f22eb94f1ed86157d94875d0943b5ec62fba8214dd520e7eb4d645969b283464
+# command: TMPDIR=$S/tmp python3 <mutant> --selftest
+
+## M1 cases-mismatch-branch-disabled
+# mutation: replace 'ok = v == n' -> 'ok = True'
+PASS (SELFTEST-MATCH)
+FAIL (SELFTEST-MISMATCH) rc=0 want=1 missing=[] forbidden=['added_figures_mismatched=0']
+PASS (SELFTEST-LABEL)
+PASS (SELFTEST-SUPERSEDED)
+PASS (SELFTEST-OUT-OF-SCOPE)
+PASS (SELFTEST-NO-RECEIPT)
+PASS (SELFTEST-GREEN-DIFF)
+FAIL (SELFTEST-MIXED) rc=0 want=1 missing=['added_figures_mismatched=1'] forbidden=[]
+PASS (SELFTEST-HERMETIC)
+PASS (SELFTEST-CASES)
+SELFTEST: FAIL (10 cases, 8 passed, 2 failed)
+rc=1
+failing_cases=SELFTEST-MISMATCH,SELFTEST-MIXED
+expected_cases=SELFTEST-MISMATCH,SELFTEST-MIXED
+verdict=CAUGHT
+
+## M2 label-mismatch-branch-disabled
+# mutation: replace 'ok = v == labels' -> 'ok = True'
+PASS (SELFTEST-MATCH)
+PASS (SELFTEST-MISMATCH)
+FAIL (SELFTEST-LABEL) rc=0 want=1 missing=[] forbidden=['added_figures_mismatched=0']
+PASS (SELFTEST-SUPERSEDED)
+PASS (SELFTEST-OUT-OF-SCOPE)
+PASS (SELFTEST-NO-RECEIPT)
+PASS (SELFTEST-GREEN-DIFF)
+PASS (SELFTEST-MIXED)
+PASS (SELFTEST-HERMETIC)
+PASS (SELFTEST-CASES)
+SELFTEST: FAIL (10 cases, 9 passed, 1 failed)
+rc=1
+failing_cases=SELFTEST-LABEL
+expected_cases=SELFTEST-LABEL
+verdict=CAUGHT
+
+## M3 superseded-skip-branch-disabled
+# mutation: replace 'if any(marker in line for marker in SUPERSEDED):' -> 'if False:'
+PASS (SELFTEST-MATCH)
+PASS (SELFTEST-MISMATCH)
+PASS (SELFTEST-LABEL)
+FAIL (SELFTEST-SUPERSEDED) rc=1 want=0 missing=['SKIP tally-fixture.md:1', 'skipped_superseded=1'] forbidden=['cases_figure']
+PASS (SELFTEST-OUT-OF-SCOPE)
+PASS (SELFTEST-NO-RECEIPT)
+PASS (SELFTEST-GREEN-DIFF)
+PASS (SELFTEST-MIXED)
+PASS (SELFTEST-HERMETIC)
+PASS (SELFTEST-CASES)
+SELFTEST: FAIL (10 cases, 9 passed, 1 failed)
+rc=1
+failing_cases=SELFTEST-SUPERSEDED
+expected_cases=SELFTEST-SUPERSEDED
+verdict=CAUGHT
+
+## M4 out-of-scope-filter-disabled
+# mutation: replace 'if ("selftest" not in line.lower()) and ("cases, " not in line):' -> 'if False:'
+PASS (SELFTEST-MATCH)
+PASS (SELFTEST-MISMATCH)
+PASS (SELFTEST-LABEL)
+PASS (SELFTEST-SUPERSEDED)
+FAIL (SELFTEST-OUT-OF-SCOPE) rc=1 want=0 missing=['added_figures_mismatched=0'] forbidden=['cases_figure']
+PASS (SELFTEST-NO-RECEIPT)
+PASS (SELFTEST-GREEN-DIFF)
+PASS (SELFTEST-MIXED)
+PASS (SELFTEST-HERMETIC)
+PASS (SELFTEST-CASES)
+SELFTEST: FAIL (10 cases, 9 passed, 1 failed)
+rc=1
+failing_cases=SELFTEST-OUT-OF-SCOPE
+expected_cases=SELFTEST-OUT-OF-SCOPE
+verdict=CAUGHT
+
+## M5 no-receipt-guard-bypassed
+# mutation: replace 'm = RECEIPT.search(receipt_text)' -> 'm = RECEIPT.search(receipt_text) or RECEIPT.search("PASS (0 cases, 0 passed, 0 failed)")'
+PASS (SELFTEST-MATCH)
+PASS (SELFTEST-MISMATCH)
+PASS (SELFTEST-LABEL)
+PASS (SELFTEST-SUPERSEDED)
+PASS (SELFTEST-OUT-OF-SCOPE)
+FAIL (SELFTEST-NO-RECEIPT) rc=1 want=2 missing=['SWEEP-NO-RECEIPT', 'no receipt line'] forbidden=['added_figures_mismatched']
+PASS (SELFTEST-GREEN-DIFF)
+PASS (SELFTEST-MIXED)
+PASS (SELFTEST-HERMETIC)
+PASS (SELFTEST-CASES)
+SELFTEST: FAIL (10 cases, 9 passed, 1 failed)
+rc=1
+failing_cases=SELFTEST-NO-RECEIPT
+expected_cases=SELFTEST-NO-RECEIPT
+verdict=CAUGHT
+
+## M6 summary-format-drift
+# mutation: replace 'out(f"SWEEP added_figures_mismatched=' -> 'out(f"SWEEP-SUMMARY added_figures_mismatched='
+PASS (SELFTEST-MATCH)
+PASS (SELFTEST-MISMATCH)
+PASS (SELFTEST-LABEL)
+PASS (SELFTEST-SUPERSEDED)
+PASS (SELFTEST-OUT-OF-SCOPE)
+PASS (SELFTEST-NO-RECEIPT)
+FAIL (SELFTEST-GREEN-DIFF) rc=0 want=0 missing=['SWEEP added_figures_mismatched=0 skipped_superseded=0 receipt_cases=218 receipt_labels=4'] forbidden=[]
+PASS (SELFTEST-MIXED)
+PASS (SELFTEST-HERMETIC)
+PASS (SELFTEST-CASES)
+SELFTEST: FAIL (10 cases, 9 passed, 1 failed)
+rc=1
+failing_cases=SELFTEST-GREEN-DIFF
+expected_cases=SELFTEST-GREEN-DIFF
+verdict=CAUGHT
+
+## M7 temp-root-not-removed
+# mutation: replace 'shutil.rmtree(root, ignore_errors=True)' -> 'pass'
+PASS (SELFTEST-MATCH)
+PASS (SELFTEST-MISMATCH)
+PASS (SELFTEST-LABEL)
+PASS (SELFTEST-SUPERSEDED)
+PASS (SELFTEST-OUT-OF-SCOPE)
+PASS (SELFTEST-NO-RECEIPT)
+PASS (SELFTEST-GREEN-DIFF)
+PASS (SELFTEST-MIXED)
+FAIL (SELFTEST-HERMETIC) under_tmpdir=True under_root=True away_from_tmp=True removed=False fixtures=16
+PASS (SELFTEST-CASES)
+SELFTEST: FAIL (10 cases, 9 passed, 1 failed)
+rc=1
+failing_cases=SELFTEST-HERMETIC
+expected_cases=SELFTEST-HERMETIC
+verdict=CAUGHT
+
+## M8 cases-predicate-inverted
+# mutation: replace 'ok = v == n' -> 'ok = v != n'
+FAIL (SELFTEST-MATCH) rc=1 want=0 missing=['added_figures_mismatched=0'] forbidden=['MISM tally']
+FAIL (SELFTEST-MISMATCH) rc=0 want=1 missing=[] forbidden=['added_figures_mismatched=0']
+PASS (SELFTEST-LABEL)
+PASS (SELFTEST-SUPERSEDED)
+PASS (SELFTEST-OUT-OF-SCOPE)
+PASS (SELFTEST-NO-RECEIPT)
+FAIL (SELFTEST-GREEN-DIFF) rc=1 want=0 missing=['SWEEP added_figures_mismatched=0 skipped_superseded=0 receipt_cases=218 receipt_labels=4'] forbidden=['MISM tally']
+PASS (SELFTEST-MIXED)
+PASS (SELFTEST-HERMETIC)
+PASS (SELFTEST-CASES)
+SELFTEST: FAIL (10 cases, 7 passed, 3 failed)
+rc=1
+failing_cases=SELFTEST-GREEN-DIFF,SELFTEST-MATCH,SELFTEST-MISMATCH
+expected_cases=SELFTEST-GREEN-DIFF,SELFTEST-MATCH,SELFTEST-MISMATCH
+verdict=CAUGHT
+
+## M9 scope-filter-always-skips
+# mutation: replace 'if ("selftest" not in line.lower()) and ("cases, " not in line):' -> 'if True:'
+FAIL (SELFTEST-MATCH) rc=0 want=0 missing=['cases_figure=218 receipt=218'] forbidden=[]
+FAIL (SELFTEST-MISMATCH) rc=0 want=1 missing=['SWEEP-MISMATCH', 'tally-fixture.md:2 cases_figure=217 receipt=218'] forbidden=['added_figures_mismatched=0']
+FAIL (SELFTEST-LABEL) rc=0 want=1 missing=['SWEEP-LABEL', 'label_figure=3 receipt=4'] forbidden=['added_figures_mismatched=0']
+FAIL (SELFTEST-SUPERSEDED) rc=0 want=0 missing=['SKIP tally-fixture.md:1', 'skipped_superseded=1'] forbidden=[]
+PASS (SELFTEST-OUT-OF-SCOPE)
+PASS (SELFTEST-NO-RECEIPT)
+PASS (SELFTEST-GREEN-DIFF)
+FAIL (SELFTEST-MIXED) rc=0 want=1 missing=['SWEEP-MISMATCH', 'cases_figure=220', 'added_figures_mismatched=1'] forbidden=[]
+PASS (SELFTEST-HERMETIC)
+PASS (SELFTEST-CASES)
+SELFTEST: FAIL (10 cases, 5 passed, 5 failed)
+rc=1
+failing_cases=SELFTEST-LABEL,SELFTEST-MATCH,SELFTEST-MISMATCH,SELFTEST-MIXED,SELFTEST-SUPERSEDED
+expected_cases=SELFTEST-LABEL,SELFTEST-MATCH,SELFTEST-MISMATCH,SELFTEST-MIXED,SELFTEST-SUPERSEDED
+verdict=CAUGHT
+
+## M10 declared-case-row-deleted
+# mutation: delete '        ("NO-RECEIPT", "no summary here\\n",\n         "+++ b/tally-fixture.md\\n' -> None
+PASS (SELFTEST-MATCH)
+PASS (SELFTEST-MISMATCH)
+PASS (SELFTEST-LABEL)
+PASS (SELFTEST-SUPERSEDED)
+PASS (SELFTEST-OUT-OF-SCOPE)
+PASS (SELFTEST-GREEN-DIFF)
+PASS (SELFTEST-MIXED)
+PASS (SELFTEST-HERMETIC)
+FAIL (SELFTEST-CASES) observed=MATCH,MISMATCH,LABEL,SUPERSEDED,OUT-OF-SCOPE,GREEN-DIFF,MIXED,HERMETIC declared=MATCH,MISMATCH,LABEL,SUPERSEDED,OUT-OF-SCOPE,NO-RECEIPT,GREEN-DIFF,MIXED,HERMETIC
+SELFTEST: FAIL (9 cases, 8 passed, 1 failed)
+rc=1
+failing_cases=SELFTEST-CASES
+expected_cases=SELFTEST-CASES
+verdict=CAUGHT
+
+## M11 hermetic-case-append-deleted
+# mutation: delete '    results.append(("HERMETIC", under_tmpdir and under_root and away_from_tmp ' -> None
+PASS (SELFTEST-MATCH)
+PASS (SELFTEST-MISMATCH)
+PASS (SELFTEST-LABEL)
+PASS (SELFTEST-SUPERSEDED)
+PASS (SELFTEST-OUT-OF-SCOPE)
+PASS (SELFTEST-NO-RECEIPT)
+PASS (SELFTEST-GREEN-DIFF)
+PASS (SELFTEST-MIXED)
+FAIL (SELFTEST-CASES) observed=MATCH,MISMATCH,LABEL,SUPERSEDED,OUT-OF-SCOPE,NO-RECEIPT,GREEN-DIFF,MIXED declared=MATCH,MISMATCH,LABEL,SUPERSEDED,OUT-OF-SCOPE,NO-RECEIPT,GREEN-DIFF,MIXED,HERMETIC
+SELFTEST: FAIL (9 cases, 8 passed, 1 failed)
+rc=1
+failing_cases=SELFTEST-CASES
+expected_cases=SELFTEST-CASES
+verdict=CAUGHT
+
+# M10 is the answer to the case-set finding: deleting a declared case row now
+# fails SELFTEST-CASES instead of silently printing PASS with N-1 cases.
+matrix_summary=11 mutants, 11 caught, cases_covered=10, vacuous_cases=none

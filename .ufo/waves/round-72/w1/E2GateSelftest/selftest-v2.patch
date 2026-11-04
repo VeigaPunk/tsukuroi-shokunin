@@ -1,0 +1,38 @@
+--- a/tools/check-selftest-tally.py
++++ b/tools/check-selftest-tally.py
+@@ -13,13 +13,14 @@
+ 
+ Exit: 0 when every added figure equals the receipt's figure, 1 on any mismatch, 2 when the
+ receipt carries no `PASS (N cases, ...)` line or on usage.
+-`--selftest` runs nine hermetic cases.  Every receipt/diff fixture is written, and read back,
++`--selftest` runs ten hermetic cases.  Every receipt/diff fixture is written, and read back,
+ under ONE temp root created in `$TMPDIR` (never a hardcoded `/tmp`; the platform default is
+ used only when `TMPDIR` is unset).  One named `PASS (SELFTEST-<ID>)` / `FAIL (SELFTEST-<ID>)`
+ line per case, then `SELFTEST: PASS (N cases, N passed, 0 failed)`; exit 0 only when every
+ case passes, 1 when one fails.  Findings carry stable ids: a figure mismatch is
+ `SWEEP-MISMATCH`, a label-count mismatch `SWEEP-LABEL`, a receipt with no PASS line
+-`SWEEP-NO-RECEIPT`.
++`SWEEP-NO-RECEIPT`.  `SELFTEST-CASES` compares the executed case ids with the pinned
++`DECLARED` manifest, so deleting a case row is itself a failure.
+ 
+ Only lines that name the census selftest or carry the receipt's own "cases, " phrasing are
+ scored: a battery's "11 cases", a registry row's historical count or any other instrument's
+@@ -40,6 +41,8 @@
+ LABEL = re.compile(r"(?<![\w.])(\d{1,3})\s+(?:of them\s+)?labelled")
+ RECEIPT = re.compile(r"PASS \((\d+) cases, (\d+) passed, (\d+) failed\)")
+ FINDING = {"cases": "SWEEP-MISMATCH", "labels": "SWEEP-LABEL", "receipt": "SWEEP-NO-RECEIPT"}
++DECLARED = ("MATCH", "MISMATCH", "LABEL", "SUPERSEDED", "OUT-OF-SCOPE",
++            "NO-RECEIPT", "GREEN-DIFF", "MIXED", "HERMETIC")
+ 
+ 
+ def sweep(receipt_text, diff_text, label, out):
+@@ -175,6 +178,9 @@
+     detail = (f"under_tmpdir={under_tmpdir} under_root={under_root} "
+               f"away_from_tmp={away_from_tmp} removed={removed} fixtures={len(written)}")
+     results.append(("HERMETIC", under_tmpdir and under_root and away_from_tmp and removed, detail))
++    observed = [cid for cid, _, _ in results]
++    results.append(("CASES", observed == list(DECLARED) and len(observed) == len(set(observed)),
++                    f"observed={','.join(observed)} declared={','.join(DECLARED)}"))
+ 
+     passed = 0
+     for cid, ok, detail in results:

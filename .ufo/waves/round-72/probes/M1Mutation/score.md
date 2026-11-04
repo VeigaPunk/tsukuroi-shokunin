@@ -116,8 +116,11 @@ design; it is recorded as a calibration limit, not as a stale item.
 
 ## C2 selftest — the suite is blind to its own case set
 
-Pinned draft `af4620…` declares 8 cases (`MATCH, MISMATCH, LABEL, SUPERSEDED, OUT-OF-SCOPE, NO-RECEIPT,
-GREEN-DIFF, MIXED`) plus an appended `HERMETIC` result line (9 suite lines; printout says 9 cases).
+Pinned draft `af4620…` has a case table of 8 rows (`MATCH, MISMATCH, LABEL, SUPERSEDED, OUT-OF-SCOPE,
+NO-RECEIPT, GREEN-DIFF, MIXED`) plus a computed `HERMETIC` case appended after cleanup: **9 case lines**,
+and the green printout reads `SELFTEST: PASS (9 cases, 9 passed, 0 failed)`. A one-row deletion therefore
+prints 8 — the 9→8 truncation measured below (`mutants.tsv` marks the C2 rows' `battery_cases` column
+`8rows/9lines` for that reason).
 Removing one declared case at a time (AST line-range deletion) and running `--selftest` under `$TMPDIR`:
 
 | removal | suite rc | suite line |
@@ -136,6 +139,28 @@ silent**, including removal of `NO-RECEIPT`, the only case covering the rc-2 pat
 does have teeth on behaviour, which separates "blind case set" from "toothless suite":
 `return (1 if mism else 0, …) → return 0` → `FAIL (9 cases, 6 passed, 3 failed)`; superseded-skip disabled,
 out-of-scope filter disabled and label regex disabled each → `FAIL (9 cases, 8 passed, 1 failed)`.
+
+### v2 probe (peer patch `selftest-v2.patch`, base `af4620…` → `f22eb94f…`)
+
+Byte identity checked in scratch (`patch -p1` rc 0): base `af46203c…aabb` →
+`f22eb94f1ed86157d94875d0943b5ec62fba8214dd520e7eb4d645969b283464`; green `--selftest` prints
+`SELFTEST: PASS (10 cases, 10 passed, 0 failed)` with 10 `PASS (SELFTEST-…)` lines, rc 0. v2 appends a
+`CASES` case comparing the executed id list against a module-level `DECLARED` tuple of 9 ids.
+
+| v2 mutation | suite rc | suite line |
+|---|---|---|
+| delete the `NO-RECEIPT` table row only | 1 | `FAIL (SELFTEST-CASES) observed=MATCH,…,MIXED,HERMETIC declared=…,NO-RECEIPT,…`; `FAIL (9 cases, 8 passed, 1 failed)` |
+| delete the `HERMETIC` append only | 1 | `FAIL (SELFTEST-CASES) observed=…MIXED declared=…MIXED,HERMETIC`; rc 1 |
+| delete the row **and** its `DECLARED` entry | 0 | `SELFTEST: PASS (9 cases, 9 passed, 0 failed)` — residual blindness |
+
+v2 closes single-row deletion and append deletion; it cannot close the row+manifest case: suite completeness
+is not self-verifiable from inside the suite. The closure check must count case lines externally and against
+the digest-specific figure:
+
+```
+python3 tools/check-selftest-tally.py --selftest | grep -c '^PASS (SELFTEST-'
+# 9 at af46203c…aabb ; 10 at f22eb94f…8464 — N is digest-bound, never carried across digests
+```
 
 ## Drift observed (lane tree is being written concurrently)
 

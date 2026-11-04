@@ -81,6 +81,12 @@ only).
   (`R2Reviewer` medium) · captured-by: `R2Reviewer` · fix: recorded as a named limit, not repaired — the
   checker verifies naming, not entailment; the correction's substance rests on the non-author review and
   the closure judge.
+- **R72-C2-CASE-SET** — class `a suite cannot see its own case being deleted` · evidence: with nine
+  cases, deleting one row left `SELFTEST: PASS (9 cases …)`-shaped output with N-1 cases (the r71
+  M1Mutation finding recurring); `M1Mutation` and `E2GateSelftest` named it · captured-by: `E2GateSelftest`
+  v2 · fix: a tenth case `SELFTEST-CASES` compares observed case ids against the declared list and fails
+  with `observed=`/`declared=`; the landed tool is 10 cases / 10 passed, and a scratch copy with the
+  OUT-OF-SCOPE row deleted reads `FAIL (SELFTEST-CASES)` rc 1.
 - **R72-DECL-REDBEFORE-UNCOMMITTED** — class `cited receipt absent from the declared commit` · evidence:
   the frozen C2 row names `before/control/selftest-redbefore.txt`, absent from `6b42676` (committed one
   commit later at `123e1c57`) · captured-by: `K1Critic` D1 · fix: a reproducible recipe lands at

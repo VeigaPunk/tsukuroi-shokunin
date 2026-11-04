@@ -5780,3 +5780,12 @@ same values (`MD_VERIFIED=6 met=1` rc 0; `SELFTEST: PASS (9 cases, 9 passed, 0 f
 `$TMPDIR` rc 2; red-before rc 1; `ROUTED_STALE=0` rc 0; 303 registry rows; 90 notes; census rc 0) —
 `.ufo/waves/round-72/after/measure-1b27bffc.txt`.
 
+**C2 instrument superseded in-round (append-only).** The outcome above records the C2 `--selftest` at
+nine cases (instrument sha256 `af46203c…`). `E2GateSelftest` then filed a v2 delta closing the case-set
+hole `M1Mutation` named: a tenth case, `SELFTEST-CASES`, fails when a declared case row is deleted and
+prints observed vs declared ids. The landed tool is **10 cases, 10 passed, 0 failed** (sha256
+`f22eb94f1ed86157d94875d0943b5ec62fba8214dd520e7eb4d645969b283464`), its after receipt is
+`.ufo/waves/round-72/after/selftest-selftest-after.txt`, and the committed red-before recipe still
+fails (`SELFTEST-MISMATCH`, `SELFTEST-MIXED`; rc 1). The frozen target `N >= 7` and the r70 self-demo
+(`added_figures_mismatched=0 receipt_cases=214 receipt_labels=18`, rc 0) are unchanged.
+

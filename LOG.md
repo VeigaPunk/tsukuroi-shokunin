@@ -3171,3 +3171,7 @@ the precedence question on its bytes.
 Evidence: `.ufo/waves/round-72/{before,after,w1,probes}/`; lesson `corpus/lessons/round-72.md`;
 measured outcome in `SCORECARD.md` "Round 72 — measured outcome".
 
+C2 instrument superseded in-round: `E2GateSelftest` v2 adds the `SELFTEST-CASES` guard against a deleted
+case row; the landed tool is 10 cases / 10 passed (sha256 `f22eb94f…`), the red-before recipe still fails,
+and the frozen target `N >= 7` and the r70 self-demo are unchanged.
+
