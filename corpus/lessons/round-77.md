@@ -172,3 +172,36 @@ inside the exact operative registry; a pure row insertion into the existing
 highest-numbered contiguous table fixes that placement without overwriting
 prior rows or changing the frozen instrument. The remaining inherited
 findings are measured separately rather than called a green registry.
+
+## Final support receipts
+
+`after/registry-comparison.json` binds base and documented revision
+`7c3077d1c5b9bb75091c9c65db1541fb06bd8f61`: both have exactly the same
+10 findings (8 missing inherited rows and 2 inherited code-2 verdict-map
+omissions). Registered tools increase 107→108 and total tools 115→116.
+The new row omission is repaired; the registry still exits 1, not green.
+QUALITY 70's whole-registry exit-0 condition is not met because that
+inherited debt remains. No existing tool or registry row is changed.
+
+`after/knowledge-refs-final.txt` exits 0 at that documented revision,
+and `after/census-end.json` exits 0 (W04 duplicate-URL warnings only).
+`after/structural-counts.json` records registry 323→326 and Markdown
+knowledge notes 94→95 at both measured/documented revisions; the record
+file numstat sweep has 0 removals, with existing record text preserved.
+`after/historical-count.json` executes the exact quoted historical grep
+count: 323, git exit 0 and grep exit 0.
+
+Trend assessment is author-side: expansion unchanged (deeper held ground,
+not a new surface); quality improved (false S320 wording now explicitly
+superseded, source-grounded worked examples and three record corrections);
+discernment unchanged pending an outside round-77 admit+reject sample.
+
+Self-evaluation: accuracy 4 (finite examples independently read and compiled,
+but manager state unknown); completeness 4 (claimed content landed; inherited
+registry and reviewer-binding conformance debt disclosed); clarity 4
+(finite objects separated from semantic proof); actionability 4 (exact
+commands and operator handoff, no remediation permission); conciseness 4
+(long evidence retained as receipts). Mean 4.0. Highest-impact remaining
+external review is the admit+reject spot-check and adjudication of QUALITY 81,
+not a broader claim or a changed frozen predicate. User agreement is unknown;
+the stated limitations are evidence-backed rather than self-admission.

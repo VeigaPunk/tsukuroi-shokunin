@@ -3411,3 +3411,13 @@ The registry-placement check exposed a new row outside the operative table
 (11 findings / 9 missing at that commit); its pure insertion into the
 existing contiguous operative table repairs the new omission. The original
 red receipt is retained, with the final/baseline comparison to follow.
+
+Round-77 final support: `after/registry-comparison.json` at documented
+revision `7c3077d1c5b9bb75091c9c65db1541fb06bd8f61` shows the baseline
+and final registry findings are identical (10, including 8 inherited missing
+rows), while registered tools rise 107→108. This is a repaired new omission
+with inherited conformance debt, not a clean gate. Knowledge refs exit 0;
+end census exit 0; row/note accounting is 323→326 / 94→95. Append-only
+record sweep has no removals. Receipts and full commands are under `after/`.
+Outside current-round discernment remains pending; expansion unchanged,
+quality improved, discernment unchanged are the honest author-side trends.

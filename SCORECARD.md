@@ -6477,3 +6477,19 @@ the new tool missing alongside inherited findings. Its row is now also
 inserted, without changing existing rows, into the contiguous operative
 round71 table, following round75's existing continuation pattern.
 This is a documentation repair, not an instrument/predicate/target change.
+
+Round-77 support at `7c3077d1c5b9bb75091c9c65db1541fb06bd8f61`:
+registry tool 107→108 registered, baseline/final findings identical at 10
+(8 missing rows, 2 incomplete verdict maps), both rc 1. New-tool placement
+is repaired, but the inherited whole-registry debt is not called clean.
+Knowledge-reference gate rc 0; registry rows 323→326, Markdown notes 94→95;
+end census rc 0. Exact receipts are in `after/`, especially
+`registry-comparison.json` and `structural-counts.json`.
+Declared C1/C2 targets remain the measures at `84898cc8`; later commits
+change documentation and evidence only, not their JSON/lesson target bytes,
+snapshots, instrument or expected specification.
+
+Planned: outside closure first; retain the six finite-example boundary and
+the source-row supersession. A later round may address inherited registry
+debt or reviewer-binding requirements under a fresh predicate. This round
+claims no such repair and does not start round 78.
