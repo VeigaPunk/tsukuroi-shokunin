@@ -1,0 +1,40 @@
+# round-73 C2 before/after control on the FINAL checker bytes (append-only states recorded)
+# tool: tools/check-r72-routed-r73.py sha256 731841988c6943370bc6e863b7f72cd8bd85a626ec7f2f989eb422b4c6d82f0b
+# declaration: 93f034e3…; intermediates: 328a6bf6… (hardening), 71931c1c… (exit-map docstring), final below.
+
+$ TMPDIR=$HYAKU_SCRATCH/tsukuroi-r73/l1 python3 tools/check-r72-routed-r73.py --selftest | tail -1
+SELFTEST: PASS (13 cases, 13 passed, 0 failed)
+
+# revision eb105757
+$ python3 tools/check-r72-routed-r73.py --revision eb105757; echo rc=$?
+LESSON-STALE path=corpus/lessons/round-72.md reason=no-block
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-tokens
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+# revision a7015d27
+$ python3 tools/check-r72-routed-r73.py --revision a7015d27; echo rc=$?
+LESSON-STALE absent path=corpus/lessons/round-72.md
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-tokens
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=receipt-absent path=.ufo/waves/round-72/after/selftest-selftest-after.txt
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+# revision 583eea87
+$ python3 tools/check-r72-routed-r73.py --revision 583eea87; echo rc=$?
+ROUTED_ITEM LESSON ok
+ROUTED_ITEM DIGEST ok
+ROUTED_ITEM CAPABILITY ok
+ROUTED_STALE=0 ROUTED_OK=3/3
+rc=0
+
+# absolute receipt path accepted (E2Routed trap 1: a preceding "/" no longer rejects the token)
+$ python3 - <<'PY'  # fixture with the absolute receipt path in the capability block
+absolute-receipt fixture rc=0 last=ROUTED_STALE=0 ROUTED_OK=3/3

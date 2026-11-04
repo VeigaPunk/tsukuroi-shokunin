@@ -6000,3 +6000,29 @@ counter's entailment channel (a row whose quote does not support its statement);
 channel E1Counter proved (`§D2`, a later row silently shadows an earlier duplicate); the three held drop-in
 observations (`faster-shutdown.conf`, `app-walker@autostart.service.d/`) re-bound to the new merge rules as
 sources; no amendment of this round's frozen predicates.
+
+## Round 73 — C2 instrument, final bytes and the r72 digest-order correction (append-only)
+
+Appended after the wave's last attack receipt. Two records are corrected or completed here; no frozen
+predicate text changes.
+
+1. **The r72 digest order in "Round 72 — instrument digest erratum" above is wrong.** The correct order of
+   committed bytes for `tools/check-r71-routed-r72.py` is: `6b426762` `df8a59c7…` (the declaration's true
+   value) → `123e1c57` `b17fddfa…` → `53bcddef` `2610ff43…` → `7fb35c74` through the present tip
+   `2610ff43…`. The earlier sentence reverses `123e1c57` and `53bcddef`; `123e1c57` (22:41) is the
+   ancestor and `53bcddef` (22:44) its child (`git log --reverse 6b426762..53bcddef` shows
+   `123e1c57` first). The erratum's substance — the declaration's digest was true when written and the tool
+   drifted afterwards without a record — is unchanged.
+2. **The checker's final bytes** are `731841988c6943370bc6e863b7f72cd8bd85a626ec7f2f989eb422b4c6d82f0b`
+   (states: declaration `93f034e3…`, hardening `328a6bf6…`, exit-map docstring `71931c1c…`, final below).
+   The last repair answers E2Routed's own traps against `71931c1c…`: a correct **absolute** receipt path was
+   rejected by the path-token lookbehind (it now permits a preceding `/` while still refusing a longer path
+   suffix), a `SELFTEST: FAIL (N cases…)` receipt satisfied the receipt gate (it now requires `PASS`), and a
+   bare `## Correction (placeholder)` heading could swallow a later `###` section (blocks are now split at
+   `## ` and `### `). `--selftest` grows to **thirteen** cases (RECEIPT-FAIL and PLACEHOLDER added).
+3. **Control re-run on the final bytes** (`.ufo/waves/round-73/after/c2-final-instrument.txt`):
+   `--revision eb105757` → `ROUTED_STALE=3` rc 1; `--revision a7015d27` → `ROUTED_STALE=3` rc 1;
+   `--revision 583eea87` → `ROUTED_STALE=0 ROUTED_OK=3/3` rc 0; `--selftest` →
+   `SELFTEST: PASS (13 cases, 13 passed, 0 failed)`; an absolute-receipt fixture reads `ROUTED_STALE=0`.
+4. **Still a named limit:** the denial leg. A block that keeps every token while contradicting it reads 0/3
+   (R2Reviewer P4b, E2Routed's final message); direction rests on a non-author reading, never on this check.

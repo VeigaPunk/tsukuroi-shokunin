@@ -30,7 +30,7 @@ TIP_DIGEST = "2610ff433bf5d4e945ce5b2da0cf168745e4142ecffabc3d160afee33005cdcc"
 RECEIPT = ".ufo/waves/round-72/after/selftest-selftest-after.txt"
 MIN_CASES = 10
 
-HEADING_RE = re.compile(r"^## .+", re.M)
+HEADING_RE = re.compile(r"^#{2,3} .+", re.M)
 SUPERSEDE_RE = re.compile(r"(?i)\b(supersed\w*|correct\w*|clos\w*|replac\w*|record\w*|erratum)\b")
 DIRECTION_RE = re.compile(
     re.escape(OLD_DIGEST) + r".{0,240}?(→|->|\bto\b|\bmoved from\b|\bsuperseded by\b).{0,240}?"
@@ -105,7 +105,7 @@ def has_token(text, tok):
     A token that looks like a path (contains "/") must also not be a proper prefix or suffix of a
     longer path (wave attack F4: `selftest-selftest-after.txt.bak` passed a substring test)."""
     if "/" in tok:
-        return re.search(r"(?<![A-Za-z0-9_./-])" + re.escape(tok)
+        return re.search(r"(?<![A-Za-z0-9_.-])" + re.escape(tok)
                          + r"(?!\.[A-Za-z0-9])(?![A-Za-z0-9_/-])", text) is not None
     return re.search(r"(?<![A-Za-z0-9_-])" + re.escape(tok) + r"(?![A-Za-z0-9_-])", text) is not None
 
@@ -117,12 +117,12 @@ def receipt_cases(rt):
         return False, None
     m = None
     for line in body.splitlines():
-        mm = re.search(r"SELFTEST: (PASS|FAIL) \((\d+) cases?,\s*(\d+) passed,\s*(\d+) failed\)", line)
+        mm = re.search(r"SELFTEST: PASS \((\d+) cases?,\s*(\d+) passed,\s*(\d+) failed\)", line)
         if mm:
             m = mm
     if not m:
         return True, None
-    return True, int(m.group(2))
+    return True, int(m.group(1))
 
 
 def check_item(rt, item, out):
@@ -253,6 +253,16 @@ def selftest():
                             + TIP_DIGEST + " to " + OLD_DIGEST
                             + "; the before control was re-run (same-instrument) at " + RECEIPT + ".\n"),
          1, "DIGEST-STALE")
+    case("RECEIPT-FAIL", texts(receipt="SELFTEST: FAIL (10 cases, 0 passed, 10 failed)\n"),
+         1, "receipt-count")
+
+    def placeholder_map():
+        m = texts()
+        m[SCORECARD] = ("# SC\n\n## Correction (placeholder)\n\n### unrelated\n\n"
+                        + GOOD_DIGEST.split("\n", 1)[1] + "\n" + GOOD_CAP)
+        return m
+
+    case("PLACEHOLDER", placeholder_map(), 1, "DIGEST-STALE")
     case("VACUOUS",
          texts(lesson_block="## Correction (round 73)\n\nR72-LESSON-SUPERSEDED-CLAIMS "
                             "No capability row enters this round nine hermetic cases gate-selftest "

@@ -167,3 +167,11 @@ as QUALITY 103 and is exercised here by the note's v262-vs-262.1-1-arch anchor s
 Round 73: 0. One seat (`S1Scout`) reported the L1's mid-wave instrument drift as an observation with no
 blame and no seat damage; no seat wrote outside its wave dir, none mutated git/jj, and the L1's misroot sweep
 at report time is clean. Running tally since r66: 0, 0, 0, 0, 1, 0, 0, 0.
+
+## Correction (round 73, late wave; append-only)
+
+The `R73-CHECKER-LEXICAL` row above says the checker's selftest grew "5 → 11 cases" and the measured
+outcome block says "eleven". The last repair (E2Routed's absolute-path/FAIL-receipt/placeholder traps)
+lands **thirteen** cases (`SELFTEST: PASS (13 cases, 13 passed, 0 failed)`, final checker sha256
+`73184198…`, receipt `.ufo/waves/round-73/after/c2-final-instrument.txt`); the earlier figures stand as
+filed and this line is the correction of record.
