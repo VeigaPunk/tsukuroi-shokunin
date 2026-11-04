@@ -3401,3 +3401,13 @@ frozen counter/expected data, other axis ordinals and held assimilation.
 The receipt adapter under `.ufo/waves/round-77/` uses the existing
 `tools/run-receipt.py` unchanged while confining its clone/home paths to the
 round scratch root and sharing local Git objects with push disabled.
+
+Round-77 committed measurement at `84898cc85801d1b3cec6da7ba787a382666d69db`:
+C1 0→6, C2 0→3, before rc 1 / after rc 0 for both. Revision-bound
+generator receipts are `after/{before,after}-{C1,C2}.txt`. The counter and
+expected specification still match their frozen digests. No ordinal gain is
+taken; outside closure remains pending.
+The registry-placement check exposed a new row outside the operative table
+(11 findings / 9 missing at that commit); its pure insertion into the
+existing contiguous operative table repairs the new omission. The original
+red receipt is retained, with the final/baseline comparison to follow.

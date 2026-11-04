@@ -154,3 +154,21 @@ separate committed evidence, not a seat-vote conjunct. No author-side
 mechanical PASS is presented as fulfillment of that stronger criterion.
 This is an instrument conformance limitation for outside closure to judge,
 not an assertion of source understanding and not a predicate amendment.
+
+## Committed measurements and registry placement
+
+At measured revision `84898cc85801d1b3cec6da7ba787a382666d69db`,
+the unchanged C1 instrument reads count=6/met=1 rc 0 and C2 reads
+count=3/met=1 rc 0. The same exact tool over the base reads 0/met=0 rc 1
+for each. `after/{before,after}-{C1,C2}.txt` records revision, tool revision,
+tool digest, stdout and exit through the existing receipt generator. The
+adapter confines its clones/home to round scratch, shares object storage,
+disables push and carries TMPDIR to children; target logic is untouched.
+
+Landing — R77-REGISTRY-PLACEMENT: `after/registry-before.txt` reports
+11 findings / 9 missing at the measured revision, including the new tool.
+Captured-by QUALITY 70. Its descriptive addition heading did not put it
+inside the exact operative registry; a pure row insertion into the existing
+highest-numbered contiguous table fixes that placement without overwriting
+prior rows or changing the frozen instrument. The remaining inherited
+findings are measured separately rather than called a green registry.

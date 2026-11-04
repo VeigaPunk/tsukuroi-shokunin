@@ -6448,3 +6448,32 @@ measurement, not a newly demonstrated general-purpose mode. Other owned
 ordinals and prior retirement/saturation decisions are unchanged.
 SHONEN.md and PROVINCE.md intentionally stay unchanged: no promotion,
 authority transfer or frontier promotion follows from these examples.
+
+### Round-77 measured outcome — `84898cc85801d1b3cec6da7ba787a382666d69db`
+
+| Claim / axis | Before at `06f1bbbb803790b35358d277bb7807b82a9fab99` | After at measured revision | Verdict / ordinal |
+|---|---|---|---|
+| C1 depth | count 0, met 0, rc 1 | count 6, met 1, rc 0 | finite target verified author-side; source/companion holds in ReviewArithmetic and actual header execution matches; depth 8 → 8 |
+| C2 freshness | count 0, met 0, rc 1 | count 3, met 1, rc 0 | three substantive corrections verified author-side and independently read by ReviewFreshness; freshness 9 → 9 |
+
+Commands: `python3 tools/measure-journal-arithmetic-r77.py --revision <REV> --claim C1`
+and the same `--claim C2`. Exact generator-produced revision/tool-digest
+receipts are `.ufo/waves/round-77/after/{before,after}-{C1,C2}.txt`.
+The adapter changes only scratch/clone setup and supplies TMPDIR to child
+processes; the generator, target instrument and expected specification remain
+unchanged. Frozen counter SHA256 e686baf3a7b489f2b55c6fdd61b68600562e0adc6f595f892bf62c5d700b2878;
+expected SHA256 1469154cf9ce2b3c8bcaf6d8ee6698cca912c8ba8ea7e21452b47a5d31fa8694.
+
+Admission is not self-awarded. QUALITY 81 reviewer-binding limitation,
+answer-copy/false-prose and C2 comment/denial acceptance constructions remain
+explicitly disclosed in the lesson; no numerical PASS is promoted into
+universal semantic proof. Outside admit+reject closure is pending.
+
+### Round-77 registry-placement correction
+
+The round-77 addition header is descriptive, not the exact highest-numbered
+operative-table grammar. The committed registry check at `84898cc8` reports
+the new tool missing alongside inherited findings. Its row is now also
+inserted, without changing existing rows, into the contiguous operative
+round71 table, following round75's existing continuation pattern.
+This is a documentation repair, not an instrument/predicate/target change.

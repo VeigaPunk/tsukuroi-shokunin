@@ -26,6 +26,8 @@ def mkdtemp(*args, **kwargs):
 
 
 def run(argv, *args, **kwargs):
+    if kwargs.get('env') is not None:
+        kwargs['env'] = dict(kwargs['env'], TMPDIR=str(scratch))
     if isinstance(argv, list) and argv[:2] == ['git', 'clone']:
         argv = [('--shared' if item == '--no-local' else item) for item in argv]
         result = original_run(argv, *args, **kwargs)
