@@ -1,0 +1,52 @@
+Independent read-only probe outputs; parallel capture, not an atomic snapshot. rc marks the probe (for pipelines the first command).
+
+$ TMPDIR=/fast/scratch/hyaku/tsukuroi-r76/E2HostProbe/tmp journalctl --disk-usage 2>&1
+Archived and active journals take up 148.6M in the file system.
+rc=0
+
+$ df -B1 /
+Filesystem          1B-blocks         Used    Available Use% Mounted on
+/dev/mapper/root 998037782528 229582630912 764187054080  24% /
+rc=0
+
+$ stat -f -c 'bsize=%S blocks=%b bavail=%a' /
+bsize=4096 blocks=243661568 bavail=186569105
+rc=0
+
+$ ls -ld /var/log/journal /run/log/journal
+drwxr-sr-x+  2 root systemd-journal 40 Nov  2 12:07 /run/log/journal
+drwxr-sr-x+  1 root systemd-journal 76 Oct  3 17:42 /var/log/journal
+rc=0
+
+$ find /var/log/journal -type f -name '*.journal*' -printf '%s %p\n' 2>&1 | sort -nr
+25165824 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-00000000003531f0-00065eccb437ba44.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-0000000000372481-00065f41a917f3b3.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-000000000036a0ac-00065f2507ba4a0d.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-000000000035fdfe-00065efc4108e999.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-000000000034bd4a-00065ebfb51cba32.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-00000000003754aa-00065f4c8090359f.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-000000000036f00d-00065f31b24d1012.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-00000000003673be-00065f163aa21166.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-000000000035f6d7-00065efac4c9a48e.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-0000000000357251-00065edd5572051e.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-000000000034bd3f-00065ebfb4cbaaae.journal
+8388608 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000.journal
+8388608 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system.journal
+rc=0
+
+$ find /var/log/journal -type f -name '*.journal*' 2>/dev/null | wc -l
+13
+rc=0
+
+$ TMPDIR=/fast/scratch/hyaku/tsukuroi-r76/E2HostProbe/tmp journalctl --list-boots --no-pager 2>&1 | tail -n +2 | wc -l
+3
+rc=0
+
+$ stat -c '%w | %y | %n' /etc/systemd/journald.conf.d/size.conf
+2026-10-16 11:53:47.068871418 -0300 | 2026-10-16 11:53:47.069871418 -0300 | /etc/systemd/journald.conf.d/size.conf
+rc=0
+
+$ pacman -Q systemd
+systemd 262.1-1
+rc=0
+

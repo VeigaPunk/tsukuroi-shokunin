@@ -44,3 +44,12 @@ For the persistent-storage configuration calculation, the recorded filesystem ha
 - No vacuum, rotation, flush, restart or configuration write was run for this note. The host observations are the frozen receipt, not new live readings.
 - The 13-file inventory does not prove a rotation schedule, a guaranteed seven-file history, or a total count bounded by SystemMaxFiles.
 - The frozen row counter checks shape, source registration, digests, quote presence and token overlap; passing it is not semantic entailment or proof that a daemon is using the derived configuration. The source-context review above is separate evidence.
+
+## Round-76 clarification — provenance for the drop-in birth and the retained-boot window (append-only)
+
+The drop-in birth timestamp `2026-10-16 11:53:47 -03` cited above comes from
+`.ufo/waves/round-76/before/host-stat-dropin.txt` (`stat -c '%w | %y | %n' /etc/systemd/journald.conf.d/size.conf`),
+not from `host.txt`, which records the merged configuration and the usage reads. The change from the
+round-3 note's 13 retained boots to 3 at this capture is observed (`journalctl --list-boots`), but
+this note does not establish its cause: a size budget alone does not explain a boot-count change,
+and the historical boot −12 rotation date remains unmeasured.

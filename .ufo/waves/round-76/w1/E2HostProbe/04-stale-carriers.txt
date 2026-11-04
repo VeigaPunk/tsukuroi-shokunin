@@ -1,0 +1,36 @@
+C2 R76-JD-CONFIG-DRIFT — exact retained historical carrier text (current working tree; existing appended errata observed, not written by this seat).
+Repository root: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+
+corpus/knowledge/journal-boot-plane.md:49-52
+49: - Retention reaches the install day (first record 2026-10-03 17:42:07, the 4-second boot −12);
+50:   anything older is rotated away and cannot be shown → [unknown]. Sweep for the negative claim:
+51:   the list-boots output itself. Rotation policy not proven: `/etc/systemd/journald.conf` ships
+52:   with all directives commented (read 11:39); effective defaults not derived.
+
+corpus/knowledge/journal-boot-plane.md:362-363
+362: - Effective journald retention (`SystemMaxUse`, rotation date of boot −12): shipped config is
+363:   defaults-only; effective value not derived.
+
+corpus/knowledge/degraded-triage-r4.md:70
+70: | J2 | config | no retention policy configured anywhere (merged coredump/journald conf = defaults only); storm is the growth engine (§3) | 3.9 G and climbing; `/` has 847 G free (measured) | removal: elevation | P1 |
+
+corpus/knowledge/boot-plane.md:79-80
+79:   record bounds. Retention wall: nothing older than boot −12; effective journald retention not
+80:   derived (round-3 open item).
+
+corpus/knowledge/boot-plane.md:240
+240: - Effective journald retention beyond the 13 retained boots.
+
+Evidence provenance: exact text read via file-range read (not shell output, so no shell exit applies); grep located lines. Numerical live-host evidence below names its command and exit; arithmetic is derived in03-derivation.txt.
+
+Now-false/currently superseded words:
+- 'Rotation policy not proven' / 'effective defaults not derived' / 'defaults-only; effective value not derived': no longer current as a blanket retention-plane unknown. The merged configuration is NOT defaults-only: systemd-analyze cat-config systemd/journald.conf, rc=0, includes /etc/systemd/journald.conf.d/size.conf with SystemMaxUse=256M and RuntimeMaxUse=64M. The main file's directives being commented remains true; inferring merged defaults-only from it is false.
+- J2 'no retention policy configured anywhere' and 'merged coredump/journald conf = defaults only': disproved for journald by that drop-in. This does not establish current coredump configuration or refute the historical3.9G coredump payload figure. journalctl --disk-usage is journal-only, so comparing its148.6M to coredump3.9G as the same quantity would be a category error.
+- 'effective journald retention not derived' is now superseded by the sourced derivation effective_limit=256M and SystemMaxFileSize=32M. 'beyond the13 retained boots' is not a current inventory: the specified journalctl --list-boots --no-pager | tail -n +2 | wc -l probe returned3, rc=0. A byte limit does not establish an exact history duration or reconstruct missing boots.
+- '[unknown]' about unretained older journal contents, and the exact rotation date of boot−12, are NOT resolved by the size cap. Do not falsely close those historical unknowables. list-boots alone does not prove why records are absent.
+
+Drop-in timing (stat -c '%w | %y | %n' /etc/systemd/journald.conf.d/size.conf, rc=0):
+2026-10-16 11:53:47.068871418 -0300 | 2026-10-16 11:53:47.069871418 -0300 | /etc/systemd/journald.conf.d/size.conf
+Thus the drop-in was born2026-10-16 11:53:47 -03, after the original October observations; this is configuration drift, not proof those original observations were false at their capture times. Birth time does not prove when a running daemon reloaded config.
+
+Existing append-only corrections observed at journal-boot-plane.md:470-472, degraded-triage-r4.md:669-671, boot-plane.md:320-322. No corpus modifications by this seat.

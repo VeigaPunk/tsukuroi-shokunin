@@ -551,3 +551,23 @@ transient `Job=` value nor an empty `list-jobs` output proves the transaction's 
 **Operator-owned:** every job submission — start, stop, restart, reload and their conditional
 variants — remains the operator's. This reading grants no action authority; the lane's diagnosis
 table only reads unit properties, queued jobs and the journal.
+
+## Round 76 — R76-JOURNALD-RETENTION: the retention plane enters Core (new area)
+
+The journald retention plane moves Frontier → Core: storage-mode selection, the MaxUse/KeepFree
+defaults and the manager's clamp, the startup min_use floor, the MaxFileSize/MaxFiles rotation
+limits, the compiled rate-limit/sync/max-file defaults and the `journalctl --vacuum-*` semantics are
+now held as eight sourced rows in `corpus/knowledge/journald-retention-plane-r76.md` (S318–S321,
+systemd v262). The surface is read-only: `systemd-analyze cat-config systemd/journald.conf`,
+`journalctl --disk-usage`, `journalctl --list-boots`, `df -B1`, `stat -f`, `stat` on the journal
+directories. The lane derives configuration limits; it never runs vacuum, rotate, flush, restart or a
+config write, and it does not read the running manager's internal `min_use`.
+
+**Adjacency (reported, not absorbed):** C1Connector found mori's
+`corpus/knowledge/journal-reach-r49.md` states journal size/default/vacuum rules as evidence-reach,
+and mado's `SafetyService.md:73-74` names archived-file removal in historical safety evidence. The
+journald *configuration* diagnosis stays here; the retention-as-evidence-reach and desktop-safety
+readings stay with their owners. The integrator arbitrates if the overlap is contested.
+
+**Still Frontier:** the live manager's `min_use`, the historical boot −12 rotation date, and
+host-build line numbers. Snapshot line numbers identify the v262 source reading only.

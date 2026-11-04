@@ -1,0 +1,29 @@
+$ find /var/log/journal -type f -name '*.journal*' -printf '%b %s %p\n' 2>&1 | sort -nr
+33648 25165824 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-00000000003531f0-00065eccb437ba44.journal
+30320 16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-0000000000372481-00065f41a917f3b3.journal
+29496 16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-000000000034bd4a-00065ebfb51cba32.journal
+25552 16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-000000000035fdfe-00065efc4108e999.journal
+24000 16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-000000000036a0ac-00065f2507ba4a0d.journal
+23104 16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-00000000003754aa-00065f4c8090359f.journal
+21680 16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-0000000000357251-00065edd5572051e.journal
+21576 16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-000000000034bd3f-00065ebfb4cbaaae.journal
+20912 16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-00000000003673be-00065f163aa21166.journal
+20776 16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-000000000036f00d-00065f31b24d1012.journal
+20528 16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-000000000035f6d7-00065efac4c9a48e.journal
+16384 8388608 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000.journal
+16384 8388608 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system.journal
+rc=0
+
+$ find /var/log/journal -type f -name '*.journal*' -printf '%b %s %p\n' 2>&1 | awk '{b+=$1; s+=$2; n++; if($2>m) m=$2} END {printf "files=%d sum_st_blocks=%d alloc_bytes=%d sum_logical_bytes=%d max_logical=%d\n", n, b, b*512, s, m}'
+files=13 sum_st_blocks=304360 alloc_bytes=155832320 sum_logical_bytes=209715200 max_logical=25165824
+rc=0
+
+Pinned rule: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-76/before/src/journald-manager.c:119-131 filters .journal/.journal~ regular files and accumulates:
+                *ret_used += (uint64_t) st.st_blocks * 512UL;
+
+Comparison (derived from the commands above, rc=0, and journalctl --disk-usage in 02-usage.txt, rc=0):
+304360 * 512 = 155832320 allocated bytes = 148.61328125 MiB, displayed to one decimal as 148.6M. This agrees with journalctl's reported 148.6M; the journalctl display is rounded, not an independently exposed exact byte count.
+Logical sum (%s / st_size) = 209715200 bytes = 200 MiB.
+Logical minus allocated = 53882880 bytes = 51.38671875 MiB.
+The difference is allocated disk blocks versus logical lengths, consistent with holes/filesystem allocation; this probe does not establish a compression mechanism or rotation schedule. Disk usage includes active and archived journal files, not coredump payloads.
+13 files; max logical size=25165824 bytes=24MiB <= derived SystemMaxFileSize=33554432 bytes=32MiB. This is consistent with the derived per-file limit, not proof of a rotation schedule or a promise that exactly seven archives exist globally (system and user streams coexist).

@@ -1,0 +1,100 @@
+# round-76 C1 host readings (read-only), 2026-11-04T04:54:15Z
+
+## pacman -Q systemd
+systemd 262.1-1
+rc=0
+
+## systemd-analyze cat-config systemd/journald.conf
+# /etc/systemd/journald.conf
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it under the
+#  terms of the GNU Lesser General Public License as published by the Free
+#  Software Foundation; either version 2.1 of the License, or (at your option)
+#  any later version.
+#
+# Entries in this file show the compile time defaults. Local configuration
+# should be created by either modifying this file (or a copy of it placed in
+# /etc/ if the original file is shipped in /usr/), or by creating "drop-ins" in
+# the /etc/systemd/journald.conf.d/ directory. The latter is generally
+# recommended. Defaults can be restored by simply deleting the main
+# configuration file and all drop-ins located in /etc/.
+#
+# Use 'systemd-analyze cat-config systemd/journald.conf' to display the full config.
+#
+# See journald.conf(5) for details.
+
+[Journal]
+#Storage=persistent
+#Compress=yes
+#Seal=yes
+#SplitMode=uid
+#SyncIntervalSec=5m
+#RateLimitIntervalSec=30s
+#RateLimitBurst=10000
+#SystemMaxUse=
+#SystemKeepFree=
+#SystemMaxFileSize=
+#SystemMaxFiles=100
+#RuntimeMaxUse=
+#RuntimeKeepFree=
+#RuntimeMaxFileSize=
+#RuntimeMaxFiles=100
+#MaxRetentionSec=0
+#MaxFileSec=1month
+#ForwardToSyslog=no
+#ForwardToKMsg=no
+#ForwardToConsole=no
+#ForwardToWall=yes
+#TTYPath=/dev/console
+#MaxLevelStore=debug
+#MaxLevelSyslog=debug
+#MaxLevelKMsg=notice
+#MaxLevelConsole=info
+#MaxLevelWall=emerg
+#MaxLevelSocket=debug
+#LineMax=48K
+#ReadKMsg=yes
+#Audit=yes
+
+# /etc/systemd/journald.conf.d/size.conf
+[Journal]
+SystemMaxUse=256M
+RuntimeMaxUse=64M
+rc=0
+
+## journalctl --disk-usage
+Archived and active journals take up 148.6M in the file system.
+rc=0
+
+## df -B1 /
+Filesystem          1B-blocks         Used    Available Use% Mounted on
+/dev/mapper/root 998037782528 229459005440 764239769600  24% /
+rc=0
+
+## stat -f / (bsize blocks bfree bavail files ffree)
+bsize=4096 blocks=243661568 bfree=187641303 bavail=186581975 files=0 ffree=0
+rc=0
+
+## ls -ld /var/log/journal /run/log/journal
+drwxr-sr-x+  2 root systemd-journal 40 Nov  2 12:07 /run/log/journal
+drwxr-sr-x+  1 root systemd-journal 76 Oct  3 17:42 /var/log/journal
+rc=0
+
+## journal files: count and bytes under /var/log/journal
+13
+sum_bytes=209715200
+
+## largest journal files
+25165824 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-00000000003531f0-00065eccb437ba44.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-0000000000372481-00065f41a917f3b3.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-000000000036a0ac-00065f2507ba4a0d.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-000000000035fdfe-00065efc4108e999.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/user-1000@c55f7dd7155740a3818b8eec3ba0ff79-000000000034bd4a-00065ebfb51cba32.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-00000000003754aa-00065f4c8090359f.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-000000000036f00d-00065f31b24d1012.journal
+16777216 /var/log/journal/432d02b544a5459ebbff9c42ec68334d/system@c55f7dd7155740a3818b8eec3ba0ff79-00000000003673be-00065f163aa21166.journal
+
+## journalctl --list-boots count
+3
+rc=0

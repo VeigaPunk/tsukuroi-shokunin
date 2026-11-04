@@ -6044,3 +6044,39 @@ Read `corpus/knowledge/systemd-job-transaction-plane-r75.md` for the v262 source
 | Job= empty versus set | `systemctl show -p Job -p Result -p JobType <unit>`; `systemctl list-jobs --no-pager` | Read `Job` as a current association and correlate it with `list-jobs`; absence is not a historical completion verdict. JT4 separates done, canceled, timeout, failed and the other outcomes; JT5 describes pre-application processing. `JobType` is a job-object property and may be absent from a unit-property query; neither an absent `JobType` nor the unit's `Result` establishes a `JobResult`. |
 
 Limits: no transaction, queued job or live merge was induced or measured for this table. Snapshot line numbers are not host-build line numbers. Journal access may be limited; a missing entry is not proof that an event never happened.
+
+## Round 76 — journald retention diagnosis (S318–S321, JD1–JD8)
+
+Read `corpus/knowledge/journald-retention-plane-r76.md` for the v262 source contracts and
+`before/host.txt` for this host's merged configuration. Substitute the reported unit/path for the
+placeholders; these are read-only diagnostic checks, not commands exercised against this host by
+this table. Detection and report only: never run vacuum, rotate, flush, restart or config writes.
+Commands: C01 `systemd-analyze cat-config systemd/journald.conf`; C02
+`journalctl --list-boots --no-pager`; C03 `journalctl --disk-usage`; C04 `df -B1 <journal-fs>`;
+C05 `journalctl -b --grep 'Suppressed [0-9]+ messages' --no-pager -n 20`; C06
+`systemctl show <unit> -p LogRateLimitIntervalUSec -p LogRateLimitBurst --no-pager`; C07
+`stat -c '%F %a %U:%G %n' /var/log/journal /run/log/journal`; C08
+`systemctl show systemd-journal-flush.service -p ActiveState -p SubState -p Result --no-pager`;
+C09 `find /var/log/journal /run/log/journal -type f -name '*.journal*' -printf '%f %s bytes %b blocks\n'`;
+C10 `journalctl -b -n 1 --no-pager -o json --output-fields=_BOOT_ID,PRIORITY,SYSLOG_IDENTIFIER`.
+
+| Symptom | Read-only check | JD rule and boundary |
+|---|---|---|
+| `journalctl` shows nothing | C01, C02, C10 | JD1: `Storage=auto` follows `/var/log/journal`'s existence; `none` drops stored data but keeps forwarding. An empty or unreadable stream is not a healthy journal; report the visibility limit. |
+| The journal grows toward a cap | C01, C03, C04 | JD2–JD5: MaxUse/KeepFree defaults are 10%/15% each capped 4G; the manager computes `avail = LESS_BY(vfs_avail, keep_free)` (saturated subtraction) then `CLAMP(vfs_used + avail, min_use, max_use)`. A startup `min_use` floor can stop growth without shrinking existing usage; `--disk-usage` counts allocated blocks. |
+| A particular message is missing | C01, C02, C05 | JD1/JD7: storage policy, the retention window and per-service rate limiting are competing explanations, not diagnoses. No suppression match is not proof of delivery. |
+| An earlier vacuum did not shrink reported usage | C03, C09 | JD6/JD8: `--disk-usage` includes active files; vacuum removes archived files only; active files stay, so the post-vacuum total can exceed the limit. |
+| A unit's logs look rate-limited | C05, C06 | JD7: defaults are 30 s / 10000 before the free-space multiplier; `LogRateLimitIntervalUSec`/`LogRateLimitBurst` on the unit override them for that unit's own output. |
+| Storage looks volatile after a reboot | C01, C07, C08 | JD1: `auto` needs `/var/log/journal` to exist; `persistent` still falls back to `/run` during early boot or when the disk is unwritable. Directory existence and a successful flush unit do not prove earlier records survived. |
+| More files than expected, or one file looks large | C01, C09 | JD5–JD6: `SystemMaxFileSize` defaults to one eighth of MaxUse capped 128M (compact mode caps 4G); `SystemMaxFiles` defaults to 100 with active files exempt. "Usually seven rotated files" is not a guaranteed count. |
+
+Limits: no vacuum, rotate, flush, restart or config write was run for this table; the host values are
+the frozen `before/host.txt` receipt. Upstream v262 line numbers are not Arch build lines. A missing
+entry is not proof an event never happened, and a passing row counter is not semantic entailment.
+
+### Round-76 instrument registry (append-only continuation)
+
+| name | kind | entry | verdict map | self-test | pinned values | write scope | owner |
+|---|---|---|---|---|---|---|---|
+| count-jd-rows-r76 | gate | `python3 tools/count-jd-rows-r76.py --revision <REV>` (or `--fixture <DIR>`) | 0 predicate `JD_ROWS == 8 and JD_VERIFIED == 8 and JD_SOURCES >= 4 and JD_SNAPSHOTS >= 4 and JD_HOST == 1 and JD_MALFORMED == 0` and `met=1`; 1 otherwise, including `JD_MAP malformed`; 3 self-test failed; 128 `JD_NOTE`, `JD_REGISTRY` or `JD_MAP` absent | `python3 tools/count-jd-rows-r76.py --selftest` — hermetic, fourteen cases over synthetic snapshots in one `$TMPDIR` root, no answer key; a failing run prints `SELFTEST: FAIL` and exits 3 | eight JD rows of `corpus/knowledge/journald-retention-plane-r76.md`; snapshots `.ufo/waves/round-76/before/src/{journald.conf.xml,journald-config.c,journald-manager.c,journalctl.xml}` sha256 pinned in `SOURCES.json`; effective-limit literals in the note | reads git objects or a fixture mirror, writes nothing | tsukuroi |
+| check-r75-routed-r76 | gate | `python3 tools/check-r75-routed-r76.py --revision <REV>` (or `--root <DIR>`) | 0 `ROUTED_STALE=0 ROUTED_OK=8/8`; 1 any stale item, with `reason=` one of `absent`, `token`, `need`, `verb`, `rows`, `count`, `markers`; 3 self-test failed | `python3 tools/check-r75-routed-r76.py --selftest` — hermetic, ten cases over a synthetic fixture tree | eight items `R76-S314-SUPERSEDE`, `R76-JT5-COUNT`, `R76-R75-MISTAKE-COUNT`, `R76-R75-RECEIPT-REPOINT`, `R76-WAVE-MARKERS`, `R76-QUALITY-WORDING`, `R76-JD-CONFIG-DRIFT`, `R76-QUALITY-109`; frozen 80-line window rule | reads committed bytes only, writes nothing | tsukuroi |

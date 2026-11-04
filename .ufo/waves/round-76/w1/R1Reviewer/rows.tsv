@@ -1,0 +1,8 @@
+JD1	HOLD	journald.conf.xml:77-108	Auto follows directory existence; persistent still has early-boot/unwritable fallback; namespace directory creation qualification retained in source.
+JD2	HOLD	journald.conf.xml:274-298	10% MaxUse and 15% KeepFree defaults each capped at 4G; both limits apply subject to startup and archived-file qualifications.
+JD3	FAIL	journald-manager.c:161-171	LESS_BY(free,keep_free) is saturated subtraction, not smaller-of/free minimum; min_use also qualifies unconditional respect of KeepFree.
+JD4	HOLD	journald-manager.c:176-185,1656-1668	Startup patch and restart-reset statement match comment; MAX preserves an existing larger minimum; full rotation also calls patch_min_use.
+JD5	HOLD	journald.conf.xml:300-309	One-eighth default capped 128M; seven rotated files is explicitly usual, not guaranteed; compact-mode maximum capped 4G.
+JD6	HOLD	journald.conf.xml:311-318	Default 100; archived-only deletion means active journals can leave total above limit after vacuum.
+JD7	PARTLY	journald-config.c:24-27,39-68,113-142	All four macro values hold; only rate pair assigned in journal_config_set_defaults; sync and max-file defaults applied in manager_merge_configs.
+JD8	HOLD	journalctl.xml:941-985	Oldest archived vacuum-size removal and active-inclusive disk usage hold; rotate first makes active data eligible.

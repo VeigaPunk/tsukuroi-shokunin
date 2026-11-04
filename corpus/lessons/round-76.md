@@ -135,3 +135,43 @@ the final figures are in the report.
 - `corpus/knowledge/modprobe-config-plane-r72.md` and `corpus/knowledge/module-parameter-plane-r71.md` still carry a
   non-ISO `verified-at:` line (2 pre-existing header findings); `check-adjacency-anchors.py` still
   reports one open classification finding at `adjacency-anchors-r19.json:inbound[108]`.
+
+## Wave attack results (appended 2026-11-04, after WAVE-DONE)
+
+- **R1Reviewer**: final-note re-review at `b698d13d` — JD1–JD8 all HOLD; host/limits HOLD as an
+  explicitly qualified configuration derivation, not a live `min_use` measurement
+  (`w1/R1Reviewer/verdicts-final.md`, `rows-final.tsv`). Its first pass on the pre-correction note
+  returned JD3 FAIL and JD7 PARTLY; E3Note's correction and the declaration erratum
+  `R76-DECL-SPACE-CLAUSE` close both.
+- **S1Scout**: 4/4 second-route digests match; 8/8 draft quotes located; two draft rows PARTLY
+  (JD3 arithmetic, JD7 attribution) and one registry anchor PARTLY — S318 named MaxFileSec and
+  MaxRetentionSec outside its ranges; corrected by S323.
+- **K1Critic**: HIGH JD3 arithmetic (corrected), HIGH C2 propagation-map/count omission (the map and
+  the counting command are present in this lesson; the critic read the pre-correction tree), MEDIUM
+  "usually" dropped in the declaration (the JD5 row keeps it; the declaration erratum records the
+  sentence), MEDIUM host limit is conditional (the note says so), token-only C2 (named limit).
+- **R2Reviewer**: a minimal non-repair fixture passes `ROUTED_STALE=0 ROUTED_OK=8/8` — the checker is
+  a text instrument; eight named limits (`w1/R2Reviewer/attacks.md`).
+- **M1Mutation**: structural mutants killed 8/8 JD and 8/8 closure; 3 semantic survivors (JD numeric
+  truth 100→101, receipt negation retaining success literals, criterion-109 obligation negation
+  retaining keywords) are coverage debt (`w1/M1Mutation/report.md`).
+- **E4InstrumentCheck**: digests match the declaration; selftests 14/14 and 10/10; base controls
+  128 and 8/0 rc 1; working-tree predicates pass; a host-block deletion on a copy fails with
+  `JD_HOST=0` (`w1/E4InstrumentCheck/report.md`).
+- **C1Connector**: 20 sibling trees swept; mori's `journal-reach-r49.md` and mado's
+  `SafetyService.md:73-74` hold overlapping journald statements; the boundary is reported, not
+  absorbed (`w1/C1Connector/report.md`).
+- **E5MarkerAudit**: the seven carried markers are regular, untracked at base, bookkeeping-only
+  (`w1/E5MarkerAudit/markers.txt`).
+- **S4Drift**: the three errata and criterion 109 were already present in the tree; its
+  qualification notes are adopted (coredump scope, historical date).
+- **S2Skill**: the decision table landed in `SKILL.md` as "Round 76 — journald retention diagnosis".
+- **E2HostProbe**: derived the same 256M/32M result from the measured inputs and named the `LESS_BY`
+  correction (`w1/E2HostProbe/03-derivation.txt`).
+
+## Mistakes — round-76 additions (append-only)
+
+- **R76-REGISTRY-ANCHOR** · evidence S318's anchor cell names MaxFileSec/MaxRetentionSec inside the
+  range 243-320, while `grep -n 'MaxFileSec' journald.conf.xml` reads 321 · captured-by the counter's
+  anchor-basename check, which does not read the range contents — S1Scout caught it · fix: S323
+  supersedes S318 with corrected ranges. Able to fail: the grep reads 321 while the range ends at 320.

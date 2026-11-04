@@ -1,0 +1,36 @@
+C1 host derivation — axes: depth (source-correct arithmetic), C1 host evidence, freshness (stale carriers). Read-only; no service/config mutation.
+
+Measured inputs (full command outputs and rc in 01-config.txt, 02-usage.txt, 05-usage-rule.txt):
+- systemd-analyze cat-config systemd/journald.conf, rc=0: drop-in /etc/systemd/journald.conf.d/size.conf sets SystemMaxUse=256M and RuntimeMaxUse=64M. No explicit SystemKeepFree or SystemMaxFileSize override.
+- stat -f -c 'bsize=%S blocks=%b bavail=%a' /, rc=0: bsize=4096 blocks=243661568 bavail=186569105.
+- df -B1 /, rc=0: total998037782528 available764187054080, agreeing with the stat products below at this capture.
+- journalctl --disk-usage, rc=0: Archived and active journals take up 148.6M in the file system.
+- find allocation sum, rc=0 (05-usage-rule.txt): used=155832320 bytes, logical=209715200 bytes, files=13, maximum logical size25165824 bytes.
+
+Pinned rules (read-only snapshot root /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-76/before/src/):
+- journald.conf.xml:274-285: MaxUse default10% and KeepFree default15%, each capped4G; respect both limits, smaller result wins.
+- journald.conf.xml:300-309: MaxFileSize defaults to1/8 MaxUse, capped128M; compact mode has4G maximum; K/M/G use powers1024.
+- journald-manager.c:168: avail = LESS_BY(vfs_avail, metrics->keep_free);
+- journald-manager.c:170: space->limit = CLAMP(vfs_used + avail, metrics->min_use, metrics->max_use);
+- journald-manager.c:179-185: startup patch raises min_use to at least current on-disk usage; runtime floor is not introspected by these probes.
+
+IMPORTANT SOURCE CORRECTION: the assignment/frozen draft's 'avail=min(fs available, keep_free)' is NOT the manager rule. LESS_BY means saturating subtraction max(a-b,0), not minimum. Peer S1Scout-12 retained the v262 definition at https://raw.githubusercontent.com/systemd/systemd/v262/src/fundamental/macro.h:320-326 (sha2561bd38a180b2cccacf0732e3e5b6388ac3d71e453839236c388501080a11a75b8,25838 bytes): A > B ? A - B : 0. This macro anchor is peer evidence, not a separately fetched local snapshot here. Parent notified.
+
+Arithmetic (derived, not a new command output):
+fs_total =4096*243661568=998037782528 bytes.
+fs_available =4096*186569105=764187054080 bytes.
+Absent the override, default MaxUse=min(0.10*998037782528,4*1024^3)=min(99803778252.8,4294967296)=4294967296 bytes (4GiB). Fractional default arithmetic is explanatory; the cap dominates any integer rounding.
+Actual max_use=256*1024^2=268435456 bytes, because SystemMaxUse=256M overrides the default.
+Default keep_free=min(0.15*998037782528,4*1024^3)=min(149705667379.2,4294967296)=4294967296 bytes.
+Source-correct avail=max(764187054080-4294967296,0)=759892086784 bytes.
+used+avail=155832320+759892086784=760047919104 bytes.
+limit=CLAMP(760047919104,min_use,268435456)=268435456 bytes under the documented valid min_use<=max_use bounds; the high cap binds overwhelmingly.
+effective_limit=256M (derived configured-space limit; not a direct live-manager introspection).
+The retained startup min_use value is not exposed by these commands. The startup floor/current active files caveat prevents interpreting this as a promise that disk usage can never exceed the cap. The present used155832320 is below268435456.
+
+For comparison ONLY, the requested but wrong min variant would yield min(764187054080,4294967296)=4294967296; used+that=4450799616, also above max_use. Thus the same256M result does not validate the wrong formula.
+
+SystemMaxFileSize=min(268435456/8,128*1024^2)=min(33554432,134217728)=33554432 bytes.
+SystemMaxFileSize=32M; also below the compact-mode4G ceiling. Maximum observed logical file24MiB<=32MiB; all13 fit. No rotation schedule is inferred.
+
+Observed148.6M is allocated journal disk usage:155832320/1048576=148.61328125MiB, rounds148.6M. Logical sum is200MiB; difference53882880 bytes. See05-usage-rule.txt for the counting rule and per-file receipt. Coredump storage is not included in journalctl --disk-usage.
