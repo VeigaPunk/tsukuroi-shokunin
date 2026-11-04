@@ -175,3 +175,23 @@ the final figures are in the report.
   range 243-320, while `grep -n 'MaxFileSec' journald.conf.xml` reads 321 · captured-by the counter's
   anchor-basename check, which does not read the range contents — S1Scout caught it · fix: S323
   supersedes S318 with corrected ranges. Able to fail: the grep reads 321 while the range ends at 320.
+
+## Round-77 corrections to the Gate record (append-only)
+
+R77-GATE-SHAPE: supersedes round-76 Search log "rejected none this round" as a description of the whole round. Reject: the pre-correction JD3 minimum formula is contradicted by journald-manager.c:168 LESS_BY; flip: a source revision actually using minimum. Spot-check result: round-76-verifier-spotcheck.md section 3 agrees with the rejection but disagrees with the missing Gate reject row; outside round-77 spot-check is pending.
+
+R77-GATE-COUNT: supersedes "Registry 317 → 322 rows" in this lesson. At round-76 measured revision 780bad66cd0d62a58153bad541531ebc4f349c4e the registry contains 323 rows, including S323. Counting command: git show 780bad66cd0d62a58153bad541531ebc4f349c4e:corpus/SOURCES.md | grep -cE "^ {0,3}\| *S[0-9]{3,} *\|"; observed 323, exit 0.
+
+R77-COLLISION-COUNT: supersedes "114 of 147 staged S-ids" in this lesson. The fresh round-77 base 06f1bbbb803790b35358d277bb7807b82a9fab99 has 323 registry ids, 147 staged ids and 124 intersections. Evidence: .ufo/waves/round-77/before/collisions.json; extraction matches ^ {0,3}\|\s*(S[0-9]{3,})\s*\| in each Registry table and takes the set intersection. Assimilation remains none; the operator hold is not released.
+
+### Gate reject and outside result (round-77 repair)
+
+| Candidate | Decision | Reason and flip |
+|---|---|---|
+| Unqualified minimum formula in the round-76 declaration | reject | `journald-manager.c:168` invokes LESS_BY, not minimum; source revision using minimum would change this verdict |
+| Package adoption while the id-drift hold is open | reject | no operator release; current measurement and hold are recorded above; flip requires explicit release and per-entry gates |
+
+Spot-check result: outside `corpus/lessons/round-76-verifier-spotcheck.md`
+section 3 agrees with the substantive reject decisions and disagrees with their
+absence from the original Gate table. This append supplies that missing record;
+it does not retroactively admit the rejected round-76 C1.

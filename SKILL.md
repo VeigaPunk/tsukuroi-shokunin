@@ -6091,3 +6091,18 @@ This gate establishes six finite input/output objects and three exact correction
 blocks, not the truth of arbitrary prose or a whole manager's behavior. Source
 entailment is separately read by reviewers. Its expected file is frozen with the
 instrument; a later change to either is a different instrument, not this claim.
+
+### Journald arithmetic diagnosis — round 77, S324/S325
+
+For a questioned retention calculation, read
+`corpus/knowledge/journald-space-arithmetic-r77.md` and its JSON companion.
+A1 distinguishes saturated reserve subtraction from minimum; A2/A3 separate
+below/equal reserve; A4 exercises the upper clamp; A5 exercises the lower
+floor; A6 shows remaining allowance saturating at zero when limit is below
+used. These are six finite hypothetical inputs, not observed manager states.
+The compiled full-header macro probe is retained at
+`.ufo/waves/round-77/w1/ExecMacro/{probe.c,receipts.json}`.
+Do not interpret zero `avail` as necessarily zero `available` (A5); do not
+interpret mathematical subtraction notation as safe unsigned C subtraction.
+Source row S325 supersedes S320's minimum wording; the health decision table
+and operator-owned service/configuration boundary do not change.

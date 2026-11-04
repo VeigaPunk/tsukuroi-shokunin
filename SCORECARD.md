@@ -6420,3 +6420,31 @@ source Gate with admit and reject, and current collision receipt. Assimilation: 
 the package and promotion remain operator-held. Current collision measurement:
 323 registry ids / 147 staged ids / 124 intersections at the base, with both complete
 id lists committed in `before/collisions.json`. No package bytes are adopted.
+
+### Round-77 correction to the prior round's claim verdict
+
+`corpus/lessons/round-76-verifier-spotcheck.md` is authoritative outside
+closure: round-76 C1 was **not verified as declared**, not admitted merely
+because its lexical counter passed. This supersedes the author-side
+"verified on the frozen predicate" verdict in the round-76 measured outcome
+and erratum above. The false minimum conjunct is retained as historical
+evidence. Depth stayed 8; no rejected round is retroactively admitted.
+
+### Round-77 integration record (before revision-bound measurement)
+
+The reviewed six-vector companion draft from `w1/ScribeNote/` is integrated
+as `corpus/knowledge/journald-space-arithmetic-r77.{md,json}`; only the
+provenance-first metadata, real companion filename and a mathematical-
+notation clarification differ from its reviewed explanation. A1–A6 values
+and their source interpretation are unchanged. `w1/ReviewArithmetic/report.md`
+holds every row; `w1/ExecMacro/receipts.json` records execution of the actual
+full pinned macro header with the six expected output triples.
+S324/S325/S326 are added to the registry; S325 explicitly supersedes S320.
+C2's three full frozen strings and rendered reject/result records are
+appended to the round-76 lesson, not placed in comments or rejected context.
+
+No new capability row is entered: the finite instrument is a round-specific
+measurement, not a newly demonstrated general-purpose mode. Other owned
+ordinals and prior retirement/saturation decisions are unchanged.
+SHONEN.md and PROVINCE.md intentionally stay unchanged: no promotion,
+authority transfer or frontier promotion follows from these examples.

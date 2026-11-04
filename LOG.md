@@ -3373,3 +3373,31 @@ non-reading controls fail. Source snapshots/digests and current 323/147/124
 collision lists are in `before/`. Census start exits 0 (W04 warnings only).
 The gate registry is added to SKILL.md in this same freeze commit.
 No existing gate, expected specification or source row has been changed.
+
+Round-77 integration after WAVE-DONE: `w1-results.json` records twelve
+nonempty finals. Integrated ScribeNote's reviewed six-vector data/explanation
+at `corpus/knowledge/journald-space-arithmetic-r77.{md,json}`; added source
+rows S324/S325/S326 (two mined, one rejected), with S325 superseding the
+false S320 minimum wording. The prior retention note, SKILL diagnosis and
+README index link the deeper examples; the round-76 lesson receives three
+exact full corrections plus rendered reject/outside-result records.
+SCORECARD explicitly adopts the outside rejection of round-76 C1.
+`corpus/lessons/round-77.md` records opened-source Gate, mistakes, propagation,
+wave accounting, actual compiled macro results, host handoff and limits.
+
+Independent in-wave evidence: ReviewArithmetic holds A1–A6;
+ExecMacro's actual full-header C execution matches 6/6; ReviewFreshness
+holds all three corrections. MutationFinite kills 76/76 assigned actual-CLI
+defects; CriticFreeze preserves four semantic acceptance constructions as
+named limitations, not failed CLI runs. Separate review is not a frozen
+reviewer-binding conjunct (QUALITY 81 conformance limitation disclosed).
+The read-only host task completed with systemd 262.1-1, journal usage
+185.4M and 256M/64M configured maxima; live manager metrics remain unknown.
+No service, configuration or package action or tool installation occurred.
+
+Unchanged intentionally: SHONEN.md (no outside promotion), PROVINCE.md
+(existing retention ground, same mori/mado boundaries), existing gates,
+frozen counter/expected data, other axis ordinals and held assimilation.
+The receipt adapter under `.ufo/waves/round-77/` uses the existing
+`tools/run-receipt.py` unchanged while confining its clone/home paths to the
+round scratch root and sharing local Git objects with push disabled.

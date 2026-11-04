@@ -713,3 +713,15 @@ The previous round's "no alias read" limit is superseded only for that observed 
 
 **Frontier:** an observed host transaction, a queued job, a live merge and host-build line numbers
 remain unmeasured. Every job submission remains operator-owned.
+
+## Round 77 — existing retention arithmetic deepened
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/journald-space-arithmetic-r77.md` and `.json` | Six finite byte-valued worked examples of the existing JD3 computation: reserve subtraction, equality/below-reserve saturation, upper/lower limit clamp, remaining-allowance saturation. Actual pinned macro definitions are read and compiled; these examples are not observed or startup-normalized manager states. | S324/S325 |
+
+This is depth on already-held retention ground, not new coverage or a frontier
+promotion. The prior Core/Frontier map and sibling ownership remain unchanged.
+S325 supersedes S320's historical minimum wording; the new lesson records
+admit/reject evidence, the source propagation map, and three round-76 record
+corrections. Outside round-77 discernment check remains pending.

@@ -53,3 +53,14 @@ not from `host.txt`, which records the merged configuration and the usage reads.
 round-3 note's 13 retained boots to 3 at this capture is observed (`journalctl --list-boots`), but
 this note does not establish its cause: a size budget alone does not explain a boot-count change,
 and the historical boot −12 rotation date remains unmeasured.
+
+## Round-77 source-row supersession and worked examples
+
+S325 in `corpus/SOURCES.md` explicitly supersedes S320's false “smaller of
+free space and keep_free” wording; the historical row is preserved, not an
+active alternative formula. JD3 and its reading paragraph above already
+state saturated subtraction correctly. The companion
+`journald-space-arithmetic-r77.md` and `.json` deepen that existing computation
+with six byte-valued examples, grounded additionally in S324's actual macro
+definitions. They do not demonstrate startup-normalized metrics, an actual
+manager limit, a vacuum result or equivalence to the installed Arch build.
