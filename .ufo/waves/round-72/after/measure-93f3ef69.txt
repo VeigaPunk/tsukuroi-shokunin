@@ -1,0 +1,52 @@
+# round-72 measurements at 93f3ef69 (2026-11-03T22:49:19-03:00)
+## C1 counter
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD2 source=S301 snapshot=modprobe.d.5.scd
+MD_ROW ok MD3 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD4 source=S302 snapshot=libkmod-config.c
+MD_ROW ok MD5 source=S303 snapshot=modprobe.c
+MD_ROW ok MD6 source=S303 snapshot=modprobe.c
+MD_ROWS=6 MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET rows=6 verified=6 sources>=3 snapshots>=3 max_reuse=2 met=1
+rc=0
+## C1 registry rows
+303
+## C1 knowledge notes
+90
+## C1 new rows schema
+ S301  NF=13
+ S302  NF=13
+ S303  NF=13
+## C2 selftest
+PASS (SELFTEST-MATCH)
+PASS (SELFTEST-MISMATCH)
+PASS (SELFTEST-LABEL)
+PASS (SELFTEST-SUPERSEDED)
+PASS (SELFTEST-OUT-OF-SCOPE)
+PASS (SELFTEST-NO-RECEIPT)
+PASS (SELFTEST-GREEN-DIFF)
+PASS (SELFTEST-MIXED)
+PASS (SELFTEST-HERMETIC)
+PASS (SELFTEST-CASES)
+SELFTEST: PASS (10 cases, 10 passed, 0 failed)
+rc=0
+## C2 existing self-demo
+SWEEP added_figures_mismatched=0 skipped_superseded=0 receipt_cases=214 receipt_labels=18
+rc=0
+## C2 named TMPDIR measurement (a set-but-missing TMPDIR must fail the suite, rc 2)
+missing-TMPDIR rc=2
+## C2 committed red-before recipe (must FAIL)
+redbefore rc=1
+## C2 /tmp write tokens in the tool (docstring/negative only)
+  17:under ONE temp root created in `$TMPDIR` (never a hardcoded `/tmp`; the platform default is
+  175:    # When the caller exports TMPDIR the fixtures must land under it, never under /tmp.
+  176:    away_from_tmp = (not tmpdir) or not str(root).startswith("/tmp/")
+## C3 routed checker
+ROUTED_RECEIPT ok revision=2b358d2d
+ROUTED_SCORECARD ok
+ROUTED_NOTE ok
+ROUTED_STALE=0
+rc=0
+## canonical census
+command: /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi
+census validate rc=0

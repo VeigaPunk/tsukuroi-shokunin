@@ -36,7 +36,9 @@ v2 (`selftest-v2.patch`, af46203c → f22eb94f1ed8…8464, patch rc 0, green 10 
 **and** its `DECLARED` entry still gives `SELFTEST: PASS (9 cases, 9 passed)` rc 0. Suite completeness is not
 self-verifiable, so the closure check must count case lines externally and against the digest-specific N:
 `python3 tools/check-selftest-tally.py --selftest | grep -c '^PASS (SELFTEST-'` → 9 at af46203c, 10 at
-f22eb94f; never carry one N across the two digests.
+f22eb94f; never carry one N across the two digests. At close (23:00, peer-reported) the L1 applied v2, so
+the live worktree tool is `f22eb94f` (10 lines rc 0) and `af46203c` is superseded; this seat did not re-run
+the live file.
 
 Drift observed, not caused by this seat: the lane worktree C3 checker moved `df8a59c7…` → `b17fddfa…` mid-run
 (frozen clone bytes tested); the C2 draft moved `e47baa78…` (7 cases, the base E2GateSelftest's report names)

@@ -10,8 +10,8 @@ recorded here: **v1** (9 cases), whose bytes are now the live worktree tool, and
 |---|---|---|---|
 | committed base `a7015d27` | `b0f839e3955529caf560576f02f5c4137a98317d82c90cf1225dffe45d366c6d` | 0 (`--selftest` rc 2, usage) | declared do-nothing control |
 | pre-existing worktree variant | `e47baa781ed4f45c9b5d6fcbc384718ad13db0bc376e9152f0ab98b45e25274d` | 7 | replaced by v1; **not** the report's patch base any more |
-| **v1 draft** (= live worktree tool at 22:47) | `af46203c8ca983841ae5f049e706e5037e416013e72bca03333cbbbfbd5a2abb` | 9 | landed in the worktree; `selftest.patch` base was `e47baa78`, result is this |
-| **v2 draft** (delta on v1) | `f22eb94f1ed86157d94875d0943b5ec62fba8214dd520e7eb4d645969b283464` | 10 | `selftest-v2.patch`, not applied |
+| **v1 draft** (= live worktree tool at 22:47) | `af46203c8ca983841ae5f049e706e5037e416013e72bca03333cbbbfbd5a2abb` | 9 | superseded in the worktree 22:5x; `selftest.patch` base was `e47baa78`, result is this |
+| **v2 draft** (= live worktree tool at 23:00) | `f22eb94f1ed86157d94875d0943b5ec62fba8214dd520e7eb4d645969b283464` | 10 | applied by the L1; `selftest-v2.patch` applied byte-equal |
 
 ## Artifacts
 
@@ -93,15 +93,19 @@ is the closure guard; the `CASES` line only makes accidental single-row loss lou
   root under `$TMPDIR`, removed before exit.
 - v2 patch applies to the live bytes: `git apply --check` rc 0, applied file byte-equal to the
   tested file, applied copy `--selftest` rc 0.
-- existing mode unchanged, from the lane root read-only:
-  `SWEEP added_figures_mismatched=0 skipped_superseded=0 receipt_cases=214 receipt_labels=18`, rc 0.
+- **live worktree bytes `f22eb94f`** (after the L1 applied v2), run read-only from the lane root:
+  `--selftest` rc 0, 10 `PASS (SELFTEST-…)` lines, `SELFTEST: PASS (10 cases, 10 passed, 0 failed)`;
+  self-demo rc 0 with the same `SWEEP added_figures_mismatched=0 skipped_superseded=0
+  receipt_cases=214 receipt_labels=18` line. Independent reproduction of the same digests and both
+  limits: `probes/M1Mutation/score.md`.
 - `/tmp` audit: `selftest-tally-*` entries before/after = 0; fixtures lived in `$TMPDIR` and the
   tree was deleted.
 
 ## Risks / hand-off
 
-- v1 already landed; v2 is a 38-line delta on those exact bytes (three hunks: docstring, manifest
-  line, guard block). On drift use `patch -p1 --fuzz=3`, then re-run `--selftest` and the self-demo.
+- v1 and v2 are both landed in the worktree; the delta is 38 lines on v1's exact bytes (three
+  hunks: docstring, manifest line, guard block). On drift use `patch -p1 --fuzz=3`, then re-run
+  `--selftest` and the self-demo.
 - Any closure receipt for C2 must count case lines externally and quote the digest it measured
   (`af46203c` → 9, `f22eb94f` → 10); the two are not interchangeable.
 - Exit map: `0` all cases pass, `1` a case fails, `2` usage or an unusable `TMPDIR`.

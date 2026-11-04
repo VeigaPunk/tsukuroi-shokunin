@@ -173,6 +173,12 @@ python3 tools/check-selftest-tally.py --selftest | grep -c '^PASS (SELFTEST-'
 - Consequence for the C2 claim: the `--selftest` draft is not committed, so "before: rc 2, 0 case lines"
   and the case inventory at closure must be re-measured against the commit, not this working tree.
 
+State at close (23:00, peer-reported by E2GateSelftest; not re-run by this seat): the L1 applied v2, so the
+live worktree `tools/check-selftest-tally.py` is `f22eb94f1ed8…8464` (superseding the tested `af46203c…aabb`);
+the live read-only run reads 10 `PASS (SELFTEST-…)` lines rc 0 with the r70 self-demo unchanged
+(`added_figures_mismatched=0 skipped_superseded=0 receipt_cases=214 receipt_labels=18`). The digest-bound N
+rule above stands: 9 lines at `af46203c`, 10 at `f22eb94f`.
+
 Final re-hash after the runs (22:47): lane C1 `d615c653…06a6` (unchanged), lane C3 `2610ff43…` (drifted,
 not written by this seat), C2 draft `af4620…`; clone HEAD `6b4267…` with tools `d615c653…06a6` /
 `df8a59c7…e712`.
