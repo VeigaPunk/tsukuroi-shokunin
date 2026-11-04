@@ -13,18 +13,21 @@ module parameter. Every rule row is anchored to one committed snapshot under
 bytes.
 | MP1 | An invisible entry is never added: module_param_sysfs_setup and param_sysfs_builtin skip a kparam whose perm is zero, while add_sysfs_param asserts BUG_ON. | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="We don't bother calling this with invisible parameters." |
 | MP2 | Do not allow runtime DAC changes to make param writable: the attribute mode is kp perm, and param_attr_store exists for a write bit, returning EPERM when set is absent. | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
-| MP3 | Struct kernel_param_ops: set returns zero or negative errno with arg in kp, get returns the length written into a four kilobyte buffer, and free optionally releases arg. | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns length written or -errno.  Buffer is 4k (ie. be short!)" |
+| MP3 | Struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno, free releasing arg. | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns length written or -errno.  Buffer is 4k (ie. be short!)" |
 | MP4 | unknown_module_param_cb routes async_probe through kstrtobool and magic dyndbg through ddebug_dyndbg_module_param_cb; otherwise pr_warn reports unknown parameter ignored and return stays zero. | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
 | MP5 | blacklisted walks comma-separated module_blacklist entries, and early_mod_check returns EPERM after pr_err reports the module as blacklisted. | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
-| MP6 | Module parameters can be specified in two ways, kernel command line with a module name prefix or modprobe, and loaded modules reveal theirs under /sys/module/${modulename}/parameters/. | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="Module parameters can be specified in two ways: via the kernel command line with a module name prefix, or via modprobe" |
+| MP6 | Module parameters can be specified in two ways, kernel command line with a module name prefix or modprobe, built-in code needs the command line, and loaded modules reveal theirs under /sys/module/${modulename}/parameters/. | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="Module parameters can be specified in two ways: via the kernel command line with a module name prefix, or via modprobe" |
 ## Why these six
 The plane has one gate and one disclosure surface. The gate is `perm`: zero
 means the parameter exists for the command line and for `parse_args` but is not
-added to the parameters group at all (MP1), and a non-zero `perm` is both the
-file mode and the condition for a store callback, so a mode without a write bit
-gets show only and a store attempt returns `-EPERM` (MP2). The behaviour of a
+added to the parameters group at all (MP1); a non-zero `perm` is the file mode,
+while the store callback is installed only when that `perm` carries a write bit,
+so a 0444 parameter gets show only and a write is refused at the sysfs layer;
+and when a write bit is present but the ops have no `set`, the store returns
+`-EPERM` (MP2). The behaviour of a
 writable parameter is the ops pair: `set` returns 0 or a negative errno, `get`
-writes at most the 4k buffer and returns the length, and `free` releases
+writes at most the 4k buffer and returns the length written or a negative errno,
+and `free` releases
 `kp->arg` at unload (MP3). The command-line and per-module paths converge on
 `parse_args`: a name no `kernel_param` matches reaches
 `unknown_module_param_cb`, which warns and still returns 0 so the load goes on

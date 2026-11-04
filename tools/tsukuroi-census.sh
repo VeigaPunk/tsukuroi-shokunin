@@ -2658,6 +2658,18 @@ STUB
   esac
   [ "$CASE_BOUND" -ge 1 ] 2>/dev/null || CASE_BOUND=60
   BOUND_OUT='' BOUND_RC=0 BOUND_TIMEOUT=0 BOUND_ELAPSED=0 BOUND_GROUP=0
+  bound_alive() { # bound_alive PID -> 0 while the child has not exited; a zombie counts as exited
+    local s
+    [ -d "/proc/$1" ] || return 1
+    if [ -r "/proc/$1/stat" ]; then
+      s=$(cat "/proc/$1/stat" 2>/dev/null) || return 1
+      s=${s##*') '}
+      s=${s%% *}
+      [ "$s" != Z ] && return 0
+      return 1
+    fi
+    kill -0 "$1" 2>/dev/null
+  }
   bounded_run() { # bounded_run SECONDS CMD... -> BOUND_OUT BOUND_RC BOUND_TIMEOUT BOUND_ELAPSED
     local secs=$1; shift
     local tf pid start now waited=0
@@ -2665,13 +2677,13 @@ STUB
     BOUND_TIMEOUT=0 BOUND_GROUP=0
     start=$(date +%s%N)
     if command -v setsid >/dev/null 2>&1; then
-      setsid "$@" >"$tf" 2>&1 &
+      setsid "$@" >"$tf" 2>&1 <&0 &
       BOUND_GROUP=1
     else
-      "$@" >"$tf" 2>&1 &
+      "$@" >"$tf" 2>&1 <&0 &
     fi
     pid=$!
-    while kill -0 "$pid" 2>/dev/null; do
+    while bound_alive "$pid"; do
       if [ "$waited" -ge $((secs * 10)) ]; then
         BOUND_TIMEOUT=1
         if [ "$BOUND_GROUP" -eq 1 ]; then
@@ -2679,7 +2691,7 @@ STUB
         else
           kill -TERM "$pid" 2>/dev/null || true
         fi
-        sleep 0.2
+        sleep 2
         if [ "$BOUND_GROUP" -eq 1 ]; then
           kill -KILL -- "-$pid" 2>/dev/null || true
         else
@@ -2694,10 +2706,22 @@ STUB
     wait "$pid" 2>/dev/null
     BOUND_RC=$?
     set -e
+    [ "$BOUND_TIMEOUT" -eq 1 ] && BOUND_RC=124
+    # A child that exits while a descendant it started is still alive leaves the group populated:
+    # kill the group unconditionally so no selftest case can leak a process into the suite.
+    [ "$BOUND_GROUP" -eq 1 ] && { kill -KILL -- "-$pid" 2>/dev/null || true; }
     BOUND_OUT=$(cat "$tf" 2>/dev/null || true)
     rm -f "$tf" 2>/dev/null || true
     now=$(date +%s%N)
     BOUND_ELAPSED=$(( (now - start) / 1000000 ))
+  }
+  id_run() { # id_run CMD... -> id_out id_rc: an --identity case child under the same per-case bound
+    bounded_run "$CASE_BOUND" "$@"
+    id_out=$BOUND_OUT
+    id_rc=$BOUND_RC
+    if [ "$BOUND_TIMEOUT" -eq 1 ]; then
+      bad "identity case child: timeout after ${BOUND_ELAPSED}ms (per-case bound ${CASE_BOUND}s) — case child killed (R71-C2)"
+    fi
   }
   skip() { printf 'SKIP %s\n' "$*"; }
 
@@ -4020,46 +4044,34 @@ STUB
   { cat -- "$SELF"; printf '# decoy\n'; } > "$idd/dec/bash"
   id_self_want=$(id_line "$SELF")
   id_copy_want=$(id_line "$idd/copy.sh")
-  set +e
-  id_out=$("$BASH" "$SELF" --identity 2>&1); id_rc=$?
-  set -e
+  id_run "$BASH" "$SELF" --identity
   id_check 'identity: one line naming this file, digests recomputed here, verified=yes (R46-C1)' \
     "$id_self_want" "$id_out" "$id_rc"
   [[ "$id_out" == *' verified=yes' ]] || bad 'identity: this file must read verified=yes (R46-C1)'
-  set +e
-  id_out=$("$BASH" "$idd/copy.sh" --identity 2>&1); id_rc=$?
-  set -e
+  id_run "$BASH" "$idd/copy.sh" --identity
   if [ "$id_copy_want" = "$id_self_want" ]; then
     bad 'identity: a one-line copy must change every byte field (R46-C1)'
   else
     id_check 'identity: a copy with one appended line reports its own bytes, not a constant (R46-C1)' \
       "$id_copy_want" "$id_out" "$id_rc"
   fi
-  set +e
-  id_out=$("$BASH" "$idd/link.sh" --identity 2>&1); id_rc=$?
-  set -e
+  id_run "$BASH" "$idd/link.sh" --identity
   id_check 'identity: a symlink invocation reports the target file (R46-C1)' "$id_self_want" "$id_out" "$id_rc"
-  set +e
-  id_out=$(cd "$idd/dec" && "$BASH" -s -- --identity < "$id_abs" 2>&1); id_rc=$?
-  set -e
+  id_run "$BASH" -c 'cd "$1" && exec "$2" -s -- --identity' _ "$idd/dec" "$BASH" < "$id_abs"
   id_check 'identity: a script read from stdin prints unverifiable, never a decoy file named bash (R46-C1)' \
     'sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable' "$id_out" "$id_rc"
   [[ "$id_out" == *' verified=no' ]] || bad 'identity: a stdin script must read verified=no (R46-C1)'
   { printf 'mv -f -- "$R46_DECOY" "$R46_PATH"\n'; cat -- "$SELF"; } > "$idd/repl.sh"
   { cat -- "$SELF"; printf '\n# decoy\n'; } > "$idd/repl.decoy"
-  set +e
-  id_out=$(R46_DECOY="$idd/repl.decoy" R46_PATH="$idd/repl.sh" "$BASH" "$idd/repl.sh" --identity 2>&1); id_rc=$?
-  set -e
+  id_run env R46_DECOY="$idd/repl.decoy" R46_PATH="$idd/repl.sh" "$BASH" "$idd/repl.sh" --identity
   id_check 'identity: a file replaced after bash opened it prints unverifiable, never the new bytes (R46-C1)' \
     'sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable' "$id_out" "$id_rc"
   # a parent-held descriptor >= 10 on the decoy, relinked over the path after bash opened the script
   # (wave seat C1LabUlimit's reproducer): only the close-on-exec script descriptor may be hashed
   { printf 'mv -f -- "$R46_DECOY" "$R46_PATH"\n'; cat -- "$SELF"; } > "$idd/held.sh"
   { cat -- "$SELF"; printf '\n# decoy\n'; } > "$idd/held.decoy"
-  set +e
-  id_out=$(R46_DECOY="$idd/held.decoy" R46_PATH="$idd/held.sh" \
-    "$BASH" -c 'exec 10<"$1"; exec "$BASH" "$2" --identity' _ "$idd/held.decoy" "$idd/held.sh" 2>&1); id_rc=$?
-  set -e
+  id_run env R46_DECOY="$idd/held.decoy" R46_PATH="$idd/held.sh" \
+    "$BASH" -c 'exec 10<"$1"; exec "$BASH" "$2" --identity' _ "$idd/held.decoy" "$idd/held.sh"
   id_check 'identity: a parent-held descriptor on a relinked decoy is never hashed (R46-C1)' \
     'sha256=unverifiable md5=unverifiable bytes=unverifiable lines=unverifiable' "$id_out" "$id_rc"
   check_cli 'cli: --identity with another flag exits 2 (R46-C1)' 2 \
@@ -4229,10 +4241,13 @@ STUB
   # INITRAMFS line and exit identically — the line is outside the rollup and the exit map.
   arm_run() { # arm_run -> ARM_OUT, ARM_RC: the census over $FX with base seams + EXTRA_ENV, no assertions
     base_env
-    set +e
-    ARM_OUT=$(env "${ENV_BASE[@]}" "${EXTRA_ENV[@]}" "$BASH" "$SELF" 2>&1)
-    ARM_RC=$?
-    set -e
+    bounded_run "$CASE_BOUND" env "${ENV_BASE[@]}" "${EXTRA_ENV[@]}" "$BASH" "$SELF"
+    ARM_OUT=$BOUND_OUT
+    ARM_RC=$BOUND_RC
+    if [ "$BOUND_TIMEOUT" -eq 1 ]; then
+      bad "arm-run case child: timeout after ${BOUND_ELAPSED}ms (per-case bound ${CASE_BOUND}s) — case child killed (R71-C2)"
+      ARM_RC=124
+    fi
   }
   case_home='initramfs-neutral'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
   printf 'ai-usage.timer loaded failed failed\n' > "$FX/failedunits"   # one plane DEGRADED in both runs
@@ -4610,7 +4625,20 @@ STUB
   else
     ok "per-case bound: a child that ignores TERM is killed by the escalation and reported (${term_ms}ms under a 2s bound) (R71-C2)"
   fi
-  unset hang_out slow_out term_out hang_ms slow_ms term_ms t0 t1 slowfx
+  # (R71-C2) a child that daemonizes must leave no descendant behind after the case returns
+  strays="$work/strays"; mkdir -p "$strays"
+  printf '#!/usr/bin/env bash\nsleep 30 & echo $! > "%s/desc.pid"\nexit 0\n' "$strays" > "$strays/pacman"
+  chmod +x "$strays/pacman"
+  stray_out=$( ( EXTRA_ENV=(TSUKUROI_PACMAN="$strays/pacman")
+                 CASE_BOUND=5; check 'daemonizing-child' 0 HEALTHY ) 2>&1 || true )
+  dpid=$(cat "$strays/desc.pid" 2>/dev/null || true)
+  if [ -n "$dpid" ] && [ -d "/proc/$dpid" ]; then
+    bad "per-case bound: a daemonizing case child left descendant $dpid alive (R71-C2)"
+    kill -KILL "$dpid" 2>/dev/null || true
+  else
+    ok "per-case bound: a daemonizing case child leaves no descendant alive after the case returns (R71-C2)"
+  fi
+  unset hang_out slow_out term_out hang_ms slow_ms term_ms t0 t1 slowfx stray_out dpid strays
 
   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
