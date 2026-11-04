@@ -137,3 +137,7 @@ carrier still presents 12/11 as current.
   appended erratum naming `UNIT_REFRESHING` and restating that expansions are outside the pinned
   snapshots. Able to fail: the erratum's quoted macro line is located in the corroborating fetch and
   absent from all three pinned snapshots.
+- **R75-JT5-ENUM** · evidence K1Critic D2 and `transaction.c:822-878` · captured-by QUALITY 106
+  (read the definition before stating a count) · fix: the note's appended erratum enumerates the ten
+  labels and names the upstream "Eights step" spelling. Able to fail: `grep -n Eighth` over the
+  snapshot exits 1 while the ten labels are found by reading, so a grep-only audit undercounts.

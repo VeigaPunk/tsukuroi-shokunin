@@ -1,0 +1,30 @@
+# Round-75 measured outcome — revision 71ab09f477df009e8ac1a8eec799425f5ab0ff1a — 2026-11-04T04:33:21Z
+$ git cat-file -t 71ab09f477df009e8ac1a8eec799425f5ab0ff1a
+commit
+
+$ python3 tools/count-jt-rows-r75.py --revision 71ab09f477df009e8ac1a8eec799425f5ab0ff1a
+JT_ROWS=6 JT_VERIFIED=6 JT_SOURCES=3 JT_SNAPSHOTS=3 JT_MALFORMED=0 met=1
+exit=0
+
+$ python3 tools/check-r74-routed-r75.py --revision 71ab09f477df009e8ac1a8eec799425f5ab0ff1a
+ROUTED_STALE=0 ROUTED_OK=4/4
+exit=0
+
+$ /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi
+exit=0
+tsukuroi	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
+
+$ python3 tools/check-registry-coverage.py --revision 71ab09f477df009e8ac1a8eec799425f5ab0ff1a
+{"findings": 8, "missing": 6, "registered": 107, "rows_total": 107, "tools_total": 113}
+$ python3 tools/check-knowledge-header.py --revision 71ab09f477df009e8ac1a8eec799425f5ab0ff1a
+{'clean_count': 91, 'complete_count': 93, 'finding_count': 2, 'note_count': 93}
+
+$ registry rows: git show 71ab09f477df009e8ac1a8eec799425f5ab0ff1a:corpus/SOURCES.md rows
+317
+$ notes: git ls-tree -r --name-only 71ab09f477df009e8ac1a8eec799425f5ab0ff1a:corpus/knowledge
+93
+$ lessons: git ls-tree -r --name-only 71ab09f477df009e8ac1a8eec799425f5ab0ff1a:corpus/lessons
+125
+
+$ git diff --numstat a21302a48d24cf5242ac2a66cc5b5b453f7a1b20 71ab09f477df009e8ac1a8eec799425f5ab0ff1a -- SCORECARD.md
+91	0	SCORECARD.md

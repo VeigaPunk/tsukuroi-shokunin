@@ -1,0 +1,34 @@
+# Round-75 measured outcome — revision c15fe829123bcb8024346380a7760a8e2e592e93 — 2026-11-04T04:31:45Z
+$ git cat-file -t c15fe829123bcb8024346380a7760a8e2e592e93
+commit
+
+$ python3 tools/count-jt-rows-r75.py --revision c15fe829123bcb8024346380a7760a8e2e592e93
+JT_ROWS=6 JT_VERIFIED=6 JT_SOURCES=3 JT_SNAPSHOTS=3 JT_MALFORMED=0 met=1
+exit=0
+
+$ python3 tools/check-r74-routed-r75.py --revision c15fe829123bcb8024346380a7760a8e2e592e93
+ROUTED_STALE=0 ROUTED_OK=4/4
+exit=0
+
+$ /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi
+exit=0
+tsukuroi	W04	S294 duplicate url raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/admin-guide/tainted-kernels.rst across scopes
+tsukuroi	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
+
+$ python3 tools/check-line-endings-r64.py --check
+CHECK_LINE_ENDINGS: PASS (377 file(s) checked, 0 violation(s))
+check-line-endings-r64: 23619 allow-listed .ufo path(s) skipped (upstream captures)
+exit=0
+
+$ python3 tools/check-registry-coverage.py --revision c15fe829123bcb8024346380a7760a8e2e592e93
+{"branch":"master","branch_tip":"c15fe829123bcb8024346380a7760a8e2e592e93","counts":{"findings":8,"missing":6,"registered":107,"rows_total":107,"tools_total":113},"findings":[{"detail":"no operative row names this regular tools/ file","id":"REGISTRY-ROW-MISSING","site":"tools/check-r71-routed-r72.py"},{"detail":"no operative row names this regular tools/ file","id":"REGISTRY-ROW-MISSING","site":"tools/check-r72-routed-r73.py"},{"detail":"no operative row names this regular tools/ file","id":"REGISTRY-ROW-MISSING","site":"tools/check-r73-routed-r74.py"},{"detail":"no operative row names this regular tools/ file","id":"REGISTRY-ROW-MISSING","site":"tools/count-md-rows-r72.py"},{"detail":"no op
+
+$ python3 tools/check-knowledge-header.py --revision c15fe829123bcb8024346380a7760a8e2e592e93
+{"branch": "master", "branch_tip": "c15fe829123bcb8024346380a7760a8e2e592e93", "clean_count": 91, "complete_count": 93, "finding_count": 2, "findings": [{"detail": "verified-at: carries no ISO date (YYYY-MM-DD) at line 4", "id": "KNOWLEDGE-HEADER-VALUE", "site": "corpus/knowledge/modprobe-config-pla
+
+$ git show c15fe829123bcb8024346380a7760a8e2e592e93:corpus/SOURCES.md | grep -cE "^ {0,3}\| *S[0-9]+ *\|"
+317
+$ notes: git ls-tree -r --name-only c15fe829123bcb8024346380a7760a8e2e592e93:corpus/knowledge | grep -c "\.md$"
+93
+$ lessons: git ls-tree -r --name-only c15fe829123bcb8024346380a7760a8e2e592e93:corpus/lessons | grep -c "\.md$"
+125

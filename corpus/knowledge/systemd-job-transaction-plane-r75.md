@@ -91,3 +91,15 @@ the three pinned snapshots (fetched for corroboration only; sha256
 `563a8180f79038ddc28d267cd971c902bd6c1df438ac92cee6e0a6612b8e1eca`); the wave's S1Scout found the
 omission. The row names the predicate and its two headline states, not its full expansion, and the
 Limits section's statement stands: expansions are outside the pinned bytes.
+
+## Erratum (2026-11-04, round 75) — JT5's ten labels, enumerated
+
+JT5 says "ten labelled steps" and compresses the list into nine comma items; the wave's K1Critic
+(D2) flagged the mismatch. The ten labels, in order, are: **First** matter discovery (`:822`);
+**Second** minimize impact (`:825`); **Third** drop redundant jobs (`:833`); **Fourth** garbage
+collection unless `JOB_ISOLATE` (`:837`); **Fifth** verify order and correct cycles (`:841`);
+**Sixth** drop unmergeable entries and merge (`:853`); **Seventh** collect dependencies after a merge
+retry (`:862`); **Eights step** — the upstream spelling — the second redundant drop (`:869`);
+**Ninth** the destructive check (`:872`); **Tenth** apply (`:878`). Ten labels, one of them
+misspelled upstream; a `grep 'Eighth'` audit reads nine, so the count is established by reading the
+labels, not by a single grep.
