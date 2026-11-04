@@ -1,0 +1,10 @@
+<!--
+## Round 75 — axes table restated
+Supersedes the round-65 table.
+| depth | 8 | `count-depth` |
+| coverage | 8 | `count-coverage` |
+| operability | 8 | `count-operability` |
+| freshness | 8 | `count-freshness` |
+| calibration | 8 | `count-calibration` |
+| adjacency | 8 | `count-adjacency` |
+-->

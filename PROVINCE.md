@@ -532,3 +532,22 @@ Still Frontier: actual conflicting fragments, invalid aliases, intentional perpe
 builtin fallback selection, and effective merged directive values. The observed timer alias
 does not make arbitrary host aliases or directory precedence live-tested.
 Every unit-directory write, reload, start/stop, enable/disable and mask/unmask remains operator-owned.
+
+## Round 75 — job-transaction reading (S314-S316, JT1-JT6)
+
+**Core — source reading:** `corpus/knowledge/systemd-job-transaction-plane-r75.md` extends the systemd
+reading to the v262 job-transaction plane: merge algebra with its immediate-collapse qualification
+(JT1), state-dependent redundancy (JT2), try-restart collapsing before transaction entry (JT3),
+the `JobResult` outcome set (JT4), the ten labelled `transaction_activate` steps (JT5), and the
+per-class dependency pull-in flags — restart propagated as a collapsed try-restart inside the
+`PROPAGATE_STOP` branch, with a separate graceful-stop branch that may enqueue a direct restart (JT6).
+Sources S314-S316 are the pinned upstream `transaction.c`, `job.c` and `job.h` snapshots, not a trace
+of the installed manager.
+
+**Still Frontier:** an observed transaction on this host, an observed queued job, a live merge, and
+host-build line numbers. Snapshot line numbers identify the v262 source reading only; neither a
+transient `Job=` value nor an empty `list-jobs` output proves the transaction's earlier internal steps.
+
+**Operator-owned:** every job submission — start, stop, restart, reload and their conditional
+variants — remains the operator's. This reading grants no action authority; the lane's diagnosis
+table only reads unit properties, queued jobs and the journal.

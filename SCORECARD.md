@@ -6208,3 +6208,35 @@ other having landed (the two counters read disjoint files).
 
 Scratch: every seat works under `$HYAKU_SCRATCH/tsukuroi-r75/<seat>/` (`HYAKU_SCRATCH` default
 `/fast/scratch/hyaku`); `/tmp` is for files under 50 MB only; a seat removes its own tree on exit.
+
+## Round 75 — axes table restated
+
+The last structured axes table before this block is the round-65 table; rounds 66-74 moved ordinals in
+prose only, and the round-74 closure filed that as routed defect 4. This block supersedes the round-65
+table as the operative score row: every ordinal below is restated against a counting command re-run at the
+round-75 declaration `1e2bb29c`, and no ordinal changes in this round.
+
+| Axis | Score | Counting command | Last change |
+|---|---|---|---|
+| depth | 8 | `python3 tools/count-jt-rows-r75.py --revision <REV>` — six verified JT rows, `met=1`, rc 0, and 93 knowledge notes at the same revision | round 75 (new sourced plane; ordinal unchanged) |
+| coverage | 9 | `bash tools/tsukuroi-census.sh` — six `PLANE` lines, one per owned surface, each with a landed note | round 11 (round-65 initramfs arm; ordinal unchanged) |
+| operability | 9 | `bash tools/tsukuroi-census.sh --selftest` reads `PASS (218 cases, 218 passed, 0 failed)` rc 0, and `python3 tools/check-line-endings-r64.py --check` reads `PASS (373 file(s) checked, 0 violation(s))` | round 11 (round-75 instruments added; ordinal unchanged) |
+| freshness | 9 | `python3 tools/check-r74-routed-r75.py --revision <REV>` reads `ROUTED_STALE=0 ROUTED_OK=4/4` rc 0, and the sources census exits 0 | round 75 (four routed repairs; ordinal unchanged) |
+| calibration | 9 | `git diff --numstat <base> <REV> -- SCORECARD.md` shows 0 removed lines, so the self-assessment record stays append-only | round 10 (round-75 append-only landing; ordinal unchanged) |
+| adjacency | 8 | `python3 tools/check-adjacency-anchors.py --revision <REV>` reports `outbound_total=10`, `live_object_match=10` and `inbound_total=114` with one open classification finding | fleet round 1 (round-75 boundary restatement; ordinal unchanged) |
+
+Note on the operability figure: the census selftest now reads 218 cases, not the 177 the round-65 row
+carried; rounds 66-74 added the arms and this block re-measures the tally instead of repeating a stale one
+(QUALITY 105).
+
+## Round 75 — declaration erratum R75-DECL-PROPAGATE-SCOPE (append-only)
+
+C1's frozen sentence says a start or restart job pulls in its dependency atoms "propagating restart
+only as try-restart". The pinned `transaction.c:1199-1211` supports that sentence for the
+`UNIT_ATOM_PROPAGATE_STOP` branch — the branch whose own comment is the phrase's source — while the
+later `UNIT_ATOM_PROPAGATE_STOP_GRACEFUL` branch (`transaction.c:1220-1247`, helper `:999-1027`) may
+enqueue a direct `JOB_RESTART` when a `JOB_START` job for that dependency is already in the
+transaction. The landed JT6 row states both branches; the frozen sentence's unqualified "only" is
+over-broad, so **C1 is reported not verified as declared**. No replacement predicate is written and
+no depth uplift is claimed (QUALITY 106: a post-freeze contradiction is an honest miss and is never
+made to fit its claim).

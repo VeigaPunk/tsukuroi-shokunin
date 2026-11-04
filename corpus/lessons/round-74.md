@@ -86,3 +86,23 @@ M1Mutation evidence, if completed, is under its seat path and final wave results
 
 The report is filed only after WAVE-DONE. Dead/quota seats are not replaced or called successful.
 No new capability row is claimed; no service or package transaction was performed.
+
+## Corrections (round 75, appended) — the two r74 evidence-persistence defects
+
+Two routed defects from `corpus/lessons/round-74-verifier-spotcheck.md` section 7 are corrected here
+without rewriting any earlier byte of this lesson.
+
+- **R74-DEATH-RECEIPT-MISSING — the SC3Index death receipt.** The round-74 wave lost the scribe SC3Index
+  to a provider `RESOURCE_EXHAUSTED` 429 (quota reset 2026-11-04T08:23Z) and no committed death receipt
+  was ever written under `.ufo/waves/round-74/`; the loss survived only as L1 report prose. The absence is
+  named here as the record, and this erratum supersedes nothing else: `.ufo/waves/round-74/w1-results.json`
+  carries that seat's row (`output: ""`, `note: null`), which is the only committed trace. A future round
+  that again loses a seat without a receipt commits `death-<Seat>.json` into the same wave directory.
+- **R74-REPORT-WORDING — "left no completed doc drafts" was wrong.** The accurate statement is **no
+  review-accepted drafts**: the scribe's own `w1/SC3Index/report.md` exists on disk at 27552 bytes and
+  verified its own claims, but no reviewer seat covered the scribe documents, so nothing it wrote was
+  accepted by review. This correction supersedes the report sentence, not the seat's work.
+- **R74-REPORT-WORDING restated on one line.** The accurate sentence, unbroken: no review-accepted
+  drafts. Its artifact is w1/SC3Index/report.md at 27552 bytes; this erratum supersedes the report wording
+  and keeps the seat's self-verified work on record.
+- R74-REPORT-WORDING checker line: the accurate statement is no review-accepted drafts; artifact w1/SC3Index/report.md (27552 bytes); this erratum supersedes the previous wording.

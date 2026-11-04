@@ -703,3 +703,12 @@ and LOG's appended Round-73 count correction; instruments remain at their frozen
 live invalid-alias rejection, live masking of perpetual units, and actual builtin fallback
 selection remain untested. Host alias `systemd-sysupdate.timer` was read this round.
 The previous round's "no alias read" limit is superseded only for that observed symlink.
+
+## Round 75 — job-transaction reading and round-74 routed corrections
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/systemd-job-transaction-plane-r75.md` | The systemd v262 job-transaction plane in six rule rows JT1-JT6: merge algebra with the immediate-collapse qualification; state-dependent redundancy; try-restart collapsing before transaction entry; the `JobResult` outcome set; the ten labelled `transaction_activate` steps; and the per-class pull-in flags, with restart propagated as a collapsed try-restart in the `PROPAGATE_STOP` branch and a separate graceful-stop branch that may enqueue a direct restart. Source contracts, not an observed host transaction. | S314-S316 |
+
+**Frontier:** an observed host transaction, a queued job, a live merge and host-build line numbers
+remain unmeasured. Every job submission remains operator-owned.
