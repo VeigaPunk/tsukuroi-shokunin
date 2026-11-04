@@ -3441,3 +3441,38 @@ regular-file guard :128-129 and allocated blocks times 512 :131.
 This is not apparent size and not a claim of a live daemon's cached usage.
 No host mutation, package adoption, promotion or ordinal uplift is authorized.
 The actual host task and reviewer findings will be recorded after wave settlement.
+
+Round-78 integration landed `cd71642588c0282a9b73b48f87b415ecdadf6225`.
+Revision-bound `after/{before,after}-C1.txt` measures 0/rc1 → 6/rc0;
+`after/{before,after}-C2.txt` measures 10 findings/rc1 → 0/rc0.
+Full commands and tool digests are retained; C1 selftest 15/15 and registry
+selftest 23/23, both rc0, knowledge refs rc0. The frozen counters/specification
+and source snapshots remain byte-identical to the freeze. No old tool was
+changed or deleted. S327/S328 curate the opened manager/manual distinction;
+registry326→328, notes95→96; start/end census rc0.
+
+WAVE-DONE w1: 12 settled seats, no dead seat, one wave, no residual;
+scout1/executor3/scribe3/connector1/reviewer2/critic1/mutation-tester1;
+L1 holds planner. The orchestrator kernel restarted and initially left
+null outputs; it recovered the actual latest seat outputs with provenance
+and retained the null bundle. ReviewUsage's real final digest binds the
+unchanged integrated data and its separately checked companion; no rule
+or result was invented to bypass the missing-output failure.
+
+The real read-only domain task is `w1/ExecHost/handoff.md` with sanitized
+receipts: trigger accounting discrepancy → metadata/CLI/config recheck →
+allocated202866688 versus apparent268435456 bytes, CLI193.4M → prepared
+operator handoff without cleanup authorization. Exact source extraction
+and private C execution are under ExecSource; its stat-failure branch is
+not exercised. MutationCounter and CriticFreeze retain known successful
+forgery/false-prose constructions; those do not describe the actual note.
+
+Lesson `corpus/lessons/round-78.md` records red-before mistakes, Gate admit
+and reject, scoped curation, recovery and remaining conformance limits.
+SCORECARD Round78 measured outcome records both author-side verified
+finite targets, no ordinal uplift, and no capability/frontier promotion.
+Outside round78 admit/reject closure remains pending; assimilation none,
+operator package/promotion holds unchanged. Source, tool and record sweeps
+are retained under `after/`; only the two inherited SKILL registry rows
+are replaced versus base, plus the new r78 row's instrument-boundary wording
+is corrected between this round's commits. No corpus record is rewritten.

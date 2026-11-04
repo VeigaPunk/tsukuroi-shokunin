@@ -6538,3 +6538,44 @@ admit and reject, census and a mined mistake. Assimilation: none; package
 adoption/promotion holds remain unresolved. The inherited registry debt
 is repaired directly, not by reinterpreting the prior frozen counters.
 No next round is started.
+
+### Round-78 measured outcome — `cd71642588c0282a9b73b48f87b415ecdadf6225`
+
+| Claim / axis | Before at `b9019a1d0558241bf67cf31ff90256284d8657af` | After at measured revision | Author-side verdict / ordinal |
+|---|---|---|---|
+| C1 depth | count 0, met 0, rc1 | count 6, met 1, rc0 | verified finite target; actual source/companion separately holds in ReviewUsage; depth 8 → 8 |
+| C2 operability | 10 findings, 8 missing, 108 registered of 116 tools, rc1 | 0 findings, 0 missing, 117 registered of 117 tools, rc0 | verified registry discoverability and truthful reviewed interfaces; operability 9 → 9 |
+
+Commands are the unchanged declaration commands. Revision/tool-digest-bound
+receipts: `.ufo/waves/round-78/after/{before,after}-C{1,2}.txt`;
+exact execution argv and exits: `after/commands.json`. Same-run supporting
+selftests: C1 15/15, registry 23/23, both rc0; knowledge refs rc0.
+Both source snapshots, expected specification and both counters match the
+frozen hashes (`after/structural.json`). Only one new tool was added;
+no pre-existing tool was changed or deleted.
+
+Wave w1 is settled: 12 seats, scout 1 / executors 3 / scribes 3 /
+connector 1 / reviewers 2 / critic 1 / mutation-tester 1; strict attack
+share 4/12, residual 0, dead 0; L1 holds planner. Kernel restart first
+lost result output fields. The orchestrator recovered each actual latest
+seat output with provenance, preserving the null original. ReviewUsage's
+actual recovered output binds its final verdict digest; no rule change,
+inferred vote or synthetic bundle replaces it.
+
+Source registry 326 → 328 (A 309→311, B6/C11 unchanged; mined289→290,
+queued5 unchanged, rejected32→33); Markdown knowledge95→96.
+Counting algorithm and both complete snapshots are in `after/structural.json`;
+start/end source census each rc0 in `before/census.txt` and `after/census.txt`.
+New S327/S328 only; no existing mutable field changes. Frontier unchanged.
+No capability row is entered: examples/instrument are round-specific, and
+registry cleanup is not a new general-purpose operation.
+
+Limits remain explicit: fully fabricated result bundles and false companion
+prose can pass the numeric C1 gate; the actual companion's accuracy is a
+separate frozen kill rule, read by ReviewUsage. Registry coverage checks
+do not execute every advertised tool or certify historical conformity.
+The C1 gate lacks the shared revision-validator import and the exact
+canonical-copy load order was not fully followed; these are disclosed
+conformance limits, not new universal claims. Outside admission and the
+round-78 admit/reject discernment check remain pending. No promotion or
+package hold is lifted. Planned: outside closure first; no round 79 started.

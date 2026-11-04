@@ -148,3 +148,39 @@ working registry 328 and intersections 129. Its indentation control catches
 The staged rows with colliding IDs refer to different documents. No package
 append is attempted; renumber map is empty. Lists are provided as complete
 artifacts rather than a naked count.
+
+## Measured outcome and in-place disclosure
+
+Measured revision `cd71642588c0282a9b73b48f87b415ecdadf6225`.
+`after/{before,after}-C1.txt` records 0/rc1 → 6/rc0;
+`after/{before,after}-C2.txt` records 10 findings/rc1 → 0/rc0.
+`after/commands.json` retains exact invocations; each receipt binds measured
+revision, tool revision/digest, stdout and exit. Supporting C1 selftest15/15,
+registry selftest23/23 and knowledge refs all rc0. `after/structural.json`
+confirms frozen hashes unchanged, zero pre-existing tool deletions/edits,
+source rows326→328 and Markdown notes95→96. No ordinal uplift is taken.
+Author-side C1/C2 verify on their finite predicates and separate source/
+interface reading; outside admission is not self-awarded.
+
+Required census command:
+`/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi`.
+Full start/end stdout and exit0 are in `before/census.txt` and
+`after/census.txt`; duplicate-URL warnings are retained, not filtered away.
+New rows are A2/B0/C0: one mined, one rejected. No existing status,
+recheck or used-by mutation occurred; frontier rows advanced0.
+
+`after/record-sweep.json` contains the exact `git diff -U0` commands and
+complete removed-line text for each adjacent commit pair and base→measured,
+over SCORECARD, LOG, SKILL, PROVINCE, SHONEN and corpus. Base→freeze removes
+0 lines; freeze→integrated removes3 registry rows; base→integrated removes
+2 old registry rows. Those three replacement lines are exactly the JT75
+row, routed74→75 row and new r78 row disclosed above; all replacements
+preserve their tool identity and fix advertised interface/scope. No historical
+corpus text is replaced. Later outcome sections add evidence only.
+
+Mandatory fleet-root `git status --porcelain` output is retained in
+`after/fleet-status.txt`: no artifact naming this lane/round was found
+misrooted. The untracked file `after` contains only `== SCORECARD diff base-`
+and provides no lane attribution, so it is left untouched; orchestrator
+scratch and other-lane reports are also untouched. No misroot deletion
+is claimed. No installation/update was performed by L1 or any seat.
