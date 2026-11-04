@@ -161,3 +161,9 @@ reported by any round-79 seat.
 | vacuous — R79-C1-EQUALITY-SHADOWS-DEEP-LEGS | `w1/MutationCounter/matrix.json` survivors `c1-seven-rows-rowcount`, `c1-no-line-check` | QUALITY 81 (a scripted non-reader must read below the target) | With the frozen equality leg at `measure-unit-deps-r79.py:97`, data-side mutations die at `finite-content-mismatch` before `quote-location` or `row-shape` can fire; the per-row selftest cases are answered by equality, not by the clause they name. Declared limit. |
 | process — R79-SCRIBE-LESSON-LATE-BINDING | `w1/ScribeLesson.md` mtime 16:36 against this lesson's first write 16:30 | QUALITY 96 (first write is the binding file) | The seat's first write came ~28 minutes in, after deep verification; the L1's interim dead-seat row was true when written and is superseded above. The seat records the same event in its own QUALITY check. |
 | reference-drift — R79-DRAFT-DIGEST-TYPO | `w1/ScribeLesson/round-79.md` header and its QUALITY 2 bullet cite snapshot `…14c8`; the frozen and measured digest is `…14c6` | QUALITY 2 (counts and digests carry their command) | The L1 did not adopt the draft's header; the landed lesson cites the measured digest. This demonstrates why the seat's draft is a draft, not the record. |
+
+### Late integration defect (append-only)
+
+| Class / id | Evidence | Captured-by | Fix shown able to fail |
+|---|---|---|---|
+| landing — R79-FLEET-TMP | the mandatory fleet-root sweep `git -C /home/vgpnk/Projects/shokunin status --porcelain` printed `?? .ufo/tmp-census-r79.txt`; the committed copy is `.ufo/waves/round-79/after/census.txt` | QUALITY 95 (every file-touching call names the absolute lane path) and the round's misroot sweep | The L1 had written the end-of-round census into the fleet root instead of the lane. The fleet copy was deleted and the sweep re-run; the regenerated `after/fleet-status.txt` carries no round-79 lane artifact. No seat wrote to the fleet root. |
