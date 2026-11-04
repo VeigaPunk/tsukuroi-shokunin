@@ -1,0 +1,74 @@
+S1Scout — independent read-only re-capture of the host module-parameter surface
+round-71 w1; captured 2026-11-04T00:57:44Z; no write, no sudo, no /sys mutation
+
+kernel=7.2.11-arch1-1
+PARAM_DIRS=136   # committed host.txt: 136
+PARAM_FILES=829  # committed host.txt: 829
+
+## mode histogram over all parameter files (find -printf %m | sort | uniq -c)
+       34 400
+      427 444
+       70 600
+      298 644
+## mode classes: readable-by-other=725  group/other-writable=0
+
+## nvidia* modules (files / mode histogram)
+  nvidia: files=52 modes=[ 52 444 ]
+  nvidia_drm: files=4 modes=[ 4 444 ]
+  nvidia_modeset: files=16 modes=[ 15 444  1 644 ]
+  nvidia_uvm: files=55 modes=[ 45 444  10 644 ]
+
+## nvidia_drm: mode + value per file
+  444 color_pipeline=Y
+  444 fbdev=Y
+  444 modeset=Y
+  444 vblank=N
+
+## nvidia_uvm: the 0644 (root-writable, not other-writable) parameters
+  644 uvm_block_cpu_to_cpu_copy_with_ce
+  644 uvm_cpu_chunk_allocation_sizes
+  644 uvm_debug_enable_push_acquire_info
+  644 uvm_debug_enable_push_desc
+  644 uvm_debug_prints
+  644 uvm_downgrade_force_membar_sys
+  644 uvm_fault_force_sysmem
+  644 uvm_release_asserts
+  644 uvm_release_asserts_dump_stack
+  644 uvm_release_asserts_set_global_error
+  total_644=10  total_444=45
+
+## nvidia NVreg_*: all 0444 (52/52)
+
+## perm==0 / no-visible-plane control: /sys/module/btrfs
+  /sys/module/btrfs exists: NO
+  btrfs in /proc/modules: 0  (builtin: 1 hit in modules.builtin)
+  module-level parameters dir: ABSENT
+  read_policy at module level: ABSENT
+  read_policy per-filesystem: /sys/fs/btrfs/1d02a454-c549-4a35-b567-89d60902af8e/read_policy mode=644 owner=root value=[pid]; 
+  => the module publishes NO parameters dir at all, so read_policy's absence is directory-level (every btrfs param is perm==0/invisible), not a single invisible file
+
+## /proc/cmdline (verbatim)
+  resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+## dotted tokens on the cmdline (all core/init parameters, none is mod.param=)
+  systemd.show_status=false
+  rd.udev.log_level=0
+  vt.global_cursor_default=0
+  zswap.enabled=1
+  zswap.max_pool_percent=25
+  tokens named *.<module-param>=: 0
+  resume= present=1 ; zswap.enabled=1 present=1 ; rootflags=subvol=@ present=1
+
+## modprobe.d (paths and modes only; contents NEVER read)
+  /etc/modprobe.d: 3 entries
+    -rw-r--r-- 1 root root 31 Oct  3 17:44 disable-usb-autosuspend.conf
+    -rw-r--r-- 1 root root 27 Oct  3 17:44 hid_apple.conf
+    -rw-r--r-- 1 root root 29 Oct  3 17:45 nvidia.conf
+  /usr/lib/modprobe.d: 5 entries, 4 .conf (README is not a conf; committed host.txt counts 4 conf)
+    -rw-r--r-- 1 root root 306 Oct 17 05:46 README
+    -rw-r--r-- 1 root root 128 Jul  4 08:24 bluetooth-usb.conf
+    -rw-r--r-- 1 root root  54 Oct 13 07:06 gsr-nvidia.conf
+    -rw-r--r-- 1 root root 324 Oct  8 11:41 nvidia-utils.conf
+    -rw-r--r-- 1 root root 821 Oct 17 05:46 systemd.conf
+
+## nvidia parameter drift vs committed .ufo/waves/round-71/before/host.txt
+  127 committed nvidia* parameter (mode,name=value) rows; 127 live; missing=0 extra=0 mode/value_mismatch=0 => NVIDIA_DRIFT=0

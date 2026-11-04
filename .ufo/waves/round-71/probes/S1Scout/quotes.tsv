@@ -1,0 +1,19 @@
+# round-71 C1 quote locations, seat S1Scout (w1) — verbatim spans in the committed snapshots
+# checks applied per row: words<=25, no pipe, norm(quote) in norm(snapshot), same in route-2 copy
+# frozen counter applies these at tools/count-mp-rows-r71.py:178-183; | at line 670 is why the write-bit test is UNQUOTABLE
+row	role	snapshot	lines	words	pipe	in_commit	in_route2	quote
+MP1	primary	params.c	709-712	19	0	1	1	for (i = 0; i < num_params; i++) { if (kparam[i].perm == 0) continue; err = add_sysfs_param(&mod->mkobj, &kparam[i], kparam[i].name);
+MP1	alt-invisible	params.c	633-634	11	0	1	1	/* We don't bother calling this with invisible parameters. */ BUG_ON(!kp->perm);
+MP1	alt-builtin-skip	params.c	826-827	5	0	1	1	if (kp->perm == 0) continue;
+MP2	primary	params.c	669	12	0	1	1	/* Do not allow runtime DAC changes to make param writable. */
+MP2	alt-store-null	params.c	671-673	11	0	1	1	mk->mp->attrs[mk->mp->num - 1].mattr.store = param_attr_store; else mk->mp->attrs[mk->mp->num - 1].mattr.store = NULL;
+MP2	alt-mode-is-perm	params.c	675	5	0	1	1	mk->mp->attrs[mk->mp->num - 1].mattr.attr.mode = kp->perm;
+MP3	primary	moduleparam.h	63-65	23	0	1	1	Returns 0, or -errno. arg is in kp->arg. */ int (*set)(const char *val, const struct kernel_param *kp); /* Returns length written or -errno.
+MP3	alt-set-only	moduleparam.h	63-64	18	0	1	1	/* Returns 0, or -errno. arg is in kp->arg. */ int (*set)(const char *val, const struct kernel_param *kp);
+MP3	alt-get-only	moduleparam.h	65	13	0	1	1	/* Returns length written or -errno. Buffer is 4k (ie. be short!) */
+MP4	primary	main.c	3392-3394	13	0	1	1	if (ret != 0) pr_warn("%s: unknown parameter '%s' ignored\n", modname, param); return 0;
+MP5	primary	main.c	3406-3408	10	0	1	1	if (blacklisted(info->name)) { pr_err("Module %s is blacklisted\n", info->name); return -EPERM;
+MP6	primary	kernel-parameters.rst	20-21	22	0	1	1	Module parameters can be specified in two ways: via the kernel command line with a module name prefix, or via modprobe, e.g.::
+MP6	alt-builtin-cmdline	kernel-parameters.rst	26-27	22	0	1	1	Parameters for modules which are built into the kernel need to be specified on the kernel command line. modprobe looks through the
+MP6	alt-sysfs-reveal	kernel-parameters.rst	34-35	15	0	1	1	Loadable modules, after being loaded into the running kernel, also reveal their parameters in /sys/module/${modulename}/parameters/
+MP6	alt-runtime-change	kernel-parameters.rst	35-36	17	0	1	1	reveal their parameters in /sys/module/${modulename}/parameters/. Some of these parameters may be changed at runtime by the command

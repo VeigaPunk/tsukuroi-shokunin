@@ -1,0 +1,107 @@
+D3 — shebang / documented-invocation mismatch, and r71 counter check
+Measured read-only at lane HEAD 0fcfca315fbdf4ff6a47abeff08efa7fd27aa32e (2026-11-04).
+Sandbox: git clone --shared of the lane at /fast/scratch/hyaku/tsukuroi-r71/E3Repairs/clone
+(detached 79dac76c); every git call named -C <clone>; the clone was deleted after capture.
+
+[1] Tracked bytes vs working tree
+
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 0fcfca31:tools/count-xs-rows-r70.py | head -1
+#!/usr/bin/env bash
+
+$ head -1 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-xs-rows-r70.py
+#!/usr/bin/env python3
+
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain -- tools/count-xs-rows-r70.py
+ M tools/count-xs-rows-r70.py
+
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin diff -- tools/count-xs-rows-r70.py
+-#!/usr/bin/env bash
++#!/usr/bin/env python3
+
+So: at the declaration `0fcfca31` the tracked bytes carry the bash shebang over Python source; at
+first observation the working tree already carried the same one-line fix, uncommitted. During this
+seat the lane advanced to `2959254a`: commit `db58e7c9` ("round-71 C2: … + r70 counter shebang
+repair") landed exactly that line (blob `f500fe6b` -> `c6ee21ce`, 1 insertion / 1 deletion). This
+seat wrote no lane bytes; the clone red/green below proves the fix's effect at the defective
+revision.
+
+[2] Documented invocation (works today)
+
+- SKILL.md:5756 registry row: `python3 tools/count-xs-rows-r70.py --revision <REV>` (or `--fixture <DIR>`).
+- PROVINCE.md:371: `python3 tools/count-xs-rows-r70.py --revision <REV>`.
+
+[3] Red-before — direct execution at 79dac76c in the sandbox clone
+
+$ git clone --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin /fast/scratch/hyaku/tsukuroi-r71/E3Repairs/clone
+$ git -C /fast/scratch/hyaku/tsukuroi-r71/E3Repairs/clone rev-parse --show-toplevel
+/fast/scratch/hyaku/tsukuroi-r71/E3Repairs/clone
+$ git -C /fast/scratch/hyaku/tsukuroi-r71/E3Repairs/clone checkout --detach 79dac76c
+$ git -C /fast/scratch/hyaku/tsukuroi-r71/E3Repairs/clone rev-parse HEAD
+79dac76cd1c4e27a1ba745a867e19c31a8592ec3
+
+$ cd /fast/scratch/hyaku/tsukuroi-r71/E3Repairs/clone && ./tools/count-xs-rows-r70.py --revision 79dac76c
+rc=2
+import: unable to grab mouse '': Resource temporarily unavailable @ error/xwindow.c/XSelectWindow/9353.
+import: unable to read X window image '': Success @ error/xwindow.c/XImportImage/4961.
+import: missing an image filename `argparse' @ error/import.c/ImportImageCommand/1291.
+import: unable to grab mouse '': Resource temporarily unavailable @ error/xwindow.c/XSelectWindow/9353.
+import: unable to read X window image '': Success @ error/xwindow.c/XImportImage/4961.
+import: missing an image filename `hashlib' @ error/import.c/ImportImageCommand/1291.
+[...]
+
+Bash executes the Python body line by line; `import argparse` resolves to ImageMagick's `import`
+(screenshot tool), which attempts an X window grab. The direct run does not merely fail fast: one
+such attempt was still alive long after the clone completed and had to be cancelled (background job
+bg_9118). Failure is an execution error (rc 2), never the tool's verdict.
+
+[4] One-line fix
+
+tools/count-xs-rows-r70.py:1
+-#!/usr/bin/env bash
++#!/usr/bin/env python3
+
+[5] Green-after — same clone, exactly one line changed
+
+$ head -1 tools/count-xs-rows-r70.py
+#!/usr/bin/env python3
+
+$ ./tools/count-xs-rows-r70.py --revision 79dac76c
+rc=0
+XS_ROW ok XS1 source=S291 snapshot=xfs_stats.c
+XS_ROW ok XS2 source=S291 snapshot=xfs_stats.c
+XS_ROW ok XS3 source=S292 snapshot=xfs_sysfs.c
+XS_ROW ok XS4 source=S292 snapshot=xfs_sysfs.c
+XS_ROW ok XS5 source=S290 snapshot=xfs.rst
+XS_ROW ok XS6 source=S293 snapshot=health.c
+XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4
+XS_TARGET rows=6 verified=6 sources>=4 snapshots>=4 met=1
+
+$ git -C /fast/scratch/hyaku/tsukuroi-r71/E3Repairs/clone diff --stat -- tools/count-xs-rows-r70.py
+ tools/count-xs-rows-r70.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[6] r71 counter — shebang and declared-absent note
+
+$ head -1 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-mp-rows-r71.py
+#!/usr/bin/env python3
+
+$ sha256sum /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/count-mp-rows-r71.py
+fa67d4deb5f01a5124120276a8571fa36c7367d9db711ceb39bc1ca6fded48bc  tools/count-mp-rows-r71.py
+
+$ python3 tools/count-mp-rows-r71.py --revision 0fcfca31
+MP_NOTE absent path=corpus/knowledge/module-parameter-plane-r71.md
+rc=128
+
+$ ./tools/count-mp-rows-r71.py --revision 0fcfca31          # direct execution
+MP_NOTE absent path=corpus/knowledge/module-parameter-plane-r71.md
+rc=128
+
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin cat-file -e 0fcfca31:corpus/knowledge/module-parameter-plane-r71.md
+fatal: path 'corpus/knowledge/module-parameter-plane-r71.md' does not exist in '0fcfca31'
+rc=128
+
+Verdict D3: measured at the declaration `0fcfca31`, the r70 counter tracked the bash shebang over
+Python (defect present; clone red-before rc 2). The one-line fix is verified in the clone (rc 2 ->
+rc 0, declared predicate met) and has since landed on the lane as `db58e7c9` (lane HEAD
+`2959254a`; tracked and working-tree shebang both `#!/usr/bin/env python3`). The r71 counter is
+shebang-correct (python3, direct execution identical) and its frozen digest matches.

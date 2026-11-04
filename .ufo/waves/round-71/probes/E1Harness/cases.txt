@@ -1,0 +1,83 @@
+# R71-C2 hermetic cases — verbatim from the independent draft (census-r71-c2.patched.sh)
+# Three arms, each driving the REAL check path in a subshell whose ok/bad append to files.
+# (a) FIFO-blocked child at a 2 s bound -> killed, FAIL names the case and timeout
+# (b) 1 s child at the same 2 s bound -> passes (no false positive)
+# (c) TERM-ignoring child -> escalated to KILL, gone inside the bound
+
+  # ---- (R71-C2) the per-case bound proves itself: three hermetic cases -----------------
+  # Each drives the REAL check path (so the FAIL line is the one the suite emits) in a
+  # subshell whose ok/bad append to files, so a passing probe never moves the suite's own
+  # counters. The "census" behind SELF is a fake under $work: nothing here reads the host.
+  mkfifo "$work/r71-c2.fifo"
+  cat > "$work/r71-c2-blocking.sh" <<EOF
+exec cat "$work/r71-c2.fifo"
+EOF
+  cat > "$work/r71-c2-slow.sh" <<EOF
+sleep 1
+printf 'host=fixture-host\n'
+printf 'PLANE packages: HEALTHY (drift=0 root_status=ok root_mode=0755 root_dir=$work/fx/r71-c2b/root)\n'
+printf 'TSUKUROI_CENSUS: HEALTHY (R71-C2 fixture)\n'
+EOF
+  cat > "$work/r71-c2-stubborn.sh" <<EOF
+trap '' TERM
+printf '%s\n' "\$\$" > "$work/r71-c2.c.pid"
+sleep 30
+EOF
+
+  # (a) a child blocked on a FIFO read, under a 2 s bound, is killed inside ~5 s and the
+  # FAIL line names the case label and the word timeout.
+  r71a_t0=$SECONDS
+  ( bad() { printf '%s\n' "$*" >> "$work/r71-c2.a.bad"; }
+    ok() { :; }
+    CASE_BOUND=2
+    FX="$work/fx/r71-c2a"; mkdir -p "$FX"
+    SELF="$work/r71-c2-blocking.sh"
+    check 'R71-C2 (a) blocking child (FIFO read) under the per-case bound' 0 HEALTHY )
+  r71a_el=$((SECONDS - r71a_t0))
+  if [ "$r71a_el" -le 5 ] && grep -q 'timeout' "$work/r71-c2.a.bad" 2>/dev/null \
+    && grep -q 'R71-C2 (a) blocking child' "$work/r71-c2.a.bad" 2>/dev/null; then
+    ok "R71-C2 (a) a FIFO-blocked case child is killed at the 2 s bound (${r71a_el}s) and the FAIL line names the case and timeout"
+  else
+    bad "R71-C2 (a) the blocking child was not bounded to a timeout FAIL within 5 s (elapsed=${r71a_el}s, bad=$(tr '\n' '|' < "$work/r71-c2.a.bad" 2>/dev/null))"
+  fi
+
+  # (b) the bound must not fire on a child that finishes inside it: a 1 s child under the
+  # same 2 s bound passes the ordinary check with no timeout FAIL (no false positive).
+  r71b_t0=$SECONDS
+  ( bad() { printf '%s\n' "$*" >> "$work/r71-c2.b.bad"; }
+    ok() { printf '%s\n' "$*" >> "$work/r71-c2.b.ok"; }
+    CASE_BOUND=2
+    FX="$work/fx/r71-c2b"; mkdir -p "$FX"
+    SELF="$work/r71-c2-slow.sh"
+    check 'R71-C2 (b) slow child that finishes inside the bound' 0 HEALTHY )
+  r71b_el=$((SECONDS - r71b_t0))
+  if [ ! -s "$work/r71-c2.b.bad" ] && grep -q 'R71-C2 (b) slow child' "$work/r71-c2.b.ok" 2>/dev/null; then
+    ok "R71-C2 (b) a 1 s child under the 2 s bound passes cleanly (no false positive, ${r71b_el}s)"
+  else
+    bad "R71-C2 (b) the finishing child did not pass under the 2 s bound (bad=$(tr '\n' '|' < "$work/r71-c2.b.bad" 2>/dev/null))"
+  fi
+
+  # (c) escalation: a child that ignores TERM is still gone inside the bound, which only the
+  # KILL of its process group can achieve (it would otherwise sleep 30 s).
+  r71c_t0=$SECONDS
+  ( bad() { printf '%s\n' "$*" >> "$work/r71-c2.c.bad"; }
+    ok() { :; }
+    CASE_BOUND=2
+    FX="$work/fx/r71-c2c"; mkdir -p "$FX"
+    SELF="$work/r71-c2-stubborn.sh"
+    check 'R71-C2 (c) child that ignores TERM is still killed' 0 HEALTHY )
+  r71c_el=$((SECONDS - r71c_t0))
+  r71c_pid=$(cat "$work/r71-c2.c.pid" 2>/dev/null || true)
+  r71c_live=no
+  if [ -n "$r71c_pid" ]; then
+    r71c_w=0
+    while [ "$r71c_w" -lt 20 ] && case_alive "$r71c_pid"; do sleep 0.1; r71c_w=$((r71c_w + 1)); done
+    if case_alive "$r71c_pid"; then r71c_live=yes; fi
+  fi
+  if [ "$r71c_el" -le 6 ] && [ -n "$r71c_pid" ] && [ "$r71c_live" = no ] \
+    && grep -q 'timeout' "$work/r71-c2.c.bad" 2>/dev/null; then
+    ok "R71-C2 (c) a TERM-ignoring child is escalated to KILL and is gone inside the bound (${r71c_el}s)"
+  else
+    bad "R71-C2 (c) escalation failed (elapsed=${r71c_el}s pid=${r71c_pid:-unset} live=$r71c_live)"
+  fi
+  unset r71a_t0 r71a_el r71b_t0 r71b_el r71c_t0 r71c_el r71c_pid r71c_live r71c_w

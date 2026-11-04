@@ -1,0 +1,37 @@
+AXES=operability,C2,falsify
+script_sha256=487feeb6caa687daf586d4b7577746e5f1ed22ca336e9c0e0194d13995bd4b3c
+
+a_fifo
+RESULT timeout=1 rc=143 elapsed=1209 group=1
+
+external_rc=0
+
+b_ignore_term
+RESULT timeout=1 rc=137 elapsed=1209 group=1
+
+external_rc=0
+
+c_orphan
+RESULT timeout=0 rc=0 elapsed=102 group=1
+DESCENDANT=3473487
+external_rc=0
+descendant_alive_after_helper=True
+cleanup_killed_descendant=yes
+
+c_group_timeout
+RESULT timeout=1 rc=143 elapsed=1208 group=1
+DESCENDANT=3473486
+external_rc=0
+descendant_alive_after_helper=False
+
+d_finishes
+RESULT timeout=0 rc=0 elapsed=705 group=1
+FINISHED
+external_rc=0
+
+CONFIG
+input=None rc=0 CASE_BOUND=60 
+input='0' rc=0 CASE_BOUND=60 
+input='' rc=0 CASE_BOUND=60 
+input='nonsense' rc=0 CASE_BOUND=60 
+input='1' rc=0 CASE_BOUND=1 

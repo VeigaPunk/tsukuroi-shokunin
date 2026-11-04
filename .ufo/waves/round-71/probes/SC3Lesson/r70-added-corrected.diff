@@ -1,0 +1,87 @@
+diff --git a/PROVINCE.md b/PROVINCE.md
+index 23198d74..56fc0945 100644
+--- a/PROVINCE.md
++++ b/PROVINCE.md
+@@ -338,0 +339,35 @@ plumbing repairs are operator-owned (RP1-RP3). Correction logged in LOG.md (roun
++
++## Round-70 promotion — R70-XFS-STATS-VIEW: the unprivileged XFS sysfs view moves Frontier → Core
++
++Append-only; the round-26/38/39/44 promotion sections above stay as written, and the two sentences that call
++the second NVMe device "(xfs on `/tmp`, `/fast`) … stays unread" are superseded here, not deleted.
++
++**Core now — the device read:** the census's verdict-neutral `XFS xfs-stats mounts=N present=N absent=N
++unreadable=N stats=N error=N log=N detail=<token|none>` line (`probe_xfs_arm` in `tools/tsukuroi-census.sh`).
++It reads the mount table (override `TSUKUROI_PROC_MOUNTS`) for the distinct xfs mount sources, each source's
++`/sys/fs/xfs/<dev>` directory (override `TSUKUROI_XFS_SYSFS`), the first line of each `stats/stats` against
++`^[a-z][a-z0-9_]*([ ][0-9]+)+$`, and the readable regular files under `error/` and `log/`. The counts partition
++(`present + absent + unreadable == mounts`), the global `/sys/fs/xfs/stats` kobject is never counted as a
++filesystem, a name that fails the validated shape is never echoed, and the line needs no privilege, runs no
++xfsprogs command, writes nothing and is never a rollup or exit-code term.
++
++**Core now — the reading:** the stats file's one-line-per-group shape and its four precision lines, the
++write-only `stats_clear` contract, the `log/` head and tail LSN and two grant-head files, the `error/`
++configuration tree with the `metadata` class, and the online health reader's "not collected" state
++(`corpus/knowledge/xfs-storage-plane-r70.md` rows XS1-XS6; S290-S293).
++
++**Still Frontier:** anything semantic behind those files — no XFS health grade is readable this way (the S293
++reader says "not collected" until `xfs_scrub` runs), the error tree exposes retry configuration and not error
++history, the LSN and grant values are instantaneous, and the stats counters are workload telemetry, not a
++grade. A mount source that is not a device basename (`UUID=`, `LABEL=`, `/dev/mapper/<name>`) cannot be mapped
++to a sysfs kobject name without blkid and reads absent; a same-source two-target mount makes "distinct
++sources" differ from "rows" — both named limits, neither exercised on this host.
++
++**Operator-owned:** `xfs_scrub`/`xfs_repair`, any write to `stats_clear`, the `error/` knobs
++(`max_retries`, `retry_timeout_seconds`, `fail_at_unmount`), mount and remount options, and counter resets.
++**Mori's, unchanged:** disk-space runway and capacity under the round-26 wave-2 split; this section states no
++capacity, threshold or fleet-runway reading.
++
++Counted by `python3 tools/count-xs-rows-r70.py --revision <REV>` for the six rows and by the census's own
++`bash tools/tsukuroi-census.sh --selftest` (214 cases, 18 labelled `R70-C2`) plus the live line for the arm, at
++the revision named in `SCORECARD.md` "Round 70 — measured outcome".
+diff --git a/SKILL.md b/SKILL.md
+index 644cc57a..cf6d59eb 100644
+--- a/SKILL.md
++++ b/SKILL.md
+@@ -5755,0 +5756,20 @@ newer installed kernel reads `pending=YES`. The arm's selftest carries both shap
++| count-xs-rows-r70 | gate | `python3 tools/count-xs-rows-r70.py --revision <REV>` (or `--fixture <DIR>`) | 0 predicate `XS_ROWS == 6 and XS_VERIFIED == 6 and XS_SOURCES >= 4 and XS_SNAPSHOTS >= 4`; 1 otherwise; 2 usage | `python3 tools/count-xs-rows-r70.py --revision <REV>`; battery `.ufo/waves/round-70/before/control/battery.txt` |
++
++Append-only round documentation (2026-11-03/04, round 70). C1: the XFS sysfs storage plane
++(`corpus/knowledge/xfs-storage-plane-r70.md`, XS1-XS6; SOURCED by S290-S293: Linux v7.2.11
++`Documentation/admin-guide/xfs.rst`, `fs/xfs/xfs_stats.c`, `fs/xfs/xfs_sysfs.c`, and xfsprogs v7.2.0
++`spaceman/health.c`). The entry holds the stats file's one-line-per-group shape with per-CPU sums and four
++precision lines, the write-only `stats_clear` contract (`kstrtoint`, only 1 accepted, `xfs_stats_clearall`),
++the four `log/` files (head/tail LSN as `cycle:block`, grant heads as bytes), the `error/` configuration tree
++with the `metadata` class, and the online health reader's "not collected" state. The second NVMe device
++(`/tmp`, `/fast`, xfs) that PROVINCE.md recorded unread is now read on this surface; the btrfs counters, the
++scrub record and NVMe SMART of S128-S139 are not restated. Limits: the counters are workload telemetry, the
++error tree is retry configuration not history, the health reader needs a scrub record to say anything, and no
++host-build line number is claimed (QUALITY 103).
++
++C2: the census `xfs-stats` arm (`probe_xfs_arm`, the verdict-neutral `XFS xfs-stats` line, overrides
++`TSUKUROI_PROC_MOUNTS` and `TSUKUROI_XFS_SYSFS`; mount-table distinct sources, sysfs presence, first-line
++stats parse, recursive `error/`/`log/` file counts, partition `present + absent + unreadable == mounts`, no
++privilege, no xfsprogs call, never a rollup or exit-code term). The census selftest grows 196 → 214 cases,
++18 of them labelled `R70-C2`. The registry gains one row for `tools/count-xs-rows-r70.py`; the arm lives
++inside the registered `tsukuroi-census` gate.
+diff --git a/corpus/README.md b/corpus/README.md
+index 55b9700c..1417cbfd 100644
+--- a/corpus/README.md
++++ b/corpus/README.md
+@@ -601,0 +602,17 @@ Append-only; the round-68 index above stays as written.
++
++## Round-70 index — the XFS sysfs storage plane and the xfs-stats arm (2026-11-03)
++
++Append-only; the round-69 index above stays as written.
++
++| Path | What it holds |
++|---|---|
++| `knowledge/xfs-storage-plane-r70.md` | The XFS sysfs storage plane the lane never held: the per-filesystem and global `stats/stats` file (one line per named counter group, per-CPU sums, four precision lines), the write-only `stats_clear` contract, the four `log/` files (head/tail LSN `cycle:block`, grant heads in bytes), the `error/` tree with the `metadata` class, and the online health reader's "not collected" state; rows XS1-XS6, sourced S290-S293 |
++| `SOURCES.md` rows S290-S293 | The four sources, tier A, `mined`; `on-release`/`90d` recheck; raw digests pinned in `.ufo/waves/round-70/before/src/SHA256SUMS` |
++| `SOURCES.md` rows S294-S296 | The three round-69 refused candidates as `rejected` rows with reason and flip (D5): a duplicate tainted-kernels registration, an own-work capture row, and an out-of-snapshot `MODULE_ARCH_VERMAGIC` row |
++| `../tools/count-xs-rows-r70.py` | The frozen strict row counter: unique contiguous ids, >= 12-word statements with >= 3 tokens grounded in the row's snapshot, source-to-snapshot URL binding, snapshot digest, <= 25-word located quote |
++| `../tools/tsukuroi-census.sh` | The verdict-neutral `XFS xfs-stats` arm (mount-table sources, sysfs presence, stats parse, error/log counts, partition invariant); selftest 196 -> 214 |
++| `../PROVINCE.md` | "Round-70 promotion — R70-XFS-STATS-VIEW": the unprivileged XFS sysfs view moves Frontier -> Core; the "stays unread" sentences superseded |
++| `lessons/round-70.md` | Gate (S290-S293 quotes, r69 D1 erratum for S288/S289, three rejections), mistakes, counter-attack tally continuation, trend verdicts |
++
++Frontier: the XFS metadata health/scrub plane stays operator-owned; the mount-source mapping limit
++(UUID=, LABEL=, `/dev/mapper/*`) is named; disk-space runway stays mori's.

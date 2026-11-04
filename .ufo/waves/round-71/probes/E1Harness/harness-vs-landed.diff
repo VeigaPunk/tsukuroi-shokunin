@@ -1,0 +1,334 @@
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2643,63 +2643,100 @@
+   PASS=0 FAIL=0
+   ok() { PASS=$((PASS + 1)); printf 'PASS %s\n' "$*"; }
+   bad() { FAIL=$((FAIL + 1)); printf 'FAIL %s\n' "$*" >&2; }
++  skip() { printf 'SKIP %s\n' "$*"; }
+ 
+-  # ---- per-case bound (round 71, C2) ---------------------------------------------------
+-  # Every selftest case runs the census as a child through bounded_run: the child is started
+-  # in its own process group (setsid when available), polled to the per-case bound
+-  # (TSUKUROI_SELFTEST_CASE_TIMEOUT, default 60 s), then TERM'd and, after a short grace,
+-  # KILL'd as a group. A case that blocks is therefore reported as a FAIL naming the case and
+-  # the word timeout, and the suite always finishes; a child that finishes inside the bound is
+-  # untouched. The bound is a harness property only: it changes no census line, no rollup term
+-  # and no exit code.
+-  CASE_BOUND=${TSUKUROI_SELFTEST_CASE_TIMEOUT:-60}
+-  case "$CASE_BOUND" in
+-    '' | *[!0-9]*) CASE_BOUND=60 ;;
+-  esac
+-  [ "$CASE_BOUND" -ge 1 ] 2>/dev/null || CASE_BOUND=60
+-  BOUND_OUT='' BOUND_RC=0 BOUND_TIMEOUT=0 BOUND_ELAPSED=0 BOUND_GROUP=0
+-  bounded_run() { # bounded_run SECONDS CMD... -> BOUND_OUT BOUND_RC BOUND_TIMEOUT BOUND_ELAPSED
+-    local secs=$1; shift
+-    local tf pid start now waited=0
+-    tf=$(mktemp "$work/bound.XXXXXX") || { BOUND_OUT=''; BOUND_RC=125; BOUND_TIMEOUT=0; BOUND_ELAPSED=0; return 125; }
+-    BOUND_TIMEOUT=0 BOUND_GROUP=0
+-    start=$(date +%s%N)
++  # (R71-C2) ---- per-case bound --------------------------------------------------
++  # Until now every case child ran unbounded in this shell's own process group, so a child
++  # that blocked (a FIFO read, a hung probe) ended the whole suite at whatever external
++  # timeout the caller had — measured rc 124 at 20 s with zero verdict lines
++  # (before/redbefore-timeout.txt). One runner now owns every case child: it starts the child
++  # in its own session/process group, polls to the per-case bound, then TERMs the group, gives
++  # it a 2 s grace, and KILLs the group. Output goes to a file under $work, so a killed child
++  # can never strand a command substitution. A timeout is always a FAIL line that names the
++  # case and the word timeout — never a silent skip and never a crash of the suite.
++  CASE_TIMEOUT_RC=124
++  CASE_TICK=0.1
++  CASE_GRACE_TICKS=20            # 20 * 0.1 s = the 2 s grace between TERM and KILL
++  case_bound_value() { # case_bound_value -> per-case bound in whole seconds (env, default 60)
++    local b=${TSUKUROI_SELFTEST_CASE_TIMEOUT:-60}
++    case "$b" in '' | *[!0-9]*) return 1 ;; esac
++    [ "$b" -ge 1 ] || return 1
++    printf '%s\n' "$b"
++  }
++  case_alive() { # case_alive PID -> 0 while PID is a live process (a zombie reads dead)
++    # A direct child that exits stays a zombie until `wait`, and `kill -0` succeeds on a
++    # zombie — polling `kill -0` alone would time out every successful case. Field 3 of
++    # /proc/PID/stat is the state; comm is stripped first so a parenthesised name cannot
++    # shift the field. Read-only /proc access.
++    local st
++    [ -r "/proc/$1/stat" ] || return 1
++    st=$(awk '{ sub(/^.*\)/, ""); print $1 }' "/proc/$1/stat" 2>/dev/null || true)
++    case "$st" in '' | Z | X | x) return 1 ;; esac
++    return 0
++  }
++  case_bound_run() { # case_bound_run LABEL OUTFILE BOUND CMD... -> child rc, or CASE_TIMEOUT_RC
++    local label=$1 outf=$2 bound=$3; shift 3
++    local pidf="$work/case-child.pid" rcf="$work/case-child.rc"
++    local pid='' rc='' ticks=0 max_ticks=$((bound * 10)) grace=0 bg='' w=0
++    : > "$outf"
++    rm -f "$pidf" "$rcf"
+     if command -v setsid >/dev/null 2>&1; then
+-      setsid "$@" >"$tf" 2>&1 &
+-      BOUND_GROUP=1
++      # The wrapper publishes ITS OWN pid before it runs the command: whether setsid execs
++      # directly or forks first, that pid is the new session's leader, so `kill -- -PID`
++      # addresses exactly this case's process group. The pidfile is the authority; $! may be
++      # the transient setsid when it forked.
++      setsid "$BASH" -c 'p=$1; r=$2; shift 2; printf "%s\n" "$$" > "$p"; "$@"; printf "%s\n" "$?" > "$r"' \
++        r71-c2 "$pidf" "$rcf" "$@" >"$outf" 2>&1 &
+     else
+-      "$@" >"$tf" 2>&1 &
++      "$@" >"$outf" 2>&1 &
++      printf '%s\n' "$!" > "$pidf"
+     fi
+-    pid=$!
+-    while kill -0 "$pid" 2>/dev/null; do
+-      if [ "$waited" -ge $((secs * 10)) ]; then
+-        BOUND_TIMEOUT=1
+-        if [ "$BOUND_GROUP" -eq 1 ]; then
+-          kill -TERM -- "-$pid" 2>/dev/null || kill -TERM "$pid" 2>/dev/null || true
++    bg=$!
++    while [ ! -s "$pidf" ] && [ "$w" -lt 50 ]; do sleep 0.02; w=$((w + 1)); done
++    pid=$(cat "$pidf" 2>/dev/null || true)
++    while :; do
++      if [ -n "$pid" ]; then
++        case_alive "$pid" || break
++      else
++        case_alive "$bg" || break
++      fi
++      if [ "$ticks" -ge "$max_ticks" ]; then
++        if [ -n "$pid" ]; then
++          kill -TERM -- "-$pid" 2>/dev/null || kill -TERM -- "$pid" 2>/dev/null || true
+         else
+-          kill -TERM "$pid" 2>/dev/null || true
++          kill -TERM -- "$bg" 2>/dev/null || true
+         fi
+-        sleep 0.2
+-        if [ "$BOUND_GROUP" -eq 1 ]; then
++        while [ "$grace" -lt "$CASE_GRACE_TICKS" ]; do
++          if [ -n "$pid" ]; then case_alive "$pid" || break; else case_alive "$bg" || break; fi
++          sleep "$CASE_TICK"; grace=$((grace + 1))
++        done
++        # Unconditional: a descendant that ignored TERM is still in the group.
++        if [ -n "$pid" ]; then
+           kill -KILL -- "-$pid" 2>/dev/null || true
+         else
+-          kill -KILL "$pid" 2>/dev/null || true
++          kill -KILL -- "$bg" 2>/dev/null || true
+         fi
++        rc=$CASE_TIMEOUT_RC
+         break
+       fi
+-      sleep 0.1
+-      waited=$((waited + 1))
++      sleep "$CASE_TICK"; ticks=$((ticks + 1))
+     done
+-    set +e
+-    wait "$pid" 2>/dev/null
+-    BOUND_RC=$?
+-    set -e
+-    BOUND_OUT=$(cat "$tf" 2>/dev/null || true)
+-    rm -f "$tf" 2>/dev/null || true
+-    now=$(date +%s%N)
+-    BOUND_ELAPSED=$(( (now - start) / 1000000 ))
++    wait "$bg" 2>/dev/null || true
++    if [ -z "$rc" ]; then
++      rc=$(cat "$rcf" 2>/dev/null || true)
++      case "$rc" in '' | *[!0-9]*) rc=97 ;; esac   # no published rc is a failure, never a pass
++    fi
++    printf '%s\n' "$rc"
++  }
++  case_timeout_line() { # case_timeout_line LABEL BOUND -> the one line a bounded case emits
++    printf '%s: case timeout after %ss (TSUKUROI_SELFTEST_CASE_TIMEOUT; child killed TERM then KILL)' "$1" "$2"
++  }
++  case_timeout_fail() { bad "$(case_timeout_line "$1" "$2")"; }
++  CASE_BOUND=$(case_bound_value) || {
++    printf 'selftest: TSUKUROI_SELFTEST_CASE_TIMEOUT <%s> is not a positive integer (per-case bound)\n' \
++      "${TSUKUROI_SELFTEST_CASE_TIMEOUT:-}" >&2
++    return 1
+   }
+-  skip() { printf 'SKIP %s\n' "$*"; }
+ 
+   # Round 50 (R49-EXEC-SELFASSESS §4 / routed defect 5): the must-match arms used
+   # `printf '%s\n' "$out" | grep -q` under `set -euo pipefail`. `grep -q` exits at the first match,
+@@ -2884,18 +2921,15 @@
+     local out rc before re miss='' unwanted='' pkgline root_expect=${ROOT_EXPECT:-$FX/root}
+     base_env
+     before=$(fx_hash "$FX")
+-    bounded_run "$CASE_BOUND" env "${ENV_BASE[@]}" "${EXTRA_ENV[@]}" "$BASH" "$SELF"
+-    out=$BOUND_OUT
+-    rc=$BOUND_RC
+-    if [ "$BOUND_TIMEOUT" -eq 1 ]; then
+-      bad "$label: timeout after ${BOUND_ELAPSED}ms (per-case bound ${CASE_BOUND}s) — case child killed (R71-C2)"
+-      fx_no_mutation "$FX" "$before"
+-      EXTRA_ENV=()
+-      ROOT_EXPECT=''
+-      return
+-    fi
++    set +e
++    rc=$(case_bound_run "$label" "$work/case-out.check" "$CASE_BOUND" \
++      env "${ENV_BASE[@]}" "${EXTRA_ENV[@]}" "$BASH" "$SELF")
++    out=$(cat "$work/case-out.check" 2>/dev/null)
++    set -e
+     pkgline=$(printf '%s\n' "$out" | awk '/^PLANE packages:/ && !p { print; p = 1 }')   # round 50: full read (a `| head -n1` assignment SIGPIPEs on a large buffer)
+-    if [ "$rc" -ne "$wrc" ]; then
++    if [ "$rc" -eq "$CASE_TIMEOUT_RC" ]; then
++      case_timeout_fail "$label" "$CASE_BOUND"
++    elif [ "$rc" -ne "$wrc" ]; then
+       bad "$label: exit $rc wanted $wrc; output: $(printf '%s' "$out" | tail -n2 | tr '\n' '|')"
+     elif ! out_has 'host=fixture-host'; then
+       bad "$label: hostname override not honoured — possible host read"
+@@ -2937,14 +2971,13 @@
+     local res=() out rc miss='' re
+     while [ $# -gt 0 ] && [ "$1" != '--' ]; do res+=("$1"); shift; done
+     [ "${1:-}" = '--' ] && shift
+-    bounded_run "$CASE_BOUND" "$BASH" "$SELF" "$@"
+-    out=$BOUND_OUT
+-    rc=$BOUND_RC
+-    if [ "$BOUND_TIMEOUT" -eq 1 ]; then
+-      bad "$label: timeout after ${BOUND_ELAPSED}ms (per-case bound ${CASE_BOUND}s) — case child killed (R71-C2)"
+-      return
+-    fi
+-    if [ "$rc" -ne "$wrc" ]; then
++    set +e
++    rc=$(case_bound_run "$label" "$work/case-out.cli" "$CASE_BOUND" "$BASH" "$SELF" "$@")
++    out=$(cat "$work/case-out.cli" 2>/dev/null)
++    set -e
++    if [ "$rc" -eq "$CASE_TIMEOUT_RC" ]; then
++      case_timeout_fail "$label" "$CASE_BOUND"
++    elif [ "$rc" -ne "$wrc" ]; then
+       bad "$label: exit $rc wanted $wrc; output: $(printf '%s' "$out" | tail -n2 | tr '\n' '|')"
+     else
+       for re in "${res[@]}"; do
+@@ -4230,9 +4263,11 @@
+   arm_run() { # arm_run -> ARM_OUT, ARM_RC: the census over $FX with base seams + EXTRA_ENV, no assertions
+     base_env
+     set +e
+-    ARM_OUT=$(env "${ENV_BASE[@]}" "${EXTRA_ENV[@]}" "$BASH" "$SELF" 2>&1)
+-    ARM_RC=$?
++    ARM_RC=$(case_bound_run 'arm_run' "$work/case-out.arm" "$CASE_BOUND" \
++      env "${ENV_BASE[@]}" "${EXTRA_ENV[@]}" "$BASH" "$SELF")
++    ARM_OUT=$(cat "$work/case-out.arm" 2>/dev/null)
+     set -e
++    if [ "$ARM_RC" -eq "$CASE_TIMEOUT_RC" ]; then case_timeout_fail 'arm_run' "$CASE_BOUND"; fi
+   }
+   case_home='initramfs-neutral'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+   printf 'ai-usage.timer loaded failed failed\n' > "$FX/failedunits"   # one plane DEGRADED in both runs
+@@ -4565,52 +4600,83 @@
+   unset xarm_on_out xarm_on_rc xarm_off_out xarm_off_rc xarm_on_n xarm_off_n xarm_on_rest xarm_off_rest \
+     xarm_line xarm_on_roll xarm_off_roll xarm_on_rest_n xarm_off_rest_n
+ 
+-  # ---- per-case bound self-check (round 71, C2) ------------------------------------------
+-  # Three arms: a blocking case child is killed and reported as a timeout naming the case; a
+-  # child that finishes inside the bound is untouched (no false positive); a child that traps
+-  # and ignores TERM is still killed (escalation). Each arm runs the real `check` path in a
+-  # subshell, so a deliberate FAIL cannot leak into this suite's counters.
+-  hangbin="$work/hangbin"; slowbin="$work/slowbin"; termbin="$work/termbin"
+-  mkdir -p "$hangbin" "$slowbin" "$termbin" "$work/hangfx"
+-  mkfifo "$work/hangfx/fifo"
+-  printf '#!/usr/bin/env bash\nread -r _ < "${TSUKUROI_FIXTURE:?}/fifo"\n' > "$hangbin/pacman"
+-  printf '#!/usr/bin/env bash\n[ -f "%s/slow.once" ] || { : > "%s/slow.once"; sleep 1; }\nexec "%s" "$@"\n' \
+-    "$work" "$work" "$bin/pacman" > "$slowbin/pacman"
+-  printf '#!/usr/bin/env bash\ntrap "" TERM\nread -r _ < "${TSUKUROI_FIXTURE:?}/fifo"\n' > "$termbin/pacman"
+-  chmod +x "$hangbin/pacman" "$slowbin/pacman" "$termbin/pacman"
+-  t0=$(date +%s%N)
+-  hang_out=$( ( EXTRA_ENV=(TSUKUROI_PACMAN="$hangbin/pacman" TSUKUROI_FIXTURE="$work/hangfx")
+-                CASE_BOUND=2; check 'timeout-hang' 0 HEALTHY ) 2>&1 || true )
+-  t1=$(date +%s%N); hang_ms=$(( (t1 - t0) / 1000000 ))
+-  if [[ "$hang_out" != *'FAIL timeout-hang: timeout after'* ]]; then
+-    bad "per-case bound: a blocking case child was not reported as a timeout naming the case (R71-C2): $(printf '%s' "$hang_out" | tail -n1)"
+-  elif [ "$hang_ms" -gt 8000 ]; then
+-    bad "per-case bound: the blocking case took ${hang_ms}ms under a 2s bound (R71-C2)"
++  # ---- (R71-C2) the per-case bound proves itself: three hermetic cases -----------------
++  # Each drives the REAL check path (so the FAIL line is the one the suite emits) in a
++  # subshell whose ok/bad append to files, so a passing probe never moves the suite's own
++  # counters. The "census" behind SELF is a fake under $work: nothing here reads the host.
++  mkfifo "$work/r71-c2.fifo"
++  cat > "$work/r71-c2-blocking.sh" <<EOF
++exec cat "$work/r71-c2.fifo"
++EOF
++  cat > "$work/r71-c2-slow.sh" <<EOF
++sleep 1
++printf 'host=fixture-host\n'
++printf 'PLANE packages: HEALTHY (drift=0 root_status=ok root_mode=0755 root_dir=$work/fx/r71-c2b/root)\n'
++printf 'TSUKUROI_CENSUS: HEALTHY (R71-C2 fixture)\n'
++EOF
++  cat > "$work/r71-c2-stubborn.sh" <<EOF
++trap '' TERM
++printf '%s\n' "\$\$" > "$work/r71-c2.c.pid"
++sleep 30
++EOF
++
++  # (a) a child blocked on a FIFO read, under a 2 s bound, is killed inside ~5 s and the
++  # FAIL line names the case label and the word timeout.
++  r71a_t0=$SECONDS
++  ( bad() { printf '%s\n' "$*" >> "$work/r71-c2.a.bad"; }
++    ok() { :; }
++    CASE_BOUND=2
++    FX="$work/fx/r71-c2a"; mkdir -p "$FX"
++    SELF="$work/r71-c2-blocking.sh"
++    check 'R71-C2 (a) blocking child (FIFO read) under the per-case bound' 0 HEALTHY )
++  r71a_el=$((SECONDS - r71a_t0))
++  if [ "$r71a_el" -le 5 ] && grep -q 'timeout' "$work/r71-c2.a.bad" 2>/dev/null \
++    && grep -q 'R71-C2 (a) blocking child' "$work/r71-c2.a.bad" 2>/dev/null; then
++    ok "R71-C2 (a) a FIFO-blocked case child is killed at the 2 s bound (${r71a_el}s) and the FAIL line names the case and timeout"
+   else
+-    ok "per-case bound: a blocking case child is killed at the bound and reported as a timeout naming the case (${hang_ms}ms under a 2s bound) (R71-C2)"
++    bad "R71-C2 (a) the blocking child was not bounded to a timeout FAIL within 5 s (elapsed=${r71a_el}s, bad=$(tr '\n' '|' < "$work/r71-c2.a.bad" 2>/dev/null))"
+   fi
+-  slowfx="$work/fx/slow-healthy"; mkdir -p "$slowfx"; fx_default "$slowfx"; FX="$slowfx"
+-  t0=$(date +%s%N)
+-  slow_out=$( ( EXTRA_ENV=(TSUKUROI_PACMAN="$slowbin/pacman")
+-                CASE_BOUND=4; check 'slow-finishes' 0 HEALTHY ) 2>&1 || true )
+-  t1=$(date +%s%N); slow_ms=$(( (t1 - t0) / 1000000 ))
+-  if [[ "$slow_out" != *'PASS slow-finishes'* ]]; then
+-    bad "per-case bound: a child that finishes inside the bound was not passed (R71-C2): $(printf '%s' "$slow_out" | tail -n1)"
++
++  # (b) the bound must not fire on a child that finishes inside it: a 1 s child under the
++  # same 2 s bound passes the ordinary check with no timeout FAIL (no false positive).
++  r71b_t0=$SECONDS
++  ( bad() { printf '%s\n' "$*" >> "$work/r71-c2.b.bad"; }
++    ok() { printf '%s\n' "$*" >> "$work/r71-c2.b.ok"; }
++    CASE_BOUND=2
++    FX="$work/fx/r71-c2b"; mkdir -p "$FX"
++    SELF="$work/r71-c2-slow.sh"
++    check 'R71-C2 (b) slow child that finishes inside the bound' 0 HEALTHY )
++  r71b_el=$((SECONDS - r71b_t0))
++  if [ ! -s "$work/r71-c2.b.bad" ] && grep -q 'R71-C2 (b) slow child' "$work/r71-c2.b.ok" 2>/dev/null; then
++    ok "R71-C2 (b) a 1 s child under the 2 s bound passes cleanly (no false positive, ${r71b_el}s)"
+   else
+-    ok "per-case bound: a child that takes ~1s finishes inside a 4s bound and passes — no false positive (${slow_ms}ms) (R71-C2)"
++    bad "R71-C2 (b) the finishing child did not pass under the 2 s bound (bad=$(tr '\n' '|' < "$work/r71-c2.b.bad" 2>/dev/null))"
++  fi
++
++  # (c) escalation: a child that ignores TERM is still gone inside the bound, which only the
++  # KILL of its process group can achieve (it would otherwise sleep 30 s).
++  r71c_t0=$SECONDS
++  ( bad() { printf '%s\n' "$*" >> "$work/r71-c2.c.bad"; }
++    ok() { :; }
++    CASE_BOUND=2
++    FX="$work/fx/r71-c2c"; mkdir -p "$FX"
++    SELF="$work/r71-c2-stubborn.sh"
++    check 'R71-C2 (c) child that ignores TERM is still killed' 0 HEALTHY )
++  r71c_el=$((SECONDS - r71c_t0))
++  r71c_pid=$(cat "$work/r71-c2.c.pid" 2>/dev/null || true)
++  r71c_live=no
++  if [ -n "$r71c_pid" ]; then
++    r71c_w=0
++    while [ "$r71c_w" -lt 20 ] && case_alive "$r71c_pid"; do sleep 0.1; r71c_w=$((r71c_w + 1)); done
++    if case_alive "$r71c_pid"; then r71c_live=yes; fi
+   fi
+-  t0=$(date +%s%N)
+-  term_out=$( ( EXTRA_ENV=(TSUKUROI_PACMAN="$termbin/pacman" TSUKUROI_FIXTURE="$work/hangfx")
+-                CASE_BOUND=2; check 'timeout-ignore-term' 0 HEALTHY ) 2>&1 || true )
+-  t1=$(date +%s%N); term_ms=$(( (t1 - t0) / 1000000 ))
+-  if [[ "$term_out" != *'FAIL timeout-ignore-term: timeout after'* ]]; then
+-    bad "per-case bound: a child that ignores TERM was not killed and reported (R71-C2): $(printf '%s' "$term_out" | tail -n1)"
+-  elif [ "$term_ms" -gt 8000 ]; then
+-    bad "per-case bound: the TERM-ignoring child outlived the escalation (${term_ms}ms under a 2s bound) (R71-C2)"
++  if [ "$r71c_el" -le 6 ] && [ -n "$r71c_pid" ] && [ "$r71c_live" = no ] \
++    && grep -q 'timeout' "$work/r71-c2.c.bad" 2>/dev/null; then
++    ok "R71-C2 (c) a TERM-ignoring child is escalated to KILL and is gone inside the bound (${r71c_el}s)"
+   else
+-    ok "per-case bound: a child that ignores TERM is killed by the escalation and reported (${term_ms}ms under a 2s bound) (R71-C2)"
++    bad "R71-C2 (c) escalation failed (elapsed=${r71c_el}s pid=${r71c_pid:-unset} live=$r71c_live)"
+   fi
+-  unset hang_out slow_out term_out hang_ms slow_ms term_ms t0 t1 slowfx
++  unset r71a_t0 r71a_el r71b_t0 r71b_el r71c_t0 r71c_el r71c_pid r71c_live r71c_w
+ 
+   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
+     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"

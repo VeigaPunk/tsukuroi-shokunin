@@ -1,0 +1,67 @@
+--- a/tools/tsukuroi-census.sh
++++ b/tools/tsukuroi-census.sh
+@@ -2658,9 +2658,22 @@
+   esac
+   [ "$CASE_BOUND" -ge 1 ] 2>/dev/null || CASE_BOUND=60
+   BOUND_OUT='' BOUND_RC=0 BOUND_TIMEOUT=0 BOUND_ELAPSED=0 BOUND_GROUP=0
++  bound_alive() { # bound_alive PID -> 0 while PID runs; an unreaped zombie reads dead
++    # `kill -0` succeeds on a zombie, so a direct child that exits stays "alive" until `wait`
++    # and a kill -0 poll would time out every successful case on a shell that defers reaping.
++    # /proc/PID/stat field 1 after the (comm) is the state; comm is stripped first so a
++    # parenthesised name cannot shift the field. Read-only /proc; no /proc falls back to kill -0.
++    local st
++    if [ -r "/proc/$1/stat" ]; then
++      st=$(awk '{ sub(/^.*\)/, ""); print $1 }' "/proc/$1/stat" 2>/dev/null || true)
++      case "$st" in '' | Z | X | x) return 1 ;; esac
++      return 0
++    fi
++    kill -0 "$1" 2>/dev/null
++  }
+   bounded_run() { # bounded_run SECONDS CMD... -> BOUND_OUT BOUND_RC BOUND_TIMEOUT BOUND_ELAPSED
+     local secs=$1; shift
+-    local tf pid start now waited=0
++    local tf pid start now waited=0 grace=0
+     tf=$(mktemp "$work/bound.XXXXXX") || { BOUND_OUT=''; BOUND_RC=125; BOUND_TIMEOUT=0; BOUND_ELAPSED=0; return 125; }
+     BOUND_TIMEOUT=0 BOUND_GROUP=0
+     start=$(date +%s%N)
+@@ -2671,7 +2684,7 @@
+       "$@" >"$tf" 2>&1 &
+     fi
+     pid=$!
+-    while kill -0 "$pid" 2>/dev/null; do
++    while bound_alive "$pid"; do
+       if [ "$waited" -ge $((secs * 10)) ]; then
+         BOUND_TIMEOUT=1
+         if [ "$BOUND_GROUP" -eq 1 ]; then
+@@ -2679,7 +2692,9 @@
+         else
+           kill -TERM "$pid" 2>/dev/null || true
+         fi
+-        sleep 0.2
++        # TERM then up to 2 s before KILL: a child that flushes on TERM is not killed
++        # mid-write, and one that ignores TERM still ends here (escalation).
++        while [ "$grace" -lt 20 ] && bound_alive "$pid"; do sleep 0.1; grace=$((grace + 1)); done
+         if [ "$BOUND_GROUP" -eq 1 ]; then
+           kill -KILL -- "-$pid" 2>/dev/null || true
+         else
+@@ -4228,11 +4243,16 @@
+   # and with every seam pointed at an absent path must print identical lines apart from the
+   # INITRAMFS line and exit identically — the line is outside the rollup and the exit map.
+   arm_run() { # arm_run -> ARM_OUT, ARM_RC: the census over $FX with base seams + EXTRA_ENV, no assertions
++    # The A/B neutrality cases drive the census directly, so they need the same per-case bound
++    # as check/check_cli: an unbounded driver here still ends the suite at an external bound
++    # (the pre-fix red evidence) even with every check() case bounded.
+     base_env
+-    set +e
+-    ARM_OUT=$(env "${ENV_BASE[@]}" "${EXTRA_ENV[@]}" "$BASH" "$SELF" 2>&1)
+-    ARM_RC=$?
+-    set -e
++    bounded_run "$CASE_BOUND" env "${ENV_BASE[@]}" "${EXTRA_ENV[@]}" "$BASH" "$SELF"
++    ARM_OUT=$BOUND_OUT
++    ARM_RC=$BOUND_RC
++    if [ "$BOUND_TIMEOUT" -eq 1 ]; then
++      bad "arm_run: timeout after ${BOUND_ELAPSED}ms (per-case bound ${CASE_BOUND}s) — case child killed (R71-C2)"
++    fi
+   }
+   case_home='initramfs-neutral'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+   printf 'ai-usage.timer loaded failed failed\n' > "$FX/failedunits"   # one plane DEGRADED in both runs

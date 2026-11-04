@@ -1,0 +1,38 @@
+## sweep receipt — round 71 seat SC3Lesson (QUALITY 105 draft)
+## lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+## date: 2026-11-04T00:59:24Z
+
+### RED — round-70 added figures vs round-70 final receipt
+$ python3 .ufo/waves/round-71/probes/SC3Lesson/sweep-selftest-tally.py --receipt .ufo/waves/round-70/after/selftest-after.txt --label R70-C2 --range b2aa0be0..79dac76c -- PROVINCE.md corpus/README.md SKILL.md
+MISM PROVINCE.md:372 cases_figure=212 receipt=214
+MISM PROVINCE.md:372 label_figure=16 receipt=18
+MISM SKILL.md:5773 cases_figure=212 receipt=214
+MISM SKILL.md:5774 label_figure=16 receipt=18
+MISM corpus/README.md:613 cases_figure=212 receipt=214
+SWEEP added_figures_mismatched=5 receipt_cases=214 receipt_labels=18
+rc=1
+
+### GREEN control — same diff, the five figures corrected to the receipt
+$ python3 .ufo/waves/round-71/probes/SC3Lesson/sweep-selftest-tally.py --receipt .ufo/waves/round-70/after/selftest-after.txt --label R70-C2 --diff-file .ufo/waves/round-71/probes/SC3Lesson/r70-added-corrected.diff --
+OK   PROVINCE.md:372 cases_figure=214 receipt=214
+OK   PROVINCE.md:372 label_figure=18 receipt=18
+OK   SKILL.md:5773 cases_figure=214 receipt=214
+OK   SKILL.md:5774 label_figure=18 receipt=18
+OK   corpus/README.md:613 cases_figure=214 receipt=214
+SWEEP added_figures_mismatched=0 receipt_cases=214 receipt_labels=18
+rc=0
+
+### round-71 declaration battery count vs its own receipt line
+$ git show 0fcfca31:SCORECARD.md | grep -n '12 cases: 1 well-formed control'
+5467:`before/control/battery.txt` (**12 cases: 1 well-formed control + 11 mutants**) — the control reads
+$ grep -n '^BATTERY' .ufo/waves/round-71/before/control/battery.txt
+24:BATTERY cases=11 passed=11 failed=0
+$ grep -c '^\[PASS\]' .ufo/waves/round-71/before/control/battery.txt
+11
+$ sed -n '96p;107p;103p;166,167p' .ufo/waves/round-71/before/control/battery.py
+    def case(name, rows, want_rc):
+        cases.append((name, ok, rc, want_rc, met))
+    case("control", ROWS, 0)
+    passed = sum(1 for c in cases if c[1])
+    print(f"\nBATTERY cases={len(cases)} passed={passed} failed={len(cases) - passed}")
+=> the control is one of the 11 counted cases; the declaration's 12 / 11-mutant prose is 1 + 10 against the receipt.

@@ -1,0 +1,337 @@
+# E2CounterAttack — source-level mutants of tools/count-mp-rows-r71.py
+# lane=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+# frozen base sha256=fa67d4deb5f01a5124120276a8571fa36c7367d9db711ceb39bc1ca6fded48bc (verified on the byte copy used for mutation)
+# verdict rule (seat spec): KILLED iff the matched bad fixture still reads met=0 rc 1,
+#   or the control stops reading met=1. SURVIVOR iff control met=1 rc 0 AND bad fixture met=1 rc 0.
+# fixture roots: /fast/scratch/hyaku/tsukuroi-r71/E2CounterAttack/fx/<case> ; mutants: /fast/scratch/hyaku/tsukuroi-r71/E2CounterAttack/mutants/<name>.py
+
+MUTANT	CLAUSE	CONTROL	ISO_FIXTURE	ISO_RC	ISO_MET	VERDICT	BATTERY_DEVIATIONS	BATTERY_CATCHES	SHA256
+m01-share-drop	share of grounded tokens >= 0.5	met=1/rc0	b01	0	met=1	SURVIVOR	-	no	cea7ca794e546006168669644e4e73fb9d24a689980bca69b2d7f8908c4b35b6
+m02-anchor-drop	registry anchor cell contains snapshot basename	met=1/rc0	b02	0	met=1	SURVIVOR	-	no	133386cf731b21d4de3634894c6c57983363c9d420298768a0552069644a39cb
+m03-malformed-drop	MP-shaped unparseable line is a finding	met=1/rc0	b03	0	met=1	SURVIVOR	mutant-malformed-row	yes	9edb63ea52c9062b3d030062e945510da7dc893568e0436bd74225e379945464
+m04-reuse3	no snapshot cited more than twice	met=1/rc0	b04	0	met=1	SURVIVOR	mutant-snapshot-reuse	yes	aa9d31b5e6097c36eab26d4bf9630b6a2c990007622cad72bf870737e08d778c
+m05-quote-locate-drop	quote located verbatim in the snapshot	met=1/rc0	b05	0	met=1	SURVIVOR	mutant-quote-absent	yes	7c99998eba1535415c567942b320385b0afa6bafc228183b3c194137788648d8
+m06-minwords7	statement >= 12 words	met=1/rc0	b06	0	met=1	SURVIVOR	-	no	19cd3327554087dc04b7aa7caf168518fbdcb2d56991e93c17c52ea7688d661f
+m07-contiguous-drop	id set contiguous from 1	met=1/rc0	b07	0	met=1	SURVIVOR	-	no	7e4d111c619962fd5631a4e993389554ec386f813220ac6751550ace98617320
+m08-mapdigest-drop	row digest equals SOURCES.json digest	met=1/rc0	b08	0	met=1	SURVIVOR	-	no	7de8790436572abc5768c02ebafc53f6ce1e809e1cb8f5dfa3c9e182aab399f1
+m09-quotewords	quote <= 25 words	met=1/rc0	b09	0	met=1	SURVIVOR	-	no	d6f9fa5b2c3f07d5030439859466224c57507c3391c5377edd9b4c1e96a7705c
+m10-dupid-drop	id unique	met=1/rc0	b10	0	met=1	SURVIVOR	-	no	9305bbffff6b9213839d5e1357112deb84db109a7cf9e345bb7a2c98aa698d7f
+m11-mintokens-drop	>= 6 distinct grounded tokens	met=1/rc0	b11	0	met=1	SURVIVOR	-	no	b01ed3676b31af863c2894559b2a323b0b028bb84f31a7d1f5f694f2060bb4f2
+m12-quotepipe-drop	quote contains no pipe	met=1/rc0	b12	1	met=0	KILLED	-	no	99d1ad19ae2916540a136451e9edf5389fe7445b2cedb76073f7556fe01c0d7b
+m13-mapurl-drop	map url present (map-url)	met=1/rc0	b13	1	met=0	KILLED	-	no	0771d13ce6e382eb1fa980e249720e034a15b843662b402aeedf616a4f00c7b5
+
+## ISOLATION EVIDENCE — original counter on each bad fixture
+# fixture	clause	failure lines emitted by the frozen counter
+b01	share >= 0.5	MP_ROW fail MP1 statement-grounding=6/13
+b02	anchor cell contains snapshot basename	MP_ROW fail MP1 anchor-not-bound ; MP_ROW fail MP2 anchor-not-bound
+b03	malformed-row detection	MP_ROW fail malformed-row: |MP7| short | source=S297 | snapshot=params.c | digest=0 | quote="x" |
+b04	snapshot reuse <= 2	MP_ROW fail snapshot-reuse params.c=3
+b05	quote located verbatim	MP_ROW fail MP2 quote-absent
+b06	statement >= 12 words	MP_ROW fail MP1 statement-words=7
+b07	id set contiguous from 1	MP_ROW fail ids-not-contiguous
+b08	row digest == SOURCES.json digest	MP_ROW fail MP1 map-digest ; MP_ROW fail MP2 map-digest
+b09	quote <= 25 words	MP_ROW fail MP6 quote-words=29
+b10	id unique	MP_ROW fail MP3 duplicate-id
+b11	>= 6 distinct grounded tokens	MP_ROW fail MP1 statement-grounding=3/6
+b12	quote contains no pipe	MP_ROW fail malformed-row: | MP1 | module_param_sysfs_setup skips any kparam whose perm equals ze ; MP_ROW fail ids-not-contiguous
+b13	map url present (map-url)	MP_ROW fail MP1 map-url source-not-bound ; MP_ROW fail MP2 map-url source-not-bound
+
+## COMMITTED-BATTERY REPLICATION — frozen counter on the 11 bad cases + control
+# case	want_rc	original_rc	MP summary	original_failure lines
+control	0	0	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0	(none)
+mutant-content-free	1	1	MP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0	MP_ROW fail MP1 statement-grounding=2/9
+mutant-source-unbound	1	1	MP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0	MP_ROW fail MP1 source-not-bound anchor-not-bound
+mutant-quote-absent	1	1	MP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0	MP_ROW fail MP2 quote-absent
+mutant-short-statement	1	1	MP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0	MP_ROW fail MP3 statement-words=4 statement-grounding=1/1
+mutant-five-rows	1	1	MP_ROWS=5 MP_VERIFIED=5 MP_SOURCES=3 MP_SNAPSHOTS=3 MP_MALFORMED=0	(none)
+mutant-duplicate-id	1	1	MP_ROWS=7 MP_VERIFIED=7 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0	MP_ROW fail snapshot-reuse params.c=3
+mutant-snapshot-reuse	1	1	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0	MP_ROW fail snapshot-reuse params.c=3
+mutant-ungrounded	1	1	MP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0	MP_ROW fail MP4 statement-grounding=2/9
+mutant-malformed-row	1	1	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=1	MP_ROW fail malformed-row: |MP7| short | source=S297 | snapshot=params.c | digest=0 | quote="x" |
+mutant-digest-swap	1	1	MP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0	MP_ROW fail MP1 digest-mismatch map-digest
+
+## MUTANT EFFECT ON THE ISOLATING FIXTURE
+# mutant	failure lines under the mutant	MP_ROWS summary under the mutant
+m01-share-drop	(none)	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+m02-anchor-drop	(none)	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+m03-malformed-drop	(none)	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+m04-reuse3	(none)	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+m05-quote-locate-drop	(none)	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+m06-minwords7	(none)	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+m07-contiguous-drop	(none)	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+m08-mapdigest-drop	(none)	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+m09-quotewords	(none)	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+m10-dupid-drop	(none)	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+m11-mintokens-drop	(none)	MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+m12-quotepipe-drop	MP_ROW fail malformed-row: | MP1 | module_param_sysfs_setup skips any kparam whose perm equals ze ; MP_ROW fail ids-not-contiguous	MP_ROWS=5 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=1
+m13-mapurl-drop	MP_ROW fail MP1 source-not-bound ; MP_ROW fail MP2 source-not-bound	MP_ROWS=6 MP_VERIFIED=4 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+
+## MUTATION APPENDIX — apply each old block to the frozen base exactly once, then re-hash
+# base sha256=fa67d4deb5f01a5124120276a8571fa36c7367d9db711ceb39bc1ca6fded48bc
+
+### m01-share-drop  (share of grounded tokens >= 0.5)  mutant_sha256=cea7ca794e546006168669644e4e73fb9d24a689980bca69b2d7f8908c4b35b6
+--- old
+            if hits < MIN_TOKENS or (total and hits / total < MIN_SHARE):
+--- new
+            if hits < MIN_TOKENS:
+
+### m02-anchor-drop  (registry anchor cell contains snapshot basename)  mutant_sha256=133386cf731b21d4de3634894c6c57983363c9d420298768a0552069644a39cb
+--- old
+            if snap_name not in regrow["anchor"]:
+                problems.append("anchor-not-bound")
+--- new
+<clause removed>
+
+### m03-malformed-drop  (MP-shaped unparseable line is a finding)  mutant_sha256=9edb63ea52c9062b3d030062e945510da7dc893568e0436bd74225e379945464
+--- old
+        if CAND_RE.match(line):
+            if ROW_RE.match(line) and line.count("|") == 7:
+                rows.append(line)
+            else:
+                malformed += 1
+                print(f"MP_ROW fail malformed-row: {line[:70]}")
+--- new
+        if CAND_RE.match(line) and ROW_RE.match(line) and line.count("|") == 7:
+            rows.append(line)
+
+### m04-reuse3  (no snapshot cited more than twice)  mutant_sha256=aa9d31b5e6097c36eab26d4bf9630b6a2c990007622cad72bf870737e08d778c
+--- old
+MAX_SNAPSHOT_REUSE = 2
+--- new
+MAX_SNAPSHOT_REUSE = 3
+
+### m05-quote-locate-drop  (quote located verbatim in the snapshot)  mutant_sha256=7c99998eba1535415c567942b320385b0afa6bafc228183b3c194137788648d8
+--- old
+            if norm(quote) not in norm(snap):
+                problems.append("quote-absent")
+--- new
+<clause removed>
+
+### m06-minwords7  (statement >= 12 words)  mutant_sha256=19cd3327554087dc04b7aa7caf168518fbdcb2d56991e93c17c52ea7688d661f
+--- old
+MIN_WORDS = 12
+--- new
+MIN_WORDS = 7
+
+### m07-contiguous-drop  (id set contiguous from 1)  mutant_sha256=7e4d111c619962fd5631a4e993389554ec386f813220ac6751550ace98617320
+--- old
+    contiguous = sorted(seen_ids) == list(range(1, len(seen_ids) + 1))
+    if rows and not contiguous:
+        print("MP_ROW fail ids-not-contiguous")
+--- new
+    contiguous = True
+
+### m08-mapdigest-drop  (row digest equals SOURCES.json digest)  mutant_sha256=7de8790436572abc5768c02ebafc53f6ce1e809e1cb8f5dfa3c9e182aab399f1
+--- old
+            if not isinstance(entry, dict) or entry.get("sha256") != m.group("digest"):
+                problems.append("map-digest")
+            elif not isinstance(entry.get("url"), str):
+                problems.append("map-url")
+--- new
+            if not isinstance(entry, dict) or not isinstance(entry.get("url"), str):
+                problems.append("map-url")
+
+### m09-quotewords  (quote <= 25 words)  mutant_sha256=d6f9fa5b2c3f07d5030439859466224c57507c3391c5377edd9b4c1e96a7705c
+--- old
+MAX_QUOTE_WORDS = 25
+--- new
+MAX_QUOTE_WORDS = 1000
+
+### m10-dupid-drop  (id unique)  mutant_sha256=9305bbffff6b9213839d5e1357112deb84db109a7cf9e345bb7a2c98aa698d7f
+--- old
+        if n in seen_ids:
+            problems.append("duplicate-id")
+--- new
+<clause removed>
+
+### m11-mintokens-drop  (>= 6 distinct grounded tokens)  mutant_sha256=b01ed3676b31af863c2894559b2a323b0b028bb84f31a7d1f5f694f2060bb4f2
+--- old
+MIN_TOKENS = 6
+--- new
+MIN_TOKENS = 3
+
+### m12-quotepipe-drop  (quote contains no pipe)  mutant_sha256=99d1ad19ae2916540a136451e9edf5389fe7445b2cedb76073f7556fe01c0d7b
+--- old
+            if "|" in quote:
+                problems.append("quote-pipe")
+--- new
+<clause removed>
+
+### m13-mapurl-drop  (map url present (map-url))  mutant_sha256=0771d13ce6e382eb1fa980e249720e034a15b843662b402aeedf616a4f00c7b5
+--- old
+                problems.append("map-digest")
+            elif not isinstance(entry.get("url"), str):
+                problems.append("map-url")
+--- new
+                problems.append("map-digest")
+
+## FIXTURE APPENDIX — exact note text of each isolating specimen (control ctl = battery control)
+
+### ctl  clause=well-formed control  note_sha256=76f781eec47452ca2aa3fe8917b53dff011c14ea16394f239b016f291767e958
+--- delta: none (the committed battery's six well-formed rows)
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | module_param_sysfs_setup skips any kparam whose perm equals zero before add_sysfs_param, so an invisible parameter never gets a sysfs file | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP6 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+
+### b01  clause=share >= 0.5  note_sha256=ae8c237974439c0f9eb85517b78d91b8dcba9325a7b8bc5b8c9ce0e73a87f237
+--- delta: row MP1 statement -> 6 grounded params.c tokens + 7 nonsense tokens (6/13, share 0.4615)
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | kernel_param_ops param_attr_store module_param_sysfs_setup add_sysfs_param kparam perm zzzq wxcvb plmok qwerty asdfgh zxcvbn uiopl | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP6 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+
+### b02  clause=anchor cell contains snapshot basename  note_sha256=76f781eec47452ca2aa3fe8917b53dff011c14ea16394f239b016f291767e958
+--- delta: registry S297 anchor cell -> 'tag v7.2.11; lines 709-711' (source cell unchanged)
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | module_param_sysfs_setup skips any kparam whose perm equals zero before add_sysfs_param, so an invisible parameter never gets a sysfs file | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP6 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+
+### b03  clause=malformed-row detection  note_sha256=80ba18c610949abd7c01b1fb039fc3f53355f193e2b4bcd641ef5ad5c0357ea9
+--- delta: malformed MP-shaped line appended: |MP7| short | source=S297 | snapshot=params.c | digest=0 | quote="x" |
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | module_param_sysfs_setup skips any kparam whose perm equals zero before add_sysfs_param, so an invisible parameter never gets a sysfs file | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP6 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+|MP7| short | source=S297 | snapshot=params.c | digest=0 | quote="x" |
+
+### b04  clause=snapshot reuse <= 2  note_sha256=b92435051f48bb3da2bec3f0adc21d20e06043070c585b73f4964b484ebfacdb
+--- delta: row MP5 replaced by a copy of row MP1, so params.c is cited 3x (4 snapshots, 4 sources kept)
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | module_param_sysfs_setup skips any kparam whose perm equals zero before add_sysfs_param, so an invisible parameter never gets a sysfs file | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_param_sysfs_setup skips any kparam whose perm equals zero before add_sysfs_param, so an invisible parameter never gets a sysfs file | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP6 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+
+### b05  clause=quote located verbatim  note_sha256=b9769181ebf5e4641d083b94192873c954e46eba29f83820a505b06dce81ef9f
+--- delta: row MP2 quote -> 'quote text that is absent from the snapshot file'
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | module_param_sysfs_setup skips any kparam whose perm equals zero before add_sysfs_param, so an invisible parameter never gets a sysfs file | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="quote text that is absent from the snapshot file" |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP6 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+
+### b06  clause=statement >= 12 words  note_sha256=2915740bddd59134ad669f66532961068ee0fff56d0d5a8c4c0d0947fc5d2b50
+--- delta: row MP1 statement -> 'kernel_param_ops param_attr_store module_param_sysfs_setup add_sysfs_param kparam perm mattr' (7 words, 7/7 grounded)
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | kernel_param_ops param_attr_store module_param_sysfs_setup add_sysfs_param kparam perm mattr | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP6 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+
+### b07  clause=id set contiguous from 1  note_sha256=be33d493f2101e9e6e24c218dbeb65e6b8dde9f87eb81a38d8cb9fc3f1a0f619
+--- delta: ids 1,2,3,4,5,7 (MP6 omitted, MP7 present, all rows otherwise verified)
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | module_param_sysfs_setup skips any kparam whose perm equals zero before add_sysfs_param, so an invisible parameter never gets a sysfs file | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP7 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+
+### b08  clause=row digest == SOURCES.json digest  note_sha256=76f781eec47452ca2aa3fe8917b53dff011c14ea16394f239b016f291767e958
+--- delta: SOURCES.json params.c sha256 -> 64 zeros (copied file and note digests unchanged)
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | module_param_sysfs_setup skips any kparam whose perm equals zero before add_sysfs_param, so an invisible parameter never gets a sysfs file | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP6 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+
+### b09  clause=quote <= 25 words  note_sha256=bd911221c2523a5b0d596a6578a6cedc72521894661093b70bd4490d5ddf5c7e
+--- delta: row MP6 quote -> a 29-word verbatim sentence from kernel-parameters.rst
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | module_param_sysfs_setup skips any kparam whose perm equals zero before add_sysfs_param, so an invisible parameter never gets a sysfs file | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP6 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="modprobe looks through the kernel command line (/proc/cmdline) and collects module parameters when it loads a module, so the kernel command line can be used for loadable modules too." |
+
+### b10  clause=id unique  note_sha256=ca876a96b51ddeb3517c138fbac7c5431af1de5796b1a2245d18bfb8ccfab7e2
+--- delta: ids 1,2,3,4,5,3: sixth row is MP3 again but carries row MP6's verified content (S300)
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | module_param_sysfs_setup skips any kparam whose perm equals zero before add_sysfs_param, so an invisible parameter never gets a sysfs file | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP3 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+
+### b11  clause=>= 6 distinct grounded tokens  note_sha256=f4bfe7213c303d588bb2df84120b960bb6914cf01e1f124169246215734419a4
+--- delta: row MP1 statement -> 3 grounded / 3 nonsense tokens + STOP filler (14 words, share exactly 0.5)
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | kernel_param_ops kparam mattr zzzq wxcvb plmok the this and for with into over | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP6 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+
+### b12  clause=quote contains no pipe  note_sha256=403d3dcfb5b7fcfbfa608d8c9fb90cf6936e2d546d28594d734380b063c38538
+--- delta: row MP1 quote -> 'invisible | parameters' (an eighth pipe)
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | module_param_sysfs_setup skips any kparam whose perm equals zero before add_sysfs_param, so an invisible parameter never gets a sysfs file | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible | parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP6 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+
+### b13  clause=map url present (map-url)  note_sha256=76f781eec47452ca2aa3fe8917b53dff011c14ea16394f239b016f291767e958
+--- delta: SOURCES.json params.c url removed (sha256 intact; registry row unchanged)
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | module_param_sysfs_setup skips any kparam whose perm equals zero before add_sysfs_param, so an invisible parameter never gets a sysfs file | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP6 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+
+### p01-rev-blind  clause=well-formed control  note_sha256=76f781eec47452ca2aa3fe8917b53dff011c14ea16394f239b016f291767e958
+--- delta: url template h=v7.2.10 in SOURCES.json and the registry; digests unchanged
+# fixture note (E2CounterAttack mirror)
+
+| MP1 | module_param_sysfs_setup skips any kparam whose perm equals zero before add_sysfs_param, so an invisible parameter never gets a sysfs file | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="invisible parameters" |
+| MP2 | add_sysfs_param sets mattr attr mode from kp perm and registers param_attr_store only when S_IWUSR S_IWGRP or S_IWOTH is present | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | struct kernel_param_ops holds flags and optional set get callbacks where set returns zero or negative errno and get returns the length written or negative errno | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns 0, or -errno.  arg is in kp->arg." |
+| MP4 | unknown_module_param_cb warns that an unknown parameter is ignored and returns zero, so a typo does not fail the load | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | module_blacklist is a comma-separated core_param charp list and blacklisted prints pr_err refusing the named module | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP6 | module parameters are set on the kernel command line with a module name prefix or through modprobe, and loadable modules reveal them under sys module parameters | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="reveal their parameters in /sys/module/${modulename}/parameters/." |
+
+## PROBE (not a clause mutant) — map url names h=v7.2.10, digests unchanged
+# frozen counter rc=0 met1=True sum=MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0

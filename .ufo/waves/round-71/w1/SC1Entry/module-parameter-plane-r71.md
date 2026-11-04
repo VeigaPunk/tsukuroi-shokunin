@@ -1,0 +1,48 @@
+# Module parameter plane — round 71
+
+The module-parameter plane at the host kernel release tag v7.2.11: how a
+`kernel_param` reaches sysfs, what its permission field decides, how the
+`kernel_param_ops` set/get pair is contracted, what happens to an unknown
+parameter and to a blacklisted module, and the two documented ways to supply a
+module parameter. Every rule row is anchored to one committed snapshot under
+`.ufo/waves/round-71/before/src/`; the digests are the sha256 of those exact
+bytes.
+
+| MP1 | An invisible entry is never added: module_param_sysfs_setup and param_sysfs_builtin skip a kparam whose perm is zero, while add_sysfs_param asserts BUG_ON. | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="We don't bother calling this with invisible parameters." |
+| MP2 | Do not allow runtime DAC changes to make param writable: the attribute mode is kp perm, and param_attr_store exists for a write bit, returning EPERM when set is absent. | source=S297 | snapshot=params.c | digest=923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4 | quote="Do not allow runtime DAC changes to make param writable." |
+| MP3 | Struct kernel_param_ops: set returns zero or negative errno with arg in kp, get returns the length written into a four kilobyte buffer, and free optionally releases arg. | source=S298 | snapshot=moduleparam.h | digest=220f2dac723a7b080211791a33cb3308ed12eaeb2309747232786d786cd14846 | quote="Returns length written or -errno.  Buffer is 4k (ie. be short!)" |
+| MP4 | unknown_module_param_cb routes async_probe through kstrtobool and magic dyndbg through ddebug_dyndbg_module_param_cb; otherwise pr_warn reports unknown parameter ignored and return stays zero. | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="unknown parameter '%s' ignored" |
+| MP5 | blacklisted walks comma-separated module_blacklist entries, and early_mod_check returns EPERM after pr_err reports the module as blacklisted. | source=S299 | snapshot=main.c | digest=e1e1a1c8a13f3d5e402bb8773b4aea3561dadcdca446b3dfb0482b0ddcb95929 | quote="Module %s is blacklisted" |
+| MP6 | Module parameters can be specified in two ways, kernel command line with a module name prefix or modprobe, and loaded modules reveal theirs under /sys/module/${modulename}/parameters/. | source=S300 | snapshot=kernel-parameters.rst | digest=45587d8e411db06dc600550f03236d3b7cbe7ad5bd898dbb9f965934ecd88799 | quote="Module parameters can be specified in two ways: via the kernel command line with a module name prefix, or via modprobe" |
+
+## Why these six
+
+The plane has one gate and one disclosure surface. The gate is `perm`: zero
+means the parameter exists for the command line and for `parse_args` but is not
+added to the parameters group at all (MP1), and a non-zero `perm` is both the
+file mode and the condition for a store callback, so a mode without a write bit
+gets show only and a store attempt returns `-EPERM` (MP2). The behaviour of a
+writable parameter is the ops pair: `set` returns 0 or a negative errno, `get`
+writes at most the 4k buffer and returns the length, and `free` releases
+`kp->arg` at unload (MP3). The command-line and per-module paths converge on
+`parse_args`: a name no `kernel_param` matches reaches
+`unknown_module_param_cb`, which warns and still returns 0 so the load goes on
+(MP4), while a name on `module_blacklist` is refused earlier with `-EPERM`
+before the module is laid out (MP5). The documentation states the two
+specification routes (command line with a module-name prefix, or modprobe) and
+the sysfs disclosure that follows a successful load (MP6).
+
+## Host applicability (before/host.txt, read-only capture)
+
+MP1 — `btrfs` publishes no `read_policy` file at all (`absent (perm==0 hides it)`), which is the zero-perm case: the parameter is parseable from the command line and invisible in sysfs.
+MP2 — every `nvidia_drm` parameter (`color_pipeline=Y`, `fbdev=Y`, `modeset=Y`, `vblank=N`) is `-r--r--r--`, i.e. mode 0444 with no write bit, so no store callback is installed and writes are refused; the `nvidia_uvm` `-rw-r--r--` files are root-writable only and the capture's "writable parameter files among the four nvidia modules" list is empty for the unprivileged reader.
+MP3 — not directly observable from the capture: the ops pair is checked at compile time by the snapshot and by the parameter types the modules publish (`Y/N` booleans, integers, the `(null)` charp values), not by a file mode.
+MP4 — `/proc/cmdline` carries no `module.parameter` token (only `resume=`, `zswap.enabled=1`, `rootflags=subvol=@` and similar), so the capture shows the ignored-unknown path is not exercised at boot on this host.
+MP5 — `module_blacklist` does not appear on `/proc/cmdline`, and the three `/etc/modprobe.d` plus four `/usr/lib/modprobe.d` paths are recorded by path and mode only, so the capture cannot show a blacklist refusal; it only shows the surface where one would be configured.
+MP6 — the capture shows the disclosure half: 136 modules publish a parameters directory with 829 parameter files, while the specification routes are documentation-level and are not visible in sysfs at all.
+
+## Limits
+
+The rows state upstream v7.2.11 behaviour and are verified by the frozen row
+counter against the four committed snapshots; the host-applicability notes are
+one-way observations from the round-71 capture and do not verify those rules.

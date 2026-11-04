@@ -1,0 +1,267 @@
+{
+  "declaration": "0fcfca315fbdf4ff6a47abeff08efa7fd27aa32e",
+  "draft_sha256": "cdc4b7af71224ccc6c22b8b4e26c9547d257da7104aad35d902b091a9090281f",
+  "counter_sha256": "fa67d4deb5f01a5124120276a8571fa36c7367d9db711ceb39bc1ca6fded48bc",
+  "registry_draft_rows_sha256": "6a5fee04dceea6a1fbd48c75f522420db8eb2b78ece7d81b9fab93c5e2825ae0",
+  "quote_locations": [
+    [
+      "MP1",
+      "params.c",
+      633,
+      "We don't bother calling this with invisible parameters."
+    ],
+    [
+      "MP2",
+      "params.c",
+      669,
+      "Do not allow runtime DAC changes to make param writable."
+    ],
+    [
+      "MP3",
+      "moduleparam.h",
+      65,
+      "Returns length written or -errno.  Buffer is 4k (ie. be short!)"
+    ],
+    [
+      "MP4",
+      "main.c",
+      3393,
+      "unknown parameter '%s' ignored"
+    ],
+    [
+      "MP5",
+      "main.c",
+      3407,
+      "Module %s is blacklisted"
+    ],
+    [
+      "MP6",
+      "kernel-parameters.rst",
+      20,
+      "Module parameters can be specified in two ways: via the kernel command line with a module name prefix, or via modprobe"
+    ]
+  ],
+  "results": {
+    "base": {
+      "mine": {
+        "rc": 0,
+        "out": "ROW MP1 ok source=S297 snapshot=params.c\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=1\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 0,
+        "out": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1\n",
+        "err": ""
+      }
+    },
+    "m01_short_stmt": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 fail statement-grounding=1/3 statement-words<12\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW fail MP1 statement-words=5 statement-grounding=1/3\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m02_ungrounded": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 ok source=S297 snapshot=params.c\nROW MP2 fail statement-grounding=0/12\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW fail MP2 statement-grounding=0/12\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m03_digest_swap": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 ok source=S297 snapshot=params.c\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 fail digest-mismatch map-digest\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW fail MP3 digest-mismatch map-digest\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m04_quote_absent": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 ok source=S297 snapshot=params.c\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 fail quote-absent\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW fail MP4 quote-absent\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m05_quote_long": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 ok source=S297 snapshot=params.c\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 fail quote-words>25\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW fail MP5 quote-words=28\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m06_extra_cell": {
+      "mine": {
+        "rc": 1,
+        "out": "MALFORMED-ROW line=| MP1 | The module_param_sysfs_setup support adds entries through add_\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nIDS-NOT-CONTIGUOUS 2,3,4,5,6\nMP_ROWS=5 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=1 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW fail malformed-row: | MP1 | The module_param_sysfs_setup support adds entries through add_\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROW fail ids-not-contiguous\nMP_ROWS=5 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=1\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m07_duplicate_id": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 ok source=S297 snapshot=params.c\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP3 fail duplicate-id\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nIDS-NOT-CONTIGUOUS 1,2,3,3,5,6\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW fail MP3 duplicate-id\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROW fail ids-not-contiguous\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m08_noncontiguous": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 ok source=S297 snapshot=params.c\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 ok source=S299 snapshot=main.c\nROW MP6 ok source=S299 snapshot=main.c\nROW MP7 ok source=S300 snapshot=kernel-parameters.rst\nIDS-NOT-CONTIGUOUS 1,2,3,4,6,7\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S299 snapshot=main.c\nMP_ROW ok MP7 source=S300 snapshot=kernel-parameters.rst\nMP_ROW fail ids-not-contiguous\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m09_source_unregistered": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 fail source-unregistered\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW fail MP1 source-unregistered\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m10_reuse3": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 ok source=S297 snapshot=params.c\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 fail quote-absent statement-grounding=5/16\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nSNAPSHOT-REUSE params.c=3\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=3 MP_SNAPSHOTS=3 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW fail MP3 statement-grounding=4/15 quote-absent\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROW fail snapshot-reuse params.c=3\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=3 MP_SNAPSHOTS=3 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m11_anchor_unbound": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 ok source=S297 snapshot=params.c\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 fail anchor-not-bound\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW fail MP3 anchor-not-bound\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m12_source_unbound": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 fail source-not-bound\nROW MP2 fail source-not-bound\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=4 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW fail MP1 source-not-bound\nMP_ROW fail MP2 source-not-bound\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=4 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m13_invisible_row": {
+      "mine": {
+        "rc": 1,
+        "out": "MALFORMED-ROW line=|  MP1 | The module_param_sysfs_setup support adds entries through add\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nIDS-NOT-CONTIGUOUS 2,3,4,5,6\nMP_ROWS=5 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=1 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW fail malformed-row: |  MP1 | The module_param_sysfs_setup support adds entries through add\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROW fail ids-not-contiguous\nMP_ROWS=5 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=1\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m14_map_digest": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 fail map-digest\nROW MP2 fail map-digest\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=4 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW fail MP1 map-digest\nMP_ROW fail MP2 map-digest\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=4 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m15_fewer_rows": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 ok source=S297 snapshot=params.c\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nMP_ROWS=5 MP_VERIFIED=5 MP_SOURCES=3 MP_SNAPSHOTS=3 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROWS=5 MP_VERIFIED=5 MP_SOURCES=3 MP_SNAPSHOTS=3 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "m16_gibberish_mix": {
+      "mine": {
+        "rc": 1,
+        "out": "ROW MP1 ok source=S297 snapshot=params.c\nROW MP2 fail statement-grounding=3/12\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=0\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 1,
+        "out": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW fail MP2 statement-grounding=1/10\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=5 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=0\n",
+        "err": ""
+      }
+    },
+    "draft": {
+      "mine": {
+        "rc": 0,
+        "out": "ROW MP1 ok source=S297 snapshot=params.c\nROW MP2 ok source=S297 snapshot=params.c\nROW MP3 ok source=S298 snapshot=moduleparam.h\nROW MP4 ok source=S299 snapshot=main.c\nROW MP5 ok source=S299 snapshot=main.c\nROW MP6 ok source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0 MET=1\n",
+        "err": ""
+      },
+      "lane": {
+        "rc": 0,
+        "out": "MP_ROW ok MP1 source=S297 snapshot=params.c\nMP_ROW ok MP2 source=S297 snapshot=params.c\nMP_ROW ok MP3 source=S298 snapshot=moduleparam.h\nMP_ROW ok MP4 source=S299 snapshot=main.c\nMP_ROW ok MP5 source=S299 snapshot=main.c\nMP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst\nMP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0\nMP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1\n",
+        "err": ""
+      }
+    }
+  },
+  "row_agreements": 105,
+  "row_comparisons": 105,
+  "rc_agreements": 18,
+  "rc_comparisons": 18,
+  "note": "Independent generic-English stopwords and stricter hyphen boundaries intentionally differ from the frozen counter; comparison proves only observed verdict agreement, not universal equivalence."
+}

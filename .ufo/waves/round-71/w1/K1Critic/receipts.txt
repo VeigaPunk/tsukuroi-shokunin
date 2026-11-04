@@ -1,0 +1,142 @@
+# K1Critic — round 71 w1 — raw receipts
+
+Frozen declaration 0fcfca315fbdf4ff6a47abeff08efa7fd27aa32e; base 930d5530e5fbf91091245c044fef4888ecf12029.
+Scratch S=/fast/scratch/hyaku/tsukuroi-r71/K1Critic (removed before yield). Lane tree never written.
+Sandbox clone: `git clone --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin $S/clone`
+(`git -C $S/clone rev-parse --show-toplevel` → /fast/scratch/hyaku/tsukuroi-r71/K1Critic/clone).
+Tooling installed: none.
+
+## (a) snapshot hashes
+
+$ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-71/before/src && sha256sum -c SHA256SUMS
+kernel-parameters.rst: OK
+params.c: OK
+moduleparam.h: OK
+main.c: OK
+rc=0
+
+## (a) provenance against live upstream (extra check)
+
+$ curl -sS -L 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/kernel/params.c?h=v7.2.11' | sha256sum
+923610d5de631d8b8dddcb89bf4b0f6932fb0dbf1f500d07453ea0b73b3782a4  -          (want 923610d5…782a4, MATCH)
+$ … Documentation/admin-guide/kernel-parameters.rst  → 45587d8e…88799  MATCH
+$ … include/linux/moduleparam.h                       → 220f2dac…14846  MATCH
+$ … kernel/module/main.c                              → e1e1a1c8…95929  MATCH
+
+## (b) host capture rerun
+
+$ bash before/capture.sh > $S/host-rerun.txt
+$ diff <(sed '1,2d' before/host.txt) <(sed '1,2d' $S/host-rerun.txt) | wc -l
+0
+136   (modules with a parameters dir)
+829   (parameter files)
+nvidia_drm -r--r--r-- 4096 color_pipeline=Y
+nvidia_drm -r--r--r-- 4096 fbdev=Y
+nvidia_drm -r--r--r-- 4096 modeset=Y
+nvidia_drm -r--r--r-- 4096 vblank=N
+nvidia_uvm -rw-r--r-- 4096 uvm_block_cpu_to_cpu_copy_with_ce=0   (root-writable, 0644)
+writable parameter files among the four nvidia modules: (empty)
+/sys/module/btrfs/parameters/read_policy → absent (perm==0)
+/etc/modprobe.d: 3 files (disable-usb-autosuspend.conf, hid_apple.conf, nvidia.conf)
+/usr/lib/modprobe.d: 5 files (README, bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, systemd.conf)
+  ^ declaration (b) says "4 under /usr/lib" — its own host.txt lists 5.  DEFECT D1
+/proc/cmdline: resume=… zswap.enabled=1 … rootflags=subvol=@ rw rootfstype=btrfs   (no mod.param token)
+
+## (c) novelty sweep at base
+
+$ cd $S/clone && git grep -c -iE <tok> 930d5530 -- corpus SKILL.md PROVINCE.md | wc -l
+modprobe\.d 0 / kernel-parameters 0 / module_blacklist 0 / NVreg 0 / module_param 0 /
+kernel_param_ops 0 / param_attr_store 0 / sys/module 9 / parameters/ 6
+$ git ls-tree -r --name-only 930d5530 corpus/knowledge/ | grep -c '\.md$'   → 88
+
+## (d) absence controls at base
+
+$ git -C $S/clone cat-file -e 930d5530:tools/count-mp-rows-r71.py ; echo $?        → 128
+$ git -C $S/clone cat-file -e 930d5530:corpus/knowledge/module-parameter-plane-r71.md ; echo $?  → 128
+$ git show 930d5530:corpus/knowledge/module-parameter-plane-r71.md | grep -c '^| MP'   → 0
+$ git show 930d5530:tools/tsukuroi-census.sh | grep -c 'R71-C2'                        → 0
+$ git show 930d5530:tools/tsukuroi-census.sh | grep -cE 'case_timeout|SELFTEST_CASE_TIMEOUT|kill -TERM' → 0
+$ git show 930d5530:corpus/SOURCES.md | grep -cE '^\| S[0-9]{3,}'                       → 296
+$ bash $S/clone/tools/tsukuroi-census.sh --selftest
+TSUKUROI_CENSUS_SELFTEST: PASS (214 cases, 214 passed, 0 failed)     rc 0 (53 s)
+$ grep -n 'validate' $S/clone/tools/tsukuroi-census.sh            → 0 matches
+  "canonical census validate rc 0" has no entry point.  DEFECT D2 (carried from round 70:
+  .ufo/waves/round-70/w1/K1Critic.md:117 recorded the same unlabeled value)
+
+## (e) frozen counter + battery
+
+$ sha256sum tools/count-mp-rows-r71.py
+fa67d4deb5f01a5124120276a8571fa36c7367d9db711ceb39bc1ca6fded48bc  tools/count-mp-rows-r71.py   (pin MATCH)
+$ python3 tools/count-mp-rows-r71.py --revision 0fcfca31
+MP_NOTE absent path=corpus/knowledge/module-parameter-plane-r71.md      rc 128
+$ python3 before/control/battery.py
+[PASS] control: rc=0 want=0 met=1
+    MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+[PASS] mutant-content-free / source-unbound / quote-absent / short-statement / five-rows /
+       duplicate-id / snapshot-reuse / ungrounded / malformed-row / digest-swap  (10 mutants, met=0 rc 1)
+BATTERY cases=11 passed=11 failed=0                                     rc 0
+  ^ declaration (e) says 12 cases (1 control + 11 mutants); the artifact has 11 (1 + 10).  DEFECT D3
+  ^ mutant-duplicate-id failure line contains: MP_ROWS=7 MP_VERIFIED=7 snapshot-reuse params.c=3 —
+    no `duplicate-id`, no `ids-not-contiguous`. The named channel is untested.  DEFECT D4
+  ^ control fixture with a TRUE duplicate id (MP1,MP2,MP2,MP4,MP5,MP6):
+      MP_ROW fail MP2 duplicate-id
+      MP_ROW fail ids-not-contiguous
+      MP_ROW fail snapshot-reuse params.c=3
+      MP_ROWS=6 MP_VERIFIED=5 … met=0                                   (clause works)
+
+## (f) baselines
+
+$ bash $S/clone/tools/tsukuroi-census.sh --selftest | tail -1
+TSUKUROI_CENSUS_SELFTEST: PASS (214 cases, 214 passed, 0 failed)        rc 0
+$ bash $S/clone/tools/tsukuroi-census.sh
+TSUKUROI_CENSUS: DEGRADED (packages=DEGRADED systemd=DEGRADED drivers=DEGRADED journal=DEGRADED update-safety=DEGRADED oom=DEGRADED)   rc 1
+$ TMPDIR=$S bash before/redbefore-timeout.sh
+blocking pacman stub installed at $S/tsukuroi-r71-redbefore/bin/pacman; fifo at …/fx/fifo
+rc=124 elapsed=20s verdict_lines=0
+R71-C2 labels: 0
+per-case timeout tokens (case_timeout|SELFTEST_CASE_TIMEOUT|kill -TERM): 0
+RED-BEFORE HOLDS
+
+## C1 predicate attack — contradiction passes over committed bytes
+
+$ cd $S/clone   # checked out 0fcfca31, then S297-S300 appended in the live 11-cell registry shape,
+                 # note written with MP1 stating the OPPOSITE of params.c:709-710, committed 51d2357
+$ python3 tools/count-mp-rows-r71.py --revision HEAD
+MP_ROW ok MP1 source=S297 snapshot=params.c
+MP_ROW ok MP2 source=S297 snapshot=params.c
+MP_ROW ok MP3 source=S298 snapshot=moduleparam.h
+MP_ROW ok MP4 source=S299 snapshot=main.c
+MP_ROW ok MP5 source=S299 snapshot=main.c
+MP_ROW ok MP6 source=S300 snapshot=kernel-parameters.rst
+MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+MP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1     rc 0
+MP1 statement: "module_param_sysfs_setup never skips a kparam whose perm equals zero and an invisible
+parameter always gets a sysfs file"   — grounding 6/11
+Snapshot (before/src/params.c:709-710):
+        if (kparam[i].perm == 0)
+            continue;
+
+## C1 predicate attack — other channels (fixture mode, same counter code path)
+
+token salad:  "return static struct const char unsigned define include void call arg line"  → 10/11, met=1
+empty quote:  quote=""                                                                       → met=1
+one-word quote: quote="the"                                                                  → met=1
+rejected row: S297's status cell changed to `rejected` (counter reads cells[2] and cells[6] only) → met=1
+registry statuses at base: S294 rejected, S295 rejected, S296 rejected (newest three rows)
+
+## C2 predicate attack — do-nothing control reaches the declared target
+
+$ python3 (insert before the summary printf in a scratch copy of the base census)
+  # R71-C2 do-nothing control: three no-op cases, no process group, no poll, no kill.
+  ok 'selftest: placeholder case one with no timeout harness (R71-C2)'
+  ok 'selftest: placeholder case two with no timeout harness (R71-C2)'
+  ok 'selftest: placeholder case three with no timeout harness (R71-C2)'
+$ TMPDIR=$S/tmp bash $S/census-do-nothing.sh --selftest | tail -1
+TSUKUROI_CENSUS_SELFTEST: PASS (217 cases, 217 passed, 0 failed)          rc 0 (46 s)
+$ grep -c 'R71-C2' $S/census-do-nothing.sh                                → 4  (one is a comment)
+$ grep -cE 'case_timeout|SELFTEST_CASE_TIMEOUT|kill -TERM' $S/census-do-nothing.sh → 0
+  → declared target (labels >= 3, N >= 217, PASS, < 300 s) met with ZERO timeout machinery.
+
+## cleanup
+
+$ rm -rf /fast/scratch/hyaku/tsukuroi-r71/K1Critic /fast/scratch/hyaku/tsukuroi-r71-redbefore

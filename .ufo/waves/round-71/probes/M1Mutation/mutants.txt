@@ -1,0 +1,47 @@
+# M1Mutation — C2 per-case-timeout harness mutants (round 71, w1)
+# Eight mutants, each removing exactly ONE guarantee of the frozen C2 predicate.
+# Two targets are scored with the same eight mutations:
+#   A = reference model        /fast/scratch/.../M1Mutation/harness.sh
+#       sha256 43f9d5af0de24ded426cccafa4370642aa69e689169d53573bf7de79ced64799
+#       (per-case bound read from TSUKUROI_SELFTEST_CASE_TIMEOUT on every call)
+#   B = real-design replica    /fast/scratch/.../M1Mutation/real-harness.sh
+#       harness block copied VERBATIM from the E1Harness prototype
+#       (/fast/scratch/hyaku/tsukuroi-r71/E1Harness/census.sh sha256
+#        ebe3ab2d4bfb2e8470dc63403112c4e72642e904e1726f5578997cab73fef46c,
+#        lines 2648-2738; block sha256 7db90195d0e6a76eaf78c9afd8fd6f958f725aff45b95402a5bfd79851841bd0)
+#       with only the census `check` path replaced by a shim (runs $SELF, reads its output).
+#       Baseline: PASS (3 cases, 3 passed, 0 failed) rc 0, 5.2 s.
+#
+# Detector = the three R71-C2 cases, run as the suite under an external
+# `timeout -k 5 120`. Killed = any case FAILs, or the suite does not finish in 120 s.
+# Baseline A: PASS (5 cases, 5 passed, 0 failed) rc 0, 3.2 s (3 self-check + 2 ordinary).
+# Baseline B: PASS (3 cases, 3 passed, 0 failed) rc 0, 5.2 s.
+
+# model  mutant                   guarantee removed (single edit)                          sha256                                                            rc   a b c   verdict
+A  m1_no_pgroup_kill             kill -TERM/-KILL target $pid instead of -$pid (group)      f6099928ebe89456124266fa42267f0caa30c1182e1c193f2a3ebd9145f2931a   1    P P F   killed by (c)
+A  m2_term_only                  drop the unconditional KILL and the post-grace reap        d1ffc2e2b1bc8c7edef859ad93bb5cf4f6ffeff5bfa257f7116c443776fda828   1    P P F   killed by (c)
+A  m3_bound_ignored              plain blocking wait, no poll and no deadline              80d4ae637ed6b3b7f4591359febd04f3dea03c53d1d7558d88f38391b156bbf5   1    F P F   killed by (a)+(c)
+A  m4_bound_cached               env bound cached at startup, per-call override ignored    662f11fdfc72d34987d48f5a9a5c3a9c43674a0ffc7f7417cb84a21e78cef02c   1    F P F   killed by (a)+(c)
+A  m5_timeout_as_pass            timeout branch counts PASS and returns 0                   aeeb6bc62c36ecfbc5eb9769dba569f1eaf5a8e68b7321ac5a86a46e593ed8f7   1    F P F   killed by (a)+(c)
+A  m6_timeout_no_label           timeout line drops the case label                         7b96316fc3c4d871f6ecce30193af5e1b616578bdaf80683db4d8e56ab497f30   1    F P F   killed by (a)+(c)
+A  m7_no_capture                 child inherits stdout, verdict falls back to exit status   41c85d23b08bdfff8ae5d93780cabadeae3625841ffba90c450a142d2cfff5a5   1    P F P   killed by (b)
+A  m8_tmp_tempfile              capture mktemp /tmp instead of $WORK                       5b4707701d41cb763129a9062f5fae3a86f6eed493c6d192425c9722ddaca0e3   0    P P P   SURVIVED
+
+B  m1_no_pgroup_kill             kill -TERM/-KILL target $pid instead of -$pid (group)      441ecaa62cdf0432191213fb862e3b092d32e0ef5b16010c4c43f86e6a8ad5fc   1    P P F   killed by (c)
+B  m2_term_only                  drop the unconditional KILL of the group                  12939f8eaec4f68d665e9ea21c1886edce930496b72df0999b07d35b6943cad3   1    P P F   killed by (c)
+B  m3_bound_ignored              deadline branch removed (`if false`), poll never fires      b9cca1e2aa7a2d21cbc278a1bddcf8795710a5b3a7f3c14a203ed518530e0342   124  - - -   killed by the external 120 s bound (suite hang, 0 verdict lines)
+B  m4_bound_cached               env bound cached at startup                                9fd133e967be1358be8aee8a132bc7a81f932cbcf302cfc5b8fec6419821adda   0    P P P   SURVIVED (equivalent mutant: bound is passed by argument)
+B  m5_timeout_as_pass            case_timeout_fail emits ok instead of bad                 18918ae1be8164252718d2cae294c981a557509f878565ae54b376d671421679   1    F P F   killed by (a)+(c)
+B  m6_timeout_no_label           case_timeout_line drops $1 (the case label)               8e12a30af4c115d67096ed9f860bf5dee67bd51053cce10cced7453f6170f377   1    F P P   killed by (a)
+B  m7_no_capture                 drop >"$outf" 2>&1 on both spawn branches                 c81c60f2cdbfd8f11d9043e71238ffd3e5ca59726fe76a8926a29f4177be9ed0   1    P F P   killed by (b)
+B  m8_tmp_capture                capture file written to /tmp instead of $work             3b77679dbea4cb0ef52675258f3fc1453dc1ef3ff356c4b5936e9d4669fa1b0d   0    P P P   SURVIVED
+B* m8_tmp_tempfile (variant)     writer moved to /tmp, reader left on $work (inconsistent) 4bfd43c67e2d5678cbf3f490f69d9b2008c393a6052f1b4dd70d15e68e1ba288   1    P F P   killed by (b) — only because writer and reader diverge, not by hermeticity
+
+# Self-check removed (model A, --suite-noself, two ordinary cases only):
+#   all eight mutants rc 0, `PASS (2 cases, 2 passed, 0 failed)` — 8/8 invisible.
+# Model B without the three R71-C2 cases has no cases at all: 8/8 invisible by construction.
+
+# Restoration: the lane tree was never written. tools/tsukuroi-census.sh sha256 before and
+# after the probe: 487feeb6caa687daf586d4b7577746e5f1ed22ca336e9c0e0194d13995bd4b3c (identical).
+# The E1Harness prototype was read only (sha256 ebe3ab2d...46c, unchanged by this seat).
+# All mutant trees live under S=/fast/scratch/hyaku/tsukuroi-r71/M1Mutation and are deleted on exit.
