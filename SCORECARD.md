@@ -6044,3 +6044,54 @@ the note, checker `ROUTED_STALE=0 ROUTED_OK=3/3` rc 0 over the landed blocks, `-
 `ROUTED_STALE=3` rc 1, and both selftests pass (13 and 14 cases). M1Mutation's survivors are six dead or
 entailed clauses (own-work arm, map-url, quote-pipe, snapshots conjunct, item-heading anchor, lesson
 `need_any`), recorded in `w1/M1Mutation/report.md`.
+
+## Round 74 — declaration (frozen before data; append-only)
+
+Base `d749a625f483c66f2a6f2005db3799630c776bc3` (round-73 verifier spot-check). **Lowest non-retired
+axis: depth (8, tied with adjacency 8)**; saturation line 9, window 3. A capability entered at round 72
+(`gate-selftest`), so the stagnation window stands at 2 of 3 and the nudge does **not** waive the
+lowest-axis duty. Two claims on two axes: C1 depth, C2 freshness.
+
+**Held-ground sweep (QUALITY 102b; `.ufo/waves/round-74/before/held-ground.txt`, run at the base).**
+`git grep -nE 'unit_file_find_fragment|unit_ids_map_get|unit_file_build_name_map|unit_type_may_alias|unit_file_resolve_symlink|builtin_unit_lookup' -- corpus/ SKILL.md PROVINCE.md`
+reads **0 lines** (exit 1). None states the unit-fragment resolution, alias filtering, or perpetual mask
+immunity rules this round claims. The ground is therefore **the unit-fragment resolution plane**, not a
+restated existing note.
+
+**Sources pinned before the declaration text** (`.ufo/waves/round-74/before/src/`, byte-exact, systemd
+**v262**, the tag matching the host's installed 262.1-1-arch):
+
+| snapshot | URL (tag v262) | sha256 |
+|---|---|---|
+| `unit-file.c` | `https://raw.githubusercontent.com/systemd/systemd/v262/src/shared/unit-file.c` | `141ab10107f496732a23f6b6e4adf54ce9c72035cf0577d0f65805616c090bcd` |
+| `load-fragment.c` | `https://raw.githubusercontent.com/systemd/systemd/v262/src/core/load-fragment.c` | `a510b28617813a915779183a06ad5b567827e5522137c854b0034a3f772a44f5` |
+| `unit-file.h` | `https://raw.githubusercontent.com/systemd/systemd/v262/src/shared/unit-file.h` | `e55b17a1aed8f9a1e26f4cb37a0c5f375fa1367f706eae0cd1a6f985d321270f` |
+
+`SHA256SUMS` and `SOURCES.json` (map of url + sha256 per snapshot) are committed with them; the counter
+pins every digest it accepts. Host readings for the plane are committed in `before/host.txt` (search paths,
+masked units, template instances, systemd version 262.1-1-arch).
+
+**(a) Do-nothing controls** (`before/absence-controls.txt`): the note `git cat-file -e` rc **128**; the
+frozen counter over the base tree prints `UF_MAP absent` rc **128**; `git show d749a625:corpus/README.md
+| grep -c 'UF[0-9]'` reads **0**; the routed checker at base reads `ROUTED_STALE=2` rc **1**; registry
+**308** rows, **91** knowledge notes, **122** lesson files.
+
+**(b) Frozen instruments.** `tools/count-uf-rows-r74.py` sha256
+`94d46a5edfcdc00858a1b1c37bc459322fc7e337fba19cc38a85776d0dd36482`, `--selftest` **13 cases** (1 control
++ 12 mutants: short statement, absent quote, quote words > 25, non-contiguous id, unregistered source,
+snapshot reuse > 2, ungrounded statement, malformed row, digest swap, own-work source, duplicate registry id,
+non-map mapfile), using synthetic snapshots (no answer key). `tools/check-r73-routed-r74.py` sha256
+`2da4ff1fd8e7ed1287230e43769a1d75233b992b9f04eeb77cc981f2677efd77`, `--selftest` **6 cases** (control +
+missing lesson block + missing log block + missing both + title-only token + missing superseded count).
+**Instrument-change rule for this round, frozen now**: if a wave attack changes either instrument after
+data, the before control is re-run with the final instrument and both revisions are cited in an appended
+erratum naming old→new digests, so the before→after pair is same-instrument evidence.
+
+| # | axis/type | claim | before → after (frozen predicate) | counting command | kill rule |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — S309–S311) | `corpus/knowledge/systemd-unit-fragment-plane-r74.md` states the systemd unit-fragment resolution plane this lane never held: unit search paths are processed in priority order with first-seen name registration ignoring lower duplicate filenames; unit symlinks reject self-aliases, require compatible instance/template types, and restrict aliasing to alias-capable unit types; `unit_type_may_alias` permits aliasing strictly for service, socket, target, device, and volume units; `UnitFileState` distinguishes enabled, linked, and masked states from their runtime variants; a fragment matching `null_or_empty` sets `UNIT_MASKED` and zero mtime except for perpetual units which are immune from masking; missing fragments for system-scope units fall back to `builtin_unit_lookup` while on-disk files and masks unconditionally override built-ins | `UF_NOTE absent` rc **128**; 0 UF rows; registry **308**; notes **91** → `UF_ROWS=6 UF_VERIFIED=6 UF_SOURCES=3 UF_SNAPSHOTS=3 UF_MALFORMED=0`, `met=1`, rc **0**; registry **313**; notes **92**; census rc **0** | `python3 tools/count-uf-rows-r74.py --revision <REV>`; `git show <REV>:corpus/SOURCES.md \| grep -cE '^ {0,3}\| *S[0-9]{3,}'`; `git ls-tree --name-only <REV>:corpus/knowledge \| grep -c '\.md$'` | any finding > 0, rows != 6, verified != 6, sources < 3, snapshots < 3, census != 0, registry < 313, notes < 92 |
+| C2 | freshness (9) | the two round-73 closure defects routed to this lane close in committed bytes: `corpus/lessons/round-73.md` carries an appended correction naming `R73-GATE-QUOTE-LINE-DRIFT` with the S306 quote location install.c:2383 (superseding 2387) and the three S304 corrected line anchors (:368-370, :237-238, :238-239); and `LOG.md` carries an appended correction naming `R73-LOG-COUNT-STALE` with the superseded Round 73 mid-wave counts (12 and 11 cases) and restating the final committed instrument counts (13 and 14 cases) | `ROUTED_STALE=2` rc **1** (both items stale) → `ROUTED_STALE=0 ROUTED_OK=2/2` rc **0** | `python3 tools/check-r73-routed-r74.py --revision <REV>` | any item unsatisfied (`ROUTED_STALE > 0`) |
+
+Causal separability: C1 touches only its note, five registry rows, and its counter receipts; C2 touches
+only the round-73 lesson correction and one LOG.md correction entry. Each verifies without the other
+having landed (the counters are independent and read different files).
