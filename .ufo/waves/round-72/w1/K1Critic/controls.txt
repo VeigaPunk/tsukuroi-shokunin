@@ -1,0 +1,115 @@
+# K1Critic — round-72 controls (measured 2026-11-03; read-only over the lane, scratch under /fast/scratch/hyaku/tsukuroi-r72/K1Critic)
+
+LANE=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+S=/fast/scratch/hyaku/tsukuroi-r72/K1Critic
+
+## Frozen instruments vs declared digests
+$ sha256sum tools/count-md-rows-r72.py tools/check-r71-routed-r72.py tools/check-selftest-tally.py
+d615c653f32a29af3a4355d882041b8543ff56882b3225f7e3eedf173d8706a6  tools/count-md-rows-r72.py
+df8a59c7a2891f58ab37a1b22e73819d953f1781528d4f2f4937641e093de712  tools/check-r71-routed-r72.py
+b0f839e3955529caf560576f02f5c4137a98317d82c90cf1225dffe45d366c6d  tools/check-selftest-tally.py
+# base tool == HEAD tool == b0f8…; working-tree tool (with --selftest) == e47baa78…
+
+## Before-state reproduction at a7015d27
+$ cd $LANE/.ufo/waves/round-72/before/src && sha256sum -c SHA256SUMS
+modprobe.d.5.scd: OK / libkmod-config.c: OK / modprobe.c: OK ; rc=0
+$ git cat-file -e a7015d27:corpus/knowledge/modprobe-config-plane-r72.md ; rc=128
+$ git show a7015d27:corpus/SOURCES.md | grep -cE '^\| *S[0-9]{3,}'          -> 300
+$ git ls-tree --name-only a7015d27:corpus/knowledge | grep -c '\.md$'      -> 89
+$ git grep -c -- softdep a7015d27 -- corpus/knowledge                       -> 0 files
+   (MODPROBE_OPTIONS, showconfig, APPLY_BLACKLIST, conf_files_insert_sorted,
+    lexicographic: 0 files each; \|modprobe\| at base: only
+    corpus/knowledge/module-parameter-plane-r71.md, 3 lines)
+$ git show a7015d27:PROVINCE.md   | grep -c modprobe.d   -> 4
+$ git show a7015d27:SKILL.md      | grep -c modprobe.d   -> 0
+$ git show a7015d27:corpus/README.md | grep -c modprobe.d -> 2
+
+## C2 before / self-demo
+$ git show a7015d27:tools/check-selftest-tally.py > $S/base/tally.py
+$ python3 $S/base/tally.py --selftest   -> usage text, rc=2, SELFTEST case lines 0
+$ python3 $S/base/tally.py --receipt .ufo/waves/round-70/after/selftest-after.txt \
+    --label R70-C2 --range 4035c1a0..40c35ee7 -- SCORECARD.md PROVINCE.md corpus/README.md SKILL.md
+SWEEP added_figures_mismatched=0 skipped_superseded=0 receipt_cases=214 receipt_labels=18 ; rc=0
+
+## C3 before
+$ python3 tools/check-r71-routed-r72.py --revision a7015d27
+ROUTED_RECEIPT missing .ufo/waves/round-71/after/count-mp-rows-final.txt
+ROUTED_SCORECARD missing: no erratum block naming the receipt and the record revision
+ROUTED_NOTE missing: no appended correction naming the defect, five paths and the superseded figure
+ROUTED_STALE=3 ; rc=1
+$ python3 tools/count-mp-rows-r71.py --revision 2b358d2d
+MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0
+MP_TARGET rows=6 verified=6 sources>=4 snapshots>=4 max_reuse=2 met=1 ; rc=0
+
+## Batteries re-run (frozen bytes, unchanged instruments)
+$ TMPDIR=$S python3 .ufo/waves/round-72/before/control/battery.py       -> cases=11 passed=11 failed=0
+$ TMPDIR=$S python3 .ufo/waves/round-72/before/control/routed-battery.py -> cases=5 passed=5 failed=0
+
+## CONTROL 1 — C1 target reached by a negating statement (same vocabulary, correct quote)
+fixture: 6 rows as the frozen battery control, MD1 statement replaced by
+"Configuration directories are never read in SYNOPSIS order of precedence: once a filename is
+ loaded, the same name in subsequent directories is still parsed"
+$ python3 tools/count-md-rows-r72.py --fixture $S/ctrl-negated-md1
+MD_ROW ok MD1 source=S301 snapshot=modprobe.d.5.scd
+... MD_ROWS=6 MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0
+MD_TARGET ... met=1 ; rc=0
+# empty-note control (declaration (d) confirmed, different failure mode):
+$ python3 tools/count-md-rows-r72.py --fixture $S/c1-empty
+MD_ROWS=0 ... met=0 ; rc=1
+
+## CONTROL 2 — C2 target reached by an echo, no fixtures, no core
+$ cp $S/base/tally.py $S/fake-selftest.py   # + early branch: 7 PASS lines, SELFTEST PASS, exit 0
+$ python3 $S/fake-selftest.py --selftest
+PASS (SELFTEST-match) … PASS (SELFTEST-green-control)
+SELFTEST: PASS (7 cases, 7 passed, 0 failed) ; rc=0 ; 7 case lines
+$ python3 $S/fake-selftest.py --receipt .../round-70/after/selftest-after.txt --label R70-C2 \
+    --range 4035c1a0..40c35ee7 -- SCORECARD.md ...
+SWEEP added_figures_mismatched=0 skipped_superseded=0 receipt_cases=214 receipt_labels=18
+# i.e. every counted C2 term (rc 0, N>=7, one line per case, r70 self-demo 214/18) with zero fixtures
+
+## CONTROL 3 — C3 target reached by fabricated and by contradicted text
+(a) 137-byte receipt (two summary lines only) + SCORECARD block ".ufo/.../count-mp-rows-final.txt 2b358d2d"
+    + note "## Correction\nR71-NOTE-MODPROBE-COUNT /usr/lib/modprobe.d five four"
+$ python3 tools/check-r71-routed-r72.py --fixture $S/c3-min
+ROUTED_RECEIPT ok revision=2b358d2d / ROUTED_SCORECARD ok / ROUTED_NOTE ok / ROUTED_STALE=0 ; rc=0
+(b) SCORECARD block "No erratum is needed; 2b358d2d stands; … is not a receipt"
+    note "R71-NOTE-MODPROBE-COUNT is withdrawn: there are not five or four /usr/lib/modprobe.d paths"
+$ python3 tools/check-r71-routed-r72.py --fixture $S/c3-contradict
+ROUTED_STALE=0 ; rc=0
+# the committed routed-battery green fixture already passes with zero paths enumerated
+
+## C1 battery defect: "mutant-duplicate-id" is killed by snapshot-reuse
+$ python3 $S/dup_probe.py
+battery fixture (ROWS[0],ROWS[1],ROWS[1],ROWS[3],ROWS[4],ROWS[5]) -> MD1..MD6, all ids unique
+MD_ROW ok MD1..MD6 ; MD_ROW fail snapshot-reuse modprobe.d.5.scd=3 ; MD_VERIFIED=6 ; met=0 ; rc=1
+true duplicate-id (MD1,MD2,MD2,…) -> MD_ROW fail MD2 duplicate-id ; ids-not-contiguous ;
+snapshot-reuse=3 ; MD_VERIFIED=5 ; met=0 ; rc=1
+
+## Host facts (read-only; config contents never read)
+$ uname -r -> 7.2.11-arch1-1 ; modprobe --version -> kmod version 34.2
+$ ls -1 /etc/modprobe.d | wc -l -> 3 ; ls -1 /usr/lib/modprobe.d | wc -l -> 5
+$ [ -e /run/modprobe.d ] -> absent ; [ -e /usr/local/lib/modprobe.d ] -> absent
+$ ls -ld /lib -> /usr/lib ; ls -d /sys/module/*/parameters | wc -l -> 136
+$ tr ' ' '\n' < /proc/cmdline | grep -E '^[A-Za-z0-9_]+\.[A-Za-z0-9_]+='
+systemd.show_status=false / vt.global_cursor_default=0 / zswap.enabled=1 / zswap.max_pool_percent=25
+$ ls /sys/module/zswap/parameters/ -> accept_threshold_percent compressor enabled max_pool_percent shrinker_enabled
+# => two module-parameter tokens on the cmdline; declaration (b) "carries no module.parameter token" is FALSE
+
+## Window arithmetic precedents (SCORECARD.md)
+5188: capability `knowledge-source-ref-gate` entered r68 -> "window is at 1 of 3"
+5274: capability entered round 69 (`kernel-arm`) -> "window is at 1 of 3"
+5434: capability entered round 70 (`xfs-stats-arm`) -> "window is at 1 of 3"
+5574: capability entered r70 + r71 -> "window is at 2 of 3"   <-- contradicts the three above
+
+## Provenance / counts in the drafted (uncommitted) after-artefacts, read only for context
+$ git show HEAD:SCORECARD.md | grep -c '^## Round 71 — receipt erratum' -> 0
+$ git show HEAD:corpus/knowledge/module-parameter-plane-r71.md | grep -c '^## Correction' -> 0
+$ git cat-file -e 6b42676:.ufo/waves/round-72/before/control/selftest-redbefore.txt ; rc=128
+$ git show --name-only --format= 6b42676 | grep -E '^\.ufo/waves/round-72'  # 13 files, no redbefore
+$ git log --oneline -S"Round 71 — receipt erratum" -- SCORECARD.md -> 6b42676 (the claim row text only)
+$ awk -F'|' '/^\| S30[123] /{print $2, NF}' corpus/SOURCES.md -> S301 13 / S302 13 / S303 13
+$ grep -cE '^\| *S[0-9]{3,}' corpus/SOURCES.md -> 303 (working tree)
+$ python3 tools/count-md-rows-r72.py --fixture <drafted note+registry mirror> -> met=1 rc=0
+
+## Scratch cleanup
+$S (md-battery-r72, routed-battery-r72, fixtures) removed before yield; no /tmp use; no lane write.

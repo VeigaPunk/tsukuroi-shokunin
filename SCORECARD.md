@@ -5656,3 +5656,19 @@ at `.ufo/waves/round-71/after/count-mp-rows-final.txt` and its summary lines equ
 MP_SNAPSHOTS=4 MP_MALFORMED=0`, `MP_TARGET … met=1`, rc 0). `2959254a` is the note's landing commit,
 not a counter run; it is superseded by this erratum and stays visible as filed. Checker:
 `python3 tools/check-r71-routed-r72.py --revision <REV>`.
+
+## Round 72 — declaration erratum (append-only; the frozen predicates are unchanged)
+
+1. **(a) the cmdline host fact.** Pre-declaration receipt (b) says "`/proc/cmdline` carries no
+   `module.parameter` token". The committed `before/host.txt` contradicts that literal shape: it carries
+   four `modname.param` tokens that libkmod's parser accepts — `zswap.enabled=1`,
+   `zswap.max_pool_percent=25`, `vt.global_cursor_default=0`, `systemd.show_status=false` (R1Reviewer F1,
+   with the parser's state machine at `libkmod-config.c:717-725` and `kmod_config_add_options:610-634`).
+   The accurate fact is "no `modprobe.blacklist=` token; four built-in subsystem `name.param` tokens are
+   parsed into the config object every run", so MD4 is **active**, not inert, on this host. The frozen
+   predicates, targets and kill rules are untouched; `PROVINCE.md` and the note's host line carry the
+   corrected sentence.
+2. **(b) counter channel, recorded not repaired.** R1Reviewer F4: a registry row with `kind=community`
+   and tier A verifies `met=1` — the counter reads `kind` but not `tier`. The frozen counter is not
+   amended this round; the channel is carried into the round-72 planned-next-round debt.
+

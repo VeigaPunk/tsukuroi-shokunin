@@ -38,7 +38,8 @@ MP5 — the three `/etc/modprobe.d` plus four `/usr/lib/modprobe.d` paths are re
 ## Correction (round 72)
 
 R71-NOTE-MODPROBE-COUNT: the filed sentence says four; the capture lists five `/usr/lib/modprobe.d`
-paths, and this correction supersedes the four-path figure.
+paths — README, bluetooth-usb.conf, gsr-nvidia.conf, nvidia-utils.conf, systemd.conf — and this
+correction supersedes the four-path figure.
 """
 
 

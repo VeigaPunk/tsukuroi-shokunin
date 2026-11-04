@@ -457,7 +457,7 @@ prints the plan and executes nothing (MD5). `blacklist` suppresses a module's in
 `/etc/modprobe.d` holds 3 names, `/usr/lib/modprobe.d` 5 names (`README` plus four `.conf`),
 `/run/modprobe.d` and `/usr/local/lib/modprobe.d` are absent, `/lib` resolves to `/usr/lib` so
 `/lib/modprobe.d` and `/usr/lib/modprobe.d` are one directory behind two SYNOPSIS entries, and
-`/proc/cmdline` carries no `module.parameter` token.
+`/proc/cmdline` carries four `modname.param` tokens the config parser accepts (`zswap.enabled=1`, `zswap.max_pool_percent=25`, `vt.global_cursor_default=0`, `systemd.show_status=false`) and no `modprobe.blacklist=` token, so MD4's parse is live on this boot and the blacklist route is not.
 
 **Operator-owned:** editing, creating or removing any file in any `modprobe.d` directory; changing a
 blacklist; setting `MODPROBE_OPTIONS`; loading or unloading a module; and running `modprobe` at all,

@@ -1,0 +1,39 @@
+instrument	mutant	clause	mutant_sha256	battery_cases	battery_rc	flipped_case	battery_verdict	targeted_fixture	targeted_pristine_rc	targeted_mutant_rc	targeted_verdict
+C1-counter	c1-share-drop	grounding share >= 0.5	a705203545156a7cd552b2ffba2d6357de02a0bf2e5b030cc27467570edf809f	11	0	-	SURVIVED	share	1	0	ACCEPTS
+C1-counter	c1-tokens-drop	>= 6 shared distinct tokens	bb2cd277892bf7f50f609aced89c60f98dafbedce4915198f8d078ea33329cfc	11	0	-	SURVIVED	tokens	1	0	ACCEPTS
+C1-counter	c1-kind-drop	kind is a source kind and not own-work	ae3c0160df4f4256917c3e63b057a17bfc8e0b9d05074e34391c1f18d7d1dbeb	11	1	mutant-ownwork-kind	KILLED	ownwork	1	0	ACCEPTS
+C1-counter	c1-ownwork-drop	kind is not exactly own-work	5bdb4cc4cd55752cc45ad5e189e92a2cd4712047e74e3c5f190f7e2e002633d1	11	0	-	SURVIVED	ownwork	1	1	still-rejects
+C1-counter	c1-mapdigest-drop	row digest equals SOURCES.json digest	7f1b501f2777929e1429ebae7d9c054e15ed9e8f838b57013005c3174e1b633e	11	0	-	SURVIVED	map-digest	1	0	ACCEPTS
+C1-counter	c1-mapurl-drop	SOURCES.json entry carries a url	496d4105a6e93f637b95dc6eaf819c85b8977f0bb914bbecbc0309e39930916e	11	0	-	SURVIVED	url-missing	1	1	still-rejects
+C1-counter	c1-anchor-drop	registry anchor cell contains snapshot basename	73f61ab017685cfec7518e08a9f27c925bb001b93014c721fa88572b69c64f1c	11	0	-	SURVIVED	anchor	1	0	ACCEPTS
+C1-counter	c1-quote-locate-drop	quote located verbatim in snapshot	26e9a57081790db14c3eb95456f82c0bd4b097c031128a9c606534ccd9e2ef95	11	1	mutant-quote-absent	KILLED	-	-	-	-
+C1-counter	c1-quotewords-drop	quote <= 25 words	eed87dcaf151dc87b235d0191c8e5e80668863f0fa027b52c68571ca209da11c	11	0	-	SURVIVED	quote-words	1	0	ACCEPTS
+C1-counter	c1-quotepipe-drop	quote contains no pipe	6115c28026c8271bc2833da5522127be364619c3c5ad3d6ae828d065beab79b6	11	0	-	SURVIVED	quote-pipe	1	1	still-rejects
+C1-counter	c1-digestbytes-drop	snapshot bytes sha256 equals row digest	1d9bf4530e5b70fc8ddc35bc7ada88e3cead41d24edaa9bc9849c2c9f3cf0516	11	0	-	SURVIVED	digest-bytes	1	0	ACCEPTS
+C1-counter	c1-malformed-drop	MD-shaped line that does not parse is a finding	7a60b2ca80860f2cd9ae888675e1d5024e1ce792fb31e5a2f6fb7c6f90d38c22	11	1	mutant-malformed-row	KILLED	-	-	-	-
+C1-counter	c1-reuse-drop	no snapshot cited more than twice	d2c1e7610293e3f1c0bb31b7c4c80bef833b148e6facceba281daa0676cd69f3	11	1	mutant-duplicate-id	KILLED	reuse	1	0	ACCEPTS
+C1-counter	c1-contiguous-drop	ids contiguous from 1	ccbf2e946cc35ffc53b7ab62a6b2d7c6c30386f778ab1e54072cf3571e6059ce	11	0	-	SURVIVED	contiguity	1	0	ACCEPTS
+C1-counter	c1-rowcount-drop	exactly six rows, all verified	a8e5ca16772011d56086a4d1ae2d126561cdd3c6b689a48e5927036d19b1f5eb	11	1	mutant-short-statement,mutant-source-unregistered,mutant-quote-absent,mutant-five-rows,mutant-ungrounded,mutant-digest-swap,mutant-ownwork-kind	KILLED	-	-	-	-
+C1-counter	c1-urlbind-drop	registry source cell contains the map URL	63b30c81ea6eab95897099cce84d518c86002cfb39fb38e2aacf479ebdede2bc	11	0	-	SURVIVED	url-mismatch	1	0	ACCEPTS
+C3-checker	c3-rederive-drop	receipt summary equals a fresh counter run	548d2ce65f3806c9cfb387dee246ba2a8184ab68ba35a58b480929b5ad3c7b91	5	1	mutant-tampered-receipt	KILLED	tampered	1	0	ACCEPTS
+C3-checker	c3-fresh-none-accept	no counter summary is stale, not ok	57dba844d4350ada802b5d58338daa29b37f06cc60229f6c83ad901797fb0901	5	0	-	SURVIVED	-	-	-	-
+C3-checker	c3-receipt-optional	receipt must exist	c7ce2eb99147b0c64a20760460078effee1724a1e8171aaa4d55b021ab634fdc	5	1	mutant-missing-receipt	KILLED	no-receipt	1	0	ACCEPTS
+C3-checker	c3-erratum-receipt-only	erratum names receipt AND revision	eef9a9d2252d078550ca49f6047efd206113df5bc4ba00212f047aa16f0ffe00	5	0	-	SURVIVED	erratum-no-revision	1	0	ACCEPTS
+C3-checker	c3-erratum-revision-only	erratum names receipt AND revision	76c84bab37ca9670655b18d9a46f0ef63a487f30ea797ee8cdc2fb904305ec6c	5	0	-	SURVIVED	erratum-no-receipt	1	0	ACCEPTS
+C3-checker	c3-erratum-anywhere	erratum is a `## Round 71` block	5867303cdaaf47dc3ce1a1b5202a70e7c00d66f2c94b81d8252029094c9cd883	5	0	-	SURVIVED	erratum-anywhere	1	0	ACCEPTS
+C3-checker	c3-note-anywhere	correction is appended (`## Correction` tail)	b825319654975432c67062931337f6a3a0e0c286efa0a84feb06e6196a9d0492	5	0	-	SURVIVED	note-body	1	0	ACCEPTS
+C3-checker	c3-five-path-drop	correction names five paths under /usr/lib/modprobe.d	1d6550361dbfee97fb150a88eeac5861e6199d59983490dfdc68de301c64db6e	5	0	-	SURVIVED	note-four-only	1	0	ACCEPTS
+C3-checker	c3-four-figure-drop	correction names the superseded four figure	055ba925f9aaa6e8df0b383a0351e9732a3b2b8659208f2d80f2ae8ec50c0adb	5	0	-	SURVIVED	note-no-four	1	0	ACCEPTS
+C2-selftest	c2-pristine	case set member removed	-	8	0	-	BASELINE	-	-	-	-
+C2-selftest	c2-remove-MATCH	case set member removed	-	8	0	-	SILENT	-	-	-	-
+C2-selftest	c2-remove-MISMATCH	case set member removed	-	8	0	-	SILENT	-	-	-	-
+C2-selftest	c2-remove-LABEL	case set member removed	-	8	0	-	SILENT	-	-	-	-
+C2-selftest	c2-remove-SUPERSEDED	case set member removed	-	8	0	-	SILENT	-	-	-	-
+C2-selftest	c2-remove-OUT-OF-SCOPE	case set member removed	-	8	0	-	SILENT	-	-	-	-
+C2-selftest	c2-remove-NO-RECEIPT	case set member removed	-	8	0	-	SILENT	-	-	-	-
+C2-selftest	c2-remove-GREEN-DIFF	case set member removed	-	8	0	-	SILENT	-	-	-	-
+C2-selftest	c2-remove-MIXED	case set member removed	-	8	0	-	SILENT	-	-	-	-
+C2-selftest	c2-sweep-rc-always-0	mismatch rc path	-	8	1	-	NOTICED	-	-	-	-
+C2-selftest	c2-superseded-skip-drop	superseded-figure skip	-	8	1	-	NOTICED	-	-	-	-
+C2-selftest	c2-scope-drop	out-of-scope filter	-	8	1	-	NOTICED	-	-	-	-
+C2-selftest	c2-label-regex-drop	label count channel	-	8	1	-	NOTICED	-	-	-	-

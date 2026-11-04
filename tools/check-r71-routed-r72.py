@@ -94,13 +94,26 @@ def evaluate(rt, fixture=None):
         stale += 1
 
     note = rt(NOTE) or ""
-    tail = note[note.find("## Correction"):] if "## Correction" in note else ""
-    if ("R71-NOTE-MODPROBE-COUNT" in tail and "five" in tail
-            and "four" in tail and "/usr/lib/modprobe.d" in tail):
-        print("ROUTED_NOTE ok")
-    else:
-        print("ROUTED_NOTE missing: no appended correction naming the defect, five paths and the superseded figure")
+    # The frozen predicate says the correction names the five /usr/lib/modprobe.d paths: check the
+    # enumeration, not a prose token list (R72-C3-TOKEN-LIST, R2Reviewer high finding).
+    sec = re.search(r"^## .*?(?:correction|erratum).*$", note, re.I | re.M)
+    if not sec:
+        print("ROUTED_NOTE missing: no appended correction/erratum section")
         stale += 1
+    else:
+        tail = note[sec.start():]
+        need = ["R71-NOTE-MODPROBE-COUNT", "five", "four", "/usr/lib/modprobe.d",
+                "README", "bluetooth-usb.conf", "gsr-nvidia.conf", "nvidia-utils.conf",
+                "systemd.conf"]
+        # the words are case-insensitive; ids, paths and filenames are exact
+        low = tail.lower()
+        missing = [n for n in need if (n.lower() if n in ("five", "four") else n) not in
+                   (low if n in ("five", "four") else tail)]
+        if missing:
+            print(f"ROUTED_NOTE missing: {' '.join(missing)}")
+            stale += 1
+        else:
+            print("ROUTED_NOTE ok")
 
     print(f"ROUTED_STALE={stale}")
     return 0 if stale == 0 else 1

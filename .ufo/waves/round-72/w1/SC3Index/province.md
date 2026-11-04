@@ -17,7 +17,7 @@ lexicographic order, so a configuration file is completely replaced by a higher-
 name or partially replaced by a file ordered later (MD2). libkmod inserts configuration filenames into one
 sorted list and rejects a second file of the same name at insertion, so a duplicate name is parsed once
 (MD3). `/proc/cmdline` is parsed into the same configuration object after the files (MD4). `-n/--dry-run`
-prints the plan and executes nothing (MD5). `blacklist` suppresses a module's internal aliases only, and
+executes nothing (MD5). `blacklist` suppresses a module's internal aliases only, and
 `--use-blacklist` adds the unconditional probe flag (MD6). The host shape this reading is grounded on:
 `/etc/modprobe.d` holds 3 names, `/usr/lib/modprobe.d` 5 names (`README` plus four `.conf`),
 `/run/modprobe.d` and `/usr/local/lib/modprobe.d` are absent, `/lib` resolves to `/usr/lib` so
