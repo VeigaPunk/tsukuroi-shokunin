@@ -3661,3 +3661,16 @@ falsification duty was carried by the executor, scribe, scout and sentinel seats
 which produced the four corrections above. Mutation seat: 26 single-clause
 mutants, 7 killed (C1 3/18, C2 4/8), 17 behaviour-bearing survivors named as
 coverage debt.
+
+**Measured outcome (landed `c6fd99493820947d16a3a1a4978efdf01ba20def`).**
+C1 `count 8 / target 8 / met`, rc 0 (was `count 0 / note-absent`, rc 1);
+C2 `count 6 / target 6 / met`, rc 0 (was 3/6, rc 1);
+C3 `finding_count 0`, 99 notes, `PASS`, rc 0 (was 2 findings, 98 notes, rc 1).
+Raw outputs: `.ufo/waves/round-81/after/measurements.txt`; per-claim rows, score
+deltas and the unchanged ordinals are in `SCORECARD.md` "Round 81 — measured
+outcome". The reviewer (`ReviewRows`) and critic (`CriticFreeze`) seats died at
+their first turn with no report and carry no attack credit; the wave's
+falsification work came from the executor, scribe, scout, sentinel and
+mutation seats. Coverage debt named there: C1 selftest kills 3/18 mutants,
+C2 4/8. The pre-declaration scoring erratum above is not repaired by these
+green measurements.
