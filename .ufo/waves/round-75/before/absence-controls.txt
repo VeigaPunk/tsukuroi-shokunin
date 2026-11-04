@@ -1,0 +1,33 @@
+# Do-nothing controls — round 75, base a21302a48d24cf5242ac2a66cc5b5b453f7a1b20 (frozen predicate on untouched bytes)
+
+$ git cat-file -e a21302a48d24cf5242ac2a66cc5b5b453f7a1b20:corpus/knowledge/systemd-job-transaction-plane-r75.md
+fatal: path 'corpus/knowledge/systemd-job-transaction-plane-r75.md' does not exist in 'a21302a48d24cf5242ac2a66cc5b5b453f7a1b20'
+exit=128
+
+$ python3 tools/count-jt-rows-r75.py --revision a21302a48d24cf5242ac2a66cc5b5b453f7a1b20
+JT_MAP absent
+exit=128
+
+$ git show a21302a48d24cf5242ac2a66cc5b5b453f7a1b20:corpus/README.md | grep -c 'JT[0-9]'
+0
+exit=1
+
+$ python3 tools/check-r74-routed-r75.py --revision a21302a48d24cf5242ac2a66cc5b5b453f7a1b20
+ROUTED_STALE=4 ROUTED_OK=0/4
+R74-DEATH-RECEIPT STALE reason=token path=corpus/lessons/round-74.md
+R74-REPORT-WORDING STALE reason=token path=corpus/lessons/round-74.md
+R74-SWEEP-RESIDUE STALE reason=token path=.ufo/waves/round-74/w1/E3HostProbe/receipt-g-landing.txt
+R74-STALE-AXES-TABLE STALE reason=heading path=SCORECARD.md
+exit=1
+
+$ git show a21302a48d24cf5242ac2a66cc5b5b453f7a1b20:corpus/SOURCES.md | grep -cE "^ {0,3}\| *S31[456] *\|"
+0
+$ registry rows: git show a21302a48d24cf5242ac2a66cc5b5b453f7a1b20:corpus/SOURCES.md | grep -cE "^ {0,3}\| *S[0-9]+ *\|"
+313
+$ notes: git ls-tree -r --name-only a21302a48d24cf5242ac2a66cc5b5b453f7a1b20:corpus/knowledge | grep -c "\.md$"
+92
+$ lessons: git ls-tree -r --name-only a21302a48d24cf5242ac2a66cc5b5b453f7a1b20:corpus/lessons | grep -c "\.md$"
+124
+
+# Cheapest control that skips the claimed C2 work: the base itself (no repair lines)
+# reads ROUTED_STALE=4 rc 1 above; a no-parse replay cannot reach ROUTED_OK=4/4.

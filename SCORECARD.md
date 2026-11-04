@@ -6149,3 +6149,62 @@ No new capability row; no score changes on other axes. Wave 12/12 settled (nine 
 three empty finals), strict attack 4/12, connector 1. WAVE-DONE received before report.
 No completed M1Mutation result is inferred. The correct source-backed note remains useful
 but cannot retroactively satisfy the false frozen C1 sentence. **Round honest-stop.**
+
+## Round 75 — declaration (frozen before data; append-only)
+
+Base `a21302a48d24cf5242ac2a66cc5b5b453f7a1b20` (round-74 verifier spot-check). **Lowest non-retired
+axis: depth (8, tied with adjacency 8)**; saturation line 9, window 3. The last capability row entered at
+round 64 (`line-endings-guard`), so the stagnation window stands at 2 of 3 and the nudge does **not** waive
+the lowest-axis duty. Two claims on two axes: C1 depth, C2 freshness.
+
+**Held-ground sweep (QUALITY 68/102b)** — `.ufo/waves/round-75/before/held-ground.txt`, run at the base:
+`git grep -nE 'transaction_add_job_and_dependencies|job_type_merge|job_type_lookup_merge|JOB_TRY_RESTART|job_type_collapse|transaction_activate|job_merging_table|matters_to_anchor|PULL_IN_START' <base> -- corpus/ SKILL.md PROVINCE.md`
+reads **0 lines** (exit 1), and the prose sweep `job transaction|job merge|job type merge` also reads **0**
+(exit 1). The ground is therefore **the systemd job-transaction plane**, not a restatement of a held note.
+
+**Sources pinned before the declaration text** (`.ufo/waves/round-75/before/src/`, byte-exact, systemd
+**v262**, the tag matching the host's installed 262.1-1-arch; `sha256sum -c SHA256SUMS` reads 3/3 OK):
+
+| snapshot | URL (tag v262) | sha256 |
+|---|---|---|
+| `transaction.c` | `https://raw.githubusercontent.com/systemd/systemd/v262/src/core/transaction.c` | `c1c704bb4330ffee5203980219adf1ff1e11402a4a02092f471129ff7c5df2f3` |
+| `job.c` | `https://raw.githubusercontent.com/systemd/systemd/v262/src/core/job.c` | `024a1accfd833223f2913d72e1f106fd40175429d31fcaca2321370fb5a10897` |
+| `job.h` | `https://raw.githubusercontent.com/systemd/systemd/v262/src/core/job.h` | `22d7b942426402ddba376c7b713bc9937c2eaa9f5817e8735dec8d5b6cf57c3a` |
+
+`SHA256SUMS` and `SOURCES.json` (map of url + sha256 per snapshot) are committed with them; the counter
+pins every digest it accepts. Host readings for the plane are committed in `before/host.txt` (systemd
+262.1-1-arch, twelve `systemd-analyze unit-paths` entries and no queued jobs at capture).
+
+**(a) Do-nothing controls** (`before/absence-controls.txt`): the note `git cat-file -e` rc **128**; the
+frozen counter over the base prints `JT_MAP absent` rc **128**; `git show <base>:corpus/README.md | grep -c 'JT[0-9]'`
+reads **0**; the routed checker at base reads `ROUTED_STALE=4 ROUTED_OK=0/4` rc **1**; registry **313**
+rows, **92** knowledge notes, **124** lesson files; `S314`–`S316` absent at base (grep count **0**). The
+draft rows scored under the frozen C1 predicate before any note existed read `JT_ROWS=6 JT_VERIFIED=6
+JT_SOURCES=3 JT_SNAPSHOTS=3 JT_MALFORMED=0 met=1` rc 0 (`before/draft-row-control.txt`, draft committed as
+`before/draft-rows-validated.md`) — the predicate is reachable, and the base cannot reach it.
+
+**(b) Frozen instruments.** `tools/count-jt-rows-r75.py` sha256
+`5e87238ce6909823797446b5be79194e2f701de46d3c4087ca75f289fca8cd71`, `--selftest` **13 cases** (CONTROL +
+short statement, absent quote, quote > 25 words, non-contiguous id, unregistered source, snapshot reuse >
+2, ungrounded statement, malformed row, digest swap, own-work source, duplicate registry id, non-map
+mapfile), synthetic snapshots only and no answer key (round-74 K1Critic D3); a failing self-test prints
+`SELFTEST: FAIL` and exits 3 (round-74 routed limit). `tools/check-r74-routed-r75.py` sha256
+`4b5c801ce4be7ea7562d9b472ce58badcd113d1062280220500275730f567d2c`, `--selftest` **13 cases** (CONTROL +
+nine missing/wrong-token arms + one decoy placed beyond the frozen 80-line window + one missing supersede
+verb).
+
+**Instrument-change rule for this round, frozen now**: if a wave attack changes either instrument after
+data, the before control is re-run with the final instrument and both revisions are cited in an appended
+erratum naming old→new digests, so the before→after pair is same-instrument evidence.
+
+| # | axis/type | claim | before → after (frozen predicate) | counting command | kill rule |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — S314–S316) | `corpus/knowledge/systemd-job-transaction-plane-r75.md` states the systemd job-transaction plane this lane never held, as six JT rows: job-type merging is commutative and, with the merged type collapsed immediately afterwards, associative with transitive mergeability, and the table stores only its lower triangle; a start or verify-active job is redundant once its unit is active or reloading, a stop job once inactive or failed, while reload and restart are never redundant and nop always is; `JOB_TRY_RESTART` never enters a transaction because it always collapses into restart or nop; `JobResult` separates `JOB_DONE` from canceled, timeout, failed, dependency, skipped, invalid and the other negative outcomes; `transaction_activate` runs ten labelled steps from matter discovery to apply; and a start or restart job pulls in its dependency atoms with per-class flags, propagating restart only as try-restart | `JT_MAP absent` rc **128** → `JT_ROWS=6 JT_VERIFIED=6 JT_SOURCES=3 JT_SNAPSHOTS=3 JT_MALFORMED=0 met=1` rc **0** | `python3 tools/count-jt-rows-r75.py --revision <REV>` | any row unverified (`JT_VERIFIED < 6` or `met=0`) |
+| C2 | freshness (9) | the four round-74 closure routed defects close in committed bytes: `corpus/lessons/round-74.md` names `R74-DEATH-RECEIPT-MISSING` with the SC3Index 429/`RESOURCE_EXHAUSTED` class and `R74-REPORT-WORDING` with the accurate statement plus the existing `w1/SC3Index/report.md`; `.ufo/waves/round-74/w1/E3HostProbe/receipt-g-landing.txt` carries `R74-SWEEP-RESIDUE` quoting both the fabricated full OID and the real one; and `SCORECARD.md` carries a `## Round 75 — axes table restated` block with one row per owned axis, each row carrying a backticked counting command, superseding the round-65 table | `ROUTED_STALE=4 ROUTED_OK=0/4` rc **1** → `ROUTED_STALE=0 ROUTED_OK=4/4` rc **0** | `python3 tools/check-r74-routed-r75.py --revision <REV>` | any item stale (`ROUTED_STALE > 0`) |
+
+Causal separability: C1 touches only its note, three registry rows and its counter receipts; C2 touches
+only the round-74 lesson append, one receipt append and the SCORECARD axes block. Each verifies without the
+other having landed (the two counters read disjoint files).
+
+Scratch: every seat works under `$HYAKU_SCRATCH/tsukuroi-r75/<seat>/` (`HYAKU_SCRATCH` default
+`/fast/scratch/hyaku`); `/tmp` is for files under 50 MB only; a seat removes its own tree on exit.

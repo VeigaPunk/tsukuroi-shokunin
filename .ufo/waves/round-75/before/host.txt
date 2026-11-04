@@ -1,0 +1,35 @@
+# Host readings — round 75, captured 2026-11-04T04:20:32Z (read-only)
+$ systemctl --version | head -1
+systemd 262 (262.1-1-arch)
+$ pacman -Q systemd
+systemd 262.1-1
+$ systemd-analyze unit-paths
+/etc/systemd/system.control
+/run/systemd/system.control
+/run/systemd/transient
+/run/systemd/generator.early
+/etc/systemd/system
+/etc/systemd/system.attached
+/run/systemd/system
+/run/systemd/system.attached
+/run/systemd/generator
+/usr/local/lib/systemd/system
+/usr/lib/systemd/system
+/run/systemd/generator.late
+$ systemctl list-jobs --no-pager --no-legend
+$ systemctl show -p Id -p Names -p FragmentPath -p DropInPaths user@1000.service
+Id=user@1000.service
+Names=user@1000.service
+FragmentPath=/usr/lib/systemd/system/user@.service
+DropInPaths=/usr/lib/systemd/system/user@.service.d/10-login-barrier.conf /etc/systemd/system/user@.service.d/faster-shutdown.conf
+$ systemctl show -p Id -p Job -p ActiveState -p SubState sshd.service
+Id=sshd.service
+ActiveState=inactive
+SubState=dead
+Job=
+$ systemctl list-units --type=service --state=running --no-legend --no-pager | wc -l
+22
+$ systemctl show -p DefaultDependencies -p After -p Before basic.target
+Before=user-runtime-dir@1000.service cups.service containerd.service multi-user.target user@1000.service shadow.service snapper-sync.service snapper-cleanup.service getty@tty1.service iwd.service systemd-machined.service paccache.service upower.service initrd.target plymouth-quit-wait.service gpg-agent@etc-pacman.d-gnupg.service shutdown.target archlinux-keyring-wkd-sync.service fstrim.service plymouth-quit.service earlyoom.service plocate-updatedb.service systemd-pcrphase.service bluetooth.service power-profiles-daemon.service cups-browsed.service alsa-restore.service linux-modules-cleanup.service systemd-ask-password-wall.service snapperd.service polkit.service sddm.service udisks2.service systemd-logind.service dirmngr@etc-pacman.d-gnupg.service limine-snapper-sync.service keyboxd@etc-pacman.d-gnupg.service snapper-timeline.service systemd-user-sessions.service avahi-daemon.service man-db.service alsa-state.service
+After=systemd-ask-password-plymouth.path -.mount tmp.mount paths.target sysinit.target systemd-pcrphase-sysinit.service sockets.target dbus-broker.service slices.target
+DefaultDependencies=yes
