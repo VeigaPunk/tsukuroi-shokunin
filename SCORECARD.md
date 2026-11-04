@@ -5775,3 +5775,8 @@ Named limits, recorded and not smoothed:
   version was fixtureless); the C3 receipt and correction text are E3Routed's drafts; the three C3
   checker repairs answer E3Routed's and R2Reviewer's attacks.
 
+**Tip re-run.** Every counting command above was re-run at the landing tip `1b27bffc` and reads the
+same values (`MD_VERIFIED=6 met=1` rc 0; `SELFTEST: PASS (9 cases, 9 passed, 0 failed)` rc 0; missing
+`$TMPDIR` rc 2; red-before rc 1; `ROUTED_STALE=0` rc 0; 303 registry rows; 90 notes; census rc 0) —
+`.ufo/waves/round-72/after/measure-1b27bffc.txt`.
+
