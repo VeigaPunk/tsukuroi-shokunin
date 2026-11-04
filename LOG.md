@@ -3075,3 +3075,53 @@ figure is superseded by the final **196**.
 
 Evidence: `.ufo/waves/round-70/{before,w1,probes,after}/`; lesson `corpus/lessons/round-70.md`.
 Measured outcome and final counts follow the landing commit.
+
+## Round 71 — landing (2026-11-04; declaration `0fcfca31`; base `930d5530`)
+
+C1 depth (SOURCED — four new registry rows): `corpus/knowledge/module-parameter-plane-r71.md` states the
+kernel module-parameter surface the lane never held — rows MP1-MP6: `perm == 0` hides a parameter from
+sysfs; the file mode **is** `perm` and the store callback is installed only with a write bit; the
+`kernel_param_ops` set/get contract (0 or `-errno`; a length or `-errno`; both optional); an unknown
+parameter is warned and ignored so a typo survives the load; `module_blacklist=` refuses the load; and the
+two specification routes (cmdline `mod.param=v`, modprobe `mod.param=v`) with built-ins needing the
+cmdline. Sources S297-S300 (Linux stable v7.2.11 `kernel/params.c`, `include/linux/moduleparam.h`,
+`kernel/module/main.c`, `Documentation/admin-guide/kernel-parameters.rst`), all tier A `mined`, snapshots
+committed under `.ufo/waves/round-71/before/src/` with `SHA256SUMS` (4/4 OK) and `SOURCES.json`; second
+route by S1Scout `ROUTE2_OK=4/4`. Frozen counter `tools/count-mp-rows-r71.py` (sha256 `fa67d4de…48bc`)
+with an 11-case pre-data battery (1 control + 10 mutants, `before/control/battery.txt`); at the measured
+revision `2b358d2d` it prints `MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0`,
+`met=1`, rc 0. Registry 296 -> 300 rows, notes 88 -> 89, census validate rc 0. Depth reported **8 -> 8**:
+new mechanism on unheld ground, no ordinal uplift claimed.
+
+C2 operability (capability `selftest-case-timeout`): a per-case bound for every census selftest case child
+— own process group, `/proc`-state liveness (a zombie counts as exited), bound
+`TSUKUROI_SELFTEST_CASE_TIMEOUT` (default 60 s), TERM then KILL, rc 124 and a FAIL line naming the case and
+`timeout`, plus an unconditional group kill after every run so a daemonizing child leaves no descendant.
+Four hermetic `R71-C2` arms (blocking child, slow-but-finishing child, TERM-ignoring child, daemonizing
+child). Selftest 214 -> `PASS (218 cases, 218 passed, 0 failed)` rc 0; live rollup byte-identical, rc 1
+unchanged. Red-before `before/redbefore-timeout.txt`: a blocking probe under the selftest's own call shape
+ends at an external 20 s bound with rc 124 and 0 verdict lines.
+
+Wave w1: one v1 wave, **14 seats, 0 dead** (scout 1 / executor 3 / scribe 4 / connector 1 / reviewer 2 /
+critic 1 / mutation-tester 1 / sentinel 1; attack 4/14 = 29 %; connector 1; the L1 held the planner seat).
+The wave caught seven lane defects, all repaired or recorded: two C2 gaps (`arm_run` and the six
+`--identity` children unbounded; a daemonizing child leaked a descendant), the stdin regression the repair
+introduced and the suite caught, three declaration count errors, the battery's duplicate-id mis-attribution,
+and the C2 lineage ambiguity (L1 implementation, E1Harness's patch as the independent alternative).
+
+Routed repairs (not claims): D1 the r70 stale selftest tallies corrected append-only in `PROVINCE.md`,
+`corpus/README.md` and `SKILL.md`; D2 the r70 final-revision receipt line corrected; D3 the
+`count-xs-rows-r70.py` shebang; D4 the r70-planned counter amendments carried into this round's counter
+(grounding ratio, anchor binding, invisible-row detection, snapshot reuse). QUALITY 105 lands with
+`tools/check-selftest-tally.py` (red 4 mismatches on r70 bytes, green 0 on the corrected control).
+PROVINCE gains "Round-71 entry — R71-MODPARAM-VIEW"; `SKILL.md` gains the module-parameter decision table
+and the round-71 cumulative gate/probe registry (which also repairs the r70 tool's missing operative row).
+
+Declaration errata (append-only, measured in-round): battery is 11 cases (1 control + 10 mutants), not 12;
+`/usr/lib/modprobe.d` holds 5 files, not 4; the absence-control "census validate" line names the fleet
+`scripts/sources-census.sh`, not a census entry point; the duplicate-id battery case is killed by row count
++ snapshot reuse; the final instrument is 218 cases with four `R71-C2` labels, superseding the 217/three
+figures written in the docs commit.
+
+Evidence: `.ufo/waves/round-71/{before,after,w1,probes}/`; lesson `corpus/lessons/round-71.md`.
+Measured outcome and final counts follow the landing commit.

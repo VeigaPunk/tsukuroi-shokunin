@@ -5925,3 +5925,10 @@ still refuse with `EPERM` through the source's unsafe-parameter check, which MP1
 value vocabulary (`Y`/`N`, a decimal, `(null)`) is what the source's `get` implementations print and is not
 a claimed contract; and S4's premise is that the parameters path exists only for a name the kernel holds as
 a module, which is MP1's subject rather than an additional rule.
+
+**Round-71 correction (append-only) — the final instrument figure.** The round-71 text above writes
+"217 cases" and "three `R71-C2` cases" from the mid-wave instrument. After the wave's attack receipts
+(arm_run and the six `--identity` children were still unbounded; a daemonizing child leaked a descendant)
+the final instrument is **218 cases, 218 passed, 0 failed, with four `R71-C2` case labels**
+(`.ufo/waves/round-71/after/selftest-after.txt`). Those earlier figures are superseded by this paragraph
+and stay visible as filed; QUALITY 105's sweep is the check that would have caught them before the report.

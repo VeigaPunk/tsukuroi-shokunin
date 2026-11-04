@@ -425,3 +425,10 @@ Counted by `python3 tools/count-mp-rows-r71.py --revision <REV>` (frozen; sha256
 `fa67d4deb5f01a5124120276a8571fa36c7367d9db711ceb39bc1ca6fded48bc`; target `MP_ROWS=6 MP_VERIFIED=6
 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0` and `met=1`) at the round-71 measured revision named in
 `SCORECARD.md` "Round 71 — measured outcome".
+
+**Round-71 correction (append-only) — the final instrument figure.** The round-71 text above writes
+"217 cases" and "three `R71-C2` cases" from the mid-wave instrument. After the wave's attack receipts
+(arm_run and the six `--identity` children were still unbounded; a daemonizing child leaked a descendant)
+the final instrument is **218 cases, 218 passed, 0 failed, with four `R71-C2` case labels**
+(`.ufo/waves/round-71/after/selftest-after.txt`). Those earlier figures are superseded by this paragraph
+and stay visible as filed; QUALITY 105's sweep is the check that would have caught them before the report.

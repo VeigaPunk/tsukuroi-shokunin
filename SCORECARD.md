@@ -5502,3 +5502,67 @@ Wave w1: one v1 wave, band 8–16, **14 seats**; seat shape and counts are fixed
 arm's literal-predicate amendment (`present + absent + unreadable == mounts`, a named verifier-side
 enumerator for `error`/`log`); the AR resolve-then-count debt; no amendment of this round's frozen
 predicates.
+
+## Round 71 — measured outcome (2026-11-04, measured revisions `2959254a` (C1) and `2b358d2d` (C2); author-side, non-author closure pending)
+
+Wave w1: one v1 wave, **14 seats, 0 reported dead** (`w1-results.json`, all 14 outputs non-empty);
+scout 1 / executor 3 / scribe 4 / connector 1 / reviewer 2 / critic 1 / mutation-tester 1 / sentinel 1;
+strict attack seats 4/14 = 29 % (>= 25 %); connector 1 (<= 2); residual 0; the L1 held the planner seat.
+
+| Claim | Before (base `930d5530`) -> after (measured revision) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 depth (SOURCED — S297-S300) | note `cat-file` rc **128** -> present; counter rc **128** -> present; registry **296 -> 300** rows; four new rows `NF=13` and `malformed=0`; knowledge notes **88 -> 89**; `MP_ROWS=6 MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 MP_MALFORMED=0`, `met=1`, rc 0 at `2b358d2d`; canonical census validate rc **0** | **verified** on the frozen predicate (author-side) | depth **8 -> 8**: one new mechanism on ground the province never held (the module-parameter surface) plus one capability; no ordinal uplift claimed |
+| C2 operability (capability `selftest-case-timeout`) | `R71-C2` labels **0** -> **15** lines / **4** emitted case labels; selftest **214** -> `PASS (218 cases, 218 passed, 0 failed)` rc 0 under an external 300 s bound; the three arms plus the daemonizing-child arm all PASS; live rollup line byte-identical and rc **1**; red-before `before/redbefore-timeout.txt` rc **124** with 0 verdict lines | **verified** on the frozen predicate (author-side); two wave-found gaps repaired in-round (arm_run/identity children unbounded; daemonizing child leaked a descendant) and the repairs proved able to fail | operability **9 -> 9** (no uplift; the capability enters the table) |
+
+Counting commands (outputs in `.ufo/waves/round-71/after/`):
+
+```
+python3 tools/count-mp-rows-r71.py --revision 2b358d2d            -> MP_VERIFIED=6 MP_SOURCES=4 MP_SNAPSHOTS=4 met=1, rc 0
+git show 2b358d2d:corpus/SOURCES.md | grep -cE '^\| S[0-9]{3,}'   -> 300
+bash tools/tsukuroi-census.sh --selftest                          -> PASS (218 cases, 218 passed, 0 failed), rc 0
+grep -c 'R71-C2' .ufo/waves/round-71/after/selftest-after.txt     -> 4
+scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi -> rc 0
+```
+
+**Capabilities — round 71 entry.**
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| selftest-case-timeout | Bounds every census selftest case child: own process group, `/proc`-state liveness (a zombie counts as exited), per-case bound (`TSUKUROI_SELFTEST_CASE_TIMEOUT`, default 60 s), TERM then KILL, rc 124 and a FAIL line naming the case and `timeout`; the process group is killed after every run so a daemonizing child leaves no descendant. Four hermetic `R71-C2` arms prove the kill, the no-false-positive path, the escalation and the descendant reap | `bash tools/tsukuroi-census.sh --selftest` -> PASS 218/218 (`after/selftest-after.txt`); red-before `before/redbefore-timeout.txt` rc 124 | round 71 |
+
+Named limits, recorded and not smoothed:
+
+- **C1's statement-substance clause is lexical** (`probes/L1Channels/semantic-channel.txt`): a row whose
+  statement negates its snapshot but keeps the vocabulary reads `met=1`. The counter checks grounding,
+  binding and provenance, never entailment; row semantics rest on the non-author review (R1Reviewer's
+  three P2 findings, all corrected in the note) and on the closure judge.
+- **Eleven of thirteen source-level counter mutants survive** (`probes/E2CounterAttack/score.md`): removing
+  one clause usually leaves another that still rejects the matched bad fixture, so the *fixture set* does
+  not isolate clauses even though the predicate does. The committed battery catches three of them; the
+  duplicate-id case is killed by row count + snapshot reuse, not by its own clause (K1 D4).
+- **The harness's own cases cannot see their own removal** (`probes/M1Mutation/score.md`): deleting the
+  four `R71-C2` cases makes all eight harness mutants invisible; only the `N >= 217` count target notices.
+- **Bound normalization is fail-open by design**: a malformed, empty or zero `TSUKUROI_SELFTEST_CASE_TIMEOUT`
+  becomes 60 s rather than disabling the harness (E1Harness's draft fails closed; neither disables the bound).
+- **Wave lineage** (`probes/N1Sentinel/audit.md` F3): the C2 harness was implemented by the L1
+  (prototype `L1/proto/census.sh`, byte-identical to `db58e7c9`); E1Harness's patch is an independent
+  alternative drafted in parallel, not the applied artifact. The post-wave repairs adopt R2Reviewer's
+  arm_run/identity and daemonizing-child findings and E1Harness's liveness/grace/rc findings.
+
+## Round 71 — declaration errata (append-only; the frozen predicates are unchanged)
+
+1. **(a) battery count.** The declaration says "12 cases: 1 well-formed control + 11 mutants"; the receipt
+   `before/control/battery.txt` prints `BATTERY cases=11 passed=11 failed=0` (1 control + 10 mutants).
+   K1Critic D3 and SC3Lesson found it independently.
+2. **(b) modprobe.d count.** The declaration says "3 files under `/etc` and 4 under `/usr/lib`"; the
+   committed `before/host.txt` lists **3 and 5** (`README`, `bluetooth-usb.conf`, `gsr-nvidia.conf`,
+   `nvidia-utils.conf`, `systemd.conf`). K1Critic D1.
+3. **(c) absence-control label.** The line "census validate at base: rc=0" names
+   `scripts/sources-census.sh validate --root … tsukuroi`, the fleet census, not an entry point of
+   `tools/tsukuroi-census.sh`; the command in the receipt is the one that ran. K1Critic D2.
+4. **(d) duplicate-id battery case.** That case is killed by `MP_ROWS=7` plus `snapshot-reuse`, not by the
+   `duplicate-id` clause; a true `MP1,MP2,MP2,…` fixture does print `duplicate-id` + `ids-not-contiguous`
+   (K1Critic D4, E2CounterAttack `battery_bug`).
+5. **(e) final instrument figures.** The docs commit `bdaec573` writes "217 cases" and "three `R71-C2`
+   cases"; after the wave repairs the final instrument is **218 cases, four `R71-C2` case labels**
+   (`after/selftest-after.txt`). The superseded figures stay as filed; this erratum is the correction.
