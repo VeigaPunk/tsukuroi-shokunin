@@ -1,0 +1,49 @@
+Round-81 measured claims — after state
+Landed, pushed revision: c6fd99493820947d16a3a1a4978efdf01ba20def
+Measured 2026-11-04, lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+
+C1 depth — eight verified fstab-to-mount rows, eight distinct settings, three measured legs
+$ python3 tools/count-mount-rows-r81.py --revision c6fd99493820947d16a3a1a4978efdf01ba20def
+{"claim": "C1", "revision": "c6fd99493820947d16a3a1a4978efdf01ba20def", "count": 8, "target": 8, "finding": "met", "problems": []}
+rc=0
+
+before (declaration-only commit, note absent):
+$ python3 tools/count-mount-rows-r81.py --revision 8023711867eaa788f68af09d7f29d24db749cca7
+{"claim": "C1", "revision": "8023711867eaa788f68af09d7f29d24db749cca7", "count": 0, "target": 8, "finding": "note-absent", "problems": []}
+rc=1
+
+C2 operability — six exported public-CLI gate-standard cases match the frozen table
+$ python3 tools/measure-round81.py --revision c6fd99493820947d16a3a1a4978efdf01ba20def
+{"claim": "C2", "revision": "c6fd99493820947d16a3a1a4978efdf01ba20def", "count": 6, "target": 6, "finding": "met", "cases": [A-selftest ok rc0, B-met ok rc0, C-mismatch ok rc1, D-tampered ok rc2, E-absent ok rc2, F-noargs ok rc2]}
+rc=0
+
+before (recorded in .ufo/waves/round-81/before/declaration-baseline.json, commit 80237118; base counter with the frozen table supplied by --table):
+{"claim": "C2", "revision": "8023711867eaa788f68af09d7f29d24db749cca7", "count": 3, "target": 6, "finding": "gate-standard", ...}
+rc=1 — case A observed SELFTEST total=2 (table wants 6); ExecGate independently re-derived 3/6 for the base export.
+
+C3 freshness — knowledge-header findings closed by appended dated verified-at lines
+$ python3 tools/check-knowledge-header.py --revision c6fd99493820947d16a3a1a4978efdf01ba20def
+{"branch": "master", "branch_tip": "c6fd99493820947d16a3a1a4978efdf01ba20def", "clean_count": 99, "complete_count": 99, "finding_count": 0, "findings": [], "note_count": 99, "status": "PASS"}
+rc=0
+
+before (base):
+{"branch": "master", "branch_tip": "96ad75b84160da58efaee4997576ce718fd72e2b", "finding_count": 2, "note_count": 98, "status": "FAIL"}
+rc=1
+findings: KNOWLEDGE-HEADER-VALUE on corpus/knowledge/modprobe-config-plane-r72.md and
+corpus/knowledge/module-parameter-plane-r71.md (verified-at carried no ISO date)
+
+Snapshot re-verification that C3 rests on (re-run this round):
+$ (cd .ufo/waves/round-71/before/src && sha256sum -c SHA256SUMS)   -> 4/4 OK, rc 0
+$ (cd .ufo/waves/round-72/before/src && sha256sum -c SHA256SUMS)   -> 3/3 OK, rc 0
+
+Selftests at the landed revision (working tree byte-identical to it for tools/):
+$ python3 tools/count-mount-rows-r81.py --selftest   -> SELFTEST total=6 passed=6 failed=0, rc 0
+$ python3 tools/measure-round81.py --selftest        -> SELFTEST total=2 passed=2 failed=0, rc 0
+$ python3 tools/measure-round80.py --selftest        -> SELFTEST total=6 passed=6 failed=0, rc 0
+$ python3 tools/check-knowledge-header.py --selftest -> 25/25 PASS, rc 0
+
+Census (child-lane frontier step):
+round start (base 96ad75b8) rows = 330; round end rows = 332 (S331, S332).
+$ /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi
+... tsukuroi ok /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
+rc=0 (warnings only: W04 duplicate-url across scopes, present before this round)

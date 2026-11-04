@@ -6857,3 +6857,97 @@ not a mount-unit decision plane. A proposed ALPM hook plane was discarded
 before declaration: r38/r39/r40 already hold it. Census start rc0, rows330.
 Assimilation: none; no staged package row is adopted. No operator input is edited.
 
+
+## Round 81 — measured outcome (three claims, all met at `c6fd9949`)
+
+Measured 2026-11-04 against the landed, pushed revision
+`c6fd99493820947d16a3a1a4978efdf01ba20def`; raw outputs in
+`.ufo/waves/round-81/after/measurements.txt`. Predicates, targets, kill rules and
+instruments are exactly the ones declared above — nothing was re-scoped after data.
+The chronology defect stands: author trials preceded the declaration, so this round
+is not a compliant pre-data freeze, whatever the counters now print.
+
+| Claim | Axis | Before → after | Counting command | Measured commit | Verdict |
+|---|---|---|---|---|---|
+| C1 | depth 8 → 9 | `count 0 / target 8 / note-absent / rc 1` → `count 8 / target 8 / met / rc 0` (8 rows, 8 distinct settings, 3 measured legs) | `python3 tools/count-mount-rows-r81.py --revision c6fd99493820947d16a3a1a4978efdf01ba20def` | `c6fd9949` | met |
+| C2 | operability 9 → 9 (gate-standard debt closed; ordinal unchanged) | `count 3 / target 6 / gate-standard / rc 1` → `count 6 / target 6 / met / rc 0` | `python3 tools/measure-round81.py --revision c6fd99493820947d16a3a1a4978efdf01ba20def` | `c6fd9949` | met |
+| C3 | freshness 9 → 9 (two inherited findings closed; ordinal unchanged) | `finding_count 2 / note_count 98 / FAIL / rc 1` → `finding_count 0 / note_count 99 / PASS / rc 0` | `python3 tools/check-knowledge-header.py --revision c6fd99493820947d16a3a1a4978efdf01ba20def` | `c6fd9949` | met |
+
+Evidence pointers: `corpus/knowledge/mount-unit-fstab-plane-r81.md` (+`.json`, MT1–MT8,
+three S332 measured legs), `tools/measure-round80.py` (public-CLI exit map),
+`corpus/knowledge/modprobe-config-plane-r72.md:92-101` (operative `verified-at:` at :99) and
+`corpus/knowledge/module-parameter-plane-r71.md:68-77` (operative `verified-at:` at :75) (appended dated
+`verified-at:`), `corpus/SOURCES.md` S331/S332, `corpus/lessons/round-81.md`.
+
+Score deltas and their counting commands: depth 8→9 — `ls corpus/knowledge/*.md | wc -l`
+98→99 and `grep -c '^| MT' corpus/knowledge/mount-unit-fstab-plane-r81.md` = 8 with C1
+`met`; operability 9→9 — C2 `met` 6/6 where the base export scored 3/6 (the axis was
+already at 9, so the repair closes debt rather than raising the ordinal); freshness
+9→9 — C3 `finding_count` 2→0 (same reasoning). No axis harmed: the three counters
+are the only changed surfaces, `tools/check-knowledge-header.py --selftest` stays
+25/25, `tools/count-mount-rows-r81.py --selftest` 6/6 and
+`tools/measure-round81.py --selftest` 2/2 at the landed revision.
+
+Coverage debt named, not hidden: the mutation seat killed 7 of 26 single-clause
+mutants (C1 3/18 with 13 behaviour-bearing survivors, C2 4/8 with 4), and C2's case A
+is a string check a token-printing `--selftest` survives
+(`.ufo/waves/round-81/w1/MutCounter.md`). The reviewer and critic seats died at their
+first turn with no report and receive no attack credit
+(`.ufo/waves/round-81/w1-results.json`).
+
+Axes now: depth9, coverage9, operability9, freshness9, calibration9, adjacency8.
+adjacency8 is the lowest non-retired axis and is unworked this round. No retirement,
+split or capability acquisition. Non-author closure and its spot-check are pending;
+author verdicts only.
+
+## Round 81 — measured outcome (measured revision `c6fd99493820947d16a3a1a4978efdf01ba20def`; author-side, non-author closure pending)
+
+| Claim / axis | Before | After at the measured revision | Verdict / ordinal |
+|---|---|---|---|
+| C1 depth (sourced S331/S332) | base `96ad75b84160da58efaee4997576ce718fd72e2b`: `count 0`, `finding cannot-evaluate:CalledProcessError`, rc 2 (the pinned snapshot directory does not exist there); declaration commit `8023711867eaa788f68af09d7f29d24db749cca7`: `count 0`, `finding note-absent`, rc 1 | `count 8`, `target 8`, `finding met`, rc 0 | **verified**; depth 8 → 8 (one plane, finite equality counter; no uplift claimed) |
+| C2 operability | base with the frozen table supplied: `count 3`, `target 6`, `finding gate-standard`, rc 1 (cases A, D, E mismatch) | `count 6`, `target 6`, `finding met`, rc 0 | **verified**; operability 9 → 9 |
+| C3 freshness | base: `finding_count 2`, both `KNOWLEDGE-HEADER-VALUE`, rc 1 | `finding_count 0`, `note_count 99`, `clean_count 99`, rc 0 | **verified**; freshness 9 → 9 |
+
+Counting commands (each run at both revisions; receipt
+`.ufo/waves/round-81/after/commands.txt`):
+
+- C1 `python3 tools/count-mount-rows-r81.py --revision <REV>`
+- C2 `python3 tools/measure-round81.py --revision <REV>` (base needs `--table .ufo/waves/round-81/before/gate-standard-r81.json`, which the base predates)
+- C3 `python3 tools/check-knowledge-header.py --revision <REV>`
+
+Causally separable: C1 reads only the entry JSON and its pinned snapshot; C2 scores
+`tools/measure-round80.py` over isolated fixtures; C3 reads the two provenance
+headers. C3 was measured with the new note present and absent (0 findings either
+way, `w1/ExecHeader/checks.txt` §8), and C1/C2 read no header state.
+
+**What the wave changed before landing.** The first candidate was falsified by four
+seats and corrected before the measured revision: the fstab count ("six … four
+required" → nine rows, seven local mount points, five required, two `nofail`,
+cited to `.ufo/waves/round-81/after/host-fstab-20261104.txt`); the `Options=`
+claim (only `x-systemd.device-timeout=` is consumed; `x-systemd.before=` survives
+on `tmp.mount`); the "measured on this boot" and "up to ten seconds" phrasings
+(regeneration 2026-11-04 17:34:49 after the 2026-11-02 boot; the delay is
+[INFERENCE], and the required kernel device unit reports
+`JobRunningTimeoutUSec=1min 30s` while the by-uuid alias carries the 10 s
+drop-in); and MT5's measured leg (`var-log.mount` :99-100 → `tmp.mount` :69-70).
+The counter could not catch the last two: R7 is substring-only. The line anchors
+still index the tag-stripped XML and are now disclosed in the entry's Limits and
+in S331's anchor cell; the instrument's per-line strip is routed to round 82.
+
+**Wave.** One v1 wave, 12 seats, 12 settled, 10 durable reports, residual 0.
+`ReviewRows` (reviewer) and `CriticFreeze` (critic) died at their first turn with a
+preamble and no report; they receive no attack credit and the attack-role share is
+1/12 (the mutation-tester) — the ≥25 % requirement is **not met** and is reported
+as a protocol deviation. Falsification came from non-attack seats: `SentinelProbe`
+fired the `Options=` falsifier, `ExecRows` re-derived the rows independently
+(8/8, coordinate drift +2), `ScribeEntry` produced 15 prose defects and
+`ScoutSurface` three live-surface contradictions. `MutCounter` killed 7 of 26
+single-clause mutants (C1 3/18, C2 4/8) and named 17 behaviour-bearing survivors.
+
+**Limits.** C1's counter proves quote location, digests and row shape, not
+semantic entailment, and 13 of its clauses are unguarded by its own selftest. C2's
+six-case table is a finite battery: a case-aware forger, or a `--selftest` that
+prints the expected token, survives case A. C3's gate reads the last column-0
+`verified-at:` line; the appended dates rest on this round's `sha256sum -c` runs,
+not on a re-fetch of the round-71/72 upstream tags. No capability row is entered
+and no ordinal moves.
