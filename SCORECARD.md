@@ -6375,3 +6375,48 @@ Named limits, recorded and not smoothed:
 - **Pre-existing gate findings** carried, not caused: 2 `KNOWLEDGE-HEADER-VALUE` findings
   (`modprobe-config-plane-r72.md`, `module-parameter-plane-r71.md`) and 1 adjacency
   `INBOUND-CLASSIFICATION-WRONG` at `adjacency-anchors-r19.json:inbound[108]`.
+
+## Round 77 — frozen declaration (fresh start, 2026-11-04)
+
+Base `06f1bbbb803790b35358d277bb7807b82a9fab99`. Read the rejected round-74,
+round-75 and round-76 closures before choosing these claims. Depth remains the lowest
+non-retired axis (8, tied adjacency); freshness is 9. No saturation waiver is used.
+The round deepens an existing journald surface, not new coverage. No ordinal uplift
+is pre-claimed. L1 holds the planner seat.
+
+Pinned source lines, opened before freeze (v262, not a claim about Arch-patched line numbers):
+`journald-manager.c:168`: `avail = LESS_BY(vfs_avail, metrics->keep_free);`
+`:170`: `space->limit = CLAMP(vfs_used + avail, metrics->min_use, metrics->max_use);`
+`:171`: `space->available = LESS_BY(space->limit, vfs_used);`
+`src/fundamental/macro.h:325` (snapshot line numbering):
+`UNIQ_T(A, aq) > UNIQ_T(B, bq) ? UNIQ_T(A, aq) - UNIQ_T(B, bq) : 0;`
+The CLAMP implementation tests high first, then low, then returns the input.
+Snapshots, digests and six fully enumerated tuples are frozen in
+`.ufo/waves/round-77/before/{src/SHA256SUMS,expected.json}`.
+
+| Claim | Axis | Frozen claim and target | Command | Kill rule |
+|---|---|---|---|---|
+| C1 | depth, 8; sourced S324/S325 | **six pinned arithmetic vectors match**: the new `corpus/knowledge/journald-space-arithmetic-r77.json` has exactly the six A1–A6 input/output objects in `before/expected.json`, with sources S324/S325. They apply saturated subtraction, the limit clamp, and saturated remaining allowance to those finite inputs. Companion prose explains the six examples and the source boundary. Before 0 → target 6; this is finite worked-example depth, not a universal arithmetic oracle or observed manager state. | `python3 tools/measure-journal-arithmetic-r77.py --revision <REV> --claim C1` | count != 6; false source interpretation or false companion explanation; any post-data alteration to predicate, expected tuples or instrument |
+| C2 | freshness, 9 | **three exact corrective blocks exist**: append the three full `repairs` strings from `before/expected.json` to the round-76 lesson, correcting its missing Gate reject/spot-check record, stale 322-row figure and stale 114-collision figure. Before 0 → target 3. | `python3 tools/measure-journal-arithmetic-r77.py --revision <REV> --claim C2` | count != 3; a correction contradicts its cited committed source; any post-data alteration to predicate, expected repair text or instrument |
+
+The predicate labels above are identical to the instrument docstring and output labels.
+The complete `expected.json` is part of the frozen instrument, not mutable answer data.
+The six example outputs are deliberately explicit answers to arithmetic exercises;
+the counter proves these six objects, not that their author read a source. Source truth
+requires reviewer reading and ultimately non-author closure. No claim binds a seat vote.
+Each claim is verifiable without the other's production paths: C1 reads its JSON and
+two snapshots; C2 reads only the round-76 lesson. Shared bookkeeping does not couple them.
+
+Pre-data controls: `.ufo/waves/round-77/before/controls.json` records the same instrument:
+16/16 hermetic selftests; base C1 0, rc 1; base C2 0, rc 1; sourceless forgery,
+minimum-instead-of-subtraction and empty held-restatement each 0, rc 1.
+The do-nothing base cannot meet either target. Full vectors and repair text were fixed
+before any wave seat scored data; no repairs or new note exist at the base.
+
+Fresh source reads exposed S320's still-false minimum wording. C1 will append a scoped
+superseding S325 row rather than mutate its teaches cell; S324 is the opened macro header.
+Frontier duty remains within these claims: census, mistake from the rejected declaration,
+source Gate with admit and reject, and current collision receipt. Assimilation: none;
+the package and promotion remain operator-held. Current collision measurement:
+323 registry ids / 147 staged ids / 124 intersections at the base, with both complete
+id lists committed in `before/collisions.json`. No package bytes are adopted.

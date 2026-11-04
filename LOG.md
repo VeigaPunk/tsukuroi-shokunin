@@ -3353,3 +3353,23 @@ mutation-tester 1; attack 4/13 = 31 %); no dead seat. Named limits: the C1 count
 instrument (R1Reviewer holds all eight rows on the landed note); the C2 checker passes a minimal
 non-repair fixture (R2Reviewer); three semantic mutants survive (M1Mutation); two pre-existing header
 findings and one pre-existing adjacency finding remain.
+
+## Round 77 (2026-11-04) — fresh-start arithmetic depth and round-76 record repairs
+
+Motivation: `corpus/lessons/round-{74,75,76}-verifier-spotcheck.md` reject
+three declarations for literal enum, branch-scope and arithmetic contradictions.
+The round-76 closure routes Gate shape, stale registry count and stale collision
+figure repairs. Freshly opened v262 `journald-manager.c:168-171` and
+`src/fundamental/macro.h:320-350` fix the operation before freezing, rather than
+paraphrasing its name as minimum.
+
+Claims are frozen in SCORECARD round-77 declaration: C1 depth, six explicit
+journald-space arithmetic vectors; C2 freshness, three exact corrective blocks.
+The instrument and its complete expected specification are
+`tools/measure-journal-arithmetic-r77.py` and
+`.ufo/waves/round-77/before/expected.json`; pre-data controls and selftest
+receipt `before/controls.json` show both no-work controls and three C1
+non-reading controls fail. Source snapshots/digests and current 323/147/124
+collision lists are in `before/`. Census start exits 0 (W04 warnings only).
+The gate registry is added to SKILL.md in this same freeze commit.
+No existing gate, expected specification or source row has been changed.

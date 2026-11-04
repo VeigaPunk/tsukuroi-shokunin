@@ -6080,3 +6080,14 @@ entry is not proof an event never happened, and a passing row counter is not sem
 |---|---|---|---|---|---|---|---|
 | count-jd-rows-r76 | gate | `python3 tools/count-jd-rows-r76.py --revision <REV>` (or `--fixture <DIR>`) | 0 predicate `JD_ROWS == 8 and JD_VERIFIED == 8 and JD_SOURCES >= 4 and JD_SNAPSHOTS >= 4 and JD_HOST == 1 and JD_MALFORMED == 0` and `met=1`; 1 otherwise, including `JD_MAP malformed`; 3 self-test failed; 128 `JD_NOTE`, `JD_REGISTRY` or `JD_MAP` absent | `python3 tools/count-jd-rows-r76.py --selftest` — hermetic, fourteen cases over synthetic snapshots in one `$TMPDIR` root, no answer key; a failing run prints `SELFTEST: FAIL` and exits 3 | eight JD rows of `corpus/knowledge/journald-retention-plane-r76.md`; snapshots `.ufo/waves/round-76/before/src/{journald.conf.xml,journald-config.c,journald-manager.c,journalctl.xml}` sha256 pinned in `SOURCES.json`; effective-limit literals in the note | reads git objects or a fixture mirror, writes nothing | tsukuroi |
 | check-r75-routed-r76 | gate | `python3 tools/check-r75-routed-r76.py --revision <REV>` (or `--root <DIR>`) | 0 `ROUTED_STALE=0 ROUTED_OK=8/8`; 1 any stale item, with `reason=` one of `absent`, `token`, `need`, `verb`, `rows`, `count`, `markers`; 3 self-test failed | `python3 tools/check-r75-routed-r76.py --selftest` — hermetic, ten cases over a synthetic fixture tree | eight items `R76-S314-SUPERSEDE`, `R76-JT5-COUNT`, `R76-R75-MISTAKE-COUNT`, `R76-R75-RECEIPT-REPOINT`, `R76-WAVE-MARKERS`, `R76-QUALITY-WORDING`, `R76-JD-CONFIG-DRIFT`, `R76-QUALITY-109`; frozen 80-line window rule | reads committed bytes only, writes nothing | tsukuroi |
+
+## Gate and probe registry — round 77 addition
+
+| name | kind | entry command | verdict map | self-test command | pinned values | write scope | owner |
+|---|---|---|---|---|---|---|---|
+| measure-journal-arithmetic-r77 | gate | `python3 tools/measure-journal-arithmetic-r77.py --revision <REV> --claim C1` (or C2; isolated fixtures: `--root <DIR>`) | 0 clean, finite target met; 1 failed, missing input or content mismatch; argparse 2 could-not-evaluate; unexpected runtime error could-not-evaluate | `python3 tools/measure-journal-arithmetic-r77.py --selftest` — 16 same-reader cases, expected verdict and stable case id printed | `.ufo/waves/round-77/before/expected.json` pins two source digests, six exact integer vectors and three exact correction blocks | read-only; selftest uses an in-memory file map | tsukuroi |
+
+This gate establishes six finite input/output objects and three exact correction
+blocks, not the truth of arbitrary prose or a whole manager's behavior. Source
+entailment is separately read by reviewers. Its expected file is frozen with the
+instrument; a later change to either is a different instrument, not this claim.
