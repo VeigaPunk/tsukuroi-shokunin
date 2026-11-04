@@ -335,6 +335,8 @@
 | S324 | systemd v262 src/fundamental/macro.h — https://raw.githubusercontent.com/systemd/systemd/v262/src/fundamental/macro.h | code | A | LESS_BY and CLAMP arithmetic used by the six journald-space worked examples | macro.h at v262, lines 320-326 (LESS_BY) and 337-350 (CLAMP); sha256 1bd38a180b2cccacf0732e3e5b6388ac3d71e453839236c388501080a11a75b8 | LESS_BY subtracts when its first value exceeds its second and otherwise yields zero; CLAMP tests the upper bound first, then the lower bound | mined | 2026-11-04 | on-release | corpus/knowledge/journald-space-arithmetic-r77.md, corpus/lessons/round-77.md |
 | S325 | systemd v262 src/journal/journald-manager.c — https://raw.githubusercontent.com/systemd/systemd/v262/src/journal/journald-manager.c | code | A | Corrected cache_space_refresh arithmetic, superseding S320's minimum wording | journald-manager.c at v262, lines 143-186; sha256 428dc8308d5caf70faee074e87888264c3708aa8e24c6069854790b952a7ffa2 | supersedes S320 — avail is saturated free-minus-keep_free; limit clamps used plus avail; available is saturated limit-minus-used; patch_min_use raises its floor to current usage | mined | 2026-11-04 | on-release | corpus/knowledge/journald-space-arithmetic-r77.md, corpus/lessons/round-77.md |
 | S326 | Unavailable guessed systemd v262 macro-fundamental.h path — https://raw.githubusercontent.com/systemd/systemd/v262/src/fundamental/macro-fundamental.h | code | A | Screened guessed filename, not source support for arithmetic | Opened 2026-11-04, HTTP 404; actual v262 tree path is src/fundamental/macro.h (S324) | REJECTED: guessed filename is unreachable at v262, so no payload quote can be located; flip: a reachable version-pinned file with a located relevant quote | rejected | 2026-11-04 | on-release | corpus/lessons/round-77.md |
+| S327 | systemd v262 src/journal/journald-manager.c — https://raw.githubusercontent.com/systemd/systemd/v262/src/journal/journald-manager.c | code | A | Six finite path-usage selection and allocated-block examples, not the cache-space formula | journald-manager.c at v262, lines 91-135, especially 114 and 119-131; sha256 428dc8308d5caf70faee074e87888264c3708aa8e24c6069854790b952a7ffa2 | The manager skips non-journal suffixes, failed no-follow stats and nonregular files; included files add st_blocks times 512, not apparent length | mined | 2026-11-04 | on-release | corpus/knowledge/journald-path-usage-r78.md, corpus/lessons/round-78.md |
+| S328 | systemd v262 journalctl(1) — https://raw.githubusercontent.com/systemd/systemd/v262/man/journalctl.xml | docs | A | Screened as sole support for internal manager file-selection predicates | journalctl.xml at v262, lines 941-948, disk-usage; sha256 d54bbede45d5b1e3dc856da9624649ef8cb0829731597c212be303a76a1edbdd | REJECTED: broad disk-usage documentation does not itself establish the manager suffix, no-follow stat or regular-file predicates; flip: a located passage explicitly specifies those implementation predicates | rejected | 2026-11-04 | on-release | corpus/lessons/round-78.md |
 
 ## Paths
 
@@ -436,6 +438,17 @@ returned HTTP 404. Stop: the three pinned implementations ground the six true no
 further commentary would not fix the declaration's wrong alias-set wording.
 Gate, dated quotes and refusal flip conditions: corpus/lessons/round-74.md.
 Registry 308→313. No existing status/recheck/used-by field changed.
+
+Round-78 bounded source reading (2026-11-04): question — which directory
+entries contribute to journald manager path usage, and is apparent length
+the quantity added? Opened the exact upstream v262 manager C source and
+journalctl XML manual; identified 2, screened 2, included 1 (S327) and
+excluded 1 as sole implementation support (S328). The manual's broad
+active/archived usage wording does not specify the manager's predicates.
+Stop: the function itself provides the suffix, no-follow stat, regular-file
+and block-count branches needed for the six finite examples. No wider
+web search or new coverage is claimed. Gate: corpus/lessons/round-78.md.
+No existing row's status, recheck or used-by changes.
 
 ## Leads (unopened)
 

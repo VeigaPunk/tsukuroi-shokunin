@@ -1,0 +1,82 @@
+[
+  [
+    "check-r71-routed-r72",
+    "gate",
+    "`python3 tools/check-r71-routed-r72.py --revision <REV>` (or `--fixture <DIR>`)",
+    "0 clean (`ROUTED_STALE=0`); 1 failed (stale receipt, scorecard or note, including missing inputs or unresolved counter summary); 2 could-not-evaluate (argparse usage error)",
+    "none: no self-test mode",
+    "Round-72 C3; record revision `2b358d2d`; receipt summary re-derived with the round-71 counter even in fixture mode; five modprobe paths required",
+    "Git/fixture reads and a read-only counter subprocess; no writes",
+    "tsukuroi"
+  ],
+  [
+    "check-r72-routed-r73",
+    "gate",
+    "`python3 tools/check-r72-routed-r73.py --revision <REV>` (or `--root <DIR>`)",
+    "0 clean (`ROUTED_STALE=0 ROUTED_OK=3/3`); 1 failed (stale item, including missing input); 2 could-not-evaluate (argparse usage error or selftest TMPDIR missing/not a directory); 3 failed (selftest)",
+    "`python3 tools/check-r72-routed-r73.py --selftest`",
+    "Round-73 C2; three routed items; whole-token, supersession and directional digest checks; receipt minimum ten cases",
+    "Git/fixture reads; selftest private fixtures under existing TMPDIR",
+    "tsukuroi"
+  ],
+  [
+    "check-r73-routed-r74",
+    "gate",
+    "`python3 tools/check-r73-routed-r74.py --revision <REV> --repo <repo>`",
+    "0 clean (`ROUTED_STALE=0 ROUTED_OK=2/2`); 1 failed (stale item, including missing input); 2 could-not-evaluate (argparse usage error) or failed (selftest)",
+    "`python3 tools/check-r73-routed-r74.py --selftest`",
+    "Round-74 C2; two routed quote-anchor and final-count corrections; without revision reads repo working files",
+    "Git reads with revision; working-file reads without revision; selftest in-memory texts",
+    "tsukuroi"
+  ],
+  [
+    "check-r75-routed-r76",
+    "gate",
+    "`python3 tools/check-r75-routed-r76.py --revision <REV> --repo <repo>` (or `--root <DIR>` without revision)",
+    "0 clean (`ROUTED_STALE=0 ROUTED_OK=8/8`); 1 failed (stale item, including absent files); 2 could-not-evaluate (argparse usage error); 3 failed (selftest)",
+    "`python3 tools/check-r75-routed-r76.py --selftest`",
+    "Round-76 C2; eight routed/drift items; 80-line token-following window; seven carried wave markers",
+    "Git/fixture reads; selftest synthetic fixtures under TMPDIR",
+    "tsukuroi"
+  ],
+  [
+    "count-jd-rows-r76",
+    "gate",
+    "`python3 tools/count-jd-rows-r76.py --revision <REV> --repo <repo>` (or `--fixture <DIR>`)",
+    "0 clean (eight rows verified, at least four sources and snapshots, effective-limit block present); 1 failed (target missed or malformed map); 2 could-not-evaluate (argparse usage error); 3 failed (selftest); 128 could-not-evaluate (JD_NOTE, JD_REGISTRY or JD_MAP absent)",
+    "`python3 tools/count-jd-rows-r76.py --selftest`",
+    "Round-76 C1; eight JD rows; source-map digests, contiguous IDs, grounding and quotes; snapshot reuse at most four; fixed effective-limit literals",
+    "Git/fixture reads; selftest synthetic snapshots under TMPDIR",
+    "tsukuroi"
+  ],
+  [
+    "count-md-rows-r72",
+    "gate",
+    "`python3 tools/count-md-rows-r72.py --revision <REV>` (or `--fixture <DIR>`)",
+    "0 clean (six rows verified, at least three sources and snapshots, no malformed rows or excess snapshot reuse); 1 failed (target missed or malformed map); 2 could-not-evaluate (argparse usage error); 128 could-not-evaluate (MD_NOTE, MD_REGISTRY or MD_MAP absent)",
+    "none: no self-test mode",
+    "Round-72 C1; six MD rows; contiguous IDs, source-map digests, grounding ratio 0.5, quotes at most 25 words; snapshot reuse at most two",
+    "Git/fixture reads only; no temporary files",
+    "tsukuroi"
+  ],
+  [
+    "count-uf-rows-r74",
+    "gate",
+    "`python3 tools/count-uf-rows-r74.py --revision <REV> --repo <repo>` (or `--fixture <DIR>`)",
+    "0 clean (six rows verified, at least three sources and snapshots, no findings); 1 failed (target missed, malformed map or duplicate registry ID); 2 could-not-evaluate (argparse usage error); 3 failed (selftest); 128 could-not-evaluate (UF_NOTE, UF_REGISTRY or UF_MAP absent)",
+    "`python3 tools/count-uf-rows-r74.py --selftest`",
+    "Round-74 C1; six UF rows; contiguous IDs, source-map digests, grounding ratio 0.5, quotes 4-25 words; snapshot reuse at most two; selftest has no explicit TMPDIR-refusal exit despite header comment",
+    "Git/fixture reads; selftest synthetic snapshots under TMPDIR",
+    "tsukuroi"
+  ],
+  [
+    "count-ul-rows-r73",
+    "gate",
+    "`python3 tools/count-ul-rows-r73.py --revision <REV>` (or `--fixture <DIR>`)",
+    "0 clean (six rows verified, at least three sources and snapshots, no malformed rows or excess snapshot reuse); 1 failed (target missed or malformed map); 2 could-not-evaluate (argparse usage error or selftest TMPDIR missing/not a directory or resolving to /tmp); 3 failed (selftest); 128 could-not-evaluate (UL_NOTE, UL_REGISTRY or UL_MAP absent)",
+    "`python3 tools/count-ul-rows-r73.py --selftest`",
+    "Round-73 C1; six UL rows; contiguous IDs, source-map digests, grounding ratio 0.5, quotes 4-25 words; snapshot reuse at most two; selftest uses corpus-derived samples and committed snapshots",
+    "Git/fixture reads; selftest private fixture tree under existing non-/tmp TMPDIR",
+    "tsukuroi"
+  ]
+]

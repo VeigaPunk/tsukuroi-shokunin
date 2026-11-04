@@ -1,0 +1,184 @@
+{
+  "compiler_version": "cc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+  "harness_sha256": "e6c775dfeeca2e7b0840ce6e29b29d281fab3cbf31043f23711002ccbb3bf7ec",
+  "stat_failure": "NOT EXERCISED: all fstatat calls are real libc calls; no simulated failure",
+  "cases": [
+    {
+      "id": "active",
+      "name": "active.journal",
+      "kind": "regular",
+      "lstat": {
+        "mode_octal": "0o100644",
+        "size": 4096,
+        "blocks": 8,
+        "allocated_bytes": 4096
+      },
+      "expected_used": 4096,
+      "argv": [
+        "/fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/path-usage",
+        "/fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/active"
+      ],
+      "exit": 0,
+      "stdout": "{\"return\":0,\"used\":4096,\"free\":361984249856}\n",
+      "stderr": "",
+      "observed": {
+        "return": 0,
+        "used": 4096,
+        "free": 361984249856
+      },
+      "match": true
+    },
+    {
+      "id": "archived",
+      "name": "archived.journal~",
+      "kind": "regular",
+      "lstat": {
+        "mode_octal": "0o100644",
+        "size": 8192,
+        "blocks": 16,
+        "allocated_bytes": 8192
+      },
+      "expected_used": 8192,
+      "argv": [
+        "/fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/path-usage",
+        "/fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/archived"
+      ],
+      "exit": 0,
+      "stdout": "{\"return\":0,\"used\":8192,\"free\":361984241664}\n",
+      "stderr": "",
+      "observed": {
+        "return": 0,
+        "used": 8192,
+        "free": 361984241664
+      },
+      "match": true
+    },
+    {
+      "id": "unrelated",
+      "name": "ignored.txt",
+      "kind": "regular",
+      "lstat": {
+        "mode_octal": "0o100644",
+        "size": 4096,
+        "blocks": 8,
+        "allocated_bytes": 4096
+      },
+      "expected_used": 0,
+      "argv": [
+        "/fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/path-usage",
+        "/fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/unrelated"
+      ],
+      "exit": 0,
+      "stdout": "{\"return\":0,\"used\":0,\"free\":361984237568}\n",
+      "stderr": "",
+      "observed": {
+        "return": 0,
+        "used": 0,
+        "free": 361984237568
+      },
+      "match": true
+    },
+    {
+      "id": "symlink",
+      "name": "link.journal",
+      "kind": "symlink",
+      "lstat": {
+        "mode_octal": "0o120777",
+        "size": 10,
+        "blocks": 0,
+        "allocated_bytes": 0
+      },
+      "expected_used": 0,
+      "argv": [
+        "/fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/path-usage",
+        "/fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/symlink"
+      ],
+      "exit": 0,
+      "stdout": "{\"return\":0,\"used\":0,\"free\":361984204800}\n",
+      "stderr": "",
+      "observed": {
+        "return": 0,
+        "used": 0,
+        "free": 361984204800
+      },
+      "match": true,
+      "followed_target_stat": {
+        "size": 4096,
+        "blocks": 8,
+        "allocated_bytes": 4096
+      }
+    },
+    {
+      "id": "directory",
+      "name": "directory.journal",
+      "kind": "directory",
+      "lstat": {
+        "mode_octal": "0o40755",
+        "size": 6,
+        "blocks": 0,
+        "allocated_bytes": 0
+      },
+      "expected_used": 0,
+      "argv": [
+        "/fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/path-usage",
+        "/fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/directory"
+      ],
+      "exit": 0,
+      "stdout": "{\"return\":0,\"used\":0,\"free\":361984204800}\n",
+      "stderr": "",
+      "observed": {
+        "return": 0,
+        "used": 0,
+        "free": 361984204800
+      },
+      "match": true
+    },
+    {
+      "id": "sparse",
+      "name": "sparse.journal",
+      "kind": "sparse",
+      "lstat": {
+        "mode_octal": "0o100644",
+        "size": 67108864,
+        "blocks": 8,
+        "allocated_bytes": 4096
+      },
+      "expected_used": 4096,
+      "argv": [
+        "/fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/path-usage",
+        "/fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/sparse"
+      ],
+      "exit": 0,
+      "stdout": "{\"return\":0,\"used\":4096,\"free\":361984200704}\n",
+      "stderr": "",
+      "observed": {
+        "return": 0,
+        "used": 4096,
+        "free": 361984200704
+      },
+      "match": true,
+      "sparse_apparent_exceeds_allocated": true
+    }
+  ],
+  "compile": {
+    "argv": [
+      "cc",
+      "-std=gnu17",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-78/w1/ExecSource/harness.c",
+      "-o",
+      "/fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/path-usage"
+    ],
+    "command": "cc -std=gnu17 -O0 -Wall -Wextra -Werror /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-78/w1/ExecSource/harness.c -o /fast/scratch/hyaku/tsukuroi-r78/ExecSource/fixtures-a6h0cfic/path-usage",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "matched": 6,
+  "all_cases_match": true,
+  "free_field": "Real fstatvfs return, recorded only; not asserted stable between calls.",
+  "fixtures_removed": true
+}

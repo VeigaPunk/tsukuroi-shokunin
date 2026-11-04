@@ -1,0 +1,36 @@
+[
+  {
+    "name": "count-jt-rows-r75",
+    "column": "Verdict map",
+    "cell_index": 3,
+    "before": "0 predicate `JT_ROWS == 6 and JT_VERIFIED == 6 and JT_SOURCES >= 3 and JT_SNAPSHOTS >= 3 and JT_MALFORMED == 0` and `met=1`; 1 otherwise, including `JT_MAP malformed`; 3 self-test failed; 128 `JT_NOTE`, `JT_REGISTRY` or `JT_MAP` absent",
+    "after": "0 clean (JT_ROWS == 6 and JT_VERIFIED == 6 and JT_SOURCES >= 3 and JT_SNAPSHOTS >= 3 and JT_MALFORMED == 0 and met=1); 1 failed (target missed, including JT_MAP malformed); 2 could-not-evaluate (argparse usage error); 3 failed (selftest); 128 could-not-evaluate (JT_NOTE, JT_REGISTRY or JT_MAP absent)",
+    "cells": [
+      "count-jt-rows-r75",
+      "gate",
+      "`python3 tools/count-jt-rows-r75.py --revision <REV> --repo <repo>` (or `--fixture <DIR>`)",
+      "0 clean (JT_ROWS == 6 and JT_VERIFIED == 6 and JT_SOURCES >= 3 and JT_SNAPSHOTS >= 3 and JT_MALFORMED == 0 and met=1); 1 failed (target missed, including JT_MAP malformed); 2 could-not-evaluate (argparse usage error); 3 failed (selftest); 128 could-not-evaluate (JT_NOTE, JT_REGISTRY or JT_MAP absent)",
+      "`python3 tools/count-jt-rows-r75.py --selftest` \u2014 hermetic, thirteen cases over synthetic snapshots in one `$TMPDIR` root, no answer key; a failing run prints `SELFTEST: FAIL` and exits 3",
+      "six JT rows of `corpus/knowledge/systemd-job-transaction-plane-r75.md`; snapshots `.ufo/waves/round-75/before/src/{transaction.c,job.c,job.h}` sha256 pinned in `SOURCES.json`",
+      "Git/fixture reads; selftest synthetic snapshots in private scratch under TMPDIR",
+      "tsukuroi"
+    ]
+  },
+  {
+    "name": "check-r74-routed-r75",
+    "column": "Verdict map",
+    "cell_index": 3,
+    "before": "0 `ROUTED_STALE=0 ROUTED_OK=4/4`; 1 any stale item, with `reason=` one of `absent`, `token`, `need`, `verb`, `heading`, `rows`, `command`; 3 self-test failed",
+    "after": "0 clean (ROUTED_STALE=0 ROUTED_OK=4/4); 1 failed (stale item, including absent input; reason=absent, token, need, verb, heading, rows or command); 2 could-not-evaluate (argparse usage error); 3 failed (selftest)",
+    "cells": [
+      "check-r74-routed-r75",
+      "gate",
+      "`python3 tools/check-r74-routed-r75.py --revision <REV> --repo <repo>` (or `--root <DIR>` without revision)",
+      "0 clean (ROUTED_STALE=0 ROUTED_OK=4/4); 1 failed (stale item, including absent input; reason=absent, token, need, verb, heading, rows or command); 2 could-not-evaluate (argparse usage error); 3 failed (selftest)",
+      "`python3 tools/check-r74-routed-r75.py --selftest` \u2014 hermetic, thirteen cases over a synthetic fixture tree",
+      "four items `R74-DEATH-RECEIPT`, `R74-REPORT-WORDING`, `R74-SWEEP-RESIDUE`, `R74-STALE-AXES-TABLE`; frozen 80-line window rule",
+      "Git reads with revision; working-file/fixture reads without revision; selftest synthetic fixtures in private scratch under TMPDIR",
+      "tsukuroi"
+    ]
+  }
+]

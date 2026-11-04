@@ -725,3 +725,19 @@ promotion. The prior Core/Frontier map and sibling ownership remain unchanged.
 S325 supersedes S320's historical minimum wording; the new lesson records
 admit/reject evidence, the source propagation map, and three round-76 record
 corrections. Outside round-77 discernment check remains pending.
+
+## Round 78 — existing journal accounting deepened
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/journald-path-usage-r78.md` and `.json` | Six finite path-usage examples distinguish accepted suffix, no-follow entry stat, regular-file filtering, stat-failure skip and allocated blocks times 512 from apparent size. The companion is byte-bound to the author-side source reviewer. | S327; S328 rejected as sole implementation support |
+
+This deepens the already-held journald accounting surface; no coverage
+or frontier promotion is claimed. The live sanitized inventory and operator
+handoff are `.ufo/waves/round-78/w1/ExecHost/{report.md,handoff.md}`.
+Upstream source execution is separate supporting evidence under ExecSource;
+it does not establish installed Arch behavior or exercise the stat-failure
+case. Registry discoverability repair is operability work, not new knowledge
+ground or a capability. Round-77's former pending outside result above is
+superseded by `lessons/round-77-verifier-spotcheck.md`: admitted with admit
+and reject agreement. Round-78 outside closure is still pending.

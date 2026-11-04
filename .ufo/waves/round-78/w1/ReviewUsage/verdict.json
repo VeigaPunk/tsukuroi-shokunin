@@ -1,0 +1,31 @@
+{
+  "reviewer": "ReviewUsage",
+  "artifact_sha256": "13fc82d4cd0756f05b997c7f7a8f64a6976c61aa34d601611a0c73a86a06bd1d",
+  "verdicts": {
+    "U1": "holds",
+    "U2": "holds",
+    "U3": "holds",
+    "U4": "holds",
+    "U5": "holds",
+    "U6": "holds"
+  },
+  "reasons": {
+    "U1": "Accepted .journal suffix, successful regular stat, 8 allocated blocks times 512 = 4096; apparent size unused. Companion accurately preserves all inputs and distinction.",
+    "U2": "Accepted .journal~ suffix, successful regular stat, 16 times 512 = 8192; equality to apparent size incidental. Companion does not infer archival state from filename.",
+    "U3": "Both suffix tests fail; continue before stat and allocation addition. Companion correctly treats other descriptors as unconsulted.",
+    "U4": "AT_SYMLINK_NOFOLLOW stats entry itself; symlink mode fails S_ISREG and contributes zero. Companion correctly limits no-follow claim to entry stat, not opendir path.",
+    "U5": "Accepted suffix does not override directory mode; S_ISREG rejects and no recursive scan occurs. Companion accurately states zero contribution.",
+    "U6": "Failed fstatat logs and continues without reading stat fields; zero entry contribution, not whole-function failure or measured metadata. Companion explicitly preserves this limit."
+  },
+  "source_lines": {
+    "path": ".ufo/waves/round-78/before/journald-manager.c",
+    "U1": [119, 120, 123, 128, 131],
+    "U2": [119, 120, 123, 128, 131],
+    "U3": [119, 120, 121],
+    "U4": [123, 128, 129],
+    "U5": [123, 128, 129],
+    "U6": [123, 124, 125]
+  },
+  "companion_sha256": "f1099591008b0fc8db50a79d72ac9033358dc8af0322816697f2c0a899e98608",
+  "kill_rule": "No false source interpretation or companion explanation found in the reviewed candidate. Integrated count and orchestrator binding not exercised; no outside admission issued."
+}

@@ -1,0 +1,142 @@
+{
+  "axes": [
+    "depth",
+    "operability"
+  ],
+  "freeze": "07a607df1a5157daafc91bb5c26858af14415f43",
+  "freeze_comparison": {
+    "tools/measure-journal-usage-r78.py": {
+      "frozen_sha256": "cffc3e9d9c04cecd3f98810117cd92fe429261483308b58e3f539ca51de449f1",
+      "worktree_sha256": "cffc3e9d9c04cecd3f98810117cd92fe429261483308b58e3f539ca51de449f1",
+      "manifest_sha256": "cffc3e9d9c04cecd3f98810117cd92fe429261483308b58e3f539ca51de449f1"
+    },
+    "tools/check-registry-coverage.py": {
+      "frozen_sha256": "6fcb2d0a5f1b2493aa505e179aa013b479e2a06894152d3b206e017720a24812",
+      "worktree_sha256": "6fcb2d0a5f1b2493aa505e179aa013b479e2a06894152d3b206e017720a24812",
+      "manifest_sha256": "6fcb2d0a5f1b2493aa505e179aa013b479e2a06894152d3b206e017720a24812"
+    },
+    ".ufo/waves/round-78/before/expected.json": {
+      "frozen_sha256": "c050128ff04ab82d5b9c9151fa105e10953196da3790bc212c72530209410e34",
+      "worktree_sha256": "c050128ff04ab82d5b9c9151fa105e10953196da3790bc212c72530209410e34",
+      "manifest_sha256": "c050128ff04ab82d5b9c9151fa105e10953196da3790bc212c72530209410e34"
+    },
+    ".ufo/waves/round-78/before/journald-manager.c": {
+      "frozen_sha256": "428dc8308d5caf70faee074e87888264c3708aa8e24c6069854790b952a7ffa2",
+      "worktree_sha256": "428dc8308d5caf70faee074e87888264c3708aa8e24c6069854790b952a7ffa2",
+      "manifest_sha256": "428dc8308d5caf70faee074e87888264c3708aa8e24c6069854790b952a7ffa2"
+    },
+    ".ufo/waves/round-78/before/journalctl.xml": {
+      "frozen_sha256": "d54bbede45d5b1e3dc856da9624649ef8cb0829731597c212be303a76a1edbdd",
+      "worktree_sha256": "d54bbede45d5b1e3dc856da9624649ef8cb0829731597c212be303a76a1edbdd",
+      "manifest_sha256": "d54bbede45d5b1e3dc856da9624649ef8cb0829731597c212be303a76a1edbdd"
+    }
+  },
+  "calculations": [
+    {
+      "id": "U1",
+      "computed": 4096,
+      "expected": 4096,
+      "reason": "8 * 512; apparent size ignored"
+    },
+    {
+      "id": "U2",
+      "computed": 8192,
+      "expected": 8192,
+      "reason": "16 * 512; apparent size ignored"
+    },
+    {
+      "id": "U3",
+      "computed": 0,
+      "expected": 0,
+      "reason": "suffix excludes before stat"
+    },
+    {
+      "id": "U4",
+      "computed": 0,
+      "expected": 0,
+      "reason": "no-follow stat reports nonregular mode; skips"
+    },
+    {
+      "id": "U5",
+      "computed": 0,
+      "expected": 0,
+      "reason": "no-follow stat reports nonregular mode; skips"
+    },
+    {
+      "id": "U6",
+      "computed": 0,
+      "expected": 0,
+      "reason": "failed no-follow stat skips"
+    }
+  ],
+  "attacks": [
+    {
+      "name": "fully-fabricated-review-and-orchestrator-bundle",
+      "argv": [
+        "python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/measure-journal-usage-r78.py",
+        "--root",
+        "/fast/scratch/hyaku/tsukuroi-r78/CriticFreeze/fixture"
+      ],
+      "exit_code": 0,
+      "stdout": "C1 predicate=\"six pinned path-usage cases match with review binding\" count=6 met=1 reason=finite-content-and-review\n",
+      "stderr": "",
+      "exact_utf8_files": {
+        "corpus/knowledge/journald-path-usage-r78.json": "{\"cases\":[{\"blocks\":8,\"id\":\"U1\",\"kind\":\"regular\",\"name\":\"active.journal\",\"size\":1048576,\"stat_ok\":true,\"used\":4096},{\"blocks\":16,\"id\":\"U2\",\"kind\":\"regular\",\"name\":\"archived.journal~\",\"size\":8192,\"stat_ok\":true,\"used\":8192},{\"blocks\":8,\"id\":\"U3\",\"kind\":\"regular\",\"name\":\"ignored.txt\",\"size\":4096,\"stat_ok\":true,\"used\":0},{\"blocks\":8,\"id\":\"U4\",\"kind\":\"symlink\",\"name\":\"link.journal\",\"size\":4096,\"stat_ok\":true,\"used\":0},{\"blocks\":8,\"id\":\"U5\",\"kind\":\"directory\",\"name\":\"directory.journal\",\"size\":4096,\"stat_ok\":true,\"used\":0},{\"blocks\":8,\"id\":\"U6\",\"kind\":\"regular\",\"name\":\"unstatable.journal\",\"size\":4096,\"stat_ok\":false,\"used\":0}],\"source\":[\"S327\"]}\n",
+        ".ufo/waves/round-78/w1/ReviewUsage/verdict.json": "{\"artifact_sha256\":\"fa4dedbff34ab9bfedd2ebdd7b4018e35871ae54580ccbf43495e99ac7210ddd\",\"reviewer\":\"ReviewUsage\",\"verdicts\":{\"U1\":\"holds\",\"U2\":\"holds\",\"U3\":\"holds\",\"U4\":\"holds\",\"U5\":\"holds\",\"U6\":\"holds\"}}\n",
+        ".ufo/waves/round-78/w1-results.json": "{\"lane\":\"tsukuroi\",\"results\":[{\"agent\":\"reviewer\",\"name\":\"ReviewUsage\",\"output\":\"review_sha256=bcc44a68ab3b11f2f40d82e439394a49be2afbde233d7b770367e146f3095c30\"}],\"round\":78,\"wave\":\"w1\"}\n"
+      }
+    },
+    {
+      "name": "false-companion-with-exact-examples-and-fabricated-binding",
+      "argv": [
+        "python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/measure-journal-usage-r78.py",
+        "--root",
+        "/fast/scratch/hyaku/tsukuroi-r78/CriticFreeze/fixture"
+      ],
+      "exit_code": 0,
+      "stdout": "C1 predicate=\"six pinned path-usage cases match with review binding\" count=6 met=1 reason=finite-content-and-review\n",
+      "stderr": "",
+      "exact_utf8_note": "# Deliberately false adversarial fixture\n\nThe manager follows journal symlinks and adds apparent st_size; directories count too. Failed stat entries contribute their apparent length.\n",
+      "note_path": "corpus/knowledge/journald-path-usage-r78.md",
+      "same_bundle_as": "fully-fabricated-review-and-orchestrator-bundle"
+    },
+    {
+      "name": "bound-review-with-explicitly-false-source-prose",
+      "argv": [
+        "python3",
+        "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/measure-journal-usage-r78.py",
+        "--root",
+        "/fast/scratch/hyaku/tsukuroi-r78/CriticFreeze/fixture"
+      ],
+      "exit_code": 0,
+      "stdout": "C1 predicate=\"six pinned path-usage cases match with review binding\" count=6 met=1 reason=finite-content-and-review\n",
+      "stderr": "",
+      "exact_utf8_files": {
+        ".ufo/waves/round-78/w1/ReviewUsage/verdict.json": "{\"artifact_sha256\":\"fa4dedbff34ab9bfedd2ebdd7b4018e35871ae54580ccbf43495e99ac7210ddd\",\"explanation\":\"AT_SYMLINK_NOFOLLOW follows symlinks; st_blocks is apparent byte length.\",\"reviewer\":\"ReviewUsage\",\"verdicts\":{\"U1\":\"holds\",\"U2\":\"holds\",\"U3\":\"holds\",\"U4\":\"holds\",\"U5\":\"holds\",\"U6\":\"holds\"}}\n",
+        ".ufo/waves/round-78/w1-results.json": "{\"lane\":\"tsukuroi\",\"results\":[{\"agent\":\"reviewer\",\"name\":\"ReviewUsage\",\"output\":\"I did not review this source. review_sha256=88226b67cdd801cf1d87aa40a0acd97714e9daa0d6acb53f143f21e385d5252b\"}],\"round\":78,\"wave\":\"w1\"}\n"
+      }
+    }
+  ],
+  "registry_subfunction_attack": {
+    "function": "_coverage only, not whole C2 checker",
+    "cells": [
+      "false-command-example",
+      "gate",
+      "python3 tools/measure-journal-usage-r78.py --invented-mode",
+      "0 pass; 1 fail; 2 cannot-evaluate",
+      "none",
+      "frozen",
+      "none",
+      "CriticFreeze-fixture"
+    ],
+    "findings": [],
+    "covered": [
+      "tools/measure-journal-usage-r78.py"
+    ],
+    "unexecuted_false_command": "python3 tools/measure-journal-usage-r78.py --invented-mode",
+    "limitation": "Literal path and verdict digits do not establish command truth. Frozen false-command kill rule still applies."
+  },
+  "scratch_removed": true
+}
