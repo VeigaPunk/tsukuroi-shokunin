@@ -5566,3 +5566,82 @@ Named limits, recorded and not smoothed:
 5. **(e) final instrument figures.** The docs commit `bdaec573` writes "217 cases" and "three `R71-C2`
    cases"; after the wave repairs the final instrument is **218 cases, four `R71-C2` case labels**
    (`after/selftest-after.txt`). The superseded figures stay as filed; this erratum is the correction.
+
+## Round 72 — declaration (2026-11-03, base `a7015d27`, written before any after-measurement)
+
+Lowest non-retired axis: **depth (8, tied with adjacency 8)**; saturation line **9** / window **3**
+unchanged; a capability entered at r70 (`xfs-stats-arm`) and r71 (`selftest-case-timeout`), so the
+stagnation window is at 2 of 3 and the nudge does **not** waive the lowest-axis duty. Three claims on
+three distinct axes (depth; operability; freshness).
+
+Pre-declaration receipts, disclosed in order; all under `.ufo/waves/round-72/before/` at base
+`a7015d27`.
+
+(a) **Source snapshots** opened and read before this text, committed byte-exact under `before/src/`
+with `SHA256SUMS` (`sha256sum -c` rc 0) and `SOURCES.json` (snapshot → URL, tag, access date, digest),
+all at kmod **v34** — the host runs kmod **34.2** (`modprobe --version`): `man/modprobe.d.5.scd`
+sha256 `aa1a869e57db31c8187a436b5eab3047394da5fd779794e1cdd4ccad598ee46e`,
+`libkmod/libkmod-config.c` sha256 `ae520a0721aad0bc61c7b13369fccf8e46fc408d8c0884fda9260a05da7ceb11`,
+`tools/modprobe.c` sha256 `1e8e352634026e6618f37c0aee9974cf51427bfa3a77d12bcd2220ea8a71bf3f`.
+Access date **2026-11-03**.
+
+(b) **Host capture**, read-only, paths and modes only — config file contents were never read
+(`before/host.txt`, `capture.sh`): kernel `7.2.11-arch1-1`; `/etc/modprobe.d` **3** names
+(`disable-usb-autosuspend.conf`, `hid_apple.conf`, `nvidia.conf`); `/usr/lib/modprobe.d` **5** names
+(`README` plus four `.conf`); `/run/modprobe.d` and `/usr/local/lib/modprobe.d` **absent**; `/lib`
+resolves to `/usr/lib`, so `/lib/modprobe.d` and `/usr/lib/modprobe.d` are **one directory behind two
+SYNOPSIS entries**; `/proc/cmdline` carries no `module.parameter` token; **136** `/sys/module/*/parameters`
+directories.
+
+(c) **Held-ground sweep** (`before/novelty-sweep.txt`): at base no knowledge note names the surface —
+`softdep`, `MODPROBE_OPTIONS`, `showconfig`, `APPLY_BLACKLIST`, `conf_files_insert_sorted` and
+`lexicographic` each read **0** file hits under `corpus/knowledge`; the one `modprobe.d` token hit is
+the r71 note's MP5 host line, which names paths only; `SKILL.md` **0** hits, `PROVINCE.md` **4**,
+`corpus/README.md` **2** (all path/mode boundary prose, no rule row).
+
+(d) **Do-nothing controls** (`before/absence-controls.txt`, base `a7015d27`): C1 note `git cat-file -e`
+rc **128**; `^| MD[n]` rows **0**; the frozen counter over the base tree reads `MD_NOTE absent` rc
+**128**; `check-selftest-tally.py --selftest` rc **2** with **0** case lines (tool digest
+`b0f839e3955529caf560576f02f5c4137a98317d82c90cf1225dffe45d366c6d`); the routed-defect checker at
+base reads `ROUTED_STALE=3` rc **1**; registry **300** rows; **89** knowledge notes; canonical census
+validate rc **0**.
+
+(e) **Frozen instruments.** `tools/count-md-rows-r72.py` sha256
+`d615c653f32a29af3a4355d882041b8543ff56882b3225f7e3eedf173d8706a6`; its battery
+`before/control/battery.txt` — **11 cases: 1 well-formed control + 10 mutants**; the control reads
+`MD_ROWS=6 MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0` and `met=1` rc 0, the ten mutants
+(short statement, unregistered source, absent quote, five rows, duplicate id, snapshot reuse 3,
+ungrounded statement, malformed hidden row, digest swap, own-work source kind) each read `met=0` rc 1.
+`tools/check-r71-routed-r72.py` sha256
+`df8a59c7a2891f58ab37a1b22e73819d953f1781528d4f2f4937641e093de712`; its battery
+`before/control/routed-battery.txt` — **5 cases, 5 passed**: one green control (rc 0) and four mutants
+(tampered receipt, missing erratum, missing note correction, missing receipt; each rc 1).
+
+| # | axis/type | claim | before → after (frozen predicate) | counting command | kill rule |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — registry rows S301–S303) | `corpus/knowledge/modprobe-config-plane-r72.md` states the modprobe configuration plane the lane never held: configuration directories are read in the SYNOPSIS precedence order and the first file of a given name suppresses the same name in later directories; files from every directory are processed in one lexicographic order so a later-ordered file partially replaces an earlier one; libkmod inserts config filenames into one sorted list and rejects a second file of the same name; the kernel command line is parsed into the same config object after the files; `-n` prints the plan without executing; blacklist is applied to aliases only unless `--use-blacklist` adds the unconditional flag. Rows `MD1`–`MD6`, one physical line each, exactly 7 pipe cells, no pipe inside a cell: `\| MD<n> \| <statement> \| source=S### \| snapshot=<file> \| digest=<64 hex> \| quote="<verbatim, <=25 words>" \|` | note `cat-file` rc **128**, MD rows **0** → `MD_ROWS=6 MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0`, `met=1`, rc **0** at the measured revision; registry **300 → 303** rows (three `NF=13` rows, `malformed=0`); knowledge notes **89 → 90**; canonical census validate rc **0** | `python3 tools/count-md-rows-r72.py --revision <REV>`; `git show <REV>:corpus/SOURCES.md \| grep -cE '^\| *S[0-9]{3,}'`; `git ls-tree --name-only <REV>:corpus/knowledge \| grep -c '\.md$'` | any row failing any frozen clause, any malformed MD-shaped line, row count != 6, distinct sources < 3, distinct snapshots < 3, a snapshot cited > 2 times, or the note absent → the claim fails |
+| C2 | operability (9; capability `gate-selftest`) | `tools/check-selftest-tally.py` gains a `--selftest` mode: it builds every fixture under `$TMPDIR` (never a hardcoded `/tmp`), runs the checker's own core over them, prints `SELFTEST: PASS (N cases, N passed, 0 failed)` with one named case line each, and exits 0; the cases cover a matching figure (pass), a mismatched figure (fail with a stable finding id), a wrong label count, a superseded-figure quote (skip), an out-of-scope battery figure, and a receipt with no `PASS (N cases, …)` line (rc 2) | `--selftest` rc **2**, **0** case lines at base → rc **0**, `SELFTEST: PASS` with **N >= 7**; red-before `before/control/selftest-redbefore.txt`: a mutant copy whose mismatch branch is disabled fails the suite with a named failing case; the existing r70 self-demo still reads `added_figures_mismatched=0 receipt_cases=214 receipt_labels=18` rc **0** | `python3 tools/check-selftest-tally.py --selftest`; `python3 tools/check-selftest-tally.py --receipt .ufo/waves/round-70/after/selftest-after.txt --label R70-C2 --range 4035c1a0..40c35ee7 -- SCORECARD.md PROVINCE.md corpus/README.md SKILL.md` | `--selftest` rc != 0, N < 7, fewer than one emitted line per case, any case writing under `/tmp`, or the existing self-demo changing verdict → the claim fails |
+| C3 | freshness (9) | the two statement/receipt defects routed by the round-71 closure are closed in committed bytes: `.ufo/waves/round-71/after/count-mp-rows-final.txt` exists and its summary lines equal a fresh run of the frozen r71 counter at the single named revision `2b358d2d`; `SCORECARD.md` carries a `## Round 71 — receipt erratum` block naming that receipt and revision; `corpus/knowledge/module-parameter-plane-r71.md` carries an appended correction naming `R71-NOTE-MODPROBE-COUNT`, the **five** `/usr/lib/modprobe.d` paths and the superseded **four** figure | `ROUTED_STALE=3` rc **1** (all three missing) → `ROUTED_STALE=0` rc **0** at the measured revision | `python3 tools/check-r71-routed-r72.py --revision <REV>` | any stale item remains, or the committed receipt does not equal a fresh counter run at `2b358d2d` → the claim fails |
+
+Causal separability: C1 touches only its note, three registry rows, its counter and receipts; C2 touches
+only `tools/check-selftest-tally.py`; C3 touches the r71 receipt file, one SCORECARD erratum block and
+one appended correction in the r71 note. Each verifies without the other two having landed. All three
+predicates are frozen here, before any note, registry row, tool change or correction exists; the three
+instruments and their batteries are committed with this declaration.
+
+Routed repairs this round as work, not as claims (`corpus/lessons/round-71-verifier-spotcheck.md` §6):
+R71-RECEIPT-MISPATH — the probe pointers are restated correctly in this round's report erratum;
+R71-GATE-SELFTEST — worked inside C2; R71-KMOD-LEAD-PATH — C1 opens the real path
+(`man/modprobe.d.5.scd` at v34, HTTP 200) and decides the precedence question on its bytes; the r71
+reject stays as filed.
+
+Assimilation: **none** — the open L0 `tsukuroi | round-64` addendum still rules the merge package
+quarantined. `considerthese`: no proposal mined; the measured status of the proposals in
+`considerthese/2026-10-26.md` is recorded in the lesson.
+
+Wave w1: one v1 wave, band 8–16, **12 seats**; seat shape and counts are fixed in
+`.ufo/waves/round-72/w1-spec.json`.
+
+**planned (next round):** the C1 counter's lexical-substance channel (a row that negates its snapshot
+but keeps the vocabulary reads `met=1`); the `--selftest` mode's own mutants; the r71 report pointer
+erratum's closure check; no amendment of this round's frozen predicates.
