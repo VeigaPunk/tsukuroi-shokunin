@@ -3564,3 +3564,21 @@ lesson mine that mistake and the latest reflection's burst-aware-reading idea.
 Domain task `w1/ExecHost/handoff.md` ran four read-only commands, no remediation.
 Final revision-bound measurement follows; no admission is pre-claimed.
 
+
+## Round80 — revision-bound measures and honest stop
+
+Measured `160b8889703dd22b38c89368871f27517af02c1f`: frozen C1 count0→42,
+rc1→0; C2 count0→1 against frozen target2, rc1→1. Both old tools now have real
+selftests (KR10/10, transaction9/9), main-agent rerun from the exact selective
+external export; C2's invented label makes its second row uncountable. Keep
+that miss rather than change frozen bytes or rename the truthful row.
+Full commands and outputs `.ufo/waves/round-80/after/commands.json`.
+Support gates: registry120/120 findings0, refs98 notes/dangling0, line endings403
+files/violations0, all rc0; header gate rc1 with two byte-unchanged inherited notes.
+Census end rc0 and329→330 rows. A313/B6/C11, mined292/queued5/rejected33.
+Final C1 companion was re-reviewed against S330 and its final bytes; binding
+file names SHA81006519…. The two402 dead seats and null-output result bundle
+receive no fictitious attack credit. No capability/frontier/ordinal promotion.
+Overall honest stop on C2; outside closure pending. Fleet sweep found only
+operator/sibling/unknown files, no identifiable round80 lane artifact; untouched.
+

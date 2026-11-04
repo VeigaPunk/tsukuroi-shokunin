@@ -97,3 +97,20 @@ lesson or rejection was rewritten; current registry interface updates are
 explicitly superseding old none cells, not historical retroactive executions.
 No capability/frontier promotion or arbitrary score uplift. Final numeric
 outcomes and actual commands are recorded in SCORECARD and after receipts.
+
+## Final measured outcome
+
+At `160b8889703dd22b38c89368871f27517af02c1f`, frozen C1 count42 rc0;
+C2 count1/target2 rc1. Base counts0/0 both rc1. The actual row-name mismatch
+is shown red by the same public counting command over the committed repair;
+the synthetic-positive name did not rescue it. No frozen counter or target changed.
+Main reran final exported tool bytes: KR10/10 rc0, transaction9/9 rc0.
+The executor mutant controls fail rc3, showing selftest sensitivity. Final
+ReviewMatrix file binds production JSON05abbf14… and companion81006519…,
+not the earlier draft. Registry coverage and knowledge-reference gates rc0;
+header gate retains exactly two byte-unchanged inherited findings. Census
+start/end rc0; source rows329→330, A312→313, mined291→292.
+Receipts: `.ufo/waves/round-80/after/commands.json`, structural.json,
+header-debt-continuity.json. C2 remains unverified; whole round author-side
+honest stop, not retroactive repair or admission.
+

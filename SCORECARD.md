@@ -6756,3 +6756,44 @@ Census start exit0; 329 source rows. Assimilation none; no package rows adopted.
 Gate-standard repair is two named tools, not closure of the inherited 36-row debt.
 No capability or ordinal uplift is pre-claimed.
 
+
+## Round80 — measured outcome, author-side honest stop
+
+Measured revision `160b8889703dd22b38c89368871f27517af02c1f`.
+Exact argv/stdout/stderr/rc: `.ufo/waves/round-80/after/commands.json`.
+
+| Claim | Before at 467a9b7891a5939dab8460ec6f591fbb16bd82e9 | After at measured revision | Verdict and score |
+|---|---|---|---|
+| C1 depth | count0/target42, rc1 | count42/target42, finding met, rc0 | verified author-side, depth8→8 (no invented ordinal uplift) |
+| C2 operability | count0/target2, rc1 | count1/target2, finding gate-standard, rc1 | not verified; honest stop, operability9→9 |
+
+Commands for both snapshots: `python3 tools/measure-round80.py --revision <REV> --claim C1`
+and the same with C2. C2 misses because the frozen reader requires the tool basename
+as registry label: check-transaction-order-r39, while the real label is
+transaction-order-r39. That row is retained rather than renamed/duplicated to game
+the instrument. Two real public-CLI selftests nevertheless ran at the final bytes
+in a selective external export: KR10/10 rc0; transaction9/9 rc0.
+Executor red controls returned rc3 (KR4/10 passed, transaction8/9 passed).
+The aggregate claim remains a miss; it is never narrowed to one tool.
+
+C1 final reviewer binding names JSON05abbf14… and companion81006519…;
+six holds, read from the seat's own file. Ten null results outputs after kernel
+restart therefore cannot make this binding leg unreachable. Equality and complete
+forged-bundle acceptance remain disclosed limits, not authenticity proof.
+
+Support: registry coverage120/120, findings0 rc0; knowledge refs98 notes,
+dangling0 rc0; line endings403 files, violations0 rc0; header gate rc1 with the
+same two byte-unchanged r71/r72 notes as base, no new-note finding. Canonical
+source census start/end rc0; rows329→330, A312→313/B6/C11, mined291→292,
+queued5/rejected33. No existing source-row changes. Frozen instrument SHA
+688766756d0fb73ffb8f1d746e3377d58532bd4afa0a3aa92489c61165614d1d unchanged.
+New instrument helper-only selftest remains a conformance defect, explicitly
+registered, not a claim of whole-registry gate-standard repair.
+
+Wave10 settled,8 durable reports,2 dead attack seats (402 insufficient funds);
+no replacement/residual. L1 planner declared before dispatch. See after/settlement.json.
+No capability/frontier/SHONEN promotion; coverage9, freshness9, calibration9,
+adjacency8 unchanged. Observed support checks find no new harm; their finite scope
+is not a universal no-harm proof. Overall round not admitted by the author: C2 misses.
+Planned: fix future instrument identity controls before freeze; no next round started.
+
