@@ -3532,3 +3532,17 @@ Attacks: 13 critic kills / several disclosed survives and 8/13 mutants killed;
 ReviewRegistry reproduced the C2 after-value and its presence-based gaps.
 Outside round-79 closure remains pending; assimilation none; no capability or
 frontier promotion.
+
+## Round 80 — motivating evidence and pre-data freeze (2026-11-04)
+
+R79 outside closure routed two unreachable C1 legs (DP6 and null seat-output
+binding), durable-file binding and 36 gate rows without selftests
+(`corpus/lessons/round-79-verifier-spotcheck.md`, Routed defects 1–4).
+C1 deepens existing systemd service triage with the six-cause Restart= table
+(S330); C2 equips two old gates with genuine public-path self-invocation.
+The predicates, independent controls and raw upstream snapshot are frozen
+in `.ufo/waves/round-80/before/` and SCORECARD Round80 declaration.
+Measured base C1 0/42 rc1, C2 0/2 rc1; eleven pre-data controls meet their
+expected rc, including positives. The counter binds files, not volatile output.
+No domain mutation, promotion, package adoption or next round is authorized.
+

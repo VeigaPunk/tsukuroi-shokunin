@@ -6721,3 +6721,38 @@ self-declared `NON-OPERATIVE` marker, a new highest heading, or duplicated
 heading text (`lines.index`); 36 of 93 operative `gate` rows still declare no
 selftest. Neither instrument is an authenticity or whole-registry conformance
 proof. No capability row is entered and no ordinal moves.
+
+## Round 80 — declaration and frozen predicates (2026-11-04)
+
+Base `467a9b7891a5939dab8460ec6f591fbb16bd82e9`. Lowest non-retired
+axes remain depth 8 and adjacency 8; C1 works depth. Other ordinals unchanged.
+L1 holds the planner role before dispatch because the validator forbids planner.
+One v1 wave of ten seats is planned; three attack seats, no residual.
+
+| Claim | Axis | Frozen predicate and before→after target | Command | Kill rule |
+|---|---|---|---|---|
+| C1 | depth 8, sourced S330 | **42 pinned restart cells with a digest-bound review file**: the new JSON equals the frozen expected object (six causes × seven settings), S330 resolves as A/docs/mined naming the URL and JSON, the raw snapshot and expected digests hold, and `w1/ReviewMatrix/verdict.json` binds both landed companions and six `holds`; count 0→42 | `python3 tools/measure-round80.py --revision <REV> --claim C1` | any mismatched matrix cell/source/digest/review field; a source-inconsistent companion; frozen instrument alteration |
+| C2 | operability 9 | **two named tools expose own selftests and carry byte-bound execution receipts**: `count-kr-rows-r69.py` and `check-transaction-order-r39.py` each have exactly one gate row in the fixed current round71 section, an exact own `--selftest` command, declared code 3, a tool blob containing selftest tokens, and a receipt binding argv/digest/rc0/passed≥4/failed0; count 0→2 | `python3 tools/measure-round80.py --revision <REV> --claim C2` | missing/false registry interface, stale receipt, selftests lacking genuine public-path isolated positive and negative cases, altered frozen instrument |
+
+Instrument `tools/measure-round80.py` SHA256
+`688766756d0fb73ffb8f1d746e3377d58532bd4afa0a3aa92489c61165614d1d`;
+expected object SHA256 `05abbf14c2c2e8d5ce31cc5c815e264937d6c11a882d3fc08d90ca6952965153`.
+Source: systemd v262 `man/systemd.service.xml`, Restart= table and surrounding
+conditions, opened live this round; snapshot SHA256
+`12770f86a26dcdf32873225669f5aa9421283c303bbc72bddb04530850f66d44`.
+The matrix is documentation, not installed-build/live-restart behavior.
+Conditions (oneshot, manual stops, rate limits and overrides) belong in the companion.
+
+Before freeze, `before/run-controls.py` actually ran: eleven controls green,
+including actual base C1 0/rc1 and C2 0/rc1, synthetic positive C1 42/rc0 and
+C2 2/rc0, answer-copy without review, wrong cell, forged digest, wrong interface,
+and stale receipt negatives. Full commands/results: `before/controls.json`.
+This finite equality/binding gate does not prove authenticity: a fabricated
+complete review/receipt bundle can pass. Equality shadows finer semantic checks;
+source entailment and actual test quality remain separate reviewer kill rules.
+Neither claim depends on result-bundle seat outputs. R79's two failing C1 legs
+(DP6 mismatch AND null-output binding) remain historical misses, not repaired.
+Census start exit0; 329 source rows. Assimilation none; no package rows adopted.
+Gate-standard repair is two named tools, not closure of the inherited 36-row debt.
+No capability or ordinal uplift is pre-claimed.
+
