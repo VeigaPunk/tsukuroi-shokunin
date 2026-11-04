@@ -5329,3 +5329,101 @@ Wave w1: one v1 wave, band 8–16, **13 seats**; seat shape and counts are fixed
 **planned (next round):** the r70 depth entry's row-verdict binding (the XS rows are rules, not admitted
 propositions — a counted read of host applicability); R66-M3/M4 frozen-counter amendments where still reachable;
 the AR resolve-then-count debt; no amendment of this round's frozen predicates.
+
+## Round 70 — measured outcome (2026-11-04, measured revision `40c35ee7`; author-side, non-author closure pending)
+
+Declared at `1710bd74`; snapshot repair `84e013a7`; base `b2aa0be0`; measured surface
+`40c35ee7f197bc5c54f58fc5d2a1e7e4943eae32`. Wave w1: one v1 wave, **13 seats, 0 reported dead**
+(`w1-results.json`); scout1 / executor3 / scribe3 / connector1 / reviewer2 / critic1 / mutation-tester1 /
+sentinel1; strict attack seats 4/13 = 31 % (>= 25 %); connector 1; residual 0; the L1 held the planner
+seat (not a validator role).
+
+| Claim | Before (base `b2aa0be0`) -> after (measured revision) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 depth (SOURCED — S290-S293) | note `cat-file` rc **128** -> present; counter rc **128** -> present; SOURCES **289 -> 296** (four admitted + D5's three rejected); `XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4 XS_TARGET … met=1` rc **0**; every new row `NF=13`; knowledge-header **88/88**, 0 findings; refs **0** dangling; line-endings PASS 352/0; canonical census rc **0** | **verified** on the frozen predicate (author-side) | depth **8 -> 8**: one new mechanism on ground the province called unread (the XFS sysfs stats/log/error plane) plus one capability; no ordinal uplift claimed |
+| C2 operability (capability `xfs-stats-arm`) | label **0**, `probe_xfs` **0**, selftest **196** -> label present, exactly **1** live line `XFS xfs-stats mounts=2 present=2 absent=0 unreadable=0 stats=2 error=18 log=8 detail=none`, every field once in contract order; `mounts` equals the distinct xfs source count `findmnt -t xfs` reports in the same capture; per-fs `error=9 log=4 stats_lines=34`; rollup line byte-identical to the base capture and rc **1**; `--selftest` `PASS (214 cases, 214 passed, 0 failed)` rc **0** with **18** `R70-C2` case lines (>= 10) | **verified** on the frozen predicate (author-side); the instrument was repaired inside the round after attack (F2/F3) and the repair is proved able to fail | operability **9 -> 9** (no uplift; the capability row enters) |
+
+Counting commands (outputs in `.ufo/waves/round-70/after/gates-at-40c35ee7.txt`):
+
+```
+python3 tools/count-xs-rows-r70.py --revision 40c35ee7            -> 6/6, XS_SOURCES=4 XS_SNAPSHOTS=4, met=1, rc 0
+git show 40c35ee7:corpus/SOURCES.md | grep -cE '^\| S[0-9]{3,}'   -> 296
+git show 40c35ee7:corpus/SOURCES.md | awk -F'|' '/^\| S29[0-6] /{print $2, NF}' -> seven rows, NF=13 each
+bash tools/tsukuroi-census.sh --selftest                          -> PASS (214 cases, 214 passed, 0 failed), rc 0
+bash tools/tsukuroi-census.sh | grep -c '^XFS xfs-stats '          -> 1
+findmnt -t xfs -o SOURCE | sort -u | wc -l                        -> 2 (== the line's mounts)
+diff <(base rollup) <(live rollup)                                -> identical, rc 0
+scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi -> rc 0, 296 rows
+```
+
+**Capabilities — round 70 entry.**
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| xfs-stats-arm | Reports the unprivileged XFS sysfs reading on the census's verdict-neutral `XFS xfs-stats` line: distinct xfs mount sources, their `/sys/fs/xfs/<dev>` presence (partition kept exact), first-line stats parse, recursive readable regular-file counts under `error/` and `log/`, and a closed detail vocabulary — read-only, no xfsprogs call, never a rollup or exit-code input | `bash tools/tsukuroi-census.sh` -> one XFS line (`after/census-live-after.txt`); `--selftest` -> PASS 214/214 with 18 `R70-C2` cases | round 70 |
+
+Named limits, recorded and not smoothed:
+
+- **C2's literal predicate admits a line that does not read the host** (critic `K1Critic` C2-1, fatal as a
+  measurement-strength finding): the frozen text binds `mounts == findmnt`, `stats <= present` and the
+  live counts, but no `present + absent + unreadable == mounts` clause and no named verifier-side
+  enumerator for `error`/`log`. The landed arm keeps that partition by construction and its counts were
+  independently enumerated (`probes/E2Capture/host-enum.txt`: 18/8), but the predicate text alone cannot
+  distinguish the arm from a constant. Routed: a next-round predicate amendment naming the enumerator and
+  the partition (the claim's frozen predicate is not amended here).
+- **C1's statement-substance clause is lexical** (`R1Reviewer` M4): three real domain tokens plus nine
+  gibberish words reach `grounded()==3`. M5 (a snapshot may be cited three times), M6 (the registry
+  `anchor` cell is parsed but never read) and M11 (a space-less `|XS<n>|` row is not counted at all) are
+  bookkeeping channels, not content channels; all four are routed to the next frozen-counter amendment.
+  M1Mutation's independent 7 counter mutants were all killed, but the committed pre-data battery alone
+  kills only 2 of those 7 — the receipt's fixture set is thinner than its clause set.
+- **The arm's regular-file enumeration was wrong for two fixture shapes** (`R2Reviewer` F2 dotfile
+  undercount, F3 symlink overcount); repaired in-round with `find -type f` semantics and two new cases,
+  red-before `.ufo/waves/round-70/probes/L1-redbefore-r70c2.txt` (pre-repair 212/214 with exactly those
+  two failing). Neither shape exists under this host's sysfs, so the live line is unchanged.
+- **A census selftest case cannot fail a blocking arm** (`M1Mutation` §2): a mutant that reads a FIFO
+  hangs the suite rather than reporting FAIL; the real arm never opens a FIFO (`-type f`), but the harness
+  has no per-case timeout. Routed: a timeout harness next round.
+- **A6 case attribution** (`M1Mutation`): the rollup-term mutant is killed by the pre-existing R39 rollup
+  cases and the R70 shape cases, not by the neutrality A/B case, whose fixture journal plane is already
+  DEGRADED.
+- **Mount-source mapping** (`K1Critic` C2-2, [inference]): `UUID=`, `LABEL=` or `/dev/mapper/<name>` sources
+  cannot be mapped to a sysfs kobject name without blkid and read absent; no such mount exists here.
+- **The declaration's own receipts carried three defects**, all recorded in the round lesson and QUALITY
+  104: the four-snapshot set was three files at the declaring commit (`health.c` at `84e013a7`); the host
+  prose said 7 error files per filesystem where the capture lists 9; the novelty command's pathspec was
+  dropped in prose. C1's predicate fails closed on the first (`map-digest`) and the measured revision
+  carries the full set.
+
+Ordinals unchanged: depth **8**, coverage **9**, operability **9**, freshness **9**, calibration **9**,
+adjacency **8**. Saturation line **9**, window **3**; none retired. The lowest-axis duty is met by C1
+(depth, tied lowest at 8); the round's depth verdict is **unchanged**, reported as such. Learning trends
+(author-side; a non-author spot-check is owed by the closure judge): **expansion: improved** (S290-S293 on
+ground never held, one entry, three rejected rows, capability `xfs-stats-arm`); **quality: improved** (the
+r69-planned statement-substance and binding clauses answered in a frozen counter; two attack-found arm
+defects repaired with red-before proof; PROVINCE promotion; QUALITY 104; the D1 Gate erratum); **discernment:
+unchanged** (the wave caught four of the lane's own defects; the outside spot-check is owed).
+
+Planned (next round): a C2 predicate amendment naming the verifier-side enumerator and the partition
+invariant; the C1 counter's statement-substance and anchor-binding clauses; a per-case selftest timeout;
+R66-M3/M4 where still reachable; the AR resolve-then-count debt; no amendment of this round's frozen
+predicates.
+
+## Round 70 — declaration errata (append-only; the frozen predicates are unchanged)
+
+The declaration text at `1710bd74` stays as written. These measured corrections are appended; they amend
+prose receipts only, never the C1/C2 predicate, counter or kill rule.
+
+1. **(a) snapshot set.** The declaration names four snapshots as committed at the declaring commit; only
+   three were (`SHA256SUMS` 3 lines, `SOURCES.json` 3 keys). `health.c` (digest `84fdd0be…15950`) and its
+   map entry landed at `84e013a7`; `sha256sum -c` is 4/4 OK at the measured revision.
+2. **(b) host count.** "error subtree 7 regular files per filesystem" is superseded: the committed capture
+   and the live tree read **9** per filesystem (1 + 4 handler classes x 2 knobs) and the frozen predicate's
+   "enumerated regular-file counts" is **18**, not 14.
+3. **(c) novelty command.** The prose command omitted its `-- corpus/knowledge` pathspec; without it the
+   declaring commit reads 3 (its own `before/src` files). With the pathspec it reads 0, as the receipt
+   `before/novelty-sweep.txt` records, and the substantive proposition holds.
+4. **(d) considerthese.** The sentence naming the "Counter-attack scoreboard" as this round's mined
+   proposal is withdrawn: it was adopted at round 64 (`SKILL.md:5603`). No proposal is mined this round;
+   the scoreboard is continued as the standing ledger, and the measured implementation status per proposal
+   is in the round lesson's `## Considerthese`.
