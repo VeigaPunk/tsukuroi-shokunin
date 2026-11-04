@@ -1,0 +1,38 @@
+# round-73 held-ground sweep (QUALITY 102b), at base eb105757, 2026-11-03T23:03:26-03:00
+
+$ git grep -nE "unit_load_dropin|dropin_paths|unit_need_daemon_reload|null_or_empty|unit_file_mask|config_parse_alias" -- corpus/ SKILL.md PROVINCE.md
+exit=0
+
+$ git grep -niE "lexicographic order" -- corpus/ SKILL.md PROVINCE.md
+PROVINCE.md:451:lexicographic order, so a configuration file is completely replaced by a higher-priority file of the same
+corpus/SOURCES.md:312:| S301 | kmod v34 man/modprobe.d.5.scd — https://git.kernel.org/pub/scm/utils/kernel/kmod/kmod.git/plain/man/modprobe.d.5.scd?h=v34 | docs | A | The documented modprobe configuration plane: the configuration directory list in SYNOPSIS read order, suppression of a same-named file in later directories, one lexicographic ordering across directories, and complete versus partial replacement | tag v34, snapshot .ufo/waves/round-72/before/src/modprobe.d.5.scd, lines 7-17 (SYNOPSIS directory list in precedence order), 40-50 (CONFIGURATION DIRECTORIES AND PRECEDENCE: once a filename is loaded the same name in subsequent directories is ignored; all files sorted lexicographic regardless of directory; complete replacement by higher priority and partial replacement by later ordering), 52-53 (MODPROBE_OPTIONS may alter the directories) | One benefit: the manual gives both the read order and the two replacement modes, so a same-named file in a higher-priority directory replaces a whole file while a later-ordered file only partially replaces it | mined | 2026-11-03 | on-release | corpus/knowledge/modprobe-config-plane-r72.md |
+corpus/SOURCES.md:391:modprobe configuration plane: directory precedence and same-name suppression, lexicographic ordering
+corpus/knowledge/modprobe-config-plane-r72.md:18:| MD2 | All configuration files are sorted in lexicographic order regardless of the directory they reside in, so a configuration file can be completely replaced by a new file with the same name in a directory of higher priority, or partially replaced by a configuration file that is ordered later. | source=S301 | snapshot=modprobe.d.5.scd | digest=aa1a869e57db31c8187a436b5eab3047394da5fd779794e1cdd4ccad598ee46e | quote="All configuration files are sorted in lexicographic order, regardless of the directory they reside in." |
+corpus/lessons/round-72.md:25:"All configuration files are sorted in lexicographic order, regardless of the directory they reside in.";
+exit=0
+
+$ git grep -niE "unit load path|unit search path|FragmentPath|UnitFileState|DropInPaths" -- corpus/ SKILL.md PROVINCE.md (file counts)
+unit load path -> files=0
+unit search path -> files=0
+FragmentPath -> files=0
+UnitFileState -> files=4
+DropInPaths -> files=0
+
+$ git grep -l "drop-in" -- corpus/ SKILL.md PROVINCE.md | wc -l
+19
+the drop-in mentions in corpus/knowledge (context, not the systemd merge plane):
+  corpus/knowledge/boot-writers-r19.json
+  corpus/knowledge/boot-writers-r19.md
+  corpus/knowledge/btrfs-scrub-grounding-r45.md
+  corpus/knowledge/degraded-triage-r4.md
+  corpus/knowledge/initramfs-v42-sysroot-recovery.md
+  corpus/knowledge/journal-boot-plane.md
+  corpus/knowledge/kill-event-deep-r8.md
+  corpus/knowledge/kill-oom-boundary-r33.md
+  corpus/knowledge/oom-event-plane.md
+  corpus/knowledge/systemd-user-plane.md
+  corpus/knowledge/systemd262-credentials-boot-policy-r66.md
+  corpus/knowledge/systemd262-uki-pcr-r65.md
+
+$ git grep -n "systemd.unit" -- corpus/ SKILL.md PROVINCE.md | wc -l
+12

@@ -1,0 +1,63 @@
+# round-73 host readings (read-only), captured 2026-11-03T23:00:38-03:00 on Linux 7.2.11-arch1-1, systemd systemd 262 (262.1-1-arch)
+
+## unit search path (systemd-analyze unit-paths)
+/etc/systemd/system.control
+/run/systemd/system.control
+/run/systemd/transient
+/run/systemd/generator.early
+/etc/systemd/system
+/etc/systemd/system.attached
+/run/systemd/system
+/run/systemd/system.attached
+/run/systemd/generator
+/usr/local/lib/systemd/system
+/usr/lib/systemd/system
+/run/systemd/generator.late
+
+## unit-file counts
+/etc/systemd/system regular units: 0
+/etc/systemd/system symlinks (aliases/masks): 10
+/etc/systemd/system drop-in dirs (*.d): 3
+/usr/lib/systemd/system drop-in dirs (*.d): 12
+/run/systemd/system drop-in dirs (*.d): 0
+
+## masked units
+list-unit-files state=masked: 2
+list-unit-files state=masked-runtime: 0
+sample masked rows:
+passim.service                       masked disabled
+systemd-networkd-wait-online.service masked enabled
+
+## a masked unit's own load state
+unit=passim.service
+LoadState=masked
+FragmentPath=/etc/systemd/system/passim.service
+UnitFileState=masked
+lrwxrwxrwx 1 root root 9 Oct 20 09:48 /etc/systemd/system/passim.service -> /dev/null
+
+## drop-in example on this host
+systemd-udevd.service -> /usr/lib/systemd/system/systemd-udevd.service.d/50-rc_keymap.conf
+user@1000.service -> /usr/lib/systemd/system/user@.service.d/10-login-barrier.conf /etc/systemd/system/user@.service.d/faster-shutdown.conf
+
+## a template instance
+Id=getty@tty1.service
+LoadState=loaded
+FragmentPath=/usr/lib/systemd/system/getty@.service
+
+## failed units (context)
+failed: 0
+
+## corrected unit-file counts (round-73 L1 re-measure; the earlier 'regular units: 0' line was a bad find expression and is superseded here, not cited)
+files in /etc/systemd/system (maxdepth 1, type f): 0
+.service files in /etc/systemd/system: 0
+symlinks in /etc/systemd/system: 10
+symlinks pointing at /dev/null (masks): 2
+
+## user@1000.service drop-in paths (instance + template live)
+LoadState=loaded
+FragmentPath=/usr/lib/systemd/system/user@.service
+DropInPaths=/usr/lib/systemd/system/user@.service.d/10-login-barrier.conf /etc/systemd/system/user@.service.d/faster-shutdown.conf
+
+## the two masked units' targets
+passim.service -> /dev/null
+systemd-networkd-wait-online.service -> /dev/null

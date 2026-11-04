@@ -5789,3 +5789,79 @@ prints observed vs declared ids. The landed tool is **10 cases, 10 passed, 0 fai
 fails (`SELFTEST-MISMATCH`, `SELFTEST-MIXED`; rc 1). The frozen target `N >= 7` and the r70 self-demo
 (`added_figures_mismatched=0 receipt_cases=214 receipt_labels=18`, rc 0) are unchanged.
 
+
+## Round 73 — declaration (frozen before data; append-only)
+
+Base `eb1057575d5d8b940c4846e21611674cf5571aea` (round-72 verifier spot-check). **Lowest non-retired
+axis: depth (8, tied with adjacency 8)**; saturation line 9, window 3. A capability entered at round 72
+(`gate-selftest`), so the stagnation window stands at 1 of 3 and the nudge does **not** waive the
+lowest-axis duty. Two claims on two axes: C1 depth, C2 freshness.
+
+**Held-ground sweep (QUALITY 102b; `.ufo/waves/round-73/before/held-ground.txt`, run at the base).**
+`git grep -nE 'unit_load_dropin|dropin_paths|unit_need_daemon_reload|null_or_empty|unit_file_mask|
+config_parse_alias' -- corpus/ SKILL.md PROVINCE.md` reads **0 lines**; `unit load path`, `unit search
+path`, `FragmentPath` and `DropInPaths` read **0 files**; `UnitFileState` reads 4 files and `drop-in` 19
+files, but every `corpus/knowledge/` hit is a host observation of a named drop-in file
+(`systemd-user-plane.md:29,44`, `kill-event-deep-r8.md:258,263`, `degraded-triage-r4.md:358`) or an
+mkinitcpio hook context — none states the systemd merge, precedence or mask rules this round claims.
+The ground is therefore **the merge/precedence plane beside held drop-in observations**, not a restated
+existing note.
+
+**Sources pinned before the declaration text** (`.ufo/waves/round-73/before/src/`, byte-exact, systemd
+**v262**, the tag matching the host's installed 262.1-1-arch):
+
+| snapshot | URL (tag v262) | sha256 |
+|---|---|---|
+| `systemd.unit.xml` | `https://raw.githubusercontent.com/systemd/systemd/v262/man/systemd.unit.xml` | `eb9479be…f82714c6` |
+| `unit.c` | `https://raw.githubusercontent.com/systemd/systemd/v262/src/core/unit.c` | `47e98d39…42a92efcb7` |
+| `install.c` | `https://raw.githubusercontent.com/systemd/systemd/v262/src/shared/install.c` | `c11cd575…e6ef4d` |
+
+`SHA256SUMS` and `SOURCES.json` (map of url + sha256 per snapshot) are committed with them; the counter
+pins every digest it accepts. Host readings for the plane are committed in `before/host.txt` (search-path
+list, 2 masked units on `/dev/null`, `user@1000.service` reading both a template and a prefix drop-in,
+`getty@tty1.service` resolving to `getty@.service`).
+
+**(a) Do-nothing controls** (`before/absence-controls.txt`): the note `git cat-file -e` rc **128**; the
+frozen counter over the base tree prints `UL_NOTE absent` rc **128**; `git show eb105757:corpus/README.md
+| grep -c 'UL[0-9]'` reads **0**; the routed checker at base reads `ROUTED_STALE=3` rc **1**; registry
+**303** rows, **90** knowledge notes, **120** lesson files.
+
+**(b) Frozen instruments.** `tools/count-ul-rows-r73.py` sha256
+`542f9c2947139b5c8f6aec7110f1e6c874d106efc7dc05efe6a91f090711a3d6`, `--selftest` **11 cases** (1 control
++ 10 mutants: short statement, unregistered source, absent quote, five rows, duplicate id, snapshot reuse
+3, ungrounded statement, malformed hidden row, digest swap, own-work source), each mutant asserting a
+named finding token, fixtures copied under one `$TMPDIR` root. `tools/check-r72-routed-r73.py` sha256
+`93f034e3dbb1edbe73995d11e7bd8311c45c0929f1902e342bf8305f902a2f9e`, `--selftest` **5 cases** (control +
+lesson/digest/capability missing + an unanchored prose mention that must not satisfy a block check).
+**Instrument-change rule for this round, frozen now** (the round-72 routed defect class): if a wave
+attack changes either instrument after data, the before control is re-run with the final instrument and
+both revisions are cited in an appended erratum naming old→new digests, so the before→after pair is
+same-instrument evidence.
+
+| # | axis/type | claim | before → after (frozen predicate) | counting command | kill rule |
+|---|---|---|---|---|---|
+| C1 | depth (lowest tied, 8; SOURCED — S304–S306) | `corpus/knowledge/systemd-unit-load-plane-r73.md` states the systemd unit-load merge plane this lane never held: unit files load from a compiled path where an earlier directory's file overrides the same name lower in the list and `SYSTEMD_UNIT_PATH` replaces the whole path; drop-in `.conf` files merge in alphanumeric order after the unit file, `/etc` beats `/run` beats `/usr/lib`, drop-ins beat unit files wherever located, and different names are ordered lexicographically across directories; a loaded unit needs a daemon reload when its drop-in path list changes or a drop-in is newer than the last reload, and masked drop-ins are omitted from that list; a masked unit stays masked while its fragment path is null or empty, so a zero-size file and a `/dev/null` symlink both keep the masked state; the mask operation writes a `/dev/null` symlink and the install mode distinguishes `masked` from `masked-runtime`; and `[Install] Alias=` is parsed at enable time while an alias to a missing unit is unresolvable and ignored | `UL_NOTE absent` rc **128**, 0 UL rows, registry 303, notes 90 → `UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0`, `met=1`, rc **0**; registry 303 → **306**, notes 90 → **91**, canonical census rc 0 | `python3 tools/count-ul-rows-r73.py --revision <REV>` | any row fails a frozen clause (id, statement words, grounding, source kind, digest/map/URL/anchor binding, quote location or length), fewer than 6 rows / 3 sources / 3 snapshots, or any snapshot cited more than twice → `met=0`, rc 1 |
+| C2 | freshness (9) | the three round-72 closure defects routed to this lane close in committed bytes: `corpus/lessons/round-72.md` carries an appended correction naming both superseded sentences ("No capability row enters this round", "nine hermetic cases") and the landed `gate-selftest`/ten-case state; `SCORECARD.md` carries an appended erratum naming `R72-C3-INSTRUMENT-DIGEST-DRIFT` with the instrument digest old→new (`df8a59c7…` → `2610ff43…`) and the same-instrument before/after receipt; and an appended capability refresh restates `gate-selftest` as ten cases with its receipt pointer | `ROUTED_STALE=3` rc **1** (all three items stale) → `ROUTED_STALE=0 ROUTED_OK=3/3` rc **0** | `python3 tools/check-r72-routed-r73.py --revision <REV>` | any item unsatisfied inside an appended line-anchored block → `ROUTED_STALE>0`, rc 1 |
+
+Causal separability: C1 touches only its note, three registry rows and its counter receipts; C2 touches
+only the round-72 lesson correction, one SCORECARD erratum block and one appended capability refresh.
+Each verifies without the other having landed (the counters are independent and read different files).
+
+Routed repairs this round as work, not as claims: **R72-GATE-NO-REJECT** — this round's Gate records at
+least one refused candidate with reason and flip condition (see `corpus/lessons/round-73.md`); the defect
+is reported, not folded into C2's predicate, because a sources-gate rejection is produced by C1's work.
+
+Assimilation: **none** — the open L0 `tsukuroi | round-64` rule keeps the `merge/tsukuroi/` package
+quarantined (collision set S200–S281 against a registry now at S303); nothing is adopted. `considerthese`:
+no proposal is still unimplemented in the latest file (`considerthese/2026-10-26.md`) — the
+counter-attack scoreboard (r41+), the seat-harm tally (r66), the downstream patch-offset check (QUALITY
+103, r69), the burst-aware reading record (r46) and the cross-note propagation map (r43/r54, recorded
+partial) are all accounted for; the status is restated in the lesson.
+
+Wave w1: one v1 wave, band 8–16, **12 seats** (scout 1 / executor 3 / scribe 3 / connector 1 / reviewer
+2 / critic 1 / mutation-tester 1; strict attack 4/12 = 33 %); the L1 holds the canonical planner seat.
+
+**planned (next round):** the C1 counter's entailment channel (a row that negates its snapshot reads
+`met=1`); the three held drop-in observations (`faster-shutdown.conf`, `app-walker@autostart.service.d/`)
+re-bound to the new merge rules as sources; the `install.c` alias rows' host-side blank (no alias symlink
+is read this round); no amendment of this round's frozen predicates.

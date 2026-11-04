@@ -1,0 +1,37 @@
+# round-73 do-nothing controls (no claimed work applied), base eb105757, 2026-11-03T23:03:43-03:00
+
+## C1 control: the note does not exist and the counter cannot score it
+$ git cat-file -e eb105757:corpus/knowledge/systemd-unit-load-plane-r73.md; echo rc=$?
+rc=128
+$ python3 tools/count-ul-rows-r73.py --revision eb105757
+UL_NOTE absent path=corpus/knowledge/systemd-unit-load-plane-r73.md
+rc=128
+$ git cat-file -e eb105757:.ufo/waves/round-73/before/src/SOURCES.json; echo rc=$?
+rc=128
+
+## C1 control: no UL row exists at base
+$ git show eb105757:corpus/README.md | grep -c "UL[0-9]" -> 0
+
+## C2 control: the three routed defects are open
+$ python3 tools/check-r72-routed-r73.py --revision eb105757
+LESSON-STALE path=corpus/lessons/round-72.md reason=block-incomplete missing_tokens=2
+ROUTED_ITEM LESSON stale
+DIGEST-STALE path=SCORECARD.md reason=block-incomplete missing_tokens=2
+ROUTED_ITEM DIGEST stale
+CAPABILITY-STALE path=SCORECARD.md reason=block-incomplete missing_tokens=0
+ROUTED_ITEM CAPABILITY stale
+ROUTED_STALE=3 ROUTED_OK=0/3
+rc=1
+
+## shared baselines
+$ git show eb105757:corpus/SOURCES.md | grep -cE "^\| *S[0-9]{3,}" -> 303
+$ git ls-tree --name-only eb105757:corpus/knowledge | grep -c "\.md$" -> 90
+$ git ls-tree --name-only eb105757:corpus/lessons | grep -c "\.md$" -> 120
+
+## instruments frozen with this declaration (sha256 of the working bytes being committed)
+542f9c2947139b5c8f6aec7110f1e6c874d106efc7dc05efe6a91f090711a3d6  tools/count-ul-rows-r73.py
+93f034e3dbb1edbe73995d11e7bd8311c45c0929f1902e342bf8305f902a2f9e  tools/check-r72-routed-r73.py
+
+## selftest capability at base (not a measurement of the target)
+$ TMPDIR=$HYAKU_SCRATCH/tsukuroi-r73/l1 python3 tools/count-ul-rows-r73.py --selftest -> rc 0, PASS (11 cases, 11 passed, 0 failed)
+$ TMPDIR=$HYAKU_SCRATCH/tsukuroi-r73/l1 python3 tools/check-r72-routed-r73.py --selftest -> rc 0, PASS (5 cases, 5 passed, 0 failed)
