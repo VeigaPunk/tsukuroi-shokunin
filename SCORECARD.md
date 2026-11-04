@@ -5720,3 +5720,58 @@ negates its snapshot reads `met=1`; `K1Critic` control 1); (ii) a `kind=communit
 prints the expected lines can fake its own verdict (`K1Critic` control 2) — the defence is the committed
 expected-verdict and red-before receipts, not the summary line; (iv) C3 accepts a denial block (item 2).
 
+## Round 72 — measured outcome (2026-11-03, measured revision `f79de557b0d556e445be3141a864f6c58c0242fd`; author-side, non-author closure pending)
+
+Wave w1: one v1 wave, **12 seats** (scout 1 / executor 3 / scribe 3 / connector 1 / reviewer 2 /
+critic 1 / mutation-tester 1; strict attack seats 4/12 = 33 %; connector 1; the L1 held the planner
+seat; residual 0). Seat reports: `S1Scout`, `E1Mirror`, `E2GateSelftest`, `E3Routed`, `SC1Entry`,
+`SC2Sources`, `SC3Index`, `C1Connector`, `R1Reviewer`, `R2Reviewer`, `K1Critic`, `M1Mutation` — all
+twelve landed substantive files under `.ufo/waves/round-72/{w1,probes}/`.
+
+| Claim | Before (base `a7015d27`) -> after (measured revision) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 depth (lowest tied, 8; SOURCED — S301-S303) | note `cat-file` rc **128** -> present; MD rows **0** -> 6; counter over the base tree `MD_NOTE absent` rc **128** -> `MD_ROWS=6 MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 MD_MALFORMED=0`, `met=1`, rc 0; registry **300 -> 303** (`NF=13` each); knowledge notes **89 -> 90**; canonical census rc **0** | **verified** on the frozen predicate (author-side) | depth **8 -> 8**: one new mechanism on ground the province never held (the configuration surface beside the r71 parameter surface); no ordinal uplift claimed |
+| C2 operability (9; capability `gate-selftest`) | `--selftest` rc **2**, **0** case lines -> rc **0**, `SELFTEST: PASS (9 cases, 9 passed, 0 failed)` with nine named ids; missing `$TMPDIR` rc **2**; committed red-before recipe rc **1** with `SELFTEST-MISMATCH` and `SELFTEST-MIXED` failing; r70 self-demo unchanged (`added_figures_mismatched=0 receipt_cases=214 receipt_labels=18`, rc 0) | **verified** on the frozen predicate (author-side); the L1's first fixtureless version was replaced by the wave's file-fixture patch and the suite is shown able to fail | operability **9 -> 9** (no uplift; the capability enters the table) |
+| C3 freshness (9) | `ROUTED_STALE=3` rc **1** -> `ROUTED_STALE=0` rc **0**; the receipt's summary equals a fresh `count-mp-rows-r71.py --revision 2b358d2d` run, the SCORECARD erratum names receipt + revision, and the note correction enumerates the five `/usr/lib/modprobe.d` names and the superseded four figure | **verified** on the frozen predicate (author-side); three checker defects the wave found are repaired with probes (`probes/L1C3/probes.txt`) | freshness **9 -> 9** (no uplift; the routed defects close) |
+
+Counting commands (outputs in `.ufo/waves/round-72/after/`):
+
+```
+python3 tools/count-md-rows-r72.py --revision f79de557        -> MD_VERIFIED=6 MD_SOURCES=3 MD_SNAPSHOTS=3 met=1, rc 0
+git show f79de557:corpus/SOURCES.md | grep -cE '^\| *S[0-9]{3,}' -> 303
+git ls-tree --name-only f79de557:corpus/knowledge | grep -c '\.md$' -> 90
+python3 tools/check-selftest-tally.py --selftest             -> SELFTEST: PASS (9 cases, 9 passed, 0 failed), rc 0
+TMPDIR=/nonexistent/x python3 tools/check-selftest-tally.py --selftest -> rc 2
+bash .ufo/waves/round-72/after/redbefore-mutant.sh           -> rc 1
+python3 tools/check-r71-routed-r72.py --revision f79de557    -> ROUTED_STALE=0, rc 0
+/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi -> rc 0
+```
+
+**Capabilities — round 72 entry.**
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| gate-selftest | A registered gate proves its own behaviour on hermetic fixture files written under `$TMPDIR`: nine named cases, stable finding ids (`SWEEP-MISMATCH`, `SWEEP-LABEL`, `SWEEP-NO-RECEIPT`), an explicit `SELFTEST-TMPDIR` failure with rc 2 when `$TMPDIR` names no directory, and a committed red-before recipe that fails when one arm is disabled | `python3 tools/check-selftest-tally.py --selftest` -> PASS 9/9; `.ufo/waves/round-72/after/redbefore-selftest.txt` rc 1 | round 72 |
+
+Named limits, recorded and not smoothed:
+
+- **C1's statement channel is lexical** (`R1Reviewer` F3, `K1Critic` control 1): a row that negates its
+  snapshot while keeping the vocabulary reads `met=1`. The counter checks grounding, binding and
+  provenance, never entailment; row semantics rest on R1Reviewer's six `holds` verdicts and the closure
+  judge.
+- **A `kind=community` row at tier A passes** (`R1Reviewer` F4): the counter reads `kind` but not `tier`;
+  carried into the next round's counter debt.
+- **Eleven of sixteen C1 source mutants survive the committed battery** (`probes/M1Mutation/score.md`):
+  five clause removals are killed by the battery, the rest only by clause-isolated fixtures the battery
+  does not carry; the added `mutant-duplicate-id-true` kills the id clause but not `c1-contiguous-drop`.
+- **The `--selftest` suite tests the tool's own core** (`K1Critic` control 2): a replacement tool that
+  prints the expected lines can fake its own verdict; the defence is the committed expected-verdict and
+  red-before receipts, not the summary line.
+- **C3 verifies naming, not entailment** (`R2Reviewer` medium, erratum item 2): a block that names the
+  receipt and revision while denying the repair still reads `ROUTED_STALE=0`; correction substance rests
+  on the non-author review.
+- **Wave lineage**: the C1 note and registry rows are the SC1Entry/SC2Sources drafts; the SKILL/PROVINCE/
+  README text is the SC3Index drafts; the C2 `--selftest` is E2GateSelftest's patch (the L1's first
+  version was fixtureless); the C3 receipt and correction text are E3Routed's drafts; the three C3
+  checker repairs answer E3Routed's and R2Reviewer's attacks.
+

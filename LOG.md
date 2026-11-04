@@ -3125,3 +3125,49 @@ figures written in the docs commit.
 
 Evidence: `.ufo/waves/round-71/{before,after,w1,probes}/`; lesson `corpus/lessons/round-71.md`.
 Measured outcome and final counts follow the landing commit.
+
+## Round 72 (2026-11-03) — modprobe configuration plane, a self-testing gate, and the r71 routed repairs
+
+Declaration `6b42676` (base `a7015d27`), measured revision `f79de557`; three claims on three axes.
+The round re-measured the r71 source-pin premise on the host it now runs on (kmod 34.2, kernel 7.2.11)
+and opened the kmod v34 tree rather than trusting the r71 404.
+
+**C1 depth (lowest tied, 8; SOURCED).** `corpus/knowledge/modprobe-config-plane-r72.md` states the
+configuration plane in six rows MD1-MD6, sourced S301 (man page), S302 (libkmod config), S303 (modprobe
+CLI): SYNOPSIS precedence with first-name suppression, one lexicographic pass across directories with
+complete/partial replacement, libkmod's sorted insertion rejecting a duplicate name, the kernel command
+line parsed into the same config object after the files, dry-run printing without executing, and
+blacklist as alias-only unless `-b`. Frozen counter `tools/count-md-rows-r72.py` reads `MD_VERIFIED=6
+MD_SOURCES=3 MD_SNAPSHOTS=3 met=1` rc 0 at `f79de557`; registry 300 -> 303, notes 89 -> 90, census rc 0.
+The counter's pre-data battery is 11 cases (1 control + 10 mutants), amended post-data with a true
+duplicate-id case (12/12, `before/control/battery-amended.txt`).
+
+**C2 operability.** `tools/check-selftest-tally.py` gains `--selftest`: nine hermetic cases over fixture
+files written under `$TMPDIR`, one named line per case, stable finding ids, an explicit
+`SELFTEST-TMPDIR` failure (rc 2) when `$TMPDIR` names no directory, and a committed red-before recipe
+(`after/redbefore-mutant.sh`, rc 1). The r70 self-demo is unchanged (`added_figures_mismatched=0
+receipt_cases=214 receipt_labels=18`). The capability `gate-selftest` enters the repertoire.
+
+**C3 freshness.** The r71 closure's R71-C1-UNRECEIPTED-RUN and R71-NOTE-MODPROBE-COUNT close in
+committed bytes: a receipt at `.ufo/waves/round-71/after/count-mp-rows-final.txt` whose summary equals a
+fresh run at `2b358d2d`, a SCORECARD erratum naming receipt and revision, and an appended note
+correction enumerating the five `/usr/lib/modprobe.d` names. Checker
+`tools/check-r71-routed-r72.py`: `ROUTED_STALE=3` -> `0`.
+
+Wave w1: one v1 wave, **12 seats** (scout 1 / executor 3 / scribe 3 / connector 1 / reviewer 2 / critic
+1 / mutation-tester 1; attack 4/12 = 33 %; connector 1; the L1 held the planner seat; residual 0). The
+wave caught the lane's own defects in every claim: a fixtureless first `--selftest` and a vacuous
+green case (`E2GateSelftest`), an unanchored erratum match, an unchecked receipt revision, a token-list
+correction and two false fails (`E3Routed`, `R2Reviewer`), a false cmdline host fact and a
+tier/community channel (`R1Reviewer`), and nine declaration defects D1-D9 (`K1Critic`: the uncommitted
+red-before, the mis-attributed battery case, the window arithmetic, the docstring counts, the
+base/provenance conflation). All are repaired or recorded as named limits; no frozen predicate was
+amended.
+
+Routed repairs (not claims): R71-RECEIPT-MISPATH is restated in this round's report; R71-GATE-SELFTEST
+is C2; R71-KMOD-LEAD-PATH is closed by opening `man/modprobe.d.5.scd` at v34 (HTTP 200) and deciding
+the precedence question on its bytes.
+
+Evidence: `.ufo/waves/round-72/{before,after,w1,probes}/`; lesson `corpus/lessons/round-72.md`;
+measured outcome in `SCORECARD.md` "Round 72 — measured outcome".
+
