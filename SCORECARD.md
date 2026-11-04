@@ -5946,3 +5946,57 @@ after, and the six rows pass it); the C2 before control is still `ROUTED_STALE=3
 `ROUTED_STALE=0` rc 0 after (`.ufo/waves/round-73/after/c2-before-final-instrument.txt`). Selftest tallies
 at the final bytes: counter `SELFTEST: PASS (12 cases, 12 passed, 0 failed)`; checker
 `SELFTEST: PASS (11 cases, 11 passed, 0 failed)`.
+
+## Round 73 — measured outcome (2026-11-03, measured revision `583eea87627353d6e21037216e316af8e19bdf4d`; author-side, non-author closure pending)
+
+Wave w1: one v1 wave, **12 seats** (scout 1 / executor 3 / scribe 3 / connector 1 / reviewer 2 / critic 1 /
+mutation-tester 1; strict attack seats 4/12 = 33 %; connector 1; the L1 held the planner seat; residual 0).
+Seat reports under `.ufo/waves/round-73/w1/`; the two v1 instruments were hardened by the wave's own attacks
+and their final digests are in "Round 73 — final instrument digests" above.
+
+| Claim | Before (base `eb105757`) -> after (`583eea87`) | Verdict | Axis verdict |
+|---|---|---|---|
+| C1 depth (lowest tied, 8; SOURCED — S304-S306) | note `cat-file` rc **128** -> present; UL rows **0** -> 6; counter over the base tree `UL_NOTE absent` rc **128** -> `UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0`, `met=1`, rc 0; registry **303 -> 308** (`NF=13` each); knowledge notes **90 -> 91**; canonical census rc **0** | **verified** on the frozen predicate (author-side) | depth **8 -> 8**: one new mechanism on ground the province never held; no ordinal uplift claimed |
+| C2 freshness (9) | `ROUTED_STALE=3` rc **1** -> `ROUTED_STALE=0 ROUTED_OK=3/3` rc **0**; each item inside a line-anchored appended block with whole tokens, a digest direction and a receipt reporting ten cases; same-instrument before control re-run with the final bytes at `eb105757` and `a7015d27` (`after/c2-before-final-instrument.txt`); the r72 checker's own 3 -> 0 pair re-run at `a7015d27`/`eb105757` (`after/r72-c3-same-instrument-before.txt`) | **verified** on the frozen predicate (author-side) | freshness **9 -> 9** (no uplift; the routed defects close) |
+
+Counting commands (outputs in `.ufo/waves/round-73/after/`):
+
+```
+python3 tools/count-ul-rows-r73.py --revision 583eea87   -> met=1, rc 0
+python3 tools/count-ul-rows-r73.py --revision eb105757   -> UL_NOTE absent, rc 128
+python3 tools/check-r72-routed-r73.py --revision 583eea87 -> ROUTED_STALE=0 ROUTED_OK=3/3, rc 0
+python3 tools/check-r72-routed-r73.py --revision eb105757 -> ROUTED_STALE=3, rc 1
+git show 583eea87:corpus/SOURCES.md | grep -cE '^ {0,3}\| *S[0-9]{3,}' -> 308
+git ls-tree --name-only 583eea87:corpus/knowledge | grep -c '\.md$' -> 91
+/home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi -> rc 0
+```
+
+**No capability row enters this round.** Both instruments are per-round gates whose objects are this round's
+note and this round's routed defects; C2 is a repair of an existing gate (`routed-defect checker`), not a new
+repertoire entry, and the round adds no reusable mode the lane did not already hold. The counter's twelfth
+selftest case and the checker's eleven are counted in their registry rows, not as capabilities.
+
+Named limits, recorded and not smoothed:
+
+- **The C1 counter is a form instrument** (K1Critic D3, R1Reviewer A/B/C/E): grounding is lexical, so a
+  word-salad statement, a quote lifted from an unrelated region and an anchor without a line range all read
+  `met=1`; row truth rests on R1Reviewer's per-row verdicts (`ROWS_HOLD` 2/6 on the draft, 6/6 after the
+  corrections) and on the closure judge, never on the counter alone.
+- **The counter carries an admissible answer key** (K1Critic D2): `SAMPLE_ROWS` is in the tool; the landed
+  note's rows are not identical to it (`IDENTICAL=0`, `after/final-checks.txt`), but a future writer could copy
+  the sample — next round's fix is synthetic self-test snapshots.
+- **C2's denial leg is not provable lexically** (R2Reviewer F1/F2): a block that keeps every token while
+  denying the repair reads `ROUTED_STALE=0`; direction rests on a non-author reading of the landed sentences.
+- **Both instruments were edited mid-wave** (R73-INSTRUMENT-MIDWAVE): the erratum and the final-digest block
+  name every intermediate, but the order was wrong and the lesson records it.
+- **Wave lineage.** The C1 note and its rows are SC1Entry's draft as corrected by R1Reviewer; the registry
+  rows with their refusal measurements are SC2Sources'; the SKILL table, PROVINCE entry and README index are
+  SC3Index's drafts with the counts corrected to the final instruments; the C2 repair drafts and tamper
+  receipts are E2Routed's and R2Reviewer's; the EMPTYQUOTE repair answers E1Counter; the host readings were
+  re-measured by S1Scout, R1Reviewer and SC3Index with no delta.
+
+**planned (next round):** the counter's answer-key channel (synthetic self-test snapshots, K1Critic D2); the
+counter's entailment channel (a row whose quote does not support its statement); the duplicate-registry-id
+channel E1Counter proved (`§D2`, a later row silently shadows an earlier duplicate); the three held drop-in
+observations (`faster-shutdown.conf`, `app-walker@autostart.service.d/`) re-bound to the new merge rules as
+sources; no amendment of this round's frozen predicates.

@@ -1,0 +1,30 @@
+# round-73 final checks (answers to K1Critic D2/D4/D5/D6), at 583eea87627353d6e21037216e316af8e19bdf4d
+
+## D2 — note rows vs the counter's SAMPLE_ROWS (answer-key overlap)
+$ python3 - <<PY  (compares the six note statements with SAMPLE_ROWS in tools/count-ul-rows-r73.py)
+NOTE_ROWS=6 SAMPLE_ROWS=6 IDENTICAL=0 rows=[]
+per-row quote re-open (quote located verbatim in the row's own snapshot):
+  UL1: quote=Unit files found in directories listed earlier override file
+  UL2: quote=Drop-in files under any of these directories take precedence
+  UL3: quote=any drop-ins that are masked are simply omitted from the lis
+  UL4: quote=For masked files check if they are still so
+  UL5: quote=path = path_make_absolute(*name, config_path);
+  UL6: quote=Unit %s is an alias to a non-existent unit, ignoring.
+
+## D4 — instrument bytes versus the declaration (only the two round-73 tools changed)
+$ git diff --stat 74937132 HEAD -- tools/
+ tools/check-r72-routed-r73.py | 178 ++++++++++++++++++++++++++++++------------
+ tools/count-ul-rows-r73.py    |  19 ++++-
+ 2 files changed, 145 insertions(+), 52 deletions(-)
+
+## D5 — the same-instrument receipt exists and carries the tool digest
+# tool: tools/check-r72-routed-r73.py sha256 328a6bf60c5237fe4ba857b36d2b4401833a61b933f735ec468139b7531a03fe
+(counter digest line is in measure-583eea87.txt)
+## C1 — the UL row counter (frozen; sha256 97f6f5ec83401b02d6c83b48bcad27f0f97c06c9e4ad134cc1cbfb202dbb03d0)
+
+## D6 — the three after-state commands outside the counter, and the deletion check
+registry_rows=308
+knowledge_notes=91
+census_rc=0
+deleted_lines_in_corpus_and_docs=0
+file_deletions_or_renames=0

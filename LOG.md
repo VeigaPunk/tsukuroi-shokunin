@@ -3175,3 +3175,47 @@ C2 instrument superseded in-round: `E2GateSelftest` v2 adds the `SELFTEST-CASES`
 case row; the landed tool is 10 cases / 10 passed (sha256 `f22eb94f…`), the red-before recipe still fails,
 and the frozen target `N >= 7` and the r70 self-demo are unchanged.
 
+
+## Round 73 (2026-11-03) — the systemd unit-load merge plane, and three r72 routed repairs
+
+Declaration `74937132` (base `eb105757`), measured revision `583eea87`; two claims on two axes. The round
+opened the systemd unit-load merge plane — the rules that decide which bytes become a unit — as new ground
+(held-ground sweep 0 lines for the plane's code anchors, 0 files for `unit load path`/`FragmentPath`/
+`DropInPaths`), and closed the three round-72 closure defects as its second claim.
+
+**C1 depth (lowest tied, 8; SOURCED).** `corpus/knowledge/systemd-unit-load-plane-r73.md` states the plane in
+six rows UL1-UL6, sourced S304-S306 (upstream systemd **v262** `man/systemd.unit.xml`, `src/core/unit.c`,
+`src/shared/install.c`; host 262.1-1-arch): the compiled load path with earlier-directory override, the
+`SYSTEMD_UNIT_PATH` override and its trailing-empty-component append case; drop-in merge order with `/etc` >
+`/run` > `/usr/lib` for a same-named drop-in, one cross-directory lexicographic pass, and drop-ins under those
+directories outranking the unit file; the daemon-reload condition and omitted masked drop-ins; the
+still-masked test while the file at the fragment path is null or empty; the `/dev/null` mask symlink,
+`masked` vs `masked-runtime` and the unmaskable generator mask; and enable-time `[Install] Alias=` creation
+even for a missing target, with the dangling-alias change reported on removal paths. Frozen counter
+`tools/count-ul-rows-r73.py` reads `UL_ROWS=6 UL_VERIFIED=6 UL_SOURCES=3 UL_SNAPSHOTS=3 UL_MALFORMED=0`,
+`met=1`, rc 0 at `583eea87`; registry 303 -> 308 (three mined, two refused), notes 90 -> 91, census rc 0. The
+two refusals (S307 rendered Arch man page, S308 Arch package page) were opened and measured, and close the
+routed R72-GATE-NO-REJECT.
+
+**C2 freshness.** The r72 lesson now carries an appended correction naming both superseded sentences and the
+ten-case landed state; `SCORECARD.md` carries the instrument-digest erratum (declaration `df8a59c7…` ->
+`2610ff43…`, with the intermediate `123e1c57` digest and a same-instrument 3 -> 0 pair at `a7015d27` versus
+`eb105757`) and the `gate-selftest` count refresh. Checker `tools/check-r72-routed-r73.py`:
+`ROUTED_STALE=3` -> 0.
+
+Both round-73 instruments were hardened by the wave's own attacks and every intermediate digest is recorded:
+the counter gained `MIN_QUOTE_WORDS=4` (E1Counter's `quote=""` defect) and a twelfth selftest case; the checker
+gained whole-token and path-token matching, digest direction, receipt existence with a ≥10-case line and a
+supersession verb (R2Reviewer F2/F4/F6/F7, E2Routed's tamper receipts), growing to eleven cases. R1Reviewer
+failed UL6 and partly held UL1/UL2/UL4 on the draft; the four statements were rewritten to its corrected
+sentences before landing (`ROWS_HOLD` 2/6 -> 6/6). K1Critic filed eleven findings (D1-D11), SC3Index four
+(F1-F4) and S1Scout the L1's mid-wave instrument drift; all are repaired or recorded as named limits, and the
+lesson's `## Mistakes` carries ten classes with their captures and fixes.
+
+Wave w1: one v1 wave, **12 seats** (scout 1 / executor 3 / scribe 3 / connector 1 / reviewer 2 / critic 1 /
+mutation-tester 1; attack 4/12 = 33 %; connector 1; the L1 held the planner seat; residual 0). Every seat
+landed substantive files; no seat died.
+
+Evidence: `.ufo/waves/round-73/{before,after,w1}/`; lesson `corpus/lessons/round-73.md`; measured outcome in
+`SCORECARD.md` "Round 73 — measured outcome". The registry rows first landed after `## Leads` (census E12) and
+were moved into the Registry table before this commit (R73-REGISTRY-ROWS-OUTSIDE-TABLE).
