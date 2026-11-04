@@ -1,0 +1,71 @@
+=== M1-drop-source-binding.py sha256 d6e5de82a72a16858e1fc4c064604e3b0b6dd6c32610d1ccf042c29b79950602
+@@ -173,8 +173,6 @@
+         else:
+             entry = snapmap.get(snap_name)
+             url = entry.get("url") if isinstance(entry, dict) else None
+-            if not url or url not in regrow["source"]:
+-                problems.append("source-not-bound")
+             sources.add(src)
+             snaps.add(snap_name)
+         if problems:
+=== M2-any-snapshot-digest.py sha256 cc98c8c940a1b61e7e335cfb8178be72c3bea277c08d34b03cd2f3f999b52b8a
+@@ -153,7 +153,8 @@
+             if digest != m.group("digest"):
+                 problems.append("digest-mismatch")
+             entry = snapmap.get(snap_name)
+-            if not isinstance(entry, dict) or entry.get("sha256") != m.group("digest"):
++            if not isinstance(entry, dict) or m.group("digest") not in {
++                    v.get("sha256") for v in snapmap.values() if isinstance(v, dict)}:
+                 problems.append("map-digest")
+             elif not isinstance(entry.get("url"), str):
+                 problems.append("map-url")
+=== M3-no-stopword-filter.py sha256 90bb93e0c8fe3d09fedeaeefdd937728e35f8a1533ec824fe3788c6e9c1ab0ce
+@@ -96,7 +96,7 @@
+     hits = set()
+     for tok in WORD_RE.findall(stmt):
+         t = tok.lower()
+-        if t in STOP or t in hits:
++        if t in hits:
+             continue
+         if re.search(r"(?<![a-z0-9_])" + re.escape(t) + r"(?![a-z0-9_])", snap):
+             hits.add(t)
+=== M4-drop-quote-location.py sha256 a9d4eded734cfcf55b45a50c96abb238a9557a909cc986bfdf44859634eb3ae9
+@@ -164,8 +164,6 @@
+                 problems.append("quote-pipe")
+             if words(quote) > MAX_QUOTE_WORDS:
+                 problems.append(f"quote-words={words(quote)}")
+-            if norm(quote) not in norm(snap):
+-                problems.append("quote-absent")
+         src = m.group("src")
+         regrow = reg.get(src)
+         if regrow is None:
+=== M5-short-statement-7.py sha256 f32fe608f5b18908115e38262e9d841c7d4503c3e31dd58aa11a0aedb0dfedcb
+@@ -29,7 +29,7 @@
+ TARGET_ROWS = 6
+ TARGET_SOURCES = 4
+ TARGET_SNAPSHOTS = 4
+-MIN_WORDS = 12
++MIN_WORDS = 7
+ MIN_TOKENS = 3
+ MAX_QUOTE_WORDS = 25
+ 
+=== M6-any-id-order.py sha256 3feb774d101b94916a83c655636a8b021845a4381cb546960ab2b0111861b0d7
+@@ -182,7 +182,7 @@
+         else:
+             verified += 1
+             print(f"XS_ROW ok XS{n} source={src} snapshot={snap_name}")
+-    contiguous = sorted(seen_ids) == list(range(1, len(seen_ids) + 1))
++    contiguous = True
+     if rows and not contiguous:
+         print("XS_ROW fail ids-not-contiguous")
+     met = (len(rows) == TARGET_ROWS and verified == TARGET_ROWS and contiguous
+=== M7-pipe-in-cell.py sha256 83f9caca82200776aa3e4b7407104316e0c6781f1f05d77a544f4355852c765e
+@@ -133,7 +133,7 @@
+     seen_ids = set()
+     for line in rows:
+         m = ROW_RE.match(line)
+-        if not m or line.count("|") != 7:
++        if not m:
+             print(f"XS_ROW fail malformed: {line[:60]}")
+             continue
+         n, stmt = int(m.group("n")), m.group("stmt").strip()

@@ -1,0 +1,897 @@
+{
+ "pristine_sha256": "65065d9d18cea52027619697264de430780e65ff13ab6da2a790c3d2054f6f5c",
+ "cases": {
+  "ok-control": {
+   "want": 0,
+   "pristine_rc": 0,
+   "pristine_tail": [
+    "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+   ]
+  },
+  "mutant-content-free": {
+   "want": 1,
+   "pristine_rc": 1,
+   "pristine_tail": [
+    "XS_ROW fail XS6 statement-tokens=1",
+    "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+   ]
+  },
+  "mutant-any-registered-id": {
+   "want": 1,
+   "pristine_rc": 1,
+   "pristine_tail": [
+    "XS_ROW fail XS1 source-not-bound",
+    "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+   ]
+  },
+  "mutant-digest-swap": {
+   "want": 1,
+   "pristine_rc": 1,
+   "pristine_tail": [
+    "XS_ROW fail XS1 digest-mismatch map-digest",
+    "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+   ]
+  },
+  "mutant-quote-absent": {
+   "want": 1,
+   "pristine_rc": 1,
+   "pristine_tail": [
+    "XS_ROW fail XS2 quote-absent",
+    "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+   ]
+  },
+  "mutant-short-statement": {
+   "want": 1,
+   "pristine_rc": 1,
+   "pristine_tail": [
+    "XS_ROW fail XS3 statement-words=4 statement-tokens=0",
+    "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+   ]
+  },
+  "mutant-five-rows": {
+   "want": 1,
+   "pristine_rc": 1,
+   "pristine_tail": [
+    "XS_ROWS=5 XS_VERIFIED=5 XS_SOURCES=3 XS_SNAPSHOTS=3"
+   ]
+  },
+  "mutant-duplicate-id": {
+   "want": 1,
+   "pristine_rc": 1,
+   "pristine_tail": [
+    "XS_ROW fail ids-not-contiguous",
+    "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+   ]
+  },
+  "realcontrol": {
+   "want": 0,
+   "pristine_rc": 0,
+   "pristine_tail": [
+    "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+   ]
+  },
+  "x-stopword": {
+   "want": 1,
+   "pristine_rc": 1,
+   "pristine_tail": [
+    "XS_ROW fail XS6 statement-tokens=0",
+    "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+   ]
+  },
+  "x-noncontiguous": {
+   "want": 1,
+   "pristine_rc": 1,
+   "pristine_tail": [
+    "XS_ROW fail ids-not-contiguous",
+    "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+   ]
+  },
+  "x-pipe-cell": {
+   "want": 1,
+   "pristine_rc": 1,
+   "pristine_tail": [
+    "XS_ROW fail ids-not-contiguous",
+    "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+   ]
+  },
+  "x-short-11": {
+   "want": 1,
+   "pristine_rc": 1,
+   "pristine_tail": [
+    "XS_ROW fail XS5 statement-words=11",
+    "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+   ]
+  },
+  "x-map-drift-foreign": {
+   "want": 1,
+   "pristine_rc": 1,
+   "pristine_tail": [
+    "XS_ROW fail XS2 map-digest",
+    "XS_ROWS=6 XS_VERIFIED=4 XS_SOURCES=4 XS_SNAPSHOTS=4"
+   ]
+  }
+ },
+ "mutants": {
+  "M1-drop-source-binding": {
+   "clause_broken": "drop the source-to-snapshot URL-binding clause (frozen: the registry row's source cell contains the snapshot's map URL)",
+   "verdict": "killed",
+   "killed_by": "mutant-any-registered-id",
+   "fired_on": [
+    "mutant-any-registered-id"
+   ],
+   "killed_by_pre_data_battery": true,
+   "pre_data_fired_on": [
+    "mutant-any-registered-id"
+   ],
+   "cases": {
+    "ok-control": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-content-free": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-any-registered-id": {
+     "rc": 0,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ],
+     "detector_fired": true
+    },
+    "mutant-digest-swap": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-quote-absent": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-short-statement": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-five-rows": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=5 XS_VERIFIED=5 XS_SOURCES=3 XS_SNAPSHOTS=3"
+     ]
+    },
+    "mutant-duplicate-id": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "realcontrol": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-stopword": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-noncontiguous": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-pipe-cell": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-short-11": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-map-drift-foreign": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=4 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    }
+   }
+  },
+  "M2-any-snapshot-digest": {
+   "clause_broken": "accept a digest recorded for ANY snapshot instead of this row's snapshot (frozen: map digest is per snapshot)",
+   "verdict": "killed",
+   "killed_by": "x-map-drift-foreign",
+   "fired_on": [
+    "x-map-drift-foreign"
+   ],
+   "killed_by_pre_data_battery": false,
+   "pre_data_fired_on": [],
+   "cases": {
+    "ok-control": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-content-free": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-any-registered-id": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-digest-swap": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-quote-absent": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-short-statement": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-five-rows": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=5 XS_VERIFIED=5 XS_SOURCES=3 XS_SNAPSHOTS=3"
+     ]
+    },
+    "mutant-duplicate-id": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "realcontrol": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-stopword": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-noncontiguous": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-pipe-cell": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-short-11": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-map-drift-foreign": {
+     "rc": 0,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ],
+     "detector_fired": true
+    }
+   }
+  },
+  "M3-no-stopword-filter": {
+   "clause_broken": "count statement tokens without the stopword filter (frozen: distinct non-stopword tokens)",
+   "verdict": "killed",
+   "killed_by": "x-stopword",
+   "fired_on": [
+    "x-stopword"
+   ],
+   "killed_by_pre_data_battery": false,
+   "pre_data_fired_on": [],
+   "cases": {
+    "ok-control": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-content-free": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-any-registered-id": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-digest-swap": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-quote-absent": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-short-statement": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-five-rows": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=5 XS_VERIFIED=5 XS_SOURCES=3 XS_SNAPSHOTS=3"
+     ]
+    },
+    "mutant-duplicate-id": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "realcontrol": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-stopword": {
+     "rc": 0,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ],
+     "detector_fired": true
+    },
+    "x-noncontiguous": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-pipe-cell": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-short-11": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-map-drift-foreign": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=4 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    }
+   }
+  },
+  "M4-drop-quote-location": {
+   "clause_broken": "drop the quote-location clause (frozen: quote located verbatim in the snapshot)",
+   "verdict": "killed",
+   "killed_by": "mutant-quote-absent",
+   "fired_on": [
+    "mutant-quote-absent"
+   ],
+   "killed_by_pre_data_battery": true,
+   "pre_data_fired_on": [
+    "mutant-quote-absent"
+   ],
+   "cases": {
+    "ok-control": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-content-free": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-any-registered-id": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-digest-swap": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-quote-absent": {
+     "rc": 0,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ],
+     "detector_fired": true
+    },
+    "mutant-short-statement": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-five-rows": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=5 XS_VERIFIED=5 XS_SOURCES=3 XS_SNAPSHOTS=3"
+     ]
+    },
+    "mutant-duplicate-id": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "realcontrol": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-stopword": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-noncontiguous": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-pipe-cell": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-short-11": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-map-drift-foreign": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=4 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    }
+   }
+  },
+  "M5-short-statement-7": {
+   "clause_broken": "accept a 7-word statement (frozen: statement >= 12 words)",
+   "verdict": "killed",
+   "killed_by": "x-short-11",
+   "fired_on": [
+    "x-short-11"
+   ],
+   "killed_by_pre_data_battery": false,
+   "pre_data_fired_on": [],
+   "cases": {
+    "ok-control": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-content-free": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-any-registered-id": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-digest-swap": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-quote-absent": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-short-statement": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-five-rows": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=5 XS_VERIFIED=5 XS_SOURCES=3 XS_SNAPSHOTS=3"
+     ]
+    },
+    "mutant-duplicate-id": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "realcontrol": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-stopword": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-noncontiguous": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-pipe-cell": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-short-11": {
+     "rc": 0,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ],
+     "detector_fired": true
+    },
+    "x-map-drift-foreign": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=4 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    }
+   }
+  },
+  "M6-any-id-order": {
+   "clause_broken": "accept non-contiguous ids (frozen: id unique and contiguous from 1)",
+   "verdict": "killed",
+   "killed_by": "x-noncontiguous",
+   "fired_on": [
+    "x-noncontiguous"
+   ],
+   "killed_by_pre_data_battery": false,
+   "pre_data_fired_on": [],
+   "cases": {
+    "ok-control": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-content-free": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-any-registered-id": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-digest-swap": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-quote-absent": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-short-statement": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-five-rows": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=5 XS_VERIFIED=5 XS_SOURCES=3 XS_SNAPSHOTS=3"
+     ]
+    },
+    "mutant-duplicate-id": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "realcontrol": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-stopword": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-noncontiguous": {
+     "rc": 0,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ],
+     "detector_fired": true
+    },
+    "x-pipe-cell": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-short-11": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-map-drift-foreign": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=4 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    }
+   }
+  },
+  "M7-pipe-in-cell": {
+   "clause_broken": "treat a row with a pipe in a cell as valid (frozen: exactly 6 cells, no pipe inside a cell)",
+   "verdict": "killed",
+   "killed_by": "x-pipe-cell",
+   "fired_on": [
+    "x-pipe-cell"
+   ],
+   "killed_by_pre_data_battery": false,
+   "pre_data_fired_on": [],
+   "cases": {
+    "ok-control": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-content-free": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-any-registered-id": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-digest-swap": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-quote-absent": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-short-statement": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "mutant-five-rows": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=5 XS_VERIFIED=5 XS_SOURCES=3 XS_SNAPSHOTS=3"
+     ]
+    },
+    "mutant-duplicate-id": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "realcontrol": {
+     "rc": 0,
+     "want": 0,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-stopword": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-noncontiguous": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-pipe-cell": {
+     "rc": 0,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ],
+     "detector_fired": true
+    },
+    "x-short-11": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    },
+    "x-map-drift-foreign": {
+     "rc": 1,
+     "want": 1,
+     "tail": [
+      "XS_ROWS=6 XS_VERIFIED=4 XS_SOURCES=4 XS_SNAPSHOTS=4"
+     ]
+    }
+   }
+  }
+ }
+}

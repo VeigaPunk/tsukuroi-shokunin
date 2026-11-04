@@ -599,3 +599,20 @@ Append-only; the round-68 index above stays as written.
 | `../tools/count-kr-rows-r69.py` | The content-sensitive counter for the note's rows (source id resolved, snapshot sha256 pinned, quote located); pre-data battery `.ufo/waves/round-69/probes/E2Counter/battery.txt` |
 | `../tools/tsukuroi-census.sh` | The verdict-neutral `KERNEL kernel-plane` arm (release, owning package, module-tree state, taint mask decoded 0-19, reboot-pending, unreadable count); selftest 177 → 192 cases |
 | `lessons/round-69.md` | Gate (admit/reject), the mined mistakes (incl. the declared-novelty miss and the boilerplate-acceptance limit), trend verdicts |
+
+## Round-70 index — the XFS sysfs storage plane and the xfs-stats arm (2026-11-03)
+
+Append-only; the round-69 index above stays as written.
+
+| Path | What it holds |
+|---|---|
+| `knowledge/xfs-storage-plane-r70.md` | The XFS sysfs storage plane the lane never held: the per-filesystem and global `stats/stats` file (one line per named counter group, per-CPU sums, four precision lines), the write-only `stats_clear` contract, the four `log/` files (head/tail LSN `cycle:block`, grant heads in bytes), the `error/` tree with the `metadata` class, and the online health reader's "not collected" state; rows XS1-XS6, sourced S290-S293 |
+| `SOURCES.md` rows S290-S293 | The four sources, tier A, `mined`; `on-release`/`90d` recheck; raw digests pinned in `.ufo/waves/round-70/before/src/SHA256SUMS` |
+| `SOURCES.md` rows S294-S296 | The three round-69 refused candidates as `rejected` rows with reason and flip (D5): a duplicate tainted-kernels registration, an own-work capture row, and an out-of-snapshot `MODULE_ARCH_VERMAGIC` row |
+| `../tools/count-xs-rows-r70.py` | The frozen strict row counter: unique contiguous ids, >= 12-word statements with >= 3 tokens grounded in the row's snapshot, source-to-snapshot URL binding, snapshot digest, <= 25-word located quote |
+| `../tools/tsukuroi-census.sh` | The verdict-neutral `XFS xfs-stats` arm (mount-table sources, sysfs presence, stats parse, error/log counts, partition invariant); selftest 196 -> 212 |
+| `../PROVINCE.md` | "Round-70 promotion — R70-XFS-STATS-VIEW": the unprivileged XFS sysfs view moves Frontier -> Core; the "stays unread" sentences superseded |
+| `lessons/round-70.md` | Gate (S290-S293 quotes, r69 D1 erratum for S288/S289, three rejections), mistakes, counter-attack tally continuation, trend verdicts |
+
+Frontier: the XFS metadata health/scrub plane stays operator-owned; the mount-source mapping limit
+(UUID=, LABEL=, `/dev/mapper/*`) is named; disk-space runway stays mori's.

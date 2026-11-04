@@ -1,0 +1,46 @@
+# S1Scout code-to-host structural cross-check (read-only; source = before/host.txt, code = before/src/*)
+
+xstats[] entries in committed xfs_stats.c        = 30
+stats/stats line count per filesystem (host)     = 34/34/34/
+30 group + 4 precision (xpc/defer_relog/debug/gc) = 34 -> match
+
+code group labels, in code order:
+  extent_alloc abt blk_map bmbt dir trans ig log push_ail xstrat rw attr icluster vnodes buf abtb2 abtc2 bmbt2 ibt2 fibt2 rmapbt refcntbt rmapbt_mem rcbagbt rtrmapbt rtrmapbt_mem rtrefcntbt qm zoned metafile 
+live label line, host.txt 54 (per fs; identical on 57 and 60):
+  extent_alloc abt blk_map bmbt dir trans ig log push_ail xstrat rw attr icluster vnodes buf abtb2 abtc2 bmbt2 ibt2 fibt2 rmapbt refcntbt rmapbt_mem rcbagbt rtrmapbt rtrmapbt_mem rtrefcntbt qm zoned metafile xpc defer_relog debug gc 
+  -> the 30 code labels are a prefix of the live 34 labels, in the same order; the 4 remaining
+     are exactly xpc defer_relog debug gc, the precision lines xfs_stats.c 86-96.
+
+live precision lines, nvme1n1p1 (host.txt 66-69):
+  ...
+  defer_relog 3768
+  debug 0
+  gc xpc 0
+live precision lines, nvme1n1p2 (host.txt 74-77):
+  ...
+  defer_relog 1311
+  debug 0
+  gc xpc 0
+  -> 'debug 0' on both means !defined(DEBUG) (xfs_stats.c 90-95), 'gc xpc 0' means only the
+     gc byte counter ever accumulates (xfs_stats.c 96).
+
+log attribute files present (4 per fs, 2 fs)      = 8
+error/metadata class directories (1 per fs)       = 2
+error/metadata handler values, nvme1n1p1 (host.txt 104-109):
+  644 /sys/fs/xfs/nvme1n1p1/error/metadata/default/max_retries -1
+  644 /sys/fs/xfs/nvme1n1p1/error/metadata/default/retry_timeout_seconds -1
+  644 /sys/fs/xfs/nvme1n1p1/error/metadata/EIO/max_retries -1
+  644 /sys/fs/xfs/nvme1n1p1/error/metadata/EIO/retry_timeout_seconds -1
+  644 /sys/fs/xfs/nvme1n1p1/error/metadata/ENODEV/max_retries 0
+  644 /sys/fs/xfs/nvme1n1p1/error/metadata/ENODEV/retry_timeout_seconds 0
+  -> ENODEV max_retries 0, EIO -1: exactly the xfs.rst 492-496 statement that metadata/ENODEV
+     defaults to fail-immediately because ENODEV is fatal for metadata IO.
+
+xfs_spaceman -c health output, both mounts (host.txt 153-158):
+  Health status has not been collected for this filesystem.
+  Please run xfs_scrub(8) to remedy this situation.
+  rc=0
+  -- xfs_spaceman health /fast
+  Health status has not been collected for this filesystem.
+  Please run xfs_scrub(8) to remedy this situation.
+  -> byte-identical to health.c 542 and 544 message strings.

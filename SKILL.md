@@ -5753,3 +5753,23 @@ string rewrite. It is a candidate set — the owning package's version, every si
 and `<version>-lts` for an `-lts` package — so `linux 7.2.11.arch1-1` → `7.2.11-arch1-1` and
 `linux-lts 6.18.57-2` → `6.18.57-2-lts` both read `pending=NO` for their own running release, while a
 newer installed kernel reads `pending=YES`. The arm's selftest carries both shapes (194 cases).
+| count-xs-rows-r70 | gate | `python3 tools/count-xs-rows-r70.py --revision <REV>` (or `--fixture <DIR>`) | 0 predicate `XS_ROWS == 6 and XS_VERIFIED == 6 and XS_SOURCES >= 4 and XS_SNAPSHOTS >= 4`; 1 otherwise; 2 usage | `python3 tools/count-xs-rows-r70.py --revision <REV>`; battery `.ufo/waves/round-70/before/control/battery.txt` |
+
+Append-only round documentation (2026-11-03/04, round 70). C1: the XFS sysfs storage plane
+(`corpus/knowledge/xfs-storage-plane-r70.md`, XS1-XS6; SOURCED by S290-S293: Linux v7.2.11
+`Documentation/admin-guide/xfs.rst`, `fs/xfs/xfs_stats.c`, `fs/xfs/xfs_sysfs.c`, and xfsprogs v7.2.0
+`spaceman/health.c`). The entry holds the stats file's one-line-per-group shape with per-CPU sums and four
+precision lines, the write-only `stats_clear` contract (`kstrtoint`, only 1 accepted, `xfs_stats_clearall`),
+the four `log/` files (head/tail LSN as `cycle:block`, grant heads as bytes), the `error/` configuration tree
+with the `metadata` class, and the online health reader's "not collected" state. The second NVMe device
+(`/tmp`, `/fast`, xfs) that PROVINCE.md recorded unread is now read on this surface; the btrfs counters, the
+scrub record and NVMe SMART of S128-S139 are not restated. Limits: the counters are workload telemetry, the
+error tree is retry configuration not history, the health reader needs a scrub record to say anything, and no
+host-build line number is claimed (QUALITY 103).
+
+C2: the census `xfs-stats` arm (`probe_xfs_arm`, the verdict-neutral `XFS xfs-stats` line, overrides
+`TSUKUROI_PROC_MOUNTS` and `TSUKUROI_XFS_SYSFS`; mount-table distinct sources, sysfs presence, first-line
+stats parse, recursive `error/`/`log/` file counts, partition `present + absent + unreadable == mounts`, no
+privilege, no xfsprogs call, never a rollup or exit-code term). The census selftest grows 196 → 212 cases,
+16 of them labelled `R70-C2`. The registry gains one row for `tools/count-xs-rows-r70.py`; the arm lives
+inside the registered `tsukuroi-census` gate.

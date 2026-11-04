@@ -1,0 +1,31 @@
+# S1Scout quote candidates (verbatim from the committed snapshots)
+
+Columns: row_id  file  lines(1-based, inclusive)  words  pipe  located(whitespace-normalized)  quote
+
+XS-1	xfs_stats.c	29-32	13	False	yes	static const struct xstats_entry { char *desc; int endpoint; } xstats[] = {
+XS-1	xfs_stats.c	68-70	20	False	yes	for (i = j = 0; i < ARRAY_SIZE(xstats); i++) { len += scnprintf(buf + len, PATH_MAX - len, "%s",
+XS-2	xfs_stats.c	15	7	False	yes	val += *(((__u32 *)per_cpu_ptr(stats, cpu) + idx));
+XS-3	xfs_stats.c	86-87	13	False	yes	len += scnprintf(buf + len, PATH_MAX-len, "xpc %llu %llu %llu\n", xs_xstrat_bytes, xs_write_bytes, xs_read_bytes);
+XS-3	xfs_stats.c	88-89	9	False	yes	len += scnprintf(buf + len, PATH_MAX-len, "defer_relog %llu\n", xs_defer_relog);
+XS-3	xfs_stats.c	90-95	8	False	yes	len += scnprintf(buf + len, PATH_MAX-len, "debug %u\n",
+XS-3	xfs_stats.c	96	10	False	yes	len += scnprintf(buf + len, PATH_MAX-len, "gc xpc %llu\n", xs_gc_bytes);
+XS-4	xfs_sysfs.c	350-356	8	False	yes	STATIC ssize_t stats_show( struct kobject *kobject, char *buf)
+XS-4	xfs_sysfs.c	356	3	False	yes	return xfs_stats_format(stats->xs_stats, buf);
+XS-4	xfs_sysfs.c	358	1	False	yes	XFS_SYSFS_ATTR_RO(stats);
+XS-4	xfs_sysfs.c	361-364	11	False	yes	STATIC ssize_t stats_clear_store( struct kobject *kobject, const char *buf, size_t count)
+XS-4	xfs_sysfs.c	370	5	False	yes	ret = kstrtoint(buf, 0, &val);
+XS-4	xfs_sysfs.c	374-375	6	False	yes	if (val != 1) return -EINVAL;
+XS-4	xfs_sysfs.c	377-378	3	False	yes	xfs_stats_clearall(stats->xs_stats); return count;
+XS-4	xfs_sysfs.c	380	1	False	yes	XFS_SYSFS_ATTR_WO(stats_clear);
+XS-5	xfs_sysfs.c	419	5	False	yes	return sysfs_emit(buf, "%d:%d\n", cycle, block);
+XS-5	xfs_sysfs.c	432-433	8	False	yes	xlog_crack_atomic_lsn(&log->l_tail_lsn, &cycle, &block); return sysfs_emit(buf, "%d:%d\n", cycle, block);
+XS-5	xfs_sysfs.c	442-443	4	False	yes	return sysfs_emit(buf, "%lld\n", atomic64_read(&to_xlog(kobject)->l_reserve_head.grant));
+XS-5	xfs_sysfs.c	452-453	4	False	yes	return sysfs_emit(buf, "%lld\n", atomic64_read(&to_xlog(kobject)->l_write_head.grant));
+XS-5	xfs_sysfs.c	457-462	10	False	yes	static struct attribute *xfs_log_attrs[] = { ATTR_LIST(log_head_lsn), ATTR_LIST(log_tail_lsn), ATTR_LIST(reserve_grant_head_bytes), ATTR_LIST(write_grant_head_bytes),
+XS-6	xfs.rst	408-411	14	False	yes	The configuration files are organized into the following hierarchy for each mounted filesystem: /sys/fs/xfs/<dev>/error/<class>/<error>/
+XS-6	xfs.rst	418-422	21	False	yes	The subsystem the error configuration belongs to. As of 4.9, the defined classes are: - "metadata": applies metadata buffer write IO
+XS-6	xfs.rst	390-392	16	False	yes	Specifies the subsystem the error configuration will apply to, such as metadata IO or memory allocation.
+XS-6	health.c	540-542	13	False	yes	if (!reported) { fprintf(stderr, _("Health status has not been collected for this filesystem.\n"));
+XS-6	health.c	543-544	7	False	yes	_("Please run xfs_scrub(8) to remedy this situation.\n"));
+
+candidates=25 absent=0 over25=0

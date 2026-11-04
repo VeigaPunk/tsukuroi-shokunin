@@ -336,3 +336,38 @@ sourced S258 S259). The `python3` interpreter name resolves to the Store App-exe
 host (exit 49) — invoke lane tools with `python`. The git index stays untouchable on NTFS paths: lane
 commits go through the campaign plumbing helper only. Detection and report only; alias, PATH, package and
 plumbing repairs are operator-owned (RP1-RP3). Correction logged in LOG.md (round-53 correction entry).
+
+## Round-70 promotion — R70-XFS-STATS-VIEW: the unprivileged XFS sysfs view moves Frontier → Core
+
+Append-only; the round-26/38/39/44 promotion sections above stay as written, and the two sentences that call
+the second NVMe device "(xfs on `/tmp`, `/fast`) … stays unread" are superseded here, not deleted.
+
+**Core now — the device read:** the census's verdict-neutral `XFS xfs-stats mounts=N present=N absent=N
+unreadable=N stats=N error=N log=N detail=<token|none>` line (`probe_xfs_arm` in `tools/tsukuroi-census.sh`).
+It reads the mount table (override `TSUKUROI_PROC_MOUNTS`) for the distinct xfs mount sources, each source's
+`/sys/fs/xfs/<dev>` directory (override `TSUKUROI_XFS_SYSFS`), the first line of each `stats/stats` against
+`^[a-z][a-z0-9_]*([ ][0-9]+)+$`, and the readable regular files under `error/` and `log/`. The counts partition
+(`present + absent + unreadable == mounts`), the global `/sys/fs/xfs/stats` kobject is never counted as a
+filesystem, a name that fails the validated shape is never echoed, and the line needs no privilege, runs no
+xfsprogs command, writes nothing and is never a rollup or exit-code term.
+
+**Core now — the reading:** the stats file's one-line-per-group shape and its four precision lines, the
+write-only `stats_clear` contract, the `log/` head and tail LSN and two grant-head files, the `error/`
+configuration tree with the `metadata` class, and the online health reader's "not collected" state
+(`corpus/knowledge/xfs-storage-plane-r70.md` rows XS1-XS6; S290-S293).
+
+**Still Frontier:** anything semantic behind those files — no XFS health grade is readable this way (the S293
+reader says "not collected" until `xfs_scrub` runs), the error tree exposes retry configuration and not error
+history, the LSN and grant values are instantaneous, and the stats counters are workload telemetry, not a
+grade. A mount source that is not a device basename (`UUID=`, `LABEL=`, `/dev/mapper/<name>`) cannot be mapped
+to a sysfs kobject name without blkid and reads absent; a same-source two-target mount makes "distinct
+sources" differ from "rows" — both named limits, neither exercised on this host.
+
+**Operator-owned:** `xfs_scrub`/`xfs_repair`, any write to `stats_clear`, the `error/` knobs
+(`max_retries`, `retry_timeout_seconds`, `fail_at_unmount`), mount and remount options, and counter resets.
+**Mori's, unchanged:** disk-space runway and capacity under the round-26 wave-2 split; this section states no
+capacity, threshold or fleet-runway reading.
+
+Counted by `python3 tools/count-xs-rows-r70.py --revision <REV>` for the six rows and by the census's own
+`bash tools/tsukuroi-census.sh --selftest` (212 cases, 16 labelled `R70-C2`) plus the live line for the arm, at
+the revision named in `SCORECARD.md` "Round 70 — measured outcome".

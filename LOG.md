@@ -3023,3 +3023,55 @@ Standing duty: the QUALITY 98 watch re-read S243's v7.2.11 `fs/btrfs/sysfs.c` pi
 
 Evidence: `.ufo/waves/round-69/{before,probes,drafts,w1}/`; lesson `corpus/lessons/round-69.md`.
 Measured outcome and final counts follow the landing commit.
+
+## Round 70 — landing (2026-11-04; declaration `1710bd74`; snapshot repair `84e013a7`)
+
+C1 depth: `corpus/knowledge/xfs-storage-plane-r70.md` (XS1-XS6: the stats file's one-line-per-group
+shape with summed per-CPU counters and four precision lines; the write-only `stats_clear` contract; the
+four `log/` files — head/tail LSN as `cycle:block`, grant heads in bytes; the `error/` configuration
+tree with the `metadata` class; and the online health reader's "not collected" state). Sources: four
+new rows S290-S293 (Linux v7.2.11 `Documentation/admin-guide/xfs.rst`, `fs/xfs/xfs_stats.c`,
+`fs/xfs/xfs_sysfs.c`; xfsprogs v7.2.0 `spaceman/health.c`), all tier A `mined`, snapshots committed
+under `.ufo/waves/round-70/before/src/` with `SHA256SUMS` (4/4 OK) and `SOURCES.json`. The frozen
+strict counter `tools/count-xs-rows-r70.py` (sha256 `65065d9d…`) and its 8-case battery were committed
+with the declaration, before any note existed; at the measured revision it prints `XS_ROWS=6
+XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4` rc 0. The registry also gains the three round-69 refusals as
+`rejected` rows S294-S296 (D5). Depth is reported **8 → 8**: new mechanism on a surface the province
+called unread, no ordinal uplift claimed.
+
+C2 operability (capability `xfs-stats-arm`): `probe_xfs_arm` and the verdict-neutral `XFS xfs-stats
+mounts= present= absent= unreadable= stats= error= log= detail=` line in `tools/tsukuroi-census.sh`,
+after the KERNEL line and before the rollup (overrides `TSUKUROI_PROC_MOUNTS`, `TSUKUROI_XFS_SYSFS`;
+partition `present+absent+unreadable == mounts`; the global `/sys/fs/xfs/stats` kobject is never a
+filesystem; closed detail vocabulary; no privilege, no xfsprogs call, no write; never a rollup or
+exit-code term). Selftest 196 → 212 cases with E1XfsArm's patch, 214 after the R2Reviewer repair
+(regular-file enumeration: dotfiles count, symlinked files do not; red-before
+`probes/L1-redbefore-r70c2.txt` shows the pre-repair body failing both new cases, 212/214). Live line
+`XFS xfs-stats mounts=2 present=2 absent=0 unreadable=0 stats=2 error=18 log=8 detail=none`; rollup
+line byte-identical to the base capture and rc 1 unchanged.
+
+Routed repairs (not claims): PROVINCE "Round-70 promotion — R70-XFS-STATS-VIEW" (the unprivileged sysfs
+view moves Frontier → Core; the two "stays unread" sentences superseded); QUALITY 104
+(R70-RECEIPT-SET-DRIFT, from this round's own declaration defects); D1's Gate erratum for S288/S289
+(lesson); D2/D3 revision-bound receipts (`probes/E3Repairs/`); D5 rows; D6/D7 appended in the round-70
+erratum block below.
+
+Declaration errata (append-only, measured in-round): (a) the declaration named four snapshots but
+committed three at `1710bd74` — `health.c` and its map entry landed at `84e013a7`; (b) the declaration's
+host prose said "error subtree 7 regular files per filesystem", the committed capture and the live tree
+read 9 per filesystem (1 + 4 handler classes x 2 knobs), so the frozen predicate's "enumerated
+regular-file counts" is 18, not 14; (c) the novelty command quoted in prose omitted its
+`-- corpus/knowledge` pathspec (0 with it, 3 without it once the declaration's own snapshots landed; the
+substantive sweep in `before/novelty-sweep.txt` is correct); (d) the considerthese sentence named the
+"Counter-attack scoreboard" proposal, which was already adopted at round 64 — every proposal in the
+latest file (`2026-10-26.md`) is implemented, so this round mines none and continues the standing
+scoreboard instead.
+
+Round-69 D6/D7 discharge (appended, never editing the round-69 entry): the round-69 landing LOG entry
+covers `32c0b50e`; the two repairs `68faae46` (KERNEL `pending` candidate set, selftest 192→194) and
+`10a01ca5` (taint-input normalization, selftest 194→196) and the measured outcome `ea20c862` are tied to
+the round-69 report and the round-70 lesson's Gate erratum; the landing entry's "selftest 177 → 192"
+figure is superseded by the final **196**.
+
+Evidence: `.ufo/waves/round-70/{before,w1,probes,after}/`; lesson `corpus/lessons/round-70.md`.
+Measured outcome and final counts follow the landing commit.

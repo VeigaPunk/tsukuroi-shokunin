@@ -1,0 +1,33 @@
+# S1Scout docs-mention census over the committed xfs.rst (v7.2.11)
+
+command: grep -c -F '<token>' xfs.rst   (per token)
+stats                            1
+stats_clear                      1
+/sys/fs/xfs                      4
+/sys/fs/xfs/<dev>/stats          0
+/sys/fs/xfs/<dev>/log            0
+/sys/fs/xfs/<dev>/error          3
+log_head_lsn                     0
+log_tail_lsn                     0
+reserve_grant_head_bytes         0
+write_grant_head_bytes           0
+xfs_spaceman                     0
+xfs_scrub                        0
+/proc/fs/xfs/stat                1
+
+verdict: the sysfs stats file (/sys/fs/xfs/<dev>/stats/stats) and the log attribute files are
+code-only — absent from the v7.2.11 admin guide. The single 'stats' hit is the sysctl
+fs.xfs.stats_clear (line 280) whose text names /proc/fs/xfs/stat (line 282), not the sysfs file.
+
+all /sys/fs/xfs lines in the docs:
+411:  /sys/fs/xfs/<dev>/error/<class>/<error>/
+431:  /sys/fs/xfs/<dev>/error/
+461:  /sys/fs/xfs/<dev>/error/<class>/<error>/
+545:  /sys/fs/xfs/<dev>/zoned/
+
+the only 'stats' hit, with context (lines 278-282):
+   278	The following sysctls are available for the XFS filesystem:
+   279	
+   280	  fs.xfs.stats_clear		(Min: 0  Default: 0  Max: 1)
+   281		Setting this to "1" clears accumulated XFS statistics
+   282		in /proc/fs/xfs/stat.  It then immediately resets to "0".

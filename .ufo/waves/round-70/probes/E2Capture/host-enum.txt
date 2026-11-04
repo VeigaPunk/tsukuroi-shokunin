@@ -1,0 +1,152 @@
+# E2Capture — independent read-only host enumeration for the C2 xfs-stats counts
+# captured-utc: 2026-11-04T00:09:44Z
+# lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (read-only; no lane writes)
+# method: mount table + /sys/fs/xfs + find/stat/head/grep + xfs_spaceman; no root, no sysfs writes
+
+## 0. identity
+utc: 2026-11-04T00:09:44Z
+uname-r: 7.2.11-arch1-1
+pacman-Q-xfsprogs: xfsprogs 7.2.0-1
+pacman-Q-linux: linux 7.2.11.arch1-1
+whoami: vgpnk uid=1000 groups=vgpnk docker input wheel
+xfs_spaceman -V: xfs_spaceman version 7.2.0
+
+## 1. first full count (start of capture)
+core-counts t=2026-11-04T00:09:44Z mounts=2 present=2 absent=0 unreadable=0 stats=2 error=18 log=8 detail=none
+
+## 2. findmnt -t xfs -o TARGET,SOURCE (verbatim)
+TARGET SOURCE
+/tmp   /dev/nvme1n1p1
+/fast  /dev/nvme1n1p2
+findmnt-rc=0
+
+## 3. /proc/self/mounts — xfs lines verbatim
+/dev/nvme1n1p1 /tmp xfs rw,nosuid,nodev,noatime,inode64,logbufs=8,logbsize=256k,noquota 0 0
+/dev/nvme1n1p2 /fast xfs rw,nosuid,nodev,noatime,inode64,logbufs=8,logbsize=256k,noquota 0 0
+xfs-mount-lines=2
+
+## 4. distinct xfs sources (awk '$3=="xfs"{print $1}' /proc/self/mounts | sort -u)
+/dev/nvme1n1p1
+/dev/nvme1n1p2
+distinct-sources=2
+distinct-targets=2
+findmnt-distinct-sources=2
+duplicate-source-lines=0
+
+## 5. ls -d /sys/fs/xfs/*/
+/sys/fs/xfs/nvme1n1p1/
+/sys/fs/xfs/nvme1n1p2/
+/sys/fs/xfs/stats/
+sysfs-root-dirs=3  (note: the global 'stats' dir is not a mount)
+
+## 6. per-mount sysfs presence (basename of the mount source)
+base=nvme1n1p1    dir=/sys/fs/xfs/nvme1n1p1 exists=yes readable=yes searchable=yes
+base=nvme1n1p2    dir=/sys/fs/xfs/nvme1n1p2 exists=yes readable=yes searchable=yes
+
+## 7. per-mount stats/stats (mode, lines, first line, regex ^[a-z][a-z0-9_]*([ ][0-9]+)+$)
+-- /sys/fs/xfs/nvme1n1p1/stats/stats
+mode=444 owner=root group=root type=regular file
+lines=34
+first-line: extent_alloc 12488255 72757139 12444792 66568967
+regex=MATCH
+all-lines-match=33
+-- /sys/fs/xfs/nvme1n1p2/stats/stats
+mode=444 owner=root group=root type=regular file
+lines=34
+first-line: extent_alloc 38505071 447167212 35836333 378654139
+regex=MATCH
+all-lines-match=33
+
+## 8. global stats file (NOT counted in stats)
+444 root root /sys/fs/xfs/stats/stats
+lines=34
+first-line: extent_alloc 50993491 519924894 48282035 445229101
+
+## 9. stats_clear modes (per fs and global), unprivileged writability
+200 root root /sys/fs/xfs/nvme1n1p1/stats/stats_clear
+200 root root /sys/fs/xfs/nvme1n1p2/stats/stats_clear
+200 root root /sys/fs/xfs/stats/stats_clear
+nvme1n1p1 not-writable
+nvme1n1p2 not-writable
+
+## 10. error subtree — recursive regular files (contract reading: 'regular files under error/')
+-- /sys/fs/xfs/nvme1n1p1/error
+/sys/fs/xfs/nvme1n1p1/error/fail_at_unmount
+/sys/fs/xfs/nvme1n1p1/error/metadata/default/max_retries
+/sys/fs/xfs/nvme1n1p1/error/metadata/default/retry_timeout_seconds
+/sys/fs/xfs/nvme1n1p1/error/metadata/EIO/max_retries
+/sys/fs/xfs/nvme1n1p1/error/metadata/EIO/retry_timeout_seconds
+/sys/fs/xfs/nvme1n1p1/error/metadata/ENODEV/max_retries
+/sys/fs/xfs/nvme1n1p1/error/metadata/ENODEV/retry_timeout_seconds
+/sys/fs/xfs/nvme1n1p1/error/metadata/ENOSPC/max_retries
+/sys/fs/xfs/nvme1n1p1/error/metadata/ENOSPC/retry_timeout_seconds
+count_recursive=9 count_readable=9
+count_maxdepth1=1 count_metadata=8
+-- /sys/fs/xfs/nvme1n1p2/error
+/sys/fs/xfs/nvme1n1p2/error/fail_at_unmount
+/sys/fs/xfs/nvme1n1p2/error/metadata/default/max_retries
+/sys/fs/xfs/nvme1n1p2/error/metadata/default/retry_timeout_seconds
+/sys/fs/xfs/nvme1n1p2/error/metadata/EIO/max_retries
+/sys/fs/xfs/nvme1n1p2/error/metadata/EIO/retry_timeout_seconds
+/sys/fs/xfs/nvme1n1p2/error/metadata/ENODEV/max_retries
+/sys/fs/xfs/nvme1n1p2/error/metadata/ENODEV/retry_timeout_seconds
+/sys/fs/xfs/nvme1n1p2/error/metadata/ENOSPC/max_retries
+/sys/fs/xfs/nvme1n1p2/error/metadata/ENOSPC/retry_timeout_seconds
+count_recursive=9 count_readable=9
+count_maxdepth1=1 count_metadata=8
+sum_recursive=18
+
+## 11. log subtree — recursive regular files
+-- /sys/fs/xfs/nvme1n1p1/log
+/sys/fs/xfs/nvme1n1p1/log/log_head_lsn
+/sys/fs/xfs/nvme1n1p1/log/log_tail_lsn
+/sys/fs/xfs/nvme1n1p1/log/reserve_grant_head_bytes
+/sys/fs/xfs/nvme1n1p1/log/write_grant_head_bytes
+count_recursive=4 count_readable=4
+count_maxdepth1=4
+-- /sys/fs/xfs/nvme1n1p2/log
+/sys/fs/xfs/nvme1n1p2/log/log_head_lsn
+/sys/fs/xfs/nvme1n1p2/log/log_tail_lsn
+/sys/fs/xfs/nvme1n1p2/log/reserve_grant_head_bytes
+/sys/fs/xfs/nvme1n1p2/log/write_grant_head_bytes
+count_recursive=4 count_readable=4
+count_maxdepth1=4
+sum_recursive=8
+
+## 12. /proc/fs/xfs/stat legacy link
+lrwxrwxrwx 1 root root 23 Nov  3 21:09 /proc/fs/xfs/stat -> /sys/fs/xfs/stats/stats
+readlink=/sys/fs/xfs/stats/stats
+readable=yes lines=34
+first-line: extent_alloc 50995543 519930848 48286801 445246753
+
+## 13. online health reader per mount (read-only, unprivileged)
+-- mount=/tmp src=/dev/nvme1n1p1
+out| Health status has not been collected for this filesystem.
+out| Please run xfs_scrub(8) to remedy this situation.
+rc=0
+-- mount=/fast src=/dev/nvme1n1p2
+out| Health status has not been collected for this filesystem.
+out| Please run xfs_scrub(8) to remedy this situation.
+rc=0
+
+## 14. how each C2 field is derived (command -> output)
+mounts    : awk '$3=="xfs"{print $1}' $M | sort -u | wc -l                 -> 2
+present   : for each distinct source, test -d $SYS/<basename>; count yes       -> 2
+absent    : mounts - present                                                  -> 0
+unreadable: present dirs failing test -r/-x                                   -> 0
+stats     : readable <dir>/stats/stats whose first line matches the regex      -> 2
+error     : sum of find <dir>/error -type f | wc -l over mounts                -> 18
+log       : sum of find <dir>/log -type f | wc -l over mounts                  -> 8
+detail    : closed vocab tokens fired live                                     -> none
+
+## 15. trap witness: what a wrong reading would produce
+sysfs/*/ dirs incl. global 'stats' : 3 (counting them as devices would read present=3)
+findmnt has 2 lines + header; counting lines without sort -u gives mounts=2
+error with -maxdepth 1             : 2 (a shallow read reads 2, not 18)
+stats including the global file    : 3 (pollutes stats and breaks stats <= present)
+
+## 16. second full count (end of capture, same script invocation)
+core-counts t=2026-11-04T00:09:44Z mounts=2 present=2 absent=0 unreadable=0 stats=2 error=18 log=8 detail=none
+
+## 17. verbatim first line of the health reader
+Health status has not been collected for this filesystem.

@@ -1,0 +1,94 @@
+=== A1-no-dedupe sha256 97667fc7081fa364c1dcb3e1d10e37a40895ff19a88eb958033c3d08426e85a3
+@@ -2409,7 +2409,6 @@
+     while read -r src mp fst rest; do
+       [ "${fst:-}" = xfs ] || continue
+       [ -n "${src:-}" ] || continue
+-      if [ -n "${seen[$src]:-}" ]; then continue; fi
+       seen["$src"]=1
+       mounts=$((mounts + 1))
+       name=${src##*/}
+=== A2-global-as-fs sha256 0b5bac2eff4199e6983b4f007ba17629639a28f7a69a9e3b5166c58d6d81dc01
+@@ -2461,6 +2461,7 @@
+   else
+     xfs_detail_add 'mounts:unreadable'
+   fi
++  if [ -d "$root/stats" ]; then present=$((present + 1)); stats=$((stats + 1)); fi
+   detail=${detail%,}
+   XFS_LINE="XFS xfs-stats mounts=$mounts present=$present absent=$absent unreadable=$unreadable stats=$stats error=$errn log=$logn detail=${detail:-none}"
+   return 0
+=== A3-echo-bad-name sha256 35fcfa7d47682d55b1f4012bfdcb3ccb0c300da2dc885affd699ee995c08648f
+@@ -2415,9 +2415,6 @@
+       name=${src##*/}
+       # a name that cannot be a sysfs device basename is never spelled into the line and
+       # never used to build a path: it counts absent with its own reason token
+-      if ! [[ $name =~ $name_re ]]; then
+-        absent=$((absent + 1)); xfs_detail_add 'echo:bad-name'; continue
+-      fi
+       d=$root/$name
+       if [ -d "$d" ]; then
+         if [ ! -r "$d" ] || [ ! -x "$d" ]; then
+=== A4-read-fifo sha256 acffafa1adc080f195fcb4222a7ae159d66b1669c5ed28741145e97cbd71588c
+@@ -2427,7 +2427,7 @@
+         present=$((present + 1))
+         # stats/stats: first line only, and only from a readable regular file
+         f=$d/stats/stats
+-        if [ -f "$f" ] && [ -r "$f" ]; then
++        if [ -e "$f" ] && [ -r "$f" ]; then
+           first=''
+           IFS= read -r first < "$f" || true
+           if [[ $first =~ $stats_re ]]; then
+=== A5-unreadable-parsed sha256 1523869406966a7d29fda9b36578aae1bb2e3550f779587ae71694c82c268312
+@@ -2427,14 +2427,8 @@
+         present=$((present + 1))
+         # stats/stats: first line only, and only from a readable regular file
+         f=$d/stats/stats
+-        if [ -f "$f" ] && [ -r "$f" ]; then
+-          first=''
+-          IFS= read -r first < "$f" || true
+-          if [[ $first =~ $stats_re ]]; then
+-            stats=$((stats + 1))
+-          else
+-            xfs_detail_add 'stats:malformed'
+-          fi
++        if [ -e "$f" ]; then
++          stats=$((stats + 1))
+         else
+           xfs_detail_add 'stats:unreadable'
+         fi
+=== A6-rollup-term sha256 335c62e669add5d24bf0d54903077062c67424a5f7762570d8623d70a5dc9670
+@@ -2462,6 +2462,7 @@
+     xfs_detail_add 'mounts:unreadable'
+   fi
+   detail=${detail%,}
++  if [ -n "$detail" ]; then XFS_V=DEGRADED; else XFS_V=HEALTHY; fi
+   XFS_LINE="XFS xfs-stats mounts=$mounts present=$present absent=$absent unreadable=$unreadable stats=$stats error=$errn log=$logn detail=${detail:-none}"
+   return 0
+ }
+@@ -4633,6 +4634,7 @@
+   roll=$(worse "$roll" "$JRN_V")
+   roll=$(worse "$roll" "$UPD_V")
+   roll=$(worse "$roll" "$OOM_V")
++  roll=$(worse "$roll" "${XFS_V:-HEALTHY}")
+ 
+   printf 'TSUKUROI_CENSUS: %s (packages=%s systemd=%s drivers=%s journal=%s update-safety=%s oom=%s)\n' \
+     "$roll" "$PKG_V" "$SYS_V" "$DRV_V" "$JRN_V" "$UPD_V" "$OOM_V"
+=== A7-silent-absent sha256 906ed9e6d4839042d726529e3d10e0158eed57c1c512bce9946e6e10b13acc55
+@@ -2455,7 +2455,7 @@
+       elif [ -e "$d" ] || [ -L "$d" ]; then
+         unreadable=$((unreadable + 1)); xfs_detail_add 'sysfs:unreadable'
+       else
+-        absent=$((absent + 1)); xfs_detail_add 'sysfs:absent'
++        absent=$((absent + 1))
+       fi
+     done <<< "$mtabbuf"
+   else
+=== A8-no-first-line sha256 6c67f7072e79654a7719257ce50d052077568fc27622a629c5f19bd89d0b3be4
+@@ -2430,7 +2430,7 @@
+         if [ -f "$f" ] && [ -r "$f" ]; then
+           first=''
+           IFS= read -r first < "$f" || true
+-          if [[ $first =~ $stats_re ]]; then
++          if true; then
+             stats=$((stats + 1))
+           else
+             xfs_detail_add 'stats:malformed'

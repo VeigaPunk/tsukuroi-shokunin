@@ -1,0 +1,35 @@
+counter sha256 65065d9d18cea52027619697264de430780e65ff13ab6da2a790c3d2054f6f5c (frozen 65065d9d18cea52027619697264de430780e65ff13ab6da2a790c3d2054f6f5c)
+
+BASELINE (pristine counter) rc per case:
+  ok-control               rc=0 want=0  | XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4
+  mutant-content-free      rc=1 want=1  | XS_ROW fail XS6 statement-tokens=1 | XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4
+  mutant-any-registered-id rc=1 want=1  | XS_ROW fail XS1 source-not-bound | XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4
+  mutant-digest-swap       rc=1 want=1  | XS_ROW fail XS1 digest-mismatch map-digest | XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4
+  mutant-quote-absent      rc=1 want=1  | XS_ROW fail XS2 quote-absent | XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4
+  mutant-short-statement   rc=1 want=1  | XS_ROW fail XS3 statement-words=4 statement-tokens=0 | XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4
+  mutant-five-rows         rc=1 want=1  | XS_ROWS=5 XS_VERIFIED=5 XS_SOURCES=3 XS_SNAPSHOTS=3
+  mutant-duplicate-id      rc=1 want=1  | XS_ROW fail ids-not-contiguous | XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4
+  realcontrol              rc=0 want=0  | XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4
+  x-stopword               rc=1 want=1  | XS_ROW fail XS6 statement-tokens=0 | XS_ROWS=6 XS_VERIFIED=0 XS_SOURCES=4 XS_SNAPSHOTS=4
+  x-noncontiguous          rc=1 want=1  | XS_ROW fail ids-not-contiguous | XS_ROWS=6 XS_VERIFIED=6 XS_SOURCES=4 XS_SNAPSHOTS=4
+  x-pipe-cell              rc=1 want=1  | XS_ROW fail ids-not-contiguous | XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4
+  x-short-11               rc=1 want=1  | XS_ROW fail XS5 statement-words=11 | XS_ROWS=6 XS_VERIFIED=5 XS_SOURCES=4 XS_SNAPSHOTS=4
+  x-map-drift-foreign      rc=1 want=1  | XS_ROW fail XS2 map-digest | XS_ROWS=6 XS_VERIFIED=4 XS_SOURCES=4 XS_SNAPSHOTS=4
+
+mutant                  ok-control     mutant-content mutant-any-reg mutant-digest- mutant-quote-a mutant-short-s mutant-five-ro mutant-duplica realcontrol    x-stopword     x-noncontiguou x-pipe-cell    x-short-11     x-map-drift-fo 
+M1-drop-source-binding  0/0            1/1            0/1*           1/1            1/1            1/1            1/1            1/1            0/0            1/1            1/1            1/1            1/1            1/1            
+M2-any-snapshot-digest  0/0            1/1            1/1            1/1            1/1            1/1            1/1            1/1            0/0            1/1            1/1            1/1            1/1            0/1*           
+M3-no-stopword-filter   0/0            1/1            1/1            1/1            1/1            1/1            1/1            1/1            0/0            0/1*           1/1            1/1            1/1            1/1            
+M4-drop-quote-location  0/0            1/1            1/1            1/1            0/1*           1/1            1/1            1/1            0/0            1/1            1/1            1/1            1/1            1/1            
+M5-short-statement-7    0/0            1/1            1/1            1/1            1/1            1/1            1/1            1/1            0/0            1/1            1/1            1/1            0/1*           1/1            
+M6-any-id-order         0/0            1/1            1/1            1/1            1/1            1/1            1/1            1/1            0/0            1/1            0/1*           1/1            1/1            1/1            
+M7-pipe-in-cell         0/0            1/1            1/1            1/1            1/1            1/1            1/1            1/1            0/0            1/1            1/1            0/1*           1/1            1/1            
+
+(* = mutant deviates from the expected rc for that case, i.e. that case detects it)
+M1-drop-source-binding: verdict=killed killed_by=mutant-any-registered-id pre_data_battery_kill=True
+M2-any-snapshot-digest: verdict=killed killed_by=x-map-drift-foreign pre_data_battery_kill=False
+M3-no-stopword-filter: verdict=killed killed_by=x-stopword pre_data_battery_kill=False
+M4-drop-quote-location: verdict=killed killed_by=mutant-quote-absent pre_data_battery_kill=True
+M5-short-statement-7: verdict=killed killed_by=x-short-11 pre_data_battery_kill=False
+M6-any-id-order: verdict=killed killed_by=x-noncontiguous pre_data_battery_kill=False
+M7-pipe-in-cell: verdict=killed killed_by=x-pipe-cell pre_data_battery_kill=False

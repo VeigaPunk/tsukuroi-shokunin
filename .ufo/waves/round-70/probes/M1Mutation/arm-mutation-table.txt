@@ -1,0 +1,23 @@
+arm applied bytes sha256 5268b53949eb0d5988fe3f3d5b9a605622e16ea00b76c15afd488627d357ff7d
+baseline: TSUKUROI_CENSUS_SELFTEST: PASS (211 cases, 211 passed, 0 failed) (rc=0)
+watchdog: 100s per mutant selftest run
+
+mutant                verdict   rc   pass/fail  evidence          killing case
+A1-no-dedupe          killed    1    210/1      selftest-FAIL     healthy: one source mounted twice counts once, so the fields stay per-filesystem (R70-C2)
+A2-global-as-fs       killed    1    210/1      selftest-FAIL     healthy: the global stats directory under the sysfs root is never counted as a filesystem (R70-C2)
+A3-echo-bad-name      killed    1    210/1      selftest-FAIL     healthy: an escaped-space source and an embedded forged line never forge the census line (R70-C2)
+A4-read-fifo          killed    124  200/0      watchdog-timeout  healthy: a first line outside the frozen shape names stats:malformed and is not counted (R70-C2)
+A5-unreadable-parsed  killed    1    208/3      selftest-FAIL     healthy: a mode-000 stats file is never counted and names stats:unreadable (R70-C2)
+A6-rollup-term        killed    1    200/11     selftest-FAIL     healthy rollup: an unreadable mount table with no sysfs root is BLOCKED (R39-C1)
+A7-silent-absent      killed    1    210/1      selftest-FAIL     healthy: a listed xfs mount with no sysfs root counts absent and names sysfs:absent (R70-C2)
+A8-no-first-line      killed    1    210/1      selftest-FAIL     healthy: a first line outside the frozen shape names stats:malformed and is not counted (R70-C2)
+
+clause each mutant broke:
+  A1-no-dedupe: count mounts without dedupe (frozen: mounts == distinct xfs source count)
+  A2-global-as-fs: count the global stats dir as a filesystem (frozen: per-filesystem roots only; the global stats dir is never a filesystem)
+  A3-echo-bad-name: use an unvalidated device name (frozen: a basename outside ^[A-Za-z0-9._:-]+$ is never spelled or used for a path; echo:bad-name)
+  A4-read-fifo: read a FIFO stats file (frozen: a FIFO is never opened)
+  A5-unreadable-parsed: treat an unreadable stats file as parsed (frozen: a missing, unreadable or non-regular stats file names stats:unreadable and is never counted)
+  A6-rollup-term: add the line's verdict to the rollup term (frozen: never a rollup term)
+  A7-silent-absent: make a missing sysfs dir silently absent without a detail token (frozen: absent names sysfs:absent)
+  A8-no-first-line: count a stats file without judging its first line (frozen: first line must match ^[a-z][a-z0-9_]*([ ][0-9]+)+$, else stats:malformed)

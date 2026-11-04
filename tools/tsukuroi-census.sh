@@ -483,6 +483,34 @@
 # line is verdict-neutral: no PLANE text, rollup term or exit code changes. Live mode creates no
 # files.
 #
+# Round-70 addition (C2): the XFS stats arm. It prints ONE line after the KERNEL line and before
+# the rollup:
+#   XFS xfs-stats mounts=<n> present=<n> absent=<n> unreadable=<n> stats=<n> error=<n>
+#     log=<n> detail=<none|token,...>
+# mounts: distinct xfs sources in the mount table (TSUKUROI_PROC_MOUNTS, default
+# /proc/self/mounts); the table must be a readable, non-empty regular file, else detail
+# mounts:unreadable with every count 0 (a FIFO or empty file is never read as a table).
+# present/absent/unreadable tri-state every distinct source's /sys/fs/xfs/<basename>
+# (TSUKUROI_XFS_SYSFS, default /sys/fs/xfs) and sum to mounts: present is an existing, readable,
+# searchable directory; absent is no entry (detail sysfs:absent); unreadable is an entry that
+# exists but cannot be listed or is not a directory (detail sysfs:unreadable) — an
+# existing-but-unreadable root never reads as absent. A source basename outside
+# ^[A-Za-z0-9._:-]+$ is never spelled into the line, never used to build a path, counts absent
+# and names echo:bad-name instead (never sysfs:absent, whose reason does not apply).
+# stats: present filesystems whose stats/stats is a readable regular file (a FIFO or other
+# special is never opened) and whose FIRST line matches ^[a-z][a-z0-9_]*([ ][0-9]+)+$; a
+# malformed first line names stats:malformed; a missing, unreadable or non-regular file names
+# stats:unreadable. Later lines are not judged.
+# error, log: readable regular files anywhere under that filesystem's error/ and log/
+# directories (recursive; symlinked directory trees are not followed). Directories, FIFOs and
+# unreadable entries are never counted and never opened. detail holds each token once, in
+# encounter order; when there is none it reads `none`.
+# No write, no privilege, no package transaction, no xfs tool (findmnt, xfs_info, xfs_spaceman,
+# /proc/fs/xfs/stat): the arm reads the mount table, stats directories and the first line of
+# each stats file. It never reads stats_clear, error values, log values or the global
+# /sys/fs/xfs/stats directory (mount-driven only). The line is verdict-neutral: no PLANE text,
+# rollup term or exit code changes, and live mode creates no files.
+#
 # Read-only guarantee: no probe writes; the gate creates no files at all in live mode
 # (selftest writes only under a mktemp dir named ${TMPDIR:-/tmp}/tsukuroi-r3-2-selftest.XXXXXX;
 # when TMPDIR holds characters the root-override locator refuses, the same dir is reached
@@ -511,6 +539,7 @@
 #   TSUKUROI_ETC_DIR (round 35: the pacnew/pacsave drift arm's tree; default /etc)
 #   TSUKUROI_BTRFS_SYSFS (round 38: the storage-integrity arm's sysfs root; default /sys/fs/btrfs)
 #   TSUKUROI_PROC_MOUNTS (round 39: the storage arm's mount table; default /proc/self/mounts)
+#   TSUKUROI_XFS_SYSFS (round 70: the XFS stats arm's sysfs root; default /sys/fs/xfs)
 #   TSUKUROI_SCRUB_DIR TSUKUROI_TIMER_WANTS (round 44: the scrub-record arm's record directory and
 #   timers.target.wants directory; defaults /var/lib/btrfs, /etc/systemd/system/timers.target.wants)
 #   TSUKUROI_MKINITCPIO_CONF TSUKUROI_MKINITCPIO_CONFD TSUKUROI_MKINITCPIO_HOOKS
@@ -577,6 +606,8 @@ PACMAN_LOG=${TSUKUROI_PACMAN_LOG:-/var/log/pacman.log}
 ETC_DIR=${TSUKUROI_ETC_DIR:-/etc}
 BTRFS_SYSFS=${TSUKUROI_BTRFS_SYSFS:-/sys/fs/btrfs}
 PROC_MOUNTS=${TSUKUROI_PROC_MOUNTS:-/proc/self/mounts}
+# XFS stats arm (round 70, C2): mount-driven; the sysfs root is the only extra seam.
+XFS_SYSFS=${TSUKUROI_XFS_SYSFS:-/sys/fs/xfs}
 SCRUB_DIR=${TSUKUROI_SCRUB_DIR:-/var/lib/btrfs}
 TIMER_WANTS=${TSUKUROI_TIMER_WANTS:-/etc/systemd/system/timers.target.wants}
 # initramfs-plane arm (round 65, C2): four fixed paths and one command name, all seams.
@@ -2359,6 +2390,85 @@ probe_kernel_arm() {
   return 0
 }
 
+# ---- XFS stats arm (round 70, C2; contract in the header) ---------------------------
+xfs_detail_add() { # dynamic scope: appends TOKEN once to the caller's $detail
+  case ",$detail," in *",$1,"*) ;; *) detail+="$1," ;; esac
+}
+
+probe_xfs_arm() {
+  local LC_ALL=C
+  local mtab=$PROC_MOUNTS root=$XFS_SYSFS
+  local mtabbuf='' src mp fst rest name d f first
+  local mounts=0 present=0 absent=0 unreadable=0 stats=0 errn=0 logn=0
+  local detail='' root_blocked=0
+  local -A seen=()
+  local name_re='^[A-Za-z0-9._:-]+$'
+  local stats_re='^[a-z][a-z0-9_]*([ ][0-9]+)+$'
+  # an existing but unlistable sysfs ROOT is not "no xfs filesystem": every listed mount then
+  # reads unreadable, never absent (round-38 rule applied to this arm's root)
+  if [ -d "$root" ]; then
+    if [ ! -r "$root" ] || [ ! -x "$root" ]; then root_blocked=1; fi
+  elif [ -e "$root" ] || [ -L "$root" ]; then
+    root_blocked=1
+  fi
+  # only a readable, non-empty regular file is a mount table: a FIFO would block forever
+  if [ -f "$mtab" ] && mtabbuf=$(cat -- "$mtab" 2>/dev/null) && [ -n "$mtabbuf" ]; then
+    while read -r src mp fst rest; do
+      [ "${fst:-}" = xfs ] || continue
+      [ -n "${src:-}" ] || continue
+      if [ -n "${seen[$src]:-}" ]; then continue; fi
+      seen["$src"]=1
+      mounts=$((mounts + 1))
+      name=${src##*/}
+      # a name that cannot be a sysfs device basename is never spelled into the line and
+      # never used to build a path: it counts absent with its own reason token
+      if ! [[ $name =~ $name_re ]]; then
+        absent=$((absent + 1)); xfs_detail_add 'echo:bad-name'; continue
+      fi
+      if [ "$root_blocked" -eq 1 ]; then
+        unreadable=$((unreadable + 1)); xfs_detail_add 'sysfs:unreadable'; continue
+      fi
+      d=$root/$name
+      if [ -d "$d" ]; then
+        if [ ! -r "$d" ] || [ ! -x "$d" ]; then
+          # an existing but unlistable root must never read as absent (round-38 rule)
+          unreadable=$((unreadable + 1)); xfs_detail_add 'sysfs:unreadable'; continue
+        fi
+        present=$((present + 1))
+        # stats/stats: first line only, and only from a readable regular file
+        f=$d/stats/stats
+        if [ -f "$f" ] && [ -r "$f" ]; then
+          first=''
+          IFS= read -r first < "$f" || true
+          if [[ $first =~ $stats_re ]]; then
+            stats=$((stats + 1))
+          else
+            xfs_detail_add 'stats:malformed'
+          fi
+        else
+          xfs_detail_add 'stats:unreadable'
+        fi
+        # error/ and log/: readable REGULAR files in the subtree, never opened. find semantics,
+        # not globstar (round-70 repair after R2Reviewer F2/F3): a dot-named file counts (the
+        # shell `*` skips it) and a symlink to a regular file does not (`test -f` follows it and
+        # counts the target twice). Neither shape exists under this host's sysfs, so live counts
+        # are unchanged; the fixture cases pin both.
+        errn=$((errn + $(find "$d/error" -type f -readable 2>/dev/null | wc -l)))
+        logn=$((logn + $(find "$d/log" -type f -readable 2>/dev/null | wc -l)))
+      elif [ -e "$d" ] || [ -L "$d" ]; then
+        unreadable=$((unreadable + 1)); xfs_detail_add 'sysfs:unreadable'
+      else
+        absent=$((absent + 1)); xfs_detail_add 'sysfs:absent'
+      fi
+    done <<< "$mtabbuf"
+  else
+    xfs_detail_add 'mounts:unreadable'
+  fi
+  detail=${detail%,}
+  XFS_LINE="XFS xfs-stats mounts=$mounts present=$present absent=$absent unreadable=$unreadable stats=$stats error=$errn log=$logn detail=${detail:-none}"
+  return 0
+}
+
 # ---- hermetic selftest -------------------------------------------------------
 # (R48-C2) Resolve the directory the selftest fixture tree is built under. TMPDIR
 # unset or empty means the mktemp(1) default /tmp (S252). A TMPDIR that contains
@@ -2704,6 +2814,7 @@ STUB
       TSUKUROI_KERNEL_OSRELEASE="$FX/kernel-osrelease"
       TSUKUROI_KERNEL_MODULES="$FX/modtree"
       TSUKUROI_KERNEL_TAINTED="$FX/kernel-tainted"
+      TSUKUROI_XFS_SYSFS="$FX/xfs"
       TSUKUROI_EXPAC="$bin/expac"
     )
   }
@@ -4230,6 +4341,165 @@ STUB
   unset karm_on_out karm_on_rc karm_off_out karm_off_rc karm_on_n karm_off_n karm_on_rest karm_off_rest \
     karm_line karm_on_roll karm_off_roll karm_on_rest_n karm_off_rest_n
 
+  # ---- XFS stats arm (round 70, C2) ---------------------------------------------------
+  # A live-shaped per-filesystem sysfs dir: one stats file with a valid first line, the
+  # write-only stats_clear the arm never reads, two regular error files (one nested) and two
+  # log files.
+  xfs_fs() { # xfs_fs ROOT DEV
+    local r=$1 n=$2
+    mkdir -p "$r/$n/stats" "$r/$n/error/metadata/EIO" "$r/$n/log"
+    printf 'extent_alloc 12493532 72763024 12601569 67117479\nabt 0 0 0 0\n' > "$r/$n/stats/stats"
+    printf 1 > "$r/$n/stats/stats_clear"
+    printf '1\n' > "$r/$n/error/fail_at_unmount"
+    printf -- '-1\n' > "$r/$n/error/metadata/EIO/max_retries"
+    printf '12767:325728\n' > "$r/$n/log/log_head_lsn"
+    printf '12767:270960\n' > "$r/$n/log/log_tail_lsn"
+  }
+
+  case_home='xfs-healthy'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' '/dev/fx0 / ext4 rw 0 0' '/dev/xfsa /mnt/a xfs rw 0 0' '/dev/xfsb /mnt/b xfs rw,noatime 0 0' > "$FX/mounts"
+  xfs_fs "$FX/xfs" xfsa; xfs_fs "$FX/xfs" xfsb
+  check 'healthy: two xfs mounts, two present roots, both stats files valid, 4 error and 4 log files (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=2 present=2 absent=0 unreadable=0 stats=2 error=4 log=4 detail=none$'
+
+  case_home='xfs-sysfs-absent'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' '/dev/fx0 / ext4 rw 0 0' '/dev/xfsa /mnt/a xfs rw 0 0' > "$FX/mounts"
+  check 'healthy: a listed xfs mount with no sysfs root counts absent and names sysfs:absent (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=1 present=0 absent=1 unreadable=0 stats=0 error=0 log=0 detail=sysfs:absent$'
+
+  case_home='xfs-stats-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' '/dev/fx0 / ext4 rw 0 0' '/dev/xfsa /mnt/a xfs rw 0 0' > "$FX/mounts"
+  xfs_fs "$FX/xfs" xfsa; chmod 000 "$FX/xfs/xfsa/stats/stats"
+  check 'healthy: a mode-000 stats file is never counted and names stats:unreadable (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=1 present=1 absent=0 unreadable=0 stats=0 error=2 log=2 detail=stats:unreadable$'
+  chmod 600 "$FX/xfs/xfsa/stats/stats"
+
+  case_home='xfs-stats-malformed'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' '/dev/fx0 / ext4 rw 0 0' '/dev/xfsa /mnt/a xfs rw 0 0' > "$FX/mounts"
+  xfs_fs "$FX/xfs" xfsa; printf 'EXTENT_ALLOC 1 2\n' > "$FX/xfs/xfsa/stats/stats"
+  check 'healthy: a first line outside the frozen shape names stats:malformed and is not counted (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=1 present=1 absent=0 unreadable=0 stats=0 error=2 log=2 detail=stats:malformed$'
+
+  case_home='xfs-stats-fifo'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' '/dev/fx0 / ext4 rw 0 0' '/dev/xfsa /mnt/a xfs rw 0 0' > "$FX/mounts"
+  xfs_fs "$FX/xfs" xfsa
+  rm -f "$FX/xfs/xfsa/stats/stats"; mkfifo "$FX/xfs/xfsa/stats/stats"
+  mkfifo "$FX/xfs/xfsa/error/pipe" "$FX/xfs/xfsa/log/pipe"
+  check 'healthy: a FIFO stats file is never opened (no block) and a FIFO is never counted under error/log (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=1 present=1 absent=0 unreadable=0 stats=0 error=2 log=2 detail=stats:unreadable$'
+
+  # round-70 repair after R2Reviewer F2/F3: the count is regular-file semantics, so a dot-named
+  # file counts (a shell `*`/globstar skips it) and a symlink to a regular file does not (test -f
+  # follows it and counts both the link and the target). Both shapes pinned, each able to fail on
+  # the pre-repair globstar body.
+  case_home='xfs-dotfile-counted'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' '/dev/fx0 / ext4 rw 0 0' '/dev/xfsa /mnt/a xfs rw 0 0' > "$FX/mounts"
+  xfs_fs "$FX/xfs" xfsa; printf '9\n' > "$FX/xfs/xfsa/error/.hidden_retry"
+  check 'healthy: a dot-named readable regular file under error/ is counted (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=1 present=1 absent=0 unreadable=0 stats=1 error=3 log=2 detail=none$'
+
+  case_home='xfs-symlink-not-counted'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' '/dev/fx0 / ext4 rw 0 0' '/dev/xfsa /mnt/a xfs rw 0 0' > "$FX/mounts"
+  xfs_fs "$FX/xfs" xfsa
+  ln -s "$FX/xfs/xfsa/log/log_head_lsn" "$FX/xfs/xfsa/log/link_head"
+  ln -s "$FX/xfs/xfsa/error/fail_at_unmount" "$FX/xfs/xfsa/error/link_unmount"
+  check 'healthy: a symlink to a regular file under error/ or log/ is not counted (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=1 present=1 absent=0 unreadable=0 stats=1 error=2 log=2 detail=none$'
+
+  case_home='xfs-name-forgery'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' '/dev/evil\040name /mnt/x xfs rw 0 0' \
+    'XFS xfs-stats mounts=999 present=999 absent=0 unreadable=0 stats=999 error=999 log=999 detail=none' > "$FX/mounts"
+  check 'healthy: an escaped-space source and an embedded forged line never forge the census line (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=1 present=0 absent=1 unreadable=0 stats=0 error=0 log=0 detail=echo:bad-name$' \
+    ABSENT:'^XFS xfs-stats mounts=999'
+
+  case_home='xfs-global-not-fs'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  mkdir -p "$FX/xfs/stats"
+  printf 'extent_alloc 1 2 3 4\nabt 0 0 0 0\n' > "$FX/xfs/stats/stats"
+  : > "$FX/xfs/stats/stats_clear"
+  check 'healthy: the global stats directory under the sysfs root is never counted as a filesystem (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=0 present=0 absent=0 unreadable=0 stats=0 error=0 log=0 detail=none$'
+
+  case_home='xfs-zero-mounts'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  check 'healthy: a host with no xfs mount reads all zeros, detail=none, no absent noise (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=0 present=0 absent=0 unreadable=0 stats=0 error=0 log=0 detail=none$'
+
+  case_home='xfs-mounts-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  chmod 000 "$FX/mounts"
+  check 'healthy: an unreadable mount table reads all zeros with detail=mounts:unreadable (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=0 present=0 absent=0 unreadable=0 stats=0 error=0 log=0 detail=mounts:unreadable$'
+  chmod 600 "$FX/mounts"
+
+  case_home='xfs-dedupe'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' '/dev/xfsa /mnt/a xfs rw 0 0' '/dev/xfsa /mnt/b xfs rw 0 0' > "$FX/mounts"
+  xfs_fs "$FX/xfs" xfsa
+  check 'healthy: one source mounted twice counts once, so the fields stay per-filesystem (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=1 present=1 absent=0 unreadable=0 stats=1 error=2 log=2 detail=none$'
+
+  case_home='xfs-root-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' '/dev/xfsa /mnt/a xfs rw 0 0' > "$FX/mounts"
+  xfs_fs "$FX/xfs" xfsa; chmod 000 "$FX/xfs/xfsa"
+  check 'healthy: an existing-but-unreadable sysfs root counts unreadable, never absent (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=1 present=0 absent=0 unreadable=1 stats=0 error=0 log=0 detail=sysfs:unreadable$'
+  chmod 755 "$FX/xfs/xfsa"
+
+  case_home='xfs-sysfs-root-unreadable'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' '/dev/xfsa /mnt/a xfs rw 0 0' > "$FX/mounts"
+  xfs_fs "$FX/xfs" xfsa; chmod 000 "$FX/xfs"
+  check 'healthy: an unlistable sysfs ROOT routes every listed mount to unreadable, never absent (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=1 present=0 absent=0 unreadable=1 stats=0 error=0 log=0 detail=sysfs:unreadable$'
+  chmod 755 "$FX/xfs"
+
+  case_home='xfs-root-not-dir'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' '/dev/xfsa /mnt/a xfs rw 0 0' > "$FX/mounts"
+  mkdir -p "$FX/xfs"; printf 'not a directory\n' > "$FX/xfs/xfsa"
+  check 'healthy: a sysfs entry that is not a directory counts unreadable, never present or absent (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=1 present=0 absent=0 unreadable=1 stats=0 error=0 log=0 detail=sysfs:unreadable$'
+
+  case_home='xfs-first-line-only'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf '%s\n' '/dev/xfsa /mnt/a xfs rw 0 0' > "$FX/mounts"
+  xfs_fs "$FX/xfs" xfsa
+  printf 'extent_alloc 1 2\nnot a stats line at all\n' > "$FX/xfs/xfsa/stats/stats"
+  check 'healthy: only the FIRST stats line is judged, so a valid first line keeps stats=1 (R70-C2)' 0 HEALTHY \
+    '^XFS xfs-stats mounts=1 present=1 absent=0 unreadable=0 stats=1 error=2 log=2 detail=none$'
+
+  # verdict neutrality A/B: the identical census invocation over the same fixture with the XFS
+  # seams live vs pointed at absent paths — the line is outside the rollup and the exit map.
+  case_home='xfs-neutral'; FX="$work/fx/$case_home"; mkdir -p "$FX"; fx_default "$FX"
+  printf 'ai-usage.timer loaded failed failed\n' > "$FX/failedunits"   # one plane DEGRADED in both runs
+  printf '%s\n' '/dev/fx0 / ext4 rw 0 0' '/dev/xfsa /mnt/a xfs rw 0 0' > "$FX/mounts"
+  xfs_fs "$FX/xfs" xfsa
+  EXTRA_ENV=()
+  arm_run; xarm_on_out=$ARM_OUT xarm_on_rc=$ARM_RC
+  EXTRA_ENV=(TSUKUROI_PROC_MOUNTS="$FX/absent/mounts" TSUKUROI_XFS_SYSFS="$FX/absent/xfs")
+  arm_run; xarm_off_out=$ARM_OUT xarm_off_rc=$ARM_RC
+  EXTRA_ENV=()
+  xarm_on_n=$(printf '%s\n' "$xarm_on_out" | grep -c '^XFS ' || true)
+  xarm_off_n=$(printf '%s\n' "$xarm_off_out" | grep -c '^XFS ' || true)
+  xarm_on_rest=$(printf '%s\n' "$xarm_on_out" | grep -v '^XFS ' || true)
+  xarm_off_rest=$(printf '%s\n' "$xarm_off_out" | grep -v '^XFS ' || true)
+  xarm_on_roll=$(printf '%s\n' "$xarm_on_out" | grep '^TSUKUROI_CENSUS:' || true)
+  xarm_off_roll=$(printf '%s\n' "$xarm_off_out" | grep '^TSUKUROI_CENSUS:' || true)
+  xarm_on_rest_n=$(printf '%s\n' "$xarm_on_rest" | grep -c . || true)
+  xarm_off_rest_n=$(printf '%s\n' "$xarm_off_rest" | grep -c . || true)
+  if [ "$xarm_on_rc" -ne "$xarm_off_rc" ]; then
+    bad "xfs: the arm changed the exit code ($xarm_on_rc vs $xarm_off_rc) (R70-C2)"
+  elif [ "$xarm_on_roll" != "$xarm_off_roll" ] || [ "$xarm_on_rest_n" -ne "$xarm_off_rest_n" ]; then
+    bad 'xfs: the arm changed the rollup line or the non-XFS line count (R70-C2)'
+  elif [ "$xarm_on_n" -ne 1 ] || [ "$xarm_off_n" -ne 1 ]; then
+    bad "xfs: wanted exactly one XFS line per run, got $xarm_on_n/$xarm_off_n (R70-C2)"
+  else
+    ok "xfs: one XFS line per run; rollup line, exit code and non-XFS line count identical with the arm inputs present or absent (exit $xarm_on_rc) (R70-C2)"
+  fi
+  xarm_line=$(printf '%s\n' "$xarm_on_out" | grep '^XFS ' || true)
+  case "$xarm_line" in
+    'XFS xfs-stats mounts=1 present=1 absent=0 unreadable=0 stats=1 error=2 log=2 detail=none')
+      ok 'xfs: the emitted line carries every field, in contract order, once (R70-C2)' ;;
+    *) bad "xfs: line shape drifted: $xarm_line (R70-C2)" ;;
+  esac
+  unset xarm_on_out xarm_on_rc xarm_off_out xarm_off_rc xarm_on_n xarm_off_n xarm_on_rest xarm_off_rest \
+    xarm_line xarm_on_roll xarm_off_roll xarm_on_rest_n xarm_off_rest_n
+
   printf 'TSUKUROI_CENSUS_SELFTEST: %s (%d cases, %d passed, %d failed)\n' \
     "$([ "$FAIL" -eq 0 ] && printf PASS || printf FAIL)" "$((PASS + FAIL))" "$PASS" "$FAIL"
   [ "$FAIL" -eq 0 ]
@@ -4379,6 +4649,10 @@ main() {
   # ---- kernel-plane arm (round 69, C2): one verdict-neutral line ---------------------------
   probe_kernel_arm
   printf '%s\n' "$KERNEL_LINE"
+
+  # ---- XFS stats arm (round 70, C2): one verdict-neutral line -------------------------------
+  probe_xfs_arm
+  printf '%s\n' "$XFS_LINE"
 
   local roll=HEALTHY
   roll=$(worse "$roll" "$PKG_V")
