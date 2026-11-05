@@ -1,0 +1,51 @@
+ExecTimeoutRed receipts — round 83 w1, red-before proof for the timeout arm (R82-V4)
+Scratch root: /fast/scratch/hyaku/tsukuroi-r83/ExecTimeoutRed   (HYAKU_SCRATCH default /fast/scratch/hyaku; free 407G at start)
+Lane: scratch clone, `git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin <S>/lane`, checked out d78b3b3982b5df62286dd65b0a42ae8a91847608 (dirty=0; toplevel asserted = <S>/lane)
+Real lane /home/vgpnk/Projects/shokunin/tsukuroi-shokunin: not mutated (only this receipts dir and ExecTimeoutRed.md written).
+
+Fixture <S>/fx:
+  tools/fake.py  — working detector; `--selftest` prints `SELFTEST total=1 passed=1 failed=0`, exit 0. Contains `raise SystemExit(main())` exactly once.
+  .ufo/waves/round-82/before/mutants-r82.json  sha256 f316262ce6fcaa4b2659296d17e176386aabf4e950839c084c315dfa552a9b27
+  .ufo/waves/round-83/before/mutants-r83.json  sha256 f316262ce6fcaa4b2659296d17e176386aabf4e950839c084c315dfa552a9b27
+  Both: one recipe T1-sleep: old `raise SystemExit(main())` -> new `import time\ntime.sleep(30)\nraise SystemExit(main())`, genuine_gap true.
+
+Copy: <S>/lane/tools/mutation-kill-r82-timeout2.py. Diff vs mutation-kill-r82.py (diff exit 1 = differences found):
+  $ diff tools/mutation-kill-r82.py tools/mutation-kill-r82-timeout2.py
+  68c68
+  <             env=env, timeout=300,
+  ---
+  >             env=env, timeout=2,
+  diff_rc=1
+
+(a) RED — r82 harness, copy with timeout 2:
+  $ TMPDIR=<S>/work-r82 python3 tools/mutation-kill-r82-timeout2.py --fixture <S>/fx --work <S>/work-r82/run
+  {"claim": "C2", "revision": null, "killed": 1, "total": 1, "genuine_killed": 1, "target_killed": 24, "target_genuine": 17, "finding": "unmet", "survivors": [], "records": [{"id": "T1-sleep", "tool": "fake.py", "genuine_gap": true, "killed": true, "rc": 124, "detail": "selftest-did-not-finish: Command '['/usr/bin/python3', '<S>/work-r82/run/mut/T1-sleep/fake.py', '--selftest']' timed"}]}
+  rc=1
+  Observed: the 30 s sleep mutant that never finished within the bound is scored killed=true, rc=124 — the R82-V4 defect reproduced (a hung selftest counted as a kill).
+
+(a') Reference — unmodified r82 harness (timeout 300), same fixture:
+  $ TMPDIR=<S>/work-r82 python3 tools/mutation-kill-r82.py --fixture <S>/fx --work <S>/work-r82/run-orig
+  {"claim": "C2", "revision": null, "killed": 0, "total": 1, "genuine_killed": 0, "target_killed": 24, "target_genuine": 17, "finding": "unmet", "survivors": ["T1-sleep"], "records": [{"id": "T1-sleep", "tool": "fake.py", "genuine_gap": true, "killed": false, "rc": 0, "detail": "SELFTEST total=1 passed=1 failed=0"}]}
+  rc=1
+  Observed: the 30 s sleep completes inside 300 s, so it is not a timeout; it survives (expected — the 300 s bound is not exercised by a 30 s sleep). Included so the 2 s copy's kill is attributable to the bound alone.
+
+(b) r83 harness, timeout arm (repair):
+  $ cd <S>/lane && TMPDIR=<S>/work-r83 python3 tools/mutation-kill-r83.py --fixture <S>/fx --timeout 2 --work <S>/work-r83/run
+  {"claim": "C1", "revision": null, "killed": 0, "total": 1, "genuine_killed": 0, "target_killed": 24, "target_genuine": 17, "recipes": ".ufo/waves/round-83/before/mutants-r83.json", "recipes_sha256": "f316262ce6fcaa4b2659296d17e176386aabf4e950839c084c315dfa552a9b27", "unobserved": ["T1-sleep"], "finding": "unmet", "survivors": ["T1-sleep"], "records": [{"id": "T1-sleep", "tool": "fake.py", "genuine_gap": true, "killed": false, "rc": null, "observed": false, "detail": "selftest-timeout:exceeded-2s"}]}
+  rc=1
+  Observed: killed=0 (expected 0), unobserved=["T1-sleep"] (non-empty, expected), record killed=false observed=false (expected). GREEN for the repaired arm.
+
+Selftest of the repaired harness in the lane:
+  $ cd <S>/lane && TMPDIR=<S>/work-r83 python3 tools/mutation-kill-r83.py --selftest
+    ok   kill-and-survive: killed=1 genuine=1 finding=unmet
+    ok   recipe-missing-is-not-a-kill: recipe-missing:old-string-occurs-0x
+    ok   recipes-sha-recorded: 67d4137fb198d1f6
+    ok   red-baseline-refuses: baseline-red:fake.py:rc=4:
+    ok   no-recipes-refuses: recipes-absent
+    ok   timeout-is-not-a-kill: killed=0 rc=None detail=selftest-timeout:exceeded-2s
+  SELFTEST total=6 passed=6 failed=0
+  rc=0
+
+Lane tools/mutation-kill-r82.py is untouched (timeout=300 at d78b3b3); the timeout2 copy exists only in the scratch clone.
+Tooling: no installs. Runs used system /usr/bin/python3 only.
+Scratch retained (not deleted) at <S> for the L1 to inspect the mut/ and base/ trees.

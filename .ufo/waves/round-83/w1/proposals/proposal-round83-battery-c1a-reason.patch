@@ -1,0 +1,11 @@
+--- a/tools/round83-battery.py
++++ b/tools/round83-battery.py
+@@ -78,6 +78,9 @@ def c1_legs(instr, rev, root):
+     rc, out, _ = run([str(tool), "--fixture", f"{FIXTURES}/anchor-fixture-doctored"], root)
+     body = parse(out)
++    c1a_reason = (body is not None and body.get("problems")
++                  and str(body["problems"][0]).startswith("snapshot-digest-mismatch"))
+     legs.append(leg("C1.a", "rc2 cannot-evaluate", rc, body,
+-                    rc == 2 and body is not None and body.get("finding") == "cannot-evaluate"))
++                    rc == 2 and body is not None and body.get("finding") == "cannot-evaluate"
++                    and c1a_reason))

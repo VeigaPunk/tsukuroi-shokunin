@@ -7128,3 +7128,18 @@ Limits, named: the digest binds the snapshot bytes the entry declares; it does n
 upstream revision, and C1 does not show that a quote supports its statement (QUALITY 113 scope). C2's
 battery is four legs; a case-aware forger of the ordinal lines survives it, and the counter does not
 read the SCORECARD's prose semantics.
+
+## Round 83 — measured outcome (measured at `d78b3b3982b5df62286dd65b0a42ae8a91847608`; honest stop, both claims NOT VERIFIED)
+
+| Claim | Axis | Before → after (battery, `python3 tools/round83-battery.py --instrument <r82\|r83> --revision d78b3b3982b5df62286dd65b0a42ae8a91847608`) | Target | Verdict |
+|---|---|---|---|---|
+| C1 depth | 8 → 8 | do-nothing r82 counters 2/3 (exit 1) → r83 counters 3/3 (exit 0) | 3/3 | NOT VERIFIED: a path-sniffing do-nothing reaches 3/3 (`.ufo/waves/round-83/w1/CriticClaims.md` F1); QUALITY 117 |
+| C2 calibration | 9 → 9 | do-nothing r82 counters 1/4 (exit 1) → r83 counters 4/4 (exit 0) | 4/4 | NOT VERIFIED: the same sniff reaches 4/4; a calibration-axis removal survives every leg (`MutOrdinal.md` M11) |
+
+Evidence: `.ufo/waves/round-83/before/battery-do-nothing-r82-at-tip.json` and `battery-candidate-r83-at-tip.json` (tip `a8598038`), the wave reports under `.ufo/waves/round-83/w1/`, and `corpus/lessons/round-83.md`. Counting commands were re-run by seats at the freeze with the same numbers (ReviewAnchor, SentinelGate, CriticClaims F2/F3).
+
+Repairs landed, not credited as claims: the digest bind and the positional retirement in the r83 counters (red-before controls in `controls.txt`); the re-encoded recipe set (do-nothing reach 24/26, 17/17 — the round-82 target was an encoding defect); the timeout arm (`tools/mutation-kill-r83.py`).
+
+Axes now: depth8, coverage9, operability9, freshness9, calibration9, adjacency8 (unchanged). No capability row enters. No retirement. Saturation 9, stagnation window 3.
+
+Not admitted. Honest stop: the round's declared battery is the mechanism that failed. The next declaration must run the fixture-gated control (QUALITY 82) and the legs of QUALITY 117 before freeze.

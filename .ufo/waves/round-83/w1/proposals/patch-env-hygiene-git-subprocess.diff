@@ -1,0 +1,49 @@
+# SentinelGate-6 (round-83 w1) — proposed patch, NOT applied. L1 decides.
+# Defect (low severity): four git subprocess call sites construct no environment,
+# so each child inherits the parent environment verbatim (HOME, GIT_*, any
+# exported secrets). The instruments' own standard is a scrubbed dict
+# (tools/mutation-kill-r83.py:80-81; tools/round83-battery.py:45-46,52).
+# Smallest remediation: pass an explicit scrubbed env at each git call site.
+# Exploit path closed: a hostile/odd parent env (e.g. GIT_CONFIG_GLOBAL,
+# core.hooksPath via inherited HOME) can no longer alter or observe the
+# read-only `git show` reads or the battery's fixture `git commit`.
+--- a/tools/round83-battery.py
++++ b/tools/round83-battery.py
+@@ ENV (lines 45-46)
+ ENV = {"PATH": "/usr/bin:/bin:/usr/local/bin", "LC_ALL": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1"}
++GITENV = dict(ENV)  # pass env=GITENV at every git subprocess.run below
+@@ lines 107-118 (git init/rev-parse/add/commit/symbolic-ref/rev-parse)
+-        subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True, stdin=subprocess.DEVNULL)
++        subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True, stdin=subprocess.DEVNULL, env=GITENV)
+         # (same env=GITENV added to the other five git calls in this block)
+--- a/tools/check-anchor-coordinates-r83.py
++++ b/tools/check-anchor-coordinates-r83.py
+@@ line 126-130
+         proc = subprocess.run(
+             ["git", "--no-pager", "-C", str(root), "show", f"{revision}:{path}"],
+             stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+-            stderr=subprocess.PIPE, timeout=120,
++            stderr=subprocess.PIPE, timeout=120,
++            env={"PATH": "/usr/bin:/bin:/usr/local/bin", "LC_ALL": "C.UTF-8",
++                 "PYTHONDONTWRITEBYTECODE": "1"},
+         )
+--- a/tools/check-ordinals-r83.py
++++ b/tools/check-ordinals-r83.py
+@@ lines 223-226
+     proc = subprocess.run(
+         ["git", "--no-pager", "-C", str(repo), "show", f"{revision}:{SCORECARD}"],
+         stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+-        timeout=120)
++        timeout=120,
++        env={"PATH": "/usr/bin:/bin:/usr/local/bin", "LC_ALL": "C.UTF-8",
++             "PYTHONDONTWRITEBYTECODE": "1"})
+--- a/tools/mutation-kill-r83.py
++++ b/tools/mutation-kill-r83.py
+@@ lines 69-72 (read_at git show)
+     proc = subprocess.run(
+         ["git", "--no-pager", "-C", str(root), "show", f"{revision}:{path}"],
+         stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120,
++        env={"PATH": "/usr/bin:/bin:/usr/local/bin", "LC_ALL": "C.UTF-8",
++             "PYTHONDONTWRITEBYTECODE": "1"},
+     )

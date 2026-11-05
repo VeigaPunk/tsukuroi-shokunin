@@ -1,0 +1,70 @@
+ExecOrdinalRed — round 83 wave w1 — red-before proof for tools/check-ordinals-r83.py (C2 calibration)
+Freeze commit: d78b3b3982b5df62286dd65b0a42ae8a91847608
+Scratch root:  /fast/scratch/hyaku/tsukuroi-r83/ExecOrdinalRed   (TMPDIR=$S/tmp for every run)
+Scratch clone: $S/lane  (git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin $S/lane; git -C $S/lane checkout -q d78b3b3982b5df62286dd65b0a42ae8a91847608)
+Lane tree at clone: HEAD d78b3b3982b5df62286dd65b0a42ae8a91847608, git status --porcelain empty.
+Lane root (/home/vgpnk/Projects/shokunin/tsukuroi-shokunin) was read-only for this seat; nothing written there except this receipts file and ExecOrdinalRed.md.
+
+Pinned instrument check:
+  $ grep -n check-ordinals .ufo/waves/round-83/before/instrument-sha256.txt   (exit 0)
+  3:abc7e037ffc3916f45133d04d11d0fd5bbb5a0fb3b694affa9338850726f3f5f  tools/check-ordinals-r83.py
+  $ sha256sum $S/lane/tools/check-ordinals-r83.py
+  abc7e037ffc3916f45133d04d11d0fd5bbb5a0fb3b694affa9338850726f3f5f  (matches pin: pristine is the frozen bytes)
+
+Mutants (copies of the pristine file, $S/<name>.py, each edited with the edit tool):
+  O-GLOBAL     measure(): line 121  `for j in range(i + 1, len(seen)):`  ->  `for j in range(len(seen)):`
+               (retirement no longer positional; every block's supersedes retires the key everywhere)
+               sha256 6efa11b5bcf679d8cc2573433a64bc86322075b1efbee79ae14901e78b823f75
+  O-NOCODE     assertions(): line 81  `bare = CODE.sub("", line)`  ->  `bare = line`
+               (inline code spans no longer stripped; quoted prose counts as assertions)
+               sha256 032fbe5f3d24a7a15847b59badb7778c0b3a0f3f41c58a7d2524963473b8bd51
+  O-TRACEBACK  main(), --revision path: lines 258-263 `try: text = read_scorecard_at(...) except CannotEvaluate: print JSON; return 2`
+               replaced by `text = read_scorecard_at(repo, revision)` (CannotEvaluate propagates uncaught)
+               sha256 e444e48182283db2457179e603dce1e0df6046ad10f8f4c01eaf4a0f889d7cda
+
+Commands run (for every variant NAME, after `cp $S/NAME.py $S/lane/tools/check-ordinals-r83.py`; pristine = `cp $S/pristine.py ...`):
+  (1) cd $S/lane && TMPDIR=$S/tmp PYTHONDONTWRITEBYTECODE=1 python3 tools/check-ordinals-r83.py --selftest
+  (2) cd $S/lane && TMPDIR=$S/tmp PYTHONDONTWRITEBYTECODE=1 python3 tools/round83-battery.py --instrument r83 --revision d78b3b3982b5df62286dd65b0a42ae8a91847608
+  (3) direct legs: cd $S/lane && python3 tools/check-ordinals-r83.py --fixture <BEFORE>/ordinals-fixture-quoted-prose.md
+                   cd $S/lane && python3 tools/check-ordinals-r83.py --revision d78b3b3982b5df62286dd65b0a42ae8a91847608
+                   cd $S/lane && python3 tools/check-ordinals-r83.py --repo $S/fx-noscore --branch <br> --revision <head of no-SCORECARD fixture repo>
+  After all runs the pristine file was copied back into the scratch lane.
+
+=== Table A: selftest (1) ===
+variant      rc  summary                                   failing case(s)
+pristine     0   SELFTEST total=11 passed=11 failed=0      -
+O-GLOBAL     3   SELFTEST total=11 passed=10 failed=1      late-contradiction: rc=0 findings=0 examined=0
+O-NOCODE     3   SELFTEST total=11 passed=10 failed=1      quoted-prose-not-assertion: rc=1 findings=1 examined=1
+O-TRACEBACK  0   SELFTEST total=11 passed=11 failed=0      - (selftest never reaches main()/--revision: blind)
+
+=== Table B: battery (2), C2 legs; expect C2.a rc1 / C2.b rc0 / C2.c rc0 / C2.d rc2 JSON ===
+variant      C2.a (rc, verdict)   C2.b (rc, verdict)   C2.c (rc, verdict)   C2.d (rc, verdict)    C2 passed  battery rc
+pristine     1 pass               0 pass               0 pass               2 pass                4/4        0
+O-GLOBAL     0 MISS (clean)       0 pass               0 pass               2 pass                3/4        1
+O-NOCODE     1 pass               1 MISS (finding)     1 MISS (finding)     2 pass                2/4        1
+O-TRACEBACK  1 pass               0 pass               0 pass               1 MISS (traceback)    3/4        1
+C1 legs were 3/3 pass in all four runs (C1.a rc2, C1.b rc0, C1.c rc0).
+
+RED CONTROL verdicts (a mutant is red if >=1 C2 leg misses):
+  O-GLOBAL     RED  -> leg C2.a (late contradiction read as clean; rc0 vs required rc1)
+  O-NOCODE     RED  -> legs C2.b and C2.c (quoted `depth 8 → 9` read as assertion; real SCORECARD reads finding depth 81 ordinals [8,9])
+  O-TRACEBACK  RED  -> leg C2.d (uncaught CannotEvaluate: rc1, empty stdout, Python traceback on stderr, no JSON)
+
+=== Table C: direct evidence per leg (raw, from results-raw/direct-legs.json) ===
+pristine  C2.b rc0 {"count": 0, "finding": "clean"}
+pristine  C2.c rc0 {"count": 0, "examined": 81, "finding": "clean"}
+pristine  C2.d rc2 {"finding": "cannot-evaluate", "problems": ["absent-at-revision:SCORECARD.md"]}
+O-NOCODE  C2.b rc1 {"count": 1, "findings": [{"round": 81, "axis": "depth", "ordinals": [8, 9]}]}
+O-NOCODE  C2.c rc1 {"count": 1, "examined": 81, "findings": [{"round": 81, "axis": "depth", "ordinals": [8, 9]}]}
+O-NOCODE  C2.d rc2 (unchanged; CODE stripping not on that path)
+O-TRACEBACK C2.d rc1 stdout="" stderr_tail=["    raise CannotEvaluate(f\"absent-at-revision:{SCORECARD}\")", "CannotEvaluate: absent-at-revision:SCORECARD.md"]
+O-GLOBAL  C2.a (battery) rc0 {"count": 0, "finding": "clean"}; O-GLOBAL C2.c rc0 examined=80 clean (still clean; not a miss)
+
+Raw files (verbatim stdout/stderr and rc trailers): ExecOrdinalRed/results-raw/{pristine,O-GLOBAL,O-NOCODE,O-TRACEBACK}.{selftest.txt,battery.json}, results-raw/direct-legs.json.
+
+Observations (not patches; L1 decides):
+  - check-ordinals-r83.py selftest has 11 cases, all driving measure(); none drives main() or --revision. The O-TRACEBACK defect is therefore invisible to --selftest (rc0); only the battery's C2.d leg catches it. Proposed (for the L1): a selftest case calling main(["--revision", <no-SCORECARD rev>]) or a subprocess check that stdout is JSON with rc2.
+  - Pristine CODE stripping is load-bearing on the REAL SCORECARD (C2.c): with stripping removed 4 quoted sites in the round-82 correction block produce a finding. The selftest case "quoted-prose-not-assertion" is the only unit cover.
+
+Tooling: no tools installed or updated by this seat (python3 stdlib, git only). No pacman, no uv, no npm.
+Mutations applied only in $S (scratch). Lane root /home/vgpnk/Projects/shokunin/tsukuroi-shokunin: not mutated; no git add/commit/checkout/stash/reset; read-only git only (clone --shared reads, show, rev-parse, status).

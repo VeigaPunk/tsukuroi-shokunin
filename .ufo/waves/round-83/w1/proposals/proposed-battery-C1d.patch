@@ -1,0 +1,42 @@
+diff --git i/tools/round83-battery.py w/tools/round83-battery.py
+index d5a48c61..01d3ee55 100755
+--- i/tools/round83-battery.py
++++ w/tools/round83-battery.py
+@@ -81,6 +81,21 @@ def c1_legs(instr, rev, root):
+     body = parse(out)
+     legs.append(leg("C1.c", "rc0 count8/8 at REV", rc, body,
+                     rc == 0 and body is not None and body.get("count") == 8))
++    # C1.d (proposed, R82-V5): an undeclared snapshot digest is cannot-evaluate, never a verdict.
++    scratch = Path(tempfile.mkdtemp(prefix="r83-c1d-"))
++    try:
++        fix = scratch / "fixture"
++        shutil.copytree(root / FIXTURES / "anchor-fixture-digestfixed", fix)
++        entry_path = fix / "corpus/knowledge/mount-unit-fstab-plane-r81.json"
++        entry_obj = json.loads(entry_path.read_text(encoding="utf-8"))
++        entry_obj.pop("snapshot_sha256", None)
++        entry_path.write_text(json.dumps(entry_obj), encoding="utf-8")
++        rc, out, _ = run([str(tool), "--fixture", str(fix)], root)
++        body = parse(out)
++        legs.append(leg("C1.d", "rc2 cannot-evaluate (digest undeclared)", rc, body,
++                        rc == 2 and body is not None and body.get("finding") == "cannot-evaluate"))
++    finally:
++        shutil.rmtree(scratch, ignore_errors=True)
+     return legs
+ 
+ 
+@@ -137,12 +152,12 @@ def main(argv=None):
+     c1_pass = sum(1 for leg_ in c1 if leg_["verdict"] == "pass")
+     c2_pass = sum(1 for leg_ in c2 if leg_["verdict"] == "pass")
+     report = {"instrument": a.instrument, "revision": a.revision,
+-              "C1_depth": {"passed": c1_pass, "of": len(c1), "target": "3/3", "legs": c1,
+-                           "finding": "met" if c1_pass == 3 else "unmet"},
++              "C1_depth": {"passed": c1_pass, "of": len(c1), "target": "4/4", "legs": c1,
++                           "finding": "met" if c1_pass == 4 else "unmet"},
+               "C2_calibration": {"passed": c2_pass, "of": len(c2), "target": "4/4", "legs": c2,
+                                  "finding": "met" if c2_pass == 4 else "unmet"}}
+     print(json.dumps(report, indent=1))
+-    return 0 if c1_pass == 3 and c2_pass == 4 else 1
++    return 0 if c1_pass == 4 and c2_pass == 4 else 1
+ 
+ 
+ if __name__ == "__main__":

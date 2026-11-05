@@ -1,0 +1,88 @@
+ExecAnchorRed — red-before proof for the digest gate (tools/check-anchor-coordinates-r83.py)
+Freeze commit: d78b3b3982b5df62286dd65b0a42ae8a91847608
+Scratch root:  /fast/scratch/hyaku/tsukuroi-r83/ExecAnchorRed   (retained; holds lane/, lane-patch/, mutants, proposed patch)
+Host free space at start: /fast 404G free (50%).
+Lane tree: scratch clone `git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin $S/lane` then `git -C $S/lane checkout -q d78b3b39...` (scratch clone only). Toplevel verified = $S/lane; HEAD = d78b3b39...; status clean.
+Frozen lane was NOT mutated. No git add/commit/push/stash/checkout/switch/reset/pull ran against /home/vgpnk/Projects/shokunin/tsukuroi-shokunin.
+
+Mutants (copies of the freeze-commit file, sha256 verified):
+  pristine      b1e208af85965957f46301d307bc52689e3b2f9bcc9a050be6565faac5343e21   (git show d78b3b39:tools/check-anchor-coordinates-r83.py)
+  M-NODIGEST    b3e983e68dc92194b5f76f723d933382f840a9e40063ad8a7badd2855960a2a1   (CUT 158.=158 and CUT 140.=140: both bind_digest(entry, snap_bytes) call sites in load())
+  M-UNDECLARED  cd2407436c387b56f7e5088a3dcf23e2db630ba84f1d7076888d2b4b57917b00   (line 115: `raise CannotEvaluate("snapshot-digest-undeclared")` -> `return None`, inside bind_digest; the mismatch raise at line 118 is unchanged)
+
+Method: each variant was copied into $S/lane/tools/check-anchor-coordinates-r83.py (so `import _revision` resolves), then the four counter runs and the battery were run from cwd $S/lane with TMPDIR=$S, PYTHONDONTWRITEBYTECODE=1. Pristine file restored after the matrix (sha b1e208af… re-confirmed by the verification step below).
+
+=== Table (1)-(4) per variant; battery = `python3 tools/round83-battery.py --instrument r83 --revision d78b3b39…` ===
+
+| variant | (1) --selftest rc + summary | (2) --fixture anchor-fixture-doctored rc + finding | (3) --fixture anchor-fixture-digestfixed rc + count | (4) --repo $S/lane --branch master --revision d78b3b39… rc + count | battery C1 legs (rc/verdict) | battery C1 | verdict |
+|---|---|---|---|---|---|---|---|
+| pristine | rc0 `SELFTEST total=16 passed=16 failed=0` | rc2 cannot-evaluate `snapshot-digest-mismatch:declared-afbf3be663b1:actual-c718576fcce8` | rc0 count 8/8 met | rc0 count 8/8 met | C1.a rc2 pass; C1.b rc0 pass; C1.c rc0 pass | 3/3 (battery rc0) | expected ✔ |
+| M-NODIGEST | rc3 `SELFTEST total=16 passed=13 failed=3` (FAIL digest-mismatch-refuses, digest-undeclared-refuses, digest-malformed-refuses) | rc0 count 8/8 met (doctored snapshot now accepted) | rc0 count 8/8 met | rc0 count 8/8 met | C1.a rc0 MISS; C1.b rc0 pass; C1.c rc0 pass | 2/3 (battery rc1) | RED CONTROL — killed by C1.a |
+| M-UNDECLARED | rc3 `SELFTEST total=16 passed=14 failed=2` (FAIL digest-undeclared-refuses, digest-malformed-refuses) | rc2 cannot-evaluate `snapshot-digest-mismatch:declared-afbf3be663b1:actual-c718576fcce8` | rc0 count 8/8 met | rc0 count 8/8 met | C1.a rc2 pass; C1.b rc0 pass; C1.c rc0 pass | 3/3 (battery rc0) | NOT KILLED by the frozen battery; killed only by the mutant's own selftest |
+
+Battery C2 legs were unaffected by both mutants (4/4, battery C2_calibration.finding met) — the mutants touch only the anchor counter.
+
+Raw one-line outputs (verbatim, exit code in brackets):
+  pristine --selftest  [rc 0]: "SELFTEST total=16 passed=16 failed=0"
+  pristine doctored    [rc 2]: {"claim": "C2", "revision": null, "count": 0, "target": 8, "finding": "cannot-evaluate", "problems": ["snapshot-digest-mismatch:declared-afbf3be663b1:actual-c718576fcce8"]}
+  pristine digestfixed [rc 0]: {"claim": "C2", "revision": null, "count": 8, "target": 8, "finding": "met", "rows": [...8 rows, all "exact": true...]}
+  pristine --revision  [rc 0]: {"claim": "C2", "revision": "d78b3b3982b5df62286dd65b0a42ae8a91847608", "count": 8, "target": 8, "finding": "met", "rows": [...]}
+  M-NODIGEST doctored  [rc 0]: {"claim": "C2", "revision": null, "count": 8, "target": 8, "finding": "met", "rows": [...]}
+  M-UNDECLARED doctored[rc 2]: {"claim": "C2", "revision": null, "count": 0, "target": 8, "finding": "cannot-evaluate", "problems": ["snapshot-digest-mismatch:declared-afbf3be663b1:actual-c718576fcce8"]}
+
+Why M-NODIGEST passes doctored and M-UNDECLARED does not: the doctored fixture only changes `version="1.0"` to `version="1.1"` in the XML prolog; no quoted row text changes, so with the digest gate removed every row still locates at its declared span (8/8). The digest is the sole mechanism that refuses the doctored snapshot. M-UNDECLARED keeps the mismatch raise, so the doctored fixture still refuses; it differs only on undeclared/malformed digests.
+
+Mutant selftest failing cases (verbatim from the mutant's own --selftest):
+  M-NODIGEST:   FAIL digest-mismatch-refuses: rc=1 count=1/None finding=unmet ; FAIL digest-undeclared-refuses: rc=1 count=1/None finding=unmet ; FAIL digest-malformed-refuses: rc=1 count=1/None finding=unmet ; SELFTEST total=16 passed=13 failed=3
+  M-UNDECLARED: FAIL digest-undeclared-refuses: rc=1 count=1/None finding=unmet ; FAIL digest-malformed-refuses: rc=1 count=1/None finding=unmet ; SELFTEST total=16 passed=14 failed=2
+
+=== Gap found: the frozen battery has no leg that exercises the undeclared/malformed digest branch ===
+The declaration's C1 kill rule says unmet "if the digest gate accepts an undeclared or malformed digest". Legs C1.a/C1.b/C1.c do not exercise that branch (C1.a's fixture declares a digest, which mismatches). Therefore M-UNDECLARED survives the frozen battery (3/3, rc0).
+
+Proposed patch (NOT landed; written to scratch, not to the lane): $S/proposed-battery-C1d.patch
+  Adds leg C1.d inside c1_legs(): copy the digest-fixed fixture to a temp dir, pop `snapshot_sha256` from the entry, run the anchor counter --fixture, expect rc2 + finding cannot-evaluate. Changes the C1 target from 3/3 to 4/4 (`"target": "4/4"`, `c1_pass == 4`, both in main()). This is a re-scope of the frozen C1 "3 of 3 legs" and therefore requires L1 decision; it is not applied to the frozen lane.
+Verification of the proposed patch, in scratch clone $S/lane-patch (checked out at d78b3b39, toplevel verified = $S/lane-patch):
+  pristine      battery rc0  C1 4/4  legs C1.a rc2 pass; C1.b rc0 pass; C1.c rc0 pass; C1.d rc2 pass
+  M-UNDECLARED  battery rc1  C1 3/4  C1.d rc0 MISS (undeclared digest returned a verdict)  -> KILLED
+  M-NODIGEST    battery rc1  C1 2/4  C1.a rc0 MISS; C1.d rc0 MISS                        -> KILLED
+  (pristine restored in lane-patch after the run)
+
+=== Exact commands run (all from cwd $S/lane unless noted; TMPDIR=$S) ===
+  # setup
+  df -h /fast/scratch | tail -1
+  S=/fast/scratch/hyaku/tsukuroi-r83/ExecAnchorRed; mkdir -p "$S"
+  git clone -q --shared /home/vgpnk/Projects/shokunin/tsukuroi-shokunin "$S/lane"
+  git -C "$S/lane" checkout -q d78b3b3982b5df62286dd65b0a42ae8a91847608
+  git -C "$S/lane" rev-parse --show-toplevel        -> /fast/scratch/hyaku/tsukuroi-r83/ExecAnchorRed/lane
+  git -C "$S/lane" rev-parse HEAD                   -> d78b3b3982b5df62286dd65b0a42ae8a91847608
+  git -C "$S/lane" status --porcelain               -> (empty)
+  # pristine matrix
+  python3 tools/check-anchor-coordinates-r83.py --selftest                                   [rc 0]
+  python3 tools/check-anchor-coordinates-r83.py --fixture .ufo/waves/round-83/before/anchor-fixture-doctored   [rc 2]
+  python3 tools/check-anchor-coordinates-r83.py --fixture .ufo/waves/round-83/before/anchor-fixture-digestfixed [rc 0]
+  python3 tools/check-anchor-coordinates-r83.py --repo "$S/lane" --branch master --revision d78b3b3982b5df62286dd65b0a42ae8a91847608   [rc 0]
+  # mutant creation (scratch copies, then edits via hashline edit tool)
+  cp tools/check-anchor-coordinates-r83.py $S/mut-nodigest.py ; cp tools/check-anchor-coordinates-r83.py $S/mut-undeclared.py
+  mut-nodigest.py:  delete line 158 `    bind_digest(entry, snap_bytes)` and line 140 `        bind_digest(entry, snap_bytes)`
+  mut-undeclared.py: line 115 `        raise CannotEvaluate("snapshot-digest-undeclared")` -> `        return None`
+  # matrix per variant (python driver, equivalent to the four commands above with the variant installed at tools/check-anchor-coordinates-r83.py)
+  python3 tools/round83-battery.py --instrument r83 --revision d78b3b3982b5df62286dd65b0a42ae8a91847608   (per variant)
+  # mutant selftests from scratch dir
+  cd $S && python3 $S/mut-nodigest.py --selftest ; python3 $S/mut-undeclared.py --selftest
+  # proposed-patch verification in scratch clone $S/lane-patch
+  git clone -q --shared $S/lane $S/lane-patch ; git -C $S/lane-patch checkout -q d78b3b39…
+  (edit tools/round83-battery.py there; `git -C $S/lane-patch diff > $S/proposed-battery-C1d.patch`)
+  cd $S/lane-patch && python3 tools/round83-battery.py --instrument r83 --revision d78b3b39…   (for pristine, M-UNDECLARED, M-NODIGEST installed as tools/check-anchor-coordinates-r83.py)
+
+Restoration check: lane/tools/check-anchor-coordinates-r83.py restored to pristine (sha b1e208af…). git status in the scratch lane clean except nothing.
+
+Host state: no installs, no tool upgrades, no pacman, no ~/.local/bin writes, no writes to /home/vgpnk/Projects/shokunin (fleet root), no writes to the frozen lane, no writes to .ufo/state, .ufo/watchdog.log, .scratch, MANIFEST.json, considerthese/, or shokuknow.
+
+Observation (minor defect, not in any leg): tools/check-anchor-coordinates-r83.py:51 `CLAIM = "C2"` — the anchor counter (depth C1 instrument) prints `"claim": "C2"` in every JSON line (lines 321, 328, 333). Label only; does not change any verdict. Proposed fix: CLAIM = "C1" in the scratch patch set; not applied.
+
+=== Post-restore verification (run after the matrix; read-only checks) ===
+  sha256sum $S/lane/tools/check-anchor-coordinates-r83.py      -> b1e208af85965957f46301d307bc52689e3b2f9bcc9a050be6565faac5343e21 (pristine)
+  sha256sum $S/lane-patch/tools/check-anchor-coordinates-r83.py -> b1e208af85965957f46301d307bc52689e3b2f9bcc9a050be6565faac5343e21 (pristine)
+  git -C $S/lane status --porcelain                              -> (empty) rc0
+  git -C $S/lane-patch status --porcelain                        -> " M tools/round83-battery.py" (the proposed C1.d patch only) rc0
+  git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain (read-only) -> untracked wave files only (.ufo/waves/round-83/w1-dispatch.json, w1-spec.json, w1.ready, w1.ready.dispatched, w1/); no tracked-file modification by this seat.

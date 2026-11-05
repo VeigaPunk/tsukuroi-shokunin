@@ -3747,3 +3747,13 @@ committed at this landing commit. `corpus/README.md` gains the scout's round-82
 coverage/frontier section (28 appended lines) with one correction line: its C2 row
 calls 22/26 and 16/17 "a mid-wave uncommitted worktree", which is stale — that state
 is committed at `f376054a` and re-derived at the landing tip.
+
+## Round 83 — digest-bound anchor counter, positional ordinal counter, and an honest stop (2026-11-05)
+
+Motivating evidence: round-82 non-author closure `corpus/lessons/round-82-verifier-spotcheck.md`, routed defects R82-V1 through R82-V7 (recipe encoding, two-loop retirement, traceback leak, timeout-as-kill, undeclared digest, used-by inversion). Declared two claims: C1 depth (digest-bound anchor counter, R82-V5) and C2 calibration (positional retirement and public cannot-evaluate, R82-V2/V3). Declaration commit `d78b3b39` froze instruments, fixtures, the re-encoded recipe file and the battery.
+
+Landed (commit hashes in the report): `tools/check-anchor-coordinates-r83.py`, `tools/check-ordinals-r83.py`, `tools/mutation-kill-r83.py`, `tools/round83-battery.py`, the frozen fixtures and receipts under `.ufo/waves/round-83/before/`, registry rows S334/S335 and the S333 `used-by` correction (`corpus/SOURCES.md`), QUALITY 116 and 117, `corpus/lessons/round-83.md`, a corpus README frontier section, and the wave `.ufo/waves/round-83/w1/` with 13 seat reports.
+
+Outcome: both claims NOT VERIFIED (honest stop). The battery is reached in full marks by a four-line fixture-name sniff added to the round-82 counters (CriticClaims F1), a control QUALITY 82 requires before freeze and that this round skipped (R83-PRE-CONTROL-SKIPPED). The pristine counters pass every probe the wave built. Ordinals unchanged. Mistakes and seat results are in `corpus/lessons/round-83.md`.
+
+Erratum to the round-83 declaration's chronology: the instruments were iterated before the declaration commit (R83-CHRONOLOGY), disclosed in the SCORECARD block, not repaired retroactively.

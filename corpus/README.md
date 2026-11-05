@@ -830,3 +830,16 @@ genuine_killed 16, finding unmet`, rc 1. The frozen target (`killed >= 24` and
 `genuine == 17`) stays unmet for the recipe-encoding reason named in the same row, and
 the C1 and C3 rows stand as measured (`count 8 / target 8 / met` rc 0; `count 0 /
 examined 80 / clean` rc 0).
+
+## Frontier — round 83 (open; each surface names its evidence)
+
+- Revision-path digest bypass: the frozen battery has no leg that proves `bind_digest` on the `--revision` path (`.ufo/waves/round-83/w1/MutAnchor.md`, M05). Evidence: scratch separator in that report; route to the next declaration.
+- Undeclared and uppercase digest policy: no leg; the uppercase case is a policy decision, not a bug (`MutAnchor.md` M03).
+- Decoded-text versus byte digest and off-by-one exact-span: no leg (`MutAnchor.md` M04, M10); the pristine counter is correct on both separators.
+- Calibration axis: removing `calibration` from the counter's `AXES` survives every frozen leg (`.ufo/waves/round-83/w1/MutOrdinal.md`, M11). The battery cannot see the calibration axis.
+- Revision-path exit codes beyond absent SCORECARD: bind-failure exits and the `problems` reason are unmeasured (`MutOrdinal.md` M19, M20).
+- Fixture-name keyed legs: a four-line path sniff reaches full battery marks (`.ufo/waves/round-83/w1/CriticClaims.md` F1); QUALITY 117 governs the next declaration.
+- Selftest coverage of the public `main` path (traceback class, `ExecOrdinalRed.md` O-TRACEBACK) and of indented, `=>` and non-round heading supersedes forms.
+- Git subprocess environment inheritance (`SentinelGate.md` check 3); proposal in `.ufo/waves/round-83/w1/proposals/`.
+- Patch-offset host-build check (considerthese/2026-10-26.md #22, partial): needs a host-build measurement outside the frozen legs.
+- Operator decision requested: in-place `used-by` (CORPUS rule 2) versus QUALITY 60/99 (see `.ufo/l0-questions.md`).

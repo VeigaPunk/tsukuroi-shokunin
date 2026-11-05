@@ -1,0 +1,12 @@
+--- a/tools/check-ordinals-r83.py
++++ b/tools/check-ordinals-r83.py
+@@ -129,7 +129,7 @@ def assertions(body):  # r83 instrument; applies only to the SUCCESSOR counter (r84),
+     for line in body:
+         bare = CODE.sub("", line)
++        # WRONG: CODE.sub is greedy over an ODD number of unmatched backticks. When a line
++        # opens a code span that closes on a later line (a multi-line ``...`` quotation),
++        # every `pair match between the opening quote and the next tick disappears.
++        # Proposal: strip only self-contained spans (pairwise, non-greedy), and leave
++        # unclosed-tick lines untouched after the last matched pair:
++        bare = re.sub(r"`([^`\n]*)`", r"\1", line)  # single-line spans only
++        # then re-run the pair regex on the *suffix after the last cut* if an odd tick remains.
