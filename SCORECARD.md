@@ -7056,3 +7056,30 @@ retires an assertion globally rather than only earlier ones and cannot tell quot
 from an assertion (R82-V2). C3's `--revision` path leaks `CannotEvaluate` as a traceback
 with rc 1 (R82-V3), and C2 counts a timed-out selftest as a kill (R82-V4). No capability
 row enters this round.
+
+## Round 82 — L1 confirmation at the delivered tip (appends the final-tip re-measurement; supersedes nothing)
+
+The round's commits were made by two L1 attempts on one lane (the driver relaunched after a
+false lane-death; see the `concurrent-L1-collision` row in `corpus/lessons/round-82.md`).
+Every inherited commit was re-measured with the frozen instruments before this block was
+written; nothing above it was edited.
+
+Delivered tip `43aa57688a9123300cbf695f536ce71d5c15b727`, measured 2026-11-04:
+
+| Claim | Axis | Frozen command | At the tip | Verdict |
+|---|---|---|---|---|
+| C1 | depth 8 → 8 | `python3 tools/check-anchor-coordinates.py --revision 43aa5768` | `count 8 / target 8 / met`, rc 0 | verified |
+| C2 | operability 9 → 9 | `python3 tools/mutation-kill-r82.py --revision 43aa5768` | `killed 22 / 26`, `genuine 16 / 17`, `unmet`, rc 1 | **unmet — honest stop** |
+| C3 | calibration 9 → 9 | `python3 tools/check-scorecard-ordinals.py --revision 43aa5768` | `count 0 / examined 80 / clean`, rc 0 | verified |
+
+Supporting gates at the same revision: registry coverage `125/125 PASS findings 0`; knowledge
+refs `dangling 0 / findings 0 / notes 99`; knowledge header `findings 0 / notes 99`; line
+endings `PASS (414 files, 0 violations)`; source census `333 rows`, `validate --root … tsukuroi`
+exit 0 (`.ufo/waves/round-82/after/census-after.txt`).
+
+No axis is harmed: C2's miss leaves operability where it was and the two verified claims move
+no ordinal (depth 8, calibration 9 unchanged). No capability row enters. The round is **not
+admitted**: C2's frozen target was unreachable by construction (two of the 26 recipes carry a
+two-character `\`+`n` in `old`, and two more are equivalent mutants), so the arithmetic maxima
+are 22 killed and 16 genuine — recorded, not repaired in-round, because the freeze forbids
+editing the recipe file.
