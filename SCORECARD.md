@@ -7083,3 +7083,48 @@ admitted**: C2's frozen target was unreachable by construction (two of the 26 re
 two-character `\`+`n` in `old`, and two more are equivalent mutants), so the arithmetic maxima
 are 22 killed and 16 genuine — recorded, not repaired in-round, because the freeze forbids
 editing the recipe file.
+## Round 83 — declaration (frozen before the wave; controls committed with it)
+
+Pre-round lane tip `a8598038dbcbaa07d4b5899b647bf30aa81e9e3f`. Chronology, stated plainly: the
+round-83 instruments, fixtures, recipe file and the controls receipts were written and run by the
+L1 before this declaration (instrument selftests were iterated on fixture shape only, never on a
+predicate or target). This commit freezes exactly the bytes those runs used
+(`.ufo/waves/round-83/before/instrument-sha256.txt`, `SHA256SUMS`, `SHA256SUMS-receipts`). No wave
+seat has scored anything yet. The same chronology defect as round 81 stands on the record and is
+mined in `corpus/lessons/round-83.md`; it is not repaired retroactively.
+
+Lowest non-retired axes: depth 8 and adjacency 8 (tied). C1 works depth. Calibration 9 is worked by
+C2. Adjacency is not claimed: its open item (ADJ-06/OUT-009) is operator-owned and unruled.
+Saturation 9, stagnation window 3, retired: none.
+
+Repair, not claim (R82-V1, R82-V4): the round-82 recipe set stored `old` strings with a two-character
+`\`+`n` (`C16-empty-manifest`, `M06-mutation-unlink-noop`). Re-encoded to real newlines in
+`.ufo/waves/round-83/before/mutants-r83.json` (each `old` now occurs exactly once; sha256
+`499c594b…4f09`). **Measured do-nothing reach:** the round-83 mutation harness over the unchanged
+tip tools and the re-encoded recipes scores `killed 24/26, genuine 17/17, met` with zero tool edits
+(`tools/mutation-kill-r83.py --fixture .`; receipt `.ufo/waves/round-83/before/do-nothing-reencoded-mutation-r83-at-tip.json`). The round-82 frozen target was therefore a recipe-encoding defect, and re-encoding alone reaches it. That
+is not operability: no operability credit is claimed and the operability ordinal stays 9. The
+harness's timeout arm (a hung selftest is `unobserved`, never a kill; R82-V4) is a repair with its own
+red case in its selftest, uncredited.
+
+| Claim | Axis | Predicate (the same sentence in the battery's code and the receipt) | Target | Kill rule | Counting command | Do-nothing control (r82 counters at the pre-round tip) |
+|---|---|---|---|---|---|---|
+| C1 | depth 8 (tied lowest) | the anchor counter returns cannot-evaluate for a doctored snapshot whose bytes differ from the entry's declared `snapshot_sha256`, returns met (8/8) for the digest-consistent fixture, and returns met (8/8) for the real tree at REV | 3 of 3 legs | unmet if the doctored snapshot is met; if the digest gate accepts an undeclared or malformed digest; if the real tree is not 8/8 | `python3 tools/round83-battery.py --instrument r83 --revision <REV>` (leg block C1) | 2 of 3 (leg C1.a: rc0 met on the doctored snapshot) |
+| C2 | calibration 9 | the ordinal counter reads a late block's re-assertion of a superseded value as a finding, reads quoted prose as no assertion, returns clean for the real SCORECARD at REV, and returns cannot-evaluate with JSON (not a traceback) for a revision with no SCORECARD | 4 of 4 legs | unmet if any leg misses; a traceback or a findings-code exit where cannot-evaluate is required is a miss | `python3 tools/round83-battery.py --instrument r83 --revision <REV>` (leg block C2) | 1 of 4 (C2.a clean, C2.b finding, C2.d traceback rc1) |
+
+Legs: C1.a `tools/check-anchor-coordinates-r83.py --fixture .ufo/waves/round-83/before/anchor-fixture-doctored`
+(rc 2); C1.b the same tool on `anchor-fixture-digestfixed` (rc 0, count 8); C1.c `--revision <REV>` (rc 0,
+count 8). C2.a `tools/check-ordinals-r83.py --fixture .ufo/waves/round-83/before/ordinals-fixture-late-contradiction.md`
+(rc 1, count 1); C2.b the same on `ordinals-fixture-quoted-prose.md` (rc 0, count 0); C2.c `--revision <REV>`
+(rc 0, count 0); C2.d a fixture git repo built inside the battery with no SCORECARD.md (rc 2, JSON).
+
+Measured at the pre-round tip (receipts `.ufo/waves/round-83/before/battery-do-nothing-r82-at-tip.json`
+and `battery-candidate-r83-at-tip.json`): do-nothing C1 2/3 unmet, C2 1/4 unmet; round-83 counters
+C1 3/3 met, C2 4/4 met. These are candidate-side L1 runs made before the declaration (disclosed above);
+the wave's independent seats re-run them against the committed freeze, and the post-wave measurement at
+the landed revision is the one the round reports.
+
+Limits, named: the digest binds the snapshot bytes the entry declares; it does not vouch for the
+upstream revision, and C1 does not show that a quote supports its statement (QUALITY 113 scope). C2's
+battery is four legs; a case-aware forger of the ordinal lines survives it, and the counter does not
+read the SCORECARD's prose semantics.

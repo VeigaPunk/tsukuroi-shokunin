@@ -1,0 +1,130 @@
+{
+ "url": "https://raw.githubusercontent.com/systemd/systemd/v262/man/systemd.mount.xml",
+ "snapshot": "systemd.mount.xml",
+ "snapshot_sha256": "c718576fcce85b183fd5e3e818c34819af47047e2df27ca24e97b6b4a032c149",
+ "generator_doc": "https://raw.githubusercontent.com/systemd/systemd/v262/man/systemd-fstab-generator.xml",
+ "generator_doc_sha256": "8de8acb8c2c66da8f9b194915431edce0b7949ad458bc255c80a33b442092c41",
+ "host_capture": ".ufo/waves/round-81/before/host/generator.txt",
+ "rows": [
+  {
+   "id": "MT1",
+   "setting": "DefaultDependencies",
+   "statement": "A generated local mount unit gains After=local-fs-pre.target and Before=local-fs.target, and the Before= leg is dropped when nofail or an explicit wanted-by/required-by option is present.",
+   "source": "S331",
+   "snapshot": "systemd.mount.xml",
+   "lines": [
+    135,
+    138
+   ],
+   "quote": "automatically gain an After= dependency on local-fs-pre.target, and a Before= dependency on local-fs.target unless one or more mount options among nofail"
+  },
+  {
+   "id": "MT2",
+   "setting": "nofail",
+   "statement": "nofail makes the target only want the mount instead of requiring it and removes the ordering, so boot proceeds whether or not the mount point can be mounted.",
+   "source": "S331",
+   "snapshot": "systemd.mount.xml",
+   "lines": [
+    502,
+    503
+   ],
+   "quote": "With nofail, this mount will be only wanted, not required, by local-fs.target or remote-fs.target.",
+   "measured": {
+    "source": "S332",
+    "lines": [
+     136,
+     145
+    ],
+    "quote": "local-fs.target.wants fast.mount systemd-remount-fs.service tmp.mount ### local-fs.target.requires -.mount boot.mount home.mount"
+   }
+  },
+  {
+   "id": "MT3",
+   "setting": "noauto",
+   "statement": "noauto keeps the generated mount unit out of the target dependency set, so the file system is not mounted during boot unless another unit pulls it in.",
+   "source": "S331",
+   "snapshot": "systemd.mount.xml",
+   "lines": [
+    486,
+    487
+   ],
+   "quote": "With noauto, the mount unit will not be added as a dependency for local-fs.target or remote-fs.target."
+  },
+  {
+   "id": "MT4",
+   "setting": "x-systemd.automount",
+   "statement": "When x-systemd.automount is present the generated automount unit is added to the target instead, and the auto and noauto options have no effect at all.",
+   "source": "S331",
+   "snapshot": "systemd.mount.xml",
+   "lines": [
+    491,
+    492
+   ],
+   "quote": "Note that if x-systemd.automount (see above) is used, neither auto nor noauto have any effect."
+  },
+  {
+   "id": "MT5",
+   "setting": "x-systemd.before=",
+   "statement": "x-systemd.before= and x-systemd.after= add an ordering dependency on another unit to the created mount unit, which is the way a nofail entry re-acquires an ordering it otherwise loses.",
+   "source": "S331",
+   "snapshot": "systemd.mount.xml",
+   "lines": [
+    234,
+    236
+   ],
+   "quote": "In the created mount unit, configures a Before= or After= dependency on another systemd unit, such as a mount unit.",
+   "measured": {
+    "source": "S332",
+    "lines": [
+     69,
+     70
+    ],
+    "quote": "SourcePath=/etc/fstab Before=local-fs.target"
+   }
+  },
+  {
+   "id": "MT6",
+   "setting": "x-systemd.device-timeout=",
+   "statement": "x-systemd.device-timeout= bounds how long the generated device unit is waited for, and the option is honoured only in fstab and ignored inside a unit file's Options= setting.",
+   "source": "S331",
+   "snapshot": "systemd.mount.xml",
+   "lines": [
+    339,
+    341
+   ],
+   "quote": "Configure how long systemd should wait for a device to show up before giving up on an entry from /etc/fstab.",
+   "measured": {
+    "source": "S332",
+    "lines": [
+     124,
+     127
+    ],
+    "quote": "from supplied options \"rw,noatime,nosuid,nodev,logbsize=256k,nofail,x-systemd.device-timeout=10s\" [Unit] JobRunningTimeoutSec=10s"
+   }
+  },
+  {
+   "id": "MT7",
+   "setting": "x-systemd.requires=",
+   "statement": "x-systemd.requires= and x-systemd.wants= add Requires= or Wants= plus After= against another unit, and they always attach to the created mount unit even under automount.",
+   "source": "S331",
+   "snapshot": "systemd.mount.xml",
+   "lines": [
+    198,
+    201
+   ],
+   "quote": "Configures a Requires= and an After= dependency between the created mount unit and another systemd unit, such as a device or mount unit."
+  },
+  {
+   "id": "MT8",
+   "setting": "x-systemd.wanted-by=",
+   "statement": "x-systemd.wanted-by= and x-systemd.required-by= replace the generated target dependencies apart from umount.target, so ordering usually has to be restored by hand.",
+   "source": "S331",
+   "snapshot": "systemd.mount.xml",
+   "lines": [
+    259,
+    260
+   ],
+   "quote": "In the created mount unit, configures a WantedBy= or RequiredBy= dependency on another unit."
+  }
+ ]
+}
