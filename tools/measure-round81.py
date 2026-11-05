@@ -192,6 +192,51 @@ print(json.dumps({'finding': 'met', 'met': True, 'count': 42})); sys.exit(0)
         broken = broken.replace("print('SELFTEST total=6 passed=6 failed=0'); sys.exit(0)",
                                 "print('SELFTEST total=2 passed=2 failed=0'); sys.exit(0)")
         check('defective-double', broken, 3)
+
+        # Round-82 genuine-gap cases (recipes M04/M05/M07/M08 of
+        # .ufo/waves/round-82/before/mutants-r82.json): each drives this counter's
+        # own public CLI (--fixture) over an isolated export tree and asserts both
+        # the exit code and the finding token. Production clauses above are only
+        # observed here, never altered.
+        def run_cli_case(name, tool_text, expect_rc, token, unlink=None):
+            tree = base / name
+            build(tree, tool_text)
+            table_path = tree / TABLE
+            table_path.parent.mkdir(parents=True, exist_ok=True)
+            table_path.write_text(json.dumps(table))
+            if unlink:
+                (tree / unlink).unlink()
+            env = {'PATH': os.environ.get('PATH', '/usr/bin:/bin'),
+                   'TMPDIR': str(base / ('tmp-' + name)),
+                   'PYTHONDONTWRITEBYTECODE': '1', 'LC_ALL': 'C.UTF-8'}
+            Path(env['TMPDIR']).mkdir(parents=True, exist_ok=True)
+            try:
+                proc = subprocess.run(
+                    [sys.executable, str(Path(__file__).resolve()),
+                     '--fixture', str(tree)],
+                    capture_output=True, text=True, timeout=300, env=env,
+                    cwd=str(tree))
+            except (subprocess.TimeoutExpired, OSError) as exc:
+                cases.append((name, False, 'cli did not finish: %r' % (exc,)))
+                return
+            body = (proc.stdout or '') + (proc.stderr or '')
+            ok = proc.returncode == expect_rc and token in body
+            cases.append((name, ok, 'rc=%d expected_rc=%d token=%r observed=%r'
+                          % (proc.returncode, expect_rc, token, body.strip()[:200])))
+
+        # M04 (gate target is 6 conformant cases): a fully conformant tree is met, rc 0.
+        run_cli_case('M04-six-of-six-met-cli', good_tool, 0, '"finding": "met"')
+        # M04+M07 (a 5/6 tree is unmet and yields gate-standard, never met): break
+        # exactly the mismatch leg so five cases pass and one fails.
+        five_tool = good_tool.replace('if matrix != expected_bytes:', 'if False:')
+        run_cli_case('M04-M07-five-of-six-gate-standard-cli', five_tool, 1,
+                     '"finding": "gate-standard"')
+        # M05 (unmet exits 1): 3/6 tree; the guarded clause is the exit code.
+        run_cli_case('M05-unmet-exit-one-cli', broken, 1, '"finding": "gate-standard"')
+        # M08 (missing export is could-not-evaluate rc 2, never met): remove one
+        # export input the measured tool itself never reads.
+        run_cli_case('M08-missing-export-could-not-evaluate-cli', good_tool, 2,
+                     'export-absent:', unlink='corpus/SOURCES.md')
     finally:
         shutil.rmtree(base, ignore_errors=True)
     failed = [c for c in cases if not c[1]]

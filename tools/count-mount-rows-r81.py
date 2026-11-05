@@ -257,6 +257,122 @@ def selftest():
         note['rows'][3]['source'] = 'S332'
         (own_work / NOTE).write_text(json.dumps(note))
         run('own-work-source', own_work, 1, 'MT4:R3-source-kind')
+
+        # Round-82 mutation-gap cases. Each drives the public --fixture path over an
+        # isolated tree under TMPDIR and asserts both the exit code and the token.
+
+        # R5 quote <= 25 words (C01): an over-cap quote must fail shape even when located.
+        long_quote = base / 'long-quote'
+        build(long_quote)
+        long_sentence = ('With nofail this mount will be only wanted and not required by '
+                         'local-fs.target or remote-fs.target and the unit will still be '
+                         'pulled in whenever another unit requires it explicitly through '
+                         'a dependency edge')
+        xml_path = long_quote / SNAPDIR / 'systemd.mount.xml'
+        man = xml_path.read_text() + '<para>\n' + long_sentence + '\n</para>\n'
+        xml_path.write_text(man)
+        (long_quote / SUMS).write_text(sha(man.encode()) + '  systemd.mount.xml\n')
+        note = json.loads((long_quote / NOTE).read_text())
+        note['rows'][7]['quote'] = long_sentence
+        note['rows'][7]['lines'] = [11, 11]
+        (long_quote / NOTE).write_text(json.dumps(note))
+        run('quote-over-word-cap', long_quote, 1, 'MT8:R5-quote-shape')
+
+        # R5 quote carries no pipe (C02): a pipe quote must fail shape, not location.
+        pipe_quote = base / 'pipe-quote'
+        build(pipe_quote)
+        note = json.loads((pipe_quote / NOTE).read_text())
+        note['rows'][7]['quote'] = 'local-fs.target or | remote-fs.target'
+        (pipe_quote / NOTE).write_text(json.dumps(note))
+        run('quote-with-pipe', pipe_quote, 1, 'MT8:R5-quote-shape')
+
+        # R2 statement contains no pipe (C03): piped statement fails even at 14 words.
+        pipe_stmt = base / 'pipe-statement'
+        build(pipe_stmt)
+        note = json.loads((pipe_stmt / NOTE).read_text())
+        note['rows'][6]['statement'] = 'a documented rule statement with more than twelve words and a pipe | inside'
+        (pipe_stmt / NOTE).write_text(json.dumps(note))
+        run('statement-with-pipe', pipe_stmt, 1, 'MT7:R2-statement')
+
+        # R1 id is MT<index> contiguous (C04): a duplicated id must be reported.
+        dup_id = base / 'duplicate-id'
+        build(dup_id)
+        note = json.loads((dup_id / NOTE).read_text())
+        note['rows'][3]['id'] = 'MT1'
+        (dup_id / NOTE).write_text(json.dumps(note))
+        run('duplicate-row-id', dup_id, 1, 'MT1:R1-id')
+
+        # R2 statement >= 12 words (C05): a short statement must fail the floor.
+        short_stmt = base / 'short-statement'
+        build(short_stmt)
+        note = json.loads((short_stmt / NOTE).read_text())
+        note['rows'][5]['statement'] = 'too short by far'
+        (short_stmt / NOTE).write_text(json.dumps(note))
+        run('short-statement', short_stmt, 1, 'MT6:R2-statement')
+
+        # Target measured rows >= 2 (C09): no measured legs is unmet, not met.
+        no_legs = base / 'no-measured-legs'
+        build(no_legs)
+        note = json.loads((no_legs / NOTE).read_text())
+        del note['rows'][0]['measured']
+        del note['rows'][1]['measured']
+        (no_legs / NOTE).write_text(json.dumps(note))
+        run('no-measured-legs', no_legs, 1, '"finding": "unmet"')
+
+        # Distinct settings == 8 (C10): a duplicated setting is unmet even when located.
+        dup_setting = base / 'duplicate-setting'
+        build(dup_setting)
+        note = json.loads((dup_setting / NOTE).read_text())
+        note['rows'][7]['setting'] = 'nofail'
+        (dup_setting / NOTE).write_text(json.dumps(note))
+        run('duplicate-setting', dup_setting, 1, '"finding": "unmet"')
+
+        # Rows == 8 (C11): a ninth, shape-broken row keeps the count unmet.
+        extra_row = base / 'extra-row'
+        build(extra_row)
+        note = json.loads((extra_row / NOTE).read_text())
+        note['rows'].append('not-a-row')
+        (extra_row / NOTE).write_text(json.dumps(note))
+        run('extra-shape-broken-row', extra_row, 1, 'row-9-shape')
+
+        # locate() span bounds (C14): a span past EOF must not locate.
+        past_eof = base / 'span-past-eof'
+        build(past_eof)
+        note = json.loads((past_eof / NOTE).read_text())
+        note['rows'][2]['lines'] = [3, 999]
+        (past_eof / NOTE).write_text(json.dumps(note))
+        run('span-past-eof', past_eof, 1, 'MT3:R5-quote-not-located')
+
+        # R4 unnamed snapshot reported (C15): a snapshot absent from SHA256SUMS is named.
+        unnamed = base / 'unnamed-snapshot'
+        build(unnamed)
+        note = json.loads((unnamed / NOTE).read_text())
+        note['rows'][3]['snapshot'] = 'ghost.xml'
+        (unnamed / NOTE).write_text(json.dumps(note))
+        run('unnamed-snapshot', unnamed, 1, 'MT4:R4-snapshot-unnamed')
+
+        # Empty SHA256SUMS is could-not-evaluate (C16), never an unmet verdict.
+        empty_sums = base / 'empty-manifest'
+        build(empty_sums)
+        (empty_sums / SUMS).write_text('')
+        run('empty-manifest', empty_sums, 2, 'snapshot-manifest-empty')
+
+        # R6 setting occurs in the snapshot (C17): an absent setting is reported.
+        absent_setting = base / 'absent-setting'
+        build(absent_setting)
+        note = json.loads((absent_setting / NOTE).read_text())
+        note['rows'][4]['setting'] = 'x-systemd.noswap='
+        (absent_setting / NOTE).write_text(json.dumps(note))
+        run('setting-absent-from-snapshot', absent_setting, 1, 'MT5:R6-setting')
+
+        # R7 measured leg names S332 (C18): another source must be reported.
+        wrong_leg = base / 'wrong-measured-source'
+        build(wrong_leg)
+        note = json.loads((wrong_leg / NOTE).read_text())
+        note['rows'][2]['measured'] = {'source': 'S999', 'lines': [2, 2],
+                                       'quote': 'Before=local-fs.target'}
+        (wrong_leg / NOTE).write_text(json.dumps(note))
+        run('measured-wrong-source', wrong_leg, 1, 'MT3:R7-measured-source')
     finally:
         shutil.rmtree(base, ignore_errors=True)
     failed = [c for c in cases if not c[1]]

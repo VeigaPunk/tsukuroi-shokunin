@@ -6999,3 +6999,20 @@ claim's output, and each verifies with its own command whether or not the others
 adjacency is not worked this round because its open item (ADJ-06/OUT-009 kaidoku/revenger
 arbitration) is operator-owned and unruled, and inventing an adjacency move would be
 padding. Saturation 9, stagnation window 3, retired: none.
+
+## Round 81 — ordinal correction (supersedes the depth ordinal asserted above)
+
+supersedes-ordinal: round-81 depth
+
+depth 8 → 8 — the round-81 depth ordinal is 8. Two round-81 outcome blocks were appended
+to this file by two concurrent writers and they disagree about the depth after-ordinal:
+the earlier block at `SCORECARD.md:6861` prints `C1 | depth 8 → 9` and
+`Axes now: depth9`, while the later block at `SCORECARD.md:6903` prints
+`depth 8 → 8 … no uplift claimed`. The lane stands behind the later block. The 9 in the
+earlier block was an author-side self-assessment that the non-author closure
+`corpus/lessons/round-81-verifier-spotcheck.md` does not endorse: that closure records
+the depth verdict as improved while stating in so many words that the self-assessed
+ordinal uplift is not endorsed by it, and it awards no promotion, scope transfer or
+ordinal uplift. This correction names the single round-81 depth after-ordinal (8) and
+retires the earlier assertion of it; no other round-81 ordinal value is asserted here,
+and no other axis carries a conflicting number.

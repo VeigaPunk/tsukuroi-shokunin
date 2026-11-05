@@ -16,14 +16,27 @@ reloading anything.
 
 | id | setting | what it decides | source |
 |---|---|---|---|
-| MT1 | `DefaultDependencies` | a local mount unit gains `After=local-fs-pre.target` and `Before=local-fs.target`; the `Before=` leg is dropped when `nofail`, `x-systemd.wanted-by=` or `x-systemd.required-by=` is present | S331 :133-137 |
-| MT2 | `nofail` | the target only *wants* the mount instead of requiring it, and the mount is not ordered before the target, so boot continues whether or not the mount succeeds | S331 :498-503 |
-| MT3 | `noauto` | the unit is not added as a dependency of `local-fs.target` or `remote-fs.target`, so it is not mounted at boot unless another unit pulls it in | S331 :481-487 |
-| MT4 | `x-systemd.automount` | an automount unit is generated for the mount point and *it* joins the target; `auto` and `noauto` then have no effect | S331 :489-491 |
-| MT5 | `x-systemd.before=` / `x-systemd.after=` | adds `Before=`/`After=` against another unit on the created mount unit — the documented way a `nofail` entry re-acquires ordering | S331 :229-241 |
-| MT6 | `x-systemd.device-timeout=` | bounds how long the generated device unit is waited for; fstab-only, ignored inside a unit file's `Options=` | S331 :335-347 |
-| MT7 | `x-systemd.requires=` / `x-systemd.wants=` | adds `Requires=`/`Wants=` plus `After=` against another unit; attaches to the mount unit even when an automount unit exists | S331 :194-212 |
-| MT8 | `x-systemd.wanted-by=` / `x-systemd.required-by=` | replaces the generated target dependencies apart from `umount.target`, so ordering usually has to be restored by hand | S331 :254-265 |
+| MT1 | `DefaultDependencies` | a local mount unit gains `After=local-fs-pre.target` and `Before=local-fs.target`; the `Before=` leg is dropped when `nofail`, `x-systemd.wanted-by=` or `x-systemd.required-by=` is present | S331 :135-138 |
+| MT2 | `nofail` | the target only *wants* the mount instead of requiring it, and the mount is not ordered before the target, so boot continues whether or not the mount succeeds | S331 :502-503 |
+| MT3 | `noauto` | the unit is not added as a dependency of `local-fs.target` or `remote-fs.target`, so it is not mounted at boot unless another unit pulls it in | S331 :486-487 |
+| MT4 | `x-systemd.automount` | an automount unit is generated for the mount point and *it* joins the target; `auto` and `noauto` then have no effect | S331 :491-492 |
+| MT5 | `x-systemd.before=` / `x-systemd.after=` | adds `Before=`/`After=` against another unit on the created mount unit — the documented way a `nofail` entry re-acquires ordering | S331 :234-236 |
+| MT6 | `x-systemd.device-timeout=` | bounds how long the generated device unit is waited for; fstab-only, ignored inside a unit file's `Options=` | S331 :339-341 |
+| MT7 | `x-systemd.requires=` / `x-systemd.wants=` | adds `Requires=`/`Wants=` plus `After=` against another unit; attaches to the mount unit even when an automount unit exists | S331 :198-201 |
+| MT8 | `x-systemd.wanted-by=` / `x-systemd.required-by=` | replaces the generated target dependencies apart from `umount.target`, so ordering usually has to be restored by hand | S331 :259-260 |
+
+## Coordinate convention
+
+Since round 82, every `S331 :first-last` anchor in the table above and every MT
+row's `lines` in the entry JSON are raw file lines of the pinned snapshot
+`systemd.mount.xml` at tag v262 (SHA256
+`afbf3be663b139422b38217cd17083a96fa08507a1a3e58a844cbb2f67652394`): cited line N
+is line N of the stored file, so `sed -n '135p;138p'` on the stored or upstream
+file shows MT1's quote. The numbers are checked against a line-preserving strip
+of that snapshot — tags removed inside each line, one output line per raw line —
+by `tools/check-anchor-coordinates.py`. Round 81's numbers were coordinates in a
+tag-stripped file (707 raw lines became 703) and ran two lines early; round 82
+re-anchors every row to raw lines.
 
 ## What this host does with it
 
@@ -86,10 +99,9 @@ MT1 partly, MT2, MT5 and MT6 — and does not exercise MT3, MT4, MT7 or MT8: thi
   2026-11-02 12:07 boot; the cause of that regeneration is unknown, and that the
   content equals the boot-time generation is [INFERENCE] from the `/etc/fstab`
   mtime (2026-10-20).
-- Line anchors: the `S331 :N-M` anchors and the MT row ranges index the snapshot
-  with XML tags stripped (707 raw lines become 703, because the DOCTYPE at raw 2-3
-  and a `<ulink>` at raw 84-85 each swallow a newline), so a quote's raw-file span
-  is two lines later; a reader using `sed -n` on the stored or upstream file adds 2.
+- Line anchors: since round 82 the `S331 :N-M` anchors and the MT row ranges are
+  raw file lines of the pinned snapshot, per the Coordinate convention section
+  above; round 81's numbers were stripped-file coordinates and are superseded.
   The anchors are upstream v262 positions and are not verified against the
   installed Arch build's sources (QUALITY 103).
 - Declined, documented in the same page and not held here: `x-initrd.mount`,
