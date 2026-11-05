@@ -7143,3 +7143,49 @@ Repairs landed, not credited as claims: the digest bind and the positional retir
 Axes now: depth8, coverage9, operability9, freshness9, calibration9, adjacency8 (unchanged). No capability row enters. No retirement. Saturation 9, stagnation window 3.
 
 Not admitted. Honest stop: the round's declared battery is the mechanism that failed. The next declaration must run the fixture-gated control (QUALITY 82) and the legs of QUALITY 117 before freeze.
+
+## Round 84 — declaration (fresh start; frozen before any candidate file is authored)
+
+Fresh-start reads (run-15 Amendment 46): the last three rejected closures, MANIFEST `rounds[]` indices
+1276 (r81), 1297 (r82), 1319 (r83), and their non-author spot-checks `corpus/lessons/round-81-verifier-spotcheck.md`
+(`d5b3e134`), `round-82-verifier-spotcheck.md` (`a8598038`), `round-83-verifier-spotcheck.md` (`64f45b79`).
+Root failures read: r81 predicates declared after the L1 scored candidates; r82 a frozen target unreachable by
+construction (encoding defect in recipes); r83 a battery whose legs a fixture-path sniff reached in full marks.
+This declaration answers each: (a) instruments, predicates, targets, kill rules and the controls below are
+committed in this freeze commit, before the candidate entry or gate exists (QUALITY 114); (b) both targets are
+reachable by a correct candidate by construction of the rule set, and a near-miss is a miss; (c) no leg is keyed
+on a file name: the C1 positive control is generated from random snapshot spans per run and the C2 battery
+generates five unseeded random host bases per run, so a candidate that memorises fixtures or the committed host
+base cannot follow (control `gate-base-diff.py` reads 0/13).
+
+Surface: the hibernate-resume chain of this host — `resume=`/`resume_offset=` on the kernel command line, the
+btrfs swap file's physical resume offset, `/sys/power/resume{,_offset}`, the mkinitcpio `resume` hook and its
+`systemd-hibernate-resume` path, swap headroom against `/sys/power/image_size`. New ground: no
+`corpus/knowledge/` entry reads it (`grep -rli 'map-swapfile' corpus/knowledge` → empty at `64f45b79`); the
+two prior mentions (`journal-boot-plane.md:62`, `systemd-user-plane.md:218`) only print the cmdline.
+
+Inputs pinned in this commit (QUALITY 104): eight upstream snapshots `.ufo/waves/round-84/before/src/`
+(URLs in `URLS.txt`, manifest `SHA256SUMS` sha256 `5d1673de7f893f035cb2808e9579bcdd292339a32dad605c6e3a53d6561f7eef`)
+and the read-only host capture `.ufo/waves/round-84/before/host/{receipt.txt,facts.json}` taken 2026-11-06T15:44:21-03:00
+by `tools/capture-resume-facts-r84.py` (manifest sha256 `4ca3e20939eadff71c190f5e2d27a5f453479d0133321ebd118eb7eef624fde6`).
+Instruments: `tools/count-resume-rows-r84.py` sha256 `cb70d4357ebe2d50f360dbbc2079f3a35756a79fc785280cf9d4312268ac8309`;
+`tools/resume-gate-battery-r84.py` sha256 `00310ac205f07f396bc4a7a0406f1c0d4baf74c7ab30e27245bbc89d8ce00964`;
+`tools/capture-resume-facts-r84.py` sha256 `cec27b9d19e4ac85ccaa513b94e37f568b51979c546133c3d4bc5f62cd6cea23`.
+
+| Claim | Axis | Predicate (same sentence in the instrument docstring and the receipt) | Target | Kill rule | Counting command | Do-nothing control (committed receipt) |
+|---|---|---|---|---|---|---|
+| C1 (sourced) | depth 8 (tied lowest) | a row of `corpus/knowledge/hibernate-resume-plane-r84.json` counts iff its id is a unique `HR<n>`, its statement has ≥8 words, its quote (6–25 words) sits in a snapshot listed in the pinned source manifest with matching sha256 and its cited raw lines are the exact minimal span, its host value sits in a receipt listed in the pinned host manifest with matching sha256 at an exact minimal span, and its quote and span repeat no earlier counted row | counted ≥ 7, failed 0, ≥ 4 distinct snapshots (`verdict: met`, rc 0) | unmet if any row fails, if fewer than 7 count, if fewer than 4 snapshots are cited; a manifest pin mismatch is cannot-evaluate, never met | `python3 tools/count-resume-rows-r84.py --revision <REV>` | rc 2 cannot-evaluate, counted 0, at the pre-round tip and on the freeze tree (`before/controls/c1-controls.txt`) |
+| C2 | operability 9 | `tools/check-hibernate-resume.py --facts FILE` implements the frozen eight-rule set in the battery docstring: on the committed host base and on five unseeded random bases per run, for each of 13 families (POSITIVE, MALFORMED, 11 finding IDs) the gate's (rc, verdict, sorted findings) equals the expected triple exactly within 20 s | 13 of 13 families | unmet if any family fails on any base; a timeout, non-JSON stdout, an extra or missing finding ID or a wrong rc is a failed case | `python3 tools/resume-gate-battery-r84.py --gate tools/check-hibernate-resume.py` | gate absent 0/13; blanket HEALTHY 1/13; blanket all-IDs 0/13; committed-base memoriser 0/13 (`before/controls/c2-control-*.json`) |
+
+C1 selftest at freeze: `python3 tools/count-resume-rows-r84.py --selftest --root .` → `PASS (12 cases, 12 passed, 0 failed)`
+three runs (random positive P1 met; D0 do-nothing rc2; forgeries F1 fabricated quote, F2a doctored snapshot with
+declared digest, F2b doctored snapshot plus manifest → rc2, F3 one row duplicated, F4 widened span, F5 fabricated
+host value, F6 one row short, F7 three snapshots, F8 undeclared receipt, F9 unparseable entry all refused).
+
+Gate interface frozen with C2: also `--live` (runs `tools/capture-resume-facts-r84.py` into a scratch dir and
+gates the result); read-only; stdout one JSON object; exit 0/1/2. C2 is a new runnable arm, not an ordinal move:
+operability stays 9. C1 claims no ordinal uplift: depth stays 8 unless the closure endorses one.
+
+Controls are candidate-free; C2's target is untested against any gate that implements the rules, so a battery
+expectation defect would surface as an honest miss, not a re-declared target. Planner seat: the L1 holds it (the
+wave validator forbids the role; disclosed per the r83 routed defect 3). Wave: one v1 wave, attack share ≥ 25 %.
