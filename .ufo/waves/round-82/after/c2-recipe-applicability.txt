@@ -1,0 +1,34 @@
+# C2 recipe applicability at lane revision f376054a734623c919da3bfc5a6f05b39ff9a9e2
+# for every recipe: how often its `old` occurs in the tool source (a kill requires exactly 1)
+# then, for the two 0x recipes, the same mutation written with a REAL newline
+C01-quote-word-cap         tool=count-mount-rows-r81.py    genuine=True  old_occurs=1
+C02-quote-pipe             tool=count-mount-rows-r81.py    genuine=True  old_occurs=1
+C03-statement-pipe         tool=count-mount-rows-r81.py    genuine=True  old_occurs=1
+C04-id-contiguity          tool=count-mount-rows-r81.py    genuine=True  old_occurs=1
+C05-statement-word-floor   tool=count-mount-rows-r81.py    genuine=True  old_occurs=1
+C06-source-id-shape        tool=count-mount-rows-r81.py    genuine=False old_occurs=1
+C07-own-work-rejection     tool=count-mount-rows-r81.py    genuine=False old_occurs=1
+C08-digest-check           tool=count-mount-rows-r81.py    genuine=False old_occurs=1
+C09-measured-leg-requirement tool=count-mount-rows-r81.py    genuine=True  old_occurs=1
+C10-distinct-settings      tool=count-mount-rows-r81.py    genuine=True  old_occurs=1
+C11-row-count-target       tool=count-mount-rows-r81.py    genuine=True  old_occurs=1
+C12-note-absent-mapping    tool=count-mount-rows-r81.py    genuine=False old_occurs=1
+C13-exit-code-mapping      tool=count-mount-rows-r81.py    genuine=False old_occurs=1
+C14-locate-span-bounds     tool=count-mount-rows-r81.py    genuine=True  old_occurs=1
+C15-snapshot-unnamed       tool=count-mount-rows-r81.py    genuine=True  old_occurs=1
+C16-empty-manifest         tool=count-mount-rows-r81.py    genuine=True  old_occurs=0
+C17-setting-presence       tool=count-mount-rows-r81.py    genuine=True  old_occurs=1
+C18-measured-source        tool=count-mount-rows-r81.py    genuine=True  old_occurs=1
+M01-rc-ignored             tool=measure-round81.py         genuine=False old_occurs=1
+M02-token-ignored          tool=measure-round81.py         genuine=False old_occurs=1
+M03-table-from-disk        tool=measure-round81.py         genuine=False old_occurs=1
+M04-target-constant        tool=measure-round81.py         genuine=True  old_occurs=1
+M05-exit-code-mapping      tool=measure-round81.py         genuine=True  old_occurs=1
+M06-mutation-unlink-noop   tool=measure-round81.py         genuine=False old_occurs=0
+M07-finding-mapping        tool=measure-round81.py         genuine=True  old_occurs=1
+M08-export-absent          tool=measure-round81.py         genuine=True  old_occurs=1
+
+# C16-empty-manifest: old_occurs(real-newline)=1
+# C16-empty-manifest: mutant --selftest rc=3 last='FAIL empty-manifest rc=1 body={"claim": "C1", "revision": "fixture", "count": 0, "target": 8, "finding": "unmet", "problems": ["MT1:R4-snapshot-unnamed,R6-setting", "MT2:R4-snapshot-unnamed,'
+# M06-mutation-unlink-noop: old_occurs(real-newline)=1
+# M06-mutation-unlink-noop: mutant --selftest rc=3 last='FAIL M04-six-of-six-met-cli rc=1 expected_rc=0 token=\'"finding": "met"\' observed=\'{"claim": "C2", "revision": "fixture", "count": 5, "target": 6, "finding": "gate-standard", "cases": [{"case": "A-selftest", "ok": true, "rc": 0, "expected_rc": 0, "token": "SELFTEST total=6 passed=6 \''
