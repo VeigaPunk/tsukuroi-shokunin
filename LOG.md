@@ -3674,3 +3674,62 @@ falsification work came from the executor, scribe, scout, sentinel and
 mutation seats. Coverage debt named there: C1 selftest kills 3/18 mutants,
 C2 4/8. The pre-declaration scoring erratum above is not repaired by these
 green measurements.
+
+## Round 82 — raw-line anchors, mutation kills and one ordinal (2026-11-04)
+
+**Motivating evidence.** The round-81 closure `corpus/lessons/round-81-verifier-spotcheck.md`
+(committed `d5b3e134`) routed two defects and admitted nothing: R81-V1, the two
+round-81 outcome blocks in `SCORECARD.md` disagree about round 81's depth ordinal
+(`:6861` prints `C1 | depth 8 → 9` and `:6898` `Axes now: depth9`; `:6903` prints
+`depth 8 → 8 … no uplift claimed`), and R81-V2, none of round 81's three claims was
+declared before data, with round 81's mutation seat leaving 17 behaviour-bearing
+survivors. The pinned snapshot of `systemd.mount(5)` at v262 is 707 raw lines while the
+whole-file tag strip is 703, and the entry's eight rows cited the strip.
+
+**Freeze before data.** `2786562e` commits the three instruments, their sha256 values,
+the 26 frozen mutation recipes and the no-work/red control receipt
+(`.ufo/waves/round-82/before/controls.txt`) before any candidate file of this round is
+authored, run or scored; `683ae456` appends the C2 no-work score measured at that same
+freeze commit. The no-work control reached no target: C1 `count 0 / target 8 / unmet`
+rc 1, C2 `killed 6 / 26, genuine 0 / 17` rc 1, C3 `count 1` (round 81 depth `[8, 9]`)
+rc 1.
+
+**C1 — raw-line anchors (depth).** The eight `lines` values of
+`corpus/knowledge/mount-unit-fstab-plane-r81.json` are replaced by the located spans
+(`MT1 [135,138] … MT8 [259,260]`), the `.md` decision-table `source` column follows, and
+a `## Coordinate convention` section plus a Limits rewrite state the raw-line rule. Quotes,
+statements, settings and `snapshot_sha256` are untouched, so the repair is a coordinate
+fix, not a re-quote. Measured `count 8 / target 8 / met` rc 0 at `f376054a`.
+
+**C2 — selftest mutation kills (operability): unmet, honest stop.** 19 new cases in
+`tools/count-mount-rows-r81.py` and 6 in `tools/measure-round81.py` drive each tool's own
+public `--fixture` path and assert exit code plus token. Kills move 6 → 22 of 26 and
+genuine 0 → 16 of 17. The frozen target (`killed >= 24` and `genuine == 17`) is
+unreachable: `C16-empty-manifest` (genuine) and `M06-mutation-unlink-noop` carry a
+two-character `\`+`n` in `old` so their mutants cannot be constructed, and `C06`/`C07`
+are declared equivalent — 22 and 16 are the maxima. Re-applying the two recipes with a
+real newline kills both mutants (`--selftest` rc 3 each;
+`.ufo/waves/round-82/after/c2-recipe-applicability.txt`). The miss is the recipe
+encoding, not the selftests, and it is not repaired in-round because the freeze forbids
+editing the recipe file or the instrument.
+
+**C3 — one ordinal per round and axis (calibration).** One appended block names the
+round-81 depth ordinal the lane stands behind (8, on the closure's authority) with the
+machine-readable line `supersedes-ordinal: round-81 depth`; measured `count 0`,
+`examined 77`, `clean` rc 0. Nothing above the block was edited.
+
+**Sources and frontier.** S331 was re-opened at v262 (HTTP 200, 37 234 bytes, sha256
+`afbf3be6…2394`, byte-identical to the pinned snapshot) and a new row S333 carries the
+raw spans (MT1 135-138 … MT8 259-260) and `supersedes S331 —` in its `teaches` cell; the
+row was validated on a mirror before the append (`validate --file` rc 0) and the registry
+census reads 332 → 333 rows, `validate --root … tsukuroi` rc 0. One reading was refused:
+"nofail guarantees the boot never waits, even with x-systemd.before=", contradicted by
+raw 239-242 on the same page. Lesson `corpus/lessons/round-82.md` carries the Gate block
+and six mined mistakes (reference-drift, number-drift, anchor-window-drift,
+duplicate-url, frozen-recipe-escaping, instrument-fail-closed-leak); two new
+`corpus/QUALITY.md` criteria (113, 114) and three
+gate-registry rows in `SKILL.md` name the new instruments (registry coverage
+`registered 125 / tools_total 125 / findings 0` rc 0 at `8111113c`).
+
+**Wave.** One v1 wave (`w1`), 12 seats, 12 settled, 10 durable reports; attack share
+4/12. Two seats died without a report (named in the round report). Residual call: 0.

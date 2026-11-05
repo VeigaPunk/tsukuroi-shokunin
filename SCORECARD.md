@@ -7016,3 +7016,43 @@ ordinal uplift is not endorsed by it, and it awards no promotion, scope transfer
 ordinal uplift. This correction names the single round-81 depth after-ordinal (8) and
 retires the earlier assertion of it; no other round-81 ordinal value is asserted here,
 and no other axis carries a conflicting number.
+
+## Round 82 — measured outcome (frozen declaration `2786562e`; measured revision `f376054a734623c919da3bfc5a6f05b39ff9a9e2`; author-side, non-author closure pending)
+
+| Claim / axis | Before (no-work control, committed before any candidate) | After at the measured revision | Verdict / ordinal |
+|---|---|---|---|
+| C1 depth (raw-line anchors) | `count 0`, `target 8`, `finding unmet`, rc 1; all eight rows `cited-range-not-the-quote-span`, each located span two lines after the cited one (`.ufo/waves/round-82/before/controls.txt:22-29`) | `count 8`, `target 8`, `finding met`, rc 0; eight rows `exact true` (`MT1 [135,138] … MT8 [259,260]`) | **verified**; depth 8 → 8 (one plane's coordinates repaired against a finite equality counter; no uplift claimed, following the round-81 closure's refusal to award an uplift for the same shape) |
+| C2 operability (selftest mutation kills) | `killed 6 / 26`, `genuine_killed 0 / 17`, `finding unmet`, rc 1 at `2786562e` | `killed 22 / 26`, `genuine_killed 16 / 17`, `finding unmet`, rc 1 | **unmet — honest stop**; operability 9 → 9. 22 and 16 are the arithmetic maxima of the frozen recipe set: `C16-empty-manifest` (genuine) and `M06-mutation-unlink-noop` store a two-character `\`+`n` in `old`, so their mutants can never be constructed, and `C06`/`C07` are declared equivalent |
+| C3 calibration (one ordinal per round and axis) | `count 1`, round 81 depth ordinals `[8, 9]` at `SCORECARD.md:6861` and `:6903`, rc 1 | `count 0`, `examined 77`, `finding clean`, `findings []`, rc 0 | **verified**; calibration 9 → 9 (a gate and one named correction landed; the contradiction it reports was the lane's own concurrency artefact, so no uplift is claimed) |
+
+Counting commands, each run at both revisions (`--revision` reads the committed bytes;
+receipt `.ufo/waves/round-82/after/commands.txt`):
+
+- C1 `python3 tools/check-anchor-coordinates.py --revision <REV>`
+- C2 `python3 tools/mutation-kill-r82.py --revision <REV>` (26 frozen recipes at
+  `.ufo/waves/round-82/before/mutants-r82.json`, sha256 `5e176afc…cb43`)
+- C3 `python3 tools/check-scorecard-ordinals.py --revision <REV>`
+
+Causally separable: C1 reads one entry JSON plus the pinned snapshot; C2 reads the two
+round-81 tools and the recipe file; C3 reads this file's blocks. No claim reads another
+claim's output. Instrument bytes are unchanged from the freeze (`fedd45ce…c3b3`,
+`6e6d9715…7c24`, `888a3da9…1e84`, re-measured at the after revision).
+
+**C2 is a miss and is reported as one.** The frozen recipe file cannot be repaired
+inside the round (the freeze rule forbids it), and `.ufo/waves/round-82/after/c2-recipe-applicability.txt`
+shows both malformed recipes kill their mutant when re-applied with a real newline
+(`--selftest` rc 3 each): the gap is the recipe encoding, not the selftests. The two
+legs therefore stay unmet; a do-nothing round scored 6/26 and 0/17 against them.
+
+**Wave.** One v1 wave under `ufo-wave-policy.json` (band 8–16), 12 seats: 3 executor,
+3 scribe, 1 scout, 1 connector, 1 reviewer, 1 critic, 1 mutation-tester, 1 sentinel;
+attack share 4/12. The L1 holds the canonical planner seat (the validator rejects
+`planner`). Seat outcomes, dead seats and residual calls are named in the round report.
+
+**Limits and routed defects.** C1's predicate tests locate-and-span equality, not that a
+quote carries its statement: a shortened quote still passes (`w1/ReviewAnchor.md` §4).
+C1's counter never reads the entry's declared `snapshot_sha256` (R82-V5). C3's counter
+retires an assertion globally rather than only earlier ones and cannot tell quoted prose
+from an assertion (R82-V2). C3's `--revision` path leaks `CannotEvaluate` as a traceback
+with rc 1 (R82-V3), and C2 counts a timed-out selftest as a kill (R82-V4). No capability
+row enters this round.
