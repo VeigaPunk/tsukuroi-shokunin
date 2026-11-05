@@ -790,3 +790,43 @@ re-verifying all seven pinned snapshots. Author-side measured outcome is in
 `SCORECARD.md`; non-author closure is pending. The entry's line anchors index
 the tag-stripped XML and say so; the counter's own selftest kills only 3 of 18
 single-clause mutants, which stays named coverage debt.
+
+## Round 82 — coverage map, frontier and open debt (scout)
+
+Append-only; every section above stays as written. No held-ground note is added this round. This section records the round's ground on the existing mount-unit plane, the three round-82 instruments, the mutation-coverage state, and the frontier and debt that remain open.
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/mount-unit-fstab-plane-r81.md` + `.json` (coordinate convention, round 82) | MT1–MT8 cite **raw** lines of the pinned `systemd.mount.xml`. A per-line tag strip keeps line i of the strip equal to raw line i, so `sed -n` on the stored or upstream file needs no offset. The round-81 ranges were tag-stripped coordinates and sat two lines early (C1 `count 0 / target 8` at `d5b3e134`; every located span two lines later than its cited one). The measured outcome is owned by `SCORECARD.md` round 82, not by this row. | S331 (`systemd.mount.xml`, sha256 `afbf3be6…`); `tools/check-anchor-coordinates.py` |
+| Round-82 instruments (three frozen counters) | C1 `tools/check-anchor-coordinates.py` (sha256 `fedd45ce…`, selftest 12/12); C2 `tools/mutation-kill-r82.py` (sha256 `6e6d9715…`, selftest 4/4); C3 `tools/check-scorecard-ordinals.py` (sha256 `888a3da9…`, selftest 8/8). Frozen recipes `.ufo/waves/round-82/before/mutants-r82.json` (sha256 `5e176afc…`, 26 recipes, 17 genuine). | `SCORECARD.md` "Round 82 — declaration"; `.ufo/waves/round-82/before/controls.txt` |
+| Mutation-coverage repair (round 82) | Frozen state at `2786562e`: killed 6/26, genuine 0/17. Committed `683ae456`: killed 6/26, genuine 0/17, rc 1. A mid-wave uncommitted worktree (not a landed state) reached killed 22/26, genuine 16/17; survivors C06 and C07 (equivalent, excluded) and C16 and M06 (recipe not applied, see Frontier). | `tools/count-mount-rows-r81.py`, `tools/measure-round81.py`; `.ufo/waves/round-82/before/controls.txt` |
+
+### Frontier — round 82 (open; each surface names its evidence)
+
+- Automount unit (`Where=`, `TimeoutIdleSec=`): writers at `.ufo/waves/round-81/before/src/fstab-generator.c:735` and `:336`. Not measured on this host: `grep -cE 'x-systemd\.automount' /etc/fstab` → 0 and `ls /run/systemd/generator | grep -c automount` → 0, so there is no automount unit to read. [unk]
+- `x-systemd.mount-timeout=`: the generator injects `x-systemd.mount-timeout=infinity,retry=10000,nofail` at `fstab-generator.c:581`, under a branch at :571–581 that was not read in full. The entry's Limits decline the option; S331 names it.
+- Swap unit `swap-swapfile.swap`: live under `/run/systemd/generator/` (`ls`); fstab line `/swap/swapfile none swap defaults,pri=0 0 0`; writer `add_swap` at `fstab-generator.c:217`, unit name at :254. Its ordering and the effect of `pri=0` are not measured. It sits outside the MT plane.
+- tmpfs `/dev/shm`: `/etc/fstab:30` says `size=8G`; live `/proc/self/mountinfo` shows `size=8388608k,…,usrquota`. `usrquota` is absent from fstab; the journal line `Nov 02 12:07:20 plazir27 systemd-user-runtime-dir[1485]: Successfully configured disk quota for UID 1000 on /dev/shm to 6.3G` is the observed source. No generated unit exists (`ls /run/systemd/generator | grep shm` empty). The generator skips the mount via `fstab-generator.c:525` (`mount_point_is_api`); that helper's definition is outside the pinned source. [INFERENCE]
+- `/tmp` device job bound: the `JobRunningTimeoutSec=10s` drop-in (`.ufo/waves/round-81/before/host/generator.txt:121–127`). Whether it bounds the job queued for the kernel device is open (entry MT6, inference paragraph).
+- MT7 (`x-systemd.requires=`/`wants=`) and MT8 (`wanted-by=`/`required-by=`): `grep -cE 'x-systemd\.(requires|wants|wanted-by|required-by)|noauto' /etc/fstab` → 0; the host exercises neither, so the evidence is fixture-only.
+- Generation provenance: the captured generator files are dated 17:34:49, after the 2026-11-02 12:07 boot; the cause of that regeneration is unknown (entry Limits).
+
+### Open debt — round 82 (measured here, not closed)
+
+- Gate-standard debt: `awk -F'|' '/^## Gate and probe registry — round71 superseding current rows/{f=1;next} f&&/^## /{exit} f&&/^\|/{k=$3;s=$6;gsub(/^[ \t]+|[ \t]+$/,"",k);gsub(/^[ \t]+|[ \t]+$/,"",s); if(k=="gate"){g++; if(s ~ /^none/) n++}} END{printf "gate=%d none_selftest_gate=%d\n",g,n}' SKILL.md` → `gate=96 none_selftest_gate=34` at HEAD; `gate=94 none=34` at `96ad75b8` (round-80 tip). Not closed.
+- C2 recipe defect: C16-empty-manifest and M06-mutation-unlink-noop have `old` strings with a two-character `\n` where the source has a real newline. The instrument counts `seen=0` (`recipe-missing:old-string-occurs-0x`), which the declaration rules as not a kill. A real-newline C16 mutant is killed by the seat's new case (rc 3, `FAIL empty-manifest`). Under the frozen recipe file the genuine leg cannot reach 17/17 [INFERENCE from the kill rule]. Routed to the operator; not edited.
+- C2 answer-key class: `measure-round81` case A compares a printed token, so a `--selftest` that prints the token without running its cases passes it (`.ufo/waves/round-81/w1/MutCounter/mutants.txt`). Not closed.
+- Entry semantic limits: quotes are located, not shown to entail their statements; the anchors are upstream v262 positions, not verified against the installed Arch build (QUALITY 103).
+
+
+### Round-82 correction (appended by the L1 at landing, attempt 4)
+
+Append-only; the section above stays as written. One clause is stale and is corrected
+here: the mutation-coverage row calls `killed 22/26, genuine 16/17` "a mid-wave
+uncommitted worktree (not a landed state)". The selftest hardening is committed at
+`f376054a`, so that pair **is** the landed after-state, re-derived at the landing tip
+with `python3 tools/mutation-kill-r82.py --revision <tip>` → `killed 22, total 26,
+genuine_killed 16, finding unmet`, rc 1. The frozen target (`killed >= 24` and
+`genuine == 17`) stays unmet for the recipe-encoding reason named in the same row, and
+the C1 and C3 rows stand as measured (`count 8 / target 8 / met` rc 0; `count 0 /
+examined 80 / clean` rc 0).

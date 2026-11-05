@@ -3733,3 +3733,17 @@ gate-registry rows in `SKILL.md` name the new instruments (registry coverage
 
 **Wave.** One v1 wave (`w1`), 12 seats, 12 settled, 10 durable reports; attack share
 4/12. Two seats died without a report (named in the round report). Residual call: 0.
+
+**Wave — corrected at landing (attempt 4, 2026-11-04T21:45-03:00).** The paragraph
+above was written mid-wave. Read against `.ufo/waves/round-82/w1-results.json` and
+`w1/`, the wave settled 12 of 12 seats with **no dead seat**: the three reports that
+landed after the L1's mid-wave count are `ScribeRegistry.md` (21:37),
+`SentinelGate.md` (21:38) and `ScoutFrontier.md` (21:42), so the durable-report count
+is 12, not 10, and the "two seats died" clause is withdrawn. The two wave-driven
+refinements the seats left uncommitted — the `mutation-kill-r82` registry clause "a
+recipe whose `old` string no longer occurs in the tool is not a kill" and the
+criterion-113 precision that the raw-vs-strip delta is a per-row measured fact — are
+committed at this landing commit. `corpus/README.md` gains the scout's round-82
+coverage/frontier section (28 appended lines) with one correction line: its C2 row
+calls 22/26 and 16/17 "a mid-wave uncommitted worktree", which is stale — that state
+is committed at `f376054a` and re-derived at the landing tip.
