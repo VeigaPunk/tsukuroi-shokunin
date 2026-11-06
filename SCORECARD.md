@@ -7345,3 +7345,43 @@ registry row states K1 0-1/20 (routed 3) and is retired to HISTORY ONLY; r85 ent
 (routed 5); `check-registry-coverage.py --revision b96dc4be` PASS 136/136; `check-knowledge-header.py` PASS 102/102;
 sources census rc 0, rows 345 → 349, 52 W04 both ends, no E code. Axes now: depth8, coverage9, operability9,
 freshness9, calibration9, adjacency8 (unchanged). No capability row enters. No retirement. No axis harmed.
+
+## Round 87 — declaration (frozen before the candidate gate exists)
+
+Inputs read first: the round-86 closure (MANIFEST `rounds[]` tsukuroi r86, `admitted`) and its non-author spot-check
+`corpus/lessons/round-86-verifier-spotcheck.md` §5 routed defects 1-5. Routed 1 (the r86 host incident: both UKIs
+rewritten in place, `/boot/limine.conf` BLAKE2b pins mismatched) is this round's surface: C1 builds the read-only
+gate that detects exactly that state, C2 the plane behind it. Routed 2 (battery self-test passes on a never-`met`
+mutant, cwd-dependent) is met by construction in the new battery's `--selftest` (positive control must read `met`;
+paths resolve from `__file__`; run from an unrelated cwd). Routed 3-5 are uncredited repairs or carried items.
+
+Surface (new ground): Limine v12.9.4's path pins — how `limine.conf` keys are found (case-insensitive, line start,
+`#` lines are not keys), which keys carry a URI, how a URI's `#hash` is split (last `#`, exactly 128 hex, either
+case), what is hashed (raw stored bytes, gzip included), and what a mismatch does (`hash_mismatch_panic` default
+panic, `no` only gives a Y/any-key prompt, Secure Boot with an enrolled config forces panic, wallpaper/font are
+skipped). `git grep -n -i 'hash_mismatch_panic\|uri_resolve' <pre-round tip> -- corpus/knowledge tools` → empty.
+The lane's boot gates (`check-boot-chain.py`, `check-boot-writers.py`) read committed captures and a registry
+`b2sum_prefix`; none hashes the file a pin names. Host at the freeze (`.ufo/waves/round-87/before/host/receipt.txt`):
+limine 12.9.4-1; `hash_mismatch_panic: no` (line 8); main pins lines 30/38 name `b990d8c6…`/`a68c281d…` while the
+files hash `57f5eb94…`/`eff78d32…`; Secure Boot off (efivar byte 0).
+
+Sources pinned this commit: `.ufo/waves/round-87/before/src/` (Limine v12.9.4 `CONFIG.md`, `common/lib/uri.c`,
+`common/lib/config.c`, `common/menu.c`; binutils `objcopy` manual; `URLS.txt`, `SHA256SUMS`).
+Instrument: `tools/limine-pin-battery-r87.py` sha256 `f2551c8e8386d599e3c2aca8888d5fbb0351a5a399dc43dc448556e99361989d`
+(`.ufo/waves/round-87/before/freeze-manifest.sha256`); its docstring is the frozen rule set R1-R7.
+`--selftest` PASS 5/5 rc 0 from an unrelated cwd (`before/controls/selftest-receipt.txt`).
+
+| Claim | Axis | Predicate (same sentence in the battery docstring and the receipt) | Target | Kill rule | Counting command | Do-nothing and forgery controls (committed receipts, run at freeze, 3 runs each) |
+|---|---|---|---|---|---|---|
+| C1 (measured, sourced S350–S353) | operability 9 | `tools/check-limine-pins.py --conf FILE --esp DIR [--secure-boot-enforced 1]` implements the frozen Limine v12.9.4 pin rule set R1-R7 below: for each of 22 families, on fixtures generated fresh per run with OS-entropy names, bytes and layouts, with the whole case list shuffled per run, every case returns exactly the expected (rc, verdict, sorted per-pin (line, status, consequence)) within 20 s. | 22 of 22 families (`verdict: met`, rc 0) in each of three consecutive runs at the landed lane tip | unmet if any of the three runs reads below 22/22; void if the battery bytes differ from the freeze manifest | `python3 tools/limine-pin-battery-r87.py --gate tools/check-limine-pins.py` | K1 do-nothing (gate absent) 0/22 ×3; K2 the lane's existing `check-boot-chain.py` 0/22 ×3; f1 constant-HEALTHY 0, f2 constant-DEGRADED 0, f3 SHA-512-for-BLAKE2b 2, f4 regex line-grep 6; near-miss N01–N18 (reference gate minus one property) 1–21 each, every one below 22 (`before/controls/controls-summary.txt`); positive control P0 reference gate 22/22 ×3 |
+| C2 (exploratory, sourced S350–S354) | depth 8 (tied lowest) | none (exploratory): a knowledge entry `corpus/knowledge/limine-pin-plane-r87.md` (+ `.json`) holds sourced, host-measured rows on ground no entry held: the v12.9.4 key and URI-hash grammar, what is hashed, the mismatch consequence matrix, why an in-place `objcopy` breaks a pin, this host's pin state and the operator's repair choices | named non-author `unprovable-but-better` with reasons (the hyaku closure; a wave seat is the lane) | lands `unprovable` without that judgment | none | prior state: the grep above is empty; S018/S019/S075 (ArchWiki, limine-snapper-sync, limine-entry-tool) never state the pin grammar or consequence |
+
+Discrimination certified at the freeze (each property by a committed near-miss below target): comment lines are not
+keys (N01, COMMENT-DECOY), keys case-insensitive (N02), blanks/CR stripped (N03), last `#` splits (N04), gzip bytes
+hashed raw (N05), full-length compare (N06), hash case-insensitive (N07), format checked before resolution (N08),
+only `no` prompts (N09), first `hash_mismatch_panic` wins (N10), Secure Boot forces panic (N11), wallpaper/font skip
+(N12), non-`boot()` is unresolved not missing (N13), only path keys are pins (N14), every fault reported (N15),
+absent setting panics (N16), missing ≠ unresolved (N17), unreadable conf rc 2 (N18). Not certified: macro expansion,
+Secure Boot's unhashed-path rule, per-protocol effect of a missing file (frozen as limits in the docstring).
+C1 and C2 are causally separable: the battery reads only the gate; the entry is judged on its rows and sources.
+Operability stays 9 (a new runnable arm, no ordinal move); depth stays 8 unless the closure endorses a move.

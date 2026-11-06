@@ -1,0 +1,12 @@
+# Round 87 freeze controls (TsukuroiR87, 2026-11-06T19:11:18-03:00)
+Battery: tools/limine-pin-battery-r87.py (sha256 in ../freeze-manifest.sha256). Each control ran 3 times with
+--work /fast/scratch/hyaku/tsukuroi-r87/L1/work; full case logs in receipts/<name>-run{1,2,3}.json, battery rc in .rc.
+Candidate tools/check-limine-pins.py does not exist at the freeze (K1 = do-nothing: gate absent).
+K2 = the lane's existing boot gate tools/check-boot-chain.py driven through the battery interface (it refuses the
+arguments; it reads committed captures, never the files a pin names).
+P0 = reference gate controls/ref-gate-r87.py with no drop (battery positive control; written from R1-R7, not the candidate).
+f1-f4 = candidate-free forgers (forgers/). N01-N18 = the reference gate with exactly one property removed
+(REF_DROP=<name>); each must read below 22/22, naming which family certifies that property.
+Disclosure: the first run wrote near-miss receipts under wrong N-prefixes (a shell loop counter collided with the run
+counter); the files were renamed by drop name to the N01-N18 order above, contents unchanged; see controls-summary.txt.
+Result: every control except P0 is below 22/22 in all three runs (summary). P0 22/22 x3.

@@ -3883,3 +3883,14 @@ collision in 758 registrations; ExecSelftests `nonauthor-label --selftest` lande
 Host incident (round 86): wave seat ScoutHost's `sudo objcopy --dump-section` rewrote both UKIs in `/boot/EFI/Linux/`
 (5 PE header bytes each); the `/boot/limine.conf` BLAKE2b pins no longer match (L1 re-check read-only with `b2sum`).
 Not repaired by the lane (operator-owned boot chain); L0 question filed; lesson round-86 M3.
+
+## Round 87 — Limine path pins: gate arm and plane (2026-11-06, TsukuroiR87)
+
+Motivating evidence: the round-86 host incident (`objcopy` with no output file rewrote both UKIs in place) left
+`/boot/limine.conf` pins mismatched; the lane had no gate that hashes the file a pin names (r86 spot-check routed 1).
+Host receipt at the freeze: `.ufo/waves/round-87/before/host/receipt.txt` (limine 12.9.4, `hash_mismatch_panic: no`,
+lines 30/38 mismatch, three snapshot-history pins).
+
+**Freeze.** Battery `tools/limine-pin-battery-r87.py` (22 families, rules R1-R7 from pinned Limine v12.9.4 sources),
+reference gate + forgers + 18 near-miss controls run 3× each (`.ufo/waves/round-87/before/controls/`), declaration in
+`SCORECARD.md` "Round 87 — declaration".
