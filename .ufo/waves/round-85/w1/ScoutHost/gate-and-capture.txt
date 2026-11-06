@@ -1,0 +1,59 @@
+### $ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-hibernate-resume.py --live
+{"findings": [], "verdict": "HEALTHY"}
+rc=0
+
+### $ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-hibernate-resume.py --live
+{"findings": [], "verdict": "HEALTHY"}
+rc=0
+
+### $ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/capture-resume-facts-r84.py --out /fast/scratch/hyaku/tsukuroi-r85/ScoutHost/cap
+{"captured_at": "2026-11-06T17:09:38-03:00", "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs", "hooks": ["base", "udev", "plymouth", "keyboard", "autodetect", "microcode", "modconf", "kms", "keymap", "consolefont", "block", "encrypt", "filesystems", "fsck", "btrfs-overlayfs", "resume"], "image_size": 12835467264, "lockdown": "[none] integrity confidentiality", "map_swapfile_offset": 3795013, "resume_dev_majmin": "253:0", "resume_swapfile": "/swap/swapfile", "schema": "resume-facts/2", "swapfile_attrs": "---------------C------", "swaps": [{"path": "/swap/swapfile", "size_kib": 31722876, "type": "file", "used_kib": 12864636}], "sys_power_disk": "[platform] shutdown reboot suspend test_resume", "sys_power_resume": "253:0", "sys_power_resume_offset": 3795013, "sys_power_state": "freeze mem disk"}
+rc=0
+
+### $ diff -u /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-85/before/host/facts-v2.json /fast/scratch/hyaku/tsukuroi-r85/ScoutHost/cap/facts.json
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-85/before/host/facts-v2.json	2026-11-06 16:48:31.507598242 -0300
++++ /fast/scratch/hyaku/tsukuroi-r85/ScoutHost/cap/facts.json	2026-11-06 17:09:38.270665815 -0300
+@@ -1,5 +1,5 @@
+ {
+- "captured_at": "2026-11-06T15:44:21-03:00",
++ "captured_at": "2026-11-06T17:09:38-03:00",
+  "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+  "hooks": [
+   "base",
+@@ -31,11 +31,11 @@
+    "path": "/swap/swapfile",
+    "size_kib": 31722876,
+    "type": "file",
+-   "used_kib": 11942400
++   "used_kib": 12864636
+   }
+  ],
+  "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+  "sys_power_resume": "253:0",
+  "sys_power_resume_offset": 3795013,
+  "sys_power_state": "freeze mem disk"
+-}
+\ No newline at end of file
++}
+rc=1
+
+### $ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-hibernate-resume.py --facts /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-85/before/host/facts-v2.json
+{"findings": [], "verdict": "HEALTHY"}
+rc=0
+
+### $ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-hibernate-resume.py --facts /fast/scratch/hyaku/tsukuroi-r85/ScoutHost/cap/facts.json
+{"findings": [], "verdict": "HEALTHY"}
+rc=0
+
+### $ sha256sum /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-85/before/host/facts-v2.json /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-85/before/host/receipt.txt /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/resume-gate-battery-r85.py /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-hibernate-resume.py /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/capture-resume-facts-r84.py
+496156f6bb6560f8bfac23f16bb72efcd9ca052a3c40b198125423c4469a79cc  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-85/before/host/facts-v2.json
+c3c9c83459cfbafa30397e8e3b48b092d21e083ad23dca7ef64b84d4da4c8470  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-85/before/host/receipt.txt
+b30a7c1ed8fca5fa9c30fb3f4b221ccae11137f688bffc47844b16f0a117ba21  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/resume-gate-battery-r85.py
+88041b7509fc5824b036d45dd3416bfadbaeb17f0b702e15af0edd17944483e7  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-hibernate-resume.py
+539273c3ac55d1502692386831350ae32e9743a06a77d1882298bfb17d76ddb5  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/capture-resume-facts-r84.py
+rc=0
+
+### $ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse master
+479d868b2fc8969a19a617cd55ced5c13edd84b6
+rc=0
+

@@ -1,0 +1,143 @@
+# Receipt 3 — verbatim quotes at cited raw lines (sed proof)
+## S343 hibernate.c  — sed -n '109,113p'
+bool hibernation_available(void)
+{
+	return nohibernate == 0 &&
+		!security_locked_down(LOCKDOWN_HIBERNATION) &&
+		!secretmem_active() && !cxl_mem_active();
+## S343 hibernate.c  — sed -n '760,766p'
+int hibernate(void)
+{
+	bool snapshot_test = false;
+	unsigned int sleep_flags;
+	int error;
+
+	if (!hibernation_available()) {
+## S343 hibernate.c  — sed -n '1106,1111p'
+static int __init software_resume_initcall(void)
+{
+	/*
+	 * If the user said "noresume".. bail out early.
+	 */
+	if (noresume || !hibernation_available())
+## S343 hibernate.c  — sed -n '1424,1438p'
+static int __init hibernate_setup(char *str)
+{
+	if (!strncmp(str, "noresume", 8)) {
+		noresume = 1;
+	} else if (!strncmp(str, "nocompress", 10)) {
+		nocompress = 1;
+	} else if (!strncmp(str, "no", 2)) {
+		noresume = 1;
+		nohibernate = 1;
+	} else if (IS_ENABLED(CONFIG_STRICT_KERNEL_RWX)
+		   && !strncmp(str, "protect_image", 13)) {
+		enable_restore_image_protection();
+	}
+	return 1;
+}
+## S343 hibernate.c  — sed -n '1461,1465p'
+static int __init nohibernate_setup(char *str)
+{
+	noresume = 1;
+	nohibernate = 1;
+	return 1;
+## S343 hibernate.c  — sed -n '1518,1524p'
+__setup("noresume", noresume_setup);
+__setup("resume_offset=", resume_offset_setup);
+__setup("resume=", resume_setup);
+__setup("hibernate=", hibernate_setup);
+__setup("resumewait", resumewait_setup);
+__setup("resumedelay=", resumedelay_setup);
+__setup("nohibernate", nohibernate_setup);
+## S344 security.h  — sed -n '103,110p'
+/*
+ * These are reasons that can be passed to the security_locked_down()
+ * LSM hook. Lockdown reasons that protect kernel integrity (ie, the
+ * ability for userland to modify kernel code) are placed before
+ * LOCKDOWN_INTEGRITY_MAX.  Lockdown reasons that protect kernel
+ * confidentiality (ie, the ability for userland to extract
+ * information from the running kernel that would otherwise be
+ * restricted) are placed before LOCKDOWN_CONFIDENTIALITY_MAX.
+## S344 security.h  — sed -n '128,158p'
+	LOCKDOWN_NONE,
+	LOCKDOWN_MODULE_SIGNATURE,
+	LOCKDOWN_DEV_MEM,
+	LOCKDOWN_EFI_TEST,
+	LOCKDOWN_KEXEC,
+	LOCKDOWN_HIBERNATION,
+	LOCKDOWN_PCI_ACCESS,
+	LOCKDOWN_IOPORT,
+	LOCKDOWN_MSR,
+	LOCKDOWN_ACPI_TABLES,
+	LOCKDOWN_DEVICE_TREE,
+	LOCKDOWN_PCMCIA_CIS,
+	LOCKDOWN_TIOCSSERIAL,
+	LOCKDOWN_MODULE_PARAMETERS,
+	LOCKDOWN_MMIOTRACE,
+	LOCKDOWN_DEBUGFS,
+	LOCKDOWN_XMON_WR,
+	LOCKDOWN_BPF_WRITE_USER,
+	LOCKDOWN_DBG_WRITE_KERNEL,
+	LOCKDOWN_RTAS_ERROR_INJECTION,
+	LOCKDOWN_XEN_USER_ACTIONS,
+	LOCKDOWN_INTEGRITY_MAX,
+	LOCKDOWN_KCORE,
+	LOCKDOWN_KPROBES,
+	LOCKDOWN_BPF_READ_KERNEL,
+	LOCKDOWN_DBG_READ_KERNEL,
+	LOCKDOWN_PERF,
+	LOCKDOWN_TRACEFS,
+	LOCKDOWN_XMON_RW,
+	LOCKDOWN_XFRM_SECRET,
+	LOCKDOWN_CONFIDENTIALITY_MAX,
+## S345 lockdown.c  — sed -n '59,73p'
+static int lockdown_is_locked_down(enum lockdown_reason what)
+{
+	if (WARN(what >= LOCKDOWN_CONFIDENTIALITY_MAX,
+		 "Invalid lockdown reason"))
+		return -EPERM;
+
+	if (kernel_locked_down >= what) {
+		if (lockdown_reasons[what])
+			pr_notice_ratelimited("Lockdown: %s: %s is restricted; see man kernel_lockdown.7\n",
+				  current->comm, lockdown_reasons[what]);
+		return -EPERM;
+	}
+
+	return 0;
+}
+## S336 kernel-parameters.txt  — sed -n '1962,1969p'
+	hibernate=	[HIBERNATION]
+		noresume	Don't check if there's a hibernation image
+				present during boot.
+		nocompress	Don't compress/decompress hibernation images.
+		no		Disable hibernation and resume.
+		protect_image	Turn on image protection during restoration
+				(that will set all pages holding image data
+				during restoration read-only).
+## S336 kernel-parameters.txt  — sed -n '3538,3545p'
+	lockdown=	[SECURITY,EARLY]
+			{ integrity | confidentiality }
+			Enable the kernel lockdown feature. If set to
+			integrity, kernel features that allow userland to
+			modify the running kernel are disabled. If set to
+			confidentiality, kernel features that allow userland
+			to extract confidential information from the kernel
+			are also disabled.
+## S336 kernel-parameters.txt  — sed -n '4479p'
+	nohibernate	[HIBERNATION] Disable hibernation and resume.
+## S336 kernel-parameters.txt  — sed -n '4593,4594p'
+	noresume	[SWSUSP] Disables resume and restores original swap
+			space.
+## S336 kernel-parameters.txt  — sed -n '6574,6583p' (row anchor, resume=/resume_offset=)
+	resume=		[SWSUSP]
+			Specify the partition device for software suspend
+			Format:
+			{/dev/<dev> | PARTUUID=<uuid> | <int>:<int> | <hex>}
+
+	resume_offset=	[SWSUSP]
+			Specify the offset from the beginning of the partition
+			given by "resume=" at which the swap header is located,
+			in <PAGE_SIZE> units (needed only for swap files).
+			See  Documentation/power/swsusp-and-swap-files.rst

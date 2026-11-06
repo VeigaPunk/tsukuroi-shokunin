@@ -1,0 +1,28 @@
+## FINAL verbatim outputs for the report
+
+### lane revision
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse master
+479d868b2fc8969a19a617cd55ced5c13edd84b6
+
+### url re-fetch table
+FILE                                           HTTP   RC           SHA256   VERDICT
+kernel_power_hibernate.c                       200    rc=0         ae3dbeb6 MATCH
+include_linux_security.h                       200    rc=0         263740c9 MATCH
+security_lockdown_lockdown.c                   200    rc=0         fec032ce MATCH
+Documentation_admin-guide_kernel-parameters.txt 200    rc=0         23b1a690 MATCH
+
+### v7.2.11 cited-region comparison (v7.2 line N maps to v7.2.11 line N+2 for N>472; the whole-file diff hunks are 410a411,419 / 413c422 / 424,432d432 / 466a467,470 / 469,470d472, all inside hibernation_snapshot())
+hibernate.c 109-113  v7.2 == v7.2.11 : SAME
+hibernate.c 760-766  v7.2 == v7.2.11 762-768 : SAME
+hibernate.c 1106-1111 v7.2 == v7.2.11 1108-1113 : SAME
+hibernate.c 1424-1465 v7.2 == v7.2.11 1426-1467 : SAME
+hibernate.c 1518-1524 v7.2 == v7.2.11 1520-1526 : SAME
+security.h 128-158   whole file sha v7.2 == v7.2.11 : SAME
+lockdown.c 59-73      whole file sha v7.2 == v7.2.11 : SAME
+
+### kernel-parameters.txt line-number drift v7.2 -> v7.2.11
+^	hibernate=   v7.2:1962  v7.2.11:1962
+^	lockdown=   v7.2:3538  v7.2.11:3538
+^	nohibernate   v7.2:4479  v7.2.11:4479
+^	noresume   v7.2:4593  v7.2.11:4593
+^	resume=   v7.2:6574  v7.2.11:6537

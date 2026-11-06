@@ -1,0 +1,42 @@
+# Receipt 5 — host read-only facts backing the availability rows (2026-11-06)
+## uname -r
+7.2.11-arch1-1
+## cat /sys/kernel/security/lockdown
+[none] integrity confidentiality
+## cat /proc/cmdline
+resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+## cmdline grep for the availability parameters
+(none present)
+## /sys/kernel/mm/secretmem
+ls: cannot access '/sys/kernel/mm/secretmem': No such file or directory
+## /sys/bus/cxl
+ls: cannot access '/sys/bus/cxl': No such file or directory
+## /sys/power/state
+freeze mem disk
+## host kernel config (read-only /proc/config.gz)
+CONFIG_HIBERNATION=y
+CONFIG_PM_SLEEP=y
+CONFIG_STRICT_KERNEL_RWX=y
+CONFIG_SWAP=y
+CONFIG_SECRETMEM=y
+CONFIG_SECURITY_LOCKDOWN_LSM=y
+CONFIG_CXL_BUS=m
+CONFIG_CXL_PCI=m
+CONFIG_CXL_MEM=m
+## upstream secretmem_active() and cxl_mem_active() definitions (fetched, not in the pinned set)
+--- mm/secretmem.c (v7.2)
+bool secretmem_active(void)
+{
+	return !!atomic_read(&secretmem_users);
+}
+--- drivers/cxl/core/suspend.c (v7.2), lines 9-12
+#include <linux/rwsem.h>
+
+extern const struct device_type cxl_nvdimm_bridge_type;
+extern const struct device_type cxl_nvdimm_type;
+extern const struct device_type cxl_pmu_type;
+--- drivers/cxl/core/suspend.c (v7.2), lines 9-12
+bool cxl_mem_active(void)
+{
+	return atomic_read(&mem_active) != 0;
+}

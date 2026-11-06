@@ -1,0 +1,44 @@
+--- a/tools/resume-gate-battery-r85.py
++++ b/tools/resume-gate-battery-r85.py
+@@ -221,10 +221,13 @@
+     return f, ids
+ 
+ 
+-def malformed(f, rng):
++KINDS = ["drop", "schema-v0", "schema-v1", "cmdline-type", "swaps-type", "hooks-type",
++         "lockdown-type", "lockdown-unbracketed", "lockdown-two-brackets"]
++
++
++def malformed(f, rng, kind=None):
+     f = copy.deepcopy(f)
+-    kind = rng.choice(["drop", "schema-v0", "schema-v1", "cmdline-type", "swaps-type", "hooks-type",
+-                       "lockdown-type", "lockdown-unbracketed", "lockdown-two-brackets"])
++    kind = kind or rng.choice(KINDS)
+     if kind == "drop":
+         del f[rng.choice(REQUIRED)]
+     elif kind == "schema-v0":
+@@ -246,12 +249,12 @@
+     return f, kind
+ 
+ 
+-def plan_base(name, b, rng):
++def plan_base(name, b, rng, idx):
+     file_base = b.get("resume_swapfile") is not None
+     b = copy.deepcopy(b)
+     plan = [("POSITIVE", b, (0, "HEALTHY", []), {})]
+-    for _ in range(2):
+-        m, kind = malformed(b, rng)
++    for j in range(2):
++        m, kind = malformed(b, rng, KINDS[(2 * idx + j) % len(KINDS)])
+         plan.append(("MALFORMED", m, (2, "CANNOT-EVALUATE", []), {"malformed": kind}))
+     for fid in IDS:
+         if fid in FILE_ONLY and not file_base:
+@@ -322,7 +325,7 @@
+     gate = os.path.abspath(a.gate)
+     if not os.path.isfile(gate):
+         gate = os.path.join(tempfile.gettempdir(), "absent-gate-" + word(rng, 8) + ".py")
+-    cases = [c for name, b in bases for c in plan_base(name, b, rng)]
++    cases = [c for i, (name, b) in enumerate(bases) for c in plan_base(name, b, rng, i)]
+     rng.shuffle(cases)
+     tmp = tempfile.mkdtemp(prefix=word(rng, 10) + "-")
+     fams = {f: [] for f in FAMILIES}

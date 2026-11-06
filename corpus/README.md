@@ -915,8 +915,9 @@ owned by `SCORECARD.md`.
 
 - The gate's availability rules match whole tokens; the kernel's `__setup` prefix matching also honours
   `noresume=1`, `noresumefoo`, `nohibernate=1` (entry Limits; `.ufo/waves/round-85/w1/ReviewGate.md` L1).
-- secretmem/CXL are seen only through `/sys/power/disk`; the gate does not read it. A rule "`/sys/power/disk` is
-  `[disabled]` → DEGRADED" is the obvious next arm.
+- secretmem/CXL have no fact key; a blocked host surfaces only as rule 8 HR-NO-DISK-STATE (`/sys/power/state` drops
+  `disk`, per ScoutHost; `kernel/power/main.c` not pinned) without naming the blocker. Reading `/sys/power/disk`
+  `[disabled]` plus the secretmem/CXL probes is the obvious next arm.
 - The r85 battery certifies a strict subset of its rule sentence: exact-token availability, first-token
   `resume_offset=`, the `<=` headroom boundary, first-swap-only sums and a probabilistic MALFORMED kind each pass
   20/20 (`corpus/lessons/round-85.md` M3, M4; QUALITY 122). A successor battery enumerates MALFORMED kinds and

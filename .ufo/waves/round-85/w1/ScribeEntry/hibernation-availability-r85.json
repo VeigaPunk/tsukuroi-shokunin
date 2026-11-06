@@ -1,0 +1,90 @@
+[
+ {
+  "id": "HA1",
+  "statement": "`hibernation_available()` is a four-term conjunction: hibernation not disabled on the command line, no lockdown covering `LOCKDOWN_HIBERNATION`, no live secretmem file, no active CXL memory. Five sites read it: `hibernate()` returns `-EPERM` (766-769), `software_resume_initcall` returns 0 (1111-1112), `disk_show()` prints `[disabled]` (1168-1169), `disk_store()` returns `-EPERM` (1211-1212) and `resume_store()` returns the byte count without acting (1269-1270).",
+  "source": "S343",
+  "raw_lines": [
+   111,
+   113
+  ],
+  "quote": "\treturn nohibernate == 0 &&\n\t\t!security_locked_down(LOCKDOWN_HIBERNATION) &&\n\t\t!secretmem_active() && !cxl_mem_active();",
+  "host_value": null
+ },
+ {
+  "id": "HA2",
+  "statement": "`nohibernate` sets both `noresume = 1` and `nohibernate = 1`, so one token removes the `disk` target and the boot-time image read together; unlike `noresume` (HA4) it cannot be undone from userspace, because `disk_store()` refuses with `-EPERM` while the predicate is false (1211-1212). The documentation says the same in one line (S336 4479).",
+  "source": "S343",
+  "raw_lines": [
+   1461,
+   1466
+  ],
+  "quote": "static int __init nohibernate_setup(char *str)\n{\n\tnoresume = 1;\n\tnohibernate = 1;\n\treturn 1;\n}",
+  "host_value": "no `nohibernate` token: `/proc/cmdline` has 15 tokens, none equal to `nohibernate` (receipt :6; re-read 2026-11-06T17:05:19-03:00)"
+ },
+ {
+  "id": "HA3",
+  "statement": "`hibernate=` is an ordered prefix parse: `noresume` (1426-1427), `nocompress` (1428-1429), bare `no` (1430-1432), `protect_image` (1433-1435). `hibernate=nocompress` only stops compression and does not disable; `hibernate=no` — and any value starting `no` that is not `noresume*`/`nocompress*`, including a typo such as `hibernate=non` or a would-be `hibernate=noprotect_image` — sets both `noresume` and `nohibernate`. Unknown values match no branch and are ignored.",
+  "source": "S343",
+  "raw_lines": [
+   1428,
+   1432
+  ],
+  "quote": "\t} else if (!strncmp(str, \"nocompress\", 10)) {\n\t\tnocompress = 1;\n\t} else if (!strncmp(str, \"no\", 2)) {\n\t\tnoresume = 1;\n\t\tnohibernate = 1;",
+  "host_value": "no `hibernate=` token (receipt :6; re-read 17:05:19-03:00)"
+ },
+ {
+  "id": "HA4",
+  "statement": "`noresume` sets only `noresume`: `hibernation_available()` never reads it, so `hibernate()` still runs (766-769), but `software_resume_initcall` returns 0 on `noresume || !hibernation_available()` (1111-1112) — an image written by the last hibernation is not read at the next boot. The documentation states it as disabling resume and restoring original swap space (S336 4593-4594).",
+  "source": "S343",
+  "raw_lines": [
+   1440,
+   1444
+  ],
+  "quote": "static int __init noresume_setup(char *str)\n{\n\tnoresume = 1;\n\treturn 1;\n}",
+  "host_value": "no `noresume` token (receipt :6; re-read 17:05:19-03:00)"
+ },
+ {
+  "id": "HA5",
+  "statement": "`LOCKDOWN_HIBERNATION` (index 5) precedes `LOCKDOWN_INTEGRITY_MAX` (index 21); `lockdown_param` stores exactly those sentinels for the two levels (`lockdown_levels[] = {LOCKDOWN_NONE, LOCKDOWN_INTEGRITY_MAX, LOCKDOWN_CONFIDENTIALITY_MAX}`, S345 20-22), and `lockdown_is_locked_down()` returns `-EPERM` when `kernel_locked_down >= what` (S345 65-70) — so `integrity` already blocks hibernation, not only `confidentiality`. The sysfs file lists one label per selectable level, which is why it has three words.",
+  "source": "S344",
+  "raw_lines": [
+   133,
+   149
+  ],
+  "quote": "\tLOCKDOWN_HIBERNATION,\n\tLOCKDOWN_PCI_ACCESS,\n\tLOCKDOWN_IOPORT,\n\tLOCKDOWN_MSR,\n\tLOCKDOWN_ACPI_TABLES,\n\tLOCKDOWN_DEVICE_TREE,\n\tLOCKDOWN_PCMCIA_CIS,\n\tLOCKDOWN_TIOCSSERIAL,\n\tLOCKDOWN_MODULE_PARAMETERS,\n\tLOCKDOWN_MMIOTRACE,\n\tLOCKDOWN_DEBUGFS,\n\tLOCKDOWN_XMON_WR,\n\tLOCKDOWN_BPF_WRITE_USER,\n\tLOCKDOWN_DBG_WRITE_KERNEL,\n\tLOCKDOWN_RTAS_ERROR_INJECTION,\n\tLOCKDOWN_XEN_USER_ACTIONS,\n\tLOCKDOWN_INTEGRITY_MAX,",
+  "host_value": "`[none] integrity confidentiality` — bracketed level `none` is 0, below `LOCKDOWN_HIBERNATION` (5), so not blocking (receipt :3; re-read 17:05:19-03:00)"
+ },
+ {
+  "id": "HA6",
+  "statement": "kernel-parameters.txt v7.2 documents exactly the tokens the gate parses: `hibernate=` with values `noresume`, `nocompress`, `no`, `protect_image` (1962-1969), `nohibernate` as `Disable hibernation and resume.` (4479), `noresume` as `[SWSUSP] Disables resume and restores original swap space.` (4593-4594), and `lockdown= { integrity | confidentiality }` (3538-3545). The documentation names the lockdown levels but not their ordering (HA5), which exists only in the source.",
+  "source": "S336",
+  "raw_lines": [
+   1962,
+   1966
+  ],
+  "quote": "\thibernate=\t[HIBERNATION]\n\t\tnoresume\tDon't check if there's a hibernation image\n\t\t\t\tpresent during boot.\n\t\tnocompress\tDon't compress/decompress hibernation images.\n\t\tno\t\tDisable hibernation and resume.",
+  "host_value": "none of `hibernate=`, `nohibernate`, `noresume`, `lockdown=` on the cmdline (receipt :6)"
+ },
+ {
+  "id": "HA7",
+  "statement": "Measured 2026-11-06 at 17:05:19-03:00, against the pinned 16:48:31-03:00 capture: `/sys/kernel/security/lockdown` reads `[none] integrity confidentiality`; `/proc/cmdline` has 15 tokens, none equal to `nohibernate` or `noresume` and none starting `hibernate=`; `tools/check-hibernate-resume.py --live` prints `{\"findings\": [], \"verdict\": \"HEALTHY\"}` and exits 0; `/sys/power/state` offers `freeze mem disk`; `/sys/power/disk` reads `[platform] shutdown reboot suspend test_resume`, not `[disabled]`, which `disk_show()` emits only while `hibernation_available()` is false (1168-1169). The kernel's own witness agrees with the gate's verdict.",
+  "source": "S343",
+  "raw_lines": [
+   1168,
+   1169
+  ],
+  "quote": "\tif (!hibernation_available())\n\t\treturn sysfs_emit(buf, \"[disabled]\\n\");",
+  "host_value": "lockdown `[none] integrity confidentiality`; 15 cmdline tokens, 0 availability tokens; `/sys/power/disk` = `[platform] shutdown reboot suspend test_resume`; gate `{\"findings\": [], \"verdict\": \"HEALTHY\"}` rc 0"
+ },
+ {
+  "id": "HA8",
+  "statement": "The last two terms are host-dependent blockers no file the gate reads can show: the capture records only a `lockdown` key, and the gate reads `/sys/power/state`, never the contents of `/sys/power/disk`. `secretmem_active()` is `!!atomic_read(&secretmem_users)` (mm/secretmem.c v7.2 45-48; not in the pinned set), incremented when a secretmem file is created (215) and decremented on its release (117); `cxl_mem_active()` is `atomic_read(&mem_active) != 0` (drivers/cxl/core/suspend.c v7.2 9-12; not pinned), incremented when a CXL memory device is probed and decremented on its removal (drivers/cxl/mem.c v7.2 28-31, 191; not pinned). The kernel exposes the combined verdict only through `/sys/power/disk`'s `[disabled]` (1168-1169). Measured read-only here: `CONFIG_SECRETMEM=y`, `secretmem_active` in `/proc/kallsyms`, 0 `secretmem` VMA across a root scan of `/proc/*/maps`, `CONFIG_CXL_MEM=m` with 0 cxl modules loaded, 0 `/sys/class/cxl*` entries, 0 CXL lines in `/proc/iomem`, 0 secretmem/cxl lines in a 2162-line dmesg, and `/sys/power/disk` not `[disabled]` — both terms false at capture, but a gate HEALTHY verdict would not prove that.",
+  "source": "S343",
+  "raw_lines": [
+   113,
+   113
+  ],
+  "quote": "\t\t!secretmem_active() && !cxl_mem_active();",
+  "host_value": "`CONFIG_SECRETMEM=y`; secretmem VMA hits 0 (root scan); `secretmem_active` in kallsyms (2 lines); `CONFIG_CXL_MEM=m`, 0 cxl modules, 0 `/sys/class/cxl*`, 0 cxl in `/proc/iomem`, 0 dmesg lines; `/sys/power/disk` not `[disabled]`"
+ }
+]

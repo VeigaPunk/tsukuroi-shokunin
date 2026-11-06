@@ -60,7 +60,12 @@ Quotes are verbatim at the cited raw lines of the pinned snapshot (code quotes k
   `hibernate.c` line numbers after raw 472 shift by +2, from one unrelated hunk in `hibernation_snapshot()`
   (`.ufo/waves/round-85/w1/ScoutSources.md` check 2). `security.h` and `lockdown.c` are byte-identical.
 - No hibernate was run. Availability is read, not exercised.
-- secretmem/CXL are covered only by the `/sys/power/disk` witness (HA8), which the frozen gate does not read.
+- secretmem/CXL have no fact key of their own. The kernel exposes the combined verdict twice: `/sys/power/disk`
+  prints `[disabled]` (HA8), which the gate does not read, and `/sys/power/state` lists `disk` only when
+  `hibernation_available()` is true, which the gate does read (rule 8, HR-NO-DISK-STATE). The `state_show` half
+  rests on `kernel/power/main.c`, not in the pinned set, and on lane seat ScoutHost's read of the running kernel
+  (`.ufo/waves/round-85/w1/ScoutHost.md`, "What the gate cannot see"); on a blocked host the gate therefore reports
+  HR-NO-DISK-STATE without naming the blocker.
   No procfs counter gives live secretmem use directly (`.ufo/waves/round-85/w1/ReviewEntry.md` HA8).
 
 ## Review record

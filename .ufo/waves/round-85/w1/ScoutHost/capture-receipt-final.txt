@@ -1,0 +1,85 @@
+# resume-facts capture 2026-11-06T17:09:38-03:00
+### cat /proc/cmdline
+rc=0
+resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+
+### cat /proc/swaps
+rc=0
+Filename				Type		Size		Used		Priority
+/swap/swapfile                          file		31722876	12864636	0
+
+### sudo -n btrfs inspect-internal map-swapfile -r /swap/swapfile
+rc=0
+3795013
+
+### sudo -n lsattr /swap/swapfile
+rc=0
+---------------C------ /swap/swapfile
+
+### sudo -n filefrag -v /swap/swapfile
+rc=0
+Filesystem type is: 9123683e
+File size of /swap/swapfile is 32484229120 (7930720 blocks of 4096 bytes)
+ ext:     logical_offset:        physical_offset: length:   expected: flags:
+   0:        0..       0:    3530821..   3530821:      1:            
+   1:        1..  131071:    3530822..   3661892: 131071:             unwritten
+   2:   131072.. 7929855:    3939584..  11738367: 7798784:    3661893: unwritten
+   3:  7929856.. 7930719:    3279756..   3280619:    864:   11738368: last,unwritten,eof
+/swap/swapfile: 3 extents found
+
+### stat -c '%W %i %s' /swap/swapfile
+rc=0
+1791060333 257 32484229120
+
+### stat -L -c '%t %T' /dev/mapper/root
+rc=0
+fd 0
+
+### cat /sys/power/resume
+rc=0
+253:0
+
+### cat /sys/power/resume_offset
+rc=0
+3795013
+
+### cat /sys/power/state
+rc=0
+freeze mem disk
+
+### cat /sys/power/disk
+rc=0
+[platform] shutdown reboot suspend test_resume
+
+### cat /sys/power/image_size
+rc=0
+12835467264
+
+### bash -c <source mkinitcpio.conf + conf.d; print HOOKS>
+rc=0
+base
+udev
+plymouth
+keyboard
+autodetect
+microcode
+modconf
+kms
+keymap
+consolefont
+block
+encrypt
+filesystems
+fsck
+btrfs-overlayfs
+resume
+
+### systemctl --version
+rc=0
+systemd 262 (262.1-1-arch)
++PAM +AUDIT -SELINUX +APPARMOR -IMA +IPE +SMACK +SECCOMP +GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF +XKBCOMMON +UTMP +LIBARCHIVE
+
+### cat /sys/kernel/security/lockdown
+rc=0
+[none] integrity confidentiality
+

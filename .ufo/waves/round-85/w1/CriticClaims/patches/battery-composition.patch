@@ -1,0 +1,78 @@
+--- a/tools/resume-gate-battery-r85.py
++++ b/tools/resume-gate-battery-r85.py
+@@ -28,7 +28,7 @@
+       o is None                                   -> HR-OFFSET-MISSING
+       o and map_swapfile_offset set and differ    -> HR-OFFSET-MISMATCH
+       swapfile_attrs set and lacks 'C'            -> HR-SWAPFILE-COW
+-    swaps empty                                   -> HR-NO-ACTIVE-SWAP
++  swaps empty (any resume_swapfile)             -> HR-NO-ACTIVE-SWAP
+   3 resume_dev_majmin set and != sys_power_resume -> HR-SYSFS-DEVICE-MISMATCH
+   4 o set and != sys_power_resume_offset          -> HR-SYSFS-OFFSET-MISMATCH
+   5 'resume' and 'systemd' both absent from hooks -> HR-NO-RESUME-HOOK
+@@ -164,11 +164,11 @@
+     f = copy.deepcopy(f)
+     o = offset(f)
+     if fid == "HR-HIBERNATE-DISABLED":
+-        f["cmdline"] = add_tokens(f["cmdline"], rng, rng.choice(["nohibernate", "hibernate=no"]))
++        f["cmdline"] = add_tokens(f["cmdline"], rng, rng.choice(["nohibernate", "hibernate=no", "hibernate=noz", "hibernate=none"]))
+     elif fid == "HR-LOCKDOWN-BLOCKS":
+         f["lockdown"] = rng.choice(LOCK_SHUT)
+     elif fid == "HR-NORESUME-ARG":
+-        f["cmdline"] = add_tokens(f["cmdline"], rng, rng.choice(["noresume", "hibernate=noresume"]))
++        f["cmdline"] = add_tokens(f["cmdline"], rng, rng.choice(["noresume", "hibernate=noresume", "hibernate=noresumeX"]))
+     elif fid == "HR-NO-RESUME-ARG":
+         f["cmdline"] = set_token(f["cmdline"], "resume", None)
+     elif fid == "HR-OFFSET-MISSING":
+@@ -224,7 +224,7 @@
+ def malformed(f, rng):
+     f = copy.deepcopy(f)
+     kind = rng.choice(["drop", "schema-v0", "schema-v1", "cmdline-type", "swaps-type", "hooks-type",
+-                       "lockdown-type", "lockdown-unbracketed", "lockdown-two-brackets"])
++                       "lockdown-type", "lockdown-unbracketed", "lockdown-two-brackets", "image-size-bool"])
+     if kind == "drop":
+         del f[rng.choice(REQUIRED)]
+     elif kind == "schema-v0":
+@@ -239,6 +239,8 @@
+         f["hooks"] = "base udev resume"
+     elif kind == "lockdown-type":
+         f["lockdown"] = rng.choice([0, ["none"], True])
++    elif kind == "image-size-bool":
++        f["image_size"] = True
+     elif kind == "lockdown-unbracketed":
+         f["lockdown"] = "none integrity confidentiality"
+     else:
+@@ -250,6 +252,15 @@
+     file_base = b.get("resume_swapfile") is not None
+     b = copy.deepcopy(b)
+     plan = [("POSITIVE", b, (0, "HEALTHY", []), {})]
++    if file_base:
++        o = offset(b)
++        plan.append(("POSITIVE", dict(b, cmdline=f"resume_offset={o + 7} " + b["cmdline"]),
++                     (0, "HEALTHY", []), {"variant": "dup-offset-first-wins-would-fault"}))
++    free0 = (b["swaps"][0]["size_kib"] - b["swaps"][0]["used_kib"]) * 1024
++    plan.append(("POSITIVE", dict(b, image_size=free0), (0, "HEALTHY", []), {"variant": "boundary-free==image"}))
++    second = dict(b["swaps"][0], path=b["swaps"][0]["path"] + ".b", size_kib=free0 // 1024 + 4096, used_kib=0)
++    plan.append(("POSITIVE", dict(b, swaps=[b["swaps"][0], second], image_size=free0 + 1),
++                 (0, "HEALTHY", []), {"variant": "multi-swap-sum"}))
+     for _ in range(2):
+         m, kind = malformed(b, rng)
+         plan.append(("MALFORMED", m, (2, "CANNOT-EVALUATE", []), {"malformed": kind}))
+@@ -261,13 +272,13 @@
+         f, a_ids = avail_faults(b, rng, rng.randint(1, 2))
+         f, c_ids = chain_faults(f, rng, rng.randint(2, 4), file_base)
+         plan.append(("MULTI-FAULT", f, (1, "DEGRADED", sorted(set(a_ids + c_ids))), {}))
+-    f = add_tokens(b["cmdline"], rng, rng.choice(["nohibernate", "hibernate=no"]),
+-                   rng.choice(["noresume", "hibernate=noresume"]))
++    f = add_tokens(b["cmdline"], rng, rng.choice(["nohibernate", "hibernate=no", "hibernate=noz"]),
++                   rng.choice(["noresume", "hibernate=noresume", "hibernate=noresumeX"]))
+     plan.append(("PREC-NOHIB", dict(b, cmdline=f), (1, "DEGRADED", ["HR-HIBERNATE-DISABLED"]), {}))
+-    decoys = ["hibernate=nocompress", f"hibernate.compressor={rng.choice(['lzo', 'lz4'])}", "resumewait",
+-              f"{word(rng, 5)}.noresume=1", f"{word(rng, 5)}.nohibernate=1"]
++    decoys = ["hibernate=nocompress", "hibernate=nocompressX", f"hibernate.compressor={rng.choice(['lzo', 'lz4'])}",
++              "resumewait", f"{word(rng, 5)}.noresume=1", f"{word(rng, 5)}.nohibernate=1"]
+     rng.shuffle(decoys)
+-    plan.append(("PREC-DECOYS", dict(b, cmdline=add_tokens(b["cmdline"], rng, *decoys[:rng.randint(3, 5)])),
++    plan.append(("PREC-DECOYS", dict(b, cmdline=add_tokens(b["cmdline"], rng, *decoys[:rng.randint(4, 6)])),
+                  (0, "HEALTHY", []), {}))
+     f, c_ids = chain_faults(b, rng, rng.randint(2, 3), file_base)
+     f, a_ids = avail_faults(f, rng, 1)

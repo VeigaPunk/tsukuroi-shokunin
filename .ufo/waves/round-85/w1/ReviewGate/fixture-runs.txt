@@ -1,0 +1,47 @@
+=== fixture runs T1-T20 (rc + JSON per case, driver: drv.py)
+T1  +nohibernate                       rc=1 {"findings": ["HR-HIBERNATE-DISABLED"], "verdict": "DEGRADED"}
+T2  +nohibernate +noresume             rc=1 {"findings": ["HR-HIBERNATE-DISABLED"], "verdict": "DEGRADED"}
+T3  +hibernate=no                      rc=1 {"findings": ["HR-HIBERNATE-DISABLED"], "verdict": "DEGRADED"}
+T4  +hibernate=nocompress              rc=0 {"findings": [], "verdict": "HEALTHY"}
+T5  +hibernate=noresume                rc=1 {"findings": ["HR-NORESUME-ARG"], "verdict": "DEGRADED"}
+T6  +hibernate=noresumeX               rc=1 {"findings": ["HR-NORESUME-ARG"], "verdict": "DEGRADED"}
+T7  +hibernate=nofoobar                rc=1 {"findings": ["HR-HIBERNATE-DISABLED"], "verdict": "DEGRADED"}
+T8  +noresume                          rc=1 {"findings": ["HR-NORESUME-ARG"], "verdict": "DEGRADED"}
+T9  +noresume=1  [L1]                  rc=0 {"findings": [], "verdict": "HEALTHY"}
+T10 +nohibernate=1 [L1]                rc=0 {"findings": [], "verdict": "HEALTHY"}
+T11 +noresumefoo [L1]                  rc=0 {"findings": [], "verdict": "HEALTHY"}
+T12 lockdown [integrity]               rc=1 {"findings": ["HR-LOCKDOWN-BLOCKS"], "verdict": "DEGRADED"}
+T13 lockdown [confidentiality]         rc=1 {"findings": ["HR-LOCKDOWN-BLOCKS"], "verdict": "DEGRADED"}
+T14 lockdown null                      rc=0 {"findings": [], "verdict": "HEALTHY"}
+T15a lockdown 0                        rc=2 {"error": "type:lockdown", "findings": [], "verdict": "CANNOT-EVALUATE"}
+T15b lockdown ["none"]                 rc=2 {"error": "type:lockdown", "findings": [], "verdict": "CANNOT-EVALUATE"}
+T15c lockdown true                     rc=2 {"error": "type:lockdown", "findings": [], "verdict": "CANNOT-EVALUATE"}
+T15d lockdown ""                       rc=2 {"error": "lockdown-selection", "findings": [], "verdict": "CANNOT-EVALUATE"}
+T15e lockdown unbracketed              rc=2 {"error": "lockdown-selection", "findings": [], "verdict": "CANNOT-EVALUATE"}
+T15f lockdown two brackets             rc=2 {"error": "lockdown-selection", "findings": [], "verdict": "CANNOT-EVALUATE"}
+T15g lockdown [none]                   rc=0 {"findings": [], "verdict": "HEALTHY"}
+T15h lockdown key dropped              rc=2 {"error": "missing:lockdown", "findings": [], "verdict": "CANNOT-EVALUATE"}
+T16 resume= empty [L3]                 rc=0 {"findings": [], "verdict": "HEALTHY"}
+T17 no-resume + noresume               rc=1 {"findings": ["HR-NO-RESUME-ARG", "HR-NORESUME-ARG"], "verdict": "DEGRADED"}
+T18 dup resume_offset last wins        rc=0 {"findings": [], "verdict": "HEALTHY"}
+T19 resume_offset=abc                  rc=2 {"error": "resume_offset-not-int", "findings": [], "verdict": "CANNOT-EVALUATE"}
+T20 noresume + no resume= + [integrity] rc=1 {"findings": ["HR-LOCKDOWN-BLOCKS", "HR-NO-RESUME-ARG", "HR-NORESUME-ARG"], "verdict": "DEGRADED"}
+
+=== battery 3x (counting command, cwd lane)
+{"bases": ["host", "random0", "random1", "random2", "random3", "random4"], "cases": 134, "failed_families": [], "families_passed": 20, "families_total": 20, "order_head": ["MULTI-FAULT", "PREC-NO-RESUME-ARG", "HR-LOCKDOWN-BLOCKS", "HR-SYSFS-OFFSET-MISMATCH", "MULTI-FAULT"], "target": 20, "verdict": "met"}
+rc=0
+{"bases": ["host", "random0", "random1", "random2", "random3", "random4"], "cases": 134, "failed_families": [], "families_passed": 20, "families_total": 20, "order_head": ["HR-HIBERNATE-DISABLED", "HR-HIBERNATE-DISABLED", "PREC-NO-RESUME-ARG", "PREC-NOHIB", "MULTI-FAULT"], "target": 20, "verdict": "met"}
+rc=0
+{"bases": ["host", "random0", "random1", "random2", "random3", "random4"], "cases": 134, "failed_families": [], "families_passed": 20, "families_total": 20, "order_head": ["POSITIVE", "PREC-NOHIB", "MULTI-FAULT", "HR-SYSFS-OFFSET-MISMATCH", "HR-LOCKDOWN-BLOCKS"], "target": 20, "verdict": "met"}
+rc=0
+
+=== r84 battery vs v2 gate
+rc=1 verdict unmet families_passed 1 (documented HISTORY ONLY supersession, SKILL.md:5918)
+
+=== live stub runs + real --live
+S absent: rc0 {"findings": [], "verdict": "HEALTHY"}
+S failed-probe: rc2 {"error": "probe-failed", "failed": ["cat /sys/kernel/security/lockdown"], "findings": [], "verdict": "CANNOT-EVALUATE"}
+S exit1: rc2 {"error": "capture-rc1", "findings": [], "verdict": "CANNOT-EVALUATE"}
+S badjson: rc2 {"error": "unreadable:JSONDecodeError", "findings": [], "verdict": "CANNOT-EVALUATE"}
+S5 real --live: rc0 {"findings": [], "verdict": "HEALTHY"}, 0 TMPDIR leftovers
+capture direct: rc0, writes only --out (facts.json lockdown "[none] integrity confidentiality" + receipt.txt)

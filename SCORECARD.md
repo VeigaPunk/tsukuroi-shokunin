@@ -7274,3 +7274,16 @@ fault of a multi-fault case, and keep availability findings when `resume=` is ab
 candidate (each rule deleted or inverted) is attack evidence in the wave, not a predicate change. Operability stays 9:
 a new runnable arm, not an ordinal move. C1 claims no ordinal uplift; depth stays 8 unless the closure endorses one.
 C1 and C2 are causally separable: the battery reads only the gate; the entry is judged on its rows and sources.
+
+## Round 85 — measured outcome (measured at `ffae885fc136596cca400bbed4e8f190693edfc2`; C2 target met with partial discrimination, C1 exploratory pending the closure)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C2 (measured, sourced S343–S345) | operability 9 → 9 | `python3 tools/resume-gate-battery-r85.py --gate tools/check-hibernate-resume.py`: do-nothing candidate (r84 gate, K1) 0/20 at the freeze `66374a4d` → candidate 20/20 `met` rc 0 in three consecutive runs at the landed tip (`.ufo/waves/round-85/after/measured-at-landing.txt`, `after/runs/cand-run{1,2,3}.json`); battery bytes `b30a7c1e…ba21` unchanged; every freeze control K0–K6 re-run at the tip reads 0–14/20 `unmet` | 20/20 ×3 | **met** by the frozen predicate and kill rule. Discrimination is partial and is reported, not smoothed: no candidate-free forger reaches 20/20 (best K6 15/20; MutBattery S2–S8 reach only their feature-removed mutants), every rule-deletion mutant of the candidate dies (MutGate 25/28 killed), but five edge deviations of a full implementation also read 20/20 — exact-token availability (`f1-literal-avail`, re-run by the L1), first `resume_offset=`, `<=` headroom, first-swap-only sums, bool-as-int (`w1/CriticClaims.md` C2(a)), and an accept-`resume-facts/1` gate reads 20/20 in 10/33 runs (`w1/MutBattery.md` F-1). The declaration sentence "a gate that reaches 20/20 must … parse `hibernate=` by the kernel's prefix order" is false (lesson M4, QUALITY 122). The battery certifies the availability arm on its documented tokens, rule-1 change, precedence and multi-fault reporting; it does not certify prefix parsing or the edge semantics. The operator/closure rules on admission. |
+| C1 (exploratory, sourced S343–S345 + S336) | depth 8 → 8 | none (exploratory); entry `corpus/knowledge/hibernation-availability-r85.md` + `.json`, nine rows HA1–HA9, every quote verbatim at its pinned raw lines (L1 check; lane seat ReviewEntry advisory: 7 supports, 1 partial on the HA8 wording, since reworded with ScribeEntry's read-only host measures) | non-author `unprovable-but-better` with reasons | pending the hyaku closure; a wave seat is the lane |
+
+Uncredited repairs at `ffae885f`: r84 entry `source:`/`recheck:` header lines and the non-author wording (r84 routed
+defects 1–2); `tools/check-knowledge-header.py --revision ffae885f` rc 0 (101/101 notes); `tools/check-registry-coverage.py`
+PASS 135/135; `tools/tsukuroi-census.sh --selftest` PASS 218/218 (no harm); sources census exit 0, rows 342 → 345.
+Axes now: depth8, coverage9, operability9, freshness9, calibration9, adjacency8 (unchanged). No capability row enters.
+No retirement. No axis harmed.

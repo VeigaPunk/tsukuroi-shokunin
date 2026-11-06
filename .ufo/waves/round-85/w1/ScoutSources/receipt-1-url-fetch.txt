@@ -1,0 +1,39 @@
+# Receipt 1 — upstream URL re-fetch vs pinned snapshot (2026-11-06)
+## URLS.txt (verbatim)
+kernel_power_hibernate.c https://raw.githubusercontent.com/torvalds/linux/v7.2/kernel/power/hibernate.c
+include_linux_security.h https://raw.githubusercontent.com/torvalds/linux/v7.2/include/linux/security.h
+security_lockdown_lockdown.c https://raw.githubusercontent.com/torvalds/linux/v7.2/security/lockdown/lockdown.c
+Documentation_admin-guide_kernel-parameters.txt https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/admin-guide/kernel-parameters.txt
+fetched 2026-11-06T16:46-03:00 by TsukuroiR85 (curl -sS -L, HTTP 200 each)
+
+## SHA256SUMS (verbatim)
+23b1a690210b6884f040a6b1e5baf1fc18856e844d30d4784470bd210953340c  Documentation_admin-guide_kernel-parameters.txt
+263740c965f34f9363fc8d2a673b0826e27a21376e896ac2ed5b8859f4fecfcf  include_linux_security.h
+ae3dbeb6ae682c3e03b750d45138aa5644a2db04cfc21c70c59446dad0af86c1  kernel_power_hibernate.c
+fec032ce5ae3a85f66db28a4454a819d70abfe5cbbecfe4f1a115276fc04e00a  security_lockdown_lockdown.c
+
+## curl -sS -L -w '%{http_code} %{size_download}' + sha256
+kernel_power_hibernate.c
+  url=https://raw.githubusercontent.com/torvalds/linux/v7.2/kernel/power/hibernate.c
+  curl_rc=0 http_and_bytes=200 35262
+  fetched_sha256=ae3dbeb6ae682c3e03b750d45138aa5644a2db04cfc21c70c59446dad0af86c1
+  expected_sha256=ae3dbeb6ae682c3e03b750d45138aa5644a2db04cfc21c70c59446dad0af86c1
+  verdict=MATCH (byte-identical)
+include_linux_security.h
+  url=https://raw.githubusercontent.com/torvalds/linux/v7.2/include/linux/security.h
+  curl_rc=0 http_and_bytes=200 67333
+  fetched_sha256=263740c965f34f9363fc8d2a673b0826e27a21376e896ac2ed5b8859f4fecfcf
+  expected_sha256=263740c965f34f9363fc8d2a673b0826e27a21376e896ac2ed5b8859f4fecfcf
+  verdict=MATCH (byte-identical)
+security_lockdown_lockdown.c
+  url=https://raw.githubusercontent.com/torvalds/linux/v7.2/security/lockdown/lockdown.c
+  curl_rc=0 http_and_bytes=200 4344
+  fetched_sha256=fec032ce5ae3a85f66db28a4454a819d70abfe5cbbecfe4f1a115276fc04e00a
+  expected_sha256=fec032ce5ae3a85f66db28a4454a819d70abfe5cbbecfe4f1a115276fc04e00a
+  verdict=MATCH (byte-identical)
+Documentation_admin-guide_kernel-parameters.txt
+  url=https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/admin-guide/kernel-parameters.txt
+  curl_rc=0 http_and_bytes=200 317993
+  fetched_sha256=23b1a690210b6884f040a6b1e5baf1fc18856e844d30d4784470bd210953340c
+  expected_sha256=23b1a690210b6884f040a6b1e5baf1fc18856e844d30d4784470bd210953340c
+  verdict=MATCH (byte-identical)

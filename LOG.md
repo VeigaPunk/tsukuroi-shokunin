@@ -3820,3 +3820,32 @@ operative registry, and `f19e73f3` refines those rows to one tool per row with t
 3 lines changed). Neither is credited as a claim.
 
 **Wave.** One v1 wave w1, 12 seats (scout 2, executor 3, mutation-tester 2, reviewer 2, critic 1, connector 1, scribe 1); attack seats 5/12. Results in `.ufo/waves/round-84/w1-results.json`; per-seat reports under `w1/`. Post-wave repairs at landing: `--live` fails closed on a failed probe (ReviewGate F1), HR4/HR9 reworded (ReviewEntry partials), S339/S342 anchors and lesson token counts corrected (ScoutSources D1-D3). Outcome: C1 `unprovable-but-better` by ReviewEntry (8 supports, 2 partial); C2 not verified. Not admitted.
+
+## Round 85 — hibernation availability: gate arm and plane (2026-11-06)
+
+**Fresh-start read.** r82/r83/r84 closures (`rejected-honest-stop` each) and their spot-checks; all three failed on
+instruments that did not discriminate. Answer: freeze the battery with ten candidate-free controls run first.
+
+**Freeze `66374a4d`.** `tools/resume-gate-battery-r85.py` (sha256 `b30a7c1e…ba21`): resume-facts/2 (adds the
+`lockdown` string), 20 families (POSITIVE, MALFORMED, 14 finding IDs, MULTI-FAULT, PREC-NOHIB, PREC-DECOYS,
+PREC-NO-RESUME-ARG), case list shuffled per run with an OS-entropy RNG, host base plus five random bases. Controls
+at freeze: K0 absent 0/20, K1 r84 gate (do-nothing) 0/20, K2 schema shim 13/20, K3a–e r84 forgers 0–13/20, K4
+constant HEALTHY 2/20, K5 v2 order replay 0/20, K6 substring sniffer 14–15/20. Pinned sources: Linux v7.2
+`kernel/power/hibernate.c`, `include/linux/security.h`, `security/lockdown/lockdown.c`, kernel-parameters.txt.
+
+**Candidate `479d868b`.** `tools/check-hibernate-resume.py` gains HR-HIBERNATE-DISABLED, HR-LOCKDOWN-BLOCKS,
+HR-NORESUME-ARG (kernel prefix order for `hibernate=`, `nohibernate` suppresses `noresume`, availability kept when
+`resume=` is absent); `tools/capture-resume-facts-r84.py` writes `lockdown` (absent file → null, rc 0 `absent`).
+
+**Wave w1** (13 seats: scout 2, executor 3, mutation-tester 2, reviewer 2, critic 1, scribe 2, connector 1;
+attack 5/13). Results `.ufo/waves/round-85/w1-results.json`, reports under `w1/`. Findings integrated: C2
+replicated 20/20 ×5 (ExecReplicate) and by a clean-room gate (ExecCleanRoom, 0 candidate-wrong disagreements in
+7200 fuzzed documents); MutGate 25/28 mutants killed (M26–M28 edge survivors); MutBattery F-1 (accept-v1 gate 20/20
+in 10/33 runs); CriticClaims: five edge-deviating gates read 20/20 (lesson M3, M4; QUALITY 122); ReviewGate no
+defect, Limits L1–L4 into the entry; ScoutSources 4/4 sources byte-identical, cited regions identical at v7.2.11.
+
+**Landing `ffae885f`.** Entry `corpus/knowledge/hibernation-availability-r85.md` (HA1–HA9; C1 exploratory), S343–S345
+and the S336 anchor extension, lesson `corpus/lessons/round-85.md` (Gate 3 admits + 3 rejects, M1–M4), QUALITY
+120–122, `tools/check-nonauthor-label-r85.py`, r84 entry header and wording repairs, registry rows. Measured at the
+tip: C2 20/20 ×3, all controls unmet, gate `--live` HEALTHY, knowledge-header gate rc 0, census selftest 218/218.
+Outcome in `SCORECARD.md` "Round 85 — measured outcome".

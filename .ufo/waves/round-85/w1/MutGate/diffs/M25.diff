@@ -1,0 +1,11 @@
+--- a/tools/check-hibernate-resume.py
++++ b/M25.py
+@@ -61,7 +61,7 @@
+ 
+ 
+ def validate(f):
+-    if not isinstance(f, dict) or f.get("schema") != SCHEMA:
++    if not isinstance(f, dict) or f.get("schema") not in (SCHEMA, "resume-facts/1"):
+         raise Malformed("schema")
+     cmdline = need(f, "cmdline", str)
+     swaps = need(f, "swaps", list)

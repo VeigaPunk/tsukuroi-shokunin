@@ -1,0 +1,196 @@
+### $ date --iso-8601=seconds; uname -r
+2026-11-06T17:09:32-03:00
+7.2.11-arch1-1
+rc=0
+
+### $ cat /sys/kernel/security/lockdown
+[none] integrity confidentiality
+rc=0
+
+### $ cat /sys/kernel/security/lsm
+capability,landlock,lockdown,yama,bpfrc=0
+
+### $ ls -l /sys/kernel/security/lockdown
+-rw-r--r-- 1 root root 0 Nov  2 12:07 /sys/kernel/security/lockdown
+rc=0
+
+### $ zcat /proc/config.gz | grep -E "CONFIG_(HIBERNATION|SECURITY_LOCKDOWN_LSM|SECURITY_LOCKDOWN_LSM_EARLY|LOCK_DOWN_KERNEL_FORCE_[A-Z]+|SECRETMEM|CXL_[A-Z_]*|LOCK_DOWN_IN_EFI_SECURE_BOOT)="
+CONFIG_HIBERNATION=y
+CONFIG_SECRETMEM=y
+CONFIG_CXL_BUS=m
+CONFIG_CXL_PCI=m
+CONFIG_CXL_ACPI=m
+CONFIG_CXL_PMEM=m
+CONFIG_CXL_MEM=m
+CONFIG_CXL_FEATURES=y
+CONFIG_CXL_PORT=m
+CONFIG_CXL_SUSPEND=y
+CONFIG_CXL_REGION=y
+CONFIG_CXL_MCE=y
+CONFIG_CXL_RAS=y
+CONFIG_CXL_ATL=y
+CONFIG_CXL_PMU=m
+CONFIG_SECURITY_LOCKDOWN_LSM=y
+CONFIG_LOCK_DOWN_KERNEL_FORCE_NONE=y
+rc=0
+
+### $ grep -E "CONFIG_(HIBERNATION|SECURITY_LOCKDOWN_LSM|SECURITY_LOCKDOWN_LSM_EARLY|LOCK_DOWN_KERNEL_FORCE_[A-Z]+|SECRETMEM|CXL_[A-Z_]*|LOCK_DOWN_IN_EFI_SECURE_BOOT)" /usr/lib/modules/$(uname -r)/build/.config
+CONFIG_HIBERNATION=y
+CONFIG_HIBERNATION_SNAPSHOT_DEV=y
+CONFIG_HIBERNATION_COMP_LZO=y
+# CONFIG_HIBERNATION_COMP_LZ4 is not set
+CONFIG_HIBERNATION_DEF_COMP="lzo"
+CONFIG_SECRETMEM=y
+CONFIG_CXL_BUS=m
+CONFIG_CXL_PCI=m
+# CONFIG_CXL_MEM_RAW_COMMANDS is not set
+CONFIG_CXL_ACPI=m
+CONFIG_CXL_PMEM=m
+CONFIG_CXL_MEM=m
+CONFIG_CXL_FEATURES=y
+CONFIG_CXL_PORT=m
+CONFIG_CXL_SUSPEND=y
+CONFIG_CXL_REGION=y
+# CONFIG_CXL_REGION_INVALIDATION_TEST is not set
+CONFIG_CXL_MCE=y
+CONFIG_CXL_RAS=y
+CONFIG_CXL_ATL=y
+CONFIG_CXL_PMU=m
+CONFIG_SECURITY_LOCKDOWN_LSM=y
+# CONFIG_SECURITY_LOCKDOWN_LSM_EARLY is not set
+CONFIG_LOCK_DOWN_KERNEL_FORCE_NONE=y
+# CONFIG_LOCK_DOWN_KERNEL_FORCE_INTEGRITY is not set
+# CONFIG_LOCK_DOWN_KERNEL_FORCE_CONFIDENTIALITY is not set
+rc=0
+
+### $ od -An -t u1 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c
+   6   0   0   0   0
+rc=0
+
+### $ ls /sys/firmware/efi/efivars/ | grep -iE "lockdown|secureboot"
+SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c
+SecureBootSetup-7b59104a-c00d-4158-87ff-f04d6396a915
+rc=0
+
+### $ ls /sys/bus/cxl/devices
+ls: cannot access '/sys/bus/cxl/devices': No such file or directory
+rc=2
+
+### $ sudo -n grep -l secretmem /proc/[0-9]*/maps 2>/dev/null | wc -l
+0
+rc=0
+
+### $ grep -l secretmem /proc/[0-9]*/maps 2>/dev/null | wc -l
+0
+rc=0
+
+### $ sudo -n true
+rc=0
+
+### $ sudo -n bash -c "ls /proc/[0-9]*/maps 2>/dev/null | wc -l; grep -l \"\" /proc/[0-9]*/maps 2>/dev/null | wc -l"
+6237
+310
+rc=0
+
+### $ cat /proc/cmdline
+resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+rc=0
+
+### $ cat /sys/power/state /sys/power/disk
+freeze mem disk
+[platform] shutdown reboot suspend test_resume
+rc=0
+
+### $ cat /sys/power/resume /sys/power/resume_offset /sys/power/image_size
+253:0
+3795013
+12835467264
+rc=0
+
+### $ journalctl -k -b 0 --no-pager | grep -iE "lockdown|hibernat|PM: " | head -40
+Nov 02 12:07:17 plazir27 kernel: PM: hibernation: Registered nosave memory: [mem 0x00000000-0x00000fff]
+Nov 02 12:07:17 plazir27 kernel: PM: hibernation: Registered nosave memory: [mem 0x000a0000-0x000fffff]
+Nov 02 12:07:17 plazir27 kernel: PM: hibernation: Registered nosave memory: [mem 0x099ff000-0x09ffffff]
+Nov 02 12:07:17 plazir27 kernel: PM: hibernation: Registered nosave memory: [mem 0x0a200000-0x0a21dfff]
+Nov 02 12:07:17 plazir27 kernel: PM: hibernation: Registered nosave memory: [mem 0x0b000000-0x0b020fff]
+Nov 02 12:07:17 plazir27 kernel: PM: hibernation: Registered nosave memory: [mem 0x737a8000-0x73804fff]
+Nov 02 12:07:17 plazir27 kernel: PM: hibernation: Registered nosave memory: [mem 0x76c0e000-0x76c0efff]
+Nov 02 12:07:17 plazir27 kernel: PM: hibernation: Registered nosave memory: [mem 0x7ab7f000-0x99dfefff]
+Nov 02 12:07:17 plazir27 kernel: PM: hibernation: Registered nosave memory: [mem 0x9a6e8000-0x9a6e8fff]
+Nov 02 12:07:17 plazir27 kernel: PM: hibernation: Registered nosave memory: [mem 0x9be80000-0x9be81fff]
+Nov 02 12:07:17 plazir27 kernel: PM: hibernation: Registered nosave memory: [mem 0x9bff7000-0x9bffbfff]
+Nov 02 12:07:17 plazir27 kernel: PM: hibernation: Registered nosave memory: [mem 0x9c000000-0xffffffff]
+Nov 02 12:07:17 plazir27 kernel: ACPI: PM: Registering ACPI NVS region [mem 0x0a200000-0x0a21dfff] (122880 bytes)
+Nov 02 12:07:17 plazir27 kernel: ACPI: PM: Registering ACPI NVS region [mem 0x97cff000-0x99cfefff] (33554432 bytes)
+Nov 02 12:07:17 plazir27 kernel: ACPI: PM: Registering ACPI NVS region [mem 0x9a6e8000-0x9a6e8fff] (4096 bytes)
+Nov 02 12:07:17 plazir27 kernel: ACPI: PM: Registering ACPI NVS region [mem 0x9be80000-0x9be81fff] (8192 bytes)
+Nov 02 12:07:17 plazir27 kernel: PM: RTC time: 15:07:04, date: 2026-11-02
+Nov 02 12:07:17 plazir27 kernel: ACPI: PM: (supports S0 S3 S4 S5)
+Nov 02 12:07:17 plazir27 kernel: clocksource: acpi_pm: mask: 0xffffff max_cycles: 0xffffff, max_idle_ns: 2085701024 ns
+Nov 02 12:07:17 plazir27 kernel: PM:   Magic number: 2:835:132
+Nov 02 12:07:17 plazir27 kernel: PM: genpd: Disabling unused power domains
+Nov 02 12:07:17 plazir27 kernel: PM: Image not found (code -22)
+Nov 02 12:07:17 plazir27 systemd[1]: Clear Stale Hibernate Storage Info skipped, unmet condition check ConditionPathExists=/sys/firmware/efi/efivars/HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67
+rc=0
+
+### $ tr " " "\n" < /proc/cmdline | grep -nE "^(nohibernate|noresume|hibernate=)"
+rc=1
+
+### $ tr " " "\n" < /proc/cmdline | nl
+     1	resume=/dev/mapper/root
+     2	resume_offset=3795013
+     3	quiet
+     4	splash
+     5	loglevel=0
+     6	systemd.show_status=false
+     7	rd.udev.log_level=0
+     8	vt.global_cursor_default=0
+     9	cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue
+    10	root=/dev/mapper/root
+    11	zswap.enabled=1
+    12	zswap.max_pool_percent=25
+    13	rootflags=subvol=@
+    14	rw
+    15	rootfstype=btrfs
+rc=0
+
+### $ ls /sys/bus | tr "\n" " "
+acpi auxiliary cec clockevents clocksource container cpu dax edac event_source faux gpio hdaudio hid i2c isa machinecheck mdio_bus media memory memory_tiering mipi-dsi node nvmem pci pci_express platform pnp regulator scsi serial serial-base serio snd_seq soc spi tee thunderbolt usb usb-serial virtio wmi workqueue xen xen-backend rc=0
+
+### $ lsmod | grep -icE "cxl|secretmem"
+0
+rc=1
+
+### $ ls /sys/module | grep -i cxl
+rc=1
+
+### $ ls /sys/class | grep -i cxl
+rc=1
+
+### $ lspci | grep -iE "cxl|memory controller|non-volatile"
+02:00.0 Non-Volatile memory controller: Sandisk Corp WD PC SN8050S / WD_BLACK SN8100 NVMe SSD
+15:00.0 Non-Volatile memory controller: Sandisk Corp WD PC SN8050S / WD_BLACK SN8100 NVMe SSD
+rc=0
+
+### $ zcat /proc/config.gz | grep -E "CONFIG_(STRICT_KERNEL_RWX|CXL_SUSPEND|CXL_MEM|CXL_BUS|DYNAMIC_DEBUG|DEBUG_KERNEL)="
+CONFIG_STRICT_KERNEL_RWX=y
+CONFIG_CXL_BUS=m
+CONFIG_CXL_MEM=m
+CONFIG_CXL_SUSPEND=y
+CONFIG_DYNAMIC_DEBUG=y
+CONFIG_DEBUG_KERNEL=y
+rc=0
+
+### $ cat /proc/sys/kernel/printk
+0	4	1	4
+rc=0
+
+### $ stat -c "%n mtime=%y size=%s mode=%A owner=%U" /sys/kernel/security/lockdown
+/sys/kernel/security/lockdown mtime=2026-11-02 12:07:03.132000000 -0300 size=0 mode=-rw-r--r-- owner=root
+rc=0
+
+### $ cat /proc/swaps
+Filename				Type		Size		Used		Priority
+/swap/swapfile                          file		31722876	12866280	0
+rc=0
+
